@@ -634,6 +634,7 @@ def build_section_liquid(webhook_url):
     background: #f9f9f9;
     border-radius: 12px;
   }}
+
 </style>
 
 <div class="igf-container" id="igf-app">
@@ -667,7 +668,7 @@ def build_section_liquid(webhook_url):
         <span class="igf-phone-prefix">+1</span>
         <input type="tel" id="igf-phone" required placeholder="(555) 123-4567">
       </div>
-      <div class="igf-error">Please enter a valid phone number</div>
+      <div class="igf-error">US phone number only (10 digits)</div>
     </div>
     <div class="igf-field">
       <label for="igf-instagram">Instagram Handle</label>
@@ -681,7 +682,7 @@ def build_section_liquid(webhook_url):
     </div>
 
     <div class="igf-btn-row">
-      <button type="button" class="igf-btn igf-btn-primary" onclick="IGF.goToStep(2)">Next</button>
+      <button type="button" class="igf-btn igf-btn-primary" data-go="2">Next</button>
     </div>
   </div>
 
@@ -699,7 +700,7 @@ def build_section_liquid(webhook_url):
 
     <div class="igf-field">
       <label class="igf-toggle-label">
-        <input type="checkbox" id="igf-has-baby2" onchange="IGF.toggleBaby2()">
+        <input type="checkbox" id="igf-has-baby2">
         <span>I have another child</span>
       </label>
     </div>
@@ -711,8 +712,8 @@ def build_section_liquid(webhook_url):
     </div>
 
     <div class="igf-btn-row">
-      <button type="button" class="igf-btn igf-btn-secondary" onclick="IGF.goToStep(1)">Back</button>
-      <button type="button" class="igf-btn igf-btn-primary" onclick="IGF.goToStep(3)">Next</button>
+      <button type="button" class="igf-btn igf-btn-secondary" data-go="1">Back</button>
+      <button type="button" class="igf-btn igf-btn-primary" data-go="3">Next</button>
     </div>
   </div>
 
@@ -723,8 +724,8 @@ def build_section_liquid(webhook_url):
     <div class="igf-product-grid" id="igf-products"></div>
 
     <div class="igf-btn-row">
-      <button type="button" class="igf-btn igf-btn-secondary" onclick="IGF.goToStep(2)">Back</button>
-      <button type="button" class="igf-btn igf-btn-primary" onclick="IGF.goToStep(4)">Next</button>
+      <button type="button" class="igf-btn igf-btn-secondary" data-go="2">Back</button>
+      <button type="button" class="igf-btn igf-btn-primary" data-go="4">Next</button>
     </div>
   </div>
 
@@ -770,8 +771,8 @@ def build_section_liquid(webhook_url):
     </div>
 
     <div class="igf-btn-row">
-      <button type="button" class="igf-btn igf-btn-secondary" onclick="IGF.goToStep(3)">Back</button>
-      <button type="button" class="igf-btn igf-btn-primary" onclick="IGF.goToStep(5)">Next</button>
+      <button type="button" class="igf-btn igf-btn-secondary" data-go="3">Back</button>
+      <button type="button" class="igf-btn igf-btn-primary" data-go="5">Next</button>
     </div>
   </div>
 
@@ -791,8 +792,8 @@ def build_section_liquid(webhook_url):
     </div>
 
     <div class="igf-btn-row">
-      <button type="button" class="igf-btn igf-btn-secondary" onclick="IGF.goToStep(4)">Back</button>
-      <button type="button" class="igf-btn igf-btn-primary" id="igf-submit-btn" onclick="IGF.submit()">
+      <button type="button" class="igf-btn igf-btn-secondary" data-go="4">Back</button>
+      <button type="button" class="igf-btn igf-btn-primary" id="igf-submit-btn">
         Submit Application
       </button>
     </div>
@@ -1026,7 +1027,7 @@ def build_section_liquid(webhook_url):
     if (step === 1) {{
       check("igf-name", document.getElementById("igf-name").value.trim().length > 0);
       check("igf-email", /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(document.getElementById("igf-email").value));
-      check("igf-phone", document.getElementById("igf-phone").value.trim().length >= 7);
+      check("igf-phone", /^\d{{10}}$/.test(document.getElementById("igf-phone").value.replace(/\\D/g, "")));
     }}
     if (step === 2) {{
       check("igf-baby1-bday", document.getElementById("igf-baby1-bday").value !== "");
@@ -1132,7 +1133,7 @@ def build_section_liquid(webhook_url):
     if (!show) document.getElementById("igf-baby2-bday").value = "";
   }}
 
-  // ── Customer Pre-fill ────────────────────────────────
+  // ── Customer Pre-fill (Shopify logged-in) ────────────
   function prefillCustomer() {{
     const el = document.getElementById("igf-customer-data");
     if (!el) return;
@@ -1141,20 +1142,25 @@ def build_section_liquid(webhook_url):
     window.__igf_customer = c;
     if (c.name) document.getElementById("igf-name").value = c.name;
     if (c.email) document.getElementById("igf-email").value = c.email;
-    if (c.phone) {{
-      const phone = c.phone.replace(/^\\+1/, "");
-      document.getElementById("igf-phone").value = phone;
-    }}
   }}
 
   // ── Date Input Listeners ─────────────────────────────
   document.getElementById("igf-baby1-bday").addEventListener("change", updateAgeDisplay);
   document.getElementById("igf-baby2-bday").addEventListener("change", updateAgeDisplay);
 
+  // ── Button Event Listeners (CSP-safe) ─────────────────
+  document.getElementById("igf-submit-btn").addEventListener("click", submit);
+  document.getElementById("igf-has-baby2").addEventListener("change", toggleBaby2);
+
+  document.querySelectorAll("[data-go]").forEach(function(btn) {{
+    btn.addEventListener("click", function() {{
+      goToStep(parseInt(this.dataset.go));
+    }});
+  }});
+
   // ── Init ─────────────────────────────────────────────
   prefillCustomer();
 
-  // Expose public API
   window.IGF = {{ goToStep, submit, toggleBaby2 }};
 }})();
 </script>

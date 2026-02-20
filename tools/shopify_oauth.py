@@ -19,8 +19,8 @@ load_dotenv()
 CLIENT_ID = os.getenv("SHOPIFY_CLIENT_ID", "d35ab8420b01d73924735d2ab58e1d45")
 CLIENT_SECRET = os.getenv("SHOPIFY_CLIENT_SECRET", "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")
 SHOP = os.getenv("SHOPIFY_SHOP", "mytoddie.myshopify.com")
-REDIRECT_URI = "http://localhost:3000/callback"
-SCOPES = "read_orders,read_products,read_customers,read_inventory,write_themes,write_content,write_draft_orders"
+REDIRECT_URI = "http://localhost:3456/callback"
+SCOPES = "read_orders,read_all_orders,read_products,read_customers,write_customers,read_inventory,write_themes,write_content,write_draft_orders"
 
 STATE = "shopify_oauth_ok"
 received_token = {}
@@ -134,9 +134,9 @@ def main():
     print(f"   Scopes: {SCOPES}")
     print(f"\n[URL] Open this URL in browser:\n")
     print(f"  {auth_url}\n")
-    print(f"Waiting for callback on localhost:3000 ...\n")
+    print(f"Waiting for callback on localhost:3456 ...\n")
 
-    server = HTTPServer(("localhost", 3000), CallbackHandler)
+    server = HTTPServer(("localhost", 3456), CallbackHandler)
     server.token_received = False
 
     while not server.token_received:
