@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "polar-analytics": {
+      "type": "http",
+      "url": "https://api.polaranalytics.com/mcp",
+      "headers": {
+        "x-api-key": "${POLAR_API_KEY}"
+      }
+    }
+  }
+}

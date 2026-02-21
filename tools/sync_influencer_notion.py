@@ -71,8 +71,16 @@ BRAND_TAB_MAP = {
     "Grosmimi": "Grosmimi",
     "CHA&MOM": "CHA&MOM",
     "Baby Rabbit": "Baby Rabbit",
+    "BabyRabbit": "Baby Rabbit",
     "Naeiae": "Naeiae",
+    "Alpremio": "Alpremio",
+    "Commemoi": "Commemoi",
+    "Beemymagic": "Beemymagic",
+    "Onzenna": "Onzenna",
 }
+
+# Tabs to skip (aggregate / shared tabs, not individual brand campaigns)
+SKIP_TABS = {"JS(All)", "(All) 공유용"}
 
 # Stage mapping: Google Sheets Status -> Notion Stage
 STAGE_MAP = {
@@ -376,6 +384,12 @@ def read_brand_tabs(gc):
             continue  # Skip Master DB
 
         tab_name = ws.title.strip()
+
+        # Skip aggregate/shared tabs
+        if tab_name in SKIP_TABS:
+            print(f"  Skipping tab '{tab_name}' (aggregate/shared)")
+            continue
+
         # Detect brand from tab name
         brand = None
         for brand_key in BRAND_TAB_MAP:
@@ -491,8 +505,9 @@ def earlier_date(date1, date2):
 def merge_data(master_rows, brand_tabs_data):
     """
     Merge Master DB and brand tab data.
-    Each brand tab row becomes a Notion page.
-    Master DB enriches with Full Name and Date Discovered.
+    Aggregates all campaigns per Creator ID into one record.
+    Multi-select fields (Brand, Platform, Product) accumulate across campaigns.
+    Single-value fields (Fee, Stage, Content Link) use the latest campaign.
     """
     # Build Master DB lookup by Creator ID
     master_lookup = {}
@@ -501,92 +516,137 @@ def merge_data(master_rows, brand_tabs_data):
         if cid:
             master_lookup[cid] = row
 
-    # Count Creator ID appearances across all brand tabs for collaboration count
-    creator_id_counts = defaultdict(int)
-    all_brand_rows = []
+    # Also build Master DB lookup by social handle (for brand tab matching)
+    master_by_handle = {}
+    for row in master_rows:
+        for key in ["Instagram:@ID (link)", "@ID (link)", "Tiktok:@ID (link)", "YouTube:@ID (link)"]:
+            val = row.get(key, "")
+            if val and val.strip():
+                handle = val.strip().lstrip("@").lower()
+                master_by_handle[handle] = row
+                break
+
+    # Group brand tab rows by Creator ID (which is the handle in brand tabs)
+    creator_campaigns = defaultdict(list)
     for brand, headers, rows in brand_tabs_data:
         for row in rows:
             cid = find_column(row, ["Creator ID", "Creator", "ID"])
             if cid:
-                creator_id_counts[cid] += 1
-                all_brand_rows.append(row)
+                creator_campaigns[cid].append(row)
 
-    # Build merged records
+    # Build merged records (one per creator)
     merged = []
-    for brand, headers, rows in brand_tabs_data:
-        for row in rows:
-            cid = find_column(row, ["Creator ID", "Creator", "ID"])
-            if not cid:
-                continue
+    for cid, campaigns in creator_campaigns.items():
+        # Try matching master by: Internal ID (C-xxx), Creator ID (handle), or handle lookup
+        internal_id = find_column(campaigns[0], ["Internal ID"])
+        master = master_lookup.get(internal_id) or master_lookup.get(cid) or master_by_handle.get(cid.lower(), {})
 
-            master = master_lookup.get(cid, {})
+        # Accumulate multi-select fields across all campaigns
+        all_brands = set()
+        all_platforms = set()
+        all_products = set()
+        all_fees = []
+        earliest_flight = None
+        latest_posted_date = None
+        latest_content_link = ""
+        latest_stage = ""
+        latest_pic = ""
 
-            # Build merged record
-            record = {
-                "creator_id": cid,
-                "full_name": master.get("Full Name", ""),
-                "brand": row.get("_brand", ""),
-                "tab_name": row.get("_tab", ""),
-            }
-
-            # Outreach Date: earlier of Date Discovered and Flight Period
-            date_discovered = parse_date(master.get("Date Discovered", ""))
-            flight_period = parse_date(find_column(row, ["Flight Period", "Flight", "Period"]))
-            record["outreach_date"] = earlier_date(date_discovered, flight_period)
+        for row in campaigns:
+            # Brand
+            brand_val = row.get("_brand", "")
+            if brand_val:
+                all_brands.add(brand_val)
 
             # Platform
             platform = find_column(row, ["Platform", "Platforms"])
-            record["platform"] = [p.strip() for p in platform.split(",") if p.strip()] if platform else []
+            if platform:
+                for p in platform.split(","):
+                    if p.strip():
+                        all_platforms.add(p.strip())
 
-            # Deliverable Type -> add "Story" to platform if applicable
+            # Deliverable Type -> add "Story"
             deliverable = find_column(row, ["Deliverable Type", "Deliverable", "Type"])
-            if deliverable and "story" in deliverable.lower() and "Story" not in record["platform"]:
-                record["platform"].append("Story")
+            if deliverable and "story" in deliverable.lower():
+                all_platforms.add("Story")
 
             # Product
             product = find_column(row, ["Product", "Products"])
-            record["product"] = [p.strip() for p in product.split(",") if p.strip()] if product else []
+            if product:
+                for p in product.split(","):
+                    if p.strip():
+                        all_products.add(p.strip())
 
-            # PIC -> Owner
-            record["pic"] = find_column(row, ["PIC", "Person In Charge"])
-
-            # Status -> Stage
-            status = find_column(row, ["Status", "Campaign Status"])
-            record["stage"] = STAGE_MAP.get(status.lower().strip(), "") if status else ""
-
-            # Actual Upload -> Deadline / Posted Date
-            actual_upload = find_column(row, ["Actual Upload", "Upload Date", "Actual Upload Date"])
-            record["posted_date"] = parse_date(actual_upload)
-
-            # Content 1 -> Posted Content Link
-            record["content_link"] = find_column(row, ["Content 1", "Content Link", "Content URL"])
-
-            # Fee -> Content Rate & Total Paid Amount
+            # Fee
             fee = find_column(row, ["Fee", "Rate", "Payment"])
-            record["fee"] = parse_fee(fee)
+            parsed_fee = parse_fee(fee)
+            if parsed_fee:
+                all_fees.append(parsed_fee)
 
-            # Collaboration Count
-            count = creator_id_counts.get(cid, 1)
-            if count >= 4:
-                record["collab_count"] = "4th+ time"
-            else:
-                record["collab_count"] = COLLAB_COUNT_MAP.get(count, "1st time")
+            # Flight Period -> track earliest
+            flight = parse_date(find_column(row, ["Flight Period", "Flight", "Period"]))
+            if flight:
+                earliest_flight = earlier_date(earliest_flight, flight)
 
-            # Notes (Recent Rate from Master DB)
-            record["notes"] = master.get("Recent Rate", "")
+            # Actual Upload -> track latest for posted date, content link, stage
+            actual_upload = find_column(row, ["Actual Upload", "Upload Date", "Actual Upload Date"])
+            posted = parse_date(actual_upload)
+            if posted:
+                if not latest_posted_date or posted > latest_posted_date:
+                    latest_posted_date = posted
+                    latest_content_link = find_column(row, ["Content 1", "Content Link", "Content URL"])
+                    status = find_column(row, ["Status", "Campaign Status"])
+                    latest_stage = STAGE_MAP.get(status.lower().strip(), "") if status else ""
+                    latest_pic = find_column(row, ["PIC", "Person In Charge"])
 
-            # Creator handle (from Master DB social IDs — prefer Instagram, then TikTok)
-            handle = ""
-            for key in ["Instagram:@ID (link)", "@ID (link)", "Tiktok:@ID (link)", "YouTube:@ID (link)"]:
-                val = master.get(key, "")
-                if val and val.strip():
-                    handle = val.strip().lstrip("@")
-                    break
-            if not handle:
-                handle = cid  # Fallback to Creator ID
-            record["handle"] = handle
+        # Fallback: use last campaign row for stage/content/pic if no dated campaigns
+        if not latest_stage:
+            status = find_column(campaigns[-1], ["Status", "Campaign Status"])
+            latest_stage = STAGE_MAP.get(status.lower().strip(), "") if status else ""
+        if not latest_content_link:
+            latest_content_link = find_column(campaigns[-1], ["Content 1", "Content Link", "Content URL"])
+        if not latest_pic:
+            latest_pic = find_column(campaigns[-1], ["PIC", "Person In Charge"])
 
-            merged.append(record)
+        # Outreach Date: earlier of Date Discovered and earliest Flight Period
+        date_discovered = parse_date(master.get("Date Discovered", ""))
+        outreach = earlier_date(date_discovered, earliest_flight)
+
+        # Creator handle (from Master DB social IDs)
+        handle = ""
+        for key in ["Instagram:@ID (link)", "@ID (link)", "Tiktok:@ID (link)", "YouTube:@ID (link)"]:
+            val = master.get(key, "")
+            if val and val.strip():
+                handle = val.strip().lstrip("@")
+                break
+        if not handle:
+            handle = cid
+
+        # Collaboration Count
+        count = len(campaigns)
+        if count >= 4:
+            collab = "4th+ time"
+        else:
+            collab = COLLAB_COUNT_MAP.get(count, "1st time")
+
+        record = {
+            "creator_id": cid,
+            "full_name": master.get("Full Name", ""),
+            "handle": handle,
+            "brand": sorted(all_brands),
+            "outreach_date": outreach,
+            "platform": sorted(all_platforms),
+            "product": sorted(all_products),
+            "pic": latest_pic,
+            "stage": latest_stage,
+            "posted_date": latest_posted_date,
+            "content_link": latest_content_link,
+            "fee": sum(all_fees) if all_fees else None,
+            "collab_count": collab,
+            "notes": master.get("Recent Rate", ""),
+        }
+
+        merged.append(record)
 
     return merged
 
@@ -661,9 +721,12 @@ def build_notion_properties(record, user_map=None):
     if record.get("outreach_date"):
         props["Outreach Date"] = {"date": {"start": record["outreach_date"]}}
 
-    # Brand
-    if record.get("brand"):
-        props["Brand"] = {"multi_select": [{"name": record["brand"]}]}
+    # Brand (list of brand names)
+    brands = record.get("brand", [])
+    if isinstance(brands, str):
+        brands = [brands] if brands else []
+    if brands:
+        props["Brand"] = {"multi_select": [{"name": b} for b in brands]}
 
     # Platform
     if record.get("platform"):
@@ -753,9 +816,19 @@ def match_records(merged_records, notion_pages):
             del notion_lookup[title_lower]
             continue
 
-        # Try handle match (handle appears in Notion title)
+        # Try handle-at-start match (Notion title = "handle - Full Name")
         found = False
-        if handle_lower and handle_lower != record.get("creator_id", "").lower():
+        if handle_lower:
+            for notion_title, notion_data in list(notion_lookup.items()):
+                notion_handle = notion_title.split(" - ")[0].strip()
+                if handle_lower == notion_handle:
+                    to_update.append((record, notion_data["_page_id"]))
+                    del notion_lookup[notion_title]
+                    found = True
+                    break
+
+        # Try handle as substring in Notion title (for brand tabs using full names as Creator ID)
+        if not found and handle_lower and len(handle_lower) > 5:
             for notion_title, notion_data in list(notion_lookup.items()):
                 if handle_lower in notion_title:
                     to_update.append((record, notion_data["_page_id"]))
@@ -865,11 +938,14 @@ def write_sync_report(to_create, to_update, orphans, errors, dry_run=False):
     for row in ws_create[1]:
         row.font = Font(bold=True)
     for rec in to_create:
+        brand = rec.get("brand", "")
+        if isinstance(brand, list):
+            brand = ", ".join(brand)
         ws_create.append([
             rec.get("creator_id", ""),
             rec.get("handle", ""),
             rec.get("full_name", ""),
-            rec.get("brand", ""),
+            brand,
             rec.get("stage", ""),
             rec.get("fee", ""),
         ])
@@ -880,11 +956,14 @@ def write_sync_report(to_create, to_update, orphans, errors, dry_run=False):
     for row in ws_update[1]:
         row.font = Font(bold=True)
     for rec, page_id in to_update:
+        brand = rec.get("brand", "")
+        if isinstance(brand, list):
+            brand = ", ".join(brand)
         ws_update.append([
             rec.get("creator_id", ""),
             rec.get("handle", ""),
             rec.get("full_name", ""),
-            rec.get("brand", ""),
+            brand,
             rec.get("stage", ""),
             rec.get("fee", ""),
         ])

@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(firecrawl --status:*)",
+      "Bash(firecrawl login:*)",
+      "Bash(powershell -Command \"Get-ChildItem ''C:\\\\Users\\\\wjcho\\\\AppData\\\\Roaming\\\\Claude\\\\'' -ErrorAction SilentlyContinue | Select-Object Name\")",
+      "Bash(powershell -Command:*)",
+      "Bash(npx:*)",
+      "Read(//c/Users/wjcho/.claude/**)",
+      "Bash(pip install:*)",
+      "Bash(cmd.exe /c \"python --version\")",
+      "Bash(cmd.exe /c \"py --version\")",
+      "Bash(cmd.exe /c \"where python\")",
+      "Bash(cmd.exe /c \"where py\")",
+      "Bash(node -e \"const {execSync} = require\\(''child_process''\\); try { const files = execSync\\(''dir \"\"C:\\\\\\\\Users\\\\\\\\wjcho\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Microsoft\\\\\\\\WindowsApps\"\" /b''\\).toString\\(\\); console.log\\(files.split\\(''\\\\r\\\\n''\\).filter\\(f => f.toLowerCase\\(\\).includes\\(''python''\\)\\).join\\(''\\\\n''\\) || ''no python files''\\); } catch\\(e\\) { console.log\\(''error: '' + e.message\\); }\")"
+    ]
+  }
+}

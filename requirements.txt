@@ -1,0 +1,11 @@
+python-dotenv
+requests
+anthropic
+openpyxl
+
+# Google integrations (uncomment as needed)
+# google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
+# gspread
