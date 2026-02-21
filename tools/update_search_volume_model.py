@@ -175,6 +175,8 @@ def run(dry_run=False):
     # ── Update Section 2 header — DataForSEO Amazon ───────────────────────────
     ws.cell(row=AMAZON_HEADER_ROW, column=1).value = (
         "AMAZON SEARCH VOLUME — Source: DataForSEO Amazon API  |  Current Snapshot (no monthly breakdown)  |  US"
+        "  |  ✦ 전체 시장 수요: 아마존에서 이 키워드를 검색한 총 횟수 (우리 제품 여부 무관)"
+        "  |  ✦ Total Market Demand: All searches on Amazon for this keyword (regardless of which product they viewed)"
     )
     ws.merge_cells(start_row=AMAZON_HEADER_ROW, start_column=1,
                    end_row=AMAZON_HEADER_ROW, end_column=last_col)
@@ -193,7 +195,9 @@ def run(dry_run=False):
     gsc_header_cell = ws.cell(row=GSC_HEADER_ROW, column=1)
     gsc_header_cell.value = (
         "GOOGLE SEARCH CONSOLE IMPRESSIONS — Source: GSC zezebaebae.com  |  Monthly Absolute  |  Jan 2024 – Feb 2026"
-        "  |  ※ Impressions = times our pages appeared in Google results for this query (NOT total market demand)"
+        "  |  ✦ 우리 사이트 노출량: 구글 검색 결과에 '우리 페이지'가 표시된 횟수 (전체 시장 수요 아님)"
+        "  |  ✦ OUR SITE Exposure Only: Times OUR pages appeared in Google Search results for this keyword"
+        "  |  ※ NOT total market demand — only reflects zezebaebae.com visibility in Google Search"
     )
     ws.merge_cells(start_row=GSC_HEADER_ROW, start_column=1,
                    end_row=GSC_HEADER_ROW, end_column=last_col)
