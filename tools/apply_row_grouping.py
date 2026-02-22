@@ -23,9 +23,10 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 import openpyxl
 from openpyxl.worksheet.properties import Outline
 
-BASE       = os.path.dirname(os.path.dirname(__file__))
-EXCEL_PATH = os.path.join(BASE, "Data Storage", "Polar data", "Polar_Financial_Model_new.xlsx")
-EXCEL_COPY = os.path.join(BASE, "Data Storage", "Polar_Financial_Model_new.xlsx")
+from output_utils import get_latest_file, get_output_path
+EXCEL_PATH = get_latest_file("polar", "financial_model")
+if not EXCEL_PATH:
+    raise FileNotFoundError("No financial_model file found in Data Storage/polar/")
 
 
 # ── Color constants ────────────────────────────────────────────────────────────
@@ -164,17 +165,11 @@ def run():
     else:
         print("  ⚠ 'Campaign Details' sheet not found")
 
-    # Save
-    ts = datetime.now().strftime("%Y-%m-%d_%H%M")
-    out_ts = EXCEL_PATH.replace(".xlsx", f"_grouped_{ts}.xlsx")
-    wb.save(out_ts)
-    print(f"\n✓ Saved (timestamped): {out_ts}")
-    wb.save(EXCEL_PATH)
-    print(f"✓ Overwritten (Polar data): {EXCEL_PATH}")
-    if os.path.exists(EXCEL_COPY):
-        wb.save(EXCEL_COPY)
-        print(f"✓ Overwritten (Data Storage): {EXCEL_COPY}")
-    print("\nDone. Row grouping applied — column groupings cleared.")
+    # Save as new version
+    out_path = get_output_path("polar", "financial_model")
+    wb.save(out_path)
+    print(f"\n✓ Saved: {out_path}")
+    print("Done. Row grouping applied — column groupings cleared.")
 
 
 if __name__ == "__main__":

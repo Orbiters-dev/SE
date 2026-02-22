@@ -13,7 +13,8 @@ from openpyxl.utils import get_column_letter
 DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(DIR, "..")
 DATA = os.path.join(ROOT, ".tmp", "polar_data")
-OUT = os.path.join(ROOT, "Data Storage", "Polar data", "Polar_Financial_Model.xlsx")
+from output_utils import get_output_path
+OUT = get_output_path("polar", "financial_model")
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
@@ -27,6 +28,30 @@ MANUAL_INF_PAYMENTS = [
     {"payer_name": "Ehwa Lindsay",              "date": "2025-07-22", "amount":  -100.00},
     {"payer_name": "Ehwa Lindsay",              "date": "2025-07-17", "amount":  -100.00},
     {"payer_name": "Jessica Lim",               "date": "2025-01-21", "amount":  -500.00},
+]
+
+# ── Promo Events for Promo Analysis tab ────────────────────────────────────
+# Each event: name, start/end dates, discount codes (case-insensitive),
+# offered_discount_pct (advertised %), notes.
+# Applied discount rate is computed from data (discounts / gross_sales).
+PROMO_EVENTS = [
+    {"name": "New Year / MLK 2024",       "start": "2024-01-08", "end": "2024-01-21", "codes": [], "offered_pct": None},
+    {"name": "Valentine's / Seol-Nal 2024","start": "2024-02-05", "end": "2024-02-18", "codes": [], "offered_pct": None},
+    {"name": "Easter 2024",                "start": "2024-03-13", "end": "2024-03-31", "codes": [], "offered_pct": None},
+    {"name": "Memorial Day 2024",          "start": "2024-05-20", "end": "2024-05-27", "codes": ["abc15"], "offered_pct": 15},
+    {"name": "4th of July 2024",           "start": "2024-06-28", "end": "2024-07-07", "codes": ["FIREWORK20"], "offered_pct": 15},
+    {"name": "Prime Day 2024",             "start": "2024-07-15", "end": "2024-07-17", "codes": ["PRIMEDAY"], "offered_pct": 18},
+    {"name": "Back to School / Labor Day 2024", "start": "2024-08-06", "end": "2024-09-02", "codes": [], "offered_pct": None},
+    {"name": "Friends & Family 2024",      "start": "2024-09-25", "end": "2024-10-01", "codes": [], "offered_pct": None},
+    {"name": "BFCM 2024",                  "start": "2024-11-22", "end": "2024-12-02", "codes": ["THANKFUL"], "offered_pct": 15},
+    {"name": "Lunar New Year 2025",        "start": "2025-01-20", "end": "2025-01-31", "codes": ["FULLMOON"], "offered_pct": 15},
+    {"name": "Valentine's 2025",           "start": "2025-02-07", "end": "2025-02-16", "codes": [], "offered_pct": None},
+    {"name": "Memorial Day 2025",          "start": "2025-05-19", "end": "2025-05-26", "codes": [], "offered_pct": None},
+    {"name": "4th of July 2025",           "start": "2025-06-28", "end": "2025-07-08", "codes": [], "offered_pct": None},
+    {"name": "10th Anniversary 2025",      "start": "2025-10-20", "end": "2025-10-31", "codes": [], "offered_pct": None},
+    {"name": "BFCM 2025",                  "start": "2025-11-20", "end": "2025-12-02", "codes": [], "offered_pct": None},
+    {"name": "New Year 2026",              "start": "2026-01-01", "end": "2026-01-07", "codes": ["NEW10"], "offered_pct": 10},
+    {"name": "Valentine's 2026",           "start": "2026-02-10", "end": "2026-02-18", "codes": ["LoveCare"], "offered_pct": None},
 ]
 
 BRANDS = [
@@ -456,6 +481,11 @@ def write_sections(ws, start_row, flat_nodes, months, ytd_months, configs, level
                 _style_row(ws, node_row, total_cols, fill=LLGRAY, font=BF)
             else:
                 _style_row(ws, node_row, total_cols, fill=None, font=NF)
+
+            # Row grouping: level 1+ collapsed by default
+            if node.level >= 1:
+                ws.row_dimensions[node_row].outlineLevel = node.level
+                ws.row_dimensions[node_row].hidden = True
 
             rf = Font(bold=True, color="FFFFFF", size=9) if node.level == 0 else (BF if node.level == 1 else NF)
             cell.font = rf
@@ -1137,6 +1167,41 @@ def preprocess():
     except FileNotFoundError:
         pass
 
+    # ── Promo analysis data (optional) ──
+    promo_data = {}
+    _promo_files = {
+        "shopify": "q13a_shopify_d2c_daily.json",
+        "ga4": "q13b_ga4_daily.json",
+        "ga4_ch": "q13b_ga4_by_channel_daily.json",
+        "meta": "q13c_meta_ads_daily.json",
+        "google": "q13d_google_ads_daily.json",
+        "klaviyo": "q13e_klaviyo_campaigns_daily.json",
+    }
+    for key, fname in _promo_files.items():
+        path = os.path.join(DATA, fname)
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as f:
+                promo_data[key] = json.load(f)["tableData"]
+    if promo_data:
+        print(f"  Promo data loaded: {', '.join(promo_data.keys())}")
+
+    # ── Klaviyo email dashboard data (optional) ──
+    kl_flows = None
+    kl_camps = None
+    kl1_path = os.path.join(DATA, "kl1_flow_monthly.json")
+    kl2_path = os.path.join(DATA, "kl2_campaign_monthly.json")
+    if os.path.exists(kl1_path) and os.path.exists(kl2_path):
+        import sys
+        if DIR not in sys.path:
+            sys.path.insert(0, DIR)
+        try:
+            import klaviyo_email_dashboard as _kled
+            kl_flows = _kled.process_flows()
+            kl_camps = _kled.process_campaigns()
+            print(f"  Klaviyo: {len(kl_flows)} flows, {len(kl_camps)} campaigns")
+        except Exception as e:
+            print(f"  Klaviyo data loading failed: {e}")
+
     return {
         "rev_cbp": dict(rev_cbp), "rev_bp": dict(rev_bp), "rev_p": dict(rev_p),
         "rev_cb": dict(rev_cb),
@@ -1159,6 +1224,9 @@ def preprocess():
         "camp_window": camp_window, "ad_pivot_window": ad_pivot_window,
         "rev_window": rev_window, "org_window": org_window,
         "search_vol": search_vol,
+        "promo_data": promo_data,
+        "kl_flows": kl_flows,
+        "kl_camps": kl_camps,
     }
 
 
@@ -1168,7 +1236,7 @@ def preprocess():
 
 def build_revenue(wb, D):
     """Single Revenue tab with 3 sub-sections: 1A (Ch x Brand x Prod), 1B (Brand x Prod), 1C (Prod)."""
-    ws = wb.create_sheet("Revenue")
+    ws = wb.create_sheet("Sales")
     ws.sheet_properties.tabColor = "002060"
     months = D["months"]
     ytd_months = D["ytd_months"]
@@ -1213,13 +1281,9 @@ def build_revenue(wb, D):
 
     # Column widths
     _set_col_widths(ws, total_cols, months, level_headers_3)
-    # Column grouping: collapse/expand hierarchy levels
-    ws.sheet_properties.outlinePr.summaryRight = False
-    ws.column_dimensions['C'].outlineLevel = 1
-    ws.column_dimensions['D'].outlineLevel = 2
     ws.freeze_panes = "E3"
 
-    print(f"  Revenue: {row} rows, {total_cols} cols")
+    print(f"  Sales: {row} rows, {total_cols} cols")
     return sec_map_1a, flat_1a
 
 
@@ -1329,9 +1393,6 @@ def build_ads(wb, D):
     row += 1
 
     _set_col_widths(ws, total_cols, months, lh_3)
-    ws.sheet_properties.outlinePr.summaryRight = False
-    ws.column_dimensions['C'].outlineLevel = 1
-    ws.column_dimensions['D'].outlineLevel = 2
     ws.freeze_panes = "E3"
 
     print(f"  Ads: {row} rows")
@@ -1345,7 +1406,7 @@ def build_vintage(wb, D):
     """Campaign Details tab: Platform x Brand x Vintage Month x Campaign [Type].
     4-level hierarchy showing campaign cohort analysis by first month of spend.
     """
-    ws = wb.create_sheet("Campaign Details")
+    ws = wb.create_sheet("ADS Campaign Details")
     ws.sheet_properties.tabColor = "7030A0"
     months = D["months"]
     ytd_months = D["ytd_months"]
@@ -1454,12 +1515,8 @@ def build_vintage(wb, D):
         else:
             ws.column_dimensions[cl].width = 12
 
-    ws.sheet_properties.outlinePr.summaryRight = False
-    ws.column_dimensions['C'].outlineLevel = 1
-    ws.column_dimensions['D'].outlineLevel = 2
-    ws.column_dimensions['E'].outlineLevel = 3
     ws.freeze_panes = "F3"
-    print(f"  Campaign Details: {row} rows")
+    print(f"  ADS Campaign Details: {row} rows")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1471,7 +1528,7 @@ def build_organic(wb, D):
 
     Uses pre-aggregated rev_cb and ads_lb data to build trees, then writes sections.
     """
-    ws = wb.create_sheet("Organic")
+    ws = wb.create_sheet("Organic Sales")
     ws.sheet_properties.tabColor = "548235"
     months = D["months"]
     ytd_months = D["ytd_months"]
@@ -1520,12 +1577,9 @@ def build_organic(wb, D):
 
     # Column widths
     _set_col_widths(ws, total_cols, months, level_headers)
-    ws.sheet_properties.outlinePr.summaryRight = False
-    ws.column_dimensions['C'].outlineLevel = 1
-    ws.column_dimensions['D'].outlineLevel = 2
     ws.freeze_panes = "E3"
 
-    print(f"  Organic: {row} rows")
+    print(f"  Organic Sales: {row} rows")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1600,9 +1654,6 @@ def build_cm(wb, D):
 
     # Column widths
     _set_col_widths(ws, total_cols, months, level_headers)
-    ws.sheet_properties.outlinePr.summaryRight = False
-    ws.column_dimensions['C'].outlineLevel = 1
-    ws.column_dimensions['D'].outlineLevel = 2
     ws.freeze_panes = "E3"
 
     print(f"  CM: {row} rows")
@@ -2333,7 +2384,6 @@ def build_influencer_dashboard(wb, D):
     """Influencer Dashboard: PR orders, product breakdown, paid/non-paid, PayPal payments."""
     ws = wb.create_sheet("Influencer Dashboard")
     ws.sheet_properties.tabColor = "FF69B4"
-    # Row grouping: expand button above the detail rows
     ws.sheet_properties.outlinePr.summaryBelow = False
 
     months = D["months"]
@@ -2343,74 +2393,71 @@ def build_influencer_dashboard(wb, D):
     inf_nonpaid = D["inf_nonpaid"]
 
     row = 1
-    col_start = 5  # data starts at col E (A=indicator, B=brand, C=cat, D=product)
-    total_cols = len(months) + col_start - 1
-
-    tot_col = col_start + len(months)  # Total column
+    col_start = 3  # data starts at col C (A=indicator, B=label)
+    tot_col = col_start + len(months)  # Total column after all months
     first_cl = get_column_letter(col_start)
     last_cl = get_column_letter(col_start + len(months) - 1)
 
     def _month_hdr(r):
-        """Write month header row with Level 1 styling (light fill + borders)."""
         for i, m in enumerate(months):
             c = col_start + i
             cell = ws.cell(row=r, column=c, value=m[2:].replace("-", "/"))
-            cell.font = BF
-            cell.fill = LGRAY
-            cell.border = THIN
+            cell.font = BF; cell.fill = LGRAY; cell.border = THIN
             cell.alignment = Alignment(horizontal="center")
-        # Total header
         cell = ws.cell(row=r, column=tot_col, value="Total")
         cell.font = BF; cell.fill = LGRAY; cell.border = THIN
         cell.alignment = Alignment(horizontal="center")
 
     def _section_banner(r, title):
-        """Write section banner row (DBLUE full width)."""
         for c in range(1, tot_col + 1):
             cell = ws.cell(row=r, column=c)
-            cell.fill = DBLUE
-            cell.font = WF
+            cell.fill = DBLUE; cell.font = WF
         ws.cell(row=r, column=1, value=title)
+
+    def _data_row(r, label, month_vals, fmt=NUM, font=NF, fill=None, border=None):
+        """Write a data row: B=label, C+=monthly values, last=Total SUM."""
+        cell = ws.cell(row=r, column=2, value=label)
+        cell.font = font
+        if fill: cell.fill = fill
+        if border: cell.border = border
+        for i, m in enumerate(months):
+            c = col_start + i
+            v = month_vals.get(m, 0) if isinstance(month_vals, dict) else 0
+            cell = ws.cell(row=r, column=c, value=v)
+            cell.number_format = fmt; cell.font = font
+            if fill: cell.fill = fill
+            if border: cell.border = border
+        cell = ws.cell(row=r, column=tot_col,
+                       value=f"=SUM({first_cl}{r}:{last_cl}{r})")
+        cell.number_format = fmt; cell.font = font
+        if fill: cell.fill = fill
+        if border: cell.border = border
 
     # ── Section A: Monthly Shipped PR Order Count ──
     _section_banner(row, "SECTION A — PR ORDERS: MONTHLY SHIPPED COUNT")
     row += 1
-
-    # Month headers (Level 1)
     cell = ws.cell(row=row, column=2, value="Month")
     cell.font = BF; cell.fill = LGRAY; cell.border = THIN
     _month_hdr(row)
     row += 1
-
-    # Shipped count row (Level 0: dark fill = aggregate total)
-    cell = ws.cell(row=row, column=2, value="Shipped Orders")
-    cell.font = WF9; cell.fill = MBLUE; cell.border = THIN
-    for i, m in enumerate(months):
-        c = col_start + i
-        cell = ws.cell(row=row, column=c, value=inf_shipped.get(m, 0))
-        cell.number_format = NUM; cell.font = WF9; cell.fill = MBLUE; cell.border = THIN
-    cell = ws.cell(row=row, column=tot_col, value=f"=SUM({first_cl}{row}:{last_cl}{row})")
-    cell.number_format = NUM; cell.font = WF9; cell.fill = MBLUE; cell.border = THIN
+    _data_row(row, "Shipped Orders", inf_shipped, NUM, WF9, MBLUE, THIN)
     row += 2
 
-    # ── Section B: Monthly Shipped by Product (Grand Total → Brand → Category → Product) ──
+    # ── Section B: Monthly Shipped by Product (row-based hierarchy) ──
     _section_banner(row, "SECTION B — PR ORDERS: MONTHLY SHIPPED BY PRODUCT")
     row += 1
 
     inf_prod_meta = D.get("inf_prod_meta", {})
 
-    # Collect all product titles across all months
     all_products = set()
     for mo_prods in inf_products.values():
         all_products.update(mo_prods.keys())
 
-    # Group: brand → cat → [product titles]
     brand_cat_prods = {}
     for title in all_products:
         brand, cat = inf_prod_meta.get(title, classify_product(title))
         brand_cat_prods.setdefault(brand, {}).setdefault(cat, []).append(title)
 
-    # Sorting helpers
     def _ptot(t):
         return sum(inf_products.get(m, {}).get(t, 0) for m in months)
     def _ctot(br, ca):
@@ -2420,43 +2467,36 @@ def build_influencer_dashboard(wb, D):
 
     sorted_brands = sorted(brand_cat_prods, key=_btot, reverse=True)
 
-    # Column header row: A blank | B=Brand | C=Category | D=Product | E+=months
-    for c in range(1, tot_col + 1):
-        ws.cell(row=row, column=c).fill = LGRAY
-    ws.cell(row=row, column=2, value="Brand").font = BF
-    ws.cell(row=row, column=2).fill = LGRAY; ws.cell(row=row, column=2).border = THIN
-    ws.cell(row=row, column=3, value="Category").font = BF
-    ws.cell(row=row, column=3).fill = LGRAY; ws.cell(row=row, column=3).border = THIN
-    ws.cell(row=row, column=4, value="Product").font = BF
-    ws.cell(row=row, column=4).fill = LGRAY; ws.cell(row=row, column=4).border = THIN
+    # Column header
+    cell = ws.cell(row=row, column=2, value="Brand / Category / Product")
+    cell.font = BF; cell.fill = LGRAY; cell.border = THIN
     _month_hdr(row)
     row += 1
 
     tot_letter = get_column_letter(tot_col)
 
-    # Grand Total placeholder row (MBLUE — darkest, filled after brand rows)
+    # Grand Total placeholder
     grand_total_row = row
     row += 1
     all_brand_rows = []
 
     for brand in sorted_brands:
         brand_row = row
-        row += 1  # placeholder — written after children
+        row += 1
 
         sorted_cats = sorted(brand_cat_prods[brand], key=lambda c: _ctot(brand, c), reverse=True)
         cat_rows = []
 
         for cat in sorted_cats:
             cat_row = row
-            row += 1  # placeholder
+            row += 1
 
             sorted_prods = sorted(brand_cat_prods[brand][cat], key=_ptot, reverse=True)
             prod_rows = []
 
             for title in sorted_prods:
-                # Level 3 — Product detail: col D, NO fill, normal font, row group level 2
-                cell = ws.cell(row=row, column=4, value=title[:44])
-                cell.font = NF
+                # Product (level 3): col B, no fill, outlineLevel=2
+                ws.cell(row=row, column=2, value=f"      {title[:40]}").font = NF
                 for i, m in enumerate(months):
                     c = col_start + i
                     qty = inf_products.get(m, {}).get(title, 0)
@@ -2469,89 +2509,88 @@ def build_influencer_dashboard(wb, D):
                 prod_rows.append(row)
                 row += 1
 
-            # Level 2 — Category row: col C, LLGRAY fill, black bold, row group level 1
-            cell = ws.cell(row=cat_row, column=3, value=cat)
-            cell.font = BF; cell.fill = LLGRAY; cell.border = THIN
+            # Category (level 2): col B, LLGRAY, outlineLevel=1
+            cell = ws.cell(row=cat_row, column=2, value=f"   {cat}")
+            cell.font = BF; cell.fill = LLGRAY
             for i, m in enumerate(months):
                 c = col_start + i
-                col_letter = get_column_letter(c)
-                refs = ",".join(f"{col_letter}{pr}" for pr in prod_rows) if prod_rows else ""
+                cl = get_column_letter(c)
+                refs = ",".join(f"{cl}{pr}" for pr in prod_rows) if prod_rows else ""
                 v = f"=SUM({refs})" if refs else 0
                 cell2 = ws.cell(row=cat_row, column=c, value=v)
-                cell2.number_format = NUM; cell2.font = BF; cell2.fill = LLGRAY; cell2.border = THIN
+                cell2.number_format = NUM; cell2.font = BF; cell2.fill = LLGRAY
             refs = ",".join(f"{tot_letter}{pr}" for pr in prod_rows) if prod_rows else ""
-            cell3 = ws.cell(row=cat_row, column=tot_col,
-                            value=f"=SUM({refs})" if refs else 0)
-            cell3.number_format = NUM; cell3.font = BF; cell3.fill = LLGRAY; cell3.border = THIN
+            ws.cell(row=cat_row, column=tot_col,
+                    value=f"=SUM({refs})" if refs else 0).number_format = NUM
+            ws.cell(row=cat_row, column=tot_col).font = BF
+            ws.cell(row=cat_row, column=tot_col).fill = LLGRAY
             ws.row_dimensions[cat_row].outlineLevel = 1
             ws.row_dimensions[cat_row].hidden = True
-
             cat_rows.append(cat_row)
 
-        # Level 1 — Brand row: col B, LGRAY fill, black bold
+        # Brand (level 1): col B, LGRAY
         cell = ws.cell(row=brand_row, column=2, value=brand)
-        cell.font = BF; cell.fill = LGRAY; cell.border = THIN
+        cell.font = BF; cell.fill = LGRAY
         for i, m in enumerate(months):
             c = col_start + i
-            col_letter = get_column_letter(c)
-            refs = ",".join(f"{col_letter}{cr}" for cr in cat_rows) if cat_rows else ""
+            cl = get_column_letter(c)
+            refs = ",".join(f"{cl}{cr}" for cr in cat_rows) if cat_rows else ""
             v = f"=SUM({refs})" if refs else 0
             cell2 = ws.cell(row=brand_row, column=c, value=v)
-            cell2.number_format = NUM; cell2.font = BF; cell2.fill = LGRAY; cell2.border = THIN
+            cell2.number_format = NUM; cell2.font = BF; cell2.fill = LGRAY
         refs = ",".join(f"{tot_letter}{cr}" for cr in cat_rows) if cat_rows else ""
-        cell3 = ws.cell(row=brand_row, column=tot_col,
-                        value=f"=SUM({refs})" if refs else 0)
-        cell3.number_format = NUM; cell3.font = BF; cell3.fill = LGRAY; cell3.border = THIN
-
+        ws.cell(row=brand_row, column=tot_col,
+                value=f"=SUM({refs})" if refs else 0).number_format = NUM
+        ws.cell(row=brand_row, column=tot_col).font = BF
+        ws.cell(row=brand_row, column=tot_col).fill = LGRAY
         all_brand_rows.append(brand_row)
 
-    # Level 0 — Grand Total row: MBLUE (darkest), white bold, SUM of all brand rows
+    # Grand Total (level 0): MBLUE
     cell = ws.cell(row=grand_total_row, column=2, value="TOTAL — All Brands")
-    cell.font = WF9; cell.fill = MBLUE; cell.border = THIN
+    cell.font = WF9; cell.fill = MBLUE
     for i, m in enumerate(months):
         c = col_start + i
-        col_letter = get_column_letter(c)
-        refs = ",".join(f"{col_letter}{br}" for br in all_brand_rows) if all_brand_rows else ""
+        cl = get_column_letter(c)
+        refs = ",".join(f"{cl}{br}" for br in all_brand_rows) if all_brand_rows else ""
         v = f"=SUM({refs})" if refs else 0
         cell2 = ws.cell(row=grand_total_row, column=c, value=v)
-        cell2.number_format = NUM; cell2.font = WF9; cell2.fill = MBLUE; cell2.border = THIN
+        cell2.number_format = NUM; cell2.font = WF9; cell2.fill = MBLUE
     refs = ",".join(f"{tot_letter}{br}" for br in all_brand_rows) if all_brand_rows else ""
     cell3 = ws.cell(row=grand_total_row, column=tot_col,
                     value=f"=SUM({refs})" if refs else 0)
-    cell3.number_format = NUM; cell3.font = WF9; cell3.fill = MBLUE; cell3.border = THIN
+    cell3.number_format = NUM; cell3.font = WF9; cell3.fill = MBLUE
 
     row += 1
 
     # ── Section C: Paid vs Non-paid Split ──
     _section_banner(row, "SECTION C — PAID vs NON-PAID SPLIT (Shipped Orders)")
     row += 1
-
     cell = ws.cell(row=row, column=2, value="Category")
     cell.font = BF; cell.fill = LGRAY; cell.border = THIN
     _month_hdr(row)
     row += 1
 
-    # Paid row (Level 2: lighter fill)
+    # Paid row
     cell = ws.cell(row=row, column=2, value="Paid (PayPal matched)")
-    cell.font = BF; cell.fill = LLGRAY; cell.border = THIN
+    cell.font = BF; cell.fill = LLGRAY
     for i, m in enumerate(months):
         c = col_start + i
         val = inf_paid.get(m, {}).get("count", 0) if isinstance(inf_paid.get(m), dict) else 0
-        cell = ws.cell(row=row, column=c, value=val)
-        cell.number_format = NUM; cell.fill = LLGRAY; cell.border = THIN
-    cell = ws.cell(row=row, column=tot_col, value=f"=SUM({first_cl}{row}:{last_cl}{row})")
-    cell.number_format = NUM; cell.fill = LLGRAY; cell.border = THIN
+        cell2 = ws.cell(row=row, column=c, value=val)
+        cell2.number_format = NUM; cell2.fill = LLGRAY
+    ws.cell(row=row, column=tot_col, value=f"=SUM({first_cl}{row}:{last_cl}{row})").number_format = NUM
+    ws.cell(row=row, column=tot_col).fill = LLGRAY
     row += 1
 
-    # Non-paid row (Level 2: lighter fill)
+    # Non-paid row
     cell = ws.cell(row=row, column=2, value="Non-paid")
-    cell.font = BF; cell.fill = LLGRAY; cell.border = THIN
+    cell.font = BF; cell.fill = LLGRAY
     for i, m in enumerate(months):
         c = col_start + i
-        cell = ws.cell(row=row, column=c, value=inf_nonpaid.get(m, 0))
-        cell.number_format = NUM; cell.fill = LLGRAY; cell.border = THIN
-    cell = ws.cell(row=row, column=tot_col, value=f"=SUM({first_cl}{row}:{last_cl}{row})")
-    cell.number_format = NUM; cell.fill = LLGRAY; cell.border = THIN
+        cell2 = ws.cell(row=row, column=c, value=inf_nonpaid.get(m, 0))
+        cell2.number_format = NUM; cell2.fill = LLGRAY
+    ws.cell(row=row, column=tot_col, value=f"=SUM({first_cl}{row}:{last_cl}{row})").number_format = NUM
+    ws.cell(row=row, column=tot_col).fill = LLGRAY
     row += 2
 
     # ── Section D: PayPal Influencer Payments ──
@@ -2560,49 +2599,44 @@ def build_influencer_dashboard(wb, D):
 
     _section_banner(row, "SECTION D — PAYPAL INFLUENCER PAYMENTS")
     row += 1
-
-    # Month headers (Level 1)
     cell = ws.cell(row=row, column=2, value="Metric")
     cell.font = BF; cell.fill = LGRAY; cell.border = THIN
     _month_hdr(row)
     row += 1
 
-    # Total # Payments (Level 0: dark fill)
+    # # Payments Total
     cell = ws.cell(row=row, column=2, value="# Payments (Total)")
-    cell.font = WF9; cell.fill = MBLUE; cell.border = THIN
+    cell.font = WF9; cell.fill = MBLUE
     for i, m in enumerate(months):
         c = col_start + i
         val = paypal_monthly.get(m, {}).get("count", 0) if isinstance(paypal_monthly.get(m), dict) else 0
-        cell = ws.cell(row=row, column=c, value=val)
-        cell.number_format = NUM; cell.font = WF9; cell.fill = MBLUE; cell.border = THIN
-    cell = ws.cell(row=row, column=tot_col, value=f"=SUM({first_cl}{row}:{last_cl}{row})")
-    cell.number_format = NUM; cell.font = WF9; cell.fill = MBLUE; cell.border = THIN
+        cell2 = ws.cell(row=row, column=c, value=val)
+        cell2.number_format = NUM; cell2.font = WF9; cell2.fill = MBLUE
+    ws.cell(row=row, column=tot_col, value=f"=SUM({first_cl}{row}:{last_cl}{row})").number_format = NUM
+    ws.cell(row=row, column=tot_col).font = WF9; ws.cell(row=row, column=tot_col).fill = MBLUE
     row += 1
 
-    # Total $ Amount (Level 0: dark fill)
+    # $ Amount Total
     cell = ws.cell(row=row, column=2, value="$ Amount (Total)")
-    cell.font = WF9; cell.fill = MBLUE; cell.border = THIN
+    cell.font = WF9; cell.fill = MBLUE
     for i, m in enumerate(months):
         c = col_start + i
         val = paypal_monthly.get(m, {}).get("amount", 0) if isinstance(paypal_monthly.get(m), dict) else 0
-        cell = ws.cell(row=row, column=c, value=val)
-        cell.number_format = DOL; cell.font = WF9; cell.fill = MBLUE; cell.border = THIN
-    cell = ws.cell(row=row, column=tot_col, value=f"=SUM({first_cl}{row}:{last_cl}{row})")
-    cell.number_format = DOL; cell.font = WF9; cell.fill = MBLUE; cell.border = THIN
+        cell2 = ws.cell(row=row, column=c, value=val)
+        cell2.number_format = DOL; cell2.font = WF9; cell2.fill = MBLUE
+    ws.cell(row=row, column=tot_col, value=f"=SUM({first_cl}{row}:{last_cl}{row})").number_format = DOL
+    ws.cell(row=row, column=tot_col).font = WF9; ws.cell(row=row, column=tot_col).fill = MBLUE
     row += 1
 
-    # BY PERSON sub-header (Level 1)
+    # BY PERSON sub-header
     cell = ws.cell(row=row, column=2, value="BY PERSON (expand to view)")
-    cell.font = BF; cell.fill = LGRAY; cell.border = THIN
+    cell.font = BF; cell.fill = LGRAY
     for i in range(len(months)):
-        c = col_start + i
-        ws.cell(row=row, column=c).fill = LGRAY
-        ws.cell(row=row, column=c).border = THIN
+        ws.cell(row=row, column=col_start + i).fill = LGRAY
     ws.cell(row=row, column=tot_col).fill = LGRAY
-    ws.cell(row=row, column=tot_col).border = THIN
     row += 1
 
-    # Person rows (Level 3: grouped, collapsed by default)
+    # Person detail rows
     person_start = row
     people_totals = {}
     for name, mo_data in paypal_people.items():
@@ -2619,13 +2653,11 @@ def build_influencer_dashboard(wb, D):
             amt = d.get("amount", 0) if isinstance(d, dict) else 0
             if amt:
                 ws.cell(row=row, column=c, value=amt).number_format = DOL
-        # Total formula
-        ws.cell(row=row, column=tot_col, value=f"=SUM({first_cl}{row}:{last_cl}{row})").number_format = DOL
+        ws.cell(row=row, column=tot_col,
+                value=f"=SUM({first_cl}{row}:{last_cl}{row})").number_format = DOL
         row += 1
 
     person_end = row - 1
-
-    # Group person detail rows (collapsed by default)
     if person_start <= person_end:
         for r in range(person_start, person_end + 1):
             ws.row_dimensions[r].outlineLevel = 1
@@ -2634,22 +2666,536 @@ def build_influencer_dashboard(wb, D):
     row += 1
 
     # Column widths
-    ws.column_dimensions["A"].width = 4   # level indicator
-    ws.column_dimensions["B"].width = 20  # Brand
-    ws.column_dimensions["C"].width = 20  # Category
-    ws.column_dimensions["D"].width = 38  # Product
+    ws.column_dimensions["A"].width = 4
+    ws.column_dimensions["B"].width = 42
     for i in range(len(months)):
         cl = get_column_letter(col_start + i)
         ws.column_dimensions[cl].width = 10
     ws.column_dimensions[get_column_letter(tot_col)].width = 12
 
-    # Column outline levels (C=Category collapses, D=Product collapses deeper)
-    ws.sheet_properties.outlinePr.summaryRight = False
-    ws.column_dimensions["C"].outlineLevel = 1
-    ws.column_dimensions["D"].outlineLevel = 2
-
-    ws.freeze_panes = "E3"
+    ws.freeze_panes = "C3"
     print(f"  Influencer Dashboard: {row} rows, {len(sorted_people)} PayPal people")
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TAB 10: PROMO ANALYSIS
+# ══════════════════════════════════════════════════════════════════════════════
+
+def _slice_daily(rows, start, end, date_key="date"):
+    """Return rows where date_key is within [start, end] inclusive."""
+    return [r for r in rows if start <= (r.get(date_key, "") or "")[:10] <= end]
+
+
+def _sum_metric(rows, key):
+    return sum(abs(r.get(key, 0) or 0) for r in rows)
+
+
+def _process_promo_events(promo_data):
+    """Process raw daily data for each PROMO_EVENTS entry.
+    Returns list of dicts with summary + daily data per event.
+    """
+    from datetime import datetime
+
+    # Determine last data date from Shopify daily data
+    all_sh = promo_data.get("shopify", [])
+    _data_dates = sorted(set((r.get("date", "") or "")[:10] for r in all_sh if r.get("date")))
+    last_data_date = _data_dates[-1] if _data_dates else "2099-12-31"
+
+    results = []
+    for ev in PROMO_EVENTS:
+        start, end = ev["start"], ev["end"]
+        d0 = datetime.strptime(start, "%Y-%m-%d")
+        d1 = datetime.strptime(end, "%Y-%m-%d")
+        duration = (d1 - d0).days + 1
+
+        # Actual data coverage: if event end > last_data_date, we have partial data
+        effective_end = min(end, last_data_date)
+        d1_eff = datetime.strptime(effective_end, "%Y-%m-%d")
+        actual_days = max(0, (d1_eff - d0).days + 1) if effective_end >= start else 0
+        is_partial = actual_days < duration
+
+        # Shopify D2C
+        sh_rows = _slice_daily(promo_data.get("shopify", []), start, end)
+        gross = _sum_metric(sh_rows, "shopify_sales_main.raw.gross_sales")
+        disc = _sum_metric(sh_rows, "shopify_sales_main.raw.discounts")
+        orders = _sum_metric(sh_rows, "shopify_sales_main.raw.total_orders")
+        net = sum((r.get("shopify_sales_main.computed.total_sales", 0) or 0) for r in sh_rows)
+
+        # GA4
+        ga_rows = _slice_daily(promo_data.get("ga4", []), start, end)
+        sessions = _sum_metric(ga_rows, "ga_main.raw.sessions")
+        purchases = _sum_metric(ga_rows, "ga_main.raw.ecommerce_purchases")
+
+        # Meta Ads (already filtered for Shopify landing in query)
+        meta_rows = _slice_daily(promo_data.get("meta", []), start, end)
+        meta_spend = _sum_metric(meta_rows, "facebookads_ad_platform_and_device.raw.spend")
+        meta_clicks = _sum_metric(meta_rows, "facebookads_ad_platform_and_device.raw.clicks")
+        meta_imps = _sum_metric(meta_rows, "facebookads_ad_platform_and_device.raw.impressions")
+
+        # Google Ads
+        goog_rows = _slice_daily(promo_data.get("google", []), start, end)
+        goog_spend = _sum_metric(goog_rows, "googleads_campaign_and_device.raw.cost")
+        goog_clicks = _sum_metric(goog_rows, "googleads_campaign_and_device.raw.clicks")
+        goog_imps = _sum_metric(goog_rows, "googleads_campaign_and_device.raw.impressions")
+
+        # Klaviyo
+        kl_rows = _slice_daily(promo_data.get("klaviyo", []), start, end)
+        kl_sends = _sum_metric(kl_rows, "klaviyo_sales_main.raw.campaign_send")
+        kl_rev = sum((r.get("klaviyo_sales_main.raw.campaign_revenue", 0) or 0) for r in kl_rows)
+
+        total_ad = meta_spend + goog_spend
+
+        # GA4 by channel breakdown
+        _CH_MAP = {
+            "Paid Search": "google_ads", "Paid Social": "meta_ads",
+            "Organic Search": "organic_search", "Organic Social": "organic_social",
+            "Email/SMS": "klaviyo_email", "Direct": "direct",
+        }
+        _ch_key = "custom_internal-default-channel-grouping"
+        ga_ch_all = _slice_daily(promo_data.get("ga4_ch", []), start, end)
+        ch_data = {}
+        for ch_raw, ch_name in _CH_MAP.items():
+            ch_rows = [r for r in ga_ch_all if r.get(_ch_key) == ch_raw]
+            s = _sum_metric(ch_rows, "ga_main.raw.sessions")
+            p = _sum_metric(ch_rows, "ga_main.raw.ecommerce_purchases")
+            ch_data[ch_name] = {"sessions": int(s), "purchases": int(p),
+                                "cvr": p / s if s else 0}
+        # "Other" = everything not in _CH_MAP
+        mapped_vals = set(_CH_MAP.keys())
+        other_rows = [r for r in ga_ch_all if r.get(_ch_key) not in mapped_vals]
+        o_s = _sum_metric(other_rows, "ga_main.raw.sessions")
+        o_p = _sum_metric(other_rows, "ga_main.raw.ecommerce_purchases")
+        ch_data["other"] = {"sessions": int(o_s), "purchases": int(o_p),
+                            "cvr": o_p / o_s if o_s else 0}
+        # Computed groups
+        for grp, children in [("paid", ["google_ads", "meta_ads"]),
+                              ("organic", ["organic_search", "organic_social"])]:
+            gs = sum(ch_data[c]["sessions"] for c in children)
+            gp = sum(ch_data[c]["purchases"] for c in children)
+            ch_data[grp] = {"sessions": int(gs), "purchases": int(gp),
+                            "cvr": gp / gs if gs else 0}
+        # Total from channel data
+        all_s = sum(ch_data[c]["sessions"] for c in
+                    ["paid", "organic", "klaviyo_email", "direct", "other"])
+        all_p = sum(ch_data[c]["purchases"] for c in
+                    ["paid", "organic", "klaviyo_email", "direct", "other"])
+        ch_data["total"] = {"sessions": int(all_s), "purchases": int(all_p),
+                            "cvr": all_p / all_s if all_s else 0}
+
+        summary = {
+            "gross": gross, "disc": disc, "orders": int(orders), "net": net,
+            "disc_rate": disc / gross if gross else 0,
+            "aov": net / orders if orders else 0,
+            "sessions": int(sessions), "purchases": int(purchases),
+            "cvr": purchases / sessions if sessions else 0,
+            "meta_spend": meta_spend, "meta_clicks": int(meta_clicks), "meta_imps": int(meta_imps),
+            "meta_ctr": meta_clicks / meta_imps if meta_imps else 0,
+            "meta_cpc": meta_spend / meta_clicks if meta_clicks else 0,
+            "goog_spend": goog_spend, "goog_clicks": int(goog_clicks), "goog_imps": int(goog_imps),
+            "goog_ctr": goog_clicks / goog_imps if goog_imps else 0,
+            "goog_cpc": goog_spend / goog_clicks if goog_clicks else 0,
+            "total_ad": total_ad,
+            "roas": net / total_ad if total_ad else 0,
+            "kl_sends": int(kl_sends), "kl_rev": kl_rev,
+            "ch": ch_data,
+        }
+
+        # Build daily detail
+        daily = {}
+        all_dates = set()
+        for r in sh_rows:
+            all_dates.add(r.get("date", "")[:10])
+        for r in ga_rows:
+            all_dates.add(r.get("date", "")[:10])
+        for r in meta_rows:
+            all_dates.add(r.get("date", "")[:10])
+        for r in goog_rows:
+            all_dates.add(r.get("date", "")[:10])
+
+        for dt in sorted(all_dates):
+            if not (start <= dt <= end):
+                continue
+            d_sh = [r for r in sh_rows if (r.get("date", "") or "")[:10] == dt]
+            d_ga = [r for r in ga_rows if (r.get("date", "") or "")[:10] == dt]
+            d_meta = [r for r in meta_rows if (r.get("date", "") or "")[:10] == dt]
+            d_goog = [r for r in goog_rows if (r.get("date", "") or "")[:10] == dt]
+
+            d_gross = _sum_metric(d_sh, "shopify_sales_main.raw.gross_sales")
+            d_disc = _sum_metric(d_sh, "shopify_sales_main.raw.discounts")
+            d_net = sum((r.get("shopify_sales_main.computed.total_sales", 0) or 0) for r in d_sh)
+            d_orders = _sum_metric(d_sh, "shopify_sales_main.raw.total_orders")
+            d_sessions = _sum_metric(d_ga, "ga_main.raw.sessions")
+            d_purchases = _sum_metric(d_ga, "ga_main.raw.ecommerce_purchases")
+            d_meta_s = _sum_metric(d_meta, "facebookads_ad_platform_and_device.raw.spend")
+            d_goog_s = _sum_metric(d_goog, "googleads_campaign_and_device.raw.cost")
+
+            daily[dt] = {
+                "gross": d_gross, "disc": d_disc, "net": d_net,
+                "orders": int(d_orders), "aov": d_net / d_orders if d_orders else 0,
+                "sessions": int(d_sessions), "purchases": int(d_purchases),
+                "cvr": d_purchases / d_sessions if d_sessions else 0,
+                "meta_spend": d_meta_s, "goog_spend": d_goog_s,
+                "total_ad": d_meta_s + d_goog_s,
+            }
+
+        # Full-event estimate (extrapolation) if partial
+        if is_partial and actual_days > 0:
+            scale = duration / actual_days
+            full_est = {
+                "gross": gross * scale, "disc": disc * scale,
+                "net": net * scale, "orders": round(orders * scale),
+                "sessions": round(sessions * scale),
+                "purchases": round(purchases * scale),
+                "meta_spend": meta_spend * scale,
+                "goog_spend": goog_spend * scale,
+                "total_ad": total_ad * scale,
+                "kl_sends": round(kl_sends * scale), "kl_rev": kl_rev * scale,
+            }
+        else:
+            full_est = None
+
+        results.append({
+            "event": ev,
+            "duration": duration,
+            "actual_days": actual_days,
+            "is_partial": is_partial,
+            "full_est": full_est,
+            "summary": summary,
+            "daily": daily,
+        })
+    return results
+
+
+def build_promo_analysis(wb, D):
+    """Tab 10: Promo Analysis — event performance comparison + daily breakdowns."""
+    promo_data = D.get("promo_data", {})
+    if not promo_data:
+        return
+
+    events = _process_promo_events(promo_data)
+    if not events:
+        return
+
+    ws = wb.create_sheet("Promo Analysis")
+    row = 1
+    n_events = len(events)
+
+    # Column layout: A=indicator, B/C/D=hierarchy labels, E+=event columns
+    ev_col_start = 5  # column E
+    last_col = ev_col_start + n_events - 1
+
+    def _banner(text, r):
+        for c in range(1, last_col + 1):
+            cell = ws.cell(row=r, column=c)
+            cell.fill = DBLUE
+            cell.font = WF
+        ws.cell(row=r, column=1, value=text)
+        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=last_col)
+
+    def _section_hdr(text, r):
+        for c in range(1, last_col + 1):
+            cell = ws.cell(row=r, column=c)
+            cell.fill = MBLUE
+            cell.font = WF9
+        ws.cell(row=r, column=2, value=text)
+
+    def _mrow(label, values, r, fmt=DOL, col=2, font=NF, fill=None, outline=0):
+        """Write a metric row with hierarchy support. col=2(B),3(C),4(D)."""
+        cell = ws.cell(row=r, column=col, value=label)
+        cell.font = font
+        if fill:
+            cell.fill = fill
+            # fill label cols up to ev_col_start-1
+            for fc in range(2, ev_col_start):
+                if fc != col:
+                    ws.cell(row=r, column=fc).fill = fill
+        for i, v in enumerate(values):
+            cell = ws.cell(row=r, column=ev_col_start + i, value=v)
+            cell.font = font
+            cell.number_format = fmt
+            if fill:
+                cell.fill = fill
+        if outline:
+            ws.row_dimensions[r].outlineLevel = outline
+            ws.row_dimensions[r].hidden = True
+
+    def _irow(label, values, r, col=2):
+        """Write an info row (text values)."""
+        ws.cell(row=r, column=col, value=label).font = NF
+        for i, v in enumerate(values):
+            ws.cell(row=r, column=ev_col_start + i, value=v).font = NF
+
+    # Channel hierarchy: (label, key, col, font, fill, outlineLevel)
+    _CH = [
+        ("TOTAL",          "total",          2, BF, LGRAY, 0),
+        ("Paid",           "paid",           3, NF, LLGRAY, 1),
+        ("Google Ads",     "google_ads",     4, NF, None,  2),
+        ("Meta Ads",       "meta_ads",       4, NF, None,  2),
+        ("Organic",        "organic",        3, NF, LLGRAY, 1),
+        ("Organic Search", "organic_search", 4, NF, None,  2),
+        ("Organic Social", "organic_social", 4, NF, None,  2),
+        ("Klaviyo Email",  "klaviyo_email",  3, NF, None,  1),
+        ("Direct",         "direct",         3, NF, None,  1),
+        ("Other",          "other",          3, NF, None,  1),
+    ]
+
+    def _ch_block(metric_label, metric_key, r, fmt=NUM, per_day=False):
+        """Write a channel hierarchy block for Sessions / Purchases / CVR."""
+        ws.cell(row=r, column=2, value=metric_label).font = BF
+        r += 1
+        for lbl, ch_key, col, fnt, fll, ol in _CH:
+            if per_day:
+                vals = [e["summary"]["ch"][ch_key][metric_key] / e["actual_days"]
+                        if e["actual_days"] else 0 for e in events]
+            else:
+                vals = [e["summary"]["ch"][ch_key][metric_key] for e in events]
+            _mrow(lbl, vals, r, fmt=fmt, col=col, font=fnt, fill=fll, outline=ol)
+            r += 1
+        return r
+
+    # Helper: divide value by duration
+    def _pd(val, dur):
+        return val / dur if dur else 0
+
+    # ── Event header row (shared by Section A, A2) ──
+    def _event_header(r, hdr_label="Metric"):
+        for c in range(2, ev_col_start):
+            ws.cell(row=r, column=c).fill = LGRAY
+        ws.cell(row=r, column=2, value=hdr_label).font = HF
+        ws.cell(row=r, column=2).fill = LGRAY
+        for i, ev in enumerate(events):
+            cell = ws.cell(row=r, column=ev_col_start + i, value=ev["event"]["name"])
+            cell.font = HF
+            cell.fill = LGRAY
+            cell.alignment = Alignment(horizontal="center", wrapText=True)
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SECTION A: EVENT SUMMARY COMPARISON
+    # ══════════════════════════════════════════════════════════════════════
+    _banner("PROMO ANALYSIS — EVENT PERFORMANCE COMPARISON", row)
+    row += 2
+    _event_header(row)
+    row += 1
+
+    # EVENT INFO
+    _section_hdr("EVENT INFO", row); row += 1
+    _irow("Period", [f"{e['event']['start']} ~ {e['event']['end']}" for e in events], row); row += 1
+    _irow("Duration (days)", [e["duration"] for e in events], row); row += 1
+    _irow("Data Coverage",
+          [f"{e['actual_days']}/{e['duration']}d (thru {e['event']['end'][:5].replace('-','/')})"
+           if not e["is_partial"]
+           else f"{e['actual_days']}/{e['duration']}d ⚠ PARTIAL"
+           for e in events], row); row += 1
+    _irow("Offered Discount %",
+          [f"{e['event']['offered_pct']}%" if e["event"]["offered_pct"] else "—" for e in events], row); row += 1
+    _irow("Codes", [", ".join(e["event"]["codes"]) if e["event"]["codes"] else "—" for e in events], row); row += 1
+
+    # Check if any event is partial — if so, add Full Event Estimate section
+    has_partial = any(e["is_partial"] for e in events)
+
+    # SHOPIFY D2C SALES
+    row += 1
+    _section_hdr("SHOPIFY D2C SALES", row); row += 1
+    _mrow("Gross Sales", [e["summary"]["gross"] for e in events], row, DOL); row += 1
+    _mrow("Discounts", [e["summary"]["disc"] for e in events], row, DOL); row += 1
+    _mrow("Applied Discount Rate", [e["summary"]["disc_rate"] for e in events], row, PCT); row += 1
+    _mrow("Net Sales", [e["summary"]["net"] for e in events], row, DOL); row += 1
+    _mrow("Orders", [e["summary"]["orders"] for e in events], row, NUM); row += 1
+    _mrow("AOV", [e["summary"]["aov"] for e in events], row, DOL2); row += 1
+    if has_partial:
+        row += 1
+        _section_hdr("SHOPIFY D2C — FULL EVENT ESTIMATE (partial events extrapolated)", row); row += 1
+        _mrow("Gross Sales (est.)",
+              [e["full_est"]["gross"] if e["full_est"] else e["summary"]["gross"] for e in events], row, DOL); row += 1
+        _mrow("Net Sales (est.)",
+              [e["full_est"]["net"] if e["full_est"] else e["summary"]["net"] for e in events], row, DOL); row += 1
+        _mrow("Orders (est.)",
+              [e["full_est"]["orders"] if e["full_est"] else e["summary"]["orders"] for e in events], row, NUM); row += 1
+
+    # TRAFFIC & CONVERSION — hierarchical by channel
+    row += 1
+    _section_hdr("TRAFFIC & CONVERSION (GA4)", row); row += 1
+    row = _ch_block("Sessions", "sessions", row, NUM)
+    row = _ch_block("Purchases", "purchases", row, NUM)
+    row = _ch_block("CVR", "cvr", row, PCT)
+
+    # META ADS
+    row += 1
+    _section_hdr("META ADS (Shopify Landing, excl. amz_traffic)", row); row += 1
+    _mrow("Spend", [e["summary"]["meta_spend"] for e in events], row, DOL); row += 1
+    _mrow("Clicks", [e["summary"]["meta_clicks"] for e in events], row, NUM); row += 1
+    _mrow("Impressions", [e["summary"]["meta_imps"] for e in events], row, NUM); row += 1
+    _mrow("CTR", [e["summary"]["meta_ctr"] for e in events], row, PCT); row += 1
+    _mrow("CPC", [e["summary"]["meta_cpc"] for e in events], row, DOL2); row += 1
+
+    # GOOGLE ADS
+    row += 1
+    _section_hdr("GOOGLE ADS (Shopify Landing)", row); row += 1
+    _mrow("Spend", [e["summary"]["goog_spend"] for e in events], row, DOL); row += 1
+    _mrow("Clicks", [e["summary"]["goog_clicks"] for e in events], row, NUM); row += 1
+    _mrow("Impressions", [e["summary"]["goog_imps"] for e in events], row, NUM); row += 1
+    _mrow("CTR", [e["summary"]["goog_ctr"] for e in events], row, PCT); row += 1
+    _mrow("CPC", [e["summary"]["goog_cpc"] for e in events], row, DOL2); row += 1
+
+    # TOTAL AD PERFORMANCE
+    row += 1
+    _section_hdr("TOTAL AD PERFORMANCE", row); row += 1
+    _mrow("Total Ad Spend", [e["summary"]["total_ad"] for e in events], row, DOL); row += 1
+    _mrow("ROAS (Net Sales / Ad Spend)", [e["summary"]["roas"] for e in events], row, DEC); row += 1
+
+    # KLAVIYO EMAIL
+    row += 1
+    _section_hdr("KLAVIYO EMAIL", row); row += 1
+    _mrow("Campaign Sends", [e["summary"]["kl_sends"] for e in events], row, NUM); row += 1
+    _mrow("Email Revenue", [e["summary"]["kl_rev"] for e in events], row, DOL); row += 1
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SECTION A2: PER-DAY AVERAGE
+    # ══════════════════════════════════════════════════════════════════════
+    row += 2
+    _banner("PROMO ANALYSIS — EVENT PERFORMANCE COMPARISON (per day)", row)
+    row += 2
+    _event_header(row, "Metric (Daily Avg)")
+    row += 1
+
+    # EVENT INFO — per-day uses actual_days as divisor
+    _section_hdr("EVENT INFO", row); row += 1
+    _irow("Period", [f"{e['event']['start']} ~ {e['event']['end']}" for e in events], row); row += 1
+    _irow("Duration (days)", [e["duration"] for e in events], row); row += 1
+    _irow("Actual Data Days",
+          [f"{e['actual_days']}d" + (" ⚠" if e["is_partial"] else "")
+           for e in events], row); row += 1
+
+    # SHOPIFY D2C SALES — per day (÷ actual_days)
+    row += 1
+    _section_hdr("SHOPIFY D2C SALES (per day)", row); row += 1
+    _mrow("Gross Sales / day", [_pd(e["summary"]["gross"], e["actual_days"]) for e in events], row, DOL); row += 1
+    _mrow("Discounts / day", [_pd(e["summary"]["disc"], e["actual_days"]) for e in events], row, DOL); row += 1
+    _mrow("Applied Discount Rate", [e["summary"]["disc_rate"] for e in events], row, PCT); row += 1
+    _mrow("Net Sales / day", [_pd(e["summary"]["net"], e["actual_days"]) for e in events], row, DOL); row += 1
+    _mrow("Orders / day", [_pd(e["summary"]["orders"], e["actual_days"]) for e in events], row, DEC); row += 1
+    _mrow("AOV", [e["summary"]["aov"] for e in events], row, DOL2); row += 1
+
+    # TRAFFIC & CONVERSION — per day, hierarchical by channel (÷ actual_days)
+    row += 1
+    _section_hdr("TRAFFIC & CONVERSION (per day)", row); row += 1
+    row = _ch_block("Sessions / day", "sessions", row, DEC, per_day=True)
+    row = _ch_block("Purchases / day", "purchases", row, DEC, per_day=True)
+    row = _ch_block("CVR", "cvr", row, PCT, per_day=False)  # CVR is already a rate
+
+    # META ADS — per day (÷ actual_days)
+    row += 1
+    _section_hdr("META ADS (per day)", row); row += 1
+    _mrow("Spend / day", [_pd(e["summary"]["meta_spend"], e["actual_days"]) for e in events], row, DOL); row += 1
+    _mrow("Clicks / day", [_pd(e["summary"]["meta_clicks"], e["actual_days"]) for e in events], row, DEC); row += 1
+    _mrow("Impressions / day", [_pd(e["summary"]["meta_imps"], e["actual_days"]) for e in events], row, NUM); row += 1
+    _mrow("CTR", [e["summary"]["meta_ctr"] for e in events], row, PCT); row += 1
+    _mrow("CPC", [e["summary"]["meta_cpc"] for e in events], row, DOL2); row += 1
+
+    # GOOGLE ADS — per day (÷ actual_days)
+    row += 1
+    _section_hdr("GOOGLE ADS (per day)", row); row += 1
+    _mrow("Spend / day", [_pd(e["summary"]["goog_spend"], e["actual_days"]) for e in events], row, DOL); row += 1
+    _mrow("Clicks / day", [_pd(e["summary"]["goog_clicks"], e["actual_days"]) for e in events], row, DEC); row += 1
+    _mrow("Impressions / day", [_pd(e["summary"]["goog_imps"], e["actual_days"]) for e in events], row, NUM); row += 1
+    _mrow("CTR", [e["summary"]["goog_ctr"] for e in events], row, PCT); row += 1
+    _mrow("CPC", [e["summary"]["goog_cpc"] for e in events], row, DOL2); row += 1
+
+    # TOTAL AD PERFORMANCE — per day
+    row += 1
+    _section_hdr("TOTAL AD PERFORMANCE (per day)", row); row += 1
+    _mrow("Ad Spend / day", [_pd(e["summary"]["total_ad"], e["actual_days"]) for e in events], row, DOL); row += 1
+    _mrow("ROAS", [e["summary"]["roas"] for e in events], row, DEC); row += 1
+
+    # KLAVIYO EMAIL — per day (÷ actual_days)
+    row += 1
+    _section_hdr("KLAVIYO EMAIL (per day)", row); row += 1
+    _mrow("Sends / day", [_pd(e["summary"]["kl_sends"], e["actual_days"]) for e in events], row, DEC); row += 1
+    _mrow("Email Revenue / day", [_pd(e["summary"]["kl_rev"], e["actual_days"]) for e in events], row, DOL); row += 1
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SECTION B: DAILY BREAKDOWNS
+    # ══════════════════════════════════════════════════════════════════════
+    row += 2
+    _banner("DAILY BREAKDOWNS BY EVENT", row)
+    row += 2
+
+    daily_cols = ["Date", "Gross Sales", "Discounts", "Net Sales", "Orders", "AOV",
+                  "Sessions", "Purchases", "CVR", "Meta $", "Google $", "Total Ad $"]
+    daily_fmts = [None, DOL, DOL, DOL, NUM, DOL2, NUM, NUM, PCT, DOL, DOL, DOL]
+
+    for ev_data in events:
+        ev = ev_data["event"]
+        daily = ev_data["daily"]
+
+        hdr_text = f"{ev['name']} ({ev['start']} ~ {ev['end']})"
+        if ev.get("offered_pct"):
+            hdr_text += f" — {ev['offered_pct']}% off"
+        if ev.get("codes"):
+            hdr_text += f" — {', '.join(ev['codes'])}"
+
+        for c in range(1, 2 + len(daily_cols)):
+            cell = ws.cell(row=row, column=c)
+            cell.fill = MBLUE
+            cell.font = WF9
+        ws.cell(row=row, column=2, value=hdr_text)
+        row += 1
+
+        for ci, col_name in enumerate(daily_cols):
+            cell = ws.cell(row=row, column=2 + ci, value=col_name)
+            cell.font = HF
+            cell.fill = LGRAY
+        row += 1
+
+        detail_start = row
+        for dt in sorted(daily.keys()):
+            d = daily[dt]
+            vals = [dt, d["gross"], d["disc"], d["net"], d["orders"], d["aov"],
+                    d["sessions"], d["purchases"], d["cvr"],
+                    d["meta_spend"], d["goog_spend"], d["total_ad"]]
+            for ci, (v, fmt) in enumerate(zip(vals, daily_fmts)):
+                cell = ws.cell(row=row, column=2 + ci, value=v)
+                cell.font = NF
+                if fmt:
+                    cell.number_format = fmt
+            row += 1
+        detail_end = row - 1
+
+        s = ev_data["summary"]
+        tot_vals = ["TOTAL", s["gross"], s["disc"], s["net"], s["orders"], s["aov"],
+                    s["sessions"], s["purchases"], s["cvr"],
+                    s["meta_spend"], s["goog_spend"], s["total_ad"]]
+        for ci, (v, fmt) in enumerate(zip(tot_vals, daily_fmts)):
+            cell = ws.cell(row=row, column=2 + ci, value=v)
+            cell.font = BF
+            cell.fill = LGRAY
+            if fmt:
+                cell.number_format = fmt
+        row += 1
+
+        if detail_start <= detail_end:
+            for r in range(detail_start, detail_end + 1):
+                ws.row_dimensions[r].outlineLevel = 1
+                ws.row_dimensions[r].hidden = True
+
+        row += 1
+
+    # Column widths
+    ws.column_dimensions["A"].width = 4
+    ws.column_dimensions["B"].width = 28
+    ws.column_dimensions["C"].width = 20
+    ws.column_dimensions["D"].width = 20
+    for i in range(n_events):
+        cl = get_column_letter(ev_col_start + i)
+        ws.column_dimensions[cl].width = 20
+    for ci in range(len(daily_cols)):
+        cl = get_column_letter(2 + ci)
+        if ws.column_dimensions[cl].width < 14:
+            ws.column_dimensions[cl].width = 14
+
+    ws.sheet_properties.outlinePr.summaryBelow = True
+    ws.freeze_panes = "E3"
+    print(f"  Promo Analysis: {len(events)} events, {row} rows")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -2657,6 +3203,8 @@ def build_influencer_dashboard(wb, D):
 # ══════════════════════════════════════════════════════════════════════════════
 
 def main():
+    import sys
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     print("Loading data...")
     D = preprocess()
     print(f"  Months: {D['months'][0]} to {D['months'][-1]} ({len(D['months'])} months)")
@@ -2666,44 +3214,57 @@ def main():
     wb = Workbook()
     wb.remove(wb.active)
 
-    # Tab 1: Revenue
+    # Tab 1: Sales (formerly Revenue)
     sec_map_1a, flat_1a = build_revenue(wb, D)
 
     # Tab 2: Ads
     build_ads(wb, D)
 
-    # Tab 3: Campaign Details
-    build_vintage(wb, D)
-
-    # Tab 4: Organic
-    build_organic(wb, D)
-
-    # Tab 5: CM
-    build_cm(wb, D)
-
-    # Tab 6: Model Check
-    build_model_check(wb, D)
-
-    # Tab 7: Summary
+    # Tab 3: Summary
     build_summary(wb, D)
 
-    # Tab 8: Search Volume (if data available)
+    # Tab 4: ADS Campaign Details (formerly Campaign Details)
+    build_vintage(wb, D)
+
+    # Tab 5: Organic Sales (formerly Organic)
+    build_organic(wb, D)
+
+    # Tab 6: Search Volume (if data available)
     if D.get("search_vol"):
         build_search_volume(wb, D)
 
-    # Tab 9: Influencer Dashboard (if data available)
+    # Tab 7: Influencer Dashboard (if data available)
     if D.get("has_influencer_data"):
         build_influencer_dashboard(wb, D)
+
+    # Tab 8: Promo Analysis (if data available)
+    if D.get("promo_data") and PROMO_EVENTS:
+        build_promo_analysis(wb, D)
+
+    # Tab 9: CM
+    build_cm(wb, D)
+
+    # Tabs 10-13: Klaviyo Email Dashboard
+    if D.get("kl_flows") is not None:
+        import klaviyo_email_dashboard as _kled
+        _kled.build_flow_summary(wb, D["kl_flows"])
+        _kled.build_campaign_summary(wb, D["kl_camps"])
+        _kled.build_monthly_trends(wb, D["kl_flows"], D["kl_camps"])
+        _kled.build_category_analysis(wb, D["kl_flows"], D["kl_camps"])
+        print(f"  Klaviyo Email: 4 tabs added")
+
+    # Tab 14: Model Check (last)
+    build_model_check(wb, D)
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     try:
         wb.save(OUT)
         print(f"\nModel saved: {OUT}")
     except PermissionError:
-        fallback = OUT.replace(".xlsx", "_new.xlsx")
+        fallback = get_output_path("polar", "financial_model")
         wb.save(fallback)
-        print(f"\nOriginal file locked — saved to: {fallback}")
-        print("Close the Excel file and rename/replace manually.")
+        print(f"\nOriginal file locked - saved to: {fallback}")
+        print("Close the Excel file and retry.")
     print(f"Sheets: {', '.join(wb.sheetnames)}")
 
 

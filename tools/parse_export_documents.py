@@ -912,9 +912,10 @@ def main():
     results.sort(key=lambda x: x.get('date') or '0000-00', reverse=True)
 
     # Save results to Excel
-    output_dir = r"Z:\Orbiters\ORBITERS CLAUDE\WJ Test1\Data Storage\Export Document"
+    from output_utils import get_output_path, DATA_STORAGE
+    output_dir = os.path.join(DATA_STORAGE, "export")
     os.makedirs(output_dir, exist_ok=True)
-    output_path = os.path.join(output_dir, "Export_Document_Summary.xlsx")
+    output_path = get_output_path("export", "export_summary")
 
     wb_out = openpyxl.Workbook()
 
@@ -1022,7 +1023,7 @@ def main():
     print(f"{'=' * 80}")
 
     # Also save raw JSON for Claude reference
-    json_path = os.path.join(output_dir, "Export_Document_Data.json")
+    json_path = os.path.join(DATA_STORAGE, "export", "Export_Document_Data.json")
     json_data = []
     for r in results:
         entry = {k: v for k, v in r.items() if k != 'items_summary'}

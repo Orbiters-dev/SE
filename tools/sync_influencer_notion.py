@@ -62,9 +62,8 @@ NOTION_HEADERS = {
     "Content-Type": "application/json",
 }
 
-# Temp output directory
-TMP_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".tmp", "sync_influencer_notion")
-os.makedirs(TMP_DIR, exist_ok=True)
+# Output directory
+from output_utils import get_output_path
 
 # Brand name extraction from tab names (e.g., "Grosmimi Cp" -> "Grosmimi")
 BRAND_TAB_MAP = {
@@ -923,10 +922,8 @@ def sync_to_notion(to_create, to_update, user_map, dry_run=False):
 
 def write_sync_report(to_create, to_update, orphans, errors, dry_run=False):
     """Write an Excel sync report."""
-    today = datetime.now().strftime("%Y-%m-%d")
-    prefix = "dryrun_" if dry_run else ""
-    filename = f"{prefix}sync_report_{today}.xlsx"
-    filepath = os.path.join(TMP_DIR, filename)
+    prefix = "dryrun_sync_report" if dry_run else "sync_report"
+    filepath = get_output_path("influencer", prefix)
 
     wb = openpyxl.Workbook()
 

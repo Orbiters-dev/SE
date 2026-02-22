@@ -161,7 +161,8 @@ def main():
             max_len = max(len(str(cell.value or "")) for cell in col)
             ws.column_dimensions[col[0].column_letter].width = min(max_len + 4, 60)
 
-    out_path = ".tmp/facebook_ads.xlsx"
+    from output_utils import get_intermediate_path
+    out_path = get_intermediate_path("", "facebook_ads.xlsx")
     wb.save(out_path)
     print(f"\n✅ 완료! 저장 위치: {out_path}")
     print(f"   총 캠페인: {len(rows)}개")

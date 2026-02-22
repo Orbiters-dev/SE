@@ -268,8 +268,8 @@ def main():
     all_jobs = enriched
 
     # Step 3: write Excel
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    output_path = os.path.join(".tmp", "scrape_job_listings", f"job_listings_{timestamp}.xlsx")
+    from output_utils import get_output_path
+    output_path = get_output_path("misc", "job_listings")
     print(f"\n=== Step 3: Writing Excel to {output_path} ===")
     write_excel(all_jobs, output_path)
     print(f"Done. {len(all_jobs)} jobs saved to {output_path}")

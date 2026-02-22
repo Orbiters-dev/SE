@@ -15,7 +15,8 @@ from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.join(SCRIPT_DIR, "..")
 DATA_DIR = os.path.join(ROOT_DIR, ".tmp", "polar_data")
-OUTPUT = os.path.join(ROOT_DIR, "Data Storage", "Polar_Dashboard.xlsx")
+from output_utils import get_output_path
+OUTPUT = get_output_path("polar", "dashboard")
 
 # ── Constants ────────────────────────────────────────────────────────────────
 BRANDS = [

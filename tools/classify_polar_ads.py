@@ -22,11 +22,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ── 경로 설정 ─────────────────────────────────────────────────
-POLAR_ADS_FILE      = "Data Storage/Polar Ads 카테고리 분류_Raw.xlsx"
+from output_utils import get_output_path, get_latest_file, get_intermediate_path, DATA_STORAGE
+POLAR_ADS_FILE      = get_latest_file("polar", "ads_classification") or os.path.join(DATA_STORAGE, "_archive", "Polar Ads 카테고리 분류_Raw.xlsx")
 POLAR_ADS_SHEET     = "ads Copy (1)"
-PRODUCT_VARIANT_FILE = "Data Storage/Product Variant New Number - Polar Analytics.xlsx"
+PRODUCT_VARIANT_FILE = os.path.join(DATA_STORAGE, "polar", "Product_Variant_Reference.xlsx")
 PRODUCT_VARIANT_SHEET = "Custom Report"
-FB_ADS_FILE         = ".tmp/facebook_ads.xlsx"
+FB_ADS_FILE         = get_intermediate_path("", "facebook_ads.xlsx")
 
 SHOPIFY_SHOP  = os.getenv("SHOPIFY_SHOP", "mytoddie.myshopify.com")
 SHOPIFY_TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN")
@@ -379,9 +380,10 @@ def main():
             label = f"{str(ad_name or '')[:30]:30s} (camp: {str(camp_name or '')[:25]})"
             print(f"  [{row_idx:4d}] {label} → {brand} / {cat}")
 
-    wb.save(POLAR_ADS_FILE)
+    ads_output = get_output_path("polar", "ads_classification")
+    wb.save(ads_output)
     print(f"\n{'='*60}")
-    print(f"완료! 총 {total}행 중 {updated}행 업데이트")
+    print(f"완료! 총 {total}행 중 {updated}행 업데이트 → {ads_output}")
     print(f"\n=== 분류 결과 요약 ===")
     for label, count in sorted(summary.items(), key=lambda x: -x[1]):
         print(f"  {label}: {count}행")

@@ -35,9 +35,11 @@ from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
 
 # ── Config ────────────────────────────────────────────────────────────────────
+from output_utils import get_latest_file, get_output_path
 BASE            = os.path.dirname(os.path.dirname(__file__))
-EXCEL_PATH      = os.path.join(BASE, "Data Storage", "Polar data", "Polar_Financial_Model_new.xlsx")
-EXCEL_COPY      = os.path.join(BASE, "Data Storage", "Polar_Financial_Model_new.xlsx")
+EXCEL_PATH      = get_latest_file("polar", "financial_model")
+if not EXCEL_PATH:
+    raise FileNotFoundError("No financial_model file found in Data Storage/polar/")
 SHEET_NAME      = "Search Volume"
 SERVICE_ACCOUNT = os.path.join(BASE, "credentials", "google_service_account.json")
 GSC_SITE        = "sc-domain:zezebaebae.com"
@@ -233,17 +235,11 @@ def run(dry_run=False):
         else:
             print(f"  [GSC] {name:<20}  (no data)")
 
-    # Save
-    ts     = datetime.now().strftime("%Y-%m-%d_%H%M")
-    out_ts = EXCEL_PATH.replace(".xlsx", f"_updated_{ts}.xlsx")
-    wb.save(out_ts)
-    print(f"\n✓ Saved (timestamped): {out_ts}")
-    wb.save(EXCEL_PATH)
-    print(f"✓ Overwritten (Polar data): {EXCEL_PATH}")
-    if os.path.exists(EXCEL_COPY):
-        wb.save(EXCEL_COPY)
-        print(f"✓ Overwritten (Data Storage): {EXCEL_COPY}")
-    print("\nDone. 3 sources clearly separated in Search Volume tab.")
+    # Save as new version
+    out_path = get_output_path("polar", "financial_model")
+    wb.save(out_path)
+    print(f"\n✓ Saved: {out_path}")
+    print("Done. 3 sources clearly separated in Search Volume tab.")
 
 
 if __name__ == "__main__":

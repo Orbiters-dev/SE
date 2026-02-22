@@ -360,7 +360,8 @@ def main():
     if args.json:
         print(json.dumps({"google": google_results, "amazon": amazon_results}, indent=2, ensure_ascii=False))
     else:
-        output_path = args.output or f".tmp/fetch_keyword_volume/keyword_volume_{datetime.now().strftime('%Y-%m-%d')}.xlsx"
+        from output_utils import get_output_path
+        output_path = args.output or get_output_path("marketing", "keyword_volume")
         save_to_excel(google_results, amazon_results, output_path)
 
     # Print cost summary

@@ -686,10 +686,8 @@ def main():
     )
     args = parser.parse_args()
 
-    now_str = datetime.now().strftime("%Y-%m-%d_%H%M")
-    output_path = os.path.join(
-        ".tmp", "gmail_affiliate_faq", f"affiliate_faq_{now_str}.xlsx"
-    )
+    from output_utils import get_output_path
+    output_path = get_output_path("influencer", "affiliate_faq")
 
     # ------------------------------------------------------------------
     # Step 1: Gmail 인증 + 이메일 페치

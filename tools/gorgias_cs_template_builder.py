@@ -460,8 +460,8 @@ def main():
     parser.add_argument("--dry-run",      action="store_true",  help="Skip Google Sheets write, save Excel only")
     args = parser.parse_args()
 
-    today = datetime.now().strftime("%Y-%m-%d")
-    output_path = os.path.join(".tmp", "gorgias_cs_template_builder", f"cs_templates_{today}.xlsx")
+    from output_utils import get_output_path
+    output_path = get_output_path("cs", "cs_templates")
 
     # ------------------------------------------------------------------
     # Step 1: Fetch tickets
