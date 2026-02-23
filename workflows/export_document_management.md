@@ -1,12 +1,12 @@
 # Export Document Management
 
-수출 서류 (CI/PL) 파싱, 정리, 레퍼런스 관리 워크플로우.
+수출 서류 (CI/PL) 파싱, 정리, 레퍼런스 관리, 생성 워크플로우.
 
 ---
 
 ## Objective
 
-컴퓨터 내 흩어진 CI (Commercial Invoice), PL (Packing List) 파일들을 자동 파싱하여 구조화된 데이터로 정리하고, 레퍼런스 파일을 buyer/importer별 폴더로 관리한다.
+컴퓨터 내 흩어진 CI (Commercial Invoice), PL (Packing List) 파일들을 자동 파싱하여 구조화된 데이터로 정리하고, 레퍼런스 파일을 buyer/importer별 폴더로 관리하며, 새 CIPL 문서를 자동 생성한다.
 
 ---
 
@@ -59,7 +59,7 @@ CI/PL 파일 탐색 및 파싱.
 레퍼런스 파일 정리 및 폴더 분류.
 
 **Input**: `Export_Document_Data.json` (Step 1 결과)
-**Output**: `Data Storage/Export Document/reference/` 하위에 buyer/importer별 폴더
+**Output**: `Data Storage/export/reference/` 하위에 buyer/importer별 폴더
 
 **폴더 구조**:
 ```
@@ -71,6 +71,24 @@ reference/
 **파일명 형식**: `년월_브랜드_운송방식_Exporter_Importer_FinalConsignee_Destination.ext`
 
 예시: `2024-10_Grosmimi_SEA_LFU_FLT_WBF_USA.xlsx`
+
+---
+
+### 3. `tools/generate_cipl.py`
+
+CIPL (Commercial Invoice & Packing List) 자동 생성.
+
+**Input**:
+- `REFERENCE/` 내 팩킹정보 파일 (예: `미국 1월2차_팩킹정보.xlsx`)
+- `REFERENCE/2025_Ex Price_Grosmimi_20250930_미국_카톤당수량 업뎃.xlsx` (기준 가격표)
+
+**Output**: `Data Storage/export/` 에 파일명 양식대로 저장
+
+**가격 산정**:
+- 기준: Ex Price 파일이 THE base (가장 기준이 되는 자료)
+- LFU -> FLT 판매가: `round(ex_price * 1.05, 2)` (개당 5% 가산, 소수점 셋째자리 반올림)
+
+**파일명 예시**: `2026-01_Grosmimi_SEA_LFU_FLT_WBF_USA.xlsx`
 
 ---
 
@@ -108,6 +126,14 @@ python tools/reorganize_export_references.py
 - Final Consignee 추출 및 추가
 - buyer/importer별 폴더 분류
 
+### Step 4: CIPL 생성
+```
+python tools/generate_cipl.py
+```
+- 팩킹정보 + Ex Price 기준 가격표로 CIPL 자동 생성
+- 가격: Ex Price * 1.05 (LFU->FLT 5% markup)
+- 출력: `Data Storage/export/` (reference 아님)
+
 ---
 
 ## Brands Covered
@@ -119,19 +145,23 @@ Grosmimi, Naeiae, Conys, Nature Love Mere, Alpremio, BabyRabbit, BambooBebe, Com
 ## Data Location
 
 ```
-Data Storage/Export Document/
+Data Storage/export/
   Export_Document_Summary.xlsx   ← 요약 Excel (3 시트)
   Export_Document_Data.json      ← 구조화 JSON (Claude 참조용)
-  reference/
+  2026-01_Grosmimi_SEA_...xlsx   ← 생성된 CIPL 등 최종 산출물
+  reference/                     ← 참고자료 (기존 CI/PL 원본 복사본)
     LFU/                         ← LFU buyer 건
     FLT/                         ← FLT buyer 건
 ```
+
+> **주의**: `reference/`는 참고자료 전용. 생성된 서류는 `Data Storage/export/`에 직접 저장.
 
 ---
 
 ## Future Task
 
-유저가 발주 제품, 대상지, 수입자, 수출자를 알려주면 레퍼런스 파일 기반으로 CI, PL, CO 문서를 자동 생성해야 함.
+- ~~CI/PL 자동 생성~~ → `tools/generate_cipl.py`로 구현 완료
+- CO (Certificate of Origin) 자동 생성은 미구현
 
 ---
 

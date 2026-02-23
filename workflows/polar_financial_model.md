@@ -131,6 +131,7 @@ Only generated if q10_influencer_orders.json exists. Sections:
   - Colors: TOTAL=MBLUE > Brand=LGRAY > Category=LLGRAY > Product=no fill
   - Category and Product rows collapsed by default (Excel row groups)
 - **C. Paid vs Non-paid Split:**
+  - "Paid" row (167) references Section D "# Payments (Total)" row (172) via `=C172` formulas — keeps the two sections in sync
   - PR + TikTok tagged → always Non-paid
   - PR only → matched against PayPal + Bill Pay transactions → Paid or Non-paid
 - **D. PayPal / Bill Pay Influencer Payments:** Paid count + amount sent per month
@@ -190,6 +191,17 @@ Required in `.env`:
 - **Channel Map**: D2C→Onzenna, Target+→TargetPlus, Amazon variants→Amazon, PR→PR (net=0)
 - **Product Categories**: 18 categories classified by keyword matching on product variant names
 - **Campaign Types**: Amazon (SP/SB/SD), Facebook (CVR/Traffic/Other), Google (CVR), TikTok (CVR/Traffic/Other)
+
+### Tab: Search Volume
+4 sections tracking keyword demand across platforms:
+- **Google Search Console Impressions** (rows 1-18): GSC zezebaebae.com monthly impressions — OUR site exposure in Google Search results (not total market demand). Source: Google Search Console.
+- **Google Search Volume** (rows 20-37): Monthly absolute search volume from DataForSEO Google Ads API (US). Full 2024 data (Jan-Dec) + 2025 + Jan/Feb 2026. Represents total market demand.
+- **Amazon Search Volume** (rows 39-56): Current snapshot from DataForSEO Amazon API (US). No monthly breakdown — single "Current Vol" column.
+- **Google Trends** (rows 58-75): Monthly relative index (0-100) for trend direction.
+
+Keywords tracked: Onzenna, zezebaebae, Grosmimi, Alpremio, Cha&Mom, Comme Moi, BabyRabbit, Naeiae, Bamboobebe, Hattung, Beemymagic, Nature Love Mere, PPSU, PPSU Bottle, PPSU Baby Bottle, Phyto Seline.
+
+Reference: `REFERENCE/Polar_Financial_Model_new.xlsx` → Search Volume tab is the canonical source for this data.
 
 ## Known Limitations
 - Facebook Ads connector was "building" during data pull — FB data may be incomplete
