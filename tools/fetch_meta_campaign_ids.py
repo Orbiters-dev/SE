@@ -3,11 +3,11 @@
 Saves to .tmp/polar_data/q9_meta_campaign_ids.json
 """
 import os, json, urllib.request, urllib.parse
-from dotenv import load_dotenv
+from env_loader import load_env
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(DIR, "..")
-load_dotenv(os.path.join(ROOT, ".env"))
+load_env()
 
 ACCESS_TOKEN = os.getenv("META_ACCESS_TOKEN")
 AD_ACCOUNT_ID = os.getenv("META_AD_ACCOUNT_ID")

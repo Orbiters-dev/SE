@@ -17,9 +17,9 @@ import json
 import argparse
 import requests
 from datetime import datetime, date
-from dotenv import load_dotenv
+from env_loader import load_env
 
-load_dotenv()
+load_env()
 
 API_BASE = "https://api.dataforseo.com/v3"
 

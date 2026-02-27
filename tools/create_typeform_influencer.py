@@ -9,9 +9,9 @@ Typeform Influencer Gifting Form 생성 도구 v2
 import os
 import json
 import urllib.request
-from dotenv import load_dotenv
+from env_loader import load_env
 
-load_dotenv()
+load_env()
 
 TYPEFORM_API_KEY = os.getenv("TYPEFORM_API_KEY")
 TYPEFORM_API_BASE = "https://api.typeform.com"

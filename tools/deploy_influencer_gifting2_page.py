@@ -1,8 +1,19 @@
-"""
-Shopify Influencer Gifting Page 배포 도구
-- Shopify Theme Asset API로 커스텀 Liquid 섹션 + 페이지 템플릿 업로드
-- Shopify Pages API로 페이지 생성
-- 실행 시 페이지 URL 출력
+"""Deploy Influencer Gifting 2 page - for accepted creators from the inbound pipeline.
+
+Cloned from deploy_influencer_page.py with these additions:
+  - Pre-fills personal info from customer metafields / URL params
+  - Shows creator profile data (IG, TikTok, following size) as read-only
+  - Same age-based product selection logic
+  - Same terms & conditions
+  - Submits to a separate n8n webhook that creates Shopify draft order + updates Airtable
+
+Usage:
+    python tools/deploy_influencer_gifting2_page.py
+    python tools/deploy_influencer_gifting2_page.py --dry-run
+    python tools/deploy_influencer_gifting2_page.py --rollback
+
+Prerequisites:
+    .wat_secrets: SHOPIFY_SHOP, SHOPIFY_ACCESS_TOKEN, N8N_GIFTING2_WEBHOOK
 """
 
 import os
@@ -17,9 +28,14 @@ load_env()
 SHOP = os.getenv("SHOPIFY_SHOP", "mytoddie.myshopify.com")
 TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN", "")
 API_VERSION = "2024-01"
-N8N_WEBHOOK_URL = os.getenv("N8N_INFLUENCER_WEBHOOK", "")
+N8N_WEBHOOK_URL = os.getenv("N8N_GIFTING2_WEBHOOK", "https://n8n.orbiters.co.kr/webhook/onzenna-gifting2-submit")
 
-# ── Product Data (from Shopify API) ─────────────────────────────
+SECTION_KEY = "sections/influencer-gifting2.liquid"
+TEMPLATE_KEY = "templates/page.influencer-gifting2.json"
+PAGE_HANDLE = "influencer-gifting2"
+PAGE_TITLE = "Creator Sample Request"
+
+# ── Product Data (same as influencer-gifting) ────────────────
 PRODUCTS = {
     "ppsu_bottle": {
         "title": "Grosmimi PPSU Baby Bottle 10oz",
@@ -130,6 +146,8 @@ COLLAB_TERMS = (
     "<li>Must use royalty-free music</li>"
     "<li>Must tag: @zezebaebae_official (IG), @zeze_baebae (TikTok), @grosmimi_usa (IG &amp; TikTok)</li>"
     "<li>Must include: #Grosmimi #PPSU #sippycup #ppsusippycup #Onzenna</li>"
+    "<li>Content must be posted within 14 days of receiving the product</li>"
+    "<li>You agree that Onzenna may repost your content with credit</li>"
     "</ul>"
 )
 
@@ -154,6 +172,16 @@ US_STATE_NAMES = {
     "VA":"Virginia","WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming",
 }
 
+COLOR_HEX = {
+    "Creamy Blue":"#A4C8E1","Rose Coral":"#E88D8D","Olive White":"#C5C99A",
+    "Bear Pure Gold":"#D4A76A","Bear White":"#F5F0E8","Cherry Pure Gold":"#D4A76A",
+    "Cherry Rose Gold":"#E8B4B4","Peach":"#FFB899","Skyblue":"#87CEEB",
+    "White":"#F0F0F0","Aquagreen":"#7BC8A4","Pink":"#FFB6C1","Beige":"#D4C5A9",
+    "Charcoal":"#4A4A4A","Butter":"#F5E6B8","Flower Coral":"#FF8B7D",
+    "Air Balloon Blue":"#7EB5D6","Cherry Peach":"#FFB4A2","Olive Pistachio":"#A8BF8A",
+    "Bear Butter":"#F5E6B8",
+}
+
 
 # ── Shopify API Helpers ──────────────────────────────────────────
 def shopify_request(method, path, data=None):
@@ -173,7 +201,6 @@ def shopify_request(method, path, data=None):
 
 
 def get_active_theme_id():
-    """Get the main/active theme ID"""
     result = shopify_request("GET", "/themes.json")
     for theme in result.get("themes", []):
         if theme.get("role") == "main":
@@ -182,17 +209,7 @@ def get_active_theme_id():
     raise RuntimeError("No active theme found")
 
 
-def is_os2_theme(theme_id):
-    """Check if theme is Online Store 2.0 (has JSON templates)"""
-    try:
-        shopify_request("GET", f"/themes/{theme_id}/assets.json?asset[key]=templates/index.json")
-        return True
-    except urllib.error.HTTPError:
-        return False
-
-
 def upload_theme_asset(theme_id, key, value):
-    """Upload a file to the theme"""
     print(f"  Uploading: {key} ...")
     shopify_request("PUT", f"/themes/{theme_id}/assets.json", {
         "asset": {"key": key, "value": value}
@@ -201,8 +218,6 @@ def upload_theme_asset(theme_id, key, value):
 
 
 def create_or_update_page(handle, title, template_suffix):
-    """Create or update a Shopify page"""
-    # Check if page exists
     result = shopify_request("GET", f"/pages.json?handle={handle}")
     pages = result.get("pages", [])
 
@@ -230,9 +245,8 @@ def create_or_update_page(handle, title, template_suffix):
         return page_id
 
 
-# ── Liquid Section Template Builder ─────────────────────────────
+# ── Liquid Section Builder ─────────────────────────────────────
 def build_products_js():
-    """Build the JavaScript PRODUCTS object from Python dict"""
     js_products = {}
     for key, p in PRODUCTS.items():
         js_products[key] = {
@@ -252,7 +266,6 @@ def build_products_js():
 
 
 def build_state_options():
-    """Build HTML <option> tags for US states"""
     options = ['<option value="">Select State</option>']
     for code in US_STATES:
         name = US_STATE_NAMES[code]
@@ -260,21 +273,29 @@ def build_state_options():
     return "\n".join(options)
 
 
-def build_section_liquid(webhook_url):
-    """Build the complete Liquid section file content"""
+def build_color_hex_js():
+    return json.dumps(COLOR_HEX, indent=2)
 
+
+def build_section_liquid(webhook_url):
     products_js = build_products_js()
     state_options = build_state_options()
+    color_hex_js = build_color_hex_js()
 
-    return f'''<!-- Influencer Gifting Form Section -->
-<!-- Generated by tools/deploy_influencer_page.py -->
+    return f'''<!-- Influencer Gifting 2 - Creator Sample Request -->
+<!-- Generated by tools/deploy_influencer_gifting2_page.py -->
 
 {{% comment %}}
-  Customer pre-fill: passes logged-in customer data to JavaScript
+  For accepted creators from the inbound pipeline.
+  Pre-fills from customer data + metafields.
 {{% endcomment %}}
 {{% if customer %}}
 <script id="igf-customer-data" type="application/json">
-{{"name": {{{{ customer.name | json }}}}, "email": {{{{ customer.email | json }}}}, "phone": {{{{ customer.phone | json }}}}, "id": {{{{ customer.id }}}}}}
+{{"name": {{{{ customer.name | json }}}}, "email": {{{{ customer.email | json }}}}, "phone": {{{{ customer.phone | json }}}}, "id": {{{{ customer.id }}}},
+"instagram": {{{{ customer.metafields.onzenna_creator.primary_handle | default: "" | json }}}},
+"tiktok": "",
+"platform": {{{{ customer.metafields.onzenna_creator.primary_platform | default: "" | json }}}},
+"following_size": {{{{ customer.metafields.onzenna_creator.following_size | default: "" | json }}}}}}
 </script>
 {{% endif %}}
 
@@ -394,6 +415,31 @@ def build_section_liquid(webhook_url):
     accent-color: #2c6ecb;
   }}
 
+  /* ── Creator Info Box (read-only) ───────────────────── */
+  .igf-creator-info {{
+    background: #f0f4f0;
+    border: 1px solid #d0dcd0;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+  }}
+  .igf-creator-info h3 {{
+    font-size: 0.9rem;
+    color: #3A5A40;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }}
+  .igf-creator-row {{
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #e0e8e0;
+  }}
+  .igf-creator-row:last-child {{ border-bottom: none; }}
+  .igf-creator-label {{ color: #666; }}
+  .igf-creator-value {{ color: #333; font-weight: 500; }}
+
   /* ── Product Grid ──────────────────────────────────── */
   .igf-product-grid {{
     display: grid;
@@ -472,9 +518,7 @@ def build_section_liquid(webhook_url):
     color: #555;
     white-space: nowrap;
   }}
-  .igf-swatch:hover {{
-    border-color: #999;
-  }}
+  .igf-swatch:hover {{ border-color: #999; }}
   .igf-swatch.active {{
     border-color: #2c6ecb;
     background: #eef4ff;
@@ -502,9 +546,7 @@ def build_section_liquid(webhook_url):
     transition: all 0.2s;
     font-size: 0.9rem;
   }}
-  .igf-product-card .igf-select-btn:hover {{
-    background: #f0f6ff;
-  }}
+  .igf-product-card .igf-select-btn:hover {{ background: #f0f6ff; }}
   .igf-product-card.selected .igf-select-btn {{
     background: #2c6ecb;
     color: #fff;
@@ -548,9 +590,7 @@ def build_section_liquid(webhook_url):
     padding-left: 18px;
     margin: 0;
   }}
-  .igf-terms-list li {{
-    margin-bottom: 4px;
-  }}
+  .igf-terms-list li {{ margin-bottom: 4px; }}
 
   /* ── Buttons ───────────────────────────────────────── */
   .igf-btn-row {{
@@ -626,7 +666,6 @@ def build_section_liquid(webhook_url):
     background: #fef3e2;
     color: #e67e22;
   }}
-
   .igf-no-products {{
     text-align: center;
     padding: 40px;
@@ -634,7 +673,6 @@ def build_section_liquid(webhook_url):
     background: #f9f9f9;
     border-radius: 12px;
   }}
-
 </style>
 
 <div class="igf-container" id="igf-app">
@@ -647,10 +685,27 @@ def build_section_liquid(webhook_url):
     <div class="igf-progress-step" data-for="5"></div>
   </div>
 
-  <!-- ────── Step 1: Personal Info ────── -->
+  <!-- ────── Step 1: Personal Info + Creator Profile ────── -->
   <div class="igf-step active" data-step="1">
     <h2>Personal Information</h2>
-    <p class="igf-subtitle">Tell us about yourself</p>
+    <p class="igf-subtitle">Confirm your details for shipping</p>
+
+    <!-- Creator info box (read-only, populated from metafields) -->
+    <div class="igf-creator-info" id="igf-creator-box" style="display:none;">
+      <h3>Your Creator Profile</h3>
+      <div class="igf-creator-row">
+        <span class="igf-creator-label">Platform</span>
+        <span class="igf-creator-value" id="igf-creator-platform">-</span>
+      </div>
+      <div class="igf-creator-row">
+        <span class="igf-creator-label">Handle</span>
+        <span class="igf-creator-value" id="igf-creator-handle">-</span>
+      </div>
+      <div class="igf-creator-row">
+        <span class="igf-creator-label">Following</span>
+        <span class="igf-creator-value" id="igf-creator-following">-</span>
+      </div>
+    </div>
 
     <div class="igf-field">
       <label for="igf-name">Full Name *</label>
@@ -673,12 +728,10 @@ def build_section_liquid(webhook_url):
     <div class="igf-field">
       <label for="igf-instagram">Instagram Handle</label>
       <input type="text" id="igf-instagram" placeholder="@yourusername">
-      <small>Leave blank or type &lsquo;None&rsquo; if not applicable</small>
     </div>
     <div class="igf-field">
       <label for="igf-tiktok">TikTok Handle</label>
       <input type="text" id="igf-tiktok" placeholder="@yourusername">
-      <small>Leave blank or type &lsquo;None&rsquo; if not applicable</small>
     </div>
 
     <div class="igf-btn-row">
@@ -689,7 +742,7 @@ def build_section_liquid(webhook_url):
   <!-- ────── Step 2: Baby Info ────── -->
   <div class="igf-step" data-step="2">
     <h2>Baby Information</h2>
-    <p class="igf-subtitle">We&rsquo;ll recommend products based on your child&rsquo;s age</p>
+    <p class="igf-subtitle">We'll recommend products based on your child's age</p>
 
     <div class="igf-field">
       <label for="igf-baby1-bday">First Child Birthday / Expected Due Date *</label>
@@ -720,7 +773,7 @@ def build_section_liquid(webhook_url):
   <!-- ────── Step 3: Product Selection ────── -->
   <div class="igf-step" data-step="3">
     <h2>Select Your Products</h2>
-    <p class="igf-subtitle">Products recommended for your child&rsquo;s age. Click a card to select.</p>
+    <p class="igf-subtitle">Products recommended for your child's age. Click a card to select.</p>
     <div class="igf-product-grid" id="igf-products"></div>
 
     <div class="igf-btn-row">
@@ -794,15 +847,15 @@ def build_section_liquid(webhook_url):
     <div class="igf-btn-row">
       <button type="button" class="igf-btn igf-btn-secondary" data-go="4">Back</button>
       <button type="button" class="igf-btn igf-btn-primary" id="igf-submit-btn">
-        Submit Application
+        Submit Sample Request
       </button>
     </div>
   </div>
 
   <!-- ────── Success Screen ────── -->
   <div class="igf-step igf-success" data-step="success">
-    <h2>Thank you for your application!</h2>
-    <p>We will review your request and get back to you shortly.<br>Keep an eye on your email!</p>
+    <h2>Sample request submitted!</h2>
+    <p>We'll prepare your samples and send shipping confirmation to your email.<br>Thank you for being an Onzenna Creator!</p>
   </div>
 </div>
 
@@ -812,16 +865,22 @@ def build_section_liquid(webhook_url):
 
   const WEBHOOK_URL = "{webhook_url}";
   const PRODUCTS = {products_js};
+  const COLOR_HEX = {color_hex_js};
   const TOTAL_STEPS = 5;
   let currentStep = 1;
   let selectedProducts = {{}};
+
+  // ── URL Params (from Airtable acceptance email) ────
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlEmail = urlParams.get("email") || "";
+  const urlCid = urlParams.get("cid") || "";
 
   // ── Age Calculation ──────────────────────────────────
   function calcAgeMonths(dateStr) {{
     if (!dateStr) return null;
     const bd = new Date(dateStr);
     const now = new Date();
-    if (bd > now) return -1; // Expecting
+    if (bd > now) return -1;
     return (now.getFullYear() - bd.getFullYear()) * 12 + (now.getMonth() - bd.getMonth());
   }}
 
@@ -864,17 +923,6 @@ def build_section_liquid(webhook_url):
     return visible;
   }}
 
-  // ── Color Hex Map ────────────────────────────────────
-  const COLOR_HEX = {{
-    "Creamy Blue":"#A4C8E1","Rose Coral":"#E88D8D","Olive White":"#C5C99A",
-    "Bear Pure Gold":"#D4A76A","Bear White":"#F5F0E8","Cherry Pure Gold":"#D4A76A",
-    "Cherry Rose Gold":"#E8B4B4","Peach":"#FFB899","Skyblue":"#87CEEB",
-    "White":"#F0F0F0","Aquagreen":"#7BC8A4","Pink":"#FFB6C1","Beige":"#D4C5A9",
-    "Charcoal":"#4A4A4A","Butter":"#F5E6B8","Flower Coral":"#FF8B7D",
-    "Air Balloon Blue":"#7EB5D6","Cherry Peach":"#FFB4A2","Olive Pistachio":"#A8BF8A",
-    "Bear Butter":"#F5E6B8",
-  }};
-
   // ── Product Card Rendering ───────────────────────────
   function renderProducts() {{
     const grid = document.getElementById("igf-products");
@@ -886,7 +934,6 @@ def build_section_liquid(webhook_url):
       return;
     }}
 
-    // Remove selections that are no longer visible
     for (const k of Object.keys(selectedProducts)) {{
       if (!visible[k]) delete selectedProducts[k];
     }}
@@ -921,21 +968,16 @@ def build_section_liquid(webhook_url):
       grid.appendChild(card);
     }}
 
-    // Event: swatch click
     grid.querySelectorAll(".igf-swatch").forEach(sw => {{
       sw.addEventListener("click", function(e) {{
         e.stopPropagation();
         const k = this.dataset.key;
         const c = this.dataset.color;
         const card = this.closest(".igf-product-card");
-        // Highlight active swatch
         card.querySelectorAll(".igf-swatch").forEach(s => s.classList.remove("active"));
         this.classList.add("active");
-        // Swap product image if variant image exists
         const imgMap = PRODUCTS[k].imageMap || {{}};
-        if (imgMap[c]) {{
-          card.querySelector("img").src = imgMap[c];
-        }}
+        if (imgMap[c]) card.querySelector("img").src = imgMap[c];
         if (selectedProducts[k]) {{
           selectedProducts[k].color = c;
           selectedProducts[k].variantId = PRODUCTS[k].variantMap[c] || null;
@@ -943,7 +985,6 @@ def build_section_liquid(webhook_url):
       }});
     }});
 
-    // Event: select button
     grid.querySelectorAll(".igf-select-btn").forEach(btn => {{
       btn.addEventListener("click", function(e) {{
         e.stopPropagation();
@@ -951,7 +992,6 @@ def build_section_liquid(webhook_url):
       }});
     }});
 
-    // Event: card click (toggle selection)
     grid.querySelectorAll(".igf-product-card").forEach(card => {{
       card.addEventListener("click", function(e) {{
         if (e.target.closest(".igf-swatch") || e.target.tagName === "BUTTON") return;
@@ -981,21 +1021,13 @@ def build_section_liquid(webhook_url):
 
   // ── Step Navigation ──────────────────────────────────
   function goToStep(n) {{
-    // Validate current step before advancing
     if (n > currentStep && !validateStep(currentStep)) return;
+    if (n === 3) {{ updateAgeDisplay(); renderProducts(); }}
 
-    // Special: render products when entering step 3
-    if (n === 3) {{
-      updateAgeDisplay();
-      renderProducts();
-    }}
-
-    // Hide all steps, show target
     document.querySelectorAll(".igf-step").forEach(s => s.classList.remove("active"));
     const target = document.querySelector('.igf-step[data-step="' + n + '"]');
     if (target) target.classList.add("active");
 
-    // Update progress bar
     document.querySelectorAll(".igf-progress-step").forEach(bar => {{
       const barStep = parseInt(bar.dataset.for);
       bar.classList.toggle("done", barStep < n);
@@ -1009,7 +1041,6 @@ def build_section_liquid(webhook_url):
   // ── Validation ───────────────────────────────────────
   function validateStep(step) {{
     let valid = true;
-
     function check(id, condition) {{
       const el = document.getElementById(id);
       const errEl = el ? el.closest(".igf-field") : null;
@@ -1036,18 +1067,11 @@ def build_section_liquid(webhook_url):
       }}
     }}
     if (step === 3) {{
-      // Must select at least one non-optional product
       const nonOptional = Object.entries(selectedProducts).filter(([k]) => !PRODUCTS[k].optional);
-      if (nonOptional.length === 0) {{
-        alert("Please select at least one product.");
-        valid = false;
-      }}
-      // Check that selected products with colors have a color chosen
+      if (nonOptional.length === 0) {{ alert("Please select at least one product."); valid = false; }}
       for (const [k, sp] of Object.entries(selectedProducts)) {{
         if (PRODUCTS[k].colors.length > 0 && !sp.color) {{
-          alert('Please choose a color for "' + sp.title + '".');
-          valid = false;
-          break;
+          alert('Please choose a color for "' + sp.title + '".'); valid = false; break;
         }}
       }}
     }}
@@ -1076,8 +1100,9 @@ def build_section_liquid(webhook_url):
       ? document.getElementById("igf-baby2-bday").value : null;
 
     const payload = {{
-      form_type: "influencer_gifting",
+      form_type: "influencer_gifting2",
       submitted_at: new Date().toISOString(),
+      source: "inbound_pipeline",
       personal_info: {{
         full_name: document.getElementById("igf-name").value.trim(),
         email: document.getElementById("igf-email").value.trim(),
@@ -1107,6 +1132,7 @@ def build_section_liquid(webhook_url):
       }},
       terms_accepted: true,
       shopify_customer_id: window.__igf_customer ? window.__igf_customer.id : null,
+      airtable_email: urlEmail,
     }};
 
     fetch(WEBHOOK_URL, {{
@@ -1122,7 +1148,7 @@ def build_section_liquid(webhook_url):
       console.error("Submit error:", err);
       alert("Something went wrong. Please try again.");
       btn.disabled = false;
-      btn.innerHTML = "Submit Application";
+      btn.innerHTML = "Submit Sample Request";
     }});
   }}
 
@@ -1133,22 +1159,41 @@ def build_section_liquid(webhook_url):
     if (!show) document.getElementById("igf-baby2-bday").value = "";
   }}
 
-  // ── Customer Pre-fill (Shopify logged-in) ────────────
+  // ── Customer Pre-fill ────────────────────────────────
   function prefillCustomer() {{
     const el = document.getElementById("igf-customer-data");
     if (!el) return;
     const c = JSON.parse(el.textContent);
     if (!c) return;
     window.__igf_customer = c;
+
     if (c.name) document.getElementById("igf-name").value = c.name;
     if (c.email) document.getElementById("igf-email").value = c.email;
+    if (c.instagram) document.getElementById("igf-instagram").value = c.instagram;
+    if (c.tiktok) document.getElementById("igf-tiktok").value = c.tiktok;
+
+    // Show creator info box
+    if (c.platform || c.instagram) {{
+      document.getElementById("igf-creator-box").style.display = "block";
+      document.getElementById("igf-creator-platform").textContent = c.platform || "-";
+      document.getElementById("igf-creator-handle").textContent = c.instagram || c.tiktok || "-";
+      const sizeMap = {{ "under_1k": "Under 1K", "1k_10k": "1K-10K", "10k_50k": "10K-50K", "50k_100k": "50K-100K", "100k_plus": "100K+" }};
+      document.getElementById("igf-creator-following").textContent = sizeMap[c.following_size] || c.following_size || "-";
+    }}
+  }}
+
+  // ── URL Param Pre-fill (from acceptance email) ───────
+  function prefillFromUrl() {{
+    if (urlEmail && !document.getElementById("igf-email").value) {{
+      document.getElementById("igf-email").value = urlEmail;
+    }}
   }}
 
   // ── Date Input Listeners ─────────────────────────────
   document.getElementById("igf-baby1-bday").addEventListener("change", updateAgeDisplay);
   document.getElementById("igf-baby2-bday").addEventListener("change", updateAgeDisplay);
 
-  // ── Button Event Listeners (CSP-safe) ─────────────────
+  // ── Button Event Listeners ─────────────────────────────
   document.getElementById("igf-submit-btn").addEventListener("click", submit);
   document.getElementById("igf-has-baby2").addEventListener("change", toggleBaby2);
 
@@ -1160,6 +1205,7 @@ def build_section_liquid(webhook_url):
 
   // ── Init ─────────────────────────────────────────────
   prefillCustomer();
+  prefillFromUrl();
 
   window.IGF = {{ goToStep, submit, toggleBaby2 }};
 }})();
@@ -1167,20 +1213,19 @@ def build_section_liquid(webhook_url):
 
 {{% schema %}}
 {{
-  "name": "Influencer Gifting Form",
+  "name": "Influencer Gifting 2",
   "tag": "section",
-  "class": "influencer-gifting-section"
+  "class": "influencer-gifting2-section"
 }}
 {{% endschema %}}
 '''
 
 
 def build_template_json():
-    """Build the JSON page template content"""
     return json.dumps({
         "sections": {
             "main": {
-                "type": "influencer-gifting",
+                "type": "influencer-gifting2",
                 "settings": {}
             }
         },
@@ -1188,121 +1233,78 @@ def build_template_json():
     }, indent=2)
 
 
-# ── Main Deploy Function ────────────────────────────────────────
+# ── Deploy ───────────────────────────────────────────────────────
 def deploy(dry_run=False):
-    """Deploy the influencer gifting page to Shopify"""
     print(f"\n{'='*60}")
-    print(f"  Shopify Influencer Gifting Page Deployment")
+    print(f"  Deploy Influencer Gifting 2 Page")
     print(f"{'='*60}")
     print(f"  Shop: {SHOP}")
     print(f"  Webhook: {N8N_WEBHOOK_URL or '(not set)'}")
 
     if not TOKEN:
-        print("\n  [ERROR] SHOPIFY_ACCESS_TOKEN not set in .env")
-        print("  Run: python tools/shopify_oauth.py")
+        print("\n  [ERROR] SHOPIFY_ACCESS_TOKEN not set")
         return
 
-    if not N8N_WEBHOOK_URL:
-        print("\n  [WARN] N8N_INFLUENCER_WEBHOOK not set in .env")
-        print("  Form submissions will fail until webhook URL is configured.")
-
-    # 1. Get active theme
     print(f"\n  [1/4] Getting active theme ...")
     theme_id = get_active_theme_id()
 
-    # 2. Check OS 2.0
-    os2 = is_os2_theme(theme_id)
-    print(f"  Theme type: {'Online Store 2.0' if os2 else 'Legacy'}")
-
-    # 3. Build assets
     print(f"\n  [2/4] Building template assets ...")
     section_content = build_section_liquid(N8N_WEBHOOK_URL or "")
     print(f"  Section size: {len(section_content):,} bytes")
 
     if dry_run:
         print(f"\n  [DRY RUN] Would upload:")
-        print(f"    - sections/influencer-gifting.liquid ({len(section_content):,} bytes)")
-        if os2:
-            template_content = build_template_json()
-            print(f"    - templates/page.influencer-gifting.json ({len(template_content):,} bytes)")
-        else:
-            print(f"    - templates/page.influencer-gifting.liquid")
-        print(f"    - Create page: influencer-gifting")
-        print(f"\n  [DRY RUN] No changes made.")
+        print(f"    - {SECTION_KEY} ({len(section_content):,} bytes)")
+        print(f"    - {TEMPLATE_KEY}")
+        print(f"    - Create page: {PAGE_HANDLE}")
         return
 
-    # 4. Upload assets
     print(f"\n  [3/4] Uploading theme assets ...")
-    upload_theme_asset(theme_id, "sections/influencer-gifting.liquid", section_content)
+    upload_theme_asset(theme_id, SECTION_KEY, section_content)
+    template_content = build_template_json()
+    upload_theme_asset(theme_id, TEMPLATE_KEY, template_content)
 
-    if os2:
-        template_content = build_template_json()
-        upload_theme_asset(theme_id, "templates/page.influencer-gifting.json", template_content)
-    else:
-        legacy_template = "{% section 'influencer-gifting' %}"
-        upload_theme_asset(theme_id, "templates/page.influencer-gifting.liquid", legacy_template)
-
-    # 5. Create page
     print(f"\n  [4/4] Creating Shopify page ...")
-    page_id = create_or_update_page(
-        handle="influencer-gifting",
-        title="Grosmimi Gifting Application",
-        template_suffix="influencer-gifting",
-    )
+    page_id = create_or_update_page(PAGE_HANDLE, PAGE_TITLE, "influencer-gifting2")
 
-    # Get store domain for URL
-    custom_domain = SHOP.replace(".myshopify.com", "")
-    page_url = f"https://{SHOP}/pages/influencer-gifting"
-
+    page_url = f"https://{SHOP}/pages/{PAGE_HANDLE}"
     print(f"\n{'='*60}")
     print(f"  [SUCCESS] Page deployed!")
     print(f"  Page ID: {page_id}")
     print(f"  URL: {page_url}")
     print(f"{'='*60}")
 
-    # Save deployment info
     os.makedirs(".tmp/shopify_gifting", exist_ok=True)
-    info = {
-        "page_id": page_id,
-        "page_url": page_url,
-        "theme_id": theme_id,
-        "webhook_url": N8N_WEBHOOK_URL,
-    }
-    with open(".tmp/shopify_gifting/deploy_info.json", "w", encoding="utf-8") as f:
+    info = {"page_id": page_id, "page_url": page_url, "theme_id": theme_id, "webhook_url": N8N_WEBHOOK_URL}
+    with open(".tmp/shopify_gifting/gifting2_deploy_info.json", "w", encoding="utf-8") as f:
         json.dump(info, f, indent=2)
-    print(f"\n  Deploy info saved to .tmp/shopify_gifting/deploy_info.json")
 
     return info
 
 
 def rollback():
-    """Remove deployed assets and page"""
     print(f"\n  Rolling back ...")
-
     if not TOKEN:
         print("  [ERROR] No token")
         return
 
     theme_id = get_active_theme_id()
 
-    # Delete section
     try:
-        shopify_request("DELETE", f"/themes/{theme_id}/assets.json?asset[key]=sections/influencer-gifting.liquid")
-        print("  [OK] Deleted sections/influencer-gifting.liquid")
+        shopify_request("DELETE", f"/themes/{theme_id}/assets.json?asset[key]={SECTION_KEY}")
+        print(f"  [OK] Deleted {SECTION_KEY}")
     except Exception as e:
         print(f"  [SKIP] Section: {e}")
 
-    # Delete template (try both OS2 and legacy)
-    for key in ["templates/page.influencer-gifting.json", "templates/page.influencer-gifting.liquid"]:
+    for key in [TEMPLATE_KEY, "templates/page.influencer-gifting2.liquid"]:
         try:
             shopify_request("DELETE", f"/themes/{theme_id}/assets.json?asset[key]={key}")
             print(f"  [OK] Deleted {key}")
         except Exception:
             pass
 
-    # Delete page
     try:
-        result = shopify_request("GET", "/pages.json?handle=influencer-gifting")
+        result = shopify_request("GET", f"/pages.json?handle={PAGE_HANDLE}")
         for page in result.get("pages", []):
             shopify_request("DELETE", f"/pages/{page['id']}.json")
             print(f"  [OK] Deleted page {page['id']}")
@@ -1312,10 +1314,8 @@ def rollback():
     print("  [DONE] Rollback complete")
 
 
-# ── CLI ──────────────────────────────────────────────────────────
 def main():
     args = sys.argv[1:]
-
     if "--rollback" in args:
         rollback()
     elif "--dry-run" in args:

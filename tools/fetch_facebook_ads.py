@@ -9,9 +9,9 @@ import json
 import urllib.request
 import urllib.parse
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
+from env_loader import load_env
 
-load_dotenv()
+load_env()
 
 ACCESS_TOKEN = os.getenv("META_ACCESS_TOKEN")
 AD_ACCOUNT_ID = os.getenv("META_AD_ACCOUNT_ID")

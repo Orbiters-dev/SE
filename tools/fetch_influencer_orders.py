@@ -7,11 +7,11 @@ Two-pass approach:
 Saves to .tmp/polar_data/q10_influencer_orders.json
 """
 import os, json, urllib.request, urllib.parse, time, re
-from dotenv import load_dotenv
+from env_loader import load_env
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(DIR, "..")
-load_dotenv(os.path.join(ROOT, ".env"))
+load_env()
 
 SHOP = os.getenv("SHOPIFY_SHOP", "mytoddie.myshopify.com")
 TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN")

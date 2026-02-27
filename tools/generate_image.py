@@ -14,9 +14,9 @@ import argparse
 import os
 import sys
 from pathlib import Path
-from dotenv import load_dotenv
+from env_loader import load_env
 
-load_dotenv()
+load_env()
 
 
 def get_client():

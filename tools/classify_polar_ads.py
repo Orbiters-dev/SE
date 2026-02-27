@@ -17,9 +17,9 @@ import time
 import urllib.request
 import urllib.parse
 from collections import defaultdict, Counter
-from dotenv import load_dotenv
+from env_loader import load_env
 
-load_dotenv()
+load_env()
 
 # ── 경로 설정 ─────────────────────────────────────────────────
 from output_utils import get_output_path, get_latest_file, get_intermediate_path, DATA_STORAGE

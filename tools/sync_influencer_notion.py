@@ -33,7 +33,7 @@ from datetime import datetime
 from collections import defaultdict
 
 import requests
-from dotenv import load_dotenv
+from env_loader import load_env
 import openpyxl
 from openpyxl.styles import Font, Alignment
 
@@ -45,7 +45,7 @@ if sys.stdout.encoding != "utf-8":
 # Config
 # ---------------------------------------------------------------------------
 
-load_dotenv()
+load_env()
 
 NOTION_TOKEN = os.getenv("NOTION_API_TOKEN")
 NOTION_DB_ID = os.getenv("INFLUENCER_NOTION_DB_ID", "30c86c6dc0468080a4e0d591414d733b")

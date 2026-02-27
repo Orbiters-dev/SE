@@ -25,11 +25,11 @@ import urllib.request
 import urllib.parse
 import urllib.error
 from datetime import datetime, timezone
-from dotenv import load_dotenv
+from env_loader import load_env
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(DIR, "..")
-load_dotenv(os.path.join(ROOT, ".env"))
+load_env()
 
 SHOP = os.getenv("SHOPIFY_SHOP", "mytoddie.myshopify.com")
 TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN")

@@ -7,11 +7,11 @@ Saves to .tmp/polar_data/q11_paypal_transactions.json
 """
 import os, json, urllib.request, urllib.parse, base64, time
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
+from env_loader import load_env
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(DIR, "..")
-load_dotenv(os.path.join(ROOT, ".env"))
+load_env()
 
 CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
 SECRET = os.getenv("PAYPAL_SECRET")

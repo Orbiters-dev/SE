@@ -1,7 +1,7 @@
 """
 Shopify OAuth 토큰 발급 스크립트
 - 로컬 서버를 열어서 OAuth 콜백을 캡처
-- 자동으로 access token 발급 후 .env에 저장
+- 자동으로 access token 발급 후 .wat_secrets에 저장
 """
 
 import os
@@ -12,17 +12,18 @@ import webbrowser
 import urllib.request
 import urllib.parse
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from dotenv import load_dotenv
+from env_loader import load_env
 
-load_dotenv()
+load_env()
 
 CLIENT_ID = os.getenv("SHOPIFY_CLIENT_ID", "d35ab8420b01d73924735d2ab58e1d45")
 CLIENT_SECRET = os.getenv("SHOPIFY_CLIENT_SECRET", "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")
 SHOP = os.getenv("SHOPIFY_SHOP", "mytoddie.myshopify.com")
 REDIRECT_URI = "http://localhost:3456/callback"
-SCOPES = "read_orders,read_all_orders,read_products,read_customers,write_customers,read_inventory,write_themes,write_content,write_draft_orders"
+SCOPES = "read_orders,read_all_orders,read_products,read_customers,write_customers,read_inventory,write_themes,write_content,write_draft_orders,read_discounts,write_discounts,read_price_rules,write_price_rules"
 
 STATE = "shopify_oauth_ok"
+SECRETS_PATH = os.path.expanduser("~/.wat_secrets")
 received_token = {}
 
 
@@ -32,16 +33,34 @@ class CallbackHandler(BaseHTTPRequestHandler):
         params = dict(urllib.parse.parse_qsl(parsed.query))
 
         if "code" not in params:
-            self._respond(400, "❌ code 파라미터 없음")
+            # Install app flow might hit root path with hmac/shop params but no code
+            # Check if this is an install redirect that needs the OAuth authorize step
+            if "shop" in params:
+                shop = params["shop"]
+                print(f"\n[INFO] Install redirect from shop: {shop}")
+                print(f"[INFO] Redirecting to OAuth authorize...")
+                auth_url = (
+                    f"https://{shop}/admin/oauth/authorize"
+                    f"?client_id={CLIENT_ID}"
+                    f"&scope={SCOPES}"
+                    f"&redirect_uri={urllib.parse.quote(REDIRECT_URI)}"
+                    f"&state={STATE}"
+                )
+                self.send_response(302)
+                self.send_header("Location", auth_url)
+                self.end_headers()
+                return
+            self._respond(400, "code parameter missing")
             return
 
-        # state check skipped for reliability
-
+        # Use shop from callback params if available
+        shop = params.get("shop", SHOP)
         code = params["code"]
         print(f"\n[OK] Auth code received: {code[:10]}...")
+        print(f"[OK] Shop: {shop}")
 
-        # code → access token 교환
-        token_url = f"https://{SHOP}/admin/oauth/access_token"
+        # code -> access token exchange
+        token_url = f"https://{shop}/admin/oauth/access_token"
         payload = json.dumps({
             "client_id": CLIENT_ID,
             "client_secret": CLIENT_SECRET,
@@ -63,15 +82,15 @@ class CallbackHandler(BaseHTTPRequestHandler):
                 if token:
                     received_token["token"] = token
                     received_token["scope"] = scope
+                    received_token["shop"] = shop
                     print(f"[SUCCESS] Access Token issued!")
                     print(f"   Scope: {scope}")
-                    self._respond(200, f"<h2>Token issued! Close this tab.</h2>")
+                    self._respond(200, "Token issued! Close this tab.")
                 else:
                     self._respond(500, f"No token: {data}")
         except Exception as e:
             self._respond(500, f"Error: {e}")
 
-        # 서버 종료 신호
         self.server.token_received = True
 
     def _respond(self, code, msg):
@@ -83,41 +102,43 @@ class CallbackHandler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def log_message(self, format, *args):
-        pass  # 로그 숨김
+        pass
 
 
-def save_to_env(token):
-    """access token을 .env에 저장"""
-    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".env")
-    with open(env_path, "r", encoding="utf-8") as f:
-        content = f.read()
+def save_to_secrets(token, shop=None):
+    """Save access token to ~/.wat_secrets"""
+    shop = shop or SHOP
+    try:
+        with open(SECRETS_PATH, "r", encoding="utf-8") as f:
+            content = f.read()
+    except FileNotFoundError:
+        content = ""
 
-    shopify_block = f"\n# Shopify\nSHOPIFY_SHOP={SHOP}\nSHOPIFY_ACCESS_TOKEN={token}\n"
+    # Update SHOPIFY_ACCESS_TOKEN
+    lines = content.split("\n")
+    new_lines = []
+    updated_token = False
+    updated_shop = False
 
-    if "# Shopify" in content:
-        # 기존 블록 업데이트
-        lines = content.split("\n")
-        new_lines = []
-        skip = False
-        for line in lines:
-            if line.strip() == "# Shopify":
-                skip = True
-                new_lines.append(f"# Shopify")
-                new_lines.append(f"SHOPIFY_SHOP={SHOP}")
-                new_lines.append(f"SHOPIFY_ACCESS_TOKEN={token}")
-            elif skip and line.startswith("SHOPIFY_"):
-                continue
-            else:
-                skip = False
-                new_lines.append(line)
-        content = "\n".join(new_lines)
-    else:
-        content += shopify_block
+    for line in lines:
+        if line.startswith("SHOPIFY_ACCESS_TOKEN="):
+            new_lines.append(f"SHOPIFY_ACCESS_TOKEN={token}")
+            updated_token = True
+        elif line.startswith("SHOPIFY_SHOP="):
+            new_lines.append(f"SHOPIFY_SHOP={shop}")
+            updated_shop = True
+        else:
+            new_lines.append(line)
 
-    with open(env_path, "w", encoding="utf-8") as f:
-        f.write(content)
+    if not updated_token:
+        new_lines.append(f"SHOPIFY_ACCESS_TOKEN={token}")
+    if not updated_shop:
+        new_lines.append(f"SHOPIFY_SHOP={shop}")
 
-    print(f"[SAVED] .env updated")
+    with open(SECRETS_PATH, "w", encoding="utf-8") as f:
+        f.write("\n".join(new_lines))
+
+    print(f"[SAVED] Token saved to {SECRETS_PATH}")
 
 
 def main():
@@ -135,6 +156,7 @@ def main():
     print(f"\n[URL] Open this URL in browser:\n")
     print(f"  {auth_url}\n")
     print(f"Waiting for callback on localhost:3456 ...\n")
+    print(f"(If using Partners Dashboard 'Install app', the callback will be auto-captured)\n")
 
     server = HTTPServer(("localhost", 3456), CallbackHandler)
     server.token_received = False
@@ -144,17 +166,10 @@ def main():
 
     if received_token.get("token"):
         token = received_token["token"]
-        print(f"\n[TOKEN] {token}")
-        try:
-            save_to_env(token)
-            print(f"[DONE] SHOPIFY_ACCESS_TOKEN saved to .env")
-        except PermissionError:
-            # Fallback: save to temp file
-            tmp_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".tmp", "shopify_token.txt")
-            os.makedirs(os.path.dirname(tmp_path), exist_ok=True)
-            with open(tmp_path, "w") as f:
-                f.write(token)
-            print(f"[WARN] .env locked, token saved to: {tmp_path}")
+        shop = received_token.get("shop", SHOP)
+        print(f"\n[TOKEN] {token[:20]}...")
+        save_to_secrets(token, shop)
+        print(f"[DONE] SHOPIFY_ACCESS_TOKEN saved to {SECRETS_PATH}")
     else:
         print("[FAIL] Token not received")
 
