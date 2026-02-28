@@ -35,14 +35,14 @@ SHOPIFY_COGS_SHEET_ID=...   # Polar > Connectors > Google Sheets에서 확인
 
 ### 1-A. Meta Ads 월별 집계 → Q6 생성
 ```
-python tools/fetch_meta_ads_monthly.py --start 2024-01 --end 2026-02
+python tools/no_polar/fetch_meta_ads_monthly.py --start 2024-01 --end 2026-02
 ```
 - 출력: `.tmp/polar_data/q6_facebook_ads_campaign.json`
 - 소요 시간: 약 3~5분 (월별 반복 API 호출)
 
 ### 1-B. Shopify 매출 집계 → Q1 생성
 ```
-python tools/fetch_shopify_sales_monthly.py --start 2024-01 --end 2026-02
+python tools/no_polar/fetch_shopify_sales_monthly.py --start 2024-01 --end 2026-02
 ```
 - 출력: `.tmp/polar_data/q1_channel_brand_product.json`
 - 소요 시간: 약 5~10분
@@ -50,7 +50,7 @@ python tools/fetch_shopify_sales_monthly.py --start 2024-01 --end 2026-02
 
 ### 1-C. Shopify COGS/브랜드별 집계 → Q2 생성
 ```
-python tools/fetch_shopify_cogs_monthly.py --start 2024-01 --end 2026-02
+python tools/no_polar/fetch_shopify_cogs_monthly.py --start 2024-01 --end 2026-02
 ```
 - 출력: `.tmp/polar_data/q2_shopify_brand.json`
 - COGS: `SHOPIFY_COGS_SHEET_ID` 없으면 0으로 처리 (CM 탭에 영향)

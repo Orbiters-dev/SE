@@ -5,19 +5,21 @@ Polar MCP 없이 Meta Graph API 직접 호출.
 Jan 2024 ~ 현재까지 월별 집계하여 q6_facebook_ads_campaign.json 생성.
 
 사용법:
-  python tools/fetch_meta_ads_monthly.py
-  python tools/fetch_meta_ads_monthly.py --start 2024-01 --end 2026-02
+  python tools/no_polar/fetch_meta_ads_monthly.py
+  python tools/no_polar/fetch_meta_ads_monthly.py --start 2024-01 --end 2026-02
 """
 
 import argparse
 import json
 import os
+import sys
 import urllib.parse
 import urllib.request
 from calendar import monthrange
 from datetime import datetime
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # tools/
 from env_loader import load_env
 
 load_env()
@@ -27,7 +29,7 @@ AD_ACCOUNT_ID = os.getenv("META_AD_ACCOUNT_ID")
 API_VERSION = "v18.0"
 BASE_URL = f"https://graph.facebook.com/{API_VERSION}"
 
-OUTPUT_PATH = Path(__file__).resolve().parent.parent / ".tmp" / "polar_data" / "q6_facebook_ads_campaign.json"
+OUTPUT_PATH = Path(__file__).resolve().parent.parent.parent / ".tmp" / "polar_data" / "q6_facebook_ads_campaign.json"
 
 
 def api_get(path, params):

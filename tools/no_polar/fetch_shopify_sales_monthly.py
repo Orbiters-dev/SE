@@ -14,14 +14,15 @@ Channel 판별 기준:
 Brand/Product 판별: PROD_RULES 키워드 매핑 (polar_financial_model.py와 동일)
 
 사용법:
-  python tools/fetch_shopify_sales_monthly.py
-  python tools/fetch_shopify_sales_monthly.py --start 2024-01 --end 2026-02
+  python tools/no_polar/fetch_shopify_sales_monthly.py
+  python tools/no_polar/fetch_shopify_sales_monthly.py --start 2024-01 --end 2026-02
 """
 
 import argparse
 import json
 import os
 import re
+import sys
 import urllib.parse
 import urllib.request
 from calendar import monthrange
@@ -29,6 +30,7 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # tools/
 from env_loader import load_env
 
 load_env()
@@ -38,7 +40,7 @@ TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN")
 API_VERSION = "2024-01"
 BASE = f"https://{SHOP}/admin/api/{API_VERSION}"
 
-OUTPUT_PATH = Path(__file__).resolve().parent.parent / ".tmp" / "polar_data" / "q1_channel_brand_product.json"
+OUTPUT_PATH = Path(__file__).resolve().parent.parent.parent / ".tmp" / "polar_data" / "q1_channel_brand_product.json"
 
 # ── 동일 매핑 (polar_financial_model.py에서 가져옴) ──────────────────────────
 PROD_RULES = [

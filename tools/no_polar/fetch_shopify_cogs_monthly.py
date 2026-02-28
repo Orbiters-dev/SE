@@ -15,14 +15,15 @@ transaction_fees:
   - 현재: 0으로 설정 (CM 계산에 영향 있음)
 
 사용법:
-  python tools/fetch_shopify_cogs_monthly.py
-  python tools/fetch_shopify_cogs_monthly.py --start 2024-01 --end 2026-02
-  SHOPIFY_COGS_SHEET_ID=1abc... python tools/fetch_shopify_cogs_monthly.py
+  python tools/no_polar/fetch_shopify_cogs_monthly.py
+  python tools/no_polar/fetch_shopify_cogs_monthly.py --start 2024-01 --end 2026-02
+  SHOPIFY_COGS_SHEET_ID=1abc... python tools/no_polar/fetch_shopify_cogs_monthly.py
 """
 
 import argparse
 import json
 import os
+import sys
 import urllib.parse
 import urllib.request
 from calendar import monthrange
@@ -30,6 +31,7 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # tools/
 from env_loader import load_env
 
 load_env()
@@ -40,7 +42,7 @@ COGS_SHEET_ID = os.getenv("SHOPIFY_COGS_SHEET_ID", "")  # 추후 추가
 API_VERSION = "2024-01"
 BASE = f"https://{SHOP}/admin/api/{API_VERSION}"
 
-OUTPUT_PATH = Path(__file__).resolve().parent.parent / ".tmp" / "polar_data" / "q2_shopify_brand.json"
+OUTPUT_PATH = Path(__file__).resolve().parent.parent.parent / ".tmp" / "polar_data" / "q2_shopify_brand.json"
 
 # ── Brand 판별 (polar_financial_model.py PROD_RULES와 동일) ──────────────────
 PROD_RULES = [
@@ -88,7 +90,7 @@ def load_cogs_from_gsheet() -> dict:
         SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
         creds_path = os.getenv("GOOGLE_SERVICE_ACCOUNT_PATH", "credentials/google_service_account.json")
         creds = Credentials.from_service_account_file(
-            Path(__file__).resolve().parent.parent / creds_path,
+            Path(__file__).resolve().parent.parent.parent / creds_path,
             scopes=SCOPES
         )
         gc = gspread.authorize(creds)
