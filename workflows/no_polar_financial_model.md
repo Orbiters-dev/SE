@@ -101,3 +101,20 @@ python tools/polar_financial_model.py
 
 `.env` 파일만 복사하면 어느 머신에서도 동일하게 동작.
 API key/token은 머신에 종속되지 않음.
+
+---
+
+## 최근 실행 기록
+
+### 2026-02-28 (최초 테스트)
+
+**아웃풋**: `Data Storage/polar/financial_model_2026-02-28_v1.xlsx`
+
+| 데이터 | 수치 | 비고 |
+|--------|------|------|
+| Q1 Shopify 매출 | $2,345,926 / 891 rows | D2C, B2B, PR, Target+, TikTok, Amazon 일부 포함 |
+| Q2 Shopify 브랜드 | $2,308,471 / 248 rows | COGS = 0 (GSheet ID 미설정) |
+| Q6 Meta Ads | $254,703 spend / 274 rows | Polar BUILDING 때보다 완전한 데이터 |
+| Q3/Q5/Q7/Q8 | Polar 캐시 재사용 | 2026-02-22 기준 Polar 데이터 |
+
+**탭 생성**: Sales, Ads, Summary, ADS Campaign Details, Organic Sales, Search Volume, Influencer Dashboard, Promo Analysis, CM, Model Check (총 10개)
