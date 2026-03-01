@@ -171,7 +171,7 @@ def fetch_sp_daily(profile_id: int, start: date, end: date) -> List[Dict]:
     cur = start
     first_chunk = True
     while cur <= end:
-        chunk_end = min(end, cur + timedelta(days=27))
+        chunk_end = min(end, cur + timedelta(days=6))  # 7-day windows (smaller = faster report gen)
         if not first_chunk:
             time.sleep(5)  # Brief gap between chunks to avoid 425 rate limits
         first_chunk = False
