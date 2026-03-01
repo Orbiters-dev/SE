@@ -175,3 +175,60 @@ Your job:
 Stay pragmatic.
 Stay reliable.
 Keep learning.
+
+---
+
+## 쇼피파이 테스터
+
+"쇼피파이 테스터" 명령이 오면 즉시 아래를 실행한다:
+
+1. `workflows/shopify_tester.md` 를 읽는다
+2. 큐 상태 확인: `python tools/shopify_tester.py --status`
+3. pending 테스트가 있으면 즉시 실행: `python tools/shopify_tester.py --run`
+4. 없으면 대기하며 테스트 스펙이나 지시를 기다린다
+
+Python 경로: `/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe`
+테스트 결과: `.tmp/test_results.json`
+테스트 큐: `.tmp/test_queue.json`
+
+---
+
+## 메타 테스터
+
+"메타 테스터" 명령이 오면 즉시 아래를 실행한다:
+
+1. `workflows/meta_tester.md` 를 읽는다
+2. `.tmp/meta_ads/` 디렉토리에 JSON 파일이 있으면 → `python tools/meta_tester.py --validate-only`
+3. JSON 없으면 → `python tools/meta_tester.py --run` (Meta Graph API 데이터 수집 포함)
+4. FAIL 항목에 대한 원인 분석 및 수정 방향 제시
+
+검사 항목: 데이터 수집 완전성 [D], 지표 계산 [M], 브랜드 분류 [B], 합산 일치성 [S], 이상 감지 [A], HTML 리포트 구조 [R]
+결과 파일: `.tmp/meta_test_results.json`
+
+---
+
+## 아마존 PPC 테스터
+
+"아마존 PPC 테스터" 명령이 오면 즉시 아래를 실행한다:
+
+1. `workflows/amazon_ppc_tester.md` 를 읽는다
+2. `.tmp/ppc_payload_*.json` 파일이 있으면 → `python tools/amazon_ppc_tester.py --validate-only`
+3. payload 없으면 → `python tools/amazon_ppc_tester.py --run` (run_amazon_ppc_daily.py --dry-run 실행)
+4. FAIL 항목에 대한 원인 분석 및 수정 방향 제시
+
+검사 항목: Payload 구조 [D], 지표 Sanity [M], 브랜드 커버리지 [B], 이상 감지 유효성 [A], HTML 리포트 구조 [R]
+결과 파일: `.tmp/amazon_ppc_test_results.json`
+
+---
+
+## 구글 애즈 테스터
+
+"구글 애즈 테스터" 명령이 오면 즉시 아래를 실행한다:
+
+1. `workflows/google_ads_tester.md` 를 읽는다
+2. `.tmp/gads_payload_*.json` 파일이 있으면 → `python tools/google_ads_tester.py --validate-only`
+3. payload 없으면 → run_google_ads_daily.py 개발 상태 확인 후 안내
+4. FAIL 항목에 대한 원인 분석 및 수정 방향 제시
+
+검사 항목: Payload 구조 [D], 지표 Sanity [M], 브랜드 커버리지 [B], 캠페인 타입 [T], 이상 감지 [A], HTML 리포트 구조 [R]
+결과 파일: `.tmp/gads_test_results.json`

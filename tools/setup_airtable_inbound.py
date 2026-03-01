@@ -174,6 +174,21 @@ def build_table_schema():
             },
             {"name": "Baby Birth Month", "type": "singleLineText"},
             {
+                "name": "Has Other Children",
+                "type": "singleSelect",
+                "options": {
+                    "choices": [
+                        {"name": "true", "color": "greenLight2"},
+                        {"name": "false", "color": "grayLight2"},
+                        {"name": "yes", "color": "greenLight2"},
+                        {"name": "no", "color": "grayLight2"},
+                    ]
+                },
+            },
+            {"name": "Other Child Birth", "type": "singleLineText"},
+            {"name": "Third Child Birth", "type": "singleLineText"},
+            {"name": "Phone", "type": "phoneNumber"},
+            {
                 "name": "Shopify Customer ID",
                 "type": "number",
                 "options": {"precision": 0},

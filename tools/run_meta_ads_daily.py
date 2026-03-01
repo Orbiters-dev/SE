@@ -46,7 +46,8 @@ BASE_URL        = f"https://graph.facebook.com/{API_VERSION}"
 BRAND_RULES = [
     # GM = Grosmimi campaign code (e.g. "Shopify | CVR | GM | Stainless")
     ("Grosmimi",    ["grosmimi", "grosm", "grossmimi", "ppsu", "stainless steel", "sls cup",
-                     "stainless straw", "| gm |", " gm |", "| gm_", "_gm_", "gm_tumbler"]),
+                     "stainless straw", "| gm |", " gm |", "| gm_", "_gm_", "gm_tumbler",
+                     "dentalmom", "dental mom", "dental_mom", "livfuselli"]),
     # Love&Care = CHA&MOM line; CM = CHA&MOM campaign code
     ("CHA&MOM",     ["cha&mom", "cha_mom", "chamom", "| cm |", " cm |", "| cm_", "_cm_",
                      "skincare", "lotion", "hair wash", "love&care", "love_care", "love care"]),
@@ -473,15 +474,6 @@ def build_payload(
         -(x["metrics"]["roas"] if x["campaign_type"] == "cvr" else x["metrics"]["ctr"])
     ))
 
-    # --- Top Performers Summary — CVR first, then Traffic, each sorted by primary metric ---
-    top_list = sorted(
-        top_performers.values(),
-        key=lambda h: (
-            0 if h["campaign_type"] == "cvr" else 1,
-            -(h["lifetime_metrics"]["roas"] if h["campaign_type"] == "cvr"
-              else h["lifetime_metrics"]["ctr"])
-        )
-    )[:20]
     # --- Brand + Type Breakdown (30d, 7d, prior 7d) ---
     yesterday     = today - timedelta(days=1)
     since_7       = today - timedelta(days=7)
@@ -504,7 +496,21 @@ def build_payload(
             "cpa":   round(sp / pu, 3)          if pu > 0 else 0,
         }
 
+    prior_7_start = today - timedelta(days=14)
+    prior_7_end   = today - timedelta(days=8)
+
+    # --- Top Performers Summary — sorted by yesterday spend desc within each type ---
+    top_list = sorted(
+        top_performers.items(),
+        key=lambda kv: (
+            0 if kv[1]["campaign_type"] == "cvr" else 1,
+            -(kv[1]["lifetime_metrics"]["roas"] if kv[1]["campaign_type"] == "cvr"
+              else kv[1]["lifetime_metrics"]["ctr"])
+        )
+    )[:20]
     top_summary = [{
+        "ad_id":         ad_id,
+        "campaign_id":   h["campaign_id"],
         "ad_name":       h["ad_name"][:70],
         "campaign_name": h["campaign_name"][:70],
         "brand":         h["brand"],
@@ -516,11 +522,52 @@ def build_payload(
         "cpm":           h["lifetime_metrics"]["cpm"],
         "cpa":           h["lifetime_metrics"]["cpa"],
         "spend":         h["lifetime_metrics"]["spend"],
-        "metrics_7d":    _period_metrics(h["daily"], since_7,  yesterday),
-        "metrics_30d":   _period_metrics(h["daily"], since_30, yesterday),
-    } for h in top_list]
-    prior_7_start = today - timedelta(days=14)
-    prior_7_end   = today - timedelta(days=8)
+        "metrics_1d":    _period_metrics(h["daily"], yesterday,     yesterday),
+        "metrics_7d":    _period_metrics(h["daily"], since_7,       yesterday),
+        "metrics_p7d":   _period_metrics(h["daily"], prior_7_start, prior_7_end),
+        "metrics_30d":   _period_metrics(h["daily"], since_30,      yesterday),
+    } for ad_id, h in top_list]
+
+    # --- Worst Performers (D+14+, significant spend, bad metric) ---
+    worst_performers = {}
+    for ad_id, h in histories.items():
+        dn = _day_n(h, today)
+        if dn < 14:
+            continue
+        m = _cumulative(h["daily"], h["first_spend_date"], dn)
+        if m["spend"] < 100:
+            continue
+        if h["campaign_type"] == "cvr" and m["roas"] < 2.0:
+            worst_performers[ad_id] = {**h, "day_n": dn, "lifetime_metrics": m}
+        elif h["campaign_type"] == "traffic" and m["ctr"] < 1.0:
+            worst_performers[ad_id] = {**h, "day_n": dn, "lifetime_metrics": m}
+
+    worst_list = sorted(
+        worst_performers.items(),
+        key=lambda kv: (
+            0 if kv[1]["campaign_type"] == "cvr" else 1,
+            (kv[1]["lifetime_metrics"]["roas"] if kv[1]["campaign_type"] == "cvr"
+             else kv[1]["lifetime_metrics"]["ctr"])  # ascending: worst first
+        )
+    )[:20]
+    worst_summary = [{
+        "ad_id":         ad_id,
+        "campaign_id":   h["campaign_id"],
+        "ad_name":       h["ad_name"][:70],
+        "campaign_name": h["campaign_name"][:70],
+        "brand":         h["brand"],
+        "campaign_type": h["campaign_type"],
+        "first_spend":   h["first_spend_date"].strftime("%Y-%m-%d"),
+        "day_n":         h["day_n"],
+        "roas":          h["lifetime_metrics"]["roas"],
+        "ctr":           h["lifetime_metrics"]["ctr"],
+        "spend":         h["lifetime_metrics"]["spend"],
+        "metrics_1d":    _period_metrics(h["daily"], yesterday,     yesterday),
+        "metrics_7d":    _period_metrics(h["daily"], since_7,       yesterday),
+        "metrics_p7d":   _period_metrics(h["daily"], prior_7_start, prior_7_end),
+        "metrics_30d":   _period_metrics(h["daily"], since_30,      yesterday),
+    } for ad_id, h in worst_list]
+    print(f"  Worst performers (D+14, bad metric): {len(worst_performers)}")
 
     def _bucket_rows(start: date, end: date):
         brand_b: Dict[str, dict] = defaultdict(
@@ -577,6 +624,60 @@ def build_payload(
                 "ad_count": len(v["ad_count"]),
             }
         return out
+
+    def _bucket_by_brand_type(start: date, end: date) -> dict:
+        """Per-brand, per-campaign-type aggregation for a time window."""
+        b: Dict[str, Dict[str, dict]] = defaultdict(lambda: defaultdict(
+            lambda: {"spend": 0.0, "impr": 0, "clicks": 0, "pu": 0, "pv": 0.0, "ids": set()}
+        ))
+        for r in rows:
+            d = datetime.strptime(r["date"], "%Y-%m-%d").date()
+            if d < start or d > end:
+                continue
+            brand = histories.get(r["ad_id"], {}).get("brand") or classify_brand(r["ad_name"])
+            ctype = histories.get(r["ad_id"], {}).get("campaign_type", "other")
+            v = b[brand][ctype]
+            v["spend"] += r["spend"]; v["impr"] += r["impressions"]
+            v["clicks"] += r["clicks"]; v["pu"] += r["purchases"]
+            v["pv"] += r["purchases_value"]; v["ids"].add(r["ad_id"])
+        result = {}
+        for brand, by_type in b.items():
+            result[brand] = {}
+            for ct, v in by_type.items():
+                sp = v["spend"]; im = v["impr"]; cl = v["clicks"]
+                pv = v["pv"];    pu = v["pu"]
+                result[brand][ct] = {
+                    "spend": round(sp, 2),
+                    "roas":  round(pv / sp, 2)         if sp > 0 else 0,
+                    "ctr":   round(cl / im * 100, 2)   if im > 0 else 0,
+                    "cpc":   round(sp / cl, 2)          if cl > 0 else 0,
+                    "cpa":   round(sp / pu, 2)          if pu > 0 else 0,
+                    "ads":   len(v["ids"]),
+                }
+        return result
+
+    bbt_1d  = _bucket_by_brand_type(yesterday,     yesterday)
+    bbt_7d  = _bucket_by_brand_type(since_7,        yesterday)
+    bbt_p7d = _bucket_by_brand_type(prior_7_start,  prior_7_end)
+    bbt_30d = _bucket_by_brand_type(since_30,       yesterday)
+
+    all_detail_brands = sorted(
+        set(list(bbt_1d.keys()) + list(bbt_7d.keys()) + list(bbt_30d.keys())),
+        key=lambda x: -(
+            bbt_30d.get(x, {}).get("cvr", {}).get("spend", 0) +
+            bbt_30d.get(x, {}).get("traffic", {}).get("spend", 0)
+        )
+    )
+    brand_detail_table = [
+        {
+            "brand": brand,
+            "1d":    bbt_1d.get(brand, {}),
+            "7d":    bbt_7d.get(brand, {}),
+            "p7d":   bbt_p7d.get(brand, {}),
+            "30d":   bbt_30d.get(brand, {}),
+        }
+        for brand in all_detail_brands
+    ]
 
     brand_b1d, type_b1d = _bucket_rows(yesterday,       yesterday)
     brand_b30, type_b30 = _bucket_rows(since_30,        yesterday)
@@ -667,6 +768,7 @@ def build_payload(
         "new_window_days":       new_window,
         "new_ads":               new_ads_data,
         "top_performers":        top_summary,
+        "worst_performers":      worst_summary,
         "brand_breakdown_1d":    brand_breakdown_1d,
         "brand_breakdown_30d":   brand_breakdown_30,
         "brand_breakdown_7d":    brand_breakdown_7,
@@ -676,11 +778,13 @@ def build_payload(
         "campaign_type_30d":     type_summary_30,
         "campaign_type_7d":      type_summary_7,
         "campaign_type_p7d":     type_summary_p7,
+        "brand_detail_table":    brand_detail_table,
         "yesterday_spend":       yesterday_spend,
         "stats": {
-            "total_ads":          len(histories),
-            "new_ads_count":      len(new_ads_data),
-            "top_performers_cnt": len(top_performers),
+            "total_ads":           len(histories),
+            "new_ads_count":       len(new_ads_data),
+            "top_performers_cnt":  len(top_performers),
+            "worst_performers_cnt": len(worst_performers),
         },
     }
 
@@ -870,62 +974,136 @@ def _status_dot(status):
     return f'<span style="color:{colors.get(status,"#555")};font-size:18px">&#9679;</span>'
 
 
-def _build_yesterday_block(ys: dict) -> str:
-    """어제 PST 기준 전체 지출 요약 블록."""
+def _build_yesterday_block(ys: dict, brand_detail: list = None) -> str:
+    """어제 PST 기준 전체 지출 + 브랜드×기간×타입 상세 테이블."""
     if not ys or ys.get("total", 0) == 0:
         return ""
 
-    total    = ys["total"]
-    by_type  = ys.get("by_type", {})
-    by_brand = ys.get("by_brand", [])
-
-    traffic_spend = by_type.get("traffic", 0)
-    cvr_spend     = by_type.get("cvr", 0)
-    other_spend   = by_type.get("other", 0)
-
-    type_pills = ""
+    total   = ys["total"]
+    by_type = ys.get("by_type", {})
     type_colors = {"traffic": "#1565c0", "cvr": "#2e7d32", "other": "#555"}
     type_labels = {"traffic": "Traffic", "cvr": "CVR", "other": "기타"}
+
+    # Header pills
+    type_pills = ""
     for ct, sp in sorted(by_type.items(), key=lambda x: -x[1]):
         col = type_colors.get(ct, "#555")
         lbl = type_labels.get(ct, ct)
         pct = round(sp / total * 100) if total > 0 else 0
         type_pills += (
             f'<span style="background:{col};color:white;padding:4px 12px;'
-            f'border-radius:20px;font-size:12px;margin-right:8px;white-space:nowrap">'
+            f'border-radius:20px;font-size:12px;margin-right:6px;white-space:nowrap">'
             f'{lbl} ${sp:,.0f} ({pct}%)</span>'
         )
 
-    brand_rows_html = ""
-    for i, b in enumerate(by_brand):
-        pct = round(b["spend"] / total * 100) if total > 0 else 0
-        bar_w = max(2, pct)
-        bg = "#f5f5f5" if i % 2 == 0 else "white"
-        brand_rows_html += (
-            f'<tr style="background:{bg}">'
-            f'<td style="padding:5px 12px;font-size:12px;color:#333;width:130px">{b["brand"]}</td>'
-            f'<td style="padding:5px 8px;font-size:12px;font-weight:bold;width:70px;text-align:right">${b["spend"]:,.0f}</td>'
-            f'<td style="padding:5px 8px">'
-            f'<div style="background:#e0e0e0;border-radius:3px;height:8px">'
-            f'<div style="background:#1877F2;width:{bar_w}%;height:8px;border-radius:3px"></div>'
-            f'</div></td>'
-            f'<td style="padding:5px 4px;font-size:11px;color:#aaa;width:36px;text-align:right">{pct}%</td>'
-            f'</tr>'
-        )
+    def _m(d, key, fmt="sp"):
+        v = d.get(key, 0) if d else 0
+        if fmt == "sp":   return f'${v:,.0f}' if v else '-'
+        if fmt == "roas": return f'{v:.2f}x' if v else '-'
+        if fmt == "ctr":  return f'{v:.2f}%' if v else '-'
+        if fmt == "cpc":  return f'${v:.2f}' if v else '-'
+        return str(v) if v else '-'
+
+    def _cell(d, ctype):
+        """Build a mini-cell: spend + key metric."""
+        if not d or d.get("spend", 0) == 0:
+            return '<td style="padding:4px 6px;font-size:11px;color:#ddd;text-align:right">-</td>'
+        sp = d.get("spend", 0)
+        ads = d.get("ads", 0)
+        if ctype == "cvr":
+            roas = d.get("roas", 0)
+            color = "#2e7d32" if roas >= 3.0 else "#d32f2f" if roas < 2.0 else "#f57c00"
+            metric = f'<span style="color:{color};font-weight:bold">{roas:.2f}x</span>'
+        else:
+            ctr = d.get("ctr", 0)
+            cpc = d.get("cpc", 0)
+            color = "#1565c0" if ctr >= 1.5 else "#d32f2f" if ctr < 0.8 else "#f57c00"
+            metric = f'<span style="color:{color};font-weight:bold">{ctr:.2f}%</span>'
+        return (f'<td style="padding:4px 6px;font-size:11px;text-align:right;vertical-align:top">'
+                f'<div style="font-weight:bold">${sp:,.0f}</div>'
+                f'<div style="font-size:10px;color:#888">{metric} {ads}개</div>'
+                f'</td>')
+
+    if not brand_detail:
+        # Fallback: simple brand list
+        rows_html = ""
+        for b in ys.get("by_brand", []):
+            pct = round(b["spend"] / total * 100) if total > 0 else 0
+            rows_html += (f'<tr><td style="padding:5px 10px;font-size:12px">{b["brand"]}</td>'
+                          f'<td style="padding:5px 10px;text-align:right;font-weight:bold">${b["spend"]:,.0f}</td>'
+                          f'<td style="padding:5px 10px;text-align:right;color:#aaa">{pct}%</td></tr>')
+        detail_html = f'<table style="width:100%;border-collapse:collapse">{rows_html}</table>'
+    else:
+        # Full brand×period×type table — split CVR / Traffic
+        th_style = "padding:5px 6px;font-size:10px;text-align:right;white-space:nowrap;color:white"
+        periods = [("어제", "1d"), ("최근7일", "7d"), ("이전7일", "p7d"), ("30일", "30d")]
+
+        def _brand_section(ctype, color, label):
+            metric_name = "ROAS" if ctype == "cvr" else "CTR"
+            rows = ""
+            for entry in brand_detail:
+                bname = entry["brand"]
+                cells = ""
+                has_data = False
+                for _, pk in periods:
+                    d = entry.get(pk, {}).get(ctype)
+                    if d and d.get("spend", 0) > 0:
+                        has_data = True
+                    cells += _cell(d, ctype)
+                if not has_data:
+                    continue
+                rows += (f'<tr style="border-bottom:1px solid #f0f0f0">'
+                         f'<td style="padding:4px 8px;font-size:11px;font-weight:600;min-width:90px">{bname}</td>'
+                         f'{cells}</tr>')
+            if not rows:
+                return ""
+            # Row 1: period names on solid color bg
+            period_ths = "".join(
+                f'<th style="padding:5px 8px;font-size:10px;text-align:right;white-space:nowrap;'
+                f'color:white;font-weight:bold">{p}</th>'
+                for p, _ in periods
+            )
+            # Row 2: metric label on light bg
+            metric_ths = "".join(
+                f'<th style="padding:2px 8px;font-size:9px;text-align:right;color:#888;'
+                f'font-weight:normal;white-space:nowrap">지출 / {metric_name}</th>'
+                for _ in periods
+            )
+            return f"""
+            <div style="margin-bottom:10px">
+              <div style="background:{color};color:white;padding:5px 10px;border-radius:5px 5px 0 0;
+                          font-size:11px;font-weight:bold">{label}</div>
+              <table style="width:100%;border-collapse:collapse;background:white;border:1px solid #e0e0e0">
+                <thead>
+                  <tr style="background:{color}">
+                    <th style="padding:5px 8px;font-size:10px;text-align:left;color:white">브랜드</th>
+                    {period_ths}
+                  </tr>
+                  <tr style="background:#f5f5f5">
+                    <th style="padding:2px 8px;font-size:9px;color:#aaa;text-align:left;font-weight:normal"></th>
+                    {metric_ths}
+                  </tr>
+                </thead>
+                <tbody>{rows}</tbody>
+              </table>
+            </div>"""
+
+        cvr_section     = _brand_section("cvr",     "#2e7d32", "CVR 캠페인 (전환 목적)")
+        traffic_section = _brand_section("traffic",  "#1565c0", "Traffic 캠페인 (인지/클릭 목적)")
+        detail_html = cvr_section + traffic_section
 
     return f"""
-    <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:10px;padding:18px 22px;margin-bottom:24px">
-      <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px">
+    <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:10px;padding:16px 20px;margin-bottom:24px">
+      <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px">
         <div>
           <div style="font-size:11px;color:#f57c00;font-weight:600;letter-spacing:.5px;text-transform:uppercase">어제 실지출 (PST {ys["date"]})</div>
           <div style="font-size:28px;font-weight:bold;color:#222;line-height:1.2">${total:,.0f}</div>
         </div>
-        <div style="margin-left:auto;text-align:right;font-size:11px;color:#aaa">Full Day PST</div>
+        <div style="margin-left:auto;font-size:11px;color:#aaa">Full Day PST</div>
       </div>
       <div style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:4px">{type_pills}</div>
-      <table style="width:100%;border-collapse:collapse">
-        {brand_rows_html}
-      </table>
+      <p style="font-size:10px;color:#aaa;margin:0 0 8px">각 셀: 지출 / 핵심지표(ROAS or CTR) + 광고수</p>
+      {detail_html}
     </div>"""
 
 
@@ -992,47 +1170,102 @@ def build_html(payload: dict, analysis: dict) -> str:
     traffic_rows = new_ad_rows(payload["new_ads"], "traffic")
     cvr_rows     = new_ad_rows(payload["new_ads"], "cvr")
 
-    # ── Section 2: Top Performers ──────────────────────────────────
-    top_rows = ""
-    prev_ctype = None
-    for i, t in enumerate(payload["top_performers"][:15], 1):
-        bg = "#f9f9f9" if i % 2 == 0 else "white"
-        is_cvr = t["campaign_type"] == "cvr"
-        type_label = f'<span style="background:{"#e8f5e9" if is_cvr else "#e3f2fd"};' \
-                     f'color:{"#2e7d32" if is_cvr else "#1565c0"};' \
-                     f'padding:1px 6px;border-radius:4px;font-size:11px">{t["campaign_type"].upper()}</span>'
+    # ── Section 2 & helper: performer tables (top / worst) ──────────
+    acct_num = (AD_ACCOUNT_ID or "").replace("act_", "")
 
-        m7  = t.get("metrics_7d",  {})
-        m30 = t.get("metrics_30d", {})
+    def _ad_link(campaign_id):
+        # manage/ads + selected_campaign_ids → 해당 캠페인 광고만 필터링해서 표시
+        url = f"https://www.facebook.com/adsmanager/manage/ads?act={acct_num}&selected_campaign_ids={campaign_id}"
+        return (f'<a href="{url}" target="_blank" '
+                f'style="color:#1877F2;text-decoration:none;font-size:10px;white-space:nowrap">'
+                f'&#128279; 광고 바로가기</a>')
 
-        if is_cvr:
-            col_7d  = f'ROAS {m7.get("roas",0):.2f}x<br><span style="font-size:10px;color:#888">CPA ${m7.get("cpa",0):.0f}</span>'
-            col_30d = f'ROAS {m30.get("roas",0):.2f}x<br><span style="font-size:10px;color:#aaa">CPA ${m30.get("cpa",0):.0f}</span>'
-            lifetime_str = f'ROAS {t["roas"]:.2f}x'
+    def _performer_section(items_src, ctype, color, label, sort_worst=False):
+        items = [t for t in items_src if t["campaign_type"] == ctype]
+        # Sort by yesterday spend descending (top) or ascending (worst)
+        items.sort(key=lambda t: t.get("metrics_1d", {}).get("spend", 0),
+                   reverse=not sort_worst)
+        metric_label = "ROAS" if ctype == "cvr" else "CTR"
+
+        def _sp(m):
+            return f'${m.get("spend",0):,.0f}' if m.get("spend", 0) > 0 else "-"
+
+        def _mk(m, worst=sort_worst):
+            if not m.get("spend", 0):
+                return ""
+            if ctype == "cvr":
+                roas = m.get("roas", 0)
+                c = "#2e7d32" if roas >= 3.0 else "#d32f2f" if roas < 2.0 else "#f57c00"
+                return f'<div style="font-size:10px;color:{c};font-weight:bold">{roas:.2f}x</div>'
+            else:
+                ctr = m.get("ctr", 0)
+                c = "#1565c0" if ctr >= 1.5 else "#d32f2f" if ctr < 0.8 else "#f57c00"
+                return f'<div style="font-size:10px;color:{c};font-weight:bold">{ctr:.2f}%</div>'
+
+        if not items:
+            body = f'<tr><td colspan="9" style="padding:12px;color:#999;text-align:center">{label} 없음</td></tr>'
         else:
-            col_7d  = f'CTR {m7.get("ctr",0):.2f}%<br><span style="font-size:10px;color:#888">CPC ${m7.get("cpc",0):.2f}</span>'
-            col_30d = f'CTR {m30.get("ctr",0):.2f}%<br><span style="font-size:10px;color:#aaa">CPC ${m30.get("cpc",0):.2f}</span>'
-            lifetime_str = f'CTR {t["ctr"]:.2f}%'
-
-        # Group separator between CVR and Traffic
-        if prev_ctype is not None and t["campaign_type"] != prev_ctype:
-            top_rows += f'<tr><td colspan="9" style="background:#e8eaf0;padding:4px 12px;font-size:11px;color:#666;font-weight:600">— Traffic 캠페인 —</td></tr>'
-        prev_ctype = t["campaign_type"]
-
-        top_rows += f"""
+            body = ""
+            for i, t in enumerate(items, 1):
+                bg = "#f9f9f9" if i % 2 == 0 else "white"
+                m1d  = t.get("metrics_1d",  {})
+                m7   = t.get("metrics_7d",  {})
+                mp7  = t.get("metrics_p7d", {})
+                m30  = t.get("metrics_30d", {})
+                lifetime_str = f'{t["roas"]:.2f}x' if ctype == "cvr" else f'{t["ctr"]:.2f}%'
+                camp_id_val = t.get("campaign_id", "")
+                camp_link = _ad_link(camp_id_val) if camp_id_val else ""
+                body += f"""
         <tr style="background:{bg}">
-          <td style="padding:8px 10px;font-size:12px">{t["ad_name"]}</td>
-          <td style="padding:8px 8px">{type_label}</td>
-          <td style="padding:8px 8px">
-            <span style="background:#e3f2fd;color:#1565c0;padding:2px 5px;border-radius:4px;font-size:11px">{t["brand"]}</span>
+          <td style="padding:7px 10px;font-size:12px">
+            {t["ad_name"]}
+            <div style="margin-top:2px">{camp_link}</div>
           </td>
-          <td style="padding:8px 8px;text-align:center;font-size:10px;color:#666">{t.get("first_spend","")}</td>
-          <td style="padding:8px 8px;text-align:center;font-size:11px">D+{t["day_n"]}</td>
-          <td style="padding:8px 8px;font-size:12px;color:{"#1565c0" if is_cvr else "#1565c0"};font-weight:600">{col_7d}</td>
-          <td style="padding:8px 8px;font-size:12px;color:#888">{col_30d}</td>
-          <td style="padding:8px 8px;font-size:11px;color:#aaa">{lifetime_str}<br>누적</td>
-          <td style="padding:8px 8px;text-align:right;font-size:12px">${t["spend"]:,.0f}</td>
+          <td style="padding:7px 8px"><span style="background:#e3f2fd;color:#1565c0;padding:2px 5px;border-radius:4px;font-size:11px">{t["brand"]}</span></td>
+          <td style="padding:7px 8px;text-align:center;font-size:10px;color:#666">{t.get("first_spend","")}</td>
+          <td style="padding:7px 8px;text-align:center;font-size:11px">D+{t["day_n"]}</td>
+          <td style="padding:7px 8px;text-align:right;color:#e65100;font-weight:bold">{_sp(m1d)}{_mk(m1d)}</td>
+          <td style="padding:7px 8px;text-align:right;font-weight:bold">{_sp(m7)}{_mk(m7)}</td>
+          <td style="padding:7px 8px;text-align:right;color:#888">{_sp(mp7)}{_mk(mp7)}</td>
+          <td style="padding:7px 8px;text-align:right;color:#aaa">{_sp(m30)}{_mk(m30)}</td>
+          <td style="padding:7px 8px;text-align:right;font-size:11px;color:#999">{lifetime_str}<br><span style="color:#aaa">누적</span></td>
         </tr>"""
+
+        return f"""
+        <div style="margin-bottom:16px;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden">
+          <div style="background:{color};color:white;padding:8px 16px;font-weight:bold;font-size:13px">{label}</div>
+          <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:680px">
+            <thead>
+              <tr style="background:#f5f5f5">
+                <th style="padding:7px 10px;text-align:left">광고명</th>
+                <th style="padding:7px 8px">브랜드</th>
+                <th style="padding:7px 8px;text-align:center">첫집행일</th>
+                <th style="padding:7px 8px;text-align:center">D+N</th>
+                <th style="padding:7px 8px;text-align:right;color:#e65100">어제(1일)</th>
+                <th style="padding:7px 8px;text-align:right;color:{color}">최근 7일</th>
+                <th style="padding:7px 8px;text-align:right;color:#888">이전 7일</th>
+                <th style="padding:7px 8px;text-align:right;color:#aaa">최근 30일</th>
+                <th style="padding:7px 8px;text-align:right;color:#999">누적</th>
+              </tr>
+              <tr style="background:#fafafa;font-size:10px;color:#aaa">
+                <th colspan="4"></th>
+                <th style="padding:2px 8px;text-align:right">지출 / {metric_label}</th>
+                <th style="padding:2px 8px;text-align:right">지출 / {metric_label}</th>
+                <th style="padding:2px 8px;text-align:right">지출 / {metric_label}</th>
+                <th style="padding:2px 8px;text-align:right">지출 / {metric_label}</th>
+                <th style="padding:2px 8px;text-align:right">{metric_label}</th>
+              </tr>
+            </thead>
+            <tbody>{body}</tbody>
+          </table>
+          </div>
+        </div>"""
+
+    top_cvr_section     = _performer_section(payload["top_performers"],   "cvr",     "#2e7d32", "CVR 우수 광고 (전환 목적, ROAS 3.0+) — 어제 지출 높은순")
+    top_traffic_section = _performer_section(payload["top_performers"],   "traffic",  "#1565c0", "Traffic 우수 광고 (인지/클릭 목적, CTR 1.5%+) — 어제 지출 높은순")
+    worst_cvr_section     = _performer_section(payload.get("worst_performers", []), "cvr",    "#b71c1c", "CVR 워스트 광고 (ROAS 2.0 미만) — 최악순", sort_worst=True)
+    worst_traffic_section = _performer_section(payload.get("worst_performers", []), "traffic", "#e65100", "Traffic 워스트 광고 (CTR 1.0% 미만) — 최악순", sort_worst=True)
 
     # ── Section 3: Brand Comparison (최근 7일 / 이전 7일 / 최근 30일) ───────────────────
     brand_rows = ""
@@ -1220,7 +1453,7 @@ def build_html(payload: dict, analysis: dict) -> str:
   <div style="padding:24px 30px">
 
     <!-- Yesterday PST Spend -->
-    {_build_yesterday_block(payload.get("yesterday_spend", {}))}
+    {_build_yesterday_block(payload.get("yesterday_spend", {}), payload.get("brand_detail_table", []))}
 
     <!-- Campaign Type Overview -->
     <h2 style="color:#1877F2;border-bottom:2px solid #1877F2;padding-bottom:8px">캠페인 유형별 성과 <span style="font-size:14px;color:#888;font-weight:normal">— 어제 / 최근 7일 / 이전 7일 / 최근 30일</span></h2>
@@ -1280,35 +1513,23 @@ def build_html(payload: dict, analysis: dict) -> str:
       &#127942; 우수 광고 (D+14이상, ROAS 3.0+ 또는 CTR 1.5+%)
     </h2>
     <p style="font-size:12px;color:#888;margin:0 0 10px">
-      신규 광고 D+N 벤치마크의 기준이 되는 광고들입니다.
+      신규 광고 D+N 벤치마크의 기준. <span style="color:#e65100">주황=어제</span> | <strong>굵음=최근7일</strong> | 회색=이전7일 | 연회색=30일
     </p>
-    <div style="font-size:13px;color:#444;background:#f8f9fa;padding:12px 16px;border-radius:6px;margin-bottom:12px">
+    <div style="font-size:13px;color:#444;background:#f8f9fa;padding:12px 16px;border-radius:6px;margin-bottom:16px">
       {analysis.get("top_performers_insight","")}
     </div>
-    <div style="overflow-x:auto">
-    <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:680px">
-      <thead>
-        <tr style="background:#f0f0f0">
-          <th style="padding:8px 10px;text-align:left">광고명</th>
-          <th style="padding:8px 8px">유형</th>
-          <th style="padding:8px 8px">브랜드</th>
-          <th style="padding:8px 8px;text-align:center">첫 집행일</th>
-          <th style="padding:8px 8px;text-align:center">D+N</th>
-          <th style="padding:8px 8px;text-align:center;color:#1565c0;font-weight:700">최근 7일</th>
-          <th style="padding:8px 8px;text-align:center;color:#888">최근 30일</th>
-          <th style="padding:8px 8px;text-align:center;color:#aaa">누적</th>
-          <th style="padding:8px 8px;text-align:right">총 지출</th>
-        </tr>
-        <tr style="background:#f5f5f5;font-size:10px;color:#999">
-          <th colspan="5"></th>
-          <th style="padding:2px 8px;text-align:center">CVR: ROAS/CPA | Traffic: CTR/CPC</th>
-          <th style="padding:2px 8px;text-align:center">CVR: ROAS/CPA | Traffic: CTR/CPC</th>
-          <th colspan="2"></th>
-        </tr>
-      </thead>
-      <tbody>{top_rows}</tbody>
-    </table>
-    </div>
+    {top_cvr_section}
+    {top_traffic_section}
+
+    <!-- Worst Performers -->
+    <h2 style="color:#b71c1c;border-bottom:2px solid #b71c1c;padding-bottom:8px;margin-top:32px">
+      &#9888; 워스트 광고 (D+14이상, CVR ROAS 2.0 미만 / Traffic CTR 1.0% 미만, 지출 $100+)
+    </h2>
+    <p style="font-size:12px;color:#888;margin:0 0 10px">
+      검토 또는 OFF 대상. 어제 지출 기준 정렬.
+    </p>
+    {worst_cvr_section}
+    {worst_traffic_section}
 
     <!-- Brand Comparison 3 periods -->
     <h2 style="color:#333;border-bottom:2px solid #333;padding-bottom:8px;margin-top:32px">

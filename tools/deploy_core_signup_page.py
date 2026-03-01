@@ -711,6 +711,27 @@ def build_section_liquid():
       errorEl.style.display = "block";
       btn.disabled = false; btn.textContent = "Pay now"; return;
     }}
+    // US phone validation: must be 10 digits (optionally +1 prefix)
+    var cleanPhone = phone.replace(/[\s\-\(\)\.]/g, "");
+    if (cleanPhone.startsWith("+1")) cleanPhone = cleanPhone.slice(2);
+    else if (cleanPhone.startsWith("1") && cleanPhone.length === 11) cleanPhone = cleanPhone.slice(1);
+    if (!/^\d{{10}}$/.test(cleanPhone)) {{
+      errorEl.textContent = "Please enter a valid US phone number (10 digits).";
+      errorEl.style.display = "block";
+      btn.disabled = false; btn.textContent = "Pay now"; return;
+    }}
+    // US address validation: country must be US/United States
+    if (country && country !== "US" && country !== "United States") {{
+      errorEl.textContent = "We currently ship to US addresses only.";
+      errorEl.style.display = "block";
+      btn.disabled = false; btn.textContent = "Pay now"; return;
+    }}
+    // US ZIP validation: must be 5 digits (optionally 5+4)
+    if (!/^\d{{5}}(-\d{{4}})?$/.test(zip)) {{
+      errorEl.textContent = "Please enter a valid US ZIP code (e.g. 90210).";
+      errorEl.style.display = "block";
+      btn.disabled = false; btn.textContent = "Pay now"; return;
+    }}
     // Only require journey_stage if not already saved
     if (!getRadio("journey_stage") && !existingData.journey_stage) {{
       errorEl.textContent = "Please select where you are in your journey.";
@@ -770,6 +791,8 @@ def build_section_liquid():
       sessionStorage.setItem("onz_name", firstName + " " + lastName);
       if (customerId) sessionStorage.setItem("onz_customer_id", String(customerId));
       sessionStorage.setItem("onz_core_survey", JSON.stringify(payload.survey_data));
+      sessionStorage.setItem("onz_contact", JSON.stringify(payload.contact));
+      sessionStorage.setItem("onz_shipping", JSON.stringify(payload.shipping_address));
     }} catch(e) {{}}
 
     showSection(successEl);

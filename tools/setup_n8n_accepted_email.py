@@ -32,7 +32,7 @@ AIRTABLE_BASE_ID = os.getenv("AIRTABLE_INBOUND_BASE_ID", "")
 AIRTABLE_TABLE_ID = os.getenv("AIRTABLE_INBOUND_TABLE_ID", "")
 
 WORKFLOW_NAME = "Onzenna: Accepted Creator -> Email Sample Form"
-GIFTING2_BASE_URL = "https://onzenna.com/pages/influencer-gifting2"
+SAMPLE_FORM_BASE_URL = "https://onzenna.com/pages/creator-sample-form"
 
 
 def n8n_request(method, path, data=None):
@@ -59,8 +59,13 @@ def find_existing_workflow():
 
 
 def build_workflow():
-    airtable_url = f"https://api.airtable.com/v0/{AIRTABLE_BASE_ID}/{AIRTABLE_TABLE_ID}"
-    filter_formula = 'AND({Status}="Accepted",NOT({Sample Form Sent}))'
+    import urllib.parse as _up
+    filter_formula = 'AND(FIND("Accept",ARRAYJOIN({MKT action: Send Sample form})),{Status}!="Accepted")'
+    airtable_base_url = f"https://api.airtable.com/v0/{AIRTABLE_BASE_ID}/{AIRTABLE_TABLE_ID}"
+    airtable_query_url = (
+        airtable_base_url
+        + f"?filterByFormula={_up.quote(filter_formula)}&maxRecords=10"
+    )
 
     return {
         "name": WORKFLOW_NAME,
@@ -82,19 +87,11 @@ def build_workflow():
             {
                 "parameters": {
                     "method": "GET",
-                    "url": airtable_url,
-                    "authentication": "none",
+                    "url": airtable_query_url,
                     "sendHeaders": True,
                     "headerParameters": {
                         "parameters": [
                             {"name": "Authorization", "value": f"Bearer {AIRTABLE_API_KEY}"},
-                        ]
-                    },
-                    "sendQuery": True,
-                    "queryParameters": {
-                        "parameters": [
-                            {"name": "filterByFormula", "value": filter_formula},
-                            {"name": "maxRecords", "value": "10"},
                         ]
                     },
                     "options": {"timeout": 30000},
@@ -114,7 +111,7 @@ def build_workflow():
                             {
                                 "id": "has-records",
                                 "leftValue": "={{ $json.records.length }}",
-                                "rightValue": "0",
+                                "rightValue": 0,
                                 "operator": {"type": "number", "operation": "gt"},
                             }
                         ],
@@ -124,7 +121,7 @@ def build_workflow():
                 "id": "if-has-records",
                 "name": "Has Records?",
                 "type": "n8n-nodes-base.if",
-                "typeVersion": 2,
+                "typeVersion": 2.2,
                 "position": [640, 300],
             },
             # 4. Split into individual records
@@ -140,6 +137,7 @@ return records.map(rec => ({
     customer_id: rec.fields['Shopify Customer ID'] || '',
     ig_handle: rec.fields['Instagram Handle'] || '',
     platform: rec.fields['Primary Platform'] || '',
+    baby_birth_month: rec.fields['Baby Birth Month'] || '',
   }
 }));"""
                 },
@@ -149,35 +147,33 @@ return records.map(rec => ({
                 "typeVersion": 2,
                 "position": [860, 240],
             },
-            # 5. Send email
+            # 5. Send email via Gmail
             {
                 "parameters": {
-                    "fromEmail": "hello@onzenna.com",
-                    "toEmail": "={{ $json.email }}",
-                    "subject": "You've been accepted as an Onzenna Creator! Choose your samples",
-                    "emailType": "html",
-                    "html": f"""<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-  <img src="https://cdn.shopify.com/s/files/1/0915/8367/5058/files/onzenna-logo-dark.png" alt="Onzenna" style="height: 32px; margin-bottom: 24px;" />
+                    "sendTo": "={{ $json.email }}",
+                    "subject": "You're an Onzenna Creator! Choose your free samples",
+                    "message": f"""=<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <img src="https://cdn.shopify.com/s/files/1/0915/8367/5058/files/onzenna-logo-dark.png" alt="Onzenna" style="height: 40px; margin-bottom: 24px; display: block;" />
 
-  <h2 style="color: #333; font-size: 22px;">Congratulations, {{{{{{ $json.name }}}}}}!</h2>
+  <h2 style="color: #333; font-size: 22px;">Congratulations, {{{{ $json.name }}}}!</h2>
 
   <p style="color: #555; font-size: 15px; line-height: 1.6;">
-    You've been accepted as an <strong>Onzenna Creator</strong>!
+    You've been selected as an <strong>Onzenna Creator</strong>!
   </p>
 
   <p style="color: #555; font-size: 15px; line-height: 1.6;">
-    As a next step, please choose your free sample products by clicking the button below:
+    Please choose your free sample products by clicking the button below. It only takes a minute — just pick your samples and agree to the collaboration terms.
   </p>
 
   <div style="text-align: center; margin: 32px 0;">
-    <a href="{GIFTING2_BASE_URL}?email={{{{{{ encodeURIComponent($json.email) }}}}}}&cid={{{{{{ $json.customer_id }}}}}}"
+    <a href="{SAMPLE_FORM_BASE_URL}?email={{{{ encodeURIComponent($json.email) }}}}&cid={{{{ $json.customer_id }}}}&age={{{{ encodeURIComponent($json.baby_birth_month) }}}}"
        style="display: inline-block; padding: 14px 36px; background: #333; color: #fff; text-decoration: none; border-radius: 5px; font-size: 15px; font-weight: 600;">
       Choose Your Samples
     </a>
   </div>
 
   <p style="color: #555; font-size: 14px; line-height: 1.6;">
-    You'll be able to select products based on your child's age and choose your preferred colors.
+    Products will be selected based on your child's age. Once submitted, we'll ship your samples right away!
   </p>
 
   <hr style="border: none; border-top: 1px solid #eee; margin: 32px 0;" />
@@ -191,16 +187,21 @@ return records.map(rec => ({
                 },
                 "id": "send-email",
                 "name": "Send Sample Form Email",
-                "type": "n8n-nodes-base.emailSend",
+                "type": "n8n-nodes-base.gmail",
                 "typeVersion": 2.1,
                 "position": [1080, 240],
+                "credentials": {
+                    "gmailOAuth2": {
+                        "id": "ZSCspnGLmbDXJMBu",
+                        "name": "Onzenna Gmail (affiliates@onzenna.com)"
+                    }
+                },
             },
             # 6. Update Airtable - mark as sent
             {
                 "parameters": {
                     "method": "PATCH",
-                    "url": airtable_url,
-                    "authentication": "none",
+                    "url": airtable_base_url,
                     "sendHeaders": True,
                     "headerParameters": {
                         "parameters": [
@@ -210,7 +211,7 @@ return records.map(rec => ({
                     },
                     "sendBody": True,
                     "specifyBody": "json",
-                    "jsonBody": '={{ JSON.stringify({ "records": [{ "id": $json.record_id, "fields": { "Sample Form Sent": true } }] }) }}',
+                    "jsonBody": "={{ JSON.stringify({ \"records\": [{ \"id\": $('Split Records').item.json.record_id, \"fields\": { \"Status\": \"Accepted\" } }] }) }}",
                     "options": {"timeout": 30000},
                 },
                 "id": "http-airtable-update",
@@ -218,15 +219,6 @@ return records.map(rec => ({
                 "type": "n8n-nodes-base.httpRequest",
                 "typeVersion": 4.2,
                 "position": [1300, 240],
-            },
-            # 7. No-op for false branch
-            {
-                "parameters": {},
-                "id": "noop",
-                "name": "No New Records",
-                "type": "n8n-nodes-base.noOp",
-                "typeVersion": 1,
-                "position": [860, 420],
             },
         ],
         "connections": {
@@ -239,7 +231,7 @@ return records.map(rec => ({
             "Has Records?": {
                 "main": [
                     [{"node": "Split Records", "type": "main", "index": 0}],
-                    [{"node": "No New Records", "type": "main", "index": 0}],
+                    [],
                 ]
             },
             "Split Records": {
@@ -325,9 +317,9 @@ def main():
 
     print(f"\n  How it works:")
     print(f"    1. Polls Airtable every 3 minutes")
-    print(f"    2. Finds records: Status='Accepted' AND Sample Form Sent=false")
-    print(f"    3. Sends email with link to {GIFTING2_BASE_URL}")
-    print(f"    4. Updates Airtable: Sample Form Sent = true")
+    print(f"    2. Finds records: Status='Sample form sent' AND Sample Email Sent=false")
+    print(f"    3. Sends email with link to {SAMPLE_FORM_BASE_URL}")
+    print(f"    4. Updates Airtable: Sample Email Sent = true")
     print(f"\n  NOTE: n8n must have SMTP credentials configured.")
     print(f"  Go to n8n Settings > SMTP to configure email sending.")
 

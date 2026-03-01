@@ -208,8 +208,8 @@ def fetch_sp_daily(profile_id: int, start: date, end: date) -> List[Dict]:
             continue
         report_id = resp.json()["reportId"]
 
-        # poll — max 300s (reports can take 2-3 min during peak hours)
-        deadline = time.time() + 300
+        # poll — max 600s (reports can take 5-10 min during peak hours)
+        deadline = time.time() + 600
         timed_out = True
         while time.time() < deadline:
             time.sleep(15)
@@ -234,7 +234,7 @@ def fetch_sp_daily(profile_id: int, start: date, end: date) -> List[Dict]:
                 timed_out = False
                 break
         if timed_out:
-            print(f"  [WARN] Report {report_id} timed out (300s) for profile {profile_id} - skipping chunk")
+            print(f"  [WARN] Report {report_id} timed out (600s) for profile {profile_id} - skipping chunk")
 
         cur = chunk_end + timedelta(days=1)
 
@@ -1069,7 +1069,7 @@ def main():
             ex = concurrent.futures.ThreadPoolExecutor(max_workers=1)
             fut = ex.submit(fetch_sp_daily, pid, start_date, data_end)
             try:
-                rows = fut.result(timeout=800)  # ~13 min max per profile (2 chunks × 300s poll)
+                rows = fut.result(timeout=2400)  # ~40 min max per profile (2 chunks × 600s poll)
                 ex.shutdown(wait=False)
             except concurrent.futures.TimeoutError:
                 ex.shutdown(wait=False)  # Don't block waiting for the hung thread

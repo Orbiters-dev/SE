@@ -138,16 +138,16 @@ def build_section_liquid():
   <!-- Already completed -->
   <div id="onz-already-done" style="display:none; text-align:center; padding:40px;">
     <h2>You already completed the survey!</h2>
-    <p>Your discount code:</p>
+    <p>Your $10 gift card code:</p>
     <div class="onz-discount-reveal" id="onz-existing-code"></div>
-    <p>Use this code at checkout for 10% off your next order.</p>
+    <p>Use this code at checkout — it works like store credit.</p>
   </div>
 
   <!-- Survey form -->
   <div id="onz-survey-form" style="display:none;">
     <div class="onz-header">
-      <h2>Unlock 10% Off Your Next Order</h2>
-      <p>Answer 6 quick questions about your preferences and we will generate your exclusive discount code.</p>
+      <h2>Unlock Your $10 Gift Card</h2>
+      <p>Answer 6 quick questions about your preferences and we will send you a $10 gift card for your next order.</p>
     </div>
 
     <form id="onz-form" onsubmit="return false;">
@@ -231,6 +231,14 @@ def build_section_liquid():
         </div>
       </div>
 
+      <!-- SMS opt-in (required) -->
+      <div style="margin:20px 0 8px;padding:14px;background:#f9f9f9;border:1px solid #eee;border-radius:8px;">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;color:#545454;line-height:1.5;">
+          <input type="checkbox" id="onz-sms-consent" style="width:16px;height:16px;margin-top:2px;flex-shrink:0;accent-color:#4a6cf7;cursor:pointer;" />
+          <span>I agree to receive SMS marketing messages from Onzenna at the number provided. Msg &amp; data rates may apply. Reply STOP to unsubscribe. <a href="/policies/privacy-policy" style="color:#4a6cf7;">Privacy policy</a>.</span>
+        </label>
+      </div>
+
       <button type="button" id="onz-submit-btn" class="onz-btn onz-btn-primary" onclick="submitLoyaltySurvey()">
         Unlock My Discount
       </button>
@@ -240,9 +248,9 @@ def build_section_liquid():
 
   <!-- Success state -->
   <div id="onz-success" style="display:none; text-align:center; padding:40px;">
-    <h2>Your discount code is ready!</h2>
+    <h2>Your $10 gift card is ready!</h2>
     <div class="onz-discount-reveal" id="onz-new-code"></div>
-    <p>Use this code at checkout for <strong>10% off</strong> your next order.</p>
+    <p>Use this code at checkout — it works like <strong>$10 store credit</strong> on any order.</p>
     <a href="/collections/all" class="onz-btn onz-btn-primary" style="margin-top:20px;">Start Shopping</a>
   </div>
 </div>
@@ -401,8 +409,8 @@ def build_section_liquid():
     }})
     .then(function(r) {{ return r.json(); }})
     .then(function(data) {{
-      if (data.completed && data.discount_code) {{
-        document.getElementById("onz-existing-code").textContent = data.discount_code;
+      if (data.completed && data.gift_card_code) {{
+        document.getElementById("onz-existing-code").textContent = data.gift_card_code;
         showSection(doneEl);
       }} else {{
         showSection(formEl);
@@ -467,15 +475,29 @@ def build_section_liquid():
       return;
     }}
 
-    // Try webhook first, fallback to showing code directly
-    var DISCOUNT_CODE = "Survey10%";
+    // Validate SMS consent (required)
+    if (!document.getElementById("onz-sms-consent").checked) {{
+      errorEl.textContent = "Please agree to receive SMS messages to continue.";
+      errorEl.style.display = "block";
+      btn.disabled = false;
+      btn.textContent = "Unlock My Discount";
+      return;
+    }}
 
-    function revealCode() {{
-      document.getElementById("onz-new-code").textContent = DISCOUNT_CODE;
+    // Try webhook first, fallback to showing code directly
+    var DISCOUNT_CODE = "";  // fallback — gift card code comes from webhook
+
+    function revealError() {{
+      // Gift card couldn't be generated — show a helpful message
+      document.getElementById("onz-new-code").textContent = "";
+      document.getElementById("onz-new-code").insertAdjacentHTML(
+        "afterend",
+        "<p style='color:#c00;margin-top:8px;'>Something went wrong generating your gift card. Please contact us and we will send it manually.</p>"
+      );
       showSection(successEl);
     }}
 
-    // Send data to webhook (best-effort, show code regardless)
+    // Send survey to webhook — webhook returns gift card code
     fetch(WEBHOOK_URL, {{
       method: "POST",
       headers: {{ "Content-Type": "application/json" }},
@@ -483,14 +505,15 @@ def build_section_liquid():
     }})
     .then(function(r) {{ return r.json(); }})
     .then(function(data) {{
-      // Use webhook-returned code if available, otherwise use default
-      var code = data.discount_code || DISCOUNT_CODE;
-      document.getElementById("onz-new-code").textContent = code;
-      showSection(successEl);
+      if (data.gift_card_code) {{
+        document.getElementById("onz-new-code").textContent = data.gift_card_code;
+        showSection(successEl);
+      }} else {{
+        revealError();
+      }}
     }})
     .catch(function(err) {{
-      // Webhook failed, but still show the code
-      revealCode();
+      revealError();
     }});
   }};
 }})();

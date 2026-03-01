@@ -478,6 +478,17 @@ def build_section_liquid():
   try {{ sessionDone = sessionStorage.getItem("onz_checkout_done") === "1"; }} catch(e) {{}}
   var hasAddress = hasAddressLiquid || fromCheckout || sessionDone;
 
+  // Shopify-stored address (pre-populated for logged-in users)
+  var shopifyAddress = {{
+    phone: {{% if customer.phone %}}"{{{{ customer.phone }}}}"{{% elsif customer.default_address.phone %}}"{{{{ customer.default_address.phone }}}}"{{% else %}}null{{% endif %}},
+    address1: {{% if customer.default_address.address1 %}}"{{{{ customer.default_address.address1 }}}}"{{% else %}}null{{% endif %}},
+    address2: {{% if customer.default_address.address2 %}}"{{{{ customer.default_address.address2 }}}}"{{% else %}}null{{% endif %}},
+    city: {{% if customer.default_address.city %}}"{{{{ customer.default_address.city }}}}"{{% else %}}null{{% endif %}},
+    province: {{% if customer.default_address.province %}}"{{{{ customer.default_address.province }}}}"{{% else %}}null{{% endif %}},
+    zip: {{% if customer.default_address.zip %}}"{{{{ customer.default_address.zip }}}}"{{% else %}}null{{% endif %}},
+    country: {{% if customer.default_address.country %}}"{{{{ customer.default_address.country }}}}"{{% else %}}null{{% endif %}},
+  }};
+
   // Existing creator metafield data
   var existingCreator = {{
     primary_platform: {{% if customer.metafields.onzenna_creator.primary_platform %}}"{{{{ customer.metafields.onzenna_creator.primary_platform.value }}}}"{{% else %}}null{{% endif %}},
@@ -617,12 +628,18 @@ def build_section_liquid():
   var sessionName = null;
   var sessionCid = null;
   var sessionCoreSurvey = null;
+  var sessionContact = null;
+  var sessionShipping = null;
   try {{
     sessionEmail = sessionStorage.getItem("onz_email") || null;
     sessionName = sessionStorage.getItem("onz_name") || null;
     sessionCid = sessionStorage.getItem("onz_customer_id") || null;
     var raw = sessionStorage.getItem("onz_core_survey");
     if (raw) sessionCoreSurvey = JSON.parse(raw);
+    var rawContact = sessionStorage.getItem("onz_contact");
+    if (rawContact) sessionContact = JSON.parse(rawContact);
+    var rawShipping = sessionStorage.getItem("onz_shipping");
+    if (rawShipping) sessionShipping = JSON.parse(rawShipping);
   }} catch(e) {{}}
   if (!customerEmail && sessionEmail) customerEmail = sessionEmail;
   if (!customerName && sessionName) customerName = sessionName;
@@ -706,12 +723,14 @@ def build_section_liquid():
       return Array.from(els).map(function(el) {{ return el.value; }});
     }}
 
+    // Always capture phone (field is pre-filled from Shopify even when hasAddress=true)
+    var cPhone = document.getElementById("onz-phone").value.trim();
+
     // Validate contact/shipping if section is visible
     if (!hasAddress) {{
       var cEmail = document.getElementById("onz-email").value.trim();
       var cFirst = document.getElementById("onz-firstname").value.trim();
       var cLast = document.getElementById("onz-lastname").value.trim();
-      var cPhone = document.getElementById("onz-phone").value.trim();
       var cAddr1 = document.getElementById("onz-address1").value.trim();
       var cCity = document.getElementById("onz-city").value.trim();
       var cState = document.getElementById("onz-state").value.trim();
@@ -732,8 +751,30 @@ def build_section_liquid():
         errorEl.style.display = "block";
         btn.disabled = false; btn.textContent = "Submit"; return;
       }}
+      // US phone validation
+      var cleanPhone = cPhone.replace(/[\s\-\(\)\.]/g, "");
+      if (cleanPhone.startsWith("+1")) cleanPhone = cleanPhone.slice(2);
+      else if (cleanPhone.startsWith("1") && cleanPhone.length === 11) cleanPhone = cleanPhone.slice(1);
+      if (!/^\d{{10}}$/.test(cleanPhone)) {{
+        errorEl.textContent = "Please enter a valid US phone number (10 digits).";
+        errorEl.style.display = "block";
+        btn.disabled = false; btn.textContent = "Submit"; return;
+      }}
       if (!cAddr1 || !cCity || !cState || !cZip) {{
         errorEl.textContent = "Please fill in your shipping address.";
+        errorEl.style.display = "block";
+        btn.disabled = false; btn.textContent = "Submit"; return;
+      }}
+      // US ZIP validation
+      if (!/^\d{{5}}(-\d{{4}})?$/.test(cZip)) {{
+        errorEl.textContent = "Please enter a valid US ZIP code (e.g. 90210).";
+        errorEl.style.display = "block";
+        btn.disabled = false; btn.textContent = "Submit"; return;
+      }}
+      // US country validation
+      var cCountry = document.getElementById("onz-country").value;
+      if (cCountry && cCountry !== "US" && cCountry !== "United States") {{
+        errorEl.textContent = "We currently ship to US addresses only.";
         errorEl.style.display = "block";
         btn.disabled = false; btn.textContent = "Submit"; return;
       }}
@@ -843,11 +884,25 @@ def build_section_liquid():
         customer_id: customerId,
         submitted_at: payload.submitted_at,
         survey_data: payload.survey_data,
+        contact: {{
+          phone: cPhone || (contactData && contactData.phone) || (sessionContact && sessionContact.phone) || shopifyAddress.phone || null,
+          first_name: (contactData && contactData.first_name) || (sessionContact && sessionContact.first_name) || null,
+          last_name: (contactData && contactData.last_name) || (sessionContact && sessionContact.last_name) || null,
+        }},
+        shipping_address: {{
+          address1: (shippingData && shippingData.address1) || (sessionShipping && sessionShipping.address1) || shopifyAddress.address1 || null,
+          address2: (shippingData && shippingData.address2) || (sessionShipping && sessionShipping.address2) || shopifyAddress.address2 || null,
+          city: (shippingData && shippingData.city) || (sessionShipping && sessionShipping.city) || shopifyAddress.city || null,
+          province: (shippingData && shippingData.province) || (sessionShipping && sessionShipping.province) || shopifyAddress.province || null,
+          zip: (shippingData && shippingData.zip) || (sessionShipping && sessionShipping.zip) || shopifyAddress.zip || null,
+          country: (shippingData && shippingData.country) || (sessionShipping && sessionShipping.country) || shopifyAddress.country || null,
+        }},
         core_signup_data: {{
           journey_stage: (sessionCoreSurvey && sessionCoreSurvey.journey_stage) || existingCoreData.journey_stage || null,
           baby_birth_month: (sessionCoreSurvey && sessionCoreSurvey.baby_birth_month) || existingCoreData.baby_birth_month || null,
           has_other_children: (sessionCoreSurvey && sessionCoreSurvey.has_other_children) || existingCoreData.has_other_children || null,
           other_child_birth: (sessionCoreSurvey && sessionCoreSurvey.other_child_birth) || existingCoreData.other_child_birth || null,
+          third_child_birth: (sessionCoreSurvey && sessionCoreSurvey.third_child_birth) || existingCoreData.third_child_birth || null,
         }},
       }}),
     }}).catch(function() {{}});

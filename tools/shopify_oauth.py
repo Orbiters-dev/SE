@@ -20,7 +20,7 @@ CLIENT_ID = os.getenv("SHOPIFY_CLIENT_ID", "d35ab8420b01d73924735d2ab58e1d45")
 CLIENT_SECRET = os.getenv("SHOPIFY_CLIENT_SECRET", "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")
 SHOP = os.getenv("SHOPIFY_SHOP", "mytoddie.myshopify.com")
 REDIRECT_URI = "http://localhost:3456/callback"
-SCOPES = "read_orders,read_all_orders,read_products,read_customers,write_customers,read_inventory,write_themes,write_content,write_draft_orders,read_discounts,write_discounts,read_price_rules,write_price_rules"
+SCOPES = "read_orders,read_all_orders,read_products,read_customers,write_customers,read_inventory,write_themes,write_content,write_draft_orders,read_discounts,write_discounts,read_price_rules,write_price_rules,write_gift_cards"
 
 STATE = "shopify_oauth_ok"
 SECRETS_PATH = os.path.expanduser("~/.wat_secrets")

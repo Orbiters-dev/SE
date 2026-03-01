@@ -236,6 +236,64 @@ METAFIELD_DEFINITIONS = [
         "description": "Timestamp when Part 3 Loyalty Unlock was completed",
         "ownerType": "CUSTOMER",
     },
+
+    # Creator Pipeline Status (onzenna_creator)
+    {
+        "name": "Creator Status",
+        "namespace": "onzenna_creator",
+        "key": "creator_status",
+        "type": "single_line_text_field",
+        "description": "Current creator pipeline status from Airtable (Pending, Accepted, Rejected, etc.)",
+        "ownerType": "CUSTOMER",
+    },
+    {
+        "name": "Instagram Handle",
+        "namespace": "onzenna_creator",
+        "key": "instagram_handle",
+        "type": "single_line_text_field",
+        "description": "Creator's Instagram handle",
+        "ownerType": "CUSTOMER",
+    },
+    {
+        "name": "TikTok Handle",
+        "namespace": "onzenna_creator",
+        "key": "tiktok_handle",
+        "type": "single_line_text_field",
+        "description": "Creator's TikTok handle",
+        "ownerType": "CUSTOMER",
+    },
+    {
+        "name": "Accepted At",
+        "namespace": "onzenna_creator",
+        "key": "accepted_at",
+        "type": "date_time",
+        "description": "Timestamp when creator was accepted into the program",
+        "ownerType": "CUSTOMER",
+    },
+    {
+        "name": "Sample Shipped At",
+        "namespace": "onzenna_creator",
+        "key": "sample_shipped_at",
+        "type": "date_time",
+        "description": "Timestamp when creator sample was shipped",
+        "ownerType": "CUSTOMER",
+    },
+    {
+        "name": "Draft Order ID",
+        "namespace": "onzenna_creator",
+        "key": "draft_order_id",
+        "type": "single_line_text_field",
+        "description": "Shopify draft order ID for creator sample request",
+        "ownerType": "CUSTOMER",
+    },
+    {
+        "name": "Status Check",
+        "namespace": "onzenna_creator",
+        "key": "status_check",
+        "type": "json",
+        "description": "Airtable Status Check multi-select values (e.g. Shipping Sample)",
+        "ownerType": "CUSTOMER",
+    },
 ]
 
 

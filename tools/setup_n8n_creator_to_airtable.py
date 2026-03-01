@@ -35,6 +35,9 @@ IG_USER_ID = os.getenv("INSTAGRAM_BUSINESS_USER_ID", "")
 SHOPIFY_SHOP = os.getenv("SHOPIFY_SHOP", "toddie-4080.myshopify.com")
 SHOPIFY_TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN", "")
 
+CUSTOMERS_TABLE_ID = os.getenv("AIRTABLE_CUSTOMERS_TABLE_ID", "tblLjgNhDOdkdQwuE")
+ORBITOOLS_CRED_ID = "mF9WJI64MUwl0gSU"
+
 WORKFLOW_NAME = "Onzenna: Creator Signup -> Airtable"
 
 
@@ -63,6 +66,7 @@ def find_existing_workflow():
 
 def build_workflow():
     airtable_url = f"https://api.airtable.com/v0/{AIRTABLE_BASE_ID}/{AIRTABLE_TABLE_ID}"
+    master_url = f"https://api.airtable.com/v0/{AIRTABLE_BASE_ID}/{CUSTOMERS_TABLE_ID}"
     shopify_metafields_url = f"https://{SHOPIFY_SHOP}/admin/api/2024-01/customers"
 
     return {
@@ -95,6 +99,8 @@ const customerId = payload.customer_id || null;
 const submittedAt = payload.submitted_at || new Date().toISOString();
 const surveyData = payload.survey_data || {};
 const coreSignupData = payload.core_signup_data || {};
+const contactData = payload.contact || {};
+const shippingData = payload.shipping_address || {};
 
 // Extract Instagram/TikTok handles
 let igHandle = '';
@@ -134,10 +140,22 @@ const rawFields = {
   "Primary Platform": primaryPlatform || null,
   "Following Size (Self-reported)": surveyData.following_size || null,
   "Content Type": contentType.length > 0 ? contentType : null,
-  "Has Brand Partnerships": surveyData.has_brand_partnerships || null,
+  "Hashtags": surveyData.hashtags || null,
+  "Other Platforms": Array.isArray(surveyData.other_platforms) && surveyData.other_platforms.length > 0 ? surveyData.other_platforms.join(', ') : null,
+  "Has Brand Partnerships": surveyData.has_brand_partnerships === true ? 'yes' : (surveyData.has_brand_partnerships === false ? 'no_but_interested' : (surveyData.has_brand_partnerships || null)),
   "Brand Names": surveyData.brand_names || null,
   "Journey Stage": coreSignupData.journey_stage || null,
   "Baby Birth Month": coreSignupData.baby_birth_month || null,
+  "Has Other Children": coreSignupData.has_other_children !== null && coreSignupData.has_other_children !== undefined ? String(coreSignupData.has_other_children) : null,
+  "Other Child Birth": coreSignupData.other_child_birth || null,
+  "Third Child Birth": coreSignupData.third_child_birth || null,
+  "Phone": contactData.phone || null,
+  "Address 1": shippingData.address1 || null,
+  "Address 2": shippingData.address2 || null,
+  "City": shippingData.city || null,
+  "State": shippingData.province || null,
+  "ZIP": shippingData.zip || null,
+  "Country": shippingData.country || null,
   "Shopify Customer ID": customerId,
   "Status": "New",
   "Submitted At": submittedAt,
@@ -496,6 +514,8 @@ const fields = parsed.airtable_fields || {};
 const sd = $('Webhook').first().json.body || $('Webhook').first().json;
 const surveyData = sd.survey_data || {};
 const coreData = sd.core_signup_data || {};
+const contactData = sd.contact || {};
+const shippingData = sd.shipping_address || {};
 
 // Build metafields for both namespaces
 const metafields = [];
@@ -513,6 +533,9 @@ if (coreData.has_other_children !== null && coreData.has_other_children !== unde
 if (coreData.other_child_birth) {
   metafields.push({ namespace: 'onzenna_survey', key: 'other_child_birth', value: String(coreData.other_child_birth), type: 'single_line_text_field' });
 }
+if (coreData.third_child_birth) {
+  metafields.push({ namespace: 'onzenna_survey', key: 'third_child_birth', value: String(coreData.third_child_birth), type: 'single_line_text_field' });
+}
 
 // Creator signup data -> onzenna_creator namespace
 if (surveyData.primary_platform) {
@@ -527,14 +550,43 @@ if (surveyData.following_size) {
 if (surveyData.content_type && surveyData.content_type.length > 0) {
   metafields.push({ namespace: 'onzenna_creator', key: 'content_type', value: JSON.stringify(surveyData.content_type), type: 'json' });
 }
-if (surveyData.has_brand_partnerships) {
-  metafields.push({ namespace: 'onzenna_creator', key: 'has_brand_partnerships', value: surveyData.has_brand_partnerships, type: 'single_line_text_field' });
+if (surveyData.hashtags) {
+  metafields.push({ namespace: 'onzenna_creator', key: 'hashtags', value: String(surveyData.hashtags), type: 'single_line_text_field' });
+}
+if (surveyData.other_platforms && surveyData.other_platforms.length > 0) {
+  metafields.push({ namespace: 'onzenna_creator', key: 'other_platforms', value: JSON.stringify(surveyData.other_platforms), type: 'json' });
+}
+if (surveyData.has_brand_partnerships !== null && surveyData.has_brand_partnerships !== undefined) {
+  metafields.push({ namespace: 'onzenna_creator', key: 'has_brand_partnerships', value: String(surveyData.has_brand_partnerships), type: 'single_line_text_field' });
 }
 if (surveyData.brand_names) {
   metafields.push({ namespace: 'onzenna_creator', key: 'brand_names', value: surveyData.brand_names, type: 'single_line_text_field' });
 }
 
-// Add completed_at timestamps
+// Contact / address -> onzenna_creator namespace
+if (contactData.phone) {
+  metafields.push({ namespace: 'onzenna_creator', key: 'phone', value: String(contactData.phone), type: 'single_line_text_field' });
+}
+if (shippingData.address1) {
+  metafields.push({ namespace: 'onzenna_creator', key: 'address1', value: String(shippingData.address1), type: 'single_line_text_field' });
+}
+if (shippingData.address2) {
+  metafields.push({ namespace: 'onzenna_creator', key: 'address2', value: String(shippingData.address2), type: 'single_line_text_field' });
+}
+if (shippingData.city) {
+  metafields.push({ namespace: 'onzenna_creator', key: 'city', value: String(shippingData.city), type: 'single_line_text_field' });
+}
+if (shippingData.province) {
+  metafields.push({ namespace: 'onzenna_creator', key: 'province', value: String(shippingData.province), type: 'single_line_text_field' });
+}
+if (shippingData.zip) {
+  metafields.push({ namespace: 'onzenna_creator', key: 'zip', value: String(shippingData.zip), type: 'single_line_text_field' });
+}
+if (shippingData.country) {
+  metafields.push({ namespace: 'onzenna_creator', key: 'country', value: String(shippingData.country), type: 'single_line_text_field' });
+}
+
+// Add completed_at timestamp
 metafields.push({ namespace: 'onzenna_creator', key: 'creator_completed_at', value: new Date().toISOString(), type: 'date_time' });
 
 // Get Airtable record ID for updating
@@ -544,13 +596,19 @@ try {
   recordId = (airtableResp.records && airtableResp.records[0]) ? airtableResp.records[0].id : null;
 } catch(e) {}
 
+// Build Shopify customer body — include phone at customer level if available
+const shopifyCustomer = { id: cid, metafields: metafields };
+if (contactData.phone) {
+  shopifyCustomer.phone = contactData.phone;
+}
+
 return [{
   json: {
     found: true,
     customer_id: cid,
     record_id: recordId,
     metafields: metafields,
-    shopify_body: { customer: { id: cid, metafields: metafields } },
+    shopify_body: { customer: shopifyCustomer },
   }
 }];"""
                 },
@@ -607,7 +665,41 @@ return [{
                 "position": [2420, 580],
                 "onError": "continueRegularOutput",
             },
-            # 17. Update Airtable with found customer_id
+            # 17. Save raw data to PostgreSQL via orbitools API
+            {
+                "parameters": {
+                    "method": "POST",
+                    "url": "https://orbitools.orbiters.co.kr/api/onzenna/creators/save/",
+                    "authentication": "genericCredentialType",
+                    "genericAuthType": "httpBasicAuth",
+                    "sendBody": True,
+                    "specifyBody": "json",
+                    "jsonBody": """={{ JSON.stringify((() => {
+  const sd = $('Webhook').first().json.body || $('Webhook').first().json;
+  const parsed = $('Parse Payload').first().json;
+  let airtableRecordId = null;
+  try {
+    const at = $('Create Airtable Record').first().json;
+    airtableRecordId = (at.records && at.records[0]) ? at.records[0].id : null;
+  } catch(e) {}
+  return Object.assign({}, sd, { airtable_record_id: airtableRecordId });
+})()) }}""",
+                    "options": {"timeout": 15000},
+                },
+                "credentials": {
+                    "httpBasicAuth": {
+                        "id": "mF9WJI64MUwl0gSU",
+                        "name": "MVP module admin auth",
+                    }
+                },
+                "id": "http-orbitools-save-raw",
+                "name": "Save to Orbitools (Raw)",
+                "type": "n8n-nodes-base.httpRequest",
+                "typeVersion": 4.2,
+                "position": [1100, 860],
+                "onError": "continueRegularOutput",
+            },
+            # 18. Update Airtable with found customer_id
             {
                 "parameters": {
                     "method": "PATCH",
@@ -630,6 +722,132 @@ return [{
                 "type": "n8n-nodes-base.httpRequest",
                 "typeVersion": 4.2,
                 "position": [2640, 580],
+                "onError": "continueRegularOutput",
+            },
+            # 19. Search Airtable Master by email (update creator status)
+            {
+                "parameters": {
+                    "method": "GET",
+                    "url": master_url,
+                    "authentication": "none",
+                    "sendHeaders": True,
+                    "headerParameters": {
+                        "parameters": [
+                            {"name": "Authorization", "value": f"Bearer {AIRTABLE_API_KEY}"},
+                        ]
+                    },
+                    "sendQuery": True,
+                    "queryParameters": {
+                        "parameters": [
+                            {
+                                "name": "filterByFormula",
+                                "value": "={{ '{Email}=\\'' + $('Parse Payload').first().json.airtable_fields.Email + '\\'' }}",
+                            }
+                        ]
+                    },
+                    "options": {"timeout": 15000},
+                },
+                "id": "http-search-master-creator",
+                "name": "Search Master (Creator)",
+                "type": "n8n-nodes-base.httpRequest",
+                "typeVersion": 4.2,
+                "position": [1540, 860],
+                "onError": "continueRegularOutput",
+            },
+            # 20. Extract master record for creator update
+            {
+                "parameters": {
+                    "jsCode": """const records = $input.first().json.records || [];
+const email = $('Parse Payload').first().json.airtable_fields.Email || '';
+
+if (records.length === 0) {
+  return [{ json: { found_in_master: false, customer_email: email } }];
+}
+
+return [{
+  json: {
+    found_in_master: true,
+    record_id: records[0].id,
+    customer_email: email,
+  }
+}];"""
+                },
+                "id": "code-extract-master-creator",
+                "name": "Extract Master (Creator)",
+                "type": "n8n-nodes-base.code",
+                "typeVersion": 2,
+                "position": [1760, 860],
+            },
+            # 21. In master table?
+            {
+                "parameters": {
+                    "conditions": {
+                        "options": {"caseSensitive": False, "leftValue": "", "typeValidation": "loose"},
+                        "conditions": [
+                            {
+                                "id": "creator-master-found",
+                                "leftValue": "={{ $json.found_in_master }}",
+                                "rightValue": "true",
+                                "operator": {"type": "boolean", "operation": "true"},
+                            }
+                        ],
+                        "combinator": "and",
+                    },
+                },
+                "id": "if-master-creator",
+                "name": "In Master? (Creator)",
+                "type": "n8n-nodes-base.if",
+                "typeVersion": 2,
+                "position": [1980, 860],
+            },
+            # 22. Update Airtable Master - Creator Application Status = Applied
+            {
+                "parameters": {
+                    "method": "PATCH",
+                    "url": master_url,
+                    "authentication": "none",
+                    "sendHeaders": True,
+                    "headerParameters": {
+                        "parameters": [
+                            {"name": "Authorization", "value": f"Bearer {AIRTABLE_API_KEY}"},
+                            {"name": "Content-Type", "value": "application/json"},
+                        ]
+                    },
+                    "sendBody": True,
+                    "specifyBody": "json",
+                    "jsonBody": '={{ JSON.stringify({ "records": [{ "id": $("Extract Master (Creator)").first().json.record_id, "fields": { "Creator Application Status": "Applied", "Creator Applied At": new Date().toISOString() } }] }) }}',
+                    "options": {"timeout": 30000},
+                },
+                "id": "http-master-creator",
+                "name": "Update Master (Creator)",
+                "type": "n8n-nodes-base.httpRequest",
+                "typeVersion": 4.2,
+                "position": [2200, 780],
+                "onError": "continueRegularOutput",
+            },
+            # 23. Update PostgreSQL - Creator Application Status = applied
+            {
+                "parameters": {
+                    "method": "POST",
+                    "url": "https://orbitools.orbiters.co.kr/api/onzenna/customers/update-status/",
+                    "authentication": "genericCredentialType",
+                    "genericAuthType": "httpBasicAuth",
+                    "sendBody": True,
+                    "specifyBody": "json",
+                    "jsonBody": '={{ JSON.stringify({ email: $("Extract Master (Creator)").first().json.customer_email, creator_application_status: "applied" }) }}',
+                    "options": {"timeout": 15000},
+                },
+                "credentials": {
+                    "httpBasicAuth": {
+                        "id": ORBITOOLS_CRED_ID,
+                        "name": "MVP module admin auth",
+                    }
+                },
+                "id": "http-pg-creator",
+                "name": "Update PostgreSQL (Creator)",
+                "type": "n8n-nodes-base.httpRequest",
+                "typeVersion": 4.2,
+                "position": [2200, 940],
                 "onError": "continueRegularOutput",
             },
         ],
@@ -661,6 +879,8 @@ return [{
                         {"node": "Respond OK", "type": "main", "index": 0},
                         {"node": "Has IG Handle?", "type": "main", "index": 0},
                         {"node": "Has Email?", "type": "main", "index": 0},
+                        {"node": "Save to Orbitools (Raw)", "type": "main", "index": 0},
+                        {"node": "Search Master (Creator)", "type": "main", "index": 0},
                     ]
                 ]
             },
@@ -702,6 +922,21 @@ return [{
             },
             "Save Metafields": {
                 "main": [[{"node": "Update Airtable (CID)", "type": "main", "index": 0}]]
+            },
+            "Search Master (Creator)": {
+                "main": [[{"node": "Extract Master (Creator)", "type": "main", "index": 0}]]
+            },
+            "Extract Master (Creator)": {
+                "main": [[{"node": "In Master? (Creator)", "type": "main", "index": 0}]]
+            },
+            "In Master? (Creator)": {
+                "main": [
+                    [
+                        {"node": "Update Master (Creator)", "type": "main", "index": 0},
+                        {"node": "Update PostgreSQL (Creator)", "type": "main", "index": 0},
+                    ],
+                    [],
+                ]
             },
         },
         "settings": {
