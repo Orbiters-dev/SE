@@ -127,20 +127,12 @@ def fetch_campaign_daily(client, customer_id: str, start_date: str, end_date: st
         ORDER BY segments.date, campaign.id
     """
     out = []
-    page_token = None
-    while True:
-        try:
-            from google.ads.googleads.client import GoogleAdsClient
-            request = client.get_type("SearchGoogleAdsRequest")
-            request.customer_id = customer_id
-            request.query = query
-            request.page_size = 10000
-            if page_token:
-                request.page_token = page_token
-
-            resp = ga.search(request=request)
-            for r in resp:
-                date_val = r.segments.date
+    try:
+        # Use search_stream for efficiency (no page_size needed)
+        stream = ga.search_stream(customer_id=customer_id, query=query)
+        for batch in stream:
+            for r in batch.results:
+                date_val      = r.segments.date
                 campaign_id   = str(r.campaign.id)
                 campaign_name = r.campaign.name or ""
                 impressions   = int(r.metrics.impressions or 0)
@@ -151,21 +143,17 @@ def fetch_campaign_daily(client, customer_id: str, start_date: str, end_date: st
                 spend         = Decimal(cost_micros) / MICROS
 
                 out.append({
-                    "date":          date_val,
-                    "campaign_id":   campaign_id,
-                    "campaign_name": campaign_name,
-                    "impressions":   impressions,
-                    "clicks":        clicks,
-                    "spend":         float(spend),
+                    "date":           date_val,
+                    "campaign_id":    campaign_id,
+                    "campaign_name":  campaign_name,
+                    "impressions":    impressions,
+                    "clicks":         clicks,
+                    "spend":          float(spend),
                     "purchase_value": float(conv_value),
-                    "purchases":     float(conversions),
+                    "purchases":      float(conversions),
                 })
-            page_token = getattr(resp, "next_page_token", None)
-            if not page_token:
-                break
-        except Exception as e:
-            print(f"  [WARN] customer {customer_id} query failed: {e}")
-            break
+    except Exception as e:
+        print(f"  [WARN] customer {customer_id} query failed: {e}")
 
     return out
 

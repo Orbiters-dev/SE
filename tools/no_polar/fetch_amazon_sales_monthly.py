@@ -57,6 +57,10 @@ SP_CLIENT_ID  = os.getenv("AMZ_SP_CLIENT_ID")
 SP_CLIENT_SEC = os.getenv("AMZ_SP_CLIENT_SECRET")
 SP_REFRESH    = os.getenv("AMZ_SP_REFRESH_TOKEN")
 
+# Fee rates (flat approximation)
+AMZ_FEE_RATE    = 0.15   # Amazon referral + FBA: 15%
+TARGET_FEE_RATE = 0.08   # Target+ commission: 8%
+
 # SKU → Brand mapping from Product_Variant_Reference.xlsx
 BRAND_MAP_PATH = ROOT / "Data Storage" / "polar" / "Product_Variant_Reference.xlsx"
 
@@ -251,10 +255,15 @@ def parse_orders_report(content: str, sku_map: Dict[str, str]) -> List[Dict]:
 
         brand = infer_brand(sku, title, sku_map)
 
+        # Channel: "Target+" if fulfilled by Target, else "Amazon"
+        sales_channel = r.get("sales-channel", "").strip()
+        channel = "Target+" if "target" in sales_channel.lower() else "Amazon"
+
         rows.append({
             "order_id": order_id,
             "date": dt,
             "brand": brand,
+            "channel": channel,
             "gross_sales": gross,
             "promotion_discounts": -abs(promo),  # negative
         })
@@ -299,11 +308,17 @@ def fetch_orders_for_range(tm: SpTokenManager, start: date, end: date, sku_map: 
 # ---------------------------------------------------------------------------
 
 def aggregate_q3(rows: List[Dict]) -> List[Dict]:
-    """Aggregate order items by (brand, YYYY-MM-01) → Q3 tableData."""
+    """Aggregate order items by (brand, YYYY-MM-01) → Q3 tableData.
+
+    Fee approximation:
+      - Amazon channel: -15% of gross_sales (referral + FBA flat rate)
+      - Target+ channel: -8% of gross_sales (Target commission)
+    """
     bucket: Dict[Tuple, Dict] = defaultdict(lambda: {
         "gross_sales": 0.0,
         "promotion_discounts": 0.0,
         "order_ids": set(),
+        "channel": "Amazon",
     })
 
     for r in rows:
@@ -313,24 +328,30 @@ def aggregate_q3(rows: List[Dict]) -> List[Dict]:
         bucket[key]["gross_sales"]          += r["gross_sales"]
         bucket[key]["promotion_discounts"]  += r["promotion_discounts"]
         bucket[key]["order_ids"].add(r["order_id"])
+        bucket[key]["channel"]               = r.get("channel", "Amazon")
 
     out = []
     for (brand, month_key), v in sorted(bucket.items()):
-        gross = v["gross_sales"]
+        gross     = v["gross_sales"]
         discounts = v["promotion_discounts"]
-        net = gross + discounts  # discounts are negative
+        net       = gross + discounts  # discounts are negative
+
+        # Fee rate by channel
+        fee_rate  = TARGET_FEE_RATE if v["channel"] == "Target+" else AMZ_FEE_RATE
+        total_fees = -abs(gross * fee_rate)  # always negative
+
         total_orders = len(v["order_ids"])
         avg_aov = (net / total_orders) if total_orders else 0.0
 
         out.append({
-            "amazonsp_order_items.computed.total_sales_amazon":   round(net, 6),
+            "amazonsp_order_items.computed.total_sales_amazon":    round(net, 6),
             "amazonsp_order_items.computed.avg_order_value_amazon": round(avg_aov, 6),
-            "amazonsp_order_items.raw.gross_sales_amazon":        round(gross, 6),
+            "amazonsp_order_items.raw.gross_sales_amazon":         round(gross, 6),
             "amazonsp_order_items.raw.promotion_discounts_amazon": round(discounts, 6),
-            "amazonsp_order_items.computed.net_sales_amazon":     round(net, 6),
-            "amazonsp_order_items.raw.total_orders_amazon":       total_orders,
-            "amazonsp_order_items.raw.total_fees_amazon":         0,   # TODO: Finances API
-            "amazonsp_order_items.raw.cost_of_products_amazon":   0,   # TODO: COGS sheet
+            "amazonsp_order_items.computed.net_sales_amazon":      round(net, 6),
+            "amazonsp_order_items.raw.total_orders_amazon":        total_orders,
+            "amazonsp_order_items.raw.total_fees_amazon":          round(total_fees, 6),
+            "amazonsp_order_items.raw.cost_of_products_amazon":    0,   # TODO: COGS sheet
             "custom_5036": brand,
             "date": month_key,
         })
