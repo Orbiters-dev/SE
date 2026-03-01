@@ -146,7 +146,8 @@ def fetch_sp_campaign_static(tm: TokenManager, profile_id: int) -> Dict[int, Dic
         )
         resp.raise_for_status()
         data = resp.json()
-        items = data.get("campaigns", {}).get("items", [])
+        camps = data.get("campaigns", []) if isinstance(data, dict) else data
+        items = camps if isinstance(camps, list) else camps.get("items", [])
         for c in items:
             cid = c.get("campaignId")
             if cid:
@@ -212,6 +213,9 @@ def create_report_v3(
         tm._token = None
         headers = _headers_reporting(tm, profile_id)
         resp = requests.post(f"{API_BASE}/reporting/reports", headers=headers, json=body, timeout=60)
+    if resp.status_code == 400:
+        print(f"  [SKIP 400] {start}~{end}: {resp.text[:300]}")
+        return []
     resp.raise_for_status()
     report_id = resp.json()["reportId"]
 
