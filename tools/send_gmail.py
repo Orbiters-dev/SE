@@ -11,6 +11,8 @@ import base64
 import json
 import os
 import sys
+from email import encoders
+from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
@@ -58,15 +60,25 @@ def get_gmail_service():
     return build("gmail", "v1", credentials=creds)
 
 
-def send_email(to: str, subject: str, body_html: str, sender: str = DEFAULT_SENDER) -> dict:
+def send_email(to: str, subject: str, body_html: str, sender: str = DEFAULT_SENDER,
+               attachment: str = None) -> dict:
     service = get_gmail_service()
 
-    msg = MIMEMultipart("alternative")
+    msg = MIMEMultipart("mixed")
     msg["Subject"] = subject
     msg["From"] = sender
     msg["To"] = to
 
     msg.attach(MIMEText(body_html, "html", "utf-8"))
+
+    if attachment:
+        path = Path(attachment)
+        with open(path, "rb") as f:
+            part = MIMEBase("application", "octet-stream")
+            part.set_payload(f.read())
+        encoders.encode_base64(part)
+        part.add_header("Content-Disposition", f'attachment; filename="{path.name}"')
+        msg.attach(part)
 
     raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
     result = service.users().messages().send(userId="me", body={"raw": raw}).execute()
@@ -85,6 +97,7 @@ def main():
     parser.add_argument("--subject", required=True, help="Email subject")
     parser.add_argument("--body", help="HTML body content")
     parser.add_argument("--body-file", help="Path to HTML file for body")
+    parser.add_argument("--attachment", help="Path to file to attach")
     parser.add_argument("--sender", default=DEFAULT_SENDER, help="Sender email")
     args = parser.parse_args()
 
@@ -97,7 +110,8 @@ def main():
         print("ERROR: Provide --body or --body-file")
         sys.exit(1)
 
-    send_email(to=args.to, subject=args.subject, body_html=body, sender=args.sender)
+    send_email(to=args.to, subject=args.subject, body_html=body, sender=args.sender,
+               attachment=args.attachment)
 
 
 if __name__ == "__main__":
