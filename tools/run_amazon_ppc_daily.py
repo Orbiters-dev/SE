@@ -11,6 +11,7 @@ Usage:
 
 import argparse
 import base64
+import concurrent.futures
 import gzip
 import json
 import os
@@ -19,7 +20,7 @@ import sys
 import time
 import traceback
 from collections import defaultdict
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
@@ -43,21 +44,12 @@ ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
 API_BASE = "https://advertising-api.amazon.com"
 
-# --- brand classification ---
-BRAND_RULES = [
-    ("Grosmimi", ["grosmimi", "ppsu", "gm_", "_gm_", "ppsu"]),
-    ("CHA&MOM",  ["cha&mom", "chamom", "cha_mom", "cm_", "_cm_"]),
-    ("Alpremio", ["alpremio", "alp_", "_alp_"]),
-    ("Naeiae",   ["naeiae", "naiae", "내이에"]),
-    ("Easy Shower", ["easy_shower", "easyshower", "easy shower"]),
-]
-
-def classify_brand(campaign_name: str) -> str:
-    name_lower = campaign_name.lower()
-    for brand, keywords in BRAND_RULES:
-        if any(k in name_lower for k in keywords):
-            return brand
-    return "기타"
+# --- brand by account (seller name from Amazon Ads profile) ---
+PROFILE_BRAND_MAP = {
+    "GROSMIMI USA": "Grosmimi",
+    "Fleeters Inc": "Naeiae",
+    "Orbitool": "CHA&MOM",
+}
 
 
 # ===========================================================================
@@ -177,8 +169,12 @@ def fetch_sp_daily(profile_id: int, start: date, end: date) -> List[Dict]:
     all_rows: List[Dict] = []
 
     cur = start
+    first_chunk = True
     while cur <= end:
         chunk_end = min(end, cur + timedelta(days=27))
+        if not first_chunk:
+            time.sleep(5)  # Brief gap between chunks to avoid 425 rate limits
+        first_chunk = False
         print(f"  [Amazon Ads] {cur} ~ {chunk_end} (profile {profile_id})")
 
         body = {
@@ -196,12 +192,25 @@ def fetch_sp_daily(profile_id: int, start: date, end: date) -> List[Dict]:
             },
         }
         headers = _headers_reporting(profile_id)
-        resp = requests.post(f"{API_BASE}/reporting/reports", headers=headers, json=body, timeout=60)
-        resp.raise_for_status()
+        # Retry on 425 (Too Early / rate limit) with backoff
+        for attempt in range(3):
+            resp = requests.post(f"{API_BASE}/reporting/reports", headers=headers, json=body, timeout=60)
+            if resp.status_code == 425:
+                wait = 30 * (attempt + 1)
+                print(f"  [425] Rate limited, waiting {wait}s before retry...")
+                time.sleep(wait)
+                continue
+            resp.raise_for_status()
+            break
+        else:
+            print(f"  [WARN] Report submission failed after 3 retries for profile {profile_id}")
+            cur = chunk_end + timedelta(days=1)
+            continue
         report_id = resp.json()["reportId"]
 
-        # poll
-        deadline = time.time() + 600
+        # poll — max 300s (reports can take 2-3 min during peak hours)
+        deadline = time.time() + 300
+        timed_out = True
         while time.time() < deadline:
             time.sleep(15)
             st = requests.get(f"{API_BASE}/reporting/reports/{report_id}",
@@ -218,10 +227,14 @@ def fetch_sp_daily(profile_id: int, start: date, end: date) -> List[Dict]:
                         cid = r.get("campaignId")
                         r["campaignName"] = campaign_names.get(int(cid), str(cid)) if cid else ""
                     all_rows.extend(rows)
+                timed_out = False
                 break
             if status == "FAILED":
-                print(f"  [WARN] Report {report_id} failed")
+                print(f"  [WARN] Report {report_id} failed for profile {profile_id}")
+                timed_out = False
                 break
+        if timed_out:
+            print(f"  [WARN] Report {report_id} timed out (300s) for profile {profile_id} - skipping chunk")
 
         cur = chunk_end + timedelta(days=1)
 
@@ -232,8 +245,8 @@ def fetch_sp_daily(profile_id: int, start: date, end: date) -> List[Dict]:
 # Metrics computation
 # ===========================================================================
 
-def compute_metrics(rows: List[Dict]) -> List[Dict]:
-    """Add ROAS, ACOS, CPC, CTR to each row."""
+def compute_metrics(rows: List[Dict], profile_brand: Optional[str] = None) -> List[Dict]:
+    """Add ROAS, ACOS, CPC, CTR to each row. Brand is set from profile_brand."""
     out = []
     for r in rows:
         cost = float(r.get("cost", 0) or 0)
@@ -250,7 +263,7 @@ def compute_metrics(rows: List[Dict]) -> List[Dict]:
             "date": r.get("date", ""),
             "campaignId": r.get("campaignId"),
             "campaignName": r.get("campaignName", ""),
-            "brand": classify_brand(r.get("campaignName", "")),
+            "brand": profile_brand or "기타",
             "impressions": impressions,
             "clicks": clicks,
             "cost": round(cost, 2),
@@ -388,29 +401,35 @@ def build_analysis_payload(rows: List[Dict], analysis_date: date) -> Dict:
         if yd["clicks"] > 10 and yd["sales"] == 0:
             anomalies.append(f"클릭있는데 매출0: {name} (클릭 {yd['clicks']}회, 지출 ${yd['cost']:.1f})")
 
-    # Per-brand campaign breakdown (30d + 7d)
+    # Per-brand campaign breakdown (yesterday + 7d + 30d)
     all_brands = sorted(set(r["brand"] for r in last30_rows))
     by_brand_campaigns: Dict[str, List[Dict]] = {}
     for brand in all_brands:
-        b30 = aggregate_by_campaign([r for r in last30_rows if r["brand"] == brand])
-        b7  = aggregate_by_campaign([r for r in last7_rows  if r["brand"] == brand])
+        b30 = aggregate_by_campaign([r for r in last30_rows  if r["brand"] == brand])
+        b7  = aggregate_by_campaign([r for r in last7_rows   if r["brand"] == brand])
+        byd = aggregate_by_campaign([r for r in yesterday_rows if r["brand"] == brand])
         camps = []
         for name, v30 in b30.items():
             if v30["cost"] < 3:
                 continue
-            v7 = b7.get(name, {})
+            v7  = b7.get(name, {})
+            vyd = byd.get(name, {})
             camps.append({
-                "campaign":  name,
-                "spend_30d": round(v30["cost"], 2),
-                "sales_30d": round(v30["sales"], 2),
-                "roas_30d":  v30["roas"],
-                "acos_30d":  v30["acos"],
-                "spend_7d":  round(v7.get("cost", 0), 2),
-                "sales_7d":  round(v7.get("sales", 0), 2),
-                "roas_7d":   v7.get("roas", 0),
-                "acos_7d":   v7.get("acos"),
+                "campaign":   name,
+                "spend_yd":   round(vyd.get("cost", 0), 2),
+                "sales_yd":   round(vyd.get("sales", 0), 2),
+                "roas_yd":    vyd.get("roas", 0),
+                "acos_yd":    vyd.get("acos"),
+                "spend_7d":   round(v7.get("cost", 0), 2),
+                "sales_7d":   round(v7.get("sales", 0), 2),
+                "roas_7d":    v7.get("roas", 0),
+                "acos_7d":    v7.get("acos"),
+                "spend_30d":  round(v30["cost"], 2),
+                "sales_30d":  round(v30["sales"], 2),
+                "roas_30d":   v30["roas"],
+                "acos_30d":   v30["acos"],
             })
-        camps.sort(key=lambda x: x["roas_30d"], reverse=True)
+        camps.sort(key=lambda x: x["roas_7d"], reverse=True)
         by_brand_campaigns[brand] = camps
 
     return {
@@ -443,30 +462,42 @@ SYSTEM_PROMPT = """당신은 10년 경력의 아마존 PPC 전문 마케터입�
 1. 숫자만 나열하지 않는다. 반드시 의미와 액션을 함께 제시한다
 2. ROAS 기준: 3.0 이상 우수 / 2.0~3.0 보통 / 2.0 미만 위험
 3. ACOS 기준: 15% 미만 효율적 / 15~25% 보통 / 25% 초과 비효율
-4. 30일 + 7일 두 기간을 모두 분석한다. 7일이 30일 대비 개선/악화 여부를 반드시 진단한다
-5. 브랜드별(Grosmimi, CHA&MOM, Alpremio 등)로 구분하여 분석한다
+4. 어제(yd) + 7일 + 30일 세 기간을 모두 분석한다. 어제가 7일 평균 대비 얼마나 좋고 나쁜지 반드시 진단한다
+5. 브랜드별로 구분하여 분석한다
 6. 결론은 항상 "이번 주 해야 할 액션 3가지"로 마무리한다
+
+캠페인 조정 강도 기준 (campaign_adjustments에서 반드시 적용):
+- 7일 ROAS < 1.0: action=pause, priority=urgent (광고비만 나가고 매출 없음, 즉시 일시중단)
+- 7일 ROAS 1.0~1.5: action=reduce_bid, bid_change_pct=-30, priority=urgent (심각 비효율, 대폭 인하)
+- 7일 ROAS 1.5~2.0: action=reduce_bid, bid_change_pct=-15, priority=high (비효율, 입찰가 인하 필요)
+- 7일 ROAS 2.0~3.0: action=monitor, priority=medium (보통, 더 관찰)
+- 7일 ROAS 3.0~5.0: action=increase_budget, budget_change_pct=+20, priority=medium (우수, 스케일업)
+- 7일 ROAS > 5.0: action=increase_budget, budget_change_pct=+30, bid_change_pct=+10, priority=high (최우수, 공격적 확장 + 키워드 추가 권고)
+- 클릭 있는데 7일 매출 $0: action=pause, priority=urgent (전환없는 클릭 낭비, 즉시 중단)
+- 어제(yd) ROAS가 7일 평균 대비 30% 이상 급락: reduce_bid -20% 추가 조치
+- 어제(yd) 광고비가 7일 일평균 대비 100% 이상 급등: 즉시 확인 후 예산 캡 설정 권고
 
 출력 형식: JSON (아래 구조 엄격히 준수, 모든 필드 필수)
 {
-  "executive_summary": "3줄 이내 핵심 요약 (30일 vs 7일 트렌드 포함)",
+  "executive_summary": "3줄 이내 핵심 요약 (어제 vs 7일 vs 30일 트렌드 포함)",
   "overall_assessment": "good | warning | danger",
   "period_comparison": {
     "trend_30d_vs_7d": "30일 대비 최근 7일 전반적 트렌드 해석",
+    "yesterday_vs_7d": "어제 성과가 7일 평균 대비 어떤 상태인지 해석",
     "improving_brands": ["7일이 30일보다 좋아진 브랜드"],
     "declining_brands": ["7일이 30일보다 나빠진 브랜드"]
   },
   "brand_insights": [
-    {"brand": "브랜드명", "status": "good|warning|danger", "insight": "30d vs 7d 비교 인사이트", "action": "브랜드 레벨 액션"}
+    {"brand": "브랜드명", "status": "good|warning|danger", "insight": "어제/7일/30일 비교 인사이트", "action": "브랜드 레벨 즉각 액션"}
   ],
   "brand_campaign_analysis": [
     {
       "brand": "브랜드명",
       "top_campaigns": [
-        {"campaign": "캠페인명", "roas_7d": 5.2, "why_good": "잘 되는 구체적 이유", "action": "예산 20% 증액"}
+        {"campaign": "캠페인명", "roas_7d": 5.2, "roas_yd": 4.8, "why_good": "잘 되는 구체적 이유", "action": "예산 30% 증액 + 키워드 확장"}
       ],
       "problem_campaigns": [
-        {"campaign": "캠페인명", "roas_7d": 0.8, "issue": "구체적 문제점", "action": "입찰가 20% 인하 또는 일시중단"}
+        {"campaign": "캠페인명", "roas_7d": 0.8, "roas_yd": 0.5, "issue": "구체적 문제점", "action": "즉시 일시중단 (7일 ROAS 0.8, 광고비 낭비)"}
       ],
       "brand_strategy": "이 브랜드 이번 주 예산/입찰 전략 한 줄 요약"
     }
@@ -476,16 +507,18 @@ SYSTEM_PROMPT = """당신은 10년 경력의 아마존 PPC 전문 마케터입�
       "campaign": "캠페인명",
       "brand": "브랜드명",
       "current_roas_7d": 1.2,
+      "current_roas_yd": 0.9,
       "action": "pause | reduce_bid | reduce_budget | increase_bid | increase_budget | monitor",
-      "bid_change_pct": -20,
+      "bid_change_pct": -30,
       "budget_change_pct": null,
-      "reason": "구체적 조정 이유",
+      "keyword_action": "없음 | 키워드 추가 권고 | 부정키워드 추가 | 키워드 일시중단",
+      "reason": "7일 ROAS 1.2로 위험 + 어제 0.9로 추가 악화. 입찰가 30% 인하 즉시 적용",
       "priority": "urgent | high | medium"
     }
   ],
-  "anomaly_analysis": "이상 감지 항목에 대한 전문가 해석",
+  "anomaly_analysis": "이상 감지 항목에 대한 전문가 해석 및 즉각 조치",
   "weekly_actions": [
-    {"priority": 1, "action": "구체적 액션", "expected_result": "기대 효과", "campaign": "대상 캠페인"},
+    {"priority": 1, "action": "구체적 액션 (예: XX 캠페인 입찰가 30% 인하)", "expected_result": "기대 효과 (예: ACOS 35%->20% 개선)", "campaign": "대상 캠페인명"},
     {"priority": 2, "action": "구체적 액션", "expected_result": "기대 효과", "campaign": "대상 캠페인"},
     {"priority": 3, "action": "구체적 액션", "expected_result": "기대 효과", "campaign": "대상 캠페인"}
   ]
@@ -497,16 +530,18 @@ def analyze_with_claude(payload: Dict) -> Dict:
     if not ANTHROPIC_API_KEY:
         raise ValueError("ANTHROPIC_API_KEY not set in .env")
 
-    user_message = f"""다음은 오늘({payload['analysis_date']}) 기준 Amazon PPC 광고 성과 데이터입니다.
-30일 분석과 7일 분석 두 가지를 모두 활용하여 전문가 시각으로 분석하고 JSON 형식으로 응답해주세요.
+    user_message = f"""다음은 PST 기준 어제({payload['yesterday']}) Amazon PPC 광고 성과 데이터입니다.
+어제(yd) + 7일 + 30일 세 기간을 모두 활용하여 전문가 시각으로 분석하고 JSON 형식으로 응답해주세요.
 
 === 분석 데이터 ===
 {json.dumps(payload, ensure_ascii=False, indent=2)}
 
 중요:
-- summary.7d와 summary.30d를 비교하여 최근 7일 트렌드를 반드시 진단하세요
-- brand_breakdown의 roas_7d vs roas_30d 비교로 브랜드별 방향성을 파악하세요
-- campaigns_7d.zero_sales는 최근 7일 매출 없는 캠페인으로 즉시 점검 필요입니다
+- summary.yesterday(어제) vs summary.7d vs summary.30d 세 기간 모두 비교하세요
+- by_brand_campaigns의 각 캠페인에는 spend_yd/roas_yd(어제), spend_7d/roas_7d(7일), spend_30d/roas_30d(30일) 포함
+- 캠페인 조정 강도는 시스템 프롬프트의 ROAS 구간 기준을 반드시 따르세요 (ROAS<1.0=pause, 1.0~1.5=-30%, 등)
+- campaign_adjustments에는 current_roas_yd(어제 ROAS)도 포함하고, keyword_action 필드도 반드시 채우세요
+- campaigns_7d.zero_sales는 최근 7일 매출 없는 캠페인으로 즉시 pause 또는 -40% 입찰가 조치
 - anomalies_detected는 전날 이상 감지 항목입니다
 - JSON만 출력하세요 (코드블록 없이 순수 JSON)"""
 
@@ -684,20 +719,23 @@ def build_html_email(payload: Dict, analysis: Dict) -> str:
         camps_data = payload.get("by_brand_campaigns", {}).get(brand, [])
         data_rows = ""
         for c in camps_data:
-            r30 = c.get("roas_30d", 0); r7 = c.get("roas_7d", 0)
-            row_bg = "#fff9f9" if r30 < 2.0 else ("#f9fff9" if r30 >= 3.0 else "white")
+            r30 = c.get("roas_30d", 0); r7 = c.get("roas_7d", 0); ryd = c.get("roas_yd", 0)
+            row_bg = "#fff9f9" if r7 < 2.0 else ("#f9fff9" if r7 >= 3.0 else "white")
             data_rows += f"""<tr style="background:{row_bg}">
               <td style="padding:6px 10px;font-size:12px">{c['campaign']}</td>
-              <td style="padding:6px 10px;text-align:right">{fmt_usd(c.get('spend_30d'))}</td>
-              <td style="padding:6px 10px;text-align:right">{fmt_roas(r30)}</td>
-              <td style="padding:6px 10px;text-align:right">{fmt_acos(c.get('acos_30d'))}</td>
+              <td style="padding:6px 10px;text-align:right;background:#fff8e1">{fmt_usd(c.get('spend_yd'))}</td>
+              <td style="padding:6px 10px;text-align:right;background:#fff8e1">{fmt_roas(ryd) if c.get('spend_yd', 0) > 0 else '-'}</td>
               <td style="padding:6px 10px;text-align:right;background:#f0fff0">{fmt_usd(c.get('spend_7d'))}</td>
               <td style="padding:6px 10px;text-align:right;background:#f0fff0">{fmt_roas(r7)}</td>
+              <td style="padding:6px 10px;text-align:right">{fmt_usd(c.get('spend_30d'))}</td>
+              <td style="padding:6px 10px;text-align:right">{fmt_roas(r30)}</td>
+              <td style="padding:6px 10px;text-align:right">{fmt_acos(c.get('acos_7d'))}</td>
             </tr>"""
 
         # top/problem rows from Claude
         top_rows = "".join(f"""<tr>
           <td style="padding:6px 10px;font-size:12px">{t['campaign']}</td>
+          <td style="padding:6px 10px;text-align:right;background:#fff3cd">{t.get('roas_yd','')}</td>
           <td style="padding:6px 10px;text-align:right;color:#2e7d32">{t.get('roas_7d','')}</td>
           <td style="padding:6px 10px;color:#555">{t.get('why_good','')}</td>
           <td style="padding:6px 10px;color:#2e7d32;font-weight:bold">{t.get('action','')}</td>
@@ -705,6 +743,7 @@ def build_html_email(payload: Dict, analysis: Dict) -> str:
 
         prob_rows = "".join(f"""<tr>
           <td style="padding:6px 10px;font-size:12px">{p['campaign']}</td>
+          <td style="padding:6px 10px;text-align:right;background:#fff3cd">{p.get('roas_yd','')}</td>
           <td style="padding:6px 10px;text-align:right;color:#d32f2f">{p.get('roas_7d','')}</td>
           <td style="padding:6px 10px;color:#d32f2f">{p.get('issue','')}</td>
           <td style="padding:6px 10px;color:#f57c00;font-weight:bold">{p.get('action','')}</td>
@@ -728,11 +767,13 @@ def build_html_email(payload: Dict, analysis: Dict) -> str:
               <thead>
                 <tr style="background:#f5f5f5">
                   <th style="padding:6px 10px;text-align:left">캠페인</th>
-                  <th style="padding:6px 10px;text-align:right">30일 광고비</th>
-                  <th style="padding:6px 10px;text-align:right">30일 ROAS</th>
-                  <th style="padding:6px 10px;text-align:right">30일 ACOS</th>
+                  <th style="padding:6px 10px;text-align:right;background:#fff3cd">어제 광고비</th>
+                  <th style="padding:6px 10px;text-align:right;background:#fff3cd">어제 ROAS</th>
                   <th style="padding:6px 10px;text-align:right;background:#e8f5e9">7일 광고비</th>
                   <th style="padding:6px 10px;text-align:right;background:#e8f5e9">7일 ROAS</th>
+                  <th style="padding:6px 10px;text-align:right">30일 광고비</th>
+                  <th style="padding:6px 10px;text-align:right">30일 ROAS</th>
+                  <th style="padding:6px 10px;text-align:right">7일 ACOS</th>
                 </tr>
               </thead>
               <tbody>{data_rows}</tbody>
@@ -743,6 +784,7 @@ def build_html_email(payload: Dict, analysis: Dict) -> str:
             <table style="width:100%;border-collapse:collapse;font-size:12px">
               <thead><tr style="background:#e8f5e9">
                 <th style="padding:5px 10px;text-align:left">캠페인</th>
+                <th style="padding:5px 10px;text-align:right;background:#fff3cd">어제 ROAS</th>
                 <th style="padding:5px 10px;text-align:right">7일 ROAS</th>
                 <th style="padding:5px 10px;text-align:left">잘 되는 이유</th>
                 <th style="padding:5px 10px;text-align:left">권장 액션</th>
@@ -755,6 +797,7 @@ def build_html_email(payload: Dict, analysis: Dict) -> str:
             <table style="width:100%;border-collapse:collapse;font-size:12px">
               <thead><tr style="background:#ffebee">
                 <th style="padding:5px 10px;text-align:left">캠페인</th>
+                <th style="padding:5px 10px;text-align:right;background:#fff3cd">어제 ROAS</th>
                 <th style="padding:5px 10px;text-align:right">7일 ROAS</th>
                 <th style="padding:5px 10px;text-align:left">문제점</th>
                 <th style="padding:5px 10px;text-align:left">조치</th>
@@ -783,17 +826,21 @@ def build_html_email(payload: Dict, analysis: Dict) -> str:
         prio_color = PRIORITY_COLORS.get(prio, "#555")
         bid_chg = adj.get("bid_change_pct")
         bud_chg = adj.get("budget_change_pct")
+        kw_action = adj.get("keyword_action", "")
         chg_str = ""
         if bid_chg is not None:
             chg_str += f"입찰가 {'+' if bid_chg > 0 else ''}{bid_chg}%"
         if bud_chg is not None:
             chg_str += f" 예산 {'+' if bud_chg > 0 else ''}{bud_chg}%"
+        if kw_action and kw_action != "없음":
+            chg_str += f" / {kw_action}"
         adj_rows += f"""<tr>
           <td style="padding:7px 10px">
             <span style="background:{prio_color};color:white;padding:2px 7px;border-radius:10px;font-size:11px">{prio.upper()}</span>
           </td>
           <td style="padding:7px 10px;font-size:12px">{adj.get('brand','')}</td>
           <td style="padding:7px 10px;font-size:12px">{adj.get('campaign','')}</td>
+          <td style="padding:7px 10px;text-align:right;background:#fff3cd">{fmt_roas(adj.get('current_roas_yd'))}</td>
           <td style="padding:7px 10px;text-align:right">{fmt_roas(adj.get('current_roas_7d'))}</td>
           <td style="padding:7px 10px;font-weight:bold;color:{action_color}">{action_label}</td>
           <td style="padding:7px 10px;color:#555;font-size:12px">{chg_str}</td>
@@ -923,9 +970,10 @@ def build_html_email(payload: Dict, analysis: Dict) -> str:
           <th style="padding:8px 10px;text-align:left">우선순위</th>
           <th style="padding:8px 10px;text-align:left">브랜드</th>
           <th style="padding:8px 10px;text-align:left">캠페인</th>
+          <th style="padding:8px 10px;text-align:right;background:#5a4a00">어제 ROAS</th>
           <th style="padding:8px 10px;text-align:right">7일 ROAS</th>
           <th style="padding:8px 10px;text-align:left">조치</th>
-          <th style="padding:8px 10px;text-align:left">변경폭</th>
+          <th style="padding:8px 10px;text-align:left">변경폭/키워드</th>
           <th style="padding:8px 10px;text-align:left">이유</th>
         </tr>
       </thead>
@@ -990,11 +1038,16 @@ def main():
         print("[ERROR] AMZ_ADS_CLIENT_ID / AMZ_ADS_CLIENT_SECRET / AMZ_ADS_REFRESH_TOKEN 없음")
         sys.exit(1)
 
-    today = date.today()
-    start_date = today - timedelta(days=args.days)
+    # PST (UTC-8) 기준 어제 = 아마존 US 광고 날짜 기준
+    PST = timezone(timedelta(hours=-8))
+    pst_today = datetime.now(PST).date()
+    analysis_date = pst_today           # build_analysis_payload의 기준일 (어제 = analysis_date-1)
+    start_date = pst_today - timedelta(days=args.days)
+    data_end = pst_today - timedelta(days=1)  # 어제까지 수집 (오늘 데이터 미완성)
 
-    print(f"\n[PPC Agent] 분석 날짜: {today}")
-    print(f"[PPC Agent] 데이터 수집 기간: {start_date} ~ {today - timedelta(days=1)}")
+    print(f"\n[PPC Agent] PST 기준 오늘: {pst_today}")
+    print(f"[PPC Agent] 분석 기준일: {analysis_date} / 어제(PST): {data_end}")
+    print(f"[PPC Agent] 데이터 수집 기간: {start_date} ~ {data_end}")
 
     # Step 1: Fetch data
     print("\n[Step 1] Amazon Ads 데이터 수집 중...")
@@ -1006,13 +1059,27 @@ def main():
 
     all_rows: List[Dict] = []
     for prof in profiles:
-        print(f"\n  프로필: {prof['seller']} ({prof['profile_id']})")
+        pid = prof["profile_id"]
+        seller = prof["seller"]
+        brand_name = PROFILE_BRAND_MAP.get(seller, seller)
+        print(f"\n  프로필: {seller} ({pid}) -> 브랜드: {brand_name}")
         try:
-            rows = fetch_sp_daily(prof["profile_id"], start_date, today - timedelta(days=1))
-            rows = compute_metrics(rows)
+            # Hard wall-clock timeout per profile.
+            # NOTE: must use shutdown(wait=False) — context manager blocks on __exit__
+            ex = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+            fut = ex.submit(fetch_sp_daily, pid, start_date, data_end)
+            try:
+                rows = fut.result(timeout=800)  # ~13 min max per profile (2 chunks × 300s poll)
+                ex.shutdown(wait=False)
+            except concurrent.futures.TimeoutError:
+                ex.shutdown(wait=False)  # Don't block waiting for the hung thread
+                print(f"  [WARN] {seller} - 800s wall-clock timeout, skipping profile")
+                continue
+            rows = compute_metrics(rows, profile_brand=brand_name)
             print(f"  -> {len(rows)}개 일별 행")
             all_rows.extend(rows)
         except Exception as e:
+            ex.shutdown(wait=False)
             print(f"  [WARN] 프로필 실패: {e}")
             traceback.print_exc()
 
@@ -1022,7 +1089,7 @@ def main():
 
     # Step 2: Build payload
     print("\n[Step 2] 분석 페이로드 구성...")
-    payload = build_analysis_payload(all_rows, today)
+    payload = build_analysis_payload(all_rows, analysis_date)
     print(f"  어제 광고비: ${payload['summary']['yesterday']['spend']:,.2f}")
     print(f"  30일 총 ROAS: {payload['summary']['30d']['roas']:.2f}x")
     print(f"  이상 감지: {len(payload['anomalies_detected'])}건")
@@ -1039,13 +1106,13 @@ def main():
 
     tmp_dir = ROOT / ".tmp"
     tmp_dir.mkdir(exist_ok=True)
-    html_path = tmp_dir / f"ppc_report_{today.strftime('%Y%m%d')}.html"
+    html_path = tmp_dir / f"ppc_report_{data_end.strftime('%Y%m%d')}.html"
     html_path.write_text(html, encoding="utf-8")
     print(f"  저장됨: {html_path}")
 
     # Step 5: Send email
     subject = (
-        f"[Amazon PPC] 일간 리포트 - {today.strftime('%Y-%m-%d')} | "
+        f"[Amazon PPC] 일간 리포트 - {data_end.strftime('%Y-%m-%d')} PST | "
         f"ROAS {payload['summary']['yesterday']['roas']:.2f}x | "
         f"ACOS {payload['summary']['yesterday']['acos'] or '-'}%"
     )
@@ -1071,7 +1138,7 @@ def main():
             sys.exit(1)
 
     # Save raw payload for debugging
-    payload_path = tmp_dir / f"ppc_payload_{today.strftime('%Y%m%d')}.json"
+    payload_path = tmp_dir / f"ppc_payload_{data_end.strftime('%Y%m%d')}.json"
     payload_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"[완료] 페이로드 저장: {payload_path}")
 
