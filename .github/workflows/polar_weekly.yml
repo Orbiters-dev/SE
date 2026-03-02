@@ -22,13 +22,13 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --quiet \
-            requests python-dotenv openpyxl \
+            requests python-dotenv openpyxl python-dateutil \
             google-auth google-auth-oauthlib google-api-python-client \
             google-ads
 
       - name: Write .env
         run: |
-          cat > .env << 'ENVEOF'
+          cat > .env <<'ENVEOF'
           ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
           AMZ_ADS_CLIENT_ID=${{ secrets.AMZ_ADS_CLIENT_ID }}
           AMZ_ADS_CLIENT_SECRET=${{ secrets.AMZ_ADS_CLIENT_SECRET }}
