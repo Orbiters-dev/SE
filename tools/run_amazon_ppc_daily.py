@@ -129,14 +129,24 @@ def fetch_campaign_names(profile_id: int) -> Dict[int, str]:
     out: Dict[int, str] = {}
     start_index = 0
     while True:
-        resp = requests.post(
-            f"{API_BASE}/sp/campaigns/list",
-            headers=headers,
-            json={"stateFilter": {"include": ["ENABLED", "PAUSED", "ARCHIVED"]},
-                  "startIndex": start_index, "count": 1000},
-            timeout=20,
-        )
-        resp.raise_for_status()
+        for attempt in range(3):
+            try:
+                resp = requests.post(
+                    f"{API_BASE}/sp/campaigns/list",
+                    headers=headers,
+                    json={"stateFilter": {"include": ["ENABLED", "PAUSED", "ARCHIVED"]},
+                          "startIndex": start_index, "count": 1000},
+                    timeout=20,
+                )
+                resp.raise_for_status()
+                break
+            except (requests.exceptions.ConnectionError, requests.exceptions.ChunkedEncodingError) as e:
+                if attempt < 2:
+                    wait = 10 * (attempt + 1)
+                    print(f"    [WARN] campaign list 연결 에러, {wait}s 후 재시도 ({attempt+1}/3)")
+                    time.sleep(wait)
+                else:
+                    raise
         data = resp.json()
         camps = data.get("campaigns", []) if isinstance(data, dict) else data
         items = camps if isinstance(camps, list) else camps.get("items", [])
@@ -545,32 +555,42 @@ def analyze_with_claude(payload: Dict) -> Dict:
 - anomalies_detected는 전날 이상 감지 항목입니다
 - JSON만 출력하세요 (코드블록 없이 순수 JSON)"""
 
-    resp = requests.post(
-        "https://api.anthropic.com/v1/messages",
-        headers={
-            "x-api-key": ANTHROPIC_API_KEY,
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json",
-        },
-        json={
-            "model": "claude-sonnet-4-6",
-            "max_tokens": 8192,
-            "system": SYSTEM_PROMPT,
-            "messages": [{"role": "user", "content": user_message}],
-        },
-        timeout=120,
-    )
-    resp.raise_for_status()
-    text = resp.json()["content"][0]["text"].strip()
+    for attempt in range(3):
+        max_tok = 16384 if attempt == 0 else 32768
+        resp = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={
+                "x-api-key": ANTHROPIC_API_KEY,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+            },
+            json={
+                "model": "claude-sonnet-4-6",
+                "max_tokens": max_tok,
+                "system": SYSTEM_PROMPT,
+                "messages": [{"role": "user", "content": user_message}],
+            },
+            timeout=180,
+        )
+        resp.raise_for_status()
+        body = resp.json()
+        text = body["content"][0]["text"].strip()
+        stop = body.get("stop_reason", "")
 
-    # strip code fences if present
-    if text.startswith("```"):
-        text = text.split("```")[1]
-        if text.startswith("json"):
-            text = text[4:]
-    text = text.strip().rstrip("```").strip()
+        # strip code fences if present
+        if text.startswith("```"):
+            text = text.split("```")[1]
+            if text.startswith("json"):
+                text = text[4:]
+        text = text.strip().rstrip("```").strip()
 
-    return json.loads(text)
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            if stop == "max_tokens" or attempt < 2:
+                print(f"  [WARN] Claude JSON 파싱 실패 (stop={stop}, max_tokens={max_tok}), 재시도 {attempt+1}/3")
+                continue
+            raise
 
 
 # ===========================================================================
@@ -1032,67 +1052,81 @@ def main():
                         help="수신 이메일")
     parser.add_argument("--dry-run", action="store_true",
                         help="이메일 발송 없이 HTML 파일만 저장")
+    parser.add_argument("--from-payload", type=str, default=None,
+                        help="기존 payload JSON 파일로 Step 1 스킵 (Claude 분석 + 이메일만)")
     args = parser.parse_args()
-
-    if not all([AD_CLIENT_ID, AD_CLIENT_SECRET, AD_REFRESH_TOKEN]):
-        print("[ERROR] AMZ_ADS_CLIENT_ID / AMZ_ADS_CLIENT_SECRET / AMZ_ADS_REFRESH_TOKEN 없음")
-        sys.exit(1)
 
     # PST (UTC-8) 기준 어제 = 아마존 US 광고 날짜 기준
     PST = timezone(timedelta(hours=-8))
     pst_today = datetime.now(PST).date()
     analysis_date = pst_today           # build_analysis_payload의 기준일 (어제 = analysis_date-1)
-    start_date = pst_today - timedelta(days=args.days)
     data_end = pst_today - timedelta(days=1)  # 어제까지 수집 (오늘 데이터 미완성)
 
-    print(f"\n[PPC Agent] PST 기준 오늘: {pst_today}")
-    print(f"[PPC Agent] 분석 기준일: {analysis_date} / 어제(PST): {data_end}")
-    print(f"[PPC Agent] 데이터 수집 기간: {start_date} ~ {data_end}")
+    # --from-payload: skip Step 1+2 and use existing payload
+    if args.from_payload:
+        print(f"\n[PPC Agent] 기존 payload 사용: {args.from_payload}")
+        with open(args.from_payload, "r", encoding="utf-8") as f:
+            payload = json.load(f)
+        # extract data_end from payload
+        yd = payload.get("summary", {}).get("yesterday", {}).get("date")
+        if yd:
+            data_end = date.fromisoformat(yd)
+        print(f"  어제(payload): {data_end}")
+        print(f"  어제 광고비: ${payload['summary']['yesterday']['spend']:,.2f}")
+        print(f"  30일 총 ROAS: {payload['summary']['30d']['roas']:.2f}x")
+    else:
+        if not all([AD_CLIENT_ID, AD_CLIENT_SECRET, AD_REFRESH_TOKEN]):
+            print("[ERROR] AMZ_ADS_CLIENT_ID / AMZ_ADS_CLIENT_SECRET / AMZ_ADS_REFRESH_TOKEN 없음")
+            sys.exit(1)
 
-    # Step 1: Fetch data
-    print("\n[Step 1] Amazon Ads 데이터 수집 중...")
-    profiles = get_us_profiles()
-    if not profiles:
-        print("[ERROR] US seller 프로필 없음")
-        sys.exit(1)
-    print(f"  프로필 수: {len(profiles)} - {[p['seller'] for p in profiles]}")
+        start_date = pst_today - timedelta(days=args.days)
 
-    all_rows: List[Dict] = []
-    for prof in profiles:
-        pid = prof["profile_id"]
-        seller = prof["seller"]
-        brand_name = PROFILE_BRAND_MAP.get(seller, seller)
-        print(f"\n  프로필: {seller} ({pid}) -> 브랜드: {brand_name}")
-        try:
-            # Hard wall-clock timeout per profile.
-            # NOTE: must use shutdown(wait=False) — context manager blocks on __exit__
-            ex = concurrent.futures.ThreadPoolExecutor(max_workers=1)
-            fut = ex.submit(fetch_sp_daily, pid, start_date, data_end)
+        print(f"\n[PPC Agent] PST 기준 오늘: {pst_today}")
+        print(f"[PPC Agent] 분석 기준일: {analysis_date} / 어제(PST): {data_end}")
+        print(f"[PPC Agent] 데이터 수집 기간: {start_date} ~ {data_end}")
+
+        # Step 1: Fetch data
+        print("\n[Step 1] Amazon Ads 데이터 수집 중...")
+        profiles = get_us_profiles()
+        if not profiles:
+            print("[ERROR] US seller 프로필 없음")
+            sys.exit(1)
+        print(f"  프로필 수: {len(profiles)} - {[p['seller'] for p in profiles]}")
+
+        all_rows: List[Dict] = []
+        for prof in profiles:
+            pid = prof["profile_id"]
+            seller = prof["seller"]
+            brand_name = PROFILE_BRAND_MAP.get(seller, seller)
+            print(f"\n  프로필: {seller} ({pid}) -> 브랜드: {brand_name}")
             try:
-                rows = fut.result(timeout=2400)  # ~40 min max per profile (2 chunks × 600s poll)
+                ex = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+                fut = ex.submit(fetch_sp_daily, pid, start_date, data_end)
+                try:
+                    rows = fut.result(timeout=2400)
+                    ex.shutdown(wait=False)
+                except concurrent.futures.TimeoutError:
+                    ex.shutdown(wait=False)
+                    print(f"  [WARN] {seller} - 2400s wall-clock timeout, skipping profile")
+                    continue
+                rows = compute_metrics(rows, profile_brand=brand_name)
+                print(f"  -> {len(rows)}개 일별 행")
+                all_rows.extend(rows)
+            except Exception as e:
                 ex.shutdown(wait=False)
-            except concurrent.futures.TimeoutError:
-                ex.shutdown(wait=False)  # Don't block waiting for the hung thread
-                print(f"  [WARN] {seller} - 800s wall-clock timeout, skipping profile")
-                continue
-            rows = compute_metrics(rows, profile_brand=brand_name)
-            print(f"  -> {len(rows)}개 일별 행")
-            all_rows.extend(rows)
-        except Exception as e:
-            ex.shutdown(wait=False)
-            print(f"  [WARN] 프로필 실패: {e}")
-            traceback.print_exc()
+                print(f"  [WARN] 프로필 실패: {e}")
+                traceback.print_exc()
 
-    if not all_rows:
-        print("[ERROR] 수집된 데이터 없음")
-        sys.exit(1)
+        if not all_rows:
+            print("[ERROR] 수집된 데이터 없음")
+            sys.exit(1)
 
-    # Step 2: Build payload
-    print("\n[Step 2] 분석 페이로드 구성...")
-    payload = build_analysis_payload(all_rows, analysis_date)
-    print(f"  어제 광고비: ${payload['summary']['yesterday']['spend']:,.2f}")
-    print(f"  30일 총 ROAS: {payload['summary']['30d']['roas']:.2f}x")
-    print(f"  이상 감지: {len(payload['anomalies_detected'])}건")
+        # Step 2: Build payload
+        print("\n[Step 2] 분석 페이로드 구성...")
+        payload = build_analysis_payload(all_rows, analysis_date)
+        print(f"  어제 광고비: ${payload['summary']['yesterday']['spend']:,.2f}")
+        print(f"  30일 총 ROAS: {payload['summary']['30d']['roas']:.2f}x")
+        print(f"  이상 감지: {len(payload['anomalies_detected'])}건")
 
     # Step 3: Claude analysis
     print("\n[Step 3] Claude PPC 전문가 분석 중...")
