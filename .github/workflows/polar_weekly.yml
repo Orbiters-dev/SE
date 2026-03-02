@@ -55,10 +55,11 @@ jobs:
 
       - name: Write credentials
         run: |
-          mkdir -p credentials
+          mkdir -p credentials tools/credentials
           echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
           echo '${{ secrets.GMAIL_TOKEN_JSON }}'             > credentials/zezebaebae_gmail_token.json
           echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}'  > credentials/google_service_account.json
+          cp credentials/*.json tools/credentials/
 
       - name: Run Polar Weekly
         run: python -u tools/run_polar_weekly.py
