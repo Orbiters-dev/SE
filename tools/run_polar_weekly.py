@@ -10,6 +10,7 @@ Usage:
 """
 
 import argparse
+import json
 import os
 import subprocess
 import sys
@@ -67,6 +68,20 @@ def main():
     print("\n[Step 1] 데이터 수집 중...")
     for script, label in fetchers:
         run([python, "-u", script, "--start", args.start, "--end", args.end], label=label)
+
+    # ── Step 1b: 누락 데이터 파일 플레이스홀더 ──────────────────────────────
+    polar_data = ROOT / ".tmp" / "polar_data"
+    polar_data.mkdir(parents=True, exist_ok=True)
+    empty_table = {"tableData": [], "totalData": [{}]}
+    placeholders = {
+        "q8_tiktok_ads_campaign.json": empty_table,
+        "q9_meta_campaign_ids.json": {"campaigns": []},
+    }
+    for fname, default in placeholders.items():
+        fpath = polar_data / fname
+        if not fpath.exists():
+            fpath.write_text(json.dumps(default), encoding="utf-8")
+            print(f"  [PLACEHOLDER] {fname} 생성 (데이터 없음)")
 
     # ── Step 2: Financial Model 생성 ─────────────────────────────────────────
     print("\n[Step 2] Financial Model Excel 생성 중...")
