@@ -138,6 +138,8 @@ def fetch_campaign_names(profile_id: int) -> Dict[int, str]:
                           "startIndex": start_index, "count": 1000},
                     timeout=20,
                 )
+                if resp.status_code in (401, 403):
+                    raise PermissionError(f"Auth failed ({resp.status_code}) for profile {profile_id}")
                 resp.raise_for_status()
                 break
             except (requests.exceptions.ConnectionError, requests.exceptions.ChunkedEncodingError) as e:
@@ -1112,6 +1114,9 @@ def main():
                 rows = compute_metrics(rows, profile_brand=brand_name)
                 print(f"  -> {len(rows)}개 일별 행")
                 all_rows.extend(rows)
+            except PermissionError as e:
+                ex.shutdown(wait=False)
+                print(f"  [SKIP] {seller} - 권한 없음 (401/403), 스킵합니다: {e}")
             except Exception as e:
                 ex.shutdown(wait=False)
                 print(f"  [WARN] 프로필 실패: {e}")
