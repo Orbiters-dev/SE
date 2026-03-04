@@ -1,11 +1,12 @@
-"""Create n8n workflow: Core Signup -> Airtable Master + PostgreSQL + Shopify.
+"""Create n8n workflow: Core Signup -> PostgreSQL (master) + Airtable + Shopify.
 
 Webhook: onzenna-core-signup
 
-Flow:
-  Webhook -> Parse Payload -> Create Airtable Master Record
-                           -> Respond OK  (fast response from Airtable branch)
-                           -> Save to PostgreSQL (Orbitools, async)
+Flow (PG-first):
+  Webhook -> Parse Payload -> Save to PostgreSQL (FIRST - master data)
+                           -> Respond OK
+                           -> Create Airtable Master Record (parallel)
+                              -> Update PG with Airtable Record ID
                            -> Has customer_id?
                               YES -> Build + Save Core Metafields to Shopify
                               NO  -> Search Shopify by email -> Customer Found?
@@ -209,10 +210,10 @@ return [{
                 "name": "Create Airtable Master",
                 "type": "n8n-nodes-base.httpRequest",
                 "typeVersion": 4.2,
-                "position": [640, 160],
+                "position": [880, 220],
                 "onError": "continueRegularOutput",
             },
-            # ── 4. Respond OK (fast, from Airtable branch) ─────────────────
+            # ── 4. Respond OK (fast, from PG save branch) ──────────────────
             {
                 "parameters": {
                     "respondWith": "json",
@@ -236,11 +237,6 @@ return [{
                     "specifyBody": "json",
                     "jsonBody": """={{ JSON.stringify((() => {
   const p = $('Parse Payload').first().json;
-  let airtableRecordId = null;
-  try {
-    const at = $('Create Airtable Master').first().json;
-    airtableRecordId = at.records && at.records[0] ? at.records[0].id : null;
-  } catch(e) {}
   return {
     email: p.customer_email,
     customer_email: p.customer_email,
@@ -251,7 +247,6 @@ return [{
     core_signup_data: p.core_data,
     contact: p.contact_data,
     shipping_address: p.shipping_data,
-    airtable_master_record_id: airtableRecordId,
     raw_payload: p.raw_payload,
   };
 })()) }}""",
@@ -267,7 +262,7 @@ return [{
                 "name": "Save to PostgreSQL",
                 "type": "n8n-nodes-base.httpRequest",
                 "typeVersion": 4.2,
-                "position": [880, 220],
+                "position": [640, 300],
                 "onError": "continueRegularOutput",
             },
             # ── 6. Has customer_id from form? ──────────────────────────────
@@ -614,20 +609,60 @@ return [{
                 "position": [2560, 720],
                 "onError": "continueRegularOutput",
             },
+            # ── 11. Update PG with Airtable Record ID (backfill) ────────────
+            {
+                "parameters": {
+                    "method": "POST",
+                    "url": "https://orbitools.orbiters.co.kr/api/onzenna/customers/update-airtable-id/",
+                    "authentication": "genericCredentialType",
+                    "genericAuthType": "httpBasicAuth",
+                    "sendBody": True,
+                    "specifyBody": "json",
+                    "jsonBody": """={{ JSON.stringify({
+  email: $('Parse Payload').first().json.customer_email,
+  airtable_master_record_id: (() => {
+    try {
+      const at = $('Create Airtable Master').first().json;
+      return (at.records && at.records[0]) ? at.records[0].id : null;
+    } catch(e) { return null; }
+  })(),
+}) }}""",
+                    "options": {"timeout": 15000},
+                },
+                "credentials": {
+                    "httpBasicAuth": {
+                        "id": ORBITOOLS_CRED_ID,
+                        "name": "MVP module admin auth",
+                    }
+                },
+                "id": "http-pg-update-at-id",
+                "name": "Update PG Airtable ID",
+                "type": "n8n-nodes-base.httpRequest",
+                "typeVersion": 4.2,
+                "position": [1100, 220],
+                "onError": "continueRegularOutput",
+            },
         ],
         "connections": {
             "Webhook": {
                 "main": [[{"node": "Parse Payload", "type": "main", "index": 0}]]
             },
             "Parse Payload": {
-                "main": [[{"node": "Create Airtable Master", "type": "main", "index": 0}]]
+                "main": [[{"node": "Save to PostgreSQL", "type": "main", "index": 0}]]
+            },
+            "Save to PostgreSQL": {
+                "main": [
+                    [
+                        {"node": "Respond OK", "type": "main", "index": 0},
+                        {"node": "Create Airtable Master", "type": "main", "index": 0},
+                        {"node": "Has customer_id?", "type": "main", "index": 0},
+                    ]
+                ]
             },
             "Create Airtable Master": {
                 "main": [
                     [
-                        {"node": "Respond OK", "type": "main", "index": 0},
-                        {"node": "Save to PostgreSQL", "type": "main", "index": 0},
-                        {"node": "Has customer_id?", "type": "main", "index": 0},
+                        {"node": "Update PG Airtable ID", "type": "main", "index": 0},
                     ]
                 ]
             },

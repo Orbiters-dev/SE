@@ -1,7 +1,9 @@
-"""Create n8n workflow: Creator Signup -> Airtable + Instagram Scrape.
+"""Create n8n workflow: Creator Signup -> PostgreSQL (master) + Airtable + Instagram Scrape.
 
-Workflow nodes:
-  Webhook (POST) -> Parse Payload -> Create Airtable Record
+Workflow nodes (PG-first):
+  Webhook (POST) -> Parse Payload -> Save to PostgreSQL (FIRST - master data)
+                                  -> Create Airtable Record (parallel)
+                                     -> Update PG with Airtable Record ID
                                   -> Instagram Scrape -> Update Airtable
 
 Usage:
@@ -288,7 +290,7 @@ return [{
                 "typeVersion": 2,
                 "position": [880, 420],
             },
-            # 5. Create Airtable record
+            # 5. Create Airtable record (parallel from PG save)
             {
                 "parameters": {
                     "method": "POST",
@@ -303,14 +305,14 @@ return [{
                     },
                     "sendBody": True,
                     "specifyBody": "json",
-                    "jsonBody": '={{ JSON.stringify({ "records": [{ "fields": $json.airtable_fields }], "typecast": true }) }}',
+                    "jsonBody": '={{ JSON.stringify({ "records": [{ "fields": (() => { try { return $("Merge Core Data").first().json.airtable_fields; } catch(e) { try { return $("Use Form Data").first().json.airtable_fields; } catch(e2) { return {}; } } })() }], "typecast": true }) }}',
                     "options": {"timeout": 30000},
                 },
                 "id": "http-airtable-create",
                 "name": "Create Airtable Record",
                 "type": "n8n-nodes-base.httpRequest",
                 "typeVersion": 4.2,
-                "position": [1320, 300],
+                "position": [1540, 220],
             },
             # 6. Respond OK
             {
@@ -323,7 +325,7 @@ return [{
                 "name": "Respond OK",
                 "type": "n8n-nodes-base.respondToWebhook",
                 "typeVersion": 1.1,
-                "position": [1540, 200],
+                "position": [1540, 60],
             },
             # 7. Instagram scrape conditional
             {
@@ -665,7 +667,7 @@ return [{
                 "position": [2420, 580],
                 "onError": "continueRegularOutput",
             },
-            # 17. Save raw data to PostgreSQL via orbitools API
+            # 17. Save raw data to PostgreSQL via orbitools API (FIRST - master data)
             {
                 "parameters": {
                     "method": "POST",
@@ -676,13 +678,7 @@ return [{
                     "specifyBody": "json",
                     "jsonBody": """={{ JSON.stringify((() => {
   const sd = $('Webhook').first().json.body || $('Webhook').first().json;
-  const parsed = $('Parse Payload').first().json;
-  let airtableRecordId = null;
-  try {
-    const at = $('Create Airtable Record').first().json;
-    airtableRecordId = (at.records && at.records[0]) ? at.records[0].id : null;
-  } catch(e) {}
-  return Object.assign({}, sd, { airtable_record_id: airtableRecordId });
+  return Object.assign({}, sd);
 })()) }}""",
                     "options": {"timeout": 15000},
                 },
@@ -696,10 +692,43 @@ return [{
                 "name": "Save to Orbitools (Raw)",
                 "type": "n8n-nodes-base.httpRequest",
                 "typeVersion": 4.2,
-                "position": [1100, 860],
+                "position": [1320, 300],
                 "onError": "continueRegularOutput",
             },
-            # 18. Update Airtable with found customer_id
+            # 18. Update PG with Airtable Record ID (backfill after AT create)
+            {
+                "parameters": {
+                    "method": "POST",
+                    "url": "https://orbitools.orbiters.co.kr/api/onzenna/creators/update-airtable-id/",
+                    "authentication": "genericCredentialType",
+                    "genericAuthType": "httpBasicAuth",
+                    "sendBody": True,
+                    "specifyBody": "json",
+                    "jsonBody": """={{ JSON.stringify({
+  email: $('Parse Payload').first().json.airtable_fields.Email,
+  airtable_record_id: (() => {
+    try {
+      const at = $('Create Airtable Record').first().json;
+      return (at.records && at.records[0]) ? at.records[0].id : null;
+    } catch(e) { return null; }
+  })(),
+}) }}""",
+                    "options": {"timeout": 15000},
+                },
+                "credentials": {
+                    "httpBasicAuth": {
+                        "id": ORBITOOLS_CRED_ID,
+                        "name": "MVP module admin auth",
+                    }
+                },
+                "id": "http-pg-update-creator-at-id",
+                "name": "Update PG Creator AT ID",
+                "type": "n8n-nodes-base.httpRequest",
+                "typeVersion": 4.2,
+                "position": [1760, 220],
+                "onError": "continueRegularOutput",
+            },
+            # 19. Update Airtable with found customer_id
             {
                 "parameters": {
                     "method": "PATCH",
@@ -868,19 +897,26 @@ return [{
                 "main": [[{"node": "Merge Core Data", "type": "main", "index": 0}]]
             },
             "Merge Core Data": {
-                "main": [[{"node": "Create Airtable Record", "type": "main", "index": 0}]]
+                "main": [[{"node": "Save to Orbitools (Raw)", "type": "main", "index": 0}]]
             },
             "Use Form Data": {
-                "main": [[{"node": "Create Airtable Record", "type": "main", "index": 0}]]
+                "main": [[{"node": "Save to Orbitools (Raw)", "type": "main", "index": 0}]]
+            },
+            "Save to Orbitools (Raw)": {
+                "main": [
+                    [
+                        {"node": "Respond OK", "type": "main", "index": 0},
+                        {"node": "Create Airtable Record", "type": "main", "index": 0},
+                        {"node": "Has IG Handle?", "type": "main", "index": 0},
+                        {"node": "Has Email?", "type": "main", "index": 0},
+                        {"node": "Search Master (Creator)", "type": "main", "index": 0},
+                    ]
+                ]
             },
             "Create Airtable Record": {
                 "main": [
                     [
-                        {"node": "Respond OK", "type": "main", "index": 0},
-                        {"node": "Has IG Handle?", "type": "main", "index": 0},
-                        {"node": "Has Email?", "type": "main", "index": 0},
-                        {"node": "Save to Orbitools (Raw)", "type": "main", "index": 0},
-                        {"node": "Search Master (Creator)", "type": "main", "index": 0},
+                        {"node": "Update PG Creator AT ID", "type": "main", "index": 0},
                     ]
                 ]
             },

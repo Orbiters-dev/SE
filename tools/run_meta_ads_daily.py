@@ -139,15 +139,30 @@ def classify_campaign_type(objective: str) -> str:
 # Meta Graph API helpers
 # ===========================================================================
 
-def _api_get(path: str, params: dict, timeout: int = 120) -> dict:
+def _api_get(path: str, params: dict, timeout: int = 120, retries: int = 3) -> dict:
     params["access_token"] = ACCESS_TOKEN
     url = f"{BASE_URL}{path}?{urllib.parse.urlencode(params)}"
-    try:
-        with urllib.request.urlopen(url, timeout=timeout) as r:
-            return json.loads(r.read())
-    except urllib.error.HTTPError as e:
-        body = json.loads(e.read())
-        raise Exception(f"Meta API: {body.get('error', {}).get('message', str(e))}")
+    for attempt in range(retries):
+        try:
+            with urllib.request.urlopen(url, timeout=timeout) as r:
+                return json.loads(r.read())
+        except urllib.error.HTTPError as e:
+            body = json.loads(e.read())
+            err_msg = body.get('error', {}).get('message', str(e))
+            code = e.code
+            if code >= 500 and attempt < retries - 1:
+                wait = 10 * (attempt + 1)
+                print(f"\n    [WARN] Meta API {code}, retry {attempt+1}/{retries} in {wait}s...", flush=True)
+                import time; time.sleep(wait)
+                continue
+            raise Exception(f"Meta API: {err_msg}")
+        except Exception as e:
+            if attempt < retries - 1:
+                wait = 10 * (attempt + 1)
+                print(f"\n    [WARN] {e}, retry {attempt+1}/{retries} in {wait}s...", flush=True)
+                import time; time.sleep(wait)
+                continue
+            raise
 
 def _fetch_all(path: str, params: dict) -> list:
     results = []
@@ -214,7 +229,7 @@ def fetch_ad_daily_insights(since: str, until: str) -> list:
     end = datetime.strptime(until, "%Y-%m-%d").date()
 
     while cur <= end:
-        chunk_end = min(end, cur + timedelta(days=29))
+        chunk_end = min(end, cur + timedelta(days=14))
         since_s = cur.strftime("%Y-%m-%d")
         until_s = chunk_end.strftime("%Y-%m-%d")
         print(f"  Fetching ad insights {since_s} ~ {until_s}...", end=" ", flush=True)

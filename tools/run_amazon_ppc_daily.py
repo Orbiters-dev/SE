@@ -128,13 +128,14 @@ def fetch_campaign_names(profile_id: int) -> Dict[int, str]:
     }
     out: Dict[int, str] = {}
     start_index = 0
-    while True:
+    deadline = time.time() + 120  # 전체 120초 타임아웃
+    while time.time() < deadline:
         for attempt in range(3):
             try:
                 resp = requests.post(
                     f"{API_BASE}/sp/campaigns/list",
                     headers=headers,
-                    json={"stateFilter": {"include": ["ENABLED", "PAUSED", "ARCHIVED"]},
+                    json={"stateFilter": {"include": ["ENABLED", "PAUSED"]},
                           "startIndex": start_index, "count": 1000},
                     timeout=20,
                 )
@@ -159,6 +160,8 @@ def fetch_campaign_names(profile_id: int) -> Dict[int, str]:
         if len(items) < 1000:
             break
         start_index += 1000
+    if time.time() >= deadline:
+        print(f"    [WARN] campaign list 120s 타임아웃 (profile {profile_id}), {len(out)}개까지 수집됨")
     return out
 
 

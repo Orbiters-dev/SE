@@ -21,8 +21,16 @@ Q3 format:
     "date": "YYYY-MM-01"
   }]}
 
+Multi-seller support:
+    Supports 3 Amazon seller accounts (Grosmimi USA, Fleeters/Naeiae, Orbitool).
+    Each seller needs its own SP-API refresh token:
+      AMZ_SP_REFRESH_TOKEN_GROSMIMI  (or legacy AMZ_SP_REFRESH_TOKEN)
+      AMZ_SP_REFRESH_TOKEN_FLEETERS
+      AMZ_SP_REFRESH_TOKEN_ORBITOOL
+    Client ID and Secret are shared across all sellers (same developer app).
+
 Usage:
-    python tools/no_polar/fetch_amazon_sales_monthly.py --start 2024-01 --end 2026-02
+    python tools/no_polar/fetch_amazon_sales_monthly.py --start 2024-01 --end 2026-03
 """
 
 import os
@@ -55,23 +63,61 @@ SP_ENDPOINT   = "https://sellingpartnerapi-na.amazon.com"
 MARKETPLACE   = os.getenv("AMZ_SP_MARKETPLACE_ID", "ATVPDKIKX0DER")
 SP_CLIENT_ID  = os.getenv("AMZ_SP_CLIENT_ID")
 SP_CLIENT_SEC = os.getenv("AMZ_SP_CLIENT_SECRET")
-SP_REFRESH    = os.getenv("AMZ_SP_REFRESH_TOKEN")
+
+# ---------------------------------------------------------------------------
+# Multi-seller configuration
+# ---------------------------------------------------------------------------
+# Each seller account has its own refresh token.
+# Client ID and Secret are shared (same developer app).
+SELLERS = [
+    {
+        "name": "Grosmimi USA",
+        "merchant_id": "A3IA0XWP2WCD15",
+        "refresh_token_env": "AMZ_SP_REFRESH_TOKEN_GROSMIMI",
+    },
+    {
+        "name": "Fleeters",
+        "merchant_id": "A2RE0E056TH6H3",
+        "refresh_token_env": "AMZ_SP_REFRESH_TOKEN_FLEETERS",
+    },
+    {
+        "name": "Orbitool",
+        "merchant_id": "A3H2CLSAX0BTX6",
+        "refresh_token_env": "AMZ_SP_REFRESH_TOKEN_ORBITOOL",
+    },
+]
 
 # Fee rates (flat approximation)
 AMZ_FEE_RATE    = 0.15   # Amazon referral + FBA: 15%
 TARGET_FEE_RATE = 0.08   # Target+ commission: 8%
 
-# SKU → Brand mapping from Product_Variant_Reference.xlsx
-BRAND_MAP_PATH = ROOT / "Data Storage" / "polar" / "Product_Variant_Reference.xlsx"
+# SKU → Brand mapping (try Shared config first, then legacy path)
+_SHARED = ROOT.parent / "Shared" / "NoPolar KPIs" / "Data config sheet"
+BRAND_MAP_PATH = _SHARED / "Product Variant by SKU.xlsx"
+if not BRAND_MAP_PATH.exists():
+    BRAND_MAP_PATH = ROOT / "Data Storage" / "polar" / "Product_Variant_Reference.xlsx"
 
-# Polar brand rules (same as polar_financial_model.py)
-BRANDS = ["Grosmimi", "Onzenna", "i-Kim", "RSL"]
+# COGS by SKU (optional: populates cost_of_products_amazon)
+COGS_MAP_PATH = _SHARED / "COGS by SKU.xlsx"
 
+# Brand inference rules — matches Polar custom_5036 (Product Brand) dimension
+# Order matters: first match wins. More specific rules go first.
 PROD_RULES = [
-    ("RSL",      ["rsl"]),
-    ("i-Kim",    ["ikim", "i-kim", "ik-", "kim-"]),
-    ("Onzenna",  ["onzenna", "onz", "oza", "ozn"]),
-    ("Grosmimi", ["grosmimi", "grsmm", "ppsu", "silicone", "pebax", "straw", "spout"]),
+    ("CHA&MOM",          ["cha&mom"]),
+    ("Naeiae",           ["naeiae"]),
+    ("Alpremio",         ["alpremio", "feeding care seat"]),
+    ("BabyRabbit",       ["babyrabbit", "rabbit vest", "easy tote bag"]),
+    ("Bamboobebe",       ["bamboobebe"]),
+    ("Beemymagic",       ["beemymagic", "beemeal", "heart tray"]),
+    ("Comme Moi",        ["comme moi", "comme"]),
+    ("Nature Love Mere", ["nature love mere"]),
+    ("Easy Shower",      ["easy shower", "shower handle"]),
+    ("Hattung",          ["hattung"]),
+    ("RIDE & GO",        ["ride & go", "ride-go"]),
+    ("Grosmimi",         ["grosmimi", "ppsu", "stainless steel straw",
+                          "flip top", "knotted", "tumbler", "baby bottle",
+                          "replacement", "weighted kit", "one touch cap",
+                          "straw cup", "spout"]),
 ]
 
 
@@ -174,8 +220,9 @@ def download_report(tm: SpTokenManager, doc_id: str) -> str:
 # ---------------------------------------------------------------------------
 
 def _build_sku_brand_map() -> Dict[str, str]:
-    """Load Product_Variant_Reference.xlsx SKU→Brand mapping."""
+    """Load Product Variant by SKU.xlsx → {sku_lower: brand}."""
     if not BRAND_MAP_PATH.exists():
+        print(f"[WARN] Brand map not found: {BRAND_MAP_PATH}")
         return {}
     try:
         import openpyxl
@@ -186,8 +233,12 @@ def _build_sku_brand_map() -> Dict[str, str]:
             return {}
         headers = [str(h).strip().lower() if h else "" for h in rows[0]]
         sku_col = next((i for i, h in enumerate(headers) if "sku" in h), None)
-        brand_col = next((i for i, h in enumerate(headers) if "brand" in h), None)
+        # Try "product_brand_check" first, then "brand"
+        brand_col = next((i for i, h in enumerate(headers) if "product_brand" in h), None)
+        if brand_col is None:
+            brand_col = next((i for i, h in enumerate(headers) if "brand" in h), None)
         if sku_col is None or brand_col is None:
+            print(f"[WARN] SKU or Brand column not found. Headers: {headers}")
             return {}
         out = {}
         for row in rows[1:]:
@@ -201,7 +252,39 @@ def _build_sku_brand_map() -> Dict[str, str]:
         return {}
 
 
-def infer_brand(sku: str, title: str, sku_map: Dict[str, str]) -> str:
+def _build_cogs_map() -> Dict[str, float]:
+    """Load COGS by SKU.xlsx → {sku_lower: cost_per_unit}."""
+    if not COGS_MAP_PATH.exists():
+        return {}
+    try:
+        import openpyxl
+        wb = openpyxl.load_workbook(COGS_MAP_PATH, read_only=True, data_only=True)
+        ws = wb.active
+        rows = list(ws.iter_rows(values_only=True))
+        if not rows:
+            return {}
+        headers = [str(h).strip().lower() if h else "" for h in rows[0]]
+        sku_col = next((i for i, h in enumerate(headers) if "sku" in h), None)
+        cost_col = next((i for i, h in enumerate(headers) if "cost" in h and "type" not in h), None)
+        if sku_col is None or cost_col is None:
+            return {}
+        out = {}
+        for row in rows[1:]:
+            sku = str(row[sku_col] or "").strip().lower()
+            try:
+                cost = float(row[cost_col] or 0)
+            except (TypeError, ValueError):
+                continue
+            if sku and cost > 0:
+                out[sku] = cost
+        return out
+    except Exception as e:
+        print(f"[WARN] COGS map load failed: {e}")
+        return {}
+
+
+def infer_brand(sku: str, title: str, sku_map: Dict[str, str],
+                seller_name: str = "") -> str:
     sku_l = sku.strip().lower()
     if sku_l in sku_map:
         return sku_map[sku_l]
@@ -209,7 +292,12 @@ def infer_brand(sku: str, title: str, sku_map: Dict[str, str]) -> str:
     for brand, keywords in PROD_RULES:
         if any(kw in combined for kw in keywords):
             return brand
-    return "Grosmimi"  # default
+    # Default based on seller account
+    if "fleeters" in seller_name.lower():
+        return "ETC"
+    if "orbitool" in seller_name.lower():
+        return "ETC"
+    return "Grosmimi"
 
 
 # ---------------------------------------------------------------------------
@@ -222,10 +310,12 @@ FEE_TYPES_NEGATIVE = {
 }
 
 
-def parse_orders_report(content: str, sku_map: Dict[str, str]) -> List[Dict]:
+def parse_orders_report(content: str, sku_map: Dict[str, str],
+                        cogs_map: Dict[str, float],
+                        seller_name: str = "") -> List[Dict]:
     """
     Parse GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL TSV.
-    Returns list of per-order-item dicts with brand, date, gross_sales, discounts.
+    Returns list of per-order-item dicts with brand, date, gross_sales, discounts, cogs.
     """
     reader = csv.DictReader(io.StringIO(content), delimiter="\t")
     rows = []
@@ -253,7 +343,11 @@ def parse_orders_report(content: str, sku_map: Dict[str, str]) -> List[Dict]:
         promo      = float(r.get("item-promotion-discount", 0) or 0)
         gross      = price_each  # already total for the line (qty * unit price in some reports)
 
-        brand = infer_brand(sku, title, sku_map)
+        brand = infer_brand(sku, title, sku_map, seller_name)
+
+        # COGS per unit from COGS sheet
+        unit_cogs = cogs_map.get(sku.lower(), 0.0)
+        cogs = unit_cogs * qty
 
         # Channel: "Target+" if fulfilled by Target, else "Amazon"
         sales_channel = r.get("sales-channel", "").strip()
@@ -266,6 +360,7 @@ def parse_orders_report(content: str, sku_map: Dict[str, str]) -> List[Dict]:
             "channel": channel,
             "gross_sales": gross,
             "promotion_discounts": -abs(promo),  # negative
+            "cogs": -abs(cogs),  # negative (cost)
         })
     return rows
 
@@ -285,7 +380,10 @@ def _date_windows(start: date, end: date, max_days: int = MAX_REPORT_DAYS):
         cur = win_end + timedelta(days=1)
 
 
-def fetch_orders_for_range(tm: SpTokenManager, start: date, end: date, sku_map: Dict[str, str]) -> List[Dict]:
+def fetch_orders_for_range(tm: SpTokenManager, start: date, end: date,
+                           sku_map: Dict[str, str],
+                           cogs_map: Dict[str, float],
+                           seller_name: str = "") -> List[Dict]:
     all_rows = []
     for s, e in _date_windows(start, end):
         print(f"  [Amazon SP] requesting report {s} ~ {e}")
@@ -293,7 +391,7 @@ def fetch_orders_for_range(tm: SpTokenManager, start: date, end: date, sku_map: 
             rid = request_report(tm, s, e)
             doc_id = wait_for_report(tm, rid)
             content = download_report(tm, doc_id)
-            rows = parse_orders_report(content, sku_map)
+            rows = parse_orders_report(content, sku_map, cogs_map, seller_name)
             print(f"    -> {len(rows)} order items")
             all_rows.extend(rows)
         except Exception as e2:
@@ -308,15 +406,17 @@ def fetch_orders_for_range(tm: SpTokenManager, start: date, end: date, sku_map: 
 # ---------------------------------------------------------------------------
 
 def aggregate_q3(rows: List[Dict]) -> List[Dict]:
-    """Aggregate order items by (brand, YYYY-MM-01) → Q3 tableData.
+    """Aggregate order items by (brand, YYYY-MM-01) -> Q3 tableData.
 
     Fee approximation:
       - Amazon channel: -15% of gross_sales (referral + FBA flat rate)
       - Target+ channel: -8% of gross_sales (Target commission)
+    COGS: from COGS by SKU sheet (per-unit cost * qty, accumulated).
     """
     bucket: Dict[Tuple, Dict] = defaultdict(lambda: {
         "gross_sales": 0.0,
         "promotion_discounts": 0.0,
+        "cogs": 0.0,
         "order_ids": set(),
         "channel": "Amazon",
     })
@@ -327,6 +427,7 @@ def aggregate_q3(rows: List[Dict]) -> List[Dict]:
         key = (r["brand"], month_key)
         bucket[key]["gross_sales"]          += r["gross_sales"]
         bucket[key]["promotion_discounts"]  += r["promotion_discounts"]
+        bucket[key]["cogs"]                 += r.get("cogs", 0.0)
         bucket[key]["order_ids"].add(r["order_id"])
         bucket[key]["channel"]               = r.get("channel", "Amazon")
 
@@ -351,7 +452,7 @@ def aggregate_q3(rows: List[Dict]) -> List[Dict]:
             "amazonsp_order_items.computed.net_sales_amazon":      round(net, 6),
             "amazonsp_order_items.raw.total_orders_amazon":        total_orders,
             "amazonsp_order_items.raw.total_fees_amazon":          round(total_fees, 6),
-            "amazonsp_order_items.raw.cost_of_products_amazon":    0,   # TODO: COGS sheet
+            "amazonsp_order_items.raw.cost_of_products_amazon":    round(v["cogs"], 6),
             "custom_5036": brand,
             "date": month_key,
         })
@@ -361,6 +462,26 @@ def aggregate_q3(rows: List[Dict]) -> List[Dict]:
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
+def _resolve_sellers() -> List[Dict]:
+    """Build list of sellers with valid refresh tokens."""
+    active = []
+    for s in SELLERS:
+        token = os.getenv(s["refresh_token_env"], "")
+        if token:
+            active.append({**s, "refresh_token": token})
+
+    # Backward compat: legacy single AMZ_SP_REFRESH_TOKEN
+    if not active:
+        legacy = os.getenv("AMZ_SP_REFRESH_TOKEN", "")
+        if legacy:
+            active.append({
+                "name": "Legacy (single token)",
+                "merchant_id": "",
+                "refresh_token": legacy,
+            })
+    return active
+
 
 def main():
     parser = argparse.ArgumentParser(description="Fetch Amazon SP-API order data (Q3)")
@@ -376,24 +497,42 @@ def main():
     if end_date > today:
         end_date = today
 
-    if not all([SP_CLIENT_ID, SP_CLIENT_SEC, SP_REFRESH]):
-        print("[ERROR] AMZ_SP_CLIENT_ID / AMZ_SP_CLIENT_SECRET / AMZ_SP_REFRESH_TOKEN not set in .env")
+    if not SP_CLIENT_ID or not SP_CLIENT_SEC:
+        print("[ERROR] AMZ_SP_CLIENT_ID / AMZ_SP_CLIENT_SECRET not set in .env")
+        sys.exit(1)
+
+    sellers = _resolve_sellers()
+    if not sellers:
+        print("[ERROR] No SP-API refresh tokens found.")
+        print("  Set at least one of: AMZ_SP_REFRESH_TOKEN_GROSMIMI, "
+              "AMZ_SP_REFRESH_TOKEN_FLEETERS, AMZ_SP_REFRESH_TOKEN_ORBITOOL")
         sys.exit(1)
 
     print(f"[Amazon SP] {start_date} ~ {end_date} | marketplace: {MARKETPLACE}")
+    print(f"[Amazon SP] Active sellers: {[s['name'] for s in sellers]}")
 
-    tm = SpTokenManager(SP_CLIENT_ID, SP_CLIENT_SEC, SP_REFRESH)
-
-    # Load SKU→Brand mapping
+    # Load SKU->Brand mapping and COGS
     sku_map = _build_sku_brand_map()
     print(f"[Amazon SP] SKU map: {len(sku_map)} entries")
+    cogs_map = _build_cogs_map()
+    print(f"[Amazon SP] COGS map: {len(cogs_map)} entries")
 
-    # Fetch
-    rows = fetch_orders_for_range(tm, start_date, end_date, sku_map)
-    print(f"[Amazon SP] Total order items: {len(rows)}")
+    # Fetch from all sellers
+    all_rows = []
+    for seller in sellers:
+        print(f"\n{'='*60}")
+        print(f"[Amazon SP] Seller: {seller['name']}")
+        print(f"{'='*60}")
+        tm = SpTokenManager(SP_CLIENT_ID, SP_CLIENT_SEC, seller["refresh_token"])
+        rows = fetch_orders_for_range(tm, start_date, end_date, sku_map,
+                                      cogs_map, seller_name=seller["name"])
+        print(f"  -> {len(rows)} total order items from {seller['name']}")
+        all_rows.extend(rows)
+
+    print(f"\n[Amazon SP] Combined total: {len(all_rows)} order items from {len(sellers)} seller(s)")
 
     # Aggregate Q3
-    q3_rows = aggregate_q3(rows)
+    q3_rows = aggregate_q3(all_rows)
     print(f"[Amazon SP] Q3 monthly rows: {len(q3_rows)}")
     total_gross = sum(r["amazonsp_order_items.raw.gross_sales_amazon"] for r in q3_rows)
     print(f"[Amazon SP] Total gross sales: ${total_gross:,.0f}")
@@ -402,7 +541,7 @@ def main():
     with open(OUTPUT_Q3, "w", encoding="utf-8") as f:
         json.dump({"tableData": q3_rows, "totalData": {}}, f, ensure_ascii=False, indent=2)
 
-    print(f"\n[완료] Q3 -> {OUTPUT_Q3}")
+    print(f"\n[OK] Q3 -> {OUTPUT_Q3}")
 
 
 if __name__ == "__main__":

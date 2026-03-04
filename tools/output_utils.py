@@ -23,15 +23,18 @@ DATA_STORAGE = ROOT / "Data Storage"
 TMP = ROOT / ".tmp"
 
 
-def get_output_path(category: str, prefix: str) -> Path:
+def get_output_path(category: str, prefix: str, base_dir: str = None) -> Path:
     """
     Returns a versioned output path.
     Example: get_output_path("polar", "financial_model")
              → Data Storage/polar/financial_model_2026-02-28_v1.xlsx
-             → Data Storage/polar/financial_model_2026-02-28_v2.xlsx (if v1 exists)
+    If base_dir is given, uses that directory directly (no category subfolder).
     """
     today = datetime.now().strftime("%Y-%m-%d")
-    out_dir = DATA_STORAGE / category
+    if base_dir:
+        out_dir = Path(base_dir)
+    else:
+        out_dir = DATA_STORAGE / category
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # Find next version number for today

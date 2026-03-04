@@ -1,0 +1,834 @@
+"""Setup n8n signup pipeline overview: tags, overview workflow, and status dashboard.
+
+Does three things:
+  1. Tags all signup-related workflows with 'onzenna-signup'
+  2. Creates an Overview workflow with Sticky Notes showing the full flow diagram
+  3. Generates an HTML status dashboard that queries n8n API
+
+Usage:
+    python tools/setup_n8n_signup_overview.py              # Do all 3
+    python tools/setup_n8n_signup_overview.py --tag-only    # Just tag workflows
+    python tools/setup_n8n_signup_overview.py --overview-only  # Just create overview workflow
+    python tools/setup_n8n_signup_overview.py --dashboard-only # Just generate dashboard HTML
+    python tools/setup_n8n_signup_overview.py --dry-run      # Preview without changes
+"""
+
+import os
+import sys
+import json
+import urllib.request
+import urllib.error
+import argparse
+from env_loader import load_env
+
+load_env()
+
+N8N_API_KEY = os.getenv("N8N_API_KEY", "")
+N8N_BASE_URL = os.getenv("N8N_BASE_URL", "https://n8n.orbiters.co.kr")
+
+TAG_NAME = "onzenna-signup"
+OVERVIEW_WORKFLOW_NAME = "Onzenna: Signup Pipeline Overview"
+
+# Workflows to tag (match by name substring)
+TARGET_WORKFLOWS = [
+    "Core Signup",
+    "Creator Signup",
+    "Loyalty Survey",
+    "Accepted",
+    "Sample Request",
+    "Gifting2",
+    "Airtable Update -> PostgreSQL Enriched",
+    "Airtable Update -> Shopify Metafields",
+]
+
+
+def n8n_request(method, path, data=None):
+    url = f"{N8N_BASE_URL}/api/v1{path}"
+    body = json.dumps(data).encode("utf-8") if data else None
+    req = urllib.request.Request(url, data=body, method=method)
+    req.add_header("X-N8N-API-KEY", N8N_API_KEY)
+    req.add_header("Content-Type", "application/json")
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode("utf-8", errors="replace")
+        print(f"  [n8n ERROR] {e.code}: {error_body[:500]}")
+        raise
+
+
+def get_all_workflows():
+    result = n8n_request("GET", "/workflows?limit=250")
+    return result.get("data", [])
+
+
+def find_workflow_by_name(workflows, name):
+    for wf in workflows:
+        if name in wf.get("name", ""):
+            return wf
+    return None
+
+
+# ─────────────────────────────────────────────────────────
+# 1. TAG WORKFLOWS
+# ─────────────────────────────────────────────────────────
+def get_or_create_tag(dry_run=False):
+    """Get existing tag or create new one."""
+    result = n8n_request("GET", "/tags?limit=100")
+    for tag in result.get("data", []):
+        if tag.get("name") == TAG_NAME:
+            print(f"  [FOUND] Tag '{TAG_NAME}' (ID: {tag['id']})")
+            return tag
+
+    if dry_run:
+        print(f"  [DRY RUN] Would create tag '{TAG_NAME}'")
+        return {"id": "dry-run", "name": TAG_NAME}
+
+    tag = n8n_request("POST", "/tags", {"name": TAG_NAME})
+    print(f"  [OK] Created tag '{TAG_NAME}' (ID: {tag['id']})")
+    return tag
+
+
+def tag_workflows(dry_run=False):
+    """Tag all signup-related workflows."""
+    print("\n--- Step 1: Tag Workflows ---\n")
+    tag = get_or_create_tag(dry_run)
+    tag_id = tag["id"]
+
+    workflows = get_all_workflows()
+    tagged_count = 0
+
+    for target in TARGET_WORKFLOWS:
+        wf = find_workflow_by_name(workflows, target)
+        if not wf:
+            print(f"  [SKIP] Workflow not found: *{target}*")
+            continue
+
+        wf_id = wf["id"]
+        wf_name = wf["name"]
+
+        # Check if already tagged
+        existing_tags = [t.get("name") for t in wf.get("tags", [])]
+        if TAG_NAME in existing_tags:
+            print(f"  [OK] Already tagged: {wf_name}")
+            tagged_count += 1
+            continue
+
+        if dry_run:
+            print(f"  [DRY RUN] Would tag: {wf_name} (ID: {wf_id})")
+            tagged_count += 1
+            continue
+
+        # Use dedicated tags endpoint
+        full_wf = n8n_request("GET", f"/workflows/{wf_id}")
+        current_tags = full_wf.get("tags", [])
+        tag_ids = [{"id": t["id"]} for t in current_tags]
+        tag_ids.append({"id": tag_id})
+        n8n_request("PUT", f"/workflows/{wf_id}/tags", tag_ids)
+        print(f"  [OK] Tagged: {wf_name}")
+        tagged_count += 1
+
+    print(f"\n  Tagged {tagged_count}/{len(TARGET_WORKFLOWS)} workflows")
+    return tagged_count
+
+
+# ─────────────────────────────────────────────────────────
+# 2. OVERVIEW WORKFLOW (Sticky Notes)
+# ─────────────────────────────────────────────────────────
+def build_overview_workflow():
+    """Build an overview workflow with Sticky Notes diagramming the full pipeline."""
+    return {
+        "name": OVERVIEW_WORKFLOW_NAME,
+        "nodes": [
+            # Title sticky
+            {
+                "parameters": {
+                    "content": (
+                        "# Onzenna Signup Pipeline Overview\n\n"
+                        "This workflow is a **read-only map** of the signup data pipeline.\n"
+                        "It does NOT execute anything -- it's a visual reference.\n\n"
+                        "**Tag:** `onzenna-signup` (filter by this tag to see all related workflows)\n\n"
+                        "---\n"
+                        "Last updated: auto-generated by setup_n8n_signup_overview.py"
+                    ),
+                    "width": 800,
+                    "height": 200,
+                    "color": 4,  # blue
+                },
+                "id": "sticky-title",
+                "name": "Pipeline Overview",
+                "type": "n8n-nodes-base.stickyNote",
+                "typeVersion": 1,
+                "position": [100, 60],
+            },
+            # Flow 1: Core Signup
+            {
+                "parameters": {
+                    "content": (
+                        "## 1. Core Signup -> Master (PG-first)\n"
+                        f"**Workflow:** [Onzenna: Core Signup -> Master]({N8N_BASE_URL}/workflow/aeIR0RYEmZzS1fxc)\n"
+                        "**Trigger:** Webhook (POST)\n\n"
+                        "```\n"
+                        "[Core Signup Form]\n"
+                        "      |\n"
+                        "  Webhook: /onzenna-core-signup\n"
+                        "      |\n"
+                        "  Parse Payload\n"
+                        "      |\n"
+                        "  Save to PostgreSQL (FIRST - master data)\n"
+                        "      |\n"
+                        "  (parallel -- all 3 fire after PG save)\n"
+                        "      |--- Respond OK (fast)\n"
+                        "      |--- Create Airtable Master Record\n"
+                        "      |       --> Update PG with Airtable Record ID\n"
+                        "      |--- Has customer_id?\n"
+                        "             |-- YES --> Build + Save Metafields to Shopify\n"
+                        "             |-- NO  --> Search Shopify by email\n"
+                        "                          |-- Found --> Save Metafields + Update Airtable CID\n"
+                        "                          |-- Not Found --> Create Shopify Account\n"
+                        "                                           --> Save Metafields\n"
+                        "                                           --> Update Airtable CID\n"
+                        "```\n\n"
+                        "**Note:** PostgreSQL is the master data store. PG saves first,\n"
+                        "then Airtable/Shopify/Respond fire in parallel. After Airtable\n"
+                        "creates the record, the Airtable record ID is patched back to PG.\n\n"
+                        "**Destinations:** PostgreSQL (master) -> Airtable Master, Shopify Metafields"
+                    ),
+                    "width": 600,
+                    "height": 480,
+                    "color": 3,  # green
+                },
+                "id": "sticky-core",
+                "name": "Core Signup Flow",
+                "type": "n8n-nodes-base.stickyNote",
+                "typeVersion": 1,
+                "position": [100, 300],
+            },
+            # Flow 2: Creator Signup
+            {
+                "parameters": {
+                    "content": (
+                        "## 2. Creator Signup -> Airtable (PG-first)\n"
+                        f"**Workflow:** [Onzenna: Creator Signup -> Airtable]({N8N_BASE_URL}/workflow/Ehw1wKgOvztMyYJN)\n"
+                        "**Trigger:** Webhook (POST)\n\n"
+                        "```\n"
+                        "[Creator Signup Form]\n"
+                        "      |\n"
+                        "  Webhook: /onzenna-creator-to-airtable\n"
+                        "      |\n"
+                        "  Parse Payload (IG/TikTok handles, etc.)\n"
+                        "      |\n"
+                        "  Need Shopify Metafields?\n"
+                        "      |-- YES --> Fetch from Shopify --> Merge\n"
+                        "      |-- NO  --> Use Form Data as-is\n"
+                        "      |\n"
+                        "  Save to PostgreSQL (FIRST - master data)\n"
+                        "      |--- Respond OK\n"
+                        "      |--- Create Airtable Creator Record\n"
+                        "      |       --> Update PG with Airtable Record ID\n"
+                        "      |--- Has IG? --> Scrape Instagram --> Update Airtable\n"
+                        "      |--- Has Email? --> Search Shopify\n"
+                        "      |         --> Found? --> Save Metafields + Update CID\n"
+                        "      |--- Search Master --> Update Creator Status\n"
+                        "```\n\n"
+                        "**Note:** PostgreSQL is the master data store. PG saves first,\n"
+                        "then Airtable/Shopify/etc fire in parallel. After Airtable\n"
+                        "creates the record, the Airtable record ID is patched back to PG.\n\n"
+                        "**Destinations:** PostgreSQL (master) -> Airtable Creator, Airtable Master, Shopify Metafields"
+                    ),
+                    "width": 600,
+                    "height": 500,
+                    "color": 5,  # orange
+                },
+                "id": "sticky-creator",
+                "name": "Creator Signup Flow",
+                "type": "n8n-nodes-base.stickyNote",
+                "typeVersion": 1,
+                "position": [740, 300],
+            },
+            # Flow 3: Airtable Sync (Polling)
+            {
+                "parameters": {
+                    "content": (
+                        "## 3. Airtable Polling Sync (every 5 min)\n\n"
+                        "### 3a. Airtable -> PostgreSQL Enriched\n"
+                        f"**Workflow:** [Onzenna: Airtable Update -> PostgreSQL Enriched]({N8N_BASE_URL}/workflow/sVVItoN03vk2oVDI)\n"
+                        "**Trigger:** Schedule (5 min polling)\n\n"
+                        "```\n"
+                        "  Poll Airtable (modified records)\n"
+                        "      |\n"
+                        "  Orbitools API: upsert to onzenna_creator_enriched\n"
+                        "```\n\n"
+                        "---\n\n"
+                        "### 3b. Airtable -> Shopify Metafields\n"
+                        f"**Workflow:** [Onzenna: Airtable Update -> Shopify Metafields]({N8N_BASE_URL}/workflow/eJzpbiP5ketXKNUF)\n"
+                        "**Trigger:** Schedule (5 min polling)\n\n"
+                        "```\n"
+                        "  Poll Airtable (modified records)\n"
+                        "      |\n"
+                        "  Search Shopify customer by email\n"
+                        "      |\n"
+                        "  Update Shopify customer metafields\n"
+                        "```\n\n"
+                        "**Note:** These are separate from webhook flows (different trigger type)"
+                    ),
+                    "width": 520,
+                    "height": 500,
+                    "color": 6,  # purple
+                },
+                "id": "sticky-polling",
+                "name": "Polling Sync Flows",
+                "type": "n8n-nodes-base.stickyNote",
+                "typeVersion": 1,
+                "position": [1380, 300],
+            },
+            # Flow 4: Loyalty Survey
+            {
+                "parameters": {
+                    "content": (
+                        "## 4. Loyalty Survey -> Discount Code\n"
+                        f"**Workflow:** [Onzenna: Loyalty Survey -> Discount Code]({N8N_BASE_URL}/workflow/lp0xsWEcjT4rHgy3)\n"
+                        "**Trigger:** Webhook (POST)\n\n"
+                        "```\n"
+                        "[Loyalty Survey Form]\n"
+                        "      |\n"
+                        "  Webhook: /onzenna-loyalty-survey\n"
+                        "      |\n"
+                        "  Parse Survey Data\n"
+                        "      |\n"
+                        "  Generate ONZWELCOME- discount code\n"
+                        "      |\n"
+                        "  (parallel)\n"
+                        "      |--- Create Shopify Price Rule + Discount\n"
+                        "      |--- Save Loyalty Metafields to Shopify\n"
+                        "      |--- Update Airtable Master (Loyalty Status)\n"
+                        "      |--- Save to PostgreSQL\n"
+                        "      |\n"
+                        "  Respond with discount code\n"
+                        "```\n\n"
+                        "**Destinations:** PostgreSQL, Shopify (discount + metafields), Airtable Master"
+                    ),
+                    "width": 540,
+                    "height": 440,
+                    "color": 3,  # green
+                },
+                "id": "sticky-loyalty",
+                "name": "Loyalty Survey Flow",
+                "type": "n8n-nodes-base.stickyNote",
+                "typeVersion": 1,
+                "position": [100, 840],
+            },
+            # Flow 5: Creator Post-Signup (Accepted -> Sample -> Gifting)
+            {
+                "parameters": {
+                    "content": (
+                        "## 5. Creator Post-Signup Flows\n\n"
+                        "### 5a. Accepted Email (Polling)\n"
+                        f"**Workflow:** [Onzenna: Accepted Creator -> Email Sample Form]({N8N_BASE_URL}/workflow/onIxBINIcTX1LxMH)\n"
+                        "**Trigger:** Schedule (3 min polling)\n\n"
+                        "```\n"
+                        "  Poll Airtable (Status=Accepted, not sent)\n"
+                        "      |\n"
+                        "  Send sample form email to creator\n"
+                        "      |\n"
+                        "  Update Airtable (Sample Form Sent = true)\n"
+                        "```\n\n"
+                        "---\n\n"
+                        "### 5b. Sample Request Order\n"
+                        f"**Workflow:** [Onzenna: Sample Request -> Draft Order + Airtable]({N8N_BASE_URL}/workflow/GmMgjTahHI4M4xEY)\n"
+                        "**Trigger:** Webhook (POST)\n\n"
+                        "```\n"
+                        "[Creator Sample Form]\n"
+                        "      |\n"
+                        "  Fetch Shopify shipping address\n"
+                        "      |\n"
+                        "  Create Shopify Draft Order (100% discount)\n"
+                        "      |\n"
+                        "  Update Airtable (Status -> Sample Shipping)\n"
+                        "```\n\n"
+                        "---\n\n"
+                        "### 5c. Gifting2 Order\n"
+                        f"**Workflow:** [Onzenna: Gifting2 -> Draft Order + Airtable]({N8N_BASE_URL}/workflow/KqICsN9F1mPwnAQ9)\n"
+                        "**Trigger:** Webhook (POST)\n\n"
+                        "```\n"
+                        "[Gifting2 Form]\n"
+                        "      |\n"
+                        "  Create Shopify Customer + Draft Order\n"
+                        "      |\n"
+                        "  Update Airtable Record\n"
+                        "```"
+                    ),
+                    "width": 540,
+                    "height": 700,
+                    "color": 5,  # orange
+                },
+                "id": "sticky-post-signup",
+                "name": "Creator Post-Signup Flows",
+                "type": "n8n-nodes-base.stickyNote",
+                "typeVersion": 1,
+                "position": [680, 840],
+            },
+            # Data destinations summary
+            {
+                "parameters": {
+                    "content": (
+                        "## Data Destinations Summary\n\n"
+                        "| System | Data | Updated By |\n"
+                        "|---|---|---|\n"
+                        "| **PostgreSQL (Master)** | All raw data FIRST, enriched creator data | Core Signup, Creator Signup, Polling Sync |\n"
+                        "| **Airtable Master** | Core signup fields, Shopify CID, Creator status | Core Signup, Creator Signup |\n"
+                        "| **Airtable Creator** | Creator profile, IG metrics | Creator Signup |\n"
+                        "| **Shopify Metafields** | onzenna_survey, onzenna_creator | Core Signup, Creator Signup, Polling Sync |\n\n"
+                        "---\n\n"
+                        "## Webhook URLs\n"
+                        f"- Core: `{N8N_BASE_URL}/webhook/onzenna-core-signup`\n"
+                        f"- Creator: `{N8N_BASE_URL}/webhook/onzenna-creator-to-airtable`\n"
+                    ),
+                    "width": 800,
+                    "height": 300,
+                    "color": 2,  # yellow
+                },
+                "id": "sticky-summary",
+                "name": "Data Destinations",
+                "type": "n8n-nodes-base.stickyNote",
+                "typeVersion": 1,
+                "position": [1260, 840],
+            },
+        ],
+        "connections": {},
+        "settings": {"executionOrder": "v1"},
+    }
+
+
+def create_overview_workflow(dry_run=False):
+    """Create or update the overview workflow."""
+    print("\n--- Step 2: Overview Workflow ---\n")
+
+    workflows = get_all_workflows()
+    existing = find_workflow_by_name(workflows, OVERVIEW_WORKFLOW_NAME)
+    wf_def = build_overview_workflow()
+
+    if existing:
+        wf_id = existing["id"]
+        print(f"  [FOUND] Existing overview workflow (ID: {wf_id})")
+        if dry_run:
+            print(f"  [DRY RUN] Would update overview workflow")
+            return wf_id
+        n8n_request("PUT", f"/workflows/{wf_id}", wf_def)
+        print(f"  [OK] Updated overview workflow")
+    else:
+        if dry_run:
+            print(f"  [DRY RUN] Would create overview workflow")
+            print(f"  Sticky Notes: {len(wf_def['nodes'])}")
+            for n in wf_def["nodes"]:
+                print(f"    - {n['name']}")
+            return "dry-run"
+        result = n8n_request("POST", "/workflows", wf_def)
+        wf_id = result.get("id")
+        print(f"  [OK] Created overview workflow (ID: {wf_id})")
+
+    # Tag the overview workflow too
+    if not dry_run:
+        tag = get_or_create_tag()
+        full_wf = n8n_request("GET", f"/workflows/{wf_id}")
+        current_tags = full_wf.get("tags", [])
+        if TAG_NAME not in [t.get("name") for t in current_tags]:
+            tag_ids = [{"id": t["id"]} for t in current_tags]
+            tag_ids.append({"id": tag["id"]})
+            n8n_request("PUT", f"/workflows/{wf_id}/tags", tag_ids)
+            print(f"  [OK] Tagged overview workflow with '{TAG_NAME}'")
+
+    print(f"\n  Open in n8n: {N8N_BASE_URL}/workflow/{wf_id}")
+    return wf_id
+
+
+# ─────────────────────────────────────────────────────────
+# 3. STATUS DASHBOARD (HTML)
+# ─────────────────────────────────────────────────────────
+def generate_dashboard_html():
+    """Generate an HTML dashboard that queries n8n API for workflow status."""
+    print("\n--- Step 3: Status Dashboard ---\n")
+
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onzenna Signup Pipeline - Status Dashboard</title>
+<style>
+  * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+  body {{
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0f1117;
+    color: #e1e4e8;
+    padding: 24px;
+  }}
+  .header {{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+  }}
+  h1 {{ font-size: 24px; font-weight: 600; }}
+  .subtitle {{ color: #8b949e; font-size: 14px; margin-top: 4px; }}
+  .refresh-btn {{
+    background: #238636;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+  }}
+  .refresh-btn:hover {{ background: #2ea043; }}
+  .refresh-btn:disabled {{ background: #484f58; cursor: wait; }}
+  .grid {{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }}
+  .card {{
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 20px;
+  }}
+  .card-header {{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }}
+  .card-title {{
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+  }}
+  .badge {{
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+  }}
+  .badge-active {{ background: #238636; color: #fff; }}
+  .badge-inactive {{ background: #da3633; color: #fff; }}
+  .badge-webhook {{ background: #1f6feb; color: #fff; }}
+  .badge-polling {{ background: #8957e5; color: #fff; }}
+  .badge-overview {{ background: #d29922; color: #fff; }}
+  .meta {{ color: #8b949e; font-size: 13px; margin-top: 8px; }}
+  .meta a {{ color: #58a6ff; text-decoration: none; }}
+  .meta a:hover {{ text-decoration: underline; }}
+  .flow-desc {{
+    margin-top: 12px;
+    padding: 12px;
+    background: #0d1117;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    white-space: pre-line;
+    line-height: 1.6;
+    color: #c9d1d9;
+  }}
+  .last-exec {{
+    margin-top: 8px;
+    font-size: 12px;
+    color: #8b949e;
+  }}
+  .exec-success {{ color: #3fb950; }}
+  .exec-error {{ color: #f85149; }}
+  .exec-waiting {{ color: #d29922; }}
+  .loading {{
+    text-align: center;
+    padding: 40px;
+    color: #8b949e;
+  }}
+  .settings-bar {{
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: #8b949e;
+  }}
+  .settings-bar code {{
+    background: #0d1117;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #58a6ff;
+  }}
+  .timestamp {{ font-size: 12px; color: #484f58; }}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Onzenna Signup Pipeline</h1>
+    <div class="subtitle">n8n Workflow Status Dashboard</div>
+  </div>
+  <div style="display:flex; gap:8px; align-items:center;">
+    <span class="timestamp" id="last-refresh"></span>
+    <button class="refresh-btn" onclick="refreshAll()">Refresh</button>
+  </div>
+</div>
+
+<div class="settings-bar">
+  n8n: <code>{N8N_BASE_URL}</code> &nbsp;|&nbsp;
+  Tag: <code>{TAG_NAME}</code> &nbsp;|&nbsp;
+  <a href="{N8N_BASE_URL}" target="_blank" style="color:#58a6ff;">Open n8n</a>
+</div>
+
+<div id="dashboard" class="loading">Loading...</div>
+
+<script>
+const N8N_BASE = "{N8N_BASE_URL}";
+const N8N_API_KEY = localStorage.getItem("n8n_api_key") || "";
+
+const WORKFLOW_INFO = {{
+  "Core Signup": {{
+    type: "webhook",
+    desc: "Core Signup Form\\n  -> PostgreSQL (master)\\n  -> Airtable Master + Shopify Metafields\\n  -> Patch PG with Airtable ID",
+  }},
+  "Creator Signup": {{
+    type: "webhook",
+    desc: "Creator Signup Form\\n  -> PostgreSQL (master)\\n  -> Airtable Creator + IG Scrape\\n  -> Shopify Metafields\\n  -> Patch PG with Airtable ID",
+  }},
+  "Airtable Update -> PostgreSQL Enriched": {{
+    type: "polling",
+    desc: "Every 5 min:\\n  Poll Airtable changes\\n  -> Upsert to PostgreSQL enriched table",
+  }},
+  "Airtable Update -> Shopify Metafields": {{
+    type: "polling",
+    desc: "Every 5 min:\\n  Poll Airtable changes\\n  -> Update Shopify customer metafields",
+  }},
+  "Pipeline Overview": {{
+    type: "overview",
+    desc: "Visual reference with Sticky Notes.\\nDoes not execute -- read-only map.",
+  }},
+}};
+
+function getWorkflowType(name) {{
+  for (const [key, info] of Object.entries(WORKFLOW_INFO)) {{
+    if (name.includes(key)) return info;
+  }}
+  return {{ type: "unknown", desc: "" }};
+}}
+
+async function n8nFetch(path) {{
+  const resp = await fetch(N8N_BASE + "/api/v1" + path, {{
+    headers: {{ "X-N8N-API-KEY": N8N_API_KEY }},
+  }});
+  if (!resp.ok) throw new Error("API " + resp.status);
+  return resp.json();
+}}
+
+async function getExecutions(workflowId) {{
+  try {{
+    const data = await n8nFetch("/executions?workflowId=" + workflowId + "&limit=1");
+    return (data.data || [])[0] || null;
+  }} catch(e) {{
+    return null;
+  }}
+}}
+
+function formatTime(iso) {{
+  if (!iso) return "N/A";
+  const d = new Date(iso);
+  const now = new Date();
+  const diffMs = now - d;
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return "just now";
+  if (diffMin < 60) return diffMin + "m ago";
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return diffHr + "h ago";
+  const diffDay = Math.floor(diffHr / 24);
+  return diffDay + "d ago";
+}}
+
+async function refreshAll() {{
+  const btn = document.querySelector(".refresh-btn");
+  btn.disabled = true;
+  btn.textContent = "Loading...";
+
+  if (!N8N_API_KEY) {{
+    const key = prompt("Enter your n8n API key (stored in localStorage):");
+    if (key) {{
+      localStorage.setItem("n8n_api_key", key);
+      location.reload();
+      return;
+    }}
+    document.getElementById("dashboard").innerHTML =
+      '<div class="loading">No API key. Reload and enter your n8n API key.</div>';
+    btn.disabled = false;
+    btn.textContent = "Refresh";
+    return;
+  }}
+
+  try {{
+    const result = await n8nFetch("/workflows?limit=250");
+    const workflows = (result.data || []).filter(wf => {{
+      const tags = (wf.tags || []).map(t => t.name);
+      return tags.includes("{TAG_NAME}");
+    }});
+
+    if (workflows.length === 0) {{
+      // Fallback: match by name
+      const all = result.data || [];
+      for (const key of Object.keys(WORKFLOW_INFO)) {{
+        const found = all.find(wf => wf.name.includes(key));
+        if (found && !workflows.find(w => w.id === found.id)) {{
+          workflows.push(found);
+        }}
+      }}
+    }}
+
+    // Sort: webhook first, then polling, then overview
+    const order = {{ webhook: 0, polling: 1, overview: 2, unknown: 3 }};
+    workflows.sort((a, b) => {{
+      const ta = getWorkflowType(a.name).type;
+      const tb = getWorkflowType(b.name).type;
+      return (order[ta] || 3) - (order[tb] || 3);
+    }});
+
+    // Fetch last execution for each
+    const cards = await Promise.all(workflows.map(async (wf) => {{
+      const info = getWorkflowType(wf.name);
+      const lastExec = await getExecutions(wf.id);
+      return renderCard(wf, info, lastExec);
+    }}));
+
+    document.getElementById("dashboard").innerHTML =
+      '<div class="grid">' + cards.join("") + '</div>';
+
+    document.getElementById("last-refresh").textContent =
+      "Updated: " + new Date().toLocaleTimeString();
+
+  }} catch(e) {{
+    document.getElementById("dashboard").innerHTML =
+      '<div class="loading">Error: ' + e.message + '</div>';
+  }}
+
+  btn.disabled = false;
+  btn.textContent = "Refresh";
+}}
+
+function renderCard(wf, info, lastExec) {{
+  const active = wf.active;
+  const typeBadge = info.type === "webhook"
+    ? '<span class="badge badge-webhook">Webhook</span>'
+    : info.type === "polling"
+    ? '<span class="badge badge-polling">Polling</span>'
+    : info.type === "overview"
+    ? '<span class="badge badge-overview">Overview</span>'
+    : '';
+
+  const statusBadge = active
+    ? '<span class="badge badge-active">Active</span>'
+    : '<span class="badge badge-inactive">Inactive</span>';
+
+  let execHtml = '';
+  if (lastExec) {{
+    const status = lastExec.status || lastExec.finished ? "success" : "error";
+    const cls = status === "success" ? "exec-success"
+              : status === "error" ? "exec-error" : "exec-waiting";
+    const time = formatTime(lastExec.stoppedAt || lastExec.startedAt);
+    execHtml = '<div class="last-exec">Last run: <span class="' + cls + '">'
+             + (lastExec.status || "unknown") + '</span> ' + time + '</div>';
+  }} else {{
+    execHtml = '<div class="last-exec">No executions yet</div>';
+  }}
+
+  return `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">${{wf.name}}</div>
+        <div style="display:flex;gap:4px;">${{typeBadge}} ${{statusBadge}}</div>
+      </div>
+      <div class="flow-desc">${{info.desc}}</div>
+      ${{execHtml}}
+      <div class="meta">
+        <a href="${{N8N_BASE}}/workflow/${{wf.id}}" target="_blank">Open in n8n</a>
+      </div>
+    </div>`;
+}}
+
+// Auto-load on page open
+refreshAll();
+// Auto-refresh every 60s
+setInterval(refreshAll, 60000);
+</script>
+</body>
+</html>"""
+    return html
+
+
+def save_dashboard(dry_run=False):
+    """Save the dashboard HTML file."""
+    html = generate_dashboard_html()
+    dashboard_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        ".tmp", "n8n_signup_dashboard.html"
+    )
+
+    if dry_run:
+        print(f"  [DRY RUN] Would save dashboard to: {dashboard_path}")
+        print(f"  HTML size: {len(html)} bytes")
+        return dashboard_path
+
+    os.makedirs(os.path.dirname(dashboard_path), exist_ok=True)
+    with open(dashboard_path, "w", encoding="utf-8") as f:
+        f.write(html)
+
+    print(f"  [OK] Dashboard saved: {dashboard_path}")
+    print(f"  Open in browser to view live status")
+    return dashboard_path
+
+
+# ─────────────────────────────────────────────────────────
+# MAIN
+# ─────────────────────────────────────────────────────────
+def main():
+    if sys.stdout.encoding != "utf-8":
+        try:
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        except AttributeError:
+            pass
+
+    parser = argparse.ArgumentParser(description="Setup n8n signup pipeline overview")
+    parser.add_argument("--dry-run", action="store_true", help="Preview without changes")
+    parser.add_argument("--tag-only", action="store_true", help="Only tag workflows")
+    parser.add_argument("--overview-only", action="store_true", help="Only create overview workflow")
+    parser.add_argument("--dashboard-only", action="store_true", help="Only generate dashboard HTML")
+    args = parser.parse_args()
+
+    if not N8N_API_KEY:
+        print("[ERROR] N8N_API_KEY not set in ~/.wat_secrets")
+        sys.exit(1)
+
+    print(f"\n{'=' * 60}")
+    print(f"  Onzenna Signup Pipeline Setup")
+    print(f"  n8n: {N8N_BASE_URL}")
+    print(f"  Mode: {'DRY RUN' if args.dry_run else 'LIVE'}")
+    print(f"{'=' * 60}")
+
+    do_all = not (args.tag_only or args.overview_only or args.dashboard_only)
+
+    if do_all or args.tag_only:
+        tag_workflows(args.dry_run)
+
+    if do_all or args.overview_only:
+        create_overview_workflow(args.dry_run)
+
+    if do_all or args.dashboard_only:
+        save_dashboard(args.dry_run)
+
+    print(f"\n{'=' * 60}")
+    print(f"  DONE")
+    print(f"{'=' * 60}\n")
+
+
+if __name__ == "__main__":
+    main()

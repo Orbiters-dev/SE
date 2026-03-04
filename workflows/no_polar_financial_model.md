@@ -70,14 +70,16 @@ python tools/no_polar/fetch_shopify_cogs_monthly.py --start 2024-01 --end 2026-0
 - 출력: `.tmp/polar_data/q2_shopify_brand.json`
 - COGS: `SHOPIFY_COGS_SHEET_ID` 없으면 0으로 처리 (CM 탭에 영향)
 
-### 1-D. Amazon SP-API 주문 매출 → Q3 생성
+### 1-D. Amazon SP-API 주문 매출 → Q3 생성 (멀티 셀러)
 ```
-python tools/no_polar/fetch_amazon_sales_monthly.py --start 2024-01 --end 2026-02
+python tools/no_polar/fetch_amazon_sales_monthly.py --start 2024-01 --end 2026-03
 ```
 - 출력: `.tmp/polar_data/q3_amazon_brand.json`
-- 소요 시간: 약 10~20분 (월별 리포트 생성 대기 포함)
-- 참고: total_fees, cost_of_products는 현재 0 (향후 Finances API로 보완 예정)
-- 의존성: `AMZ_SP_CLIENT_ID`, `AMZ_SP_CLIENT_SECRET`, `AMZ_SP_REFRESH_TOKEN`
+- 소요 시간: 셀러당 10~20분 (리포트 생성 대기)
+- **멀티 셀러**: `AMZ_SP_REFRESH_TOKEN_GROSMIMI`, `_FLEETERS`, `_ORBITOOL` 개별 설정
+- **COGS**: `Shared/NoPolar KPIs/Data config sheet/COGS by SKU.xlsx` 자동 로드
+- **Brand 추론**: `Product Variant by SKU.xlsx` 우선, 키워드 매칭 보조
+- 의존성: `AMZ_SP_CLIENT_ID`, `AMZ_SP_CLIENT_SECRET`, 셀러별 refresh token
 
 ### 1-E. Amazon Ads 광고 성과 → Q5 생성
 ```
@@ -129,8 +131,8 @@ python tools/polar_financial_model.py
 
 | 항목 | 현재 | 향후 |
 |------|------|------|
-| Amazon 수수료 (Q3) | total_fees = 0 | SP-API Finances API로 FBA fee 추가 |
-| Amazon COGS (Q3) | cost_of_products = 0 | `SHOPIFY_COGS_SHEET_ID` 설정 후 보완 |
+| Amazon 수수료 (Q3) | 15% flat rate 추정 | SP-API Finances API로 실제 FBA fee |
+| Amazon COGS (Q3) | COGS by SKU.xlsx 기반 | 자동 로드 완료 |
 | COGS (Q2) | GSheet ID 없으면 0 | `SHOPIFY_COGS_SHEET_ID` 환경변수 추가로 자동화 |
 | Shopify 채널 매핑 | source_name/tags 기반 | 실제 운영 데이터 보고 채널 태깅 규칙 보완 |
 | TikTok Ads (Q8) | Polar 캐시 재사용 ($0) | TikTok Ads API 크레덴셜 취득 시 구현 |

@@ -232,3 +232,31 @@ Python 경로: `/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe
 
 검사 항목: Payload 구조 [D], 지표 Sanity [M], 브랜드 커버리지 [B], 캠페인 타입 [T], 이상 감지 [A], HTML 리포트 구조 [R]
 결과 파일: `.tmp/gads_test_results.json`
+
+---
+
+## 그로미미 컨텐츠 트랙커
+
+"그로미미 컨텐츠 트랙커" 명령이 오면 즉시 아래를 실행한다:
+
+1. `workflows/dongkyun_tester.md` 를 읽는다
+2. 전체 검증 실행: `python tools/dongkyun_tester.py --run`
+3. FAIL 항목에 대한 원인 분석 및 수정 방향 제시
+
+검사 항목: 크레덴셜 [C], 데이터 소스 [D], Syncly 연결 [S], 타겟 시트 [T], 매칭 정확도 [M], 필터링 [F], 출력 무결성 [O]
+결과 파일: `.tmp/dongkyun_test_results.json`
+실행 도구: `tools/sync_sns_tab.py` (Shopify PR + Syncly D+30 → Google Sheet SNS 탭)
+
+---
+
+## 차앤맘 컨텐츠 트랙커
+
+"차앤맘 컨텐츠 트랙커" 명령이 오면 즉시 아래를 실행한다:
+
+1. `workflows/dongkyun_tester_chaenmom.md` 를 읽는다
+2. 전체 검증 실행: `python tools/dongkyun_tester_chaenmom.py --run`
+3. FAIL 항목에 대한 원인 분석 및 수정 방향 제시
+
+검사 항목: 크레덴셜 [C], 데이터 소스 [D], Syncly 연결 [S], 타겟 시트 [T], 매칭 정확도 [M], 필터링 [F], 출력 무결성 [O]
+결과 파일: `.tmp/dongkyun_chaenmom_test_results.json`
+실행 도구: `tools/sync_sns_tab_chaenmom.py` (Shopify PR + Syncly D+30 → Google Sheet SNS 탭, CHA&MOM 브랜드만)
