@@ -322,15 +322,20 @@ def build_ad_histories(rows: list, campaign_types: Dict[str, str],
             brand = classify_brand_from_url(landing_url)
 
         camp_type = campaign_types.get(camp_id, "other")
-        # Override: Amazon-landing campaigns → traffic (no Meta pixel conversion)
         camp_lower  = camp_name.lower()
         ad_lower    = ad_name.lower()
+
+        # Override 1: campaign name contains "CVR" → force cvr type
+        # (user naming convention trumps Meta objective)
+        if "cvr" in camp_lower and camp_type != "cvr":
+            camp_type = "cvr"
+
+        # Override 2: Amazon-landing campaigns → traffic (no Meta pixel conversion)
+        # BUT skip if campaign is explicitly named CVR (Shopify pixel present)
         AMAZON_SIGNALS = ("wl_", "| wl |", " wl | ", "whitelist", "amazon", "amz", "asin")
-        # Naeiae exclusively lands on Amazon
         AMAZON_BRANDS  = ("naeiae", "rice snack", "pop rice")
-        # URL-based Amazon detection
         url_is_amazon = "amazon." in landing_url.lower() if landing_url else False
-        if camp_type != "traffic" and (
+        if camp_type != "traffic" and "cvr" not in camp_lower and (
             any(s in camp_lower or s in ad_lower for s in AMAZON_SIGNALS) or
             any(s in camp_lower or s in ad_lower for s in AMAZON_BRANDS) or
             url_is_amazon
@@ -422,6 +427,25 @@ def _vs_benchmark(metrics: dict, bench: dict, camp_type: str) -> dict:
 
 
 # ===========================================================================
+def _period_metrics_raw(daily: list, start: date, end: date) -> dict:
+    """Aggregate daily rows for an ad within [start, end]. Standalone version."""
+    sp = impr = cl = pu = 0; pv = 0.0
+    for r in daily:
+        d = datetime.strptime(r["date"], "%Y-%m-%d").date()
+        if start <= d <= end:
+            sp   += r["spend"]; impr += r["impressions"]
+            cl   += r["clicks"]; pu  += r["purchases"]
+            pv   += r["purchases_value"]
+    return {
+        "spend": round(sp, 2),
+        "roas":  round(pv / sp, 3)          if sp > 0 else 0,
+        "ctr":   round(cl / impr * 100, 3)  if impr > 0 else 0,
+        "cpc":   round(sp / cl, 3)          if cl > 0 else 0,
+        "cpm":   round(sp / impr * 1000, 3) if impr > 0 else 0,
+        "cpa":   round(sp / pu, 3)          if pu > 0 else 0,
+    }
+
+# ===========================================================================
 # Build full analysis payload
 # ===========================================================================
 
@@ -444,16 +468,22 @@ def build_payload(
                if v["first_spend_date"] >= cutoff_new}
 
     top_performers = {}
+    since_7_eval = today - timedelta(days=7)
+    yesterday_eval = today - timedelta(days=1)
     for ad_id, h in histories.items():
         dn = _day_n(h, today)
         if dn < 14:
             continue
-        m = _cumulative(h["daily"], h["first_spend_date"], dn)
-        if m["spend"] < 50:
+        m_life = _cumulative(h["daily"], h["first_spend_date"], dn)
+        if m_life["spend"] < 50:
             continue
-        # Good ROAS (CVR) OR good CTR (Traffic)
-        if m["roas"] >= 3.0 or (h["campaign_type"] == "traffic" and m["ctr"] >= 1.5):
-            top_performers[ad_id] = {**h, "day_n": dn, "lifetime_metrics": m}
+        # Evaluate on RECENT 7-day performance
+        m7 = _period_metrics_raw(h["daily"], since_7_eval, yesterday_eval)
+        if m7["spend"] < 10:
+            continue
+        # Good ROAS (CVR) OR good CTR (Traffic) — 7-day basis
+        if m7["roas"] >= 3.0 or (h["campaign_type"] == "traffic" and m7["ctr"] >= 1.5):
+            top_performers[ad_id] = {**h, "day_n": dn, "lifetime_metrics": m_life, "metrics_7d_eval": m7}
 
     print(f"  New ads (last {new_window}d): {len(new_ads)}")
     print(f"  Top performers (established): {len(top_performers)}")
@@ -514,13 +544,13 @@ def build_payload(
     prior_7_start = today - timedelta(days=14)
     prior_7_end   = today - timedelta(days=8)
 
-    # --- Top Performers Summary — sorted by yesterday spend desc within each type ---
+    # --- Top Performers Summary — sorted by 7-day ROAS/CTR ---
     top_list = sorted(
         top_performers.items(),
         key=lambda kv: (
             0 if kv[1]["campaign_type"] == "cvr" else 1,
-            -(kv[1]["lifetime_metrics"]["roas"] if kv[1]["campaign_type"] == "cvr"
-              else kv[1]["lifetime_metrics"]["ctr"])
+            -(kv[1]["metrics_7d_eval"]["roas"] if kv[1]["campaign_type"] == "cvr"
+              else kv[1]["metrics_7d_eval"]["ctr"])
         )
     )[:20]
     top_summary = [{
@@ -532,10 +562,10 @@ def build_payload(
         "campaign_type": h["campaign_type"],
         "first_spend":   h["first_spend_date"].strftime("%Y-%m-%d"),
         "day_n":         h["day_n"],
-        "roas":          h["lifetime_metrics"]["roas"],
-        "ctr":           h["lifetime_metrics"]["ctr"],
-        "cpm":           h["lifetime_metrics"]["cpm"],
-        "cpa":           h["lifetime_metrics"]["cpa"],
+        "roas":          h["metrics_7d_eval"]["roas"],
+        "ctr":           h["metrics_7d_eval"]["ctr"],
+        "cpm":           h["metrics_7d_eval"]["cpm"],
+        "cpa":           h["metrics_7d_eval"]["cpa"],
         "spend":         h["lifetime_metrics"]["spend"],
         "metrics_1d":    _period_metrics(h["daily"], yesterday,     yesterday),
         "metrics_7d":    _period_metrics(h["daily"], since_7,       yesterday),
@@ -543,26 +573,30 @@ def build_payload(
         "metrics_30d":   _period_metrics(h["daily"], since_30,      yesterday),
     } for ad_id, h in top_list]
 
-    # --- Worst Performers (D+14+, significant spend, bad metric) ---
+    # --- Worst Performers (D+14+, significant spend, bad 7-day metric) ---
     worst_performers = {}
     for ad_id, h in histories.items():
         dn = _day_n(h, today)
         if dn < 14:
             continue
-        m = _cumulative(h["daily"], h["first_spend_date"], dn)
-        if m["spend"] < 100:
+        m_life = _cumulative(h["daily"], h["first_spend_date"], dn)
+        if m_life["spend"] < 100:
             continue
-        if h["campaign_type"] == "cvr" and m["roas"] < 2.0:
-            worst_performers[ad_id] = {**h, "day_n": dn, "lifetime_metrics": m}
-        elif h["campaign_type"] == "traffic" and m["ctr"] < 1.0:
-            worst_performers[ad_id] = {**h, "day_n": dn, "lifetime_metrics": m}
+        # Evaluate on RECENT 7-day performance
+        m7 = _period_metrics_raw(h["daily"], since_7_eval, yesterday_eval)
+        if m7["spend"] < 10:
+            continue
+        if h["campaign_type"] in ("cvr", "other") and m7["roas"] < 2.0:
+            worst_performers[ad_id] = {**h, "day_n": dn, "lifetime_metrics": m_life, "metrics_7d_eval": m7}
+        elif h["campaign_type"] == "traffic" and m7["ctr"] < 1.0:
+            worst_performers[ad_id] = {**h, "day_n": dn, "lifetime_metrics": m_life, "metrics_7d_eval": m7}
 
     worst_list = sorted(
         worst_performers.items(),
         key=lambda kv: (
             0 if kv[1]["campaign_type"] == "cvr" else 1,
-            (kv[1]["lifetime_metrics"]["roas"] if kv[1]["campaign_type"] == "cvr"
-             else kv[1]["lifetime_metrics"]["ctr"])  # ascending: worst first
+            (kv[1]["metrics_7d_eval"]["roas"] if kv[1]["campaign_type"] == "cvr"
+             else kv[1]["metrics_7d_eval"]["ctr"])  # ascending: worst first
         )
     )[:20]
     worst_summary = [{
@@ -574,8 +608,8 @@ def build_payload(
         "campaign_type": h["campaign_type"],
         "first_spend":   h["first_spend_date"].strftime("%Y-%m-%d"),
         "day_n":         h["day_n"],
-        "roas":          h["lifetime_metrics"]["roas"],
-        "ctr":           h["lifetime_metrics"]["ctr"],
+        "roas":          h["metrics_7d_eval"]["roas"],
+        "ctr":           h["metrics_7d_eval"]["ctr"],
         "spend":         h["lifetime_metrics"]["spend"],
         "metrics_1d":    _period_metrics(h["daily"], yesterday,     yesterday),
         "metrics_7d":    _period_metrics(h["daily"], since_7,       yesterday),

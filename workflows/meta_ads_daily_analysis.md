@@ -107,11 +107,23 @@ python tools/no_polar/fetch_meta_ads_daily.py --level ad --days 30
 - **ROAS 상위 5개 Ad Set**: 예산 증액 후보
 - **ROAS 하위 5개 Ad Set**: 일시 중단 또는 타겟 재설정 후보
 
-#### D. Ad 레벨 — 크리에이티브 분석
+#### D. Ad 레벨 — D+N 크리에이티브 분석 (최근 7일 기준)
 
-- **CTR 상위 5개 Ad**: 우수 크리에이티브 → 복제/스케일 후보
-- **CTR 하위 5개 Ad**: 피로한 크리에이티브 → 교체 후보
-- **ROAS 상위 5개 Ad**: 전환 최강 크리에이티브
+**Top Performer** (최근 7일 기준, D+14 이상):
+- CVR 캠페인: 7일 ROAS >= 3.0
+- Traffic 캠페인: 7일 CTR >= 1.5%
+- 조건: 누적 지출 $50+, 7일 지출 $10+
+
+**Worst Performer** (최근 7일 기준, D+14 이상):
+- CVR/Other 캠페인: 7일 ROAS < 2.0
+- Traffic 캠페인: 7일 CTR < 1.0%
+- 조건: 누적 지출 $100+, 7일 지출 $10+
+
+**캠페인 타입 분류 규칙**:
+1. Meta API objective 기반 (OUTCOME_SALES → cvr, OUTCOME_TRAFFIC → traffic)
+2. 캠페인명에 "CVR" 포함 시 무조건 cvr로 강제 (user naming convention 우선)
+3. WL/AMZ/Amazon 시그널 → traffic으로 override (단, "CVR" 명시 캠페인은 제외)
+
 - **지출 있는데 구매 0인 Ad**: 즉시 점검 필요
 
 #### E. 이상 감지 (자동)
