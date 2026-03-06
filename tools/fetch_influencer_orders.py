@@ -77,10 +77,19 @@ def parse_order(o):
             "price": li.get("price", "0"),
         })
 
+    # Extract earliest fulfillment date (shipping date)
+    closed_at = o.get("closed_at", "") or ""
+    fulfillments = o.get("fulfillments") or []
+    if fulfillments and isinstance(fulfillments, list):
+        dates = [f.get("created_at", "") for f in fulfillments if f.get("created_at")]
+        if dates:
+            closed_at = min(dates)
+
     return {
         "id": o["id"],
         "name": o.get("name", ""),
         "created_at": o.get("created_at", ""),
+        "closed_at": closed_at,
         "tags": o.get("tags", ""),
         "note": o.get("note", "") or "",
         "financial_status": o.get("financial_status", ""),

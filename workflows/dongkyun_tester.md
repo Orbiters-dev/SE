@@ -68,7 +68,7 @@ python tools/dongkyun_tester.py --results
 
 ### 4. 타겟 시트 검사 [T]
 - SNS 탭 존재 여부
-- 헤더 구조 일치: No, Channel, Account, Product Type, Influencer Fee, Content Link, Approved for Cross-Market Use, D+ Days, Curr Comment, Curr Like, Curr View
+- 헤더 구조 일치: No, Channel, Name, Account, Product Type1-4, Product Name, Influencer Fee, Shipping Date, Content Link, Approved for Cross-Market Use, D+ Days, Curr Comment, Curr Like, Curr View, Profile URL
 
 ### 5. 매칭 검사 [M]
 - IG handle 추출: `IG(@xxx)` 패턴이 있는 주문 수 vs 전체 PR 주문
@@ -83,7 +83,7 @@ python tools/dongkyun_tester.py --results
 
 ### 7. 출력 무결성 검사 [O]
 - dry-run 실행 → 행 수 + 매칭 수 확인
-- 각 행의 컬럼 수 = 11 (헤더 수와 일치)
+- 각 행의 컬럼 수 = 18 (헤더 수와 일치)
 - D+ Days: 숫자 또는 빈 값
 - Curr Comment/Like/View: 숫자 또는 빈 값
 

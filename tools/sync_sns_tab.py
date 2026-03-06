@@ -62,10 +62,21 @@ MANUAL_INF_PAYMENTS = [
 # ── SNS tab headers ────────────────────────────────────────────────────────
 # Row 1 is blank in the target sheet; Row 2 = headers
 SNS_HEADERS = [
-    "No", "Channel", "Account", "Product Type",
-    "Influencer Fee", "Content Link",
-    "Approved for Cross-Market Use",
+    "No", "Channel", "Name", "Account",
+    "Product Type1", "Product Type2", "Product Type3", "Product Type4",
+    "Product Name", "Influencer Fee", "Shipping Date",
+    "Content Link", "Approved for Cross-Market Use",
     "D+ Days", "Curr Comment", "Curr Like", "Curr View",
+    "Profile URL",
+]
+
+# ── Product Type classification ───────────────────────────────────────────
+# Dropdown values for Product Type columns (order matters for matching)
+PRODUCT_TYPE_RULES = [
+    ("PPSU Straw Cup",        lambda t: "ppsu" in t and "straw cup" in t),
+    ("PPSU Kids Tumbler",     lambda t: "ppsu" in t and "kids tumbler" in t),
+    ("Stainless Straw Cup",   lambda t: "stainless" in t and "straw cup" in t),
+    ("Stainless Kids Tumbler", lambda t: "stainless" in t and "kids tumbler" in t),
 ]
 
 
@@ -95,6 +106,13 @@ def fmt_number(n):
     if n >= 1000:
         return f"{n:,}"
     return str(n)
+
+
+def col_letter(idx):
+    """Convert 0-based column index to spreadsheet letter (0='A', 25='Z', 26='AA')."""
+    if idx < 26:
+        return chr(65 + idx)
+    return chr(64 + idx // 26) + chr(65 + idx % 26)
 
 
 # ── Data Loading ───────────────────────────────────────────────────────────
@@ -198,15 +216,55 @@ def is_giveaway_event(order):
     return any(kw in text for kw in GIVEAWAY_KW)
 
 
+def _split_product_names(product_str):
+    """Split comma-separated product names, respecting parentheses.
+
+    E.g. 'Grosmimi Tumbler Multi Accessory Pack (Tumbler Cap, Silicone Tip & Hand Strap)'
+    should NOT be split at the comma inside parentheses.
+    """
+    parts = []
+    depth = 0
+    current = []
+    for ch in product_str:
+        if ch == "(":
+            depth += 1
+            current.append(ch)
+        elif ch == ")":
+            depth = max(0, depth - 1)
+            current.append(ch)
+        elif ch == "," and depth == 0:
+            parts.append("".join(current).strip())
+            current = []
+        else:
+            current.append(ch)
+    if current:
+        parts.append("".join(current).strip())
+    return [p for p in parts if p]
+
+
 def classify_product_type(order):
-    """Get Grosmimi product names from line items (non-Grosmimi filtered out)."""
+    """Classify line items into Product Type dropdown values (max 4, in order).
+
+    Returns (types_list, product_name_str):
+      - types_list: up to 4 unique Product Type values in item order
+      - product_name_str: comma-separated raw product names (for Product Name col)
+    """
     items = order.get("line_items", [])
-    names = []
+    raw_names = []
+    types_seen = []
     for item in items:
         title = item.get("title", "")
-        if title and "grosmimi" in title.lower():
-            names.append(title)
-    return ", ".join(names) if names else ""
+        if not title:
+            continue
+        raw_names.append(title)
+        tl = title.lower()
+        for type_name, rule_fn in PRODUCT_TYPE_RULES:
+            if rule_fn(tl) and type_name not in types_seen:
+                types_seen.append(type_name)
+                break
+    # Cap at 4
+    types_seen = types_seen[:4]
+    return types_seen, ", ".join(raw_names)
 
 
 # ── PayPal paid/non-paid classification ────────────────────────────────────
@@ -422,10 +480,18 @@ def build_rows(orders, paypal_txns, syncly_data, since_date=None):
 
     for order in filtered:
         acct_type, handle = extract_account_info(order)
-        product_type = classify_product_type(order)
+        product_types, product_name = classify_product_type(order)
 
         cust_name = order.get("customer_name", "").strip()
         cust_email = order.get("customer_email", "").lower().strip()
+
+        # Shipping date (closed_at or created_at fallback)
+        shipping_date = ""
+        closed = order.get("closed_at", "")
+        if closed:
+            shipping_date = closed[:10]
+        else:
+            shipping_date = order.get("created_at", "")[:10]
 
         # Match to Syncly
         matched_uname, matched_posts = match_to_syncly(
@@ -441,13 +507,22 @@ def build_rows(orders, paypal_txns, syncly_data, since_date=None):
             elif "tiktok" in plat:
                 channel = "TikTok"
 
-        # Account display
+        # Account display (only show @handle for IG/TikTok with actual handles)
         if matched_uname:
             account_display = f"@{matched_uname}"
-        elif handle:
-            account_display = f"@{handle}" if acct_type == "Instagram" else handle
+        elif acct_type == "Instagram" and handle:
+            account_display = f"@{handle}"
         else:
-            account_display = cust_name
+            account_display = ""
+
+        # Profile URL
+        profile_url = ""
+        if matched_uname:
+            plat_lower = syncly_idx["platform_map"].get(matched_uname, "")
+            if "instagram" in plat_lower:
+                profile_url = f"https://www.instagram.com/{matched_uname}/"
+            elif "tiktok" in plat_lower:
+                profile_url = f"https://www.tiktok.com/@{matched_uname}"
 
         # Influencer fee
         fee = ""
@@ -481,18 +556,28 @@ def build_rows(orders, paypal_txns, syncly_data, since_date=None):
 
         stats["total"] += 1
 
+        # Pad product_types to exactly 4 slots
+        pt = product_types + [""] * (4 - len(product_types))
+
         rows.append([
-            "",  # No (filled later)
-            channel,
-            account_display,
-            product_type,
-            fee,
-            content_link,
-            "",  # Approved for Cross-Market Use
-            d_days_val,
-            cmt_val,
-            like_val,
-            view_val,
+            "",           # A: No (filled later)
+            channel,      # B: Channel
+            cust_name,    # C: Name
+            account_display,  # D: Account
+            pt[0],        # E: Product Type1
+            pt[1],        # F: Product Type2
+            pt[2],        # G: Product Type3
+            pt[3],        # H: Product Type4
+            product_name, # I: Product Name
+            fee,          # J: Influencer Fee
+            shipping_date,  # K: Shipping Date
+            content_link, # L: Content Link
+            "",           # M: Approved for Cross-Market Use
+            d_days_val,   # N: D+ Days
+            cmt_val,      # O: Curr Comment
+            like_val,     # P: Curr Like
+            view_val,     # Q: Curr View
+            profile_url,  # R: Profile URL
         ])
 
     # Fill sequential No
@@ -527,7 +612,7 @@ def write_to_sheet(gc, target_sheet_id, rows, dry_run=False):
     try:
         ws = sh.worksheet(SNS_TAB)
     except gspread.WorksheetNotFound:
-        ws = sh.add_worksheet(title=SNS_TAB, rows=max(len(rows) + 10, 100), cols=10)
+        ws = sh.add_worksheet(title=SNS_TAB, rows=max(len(rows) + 10, 100), cols=len(SNS_HEADERS))
 
     # Ensure enough rows/cols
     needed_rows = len(rows) + 3  # header rows + data
@@ -538,18 +623,18 @@ def write_to_sheet(gc, target_sheet_id, rows, dry_run=False):
         ws.resize(cols=needed_cols)
 
     # Write headers in Row 2 (Row 1 stays blank per existing pattern)
-    end_hdr = chr(ord("A") + len(SNS_HEADERS) - 1)
+    end_hdr = col_letter(len(SNS_HEADERS) - 1)
     ws.update(values=[SNS_HEADERS], range_name=f"A2:{end_hdr}2", value_input_option="RAW")
 
     # Clear existing data rows (Row 3+)
     if ws.row_count > 2:
-        end_col = chr(ord("A") + needed_cols - 1)
+        end_col = col_letter(needed_cols - 1)
         clear_range = f"A3:{end_col}{ws.row_count}"
         ws.batch_clear([clear_range])
 
     # Write data rows starting at Row 3
     if rows:
-        end_col = chr(ord("A") + len(rows[0]) - 1)
+        end_col = col_letter(len(rows[0]) - 1)
         data_range = f"A3:{end_col}{len(rows) + 2}"
         ws.update(values=rows, range_name=data_range, value_input_option="USER_ENTERED")
 
@@ -588,8 +673,8 @@ def format_sns_tab(sh, ws, num_rows):
         }
     })
 
-    # Column widths: No, Channel, Account, Product Type, Fee, Link, Approved, D+, Cmt, Like, View
-    col_widths = [40, 80, 160, 250, 100, 140, 160, 65, 80, 80, 80]
+    # Column widths: No, Channel, Name, Account, PT1-4, ProdName, Fee, ShipDate, Link, Approved, D+, Cmt, Like, View, ProfileURL
+    col_widths = [40, 80, 130, 160, 120, 120, 120, 120, 250, 100, 90, 140, 160, 65, 80, 80, 80, 180]
     for i, w in enumerate(col_widths):
         requests.append({
             "updateDimensionProperties": {
