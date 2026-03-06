@@ -1,11 +1,11 @@
-"""Sync SNS Tab (CHA&MOM) - Shopify PR orders + Syncly D+30 content metrics -> Google Sheet.
+"""Sync SNS Tab (CHA&MOM) - Shopify PR orders + Syncly D+60 content metrics -> Google Sheet.
 
 Identical to sync_sns_tab.py but filters for CHA&MOM products instead of Grosmimi.
 
 Reads:
   - .tmp/polar_data/q10_influencer_orders.json (Shopify PR/sample orders)
   - .tmp/polar_data/q11_paypal_transactions.json (PayPal transactions)
-  - Syncly D+30 Tracker Google Sheet (Posts Master + D+30 Tracker tabs)
+  - Syncly D+60 Tracker Google Sheet (Posts Master + D+60 Tracker tabs)
 
 Writes:
   - Target Google Sheet -> "SNS" tab
@@ -120,7 +120,7 @@ def load_paypal(path=Q11_PATH):
 
 
 def load_syncly(gc, sheet_id):
-    """Read Syncly sheet: Posts Master + D+30 Tracker."""
+    """Read Syncly sheet: Posts Master + D+60 Tracker."""
     sh = gc.open_by_key(sheet_id)
 
     # Posts Master: platform mapping
@@ -140,8 +140,8 @@ def load_syncly(gc, sheet_id):
             "post_date": row[12] if len(row) > 12 else "",
         })
 
-    # D+30 Tracker: metrics
-    tr_ws = sh.worksheet("D+30 Tracker")
+    # D+60 Tracker: metrics
+    tr_ws = sh.worksheet("D+60 Tracker")
     tr_rows = tr_ws.get_all_values()
     tracker = []
     for row in tr_rows[2:]:  # skip 2 header rows
@@ -308,7 +308,7 @@ def build_syncly_index(syncly_data):
         if uname:
             platform_map[uname] = post["platform"].lower()
 
-    # Posts by username from D+30 Tracker
+    # Posts by username from D+60 Tracker
     by_username = defaultdict(list)
     for post in syncly_data["tracker"]:
         uname = post["username"].lower().strip()
@@ -656,7 +656,7 @@ def main():
     )
     parser.add_argument(
         "--syncly-sheet-id", default=DEFAULT_SYNCLY_SHEET_ID,
-        help="Syncly D+30 Tracker Sheet ID"
+        help="Syncly D+60 Tracker Sheet ID"
     )
     parser.add_argument("--q10", default=str(Q10_PATH), help="q10 JSON path")
     parser.add_argument("--q11", default=str(Q11_PATH), help="q11 JSON path")
@@ -675,12 +675,12 @@ def main():
     paypal_txns = load_paypal(Path(args.q11))
     print(f"  Loaded {len(paypal_txns)} transactions")
 
-    print("[3/4] Loading Syncly D+30 Tracker...")
+    print("[3/4] Loading Syncly D+60 Tracker...")
     creds = get_credentials()
     gc = gspread.authorize(creds)
     syncly_data = load_syncly(gc, args.syncly_sheet_id)
     print(f"  Posts Master: {len(syncly_data['posts_master'])} posts")
-    print(f"  D+30 Tracker: {len(syncly_data['tracker'])} posts")
+    print(f"  D+60 Tracker: {len(syncly_data['tracker'])} posts")
 
     print("[4/4] Building SNS rows (CHA&MOM)...")
     rows, stats = build_rows(orders, paypal_txns, syncly_data, since_date=args.since)

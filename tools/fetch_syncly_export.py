@@ -31,7 +31,7 @@ sys.path.insert(0, str(PROJECT_ROOT / "tools"))
 # Syncly default URL
 DEFAULT_URL = (
     "https://social.syncly.app/workspace/696986d0b20b4ccc86695fcd"
-    "/insight/posts?q=699b45af6f31e59c19aee721"
+    "/insight/posts?q=6976fe6546f8775e88ca86b8"
 )
 
 # Session state: stored in user's home directory (not in shared NAS)

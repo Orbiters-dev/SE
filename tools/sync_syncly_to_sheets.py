@@ -1,24 +1,24 @@
 """
-Syncly -> Google Sheets D+30 Tracker v2
+Syncly -> Google Sheets D+60 Tracker v2
 ========================================
 v2 변경사항:
-  - D+30 Tracker: Post Date 옆에 D+ Days(수식), Curr Cmt/Like/View(수식) 4열 추가
+  - D+60 Tracker: Post Date 옆에 D+ Days(수식), Curr Cmt/Like/View(수식) 4열 추가
   - 기존 시트 자동 마이그레이션 (v1→v2: 열 4개 삽입)
-  - 신규 탭: Influencer Tracker (인플루언서별 날짜 열, D+30 Tracker로 하이퍼링크)
+  - 신규 탭: Influencer Tracker (인플루언서별 날짜 열, D+60 Tracker로 하이퍼링크)
 
 사용법:
   python tools/sync_syncly_to_sheets.py
   python tools/sync_syncly_to_sheets.py --csv "Data Storage/syncly/2026-02-27_....csv"
   python tools/sync_syncly_to_sheets.py --sheet-id "1abc..."
 
-D+30 Tracker 구조 (v2):
+D+60 Tracker 구조 (v2):
   Row 1: 그룹 헤더  | Post Info (merged) | Auto (merged) | D+0 | D+1 | ...
   Row 2: 서브 헤더  | Post ID | URL | Username | Post Date | D+ Days | Curr Cmt | Curr Like | Curr View | Cmt | Like | View | ...
   Row 3+: 데이터
 
 Influencer Tracker 구조:
   Row 1: Username | Nickname | Followers | First Seen | Total Posts | 2026-01-01 | 2026-01-02 | ...
-  Row 2+: 인플루언서별 데이터 (날짜 셀 클릭 → D+30 Tracker 해당 행으로 이동)
+  Row 2+: 인플루언서별 데이터 (날짜 셀 클릭 → D+60 Tracker 해당 행으로 이동)
 """
 
 import argparse
@@ -38,16 +38,16 @@ SYNCLY_DIR = PROJECT_ROOT / "Data Storage" / "syncly"
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
 MASTER_SHEET = "Posts Master"
-TRACKER_SHEET = "D+30 Tracker"
+TRACKER_SHEET = "D+60 Tracker"
 INF_SHEET = "Influencer Tracker"
 
-# ──── D+30 Tracker Config (v2) ────
+# ──── D+60 Tracker Config (v2) ────
 # v1: FIXED_COLS = 4 (Post ID, URL, Username, Post Date)
 # v2: FIXED_COLS = 8 (+D+ Days, Curr Cmt, Curr Like, Curr View)
 FIXED_COLS = 8
 METRICS_PER_DAY = 3       # Comments, Likes, Views
-MAX_DAYS = 31             # D+0 ~ D+30
-TOTAL_TRACKER_COLS = FIXED_COLS + MAX_DAYS * METRICS_PER_DAY  # 8 + 93 = 101
+MAX_DAYS = 61             # D+0 ~ D+60
+TOTAL_TRACKER_COLS = FIXED_COLS + MAX_DAYS * METRICS_PER_DAY  # 8 + 183 = 191
 
 # D+0 starts at column index 8 (0-based) = column I (1-based)
 D0_COL_LETTER = "I"
@@ -173,26 +173,26 @@ def serial_to_date(val):
 
 def tracker_formulas(sheet_row):
     """
-    D+30 Tracker v2에서 특정 행에 들어갈 수식 4개 반환.
+    D+60 Tracker v2에서 특정 행에 들어갈 수식 4개 반환.
       col E: D+ Days   - 오늘 기준 포스팅 후 며칠 지났는지 (자동 갱신)
       col F: Curr Cmt  - D+ Days 열 기준 해당 날짜의 댓글 수 (OFFSET)
       col G: Curr Like - 동일
       col H: Curr View - 동일
     D+0 데이터는 col I(index 8)부터 시작.
-    OFFSET($I{row}, 0, MIN(E,30)*3+n) 으로 해당 D+N 메트릭 참조.
+    OFFSET($I{row}, 0, MIN(E,60)*3+n) 으로 해당 D+N 메트릭 참조.
     """
     r = sheet_row
     days_f  = f'=IF(D{r}="","",INT(TODAY()-D{r}))'
-    cmt_f   = f'=IF(OR(E{r}="",E{r}<0),"",OFFSET(${D0_COL_LETTER}{r},0,MIN(E{r},30)*3))'
-    like_f  = f'=IF(OR(E{r}="",E{r}<0),"",OFFSET(${D0_COL_LETTER}{r},0,MIN(E{r},30)*3+1))'
-    view_f  = f'=IF(OR(E{r}="",E{r}<0),"",OFFSET(${D0_COL_LETTER}{r},0,MIN(E{r},30)*3+2))'
+    cmt_f   = f'=IF(OR(E{r}="",E{r}<0),"",OFFSET(${D0_COL_LETTER}{r},0,MIN(E{r},60)*3))'
+    like_f  = f'=IF(OR(E{r}="",E{r}<0),"",OFFSET(${D0_COL_LETTER}{r},0,MIN(E{r},60)*3+1))'
+    view_f  = f'=IF(OR(E{r}="",E{r}<0),"",OFFSET(${D0_COL_LETTER}{r},0,MIN(E{r},60)*3+2))'
     return [days_f, cmt_f, like_f, view_f]
 
 
 # ──── Tracker Headers ────
 
 def build_tracker_headers():
-    """D+30 Tracker v2 헤더 2행 생성."""
+    """D+60 Tracker v2 헤더 2행 생성."""
     # Row 1: 그룹 헤더
     row1 = ["", "", "", "", "Current Status", "", "", ""]  # Post Info 4 + Current Status 4
     for d in range(MAX_DAYS):
@@ -225,7 +225,7 @@ def migrate_tracker_v1_to_v2(sh, tracker_ws):
     Post Date 열(D, index 3) 바로 다음에 E~H 삽입.
     기존 데이터 행 전체에 수식도 자동 추가.
     """
-    print("[MIGRATE] D+30 Tracker v1 → v2 업그레이드 (D+ Days + Current Metrics 열 추가)...")
+    print("[MIGRATE] D+60 Tracker v1 → v2 업그레이드 (D+ Days + Current Metrics 열 추가)...")
 
     # 1) 열 4개 삽입 (index 4 ~ 7)
     sh.batch_update({"requests": [{
@@ -347,7 +347,7 @@ def format_master(sh, ws, num_data_rows):
 
 
 def format_tracker(sh, ws):
-    """D+30 Tracker v2 포맷 적용."""
+    """D+60 Tracker v2 포맷 적용."""
     requests = []
     sid = ws.id
 
@@ -680,11 +680,11 @@ def sync_master(sh, rows):
     return ws
 
 
-# ──── Sync: D+30 Tracker ────
+# ──── Sync: D+60 Tracker ────
 
 def sync_tracker(sh, rows, today):
     """
-    D+30 Tracker 동기화.
+    D+60 Tracker 동기화.
     Returns: (tracker_ws, post_to_sheet_row)
       post_to_sheet_row: {post_id: 1-indexed sheet row}
     """
@@ -737,7 +737,7 @@ def sync_tracker(sh, rows, today):
             continue
 
         days_since = (today - post_date).days
-        if days_since < 0 or days_since > 30:
+        if days_since < 0 or days_since > 60:
             skipped_old += 1
             continue
 
@@ -796,7 +796,7 @@ def sync_tracker(sh, rows, today):
         print(f"[TRACKER] 변경 없음")
 
     if skipped_old:
-        print(f"[TRACKER] {skipped_old}건 스킵 (D+0~30 범위 외)")
+        print(f"[TRACKER] {skipped_old}건 스킵 (D+0~60 범위 외)")
 
     if is_new:
         format_tracker(sh, ws)
@@ -813,7 +813,7 @@ def sync_influencer_tracker(sh, rows, tracker_ws, post_to_sheet_row, spreadsheet
     """
     Influencer Tracker 탭 동기화.
     - 인플루언서별 1행, 날짜별 1열
-    - 날짜 셀 = HYPERLINK → D+30 Tracker 해당 포스트 행
+    - 날짜 셀 = HYPERLINK → D+60 Tracker 해당 포스트 행
     """
     is_new = False
     try:
@@ -1069,7 +1069,7 @@ def sync_to_sheets(csv_path, sheet_id=None):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Syncly -> Google Sheets D+30 Tracker v2")
+    parser = argparse.ArgumentParser(description="Syncly -> Google Sheets D+60 Tracker v2")
     parser.add_argument("--csv", help="Path to Syncly CSV file")
     parser.add_argument("--sheet-id", help="Existing Google Sheet ID")
     args = parser.parse_args()

@@ -48,7 +48,7 @@ if sys.stdout.encoding != "utf-8":
 load_env()
 
 NOTION_TOKEN = os.getenv("NOTION_API_TOKEN")
-NOTION_DB_ID = os.getenv("INFLUENCER_NOTION_DB_ID", "30c86c6dc0468080a4e0d591414d733b")
+NOTION_DB_ID = os.getenv("INFLUENCER_NOTION_DB_ID", "abb8fcc1be0041c598bbe7635413091c")
 SHEET_ID = os.getenv("INFLUENCER_SHEET_ID", "1DPI_zxG6XiCliyi7Vw6YY_ojue4ZYor-vDX6EN7nUOY")
 MASTER_GID = os.getenv("INFLUENCER_SHEET_GID", "1592924077")
 SA_PATH = os.getenv("GOOGLE_SERVICE_ACCOUNT_PATH", "credentials/google_service_account.json")

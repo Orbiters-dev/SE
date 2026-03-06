@@ -245,7 +245,7 @@ Python 경로: `/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe
 
 검사 항목: 크레덴셜 [C], 데이터 소스 [D], Syncly 연결 [S], 타겟 시트 [T], 매칭 정확도 [M], 필터링 [F], 출력 무결성 [O]
 결과 파일: `.tmp/dongkyun_test_results.json`
-실행 도구: `tools/sync_sns_tab.py` (Shopify PR + Syncly D+30 → Google Sheet SNS 탭)
+실행 도구: `tools/sync_sns_tab.py` (Shopify PR + Syncly D+60 → Google Sheet SNS 탭)
 
 ---
 
@@ -259,4 +259,4 @@ Python 경로: `/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe
 
 검사 항목: 크레덴셜 [C], 데이터 소스 [D], Syncly 연결 [S], 타겟 시트 [T], 매칭 정확도 [M], 필터링 [F], 출력 무결성 [O]
 결과 파일: `.tmp/dongkyun_chaenmom_test_results.json`
-실행 도구: `tools/sync_sns_tab_chaenmom.py` (Shopify PR + Syncly D+30 → Google Sheet SNS 탭, CHA&MOM 브랜드만)
+실행 도구: `tools/sync_sns_tab_chaenmom.py` (Shopify PR + Syncly D+60 → Google Sheet SNS 탭, CHA&MOM 브랜드만)

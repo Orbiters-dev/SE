@@ -16,7 +16,7 @@ Read influencer data from Google Sheets (read-only) and sync key fields to a Not
 NOTION_API_TOKEN=ntn_xxx
 INFLUENCER_SHEET_ID=1DPI_zxG6XiCliyi7Vw6YY_ojue4ZYor-vDX6EN7nUOY
 INFLUENCER_SHEET_GID=1592924077
-INFLUENCER_NOTION_DB_ID=30c86c6dc0468080a4e0d591414d733b
+INFLUENCER_NOTION_DB_ID=abb8fcc1be0041c598bbe7635413091c
 GOOGLE_SERVICE_ACCOUNT_PATH=credentials/google_service_account.json
 ```
 

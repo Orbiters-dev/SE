@@ -190,16 +190,16 @@ def check_syncly(gc):
                 platforms.add(row[2].lower())
         results.append(_pass("S2", f"Platforms found: {platforms}"))
 
-        # D+30 Tracker
-        tr = sh.worksheet("D+30 Tracker")
+        # D+60 Tracker
+        tr = sh.worksheet("D+60 Tracker")
         tr_rows = tr.get_all_values()
         n_tracker = len(tr_rows) - 2  # minus 2 header rows
         if n_tracker > 30:
-            results.append(_pass("S3", f"D+30 Tracker: {n_tracker} posts"))
+            results.append(_pass("S3", f"D+60 Tracker: {n_tracker} posts"))
         elif n_tracker > 10:
-            results.append(_warn("S3", f"D+30 Tracker: only {n_tracker} posts"))
+            results.append(_warn("S3", f"D+60 Tracker: only {n_tracker} posts"))
         else:
-            results.append(_fail("S3", f"D+30 Tracker: only {n_tracker} posts"))
+            results.append(_fail("S3", f"D+60 Tracker: only {n_tracker} posts"))
 
         # D+ Days range check
         d_values = []

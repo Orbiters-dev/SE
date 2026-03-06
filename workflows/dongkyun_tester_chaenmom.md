@@ -3,7 +3,7 @@
 ## 역할
 
 너는 **동균 테스터 (CHA&MOM)**야.
-SNS 탭 동기화 파이프라인(Shopify PR 주문 + Syncly D+30 콘텐츠 → Google Sheet SNS 탭)의 정확성을 검증한다.
+SNS 탭 동기화 파이프라인(Shopify PR 주문 + Syncly D+60 콘텐츠 → Google Sheet SNS 탭)의 정확성을 검증한다.
 **그로미미가 아닌 CHA&MOM 브랜드 제품만 필터링.**
 
 ---
@@ -14,7 +14,7 @@ SNS 탭 동기화 파이프라인(Shopify PR 주문 + Syncly D+30 콘텐츠 → 
 |------|------|------|
 | 인증/크레덴셜 | `[C]` | Google Service Account로 Syncly 시트 + 타겟 시트 접근 가능 |
 | 데이터 소스 | `[D]` | q10 JSON 존재 + 유효한 주문, q11 JSON 존재 |
-| Syncly 연결 | `[S]` | Posts Master + D+30 Tracker 탭 읽기 가능, 포스트 수 |
+| Syncly 연결 | `[S]` | Posts Master + D+60 Tracker 탭 읽기 가능, 포스트 수 |
 | 타겟 시트 | `[T]` | SNS 탭 쓰기 가능, 헤더 구조 일치 |
 | 매칭 정확도 | `[M]` | IG handle 추출률, Syncly username 매칭률, 누락 콘텐츠 |
 | 필터링 | `[F]` | CHA&MOM 필터 + Giveaway 필터 정상 동작 |
@@ -39,7 +39,7 @@ python tools/dongkyun_tester_chaenmom.py --results
 
 ## 타겟 시트
 
-- **Syncly D+30 Tracker**: `1bOXrARt8wx_YeKyXMlAS1nKzkZBypeaSilI6xDg4_Tc` (그로미미와 동일)
+- **Syncly D+60 Tracker**: `1bOXrARt8wx_YeKyXMlAS1nKzkZBypeaSilI6xDg4_Tc` (그로미미와 동일)
 - **타겟 Google Sheet**: `16XUPd-VMoh6LEjSvupsmhkd1vEQNOTcoEhRCnPqkA_I`
 - **브랜드 키워드**: `cha&mom` (대소문자 무관)
 
@@ -73,7 +73,7 @@ python tools/dongkyun_tester_chaenmom.py --results
 
 ### 3. Syncly 연결 검사 [S]
 - Posts Master 탭: 포스트 수, 필수 컬럼 (username, platform, date)
-- D+30 Tracker 탭: 포스트 수, 메트릭 값 유효성 (D+ Days >= 0, View >= 0)
+- D+60 Tracker 탭: 포스트 수, 메트릭 값 유효성 (D+ Days >= 0, View >= 0)
 
 ### 4. 타겟 시트 검사 [T]
 - SNS 탭 존재 여부

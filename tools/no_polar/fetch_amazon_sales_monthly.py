@@ -27,7 +27,7 @@ Multi-seller support:
       AMZ_SP_REFRESH_TOKEN_GROSMIMI  (or legacy AMZ_SP_REFRESH_TOKEN)
       AMZ_SP_REFRESH_TOKEN_FLEETERS
       AMZ_SP_REFRESH_TOKEN_ORBITOOL
-    Client ID and Secret are shared across all sellers (same developer app).
+    Client ID and Secret default to shared app; Grosmimi and Orbitool use their own app credentials.
 
 Usage:
     python tools/no_polar/fetch_amazon_sales_monthly.py --start 2024-01 --end 2026-03
@@ -74,6 +74,8 @@ SELLERS = [
         "name": "Grosmimi USA",
         "merchant_id": "A3IA0XWP2WCD15",
         "refresh_token_env": "AMZ_SP_REFRESH_TOKEN_GROSMIMI",
+        "client_id_env": "AMZ_SP_GROSMIMI_CLIENT_ID",
+        "client_secret_env": "AMZ_SP_GROSMIMI_CLIENT_SECRET",
     },
     {
         "name": "Fleeters",
@@ -84,6 +86,8 @@ SELLERS = [
         "name": "Orbitool",
         "merchant_id": "A3H2CLSAX0BTX6",
         "refresh_token_env": "AMZ_SP_REFRESH_TOKEN_ORBITOOL",
+        "client_id_env": "AMZ_SP_ORBITOOL_CLIENT_ID",
+        "client_secret_env": "AMZ_SP_ORBITOOL_CLIENT_SECRET",
     },
 ]
 
@@ -523,7 +527,9 @@ def main():
         print(f"\n{'='*60}")
         print(f"[Amazon SP] Seller: {seller['name']}")
         print(f"{'='*60}")
-        tm = SpTokenManager(SP_CLIENT_ID, SP_CLIENT_SEC, seller["refresh_token"])
+        cid = os.getenv(seller.get("client_id_env", ""), "") or SP_CLIENT_ID
+        csec = os.getenv(seller.get("client_secret_env", ""), "") or SP_CLIENT_SEC
+        tm = SpTokenManager(cid, csec, seller["refresh_token"])
         rows = fetch_orders_for_range(tm, start_date, end_date, sku_map,
                                       cogs_map, seller_name=seller["name"])
         print(f"  -> {len(rows)} total order items from {seller['name']}")
