@@ -71,13 +71,34 @@ SNS_HEADERS = [
 ]
 
 # ── Product Type classification ───────────────────────────────────────────
-# Dropdown values for Product Type columns (order matters for matching)
+# Final 7 dropdown categories for Product Type columns
+# "Stainless Steel" shortened to "Stainless"
+# Flip Top is a feature, not a category — classify by material (PPSU/Stainless)
+# KNOTTED Flip Top → PPSU Straw Cup
+# Tray, Brush, Teether, Lunch Bag → Accessory
+# Strap, Accessory Pack, Straw Kit → Replacement
 PRODUCT_TYPE_RULES = [
-    ("PPSU Straw Cup",        lambda t: "ppsu" in t and "straw cup" in t),
-    ("PPSU Kids Tumbler",     lambda t: "ppsu" in t and "kids tumbler" in t),
-    ("Stainless Straw Cup",   lambda t: "stainless" in t and "straw cup" in t),
-    ("Stainless Kids Tumbler", lambda t: "stainless" in t and "kids tumbler" in t),
+    ("PPSU Straw Cup",      lambda t: "ppsu" in t and "straw cup" in t),
+    ("PPSU Straw Cup",      lambda t: "knotted" in t and "flip top" in t),
+    ("PPSU Tumbler",        lambda t: "ppsu" in t and "tumbler" in t and "accessory" not in t),
+    ("PPSU Baby Bottle",    lambda t: "ppsu" in t and ("baby bottle" in t or "feeding bottle" in t or "bottle" in t) and "straw" not in t),
+    ("Stainless Straw Cup", lambda t: "stainless" in t and "straw cup" in t),
+    ("Stainless Tumbler",   lambda t: "stainless" in t and "tumbler" in t and "accessory" not in t),
+    ("Accessory",           lambda t: any(kw in t for kw in ("tray", "brush", "teether", "lunch bag"))),
+    ("Replacement",         lambda t: any(kw in t for kw in ("strap", "accessory pack", "straw kit", "replacement", "silicone tip"))),
 ]
+
+# ── Syncly content filtering ─────────────────────────────────────────────
+# Non-Grosmimi brand names (in Syncly Brand column)
+NON_GROS_BRANDS = ("cha & mom", "cha and mom", "onzenna", "naeiae", "naeia",
+                    "babyrabbit", "goongbe", "commemoi")
+# Keywords in Syncly post content/caption that indicate non-Grosmimi content
+# Even if Grosmimi is also tagged, these keywords mean the post is not Grosmimi-focused
+NON_GROS_CONTENT_KW = ("naeiae", "naeia", "cha & mom", "cha and mom", "chaenmom",
+                        "chamom", "lotion", "body wash", "rice puff", "rice snack")
+# Promo/event keywords in Syncly post content
+PROMO_CONTENT_KW = ("giveaway", "valentine", "promo", "sweepstake", "contest",
+                     "bfcm", "black friday")
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────
@@ -151,6 +172,9 @@ def load_syncly(gc, sheet_id):
             "username": row[3] if len(row) > 3 else "",
             "nickname": row[4] if len(row) > 4 else "",
             "followers": row[5] if len(row) > 5 else "",
+            "content": row[6] if len(row) > 6 else "",
+            "hashtags": row[7] if len(row) > 7 else "",
+            "brand": row[9] if len(row) > 9 else "",
             "post_date": row[12] if len(row) > 12 else "",
         })
 
@@ -353,6 +377,35 @@ def build_paid_set(orders, paypal_txns):
 
 # ── Syncly matching ────────────────────────────────────────────────────────
 
+def _is_excluded_syncly_post(post_master_entry):
+    """Check if a Syncly post should be excluded (non-Grosmimi or promo content).
+
+    Returns (should_exclude, reason) tuple.
+    """
+    brand = post_master_entry.get("brand", "").lower()
+    text = (post_master_entry.get("content", "") + " " +
+            post_master_entry.get("hashtags", "")).lower()
+
+    # Check non-Grosmimi content keywords (even if Grosmimi is also tagged)
+    for kw in NON_GROS_CONTENT_KW:
+        if kw in text:
+            return True, f"non-Gros content kw: {kw}"
+
+    # Check promo/event keywords
+    for kw in PROMO_CONTENT_KW:
+        if kw in text:
+            return True, f"promo content: {kw}"
+
+    # Check brand: non-Grosmimi only
+    if brand:
+        has_gros = "grosmimi" in brand or "growmimi" in brand
+        has_nongros = any(b in brand for b in NON_GROS_BRANDS)
+        if has_nongros and not has_gros:
+            return True, f"non-Gros brand: {brand}"
+
+    return False, ""
+
+
 def build_syncly_index(syncly_data):
     """Build username -> posts index from Syncly data."""
     # Platform mapping from Posts Master
@@ -361,6 +414,13 @@ def build_syncly_index(syncly_data):
         uname = post["username"].lower().strip()
         if uname:
             platform_map[uname] = post["platform"].lower()
+
+    # URL -> Posts Master entry (for content filtering)
+    url_to_pm = {}
+    for post in syncly_data["posts_master"]:
+        url = post["url"].strip()
+        if url:
+            url_to_pm[url] = post
 
     # Posts by username from D+60 Tracker
     by_username = defaultdict(list)
@@ -381,6 +441,7 @@ def build_syncly_index(syncly_data):
         "by_username": dict(by_username),
         "platform_map": platform_map,
         "nick_to_username": nick_to_username,
+        "url_to_pm": url_to_pm,
     }
 
 
@@ -533,15 +594,30 @@ def build_rows(orders, paypal_txns, syncly_data, since_date=None):
                 fee = f"${fee_amount:,.0f}"
 
         # Content link + metrics (separate columns)
+        # Filter out excluded posts (non-Grosmimi content, promo/valentine)
         content_link = ""
         d_days_val = ""
         cmt_val = ""
         like_val = ""
         view_val = ""
+        url_to_pm = syncly_idx.get("url_to_pm", {})
         if matched_posts:
-            best = max(matched_posts, key=lambda p: p.get("post_date", ""))
+            # Filter: exclude non-Grosmimi / promo posts
+            valid_posts = []
+            for p in matched_posts:
+                pm_entry = url_to_pm.get(p["url"], {})
+                excluded, reason = _is_excluded_syncly_post(pm_entry) if pm_entry else (False, "")
+                if not excluded:
+                    valid_posts.append(p)
+
+            if not valid_posts:
+                # All posts are excluded → skip this row entirely
+                stats["no_content"] += 1
+                continue
+
+            best = max(valid_posts, key=lambda p: p.get("post_date", ""))
             url = best["url"]
-            post_count = len(matched_posts)
+            post_count = len(valid_posts)
             label = "View Post"
             if post_count > 1:
                 label = f"View Post (+{post_count - 1})"
