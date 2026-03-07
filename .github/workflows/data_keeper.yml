@@ -70,6 +70,8 @@ jobs:
           ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
           ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
           ENVEOF
+          # Strip leading whitespace from heredoc indentation
+          sed -i 's/^[[:space:]]*//' .env
 
       - name: Install openpyxl for PayPal fetch
         run: pip install --quiet openpyxl

@@ -5,9 +5,8 @@ Polar MCP 없이 Shopify Orders API 직접 호출.
 Jan 2024 ~ 현재까지 브랜드별 월별 집계 → q2_shopify_brand.json 생성.
 
 COGS 처리:
-  - 1단계 (현재): COGS = 0 (GSheet ID 확인 전)
-  - 2단계 (추후): COGS GSheet ID를 SHOPIFY_COGS_SHEET_ID 환경변수에 추가 후 자동 읽기
-    → Polar Analytics 대시보드 > Connectors > Google Sheets에서 시트 ID 확인
+  - 1순위: Shared/NoPolar KPIs/Data config sheet/COGS by SKU.xlsx 에서 SKU별 단가 로드
+  - 2순위 (fallback): SHOPIFY_COGS_SHEET_ID 환경변수 → Google Sheets 로드
 
 transaction_fees:
   - Shopify transaction fee ≈ 2.9% + $0.30 per order (Shopify Payments 기준)
@@ -38,11 +37,15 @@ load_env()
 
 SHOP = os.getenv("SHOPIFY_SHOP", "mytoddie.myshopify.com")
 TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN")
-COGS_SHEET_ID = os.getenv("SHOPIFY_COGS_SHEET_ID", "")  # 추후 추가
+COGS_SHEET_ID = os.getenv("SHOPIFY_COGS_SHEET_ID", "")  # fallback
 API_VERSION = "2024-01"
 BASE = f"https://{SHOP}/admin/api/{API_VERSION}"
 
 OUTPUT_PATH = Path(__file__).resolve().parent.parent.parent / ".tmp" / "polar_data" / "q2_shopify_brand.json"
+
+# COGS by SKU.xlsx path (same file used by Amazon)
+_SHARED = Path(__file__).resolve().parent.parent.parent.parent / "Shared" / "NoPolar KPIs" / "Data config sheet"
+COGS_XLSX_PATH = _SHARED / "COGS by SKU.xlsx"
 
 # ── Brand 판별 (polar_financial_model.py PROD_RULES와 동일) ──────────────────
 PROD_RULES = [
@@ -75,15 +78,45 @@ def is_pr_order(tags_str: str) -> bool:
     return bool(tags & PR_TAGS)
 
 
-def load_cogs_from_gsheet() -> dict:
+def _load_cogs_from_xlsx() -> dict:
     """
-    Google Sheets에서 SKU → COGS 매핑 읽기.
-    SHOPIFY_COGS_SHEET_ID 설정 시 활성화.
-    Returns: {sku: cost_per_unit}
+    COGS by SKU.xlsx에서 SKU → cost 매핑 로드.
+    Amazon fetch_amazon_sales_monthly.py의 _build_cogs_map()과 동일한 로직.
+    Returns: {sku_lower: cost_per_unit}
     """
-    if not COGS_SHEET_ID:
+    if not COGS_XLSX_PATH.exists():
+        return {}
+    try:
+        import openpyxl
+        wb = openpyxl.load_workbook(COGS_XLSX_PATH, read_only=True, data_only=True)
+        ws = wb.active
+        rows = list(ws.iter_rows(values_only=True))
+        if not rows:
+            return {}
+        headers = [str(h).strip().lower() if h else "" for h in rows[0]]
+        sku_col = next((i for i, h in enumerate(headers) if "sku" in h), None)
+        cost_col = next((i for i, h in enumerate(headers) if "cost" in h and "type" not in h), None)
+        if sku_col is None or cost_col is None:
+            return {}
+        out = {}
+        for row in rows[1:]:
+            sku = str(row[sku_col] or "").strip().lower()
+            try:
+                cost = float(row[cost_col] or 0)
+            except (TypeError, ValueError):
+                continue
+            if sku and cost > 0:
+                out[sku] = cost
+        return out
+    except Exception as e:
+        print(f"  [WARN] COGS xlsx 로드 실패: {e}")
         return {}
 
+
+def _load_cogs_from_gsheet() -> dict:
+    """Fallback: Google Sheets에서 SKU → COGS 매핑 읽기."""
+    if not COGS_SHEET_ID:
+        return {}
     try:
         import gspread
         from google.oauth2.service_account import Credentials
@@ -100,9 +133,9 @@ def load_cogs_from_gsheet() -> dict:
         rows = ws.get_all_values()
 
         cogs_map = {}
-        for row in rows[1:]:  # 헤더 건너뜀
+        for row in rows[1:]:
             if len(row) >= 2:
-                sku = (row[0] or "").strip()
+                sku = (row[0] or "").strip().lower()
                 try:
                     cost = float((row[1] or "0").replace(",", "").replace("$", ""))
                     if sku:
@@ -112,8 +145,25 @@ def load_cogs_from_gsheet() -> dict:
         print(f"  COGS GSheet에서 {len(cogs_map)}개 SKU 로드")
         return cogs_map
     except Exception as e:
-        print(f"  ⚠️ COGS GSheet 로드 실패: {e}")
+        print(f"  [WARN] COGS GSheet 로드 실패: {e}")
         return {}
+
+
+def load_cogs_map() -> dict:
+    """
+    COGS 로드 (우선순위):
+      1. COGS by SKU.xlsx (로컬 파일)
+      2. Google Sheets (SHOPIFY_COGS_SHEET_ID 환경변수)
+    Returns: {sku_lower: cost_per_unit}
+    """
+    cogs = _load_cogs_from_xlsx()
+    if cogs:
+        print(f"  [COGS] COGS by SKU.xlsx에서 {len(cogs)}개 SKU 로드")
+        return cogs
+    cogs = _load_cogs_from_gsheet()
+    if cogs:
+        return cogs
+    return {}
 
 
 def shopify_get(url: str) -> tuple:
@@ -167,9 +217,9 @@ def main():
     if not TOKEN:
         raise SystemExit("❌ SHOPIFY_ACCESS_TOKEN 환경변수가 없습니다.")
 
-    cogs_map = load_cogs_from_gsheet()
+    cogs_map = load_cogs_map()
     if not cogs_map:
-        print("  [INFO] SHOPIFY_COGS_SHEET_ID 없음 -> COGS = 0 (환경변수 추가 시 자동 계산)\n")
+        print("  [INFO] COGS 데이터 없음 (COGS by SKU.xlsx 미발견, GSheet ID 미설정)\n")
 
     print(f"[Shopify COGS] 브랜드별 월별 집계: {args.start} ~ {args.end}\n")
 
@@ -210,8 +260,8 @@ def main():
                 li_gross = li_price * li_qty
                 li_discount = -(total_discount * li_gross / order_total_line) if order_total_line > 0 else 0.0
 
-                # COGS: SKU 기준으로 GSheet에서 가져옴
-                sku = (li.get("sku") or "").strip()
+                # COGS: SKU 기준으로 COGS by SKU.xlsx / GSheet에서 가져옴
+                sku = (li.get("sku") or "").strip().lower()
                 unit_cost = cogs_map.get(sku, 0.0)
                 li_cogs = unit_cost * li_qty
 
@@ -268,8 +318,9 @@ def main():
     print(f"   총 레코드: {len(rows)}개")
     print(f"   총 매출: ${total['shopify_sales_main.raw.gross_sales']:,.0f}")
     if not cogs_map:
-        print(f"\n[주의] COGS = 0 상태. Polar 대시보드에서 COGS GSheet ID 확인 후 .env에 추가:")
-        print(f"   SHOPIFY_COGS_SHEET_ID=<시트ID>")
+        print(f"\n[주의] COGS = 0 상태.")
+        print(f"   1순위: {COGS_XLSX_PATH} 확인")
+        print(f"   2순위: .env에 SHOPIFY_COGS_SHEET_ID=<시트ID> 추가")
 
 
 if __name__ == "__main__":
