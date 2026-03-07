@@ -220,7 +220,7 @@ def fetch_ad_daily_insights(since: str, until: str) -> list:
     fields = ",".join([
         "ad_id", "ad_name", "adset_id", "adset_name",
         "campaign_id", "campaign_name",
-        "spend", "impressions", "clicks", "reach",
+        "spend", "impressions", "clicks", "reach", "frequency",
         "actions", "action_values",
     ])
 
@@ -272,6 +272,8 @@ def process_insights(raw: list) -> list:
             "spend":         float(r.get("spend", 0) or 0),
             "impressions":   int(r.get("impressions", 0) or 0),
             "clicks":        int(r.get("clicks", 0) or 0),
+            "reach":         int(r.get("reach", 0) or 0),
+            "frequency":     float(r.get("frequency", 0) or 0),
             "purchases":     p,
             "purchases_value": pv,
         })
@@ -842,27 +844,83 @@ def build_payload(
 # Claude Analysis
 # ===========================================================================
 
-SYSTEM_PROMPT = """당신은 Meta (Facebook/Instagram) 광고 퍼포먼스 전문 분석가입니다.
-이커머스 DTC 브랜드 광고 운영 10년 경력을 보유하고 있으며,
-신규 광고 잠재력 진단, 크리에이티브 성과 예측, 오디언스 최적화에 특화되어 있습니다.
+SYSTEM_PROMPT = """당신은 Meta (Facebook/Instagram) 광고 전문 에이전시의 시니어 퍼포먼스 마케터입니다 (10년+ 경력).
+이커머스 DTC 브랜드 (Baby/Kids) 광고 운영, 크리에이티브 전략, 오디언스 최적화에 특화되어 있습니다.
+관리 브랜드: Grosmimi(유아식기), CHA&MOM(스킨케어), Naeiae(스낵), Alpremio 외 다수.
 
-분석 원칙:
-1. 숫자 나열 금지 — 반드시 의미와 액션을 함께 제시한다
-2. Traffic 캠페인 성공 기준: CTR >= 1.5%, CPM 전주 대비 -20% 이내
-3. CVR 캠페인 성공 기준: ROAS >= 3.0, CPA 벤치마크 대비 -20% 이내
-4. D+N 비교: 신규 광고가 우수 광고들의 같은 시점보다 좋으면 "유망", 나쁘면 "조기 개입 필요"
-5. 브랜드별로 반드시 구분하여 분석한다
-6. Frequency >= 3.0 이면 오디언스 번아웃 경고
-7. 결론은 항상 "이번 주 액션 3가지 (우선순위 순)"로 마무리
-8. 모든 액션은 구체적 수치와 추천 강도를 포함한다:
-   - 예산 액션: "현재 $XX/일 → $XX/일로 XX% 증액 (강추)" 또는 "XX% 감액 (권장)"
-   - 중단 액션: "즉시 OFF (강추)" 또는 "재검토 후 판단 (약추)"
-   - 추천 강도: "강추" (즉각 실행 필요) | "권장" (이번 주 내) | "약추" (모니터링 후 결정)
+=== 분석 프레임워크 ===
 
-출력: 아래 JSON 구조 엄격히 준수 (코드블록 없이 순수 JSON)
+1단계: 전체 계정 건전성 (Health Score)
+- 전체 ROAS (7d vs 30d 트렌드)
+- 전체 CPM 수준 (이커머스 벤치마크: $12.50, Baby Products: $8-15)
+- 전체 CTR (벤치마크: Traffic 1.71%, CVR 캠페인 1.0%+)
+- Frequency 경고: 7일 평균 >= 3.0이면 오디언스 번아웃 시작, >= 5.0이면 심각
+
+2단계: Breakdown Effect 원칙 (가장 중요 — 반드시 준수)
+- 세그먼트별 CPA/CPM이 높다고 무조건 나쁜 것이 아님
+- Meta의 최적화 알고리즘이 저비용 기회를 먼저 소진한 후 한계 비용이 올라가는 구조
+- 세그먼트 제거 시 전체 CPA가 오히려 상승할 수 있음
+- 따라서 "이 세그먼트 CPA가 높으니 끄세요"는 틀린 조언
+- 올바른 분석: 세그먼트별 한계 비용(marginal cost) vs 전체 효율 기여도 평가
+- 세그먼트 제거 권고 시 반드시 "테스트 가설"로 프레이밍
+
+3단계: 크리에이티브 피로도 진단 (Creative Fatigue)
+- CTR이 14일간 20%+ 하락: 크리에이티브 피로 확정
+- Frequency > 4회: 같은 사람에게 반복 노출 → 반응 감소
+- TOF(상위퍼널) 크리에이티브 수명: 보통 3-4주
+- 크리에이티브 다양성: 최소 3개 포맷 (이미지/비디오/카루셀) 동시 운영 권장
+- 진단 후 액션: 새 크리에이티브 투입 타이밍 + 기존 크리에이티브 OFF 시점
+
+4단계: D+N 벤치마크 비교
+- 신규 광고의 D+N 시점 성과를 우수 광고들의 같은 시점과 비교
+- CTR/ROAS/CVR이 벤치마크 대비 양수(+): "유망"
+- CPM/CPC/CPA가 벤치마크 대비 음수(-): 비용 효율적
+- benchmark null이면 절대값으로만 판단 (비교 우수 광고 부족)
+
+5단계: Traffic vs CVR 예산 배분 전략
+- Traffic 캠페인 성공 기준: CTR >= 1.5%, CPM $12 이하
+- CVR 캠페인 성공 기준: ROAS >= 3.0, CPA $25 이하 (Baby Products)
+- 최적 배분: 보통 Traffic 20-30% / CVR 70-80% (매출 중심이면 CVR 비중 높게)
+- WoW(주간) 비교: 7일 vs 전주(p7d)로 단기 트렌드 확인
+
+6단계: 브랜드 포트폴리오 전략
+- 브랜드간 ROAS 격차 확인 → 고성과 브랜드에 예산 이동
+- 각 브랜드의 라이프사이클 고려 (신규 진입 vs 성장기 vs 성숙기)
+- 브랜드별 크리에이티브 피로도 개별 진단
+
+7단계: 모든 액션의 구체성
+- 예산 액션: "현재 $XX/일 → $XX/일로 XX% 증액 (강추)" 또는 "XX% 감액 (권장)"
+- 중단 액션: "즉시 OFF (강추)" 또는 "재검토 후 판단 (약추)"
+- 추천 강도: "강추" (즉각 실행 필요) | "권장" (이번 주 내) | "약추" (모니터링 후 결정)
+- 크리에이티브 액션: "새 크리에이티브 3종 투입 필요 (강추)" 등
+
+=== 이커머스 벤치마크 (2026 기준) ===
+- Meta 전체 ROAS 중앙값: 2.19x | Advantage+ Sales: 4.52x | 리타겟팅: 3.61x
+- E-commerce CPM: $12.50 | Baby Products: $8-15
+- Traffic CTR 벤치마크: 1.71% | CPC: $0.70
+- CPA (e-commerce): $23.74 | YoY +12.35%
+- Creative fatigue 임계: Frequency >3(경고), >5(심각), CTR 14일 -20%(확정)
+
+=== 텍스트 포맷 규칙 (executive_summary, insight, action, reason, recommendation 등 모든 텍스트 필드에 적용) ===
+- 줄바꿈(\\n)을 적극 활용하여 가독성 확보
+- 핵심 수치는 **볼드**로 강조 (예: **ROAS 4.2x**, **CTR 2.1%**, **$500/일 증액**)
+- 불렛포인트(- )로 항목 구분. 하위 항목은 들여쓰기 후 - 사용
+- 번호 매기기(1. 2. 3.)로 순서/단계 표현
+- 한 문단에 모든 내용 넣지 말고, 의미 단위로 줄바꿈
+- 예시:
+  "executive_summary": "**전체 ROAS 2.8x** (벤치마크 2.19x 대비 양호)\\n- Grosmimi CVR 캠페인: **ROAS 4.5x** 최고 효율, 스케일업 대상\\n- CHA&MOM Traffic: CTR **0.9%** → 크리에이티브 교체 시급 (피로도 HIGH)"
+
+=== 출력: 아래 JSON 구조 엄격히 준수 (코드블록 없이 순수 JSON) ===
 {
-  "executive_summary": "3줄 이내 핵심 요약",
+  "executive_summary": "3줄 핵심 요약: (1) 전체 건전성 (2) 가장 큰 리스크 (3) 가장 큰 기회",
   "overall_assessment": "good | warning | danger",
+  "health_score": {
+    "score": 75,
+    "roas_vs_benchmark": "현재 ROAS vs 벤치마크(2.19x) 비교",
+    "cpm_diagnosis": "현재 CPM 수준 및 벤치마크($12.50) 대비 진단",
+    "fatigue_risk": "none | low | medium | high",
+    "trend_direction": "improving | stable | declining"
+  },
   "new_ads_diagnosis": [
     {
       "ad_name": "광고명",
@@ -870,23 +928,35 @@ SYSTEM_PROMPT = """당신은 Meta (Facebook/Instagram) 광고 퍼포먼스 전�
       "campaign_type": "traffic | cvr",
       "verdict": "유망 | 보통 | 조기개입필요",
       "reason": "D+N 벤치마크 대비 구체적 근거 (수치 포함)",
-      "action": "구체적 액션 (예: 일예산 $50→$100 증액 강추 / 즉시 OFF 강추 / 3일 더 관찰 후 판단)"
+      "action": "구체적 액션 + 추천 강도",
+      "scale_potential": "high | medium | low"
     }
   ],
-  "top_performers_insight": "우수 광고들의 공통점 및 스케일 가능 여부 (스케일업 가능하면 추천 증액 % 포함)",
+  "creative_fatigue_alert": {
+    "at_risk_ads": ["CTR 하락 또는 Frequency 높은 광고명 목록"],
+    "recommendation": "크리에이티브 교체/추가 권고 (구체적 포맷 + 수량)",
+    "healthy_ads_count": 0,
+    "fatigued_ads_count": 0
+  },
+  "top_performers_insight": "우수 광고들의 공통점 (크리에이티브 유형, 타겟, 메시지) + 스케일 가능 여부 (증액 % 포함)",
   "brand_insights": [
     {
       "brand": "브랜드명",
       "status": "good | warning | danger",
-      "insight": "1-2줄 인사이트 (핵심 수치 포함)",
-      "action": "구체적 액션 + 추천 강도 (예: 전체 예산 20% 증액 강추 / 하위 2개 광고 OFF 권장)"
+      "insight": "1-2줄 인사이트 (ROAS, CTR, CPM 핵심 수치 포함)",
+      "action": "구체적 액션 + 추천 강도",
+      "budget_recommendation": "현재 일예산 추정 → 권장 일예산 (증감%)"
     }
   ],
-  "traffic_vs_cvr_analysis": "Traffic/CVR 캠페인 비교 분석 및 현재 예산 배분 → 최적 배분 제언 (% 또는 금액)",
+  "traffic_vs_cvr_analysis": {
+    "current_split": "Traffic XX% / CVR XX% (금액 기준)",
+    "optimal_split": "권장 배분 비율",
+    "recommendation": "배분 변경 권고 + 근거"
+  },
   "weekly_actions": [
-    {"priority": 1, "action": "구체적 액션 + 추천 강도", "target": "대상 광고/캠페인명", "expected_result": "기대 효과 (수치 포함)"},
-    {"priority": 2, "action": "구체적 액션 + 추천 강도", "target": "대상 광고/캠페인명", "expected_result": "기대 효과 (수치 포함)"},
-    {"priority": 3, "action": "구체적 액션 + 추천 강도", "target": "대상 광고/캠페인명", "expected_result": "기대 효과 (수치 포함)"}
+    {"priority": 1, "action": "구체적 액션 + 추천 강도", "target": "대상 광고/캠페인명", "expected_result": "기대 효과 (수치 포함)", "urgency": "강추|권장|약추"},
+    {"priority": 2, "action": "구체적 액션 + 추천 강도", "target": "대상 광고/캠페인명", "expected_result": "기대 효과 (수치 포함)", "urgency": "강추|권장|약추"},
+    {"priority": 3, "action": "구체적 액션 + 추천 강도", "target": "대상 광고/캠페인명", "expected_result": "기대 효과 (수치 포함)", "urgency": "강추|권장|약추"}
   ]
 }"""
 
@@ -948,34 +1018,46 @@ def analyze_with_claude(payload: dict) -> dict:
     slim = _slim_payload(payload)
 
     user_msg = f"""오늘({slim['analysis_date']}) 기준 Meta Ads 광고 성과 데이터입니다.
-신규 광고 퍼포먼스와 우수 광고 D+N 벤치마크를 중심으로 전문가 분석을 JSON으로 제공해주세요.
+전문 에이전시 퍼포먼스 마케터로서 깊이 있는 분석을 JSON으로 제공하세요.
 
 === 분석 데이터 ===
 {json.dumps(slim, ensure_ascii=False, indent=2)}
 
-중요 체크포인트:
-- new_ads 각 항목의 vs_benchmark: 양수(+)면 CTR/ROAS/CVR이 좋은 것, CPM/CPC/CPA는 반대
-- benchmark가 null이면 비교 우수 광고 데이터 부족 (절대값으로만 판단)
-- campaign_type이 "traffic"이면 ROAS가 낮아도 CTR/CPM으로 평가
+=== 분석 체크리스트 (반드시 수행) ===
+1. D+N 벤치마크 비교: new_ads의 vs_benchmark 양수(+)=좋음(CTR/ROAS/CVR), CPM/CPC/CPA는 반대
+2. Breakdown Effect 준수: 세그먼트 CPA 높다고 즉시 제거 권고 금지. 한계비용 관점으로 분석
+3. Creative Fatigue 진단: top_performers 중 day_n > 21이면 피로도 경고 체크
+4. Frequency 확인: brand_comparison의 데이터에서 frequency 높은 브랜드 찾기
+5. Traffic vs CVR 배분: campaign_type_7d/30d 비교 → 최적 배분 비율 권고
+6. health_score: 0-100 점수 (ROAS 35점 + CPM효율 20점 + 크리에이티브건전성 25점 + 트렌드 20점)
+7. 모든 액션에 추천강도(강추/권장/약추) 필수 포함
+8. benchmark null이면 절대값으로만 판단
+9. campaign_type "traffic"이면 ROAS 대신 CTR/CPM으로 평가
 - JSON만 출력 (코드블록 없이)"""
 
     for attempt in range(3):
         max_tok = 8192 if attempt == 0 else 16384
-        resp = requests.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": ANTHROPIC_KEY,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-            },
-            json={
-                "model": "claude-sonnet-4-6",
-                "max_tokens": max_tok,
-                "system": SYSTEM_PROMPT,
-                "messages": [{"role": "user", "content": user_msg}],
-            },
-            timeout=180,
-        )
+        try:
+            resp = requests.post(
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "x-api-key": ANTHROPIC_KEY,
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json",
+                },
+                json={
+                    "model": "claude-sonnet-4-6",
+                    "max_tokens": max_tok,
+                    "system": SYSTEM_PROMPT,
+                    "messages": [{"role": "user", "content": user_msg}],
+                },
+                timeout=300,
+            )
+        except requests.exceptions.ReadTimeout:
+            print(f"  [WARN] Claude API timeout (300s), retry {attempt+1}/3")
+            if attempt < 2:
+                continue
+            raise
         resp.raise_for_status()
         body = resp.json()
         text = body["content"][0]["text"].strip()
@@ -998,13 +1080,72 @@ def analyze_with_claude(payload: dict) -> dict:
 # HTML Email Builder
 # ===========================================================================
 
+def _md_to_html(text: str) -> str:
+    """Convert markdown-like text from Claude analysis to styled HTML."""
+    import re
+    if not text:
+        return ""
+    lines = text.split("\n")
+    html_parts = []
+    in_list = False
+
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            if in_list:
+                html_parts.append("</ul>")
+                in_list = False
+            html_parts.append("<div style='height:6px'></div>")
+            continue
+
+        stripped = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', stripped)
+        stripped = re.sub(r'__(.+?)__', r'<strong>\1</strong>', stripped)
+        stripped = re.sub(r'`(.+?)`', r'<code style="background:#f5f5f5;padding:1px 5px;border-radius:3px;font-size:12px">\1</code>', stripped)
+
+        bullet_match = re.match(r'^[-*]\s+(.+)', stripped)
+        sub_bullet_match = re.match(r'^[-*]\s+(.+)', line) if line.startswith("  ") or line.startswith("\t") else None
+
+        if sub_bullet_match:
+            if not in_list:
+                html_parts.append("<ul style='margin:4px 0 4px 16px;padding-left:12px;list-style:disc'>")
+                in_list = True
+            html_parts.append(f"<li style='margin:3px 0;color:#555;font-size:13px'>{sub_bullet_match.group(1)}</li>")
+        elif bullet_match:
+            if not in_list:
+                html_parts.append("<ul style='margin:4px 0;padding-left:16px;list-style:none'>")
+                in_list = True
+            content = bullet_match.group(1)
+            html_parts.append(f"<li style='margin:5px 0;color:#333;font-size:13px;position:relative;padding-left:12px'>"
+                              f"<span style='position:absolute;left:-4px;color:#1877F2'>&#8226;</span>{content}</li>")
+        else:
+            if in_list:
+                html_parts.append("</ul>")
+                in_list = False
+            num_match = re.match(r'^(\d+)[.)]\s+(.+)', stripped)
+            if num_match:
+                num, content = num_match.groups()
+                html_parts.append(
+                    f"<div style='display:flex;align-items:flex-start;margin:5px 0'>"
+                    f"<span style='background:#1877F2;color:white;border-radius:50%;min-width:20px;height:20px;"
+                    f"display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;"
+                    f"margin-right:8px;flex-shrink:0'>{num}</span>"
+                    f"<span style='color:#333;font-size:13px;line-height:1.5'>{content}</span></div>")
+            else:
+                html_parts.append(f"<p style='margin:4px 0;color:#333;font-size:13px;line-height:1.6'>{stripped}</p>")
+
+    if in_list:
+        html_parts.append("</ul>")
+
+    return "\n".join(html_parts)
+
+
 def _c(val, good_if_high=True, good_thresh=None, warn_thresh=None):
     """Color a numeric value."""
     if val is None:
         return '<span style="color:#999">-</span>'
     if good_thresh is not None:
-        color = "#2e7d32" if (val >= good_thresh if good_if_high else val <= good_thresh) else \
-                "#d32f2f" if (val < warn_thresh if good_if_high else val > warn_thresh) else "#f57c00"
+        color = "#1a5c3a" if (val >= good_thresh if good_if_high else val <= good_thresh) else \
+                "#8b1a1a" if (val < warn_thresh if good_if_high else val > warn_thresh) else "#8d6e00"
     else:
         color = "#333"
     return f'<span style="color:{color};font-weight:bold">{val}</span>'
@@ -1023,17 +1164,17 @@ def _diff_badge(pct, good_if_positive=True):
     if pct is None:
         return '<span style="color:#aaa">n/a</span>'
     good = (pct > 0) == good_if_positive
-    color = "#2e7d32" if good else "#d32f2f"
+    color = "#1a5c3a" if good else "#8b1a1a"
     arrow = "▲" if pct > 0 else "▼"
     return f'<span style="color:{color};font-weight:bold">{arrow}{abs(pct):.1f}%</span>'
 
 def _verdict_badge(verdict):
-    colors = {"유망": "#2e7d32", "보통": "#f57c00", "조기개입필요": "#d32f2f"}
+    colors = {"유망": "#1a5c3a", "보통": "#8d6e00", "조기개입필요": "#8b1a1a"}
     color = colors.get(verdict, "#555")
     return f'<span style="background:{color};color:white;padding:2px 8px;border-radius:10px;font-size:12px">{verdict}</span>'
 
 def _status_dot(status):
-    colors = {"good": "#2e7d32", "warning": "#f57c00", "danger": "#d32f2f"}
+    colors = {"good": "#1a5c3a", "warning": "#8d6e00", "danger": "#8b1a1a"}
     return f'<span style="color:{colors.get(status,"#555")};font-size:18px">&#9679;</span>'
 
 
@@ -1044,7 +1185,7 @@ def _build_yesterday_block(ys: dict, brand_detail: list = None) -> str:
 
     total   = ys["total"]
     by_type = ys.get("by_type", {})
-    type_colors = {"traffic": "#1565c0", "cvr": "#2e7d32", "other": "#555"}
+    type_colors = {"traffic": "#1565c0", "cvr": "#1a5c3a", "other": "#555"}
     type_labels = {"traffic": "Traffic", "cvr": "CVR", "other": "기타"}
 
     # Header pills
@@ -1075,16 +1216,18 @@ def _build_yesterday_block(ys: dict, brand_detail: list = None) -> str:
         ads = d.get("ads", 0)
         if ctype == "cvr":
             roas = d.get("roas", 0)
-            color = "#2e7d32" if roas >= 3.0 else "#d32f2f" if roas < 2.0 else "#f57c00"
+            cpa = d.get("cpa", 0)
+            color = "#1a5c3a" if roas >= 3.0 else "#8b1a1a" if roas < 2.0 else "#8d6e00"
             metric = f'<span style="color:{color};font-weight:bold">{roas:.2f}x</span>'
+            cac_str = f' <span style="color:#666">CAC${cpa:,.0f}</span>' if cpa > 0 else ""
         else:
             ctr = d.get("ctr", 0)
-            cpc = d.get("cpc", 0)
-            color = "#1565c0" if ctr >= 1.5 else "#d32f2f" if ctr < 0.8 else "#f57c00"
+            color = "#1565c0" if ctr >= 1.5 else "#8b1a1a" if ctr < 0.8 else "#8d6e00"
             metric = f'<span style="color:{color};font-weight:bold">{ctr:.2f}%</span>'
+            cac_str = ""
         return (f'<td style="padding:4px 6px;font-size:11px;text-align:right;vertical-align:top">'
                 f'<div style="font-weight:bold">${sp:,.0f}</div>'
-                f'<div style="font-size:10px;color:#888">{metric} {ads}개</div>'
+                f'<div style="font-size:10px;color:#888">{metric}{cac_str} {ads}개</div>'
                 f'</td>')
 
     if not brand_detail:
@@ -1151,7 +1294,7 @@ def _build_yesterday_block(ys: dict, brand_detail: list = None) -> str:
               </table>
             </div>"""
 
-        cvr_section     = _brand_section("cvr",     "#2e7d32", "CVR 캠페인 (전환 목적)")
+        cvr_section     = _brand_section("cvr",     "#1a5c3a", "CVR 캠페인 (전환 목적)")
         traffic_section = _brand_section("traffic",  "#1565c0", "Traffic 캠페인 (인지/클릭 목적)")
         detail_html = cvr_section + traffic_section
 
@@ -1159,7 +1302,7 @@ def _build_yesterday_block(ys: dict, brand_detail: list = None) -> str:
     <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:10px;padding:16px 20px;margin-bottom:24px">
       <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px">
         <div>
-          <div style="font-size:11px;color:#f57c00;font-weight:600;letter-spacing:.5px;text-transform:uppercase">어제 실지출 (PST {ys["date"]})</div>
+          <div style="font-size:11px;color:#8d6e00;font-weight:600;letter-spacing:.5px;text-transform:uppercase">어제 실지출 (PST {ys["date"]})</div>
           <div style="font-size:28px;font-weight:bold;color:#222;line-height:1.2">${total:,.0f}</div>
         </div>
         <div style="margin-left:auto;font-size:11px;color:#aaa">Full Day PST</div>
@@ -1174,7 +1317,7 @@ def build_html(payload: dict, analysis: dict) -> str:
     today = payload["analysis_date"]
     oa = analysis.get("overall_assessment", "warning")
     oa_label = {"good": "양호", "warning": "주의", "danger": "위험"}.get(oa, "주의")
-    oa_color = {"good": "#2e7d32", "warning": "#f57c00", "danger": "#d32f2f"}.get(oa, "#f57c00")
+    oa_color = {"good": "#1a5c3a", "warning": "#8d6e00", "danger": "#8b1a1a"}.get(oa, "#8d6e00")
 
     # ── Section 1: 신규 광고 (Traffic / CVR 분리) ──────────────────
     def new_ad_rows(ads, ctype):
@@ -1223,9 +1366,9 @@ def build_html(payload: dict, analysis: dict) -> str:
               <td style="padding:10px 12px">{_verdict_badge(verdict) if verdict else ""}</td>
             </tr>
             <tr style="background:#fafafa;border-bottom:1px solid #e0e0e0">
-              <td colspan="9" style="padding:6px 12px 10px 24px;font-size:12px;color:#555;font-style:italic">
-                {diagnosis.get("reason", "")}
-                {f" → <strong>{diagnosis.get('action', '')}</strong>" if diagnosis.get("action") else ""}
+              <td colspan="9" style="padding:6px 12px 10px 24px;font-size:12px">
+                <div style="color:#555">{_md_to_html(diagnosis.get("reason", ""))}</div>
+                {"" if not diagnosis.get("action") else f'<div style="margin-top:4px;padding:6px 10px;background:#e8f5e9;border-radius:4px"><strong style="color:#1a5c3a;font-size:11px">ACTION:</strong> {_md_to_html(diagnosis.get("action", ""))}</div>'}
               </td>
             </tr>"""
         return html
@@ -1248,7 +1391,7 @@ def build_html(payload: dict, analysis: dict) -> str:
         # Sort by yesterday spend descending (top) or ascending (worst)
         items.sort(key=lambda t: t.get("metrics_1d", {}).get("spend", 0),
                    reverse=not sort_worst)
-        metric_label = "ROAS" if ctype == "cvr" else "CTR"
+        metric_label = "ROAS / CAC" if ctype == "cvr" else "CTR"
 
         def _sp(m):
             return f'${m.get("spend",0):,.0f}' if m.get("spend", 0) > 0 else "-"
@@ -1258,11 +1401,13 @@ def build_html(payload: dict, analysis: dict) -> str:
                 return ""
             if ctype == "cvr":
                 roas = m.get("roas", 0)
-                c = "#2e7d32" if roas >= 3.0 else "#d32f2f" if roas < 2.0 else "#f57c00"
-                return f'<div style="font-size:10px;color:{c};font-weight:bold">{roas:.2f}x</div>'
+                cpa = m.get("cpa", 0)
+                rc = "#1a3a5c" if roas >= 3.0 else "#8b1a1a" if roas < 2.0 else "#8d6e00"
+                cpa_str = f'<span style="font-size:9px;color:#666">CAC ${cpa:,.0f}</span>' if cpa > 0 else ""
+                return f'<div style="font-size:10px;color:{rc};font-weight:bold">{roas:.2f}x</div>{cpa_str}'
             else:
                 ctr = m.get("ctr", 0)
-                c = "#1565c0" if ctr >= 1.5 else "#d32f2f" if ctr < 0.8 else "#f57c00"
+                c = "#1a3a5c" if ctr >= 1.5 else "#8b1a1a" if ctr < 0.8 else "#8d6e00"
                 return f'<div style="font-size:10px;color:{c};font-weight:bold">{ctr:.2f}%</div>'
 
         if not items:
@@ -1275,7 +1420,13 @@ def build_html(payload: dict, analysis: dict) -> str:
                 m7   = t.get("metrics_7d",  {})
                 mp7  = t.get("metrics_p7d", {})
                 m30  = t.get("metrics_30d", {})
-                lifetime_str = f'{t["roas"]:.2f}x' if ctype == "cvr" else f'{t["ctr"]:.2f}%'
+                if ctype == "cvr":
+                    lifetime_cpa = t.get("cpa", 0)
+                    lifetime_str = f'{t["roas"]:.2f}x'
+                    if lifetime_cpa > 0:
+                        lifetime_str += f'<br><span style="font-size:9px;color:#666">CAC ${lifetime_cpa:,.0f}</span>'
+                else:
+                    lifetime_str = f'{t["ctr"]:.2f}%'
                 camp_id_val = t.get("campaign_id", "")
                 camp_link = _ad_link(camp_id_val) if camp_id_val else ""
                 body += f"""
@@ -1287,7 +1438,7 @@ def build_html(payload: dict, analysis: dict) -> str:
           <td style="padding:7px 8px"><span style="background:#e3f2fd;color:#1565c0;padding:2px 5px;border-radius:4px;font-size:11px">{t["brand"]}</span></td>
           <td style="padding:7px 8px;text-align:center;font-size:10px;color:#666">{t.get("first_spend","")}</td>
           <td style="padding:7px 8px;text-align:center;font-size:11px">D+{t["day_n"]}</td>
-          <td style="padding:7px 8px;text-align:right;color:#e65100;font-weight:bold">{_sp(m1d)}{_mk(m1d)}</td>
+          <td style="padding:7px 8px;text-align:right;color:#8d6e00;font-weight:bold">{_sp(m1d)}{_mk(m1d)}</td>
           <td style="padding:7px 8px;text-align:right;font-weight:bold">{_sp(m7)}{_mk(m7)}</td>
           <td style="padding:7px 8px;text-align:right;color:#888">{_sp(mp7)}{_mk(mp7)}</td>
           <td style="padding:7px 8px;text-align:right;color:#aaa">{_sp(m30)}{_mk(m30)}</td>
@@ -1305,7 +1456,7 @@ def build_html(payload: dict, analysis: dict) -> str:
                 <th style="padding:7px 8px">브랜드</th>
                 <th style="padding:7px 8px;text-align:center">첫집행일</th>
                 <th style="padding:7px 8px;text-align:center">D+N</th>
-                <th style="padding:7px 8px;text-align:right;color:#e65100">어제(1일)</th>
+                <th style="padding:7px 8px;text-align:right;color:#8d6e00">어제(1일)</th>
                 <th style="padding:7px 8px;text-align:right;color:{color}">최근 7일</th>
                 <th style="padding:7px 8px;text-align:right;color:#888">이전 7일</th>
                 <th style="padding:7px 8px;text-align:right;color:#aaa">최근 30일</th>
@@ -1325,44 +1476,88 @@ def build_html(payload: dict, analysis: dict) -> str:
           </div>
         </div>"""
 
-    top_cvr_section     = _performer_section(payload["top_performers"],   "cvr",     "#2e7d32", "CVR 우수 광고 (전환 목적, ROAS 3.0+) — 어제 지출 높은순")
-    top_traffic_section = _performer_section(payload["top_performers"],   "traffic",  "#1565c0", "Traffic 우수 광고 (인지/클릭 목적, CTR 1.5%+) — 어제 지출 높은순")
-    worst_cvr_section     = _performer_section(payload.get("worst_performers", []), "cvr",    "#b71c1c", "CVR 워스트 광고 (ROAS 2.0 미만) — 최악순", sort_worst=True)
-    worst_traffic_section = _performer_section(payload.get("worst_performers", []), "traffic", "#e65100", "Traffic 워스트 광고 (CTR 1.0% 미만) — 최악순", sort_worst=True)
+    top_cvr_section     = _performer_section(payload["top_performers"],   "cvr",     "#1a5c3a", "CVR 우수 광고 (전환 목적, ROAS 3.0+) — 어제 지출 높은순")
+    top_traffic_section = _performer_section(payload["top_performers"],   "traffic",  "#2c5f8a", "Traffic 우수 광고 (인지/클릭 목적, CTR 1.5%+) — 어제 지출 높은순")
+    worst_cvr_section     = _performer_section(payload.get("worst_performers", []), "cvr",    "#8b1a1a", "CVR 워스트 광고 (ROAS 2.0 미만) — 최악순", sort_worst=True)
+    worst_traffic_section = _performer_section(payload.get("worst_performers", []), "traffic", "#7a4400", "Traffic 워스트 광고 (CTR 1.0% 미만) — 최악순", sort_worst=True)
 
     # ── Section 3: Brand Comparison (최근 7일 / 이전 7일 / 최근 30일) ───────────────────
+    # Build brand rows with CVR/Traffic sub-rows
     brand_rows = ""
+    brand_detail = payload.get("brand_detail_table", [])
+    brand_detail_map = {bd["brand"]: bd for bd in brand_detail}
+
     for b in payload.get("brand_comparison", []):
         brand_insight = next((bi for bi in analysis.get("brand_insights", [])
                               if bi.get("brand") == b["brand"]), {})
         status = brand_insight.get("status", "")
         dot = _status_dot(status) if status else ""
         roas_wow = b.get("roas_wow")
-        ctr_wow  = b.get("ctr_wow")
+
+        # Main brand row (totals)
         brand_rows += f"""
-        <tr style="border-bottom:1px solid #eee">
-          <td style="padding:10px 12px">{dot} <strong>{b["brand"]}</strong></td>
-          <td style="padding:8px 8px;text-align:right;color:#e65100;font-weight:bold">${b.get("spend_1d",0):,.0f}</td>
+        <tr style="border-bottom:1px solid #ddd;background:#f8f9fb">
+          <td style="padding:10px 12px" rowspan="1">{dot} <strong style="font-size:14px">{b["brand"]}</strong></td>
+          <td style="padding:8px 8px;text-align:right;color:#555;font-size:11px">전체</td>
+          <td style="padding:8px 8px;text-align:right;color:#8d6e00;font-weight:bold">${b.get("spend_1d",0):,.0f}</td>
           <td style="padding:8px 8px;text-align:right;font-weight:bold">${b["spend_7d"]:,.0f}</td>
           <td style="padding:8px 8px;text-align:right;color:#888">${b["spend_p7d"]:,.0f}</td>
           <td style="padding:8px 8px;text-align:right;color:#aaa">${b["spend_30d"]:,.0f}</td>
-          <td style="padding:8px 8px;text-align:center;color:#e65100">{b.get("roas_1d",0):.2f}x</td>
           <td style="padding:8px 8px;text-align:center">{_roas_cell(b["roas_7d"])}</td>
-          <td style="padding:8px 8px;text-align:center;color:#888">{b["roas_p7d"]:.2f}x</td>
           <td style="padding:8px 8px;text-align:center;color:#aaa">{b["roas_30d"]:.2f}x</td>
-          <td style="padding:8px 8px;text-align:center">{_diff_badge(roas_wow, True) if roas_wow is not None else "-"}<br><span style="font-size:10px;color:#aaa">WoW</span></td>
-          <td style="padding:8px 8px;text-align:center;color:#e65100">{b.get("ctr_1d",0):.2f}%</td>
+          <td style="padding:8px 8px;text-align:center">{_diff_badge(roas_wow, True) if roas_wow is not None else "-"}</td>
           <td style="padding:8px 8px;text-align:center">{b["ctr_7d"]:.2f}%</td>
-          <td style="padding:8px 8px;text-align:center;color:#888">{b["ctr_p7d"]:.2f}%</td>
           <td style="padding:8px 8px;text-align:center;color:#aaa">{b["ctr_30d"]:.2f}%</td>
-          <td style="padding:8px 8px;text-align:center">{_diff_badge(ctr_wow, True) if ctr_wow is not None else "-"}<br><span style="font-size:10px;color:#aaa">WoW</span></td>
-          <td style="padding:8px 8px;font-size:12px;color:#555">{brand_insight.get("insight","")}</td>
         </tr>"""
-        if brand_insight.get("action"):
+
+        # CVR/Traffic sub-rows from brand_detail_table
+        bd = brand_detail_map.get(b["brand"], {})
+        for ctype, ct_label, ct_color in [("cvr", "CVR", "#1a5c3a"), ("traffic", "Traffic", "#2c5f8a")]:
+            d7 = (bd.get("7d") or {}).get(ctype, {})
+            d30 = (bd.get("30d") or {}).get(ctype, {})
+            dp7 = (bd.get("p7d") or {}).get(ctype, {})
+            d1d = (bd.get("1d") or {}).get(ctype, {})
+            if not d7 and not d30:
+                continue
+            sp7 = d7.get("spend", 0) if d7 else 0
+            sp30 = d30.get("spend", 0) if d30 else 0
+            if sp7 == 0 and sp30 == 0:
+                continue
+            r7 = d7.get("roas", 0) if d7 else 0
+            r30 = d30.get("roas", 0) if d30 else 0
+            ctr7 = d7.get("ctr", 0) if d7 else 0
+            ctr30 = d30.get("ctr", 0) if d30 else 0
+            cpa7 = d7.get("cpa", 0) if d7 else 0
+            sp1d = d1d.get("spend", 0) if d1d else 0
+            spp7 = dp7.get("spend", 0) if dp7 else 0
+
+            # CAC display for CVR type
+            cac_str = f'<span style="font-size:10px;color:#666">CAC ${cpa7:,.0f}</span>' if ctype == "cvr" and cpa7 > 0 else ""
+
             brand_rows += f"""
-        <tr style="background:#f5f5f5;border-bottom:1px solid #ddd">
-          <td colspan="16" style="padding:5px 12px 8px 32px;font-size:12px;color:#1565c0">
-            &#8594; {brand_insight["action"]}
+        <tr style="border-bottom:1px solid #f0f0f0">
+          <td style="padding:4px 12px"></td>
+          <td style="padding:4px 8px;text-align:right">
+            <span style="background:{ct_color};color:white;padding:1px 6px;border-radius:8px;font-size:10px">{ct_label}</span>
+          </td>
+          <td style="padding:4px 8px;text-align:right;color:#8d6e00;font-size:11px">${sp1d:,.0f}</td>
+          <td style="padding:4px 8px;text-align:right;font-size:11px;font-weight:bold">${sp7:,.0f}</td>
+          <td style="padding:4px 8px;text-align:right;color:#888;font-size:11px">${spp7:,.0f}</td>
+          <td style="padding:4px 8px;text-align:right;color:#aaa;font-size:11px">${sp30:,.0f}</td>
+          <td style="padding:4px 8px;text-align:center;font-size:11px">{_roas_cell(r7) if ctype == "cvr" else "-"} {cac_str}</td>
+          <td style="padding:4px 8px;text-align:center;color:#aaa;font-size:11px">{f"{r30:.2f}x" if ctype == "cvr" and r30 else "-"}</td>
+          <td style="padding:4px 8px;text-align:center;font-size:11px">-</td>
+          <td style="padding:4px 8px;text-align:center;font-size:11px">{f"{ctr7:.2f}%" if ctr7 else "-"}</td>
+          <td style="padding:4px 8px;text-align:center;color:#aaa;font-size:11px">{f"{ctr30:.2f}%" if ctr30 else "-"}</td>
+        </tr>"""
+
+        # Insight row
+        if brand_insight.get("insight") or brand_insight.get("action"):
+            brand_rows += f"""
+        <tr style="background:#f5f8fb;border-bottom:2px solid #ddd">
+          <td colspan="11" style="padding:6px 12px 10px 32px;font-size:12px">
+            <div>{_md_to_html(brand_insight.get("insight", ""))}</div>
+            {"" if not brand_insight.get("action") else f'<div style="margin-top:4px;color:#2c5f8a;font-weight:500">{_md_to_html(brand_insight["action"])}</div>'}
           </td>
         </tr>"""
 
@@ -1386,7 +1581,7 @@ def build_html(payload: dict, analysis: dict) -> str:
         vp7  = tp7.get(ctype, {})
         v30  = t30.get(ctype, {})
         label     = {"traffic": "Traffic 캠페인 (인지/클릭 목적)", "cvr": "CVR 캠페인 (전환/판매 목적)", "other": "기타"}.get(ctype, ctype)
-        hdr_color = "#1565c0" if ctype == "traffic" else "#2e7d32" if ctype == "cvr" else "#555"
+        hdr_color = "#1565c0" if ctype == "traffic" else "#1a5c3a" if ctype == "cvr" else "#555"
         is_traffic = (ctype == "traffic")
 
         roas_1d = v1d.get("roas", 0); roas_7 = v7.get("roas", 0)
@@ -1399,7 +1594,7 @@ def build_html(payload: dict, analysis: dict) -> str:
             <thead>
               <tr style="background:#f5f5f5">
                 <th style="padding:8px 12px;text-align:left;color:#666;border-bottom:1px solid #e0e0e0">지표</th>
-                <th style="padding:8px 10px;text-align:right;color:#e65100;font-weight:700;border-bottom:1px solid #e0e0e0">어제</th>
+                <th style="padding:8px 10px;text-align:right;color:#8d6e00;font-weight:700;border-bottom:1px solid #e0e0e0">어제</th>
                 <th style="padding:8px 10px;text-align:right;color:{hdr_color};font-weight:700;border-bottom:1px solid #e0e0e0">최근 7일</th>
                 <th style="padding:8px 10px;text-align:right;color:#888;border-bottom:1px solid #e0e0e0">이전 7일</th>
                 <th style="padding:8px 10px;text-align:right;color:#aaa;border-bottom:1px solid #e0e0e0">최근 30일</th>
@@ -1409,7 +1604,7 @@ def build_html(payload: dict, analysis: dict) -> str:
             <tbody>
               <tr style="border-top:1px solid #f0f0f0">
                 <td style="padding:7px 12px;color:#888">광고 수</td>
-                <td style="padding:7px 10px;text-align:right;color:#e65100">{v1d.get('ad_count',0)}</td>
+                <td style="padding:7px 10px;text-align:right;color:#8d6e00">{v1d.get('ad_count',0)}</td>
                 <td style="padding:7px 10px;text-align:right;font-weight:bold">{v7.get('ad_count',0)}</td>
                 <td style="padding:7px 10px;text-align:right;color:#888">{vp7.get('ad_count',0)}</td>
                 <td style="padding:7px 10px;text-align:right;color:#aaa">{v30.get('ad_count',0)}</td>
@@ -1417,7 +1612,7 @@ def build_html(payload: dict, analysis: dict) -> str:
               </tr>
               <tr style="background:#fafafa;border-top:1px solid #f0f0f0">
                 <td style="padding:7px 12px;color:#888">지출</td>
-                <td style="padding:7px 10px;text-align:right;color:#e65100">${v1d.get('spend',0):,.0f}</td>
+                <td style="padding:7px 10px;text-align:right;color:#8d6e00">${v1d.get('spend',0):,.0f}</td>
                 <td style="padding:7px 10px;text-align:right;font-weight:bold">${v7.get('spend',0):,.0f}</td>
                 <td style="padding:7px 10px;text-align:right;color:#888">${vp7.get('spend',0):,.0f}</td>
                 <td style="padding:7px 10px;text-align:right;color:#aaa">${v30.get('spend',0):,.0f}</td>
@@ -1425,7 +1620,7 @@ def build_html(payload: dict, analysis: dict) -> str:
               </tr>
               <tr style="border-top:1px solid #f0f0f0;{'background:#fffde7' if is_traffic else ''}">
                 <td style="padding:7px 12px;color:#888">{'CTR ★' if is_traffic else 'CTR'}</td>
-                <td style="padding:7px 10px;text-align:right;color:#e65100">{v1d.get('ctr',0):.2f}%</td>
+                <td style="padding:7px 10px;text-align:right;color:#8d6e00">{v1d.get('ctr',0):.2f}%</td>
                 <td style="padding:7px 10px;text-align:right;font-weight:bold">{v7.get('ctr',0):.2f}%</td>
                 <td style="padding:7px 10px;text-align:right;color:#888">{vp7.get('ctr',0):.2f}%</td>
                 <td style="padding:7px 10px;text-align:right;color:#aaa">{v30.get('ctr',0):.2f}%</td>
@@ -1433,7 +1628,7 @@ def build_html(payload: dict, analysis: dict) -> str:
               </tr>
               <tr style="border-top:1px solid #f0f0f0;{'background:#fffde7' if is_traffic else 'background:#fafafa'}">
                 <td style="padding:7px 12px;color:#888">{'CPC ★' if is_traffic else 'CPC'}</td>
-                <td style="padding:7px 10px;text-align:right;color:#e65100">${v1d.get('cpc',0):.2f}</td>
+                <td style="padding:7px 10px;text-align:right;color:#8d6e00">${v1d.get('cpc',0):.2f}</td>
                 <td style="padding:7px 10px;text-align:right;font-weight:bold">${v7.get('cpc',0):.2f}</td>
                 <td style="padding:7px 10px;text-align:right;color:#888">${vp7.get('cpc',0):.2f}</td>
                 <td style="padding:7px 10px;text-align:right;color:#aaa">${v30.get('cpc',0):.2f}</td>
@@ -1441,7 +1636,7 @@ def build_html(payload: dict, analysis: dict) -> str:
               </tr>
               <tr style="border-top:1px solid #f0f0f0;{'background:#fffde7' if not is_traffic else ''}">
                 <td style="padding:7px 12px;color:#888">{'ROAS ★' if not is_traffic else 'ROAS'}</td>
-                <td style="padding:7px 10px;text-align:right;color:#e65100">{'N/A' if is_traffic else f'{roas_1d:.2f}x'}</td>
+                <td style="padding:7px 10px;text-align:right;color:#8d6e00">{'N/A' if is_traffic else f'{roas_1d:.2f}x'}</td>
                 <td style="padding:7px 10px;text-align:right;font-weight:bold">{'N/A' if is_traffic else f'{roas_7:.2f}x'}</td>
                 <td style="padding:7px 10px;text-align:right;color:#888">{'N/A' if is_traffic else f'{roas_p7:.2f}x'}</td>
                 <td style="padding:7px 10px;text-align:right;color:#aaa">{'N/A' if is_traffic else f'{roas_30:.2f}x'}</td>
@@ -1449,7 +1644,7 @@ def build_html(payload: dict, analysis: dict) -> str:
               </tr>
               <tr style="background:#fafafa;border-top:1px solid #f0f0f0">
                 <td style="padding:7px 12px;color:#888">CPM</td>
-                <td style="padding:7px 10px;text-align:right;color:#e65100">${v1d.get('cpm',0):.2f}</td>
+                <td style="padding:7px 10px;text-align:right;color:#8d6e00">${v1d.get('cpm',0):.2f}</td>
                 <td style="padding:7px 10px;text-align:right;font-weight:bold">${v7.get('cpm',0):.2f}</td>
                 <td style="padding:7px 10px;text-align:right;color:#888">${vp7.get('cpm',0):.2f}</td>
                 <td style="padding:7px 10px;text-align:right;color:#aaa">${v30.get('cpm',0):.2f}</td>
@@ -1462,31 +1657,45 @@ def build_html(payload: dict, analysis: dict) -> str:
     # ── Section 5: Brand Insights (Claude) ───────────────────────
     brand_insight_cards = ""
     for bi in analysis.get("brand_insights", []):
-        sc = {"good": "#2e7d32", "warning": "#f57c00", "danger": "#d32f2f"}.get(bi.get("status",""), "#555")
+        sc = {"good": "#1a5c3a", "warning": "#8d6e00", "danger": "#8b1a1a"}.get(bi.get("status",""), "#555")
+        budget_rec = bi.get("budget_recommendation", "")
+        budget_html = f'<div style="margin-top:6px;padding:4px 10px;background:#e8f5e9;border-radius:4px;font-size:12px;color:#1a5c3a">{budget_rec}</div>' if budget_rec else ""
         brand_insight_cards += f"""
         <div style="border-left:4px solid {sc};padding:10px 16px;margin:8px 0;background:#fafafa;border-radius:0 6px 6px 0">
-          <strong style="color:{sc}">{bi["brand"]}</strong>
-          <p style="margin:4px 0;color:#333;font-size:13px">{bi["insight"]}</p>
-          <p style="margin:4px 0;color:#555;font-size:12px">&#8594; {bi["action"]}</p>
+          <strong style="color:{sc};font-size:15px">{bi["brand"]}</strong>
+          <div style="margin:6px 0">{_md_to_html(bi.get("insight", ""))}</div>
+          <div style="margin:6px 0;padding:8px 12px;background:#f0f4f8;border-radius:6px">
+            <span style="color:#1565c0;font-weight:bold;font-size:12px">ACTION:</span>
+            <div style="margin-top:4px">{_md_to_html(bi.get("action", ""))}</div>
+          </div>
+          {budget_html}
         </div>"""
 
     # ── Section 6: Weekly Actions ─────────────────────────────────
+    URGENCY_META = {"강추": "#8b1a1a", "권장": "#8d6e00", "약추": "#1565c0"}
     action_html = ""
     for wa in analysis.get("weekly_actions", []):
+        urg = wa.get("urgency", "권장")
+        urg_color = URGENCY_META.get(urg, "#555")
         action_html += f"""
         <div style="display:flex;align-items:flex-start;margin:14px 0">
           <div style="background:#1877F2;color:white;border-radius:50%;width:28px;height:28px;
                       min-width:28px;display:flex;align-items:center;justify-content:center;
                       font-weight:bold;margin-right:14px;font-size:14px">{wa["priority"]}</div>
           <div>
+            <span style="background:{urg_color};color:white;padding:1px 8px;border-radius:10px;font-size:11px;margin-right:6px">{urg}</span>
             <strong style="color:#222;font-size:14px">{wa["action"]}</strong>
             <p style="margin:3px 0;color:#666;font-size:12px">대상: {wa.get("target","-")}</p>
-            <p style="margin:3px 0;color:#2e7d32;font-size:12px">&#8594; {wa.get("expected_result","")}</p>
+            <p style="margin:3px 0;color:#1a5c3a;font-size:12px">&#8594; {wa.get("expected_result","")}</p>
           </div>
         </div>"""
 
     stats = payload["stats"]
-    tvc = analysis.get("traffic_vs_cvr_analysis", "")
+    tvc_raw = analysis.get("traffic_vs_cvr_analysis", "")
+    if isinstance(tvc_raw, dict):
+        tvc = f"{tvc_raw.get('current_split', '')} | 권장: {tvc_raw.get('optimal_split', '')} — {tvc_raw.get('recommendation', '')}"
+    else:
+        tvc = tvc_raw
 
     return f"""<!DOCTYPE html>
 <html lang="ko">
@@ -1509,25 +1718,62 @@ def build_html(payload: dict, analysis: dict) -> str:
       </span>
     </div>
     <div style="margin-top:14px;font-size:14px;color:rgba(255,255,255,0.9);line-height:1.7;background:rgba(0,0,0,0.15);padding:12px 16px;border-radius:8px">
-      {analysis.get("executive_summary","").replace(chr(10), "<br>")}
+      {_md_to_html(analysis.get("executive_summary","")).replace('color:#333', 'color:rgba(255,255,255,0.9)').replace('color:#555', 'color:rgba(255,255,255,0.7)').replace('color:#1877F2', 'color:rgba(255,255,255,0.8)')}
     </div>
   </div>
 
   <div style="padding:24px 30px">
+
+    {"" if not analysis.get("health_score") else f'''
+    <div style="background:linear-gradient(135deg,#1877F2,#42A5F5);border-radius:10px;padding:20px 24px;margin-bottom:20px;color:white">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="font-size:42px;font-weight:bold;min-width:60px">{analysis["health_score"].get("score", "-")}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.7);border-left:1px solid rgba(255,255,255,0.3);padding-left:16px">
+          <div>HEALTH SCORE /100</div>
+          <div style="color:rgba(255,255,255,0.9);margin-top:4px">{analysis["health_score"].get("roas_vs_benchmark", "")}</div>
+          <div style="color:rgba(255,255,255,0.9);margin-top:2px">{analysis["health_score"].get("cpm_diagnosis", "")}</div>
+          <div style="margin-top:4px;display:flex;gap:8px">
+            <span style="background:{"#1a5c3a" if analysis["health_score"].get("trend_direction") == "improving" else "#8b1a1a" if analysis["health_score"].get("trend_direction") == "declining" else "#8d6e00"};padding:2px 8px;border-radius:10px;font-size:11px">
+              {"+ 개선중" if analysis["health_score"].get("trend_direction") == "improving" else "- 악화중" if analysis["health_score"].get("trend_direction") == "declining" else "= 유지"}
+            </span>
+            <span style="background:{"#1a5c3a" if analysis["health_score"].get("fatigue_risk") == "none" else "#8b1a1a" if analysis["health_score"].get("fatigue_risk") == "high" else "#8d6e00" if analysis["health_score"].get("fatigue_risk") == "medium" else "#888"};padding:2px 8px;border-radius:10px;font-size:11px">
+              피로도: {analysis["health_score"].get("fatigue_risk", "N/A")}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>'''}
+
+    {"" if not analysis.get("creative_fatigue_alert") or not analysis["creative_fatigue_alert"].get("at_risk_ads") else f"""
+    <div style="background:#fff3e0;border:1px solid #ffe0b2;border-radius:8px;padding:14px 18px;margin-bottom:20px">
+      <div style="font-weight:bold;color:#8d6e00;font-size:14px;margin-bottom:6px">
+        Creative Fatigue Alert
+        <span style="background:#8d6e00;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin-left:8px">
+          {analysis["creative_fatigue_alert"].get("fatigued_ads_count", 0)}개 피로
+        </span>
+      </div>
+      <div style="font-size:12px;color:#555;margin-bottom:4px">
+        피로 의심 광고: {", ".join(analysis["creative_fatigue_alert"].get("at_risk_ads", [])[:5])}
+      </div>
+      <div style="font-size:12px;color:#1565c0;font-weight:500">
+        {analysis["creative_fatigue_alert"].get("recommendation", "")}
+      </div>
+    </div>"""}
 
     <!-- Yesterday PST Spend -->
     {_build_yesterday_block(payload.get("yesterday_spend", {}), payload.get("brand_detail_table", []))}
 
     <!-- Campaign Type Overview -->
     <h2 style="color:#1877F2;border-bottom:2px solid #1877F2;padding-bottom:8px">캠페인 유형별 성과 <span style="font-size:14px;color:#888;font-weight:normal">— 어제 / 최근 7일 / 이전 7일 / 최근 30일</span></h2>
-    <p style="font-size:12px;color:#888;margin:0 0 12px">★ = 해당 캠페인 유형의 핵심 지표 | WoW = 최근 7일 vs 이전 7일 | <span style="color:#e65100">주황 = 어제 (PST)</span></p>
+    <p style="font-size:12px;color:#888;margin:0 0 12px">★ = 해당 캠페인 유형의 핵심 지표 | WoW = 최근 7일 vs 이전 7일 | <span style="color:#8d6e00">주황 = 어제 (PST)</span></p>
     <div style="margin-bottom:8px">{type_html}</div>
-    <div style="background:#e8f4fd;border-left:4px solid #1877F2;padding:12px 16px;border-radius:0 6px 6px 0;font-size:13px;color:#444;margin-top:12px">
-      {tvc}
+    <div style="background:#e8f4fd;border-left:4px solid #1877F2;padding:12px 16px;border-radius:0 6px 6px 0;margin-top:12px">
+      <strong style="color:#1877F2;font-size:13px">Traffic vs CVR 배분 분석</strong>
+      <div style="margin-top:6px">{_md_to_html(tvc)}</div>
     </div>
 
     <!-- New Ads: CVR -->
-    <h2 style="color:#2e7d32;border-bottom:2px solid #2e7d32;padding-bottom:8px;margin-top:32px">
+    <h2 style="color:#1a5c3a;border-bottom:2px solid #1a5c3a;padding-bottom:8px;margin-top:32px">
       &#128195; 이번 주 신규 광고 — CVR 캠페인 (전환 목적)
     </h2>
     <p style="font-size:12px;color:#888;margin:0 0 10px">
@@ -1576,16 +1822,16 @@ def build_html(payload: dict, analysis: dict) -> str:
       &#127942; 우수 광고 (D+14이상, ROAS 3.0+ 또는 CTR 1.5+%)
     </h2>
     <p style="font-size:12px;color:#888;margin:0 0 10px">
-      신규 광고 D+N 벤치마크의 기준. <span style="color:#e65100">주황=어제</span> | <strong>굵음=최근7일</strong> | 회색=이전7일 | 연회색=30일
+      신규 광고 D+N 벤치마크의 기준. <span style="color:#8d6e00">주황=어제</span> | <strong>굵음=최근7일</strong> | 회색=이전7일 | 연회색=30일
     </p>
-    <div style="font-size:13px;color:#444;background:#f8f9fa;padding:12px 16px;border-radius:6px;margin-bottom:16px">
-      {analysis.get("top_performers_insight","")}
+    <div style="background:#f8f9fa;padding:12px 16px;border-radius:6px;margin-bottom:16px">
+      {_md_to_html(analysis.get("top_performers_insight",""))}
     </div>
     {top_cvr_section}
     {top_traffic_section}
 
     <!-- Worst Performers -->
-    <h2 style="color:#b71c1c;border-bottom:2px solid #b71c1c;padding-bottom:8px;margin-top:32px">
+    <h2 style="color:#8b1a1a;border-bottom:2px solid #8b1a1a;padding-bottom:8px;margin-top:32px">
       &#9888; 워스트 광고 (D+14이상, CVR ROAS 2.0 미만 / Traffic CTR 1.0% 미만, 지출 $100+)
     </h2>
     <p style="font-size:12px;color:#888;margin:0 0 10px">
@@ -1599,33 +1845,28 @@ def build_html(payload: dict, analysis: dict) -> str:
       브랜드별 성과 비교 <span style="font-size:14px;color:#888;font-weight:normal">— 어제 / 최근 7일 / 이전 7일 / 최근 30일</span>
     </h2>
     <p style="font-size:12px;color:#888;margin:0 0 10px">
-      * <span style="color:#e65100">주황 = 어제</span> | <strong>굵은 숫자</strong> = 최근 7일 | 회색 = 이전 7일 (14일~8일전) | 연회색 = 30일 | WoW = 최근 7일 vs 이전 7일
+      * <span style="color:#8d6e00">어제</span> | <strong>굵은 숫자</strong> = 최근 7일 | 회색 = 이전 7일 | 연회색 = 30일 | WoW = 최근 7일 vs 이전 7일 | CVR 행에 CAC 표시
     </p>
     <div style="overflow-x:auto">
     <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:700px">
       <thead>
         <tr style="background:#f0f0f0">
           <th style="padding:8px 10px;text-align:left" rowspan="2">브랜드</th>
+          <th style="padding:6px 8px;text-align:center" rowspan="2">타입</th>
           <th style="padding:6px 8px;text-align:center;border-bottom:1px solid #ddd" colspan="4">지출</th>
-          <th style="padding:6px 8px;text-align:center;border-bottom:1px solid #ddd" colspan="5">ROAS</th>
-          <th style="padding:6px 8px;text-align:center;border-bottom:1px solid #ddd" colspan="5">CTR</th>
-          <th style="padding:6px 8px;text-align:left" rowspan="2">인사이트</th>
+          <th style="padding:6px 8px;text-align:center;border-bottom:1px solid #ddd" colspan="3">ROAS</th>
+          <th style="padding:6px 8px;text-align:center;border-bottom:1px solid #ddd" colspan="2">CTR</th>
         </tr>
         <tr style="background:#f5f5f5;font-size:11px;color:#666">
-          <th style="padding:4px 8px;text-align:right;color:#e65100">어제</th>
+          <th style="padding:4px 8px;text-align:right;color:#8d6e00">어제</th>
           <th style="padding:4px 8px;text-align:right">7일</th>
           <th style="padding:4px 8px;text-align:right">이전7일</th>
           <th style="padding:4px 8px;text-align:right">30일</th>
-          <th style="padding:4px 8px;text-align:center;color:#e65100">어제</th>
           <th style="padding:4px 8px;text-align:center">7일</th>
-          <th style="padding:4px 8px;text-align:center">이전7일</th>
           <th style="padding:4px 8px;text-align:center">30일</th>
           <th style="padding:4px 8px;text-align:center">WoW</th>
-          <th style="padding:4px 8px;text-align:center;color:#e65100">어제</th>
           <th style="padding:4px 8px;text-align:center">7일</th>
-          <th style="padding:4px 8px;text-align:center">이전7일</th>
           <th style="padding:4px 8px;text-align:center">30일</th>
-          <th style="padding:4px 8px;text-align:center">WoW</th>
         </tr>
       </thead>
       <tbody>{brand_rows}</tbody>
