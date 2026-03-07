@@ -135,8 +135,8 @@ def _push_to_pg(table: str, rows: list[dict]):
     """Push rows to PostgreSQL via orbitools API."""
     if not rows:
         return
-    # Chunk to avoid huge payloads (max 500 rows per request)
-    chunk_size = 500
+    # Chunk to avoid huge payloads
+    chunk_size = 1000
     total_created = 0
     total_updated = 0
     for i in range(0, len(rows), chunk_size):
@@ -226,10 +226,14 @@ def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
         except Exception as e:
             print(f"  [WARN] Campaign list for {pname}: {e}")
 
-    # 3. Fetch daily reports (weekly chunks)
+    # 3. Fetch daily reports (chunked)
+    #    Amazon Ads async reports: max 60 days per report.
+    #    Use 30-day chunks for backfill (>60 days), 7-day for normal runs.
     all_rows = []
     d_from = datetime.strptime(date_from, "%Y-%m-%d").date()
     d_to = datetime.strptime(date_to, "%Y-%m-%d").date()
+    total_days = (d_to - d_from).days
+    chunk_days = 30 if total_days > 60 else 6  # bigger chunks for backfill
 
     for p in profiles:
         pid = str(p["profileId"])
@@ -237,10 +241,9 @@ def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
         brand = PROFILE_BRAND_MAP.get(pname, pname)
         h = {**headers, "Amazon-Advertising-API-Scope": pid}
 
-        # Chunk into 7-day windows
         cur = d_from
         while cur <= d_to:
-            chunk_end = min(cur + timedelta(days=6), d_to)
+            chunk_end = min(cur + timedelta(days=chunk_days), d_to)
             report_rows = _fetch_amz_ads_report(
                 h, pid, cur.isoformat(), chunk_end.isoformat()
             )
