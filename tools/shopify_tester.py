@@ -177,7 +177,8 @@ def run_verify_airtable(step):
         return None, {"skipped": "no AIRTABLE_API_KEY"}
 
     # Airtable filter formula
-    formula = urllib.parse.quote(f"{{{filter_field}}}='{filter_value}'")
+    safe_value = filter_value.replace("'", "\\'")
+    formula = urllib.parse.quote(f"{{{filter_field}}}='{safe_value}'")
     url = f"https://api.airtable.com/v0/{base_id}/{table_id}?filterByFormula={formula}&maxRecords=5"
     log(f"  Airtable: {base_id}/{table_id} where {filter_field}={filter_value!r}")
 

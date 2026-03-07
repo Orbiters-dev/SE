@@ -98,6 +98,9 @@ def get_credentials():
     return Credentials.from_service_account_file(sa_path, scopes=SCOPES)
 
 
+DEFAULT_SHEET_ID = "1bOXrARt8wx_YeKyXMlAS1nKzkZBypeaSilI6xDg4_Tc"
+
+
 def open_sheet(gc, sheet_id=None):
     if sheet_id:
         return gc.open_by_key(sheet_id)
@@ -106,8 +109,7 @@ def open_sheet(gc, sheet_id=None):
         stored_id = id_file.read_text().strip()
         if stored_id:
             return gc.open_by_key(stored_id)
-    print("[ERROR] No sheet ID. Provide --sheet-id or create Data Storage/syncly/.sheet_id")
-    sys.exit(1)
+    return gc.open_by_key(DEFAULT_SHEET_ID)
 
 
 def col_letter(n):

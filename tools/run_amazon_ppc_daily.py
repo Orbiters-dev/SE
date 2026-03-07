@@ -592,10 +592,10 @@ def analyze_with_claude(payload: Dict) -> Dict:
         try:
             return json.loads(text)
         except json.JSONDecodeError:
-            if stop == "max_tokens" or attempt < 2:
+            if attempt < 2:
                 print(f"  [WARN] Claude JSON 파싱 실패 (stop={stop}, max_tokens={max_tok}), 재시도 {attempt+1}/3")
                 continue
-            raise
+            raise RuntimeError(f"Claude JSON 파싱 3회 연속 실패 (stop={stop})")
 
 
 # ===========================================================================
@@ -1073,7 +1073,7 @@ def main():
         with open(args.from_payload, "r", encoding="utf-8") as f:
             payload = json.load(f)
         # extract data_end from payload
-        yd = payload.get("summary", {}).get("yesterday", {}).get("date")
+        yd = payload.get("yesterday")
         if yd:
             data_end = date.fromisoformat(yd)
         print(f"  어제(payload): {data_end}")

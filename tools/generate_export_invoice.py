@@ -7,12 +7,18 @@ Usage:
 """
 
 import os
+import json
 import openpyxl
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 from datetime import datetime
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTPUT_DIR = os.path.join(BASE_DIR, "Data Storage", "export")
+
+def _load_secrets():
+    p = os.path.join(BASE_DIR, "credentials", "secrets.json")
+    with open(p) as f:
+        return json.load(f)
 
 # ---- Configuration ----
 INVOICE_NO = "USA-FLEETERS-26-02-1"
@@ -49,14 +55,8 @@ ITEMS = [
     {"no": 2, "description": "Grosmimi Replacement Parts", "amount": 15000.00},
 ]
 
-# Bank Info (LFU's receiving bank account)
-BANK_INFO = {
-    "company": "ORBITERS Co.,Ltd.",
-    "remittee": "LITTLEFINGERUSA",
-    "bank": "KEB Hana Bank",
-    "swift": "KOEXKRSE",
-    "account": "630-010399-748",
-}
+# Bank Info loaded from credentials/secrets.json
+BANK_INFO = _load_secrets()["bank_accounts"]["lfu_keb_hana"]
 
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "2026-02_Grosmimi_EXW_LFU_FLT_USA.xlsx")
 
@@ -289,7 +289,13 @@ def create_invoice():
     ws[f'B{total_row + 2}'] = "Amount in Words:"
     ws[f'B{total_row + 2}'].font = label_font
     ws.merge_cells(f'C{total_row + 2}:I{total_row + 2}')
-    ws[f'C{total_row + 2}'] = "US DOLLARS SEVENTY THOUSAND ONLY"
+    # Compute amount in words from total
+    total_amount = sum(item["amount"] for item in ITEMS)
+    total_int = int(total_amount)
+    words_map = {70000: "SEVENTY THOUSAND", 55000: "FIFTY FIVE THOUSAND", 15000: "FIFTEEN THOUSAND",
+                 80000: "EIGHTY THOUSAND", 90000: "NINETY THOUSAND", 100000: "ONE HUNDRED THOUSAND"}
+    amount_words = words_map.get(total_int, f"{total_int:,}")
+    ws[f'C{total_row + 2}'] = f"US DOLLARS {amount_words} ONLY"
     ws[f'C{total_row + 2}'].font = data_font
 
     # ============================================================

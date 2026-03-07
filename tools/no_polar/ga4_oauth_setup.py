@@ -113,7 +113,7 @@ def main():
     print()
     print(f"GA4_REFRESH_TOKEN={refresh_token}")
     print()
-    print("Add this line to C:\\Users\\wjcho\\.wat_secrets")
+    print(f"Add this line to {os.path.expanduser('~/.wat_secrets')}")
     print()
 
 

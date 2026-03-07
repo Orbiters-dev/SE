@@ -538,19 +538,28 @@ def write_to_sheet(gc, target_sheet_id, rows, dry_run=False):
     if ws.col_count < needed_cols:
         ws.resize(cols=needed_cols)
 
+    def _col_letter(idx):
+        result = ""
+        while True:
+            result = chr(65 + idx % 26) + result
+            idx = idx // 26 - 1
+            if idx < 0:
+                break
+        return result
+
     # Write headers in Row 2 (Row 1 stays blank per existing pattern)
-    end_hdr = chr(ord("A") + len(SNS_HEADERS) - 1)
+    end_hdr = _col_letter(len(SNS_HEADERS) - 1)
     ws.update(values=[SNS_HEADERS], range_name=f"A2:{end_hdr}2", value_input_option="RAW")
 
     # Clear existing data rows (Row 3+)
     if ws.row_count > 2:
-        end_col = chr(ord("A") + needed_cols - 1)
+        end_col = _col_letter(needed_cols - 1)
         clear_range = f"A3:{end_col}{ws.row_count}"
         ws.batch_clear([clear_range])
 
     # Write data rows starting at Row 3
     if rows:
-        end_col = chr(ord("A") + len(rows[0]) - 1)
+        end_col = _col_letter(len(rows[0]) - 1)
         data_range = f"A3:{end_col}{len(rows) + 2}"
         ws.update(values=rows, range_name=data_range, value_input_option="USER_ENTERED")
 

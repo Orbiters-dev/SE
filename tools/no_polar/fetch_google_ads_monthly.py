@@ -253,7 +253,7 @@ def main():
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
-        json.dump({"tableData": monthly, "totalData": {}}, f, ensure_ascii=False, indent=2)
+        json.dump({"tableData": monthly, "totalData": []}, f, ensure_ascii=False, indent=2)
 
     print(f"\n[완료] {OUTPUT_PATH}")
 

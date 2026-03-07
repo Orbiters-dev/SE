@@ -53,6 +53,7 @@ PROD_RULES = [
     ("Replacement", "Grosmimi"), ("One Touch Cap", "Grosmimi"),
     ("Weighted Kit", "Grosmimi"), ("Strap", "Grosmimi"),
     ("Brush", "Grosmimi"), ("Teether", "Grosmimi"), ("Silicone Plate", "Grosmimi"),
+    ("Replacements", "Grosmimi"),
     ("CHA&MOM", "CHA&MOM"), ("Naeiae", "Naeiae"), ("Alpremio", "Alpremio"),
     ("BabyRabbit", "BabyRabbit"), ("Bamboobebe", "Bamboobebe"),
     ("Beemeal", "Beemymagic"), ("Heart Tray", "Beemymagic"),

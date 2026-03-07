@@ -121,8 +121,10 @@ def week_dates(week_label):
     return fri.isoformat(), thu.isoformat()
 
 def prev_week_label(week_label):
-    """Return previous week label: WK10 -> WK9."""
+    """Return previous week label: WK10 -> WK9, WK1 -> WK52 (prior year)."""
     num = int(week_label.upper().replace('WK', ''))
+    if num <= 1:
+        return 'WK52'
     return f'WK{num - 1}'
 
 

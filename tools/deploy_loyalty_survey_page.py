@@ -383,7 +383,7 @@ def build_section_liquid():
 
   // Check login status using Shopify Liquid
   var customerId = {{% if customer %}}{{{{ customer.id }}}}{{% else %}}null{{% endif %}};
-  var customerEmail = {{% if customer %}}"{{{{ customer.email }}}}"{{% else %}}null{{% endif %}};
+  var customerEmail = {{% if customer %}}{{{{ customer.email | json }}}}{{% else %}}null{{% endif %}};
 
   var loadingEl = document.getElementById("onz-loading");
   var loginEl = document.getElementById("onz-login-required");

@@ -1,13 +1,25 @@
 @echo off
 REM ============================================
 REM  Daily Syncly Export + Google Sheets Sync
-REM  Schedule: Every day at 17:00 KST (= PST 00:00)
+REM  Works on both Desktop (wjcho) and Laptop (user)
 REM ============================================
 
-set PYTHON=C:\Users\wjcho\AppData\Local\Programs\Python\Python312\python.exe
-set PROJECT=Z:\Orbiters\ORBI CLAUDE_0223\ORBITERS CLAUDE\ORBITERS CLAUDE\WJ Test1
+REM Auto-detect Python path
+if exist "C:\Users\user\AppData\Local\Programs\Python\Python314\python.exe" (
+    set PYTHON=C:\Users\user\AppData\Local\Programs\Python\Python314\python.exe
+) else if exist "C:\Users\wjcho\AppData\Local\Programs\Python\Python312\python.exe" (
+    set PYTHON=C:\Users\wjcho\AppData\Local\Programs\Python\Python312\python.exe
+) else (
+    echo [ERROR] Python not found on this machine
+    exit /b 1
+)
+
+REM Auto-detect project root (this script lives in tools/)
+set PROJECT=%~dp0..
 
 echo [%date% %time%] Starting Syncly daily export...
+echo [INFO] Python: %PYTHON%
+echo [INFO] Project: %PROJECT%
 
 REM Step 1: Download CSV from Syncly
 "%PYTHON%" "%PROJECT%\tools\fetch_syncly_export.py"

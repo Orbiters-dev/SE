@@ -536,7 +536,7 @@ def build_section_liquid():
   var WEBHOOK_URL = "{N8N_WEBHOOK_URL}";
   var METAFIELD_WEBHOOK = "{N8N_METAFIELD_WEBHOOK}";
   var customerId = {{% if customer %}}{{{{ customer.id }}}}{{% else %}}null{{% endif %}};
-  var customerEmail = {{% if customer %}}"{{{{ customer.email }}}}"{{% else %}}null{{% endif %}};
+  var customerEmail = {{% if customer %}}{{{{ customer.email | json }}}}{{% else %}}null{{% endif %}};
 
   // Existing metafield data (populated via Liquid for logged-in customers)
   var existingData = {{

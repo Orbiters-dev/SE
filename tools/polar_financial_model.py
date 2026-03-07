@@ -623,8 +623,9 @@ def write_sections(ws, start_row, flat_nodes, months, ytd_months, configs, level
                     c.number_format = PCT; c.font = rf
 
             if has_partial:
-                # Feb Full-month & Feb actual YoY vs Feb prior year
-                prior_feb = month_to_col.get("2025-02")
+                # Partial month YoY vs same month prior year (dynamic)
+                prior_partial = f"{int(partial_m[:4]) - 1}-{partial_m[5:7]}"
+                prior_feb = month_to_col.get(prior_partial)
                 if prior_feb is not None:
                     for fcol in (feb_full_col, feb_actual_col):
                         yc = yoy_col(fcol)

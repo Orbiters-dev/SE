@@ -39,8 +39,14 @@ def api_get(path, params):
         with urllib.request.urlopen(url, timeout=30) as r:
             return json.loads(r.read())
     except urllib.error.HTTPError as e:
-        error_body = json.loads(e.read())
-        raise Exception(f"API 오류: {error_body.get('error', {}).get('message', str(e))}")
+        try:
+            error_body = json.loads(e.read())
+            msg = error_body.get('error', {}).get('message', str(e))
+        except Exception:
+            msg = str(e)
+        raise Exception(f"API 오류: {msg}")
+    except urllib.error.URLError as e:
+        raise Exception(f"Network 오류: {e.reason}")
 
 
 def get_campaign_insights_monthly(since: str, until: str) -> list:

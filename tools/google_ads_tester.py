@@ -297,7 +297,7 @@ def check_anomaly_logic():
 
     # Zero-sales 캠페인 (spend > 0)
     zero_sales = c30.get("zero_sales", []) if isinstance(c30, dict) else []
-    real_zero = [c for c in zero_sales if c.get("cost", 0) or c.get("spend", 0) > 0]
+    real_zero = [c for c in zero_sales if (c.get("cost", 0) > 0) or (c.get("spend", 0) > 0)]
     if real_zero:
         warn(f"  {len(real_zero)} campaigns with spend but 0 conversions")
         for c in real_zero[:3]:

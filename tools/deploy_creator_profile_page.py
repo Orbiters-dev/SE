@@ -468,8 +468,8 @@ def build_section_liquid():
   var METAFIELD_WEBHOOK = "{N8N_METAFIELD_WEBHOOK}";
   var AIRTABLE_WEBHOOK = "{N8N_AIRTABLE_WEBHOOK}";
   var customerId = {{% if customer %}}{{{{ customer.id }}}}{{% else %}}null{{% endif %}};
-  var customerEmail = {{% if customer %}}"{{{{ customer.email }}}}"{{% else %}}null{{% endif %}};
-  var customerName = {{% if customer %}}"{{{{ customer.name }}}}"{{% else %}}null{{% endif %}};
+  var customerEmail = {{% if customer %}}{{{{ customer.email | json }}}}{{% else %}}null{{% endif %}};
+  var customerName = {{% if customer %}}{{{{ customer.name | json }}}}{{% else %}}null{{% endif %}};
   // Check if user already provided address: Liquid metafield OR Shopify address OR URL param OR sessionStorage
   var hasAddressLiquid = {{% if customer.default_address.address1 %}}true{{% elsif customer.metafields.onzenna_survey.signup_completed_at %}}true{{% else %}}false{{% endif %}};
   var urlParams = new URLSearchParams(window.location.search);

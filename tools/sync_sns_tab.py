@@ -130,10 +130,14 @@ def fmt_number(n):
 
 
 def col_letter(idx):
-    """Convert 0-based column index to spreadsheet letter (0='A', 25='Z', 26='AA')."""
-    if idx < 26:
-        return chr(65 + idx)
-    return chr(64 + idx // 26) + chr(65 + idx % 26)
+    """Convert 0-based column index to spreadsheet letter (0='A', 25='Z', 26='AA', ...)."""
+    result = ""
+    while True:
+        result = chr(65 + idx % 26) + result
+        idx = idx // 26 - 1
+        if idx < 0:
+            break
+    return result
 
 
 # ── Data Loading ───────────────────────────────────────────────────────────

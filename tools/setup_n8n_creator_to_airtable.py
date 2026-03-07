@@ -34,7 +34,7 @@ AIRTABLE_BASE_ID = os.getenv("AIRTABLE_INBOUND_BASE_ID", "")
 AIRTABLE_TABLE_ID = os.getenv("AIRTABLE_INBOUND_TABLE_ID", "")
 META_ACCESS_TOKEN = os.getenv("META_ACCESS_TOKEN", "")
 IG_USER_ID = os.getenv("INSTAGRAM_BUSINESS_USER_ID", "")
-SHOPIFY_SHOP = os.getenv("SHOPIFY_SHOP", "toddie-4080.myshopify.com")
+SHOPIFY_SHOP = os.getenv("SHOPIFY_SHOP", "mytoddie.myshopify.com")
 SHOPIFY_TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN", "")
 
 CUSTOMERS_TABLE_ID = os.getenv("AIRTABLE_CUSTOMERS_TABLE_ID", "tblLjgNhDOdkdQwuE")

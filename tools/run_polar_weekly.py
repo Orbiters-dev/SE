@@ -31,9 +31,15 @@ def run(cmd, label=""):
     tag = label or Path(cmd[2]).stem if len(cmd) > 2 else ""
     print(f"\n[{tag}] {' '.join(str(c) for c in cmd)}")
     sys.stdout.flush()
-    result = subprocess.run([str(c) for c in cmd], cwd=str(TOOLS_DIR))
+    result = subprocess.run([str(c) for c in cmd], cwd=str(TOOLS_DIR), capture_output=True, text=True)
+    if result.stdout:
+        for line in result.stdout.strip().splitlines()[-5:]:
+            print(f"  {line}")
     if result.returncode != 0:
         print(f"  [WARN] {tag} 실패 (exit {result.returncode}) - 계속 진행")
+        if result.stderr:
+            for line in result.stderr.strip().splitlines()[-3:]:
+                print(f"  [ERR] {line}")
     return result.returncode == 0
 
 

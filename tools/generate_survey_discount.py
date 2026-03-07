@@ -72,6 +72,8 @@ def create_discount_code(dry_run=False):
         }
     }
 
+    if not PRICE_RULE_ID:
+        raise RuntimeError("SHOPIFY_LOYALTY_PRICE_RULE_ID not set in environment")
     result = shopify_request("POST", f"/price_rules/{PRICE_RULE_ID}/discount_codes.json", data)
     created = result.get("discount_code", {})
     actual_code = created.get("code", code)

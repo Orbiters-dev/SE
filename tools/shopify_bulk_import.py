@@ -89,6 +89,8 @@ def import_customers(limit=None, dry_run=False):
                 email = customer.get("email", "")
                 if total <= 5:
                     print(f"    [{total}] {name} <{email}>")
+                success += 1
+                time.sleep(0.5)
                 continue
 
             # Send to n8n customer sync webhook

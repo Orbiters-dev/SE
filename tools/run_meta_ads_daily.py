@@ -959,28 +959,39 @@ def analyze_with_claude(payload: dict) -> dict:
 - campaign_type이 "traffic"이면 ROAS가 낮아도 CTR/CPM으로 평가
 - JSON만 출력 (코드블록 없이)"""
 
-    resp = requests.post(
-        "https://api.anthropic.com/v1/messages",
-        headers={
-            "x-api-key": ANTHROPIC_KEY,
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json",
-        },
-        json={
-            "model": "claude-sonnet-4-6",
-            "max_tokens": 8192,
-            "system": SYSTEM_PROMPT,
-            "messages": [{"role": "user", "content": user_msg}],
-        },
-        timeout=180,
-    )
-    resp.raise_for_status()
-    text = resp.json()["content"][0]["text"].strip()
-    if text.startswith("```"):
-        text = text.split("```")[1]
-        if text.startswith("json"):
-            text = text[4:]
-    return json.loads(text.strip().rstrip("`").strip())
+    for attempt in range(3):
+        max_tok = 8192 if attempt == 0 else 16384
+        resp = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={
+                "x-api-key": ANTHROPIC_KEY,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+            },
+            json={
+                "model": "claude-sonnet-4-6",
+                "max_tokens": max_tok,
+                "system": SYSTEM_PROMPT,
+                "messages": [{"role": "user", "content": user_msg}],
+            },
+            timeout=180,
+        )
+        resp.raise_for_status()
+        body = resp.json()
+        text = body["content"][0]["text"].strip()
+        stop = body.get("stop_reason", "")
+        if text.startswith("```"):
+            text = text.split("```")[1]
+            if text.startswith("json"):
+                text = text[4:]
+        text = text.strip().rstrip("`").strip()
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            if attempt < 2:
+                print(f"  [WARN] Claude JSON parse fail (stop={stop}, tokens={max_tok}), retry {attempt+1}/3")
+                continue
+            raise RuntimeError(f"Claude JSON parse failed after 3 attempts (stop={stop})")
 
 
 # ===========================================================================
@@ -1002,7 +1013,10 @@ def _roas_cell(v):
     return _c(round(v, 2) if v else v, good_thresh=3.0, warn_thresh=2.0)
 
 def _ctr_cell(v):
-    return _c(f"{v:.2f}%" if v else v, good_thresh="1.50%", warn_thresh="0.80%", good_if_high=True) if v else "-"
+    if not v:
+        return "-"
+    colored = _c(v, good_thresh=1.50, warn_thresh=0.80, good_if_high=True)
+    return colored.replace(f">{v}<", f">{v:.2f}%<")
 
 def _diff_badge(pct, good_if_positive=True):
     """Show % diff vs benchmark with color."""

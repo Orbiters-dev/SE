@@ -422,7 +422,7 @@ def aggregate_q3(rows: List[Dict]) -> List[Dict]:
         "promotion_discounts": 0.0,
         "cogs": 0.0,
         "order_ids": set(),
-        "channel": "Amazon",
+        "total_fees": 0.0,
     })
 
     for r in rows:
@@ -433,7 +433,9 @@ def aggregate_q3(rows: List[Dict]) -> List[Dict]:
         bucket[key]["promotion_discounts"]  += r["promotion_discounts"]
         bucket[key]["cogs"]                 += r.get("cogs", 0.0)
         bucket[key]["order_ids"].add(r["order_id"])
-        bucket[key]["channel"]               = r.get("channel", "Amazon")
+        # Compute fees per-row using the correct channel fee rate
+        fee_rate = TARGET_FEE_RATE if r.get("channel") == "Target+" else AMZ_FEE_RATE
+        bucket[key]["total_fees"]           += -(abs(r["gross_sales"]) * fee_rate)
 
     out = []
     for (brand, month_key), v in sorted(bucket.items()):
@@ -441,9 +443,7 @@ def aggregate_q3(rows: List[Dict]) -> List[Dict]:
         discounts = v["promotion_discounts"]
         net       = gross + discounts  # discounts are negative
 
-        # Fee rate by channel
-        fee_rate  = TARGET_FEE_RATE if v["channel"] == "Target+" else AMZ_FEE_RATE
-        total_fees = -abs(gross * fee_rate)  # always negative
+        total_fees = v["total_fees"]
 
         total_orders = len(v["order_ids"])
         avg_aov = (net / total_orders) if total_orders else 0.0
@@ -545,7 +545,7 @@ def main():
 
     OUTPUT_Q3.parent.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT_Q3, "w", encoding="utf-8") as f:
-        json.dump({"tableData": q3_rows, "totalData": {}}, f, ensure_ascii=False, indent=2)
+        json.dump({"tableData": q3_rows, "totalData": []}, f, ensure_ascii=False, indent=2)
 
     print(f"\n[OK] Q3 -> {OUTPUT_Q3}")
 

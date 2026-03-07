@@ -158,22 +158,6 @@ def fetch_campaign_metrics(campaign_ids):
     return results
 
 
-def _fetch_single_campaign_stats(campaign_id):
-    """Fallback: get stats for a single campaign via messages endpoint."""
-    url = f"{BASE_URL}/campaigns/{campaign_id}"
-    params = {
-        "fields[campaign]": "name,status,send_time",
-        "include": "campaign-messages",
-    }
-    try:
-        data = api_get(url, params)
-        # Try to get message-level stats
-        attrs = data.get("data", {}).get("attributes", {})
-        return None  # This endpoint doesn't return stats directly
-    except Exception:
-        return None
-
-
 # ---------------------------------------------------------------------------
 # Flow list and metrics (KL1)
 # ---------------------------------------------------------------------------
@@ -297,17 +281,60 @@ def build_kl2(campaigns, campaign_metrics):
     return {"tableData": table}
 
 
+def _fetch_flow_metrics_monthly(flow_id, month_start, month_end):
+    """Fetch flow metrics for a single month period."""
+    url = f"{BASE_URL}/flow-values-reports/"
+    payload = {
+        "data": {
+            "type": "flow-values-report",
+            "attributes": {
+                "statistics": ["revenue", "unique_recipient_count", "open_rate", "click_rate", "received_email"],
+                "timeframe": {"key": "custom", "start": month_start.strftime("%Y-%m-%d"), "end": month_end.strftime("%Y-%m-%d")},
+                "filter": f"equals(flow_id,\"{flow_id}\")",
+            }
+        }
+    }
+    try:
+        data = api_post(url, payload)
+        results = data.get("data", {}).get("attributes", {}).get("results", [])
+        if results:
+            r = results[0]
+            stats = r.get("statistics", {})
+            return {
+                "send": stats.get("received_email", 0),
+                "unique_open": int(stats.get("open_rate", 0) * stats.get("received_email", 0)),
+                "unique_click": int(stats.get("click_rate", 0) * stats.get("received_email", 0)),
+                "orders": stats.get("unique_recipient_count", 0),
+                "revenue": stats.get("revenue", 0),
+            }
+    except Exception as e:
+        print(f"  [WARN] flow {flow_id} metrics for {month_start}: {e}")
+    return None
+
+
 def build_kl1(flows, flow_metrics, start_date, end_date):
-    """KL1: flow monthly performance."""
+    """KL1: flow monthly performance (per-month API calls to avoid duplication)."""
     table = []
-    # For each flow, create a monthly entry
+    cur = start_date
+    total_months = 0
+    while cur <= end_date:
+        total_months += 1
+        cur += relativedelta(months=1)
+
     cur = start_date
     while cur <= end_date:
         month_key = cur.strftime("%Y-%m-01")
+        month_end = cur + relativedelta(months=1) - timedelta(days=1)
         for fl in flows:
-            m = flow_metrics.get(fl["id"], {})
-            if not m:
-                continue
+            # Try per-month fetch; fall back to evenly divided aggregate
+            m = _fetch_flow_metrics_monthly(fl["id"], cur, month_end)
+            if m is None:
+                agg = flow_metrics.get(fl["id"], {})
+                if not agg:
+                    continue
+                # Divide aggregate evenly as fallback
+                m = {k: (v / total_months if isinstance(v, (int, float)) else v) for k, v in agg.items()}
+
             send = m.get("send", 0)
             uo = m.get("unique_open", 0)
             uc = m.get("unique_click", 0)

@@ -7,12 +7,18 @@ Usage:
 """
 
 import os
+import json
 import openpyxl
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 from datetime import datetime
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTPUT_DIR = os.path.join(BASE_DIR, "Data Storage", "export")
+
+def _load_secrets():
+    p = os.path.join(BASE_DIR, "credentials", "secrets.json")
+    with open(p) as f:
+        return json.load(f)
 
 # ---- Configuration ----
 INVOICE_NO = "FLT-CONSULTING-2602-001"
@@ -39,14 +45,8 @@ BILL_TO = {
     "email": "wj.choi@orbiters.co.kr",
 }
 
-# Bank Info (Fleeters' receiving bank account)
-BANK_INFO = {
-    "remittee": "FLEETERS INC",
-    "bank": "JPMorgan Chase Bank, N.A., Santa Monica, CA",
-    "swift": "CHASUS33",
-    "account": "522203317",
-    "routing": "021000021",  # Wire transfer routing number
-}
+# Bank Info loaded from credentials/secrets.json
+BANK_INFO = _load_secrets()["bank_accounts"]["fleeters_jpmorgan"]
 
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "2026-02_ConsultingFee_Invoice_FLT_to_ORBI.xlsx")
 

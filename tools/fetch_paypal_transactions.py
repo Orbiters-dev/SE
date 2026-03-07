@@ -77,7 +77,7 @@ def fetch_transactions_window(start_dt, end_dt, token):
                 "date": ti.get("transaction_initiation_date", ""),
                 "payer_email": pi.get("email_address", ""),
                 "payer_name": full_name,
-                "amount": float(amount_info.get("value", "0")),
+                "amount": float(amount_info.get("value") or "0"),
                 "currency": amount_info.get("currency_code", "USD"),
                 "status": ti.get("transaction_status", ""),
                 "subject": ti.get("transaction_subject", ""),

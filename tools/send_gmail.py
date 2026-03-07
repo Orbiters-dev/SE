@@ -56,6 +56,10 @@ def get_gmail_service():
         os.makedirs(os.path.dirname(TOKEN_PATH), exist_ok=True)
         with open(TOKEN_PATH, "w") as f:
             f.write(creds.to_json())
+        try:
+            os.chmod(TOKEN_PATH, 0o600)
+        except OSError:
+            pass  # Windows may not support chmod
 
     return build("gmail", "v1", credentials=creds)
 
