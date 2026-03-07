@@ -14,11 +14,15 @@ on:
         description: 'Lookback days'
         required: false
         default: '35'
+      skip_pg:
+        description: 'Skip PostgreSQL push (true/false)'
+        required: false
+        default: 'false'
 
 jobs:
   collect:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
 
     steps:
       - name: Checkout repo
@@ -67,8 +71,34 @@ jobs:
           ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
           ENVEOF
 
+      - name: Install openpyxl for PayPal fetch
+        run: pip install --quiet openpyxl
+
+      - name: Write PayPal credentials
+        run: |
+          echo "PAYPAL_CLIENT_ID=${{ secrets.PAYPAL_CLIENT_ID }}" >> .env
+          echo "PAYPAL_SECRET=${{ secrets.PAYPAL_SECRET }}" >> .env
+
       - name: Run Data Keeper
         run: |
           CHANNEL="${{ github.event.inputs.channel || 'all' }}"
           DAYS="${{ github.event.inputs.days || '35' }}"
-          python -u tools/data_keeper.py --channel "$CHANNEL" --days "$DAYS"
+          SKIP_PG="${{ github.event.inputs.skip_pg || 'false' }}"
+          CMD="python -u tools/data_keeper.py --channel $CHANNEL --days $DAYS"
+          if [ "$SKIP_PG" = "true" ]; then CMD="$CMD --skip-pg"; fi
+          $CMD
+
+      - name: Run PayPal fetch
+        if: github.event.inputs.channel == '' || github.event.inputs.channel == 'all'
+        run: |
+          cd tools && python -u fetch_paypal_transactions.py || echo "PayPal fetch failed (non-fatal)"
+
+      - name: Upload cache as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: datakeeper-cache
+          path: |
+            .tmp/datakeeper/*.json
+            .tmp/polar_data/q11_paypal_transactions.json
+          retention-days: 7

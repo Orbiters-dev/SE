@@ -802,7 +802,8 @@ def collect_shopify(date_from: str, date_to: str) -> list[dict]:
         print("  [SKIP] No Shopify credentials")
         return []
 
-    base = f"https://{SHOPIFY_SHOP}.myshopify.com/admin/api/2024-01"
+    shop = SHOPIFY_SHOP.replace(".myshopify.com", "") if ".myshopify.com" in SHOPIFY_SHOP else SHOPIFY_SHOP
+    base = f"https://{shop}.myshopify.com/admin/api/2024-01"
     headers = {"X-Shopify-Access-Token": SHOPIFY_ACCESS_TOKEN}
 
     all_orders = []
