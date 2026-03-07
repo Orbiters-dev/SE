@@ -41,16 +41,25 @@ MASTER_SHEET = "Posts Master"
 TRACKER_SHEET = "D+60 Tracker"
 INF_SHEET = "Influencer Tracker"
 
-# ──── D+60 Tracker Config (v2) ────
+# Region prefix applied at runtime
+_REGION_PREFIX = ""
+
+
+def _tab(name):
+    """Return tab name with region prefix (e.g. 'US Posts Master')."""
+    return f"{_REGION_PREFIX}{name}" if _REGION_PREFIX else name
+
+# ──── D+60 Tracker Config (v3) ────
 # v1: FIXED_COLS = 4 (Post ID, URL, Username, Post Date)
 # v2: FIXED_COLS = 8 (+D+ Days, Curr Cmt, Curr Like, Curr View)
-FIXED_COLS = 8
+# v3: FIXED_COLS = 9 (+Brand between Post Date and D+ Days)
+FIXED_COLS = 9
 METRICS_PER_DAY = 3       # Comments, Likes, Views
 MAX_DAYS = 61             # D+0 ~ D+60
-TOTAL_TRACKER_COLS = FIXED_COLS + MAX_DAYS * METRICS_PER_DAY  # 8 + 183 = 191
+TOTAL_TRACKER_COLS = FIXED_COLS + MAX_DAYS * METRICS_PER_DAY  # 9 + 183 = 192
 
-# D+0 starts at column index 8 (0-based) = column I (1-based)
-D0_COL_LETTER = "I"
+# D+0 starts at column index 9 (0-based) = column J (1-based)
+D0_COL_LETTER = "J"
 
 METRIC_KEYS = [
     "extraction.engagement.comment",
@@ -80,6 +89,39 @@ MASTER_HEADERS = [
     "Sentiment",
     "Post Date",
 ]
+
+# ──── Brand Detection ────
+# Our brand keywords → canonical brand name
+BRAND_KEYWORDS = {
+    "grosmimi": "Grosmimi",
+    "growmimi": "Grosmimi",
+    "gros mimi": "Grosmimi",
+    "cha & mom": "Cha & Mom",
+    "cha&mom": "Cha & Mom",
+    "cha and mom": "Cha & Mom",
+    "chaandmom": "Cha & Mom",
+    "chamom": "Cha & Mom",
+    "onzenna": "Onzenna",
+    "babyrabbit": "Babyrabbit",
+    "baby rabbit": "Babyrabbit",
+    "zezebaebae": "Onzenna",
+    "naeiae": "Naeiae",
+    "naeia": "Naeiae",
+    "goongbe": "Goongbe",
+    "commemoi": "Commemoi",
+}
+
+
+def detect_brands(text):
+    """Detect our brand names from text. Returns comma-separated canonical names."""
+    if not text:
+        return ""
+    text_lower = text.lower()
+    found = []
+    for keyword, canonical in BRAND_KEYWORDS.items():
+        if keyword in text_lower and canonical not in found:
+            found.append(canonical)
+    return ",".join(found)
 
 
 # ──── Helpers ────
@@ -126,9 +168,20 @@ def parse_csv(csv_path):
         return list(csv.DictReader(f))
 
 
-def find_latest_csv():
+REGION_CSV_KEYWORDS = {
+    "us": ["zezebaebae", "onzenna"],
+    "jp": ["grosmimi japan", "japan"],
+}
+
+
+def find_latest_csv(region=None):
     csvs = sorted(SYNCLY_DIR.glob("*.csv"), key=lambda p: p.stat().st_mtime, reverse=True)
     csvs = [c for c in csvs if "debug" not in c.name]
+    if region and region in REGION_CSV_KEYWORDS:
+        keywords = REGION_CSV_KEYWORDS[region]
+        filtered = [c for c in csvs if any(kw in c.name.lower() for kw in keywords)]
+        if filtered:
+            return filtered[0]
     return csvs[0] if csvs else None
 
 
@@ -175,33 +228,33 @@ def serial_to_date(val):
 
 def tracker_formulas(sheet_row):
     """
-    D+60 Tracker v2에서 특정 행에 들어갈 수식 4개 반환.
-      col E: D+ Days   - 오늘 기준 포스팅 후 며칠 지났는지 (자동 갱신)
-      col F: Curr Cmt  - D+ Days 열 기준 해당 날짜의 댓글 수 (OFFSET)
-      col G: Curr Like - 동일
-      col H: Curr View - 동일
-    D+0 데이터는 col I(index 8)부터 시작.
-    OFFSET($I{row}, 0, MIN(E,60)*3+n) 으로 해당 D+N 메트릭 참조.
+    D+60 Tracker v3에서 특정 행에 들어갈 수식 4개 반환.
+      col F: D+ Days   - 오늘 기준 포스팅 후 며칠 지났는지 (자동 갱신)
+      col G: Curr Cmt  - D+ Days 열 기준 해당 날짜의 댓글 수 (OFFSET)
+      col H: Curr Like - 동일
+      col I: Curr View - 동일
+    D+0 데이터는 col J(index 9)부터 시작.
+    OFFSET($J{row}, 0, MIN(F,60)*3+n) 으로 해당 D+N 메트릭 참조.
     """
     r = sheet_row
     days_f  = f'=IF(D{r}="","",INT(TODAY()-D{r}))'
-    cmt_f   = f'=IF(OR(E{r}="",E{r}<0),"",OFFSET(${D0_COL_LETTER}{r},0,MIN(E{r},60)*3))'
-    like_f  = f'=IF(OR(E{r}="",E{r}<0),"",OFFSET(${D0_COL_LETTER}{r},0,MIN(E{r},60)*3+1))'
-    view_f  = f'=IF(OR(E{r}="",E{r}<0),"",OFFSET(${D0_COL_LETTER}{r},0,MIN(E{r},60)*3+2))'
+    cmt_f   = f'=IF(OR(F{r}="",F{r}<0),"",OFFSET(${D0_COL_LETTER}{r},0,MIN(F{r},60)*3))'
+    like_f  = f'=IF(OR(F{r}="",F{r}<0),"",OFFSET(${D0_COL_LETTER}{r},0,MIN(F{r},60)*3+1))'
+    view_f  = f'=IF(OR(F{r}="",F{r}<0),"",OFFSET(${D0_COL_LETTER}{r},0,MIN(F{r},60)*3+2))'
     return [days_f, cmt_f, like_f, view_f]
 
 
 # ──── Tracker Headers ────
 
 def build_tracker_headers():
-    """D+60 Tracker v2 헤더 2행 생성."""
+    """D+60 Tracker v3 헤더 2행 생성."""
     # Row 1: 그룹 헤더
-    row1 = ["", "", "", "", "Current Status", "", "", ""]  # Post Info 4 + Current Status 4
+    row1 = ["", "", "", "", "", "Current Status", "", "", ""]  # Post Info 5 (incl Brand) + Current Status 4
     for d in range(MAX_DAYS):
         row1.extend([f"D+{d}", "", ""])
 
     # Row 2: 서브 헤더
-    row2 = ["Post ID", "URL", "Username", "Post Date", "D+ Days", "Curr Comment", "Curr Like", "Curr View"]
+    row2 = ["Post ID", "URL", "Username", "Post Date", "Brand", "D+ Days", "Curr Comment", "Curr Like", "Curr View"]
     for d in range(MAX_DAYS):
         row2.extend(METRIC_LABELS)
 
@@ -211,9 +264,11 @@ def build_tracker_headers():
 # ──── Migration: v1 → v2 ────
 
 def detect_tracker_version(tracker_ws):
-    """서브헤더(Row2) 5번째 열이 'D+ Days'면 v2, 아니면 v1."""
+    """서브헤더(Row2) 기준 버전 판별: v3(Brand+D+Days), v2(D+Days only), v1(없음)."""
     try:
         headers = tracker_ws.row_values(2)
+        if len(headers) >= 6 and headers[4] == "Brand" and "D+ Days" in headers[5]:
+            return "v3"
         if len(headers) >= 5 and "D+ Days" in headers[4]:
             return "v2"
         return "v1"
@@ -263,6 +318,70 @@ def migrate_tracker_v1_to_v2(sh, tracker_ws):
         print(f"[MIGRATE] 완료. {len(formula_updates)}개 행에 D+ Days 수식 추가.")
     else:
         print("[MIGRATE] 완료.")
+
+
+def migrate_tracker_v2_to_v3(sh, tracker_ws, master_ws=None):
+    """
+    v2 -> v3: Brand 열 삽입 (Post Date(D) 뒤, D+ Days(E) 앞 = index 4).
+    기존 데이터의 Post ID로 Posts Master에서 Brand를 찾아 채운다.
+    """
+    print("[MIGRATE] D+60 Tracker v2 -> v3 (Brand 열 추가)...")
+
+    # 1) 열 1개 삽입 (index 4)
+    sh.batch_update({"requests": [{
+        "insertDimension": {
+            "range": {
+                "sheetId": tracker_ws.id,
+                "dimension": "COLUMNS",
+                "startIndex": 4,
+                "endIndex": 5,
+            },
+            "inheritFromBefore": False,
+        }
+    }]})
+
+    # 2) 헤더 업데이트
+    tracker_ws.update("E1", [[""]],  value_input_option="RAW")
+    tracker_ws.update("E2", [["Brand"]], value_input_option="RAW")
+
+    # 3) Posts Master에서 post_id -> brand 맵 구축
+    brand_map = {}
+    if master_ws:
+        try:
+            master_data = master_ws.get_all_values()
+            if master_data:
+                mh = master_data[0]
+                pid_idx = mh.index("Post ID") if "Post ID" in mh else 0
+                brand_idx = mh.index("Brand") if "Brand" in mh else None
+                if brand_idx is not None:
+                    for mr in master_data[1:]:
+                        if pid_idx < len(mr) and brand_idx < len(mr) and mr[pid_idx]:
+                            brand_map[mr[pid_idx]] = mr[brand_idx]
+        except Exception as e:
+            print(f"[MIGRATE] Posts Master 읽기 실패: {e}")
+
+    # 4) 기존 데이터 행에 Brand 채우기 + D+ Days 수식 열 참조 업데이트 (E→F)
+    all_data = tracker_ws.get_all_values()
+    brand_updates = []
+    formula_updates = []
+    for i in range(2, len(all_data)):
+        sheet_row = i + 1
+        row = all_data[i]
+        if not row or not row[0]:
+            continue
+        post_id = row[0]
+        brand = brand_map.get(post_id, "")
+        if brand:
+            brand_updates.append({"range": f"E{sheet_row}", "values": [[brand]]})
+        # F열: D+ Days 수식 업데이트
+        days_f = f'=IF(D{sheet_row}="","",INT(TODAY()-D{sheet_row}))'
+        formula_updates.append({"range": f"F{sheet_row}", "values": [[days_f]]})
+
+    if brand_updates:
+        tracker_ws.batch_update(brand_updates, value_input_option="RAW")
+    if formula_updates:
+        tracker_ws.batch_update(formula_updates, value_input_option="USER_ENTERED")
+    print(f"[MIGRATE] v3 완료. {len(brand_updates)}개 행에 Brand 추가, 수식 업데이트.")
 
 
 # ──── Formatting ────
@@ -354,10 +473,10 @@ def format_tracker(sh, ws):
     sid = ws.id
 
     # ── Row 1: 그룹 헤더 ──
-    # Post Info (cols 0-3): 짙은 남색
+    # Post Info (cols 0-4, incl Brand): 짙은 남색
     requests.append({"repeatCell": {
         "range": {"sheetId": sid, "startRowIndex": 0, "endRowIndex": 1,
-                  "startColumnIndex": 0, "endColumnIndex": 4},
+                  "startColumnIndex": 0, "endColumnIndex": 5},
         "cell": {"userEnteredFormat": {
             "backgroundColor": {"red": 0.20, "green": 0.24, "blue": 0.35},
             "textFormat": {"bold": True, "fontSize": 10,
@@ -368,10 +487,10 @@ def format_tracker(sh, ws):
         "fields": "userEnteredFormat",
     }})
 
-    # Auto group (cols 4-7): 짙은 초록
+    # Current Status group (cols 5-8): 짙은 초록
     requests.append({"repeatCell": {
         "range": {"sheetId": sid, "startRowIndex": 0, "endRowIndex": 1,
-                  "startColumnIndex": 4, "endColumnIndex": 8},
+                  "startColumnIndex": 5, "endColumnIndex": 9},
         "cell": {"userEnteredFormat": {
             "backgroundColor": {"red": 0.13, "green": 0.40, "blue": 0.25},
             "textFormat": {"bold": True, "fontSize": 10,
@@ -383,7 +502,7 @@ def format_tracker(sh, ws):
     }})
     requests.append({"mergeCells": {
         "range": {"sheetId": sid, "startRowIndex": 0, "endRowIndex": 1,
-                  "startColumnIndex": 4, "endColumnIndex": 8},
+                  "startColumnIndex": 5, "endColumnIndex": 9},
         "mergeType": "MERGE_ALL",
     }})
 
@@ -414,10 +533,10 @@ def format_tracker(sh, ws):
         }})
 
     # ── Row 2: 서브 헤더 ──
-    # Post Info sub (cols 0-3)
+    # Post Info sub (cols 0-4, incl Brand)
     requests.append({"repeatCell": {
         "range": {"sheetId": sid, "startRowIndex": 1, "endRowIndex": 2,
-                  "startColumnIndex": 0, "endColumnIndex": 4},
+                  "startColumnIndex": 0, "endColumnIndex": 5},
         "cell": {"userEnteredFormat": {
             "backgroundColor": {"red": 0.85, "green": 0.87, "blue": 0.91},
             "textFormat": {"bold": True, "fontSize": 9},
@@ -427,10 +546,10 @@ def format_tracker(sh, ws):
         "fields": "userEnteredFormat",
     }})
 
-    # Auto sub (cols 4-7): 연한 초록
+    # Current Status sub (cols 5-8): 연한 초록
     requests.append({"repeatCell": {
         "range": {"sheetId": sid, "startRowIndex": 1, "endRowIndex": 2,
-                  "startColumnIndex": 4, "endColumnIndex": 8},
+                  "startColumnIndex": 5, "endColumnIndex": 9},
         "cell": {"userEnteredFormat": {
             "backgroundColor": {"red": 0.82, "green": 0.94, "blue": 0.87},
             "textFormat": {"bold": True, "fontSize": 9},
@@ -471,10 +590,22 @@ def format_tracker(sh, ws):
         "fields": "userEnteredFormat.verticalAlignment,userEnteredFormat.borders",
     }})
 
-    # D+ Days (col 4): 연한 초록 배경, 중앙 정렬
+    # Brand (col 4): 연한 남색 배경, 중앙 정렬
     requests.append({"repeatCell": {
         "range": {"sheetId": sid, "startRowIndex": 2, "endRowIndex": 500,
                   "startColumnIndex": 4, "endColumnIndex": 5},
+        "cell": {"userEnteredFormat": {
+            "backgroundColor": {"red": 0.88, "green": 0.90, "blue": 0.95},
+            "horizontalAlignment": "CENTER", "verticalAlignment": "MIDDLE",
+            "borders": _borders(),
+        }},
+        "fields": "userEnteredFormat",
+    }})
+
+    # D+ Days (col 5): 연한 초록 배경, 중앙 정렬
+    requests.append({"repeatCell": {
+        "range": {"sheetId": sid, "startRowIndex": 2, "endRowIndex": 500,
+                  "startColumnIndex": 5, "endColumnIndex": 6},
         "cell": {"userEnteredFormat": {
             "backgroundColor": {"red": 0.94, "green": 0.99, "blue": 0.96},
             "horizontalAlignment": "CENTER", "verticalAlignment": "MIDDLE",
@@ -484,10 +615,10 @@ def format_tracker(sh, ws):
         "fields": "userEnteredFormat",
     }})
 
-    # Curr Cmt/Like/View (cols 5-7): 연한 초록 배경, 우측 정렬
+    # Curr Cmt/Like/View (cols 6-8): 연한 초록 배경, 우측 정렬
     requests.append({"repeatCell": {
         "range": {"sheetId": sid, "startRowIndex": 2, "endRowIndex": 500,
-                  "startColumnIndex": 5, "endColumnIndex": 8},
+                  "startColumnIndex": 6, "endColumnIndex": 9},
         "cell": {"userEnteredFormat": {
             "backgroundColor": {"red": 0.94, "green": 0.99, "blue": 0.96},
             "horizontalAlignment": "RIGHT", "verticalAlignment": "MIDDLE",
@@ -510,7 +641,7 @@ def format_tracker(sh, ws):
     }})
 
     # ── 열 너비 ──
-    for i, px in enumerate([130, 280, 120, 100, 60, 75, 75, 75]):
+    for i, px in enumerate([130, 280, 120, 100, 120, 60, 75, 75, 75]):
         requests.append({"updateDimensionProperties": {
             "range": {"sheetId": sid, "dimension": "COLUMNS",
                       "startIndex": i, "endIndex": i + 1},
@@ -640,12 +771,12 @@ def format_influencer_tracker(sh, ws, num_date_cols):
 def sync_master(sh, rows):
     is_new = False
     try:
-        ws = sh.worksheet(MASTER_SHEET)
+        ws = sh.worksheet(_tab(MASTER_SHEET))
     except gspread.WorksheetNotFound:
-        ws = sh.add_worksheet(title=MASTER_SHEET, rows=500, cols=len(MASTER_HEADERS))
+        ws = sh.add_worksheet(title=_tab(MASTER_SHEET), rows=500, cols=len(MASTER_HEADERS))
         ws.update([MASTER_HEADERS], range_name="A1", value_input_option="RAW")
         is_new = True
-        print(f"[SHEETS] Created '{MASTER_SHEET}'")
+        print(f"[SHEETS] Created '{_tab(MASTER_SHEET)}'")
 
     existing_ids = set()
     try:
@@ -665,6 +796,16 @@ def sync_master(sh, rows):
                 if isinstance(val, str) and len(val) > 400:
                     val = val[:397] + "..."
                 master_row.append(val)
+            # Brand fallback: detect from Content, Hashtags, Theme, Product
+            brand_idx = MASTER_COLS.index("analyzation.brand")
+            if not master_row[brand_idx].strip():
+                text_parts = [
+                    row.get("extraction.content", ""),
+                    row.get("extraction.hashtags", ""),
+                    row.get("analyzation.theme", ""),
+                    row.get("analyzation.product", ""),
+                ]
+                master_row[brand_idx] = detect_brands(" ".join(text_parts))
             new_rows.append(master_row)
             existing_ids.add(post_id)
 
@@ -692,32 +833,46 @@ def sync_tracker(sh, rows, today):
     """
     is_new = False
     try:
-        ws = sh.worksheet(TRACKER_SHEET)
+        ws = sh.worksheet(_tab(TRACKER_SHEET))
     except gspread.WorksheetNotFound:
-        ws = sh.add_worksheet(title=TRACKER_SHEET, rows=200, cols=TOTAL_TRACKER_COLS)
+        ws = sh.add_worksheet(title=_tab(TRACKER_SHEET), rows=200, cols=TOTAL_TRACKER_COLS)
         row1, row2 = build_tracker_headers()
         ws.update([row1, row2], range_name="A1", value_input_option="RAW")
         is_new = True
-        print(f"[SHEETS] Created '{TRACKER_SHEET}'")
+        print(f"[SHEETS] Created '{_tab(TRACKER_SHEET)}'")
 
     # 버전 확인 및 마이그레이션
     if not is_new:
         version = detect_tracker_version(ws)
         if version == "v1":
             migrate_tracker_v1_to_v2(sh, ws)
+            # v1→v2 후 v2→v3도 실행
+            try:
+                master_ws = sh.worksheet(_tab(MASTER_SHEET))
+            except Exception:
+                master_ws = None
+            migrate_tracker_v2_to_v3(sh, ws, master_ws)
             format_tracker(sh, ws)
-            print(f"[TRACKER] v2 포맷 적용 완료")
+            print(f"[TRACKER] v3 포맷 적용 완료")
+        elif version == "v2":
+            try:
+                master_ws = sh.worksheet(_tab(MASTER_SHEET))
+            except Exception:
+                master_ws = None
+            migrate_tracker_v2_to_v3(sh, ws, master_ws)
+            format_tracker(sh, ws)
+            print(f"[TRACKER] v3 포맷 적용 완료")
 
     # post_id → all_data index (0-based) 맵
     all_data = ws.get_all_values()
 
-    # 헤더 자동 수정 (구버전: "Auto", "Curr Cmt" → 신버전으로 업데이트)
+    # 헤더 자동 수정 (구버전 → 신버전으로 업데이트)
     if not is_new and all_data:
         header_fixes = []
-        if len(all_data) > 0 and len(all_data[0]) > 4 and all_data[0][4] == "Auto":
-            header_fixes.append({"range": "E1", "values": [["Current Status"]]})
-        if len(all_data) > 1 and len(all_data[1]) > 5 and all_data[1][5] in ("Curr Cmt", "Cmt"):
-            header_fixes.append({"range": "F2:H2", "values": [["Curr Comment", "Curr Like", "Curr View"]]})
+        if len(all_data) > 0 and len(all_data[0]) > 5 and all_data[0][5] == "Auto":
+            header_fixes.append({"range": "F1", "values": [["Current Status"]]})
+        if len(all_data) > 1 and len(all_data[1]) > 6 and all_data[1][6] in ("Curr Cmt", "Cmt"):
+            header_fixes.append({"range": "G2:I2", "values": [["Curr Comment", "Curr Like", "Curr View"]]})
         if header_fixes:
             ws.batch_update(header_fixes, value_input_option="RAW")
             print("[TRACKER] 헤더 업데이트 완료")
@@ -750,14 +905,27 @@ def sync_tracker(sh, rows, today):
         ]
         col_start = FIXED_COLS + days_since * METRICS_PER_DAY
 
+        brand = row.get("analyzation.brand", "")
+        if not brand.strip():
+            text_parts = [
+                row.get("extraction.content", ""),
+                row.get("extraction.hashtags", ""),
+                row.get("analyzation.theme", ""),
+                row.get("analyzation.product", ""),
+            ]
+            brand = detect_brands(" ".join(text_parts))
+
         if post_id in post_row_map:
-            # 기존 행: D+N 메트릭 + Curr(F/G/H) 업데이트
+            # 기존 행: D+N 메트릭 + Curr(G/H/I) 업데이트
             sheet_row = post_row_map[post_id] + 1  # 1-indexed
             sl = col_letter(col_start)
             el = col_letter(col_start + METRICS_PER_DAY - 1)
             batch_cells.append((f"{sl}{sheet_row}:{el}{sheet_row}", [metrics]))
             # Curr Comment/Like/View: 최신 스냅샷값으로 덮어쓰기
-            batch_cells.append((f"F{sheet_row}:H{sheet_row}", [metrics]))
+            batch_cells.append((f"G{sheet_row}:I{sheet_row}", [metrics]))
+            # Brand 업데이트 (빈 값이면 덮어쓰지 않음)
+            if brand:
+                batch_cells.append((f"E{sheet_row}", [[brand]]))
             updated += 1
         else:
             # 신규 행: 전체 행 작성
@@ -768,13 +936,14 @@ def sync_tracker(sh, rows, today):
             new_row[1] = row.get("source.url", "")
             new_row[2] = row.get("author.username", "")
             new_row[3] = post_date.strftime("%Y-%m-%d")
+            new_row[4] = brand  # Brand
 
-            # E: D+ Days 수식 (자동 갱신)
-            new_row[4] = f'=IF(D{next_sheet_row}="","",INT(TODAY()-D{next_sheet_row}))'
-            # F-H: 현재 스냅샷 데이터 (매 sync마다 최신값으로 업데이트)
-            new_row[5] = metrics[0]  # Curr Comment
-            new_row[6] = metrics[1]  # Curr Like
-            new_row[7] = metrics[2]  # Curr View
+            # F: D+ Days 수식 (자동 갱신)
+            new_row[5] = f'=IF(D{next_sheet_row}="","",INT(TODAY()-D{next_sheet_row}))'
+            # G-I: 현재 스냅샷 데이터 (매 sync마다 최신값으로 업데이트)
+            new_row[6] = metrics[0]  # Curr Comment
+            new_row[7] = metrics[1]  # Curr Like
+            new_row[8] = metrics[2]  # Curr View
 
             # D+N 메트릭
             new_row[col_start]     = metrics[0]
@@ -819,11 +988,11 @@ def sync_influencer_tracker(sh, rows, tracker_ws, post_to_sheet_row, spreadsheet
     """
     is_new = False
     try:
-        inf_ws = sh.worksheet(INF_SHEET)
+        inf_ws = sh.worksheet(_tab(INF_SHEET))
     except gspread.WorksheetNotFound:
-        inf_ws = sh.add_worksheet(title=INF_SHEET, rows=300, cols=150)
+        inf_ws = sh.add_worksheet(title=_tab(INF_SHEET), rows=300, cols=150)
         is_new = True
-        print(f"[SHEETS] Created '{INF_SHEET}'")
+        print(f"[SHEETS] Created '{_tab(INF_SHEET)}'")
 
     tracker_gid = tracker_ws.id
 
@@ -892,12 +1061,27 @@ def sync_influencer_tracker(sh, rows, tracker_ws, post_to_sheet_row, spreadsheet
 
     updates = []
 
-    # 헤더 업데이트 (날짜 추가 시) - RAW 모드로 별도 저장 (날짜 시리얼 자동변환 방지)
+    # 헤더 업데이트 (날짜 추가 시)
     header_changed = (
         full_header != existing_header[:len(full_header)]
         or len(full_header) > len(existing_header)
     )
     if header_changed:
+        # TEXT 포맷 먼저 적용 (날짜 시리얼 자동변환 방지)
+        total_cols = INF_FIXED_COLS + len(all_dates)
+        sh.batch_update({"requests": [{
+            "repeatCell": {
+                "range": {
+                    "sheetId": inf_ws.id,
+                    "startRowIndex": 0, "endRowIndex": 1,
+                    "startColumnIndex": INF_FIXED_COLS,
+                    "endColumnIndex": total_cols,
+                },
+                "cell": {"userEnteredFormat": {"numberFormat": {"type": "TEXT"}}},
+                "fields": "userEnteredFormat.numberFormat",
+            }
+        }]})
+        # 그 다음 헤더 값 쓰기
         inf_ws.batch_update([{
             "range": f"A1:{col_letter(len(full_header) - 1)}1",
             "values": [full_header],
@@ -1032,8 +1216,15 @@ def update_master_username_links(sh, master_ws, inf_ws, spreadsheet_id):
 
 # ──── Main Orchestrator ────
 
-def sync_to_sheets(csv_path, sheet_id=None):
+def sync_to_sheets(csv_path, sheet_id=None, region=None):
+    global _REGION_PREFIX
+    if region:
+        _REGION_PREFIX = region.upper() + " "
+    else:
+        _REGION_PREFIX = ""
     print(f"[SYNC] CSV: {csv_path}")
+    if _REGION_PREFIX:
+        print(f"[SYNC] Region: {_REGION_PREFIX.strip()}")
 
     rows = parse_csv(csv_path)
     print(f"[SYNC] {len(rows)} posts loaded")
@@ -1074,17 +1265,19 @@ def main():
     parser = argparse.ArgumentParser(description="Syncly -> Google Sheets D+60 Tracker v2")
     parser.add_argument("--csv", help="Path to Syncly CSV file")
     parser.add_argument("--sheet-id", help="Existing Google Sheet ID")
+    parser.add_argument("--region", choices=["us", "jp"], default=None,
+                        help="Region prefix for tab names (US/JP)")
     args = parser.parse_args()
 
     csv_path = args.csv
     if not csv_path:
-        latest = find_latest_csv()
+        latest = find_latest_csv(args.region)
         if not latest:
             print("[ERROR] No CSV found in Data Storage/syncly/")
             sys.exit(1)
         csv_path = str(latest)
 
-    sync_to_sheets(csv_path, args.sheet_id)
+    sync_to_sheets(csv_path, args.sheet_id, args.region)
 
 
 if __name__ == "__main__":

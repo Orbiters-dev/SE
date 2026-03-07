@@ -832,7 +832,18 @@ def preprocess():
         shopify[b][mo]["gross"] += (r.get("shopify_sales_main.raw.gross_sales", 0) or 0)
         shopify[b][mo]["disc"] += abs(r.get("shopify_sales_main.raw.discounts", 0) or 0)
 
-    # ── Amazon costs by brand ──
+    # ── Amazon revenue + costs by brand (Q3 = authoritative Amazon data) ──
+    # Remove Q1 Shopify MCF Amazon entries from rev_cb/rev_cbp (they're incomplete)
+    for key in list(rev_cbp.keys()):
+        if key[0] == "Amazon":
+            del rev_cbp[key]
+    for key in list(rev_cb.keys()):
+        if key[0] == "Amazon":
+            del rev_cb[key]
+    # Also remove from rev_bp and rev_p (will be rebuilt below)
+    for key in list(rev_bp.keys()):
+        pass  # rev_bp is brand-level, includes all channels — leave as-is, Amazon will be added
+
     amz = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))
     for r in q3:
         b = r.get("custom_5036", "") or ""
@@ -840,12 +851,22 @@ def preprocess():
         if not dt: continue
         mo = dt[:7]
         all_months.add(mo)
-        amz[b][mo]["sales"] += (r.get("amazonsp_order_items.computed.total_sales_amazon", 0) or 0)
-        amz[b][mo]["orders"] += (r.get("amazonsp_order_items.raw.total_orders_amazon", 0) or 0)
+        gross = r.get("amazonsp_order_items.raw.gross_sales_amazon", 0) or 0
+        promo = abs(r.get("amazonsp_order_items.raw.promotion_discounts_amazon", 0) or 0)
+        net = r.get("amazonsp_order_items.computed.total_sales_amazon", 0) or 0
+        orders = r.get("amazonsp_order_items.raw.total_orders_amazon", 0) or 0
+        amz[b][mo]["sales"] += net
+        amz[b][mo]["orders"] += orders
         amz[b][mo]["cogs"] += abs(r.get("amazonsp_order_items.raw.cost_of_products_amazon", 0) or 0)
         amz[b][mo]["fees"] += abs(r.get("amazonsp_order_items.raw.total_fees_amazon", 0) or 0)
-        amz[b][mo]["gross"] += (r.get("amazonsp_order_items.raw.gross_sales_amazon", 0) or 0)
-        amz[b][mo]["promo"] += abs(r.get("amazonsp_order_items.raw.promotion_discounts_amazon", 0) or 0)
+        amz[b][mo]["gross"] += gross
+        amz[b][mo]["promo"] += promo
+        # Feed Q3 Amazon into rev_cb so monthly_totals picks it up
+        brand = b if b in BRANDS else "Other"
+        rev_cb[("Amazon", brand)][mo]["gross"] += gross
+        rev_cb[("Amazon", brand)][mo]["disc"] += promo
+        rev_cb[("Amazon", brand)][mo]["orders"] += orders
+        rev_cb[("Amazon", brand)][mo]["net"] += net
 
     # ── Ads by campaign ──
     plat_cfg = {

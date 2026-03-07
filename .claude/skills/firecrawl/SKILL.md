@@ -556,3 +556,23 @@ cat urls.txt | xargs -P 10 -I {} sh -c 'firecrawl scrape "{}" -o ".firecrawl/$(e
 ```
 
 For browser, launch separate sessions for independent tasks and operate them in parallel via `--session <id>`.
+
+## Project-Specific Web Crawling
+
+### Syncly Content Tracking (Playwright, NOT Firecrawl)
+Note: Syncly social media post tracking uses Playwright browser automation, NOT Firecrawl.
+- Tool: `tools/fetch_syncly_export.py` (Playwright-based, requires saved session)
+- Regions: US (zezebaebae/Onzenna) and JP (Grosmimi Japan)
+- Schedule: Daily KST 08:00 via Windows Task Scheduler
+- Output: CSV files in `Data Storage/syncly/`
+- Post-processing: `tools/sync_syncly_to_sheets.py` → Google Sheets D+60 Tracker
+
+### When to Use Firecrawl vs Playwright
+| Scenario | Tool |
+|----------|------|
+| General web scraping, research | Firecrawl |
+| Syncly dashboard data export | Playwright (fetch_syncly_export.py) |
+| Competitor analysis, market research | Firecrawl |
+| Social media metrics from Syncly | Playwright (fetch_syncly_export.py) |
+| API documentation lookup | Firecrawl |
+| Any authenticated SaaS dashboard | Playwright (custom script) |

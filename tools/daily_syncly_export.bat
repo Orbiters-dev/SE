@@ -1,6 +1,7 @@
 @echo off
 REM ============================================
 REM  Daily Syncly Export + Google Sheets Sync
+REM  Runs both US and JP regions
 REM  Works on both Desktop (wjcho) and Laptop (user)
 REM ============================================
 
@@ -21,18 +22,35 @@ echo [%date% %time%] Starting Syncly daily export...
 echo [INFO] Python: %PYTHON%
 echo [INFO] Project: %PROJECT%
 
-REM Step 1: Download CSV from Syncly
-"%PYTHON%" "%PROJECT%\tools\fetch_syncly_export.py"
+REM ── US Region ──
+echo.
+echo [US] Fetching Syncly data...
+"%PYTHON%" "%PROJECT%\tools\fetch_syncly_export.py" --region us
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] Syncly export failed with code %ERRORLEVEL%
-    exit /b %ERRORLEVEL%
+    echo [ERROR] US Syncly export failed
+) else (
+    echo [US] Syncing to Google Sheets...
+    "%PYTHON%" "%PROJECT%\tools\sync_syncly_to_sheets.py" --region us
 )
 
-REM Step 2: Sync to Google Sheets
-"%PYTHON%" "%PROJECT%\tools\sync_syncly_to_sheets.py"
+REM ── JP Region ──
+echo.
+echo [JP] Fetching Syncly data...
+"%PYTHON%" "%PROJECT%\tools\fetch_syncly_export.py" --region jp
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] Sheets sync failed with code %ERRORLEVEL%
-    exit /b %ERRORLEVEL%
+    echo [ERROR] JP Syncly export failed
+) else (
+    echo [JP] Syncing to Google Sheets...
+    "%PYTHON%" "%PROJECT%\tools\sync_syncly_to_sheets.py" --region jp
 )
 
-echo [%date% %time%] Daily Syncly export complete.
+REM ── Email Notification ──
+echo.
+echo [EMAIL] Sending daily update email...
+"%PYTHON%" "%PROJECT%\tools\syncly_daily_email.py"
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] Email send failed
+)
+
+echo.
+echo [%date% %time%] Daily Syncly export complete (US + JP).

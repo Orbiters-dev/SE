@@ -1,38 +1,48 @@
 """
 Syncly Insight Posts Excel Export Tool
 ======================================
-Playwright 기반 브라우저 자동화로 Syncly에서 Excel 다운로드.
+Playwright 기반 브라우저 자동화로 Syncly에서 CSV 다운로드.
+100개 제한 우회를 위해 날짜를 30일씩 끊어서 export 후 합침.
 
 사용법:
   # 1) 최초 1회: 수동 로그인 후 세션 저장
   python tools/fetch_syncly_export.py --login
 
-  # 2) 이후: 저장된 세션으로 자동 다운로드
-  python tools/fetch_syncly_export.py
+  # 2) 이후: 저장된 세션으로 자동 다운로드 (30일 chunk)
+  python tools/fetch_syncly_export.py --region us
+  python tools/fetch_syncly_export.py --region jp
 
   # 특정 URL 지정
   python tools/fetch_syncly_export.py --url "https://social.syncly.app/workspace/..."
 
-  # 다운로드 폴더 지정
-  python tools/fetch_syncly_export.py --output-dir "Data Storage/syncly"
+  # chunk 크기 조정 (기본 30일)
+  python tools/fetch_syncly_export.py --region us --chunk-days 14
 """
 
 import argparse
+import csv
 import os
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 # WAT framework: project root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "tools"))
 
-# Syncly default URL
-DEFAULT_URL = (
-    "https://social.syncly.app/workspace/696986d0b20b4ccc86695fcd"
-    "/insight/posts?q=6976fe6546f8775e88ca86b8"
-)
+# Syncly URLs per region
+REGION_URLS = {
+    "us": (
+        "https://social.syncly.app/workspace/696986d0b20b4ccc86695fcd"
+        "/insight/posts?q=6976fe6546f8775e88ca86b8"
+    ),
+    "jp": (
+        "https://social.syncly.app/workspace/696986d0b20b4ccc86695fcd"
+        "/insight/posts?q=69a941f3208fdb401a8043fb"
+    ),
+}
+DEFAULT_URL = REGION_URLS["us"]
 
 # Session state: stored in user's home directory (not in shared NAS)
 STATE_DIR = Path.home() / ".syncly_state"
@@ -40,6 +50,8 @@ STATE_FILE = STATE_DIR / "browser_state.json"
 
 # Default output directory
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "Data Storage" / "syncly"
+
+TOTAL_DAYS = 90  # Syncly default: last 90 days
 
 
 def ensure_dirs():
@@ -59,7 +71,6 @@ def do_login():
     print()
 
     with sync_playwright() as p:
-        # Use persistent context to save all cookies/localStorage
         context = p.chromium.launch_persistent_context(
             user_data_dir=str(STATE_DIR / "chrome_profile"),
             headless=False,
@@ -77,18 +88,15 @@ def do_login():
         print()
         print("[LOGIN] Waiting for browser to close...")
 
-        # Wait until user closes the browser manually
         try:
-            page.wait_for_event("close", timeout=600000)  # 10 min max
+            page.wait_for_event("close", timeout=600000)
         except Exception:
             pass
 
-        # Save storage state (cookies + localStorage)
         try:
             context.storage_state(path=str(STATE_FILE))
             print(f"[LOGIN] Session saved to {STATE_FILE}")
         except Exception:
-            # Context may already be closed, but persistent profile is saved
             print(f"[LOGIN] Session saved via persistent profile: {STATE_DIR / 'chrome_profile'}")
 
         try:
@@ -99,16 +107,177 @@ def do_login():
     print("[LOGIN] Done! You can now run without --login flag.")
 
 
-def do_export(url: str, output_dir: str):
-    """Use saved session to download Excel from Syncly.
+def _set_date_filter(page, start_date, end_date, output_path):
+    """Syncly 날짜 필터를 start_date ~ end_date로 설정.
 
-    Flow:
-    1. Navigate to Syncly insight/posts page
-    2. Find the export icon button (rightmost icon near "Posts" header)
-    3. Click it to open "Export Posts" dialog
-    4. Click "Export" button in the dialog
-    5. Wait for file download
+    UI 구조 (스크린샷 기반):
+    1. "Last 90 days" 버튼 클릭 → 캘린더 팝업
+    2. 상단 날짜 입력 필드: MM / DD / YYYY - MM / DD / YYYY
+    3. "Update" 버튼 클릭
     """
+    # Click the date filter button (contains "Last" or "days" text)
+    date_btn = page.locator('button:has-text("days"), button:has-text("Last"), button:has-text("month"), button:has-text("year")').first
+    if not date_btn.is_visible(timeout=3000):
+        # Try calendar icon button
+        date_btn = page.locator('button:has(svg[class*="calendar"]), button:has(svg) >> text=/\\d+ days/').first
+    date_btn.click()
+    page.wait_for_timeout(1500)
+
+    # Find the date input fields (MM / DD / YYYY format)
+    # There should be two date inputs in the popup
+    date_inputs = page.locator('input[type="text"], input[placeholder*="M"], input[type="number"]').all()
+
+    # Alternative: look for the date range display at top of popup
+    # Try clicking on the start date area and typing
+    # The popup has format: "MM / DD / YYYY - MM / DD / YYYY"
+
+    # Strategy: find all small input-like elements in the popup
+    # Syncly uses individual inputs for MM, DD, YYYY
+    popup = page.locator('[class*="popover"], [class*="dropdown"], [class*="modal"], [role="dialog"]').first
+    if not popup.is_visible(timeout=2000):
+        # Popup might be in a different container
+        popup = page.locator('body')
+
+    inputs = popup.locator('input').all()
+    visible_inputs = [inp for inp in inputs if inp.is_visible()]
+
+    if len(visible_inputs) >= 6:
+        # 6 inputs: start(MM,DD,YYYY) + end(MM,DD,YYYY)
+        s_mm, s_dd, s_yyyy = visible_inputs[0], visible_inputs[1], visible_inputs[2]
+        e_mm, e_dd, e_yyyy = visible_inputs[3], visible_inputs[4], visible_inputs[5]
+
+        for inp, val in [
+            (s_mm, f"{start_date.month:02d}"),
+            (s_dd, f"{start_date.day:02d}"),
+            (s_yyyy, f"{start_date.year}"),
+            (e_mm, f"{end_date.month:02d}"),
+            (e_dd, f"{end_date.day:02d}"),
+            (e_yyyy, f"{end_date.year}"),
+        ]:
+            inp.click()
+            inp.press("Control+a")
+            inp.fill(val)
+            page.wait_for_timeout(200)
+    elif len(visible_inputs) >= 2:
+        # 2 inputs: start date, end date (full date strings)
+        visible_inputs[0].click()
+        visible_inputs[0].press("Control+a")
+        visible_inputs[0].fill(start_date.strftime("%m/%d/%Y"))
+        page.wait_for_timeout(300)
+        visible_inputs[1].click()
+        visible_inputs[1].press("Control+a")
+        visible_inputs[1].fill(end_date.strftime("%m/%d/%Y"))
+        page.wait_for_timeout(300)
+    else:
+        debug_path = output_path / "debug_date_filter.png"
+        page.screenshot(path=str(debug_path))
+        print(f"[WARN] Could not find date inputs ({len(visible_inputs)} found)")
+        print(f"[DEBUG] Screenshot: {debug_path}")
+        # Close popup and continue with current filter
+        page.keyboard.press("Escape")
+        page.wait_for_timeout(500)
+        return False
+
+    # Click Update button
+    update_btn = popup.locator('button:has-text("Update")').first
+    if not update_btn.is_visible(timeout=2000):
+        update_btn = page.locator('button:has-text("Update")').first
+    update_btn.click()
+    page.wait_for_timeout(5000)  # Wait for data to reload
+    return True
+
+
+def _do_single_export(page, output_path):
+    """현재 필터 상태에서 export 버튼 클릭 → CSV 다운로드. 경로 반환."""
+    # Find the export icon button
+    export_icon = None
+    buttons = page.locator("button:has(svg)").all()
+    candidates = []
+    for btn in buttons:
+        try:
+            if btn.is_visible():
+                box = btn.bounding_box()
+                if box and 140 < box["y"] < 200 and box["width"] < 50:
+                    candidates.append((btn, box))
+        except Exception:
+            continue
+
+    if candidates:
+        export_icon = max(candidates, key=lambda c: c[1]["x"])[0]
+
+    if not export_icon:
+        debug_path = output_path / "debug_screenshot.png"
+        page.screenshot(path=str(debug_path), full_page=True)
+        print(f"[ERROR] Could not find export icon button.")
+        print(f"[DEBUG] Screenshot: {debug_path}")
+        return None
+
+    # Click export icon to open dialog
+    export_icon.click()
+    page.wait_for_timeout(2000)
+
+    # Find and click "Export" button in the dialog
+    export_btn = page.locator('button:has-text("Export")').last
+    if not export_btn.is_visible(timeout=5000):
+        debug_path = output_path / "debug_dialog.png"
+        page.screenshot(path=str(debug_path))
+        print(f"[ERROR] Export dialog did not appear.")
+        return None
+
+    # Click Export and wait for download
+    with page.expect_download(timeout=60000) as download_info:
+        export_btn.click()
+
+    download = download_info.value
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    original_name = download.suggested_filename or f"syncly_export_{today_str}.csv"
+
+    if not original_name.startswith(today_str):
+        save_name = f"{today_str}_{original_name}"
+    else:
+        save_name = original_name
+
+    save_path = output_path / save_name
+    download.save_as(str(save_path))
+    return save_path
+
+
+def _merge_csvs(csv_paths, output_path):
+    """여러 CSV를 source.id 기준 중복 제거하며 합침."""
+    seen_ids = set()
+    all_rows = []
+    fieldnames = None
+
+    for cp in csv_paths:
+        with open(cp, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            if fieldnames is None:
+                fieldnames = reader.fieldnames
+            for row in reader:
+                pid = row.get("source.id", "")
+                if pid and pid not in seen_ids:
+                    seen_ids.add(pid)
+                    all_rows.append(row)
+
+    if not all_rows or not fieldnames:
+        return None
+
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    # Use the first CSV name as base
+    first_name = csv_paths[0].name
+    merged_name = first_name  # Overwrite the first chunk file
+    merged_path = output_path / f"{today_str}_merged_{first_name.split('_', 1)[-1] if '_' in first_name else first_name}"
+
+    with open(merged_path, "w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(all_rows)
+
+    return merged_path, len(all_rows)
+
+
+def do_export(url: str, output_dir: str, chunk_days: int = 30):
+    """날짜를 chunk_days씩 끊어서 export 후 합침."""
     from playwright.sync_api import sync_playwright
 
     ensure_dirs()
@@ -123,6 +292,7 @@ def do_export(url: str, output_dir: str):
 
     print(f"[EXPORT] Loading saved session...")
     print(f"[EXPORT] Target: {url}")
+    print(f"[EXPORT] Strategy: {TOTAL_DAYS} days in {chunk_days}-day chunks")
 
     with sync_playwright() as p:
         context = p.chromium.launch_persistent_context(
@@ -138,7 +308,7 @@ def do_export(url: str, output_dir: str):
         # Navigate to the page
         print("[EXPORT] Navigating to Syncly...")
         page.goto(url, wait_until="domcontentloaded", timeout=60000)
-        page.wait_for_timeout(8000)  # SPA needs time to render
+        page.wait_for_timeout(8000)
 
         # Check if we're still logged in
         page_text = page.locator("body").inner_text(timeout=5000)
@@ -150,74 +320,76 @@ def do_export(url: str, output_dir: str):
 
         print("[EXPORT] Page loaded successfully.")
 
-        # Step 1: Find the export icon button
-        # It's the rightmost icon-only button in the Posts header row (y ~ 140-200)
-        export_icon = None
-        buttons = page.locator("button:has(svg)").all()
-        candidates = []
-        for btn in buttons:
-            try:
-                if btn.is_visible():
-                    box = btn.bounding_box()
-                    if box and 140 < box["y"] < 200 and box["width"] < 50:
-                        candidates.append((btn, box))
-            except Exception:
+        # Build date chunks (newest first)
+        today = datetime.now()
+        chunks = []
+        cursor = today
+        while cursor > today - timedelta(days=TOTAL_DAYS):
+            chunk_end = cursor
+            chunk_start = max(cursor - timedelta(days=chunk_days - 1), today - timedelta(days=TOTAL_DAYS))
+            chunks.append((chunk_start, chunk_end))
+            cursor = chunk_start - timedelta(days=1)
+
+        csv_paths = []
+
+        for i, (start_dt, end_dt) in enumerate(chunks):
+            label = f"[{i+1}/{len(chunks)}]"
+            print(f"{label} {start_dt.strftime('%m/%d')} ~ {end_dt.strftime('%m/%d')}...")
+
+            # Set date filter
+            ok = _set_date_filter(page, start_dt, end_dt, output_path)
+            if not ok and i == 0:
+                # First chunk failed to set filter — fall back to default export
+                print(f"{label} Date filter failed, using default filter")
+            elif not ok:
+                print(f"{label} Skipping chunk (filter failed)")
                 continue
 
-        if candidates:
-            # Rightmost small icon button in the row
-            export_icon = max(candidates, key=lambda c: c[1]["x"])[0]
+            page.wait_for_timeout(2000)
 
-        if not export_icon:
-            debug_path = output_path / "debug_screenshot.png"
-            page.screenshot(path=str(debug_path), full_page=True)
-            print(f"[ERROR] Could not find export icon button.")
-            print(f"[DEBUG] Screenshot: {debug_path}")
-            context.close()
-            sys.exit(1)
-
-        # Step 2: Click export icon to open dialog
-        print("[EXPORT] Opening export dialog...")
-        export_icon.click()
-        page.wait_for_timeout(2000)
-
-        # Step 3: Find and click "Export" button in the dialog
-        export_btn = page.locator('button:has-text("Export")').last
-        if not export_btn.is_visible(timeout=5000):
-            debug_path = output_path / "debug_dialog.png"
-            page.screenshot(path=str(debug_path))
-            print(f"[ERROR] Export dialog did not appear.")
-            print(f"[DEBUG] Screenshot: {debug_path}")
-            context.close()
-            sys.exit(1)
-
-        # Step 4: Click Export and wait for download
-        today = datetime.now().strftime("%Y-%m-%d")
-        print("[EXPORT] Clicking Export button, waiting for download...")
-
-        with page.expect_download(timeout=60000) as download_info:
-            export_btn.click()
-
-        download = download_info.value
-        original_name = download.suggested_filename or f"syncly_export_{today}.xlsx"
-
-        # Add date prefix
-        if not original_name.startswith(today):
-            save_name = f"{today}_{original_name}"
-        else:
-            save_name = original_name
-
-        save_path = output_path / save_name
-        download.save_as(str(save_path))
-
-        file_size = save_path.stat().st_size
-        print(f"[EXPORT] File saved: {save_path}")
-        print(f"[EXPORT] Size: {file_size:,} bytes")
+            # Export
+            saved = _do_single_export(page, output_path)
+            if saved:
+                # Count rows
+                with open(saved, "r", encoding="utf-8") as f:
+                    row_count = sum(1 for _ in f) - 1
+                print(f"{label} {row_count} posts exported -> {saved.name}")
+                csv_paths.append(saved)
+            else:
+                print(f"{label} Export failed")
 
         context.close()
 
+    # Merge all CSVs
+    if len(csv_paths) == 0:
+        print("[ERROR] No CSVs exported")
+        sys.exit(1)
+    elif len(csv_paths) == 1:
+        final_path = csv_paths[0]
+        with open(final_path, "r", encoding="utf-8") as f:
+            total = sum(1 for _ in f) - 1
+        print(f"[EXPORT] Single chunk: {total} posts")
+    else:
+        result = _merge_csvs(csv_paths, output_path)
+        if result:
+            final_path, total = result
+            print(f"[EXPORT] Merged {len(csv_paths)} chunks -> {total} posts (deduped)")
+            # Clean up chunk files
+            for cp in csv_paths:
+                if cp != final_path:
+                    try:
+                        cp.unlink()
+                    except Exception:
+                        pass
+        else:
+            final_path = csv_paths[0]
+            total = 0
+
+    file_size = final_path.stat().st_size
+    print(f"[EXPORT] File: {final_path}")
+    print(f"[EXPORT] Size: {file_size:,} bytes")
     print("[EXPORT] Done!")
-    return str(save_path)
+    return str(final_path)
 
 
 def main():
@@ -228,14 +400,26 @@ def main():
         help="Open browser for manual login and save session",
     )
     parser.add_argument(
+        "--region",
+        choices=["us", "jp"],
+        default=None,
+        help="Region (us or jp) - determines Syncly URL automatically",
+    )
+    parser.add_argument(
         "--url",
-        default=DEFAULT_URL,
-        help="Syncly insight posts URL",
+        default=None,
+        help="Syncly insight posts URL (overrides --region)",
     )
     parser.add_argument(
         "--output-dir",
         default=str(DEFAULT_OUTPUT_DIR),
         help="Directory to save downloaded files",
+    )
+    parser.add_argument(
+        "--chunk-days",
+        type=int,
+        default=30,
+        help="Days per export chunk (default 30)",
     )
 
     args = parser.parse_args()
@@ -243,7 +427,8 @@ def main():
     if args.login:
         do_login()
     else:
-        do_export(args.url, args.output_dir)
+        url = args.url or REGION_URLS.get(args.region or "us", DEFAULT_URL)
+        do_export(url, args.output_dir, args.chunk_days)
 
 
 if __name__ == "__main__":
