@@ -1,0 +1,100 @@
+name: Deploy Django App to EC2
+
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: 'Django app to deploy (datakeeper, onzenna, all)'
+        required: true
+        default: 'datakeeper'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key.pem
+          chmod 600 ~/.ssh/ec2_key.pem
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Copy app files to EC2
+        run: |
+          APP="${{ github.event.inputs.app }}"
+          EC2_USER="${{ secrets.EC2_USER || 'ubuntu' }}"
+          EC2_HOST="${{ secrets.EC2_HOST }}"
+          EC2_PATH="/home/ubuntu/export_calculator"
+          SSH_CMD="ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST}"
+
+          if [ "$APP" = "all" ] || [ "$APP" = "datakeeper" ]; then
+            echo "=== Deploying datakeeper ==="
+            scp -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no -r \
+              datakeeper/ ${EC2_USER}@${EC2_HOST}:${EC2_PATH}/datakeeper/
+          fi
+
+          if [ "$APP" = "all" ] || [ "$APP" = "onzenna" ]; then
+            echo "=== Deploying onzenna ==="
+            scp -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no -r \
+              onzenna/ ${EC2_USER}@${EC2_HOST}:${EC2_PATH}/onzenna/ 2>/dev/null || true
+          fi
+
+      - name: Add app to settings & URLs (if needed)
+        run: |
+          APP="${{ github.event.inputs.app }}"
+          EC2_USER="${{ secrets.EC2_USER || 'ubuntu' }}"
+          EC2_HOST="${{ secrets.EC2_HOST }}"
+          EC2_PATH="/home/ubuntu/export_calculator"
+          SSH_CMD="ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST}"
+
+          ${SSH_CMD} "cd ${EC2_PATH} && python3 -c \"
+          import re
+          # Add to INSTALLED_APPS
+          path = 'export_calculator/settings/production.py'
+          with open(path, 'r') as f: content = f.read()
+          if '${APP}' not in content:
+              content = content.replace(\\\"'onzenna',\\\", \\\"'onzenna',\n    '${APP}',\\\")
+              with open(path, 'w') as f: f.write(content)
+              print('Added ${APP} to INSTALLED_APPS')
+          else:
+              print('${APP} already in INSTALLED_APPS')
+
+          # Add to urls.py
+          path = 'export_calculator/urls.py'
+          with open(path, 'r') as f: content = f.read()
+          if '${APP}' not in content:
+              content = content.replace('urlpatterns = [', 'urlpatterns = [\n    path(\\\"api/${APP}/\\\", include(\\\"${APP}.urls\\\")),')
+              if 'include' not in content.split('from django.urls import')[1].split('\n')[0]:
+                  content = content.replace('from django.urls import path', 'from django.urls import path, include')
+              with open(path, 'w') as f: f.write(content)
+              print('Added ${APP} URLs')
+          else:
+              print('${APP} URLs already configured')
+          \""
+
+      - name: Migrate & restart
+        run: |
+          APP="${{ github.event.inputs.app }}"
+          EC2_USER="${{ secrets.EC2_USER || 'ubuntu' }}"
+          EC2_HOST="${{ secrets.EC2_HOST }}"
+          EC2_PATH="/home/ubuntu/export_calculator"
+          SSH_CMD="ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST}"
+
+          ${SSH_CMD} "cd ${EC2_PATH} && \
+            python3 manage.py makemigrations ${APP} --settings=export_calculator.settings.production && \
+            python3 manage.py migrate ${APP} --settings=export_calculator.settings.production && \
+            sudo systemctl restart export_calculator && \
+            echo 'Deploy complete!'"
+
+      - name: Verify deployment
+        run: |
+          sleep 5
+          curl -sf -u "${{ secrets.ORBITOOLS_USER }}:${{ secrets.ORBITOOLS_PASS }}" \
+            "https://orbitools.orbiters.co.kr/api/${{ github.event.inputs.app }}/status/" \
+            && echo "API is live!" \
+            || echo "API check failed (may need manual verification)"

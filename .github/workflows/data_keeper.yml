@@ -1,0 +1,74 @@
+name: Data Keeper - Daily Collection
+
+on:
+  schedule:
+    - cron: '0 8 * * *'    # PST 0:00 (= UTC 8:00) - full daily
+    - cron: '0 20 * * *'   # PST 12:00 (= UTC 20:00) - midday refresh
+  workflow_dispatch:         # manual trigger
+    inputs:
+      channel:
+        description: 'Channel to collect (all, amazon_ads, amazon_sales, meta, google, ga4, klaviyo, shopify)'
+        required: false
+        default: 'all'
+      days:
+        description: 'Lookback days'
+        required: false
+        default: '35'
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --quiet \
+            requests python-dotenv google-ads
+
+      - name: Write .env
+        run: |
+          cat > .env <<'ENVEOF'
+          AMZ_ADS_CLIENT_ID=${{ secrets.AMZ_ADS_CLIENT_ID }}
+          AMZ_ADS_CLIENT_SECRET=${{ secrets.AMZ_ADS_CLIENT_SECRET }}
+          AMZ_ADS_REFRESH_TOKEN=${{ secrets.AMZ_ADS_REFRESH_TOKEN }}
+          AMZ_SP_CLIENT_ID=${{ secrets.AMZ_SP_CLIENT_ID }}
+          AMZ_SP_CLIENT_SECRET=${{ secrets.AMZ_SP_CLIENT_SECRET }}
+          AMZ_SP_REFRESH_TOKEN=${{ secrets.AMZ_SP_REFRESH_TOKEN }}
+          AMZ_SP_REFRESH_TOKEN_GROSMIMI=${{ secrets.AMZ_SP_REFRESH_TOKEN_GROSMIMI }}
+          AMZ_SP_REFRESH_TOKEN_FLEETERS=${{ secrets.AMZ_SP_REFRESH_TOKEN_FLEETERS }}
+          AMZ_SP_REFRESH_TOKEN_ORBITOOL=${{ secrets.AMZ_SP_REFRESH_TOKEN_ORBITOOL }}
+          AMZ_SP_GROSMIMI_CLIENT_ID=${{ secrets.AMZ_SP_GROSMIMI_CLIENT_ID }}
+          AMZ_SP_GROSMIMI_CLIENT_SECRET=${{ secrets.AMZ_SP_GROSMIMI_CLIENT_SECRET }}
+          AMZ_SP_MARKETPLACE_ID=ATVPDKIKX0DER
+          META_ACCESS_TOKEN=${{ secrets.META_ACCESS_TOKEN }}
+          META_AD_ACCOUNT_ID=${{ secrets.META_AD_ACCOUNT_ID }}
+          SHOPIFY_SHOP=${{ secrets.SHOPIFY_SHOP }}
+          SHOPIFY_ACCESS_TOKEN=${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+          GOOGLE_ADS_DEVELOPER_TOKEN=${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
+          GOOGLE_ADS_CLIENT_ID=${{ secrets.GOOGLE_ADS_CLIENT_ID }}
+          GOOGLE_ADS_CLIENT_SECRET=${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
+          GOOGLE_ADS_REFRESH_TOKEN=${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
+          GOOGLE_ADS_LOGIN_CUSTOMER_ID=${{ secrets.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}
+          GA4_CLIENT_ID=${{ secrets.GA4_CLIENT_ID }}
+          GA4_CLIENT_SECRET=${{ secrets.GA4_CLIENT_SECRET }}
+          GA4_REFRESH_TOKEN=${{ secrets.GA4_REFRESH_TOKEN }}
+          GA4_PROPERTY_ID=${{ secrets.GA4_PROPERTY_ID }}
+          KLAVIYO_API_KEY=${{ secrets.KLAVIYO_API_KEY }}
+          ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
+          ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
+          ENVEOF
+
+      - name: Run Data Keeper
+        run: |
+          CHANNEL="${{ github.event.inputs.channel || 'all' }}"
+          DAYS="${{ github.event.inputs.days || '35' }}"
+          python -u tools/data_keeper.py --channel "$CHANNEL" --days "$DAYS"
