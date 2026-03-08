@@ -41,6 +41,8 @@ GH_REPO    = os.getenv("GITHUB_REPOSITORY", "")  # e.g. "orbiters/orbiters-claud
 RECIPIENT  = os.getenv("COMMUNICATOR_RECIPIENT") or os.getenv("PPC_REPORT_RECIPIENT", "wj.choi@orbiters.co.kr")
 SENDER     = os.getenv("GMAIL_SENDER", "hello@zezebaebae.com")
 
+SIGNALS_DIR = str(Path(__file__).resolve().parent.parent.parent / "Shared" / "datakeeper" / "data_signals")
+
 # ── 채널 메타데이터 ────────────────────────────────────────────────────
 CHANNEL_META = {
     "shopify_orders_daily": {"label": "Shopify Orders",   "max_age_h": 14},
@@ -67,7 +69,9 @@ WORKFLOW_SCHEDULE = [
 # ── 데이터 수집 ───────────────────────────────────────────────────────
 
 def get_datakeeper_status() -> dict:
-    """orbitools API에서 Data Keeper 채널 상태 조회."""
+    """orbitools API에서 Data Keeper 채널 상태 조회.
+    Returns: {table_key: {"rows": int, "updated": iso_str, "date_range": str}}
+    """
     try:
         r = requests.get(
             f"{ORBITOOLS_BASE}/status/",
@@ -75,10 +79,43 @@ def get_datakeeper_status() -> dict:
             timeout=15,
         )
         r.raise_for_status()
-        return r.json()
+        raw = r.json()
+        # API 응답: {"status": {table: {"count": N, "latest_collected": iso, "latest_date": "YYYY-MM-DD"}}}
+        data = raw.get("status", raw)
+        result = {}
+        for key, info in data.items():
+            result[key] = {
+                "rows":    info.get("count", 0),
+                "updated": info.get("latest_collected", ""),
+                "date_range": info.get("latest_date", "—"),
+            }
+        return result
     except Exception as e:
         print(f"[WARN] DataKeeper status 조회 실패: {e}")
         return {}
+
+
+def get_pending_signals() -> list[dict]:
+    """Scan Shared/datakeeper/data_signals/ for pending requests."""
+    if not os.path.isdir(SIGNALS_DIR):
+        return []
+    signals = []
+    for fname in os.listdir(SIGNALS_DIR):
+        if not fname.endswith((".yaml", ".yml")):
+            continue
+        try:
+            with open(os.path.join(SIGNALS_DIR, fname), "r", encoding="utf-8") as f:
+                content = f.read()
+            sig = {}
+            for line in content.strip().split("\n"):
+                if ":" in line and not line.strip().startswith("#") and not line.strip().startswith("-"):
+                    key, val = line.split(":", 1)
+                    sig[key.strip()] = val.strip()
+            if sig.get("status") == "pending":
+                signals.append(sig)
+        except Exception:
+            pass
+    return signals
 
 
 def get_gh_runs(hours: int = 24) -> list[dict]:
@@ -204,7 +241,8 @@ def build_html(dk_status: dict, gh_runs: list[dict]) -> str:
     for key, meta in CHANNEL_META.items():
         emoji, age_str = classify_freshness(key, dk_status)
         info    = dk_status.get(key, {})
-        rows    = info.get("rows", "—")
+        rows_raw = info.get("rows", None)
+        rows    = f"{rows_raw:,}" if isinstance(rows_raw, int) else "—"
         dr      = info.get("date_range", "—")
 
         if emoji == "🟢":
@@ -223,7 +261,7 @@ def build_html(dk_status: dict, gh_runs: list[dict]) -> str:
         <tr style="background:{row_bg}">
             <td style="padding:8px 12px;border-bottom:1px solid #eee">{emoji} {meta['label']}</td>
             <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center">{age_str}</td>
-            <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;font-variant-numeric:tabular-nums">{rows:,} rows</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;font-variant-numeric:tabular-nums">{rows} rows</td>
             <td style="padding:8px 12px;border-bottom:1px solid #eee;color:#666;font-size:12px">{dr}</td>
         </tr>"""
 
@@ -284,8 +322,15 @@ def build_html(dk_status: dict, gh_runs: list[dict]) -> str:
     if not upcoming_html:
         upcoming_html = '<tr><td colspan="3" style="padding:16px;text-align:center;color:#999">향후 12시간 이내 예정 작업 없음</td></tr>'
 
-    # ── 4. 알림 섹션 ────────────────────────────────────────────────
-    all_alerts = alert_items + fail_workflows
+    # ── 4. 데이터 시그널 (팀 요청) ────────────────────────────────────
+    pending_signals = get_pending_signals()
+    signal_alerts = [
+        f"📡 새 데이터 요청: {s.get('channel', '?')} (by {s.get('requested_by', '?')})"
+        for s in pending_signals
+    ]
+
+    # ── 5. 알림 섹션 ────────────────────────────────────────────────
+    all_alerts = alert_items + fail_workflows + signal_alerts
     alert_html = ""
     if all_alerts:
         alert_items_html = "".join(
@@ -398,13 +443,15 @@ def build_html(dk_status: dict, gh_runs: list[dict]) -> str:
 # ── 실행 ─────────────────────────────────────────────────────────────
 
 def main():
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
     parser = argparse.ArgumentParser(description="ORBI Communicator - 통합 상태 이메일 발송")
     parser.add_argument("--dry-run",  action="store_true", help="이메일 미발송, HTML 콘솔 출력")
     parser.add_argument("--preview",  action="store_true", help=".tmp/communicator_preview.html 저장")
     parser.add_argument("--to",       default=RECIPIENT,   help="수신자 이메일")
     args = parser.parse_args()
 
-    print(f"\n[Communicator] 시작 — {NOW_PST.strftime('%Y-%m-%d %H:%M PST')}")
+    print(f"\n[Communicator] 시작 - {NOW_PST.strftime('%Y-%m-%d %H:%M PST')}")
 
     # 데이터 수집
     print("[1/2] Data Keeper 상태 조회 중...")
