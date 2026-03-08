@@ -12,7 +12,7 @@ Data sources:
   - COGS by SKU.xlsx
 
 Output:
-  - Loads latest kpis_model_*.xlsx from ORBI KPIs/Output/
+  - Loads latest kpis_model_*.xlsx from Data Storage/kpi_reports/
   - Adds/replaces 3 tabs: KPI_할인율 / KPI_광고비 / KPI_시딩비용
   - Saves as next version (v+1)
 
@@ -36,8 +36,8 @@ load_env()
 ROOT = TOOLS_DIR.parent
 POLAR = ROOT.parent / "Shared" / "동균 테스트_2026-03-06" / "polar_data"
 COGS_PATH = ROOT.parent / "Shared" / "NoPolar KPIs" / "Data config sheet" / "COGS by SKU.xlsx"
-# ORBI KPIs output (Downloads sync)
-OUTPUT_DIR = Path("c:/Users/user/Downloads/ORBITERS CLAUDE/ORBITERS CLAUDE/Shared/ORBI KPIs/Output")
+# ORBI KPIs output (WJ Test1 Data Storage)
+OUTPUT_DIR = ROOT / "Data Storage" / "kpi_reports"
 
 
 # ── Data Keeper ───────────────────────────────────────────────────────────────
@@ -160,19 +160,19 @@ def analyze_discounts(date_from, date_to):
 
     # ── month list ───────────────────────────────────────────────────────────
     months = sorted(set(k[0] for k in agg))
-    # "through" date = yesterday (last FULL day), not today
-    from datetime import date as _dt, timedelta as _td
-    yesterday = (_dt.today() - _td(days=1)).isoformat()
-    through_date = min(latest_date, yesterday) if latest_date > "0000-00-00" else yesterday
-    partial_note = f"(through {through_date})"
+    # "through" date = yesterday PST (last full day)
+    from datetime import datetime as _dtt, timedelta as _td, timezone as _tz
+    PST = _tz(_td(hours=-8))
+    today_pst     = _dtt.now(PST).date()
+    yesterday_pst = (today_pst - _td(days=1)).isoformat()
+    through_date  = min(latest_date, yesterday_pst) if latest_date > "0000-00-00" else yesterday_pst
+    partial_note  = f"(through {through_date})"
 
     # Month labels: last month gets partial note
     def month_label(m):
-        from datetime import date as dt
         import calendar
         y, mo = int(m[:4]), int(m[5:7])
-        cur = dt.today()
-        if y == cur.year and mo == cur.month:
+        if y == today_pst.year and mo == today_pst.month:
             return f"{calendar.month_abbr[mo]} {y}\n{partial_note}"
         return f"{calendar.month_abbr[mo]} {y}"
 
@@ -308,8 +308,8 @@ def analyze_discounts(date_from, date_to):
                 """Units from DB; if 0 (backfill data), estimate from gross_sales / avg_price."""
                 if v["units"] > 0:
                     return v["units"]
-                if v["gross_sales"] > 0 and avg_price_brand > 0:
-                    return v["gross_sales"] / avg_price_brand
+                if v["gross"] > 0 and avg_price_brand > 0:
+                    return v["gross"] / avg_price_brand
                 return 0
 
             row = [label, brand if ch else "", ch]

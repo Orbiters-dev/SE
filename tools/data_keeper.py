@@ -908,8 +908,8 @@ def _fetch_variant_prices(base: str, headers: dict) -> dict:
 def collect_shopify(date_from: str, date_to: str) -> list[dict]:
     """Collect Shopify orders aggregated daily by brand/channel.
 
-    Discount = list_price * qty - actual_paid
-    where list_price = compare_at_price ?? price  (same reference for all channels).
+    ONZ/D2C channels: discount = compare_at_price * qty - actual_paid (MSRP reference)
+    Amazon channel: discount = actual coupon/promo only (sell_price IS the list price).
     This captures both sale-price reductions AND coupon discounts vs. list price.
     """
     print("[Shopify] Collecting...")
@@ -966,7 +966,9 @@ def collect_shopify(date_from: str, date_to: str) -> list[dict]:
         # Brand detection (order level, from line items)
         brand = _detect_shopify_brand(order.get("line_items", []))
 
-        # Compute gross/discount/net from line items using list price
+        # Compute gross/discount/net from line items
+        # - ONZ/D2C channels: list_price = compare_at_price ?? price (Shopify MSRP ref)
+        # - Amazon channel: sell_price IS the reference price; discount = promo only
         gross = net = discount = 0.0
         units = 0
         for li in order.get("line_items", []):
@@ -974,11 +976,17 @@ def collect_shopify(date_from: str, date_to: str) -> list[dict]:
             qty        = int(li.get("quantity", 1) or 1)
             sell_price = float(li.get("price", 0) or 0)        # unit price before coupon
             line_disc  = float(li.get("total_discount", 0) or 0)  # coupon/promo on this line
-            list_price = variant_prices.get(vid, sell_price)   # fallback: sell_price IS list
 
-            gross    += list_price * qty
-            net      += sell_price * qty - line_disc
-            discount += list_price * qty - (sell_price * qty - line_disc)
+            if channel == "Amazon":
+                # Amazon: sell_price is the actual price (not MSRP). Discount = coupon only.
+                gross    += sell_price * qty
+                net      += sell_price * qty - line_disc
+                discount += line_disc
+            else:
+                list_price = variant_prices.get(vid, sell_price)  # fallback: sell_price IS list
+                gross    += list_price * qty
+                net      += sell_price * qty - line_disc
+                discount += list_price * qty - (sell_price * qty - line_disc)
             units    += qty
 
         key = (date_str, brand, channel)
