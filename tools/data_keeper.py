@@ -37,6 +37,10 @@ load_env()
 CACHE_DIR = os.path.join(DIR, "..", ".tmp", "datakeeper")
 os.makedirs(CACHE_DIR, exist_ok=True)
 
+# Shared folder for team-wide access (Synology Drive syncs this)
+SHARED_DIR = os.path.join(DIR, "..", "..", "Shared", "datakeeper", "latest")
+SIGNALS_DIR = os.path.join(DIR, "..", "..", "Shared", "datakeeper", "data_signals")
+
 ORBITOOLS_BASE = "https://orbitools.orbiters.co.kr/api/datakeeper"
 ORBITOOLS_USER = os.getenv("ORBITOOLS_USER", "admin")
 ORBITOOLS_PASS = os.getenv("ORBITOOLS_PASS", "")
@@ -157,6 +161,79 @@ def _push_to_pg(table: str, rows: list[dict]):
         except Exception as e:
             print(f"  [PG ERROR] {table} chunk {i//chunk_size}: {e}")
     print(f"  [PG] {table}: +{total_created} new, ~{total_updated} updated")
+
+
+def _export_to_shared():
+    """Export collected data + manifest to Shared folder for team access."""
+    shared_parent = os.path.join(SHARED_DIR, "..")
+    if not os.path.isdir(shared_parent):
+        print("  [Shared] Shared/datakeeper/ not found, skipping export")
+        return
+
+    os.makedirs(SHARED_DIR, exist_ok=True)
+    manifest = {"last_updated": datetime.now(timezone.utc).isoformat(), "channels": {}}
+
+    for channel, (table, _) in CHANNEL_COLLECTORS.items():
+        cache_path = os.path.join(CACHE_DIR, f"{table}.json")
+        if not os.path.exists(cache_path):
+            continue
+
+        with open(cache_path, "r", encoding="utf-8") as f:
+            rows = json.load(f)
+
+        if not rows:
+            continue
+
+        # Copy to shared
+        shared_path = os.path.join(SHARED_DIR, f"{table}.json")
+        with open(shared_path, "w", encoding="utf-8") as f:
+            json.dump(rows, f, default=str, ensure_ascii=False)
+
+        # Build manifest entry
+        dates = sorted(set(r.get("date", "") for r in rows if r.get("date")))
+        brands = sorted(set(r.get("brand", "") for r in rows if r.get("brand")))
+        manifest["channels"][table] = {
+            "status": "collecting",
+            "last_collected": datetime.now(timezone.utc).isoformat(),
+            "row_count": len(rows),
+            "date_range": [dates[0], dates[-1]] if dates else [],
+            "brands": brands,
+        }
+
+        print(f"  [Shared] {table}: {len(rows)} rows exported")
+
+    # Write manifest
+    manifest_path = os.path.join(SHARED_DIR, "manifest.json")
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2, default=str, ensure_ascii=False)
+    print(f"  [Shared] manifest.json updated ({len(manifest['channels'])} channels)")
+
+
+def _scan_signals():
+    """Scan Shared/datakeeper/data_signals/ for new channel requests."""
+    if not os.path.isdir(SIGNALS_DIR):
+        return []
+
+    signals = []
+    for fname in os.listdir(SIGNALS_DIR):
+        if not fname.endswith((".yaml", ".yml")):
+            continue
+        fpath = os.path.join(SIGNALS_DIR, fname)
+        try:
+            with open(fpath, "r", encoding="utf-8") as f:
+                content = f.read()
+            # Simple YAML parsing (no PyYAML dependency)
+            sig = {}
+            for line in content.strip().split("\n"):
+                if ":" in line and not line.strip().startswith("#") and not line.strip().startswith("-"):
+                    key, val = line.split(":", 1)
+                    sig[key.strip()] = val.strip()
+            if sig.get("status") == "pending":
+                signals.append({"file": fname, **sig})
+        except Exception as e:
+            print(f"  [Signal] Error reading {fname}: {e}")
+
+    return signals
 
 
 def _get_pst_today():
@@ -1032,7 +1109,18 @@ def main():
             elapsed = time.time() - start_t
             print(f"  [{channel}] FAILED in {elapsed:.0f}s: {e}\n")
 
-    print("=== Data Keeper Complete ===")
+    # Export to Shared folder for team access
+    print("[Shared Export]")
+    _export_to_shared()
+
+    # Scan for new data signals from team
+    signals = _scan_signals()
+    if signals:
+        print(f"\n[Signals] {len(signals)} pending request(s):")
+        for sig in signals:
+            print(f"  - {sig.get('channel', '?')} (by {sig.get('requested_by', '?')}) [{sig['file']}]")
+
+    print("\n=== Data Keeper Complete ===")
 
 
 if __name__ == "__main__":
