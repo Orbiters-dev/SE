@@ -44,7 +44,7 @@ GH_TOKEN = os.getenv("GH_PAT") or os.getenv("GITHUB_TOKEN", "")
 GH_REPO  = os.getenv("GITHUB_REPOSITORY", "")
 
 RECIPIENT = os.getenv("COMMUNICATOR_RECIPIENT") or os.getenv("PPC_REPORT_RECIPIENT", "wj.choi@orbiters.co.kr")
-CC_DEFAULT = os.getenv("COMMUNICATOR_CC", "")
+CC_DEFAULT = os.getenv("COMMUNICATOR_CC", "mj.lee@orbiters.co.kr")
 SENDER    = os.getenv("GMAIL_SENDER", "hello@zezebaebae.com")
 
 SA_PATH   = os.getenv("GOOGLE_SERVICE_ACCOUNT_PATH", "credentials/google_service_account.json")
@@ -79,8 +79,8 @@ CHANNEL_LINKS = {
 # ── 워크플로우 스케줄 ─────────────────────────────────────────────────
 WORKFLOW_SCHEDULE = [
     {"file": "data_keeper.yml",     "label": "Data Keeper",  "times": ["00:00", "12:00"], "days": "매일"},
-    {"file": "amazon_ppc_daily.yml","label": "Amazon PPC",   "times": ["10:00"],          "days": "매일"},
-    {"file": "meta_ads_daily.yml",  "label": "Meta Ads",     "times": ["10:00"],          "days": "매일"},
+    {"file": "amazon_ppc_daily.yml","label": "Amazon PPC",   "times": ["01:00", "13:00"], "days": "매일"},
+    {"file": "meta_ads_daily.yml",  "label": "Meta Ads",     "times": ["00:00", "12:00"], "days": "매일"},
     {"file": "polar_weekly.yml",    "label": "Polar Weekly", "times": ["10:00"],          "days": "월요일"},
     {"file": "communicator.yml",    "label": "Communicator", "times": ["00:00", "12:00"], "days": "매일"},
 ]
@@ -637,6 +637,9 @@ def build_html(dk_status: dict, gh_runs: list[dict], state: dict,
           <td style="padding:10px 12px;border-bottom:1px solid #eee;vertical-align:top;white-space:nowrap">{time_html}</td>
         </tr>"""
 
+    # ─ Naeiae PPC 변경 추적 섹션 ────────────────────────────────────
+    ppc_tracking_html = get_naeiae_ppc_tracking_html()
+
     # ─ 2. Syncly 탭 섹션 (별도 섹션) ─────────────────────────────────
     syncly_section_html = ""
     if syncly_stats:
@@ -827,6 +830,9 @@ def build_html(dk_status: dict, gh_runs: list[dict], state: dict,
     </table>
 
     {syncly_section_html}
+
+    <!-- Naeiae PPC 변경 추적 -->
+    {ppc_tracking_html}
 
     <!-- 데이터 수집 현황 -->
     <h2 style="margin:0 0 14px;font-size:16px;color:#1a1f2e;border-bottom:2px solid #e5e5e5;padding-bottom:8px">

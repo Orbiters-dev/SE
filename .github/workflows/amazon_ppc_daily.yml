@@ -2,7 +2,8 @@ name: Amazon PPC Daily Report
 
 on:
   schedule:
-    - cron: '0 18 * * *'   # 매일 오전 10시 PST (= 18:00 UTC)
+    - cron: '0 9 * * *'    # 매일 PST 01:00 (= 09:00 UTC) — DataKeeper 완료 후
+    - cron: '0 21 * * *'   # 매일 PST 13:00 (= 21:00 UTC) — DataKeeper 완료 후
   workflow_dispatch:        # 수동 실행 버튼
 
 jobs:
