@@ -296,6 +296,130 @@ def tick_recovery(section: dict, key: str) -> bool:
     return was_failing
 
 
+def get_seo_insights_html() -> str:
+    """DataForSEO 키워드 볼륨 + GSC 상위 쿼리 인사이트 섹션."""
+    try:
+        from datetime import date as _date, timedelta
+        cutoff = (_date.today() - timedelta(days=7)).isoformat()
+
+        # DataForSEO keywords
+        r = requests.get(f"{ORBITOOLS_BASE}/query/",
+                         params={"table": "dataforseo_keywords", "limit": 500},
+                         auth=(ORBITOOLS_USER, ORBITOOLS_PASS), timeout=15)
+        dfs_rows = []
+        if r.ok:
+            dfs_rows = [row for row in r.json().get("rows", [])
+                        if row.get("date", "") >= cutoff]
+
+        # GSC top queries
+        r2 = requests.get(f"{ORBITOOLS_BASE}/query/",
+                          params={"table": "gsc_daily", "limit": 5000},
+                          auth=(ORBITOOLS_USER, ORBITOOLS_PASS), timeout=15)
+        gsc_agg = {}
+        if r2.ok:
+            for row in r2.json().get("rows", []):
+                if row.get("date", "") < cutoff:
+                    continue
+                q = row.get("query", "")
+                if q not in gsc_agg:
+                    gsc_agg[q] = {"clicks": 0, "impressions": 0, "site": row.get("site_url", "")}
+                gsc_agg[q]["clicks"] += int(row.get("clicks", 0))
+                gsc_agg[q]["impressions"] += int(row.get("impressions", 0))
+
+        if not dfs_rows and not gsc_agg:
+            return ""
+
+        # DataForSEO table rows — top keywords by volume per brand
+        dfs_by_brand = {}
+        for row in dfs_rows:
+            brand = row.get("brand", "Unknown")
+            vol = int(row.get("search_volume") or 0)
+            if vol == 0:
+                continue
+            if brand not in dfs_by_brand:
+                dfs_by_brand[brand] = []
+            dfs_by_brand[brand].append(row)
+
+        dfs_html = ""
+        for brand in ["Naeiae", "Onzenna", "Grosmimi", "CHA&MOM"]:
+            kws = sorted(dfs_by_brand.get(brand, []), key=lambda x: -int(x.get("search_volume") or 0))[:4]
+            if not kws:
+                continue
+            for i, kw in enumerate(kws):
+                bg = "#F9F9F9" if i % 2 == 0 else "#fff"
+                vol = int(kw.get("search_volume") or 0)
+                cpc = float(kw.get("cpc") or 0)
+                comp = int(kw.get("competition_index") or 0)
+                comp_color = "#9C0006" if comp >= 80 else ("#9C5700" if comp >= 50 else "#006100")
+                dfs_html += (f'<tr style="background:{bg}">'
+                             f'<td style="padding:5px 8px;font-size:12px;color:#555">{brand}</td>'
+                             f'<td style="padding:5px 8px;font-size:12px">{kw["keyword"]}</td>'
+                             f'<td style="padding:5px 8px;font-size:12px;text-align:right">{vol:,}</td>'
+                             f'<td style="padding:5px 8px;font-size:12px;text-align:right">${cpc:.2f}</td>'
+                             f'<td style="padding:5px 8px;font-size:12px;text-align:right;color:{comp_color}">{comp}</td>'
+                             f'</tr>')
+
+        # GSC top 8 queries by clicks
+        gsc_html = ""
+        top_gsc = sorted(gsc_agg.items(), key=lambda x: -x[1]["clicks"])[:8]
+        for i, (query, d) in enumerate(top_gsc):
+            bg = "#F9F9F9" if i % 2 == 0 else "#fff"
+            ctr = d["clicks"] / d["impressions"] * 100 if d["impressions"] else 0
+            site = "onzenna" if "onzenna" in d["site"] else "zezebaebae"
+            gsc_html += (f'<tr style="background:{bg}">'
+                         f'<td style="padding:5px 8px;font-size:12px;color:#555">{site}</td>'
+                         f'<td style="padding:5px 8px;font-size:12px">{query}</td>'
+                         f'<td style="padding:5px 8px;font-size:12px;text-align:right">{d["clicks"]}</td>'
+                         f'<td style="padding:5px 8px;font-size:12px;text-align:right">{d["impressions"]:,}</td>'
+                         f'<td style="padding:5px 8px;font-size:12px;text-align:right">{ctr:.1f}%</td>'
+                         f'</tr>')
+
+        dfs_section = ""
+        if dfs_html:
+            dfs_section = f"""
+    <b style="font-size:13px;color:#1F3864">DataForSEO — 키워드 검색볼륨 (US, Google)</b>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0"
+           style="border-collapse:collapse;font-size:13px;margin:8px 0 16px">
+      <tr bgcolor="#1F3864">
+        <th style="padding:5px 8px;color:#fff;text-align:left;font-size:12px">브랜드</th>
+        <th style="padding:5px 8px;color:#fff;text-align:left;font-size:12px">키워드</th>
+        <th style="padding:5px 8px;color:#fff;text-align:right;font-size:12px">월 검색량</th>
+        <th style="padding:5px 8px;color:#fff;text-align:right;font-size:12px">CPC</th>
+        <th style="padding:5px 8px;color:#fff;text-align:right;font-size:12px">경쟁도</th>
+      </tr>
+      {dfs_html}
+    </table>"""
+
+        gsc_section = ""
+        if gsc_html:
+            gsc_section = f"""
+    <b style="font-size:13px;color:#1F3864">GSC — 상위 검색 쿼리 (7일, 오가닉)</b>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0"
+           style="border-collapse:collapse;font-size:13px;margin:8px 0 0">
+      <tr bgcolor="#1F3864">
+        <th style="padding:5px 8px;color:#fff;text-align:left;font-size:12px">사이트</th>
+        <th style="padding:5px 8px;color:#fff;text-align:left;font-size:12px">쿼리</th>
+        <th style="padding:5px 8px;color:#fff;text-align:right;font-size:12px">클릭</th>
+        <th style="padding:5px 8px;color:#fff;text-align:right;font-size:12px">노출</th>
+        <th style="padding:5px 8px;color:#fff;text-align:right;font-size:12px">CTR</th>
+      </tr>
+      {gsc_html}
+    </table>"""
+
+        return f"""
+  <!-- SEO 인사이트 -->
+  <h2 style="margin:0 0 14px;font-size:16px;color:#1a1f2e;border-bottom:2px solid #e5e5e5;padding-bottom:8px">
+    🔍 SEO / 키워드 인사이트
+  </h2>
+  <div style="margin-bottom:28px">
+    {dfs_section}
+    {gsc_section}
+  </div>"""
+
+    except Exception as e:
+        return f'<p style="font-size:11px;color:#999">[SEO 인사이트 로드 실패: {e}]</p>'
+
+
 # ── 데이터 수집 ───────────────────────────────────────────────────────
 
 def get_datakeeper_status() -> dict:
@@ -641,6 +765,9 @@ def build_html(dk_status: dict, gh_runs: list[dict], state: dict,
     # ─ Naeiae PPC 변경 추적 섹션 ────────────────────────────────────
     ppc_tracking_html = get_naeiae_ppc_tracking_html()
 
+    # ─ SEO 인사이트 섹션 (DataForSEO + GSC) ──────────────────────────
+    seo_insights_html = get_seo_insights_html()
+
     # ─ 2. Syncly 탭 섹션 (별도 섹션) ─────────────────────────────────
     syncly_section_html = ""
     if syncly_stats:
@@ -834,6 +961,9 @@ def build_html(dk_status: dict, gh_runs: list[dict], state: dict,
 
     <!-- Naeiae PPC 변경 추적 -->
     {ppc_tracking_html}
+
+    <!-- SEO 인사이트 -->
+    {seo_insights_html}
 
     <!-- 데이터 수집 현황 -->
     <h2 style="margin:0 0 14px;font-size:16px;color:#1a1f2e;border-bottom:2px solid #e5e5e5;padding-bottom:8px">

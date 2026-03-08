@@ -238,6 +238,67 @@ python tools/data_keeper_backfill.py --source q5      # Amazon Ads only
 | Onzenna | onzenna, zezebaebae |
 | Alpremio | alpremio |
 
+## ⚠️ Known Issues & Design Decisions
+
+### Shopify Channel Classification (FIXED 2026-03-08)
+
+`shopify_orders_daily` previously used `"amazon" in tags` to classify all amazon-tagged orders as channel="Amazon". **This has been fixed.**
+
+**What was wrong:**
+1. **FBA Multi-Channel Fulfillment (MCF)** — Shopify DTC sales where Amazon handles fulfillment (WebBee app). Tags: `"Amazon Status - Complete, Exported To Amazon by WebBee App"` or `"Rejected by Amazon - WebBee app"`. These are **DTC sales**, not Amazon marketplace sales. The "discount" shown was from Shopify promo codes (influencer codes, Kaching Bundle deals), NOT Amazon pricing.
+2. **Faire wholesale orders** — B2B orders via Faire tagged `"Faire, NON-TRANS-FBA, Rejected by Amazon"` — wholesale/B2B, not consumer sales.
+
+**Current logic (fixed in `data_keeper.py`):**
+```python
+if "faire" in tags:
+    channel = "B2B"
+elif "exported to amazon" in tags or "amazon status" in tags or "rejected by amazon" in tags:
+    channel = "D2C"   # FBA MCF: sale is on Shopify, Amazon is logistics only
+elif "amazon" in tags or "amazon" in source:
+    channel = "Amazon"
+```
+
+**Impact of fix**: Jan 2026 Grosmimi "Amazon channel" orders reduced from ~1,500 to ~0 (all reclassified to D2C/B2B). Previous inflated Amazon discount rates (e.g., 10.8% Jan 2026) were caused by Shopify promo codes (LAUREN10OFF, Kaching Bundles) being attributed to "Amazon channel".
+
+**Actual Amazon Marketplace data** is in `amazon_sales_daily` (from SP-API flat files) — no line-item detail, no discount breakdown.
+
+### Amazon Discount Calculation — Price Reference
+
+For `channel="Amazon"` orders in `shopify_orders_daily`:
+```
+discount = (ref_price - sell_price) × qty + line_disc
+gross    = ref_price × qty
+```
+
+Where:
+- `ref_price` = current Shopify `price` field (NOT `compare_at_price`)
+- `sell_price` = order line item price (what Amazon/WebBee recorded)
+- `line_disc` = coupon/promo discount on the line item
+
+**For D2C channel**: `ref_price` = `compare_at_price ?? price` (captures Shopify sale events)
+
+**Price snapshot timing**: `amazon_prices` is built fresh each run using CURRENT Shopify prices. For the 35-day lookback window, historical orders use today's prices as reference. If prices changed within that window, calculated discounts may not reflect what was actually charged.
+
+### Grosmimi Price History
+
+Grosmimi raised retail prices in March 2025. Pre-increase prices are stored in `GROSMIMI_PRICE_CUTOFF` and `GROSMIMI_OLD_PRICES` in `data_keeper.py`:
+
+```python
+GROSMIMI_PRICE_CUTOFF = "2025-03-01"
+GROSMIMI_OLD_PRICES = { variant_id: old_retail_price, ... }
+```
+
+Logic:
+- Before `2025-03-01`: use `GROSMIMI_OLD_PRICES.get(vid)` as ref_price
+- After: use current `amazon_prices`
+- Floor: `ref_price = max(ref_price, sell_price)` — prevents negative discount when Amazon was premium-priced above Shopify reference
+
+### Amazon Ads Data Availability
+
+- Amazon Ads API v3 only retains ~60-90 days of history
+- Naeiae (Fleeters Inc) Amazon Ads only exists from **Dec 2025 onward** in PG
+- Pre-Dec 2025 Amazon Ads data for Naeiae: not available (hard API constraint)
+
 ## Troubleshooting
 
 ### Token Expired

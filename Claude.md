@@ -451,6 +451,39 @@ Python 경로: `/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe
 
 ---
 
+## KPI 월간 리포트
+
+"KPI 리포트", "KPI 할인율", "KPI 광고비", "KPI 시딩비용", "run_kpi_monthly", "할인율 이상해", "Amazon 할인 분석", "KPI 엑셀" 등의 명령이 오면 즉시 `kpi-monthly` 스킬을 사용한다.
+
+### 동작 방식
+
+1. `.claude/skills/kpi-monthly/SKILL.md` 를 읽는다
+2. 요청에 따라 적절한 액션 수행:
+   - **리포트 생성**: `python tools/run_kpi_monthly.py`
+   - **할인율 분석**: `shopify_orders_daily` + Shopify API 직접 조회
+   - **채널 이슈 디버깅**: Shopify 주문 태그 확인 (Faire, WebBee MCF 구분)
+
+### 핵심 파일
+
+| 파일 | 역할 |
+|------|------|
+| `tools/run_kpi_monthly.py` | KPI Excel 생성 스크립트 |
+| `tools/data_keeper_client.py` | PG 데이터 조회 |
+| `tools/data_keeper.py` | 채널 분류 로직 + Grosmimi 가격 히스토리 |
+| `kpis_model_YYYY-MM-DD_vN.xlsx` | 최종 산출물 |
+
+### 주요 이슈 (항상 기억)
+
+1. **Amazon 채널 ≠ Amazon Marketplace**: `shopify_orders_daily`의 channel="Amazon"은 실제로 FBA MCF(Shopify DTC + Amazon 물류)이거나 Faire 도매주문. 진짜 Amazon 판매는 `amazon_sales_daily`.
+2. **Grosmimi 가격 히스토리**: `GROSMIMI_PRICE_CUTOFF = "2025-03-01"`. 이전은 구가(`GROSMIMI_OLD_PRICES`), 이후는 현재 Shopify 가격 사용.
+3. **n.m 셀**: 데이터 미수집 기간은 진한 회색 + "n.m" 텍스트로 표시.
+
+### 트리거 키워드
+
+KPI 리포트, KPI 할인율, KPI 광고비, KPI 시딩비용, run_kpi_monthly, Amazon 할인 분석, 할인율 이상, 월간 KPI, KPI 엑셀, v14, v15
+
+---
+
 ## 커뮤니케이터 (ORBI Communicator)
 
 "커뮤니케이터" 명령이 오면 즉시 아래를 실행한다:

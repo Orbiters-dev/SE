@@ -105,6 +105,7 @@ def main():
     parser.add_argument("--body-file", help="Path to HTML file for body")
     parser.add_argument("--attachment", help="Path to file to attach")
     parser.add_argument("--sender", default=DEFAULT_SENDER, help="Sender email")
+    parser.add_argument("--cc", default=None, help="CC email address")
     args = parser.parse_args()
 
     if args.body_file:
@@ -117,7 +118,7 @@ def main():
         sys.exit(1)
 
     send_email(to=args.to, subject=args.subject, body_html=body, sender=args.sender,
-               attachment=args.attachment)
+               attachment=args.attachment, cc=args.cc)
 
 
 if __name__ == "__main__":
