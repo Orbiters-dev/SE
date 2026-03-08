@@ -7,7 +7,7 @@ on:
   workflow_dispatch:         # manual trigger
     inputs:
       channel:
-        description: 'Channel to collect (all, amazon_ads, amazon_sales, meta, google, ga4, klaviyo, shopify)'
+        description: 'Channel to collect (all, amazon_ads, amazon_sales, meta, google, ga4, klaviyo, shopify, gsc, dataforseo)'
         required: false
         default: 'all'
       days:
@@ -41,6 +41,7 @@ jobs:
       - name: Write .env
         run: |
           cat > .env <<'ENVEOF'
+          ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
           AMZ_ADS_CLIENT_ID=${{ secrets.AMZ_ADS_CLIENT_ID }}
           AMZ_ADS_CLIENT_SECRET=${{ secrets.AMZ_ADS_CLIENT_SECRET }}
           AMZ_ADS_REFRESH_TOKEN=${{ secrets.AMZ_ADS_REFRESH_TOKEN }}
@@ -67,6 +68,9 @@ jobs:
           GA4_REFRESH_TOKEN=${{ secrets.GA4_REFRESH_TOKEN }}
           GA4_PROPERTY_ID=${{ secrets.GA4_PROPERTY_ID }}
           KLAVIYO_API_KEY=${{ secrets.KLAVIYO_API_KEY }}
+          DATAFORSEO_LOGIN=${{ secrets.DATAFORSEO_LOGIN }}
+          DATAFORSEO_PASSWORD=${{ secrets.DATAFORSEO_PASSWORD }}
+          GOOGLE_SERVICE_ACCOUNT_PATH=credentials/google_service_account.json
           ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
           ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
           ENVEOF
@@ -80,6 +84,11 @@ jobs:
         run: |
           echo "PAYPAL_CLIENT_ID=${{ secrets.PAYPAL_CLIENT_ID }}" >> .env
           echo "PAYPAL_SECRET=${{ secrets.PAYPAL_SECRET }}" >> .env
+
+      - name: Write GSC service account
+        run: |
+          mkdir -p credentials
+          echo '${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}' > credentials/google_service_account.json
 
       - name: Run Data Keeper
         run: |
@@ -95,6 +104,11 @@ jobs:
         run: |
           cd tools && python -u fetch_paypal_transactions.py || echo "PayPal fetch failed (non-fatal)"
 
+      - name: Run Amazon PPC Analysis
+        if: github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_ads'
+        run: |
+          python -u tools/run_amazon_ppc_daily.py --dry-run || echo "PPC analysis failed (non-fatal)"
+
       - name: Upload cache as artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -103,4 +117,6 @@ jobs:
           path: |
             .tmp/datakeeper/*.json
             .tmp/polar_data/q11_paypal_transactions.json
+            .tmp/ppc_report_*.html
+            .tmp/ppc_payload_*.json
           retention-days: 7

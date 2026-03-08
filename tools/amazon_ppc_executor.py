@@ -335,7 +335,7 @@ def fetch_search_term_report(profile_id: int, start: date, end: date) -> List[Di
                 "adProduct": "SPONSORED_PRODUCTS",
                 "groupBy": ["searchTerm"],
                 "columns": [
-                    "date", "campaignId", "adGroupId", "keywordId",
+                    "campaignId", "adGroupId", "keywordId",
                     "searchTerm", "impressions", "clicks", "cost",
                     "sales14d", "purchases14d",
                 ],
@@ -403,10 +403,10 @@ def fetch_keyword_report(profile_id: int, start: date, end: date) -> List[Dict]:
             "endDate": chunk_end.strftime("%Y-%m-%d"),
             "configuration": {
                 "adProduct": "SPONSORED_PRODUCTS",
-                "groupBy": ["keyword"],
+                "groupBy": ["adGroup"],
                 "columns": [
-                    "date", "campaignId", "adGroupId", "keywordId",
-                    "keywordText", "matchType", "keywordBid",
+                    "campaignId", "adGroupId", "keywordId",
+                    "keywordText", "matchType",
                     "impressions", "clicks", "cost",
                     "sales14d", "purchases14d",
                 ],
@@ -994,8 +994,8 @@ def add_keyword(profile_id: int, campaign_id, ad_group_id, keyword_text: str,
         headers=headers,
         json={
             "keywords": [{
-                "campaignId": campaign_id,
-                "adGroupId": ad_group_id,
+                "campaignId": str(campaign_id),
+                "adGroupId": str(ad_group_id),
                 "keywordText": keyword_text,
                 "matchType": match_type.upper(),
                 "bid": bid,
@@ -1020,8 +1020,8 @@ def add_negative_keyword(profile_id: int, campaign_id, ad_group_id,
         headers=headers,
         json={
             "negativeKeywords": [{
-                "campaignId": campaign_id,
-                "adGroupId": ad_group_id,
+                "campaignId": str(campaign_id),
+                "adGroupId": str(ad_group_id),
                 "keywordText": keyword_text,
                 "matchType": match_type,
                 "state": "ENABLED",
@@ -1053,6 +1053,40 @@ def update_keyword_bid(profile_id: int, keyword_id, new_bid: float) -> Dict:
     )
     resp.raise_for_status()
     return resp.json()
+
+
+def update_asin_target_bid(profile_id: int, target_id, new_bid: float) -> Dict:
+    """Update bid for an ASIN product target (SP Competitor/Product Targeting)."""
+    new_bid = max(0.02, min(new_bid, MAX_BID_USD))
+    headers = _headers(profile_id)
+    headers["Accept"] = "application/vnd.spTargetingClause.v3+json"
+    headers["Content-Type"] = "application/vnd.spTargetingClause.v3+json"
+
+    resp = requests.put(
+        f"{API_BASE}/sp/targets",
+        headers=headers,
+        json={"targetingClauses": [{"targetId": str(target_id), "bid": new_bid}]},
+        timeout=30,
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
+def list_asin_targets(profile_id: int, ad_group_id) -> list:
+    """List ASIN product targets for an ad group."""
+    headers = _headers(profile_id)
+    headers["Accept"] = "application/vnd.spTargetingClause.v3+json"
+    headers["Content-Type"] = "application/vnd.spTargetingClause.v3+json"
+
+    resp = requests.post(
+        f"{API_BASE}/sp/targets/list",
+        headers=headers,
+        json={"adGroupIdFilter": {"include": [str(ad_group_id)]}, "stateFilter": {"include": ["ENABLED"]}},
+        timeout=20,
+    )
+    resp.raise_for_status()
+    data = resp.json()
+    return data.get("targetingClauses", data) if isinstance(data, dict) else data
 
 
 def pause_keyword(profile_id: int, keyword_id) -> Dict:

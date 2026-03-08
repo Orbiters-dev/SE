@@ -48,6 +48,77 @@ ORBITOOLS_PASS = os.getenv("ORBITOOLS_PASS", "")
 PST = timezone(timedelta(hours=-8))
 DEFAULT_LOOKBACK_DAYS = 35  # cover 30d + buffer
 
+# ── Grosmimi Price History ─────────────────────────────────────────────────
+# Grosmimi had a retail price increase around Feb-March 2025.
+# For Amazon channel orders BEFORE this date, use old Shopify prices.
+# All other brands and all D2C orders always use current Shopify prices.
+# Source: Wholesale Price by Brand(Grosmimi).csv (2023 baseline retail prices)
+GROSMIMI_PRICE_CUTOFF = "2025-03-01"
+
+GROSMIMI_OLD_PRICES = {
+    # PPSU Baby Bottle 10oz (300ml): $18.60 → $19.60
+    45019086586178: 18.60,  # Olive White
+    45019086618946: 18.60,  # Bear Pure Gold
+    45019086651714: 18.60,  # Bear White
+    45019086684482: 18.60,  # Cherry Pure Gold
+    45019086717250: 18.60,  # Cherry Rose Gold
+    # PPSU Baby Bottle 6oz (200ml): $17.40 → $18.40
+    45019081539906: 17.40,  # Olive White
+    45019081572674: 17.40,  # Bear Pure Gold
+    45019081605442: 17.40,  # Bear White
+    45019081638210: 17.40,  # Cherry Pure Gold
+    45019081670978: 17.40,  # Cherry Rose Gold
+    # PPSU Straw Cup 10oz (6M+): $21.90 → $24.90 (most colors)
+    45018985595202: 21.90,  # Skyblue
+    45018985529666: 21.90,  # Aquagreen
+    45018985562434: 21.90,  # Pink
+    45373972513090: 21.90,  # Butter
+    45373972545858: 21.90,  # Peach
+    # PPSU Straw Cup 10oz (6M+): $22.80 → $25.80 (White/Beige/Charcoal)
+    45018985431362: 22.80,  # White
+    45018985464130: 22.80,  # Beige
+    45018985496898: 22.80,  # Charcoal
+    # PPSU Straw Cup 6oz (6M+): $19.80 → $22.80 (most colors)
+    45011792003394: 19.80,  # Skyblue
+    45011792036162: 19.80,  # Pink
+    45011792134466: 19.80,  # Aquagreen
+    45373979197762: 19.80,  # Butter
+    45373979230530: 19.80,  # Peach
+    # PPSU Straw Cup 6oz (6M+): $20.79 → $23.80 (White/Beige/Charcoal)
+    45011791970626: 20.79,  # White
+    45011792101698: 20.79,  # Beige
+    45011792068930: 20.79,  # Charcoal
+    # PPSU Straw Cup with Flip Top 6oz (12M+): $24.90 → $25.90
+    45751370711362: 24.90,  # Ocean Beige
+    45751370744130: 24.90,  # Space White
+    # Replacement Straw Kit Stage 1/2: $12.50 → $15.50
+    45019595505986: 12.50,  # Stage 1
+    45019590623554: 12.50,  # Stage 2
+    # Replacement Straw Multipack Stage 2: $21.00 → $22.00
+    45176565793090: 21.00,
+    # Replacement Straw Nipple 4-counts Stage 2: $19.00 → $22.00
+    45020465561922: 19.00,
+    # Stainless Steel Food Tray 3 Compartment
+    47142768738626: 11.50,  # Without suction ($11.50 → $14.30)
+    47142768771394: 16.99,  # With suction ($16.99 → $20.30)
+    # Stainless Steel Food Tray 5 Compartment
+    45020423651650: 13.50,  # Without suction ($13.50 → $17.00)
+    45020423618882: 18.99,  # With suction ($18.99 → $23.00)
+    # Stainless Steel Straw Cup 10oz: $43.00 → $46.80
+    47142838042946: 43.00,  # Cherry Peach
+    47142887981378: 43.00,  # Olive Pistachio
+    47142838010178: 43.00,  # Bear Butter
+    # Stainless Steel Straw Cup 6oz: $33.90 → $38.90
+    47142890668354: 33.90,  # Cherry Peach
+    47142890733890: 33.90,  # Olive Pistachio
+    47142890701122: 33.90,  # Bear Butter
+    # Weighted Straw kit: $9.50 → $12.50
+    45020599288130:  9.50,  # Stage 1
+    45020622717250:  9.50,  # twin pack
+    45020599845186:  9.50,  # with Nipple Stage 4
+    45751602315586:  9.50,  # with Spout
+}
+
 # ── Credentials ───────────────────────────────────────────────────────────
 # Amazon Ads
 AMZ_ADS_CLIENT_ID = os.getenv("AMZ_ADS_CLIENT_ID", "")
@@ -100,6 +171,37 @@ GA4_CLIENT_ID = os.getenv("GA4_CLIENT_ID", "")
 GA4_CLIENT_SECRET = os.getenv("GA4_CLIENT_SECRET", "")
 GA4_REFRESH_TOKEN = os.getenv("GA4_REFRESH_TOKEN", "")
 GA4_PROPERTY_ID = os.getenv("GA4_PROPERTY_ID", "")
+
+# GSC (Google Search Console) — service account
+GSC_SERVICE_ACCOUNT_PATH = os.getenv("GOOGLE_SERVICE_ACCOUNT_PATH", "credentials/google_service_account.json")
+GSC_SITES = [
+    "https://onzenna.com/",
+    "sc-domain:zezebaebae.com",
+]
+
+# DataForSEO
+DATAFORSEO_LOGIN = os.getenv("DATAFORSEO_LOGIN", "")
+DATAFORSEO_PASSWORD = os.getenv("DATAFORSEO_PASSWORD", "")
+
+# DataForSEO keyword targets per brand (for ranking + volume tracking)
+DATAFORSEO_KEYWORDS = {
+    "Onzenna": [
+        "onzenna", "onzenna sunscreen", "onzenna skincare", "korean sunscreen",
+        "tinted sunscreen", "mineral sunscreen spf50",
+    ],
+    "Naeiae": [
+        "pop rice snack", "naeiae pop rice snack", "baby rice crackers",
+        "korean baby snack", "korean snacks", "pop rice", "rice snack baby",
+        "떡뻥", "baby teething snacks", "organic rice puff",
+    ],
+    "Grosmimi": [
+        "grosmimi", "baby teether", "silicone baby teether", "baby teething toy",
+        "grosmimi teether", "baby chew toy",
+    ],
+    "CHA&MOM": [
+        "cha and mom", "korean baby food", "korean infant snack", "chamom",
+    ],
+}
 
 # Klaviyo
 KLAVIYO_API_KEY = os.getenv("KLAVIYO_API_KEY", "")
@@ -827,6 +929,119 @@ def collect_ga4(date_from: str, date_to: str) -> list[dict]:
         return []
 
 
+def collect_gsc(date_from: str, date_to: str) -> list[dict]:
+    """Collect Google Search Console search analytics (clicks, impressions, CTR, position)."""
+    print("[GSC] Collecting...")
+    if not os.path.exists(GSC_SERVICE_ACCOUNT_PATH):
+        print(f"  [SKIP] No service account at {GSC_SERVICE_ACCOUNT_PATH}")
+        return []
+
+    try:
+        import google.oauth2.service_account as sa_module
+        import google.auth.transport.requests as tr_module
+        creds = sa_module.Credentials.from_service_account_file(
+            GSC_SERVICE_ACCOUNT_PATH,
+            scopes=["https://www.googleapis.com/auth/webmasters.readonly"],
+        )
+        creds.refresh(tr_module.Request())
+        token = creds.token
+    except Exception as e:
+        print(f"  [ERROR] GSC auth: {e}")
+        return []
+
+    headers = {"Authorization": f"Bearer {token}"}
+    all_rows = []
+
+    for site_url in GSC_SITES:
+        encoded = requests.utils.quote(site_url, safe="")
+        body = {
+            "startDate": date_from,
+            "endDate": date_to,
+            "dimensions": ["date", "query"],
+            "rowLimit": 5000,
+            "dataState": "final",
+        }
+        try:
+            r = requests.post(
+                f"https://www.googleapis.com/webmasters/v3/sites/{encoded}/searchAnalytics/query",
+                headers=headers, json=body, timeout=60,
+            )
+            if r.status_code == 403:
+                print(f"  [SKIP] {site_url} — no access (403)")
+                continue
+            r.raise_for_status()
+            for row in r.json().get("rows", []):
+                keys = row.get("keys", [])
+                all_rows.append({
+                    "date": keys[0] if keys else date_to,
+                    "site_url": site_url,
+                    "query": keys[1] if len(keys) > 1 else "(unknown)",
+                    "clicks": int(row.get("clicks", 0)),
+                    "impressions": int(row.get("impressions", 0)),
+                    "ctr": round(float(row.get("ctr", 0)), 4),
+                    "position": round(float(row.get("position", 0)), 1),
+                })
+            print(f"  {site_url}: {len(r.json().get('rows', []))} rows")
+        except Exception as e:
+            print(f"  [ERROR] {site_url}: {e}")
+
+    print(f"  Total GSC rows: {len(all_rows)}")
+    return all_rows
+
+
+def collect_dataforseo(date_from: str, date_to: str) -> list[dict]:
+    """Collect DataForSEO keyword search volumes and competition data."""
+    print("[DataForSEO] Collecting...")
+    if not DATAFORSEO_LOGIN or not DATAFORSEO_PASSWORD:
+        print("  [SKIP] No DATAFORSEO credentials")
+        return []
+
+    import base64
+    auth = base64.b64encode(f"{DATAFORSEO_LOGIN}:{DATAFORSEO_PASSWORD}".encode()).decode()
+    headers = {"Authorization": f"Basic {auth}", "Content-Type": "application/json"}
+
+    all_keywords = []
+    for brand, kws in DATAFORSEO_KEYWORDS.items():
+        for kw in kws:
+            all_keywords.append({"keyword": kw, "brand": brand})
+
+    # Batch by 100 keywords max
+    results = []
+    batch_size = 100
+    for i in range(0, len(all_keywords), batch_size):
+        batch = all_keywords[i:i + batch_size]
+        body = [{
+            "keywords": [k["keyword"] for k in batch],
+            "language_name": "English",
+            "location_code": 2840,  # US
+        }]
+        try:
+            r = requests.post(
+                "https://api.dataforseo.com/v3/keywords_data/google_ads/search_volume/live",
+                headers=headers, json=body, timeout=60,
+            )
+            r.raise_for_status()
+            data = r.json()
+            kw_map = {k["keyword"]: k["brand"] for k in batch}
+            for item in data.get("tasks", [{}])[0].get("result", []):
+                kw = item.get("keyword", "")
+                results.append({
+                    "date": date_to,
+                    "keyword": kw,
+                    "brand": kw_map.get(kw, "Unknown"),
+                    "search_volume": item.get("search_volume") or 0,
+                    "cpc": round(float(item.get("cpc") or 0), 2),
+                    "competition_index": item.get("competition_index") or 0,
+                    "competition": item.get("competition") or "",
+                    "monthly_searches": json.dumps(item.get("monthly_searches") or []),
+                })
+        except Exception as e:
+            print(f"  [ERROR] DataForSEO batch {i}: {e}")
+
+    print(f"  Total DataForSEO rows: {len(results)}")
+    return results
+
+
 def collect_klaviyo(date_from: str, date_to: str) -> list[dict]:
     """Collect Klaviyo campaign/flow daily metrics."""
     print("[Klaviyo] Collecting...")
@@ -958,7 +1173,17 @@ def collect_shopify(date_from: str, date_to: str) -> list[dict]:
         source = (order.get("source_name") or "").lower()
 
         # Channel detection (order level)
-        if "amazon" in tags or "amazon" in source:
+        # NOTE: "amazon" in tags catches multiple cases — order matters:
+        #  1. Faire B2B wholesale → B2B (Faire tag present)
+        #  2. FBA MCF fulfilled ("Exported To Amazon by WebBee App") → D2C
+        #  3. FBA MCF rejected ("Rejected by Amazon - WebBee app") → D2C
+        #     Both 2 & 3 are Shopify DTC sales; Amazon is just fulfillment logistics
+        #  4. True Amazon Marketplace orders don't come through Shopify (they're in amazon_sales_daily via SP-API)
+        if "faire" in tags:
+            channel = "B2B"
+        elif "exported to amazon" in tags or "amazon status" in tags or "rejected by amazon" in tags:
+            channel = "D2C"   # FBA MCF (fulfilled or rejected): sale is on Shopify, not Amazon Marketplace
+        elif "amazon" in tags or "amazon" in source:
             channel = "Amazon"
         elif "tiktok" in tags or "tiktok" in source:
             channel = "TikTok"
@@ -985,8 +1210,13 @@ def collect_shopify(date_from: str, date_to: str) -> list[dict]:
 
             if channel == "Amazon":
                 # Amazon: ref = Shopify base price (price, NOT compare_at_price)
-                # discount = channel pricing gap + any coupon applied on top
-                ref_price = amazon_prices.get(vid, sell_price)
+                # For Grosmimi orders before March 2025, use pre-price-increase prices.
+                if brand == "Grosmimi" and date_str < GROSMIMI_PRICE_CUTOFF:
+                    ref_price = GROSMIMI_OLD_PRICES.get(vid, amazon_prices.get(vid, sell_price))
+                else:
+                    ref_price = amazon_prices.get(vid, sell_price)
+                # If Amazon listed above Shopify ref (premium pricing), treat as 0 discount
+                ref_price = max(ref_price, sell_price)
                 gross    += ref_price * qty
                 net      += sell_price * qty - line_disc
                 discount += (ref_price - sell_price) * qty + line_disc
@@ -1047,6 +1277,8 @@ CHANNEL_COLLECTORS = {
     "ga4": ("ga4_daily", collect_ga4),
     "klaviyo": ("klaviyo_daily", collect_klaviyo),
     "shopify": ("shopify_orders_daily", collect_shopify),
+    "gsc": ("gsc_daily", collect_gsc),
+    "dataforseo": ("dataforseo_keywords", collect_dataforseo),
 }
 
 
@@ -1082,7 +1314,7 @@ def show_status():
 def main():
     parser = argparse.ArgumentParser(description="Data Keeper - Unified data collector")
     parser.add_argument("--channel", type=str, default="all",
-                        help="Channel to collect (amazon_ads, amazon_sales, meta, google, ga4, klaviyo, shopify, all)")
+                        help="Channel to collect (amazon_ads, amazon_sales, meta, google, ga4, klaviyo, shopify, gsc, dataforseo, all)")
     parser.add_argument("--days", type=int, default=DEFAULT_LOOKBACK_DAYS,
                         help="Lookback days (default: 35)")
     parser.add_argument("--skip-pg", action="store_true",

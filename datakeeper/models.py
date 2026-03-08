@@ -198,3 +198,42 @@ class KlaviyoDaily(models.Model):
 
     def __str__(self):
         return f"{self.date} {self.source_type} {self.source_name}"
+
+
+class GscDaily(models.Model):
+    """Daily Google Search Console search analytics per site and query."""
+    date = models.DateField()
+    site_url = models.CharField(max_length=200)
+    query = models.CharField(max_length=500)
+    clicks = models.IntegerField(default=0)
+    impressions = models.IntegerField(default=0)
+    ctr = models.DecimalField(max_digits=8, decimal_places=4, default=0)
+    position = models.DecimalField(max_digits=8, decimal_places=1, default=0)
+    collected_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "gk_gsc_daily"
+        unique_together = ("date", "site_url", "query")
+
+    def __str__(self):
+        return f"{self.date} {self.site_url} {self.query}"
+
+
+class DataForSeoKeywords(models.Model):
+    """DataForSEO keyword search volumes and competition data (updated weekly)."""
+    date = models.DateField()
+    keyword = models.CharField(max_length=500)
+    brand = models.CharField(max_length=100)
+    search_volume = models.IntegerField(default=0)
+    cpc = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    competition_index = models.IntegerField(default=0)
+    competition = models.CharField(max_length=20, blank=True, default="")
+    monthly_searches = models.TextField(blank=True, default="[]")  # JSON list
+    collected_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "gk_dataforseo_keywords"
+        unique_together = ("date", "keyword")
+
+    def __str__(self):
+        return f"{self.date} {self.keyword} vol={self.search_volume}"

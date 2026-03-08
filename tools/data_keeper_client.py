@@ -40,6 +40,7 @@ VALID_TABLES = [
     "shopify_orders_daily", "amazon_sales_daily", "amazon_ads_daily",
     "amazon_campaigns", "meta_ads_daily", "meta_campaigns",
     "google_ads_daily", "ga4_daily", "klaviyo_daily",
+    "gsc_daily", "dataforseo_keywords",
 ]
 
 
@@ -75,8 +76,11 @@ class DataKeeper:
         if self.prefer_cache:
             rows = self._read_cache(table)
             if rows:
-                return self._filter(rows, date_from, date_to, brand,
-                                    campaign_id, channel, limit)
+                filtered = self._filter(rows, date_from, date_to, brand,
+                                        campaign_id, channel, limit)
+                if filtered:
+                    return filtered
+                # Cache exists but filtered result empty (stale) -> fall through to PG
 
         # Fallback to PG
         rows = self._read_pg(table, date_from, date_to, brand,
