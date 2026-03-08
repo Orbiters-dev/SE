@@ -878,39 +878,45 @@ def collect_klaviyo(date_from: str, date_to: str) -> list[dict]:
     return all_rows
 
 
-def _fetch_variant_prices(base: str, headers: dict) -> dict:
-    """Fetch all product variant list prices from Shopify.
+def _fetch_variant_prices(base: str, headers: dict) -> tuple:
+    """Fetch all product variant prices from Shopify.
 
-    list_price = compare_at_price (if set) else price.
-    compare_at_price = official MSRP/list price (same for Shopify & Amazon).
-    Returns {variant_id (int): list_price (float)}.
+    Returns two dicts:
+      d2c_prices   {vid: compare_at_price ?? price}  — D2C/ONZ reference (MSRP)
+      amazon_prices {vid: price}                      — Amazon reference (Shopify base price)
+
+    D2C discount = (compare_at_price ?? price) - actual_paid  (captures Shopify sale events)
+    Amazon discount = (shopify_price - amazon_selling_price)   (captures channel pricing gap)
     """
-    prices = {}
+    d2c_prices = {}
+    amazon_prices = {}
     url = f"{base}/products.json?limit=250&fields=id,variants"
     while url:
         r = requests.get(url, headers=headers, timeout=30)
         r.raise_for_status()
         for product in r.json().get("products", []):
             for v in product.get("variants", []):
-                # compare_at_price = MSRP; fallback to price if not set
-                list_p = float(v.get("compare_at_price") or v.get("price") or 0)
-                prices[v["id"]] = list_p
+                vid = v["id"]
+                base_price    = float(v.get("price") or 0)
+                compare_price = float(v.get("compare_at_price") or 0)
+                d2c_prices[vid]    = compare_price if compare_price > 0 else base_price
+                amazon_prices[vid] = base_price   # Shopify regular price (no compare_at)
         link = r.headers.get("Link", "")
         url = None
         if 'rel="next"' in link:
             for part in link.split(","):
                 if 'rel="next"' in part:
                     url = part.split("<")[1].split(">")[0]
-    print(f"  Variant price map: {len(prices)} variants loaded")
-    return prices
+    print(f"  Variant price map: {len(d2c_prices)} variants loaded")
+    return d2c_prices, amazon_prices
 
 
 def collect_shopify(date_from: str, date_to: str) -> list[dict]:
     """Collect Shopify orders aggregated daily by brand/channel.
 
-    ONZ/D2C channels: discount = compare_at_price * qty - actual_paid (MSRP reference)
-    Amazon channel: discount = actual coupon/promo only (sell_price IS the list price).
-    This captures both sale-price reductions AND coupon discounts vs. list price.
+    ONZ/D2C channels: discount = (compare_at_price ?? price) - actual_paid
+    Amazon channel:   discount = (shopify_base_price - amazon_selling_price) + coupon
+    → Amazon uses Shopify 'price' as reference (NOT compare_at_price) to avoid inflation.
     """
     print("[Shopify] Collecting...")
     if not SHOPIFY_SHOP or not SHOPIFY_ACCESS_TOKEN:
@@ -921,8 +927,8 @@ def collect_shopify(date_from: str, date_to: str) -> list[dict]:
     base = f"https://{shop}.myshopify.com/admin/api/2024-01"
     headers = {"X-Shopify-Access-Token": SHOPIFY_ACCESS_TOKEN}
 
-    # Load variant list prices once (compare_at_price ?? price)
-    variant_prices = _fetch_variant_prices(base, headers)
+    # Load variant prices: d2c uses compare_at_price??price, amazon uses base price only
+    d2c_prices, amazon_prices = _fetch_variant_prices(base, headers)
 
     all_orders = []
     url = (f"{base}/orders.json?status=any&limit=250"
@@ -978,12 +984,15 @@ def collect_shopify(date_from: str, date_to: str) -> list[dict]:
             line_disc  = float(li.get("total_discount", 0) or 0)  # coupon/promo on this line
 
             if channel == "Amazon":
-                # Amazon: sell_price is the actual price (not MSRP). Discount = coupon only.
-                gross    += sell_price * qty
+                # Amazon: ref = Shopify base price (price, NOT compare_at_price)
+                # discount = channel pricing gap + any coupon applied on top
+                ref_price = amazon_prices.get(vid, sell_price)
+                gross    += ref_price * qty
                 net      += sell_price * qty - line_disc
-                discount += line_disc
+                discount += (ref_price - sell_price) * qty + line_disc
             else:
-                list_price = variant_prices.get(vid, sell_price)  # fallback: sell_price IS list
+                # D2C/ONZ: ref = compare_at_price ?? price (Shopify MSRP)
+                list_price = d2c_prices.get(vid, sell_price)
                 gross    += list_price * qty
                 net      += sell_price * qty - line_disc
                 discount += list_price * qty - (sell_price * qty - line_disc)
