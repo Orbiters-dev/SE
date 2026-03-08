@@ -801,8 +801,40 @@ def collect_klaviyo(date_from: str, date_to: str) -> list[dict]:
     return all_rows
 
 
+def _fetch_variant_prices(base: str, headers: dict) -> dict:
+    """Fetch all product variant list prices from Shopify.
+
+    list_price = compare_at_price (if set) else price.
+    compare_at_price = official MSRP/list price (same for Shopify & Amazon).
+    Returns {variant_id (int): list_price (float)}.
+    """
+    prices = {}
+    url = f"{base}/products.json?limit=250&fields=id,variants"
+    while url:
+        r = requests.get(url, headers=headers, timeout=30)
+        r.raise_for_status()
+        for product in r.json().get("products", []):
+            for v in product.get("variants", []):
+                # compare_at_price = MSRP; fallback to price if not set
+                list_p = float(v.get("compare_at_price") or v.get("price") or 0)
+                prices[v["id"]] = list_p
+        link = r.headers.get("Link", "")
+        url = None
+        if 'rel="next"' in link:
+            for part in link.split(","):
+                if 'rel="next"' in part:
+                    url = part.split("<")[1].split(">")[0]
+    print(f"  Variant price map: {len(prices)} variants loaded")
+    return prices
+
+
 def collect_shopify(date_from: str, date_to: str) -> list[dict]:
-    """Collect Shopify orders aggregated daily by brand/channel."""
+    """Collect Shopify orders aggregated daily by brand/channel.
+
+    Discount = list_price * qty - actual_paid
+    where list_price = compare_at_price ?? price  (same reference for all channels).
+    This captures both sale-price reductions AND coupon discounts vs. list price.
+    """
     print("[Shopify] Collecting...")
     if not SHOPIFY_SHOP or not SHOPIFY_ACCESS_TOKEN:
         print("  [SKIP] No Shopify credentials")
@@ -812,19 +844,20 @@ def collect_shopify(date_from: str, date_to: str) -> list[dict]:
     base = f"https://{shop}.myshopify.com/admin/api/2024-01"
     headers = {"X-Shopify-Access-Token": SHOPIFY_ACCESS_TOKEN}
 
+    # Load variant list prices once (compare_at_price ?? price)
+    variant_prices = _fetch_variant_prices(base, headers)
+
     all_orders = []
     url = (f"{base}/orders.json?status=any&limit=250"
            f"&created_at_min={date_from}T00:00:00-08:00"
            f"&created_at_max={date_to}T23:59:59-08:00"
-           f"&fields=id,created_at,total_price,total_discounts,source_name,"
-           f"line_items,tags,financial_status,gateway")
+           f"&fields=id,created_at,source_name,line_items,tags,financial_status,gateway")
 
     while url:
         r = requests.get(url, headers=headers, timeout=30)
         r.raise_for_status()
         orders = r.json().get("orders", [])
         all_orders.extend(orders)
-        # Pagination via Link header
         link = r.headers.get("Link", "")
         url = None
         if 'rel="next"' in link:
@@ -834,17 +867,14 @@ def collect_shopify(date_from: str, date_to: str) -> list[dict]:
 
     print(f"  Orders fetched: {len(all_orders)}")
 
-    # Aggregate daily by brand/channel
+    # Aggregate daily by brand/channel using line-item level pricing
     daily = {}
     for order in all_orders:
         date_str = order["created_at"][:10]
-        tags = (order.get("tags") or "").lower()
+        tags   = (order.get("tags")        or "").lower()
         source = (order.get("source_name") or "").lower()
-        total = float(order.get("total_price", 0))
-        discount = float(order.get("total_discounts", 0))
-        units = sum(li.get("quantity", 1) for li in order.get("line_items", []))
 
-        # Channel detection
+        # Channel detection (order level)
         if "amazon" in tags or "amazon" in source:
             channel = "Amazon"
         elif "tiktok" in tags or "tiktok" in source:
@@ -856,21 +886,36 @@ def collect_shopify(date_from: str, date_to: str) -> list[dict]:
         else:
             channel = "D2C"
 
-        # Brand from line items
+        # Brand detection (order level, from line items)
         brand = _detect_shopify_brand(order.get("line_items", []))
+
+        # Compute gross/discount/net from line items using list price
+        gross = net = discount = 0.0
+        units = 0
+        for li in order.get("line_items", []):
+            vid        = li.get("variant_id")
+            qty        = int(li.get("quantity", 1) or 1)
+            sell_price = float(li.get("price", 0) or 0)        # unit price before coupon
+            line_disc  = float(li.get("total_discount", 0) or 0)  # coupon/promo on this line
+            list_price = variant_prices.get(vid, sell_price)   # fallback: sell_price IS list
+
+            gross    += list_price * qty
+            net      += sell_price * qty - line_disc
+            discount += list_price * qty - (sell_price * qty - line_disc)
+            units    += qty
 
         key = (date_str, brand, channel)
         if key not in daily:
             daily[key] = {
                 "date": date_str, "brand": brand, "channel": channel,
-                "gross_sales": 0, "discounts": 0, "net_sales": 0,
+                "gross_sales": 0.0, "discounts": 0.0, "net_sales": 0.0,
                 "orders": 0, "units": 0, "refunds": 0,
             }
-        daily[key]["gross_sales"] += total
-        daily[key]["discounts"] += discount
-        daily[key]["net_sales"] += total - discount
-        daily[key]["orders"] += 1
-        daily[key]["units"] += units
+        daily[key]["gross_sales"] += gross
+        daily[key]["discounts"]   += discount
+        daily[key]["net_sales"]   += net
+        daily[key]["orders"]      += 1
+        daily[key]["units"]       += units
 
     rows = list(daily.values())
     print(f"  Daily aggregated: {len(rows)} rows")
