@@ -59,8 +59,8 @@ SELLER_CONFIGS = [
     {
         "name": "Grosmimi USA", "brand": "Grosmimi",
         "refresh_token": os.getenv("AMZ_SP_REFRESH_TOKEN_GROSMIMI", ""),
-        "client_id": os.getenv("AMZ_SP_GROSMIMI_CLIENT_ID", AMZ_SP_CLIENT_ID),
-        "client_secret": os.getenv("AMZ_SP_GROSMIMI_CLIENT_SECRET", AMZ_SP_CLIENT_SECRET),
+        "client_id": os.getenv("AMZ_SP_GROSMIMI_CLIENT_ID") or AMZ_SP_CLIENT_ID,
+        "client_secret": os.getenv("AMZ_SP_GROSMIMI_CLIENT_SECRET") or AMZ_SP_CLIENT_SECRET,
         "seller_id": "A3IA0XWP2WCD15",
     },
     {
@@ -378,6 +378,9 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
             "https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/reports",
             headers=headers, json=body, timeout=30,
         )
+        if r.status_code >= 400:
+            print(f"    [ERROR] SP report {start}~{end}: {r.status_code} {r.text[:200]}")
+            return []
         r.raise_for_status()
         report_id = r.json().get("reportId")
 
