@@ -1,7 +1,7 @@
 """
 run_amazon_ppc_daily.py - Amazon PPC 일간 분석 에이전트
 
-Amazon Ads API -> 30일 일별 데이터 수집 -> Claude PPC 전문가 분석 -> HTML 이메일 발송
+DataKeeper (PostgreSQL) -> 30일 캠페인 데이터 -> Claude PPC 전문가 분석 -> HTML 이메일 발송
 
 Usage:
     python tools/run_amazon_ppc_daily.py
@@ -10,21 +10,14 @@ Usage:
 """
 
 import argparse
-import base64
-import concurrent.futures
-import gzip
 import json
 import os
 import subprocess
 import sys
-import time
-import traceback
 from collections import defaultdict
 from datetime import date, datetime, timedelta, timezone
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 import requests
 
@@ -36,224 +29,45 @@ load_env()
 
 ROOT = TOOLS_DIR.parent
 
-# --- credentials ---
-AD_CLIENT_ID     = os.getenv("AMZ_ADS_CLIENT_ID")
-AD_CLIENT_SECRET = os.getenv("AMZ_ADS_CLIENT_SECRET")
-AD_REFRESH_TOKEN = os.getenv("AMZ_ADS_REFRESH_TOKEN")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
-API_BASE = "https://advertising-api.amazon.com"
-
-# --- brand by account (seller name from Amazon Ads profile) ---
-PROFILE_BRAND_MAP = {
-    "GROSMIMI USA": "Grosmimi",
-    "Fleeters Inc": "Naeiae",
-    "Orbitool": "CHA&MOM",
-}
-
 
 # ===========================================================================
-# Amazon Ads Auth
+# DataKeeper 수집
 # ===========================================================================
 
-def get_access_token() -> str:
-    resp = requests.post(
-        "https://api.amazon.com/auth/o2/token",
-        data={
-            "grant_type": "refresh_token",
-            "refresh_token": AD_REFRESH_TOKEN,
-            "client_id": AD_CLIENT_ID,
-            "client_secret": AD_CLIENT_SECRET,
-        },
-        timeout=30,
-    )
-    resp.raise_for_status()
-    return resp.json()["access_token"]
+def fetch_from_datakeeper(days: int) -> List[Dict]:
+    """DataKeeper에서 amazon_ads_daily 데이터를 가져와 compute_metrics 형식으로 변환."""
+    from data_keeper_client import DataKeeper
 
+    dk = DataKeeper()
+    rows = dk.get("amazon_ads_daily", days=days)
+    if not rows:
+        print("[ERROR] DataKeeper에서 amazon_ads_daily 데이터 없음")
+        return []
 
-class TokenManager:
-    def __init__(self):
-        self._token: Optional[str] = None
-        self._expires_at: float = 0.0
-
-    def get(self) -> str:
-        if self._token and time.time() < self._expires_at - 60:
-            return self._token
-        self._token = get_access_token()
-        self._expires_at = time.time() + 3600
-        return self._token
-
-
-TM = TokenManager()
-
-
-def _headers_reporting(profile_id: int) -> Dict:
-    return {
-        "Authorization": f"Bearer {TM.get()}",
-        "Amazon-Advertising-API-ClientId": AD_CLIENT_ID,
-        "Amazon-Advertising-API-Scope": str(profile_id),
-        "Accept": "application/vnd.adreporting.v3+json",
-        "Content-Type": "application/vnd.adreporting.v3+json",
-    }
-
-
-def get_us_profiles() -> List[Dict]:
-    resp = requests.get(
-        f"{API_BASE}/v2/profiles",
-        headers={
-            "Authorization": f"Bearer {TM.get()}",
-            "Amazon-Advertising-API-ClientId": AD_CLIENT_ID,
-        },
-        timeout=30,
-    )
-    resp.raise_for_status()
+    # DataKeeper 필드 -> compute_metrics 입력 형식 변환
+    # DK: spend, sales, campaign_id, campaign_name, purchases
+    # compute_metrics expects: cost, sales14d, campaignId, campaignName, purchases14d
     out = []
-    for p in resp.json():
-        if p.get("countryCode") == "US" and p.get("accountInfo", {}).get("type") == "seller":
-            out.append({
-                "profile_id": p["profileId"],
-                "seller": p["accountInfo"].get("name", ""),
-            })
+    for r in rows:
+        out.append({
+            "date": r.get("date", ""),
+            "campaignId": r.get("campaign_id", ""),
+            "campaignName": r.get("campaign_name", r.get("campaign_id", "")),
+            "cost": float(r.get("spend", 0) or 0),
+            "sales14d": float(r.get("sales", 0) or 0),
+            "purchases14d": int(r.get("purchases", 0) or 0),
+            "clicks": int(r.get("clicks", 0) or 0),
+            "impressions": int(r.get("impressions", 0) or 0),
+            "brand": r.get("brand", ""),
+        })
+
+    brands = set(r["brand"] for r in out)
+    dates = sorted(set(r["date"] for r in out))
+    print(f"  DataKeeper -> {len(out)}행 | 브랜드: {brands}")
+    print(f"  기간: {dates[0]} ~ {dates[-1]}" if dates else "  기간: 없음")
     return out
-
-
-def fetch_campaign_names(profile_id: int) -> Dict[int, str]:
-    tok = TM.get()
-    headers = {
-        "Authorization": f"Bearer {tok}",
-        "Amazon-Advertising-API-ClientId": AD_CLIENT_ID,
-        "Amazon-Advertising-API-Scope": str(profile_id),
-        "Accept": "application/vnd.spCampaign.v3+json",
-        "Content-Type": "application/vnd.spCampaign.v3+json",
-    }
-    out: Dict[int, str] = {}
-    start_index = 0
-    deadline = time.time() + 120  # 전체 120초 타임아웃
-    while time.time() < deadline:
-        for attempt in range(3):
-            try:
-                resp = requests.post(
-                    f"{API_BASE}/sp/campaigns/list",
-                    headers=headers,
-                    json={"stateFilter": {"include": ["ENABLED", "PAUSED"]},
-                          "startIndex": start_index, "count": 1000},
-                    timeout=20,
-                )
-                if resp.status_code in (401, 403):
-                    raise PermissionError(f"Auth failed ({resp.status_code}) for profile {profile_id}")
-                resp.raise_for_status()
-                break
-            except (requests.exceptions.ConnectionError, requests.exceptions.ChunkedEncodingError) as e:
-                if attempt < 2:
-                    wait = 10 * (attempt + 1)
-                    print(f"    [WARN] campaign list 연결 에러, {wait}s 후 재시도 ({attempt+1}/3)")
-                    time.sleep(wait)
-                else:
-                    raise
-        data = resp.json()
-        camps = data.get("campaigns", []) if isinstance(data, dict) else data
-        items = camps if isinstance(camps, list) else camps.get("items", [])
-        for c in items:
-            cid = c.get("campaignId")
-            if cid:
-                out[int(cid)] = c.get("name", str(cid))
-        if len(items) < 1000:
-            break
-        start_index += 1000
-    if time.time() >= deadline:
-        print(f"    [WARN] campaign list 120s 타임아웃 (profile {profile_id}), {len(out)}개까지 수집됨")
-    return out
-
-
-def _parse_gzip(resp: requests.Response) -> List[Dict]:
-    raw = resp.content
-    if raw[:2] == b"\x1f\x8b":
-        raw = gzip.decompress(raw)
-    obj = json.loads(raw.decode("utf-8"))
-    if isinstance(obj, list):
-        return obj
-    for k in ("data", "results", "records"):
-        if k in obj:
-            return obj[k]
-    return [obj]
-
-
-def fetch_sp_daily(profile_id: int, start: date, end: date) -> List[Dict]:
-    """Fetch SP campaign daily rows for a date range (max 28d per request)."""
-    campaign_names = fetch_campaign_names(profile_id)
-    all_rows: List[Dict] = []
-
-    cur = start
-    first_chunk = True
-    while cur <= end:
-        chunk_end = min(end, cur + timedelta(days=6))  # 7-day windows (smaller = faster report gen)
-        if not first_chunk:
-            time.sleep(5)  # Brief gap between chunks to avoid 425 rate limits
-        first_chunk = False
-        print(f"  [Amazon Ads] {cur} ~ {chunk_end} (profile {profile_id})")
-
-        body = {
-            "name": f"PPC daily {cur}~{chunk_end}",
-            "startDate": cur.strftime("%Y-%m-%d"),
-            "endDate": chunk_end.strftime("%Y-%m-%d"),
-            "configuration": {
-                "adProduct": "SPONSORED_PRODUCTS",
-                "groupBy": ["campaign"],
-                "columns": ["date", "campaignId", "impressions", "clicks",
-                            "cost", "sales14d", "purchases14d"],
-                "reportTypeId": "spCampaigns",
-                "timeUnit": "DAILY",
-                "format": "GZIP_JSON",
-            },
-        }
-        headers = _headers_reporting(profile_id)
-        # Retry on 425 (Too Early / rate limit) with backoff
-        for attempt in range(3):
-            resp = requests.post(f"{API_BASE}/reporting/reports", headers=headers, json=body, timeout=60)
-            if resp.status_code == 425:
-                wait = 30 * (attempt + 1)
-                print(f"  [425] Rate limited, waiting {wait}s before retry...")
-                time.sleep(wait)
-                continue
-            resp.raise_for_status()
-            break
-        else:
-            print(f"  [WARN] Report submission failed after 3 retries for profile {profile_id}")
-            cur = chunk_end + timedelta(days=1)
-            continue
-        report_id = resp.json()["reportId"]
-
-        # poll — max 600s (reports can take 5-10 min during peak hours)
-        deadline = time.time() + 600
-        timed_out = True
-        while time.time() < deadline:
-            time.sleep(15)
-            st = requests.get(f"{API_BASE}/reporting/reports/{report_id}",
-                              headers=_headers_reporting(profile_id), timeout=30)
-            st.raise_for_status()
-            status = st.json().get("status")
-            if status == "COMPLETED":
-                url = st.json().get("url")
-                if url:
-                    dl = requests.get(url, timeout=300)
-                    dl.raise_for_status()
-                    rows = _parse_gzip(dl)
-                    for r in rows:
-                        cid = r.get("campaignId")
-                        r["campaignName"] = campaign_names.get(int(cid), str(cid)) if cid else ""
-                    all_rows.extend(rows)
-                timed_out = False
-                break
-            if status == "FAILED":
-                print(f"  [WARN] Report {report_id} failed for profile {profile_id}")
-                timed_out = False
-                break
-        if timed_out:
-            print(f"  [WARN] Report {report_id} timed out (600s) for profile {profile_id} - skipping chunk")
-
-        cur = chunk_end + timedelta(days=1)
-
-    return all_rows
 
 
 # ===========================================================================
@@ -280,7 +94,7 @@ def compute_metrics(rows: List[Dict], profile_brand: Optional[str] = None) -> Li
             "date": r.get("date", ""),
             "campaignId": r.get("campaignId"),
             "campaignName": r.get("campaignName", ""),
-            "brand": profile_brand or "기타",
+            "brand": profile_brand or r.get("brand") or "기타",
             "impressions": impressions,
             "clicks": clicks,
             "purchases": purchases,
@@ -1087,6 +901,95 @@ def build_html_email(payload: Dict, analysis: Dict) -> str:
           </div>
         </div>"""
 
+    # ── Python 3.11 호환: 중첩 f-string 금지 → 미리 변수로 추출 ────────
+    _ppc_hs = analysis.get("health_score") or {}
+    if _ppc_hs:
+        _ppc_trend_color = "#1a5c3a" if _ppc_hs.get("trend_direction") == "improving" else "#8b1a1a" if _ppc_hs.get("trend_direction") == "declining" else "#8d6e00"
+        _ppc_trend_label = "↑ 개선중" if _ppc_hs.get("trend_direction") == "improving" else "↓ 악화중" if _ppc_hs.get("trend_direction") == "declining" else "→ 유지"
+        _ppc_health_block = f'''
+    <div style="background:linear-gradient(135deg,#232F3E,#37475A);border-radius:10px;padding:20px 24px;margin:16px 0;color:white">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="font-size:42px;font-weight:bold;min-width:60px">{_ppc_hs.get("score", "-")}</div>
+        <div style="font-size:11px;color:#aaa;border-left:1px solid #555;padding-left:16px">
+          <div>HEALTH SCORE /100</div>
+          <div style="color:#ccc;margin-top:4px">{_ppc_hs.get("spend_efficiency", "")}</div>
+          <div style="color:#ccc;margin-top:2px">{_ppc_hs.get("cvr_diagnosis", "")}</div>
+          <div style="margin-top:4px">
+            <span style="background:{_ppc_trend_color};padding:2px 8px;border-radius:10px;font-size:11px">{_ppc_trend_label}</span>
+          </div>
+        </div>
+      </div>
+    </div>'''
+    else:
+        _ppc_health_block = ""
+
+    _ppc_adj_block = ""
+    if adj_rows:
+        _ppc_adj_block = f'''
+    <h2 style="color:#232F3E;border-bottom:2px solid #232F3E;padding-bottom:8px;margin-top:30px">캠페인별 세부 조정 권고</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead>
+        <tr style="background:#232F3E;color:white">
+          <th style="padding:8px 10px;text-align:left">우선순위</th>
+          <th style="padding:8px 10px;text-align:left">브랜드</th>
+          <th style="padding:8px 10px;text-align:left">캠페인</th>
+          <th style="padding:8px 10px;text-align:right;background:#5a4a00">어제 ROAS</th>
+          <th style="padding:8px 10px;text-align:right">7일 ROAS</th>
+          <th style="padding:8px 10px;text-align:left">조치</th>
+          <th style="padding:8px 10px;text-align:left">변경폭/키워드</th>
+          <th style="padding:8px 10px;text-align:left">이유</th>
+        </tr>
+      </thead>
+      <tbody>{adj_rows}</tbody>
+    </table>'''
+
+    _ppc_zero7_block = ""
+    if zero7_html:
+        _ppc_zero7_block = f'''
+    <h2 style="color:#8b1a1a;border-bottom:2px solid #8b1a1a;padding-bottom:8px;margin-top:24px">경고: 7일간 광고비 지출 + 매출 $0 캠페인</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="background:#ffebee">
+        <th style="padding:8px 12px;text-align:left">캠페인</th>
+        <th style="padding:8px 12px;text-align:right">7일 광고비</th>
+        <th style="padding:8px 12px;text-align:right">매출</th>
+      </tr></thead>
+      <tbody>{zero7_html}</tbody>
+    </table>'''
+
+    _wsa = analysis.get("wasted_spend_analysis") or {}
+    _ppc_wasted_block = ""
+    if _wsa and _wsa.get("worst_offenders"):
+        _wo_rows = "".join(
+            f'<tr><td style="padding:5px 10px;font-size:11px">{wo.get("campaign","")}</td>'
+            f'<td style="padding:5px 10px;text-align:right">{fmt_usd(wo.get("spend_7d",0))}</td>'
+            f'<td style="padding:5px 10px;text-align:right">{wo.get("clicks_7d",0)}</td>'
+            f'<td style="padding:5px 10px;color:#8b1a1a;font-size:11px">{wo.get("diagnosis","")}</td></tr>'
+            for wo in _wsa.get("worst_offenders", []))
+        _ppc_wasted_block = f'''
+    <h2 style="color:#8b1a1a;border-bottom:2px solid #8b1a1a;padding-bottom:8px;margin-top:30px">낭비 광고비 분석 (7일)</h2>
+    <div style="background:#fff3f3;border-radius:8px;padding:16px 20px;margin-bottom:12px">
+      <div style="font-size:18px;font-weight:bold;color:#8b1a1a">총 낭비 추정: {fmt_usd(_wsa.get("total_wasted_7d", 0))}</div>
+      <p style="margin:6px 0;color:#555;font-size:13px">{_wsa.get("savings_potential", "")}</p>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr style="background:#ffebee">
+        <th style="padding:6px 10px;text-align:left">캠페인</th>
+        <th style="padding:6px 10px;text-align:right">7일 지출</th>
+        <th style="padding:6px 10px;text-align:right">클릭</th>
+        <th style="padding:6px 10px;text-align:left">진단</th>
+      </tr></thead>
+      <tbody>{_wo_rows}</tbody>
+    </table>'''
+
+    _ppc_anomaly_block = ""
+    if anomaly_items:
+        _ppc_anomaly_block = f'''
+    <h2 style="color:#8d6e00;border-bottom:2px solid #8d6e00;padding-bottom:8px;margin-top:30px">이상 감지 알림</h2>
+    <div style="background:#fff8e1;border-radius:6px;padding:16px 20px">
+      <ul style="margin:0;padding-left:18px;color:#555;line-height:1.8">{anomaly_items}</ul>
+    </div>
+    {anomaly_analysis_html}'''
+
     return f"""<!DOCTYPE html>
 <html lang="ko">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -1113,22 +1016,7 @@ def build_html_email(payload: Dict, analysis: Dict) -> str:
 
     {trend_html}
 
-    {"" if not analysis.get("health_score") else f'''
-    <div style="background:linear-gradient(135deg,#232F3E,#37475A);border-radius:10px;padding:20px 24px;margin:16px 0;color:white">
-      <div style="display:flex;align-items:center;gap:16px">
-        <div style="font-size:42px;font-weight:bold;min-width:60px">{analysis["health_score"].get("score", "-")}</div>
-        <div style="font-size:11px;color:#aaa;border-left:1px solid #555;padding-left:16px">
-          <div>HEALTH SCORE /100</div>
-          <div style="color:#ccc;margin-top:4px">{analysis["health_score"].get("spend_efficiency", "")}</div>
-          <div style="color:#ccc;margin-top:2px">{analysis["health_score"].get("cvr_diagnosis", "")}</div>
-          <div style="margin-top:4px">
-            <span style="background:{"#1a5c3a" if analysis["health_score"].get("trend_direction") == "improving" else "#8b1a1a" if analysis["health_score"].get("trend_direction") == "declining" else "#8d6e00"};padding:2px 8px;border-radius:10px;font-size:11px">
-              {"↑ 개선중" if analysis["health_score"].get("trend_direction") == "improving" else "↓ 악화중" if analysis["health_score"].get("trend_direction") == "declining" else "→ 유지"}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>'''}
+    {_ppc_health_block}
 
     <!-- Summary Table -->
     <h2 style="color:#232F3E;border-bottom:2px solid #232F3E;padding-bottom:8px">전체 성과 요약</h2>
@@ -1215,65 +1103,13 @@ def build_html_email(payload: Dict, analysis: Dict) -> str:
     {brand_section_html}
 
     <!-- Campaign Adjustment Table -->
-    {"" if not adj_rows else f'''
-    <h2 style="color:#232F3E;border-bottom:2px solid #232F3E;padding-bottom:8px;margin-top:30px">
-      캠페인별 세부 조정 권고
-    </h2>
-    <table style="width:100%;border-collapse:collapse;font-size:12px">
-      <thead>
-        <tr style="background:#232F3E;color:white">
-          <th style="padding:8px 10px;text-align:left">우선순위</th>
-          <th style="padding:8px 10px;text-align:left">브랜드</th>
-          <th style="padding:8px 10px;text-align:left">캠페인</th>
-          <th style="padding:8px 10px;text-align:right;background:#5a4a00">어제 ROAS</th>
-          <th style="padding:8px 10px;text-align:right">7일 ROAS</th>
-          <th style="padding:8px 10px;text-align:left">조치</th>
-          <th style="padding:8px 10px;text-align:left">변경폭/키워드</th>
-          <th style="padding:8px 10px;text-align:left">이유</th>
-        </tr>
-      </thead>
-      <tbody>{adj_rows}</tbody>
-    </table>'''}
+    {_ppc_adj_block}
 
-    {"" if not zero7_html else f'''
-    <h2 style="color:#8b1a1a;border-bottom:2px solid #8b1a1a;padding-bottom:8px;margin-top:24px">
-      경고: 7일간 광고비 지출 + 매출 $0 캠페인
-    </h2>
-    <table style="width:100%;border-collapse:collapse;font-size:13px">
-      <thead><tr style="background:#ffebee">
-        <th style="padding:8px 12px;text-align:left">캠페인</th>
-        <th style="padding:8px 12px;text-align:right">7일 광고비</th>
-        <th style="padding:8px 12px;text-align:right">매출</th>
-      </tr></thead>
-      <tbody>{zero7_html}</tbody>
-    </table>'''}
+    {_ppc_zero7_block}
 
-    {"" if not analysis.get("wasted_spend_analysis") or not analysis["wasted_spend_analysis"].get("worst_offenders") else f'''
-    <h2 style="color:#8b1a1a;border-bottom:2px solid #8b1a1a;padding-bottom:8px;margin-top:30px">
-      낭비 광고비 분석 (7일)
-    </h2>
-    <div style="background:#fff3f3;border-radius:8px;padding:16px 20px;margin-bottom:12px">
-      <div style="font-size:18px;font-weight:bold;color:#8b1a1a">
-        총 낭비 추정: {fmt_usd(analysis["wasted_spend_analysis"].get("total_wasted_7d", 0))}
-      </div>
-      <p style="margin:6px 0;color:#555;font-size:13px">{analysis["wasted_spend_analysis"].get("savings_potential", "")}</p>
-    </div>
-    <table style="width:100%;border-collapse:collapse;font-size:12px">
-      <thead><tr style="background:#ffebee">
-        <th style="padding:6px 10px;text-align:left">캠페인</th>
-        <th style="padding:6px 10px;text-align:right">7일 지출</th>
-        <th style="padding:6px 10px;text-align:right">클릭</th>
-        <th style="padding:6px 10px;text-align:left">진단</th>
-      </tr></thead>
-      <tbody>{"".join(f"""<tr><td style="padding:5px 10px;font-size:11px">{wo.get("campaign","")}</td><td style="padding:5px 10px;text-align:right">{fmt_usd(wo.get("spend_7d",0))}</td><td style="padding:5px 10px;text-align:right">{wo.get("clicks_7d",0)}</td><td style="padding:5px 10px;color:#8b1a1a;font-size:11px">{wo.get("diagnosis","")}</td></tr>""" for wo in analysis["wasted_spend_analysis"].get("worst_offenders", []))}</tbody>
-    </table>'''}
+    {_ppc_wasted_block}
 
-    {"" if not anomaly_items else f'''
-    <h2 style="color:#8d6e00;border-bottom:2px solid #8d6e00;padding-bottom:8px;margin-top:30px">이상 감지 알림</h2>
-    <div style="background:#fff8e1;border-radius:6px;padding:16px 20px">
-      <ul style="margin:0;padding-left:18px;color:#555;line-height:1.8">{anomaly_items}</ul>
-    </div>
-    {anomaly_analysis_html}'''}
+    {_ppc_anomaly_block}
 
     <!-- Weekly Actions -->
     <h2 style="color:#232F3E;border-bottom:2px solid #232F3E;padding-bottom:8px;margin-top:30px">
@@ -1330,54 +1166,18 @@ def main():
         print(f"  어제 광고비: ${payload['summary']['yesterday']['spend']:,.2f}")
         print(f"  30일 총 ROAS: {payload['summary']['30d']['roas']:.2f}x")
     else:
-        if not all([AD_CLIENT_ID, AD_CLIENT_SECRET, AD_REFRESH_TOKEN]):
-            print("[ERROR] AMZ_ADS_CLIENT_ID / AMZ_ADS_CLIENT_SECRET / AMZ_ADS_REFRESH_TOKEN 없음")
-            sys.exit(1)
-
-        start_date = pst_today - timedelta(days=args.days)
-
         print(f"\n[PPC Agent] PST 기준 오늘: {pst_today}")
         print(f"[PPC Agent] 분석 기준일: {analysis_date} / 어제(PST): {data_end}")
-        print(f"[PPC Agent] 데이터 수집 기간: {start_date} ~ {data_end}")
 
-        # Step 1: Fetch data
-        print("\n[Step 1] Amazon Ads 데이터 수집 중...")
-        profiles = get_us_profiles()
-        if not profiles:
-            print("[ERROR] US seller 프로필 없음")
-            sys.exit(1)
-        print(f"  프로필 수: {len(profiles)} - {[p['seller'] for p in profiles]}")
-
-        all_rows: List[Dict] = []
-        for prof in profiles:
-            pid = prof["profile_id"]
-            seller = prof["seller"]
-            brand_name = PROFILE_BRAND_MAP.get(seller, seller)
-            print(f"\n  프로필: {seller} ({pid}) -> 브랜드: {brand_name}")
-            try:
-                ex = concurrent.futures.ThreadPoolExecutor(max_workers=1)
-                fut = ex.submit(fetch_sp_daily, pid, start_date, data_end)
-                try:
-                    rows = fut.result(timeout=2400)
-                    ex.shutdown(wait=False)
-                except concurrent.futures.TimeoutError:
-                    ex.shutdown(wait=False)
-                    print(f"  [WARN] {seller} - 2400s wall-clock timeout, skipping profile")
-                    continue
-                rows = compute_metrics(rows, profile_brand=brand_name)
-                print(f"  -> {len(rows)}개 일별 행")
-                all_rows.extend(rows)
-            except PermissionError as e:
-                ex.shutdown(wait=False)
-                print(f"  [SKIP] {seller} - 권한 없음 (401/403), 스킵합니다: {e}")
-            except Exception as e:
-                ex.shutdown(wait=False)
-                print(f"  [WARN] 프로필 실패: {e}")
-                traceback.print_exc()
-
-        if not all_rows:
+        # Step 1: DataKeeper에서 데이터 로드
+        print("\n[Step 1] DataKeeper에서 amazon_ads_daily 로드 중...")
+        raw_rows = fetch_from_datakeeper(days=args.days)
+        if not raw_rows:
             print("[ERROR] 수집된 데이터 없음")
             sys.exit(1)
+
+        all_rows = compute_metrics(raw_rows)
+        print(f"  -> {len(all_rows)}개 일별 행 (compute_metrics 완료)")
 
         # Step 2: Build payload
         print("\n[Step 2] 분석 페이로드 구성...")

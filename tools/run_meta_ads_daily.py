@@ -1697,6 +1697,44 @@ def build_html(payload: dict, analysis: dict) -> str:
     else:
         tvc = tvc_raw
 
+    # ── Python 3.11 호환: 중첩 f-string 금지 → 미리 변수로 추출 ─────────
+    hs = analysis.get("health_score") or {}
+    if hs:
+        _trend_color = "#1a5c3a" if hs.get("trend_direction") == "improving" else "#8b1a1a" if hs.get("trend_direction") == "declining" else "#8d6e00"
+        _trend_label = "+ 개선중" if hs.get("trend_direction") == "improving" else "- 악화중" if hs.get("trend_direction") == "declining" else "= 유지"
+        _fat_color   = "#1a5c3a" if hs.get("fatigue_risk") == "none" else "#8b1a1a" if hs.get("fatigue_risk") == "high" else "#8d6e00" if hs.get("fatigue_risk") == "medium" else "#888"
+        _health_block = f'''
+    <div style="background:linear-gradient(135deg,#1877F2,#42A5F5);border-radius:10px;padding:20px 24px;margin-bottom:20px;color:white">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="font-size:42px;font-weight:bold;min-width:60px">{hs.get("score", "-")}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.7);border-left:1px solid rgba(255,255,255,0.3);padding-left:16px">
+          <div>HEALTH SCORE /100</div>
+          <div style="color:rgba(255,255,255,0.9);margin-top:4px">{hs.get("roas_vs_benchmark", "")}</div>
+          <div style="color:rgba(255,255,255,0.9);margin-top:2px">{hs.get("cpm_diagnosis", "")}</div>
+          <div style="margin-top:4px;display:flex;gap:8px">
+            <span style="background:{_trend_color};padding:2px 8px;border-radius:10px;font-size:11px">{_trend_label}</span>
+            <span style="background:{_fat_color};padding:2px 8px;border-radius:10px;font-size:11px">피로도: {hs.get("fatigue_risk", "N/A")}</span>
+          </div>
+        </div>
+      </div>
+    </div>'''
+    else:
+        _health_block = ""
+
+    _cfa = analysis.get("creative_fatigue_alert") or {}
+    if _cfa and _cfa.get("at_risk_ads"):
+        _fatigue_block = f"""
+    <div style="background:#fff3e0;border:1px solid #ffe0b2;border-radius:8px;padding:14px 18px;margin-bottom:20px">
+      <div style="font-weight:bold;color:#8d6e00;font-size:14px;margin-bottom:6px">
+        Creative Fatigue Alert
+        <span style="background:#8d6e00;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin-left:8px">{_cfa.get("fatigued_ads_count", 0)}개 피로</span>
+      </div>
+      <div style="font-size:12px;color:#555;margin-bottom:4px">피로 의심 광고: {", ".join(_cfa.get("at_risk_ads", [])[:5])}</div>
+      <div style="font-size:12px;color:#1565c0;font-weight:500">{_cfa.get("recommendation", "")}</div>
+    </div>"""
+    else:
+        _fatigue_block = ""
+
     return f"""<!DOCTYPE html>
 <html lang="ko">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -1724,41 +1762,9 @@ def build_html(payload: dict, analysis: dict) -> str:
 
   <div style="padding:24px 30px">
 
-    {"" if not analysis.get("health_score") else f'''
-    <div style="background:linear-gradient(135deg,#1877F2,#42A5F5);border-radius:10px;padding:20px 24px;margin-bottom:20px;color:white">
-      <div style="display:flex;align-items:center;gap:16px">
-        <div style="font-size:42px;font-weight:bold;min-width:60px">{analysis["health_score"].get("score", "-")}</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.7);border-left:1px solid rgba(255,255,255,0.3);padding-left:16px">
-          <div>HEALTH SCORE /100</div>
-          <div style="color:rgba(255,255,255,0.9);margin-top:4px">{analysis["health_score"].get("roas_vs_benchmark", "")}</div>
-          <div style="color:rgba(255,255,255,0.9);margin-top:2px">{analysis["health_score"].get("cpm_diagnosis", "")}</div>
-          <div style="margin-top:4px;display:flex;gap:8px">
-            <span style="background:{"#1a5c3a" if analysis["health_score"].get("trend_direction") == "improving" else "#8b1a1a" if analysis["health_score"].get("trend_direction") == "declining" else "#8d6e00"};padding:2px 8px;border-radius:10px;font-size:11px">
-              {"+ 개선중" if analysis["health_score"].get("trend_direction") == "improving" else "- 악화중" if analysis["health_score"].get("trend_direction") == "declining" else "= 유지"}
-            </span>
-            <span style="background:{"#1a5c3a" if analysis["health_score"].get("fatigue_risk") == "none" else "#8b1a1a" if analysis["health_score"].get("fatigue_risk") == "high" else "#8d6e00" if analysis["health_score"].get("fatigue_risk") == "medium" else "#888"};padding:2px 8px;border-radius:10px;font-size:11px">
-              피로도: {analysis["health_score"].get("fatigue_risk", "N/A")}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>'''}
+    {_health_block}
 
-    {"" if not analysis.get("creative_fatigue_alert") or not analysis["creative_fatigue_alert"].get("at_risk_ads") else f"""
-    <div style="background:#fff3e0;border:1px solid #ffe0b2;border-radius:8px;padding:14px 18px;margin-bottom:20px">
-      <div style="font-weight:bold;color:#8d6e00;font-size:14px;margin-bottom:6px">
-        Creative Fatigue Alert
-        <span style="background:#8d6e00;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin-left:8px">
-          {analysis["creative_fatigue_alert"].get("fatigued_ads_count", 0)}개 피로
-        </span>
-      </div>
-      <div style="font-size:12px;color:#555;margin-bottom:4px">
-        피로 의심 광고: {", ".join(analysis["creative_fatigue_alert"].get("at_risk_ads", [])[:5])}
-      </div>
-      <div style="font-size:12px;color:#1565c0;font-weight:500">
-        {analysis["creative_fatigue_alert"].get("recommendation", "")}
-      </div>
-    </div>"""}
+    {_fatigue_block}
 
     <!-- Yesterday PST Spend -->
     {_build_yesterday_block(payload.get("yesterday_spend", {}), payload.get("brand_detail_table", []))}
