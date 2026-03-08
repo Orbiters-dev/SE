@@ -49,6 +49,25 @@ def load_dk(table, days=800):
     return dk.get(table, days=days)
 
 
+def compute_through_date():
+    """Consistent through-date = min of latest full day across all main channels (PST)."""
+    from datetime import datetime, timedelta, timezone
+    PST = timezone(timedelta(hours=-8))
+    yesterday_pst = (datetime.now(PST).date() - timedelta(days=1)).isoformat()
+
+    main_tables = ["shopify_orders_daily", "amazon_ads_daily", "meta_ads_daily", "google_ads_daily"]
+    latest = []
+    for t in main_tables:
+        rows = load_dk(t, days=30)
+        dates = [r.get("date", "") for r in rows if r.get("date")]
+        if dates:
+            latest.append(max(dates))
+
+    # min across channels = date ALL channels have data for; cap at yesterday PST
+    through = min(latest) if latest else yesterday_pst
+    return min(through, yesterday_pst)
+
+
 # ── COGS ─────────────────────────────────────────────────────────────────────
 
 def load_cogs_map():
@@ -124,13 +143,14 @@ def load_brand_avg_cogs():
         return AVG_COGS
 
 
-def analyze_discounts(date_from, date_to):
+def analyze_discounts(date_from, date_to, through_date=None):
     """Wide format (Golmani-style):
        Rows: Section header + TOTAL + Brand subtotal + Channel detail
        Cols: [Label, Brand, Channel] + [Jan 2024, Feb 2024, ..., YTD]
        Sections: Gross Sales / Net Sales / Discounts / Discount % /
                  Units / Avg List Price / COGS (est.) / GM / GM%
        PR channel excluded (goes to seeding cost section).
+       through_date: only include daily data up to this date (consistent ceiling).
     """
     import openpyxl
     brand_cogs = load_brand_avg_cogs()
@@ -142,6 +162,8 @@ def analyze_discounts(date_from, date_to):
 
     for r in rows:
         raw_date = r.get("date") or ""
+        if through_date and raw_date > through_date:
+            continue  # skip data beyond consistent through_date
         if raw_date > latest_date:
             latest_date = raw_date
         date = raw_date[:7]
@@ -160,15 +182,16 @@ def analyze_discounts(date_from, date_to):
 
     # ── month list ───────────────────────────────────────────────────────────
     months = sorted(set(k[0] for k in agg))
-    # "through" date = yesterday PST (last full day)
+    # Use passed-in through_date (consistent across sections), or compute fallback
     from datetime import datetime as _dtt, timedelta as _td, timezone as _tz
     PST = _tz(_td(hours=-8))
-    today_pst     = _dtt.now(PST).date()
-    yesterday_pst = (today_pst - _td(days=1)).isoformat()
-    through_date  = min(latest_date, yesterday_pst) if latest_date > "0000-00-00" else yesterday_pst
-    partial_note  = f"(through {through_date})"
+    today_pst = _dtt.now(PST).date()
+    if not through_date:
+        yesterday_pst = (today_pst - _td(days=1)).isoformat()
+        through_date  = min(latest_date, yesterday_pst) if latest_date > "0000-00-00" else yesterday_pst
+    partial_note = f"(through {through_date})"
 
-    # Month labels: last month gets partial note
+    # Month labels: current month gets partial note
     def month_label(m):
         import calendar
         y, mo = int(m[:4]), int(m[5:7])
@@ -355,26 +378,46 @@ def analyze_discounts(date_from, date_to):
 
 # ── 2. AD SPEND ───────────────────────────────────────────────────────────────
 
-def analyze_ad_spend(date_from, date_to):
+def analyze_ad_spend(date_from, date_to, through_date=None):
     result = defaultdict(lambda: defaultdict(float))
 
     for r in load_dk("amazon_ads_daily"):
-        date = (r.get("date") or "")[:7]
+        d = r.get("date") or ""
+        if through_date and d > through_date:
+            continue
+        date = d[:7]
         if date_from <= date <= date_to:
             result[date]["Amazon Ads"] += float(r.get("spend") or 0)
 
     for r in load_dk("meta_ads_daily"):
-        date = (r.get("date") or "")[:7]
+        d = r.get("date") or ""
+        if through_date and d > through_date:
+            continue
+        date = d[:7]
         if date_from <= date <= date_to:
             result[date]["Meta Ads"] += float(r.get("spend") or 0)
 
     for r in load_dk("google_ads_daily"):
-        date = (r.get("date") or "")[:7]
+        d = r.get("date") or ""
+        if through_date and d > through_date:
+            continue
+        date = d[:7]
         if date_from <= date <= date_to:
             result[date]["Google Ads"] += float(r.get("spend") or 0)
 
     platforms = ["Amazon Ads", "Meta Ads", "Google Ads"]
     totals = defaultdict(float)
+
+    # Month label helper (consistent with analyze_discounts)
+    import calendar as _cal
+    from datetime import datetime as _dtt2, timedelta as _td2, timezone as _tz2
+    _today_pst = _dtt2.now(_tz2(_td2(hours=-8))).date()
+    _partial_note = f"(through {through_date})" if through_date else ""
+    def _month_label(m):
+        y, mo = int(m[:4]), int(m[5:7])
+        if y == _today_pst.year and mo == _today_pst.month and _partial_note:
+            return f"{_cal.month_abbr[mo]} {y}\n{_partial_note}"
+        return f"{_cal.month_abbr[mo]} {y}"
 
     print("\n" + "=" * 80)
     print("2) AD SPEND BY PLATFORM (Monthly)")
@@ -389,7 +432,7 @@ def analyze_ad_spend(date_from, date_to):
 
     for month in sorted(result.keys()):
         print(f"{month:<10}", end="")
-        row = [month]
+        row = [_month_label(month)]
         row_total = 0.0
         for p in platforms:
             v = result[month][p]
@@ -499,11 +542,16 @@ def analyze_seeding_cost(date_from, date_to):
 # ── Excel Output ─────────────────────────────────────────────────────────────
 
 def find_latest_model():
-    """Find latest kpis_model_*.xlsx in Output dir."""
-    files = sorted(OUTPUT_DIR.glob("kpis_model_*.xlsx"))
+    """Find latest kpis_model_*.xlsx by version number (v1, v2, ... v10, v11...)."""
+    import re
+    files = list(OUTPUT_DIR.glob("kpis_model_*.xlsx"))
+    files = [f for f in files if not f.name.startswith("~")]  # skip lock files
     if not files:
         raise FileNotFoundError(f"No kpis_model_*.xlsx in {OUTPUT_DIR}")
-    return files[-1]
+    def _ver(p):
+        m = re.search(r'_v(\d+)\.xlsx$', p.name)
+        return int(m.group(1)) if m else 0
+    return max(files, key=_ver)
 
 
 def next_version_path(src: Path) -> Path:
@@ -633,8 +681,13 @@ def update_exec_summary(wb, total_monthly):
     ws = wb["Executive Summary"]
 
     # Build month -> column index map from header row (R2)
+    # Normalize headers: strip suffixes like "(~Mar 6th)" or newlines so "Mar 2026 (~...)" -> "Mar 2026"
+    import re as _re
+    def _norm_hdr(s):
+        return _re.sub(r'[\s\n]*[\(\[].*', '', str(s)).strip()
+
     hdr = [ws.cell(row=2, column=c).value for c in range(1, ws.max_column + 1)]
-    col_map = {str(v): i + 1 for i, v in enumerate(hdr) if v}
+    col_map = {_norm_hdr(v): i + 1 for i, v in enumerate(hdr) if v}
 
     # Find COGS row (search col A)
     cogs_row = gp_row = gm_row = None
@@ -805,6 +858,129 @@ def add_summary_d2c_section(wb, d2c_monthly, seeding_rows, adspend_rows):
     print(f"  -> Summary D2C section appended (row {ws.max_row - len(metrics) + 1} ~)")
 
 
+# ── Amazon Discount Debug Tab ─────────────────────────────────────────────────
+
+def add_amazon_discount_tab(wb, through_date):
+    """Add KPI_Amazon할인_상세 tab showing per-day Amazon channel discount breakdown."""
+    from openpyxl.styles import PatternFill, Font, Alignment
+
+    TAB = "KPI_Amazon할인_상세"
+    if TAB in wb.sheetnames:
+        del wb[TAB]
+    ws = wb.create_sheet(TAB)
+
+    FILL_HDR  = PatternFill("solid", fgColor="002060")
+    FILL_NOTE = PatternFill("solid", fgColor="FFF2CC")
+    FONT_W    = Font(bold=True, color="FFFFFF")
+    FONT_B    = Font(bold=True)
+    ALIGN_C   = Alignment(horizontal="center", wrap_text=True)
+
+    # ── Methodology note ─────────────────────────────────────────────────────
+    notes = [
+        "Amazon 채널 할인 계산 방식",
+        "gross_sales = sell_price × qty  (Amazon 판매가 × 수량)",
+        "discounts   = line_disc only  (실제 쿠폰/프로모 할인만; compare_at_price 차이 제외)",
+        "net_sales   = gross_sales - discounts",
+        f"Data through: {through_date}  |  Channel = 'Amazon' orders in Shopify only",
+    ]
+    for i, note in enumerate(notes, 1):
+        c = ws.cell(row=i, column=1, value=note)
+        c.fill = FILL_NOTE
+        c.font = FONT_B if i == 1 else Font()
+    ws.merge_cells(f"A1:I1")
+    ws.row_dimensions[1].height = 16
+
+    # ── Header row ───────────────────────────────────────────────────────────
+    HDR_ROW = len(notes) + 2
+    headers = ["Date", "Brand", "Gross Sales ($)", "Discounts ($)", "Net Sales ($)",
+               "Orders", "Units", "Disc Rate (%)", "Note"]
+    for ci, h in enumerate(headers, 1):
+        cell = ws.cell(row=HDR_ROW, column=ci, value=h)
+        cell.fill = FILL_HDR
+        cell.font = FONT_W
+        cell.alignment = ALIGN_C
+    ws.row_dimensions[HDR_ROW].height = 30
+
+    # ── Data ─────────────────────────────────────────────────────────────────
+    rows = load_dk("shopify_orders_daily", days=800)
+    amz = [r for r in rows if r.get("channel") == "Amazon"
+           and (r.get("date") or "") <= through_date]
+    amz.sort(key=lambda r: (r.get("date", ""), r.get("brand", "")))
+
+    FILL_ALT = PatternFill("solid", fgColor="EBF3FB")
+    FILL_TOT = PatternFill("solid", fgColor="FFF2CC")
+
+    brand_agg = defaultdict(lambda: {"gross":0.0,"disc":0.0,"net":0.0,"orders":0,"units":0})
+    month_agg = defaultdict(lambda: {"gross":0.0,"disc":0.0,"net":0.0,"orders":0,"units":0})
+    grand     = {"gross":0.0,"disc":0.0,"net":0.0,"orders":0,"units":0}
+
+    dr = HDR_ROW + 1
+    for i, r in enumerate(amz):
+        gross  = float(r.get("gross_sales") or 0)
+        disc   = float(r.get("discounts")   or 0)
+        net    = float(r.get("net_sales")   or 0)
+        orders = int(r.get("orders") or 0)
+        units  = int(r.get("units")  or 0)
+        rate   = disc / gross if gross else 0.0
+        date   = r.get("date", "")
+        brand  = r.get("brand", "")
+        month  = date[:7]
+        note   = "BFCM" if month == "2025-11" else ("No promo" if disc == 0 else "Promo")
+
+        fill = FILL_ALT if i % 2 == 1 else None
+        vals = [date, brand, gross, disc, net, orders, units, rate, note]
+        fmts = [None, None, '#,##0.00', '#,##0.00', '#,##0.00', '#,##0', '#,##0', '0.00%', None]
+        for ci, (v, fmt) in enumerate(zip(vals, fmts), 1):
+            cell = ws.cell(row=dr, column=ci, value=v)
+            if fmt: cell.number_format = fmt
+            if fill: cell.fill = fill
+        dr += 1
+
+        for k, v in [("gross",gross),("disc",disc),("net",net),("orders",orders),("units",units)]:
+            brand_agg[brand][k] += v
+            month_agg[month][k] += v
+            grand[k] += v
+
+    # ── Monthly summary ───────────────────────────────────────────────────────
+    dr += 1
+    ws.cell(row=dr, column=1, value="Monthly Summary").font = FONT_B
+    ws.cell(row=dr, column=1).fill = PatternFill("solid", fgColor="D6DCE4")
+    dr += 1
+    for ci, h in enumerate(["Month","Gross ($)","Disc ($)","Net ($)","Orders","Units","Disc Rate"], 1):
+        ws.cell(row=dr, column=ci, value=h).font = FONT_B
+    dr += 1
+    for month in sorted(month_agg):
+        v = month_agg[month]
+        rate = v["disc"] / v["gross"] if v["gross"] else 0.0
+        row_data = [month, v["gross"], v["disc"], v["net"], v["orders"], v["units"], rate]
+        fmts2    = [None, '#,##0.00', '#,##0.00', '#,##0.00', '#,##0', '#,##0', '0.00%']
+        for ci, (val, fmt) in enumerate(zip(row_data, fmts2), 1):
+            cell = ws.cell(row=dr, column=ci, value=val)
+            if fmt: cell.number_format = fmt
+            if month == sorted(month_agg)[-1]:
+                cell.fill = FILL_TOT
+        dr += 1
+
+    # Grand total
+    rate = grand["disc"] / grand["gross"] if grand["gross"] else 0.0
+    for ci, (v, fmt) in enumerate(zip(
+        ["TOTAL", grand["gross"], grand["disc"], grand["net"], grand["orders"], grand["units"], rate],
+        [None,'#,##0.00','#,##0.00','#,##0.00','#,##0','#,##0','0.00%']
+    ), 1):
+        cell = ws.cell(row=dr, column=ci, value=v)
+        cell.fill = PatternFill("solid", fgColor="002060")
+        cell.font = FONT_W
+        if fmt: cell.number_format = fmt
+
+    # Column widths
+    from openpyxl.utils import get_column_letter
+    for ci, w in enumerate([12, 14, 15, 14, 14, 9, 9, 12, 12], 1):
+        ws.column_dimensions[get_column_letter(ci)].width = w
+
+    ws.freeze_panes = ws.cell(row=HDR_ROW + 1, column=1)
+    print(f"  -> Tab '{TAB}' written ({len(amz)} rows, {len(month_agg)} months)")
+
+
 # ── MAIN ──────────────────────────────────────────────────────────────────────
 
 def main():
@@ -818,8 +994,12 @@ def main():
     print(f"\nKPI Monthly Analysis  [{args.date_from} ~ {args.date_to}]")
     print(f"Data source: PG Data Keeper + Polar JSON\n")
 
-    rows_discount, total_monthly, d2c_monthly = analyze_discounts(args.date_from, args.date_to)
-    rows_adspend  = analyze_ad_spend(args.date_from, args.date_to)
+    # Compute consistent through_date from all main channels (PST)
+    through_date = compute_through_date()
+    print(f"Consistent through_date: {through_date}\n")
+
+    rows_discount, total_monthly, d2c_monthly = analyze_discounts(args.date_from, args.date_to, through_date)
+    rows_adspend  = analyze_ad_spend(args.date_from, args.date_to, through_date)
     rows_seeding  = analyze_seeding_cost(args.date_from, args.date_to)
 
     print("\n" + "=" * 80)
@@ -840,6 +1020,7 @@ def main():
 
     update_exec_summary(wb, total_monthly)
     add_summary_d2c_section(wb, d2c_monthly, rows_seeding, rows_adspend)
+    add_amazon_discount_tab(wb, through_date)
 
     wb.save(str(dst))
     print(f"\nSaved: {dst.name}")
