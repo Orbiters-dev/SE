@@ -65,13 +65,15 @@ def get_gmail_service():
 
 
 def send_email(to: str, subject: str, body_html: str, sender: str = DEFAULT_SENDER,
-               attachment: str = None) -> dict:
+               attachment: str = None, cc: str = None) -> dict:
     service = get_gmail_service()
 
     msg = MIMEMultipart("mixed")
     msg["Subject"] = subject
     msg["From"] = sender
     msg["To"] = to
+    if cc:
+        msg["Cc"] = cc
 
     msg.attach(MIMEText(body_html, "html", "utf-8"))
 

@@ -4,7 +4,7 @@ on:
   schedule:
     - cron: '0 8 * * *'    # PST 0:00  (= UTC 8:00)  — 자정 리포트
     - cron: '0 20 * * *'   # PST 12:00 (= UTC 20:00) — 정오 리포트
-  workflow_dispatch:         # 수동 트리거 (테스트용)
+  workflow_dispatch:
     inputs:
       recipient:
         description: '수신자 이메일 (비워두면 기본값 사용)'
@@ -14,7 +14,7 @@ on:
 jobs:
   communicate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout repo
@@ -32,7 +32,8 @@ jobs:
             python-dotenv \
             google-auth \
             google-auth-oauthlib \
-            google-api-python-client
+            google-api-python-client \
+            gspread
 
       - name: Write .env
         run: |
@@ -44,23 +45,34 @@ jobs:
           GMAIL_SENDER=hello@zezebaebae.com
           PPC_REPORT_RECIPIENT=${{ secrets.PPC_REPORT_RECIPIENT }}
           COMMUNICATOR_RECIPIENT=${{ secrets.COMMUNICATOR_RECIPIENT }}
+          COMMUNICATOR_CC=mj.lee@orbiters.co.kr
+          GOOGLE_SERVICE_ACCOUNT_PATH=credentials/google_service_account.json
           ENVEOF
-          # heredoc 들여쓰기 제거
           sed -i 's/^[[:space:]]*//' .env
 
-      - name: Write Gmail credentials
+      - name: Write credentials
         run: |
           mkdir -p credentials
           echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
           echo '${{ secrets.GMAIL_TOKEN_JSON }}'             > credentials/zezebaebae_gmail_token.json
+          echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > credentials/google_service_account.json
 
       - name: Override recipient if specified
         if: ${{ github.event.inputs.recipient != '' }}
         run: |
           echo "COMMUNICATOR_RECIPIENT=${{ github.event.inputs.recipient }}" >> .env
 
+      - name: Upload previous state (cache)
+        uses: actions/cache@v4
+        with:
+          path: .tmp/communicator_state.json
+          key: communicator-state-${{ github.run_id }}
+          restore-keys: communicator-state-
+
       - name: Run Communicator
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-        run: python -u tools/run_communicator.py
+        run: |
+          mkdir -p .tmp
+          python -u tools/run_communicator.py
