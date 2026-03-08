@@ -30,6 +30,8 @@ TABLE_MAP = {
     "google_ads_daily": models.GoogleAdsDaily,
     "ga4_daily": models.GA4Daily,
     "klaviyo_daily": models.KlaviyoDaily,
+    "gsc_daily": models.GscDaily,
+    "dataforseo_keywords": models.DataForSeoKeywords,
 }
 
 
