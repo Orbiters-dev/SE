@@ -90,7 +90,7 @@ PRODUCT_TYPE_RULES = [
 
 # ── Syncly content filtering ─────────────────────────────────────────────
 # Non-Grosmimi brand names (in Syncly Brand column)
-NON_GROS_BRANDS = ("cha & mom", "cha and mom", "onzenna", "naeiae", "naeia",
+NON_GROS_BRANDS = ("cha & mom", "cha and mom", "naeiae", "naeia",
                     "babyrabbit", "goongbe", "commemoi")
 # Keywords in Syncly post content/caption that indicate non-Grosmimi content
 # Even if Grosmimi is also tagged, these keywords mean the post is not Grosmimi-focused
@@ -162,7 +162,7 @@ def load_syncly(gc, sheet_id):
     sh = gc.open_by_key(sheet_id)
 
     # Posts Master: platform mapping
-    pm_ws = sh.worksheet("Posts Master")
+    pm_ws = sh.worksheet("US Posts Master")
     pm_rows = pm_ws.get_all_values()
     pm_header = pm_rows[0] if pm_rows else []
     posts_master = []
@@ -183,7 +183,7 @@ def load_syncly(gc, sheet_id):
         })
 
     # D+60 Tracker: metrics
-    tr_ws = sh.worksheet("D+60 Tracker")
+    tr_ws = sh.worksheet("US D+60 Tracker")
     tr_rows = tr_ws.get_all_values()
     tracker = []
     for row in tr_rows[2:]:  # skip 2 header rows

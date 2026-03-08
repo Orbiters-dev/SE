@@ -1,7 +1,7 @@
 """
-run_polar_weekly.py - Polar Financial Model 주간 자동 실행 + 이메일 발송
+run_polar_weekly.py - ORBI KPIs Model 주간 자동 실행 + 이메일 발송
 
-데이터 수집 (no_polar/) → polar_financial_model.py → Excel 이메일 발송
+데이터 수집 (no_polar/) → orbi_kpis_model.py → Excel 이메일 발송
 
 Usage:
     python tools/run_polar_weekly.py                     # 자동: --end=전월
@@ -24,14 +24,23 @@ load_env()
 
 ROOT      = TOOLS_DIR.parent
 NO_POLAR  = TOOLS_DIR / "no_polar"
-DATA_STORAGE = ROOT / "Data Storage" / "polar"
+
+# ORBI KPIs output goes to Shared/ORBI KPIs/Output/
+SHARED_OUTPUT = ROOT.parent / "Shared" / "ORBI KPIs" / "Output"
 
 
-def run(cmd, label=""):
+def run(cmd, label="", timeout=600):
     tag = label or Path(cmd[2]).stem if len(cmd) > 2 else ""
     print(f"\n[{tag}] {' '.join(str(c) for c in cmd)}")
     sys.stdout.flush()
-    result = subprocess.run([str(c) for c in cmd], cwd=str(TOOLS_DIR), capture_output=True, text=True)
+    try:
+        result = subprocess.run(
+            [str(c) for c in cmd], cwd=str(TOOLS_DIR),
+            capture_output=True, text=True, timeout=timeout,
+        )
+    except subprocess.TimeoutExpired:
+        print(f"  [WARN] {tag} 타임아웃 ({timeout}s) - 계속 진행")
+        return False
     if result.stdout:
         for line in result.stdout.strip().splitlines()[-5:]:
             print(f"  {line}")
@@ -59,21 +68,21 @@ def main():
     args = parser.parse_args()
 
     python = sys.executable
-    print(f"\n[Polar Weekly] 데이터 범위: {args.start} ~ {args.end}")
-    print(f"[Polar Weekly] 실행일: {date.today()}")
+    print(f"\n[ORBI KPIs Weekly] 데이터 범위: {args.start} ~ {args.end}")
+    print(f"[ORBI KPIs Weekly] 실행일: {date.today()}")
 
     # ── Step 1: 데이터 수집 ──────────────────────────────────────────────────
     fetchers = [
-        (NO_POLAR / "fetch_meta_ads_monthly.py",     "Meta Ads Q6"),
-        (NO_POLAR / "fetch_shopify_sales_monthly.py","Shopify Sales Q1"),
-        (NO_POLAR / "fetch_shopify_cogs_monthly.py", "Shopify COGS Q2"),
-        (NO_POLAR / "fetch_amazon_sales_monthly.py", "Amazon Sales Q3"),
-        (NO_POLAR / "fetch_amazon_ads_monthly.py",   "Amazon Ads Q5"),
-        (NO_POLAR / "fetch_google_ads_monthly.py",   "Google Ads Q7"),
+        (NO_POLAR / "fetch_meta_ads_monthly.py",     "Meta Ads",      600),
+        (NO_POLAR / "fetch_shopify_sales_monthly.py","Shopify Sales", 1200),
+        (NO_POLAR / "fetch_shopify_cogs_monthly.py", "Shopify COGS",  1200),
+        (NO_POLAR / "fetch_amazon_sales_monthly.py", "Amazon Sales",  1200),
+        (NO_POLAR / "fetch_amazon_ads_monthly.py",   "Amazon Ads",    1200),
+        (NO_POLAR / "fetch_google_ads_monthly.py",   "Google Ads",     600),
     ]
     print("\n[Step 1] 데이터 수집 중...")
-    for script, label in fetchers:
-        run([python, "-u", script, "--start", args.start, "--end", args.end], label=label)
+    for script, label, t in fetchers:
+        run([python, "-u", script, "--start", args.start, "--end", args.end], label=label, timeout=t)
 
     # ── Step 1b: 누락 데이터 파일 플레이스홀더 ──────────────────────────────
     polar_data = ROOT / ".tmp" / "polar_data"
@@ -89,16 +98,20 @@ def main():
             fpath.write_text(json.dumps(default), encoding="utf-8")
             print(f"  [PLACEHOLDER] {fname} 생성 (데이터 없음)")
 
-    # ── Step 2: Financial Model 생성 ─────────────────────────────────────────
-    print("\n[Step 2] Financial Model Excel 생성 중...")
-    ok = run([python, "-u", TOOLS_DIR / "polar_financial_model.py"], label="polar_financial_model")
+    # ── Step 2: ORBI KPIs Model 생성 ───────────────────────────────────────
+    print("\n[Step 2] ORBI KPIs Model Excel 생성 중...")
+    ok = run([python, "-u", TOOLS_DIR / "orbi_kpis_model.py"], label="orbi_kpis_model")
     if not ok:
-        print("[ERROR] Financial Model 생성 실패")
+        print("[ERROR] ORBI KPIs Model 생성 실패")
         sys.exit(1)
 
     # ── Step 3: Excel 파일 찾기 ──────────────────────────────────────────────
-    DATA_STORAGE.mkdir(parents=True, exist_ok=True)
-    excel_files = sorted(DATA_STORAGE.glob("financial_model_*.xlsx"))
+    SHARED_OUTPUT.mkdir(parents=True, exist_ok=True)
+    excel_files = sorted(SHARED_OUTPUT.glob("kpis_model_*.xlsx"))
+    if not excel_files:
+        # fallback: Data Storage/orbi/ 에서도 찾기
+        fallback_dir = ROOT / "Data Storage" / "orbi"
+        excel_files = sorted(fallback_dir.glob("kpis_model_*.xlsx"))
     if not excel_files:
         print("[ERROR] Excel 파일을 찾을 수 없음")
         sys.exit(1)
@@ -111,16 +124,17 @@ def main():
 
     # ── Step 4: 이메일 발송 ──────────────────────────────────────────────────
     subject = (
-        f"[Financial Model] 주간 리포트 {date.today()} "
+        f"[ORBI KPIs] 주간 리포트 {date.today()} "
         f"| 데이터: {args.start} ~ {args.end}"
     )
-    body = f"""<h2>Orbiters Financial Model</h2>
+    body = f"""<h2>ORBI KPIs Weekly Report</h2>
 <p>첨부 파일: <b>{excel_path.name}</b></p>
 <ul>
   <li>데이터 범위: {args.start} ~ {args.end}</li>
   <li>생성일: {date.today()}</li>
+  <li>Executive Summary / Sales / Ads / Unit Economics + 상세 탭 포함</li>
 </ul>
-<p style="color:#888;font-size:12px;">자동 발송 (GitHub Actions)</p>"""
+<p style="color:#888;font-size:12px;">자동 발송 (WAT Scheduler)</p>"""
 
     print(f"\n[Step 4] 이메일 발송 중 -> {args.to}")
     result = subprocess.run(

@@ -67,7 +67,7 @@ def run_single(cmd):
     try:
         result = subprocess.run(
             cmd, cwd=str(ROOT),
-            capture_output=True, timeout=1800,
+            capture_output=True, timeout=3600,
         )
         elapsed = (datetime.now() - start).total_seconds()
         stdout = result.stdout.decode("utf-8", errors="replace") if result.stdout else ""
@@ -77,7 +77,7 @@ def run_single(cmd):
         lines.append(f"[run_and_notify] exit_code={result.returncode}")
         return result.returncode == 0, lines, elapsed
     except subprocess.TimeoutExpired:
-        return False, ["[TIMEOUT] 30min exceeded"], (datetime.now() - start).total_seconds()
+        return False, ["[TIMEOUT] 60min exceeded"], (datetime.now() - start).total_seconds()
     except Exception as e:
         return False, [f"[ERROR] {e}"], (datetime.now() - start).total_seconds()
 
@@ -233,14 +233,9 @@ def main():
         return
 
     print(f"[EMAIL] → {args.to}")
-    subprocess.run(
-        [PYTHON, "-u", str(TOOLS_DIR / "send_gmail.py"),
-         "--to", args.to,
-         "--subject", subject,
-         "--body", body],
-        cwd=str(TOOLS_DIR),
-    )
-    print(f"[완료] {task_def['name']} 이메일 발송 완료")
+    from send_gmail import send_email
+    result = send_email(to=args.to, subject=subject, body_html=body)
+    print(f"[완료] {task_def['name']} 이메일 발송 완료 (ID: {result.get('id', '?')})")
 
 
 if __name__ == "__main__":

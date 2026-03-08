@@ -115,73 +115,42 @@ def _set_date_filter(page, start_date, end_date, output_path):
     2. 상단 날짜 입력 필드: MM / DD / YYYY - MM / DD / YYYY
     3. "Update" 버튼 클릭
     """
-    # Click the date filter button (contains "Last" or "days" text)
-    date_btn = page.locator('button:has-text("days"), button:has-text("Last"), button:has-text("month"), button:has-text("year")').first
+    # Click "Custom" date filter button (Syncly UI updated 2026-03)
+    date_btn = page.locator('button:has-text("Custom")').first
     if not date_btn.is_visible(timeout=3000):
-        # Try calendar icon button
-        date_btn = page.locator('button:has(svg[class*="calendar"]), button:has(svg) >> text=/\\d+ days/').first
+        # Fallback: try old selectors
+        date_btn = page.locator('button:has-text("days"), button:has-text("Last")').first
     date_btn.click()
     page.wait_for_timeout(1500)
 
-    # Find the date input fields (MM / DD / YYYY format)
-    # There should be two date inputs in the popup
-    date_inputs = page.locator('input[type="text"], input[placeholder*="M"], input[type="number"]').all()
+    # Date inputs: M, D, YYYY x2 (skip first input which is search bar)
+    inputs = page.locator('input').all()
+    date_inputs = [inp for inp in inputs if inp.is_visible() and inp.get_attribute('placeholder') in ('M', 'D', 'YYYY')]
 
-    # Alternative: look for the date range display at top of popup
-    # Try clicking on the start date area and typing
-    # The popup has format: "MM / DD / YYYY - MM / DD / YYYY"
-
-    # Strategy: find all small input-like elements in the popup
-    # Syncly uses individual inputs for MM, DD, YYYY
-    popup = page.locator('[class*="popover"], [class*="dropdown"], [class*="modal"], [role="dialog"]').first
-    if not popup.is_visible(timeout=2000):
-        # Popup might be in a different container
-        popup = page.locator('body')
-
-    inputs = popup.locator('input').all()
-    visible_inputs = [inp for inp in inputs if inp.is_visible()]
-
-    if len(visible_inputs) >= 6:
-        # 6 inputs: start(MM,DD,YYYY) + end(MM,DD,YYYY)
-        s_mm, s_dd, s_yyyy = visible_inputs[0], visible_inputs[1], visible_inputs[2]
-        e_mm, e_dd, e_yyyy = visible_inputs[3], visible_inputs[4], visible_inputs[5]
-
+    if len(date_inputs) >= 6:
         for inp, val in [
-            (s_mm, f"{start_date.month:02d}"),
-            (s_dd, f"{start_date.day:02d}"),
-            (s_yyyy, f"{start_date.year}"),
-            (e_mm, f"{end_date.month:02d}"),
-            (e_dd, f"{end_date.day:02d}"),
-            (e_yyyy, f"{end_date.year}"),
+            (date_inputs[0], f"{start_date.month}"),
+            (date_inputs[1], f"{start_date.day}"),
+            (date_inputs[2], f"{start_date.year}"),
+            (date_inputs[3], f"{end_date.month}"),
+            (date_inputs[4], f"{end_date.day}"),
+            (date_inputs[5], f"{end_date.year}"),
         ]:
             inp.click()
             inp.press("Control+a")
             inp.fill(val)
             page.wait_for_timeout(200)
-    elif len(visible_inputs) >= 2:
-        # 2 inputs: start date, end date (full date strings)
-        visible_inputs[0].click()
-        visible_inputs[0].press("Control+a")
-        visible_inputs[0].fill(start_date.strftime("%m/%d/%Y"))
-        page.wait_for_timeout(300)
-        visible_inputs[1].click()
-        visible_inputs[1].press("Control+a")
-        visible_inputs[1].fill(end_date.strftime("%m/%d/%Y"))
-        page.wait_for_timeout(300)
     else:
         debug_path = output_path / "debug_date_filter.png"
         page.screenshot(path=str(debug_path))
-        print(f"[WARN] Could not find date inputs ({len(visible_inputs)} found)")
+        print(f"[WARN] Could not find date inputs ({len(date_inputs)} found)")
         print(f"[DEBUG] Screenshot: {debug_path}")
-        # Close popup and continue with current filter
         page.keyboard.press("Escape")
         page.wait_for_timeout(500)
         return False
 
     # Click Update button
-    update_btn = popup.locator('button:has-text("Update")').first
-    if not update_btn.is_visible(timeout=2000):
-        update_btn = page.locator('button:has-text("Update")').first
+    update_btn = page.locator('button:has-text("Update")').first
     update_btn.click()
     page.wait_for_timeout(5000)  # Wait for data to reload
     return True

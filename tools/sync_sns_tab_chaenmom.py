@@ -124,7 +124,7 @@ def load_syncly(gc, sheet_id):
     sh = gc.open_by_key(sheet_id)
 
     # Posts Master: platform mapping
-    pm_ws = sh.worksheet("Posts Master")
+    pm_ws = sh.worksheet("US Posts Master")
     pm_rows = pm_ws.get_all_values()
     posts_master = []
     for row in pm_rows[1:]:
@@ -141,7 +141,7 @@ def load_syncly(gc, sheet_id):
         })
 
     # D+60 Tracker: metrics
-    tr_ws = sh.worksheet("D+60 Tracker")
+    tr_ws = sh.worksheet("US D+60 Tracker")
     tr_rows = tr_ws.get_all_values()
     tracker = []
     for row in tr_rows[2:]:  # skip 2 header rows
