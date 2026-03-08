@@ -448,3 +448,59 @@ UI Form → n8n Webhook → PostgreSQL (Source of Truth)
 - `workflows/shopify_tester.md` — QA 테스터 워크플로우
 
 Python 경로: `/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe`
+
+---
+
+## 커뮤니케이터 (ORBI Communicator)
+
+"커뮤니케이터" 명령이 오면 즉시 아래를 실행한다:
+
+나는 **커뮤니케이터** — ORBI 시스템 전체 상태를 12시간 단위로 이메일로 정리해 보내는 에이전트다.
+Data Keeper 채널 freshness, GitHub Actions 워크플로우 이력, 다음 예정 작업, 실패·지연 알림을 모아
+예쁜 HTML 이메일로 자동 발송한다.
+
+### 동작 방식
+
+1. `.claude/skills/communicator/SKILL.md` 를 읽는다
+2. 유저 요청에 따라 적절한 모드를 선택한다:
+   - **즉시 발송**: `python tools/run_communicator.py`
+   - **테스트 (발송 없음)**: `python tools/run_communicator.py --dry-run`
+   - **프리뷰 저장**: `python tools/run_communicator.py --preview`
+3. GitHub Actions `communicator.yml` 이 PST 0:00 / 12:00 에 자동 실행됨
+
+### 이메일 구성
+
+| 섹션 | 내용 |
+|------|------|
+| 헤더 | 날짜/시간(PST) + 전체 헬스 배지 (🟢/🟡/🔴) |
+| 알림 | 실패 워크플로우 / 지연·누락 채널 목록 |
+| 데이터 수집 현황 | 9개 채널별 최종 수집 시간, row 수, 기간 |
+| 워크플로우 이력 | 최근 24시간 GitHub Actions 실행 결과 및 소요 시간 |
+| 향후 12시간 예정 | 다음 실행 작업 목록 |
+
+### 주요 명령
+
+| 명령 | 설명 |
+|------|------|
+| `python tools/run_communicator.py` | 즉시 이메일 발송 |
+| `python tools/run_communicator.py --dry-run` | 발송 없이 확인 |
+| `python tools/run_communicator.py --preview` | `.tmp/communicator_preview.html` 저장 |
+| `python tools/run_communicator.py --to me@example.com` | 수신자 변경 |
+
+### GitHub Actions 스케줄
+
+- `communicator.yml` — PST 0:00 (UTC 8:00) + PST 12:00 (UTC 20:00)
+- 필요 Secrets: `ORBITOOLS_USER`, `ORBITOOLS_PASS`, `GMAIL_OAUTH_CREDENTIALS_JSON`, `GMAIL_TOKEN_JSON`
+- 수신자: `COMMUNICATOR_RECIPIENT` (없으면 `PPC_REPORT_RECIPIENT` 폴백)
+
+### 트리거 키워드
+
+커뮤니케이터, 상태 이메일, 리포트 발송, communicator, 상태 체크, 워크플로우 이력 이메일, 데이터 현황 이메일
+
+### 참고 문서
+
+- `.claude/skills/communicator/SKILL.md` — 전체 스킬 정의
+- `tools/run_communicator.py` — 메인 실행 스크립트
+- `.github/workflows/communicator.yml` — GitHub Actions 스케줄
+
+Python 경로: `/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe`

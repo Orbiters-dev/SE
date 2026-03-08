@@ -1,0 +1,66 @@
+name: ORBI Communicator - Status Email
+
+on:
+  schedule:
+    - cron: '0 8 * * *'    # PST 0:00  (= UTC 8:00)  — 자정 리포트
+    - cron: '0 20 * * *'   # PST 12:00 (= UTC 20:00) — 정오 리포트
+  workflow_dispatch:         # 수동 트리거 (테스트용)
+    inputs:
+      recipient:
+        description: '수신자 이메일 (비워두면 기본값 사용)'
+        required: false
+        default: ''
+
+jobs:
+  communicate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --quiet \
+            requests \
+            python-dotenv \
+            google-auth \
+            google-auth-oauthlib \
+            google-api-python-client
+
+      - name: Write .env
+        run: |
+          cat > .env <<'ENVEOF'
+          ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
+          ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
+          GMAIL_OAUTH_CREDENTIALS_PATH=credentials/gmail_oauth_credentials.json
+          ZEZEBAEBAE_GMAIL_TOKEN_PATH=credentials/zezebaebae_gmail_token.json
+          GMAIL_SENDER=hello@zezebaebae.com
+          PPC_REPORT_RECIPIENT=${{ secrets.PPC_REPORT_RECIPIENT }}
+          COMMUNICATOR_RECIPIENT=${{ secrets.COMMUNICATOR_RECIPIENT }}
+          ENVEOF
+          # heredoc 들여쓰기 제거
+          sed -i 's/^[[:space:]]*//' .env
+
+      - name: Write Gmail credentials
+        run: |
+          mkdir -p credentials
+          echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
+          echo '${{ secrets.GMAIL_TOKEN_JSON }}'             > credentials/zezebaebae_gmail_token.json
+
+      - name: Override recipient if specified
+        if: ${{ github.event.inputs.recipient != '' }}
+        run: |
+          echo "COMMUNICATOR_RECIPIENT=${{ github.event.inputs.recipient }}" >> .env
+
+      - name: Run Communicator
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python -u tools/run_communicator.py
