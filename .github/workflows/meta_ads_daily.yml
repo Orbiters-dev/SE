@@ -30,15 +30,17 @@ jobs:
 
       - name: Write .env
         run: |
-          cat > .env << 'ENVEOF'
+          cat > .env <<'ENVEOF'
           ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
           META_ACCESS_TOKEN=${{ secrets.META_ACCESS_TOKEN }}
           META_AD_ACCOUNT_ID=${{ secrets.META_AD_ACCOUNT_ID }}
-          META_REPORT_RECIPIENT=${{ secrets.META_REPORT_RECIPIENT }}
+          META_REPORT_RECIPIENT=${{ secrets.META_REPORT_RECIPIENT || secrets.PPC_REPORT_RECIPIENT }}
+          PPC_REPORT_RECIPIENT=${{ secrets.PPC_REPORT_RECIPIENT }}
           GMAIL_OAUTH_CREDENTIALS_PATH=credentials/gmail_oauth_credentials.json
           ZEZEBAEBAE_GMAIL_TOKEN_PATH=credentials/zezebaebae_gmail_token.json
           GMAIL_SENDER=hello@zezebaebae.com
           ENVEOF
+          sed -i 's/^[[:space:]]*//' .env
 
       - name: Write Gmail credentials
         run: |
