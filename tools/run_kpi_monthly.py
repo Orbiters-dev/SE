@@ -379,81 +379,151 @@ def analyze_discounts(date_from, date_to, through_date=None):
 # ── 2. AD SPEND ───────────────────────────────────────────────────────────────
 
 def analyze_ad_spend(date_from, date_to, through_date=None):
-    result = defaultdict(lambda: defaultdict(float))
+    """Wide format (months as columns), Amazon Ads split by brand."""
+    import calendar as _cal
+    from datetime import datetime as _dtt2, timedelta as _td2, timezone as _tz2
 
+    # Amazon Ads: per brand per month
+    amz_brand = defaultdict(lambda: defaultdict(float))
     for r in load_dk("amazon_ads_daily"):
         d = r.get("date") or ""
         if through_date and d > through_date:
             continue
         date = d[:7]
         if date_from <= date <= date_to:
-            result[date]["Amazon Ads"] += float(r.get("spend") or 0)
+            brand = r.get("brand") or "Unknown"
+            amz_brand[brand][date] += float(r.get("spend") or 0)
 
+    meta_monthly = defaultdict(float)
     for r in load_dk("meta_ads_daily"):
         d = r.get("date") or ""
         if through_date and d > through_date:
             continue
         date = d[:7]
         if date_from <= date <= date_to:
-            result[date]["Meta Ads"] += float(r.get("spend") or 0)
+            meta_monthly[date] += float(r.get("spend") or 0)
 
+    google_monthly = defaultdict(float)
     for r in load_dk("google_ads_daily"):
         d = r.get("date") or ""
         if through_date and d > through_date:
             continue
         date = d[:7]
         if date_from <= date <= date_to:
-            result[date]["Google Ads"] += float(r.get("spend") or 0)
+            google_monthly[date] += float(r.get("spend") or 0)
 
-    platforms = ["Amazon Ads", "Meta Ads", "Google Ads"]
-    totals = defaultdict(float)
+    # All months across all platforms
+    all_months_set = set(meta_monthly) | set(google_monthly)
+    for bd in amz_brand.values():
+        all_months_set |= set(bd)
+    all_months = sorted(m for m in all_months_set if date_from <= m <= date_to)
 
-    # Month label helper (consistent with analyze_discounts)
-    import calendar as _cal
-    from datetime import datetime as _dtt2, timedelta as _td2, timezone as _tz2
     _today_pst = _dtt2.now(_tz2(_td2(hours=-8))).date()
     _partial_note = f"(through {through_date})" if through_date else ""
-    def _month_label(m):
+    def _mlabel(m):
         y, mo = int(m[:4]), int(m[5:7])
         if y == _today_pst.year and mo == _today_pst.month and _partial_note:
             return f"{_cal.month_abbr[mo]} {y}\n{_partial_note}"
         return f"{_cal.month_abbr[mo]} {y}"
 
+    ytd_year = all_months[-1][:4] if all_months else "2026"
+
+    def _ytd(monthly_dict, brand_dict=None):
+        if brand_dict is not None:
+            return sum(v for m, v in brand_dict.items() if m >= f"{ytd_year}-01")
+        return sum(v for m, v in monthly_dict.items() if m >= f"{ytd_year}-01")
+
+    # ── Console ──────────────────────────────────────────────────────────────
     print("\n" + "=" * 80)
     print("2) AD SPEND BY PLATFORM (Monthly)")
     print("=" * 80)
-    print(f"\n{'Month':<10}", end="")
-    for p in platforms:
-        print(f"  {p:>12}", end="")
-    print(f"  {'TOTAL':>12}")
-    print("-" * (10 + 14 * (len(platforms) + 1)))
+    print(f"\n{'Month':<10}  {'Amazon Ads':>12}  {'Meta Ads':>12}  {'Google Ads':>12}  {'TOTAL':>12}")
+    print("-" * 65)
+    grand_by_month = defaultdict(float)
+    for month in all_months:
+        amz = sum(bd.get(month, 0) for bd in amz_brand.values())
+        meta = meta_monthly.get(month, 0)
+        goog = google_monthly.get(month, 0)
+        total = amz + meta + goog
+        grand_by_month[month] = total
+        print(f"{month:<10}  ${amz:>10,.0f}  ${meta:>10,.0f}  ${goog:>10,.0f}  ${total:>10,.0f}")
+    print("-" * 65)
+    gt_amz  = sum(sum(bd.values()) for bd in amz_brand.values())
+    gt_meta = sum(meta_monthly.values())
+    gt_goog = sum(google_monthly.values())
+    print(f"{'TOTAL':<10}  ${gt_amz:>10,.0f}  ${gt_meta:>10,.0f}  ${gt_goog:>10,.0f}  ${gt_amz+gt_meta+gt_goog:>10,.0f}")
 
-    sheet_rows = [["Month"] + platforms + ["TOTAL"]]
+    # ── Data availability windows (for n.m marking) ──────────────────────────
+    NM = "n.m"  # sentinel for "not measured / no data collected"
+    # First month with actual non-zero data per platform
+    amz_data_start = (min(m for bd in amz_brand.values() for m in bd)
+                      if any(amz_brand.values()) else "9999-99")
+    meta_data_start = (min(meta_monthly.keys()) if meta_monthly else "9999-99")
+    goog_data_start = (min(google_monthly.keys()) if google_monthly else "9999-99")
 
-    for month in sorted(result.keys()):
-        print(f"{month:<10}", end="")
-        row = [_month_label(month)]
-        row_total = 0.0
-        for p in platforms:
-            v = result[month][p]
-            totals[p] += v
-            row_total += v
-            print(f"  ${v:>10,.0f}", end="")
-            row.append(round(v, 2))
-        print(f"  ${row_total:>10,.0f}")
-        row.append(round(row_total, 2))
+    def amz_val(month, brand_dict):
+        if month < amz_data_start:
+            return NM
+        return round(brand_dict.get(month, 0), 2)
+
+    def meta_val(month):
+        if month < meta_data_start:
+            return NM
+        return round(meta_monthly.get(month, 0), 2)
+
+    def goog_val(month):
+        if month < goog_data_start:
+            return NM
+        return round(google_monthly.get(month, 0), 2)
+
+    # ── Wide-format sheet rows ────────────────────────────────────────────────
+    hdr = ["Platform / Brand"] + [_mlabel(m) for m in all_months] + ["YTD"]
+    sheet_rows = [hdr]
+
+    # Amazon Ads section
+    sheet_rows.append(["Amazon Ads"])
+    amz_brands_sorted = sorted(
+        amz_brand.keys(),
+        key=lambda b: BRAND_ORDER.index(b) if b in BRAND_ORDER else 99
+    )
+    amz_month_totals = defaultdict(float)  # only sums real values
+    for brand in amz_brands_sorted:
+        bd = amz_brand[brand]
+        ytd_sum = _ytd(None, bd)
+        row = [f"  {brand}"]
+        for m in all_months:
+            v = amz_val(m, bd)
+            if v != NM:
+                amz_month_totals[m] += v
+            row.append(v)
+        row.append(round(ytd_sum, 2))
         sheet_rows.append(row)
+    # Amazon subtotal: "n.m" for months before data start
+    amz_ytd = sum(v for m, v in amz_month_totals.items() if m >= f"{ytd_year}-01")
+    amz_sub = [NM if m < amz_data_start else round(amz_month_totals.get(m, 0), 2)
+               for m in all_months]
+    sheet_rows.append(["  TOTAL Amazon"] + amz_sub + [round(amz_ytd, 2)])
 
-    print("-" * (10 + 14 * (len(platforms) + 1)))
-    print(f"{'TOTAL':<10}", end="")
-    grand = 0.0
+    # Meta Ads
+    sheet_rows.append(["Meta Ads"])
+    meta_ytd = _ytd(meta_monthly)
+    sheet_rows.append(["  Meta"] + [meta_val(m) for m in all_months] + [round(meta_ytd, 2)])
+
+    # Google Ads
+    sheet_rows.append(["Google Ads"])
+    goog_ytd = _ytd(google_monthly)
+    sheet_rows.append(["  Google"] + [goog_val(m) for m in all_months] + [round(goog_ytd, 2)])
+
+    # Grand total: sum real values only, n.m if ALL platforms are n.m
+    grand_ytd = amz_ytd + meta_ytd + goog_ytd
     total_row = ["TOTAL"]
-    for p in platforms:
-        print(f"  ${totals[p]:>10,.0f}", end="")
-        grand += totals[p]
-        total_row.append(round(totals[p], 2))
-    print(f"  ${grand:>10,.0f}")
-    total_row.append(round(grand, 2))
+    for m in all_months:
+        av = amz_month_totals.get(m, NM if m < amz_data_start else 0)
+        mv = meta_monthly.get(m, 0) if m >= meta_data_start else NM
+        gv = google_monthly.get(m, 0) if m >= goog_data_start else NM
+        nums = [x for x in [av, mv, gv] if x != NM]
+        total_row.append(NM if not nums else round(sum(nums), 2))
+    total_row.append(round(grand_ytd, 2))
     sheet_rows.append(total_row)
 
     return sheet_rows
@@ -515,10 +585,8 @@ def analyze_seeding_cost(date_from, date_to):
     print(f"\n{'Month':<10}  {'PayPal':>13}  {'Sample COGS':>13}  {'Shipping':>13}  {'TOTAL':>13}  {'Units':>8}")
     print("-" * 75)
 
-    sheet_rows = [["Month", "PayPal", "Sample COGS", "Shipping", "TOTAL", "Units"]]
     totals = defaultdict(float)
     total_units = 0
-
     for m in all_months:
         pp   = paypal_monthly.get(m, 0)
         cogs = sample_cogs.get(m, 0)
@@ -529,12 +597,38 @@ def analyze_seeding_cost(date_from, date_to):
         totals["ship"] += ship; totals["total"] += tot
         total_units += u
         print(f"{m:<10}  ${pp:>12,.0f}  ${cogs:>12,.0f}  ${ship:>12,.0f}  ${tot:>12,.0f}  {u:>8,}")
-        sheet_rows.append([m, round(pp,2), round(cogs,2), round(ship,2), round(tot,2), u])
 
     print("-" * 75)
     print(f"{'TOTAL':<10}  ${totals['pp']:>12,.0f}  ${totals['cogs']:>12,.0f}  ${totals['ship']:>12,.0f}  ${totals['total']:>12,.0f}  {total_units:>8,}")
-    sheet_rows.append(["TOTAL", round(totals["pp"],2), round(totals["cogs"],2),
-                        round(totals["ship"],2), round(totals["total"],2), total_units])
+
+    # ── Wide-format sheet rows (months as columns) ────────────────────────────
+    import calendar as _cal2
+    from datetime import datetime as _dtt3, timedelta as _td3, timezone as _tz3
+    _today3 = _dtt3.now(_tz3(_td3(hours=-8))).date()
+    _pnote  = f"(through {through_date})" if hasattr(analyze_seeding_cost, '_through') else ""
+
+    def _slabel(m):
+        y, mo = int(m[:4]), int(m[5:7])
+        return f"{_cal2.month_abbr[mo]} {y}"
+
+    ytd_year = all_months[-1][:4] if all_months else "2026"
+    hdr = ["Item"] + [_slabel(m) for m in all_months] + ["YTD"]
+
+    def _row(label, monthly_dict, fmt="$"):
+        ytd = sum(v for m, v in monthly_dict.items() if m >= f"{ytd_year}-01")
+        return [label] + [round(monthly_dict.get(m, 0), 2) for m in all_months] + [round(ytd, 2)]
+
+    tot_monthly = {m: paypal_monthly.get(m,0)+sample_cogs.get(m,0)+shipping.get(m,0) for m in all_months}
+    ytd_units = sum(v for m, v in units.items() if m >= f"{ytd_year}-01")
+
+    sheet_rows = [
+        hdr,
+        _row("PayPal", paypal_monthly),
+        _row("Sample COGS", sample_cogs),
+        _row("Shipping", shipping),
+        ["TOTAL"] + [round(tot_monthly.get(m,0), 2) for m in all_months] + [round(totals["total"], 2)],
+        ["Units"] + [units.get(m, 0) for m in all_months] + [total_units],
+    ]
 
     return sheet_rows
 
@@ -573,6 +667,96 @@ def style_header(ws, n_cols):
         cell.fill = fill
         cell.font = font
         cell.alignment = Alignment(horizontal="center")
+
+
+def write_wide_tab(wb, tab_name, rows):
+    """Wide-format tab: 1 label column + month columns.
+    Row types detected by content:
+      - Section header: row has only 1 cell (len==1) or all others empty → grey
+      - TOTAL row: first cell == 'TOTAL' or 'TOTAL ...' → yellow
+      - Indent row: first cell starts with '  ' → italic (channel-level)
+      - Header row: row[0] index == 0 → dark blue
+    Numbers formatted from column 2 onward.
+    """
+    from openpyxl.styles import PatternFill, Font, Alignment
+
+    FILL_HEADER  = PatternFill("solid", fgColor="002060")
+    FILL_SECTION = PatternFill("solid", fgColor="D6DCE4")
+    FILL_TOTAL   = PatternFill("solid", fgColor="FFF2CC")
+    FILL_GTOTAL  = PatternFill("solid", fgColor="002060")
+    FILL_NM      = PatternFill("solid", fgColor="595959")  # dark grey for n.m
+    FONT_WHITE   = Font(bold=True, color="FFFFFF")
+    FONT_BOLD    = Font(bold=True)
+    FONT_ITALIC  = Font(italic=True, color="595959")
+    FONT_NM      = Font(color="FFFFFF", size=8)
+    ALIGN_CTR    = Alignment(horizontal="center", wrap_text=True)
+    ALIGN_NM     = Alignment(horizontal="center")
+
+    if tab_name in wb.sheetnames:
+        del wb[tab_name]
+    ws = wb.create_sheet(title=tab_name)
+
+    max_cols = max((len(r) for r in rows if r), default=1)
+
+    for r_idx, row in enumerate(rows, 1):
+        if not row:
+            continue
+        for c_idx, val in enumerate(row, 1):
+            ws.cell(row=r_idx, column=c_idx, value=val)
+
+        first = str(row[0] or "") if row else ""
+        is_header  = (r_idx == 1)
+        is_section = (len([v for v in row if v not in (None, "", 0)]) == 1
+                      and not first.startswith("  "))
+        is_grand   = (first.strip() == "TOTAL")
+        is_total   = (not is_grand and (first.strip().startswith("TOTAL") or
+                      first.strip().startswith("  TOTAL")))
+        is_indent  = first.startswith("  ") and not is_total
+
+        for c_idx in range(1, max_cols + 1):
+            cell = ws.cell(row=r_idx, column=c_idx)
+            if is_header:
+                cell.fill = FILL_HEADER
+                cell.font = FONT_WHITE
+                cell.alignment = ALIGN_CTR
+            elif is_section:
+                cell.fill = FILL_SECTION
+                cell.font = FONT_BOLD
+            elif is_grand:
+                cell.fill = FILL_GTOTAL
+                cell.font = FONT_WHITE
+            elif is_total:
+                cell.fill = FILL_TOTAL
+                cell.font = FONT_BOLD
+            elif is_indent:
+                cell.font = FONT_ITALIC
+
+            # n.m cells: dark grey background, white text, centered
+            if cell.value == "n.m":
+                cell.fill = FILL_NM
+                cell.font = FONT_NM
+                cell.alignment = ALIGN_NM
+                continue
+
+            # Format numbers (column 2+)
+            if c_idx >= 2 and cell.value is not None:
+                v = cell.value
+                if isinstance(v, float):
+                    cell.number_format = '#,##0.00'
+                elif isinstance(v, int):
+                    cell.number_format = '#,##0'
+
+    # Freeze col 2, row 2
+    ws.freeze_panes = ws.cell(row=2, column=2)
+    ws.row_dimensions[1].height = 42
+
+    # Column widths
+    from openpyxl.utils import get_column_letter
+    ws.column_dimensions["A"].width = 22
+    for i in range(2, max_cols + 1):
+        ws.column_dimensions[get_column_letter(i)].width = 13
+
+    print(f"  -> Tab '{tab_name}' written ({len(rows)} rows, wide format)")
 
 
 def write_tab(wb, tab_name, rows, header_row=None):
@@ -770,17 +954,38 @@ def add_summary_d2c_section(wb, d2c_monthly, seeding_rows, adspend_rows):
     FONT_BOLD    = Font(bold=True)
     ALIGN_CTR    = Alignment(horizontal="center", wrap_text=True)
 
-    # Build seeding monthly dict {month: total}
-    seed_dict = {}
-    for row in seeding_rows[1:]:
-        if row and row[0] != "TOTAL":
-            seed_dict[str(row[0])[:7]] = float(row[4] or 0)
+    # Parse wide-format rows: header row[0] has month labels, find TOTAL row
+    def _parse_wide_total(rows):
+        """Extract {month_str: value} from wide-format rows TOTAL row."""
+        import calendar as _cal
+        if not rows:
+            return {}
+        hdr = rows[0]  # ["Label/Platform", "Jan 2024", ..., "YTD"]
+        # Build mapping: month_abbr_year -> "YYYY-MM"
+        col_to_month = {}
+        for ci, label in enumerate(hdr[1:], 1):
+            if label == "YTD":
+                continue
+            try:
+                parts = str(label).split()
+                if len(parts) == 2:
+                    mon_abbr, yr = parts
+                    mon_num = list(_cal.month_abbr).index(mon_abbr)
+                    col_to_month[ci] = f"{yr}-{mon_num:02d}"
+            except (ValueError, IndexError):
+                pass
+        result = {}
+        for row in rows[1:]:
+            if row and str(row[0]).strip() == "TOTAL":
+                for ci, month_str in col_to_month.items():
+                    if ci < len(row):
+                        v = row[ci]
+                        result[month_str] = float(v) if v not in (None, "", "n.m") else 0.0
+                break
+        return result
 
-    # Build adspend monthly dict {month: total}
-    ad_dict = {}
-    for row in adspend_rows[1:]:
-        if row and row[0] != "TOTAL":
-            ad_dict[str(row[0])[:7]] = float(row[4] or 0)
+    ad_dict = _parse_wide_total(adspend_rows)
+    seed_dict = _parse_wide_total(seeding_rows)
 
     months = sorted(d2c_monthly.keys())
     if not months:
@@ -941,36 +1146,86 @@ def add_amazon_discount_tab(wb, through_date):
             month_agg[month][k] += v
             grand[k] += v
 
-    # ── Monthly summary ───────────────────────────────────────────────────────
+    # ── Monthly summary (wide format: brands as rows, months as columns) ──────
     dr += 1
-    ws.cell(row=dr, column=1, value="Monthly Summary").font = FONT_B
+    ws.cell(row=dr, column=1, value="Monthly Summary — Wide Format (months as columns)").font = FONT_B
     ws.cell(row=dr, column=1).fill = PatternFill("solid", fgColor="D6DCE4")
+    for ci in range(2, len(sorted(month_agg)) + 3):
+        ws.cell(row=dr, column=ci).fill = PatternFill("solid", fgColor="D6DCE4")
     dr += 1
-    for ci, h in enumerate(["Month","Gross ($)","Disc ($)","Net ($)","Orders","Units","Disc Rate"], 1):
-        ws.cell(row=dr, column=ci, value=h).font = FONT_B
-    dr += 1
-    for month in sorted(month_agg):
-        v = month_agg[month]
-        rate = v["disc"] / v["gross"] if v["gross"] else 0.0
-        row_data = [month, v["gross"], v["disc"], v["net"], v["orders"], v["units"], rate]
-        fmts2    = [None, '#,##0.00', '#,##0.00', '#,##0.00', '#,##0', '#,##0', '0.00%']
-        for ci, (val, fmt) in enumerate(zip(row_data, fmts2), 1):
-            cell = ws.cell(row=dr, column=ci, value=val)
-            if fmt: cell.number_format = fmt
-            if month == sorted(month_agg)[-1]:
-                cell.fill = FILL_TOT
-        dr += 1
 
-    # Grand total
-    rate = grand["disc"] / grand["gross"] if grand["gross"] else 0.0
-    for ci, (v, fmt) in enumerate(zip(
-        ["TOTAL", grand["gross"], grand["disc"], grand["net"], grand["orders"], grand["units"], rate],
-        [None,'#,##0.00','#,##0.00','#,##0.00','#,##0','#,##0','0.00%']
-    ), 1):
-        cell = ws.cell(row=dr, column=ci, value=v)
+    sorted_months = sorted(month_agg)
+
+    # Metric sections: Gross / Discounts / Disc Rate per brand row
+    # Header row: [Metric / Brand] + [month1, month2, ..., TOTAL]
+    for ci, h in enumerate(["Metric / Brand"] + sorted_months + ["TOTAL"], 1):
+        cell = ws.cell(row=dr, column=ci, value=h)
         cell.fill = PatternFill("solid", fgColor="002060")
         cell.font = FONT_W
-        if fmt: cell.number_format = fmt
+        cell.alignment = ALIGN_C
+    dr += 1
+
+    # Collect brands present in Amazon channel
+    amz_brands_present = sorted(
+        set(r.get("brand","") for r in amz if r.get("brand")),
+        key=lambda b: ["Grosmimi","Naeiae","CHA&MOM","Unknown"].index(b)
+            if b in ["Grosmimi","Naeiae","CHA&MOM","Unknown"] else 99
+    )
+
+    for metric, field, fmt in [
+        ("Gross Sales ($)", "gross", '#,##0.00'),
+        ("Discounts ($)",   "disc",  '#,##0.00'),
+        ("Disc Rate (%)",   "rate",  '0.00%'),
+    ]:
+        # Section header
+        cell = ws.cell(row=dr, column=1, value=metric)
+        cell.fill = PatternFill("solid", fgColor="D6DCE4")
+        cell.font = FONT_B
+        for ci in range(2, len(sorted_months) + 3):
+            ws.cell(row=dr, column=ci).fill = PatternFill("solid", fgColor="D6DCE4")
+        dr += 1
+
+        # Per brand + TOTAL
+        for brand in amz_brands_present + ["TOTAL"]:
+            row_data = [f"  {brand}" if brand != "TOTAL" else "TOTAL"]
+            brand_total = 0.0
+            for m in sorted_months:
+                if brand == "TOTAL":
+                    mv = month_agg[m]
+                else:
+                    # filter amz rows for this brand+month
+                    mv_g = sum(float(r.get("gross_sales",0) or 0)
+                               for r in amz if r.get("brand")==brand and r.get("date","")[:7]==m)
+                    mv_d = sum(float(r.get("discounts",0) or 0)
+                               for r in amz if r.get("brand")==brand and r.get("date","")[:7]==m)
+                    mv_n = mv_g - mv_d
+                    mv = {"gross": mv_g, "disc": mv_d, "net": mv_n}
+                if field == "rate":
+                    val = mv["disc"] / mv["gross"] if mv["gross"] else 0.0
+                else:
+                    val = mv[field]
+                row_data.append(round(val, 4) if field == "rate" else round(val, 2))
+                if field != "rate":
+                    brand_total += val
+            # TOTAL column
+            if field == "rate":
+                g_tot = grand["gross"] if brand == "TOTAL" else sum(
+                    float(r.get("gross_sales",0) or 0) for r in amz if r.get("brand")==brand)
+                d_tot = grand["disc"] if brand == "TOTAL" else sum(
+                    float(r.get("discounts",0) or 0) for r in amz if r.get("brand")==brand)
+                row_data.append(round(d_tot/g_tot, 4) if g_tot else 0.0)
+            else:
+                g_t = grand[field] if brand == "TOTAL" else brand_total
+                row_data.append(round(g_t, 2))
+
+            for ci, val in enumerate(row_data, 1):
+                cell = ws.cell(row=dr, column=ci, value=val)
+                if brand == "TOTAL":
+                    cell.fill = FILL_TOT
+                    cell.font = FONT_B
+                if ci >= 2 and isinstance(val, float):
+                    cell.number_format = fmt
+            dr += 1
 
     # Column widths
     from openpyxl.utils import get_column_letter
@@ -1015,8 +1270,8 @@ def main():
     wb = openpyxl.load_workbook(str(src))
 
     write_tab(wb, "KPI_할인율",   rows_discount, header_row=3)
-    write_tab(wb, "KPI_광고비",   rows_adspend,  header_row=1)
-    write_tab(wb, "KPI_시딩비용", rows_seeding,  header_row=1)
+    write_wide_tab(wb, "KPI_광고비",   rows_adspend)
+    write_wide_tab(wb, "KPI_시딩비용", rows_seeding)
 
     update_exec_summary(wb, total_monthly)
     add_summary_d2c_section(wb, d2c_monthly, rows_seeding, rows_adspend)
