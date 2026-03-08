@@ -139,6 +139,131 @@ SHEET_URLS = {
 }
 
 
+# ── Naeiae PPC 변경 추적 ──────────────────────────────────────────────
+NAEIAE_BASELINE_PATH = PROJECT_ROOT / ".tmp" / "naeiae_execution_baseline.json"
+
+
+def get_naeiae_ppc_tracking_html() -> str:
+    """실행된 Naeiae PPC 변경사항 + 현재 DataKeeper 성과 비교."""
+    if not NAEIAE_BASELINE_PATH.exists():
+        return ""
+    try:
+        baseline = json.loads(NAEIAE_BASELINE_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return ""
+
+    before  = baseline.get("before", {})
+    changes = baseline.get("changes_executed", {})
+    exec_date = baseline.get("executed_date", "")
+
+    # 현재 Naeiae 7d ROAS (DataKeeper)
+    current_roas_7d = current_spend_7d = current_sales_7d = current_acos_7d = None
+    days_since = 0
+    try:
+        from datetime import date as _date, timedelta, datetime as _dt
+        today = _date.today()
+        cutoff_7d = (today - timedelta(days=7)).isoformat()
+        r = requests.get(f"{ORBITOOLS_BASE}/query/",
+                         params={"table": "amazon_ads_daily", "limit": 5000},
+                         auth=(ORBITOOLS_USER, ORBITOOLS_PASS), timeout=15)
+        if r.ok:
+            rows = [row for row in r.json().get("rows", [])
+                    if row.get("brand") == "Naeiae" and row.get("date", "") >= cutoff_7d]
+            if rows:
+                spend = sum(float(row.get("spend", 0) or 0) for row in rows)
+                sales = sum(float(row.get("sales", 0) or 0) for row in rows)
+                current_spend_7d = spend
+                current_sales_7d = sales
+                current_roas_7d  = round(sales / spend, 2) if spend > 0 else 0
+                current_acos_7d  = round(spend / sales * 100, 1) if sales > 0 else 0
+        if exec_date:
+            days_since = (today - _dt.strptime(exec_date, "%Y-%m-%d").date()).days
+    except Exception:
+        pass
+
+    def _delta(bv, av, higher_better=True, fmt=".2f", suf=""):
+        if av is None or bv is None:
+            return '<span style="color:#999">—</span>'
+        pct  = ((av - bv) / bv * 100) if bv else 0
+        good = (av > bv) == higher_better
+        c    = "#006100" if good else "#9C0006"
+        arr  = "▲" if av > bv else "▼"
+        return f'<span style="color:{c};font-weight:bold">{format(av, fmt)}{suf} ({arr}{abs(pct):.1f}%)</span>'
+
+    negatives = changes.get("negatives_added", [])
+    bids      = changes.get("bid_reductions", [])
+    harvested = changes.get("keywords_harvested", [])
+    wasted    = changes.get("wasted_spend_14d", 0)
+
+    neg_rows = "".join(
+        f'<tr><td style="padding:3px 6px;font-size:12px">❌ {n["term"]}</td>'
+        f'<td style="padding:3px 6px;font-size:11px;color:#888">{n["reason"]}</td></tr>'
+        for n in negatives)
+    bid_rows = "".join(
+        f'<tr><td style="padding:3px 6px;font-size:12px">↓ {b["target"][:30]}</td>'
+        f'<td style="padding:3px 6px;font-size:12px;color:#9C0006;font-weight:bold">{b["change"]}</td></tr>'
+        for b in bids)
+    hvst_rows = "".join(
+        f'<tr><td style="padding:3px 6px;font-size:12px">✅ {h["term"]}</td>'
+        f'<td style="padding:3px 6px;font-size:12px;color:#006100;font-weight:bold">ROAS {h["roas_14d"]}x</td></tr>'
+        for h in harvested)
+
+    if current_roas_7d is not None:
+        perf_html = f"""<table width="100%" cellpadding="6" cellspacing="0" border="0"
+          style="border-collapse:collapse;margin-top:10px;font-size:13px">
+          <tr bgcolor="#F2F2F2">
+            <th style="padding:6px 10px;text-align:left;color:#555">지표</th>
+            <th style="padding:6px 10px;text-align:right;color:#555">실행 전</th>
+            <th style="padding:6px 10px;text-align:right;color:#555">현재 ({days_since}일 후)</th>
+            <th style="padding:6px 10px;text-align:right;color:#555">변화</th>
+          </tr>
+          <tr><td style="padding:6px 10px">7d ROAS</td>
+              <td style="padding:6px 10px;text-align:right">{before.get('roas_7d',0):.2f}x</td>
+              <td style="padding:6px 10px;text-align:right"><b>{current_roas_7d:.2f}x</b></td>
+              <td style="padding:6px 10px;text-align:right">{_delta(before.get('roas_7d'), current_roas_7d, True, ".2f", "x")}</td></tr>
+          <tr bgcolor="#F9F9F9">
+              <td style="padding:6px 10px">7d ACOS</td>
+              <td style="padding:6px 10px;text-align:right">{before.get('acos_7d',0):.1f}%</td>
+              <td style="padding:6px 10px;text-align:right"><b>{current_acos_7d:.1f}%</b></td>
+              <td style="padding:6px 10px;text-align:right">{_delta(before.get('acos_7d'), current_acos_7d, False, ".1f", "%")}</td></tr>
+          <tr><td style="padding:6px 10px">7d Spend</td>
+              <td style="padding:6px 10px;text-align:right">${before.get('spend_7d',0):.0f}</td>
+              <td style="padding:6px 10px;text-align:right"><b>${current_spend_7d:.0f}</b></td>
+              <td style="padding:6px 10px;text-align:right">{_delta(before.get('spend_7d'), current_spend_7d, False, ".0f", "")}</td></tr>
+          <tr bgcolor="#F9F9F9">
+              <td style="padding:6px 10px">7d Sales</td>
+              <td style="padding:6px 10px;text-align:right">${before.get('sales_7d',0):.0f}</td>
+              <td style="padding:6px 10px;text-align:right"><b>${current_sales_7d:.0f}</b></td>
+              <td style="padding:6px 10px;text-align:right">{_delta(before.get('sales_7d'), current_sales_7d, True, ".0f", "")}</td></tr>
+        </table>
+        <p style="font-size:11px;color:#888;margin:5px 0">※ 2-3일 attribution lag 감안. 변화는 2-3일 후 더 명확해짐.</p>"""
+    else:
+        perf_html = '<p style="color:#999;font-size:12px;margin:8px 0">DataKeeper 조회 실패 — 다음 수집 후 표시</p>'
+
+    return f"""
+    <h2 style="margin:0 0 14px;font-size:16px;color:#1a1f2e;border-bottom:2px solid #e5e5e5;padding-bottom:8px">
+      🛒 Naeiae PPC 변경 추적 <span style="font-size:12px;color:#888;font-weight:normal">(실행일: {exec_date})</span>
+    </h2>
+    <table width="100%" cellpadding="0" cellspacing="12" border="0" style="border-collapse:collapse;margin-bottom:10px">
+      <tr>
+        <td width="33%" valign="top">
+          <b style="font-size:12px;color:#9C0006">네거티브 추가 ({len(negatives)}개, ${wasted:.0f}/14d 회수)</b>
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:4px">{neg_rows}</table>
+        </td>
+        <td width="33%" valign="top">
+          <b style="font-size:12px;color:#9C5700">입찰 축소 ({len(bids)}건)</b>
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:4px">{bid_rows}</table>
+        </td>
+        <td width="33%" valign="top">
+          <b style="font-size:12px;color:#006100">키워드 하베스팅 ({len(harvested)}개)</b>
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:4px">{hvst_rows}</table>
+        </td>
+      </tr>
+    </table>
+    <b style="font-size:13px">성과 추이</b>
+    {perf_html}"""
+
+
 # ── 상태 파일 ─────────────────────────────────────────────────────────
 
 def load_state() -> dict:
@@ -271,6 +396,64 @@ def summarize_runs(runs: list[dict]) -> dict[str, dict]:
     return seen
 
 
+def check_missing_runs(recent: dict[str, dict]) -> list[dict]:
+    """스케줄 시간 기준으로 실행됐어야 하는데 기록이 없는 워크플로우 목록 반환."""
+    overdue = []
+    for wf in WORKFLOW_SCHEDULE:
+        wf_file = wf["file"]
+        if wf_file == "communicator.yml":
+            continue  # 자기 자신은 체크 안 함
+
+        for t in wf["times"]:
+            h, m = map(int, t.split(":"))
+
+            # 가장 최근에 실행됐어야 하는 시간 계산
+            if wf.get("days") == "월요일":
+                days_since = NOW_PST.weekday()  # 0=월
+                if days_since == 0 and NOW_PST.hour * 60 + NOW_PST.minute < h * 60 + m:
+                    continue  # 오늘 월요일인데 아직 시간이 안됨
+                last_sched = (NOW_PST - timedelta(days=days_since)).replace(
+                    hour=h, minute=m, second=0, microsecond=0)
+            else:
+                last_sched = NOW_PST.replace(hour=h, minute=m, second=0, microsecond=0)
+                if last_sched > NOW_PST:
+                    last_sched -= timedelta(days=1)
+
+            # 30분 이상 지났을 때만 체크 (Actions 실행 지연 여유)
+            overdue_mins = (NOW_PST - last_sched).total_seconds() / 60
+            if overdue_mins < 30:
+                continue
+
+            # 최근 실행이 스케줄 이후인지 확인
+            run = recent.get(wf_file)
+            if not run:
+                overdue.append({
+                    "label": wf["label"],
+                    "file": wf_file,
+                    "scheduled": last_sched.strftime("%m/%d %H:%M PST"),
+                    "overdue_mins": int(overdue_mins),
+                    "run": None,
+                })
+                continue
+
+            try:
+                run_time_utc = datetime.fromisoformat(
+                    run.get("run_started_at", run.get("created_at", "")).replace("Z", "+00:00"))
+                run_time_pst = run_time_utc.astimezone(PST)
+                if run_time_pst < last_sched:
+                    overdue.append({
+                        "label": wf["label"],
+                        "file": wf_file,
+                        "scheduled": last_sched.strftime("%m/%d %H:%M PST"),
+                        "overdue_mins": int(overdue_mins),
+                        "run": run,  # 이전 실행은 있지만 최신 스케줄 기준 없음
+                    })
+            except Exception:
+                pass
+
+    return overdue
+
+
 def get_next_schedules() -> list[dict]:
     upcoming, cutoff = [], NOW_PST + timedelta(hours=12)
     for wf in WORKFLOW_SCHEDULE:
@@ -355,7 +538,7 @@ def _syncly_detail_html(syncly_stats: list[dict]) -> str:
 # ── HTML 이메일 빌드 ──────────────────────────────────────────────────
 
 def build_html(dk_status: dict, gh_runs: list[dict], state: dict,
-               syncly_stats: list[dict]) -> tuple[str, list]:
+               syncly_stats: list[dict]) -> tuple[str, list, int]:
 
     ts_str  = NOW_PST.strftime("%Y-%m-%d %H:%M PST")
     period  = "자정" if NOW_PST.hour < 12 else "정오"
@@ -365,10 +548,17 @@ def build_html(dk_status: dict, gh_runs: list[dict], state: dict,
     wf_state = state.setdefault("workflows", {})
     recent   = summarize_runs(gh_runs)  # {wf_file: run_dict}
 
+    # ─ 미실행 에이전트 감지 ──────────────────────────────────────────
+    missing_runs = check_missing_runs(recent)
+
     # ─ 1. 태스크 업데이트 ────────────────────────────────────────────
     task_rows_html = ""
     fail_workflows = []
     recovery_items = []
+    missing_agents = []   # 미실행 에이전트 목록
+
+    # missing_runs를 파일명으로 빠르게 조회
+    missing_files = {m["file"] for m in missing_runs}
 
     for wf in WORKFLOW_SCHEDULE:
         wf_file = wf["file"]
@@ -405,16 +595,35 @@ def build_html(dk_status: dict, gh_runs: list[dict], state: dict,
                 recovered = tick_recovery(wf_state, wf_file)
                 if recovered:
                     recovery_items.append(f"🟢 {wf['label']} 워크플로우: 복구됨!")
+                if conclusion == "success":
+                    # 마지막 성공 시간 기록
+                    wf_state.setdefault(wf_file, {})["last_success"] = now_iso
                 row_bg    = "#f6fff8" if conclusion == "success" else "#f8f9fc"
                 status_td = badge
+
+            # 미실행 배지 (이전 실행은 있지만 최신 스케줄 미충족)
+            if wf_file in missing_files:
+                miss_info = next(m for m in missing_runs if m["file"] == wf_file)
+                status_td += f' <span style="background:#e67e22;color:white;padding:1px 6px;border-radius:8px;font-size:11px">⏰ +{miss_info["overdue_mins"]}분 지연</span>'
+                missing_agents.append(miss_info)
 
             links_html = _links_row(links, run_url)
             time_html  = f'<span style="font-size:12px;color:#666">{ago}</span><br><span style="font-size:11px;color:#999">{dur}</span>'
         else:
-            row_bg     = "#f8f9fc"
-            status_td  = '<span style="color:#aaa;font-size:12px">— 기록없음</span>'
+            row_bg     = "#fff8e1"
+            status_td  = '<span style="background:#e67e22;color:white;padding:2px 8px;border-radius:10px;font-size:11px">⚠️ 미실행</span>'
             links_html = _links_row(links)
             time_html  = '<span style="color:#ccc">—</span>'
+            if wf_file in missing_files:
+                miss_info = next(m for m in missing_runs if m["file"] == wf_file)
+                missing_agents.append(miss_info)
+                # 미실행도 연속 실패로 카운트
+                tick_failure(wf_state, wf_file, now_iso)
+                n = wf_state[wf_file]["consecutive"]
+                msg = f"⚠️ {wf['label']}: 미실행 (예정 {miss_info['scheduled']}, +{miss_info['overdue_mins']}분)"
+                if n >= ESCALATE_THRESHOLD:
+                    msg += f" {n}회 연속!"
+                fail_workflows.append(msg)
 
         task_rows_html += f"""
         <tr style="background:{row_bg}">
@@ -521,6 +730,26 @@ def build_html(dk_status: dict, gh_runs: list[dict], state: dict,
 
     # ─ 5. 알림 ───────────────────────────────────────────────────────
     alert_html = ""
+
+    # 미실행 에이전트 전용 블록 (쪼기)
+    unique_missing = {m["file"]: m for m in missing_agents}.values()
+    if unique_missing:
+        poke_rows = ""
+        for m in unique_missing:
+            prev_run = m.get("run")
+            last_run_str = ""
+            if prev_run:
+                last_run_str = f" (이전 실행: {_ago(prev_run.get('run_started_at', prev_run.get('created_at', '')))})"
+                log_url = prev_run.get("html_url", "")
+                if log_url:
+                    last_run_str += f' <a href="{log_url}" style="color:#c0392b">로그</a>'
+            poke_rows += f'<li style="margin:5px 0"><b>{m["label"]}</b> — 예정 {m["scheduled"]} 기준 <b>+{m["overdue_mins"]}분</b> 미실행{last_run_str}</li>'
+        alert_html += f"""
+        <div style="background:#fff3e0;border:2px solid #ff9800;border-radius:6px;padding:14px 18px;margin:0 0 12px">
+          <b style="color:#e65100">🔔 에이전트 쪼기 — 미실행 감지 ({len(list(unique_missing))}건)</b>
+          <ul style="margin:8px 0 0;padding-left:20px;font-size:13px;color:#bf360c">{poke_rows}</ul>
+        </div>"""
+
     if recovery_items:
         rec_html = "".join(f'<li style="margin:4px 0">{r}</li>' for r in recovery_items)
         alert_html += f"""
@@ -547,9 +776,10 @@ def build_html(dk_status: dict, gh_runs: list[dict], state: dict,
         </div>"""
 
     # ─ 헬스 배지 ─────────────────────────────────────────────────────
+    n_missing_agents = len(list(unique_missing))
     if critical:
         h_color, h_label, h_dot = "#880e4f", "긴급", "🚨"
-    elif missing_count > 0 or fail_workflows:
+    elif n_missing_agents > 0 or missing_count > 0 or fail_workflows:
         h_color, h_label, h_dot = "#c0392b", "주의 필요", "🔴"
     elif stale_count > 0:
         h_color, h_label, h_dot = "#e67e22", "지연 있음", "🟡"
@@ -635,7 +865,7 @@ def build_html(dk_status: dict, gh_runs: list[dict], state: dict,
 </body>
 </html>"""
 
-    return html, critical
+    return html, critical, n_missing_agents
 
 
 # ── 실행 ─────────────────────────────────────────────────────────────
@@ -668,7 +898,7 @@ def main():
     gh_runs = get_gh_runs(hours=24)
     print(f"      {len(gh_runs)}개 실행 이력")
 
-    html, critical = build_html(dk_status, gh_runs, state, syncly_stats)
+    html, critical, missing_cnt = build_html(dk_status, gh_runs, state, syncly_stats)
     save_state(state)
 
     if args.preview:
@@ -678,11 +908,12 @@ def main():
         print(f"[Preview] {preview_path}")
 
     period  = "자정" if NOW_PST.hour < 12 else "정오"
-    subject = (
-        f"[ORBI 🚨 긴급] {NOW_PST.strftime('%m/%d')} {period} — 연속 오류 감지"
-        if critical else
-        f"[ORBI] {NOW_PST.strftime('%m/%d')} {period} 상태 리포트"
-    )
+    if critical:
+        subject = f"[ORBI 🚨 긴급] {NOW_PST.strftime('%m/%d')} {period} — 연속 오류 감지"
+    elif missing_cnt > 0:
+        subject = f"[ORBI ⚠️ 쪼기] {NOW_PST.strftime('%m/%d')} {period} — 에이전트 {missing_cnt}개 미실행"
+    else:
+        subject = f"[ORBI] {NOW_PST.strftime('%m/%d')} {period} 상태 리포트"
 
     if args.dry_run:
         print(f"\n[Dry Run] Subject: {subject}")
