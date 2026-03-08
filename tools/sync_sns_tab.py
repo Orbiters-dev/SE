@@ -143,6 +143,9 @@ def col_letter(idx):
 # ── Data Loading ───────────────────────────────────────────────────────────
 
 def load_orders(path=Q10_PATH):
+    if not os.path.exists(path):
+        print(f"[WARN] Orders file not found: {path} -- skipping order data")
+        return []
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
     return data.get("orders", [])

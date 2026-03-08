@@ -1,0 +1,48 @@
+name: Syncly Daily Sync
+
+on:
+  schedule:
+    - cron: '0 23 * * *'   # 매일 KST 08:00 (= 23:00 UTC 전날)
+  workflow_dispatch:        # 수동 실행 버튼
+
+jobs:
+  syncly-sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --quiet \
+            requests \
+            python-dotenv \
+            gspread \
+            google-auth \
+            google-auth-oauthlib \
+            google-api-python-client
+
+      - name: Write .env
+        run: |
+          cat > .env <<'ENVEOF'
+          GOOGLE_SERVICE_ACCOUNT_PATH=credentials/google_service_account.json
+          ENVEOF
+          sed -i 's/^[[:space:]]*//' .env
+
+      - name: Write credentials
+        run: |
+          mkdir -p credentials
+          echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > credentials/google_service_account.json
+
+      - name: Sync SNS Tab (Grosmimi)
+        run: python -u tools/sync_sns_tab.py
+
+      - name: Sync SNS Tab (CHA&MOM)
+        run: python -u tools/sync_sns_tab_chaenmom.py

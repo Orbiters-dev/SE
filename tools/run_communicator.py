@@ -81,7 +81,8 @@ WORKFLOW_SCHEDULE = [
     {"file": "data_keeper.yml",     "label": "Data Keeper",  "times": ["00:00", "12:00"], "days": "매일"},
     {"file": "amazon_ppc_daily.yml","label": "Amazon PPC",   "times": ["08:00", "20:00"], "days": "매일"},
     {"file": "meta_ads_daily.yml",  "label": "Meta Ads",     "times": ["00:00", "12:00"], "days": "매일"},
-    {"file": "polar_weekly.yml",    "label": "Polar Weekly", "times": ["10:00"],          "days": "월요일"},
+    {"file": "syncly_daily.yml",    "label": "Syncly Sync",  "times": ["08:00"],          "days": "매일"},
+    {"file": "kpi_weekly.yml",      "label": "KPI Weekly",   "times": ["08:00"],          "days": "월요일"},
     {"file": "communicator.yml",    "label": "Communicator", "times": ["00:00", "12:00"], "days": "매일"},
 ]
 
