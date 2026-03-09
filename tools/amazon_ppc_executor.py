@@ -473,8 +473,13 @@ def analyze_search_terms(
         if kw.get("matchType", "").upper() == "EXACT":
             existing_exact.add(kw.get("keywordText", "").lower().strip())
 
-    # Build campaign name lookup
-    camp_map = {c["campaignId"]: c for c in campaigns}
+    # Build campaign name lookup (normalize to int keys for consistent matching)
+    camp_map = {}
+    for c in campaigns:
+        try:
+            camp_map[int(c["campaignId"])] = c
+        except (ValueError, TypeError):
+            camp_map[c["campaignId"]] = c
 
     # Aggregate search terms (may span multiple days/chunks)
     agg = defaultdict(lambda: {
@@ -507,7 +512,11 @@ def analyze_search_terms(
         acos = (cost / sales) if sales > 0 else None
         cpc = (cost / clicks) if clicks > 0 else 0
 
-        camp = camp_map.get(m["campaignId"], {})
+        try:
+            cid_key = int(m["campaignId"])
+        except (ValueError, TypeError):
+            cid_key = m["campaignId"]
+        camp = camp_map.get(cid_key, {})
         camp_type = classify_targeting(camp.get("name", ""), camp.get("targetingType", ""))
         presets = BID_PRESETS.get(camp_type, BID_PRESETS["MANUAL"])
 
@@ -590,7 +599,12 @@ def analyze_keyword_bids(
     campaigns: List[Dict],
 ) -> List[Dict]:
     """Apply preset-based bid adjustment logic per keyword."""
-    camp_map = {c["campaignId"]: c for c in campaigns}
+    camp_map = {}
+    for c in campaigns:
+        try:
+            camp_map[int(c["campaignId"])] = c
+        except (ValueError, TypeError):
+            camp_map[c["campaignId"]] = c
     proposals = []
 
     for kw in kw_rows:
@@ -605,7 +619,11 @@ def analyze_keyword_bids(
         if not kw_id or current_bid <= 0:
             continue
 
-        camp = camp_map.get(kw.get("campaignId"), {})
+        try:
+            cid_key = int(kw.get("campaignId"))
+        except (ValueError, TypeError):
+            cid_key = kw.get("campaignId")
+        camp = camp_map.get(cid_key, {})
         camp_type = classify_targeting(camp.get("name", ""), camp.get("targetingType", ""))
         p = BID_PRESETS.get(camp_type, BID_PRESETS["MANUAL"])
 
@@ -1647,22 +1665,24 @@ def _build_keyword_html(kw_proposals: Optional[List[Dict]]) -> str:
 
 def send_proposal_email(proposals: List[Dict], to: str = DEFAULT_TO,
                         kw_proposals: Optional[List[Dict]] = None,
-                        cc: str = DEFAULT_CC):
-    """Send proposal HTML email via send_gmail.py."""
+                        cc: str = DEFAULT_CC) -> Optional[str]:
+    """Send proposal HTML email via send_gmail.py. Returns Gmail message ID or None."""
     html = build_proposal_html(proposals, kw_proposals)
     html_path = TMP_DIR / f"ppc_proposal_{date.today().strftime('%Y%m%d')}_{datetime.now().strftime('%H%M')}.html"
     html_path.write_text(html, encoding="utf-8")
 
     urgent_count = sum(1 for p in proposals if p["priority"] == "urgent")
+    kw_count = len(kw_proposals) if kw_proposals else 0
     subject = (
-        f"[Amazon PPC] {TARGET_BRAND} Proposal - {len(proposals)} changes "
-        f"({urgent_count} urgent) | {datetime.now().strftime('%m/%d %H:%M')}"
+        f"[Amazon PPC] {TARGET_BRAND} Proposal - {len(proposals)} campaign, "
+        f"{kw_count} keyword changes"
+        f" ({urgent_count} urgent) | {datetime.now().strftime('%m/%d %H:%M')}"
     )
 
     send_gmail_path = TOOLS_DIR / "send_gmail.py"
     if not send_gmail_path.exists():
         print(f"[WARN] {send_gmail_path} not found, email not sent. HTML saved: {html_path}")
-        return
+        return None
 
     cmd = [sys.executable, str(send_gmail_path),
            "--to", to,
@@ -1674,43 +1694,167 @@ def send_proposal_email(proposals: List[Dict], to: str = DEFAULT_TO,
     result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
     if result.returncode == 0:
         print(f"[Email] Proposal sent to {to} (cc: {cc or 'none'})")
+        # Parse Gmail message ID from stdout (line: "  Message ID: <id>")
+        import re
+        match = re.search(r"Message ID:\s*(\S+)", result.stdout)
+        if match:
+            msg_id = match.group(1)
+            _save_proposal_email_id(msg_id, subject)
+            return msg_id
     else:
         print(f"[ERROR] Email failed: {result.stderr}")
         print(f"[INFO] HTML saved at: {html_path}")
+    return None
+
+
+def _save_proposal_email_id(message_id: str, subject: str):
+    """Save the proposal email message ID to the latest proposal JSON."""
+    proposal_path = sorted(TMP_DIR.glob("ppc_proposal_*.json"), reverse=True)
+    if not proposal_path:
+        return
+    filepath = proposal_path[0]
+    data = json.loads(filepath.read_text(encoding="utf-8"))
+    data["email_message_id"] = message_id
+    data["email_subject"] = subject
+    data["email_sent_at"] = datetime.now().isoformat()
+    data["executed"] = False
+    filepath.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"[INFO] Saved email message ID to {filepath.name}")
 
 
 def send_execution_email(executed: List[Dict], to: str = DEFAULT_TO,
                          cc: str = DEFAULT_CC):
     """Send execution confirmation email."""
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
-    rows_html = ""
-    for ch in executed:
-        status_color = "#28a745" if ch["result_status"] == "OK" else "#dc3545"
-        rows_html += f"""
-        <tr>
-            <td style="padding:6px;border:1px solid #ddd;">{ch['campaignName']}</td>
-            <td style="padding:6px;border:1px solid #ddd;">{ch['action']}</td>
-            <td style="padding:6px;border:1px solid #ddd;">{ch.get('bid_change_pct') or '-'}</td>
-            <td style="padding:6px;border:1px solid #ddd;">{ch.get('new_budget') or '-'}</td>
-            <td style="padding:6px;border:1px solid #ddd;color:{status_color};font-weight:bold;">{ch['result_status']}</td>
-        </tr>"""
+    td = 'style="padding:6px 10px;border:1px solid #ddd;"'
+    th = 'style="padding:8px 10px;text-align:left;"'
+
+    # Separate campaign-level vs keyword-level
+    campaign_rows = [c for c in executed if not c.get("keyword")]
+    keyword_rows = [c for c in executed if c.get("keyword")]
+
+    # --- Campaign-level table ---
+    camp_html = ""
+    if campaign_rows:
+        camp_rows = ""
+        for ch in campaign_rows:
+            sc = "#28a745" if ch["result_status"] == "OK" else "#dc3545"
+            bid_str = f'{ch["bid_change_pct"]:+d}%' if ch.get("bid_change_pct") else "-"
+            budget_str = f'${ch["new_budget"]}' if ch.get("new_budget") else "-"
+            camp_rows += f"""
+            <tr>
+                <td {td}>{ch['campaignName']}</td>
+                <td {td}>{ch['action']}</td>
+                <td {td}>{bid_str}</td>
+                <td {td}>{budget_str}</td>
+                <td {td} style="padding:6px 10px;border:1px solid #ddd;color:{sc};font-weight:bold;">{ch['result_status']}</td>
+            </tr>"""
+        camp_html = f"""
+        <h3 style="margin-top:20px;">Campaign Changes ({len(campaign_rows)})</h3>
+        <table style="border-collapse:collapse;width:100%;">
+            <tr style="background:#343a40;color:white;">
+                <th {th}>Campaign</th><th {th}>Action</th>
+                <th {th}>Bid Change</th><th {th}>New Budget</th><th {th}>Status</th>
+            </tr>
+            {camp_rows}
+        </table>"""
+
+    # --- Keyword-level table ---
+    kw_html = ""
+    if keyword_rows:
+        harvest = [k for k in keyword_rows if k["action"] == "harvest"]
+        negates = [k for k in keyword_rows if k["action"].startswith("negate")]
+        bid_changes = [k for k in keyword_rows if k["action"] == "keyword_bid"]
+
+        sections = []
+        if harvest:
+            rows = ""
+            for k in harvest:
+                sc = "#28a745" if k["result_status"] == "OK" else "#dc3545"
+                rows += f"""
+                <tr>
+                    <td {td}><b>{k['keyword']}</b></td>
+                    <td {td}>{k.get('campaignName') or '-'}</td>
+                    <td {td}>${k.get('new_bid', '-')}</td>
+                    <td {td} style="padding:6px 10px;border:1px solid #ddd;color:{sc};font-weight:bold;">{k['result_status']}</td>
+                </tr>"""
+            sections.append(f"""
+            <h3 style="margin-top:20px;color:#007bff;">Keyword Harvest ({len(harvest)})</h3>
+            <p style="color:#666;font-size:13px;">Search terms promoted to Exact Match + negated in source</p>
+            <table style="border-collapse:collapse;width:100%;">
+                <tr style="background:#343a40;color:white;">
+                    <th {th}>Keyword</th><th {th}>Source Campaign</th>
+                    <th {th}>Bid</th><th {th}>Status</th>
+                </tr>
+                {rows}
+            </table>""")
+
+        if negates:
+            rows = ""
+            for k in negates:
+                sc = "#28a745" if k["result_status"] == "OK" else "#dc3545"
+                reason = k.get("action", "").replace("_", " ")
+                spend = f'${k["spend_7d"]:.2f}' if k.get("spend_7d") is not None else "-"
+                sales = f'${k["sales_7d"]:.2f}' if k.get("sales_7d") else "$0"
+                rows += f"""
+                <tr>
+                    <td {td}><b>{k['keyword']}</b></td>
+                    <td {td}>{k.get('campaignName') or '-'}</td>
+                    <td {td}>{reason}</td>
+                    <td {td}>{spend}</td>
+                    <td {td}>{sales}</td>
+                    <td {td} style="padding:6px 10px;border:1px solid #ddd;color:{sc};font-weight:bold;">{k['result_status']}</td>
+                </tr>"""
+            sections.append(f"""
+            <h3 style="margin-top:20px;color:#dc3545;">Negative Keywords ({len(negates)})</h3>
+            <p style="color:#666;font-size:13px;">Wasteful search terms blocked</p>
+            <table style="border-collapse:collapse;width:100%;">
+                <tr style="background:#343a40;color:white;">
+                    <th {th}>Keyword</th><th {th}>Campaign</th>
+                    <th {th}>Reason</th><th {th}>Spend</th><th {th}>Sales</th><th {th}>Status</th>
+                </tr>
+                {rows}
+            </table>""")
+
+        if bid_changes:
+            rows = ""
+            for k in bid_changes:
+                sc = "#28a745" if k["result_status"] == "OK" else "#dc3545"
+                old_bid = f'${k["old_bid"]}' if k.get("old_bid") else "-"
+                new_bid = f'${k["new_bid"]}' if k.get("new_bid") else "PAUSED"
+                rows += f"""
+                <tr>
+                    <td {td}><b>{k['keyword']}</b></td>
+                    <td {td}>{k.get('campaignName') or '-'}</td>
+                    <td {td}>{old_bid}</td>
+                    <td {td}>{new_bid}</td>
+                    <td {td} style="padding:6px 10px;border:1px solid #ddd;color:{sc};font-weight:bold;">{k['result_status']}</td>
+                </tr>"""
+            sections.append(f"""
+            <h3 style="margin-top:20px;color:#fd7e14;">Keyword Bid Changes ({len(bid_changes)})</h3>
+            <table style="border-collapse:collapse;width:100%;">
+                <tr style="background:#343a40;color:white;">
+                    <th {th}>Keyword</th><th {th}>Campaign</th>
+                    <th {th}>Old Bid</th><th {th}>New Bid</th><th {th}>Status</th>
+                </tr>
+                {rows}
+            </table>""")
+
+        kw_html = "\n".join(sections)
+
+    ok_count = sum(1 for c in executed if c["result_status"] == "OK")
+    err_count = len(executed) - ok_count
+    summary_color = "#28a745" if err_count == 0 else "#dc3545"
+    summary_text = f"{ok_count} OK" + (f", {err_count} FAILED" if err_count else "")
 
     html = f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8"></head>
-<body style="font-family:Arial,sans-serif;max-width:900px;margin:0 auto;padding:20px;">
-    <h2 style="color:#28a745;">Naeiae PPC Changes Executed</h2>
-    <p>{now} | {len(executed)} changes applied</p>
-    <table style="border-collapse:collapse;width:100%;">
-        <tr style="background:#343a40;color:white;">
-            <th style="padding:8px;">Campaign</th>
-            <th style="padding:8px;">Action</th>
-            <th style="padding:8px;">Bid Change</th>
-            <th style="padding:8px;">New Budget</th>
-            <th style="padding:8px;">Status</th>
-        </tr>
-        {rows_html}
-    </table>
-    <p style="color:#999;font-size:12px;">Logged to Google Sheets PPC Change Log</p>
+<body style="font-family:Arial,sans-serif;max-width:960px;margin:0 auto;padding:20px;">
+    <h2 style="color:{summary_color};">Naeiae PPC Changes Executed</h2>
+    <p>{now} | {len(executed)} changes applied ({summary_text})</p>
+    {camp_html}
+    {kw_html}
+    <p style="color:#999;font-size:12px;margin-top:24px;">Logged to Google Sheets PPC Change Log</p>
 </body></html>"""
 
     html_path = TMP_DIR / f"ppc_executed_{date.today().strftime('%Y%m%d')}_{datetime.now().strftime('%H%M')}.html"
@@ -1758,6 +1902,100 @@ def run_cycle(args):
         next_run = datetime.now() + timedelta(hours=CYCLE_INTERVAL_HOURS)
         print(f"\n[Next] {next_run.strftime('%Y-%m-%d %H:%M')}")
         time.sleep(CYCLE_INTERVAL_HOURS * 3600)
+
+
+# ===========================================================================
+# Email Reply Auto-Execute
+# ===========================================================================
+
+EXECUTE_KEYWORDS = {"execute", "approve", "go", "yes", "run"}
+
+
+def check_email_and_execute(args):
+    """Poll Gmail for 'execute' reply to the latest proposal email, then auto-execute."""
+    data = load_latest_proposal()
+    if not data:
+        print("[check-execute] No proposal found.")
+        return
+
+    # Already executed?
+    if data.get("executed"):
+        print("[check-execute] Latest proposal already executed. Skipping.")
+        return
+
+    # No email tracking info?
+    sent_at = data.get("email_sent_at")
+    if not sent_at:
+        print("[check-execute] Proposal has no email_sent_at. Was it emailed? Skipping.")
+        return
+
+    # Import search function from send_gmail
+    sys.path.insert(0, str(TOOLS_DIR))
+    from send_gmail import search_emails
+
+    # Search for replies to PPC proposal emails from the approver
+    approver = args.to  # The person who receives proposals
+    query = (
+        f'subject:"[Amazon PPC]" from:{approver} newer_than:2d'
+    )
+    print(f"[check-execute] Searching Gmail: {query}")
+    messages = search_emails(query, max_results=10)
+
+    if not messages:
+        print("[check-execute] No reply emails found.")
+        return
+
+    # Check if any reply contains an execute keyword
+    proposal_time = datetime.fromisoformat(sent_at)
+    found_execute = False
+
+    for msg in messages:
+        # Only consider emails after the proposal was sent
+        # (date parsing is fuzzy — rely on Gmail's newer_than filter)
+        body_lower = (msg.get("body", "") + " " + msg.get("snippet", "")).lower().strip()
+        # Check for execute keywords (look for the keyword as a standalone word)
+        for kw in EXECUTE_KEYWORDS:
+            if kw in body_lower.split() or body_lower.startswith(kw):
+                print(f"[check-execute] Found '{kw}' in reply from {msg['from']}")
+                print(f"  Subject: {msg['subject']}")
+                print(f"  Date: {msg['date']}")
+                found_execute = True
+                break
+        if found_execute:
+            break
+
+    if not found_execute:
+        print("[check-execute] No 'execute' reply detected.")
+        return
+
+    # Approve all proposals and execute
+    print(f"\n[check-execute] Approving all proposals...")
+    proposals = data.get("proposals", [])
+    kw_proposals = data.get("keyword_proposals", [])
+    for p in proposals:
+        p["approved"] = True
+    for kp in kw_proposals:
+        kp["approved"] = True
+
+    # Save approved state
+    latest_path = sorted(TMP_DIR.glob("ppc_proposal_*.json"), reverse=True)[0]
+    data["proposals"] = proposals
+    data["keyword_proposals"] = kw_proposals
+    latest_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    # Execute
+    executed = execute_approved(data)
+    if executed:
+        # Mark as executed
+        data["executed"] = True
+        data["executed_at"] = datetime.now().isoformat()
+        latest_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+
+        log_to_sheets(executed)
+        send_execution_email(executed, args.to, cc=args.cc)
+        print(f"\n[check-execute] {len(executed)} changes auto-executed via email reply!")
+    else:
+        print("[check-execute] No approved items to execute.")
 
 
 # ===========================================================================
@@ -1831,6 +2069,7 @@ def main():
     parser = argparse.ArgumentParser(description="Amazon PPC Executor (Fleeters Inc / Naeiae)")
     parser.add_argument("--propose", action="store_true", help="Analyze & email change proposals")
     parser.add_argument("--execute", action="store_true", help="Execute approved changes from latest proposal")
+    parser.add_argument("--check-execute", action="store_true", help="Poll Gmail for 'execute' reply and auto-execute")
     parser.add_argument("--status", action="store_true", help="Show latest proposal status")
     parser.add_argument("--cycle", action="store_true", help="Run 6-hour analysis cycle")
     parser.add_argument("--days", type=int, default=30, help="Days of data to analyze (default: 30)")
@@ -1862,9 +2101,19 @@ def main():
             return
         executed = execute_approved(data)
         if executed:
+            # Mark proposal as executed to prevent re-execution by --check-execute
+            latest_path = sorted(TMP_DIR.glob("ppc_proposal_*.json"), reverse=True)
+            if latest_path:
+                data["executed"] = True
+                data["executed_at"] = datetime.now().isoformat()
+                latest_path[0].write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
             log_to_sheets(executed)
             send_execution_email(executed, args.to, cc=args.cc)
             print(f"\n[DONE] {len(executed)} changes executed, logged, and emailed.")
+        return
+
+    if args.check_execute:
+        check_email_and_execute(args)
         return
 
     if args.cycle:

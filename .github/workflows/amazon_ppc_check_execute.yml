@@ -1,15 +1,14 @@
-name: Amazon PPC Executor (Propose)
+name: Amazon PPC Auto-Execute (Email Reply)
 
 on:
   schedule:
-    - cron: '0 1 * * *'    # KST 10:00 (= 01:00 UTC)
-    - cron: '0 13 * * *'   # KST 22:00 (= 13:00 UTC)
-  workflow_dispatch:         # 수동 실행 버튼
+    - cron: '*/30 * * * *'   # Every 30 minutes — check for 'execute' reply
+  workflow_dispatch:          # Manual trigger
 
 jobs:
-  ppc-propose:
+  check-execute:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repo
@@ -48,15 +47,28 @@ jobs:
           echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
           echo '${{ secrets.GMAIL_TOKEN_JSON }}'             > credentials/gmail_token.json
 
-      - name: Run PPC Executor (Propose)
-        run: |
-          mkdir -p .tmp
-          python -u tools/amazon_ppc_executor.py \
-            --propose \
-            --to "${{ secrets.PPC_REPORT_RECIPIENT }}" \
-            --cc "mj.lee@orbiters.co.kr"
+      - name: Download latest proposal from Propose workflow
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: amazon_ppc_executor.yml
+          name: ppc-proposal-latest
+          path: .tmp/
+          if_no_artifact_found: warn
+          search_artifacts: true
 
-      - name: Upload proposal for check-execute workflow
+      - name: Check for execute reply & run
+        run: |
+          if ls .tmp/ppc_proposal_*.json 1>/dev/null 2>&1; then
+            echo "Proposal file found, checking for email reply..."
+            python -u tools/amazon_ppc_executor.py \
+              --check-execute \
+              --to "${{ secrets.PPC_REPORT_RECIPIENT }}" \
+              --cc "mj.lee@orbiters.co.kr"
+          else
+            echo "No proposal file found. Waiting for next propose run."
+          fi
+
+      - name: Re-upload updated proposal (marks executed)
         if: always()
         uses: actions/upload-artifact@v4
         with:
