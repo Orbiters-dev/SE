@@ -1466,6 +1466,7 @@ def execute_approved(proposal_data: Dict) -> List[Dict]:
 # ===========================================================================
 
 DEFAULT_TO = "wj.choi@orbiters.co.kr"
+DEFAULT_CC = "mj.lee@orbiters.co.kr"
 
 def build_proposal_html(proposals: List[Dict],
                         kw_proposals: Optional[List[Dict]] = None) -> str:
@@ -1645,7 +1646,8 @@ def _build_keyword_html(kw_proposals: Optional[List[Dict]]) -> str:
 
 
 def send_proposal_email(proposals: List[Dict], to: str = DEFAULT_TO,
-                        kw_proposals: Optional[List[Dict]] = None):
+                        kw_proposals: Optional[List[Dict]] = None,
+                        cc: str = DEFAULT_CC):
     """Send proposal HTML email via send_gmail.py."""
     html = build_proposal_html(proposals, kw_proposals)
     html_path = TMP_DIR / f"ppc_proposal_{date.today().strftime('%Y%m%d')}_{datetime.now().strftime('%H%M')}.html"
@@ -1653,7 +1655,7 @@ def send_proposal_email(proposals: List[Dict], to: str = DEFAULT_TO,
 
     urgent_count = sum(1 for p in proposals if p["priority"] == "urgent")
     subject = (
-        f"[Mazone PPC] {TARGET_BRAND} Proposal - {len(proposals)} changes "
+        f"[Amazon PPC] {TARGET_BRAND} Proposal - {len(proposals)} changes "
         f"({urgent_count} urgent) | {datetime.now().strftime('%m/%d %H:%M')}"
     )
 
@@ -1662,21 +1664,23 @@ def send_proposal_email(proposals: List[Dict], to: str = DEFAULT_TO,
         print(f"[WARN] {send_gmail_path} not found, email not sent. HTML saved: {html_path}")
         return
 
-    result = subprocess.run(
-        [sys.executable, str(send_gmail_path),
-         "--to", to,
-         "--subject", subject,
-         "--body-file", str(html_path)],
-        capture_output=True, text=True, encoding="utf-8",
-    )
+    cmd = [sys.executable, str(send_gmail_path),
+           "--to", to,
+           "--subject", subject,
+           "--body-file", str(html_path)]
+    if cc:
+        cmd += ["--cc", cc]
+
+    result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
     if result.returncode == 0:
-        print(f"[Email] Proposal sent to {to}")
+        print(f"[Email] Proposal sent to {to} (cc: {cc or 'none'})")
     else:
         print(f"[ERROR] Email failed: {result.stderr}")
         print(f"[INFO] HTML saved at: {html_path}")
 
 
-def send_execution_email(executed: List[Dict], to: str = DEFAULT_TO):
+def send_execution_email(executed: List[Dict], to: str = DEFAULT_TO,
+                         cc: str = DEFAULT_CC):
     """Send execution confirmation email."""
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     rows_html = ""
@@ -1712,17 +1716,18 @@ def send_execution_email(executed: List[Dict], to: str = DEFAULT_TO):
     html_path = TMP_DIR / f"ppc_executed_{date.today().strftime('%Y%m%d')}_{datetime.now().strftime('%H%M')}.html"
     html_path.write_text(html, encoding="utf-8")
 
-    subject = f"[Mazone PPC] EXECUTED - {len(executed)} changes applied | {now}"
+    subject = f"[Amazon PPC] EXECUTED - {len(executed)} changes applied | {now}"
     send_gmail_path = TOOLS_DIR / "send_gmail.py"
     if not send_gmail_path.exists():
         return
 
-    subprocess.run(
-        [sys.executable, str(send_gmail_path),
-         "--to", to, "--subject", subject, "--body-file", str(html_path)],
-        capture_output=True, text=True, encoding="utf-8",
-    )
-    print(f"[Email] Execution confirmation sent to {to}")
+    cmd = [sys.executable, str(send_gmail_path),
+           "--to", to, "--subject", subject, "--body-file", str(html_path)]
+    if cc:
+        cmd += ["--cc", cc]
+
+    subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
+    print(f"[Email] Execution confirmation sent to {to} (cc: {cc or 'none'})")
 
 
 # ===========================================================================
@@ -1819,7 +1824,7 @@ def run_propose(args):
         print_keyword_summary(kw_proposals)
 
     print(f"\n[6/6] Sending proposal email...")
-    send_proposal_email(proposals, args.to, kw_proposals)
+    send_proposal_email(proposals, args.to, kw_proposals, cc=args.cc)
 
 
 def main():
@@ -1830,6 +1835,7 @@ def main():
     parser.add_argument("--cycle", action="store_true", help="Run 6-hour analysis cycle")
     parser.add_argument("--days", type=int, default=30, help="Days of data to analyze (default: 30)")
     parser.add_argument("--to", type=str, default=DEFAULT_TO, help="Email recipient")
+    parser.add_argument("--cc", type=str, default=DEFAULT_CC, help="CC email recipient")
     parser.add_argument("--skip-keywords", action="store_true",
                         help="Skip search term & keyword analysis (faster, campaign-level only)")
     args = parser.parse_args()
@@ -1857,7 +1863,7 @@ def main():
         executed = execute_approved(data)
         if executed:
             log_to_sheets(executed)
-            send_execution_email(executed, args.to)
+            send_execution_email(executed, args.to, cc=args.cc)
             print(f"\n[DONE] {len(executed)} changes executed, logged, and emailed.")
         return
 
