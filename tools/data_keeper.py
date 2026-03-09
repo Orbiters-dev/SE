@@ -391,7 +391,9 @@ def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
         pid = str(p["profileId"])
         pname = p.get("accountInfo", {}).get("name", pid)
         try:
-            h = {**headers, "Amazon-Advertising-API-Scope": pid}
+            h = {**headers, "Amazon-Advertising-API-Scope": pid,
+                 "Content-Type": "application/vnd.spCampaign.v3+json",
+                 "Accept": "application/vnd.spCampaign.v3+json"}
             r = requests.post(
                 "https://advertising-api.amazon.com/sp/campaigns/list",
                 headers=h, json={"maxResults": 5000}, timeout=20,
@@ -990,55 +992,111 @@ def collect_gsc(date_from: str, date_to: str) -> list[dict]:
 
 
 def collect_dataforseo(date_from: str, date_to: str) -> list[dict]:
-    """Collect DataForSEO keyword search volumes and competition data."""
-    print("[DataForSEO] Collecting...")
-    if not DATAFORSEO_LOGIN or not DATAFORSEO_PASSWORD:
-        print("  [SKIP] No DATAFORSEO credentials")
+    """Collect keyword search volumes via Google Ads Keyword Planner API.
+
+    Replaces DataForSEO (2026-03-09) — same data, zero cost, direct source.
+    Uses GenerateKeywordHistoricalMetrics for exact volume per keyword.
+    """
+    print("[Keywords] Collecting via Google Ads Keyword Planner...")
+    if not GOOGLE_ADS_DEV_TOKEN:
+        print("  [SKIP] No GOOGLE_ADS_DEVELOPER_TOKEN")
         return []
 
-    import base64
-    auth = base64.b64encode(f"{DATAFORSEO_LOGIN}:{DATAFORSEO_PASSWORD}".encode()).decode()
-    headers = {"Authorization": f"Basic {auth}", "Content-Type": "application/json"}
+    try:
+        from google.ads.googleads.client import GoogleAdsClient
+    except ImportError:
+        print("  [SKIP] google-ads package not installed")
+        return []
 
+    config = {
+        "developer_token": GOOGLE_ADS_DEV_TOKEN,
+        "client_id": GOOGLE_ADS_CLIENT_ID,
+        "client_secret": GOOGLE_ADS_CLIENT_SECRET,
+        "refresh_token": GOOGLE_ADS_REFRESH_TOKEN,
+        "login_customer_id": GOOGLE_ADS_LOGIN_CUSTOMER_ID,
+        "use_proto_plus": True,
+    }
+    client = GoogleAdsClient.load_from_dict(config)
+
+    # Find first active sub-account for keyword planner access
+    ga_service = client.get_service("GoogleAdsService")
+    kp_service = client.get_service("KeywordPlanIdeaService")
+
+    try:
+        stream = ga_service.search_stream(
+            customer_id=GOOGLE_ADS_LOGIN_CUSTOMER_ID,
+            query="""SELECT customer_client.id, customer_client.descriptive_name
+                     FROM customer_client
+                     WHERE customer_client.manager = false AND customer_client.status = 'ENABLED'""",
+        )
+        customer_id = None
+        for batch in stream:
+            for row in batch.results:
+                customer_id = str(row.customer_client.id)
+                break
+            if customer_id:
+                break
+        if not customer_id:
+            print("  [SKIP] No active sub-account found")
+            return []
+        print(f"  Using account: {customer_id}")
+    except Exception as e:
+        print(f"  [ERROR] Account discovery: {e}")
+        return []
+
+    # Build keyword -> brand mapping
     all_keywords = []
+    kw_brand_map = {}
     for brand, kws in DATAFORSEO_KEYWORDS.items():
         for kw in kws:
-            all_keywords.append({"keyword": kw, "brand": brand})
+            all_keywords.append(kw)
+            kw_brand_map[kw.lower()] = brand
 
-    # Batch by 100 keywords max
+    # Call GenerateKeywordHistoricalMetrics
     results = []
-    batch_size = 100
-    for i in range(0, len(all_keywords), batch_size):
-        batch = all_keywords[i:i + batch_size]
-        body = [{
-            "keywords": [k["keyword"] for k in batch],
-            "language_name": "English",
-            "location_code": 2840,  # US
-        }]
-        try:
-            r = requests.post(
-                "https://api.dataforseo.com/v3/keywords_data/google_ads/search_volume/live",
-                headers=headers, json=body, timeout=60,
-            )
-            r.raise_for_status()
-            data = r.json()
-            kw_map = {k["keyword"]: k["brand"] for k in batch}
-            for item in data.get("tasks", [{}])[0].get("result", []):
-                kw = item.get("keyword", "")
-                results.append({
-                    "date": date_to,
-                    "keyword": kw,
-                    "brand": kw_map.get(kw, "Unknown"),
-                    "search_volume": item.get("search_volume") or 0,
-                    "cpc": round(float(item.get("cpc") or 0), 2),
-                    "competition_index": item.get("competition_index") or 0,
-                    "competition": item.get("competition") or "",
-                    "monthly_searches": json.dumps(item.get("monthly_searches") or []),
-                })
-        except Exception as e:
-            print(f"  [ERROR] DataForSEO batch {i}: {e}")
+    try:
+        request = client.get_type("GenerateKeywordHistoricalMetricsRequest")
+        request.customer_id = customer_id
+        request.keywords.extend(all_keywords)
+        # US location
+        request.geo_target_constants.append(
+            client.get_service("GeoTargetConstantService").geo_target_constant_path(2840)
+        )
+        # English
+        request.language = client.get_service("GoogleAdsService").language_constant_path(1000)
 
-    print(f"  Total DataForSEO rows: {len(results)}")
+        response = kp_service.generate_keyword_historical_metrics(request=request)
+
+        for result in response.results:
+            kw = result.text
+            metrics = result.keyword_metrics
+            # Monthly search volumes
+            monthly = []
+            for m in metrics.monthly_search_volumes:
+                monthly.append({
+                    "year": m.year,
+                    "month": m.month.value if hasattr(m.month, 'value') else int(m.month),
+                    "monthly_searches": m.monthly_searches,
+                })
+
+            # Competition enum to string
+            comp_enum = str(metrics.competition).split(".")[-1] if metrics.competition else ""
+
+            results.append({
+                "date": date_to,
+                "keyword": kw,
+                "brand": kw_brand_map.get(kw.lower(), "Unknown"),
+                "search_volume": metrics.avg_monthly_searches or 0,
+                "cpc": round((metrics.high_top_of_page_bid_micros or 0) / 1_000_000, 2),
+                "competition_index": metrics.competition_index or 0,
+                "competition": comp_enum,
+                "monthly_searches": json.dumps(monthly),
+            })
+
+    except Exception as e:
+        print(f"  [ERROR] Keyword Planner: {e}")
+
+    print(f"  Total keyword rows: {len(results)}")
     return results
 
 
@@ -1265,6 +1323,109 @@ def _detect_shopify_brand(line_items):
     return "Unknown"
 
 
+# ── Campaign Metadata Collectors ─────────────────────────────────────────
+
+def collect_amazon_campaigns(date_from: str, date_to: str) -> list[dict]:
+    """Collect Amazon Ads campaign metadata (name, status, budget, bid strategy)."""
+    print("[Amazon Campaigns] Collecting...")
+    token = _get_amz_ads_token()
+    headers = {
+        "Amazon-Advertising-API-ClientId": AMZ_ADS_CLIENT_ID,
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/vnd.spCampaign.v3+json",
+        "Accept": "application/vnd.spCampaign.v3+json",
+    }
+
+    # Get profiles (needs standard content-type)
+    profile_headers = {
+        "Amazon-Advertising-API-ClientId": AMZ_ADS_CLIENT_ID,
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+    }
+    resp = requests.get("https://advertising-api.amazon.com/v2/profiles",
+                        headers=profile_headers, timeout=30)
+    resp.raise_for_status()
+    profiles = [p for p in resp.json()
+                if p.get("countryCode") == "US" and p.get("accountInfo", {}).get("type") == "seller"]
+
+    all_campaigns = []
+    for p in profiles:
+        pid = str(p["profileId"])
+        pname = p.get("accountInfo", {}).get("name", pid)
+        brand = PROFILE_BRAND_MAP.get(pname, pname)
+        h = {**headers, "Amazon-Advertising-API-Scope": pid}
+
+        try:
+            r = requests.post(
+                "https://advertising-api.amazon.com/sp/campaigns/list",
+                headers=h, json={"maxResults": 5000}, timeout=20,
+            )
+            r.raise_for_status()
+            data = r.json()
+            camps = data if isinstance(data, list) else data.get("campaigns", [])
+            for c in camps:
+                budget_obj = c.get("budget", {})
+                all_campaigns.append({
+                    "campaign_id": str(c.get("campaignId", "")),
+                    "profile_id": pid,
+                    "brand": brand,
+                    "name": c.get("name", ""),
+                    "status": c.get("state", c.get("status", "UNKNOWN")).upper(),
+                    "budget": float(budget_obj.get("budget", 0)
+                                    if isinstance(budget_obj, dict)
+                                    else budget_obj or 0),
+                    "bid_strategy": c.get("dynamicBidding", {}).get("strategy", "")
+                                    if isinstance(c.get("dynamicBidding"), dict) else "",
+                    "campaign_type": "SP",
+                })
+            print(f"  {pname} ({brand}): {len(camps)} campaigns")
+        except Exception as e:
+            print(f"  [WARN] {pname}: {e}")
+
+    print(f"  Total: {len(all_campaigns)} campaigns")
+    return all_campaigns
+
+
+def collect_meta_campaigns(date_from: str, date_to: str) -> list[dict]:
+    """Collect Meta Ads campaign metadata (name, objective, status)."""
+    print("[Meta Campaigns] Collecting...")
+    if not META_ACCESS_TOKEN:
+        print("  [SKIP] No META_ACCESS_TOKEN")
+        return []
+
+    acct = META_AD_ACCOUNT_ID if META_AD_ACCOUNT_ID.startswith("act_") else f"act_{META_AD_ACCOUNT_ID}"
+    url = (f"https://graph.facebook.com/v18.0/{acct}/campaigns"
+           f"?fields=id,name,objective,status"
+           f"&limit=500&access_token={META_ACCESS_TOKEN}")
+
+    all_campaigns = []
+    while url:
+        r = requests.get(url, timeout=30)
+        r.raise_for_status()
+        data = r.json()
+        for c in data.get("data", []):
+            cname = c.get("name", "")
+            obj = c.get("objective", "")
+            ctype = "traffic" if obj in (
+                "LINK_CLICKS", "POST_ENGAGEMENT", "REACH",
+                "BRAND_AWARENESS", "VIDEO_VIEWS"
+            ) else "cvr"
+            brand = _detect_meta_brand(cname, "")
+
+            all_campaigns.append({
+                "campaign_id": c.get("id", ""),
+                "name": cname,
+                "objective": obj,
+                "status": c.get("status", "UNKNOWN"),
+                "brand": brand,
+                "campaign_type": ctype,
+            })
+        url = data.get("paging", {}).get("next")
+
+    print(f"  Total: {len(all_campaigns)} campaigns")
+    return all_campaigns
+
+
 # ══════════════════════════════════════════════════════════════════════════
 # MAIN ORCHESTRATOR
 # ══════════════════════════════════════════════════════════════════════════
@@ -1272,7 +1433,9 @@ def _detect_shopify_brand(line_items):
 CHANNEL_COLLECTORS = {
     "amazon_ads": ("amazon_ads_daily", collect_amazon_ads),
     "amazon_sales": ("amazon_sales_daily", collect_amazon_sales),
+    "amazon_campaigns": ("amazon_campaigns", collect_amazon_campaigns),
     "meta": ("meta_ads_daily", collect_meta_ads),
+    "meta_campaigns": ("meta_campaigns", collect_meta_campaigns),
     "google": ("google_ads_daily", collect_google_ads),
     "ga4": ("ga4_daily", collect_ga4),
     "klaviyo": ("klaviyo_daily", collect_klaviyo),
@@ -1282,33 +1445,190 @@ CHANNEL_COLLECTORS = {
 }
 
 
-def show_status():
-    """Show Data Keeper collection status."""
-    print("=== Data Keeper Status ===\n")
+def _get_collection_summary():
+    """Build collection summary dict for status display and email notification."""
+    pst_today = _get_pst_today()
+    yesterday = (pst_today - timedelta(days=1)).isoformat()
+
+    # Local cache status
+    cache_status = {}
     for channel, (table, _) in CHANNEL_COLLECTORS.items():
         cache_path = os.path.join(CACHE_DIR, f"{table}.json")
         if os.path.exists(cache_path):
             mtime = datetime.fromtimestamp(os.path.getmtime(cache_path))
-            with open(cache_path, "r") as f:
+            with open(cache_path, "r", encoding="utf-8") as f:
                 rows = json.load(f)
             dates = sorted(set(r.get("date", "") for r in rows if r.get("date")))
-            print(f"  {channel:15s} | {len(rows):>6,} rows | "
-                  f"{dates[0] if dates else '?'} ~ {dates[-1] if dates else '?'} | "
-                  f"updated: {mtime:%Y-%m-%d %H:%M}")
+            cache_status[channel] = {
+                "rows": len(rows), "min_date": dates[0] if dates else "?",
+                "max_date": dates[-1] if dates else "?",
+                "updated": mtime.strftime("%Y-%m-%d %H:%M"),
+            }
         else:
-            print(f"  {channel:15s} | no cache")
+            cache_status[channel] = None
 
-    # Check PG status
+    # PG status
+    pg_status = {}
     try:
         r = requests.get(f"{ORBITOOLS_BASE}/status/",
                          auth=(ORBITOOLS_USER, ORBITOOLS_PASS), timeout=10)
         if r.status_code == 200:
-            print("\n=== PostgreSQL Status ===\n")
-            for table, info in r.json().get("status", {}).items():
-                print(f"  {table:30s} | {info.get('count', 0):>6,} rows | "
-                      f"latest: {info.get('latest_date', '?')}")
+            pg_status = r.json().get("status", {})
     except Exception:
+        pass
+
+    # Identify stale channels (latest_date < yesterday)
+    stale = []
+    for table, info in pg_status.items():
+        latest = info.get("latest_date", "")
+        if latest and latest < yesterday:
+            days_behind = (pst_today - timedelta(days=1) - datetime.fromisoformat(latest).date() if isinstance(latest, str) else timedelta(0))
+            try:
+                days_behind = (datetime.fromisoformat(yesterday).date() - datetime.fromisoformat(latest).date()).days
+            except Exception:
+                days_behind = "?"
+            stale.append({"table": table, "latest": latest, "days_behind": days_behind})
+
+    return {"pst_today": pst_today.isoformat(), "yesterday": yesterday,
+            "cache": cache_status, "pg": pg_status, "stale": stale}
+
+
+def show_status():
+    """Show Data Keeper collection status."""
+    summary = _get_collection_summary()
+    pst_now = datetime.now(timezone.utc).astimezone(
+        timezone(timedelta(hours=-8))).strftime("%Y-%m-%d %H:%M PST")
+
+    print(f"=== Data Keeper Status === ({pst_now})\n")
+    for channel, info in summary["cache"].items():
+        if info:
+            print(f"  {channel:15s} | {info['rows']:>6,} rows | "
+                  f"{info['min_date']} ~ {info['max_date']} | "
+                  f"updated: {info['updated']}")
+        else:
+            print(f"  {channel:15s} | no cache")
+
+    if summary["pg"]:
+        print("\n=== PostgreSQL Status ===\n")
+        for table, info in summary["pg"].items():
+            print(f"  {table:30s} | {info.get('count', 0):>6,} rows | "
+                  f"latest: {info.get('latest_date', '?')}")
+    else:
         print("\n  [PG] Not reachable (orbitools API)")
+
+
+def _send_collection_email(results=None, elapsed_total=0, recipient=None):
+    """Send Data Keeper email notification.
+
+    Args:
+        results: Collection results dict (None for status-only email)
+        elapsed_total: Total collection time in seconds
+        recipient: Override recipient (default from env)
+    """
+    try:
+        from send_gmail import send_email
+    except ImportError:
+        print("  [Notify] send_gmail not available, skipping email")
+        return
+
+    if not recipient:
+        recipient = os.getenv("PPC_REPORT_RECIPIENT", "wj.choi@orbiters.co.kr")
+
+    summary = _get_collection_summary()
+    pst_now = datetime.now(timezone.utc).astimezone(
+        timezone(timedelta(hours=-8))).strftime("%Y-%m-%d %H:%M PST")
+    kst_now = datetime.now(timezone.utc).astimezone(
+        timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M KST")
+
+    status_only = results is None
+
+    # Health check
+    if status_only:
+        health = "ALL GREEN" if not summary["stale"] else "ISSUES DETECTED"
+    else:
+        fail = [ch for ch, r in results.items() if not r["ok"]]
+        health = "ALL GREEN" if not fail and not summary["stale"] else "ISSUES DETECTED"
+    health_color = "#0d6e2e" if health == "ALL GREEN" else "#c0392b"
+
+    # Collection results section (only if results provided)
+    collection_section = ""
+    if results:
+        ok = [ch for ch, r in results.items() if r["ok"]]
+        fail = [ch for ch, r in results.items() if not r["ok"]]
+        ch_rows = ""
+        for ch, r in results.items():
+            bg = "#f6fff8" if r["ok"] else "#fff5f5"
+            status = f"{r['rows']:,} rows" if r["ok"] else f"FAIL: {r['error']}"
+            icon = "OK" if r["ok"] else "FAIL"
+            ch_rows += f"""<tr style="background:{bg}">
+                <td style="padding:6px 10px;border-bottom:1px solid #eee"><b>{ch}</b></td>
+                <td style="padding:6px 10px;border-bottom:1px solid #eee">{icon}</td>
+                <td style="padding:6px 10px;border-bottom:1px solid #eee">{status}</td>
+                <td style="padding:6px 10px;border-bottom:1px solid #eee">{r['elapsed']:.0f}s</td>
+            </tr>"""
+        collection_section = f"""
+        <h3 style="margin:16px 0 8px;color:#333">Collection Results ({len(ok)} ok / {len(fail)} fail)</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <tr style="background:#f0f0f0"><th style="padding:6px 10px;text-align:left">Channel</th><th style="padding:6px 10px;text-align:left">Status</th><th style="padding:6px 10px;text-align:left">Detail</th><th style="padding:6px 10px;text-align:left">Time</th></tr>
+            {ch_rows}
+        </table>"""
+
+    # PG status table
+    pg_rows = ""
+    for table, info in summary["pg"].items():
+        latest = info.get("latest_date", "?")
+        count = info.get("count", 0)
+        is_stale = any(s["table"] == table for s in summary["stale"])
+        bg = "#fff5f5" if is_stale else "#f8f9fc"
+        stale_tag = f' <span style="color:#c0392b;font-weight:bold">({next(s["days_behind"] for s in summary["stale"] if s["table"] == table)}d behind)</span>' if is_stale else ""
+        pg_rows += f"""<tr style="background:{bg}">
+            <td style="padding:6px 10px;border-bottom:1px solid #eee">{table}</td>
+            <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:right">{count:,}</td>
+            <td style="padding:6px 10px;border-bottom:1px solid #eee">{latest}{stale_tag}</td>
+        </tr>"""
+
+    # Stale alert section
+    stale_section = ""
+    if summary["stale"]:
+        stale_items = "".join(
+            f"<li><b>{s['table']}</b> - latest: {s['latest']}, <span style='color:#c0392b'>{s['days_behind']}d behind</span></li>"
+            for s in summary["stale"]
+        )
+        stale_section = f"""
+        <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:12px 16px;margin:16px 0">
+            <b style="color:#856404">Stale Data Alert</b>
+            <ul style="margin:8px 0 0 0;padding-left:20px">{stale_items}</ul>
+        </div>"""
+
+    title = "Data Keeper Daily Status" if status_only else "Data Keeper Collection Report"
+    subtitle = f"{kst_now} / {pst_now}"
+    if not status_only:
+        subtitle += f" | Total: {elapsed_total:.0f}s"
+
+    html = f"""<div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto">
+    <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);color:white;padding:20px 24px;border-radius:8px 8px 0 0">
+        <h2 style="margin:0">{title}</h2>
+        <p style="margin:4px 0 0;opacity:0.8;font-size:13px">{subtitle}</p>
+    </div>
+    <div style="padding:16px 24px;background:#fff;border:1px solid #eee;border-top:none;border-radius:0 0 8px 8px">
+        <div style="display:inline-block;background:{health_color};color:white;padding:4px 12px;border-radius:12px;font-size:13px;font-weight:bold;margin-bottom:12px">{health}</div>
+        {stale_section}
+        {collection_section}
+        <h3 style="margin:20px 0 8px;color:#333">PostgreSQL Status</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <tr style="background:#f0f0f0"><th style="padding:6px 10px;text-align:left">Table</th><th style="padding:6px 10px;text-align:right">Rows</th><th style="padding:6px 10px;text-align:left">Latest Date</th></tr>
+            {pg_rows}
+        </table>
+        <p style="margin:16px 0 0;font-size:11px;color:#999">Auto-generated by Data Keeper | WAT Framework</p>
+    </div>
+</div>"""
+
+    subject = f"[Data Keeper] {health} - {kst_now}"
+    try:
+        result = send_email(to=recipient, subject=subject, body_html=html)
+        print(f"  [Notify] Email sent to {recipient} (id: {result.get('id', '?')})")
+    except Exception as e:
+        print(f"  [Notify] Email failed: {e}")
 
 
 def main():
@@ -1321,10 +1641,21 @@ def main():
                         help="Skip PostgreSQL push (local cache only)")
     parser.add_argument("--status", action="store_true",
                         help="Show collection status and exit")
+    parser.add_argument("--notify", action="store_true",
+                        help="Send email notification after collection")
+    parser.add_argument("--notify-only", action="store_true",
+                        help="Send status email only (no collection)")
+    parser.add_argument("--notify-to", type=str, default=None,
+                        help="Override email recipient")
     args = parser.parse_args()
 
     if args.status:
         show_status()
+        return
+
+    if args.notify_only:
+        print("[Notify] Sending status-only email...")
+        _send_collection_email(results=None, elapsed_total=0, recipient=args.notify_to)
         return
 
     today = _get_pst_today()
@@ -1338,6 +1669,9 @@ def main():
     print()
 
     channels = list(CHANNEL_COLLECTORS.keys()) if args.channel == "all" else [args.channel]
+
+    total_start = time.time()
+    results = {}
 
     for channel in channels:
         if channel not in CHANNEL_COLLECTORS:
@@ -1353,9 +1687,11 @@ def main():
             if not args.skip_pg and rows:
                 _push_to_pg(table, rows)
             elapsed = time.time() - start_t
+            results[channel] = {"ok": True, "rows": len(rows), "elapsed": elapsed, "error": None}
             print(f"  [{channel}] Done in {elapsed:.0f}s\n")
         except Exception as e:
             elapsed = time.time() - start_t
+            results[channel] = {"ok": False, "rows": 0, "elapsed": elapsed, "error": str(e)[:120]}
             print(f"  [{channel}] FAILED in {elapsed:.0f}s: {e}\n")
 
     # Export to Shared folder for team access
@@ -1369,7 +1705,13 @@ def main():
         for sig in signals:
             print(f"  - {sig.get('channel', '?')} (by {sig.get('requested_by', '?')}) [{sig['file']}]")
 
-    print("\n=== Data Keeper Complete ===")
+    elapsed_total = time.time() - total_start
+    print(f"\n=== Data Keeper Complete ({elapsed_total:.0f}s) ===")
+
+    # Send email notification if requested
+    if args.notify:
+        print("\n[Notify] Sending collection report email...")
+        _send_collection_email(results, elapsed_total, recipient=args.notify_to)
 
 
 if __name__ == "__main__":
