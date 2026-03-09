@@ -5,7 +5,7 @@ Meta Graph API에서 Facebook/Instagram 광고 성과 데이터를 가져와
 캠페인 → Ad Set → Ad 레벨로 드릴다운 분석 후 이메일로 발송한다.
 
 ## 발송 정보
-- **보내는 주소**: hello@zezebaebae.com
+- **보내는 주소**: orbiters11@gmail.com
 - **받는 주소**: wj.choi@orbiters.co.kr
 - **발송 주기**: 매일 (전날 데이터 기준) 또는 주간 (월요일, 지난 7일 기준)
 
@@ -219,8 +219,8 @@ Step 5: tools/send_gmail.py → 이메일 발송
 META_ACCESS_TOKEN=...
 META_AD_ACCOUNT_ID=act_...
 ANTHROPIC_API_KEY=...
-GMAIL_SENDER=hello@zezebaebae.com
-ZEZEBAEBAE_GMAIL_TOKEN_PATH=credentials/zezebaebae_gmail_token.json
+GMAIL_SENDER=orbiters11@gmail.com
+GMAIL_TOKEN_PATH=credentials/gmail_token.json
 META_REPORT_RECIPIENT=wj.choi@orbiters.co.kr
 ```
 

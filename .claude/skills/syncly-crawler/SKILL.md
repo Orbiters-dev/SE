@@ -46,7 +46,7 @@ Google Sheets: ONZENNA Affiliates Tracker
   ├── JP D+60 Tracker      (gid=295191381)
   └── JP Influencer Tracker (gid=331042723)
   ↓ syncly_daily_email.py
-Email notification (hello@zezebaebae.com → wj.choi@orbiters.co.kr)
+Email notification (orbiters11@gmail.com → wj.choi@orbiters.co.kr)
 ```
 
 ## Regions
@@ -71,9 +71,9 @@ Email notification (hello@zezebaebae.com → wj.choi@orbiters.co.kr)
 # Google Sheets (Service Account)
 GOOGLE_SERVICE_ACCOUNT_PATH=credentials/google_service_account.json
 
-# Gmail (OAuth2 - hello@zezebaebae.com)
+# Gmail (OAuth2 - orbiters11@gmail.com)
 GMAIL_OAUTH_CREDENTIALS_PATH=credentials/gmail_oauth_credentials.json
-ZEZEBAEBAE_GMAIL_TOKEN_PATH=credentials/zezebaebae_gmail_token.json
+GMAIL_TOKEN_PATH=credentials/gmail_token.json
 PPC_REPORT_RECIPIENT=wj.choi@orbiters.co.kr
 
 # Syncly (Playwright session - NOT API key)
