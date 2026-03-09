@@ -2,7 +2,8 @@ name: Amazon PPC Executor (Propose)
 
 on:
   schedule:
-    - cron: '0 1 * * *'    # 매일 KST 10:00 (= 01:00 UTC) — 일간 리포트 이후 제안 생성
+    - cron: '0 1 * * *'    # KST 10:00 (= 01:00 UTC)
+    - cron: '0 13 * * *'   # KST 22:00 (= 13:00 UTC)
   workflow_dispatch:         # 수동 실행 버튼
 
 jobs:

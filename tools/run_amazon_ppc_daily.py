@@ -145,15 +145,17 @@ def aggregate_by_campaign(rows: List[Dict]) -> Dict[str, Dict]:
 def build_analysis_payload(rows: List[Dict], analysis_date: date) -> Dict:
     """Build structured data for Claude to analyze — 30d + 7d dual analysis."""
     yesterday = analysis_date - timedelta(days=1)
+    day_before = analysis_date - timedelta(days=2)
     last7_start  = analysis_date - timedelta(days=7)
     last30_start = analysis_date - timedelta(days=30)
 
     def filter_rows(from_d: date, to_d: date):
         return [r for r in rows if from_d <= datetime.strptime(r["date"][:10], "%Y-%m-%d").date() <= to_d]
 
-    yesterday_rows = filter_rows(yesterday, yesterday)
-    last7_rows     = filter_rows(last7_start, yesterday)
-    last30_rows    = filter_rows(last30_start, yesterday)
+    yesterday_rows   = filter_rows(yesterday, yesterday)
+    day_before_rows  = filter_rows(day_before, day_before)
+    last7_rows       = filter_rows(last7_start, yesterday)
+    last30_rows      = filter_rows(last30_start, yesterday)
 
     def totals(rs):
         cost  = sum(r["cost"]   for r in rs)
@@ -249,17 +251,23 @@ def build_analysis_payload(rows: List[Dict], analysis_date: date) -> Dict:
     all_brands = sorted(set(r["brand"] for r in last30_rows))
     by_brand_campaigns: Dict[str, List[Dict]] = {}
     for brand in all_brands:
-        b30 = aggregate_by_campaign([r for r in last30_rows  if r["brand"] == brand])
-        b7  = aggregate_by_campaign([r for r in last7_rows   if r["brand"] == brand])
+        b30 = aggregate_by_campaign([r for r in last30_rows    if r["brand"] == brand])
+        b7  = aggregate_by_campaign([r for r in last7_rows     if r["brand"] == brand])
         byd = aggregate_by_campaign([r for r in yesterday_rows if r["brand"] == brand])
+        bdb = aggregate_by_campaign([r for r in day_before_rows if r["brand"] == brand])
         camps = []
         for name, v30 in b30.items():
             if v30["cost"] < 3:
                 continue
             v7  = b7.get(name, {})
             vyd = byd.get(name, {})
+            vdb = bdb.get(name, {})
             camps.append({
                 "campaign":   name,
+                "spend_db":   round(vdb.get("cost", 0), 2),
+                "sales_db":   round(vdb.get("sales", 0), 2),
+                "roas_db":    vdb.get("roas", 0),
+                "acos_db":    vdb.get("acos"),
                 "spend_yd":   round(vyd.get("cost", 0), 2),
                 "sales_yd":   round(vyd.get("sales", 0), 2),
                 "roas_yd":    vyd.get("roas", 0),
@@ -285,10 +293,12 @@ def build_analysis_payload(rows: List[Dict], analysis_date: date) -> Dict:
     return {
         "analysis_date": analysis_date.strftime("%Y-%m-%d"),
         "yesterday": yesterday.strftime("%Y-%m-%d"),
+        "day_before": day_before.strftime("%Y-%m-%d"),
         "summary": {
-            "yesterday": totals(yesterday_rows),
-            "7d":        totals(last7_rows),
-            "30d":       totals(last30_rows),
+            "day_before": totals(day_before_rows),
+            "yesterday":  totals(yesterday_rows),
+            "7d":         totals(last7_rows),
+            "30d":        totals(last30_rows),
         },
         "brand_breakdown": brand_summary,
         "by_brand_campaigns": by_brand_campaigns,
@@ -605,7 +615,9 @@ def fmt_cvr(v) -> str:
 def build_html_email(payload: Dict, analysis: Dict) -> str:
     d   = payload["analysis_date"]
     yd  = payload["yesterday"]
+    db  = payload.get("day_before", "")
     s   = payload["summary"]
+    s_db = s.get("day_before", {})
     s_yd = s["yesterday"]
     s_7d = s["7d"]
     s_30d = s["30d"]
@@ -733,10 +745,12 @@ def build_html_email(payload: Dict, analysis: Dict) -> str:
         camps_data = payload.get("by_brand_campaigns", {}).get(brand, [])
         data_rows = ""
         for c in camps_data:
-            r30 = c.get("roas_30d", 0); r7 = c.get("roas_7d", 0); ryd = c.get("roas_yd", 0)
+            r30 = c.get("roas_30d", 0); r7 = c.get("roas_7d", 0); ryd = c.get("roas_yd", 0); rdb = c.get("roas_db", 0)
             row_bg = "#fff9f9" if r7 < 2.0 else ("#f9fff9" if r7 >= 3.0 else "white")
             data_rows += f"""<tr style="background:{row_bg}">
               <td style="padding:6px 10px;font-size:12px">{c['campaign']}</td>
+              <td style="padding:6px 10px;text-align:right;background:#fef3e0">{fmt_usd(c.get('spend_db'))}</td>
+              <td style="padding:6px 10px;text-align:right;background:#fef3e0">{fmt_roas(rdb) if c.get('spend_db', 0) > 0 else '-'}</td>
               <td style="padding:6px 10px;text-align:right;background:#fff8e1">{fmt_usd(c.get('spend_yd'))}</td>
               <td style="padding:6px 10px;text-align:right;background:#fff8e1">{fmt_roas(ryd) if c.get('spend_yd', 0) > 0 else '-'}</td>
               <td style="padding:6px 10px;text-align:right;background:#f0fff0">{fmt_usd(c.get('spend_7d'))}</td>
@@ -801,6 +815,8 @@ def build_html_email(payload: Dict, analysis: Dict) -> str:
               <thead>
                 <tr style="background:#f5f5f5">
                   <th style="padding:6px 10px;text-align:left">캠페인</th>
+                  <th style="padding:6px 10px;text-align:right;background:#fce4b2">그제 광고비</th>
+                  <th style="padding:6px 10px;text-align:right;background:#fce4b2">그제 ROAS</th>
                   <th style="padding:6px 10px;text-align:right;background:#fff3cd">어제 광고비</th>
                   <th style="padding:6px 10px;text-align:right;background:#fff3cd">어제 ROAS</th>
                   <th style="padding:6px 10px;text-align:right;background:#e8f5e9">7일 광고비</th>
@@ -1024,6 +1040,7 @@ def build_html_email(payload: Dict, analysis: Dict) -> str:
       <thead>
         <tr style="background:#232F3E;color:white">
           <th style="padding:10px 12px;text-align:left">지표</th>
+          <th style="padding:10px 12px;text-align:right;background:#3a3a1a">그제 ({db})</th>
           <th style="padding:10px 12px;text-align:right">어제 ({yd})</th>
           <th style="padding:10px 12px;text-align:right;background:#1a3a2a">최근 7일</th>
           <th style="padding:10px 12px;text-align:right">최근 30일</th>
@@ -1032,48 +1049,56 @@ def build_html_email(payload: Dict, analysis: Dict) -> str:
       <tbody>
         <tr style="background:#f9f9f9">
           <td style="padding:8px 12px">광고비</td>
+          <td style="padding:8px 12px;text-align:right;background:#fff8e1">{fmt_usd(s_db.get('spend'))}</td>
           <td style="padding:8px 12px;text-align:right">{fmt_usd(s_yd['spend'])}</td>
           <td style="padding:8px 12px;text-align:right;background:#f0fff0">{fmt_usd(s_7d['spend'])}</td>
           <td style="padding:8px 12px;text-align:right">{fmt_usd(s_30d['spend'])}</td>
         </tr>
         <tr>
           <td style="padding:8px 12px">광고 매출</td>
+          <td style="padding:8px 12px;text-align:right;background:#fff8e1">{fmt_usd(s_db.get('sales'))}</td>
           <td style="padding:8px 12px;text-align:right">{fmt_usd(s_yd['sales'])}</td>
           <td style="padding:8px 12px;text-align:right;background:#f0fff0">{fmt_usd(s_7d['sales'])}</td>
           <td style="padding:8px 12px;text-align:right">{fmt_usd(s_30d['sales'])}</td>
         </tr>
         <tr style="background:#f9f9f9">
           <td style="padding:8px 12px">ROAS</td>
+          <td style="padding:8px 12px;text-align:right;background:#fff8e1">{fmt_roas(s_db.get('roas'))}</td>
           <td style="padding:8px 12px;text-align:right">{fmt_roas(s_yd['roas'])}</td>
           <td style="padding:8px 12px;text-align:right;background:#f0fff0">{fmt_roas(s_7d['roas'])}</td>
           <td style="padding:8px 12px;text-align:right">{fmt_roas(s_30d['roas'])}</td>
         </tr>
         <tr>
           <td style="padding:8px 12px">ACOS</td>
+          <td style="padding:8px 12px;text-align:right;background:#fff8e1">{fmt_acos(s_db.get('acos'))}</td>
           <td style="padding:8px 12px;text-align:right">{fmt_acos(s_yd['acos'])}</td>
           <td style="padding:8px 12px;text-align:right;background:#f0fff0">{fmt_acos(s_7d['acos'])}</td>
           <td style="padding:8px 12px;text-align:right">{fmt_acos(s_30d['acos'])}</td>
         </tr>
         <tr style="background:#f9f9f9">
           <td style="padding:8px 12px">CPC</td>
+          <td style="padding:8px 12px;text-align:right;background:#fff8e1">{fmt_usd(s_db.get('cpc'))}</td>
           <td style="padding:8px 12px;text-align:right">{fmt_usd(s_yd['cpc'])}</td>
           <td style="padding:8px 12px;text-align:right;background:#f0fff0">{fmt_usd(s_7d['cpc'])}</td>
           <td style="padding:8px 12px;text-align:right">{fmt_usd(s_30d['cpc'])}</td>
         </tr>
         <tr>
           <td style="padding:8px 12px">CTR</td>
+          <td style="padding:8px 12px;text-align:right;background:#fff8e1">{s_db.get('ctr', 0):.2f}%</td>
           <td style="padding:8px 12px;text-align:right">{s_yd['ctr']:.2f}%</td>
           <td style="padding:8px 12px;text-align:right;background:#f0fff0">{s_7d['ctr']:.2f}%</td>
           <td style="padding:8px 12px;text-align:right">{s_30d['ctr']:.2f}%</td>
         </tr>
         <tr style="background:#f9f9f9">
           <td style="padding:8px 12px">CVR (전환율)</td>
+          <td style="padding:8px 12px;text-align:right;background:#fff8e1">{fmt_cvr(s_db.get('cvr'))}</td>
           <td style="padding:8px 12px;text-align:right">{fmt_cvr(s_yd.get('cvr'))}</td>
           <td style="padding:8px 12px;text-align:right;background:#f0fff0">{fmt_cvr(s_7d.get('cvr'))}</td>
           <td style="padding:8px 12px;text-align:right">{fmt_cvr(s_30d.get('cvr'))}</td>
         </tr>
         <tr>
           <td style="padding:8px 12px">주문수</td>
+          <td style="padding:8px 12px;text-align:right;background:#fff8e1">{s_db.get('purchases', 0):,}</td>
           <td style="padding:8px 12px;text-align:right">{s_yd.get('purchases', 0):,}</td>
           <td style="padding:8px 12px;text-align:right;background:#f0fff0">{s_7d.get('purchases', 0):,}</td>
           <td style="padding:8px 12px;text-align:right">{s_30d.get('purchases', 0):,}</td>
