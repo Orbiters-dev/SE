@@ -45,7 +45,7 @@ GH_REPO  = os.getenv("GITHUB_REPOSITORY", "")
 
 RECIPIENT = os.getenv("COMMUNICATOR_RECIPIENT") or os.getenv("PPC_REPORT_RECIPIENT", "wj.choi@orbiters.co.kr")
 CC_DEFAULT = os.getenv("COMMUNICATOR_CC", "mj.lee@orbiters.co.kr")
-SENDER    = os.getenv("GMAIL_SENDER", "hello@zezebaebae.com")
+SENDER    = os.getenv("GMAIL_SENDER", "orbiters11@gmail.com")
 
 SA_PATH   = os.getenv("GOOGLE_SERVICE_ACCOUNT_PATH", "credentials/google_service_account.json")
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -439,7 +439,7 @@ def get_datakeeper_status() -> dict:
 
 
 def get_syncly_stats() -> list[dict]:
-    """각 Syncly 탭의 현재 row 수 조회. 실패 시 빈 리스트."""
+    """각 Syncly 탭의 row 수 + 인플루언서/컨텐츠 상세 조회."""
     sa_full = SA_PATH if os.path.isabs(SA_PATH) else str(PROJECT_ROOT / SA_PATH)
     if not os.path.exists(sa_full):
         print(f"[WARN] 서비스 계정 없음 ({sa_full}) -> Syncly 탭 통계 스킵")
@@ -460,19 +460,97 @@ def get_syncly_stats() -> list[dict]:
             sh  = gc.open_by_key(tab_def["sheet_id"])
             ws  = sh.worksheet(tab_def["tab"])
             all_rows = ws.get_all_values()
-            data_count = max(0, len(all_rows) - tab_def["header_rows"])
-            results.append({
+            header_n = tab_def["header_rows"]
+            data_rows = all_rows[header_n:]
+            data_count = len(data_rows)
+
+            stat = {
                 "label":    tab_def["label"],
                 "count":    data_count,
                 "sheet_id": tab_def["sheet_id"],
                 "tab":      tab_def["tab"],
-            })
-            print(f"  [{tab_def['label']}] {data_count} rows")
+            }
+
+            # Posts Master: per-influencer post count
+            if "Posts Master" in tab_def["label"]:
+                influencer_posts = {}
+                for row in data_rows:
+                    if len(row) > 3 and row[3].strip():
+                        uname = row[3].strip().lower()
+                        influencer_posts[uname] = influencer_posts.get(uname, 0) + 1
+                stat["influencer_posts"] = influencer_posts
+                stat["influencer_count"] = len(influencer_posts)
+
+            # D+60 Tracker: unique influencer count
+            elif "D+60 Tracker" in tab_def["label"]:
+                usernames = set()
+                for row in data_rows:
+                    if len(row) > 2 and row[2].strip():
+                        usernames.add(row[2].strip().lower())
+                stat["influencer_count"] = len(usernames)
+
+            # SNS tabs: unique account count
+            elif "SNS" in tab_def["label"]:
+                acct_idx = 3 if "ONZENNA" in tab_def["label"] else 2
+                accounts = set()
+                for row in data_rows:
+                    if len(row) > acct_idx and row[acct_idx].strip():
+                        val = row[acct_idx].strip().lower().lstrip("@")
+                        if val:
+                            accounts.add(val)
+                stat["influencer_count"] = len(accounts)
+
+            results.append(stat)
+            extra = f", {stat['influencer_count']}명" if "influencer_count" in stat else ""
+            print(f"  [{tab_def['label']}] {data_count} rows{extra}")
         except Exception as e:
             results.append({"label": tab_def["label"], "count": None, "error": str(e),
                              "sheet_id": tab_def["sheet_id"], "tab": tab_def["tab"]})
             print(f"  [{tab_def['label']}] 오류: {e}")
     return results
+
+
+def compute_syncly_deltas(syncly_stats: list[dict], state: dict) -> dict:
+    """이전 상태와 비교하여 신규 인플루언서/컨텐츠 변화량 계산."""
+    prev = state.get("syncly", {})
+    deltas = {}
+    new_state = {}
+
+    for s in syncly_stats:
+        label = s["label"]
+        curr_count = s.get("count") or 0
+        prev_s = prev.get(label, {})
+        prev_count = prev_s.get("count", 0)
+
+        save = {"count": curr_count, "influencer_count": s.get("influencer_count", 0)}
+
+        delta = {
+            "new_posts": max(0, curr_count - prev_count),
+            "prev_count": prev_count,
+        }
+
+        if "influencer_posts" in s:
+            curr_infl = s["influencer_posts"]
+            prev_infl = prev_s.get("influencer_posts", {})
+            save["influencer_posts"] = curr_infl
+
+            new_names = set(curr_infl.keys()) - set(prev_infl.keys())
+            existing_new = {u for u, c in curr_infl.items()
+                           if u in prev_infl and c > prev_infl.get(u, 0)}
+
+            delta["new_influencers"] = len(new_names)
+            delta["new_influencer_names"] = sorted(new_names)[:10]
+            delta["existing_with_new_content"] = len(existing_new)
+            delta["existing_new_names"] = sorted(existing_new)[:10]
+        else:
+            delta["new_influencers"] = 0
+            delta["existing_with_new_content"] = 0
+
+        new_state[label] = save
+        deltas[label] = delta
+
+    state["syncly"] = new_state
+    return deltas
 
 
 def get_gh_runs(hours: int = 24) -> list[dict]:
@@ -645,19 +723,159 @@ def _links_row(links: list[dict], run_url: str = "") -> str:
 
 
 def _syncly_detail_html(syncly_stats: list[dict]) -> str:
-    """Syncly 탭별 row 수 미니 테이블."""
+    """Syncly 탭별 row 수 미니 테이블 (태스크 업데이트 내 인라인용)."""
     if not syncly_stats:
         return ""
     rows = ""
     for s in syncly_stats:
         count = s.get("count")
         count_str = f"{count:,}" if isinstance(count, int) else "오류"
+        infl = s.get("influencer_count")
+        infl_str = f" / {infl}명" if isinstance(infl, int) else ""
         sheet_url = SHEET_URLS.get(s["sheet_id"], "#")
         rows += f"""<tr>
           <td style="padding:3px 8px;color:#555;font-size:12px">{_link(s['label'], sheet_url)}</td>
-          <td style="padding:3px 8px;text-align:right;font-size:12px;font-weight:600">{count_str} rows</td>
+          <td style="padding:3px 8px;text-align:right;font-size:12px;font-weight:600">{count_str} rows{infl_str}</td>
         </tr>"""
     return f"""<table style="border-collapse:collapse;margin-top:6px;width:100%">{rows}</table>"""
+
+
+def _delta_badge(val: int, label: str, color: str = "#006100") -> str:
+    if val <= 0:
+        return ""
+    return (f'<span style="background:{color};color:white;padding:2px 8px;'
+            f'border-radius:10px;font-size:11px;font-weight:600;margin-right:4px">'
+            f'+{val} {label}</span>')
+
+
+def _build_syncly_section(syncly_stats: list[dict], deltas: dict) -> str:
+    """Syncly 상세 섹션: 리전별 그룹핑 + 신규/기존 인플루언서 변화량."""
+    if not syncly_stats:
+        return ""
+
+    # 리전별 그룹핑
+    regions = {"US": [], "JP": [], "etc": []}
+    for s in syncly_stats:
+        label = s["label"]
+        if label.startswith("US "):
+            regions["US"].append(s)
+        elif label.startswith("JP "):
+            regions["JP"].append(s)
+        else:
+            regions["etc"].append(s)
+
+    has_prev = any(d.get("prev_count", 0) > 0 for d in deltas.values())
+
+    def _region_block(region_label: str, stats_list: list[dict]) -> str:
+        if not stats_list:
+            return ""
+        rows_html = ""
+        for s in stats_list:
+            label = s["label"]
+            d = deltas.get(label, {})
+            count = s.get("count")
+            count_str = f"{count:,}" if isinstance(count, int) else "오류"
+            infl = s.get("influencer_count")
+            infl_str = f"{infl}명" if isinstance(infl, int) else "-"
+            sheet_url = SHEET_URLS.get(s["sheet_id"], "#")
+            err_html = (f'<span style="color:#c0392b;font-size:11px">'
+                        f'{s.get("error","")}</span>') if s.get("error") else ""
+            color = "#f6fff8" if isinstance(count, int) and count > 0 else "#fff5f5"
+
+            # 변화량 배지
+            badges = ""
+            if has_prev:
+                new_i = d.get("new_influencers", 0)
+                exist_new = d.get("existing_with_new_content", 0)
+                new_p = d.get("new_posts", 0)
+                if new_i > 0:
+                    badges += _delta_badge(new_i, "신규 인플", "#1565c0")
+                if exist_new > 0:
+                    badges += _delta_badge(exist_new, "기존 인플 새글", "#2e7d32")
+                if new_p > 0:
+                    badges += _delta_badge(new_p, "포스트", "#555")
+
+            # 신규 인플루언서 이름 표시
+            detail_line = ""
+            if has_prev and d.get("new_influencer_names"):
+                names = ", ".join(f"@{n}" for n in d["new_influencer_names"][:5])
+                more = f" 외 {len(d['new_influencer_names'])-5}명" if len(d["new_influencer_names"]) > 5 else ""
+                detail_line = (f'<div style="font-size:11px;color:#1565c0;margin-top:3px">'
+                               f'New: {names}{more}</div>')
+
+            rows_html += f"""
+            <tr style="background:{color}">
+              <td style="padding:8px 12px;border-bottom:1px solid #eee;font-size:13px">
+                {_link(label, sheet_url)}
+              </td>
+              <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;
+                  font-weight:600;font-size:13px;white-space:nowrap">{count_str}</td>
+              <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;
+                  font-weight:600;font-size:13px;white-space:nowrap">{infl_str}</td>
+              <td style="padding:8px 12px;border-bottom:1px solid #eee;font-size:12px">
+                {badges}{detail_line}{err_html}
+              </td>
+            </tr>"""
+
+        flag = {"US": "🇺🇸", "JP": "🇯🇵"}.get(region_label, "")
+        return f"""
+        <tr style="background:#e8eaf6">
+          <td colspan="4" style="padding:8px 12px;font-weight:700;font-size:13px;
+              color:#283593;border-bottom:1px solid #c5cae9">{flag} {region_label}</td>
+        </tr>
+        {rows_html}"""
+
+    # 전체 요약 (리전별 신규 인플 + 새글 인플 합계)
+    summary_parts = []
+    for rkey, rlabel in [("US", "US"), ("JP", "JP")]:
+        pm_key = f"{rkey} Posts Master"
+        d = deltas.get(pm_key, {})
+        new_i = d.get("new_influencers", 0)
+        exist_new = d.get("existing_with_new_content", 0)
+        new_p = d.get("new_posts", 0)
+        if new_i > 0 or exist_new > 0 or new_p > 0:
+            parts = []
+            if new_i > 0:
+                parts.append(f"신규 {new_i}명")
+            if exist_new > 0:
+                parts.append(f"기존 {exist_new}명 새글")
+            if new_p > 0:
+                parts.append(f"+{new_p} posts")
+            summary_parts.append(f"{rlabel}: {', '.join(parts)}")
+
+    summary_html = ""
+    if has_prev and summary_parts:
+        summary_text = " | ".join(summary_parts)
+        summary_html = f"""
+        <div style="background:#e3f2fd;border:1px solid #90caf9;border-radius:6px;
+            padding:10px 16px;margin:0 0 14px;font-size:13px;color:#1565c0">
+          <b>Since last report:</b> {summary_text}
+        </div>"""
+    elif not has_prev:
+        summary_html = """
+        <div style="background:#f5f5f5;border-radius:6px;padding:8px 16px;
+            margin:0 0 14px;font-size:12px;color:#999">
+          첫 수집 - 다음 리포트부터 변화량 표시
+        </div>"""
+
+    return f"""
+    <!-- Syncly 탭 현황 -->
+    <h2 style="margin:0 0 14px;font-size:16px;color:#1a1f2e;
+        border-bottom:2px solid #e5e5e5;padding-bottom:8px">
+      📱 Syncly / SNS 트래커 현황
+    </h2>
+    {summary_html}
+    <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:28px">
+      <tr style="background:#f8f9fc">
+        <th style="padding:8px 12px;text-align:left;font-weight:600;color:#555">탭</th>
+        <th style="padding:8px 12px;text-align:right;font-weight:600;color:#555">Posts</th>
+        <th style="padding:8px 12px;text-align:right;font-weight:600;color:#555">인플루언서</th>
+        <th style="padding:8px 12px;text-align:left;font-weight:600;color:#555">변화</th>
+      </tr>
+      {_region_block("US", regions["US"])}
+      {_region_block("JP", regions["JP"])}
+      {_region_block("SNS (매칭)", regions["etc"]) if regions["etc"] else ""}
+    </table>"""
 
 
 # ── HTML 이메일 빌드 ──────────────────────────────────────────────────
@@ -769,37 +987,8 @@ def build_html(dk_status: dict, gh_runs: list[dict], state: dict,
     seo_insights_html = get_seo_insights_html()
 
     # ─ 2. Syncly 탭 섹션 (별도 섹션) ─────────────────────────────────
-    syncly_section_html = ""
-    if syncly_stats:
-        syncly_rows = ""
-        for s in syncly_stats:
-            count     = s.get("count")
-            count_str = f"{count:,}" if isinstance(count, int) else "오류"
-            err_html  = f'<span style="color:#c0392b;font-size:11px">{s.get("error","")}</span>' if s.get("error") else ""
-            sheet_url = SHEET_URLS.get(s["sheet_id"], "#")
-            color     = "#f6fff8" if isinstance(count, int) and count > 0 else "#fff5f5"
-            syncly_rows += f"""
-            <tr style="background:{color}">
-              <td style="padding:7px 12px;border-bottom:1px solid #eee;font-size:13px">
-                {_link(s['label'], sheet_url)}
-              </td>
-              <td style="padding:7px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:600">{count_str} rows</td>
-              <td style="padding:7px 12px;border-bottom:1px solid #eee;font-size:11px;color:#888">{err_html}</td>
-            </tr>"""
-
-        syncly_section_html = f"""
-    <!-- Syncly 탭 현황 -->
-    <h2 style="margin:0 0 14px;font-size:16px;color:#1a1f2e;border-bottom:2px solid #e5e5e5;padding-bottom:8px">
-      📱 Syncly / SNS 트래커 탭 현황
-    </h2>
-    <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:28px">
-      <tr style="background:#f8f9fc">
-        <th style="padding:8px 12px;text-align:left;font-weight:600;color:#555">탭</th>
-        <th style="padding:8px 12px;text-align:right;font-weight:600;color:#555">현재 Rows</th>
-        <th style="padding:8px 12px;text-align:left;font-weight:600;color:#555">비고</th>
-      </tr>
-      {syncly_rows}
-    </table>"""
+    syncly_deltas = compute_syncly_deltas(syncly_stats, state) if syncly_stats else {}
+    syncly_section_html = _build_syncly_section(syncly_stats, syncly_deltas) if syncly_stats else ""
 
     # ─ 3. 데이터 수집 현황 (간단) ────────────────────────────────────
     data_rows_html = ""

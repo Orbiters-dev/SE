@@ -38,8 +38,8 @@ jobs:
           META_REPORT_RECIPIENT=${{ secrets.META_REPORT_RECIPIENT || secrets.PPC_REPORT_RECIPIENT }}
           PPC_REPORT_RECIPIENT=${{ secrets.PPC_REPORT_RECIPIENT }}
           GMAIL_OAUTH_CREDENTIALS_PATH=credentials/gmail_oauth_credentials.json
-          ZEZEBAEBAE_GMAIL_TOKEN_PATH=credentials/zezebaebae_gmail_token.json
-          GMAIL_SENDER=hello@zezebaebae.com
+          GMAIL_TOKEN_PATH=credentials/gmail_token.json
+          GMAIL_SENDER=orbiters11@gmail.com
           ENVEOF
           sed -i 's/^[[:space:]]*//' .env
 
@@ -47,7 +47,7 @@ jobs:
         run: |
           mkdir -p credentials
           echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
-          echo '${{ secrets.GMAIL_TOKEN_JSON }}'             > credentials/zezebaebae_gmail_token.json
+          echo '${{ secrets.GMAIL_TOKEN_JSON }}'             > credentials/gmail_token.json
 
       - name: Run Meta Ads Daily Report
         run: python -u tools/run_meta_ads_daily.py

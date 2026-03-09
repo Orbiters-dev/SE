@@ -95,7 +95,7 @@ tools_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.dirname(tools_dir)
 env = os.environ.copy()
 env['GMAIL_OAUTH_CREDENTIALS_PATH'] = os.path.join(root_dir, 'credentials', 'gmail_oauth_credentials.json')
-env['ZEZEBAEBAE_GMAIL_TOKEN_PATH'] = os.path.join(root_dir, 'credentials', 'gmail_token.json')
+env['GMAIL_TOKEN_PATH'] = os.path.join(root_dir, 'credentials', 'gmail_token.json')
 result = subprocess.run(
     [sys.executable, '-u', os.path.join(tools_dir, 'send_gmail.py'),
      '--to', recipient, '--subject', subject, '--body-file', OUTPUT_PATH],

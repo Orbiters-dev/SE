@@ -4,6 +4,7 @@ on:
   schedule:
     - cron: '0 8 * * *'    # PST 0:00 (= UTC 8:00) - full daily
     - cron: '0 20 * * *'   # PST 12:00 (= UTC 20:00) - midday refresh
+    - cron: '0 23 * * *'   # KST 8:00 AM (= UTC 23:00) - daily status email
   workflow_dispatch:         # manual trigger
     inputs:
       channel:
@@ -16,6 +17,10 @@ on:
         default: '35'
       skip_pg:
         description: 'Skip PostgreSQL push (true/false)'
+        required: false
+        default: 'false'
+      notify_only:
+        description: 'Send status email only (true/false)'
         required: false
         default: 'false'
 
@@ -77,40 +82,61 @@ jobs:
           # Strip leading whitespace from heredoc indentation
           sed -i 's/^[[:space:]]*//' .env
 
-      - name: Install openpyxl for PayPal fetch
-        run: pip install --quiet openpyxl
+      - name: Install additional deps
+        run: |
+          pip install --quiet openpyxl \
+            google-auth google-auth-oauthlib google-api-python-client
 
       - name: Write PayPal credentials
         run: |
           echo "PAYPAL_CLIENT_ID=${{ secrets.PAYPAL_CLIENT_ID }}" >> .env
           echo "PAYPAL_SECRET=${{ secrets.PAYPAL_SECRET }}" >> .env
 
-      - name: Write GSC service account
+      - name: Write credential files
         run: |
           mkdir -p credentials
           echo '${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}' > credentials/google_service_account.json
+          echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
+          echo '${{ secrets.GMAIL_TOKEN_JSON }}' > credentials/gmail_token.json
+
+      - name: Determine run mode
+        id: mode
+        run: |
+          CRON="${{ github.event.schedule }}"
+          NOTIFY_ONLY="${{ github.event.inputs.notify_only || 'false' }}"
+          if [ "$CRON" = "0 23 * * *" ] || [ "$NOTIFY_ONLY" = "true" ]; then
+            echo "notify_only=true" >> $GITHUB_OUTPUT
+          else
+            echo "notify_only=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send daily status email (KST 8 AM)
+        if: steps.mode.outputs.notify_only == 'true'
+        run: |
+          python -u tools/data_keeper.py --notify-only --notify-to "All@orbiters.co.kr"
 
       - name: Run Data Keeper
+        if: steps.mode.outputs.notify_only == 'false'
         run: |
           CHANNEL="${{ github.event.inputs.channel || 'all' }}"
           DAYS="${{ github.event.inputs.days || '35' }}"
           SKIP_PG="${{ github.event.inputs.skip_pg || 'false' }}"
-          CMD="python -u tools/data_keeper.py --channel $CHANNEL --days $DAYS"
+          CMD="python -u tools/data_keeper.py --channel $CHANNEL --days $DAYS --notify"
           if [ "$SKIP_PG" = "true" ]; then CMD="$CMD --skip-pg"; fi
           $CMD
 
       - name: Run PayPal fetch
-        if: github.event.inputs.channel == '' || github.event.inputs.channel == 'all'
+        if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all')
         run: |
           cd tools && python -u fetch_paypal_transactions.py || echo "PayPal fetch failed (non-fatal)"
 
       - name: Run Amazon PPC Analysis
-        if: github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_ads'
+        if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_ads')
         run: |
           python -u tools/run_amazon_ppc_daily.py --dry-run || echo "PPC analysis failed (non-fatal)"
 
       - name: Upload cache as artifact
-        if: always()
+        if: always() && steps.mode.outputs.notify_only == 'false'
         uses: actions/upload-artifact@v4
         with:
           name: datakeeper-cache

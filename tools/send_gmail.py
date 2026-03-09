@@ -29,8 +29,9 @@ load_env()
 SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
 
 CREDENTIALS_PATH = os.getenv("GMAIL_OAUTH_CREDENTIALS_PATH", "credentials/gmail_oauth_credentials.json")
-TOKEN_PATH = os.getenv("ZEZEBAEBAE_GMAIL_TOKEN_PATH", "credentials/zezebaebae_gmail_token.json")
-DEFAULT_SENDER = os.getenv("GMAIL_SENDER", "hello@zezebaebae.com")
+TOKEN_PATH = os.getenv("GMAIL_TOKEN_PATH",
+                        os.getenv("ZEZEBAEBAE_GMAIL_TOKEN_PATH", "credentials/gmail_token.json"))
+DEFAULT_SENDER = os.getenv("GMAIL_SENDER", "orbiters11@gmail.com")
 DEFAULT_RECIPIENT = os.getenv("PPC_REPORT_RECIPIENT", "wj.choi@orbiters.co.kr")
 
 
@@ -50,7 +51,7 @@ def get_gmail_service():
                 sys.exit(1)
             flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_PATH, SCOPES)
             print(f"\nAuthentication required for {DEFAULT_SENDER}")
-            print("A browser window will open - log in with hello@zezebaebae.com\n")
+            print(f"A browser window will open - log in with {DEFAULT_SENDER}\n")
             creds = flow.run_local_server(port=0)
 
         os.makedirs(os.path.dirname(TOKEN_PATH), exist_ok=True)

@@ -148,7 +148,7 @@ recipient = os.getenv('PPC_REPORT_RECIPIENT', 'wj.choi@orbiters.co.kr')
 subject = "[Naeiae PPC] Deep Execution Proposal - 2026-03-06 | Search Term Analysis | 13 Harvest + 5 Negatives"
 env = os.environ.copy()
 env['GMAIL_OAUTH_CREDENTIALS_PATH'] = os.path.join(ROOT_DIR, 'credentials', 'gmail_oauth_credentials.json')
-env['ZEZEBAEBAE_GMAIL_TOKEN_PATH']   = os.path.join(ROOT_DIR, 'credentials', 'gmail_token.json')
+env['GMAIL_TOKEN_PATH']   = os.path.join(ROOT_DIR, 'credentials', 'gmail_token.json')
 result = subprocess.run(
     [sys.executable, '-u', os.path.join(TOOLS_DIR, 'send_gmail.py'),
      '--to', recipient, '--subject', subject, '--body-file', OUTPUT],
