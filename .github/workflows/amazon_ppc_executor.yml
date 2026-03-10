@@ -55,11 +55,15 @@ jobs:
             --to "${{ secrets.PPC_REPORT_RECIPIENT }}" \
             --cc "mj.lee@orbiters.co.kr"
 
+      - name: List proposal files
+        if: always()
+        run: ls -la .tmp/ppc_proposal_*.json 2>/dev/null || echo "No proposal files found"
+
       - name: Upload proposal for check-execute workflow
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ppc-proposal-latest
-          path: .tmp/ppc_proposal_*.json
+          path: .tmp/
           retention-days: 3
           overwrite: true
