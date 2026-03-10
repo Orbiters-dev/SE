@@ -5,6 +5,9 @@ on:
     - cron: '*/30 * * * *'   # Every 30 minutes — check for 'execute' reply
   workflow_dispatch:          # Manual trigger
 
+permissions:
+  actions: read
+
 jobs:
   check-execute:
     runs-on: ubuntu-latest
