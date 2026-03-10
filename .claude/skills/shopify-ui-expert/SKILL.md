@@ -14,8 +14,10 @@ description: "Shopify UI 개발 전문가. Checkout UI Extensions(React), Liquid
 - Polaris 기반 Shopify Admin 앱 개발
 - Hydrogen/Remix 헤드리스 스토어프론트 개발
 - 폼 데이터 → n8n webhook → PostgreSQL → Airtable → Metafield 파이프라인 설계/디버깅
-- E2E 테스트 작성 및 실행 (`tools/shopify_tester.py`)
+- E2E 테스트 작성 및 실행 (`tools/shopify_tester.py`, `tools/test_influencer_flow.py`)
 - Shopify 메타필드 정의/동기화
+- 인플루언서 협업 파이프라인 (Gifting → Sample → Delivery → Posted) 관리
+- n8n 워크플로우 생성/수정/디버깅
 
 ## Architecture
 
@@ -37,6 +39,9 @@ Admin App ──GraphQL──>            Shopify Metafields (via n8n)
 
 Hydrogen/Remix ──Storefront API──>
   (headless, SSR)
+
+Influencer Pipeline ──n8n polling──>
+  (Airtable status → Shopify Draft Order → Fulfillment → Syncly)
 ```
 
 ## Domain 1: Checkout UI Extensions
@@ -122,6 +127,69 @@ Shopify Admin에 임베딩되는 React 앱. 내부 대시보드, 설정 패널, 
 
 상세 패턴은 `references/hydrogen-remix.md` 참조.
 
+## Domain 5: Influencer Collaboration Pipeline (Pathlight)
+
+인플루언서 협업의 전체 수명주기를 n8n 워크플로우 체인으로 자동화한다.
+
+### Status Flow (Airtable Outreach Status)
+
+```
+Not Started → Draft Ready → Sent → Replied → Needs Review
+→ Accepted → Sample Sent → Sample Shipped → Sample Delivered → Posted
+                          → Sample Error
+→ Declined
+```
+
+### 워크플로우 체인
+
+| 단계 | n8n 워크플로우 | 트리거 | 동작 |
+|------|---------------|--------|------|
+| 1. 신청 접수 | Gifting (webhook) | 폼 제출 | Shopify 고객 생성/조회 → Airtable 레코드 생성 (Needs Review) |
+| 2. 수락 → 샘플 요청 | Gifting2 (webhook) | 크리에이터 폼 제출 | Draft Order 생성 (100% 할인) → Airtable 업데이트 |
+| 3. 샘플 발송 | Sample Sent → Complete (polling) | 5분 간격 | Airtable "Sample Sent" 레코드 → Shopify Draft Order Complete → "Sample Shipped" |
+| 4. 배송 완료 | Shipped → Delivered (polling) | 30분 간격 | Shopify fulfillment delivered 감지 → Airtable "Sample Delivered" |
+| 5. 컨텐츠 게시 | Delivered → Posted (polling) | 6시간 간격 | Syncly D+60 시트에서 인플루언서 게시물 감지 → Airtable "Posted" |
+
+### n8n 워크플로우 ID 목록
+
+**Production:**
+| ID | 이름 |
+|----|------|
+| `F0sv8RsCS1v56Gkw` | Gifting (Influencer Application) |
+| `KqICsN9F1mPwnAQ9` | Gifting2 (Sample Request → Draft Order) |
+| `m89xU9RUbPgnkBy8` | Sample Sent → Complete Draft Order |
+
+**WJ TEST:**
+| ID | 이름 |
+|----|------|
+| `4q5NCzMb3nMGYqL4` | [WJ TEST] Gifting |
+| `Vd5NiKMwdLT7b9wa` | [WJ TEST] Sample Sent → Complete |
+| `2vsXyHtjo79hnFoD` | [WJ TEST] Sample Shipped → Delivered Detection |
+| `82t55jurzbY3iUM4` | [WJ TEST] Sample Delivered → Posted Detection |
+
+### n8n 크레덴셜
+
+| ID | 이름 | 용도 |
+|----|------|------|
+| `rIJuzuN1C5ieE7dr` | Shopify Admin API (Gifting) | mytoddie.myshopify.com Draft Order 관리 |
+| `59gWUPbiysH2lxd8` | Airtable PAT (WJ Test) | Airtable HTTP Request 인증 |
+
+### Airtable 베이스
+
+| 환경 | Base ID | Table ID | 용도 |
+|------|---------|----------|------|
+| Production (William) | `appNPVxj4gUJl9v15` | `tblv2Jw3ZAtAMhiYY` | Outbound CRM |
+| WJ TEST | `appT2gLRR0PqMFgII` | `tbl7zJ1MscP852p9N` | 테스트 환경 |
+| Inbound | `appT2gLRR0PqMFgII` | `tbloYjIEr5OtEppT0` | 인플루언서 인바운드 |
+
+### 중요 제약사항
+
+1. **n8n Code 노드에 `fetch()` 없음** — API 호출은 반드시 HTTP Request 노드 사용
+2. **두 개의 Shopify 스토어**: `mytoddie.myshopify.com` (n8n 크레덴셜, Draft Order 권한 있음) vs `toddie-4080.myshopify.com` (.wat_secrets 토큰, product scope만)
+3. **n8n webhook 안정성** — 간헐적 system-wide 장애 발생 가능, 서버 재시작 필요
+
+상세는 `references/influencer-pipeline.md` 참조.
+
 ## Data Pipeline
 
 UI에서 수집한 데이터가 최종 저장소에 도달하는 경로.
@@ -192,22 +260,75 @@ UI에서 수집한 데이터가 최종 저장소에 도달하는 경로.
 
 ## Tools Inventory
 
-| Tool | Purpose | Command |
-|------|---------|---------|
-| `deploy_core_signup_page.py` | 코어 사인업 페이지 배포 | `python tools/deploy_core_signup_page.py` |
-| `deploy_loyalty_survey_page.py` | 로열티 설문 페이지 배포 | `python tools/deploy_loyalty_survey_page.py` |
-| `deploy_creator_profile_page.py` | 크리에이터 프로필 페이지 배포 | `python tools/deploy_creator_profile_page.py` |
-| `deploy_influencer_page.py` | 인플루언서 기프팅 페이지 배포 | `python tools/deploy_influencer_page.py` |
-| `deploy_chaenmom_gifting_page.py` | 차앤맘 기프팅 페이지 배포 | `python tools/deploy_chaenmom_gifting_page.py` |
-| `shopify_tester.py` | E2E 테스트 러너 | `python tools/shopify_tester.py --run` |
-| `setup_survey_metafields.py` | 메타필드 정의 등록 | `python tools/setup_survey_metafields.py` |
-| `shopify_oauth.py` | OAuth 토큰 관리 | `python tools/shopify_oauth.py` |
-| `shopify_bulk_import.py` | 기존 데이터 벌크 임포트 | `python tools/shopify_bulk_import.py` |
+### Page Deployment (deploy_*.py)
+
+| Tool | 페이지 |
+|------|--------|
+| `deploy_core_signup_page.py` | /pages/core-signup (Part 1) |
+| `deploy_loyalty_survey_page.py` | /pages/loyalty-survey (Part 3) |
+| `deploy_creator_profile_page.py` | /pages/creator-profile (Part 2) |
+| `deploy_creator_sample_form_page.py` | /pages/creator-sample |
+| `deploy_influencer_page.py` | /pages/influencer-gifting |
+| `deploy_influencer_gifting2_page.py` | /pages/influencer-gifting2 |
+| `deploy_chaenmom_gifting_page.py` | /pages/chaenmom-gifting |
+
+### n8n Workflow Setup (setup_n8n_*.py)
+
+| Tool | 용도 |
+|------|------|
+| `setup_n8n_core_signup.py` | Core Signup → PG + Airtable + Shopify (PG-first) |
+| `setup_n8n_loyalty_survey.py` | Loyalty Survey → Discount Code + Metafields |
+| `setup_n8n_creator_to_airtable.py` | Creator Signup → PG + Airtable + IG Scrape |
+| `setup_n8n_gifting2_order.py` | Gifting2 → Shopify Draft Order + Airtable |
+| `setup_n8n_sample_request_order.py` | Sample Request → Draft Order (100% discount) |
+| `setup_n8n_metafield_sync.py` | Form survey data → Shopify customer metafields |
+| `setup_n8n_airtable_to_shopify_metafields.py` | Airtable → Shopify metafield sync (5min poll) |
+| `setup_n8n_airtable_to_postgres.py` | Airtable → PostgreSQL sync (5min poll) |
+| `setup_n8n_airtable_sync.py` | PostgreSQL → Airtable daily customer sync |
+| `setup_n8n_customer_sync.py` | Shopify Customer Webhook → PostgreSQL |
+| `setup_n8n_order_sync.py` | Shopify Order Webhook → PostgreSQL |
+| `setup_n8n_customer_enrichment.py` | Daily RFM + LTV + AOV calculation |
+| `setup_n8n_accepted_email.py` | Accepted creators → Send sample form email |
+| `setup_n8n_syncly_daily.py` | Syncly Daily Content Metrics Sync |
+| `setup_n8n_signup_overview.py` | Tag + overview workflow with flow diagram |
+
+### Shopify Integration
+
+| Tool | 용도 |
+|------|------|
+| `shopify_tester.py` | E2E 테스트 러너 (customer journey) |
+| `shopify_bulk_import.py` | 기존 데이터 벌크 임포트 to PG |
+| `shopify_oauth.py` | OAuth 토큰 발급 (local callback server) |
+| `setup_survey_metafields.py` | 메타필드 정의 등록 |
+
+### Influencer Pipeline
+
+| Tool | 용도 |
+|------|------|
+| `test_influencer_flow.py` | E2E flow tester (Pathlight pipeline) |
+| `process_influencer_order.py` | 폼 제출 → Shopify customer + draft order |
+| `influencer_customer_lookup.py` | Shopify 고객 검색 (n8n Execute Command용) |
+| `fetch_influencer_orders.py` | 인플루언서 주문 조회 (PR/supporter/sample) |
+| `check_influencer_hashtag.py` | IG 해시태그 포스팅 확인 (Meta Graph API) |
+| `create_typeform_influencer.py` | Typeform 기프팅 폼 생성 |
+| `sync_influencer_notion.py` | Google Sheets → Notion DB 동기화 |
+
+### Airtable Setup
+
+| Tool | 용도 |
+|------|------|
+| `setup_airtable_customers.py` | Shopify Customers 베이스 생성 |
+| `setup_airtable_inbound.py` | Inbound from ONZ 베이스 생성 |
+| `setup_airtable_customers_table.py` | Onzenna Customers 마스터 테이블 |
 
 ## Known Issues & Patterns
 
 | 이슈 | 해결 패턴 |
 |------|----------|
+| **n8n Code 노드에 `fetch()` 없음** | API 호출은 반드시 HTTP Request 노드 사용. Code 노드는 데이터 변환만 |
+| **두 개의 Shopify 스토어** | `mytoddie.myshopify.com` (n8n 크레덴셜, draft_orders 권한) vs `toddie-4080.myshopify.com` (.wat_secrets, product scope만) |
+| **n8n webhook 간헐적 장애** | 전체 webhook 실행 실패 시 n8n 서버 재시작 필요 (SSH) |
+| **Airtable select 옵션 추가** | API로 직접 추가 불가 → `typecast: true`로 임시 레코드 생성 후 삭제 |
 | Python f-string에서 Liquid `{{` 충돌 | `{{{{` 또는 별도 변수로 분리 |
 | CSS 클래스 테마 충돌 | 페이지별 고유 접두사 사용 (`ck-`, `igf-`, `cs-`) |
 | 체크아웃에서 customer metafield 직접 쓰기 불가 | `useApplyMetafieldsChange`는 order metafield에 기록 → n8n이 customer metafield로 동기화 |
@@ -220,8 +341,8 @@ UI에서 수집한 데이터가 최종 저장소에 도달하는 경로.
 
 | Variable | Purpose |
 |----------|---------|
-| `SHOPIFY_SHOP` | 스토어 도메인 (mytoddie.myshopify.com) |
-| `SHOPIFY_ACCESS_TOKEN` | Admin API 토큰 |
+| `SHOPIFY_SHOP` | 스토어 도메인 (toddie-4080.myshopify.com — product scope만) |
+| `SHOPIFY_ACCESS_TOKEN` | Admin API 토큰 (product scope만, draft_orders 없음) |
 | `N8N_API_KEY` | n8n API 접근 |
 | `N8N_BASE_URL` | n8n 인스턴스 URL |
 | `N8N_CORE_SIGNUP_WEBHOOK` | 코어 사인업 웹훅 URL |
@@ -230,4 +351,4 @@ UI에서 수집한 데이터가 최종 저장소에 도달하는 경로.
 | `AIRTABLE_CUSTOMERS_BASE_ID` | Airtable 고객 베이스 ID |
 | `POSTGRES_HOST` / `USER` / `PASSWORD` / `DB` | PostgreSQL 접속 |
 
-Python 경로: `/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe`
+Python 경로: `/c/Users/wjcho/AppData/Local/Programs/Python/Python312/python.exe`

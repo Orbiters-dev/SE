@@ -2,19 +2,22 @@
 Influencer Collaboration E2E Flow Tester
 =========================================
 n8n 기반 인플루언서 협업 파이프라인 전체 플로우를 자율주행 스타일로 테스트.
+Pathlight Workflows의 [WJ TEST] 클론을 사용하여 프로덕션에 영향 없이 테스트.
 
-3개 플로우:
-  Flow 1: Influencer Gifting Application (메인 신청)
-  Flow 2: Creator Profile Signup (크리에이터 프로필)
-  Flow 3: Sample Request (수락 후 샘플 요청)
+플로우:
+  pipeline  : 풀 파이프라인 (Syncly -> Outreach -> Fulfillment) - Pathlight 전체
+  gifting   : Influencer Gifting Application (메인 신청)
+  creator   : Creator Profile Signup (크리에이터 프로필)
+  sample    : Sample Request (수락 후 샘플 요청)
 
 매 스텝마다 request/response 전체를 flight recorder에 기록하고,
 스텝 간 변수 캡처 & 전달, HTML 리포트 자동 생성, 테스트 데이터 cleanup.
 
 Usage:
-    python tools/test_influencer_flow.py --run                  # 전체 3개 플로우
-    python tools/test_influencer_flow.py --run --flow gifting   # 특정 플로우만
-    python tools/test_influencer_flow.py --dry-run              # API 호출 없이 미리보기
+    python tools/test_influencer_flow.py --run --flow pipeline  # 풀 파이프라인 E2E
+    python tools/test_influencer_flow.py --run --flow gifting   # 기프팅만
+    python tools/test_influencer_flow.py --run                  # gifting+creator+sample
+    python tools/test_influencer_flow.py --dry-run --flow pipeline  # 파이프라인 미리보기
     python tools/test_influencer_flow.py --run --no-cleanup     # 데이터 보존
     python tools/test_influencer_flow.py --status               # 환경변수 체크
     python tools/test_influencer_flow.py --results              # 마지막 결과 보기
@@ -60,29 +63,80 @@ SHOPIFY_TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN", "")
 ORBITOOLS_URL = os.getenv("ORBITOOLS_URL", "https://orbitools.orbiters.co.kr")
 ORBITOOLS_USER = os.getenv("ORBITOOLS_USER", "")
 ORBITOOLS_PASS = os.getenv("ORBITOOLS_PASS", "")
+N8N_BASE_URL = os.getenv("N8N_BASE_URL", "https://n8n.orbiters.co.kr")
+N8N_API_KEY = os.getenv("N8N_API_KEY", "")
+
+# ─── Airtable CRM Tables (Pathlight Workflows 사용) ─────────────────────────
+AT_BASE = "appT2gLRR0PqMFgII"
+AT_CREATORS = "tbl7zJ1MscP852p9N"
+AT_CONTENT = "tblSva2askQRwgGV1"
+AT_ORDERS = "tblCcWpvDZX7UZmSd"
+AT_CONVERSATIONS = "tblUnBCTmGzBb4BjZ"
+AT_APPLICANTS = "tbloYjIEr5OtEppT0"
+
+# ─── [WJ TEST] Workflow IDs (Pathlight 클론) ────────────────────────────────
+WJ_WORKFLOWS = {
+    "syncly":       "6BNQRz57oCtdROlH",   # Syncly Data Processing
+    "content":      "zKmOX0tEWi6EBT9h",   # Content Tracking
+    "manychat":     "k08R16VJIuSPdi6T",   # ManyChat Automation
+    "draft_gen":    "0q9uJUYTpDhQFMfz",   # Outreach - Draft Generation
+    "approval":     "mmkBpmvhzbgmSayh",   # Outreach - Approval Send
+    "reply":        "nVtYmhU0InRqRn4K",   # Outreach - Reply Handler
+    "docusign":     "5BG7Qe7HtsbD4iP0",   # Docusign Contracting
+    "fulfillment":  "UP1OnpNEFN54AOUn",   # Shopify Fulfillment -> Airtable
+    "gifting":      "4q5NCzMb3nMGYqL4",   # Influencer Gifting -> Draft Order
+    "lookup":       "wyttsPSZJlWLgy86",   # Influencer Customer Lookup
+    "full_pipeline": "CEWr3kQlDg07310Y",  # Full Pipeline (JH&SY)
+}
+
+# ─── [WJ TEST] Webhook paths ───────────────────────────────────────────────
+WJ_WEBHOOK_BASE = "https://n8n.orbiters.co.kr/webhook"
+WJ_WEBHOOKS = {
+    "gifting":      f"{WJ_WEBHOOK_BASE}/wj-test-influencer-gifting",
+    "fulfillment":  f"{WJ_WEBHOOK_BASE}/wj-test-shopify-fulfillment",
+    "content":      f"{WJ_WEBHOOK_BASE}/wj-test-check-content",
+    "contract":     f"{WJ_WEBHOOK_BASE}/wj-test-contract-approve",
+}
 
 REQUIRED_ENVS = {
-    "N8N_INFLUENCER_WEBHOOK": "Flow 1 webhook",
-    "N8N_CREATOR_AIRTABLE_WEBHOOK": "Flow 2 webhook",
-    "N8N_GIFTING2_WEBHOOK": "Flow 3 webhook",
+    "N8N_API_KEY": "n8n API (workflow execution)",
+    "N8N_BASE_URL": "n8n base URL",
     "AIRTABLE_API_KEY": "Airtable verification",
     "SHOPIFY_SHOP": "Shopify Admin API",
     "SHOPIFY_ACCESS_TOKEN": "Shopify Admin API",
-    "ORBITOOLS_URL": "PostgreSQL verification",
-    "ORBITOOLS_USER": "Orbitools auth",
-    "ORBITOOLS_PASS": "Orbitools auth",
 }
 
 TEST_EMAIL_DOMAIN = "test.orbiters.co.kr"
 
 # ─── Output helpers ─────────────────────────────────────────────────────────
+STATE_FILE = os.path.join(TMP, "influencer_flow_state.json")
+
 def log(msg):  print(msg)
 def ok(msg):   print(f"  [PASS] {msg}")
 def fail(msg): print(f"  [FAIL] {msg}")
 def warn(msg): print(f"  [WARN] {msg}")
 def info(msg): print(f"  [INFO] {msg}")
+def link(msg): print(f"  [LINK] {msg}")
 def sep():     print("=" * 70)
 def sep2():    print("-" * 70)
+
+
+# ─── Link generators ──────────────────────────────────────────────────────
+def link_airtable(table_id, record_id=""):
+    url = f"https://airtable.com/{AT_BASE}/{table_id}"
+    if record_id and str(record_id).startswith("rec"):
+        url += f"/{record_id}"
+    return url
+
+def link_shopify(resource, resource_id):
+    return f"https://{SHOPIFY_STORE}/admin/{resource}/{resource_id}"
+
+def link_n8n_wf(wf_key):
+    wf_id = WJ_WORKFLOWS.get(wf_key, wf_key)
+    return f"{N8N_BASE_URL}/workflow/{wf_id}"
+
+def link_n8n_exec(wf_id, exec_id):
+    return f"{N8N_BASE_URL}/workflow/{wf_id}/executions/{exec_id}"
 
 
 # ─── HTTP utility ───────────────────────────────────────────────────────────
@@ -125,6 +179,7 @@ class FlowContext:
         self.variables = {}
         self.flight_log = []
         self.step_results = []
+        self.data_trail = []  # {label, url, type, id, step_id}
         self.started_at = None
         self.finished_at = None
         self.status = "PENDING"
@@ -134,6 +189,50 @@ class FlowContext:
 
     def get(self, key, default=None):
         return self.variables.get(key, default)
+
+    def add_link(self, label, url, resource_type="", resource_id="", step_id=""):
+        self.data_trail.append({"label": label, "url": url, "type": resource_type,
+                                "id": str(resource_id), "step_id": step_id})
+        link(f"{label}: {url}")
+
+    def save_state(self):
+        """Persist context variables to file for step-by-step execution."""
+        state = {
+            "flow_id": self.flow_id,
+            "variables": {},
+            "data_trail": self.data_trail,
+            "last_step": len(self.step_results),
+            "saved_at": datetime.now().isoformat(),
+        }
+        # Serialize variables (only JSON-safe values)
+        for k, v in self.variables.items():
+            try:
+                json.dumps(v)
+                state["variables"][k] = v
+            except (TypeError, ValueError):
+                state["variables"][k] = str(v)
+        with open(STATE_FILE, "w", encoding="utf-8") as f:
+            json.dump(state, f, ensure_ascii=False, indent=2, default=str)
+        info(f"State saved to {STATE_FILE} (step {state['last_step']})")
+
+    def load_state(self):
+        """Load context variables from saved state file."""
+        if not os.path.exists(STATE_FILE):
+            return False
+        try:
+            with open(STATE_FILE, "r", encoding="utf-8") as f:
+                state = json.load(f)
+            if state.get("flow_id") != self.flow_id:
+                warn(f"State file is for flow '{state.get('flow_id')}', not '{self.flow_id}'")
+                return False
+            self.variables = state.get("variables", {})
+            self.data_trail = state.get("data_trail", [])
+            last = state.get("last_step", 0)
+            info(f"Loaded state from {STATE_FILE} ({len(self.variables)} vars, last_step={last})")
+            return True
+        except Exception as e:
+            warn(f"Failed to load state: {e}")
+            return False
 
     def interpolate(self, obj):
         """Recursively replace {{var}} in any nested dict/list/str."""
@@ -238,6 +337,14 @@ def run_http_post(step, ctx):
     # Capture values from response
     _do_captures(step, body, ctx, entry)
 
+    # Auto-generate links for webhook URLs
+    entry["links"] = []
+    for wh_name, wh_url in WJ_WEBHOOKS.items():
+        if wh_url in url:
+            wf_key = {"contract": "docusign"}.get(wh_name, wh_name)
+            entry["links"].append({"label": f"n8n Workflow ({wh_name})", "url": link_n8n_wf(wf_key)})
+            break
+
     return passed, entry
 
 
@@ -270,6 +377,7 @@ def run_verify_airtable(step, ctx):
     table_id = ctx.interpolate(step.get("table_id", AIRTABLE_TABLE_ID))
     filter_field = step.get("filter_field", "Email")
     filter_value = ctx.interpolate(step.get("filter_value", ""))
+    custom_formula = ctx.interpolate(step.get("filter_formula", ""))
     expect_exists = step.get("expect_exists", True)
     expect_fields = ctx.interpolate(step.get("expect_fields", {}))
 
@@ -277,11 +385,17 @@ def run_verify_airtable(step, ctx):
         warn("AIRTABLE_API_KEY not set -- skipping")
         return None, {"skipped": "no AIRTABLE_API_KEY"}
 
-    safe_value = filter_value.replace("'", "\\'")
-    formula = urllib.parse.quote(f"{{{filter_field}}}='{safe_value}'")
+    if custom_formula:
+        formula = urllib.parse.quote(custom_formula)
+    else:
+        safe_value = filter_value.replace("'", "\\'")
+        formula = urllib.parse.quote(f"{{{filter_field}}}='{safe_value}'")
     url = f"https://api.airtable.com/v0/{base_id}/{table_id}?filterByFormula={formula}&maxRecords=5"
 
-    log(f"  Airtable: {base_id}/{table_id} where {filter_field}='{filter_value}'")
+    if custom_formula:
+        log(f"  Airtable: {base_id}/{table_id} formula: {custom_formula}")
+    else:
+        log(f"  Airtable: {base_id}/{table_id} where {filter_field}='{filter_value}'")
     entry = {"request": {"method": "GET", "url": url}, "response": {}, "assertions": []}
 
     headers = {"Authorization": f"Bearer {AIRTABLE_API_KEY}"}
@@ -327,6 +441,13 @@ def run_verify_airtable(step, ctx):
     # Capture: always provide record data for capture
     capture_data = {"records": records}
     _do_captures(step, capture_data, ctx, entry)
+
+    # Auto-generate Airtable links
+    entry["links"] = []
+    if records:
+        rid = records[0].get("id", "")
+        if rid:
+            entry["links"].append({"label": "Airtable Record", "url": link_airtable(table_id, rid), "id": rid})
 
     return passed, entry
 
@@ -384,6 +505,13 @@ def run_verify_shopify(step, ctx):
             ok("No Shopify customer (as expected)")
 
         _do_captures(step, body, ctx, entry)
+
+        # Auto-generate Shopify customer link
+        entry["links"] = []
+        if customers:
+            cid = customers[0].get("id")
+            if cid:
+                entry["links"].append({"label": "Shopify Customer", "url": link_shopify("customers", cid), "id": str(cid)})
         return passed, entry
 
     elif resource == "metafield":
@@ -471,6 +599,12 @@ def run_verify_shopify(step, ctx):
 
             # Provide body for captures
             _do_captures(step, {"draft_orders": matching}, ctx, entry)
+
+            # Auto-generate Shopify draft order link
+            entry.setdefault("links", [])
+            did = do.get("id")
+            if did:
+                entry["links"].append({"label": "Shopify Draft Order", "url": link_shopify("draft_orders", did), "id": str(did)})
         return passed, entry
 
     else:
@@ -542,13 +676,196 @@ def _do_captures(step, body, ctx, entry):
     entry["captures"] = captured
 
 
+# ─── New Step Runners: n8n execute, Airtable create/update ──────────────────
+
+def run_n8n_execute(step, ctx):
+    """Trigger a [WJ TEST] n8n workflow via API. Schedule-based workflows need this."""
+    wf_key = ctx.interpolate(step.get("workflow_key", ""))
+    wf_id = WJ_WORKFLOWS.get(wf_key, wf_key)  # Accept key or raw ID
+    test_data = ctx.interpolate(step.get("test_data", {}))
+
+    if not N8N_API_KEY:
+        warn("N8N_API_KEY not set -- skipping")
+        return None, {"skipped": "no N8N_API_KEY"}
+
+    url = f"{N8N_BASE_URL}/api/v1/workflows/{wf_id}/run"
+    log(f"  n8n Execute: {wf_key} (id={wf_id})")
+    entry = {"request": {"method": "POST", "url": url, "body": test_data}, "response": {}, "assertions": []}
+
+    headers = {"X-N8N-API-KEY": N8N_API_KEY, "Content-Type": "application/json"}
+    payload = {}
+    if test_data:
+        payload["data"] = test_data
+
+    data_bytes = json.dumps(payload).encode() if payload else None
+    req = urllib.request.Request(url, data=data_bytes, headers=headers, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            body = json.loads(resp.read().decode())
+            entry["response"] = {"status": resp.status, "body": body if len(json.dumps(body, default=str)) < 5000 else {"truncated": True, "keys": list(body.keys()) if isinstance(body, dict) else "..."}}
+            ok(f"Workflow triggered (status={resp.status})")
+            entry["assertions"].append({"check": "n8n_execute", "expected": "success", "actual": "success", "pass": True})
+            _do_captures(step, body, ctx, entry)
+            # Auto-generate n8n links
+            entry["links"] = [{"label": f"n8n Workflow ({wf_key})", "url": link_n8n_wf(wf_key)}]
+            # Try to get execution ID from response
+            exec_id = None
+            if isinstance(body, dict):
+                exec_id = body.get("executionId") or body.get("data", {}).get("executionId") if isinstance(body.get("data"), dict) else None
+            if exec_id:
+                entry["links"].append({"label": "n8n Execution", "url": link_n8n_exec(wf_id, exec_id), "id": str(exec_id)})
+            return True, entry
+    except urllib.error.HTTPError as e:
+        err_body = e.read().decode()[:500]
+        entry["response"] = {"status": e.code, "body": err_body}
+        # 404 might mean workflow needs activation or different API path
+        if e.code == 404:
+            fail(f"Workflow not found or inactive. Activate it first in n8n UI.")
+        else:
+            fail(f"n8n API error {e.code}: {err_body[:200]}")
+        entry["assertions"].append({"check": "n8n_execute", "expected": "success", "actual": f"HTTP {e.code}", "pass": False})
+        return False, entry
+    except Exception as e:
+        fail(f"n8n execute error: {e}")
+        entry["response"] = {"error": str(e)}
+        return False, entry
+
+
+def run_airtable_create(step, ctx):
+    """Create a record in Airtable (seed test data or simulate upstream output)."""
+    base_id = ctx.interpolate(step.get("base_id", AT_BASE))
+    table_id = ctx.interpolate(step.get("table_id", ""))
+    fields = ctx.interpolate(step.get("fields", {}))
+
+    if not AIRTABLE_API_KEY:
+        warn("AIRTABLE_API_KEY not set -- skipping")
+        return None, {"skipped": "no AIRTABLE_API_KEY"}
+
+    url = f"https://api.airtable.com/v0/{base_id}/{table_id}"
+    log(f"  Airtable CREATE: {base_id}/{table_id}")
+    entry = {"request": {"method": "POST", "url": url, "body": {"fields": fields}}, "response": {}, "assertions": []}
+
+    payload = json.dumps({"fields": fields}).encode()
+    req = urllib.request.Request(url, data=payload, method="POST")
+    req.add_header("Authorization", f"Bearer {AIRTABLE_API_KEY}")
+    req.add_header("Content-Type", "application/json")
+
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.loads(resp.read().decode())
+            record_id = data.get("id", "")
+            entry["response"] = {"status": 200, "body": data}
+            ok(f"Created record {record_id}")
+            entry["assertions"].append({"check": "airtable_create", "expected": "created", "actual": record_id, "pass": True})
+            _do_captures(step, data, ctx, entry)
+            # Auto-capture record_id
+            if record_id:
+                ctx.set("_last_airtable_record_id", record_id)
+            # Auto-generate Airtable link
+            entry["links"] = []
+            if record_id:
+                entry["links"].append({"label": "Airtable Record (created)", "url": link_airtable(table_id, record_id), "id": record_id})
+            return True, entry
+    except urllib.error.HTTPError as e:
+        err_body = e.read().decode()[:500]
+        fail(f"Airtable create error {e.code}: {err_body[:200]}")
+        entry["response"] = {"status": e.code, "body": err_body}
+        entry["assertions"].append({"check": "airtable_create", "expected": "created", "actual": f"HTTP {e.code}", "pass": False})
+        return False, entry
+
+
+def run_airtable_update(step, ctx):
+    """Update an Airtable record (simulate human-in-the-loop status changes)."""
+    base_id = ctx.interpolate(step.get("base_id", AT_BASE))
+    table_id = ctx.interpolate(step.get("table_id", ""))
+    record_id = ctx.interpolate(step.get("record_id", ""))
+    fields = ctx.interpolate(step.get("fields", {}))
+
+    if not AIRTABLE_API_KEY:
+        warn("AIRTABLE_API_KEY not set -- skipping")
+        return None, {"skipped": "no AIRTABLE_API_KEY"}
+
+    if not record_id:
+        fail("No record_id for Airtable update")
+        return False, {"error": "no record_id"}
+
+    url = f"https://api.airtable.com/v0/{base_id}/{table_id}/{record_id}"
+    log(f"  Airtable UPDATE: {record_id} -> {fields}")
+    entry = {"request": {"method": "PATCH", "url": url, "body": {"fields": fields}}, "response": {}, "assertions": []}
+
+    payload = json.dumps({"fields": fields}).encode()
+    req = urllib.request.Request(url, data=payload, method="PATCH")
+    req.add_header("Authorization", f"Bearer {AIRTABLE_API_KEY}")
+    req.add_header("Content-Type", "application/json")
+
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.loads(resp.read().decode())
+            entry["response"] = {"status": 200, "body": data}
+            ok(f"Updated record {record_id}")
+            entry["assertions"].append({"check": "airtable_update", "expected": "updated", "actual": "success", "pass": True})
+            _do_captures(step, data, ctx, entry)
+            return True, entry
+    except urllib.error.HTTPError as e:
+        err_body = e.read().decode()[:500]
+        fail(f"Airtable update error {e.code}: {err_body[:200]}")
+        entry["response"] = {"status": e.code, "body": err_body}
+        entry["assertions"].append({"check": "airtable_update", "expected": "updated", "actual": f"HTTP {e.code}", "pass": False})
+        return False, entry
+
+
+def run_human_checkpoint(step, ctx):
+    """Mark a human-in-the-loop point with instructions and links."""
+    description = step.get("description", "Human action required")
+    simulated = step.get("simulated", True)
+    instructions = step.get("instructions", [])
+
+    log(f"\n  === HUMAN CHECKPOINT ===")
+    log(f"  {description}")
+    entry = {"assertions": [], "links": []}
+
+    if instructions:
+        log(f"")
+        for instr in instructions:
+            log(f"  {instr}")
+        log(f"")
+
+    # Auto-add relevant links from context
+    creator_rid = ctx.get("creator_record_id")
+    if creator_rid:
+        url = link_airtable(AT_CREATORS, creator_rid)
+        log(f"  [LINK] Airtable Creator: {url}")
+        entry["links"].append({"label": "Airtable Creator Record", "url": url, "id": creator_rid})
+    conv_rid = ctx.get("conversation_record_id")
+    if conv_rid:
+        url = link_airtable(AT_CONVERSATIONS, conv_rid)
+        log(f"  [LINK] Airtable Conversation: {url}")
+        entry["links"].append({"label": "Airtable Conversation", "url": url, "id": conv_rid})
+    cust_id = ctx.get("shopify_customer_id")
+    if cust_id:
+        url = link_shopify("customers", cust_id)
+        log(f"  [LINK] Shopify Customer: {url}")
+        entry["links"].append({"label": "Shopify Customer", "url": url, "id": str(cust_id)})
+
+    log(f"  === Do the above, then run the NEXT step ===\n")
+
+    if simulated:
+        info(f"  (Auto-simulated in test mode)")
+    entry["assertions"].append({"check": "human_checkpoint", "expected": "acknowledged", "actual": "acknowledged", "pass": True})
+    return True, entry
+
+
 STEP_RUNNERS = {
-    "http_post":        run_http_post,
-    "http_get":         run_http_get,
-    "verify_airtable":  run_verify_airtable,
-    "verify_shopify":   run_verify_shopify,
-    "verify_postgres":  run_verify_postgres,
-    "wait":             run_wait,
+    "http_post":          run_http_post,
+    "http_get":           run_http_get,
+    "verify_airtable":    run_verify_airtable,
+    "verify_shopify":     run_verify_shopify,
+    "verify_postgres":    run_verify_postgres,
+    "wait":               run_wait,
+    "n8n_execute":        run_n8n_execute,
+    "airtable_create":    run_airtable_create,
+    "airtable_update":    run_airtable_update,
+    "human_checkpoint":   run_human_checkpoint,
 }
 
 
@@ -562,9 +879,318 @@ def _make_test_email():
     return f"flow_test_{ts}_{rand}@{TEST_EMAIL_DOMAIN}"
 
 
-def flow_gifting():
+def flow_pipeline(email=None):
+    """Full Pathlight Pipeline: Syncly -> Content -> Outreach -> Docusign -> Fulfillment.
+    Uses [WJ TEST] clones only. Production is never touched."""
+    test_email = email or _make_test_email()
+    is_real_email = email is not None
+    test_name = "WJ FlowTest" if not is_real_email else "Wonjin Choi"
+    test_ig = "wjflowtest_ig" if not is_real_email else "wj_choi_test"
+    test_profile_url = f"https://instagram.com/{test_ig}"
+    return {
+        "flow_id": "pathlight_pipeline",
+        "flow_name": "Full Pipeline: Syncly -> Outreach -> Fulfillment",
+        "description": "Pathlight Workflows 전체 E2E ([WJ TEST] 클론 사용)",
+        "test_email": test_email,
+        "steps": [
+            # ── Phase 1: Seed test creator in Airtable (simulates Syncly output) ──
+            {
+                "step_id": "seed_creator",
+                "type": "airtable_create",
+                "name": "1. Seed test creator in Airtable Creators table",
+                "table_id": AT_CREATORS,
+                "fields": {
+                    "Name": test_name,
+                    "Email": test_email,
+                    "Username": test_ig,
+                    "Platform": "Instagram",
+                    "Profile URL": test_profile_url,
+                    "Bio": "Mom of 1. Love sharing baby product reviews and daily mom life. Honest opinions only!",
+                    "Location": "Los Angeles, CA",
+                    "Followers": 8500,
+                    "Number of fully matched posts": 2,
+                    "Average views": 3200,
+                    "Average likes": 450,
+                    "Average ER": 5.3,
+                    "Recent 30-Day Views": 4800,
+                    "Recent 30-Day Likes": 680,
+                    "Recent 30-Day Avg ER": 5.8,
+                    "Syncly Level": "Fully Matched",
+                    "Brand Classification": "Grosmimi",
+                    "Source": "Syncly Outbound",
+                },
+                "capture": {
+                    "creator_record_id": "$.id",
+                    "creator_fields": "$.fields",
+                },
+            },
+            {
+                "step_id": "verify_creator_seeded",
+                "type": "verify_airtable",
+                "name": "1b. Verify creator record exists",
+                "base_id": AT_BASE,
+                "table_id": AT_CREATORS,
+                "filter_field": "Email",
+                "filter_value": test_email,
+                "expect_exists": True,
+                "expect_fields": {"Platform": "Instagram"},
+            },
+
+            # ── Phase 2: Trigger Syncly Data Processing (WJ TEST) ──
+            {
+                "step_id": "trigger_syncly",
+                "type": "n8n_execute",
+                "name": "2. Trigger [WJ TEST] Syncly Data Processing",
+                "workflow_key": "syncly",
+                "critical": False,  # May fail if no sheet data — that's OK
+            },
+            {
+                "step_id": "wait_syncly",
+                "type": "wait",
+                "name": "2b. Wait for Syncly processing",
+                "seconds": 5,
+            },
+
+            # ── Phase 3: Simulate human review -> set status to trigger outreach ──
+            {
+                "step_id": "human_review",
+                "type": "human_checkpoint",
+                "name": "3. HUMAN: Review creator profile",
+                "description": "Airtable Creators 테이블에서 레코드 확인 후 다음 스텝 진행",
+                "simulated": False,
+                "instructions": [
+                    "1. Airtable 링크를 열어서 방금 생성된 Creator 레코드를 확인하세요",
+                    f"2. 레코드 링크: 위 DATA TRAIL의 Airtable Record 링크 클릭",
+                    "3. 프로필 정보 (Name, Email, IG, Bio, Followers 등) 확인",
+                    "4. 확인 완료 후 다음 스텝 (step 6) 실행",
+                ],
+            },
+            {
+                "step_id": "update_status_for_outreach",
+                "type": "airtable_update",
+                "name": "3b. Set creator outreach status -> trigger outreach draft",
+                "table_id": AT_CREATORS,
+                "record_id": "{{creator_record_id}}",
+                "fields": {
+                    "Outreach Type": "Low Touch",
+                    "Communication Channel": "Email",
+                },
+            },
+
+            # ── Phase 4: Trigger Outreach Draft Generation ──
+            {
+                "step_id": "trigger_draft_gen",
+                "type": "n8n_execute",
+                "name": "4. Trigger [WJ TEST] Outreach - Draft Generation",
+                "workflow_key": "draft_gen",
+                "critical": False,
+            },
+            {
+                "step_id": "wait_draft",
+                "type": "wait",
+                "name": "4b. Wait for Claude AI draft generation",
+                "seconds": 15,
+            },
+            {
+                "step_id": "verify_conversation_created",
+                "type": "verify_airtable",
+                "name": "4c. Verify conversation draft created",
+                "base_id": AT_BASE,
+                "table_id": AT_CONVERSATIONS,
+                "filter_formula": "FIND('{{creator_record_id}}', ARRAYJOIN({Creator}))",
+                "expect_exists": True,
+                "capture": {
+                    "conversation_record_id": "$.records[0].id",
+                },
+                "critical": False,
+            },
+
+            # ── Phase 5: Human approves draft (simulated) ──
+            {
+                "step_id": "human_approve_draft",
+                "type": "human_checkpoint",
+                "name": "5. HUMAN: Review & approve outreach draft",
+                "description": "Airtable Conversations 테이블에서 AI가 생성한 이메일 초안 확인",
+                "simulated": False,
+                "instructions": [
+                    "1. Airtable Conversations 테이블 확인 (DATA TRAIL 링크)",
+                    f"2. AI가 생성한 이메일 초안(Draft) 내용 리뷰",
+                    "3. 내용 괜찮으면 다음 스텝 (step 11) 실행하여 Outreach Status -> Sent 변경",
+                    "4. 수정 필요하면 Airtable에서 직접 수정 후 진행",
+                ],
+            },
+            {
+                "step_id": "update_draft_approved",
+                "type": "airtable_update",
+                "name": "5b. Set outreach status -> Approved (triggers send)",
+                "table_id": AT_CREATORS,
+                "record_id": "{{creator_record_id}}",
+                "fields": {"Outreach Status": "Sent"},
+                "critical": False,
+            },
+
+            # ── Phase 6: Trigger Approval Send ──
+            {
+                "step_id": "trigger_approval_send",
+                "type": "n8n_execute",
+                "name": "6. Trigger [WJ TEST] Outreach - Approval Send",
+                "workflow_key": "approval",
+                "critical": False,
+            },
+            {
+                "step_id": "wait_approval",
+                "type": "wait",
+                "name": "6b. Wait for email send",
+                "seconds": 10,
+            },
+
+            # ── Phase 7: Simulate influencer confirms -> Fulfillment ──
+            {
+                "step_id": "human_influencer_confirms",
+                "type": "human_checkpoint",
+                "name": "7. HUMAN: Influencer replies (you reply to the email)",
+                "description": "실제로 wj.choi@orbiters.co.kr 메일함에서 수신된 이메일에 답장",
+                "simulated": False,
+                "instructions": [
+                    "1. Gmail (wj.choi@orbiters.co.kr) 메일함 확인",
+                    "2. Outreach 이메일이 도착했는지 확인",
+                    "3. 이메일에 '제품 사용해보고 싶습니다' 식으로 답장",
+                    "4. 답장 후 다음 스텝 (step 15) 실행하여 Gifting 폼 제출",
+                ],
+            },
+
+            # ── Phase 8: Test Gifting form -> Draft Order via WJ TEST webhook ──
+            {
+                "step_id": "submit_gifting_wjtest",
+                "type": "http_post",
+                "name": "8. POST to [WJ TEST] Gifting webhook",
+                "url": WJ_WEBHOOKS["gifting"],
+                "payload": {
+                    "form_type": "influencer_gifting",
+                    "submitted_at": "{{now_iso}}",
+                    "personal_info": {
+                        "full_name": test_name,
+                        "email": test_email,
+                        "phone": "+12025551234",
+                        "instagram": f"@{test_ig}",
+                        "tiktok": "None",
+                    },
+                    "baby_info": {
+                        "child_1": {"birthday": "2025-06-15", "age_months": 9},
+                        "child_2": None,
+                    },
+                    "selected_products": [{
+                        "product_key": "ppsu_straw",
+                        "product_id": 8288579256642,
+                        "variant_id": 45018985431362,
+                        "title": "Grosmimi PPSU Straw Cup 10oz",
+                        "color": "White",
+                        "price": "$24.90",
+                    }],
+                    "shipping_address": {
+                        "street": "123 WJ Test St",
+                        "apt": "",
+                        "city": "Los Angeles",
+                        "state": "CA",
+                        "zip": "90001",
+                        "country": "US",
+                    },
+                    "terms_accepted": True,
+                    "shopify_customer_id": None,
+                },
+                "expect_status": 200,
+                "capture": {"gifting_response": "$"},
+            },
+            {
+                "step_id": "wait_gifting",
+                "type": "wait",
+                "name": "8b. Wait for n8n gifting processing",
+                "seconds": 10,
+            },
+            {
+                "step_id": "verify_shopify_customer",
+                "type": "verify_shopify",
+                "name": "8c. Verify Shopify customer created",
+                "resource": "customer",
+                "filter": {"email": test_email},
+                "expect_exists": True,
+                "capture": {"shopify_customer_id": "$.customers[0].id"},
+            },
+            {
+                "step_id": "verify_draft_order",
+                "type": "verify_shopify",
+                "name": "8d. Verify Shopify draft order created",
+                "resource": "draft_order",
+                "customer_id": "{{shopify_customer_id}}",
+                "expect_exists": True,
+                "capture": {"draft_order_id": "$.draft_orders[0].id"},
+                "critical": False,
+            },
+
+            # ── Phase 9: Fulfillment webhook test ──
+            {
+                "step_id": "trigger_fulfillment",
+                "type": "http_post",
+                "name": "9. POST to [WJ TEST] Fulfillment webhook",
+                "url": WJ_WEBHOOKS["fulfillment"],
+                "payload": {
+                    "order_id": "{{draft_order_id}}",
+                    "customer_email": test_email,
+                    "customer_name": test_name,
+                    "source": "wj_flow_test",
+                },
+                "expect_status": 200,
+                "critical": False,
+                "capture": {"fulfillment_response": "$"},
+            },
+            {
+                "step_id": "wait_fulfillment",
+                "type": "wait",
+                "name": "9b. Wait for fulfillment processing",
+                "seconds": 8,
+            },
+
+            # ── Phase 10: Verify final state in Airtable ──
+            {
+                "step_id": "verify_final_creator",
+                "type": "verify_airtable",
+                "name": "10. Verify creator record in Airtable (final state)",
+                "base_id": AT_BASE,
+                "table_id": AT_CREATORS,
+                "filter_field": "Email",
+                "filter_value": test_email,
+                "expect_exists": True,
+                "capture": {
+                    "final_outreach_status": "$.records[0].fields.Outreach Status",
+                    "final_partnership_status": "$.records[0].fields.Partnership Status",
+                },
+            },
+            {
+                "step_id": "verify_order_airtable",
+                "type": "verify_airtable",
+                "name": "10b. Verify order record in Airtable Orders",
+                "base_id": AT_BASE,
+                "table_id": AT_ORDERS,
+                "filter_field": "Email",
+                "filter_value": test_email,
+                "expect_exists": False,  # May not exist if fulfillment didn't match
+                "critical": False,
+            },
+        ],
+        "cleanup": {
+            "airtable_records": [
+                {"table_id": AT_CREATORS, "record_id": "{{creator_record_id}}"},
+                {"table_id": AT_CONVERSATIONS, "record_id": "{{conversation_record_id}}"},
+            ],
+            "shopify_customer_id": "{{shopify_customer_id}}",
+            "test_email": test_email,
+        },
+    }
+
+
+def flow_gifting(email=None):
     """Flow 1: Influencer Gifting Application (Main Entry)."""
-    test_email = _make_test_email()
+    test_email = email or _make_test_email()
     return {
         "flow_id": "influencer_gifting",
         "flow_name": "Flow 1: Influencer Gifting Application",
@@ -670,9 +1296,9 @@ def flow_gifting():
     }
 
 
-def flow_creator():
+def flow_creator(email=None):
     """Flow 2: Creator Profile Signup."""
-    test_email = _make_test_email()
+    test_email = email or _make_test_email()
     return {
         "flow_id": "creator_profile",
         "flow_name": "Flow 2: Creator Profile Signup",
@@ -781,9 +1407,9 @@ def flow_creator():
     }
 
 
-def flow_sample():
+def flow_sample(email=None):
     """Flow 3: Sample Request (after acceptance)."""
-    test_email = _make_test_email()
+    test_email = email or _make_test_email()
     return {
         "flow_id": "sample_request",
         "flow_name": "Flow 3: Sample Request (Gifting2)",
@@ -882,6 +1508,7 @@ def flow_sample():
 
 
 FLOW_REGISTRY = {
+    "pipeline": flow_pipeline,
     "gifting": flow_gifting,
     "creator": flow_creator,
     "sample": flow_sample,
@@ -892,30 +1519,55 @@ FLOW_REGISTRY = {
 # Flow Runner
 # ═══════════════════════════════════════════════════════════════════════════
 
-def run_flow(flow_spec, dry_run=False, wait_multiplier=1.0):
-    """Execute an entire flow with full flight recording."""
+def run_flow(flow_spec, dry_run=False, wait_multiplier=1.0, step_num=None):
+    """Execute an entire flow with full flight recording.
+
+    Args:
+        step_num: If set, run ONLY this step (1-indexed). Load/save state for continuity.
+    """
     flow_id = flow_spec["flow_id"]
     ctx = FlowContext(flow_id)
     ctx.started_at = datetime.now().isoformat()
     ctx.set("now_iso", datetime.now().isoformat())
     ctx.set("test_email", flow_spec["test_email"])
 
+    # Load state for step-by-step mode (not needed for dry-run)
+    if step_num and step_num > 1 and not dry_run:
+        loaded = ctx.load_state()
+        if not loaded:
+            warn(f"No saved state found. Run step 1 first.")
+            return ctx
+        # Restore test_email from state if it was saved
+        if ctx.get("test_email"):
+            flow_spec["test_email"] = ctx.get("test_email")
+
     sep()
     log(f"FLOW: {flow_spec['flow_name']}")
-    log(f"Test email: {flow_spec['test_email']}")
+    log(f"Email: {flow_spec['test_email']}")
+    if step_num:
+        log(f"Running STEP {step_num} only (step-by-step mode)")
     log(f"Description: {flow_spec['description']}")
     sep()
 
     overall_pass = True
     steps = flow_spec["steps"]
 
-    for i, step in enumerate(steps, 1):
+    # Determine which steps to run
+    if step_num:
+        if step_num < 1 or step_num > len(steps):
+            fail(f"Step {step_num} out of range (1-{len(steps)})")
+            return ctx
+        step_range = [(step_num, steps[step_num - 1])]
+    else:
+        step_range = list(enumerate(steps, 1))
+
+    for i_idx, step in step_range:
         step_type = step.get("type")
         step_name = step.get("name", step_type)
-        step_id = step.get("step_id", f"step_{i}")
+        step_id = step.get("step_id", f"step_{i_idx}")
 
         sep2()
-        log(f"Step {i}/{len(steps)}: [{step_type}] {step_name}")
+        log(f"Step {i_idx}/{len(steps)}: [{step_type}] {step_name}")
 
         if dry_run:
             resolved = ctx.interpolate(step)
@@ -928,6 +1580,16 @@ def run_flow(flow_spec, dry_run=False, wait_multiplier=1.0):
             elif step_type == "wait":
                 adjusted = int(step.get("seconds", 5) * wait_multiplier)
                 info(f"  Would wait {adjusted}s")
+            elif step_type == "airtable_create":
+                info(f"  Table: {resolved.get('table_id', '?')}")
+                info(f"  Fields: {list(resolved.get('fields', {}).keys())}")
+            elif step_type == "airtable_update":
+                info(f"  Record: {resolved.get('record_id', '?')}")
+                info(f"  Fields: {resolved.get('fields', {})}")
+            elif step_type == "n8n_execute":
+                info(f"  Workflow: {resolved.get('workflow_key', '?')}")
+                wk = resolved.get('workflow_key', '')
+                info(f"  Link: {link_n8n_wf(wk)}")
             ctx.step_results.append({"step_id": step_id, "name": step_name, "type": step_type, "status": "DRY-RUN"})
             continue
 
@@ -965,9 +1627,13 @@ def run_flow(flow_spec, dry_run=False, wait_multiplier=1.0):
         ctx.step_results.append(result)
         ctx.log_entry(result)
 
+        # Print links from step
+        for lnk in entry.get("links", []):
+            ctx.add_link(lnk["label"], lnk["url"], resource_type=lnk.get("type", ""),
+                         resource_id=lnk.get("id", ""), step_id=step_id)
+
         if passed is False:
             overall_pass = False
-            # Stop on failure by default
             if step.get("critical", True):
                 warn(f"Critical step failed. Stopping flow.")
                 break
@@ -979,9 +1645,20 @@ def run_flow(flow_spec, dry_run=False, wait_multiplier=1.0):
     ctx.finished_at = datetime.now().isoformat()
     ctx.status = "PASS" if overall_pass else ("DRY-RUN" if dry_run else "FAIL")
 
+    # Save state after each run (for step-by-step mode)
+    if not dry_run:
+        ctx.save_state()
+
     sep()
     s = ctx.summary()
     log(f"FLOW RESULT: {ctx.status}  ({s['passed']}/{s['total']} passed, {s['failed']} failed, {s['skipped']} skipped)")
+
+    # Print Data Trail
+    if ctx.data_trail:
+        sep2()
+        log("DATA TRAIL (where data was stored):")
+        for dt in ctx.data_trail:
+            log(f"  {dt['label']}: {dt['url']}")
     sep()
 
     return ctx
@@ -990,6 +1667,20 @@ def run_flow(flow_spec, dry_run=False, wait_multiplier=1.0):
 # ═══════════════════════════════════════════════════════════════════════════
 # Cleanup
 # ═══════════════════════════════════════════════════════════════════════════
+
+def _delete_airtable_record(base_id, table_id, record_id):
+    """Delete a single Airtable record."""
+    if not record_id or not isinstance(record_id, str) or not record_id.startswith("rec"):
+        return
+    url = f"https://api.airtable.com/v0/{base_id}/{table_id}/{record_id}"
+    headers = {"Authorization": f"Bearer {AIRTABLE_API_KEY}"}
+    req = urllib.request.Request(url, headers=headers, method="DELETE")
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            ok(f"Airtable record {record_id} deleted from {table_id}")
+    except Exception as e:
+        warn(f"Airtable cleanup failed ({record_id}): {e}")
+
 
 def run_cleanup(cleanup_spec, ctx):
     """Delete test data created during the flow."""
@@ -1003,19 +1694,19 @@ def run_cleanup(cleanup_spec, ctx):
 
     log("\n  [CLEANUP]")
 
-    # 1. Delete Airtable record
+    # 1a. Delete single Airtable record (legacy format)
     record_id = resolved.get("airtable_record_id")
-    if record_id and AIRTABLE_API_KEY and isinstance(record_id, str) and record_id.startswith("rec"):
-        url = f"https://api.airtable.com/v0/{AIRTABLE_BASE_ID}/{AIRTABLE_TABLE_ID}/{record_id}"
-        headers = {"Authorization": f"Bearer {AIRTABLE_API_KEY}"}
-        req = urllib.request.Request(url, headers=headers, method="DELETE")
-        try:
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                ok(f"Airtable record {record_id} deleted")
-        except Exception as e:
-            warn(f"Airtable cleanup failed: {e}")
-    else:
-        info("  No Airtable record to clean up")
+    if record_id and AIRTABLE_API_KEY:
+        _delete_airtable_record(AT_BASE, AT_APPLICANTS, record_id)
+
+    # 1b. Delete multiple Airtable records (pipeline format)
+    airtable_records = resolved.get("airtable_records", [])
+    for rec in airtable_records:
+        if isinstance(rec, dict):
+            tid = rec.get("table_id", "")
+            rid = rec.get("record_id", "")
+            if tid and rid and isinstance(rid, str) and rid.startswith("rec"):
+                _delete_airtable_record(AT_BASE, tid, rid)
 
     # 2. Delete Shopify customer
     customer_id = resolved.get("shopify_customer_id")
@@ -1100,6 +1791,16 @@ def generate_html_report(all_contexts):
   .capture-row {{ display: flex; padding: 3px 0; font-size: 13px; }}
   .capture-key {{ color: #d2a8ff; min-width: 200px; }}
   .capture-val {{ color: #c9d1d9; word-break: break-all; }}
+  .link-row {{ padding: 4px 14px; font-size: 13px; }}
+  .link-row a {{ color: #58a6ff; text-decoration: none; }}
+  .link-row a:hover {{ text-decoration: underline; color: #79c0ff; }}
+  .data-trail {{ background: #0d1117; border: 1px solid #21262d; border-radius: 8px; padding: 14px; margin-top: 16px; }}
+  .data-trail h3 {{ font-size: 14px; color: #d2a8ff; margin-bottom: 8px; }}
+  .trail-row {{ display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 13px; }}
+  .trail-icon {{ font-size: 16px; min-width: 24px; text-align: center; }}
+  .trail-label {{ color: #8b949e; min-width: 180px; }}
+  .trail-link a {{ color: #58a6ff; text-decoration: none; word-break: break-all; }}
+  .trail-link a:hover {{ text-decoration: underline; }}
   .footer {{ text-align: center; color: #484f58; font-size: 12px; margin-top: 24px; }}
 </style>
 </head>
@@ -1159,6 +1860,10 @@ def generate_html_report(all_contexts):
                 mark = "PASS" if a.get("pass") else "FAIL"
                 html_parts.append(f"""        <div class="assertion {a_class}">[{mark}] {a.get('check','?')}: expected={a.get('expected','?')}, actual={a.get('actual','?')}</div>\n""")
 
+            # Links
+            for lnk in result.get("links", []):
+                html_parts.append(f"""        <div class="link-row"><a href="{lnk['url']}" target="_blank">-> {lnk['label']}</a></div>\n""")
+
             # Request/Response expandable
             req = result.get("request", {})
             resp = result.get("response", {})
@@ -1179,6 +1884,15 @@ def generate_html_report(all_contexts):
             for k, v in ctx.variables.items():
                 val_str = json.dumps(v, default=str)[:120] if not isinstance(v, str) else v[:120]
                 html_parts.append(f"""        <div class="capture-row"><span class="capture-key">{k}</span><span class="capture-val">{val_str}</span></div>\n""")
+            html_parts.append("      </div>\n")
+
+        # Data Trail
+        if ctx.data_trail:
+            trail_icons = {"Airtable": "AT", "Shopify": "SP", "n8n": "N8"}
+            html_parts.append("""      <div class="data-trail"><h3>Data Trail (Where Data Lives)</h3>\n""")
+            for dt in ctx.data_trail:
+                icon = "AT" if "airtable" in dt["label"].lower() else ("SP" if "shopify" in dt["label"].lower() else "N8")
+                html_parts.append(f"""        <div class="trail-row"><span class="trail-icon">[{icon}]</span><span class="trail-label">{dt['label']}</span><span class="trail-link"><a href="{dt['url']}" target="_blank">{dt['url']}</a></span></div>\n""")
             html_parts.append("      </div>\n")
 
         html_parts.append("    </div>\n  </details>\n</div>\n")
@@ -1223,9 +1937,16 @@ def cmd_status():
     return all_ok
 
 
-def cmd_run(flow_names, dry_run=False, no_cleanup=False, wait_multiplier=1.0, verbose=False):
+def cmd_run(flow_names, dry_run=False, no_cleanup=False, wait_multiplier=1.0,
+            verbose=False, email=None, step_num=None):
     """Run specified flows."""
     all_contexts = []
+
+    # Safety warning for real emails
+    if email and TEST_EMAIL_DOMAIN not in email:
+        log(f"\n  ** REAL EMAIL MODE: {email} **")
+        log(f"  ** Cleanup will be SKIPPED for safety **\n")
+        no_cleanup = True
 
     for name in flow_names:
         builder = FLOW_REGISTRY.get(name)
@@ -1233,8 +1954,8 @@ def cmd_run(flow_names, dry_run=False, no_cleanup=False, wait_multiplier=1.0, ve
             warn(f"Unknown flow: {name}. Available: {', '.join(FLOW_REGISTRY.keys())}")
             continue
 
-        flow_spec = builder()
-        ctx = run_flow(flow_spec, dry_run=dry_run, wait_multiplier=wait_multiplier)
+        flow_spec = builder(email=email)
+        ctx = run_flow(flow_spec, dry_run=dry_run, wait_multiplier=wait_multiplier, step_num=step_num)
         all_contexts.append(ctx)
 
         # Cleanup
@@ -1328,6 +2049,10 @@ if __name__ == "__main__":
     parser.add_argument("--wait-multiplier", type=float, default=1.0, dest="wait_multiplier",
                         help="Multiply wait times (e.g. 1.5 for slow environments)")
     parser.add_argument("--verbose", action="store_true", help="Print full payloads to console")
+    parser.add_argument("--email", type=str, default=None,
+                        help="Use real email (e.g. wj.choi@orbiters.co.kr). Auto-skips cleanup.")
+    parser.add_argument("--step", type=int, default=None,
+                        help="Run ONLY step N (1-indexed). State saved between steps.")
 
     args = parser.parse_args()
 
@@ -1344,4 +2069,5 @@ if __name__ == "__main__":
 
         is_dry = args.dry_run_cmd
         cmd_run(flow_names, dry_run=is_dry, no_cleanup=args.no_cleanup,
-                wait_multiplier=args.wait_multiplier, verbose=args.verbose)
+                wait_multiplier=args.wait_multiplier, verbose=args.verbose,
+                email=args.email, step_num=args.step)

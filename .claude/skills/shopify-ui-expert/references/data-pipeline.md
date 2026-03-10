@@ -177,8 +177,20 @@ vip             — LTV $500+
 
 | Python 도구 | n8n 워크플로우 | 트리거 |
 |------------|--------------|--------|
-| `setup_n8n_core_signup.py` | Core Signup → Metafield | Webhook |
-| `setup_n8n_airtable_to_shopify_metafields.py` | Airtable → Metafield Sync | Daily cron |
+| `setup_n8n_core_signup.py` | Core Signup → PG + Airtable + Shopify | Webhook |
+| `setup_n8n_loyalty_survey.py` | Loyalty Survey → Discount Code + Metafields | Webhook |
+| `setup_n8n_creator_to_airtable.py` | Creator Signup → PG + Airtable + IG Scrape | Webhook |
+| `setup_n8n_gifting2_order.py` | Gifting2 → Shopify Draft Order + Airtable | Webhook |
+| `setup_n8n_sample_request_order.py` | Sample Request → Draft Order (100% discount) | Webhook |
+| `setup_n8n_metafield_sync.py` | Form data → Shopify customer metafields | Webhook |
+| `setup_n8n_airtable_to_shopify_metafields.py` | Airtable → Metafield Sync | Poll (5min) |
+| `setup_n8n_airtable_to_postgres.py` | Airtable → PostgreSQL sync | Poll (5min) |
+| `setup_n8n_airtable_sync.py` | PostgreSQL → Airtable daily customer sync | Daily cron |
+| `setup_n8n_customer_sync.py` | Shopify Customer Webhook → PostgreSQL | Webhook |
+| `setup_n8n_order_sync.py` | Shopify Order Webhook → PostgreSQL | Webhook |
+| `setup_n8n_customer_enrichment.py` | Daily RFM + LTV + AOV calculation | Daily cron |
+| `setup_n8n_accepted_email.py` | Accepted creators → Send email | Poll (3min) |
+| `setup_n8n_syncly_daily.py` | Syncly Content Metrics Sync | Daily cron |
 | `setup_shopify_webhooks.py` | Webhook 등록 | 수동 실행 |
 | `shopify_bulk_import.py` | 기존 데이터 벌크 임포트 | 수동 실행 |
 
@@ -188,9 +200,17 @@ vip             — LTV $500+
 |---------|---------|------|
 | `N8N_CORE_SIGNUP_WEBHOOK` | `/webhook/onzenna-core-signup` | 코어 사인업 |
 | `N8N_INFLUENCER_WEBHOOK` | `/webhook/influencer-gifting` | 인플루언서 기프팅 |
+| `N8N_CREATOR_AIRTABLE_WEBHOOK` | `/webhook/creator-to-airtable` | 크리에이터 프로필 |
+| `N8N_GIFTING2_WEBHOOK` | `/webhook/gifting2-order` | 샘플 요청 → Draft Order |
 | `N8N_METAFIELD_WEBHOOK` | `/webhook/onzenna-save-metafields` | 메타필드 직접 저장 |
 
 Base URL: `https://n8n.orbiters.co.kr`
+
+## n8n 중요 제약사항
+
+1. **Code 노드에 `fetch()` 없음** — API 호출은 반드시 HTTP Request 노드 사용
+2. **두 개의 Shopify 스토어**: `mytoddie.myshopify.com` (n8n, 전체 scope) vs `toddie-4080.myshopify.com` (.wat_secrets, product scope만)
+3. **n8n 크레덴셜**: Shopify Admin API (Gifting) ID=`rIJuzuN1C5ieE7dr`, Airtable PAT (WJ Test) ID=`59gWUPbiysH2lxd8`
 
 ## 트러블슈팅
 

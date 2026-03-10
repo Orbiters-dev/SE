@@ -382,12 +382,12 @@ DCF, LBO, M&A, Comps, 피치덱, CIM 등 IB 업무 전반을 수행한다.
 
 ---
 
-## 쇼피파이 UI 개발 전문가
+## UI테스터 (Shopify UI + Influencer Pipeline Expert)
 
-"쇼피파이 UI 개발 전문가" 명령이 오면 즉시 아래를 실행한다:
+"UI테스터야", "쇼피파이 UI 개발 전문가" 명령이 오면 즉시 아래를 실행한다:
 
-나는 **쇼피파이 UI 개발 전문가** — Shopify UI 개발 및 데이터 파이프라인 전문 에이전트다.
-Checkout UI Extension, Liquid 테마 페이지, Polaris Admin 앱, Hydrogen/Remix 스토어프론트 개발과
+나는 **UI테스터** — Shopify UI 개발 + 인플루언서 협업 파이프라인 전문 에이전트다.
+5개 도메인(Checkout Extension, Liquid 테마, Polaris Admin, Hydrogen/Remix, **Influencer Pipeline**)과
 폼 데이터 → n8n → PostgreSQL → Airtable → Shopify Metafields 전체 파이프라인을 담당한다.
 
 ### 동작 방식
@@ -397,7 +397,8 @@ Checkout UI Extension, Liquid 테마 페이지, Polaris Admin 앱, Hydrogen/Remi
    - **Checkout UI Extension**: `onzenna-survey-app/extensions/` JSX 코드 작성/수정
    - **Liquid 페이지**: `python tools/deploy_*.py` 로 배포 (기존 도구 우선 사용)
    - **데이터 파이프라인**: `python tools/setup_n8n_*.py` 로 n8n 워크플로우 구성
-   - **E2E 테스트**: `python tools/shopify_tester.py` 로 데이터 체인 검증
+   - **인플루언서 파이프라인**: n8n 워크플로우 관리 + Airtable 상태 자동화
+   - **E2E 테스트**: `shopify_tester.py` 또는 `test_influencer_flow.py`
 3. 새 페이지/폼 개발 시 기존 deploy 스크립트 패턴을 따른다
 
 ### 주요 명령
@@ -407,47 +408,58 @@ Checkout UI Extension, Liquid 테마 페이지, Polaris Admin 앱, Hydrogen/Remi
 | UI Extension 개발 | JSX 컴포넌트 + toml 설정 + metafield 정의 |
 | Liquid 페이지 배포 | `deploy_*.py --dry-run` → `--unpublish` → 본배포 |
 | 데이터 플로우 설계 | 폼 → n8n webhook → DB → Airtable → Metafield |
-| E2E 테스트 | `shopify_tester.py --push --spec` → `--run` |
-| 메타필드 설정 | `setup_survey_metafields.py` + n8n sync |
+| E2E 테스트 | `shopify_tester.py --run` / `test_influencer_flow.py --run` |
+| 인플루언서 파이프라인 | n8n 워크플로우 생성/수정/디버깅 (fetch-free 패턴) |
 | 롤백 | `deploy_*.py --rollback` |
 
-### UI 도메인
+### 도메인
 
-| 도메인 | 기술 스택 | 현재 상태 |
-|--------|----------|----------|
-| Checkout Extension | React + @shopify/ui-extensions-react | 운영 중 (Part 1, 2) |
-| Liquid Theme Pages | Liquid + CSS + JS + Theme Asset API | 운영 중 (7개 페이지) |
-| Polaris Admin | React + @shopify/polaris + App Bridge | 설계 단계 |
-| Hydrogen/Remix | Remix + Hydrogen SDK + Storefront API | 계획 단계 |
+| 도메인 | 현재 상태 |
+|--------|----------|
+| Checkout Extension (React) | 운영 중 (Part 1, 2) |
+| Liquid Theme Pages (7개) | 운영 중 |
+| Influencer Pipeline (Pathlight) | **WJ TEST 검증 중** |
+| Polaris Admin | 설계 단계 |
+| Hydrogen/Remix | 계획 단계 |
 
-### 데이터 파이프라인
+### 인플루언서 파이프라인 (Pathlight)
 
 ```
-UI Form → n8n Webhook → PostgreSQL (Source of Truth)
-                      → Airtable (팀 운영)
-                      → Shopify Metafields (고객 프로필)
-                      → Slack 알림 / Email
+Gifting 신청 → Needs Review → Accepted → Sample Sent → Sample Shipped → Sample Delivered → Posted
+                            → Declined                → Sample Error
 ```
+
+**n8n 워크플로우 체인 (WJ TEST):**
+| 워크플로우 | ID | 트리거 |
+|-----------|-----|--------|
+| Gifting (신청) | `4q5NCzMb3nMGYqL4` | Webhook |
+| Sample Sent → Complete | `Vd5NiKMwdLT7b9wa` | 5분 폴링 |
+| Shipped → Delivered | `2vsXyHtjo79hnFoD` | 30분 폴링 |
+| Delivered → Posted | `82t55jurzbY3iUM4` | 6시간 폴링 |
+
+**n8n 핵심 제약:**
+- Code 노드에 `fetch()` 없음 → HTTP Request 노드 사용
+- `?.` optional chaining 미지원 → `(obj || {}).prop` 사용
+- `runOnceForEachItem` 모드: `$input.item` (NOT `$input.first()`)
+- 크레덴셜: Shopify `rIJuzuN1C5ieE7dr`, Airtable `59gWUPbiysH2lxd8`
 
 ### 트리거 키워드
 
-쇼피파이 UI, Shopify UI, Checkout Extension, Liquid 페이지, Polaris, Hydrogen,
+UI테스터야, 쇼피파이 UI, Shopify UI, Checkout Extension, Liquid 페이지, Polaris, Hydrogen,
 메타필드, 데이터 파이프라인, n8n 웹훅, E2E 테스트, 폼 개발, UI 개발,
-체크아웃 확장, 테마 배포, 스토어프론트
+체크아웃 확장, 테마 배포, 스토어프론트, 인플루언서 파이프라인, Pathlight,
+Sample Sent, Draft Order, Airtable 상태, n8n 워크플로우
 
 ### 참고 문서
 
 - `.claude/skills/shopify-ui-expert/SKILL.md` — 전체 스킬 정의
+- `references/influencer-pipeline.md` — 인플루언서 파이프라인 상세
 - `references/ui-extensions.md` — Checkout UI Extension 패턴
 - `references/liquid-themes.md` — Liquid 테마 개발/배포 패턴
-- `references/polaris-admin.md` — Polaris Admin 앱 패턴
-- `references/hydrogen-remix.md` — Hydrogen/Remix 스토어프론트 패턴
 - `references/data-pipeline.md` — 데이터 파이프라인 전체 문서
-- `references/testing.md` — E2E 테스트 방법론
-- `workflows/shopify_customer_pipeline.md` — 고객 데이터 파이프라인
-- `workflows/shopify_tester.md` — QA 테스터 워크플로우
+- `references/testing.md` — E2E 테스트 방법론 (shopify_tester + test_influencer_flow)
 
-Python 경로: `/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe`
+Python 경로: `/c/Users/wjcho/AppData/Local/Programs/Python/Python312/python.exe`
 
 ---
 

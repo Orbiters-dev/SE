@@ -1,8 +1,8 @@
 # E2E Testing Reference
 
-`tools/shopify_tester.py`를 사용한 전체 데이터 체인 E2E 테스트 방법론.
+두 가지 테스트 도구로 전체 데이터 체인을 E2E 검증한다.
 
-## 테스트 도구
+## 테스트 도구 1: shopify_tester.py (Customer Journey)
 
 | 명령 | 설명 |
 |------|------|
@@ -13,7 +13,22 @@
 
 결과 파일: `.tmp/test_results.json`
 테스트 큐: `.tmp/test_queue.json`
-Python 경로: `/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe`
+
+## 테스트 도구 2: test_influencer_flow.py (Influencer Pipeline)
+
+| 명령 | 설명 |
+|------|------|
+| `python tools/test_influencer_flow.py --status` | 환경변수 체크 |
+| `python tools/test_influencer_flow.py --dry-run` | API 호출 없이 미리보기 |
+| `python tools/test_influencer_flow.py --run` | 전체 3개 플로우 실행 |
+| `python tools/test_influencer_flow.py --run --flow gifting` | 특정 플로우만 |
+| `python tools/test_influencer_flow.py --run --no-cleanup` | 데이터 보존 |
+| `python tools/test_influencer_flow.py --results` | 마지막 결과 보기 |
+
+결과: `.tmp/influencer_flow_report.html` (HTML) + `.tmp/influencer_flow_log.json` (raw)
+테스트 이메일: `flow_test_{timestamp}_{rand4}@test.orbiters.co.kr`
+
+Python 경로: `/c/Users/wjcho/AppData/Local/Programs/Python/Python312/python.exe`
 
 ## 테스트 스펙 구조
 
@@ -206,3 +221,34 @@ http_get (/pages/influencer-gifting) → expect_status 200
 3. **적절한 wait를 넣는다** — n8n 비동기 처리 시간 고려 (보통 2~5초)
 4. **테스트 데이터는 식별 가능하게** — `tester_` 접두사로 클린업 용이하게
 5. **반복 실행 가능하게** — 이전 테스트 데이터가 있어도 UPSERT로 처리되도록
+
+## 인플루언서 파이프라인 테스트 시나리오
+
+### 5. Gifting Application → Needs Review
+```
+http_post (influencer-gifting webhook) → wait 7s
+→ verify_airtable (Outreach Status = "Needs Review")
+→ verify_shopify (customer 존재)
+→ verify_shopify (onzenna_creator metafield)
+```
+
+### 6. Sample Request → Draft Order
+```
+http_post (gifting2 webhook) → wait 7s
+→ verify_shopify (draft order 존재, 100% 할인)
+→ verify_airtable (Draft Order ID 기록)
+```
+
+### 7. Sample Sent → Sample Shipped (n8n polling)
+```
+airtable_update (Outreach Status → "Sample Sent", Draft Order ID 기입)
+→ wait 5min (n8n 5분 폴링 대기)
+→ verify_shopify (draft order completed)
+→ verify_airtable (Outreach Status = "Sample Shipped")
+```
+
+### 주의사항
+- Flow 3 (Sample Request)은 Flow 1 (Gifting)에 의존 — Airtable에 "Accepted" 레코드 필요
+- IG 스크래핑 포함 시 7~10초 대기 필요 (`--wait-multiplier` 조절)
+- Shopify rate limit: 2 req/s — 검증 스텝 사이 0.5초 딜레이
+- cleanup 시 반드시 `@test.orbiters.co.kr` 패턴 매칭 확인 후 삭제
