@@ -67,3 +67,4 @@ jobs:
           path: .tmp/
           retention-days: 3
           overwrite: true
+          include-hidden-files: true
