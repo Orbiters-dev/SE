@@ -36,27 +36,45 @@ async def _debounced_process(subscriber_id: str):
     loop = asyncio.get_event_loop()
     await loop.run_in_executor(None, process_dm, subscriber_id, name, combined)
 
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-MANYCHAT_API_KEY  = os.getenv("MANYCHAT_API_KEY_JP", "")
-TEAMS_WEBHOOK_URL = os.getenv("TEAMS_WEBHOOK_URL_SEEUN", "")
-DATA_FILE = ".tmp/jp_dm_data.json"
-BASE_URL   = os.getenv("WEBHOOK_BASE_URL", "https://your-app.railway.app")  # update after deploy
+ANTHROPIC_API_KEY     = os.getenv("ANTHROPIC_API_KEY")
+MANYCHAT_API_KEY      = os.getenv("MANYCHAT_API_KEY_JP", "")
+TEAMS_WEBHOOK_URL     = os.getenv("TEAMS_WEBHOOK_URL_SEEUN", "")
+BASE_URL              = os.getenv("WEBHOOK_BASE_URL", "https://your-app.railway.app")
+UPSTASH_REDIS_URL     = os.getenv("UPSTASH_REDIS_REST_URL", "")
+UPSTASH_REDIS_TOKEN   = os.getenv("UPSTASH_REDIS_REST_TOKEN", "")
+REDIS_KEY             = "jp_dm_data"
 
-# ─── Storage ────────────────────────────────────────────────────────────────
+# ─── Storage (Upstash Redis REST API) ───────────────────────────────────────
+
+def _redis_headers():
+    return {"Authorization": f"Bearer {UPSTASH_REDIS_TOKEN}"}
 
 def load_data() -> dict:
-    if os.path.exists(DATA_FILE):
-        try:
-            with open(DATA_FILE, encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            pass
+    if not UPSTASH_REDIS_URL:
+        return {}
+    try:
+        r = httpx.get(f"{UPSTASH_REDIS_URL}/get/{REDIS_KEY}", headers=_redis_headers(), timeout=5)
+        val = r.json().get("result")
+        if val:
+            return json.loads(val)
+    except Exception as e:
+        print(f"Redis load error: {e}")
     return {}
 
 def save_data(data: dict):
-    os.makedirs(".tmp", exist_ok=True)
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    if not UPSTASH_REDIS_URL:
+        print("UPSTASH_REDIS_REST_URL not set, skipping save")
+        return
+    try:
+        encoded = json.dumps(data, ensure_ascii=False)
+        httpx.get(
+            f"{UPSTASH_REDIS_URL}/set/{REDIS_KEY}",
+            params={"value": encoded},
+            headers=_redis_headers(),
+            timeout=5,
+        )
+    except Exception as e:
+        print(f"Redis save error: {e}")
 
 # ─── Claude ─────────────────────────────────────────────────────────────────
 
