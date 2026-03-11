@@ -1,9 +1,10 @@
+import os
 import json
 import urllib.request
 
 # Shopify API credentials
 shop = "mytoddie.myshopify.com"
-token = "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"
+token = os.getenv("SHOPIFY_ACCESS_TOKEN", "")
 api_version = "2024-01"
 
 # Fetch products

@@ -15,7 +15,7 @@ from env_loader import load_env
 
 load_env()
 
-SHOP = os.getenv("SHOPIFY_SHOP", "mytoddie.myshopify.com")
+SHOP = "mytoddie.myshopify.com"  # onzenna.com = mytoddie (NOT toddie-4080)
 TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN", "")
 API_VERSION = "2024-01"
 N8N_WEBHOOK_URL = os.getenv("N8N_INFLUENCER_HT_WEBHOOK", "") or os.getenv("N8N_INFLUENCER_WEBHOOK", "")
@@ -27,21 +27,27 @@ PRODUCTS = {
         "title": "Grosmimi PPSU Baby Bottle 10oz",
         "shopify_product_id": 8288604815682,
         "price": "$19.60",
+        "product_url": "/products/ppsu-baby-bottle-10oz-300ml",
         "image_url": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-baby-bottle-10oz-300ml-5231923.png?v=1765928785",
         "colors": [
             "Creamy Blue", "Rose Coral", "Olive White", "Bear Pure Gold",
             "Bear White", "Cherry Pure Gold", "Cherry Rose Gold",
+            "Cherry Peach", "Bear Butter", "Olive Pistachio",
         ],
         "variant_map": {
             "Creamy Blue": 51854035059058, "Rose Coral": 51854035091826,
             "Olive White": 45019086586178, "Bear Pure Gold": 45019086618946,
             "Bear White": 45019086651714, "Cherry Pure Gold": 45019086684482,
             "Cherry Rose Gold": 45019086717250,
+            "Cherry Peach": 61621722349938, "Bear Butter": 61621722382706,
+            "Olive Pistachio": 61621722415474,
         },
         "image_map": {
             "Creamy Blue": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-baby-bottle-10oz-300ml-5231923.png?v=1765928785",
             "Rose Coral": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-baby-bottle-10oz-300ml-4508449.png?v=1765928785",
-            "Bear White": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-baby-bottle-10oz-300ml-4625608.jpg?v=1765928785",
+            "Cherry Peach": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-baby-bottle-10oz-300ml-7825518.png?v=1773004689",
+            "Bear Butter": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-baby-bottle-10oz-300ml-1000369.png?v=1773004689",
+            "Olive Pistachio": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-baby-bottle-10oz-300ml-1787705.png?v=1773004689",
         },
         "age_min": 0, "age_max": 6,
     },
@@ -49,7 +55,8 @@ PRODUCTS = {
         "title": "Grosmimi PPSU Straw Cup 10oz",
         "shopify_product_id": 8288579256642,
         "price": "$24.90",
-        "image_url": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-straw-cup-10oz-300ml-7356566.png",
+        "product_url": "/products/ppsu-straw-cup-10oz-300ml",
+        "image_url": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-stage-2-straw-replacement-kit-bundle-6846270.jpg?v=1769647041",
         "colors": [
             "Peach", "Skyblue", "White", "Aquagreen",
             "Pink", "Beige", "Charcoal", "Butter",
@@ -77,7 +84,8 @@ PRODUCTS = {
         "title": "Grosmimi Stainless Steel Straw Cup 10oz",
         "shopify_product_id": 8864426557762,
         "price": "$46.80",
-        "image_url": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-stainless-steel-straw-cup-with-flip-top-10oz-300ml-6763835.png",
+        "product_url": "/products/grosmimi-stainless-steel-straw-cup-with-flip-top-10oz-300ml",
+        "image_url": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-stainless-steel-straw-cup-with-flip-top-10oz-12-months-2204065.webp?v=1770248040",
         "colors": [
             "Flower Coral", "Air Balloon Blue", "Cherry Peach",
             "Olive Pistachio", "Bear Butter",
@@ -101,6 +109,7 @@ PRODUCTS = {
         "title": "Grosmimi Stainless Steel Tumbler 10oz",
         "shopify_product_id": 14761459941746,
         "price": "$49.80",
+        "product_url": "/products/grosmimi-stainless-steel-tumbler-10oz-300ml",
         "image_url": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-stainless-steel-tumbler-10oz-300ml-2105333.png?v=1765928662",
         "colors": ["Cherry Peach", "Bear Butter", "Olive Pistachio"],
         "variant_map": {
@@ -120,6 +129,7 @@ PRODUCTS = {
         "subtitle": "Lotion + Body Wash",
         "shopify_product_id": 14643954647410,
         "price": "$46.92",
+        "product_url": "/products/cha-mom-wash-lotion-bundle",
         "image_url": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/chamom-essential-duo-bundle-2229420.jpg",
         "colors": [],
         "variant_map": {"Default": 51692427510130},
@@ -226,6 +236,7 @@ def build_products_js():
             "title": p["title"],
             "price": p["price"],
             "productId": p["shopify_product_id"],
+            "productUrl": p.get("product_url", ""),
             "image": p["image_url"],
             "colors": p["colors"],
             "variantMap": p["variant_map"],
@@ -252,7 +263,7 @@ def build_section_liquid(webhook_url):
     products_js = build_products_js()
     state_options = build_state_options()
 
-    return f'''<!-- Influencer Gifting HT Form Section -->
+    return f'''<!-- Influencer Gifting HT Form — Conversational UI (Claude-inspired) -->
 <!-- Generated by tools/deploy_influencer_gifting_ht_page.py -->
 
 {{% comment %}}
@@ -264,549 +275,842 @@ def build_section_liquid(webhook_url):
 </script>
 {{% endif %}}
 
+<!-- Uses Fustat font from parent Onzenna theme -->
+
 <style>
-  /* ── Reset & Container ─────────────────────────────── */
-  .igf-container {{
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 24px 16px;
-    font-family: inherit;
+  /* ── Base — Claude Desktop aesthetic ─────────────────── */
+  :root {{
+    --igf-accent: #D97757;
+    --igf-accent-hover: #C16842;
+    --igf-accent-soft: #FFF0E9;
+    --igf-bg: #F5EEE6;
+    --igf-warm: #EDE7DD;
+    --igf-card: #FFFFFF;
+    --igf-text: #3D3929;
+    --igf-text-muted: #9A917F;
+    --igf-border: #E3DDD1;
+    --igf-error: #D93025;
+    --igf-radius: 20px;
+    --igf-shadow: 0 2px 16px rgba(45,43,40,0.05);
   }}
-  .igf-container * {{ box-sizing: border-box; }}
-
-  /* ── Progress Bar ──────────────────────────────────── */
-  .igf-progress {{
+  .igf-wrap {{
+    min-height: 80vh;
     display: flex;
-    gap: 4px;
-    margin-bottom: 32px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 32px 16px 80px;
+    background: var(--igf-bg);
+    font-family: var(--font-body-family, Fustat), sans-serif;
+    letter-spacing: 0.01em;
+    color: var(--igf-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }}
-  .igf-progress-step {{
-    flex: 1;
-    height: 4px;
-    border-radius: 2px;
-    background: #e0e0e0;
-    transition: background 0.3s;
-  }}
-  .igf-progress-step.active {{ background: #2c6ecb; }}
-  .igf-progress-step.done {{ background: #2c6ecb; }}
+  .igf-wrap * {{ box-sizing: border-box; }}
 
-  /* ── Steps ─────────────────────────────────────────── */
-  .igf-step {{ display: none; }}
-  .igf-step.active {{ display: block; }}
-  .igf-step h2 {{
-    font-size: 1.5rem;
-    margin-bottom: 8px;
-    color: #1a1a1a;
-  }}
-  .igf-subtitle {{
-    color: #666;
-    margin-bottom: 24px;
-    font-size: 0.95rem;
+  /* ── Progress ──────────────────────────────────────── */
+  .igf-progress-bar {{
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--igf-accent), #E8A88D);
+    transition: width 0.6s cubic-bezier(.16,1,.3,1);
+    z-index: 9999;
   }}
 
-  /* ── Form Fields ───────────────────────────────────── */
-  .igf-field {{
-    margin-bottom: 20px;
-  }}
-  .igf-field label {{
-    display: block;
-    font-weight: 600;
-    margin-bottom: 6px;
-    font-size: 0.9rem;
-    color: #333;
-  }}
-  .igf-field input,
-  .igf-field select,
-  .igf-field textarea {{
+  /* ── Card Container ────────────────────────────────── */
+  .igf-card {{
     width: 100%;
-    padding: 10px 12px;
-    border: 1.5px solid #ccc;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color 0.2s;
+    max-width: 540px;
+    background: var(--igf-card);
+    border-radius: var(--igf-radius);
+    box-shadow: var(--igf-shadow);
+    padding: 48px 40px 40px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(227,221,209,0.6);
+  }}
+  @media (max-width: 560px) {{
+    .igf-card {{ padding: 36px 24px 28px; border-radius: 16px; }}
+  }}
+
+  /* ── Slides ────────────────────────────────────────── */
+  .igf-slide {{
+    display: none;
+    animation: igf-fadeIn 0.5s cubic-bezier(.16,1,.3,1);
+  }}
+  .igf-slide.active {{ display: block; }}
+  @keyframes igf-fadeIn {{
+    from {{ opacity: 0; transform: translateY(12px); }}
+    to {{ opacity: 1; transform: translateY(0); }}
+  }}
+
+  /* ── Typing reveal for questions ────────────────────── */
+  .igf-slide.active .igf-question {{
+    animation: igf-typeReveal 0.6s cubic-bezier(.16,1,.3,1) forwards;
+  }}
+  .igf-slide.active .igf-input,
+  .igf-slide.active .igf-social-group,
+  .igf-slide.active .igf-phone-row,
+  .igf-slide.active .igf-toggle {{
+    animation: igf-fadeIn 0.5s cubic-bezier(.16,1,.3,1) 0.15s both;
+  }}
+  .igf-slide.active .igf-actions {{
+    animation: igf-fadeIn 0.4s cubic-bezier(.16,1,.3,1) 0.25s both;
+  }}
+  @keyframes igf-typeReveal {{
+    from {{ opacity: 0; transform: translateY(8px); filter: blur(2px); }}
+    to {{ opacity: 1; transform: translateY(0); filter: blur(0); }}
+  }}
+
+  /* ── Step Counter ──────────────────────────────────── */
+  .igf-step-counter {{
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--igf-text-muted);
+    margin-bottom: 12px;
+  }}
+
+  /* ── Question Title ────────────────────────────────── */
+  .igf-question {{
+    font-family: var(--font-heading-family, Fustat), sans-serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+    color: var(--igf-text);
+    margin-bottom: 28px;
+  }}
+  @media (min-width: 520px) {{
+    .igf-question {{ font-size: 1.55rem; }}
+  }}
+
+  /* ── Input Fields ──────────────────────────────────── */
+  .igf-input {{
+    width: 100%;
+    padding: 14px 0;
+    border: none;
+    border-bottom: 1.5px solid var(--igf-border);
+    font-size: 1.05rem;
     font-family: inherit;
-  }}
-  .igf-field input:focus,
-  .igf-field select:focus {{
+    background: transparent;
+    color: var(--igf-text);
+    transition: border-color 0.3s cubic-bezier(.16,1,.3,1);
     outline: none;
-    border-color: #2c6ecb;
   }}
-  .igf-field input.invalid {{
-    border-color: #e74c3c;
+  .igf-input:focus {{
+    border-bottom-color: var(--igf-accent);
   }}
-  .igf-field small {{
-    display: block;
-    margin-top: 4px;
-    color: #888;
+  .igf-input::placeholder {{
+    color: #C5BFB6;
+  }}
+  .igf-input.invalid {{
+    border-bottom-color: var(--igf-error);
+  }}
+  select.igf-input {{
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%238B8680' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    padding-right: 24px;
+  }}
+  .igf-input-hint {{
+    font-size: 0.82rem;
+    color: var(--igf-text-muted);
+    margin-top: 8px;
+  }}
+  .igf-error-msg {{
+    color: var(--igf-error);
     font-size: 0.8rem;
-  }}
-  .igf-field .igf-error {{
-    color: #e74c3c;
-    font-size: 0.8rem;
-    margin-top: 4px;
+    margin-top: 6px;
     display: none;
   }}
 
-  /* ── Phone Group ───────────────────────────────────── */
-  .igf-phone-group {{
+  /* ── Social Media Row ───────────────────────────────── */
+  .igf-social-group {{
+    margin-bottom: 20px;
+  }}
+  .igf-social-label {{
     display: flex;
     align-items: center;
     gap: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--igf-text-muted);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }}
+  .igf-social-label svg {{
+    width: 16px;
+    height: 16px;
+    opacity: 0.6;
+  }}
+
+  /* ── Phone Prefix ──────────────────────────────────── */
+  .igf-phone-row {{
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
   }}
   .igf-phone-prefix {{
-    padding: 10px 12px;
-    background: #f5f5f5;
-    border: 1.5px solid #ccc;
-    border-radius: 8px;
-    font-size: 1rem;
+    padding: 14px 0;
+    border-bottom: 2px solid var(--igf-border);
+    font-size: 1.1rem;
+    color: var(--igf-text-muted);
     white-space: nowrap;
   }}
-  .igf-phone-group input {{ flex: 1; }}
+  .igf-phone-row .igf-input {{ flex: 1; }}
 
-  /* ── Toggle / Checkbox ─────────────────────────────── */
-  .igf-toggle-label {{
+  /* ── Buttons ───────────────────────────────────────── */
+  .igf-actions {{
     display: flex;
     align-items: center;
     gap: 10px;
-    cursor: pointer;
-    font-weight: 500;
-    padding: 12px;
-    background: #f9f9f9;
-    border-radius: 8px;
+    margin-top: 36px;
   }}
-  .igf-toggle-label input[type="checkbox"] {{
-    width: 18px;
-    height: 18px;
-    accent-color: #2c6ecb;
+  .igf-btn {{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 26px;
+    border-radius: 50px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+  }}
+  .igf-btn-next {{
+    background: var(--igf-accent);
+    color: #fff;
+    flex-shrink: 0;
+  }}
+  .igf-btn-next:hover {{ background: var(--igf-accent-hover); transform: translateY(-1px); }}
+  .igf-btn-next:disabled {{ background: #C5BFB6; cursor: not-allowed; transform: none; }}
+  .igf-btn-next svg {{ width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }}
+  .igf-btn-back {{
+    background: none;
+    color: var(--igf-text-muted);
+    padding: 12px 14px;
+    font-weight: 500;
+  }}
+  .igf-btn-back:hover {{ color: var(--igf-text); }}
+  .igf-btn-skip {{
+    background: none;
+    color: var(--igf-text-muted);
+    padding: 12px 14px;
+    font-weight: 500;
+    font-size: 0.85rem;
+    margin-left: auto;
+  }}
+  .igf-btn-skip:hover {{ color: var(--igf-text); }}
+  .igf-enter-hint {{
+    font-size: 0.72rem;
+    color: #C5BFB6;
+    margin-left: auto;
+  }}
+  .igf-enter-hint kbd {{
+    display: inline-block;
+    padding: 2px 6px;
+    background: var(--igf-warm);
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.68rem;
+    margin-right: 4px;
   }}
 
-  /* ── Section Divider ────────────────────────────────── */
-  .igf-section-label {{
-    font-size: 1rem;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin: 28px 0 6px;
-    padding-bottom: 6px;
-    border-bottom: 2px solid #2c6ecb;
-    display: inline-block;
+  /* ── Toggle / Checkbox ─────────────────────────────── */
+  .igf-toggle {{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 14px 16px;
+    background: var(--igf-warm);
+    border-radius: 12px;
+    margin-top: 18px;
+    font-weight: 500;
+    font-size: 0.92rem;
+    transition: background 0.2s;
   }}
-  .igf-section-hint {{
-    color: #888;
-    font-size: 0.85rem;
-    margin-bottom: 16px;
+  .igf-toggle:hover {{ background: #EAE3D8; }}
+  .igf-toggle input[type="checkbox"] {{
+    width: 20px;
+    height: 20px;
+    accent-color: var(--igf-accent);
+    cursor: pointer;
+  }}
+
+  /* ── Age Badge ─────────────────────────────────────── */
+  .igf-age-badge {{
+    display: inline-block;
+    padding: 5px 14px;
+    background: var(--igf-accent-soft);
+    color: var(--igf-accent);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 10px;
+  }}
+  .igf-age-badge.expecting {{
+    background: #FEF3E2;
+    color: #D4760A;
   }}
 
   /* ── Product Grid ──────────────────────────────────── */
+  .igf-products-wrap {{
+    max-width: 740px;
+    width: 100%;
+  }}
   .igf-product-grid {{
     display: grid;
     grid-template-columns: 1fr;
     gap: 16px;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
   }}
-  @media (min-width: 520px) {{
+  @media (min-width: 480px) {{
     .igf-product-grid {{ grid-template-columns: repeat(2, 1fr); }}
   }}
-  @media (min-width: 768px) {{
+  @media (min-width: 720px) {{
     .igf-product-grid {{ grid-template-columns: repeat(3, 1fr); }}
   }}
 
   /* ── Product Card ──────────────────────────────────── */
-  .igf-product-card {{
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
+  .igf-pcard {{
+    background: var(--igf-card);
+    border: 2px solid var(--igf-border);
+    border-radius: 14px;
     padding: 16px;
     text-align: center;
     cursor: pointer;
-    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    transition: all 0.2s ease;
     position: relative;
-    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }}
-  .igf-product-card:hover {{
-    border-color: #aaa;
-    transform: translateY(-2px);
+  .igf-pcard:hover {{ border-color: #C5BFB6; transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.06); }}
+  .igf-pcard.selected {{
+    border-color: var(--igf-accent);
+    box-shadow: 0 0 0 3px var(--igf-accent-soft);
   }}
-  .igf-product-card.selected {{
-    border-color: #2c6ecb;
-    box-shadow: 0 0 0 3px rgba(44, 110, 203, 0.15);
-  }}
-  .igf-product-card img {{
+  .igf-pcard-img {{
     width: 100%;
     aspect-ratio: 1;
     object-fit: contain;
-    border-radius: 8px;
+    border-radius: 10px;
+    background: #F8F6F2;
     margin-bottom: 12px;
-    background: #fafafa;
   }}
-  .igf-product-card .igf-card-title {{
+  .igf-pcard-title {{
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    color: var(--igf-text);
+    margin-bottom: 2px;
+    line-height: 1.3;
+  }}
+  .igf-pcard-subtitle {{
+    font-size: 0.75rem;
+    color: var(--igf-text-muted);
     margin-bottom: 4px;
-    color: #1a1a1a;
   }}
-  .igf-product-card .igf-card-price {{
-    color: #2c6ecb;
+  .igf-pcard-price {{
     font-weight: 700;
-    font-size: 1rem;
-    margin-bottom: 8px;
-  }}
-  .igf-product-card .igf-card-subtitle {{
-    color: #888;
-    font-size: 0.8rem;
-    margin-bottom: 8px;
-  }}
-
-  /* ── Swatches ───────────────────────────────────────── */
-  .igf-swatch-row {{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    justify-content: center;
+    font-size: 0.95rem;
+    color: var(--igf-accent);
     margin-bottom: 6px;
   }}
-  .igf-swatch {{
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 10px;
-    border: 1.5px solid #ddd;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: all 0.15s;
-    background: #fff;
-    color: #555;
-    white-space: nowrap;
-  }}
-  .igf-swatch:hover {{
-    border-color: #999;
-  }}
-  .igf-swatch.active {{
-    border-color: #2c6ecb;
-    background: #eef4ff;
-    color: #2c6ecb;
-    font-weight: 600;
-  }}
-  .igf-swatch-dot {{
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 1px solid rgba(0,0,0,0.15);
-    flex-shrink: 0;
-  }}
 
-  /* ── Color Count Badge ──────────────────────────────── */
-  .igf-color-count {{
-    text-align: center;
-    font-size: 0.75rem;
-    color: #888;
+  /* ── Product Detail Link ────────────────────────────── */
+  .igf-pcard-link {{
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--igf-text-muted);
+    text-decoration: none;
+    margin-bottom: 10px;
+    transition: color 0.2s;
+  }}
+  .igf-pcard-link:hover {{ color: var(--igf-accent); text-decoration: underline; }}
+
+  /* ── Swatches ──────────────────────────────────────── */
+  .igf-swatches {{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
     margin-bottom: 8px;
   }}
-  .igf-color-count strong {{
-    color: #2c6ecb;
+  .igf-sw {{
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #E8E4DE;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
   }}
+  .igf-sw:hover {{ border-color: #aaa; transform: scale(1.15); }}
+  .igf-sw.active {{
+    border-color: var(--igf-accent);
+    box-shadow: 0 0 0 2px var(--igf-accent-soft);
+    transform: scale(1.15);
+  }}
+  .igf-sw.active::after {{
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: var(--igf-accent);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }}
+  .igf-sw-tooltip {{
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--igf-text);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.68rem;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+  }}
+  .igf-sw:hover .igf-sw-tooltip {{ display: block; }}
+  .igf-sw-count {{
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--igf-text-muted);
+    margin-bottom: 6px;
+  }}
+  .igf-sw-count strong {{ color: var(--igf-accent); }}
 
-  /* ── Select Button ──────────────────────────────────── */
-  .igf-product-card .igf-select-btn {{
+  /* ── Out-of-Stock Swatch ────────────────────────────── */
+  .igf-sw.oos {{
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+  }}
+  .igf-sw.oos::before {{
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 1.5px;
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 0 2px rgba(0,0,0,0.2);
+    transform: translate(-50%, -50%) rotate(-45deg);
+    border-radius: 2px;
+    z-index: 2;
+  }}
+  .igf-sw.oos::after {{
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 1.5px;
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 0 2px rgba(0,0,0,0.2);
+    transform: translate(-50%, -50%) rotate(45deg);
+    border-radius: 2px;
+    z-index: 2;
+  }}
+  .igf-sw.oos .igf-sw-tooltip::after {{ content: " (sold out)"; }}
+
+  /* ── Card Pill Button ──────────────────────────────── */
+  .igf-pcard-btn {{
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    border: 2px solid #2c6ecb;
-    border-radius: 8px;
-    background: #fff;
-    color: #2c6ecb;
+    gap: 5px;
+    padding: 7px 16px;
+    border-radius: 50px;
+    border: 1.5px solid var(--igf-border);
+    background: var(--igf-card);
+    color: var(--igf-text-muted);
+    font-size: 0.76rem;
     font-weight: 600;
+    font-family: inherit;
     cursor: pointer;
     transition: all 0.2s;
-    font-size: 0.9rem;
+    margin-top: auto;
   }}
-  .igf-product-card .igf-select-btn:hover {{
-    background: #f0f6ff;
-  }}
-  .igf-product-card.selected .igf-select-btn {{
-    background: #2c6ecb;
+  .igf-pcard-btn:hover {{ border-color: var(--igf-accent); color: var(--igf-accent); }}
+  .igf-pcard.selected .igf-pcard-btn {{
+    background: var(--igf-accent);
+    border-color: var(--igf-accent);
     color: #fff;
   }}
 
-  /* ── Badges ─────────────────────────────────────────── */
-  .igf-optional-badge {{
+  /* ── Badges ────────────────────────────────────────── */
+  .igf-badge {{
     position: absolute;
     top: 8px;
     right: 8px;
-    background: #f0f0f0;
-    color: #666;
-    font-size: 0.7rem;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
   }}
-  .igf-bonus-badge {{
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: #e8f4fd;
-    color: #2c6ecb;
-    font-size: 0.7rem;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-weight: 600;
+  .igf-badge-bonus {{
+    background: var(--igf-accent-soft);
+    color: var(--igf-accent);
+  }}
+  .igf-badge-optional {{
+    background: var(--igf-warm);
+    color: #9A8E7E;
+  }}
+
+  /* ── Section Labels ────────────────────────────────── */
+  .igf-section-title {{
+    font-family: var(--font-heading-family, Fustat), sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--igf-accent);
+    margin: 28px 0 6px;
+    padding-bottom: 6px;
+  }}
+  .igf-section-desc {{
+    color: var(--igf-text-muted);
+    font-size: 0.82rem;
+    margin-bottom: 14px;
   }}
 
   /* ── Address Grid ──────────────────────────────────── */
-  .igf-address-row {{
+  .igf-addr-grid {{
     display: grid;
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 8px;
   }}
-  @media (min-width: 520px) {{
-    .igf-address-row.igf-row-3 {{ grid-template-columns: 2fr 1fr 1fr; }}
-    .igf-address-row.igf-row-2 {{ grid-template-columns: 1fr 1fr; }}
+  @media (min-width: 480px) {{
+    .igf-addr-grid.cols-3 {{ grid-template-columns: 2fr 1fr 1fr; }}
+    .igf-addr-grid.cols-2 {{ grid-template-columns: 1fr 1fr; }}
   }}
-
-  /* ── Buttons ───────────────────────────────────────── */
-  .igf-btn-row {{
-    display: flex;
-    gap: 12px;
-    margin-top: 24px;
-  }}
-  .igf-btn {{
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 1rem;
+  .igf-addr-field {{ margin-bottom: 4px; }}
+  .igf-addr-field label {{
+    display: block;
+    font-size: 0.76rem;
     font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s;
-    font-family: inherit;
+    color: var(--igf-text-muted);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }}
-  .igf-btn-primary {{
-    background: #2c6ecb;
-    color: #fff;
-    flex: 1;
-  }}
-  .igf-btn-primary:hover {{ background: #245bb0; }}
-  .igf-btn-primary:disabled {{
-    background: #ccc;
-    cursor: not-allowed;
-  }}
-  .igf-btn-secondary {{
-    background: #f0f0f0;
-    color: #333;
-  }}
-  .igf-btn-secondary:hover {{ background: #e0e0e0; }}
 
-  /* ── Success Screen ────────────────────────────────── */
-  .igf-success {{
+  /* ── Success ───────────────────────────────────────── */
+  .igf-success-wrap {{
     text-align: center;
-    padding: 60px 20px;
+    padding: 48px 24px;
   }}
-  .igf-success h2 {{
-    color: #27ae60;
+  .igf-success-icon {{
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: var(--igf-accent-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+  }}
+  .igf-success-icon svg {{ width: 28px; height: 28px; color: var(--igf-accent); }}
+  .igf-success-wrap h2 {{
+    font-family: var(--font-heading-family, Fustat), sans-serif;
+    color: var(--igf-accent);
+    font-size: 1.5rem;
     margin-bottom: 12px;
+    font-weight: 700;
   }}
-  .igf-success p {{ color: #666; font-size: 1.1rem; }}
+  .igf-success-wrap p {{
+    color: var(--igf-text-muted);
+    font-size: 1rem;
+    line-height: 1.6;
+  }}
 
-  /* ── Loading Spinner ───────────────────────────────── */
+  /* ── Spinner ───────────────────────────────────────── */
   .igf-spinner {{
     display: inline-block;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     border: 2px solid #fff;
     border-top-color: transparent;
     border-radius: 50%;
     animation: igf-spin 0.6s linear infinite;
-    margin-right: 8px;
+    margin-right: 6px;
     vertical-align: middle;
   }}
-  @keyframes igf-spin {{
-    to {{ transform: rotate(360deg); }}
-  }}
-
-  /* ── Age Display ───────────────────────────────────── */
-  .igf-age-badge {{
-    display: inline-block;
-    padding: 4px 10px;
-    background: #e8f4fd;
-    color: #2c6ecb;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    margin-top: 6px;
-  }}
-  .igf-age-badge.expecting {{
-    background: #fef3e2;
-    color: #e67e22;
-  }}
+  @keyframes igf-spin {{ to {{ transform: rotate(360deg); }} }}
 
   .igf-no-products {{
     text-align: center;
-    padding: 40px;
-    color: #666;
-    background: #f9f9f9;
+    padding: 32px;
+    color: var(--igf-text-muted);
+    background: var(--igf-warm);
     border-radius: 12px;
+    font-size: 0.9rem;
+  }}
+
+  /* ── Date Dropdown Row ────────────────────────────── */
+  .igf-date-row {{
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.2fr;
+    gap: 10px;
+  }}
+  @media (max-width: 400px) {{
+    .igf-date-row {{ grid-template-columns: 1fr; }}
   }}
 </style>
 
-<div class="igf-container" id="igf-app">
-  <!-- Progress Bar (4 steps) -->
-  <div class="igf-progress">
-    <div class="igf-progress-step active" data-for="1"></div>
-    <div class="igf-progress-step" data-for="2"></div>
-    <div class="igf-progress-step" data-for="3"></div>
-    <div class="igf-progress-step" data-for="4"></div>
-  </div>
+<form id="igf-form" autocomplete="on" onsubmit="return false;">
+<div class="igf-wrap" id="igf-app">
+  <!-- Thin progress bar at top of viewport -->
+  <div class="igf-progress-bar" id="igf-progress" style="width:0%"></div>
 
-  <!-- ────── Step 1: Personal Info ────── -->
-  <div class="igf-step active" data-step="1">
-    <h2>Personal Information</h2>
-    <p class="igf-subtitle">Tell us about yourself</p>
+  <!-- ── Slides 1-5: Personal + Baby (card layout) ── -->
+  <div class="igf-card" id="igf-card-main">
 
-    <div class="igf-field">
-      <label for="igf-name">Full Name *</label>
-      <input type="text" id="igf-name" required placeholder="Jane Smith">
-      <div class="igf-error">Please enter your full name</div>
-    </div>
-    <div class="igf-field">
-      <label for="igf-email">Email *</label>
-      <input type="email" id="igf-email" required placeholder="jane@example.com">
-      <div class="igf-error">Please enter a valid email</div>
-    </div>
-    <div class="igf-field">
-      <label for="igf-phone">Phone Number *</label>
-      <div class="igf-phone-group">
-        <span class="igf-phone-prefix">+1</span>
-        <input type="tel" id="igf-phone" required placeholder="(555) 123-4567">
+    <!-- Slide 1: Name -->
+    <div class="igf-slide active" data-slide="1">
+      <div class="igf-step-counter">Step 1 of 7</div>
+      <div class="igf-question">What&rsquo;s your name?</div>
+      <input class="igf-input" type="text" id="igf-name" placeholder="Jane Smith" autocomplete="name">
+      <div class="igf-error-msg" id="igf-err-name">Please enter your full name</div>
+      <div class="igf-actions">
+        <button type="button" class="igf-btn igf-btn-next" data-next="2">Continue <svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5"/></svg></button>
+        <span class="igf-enter-hint"><kbd>Enter</kbd></span>
       </div>
-      <div class="igf-error">US phone number only (10 digits)</div>
-    </div>
-    <div class="igf-field">
-      <label for="igf-instagram">Instagram Handle</label>
-      <input type="text" id="igf-instagram" placeholder="@yourusername">
-      <small>Leave blank or type &lsquo;None&rsquo; if not applicable</small>
-    </div>
-    <div class="igf-field">
-      <label for="igf-tiktok">TikTok Handle</label>
-      <input type="text" id="igf-tiktok" placeholder="@yourusername">
-      <small>Leave blank or type &lsquo;None&rsquo; if not applicable</small>
     </div>
 
-    <div class="igf-btn-row">
-      <button type="button" class="igf-btn igf-btn-primary" data-go="2">Next</button>
+    <!-- Slide 2: Email -->
+    <div class="igf-slide" data-slide="2">
+      <div class="igf-step-counter">Step 2 of 7</div>
+      <div class="igf-question">What&rsquo;s your email?</div>
+      <input class="igf-input" type="email" id="igf-email" placeholder="jane@example.com" autocomplete="email">
+      <div class="igf-error-msg" id="igf-err-email">Please enter a valid email</div>
+      <div class="igf-actions">
+        <button type="button" class="igf-btn igf-btn-back" data-prev="1">&larr; Back</button>
+        <button type="button" class="igf-btn igf-btn-next" data-next="3">Continue <svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5"/></svg></button>
+        <span class="igf-enter-hint"><kbd>Enter</kbd></span>
+      </div>
     </div>
-  </div>
 
-  <!-- ────── Step 2: Baby Info ────── -->
-  <div class="igf-step" data-step="2">
-    <h2>Baby Information</h2>
-    <p class="igf-subtitle">We&rsquo;ll recommend products based on your child&rsquo;s age</p>
+    <!-- Slide 3: Phone -->
+    <div class="igf-slide" data-slide="3">
+      <div class="igf-step-counter">Step 3 of 7</div>
+      <div class="igf-question">What&rsquo;s your phone number?</div>
+      <div class="igf-phone-row">
+        <span class="igf-phone-prefix">+1</span>
+        <input class="igf-input" type="tel" id="igf-phone" placeholder="(555) 123-4567" autocomplete="tel-national">
+      </div>
+      <div class="igf-error-msg" id="igf-err-phone">US phone number only (10 digits)</div>
+      <div class="igf-actions">
+        <button type="button" class="igf-btn igf-btn-back" data-prev="2">&larr; Back</button>
+        <button type="button" class="igf-btn igf-btn-next" data-next="4">Continue <svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5"/></svg></button>
+        <span class="igf-enter-hint"><kbd>Enter</kbd></span>
+      </div>
+    </div>
 
-    <div class="igf-field">
-      <label for="igf-baby1-bday">First Child Birthday / Expected Due Date *</label>
-      <input type="date" id="igf-baby1-bday" required>
+    <!-- Slide 4: Social Media (Instagram + TikTok combined) -->
+    <div class="igf-slide" data-slide="4">
+      <div class="igf-step-counter">Step 4 of 7</div>
+      <div class="igf-question">Share your social media</div>
+      <div class="igf-input-hint" style="margin-bottom:20px;margin-top:-16px">At least one is recommended</div>
+      <div class="igf-social-group">
+        <div class="igf-social-label">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          Instagram
+        </div>
+        <input class="igf-input" type="text" id="igf-instagram" placeholder="@yourusername" autocomplete="off">
+      </div>
+      <div class="igf-social-group">
+        <div class="igf-social-label">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.51a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86 4.43 6.3 6.3 0 001.88-4.48V8.73a8.3 8.3 0 004.89 1.58V6.84a4.84 4.84 0 01-1.19-.15z"/></svg>
+          TikTok
+        </div>
+        <input class="igf-input" type="text" id="igf-tiktok" placeholder="@yourusername" autocomplete="off">
+      </div>
+      <div class="igf-actions">
+        <button type="button" class="igf-btn igf-btn-back" data-prev="3">&larr; Back</button>
+        <button type="button" class="igf-btn igf-btn-next" data-next="5">Continue <svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5"/></svg></button>
+        <button type="button" class="igf-btn igf-btn-skip" data-next="5">Skip</button>
+      </div>
+    </div>
+
+    <!-- Slide 5: Baby Birthday -->
+    <div class="igf-slide" data-slide="5">
+      <div class="igf-step-counter">Step 5 of 7</div>
+      <div class="igf-question">When was your baby born?</div>
+      <div class="igf-date-row">
+        <div class="igf-addr-field">
+          <label>Month</label>
+          <select class="igf-input" id="igf-baby1-month">
+            <option value="">Month</option>
+            <option value="1">January</option><option value="2">February</option>
+            <option value="3">March</option><option value="4">April</option>
+            <option value="5">May</option><option value="6">June</option>
+            <option value="7">July</option><option value="8">August</option>
+            <option value="9">September</option><option value="10">October</option>
+            <option value="11">November</option><option value="12">December</option>
+          </select>
+        </div>
+        <div class="igf-addr-field">
+          <label>Day</label>
+          <select class="igf-input" id="igf-baby1-day"><option value="">Day</option></select>
+        </div>
+        <div class="igf-addr-field">
+          <label>Year</label>
+          <select class="igf-input" id="igf-baby1-year"><option value="">Year</option></select>
+        </div>
+      </div>
+      <input type="hidden" id="igf-baby1-bday">
       <div id="igf-baby1-age"></div>
-      <div class="igf-error">Please enter a date</div>
-    </div>
+      <div class="igf-error-msg" id="igf-err-baby">Please select month, day, and year</div>
 
-    <div class="igf-field">
-      <label class="igf-toggle-label">
+      <label class="igf-toggle">
         <input type="checkbox" id="igf-has-baby2">
         <span>I have another child</span>
       </label>
-    </div>
 
-    <div class="igf-field" id="igf-baby2-section" style="display:none">
-      <label for="igf-baby2-bday">Second Child Birthday / Expected Due Date *</label>
-      <input type="date" id="igf-baby2-bday">
-      <div id="igf-baby2-age"></div>
-    </div>
+      <div id="igf-baby2-section" style="display:none;margin-top:16px">
+        <div class="igf-question" style="font-size:1.1rem;margin-bottom:14px">Second child&rsquo;s birthday?</div>
+        <div class="igf-date-row">
+          <div class="igf-addr-field">
+            <label>Month</label>
+            <select class="igf-input" id="igf-baby2-month">
+              <option value="">Month</option>
+              <option value="1">January</option><option value="2">February</option>
+              <option value="3">March</option><option value="4">April</option>
+              <option value="5">May</option><option value="6">June</option>
+              <option value="7">July</option><option value="8">August</option>
+              <option value="9">September</option><option value="10">October</option>
+              <option value="11">November</option><option value="12">December</option>
+            </select>
+          </div>
+          <div class="igf-addr-field">
+            <label>Day</label>
+            <select class="igf-input" id="igf-baby2-day"><option value="">Day</option></select>
+          </div>
+          <div class="igf-addr-field">
+            <label>Year</label>
+            <select class="igf-input" id="igf-baby2-year"><option value="">Year</option></select>
+          </div>
+        </div>
+        <input type="hidden" id="igf-baby2-bday">
+        <div id="igf-baby2-age"></div>
+      </div>
 
-    <div class="igf-btn-row">
-      <button type="button" class="igf-btn igf-btn-secondary" data-go="1">Back</button>
-      <button type="button" class="igf-btn igf-btn-primary" data-go="3">Next</button>
+      <div class="igf-actions">
+        <button type="button" class="igf-btn igf-btn-back" data-prev="4">&larr; Back</button>
+        <button type="button" class="igf-btn igf-btn-next" data-next="6">Continue <svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5"/></svg></button>
+      </div>
     </div>
-  </div>
+  </div><!-- /igf-card-main -->
 
-  <!-- ────── Step 3: Product Selection (multi-color, expanded range) ────── -->
-  <div class="igf-step" data-step="3">
-    <h2>Select Your Products</h2>
-    <p class="igf-subtitle">Tap colors to pick up to 3 per product. Bonus products are optional extras for your baby&rsquo;s next stage!</p>
+  <!-- ── Slide 6: Products (wider layout) ── -->
+  <div class="igf-slide igf-products-wrap" data-slide="6" style="display:none">
+    <div class="igf-step-counter" style="text-align:center;margin-bottom:6px">Step 6 of 7</div>
+    <div class="igf-question" style="text-align:center;margin-bottom:4px">Pick your products</div>
+    <p class="igf-section-desc" style="text-align:center;margin-bottom:24px">Tap colors to choose up to 3 per product. Bonus picks are optional extras for the next stage!</p>
 
     <div id="igf-core-section"></div>
     <div class="igf-product-grid" id="igf-products-core"></div>
 
     <div id="igf-bonus-section" style="display:none">
-      <div class="igf-section-label">Bonus Picks</div>
-      <p class="igf-section-hint">Optional extras your child can grow into &mdash; pick up to 3 colors each</p>
+      <div class="igf-section-title">Bonus Picks</div>
+      <p class="igf-section-desc">Optional extras your child can grow into</p>
     </div>
     <div class="igf-product-grid" id="igf-products-bonus"></div>
 
     <div id="igf-optional-section" style="display:none">
-      <div class="igf-section-label">Add-ons</div>
-      <p class="igf-section-hint">Optional items available for all ages</p>
+      <div class="igf-section-title">Add-ons</div>
+      <p class="igf-section-desc">Available for all ages</p>
     </div>
     <div class="igf-product-grid" id="igf-products-optional"></div>
 
-    <div class="igf-btn-row">
-      <button type="button" class="igf-btn igf-btn-secondary" data-go="2">Back</button>
-      <button type="button" class="igf-btn igf-btn-primary" data-go="4">Next</button>
+    <div class="igf-actions" style="justify-content:center;margin-top:32px">
+      <button type="button" class="igf-btn igf-btn-back" data-prev="5">&larr; Back</button>
+      <button type="button" class="igf-btn igf-btn-next" data-next="7">Continue to shipping <svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5"/></svg></button>
     </div>
   </div>
 
-  <!-- ────── Step 4: Shipping Address + Submit ────── -->
-  <div class="igf-step" data-step="4">
-    <h2>Shipping Address</h2>
-    <p class="igf-subtitle">Where should we send your products?</p>
+  <!-- ── Slide 7: Shipping Address (card layout) ── -->
+  <div class="igf-card" id="igf-card-address" style="display:none">
+    <div class="igf-slide active" data-slide="7">
+      <div class="igf-step-counter">Step 7 of 7</div>
+      <div class="igf-question">Where should we send your samples?</div>
 
-    <div class="igf-field">
-      <label for="igf-street">Street Address *</label>
-      <input type="text" id="igf-street" required placeholder="123 Main St">
-      <div class="igf-error">Please enter your street address</div>
-    </div>
-    <div class="igf-field">
-      <label for="igf-apt">Apt / Suite / Unit</label>
-      <input type="text" id="igf-apt" placeholder="Apt 4B">
-    </div>
-    <div class="igf-address-row igf-row-3">
-      <div class="igf-field">
-        <label for="igf-city">City *</label>
-        <input type="text" id="igf-city" required placeholder="New York">
-        <div class="igf-error">Required</div>
+      <div class="igf-addr-field">
+        <label for="igf-street">Street Address *</label>
+        <input class="igf-input" type="text" id="igf-street" placeholder="123 Main St" autocomplete="address-line1">
+        <div class="igf-error-msg" id="igf-err-street">Please enter your address</div>
       </div>
-      <div class="igf-field">
-        <label for="igf-state">State *</label>
-        <select id="igf-state" required>
-          {state_options}
+      <div class="igf-addr-field">
+        <label for="igf-apt">Apt / Suite / Unit</label>
+        <input class="igf-input" type="text" id="igf-apt" placeholder="Apt 4B" autocomplete="address-line2">
+      </div>
+      <div class="igf-addr-grid cols-3" style="margin-top:8px">
+        <div class="igf-addr-field">
+          <label for="igf-city">City *</label>
+          <input class="igf-input" type="text" id="igf-city" placeholder="New York" autocomplete="address-level2">
+          <div class="igf-error-msg" id="igf-err-city">Required</div>
+        </div>
+        <div class="igf-addr-field">
+          <label for="igf-state">State *</label>
+          <select class="igf-input" id="igf-state" autocomplete="address-level1">
+            {state_options}
+          </select>
+          <div class="igf-error-msg" id="igf-err-state">Required</div>
+        </div>
+        <div class="igf-addr-field">
+          <label for="igf-zip">ZIP *</label>
+          <input class="igf-input" type="text" id="igf-zip" placeholder="10001" maxlength="10" autocomplete="postal-code">
+          <div class="igf-error-msg" id="igf-err-zip">Required</div>
+        </div>
+      </div>
+      <div class="igf-addr-field" style="margin-top:8px">
+        <label for="igf-country">Country *</label>
+        <select class="igf-input" id="igf-country" autocomplete="country">
+          <option value="US" selected>United States</option>
+          <option value="CA">Canada</option>
         </select>
-        <div class="igf-error">Required</div>
       </div>
-      <div class="igf-field">
-        <label for="igf-zip">ZIP Code *</label>
-        <input type="text" id="igf-zip" required placeholder="10001" maxlength="10">
-        <div class="igf-error">Required</div>
-      </div>
-    </div>
-    <div class="igf-field">
-      <label for="igf-country">Country *</label>
-      <select id="igf-country" required>
-        <option value="US" selected>United States</option>
-        <option value="CA">Canada</option>
-      </select>
-    </div>
 
-    <div class="igf-btn-row">
-      <button type="button" class="igf-btn igf-btn-secondary" data-go="3">Back</button>
-      <button type="button" class="igf-btn igf-btn-primary" id="igf-submit-btn">
-        Submit Application
-      </button>
+      <div class="igf-actions">
+        <button type="button" class="igf-btn igf-btn-back" data-prev="6">&larr; Back</button>
+        <button type="button" class="igf-btn igf-btn-next" id="igf-submit-btn">Submit Application <svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5"/></svg></button>
+      </div>
     </div>
   </div>
 
-  <!-- ────── Success Screen ────── -->
-  <div class="igf-step igf-success" data-step="success">
-    <h2>Thank you for your application!</h2>
-    <p>We will review your request and get back to you shortly.<br>Keep an eye on your email!</p>
+  <!-- ── Success ── -->
+  <div class="igf-card" id="igf-card-success" style="display:none">
+    <div class="igf-success-wrap">
+      <div class="igf-success-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+      <h2>Thank you!</h2>
+      <p>We&rsquo;ll review your application and get back to you soon.<br>Keep an eye on your email!</p>
+    </div>
   </div>
 </div>
+</form>
 
 <script>
 (function() {{
@@ -814,13 +1118,20 @@ def build_section_liquid(webhook_url):
 
   var WEBHOOK_URL = "{webhook_url}";
   var PRODUCTS = {products_js};
-  var TOTAL_STEPS = 4;
-  var currentStep = 1;
-  // selectedProducts[key] = {{ productKey, productId, title, price, selections: [{{color, variantId}}] }}
+  var TOTAL_SLIDES = 7;
+  var currentSlide = 1;
   var selectedProducts = {{}};
+  var lastTappedColor = {{}};
   var MAX_COLORS = 3;
 
-  // ── Age Calculation ──────────────────────────────────
+  // ── Containers ────────────────────────────────────────
+  var cardMain = document.getElementById("igf-card-main");
+  var cardAddr = document.getElementById("igf-card-address");
+  var cardSuccess = document.getElementById("igf-card-success");
+  var prodWrap = document.querySelector('.igf-products-wrap[data-slide="6"]');
+  var progressBar = document.getElementById("igf-progress");
+
+  // ── Age helpers ───────────────────────────────────────
   function calcAgeMonths(dateStr) {{
     if (!dateStr) return null;
     var bd = new Date(dateStr);
@@ -840,13 +1151,55 @@ def build_section_liquid(webhook_url):
   }}
 
   function updateAgeDisplay() {{
+    syncDateDropdown("igf-baby1");
+    syncDateDropdown("igf-baby2");
     var bd1 = document.getElementById("igf-baby1-bday").value;
     var bd2 = document.getElementById("igf-baby2-bday").value;
     document.getElementById("igf-baby1-age").innerHTML = ageLabel(calcAgeMonths(bd1));
     document.getElementById("igf-baby2-age").innerHTML = ageLabel(calcAgeMonths(bd2));
   }}
 
-  // ── Product Visibility (expanded age ranges) ──────────
+  // ── Date Dropdown Helpers ───────────────────────────────
+  function initDateDropdowns(prefix) {{
+    var daySel = document.getElementById(prefix + "-day");
+    var yearSel = document.getElementById(prefix + "-year");
+    // Populate days 1-31
+    for (var d = 1; d <= 31; d++) {{
+      var opt = document.createElement("option");
+      opt.value = d;
+      opt.textContent = d;
+      daySel.appendChild(opt);
+    }}
+    // Populate years (current year down to 6 years ago + expecting)
+    var currentYear = new Date().getFullYear();
+    for (var y = currentYear; y >= currentYear - 6; y--) {{
+      var opt = document.createElement("option");
+      opt.value = y;
+      opt.textContent = y;
+      yearSel.appendChild(opt);
+    }}
+    // Attach change listeners
+    [prefix + "-month", prefix + "-day", prefix + "-year"].forEach(function(id) {{
+      document.getElementById(id).addEventListener("change", updateAgeDisplay);
+    }});
+  }}
+
+  function syncDateDropdown(prefix) {{
+    var m = document.getElementById(prefix + "-month").value;
+    var d = document.getElementById(prefix + "-day").value;
+    var y = document.getElementById(prefix + "-year").value;
+    var hidden = document.getElementById(prefix + "-bday");
+    if (m && d && y) {{
+      hidden.value = y + "-" + (m.length === 1 ? "0" + m : m) + "-" + (d.length === 1 ? "0" + d : d);
+    }} else {{
+      hidden.value = "";
+    }}
+  }}
+
+  initDateDropdowns("igf-baby1");
+  initDateDropdowns("igf-baby2");
+
+  // ── Product Visibility ────────────────────────────────
   function getVisibleProducts() {{
     var bd1 = document.getElementById("igf-baby1-bday").value;
     var bd2 = document.getElementById("igf-has-baby2").checked
@@ -855,41 +1208,23 @@ def build_section_liquid(webhook_url):
     if (bd2) ages.push(calcAgeMonths(bd2));
 
     var result = {{ core: {{}}, bonus: {{}}, optional: {{}} }};
-
     for (var key in PRODUCTS) {{
       if (!PRODUCTS.hasOwnProperty(key)) continue;
       var p = PRODUCTS[key];
-
-      if (p.optional) {{
-        result.optional[key] = p;
-        continue;
-      }}
-
-      var isCore = false;
-      var isBonus = false;
-
+      if (p.optional) {{ result.optional[key] = p; continue; }}
+      var isCore = false, isBonus = false;
       for (var i = 0; i < ages.length; i++) {{
-        var age = ages[i];
-        var eff = (age === null || age < 0) ? 0 : age;
-        if (eff >= p.ageMin && eff < p.ageMax) {{
-          isCore = true;
-          break;
-        }}
-        if (p.bonusAgeMin != null && eff >= p.bonusAgeMin && eff < p.bonusAgeMax) {{
-          isBonus = true;
-        }}
+        var eff = (ages[i] === null || ages[i] < 0) ? 0 : ages[i];
+        if (eff >= p.ageMin && eff < p.ageMax) {{ isCore = true; break; }}
+        if (p.bonusAgeMin != null && eff >= p.bonusAgeMin && eff < p.bonusAgeMax) isBonus = true;
       }}
-
-      if (isCore) {{
-        result.core[key] = p;
-      }} else if (isBonus) {{
-        result.bonus[key] = p;
-      }}
+      if (isCore) result.core[key] = p;
+      else if (isBonus) result.bonus[key] = p;
     }}
     return result;
   }}
 
-  // ── Color Hex Map ────────────────────────────────────
+  // ── Color Hex Map ─────────────────────────────────────
   var COLOR_HEX = {{
     "Creamy Blue":"#A4C8E1","Rose Coral":"#E88D8D","Olive White":"#C5C99A",
     "Bear Pure Gold":"#D4A76A","Bear White":"#F5F0E8","Cherry Pure Gold":"#D4A76A",
@@ -900,96 +1235,141 @@ def build_section_liquid(webhook_url):
     "Bear Butter":"#F5E6B8"
   }};
 
-  // ── Render a single product card ──────────────────────
+  // ── Inventory / Out-of-Stock ────────────────────────────
+  var inventoryData = {{}};  // variantId -> boolean (true=available)
+  var inventoryLoaded = false;
+
+  function fetchInventory() {{
+    if (inventoryLoaded) return Promise.resolve();
+    var handles = [];
+    for (var key in PRODUCTS) {{
+      if (!PRODUCTS.hasOwnProperty(key)) continue;
+      var p = PRODUCTS[key];
+      if (p.productUrl) {{
+        var h = p.productUrl.replace(/^\\/products\\//, "");
+        handles.push({{ key: key, handle: h }});
+      }}
+    }}
+    console.log("[IGF] Fetching inventory for", handles.length, "products");
+    var promises = handles.map(function(item) {{
+      return fetch("/products/" + item.handle + ".js")
+        .then(function(r) {{
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.json();
+        }})
+        .then(function(data) {{
+          if (data && data.variants) {{
+            var availCount = 0;
+            data.variants.forEach(function(v) {{
+              inventoryData[v.id] = v.available;
+              if (v.available) availCount++;
+            }});
+            console.log("[IGF] " + item.handle + ": " + availCount + "/" + data.variants.length + " available");
+          }}
+        }})
+        .catch(function(err) {{
+          console.warn("[IGF] Inventory fetch failed for " + item.handle, err);
+        }});
+    }});
+    return Promise.all(promises).then(function() {{
+      inventoryLoaded = true;
+      console.log("[IGF] Inventory loaded:", Object.keys(inventoryData).length, "variants tracked");
+    }});
+  }}
+
+  function isColorAvailable(key, color) {{
+    var p = PRODUCTS[key];
+    if (!p.variantMap || !p.variantMap[color]) return true;
+    var vid = p.variantMap[color];
+    if (inventoryData[vid] === undefined) return true; // unknown = assume available
+    return inventoryData[vid];
+  }}
+
+  // ── Build Card ────────────────────────────────────────
   function buildCard(key, p, badgeType) {{
     var card = document.createElement("div");
     var sel = selectedProducts[key];
     var selCount = sel ? sel.selections.length : 0;
-    card.className = "igf-product-card" + (selCount > 0 ? " selected" : "");
+    card.className = "igf-pcard" + (selCount > 0 ? " selected" : "");
     card.dataset.key = key;
 
-    var badgeHtml = "";
-    if (badgeType === "optional") {{
-      badgeHtml = '<div class="igf-optional-badge">Optional</div>';
-    }} else if (badgeType === "bonus") {{
-      badgeHtml = '<div class="igf-bonus-badge">Bonus Pick</div>';
-    }}
+    var badge = "";
+    if (badgeType === "bonus") badge = '<div class="igf-badge igf-badge-bonus">Bonus</div>';
+    else if (badgeType === "optional") badge = '<div class="igf-badge igf-badge-optional">Add-on</div>';
 
+    // Color swatches
     var colorHtml = "";
     if (p.colors && p.colors.length > 0) {{
-      var selectedColors = sel ? sel.selections.map(function(s) {{ return s.color; }}) : [];
-      var swatches = p.colors.map(function(c) {{
+      var selected = sel ? sel.selections.map(function(s){{ return s.color; }}) : [];
+      var dots = p.colors.map(function(c) {{
         var hex = COLOR_HEX[c] || "#ccc";
-        var active = selectedColors.indexOf(c) >= 0 ? " active" : "";
-        return '<span class="igf-swatch' + active + '" data-key="' + key + '" data-color="' + c + '">' +
-          '<span class="igf-swatch-dot" style="background:' + hex + '"></span>' + c + '</span>';
+        var act = selected.indexOf(c) >= 0 ? " active" : "";
+        var oosClass = !isColorAvailable(key, c) ? " oos" : "";
+        return '<span class="igf-sw' + act + oosClass + '" style="background:' + hex + '" data-key="' + key + '" data-color="' + c + '"><span class="igf-sw-tooltip">' + c + '</span></span>';
       }}).join("");
-      colorHtml = '<div class="igf-swatch-row">' + swatches + '</div>';
-      colorHtml += '<div class="igf-color-count"><strong>' + selCount + '</strong> / ' + MAX_COLORS + ' colors selected</div>';
+      colorHtml = '<div class="igf-swatches">' + dots + '</div>';
+      colorHtml += '<div class="igf-sw-count"><strong>' + selCount + '</strong> / ' + MAX_COLORS + '</div>';
     }}
 
-    var btnText;
-    if (p.colors && p.colors.length > 0) {{
-      btnText = selCount > 0 ? "&#10003; " + selCount + " selected" : "Tap colors to select";
-    }} else {{
-      btnText = selCount > 0 ? "&#10003; Selected" : "Select";
+    var btnText = (p.colors && p.colors.length > 0)
+      ? (selCount > 0 ? "&#10003; " + selCount + " selected" : "Tap colors")
+      : (selCount > 0 ? "&#10003; Selected" : "Select");
+
+    // Use imageMap for the most recently TAPPED color, else default image
+    var imgSrc = p.image;
+    if (lastTappedColor[key] && p.imageMap && p.imageMap[lastTappedColor[key]]) {{
+      imgSrc = p.imageMap[lastTappedColor[key]];
+    }} else if (sel && sel.selections.length > 0 && p.imageMap) {{
+      // Fallback: show last selected color's image if no tap tracked yet
+      var lastColor = sel.selections[sel.selections.length - 1].color;
+      if (p.imageMap[lastColor]) imgSrc = p.imageMap[lastColor];
     }}
 
-    card.innerHTML =
-      badgeHtml +
-      '<img src="' + p.image + '" alt="' + p.title + '" loading="lazy">' +
-      '<div class="igf-card-title">' + p.title + '</div>' +
-      (p.subtitle ? '<div class="igf-card-subtitle">' + p.subtitle + '</div>' : '') +
-      '<div class="igf-card-price">' + p.price + '</div>' +
-      colorHtml +
-      '<button type="button" class="igf-select-btn" data-key="' + key + '">' + btnText + '</button>';
+    // Product detail link
+    var detailLink = "";
+    if (p.productUrl) {{
+      detailLink = '<a href="' + p.productUrl + '" target="_blank" class="igf-pcard-link" onclick="event.stopPropagation()">See details &rarr;</a>';
+    }}
 
+    card.innerHTML = badge
+      + '<img class="igf-pcard-img" src="' + imgSrc + '" alt="' + p.title + '" loading="lazy">'
+      + '<div class="igf-pcard-title">' + p.title + '</div>'
+      + (p.subtitle ? '<div class="igf-pcard-subtitle">' + p.subtitle + '</div>' : '')
+      + '<div class="igf-pcard-price">' + p.price + '</div>'
+      + detailLink
+      + colorHtml
+      + '<button type="button" class="igf-pcard-btn" data-key="' + key + '">' + btnText + '</button>';
     return card;
   }}
 
-  // ── Attach card event listeners ────────────────────────
+  // ── Attach card events ────────────────────────────────
   function attachCardEvents(grid) {{
-    // Swatch click: toggle color selection
-    grid.querySelectorAll(".igf-swatch").forEach(function(sw) {{
+    grid.querySelectorAll(".igf-sw").forEach(function(sw) {{
       sw.addEventListener("click", function(e) {{
         e.stopPropagation();
         toggleColorSelection(this.dataset.key, this.dataset.color);
       }});
     }});
-
-    // Select button click
-    grid.querySelectorAll(".igf-select-btn").forEach(function(btn) {{
+    grid.querySelectorAll(".igf-pcard-btn").forEach(function(btn) {{
       btn.addEventListener("click", function(e) {{
         e.stopPropagation();
-        var k = this.dataset.key;
-        var p = PRODUCTS[k];
-        if (!p.colors || p.colors.length === 0) {{
-          toggleSimpleProduct(k);
-        }} else if (selectedProducts[k]) {{
-          // Clicking button on color product deselects all
-          delete selectedProducts[k];
-          renderProducts();
-        }}
+        var k = this.dataset.key, p = PRODUCTS[k];
+        if (!p.colors || p.colors.length === 0) toggleSimpleProduct(k);
+        else if (selectedProducts[k]) {{ delete selectedProducts[k]; renderProducts(); }}
       }});
     }});
-
-    // Card click for non-color products
-    grid.querySelectorAll(".igf-product-card").forEach(function(card) {{
+    grid.querySelectorAll(".igf-pcard").forEach(function(card) {{
       card.addEventListener("click", function(e) {{
-        if (e.target.closest(".igf-swatch") || e.target.tagName === "BUTTON") return;
-        var k = this.dataset.key;
-        var p = PRODUCTS[k];
-        if (!p.colors || p.colors.length === 0) {{
-          toggleSimpleProduct(k);
-        }}
+        if (e.target.closest(".igf-sw") || e.target.tagName === "BUTTON" || e.target.tagName === "A") return;
+        var k = this.dataset.key, p = PRODUCTS[k];
+        if (!p.colors || p.colors.length === 0) toggleSimpleProduct(k);
       }});
     }});
   }}
 
-  // ── Product Rendering ─────────────────────────────────
+  // ── Render Products ───────────────────────────────────
   function renderProducts() {{
     var visible = getVisibleProducts();
-
     var coreGrid = document.getElementById("igf-products-core");
     var bonusGrid = document.getElementById("igf-products-bonus");
     var optGrid = document.getElementById("igf-products-optional");
@@ -1001,73 +1381,52 @@ def build_section_liquid(webhook_url):
     bonusGrid.innerHTML = "";
     optGrid.innerHTML = "";
 
-    // Remove selections for products no longer visible
     for (var k in selectedProducts) {{
-      if (!visible.core[k] && !visible.bonus[k] && !visible.optional[k]) {{
-        delete selectedProducts[k];
-      }}
+      if (!visible.core[k] && !visible.bonus[k] && !visible.optional[k]) delete selectedProducts[k];
     }}
 
     var hasCore = Object.keys(visible.core).length > 0;
     var hasBonus = Object.keys(visible.bonus).length > 0;
     var hasOpt = Object.keys(visible.optional).length > 0;
 
-    // Core products
     if (hasCore) {{
-      coreSection.innerHTML = '<div class="igf-section-label">Recommended for Your Baby</div><p class="igf-section-hint">Pick up to 3 colors per product</p>';
-      for (var ck in visible.core) {{
-        coreGrid.appendChild(buildCard(ck, visible.core[ck], "core"));
-      }}
+      coreSection.innerHTML = '<div class="igf-section-title">Recommended for Your Baby</div><p class="igf-section-desc">Pick up to 3 colors per product</p>';
+      for (var ck in visible.core) coreGrid.appendChild(buildCard(ck, visible.core[ck], "core"));
       attachCardEvents(coreGrid);
     }} else {{
-      coreSection.innerHTML = '<div class="igf-no-products">No core products available for this age range.</div>';
+      coreSection.innerHTML = '<div class="igf-no-products">No core products for this age range.</div>';
     }}
 
-    // Bonus products
     bonusSection.style.display = hasBonus ? "block" : "none";
     if (hasBonus) {{
-      for (var bk in visible.bonus) {{
-        bonusGrid.appendChild(buildCard(bk, visible.bonus[bk], "bonus"));
-      }}
+      for (var bk in visible.bonus) bonusGrid.appendChild(buildCard(bk, visible.bonus[bk], "bonus"));
       attachCardEvents(bonusGrid);
     }}
-
-    // Optional products
     optSection.style.display = hasOpt ? "block" : "none";
     if (hasOpt) {{
-      for (var ok in visible.optional) {{
-        optGrid.appendChild(buildCard(ok, visible.optional[ok], "optional"));
-      }}
+      for (var ok in visible.optional) optGrid.appendChild(buildCard(ok, visible.optional[ok], "optional"));
       attachCardEvents(optGrid);
     }}
   }}
 
-  // ── Toggle color selection (multi-select up to 3) ──────
+  // ── Toggle Color Selection ────────────────────────────
   function toggleColorSelection(key, color) {{
+    if (!isColorAvailable(key, color)) return; // OOS: can't select
+    lastTappedColor[key] = color;
     var p = PRODUCTS[key];
     if (!selectedProducts[key]) {{
-      // First selection for this product
       selectedProducts[key] = {{
-        productKey: key,
-        productId: p.productId,
-        title: p.title,
-        price: p.price,
+        productKey: key, productId: p.productId, title: p.title, price: p.price,
         selections: [{{ color: color, variantId: p.variantMap[color] || null }}]
       }};
     }} else {{
       var sels = selectedProducts[key].selections;
       var idx = -1;
-      for (var i = 0; i < sels.length; i++) {{
-        if (sels[i].color === color) {{ idx = i; break; }}
-      }}
+      for (var i = 0; i < sels.length; i++) if (sels[i].color === color) {{ idx = i; break; }}
       if (idx >= 0) {{
-        // Deselect this color
         sels.splice(idx, 1);
-        if (sels.length === 0) {{
-          delete selectedProducts[key];
-        }}
+        if (sels.length === 0) delete selectedProducts[key];
       }} else if (sels.length < MAX_COLORS) {{
-        // Add this color
         sels.push({{ color: color, variantId: p.variantMap[color] || null }});
       }} else {{
         alert("You can select up to " + MAX_COLORS + " colors per product.");
@@ -1077,95 +1436,120 @@ def build_section_liquid(webhook_url):
     renderProducts();
   }}
 
-  // ── Toggle for non-color products (chamom_duo) ─────────
   function toggleSimpleProduct(key) {{
-    if (selectedProducts[key]) {{
-      delete selectedProducts[key];
-    }} else {{
+    if (selectedProducts[key]) {{ delete selectedProducts[key]; }}
+    else {{
       var p = PRODUCTS[key];
       selectedProducts[key] = {{
-        productKey: key,
-        productId: p.productId,
-        title: p.title,
-        price: p.price,
+        productKey: key, productId: p.productId, title: p.title, price: p.price,
         selections: [{{ color: "Default", variantId: p.variantMap["Default"] || null }}]
       }};
     }}
     renderProducts();
   }}
 
-  // ── Step Navigation ──────────────────────────────────
-  function goToStep(n) {{
-    if (n > currentStep && !validateStep(currentStep)) return;
+  // ── Navigation ────────────────────────────────────────
+  function goToSlide(n) {{
+    if (typeof n === "string" && n === "success") {{
+      cardMain.style.display = "none";
+      prodWrap.style.display = "none";
+      cardAddr.style.display = "none";
+      cardSuccess.style.display = "block";
+      progressBar.style.width = "100%";
+      window.scrollTo({{ top: 0, behavior: "smooth" }});
+      return;
+    }}
+    n = parseInt(n);
+    if (n > currentSlide && !validateSlide(currentSlide)) return;
 
-    if (n === 3) {{
+    // Before entering product slide, fetch inventory + render products
+    if (n === 6) {{
       updateAgeDisplay();
-      renderProducts();
+      fetchInventory().then(function() {{ renderProducts(); }});
+      renderProducts(); // render immediately, update when inventory loads
     }}
 
-    document.querySelectorAll(".igf-step").forEach(function(s) {{ s.classList.remove("active"); }});
-    var target = document.querySelector('.igf-step[data-step="' + n + '"]');
-    if (target) target.classList.add("active");
+    // Hide all containers, show the right one
+    cardMain.style.display = "none";
+    prodWrap.style.display = "none";
+    cardAddr.style.display = "none";
+    cardSuccess.style.display = "none";
 
-    document.querySelectorAll(".igf-progress-step").forEach(function(bar) {{
-      var barStep = parseInt(bar.dataset.for);
-      bar.classList.toggle("done", barStep < n);
-      bar.classList.toggle("active", barStep === n);
-    }});
+    if (n >= 1 && n <= 5) {{
+      cardMain.style.display = "block";
+      cardMain.querySelectorAll(".igf-slide").forEach(function(s) {{ s.classList.remove("active"); }});
+      var target = cardMain.querySelector('.igf-slide[data-slide="' + n + '"]');
+      if (target) target.classList.add("active");
+    }} else if (n === 6) {{
+      prodWrap.style.display = "block";
+    }} else if (n === 7) {{
+      cardAddr.style.display = "block";
+    }}
 
-    currentStep = n;
+    progressBar.style.width = Math.round((n / TOTAL_SLIDES) * 100) + "%";
+    currentSlide = n;
     window.scrollTo({{ top: 0, behavior: "smooth" }});
+
+    // Auto-focus the input on the slide
+    setTimeout(function() {{
+      var activeSlide = document.querySelector('.igf-slide[data-slide="' + n + '"]')
+        || document.querySelector('[data-slide="' + n + '"]');
+      if (activeSlide) {{
+        var inp = activeSlide.querySelector("input:not([type=checkbox]):not([type=date]),select");
+        if (inp) inp.focus();
+      }}
+    }}, 100);
   }}
 
-  // ── Validation ───────────────────────────────────────
-  function validateStep(step) {{
+  // ── Validation ────────────────────────────────────────
+  function validateSlide(slide) {{
     var valid = true;
-
-    function check(id, condition) {{
+    function err(id, show) {{
       var el = document.getElementById(id);
-      var errEl = el ? el.closest(".igf-field") : null;
-      var err = errEl ? errEl.querySelector(".igf-error") : null;
-      if (!condition) {{
-        if (el) el.classList.add("invalid");
-        if (err) err.style.display = "block";
-        valid = false;
-      }} else {{
-        if (el) el.classList.remove("invalid");
-        if (err) err.style.display = "none";
+      var msg = document.getElementById("igf-err-" + id.replace("igf-",""));
+      if (el) el.classList.toggle("invalid", !show);
+      if (msg) msg.style.display = show ? "none" : "block";
+      if (!show) valid = false;
+    }}
+    if (slide === 1) err("igf-name", document.getElementById("igf-name").value.trim().length > 0);
+    if (slide === 2) err("igf-email", /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(document.getElementById("igf-email").value));
+    if (slide === 3) err("igf-phone", /^\\d{{10}}$/.test(document.getElementById("igf-phone").value.replace(/\\D/g, "")));
+    if (slide === 5) {{
+      syncDateDropdown("igf-baby1");
+      var bd1Val = document.getElementById("igf-baby1-bday").value;
+      err("igf-baby1-bday", bd1Val !== "");
+      if (!bd1Val) {{
+        // Highlight the empty dropdown(s)
+        ["igf-baby1-month","igf-baby1-day","igf-baby1-year"].forEach(function(id) {{
+          var el = document.getElementById(id);
+          if (!el.value) el.classList.add("invalid");
+          else el.classList.remove("invalid");
+        }});
       }}
-    }}
-
-    if (step === 1) {{
-      check("igf-name", document.getElementById("igf-name").value.trim().length > 0);
-      check("igf-email", /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(document.getElementById("igf-email").value));
-      check("igf-phone", /^\\d{{10}}$/.test(document.getElementById("igf-phone").value.replace(/\\D/g, "")));
-    }}
-    if (step === 2) {{
-      check("igf-baby1-bday", document.getElementById("igf-baby1-bday").value !== "");
       if (document.getElementById("igf-has-baby2").checked) {{
-        check("igf-baby2-bday", document.getElementById("igf-baby2-bday").value !== "");
+        syncDateDropdown("igf-baby2");
+        var bd2Val = document.getElementById("igf-baby2-bday").value;
+        if (!bd2Val) {{ valid = false; }}
       }}
     }}
-    if (step === 3) {{
-      // Must select at least one product
+    if (slide === 6) {{
       if (Object.keys(selectedProducts).length === 0) {{
         alert("Please select at least one product.");
         valid = false;
       }}
     }}
-    if (step === 4) {{
-      check("igf-street", document.getElementById("igf-street").value.trim().length > 0);
-      check("igf-city", document.getElementById("igf-city").value.trim().length > 0);
-      check("igf-state", document.getElementById("igf-state").value !== "");
-      check("igf-zip", document.getElementById("igf-zip").value.trim().length >= 5);
+    if (slide === 7) {{
+      err("igf-street", document.getElementById("igf-street").value.trim().length > 0);
+      err("igf-city", document.getElementById("igf-city").value.trim().length > 0);
+      err("igf-state", document.getElementById("igf-state").value !== "");
+      err("igf-zip", document.getElementById("igf-zip").value.trim().length >= 5);
     }}
     return valid;
   }}
 
-  // ── Submit ───────────────────────────────────────────
+  // ── Submit ────────────────────────────────────────────
   function submit() {{
-    if (!validateStep(4)) return;
-
+    if (!validateSlide(7)) return;
     var btn = document.getElementById("igf-submit-btn");
     btn.disabled = true;
     btn.innerHTML = '<span class="igf-spinner"></span>Submitting...';
@@ -1174,7 +1558,6 @@ def build_section_liquid(webhook_url):
     var bd2 = document.getElementById("igf-has-baby2").checked
       ? document.getElementById("igf-baby2-bday").value : null;
 
-    // Flatten all selections into individual line items
     var products = [];
     for (var key in selectedProducts) {{
       if (!selectedProducts.hasOwnProperty(key)) continue;
@@ -1182,12 +1565,8 @@ def build_section_liquid(webhook_url):
       for (var i = 0; i < sp.selections.length; i++) {{
         var s = sp.selections[i];
         products.push({{
-          product_key: sp.productKey,
-          product_id: sp.productId,
-          variant_id: s.variantId,
-          title: sp.title,
-          color: s.color,
-          price: sp.price
+          product_key: sp.productKey, product_id: sp.productId,
+          variant_id: s.variantId, title: sp.title, color: s.color, price: sp.price
         }});
       }}
     }}
@@ -1225,7 +1604,7 @@ def build_section_liquid(webhook_url):
     }})
     .then(function(r) {{
       if (!r.ok) throw new Error("HTTP " + r.status);
-      goToStep("success");
+      goToSlide("success");
     }})
     .catch(function(err) {{
       console.error("Submit error:", err);
@@ -1235,14 +1614,14 @@ def build_section_liquid(webhook_url):
     }});
   }}
 
-  // ── Toggle Baby 2 ───────────────────────────────────
+  // ── Toggle Baby 2 ────────────────────────────────────
   function toggleBaby2() {{
     var show = document.getElementById("igf-has-baby2").checked;
     document.getElementById("igf-baby2-section").style.display = show ? "block" : "none";
     if (!show) document.getElementById("igf-baby2-bday").value = "";
   }}
 
-  // ── Customer Pre-fill (Shopify logged-in) ────────────
+  // ── Customer Pre-fill ─────────────────────────────────
   function prefillCustomer() {{
     var el = document.getElementById("igf-customer-data");
     if (!el) return;
@@ -1253,28 +1632,41 @@ def build_section_liquid(webhook_url):
     if (c.email) document.getElementById("igf-email").value = c.email;
   }}
 
-  // ── Event Listeners ─────────────────────────────────
-  document.getElementById("igf-baby1-bday").addEventListener("change", updateAgeDisplay);
-  document.getElementById("igf-baby2-bday").addEventListener("change", updateAgeDisplay);
+  // ── Event Listeners ───────────────────────────────────
   document.getElementById("igf-submit-btn").addEventListener("click", submit);
   document.getElementById("igf-has-baby2").addEventListener("change", toggleBaby2);
 
-  document.querySelectorAll("[data-go]").forEach(function(btn) {{
-    btn.addEventListener("click", function() {{
-      goToStep(parseInt(this.dataset.go));
-    }});
+  // Next / Back / Skip buttons
+  document.querySelectorAll("[data-next]").forEach(function(btn) {{
+    btn.addEventListener("click", function() {{ goToSlide(parseInt(this.dataset.next)); }});
+  }});
+  document.querySelectorAll("[data-prev]").forEach(function(btn) {{
+    btn.addEventListener("click", function() {{ goToSlide(parseInt(this.dataset.prev)); }});
   }});
 
-  // ── Init ─────────────────────────────────────────────
-  prefillCustomer();
+  // Enter key advances to next slide
+  document.addEventListener("keydown", function(e) {{
+    if (e.key !== "Enter") return;
+    if (e.target.tagName === "TEXTAREA") return;
+    var nextBtn = null;
+    if (currentSlide >= 1 && currentSlide <= 5) {{
+      var activeSlide = cardMain.querySelector('.igf-slide[data-slide="' + currentSlide + '"]');
+      if (activeSlide) nextBtn = activeSlide.querySelector("[data-next]");
+    }}
+    if (nextBtn) {{ e.preventDefault(); nextBtn.click(); }}
+  }});
 
-  window.IGF = {{ goToStep: goToStep, submit: submit, toggleBaby2: toggleBaby2 }};
+  // ── Init ──────────────────────────────────────────────
+  prefillCustomer();
+  progressBar.style.width = Math.round((1 / TOTAL_SLIDES) * 100) + "%";
+
+  window.IGF = {{ goToSlide: goToSlide, submit: submit }};
 }})();
 </script>
 
 {{% schema %}}
 {{
-  "name": "Influencer Gifting HT Form",
+  "name": "Gifting HT Form",
   "tag": "section",
   "class": "influencer-gifting-ht-section"
 }}
