@@ -7,11 +7,11 @@ Saves to .tmp/polar_data/q11_paypal_transactions.json
 """
 import os, json, urllib.request, urllib.parse, base64, time
 from datetime import datetime, timedelta
-from env_loader import load_env
+from dotenv import load_dotenv
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(DIR, "..")
-load_env()
+load_dotenv(os.path.join(ROOT, ".env"))
 
 CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
 SECRET = os.getenv("PAYPAL_SECRET")
@@ -77,7 +77,7 @@ def fetch_transactions_window(start_dt, end_dt, token):
                 "date": ti.get("transaction_initiation_date", ""),
                 "payer_email": pi.get("email_address", ""),
                 "payer_name": full_name,
-                "amount": float(amount_info.get("value") or "0"),
+                "amount": float(amount_info.get("value", "0")),
                 "currency": amount_info.get("currency_code", "USD"),
                 "status": ti.get("transaction_status", ""),
                 "subject": ti.get("transaction_subject", ""),

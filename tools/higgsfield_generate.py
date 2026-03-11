@@ -24,10 +24,11 @@ import os
 import sys
 from pathlib import Path
 
-from env_loader import load_env
+from dotenv import load_dotenv
 
-# Load secrets from secure location
-load_env()
+# Load .env from project root
+env_path = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(env_path)
 
 # Validate credentials
 api_key = os.getenv("HF_API_KEY", "")

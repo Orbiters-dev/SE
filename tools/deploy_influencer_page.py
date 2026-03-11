@@ -10,9 +10,9 @@ import sys
 import json
 import urllib.request
 import urllib.error
-from env_loader import load_env
+from dotenv import load_dotenv
 
-load_env()
+load_dotenv()
 
 SHOP = "mytoddie.myshopify.com"  # onzenna.com = mytoddie (NOT toddie-4080)
 TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN", "")

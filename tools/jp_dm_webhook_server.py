@@ -238,7 +238,10 @@ async def receive_dm(request: Request):
         return JSONResponse({"error": "invalid json"}, status_code=400)
 
     subscriber_id   = str(body.get("subscriber_id", ""))
-    subscriber_name = body.get("subscriber_name", "名前不明")
+    subscriber_name = body.get("subscriber_name", "")
+    # ManyChat template variable not resolved (e.g. {{full_name}} when name is unset)
+    if not subscriber_name or "{{" in subscriber_name:
+        subscriber_name = body.get("subscriber_handle", "") or "名前不明"
     message         = body.get("message", "")
 
     if not subscriber_id:

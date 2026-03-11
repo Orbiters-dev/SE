@@ -157,6 +157,15 @@ Everything in `.tmp/` is disposable.
 
 ---
 
+## Auto-Load Rules
+
+When the user pastes a DM message (Japanese or Korean) without further context, or mentions influencer outreach, influencer DM, or インフルエンサー:
+1. Immediately read `workflows/grosmimi_japan_influencer_dm.md`
+2. Identify the current step in the flow
+3. Draft the appropriate reply (Japanese original + Korean translation)
+
+---
+
 ## Bottom Line
 
 You sit between:
@@ -443,21 +452,45 @@ Gifting 신청 → Needs Review → Accepted → Sample Sent → Sample Shipped 
                             → Declined                → Sample Error
 ```
 
-**n8n 워크플로우 체인 (WJ TEST):**
-| 워크플로우 | ID | 트리거 |
-|-----------|-----|--------|
-| Gifting (신청) | `4q5NCzMb3nMGYqL4` | Webhook |
-| Sample Sent → Complete | `Vd5NiKMwdLT7b9wa` | 5분 폴링 |
-| Shipped → Delivered | `2vsXyHtjo79hnFoD` | 30분 폴링 |
-| Delivered → Posted | `82t55jurzbY3iUM4` | 6시간 폴링 |
+## Data Keeper - Team Data Rules
 
-**n8n 핵심 제약:**
-- Code 노드에 `fetch()` 없음 → HTTP Request 노드 사용
-- `?.` optional chaining 미지원 → `(obj || {}).prop` 사용
-- `runOnceForEachItem` 모드: `$input.item` (NOT `$input.first()`)
-- 크레덴셜: Shopify `rIJuzuN1C5ieE7dr`, Airtable `59gWUPbiysH2lxd8`
+When you need advertising/sales data (Amazon, Meta, Google Ads, GA4, Klaviyo, Shopify, etc.), you MUST check Data Keeper first.
 
-### 트리거 키워드
+### Rules
+
+1. Check `../Shared/datakeeper/latest/manifest.json` first
+2. If channel exists in manifest, read from `../Shared/datakeeper/latest/{channel}.json`. Do NOT call the API directly.
+3. If channel is NOT in manifest, scrape API directly, then create a signal YAML:
+
+Save to: `../Shared/datakeeper/data_signals/{channel_name}.yaml`
+```yaml
+channel: tiktok_ads
+requested_by: your_name
+created: 2026-03-09
+api_endpoint: https://api.example.com/...
+credentials_needed:
+  - API_KEY_NAME
+sample_data_path: your_folder/.tmp/sample.json
+status: pending
+
+```
+
+4. NEVER write to PostgreSQL `gk_*` tables directly - Data Keeper is the sole writer
+5. NEVER modify files in `../Shared/datakeeper/latest/` - read-only
+
+### Currently Collected Channels
+
+| File | Content |
+|------|---------|
+| amazon_ads_daily.json | Amazon Ads (3 brands) |
+| amazon_sales_daily.json | Amazon Sales (3 sellers) |
+| meta_ads_daily.json | Meta Ads |
+| google_ads_daily.json | Google Ads |
+| ga4_daily.json | GA4 |
+| klaviyo_daily.json | Klaviyo |
+| shopify_orders_daily.json | Shopify (all brands) |
+
+Data refreshes 2x daily (PST 00:00 and 12:00).
 
 UI테스터야, 쇼피파이 UI, Shopify UI, Checkout Extension, Liquid 페이지, Polaris, Hydrogen,
 메타필드, 데이터 파이프라인, n8n 웹훅, E2E 테스트, 폼 개발, UI 개발,

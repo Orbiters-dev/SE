@@ -24,10 +24,11 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from env_loader import load_env
+from dotenv import load_dotenv
 
-# Load secrets from secure location
-load_env()
+# Load .env from project root
+env_path = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(env_path)
 
 fal_key = os.getenv("FAL_KEY", "")
 if not fal_key:

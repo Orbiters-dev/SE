@@ -30,7 +30,7 @@ from collections import defaultdict
 
 import requests
 from requests.auth import HTTPBasicAuth
-from env_loader import load_env
+from dotenv import load_dotenv
 import openpyxl
 from openpyxl.styles import Font, Alignment
 import anthropic
@@ -43,7 +43,7 @@ if sys.stdout.encoding != 'utf-8':
 # Config
 # ---------------------------------------------------------------------------
 
-load_env()
+load_dotenv()
 
 DOMAIN        = os.getenv("GORGIAS_DOMAIN")
 EMAIL         = os.getenv("GORGIAS_EMAIL")

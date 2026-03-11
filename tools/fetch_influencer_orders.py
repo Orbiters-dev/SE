@@ -7,11 +7,11 @@ Two-pass approach:
 Saves to .tmp/polar_data/q10_influencer_orders.json
 """
 import os, json, urllib.request, urllib.parse, time, re
-from env_loader import load_env
+from dotenv import load_dotenv
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(DIR, "..")
-load_env()
+load_dotenv(os.path.join(ROOT, ".env"))
 
 SHOP = os.getenv("SHOPIFY_SHOP", "mytoddie.myshopify.com")
 TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN")
@@ -77,19 +77,10 @@ def parse_order(o):
             "price": li.get("price", "0"),
         })
 
-    # Extract earliest fulfillment date (shipping date)
-    closed_at = o.get("closed_at", "") or ""
-    fulfillments = o.get("fulfillments") or []
-    if fulfillments and isinstance(fulfillments, list):
-        dates = [f.get("created_at", "") for f in fulfillments if f.get("created_at")]
-        if dates:
-            closed_at = min(dates)
-
     return {
         "id": o["id"],
         "name": o.get("name", ""),
         "created_at": o.get("created_at", ""),
-        "closed_at": closed_at,
         "tags": o.get("tags", ""),
         "note": o.get("note", "") or "",
         "financial_status": o.get("financial_status", ""),

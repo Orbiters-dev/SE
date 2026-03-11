@@ -19,11 +19,11 @@ import argparse
 import urllib.request
 import urllib.parse
 import urllib.error
-from env_loader import load_env
+from dotenv import load_dotenv
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(DIR, "..")
-load_env()
+load_dotenv(os.path.join(ROOT, ".env"))
 
 SHOP = os.getenv("SHOPIFY_SHOP", "mytoddie.myshopify.com")
 TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN")

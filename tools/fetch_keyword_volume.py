@@ -17,9 +17,9 @@ import json
 import argparse
 import requests
 from datetime import datetime, date
-from env_loader import load_env
+from dotenv import load_dotenv
 
-load_env()
+load_dotenv()
 
 API_BASE = "https://api.dataforseo.com/v3"
 
@@ -37,11 +37,13 @@ LOCATION_CODES = {
     "MX": 2484,
     "NL": 2528,
     "SG": 2702,
+    "JP": 2392,
 }
 
 LANGUAGE_CODES = {
     "US": "en", "UK": "en", "CA": "en", "AU": "en", "IN": "en", "SG": "en",
     "DE": "de", "FR": "fr", "IT": "it", "ES": "es", "MX": "es", "NL": "nl",
+    "JP": "ja",
 }
 
 

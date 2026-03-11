@@ -20,7 +20,6 @@ Outputs:
 
 import os
 import sys
-import json
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, numbers
 from openpyxl.utils import get_column_letter
@@ -28,11 +27,6 @@ from datetime import datetime
 from copy import copy
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-def _load_secrets():
-    p = os.path.join(BASE_DIR, "credentials", "secrets.json")
-    with open(p) as f:
-        return json.load(f)
 
 # ─── Configuration ───
 MASTER_FILE = os.path.join(BASE_DIR, "REFERENCE",
@@ -69,7 +63,7 @@ EXPORTER = {
 }
 IMPORTER = {
     "name": "Fleeters Inc.",
-    "address": "30 N Gould St. Ste 32663, Sheridan, WY 82801, USA",
+    "address": "A-320, 3, Godeung-ro, Sujeong-gu, Seongnam-si, Gyeonggi-do, Republic of Korea, 13105",
     "email": "grosmimi.usa@gmail.com",
     "tel": "Tel : 82-10-4803-4704",
 }
@@ -97,8 +91,13 @@ PRICE_TERMS = "EXW"
 ORIGIN = "Republic of Korea"
 PACKING_TYPE = "Standard Export Packing Box"
 
-# Bank Info loaded from credentials/secrets.json
-BANK_INFO = _load_secrets()["bank_accounts"]["lfu_keb_hana"]
+BANK_INFO = {
+    "company": "ORBITERS Co.,Ltd.",
+    "remittee": "LITTLEFINGERUSA",
+    "bank": "KEB Hana Bank",
+    "swift": "KOEXKRSE",
+    "account": "630-010399-748",
+}
 
 SIGNER = "Chung Hae Jung / LittlefingerUSA Inc."
 

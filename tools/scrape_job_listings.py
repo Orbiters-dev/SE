@@ -20,7 +20,7 @@ if sys.stdout.encoding != 'utf-8':
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from env_loader import load_env
+from dotenv import load_dotenv
 import openpyxl
 from openpyxl.styles import Font
 
@@ -29,7 +29,7 @@ BASE_URL = "https://dailyremote.com/remote-support-jobs"
 PARAMS = "employmentType=full-time&benefits=maternity"
 MAX_WORKERS = 10  # parallel workers for individual job page scrapes
 
-load_env()
+load_dotenv()
 FIRECRAWL_API_KEY = os.getenv("FIRECRAWL_API_KEY")
 if not FIRECRAWL_API_KEY:
     raise ValueError("FIRECRAWL_API_KEY not found in .env")

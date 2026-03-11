@@ -14,12 +14,7 @@ DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(DIR, "..")
 DATA = os.path.join(ROOT, ".tmp", "polar_data")
 from output_utils import get_output_path
-
-# Output to Shared/NoPolar KPIs/Output/
-_SHARED_OUTPUT = os.path.normpath(os.path.join(
-    ROOT, "..", "Shared", "NoPolar KPIs", "Output"
-))
-OUT = get_output_path("polar", "financial_model", base_dir=_SHARED_OUTPUT)
+OUT = get_output_path("polar", "financial_model")
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
@@ -314,38 +309,19 @@ def _cell_ref(col_idx, row_idx):
     return f"{get_column_letter(col_idx)}{row_idx}"
 
 
-import calendar
 from datetime import date as _date
 _today = _date.today()
-# Current month string for dynamic partial-month detection
-_CURRENT_MONTH = _today.strftime("%Y-%m")
-PARTIAL_DAY = _today.day
-FULL_DAYS = calendar.monthrange(_today.year, _today.month)[1]
-
-
-def _is_partial(month_str):
-    """Return True if month_str is the current (incomplete) month."""
-    return month_str == _CURRENT_MONTH and PARTIAL_DAY < FULL_DAYS
-
-
-def _partial_label(month_str, style="full"):
-    """Dynamic label for the partial month column headers.
-    style='full' -> 'Mar 2026\\n(Full-mo)', style='actual' -> 'Mar 3\\n2026'
-    """
-    y, m = month_str.split("-")
-    mon_abbr = calendar.month_abbr[int(m)]
-    if style == "full":
-        return f"{mon_abbr} {y}\n(Full-mo)"
-    return f"{mon_abbr} {PARTIAL_DAY}\n{y}"
+PARTIAL_DAY = _today.day if _today.year == 2026 and _today.month == 2 else _today.day
+FULL_DAYS = 28  # Feb 2026 has 28 days
 
 
 def calc_total_cols(months, level_headers):
     """Compute total column count including data, % of Total, and YoY blocks."""
     col_start = len(level_headers) + 1
-    has_partial = _is_partial(months[-1]) if months else False
+    has_partial = months[-1] == "2026-02" if months else False
     num_reg = len(months) - 1 if has_partial else len(months)
-    extra = 2 if has_partial else 0  # full-mo + actual
-    data_width = num_reg + extra + 1  # months + partial cols + ytd
+    extra = 2 if has_partial else 0  # feb_full + feb_actual
+    data_width = num_reg + extra + 1  # months + feb cols + ytd
     # layout: labels | data | gap | pct | gap | yoy
     return (col_start - 1) + 3 * data_width + 2
 
@@ -361,7 +337,7 @@ def write_sections(ws, start_row, flat_nodes, months, ytd_months, configs, level
     col_start = len(level_headers) + 1
 
     # ── Detect partial month ──
-    has_partial = _is_partial(months[-1]) if months else False
+    has_partial = months[-1] == "2026-02" if months else False
     if has_partial:
         reg_months = months[:-1]
         partial_m = months[-1]
@@ -443,27 +419,27 @@ def write_sections(ws, start_row, flat_nodes, months, ytd_months, configs, level
         for m in reg_months:
             hdrs.append(_month_label(m))
         if has_partial:
-            hdrs.append(_partial_label(partial_m, "full"))
-            hdrs.append(_partial_label(partial_m, "actual"))
-        hdrs.append(f"YTD {_today.year}")
+            hdrs.append(f"Feb 2026\n(Full-mo)")
+            hdrs.append(f"Feb {PARTIAL_DAY}\n2026")
+        hdrs.append("YTD 2026")
         # gap
         hdrs.append("")
         # pct headers
         for m in reg_months:
             hdrs.append(_month_label(m))
         if has_partial:
-            hdrs.append(_partial_label(partial_m, "full"))
-            hdrs.append(_partial_label(partial_m, "actual"))
-        hdrs.append(f"YTD {_today.year}")
+            hdrs.append(f"Feb 2026\n(Full-mo)")
+            hdrs.append(f"Feb {PARTIAL_DAY}\n2026")
+        hdrs.append("YTD 2026")
         # gap
         hdrs.append("")
         # yoy headers
         for m in reg_months:
             hdrs.append(_month_label(m))
         if has_partial:
-            hdrs.append(_partial_label(partial_m, "full"))
-            hdrs.append(_partial_label(partial_m, "actual"))
-        hdrs.append(f"YTD {_today.year}")
+            hdrs.append(f"Feb 2026\n(Full-mo)")
+            hdrs.append(f"Feb {PARTIAL_DAY}\n2026")
+        hdrs.append("YTD 2026")
 
         for ci, lbl in enumerate(hdrs):
             cell = ws.cell(row=row, column=1 + ci, value=lbl)
@@ -623,9 +599,8 @@ def write_sections(ws, start_row, flat_nodes, months, ytd_months, configs, level
                     c.number_format = PCT; c.font = rf
 
             if has_partial:
-                # Partial month YoY vs same month prior year (dynamic)
-                prior_partial = f"{int(partial_m[:4]) - 1}-{partial_m[5:7]}"
-                prior_feb = month_to_col.get(prior_partial)
+                # Feb Full-month & Feb actual YoY vs Feb prior year
+                prior_feb = month_to_col.get("2025-02")
                 if prior_feb is not None:
                     for fcol in (feb_full_col, feb_actual_col):
                         yc = yoy_col(fcol)
@@ -695,7 +670,7 @@ def _set_col_widths(ws, total_cols, months, level_headers):
     ws.column_dimensions["C"].width = 18
     ws.column_dimensions["D"].width = 20
     col_start = len(level_headers) + 1
-    has_partial = _is_partial(months[-1]) if months else False
+    has_partial = months[-1] == "2026-02" if months else False
     num_reg = len(months) - 1 if has_partial else len(months)
     extra = 2 if has_partial else 0
     data_width = num_reg + extra + 1
@@ -928,7 +903,7 @@ def preprocess():
 
     # Derive months list
     months = sorted(all_months)
-    ytd_months = [m for m in months if m.startswith(f"{_today.year}-")]
+    ytd_months = [m for m in months if m.startswith("2026-")]
 
     # ── Build vintage data (two-pass) ──
     ads_vintage = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))
@@ -1114,14 +1089,10 @@ def preprocess():
         }
 
     # ── Time-window aggregation for Summary tab ──
-    # Build windows dynamically from the latest month in data
-    from dateutil.relativedelta import relativedelta as _rdelta
-    _latest_m = months[-1] if months else _CURRENT_MONTH
-    _ldt = _date(int(_latest_m[:4]), int(_latest_m[5:7]), 1)
     WINDOWS = {
-        "14d": [_latest_m],
-        "30d": [(_ldt - _rdelta(months=i)).strftime("%Y-%m") for i in range(2)],
-        "90d": [(_ldt - _rdelta(months=i)).strftime("%Y-%m") for i in range(4)],
+        "14d": ["2026-02"],
+        "30d": ["2026-02", "2026-01"],
+        "90d": ["2026-02", "2026-01", "2025-12", "2025-11"],
     }
 
     # Campaign window totals: {window: {(plat, camp): metrics}}
@@ -1387,7 +1358,7 @@ def build_ads(wb, D):
     # ── Running Campaigns (Spend > $0) ──
     row = _write_section_title(ws, row, "RUNNING CAMPAIGNS (Spend > $0)", total_cols)
     col_start = len(lh_3) + 1
-    has_partial = _is_partial(months[-1]) if months else False
+    has_partial = months[-1] == "2026-02" if months else False
     reg_months = months[:-1] if has_partial else list(months)
     # Header row
     for i, m in enumerate(reg_months):
@@ -1398,12 +1369,10 @@ def build_ads(wb, D):
         ws.cell(row=row, column=c).alignment = Alignment(horizontal="center")
     if has_partial:
         pc = col_start + len(reg_months)
-        _pm = months[-1]
-        _pm_short = _pm[2:].replace("-", "/")
-        ws.cell(row=row, column=pc, value=f"{_pm_short} ({PARTIAL_DAY}d)")
+        ws.cell(row=row, column=pc, value=f"26/02 ({PARTIAL_DAY}d)")
         ws.cell(row=row, column=pc).font = BF
         ws.cell(row=row, column=pc).fill = LGREEN
-        ws.cell(row=row, column=pc + 1, value=f"{_pm_short} Full")
+        ws.cell(row=row, column=pc + 1, value="26/02 Full")
         ws.cell(row=row, column=pc + 1).font = BF
         ws.cell(row=row, column=pc + 1).fill = LGREEN
     row += 1
@@ -1417,9 +1386,9 @@ def build_ads(wb, D):
         ws.cell(row=row, column=c).number_format = NUM
     if has_partial:
         pc = col_start + len(reg_months)
-        ws.cell(row=row, column=pc, value=running.get(months[-1], 0))
+        ws.cell(row=row, column=pc, value=running.get("2026-02", 0))
         ws.cell(row=row, column=pc).number_format = NUM
-        ws.cell(row=row, column=pc + 1, value=running.get(months[-1], 0))
+        ws.cell(row=row, column=pc + 1, value=running.get("2026-02", 0))
         ws.cell(row=row, column=pc + 1).number_format = NUM
     row += 1
 
@@ -1483,7 +1452,7 @@ def build_vintage(wb, D):
 
     # ── Conditional formatting: full-row coloring for highlighted campaigns ──
     col_start = len(lh) + 1
-    has_partial = _is_partial(months[-1]) if months else False
+    has_partial = months[-1] == "2026-02" if months else False
     num_reg = len(months) - 1 if has_partial else len(months)
     extra = 2 if has_partial else 0
     data_width = num_reg + extra + 1
@@ -1816,17 +1785,10 @@ def build_model_check(wb, D):
 # ══════════════════════════════════════════════════════════════════════════════
 
 WINDOW_ORDER = ["90d", "30d", "14d"]
-# Dynamic window labels based on current date
-_cur_mon_abbr = calendar.month_abbr[_today.month]
-_cur_year = _today.year
-_m1_ago = _date(_today.year, _today.month, 1) - _date.resolution  # last day of prev month
-_m3_ago = _date(_today.year, _today.month, 1)
-for _i in range(3):
-    _m3_ago = (_m3_ago.replace(day=1) - _date.resolution).replace(day=1)
 WINDOW_LABELS = {
-    "90d": f"LAST 90 DAYS ({calendar.month_abbr[_m3_ago.month]} {_m3_ago.year} \u2013 {_cur_mon_abbr} {_cur_year})",
-    "30d": f"LAST 30 DAYS ({calendar.month_abbr[_m1_ago.month]} \u2013 {_cur_mon_abbr} {_cur_year})",
-    "14d": f"LAST 14 DAYS ({_cur_mon_abbr} 1\u2013{PARTIAL_DAY} {_cur_year})",
+    "90d": "LAST 90 DAYS (Nov 2025 – Feb 2026)",
+    "30d": "LAST 30 DAYS (Jan – Feb 2026)",
+    "14d": f"LAST 14 DAYS (Feb 1–{PARTIAL_DAY} 2026)",
 }
 MIN_SPEND_SUMMARY = 50
 
@@ -3299,7 +3261,7 @@ def main():
         wb.save(OUT)
         print(f"\nModel saved: {OUT}")
     except PermissionError:
-        fallback = get_output_path("polar", "financial_model", base_dir=_SHARED_OUTPUT)
+        fallback = get_output_path("polar", "financial_model")
         wb.save(fallback)
         print(f"\nOriginal file locked - saved to: {fallback}")
         print("Close the Excel file and retry.")
