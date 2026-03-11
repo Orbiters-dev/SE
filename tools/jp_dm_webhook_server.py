@@ -279,82 +279,49 @@ def send_teams(subscriber_id: str, subscriber_name: str, message: str, result: d
     approve_url = f"{BASE_URL}/webhook/jp-ig-dm-approve-v1?id={subscriber_id}"
     edit_url    = f"{BASE_URL}/webhook/jp-ig-dm-edit?id={subscriber_id}"
 
-    reply_full  = result.get("reply", "")
-    parts       = reply_full.split("---한국어---")
-    reply_jp    = parts[0].strip()[:600]
-    reply_kr    = parts[1].strip()[:400] if len(parts) > 1 else ""
+    reply_full = result.get("reply", "")
+    parts      = reply_full.split("---한국어---")
+    reply_jp   = parts[0].strip()[:600]
+    reply_kr   = parts[1].strip()[:400] if len(parts) > 1 else ""
 
-    header_text = f"[JP DM] @{subscriber_name}"
-    if result.get("needs_human_review"):
-        header_text += f"  ⚠️ 확인필요: {result.get('alert_reason', '')}"
+    review_flag = f"  ⚠️ 확인필요: {result.get('alert_reason', '')}" if result.get("needs_human_review") else ""
+    title       = f"[JP DM] @{subscriber_name}{review_flag}"
+    color       = "FF0000" if result.get("needs_human_review") else "0078D4"
 
-    body_blocks = [
-        {
-            "type": "TextBlock",
-            "text": header_text,
-            "weight": "Bolder",
-            "size": "Large",
-            "wrap": True,
-            "color": "Warning" if result.get("needs_human_review") else "Default",
-        },
-        {
-            "type": "TextBlock",
-            "text": f"Stage: **{result.get('stage', '?')}**",
-            "wrap": True,
-            "spacing": "Small",
-        },
-        {"type": "TextBlock", "text": "📩 받은 메시지", "weight": "Bolder", "spacing": "Medium"},
-        {"type": "TextBlock", "text": message or "(메시지 없음)", "wrap": True, "color": "Accent"},
-        {"type": "TextBlock", "text": "🤖 Claude 답장 (일본어)", "weight": "Bolder", "spacing": "Medium"},
-        {"type": "TextBlock", "text": reply_jp, "wrap": True},
+    facts = [
+        {"name": "Stage", "value": result.get("stage", "?")},
+        {"name": "📩 받은 메시지", "value": message or "(메시지 없음)"},
+        {"name": "🤖 Claude 답장 (일본어)", "value": reply_jp},
     ]
-
     if reply_kr:
-        body_blocks += [
-            {"type": "TextBlock", "text": "🇰🇷 한국어 번역", "weight": "Bolder", "spacing": "Medium"},
-            {"type": "TextBlock", "text": reply_kr, "wrap": True},
-        ]
-
+        facts.append({"name": "🇰🇷 한국어 번역", "value": reply_kr})
     if result.get("alert_note"):
-        body_blocks.append({
-            "type": "TextBlock",
-            "text": f"📝 메모: {result['alert_note']}",
-            "wrap": True,
-            "color": "Warning",
-            "spacing": "Medium",
-        })
+        facts.append({"name": "📝 메모", "value": result["alert_note"]})
 
     card = {
-        "type": "message",
-        "attachments": [
+        "@type": "MessageCard",
+        "@context": "https://schema.org/extensions",
+        "summary": title,
+        "themeColor": color,
+        "title": title,
+        "sections": [{"facts": facts}],
+        "potentialAction": [
             {
-                "contentType": "application/vnd.microsoft.card.adaptive",
-                "contentUrl": None,
-                "content": {
-                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-                    "type": "AdaptiveCard",
-                    "version": "1.4",
-                    "body": body_blocks,
-                    "actions": [
-                        {
-                            "type": "Action.OpenUrl",
-                            "title": "✅ 승인 후 전송",
-                            "url": approve_url,
-                            "style": "positive",
-                        },
-                        {
-                            "type": "Action.OpenUrl",
-                            "title": "✏️ 수정 후 전송",
-                            "url": edit_url,
-                        },
-                    ],
-                },
-            }
+                "@type": "OpenUri",
+                "name": "✅ 승인 후 전송",
+                "targets": [{"os": "default", "uri": approve_url}],
+            },
+            {
+                "@type": "OpenUri",
+                "name": "✏️ 수정 후 전송",
+                "targets": [{"os": "default", "uri": edit_url}],
+            },
         ],
     }
 
     try:
-        httpx.post(TEAMS_WEBHOOK_URL, json=card, timeout=10)
+        r = httpx.post(TEAMS_WEBHOOK_URL, json=card, timeout=10)
+        print(f"Teams response: {r.status_code} {r.text[:100]}")
     except Exception as e:
         print(f"Teams send error: {e}")
 
