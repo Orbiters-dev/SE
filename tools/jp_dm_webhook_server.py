@@ -10,8 +10,8 @@ Endpoints:
   POST /webhook/jp-ig-dm-edit       - submit edited reply
 """
 
-import os, json, re, httpx
-from fastapi import FastAPI, Request, BackgroundTasks
+import os, json, re, httpx, asyncio
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 from dotenv import load_dotenv
 from anthropic import Anthropic
@@ -19,6 +19,22 @@ from anthropic import Anthropic
 load_dotenv()
 
 app = FastAPI()
+
+# ─── Debounce (메시지 묶음 처리) ─────────────────────────────────────────────
+DEBOUNCE_SECS = 8
+_timers: dict = {}
+_msg_buffer: dict = {}
+
+async def _debounced_process(subscriber_id: str):
+    await asyncio.sleep(DEBOUNCE_SECS)
+    if subscriber_id not in _msg_buffer:
+        return
+    buf = _msg_buffer.pop(subscriber_id)
+    _timers.pop(subscriber_id, None)
+    name = buf["name"]
+    combined = "\n".join(buf["messages"])
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, process_dm, subscriber_id, name, combined)
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 MANYCHAT_API_KEY  = os.getenv("MANYCHAT_API_KEY_JP", "")
@@ -197,7 +213,7 @@ def process_dm(subscriber_id: str, subscriber_name: str, message: str):
 # ─── Endpoints ───────────────────────────────────────────────────────────────
 
 @app.post("/webhook/jp-ig-dm-v1")
-async def receive_dm(request: Request, background_tasks: BackgroundTasks):
+async def receive_dm(request: Request):
     try:
         body = await request.json()
     except Exception:
@@ -210,7 +226,15 @@ async def receive_dm(request: Request, background_tasks: BackgroundTasks):
     if not subscriber_id:
         return JSONResponse({"error": "subscriber_id required"}, status_code=400)
 
-    background_tasks.add_task(process_dm, subscriber_id, subscriber_name, message)
+    # Cancel existing timer and buffer message
+    if subscriber_id in _timers and not _timers[subscriber_id].done():
+        _timers[subscriber_id].cancel()
+    if subscriber_id not in _msg_buffer:
+        _msg_buffer[subscriber_id] = {"name": subscriber_name, "messages": []}
+    _msg_buffer[subscriber_id]["messages"].append(message)
+
+    # Schedule debounced processing (waits DEBOUNCE_SECS for more messages)
+    _timers[subscriber_id] = asyncio.create_task(_debounced_process(subscriber_id))
     return {"ok": True}
 
 
