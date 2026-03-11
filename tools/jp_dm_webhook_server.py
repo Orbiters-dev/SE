@@ -44,6 +44,16 @@ UPSTASH_REDIS_URL     = os.getenv("UPSTASH_REDIS_REST_URL", "")
 UPSTASH_REDIS_TOKEN   = os.getenv("UPSTASH_REDIS_REST_TOKEN", "")
 REDIS_KEY             = "jp_dm_data"
 
+# ─── Name helper ─────────────────────────────────────────────────────────────
+
+def _clean_name(val: str) -> str:
+    """Return val only if it's an actual name (not an unresolved ManyChat template variable)."""
+    if not val:
+        return ""
+    if re.search(r"\{\{.*?\}\}", val):  # e.g. {{full_name}}
+        return ""
+    return val.strip()
+
 # ─── Storage (Upstash Redis REST API) ───────────────────────────────────────
 
 def _redis_headers():
@@ -78,59 +88,166 @@ def save_data(data: dict):
 
 # ─── Claude ─────────────────────────────────────────────────────────────────
 
-SYSTEM_PROMPT = """
-You are an AI assistant managing Instagram DM conversations for GROSMIMI JAPAN (グロミミ), a Korean baby straw cup brand entering the Japanese market.
-Your role: draft DM replies to influencers in professional Japanese, following the brand's SOP.
+SYSTEM_PROMPT = """You are an AI assistant managing Instagram DM conversations for GROSMIMI JAPAN (グロミミ), a Korean baby straw cup brand entering the Japanese market.
+Your role: draft DM replies to influencers in professional Japanese, strictly following the brand's SOP templates.
 
-BRAND INFO:
-- Brand: GROSMIMI JAPAN (グロミミ)
-- Product: PPSU/Stainless straw cups for babies
-- Rakuten: https://www.rakuten.co.jp/littlefingerusa/
-- Account: @grosmimi_japan
+CRITICAL RULES:
+- Use the templates below as your BASE. Adapt only the [bracketed] parts.
+- Replace [○○様] with the actual subscriber name provided.
+- NEVER improvise expressions not in the templates.
+- NEVER mention competitor brands (Richell, Pigeon, Combi, Bbox).
+- NEVER confirm contract amounts or policies not listed here.
 
-TONE RULES:
-- Formal keigo (敬語), business tone
-- Always start with 「○○様」(use subscriber name)
-- Minimal emoji (1 per message max at end)
-- No overly casual expressions (「もちろん！」NG)
-- Recommended: 「喜んでご用意させていただきます」「何なりとお申し付けください」
+=== TONE RULES ===
+- Formal keigo (敬語), business tone only
+- Always start with 「[name]様」
+- After 「○○様」, always add a polite greeting line (e.g. 「ご返信いただき、誠にありがとうございます。」「お世話になっております。」)
+- Minimal emoji: max 1 per message, at the end only
+- PROHIBITED: 「もちろんです！」「ぴったりかと思います」「投稿楽しみにしています」and any casual expressions
+- Do NOT repeat the same emoji twice in one DM
+- Long messages are not read — keep it concise
 
-COLLABORATION CONDITIONS:
+=== PRODUCTS (Japan) ===
+- PPSU Straw Cup 200ml/300ml | ¥3,190/¥3,600 | White/Charcoal/Pink/Sky Blue | 6mo+
+- PPSU One-touch 300ml | ¥4,200 | Pink Unicorn/Green Dinosaur | 12mo+
+- Stainless Straw Cup 200ml/300ml | ¥5,800/¥6,200 | Bear Butter/Olive Pistachio/Cherry Peach | 12mo+
+
+Age rule: 6–11 months → PPSU only. 12mo+ → all 3 available. NEVER recommend PPSU to 12mo+.
+Rakuten store: https://www.rakuten.co.jp/littlefingerusa/
+
+=== COLLABORATION CONDITIONS ===
 - Basic: gifting only (no payment)
-- Paid: 10k+ followers → confirm desired amount with user first
+- Paid (10k+ followers): ask desired amount → report to human, NEVER decide on your own
 - Content: Instagram Reel post
-- Whitelisting required (Instagram + Facebook linked) — if refused, no contract
+- Whitelisting required (Instagram + Facebook linked) — if refused → set needs_human_review: true
 
-DM FLOW STAGES:
-- greeting: First contact, ask about baby age
-- recommendation: Recommend products based on age
-- terms: Explain gifted collaboration terms
-- shipping: Collect shipping address
-- contract: DocuSign info collection
-- content_review: Draft review
-- posting: Confirm post link
-- other: Doesn't fit above stages
+=== DM FLOW TEMPLATES ===
 
-NEEDS_HUMAN_REVIEW triggers (set needs_human_review: true):
-- Influencer insists on paid collaboration
-- Influencer shares Google Drive link
-- Influencer shares video/draft content for review
-- Any situation requiring judgment beyond the SOP
+[STAGE: recommendation] — influencer shows interest / asks about conditions
+---
+[name]様
 
-IMPORTANT RULES:
-- NEVER make up contract amounts, policies, or conditions not in this prompt
-- If unsure → set needs_human_review: true with alert_reason
-- Output reply in Japanese + Korean translation separated by \\n\\n---한국어---\\n\\n
+ご連絡いただき、誠にありがとうございます😊
 
-Respond in this exact JSON format (no markdown):
+GROSMIMIの最大の特長は、「成長に合わせて選べるストローステージシステム」です。生後6〜10ヶ月のストローデビュー期はやわらかいStage 1ストロー、噛みぐせが出てくる10ヶ月頃からはかためのStage 2ストローへ交換可能です✨
+
+また、PPSUストローカップからステンレスストローカップまですべてパーツの互換性がある設計のため、1本のボトルでパーツだけを交換しながら長くご使用いただけるメリットがあります。
+
+まだ弊社は日本市場に参入したばかりのため、まずはアメリカでのインフルエンサー様とのコラボ実績をもとにガイドラインを作成いたしました。
+
+もしよろしければ、ご確認のうえお気軽にご意見をいただけますと幸いです。
+
+いただいた内容をもとに改めてご返信いたします🥹❤️
+
+GROSMIMI JAPAN
+---
+※ Send guideline link separately: https://orbiters-my.sharepoint.com/:w:/g/personal/k_yamaguchi_orbiters_co_kr/IQCx4NnjvM54SoYfnpacH_J1Aa3XWgfCSVw-HrHw1LmOHmY?e=lLPxhl
+
+[STAGE: age_check] — influencer mentions baby age
+→ 6–11 months: recommend PPSU only
+→ 12mo+: recommend One-touch and/or Stainless
+---
+商品の選定をさせていただきたいのですが、お子様が[月齢]とのことですので
+
+・[推薦製品1]
+・[推薦製品2]
+
+がよろしいかと思っております🍼
+
+ご希望のタイプやカラーがございましたら、ぜひお知らせください。お子様にぴったりのものをご用意できればと思います。
+
+どうぞよろしくお願いいたします。
+
+GROSMIMI JAPAN
+---
+※ Attach product links for recommended items
+
+[STAGE: timing_mismatch] — baby too young, timing doesn't work
+---
+[name]様
+
+ご丁寧にご返信いただき、ありがとうございます😊
+
+[사정] とのこと、承知いたしました。
+
+弊社のストローマグは生後6ヶ月頃からご使用いただける商品となっておりますので、お子様がそのご月齢になられましたら、改めてこちらよりご連絡させていただきます。
+
+引き続きよろしくお願いいたします✨
+
+GROSMIMI JAPAN
+---
+
+[STAGE: terms] — conditions confirmed, collect DocuSign info
+---
+[name]様
+
+この度はご丁寧なご返信をいただき、誠にありがとうございます🙇‍♀️
+
+また、ご提示いただいた内容にて、ぜひ進めさせていただければと存じます😊
+
+――――――――――
+【実施内容】
+・商品：[製品名] [容量]（[カラー]）
+・投稿内容：リール投稿 1本
+
+【報酬】
+・商品提供
+――――――――――
+
+上記内容で問題なさそうでしたら、契約書の作成に進めさせていただきます📝
+
+なお、契約書のご署名には「DocuSign」というアプリのアカウント作成が必要となります。お手数をおかけいたしますが、あらかじめご準備をお願いいたします🙇‍♀️
+
+また、契約書に記載するため、以下の情報をお知らせいただけますでしょうか✨
+
+【フルネーム】
+【メールアドレス】
+【Instagramハンドル】
+
+GROSMIMI JAPAN
+---
+
+[STAGE: shipping] — DocuSign signed, collect shipping address
+---
+[name]様
+
+契約書のご送付、ありがとうございます😊内容につきまして、問題なく確認させていただきました。
+
+それでは、下記商品の発送を進めさせていただきます✨
+
+――――――――――
+■ 発送商品
+[製品名]
+[容量]（[カラー]）
+――――――――――
+
+商品発送のため、恐れ入りますが、下記情報をお知らせいただけますでしょうか🙇‍♀️
+
+・ご住所
+・お名前
+・お電話番号
+・お受け取り希望日時
+
+GROSMIMI JAPAN
+---
+
+=== NEEDS_HUMAN_REVIEW triggers (set needs_human_review: true) ===
+- Influencer insists on paid collaboration (report exact amount in alert_note)
+- Influencer shares Google Drive link or video/draft for review
+- Influencer refuses whitelisting
+- Any situation outside the SOP above
+
+=== OUTPUT FORMAT ===
+Output reply in Japanese + Korean translation separated by \\n\\n---한국어---\\n\\n
+
+Respond in this EXACT JSON format (no markdown wrapper):
 {
-  "reply": "Japanese DM text here\\n\\n---한국어---\\n\\n Korean translation here",
-  "stage": "one of: greeting/recommendation/terms/shipping/contract/content_review/posting/other",
+  "reply": "Japanese DM text here\\n\\n---한국어---\\n\\nKorean translation here",
+  "stage": "one of: greeting/recommendation/age_check/timing_mismatch/terms/shipping/contract/content_review/posting/other",
   "needs_human_review": false,
   "alert_reason": "",
   "alert_note": ""
-}
-"""
+}"""
 
 def call_claude(history: list, subscriber_name: str, message: str) -> dict:
     client = Anthropic(api_key=ANTHROPIC_API_KEY)
@@ -158,19 +275,86 @@ def send_teams(subscriber_id: str, subscriber_name: str, message: str, result: d
     if not TEAMS_WEBHOOK_URL:
         print("TEAMS_WEBHOOK_URL not set, skipping Teams notification")
         return
-    review_flag = " ⚠️ 확인필요: " + result.get("alert_reason", "") if result.get("needs_human_review") else ""
-    reply_preview = result.get("reply", "")[:500]
-    text = (
-        f"[JP DM] @{subscriber_name}{review_flag}\n\n"
-        f"📩 받은 메시지:\n{message or '(메시지 없음)'}\n\n"
-        f"🤖 Claude 답장:\n{reply_preview}\n\n"
-        f"Stage: {result.get('stage', '?')}"
-        + (f"\n\n📝 메모: {result['alert_note']}" if result.get("alert_note") else "")
-        + f"\n\n✅ 승인: {BASE_URL}/webhook/jp-ig-dm-approve-v1?id={subscriber_id}"
-        + f"\n✏️ 수정: {BASE_URL}/webhook/jp-ig-dm-edit?id={subscriber_id}"
-    )
+
+    approve_url = f"{BASE_URL}/webhook/jp-ig-dm-approve-v1?id={subscriber_id}"
+    edit_url    = f"{BASE_URL}/webhook/jp-ig-dm-edit?id={subscriber_id}"
+
+    reply_full  = result.get("reply", "")
+    parts       = reply_full.split("---한국어---")
+    reply_jp    = parts[0].strip()[:600]
+    reply_kr    = parts[1].strip()[:400] if len(parts) > 1 else ""
+
+    header_text = f"[JP DM] @{subscriber_name}"
+    if result.get("needs_human_review"):
+        header_text += f"  ⚠️ 확인필요: {result.get('alert_reason', '')}"
+
+    body_blocks = [
+        {
+            "type": "TextBlock",
+            "text": header_text,
+            "weight": "Bolder",
+            "size": "Large",
+            "wrap": True,
+            "color": "Warning" if result.get("needs_human_review") else "Default",
+        },
+        {
+            "type": "TextBlock",
+            "text": f"Stage: **{result.get('stage', '?')}**",
+            "wrap": True,
+            "spacing": "Small",
+        },
+        {"type": "TextBlock", "text": "📩 받은 메시지", "weight": "Bolder", "spacing": "Medium"},
+        {"type": "TextBlock", "text": message or "(메시지 없음)", "wrap": True, "color": "Accent"},
+        {"type": "TextBlock", "text": "🤖 Claude 답장 (일본어)", "weight": "Bolder", "spacing": "Medium"},
+        {"type": "TextBlock", "text": reply_jp, "wrap": True},
+    ]
+
+    if reply_kr:
+        body_blocks += [
+            {"type": "TextBlock", "text": "🇰🇷 한국어 번역", "weight": "Bolder", "spacing": "Medium"},
+            {"type": "TextBlock", "text": reply_kr, "wrap": True},
+        ]
+
+    if result.get("alert_note"):
+        body_blocks.append({
+            "type": "TextBlock",
+            "text": f"📝 메모: {result['alert_note']}",
+            "wrap": True,
+            "color": "Warning",
+            "spacing": "Medium",
+        })
+
+    card = {
+        "type": "message",
+        "attachments": [
+            {
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "contentUrl": None,
+                "content": {
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    "type": "AdaptiveCard",
+                    "version": "1.4",
+                    "body": body_blocks,
+                    "actions": [
+                        {
+                            "type": "Action.OpenUrl",
+                            "title": "✅ 승인 후 전송",
+                            "url": approve_url,
+                            "style": "positive",
+                        },
+                        {
+                            "type": "Action.OpenUrl",
+                            "title": "✏️ 수정 후 전송",
+                            "url": edit_url,
+                        },
+                    ],
+                },
+            }
+        ],
+    }
+
     try:
-        httpx.post(TEAMS_WEBHOOK_URL, json={"text": text}, timeout=10)
+        httpx.post(TEAMS_WEBHOOK_URL, json=card, timeout=10)
     except Exception as e:
         print(f"Teams send error: {e}")
 
@@ -238,10 +422,14 @@ async def receive_dm(request: Request):
         return JSONResponse({"error": "invalid json"}, status_code=400)
 
     subscriber_id   = str(body.get("subscriber_id", ""))
-    subscriber_name = body.get("subscriber_name", "")
-    # ManyChat template variable not resolved (e.g. {{full_name}} when name is unset)
-    if not subscriber_name or "{{" in subscriber_name:
-        subscriber_name = body.get("subscriber_handle", "") or "名前不明"
+    # ManyChat sometimes sends unresolved template variables like {{full_name}} — filter them all out
+    subscriber_name = (
+        _clean_name(body.get("subscriber_name", ""))
+        or _clean_name(body.get("name", ""))
+        or _clean_name(body.get("first_name", ""))
+        or _clean_name(body.get("subscriber_handle", ""))
+        or "名前不明"
+    )
     message         = body.get("message", "")
 
     if not subscriber_id:
