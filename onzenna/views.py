@@ -14,6 +14,7 @@ from .models import (
     OnzRecommendationCache,
     OnzLoyaltySurvey,
     OnzCreatorProfile,
+    OnzGiftingApplication,
 )
 
 
@@ -313,6 +314,129 @@ def get_status(request, user_id):
     })
 
 
+# --- Gifting Applications ---
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def save_gifting(request):
+    """Save or update a gifting application (upsert by email + draft_order)."""
+    body = _json_body(request)
+    email = body.get("email", "").strip().lower()
+    if not email:
+        return JsonResponse({"error": "email is required"}, status=400)
+
+    # Parse nested structures from n8n payload
+    personal = body.get("personal_info", {})
+    baby = body.get("baby_info", {})
+    addr = body.get("shipping_address", {})
+    child_1 = baby.get("child_1") or {}
+    child_2 = baby.get("child_2") or {}
+
+    defaults = {
+        "full_name": body.get("full_name") or personal.get("full_name", ""),
+        "phone": body.get("phone") or personal.get("phone", ""),
+        "instagram": body.get("instagram") or personal.get("instagram", ""),
+        "tiktok": body.get("tiktok") or personal.get("tiktok", ""),
+        "child_1_birthday": _parse_date(child_1.get("birthday")),
+        "child_1_age_months": child_1.get("age_months"),
+        "child_2_birthday": _parse_date(child_2.get("birthday")) if child_2 else None,
+        "child_2_age_months": child_2.get("age_months") if child_2 else None,
+        "selected_products": _json_field(body.get("selected_products", [])),
+        "address_street": addr.get("street", ""),
+        "address_apt": addr.get("apt", ""),
+        "address_city": addr.get("city", ""),
+        "address_state": addr.get("state", ""),
+        "address_zip": addr.get("zip", ""),
+        "address_country": addr.get("country", "US"),
+        "shopify_customer_id": str(body.get("shopify_customer_id", "")),
+    }
+
+    # Optional fields that may come from n8n after draft order creation
+    if body.get("shopify_draft_order_id"):
+        defaults["shopify_draft_order_id"] = str(body["shopify_draft_order_id"])
+    if body.get("shopify_draft_order_name"):
+        defaults["shopify_draft_order_name"] = body["shopify_draft_order_name"]
+    if body.get("airtable_record_id"):
+        defaults["airtable_record_id"] = body["airtable_record_id"]
+    if body.get("status"):
+        defaults["status"] = body["status"]
+    if body.get("submitted_at"):
+        try:
+            defaults["submitted_at"] = datetime.fromisoformat(
+                body["submitted_at"].replace("Z", "+00:00")
+            )
+        except (ValueError, AttributeError):
+            pass
+
+    # Upsert: match by email. If draft_order_id given, use that for more precise match.
+    draft_id = defaults.get("shopify_draft_order_id", "")
+    if draft_id:
+        app, created = OnzGiftingApplication.objects.update_or_create(
+            email=email, shopify_draft_order_id=draft_id,
+            defaults=defaults,
+        )
+    else:
+        app, created = OnzGiftingApplication.objects.update_or_create(
+            email=email, status="submitted",
+            defaults=defaults,
+        )
+
+    return JsonResponse(_serialize(app), status=201 if created else 200)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def update_gifting(request):
+    """Update gifting application fields (from Airtable sync, status changes, etc.)."""
+    body = _json_body(request)
+    app_id = body.get("id")
+    email = body.get("email", "").strip().lower()
+
+    if not app_id and not email:
+        return JsonResponse({"error": "id or email required"}, status=400)
+
+    try:
+        if app_id:
+            app = OnzGiftingApplication.objects.get(id=app_id)
+        else:
+            app = OnzGiftingApplication.objects.filter(email=email).order_by("-created_at").first()
+            if not app:
+                return JsonResponse({"error": "Not found"}, status=404)
+    except OnzGiftingApplication.DoesNotExist:
+        return JsonResponse({"error": "Not found"}, status=404)
+
+    # Update allowed fields
+    for field in ("status", "airtable_record_id", "shopify_draft_order_id",
+                  "shopify_draft_order_name", "shopify_customer_id",
+                  "instagram", "tiktok"):
+        if field in body:
+            setattr(app, field, body[field])
+    app.save()
+
+    return JsonResponse(_serialize(app))
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def list_gifting(request):
+    """List gifting applications with optional filters."""
+    qs = OnzGiftingApplication.objects.all()
+
+    # Filters
+    email = request.GET.get("email")
+    status = request.GET.get("status")
+    if email:
+        qs = qs.filter(email=email.lower())
+    if status:
+        qs = qs.filter(status=status)
+
+    limit = int(request.GET.get("limit", 50))
+    apps = qs[:limit]
+
+    return JsonResponse([_serialize(a) for a in apps], safe=False)
+
+
 # --- Tables (for monitoring) ---
 
 
@@ -327,5 +451,6 @@ def list_tables(request):
         "onz_recommendation_cache": OnzRecommendationCache.objects.count(),
         "onz_loyalty_survey": OnzLoyaltySurvey.objects.count(),
         "onz_creator_profile": OnzCreatorProfile.objects.count(),
+        "onz_gifting_applications": OnzGiftingApplication.objects.count(),
     }
     return JsonResponse({"tables": tables})

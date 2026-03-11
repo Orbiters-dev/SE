@@ -99,3 +99,53 @@ class OnzCreatorProfile(models.Model):
 
     class Meta:
         db_table = "onz_creator_profile"
+
+
+class OnzGiftingApplication(models.Model):
+    """Inbound influencer gifting applications from the Shopify form."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+
+    # Personal info
+    email = models.EmailField(db_index=True)
+    full_name = models.CharField(max_length=200)
+    phone = models.CharField(max_length=30, blank=True, default="")
+    instagram = models.CharField(max_length=200, blank=True, default="")
+    tiktok = models.CharField(max_length=200, blank=True, default="")
+
+    # Baby info
+    child_1_birthday = models.DateField(null=True, blank=True)
+    child_1_age_months = models.IntegerField(null=True, blank=True)
+    child_2_birthday = models.DateField(null=True, blank=True)
+    child_2_age_months = models.IntegerField(null=True, blank=True)
+
+    # Selected products (JSON array)
+    selected_products = models.TextField(blank=True, default="[]")
+
+    # Shipping address
+    address_street = models.CharField(max_length=300, blank=True, default="")
+    address_apt = models.CharField(max_length=100, blank=True, default="")
+    address_city = models.CharField(max_length=100, blank=True, default="")
+    address_state = models.CharField(max_length=10, blank=True, default="")
+    address_zip = models.CharField(max_length=20, blank=True, default="")
+    address_country = models.CharField(max_length=10, default="US")
+
+    # Shopify references
+    shopify_customer_id = models.CharField(max_length=50, blank=True, default="")
+    shopify_draft_order_id = models.CharField(max_length=50, blank=True, default="")
+    shopify_draft_order_name = models.CharField(max_length=50, blank=True, default="")
+
+    # Airtable sync
+    airtable_record_id = models.CharField(max_length=50, blank=True, default="")
+
+    # Status tracking
+    status = models.CharField(max_length=30, default="submitted")  # submitted, approved, shipped, delivered, posted, declined
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "onz_gifting_applications"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.full_name} ({self.email}) - {self.status}"

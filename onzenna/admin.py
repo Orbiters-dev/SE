@@ -7,6 +7,7 @@ from .models import (
     OnzRecommendationCache,
     OnzLoyaltySurvey,
     OnzCreatorProfile,
+    OnzGiftingApplication,
 )
 
 
@@ -49,4 +50,12 @@ class OnzLoyaltySurveyAdmin(admin.ModelAdmin):
 class OnzCreatorProfileAdmin(admin.ModelAdmin):
     list_display = ("user", "creator_level", "primary_platform", "following_size", "created_at")
     list_filter = ("creator_level", "primary_platform")
+    readonly_fields = ("id", "created_at", "updated_at")
+
+
+@admin.register(OnzGiftingApplication)
+class OnzGiftingApplicationAdmin(admin.ModelAdmin):
+    list_display = ("email", "full_name", "status", "instagram", "shopify_draft_order_name", "created_at")
+    search_fields = ("email", "full_name", "instagram", "tiktok")
+    list_filter = ("status",)
     readonly_fields = ("id", "created_at", "updated_at")

@@ -26,6 +26,11 @@ urlpatterns = [
     # Status
     path("status/<uuid:user_id>/", views.get_status, name="get_status"),
 
+    # Gifting Applications
+    path("gifting/save/", views.save_gifting, name="save_gifting"),
+    path("gifting/update/", views.update_gifting, name="update_gifting"),
+    path("gifting/list/", views.list_gifting, name="list_gifting"),
+
     # Monitoring
     path("tables/", views.list_tables, name="list_tables"),
 ]

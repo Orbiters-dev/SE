@@ -1,0 +1,51 @@
+name: Amazon PPC Daily Report
+
+on:
+  schedule:
+    - cron: '0 23 * * *'   # 매일 KST 08:00 (= 23:00 UTC 전날)
+  workflow_dispatch:        # 수동 실행 버튼
+
+jobs:
+  ppc-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --quiet \
+            requests \
+            python-dotenv \
+            google-auth \
+            google-auth-oauthlib \
+            google-api-python-client
+
+      - name: Write .env
+        run: |
+          cat > .env << 'ENVEOF'
+          ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+          AMZ_ADS_CLIENT_ID=${{ secrets.AMZ_ADS_CLIENT_ID }}
+          AMZ_ADS_CLIENT_SECRET=${{ secrets.AMZ_ADS_CLIENT_SECRET }}
+          AMZ_ADS_REFRESH_TOKEN=${{ secrets.AMZ_ADS_REFRESH_TOKEN }}
+          GMAIL_OAUTH_CREDENTIALS_PATH=credentials/gmail_oauth_credentials.json
+          GMAIL_TOKEN_PATH=credentials/gmail_token.json
+          GMAIL_SENDER=orbiters11@gmail.com
+          PPC_REPORT_RECIPIENT=${{ secrets.PPC_REPORT_RECIPIENT }}
+          ENVEOF
+
+      - name: Write Gmail credentials
+        run: |
+          mkdir -p credentials
+          echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
+          echo '${{ secrets.GMAIL_TOKEN_JSON }}'             > credentials/gmail_token.json
+
+      - name: Run Amazon PPC Daily Report
+        run: python -u tools/run_amazon_ppc_daily.py
