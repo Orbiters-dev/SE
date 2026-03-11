@@ -1,10 +1,18 @@
 python-dotenv
 requests
 anthropic
+fastapi
+uvicorn[standard]
+httpx
 openpyxl
+firecrawl-py
+beautifulsoup4
+streamlit>=1.30.0
+pdfplumber
+python-docx
+tweepy>=4.14.0
 
-# Google integrations (uncomment as needed)
-# google-auth
+# Google integrations
 google-auth-oauthlib
 google-auth-httplib2
 google-api-python-client
