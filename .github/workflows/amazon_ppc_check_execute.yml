@@ -2,7 +2,7 @@ name: Amazon PPC Auto-Execute (Email Reply)
 
 on:
   schedule:
-    - cron: '*/30 * * * *'   # Every 30 minutes — check for 'execute' reply
+    - cron: '0 */2 * * *'    # Every 2 hours — check for 'execute' reply
   workflow_dispatch:          # Manual trigger
 
 permissions:
