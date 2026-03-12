@@ -21,9 +21,9 @@ class OnzUserAdmin(admin.ModelAdmin):
 
 @admin.register(OnzOnboarding)
 class OnzOnboardingAdmin(admin.ModelAdmin):
-    list_display = ("user", "journey_stage", "has_other_children", "created_at")
+    list_display = ("user", "journey_stage", "has_other_children", "completed_at")
     list_filter = ("journey_stage",)
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "completed_at")
 
 
 @admin.register(OnzEngagementEvent)
@@ -41,16 +41,16 @@ class OnzRecommendationCacheAdmin(admin.ModelAdmin):
 
 @admin.register(OnzLoyaltySurvey)
 class OnzLoyaltySurveyAdmin(admin.ModelAdmin):
-    list_display = ("user", "routine_type", "feeding_method", "sms_opt_in", "created_at")
+    list_display = ("user", "routine_type", "feeding_method", "sms_opt_in", "completed_at")
     list_filter = ("sms_opt_in",)
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "completed_at")
 
 
 @admin.register(OnzCreatorProfile)
 class OnzCreatorProfileAdmin(admin.ModelAdmin):
-    list_display = ("user", "creator_level", "primary_platform", "following_size", "created_at")
+    list_display = ("user", "creator_level", "primary_platform", "following_size", "completed_at")
     list_filter = ("creator_level", "primary_platform")
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "completed_at")
 
 
 @admin.register(OnzGiftingApplication)

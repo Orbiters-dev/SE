@@ -226,7 +226,80 @@ python tools/test_influencer_flow.py --results         # 마지막 결과 보기
 
 Cleanup 시 반드시 `@test.orbiters.co.kr` 패턴 매칭 확인 후 삭제.
 
+## Django Gifting API (PostgreSQL 저장)
+
+n8n Gifting 워크플로우에서 Airtable과 **병렬로** PostgreSQL에도 저장하는 파이프라인.
+
+### 엔드포인트
+| Method | URL | 용도 |
+|--------|-----|------|
+| POST | `http://orbitools.orbiters.co.kr/api/onzenna/gifting/save/` | 기프팅 신청 저장 (upsert by email+draft_order) |
+| POST | `http://orbitools.orbiters.co.kr/api/onzenna/gifting/update/` | 필드 업데이트 (id 또는 email) |
+| GET | `http://orbitools.orbiters.co.kr/api/onzenna/gifting/list/` | 목록 조회 (?email=, ?status=, ?limit=) |
+
+### n8n에서 PG 저장 노드 추가 패턴
+```
+기존 워크플로우 → [Code: Prepare PG Payload] → [HTTP Request: Save to PostgreSQL]
+```
+
+**Prepare PG Payload** (Code 노드):
+```javascript
+// optional chaining (?.) 사용 금지 — n8n Code 노드 호환성
+var formData = $('Webhook').first().json.body || $('Webhook').first().json;
+var personal = formData.personal_info || {};
+var baby = formData.baby_info || {};
+var addr = formData.shipping_address || {};
+return [{json: {
+  email: formData.email,
+  full_name: personal.full_name || formData.firstName + ' ' + formData.lastName,
+  // ... 필드 매핑
+}}];
+```
+
+**Save to PostgreSQL** (HTTP Request 노드):
+- Method: POST
+- URL: `http://orbitools.orbiters.co.kr/api/onzenna/gifting/save/`
+- Body: `{{ $json }}` (JSON)
+- 인증 없음 (내부 VPC)
+
+### 현재 상태
+- Django 모델/뷰/URL: EC2에 배포 완료, curl 201 확인됨
+- n8n PG 노드: 테스트 중 제거됨 → n8n webhook 복구 후 재추가 필요
+
 ## 트러블슈팅
+
+### n8n 서버 장애 패턴
+
+| 증상 | 원인 | 해결 |
+|------|------|------|
+| **webhook POST → 200 + 빈 body** | JS Task Runner "Offer expired" — task offer를 시간 내 수락 못함 | `docker compose down && docker compose up -d` 클린 재시작 |
+| **webhook POST → HTTP 000** | Caddy `ERR_ERL_UNEXPECTED_X_FORWARDED_FOR` — trust proxy 미설정 | `.env`에 `N8N_PROXY_HOPS=1` 추가 후 재시작 |
+| **docker logs 에러 flood** | Task Runner가 크래시/오버로드 | 클린 재시작. 재발 시 n8n 버전 고정 (`n8nio/n8n:1.76.1` 등) |
+| **EC2에서 curl HTTP 000** | EC2 → 자기 도메인 루프백 불가 | `curl -sk https://127.0.0.1/ -H "Host: n8n.orbiters.co.kr"` 또는 외부 PC에서 테스트 |
+
+### n8n 서버 진단 순서
+```bash
+# 1. 컨테이너 상태 확인
+docker ps
+
+# 2. n8n 로그 확인 (크래시, 에러 패턴)
+docker logs n8n-n8n-1 --tail 50
+
+# 3. Caddy 로그 확인 (프록시 에러)
+docker logs n8n-caddy-1 --tail 20
+
+# 4. .env 확인 (잘못된 환경변수)
+cat /home/ubuntu/n8n/.env
+
+# 5. 클린 재시작
+cd /home/ubuntu/n8n && docker compose down && docker compose up -d
+
+# 6. webhook 테스트 (외부에서)
+curl -s -w "\nHTTP %{http_code}" -X POST https://n8n.orbiters.co.kr/webhook/influencer-gifting \
+  -H "Content-Type: application/json" -d '{"email":"test@test.com"}'
+```
+
+### 기존 이슈
 
 | 증상 | 원인 | 해결 |
 |------|------|------|
@@ -237,3 +310,4 @@ Cleanup 시 반드시 `@test.orbiters.co.kr` 패턴 매칭 확인 후 삭제.
 | Sample Sent 워크플로우 무동작 | Draft Order ID 필드가 비어있음 | Airtable 레코드에 Draft Order ID 먼저 기입 |
 | Delivered Detection 미동작 | WJ TEST에만 구현됨 | Production 워크플로우는 미생성 상태 |
 | Posted Detection 미동작 | Syncly D+60 시트에 데이터 없음 | Syncly 크롤링 정상 동작 확인 필요 |
+| n8n API PUT 400 | `name` 필드 누락 | payload에 `"name": wf.get("name")` 포함 필수 |

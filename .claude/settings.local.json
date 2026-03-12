@@ -13,7 +13,8 @@
       "Bash(cmd.exe /c \"where python\")",
       "Bash(cmd.exe /c \"where py\")",
       "Bash(node -e \"const {execSync} = require\\(''child_process''\\); try { const files = execSync\\(''dir \"\"C:\\\\\\\\Users\\\\\\\\wjcho\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Microsoft\\\\\\\\WindowsApps\"\" /b''\\).toString\\(\\); console.log\\(files.split\\(''\\\\r\\\\n''\\).filter\\(f => f.toLowerCase\\(\\).includes\\(''python''\\)\\).join\\(''\\\\n''\\) || ''no python files''\\); } catch\\(e\\) { console.log\\(''error: '' + e.message\\); }\")",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(curl:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -643,3 +643,51 @@ Python 경로: `/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe
 - `.claude/skills/resource-finder/SKILL.md` — 전체 스킬 정의
 - `workflows/find_resources.md` — 워크플로우 SOP
 - `tools/send_gmail.py` — Gmail 검색/발송 도구
+
+---
+
+## 앱스터 (ONZ APP Full-Stack Agent)
+
+"앱스터", "ONZ APP", "onzenna app", "헤드리스 배포", "Vercel 배포", "EC2 onzenna", "앱 테스트", "앱 런칭" 명령이 오면 즉시 아래를 실행한다:
+
+나는 **앱스터** — ONZ APP(Onzenna) 풀스택 배포 + E2E 테스트 에이전트다.
+Next.js 16(Vercel) + Django REST(EC2) + Supabase Auth 아키텍처를 통합 관리한다.
+
+### 동작 방식
+
+1. `.claude/skills/appster/SKILL.md` 를 읽는다
+2. 유저 요청에 따라 적절한 액션을 수행한다:
+   - **EC2 배포**: `python tools/deploy_onzenna.py` → EC2 Instance Connect에서 실행
+   - **API 테스트**: `curl -sk -u admin:admin https://13.124.157.191/api/onzenna/tables/`
+   - **Vercel 확인**: GitHub push → Vercel 자동 빌드
+   - **E2E 테스트**: 유저 생성 → 온보딩 → 설문 → 추천 전체 플로우
+
+### 주요 명령
+
+| 명령 | 설명 |
+|------|------|
+| `python tools/deploy_onzenna.py` | EC2 배포 heredoc 명령 생성 |
+| `curl -sk -u admin:admin https://13.124.157.191/api/onzenna/tables/` | API 상태 확인 |
+| `python tools/shopify_tester.py --run` | E2E 테스트 실행 |
+
+### 인프라
+
+| 컴포넌트 | 위치 |
+|----------|------|
+| Frontend | Vercel (Next.js 16, `Orbiters11-dev/onzenna-app`) |
+| Backend | EC2 orbiters_2 (Django, IP: `13.124.157.191`) |
+| Auth | Supabase (free tier, 로그인 전용) |
+| DB | EC2 PostgreSQL (`onz_*` 테이블 7개) |
+
+### 트리거 키워드
+
+앱스터, ONZ APP, onzenna app, 헤드리스 배포, Vercel 배포, EC2 onzenna, EC2 배포 onzenna, 앱 테스트, 앱 런칭, E2E 테스트 onzenna, API 테스트 onzenna, Django onzenna
+
+### 참고 문서
+
+- `.claude/skills/appster/SKILL.md` — 전체 스킬 정의
+- `onzenna/` — Django 앱 소스 (models, views, urls, admin)
+- `tools/deploy_onzenna.py` — EC2 배포 스크립트
+- `workflows/shopify_tester.md` — E2E 테스트 워크플로우
+
+Python 경로: `/c/Users/wjcho/AppData/Local/Programs/Python/Python312/python.exe`

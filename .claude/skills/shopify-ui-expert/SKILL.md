@@ -321,13 +321,104 @@ UI에서 수집한 데이터가 최종 저장소에 도달하는 경로.
 | `setup_airtable_inbound.py` | Inbound from ONZ 베이스 생성 |
 | `setup_airtable_customers_table.py` | Onzenna Customers 마스터 테이블 |
 
+## n8n Server Infrastructure
+
+### EC2 인스턴스
+| 항목 | 값 |
+|------|-----|
+| 인스턴스 | `orbiters-n8n-server` (`i-0ddaa6796683e8043`) |
+| Private IP | `172.31.47.225` |
+| Docker Compose | `/home/ubuntu/n8n/docker-compose.yml` |
+| 컨테이너 | `n8n-n8n-1` (n8n) + `n8n-caddy-1` (Caddy reverse proxy) |
+| 도메인 | `https://n8n.orbiters.co.kr` (Caddy SSL) |
+| n8n 포트 | 5678 (Docker 내부, 호스트에 미노출) |
+| 환경변수 | `/home/ubuntu/n8n/.env` |
+
+### Docker Compose 구조
+```yaml
+services:
+  n8n:
+    image: n8nio/n8n:latest    # 주의: latest는 불안정할 수 있음
+    environment:
+      - DB_TYPE, DB_POSTGRESDB_*, N8N_HOST, N8N_PROTOCOL, N8N_PORT
+      - WEBHOOK_URL, N8N_ENCRYPTION_KEY
+      - N8N_PROXY_HOPS=1       # Caddy 프록시 필수 설정
+      - TZ=America/Los_Angeles
+    volumes:
+      - ./n8n_data:/home/node/.n8n
+  caddy:
+    image: caddy:2
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy_data:/data, ./caddy_data:/config
+```
+
+### 서버 관리 명령어
+```bash
+# SSH 접속
+ssh ubuntu@<n8n-ec2-ip>  # 또는 AWS Session Manager
+
+# 기본 조작
+cd /home/ubuntu/n8n
+docker compose down && docker compose up -d   # 클린 재시작
+docker logs n8n-n8n-1 --tail 50               # n8n 로그
+docker logs n8n-caddy-1 --tail 20             # Caddy 로그
+docker ps                                      # 컨테이너 상태
+
+# .env 수정
+echo "KEY=VALUE" >> .env                       # 환경변수 추가
+sed -i '/KEY/d' .env                           # 환경변수 제거
+cat .env                                       # 현재 설정 확인
+```
+
+### n8n API 프로그래밍 패턴
+```bash
+# 워크플로우 조회
+curl -s -H "X-N8N-API-KEY: $N8N_API_KEY" "$N8N_BASE_URL/api/v1/workflows/$WF_ID"
+
+# 워크플로우 업데이트 (PUT) — 반드시 name 필드 포함!
+curl -s -X PUT -H "X-N8N-API-KEY: $N8N_API_KEY" \
+  -H "Content-Type: application/json" \
+  "$N8N_BASE_URL/api/v1/workflows/$WF_ID" \
+  -d '{"name":"workflow name","nodes":[...],"connections":{...}}'
+
+# 활성화/비활성화
+curl -s -X POST -H "X-N8N-API-KEY: $N8N_API_KEY" \
+  "$N8N_BASE_URL/api/v1/workflows/$WF_ID/activate"
+```
+**주의**: PUT 시 `name` 필드 누락하면 400 에러 ("must have required property 'name'")
+
+## Django Gifting API (onzenna app)
+
+### EC2 배포 위치
+- 서버: `orbiters_2` EC2 (`orbitools.orbiters.co.kr`)
+- 경로: `/home/ubuntu/export_calculator/onzenna/`
+- 서비스: `sudo systemctl restart export_calculator`
+
+### API 엔드포인트
+| Method | URL | 용도 |
+|--------|-----|------|
+| POST | `/api/onzenna/gifting/save/` | 기프팅 신청 저장 (upsert) |
+| POST | `/api/onzenna/gifting/update/` | 필드 업데이트 |
+| GET | `/api/onzenna/gifting/list/` | 목록 조회 (?email=, ?status=) |
+| GET | `/api/onzenna/tables/` | 전체 테이블 row count |
+
+### EC2 배포 방법
+`tools/deploy_onzenna.py`로 배포 명령 생성 → `.tmp/ec2_deploy_commands.txt`
+또는 직접 cat heredoc으로 views.py/urls.py/admin.py 덮어쓰기 + `sudo systemctl restart export_calculator`
+
 ## Known Issues & Patterns
 
 | 이슈 | 해결 패턴 |
 |------|----------|
 | **n8n Code 노드에 `fetch()` 없음** | API 호출은 반드시 HTTP Request 노드 사용. Code 노드는 데이터 변환만 |
 | **두 개의 Shopify 스토어** | `mytoddie.myshopify.com` (n8n 크레덴셜, draft_orders 권한) vs `toddie-4080.myshopify.com` (.wat_secrets, product scope만) |
-| **n8n webhook 간헐적 장애** | 전체 webhook 실행 실패 시 n8n 서버 재시작 필요 (SSH) |
+| **n8n Task Runner "Offer expired"** | JS Task Runner가 task offer를 시간 내 수락 못함 → 클린 재시작(`docker compose down && up`)으로 해결. 재발 시 n8n 버전 고정 검토 |
+| **Caddy `ERR_ERL_UNEXPECTED_X_FORWARDED_FOR`** | Caddy가 X-Forwarded-For 헤더를 보내지만 n8n Express가 trust proxy 미설정 → `.env`에 `N8N_PROXY_HOPS=1` 추가 |
+| **EC2에서 외부 도메인 curl HTTP 000** | EC2 → 자기 도메인(n8n.orbiters.co.kr) curl 시 연결 실패. `curl -sk https://127.0.0.1/ -H "Host: n8n.orbiters.co.kr"` 또는 외부에서 테스트 |
+| **n8n API PUT 400 에러** | 워크플로우 업데이트 시 `name` 필드 필수. 누락하면 "must have required property 'name'" |
+| **n8n webhook 간헐적 장애** | 전체 webhook 실행 실패 시 `docker compose down && docker compose up -d` (단순 restart로 부족할 수 있음) |
 | **Airtable select 옵션 추가** | API로 직접 추가 불가 → `typecast: true`로 임시 레코드 생성 후 삭제 |
 | Python f-string에서 Liquid `{{` 충돌 | `{{{{` 또는 별도 변수로 분리 |
 | CSS 클래스 테마 충돌 | 페이지별 고유 접두사 사용 (`ck-`, `igf-`, `cs-`) |
