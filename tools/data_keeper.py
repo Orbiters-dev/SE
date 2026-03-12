@@ -359,7 +359,7 @@ def _get_amz_ads_token():
     resp.raise_for_status()
     token = resp.json()["access_token"]
     _amz_ads_token_cache["token"] = token
-    _amz_ads_token_cache["expires"] = now + 3000
+    _amz_ads_token_cache["expires"] = now + 2700  # 45min (Amazon tokens expire at 60min)
     return token
 
 
@@ -367,15 +367,20 @@ def _get_amz_ads_token():
 # CHANNEL COLLECTORS
 # ══════════════════════════════════════════════════════════════════════════
 
-def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
-    """Collect Amazon Ads campaign daily metrics (all profiles)."""
-    print("[Amazon Ads] Collecting...")
+def _fresh_amz_ads_headers():
+    """Get Amazon Ads headers with a fresh access token."""
     token = _get_amz_ads_token()
-    headers = {
+    return {
         "Amazon-Advertising-API-ClientId": AMZ_ADS_CLIENT_ID,
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
     }
+
+
+def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
+    """Collect Amazon Ads campaign daily metrics (all profiles)."""
+    print("[Amazon Ads] Collecting...")
+    headers = _fresh_amz_ads_headers()
 
     # 1. Get profiles
     resp = requests.get("https://advertising-api.amazon.com/v2/profiles",
@@ -420,6 +425,8 @@ def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
         pid = str(p["profileId"])
         pname = p.get("accountInfo", {}).get("name", pid)
         brand = PROFILE_BRAND_MAP.get(pname, pname)
+        # Refresh token for each profile to avoid expiry during long runs
+        headers = _fresh_amz_ads_headers()
         h = {**headers, "Amazon-Advertising-API-Scope": pid}
 
         cur = d_from
@@ -473,9 +480,11 @@ def _fetch_amz_ads_report(headers, profile_id, start, end):
         r.raise_for_status()
         report_id = r.json().get("reportId")
 
-        # Poll
+        # Poll (refresh headers each iteration to avoid token expiry)
         for _ in range(40):  # 40 * 15s = 10min max
             time.sleep(15)
+            headers = {**_fresh_amz_ads_headers(),
+                       "Amazon-Advertising-API-Scope": profile_id}
             r2 = requests.get(
                 f"https://advertising-api.amazon.com/reporting/reports/{report_id}",
                 headers=headers, timeout=30,
