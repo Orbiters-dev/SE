@@ -142,6 +142,11 @@ jobs:
         run: |
           cd tools && python -u fetch_paypal_transactions.py || echo "PayPal fetch failed (non-fatal)"
 
+      - name: Run influencer orders fetch
+        if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all')
+        run: |
+          cd tools && python -u fetch_influencer_orders.py || echo "Influencer orders fetch failed (non-fatal)"
+
       - name: Run Amazon PPC Analysis
         if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_ads')
         run: |
@@ -154,6 +159,7 @@ jobs:
           name: datakeeper-cache
           path: |
             .tmp/datakeeper/*.json
+            .tmp/polar_data/q10_influencer_orders.json
             .tmp/polar_data/q11_paypal_transactions.json
             .tmp/ppc_report_*.html
             .tmp/ppc_payload_*.json

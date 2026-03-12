@@ -8,7 +8,8 @@ Sections:
 
 Data sources:
   - PG Data Keeper: shopify_orders_daily, amazon_ads_daily, meta_ads_daily, google_ads_daily
-  - Polar JSON (local): q10_influencer_orders.json, q11_paypal_transactions.json
+  - Shopify API: influencer/PR orders (fetch_influencer_orders.py)
+  - PayPal API: influencer payments (fetch_paypal_transactions.py)
   - COGS by SKU.xlsx
 
 Output:
@@ -34,7 +35,7 @@ from env_loader import load_env
 load_env()
 
 ROOT = TOOLS_DIR.parent
-POLAR = ROOT.parent / "Shared" / "동균 테스트_2026-03-06" / "polar_data"
+SEEDING_CACHE = ROOT / ".tmp" / "polar_data"  # fetch_influencer_orders.py / fetch_paypal_transactions.py output
 COGS_PATH = ROOT.parent / "Shared" / "NoPolar KPIs" / "Data config sheet" / "COGS by SKU.xlsx"
 # ORBI KPIs output (WJ Test1 Data Storage)
 OUTPUT_DIR = ROOT / "Data Storage" / "kpi_reports"
@@ -710,14 +711,38 @@ def analyze_ad_spend(date_from, date_to, through_date=None):
 
 # ── 3. SEEDING COST ───────────────────────────────────────────────────────────
 
+def _ensure_seeding_data():
+    """Fetch influencer orders & PayPal data if cache is missing or stale (>24h)."""
+    import importlib, time as _t
+    for script, outfile in [
+        ("fetch_influencer_orders", "q10_influencer_orders.json"),
+        ("fetch_paypal_transactions", "q11_paypal_transactions.json"),
+    ]:
+        path = SEEDING_CACHE / outfile
+        if path.exists():
+            age_h = (_t.time() - path.stat().st_mtime) / 3600
+            if age_h < 24:
+                continue
+            print(f"  {outfile} is {age_h:.0f}h old, refreshing...")
+        else:
+            print(f"  {outfile} not found, fetching...")
+        try:
+            mod = importlib.import_module(script)
+            mod.main()
+        except Exception as e:
+            print(f"  [WARN] {script} fetch failed: {e}")
+
+
 def analyze_seeding_cost(date_from, date_to):
     cogs_map = load_cogs_map()
     print(f"\n  COGS map: {len(cogs_map)} SKUs")
 
-    # PayPal (Polar JSON)
+    _ensure_seeding_data()
+
+    # PayPal transactions (direct API via fetch_paypal_transactions.py)
     paypal_monthly = defaultdict(float)
     try:
-        d11 = json.loads((POLAR / "q11_paypal_transactions.json").read_text(encoding="utf-8"))
+        d11 = json.loads((SEEDING_CACHE / "q11_paypal_transactions.json").read_text(encoding="utf-8"))
         txns = d11.get("transactions", d11 if isinstance(d11, list) else [])
         for t in txns:
             amt = float(t.get("amount", 0) or 0)
@@ -729,13 +754,13 @@ def analyze_seeding_cost(date_from, date_to):
     except Exception as e:
         print(f"  [WARN] PayPal load failed: {e}")
 
-    # PR orders (Polar JSON)
+    # PR / influencer orders (direct Shopify API via fetch_influencer_orders.py)
     sample_cogs = defaultdict(float)
     shipping    = defaultdict(float)
     units       = defaultdict(int)
     unmatched   = set()
     try:
-        d10 = json.loads((POLAR / "q10_influencer_orders.json").read_text(encoding="utf-8"))
+        d10 = json.loads((SEEDING_CACHE / "q10_influencer_orders.json").read_text(encoding="utf-8"))
         orders = d10 if isinstance(d10, list) else d10.get("orders", [])
         for order in orders:
             m = (order.get("created_at") or "")[:7]
