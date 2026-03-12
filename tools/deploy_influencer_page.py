@@ -324,7 +324,7 @@ def build_section_liquid(webhook_url):
     <div class="igf-login-card">
       <h2>Join our Creator Program</h2>
       <p>Log in or create an account to apply for free product samples.</p>
-      <a class="igf-login-btn" href="/account/login" id="igf-login-link">Log in / Sign up</a>
+      <a class="igf-login-btn" href="/account/login?return_url=/pages/influencer-gifting" id="igf-login-link">Log in / Sign up</a>
       <div class="igf-login-hint">Google, email, or Shop account</div>
     </div>
   </div>

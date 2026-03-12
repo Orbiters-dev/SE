@@ -326,7 +326,7 @@ def save_gifting(request):
     if not email:
         return JsonResponse({"error": "email is required"}, status=400)
 
-    # Parse nested structures from n8n payload
+    # Parse nested structures from n8n payload (supports both nested and flat formats)
     personal = body.get("personal_info", {})
     baby = body.get("baby_info", {})
     addr = body.get("shipping_address", {})
@@ -338,18 +338,18 @@ def save_gifting(request):
         "phone": body.get("phone") or personal.get("phone", ""),
         "instagram": body.get("instagram") or personal.get("instagram", ""),
         "tiktok": body.get("tiktok") or personal.get("tiktok", ""),
-        "child_1_birthday": _parse_date(child_1.get("birthday")),
-        "child_1_age_months": child_1.get("age_months"),
-        "child_2_birthday": _parse_date(child_2.get("birthday")) if child_2 else None,
-        "child_2_age_months": child_2.get("age_months") if child_2 else None,
+        "child_1_birthday": _parse_date(child_1.get("birthday") or body.get("child_1_birthday")),
+        "child_1_age_months": child_1.get("age_months") or body.get("child_1_age_months"),
+        "child_2_birthday": _parse_date(child_2.get("birthday") or body.get("child_2_birthday")),
+        "child_2_age_months": child_2.get("age_months") or body.get("child_2_age_months"),
         "selected_products": _json_field(body.get("selected_products", [])),
-        "address_street": addr.get("street", ""),
-        "address_apt": addr.get("apt", ""),
-        "address_city": addr.get("city", ""),
-        "address_state": addr.get("state", ""),
-        "address_zip": addr.get("zip", ""),
-        "address_country": addr.get("country", "US"),
-        "shopify_customer_id": str(body.get("shopify_customer_id", "")),
+        "address_street": addr.get("street", "") or body.get("street", ""),
+        "address_apt": addr.get("apt", "") or body.get("apt", ""),
+        "address_city": addr.get("city", "") or body.get("city", ""),
+        "address_state": addr.get("state", "") or body.get("state", ""),
+        "address_zip": addr.get("zip", "") or body.get("zip", ""),
+        "address_country": addr.get("country", "US") or body.get("country", "US"),
+        "shopify_customer_id": str(body.get("shopify_customer_id") or ""),
     }
 
     # Optional fields that may come from n8n after draft order creation
