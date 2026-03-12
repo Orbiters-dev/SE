@@ -1264,7 +1264,7 @@ def flow_gifting(email=None):
             {
                 "step_id": "verify_airtable_gifting",
                 "type": "verify_airtable",
-                "name": "Verify Airtable record created",
+                "name": "Verify Applicants table record",
                 "filter_field": "Email",
                 "filter_value": test_email,
                 "expect_exists": True,
@@ -1273,6 +1273,26 @@ def flow_gifting(email=None):
                     "airtable_record_id": "$.records[0].id",
                     "airtable_name": "$.records[0].fields.Name",
                 },
+            },
+            {
+                "step_id": "verify_creators_gifting",
+                "type": "verify_airtable",
+                "name": "Verify Creators table record (Pathlight CRM)",
+                "table_id": AT_CREATORS,
+                "filter_field": "Email",
+                "filter_value": test_email,
+                "expect_exists": True,
+                "expect_fields": {
+                    "Outreach Status": "Needs Review",
+                    "Partnership Status": "New",
+                    "Source": "ManyChat Inbound",
+                },
+                "capture": {
+                    "creators_record_id": "$.records[0].id",
+                    "creators_username": "$.records[0].fields.Username",
+                    "creators_platform": "$.records[0].fields.Platform",
+                },
+                "critical": False,  # New node, non-critical until verified stable
             },
             {
                 "step_id": "verify_shopify_customer_gifting",
@@ -1307,6 +1327,7 @@ def flow_gifting(email=None):
         ],
         "cleanup": {
             "airtable_record_id": "{{airtable_record_id}}",
+            "creators_record_id": "{{creators_record_id}}",
             "shopify_customer_id": "{{shopify_customer_id}}",
             "test_email": test_email,
         },
@@ -1510,16 +1531,32 @@ def flow_sample(email=None):
             {
                 "step_id": "verify_airtable_updated",
                 "type": "verify_airtable",
-                "name": "Verify Airtable record updated (Gifting2 saves to Production CRM)",
+                "name": "Verify Applicants table updated (Gifting2 upsert)",
                 "filter_field": "Email",
                 "filter_value": test_email,
                 "expect_exists": True,
-                "expect_fields": {},
+                "expect_fields": {"Status": "Accepted"},
                 "capture": {
                     "airtable_record_id": "$.records[0].id",
-                    "airtable_sample_completed": "$.records[0].fields.Sample Form Completed",
+                    "airtable_draft_order_id": "$.records[0].fields.Draft Order ID",
                 },
-                "critical": False,  # Gifting2 saves to Production CRM (different Airtable base)
+                "critical": False,  # Gifting2 uses mytoddie store credentials
+            },
+            {
+                "step_id": "verify_creators_updated",
+                "type": "verify_airtable",
+                "name": "Verify Creators table updated (Gifting2 upsert)",
+                "table_id": AT_CREATORS,
+                "filter_field": "Email",
+                "filter_value": test_email,
+                "expect_exists": True,
+                "expect_fields": {
+                    "Outreach Status": "Sample Sent",
+                },
+                "capture": {
+                    "creators_draft_order_id": "$.records[0].fields.Draft Order ID",
+                },
+                "critical": False,  # New node, non-critical until verified stable
             },
         ],
         "cleanup": {

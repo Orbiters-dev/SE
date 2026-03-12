@@ -266,7 +266,7 @@ def do_export(url: str, output_dir: str, chunk_days: int = 30):
     with sync_playwright() as p:
         context = p.chromium.launch_persistent_context(
             user_data_dir=str(chrome_profile),
-            headless=True,
+            headless=False,
             channel="chromium",
             viewport={"width": 1280, "height": 800},
             accept_downloads=True,
