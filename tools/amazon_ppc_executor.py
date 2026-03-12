@@ -1933,21 +1933,34 @@ def check_email_and_execute(args):
     sys.path.insert(0, str(TOOLS_DIR))
     from send_gmail import search_emails
 
-    # --- Dedup: check if we already sent an EXECUTED email AFTER this proposal ---
-    # Only block if EXECUTED email exists that is newer than this proposal's sent time
+    # --- Dedup: proposal.executed flag is primary gate (checked above at line 1922) ---
+    # Gmail fallback: only check for EXECUTED emails sent on proposal date or later
+    # AND verify the email timestamp is actually after this proposal was sent
+    proposal_time = datetime.fromisoformat(sent_at)
     proposal_date = sent_at[:10]  # e.g. "2026-03-12"
     dedup_query = (
         f'subject:"[Amazon PPC] EXECUTED" from:orbiters11@gmail.com after:{proposal_date}'
     )
-    print(f"[check-execute] Dedup check: {dedup_query}")
+    print(f"[check-execute] Dedup check (Gmail fallback): {dedup_query}")
     existing_exec_emails = search_emails(dedup_query, max_results=5)
     if existing_exec_emails:
-        print(f"[check-execute] Already sent {len(existing_exec_emails)} EXECUTED email(s) after proposal date {proposal_date}. Skipping.")
-        return
+        # Verify at least one EXECUTED email was actually sent AFTER this proposal
+        for ex_email in existing_exec_emails:
+            try:
+                from email.utils import parsedate_to_datetime
+                ex_date = parsedate_to_datetime(ex_email.get("date", ""))
+                if ex_date.tzinfo is None:
+                    ex_date = ex_date.replace(tzinfo=timezone.utc)
+                prop_aware = proposal_time if proposal_time.tzinfo else proposal_time.replace(tzinfo=timezone.utc)
+                if ex_date > prop_aware:
+                    print(f"[check-execute] Found EXECUTED email at {ex_email['date']} (after proposal at {sent_at}). Skipping.")
+                    return
+            except Exception:
+                continue
+        print(f"[check-execute] EXECUTED emails found but all predate this proposal. Proceeding.")
 
     # Search for replies to PPC proposal emails from the approver
     approver = args.to  # The person who receives proposals
-    proposal_time = datetime.fromisoformat(sent_at)
     query = (
         f'subject:"[Amazon PPC]" from:{approver} newer_than:2d'
     )

@@ -51,10 +51,9 @@ jobs:
           echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
           echo '${{ secrets.GMAIL_TOKEN_JSON }}'             > credentials/gmail_token.json
 
-      - name: Download latest proposal from Propose workflow
+      - name: Download latest proposal (from any workflow)
         uses: dawidd6/action-download-artifact@v6
         with:
-          workflow: amazon_ppc_executor.yml
           name: ppc-proposal-latest
           path: .tmp/
           if_no_artifact_found: warn
