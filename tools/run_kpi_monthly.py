@@ -97,6 +97,155 @@ def load_cogs_map():
         return {}
 
 
+# ── 0. DATA STATUS TAB ────────────────────────────────────────────────────────
+
+DATA_SOURCES = [
+    # (display_name, table_name, date_field, spend_or_revenue_field)
+    ("Shopify Orders",     "shopify_orders_daily", "date", "net_sales"),
+    ("Amazon Sales (SP-API)", "amazon_sales_daily", "date", "net_sales"),
+    ("Amazon Ads",         "amazon_ads_daily",     "date", "spend"),
+    ("Meta Ads",           "meta_ads_daily",       "date", "spend"),
+    ("Google Ads",         "google_ads_daily",     "date", "spend"),
+    ("GA4",                "ga4_daily",            "date", "sessions"),
+    ("Klaviyo",            "klaviyo_daily",        "date", "revenue"),
+]
+
+
+def add_data_status_tab(wb, through_date):
+    """Add a 'Data Status' tab at position 0 showing data freshness per platform."""
+    from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
+    from datetime import datetime, timezone, timedelta
+
+    tab_name = "Data Status"
+    if tab_name in wb.sheetnames:
+        del wb[tab_name]
+    ws = wb.create_sheet(title=tab_name, index=0)
+
+    PST = timezone(timedelta(hours=-8))
+    now_pst = datetime.now(PST)
+    generated = now_pst.strftime("%Y-%m-%d %H:%M PST")
+
+    # Styles
+    FILL_HEADER = PatternFill("solid", fgColor="002060")
+    FILL_OK     = PatternFill("solid", fgColor="C6EFCE")
+    FILL_WARN   = PatternFill("solid", fgColor="FFF2CC")
+    FILL_FAIL   = PatternFill("solid", fgColor="FFC7CE")
+    FILL_TITLE  = PatternFill("solid", fgColor="002060")
+    FONT_WHITE  = Font(bold=True, color="FFFFFF", size=11)
+    FONT_TITLE  = Font(bold=True, color="FFFFFF", size=14)
+    FONT_BOLD   = Font(bold=True, size=11)
+    FONT_NORMAL = Font(size=11)
+    FONT_SMALL  = Font(size=9, color="808080")
+    ALIGN_CTR   = Alignment(horizontal="center", vertical="center")
+    ALIGN_LEFT  = Alignment(horizontal="left", vertical="center")
+    THIN_BORDER = Border(
+        left=Side(style="thin", color="D9D9D9"),
+        right=Side(style="thin", color="D9D9D9"),
+        top=Side(style="thin", color="D9D9D9"),
+        bottom=Side(style="thin", color="D9D9D9"),
+    )
+
+    # Title row
+    ws.merge_cells("A1:G1")
+    title_cell = ws["A1"]
+    title_cell.value = "ORBI KPI -- Data Source Status"
+    title_cell.fill = FILL_TITLE
+    title_cell.font = FONT_TITLE
+    title_cell.alignment = ALIGN_CTR
+    for col in range(1, 8):
+        ws.cell(row=1, column=col).fill = FILL_TITLE
+
+    # Subtitle row
+    ws.merge_cells("A2:G2")
+    sub_cell = ws["A2"]
+    sub_cell.value = f"Generated: {generated}  |  Through-date: {through_date}"
+    sub_cell.font = FONT_SMALL
+    sub_cell.alignment = ALIGN_CTR
+
+    # Header row
+    headers = ["Platform", "Table", "Rows", "Date From", "Date To", "Days Gap", "Status"]
+    for c_idx, h in enumerate(headers, 1):
+        cell = ws.cell(row=4, column=c_idx, value=h)
+        cell.fill = FILL_HEADER
+        cell.font = FONT_WHITE
+        cell.alignment = ALIGN_CTR
+
+    # Data rows
+    row_idx = 5
+    for display_name, table, date_field, _ in DATA_SOURCES:
+        try:
+            rows = load_dk(table, days=800)
+        except Exception:
+            rows = []
+
+        total_rows = len(rows)
+        dates = [r.get(date_field, "") for r in rows if r.get(date_field)]
+        if dates:
+            date_from = min(dates)
+            date_to = max(dates)
+            # Days gap from through_date
+            from datetime import date as dt_date
+            try:
+                latest_dt = dt_date.fromisoformat(date_to)
+                through_dt = dt_date.fromisoformat(through_date)
+                gap = (through_dt - latest_dt).days
+            except (ValueError, TypeError):
+                gap = None
+        else:
+            date_from = "-"
+            date_to = "-"
+            gap = None
+
+        # Status logic
+        if total_rows == 0 or date_to == "-":
+            status = "NO DATA"
+            fill = FILL_FAIL
+        elif gap is not None and gap <= 1:
+            status = "OK"
+            fill = FILL_OK
+        elif gap is not None and gap <= 3:
+            status = "STALE"
+            fill = FILL_WARN
+        else:
+            status = "STALE"
+            fill = FILL_FAIL
+
+        vals = [display_name, table, total_rows, date_from, date_to,
+                f"{gap}d" if gap is not None else "-", status]
+        for c_idx, val in enumerate(vals, 1):
+            cell = ws.cell(row=row_idx, column=c_idx, value=val)
+            cell.font = FONT_NORMAL
+            cell.alignment = ALIGN_CTR if c_idx >= 3 else ALIGN_LEFT
+            cell.border = THIN_BORDER
+            if c_idx == 7:  # Status column
+                cell.fill = fill
+                cell.font = FONT_BOLD
+        row_idx += 1
+
+    # Summary row
+    row_idx += 1
+    ws.merge_cells(start_row=row_idx, start_column=1, end_row=row_idx, end_column=7)
+    note = ws.cell(row=row_idx, column=1)
+    note.value = (
+        "Through-date = MIN(latest date across Shopify, Amazon Ads, Meta Ads, Google Ads), "
+        "capped at yesterday PST. All KPI tabs use this date as cutoff."
+    )
+    note.font = FONT_SMALL
+    note.alignment = Alignment(wrap_text=True, vertical="top")
+
+    # Column widths
+    ws.column_dimensions["A"].width = 24
+    ws.column_dimensions["B"].width = 26
+    ws.column_dimensions["C"].width = 10
+    ws.column_dimensions["D"].width = 14
+    ws.column_dimensions["E"].width = 14
+    ws.column_dimensions["F"].width = 11
+    ws.column_dimensions["G"].width = 12
+
+    ws.sheet_properties.tabColor = "002060"
+    print(f"  [Data Status] tab added (through_date={through_date})")
+
+
 # ── 1. DISCOUNT RATE (Golmani wide format, brand x channel, PR excluded) ──────
 
 CHANNEL_ORDER = ["ONZ", "Amazon", "B2B", "TikTok", "Unknown"]  # PR excluded; D2C in PG = ONZ
@@ -2018,6 +2167,7 @@ def main():
     print(f"\nLoading: {src.name}")
     wb = openpyxl.load_workbook(str(src))
 
+    add_data_status_tab(wb, through_date)
     write_tab(wb, "KPI_할인율",   rows_discount, header_row=3)
     write_wide_tab(wb, "KPI_광고비",   rows_adspend)
     write_wide_tab(wb, "KPI_시딩비용", rows_seeding)

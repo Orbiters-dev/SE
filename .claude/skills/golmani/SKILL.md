@@ -60,6 +60,23 @@ Pull live data from Data Keeper and existing tools to compute KPIs:
 
 Computed metrics: Revenue, Gross Margin, COGS, CAC, LTV, MER, CM%, AOV, ROAS, ACOS
 
+### Layer 1.5: KPI Deep Analysis (Data Classification & Diagnostics)
+
+Specialized analysis layer for ORBI KPI data. Requires `references/kpi-data-taxonomy.md`.
+
+| Capability | Description | Reference |
+|------------|-------------|-----------|
+| Channel classification audit | Verify D2C/Amazon/B2B/TikTok/PR tagging accuracy | kpi-data-taxonomy.md #2 |
+| Brand attribution check | Validate brand detection across Shopify, Meta, Google, Amazon | kpi-data-taxonomy.md #3 |
+| Discount rate decomposition | Gross vs net vs ref_price by channel, Grosmimi price history | kpi-data-taxonomy.md #4-5 |
+| Amazon 2-tier discount analysis | Shopify Amazon channel vs true Amazon MP (SP-API) | kpi-data-taxonomy.md #7 |
+| MKT SPEND waterfall | Ad + Seeding + Channel Discounts -> Total Marketing Spend | kpi-data-taxonomy.md #4 |
+| Data quality validation | Cross-table consistency, n.m rules, through-date alignment | kpi-data-taxonomy.md #6,8 |
+| Period-over-period analysis | MoM/YoY with anomaly detection and seasonal adjustment | kpi-data-taxonomy.md #8 |
+| Executive Summary diagnostics | Trace any Summary row back to source data and computation | kpi-data-taxonomy.md #7 |
+
+**Trigger keywords:** KPI 분석, 할인율 분석, 채널 분류, 브랜드 분류, 데이터 검증, MKT 스펜드, 매출 분석, 마진 분석, 이상치 탐지, 전월대비, 전년대비
+
 ### Layer 2: Modeling (Excel via openpyxl)
 
 - 3-statement financial model (IS, BS, CF)
@@ -133,6 +150,19 @@ See `references/orbi-business-context.md` for full detail.
 
 ## Sub-Skill Router
 
+### KPI Data Analysis
+
+| Skill | Trigger Keywords | Reference Doc |
+|-------|-----------------|---------------|
+| kpi-deep-dive | KPI 분석, 매출 분석, 마진 분석, P&L 분석 | kpi-data-taxonomy.md + financial-statements.md |
+| channel-audit | 채널 분류, 채널 검증, D2C vs Amazon, FBA MCF | kpi-data-taxonomy.md |
+| brand-attribution | 브랜드 분류, 브랜드 매핑, Unknown 브랜드 | kpi-data-taxonomy.md |
+| discount-decomposition | 할인율 분석, 할인 구조, ref_price, Grosmimi 가격 | kpi-data-taxonomy.md |
+| mkt-spend-waterfall | MKT 스펜드, 마케팅비, 광고비+시딩+할인 | kpi-data-taxonomy.md |
+| data-quality-check | 데이터 검증, n.m 확인, through-date, 이상치 | kpi-data-taxonomy.md |
+| period-analysis | 전월대비, 전년대비, MoM, YoY, 트렌드 | kpi-data-taxonomy.md + financial-statements.md |
+| amazon-discount-2tier | Amazon 할인, SP-API vs Shopify, 마켓플레이스 할인 | kpi-data-taxonomy.md |
+
 ### Financial Analysis
 
 | Skill | Trigger Keywords | Reference Doc |
@@ -204,7 +234,7 @@ See `references/orbi-business-context.md` for full detail.
 
 | Tool | Purpose | Command |
 |------|---------|---------|
-| `data_keeper_client.py` | Query PG data | `DataKeeper(prefer_cache=False).fetch("table")` |
+| `data_keeper_client.py` | Query PG data | `DataKeeper(prefer_cache=False).get("table")` |
 | `run_kpi_monthly.py` | KPI Excel report | `python tools/run_kpi_monthly.py` |
 | `no_polar/fetch_*.py` | Individual data pulls | See `tools/no_polar/` |
 | openpyxl | Excel model building | Direct Python usage |
@@ -237,4 +267,5 @@ See `references/orbi-business-context.md` for full detail.
 | `references/orbi-business-context.md` | ORBI brands, channels, entities, data sources |
 | `references/due-diligence-playbook.md` | DD checklists, IC memo, PE returns analysis |
 | `references/query-patterns.md` | Natural language query routing guide |
+| `references/kpi-data-taxonomy.md` | DataKeeper schemas, channel/brand classification, metric formulas, data quality rules |
 | `references/industry-benchmarks.md` | Baby products / DTC / Amazon comps & benchmarks |

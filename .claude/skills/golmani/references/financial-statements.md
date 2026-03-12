@@ -186,27 +186,52 @@ NET CHANGE IN CASH = CFO + CFI + CFF
 
 ### DataKeeper Queries for KPIs
 
+**IMPORTANT:** DataKeeper returns `list[dict]`, NOT DataFrames. Use `.get()` method (NOT `.fetch()`).
+
 ```python
 from data_keeper_client import DataKeeper
+from collections import defaultdict
+
 dk = DataKeeper(prefer_cache=False)
 
-# Monthly Revenue by Brand (D2C)
-shopify = dk.fetch("shopify_orders_daily")
-monthly_rev = shopify.groupby([shopify['date'].dt.to_period('M'), 'brand'])['net_sales'].sum()
+# Monthly Revenue by Brand (all channels)
+rows = dk.get("shopify_orders_daily", days=365)
+monthly = defaultdict(lambda: {"gross": 0.0, "net": 0.0, "disc": 0.0, "units": 0, "orders": 0})
+for r in rows:
+    month = r["date"][:7]  # "2026-01"
+    brand = r.get("brand", "Unknown")
+    channel = r.get("channel", "Unknown")
+    if channel == "PR":
+        continue  # PR excluded from revenue
+    monthly[(month, brand)]["net"] += float(r.get("net_sales", 0) or 0)
+    monthly[(month, brand)]["gross"] += float(r.get("gross_sales", 0) or 0)
 
-# Amazon Revenue by Seller
-amazon = dk.fetch("amazon_sales_daily")
-amz_rev = amazon.groupby([amazon['date'].dt.to_period('M'), 'seller_name'])['ordered_product_sales'].sum()
+# Amazon Marketplace Revenue (SP-API -- separate from Shopify)
+amz_rows = dk.get("amazon_sales_daily", days=365)
+for r in amz_rows:
+    month = r["date"][:7]
+    brand = r.get("brand", "Unknown")
+    # Note: This is TRUE Amazon sales, not Shopify Amazon channel
 
-# Total Ad Spend by Platform
-meta = dk.fetch("meta_ads_daily")
-google = dk.fetch("google_ads_daily")
-amz_ads = dk.fetch("amazon_ads_daily")
+# Ad Spend by Platform
+meta_rows = dk.get("meta_ads_daily", days=90)
+google_rows = dk.get("google_ads_daily", days=90)
+amz_ads_rows = dk.get("amazon_ads_daily", days=90)
 
-meta_spend = meta.groupby(meta['date_start'].dt.to_period('M'))['spend'].sum()
-google_spend = google.groupby(google['date'].dt.to_period('M'))['cost_micros'].sum() / 1e6
-amz_spend = amz_ads.groupby(amz_ads['date'].dt.to_period('M'))['cost'].sum()
+meta_spend = defaultdict(float)
+for r in meta_rows:
+    meta_spend[r["date"][:7]] += float(r.get("spend", 0) or 0)
+# Same pattern for google (field: "spend") and amazon_ads (field: "spend")
 ```
+
+### Data Classification Rules
+
+See `references/kpi-data-taxonomy.md` for complete decision trees:
+- **Channel classification**: Shopify order tags -> D2C/Amazon/B2B/TikTok/PR
+- **Brand classification**: Line item title+vendor (Shopify), campaign name (ads)
+- **Discount computation**: ref_price methodology varies by channel
+- **n.m periods**: Data not yet collected -> dark grey sentinel
+- **Through-date**: Consistent cutoff across all KPI tabs
 
 ### Projection Methods
 
