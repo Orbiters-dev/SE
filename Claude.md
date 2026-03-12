@@ -244,31 +244,97 @@ Python 경로: `/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe
 
 ---
 
-## 그로미미 컨텐츠 트랙커
+## 그로미미 컨텐츠 트래커
 
-"그로미미 컨텐츠 트랙커" 명령이 오면 즉시 아래를 실행한다:
+"그로미미 컨텐츠 트래커" 명령이 오면 즉시 아래를 실행한다:
 
-1. `workflows/dongkyun_tester.md` 를 읽는다
-2. 전체 검증 실행: `python tools/dongkyun_tester.py --run`
-3. FAIL 항목에 대한 원인 분석 및 수정 방향 제시
+### 파이프라인 (3단계)
 
-검사 항목: 크레덴셜 [C], 데이터 소스 [D], Syncly 연결 [S], 타겟 시트 [T], 매칭 정확도 [M], 필터링 [F], 출력 무결성 [O]
-결과 파일: `.tmp/dongkyun_test_results.json`
-실행 도구: `tools/sync_sns_tab.py` (Shopify PR + Syncly D+60 → Google Sheet SNS 탭)
+```
+① Syncly 크롤링              ② D+60 시트 동기화              ③ SNS 탭 동기화
+fetch_syncly_export.py   →  sync_syncly_to_sheets.py   →  sync_sns_tab.py
+(Playwright 스크래핑)         (D+60 Tracker 시트 누적)        (Shopify PR + Syncly → SNS 탭)
+```
+
+### 실행 순서
+
+1. `python tools/fetch_syncly_export.py --region us` — Syncly 크롤링 → CSV
+2. `python tools/sync_syncly_to_sheets.py` — CSV → D+60 Tracker 시트 동기화
+3. `python tools/sync_sns_tab.py` — Shopify PR 주문 + D+60 메트릭 매칭 → SNS 탭 기록
+
+### 데이터 소스
+
+| 소스 | 내용 |
+|------|------|
+| Syncly D+60 Tracker 시트 (`1bOX...`) | US Posts Master + US D+60 Tracker (뷰/좋아요/댓글) |
+| `.tmp/polar_data/q10_influencer_orders.json` | Shopify PR/샘플 주문 |
+| `.tmp/polar_data/q11_paypal_transactions.json` | PayPal 인플루언서 결제 |
+
+### 타겟 시트
+
+| 시트 | ID | 탭 |
+|------|----|----|
+| ONZENNA SNS | `1SwO4uAbf25vOR0UYWOUlxzy5gCbFRrNXwO2kAWydyeA` | SNS |
+
+### 자동화
+
+- **로컬**: Task Scheduler "Syncly Daily Export" 매일 17:00 (크롤링만)
+- **GitHub Actions**: `syncly_daily.yml` 매일 KST 08:00 (크롤링 + 시트 동기화 + SNS 탭)
+- **결과 이메일**: `[Grosmimi Content Tracker] Daily Report` 제목으로 `wj.choi@orbiters.co.kr` 발송
+
+### 일일 리포트 내용
+
+이메일에 아래 항목이 포함됨:
+- 파이프라인 상태 (Crawl/Sync/SNS 성공/실패)
+- SNS 탭 총 행수 변화 (이전 → 현재)
+- 컨텐츠 매칭 수 변화
+- **신규 샘플 발송 건**: 전일 대비 새로 추가된 인플루언서 주문 (이름, 계정, 발송일)
+- **새로 감지된 컨텐츠 링크**: 기존에 링크 없던 인플루언서에 Syncly 포스트가 새로 매칭된 건
+- 요약 JSON: `.tmp/sns_sync_summary.json`
+
+### 필터링 규칙
+
+- Grosmimi 제품 포함 주문만 (non-Grosmimi 브랜드 제외)
+- giveaway/이벤트 주문 제외
+- Syncly 포스트 중 non-Grosmimi 컨텐츠 키워드 포함 시 제외
+- Product Type 분류: PPSU Straw Cup, PPSU Tumbler, PPSU Baby Bottle, Stainless Straw Cup, Stainless Tumbler, Accessory, Replacement
+
+### 주요 도구
+
+| 도구 | 역할 |
+|------|------|
+| `tools/fetch_syncly_export.py` | Playwright로 Syncly 대시보드 스크래핑 → CSV |
+| `tools/sync_syncly_to_sheets.py` | CSV → D+60 Tracker 시트 누적 (191 컬럼) |
+| `tools/sync_sns_tab.py` | 최종 SNS 탭 기록 (Grosmimi 전용) |
+
+### 트리거 키워드
+
+그로미미 컨텐츠 트래커, 컨텐츠 트래커, SNS 탭, sync_sns_tab, Syncly 동기화
 
 ---
 
-## 차앤맘 컨텐츠 트랙커
+## 차앤맘 컨텐츠 트래커
 
-"차앤맘 컨텐츠 트랙커" 명령이 오면 즉시 아래를 실행한다:
+"차앤맘 컨텐츠 트래커" 명령이 오면 즉시 아래를 실행한다:
 
-1. `workflows/dongkyun_tester_chaenmom.md` 를 읽는다
-2. 전체 검증 실행: `python tools/dongkyun_tester_chaenmom.py --run`
-3. FAIL 항목에 대한 원인 분석 및 수정 방향 제시
+### 실행
 
-검사 항목: 크레덴셜 [C], 데이터 소스 [D], Syncly 연결 [S], 타겟 시트 [T], 매칭 정확도 [M], 필터링 [F], 출력 무결성 [O]
-결과 파일: `.tmp/dongkyun_chaenmom_test_results.json`
-실행 도구: `tools/sync_sns_tab_chaenmom.py` (Shopify PR + Syncly D+60 → Google Sheet SNS 탭, CHA&MOM 브랜드만)
+1. `python tools/sync_sns_tab_chaenmom.py` — CHA&MOM 브랜드 전용 SNS 탭 동기화
+2. `python tools/sync_sns_tab_chaenmom.py --dry-run` — 프리뷰만
+
+### 타겟 시트
+
+| 시트 | ID | 탭 |
+|------|----|----|
+| CHA&MOM SNS | `16XUPd-VMoh6LEjSvupsmhkd1vEQNOTcoEhRCnPqkA_I` | SNS |
+
+### 자동화
+
+- GitHub Actions `syncly_daily.yml` 에서 Grosmimi SNS 탭 이후 자동 실행
+
+### 트리거 키워드
+
+차앤맘 컨텐츠 트래커, chaenmom SNS, sync_sns_tab_chaenmom
 
 ---
 

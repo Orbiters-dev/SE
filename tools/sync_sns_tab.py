@@ -670,6 +670,128 @@ def build_rows(orders, paypal_txns, syncly_data, since_date=None):
     return rows, stats
 
 
+# ── Diff / Summary ────────────────────────────────────────────────────────
+
+SUMMARY_PATH = PROJECT_ROOT / ".tmp" / "sns_sync_summary.json"
+
+
+def read_existing_sns(gc, target_sheet_id):
+    """Read current SNS tab rows. Returns list of row lists (data only, no header)."""
+    try:
+        sh = gc.open_by_key(target_sheet_id)
+        ws = sh.worksheet(SNS_TAB)
+        all_vals = ws.get_all_values()
+        # Data starts at row 3 (index 2): row 0 = blank, row 1 = headers
+        return all_vals[2:] if len(all_vals) > 2 else []
+    except Exception:
+        return []
+
+
+def compute_diff(old_rows, new_rows):
+    """Compare old vs new SNS rows.
+
+    Returns dict with:
+      - new_shipments: list of (Name, Account, ShipDate) not in old
+      - newly_matched: list of (Name, Account, ContentLink) that had no link before
+      - total_old / total_new / total_matched_old / total_matched_new
+    """
+    # Build old index: (name, account) -> has_content_link
+    old_index = {}
+    for row in old_rows:
+        if len(row) < 12:
+            continue
+        name = str(row[2]).strip()
+        account = str(row[3]).strip()
+        link = str(row[11]).strip()
+        key = (name.lower(), account.lower())
+        old_index[key] = bool(link and link != "" and "HYPERLINK" in link.upper())
+
+    new_shipments = []
+    newly_matched = []
+    total_matched_new = 0
+
+    for row in new_rows:
+        name = str(row[2]).strip()
+        account = str(row[3]).strip()
+        link = str(row[11]).strip()
+        ship_date = str(row[10]).strip()
+        key = (name.lower(), account.lower())
+        has_link = bool(link and link != "" and "HYPERLINK" in link.upper())
+
+        if has_link:
+            total_matched_new += 1
+
+        if key not in old_index:
+            new_shipments.append({"name": name, "account": account, "ship_date": ship_date,
+                                  "has_content": has_link})
+        elif has_link and not old_index[key]:
+            newly_matched.append({"name": name, "account": account, "link": link})
+
+    total_matched_old = sum(1 for v in old_index.values() if v)
+
+    return {
+        "total_old": len(old_rows),
+        "total_new": len(new_rows),
+        "total_matched_old": total_matched_old,
+        "total_matched_new": total_matched_new,
+        "new_shipments": new_shipments,
+        "newly_matched": newly_matched,
+    }
+
+
+def write_summary(diff, stats):
+    """Write summary JSON for email reporting."""
+    summary = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "pipeline_stats": stats,
+        "diff": {
+            "total_old": diff["total_old"],
+            "total_new": diff["total_new"],
+            "content_matched_old": diff["total_matched_old"],
+            "content_matched_new": diff["total_matched_new"],
+            "new_shipments_count": len(diff["new_shipments"]),
+            "new_shipments": diff["new_shipments"][:20],  # cap for readability
+            "newly_matched_count": len(diff["newly_matched"]),
+            "newly_matched": diff["newly_matched"][:20],
+        },
+    }
+    SUMMARY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(SUMMARY_PATH, "w", encoding="utf-8") as f:
+        json.dump(summary, f, indent=2, ensure_ascii=False)
+    print(f"[SUMMARY] Written to {SUMMARY_PATH}")
+    return summary
+
+
+def print_report(diff):
+    """Print human-readable diff report."""
+    print("\n" + "=" * 60)
+    print("  GROSMIMI CONTENT TRACKER - Daily Report")
+    print("=" * 60)
+    print(f"  Total rows:  {diff['total_old']} -> {diff['total_new']}")
+    print(f"  Content matched:  {diff['total_matched_old']} -> {diff['total_matched_new']}")
+    print(f"  New sample shipments:  +{len(diff['new_shipments'])}")
+    print(f"  Newly matched content:  +{len(diff['newly_matched'])}")
+
+    if diff["new_shipments"]:
+        print(f"\n--- New Sample Shipments ({len(diff['new_shipments'])}) ---")
+        for s in diff["new_shipments"][:15]:
+            icon = "[CONTENT]" if s["has_content"] else "[PENDING]"
+            print(f"  {icon} {s['name']} ({s['account']}) - shipped {s['ship_date']}")
+        if len(diff["new_shipments"]) > 15:
+            print(f"  ... +{len(diff['new_shipments']) - 15} more")
+
+    if diff["newly_matched"]:
+        print(f"\n--- Newly Matched Content ({len(diff['newly_matched'])}) ---")
+        for m in diff["newly_matched"][:15]:
+            print(f"  [NEW LINK] {m['name']} ({m['account']})")
+        if len(diff["newly_matched"]) > 15:
+            print(f"  ... +{len(diff['newly_matched']) - 15} more")
+
+    if not diff["new_shipments"] and not diff["newly_matched"]:
+        print("\n  No changes since last sync.")
+    print("=" * 60 + "\n")
+
+
 # ── Sheet writing ──────────────────────────────────────────────────────────
 
 def write_to_sheet(gc, target_sheet_id, rows, dry_run=False):
@@ -843,18 +965,27 @@ def main():
     paypal_txns = load_paypal(Path(args.q11))
     print(f"  Loaded {len(paypal_txns)} transactions")
 
-    print("[3/4] Loading Syncly D+60 Tracker...")
+    print("[3/5] Loading Syncly D+60 Tracker...")
     creds = get_credentials()
     gc = gspread.authorize(creds)
     syncly_data = load_syncly(gc, args.syncly_sheet_id)
     print(f"  Posts Master: {len(syncly_data['posts_master'])} posts")
     print(f"  D+60 Tracker: {len(syncly_data['tracker'])} posts")
 
-    print("[4/4] Building SNS rows...")
+    print("[4/5] Reading existing SNS tab for comparison...")
+    old_rows = read_existing_sns(gc, args.target_sheet_id)
+    print(f"  Existing rows: {len(old_rows)}")
+
+    print("[5/5] Building SNS rows...")
     rows, stats = build_rows(orders, paypal_txns, syncly_data, since_date=args.since)
     print(f"  Total rows: {stats['total']}")
     print(f"  Matched to content: {stats['matched']}")
     print(f"  No content yet: {stats['no_content']}")
+
+    # Compute diff and print report
+    diff = compute_diff(old_rows, rows)
+    print_report(diff)
+    write_summary(diff, stats)
 
     write_to_sheet(gc, args.target_sheet_id, rows, dry_run=args.dry_run)
 
