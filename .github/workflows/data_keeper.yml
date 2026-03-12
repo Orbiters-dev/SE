@@ -78,6 +78,8 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_PATH=credentials/google_service_account.json
           ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
           ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
+          PPC_REPORT_RECIPIENT=${{ secrets.PPC_REPORT_RECIPIENT }}
+          DATA_KEEPER_RECIPIENT=${{ secrets.DATA_KEEPER_RECIPIENT }}
           ENVEOF
           # Strip leading whitespace from heredoc indentation
           sed -i 's/^[[:space:]]*//' .env
@@ -109,11 +111,17 @@ jobs:
           else
             echo "notify_only=false" >> $GITHUB_OUTPUT
           fi
+          # PST 0:00 (UTC 8:00) = main daily → send full email to all@
+          if [ "$CRON" = "0 8 * * *" ]; then
+            echo "is_daily=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_daily=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Send daily status email (KST 8 AM)
         if: steps.mode.outputs.notify_only == 'true'
         run: |
-          python -u tools/data_keeper.py --notify-only --notify-to "All@orbiters.co.kr"
+          python -u tools/data_keeper.py --notify-only --notify-to "wj.choi@orbiters.co.kr"
 
       - name: Run Data Keeper
         if: steps.mode.outputs.notify_only == 'false'
@@ -123,6 +131,10 @@ jobs:
           SKIP_PG="${{ github.event.inputs.skip_pg || 'false' }}"
           CMD="python -u tools/data_keeper.py --channel $CHANNEL --days $DAYS --notify"
           if [ "$SKIP_PG" = "true" ]; then CMD="$CMD --skip-pg"; fi
+          # Only PST 0:00 daily run sends to all@; midday refresh goes to wj.choi@
+          if [ "${{ steps.mode.outputs.is_daily }}" = "false" ]; then
+            CMD="$CMD --notify-to wj.choi@orbiters.co.kr"
+          fi
           $CMD
 
       - name: Run PayPal fetch

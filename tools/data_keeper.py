@@ -1532,7 +1532,7 @@ def _send_collection_email(results=None, elapsed_total=0, recipient=None):
         return
 
     if not recipient:
-        recipient = os.getenv("PPC_REPORT_RECIPIENT", "wj.choi@orbiters.co.kr")
+        recipient = os.getenv("DATA_KEEPER_RECIPIENT", os.getenv("PPC_REPORT_RECIPIENT", "all@orbiters.co.kr"))
 
     summary = _get_collection_summary()
     pst_now = datetime.now(timezone.utc).astimezone(
