@@ -1,12 +1,21 @@
-name: Syncly Daily Sync
+name: Syncly Daily Crawl + Sync
 
 on:
   schedule:
-    - cron: '0 23 * * *'   # 매일 KST 08:00 (= 23:00 UTC 전날)
-  workflow_dispatch:        # 수동 실행 버튼
+    - cron: '0 23 * * *'   # KST 08:00 (= 23:00 UTC previous day)
+  workflow_dispatch:        # manual trigger
+    inputs:
+      region:
+        description: 'Region to crawl (us, jp, all)'
+        required: false
+        default: 'us'
+      skip_crawl:
+        description: 'Skip crawl, only sync sheets (true/false)'
+        required: false
+        default: 'false'
 
 jobs:
-  syncly-sync:
+  syncly-pipeline:
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
@@ -27,7 +36,10 @@ jobs:
             gspread \
             google-auth \
             google-auth-oauthlib \
-            google-api-python-client
+            google-api-python-client \
+            playwright
+          playwright install chromium
+          sudo apt-get install -y xvfb
 
       - name: Write .env
         run: |
@@ -40,9 +52,67 @@ jobs:
         run: |
           mkdir -p credentials
           echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > credentials/google_service_account.json
+          echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
+          echo '${{ secrets.GMAIL_TOKEN_JSON }}' > credentials/gmail_token.json
+
+      - name: Write Syncly storage state
+        run: |
+          mkdir -p /tmp/syncly_state
+          echo '${{ secrets.SYNCLY_STORAGE_STATE }}' > /tmp/syncly_state/browser_state.json
+
+      - name: Crawl Syncly (US)
+        id: crawl_us
+        if: ${{ github.event.inputs.skip_crawl != 'true' && (github.event.inputs.region == 'us' || github.event.inputs.region == 'all' || github.event.inputs.region == '') }}
+        env:
+          SYNCLY_STORAGE_STATE_PATH: /tmp/syncly_state/browser_state.json
+        run: |
+          xvfb-run --auto-servernum python -u tools/fetch_syncly_export.py --region us
+        continue-on-error: true
+
+      - name: Crawl Syncly (JP)
+        id: crawl_jp
+        if: ${{ github.event.inputs.skip_crawl != 'true' && (github.event.inputs.region == 'jp' || github.event.inputs.region == 'all') }}
+        env:
+          SYNCLY_STORAGE_STATE_PATH: /tmp/syncly_state/browser_state.json
+        run: |
+          xvfb-run --auto-servernum python -u tools/fetch_syncly_export.py --region jp
+        continue-on-error: true
+
+      - name: Sync to Google Sheets
+        id: sync_sheets
+        if: steps.crawl_us.outcome == 'success' || steps.crawl_jp.outcome == 'success' || github.event.inputs.skip_crawl == 'true'
+        run: python -u tools/sync_syncly_to_sheets.py
+        continue-on-error: true
 
       - name: Sync SNS Tab (Grosmimi)
-        run: python -u tools/sync_sns_tab.py
+        run: python -u tools/sync_sns_tab.py || echo "SNS sync failed (non-fatal)"
 
       - name: Sync SNS Tab (CHA&MOM)
-        run: python -u tools/sync_sns_tab_chaenmom.py
+        run: python -u tools/sync_sns_tab_chaenmom.py || echo "CHA&MOM sync failed (non-fatal)"
+
+      - name: Send success email
+        if: steps.crawl_us.outcome == 'success' && steps.sync_sheets.outcome == 'success'
+        run: |
+          python -u tools/send_gmail.py \
+            --to "wj.choi@orbiters.co.kr" \
+            --subject "[Syncly] Daily crawl completed $(date -u +%Y-%m-%d)" \
+            --body "Syncly daily pipeline completed successfully.\n\nCrawl US: ${{ steps.crawl_us.outcome }}\nCrawl JP: ${{ steps.crawl_jp.outcome || 'skipped' }}\nSheet Sync: ${{ steps.sync_sheets.outcome }}\n\nSpreadsheet: https://docs.google.com/spreadsheets/d/1bOXrARt8wx_YeKyXMlAS1nKzkZBypeaSilI6xDg4_Tc"
+        continue-on-error: true
+
+      - name: Send failure email
+        if: steps.crawl_us.outcome == 'failure'
+        run: |
+          python -u tools/send_gmail.py \
+            --to "wj.choi@orbiters.co.kr" \
+            --subject "[Syncly] CRAWL FAILED - session expired? $(date -u +%Y-%m-%d)" \
+            --body "Syncly crawl failed. Session likely expired.\n\nPlease re-login locally:\n  python tools/fetch_syncly_export.py --login\n\nThen update GitHub secret SYNCLY_STORAGE_STATE with contents of:\n  ~/.syncly_state/browser_state.json"
+        continue-on-error: true
+
+      - name: Upload crawl data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: syncly-crawl-${{ github.run_id }}
+          path: |
+            Data Storage/syncly/*.csv
+          retention-days: 7

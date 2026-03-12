@@ -958,6 +958,11 @@ def sync_tracker(sh, rows, today):
             added += 1
 
     if batch_cells:
+        # Auto-expand sheet rows if needed
+        needed_rows = len(all_data) + 1  # +1 buffer
+        if ws.row_count < needed_rows:
+            ws.resize(rows=needed_rows + 50)  # add 50 buffer
+            print(f"[TRACKER] 시트 행 확장: {ws.row_count} -> {needed_rows + 50}")
         ws.batch_update(
             [{"range": r, "values": v} for r, v in batch_cells],
             value_input_option="USER_ENTERED",

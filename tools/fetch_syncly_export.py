@@ -93,11 +93,14 @@ def do_login():
         except Exception:
             pass
 
+        # Save storage_state for CI environments
         try:
             context.storage_state(path=str(STATE_FILE))
-            print(f"[LOGIN] Session saved to {STATE_FILE}")
-        except Exception:
-            print(f"[LOGIN] Session saved via persistent profile: {STATE_DIR / 'chrome_profile'}")
+            print(f"[LOGIN] Storage state saved to {STATE_FILE}")
+        except Exception as e:
+            print(f"[LOGIN] Storage state save failed ({e}), profile-only mode")
+
+        print(f"[LOGIN] Chrome profile saved at: {STATE_DIR / 'chrome_profile'}")
 
         try:
             context.close()
@@ -105,6 +108,7 @@ def do_login():
             pass
 
     print("[LOGIN] Done! You can now run without --login flag.")
+    print(f"[LOGIN] For CI, upload {STATE_FILE} content as SYNCLY_STORAGE_STATE secret")
 
 
 def _set_date_filter(page, start_date, end_date, output_path):
@@ -201,10 +205,10 @@ def _do_single_export(page, output_path):
     today_str = datetime.now().strftime("%Y-%m-%d")
     original_name = download.suggested_filename or f"syncly_export_{today_str}.csv"
 
-    if not original_name.startswith(today_str):
-        save_name = f"{today_str}_{original_name}"
-    else:
-        save_name = original_name
+    # Add timestamp to prevent chunk overwrites
+    ts = datetime.now().strftime("%H%M%S")
+    stem = Path(original_name).stem
+    save_name = f"{today_str}_{stem}_{ts}.csv"
 
     save_path = output_path / save_name
     download.save_as(str(save_path))
@@ -253,24 +257,38 @@ def do_export(url: str, output_dir: str, chunk_days: int = 30):
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
+    # CI mode: use storage_state from env or file
+    storage_state_path = os.environ.get("SYNCLY_STORAGE_STATE_PATH")
     chrome_profile = STATE_DIR / "chrome_profile"
-    if not chrome_profile.exists():
+
+    if not storage_state_path and not chrome_profile.exists():
         print("[ERROR] No saved session found. Run with --login first.")
         print("  python tools/fetch_syncly_export.py --login")
         sys.exit(1)
 
-    print(f"[EXPORT] Loading saved session...")
+    mode = "storage_state" if storage_state_path else "chrome_profile"
+    print(f"[EXPORT] Loading saved session ({mode})...")
     print(f"[EXPORT] Target: {url}")
     print(f"[EXPORT] Strategy: {TOTAL_DAYS} days in {chunk_days}-day chunks")
 
     with sync_playwright() as p:
-        context = p.chromium.launch_persistent_context(
-            user_data_dir=str(chrome_profile),
-            headless=False,
-            channel="chromium",
-            viewport={"width": 1280, "height": 800},
-            accept_downloads=True,
-        )
+        if storage_state_path:
+            # CI mode: launch browser + context with storage_state
+            browser = p.chromium.launch(headless=False)
+            context = browser.new_context(
+                storage_state=storage_state_path,
+                viewport={"width": 1280, "height": 800},
+                accept_downloads=True,
+            )
+        else:
+            # Local mode: persistent chrome profile
+            context = p.chromium.launch_persistent_context(
+                user_data_dir=str(chrome_profile),
+                headless=False,
+                channel="chromium",
+                viewport={"width": 1280, "height": 800},
+                accept_downloads=True,
+            )
 
         page = context.pages[0] if context.pages else context.new_page()
 
