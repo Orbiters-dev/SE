@@ -1933,18 +1933,20 @@ def check_email_and_execute(args):
     sys.path.insert(0, str(TOOLS_DIR))
     from send_gmail import search_emails
 
-    # --- Dedup: check if we already sent an EXECUTED email today ---
+    # --- Dedup: check if we already sent an EXECUTED email for this proposal ---
+    # Use 3d window to match proposal lifetime and prevent re-execution
     dedup_query = (
-        'subject:"[Amazon PPC] EXECUTED" from:orbiters11@gmail.com newer_than:1d'
+        'subject:"[Amazon PPC] EXECUTED" from:orbiters11@gmail.com newer_than:3d'
     )
     print(f"[check-execute] Dedup check: {dedup_query}")
-    existing_exec_emails = search_emails(dedup_query, max_results=3)
+    existing_exec_emails = search_emails(dedup_query, max_results=5)
     if existing_exec_emails:
-        print(f"[check-execute] Already sent {len(existing_exec_emails)} EXECUTED email(s) today. Skipping.")
+        print(f"[check-execute] Already sent {len(existing_exec_emails)} EXECUTED email(s) in last 3 days. Skipping.")
         return
 
     # Search for replies to PPC proposal emails from the approver
     approver = args.to  # The person who receives proposals
+    proposal_time = datetime.fromisoformat(sent_at)
     query = (
         f'subject:"[Amazon PPC]" from:{approver} newer_than:2d'
     )
@@ -1956,12 +1958,23 @@ def check_email_and_execute(args):
         return
 
     # Check if any reply contains an execute keyword
-    proposal_time = datetime.fromisoformat(sent_at)
+    # Only consider replies sent AFTER the proposal was emailed
     found_execute = False
 
     for msg in messages:
-        # Only consider emails after the proposal was sent
-        # (date parsing is fuzzy — rely on Gmail's newer_than filter)
+        # Parse reply date and skip if before proposal was sent
+        msg_date_str = msg.get("date", "")
+        try:
+            from email.utils import parsedate_to_datetime
+            msg_date = parsedate_to_datetime(msg_date_str)
+            if msg_date.tzinfo is None:
+                msg_date = msg_date.replace(tzinfo=timezone.utc)
+            prop_time_aware = proposal_time if proposal_time.tzinfo else proposal_time.replace(tzinfo=timezone.utc)
+            if msg_date < prop_time_aware:
+                continue  # Reply is older than proposal — ignore
+        except Exception:
+            pass  # If date parsing fails, still check content
+
         body_lower = (msg.get("body", "") + " " + msg.get("snippet", "")).lower().strip()
         # Check for execute keywords (look for the keyword as a standalone word)
         for kw in EXECUTE_KEYWORDS:
@@ -1975,7 +1988,7 @@ def check_email_and_execute(args):
             break
 
     if not found_execute:
-        print("[check-execute] No 'execute' reply detected.")
+        print("[check-execute] No 'execute' reply detected (after proposal sent at {}).".format(sent_at))
         return
 
     # Approve all proposals and execute
