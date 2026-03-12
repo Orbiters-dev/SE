@@ -1933,15 +1933,16 @@ def check_email_and_execute(args):
     sys.path.insert(0, str(TOOLS_DIR))
     from send_gmail import search_emails
 
-    # --- Dedup: check if we already sent an EXECUTED email for this proposal ---
-    # Use 3d window to match proposal lifetime and prevent re-execution
+    # --- Dedup: check if we already sent an EXECUTED email AFTER this proposal ---
+    # Only block if EXECUTED email exists that is newer than this proposal's sent time
+    proposal_date = sent_at[:10]  # e.g. "2026-03-12"
     dedup_query = (
-        'subject:"[Amazon PPC] EXECUTED" from:orbiters11@gmail.com newer_than:3d'
+        f'subject:"[Amazon PPC] EXECUTED" from:orbiters11@gmail.com after:{proposal_date}'
     )
     print(f"[check-execute] Dedup check: {dedup_query}")
     existing_exec_emails = search_emails(dedup_query, max_results=5)
     if existing_exec_emails:
-        print(f"[check-execute] Already sent {len(existing_exec_emails)} EXECUTED email(s) in last 3 days. Skipping.")
+        print(f"[check-execute] Already sent {len(existing_exec_emails)} EXECUTED email(s) after proposal date {proposal_date}. Skipping.")
         return
 
     # Search for replies to PPC proposal emails from the approver
