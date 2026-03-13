@@ -1,3 +1,4 @@
+import json
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
@@ -55,3 +56,57 @@ def test_read_file_contents_cap_tool_code(tmp_path, monkeypatch):
     skipped = [v for v in contents.values() if "[SKIPPED" in v]
     assert len(skipped) == 1
     assert "tool_code cap" in skipped[0]
+
+
+def test_generate_proposals_structure(monkeypatch):
+    """Test with a mock anthropic client to avoid real API calls."""
+    import unittest.mock as mock
+    import run_workflow_optimizer as opt
+    from run_workflow_optimizer import generate_proposals, Issue
+
+    monkeypatch.setattr(opt, "ANTHROPIC_KEY", "fake-key")
+
+    fake_proposals = [
+        {
+            "id": 1,
+            "issue_type": "BROKEN_REF",
+            "source": "test_workflow",
+            "rationale": "foo.py is the correct name",
+            "change_type": "workflow_md",
+            "file": "workflows/test_workflow.md",
+            "original": "`tools/bar.py`",
+            "replacement": "`tools/foo.py`"
+        }
+    ]
+    fake_response_text = json.dumps(fake_proposals)
+
+    with mock.patch("anthropic.Anthropic") as MockClient:
+        mock_client = MockClient.return_value
+        mock_client.messages.create.return_value.content = [
+            mock.MagicMock(text=fake_response_text)
+        ]
+        issues = [Issue("BROKEN_REF", "high", "test_workflow", "references bar.py")]
+        contents = {"workflows/test_workflow.md": "| `tools/bar.py` | ..."}
+        proposals = generate_proposals(issues, contents, model="haiku")
+
+    assert len(proposals) == 1
+    assert proposals[0]["id"] == 1
+    assert proposals[0]["change_type"] == "workflow_md"
+
+
+def test_generate_proposals_invalid_json_returns_empty(monkeypatch):
+    import unittest.mock as mock
+    import run_workflow_optimizer as opt
+    from run_workflow_optimizer import generate_proposals, Issue
+
+    monkeypatch.setattr(opt, "ANTHROPIC_KEY", "fake-key")
+
+    with mock.patch("anthropic.Anthropic") as MockClient:
+        mock_client = MockClient.return_value
+        mock_client.messages.create.return_value.content = [
+            mock.MagicMock(text="not json at all")
+        ]
+        issues = [Issue("BROKEN_REF", "high", "wf", "detail")]
+        proposals = generate_proposals(issues, {}, model="haiku")
+
+    assert proposals == []

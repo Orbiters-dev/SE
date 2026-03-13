@@ -121,6 +121,74 @@ def read_file_contents(issues: list[Issue]) -> dict[str, str]:
     return contents
 
 
+SYSTEM_PROMPT = """\
+You are a WAT framework optimizer for the ORBI e-commerce team.
+WAT = Workflows (markdown SOPs in workflows/) + Agents (AI) + Tools (Python scripts in tools/).
+
+Given a list of framework issues and relevant file contents, generate specific actionable fixes.
+Rules:
+- For tool_code changes: ONLY add code (error handling, constants). Never delete or refactor.
+- For workflow_md changes: fix broken references, add missing sections (additive preferred).
+- For gh_action_yaml changes: fix timeouts, cron expressions, missing env vars only.
+- Only suggest changes you are highly confident about.
+- Return a JSON array only — no markdown fences, no explanation outside the JSON.
+
+Each item in the array must have these exact fields:
+  id (integer, 1-based), issue_type (string), source (string), rationale (string),
+  change_type (workflow_md|gh_action_yaml|tool_code), file (relative path from repo root),
+  original (exact text to find), replacement (exact text to replace it with)
+"""
+
+
+def generate_proposals(
+    issues: list[Issue],
+    file_contents: dict[str, str],
+    model: str = "haiku",
+) -> list[dict]:
+    """
+    Call Claude API with all issues + file contents.
+    Returns list of proposal dicts (or [] on failure).
+    """
+    if not ANTHROPIC_KEY:
+        print("WARNING: ANTHROPIC_API_KEY not set -- skipping proposal generation")
+        return []
+
+    model_id = MODEL_MAP[model]
+    client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+
+    issues_text = "\n".join(
+        f"- [{i.type}|{i.severity}] source={i.source}: {i.detail}"
+        for i in issues
+    )
+    files_text = "\n\n".join(
+        f"=== {path} ===\n{content}"
+        for path, content in file_contents.items()
+    )
+    user_message = f"Issues:\n{issues_text}\n\nFile contents:\n{files_text}"
+
+    try:
+        response = client.messages.create(
+            model=model_id,
+            max_tokens=4096,
+            system=SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": user_message}],
+        )
+        raw = response.content[0].text.strip()
+        # Strip accidental markdown fences
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+        proposals = json.loads(raw)
+        if not isinstance(proposals, list):
+            print("WARNING: Claude returned non-list JSON -- ignoring")
+            return []
+        return proposals
+    except (json.JSONDecodeError, Exception) as e:
+        print(f"WARNING: proposal generation failed: {e}")
+        return []
+
+
 def main():
     parser = argparse.ArgumentParser(description="ORBI Workflow Optimizer")
     parser.add_argument("--dry-run",  action="store_true", help="No email, print summary")
