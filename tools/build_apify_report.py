@@ -174,8 +174,8 @@ def build_stats_section(sns: dict, highlights_count: int, total_creators: int) -
       <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
         <tr>
           {build_stat_card("Total Influencers", str(total))}
-          {build_stat_card("&#49888;&#44508; &#52628;&#44032;", str(new_c), f"&#47553;&#53356; &#51080;&#51020; {with_c}&#47749;")}
-          {build_stat_card("&#44592;&#51316; &#50629;&#45936;&#51060;&#53944;", str(upd_c))}
+          {build_stat_card("신규 추가", str(new_c), f"링크 있음 {with_c}명")}
+          {build_stat_card("기존 업데이트", str(upd_c))}
         </tr>
       </table>
     </div>
@@ -186,8 +186,8 @@ def build_stats_section(sns: dict, highlights_count: int, total_creators: int) -
                   margin-bottom:10px;">USA_LLM</div>
       <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
         <tr>
-          {build_stat_card("&#53356;&#47532;&#50640;&#51060;&#53552;", str(total_creators))}
-          {build_stat_card("&#54558;&#46972;&#51060;&#53944;", str(highlights_count), "&#44048;&#51648;&#46108; &#54252;&#49828;&#53944;")}
+          {build_stat_card("크리에이터", str(total_creators))}
+          {build_stat_card("하이라이트", str(highlights_count), "감지된 포스트")}
           <td style="padding:0 5px;"></td>
         </tr>
       </table>
