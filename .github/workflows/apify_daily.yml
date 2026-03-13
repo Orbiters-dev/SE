@@ -17,7 +17,7 @@ on:
 jobs:
   apify-pipeline:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
       - name: Checkout repo
@@ -44,6 +44,8 @@ jobs:
           cat > .env <<'ENVEOF'
           APIFY_API_TOKEN=${{ secrets.APIFY_API_TOKEN }}
           GOOGLE_SERVICE_ACCOUNT_PATH=credentials/google_service_account.json
+          SHOPIFY_SHOP=${{ secrets.SHOPIFY_SHOP }}
+          SHOPIFY_ACCESS_TOKEN=${{ secrets.SHOPIFY_ACCESS_TOKEN }}
           ENVEOF
           sed -i 's/^[[:space:]]*//' .env
 
@@ -55,7 +57,9 @@ jobs:
           echo '${{ secrets.GMAIL_TOKEN_JSON }}' > credentials/gmail_token.json
 
       - name: Create data directory
-        run: mkdir -p "Data Storage/apify"
+        run: |
+          mkdir -p "Data Storage/apify"
+          mkdir -p ".tmp/polar_data"
 
       - name: Run Apify pipeline
         id: pipeline
@@ -70,6 +74,21 @@ jobs:
           fi
           echo "Running: $CMD"
           $CMD
+
+      - name: Fetch Shopify influencer orders
+        id: fetch_orders
+        run: python -u tools/fetch_influencer_orders.py
+        continue-on-error: true
+
+      - name: Migrate Syncly posts to Apify sheet
+        id: migrate_syncly
+        run: python -u tools/migrate_syncly_to_apify.py --region us || echo "Migrate failed (non-fatal)"
+        continue-on-error: true
+
+      - name: Sync Grosmimi US SNS Tab (Apify-based)
+        id: sns_grosmimi
+        run: python -u tools/sync_sns_tab_grosmimi.py || echo "SNS Grosmimi sync failed (non-fatal)"
+        continue-on-error: true
 
       - name: Send failure email
         if: failure()
