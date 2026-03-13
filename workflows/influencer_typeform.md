@@ -151,4 +151,6 @@ Airtable에 컨텐츠 업로드 여부 추적
 
 ## Tools
 
-_No tools documented yet. Add tool references here._
+- `tools/create_typeform_influencer.py` - Typeform 폼 생성 및 제품 이미지 업로드
+  - 기능: Typeform CDN에 제품 이미지 5개 업로드, Logic Jump 포함 폼 자동 생성
+  - 실행: `python tools/create_typeform_influencer.py`

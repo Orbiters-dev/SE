@@ -60,7 +60,7 @@ python tools/gmail_affiliate_faq_builder.py --dry-run --months 1
 
 ```bash
 # 기본 실행 (최근 3개월, Google Sheets + Excel 저장)
-python tools/gmail_affiliate_faq_builder.py
+# NOTE: Tool implementation pending - workflow documentation complete
 
 # 기간 변경 (최근 6개월)
 python tools/gmail_affiliate_faq_builder.py --months 6

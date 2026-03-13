@@ -44,6 +44,7 @@ generate_report:
 
 ### Step 2: 툴 실행
 ```bash
+# Tool implementation pending - refer to workflow specification above
 python tools/klaviyo_email_dashboard.py
 ```
 
