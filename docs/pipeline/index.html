@@ -118,9 +118,30 @@
 
   .footer { text-align:center; margin-top:48px; font-size:12px; color:var(--text-dim); }
 
+  /* Test Case Panels */
+  .test-panel { background:linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border:2px solid #fde68a; border-radius:14px; padding:20px; margin-top:-24px; margin-bottom:48px; position:relative; }
+  .test-panel::before { content:''; position:absolute; top:-12px; left:32px; width:24px; height:24px; background:#fbbf24; border-radius:6px; display:flex; align-items:center; justify-content:center; }
+  .test-header { display:flex; align-items:center; gap:10px; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #fde68a; }
+  .test-badge { background:#fbbf24; color:#78350f; font-size:11px; font-weight:700; padding:3px 10px; border-radius:6px; text-transform:uppercase; letter-spacing:0.5px; }
+  .test-title { font-size:14px; font-weight:600; color:#92400e; }
+  .test-meta { font-size:11px; color:#a16207; margin-left:auto; }
+  .test-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .test-card { background:rgba(255,255,255,0.7); border:1px solid #fde68a; border-radius:8px; padding:12px; }
+  .test-card.full { grid-column:1/-1; }
+  .test-card h5 { font-size:11px; text-transform:uppercase; letter-spacing:0.8px; color:#92400e; margin-bottom:8px; }
+  .test-row { display:flex; gap:6px; margin-bottom:4px; font-size:12px; }
+  .test-key { color:#a16207; min-width:90px; flex-shrink:0; font-weight:500; }
+  .test-val { color:#78350f; word-break:break-all; }
+  .test-email { background:#fefce8; border:1px solid #fde68a; border-radius:6px; padding:10px; font-size:12px; color:#78350f; white-space:pre-wrap; line-height:1.5; margin-top:6px; }
+  .test-note { background:rgba(251,191,36,0.15); border-left:3px solid #fbbf24; padding:8px 12px; font-size:12px; color:#92400e; border-radius:0 6px 6px 0; margin-top:8px; }
+  .test-status { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:2px 8px; border-radius:10px; }
+  .test-status.pass { background:#dcfce7; color:#15803d; }
+  .test-status.pending { background:#e0f2fe; color:#0369a1; }
+
   @media(max-width:700px) {
     .zone-row { flex-direction:column; }
     .summary-grid { grid-template-columns:repeat(2,1fr); }
+    .test-grid { grid-template-columns:1fr; }
   }
 </style>
 </head>
@@ -289,6 +310,120 @@
     </div>
   </div>
 
+  <!-- ===== STAGE 1 TEST CASE ===== -->
+  <div class="test-panel">
+    <div class="test-header">
+      <span class="test-badge">Test #1</span>
+      <span class="test-title">Stage 1: Outreach Draft &rarr; Auto Send (Low Touch)</span>
+      <span class="test-meta">2026-03-13 04:36 UTC | Exec #97187 <span class="test-status pass">PASS</span></span>
+    </div>
+    <div class="test-grid">
+      <div class="test-card">
+        <h5>Creator Profile (Input)</h5>
+        <div class="test-row"><span class="test-key">Username</span><span class="test-val">wj_choi_test</span></div>
+        <div class="test-row"><span class="test-key">Name</span><span class="test-val">Wonjin Choi</span></div>
+        <div class="test-row"><span class="test-key">Email</span><span class="test-val">wj.choi@orbiters.co.kr</span></div>
+        <div class="test-row"><span class="test-key">Platform</span><span class="test-val">Instagram</span></div>
+        <div class="test-row"><span class="test-key">Followers</span><span class="test-val">8,500</span></div>
+        <div class="test-row"><span class="test-key">Avg ER</span><span class="test-val">5.3%</span></div>
+        <div class="test-row"><span class="test-key">Location</span><span class="test-val">Los Angeles, CA</span></div>
+        <div class="test-row"><span class="test-key">Syncly Level</span><span class="test-val">Fully Matched (2 posts)</span></div>
+        <div class="test-row"><span class="test-key">Bio</span><span class="test-val">Mom of 1. Love sharing baby product reviews and daily mom life.</span></div>
+      </div>
+      <div class="test-card">
+        <h5>Workflow Config</h5>
+        <div class="test-row"><span class="test-key">Mode</span><span class="test-val">production</span></div>
+        <div class="test-row"><span class="test-key">Outreach Type</span><span class="test-val">Low Touch</span></div>
+        <div class="test-row"><span class="test-key">Human-in-Loop</span><span class="test-val">false (auto for LT)</span></div>
+        <div class="test-row"><span class="test-key">Dry Run</span><span class="test-val">false</span></div>
+        <div class="test-row"><span class="test-key">Has Content</span><span class="test-val">false (no transcripts)</span></div>
+        <div class="test-row"><span class="test-key">Template</span><span class="test-val">Google Drive (shared)</span></div>
+        <div class="test-row"><span class="test-key">Sender Name</span><span class="test-val">William Choi</span></div>
+        <div class="test-row"><span class="test-key">Brand</span><span class="test-val">Onzenna / Grosmimi</span></div>
+      </div>
+      <div class="test-card full">
+        <h5>Claude-Generated Email (Output)</h5>
+        <div class="test-row"><span class="test-key">Subject</span><span class="test-val">Collab? Onzenna x wj_choi_test</span></div>
+        <div class="test-email">Hi wj_choi_test!
+
+I'm William Choi from the Onzenna team. I caught your recent Instagram posts and had to reach out - your vibrant and relatable parenting content is exactly what we love! Your ability to capture the joys and challenges of raising little ones is truly inspiring.
+
+At Onzenna, we're on a mission to simplify motherhood with curated, high-quality gear (like the cult-favorite Grosmimi cups!). We'd love to send some goodies your way for a gifted partnership.
+
+Interested? Just fill out this quick form and we'll handle the rest: https://onzenna.com/pages/influencer-gifting
+
+Can't wait to see if we're a match!
+
+Best,
+Onzenna</div>
+      </div>
+      <div class="test-card">
+        <h5>Airtable Updates</h5>
+        <div class="test-row"><span class="test-key">Status Before</span><span class="test-val">Not Started / New</span></div>
+        <div class="test-row"><span class="test-key">Status After</span><span class="test-val">Sent / Partnership in Progress</span></div>
+        <div class="test-row"><span class="test-key">Conversation</span><span class="test-val">rec7z8bEQvZwDd5Ja (Draft Ready &rarr; Sent)</span></div>
+        <div class="test-row"><span class="test-key">Sent At</span><span class="test-val">2026-03-13</span></div>
+      </div>
+      <div class="test-card">
+        <h5>Gmail Delivery</h5>
+        <div class="test-row"><span class="test-key">Thread ID</span><span class="test-val">19ce57ba03f10b51</span></div>
+        <div class="test-row"><span class="test-key">From</span><span class="test-val">affiliates@onzenna.com</span></div>
+        <div class="test-row"><span class="test-key">To</span><span class="test-val">wj.choi@orbiters.co.kr</span></div>
+        <div class="test-row"><span class="test-key">Labels</span><span class="test-val">SENT</span></div>
+      </div>
+    </div>
+    <div class="test-note">
+      <strong>Notes:</strong> Schedule trigger was disabled &mdash; enabled via API for test, then re-disabled after execution.
+      Low Touch auto-sends without human approval (Human-in-Loop=false). High Touch would require manual "Approved" status in Airtable first.
+    </div>
+  </div>
+
+  <!-- ===== STAGE 1.5 TEST CASE (Reply Handling) ===== -->
+  <div class="test-panel">
+    <div class="test-header">
+      <span class="test-badge">Test #2</span>
+      <span class="test-title">Stage 1.5: Reply Handler (Simulated)</span>
+      <span class="test-meta">2026-03-13 06:15 UTC | Reply Handler auto-processed <span class="test-status pass">PASS</span></span>
+    </div>
+    <div class="test-grid">
+      <div class="test-card full">
+        <h5>Simulated Influencer Reply</h5>
+        <div class="test-row"><span class="test-key">From</span><span class="test-val">wj.choi@orbiters.co.kr</span></div>
+        <div class="test-row"><span class="test-key">To</span><span class="test-val">affiliates@onzenna.com</span></div>
+        <div class="test-row"><span class="test-key">Subject</span><span class="test-val">Re: Collab? Onzenna x wj_choi_test</span></div>
+        <div class="test-row"><span class="test-key">Thread ID</span><span class="test-val">19ce57ba03f10b51</span></div>
+        <div class="test-email">Hi William! This sounds really exciting! I would absolutely love to try Grosmimi products for my daughter. She is 14 months old and we are always on the lookout for great sippy cups and bottles.
+
+Here is my info:
+- Full Name: Wonjin Choi
+- Instagram: @wj_choi_test
+- TikTok: @wj_choi_test
+- Phone: +12135551234
+- Address: 5900 Katella Ave, BLDG C, STE 100, Cypress, CA 90630
+
+What do I need to do next?</div>
+      </div>
+      <div class="test-card">
+        <h5>Reply Handler Processing</h5>
+        <div class="test-row"><span class="test-key">Workflow</span><span class="test-val">Outreach - Reply Handler</span></div>
+        <div class="test-row"><span class="test-key">Workflow ID</span><span class="test-val">nVtYmhU0InRqRn4K</span></div>
+        <div class="test-row"><span class="test-key">Thread Msgs</span><span class="test-val">3 (outbound + reply + ack)</span></div>
+        <div class="test-row"><span class="test-key">Auto Result</span><span class="test-val">Already processed before manual check</span></div>
+      </div>
+      <div class="test-card">
+        <h5>Airtable Updates</h5>
+        <div class="test-row"><span class="test-key">Status Before</span><span class="test-val">Sent / Partnership in Progress</span></div>
+        <div class="test-row"><span class="test-key">Status After</span><span class="test-val">Needs Review</span></div>
+        <div class="test-row"><span class="test-key">Last Contact</span><span class="test-val">2026-03-13T06:15:00.000Z</span></div>
+        <div class="test-row"><span class="test-key">Record ID</span><span class="test-val">recX3M4AuAGKNr98l</span></div>
+      </div>
+    </div>
+    <div class="test-note">
+      <strong>Notes:</strong> Reply Handler had already auto-processed the actual reply (messageCount=3, last sender=affiliates@).
+      Airtable status manually set to "Needs Review" to simulate the review step. In production, the team would review the reply and decide to accept or decline.
+    </div>
+  </div>
+
   <!-- ==================== STAGE 2 ==================== -->
   <div class="flow">
     <div class="flow-header">
@@ -339,6 +474,65 @@
           <div class="result-badge pass">&#10003; Shopify + Airtable + PG all PASS</div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ===== STAGE 2 TEST CASE (Gifting Form) ===== -->
+  <div class="test-panel">
+    <div class="test-header">
+      <span class="test-badge">Test #3</span>
+      <span class="test-title">Stage 2: Gifting Form Webhook &rarr; Draft Order</span>
+      <span class="test-meta">2026-03-13 07:55 UTC | Exec #98492 <span class="test-status pass">PASS</span></span>
+    </div>
+    <div class="test-grid">
+      <div class="test-card">
+        <h5>Form Data (Input)</h5>
+        <div class="test-row"><span class="test-key">Name</span><span class="test-val">Wonjin Choi</span></div>
+        <div class="test-row"><span class="test-key">Email</span><span class="test-val">wj.choi@orbiters.co.kr</span></div>
+        <div class="test-row"><span class="test-key">Phone</span><span class="test-val">+12135551234</span></div>
+        <div class="test-row"><span class="test-key">Instagram</span><span class="test-val">@wj_choi_test</span></div>
+        <div class="test-row"><span class="test-key">TikTok</span><span class="test-val">@wj_choi_test</span></div>
+        <div class="test-row"><span class="test-key">Webhook</span><span class="test-val">/webhook/wj-test-influencer-gifting</span></div>
+      </div>
+      <div class="test-card">
+        <h5>Baby Info &rarr; Product Selection</h5>
+        <div class="test-row"><span class="test-key">Child Name</span><span class="test-val">Yuna</span></div>
+        <div class="test-row"><span class="test-key">Birthday</span><span class="test-val">2024-12-15</span></div>
+        <div class="test-row"><span class="test-key">Age</span><span class="test-val">14 months</span></div>
+        <div class="test-row"><span class="test-key">Stage</span><span class="test-val">Stage 2 (12M+)</span></div>
+        <div class="test-row"><span class="test-key">Product 1</span><span class="test-val">PPSU Straw Cup Flip Top 10oz - Dinosaur ($28.70)</span></div>
+        <div class="test-row"><span class="test-key">Product 2</span><span class="test-val">PPSU Straw Cup Flip Top 6oz - Coral flower ($25.90)</span></div>
+        <div class="test-row"><span class="test-key">Rationale</span><span class="test-val">14mo = Stage 2 (12M+) &rarr; Flip Top straw cups</span></div>
+      </div>
+      <div class="test-card">
+        <h5>Shopify Customer</h5>
+        <div class="test-row"><span class="test-key">Action</span><span class="test-val">UPDATE (existing customer)</span></div>
+        <div class="test-row"><span class="test-key">Customer ID</span><span class="test-val">7057180098882</span></div>
+        <div class="test-row"><span class="test-key">Existing Tags</span><span class="test-val">influencer-gifting, PR, newsletter</span></div>
+        <div class="test-row"><span class="test-key">Orders Count</span><span class="test-val">3 (prior)</span></div>
+        <div class="test-row"><span class="test-key">Metafields</span><span class="test-val">influencer.instagram, .tiktok, .child_1_birthday, .submitted_at</span></div>
+      </div>
+      <div class="test-card">
+        <h5>Draft Order Created</h5>
+        <div class="test-row"><span class="test-key">Order Name</span><span class="test-val">#D1484</span></div>
+        <div class="test-row"><span class="test-key">Draft ID</span><span class="test-val">1515675976050</span></div>
+        <div class="test-row"><span class="test-key">Discount</span><span class="test-val">100% PR Gifting ($0.00)</span></div>
+        <div class="test-row"><span class="test-key">Shipping</span><span class="test-val">Free &rarr; 5900 Katella Ave, Cypress CA 90630</span></div>
+        <div class="test-row"><span class="test-key">Tags</span><span class="test-val">pr, influencer-gifting</span></div>
+        <div class="test-row"><span class="test-key">Status</span><span class="test-val">open (not yet completed)</span></div>
+        <div class="test-row"><span class="test-key">Created</span><span class="test-val">2026-03-13T00:55:58-07:00</span></div>
+      </div>
+      <div class="test-card full">
+        <h5>Shipping Address &amp; Airtable Update</h5>
+        <div class="test-row"><span class="test-key">Address</span><span class="test-val">5900 Katella Ave, BLDG C, STE 100, Cypress, CA 90630, US</span></div>
+        <div class="test-row"><span class="test-key">Order Note</span><span class="test-val">Influencer Gifting Application --- Instagram: @wj_choi_test, TikTok: @wj_choi_test, Child 1: 2024-12-15 (14 months)</span></div>
+        <div class="test-row"><span class="test-key">Airtable</span><span class="test-val">recX3M4AuAGKNr98l &rarr; Draft Order ID = 1515675976050</span></div>
+      </div>
+    </div>
+    <div class="test-note">
+      <strong>Notes:</strong> First webhook attempt failed ("No products selected") &mdash; form payload was missing <code>selected_products</code> array.
+      Fixed by adding product variants with correct Shopify variant IDs. Also: shipping address uses <code>street</code>/<code>apt</code> keys, not <code>address1</code>/<code>address2</code>.
+      Customer already existed (ID 7057180098882) from prior tests &mdash; updated instead of created.
     </div>
   </div>
 
