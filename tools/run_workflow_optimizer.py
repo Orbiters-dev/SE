@@ -316,7 +316,94 @@ def send_proposal_email(html: str, date_str: str, proposal_count: int) -> None:
 
 
 def execute_proposals(proposal_id_str: str) -> None:
-    pass
+    """
+    Load proposals from .tmp/proposals_latest.json and apply the specified IDs.
+    Prints unified diff before each change. Commits if any changes applied.
+    """
+    import difflib
+
+    proposals_path = TMP_DIR / "proposals_latest.json"
+    if not proposals_path.exists():
+        print("ERROR: No proposals file found. Run without --execute first.")
+        sys.exit(1)
+
+    data = json.loads(proposals_path.read_text(encoding="utf-8"))
+
+    # Staleness check
+    generated_at = datetime.fromisoformat(data["generated_at"])
+    age_hours = (datetime.now(timezone.utc) - generated_at).total_seconds() / 3600
+    if age_hours > 24:
+        print(f"WARNING: proposals are {age_hours:.1f}h old (>24h). Consider re-running without --execute first.")
+
+    all_proposals = {p["id"]: p for p in data["proposals"]}
+
+    # Parse requested IDs
+    requested_ids: list[int] = []
+    for part in proposal_id_str.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        try:
+            requested_ids.append(int(part))
+        except ValueError:
+            print(f"WARNING: invalid proposal ID '{part}' -- skipping")
+
+    applied: list[int] = []
+    changed_files: list[str] = []
+
+    for pid in requested_ids:
+        if pid not in all_proposals:
+            print(f"WARNING: proposal ID {pid} not found -- skipping")
+            continue
+
+        p = all_proposals[pid]
+        file_path = PROJECT_ROOT / p["file"]
+
+        if not file_path.exists():
+            print(f"SKIP #{pid}: file not found: {p['file']}")
+            continue
+
+        original_text = file_path.read_text(encoding="utf-8")
+        if p["original"] not in original_text:
+            print(f"SKIP #{pid}: original text not found in {p['file']} (file may have changed)")
+            continue
+
+        new_text = original_text.replace(p["original"], p["replacement"], 1)
+
+        # Print unified diff
+        diff_lines = list(difflib.unified_diff(
+            original_text.splitlines(keepends=True),
+            new_text.splitlines(keepends=True),
+            fromfile=f"a/{p['file']}",
+            tofile=f"b/{p['file']}",
+        ))
+        print(f"\n--- Proposal #{pid}: {p['issue_type']} ({p['change_type']}) ---")
+        print(f"    {p['rationale']}")
+        print("".join(diff_lines) if diff_lines else "  (no diff)")
+
+        file_path.write_text(new_text, encoding="utf-8")
+        applied.append(pid)
+        changed_files.append(p["file"])
+        print(f"APPLIED #{pid}: {p['file']}")
+
+    if not applied:
+        print("\nNo proposals applied (all skipped or not found).")
+        return
+
+    # Git commit
+    applied_str = ",".join(str(i) for i in applied)
+    commit_msg = f"feat(optimizer): apply proposals #{applied_str}"
+    try:
+        subprocess.run(["git", "add"] + changed_files, cwd=str(PROJECT_ROOT), check=True)
+        subprocess.run(
+            ["git", "commit", "-m", commit_msg],
+            cwd=str(PROJECT_ROOT), check=True
+        )
+        print(f"\nCommitted: {commit_msg}")
+    except subprocess.CalledProcessError as e:
+        print(f"WARNING: git commit failed: {e}")
+
+    print(f"\nSummary: applied {len(applied)}/{len(requested_ids)} proposals: #{applied_str}")
 
 
 def main():

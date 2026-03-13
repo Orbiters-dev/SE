@@ -173,3 +173,93 @@ def test_main_dry_run_no_crash(monkeypatch):
     with mock.patch.object(sys, "argv",
                            ["run_workflow_optimizer.py", "--dry-run"]):
         opt.main()   # must not raise
+
+
+def test_execute_proposals_applies_change(tmp_path, monkeypatch):
+    import json
+    from run_workflow_optimizer import execute_proposals
+
+    # Set up fake proposals file
+    proposals_file = tmp_path / "proposals_latest.json"
+    target = tmp_path / "workflows" / "test.md"
+    target.parent.mkdir(parents=True)
+    target.write_text("See `tools/old_tool.py` for details.", encoding="utf-8")
+
+    from datetime import datetime, timezone
+    proposals_file.write_text(json.dumps({
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "issue_count": 1,
+        "proposals": [{
+            "id": 1,
+            "issue_type": "BROKEN_REF",
+            "source": "test",
+            "rationale": "correct name",
+            "change_type": "workflow_md",
+            "file": "workflows/test.md",
+            "original": "`tools/old_tool.py`",
+            "replacement": "`tools/new_tool.py`"
+        }]
+    }), encoding="utf-8")
+
+    monkeypatch.setattr("run_workflow_optimizer.TMP_DIR", tmp_path)
+    monkeypatch.setattr("run_workflow_optimizer.PROJECT_ROOT", tmp_path)
+
+    import unittest.mock as mock
+    with mock.patch("subprocess.run") as mock_run:  # mock git commands
+        execute_proposals("1")
+
+    result = target.read_text(encoding="utf-8")
+    assert "`tools/new_tool.py`" in result
+    assert "`tools/old_tool.py`" not in result
+
+
+def test_execute_proposals_skips_missing_file(tmp_path, monkeypatch, capsys):
+    import json
+    from run_workflow_optimizer import execute_proposals
+    from datetime import datetime, timezone
+
+    proposals_file = tmp_path / "proposals_latest.json"
+    proposals_file.write_text(json.dumps({
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "issue_count": 1,
+        "proposals": [{
+            "id": 1, "issue_type": "BROKEN_REF", "source": "missing",
+            "rationale": "r", "change_type": "workflow_md",
+            "file": "workflows/does_not_exist.md",
+            "original": "old", "replacement": "new"
+        }]
+    }), encoding="utf-8")
+
+    monkeypatch.setattr("run_workflow_optimizer.TMP_DIR", tmp_path)
+    monkeypatch.setattr("run_workflow_optimizer.PROJECT_ROOT", tmp_path)
+
+    import unittest.mock as mock
+    with mock.patch("subprocess.run"):
+        execute_proposals("1")
+
+    captured = capsys.readouterr()
+    assert "SKIP" in captured.out or "not found" in captured.out.lower()
+
+
+def test_execute_proposals_staleness_warning(tmp_path, monkeypatch, capsys):
+    import json
+    import unittest.mock as mock
+    from run_workflow_optimizer import execute_proposals
+    from datetime import datetime, timezone, timedelta
+
+    proposals_file = tmp_path / "proposals_latest.json"
+    old_time = (datetime.now(timezone.utc) - timedelta(hours=25)).isoformat()
+    proposals_file.write_text(json.dumps({
+        "generated_at": old_time,
+        "issue_count": 0,
+        "proposals": []
+    }), encoding="utf-8")
+
+    monkeypatch.setattr("run_workflow_optimizer.TMP_DIR", tmp_path)
+    monkeypatch.setattr("run_workflow_optimizer.PROJECT_ROOT", tmp_path)
+
+    with mock.patch("subprocess.run"):
+        execute_proposals("1")
+
+    captured = capsys.readouterr()
+    assert "stale" in captured.out.lower() or "old" in captured.out.lower() or "24" in captured.out
