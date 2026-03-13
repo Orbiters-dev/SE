@@ -273,8 +273,25 @@ def _split_product_names(product_str):
     return [p for p in parts if p]
 
 
+# Keywords in product titles that indicate non-Grosmimi products
+NON_GROS_PRODUCT_KW = ("cha&mom", "cha & mom", "naeiae", "rice snack", "rice puff",
+                        "goongbe", "babyrabbit", "lotion", "body wash", "intense cream",
+                        "phyto seline", "commemoi")
+
+
+def _is_grosmimi_item(title):
+    """Check if a line item title is a Grosmimi product (not CHA&MOM/Naeiae/etc)."""
+    tl = title.lower()
+    for kw in NON_GROS_PRODUCT_KW:
+        if kw in tl:
+            return False
+    return True
+
+
 def classify_product_type(order):
     """Classify line items into Product Type dropdown values (max 4, in order).
+
+    Only includes Grosmimi products — CHA&MOM, Naeiae, etc. are excluded.
 
     Returns (types_list, product_name_str):
       - types_list: up to 4 unique Product Type values in item order
@@ -286,6 +303,8 @@ def classify_product_type(order):
     for item in items:
         title = item.get("title", "")
         if not title:
+            continue
+        if not _is_grosmimi_item(title):
             continue
         raw_names.append(title)
         tl = title.lower()
