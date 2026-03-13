@@ -240,11 +240,20 @@ def has_grosmimi(order):
 # Keywords in tags/note that indicate giveaway/event orders (not regular PR)
 GIVEAWAY_KW = ("giveaway", "valentine", "bfcm", "black friday", "christmas")
 
+# Test order customer names (case-insensitive substring match)
+TEST_ORDER_NAMES = ("test", "flowtest")
+
 
 def is_giveaway_event(order):
     """Check if order is a giveaway/event order (not regular PR)."""
     text = f"{order.get('tags', '')} {order.get('note', '') or ''}".lower()
     return any(kw in text for kw in GIVEAWAY_KW)
+
+
+def is_test_order(order):
+    """Check if order is a test order (not a real influencer)."""
+    name = order.get("customer_name", "").lower()
+    return any(kw in name for kw in TEST_ORDER_NAMES)
 
 
 def _split_product_names(product_str):
@@ -519,6 +528,8 @@ def build_rows(orders, paypal_txns, syncly_data, since_date=None):
             continue
         if is_giveaway_event(order):
             continue
+        if is_test_order(order):
+            continue
         created = order.get("created_at", "")[:10]
         if since_date and created < since_date:
             continue
@@ -543,6 +554,8 @@ def build_rows(orders, paypal_txns, syncly_data, since_date=None):
             if not has_grosmimi(order):
                 continue
             if is_giveaway_event(order):
+                continue
+            if is_test_order(order):
                 continue
             created = order.get("created_at", "")[:10]
             if created >= since_date:
