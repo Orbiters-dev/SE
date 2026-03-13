@@ -1110,7 +1110,7 @@ def collect_dataforseo(date_from: str, date_to: str) -> list[dict]:
 
 
 def collect_klaviyo(date_from: str, date_to: str) -> list[dict]:
-    """Collect Klaviyo campaign/flow daily metrics."""
+    """Collect Klaviyo email campaign metrics using Campaign Values Report API."""
     print("[Klaviyo] Collecting...")
     if not KLAVIYO_API_KEY:
         print("  [SKIP] No KLAVIYO_API_KEY")
@@ -1121,12 +1121,11 @@ def collect_klaviyo(date_from: str, date_to: str) -> list[dict]:
         "accept": "application/json",
         "revision": "2024-10-15",
     }
+    post_headers = {**headers, "content-type": "application/json"}
 
-    all_rows = []
-
-    # Campaigns list
-    url = "https://a.klaviyo.com/api/campaigns/?filter=equals(messages.channel,'email')"
-    campaigns = []
+    # Step 1: Fetch all email campaigns (id, name, send_time)
+    camp_meta = {}  # campaign_id -> {name, send_time}
+    url = "https://a.klaviyo.com/api/campaigns/?filter=equals(messages.channel,%27email%27)&sort=-created_at"
     while url:
         try:
             r = requests.get(url, headers=headers, timeout=30)
@@ -1134,29 +1133,70 @@ def collect_klaviyo(date_from: str, date_to: str) -> list[dict]:
             data = r.json()
             for c in data.get("data", []):
                 attrs = c.get("attributes", {})
-                campaigns.append({
-                    "id": c["id"],
-                    "name": attrs.get("name", ""),
-                    "send_time": (attrs.get("send_time") or "")[:10],
-                })
+                send_time = (attrs.get("send_time") or "")[:10]
+                if send_time and date_from <= send_time <= date_to:
+                    camp_meta[c["id"]] = {
+                        "name": attrs.get("name", ""),
+                        "send_time": send_time,
+                    }
             url = data.get("links", {}).get("next")
         except Exception as e:
             print(f"  [WARN] Campaigns list: {e}")
             break
 
-    # Filter to date range
-    for camp in campaigns:
-        if camp["send_time"] and date_from <= camp["send_time"] <= date_to:
-            all_rows.append({
-                "date": camp["send_time"],
-                "source_type": "campaign",
-                "source_name": camp["name"],
-                "source_id": camp["id"],
-                "sends": 0, "opens": 0, "clicks": 0,
-                "conversions": 0, "revenue": 0,
-            })
+    print(f"  Campaigns in range: {len(camp_meta)}")
+    if not camp_meta:
+        return []
 
-    print(f"  Campaigns in range: {len(all_rows)}")
+    # Step 2: Fetch actual metrics via Campaign Values Report
+    # Valid statistics: delivered, opens, clicks, conversions, conversion_value
+    try:
+        payload = {
+            "data": {
+                "type": "campaign-values-report",
+                "attributes": {
+                    "timeframe": {"key": "last_12_months"},
+                    "conversion_metric_id": "SnXiMV",  # Placed Order
+                    "statistics": ["delivered", "opens", "clicks", "conversions", "conversion_value"],
+                }
+            }
+        }
+        r = requests.post(
+            "https://a.klaviyo.com/api/campaign-values-reports/",
+            headers=post_headers, json=payload, timeout=60
+        )
+        r.raise_for_status()
+        results = r.json().get("data", {}).get("attributes", {}).get("results", [])
+        # Build lookup: campaign_id -> stats
+        stats_map = {}
+        for row in results:
+            cid = row.get("groupings", {}).get("campaign_id", "")
+            stats_map[cid] = row.get("statistics", {})
+        print(f"  Campaign stats fetched: {len(stats_map)}")
+    except Exception as e:
+        print(f"  [WARN] Campaign values report failed: {e} — using zero stats")
+        stats_map = {}
+
+    # Step 3: Build output rows
+    all_rows = []
+    for cid, meta in camp_meta.items():
+        stats = stats_map.get(cid, {})
+        all_rows.append({
+            "date": meta["send_time"],
+            "source_type": "campaign",
+            "source_name": meta["name"],
+            "source_id": cid,
+            "sends": int(stats.get("delivered", 0) or 0),
+            "opens": int(stats.get("opens", 0) or 0),
+            "clicks": int(stats.get("clicks", 0) or 0),
+            "conversions": int(stats.get("conversions", 0) or 0),
+            "revenue": float(stats.get("conversion_value", 0) or 0),
+        })
+
+    total_sends = sum(r["sends"] for r in all_rows)
+    total_opens = sum(r["opens"] for r in all_rows)
+    total_rev = sum(r["revenue"] for r in all_rows)
+    print(f"  {len(all_rows)} campaigns | sends={total_sends} opens={total_opens} rev=${total_rev:.0f}")
     return all_rows
 
 

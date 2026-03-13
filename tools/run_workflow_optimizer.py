@@ -62,13 +62,41 @@ MODEL_MAP = {
 
 MAX_FILE_BYTES = 10_240   # 10 KB per file
 MAX_TOOL_CODE_PROPOSALS = 5
+IGNORE_FILE = PROJECT_ROOT / ".optimizer_ignore"
 
 
-def collect_issues(days: int = 7) -> list[Issue]:
-    """Collect all WAT framework issues (static + GitHub Actions)."""
-    issues = run_static_analysis()
-    issues += run_github_analysis(days)
-    return issues
+def load_ignored_stems() -> set[str]:
+    """
+    Load workflow stems to permanently exclude from .optimizer_ignore.
+    Lines starting with '#' and blank lines are ignored.
+    """
+    if not IGNORE_FILE.exists():
+        return set()
+    lines = IGNORE_FILE.read_text(encoding="utf-8").splitlines()
+    return {ln.strip() for ln in lines if ln.strip() and not ln.strip().startswith("#")}
+
+
+def collect_issues(days: int = 7) -> tuple[list[Issue], set[str]]:
+    """
+    Collect WAT framework issues (static + GitHub Actions).
+    Filters out workflow MD issues for stems listed in .optimizer_ignore.
+    Returns (issues, skipped_stems).
+    """
+    all_issues = run_static_analysis()
+    all_issues += run_github_analysis(days)
+
+    ignored = load_ignored_stems()
+    WORKFLOW_ISSUE_TYPES = {"BROKEN_REF", "EMPTY_WORKFLOW", "NO_GH_ACTION"}
+
+    filtered, skipped_stems = [], set()
+    for issue in all_issues:
+        if issue.type in WORKFLOW_ISSUE_TYPES:
+            stem = issue.source.removesuffix(".md")
+            if stem in ignored:
+                skipped_stems.add(stem)
+                continue
+        filtered.append(issue)
+    return filtered, skipped_stems
 
 
 def read_file_contents(issues: list[Issue]) -> dict[str, str]:
@@ -412,7 +440,8 @@ def main():
     parser.add_argument("--dry-run",  action="store_true", help="No email, print summary")
     parser.add_argument("--preview",  action="store_true", help="Save HTML to .tmp/")
     parser.add_argument("--model",    default="haiku",     help="haiku or sonnet")
-    parser.add_argument("--days",     type=int, default=7, help="GitHub Actions window")
+    parser.add_argument("--days",       type=int, default=7,  help="GitHub Actions window")
+    parser.add_argument("--stale-days", type=int, default=60, help="Skip workflow MDs not modified in last N days (non-bulk commits)")
     parser.add_argument("--execute",  action="store_true", help="Apply proposals")
     parser.add_argument("--proposal-id", default="",      help="Comma-separated IDs to apply")
     args = parser.parse_args()
@@ -429,7 +458,9 @@ def main():
         return
 
     print("=== ORBI Workflow Optimizer ===")
-    issues = collect_issues(days=args.days)
+    issues, skipped_stems = collect_issues(days=args.days, stale_days=args.stale_days)
+    if skipped_stems:
+        print(f"Skipped stale workflows (>{args.stale_days}d no meaningful commit): {', '.join(sorted(skipped_stems))}")
     print(f"Collected {len(issues)} issues")
 
     file_contents = read_file_contents(issues)

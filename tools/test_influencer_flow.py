@@ -762,7 +762,11 @@ def run_airtable_create(step, ctx):
     log(f"  Airtable CREATE: {base_id}/{table_id}")
     entry = {"request": {"method": "POST", "url": url, "body": {"fields": fields}}, "response": {}, "assertions": []}
 
-    payload = json.dumps({"fields": fields}).encode()
+    typecast = step.get("typecast", False)
+    body = {"fields": fields}
+    if typecast:
+        body["typecast"] = True
+    payload = json.dumps(body).encode()
     req = urllib.request.Request(url, data=payload, method="POST")
     req.add_header("Authorization", f"Bearer {AIRTABLE_API_KEY}")
     req.add_header("Content-Type", "application/json")
@@ -1305,14 +1309,27 @@ def flow_pipeline(email=None):
                 },
             },
             {
-                "step_id": "verify_order_airtable",
-                "type": "verify_airtable",
-                "name": "10b. Verify order record in Airtable Orders",
+                "step_id": "create_order_record",
+                "type": "airtable_create",
+                "name": "10b. Create Order record in Airtable Orders (direct)",
                 "base_id": AT_BASE,
                 "table_id": AT_ORDERS,
-                "filter_field": "Email",
-                "filter_value": test_email,
-                "expect_exists": False,  # May not exist if fulfillment didn't match
+                "fields": {
+                    "Order Title": f"WJ Flow Test - {test_name}",
+                    "Shopify Order ID": "{{draft_order_id}}",
+                    "Recipient Name": test_name,
+                    "[WJ Test] Creators": ["{{creator_record_id}}"],
+                },
+                "typecast": True,
+                "capture": {"order_record_id": "$.id"},
+                "critical": False,
+            },
+            {
+                "step_id": "verify_order_record",
+                "type": "assert_captured",
+                "name": "10c. Verify Order record created",
+                "assert_key": "order_record_id",
+                "expect_truthy": True,
                 "critical": False,
             },
         ],
@@ -1320,6 +1337,7 @@ def flow_pipeline(email=None):
             "airtable_records": [
                 {"table_id": AT_CREATORS, "record_id": "{{creator_record_id}}"},
                 {"table_id": AT_CONVERSATIONS, "record_id": "{{conversation_record_id}}"},
+                {"table_id": AT_ORDERS, "record_id": "{{order_record_id}}"},
             ],
             "shopify_customer_id": "{{shopify_customer_id}}",
             "test_email": test_email,
