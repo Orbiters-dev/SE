@@ -83,7 +83,10 @@ def read_file_contents(issues: list[Issue]) -> dict[str, str]:
             # source is workflow stem → load the workflow MD
             md = PROJECT_ROOT / "workflows" / f"{issue.source}.md"
             files_to_load.add(md)
-        elif issue.type in ("ORPHAN_TOOL", "EMPTY_WORKFLOW"):
+        elif issue.type == "ORPHAN_TOOL":
+            if issue.source.endswith(".py"):
+                files_to_load.add(PROJECT_ROOT / "tools" / issue.source)
+        elif issue.type == "EMPTY_WORKFLOW":
             if issue.source.endswith(".py"):
                 files_to_load.add(PROJECT_ROOT / "tools" / issue.source)
             else:
@@ -102,17 +105,18 @@ def read_file_contents(issues: list[Issue]) -> dict[str, str]:
         if not path.exists():
             continue
         rel = str(path.relative_to(PROJECT_ROOT)).replace("\\", "/")
-        # Apply tool_code cap
+        # Check size first — before consuming a cap slot
+        size = path.stat().st_size
+        if size > MAX_FILE_BYTES:
+            contents[rel] = f"[SKIPPED: file too large ({size} bytes > {MAX_FILE_BYTES})]"
+            continue
+        # Apply tool_code cap (only for files that are within size limit)
         if str(path).endswith(".py"):
             tool_code_count += 1
             if tool_code_count > MAX_TOOL_CODE_PROPOSALS:
                 contents[rel] = f"[SKIPPED: tool_code cap of {MAX_TOOL_CODE_PROPOSALS} reached]"
                 continue
-        size = path.stat().st_size
-        if size > MAX_FILE_BYTES:
-            contents[rel] = f"[SKIPPED: file too large ({size} bytes > {MAX_FILE_BYTES})]"
-        else:
-            contents[rel] = path.read_text(encoding="utf-8", errors="ignore")
+        contents[rel] = path.read_text(encoding="utf-8", errors="ignore")
 
     return contents
 
