@@ -299,6 +299,26 @@ def save_proposals(proposals: list[dict], issue_count: int) -> Path:
     return path
 
 
+def send_proposal_email(html: str, date_str: str, proposal_count: int) -> None:
+    """Send the proposal HTML via send_gmail.py."""
+    TMP_DIR.mkdir(exist_ok=True)
+    tmp_html = TMP_DIR / "workflow_optimizer_preview.html"
+    tmp_html.write_text(html, encoding="utf-8")
+    subject = f"[ORBI Optimizer] {proposal_count} proposals — {date_str}"
+    subprocess.run(
+        [sys.executable, str(Path(__file__).parent / "send_gmail.py"),
+         "--to", RECIPIENT,
+         "--sender", SENDER,
+         "--subject", subject,
+         "--body-file", str(tmp_html)],
+        check=True,
+    )
+
+
+def execute_proposals(proposal_id_str: str) -> None:
+    pass
+
+
 def main():
     parser = argparse.ArgumentParser(description="ORBI Workflow Optimizer")
     parser.add_argument("--dry-run",  action="store_true", help="No email, print summary")
@@ -317,13 +337,41 @@ def main():
         if not args.proposal_id:
             print("ERROR: --execute requires --proposal-id (e.g. --proposal-id 1,3,5)")
             sys.exit(1)
-        # execute_proposals() will be implemented in Task 7
-        print("--execute not yet implemented")
+        execute_proposals(args.proposal_id)
         return
 
     print("=== ORBI Workflow Optimizer ===")
     issues = collect_issues(days=args.days)
     print(f"Collected {len(issues)} issues")
+
+    file_contents = read_file_contents(issues)
+    print(f"Loaded {len(file_contents)} file(s) for context")
+
+    proposals = generate_proposals(issues, file_contents, model=args.model)
+    print(f"Generated {len(proposals)} proposals")
+
+    if not proposals:
+        print("No proposals generated. Exiting.")
+        return
+
+    save_proposals(proposals, issue_count=len(issues))
+    print("Proposals saved to .tmp/proposals_latest.json")
+
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    html = build_proposal_email(proposals, issue_count=len(issues), date_str=date_str)
+
+    if args.preview or args.dry_run:
+        preview_path = TMP_DIR / "workflow_optimizer_preview.html"
+        TMP_DIR.mkdir(exist_ok=True)
+        preview_path.write_text(html, encoding="utf-8")
+        print(f"Preview saved to {preview_path}")
+
+    if args.dry_run:
+        print("[dry-run] Email not sent.")
+        return
+
+    send_proposal_email(html, date_str, proposal_count=len(proposals))
+    print("Proposal email sent.")
 
 
 if __name__ == "__main__":

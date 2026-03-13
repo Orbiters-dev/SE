@@ -153,3 +153,23 @@ def test_build_proposal_email_contains_proposals():
     assert "proposal-id 1" in html
     assert "proposal-id 1,2" in html  # footer "apply all"
     assert "2026-03-14" in html
+
+
+def test_main_dry_run_no_crash(monkeypatch):
+    """--dry-run should run without sending email or crashing."""
+    import unittest.mock as mock
+    import run_workflow_optimizer as opt
+
+    fake_proposals = [
+        {"id": 1, "issue_type": "BROKEN_REF", "source": "wf", "rationale": "r",
+         "change_type": "workflow_md", "file": "workflows/wf.md",
+         "original": "old", "replacement": "new"}
+    ]
+    monkeypatch.setattr(opt, "generate_proposals",
+                        lambda issues, contents, model: fake_proposals)
+    monkeypatch.setattr(opt, "ANTHROPIC_KEY", "fake-key")
+
+    import sys
+    with mock.patch.object(sys, "argv",
+                           ["run_workflow_optimizer.py", "--dry-run"]):
+        opt.main()   # must not raise
