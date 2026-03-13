@@ -97,6 +97,9 @@ jobs:
       - name: Sync SNS Tab (CHA&MOM)
         run: python -u tools/sync_sns_tab_chaenmom.py || echo "CHA&MOM sync failed (non-fatal)"
 
+      - name: Sync SNS Tab (JP)
+        run: python -u tools/sync_sns_tab_jp.py || echo "JP sync failed (non-fatal)"
+
       - name: Build report body
         id: report
         if: always()
