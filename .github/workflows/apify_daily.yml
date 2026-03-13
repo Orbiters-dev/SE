@@ -90,13 +90,98 @@ jobs:
         run: python -u tools/sync_sns_tab_grosmimi.py || echo "SNS Grosmimi sync failed (non-fatal)"
         continue-on-error: true
 
-      - name: Send failure email
-        if: failure()
+      - name: Update USA_LLM tab + detect highlights
+        id: usa_llm
+        run: python -u tools/update_usa_llm.py || echo "USA_LLM update failed (non-fatal)"
+        continue-on-error: true
+
+      - name: Build and send daily report
+        id: report
+        if: always()
         run: |
+          python -u - <<'PYEOF'
+          import json, os
+          from pathlib import Path
+          from datetime import datetime
+
+          pipeline  = os.environ.get("PIPELINE_OUTCOME", "unknown")
+          orders    = os.environ.get("ORDERS_OUTCOME", "unknown")
+          migrate   = os.environ.get("MIGRATE_OUTCOME", "unknown")
+          sns       = os.environ.get("SNS_OUTCOME", "unknown")
+          llm       = os.environ.get("LLM_OUTCOME", "unknown")
+
+          lines = []
+
+          # === HIGHLIGHTS (상단 강조) ===
+          hl_path = Path(".tmp/usa_llm_highlights.json")
+          highlights = []
+          total_creators = 0
+          if hl_path.exists():
+              hd = json.loads(hl_path.read_text(encoding="utf-8"))
+              highlights = hd.get("highlights", [])
+              total_creators = hd.get("total_creators", 0)
+
+          if highlights:
+              lines += ["== HIGHLIGHTS =="]
+              for h in highlights:
+                  lines.append(f"  @{h['username']} ({h['nickname']})")
+                  for r in h["reasons"]:
+                      lines.append(f"    - {r}")
+                  if h.get("url"):
+                      lines.append(f"    Link: {h['url']}")
+              lines.append("")
+
+          # === HEADER ===
+          lines += [f"[Apify+SNS Daily] {datetime.utcnow().strftime('%Y-%m-%d')} KST 08:00",
+                    "", "== Pipeline Status ==",
+                    f"Apify Crawl:        {pipeline}",
+                    f"Fetch Orders:       {orders}",
+                    f"Syncly Migration:   {migrate}",
+                    f"Grosmimi SNS Sync:  {sns}",
+                    f"USA_LLM Update:     {llm}"]
+
+          # === SNS SUMMARY ===
+          sns_path = Path(".tmp/apify_sns_summary.json")
+          if sns_path.exists():
+              d = json.loads(sns_path.read_text(encoding="utf-8"))
+              lines += ["", "== Grosmimi US SNS Tab ==",
+                        f"Shopify PR 인플루언서: {d['total_influencers']}명",
+                        f"신규 추가:             {d['new_count']}명  (링크 있음: {d['with_content']}명)",
+                        f"기존 업데이트:         {d['update_count']}명"]
+
+          # === USA_LLM SUMMARY ===
+          if total_creators:
+              lines += ["", "== USA_LLM ==",
+                        f"크리에이터: {total_creators}명  |  하이라이트: {len(highlights)}건"]
+
+          # === LINKS ===
+          repo = os.environ.get("GITHUB_REPOSITORY", "")
+          run_id = os.environ.get("GITHUB_RUN_ID", "")
+          lines += ["", "== Links ==",
+                    "Grosmimi SNS: https://docs.google.com/spreadsheets/d/1SwO4uAbf25vOR0UYWOUlxzy5gCbFRrNXwO2kAWydyeA",
+                    "Apify Sheet:  https://docs.google.com/spreadsheets/d/1mYofqMBYqIHS3XNQ29vDA__SzYBfkkGCPn3Jb8OxAkY",
+                    f"Actions:      https://github.com/{repo}/actions/runs/{run_id}"]
+
+          body = "\n".join(lines)
+          Path(".tmp/apify_report.txt").write_text(body, encoding="utf-8")
+          print(body)
+          PYEOF
+        env:
+          PIPELINE_OUTCOME: ${{ steps.pipeline.outcome }}
+          ORDERS_OUTCOME:   ${{ steps.fetch_orders.outcome }}
+          MIGRATE_OUTCOME:  ${{ steps.migrate_syncly.outcome }}
+          SNS_OUTCOME:      ${{ steps.sns_grosmimi.outcome }}
+          LLM_OUTCOME:      ${{ steps.usa_llm.outcome }}
+        continue-on-error: true
+
+      - name: Send daily report email
+        if: always()
+        run: |
+          BODY=$(cat .tmp/apify_report.txt 2>/dev/null || echo "Apify pipeline finished. Check Actions for details.")
           python -u tools/send_gmail.py \
             --to "wj.choi@orbiters.co.kr" \
-            --subject "[Apify Pipeline] FAILED $(date -u +%Y-%m-%d)" \
-            --body "Apify content pipeline failed.\n\nCheck: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            --subject "[Apify+SNS] Daily Report $(date -u +%Y-%m-%d)" \
+            --body "$BODY"
         continue-on-error: true
 
       - name: Upload data artifacts

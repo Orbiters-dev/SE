@@ -400,6 +400,18 @@ def sync(dry_run=False):
 
     print("\n[DONE] US SNS 동기화 완료")
 
+    # 요약 저장
+    summary = {
+        "new_count":    len(to_add),
+        "update_count": len(to_update),
+        "with_content": sum(1 for x in to_add if x["content_url"]),
+        "total_influencers": len(influencers),
+    }
+    summary_path = PROJECT_ROOT / ".tmp" / "apify_sns_summary.json"
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
+    summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    return summary
+
 
 def main():
     parser = argparse.ArgumentParser()

@@ -177,14 +177,7 @@ jobs:
             echo "REPORT_BODY=Syncly pipeline completed but no summary data available.\nCrawl US: ${{ steps.crawl_us.outcome }}\nSheet Sync: ${{ steps.sync_sheets.outcome }}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Send success email
-        if: steps.crawl_us.outcome == 'success' && steps.sync_sheets.outcome == 'success'
-        run: |
-          python -u tools/send_gmail.py \
-            --to "wj.choi@orbiters.co.kr" \
-            --subject "[Grosmimi Content Tracker] Daily Report $(date -u +%Y-%m-%d)" \
-            --body "${{ steps.report.outputs.REPORT_BODY }}"
-        continue-on-error: true
+      # Success email disabled — consolidated into apify_daily.yml report
 
       - name: Send failure email
         if: steps.crawl_us.outcome == 'failure'
