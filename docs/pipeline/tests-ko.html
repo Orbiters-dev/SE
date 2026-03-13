@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WJ TEST · E2E 테스트 결과</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  :root {
+    --bg: #fafbfc; --card: #fff; --border: #e5e7eb;
+    --text: #1f2937; --dim: #6b7280;
+    --green: #22c55e; --green-bg: #f0fdf4; --green-border: #bbf7d0;
+    --blue: #3b82f6; --blue-bg: #eff6ff; --blue-border: #bfdbfe;
+    --purple: #8b5cf6; --purple-bg: #f5f3ff; --purple-border: #ddd6fe;
+    --teal: #0d9488; --teal-bg: #f0fdfa; --teal-border: #99f6e4;
+    --orange: #f59e0b; --orange-bg: #fffbeb; --orange-border: #fde68a;
+    --accent: #6366f1;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); }
+
+  .nav { background:#fff; border-bottom:1px solid var(--border); padding:0 32px; display:flex; align-items:center; gap:4px; height:52px; }
+  .nav-brand { font-size:13px; font-weight:700; color:var(--accent); margin-right:16px; text-decoration:none; }
+  .nav a { font-size:13px; color:var(--dim); text-decoration:none; padding:6px 12px; border-radius:6px; transition:all .15s; }
+  .nav a:hover { background:#f3f4f6; color:var(--text); }
+  .nav a.active { background:var(--purple-bg); color:var(--purple); font-weight:600; }
+
+  .container { max-width:860px; margin:0 auto; padding:40px 20px 80px; }
+
+  .hero { margin-bottom:40px; }
+  .hero-meta { display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+  .badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
+  .badge-green { background:var(--green-bg); color:#15803d; border:1px solid var(--green-border); }
+  .badge-blue  { background:var(--blue-bg); color:#1d4ed8; border:1px solid var(--blue-border); }
+  .badge-dim   { background:#f3f4f6; color:var(--dim); border:1px solid var(--border); }
+  .hero h1 { font-size:26px; font-weight:700; letter-spacing:-.02em; margin-bottom:6px; }
+  .hero h1 span { color:var(--accent); }
+  .hero .sub { font-size:14px; color:var(--dim); }
+
+  .scorecard-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:36px; }
+  .sc { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px; position:relative; overflow:hidden; }
+  .sc::after { content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:12px 12px 0 0; }
+  .sc.g::after { background:var(--green); }
+  .sc.p::after { background:var(--purple); }
+  .sc.t::after { background:var(--teal); }
+  .sc.o::after { background:var(--orange); }
+  .sc-lbl { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--dim); margin-bottom:6px; }
+  .sc-val { font-size:28px; font-weight:700; }
+  .sc-val.g { color:var(--green); }
+  .sc-val.p { color:var(--purple); }
+  .sc-val.t { color:var(--teal); }
+  .sc-val.o { color:var(--orange); }
+  .sc-sub { font-size:11px; color:var(--dim); margin-top:3px; }
+
+  .flow-block { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:20px; }
+  .flow-head { padding:18px 22px 14px; background:#fafbfc; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:flex-start; }
+  .flow-title-row { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+  .flow-title { font-size:15px; font-weight:600; }
+  .new-tag { font-size:10px; font-weight:700; padding:2px 7px; border-radius:4px; background:var(--teal-bg); color:var(--teal); border:1px solid var(--teal-border); text-transform:uppercase; }
+  .flow-desc { font-size:12px; color:var(--dim); max-width:480px; line-height:1.5; }
+  .flow-result { display:flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:var(--green); white-space:nowrap; }
+  .dot { width:8px; height:8px; border-radius:50%; }
+  .dot-green { background:var(--green); box-shadow:0 0 5px rgba(34,197,94,.5); }
+
+  .steps-table { width:100%; border-collapse:collapse; }
+  .steps-table th { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--dim); padding:10px 22px 8px; text-align:left; border-bottom:1px solid var(--border); }
+  .steps-table td { padding:9px 22px; font-size:13px; border-bottom:1px solid #f3f4f6; vertical-align:middle; }
+  .steps-table tr:last-child td { border-bottom:none; }
+  .steps-table tr:hover td { background:#f9fafb; }
+  .status-pill { display:inline-flex; align-items:center; gap:4px; padding:2px 9px; border-radius:8px; font-size:11px; font-weight:600; }
+  .sp-pass { background:var(--green-bg); color:#15803d; }
+  .type-chip { font-size:10px; font-weight:600; padding:2px 7px; border-radius:4px; text-transform:uppercase; }
+  .tc-http    { background:var(--purple-bg); color:var(--purple); }
+  .tc-wait    { background:#f3f4f6; color:var(--dim); }
+  .tc-at      { background:#fff7ed; color:#c2410c; }
+  .tc-shopify { background:var(--teal-bg); color:var(--teal); }
+  .tc-pg      { background:var(--blue-bg); color:var(--blue); }
+  .tc-n8n     { background:#fdf4ff; color:#9333ea; }
+  .time-col { font-variant-numeric:tabular-nums; color:var(--dim); font-size:12px; }
+
+  .struct-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; padding:18px 22px; }
+  .struct-card { background:#f9fafb; border:1px solid var(--border); border-radius:10px; padding:14px; }
+  .struct-card-title { font-size:12px; font-weight:600; margin-bottom:8px; }
+  .check-row { display:flex; align-items:center; gap:7px; font-size:12px; color:var(--dim); margin-bottom:5px; }
+  .check-icon { color:var(--green); font-size:12px; flex-shrink:0; }
+  .check-val { color:var(--text); font-weight:500; }
+
+  .summary-block { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:20px; }
+  .summary-block table { width:100%; border-collapse:collapse; }
+  .summary-block th { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--dim); padding:10px 22px 8px; text-align:left; border-bottom:1px solid var(--border); background:#fafbfc; }
+  .summary-block td { padding:11px 22px; font-size:13px; border-bottom:1px solid #f3f4f6; }
+  .summary-block tr:last-child td { border-bottom:none; }
+
+  .footer { text-align:center; font-size:12px; color:var(--dim); margin-top:48px; padding-top:20px; border-top:1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="." class="nav-brand">Pathlight</a>
+  <a href=".">파이프라인 (EN)</a>
+  <a href="ko.html">파이프라인 (KR)</a>
+  <a href="migration.html">마이그레이션 리포트</a>
+  <a href="tests-ko.html" class="active">테스트 결과</a>
+</nav>
+
+<div class="container">
+
+  <div class="hero">
+    <div class="hero-meta">
+      <span class="badge badge-green">✓ 15/15 통과</span>
+      <span class="badge badge-blue">WJ TEST 환경</span>
+      <span class="badge badge-dim">2026-03-13 22:33 KST</span>
+    </div>
+    <h1>E2E <span>테스트 결과</span></h1>
+    <div class="sub">Pathlight n8n 마이그레이션 검증 · 3개 플로우 · 15개 스텝 · 실패 0건</div>
+  </div>
+
+  <!-- 스코어카드 -->
+  <div class="scorecard-row">
+    <div class="sc g"><div class="sc-lbl">전체 스텝</div><div class="sc-val g">15/15</div><div class="sc-sub">전부 통과</div></div>
+    <div class="sc p"><div class="sc-lbl">실행 플로우</div><div class="sc-val p">3</div><div class="sc-sub">Gifting · Gifting2 · Syncly</div></div>
+    <div class="sc t"><div class="sc-lbl">신규 플로우</div><div class="sc-val t">2</div><div class="sc-sub">Gifting2 + Syncly Metrics</div></div>
+    <div class="sc o"><div class="sc-lbl">평균 응답속도</div><div class="sc-val o">1.2s</div><div class="sc-sub">대기 시간 제외</div></div>
+  </div>
+
+  <!-- 요약표 -->
+  <div class="summary-block">
+    <table>
+      <thead><tr><th>플로우</th><th>유형</th><th>스텝</th><th>결과</th><th>소요시간</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Flow 1: 인플루언서 기프팅 신청</strong><br><span style="font-size:11px;color:var(--dim);">폼 제출 → Airtable + Shopify + 메타필드 + PG</span></td>
+          <td><span class="type-chip tc-http">E2E</span></td>
+          <td>7/7</td>
+          <td><span class="status-pill sp-pass">✓ 통과</span></td>
+          <td style="font-size:12px;color:var(--dim);">약 32초</td>
+        </tr>
+        <tr>
+          <td><strong>Flow 5: Gifting2 Draft Order</strong> <span class="new-tag">신규</span><br><span style="font-size:11px;color:var(--dim);">샘플 신청 폼 → 드래프트 주문 → Airtable → PG</span></td>
+          <td><span class="type-chip tc-http">E2E</span></td>
+          <td>6/6</td>
+          <td><span class="status-pill sp-pass">✓ 통과</span></td>
+          <td style="font-size:12px;color:var(--dim);">약 35초</td>
+        </tr>
+        <tr>
+          <td><strong>Flow 6: Syncly 일일 메트릭 싱크</strong> <span class="new-tag">신규</span><br><span style="font-size:11px;color:var(--dim);">구조 검증: 활성화 + 노드 수 + 스케줄 설정</span></td>
+          <td><span class="type-chip tc-n8n">구조검증</span></td>
+          <td>2/2</td>
+          <td><span class="status-pill sp-pass">✓ 통과</span></td>
+          <td style="font-size:12px;color:var(--dim);">165ms</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FLOW 1 -->
+  <div class="flow-block">
+    <div class="flow-head">
+      <div>
+        <div class="flow-title-row"><span class="flow-title">Flow 1: 인플루언서 기프팅 신청</span></div>
+        <div class="flow-desc">웹훅 POST → n8n → Airtable Applicants/Creators + Shopify 고객 + 메타필드 + PostgreSQL</div>
+      </div>
+      <div class="flow-result"><span class="dot dot-green"></span>7/7 통과</div>
+    </div>
+    <table class="steps-table">
+      <thead><tr><th>#</th><th>스텝</th><th>유형</th><th>결과</th><th>시간</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>n8n influencer-gifting 웹훅으로 POST 전송</td><td><span class="type-chip tc-http">HTTP</span></td><td><span class="status-pill sp-pass">✓</span></td><td class="time-col">2766ms</td></tr>
+        <tr><td>2</td><td>n8n 비동기 처리 대기</td><td><span class="type-chip tc-wait">대기</span></td><td><span class="status-pill sp-pass">✓</span></td><td class="time-col">12초</td></tr>
+        <tr><td>3</td><td>Airtable Applicants 테이블 레코드 확인</td><td><span class="type-chip tc-at">Airtable</span></td><td><span class="status-pill sp-pass">✓</span></td><td class="time-col">950ms</td></tr>
+        <tr><td>4</td><td>Creators 테이블 레코드 확인 (Pathlight CRM)</td><td><span class="type-chip tc-at">Airtable</span></td><td><span class="status-pill sp-pass">✓</span></td><td class="time-col">829ms</td></tr>
+        <tr><td>5</td><td>Shopify 고객 생성 확인</td><td><span class="type-chip tc-shopify">Shopify</span></td><td><span class="status-pill sp-pass">✓</span></td><td class="time-col">493ms</td></tr>
+        <tr><td>6</td><td>인플루언서 메타필드 확인 (인스타/틱톡)</td><td><span class="type-chip tc-shopify">Shopify</span></td><td><span class="status-pill sp-pass">✓</span></td><td class="time-col">904ms</td></tr>
+        <tr><td>7</td><td>PostgreSQL 레코드 확인 (orbitools)</td><td><span class="type-chip tc-pg">PG</span></td><td><span class="status-pill sp-pass">✓</span></td><td class="time-col">74ms</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FLOW 5 -->
+  <div class="flow-block">
+    <div class="flow-head">
+      <div>
+        <div class="flow-title-row"><span class="flow-title">Flow 5: Gifting2 → 드래프트 주문 + Airtable</span><span class="new-tag">신규 · 2026-03-13</span></div>
+        <div class="flow-desc">크리에이터 샘플 신청 폼 → Shopify 드래프트 주문 (100% 할인) → Airtable Applicants/Creators upsert → PostgreSQL</div>
+      </div>
+      <div class="flow-result"><span class="dot dot-green"></span>6/6 통과</div>
+    </div>
+    <table class="steps-table">
+      <thead><tr><th>#</th><th>스텝</th><th>유형</th><th>결과</th><th>시간</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Gifting2 웹훅으로 POST 전송 (onzenna-gifting2-submit)</td><td><span class="type-chip tc-http">HTTP</span></td><td><span class="status-pill sp-pass">✓</span></td><td class="time-col">2559ms</td></tr>
+        <tr><td>2</td><td>n8n 비동기 처리 대기 (Gifting2)</td><td><span class="type-chip tc-wait">대기</span></td><td><span class="status-pill sp-pass">✓</span></td><td class="time-col">15초</td></tr>
+        <tr><td>3</td><td>Airtable Applicants 레코드 확인 (Gifting2)</td><td><span class="type-chip tc-at">Airtable</span></td><td><span class="status-pill sp-pass">✓</span></td><td class="time-col">880ms</td></tr>
+        <tr><td>4</td><td>Creators 테이블 레코드 확인 (Gifting2)</td><td><span class="type-chip tc-at">Airtable</span></td><td><span class="status-pill sp-pass">✓</span></td><td class="time-col">812ms</td></tr>
+        <tr><td>5</td><td>Shopify 고객 생성 확인 (Gifting2)</td><td><span class="type-chip tc-shopify">Shopify</span></td><td><span class="status-pill sp-pass">✓</span></td><td class="time-col">472ms</td></tr>
+        <tr><td>6</td><td>PostgreSQL 레코드 확인 (Gifting2)</td><td><span class="type-chip tc-pg">PG</span></td><td><span class="status-pill sp-pass">✓</span></td><td class="time-col">47ms</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FLOW 6 -->
+  <div class="flow-block">
+    <div class="flow-head">
+      <div>
+        <div class="flow-title-row"><span class="flow-title">Flow 6: Syncly 일일 메트릭 싱크</span><span class="new-tag">신규 · 구조검증</span></div>
+        <div class="flow-desc">구조 검증 전용 — 스케줄 트리거 워크플로우는 n8n API v1으로 수동 실행 불가. 활성화 상태·노드 수·핵심 노드 존재 여부를 확인.</div>
+      </div>
+      <div class="flow-result"><span class="dot dot-green"></span>2/2 통과</div>
+    </div>
+    <div class="struct-grid">
+      <div class="struct-card">
+        <div class="struct-card-title">Syncly Metrics (FT70hFR6qI0mVc2T)</div>
+        <div class="check-row"><span class="check-icon">&#10003;</span> <span>활성화 = </span><span class="check-val">true</span></div>
+        <div class="check-row"><span class="check-icon">&#10003;</span> <span>노드 수 = </span><span class="check-val">5개 (최소 5)</span></div>
+        <div class="check-row"><span class="check-icon">&#10003;</span> <span>노드: </span><span class="check-val">Schedule Trigger</span></div>
+        <div class="check-row"><span class="check-icon">&#10003;</span> <span>노드: </span><span class="check-val">Run Syncly Sync</span></div>
+        <div class="check-row"><span class="check-icon">&#10003;</span> <span>노드: </span><span class="check-val">Check Result</span></div>
+        <div style="margin-top:8px;font-size:11px;color:var(--dim);">스케줄: 매일 23:00 (cron 0 23 * * *)</div>
+      </div>
+      <div class="struct-card">
+        <div class="struct-card-title">Gifting2 (734aqkcOIfiylExL)</div>
+        <div class="check-row"><span class="check-icon">&#10003;</span> <span>활성화 = </span><span class="check-val">true</span></div>
+        <div class="check-row"><span class="check-icon">&#10003;</span> <span>노드 수 = </span><span class="check-val">14개 (최소 14)</span></div>
+        <div class="check-row"><span class="check-icon">&#10003;</span> <span>노드: </span><span class="check-val">Build Payloads</span></div>
+        <div class="check-row"><span class="check-icon">&#10003;</span> <span>노드: </span><span class="check-val">Create Draft Order</span></div>
+        <div class="check-row"><span class="check-icon">&#10003;</span> <span>노드: </span><span class="check-val">Applicants / Creators / PG 저장</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 추가 변경사항 -->
+  <div class="flow-block" style="margin-top:32px;">
+    <div class="flow-head" style="background:#fafbfc;">
+      <div>
+        <div class="flow-title-row"><span class="flow-title">추가 변경사항 — 2026-03-13</span></div>
+        <div class="flow-desc">테스트 외 이번 세션에서 적용된 변경 내역</div>
+      </div>
+    </div>
+    <table class="steps-table">
+      <thead><tr><th>변경 항목</th><th>대상</th><th>상세</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>시트 ID 교체</strong></td>
+          <td><span class="type-chip tc-n8n">n8n</span> Sample Delivered → Posted (82t55jurzbY3iUM4)</td>
+          <td style="font-size:12px;color:var(--dim);">D+60 Tracker 시트: 구 ID → <strong>1mYofqMBYqIHS3XNQ29vDA__SzYBfkkGCPn3Jb8OxAkY</strong><br>노드: Prepare Sheets Check</td>
+        </tr>
+        <tr>
+          <td><strong>WJ_WORKFLOWS 업데이트</strong></td>
+          <td><span class="type-chip tc-pg">test_influencer_flow.py</span></td>
+          <td style="font-size:12px;color:var(--dim);">gifting2, syncly_metrics 항목 추가 + WJ_WEBHOOKS gifting2 경로 추가</td>
+        </tr>
+        <tr>
+          <td><strong>FLOW_REGISTRY 확장</strong></td>
+          <td><span class="type-chip tc-pg">test_influencer_flow.py</span></td>
+          <td style="font-size:12px;color:var(--dim);">flow_gifting2() + flow_syncly_metrics() 추가. verify_n8n_workflow 스텝 유형 신규 추가.</td>
+        </tr>
+        <tr>
+          <td><strong>워크플로우 활성화</strong></td>
+          <td><span class="type-chip tc-n8n">n8n</span></td>
+          <td style="font-size:12px;color:var(--dim);">Gifting2 (734aqkcOIfiylExL) + Syncly Metrics (FT70hFR6qI0mVc2T) → active=true</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    Pathlight · WJ TEST · 2026-03-13 생성 &nbsp;|&nbsp;
+    <a href="." style="color:var(--accent);text-decoration:none;">파이프라인</a> &nbsp;·&nbsp;
+    <a href="migration.html" style="color:var(--accent);text-decoration:none;">마이그레이션</a> &nbsp;·&nbsp;
+    <a href="tests.html" style="color:var(--accent);text-decoration:none;">EN</a>
+  </div>
+
+</div>
+</body>
+</html>
