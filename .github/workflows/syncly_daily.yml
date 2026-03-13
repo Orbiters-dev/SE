@@ -73,17 +73,23 @@ jobs:
 
       - name: Crawl Syncly (JP)
         id: crawl_jp
-        if: ${{ github.event.inputs.skip_crawl != 'true' && (github.event.inputs.region == 'jp' || github.event.inputs.region == 'all') }}
+        if: ${{ github.event.inputs.skip_crawl != 'true' && (github.event.inputs.region == 'jp' || github.event.inputs.region == 'all' || github.event.inputs.region == '') }}
         env:
           SYNCLY_STORAGE_STATE_PATH: /tmp/syncly_state/browser_state.json
         run: |
           xvfb-run --auto-servernum python -u tools/fetch_syncly_export.py --region jp
         continue-on-error: true
 
-      - name: Sync to Google Sheets
+      - name: Sync to Google Sheets (US)
         id: sync_sheets
-        if: steps.crawl_us.outcome == 'success' || steps.crawl_jp.outcome == 'success' || github.event.inputs.skip_crawl == 'true'
-        run: python -u tools/sync_syncly_to_sheets.py
+        if: steps.crawl_us.outcome == 'success' || github.event.inputs.skip_crawl == 'true'
+        run: python -u tools/sync_syncly_to_sheets.py --region us
+        continue-on-error: true
+
+      - name: Sync to Google Sheets (JP)
+        id: sync_sheets_jp
+        if: steps.crawl_jp.outcome == 'success' || github.event.inputs.skip_crawl == 'true'
+        run: python -u tools/sync_syncly_to_sheets.py --region jp
         continue-on-error: true
 
       - name: Fetch Shopify influencer orders
