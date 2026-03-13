@@ -1110,16 +1110,18 @@ def flow_pipeline(email=None):
             {
                 "step_id": "wait_draft",
                 "type": "wait",
-                "name": "4b. Wait for Claude AI draft generation",
-                "seconds": 30,
+                "name": "4b. Wait for Claude AI draft generation (AI+Sheets+Gmail ~40-60s)",
+                "seconds": 60,
             },
             {
+                # ARRAYJOIN({Creator}) returns display names (usernames), not record IDs.
+                # Filter by Subject which contains the test_ig handle.
                 "step_id": "verify_conversation_created",
                 "type": "verify_airtable",
                 "name": "4c. Verify conversation draft created",
                 "base_id": AT_BASE,
                 "table_id": AT_CONVERSATIONS,
-                "filter_formula": "FIND('{{creator_record_id}}', ARRAYJOIN({Creator}))",
+                "filter_formula": "FIND('" + test_ig + "', {Subject})",
                 "expect_exists": True,
                 "capture": {
                     "conversation_record_id": "$.records[0].id",
