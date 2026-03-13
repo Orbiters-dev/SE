@@ -307,6 +307,9 @@ def update_posts_master(sh, data, tab_name):
         ])
     if new_rows:
         next_row = len(existing) + 1
+        required_rows = next_row + len(new_rows) - 1
+        if required_rows > ws.row_count:
+            ws.add_rows(required_rows - ws.row_count + 100)
         ws.update(range_name=f"A{next_row}", values=new_rows,
                   value_input_option="USER_ENTERED")
     _update_pm_metrics(ws, existing, data)
@@ -424,6 +427,13 @@ def update_d60_tracker(sh, data, tab_name):
                 else:
                     row += ["", "", ""]
             new_rows.append(row)
+
+        # Auto-expand sheet if needed
+        required_rows = next_row + len(new_rows) - 1
+        current_rows = ws.row_count
+        if required_rows > current_rows:
+            ws.add_rows(required_rows - current_rows + 100)
+            print(f"[{tab_name}] Expanded sheet to {current_rows + (required_rows - current_rows + 100)} rows")
 
         for i in range(0, len(new_rows), 40):
             ws.update(range_name=f"A{next_row + i}", values=new_rows[i:i+40],
