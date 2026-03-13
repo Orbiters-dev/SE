@@ -2159,6 +2159,1433 @@ def add_amazon_marketplace_tab(wb, through_date):
     print(f"  -> Tab '{TAB}' written (wide format, {len(brands)} brands, {len(sorted_months)} months)")
 
 
+# ── SUMMARY TABS (Sales Summary / Ads Summary / Unit Economics) ──────────────
+
+def _summary_month_range(through_date):
+    """Return 12 months ending at through_date's month, plus YTD year."""
+    import calendar
+    from datetime import date as _d
+    td = _d.fromisoformat(through_date)
+    months = []
+    y, m = td.year, td.month
+    for _ in range(12):
+        months.append(f"{y}-{m:02d}")
+        m -= 1
+        if m == 0:
+            m = 12; y -= 1
+    months.reverse()
+    ytd_year = str(td.year)
+    return months, ytd_year
+
+
+def _write_summary_tab(wb, tab_name, title, sections, months, ytd_year, through_date):
+    """Write/overwrite a summary tab with wide-format sections.
+    sections = [
+        (section_title, [
+            (row_label, {month: value}, ytd_value, fmt),
+            ...
+        ]),
+        ...
+    ]
+    """
+    import calendar
+    from openpyxl.styles import PatternFill, Font, Alignment
+    from openpyxl.utils import get_column_letter
+    from datetime import date as _d
+
+    if tab_name in wb.sheetnames:
+        idx = wb.sheetnames.index(tab_name)
+        del wb[tab_name]
+        ws = wb.create_sheet(tab_name, idx)
+    else:
+        ws = wb.create_sheet(tab_name)
+
+    FILL_HDR = PatternFill("solid", fgColor="002060")
+    FILL_SECTION = PatternFill("solid", fgColor="D6DCE4")
+    FILL_TOTAL = PatternFill("solid", fgColor="FFF2CC")
+    FONT_W = Font(bold=True, color="FFFFFF")
+    FONT_B = Font(bold=True)
+    FONT_IT = Font(italic=True, color="595959")
+    ALIGN_C = Alignment(horizontal="center", wrap_text=True)
+
+    td = _d.fromisoformat(through_date)
+
+    # Title
+    ws.cell(row=1, column=1, value=title).font = FONT_B
+
+    # Header row
+    r = 2
+    ws.cell(row=r, column=1)  # blank
+    for ci, m in enumerate(months, 2):
+        y, mo = int(m[:4]), int(m[5:7])
+        label = f"{calendar.month_abbr[mo]} {y}"
+        if y == td.year and mo == td.month:
+            label += f"\n(~{td.strftime('%b %d')})"
+        ws.cell(row=r, column=ci, value=label).alignment = ALIGN_C
+    ytd_col = len(months) + 2
+    ws.cell(row=r, column=ytd_col, value="YTD").alignment = ALIGN_C
+
+    r = 3
+    for section_title, rows_data in sections:
+        if section_title:
+            for c in range(1, ytd_col + 1):
+                ws.cell(row=r, column=c).fill = FILL_SECTION
+            ws.cell(row=r, column=1, value=section_title).font = FONT_B
+            r += 1
+
+        for row_label, month_vals, ytd_val, fmt in rows_data:
+            is_total = row_label.strip().startswith("Total") or row_label == "Total"
+            ws.cell(row=r, column=1, value=row_label)
+            if is_total:
+                ws.cell(row=r, column=1).font = FONT_B
+            elif row_label.startswith("  "):
+                ws.cell(row=r, column=1).font = FONT_IT
+
+            for ci, m in enumerate(months, 2):
+                val = month_vals.get(m, 0)
+                cell = ws.cell(row=r, column=ci, value=val)
+                cell.number_format = fmt
+                if is_total:
+                    cell.fill = FILL_TOTAL
+                    cell.font = FONT_B
+
+            cell = ws.cell(row=r, column=ytd_col, value=ytd_val)
+            cell.number_format = fmt
+            if is_total:
+                cell.fill = FILL_TOTAL
+                cell.font = FONT_B
+            r += 1
+
+        r += 1  # blank row between sections
+
+    # Column widths
+    ws.column_dimensions["A"].width = 30
+    for ci in range(2, ytd_col + 1):
+        ws.column_dimensions[get_column_letter(ci)].width = 14
+    ws.freeze_panes = ws.cell(row=3, column=2)
+    return ws
+
+
+def update_sales_summary(wb, through_date):
+    """Sales Summary tab: Net Revenue by Channel + Brand, Channel Mix %, Brand Mix %."""
+    months, ytd_year = _summary_month_range(through_date)
+
+    shopify = load_dk("shopify_orders_daily", days=800)
+    amz_sales = load_dk("amazon_sales_daily", days=800)
+
+    # Aggregate shopify by channel x month
+    ch_month = defaultdict(lambda: defaultdict(float))  # channel -> month -> net
+    br_month = defaultdict(lambda: defaultdict(float))  # brand -> month -> net
+    total_month = defaultdict(float)
+
+    CHANNEL_MAP = {"D2C": "Onzenna", "PR": None}
+    for r in shopify:
+        d = r.get("date", "")
+        if d > through_date:
+            continue
+        m = d[:7]
+        if m not in months:
+            continue
+        ch_raw = r.get("channel", "Unknown")
+        if ch_raw == "PR":
+            continue
+        ch = CHANNEL_MAP.get(ch_raw, ch_raw)
+        net = float(r.get("net_sales", 0) or 0)
+        brand = r.get("brand", "Unknown")
+        ch_month[ch][m] += net
+        br_month[brand][m] += net
+        total_month[m] += net
+
+    # Amazon Marketplace net (SP-API) — add to Amazon channel and brand totals
+    for r in amz_sales:
+        d = r.get("date", "")
+        if d > through_date:
+            continue
+        m = d[:7]
+        if m not in months:
+            continue
+        net = float(r.get("net_sales", 0) or r.get("gross_sales", 0) or 0)
+        brand = r.get("brand", "Unknown")
+        ch_month["Amazon"][m] += net
+        br_month[brand][m] += net
+        total_month[m] += net
+
+    def _ytd(d):
+        return sum(v for m, v in d.items() if m[:4] == ytd_year)
+
+    # Build sections
+    sections = []
+
+    # 1) Total Net Revenue
+    total_row = ("Total", total_month, _ytd(total_month), '#,##0')
+    sections.append(("TOTAL NET REVENUE", [total_row]))
+
+    # 2) Net Revenue by Channel
+    ch_order = ["Amazon", "Onzenna", "TargetPlus", "B2B", "TikTok"]
+    ch_rows = []
+    for ch in ch_order:
+        if ch in ch_month:
+            ch_rows.append((ch, ch_month[ch], _ytd(ch_month[ch]), '#,##0'))
+    # any others
+    for ch in sorted(ch_month):
+        if ch not in ch_order:
+            ch_rows.append((ch, ch_month[ch], _ytd(ch_month[ch]), '#,##0'))
+    sections.append(("NET REVENUE BY CHANNEL", ch_rows))
+
+    # 3) Channel Mix %
+    mix_rows = []
+    for label, mv, _, _ in ch_rows:
+        pct = {m: round(mv.get(m, 0) / total_month[m], 4) if total_month.get(m) else 0 for m in months}
+        ytd_t = _ytd(total_month)
+        ytd_p = round(_ytd(mv) / ytd_t, 4) if ytd_t else 0
+        mix_rows.append((label, pct, ytd_p, '0.0%'))
+    sections.append(("CHANNEL MIX % (of Net Revenue)", mix_rows))
+
+    # 4) Net Revenue by Brand
+    br_order = ["Grosmimi", "Naeiae", "CHA&MOM", "Onzenna", "Alpremio"]
+    br_rows = []
+    for br in br_order:
+        if br in br_month:
+            br_rows.append((br, br_month[br], _ytd(br_month[br]), '#,##0'))
+    other_net = defaultdict(float)
+    for br in br_month:
+        if br not in br_order:
+            for m, v in br_month[br].items():
+                other_net[m] += v
+    if any(other_net.values()):
+        br_rows.append(("Other", other_net, _ytd(other_net), '#,##0'))
+    sections.append(("NET REVENUE BY BRAND", br_rows))
+
+    # 5) Brand Mix %
+    bmix_rows = []
+    for label, _, _, _ in br_rows:
+        mv = br_month.get(label, other_net if label == "Other" else {})
+        pct = {m: round(mv.get(m, 0) / total_month[m], 4) if total_month.get(m) else 0 for m in months}
+        ytd_t = _ytd(total_month)
+        ytd_p = round(_ytd(mv) / ytd_t, 4) if ytd_t else 0
+        bmix_rows.append((label, pct, ytd_p, '0.0%'))
+    sections.append(("BRAND MIX % (of Net Revenue)", bmix_rows))
+
+    _write_summary_tab(wb, "Sales Summary", "SALES SUMMARY", sections, months, ytd_year, through_date)
+    print(f"  -> Sales Summary updated ({len(months)} months)")
+
+
+def update_ads_summary(wb, through_date):
+    """Ads Summary tab: Blended metrics, Spend/ROAS by Platform, Mix %."""
+    months, ytd_year = _summary_month_range(through_date)
+
+    # Load ad data
+    amz_ads = load_dk("amazon_ads_daily", days=800)
+    meta_ads = load_dk("meta_ads_daily", days=800)
+    google_ads = load_dk("google_ads_daily", days=800)
+
+    # Aggregate by platform x month: spend, revenue, clicks, impressions
+    plat = defaultdict(lambda: defaultdict(lambda: {"spend": 0.0, "revenue": 0.0, "clicks": 0, "impressions": 0}))
+
+    for r in amz_ads:
+        d = r.get("date", "")
+        if d > through_date:
+            continue
+        m = d[:7]
+        if m in months:
+            plat["Amazon Ads"][m]["spend"] += float(r.get("spend", 0) or 0)
+            plat["Amazon Ads"][m]["revenue"] += float(r.get("sales", 0) or r.get("revenue", 0) or 0)
+            plat["Amazon Ads"][m]["clicks"] += int(r.get("clicks", 0) or 0)
+            plat["Amazon Ads"][m]["impressions"] += int(r.get("impressions", 0) or 0)
+
+    for r in meta_ads:
+        d = r.get("date", "")
+        if d > through_date:
+            continue
+        m = d[:7]
+        if m in months:
+            plat["Facebook Ads"][m]["spend"] += float(r.get("spend", 0) or 0)
+            plat["Facebook Ads"][m]["revenue"] += float(r.get("purchase_value", 0) or r.get("revenue", 0) or 0)
+            plat["Facebook Ads"][m]["clicks"] += int(r.get("clicks", 0) or r.get("link_clicks", 0) or 0)
+            plat["Facebook Ads"][m]["impressions"] += int(r.get("impressions", 0) or 0)
+
+    for r in google_ads:
+        d = r.get("date", "")
+        if d > through_date:
+            continue
+        m = d[:7]
+        if m in months:
+            plat["Google Ads"][m]["spend"] += float(r.get("spend", 0) or r.get("cost", 0) or 0)
+            plat["Google Ads"][m]["revenue"] += float(r.get("conversions_value", 0) or r.get("revenue", 0) or 0)
+            plat["Google Ads"][m]["clicks"] += int(r.get("clicks", 0) or 0)
+            plat["Google Ads"][m]["impressions"] += int(r.get("impressions", 0) or 0)
+
+    # Also load total orders for CAC
+    shopify = load_dk("shopify_orders_daily", days=800)
+    orders_month = defaultdict(int)
+    net_month = defaultdict(float)
+    for r in shopify:
+        d = r.get("date", "")
+        if d > through_date or r.get("channel") == "PR":
+            continue
+        m = d[:7]
+        if m in months:
+            orders_month[m] += int(r.get("orders", 0) or 0)
+            net_month[m] += float(r.get("net_sales", 0) or 0)
+
+    def _ytd(d):
+        return sum(v for m, v in d.items() if m[:4] == ytd_year)
+
+    # Totals
+    total_spend = {m: sum(plat[p][m]["spend"] for p in plat) for m in months}
+    total_rev = {m: sum(plat[p][m]["revenue"] for p in plat) for m in months}
+    total_clicks = {m: sum(plat[p][m]["clicks"] for p in plat) for m in months}
+
+    sections = []
+
+    # 1) Blended Advertising Metrics
+    blended = []
+    blended.append(("Total Ad Spend", total_spend, _ytd(total_spend), '#,##0'))
+    blended.append(("Ad-Attributed Revenue", total_rev, _ytd(total_rev), '#,##0'))
+
+    roas_m = {m: round(total_rev[m] / total_spend[m], 2) if total_spend.get(m) else 0 for m in months}
+    ytd_roas = round(_ytd(total_rev) / _ytd(total_spend), 2) if _ytd(total_spend) else 0
+    blended.append(("Blended ROAS", roas_m, ytd_roas, '0.00'))
+
+    spend_pct = {m: round(total_spend[m] / net_month[m], 4) if net_month.get(m) else 0 for m in months}
+    ytd_sp = round(_ytd(total_spend) / _ytd(net_month), 4) if _ytd(net_month) else 0
+    blended.append(("Ad Spend / Net Revenue", spend_pct, ytd_sp, '0.0%'))
+
+    cac_m = {m: round(total_spend[m] / orders_month[m], 2) if orders_month.get(m) else 0 for m in months}
+    ytd_cac = round(_ytd(total_spend) / sum(orders_month[m] for m in months if m[:4] == ytd_year), 2) if sum(orders_month[m] for m in months if m[:4] == ytd_year) else 0
+    blended.append(("Blended CAC", cac_m, ytd_cac, '#,##0.00'))
+
+    cpc_m = {m: round(total_spend[m] / total_clicks[m], 2) if total_clicks.get(m) else 0 for m in months}
+    ytd_cpc = round(_ytd(total_spend) / _ytd(total_clicks), 2) if _ytd(total_clicks) else 0
+    blended.append(("Avg CPC", cpc_m, ytd_cpc, '$#,##0.00'))
+    sections.append(("BLENDED ADVERTISING METRICS", blended))
+
+    # 2) Ad Spend by Platform
+    plat_order = ["Amazon Ads", "Facebook Ads", "Google Ads", "TikTok Ads"]
+    spend_rows = []
+    for p in plat_order:
+        if p in plat:
+            s = {m: round(plat[p][m]["spend"], 2) for m in months}
+            spend_rows.append((p, s, round(_ytd(s), 2), '#,##0'))
+        else:
+            spend_rows.append((p, {}, 0, '#,##0'))
+    sections.append(("AD SPEND BY PLATFORM", spend_rows))
+
+    # 3) ROAS by Platform
+    roas_rows = []
+    for p in plat_order:
+        if p in plat:
+            rm = {m: round(plat[p][m]["revenue"] / plat[p][m]["spend"], 2) if plat[p][m]["spend"] else 0 for m in months}
+            ytd_s = sum(plat[p][m]["spend"] for m in months if m[:4] == ytd_year)
+            ytd_r = sum(plat[p][m]["revenue"] for m in months if m[:4] == ytd_year)
+            roas_rows.append((p, rm, round(ytd_r / ytd_s, 2) if ytd_s else 0, '0.00'))
+        else:
+            roas_rows.append((p, {}, 0, '0.00'))
+    sections.append(("ROAS BY PLATFORM", roas_rows))
+
+    # 4) Platform Spend Mix %
+    mix_rows = []
+    for p in plat_order:
+        if p in plat:
+            pct = {m: round(plat[p][m]["spend"] / total_spend[m], 4) if total_spend.get(m) else 0 for m in months}
+            ytd_ts = _ytd(total_spend)
+            ytd_ps = sum(plat[p][m]["spend"] for m in months if m[:4] == ytd_year)
+            mix_rows.append((p, pct, round(ytd_ps / ytd_ts, 4) if ytd_ts else 0, '0.0%'))
+        else:
+            mix_rows.append((p, {}, 0, '0.0%'))
+    sections.append(("PLATFORM SPEND MIX %", mix_rows))
+
+    _write_summary_tab(wb, "Ads Summary", "ADS SUMMARY", sections, months, ytd_year, through_date)
+    print(f"  -> Ads Summary updated ({len(months)} months)")
+
+
+def update_unit_economics(wb, through_date):
+    """Unit Economics tab: Per-order waterfall + margin stack + CAC by channel."""
+    months, ytd_year = _summary_month_range(through_date)
+
+    shopify = load_dk("shopify_orders_daily", days=800)
+    brand_cogs = load_brand_avg_cogs()
+
+    # Aggregate
+    ch_month = defaultdict(lambda: defaultdict(lambda: {"net": 0.0, "orders": 0, "units": 0, "gross": 0.0}))
+    total_month = defaultdict(lambda: {"net": 0.0, "orders": 0, "units": 0, "gross": 0.0})
+    brand_month_u = defaultdict(lambda: defaultdict(lambda: {"units": 0, "gross": 0.0}))
+
+    for r in shopify:
+        d = r.get("date", "")
+        if d > through_date or r.get("channel") == "PR":
+            continue
+        m = d[:7]
+        if m not in months:
+            continue
+        ch = r.get("channel", "Unknown")
+        if ch == "D2C":
+            ch = "Onzenna"
+        net = float(r.get("net_sales", 0) or 0)
+        orders = int(r.get("orders", 0) or 0)
+        units = int(r.get("units", 0) or 0)
+        gross = float(r.get("gross_sales", 0) or 0)
+        brand = r.get("brand", "Unknown")
+        ch_month[ch][m]["net"] += net
+        ch_month[ch][m]["orders"] += orders
+        total_month[m]["net"] += net
+        total_month[m]["orders"] += orders
+        total_month[m]["units"] += units
+        total_month[m]["gross"] += gross
+        brand_month_u[brand][m]["units"] += units
+        brand_month_u[brand][m]["gross"] += gross
+
+    # COGS per order = sum(units_by_brand * avg_cogs_brand) / total_orders
+    def _cogs_per_order(m):
+        total_cogs = 0.0
+        for br, md in brand_month_u.items():
+            u = md[m]["units"]
+            if u == 0 and md[m]["gross"] > 0:
+                u = md[m]["gross"] / AVG_PRICE.get(br, 25.0)
+            total_cogs += u * brand_cogs.get(br, AVG_COGS.get(br, 8.0))
+        return total_cogs / total_month[m]["orders"] if total_month[m]["orders"] else 0
+
+    # Load ad spend
+    amz_ads = load_dk("amazon_ads_daily", days=800)
+    meta_ads = load_dk("meta_ads_daily", days=800)
+    google_ads = load_dk("google_ads_daily", days=800)
+
+    ad_spend_month = defaultdict(float)
+    ch_ad = defaultdict(lambda: defaultdict(float))  # "Amazon" -> month -> spend
+
+    for r in amz_ads:
+        d = r.get("date", "")
+        if d > through_date:
+            continue
+        m = d[:7]
+        if m in months:
+            s = float(r.get("spend", 0) or 0)
+            ad_spend_month[m] += s
+            ch_ad["Amazon"][m] += s
+
+    for r in meta_ads:
+        d = r.get("date", "")
+        if d > through_date:
+            continue
+        m = d[:7]
+        if m in months:
+            s = float(r.get("spend", 0) or 0)
+            ad_spend_month[m] += s
+            ch_ad["Onzenna"][m] += s  # Meta primarily drives Onzenna D2C
+
+    for r in google_ads:
+        d = r.get("date", "")
+        if d > through_date:
+            continue
+        m = d[:7]
+        if m in months:
+            s = float(r.get("spend", 0) or 0)
+            ad_spend_month[m] += s
+            ch_ad["Onzenna"][m] += s  # Google primarily drives Onzenna D2C
+
+    # Fees ~ 13% of net (Shopify + payment processing)
+    FEE_RATE = 0.13
+
+    def _ytd_sum(d):
+        return sum(d[m] if isinstance(d[m], (int, float)) else d[m] for m in months if m[:4] == ytd_year and m in d)
+
+    sections = []
+
+    # 1) Per-Order Waterfall
+    waterfall = []
+    aov = {m: round(total_month[m]["net"] / total_month[m]["orders"], 2) if total_month[m]["orders"] else 0 for m in months}
+    ytd_net = sum(total_month[m]["net"] for m in months if m[:4] == ytd_year)
+    ytd_ord = sum(total_month[m]["orders"] for m in months if m[:4] == ytd_year)
+    waterfall.append(("AOV (Net Revenue / Order)", aov, round(ytd_net / ytd_ord, 2) if ytd_ord else 0, '$#,##0.00'))
+
+    cogs_po = {m: round(_cogs_per_order(m), 2) for m in months}
+    ytd_cogs = sum(_cogs_per_order(m) * total_month[m]["orders"] for m in months if m[:4] == ytd_year)
+    waterfall.append(("(-) COGS per Order", cogs_po, round(ytd_cogs / ytd_ord, 2) if ytd_ord else 0, '$#,##0.00'))
+
+    gp_po = {m: round(aov.get(m, 0) - cogs_po.get(m, 0), 2) for m in months}
+    waterfall.append(("= Gross Profit / Order", gp_po, round((ytd_net - ytd_cogs) / ytd_ord, 2) if ytd_ord else 0, '$#,##0.00'))
+
+    fees_po = {m: round(total_month[m]["net"] * FEE_RATE / total_month[m]["orders"], 2) if total_month[m]["orders"] else 0 for m in months}
+    ytd_fees = ytd_net * FEE_RATE
+    waterfall.append(("(-) Fees per Order", fees_po, round(ytd_fees / ytd_ord, 2) if ytd_ord else 0, '$#,##0.00'))
+
+    cac = {m: round(ad_spend_month[m] / total_month[m]["orders"], 2) if total_month[m]["orders"] else 0 for m in months}
+    ytd_ads = sum(ad_spend_month[m] for m in months if m[:4] == ytd_year)
+    waterfall.append(("(-) CAC (Ad Spend / Order)", cac, round(ytd_ads / ytd_ord, 2) if ytd_ord else 0, '$#,##0.00'))
+
+    cm_po = {m: round(gp_po.get(m, 0) - fees_po.get(m, 0) - cac.get(m, 0), 2) for m in months}
+    ytd_cm = (ytd_net - ytd_cogs - ytd_fees - ytd_ads)
+    waterfall.append(("= CM / Order", cm_po, round(ytd_cm / ytd_ord, 2) if ytd_ord else 0, '$#,##0.00'))
+    sections.append(("PER-ORDER WATERFALL (Blended)", waterfall))
+
+    # 2) Margin Stack (% of Net Revenue)
+    stack = []
+    stack.append(("Gross Margin %", {m: round(1 - cogs_po.get(m, 0) / aov.get(m, 1), 4) for m in months},
+                   round(1 - ytd_cogs / ytd_net, 4) if ytd_net else 0, '0.0%'))
+    stack.append(("(-) Fee %", {m: round(FEE_RATE, 4) for m in months}, round(FEE_RATE, 4), '0.0%'))
+    stack.append(("(-) Ad Spend %", {m: round(ad_spend_month[m] / total_month[m]["net"], 4) if total_month[m]["net"] else 0 for m in months},
+                   round(ytd_ads / ytd_net, 4) if ytd_net else 0, '0.0%'))
+    cm_pct = {m: round((total_month[m]["net"] - (_cogs_per_order(m) * total_month[m]["orders"]) - total_month[m]["net"] * FEE_RATE - ad_spend_month[m]) / total_month[m]["net"], 4) if total_month[m]["net"] else 0 for m in months}
+    stack.append(("= CM %", cm_pct, round(ytd_cm / ytd_net, 4) if ytd_net else 0, '0.0%'))
+    sections.append(("MARGIN STACK (% of Net Revenue)", stack))
+
+    # 3) CAC by Channel
+    ch_order = ["Amazon", "Onzenna", "TargetPlus", "B2B", "TikTok"]
+    cac_rows = []
+    for ch in ch_order:
+        if ch in ch_month:
+            cm = {m: round(ch_ad.get(ch, {}).get(m, 0) / ch_month[ch][m]["orders"], 2) if ch_month[ch][m]["orders"] else 0 for m in months}
+            ytd_s = sum(ch_ad.get(ch, {}).get(m, 0) for m in months if m[:4] == ytd_year)
+            ytd_o = sum(ch_month[ch][m]["orders"] for m in months if m[:4] == ytd_year)
+            cac_rows.append((ch, cm, round(ytd_s / ytd_o, 2) if ytd_o else 0, '$#,##0.00'))
+    sections.append(("CAC BY CHANNEL (Channel Ad Spend / Channel Orders)", cac_rows))
+
+    _write_summary_tab(wb, "Unit Economics", "UNIT ECONOMICS", sections, months, ytd_year, through_date)
+    print(f"  -> Unit Economics updated ({len(months)} months)")
+
+
+def update_campaign_details(wb, through_date):
+    """ADS Campaign Details tab: campaign-level monthly spend/sales."""
+    import calendar
+    from openpyxl.styles import PatternFill, Font, Alignment
+    from openpyxl.utils import get_column_letter
+
+    TAB = "ADS Campaign Details"
+    months, ytd_year = _summary_month_range(through_date)
+
+    amz = load_dk("amazon_ads_daily", days=800)
+    meta = load_dk("meta_ads_daily", days=800)
+    google = load_dk("google_ads_daily", days=800)
+
+    # Aggregate: (platform, brand, campaign_name) -> month -> {spend, revenue, clicks}
+    camp_data = defaultdict(lambda: defaultdict(lambda: {"spend": 0.0, "revenue": 0.0, "clicks": 0}))
+
+    for r in amz:
+        d = r.get("date", "")
+        if d > through_date:
+            continue
+        m = d[:7]
+        if m not in months:
+            continue
+        name = r.get("campaign_name") or r.get("name") or "Unknown"
+        brand = r.get("brand", "Unknown")
+        key = ("Amazon Ads", brand, name)
+        camp_data[key][m]["spend"] += float(r.get("spend", 0) or 0)
+        camp_data[key][m]["revenue"] += float(r.get("sales", 0) or r.get("revenue", 0) or 0)
+        camp_data[key][m]["clicks"] += int(r.get("clicks", 0) or 0)
+
+    for r in meta:
+        d = r.get("date", "")
+        if d > through_date:
+            continue
+        m = d[:7]
+        if m not in months:
+            continue
+        name = r.get("campaign_name") or r.get("name") or "Unknown"
+        brand = r.get("brand", "Unknown")
+        key = ("Facebook Ads", brand, name)
+        camp_data[key][m]["spend"] += float(r.get("spend", 0) or 0)
+        camp_data[key][m]["revenue"] += float(r.get("purchase_value", 0) or r.get("revenue", 0) or 0)
+        camp_data[key][m]["clicks"] += int(r.get("clicks", 0) or r.get("link_clicks", 0) or 0)
+
+    for r in google:
+        d = r.get("date", "")
+        if d > through_date:
+            continue
+        m = d[:7]
+        if m not in months:
+            continue
+        name = r.get("campaign_name") or r.get("name") or "Unknown"
+        brand = r.get("brand", "Unknown")
+        key = ("Google Ads", brand, name)
+        camp_data[key][m]["spend"] += float(r.get("spend", 0) or r.get("cost", 0) or 0)
+        camp_data[key][m]["revenue"] += float(r.get("conversions_value", 0) or r.get("revenue", 0) or 0)
+        camp_data[key][m]["clicks"] += int(r.get("clicks", 0) or 0)
+
+    if not camp_data:
+        print(f"  [WARN] No campaign data, skipping {TAB}")
+        return
+
+    # Sort campaigns: platform > brand > total spend desc
+    sorted_camps = sorted(camp_data.keys(),
+                          key=lambda k: (k[0], k[1], -sum(camp_data[k][m]["spend"] for m in months)))
+
+    # Write tab
+    if TAB in wb.sheetnames:
+        idx = wb.sheetnames.index(TAB)
+        del wb[TAB]
+        ws = wb.create_sheet(TAB, idx)
+    else:
+        ws = wb.create_sheet(TAB)
+
+    FILL_HDR = PatternFill("solid", fgColor="002060")
+    FILL_SECTION = PatternFill("solid", fgColor="D6DCE4")
+    FILL_TOTAL = PatternFill("solid", fgColor="FFF2CC")
+    FONT_W = Font(bold=True, color="FFFFFF")
+    FONT_B = Font(bold=True)
+    ALIGN_C = Alignment(horizontal="center", wrap_text=True)
+
+    from datetime import date as _d
+    td = _d.fromisoformat(through_date)
+
+    # Metrics: Spend section, then Revenue section
+    for section_idx, (section_label, field) in enumerate([("AD SPEND", "spend"), ("AD REVENUE", "revenue")]):
+        start_row = 1 + section_idx * (len(sorted_camps) + 10)
+
+        ws.cell(row=start_row, column=1, value=f"CAMPAIGN DETAIL — {section_label}").font = FONT_B
+        r = start_row + 1
+
+        # Header
+        headers = ["Platform", "Brand", "Campaign"]
+        for m in months:
+            y, mo = int(m[:4]), int(m[5:7])
+            label = f"{calendar.month_abbr[mo]} {y}"
+            if y == td.year and mo == td.month:
+                label += f"\n(~{td.strftime('%b %d')})"
+            headers.append(label)
+        headers.append("YTD")
+
+        for ci, h in enumerate(headers, 1):
+            cell = ws.cell(row=r, column=ci, value=h)
+            cell.fill = FILL_HDR
+            cell.font = FONT_W
+            cell.alignment = ALIGN_C
+        r += 1
+
+        # Total row
+        ws.cell(row=r, column=1, value="TOTAL").font = FONT_B
+        for ci, m in enumerate(months, 4):
+            val = sum(camp_data[k][m][field] for k in sorted_camps)
+            cell = ws.cell(row=r, column=ci, value=round(val, 0))
+            cell.number_format = '#,##0'
+            cell.fill = FILL_TOTAL
+            cell.font = FONT_B
+        ytd_val = sum(sum(camp_data[k][m][field] for m in months if m[:4] == ytd_year) for k in sorted_camps)
+        cell = ws.cell(row=r, column=len(months) + 4, value=round(ytd_val, 0))
+        cell.number_format = '#,##0'
+        cell.fill = FILL_TOTAL
+        cell.font = FONT_B
+        r += 1
+
+        # Campaign rows
+        for plat, brand, name in sorted_camps:
+            ws.cell(row=r, column=1, value=plat)
+            ws.cell(row=r, column=2, value=brand)
+            ws.cell(row=r, column=3, value=name)
+            ytd = 0
+            for ci, m in enumerate(months, 4):
+                val = round(camp_data[(plat, brand, name)][m][field], 0)
+                ws.cell(row=r, column=ci, value=val).number_format = '#,##0'
+                if m[:4] == ytd_year:
+                    ytd += val
+            ws.cell(row=r, column=len(months) + 4, value=ytd).number_format = '#,##0'
+            r += 1
+
+    # Column widths
+    ws.column_dimensions["A"].width = 14
+    ws.column_dimensions["B"].width = 12
+    ws.column_dimensions["C"].width = 40
+    for ci in range(4, len(months) + 5):
+        ws.column_dimensions[get_column_letter(ci)].width = 13
+    ws.freeze_panes = ws.cell(row=3, column=4)
+    print(f"  -> {TAB} updated ({len(sorted_camps)} campaigns, {len(months)} months)")
+
+
+def update_influencer_dashboard(wb, through_date):
+    """Influencer Dashboard tab: PR orders monthly by brand x product."""
+    import calendar
+    from openpyxl.styles import PatternFill, Font, Alignment
+    from openpyxl.utils import get_column_letter
+    from datetime import date as _d
+
+    TAB = "Influencer Dashboard"
+
+    shopify = load_dk("shopify_orders_daily", days=800)
+    # PR orders
+    pr_month = defaultdict(lambda: defaultdict(int))  # brand -> month -> units
+    pr_total = defaultdict(int)  # month -> units
+
+    for r in shopify:
+        d = r.get("date", "")
+        if d > through_date:
+            continue
+        if r.get("channel") != "PR":
+            continue
+        m = d[:7]
+        brand = r.get("brand", "Unknown")
+        units = int(r.get("units", 0) or r.get("orders", 0) or 0)
+        pr_month[brand][m] += units
+        pr_total[m] += units
+
+    if not pr_total:
+        print(f"  [WARN] No PR order data, skipping {TAB}")
+        return
+
+    all_months = sorted(pr_total.keys())
+
+    if TAB in wb.sheetnames:
+        idx = wb.sheetnames.index(TAB)
+        del wb[TAB]
+        ws = wb.create_sheet(TAB, idx)
+    else:
+        ws = wb.create_sheet(TAB)
+
+    FILL_HDR = PatternFill("solid", fgColor="002060")
+    FILL_SECTION = PatternFill("solid", fgColor="D6DCE4")
+    FONT_W = Font(bold=True, color="FFFFFF")
+    FONT_B = Font(bold=True)
+    ALIGN_C = Alignment(horizontal="center", wrap_text=True)
+
+    td = _d.fromisoformat(through_date)
+
+    # Section A: Monthly shipped orders
+    ws.cell(row=1, column=1, value="SECTION A — PR ORDERS: MONTHLY SUMMARY").font = FONT_B
+    r = 2
+    headers = ["Metric"] + [f"{m[2:4]}/{m[5:7]}" for m in all_months]
+    for ci, h in enumerate(headers, 1):
+        ws.cell(row=r, column=ci + 1, value=h if ci > 1 else None)
+    ws.cell(row=r, column=2, value="Month")
+    r = 3
+
+    ws.cell(row=r, column=2, value="Shipped Orders")
+    for ci, m in enumerate(all_months, 3):
+        ws.cell(row=r, column=ci, value=pr_total[m]).number_format = '#,##0'
+    r += 2
+
+    # Section B: By brand
+    ws.cell(row=r, column=1, value="SECTION B — PR ORDERS BY BRAND").font = FONT_B
+    r += 1
+    headers2 = ["Brand"] + [f"{m[2:4]}/{m[5:7]}" for m in all_months]
+    for ci, h in enumerate(headers2, 2):
+        cell = ws.cell(row=r, column=ci, value=h)
+        cell.fill = FILL_HDR
+        cell.font = FONT_W
+        cell.alignment = ALIGN_C
+    r += 1
+
+    # Total row
+    ws.cell(row=r, column=2, value="TOTAL — All Brands").font = FONT_B
+    for ci, m in enumerate(all_months, 3):
+        ws.cell(row=r, column=ci, value=pr_total[m]).number_format = '#,##0'
+    r += 1
+
+    # Brand rows
+    for brand in BRAND_ORDER:
+        if brand in pr_month:
+            ws.cell(row=r, column=2, value=f"  {brand}")
+            for ci, m in enumerate(all_months, 3):
+                ws.cell(row=r, column=ci, value=pr_month[brand].get(m, 0)).number_format = '#,##0'
+            r += 1
+
+    # Column widths
+    ws.column_dimensions["A"].width = 4
+    ws.column_dimensions["B"].width = 30
+    for ci in range(3, len(all_months) + 3):
+        ws.column_dimensions[get_column_letter(ci)].width = 8
+
+    print(f"  -> {TAB} updated ({len(all_months)} months, {len(pr_month)} brands)")
+
+
+# ── LEGACY TAB UPDATERS (fill March 2026+ from PG) ───────────────────────────
+
+CHANNEL_MAP_PG_TO_LEGACY = {
+    "D2C": "Onzenna",
+    "B2B": "B2B",
+    "TargetPlus": "TargetPlus",
+    "TikTok": "TikTokShop",
+    "TikTokShop": "TikTokShop",
+    "PR": "PR",
+    "Amazon": "Amazon",
+}
+
+
+def _find_partial_month_col(ws, through_date):
+    """Find the partial-month column (col 32 typically) and the month it represents."""
+    from datetime import date as _d
+    td = _d.fromisoformat(through_date)
+    # Scan header row 3 for partial month column
+    for c in range(5, ws.max_column + 1):
+        hdr = ws.cell(3, c).value
+        if hdr and "\n" in str(hdr) and str(td.year) in str(hdr):
+            parts = str(hdr).split("\n")
+            # Partial month header like "Mar 7\n2026"
+            if len(parts) == 2 and parts[0].strip()[:3].isalpha() and parts[0].strip()[-1].isdigit():
+                return c
+    return 32  # default
+
+
+def _find_month_col(ws, month_str):
+    """Find column for a month like 'Jan 2026'. Returns col number or None."""
+    for c in range(5, ws.max_column + 1):
+        hdr = ws.cell(3, c).value
+        if hdr and str(hdr).strip() == month_str:
+            return c
+    return None
+
+
+def _scan_legacy_sales_rows(ws):
+    """Scan Sales tab section 1A to build (metric, channel, brand, 'Other') -> row map."""
+    METRICS = ('GROSS SALES', 'DISCOUNTS', '# OF ORDERS', 'NET SALES')
+    row_map = {}  # (metric, channel, brand) -> row of "Other" product
+    current_metric = None
+    current_channel = None
+    current_brand = None
+
+    for r in range(1, ws.max_row + 1):
+        a = ws.cell(r, 1).value
+        b = ws.cell(r, 2).value
+        c = ws.cell(r, 3).value
+        d = ws.cell(r, 4).value
+
+        if a and 'SECTION 1B' in str(a):
+            break
+        if a and str(a) in METRICS:
+            current_metric = str(a)
+            current_channel = None
+            current_brand = None
+            continue
+        if current_metric is None:
+            continue
+        if b and str(b) not in ('Channel',) and c is None and d is None:
+            current_channel = str(b)
+            current_brand = None
+            continue
+        if c and b is None and d is None:
+            current_brand = str(c)
+            continue
+        if d and str(d) == 'Other' and b is None and c is None:
+            if current_metric and current_channel and current_brand:
+                row_map[(current_metric, current_channel, current_brand)] = r
+
+    return row_map
+
+
+def _scan_legacy_cm_rows(ws):
+    """Scan CM tab to build (metric, channel, brand) -> row map for brand-level value rows."""
+    METRICS = ('NET SALES', 'COGS', 'AD SPEND')
+    row_map = {}
+    current_metric = None
+    current_channel = None
+
+    for r in range(1, ws.max_row + 1):
+        a = ws.cell(r, 1).value
+        b = ws.cell(r, 2).value
+        c = ws.cell(r, 3).value
+
+        if a and str(a).split('(')[0].strip() in METRICS:
+            current_metric = str(a).split('(')[0].strip()
+            current_channel = None
+            continue
+        if a and str(a) not in METRICS and current_metric:
+            # Next section with different name
+            for m in ('GROSS PROFIT', 'CHANNEL FEES', 'CM BEFORE ADS', 'CM AFTER ADS'):
+                if m in str(a):
+                    current_metric = None
+                    break
+            continue
+
+        if current_metric is None:
+            continue
+        if b and str(b) not in ('Channel',) and c is None:
+            current_channel = str(b)
+            continue
+        if c and b is None:
+            brand = str(c)
+            if current_channel:
+                row_map[(current_metric, current_channel, brand)] = r
+
+    return row_map
+
+
+def _scan_legacy_organic_rows(ws):
+    """Scan Organic Sales tab: (metric, channel, brand) -> row for brand-level value rows."""
+    METRICS = ('TOTAL REVENUE (Net Sales)', 'AD REVENUE (Attributed)')
+    row_map = {}
+    current_metric = None
+    current_channel = None
+
+    for r in range(1, ws.max_row + 1):
+        a = ws.cell(r, 1).value
+        b = ws.cell(r, 2).value
+        c = ws.cell(r, 3).value
+
+        if a:
+            a_str = str(a).strip()
+            for m in METRICS:
+                if a_str.startswith(m.split('(')[0].strip()):
+                    current_metric = m
+                    current_channel = None
+                    break
+            else:
+                if 'ORGANIC' in a_str:
+                    current_metric = None
+            continue
+
+        if current_metric is None:
+            continue
+        if b and str(b) not in ('Channel',) and c is None:
+            current_channel = str(b)
+            continue
+        if c and b is None:
+            brand = str(c)
+            if current_channel:
+                row_map[(current_metric, current_channel, brand)] = r
+
+    return row_map
+
+
+def _scan_legacy_ads_rows(ws):
+    """Scan Ads tab section 2A: (metric, platform, camp_type, brand) -> row."""
+    METRICS = ('AD SPEND', 'AD REVENUE', 'CLICKS')
+    row_map = {}
+    current_metric = None
+    current_platform = None
+    current_camp_type = None
+
+    for r in range(1, ws.max_row + 1):
+        a = ws.cell(r, 1).value
+        b = ws.cell(r, 2).value
+        c = ws.cell(r, 3).value
+        d = ws.cell(r, 4).value
+
+        if a and 'SECTION 2B' in str(a):
+            break
+        if a and str(a) in METRICS:
+            current_metric = str(a)
+            current_platform = None
+            current_camp_type = None
+            continue
+        if a and str(a) in ('ROAS (Revenue / Spend)', 'CPC (Spend / Clicks)'):
+            current_metric = None  # these are formula sections
+            continue
+
+        if current_metric is None:
+            continue
+        if b and str(b) not in ('Platform', 'TOTAL') and c is None and d is None:
+            current_platform = str(b)
+            current_camp_type = None
+            continue
+        if c and b is None and d is None:
+            current_camp_type = str(c)
+            continue
+        if d and b is None and c is None:
+            brand = str(d)
+            if current_platform and current_camp_type:
+                row_map[(current_metric, current_platform, current_camp_type, brand)] = r
+
+    return row_map
+
+
+def update_legacy_sales(wb, through_date):
+    """Fill March 2026+ data in legacy Sales tab from PG shopify_orders_daily."""
+    from datetime import date as _d
+    td = _d.fromisoformat(through_date)
+
+    if "Sales" not in wb.sheetnames:
+        print("  [SKIP] No 'Sales' tab found")
+        return
+
+    ws = wb["Sales"]
+    row_map = _scan_legacy_sales_rows(ws)
+    if not row_map:
+        print("  [WARN] Could not scan Sales tab structure")
+        return
+
+    # Find the partial month column
+    partial_col = _find_partial_month_col(ws, through_date)
+
+    # Query PG for current month
+    shopify = load_dk("shopify_orders_daily", days=45)
+    current_month = td.strftime("%Y-%m")
+
+    # Aggregate by channel x brand for current month
+    agg = defaultdict(lambda: {"gross": 0.0, "disc": 0.0, "orders": 0, "net": 0.0})
+    for r in shopify:
+        d = r.get("date", "")
+        if d > through_date:
+            continue
+        if d[:7] != current_month:
+            continue
+        ch_raw = r.get("channel", "Unknown")
+        ch = CHANNEL_MAP_PG_TO_LEGACY.get(ch_raw, ch_raw)
+        brand = r.get("brand", "Unknown")
+        agg[(ch, brand)]["gross"] += float(r.get("gross_sales", 0) or 0)
+        agg[(ch, brand)]["disc"] += float(r.get("discounts", 0) or 0)
+        agg[(ch, brand)]["orders"] += int(r.get("orders", 0) or 0)
+        agg[(ch, brand)]["net"] += float(r.get("net_sales", 0) or 0)
+
+    METRIC_FIELD = {
+        "GROSS SALES": "gross",
+        "DISCOUNTS": "disc",
+        "# OF ORDERS": "orders",
+        "NET SALES": "net",
+    }
+
+    filled = 0
+    for (metric, channel, brand), row in row_map.items():
+        field = METRIC_FIELD.get(metric)
+        if not field:
+            continue
+        key = (channel, brand)
+        if key in agg:
+            val = agg[key][field]
+            if val:
+                ws.cell(row=row, column=partial_col, value=round(val, 2) if isinstance(val, float) else val)
+                filled += 1
+
+    # Update header
+    ws.cell(row=3, column=partial_col,
+            value=f"Mar 1-{td.day}\n{td.year}")
+
+    # Update full-month projection formula factor
+    days_elapsed = td.day
+    days_in_month = 31  # March
+    full_mo_col = partial_col - 1  # typically col 31
+    from openpyxl.utils import get_column_letter
+    partial_letter = get_column_letter(partial_col)
+
+    # Update all formula rows in col 31 from =AF*31/7 to =AF*31/days_elapsed
+    for r in range(4, ws.max_row + 1):
+        cell_val = ws.cell(row=r, column=full_mo_col).value
+        if cell_val and isinstance(cell_val, str) and f"*31/7" in cell_val:
+            new_formula = cell_val.replace("*31/7", f"*{days_in_month}/{days_elapsed}")
+            ws.cell(row=r, column=full_mo_col, value=new_formula)
+
+    print(f"  -> Sales tab updated ({filled} cells filled for {current_month}, {days_elapsed} days)")
+
+
+def update_legacy_cm(wb, through_date):
+    """Fill March 2026+ data in legacy CM tab from PG."""
+    from datetime import date as _d
+    td = _d.fromisoformat(through_date)
+
+    if "CM" not in wb.sheetnames:
+        print("  [SKIP] No 'CM' tab found")
+        return
+
+    ws = wb["CM"]
+    row_map = _scan_legacy_cm_rows(ws)
+    if not row_map:
+        print("  [WARN] Could not scan CM tab structure")
+        return
+
+    partial_col = _find_partial_month_col(ws, through_date)
+    current_month = td.strftime("%Y-%m")
+
+    # Load shopify + amazon sales for NET SALES
+    shopify = load_dk("shopify_orders_daily", days=45)
+    amz_sales = load_dk("amazon_sales_daily", days=45)
+
+    net_agg = defaultdict(lambda: defaultdict(float))  # channel -> brand -> net
+    for r in shopify:
+        d = r.get("date", "")
+        if d > through_date or d[:7] != current_month:
+            continue
+        ch_raw = r.get("channel", "Unknown")
+        if ch_raw == "PR":
+            continue
+        ch = CHANNEL_MAP_PG_TO_LEGACY.get(ch_raw, ch_raw)
+        brand = r.get("brand", "Unknown")
+        net_agg[ch][brand] += float(r.get("net_sales", 0) or 0)
+
+    for r in amz_sales:
+        d = r.get("date", "")
+        if d > through_date or d[:7] != current_month:
+            continue
+        brand = r.get("brand", "Unknown")
+        net_agg["Amazon"][brand] += float(r.get("net_sales", 0) or r.get("gross_sales", 0) or 0)
+
+    # Load ads for AD SPEND
+    amz_ads = load_dk("amazon_ads_daily", days=45)
+    meta_ads = load_dk("meta_ads_daily", days=45)
+    google_ads = load_dk("google_ads_daily", days=45)
+
+    ad_agg = defaultdict(lambda: defaultdict(float))  # channel -> brand -> spend
+    for r in amz_ads:
+        d = r.get("date", "")
+        if d > through_date or d[:7] != current_month:
+            continue
+        brand = r.get("brand", "Unknown")
+        ad_agg["Amazon"][brand] += float(r.get("spend", 0) or 0)
+
+    for r in meta_ads:
+        d = r.get("date", "")
+        if d > through_date or d[:7] != current_month:
+            continue
+        brand = r.get("brand", "Unknown")
+        ad_agg["Onzenna"][brand] += float(r.get("spend", 0) or 0)
+
+    for r in google_ads:
+        d = r.get("date", "")
+        if d > through_date or d[:7] != current_month:
+            continue
+        brand = r.get("brand", "Unknown")
+        ad_agg["Onzenna"][brand] += float(r.get("spend", 0) or r.get("cost", 0) or 0)
+
+    # Fill NET SALES rows
+    filled = 0
+    for (metric, channel, brand), row in row_map.items():
+        if metric == "NET SALES":
+            val = net_agg.get(channel, {}).get(brand, 0)
+            if val:
+                ws.cell(row=row, column=partial_col, value=round(val, 2))
+                filled += 1
+        elif metric == "AD SPEND":
+            val = ad_agg.get(channel, {}).get(brand, 0)
+            if val:
+                ws.cell(row=row, column=partial_col, value=round(val, 2))
+                filled += 1
+
+    # Update header
+    ws.cell(row=3, column=partial_col,
+            value=f"Mar 1-{td.day}\n{td.year}")
+
+    # Update full-month projection factor
+    days_elapsed = td.day
+    full_mo_col = partial_col - 1
+    for r in range(4, ws.max_row + 1):
+        cell_val = ws.cell(row=r, column=full_mo_col).value
+        if cell_val and isinstance(cell_val, str) and f"*31/7" in cell_val:
+            ws.cell(row=r, column=full_mo_col, value=cell_val.replace("*31/7", f"*31/{days_elapsed}"))
+
+    print(f"  -> CM tab updated ({filled} cells filled for {current_month})")
+
+
+def update_legacy_organic(wb, through_date):
+    """Fill March 2026+ data in legacy Organic Sales tab from PG."""
+    from datetime import date as _d
+    td = _d.fromisoformat(through_date)
+
+    if "Organic Sales" not in wb.sheetnames:
+        print("  [SKIP] No 'Organic Sales' tab found")
+        return
+
+    ws = wb["Organic Sales"]
+    row_map = _scan_legacy_organic_rows(ws)
+    if not row_map:
+        print("  [WARN] Could not scan Organic Sales tab structure")
+        return
+
+    partial_col = _find_partial_month_col(ws, through_date)
+    current_month = td.strftime("%Y-%m")
+
+    # TOTAL REVENUE = shopify net + amazon net
+    shopify = load_dk("shopify_orders_daily", days=45)
+    amz_sales = load_dk("amazon_sales_daily", days=45)
+
+    rev_agg = defaultdict(lambda: defaultdict(float))
+    for r in shopify:
+        d = r.get("date", "")
+        if d > through_date or d[:7] != current_month or r.get("channel") == "PR":
+            continue
+        ch = CHANNEL_MAP_PG_TO_LEGACY.get(r.get("channel", ""), r.get("channel", ""))
+        brand = r.get("brand", "Unknown")
+        rev_agg[ch][brand] += float(r.get("net_sales", 0) or 0)
+
+    for r in amz_sales:
+        d = r.get("date", "")
+        if d > through_date or d[:7] != current_month:
+            continue
+        brand = r.get("brand", "Unknown")
+        rev_agg["Amazon"][brand] += float(r.get("net_sales", 0) or r.get("gross_sales", 0) or 0)
+
+    # AD REVENUE = ad-attributed revenue by channel
+    amz_ads = load_dk("amazon_ads_daily", days=45)
+    meta_ads = load_dk("meta_ads_daily", days=45)
+    google_ads = load_dk("google_ads_daily", days=45)
+
+    ad_rev_agg = defaultdict(lambda: defaultdict(float))
+    for r in amz_ads:
+        d = r.get("date", "")
+        if d > through_date or d[:7] != current_month:
+            continue
+        brand = r.get("brand", "Unknown")
+        ad_rev_agg["Amazon"][brand] += float(r.get("sales", 0) or r.get("revenue", 0) or 0)
+
+    for r in meta_ads:
+        d = r.get("date", "")
+        if d > through_date or d[:7] != current_month:
+            continue
+        brand = r.get("brand", "Unknown")
+        ad_rev_agg["Onzenna"][brand] += float(r.get("purchase_value", 0) or r.get("revenue", 0) or 0)
+
+    for r in google_ads:
+        d = r.get("date", "")
+        if d > through_date or d[:7] != current_month:
+            continue
+        brand = r.get("brand", "Unknown")
+        ad_rev_agg["Onzenna"][brand] += float(r.get("conversions_value", 0) or r.get("revenue", 0) or 0)
+
+    filled = 0
+    for (metric, channel, brand), row in row_map.items():
+        if "TOTAL REVENUE" in metric:
+            val = rev_agg.get(channel, {}).get(brand, 0)
+        elif "AD REVENUE" in metric:
+            val = ad_rev_agg.get(channel, {}).get(brand, 0)
+        else:
+            continue
+        if val:
+            ws.cell(row=row, column=partial_col, value=round(val, 2))
+            filled += 1
+
+    ws.cell(row=3, column=partial_col, value=f"Mar 1-{td.day}\n{td.year}")
+
+    days_elapsed = td.day
+    full_mo_col = partial_col - 1
+    for r in range(4, ws.max_row + 1):
+        cell_val = ws.cell(row=r, column=full_mo_col).value
+        if cell_val and isinstance(cell_val, str) and "*31/7" in cell_val:
+            ws.cell(row=r, column=full_mo_col, value=cell_val.replace("*31/7", f"*31/{days_elapsed}"))
+
+    print(f"  -> Organic Sales tab updated ({filled} cells filled for {current_month})")
+
+
+def update_legacy_ads(wb, through_date):
+    """Fill March 2026+ data in legacy Ads tab from PG campaign data."""
+    from datetime import date as _d
+    td = _d.fromisoformat(through_date)
+
+    if "Ads" not in wb.sheetnames:
+        print("  [SKIP] No 'Ads' tab found")
+        return
+
+    ws = wb["Ads"]
+    partial_col = _find_partial_month_col(ws, through_date)
+    current_month = td.strftime("%Y-%m")
+
+    # Load all ads data
+    amz_ads = load_dk("amazon_ads_daily", days=45)
+    meta_ads = load_dk("meta_ads_daily", days=45)
+    google_ads = load_dk("google_ads_daily", days=45)
+
+    # Aggregate: platform -> brand -> {spend, revenue, clicks}
+    plat_brand = defaultdict(lambda: defaultdict(lambda: {"spend": 0.0, "revenue": 0.0, "clicks": 0}))
+
+    for r in amz_ads:
+        d = r.get("date", "")
+        if d > through_date or d[:7] != current_month:
+            continue
+        brand = r.get("brand", "Unknown")
+        ad_type = r.get("ad_type", "SP")
+        plat_brand[("Amazon Ads", ad_type)][brand]["spend"] += float(r.get("spend", 0) or 0)
+        plat_brand[("Amazon Ads", ad_type)][brand]["revenue"] += float(r.get("sales", 0) or r.get("revenue", 0) or 0)
+        plat_brand[("Amazon Ads", ad_type)][brand]["clicks"] += int(r.get("clicks", 0) or 0)
+
+    for r in meta_ads:
+        d = r.get("date", "")
+        if d > through_date or d[:7] != current_month:
+            continue
+        brand = r.get("brand", "Unknown")
+        plat_brand[("Facebook Ads", "CVR")][brand]["spend"] += float(r.get("spend", 0) or 0)
+        plat_brand[("Facebook Ads", "CVR")][brand]["revenue"] += float(r.get("purchase_value", 0) or r.get("revenue", 0) or 0)
+        plat_brand[("Facebook Ads", "CVR")][brand]["clicks"] += int(r.get("clicks", 0) or r.get("link_clicks", 0) or 0)
+
+    for r in google_ads:
+        d = r.get("date", "")
+        if d > through_date or d[:7] != current_month:
+            continue
+        brand = r.get("brand", "Unknown")
+        plat_brand[("Google Ads", "CVR")][brand]["spend"] += float(r.get("spend", 0) or r.get("cost", 0) or 0)
+        plat_brand[("Google Ads", "CVR")][brand]["revenue"] += float(r.get("conversions_value", 0) or r.get("revenue", 0) or 0)
+        plat_brand[("Google Ads", "CVR")][brand]["clicks"] += int(r.get("clicks", 0) or 0)
+
+    # Scan Ads tab row structure and fill
+    row_map = _scan_legacy_ads_rows(ws)
+
+    METRIC_FIELD = {
+        "AD SPEND": "spend",
+        "AD REVENUE": "revenue",
+        "CLICKS": "clicks",
+    }
+
+    filled = 0
+    for (metric, platform, camp_type, brand), row in row_map.items():
+        field = METRIC_FIELD.get(metric)
+        if not field:
+            continue
+        key = (platform, camp_type)
+        val = plat_brand.get(key, {}).get(brand, {}).get(field, 0)
+        if val:
+            ws.cell(row=row, column=partial_col, value=round(val, 2) if isinstance(val, float) else val)
+            filled += 1
+
+    ws.cell(row=3, column=partial_col, value=f"Mar 1-{td.day}\n{td.year}")
+
+    days_elapsed = td.day
+    full_mo_col = partial_col - 1
+    for r in range(4, ws.max_row + 1):
+        cell_val = ws.cell(row=r, column=full_mo_col).value
+        if cell_val and isinstance(cell_val, str) and "*31/7" in cell_val:
+            ws.cell(row=r, column=full_mo_col, value=cell_val.replace("*31/7", f"*31/{days_elapsed}"))
+
+    print(f"  -> Ads tab updated ({filled} cells filled for {current_month})")
+
+
+def update_legacy_summary(wb, through_date):
+    """Rebuild Summary tab with campaign performance rankings from PG."""
+    from datetime import date as _d, timedelta
+    from openpyxl.styles import PatternFill, Font, Alignment
+    from openpyxl.utils import get_column_letter
+    import calendar
+
+    td = _d.fromisoformat(through_date)
+    TAB = "Summary"
+
+    if TAB not in wb.sheetnames:
+        print(f"  [SKIP] No '{TAB}' tab found")
+        return
+
+    # Load last 90 days of campaign data
+    d90 = (td - timedelta(days=90)).isoformat()
+    amz_ads = load_dk("amazon_ads_daily", days=100)
+    meta_ads = load_dk("meta_ads_daily", days=100)
+    google_ads = load_dk("google_ads_daily", days=100)
+
+    # Aggregate by campaign
+    camps = defaultdict(lambda: {"spend": 0.0, "revenue": 0.0, "clicks": 0, "impressions": 0, "purchases": 0})
+
+    for r in amz_ads:
+        d = r.get("date", "")
+        if d < d90 or d > through_date:
+            continue
+        name = r.get("campaign_name") or "Unknown"
+        brand = r.get("brand", "Unknown")
+        ad_type = r.get("ad_type", "SP")
+        key = ("Amazon Ads", brand, name, ad_type)
+        camps[key]["spend"] += float(r.get("spend", 0) or 0)
+        camps[key]["revenue"] += float(r.get("sales", 0) or 0)
+        camps[key]["clicks"] += int(r.get("clicks", 0) or 0)
+        camps[key]["impressions"] += int(r.get("impressions", 0) or 0)
+        camps[key]["purchases"] += int(r.get("purchases", 0) or 0)
+
+    for r in meta_ads:
+        d = r.get("date", "")
+        if d < d90 or d > through_date:
+            continue
+        name = r.get("campaign_name") or "Unknown"
+        brand = r.get("brand", "Unknown")
+        key = ("Facebook Ads", brand, name, "CVR")
+        camps[key]["spend"] += float(r.get("spend", 0) or 0)
+        camps[key]["revenue"] += float(r.get("purchase_value", 0) or 0)
+        camps[key]["clicks"] += int(r.get("clicks", 0) or r.get("link_clicks", 0) or 0)
+        camps[key]["impressions"] += int(r.get("impressions", 0) or 0)
+        camps[key]["purchases"] += int(r.get("purchases", 0) or 0)
+
+    for r in google_ads:
+        d = r.get("date", "")
+        if d < d90 or d > through_date:
+            continue
+        name = r.get("campaign_name") or "Unknown"
+        brand = r.get("brand", "Unknown")
+        key = ("Google Ads", brand, name, "CVR")
+        camps[key]["spend"] += float(r.get("spend", 0) or r.get("cost", 0) or 0)
+        camps[key]["revenue"] += float(r.get("conversions_value", 0) or 0)
+        camps[key]["clicks"] += int(r.get("clicks", 0) or 0)
+        camps[key]["impressions"] += int(r.get("impressions", 0) or 0)
+
+    if not camps:
+        print(f"  [WARN] No campaign data for Summary tab")
+        return
+
+    # Filter campaigns with significant spend (> $10)
+    active_camps = {k: v for k, v in camps.items() if v["spend"] >= 10}
+
+    # Calculate derived metrics
+    for k, v in active_camps.items():
+        v["roas"] = round(v["revenue"] / v["spend"], 2) if v["spend"] else 0
+        v["cpc"] = round(v["spend"] / v["clicks"], 2) if v["clicks"] else 0
+        v["ctr"] = round(v["clicks"] / v["impressions"], 4) if v["impressions"] else 0
+
+    # Rebuild tab
+    idx = wb.sheetnames.index(TAB)
+    del wb[TAB]
+    ws = wb.create_sheet(TAB, idx)
+
+    FILL_HDR = PatternFill("solid", fgColor="002060")
+    FILL_SECTION = PatternFill("solid", fgColor="D6DCE4")
+    FILL_GREEN = PatternFill("solid", fgColor="C6EFCE")
+    FILL_RED = PatternFill("solid", fgColor="FFC7CE")
+    FONT_W = Font(bold=True, color="FFFFFF")
+    FONT_B = Font(bold=True)
+    ALIGN_C = Alignment(horizontal="center")
+
+    d90_fmt = _d.fromisoformat(d90).strftime("%b %Y")
+    td_fmt = td.strftime("%b %Y")
+
+    # Rankings to generate
+    rankings = [
+        ("Top 5 ROAS — CVR Campaigns", sorted(
+            [(k, v) for k, v in active_camps.items() if k[3] in ("CVR",) and v["roas"] > 0],
+            key=lambda x: -x[1]["roas"])[:5]),
+        ("Top 5 ROAS — SP Campaigns", sorted(
+            [(k, v) for k, v in active_camps.items() if k[3] == "SP" and v["roas"] > 0],
+            key=lambda x: -x[1]["roas"])[:5]),
+        ("Bottom 5 ROAS (>$50 spend)", sorted(
+            [(k, v) for k, v in active_camps.items() if v["spend"] >= 50],
+            key=lambda x: x[1]["roas"])[:5]),
+        ("Top 10 Spend", sorted(
+            active_camps.items(), key=lambda x: -x[1]["spend"])[:10]),
+        ("Top 5 CTR", sorted(
+            [(k, v) for k, v in active_camps.items() if v["impressions"] >= 100],
+            key=lambda x: -x[1]["ctr"])[:5]),
+    ]
+
+    ws.cell(row=1, column=1, value="CAMPAIGN PERFORMANCE RANKINGS").font = FONT_B
+    ws.cell(row=2, column=1, value=f"LAST 90 DAYS ({d90_fmt} – {td_fmt})").font = Font(italic=True, color="595959")
+
+    r = 4
+    headers = ["#", "Platform", "Campaign", "Brand", "Spend", "Revenue", "ROAS", "Clicks", "CPC", "CTR"]
+
+    for title, camp_list in rankings:
+        # Section title
+        for c in range(1, len(headers) + 1):
+            ws.cell(row=r, column=c).fill = FILL_SECTION
+        ws.cell(row=r, column=1, value=title).font = FONT_B
+        r += 1
+
+        # Header
+        for ci, h in enumerate(headers, 1):
+            cell = ws.cell(row=r, column=ci, value=h)
+            cell.fill = FILL_HDR
+            cell.font = FONT_W
+            cell.alignment = ALIGN_C
+        r += 1
+
+        # Data rows
+        for rank, (key, data) in enumerate(camp_list, 1):
+            plat, brand, name, ad_type = key
+            ws.cell(row=r, column=1, value=rank)
+            ws.cell(row=r, column=2, value=plat)
+            ws.cell(row=r, column=3, value=name[:50])
+            ws.cell(row=r, column=4, value=brand)
+            ws.cell(row=r, column=5, value=round(data["spend"], 2)).number_format = '#,##0.00'
+            ws.cell(row=r, column=6, value=round(data["revenue"], 2)).number_format = '#,##0.00'
+            ws.cell(row=r, column=7, value=data["roas"]).number_format = '0.00'
+            ws.cell(row=r, column=8, value=data["clicks"]).number_format = '#,##0'
+            ws.cell(row=r, column=9, value=data["cpc"]).number_format = '$#,##0.00'
+            ws.cell(row=r, column=10, value=data["ctr"]).number_format = '0.00%'
+
+            # Color code ROAS
+            if data["roas"] >= 3:
+                ws.cell(row=r, column=7).fill = FILL_GREEN
+            elif data["roas"] < 1:
+                ws.cell(row=r, column=7).fill = FILL_RED
+            r += 1
+
+        r += 2  # gap between sections
+
+    # Column widths
+    ws.column_dimensions["A"].width = 4
+    ws.column_dimensions["B"].width = 14
+    ws.column_dimensions["C"].width = 45
+    ws.column_dimensions["D"].width = 12
+    for ci in range(5, 11):
+        ws.column_dimensions[get_column_letter(ci)].width = 12
+    ws.freeze_panes = ws.cell(row=5, column=1)
+
+    print(f"  -> Summary tab rebuilt ({len(active_camps)} active campaigns, {len(rankings)} rankings)")
+
+
 # ── MAIN ──────────────────────────────────────────────────────────────────────
 
 def main():
@@ -2203,6 +3630,20 @@ def main():
     add_summary_d2c_section(wb, d2c_monthly, rows_seeding, rows_adspend)
     add_amazon_discount_tab(wb, through_date)
     add_amazon_marketplace_tab(wb, through_date)
+
+    # Summary tabs — powered by Data Keeper
+    update_sales_summary(wb, through_date)
+    update_ads_summary(wb, through_date)
+    update_unit_economics(wb, through_date)
+    update_campaign_details(wb, through_date)
+    update_influencer_dashboard(wb, through_date)
+
+    # Legacy Polar tabs — fill current month from Data Keeper PG
+    update_legacy_sales(wb, through_date)
+    update_legacy_cm(wb, through_date)
+    update_legacy_organic(wb, through_date)
+    update_legacy_ads(wb, through_date)
+    update_legacy_summary(wb, through_date)
 
     wb.save(str(dst))
     print(f"\nSaved: {dst.name}")
