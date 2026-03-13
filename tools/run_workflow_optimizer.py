@@ -440,8 +440,7 @@ def main():
     parser.add_argument("--dry-run",  action="store_true", help="No email, print summary")
     parser.add_argument("--preview",  action="store_true", help="Save HTML to .tmp/")
     parser.add_argument("--model",    default="haiku",     help="haiku or sonnet")
-    parser.add_argument("--days",       type=int, default=7,  help="GitHub Actions window")
-    parser.add_argument("--stale-days", type=int, default=60, help="Skip workflow MDs not modified in last N days (non-bulk commits)")
+    parser.add_argument("--days",     type=int, default=7, help="GitHub Actions window")
     parser.add_argument("--execute",  action="store_true", help="Apply proposals")
     parser.add_argument("--proposal-id", default="",      help="Comma-separated IDs to apply")
     args = parser.parse_args()
@@ -458,9 +457,9 @@ def main():
         return
 
     print("=== ORBI Workflow Optimizer ===")
-    issues, skipped_stems = collect_issues(days=args.days, stale_days=args.stale_days)
+    issues, skipped_stems = collect_issues(days=args.days)
     if skipped_stems:
-        print(f"Skipped stale workflows (>{args.stale_days}d no meaningful commit): {', '.join(sorted(skipped_stems))}")
+        print(f"Skipped ignored workflows (.optimizer_ignore): {', '.join(sorted(skipped_stems))}")
     print(f"Collected {len(issues)} issues")
 
     file_contents = read_file_contents(issues)

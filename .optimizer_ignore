@@ -1,0 +1,5 @@
+# .optimizer_ignore — workflow stems to permanently skip in the optimizer
+# One stem per line (filename without .md extension).
+# Lines starting with '#' are comments.
+
+no_polar_financial_model
