@@ -245,6 +245,17 @@ def profile_url(username, platform):
     return f"https://www.instagram.com/{username}/"
 
 
+def get_post_id_to_row(ws):
+    """Posts Master에서 post_id → 시트 행번호(1-indexed) 맵 반환."""
+    vals = ws.get_all_values()
+    result = {}
+    for i, row in enumerate(vals[1:], start=2):  # 헤더 제외, 2행부터
+        pid = row[0] if row else ""
+        if pid:
+            result[pid] = i
+    return result
+
+
 def update_posts_master(sh, data, tab_name):
     """Add new posts, update metrics for existing."""
     headers = [
@@ -340,13 +351,24 @@ def _update_pm_metrics(ws, existing, data):
             time.sleep(1)
 
 
-def update_d60_tracker(sh, data, tab_name):
+def update_d60_tracker(sh, data, tab_name, pm_tab_name=None, pm_pid_to_row=None):
     """Update D+60 tracker: fill today's D+N column for each post."""
     try:
         ws = sh.worksheet(tab_name)
         existing = ws.get_all_values()
     except Exception:
         existing = []
+
+    # Posts Master GID (Post ID 하이퍼링크용)
+    pm_gid = None
+    if pm_tab_name:
+        try:
+            pm_ws = sh.worksheet(pm_tab_name)
+            pm_gid = pm_ws.id
+            if pm_pid_to_row is None:
+                pm_pid_to_row = get_post_id_to_row(pm_ws)
+        except Exception:
+            pass
 
     if len(existing) <= 2:
         print(f"[{tab_name}] Empty, skipping D+60 update")
@@ -411,8 +433,16 @@ def update_d60_tracker(sh, data, tab_name):
                 except ValueError:
                     pass
 
+            # Post ID: Posts Master로 HYPERLINK
+            pid = d["post_id"]
+            if pm_gid and pm_pid_to_row and pid in pm_pid_to_row:
+                pm_row = pm_pid_to_row[pid]
+                pid_cell = f'=HYPERLINK("#gid={pm_gid}&range=A{pm_row}","{pid}")'
+            else:
+                pid_cell = pid
+
             row = [
-                d["post_id"],
+                pid_cell,
                 safe_hl(d["url"], d["url"]),
                 d["platform"],
                 safe_hl(profile_url(d["username"], d["platform"]), d["username"]),
@@ -450,6 +480,98 @@ def update_d60_tracker(sh, data, tab_name):
         print(f"[{tab_name}] D+N updated for {len(updates)//2} posts")
     else:
         print(f"[{tab_name}] No D+N updates needed")
+
+
+def update_influencer_tracker(sh, data, tab_name, pm_tab_name=None):
+    """크리에이터별 집계 탭. 최근 포스트 기준 내림차순 정렬."""
+    headers = [
+        "Username", "Nickname", "Platform", "Followers",
+        "Last Post", "First Post", "Post Count",
+        "Total Views", "Total Likes", "Total Comments",
+    ]
+
+    # 크리에이터별 집계
+    creators = {}
+    for d in data:
+        u = d["username"]
+        if u not in creators:
+            creators[u] = {
+                "nickname": d["nickname"] or "",
+                "platform": d["platform"],
+                "followers": d["followers"] or 0,
+                "posts": [],
+            }
+        creators[u]["posts"].append(d)
+        # 팔로워는 최신값으로 갱신
+        if d["followers"]:
+            creators[u]["followers"] = d["followers"]
+
+    # Posts Master GID (Username → Posts Master 링크용)
+    pm_gid = None
+    if pm_tab_name:
+        try:
+            pm_ws = sh.worksheet(pm_tab_name)
+            pm_gid = pm_ws.id
+        except Exception:
+            pass
+
+    # 집계 + 정렬 (최근 포스트 내림차순)
+    rows = []
+    for username, info in creators.items():
+        posts = info["posts"]
+        dates = [p["post_date"] for p in posts if p["post_date"]]
+        last_post = max(dates) if dates else ""
+        first_post = min(dates) if dates else ""
+        rows.append({
+            "username": username,
+            "nickname": info["nickname"],
+            "platform": info["platform"],
+            "followers": info["followers"],
+            "last_post": last_post,
+            "first_post": first_post,
+            "post_count": len(posts),
+            "total_views": sum(p["views"] or 0 for p in posts),
+            "total_likes": sum(p["likes"] or 0 for p in posts),
+            "total_comments": sum(p["comments"] or 0 for p in posts),
+        })
+    rows.sort(key=lambda x: x["last_post"] or "", reverse=True)
+
+    # 시트 작성 (매번 전체 덮어쓰기 — 정렬 유지)
+    try:
+        ws = sh.worksheet(tab_name)
+        ws.clear()
+    except Exception:
+        ws = sh.add_worksheet(tab_name, rows=len(rows) + 10, cols=len(headers))
+
+    sheet_rows = [headers]
+    for r in rows:
+        u = r["username"]
+        if pm_gid:
+            username_cell = f'=HYPERLINK("#gid={pm_gid}&range=A1","{u}")'
+        else:
+            username_cell = u
+        sheet_rows.append([
+            username_cell,
+            r["nickname"],
+            r["platform"],
+            r["followers"],
+            r["last_post"],
+            r["first_post"],
+            r["post_count"],
+            r["total_views"],
+            r["total_likes"],
+            r["total_comments"],
+        ])
+
+    required_rows = max(len(sheet_rows) + 5, ws.row_count)
+    if len(sheet_rows) + 5 > ws.row_count:
+        ws.add_rows(len(sheet_rows) + 5 - ws.row_count)
+
+    for i in range(0, len(sheet_rows), 80):
+        ws.update(range_name=f"A{i + 1}", values=sheet_rows[i:i + 80],
+                  value_input_option="USER_ENTERED")
+        time.sleep(0.5)
+    print(f"[{tab_name}] {len(rows)} creators, sorted by last post")
 
 
 def _col_letter(idx):
@@ -552,7 +674,13 @@ def run_daily(region="all", dry_run=False, send_mail=True):
         sh, creds = get_sheets()
         new_pm = update_posts_master(sh, us_data, "US Posts Master")
         time.sleep(1)
-        update_d60_tracker(sh, us_data, "US D+60 Tracker")
+        pm_ws_us = sh.worksheet("US Posts Master")
+        pm_pid_map_us = get_post_id_to_row(pm_ws_us)
+        update_d60_tracker(sh, us_data, "US D+60 Tracker",
+                           pm_tab_name="US Posts Master", pm_pid_to_row=pm_pid_map_us)
+        time.sleep(1)
+        update_influencer_tracker(sh, us_data, "US Influencer Tracker",
+                                  pm_tab_name="US Posts Master")
 
         summary["us"] = {
             "ig_count": len(ig_norm), "tt_count": len(tt_norm),
@@ -579,7 +707,13 @@ def run_daily(region="all", dry_run=False, send_mail=True):
         sh, creds = get_sheets()
         new_pm = update_posts_master(sh, jp_norm, "JP Posts Master")
         time.sleep(1)
-        update_d60_tracker(sh, jp_norm, "JP D+60 Tracker")
+        pm_ws_jp = sh.worksheet("JP Posts Master")
+        pm_pid_map_jp = get_post_id_to_row(pm_ws_jp)
+        update_d60_tracker(sh, jp_norm, "JP D+60 Tracker",
+                           pm_tab_name="JP Posts Master", pm_pid_to_row=pm_pid_map_jp)
+        time.sleep(1)
+        update_influencer_tracker(sh, jp_norm, "JP Influencer Tracker",
+                                  pm_tab_name="JP Posts Master")
 
         summary["jp"] = {
             "ig_count": len(jp_norm), "total": len(jp_norm),
