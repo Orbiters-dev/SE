@@ -7,23 +7,64 @@ Writes .tmp/apify_report.html
 
 Usage:
     python tools/build_apify_report.py
-    python tools/build_apify_report.py --dry-run   # print HTML to stdout
+    python tools/build_apify_report.py --dry-run
 """
 
 import argparse
 import json
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-HIGHLIGHTS_PATH = PROJECT_ROOT / ".tmp" / "usa_llm_highlights.json"
+HIGHLIGHTS_PATH  = PROJECT_ROOT / ".tmp" / "usa_llm_highlights.json"
 SNS_SUMMARY_PATH = PROJECT_ROOT / ".tmp" / "apify_sns_summary.json"
-OUTPUT_PATH = PROJECT_ROOT / ".tmp" / "apify_report.html"
+OUTPUT_PATH      = PROJECT_ROOT / ".tmp" / "apify_report.html"
+
+# Maps each pipeline step to the output file it produces (for last-run detection)
+STEP_OUTPUT_FILES = {
+    "pipeline": PROJECT_ROOT / "Data Storage" / "apify",          # directory
+    "orders":   PROJECT_ROOT / ".tmp" / "polar_data" / "q10_influencer_orders.json",
+    "migrate":  PROJECT_ROOT / ".tmp" / "migrate_result.txt",
+    "sns":      PROJECT_ROOT / ".tmp" / "apify_sns_summary.json",
+    "llm":      PROJECT_ROOT / ".tmp" / "usa_llm_highlights.json",
+}
+
+KST = timezone(timedelta(hours=9))
 
 
-# ── Status badge helpers ─────────────────────────────────────────────────────
+def file_mtime_kst(path: Path) -> str | None:
+    """Return last-modified time in KST as 'YYYY-MM-DD HH:MM KST', or None."""
+    try:
+        if path.is_dir():
+            # Use the most recently modified file in the directory
+            files = list(path.glob("*.json"))
+            if not files:
+                return None
+            path = max(files, key=lambda f: f.stat().st_mtime)
+        if not path.exists():
+            return None
+        mtime = datetime.fromtimestamp(path.stat().st_mtime, tz=KST)
+        return mtime.strftime("%Y-%m-%d %H:%M KST")
+    except Exception:
+        return None
+
+
+def infer_status(step: str, given: str) -> str:
+    """If GitHub Actions didn't set the status, infer from file existence."""
+    if given.lower() not in ("unknown", ""):
+        return given
+    path = STEP_OUTPUT_FILES.get(step)
+    if path is None:
+        return "unknown"
+    ts = file_mtime_kst(path)
+    if ts:
+        return "success"
+    return "unknown"
+
+
+# ── Badge ─────────────────────────────────────────────────────────────────────
 
 def badge(status: str) -> str:
     s = (status or "unknown").lower()
@@ -47,7 +88,7 @@ def badge(status: str) -> str:
         )
 
 
-# ── Section builders ─────────────────────────────────────────────────────────
+# ── Highlights ────────────────────────────────────────────────────────────────
 
 def build_highlights_section(highlights: list) -> str:
     if not highlights:
@@ -59,17 +100,18 @@ def build_highlights_section(highlights: list) -> str:
             f'<div style="font-size:12px;color:#92400E;margin-top:3px;">&#9658; {r}</div>'
             for r in h.get("reasons", [])
         )
-        url = h.get("url", "")
+        url      = h.get("url", "")
+        username = h.get("username", "")
+        nickname = h.get("nickname", "")
+        date_str = h.get("date", "")
+        views    = h.get("views", 0)
+
         link_html = (
             f'<a href="{url}" style="display:inline-block;margin-top:6px;'
             f'font-size:11px;font-family:\'Courier New\',monospace;color:#92400E;'
             f'text-decoration:underline;">&rarr; view post</a>'
             if url else ""
         )
-        username = h.get("username", "")
-        nickname = h.get("nickname", "")
-        date_str = h.get("date", "")
-        views = h.get("views", 0)
         nick_html = (
             f'<span style="font-size:12px;color:#92400E;margin-left:6px;">({nickname})</span>'
             if nickname else ""
@@ -82,12 +124,14 @@ def build_highlights_section(highlights: list) -> str:
               <td>
                 <span style="font-size:14px;font-weight:700;color:#78350F;">@{username}</span>
                 {nick_html}
-                <span style="font-size:11px;color:#B45309;margin-left:8px;font-family:'Courier New',monospace;">{date_str}</span>
+                <span style="font-size:11px;color:#B45309;margin-left:8px;
+                             font-family:'Courier New',monospace;">{date_str}</span>
                 {reasons_html}
                 {link_html}
               </td>
               <td style="text-align:right;vertical-align:top;white-space:nowrap;padding-left:12px;">
-                <span style="font-family:'Courier New',monospace;font-size:15px;font-weight:700;color:#78350F;">{views:,}</span>
+                <span style="font-family:'Courier New',monospace;font-size:15px;
+                             font-weight:700;color:#78350F;">{views:,}</span>
                 <div style="font-size:10px;color:#B45309;text-align:right;">views</div>
               </td>
             </tr>
@@ -103,7 +147,7 @@ def build_highlights_section(highlights: list) -> str:
             <span style="font-size:16px;margin-right:6px;">&#11088;</span>
             <span style="font-size:13px;font-weight:700;letter-spacing:1.5px;color:#78350F;
                          text-transform:uppercase;font-family:'Courier New',monospace;">
-              Highlights &middot; {len(highlights)}&#44148; &#44048;&#51648;
+              Highlights &middot; {len(highlights)} posts detected
             </span>
           </td>
         </tr>
@@ -112,23 +156,36 @@ def build_highlights_section(highlights: list) -> str:
     </div>"""
 
 
+# ── Pipeline Status ───────────────────────────────────────────────────────────
+
 def build_pipeline_section(statuses: dict) -> str:
     steps = [
-        ("Apify Crawl",       statuses.get("pipeline", "unknown")),
-        ("Fetch Orders",      statuses.get("orders",   "unknown")),
-        ("Syncly Migration",  statuses.get("migrate",  "unknown")),
-        ("Grosmimi SNS Sync", statuses.get("sns",      "unknown")),
-        ("USA_LLM Update",    statuses.get("llm",      "unknown")),
+        ("pipeline", "Apify Crawl"),
+        ("orders",   "Fetch Influencer Orders"),
+        ("migrate",  "Syncly Migration"),
+        ("sns",      "Grosmimi SNS Sync"),
+        ("llm",      "USA_LLM Update"),
     ]
     rows = ""
-    for i, (name, status) in enumerate(steps):
+    for i, (key, name) in enumerate(steps):
+        status = infer_status(key, statuses.get(key, "unknown"))
+        last_run = file_mtime_kst(STEP_OUTPUT_FILES[key])
+        ts_html = (
+            f'<span style="font-size:10px;color:#9CA3AF;font-family:\'Courier New\',monospace;'
+            f'margin-left:8px;">Last run: {last_run}</span>'
+            if last_run else
+            '<span style="font-size:10px;color:#D1D5DB;font-family:\'Courier New\',monospace;'
+            'margin-left:8px;">No data found</span>'
+        )
         bg = "#FAFAF9" if i % 2 == 0 else "#F0EFEC"
         rows += f"""
         <tr>
           <td style="padding:10px 14px;font-size:13px;color:#374151;background:{bg};
-                     border-bottom:1px solid #E9E7E4;">{name}</td>
+                     border-bottom:1px solid #E9E7E4;">
+            {name}{ts_html}
+          </td>
           <td style="padding:10px 14px;text-align:right;background:{bg};
-                     border-bottom:1px solid #E9E7E4;">{badge(status)}</td>
+                     border-bottom:1px solid #E9E7E4;white-space:nowrap;">{badge(status)}</td>
         </tr>"""
 
     return f"""
@@ -142,6 +199,8 @@ def build_pipeline_section(statuses: dict) -> str:
       </table>
     </div>"""
 
+
+# ── Stat cards ────────────────────────────────────────────────────────────────
 
 def build_stat_card(label: str, value: str, sub: str = "") -> str:
     sub_html = (
@@ -161,21 +220,33 @@ def build_stat_card(label: str, value: str, sub: str = "") -> str:
 
 
 def build_stats_section(sns: dict, highlights_count: int, total_creators: int) -> str:
-    total = sns.get("total_influencers", 0)
-    new_c = sns.get("new_count", 0)
+    total  = sns.get("total_influencers", 0)
+    new_c  = sns.get("new_count", 0)
     with_c = sns.get("with_content", 0)
-    upd_c = sns.get("update_count", 0)
+    upd_c  = sns.get("update_count", 0)
+
+    sns_ts = file_mtime_kst(SNS_SUMMARY_PATH)
+    llm_ts = file_mtime_kst(HIGHLIGHTS_PATH)
+
+    sns_ts_html = (
+        f'<span style="font-size:10px;color:#9CA3AF;font-family:\'Courier New\',monospace;'
+        f'margin-left:6px;">as of {sns_ts}</span>' if sns_ts else ""
+    )
+    llm_ts_html = (
+        f'<span style="font-size:10px;color:#9CA3AF;font-family:\'Courier New\',monospace;'
+        f'margin-left:6px;">as of {llm_ts}</span>' if llm_ts else ""
+    )
 
     return f"""
     <div style="margin-bottom:24px;">
       <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;
                   color:#9CA3AF;font-family:'Courier New',monospace;
-                  margin-bottom:10px;">Grosmimi US SNS Tab</div>
+                  margin-bottom:10px;">Grosmimi US SNS Tab {sns_ts_html}</div>
       <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
         <tr>
           {build_stat_card("Total Influencers", str(total))}
-          {build_stat_card("신규 추가", str(new_c), f"링크 있음 {with_c}명")}
-          {build_stat_card("기존 업데이트", str(upd_c))}
+          {build_stat_card("Newly Added", str(new_c), f"with content link: {with_c}")}
+          {build_stat_card("Updated", str(upd_c))}
         </tr>
       </table>
     </div>
@@ -183,16 +254,18 @@ def build_stats_section(sns: dict, highlights_count: int, total_creators: int) -
     <div style="margin-bottom:24px;">
       <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;
                   color:#9CA3AF;font-family:'Courier New',monospace;
-                  margin-bottom:10px;">USA_LLM</div>
+                  margin-bottom:10px;">USA_LLM {llm_ts_html}</div>
       <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
         <tr>
-          {build_stat_card("크리에이터", str(total_creators))}
-          {build_stat_card("하이라이트", str(highlights_count), "감지된 포스트")}
+          {build_stat_card("Creators Tracked", str(total_creators))}
+          {build_stat_card("Highlights", str(highlights_count), "posts detected")}
           <td style="padding:0 5px;"></td>
         </tr>
       </table>
     </div>"""
 
+
+# ── Links ─────────────────────────────────────────────────────────────────────
 
 def build_links_section(repo: str, run_id: str) -> str:
     def link_btn(label: str, url: str, color: str = "#1E3A5F") -> str:
@@ -219,7 +292,7 @@ def build_links_section(repo: str, run_id: str) -> str:
     </div>"""
 
 
-# ── Main builder ─────────────────────────────────────────────────────────────
+# ── HTML assembly ─────────────────────────────────────────────────────────────
 
 def build_html(
     date_str: str,
@@ -236,13 +309,14 @@ def build_html(
     links_html      = build_links_section(repo, run_id)
 
     return f"""<!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Apify+SNS Daily Report</title>
 </head>
-<body style="margin:0;padding:0;background:#EFEFEB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+<body style="margin:0;padding:0;background:#EFEFEB;font-family:-apple-system,BlinkMacSystemFont,
+             'Segoe UI',Helvetica,Arial,sans-serif;">
 
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#EFEFEB;padding:24px 0;">
   <tr>
@@ -305,11 +379,11 @@ def build_html(
 </html>"""
 
 
-# ── Entry point ──────────────────────────────────────────────────────────────
+# ── Entry point ───────────────────────────────────────────────────────────────
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dry-run", action="store_true", help="Print HTML to stdout")
+    parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--pipeline", default=os.environ.get("PIPELINE_OUTCOME", "unknown"))
     parser.add_argument("--orders",   default=os.environ.get("ORDERS_OUTCOME",   "unknown"))
     parser.add_argument("--migrate",  default=os.environ.get("MIGRATE_OUTCOME",  "unknown"))
@@ -341,7 +415,7 @@ def main():
         "llm":      args.llm,
     }
 
-    date_str = datetime.utcnow().strftime("%Y-%m-%d")
+    date_str = datetime.now(tz=KST).strftime("%Y-%m-%d")
     repo     = os.environ.get("GITHUB_REPOSITORY", "")
     run_id   = os.environ.get("GITHUB_RUN_ID", "")
 
