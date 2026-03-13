@@ -14,3 +14,5 @@ def test_collect_issues_returns_list():
     for issue in issues:
         assert hasattr(issue, "type")
         assert hasattr(issue, "severity")
+        assert hasattr(issue, "source")
+        assert hasattr(issue, "detail")

@@ -39,8 +39,10 @@ _analyzer = importlib.util.module_from_spec(_spec)
 import env_loader as _el
 _orig_load = _el.load_env
 _el.load_env = lambda: None
-_spec.loader.exec_module(_analyzer)
-_el.load_env = _orig_load
+try:
+    _spec.loader.exec_module(_analyzer)
+finally:
+    _el.load_env = _orig_load
 
 Issue = _analyzer.Issue
 run_static_analysis = _analyzer.run_static_analysis
