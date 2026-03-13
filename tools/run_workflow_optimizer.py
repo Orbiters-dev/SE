@@ -70,6 +70,53 @@ def collect_issues(days: int = 7) -> list[Issue]:
     return issues
 
 
+def read_file_contents(issues: list[Issue]) -> dict[str, str]:
+    """
+    Load file contents for all files referenced in issues.
+    Keys: relative path from PROJECT_ROOT (e.g. "workflows/foo.md").
+    Skips files larger than MAX_FILE_BYTES — records a warning placeholder.
+    """
+    files_to_load: set[Path] = set()
+
+    for issue in issues:
+        if issue.type == "BROKEN_REF":
+            # source is workflow stem → load the workflow MD
+            md = PROJECT_ROOT / "workflows" / f"{issue.source}.md"
+            files_to_load.add(md)
+        elif issue.type in ("ORPHAN_TOOL", "EMPTY_WORKFLOW"):
+            if issue.source.endswith(".py"):
+                files_to_load.add(PROJECT_ROOT / "tools" / issue.source)
+            else:
+                files_to_load.add(PROJECT_ROOT / "workflows" / f"{issue.source}.md")
+        elif issue.type in ("LOW_SUCCESS", "CONSECUTIVE_FAIL", "SLOW_WORKFLOW", "INACTIVE"):
+            # source is yml filename
+            files_to_load.add(PROJECT_ROOT / ".github" / "workflows" / issue.source)
+        elif issue.type == "NO_GH_ACTION":
+            md = PROJECT_ROOT / "workflows" / f"{issue.source}.md"
+            files_to_load.add(md)
+
+    contents: dict[str, str] = {}
+    tool_code_count = 0
+
+    for path in sorted(files_to_load):
+        if not path.exists():
+            continue
+        rel = str(path.relative_to(PROJECT_ROOT)).replace("\\", "/")
+        # Apply tool_code cap
+        if str(path).endswith(".py"):
+            tool_code_count += 1
+            if tool_code_count > MAX_TOOL_CODE_PROPOSALS:
+                contents[rel] = f"[SKIPPED: tool_code cap of {MAX_TOOL_CODE_PROPOSALS} reached]"
+                continue
+        size = path.stat().st_size
+        if size > MAX_FILE_BYTES:
+            contents[rel] = f"[SKIPPED: file too large ({size} bytes > {MAX_FILE_BYTES})]"
+        else:
+            contents[rel] = path.read_text(encoding="utf-8", errors="ignore")
+
+    return contents
+
+
 def main():
     parser = argparse.ArgumentParser(description="ORBI Workflow Optimizer")
     parser.add_argument("--dry-run",  action="store_true", help="No email, print summary")
