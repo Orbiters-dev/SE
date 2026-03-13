@@ -1,14 +1,14 @@
-name: Skill Optimizer (Daily)
+name: Skill Optimizer (Check Execute)
 
 on:
   schedule:
-    - cron: '0 1 * * *'   # 매일 KST 10:00 (= 01:00 UTC)
-  workflow_dispatch:        # 수동 실행 버튼
+    - cron: '0 */2 * * *'   # 2시간마다 (답장 감지용)
+  workflow_dispatch:
 
 jobs:
-  skill-optimize:
+  check-execute:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repo
@@ -45,12 +45,19 @@ jobs:
           echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
           echo '${{ secrets.GMAIL_TOKEN_JSON }}'             > credentials/gmail_token.json
 
-      - name: Run Skill Optimizer
+      - name: Download latest proposals artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: skill-proposals-latest
+          path: .tmp/
+        continue-on-error: true   # OK if no artifact yet
+
+      - name: Check for execute reply
         run: |
           mkdir -p .tmp
-          python -u tools/run_skill_optimizer.py --model haiku
+          python -u tools/run_skill_optimizer.py --check-execute
 
-      - name: Upload proposals artifact
+      - name: Upload updated proposals (if executed)
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -58,4 +65,13 @@ jobs:
           path: .tmp/skill_proposals_latest.json
           retention-days: 3
           overwrite: true
+        continue-on-error: true
+
+      - name: Commit and push applied changes
+        if: always()
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git diff --quiet && git diff --staged --quiet || \
+            (git add -A && git commit -m "feat(skills): auto-apply optimizer proposals via email reply" && git push)
         continue-on-error: true

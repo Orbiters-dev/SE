@@ -18,11 +18,13 @@ Usage:
 """
 
 import argparse
+import difflib
 import json
 import os
+import re
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import anthropic
@@ -215,16 +217,193 @@ def generate_proposals(skills: list[str], file_contexts: dict[str, dict[str, str
 # Storage
 # ---------------------------------------------------------------------------
 
-def save_proposals(proposals: list[dict], skill_count: int) -> Path:
+PROPOSALS_PATH = TMP_DIR / "skill_proposals_latest.json"
+EXECUTE_KEYWORDS = {"적용", "apply", "execute", "yes", "go", "approve"}
+
+
+def save_proposals(proposals: list[dict], skill_count: int,
+                   email_message_id: str = "", email_sent_at: str = "") -> Path:
     TMP_DIR.mkdir(exist_ok=True)
     data = {
-        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "skill_count": skill_count,
         "proposals": proposals,
+        "executed": False,
     }
-    path = TMP_DIR / "skill_proposals_latest.json"
-    path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-    return path
+    if email_message_id:
+        data["email_message_id"] = email_message_id
+        data["email_sent_at"] = email_sent_at
+    PROPOSALS_PATH.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+    return PROPOSALS_PATH
+
+
+# ---------------------------------------------------------------------------
+# Execute proposals (apply text changes to skill files)
+# ---------------------------------------------------------------------------
+
+def execute_proposals(proposals: list[dict]) -> list[int]:
+    """Apply proposals to skill files. Returns list of applied proposal IDs."""
+    applied = []
+    changed_files = []
+
+    for p in proposals:
+        pid = p.get("id", "?")
+        file_rel = p.get("file", "")
+        original = p.get("original", "")
+        replacement = p.get("replacement", "")
+
+        if not file_rel or not original or original == "FILE_NOT_EXISTS":
+            print(f"  #{pid}: SKIP — missing file/original")
+            continue
+
+        file_path = PROJECT_ROOT / file_rel
+        if not file_path.exists():
+            print(f"  #{pid}: SKIP — file not found: {file_rel}")
+            continue
+
+        # Refuse to touch .env or secrets
+        if any(part in file_rel for part in [".env", "credentials/", "secrets"]):
+            print(f"  #{pid}: SKIP — protected path: {file_rel}")
+            continue
+
+        text = file_path.read_text(encoding="utf-8", errors="replace")
+        if original not in text:
+            print(f"  #{pid}: SKIP — original text not found in {file_rel}")
+            continue
+
+        new_text = text.replace(original, replacement, 1)
+        diff_lines = list(difflib.unified_diff(
+            text.splitlines(keepends=True),
+            new_text.splitlines(keepends=True),
+            fromfile=f"a/{file_rel}", tofile=f"b/{file_rel}",
+        ))
+        print(f"\n  #{pid}: {p.get('issue', '')} [{file_rel}]")
+        print("".join(diff_lines) if diff_lines else "  (no diff)")
+
+        file_path.write_text(new_text, encoding="utf-8")
+        applied.append(pid)
+        if file_rel not in changed_files:
+            changed_files.append(file_rel)
+        print(f"  APPLIED #{pid}")
+
+    if applied and changed_files:
+        applied_str = ",".join(str(i) for i in applied)
+        try:
+            subprocess.run(["git", "add"] + changed_files, cwd=str(PROJECT_ROOT), check=True)
+            subprocess.run(
+                ["git", "commit", "-m", f"feat(skills): optimizer apply proposals #{applied_str}"],
+                cwd=str(PROJECT_ROOT), check=True,
+            )
+            print(f"\nCommitted: proposals #{applied_str}")
+        except subprocess.CalledProcessError as e:
+            print(f"WARNING: git commit failed: {e}")
+
+    return applied
+
+
+# ---------------------------------------------------------------------------
+# Check-execute: poll Gmail for "적용" reply and auto-apply
+# ---------------------------------------------------------------------------
+
+def check_and_execute() -> None:
+    """Poll Gmail for a reply containing an execute keyword, then apply all proposals."""
+    if not PROPOSALS_PATH.exists():
+        print("[check-execute] No skill_proposals_latest.json found.")
+        return
+
+    data = json.loads(PROPOSALS_PATH.read_text(encoding="utf-8"))
+
+    if data.get("executed"):
+        print("[check-execute] Already executed. Skipping.")
+        return
+
+    sent_at_str = data.get("email_sent_at", "")
+    if not sent_at_str:
+        print("[check-execute] No email_sent_at recorded. Skipping.")
+        return
+
+    proposals = data.get("proposals", [])
+    if not proposals:
+        print("[check-execute] No proposals to execute.")
+        return
+
+    try:
+        sent_at = datetime.fromisoformat(sent_at_str)
+        if sent_at.tzinfo is None:
+            sent_at = sent_at.replace(tzinfo=timezone.utc)
+    except ValueError:
+        sent_at = None
+
+    # Search Gmail for replies
+    sys.path.insert(0, str(Path(__file__).parent))
+    from send_gmail import search_emails
+
+    query = f'subject:"[ORBI Skills]" from:{RECIPIENT} newer_than:3d'
+    print(f"[check-execute] Gmail query: {query}")
+    messages = search_emails(query, max_results=10)
+
+    if not messages:
+        print("[check-execute] No reply emails found.")
+        return
+
+    found = False
+    for msg in messages:
+        # Check timing
+        if sent_at:
+            try:
+                from email.utils import parsedate_to_datetime
+                msg_date = parsedate_to_datetime(msg.get("date", ""))
+                if msg_date.tzinfo is None:
+                    msg_date = msg_date.replace(tzinfo=timezone.utc)
+                if msg_date < sent_at:
+                    continue
+            except Exception:
+                pass
+
+        body_lower = (msg.get("body", "") + " " + msg.get("snippet", "")).lower().strip()
+        for kw in EXECUTE_KEYWORDS:
+            if kw in body_lower.split() or body_lower.startswith(kw):
+                print(f"[check-execute] Found '{kw}' in reply — applying proposals")
+                found = True
+                break
+        if found:
+            break
+
+    if not found:
+        print("[check-execute] No execute reply detected.")
+        return
+
+    print(f"\n[check-execute] Applying {len(proposals)} proposals...")
+    applied = execute_proposals(proposals)
+
+    if applied:
+        data["executed"] = True
+        data["executed_at"] = datetime.now(timezone.utc).isoformat()
+        PROPOSALS_PATH.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+
+        # Send confirmation email
+        applied_str = ", ".join(f"#{i}" for i in applied)
+        conf_html = f"""<html><body style="font-family:sans-serif;padding:24px;">
+<h3>✅ Skill Optimizer — Applied {len(applied)} proposals</h3>
+<p>Proposals {applied_str} were applied and committed.</p>
+<ul>{"".join(f"<li>#{p['id']} {p.get('skill','')}: {p.get('issue','')}</li>" for p in proposals if p.get("id") in applied)}</ul>
+</body></html>"""
+        conf_path = TMP_DIR / "skill_optimizer_confirmation.html"
+        conf_path.write_text(conf_html, encoding="utf-8")
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        try:
+            subprocess.run(
+                [sys.executable, str(Path(__file__).parent / "send_gmail.py"),
+                 "--to", RECIPIENT, "--sender", SENDER,
+                 "--subject", f"[ORBI Skills] APPLIED {len(applied)} proposals -- {date_str}",
+                 "--body-file", str(conf_path)],
+                check=True,
+            )
+            print("[check-execute] Confirmation email sent.")
+        except Exception as e:
+            print(f"[check-execute] Confirmation email failed: {e}")
+    else:
+        print("[check-execute] No proposals were applicable.")
 
 
 # ---------------------------------------------------------------------------
@@ -304,19 +483,26 @@ def build_email(proposals: list[dict], skill_count: int, date_str: str) -> str:
 # Send email
 # ---------------------------------------------------------------------------
 
-def send_email(html: str, date_str: str, proposal_count: int) -> None:
+def send_email(html: str, date_str: str, proposal_count: int) -> str:
+    """Send proposal email. Returns Gmail message ID (or '' on failure)."""
     TMP_DIR.mkdir(exist_ok=True)
     tmp_html = TMP_DIR / "skill_optimizer_preview.html"
     tmp_html.write_text(html, encoding="utf-8")
     subject = f"[ORBI Skills] {proposal_count} proposals -- {date_str}"
-    subprocess.run(
+    result = subprocess.run(
         [sys.executable, str(Path(__file__).parent / "send_gmail.py"),
          "--to", RECIPIENT,
          "--sender", SENDER,
          "--subject", subject,
          "--body-file", str(tmp_html)],
-        check=True,
+        capture_output=True, text=True, encoding="utf-8",
     )
+    if result.returncode != 0:
+        print(result.stdout)
+        raise RuntimeError(f"send_gmail failed: {result.stderr}")
+    print(result.stdout, end="")
+    match = re.search(r"Message ID:\s*(\S+)", result.stdout)
+    return match.group(1) if match else ""
 
 
 # ---------------------------------------------------------------------------
@@ -325,12 +511,17 @@ def send_email(html: str, date_str: str, proposal_count: int) -> None:
 
 def main():
     parser = argparse.ArgumentParser(description="ORBI Skill Optimizer")
-    parser.add_argument("--dry-run",  action="store_true", help="No email")
-    parser.add_argument("--preview",  action="store_true", help="Save HTML to .tmp/")
-    parser.add_argument("--model",    default="haiku",     help="haiku or sonnet")
-    parser.add_argument("--days",     type=int, default=14, help="Changed-within window for non-mandatory skills")
-    parser.add_argument("--all",      action="store_true", help="Include all skills")
+    parser.add_argument("--dry-run",       action="store_true", help="No email")
+    parser.add_argument("--preview",       action="store_true", help="Save HTML to .tmp/")
+    parser.add_argument("--model",         default="haiku",     help="haiku or sonnet")
+    parser.add_argument("--days",          type=int, default=14, help="Changed-within window for non-mandatory skills")
+    parser.add_argument("--all",           action="store_true", help="Include all skills")
+    parser.add_argument("--check-execute", action="store_true", help="Poll Gmail for reply and auto-apply")
     args = parser.parse_args()
+
+    if args.check_execute:
+        check_and_execute()
+        return
 
     if args.model not in MODEL_MAP:
         print(f"ERROR: --model must be one of: {', '.join(MODEL_MAP)}")
@@ -359,6 +550,7 @@ def main():
         print("No proposals. Exiting.")
         return
 
+    # Save without message ID first (will update after sending)
     save_proposals(proposals, skill_count=len(skills))
     print("Saved to .tmp/skill_proposals_latest.json")
 
@@ -375,7 +567,11 @@ def main():
         print("[dry-run] Email not sent.")
         return
 
-    send_email(html, date_str, proposal_count=len(proposals))
+    msg_id = send_email(html, date_str, proposal_count=len(proposals))
+    sent_at = datetime.now(timezone.utc).isoformat()
+    # Re-save with message ID for check-execute to use
+    save_proposals(proposals, skill_count=len(skills),
+                   email_message_id=msg_id, email_sent_at=sent_at)
     print("Skill proposal email sent.")
 
 
