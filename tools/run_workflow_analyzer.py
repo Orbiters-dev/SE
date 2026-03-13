@@ -104,6 +104,17 @@ def run_static_analysis() -> list[Issue]:
     all_referenced = set()
 
     for wf_stem, refs in workflow_tools.items():
+        # NO_GH_ACTION — check for ALL workflows regardless of whether they have tool refs
+        md_text = (WORKFLOWS_DIR / f"{wf_stem}.md").read_text(encoding="utf-8", errors="ignore")
+        if "automated: true" in md_text.lower():
+            matching_yml = f"{wf_stem}.yml"
+            if matching_yml not in gh_actions:
+                issues.append(Issue(
+                    type="NO_GH_ACTION", severity="info",
+                    source=wf_stem,
+                    detail=f"workflows/{wf_stem}.md is marked automated:true but no .github/workflows/{wf_stem}.yml found"
+                ))
+
         # EMPTY_WORKFLOW
         if not refs:
             issues.append(Issue(
@@ -122,17 +133,6 @@ def run_static_analysis() -> list[Issue]:
                     type="BROKEN_REF", severity="high",
                     source=wf_stem,
                     detail=f"workflows/{wf_stem}.md references tools/{tool} which does not exist"
-                ))
-
-        # NO_GH_ACTION — only flag if workflow MD has 'automated: true' front-matter
-        md_text = (WORKFLOWS_DIR / f"{wf_stem}.md").read_text(encoding="utf-8", errors="ignore")
-        if "automated: true" in md_text.lower():
-            matching_yml = f"{wf_stem}.yml"
-            if matching_yml not in gh_actions:
-                issues.append(Issue(
-                    type="NO_GH_ACTION", severity="info",
-                    source=wf_stem,
-                    detail=f"workflows/{wf_stem}.md is marked automated:true but no .github/workflows/{wf_stem}.yml found"
                 ))
 
     # ORPHAN_TOOL — exclude private/utility scripts starting with _
