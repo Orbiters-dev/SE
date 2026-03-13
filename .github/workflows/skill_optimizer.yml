@@ -1,0 +1,51 @@
+name: Skill Optimizer (Daily)
+
+on:
+  schedule:
+    - cron: '0 1 * * *'   # 매일 KST 10:00 (= 01:00 UTC)
+  workflow_dispatch:        # 수동 실행 버튼
+
+jobs:
+  skill-optimize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --quiet \
+            anthropic \
+            requests \
+            python-dotenv \
+            google-auth \
+            google-auth-oauthlib \
+            google-api-python-client
+
+      - name: Write .env
+        run: |
+          cat > .env << 'ENVEOF'
+          ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+          GMAIL_OAUTH_CREDENTIALS_PATH=credentials/gmail_oauth_credentials.json
+          GMAIL_TOKEN_PATH=credentials/gmail_token.json
+          GMAIL_SENDER=orbiters11@gmail.com
+          COMMUNICATOR_RECIPIENT=${{ secrets.COMMUNICATOR_RECIPIENT }}
+          ENVEOF
+
+      - name: Write Gmail credentials
+        run: |
+          mkdir -p credentials
+          echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
+          echo '${{ secrets.GMAIL_TOKEN_JSON }}'             > credentials/gmail_token.json
+
+      - name: Run Skill Optimizer
+        run: |
+          mkdir -p .tmp
+          python -u tools/run_skill_optimizer.py --model haiku
