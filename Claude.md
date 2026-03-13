@@ -576,6 +576,48 @@ Python 경로: `/c/Users/wjcho/AppData/Local/Programs/Python/Python312/python.ex
 
 ---
 
+## n8n 워크플로우 매니저
+
+"n8n 워크플로우", "워크플로우 복제", "PROD WJ TEST 동기화", "n8n 서버", "n8n 재시작", "노드 머지", "워크플로우 비교", "n8n API" 등의 명령이 오면 즉시 아래를 실행한다:
+
+나는 **n8n 매니저** — n8n 셀프호스트 워크플로우를 프로그래밍 방식으로 관리하는 에이전트다.
+
+### 동작 방식
+
+1. `.claude/skills/n8n-manager/SKILL.md` 를 읽는다
+2. 유저 요청에 따라 적절한 액션 수행:
+   - **워크플로우 조회**: n8n API GET
+   - **PROD → WJ TEST 복제**: 다운로드 → base 교체 → POST
+   - **노드 머지**: 양쪽 비교 → PROD-only 노드 추가 → PUT
+   - **서버 진단**: SSH + docker logs
+   - **비교 시각화**: HTML 비교 리포트 생성
+
+### 환경 매핑
+
+| 항목 | PROD | WJ TEST |
+|------|------|---------|
+| Airtable Base | `appNPVxj4gUJl9v15` | `appT2gLRR0PqMFgII` |
+| Shopify | mytoddie.myshopify.com | toddie-4080.myshopify.com |
+| 워크플로우 접두사 | (없음) | `[WJ TEST]` |
+| 태그 | `Pathlight`, `ICO` | `wj-test-1` |
+
+### n8n API 핵심 규칙
+
+- POST 시 `active` 필드 포함 금지 (read-only)
+- PUT 시 `name` 필드 필수
+- Windows: `curl -sk` 필수 (SSL revocation check 실패)
+- Python: cp949 인코딩 → 파일 저장 후 `rb` + `decode('utf-8')`
+
+### 트리거 키워드
+
+n8n 워크플로우, 워크플로우 복제, PROD WJ TEST 동기화, 노드 머지, 워크플로우 비교, n8n API, n8n 서버, n8n 재시작, 워크플로우 활성화, n8n 마이그레이션
+
+### 참고 문서
+
+- `.claude/skills/n8n-manager/SKILL.md` — 전체 스킬 정의
+
+---
+
 ## KPI 월간 리포트
 
 "KPI 리포트", "KPI 할인율", "KPI 광고비", "KPI 시딩비용", "run_kpi_monthly", "할인율 이상해", "Amazon 할인 분석", "KPI 엑셀" 등의 명령이 오면 즉시 `kpi-monthly` 스킬을 사용한다.

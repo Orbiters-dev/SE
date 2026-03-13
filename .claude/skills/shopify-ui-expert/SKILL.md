@@ -144,28 +144,71 @@ Not Started → Draft Ready → Sent → Replied → Needs Review
 
 | 단계 | n8n 워크플로우 | 트리거 | 동작 |
 |------|---------------|--------|------|
-| 1. 신청 접수 | Gifting (webhook) | 폼 제출 | Shopify 고객 생성/조회 → Airtable 레코드 생성 (Needs Review) |
-| 2. 수락 → 샘플 요청 | Gifting2 (webhook) | 크리에이터 폼 제출 | Draft Order 생성 (100% 할인) → Airtable 업데이트 |
-| 3. 샘플 발송 | Sample Sent → Complete (polling) | 5분 간격 | Airtable "Sample Sent" 레코드 → Shopify Draft Order Complete → "Sample Shipped" |
-| 4. 배송 완료 | Shipped → Delivered (polling) | 30분 간격 | Shopify fulfillment delivered 감지 → Airtable "Sample Delivered" |
-| 5. 컨텐츠 게시 | Delivered → Posted (polling) | 6시간 간격 | Syncly D+60 시트에서 인플루언서 게시물 감지 → Airtable "Posted" |
+| 0. AI 아웃리치 | Draft Generation (schedule) | 30분 폴링 | Airtable "Not Started" → Claude AI 초안 생성 → "Draft Ready" |
+| 0.5 승인 발송 | Approval Send (schedule) | 5분 폴링 | "Approved" → Gmail 발송 → "Sent" |
+| 1. 답장 처리 | Reply Handler (schedule) | 5분 폴링 | Gmail 답장 감지 → 분류(LT/HT) → AI 답장 초안 → "Replied" |
+| 2. 신청 접수 | Gifting (webhook) | 폼 제출 | Shopify 고객 생성/조회 → Airtable 레코드 생성 (Needs Review) |
+| 3. 수락 → 샘플 요청 | Gifting2 (webhook) | 크리에이터 폼 제출 | Draft Order 생성 (100% 할인) → Airtable + PG 업데이트 |
+| 4. 샘플 발송 처리 | Fulfillment (schedule/webhook) | 폴링/이벤트 | Shopify fulfillment → Airtable "Sample Shipped" + 가이드라인 이메일 |
+| 5. 샘플 발송 완료 | Sample Sent → Complete (polling) | 5분 간격 | Airtable "Sample Sent" → Draft Order Complete → "Sample Shipped" |
+| 6. 배송 완료 | Shipped → Delivered (polling) | 30분 간격 | Shopify delivery 감지 → "Sample Delivered" |
+| 7. 컨텐츠 게시 | Delivered → Posted (polling) | 6시간 간격 | Syncly D+60 시트 매칭 → "Posted" |
 
 ### n8n 워크플로우 ID 목록
 
-**Production:**
-| ID | 이름 |
-|----|------|
-| `F0sv8RsCS1v56Gkw` | Gifting (Influencer Application) |
-| `KqICsN9F1mPwnAQ9` | Gifting2 (Sample Request → Draft Order) |
-| `m89xU9RUbPgnkBy8` | Sample Sent → Complete Draft Order |
+**Production (17 workflows):**
+| ID | 이름 | 노드 | 상태 |
+|----|------|------|------|
+| `fwwOeLiDLSnR77E1` | Draft Generation | 42 | Active |
+| `jf9uxkPww2xeCr82` | Approval Send | 16 | Active |
+| `K99grtW9iWq8V79f` | Reply Handler | 46 | Active |
+| `F0sv8RsCS1v56Gkw` | Gifting (Influencer Application) | - | Active |
+| `KqICsN9F1mPwnAQ9` | Gifting2 (Sample Request → Draft Order) | 14 | Inactive |
+| `ufMPgU6cjwuzLM0y` | Shopify Fulfillment → Airtable | 34 | Active |
+| `m89xU9RUbPgnkBy8` | Sample Sent → Complete Draft Order | - | Active |
+| `FzBJVEOTvr6qJPAL` | Syncly: Daily Content Metrics Sync | 5 | Active |
 
-**WJ TEST:**
-| ID | 이름 |
-|----|------|
-| `4q5NCzMb3nMGYqL4` | [WJ TEST] Gifting |
-| `Vd5NiKMwdLT7b9wa` | [WJ TEST] Sample Sent → Complete |
-| `2vsXyHtjo79hnFoD` | [WJ TEST] Sample Shipped → Delivered Detection |
-| `82t55jurzbY3iUM4` | [WJ TEST] Sample Delivered → Posted Detection |
+**WJ TEST (18 workflows, 2026-03-13 마이그레이션 완료):**
+| ID | 이름 | 노드 | 상태 | 비고 |
+|----|------|------|------|------|
+| `0q9uJUYTpDhQFMfz` | Draft Generation | 49 | Active | PROD +9 머지 |
+| `mmkBpmvhzbgmSayh` | Approval Send | 16 | Active | PROD +4 머지 |
+| `nVtYmhU0InRqRn4K` | Reply Handler | 50 | Active | PROD +7 머지 (HT Reply) |
+| `4q5NCzMb3nMGYqL4` | Gifting | 12 | Active | |
+| `734aqkcOIfiylExL` | **Gifting2 → Draft Order** | 14 | Inactive | **PROD에서 복제** |
+| `UP1OnpNEFN54AOUn` | Fulfillment → Airtable | 37 | Active | PROD +12 머지 |
+| `Vd5NiKMwdLT7b9wa` | Sample Sent → Complete | 7 | Active | |
+| `2vsXyHtjo79hnFoD` | Shipped → Delivered | 11 | Active | |
+| `82t55jurzbY3iUM4` | Delivered → Posted | 8 | Active | |
+| `FT70hFR6qI0mVc2T` | **Syncly Metrics Sync** | 5 | Inactive | **PROD에서 복제** |
+| `wyttsPSZJlWLgy86` | Customer Lookup | 5 | Active | |
+| `zKmOX0tEWi6EBT9h` | Content Tracking | 23 | Active | |
+| `6BNQRz57oCtdROlH` | Syncly Data Processing | 64 | Active | |
+| `CEWr3kQlDg07310Y` | Full Pipeline (monolith) | 68 | Inactive | archive |
+| `YCZuTAsHK2Ja6kIs` | AI Outreach (archive) | 61 | Inactive | archive |
+| `5BG7Qe7HtsbD4iP0` | Docusign Contracting | 14 | Inactive | |
+| `k08R16VJIuSPdi6T` | ManyChat Automation | 13 | Inactive | |
+| `fJd4tZkBmmB2bdHJ` | Fulfillment (archive) | 26 | Inactive | archive |
+
+### PROD → WJ TEST 차이점
+
+| 항목 | PROD | WJ TEST |
+|------|------|---------|
+| Airtable Base | `appNPVxj4gUJl9v15` | `appT2gLRR0PqMFgII` |
+| 트리거 방식 | scheduleTrigger (폴링) | webhook (실시간) + schedule |
+| Config 패턴 | Fetch Dashboard + Fetch Today Config + Wait for Config | Read Config Sheet (Google Sheets) |
+| Shopify 스토어 | mytoddie.myshopify.com | toddie-4080.myshopify.com |
+| PostgreSQL | 없음 | Django API 연동 (orbitools.orbiters.co.kr) |
+| 테스트 인프라 | 없음 | Inject Test Record, Is Dry Run?, Manual Trigger |
+
+### PROD에서 가져온 핵심 로직 (2026-03-13)
+
+- **Dashboard/Config 패턴**: `Fetch Dashboard` + `Fetch Today Config` + `Wait for Config` + `Is Active?` (중앙 Config 시트에서 on/off 제어)
+- **에러 핸들링**: `Stop: No Email`, `Stop: Missing Email`, `Update Creator: Error`
+- **HT Reply 시스템** (Reply Handler): Claude AI로 High Touch 답변 초안 생성 + 가이드라인 참조
+- **Product Detection** (Draft Gen): 컨텐츠 트랜스크립트에서 제품 자동 감지
+- **System Prompts**: Google Sheets에서 LT/HT/RH 시스템 프롬프트 동적 로딩
+- **Fulfillment 확장**: Draft status check, product guidelines fetch, sample shipped polling, guideline email 발송
 
 ### n8n 크레덴셜
 
