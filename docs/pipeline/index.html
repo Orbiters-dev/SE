@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Influencer Gifting Pipeline - Visual Flow</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  :root {
+    --bg: #fafbfc;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --text: #1f2937;
+    --text-dim: #6b7280;
+    --human: #8b5cf6;
+    --human-bg: #f5f3ff;
+    --human-border: #ddd6fe;
+    --auto: #0ea5e9;
+    --auto-bg: #f0f9ff;
+    --auto-border: #bae6fd;
+    --store: #10b981;
+    --store-bg: #ecfdf5;
+    --store-border: #a7f3d0;
+    --poll: #f59e0b;
+    --poll-bg: #fffbeb;
+    --poll-border: #fde68a;
+    --pass: #22c55e;
+    --fail: #ef4444;
+    --accent: #6366f1;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter', -apple-system, sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+  .container { max-width:960px; margin:0 auto; padding:32px 20px 60px; }
+
+  .hero { text-align:center; margin-bottom:48px; }
+  .hero h1 { font-size:28px; font-weight:700; margin-bottom:8px; }
+  .hero h1 span { background:linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .hero .subtitle { color:var(--text-dim); font-size:15px; }
+  .hero .test-time { margin-top:12px; font-size:13px; color:var(--text-dim); background:#f3f4f6; display:inline-block; padding:4px 16px; border-radius:20px; }
+
+  .legend { display:flex; justify-content:center; gap:24px; margin-bottom:40px; flex-wrap:wrap; }
+  .legend-item { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-dim); }
+  .legend-dot { width:12px; height:12px; border-radius:3px; }
+
+  .zone-row { display:flex; gap:16px; margin-bottom:40px; }
+  .zone-box { flex:1; border-radius:14px; padding:20px; }
+  .zone-box.human-zone { background:var(--human-bg); border:2px solid var(--human-border); }
+  .zone-box.auto-zone { background:var(--auto-bg); border:2px solid var(--auto-border); }
+  .zone-title { font-size:14px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+  .zone-title.human-t { color:var(--human); }
+  .zone-title.auto-t { color:var(--auto); }
+  .zone-items { font-size:13px; color:var(--text); }
+  .zone-items li { margin-bottom:6px; list-style:none; padding-left:0; }
+  .zone-items li::before { content:''; display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:8px; vertical-align:middle; }
+  .zone-box.human-zone .zone-items li::before { background:var(--human); }
+  .zone-box.auto-zone .zone-items li::before { background:var(--auto); }
+
+  .status-bar { display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:center; padding:20px; background:var(--card); border:1px solid var(--border); border-radius:12px; margin-bottom:40px; }
+  .status-pill { padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600; }
+  .status-arrow { color:var(--text-dim); font-size:14px; }
+
+  .flow { margin-bottom:48px; }
+  .flow-header { display:flex; align-items:center; gap:16px; margin-bottom:20px; padding-bottom:16px; border-bottom:2px solid var(--border); }
+  .flow-num { width:40px; height:40px; border-radius:10px; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; flex-shrink:0; }
+  .flow-num.poll-num { background:var(--poll); }
+  .flow-num.green-num { background:var(--store); }
+  .flow-num.pre-num { background:#94a3b8; }
+  .flow-info { flex:1; }
+  .flow-info h2 { font-size:19px; font-weight:600; }
+  .flow-info p { font-size:13px; color:var(--text-dim); }
+  .flow-status { margin-left:auto; padding:6px 16px; border-radius:20px; font-size:13px; font-weight:600; flex-shrink:0; }
+  .flow-status.pass { background:#dcfce7; color:#15803d; }
+  .flow-status.partial { background:#fef3c7; color:#92400e; }
+  .flow-status.auto-status { background:#e0f2fe; color:#0369a1; }
+  .flow-links { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
+  .flow-link { font-size:11px; padding:3px 10px; border-radius:6px; background:#f3f4f6; color:var(--accent); text-decoration:none; font-weight:600; border:1px solid var(--border); }
+  .flow-link:hover { background:#e0e7ff; }
+
+  .journey { position:relative; }
+  .journey::before { content:''; position:absolute; left:24px; top:0; bottom:0; width:2px; background:var(--border); z-index:0; }
+  .step { display:flex; gap:20px; position:relative; }
+  .step-icon { width:50px; height:50px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; z-index:1; border:3px solid var(--bg); }
+  .step-icon.human { background:var(--human-bg); border-color:var(--human-border); }
+  .step-icon.auto { background:var(--auto-bg); border-color:var(--auto-border); }
+  .step-icon.store { background:var(--store-bg); border-color:var(--store-border); }
+  .step-icon.poll { background:var(--poll-bg); border-color:var(--poll-border); }
+  .step-content { flex:1; padding-bottom:24px; }
+  .step-label { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; padding:2px 10px; border-radius:4px; margin-bottom:6px; }
+  .step-label.human { background:var(--human-bg); color:var(--human); }
+  .step-label.auto { background:var(--auto-bg); color:var(--auto); }
+  .step-label.store { background:var(--store-bg); color:var(--store); }
+  .step-label.poll { background:var(--poll-bg); color:var(--poll); }
+  .step-title { font-size:16px; font-weight:600; margin-bottom:4px; }
+  .step-desc { font-size:13px; color:var(--text-dim); margin-bottom:10px; }
+
+  .data-box { background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-top:8px; }
+  .data-box h4 { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); margin-bottom:10px; }
+  .data-row { display:flex; align-items:flex-start; gap:8px; margin-bottom:6px; font-size:13px; }
+  .data-row:last-child { margin-bottom:0; }
+  .data-key { color:var(--text-dim); min-width:110px; flex-shrink:0; }
+  .data-val { color:var(--text); font-weight:500; word-break:break-all; }
+  .data-val a { color:var(--accent); text-decoration:none; }
+  .data-val a:hover { text-decoration:underline; }
+
+  .result-badge { display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; padding:3px 10px; border-radius:12px; margin-top:8px; }
+  .result-badge.pass { background:#dcfce7; color:#15803d; }
+  .result-badge.fail { background:#fee2e2; color:#dc2626; }
+
+  .summary-section { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:28px; margin-top:40px; }
+  .summary-section h3 { font-size:18px; font-weight:600; margin-bottom:20px; }
+  .summary-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:16px; }
+  .summary-item { text-align:center; padding:16px; background:var(--bg); border-radius:10px; }
+  .summary-item .num { font-size:32px; font-weight:700; }
+  .summary-item .num.green { color:var(--pass); }
+  .summary-item .num.red { color:var(--fail); }
+  .summary-item .num.blue { color:var(--accent); }
+  .summary-item .label { font-size:12px; color:var(--text-dim); margin-top:4px; }
+
+  .footer { text-align:center; margin-top:48px; font-size:12px; color:var(--text-dim); }
+
+  @media(max-width:700px) {
+    .zone-row { flex-direction:column; }
+    .summary-grid { grid-template-columns:repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="hero">
+    <h1><span>WJ</span> Influencer TEST1</h1>
+    <p class="subtitle">End-to-end automation from influencer data collection to content post detection &mdash; 8-stage pipeline</p>
+    <div class="test-time">As of March 13, 2026</div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--human)"></div> Human in the Loop</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--auto)"></div> Webhook Auto</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--store)"></div> Data Store</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--poll)"></div> Polling Auto</div>
+  </div>
+
+  <!-- Human vs Auto Zone -->
+  <div class="zone-row">
+    <div class="zone-box human-zone">
+      <div class="zone-title human-t">&#9998; Human in the Loop</div>
+      <ul class="zone-items">
+        <li>Influencer fills out gifting application (Stage 2)</li>
+        <li>Creator profile registration (Stage 3)</li>
+        <li>Team review &amp; Accept/Decline decision</li>
+        <li>Sample product selection form (Stage 4)</li>
+        <li>Mark "Sample Sent" in Airtable</li>
+        <li>Influencer shoots &amp; posts content</li>
+      </ul>
+    </div>
+    <div class="zone-box auto-zone">
+      <div class="zone-title auto-t">&#9889; Fully Automated</div>
+      <ul class="zone-items">
+        <li>Syncly crawling &rarr; Airtable ingestion (Stage 0)</li>
+        <li>Bulk outreach email dispatch (Stage 1)</li>
+        <li>Shopify Customer + Draft Order creation (Stage 2)</li>
+        <li>Acceptance email &amp; sample form link (Stage 3&rarr;4)</li>
+        <li>Draft Order completion (5-min polling, Stage 5)</li>
+        <li>Delivery detection (30-min polling, Stage 6)</li>
+        <li>Content Guideline email (Stage 6.5)</li>
+        <li>Content post detection (6-hr polling, Stage 7)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Status Flow -->
+  <div class="status-bar">
+    <span class="status-pill" style="background:#f1f5f9; color:#64748b;">Syncly Ingest</span>
+    <span class="status-arrow">&rarr;</span>
+    <span class="status-pill" style="background:#f1f5f9; color:#64748b;">Outreach</span>
+    <span class="status-arrow">&rarr;</span>
+    <span class="status-pill" style="background:var(--human-bg); color:var(--human);">Form Submit</span>
+    <span class="status-arrow">&rarr;</span>
+    <span class="status-pill" style="background:var(--store-bg); color:var(--store);">New</span>
+    <span class="status-arrow">&rarr;</span>
+    <span class="status-pill" style="background:var(--human-bg); color:var(--human);">Needs Review</span>
+    <span class="status-arrow">&rarr;</span>
+    <span class="status-pill" style="background:var(--auto-bg); color:var(--auto);">Accepted</span>
+    <span class="status-arrow">&rarr;</span>
+    <span class="status-pill" style="background:var(--poll-bg); color:var(--poll);">Sample Sent</span>
+    <span class="status-arrow">&rarr;</span>
+    <span class="status-pill" style="background:var(--poll-bg); color:var(--poll);">Shipped</span>
+    <span class="status-arrow">&rarr;</span>
+    <span class="status-pill" style="background:var(--poll-bg); color:var(--poll);">Delivered</span>
+    <span class="status-arrow">&rarr;</span>
+    <span class="status-pill" style="background:var(--auto-bg); color:var(--auto);">Guideline</span>
+    <span class="status-arrow">&rarr;</span>
+    <span class="status-pill" style="background:var(--store-bg); color:var(--store);">Posted</span>
+  </div>
+
+  <!-- ==================== STAGE 0 ==================== -->
+  <div class="flow">
+    <div class="flow-header">
+      <div class="flow-num pre-num">0</div>
+      <div class="flow-info">
+        <h2>Syncly Data Collection &amp; Outreach Prep</h2>
+        <p>Crawl influencer data from Syncly &rarr; Ingest into Airtable &rarr; Classify via Config sheet &rarr; Prepare outreach list</p>
+        <div class="flow-links">
+          <a class="flow-link" href="https://app.syncly.kr" target="_blank">Syncly Dashboard</a>
+          <a class="flow-link" href="https://airtable.com/appNPVxj4gUJl9v15" target="_blank">Airtable CRM (Prod)</a>
+          <a class="flow-link" href="https://airtable.com/appT2gLRR0PqMFgII" target="_blank">Airtable (WJ TEST)</a>
+        </div>
+      </div>
+      <div class="flow-status auto-status">AUTO (Daily)</div>
+    </div>
+    <div class="journey">
+      <div class="step">
+        <div class="step-icon poll">&#128269;</div>
+        <div class="step-content">
+          <div class="step-label poll">&#128337; Daily Auto Collection</div>
+          <div class="step-title">Syncly Crawling &rarr; D+60 Tracker Sheet Sync</div>
+          <div class="step-desc">Playwright scrapes Syncly dashboard &rarr; CSV &rarr; Google Sheets D+60 Tracker daily accumulation</div>
+          <div class="data-box">
+            <h4>Data Collection Pipeline</h4>
+            <div class="data-row"><span class="data-key">1. Crawl</span><span class="data-val"><a href="#">fetch_syncly_export.py</a> &mdash; Scrape post metrics from Syncly dashboard</span></div>
+            <div class="data-row"><span class="data-key">2. Sheet Sync</span><span class="data-val"><a href="#">sync_syncly_to_sheets.py</a> &mdash; Daily accumulation to D+60 Tracker (191 columns)</span></div>
+            <div class="data-row"><span class="data-key">3. SNS Tab</span><span class="data-val"><a href="#">sync_sns_tab.py</a> &mdash; Shopify PR orders + content matching</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon auto">&#128202;</div>
+        <div class="step-content">
+          <div class="step-label auto">&#9889; Auto Classification</div>
+          <div class="step-title">Organize Influencer Data in Airtable CRM</div>
+          <div class="step-desc">Classify by follower count, category, and brand fit using Config sheet. Generate outreach target list.</div>
+          <div class="data-box">
+            <h4>Airtable Status Management</h4>
+            <div class="data-row"><span class="data-key">Status</span><span class="data-val">Not Started &rarr; Draft Ready &rarr; Sent &rarr; Replied &rarr; ...</span></div>
+            <div class="data-row"><span class="data-key">Fields</span><span class="data-val">Username, Email, Followers, Platform, Category, Notes</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STAGE 1 ==================== -->
+  <div class="flow">
+    <div class="flow-header">
+      <div class="flow-num pre-num">1</div>
+      <div class="flow-info">
+        <h2>Bulk Outreach &amp; Inquiry Handling</h2>
+        <p>Claude API generates personalized outreach emails/DMs &rarr; Send &rarr; Track responses &rarr; Handle inquiries</p>
+        <div class="flow-links">
+          <a class="flow-link" href="https://n8n.orbiters.co.kr" target="_blank">n8n Dashboard</a>
+        </div>
+      </div>
+      <div class="flow-status auto-status">AUTO + HUMAN</div>
+    </div>
+    <div class="journey">
+      <div class="step">
+        <div class="step-icon auto">&#128231;</div>
+        <div class="step-content">
+          <div class="step-label auto">&#9889; AI-Generated + Auto Send</div>
+          <div class="step-title">Claude API Personalized Outreach &rarr; Gmail Bulk Send</div>
+          <div class="step-desc">Generate tailored messages based on influencer profile &rarr; Send from affiliates@onzenna.com &rarr; Update Airtable status to "Sent"</div>
+          <div class="data-box">
+            <h4>Outreach Flow</h4>
+            <div class="data-row"><span class="data-key">1. Draft</span><span class="data-val">Claude API generates profile-based personalized messages</span></div>
+            <div class="data-row"><span class="data-key">2. Send</span><span class="data-val">Gmail OAuth &rarr; Bulk email (affiliates@onzenna.com)</span></div>
+            <div class="data-row"><span class="data-key">3. Track</span><span class="data-val">Airtable: Status &rarr; "Sent", Last Contact At recorded</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon human">&#128172;</div>
+        <div class="step-content">
+          <div class="step-label human">&#9998; Human + AI</div>
+          <div class="step-title">Inquiry Handling &amp; Follow-ups</div>
+          <div class="step-desc">Team reviews influencer replies + AI-assisted responses. Status: Replied &rarr; Needs Review</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STAGE 2 ==================== -->
+  <div class="flow">
+    <div class="flow-header">
+      <div class="flow-num">2</div>
+      <div class="flow-info">
+        <h2>Influencer Gifting Application</h2>
+        <p>Influencer fills out gifting form &rarr; Auto-creates customer + order + CRM record</p>
+        <div class="flow-links">
+          <a class="flow-link" href="https://onzenna.com/pages/influencer-gifting" target="_blank">Gifting Form Page</a>
+          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/F0sv8RsCS1v56Gkw" target="_blank">n8n: Gifting (Prod)</a>
+          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/4q5NCzMb3nMGYqL4" target="_blank">n8n: Gifting (WJ TEST)</a>
+          <a class="flow-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbloYjIEr5OtEppT0" target="_blank">Airtable: Inbound</a>
+        </div>
+      </div>
+      <div class="flow-status pass">PASS 6/6</div>
+    </div>
+    <div class="journey">
+      <div class="step">
+        <div class="step-icon human">&#128221;</div>
+        <div class="step-content">
+          <div class="step-label human">&#9998; Human in the Loop</div>
+          <div class="step-title">Influencer Fills Out Gifting Application</div>
+          <div class="step-desc">Submit form at <a href="https://onzenna.com/pages/influencer-gifting" target="_blank">onzenna.com/pages/influencer-gifting</a></div>
+          <div class="data-box">
+            <h4>&#128203; Information Provided by Influencer</h4>
+            <div class="data-row"><span class="data-key">Name / Email</span><span class="data-val">Personal info + contact details</span></div>
+            <div class="data-row"><span class="data-key">Social</span><span class="data-val">Instagram / TikTok handle</span></div>
+            <div class="data-row"><span class="data-key">Baby Info</span><span class="data-val">Birthday, age in months</span></div>
+            <div class="data-row"><span class="data-key">Product</span><span class="data-val">Select from Grosmimi PPSU product line</span></div>
+            <div class="data-row"><span class="data-key">Shipping</span><span class="data-val">US address</span></div>
+          </div>
+          <div class="result-badge pass">&#10003; Form submitted successfully (2.5s)</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon auto">&#9881;</div>
+        <div class="step-content">
+          <div class="step-label auto">&#9889; Auto Processing (n8n, ~12s)</div>
+          <div class="step-title">Webhook Received &rarr; 5 Parallel Operations</div>
+          <div class="data-box">
+            <h4>What n8n Does Automatically</h4>
+            <div class="data-row"><span class="data-key">1. Shopify</span><span class="data-val">Customer search/create (tags: influencer-gifting, PR)</span></div>
+            <div class="data-row"><span class="data-key">2. Draft Order</span><span class="data-val">100% PR Discount &rarr; $0.00 free order</span></div>
+            <div class="data-row"><span class="data-key">3. Metafields</span><span class="data-val">influencer.instagram, .tiktok, .child_1_birthday</span></div>
+            <div class="data-row"><span class="data-key">4. <a href="https://airtable.com/appT2gLRR0PqMFgII/tbloYjIEr5OtEppT0" target="_blank">Airtable</a></span><span class="data-val">Create Inbound CRM record (Status: New)</span></div>
+            <div class="data-row"><span class="data-key">5. <a href="https://orbitools.orbiters.co.kr/api/onzenna/gifting/list/" target="_blank">PostgreSQL</a></span><span class="data-val">orbitools API &rarr; INSERT into gifting table</span></div>
+          </div>
+          <div class="result-badge pass">&#10003; Shopify + Airtable + PG all PASS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STAGE 3 ==================== -->
+  <div class="flow">
+    <div class="flow-header">
+      <div class="flow-num">3</div>
+      <div class="flow-info">
+        <h2>Creator Profile Registration</h2>
+        <p>Influencer registers detailed profile (platform, follower count, content type)</p>
+        <div class="flow-links">
+          <a class="flow-link" href="https://onzenna.com/pages/creator-profile" target="_blank">Creator Profile Form</a>
+        </div>
+      </div>
+      <div class="flow-status pass">PASS 5/5</div>
+    </div>
+    <div class="journey">
+      <div class="step">
+        <div class="step-icon human">&#128221;</div>
+        <div class="step-content">
+          <div class="step-label human">&#9998; Human in the Loop</div>
+          <div class="step-title">Creator Fills Out Profile Form</div>
+          <div class="step-desc">Enter detailed info at <a href="https://onzenna.com/pages/creator-profile" target="_blank">onzenna.com/pages/creator-profile</a></div>
+          <div class="data-box">
+            <h4>&#128203; Additional Creator Information</h4>
+            <div class="data-row"><span class="data-key">Platform</span><span class="data-val">Instagram / TikTok / YouTube</span></div>
+            <div class="data-row"><span class="data-key">Followers</span><span class="data-val">1K-10K / 10K-50K / 50K+ etc.</span></div>
+            <div class="data-row"><span class="data-key">Content Type</span><span class="data-val">Product reviews, lifestyle, unboxing, etc.</span></div>
+            <div class="data-row"><span class="data-key">Hashtags</span><span class="data-val">Active hashtag list</span></div>
+          </div>
+          <div class="result-badge pass">&#10003; Form submitted successfully</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon auto">&#128202;</div>
+        <div class="step-content">
+          <div class="step-label auto">&#9889; Auto Save</div>
+          <div class="step-title">Airtable Profile Save + IG Scraping</div>
+          <div class="step-desc">Save profile data to CRM and attempt public IG metrics collection</div>
+          <div class="result-badge pass">&#10003; Airtable saved + IG data confirmed</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon human">&#128270;</div>
+        <div class="step-content">
+          <div class="step-label human">&#9998; Human in the Loop</div>
+          <div class="step-title">Team Review &rarr; Accept / Decline Decision</div>
+          <div class="step-desc">Review applicant profile in Airtable, then change Outreach Status to "Accepted" or "Declined"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STAGE 4 ==================== -->
+  <div class="flow">
+    <div class="flow-header">
+      <div class="flow-num">4</div>
+      <div class="flow-info">
+        <h2>Sample Request (Gifting2)</h2>
+        <p>Accepted &rarr; Auto email &rarr; Creator fills sample form &rarr; Draft Order auto-created</p>
+        <div class="flow-links">
+          <a class="flow-link" href="https://onzenna.com/pages/influencer-gifting2" target="_blank">Gifting2 Form Page</a>
+          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/KqICsN9F1mPwnAQ9" target="_blank">n8n: Gifting2 (Prod)</a>
+        </div>
+      </div>
+      <div class="flow-status pass">PASS 5/5</div>
+    </div>
+    <div class="journey">
+      <div class="step">
+        <div class="step-icon auto">&#128231;</div>
+        <div class="step-content">
+          <div class="step-label auto">&#9889; Auto Email (3-min polling)</div>
+          <div class="step-title">Acceptance Email Auto-Sent</div>
+          <div class="step-desc">n8n detects "Accepted" status in Airtable &rarr; Sends sample form link email from affiliates@onzenna.com</div>
+          <div class="data-box">
+            <h4>Acceptance Email Details</h4>
+            <div class="data-row"><span class="data-key">From</span><span class="data-val">affiliates@onzenna.com (Gmail OAuth)</span></div>
+            <div class="data-row"><span class="data-key">Content</span><span class="data-val">Congratulations message + sample product selection form link</span></div>
+            <div class="data-row"><span class="data-key">Setup</span><span class="data-val"><a href="#">setup_n8n_accepted_email.py</a></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon human">&#128221;</div>
+        <div class="step-content">
+          <div class="step-label human">&#9998; Human in the Loop</div>
+          <div class="step-title">Creator Fills Out Sample Form</div>
+          <div class="step-desc">Confirm shipping address + select product/color via email link</div>
+          <div class="result-badge pass">&#10003; Form submitted successfully</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon auto">&#128230;</div>
+        <div class="step-content">
+          <div class="step-label auto">&#9889; Auto Processing</div>
+          <div class="step-title">Shopify Customer + 100% Discount Draft Order Created</div>
+          <div class="step-desc">n8n Gifting2 webhook &rarr; Find/create customer &rarr; Draft Order (free) &rarr; Airtable update</div>
+          <div class="data-box">
+            <h4>Processing Result</h4>
+            <div class="data-row"><span class="data-key">Customer</span><span class="data-val">Shopify Customer (tags: inbound-onz, influencer-gifting, PR)</span></div>
+            <div class="data-row"><span class="data-key">Draft Order</span><span class="data-val">100% PR Discount &rarr; $0.00</span></div>
+            <div class="data-row"><span class="data-key">Airtable</span><span class="data-val">Status &rarr; Sample Form Completed, Draft Order ID recorded</span></div>
+          </div>
+          <div class="result-badge pass">&#10003; Draft Order + Airtable update complete</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STAGE 5 ==================== -->
+  <div class="flow">
+    <div class="flow-header">
+      <div class="flow-num poll-num">5</div>
+      <div class="flow-info">
+        <h2>Sample Sent &rarr; Order Complete</h2>
+        <p>Team marks "Sample Sent" &rarr; n8n 5-min polling &rarr; Draft Order auto-completed</p>
+        <div class="flow-links">
+          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/m89xU9RUbPgnkBy8" target="_blank">n8n: Sample Sent (Prod)</a>
+          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/Vd5NiKMwdLT7b9wa" target="_blank">n8n: Sample Sent (WJ TEST)</a>
+        </div>
+      </div>
+      <div class="flow-status auto-status">AUTO (5-min poll)</div>
+    </div>
+    <div class="journey">
+      <div class="step">
+        <div class="step-icon human">&#128230;</div>
+        <div class="step-content">
+          <div class="step-label human">&#9998; Human in the Loop</div>
+          <div class="step-title">Team Changes Status to "Sample Sent" in Airtable</div>
+          <div class="step-desc">After physically packing and shipping the sample, manually update Airtable Outreach Status</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon poll">&#128260;</div>
+        <div class="step-content">
+          <div class="step-label poll">&#128337; Auto-check every 5 minutes</div>
+          <div class="step-title">n8n Detects "Sample Sent" &rarr; Draft Order Complete</div>
+          <div class="data-box">
+            <h4>Auto Processing Flow</h4>
+            <div class="data-row"><span class="data-key">1. Poll</span><span class="data-val">Airtable: Filter Status = "Sample Sent"</span></div>
+            <div class="data-row"><span class="data-key">2. Complete</span><span class="data-val">Shopify: POST /draft_orders/{id}/complete.json</span></div>
+            <div class="data-row"><span class="data-key">3. Update</span><span class="data-val">Airtable: Status &rarr; "Sample Shipped"</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STAGE 6 ==================== -->
+  <div class="flow">
+    <div class="flow-header">
+      <div class="flow-num poll-num">6</div>
+      <div class="flow-info">
+        <h2>Shipped &rarr; Delivered Detection</h2>
+        <p>n8n 30-min polling: Auto-detect Shopify fulfillment delivery status</p>
+        <div class="flow-links">
+          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/2vsXyHtjo79hnFoD" target="_blank">n8n: Shipped&rarr;Delivered (WJ TEST)</a>
+        </div>
+      </div>
+      <div class="flow-status auto-status">AUTO (30-min poll)</div>
+    </div>
+    <div class="journey">
+      <div class="step">
+        <div class="step-icon poll">&#128666;</div>
+        <div class="step-content">
+          <div class="step-label poll">&#128337; Auto-check every 30 minutes</div>
+          <div class="step-title">Shopify Shipment Tracking &rarr; Delivery Detection</div>
+          <div class="data-box">
+            <h4>Auto Processing Flow</h4>
+            <div class="data-row"><span class="data-key">1. Check</span><span class="data-val">Shopify: Query fulfillment_status</span></div>
+            <div class="data-row"><span class="data-key">2. Detect</span><span class="data-val">IF status = "delivered"</span></div>
+            <div class="data-row"><span class="data-key">3. Update</span><span class="data-val">Airtable: Status &rarr; "Sample Delivered" + Delivered Date</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STAGE 6.5 ==================== -->
+  <div class="flow">
+    <div class="flow-header">
+      <div class="flow-num" style="background:#06b6d4;">6.5</div>
+      <div class="flow-info">
+        <h2>Content Guideline Email</h2>
+        <p>Immediately after delivery detection &rarr; Auto-send brand-specific content guideline PDF + hashtag/tag requirements</p>
+        <div class="flow-links">
+          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/2vsXyHtjo79hnFoD" target="_blank">n8n: Delivery Email (WJ TEST)</a>
+        </div>
+      </div>
+      <div class="flow-status auto-status">AUTO (post-delivery)</div>
+    </div>
+    <div class="journey">
+      <div class="step">
+        <div class="step-icon auto">&#128231;</div>
+        <div class="step-content">
+          <div class="step-label auto">&#9889; Auto Email</div>
+          <div class="step-title">Content Guideline PDF + Shooting Requirements Sent</div>
+          <div class="step-desc">Automatically sent from affiliates@onzenna.com right after "Sample Delivered" is detected</div>
+          <div class="data-box">
+            <h4>Email Contents</h4>
+            <div class="data-row"><span class="data-key">Subject</span><span class="data-val">"Your [Brand] sample has been delivered! Here are your content guidelines"</span></div>
+            <div class="data-row"><span class="data-key">PDF Attach</span><span class="data-val">Grosmimi Content Guidelines.pdf / CHA&amp;MOM Guidelines.pdf (by brand)</span></div>
+            <div class="data-row"><span class="data-key">Requirements</span><span class="data-val">30-second video, voiceover, subtitles included</span></div>
+            <div class="data-row"><span class="data-key">Required Tags</span><span class="data-val">@onzenna + #Grosmimi #PPSUbabybottle (auto-generated by brand)</span></div>
+            <div class="data-row"><span class="data-key">Deadline</span><span class="data-val">Within 14 days of delivery</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STAGE 7 ==================== -->
+  <div class="flow">
+    <div class="flow-header">
+      <div class="flow-num green-num">7</div>
+      <div class="flow-info">
+        <h2>Delivered &rarr; Posted Detection</h2>
+        <p>n8n 6-hour polling: Auto-detect content posts in Syncly D+60 tracker</p>
+        <div class="flow-links">
+          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/82t55jurzbY3iUM4" target="_blank">n8n: Posted Detection (WJ TEST)</a>
+          <a class="flow-link" href="https://docs.google.com/spreadsheets/d/1bOXrARt8wx_YeKyXMlAS1nKzkZBypeaSilI6xDg4_Tc" target="_blank">D+60 Tracker Sheet</a>
+        </div>
+      </div>
+      <div class="flow-status auto-status">AUTO (6-hr poll)</div>
+    </div>
+    <div class="journey">
+      <div class="step">
+        <div class="step-icon human">&#128247;</div>
+        <div class="step-content">
+          <div class="step-label human">&#9998; Human in the Loop</div>
+          <div class="step-title">Influencer Shoots &amp; Posts Content</div>
+          <div class="step-desc">Following the guidelines, post product review video/photos on Instagram/TikTok</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon poll">&#128269;</div>
+        <div class="step-content">
+          <div class="step-label poll">&#128337; Auto-scan every 6 hours</div>
+          <div class="step-title">Syncly D+60 Tracker Scan &rarr; Content Post Detection</div>
+          <div class="data-box">
+            <h4>Auto Processing Flow</h4>
+            <div class="data-row"><span class="data-key">1. Scan</span><span class="data-val"><a href="https://docs.google.com/spreadsheets/d/1bOXrARt8wx_YeKyXMlAS1nKzkZBypeaSilI6xDg4_Tc" target="_blank">D+60 Tracker</a>: Search for influencer handle</span></div>
+            <div class="data-row"><span class="data-key">2. Match</span><span class="data-val">IF handle found in new posts</span></div>
+            <div class="data-row"><span class="data-key">3. Update</span><span class="data-val">Airtable: Status &rarr; "Posted" + Post URL + Metrics</span></div>
+            <div class="data-row"><span class="data-key">4. Track</span><span class="data-val">Start D+60 performance tracking (Views, Likes, Comments)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== n8n WORKFLOW STATUS ==================== -->
+  <div class="summary-section" style="margin-top:48px; margin-bottom:0;">
+    <h3>n8n Workflow Status (WJ TEST)</h3>
+    <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">As of 2026-03-13 &middot; Docusign excluded &middot; Production Pathlight managed separately</p>
+    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+      <thead>
+        <tr style="border-bottom:2px solid var(--border);">
+          <th style="text-align:left; padding:8px 6px; color:var(--text-dim); font-size:11px; text-transform:uppercase;">Workflow</th>
+          <th style="text-align:center; padding:8px 6px; color:var(--text-dim); font-size:11px; text-transform:uppercase;">Status</th>
+          <th style="text-align:center; padding:8px 6px; color:var(--text-dim); font-size:11px; text-transform:uppercase;">AT Link</th>
+          <th style="text-align:left; padding:8px 6px; color:var(--text-dim); font-size:11px; text-transform:uppercase;">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/4q5NCzMb3nMGYqL4" target="_blank" style="color:var(--accent); text-decoration:none;">Gifting &rarr; Shopify Draft Order</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
+          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 2</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/0q9uJUYTpDhQFMfz" target="_blank" style="color:var(--accent); text-decoration:none;">Outreach - Draft Generation</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
+          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 1 &mdash; Claude AI email generation</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/nVtYmhU0InRqRn4K" target="_blank" style="color:var(--accent); text-decoration:none;">Outreach - Reply Handler</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
+          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 1 &mdash; Response tracking</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/mmkBpmvhzbgmSayh" target="_blank" style="color:var(--accent); text-decoration:none;">Outreach - Approval Send</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
+          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 1 &mdash; Post-approval dispatch</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/wyttsPSZJlWLgy86" target="_blank" style="color:var(--accent); text-decoration:none;">Customer Lookup</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
+          <td style="text-align:center; font-size:12px; color:var(--text-dim);">&mdash;</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Shopify only (no AT needed)</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/Vd5NiKMwdLT7b9wa" target="_blank" style="color:var(--accent); text-decoration:none;">Sample Sent &rarr; Complete</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
+          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 5 &mdash; 5-min polling</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/2vsXyHtjo79hnFoD" target="_blank" style="color:var(--accent); text-decoration:none;">Shipped &rarr; Delivered</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
+          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 6 &mdash; 30-min polling</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/82t55jurzbY3iUM4" target="_blank" style="color:var(--accent); text-decoration:none;">Delivered &rarr; Posted</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
+          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 7 &mdash; 6-hr polling</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/6BNQRz57oCtdROlH" target="_blank" style="color:var(--accent); text-decoration:none;">Syncly Data Processing</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
+          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 0 &mdash; 64 nodes</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/UP1OnpNEFN54AOUn" target="_blank" style="color:var(--accent); text-decoration:none;">Shopify Fulfillment &rarr; Airtable</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
+          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 5-6 support</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/zKmOX0tEWi6EBT9h" target="_blank" style="color:var(--accent); text-decoration:none;">Content Tracking</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
+          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 7 support</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border); background:#fef2f2;">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/k08R16VJIuSPdi6T" target="_blank" style="color:var(--fail); text-decoration:none;">ManyChat Automation</a></td>
+          <td style="text-align:center;"><span style="background:#fee2e2; color:#dc2626; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">OFF</span></td>
+          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
+          <td style="padding:8px 6px; font-size:12px; color:#dc2626;">Manual trigger only &mdash; no auto trigger node</td>
+        </tr>
+        <tr style="background:#fef2f2;">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/CEWr3kQlDg07310Y" target="_blank" style="color:var(--fail); text-decoration:none;">Full Pipeline (Combined)</a></td>
+          <td style="text-align:center;"><span style="background:#fee2e2; color:#dc2626; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">OFF</span></td>
+          <td style="text-align:center; font-size:12px; color:var(--text-dim);">&mdash;</td>
+          <td style="padding:8px 6px; font-size:12px; color:#dc2626;">executeCommand node deprecated &mdash; needs httpRequest replacement</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top:12px; font-size:12px; color:var(--text-dim); text-align:right;">
+      Docusign Contracting &mdash; excluded for low-touch mode (SKIP)
+    </div>
+  </div>
+
+  <!-- ==================== SUMMARY ==================== -->
+  <div class="summary-section">
+    <h3>Pipeline Summary</h3>
+    <div class="summary-grid">
+      <div class="summary-item">
+        <div class="num blue">8</div>
+        <div class="label">Total Stages</div>
+      </div>
+      <div class="summary-item">
+        <div class="num green">11</div>
+        <div class="label">Active Workflows</div>
+      </div>
+      <div class="summary-item">
+        <div class="num" style="color:var(--human);">6</div>
+        <div class="label">Human Touch Points</div>
+      </div>
+      <div class="summary-item">
+        <div class="num red">2</div>
+        <div class="label">Inactive (Issues)</div>
+      </div>
+    </div>
+
+    <div style="margin-top:24px; padding:16px; background:var(--bg); border-radius:10px;">
+      <h4 style="font-size:14px; margin-bottom:12px;">&#128161; Key Highlights</h4>
+      <div style="font-size:13px; line-height:1.8; color:var(--text-dim);">
+        <div><strong style="color:var(--pass);">Stage 2 (Gifting App)</strong> &mdash; All pass! Form &rarr; Shopify &rarr; Draft Order &rarr; Airtable &rarr; PG fully working</div>
+        <div><strong style="color:var(--pass);">Stage 3 (Creator Profile)</strong> &mdash; Airtable save + IG scraping confirmed</div>
+        <div><strong style="color:var(--pass);">Stage 4 (Sample Request)</strong> &mdash; Acceptance email &rarr; sample form &rarr; Draft Order all working</div>
+        <div><strong style="color:var(--auto);">Stage 5-7</strong> &mdash; Polling chain (5min/30min/6hr) + Content Guideline email auto-send</div>
+        <div><strong style="color:var(--accent);">Stage 0-1</strong> &mdash; Syncly ingestion + AI outreach pipeline</div>
+        <div><strong style="color:var(--fail);">ManyChat</strong> &mdash; Manual trigger only, cannot auto-activate</div>
+        <div><strong style="color:var(--fail);">Full Pipeline</strong> &mdash; executeCommand node deprecated, needs httpRequest replacement</div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px; padding:16px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px;">
+      <h4 style="font-size:14px; margin-bottom:12px;">&#128640; End-to-End Automation Flow</h4>
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; justify-content:center;">
+        <span style="background:#f1f5f9; border:1px solid #cbd5e1; padding:6px 10px; border-radius:8px;">&#128269; Syncly Ingest</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:#f1f5f9; border:1px solid #cbd5e1; padding:6px 10px; border-radius:8px;">&#128231; Outreach</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:var(--human-bg); border:1px solid var(--human-border); padding:6px 10px; border-radius:8px;">&#128221; Form Fill</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:var(--auto-bg); border:1px solid var(--auto-border); padding:6px 10px; border-radius:8px;">&#9881; n8n</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:var(--store-bg); border:1px solid var(--store-border); padding:6px 10px; border-radius:8px;">&#128100; Shopify</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; justify-content:center; margin-top:8px;">
+        <span style="color:var(--text-dim);">&darr;</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; justify-content:center; margin-top:4px;">
+        <span style="background:var(--poll-bg); border:1px solid var(--poll-border); padding:6px 10px; border-radius:8px;">&#128260; 5-min Poll</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:var(--poll-bg); border:1px solid var(--poll-border); padding:6px 10px; border-radius:8px;">&#128666; 30-min Poll</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:var(--auto-bg); border:1px solid var(--auto-border); padding:6px 10px; border-radius:8px;">&#128231; Guideline</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:var(--human-bg); border:1px solid var(--human-border); padding:6px 10px; border-radius:8px;">&#128247; Content</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:var(--poll-bg); border:1px solid var(--poll-border); padding:6px 10px; border-radius:8px;">&#128269; 6-hr Detect</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:var(--store-bg); border:1px solid var(--store-border); padding:6px 10px; border-radius:8px;">&#10004; Posted</span>
+      </div>
+      <div style="text-align:center; margin-top:10px; font-size:12px; color:var(--text-dim);">
+        Humans only fill forms + review + shoot content &mdash; everything else is fully automated
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Pathlight Pipeline &middot; ORBI WAT Framework &middot; ORBITOOL Marketing Module &middot; Generated 2026-03-13
+  </div>
+
+</div>
+</body>
+</html>
