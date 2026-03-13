@@ -10,11 +10,11 @@ description: "Expert Amazon PPC campaign analysis, optimization, and execution a
 Use this skill when you need to:
 - **Analyze** daily/weekly/monthly Amazon Ads performance data
 - **Diagnose** campaign-level issues (high ACOS, low ROAS, wasted spend)
-- **Execute** bid and budget adjustments via Amazon Ads API
+- **Execute** bid and budget adjustments via Amazon Ads API (multi-brand)
 - **Harvest** keywords from search term reports
+- **Propose** changes with confidence tiers (No-Brainer / Strong / Moderate)
 - **Forecast** budget depletion and seasonal adjustments
 - **Query** performance data using natural language patterns
-- Analyze the daily PPC HTML report (`tools/run_amazon_ppc_daily.py` output)
 - Compare performance across brands and time periods
 
 ## Skill Capabilities
@@ -25,6 +25,7 @@ Use this skill when you need to:
 - Brand-level and campaign-level breakdown
 - Wasted spend audit
 - Search term profitability analysis
+- Cross-platform correlation (Amazon Ads + Shopify + Meta)
 
 ### Layer 2: Recommendations (Proposal)
 - Bid adjustments per ROAS Decision Framework
@@ -32,29 +33,60 @@ Use this skill when you need to:
 - Keyword harvesting (profitable search terms -> exact match)
 - Negative keyword additions (unprofitable search terms)
 - Seasonal budget recommendations (Prime Day, BFCM, Q4)
+- **Confidence-tiered proposals**: No-Brainer / Strong Recommend / Moderate
 
 ### Layer 3: Execution (Write - Approval Required)
-- `--propose`: Generate and email change proposals
+- `--propose`: Generate and email change proposals (per brand, separate emails)
 - `--execute`: Apply only human-approved changes via API
 - Change logging to Google Sheets
 - Email confirmation trail
 
 ## Project Context
 
-### Managed Brands & Profiles
+### Multi-Brand Architecture
 
-| Profile Name    | Brand     | Notes |
-|-----------------|-----------|-------|
-| Orbitool        | CHA&MOM   | Primary brand, improving trend |
-| GROSMIMI USA    | Grosmimi  | Established brand |
-| Fleeters Inc    | Naeiae    | Executor target. API timeout on campaign list (20s limit) |
+The executor supports **3 US seller profiles**, each with independent config:
+
+| Brand Key  | Seller Name     | Brand Display | Daily Budget | Max Campaign | Max Bid | Manual ACOS | Auto ACOS |
+|------------|-----------------|---------------|-------------|-------------|---------|-------------|-----------|
+| `naeiae`   | Fleeters Inc    | Naeiae        | $120        | $50         | $3.00   | 25%         | 35%       |
+| `grosmimi` | GROSMIMI USA    | Grosmimi      | $3,000      | $500        | $5.00   | 20%         | 30%       |
+| `chaenmom` | Orbitool        | CHA&MOM       | $150        | $60         | $3.00   | 30%         | 40%       |
+
+**Key config rationale:**
+- **Grosmimi** ($3K/day): High-volume brand, 30d ROAS 4.37x. Tight ACOS targets (20/30%) to maintain efficiency at scale. Higher max bid ($5) for competitive baby product keywords.
+- **CHA&MOM** ($150/day): Growth phase, 30d ROAS 3.04x trending up to 4.51x 7d. Looser ACOS (30/40%) to allow discovery while still profitable.
+- **Naeiae** ($120/day): Stable mid-performer, 30d ROAS 2.61x. Balanced ACOS targets.
 
 ### Tools
 
 | Tool | Purpose | Command |
 |------|---------|---------|
-| `run_amazon_ppc_daily.py` | Daily analysis report | `python tools/run_amazon_ppc_daily.py --dry-run` |
-| `amazon_ppc_executor.py` | Bid/budget execution | `python tools/amazon_ppc_executor.py --propose` |
+| `run_amazon_ppc_daily.py` | Daily analysis report (all brands) | `python tools/run_amazon_ppc_daily.py` |
+| `amazon_ppc_executor.py` | Bid/budget execution (multi-brand) | `python tools/amazon_ppc_executor.py --propose` |
+
+### Executor Commands
+
+| Command | Description |
+|---------|-------------|
+| `--propose` | Analyze all 3 brands, send separate email per brand |
+| `--propose --brand naeiae` | Single brand only |
+| `--propose --brand grosmimi` | Grosmimi only |
+| `--propose --brand chaenmom` | CHA&MOM only |
+| `--execute --brand naeiae` | Execute approved changes for Naeiae |
+| `--execute` | Execute all brands with approved proposals |
+| `--check-execute` | Poll Gmail for 'execute' reply, auto-execute per brand |
+| `--status` | Show pending proposals for all brands |
+| `--cycle` | 6-hour auto-analysis cycle |
+| `--skip-keywords` | Campaign-level only (faster) |
+
+### Brand Aliases
+
+| Alias | Maps to |
+|-------|---------|
+| `naeiae`, `fleeters` | `naeiae` |
+| `grosmimi`, `gros` | `grosmimi` |
+| `chaenmom`, `orbitool`, `cha&mom`, `chamom` | `chaenmom` |
 
 ### Daily Report Tool
 - API: Amazon Ads Reporting v3 (async: submit -> poll 15s intervals -> download GZIP)
@@ -62,11 +94,11 @@ Use this skill when you need to:
 - Output: HTML email + `.tmp/ppc_report_YYYYMMDD.html` + `.tmp/ppc_payload_YYYYMMDD.json`
 
 ### Executor Tool
-- Target: Fleeters Inc (Naeiae) only
+- Target: All 3 brands (configurable via `--brand`)
 - Approval: Nothing executes without explicit `"approved": true`
-- Budget caps: $120/day total, $50/campaign max, $3 bid max
+- Budget caps: Per-brand (see table above)
 - Logging: Google Sheets change log + email trail
-- Output: `.tmp/ppc_proposal_YYYYMMDD.json` + `.tmp/ppc_executed_YYYYMMDD.json`
+- Output: `.tmp/ppc_proposal_{brand_key}_YYYYMMDD.json` + `.tmp/ppc_executed_YYYYMMDD.json`
 
 ### Credentials (.env)
 
@@ -88,17 +120,61 @@ Python path: `/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe`
 ### Data Flow
 
 ```
-1. Daily Analysis:
-   Ads API (Reporting v3 async) → .tmp/ppc_payload_YYYYMMDD.json
-     → Claude analysis (claude-sonnet-4-6) → .tmp/ppc_report_YYYYMMDD.html → Gmail
+1. Daily Analysis (all brands):
+   DataKeeper (amazon_ads_daily PG) -> run_amazon_ppc_daily.py
+     -> Claude analysis (claude-sonnet-4-6) -> .tmp/ppc_report_YYYYMMDD.html -> Gmail
+   NOTE: run_amazon_ppc_daily.py uses DataKeeper as PRIMARY source (not API).
+         Field mapping: DK.spend -> cost, DK.sales -> sales14d, DK.campaign_id -> campaignId
 
-2. Execution (Fleeters Inc only):
-   Payload → .tmp/ppc_proposal_YYYYMMDD.json → Human approval
-     → API execution → .tmp/ppc_executed_YYYYMMDD.json → Google Sheets changelog
+2. Proposal & Execution (per brand):
+   DataKeeper -> .tmp/ppc_proposal_{brand}_YYYYMMDD.json -> Human approval
+     -> API execution -> .tmp/ppc_executed_YYYYMMDD.json -> Google Sheets changelog
 
-3. Content Tracking (separate pipeline):
-   fetch_syncly_export.py → CSV → sync_syncly_to_sheets.py → Google Sheets D+60 Tracker
+3. Auto-Execute (Gmail polling):
+   Every 2h: check Gmail for 'execute'/'approve'/'go'/'yes' reply per brand
+     -> approve all -> execute -> log -> email confirmation
 ```
+
+### amazon_ads_daily Schema (DataKeeper)
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `date` | str YYYY-MM-DD | Data date |
+| `brand` | str | Grosmimi / Naeiae / CHA&MOM |
+| `campaign_id` | str | Campaign identifier |
+| `campaign_name` | str | Campaign display name |
+| `ad_type` | str | SP / SB / SD |
+| `spend` | float | **Ad cost** -- use as `cost` in analysis |
+| `sales` | float | Ad-attributed sales (14d window) |
+| `purchases` | int | Ad-attributed conversions |
+| `clicks` | int | Total clicks |
+| `impressions` | int | Total impressions |
+
+**CRITICAL**: DataKeeper field is `spend`, NOT `cost`. When querying:
+```python
+dk = DataKeeper()
+rows = dk.get('amazon_ads_daily', days=30)
+cost = float(row.get('spend', 0))   # spend, not cost
+sales = float(row.get('sales', 0))
+```
+
+### Cross-Platform Data Sources (MUST leverage)
+
+| Source | Data | How to Use |
+|--------|------|------------|
+| `amazon_ads_daily` (DataKeeper) | Daily ad metrics by brand/campaign | Primary PPC data |
+| `amazon_sales_daily` (DataKeeper) | Marketplace organic + ad sales | Total revenue context |
+| `shopify_orders_daily` (DataKeeper) | DTC orders (includes FBA MCF) | Cross-channel comparison |
+| `meta_ads_daily` (DataKeeper) | Meta Ads spend/ROAS | Multi-channel budget allocation |
+| `google_ads_daily` (DataKeeper) | Google Ads metrics | Multi-channel context |
+| `ga4_daily` (DataKeeper) | Website traffic/conversion | Landing page quality signal |
+| `Syncly D+60 Tracker` | Influencer content metrics | Content-driven demand correlation |
+
+**Cross-platform analysis examples:**
+- If Amazon ROAS drops but Shopify ROAS is stable -> Amazon-specific issue (listing, competition)
+- If both drop simultaneously -> market/seasonal issue or brand-level problem
+- High Meta spend + low Amazon organic -> check if Meta is cannibalizing Amazon search
+- Influencer content posted (Syncly) + Amazon sales spike -> attribute and increase budget
 
 ### Known Issues & Fixes
 
@@ -107,40 +183,58 @@ Python path: `/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe`
 | Python output buffered in background | Use `-u` flag for unbuffered output |
 | Fleeters Inc hangs on campaign list | `timeout=20` set to fail fast |
 | Reporting v3 only ~60-90 days history | 400 error for older dates; use SP-API for historical |
-| Campaign list returns LIST directly | Not wrapped in `{"campaigns": {...}}` — check `isinstance(data, dict)` |
-| Wrong payload key | `payload['summary']['30d']` not `payload['summary']['total_30d']` |
-| Emoji in print() crashes on Windows | cp949 UnicodeEncodeError — use ASCII text only |
+| Campaign list returns LIST directly | Not wrapped in `{"campaigns": {...}}` -- check `isinstance(data, dict)` |
+| Emoji in print() crashes on Windows | cp949 UnicodeEncodeError -- use ASCII text only |
 | Attribution lag | Report data has 2-3 day lag (14-day attribution window) |
+| Grosmimi campaign list API timeout | Many campaigns, may need pagination patience |
 
-### Dayparting Analysis
+---
 
-Amazon Ads does not provide hourly performance data natively.
-- Use **budget depletion time** as a proxy for traffic distribution
-- If budget exhausted before 6PM → traffic is front-loaded, consider budget increase
-- For true dayparting, use Amazon DSP or third-party tools (Perpetua, Pacvue)
+## Proposal Confidence Tiers
 
-### Cross-Platform Context
+Every proposal MUST be categorized into one of these tiers:
 
-- This brand also runs **Meta Ads** (see `meta-ads-agent` skill)
-- Combined ROAS tracked in the financial model (`tools/no_polar/`)
-- **Shopify** is the primary DTC storefront
-- Amazon sales data: `tools/no_polar/fetch_amazon_sales_monthly.py` (Q3)
-- Amazon ads monthly: `tools/no_polar/fetch_amazon_ads_monthly.py` (Q5)
+### Tier 1: No-Brainer (Must-Do)
+**Green badge. Execute immediately.**
+- ROAS < 1.0 with $50+ spend -> **pause** (literally losing money)
+- Search terms with $100+ spend, 0 sales -> **negate** (pure waste)
+- Keywords with ACOS > 200% sustained 14d+ -> **pause or negate**
+- Budget exhausted before noon on ROAS > 4.0 campaigns -> **increase budget**
+
+### Tier 2: Strong Recommend
+**Orange badge. High confidence, should act within 24h.**
+- ROAS 1.0-1.5 campaigns -> **reduce bid 30%** (bleeding cash)
+- Profitable search terms (ACOS < target, 3+ sales) -> **harvest to exact match**
+- Yesterday ROAS drops 40%+ vs 7d avg -> **emergency bid reduction**
+- Campaign ACOS > 2x target for 14d+ -> **reduce bid or restructure**
+
+### Tier 3: Moderate Recommendation
+**Yellow badge. Good practice, review within 48h.**
+- ROAS 1.5-2.0 -> **reduce bid 15%** (below breakeven zone)
+- ROAS 3.0-5.0 -> **consider budget increase** if budget utilization > 80%
+- Keyword bid adjustments within 20% range
+- Auto campaign search terms to harvest (lower confidence, smaller volume)
+
+### Tier 4: Monitor Only
+**Gray badge. No action needed, informational.**
+- ROAS 2.0-3.0 (healthy range)
+- New campaigns < 7 days old (insufficient data)
+- Seasonal fluctuations within normal bounds
 
 ---
 
 ## ROAS Decision Framework (MANDATORY)
 
-These thresholds are hardcoded in the daily report system prompt and executor:
+These thresholds are hardcoded in the executor:
 
-| 7-Day ROAS | Action | Bid Change | Budget Change | Priority |
-|------------|--------|------------|---------------|----------|
-| < 1.0      | **pause** | - | - | urgent |
-| 1.0 ~ 1.5  | reduce_bid | -30% | - | urgent |
-| 1.5 ~ 2.0  | reduce_bid | -15% | - | high |
-| 2.0 ~ 3.0  | monitor | - | - | medium |
-| 3.0 ~ 5.0  | increase_budget | - | +20% | medium |
-| > 5.0      | increase_budget | +10% | +30% | high |
+| 7-Day ROAS | Action | Bid Change | Budget Change | Priority | Tier |
+|------------|--------|------------|---------------|----------|------|
+| < 1.0      | **pause** | - | - | urgent | No-Brainer |
+| 1.0 ~ 1.5  | reduce_bid | -30% | - | urgent | Strong |
+| 1.5 ~ 2.0  | reduce_bid | -15% | - | high | Moderate |
+| 2.0 ~ 3.0  | monitor | - | - | medium | Monitor |
+| 3.0 ~ 5.0  | increase_budget | - | +20% | medium | Moderate |
+| > 5.0      | increase_budget | +10% | +30% | high | Strong |
 
 **Drop rule:** Yesterday ROAS drops 30%+ vs 7-day average -> reduce_bid -20% additional.
 
@@ -149,50 +243,52 @@ These thresholds are hardcoded in the daily report system prompt and executor:
 - Orange (warning): ROAS 2.0 ~ 3.0
 - Red (danger): ROAS < 2.0
 
-### ACOS Thresholds
-- Green: ACOS < 15%
-- Orange: ACOS 15% ~ 25%
-- Red: ACOS > 25%
+### ACOS Thresholds (per brand)
+| Brand | Green | Orange | Red |
+|-------|-------|--------|-----|
+| Grosmimi | < 15% | 15-20% | > 20% |
+| Naeiae | < 20% | 20-25% | > 25% |
+| CHA&MOM | < 25% | 25-30% | > 30% |
 
 ---
 
 ## Bid Adjustment Presets
 
-Fine-grained bid rules per campaign type (inspired by production presets):
+Fine-grained bid rules per campaign type:
 
 ### Manual Campaigns (Exact/Phrase)
 ```
-desired_acos: 0.25        # 25% target
+desired_acos: per brand config (20-30%)
 increase_by: 0.20         # +20% for high performers
 decrease_by: 0.20         # -20% for underperformers
-max_bid: $3.00
+max_bid: per brand ($3-5)
 min_bid: $0.10
-high_acos: 0.30           # Above this = aggressive cut
-mid_acos: 0.25            # Between mid and high = moderate cut
-click_limit: 10           # Below this = insufficient data
-impression_limit: 200     # Below this = insufficient data
-step_up: $0.05            # Incremental bid bump for low-impression keywords
+high_acos: desired + 5%   # Above this = aggressive cut
+mid_acos: desired          # Between mid and high = moderate cut
+click_limit: 10            # Below this = insufficient data
+impression_limit: 200
+step_up: $0.05             # Incremental bid bump for low-impression keywords
 ```
 
 ### Auto Campaigns (Discovery)
 ```
-desired_acos: 0.35        # Looser target for discovery
-max_bid: $2.00
+desired_acos: per brand config (30-40%)
+max_bid: $2.00-3.00
 min_bid: $0.05
-click_limit: 15           # Higher threshold (noisier data)
+click_limit: 15            # Higher threshold (noisier data)
 impression_limit: 300
 ```
 
 ### Bid Decision Matrix
 
-| Condition | Action | Amount |
-|-----------|--------|--------|
-| ACOS < mid_acos AND clicks >= click_limit | Increase bid | +increase_by (max: max_bid) |
-| ACOS between mid_acos and high_acos | Hold | No change |
-| ACOS > high_acos AND clicks >= click_limit | Decrease bid | -decrease_by (min: min_bid) |
-| Clicks >= click_limit AND sales = 0 | Decrease bid | -30% (min: min_bid) |
-| Impressions < impression_limit AND clicks < 3 | Step up bid | +step_up (max: max_bid) |
-| Impressions = 0 for 7d | Pause keyword | - |
+| Condition | Action | Amount | Tier |
+|-----------|--------|--------|------|
+| ACOS < mid_acos AND clicks >= limit | Increase bid | +increase_by | Moderate |
+| ACOS between mid and high | Hold | No change | Monitor |
+| ACOS > high_acos AND clicks >= limit | Decrease bid | -decrease_by | Strong |
+| Clicks >= limit AND sales = 0 | Decrease bid | -30% | No-Brainer |
+| Impressions < limit AND clicks < 3 | Step up bid | +step_up | Moderate |
+| Impressions = 0 for 7d | Pause keyword | - | No-Brainer |
 
 ---
 
@@ -203,7 +299,7 @@ impression_limit: 300
 IF search_term.acos < desired_acos
 AND search_term.clicks >= click_limit
 AND search_term.sales >= 1
-THEN:
+THEN (Tier: Strong Recommend):
   1. Add to exact match campaign with bid = search_term.cpc * 1.1
   2. Add as negative exact in source auto/broad campaign (prevent cannibalization)
   3. Log action to changelog
@@ -212,33 +308,15 @@ THEN:
 ### Negative Keyword Addition (Unprofitable Terms)
 ```
 IF search_term.spend > 3x target_cpa AND sales = 0
-THEN:
+THEN (Tier: No-Brainer):
   1. Add as negative exact in campaign
   2. Priority: urgent
 
 IF search_term.acos > 2x desired_acos AND clicks >= click_limit
-THEN:
+THEN (Tier: Strong Recommend):
   1. Add as negative exact in campaign
   2. OR reduce bid to min_bid
   3. Priority: high
-```
-
-### Search Term Query Patterns
-
-When analyzing search terms, use these natural language patterns:
-
-```
-"For the last 14 days, which search terms have spend > $10 but zero sales?
-Include campaign name, ad group, search term, match type, cost, impressions, clicks."
-
-"Show top 20 search terms by sales in the last 14 days.
-Include ACOS, cost, clicks, impressions, and source campaign."
-
-"Which search terms have ACOS < 15% and 3+ sales in the last 30 days?
-These are keyword harvesting candidates."
-
-"Show search terms with 20+ clicks but 0 sales in the last 7 days.
-These are negative keyword candidates."
 ```
 
 ---
@@ -247,22 +325,21 @@ These are negative keyword candidates."
 
 ### Daily Budget Depletion Check
 ```
-IF campaign.daily_spend_rate > campaign.daily_budget * 0.8 by noon
-THEN: Flag "budget depleting" - campaign may miss afternoon/evening traffic
-ACTION: Consider +20% budget if ROAS > 3.0
+IF campaign.daily_spend_rate > budget * 0.8 by noon
+THEN: Flag "budget depleting"
+ACTION: +20% budget if ROAS > 3.0 (Tier: Strong)
 
-IF campaign.daily_budget fully spent before 6PM
+IF budget fully spent before 6PM
 THEN: Flag "budget exhausted"
-ACTION: Increase budget +30% if ROAS > 2.5, else redistribute from low-ROAS campaigns
+ACTION: +30% if ROAS > 2.5, else redistribute (Tier: No-Brainer if ROAS > 4.0)
 ```
 
 ### Seasonal Budget Multipliers
 | Event | Dates | Budget Multiplier | Notes |
 |-------|-------|-------------------|-------|
-| Prime Day | July (TBD) | 2.0x - 3.0x | Ramp 5 days before, peak on event days |
+| Prime Day | July (TBD) | 2.0x - 3.0x | Ramp 5 days before |
 | Back to School | Aug 1-Sep 15 | 1.3x | Gradual ramp |
-| Halloween | Oct 15-31 | 1.2x | Category dependent |
-| BFCM | Nov 20-Dec 2 | 2.5x - 4.0x | Highest competition. Ramp 7 days before |
+| BFCM | Nov 20-Dec 2 | 2.5x - 4.0x | Highest competition |
 | Holiday Season | Dec 1-24 | 1.5x - 2.0x | Sustained increase |
 | Q1 Reset | Jan 1-31 | 0.7x - 0.8x | Lower CPMs, good for testing |
 
@@ -291,30 +368,27 @@ Flag when any of these occur:
 - CTR drops below 0.3%
 - ACOS spikes 50%+ vs 7-day average
 - Single keyword consuming >40% of campaign budget
+- **Cross-brand anomaly**: one brand craters while others stable -> brand-specific issue
 
 ### Report JSON Structure
-```
+```json
 {
   "yesterday": "YYYY-MM-DD",
   "summary": {
-    "yesterday": { spend, sales, roas, acos, impressions, clicks },
-    "7d": { ... },
-    "30d": { ... }
+    "yesterday": { "spend": 0, "sales": 0, "roas": 0, "acos": 0, "cpc": 0, "cvr": 0 },
+    "7d": { "..." : "..." },
+    "30d": { "..." : "..." }
   },
   "brand_breakdown": [
-    { brand, spend_7d, sales_7d, roas_7d, spend_30d, sales_30d, roas_30d, ... }
+    { "brand": "...", "spend_7d": 0, "sales_7d": 0, "roas_7d": 0, "roas_7d_vs_30d_pct": 0 }
   ],
   "by_brand_campaigns": {
     "BrandName": [
-      { name, spend_yd, roas_yd, spend_7d, roas_7d, spend_30d, roas_30d, ... }
+      { "campaign": "...", "spend_yd": 0, "roas_yd": 0, "spend_7d": 0, "roas_7d": 0 }
     ]
   },
-  "campaigns_7d": {
-    "top": [...],
-    "worst": [...],
-    "zero_sales": [...]
-  },
-  "anomalies_detected": [...]
+  "campaigns_7d": { "top5": [], "bottom5": [], "zero_sales": [] },
+  "anomalies_detected": []
 }
 ```
 
@@ -328,20 +402,22 @@ Flag when any of these occur:
 |---------------|-----------|
 | Overall health | "Show overall ROAS, ACOS, spend, sales for 7d and 30d across all brands" |
 | Brand comparison | "Compare CHA&MOM vs Grosmimi ROAS and spend trend over last 30 days" |
-| Top campaigns | "Which 10 campaigns have the highest ROAS in the last 14 days? Include spend and sales" |
+| Top campaigns | "Which 10 campaigns have the highest ROAS in the last 14 days?" |
 | Wasted spend | "Show campaigns with 7d spend > $50 and zero sales" |
 | Budget check | "Which campaigns are spending >80% of daily budget before noon?" |
-| Trend detection | "Show daily ROAS trend for last 30 days - is it improving or declining?" |
+| Trend detection | "Show daily ROAS trend for last 30 days - improving or declining?" |
 | Keyword analysis | "Top 20 keywords by sales in last 14d with ACOS, CPC, and impressions" |
+| Cross-platform | "Compare Amazon ROAS vs Meta ROAS for Grosmimi this month" |
 
 ### Execution Queries
 
 | What You Want | How to Ask |
 |---------------|-----------|
-| Generate proposals | "Run --propose for Fleeters Inc and email the proposal" |
+| Generate proposals | "Run --propose for all brands" or "--propose --brand grosmimi" |
 | Check pending | "What proposals are pending approval?" |
-| Execute approved | "Execute all approved changes from today's proposal" |
+| Execute approved | "Execute all approved changes for Naeiae" |
 | View changelog | "Show last 7 days of executed changes from the changelog" |
+| Single brand | "Run PPC analysis for CHA&MOM only" |
 
 ---
 
@@ -358,17 +434,18 @@ Flag when any of these occur:
 - `PUT /sp/keywords` - Update keyword bid/state
 - `POST /sp/negativeKeywords` - Add negative keywords
 - `POST /sp/keywords` - Add new keywords
+- `PUT /sp/targets` - Update ASIN target bids (requires `targetingClauses` wrapper)
+- `POST /sp/targets/list` - List ASIN targets (state filter: `ENABLED` uppercase only)
 
 ### Known Quirks
-- Campaign list API returns a LIST directly (not wrapped in `{"campaigns": {...}}`)
-- Reporting v3 only returns ~60-90 days of history (400 error for older dates)
+- Campaign list API returns a LIST directly (not wrapped in object)
+- Reporting v3 only returns ~60-90 days of history
 - Report data has 2-3 day attribution lag
-- `Fleeters Inc` profile hangs on campaign list -> 20s timeout set to fail fast
-- Use `-u` flag for unbuffered Python output when running in background
-- Ads API uses separate LWA app from SP-API (different Client ID/Secret)
+- campaignId/adGroupId/targetId must be **string** in API calls (not int)
+- Use `-u` flag for unbuffered Python output
+- Ads API uses separate LWA app from SP-API
 
 ### Key Metrics (14-day Attribution)
-Amazon Ads uses 14-day attribution windows:
 - `sales14d` - Sales attributed to ad click within 14 days
 - `purchases14d` - Orders attributed within 14 days
 - ACOS = (ad spend / ad sales) x 100 (lower = better)
@@ -379,35 +456,30 @@ Amazon Ads uses 14-day attribution windows:
 ## Optimization Workflows
 
 ### Daily Health Check
-1. Run `python tools/run_amazon_ppc_daily.py --dry-run`
+1. Run `python tools/run_amazon_ppc_daily.py`
 2. Review `.tmp/ppc_payload_YYYYMMDD.json` for raw data
 3. Check overall ROAS vs brand-level breakdown
 4. Flag zero-sales campaigns for immediate action
 5. Apply ROAS Decision Framework for bid/budget changes
 
-### Wasted Spend Audit
-1. Identify campaigns with 7d spend > $50 and zero sales
-2. Check keyword-level data for high-spend, no-conversion terms
-3. Recommend: pause, negative keyword, or bid reduction per ROAS bands
+### Multi-Brand Propose Cycle
+1. `python tools/amazon_ppc_executor.py --propose` (all 3 brands)
+2. Receive 3 separate emails (Naeiae, Grosmimi, CHA&MOM)
+3. Reply "execute" to any email to approve that brand's changes
+4. Auto-execute workflow checks every 2 hours
 
 ### Keyword Harvesting Cycle (Weekly)
 1. Pull search term report for last 14 days
-2. Filter profitable terms: ACOS < desired_acos, sales >= 1, clicks >= click_limit
+2. Filter profitable terms: ACOS < desired_acos, sales >= 1, clicks >= 10
 3. Add to exact match campaign, negate in source campaign
 4. Pull unprofitable terms: spend > 3x CPA, sales = 0
 5. Add as negative exact keywords
 
-### Brand Comparison
+### Brand Comparison & Reallocation
 1. Compare ROAS across CHA&MOM, Grosmimi, Naeiae
 2. Identify which brand is improving vs declining
-3. Recommend budget reallocation across brands
-
-### Execution Cycle (Fleeters Inc)
-1. `python tools/amazon_ppc_executor.py --propose` - Generate proposals
-2. Review email / `.tmp/ppc_proposal_YYYYMMDD.json`
-3. Approve items: set `"approved": true`
-4. `python tools/amazon_ppc_executor.py --execute` - Apply changes
-5. Verify in changelog and confirmation email
+3. Check cross-platform (Meta, Google) for context
+4. Recommend budget reallocation across brands
 
 ## Reference Documents
 

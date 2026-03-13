@@ -12,7 +12,7 @@ permissions:
 jobs:
   check-execute:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30   # 3 brands check + potential execution
 
     steps:
       - name: Checkout repo

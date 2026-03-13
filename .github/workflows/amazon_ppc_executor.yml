@@ -8,7 +8,7 @@ on:
 jobs:
   ppc-propose:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120   # 3 brands × ~30min each
 
     steps:
       - name: Checkout repo

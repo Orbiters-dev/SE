@@ -1216,7 +1216,7 @@ def pause_keyword(profile_id: int, keyword_id) -> Dict:
 # Google Sheets Change Log
 # ===========================================================================
 
-def log_to_sheets(executed_changes: List[Dict]):
+def log_to_sheets(executed_changes: List[Dict], brand_key: str = "naeiae"):
     """Append executed changes to Google Sheets change log."""
     try:
         import gspread
@@ -1259,7 +1259,7 @@ def log_to_sheets(executed_changes: List[Dict]):
     for ch in executed_changes:
         rows_to_add.append([
             now,
-            TARGET_BRAND,
+            BRAND_CONFIGS[brand_key]["brand_display"],
             ch.get("campaignName", ""),
             str(ch.get("campaignId", "")),
             ch.get("action", ""),
@@ -1978,10 +1978,11 @@ def send_execution_email(executed: List[Dict], to: str = DEFAULT_TO,
 CYCLE_INTERVAL_HOURS = 6
 
 def run_cycle(args):
-    """Run analysis every 6 hours, email proposals each time."""
-    print(f"[Cycle] Starting 6-hour analysis cycle for {TARGET_BRAND}")
-    print(f"  Budget: ${TOTAL_DAILY_BUDGET_USD}/day | Interval: {CYCLE_INTERVAL_HOURS}h")
-    print(f"  Emails to: {args.to}")
+    """Run analysis every 6 hours, email proposals each time (all brands)."""
+    brands = _resolve_brands(args)
+    brand_names = ", ".join(BRAND_CONFIGS[b]["brand_display"] for b in brands)
+    print(f"[Cycle] Starting 6-hour analysis cycle for {brand_names}")
+    print(f"  Interval: {CYCLE_INTERVAL_HOURS}h | Emails to: {args.to}")
 
     cycle = 0
     while True:
@@ -2009,15 +2010,24 @@ EXECUTE_KEYWORDS = {"execute", "approve", "go", "yes", "run"}
 
 
 def check_email_and_execute(args):
-    """Poll Gmail for 'execute' reply to the latest proposal email, then auto-execute."""
-    data = load_latest_proposal()
+    """Poll Gmail for 'execute' reply to latest proposal emails, then auto-execute (per brand)."""
+    brands = _resolve_brands(args)
+    for bk in brands:
+        _apply_brand_config(bk)
+        _check_execute_for_brand(args, bk)
+
+
+def _check_execute_for_brand(args, brand_key: str):
+    """Check email and execute for a single brand."""
+    cfg = BRAND_CONFIGS[brand_key]
+    data = load_latest_proposal(brand_key=brand_key)
     if not data:
-        print("[check-execute] No proposal found.")
+        print(f"[check-execute] No proposal found for {cfg['brand_display']}.")
         return
 
     # Already executed?
     if data.get("executed"):
-        print("[check-execute] Latest proposal already executed. Skipping.")
+        print(f"[check-execute] {cfg['brand_display']}: Latest proposal already executed. Skipping.")
         return
 
     # No email tracking info?
@@ -2112,7 +2122,7 @@ def check_email_and_execute(args):
         kp["approved"] = True
 
     # Save approved state
-    latest_path = sorted(TMP_DIR.glob("ppc_proposal_*.json"), reverse=True)[0]
+    latest_path = sorted(TMP_DIR.glob(f"ppc_proposal_{brand_key}_*.json"), reverse=True)[0]
     data["proposals"] = proposals
     data["keyword_proposals"] = kw_proposals
     latest_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -2125,23 +2135,32 @@ def check_email_and_execute(args):
         data["executed_at"] = datetime.now().isoformat()
         latest_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
 
-        log_to_sheets(executed)
-        send_execution_email(executed, args.to, cc=args.cc)
-        print(f"\n[check-execute] {len(executed)} changes auto-executed via email reply!")
+        log_to_sheets(executed, brand_key=brand_key)
+        send_execution_email(executed, args.to, cc=args.cc, brand_key=brand_key)
+        print(f"\n[check-execute] {cfg['brand_display']}: {len(executed)} changes auto-executed via email reply!")
     else:
-        print("[check-execute] No approved items to execute.")
+        print(f"[check-execute] {cfg['brand_display']}: No approved items to execute.")
 
 
 # ===========================================================================
 # Main
 # ===========================================================================
 
-def run_propose(args):
-    """Core propose logic, used by both --propose and --cycle."""
-    print(f"[1/6] Finding Fleeters Inc profile...")
-    profile = get_fleeters_profile()
+def run_propose_single(args, brand_key: str):
+    """Core propose logic for a single brand."""
+    _apply_brand_config(brand_key)
+    cfg = BRAND_CONFIGS[brand_key]
+    brand_display = cfg["brand_display"]
+
+    print(f"\n{'#'*70}")
+    print(f"  {brand_display} ({cfg['seller_name']}) — Proposal Analysis")
+    print(f"  Budget: ${cfg['total_daily_budget']:,.0f}/day | ACOS targets: Manual {cfg['targeting']['MANUAL']['target_acos']}% / Auto {cfg['targeting']['AUTO']['target_acos']}%")
+    print(f"{'#'*70}")
+
+    print(f"\n[1/6] Finding {cfg['seller_name']} profile...")
+    profile = get_brand_profile(brand_key)
     if not profile:
-        print("[ERROR] Fleeters Inc profile not found!")
+        print(f"[ERROR] {cfg['seller_name']} profile not found! Skipping.")
         return
     profile_id = profile["profile_id"]
     print(f"  Found: profile_id={profile_id}")
@@ -2158,7 +2177,7 @@ def run_propose(args):
     print(f"\n[3/6] Analyzing campaigns (ROAS framework)...")
     proposals = analyze_campaigns(campaigns, report_rows)
 
-    # --- NEW: Search Term & Keyword Analysis ---
+    # --- Search Term & Keyword Analysis ---
     kw_proposals = []
 
     if not args.skip_keywords:
@@ -2187,25 +2206,58 @@ def run_propose(args):
         print(f"[5/6] Skipped")
 
     if not proposals and not kw_proposals:
-        print("\n[OK] All campaigns within normal range. No changes needed.")
+        print(f"\n[OK] {brand_display}: All campaigns within normal range. No changes needed.")
         return
 
-    filepath = save_proposal(proposals, profile_id, kw_proposals)
-    print_proposal_summary(proposals)
+    filepath = save_proposal(proposals, profile_id, kw_proposals, brand_key=brand_key)
+    print_proposal_summary(proposals, brand_key=brand_key)
     if kw_proposals:
         print_keyword_summary(kw_proposals)
 
-    print(f"\n[6/6] Sending proposal email...")
-    send_proposal_email(proposals, args.to, kw_proposals, cc=args.cc)
+    print(f"\n[6/6] Sending {brand_display} proposal email...")
+    send_proposal_email(proposals, args.to, kw_proposals, cc=args.cc, brand_key=brand_key)
+
+
+def run_propose(args):
+    """Run propose for all requested brands (default: all 3)."""
+    brands_to_run = _resolve_brands(args)
+    print(f"\n[Multi-Brand Propose] Running for: {', '.join(BRAND_CONFIGS[b]['brand_display'] for b in brands_to_run)}")
+    for brand_key in brands_to_run:
+        try:
+            run_propose_single(args, brand_key)
+        except Exception as e:
+            print(f"\n[ERROR] {BRAND_CONFIGS[brand_key]['brand_display']} propose failed: {e}")
+            import traceback
+            traceback.print_exc()
+
+
+def _resolve_brands(args) -> List[str]:
+    """Resolve which brands to run based on --brand arg."""
+    if hasattr(args, 'brand') and args.brand:
+        brand = args.brand.lower().strip()
+        # Allow aliases
+        aliases = {
+            "naeiae": "naeiae", "fleeters": "naeiae",
+            "grosmimi": "grosmimi", "gros": "grosmimi",
+            "chaenmom": "chaenmom", "orbitool": "chaenmom", "cha&mom": "chaenmom", "chamom": "chaenmom",
+        }
+        key = aliases.get(brand, brand)
+        if key not in BRAND_CONFIGS:
+            print(f"[ERROR] Unknown brand '{args.brand}'. Available: {', '.join(ALL_BRAND_KEYS)}")
+            sys.exit(1)
+        return [key]
+    return ALL_BRAND_KEYS
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Amazon PPC Executor (Fleeters Inc / Naeiae)")
+    parser = argparse.ArgumentParser(description="Amazon PPC Executor (Multi-Brand: Naeiae, Grosmimi, CHA&MOM)")
     parser.add_argument("--propose", action="store_true", help="Analyze & email change proposals")
     parser.add_argument("--execute", action="store_true", help="Execute approved changes from latest proposal")
     parser.add_argument("--check-execute", action="store_true", help="Poll Gmail for 'execute' reply and auto-execute")
     parser.add_argument("--status", action="store_true", help="Show latest proposal status")
     parser.add_argument("--cycle", action="store_true", help="Run 6-hour analysis cycle")
+    parser.add_argument("--brand", type=str, default=None,
+                        help="Target brand: naeiae/grosmimi/chaenmom (default: all)")
     parser.add_argument("--days", type=int, default=30, help="Days of data to analyze (default: 30)")
     parser.add_argument("--to", type=str, default=DEFAULT_TO, help="Email recipient")
     parser.add_argument("--cc", type=str, default=DEFAULT_CC, help="CC email recipient")
@@ -2214,36 +2266,41 @@ def main():
     args = parser.parse_args()
 
     if args.status:
-        data = load_latest_proposal()
-        if not data:
-            print("[INFO] No proposals found in .tmp/")
-            return
-        proposals = data["proposals"]
-        approved_count = sum(1 for p in proposals if p.get("approved"))
-        print(f"Latest proposal: {data['generated_at']}")
-        print(f"Brand: {data['brand']} ({data['seller']})")
-        print(f"Total: {len(proposals)} proposals, {approved_count} approved")
-        for p in proposals:
-            status = "[APPROVED]" if p.get("approved") else "[pending]"
-            print(f"  {status} {p['proposed_action']:>16} | [{p.get('campaignType','?')}] {p['campaignName']} | 7d ROAS {p['metrics']['7d']['roas']}x")
+        brands = _resolve_brands(args)
+        for bk in brands:
+            data = load_latest_proposal(brand_key=bk)
+            if not data:
+                print(f"[INFO] No proposals found for {BRAND_CONFIGS[bk]['brand_display']}")
+                continue
+            proposals = data["proposals"]
+            approved_count = sum(1 for p in proposals if p.get("approved"))
+            print(f"\n{'='*50}")
+            print(f"Latest proposal: {data['generated_at']}")
+            print(f"Brand: {data['brand']} ({data['seller']})")
+            print(f"Total: {len(proposals)} proposals, {approved_count} approved")
+            for p in proposals:
+                status = "[APPROVED]" if p.get("approved") else "[pending]"
+                print(f"  {status} {p['proposed_action']:>16} | [{p.get('campaignType','?')}] {p['campaignName']} | 7d ROAS {p['metrics']['7d']['roas']}x")
         return
 
     if args.execute:
-        data = load_latest_proposal()
-        if not data:
-            print("[ERROR] No proposal found. Run --propose first.")
-            return
-        executed = execute_approved(data)
-        if executed:
-            # Mark proposal as executed to prevent re-execution by --check-execute
-            latest_path = sorted(TMP_DIR.glob("ppc_proposal_*.json"), reverse=True)
-            if latest_path:
-                data["executed"] = True
-                data["executed_at"] = datetime.now().isoformat()
-                latest_path[0].write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-            log_to_sheets(executed)
-            send_execution_email(executed, args.to, cc=args.cc)
-            print(f"\n[DONE] {len(executed)} changes executed, logged, and emailed.")
+        brands = _resolve_brands(args)
+        for bk in brands:
+            _apply_brand_config(bk)
+            data = load_latest_proposal(brand_key=bk)
+            if not data:
+                print(f"[ERROR] No proposal found for {BRAND_CONFIGS[bk]['brand_display']}. Run --propose first.")
+                continue
+            executed = execute_approved(data)
+            if executed:
+                latest_path = sorted(TMP_DIR.glob(f"ppc_proposal_{bk}_*.json"), reverse=True)
+                if latest_path:
+                    data["executed"] = True
+                    data["executed_at"] = datetime.now().isoformat()
+                    latest_path[0].write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+                log_to_sheets(executed, brand_key=bk)
+                send_execution_email(executed, args.to, cc=args.cc, brand_key=bk)
+                print(f"\n[DONE] {BRAND_CONFIGS[bk]['brand_display']}: {len(executed)} changes executed, logged, and emailed.")
         return
 
     if args.check_execute:
