@@ -198,41 +198,52 @@
     <div class="flow-header">
       <div class="flow-num pre-num">0</div>
       <div class="flow-info">
-        <h2>Syncly Data Collection &amp; Outreach Prep</h2>
-        <p>Crawl influencer data from Syncly &rarr; Ingest into Airtable &rarr; Classify via Config sheet &rarr; Prepare outreach list</p>
+        <h2>Syncly Influencer Discovery &rarr; Airtable Sync</h2>
+        <p>Syncly discovers influencers &rarr; Shares data in Google Sheet &rarr; n8n syncs creators &amp; content to Airtable CRM &rarr; Writes status back</p>
         <div class="flow-links">
-          <a class="flow-link" href="https://app.syncly.kr" target="_blank">Syncly Dashboard</a>
-          <a class="flow-link" href="https://airtable.com/appNPVxj4gUJl9v15" target="_blank">Airtable CRM (Prod)</a>
+          <a class="flow-link" href="https://docs.google.com/spreadsheets/d/1dIAhP8wCEdFulSAai3K-RoZTvLBIaWxAK7hzInBsF0o/edit?gid=817788377" target="_blank">Syncly Discovery Sheet</a>
+          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/6BNQRz57oCtdROlH" target="_blank">n8n: Syncly Data Processing (WJ TEST)</a>
           <a class="flow-link" href="https://airtable.com/appT2gLRR0PqMFgII" target="_blank">Airtable (WJ TEST)</a>
         </div>
       </div>
-      <div class="flow-status auto-status">AUTO (Daily)</div>
+      <div class="flow-status auto-status">AUTO (Manual Trigger)</div>
     </div>
     <div class="journey">
       <div class="step">
-        <div class="step-icon poll">&#128269;</div>
+        <div class="step-icon store">&#128202;</div>
         <div class="step-content">
-          <div class="step-label poll">&#128337; Daily Auto Collection</div>
-          <div class="step-title">Syncly Crawling &rarr; D+60 Tracker Sheet Sync</div>
-          <div class="step-desc">Playwright scrapes Syncly dashboard &rarr; CSV &rarr; Google Sheets D+60 Tracker daily accumulation</div>
+          <div class="step-label store">&#128196; Data Source</div>
+          <div class="step-title">Syncly Influencer Discovery Google Sheet</div>
+          <div class="step-desc">Syncly platform discovers influencers and shares creator + content data via a shared <a href="https://docs.google.com/spreadsheets/d/1dIAhP8wCEdFulSAai3K-RoZTvLBIaWxAK7hzInBsF0o/edit?gid=817788377" target="_blank">Google Sheet</a></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon auto">&#128260;</div>
+        <div class="step-content">
+          <div class="step-label auto">&#9889; n8n Sync (64 nodes)</div>
+          <div class="step-title">Creator Sync: Google Sheet &rarr; Airtable CRM</div>
+          <div class="step-desc">n8n reads creator data from sheet &rarr; Deduplication check &rarr; Create or update Creator records in Airtable</div>
           <div class="data-box">
-            <h4>Data Collection Pipeline</h4>
-            <div class="data-row"><span class="data-key">1. Crawl</span><span class="data-val"><a href="#">fetch_syncly_export.py</a> &mdash; Scrape post metrics from Syncly dashboard</span></div>
-            <div class="data-row"><span class="data-key">2. Sheet Sync</span><span class="data-val"><a href="#">sync_syncly_to_sheets.py</a> &mdash; Daily accumulation to D+60 Tracker (191 columns)</span></div>
-            <div class="data-row"><span class="data-key">3. SNS Tab</span><span class="data-val"><a href="#">sync_sns_tab.py</a> &mdash; Shopify PR orders + content matching</span></div>
+            <h4>Creator Sync Pipeline</h4>
+            <div class="data-row"><span class="data-key">1. Read Sheet</span><span class="data-val">Fetch creator list from Syncly discovery sheet</span></div>
+            <div class="data-row"><span class="data-key">2. Dedup</span><span class="data-val">Check existing Airtable creators &rarr; Build lookup map</span></div>
+            <div class="data-row"><span class="data-key">3. Sync</span><span class="data-val">Create new / Update existing Creator records in Airtable</span></div>
+            <div class="data-row"><span class="data-key">4. Writeback</span><span class="data-val">Write processing status back to Google Sheet</span></div>
           </div>
         </div>
       </div>
       <div class="step">
-        <div class="step-icon auto">&#128202;</div>
+        <div class="step-icon auto">&#128196;</div>
         <div class="step-content">
-          <div class="step-label auto">&#9889; Auto Classification</div>
-          <div class="step-title">Organize Influencer Data in Airtable CRM</div>
-          <div class="step-desc">Classify by follower count, category, and brand fit using Config sheet. Generate outreach target list.</div>
+          <div class="step-label auto">&#9889; Content Sync</div>
+          <div class="step-title">Content Sync: Google Sheet &rarr; Airtable + Creator Linking</div>
+          <div class="step-desc">Sync content records from sheet &rarr; Auto-link to creator records &rarr; Auto-create missing creators &rarr; Gmail notifications</div>
           <div class="data-box">
-            <h4>Airtable Status Management</h4>
-            <div class="data-row"><span class="data-key">Status</span><span class="data-val">Not Started &rarr; Draft Ready &rarr; Sent &rarr; Replied &rarr; ...</span></div>
-            <div class="data-row"><span class="data-key">Fields</span><span class="data-val">Username, Email, Followers, Platform, Category, Notes</span></div>
+            <h4>Content Sync Pipeline</h4>
+            <div class="data-row"><span class="data-key">1. Read</span><span class="data-val">Fetch content data from sheet</span></div>
+            <div class="data-row"><span class="data-key">2. Link</span><span class="data-val">Match content to creators &rarr; Auto-create if missing</span></div>
+            <div class="data-row"><span class="data-key">3. Sync</span><span class="data-val">Create/Update Content records in Airtable</span></div>
+            <div class="data-row"><span class="data-key">4. Notify</span><span class="data-val">Gmail summary: sync results + writeback status</span></div>
           </div>
         </div>
       </div>

@@ -137,7 +137,7 @@
 <div class="container">
 
   <div class="hero">
-    <h1><span>Pathlight</span> Influencer Gifting Pipeline</h1>
+    <h1><span>WJ</span> Influencer TEST1</h1>
     <p class="subtitle">인플루언서 데이터 수집부터 컨텐츠 게시 감지까지 — 8단계 전체 자동화 흐름</p>
     <div class="test-time">2026년 3월 13일 기준</div>
   </div>
@@ -207,41 +207,52 @@
     <div class="flow-header">
       <div class="flow-num pre-num">0</div>
       <div class="flow-info">
-        <h2>Syncly 데이터 수집 &amp; 아웃리치 준비</h2>
-        <p>Syncly에서 인플루언서 데이터 크롤링 &rarr; Airtable 수집 &rarr; Config 시트 기반 분류 &rarr; 아웃리치 준비</p>
+        <h2>Syncly 인플루언서 발굴 &rarr; Airtable 동기화</h2>
+        <p>Syncly가 인플루언서 발굴 &rarr; Google Sheet에 공유 &rarr; n8n이 크리에이터 &amp; 컨텐츠를 Airtable CRM에 동기화 &rarr; 상태 기록</p>
         <div class="flow-links">
-          <a class="flow-link" href="https://app.syncly.kr" target="_blank">Syncly Dashboard</a>
-          <a class="flow-link" href="https://airtable.com/appNPVxj4gUJl9v15" target="_blank">Airtable CRM (Prod)</a>
+          <a class="flow-link" href="https://docs.google.com/spreadsheets/d/1dIAhP8wCEdFulSAai3K-RoZTvLBIaWxAK7hzInBsF0o/edit?gid=817788377" target="_blank">Syncly 발굴 시트</a>
+          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/6BNQRz57oCtdROlH" target="_blank">n8n: Syncly Data Processing (WJ TEST)</a>
           <a class="flow-link" href="https://airtable.com/appT2gLRR0PqMFgII" target="_blank">Airtable (WJ TEST)</a>
         </div>
       </div>
-      <div class="flow-status auto-status">AUTO (매일)</div>
+      <div class="flow-status auto-status">AUTO (수동 트리거)</div>
     </div>
     <div class="journey">
       <div class="step">
-        <div class="step-icon poll">&#128269;</div>
+        <div class="step-icon store">&#128202;</div>
         <div class="step-content">
-          <div class="step-label poll">&#128337; 매일 자동 수집</div>
-          <div class="step-title">Syncly 크롤링 &rarr; D+60 Tracker 시트 동기화</div>
-          <div class="step-desc">Playwright로 Syncly 대시보드 스크래핑 &rarr; CSV &rarr; Google Sheets D+60 Tracker에 누적</div>
+          <div class="step-label store">&#128196; 데이터 소스</div>
+          <div class="step-title">Syncly 인플루언서 발굴 Google Sheet</div>
+          <div class="step-desc">Syncly 플랫폼이 인플루언서를 발굴하고, 크리에이터 + 컨텐츠 데이터를 공유 <a href="https://docs.google.com/spreadsheets/d/1dIAhP8wCEdFulSAai3K-RoZTvLBIaWxAK7hzInBsF0o/edit?gid=817788377" target="_blank">Google Sheet</a>에 기록</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon auto">&#128260;</div>
+        <div class="step-content">
+          <div class="step-label auto">&#9889; n8n 동기화 (64 nodes)</div>
+          <div class="step-title">Creator Sync: Google Sheet &rarr; Airtable CRM</div>
+          <div class="step-desc">n8n이 시트에서 크리에이터 데이터 읽기 &rarr; 중복 체크 &rarr; Airtable에 Creator 레코드 생성/업데이트</div>
           <div class="data-box">
-            <h4>데이터 수집 파이프라인</h4>
-            <div class="data-row"><span class="data-key">1. 크롤링</span><span class="data-val"><a href="#">fetch_syncly_export.py</a> &mdash; Syncly 대시보드에서 포스트 메트릭 수집</span></div>
-            <div class="data-row"><span class="data-key">2. 시트 동기화</span><span class="data-val"><a href="#">sync_syncly_to_sheets.py</a> &mdash; D+60 Tracker에 일별 누적 (191 컬럼)</span></div>
-            <div class="data-row"><span class="data-key">3. SNS 탭</span><span class="data-val"><a href="#">sync_sns_tab.py</a> &mdash; Shopify PR 주문 + 컨텐츠 매칭</span></div>
+            <h4>Creator Sync 파이프라인</h4>
+            <div class="data-row"><span class="data-key">1. 시트 읽기</span><span class="data-val">Syncly 발굴 시트에서 크리에이터 목록 가져오기</span></div>
+            <div class="data-row"><span class="data-key">2. 중복 체크</span><span class="data-val">기존 Airtable 크리에이터 확인 &rarr; Lookup 맵 생성</span></div>
+            <div class="data-row"><span class="data-key">3. 동기화</span><span class="data-val">새 크리에이터 생성 / 기존 레코드 업데이트</span></div>
+            <div class="data-row"><span class="data-key">4. Writeback</span><span class="data-val">처리 상태를 Google Sheet에 기록</span></div>
           </div>
         </div>
       </div>
       <div class="step">
-        <div class="step-icon auto">&#128202;</div>
+        <div class="step-icon auto">&#128196;</div>
         <div class="step-content">
-          <div class="step-label auto">&#9889; 자동 분류</div>
-          <div class="step-title">Airtable CRM에 인플루언서 데이터 정리</div>
-          <div class="step-desc">Config 시트 기준으로 팔로워 규모, 카테고리, 브랜드 적합성 분류. 아웃리치 대상 리스트 생성</div>
+          <div class="step-label auto">&#9889; Content Sync</div>
+          <div class="step-title">Content Sync: Google Sheet &rarr; Airtable + 크리에이터 연결</div>
+          <div class="step-desc">시트에서 컨텐츠 레코드 동기화 &rarr; 크리에이터 자동 연결 &rarr; 누락 크리에이터 자동 생성 &rarr; Gmail 알림</div>
           <div class="data-box">
-            <h4>Airtable 상태 관리</h4>
-            <div class="data-row"><span class="data-key">Status</span><span class="data-val">Not Started &rarr; Draft Ready &rarr; Sent &rarr; Replied &rarr; ...</span></div>
-            <div class="data-row"><span class="data-key">필드</span><span class="data-val">Username, Email, Followers, Platform, Category, Notes</span></div>
+            <h4>Content Sync 파이프라인</h4>
+            <div class="data-row"><span class="data-key">1. 읽기</span><span class="data-val">시트에서 컨텐츠 데이터 가져오기</span></div>
+            <div class="data-row"><span class="data-key">2. 연결</span><span class="data-val">컨텐츠를 크리에이터에 매칭 &rarr; 누락 시 자동 생성</span></div>
+            <div class="data-row"><span class="data-key">3. 동기화</span><span class="data-val">Airtable에 Content 레코드 생성/업데이트</span></div>
+            <div class="data-row"><span class="data-key">4. 알림</span><span class="data-val">Gmail 요약: 동기화 결과 + writeback 상태</span></div>
           </div>
         </div>
       </div>
@@ -762,3 +773,5 @@
   </div>
 
 </div>
+</body>
+</html>
