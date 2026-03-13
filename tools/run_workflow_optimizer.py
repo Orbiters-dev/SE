@@ -189,6 +189,103 @@ def generate_proposals(
         return []
 
 
+_BADGE = {
+    "BROKEN_REF":      "🔴",
+    "ORPHAN_TOOL":     "🟡",
+    "EMPTY_WORKFLOW":  "🟡",
+    "NO_GH_ACTION":    "ℹ️",
+    "LOW_SUCCESS":     "🔴",
+    "CONSECUTIVE_FAIL":"🔴",
+    "SLOW_WORKFLOW":   "🟡",
+    "INACTIVE":        "ℹ️",
+}
+_TYPE_COLOR = {
+    "workflow_md":    "#1a73e8",
+    "gh_action_yaml": "#e65100",
+    "tool_code":      "#2e7d32",
+}
+
+
+def build_proposal_email(
+    proposals: list[dict],
+    issue_count: int,
+    date_str: str | None = None,
+) -> str:
+    if date_str is None:
+        date_str = datetime.now().strftime("%Y-%m-%d")
+
+    type_counts: dict[str, int] = {}
+    for p in proposals:
+        type_counts[p["change_type"]] = type_counts.get(p["change_type"], 0) + 1
+
+    summary_parts = [
+        f"{v} {k.replace('_', ' ')}" for k, v in sorted(type_counts.items())
+    ]
+    summary = " &nbsp;|&nbsp; ".join(summary_parts) if summary_parts else "No proposals"
+
+    cards_html = ""
+    for p in proposals:
+        badge = _BADGE.get(p["issue_type"], "•")
+        color = _TYPE_COLOR.get(p["change_type"], "#555")
+        orig_escaped  = p["original"].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        repl_escaped  = p["replacement"].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        cards_html += f"""
+        <div style="border:1px solid #ddd;border-radius:8px;padding:16px;margin-bottom:16px;">
+          <div style="font-size:15px;font-weight:600;margin-bottom:6px;">
+            {badge} Proposal #{p['id']} &nbsp;
+            <span style="color:{color};font-size:12px;font-weight:500;
+                         background:#f0f0f0;padding:2px 8px;border-radius:4px;">
+              {p['change_type']}
+            </span>
+          </div>
+          <div style="color:#555;font-size:13px;margin-bottom:4px;">
+            <b>Issue:</b> {p['issue_type']} — {p['source']}
+          </div>
+          <div style="color:#555;font-size:13px;margin-bottom:4px;">
+            <b>File:</b> <code style="background:#f5f5f5;padding:1px 4px;">{p['file']}</code>
+          </div>
+          <div style="color:#555;font-size:13px;margin-bottom:8px;">
+            <b>Why:</b> {p['rationale']}
+          </div>
+          <div style="background:#fff8e1;border-radius:4px;padding:8px;font-size:12px;
+                      font-family:monospace;white-space:pre-wrap;margin-bottom:4px;">
+            <span style="color:#b71c1c;">- {orig_escaped}</span>
+          </div>
+          <div style="background:#e8f5e9;border-radius:4px;padding:8px;font-size:12px;
+                      font-family:monospace;white-space:pre-wrap;margin-bottom:10px;">
+            <span style="color:#1b5e20;">+ {repl_escaped}</span>
+          </div>
+          <div style="font-size:12px;color:#888;">
+            To apply this fix:
+            <code style="background:#f5f5f5;padding:1px 6px;">
+              python tools/run_workflow_optimizer.py --execute --proposal-id {p['id']}
+            </code>
+          </div>
+        </div>"""
+
+    all_ids = ",".join(str(p["id"]) for p in proposals)
+    apply_all_cmd = f"python tools/run_workflow_optimizer.py --execute --proposal-id {all_ids}"
+
+    return f"""<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:700px;margin:0 auto;padding:20px;color:#333;">
+  <h2 style="color:#1a73e8;border-bottom:2px solid #1a73e8;padding-bottom:8px;">
+    ORBI Workflow Optimizer — {date_str}
+  </h2>
+  <div style="background:#f8f9fa;border-radius:8px;padding:12px 16px;margin-bottom:20px;">
+    <b>{len(proposals)} proposals</b> from {issue_count} issues &nbsp;|&nbsp; {summary}
+  </div>
+  {cards_html}
+  <div style="background:#e3f2fd;border-radius:8px;padding:12px 16px;margin-top:20px;font-size:13px;">
+    <b>Apply all proposals:</b><br>
+    <code style="background:#fff;padding:4px 8px;border-radius:4px;display:inline-block;margin-top:6px;">
+      {apply_all_cmd}
+    </code>
+  </div>
+  <p style="color:#aaa;font-size:11px;margin-top:24px;">
+    ORBI Workflow Optimizer &nbsp;·&nbsp; WAT Framework
+  </p>
+</body></html>"""
+
+
 def save_proposals(proposals: list[dict], issue_count: int) -> Path:
     """Save proposals to .tmp/proposals_latest.json. Returns the path."""
     TMP_DIR.mkdir(exist_ok=True)

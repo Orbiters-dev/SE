@@ -128,3 +128,28 @@ def test_save_and_load_proposals(tmp_path, monkeypatch):
     assert len(data["proposals"]) == 1
     assert data["proposals"][0]["id"] == 1
     assert "generated_at" in data
+
+
+def test_build_proposal_email_contains_proposals():
+    from run_workflow_optimizer import build_proposal_email
+    proposals = [
+        {
+            "id": 1, "issue_type": "BROKEN_REF", "change_type": "workflow_md",
+            "source": "test_wf", "file": "workflows/test_wf.md",
+            "original": "old_ref", "replacement": "new_ref",
+            "rationale": "new_ref.py exists in tools/"
+        },
+        {
+            "id": 2, "issue_type": "ORPHAN_TOOL", "change_type": "workflow_md",
+            "source": "orphan.py", "file": "workflows/foo.md",
+            "original": "", "replacement": "## Tools\n...",
+            "rationale": "orphan tool needs reference"
+        }
+    ]
+    html = build_proposal_email(proposals, issue_count=10, date_str="2026-03-14")
+    assert "Proposal #1" in html
+    assert "Proposal #2" in html
+    assert "BROKEN_REF" in html
+    assert "proposal-id 1" in html
+    assert "proposal-id 1,2" in html  # footer "apply all"
+    assert "2026-03-14" in html
