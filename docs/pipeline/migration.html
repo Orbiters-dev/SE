@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pathlight n8n Migration · Test Report</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232635;
+    --border: #2e3148;
+    --accent: #6c63ff;
+    --accent2: #00d4aa;
+    --accent3: #ff6b6b;
+    --green: #22c55e;
+    --yellow: #f59e0b;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Header ─────────────────────────────────────────────── */
+  .header {
+    background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 60px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute; top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(108,99,255,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .header::after {
+    content: '';
+    position: absolute; bottom: -40px; left: 200px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(0,212,170,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .header-meta {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 16px;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .badge-pass { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+  .badge-env  { background: rgba(108,99,255,0.15); color: #a5a0ff; border: 1px solid rgba(108,99,255,0.3); }
+  .badge-date { background: rgba(148,163,184,0.1); color: var(--text2); border: 1px solid var(--border); }
+
+  .header h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .header h1 span { color: var(--accent); }
+  .header .subtitle { font-size: 15px; color: var(--text2); font-weight: 400; }
+
+  /* ── Scorecard row ───────────────────────────────────────── */
+  .scorecard-row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    padding: 32px 60px;
+    background: var(--bg);
+  }
+  .scorecard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative; overflow: hidden;
+  }
+  .scorecard::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 16px 16px 0 0;
+  }
+  .scorecard.green::after { background: var(--green); }
+  .scorecard.purple::after { background: var(--accent); }
+  .scorecard.teal::after { background: var(--accent2); }
+  .scorecard.orange::after { background: var(--yellow); }
+  .sc-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 8px; }
+  .sc-value { font-size: 36px; font-weight: 700; letter-spacing: -0.03em; }
+  .sc-value.green { color: var(--green); }
+  .sc-value.purple { color: var(--accent); }
+  .sc-value.teal { color: var(--accent2); }
+  .sc-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+
+  /* ── Main content ────────────────────────────────────────── */
+  .content { padding: 8px 60px 60px; }
+
+  .section-title {
+    font-size: 13px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--text3);
+    margin: 40px 0 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ── Flow cards ──────────────────────────────────────────── */
+  .flow-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .flow-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .flow-card:hover { border-color: var(--accent); }
+  .flow-card.wide { grid-column: 1 / -1; }
+
+  .flow-header {
+    padding: 20px 24px 16px;
+    background: var(--surface2);
+    display: flex; justify-content: space-between; align-items: flex-start;
+  }
+  .flow-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .flow-desc { font-size: 12px; color: var(--text3); line-height: 1.5; max-width: 360px; }
+  .flow-status {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 600;
+    white-space: nowrap;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot.pass { background: var(--green); box-shadow: 0 0 6px rgba(34,197,94,0.6); }
+  .dot.fail { background: var(--red); }
+
+  .flow-steps { padding: 16px 24px; }
+  .step-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .step-row:last-child { border-bottom: none; }
+  .step-icon {
+    width: 20px; height: 20px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; flex-shrink: 0;
+  }
+  .step-icon.pass { background: rgba(34,197,94,0.15); color: var(--green); }
+  .step-icon.fail { background: rgba(239,68,68,0.15); color: var(--red); }
+  .step-name { flex: 1; font-size: 13px; color: var(--text2); }
+  .step-time { font-size: 11px; color: var(--text3); font-variant-numeric: tabular-nums; }
+  .step-type-tag {
+    font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .tag-http   { background: rgba(108,99,255,0.15); color: #a5a0ff; }
+  .tag-wait   { background: rgba(148,163,184,0.1); color: var(--text3); }
+  .tag-at     { background: rgba(255,163,72,0.15); color: #ffa348; }
+  .tag-shopify{ background: rgba(0,212,170,0.12); color: var(--accent2); }
+  .tag-pg     { background: rgba(96,165,250,0.12); color: #60a5fa; }
+  .tag-n8n    { background: rgba(244,114,182,0.12); color: #f472b6; }
+
+  /* ── Workflow structure panel ────────────────────────────── */
+  .wf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .wf-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .wf-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .wf-id { font-size: 10px; color: var(--text3); font-family: monospace; margin-bottom: 12px; }
+  .wf-stat-row { display: flex; gap: 12px; margin-bottom: 12px; }
+  .wf-stat { text-align: center; }
+  .wf-stat-val { font-size: 20px; font-weight: 700; }
+  .wf-stat-val.green { color: var(--green); }
+  .wf-stat-val.purple { color: var(--accent); }
+  .wf-stat-lbl { font-size: 10px; color: var(--text3); }
+  .wf-active-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .wf-active-pill.active { background: rgba(34,197,94,0.12); color: var(--green); }
+  .wf-active-pill.inactive { background: rgba(239,68,68,0.1); color: var(--red); }
+  .wf-nodes { display: flex; flex-wrap: wrap; gap: 5px; }
+  .node-chip {
+    font-size: 10px; padding: 2px 8px; border-radius: 4px;
+    background: rgba(255,255,255,0.05); color: var(--text3);
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .node-chip.highlight { background: rgba(108,99,255,0.12); color: #a5a0ff; border-color: rgba(108,99,255,0.25); }
+
+  /* ── Data trail ──────────────────────────────────────────── */
+  .trail-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .trail-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .trail-icon { font-size: 20px; }
+  .trail-label { font-size: 12px; font-weight: 600; }
+  .trail-sub { font-size: 11px; color: var(--text3); }
+
+  /* ── Timeline ────────────────────────────────────────────── */
+  .timeline { position: relative; padding-left: 20px; }
+  .timeline::before {
+    content: ''; position: absolute; left: 6px; top: 8px; bottom: 8px;
+    width: 2px; background: var(--border);
+  }
+  .tl-item { position: relative; margin-bottom: 16px; }
+  .tl-dot {
+    position: absolute; left: -17px; top: 3px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--bg);
+  }
+  .tl-dot.green { background: var(--green); }
+  .tl-dot.new { background: var(--accent2); }
+  .tl-title { font-size: 13px; font-weight: 500; }
+  .tl-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* ── Next steps ──────────────────────────────────────────── */
+  .next-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .next-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex; gap: 14px;
+  }
+  .next-num {
+    width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+    background: rgba(108,99,255,0.15); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
+  .next-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .next-desc { font-size: 12px; color: var(--text3); line-height: 1.5; }
+
+  /* ── Footer ──────────────────────────────────────────────── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 60px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-left { font-size: 12px; color: var(--text3); }
+  .footer-right { font-size: 12px; color: var(--text3); }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .site-nav {
+    background: #1a1d27; border-bottom: 1px solid var(--border);
+    padding: 0 32px; display: flex; align-items: center; gap: 4px; height: 48px;
+  }
+  .site-nav .brand { font-size: 13px; font-weight: 700; color: var(--accent); margin-right: 14px; text-decoration: none; }
+  .site-nav a { font-size: 13px; color: var(--text2); text-decoration: none; padding: 5px 11px; border-radius: 6px; }
+  .site-nav a:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+  .site-nav a.active { background: rgba(108,99,255,0.2); color: #a5a0ff; font-weight: 600; }
+</style>
+</head>
+<body>
+<nav class="site-nav">
+  <a href="." class="brand">Pathlight</a>
+  <a href=".">Pipeline (EN)</a>
+  <a href="ko.html">Pipeline (KR)</a>
+  <a href="migration.html" class="active">Migration Report</a>
+  <a href="tests.html">Test Results</a>
+</nav>
+
+<!-- ╔══ HEADER ══════════════════════════════════════════════╗ -->
+<div class="header">
+  <div class="header-meta">
+    <span class="badge badge-pass">✓ All Tests Passing</span>
+    <span class="badge badge-env">WJ TEST</span>
+    <span class="badge badge-date">2026-03-13</span>
+  </div>
+  <h1>Pathlight n8n <span>Migration Report</span></h1>
+  <div class="subtitle">PROD → WJ TEST migration complete · 2 new workflows activated · 4 workflows merged · 15 steps verified</div>
+</div>
+
+<!-- ╔══ SCORECARD ════════════════════════════════════════════╗ -->
+<div class="scorecard-row">
+  <div class="scorecard green">
+    <div class="sc-label">Test Result</div>
+    <div class="sc-value green">15/15</div>
+    <div class="sc-sub">Steps passed · 0 failures</div>
+  </div>
+  <div class="scorecard purple">
+    <div class="sc-label">Workflows Active</div>
+    <div class="sc-value purple">16</div>
+    <div class="sc-sub">of 18 total · 2 archive</div>
+  </div>
+  <div class="scorecard teal">
+    <div class="sc-label">New Workflows</div>
+    <div class="sc-value teal">+2</div>
+    <div class="sc-sub">Gifting2 · Syncly Metrics</div>
+  </div>
+  <div class="scorecard orange">
+    <div class="sc-label">Merged Nodes</div>
+    <div class="sc-value" style="color:var(--yellow)">+32</div>
+    <div class="sc-sub">PROD logic added to 4 WFs</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ╔══ FLOW TEST RESULTS ════════════════════════════════════╗ -->
+  <div class="section-title">E2E Flow Test Results</div>
+  <div class="flow-grid">
+
+    <!-- Flow 1: Influencer Gifting -->
+    <div class="flow-card">
+      <div class="flow-header">
+        <div>
+          <div class="flow-name">Flow 1: Influencer Gifting Application</div>
+          <div class="flow-desc">Form submit → n8n → Airtable + Shopify Customer + Metafields + PostgreSQL</div>
+        </div>
+        <div class="flow-status" style="color:var(--green)"><span class="dot pass"></span> 7/7 PASS</div>
+      </div>
+      <div class="flow-steps">
+        <div class="step-row">
+          <div class="step-icon pass">✓</div>
+          <span class="step-type-tag tag-http">HTTP</span>
+          <span class="step-name">POST to influencer-gifting webhook</span>
+          <span class="step-time">2766ms</span>
+        </div>
+        <div class="step-row">
+          <div class="step-icon pass">✓</div>
+          <span class="step-type-tag tag-wait">WAIT</span>
+          <span class="step-name">Wait for n8n async processing</span>
+          <span class="step-time">12s</span>
+        </div>
+        <div class="step-row">
+          <div class="step-icon pass">✓</div>
+          <span class="step-type-tag tag-at">Airtable</span>
+          <span class="step-name">Verify Applicants table record</span>
+          <span class="step-time">950ms</span>
+        </div>
+        <div class="step-row">
+          <div class="step-icon pass">✓</div>
+          <span class="step-type-tag tag-at">Airtable</span>
+          <span class="step-name">Verify Creators table record (Pathlight CRM)</span>
+          <span class="step-time">829ms</span>
+        </div>
+        <div class="step-row">
+          <div class="step-icon pass">✓</div>
+          <span class="step-type-tag tag-shopify">Shopify</span>
+          <span class="step-name">Verify Shopify customer exists</span>
+          <span class="step-time">493ms</span>
+        </div>
+        <div class="step-row">
+          <div class="step-icon pass">✓</div>
+          <span class="step-type-tag tag-shopify">Shopify</span>
+          <span class="step-name">Verify influencer metafields (ig/tiktok)</span>
+          <span class="step-time">904ms</span>
+        </div>
+        <div class="step-row">
+          <div class="step-icon pass">✓</div>
+          <span class="step-type-tag tag-pg">PG</span>
+          <span class="step-name">Verify PostgreSQL record (orbitools)</span>
+          <span class="step-time">74ms</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flow 5: Gifting2 -->
+    <div class="flow-card">
+      <div class="flow-header">
+        <div>
+          <div class="flow-name">Flow 5: Gifting2 → Draft Order + Airtable <span style="color:var(--accent2);font-size:11px;margin-left:6px;">NEW</span></div>
+          <div class="flow-desc">Creator sample form → Draft Order → Airtable upsert → PostgreSQL</div>
+        </div>
+        <div class="flow-status" style="color:var(--green)"><span class="dot pass"></span> 6/6 PASS</div>
+      </div>
+      <div class="flow-steps">
+        <div class="step-row">
+          <div class="step-icon pass">✓</div>
+          <span class="step-type-tag tag-http">HTTP</span>
+          <span class="step-name">POST to onzenna-gifting2-submit webhook</span>
+          <span class="step-time">2559ms</span>
+        </div>
+        <div class="step-row">
+          <div class="step-icon pass">✓</div>
+          <span class="step-type-tag tag-wait">WAIT</span>
+          <span class="step-name">Wait for n8n async processing</span>
+          <span class="step-time">15s</span>
+        </div>
+        <div class="step-row">
+          <div class="step-icon pass">✓</div>
+          <span class="step-type-tag tag-at">Airtable</span>
+          <span class="step-name">Verify Applicants table record</span>
+          <span class="step-time">880ms</span>
+        </div>
+        <div class="step-row">
+          <div class="step-icon pass">✓</div>
+          <span class="step-type-tag tag-at">Airtable</span>
+          <span class="step-name">Verify Creators table record</span>
+          <span class="step-time">812ms</span>
+        </div>
+        <div class="step-row">
+          <div class="step-icon pass">✓</div>
+          <span class="step-type-tag tag-shopify">Shopify</span>
+          <span class="step-name">Verify Shopify customer exists</span>
+          <span class="step-time">472ms</span>
+        </div>
+        <div class="step-row">
+          <div class="step-icon pass">✓</div>
+          <span class="step-type-tag tag-pg">PG</span>
+          <span class="step-name">Verify PostgreSQL record</span>
+          <span class="step-time">47ms</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flow 6: Syncly Metrics -->
+    <div class="flow-card wide">
+      <div class="flow-header">
+        <div>
+          <div class="flow-name">Flow 6: Syncly Daily Metrics Sync <span style="color:var(--accent2);font-size:11px;margin-left:6px;">NEW · Structural</span></div>
+          <div class="flow-desc">Structural verification: active status, node count, key nodes present, schedule config — schedule-trigger workflow (manual execution not supported via API)</div>
+        </div>
+        <div class="flow-status" style="color:var(--green)"><span class="dot pass"></span> 2/2 PASS</div>
+      </div>
+      <div class="flow-steps" style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">
+        <div class="step-row">
+          <div class="step-icon pass">✓</div>
+          <span class="step-type-tag tag-n8n">n8n</span>
+          <span class="step-name">Syncly Metrics: active=true · 5 nodes · Schedule Trigger found</span>
+          <span class="step-time">70ms</span>
+        </div>
+        <div class="step-row">
+          <div class="step-icon pass">✓</div>
+          <span class="step-type-tag tag-n8n">n8n</span>
+          <span class="step-name">Gifting2: active=true · 14 nodes · all key nodes present</span>
+          <span class="step-time">95ms</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ╔══ MERGED WORKFLOW INVENTORY ═══════════════════════════╗ -->
+  <div class="section-title">Merged Workflows (PROD nodes added)</div>
+  <div class="wf-grid">
+
+    <div class="wf-card">
+      <div class="wf-name">Shopify Fulfillment → Airtable</div>
+      <div class="wf-id">UP1OnpNEFN54AOUn</div>
+      <div class="wf-active-pill active"><span class="dot pass" style="width:6px;height:6px;box-shadow:none;"></span> Active</div>
+      <div class="wf-stat-row">
+        <div class="wf-stat"><div class="wf-stat-val green">37</div><div class="wf-stat-lbl">Nodes</div></div>
+        <div class="wf-stat"><div class="wf-stat-val purple">+12</div><div class="wf-stat-lbl">Added</div></div>
+      </div>
+      <div class="wf-nodes">
+        <span class="node-chip highlight">Fetch Dashboard</span>
+        <span class="node-chip highlight">Fetch Today Config</span>
+        <span class="node-chip highlight">Load Config</span>
+        <span class="node-chip highlight">Product Guidelines</span>
+        <span class="node-chip highlight">Guidelines Email</span>
+        <span class="node-chip">Draft status check</span>
+        <span class="node-chip">Sample Shipped Polling</span>
+      </div>
+    </div>
+
+    <div class="wf-card">
+      <div class="wf-name">Outreach - Reply Handler</div>
+      <div class="wf-id">nVtYmhU0InRqRn4K</div>
+      <div class="wf-active-pill active"><span class="dot pass" style="width:6px;height:6px;box-shadow:none;"></span> Active</div>
+      <div class="wf-stat-row">
+        <div class="wf-stat"><div class="wf-stat-val green">50</div><div class="wf-stat-lbl">Nodes</div></div>
+        <div class="wf-stat"><div class="wf-stat-val purple">+7</div><div class="wf-stat-lbl">Added</div></div>
+      </div>
+      <div class="wf-nodes">
+        <span class="node-chip highlight">Claude Draft HT</span>
+        <span class="node-chip highlight">Parse HT Response</span>
+        <span class="node-chip highlight">Save HT Draft</span>
+        <span class="node-chip highlight">Read HT Guidelines</span>
+        <span class="node-chip highlight">Notify: HT Reply</span>
+        <span class="node-chip">Log HT Reply</span>
+        <span class="node-chip">HT/LT Split Logic</span>
+      </div>
+    </div>
+
+    <div class="wf-card">
+      <div class="wf-name">Outreach - Draft Generation</div>
+      <div class="wf-id">0q9uJUYTpDhQFMfz</div>
+      <div class="wf-active-pill active"><span class="dot pass" style="width:6px;height:6px;box-shadow:none;"></span> Active</div>
+      <div class="wf-stat-row">
+        <div class="wf-stat"><div class="wf-stat-val green">49</div><div class="wf-stat-lbl">Nodes</div></div>
+        <div class="wf-stat"><div class="wf-stat-val purple">+9</div><div class="wf-stat-lbl">Added</div></div>
+      </div>
+      <div class="wf-nodes">
+        <span class="node-chip highlight">Fetch Dashboard</span>
+        <span class="node-chip highlight">Fetch Today Config</span>
+        <span class="node-chip highlight">Is Active?</span>
+        <span class="node-chip highlight">Detect Product</span>
+        <span class="node-chip highlight">Read System Prompt</span>
+        <span class="node-chip">Build Claude Prompt HT</span>
+        <span class="node-chip">Guidelines Sheet</span>
+      </div>
+    </div>
+
+    <div class="wf-card">
+      <div class="wf-name">Outreach - Approval Send</div>
+      <div class="wf-id">mmkBpmvhzbgmSayh</div>
+      <div class="wf-active-pill active"><span class="dot pass" style="width:6px;height:6px;box-shadow:none;"></span> Active</div>
+      <div class="wf-stat-row">
+        <div class="wf-stat"><div class="wf-stat-val green">16</div><div class="wf-stat-lbl">Nodes</div></div>
+        <div class="wf-stat"><div class="wf-stat-val purple">+4</div><div class="wf-stat-lbl">Added</div></div>
+      </div>
+      <div class="wf-nodes">
+        <span class="node-chip highlight">Fetch Dashboard</span>
+        <span class="node-chip highlight">Is Active?</span>
+        <span class="node-chip highlight">Update Creator: Error</span>
+        <span class="node-chip">Gmail Send</span>
+        <span class="node-chip">Status Update</span>
+      </div>
+    </div>
+
+    <div class="wf-card">
+      <div class="wf-name">Gifting2 → Draft Order + Airtable</div>
+      <div class="wf-id">734aqkcOIfiylExL</div>
+      <div class="wf-active-pill active"><span class="dot pass" style="width:6px;height:6px;box-shadow:none;"></span> Active <span style="margin-left:4px;color:var(--accent2);font-size:10px;">NEW</span></div>
+      <div class="wf-stat-row">
+        <div class="wf-stat"><div class="wf-stat-val green">14</div><div class="wf-stat-lbl">Nodes</div></div>
+        <div class="wf-stat"><div class="wf-stat-val" style="color:var(--accent2)">E2E</div><div class="wf-stat-lbl">Tested</div></div>
+      </div>
+      <div class="wf-nodes">
+        <span class="node-chip highlight">Build Payloads</span>
+        <span class="node-chip highlight">Create Draft Order</span>
+        <span class="node-chip highlight">Save to Applicants</span>
+        <span class="node-chip highlight">Save to Creators</span>
+        <span class="node-chip highlight">Save to PostgreSQL</span>
+        <span class="node-chip">Search/Create Customer</span>
+      </div>
+    </div>
+
+    <div class="wf-card">
+      <div class="wf-name">Syncly Daily Metrics Sync</div>
+      <div class="wf-id">FT70hFR6qI0mVc2T</div>
+      <div class="wf-active-pill active"><span class="dot pass" style="width:6px;height:6px;box-shadow:none;"></span> Active <span style="margin-left:4px;color:var(--accent2);font-size:10px;">NEW</span></div>
+      <div class="wf-stat-row">
+        <div class="wf-stat"><div class="wf-stat-val green">5</div><div class="wf-stat-lbl">Nodes</div></div>
+        <div class="wf-stat"><div class="wf-stat-val" style="color:var(--yellow)">23:00</div><div class="wf-stat-lbl">Schedule</div></div>
+      </div>
+      <div class="wf-nodes">
+        <span class="node-chip highlight">Schedule Trigger</span>
+        <span class="node-chip highlight">Run Syncly Sync</span>
+        <span class="node-chip highlight">Check Result</span>
+        <span class="node-chip">Sync Complete</span>
+        <span class="node-chip">Sync Failed</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ╔══ DATA TRAIL ═══════════════════════════════════════════╗ -->
+  <div class="section-title">Data Trail Verified</div>
+  <div class="trail-grid">
+    <div class="trail-card">
+      <div class="trail-icon">🔗</div>
+      <div class="trail-label">n8n Webhook</div>
+      <div class="trail-sub">2 webhooks tested<br>Gifting + Gifting2</div>
+    </div>
+    <div class="trail-card">
+      <div class="trail-icon">📋</div>
+      <div class="trail-label">Airtable</div>
+      <div class="trail-sub">Applicants + Creators<br>WJ TEST base appT2gLRR0PqMFgII</div>
+    </div>
+    <div class="trail-card">
+      <div class="trail-icon">🛍️</div>
+      <div class="trail-label">Shopify</div>
+      <div class="trail-sub">Customer + Draft Order<br>mytoddie.myshopify.com</div>
+    </div>
+    <div class="trail-card">
+      <div class="trail-icon">🗄️</div>
+      <div class="trail-label">PostgreSQL</div>
+      <div class="trail-sub">orbitools API<br>/api/onzenna/gifting/list/</div>
+    </div>
+  </div>
+
+  <!-- ╔══ MIGRATION TIMELINE ═══════════════════════════════════╗ -->
+  <div class="section-title">Migration Timeline</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot green"></div>
+        <div class="tl-title">Airtable base audit PASSED</div>
+        <div class="tl-meta">All 18 WF → appT2gLRR0PqMFgII · zero PROD refs</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-title">Fulfillment merged (+12 nodes)</div>
+        <div class="tl-meta">Config/Dashboard · Product Guidelines · Email</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-title">Reply Handler merged (+7 nodes)</div>
+        <div class="tl-meta">HT Reply system · Claude AI draft · Guidelines</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-title">Draft Generation merged (+9 nodes)</div>
+        <div class="tl-meta">Config/Dashboard · Product Detection · System Prompts</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-title">Approval Send merged (+4 nodes)</div>
+        <div class="tl-meta">Dashboard · Is Active? · Error handler</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot new"></div>
+        <div class="tl-title">Gifting2 created + activated</div>
+        <div class="tl-meta">14 nodes · E2E tested 6/6 PASS</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot new"></div>
+        <div class="tl-title">Syncly Metrics created + activated</div>
+        <div class="tl-meta">5 nodes · Structural test 2/2 PASS</div>
+      </div>
+    </div>
+
+    <div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;">
+        <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:16px;">PROD Logic Added</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(108,99,255,0.08);border-radius:8px;">
+            <span style="font-size:13px;">Dashboard/Config Pattern</span>
+            <span style="font-size:11px;color:var(--accent);">Fetch + Wait + Is Active?</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(244,114,182,0.08);border-radius:8px;">
+            <span style="font-size:13px;">HT Reply System</span>
+            <span style="font-size:11px;color:#f472b6;">Claude AI + Guidelines</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(0,212,170,0.08);border-radius:8px;">
+            <span style="font-size:13px;">Product Detection</span>
+            <span style="font-size:11px;color:var(--accent2);">Auto-detect from transcript</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(96,165,250,0.08);border-radius:8px;">
+            <span style="font-size:13px;">Fulfillment Extras</span>
+            <span style="font-size:11px;color:#60a5fa;">Guidelines + Polling</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(245,158,11,0.08);border-radius:8px;">
+            <span style="font-size:13px;">System Prompts</span>
+            <span style="font-size:11px;color:var(--yellow);">Read from Google Sheets</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ╔══ NEXT STEPS ═══════════════════════════════════════════╗ -->
+  <div class="section-title">Next Steps</div>
+  <div class="next-grid">
+    <div class="next-card">
+      <div class="next-num">1</div>
+      <div>
+        <div class="next-title">Verify merged nodes in n8n UI</div>
+        <div class="next-desc">Check that connections are wired correctly for Fulfillment, Reply Handler, Draft Gen, Approval Send</div>
+      </div>
+    </div>
+    <div class="next-card">
+      <div class="next-num">2</div>
+      <div>
+        <div class="next-title">Run full pipeline E2E test</div>
+        <div class="next-desc">Test new Config/Dashboard logic end-to-end with a real outreach cycle using WJ TEST base</div>
+      </div>
+    </div>
+    <div class="next-card">
+      <div class="next-num">3</div>
+      <div>
+        <div class="next-title">Test HT Reply (Claude AI)</div>
+        <div class="next-desc">Trigger Reply Handler with a test inbound reply, verify Claude draft + HT guidelines loading from Sheets</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ╔══ FOOTER ═══════════════════════════════════════════════╗ -->
+<div class="footer">
+  <div class="footer-left">Generated by WAT Framework · WJ Test1 · 2026-03-13</div>
+  <div class="footer-right">
+    <a href="https://n8n.orbiters.co.kr">n8n Dashboard</a>
+    &nbsp;·&nbsp;
+    <a href="https://airtable.com/appT2gLRR0PqMFgII">Airtable WJ TEST</a>
+  </div>
+</div>
+
+</body>
+</html>

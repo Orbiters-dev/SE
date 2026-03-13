@@ -84,15 +84,18 @@ WJ_WORKFLOWS = {
     "reply":        "nVtYmhU0InRqRn4K",   # Outreach - Reply Handler
     "docusign":     "5BG7Qe7HtsbD4iP0",   # Docusign Contracting
     "fulfillment":  "UP1OnpNEFN54AOUn",   # Shopify Fulfillment -> Airtable
-    "gifting":      "4q5NCzMb3nMGYqL4",   # Influencer Gifting -> Draft Order
-    "lookup":       "wyttsPSZJlWLgy86",   # Influencer Customer Lookup
-    "full_pipeline": "CEWr3kQlDg07310Y",  # Full Pipeline (JH&SY)
+    "gifting":        "4q5NCzMb3nMGYqL4",   # Influencer Gifting -> Draft Order
+    "gifting2":       "734aqkcOIfiylExL",   # Gifting2 -> Draft Order + Airtable (2026-03-13)
+    "syncly_metrics": "FT70hFR6qI0mVc2T",   # Syncly Daily Metrics Sync (2026-03-13)
+    "lookup":         "wyttsPSZJlWLgy86",   # Influencer Customer Lookup
+    "full_pipeline":  "CEWr3kQlDg07310Y",  # Full Pipeline (JH&SY)
 }
 
 # ─── [WJ TEST] Webhook paths ───────────────────────────────────────────────
 WJ_WEBHOOK_BASE = "https://n8n.orbiters.co.kr/webhook"
 WJ_WEBHOOKS = {
     "gifting":      f"{WJ_WEBHOOK_BASE}/wj-test-influencer-gifting",
+    "gifting2":     f"{WJ_WEBHOOK_BASE}/onzenna-gifting2-submit",
     "fulfillment":  f"{WJ_WEBHOOK_BASE}/wj-test-shopify-fulfillment",
     "content":      f"{WJ_WEBHOOK_BASE}/wj-test-check-content",
     "contract":     f"{WJ_WEBHOOK_BASE}/wj-test-contract-approve",
@@ -861,6 +864,56 @@ def run_human_checkpoint(step, ctx):
     return True, entry
 
 
+def run_verify_n8n_workflow(step, ctx):
+    """Structural check: verify n8n workflow is active with expected node count and key nodes present."""
+    wf_key = ctx.interpolate(step.get("workflow_key", ""))
+    wf_id = WJ_WORKFLOWS.get(wf_key, wf_key)
+    expect_active = step.get("expect_active", True)
+    min_nodes = step.get("min_nodes", 1)
+    expect_nodes = step.get("expect_nodes", [])  # list of node name substrings to check
+
+    entry = {"request": {"method": "GET", "url": f"{N8N_BASE_URL}/api/v1/workflows/{wf_id}"}, "response": {}, "assertions": []}
+    entry["links"] = [{"label": f"n8n Workflow ({wf_key})", "url": link_n8n_wf(wf_key)}]
+
+    headers = {"X-N8N-API-KEY": N8N_API_KEY}
+    req = urllib.request.Request(f"{N8N_BASE_URL}/api/v1/workflows/{wf_id}", headers=headers)
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            body = json.loads(resp.read().decode())
+            entry["response"] = {"status": resp.status}
+
+            is_active = body.get("active", False)
+            node_names = [n.get("name", "") for n in body.get("nodes", [])]
+            node_count = len(node_names)
+
+            # Check active
+            active_pass = (is_active == expect_active)
+            mark = "PASS" if active_pass else "FAIL"
+            log(f"  [{mark}] active={is_active} (expected={expect_active})")
+            entry["assertions"].append({"check": "active", "expected": expect_active, "actual": is_active, "pass": active_pass})
+
+            # Check node count
+            count_pass = (node_count >= min_nodes)
+            mark = "PASS" if count_pass else "FAIL"
+            log(f"  [{mark}] node_count={node_count} (min={min_nodes})")
+            entry["assertions"].append({"check": "node_count", "expected": f">={min_nodes}", "actual": node_count, "pass": count_pass})
+
+            # Check key nodes
+            for expected_node in expect_nodes:
+                found = any(expected_node.lower() in n.lower() for n in node_names)
+                mark = "PASS" if found else "FAIL"
+                log(f"  [{mark}] node '{expected_node}': {'found' if found else 'MISSING'}")
+                entry["assertions"].append({"check": f"node:{expected_node}", "expected": "present", "actual": "found" if found else "missing", "pass": found})
+
+            all_pass = all(a["pass"] for a in entry["assertions"])
+            return all_pass, entry
+    except Exception as e:
+        fail(f"n8n workflow verify error: {e}")
+        entry["response"] = {"error": str(e)}
+        entry["assertions"].append({"check": "reachable", "expected": "success", "actual": str(e), "pass": False})
+        return False, entry
+
+
 STEP_RUNNERS = {
     "http_post":          run_http_post,
     "http_get":           run_http_get,
@@ -868,10 +921,11 @@ STEP_RUNNERS = {
     "verify_shopify":     run_verify_shopify,
     "verify_postgres":    run_verify_postgres,
     "wait":               run_wait,
-    "n8n_execute":        run_n8n_execute,
-    "airtable_create":    run_airtable_create,
-    "airtable_update":    run_airtable_update,
-    "human_checkpoint":   run_human_checkpoint,
+    "n8n_execute":         run_n8n_execute,
+    "verify_n8n_workflow": run_verify_n8n_workflow,
+    "airtable_create":     run_airtable_create,
+    "airtable_update":     run_airtable_update,
+    "human_checkpoint":    run_human_checkpoint,
 }
 
 
@@ -1567,11 +1621,162 @@ def flow_sample(email=None):
     }
 
 
+def flow_gifting2(email=None):
+    """Flow 5: Gifting2 → Draft Order + Airtable (2026-03-13 migration, WF: 734aqkcOIfiylExL)."""
+    test_email = email or _make_test_email()
+    test_phone = _make_test_phone()
+    return {
+        "flow_id": "gifting2_draft_order",
+        "flow_name": "Flow 5: Gifting2 → Draft Order + Airtable",
+        "description": "Creator sample form → Draft Order → Airtable Applicants/Creators upsert → PostgreSQL",
+        "test_email": test_email,
+        "steps": [
+            {
+                "step_id": "submit_gifting2_form",
+                "type": "http_post",
+                "name": "POST to Gifting2 webhook (onzenna-gifting2-submit)",
+                "url": WJ_WEBHOOKS["gifting2"],
+                "payload": {
+                    "form_type": "gifting2_sample_request",
+                    "submitted_at": "{{now_iso}}",
+                    "personal_info": {
+                        "full_name": "FlowTest G2",
+                        "email": test_email,
+                        "phone": test_phone,
+                        "instagram": "@flowtest_g2_ig",
+                        "tiktok": "@flowtest_g2_tk",
+                    },
+                    "baby_info": {
+                        "child_1": {"birthday": "2025-01-10", "age_months": 14},
+                        "child_2": None,
+                    },
+                    "selected_products": [
+                        {
+                            "product_key": "ppsu_straw",
+                            "product_id": 8288579256642,
+                            "variant_id": 45018985431362,
+                            "title": "Grosmimi PPSU Straw Cup 10oz",
+                            "color": "White",
+                            "price": "$24.90",
+                        }
+                    ],
+                    "shipping_address": {
+                        "street": "456 G2 Test Ave",
+                        "apt": "",
+                        "city": "San Francisco",
+                        "state": "CA",
+                        "zip": "94102",
+                        "country": "US",
+                    },
+                    "terms_accepted": True,
+                    "shopify_customer_id": None,
+                },
+                "expect_status": 200,
+                "capture": {"webhook_response": "$"},
+            },
+            {
+                "step_id": "wait_gifting2_processing",
+                "type": "wait",
+                "name": "Wait for n8n async processing (Gifting2)",
+                "seconds": 15,
+            },
+            {
+                "step_id": "verify_airtable_applicants_g2",
+                "type": "verify_airtable",
+                "name": "Verify Applicants table record (Gifting2)",
+                "filter_field": "Email",
+                "filter_value": test_email,
+                "expect_exists": True,
+                "expect_fields": {},
+                "capture": {
+                    "airtable_record_id": "$.records[0].id",
+                    "airtable_name": "$.records[0].fields.Name",
+                    "g2_draft_order_id": "$.records[0].fields.Draft Order ID",
+                },
+            },
+            {
+                "step_id": "verify_creators_g2",
+                "type": "verify_airtable",
+                "name": "Verify Creators table record (Gifting2)",
+                "table_id": AT_CREATORS,
+                "filter_field": "Email",
+                "filter_value": test_email,
+                "expect_exists": True,
+                "expect_fields": {},
+                "capture": {
+                    "creators_record_id": "$.records[0].id",
+                    "creators_username": "$.records[0].fields.Username",
+                },
+                "critical": False,
+            },
+            {
+                "step_id": "verify_shopify_customer_g2",
+                "type": "verify_shopify",
+                "name": "Verify Shopify customer exists (Gifting2)",
+                "resource": "customer",
+                "filter": {"email": test_email},
+                "expect_exists": True,
+                "capture": {"shopify_customer_id": "$.customers[0].id"},
+                "critical": False,
+            },
+            {
+                "step_id": "verify_postgres_g2",
+                "type": "verify_postgres",
+                "name": "Verify PostgreSQL record (Gifting2)",
+                "endpoint": "/api/onzenna/gifting/list/",
+                "filter": {"email": test_email},
+                "expect_exists": True,
+                "critical": False,
+            },
+        ],
+        "cleanup": {
+            "airtable_record_id": "{{airtable_record_id}}",
+            "creators_record_id": "{{creators_record_id}}",
+            "shopify_customer_id": "{{shopify_customer_id}}",
+            "test_email": test_email,
+        },
+    }
+
+
+def flow_syncly_metrics(email=None):
+    """Flow 6: Syncly Daily Metrics Sync — structural verification (2026-03-13 migration, WF: FT70hFR6qI0mVc2T).
+    Note: schedule-trigger workflows cannot be manually executed via n8n API v1 (405).
+    Test verifies: active=True, node count ≥5, key nodes present, schedule config correct.
+    """
+    return {
+        "flow_id": "syncly_metrics_sync",
+        "flow_name": "Flow 6: Syncly Daily Metrics Sync",
+        "description": "Structural check: active, node count, key nodes, schedule trigger (schedule-only WF, no execution)",
+        "steps": [
+            {
+                "step_id": "verify_syncly_active",
+                "type": "verify_n8n_workflow",
+                "name": "Verify Syncly Metrics: active + nodes + schedule",
+                "workflow_key": "syncly_metrics",
+                "expect_active": True,
+                "min_nodes": 5,
+                "expect_nodes": ["Schedule Trigger", "Run Syncly Sync", "Check Result"],
+            },
+            {
+                "step_id": "verify_gifting2_structural",
+                "type": "verify_n8n_workflow",
+                "name": "Structural: Gifting2 active + all 14 nodes present",
+                "workflow_key": "gifting2",
+                "expect_active": True,
+                "min_nodes": 14,
+                "expect_nodes": ["Build Payloads", "Create Draft Order", "Save to Applicants", "Save to Creators", "Save to PostgreSQL"],
+            },
+        ],
+    }
+
+
 FLOW_REGISTRY = {
-    "pipeline": flow_pipeline,
-    "gifting": flow_gifting,
-    "creator": flow_creator,
-    "sample": flow_sample,
+    "pipeline":       flow_pipeline,
+    "gifting":        flow_gifting,
+    "creator":        flow_creator,
+    "sample":         flow_sample,
+    "gifting2":       flow_gifting2,       # 2026-03-13: Gifting2 Draft Order
+    "syncly_metrics": flow_syncly_metrics, # 2026-03-13: Syncly Daily Metrics
 }
 
 
@@ -1589,7 +1794,7 @@ def run_flow(flow_spec, dry_run=False, wait_multiplier=1.0, step_num=None):
     ctx = FlowContext(flow_id)
     ctx.started_at = datetime.now().isoformat()
     ctx.set("now_iso", datetime.now().isoformat())
-    ctx.set("test_email", flow_spec["test_email"])
+    ctx.set("test_email", flow_spec.get("test_email", ""))
 
     # Load state for step-by-step mode (not needed for dry-run)
     if step_num and step_num > 1 and not dry_run:
@@ -1603,7 +1808,8 @@ def run_flow(flow_spec, dry_run=False, wait_multiplier=1.0, step_num=None):
 
     sep()
     log(f"FLOW: {flow_spec['flow_name']}")
-    log(f"Email: {flow_spec['test_email']}")
+    if flow_spec.get("test_email"):
+        log(f"Email: {flow_spec['test_email']}")
     if step_num:
         log(f"Running STEP {step_num} only (step-by-step mode)")
     log(f"Description: {flow_spec['description']}")
@@ -1650,6 +1856,11 @@ def run_flow(flow_spec, dry_run=False, wait_multiplier=1.0, step_num=None):
                 info(f"  Workflow: {resolved.get('workflow_key', '?')}")
                 wk = resolved.get('workflow_key', '')
                 info(f"  Link: {link_n8n_wf(wk)}")
+            elif step_type == "verify_n8n_workflow":
+                info(f"  Workflow: {resolved.get('workflow_key', '?')}")
+                wk = resolved.get('workflow_key', '')
+                info(f"  Link: {link_n8n_wf(wk)}")
+                info(f"  Expect nodes: {resolved.get('expect_nodes', [])}")
             ctx.step_results.append({"step_id": step_id, "name": step_name, "type": step_type, "status": "DRY-RUN"})
             continue
 

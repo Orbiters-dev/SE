@@ -143,9 +143,21 @@
     .summary-grid { grid-template-columns:repeat(2,1fr); }
     .test-grid { grid-template-columns:1fr; }
   }
+  .site-nav { background:#fff; border-bottom:1px solid var(--border); padding:0 24px; display:flex; align-items:center; gap:4px; height:48px; margin-bottom:0; }
+  .site-nav .brand { font-size:13px; font-weight:700; color:var(--accent); margin-right:14px; text-decoration:none; }
+  .site-nav a { font-size:13px; color:var(--text-dim); text-decoration:none; padding:5px 11px; border-radius:6px; }
+  .site-nav a:hover { background:#f3f4f6; color:var(--text); }
+  .site-nav a.active { background:#ede9fe; color:#6d28d9; font-weight:600; }
 </style>
 </head>
 <body>
+<nav class="site-nav">
+  <a href="." class="brand">Pathlight</a>
+  <a href="." class="active">Pipeline (EN)</a>
+  <a href="ko.html">Pipeline (KR)</a>
+  <a href="migration.html">Migration Report</a>
+  <a href="tests.html">Test Results</a>
+</nav>
 <div class="container">
 
   <div class="hero">
