@@ -170,16 +170,18 @@ def generate_proposals(
     try:
         response = client.messages.create(
             model=model_id,
-            max_tokens=4096,
+            max_tokens=8192,
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_message}],
         )
         raw = response.content[0].text.strip()
-        # Strip accidental markdown fences (```json ... ``` or ``` ... ```)
-        import re as _re
-        fence_match = _re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', raw)
-        if fence_match:
-            raw = fence_match.group(1)
+        # Strip markdown fences: find first newline after opening ```, take everything,
+        # strip trailing ``` — robust against nested backticks in replacement values
+        if raw.startswith("```"):
+            first_newline = raw.find("\n")
+            raw = raw[first_newline + 1:] if first_newline != -1 else raw[3:]
+            if raw.rstrip().endswith("```"):
+                raw = raw.rstrip()[:-3].rstrip()
         proposals = json.loads(raw)
         if not isinstance(proposals, list):
             print("WARNING: Claude returned non-list JSON -- ignoring")
