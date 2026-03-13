@@ -2900,18 +2900,31 @@ CHANNEL_MAP_PG_TO_LEGACY = {
 
 
 def _find_partial_month_col(ws, through_date):
-    """Find the partial-month column (col 32 typically) and the month it represents."""
+    """Find the partial-month data column (e.g. 'Mar 7\\n2026') in the FIRST panel.
+    Returns the column number for the partial-period data column (typically col 32).
+    Only searches the first panel (cols 5-40) to avoid matching repeated headers.
+    """
+    import re
     from datetime import date as _d
     td = _d.fromisoformat(through_date)
-    # Scan header row 3 for partial month column
-    for c in range(5, ws.max_column + 1):
+    # Only search first panel (cols 5 ~ 40 covers Jan 2024 through partial+YTD+%)
+    for c in range(5, min(ws.max_column + 1, 45)):
         hdr = ws.cell(3, c).value
-        if hdr and "\n" in str(hdr) and str(td.year) in str(hdr):
-            parts = str(hdr).split("\n")
-            # Partial month header like "Mar 7\n2026"
-            if len(parts) == 2 and parts[0].strip()[:3].isalpha() and parts[0].strip()[-1].isdigit():
-                return c
-    return 32  # default
+        if not hdr or "\n" not in str(hdr):
+            continue
+        hdr_s = str(hdr)
+        if str(td.year) not in hdr_s:
+            continue
+        parts = hdr_s.split("\n")
+        if len(parts) != 2:
+            continue
+        first = parts[0].strip()
+        # Match "Mar 7", "Mar 11", "Jan 1-15" — month + day (1-31)
+        # Reject "Mar 2026" — month + year (4 digits)
+        m = re.match(r'^[A-Z][a-z]{2}\s+(\d{1,2})(?:\D|$)', first)
+        if m and int(m.group(1)) <= 31:
+            return c
+    return 32  # default fallback
 
 
 def _find_month_col(ws, month_str):
@@ -3133,22 +3146,25 @@ def update_legacy_sales(wb, through_date):
                 ws.cell(row=row, column=partial_col, value=round(val, 2) if isinstance(val, float) else val)
                 filled += 1
 
-    # Update header
+    # Update partial column header
+    import calendar
+    month_abbr = calendar.month_abbr[td.month]
     ws.cell(row=3, column=partial_col,
-            value=f"Mar 1-{td.day}\n{td.year}")
+            value=f"{month_abbr} 1-{td.day}\n{td.year}")
 
-    # Update full-month projection formula factor
+    # Update full-month projection formula factor in the column BEFORE partial
     days_elapsed = td.day
-    days_in_month = 31  # March
-    full_mo_col = partial_col - 1  # typically col 31
+    days_in_month = calendar.monthrange(td.year, td.month)[1]
+    full_mo_col = partial_col - 1
     from openpyxl.utils import get_column_letter
     partial_letter = get_column_letter(partial_col)
 
-    # Update all formula rows in col 31 from =AF*31/7 to =AF*31/days_elapsed
     for r in range(4, ws.max_row + 1):
         cell_val = ws.cell(row=r, column=full_mo_col).value
-        if cell_val and isinstance(cell_val, str) and f"*31/7" in cell_val:
-            new_formula = cell_val.replace("*31/7", f"*{days_in_month}/{days_elapsed}")
+        if cell_val and isinstance(cell_val, str) and f"={partial_letter}" in cell_val:
+            # Replace any *N/M factor with *days_in_month/days_elapsed
+            import re as _re
+            new_formula = _re.sub(r'\*\d+/\d+', f'*{days_in_month}/{days_elapsed}', str(cell_val))
             ws.cell(row=r, column=full_mo_col, value=new_formula)
 
     print(f"  -> Sales tab updated ({filled} cells filled for {current_month}, {days_elapsed} days)")
@@ -3237,16 +3253,23 @@ def update_legacy_cm(wb, through_date):
                 filled += 1
 
     # Update header
+    import calendar
+    month_abbr = calendar.month_abbr[td.month]
     ws.cell(row=3, column=partial_col,
-            value=f"Mar 1-{td.day}\n{td.year}")
+            value=f"{month_abbr} 1-{td.day}\n{td.year}")
 
     # Update full-month projection factor
     days_elapsed = td.day
+    days_in_month = calendar.monthrange(td.year, td.month)[1]
     full_mo_col = partial_col - 1
+    from openpyxl.utils import get_column_letter
+    partial_letter = get_column_letter(partial_col)
+    import re as _re
     for r in range(4, ws.max_row + 1):
         cell_val = ws.cell(row=r, column=full_mo_col).value
-        if cell_val and isinstance(cell_val, str) and f"*31/7" in cell_val:
-            ws.cell(row=r, column=full_mo_col, value=cell_val.replace("*31/7", f"*31/{days_elapsed}"))
+        if cell_val and isinstance(cell_val, str) and f"={partial_letter}" in cell_val:
+            new_formula = _re.sub(r'\*\d+/\d+', f'*{days_in_month}/{days_elapsed}', str(cell_val))
+            ws.cell(row=r, column=full_mo_col, value=new_formula)
 
     print(f"  -> CM tab updated ({filled} cells filled for {current_month})")
 
@@ -3328,14 +3351,21 @@ def update_legacy_organic(wb, through_date):
             ws.cell(row=row, column=partial_col, value=round(val, 2))
             filled += 1
 
-    ws.cell(row=3, column=partial_col, value=f"Mar 1-{td.day}\n{td.year}")
+    import calendar
+    month_abbr = calendar.month_abbr[td.month]
+    ws.cell(row=3, column=partial_col, value=f"{month_abbr} 1-{td.day}\n{td.year}")
 
     days_elapsed = td.day
+    days_in_month = calendar.monthrange(td.year, td.month)[1]
     full_mo_col = partial_col - 1
+    from openpyxl.utils import get_column_letter
+    partial_letter = get_column_letter(partial_col)
+    import re as _re
     for r in range(4, ws.max_row + 1):
         cell_val = ws.cell(row=r, column=full_mo_col).value
-        if cell_val and isinstance(cell_val, str) and "*31/7" in cell_val:
-            ws.cell(row=r, column=full_mo_col, value=cell_val.replace("*31/7", f"*31/{days_elapsed}"))
+        if cell_val and isinstance(cell_val, str) and f"={partial_letter}" in cell_val:
+            new_formula = _re.sub(r'\*\d+/\d+', f'*{days_in_month}/{days_elapsed}', str(cell_val))
+            ws.cell(row=r, column=full_mo_col, value=new_formula)
 
     print(f"  -> Organic Sales tab updated ({filled} cells filled for {current_month})")
 
@@ -3409,14 +3439,21 @@ def update_legacy_ads(wb, through_date):
             ws.cell(row=row, column=partial_col, value=round(val, 2) if isinstance(val, float) else val)
             filled += 1
 
-    ws.cell(row=3, column=partial_col, value=f"Mar 1-{td.day}\n{td.year}")
+    import calendar
+    month_abbr = calendar.month_abbr[td.month]
+    ws.cell(row=3, column=partial_col, value=f"{month_abbr} 1-{td.day}\n{td.year}")
 
     days_elapsed = td.day
+    days_in_month = calendar.monthrange(td.year, td.month)[1]
     full_mo_col = partial_col - 1
+    from openpyxl.utils import get_column_letter
+    partial_letter = get_column_letter(partial_col)
+    import re as _re
     for r in range(4, ws.max_row + 1):
         cell_val = ws.cell(row=r, column=full_mo_col).value
-        if cell_val and isinstance(cell_val, str) and "*31/7" in cell_val:
-            ws.cell(row=r, column=full_mo_col, value=cell_val.replace("*31/7", f"*31/{days_elapsed}"))
+        if cell_val and isinstance(cell_val, str) and f"={partial_letter}" in cell_val:
+            new_formula = _re.sub(r'\*\d+/\d+', f'*{days_in_month}/{days_elapsed}', str(cell_val))
+            ws.cell(row=r, column=full_mo_col, value=new_formula)
 
     print(f"  -> Ads tab updated ({filled} cells filled for {current_month})")
 
