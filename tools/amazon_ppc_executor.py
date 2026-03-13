@@ -826,8 +826,27 @@ def compute_budget_allocation(campaigns: List[Dict], agg_7d: Dict) -> Dict[str, 
     }
 
 
-def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> List[Dict]:
-    """Apply ROAS Decision Framework with manual/auto split within $150/day."""
+def _confidence_tier(action: str, priority: str) -> str:
+    """Map action+priority to confidence tier label."""
+    if action == "pause" or (action in ("reduce_bid",) and priority == "urgent"):
+        return "No-Brainer"
+    if priority == "urgent" or (action == "reduce_bid" and priority == "high"):
+        return "Strong"
+    if action in ("increase_budget",) and priority == "high":
+        return "Strong"
+    if priority == "medium":
+        return "Moderate"
+    return "Monitor"
+
+
+def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
+    """Apply ROAS Decision Framework with manual/auto split.
+
+    Returns (action_proposals, all_campaign_summary, anomalies).
+    - action_proposals: campaigns needing changes (non-monitor)
+    - all_campaign_summary: every enabled campaign with metrics (for overview table)
+    - anomalies: list of detected anomaly strings
+    """
     today = date.today()
     yesterday = today - timedelta(days=1)
     d7_start = today - timedelta(days=7)
@@ -856,6 +875,13 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> List[Di
     allocation = compute_budget_allocation(campaigns, agg_7d)
 
     proposals = []
+    all_campaigns = []
+    anomalies = []
+
+    # Totals for summary
+    totals = {"yd": {"cost": 0, "sales": 0, "clicks": 0, "impressions": 0},
+              "7d": {"cost": 0, "sales": 0, "clicks": 0, "impressions": 0, "purchases": 0},
+              "30d": {"cost": 0, "sales": 0, "clicks": 0, "impressions": 0}}
 
     for camp in campaigns:
         cid = camp["campaignId"]
@@ -881,10 +907,19 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> List[Di
         cost_yd = myd["cost"]
         sales_yd = myd["sales"]
         roas_yd = round(sales_yd / cost_yd, 2) if cost_yd > 0 else 0
+        acos_yd = round(cost_yd / sales_yd * 100, 1) if sales_yd > 0 else None
 
-        # Skip campaigns with negligible spend
-        if cost_7d < 1.0 and cost_30d < 5.0:
-            continue
+        # Accumulate totals
+        for key, m, period in [("yd", myd, "yd"), ("7d", m7, "7d"), ("30d", m30, "30d")]:
+            totals[key]["cost"] += m["cost"]
+            totals[key]["sales"] += m["sales"]
+            totals[key]["clicks"] += m["clicks"]
+            totals[key]["impressions"] += m["impressions"]
+            if key == "7d":
+                totals[key]["purchases"] += m["purchases"]
+
+        # Skip campaigns with negligible spend for proposals (but still track)
+        negligible = cost_7d < 1.0 and cost_30d < 5.0
 
         # Apply ROAS Decision Framework (adjusted by campaign type)
         action = "monitor"
@@ -893,27 +928,27 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> List[Di
         priority = "low"
         reason = ""
 
-        # For AUTO campaigns, use looser thresholds
-        effective_roas = roas_7d
-        if camp_type == "AUTO" and roas_7d >= config["min_roas"]:
-            # Auto campaigns get a pass if above their min_roas
-            pass
+        if not negligible:
+            effective_roas = roas_7d
+            if camp_type == "AUTO" and roas_7d >= config["min_roas"]:
+                pass
 
-        for min_r, max_r, act, bid_pct, bud_pct, pri in ROAS_RULES:
-            low_ok = (min_r is None) or (effective_roas >= min_r)
-            high_ok = (max_r is None) or (effective_roas < max_r)
-            if low_ok and high_ok:
-                action = act
-                bid_change_pct = bid_pct
-                budget_change_pct = bud_pct
-                priority = pri
-                break
+            for min_r, max_r, act, bid_pct, bud_pct, pri in ROAS_RULES:
+                low_ok = (min_r is None) or (effective_roas >= min_r)
+                high_ok = (max_r is None) or (effective_roas < max_r)
+                if low_ok and high_ok:
+                    action = act
+                    bid_change_pct = bid_pct
+                    budget_change_pct = bud_pct
+                    priority = pri
+                    break
 
-        # Zero sales with spend
-        if cost_7d > 5 and sales_7d == 0 and m7["clicks"] > 5:
-            action = "pause"
-            priority = "urgent"
-            reason = f"[{camp_type}] 7d: ${cost_7d:.1f} spent, {m7['clicks']} clicks, $0 sales"
+            # Zero sales with spend
+            if cost_7d > 5 and sales_7d == 0 and m7["clicks"] > 5:
+                action = "pause"
+                priority = "urgent"
+                reason = f"[{camp_type}] 7d: ${cost_7d:.1f} spent, {m7['clicks']} clicks, $0 sales"
+                anomalies.append(f"Zero-sales: {camp['name']} - ${cost_7d:.0f} wasted (7d)")
 
         # ROAS-based reason
         if not reason:
@@ -934,12 +969,23 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> List[Di
                     bid_change_pct = bid_change_pct - 20
                 else:
                     bid_change_pct = -20
+                anomalies.append(f"ROAS drop: {camp['name']} yd {roas_yd}x vs 7d avg {roas_7d}x (-{drop_pct:.0f}%)")
 
-        # Budget safety cap — respect per-type allocation and per-campaign max
+        # Anomaly: single campaign eating >40% of total 7d spend
+        total_7d_cost = totals["7d"]["cost"]
+        if total_7d_cost > 0 and cost_7d / total_7d_cost > 0.4:
+            anomalies.append(f"Budget hog: {camp['name']} consuming {cost_7d/total_7d_cost*100:.0f}% of total spend")
+
+        # Anomaly: CTR below 0.3%
+        ctr_7d = round(m7["clicks"] / m7["impressions"] * 100, 2) if m7["impressions"] > 0 else 0
+        if m7["impressions"] > 500 and ctr_7d < 0.3:
+            anomalies.append(f"Low CTR: {camp['name']} CTR {ctr_7d}% ({m7['impressions']} impr)")
+
+        # Budget safety cap
         type_budget = allocation[camp_type]["budget"]
         type_camp_count = max(allocation[camp_type]["campaigns"], 1)
         per_camp_share = round(type_budget / type_camp_count, 2)
-        max_budget = min(per_camp_share * 2, MAX_SINGLE_CAMPAIGN_BUDGET)  # No more than 2x fair share
+        max_budget = min(per_camp_share * 2, MAX_SINGLE_CAMPAIGN_BUDGET)
 
         new_budget = camp["dailyBudget"]
         if budget_change_pct and camp["dailyBudget"] > 0:
@@ -947,10 +993,9 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> List[Di
             if new_budget > max_budget:
                 new_budget = max_budget
 
-        if action == "monitor":
-            continue
+        tier = _confidence_tier(action, priority)
 
-        proposal = {
+        campaign_entry = {
             "campaignId": cid,
             "campaignName": camp["name"],
             "campaignType": camp_type,
@@ -958,9 +1003,10 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> List[Di
             "currentState": camp["state"],
             "currentDailyBudget": camp["dailyBudget"],
             "metrics": {
-                "yesterday": {"spend": round(cost_yd, 2), "sales": round(sales_yd, 2), "roas": roas_yd},
+                "yesterday": {"spend": round(cost_yd, 2), "sales": round(sales_yd, 2), "roas": roas_yd, "acos": acos_yd},
                 "7d": {"spend": round(cost_7d, 2), "sales": round(sales_7d, 2), "roas": roas_7d, "acos": acos_7d,
-                       "clicks": m7["clicks"], "impressions": m7["impressions"], "purchases": m7["purchases"]},
+                       "clicks": m7["clicks"], "impressions": m7["impressions"], "purchases": m7["purchases"],
+                       "ctr": ctr_7d, "cpc": round(cost_7d / m7["clicks"], 2) if m7["clicks"] > 0 else 0},
                 "30d": {"spend": round(cost_30d, 2), "sales": round(sales_30d, 2), "roas": roas_30d},
             },
             "budget_allocation": {
@@ -974,17 +1020,54 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> List[Di
             "budget_change_pct": budget_change_pct,
             "new_daily_budget": new_budget if budget_change_pct else None,
             "priority": priority,
+            "tier": tier,
             "reason": reason,
             "additional": additional_action,
-            "approved": False,  # User must set to True
+            "approved": False,
         }
-        proposals.append(proposal)
+
+        all_campaigns.append(campaign_entry)
+
+        if action != "monitor" and not negligible:
+            proposals.append(campaign_entry)
 
     # Sort by priority
     priority_order = {"urgent": 0, "high": 1, "medium": 2, "low": 3}
     proposals.sort(key=lambda x: priority_order.get(x["priority"], 9))
 
-    return proposals
+    # Sort all_campaigns by 7d spend descending
+    all_campaigns.sort(key=lambda x: x["metrics"]["7d"]["spend"], reverse=True)
+
+    # Build summary
+    summary = {}
+    for period in ("yd", "7d", "30d"):
+        t = totals[period]
+        summary[period] = {
+            "spend": round(t["cost"], 2),
+            "sales": round(t["sales"], 2),
+            "roas": round(t["sales"] / t["cost"], 2) if t["cost"] > 0 else 0,
+            "acos": round(t["cost"] / t["sales"] * 100, 1) if t["sales"] > 0 else None,
+            "clicks": t["clicks"],
+            "impressions": t["impressions"],
+            "ctr": round(t["clicks"] / t["impressions"] * 100, 2) if t["impressions"] > 0 else 0,
+            "cpc": round(t["cost"] / t["clicks"], 2) if t["clicks"] > 0 else 0,
+        }
+        if period == "7d":
+            summary[period]["purchases"] = t.get("purchases", 0)
+            summary[period]["cpa"] = round(t["cost"] / t["purchases"], 2) if t.get("purchases", 0) > 0 else 0
+
+    # ROAS trend anomaly
+    if summary["30d"]["roas"] > 0 and summary["7d"]["roas"] > 0:
+        trend_pct = (summary["7d"]["roas"] - summary["30d"]["roas"]) / summary["30d"]["roas"] * 100
+        if trend_pct < -20:
+            anomalies.insert(0, f"Overall ROAS declining: 7d {summary['7d']['roas']}x vs 30d {summary['30d']['roas']}x ({trend_pct:+.0f}%)")
+        elif trend_pct > 30:
+            anomalies.insert(0, f"Overall ROAS improving: 7d {summary['7d']['roas']}x vs 30d {summary['30d']['roas']}x ({trend_pct:+.0f}%)")
+
+    # Deduplicate anomalies
+    anomalies = list(dict.fromkeys(anomalies))
+
+    return proposals, {"summary": summary, "all_campaigns": all_campaigns, "anomalies": anomalies}
 
 
 # ===========================================================================
@@ -1781,15 +1864,11 @@ def _build_cross_platform_html(xp_ctx: Dict) -> str:
 def build_proposal_html(proposals: List[Dict],
                         kw_proposals: Optional[List[Dict]] = None,
                         brand_key: str = "naeiae",
-                        xp_context: Optional[Dict] = None) -> str:
-    """Build HTML email showing all proposed changes for review."""
+                        xp_context: Optional[Dict] = None,
+                        analysis: Optional[Dict] = None) -> str:
+    """Build comprehensive HTML email with performance summary, all campaigns, proposals, and cross-platform context."""
     cfg = BRAND_CONFIGS[brand_key]
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
-    manual = [p for p in proposals if p.get("campaignType") == "MANUAL"]
-    auto = [p for p in proposals if p.get("campaignType") == "AUTO"]
-    urgent = [p for p in proposals if p["priority"] == "urgent"]
-    high = [p for p in proposals if p["priority"] == "high"]
-    medium = [p for p in proposals if p["priority"] == "medium"]
 
     def color(priority):
         return {"urgent": "#dc3545", "high": "#fd7e14", "medium": "#ffc107"}.get(priority, "#6c757d")
@@ -1799,74 +1878,220 @@ def build_proposal_html(proposals: List[Dict],
         if roas >= 2.0: return "#ffc107"
         return "#dc3545"
 
-    rows_html = ""
-    for p in proposals:
-        m7 = p["metrics"]["7d"]
-        alloc = p.get("budget_allocation", {})
-        action_text = p["proposed_action"]
-        if p.get("bid_change_pct"):
-            action_text += f" (bid {p['bid_change_pct']:+d}%)"
-        if p.get("new_daily_budget"):
-            action_text += f" (budget ${p['currentDailyBudget']}->${p['new_daily_budget']})"
+    def tier_badge(tier):
+        colors = {"No-Brainer": "#dc3545", "Strong": "#fd7e14", "Moderate": "#ffc107", "Monitor": "#6c757d"}
+        c = colors.get(tier, "#6c757d")
+        return f'<span style="background:{c};color:white;padding:2px 6px;border-radius:3px;font-size:10px;white-space:nowrap;">{tier}</span>'
 
-        rows_html += f"""
-        <tr>
-            <td style="padding:8px;border:1px solid #ddd;">
-                <span style="background:{color(p['priority'])};color:white;padding:2px 6px;border-radius:3px;font-size:11px;">{p['priority'].upper()}</span>
-            </td>
-            <td style="padding:8px;border:1px solid #ddd;">[{p.get('campaignType','?')}] {p['campaignName']}</td>
-            <td style="padding:8px;border:1px solid #ddd;color:{roas_color(m7['roas'])};font-weight:bold;">{m7['roas']}x</td>
-            <td style="padding:8px;border:1px solid #ddd;">{m7.get('acos') or '-'}%</td>
-            <td style="padding:8px;border:1px solid #ddd;">${m7['spend']:.0f}</td>
-            <td style="padding:8px;border:1px solid #ddd;">${m7['sales']:.0f}</td>
-            <td style="padding:8px;border:1px solid #ddd;font-weight:bold;">{action_text}</td>
-            <td style="padding:8px;border:1px solid #ddd;font-size:12px;">{p['reason']}</td>
-        </tr>"""
+    # ---- Section 1: Performance Summary ----
+    summary_html = ""
+    all_camps = []
+    anomalies = []
+    if analysis:
+        summary = analysis.get("summary", {})
+        all_camps = analysis.get("all_campaigns", [])
+        anomalies = analysis.get("anomalies", [])
+
+        yd = summary.get("yd", {})
+        s7 = summary.get("7d", {})
+        s30 = summary.get("30d", {})
+
+        # Trend arrows
+        roas_trend = ""
+        if s30.get("roas") and s7.get("roas"):
+            pct = (s7["roas"] - s30["roas"]) / s30["roas"] * 100
+            arrow = "^" if pct > 0 else "v"
+            tc = "#28a745" if pct > 0 else "#dc3545"
+            roas_trend = f' <span style="color:{tc};font-size:12px;">({arrow}{abs(pct):.0f}% vs 30d)</span>'
+
+        summary_html = f"""
+    <div style="background:#f8f9fa;padding:15px 20px;border-radius:8px;margin:15px 0;border-left:4px solid #343a40;">
+        <h3 style="margin:0 0 12px;color:#333;">Performance Summary</h3>
+        <table style="border-collapse:collapse;width:100%;">
+            <tr style="background:#e9ecef;">
+                <th style="padding:8px 12px;text-align:left;"></th>
+                <th style="padding:8px 12px;">Yesterday</th>
+                <th style="padding:8px 12px;">7-Day Avg</th>
+                <th style="padding:8px 12px;">30-Day Avg</th>
+            </tr>
+            <tr>
+                <td style="padding:6px 12px;font-weight:bold;">Spend</td>
+                <td style="padding:6px 12px;text-align:center;">${yd.get('spend', 0):,.0f}</td>
+                <td style="padding:6px 12px;text-align:center;">${s7.get('spend', 0):,.0f}</td>
+                <td style="padding:6px 12px;text-align:center;">${s30.get('spend', 0):,.0f}</td>
+            </tr>
+            <tr style="background:#f8f9fa;">
+                <td style="padding:6px 12px;font-weight:bold;">Sales</td>
+                <td style="padding:6px 12px;text-align:center;">${yd.get('sales', 0):,.0f}</td>
+                <td style="padding:6px 12px;text-align:center;">${s7.get('sales', 0):,.0f}</td>
+                <td style="padding:6px 12px;text-align:center;">${s30.get('sales', 0):,.0f}</td>
+            </tr>
+            <tr>
+                <td style="padding:6px 12px;font-weight:bold;">ROAS</td>
+                <td style="padding:6px 12px;text-align:center;color:{roas_color(yd.get('roas', 0))};font-weight:bold;">{yd.get('roas', 0)}x</td>
+                <td style="padding:6px 12px;text-align:center;color:{roas_color(s7.get('roas', 0))};font-weight:bold;">{s7.get('roas', 0)}x{roas_trend}</td>
+                <td style="padding:6px 12px;text-align:center;color:{roas_color(s30.get('roas', 0))};font-weight:bold;">{s30.get('roas', 0)}x</td>
+            </tr>
+            <tr style="background:#f8f9fa;">
+                <td style="padding:6px 12px;font-weight:bold;">ACOS</td>
+                <td style="padding:6px 12px;text-align:center;">{yd.get('acos') or '-'}%</td>
+                <td style="padding:6px 12px;text-align:center;">{s7.get('acos') or '-'}%</td>
+                <td style="padding:6px 12px;text-align:center;">{s30.get('acos') or '-'}%</td>
+            </tr>
+            <tr>
+                <td style="padding:6px 12px;font-weight:bold;">CPC</td>
+                <td style="padding:6px 12px;text-align:center;">${yd.get('cpc', 0):.2f}</td>
+                <td style="padding:6px 12px;text-align:center;">${s7.get('cpc', 0):.2f}</td>
+                <td style="padding:6px 12px;text-align:center;">${s30.get('cpc', 0):.2f}</td>
+            </tr>
+            <tr style="background:#f8f9fa;">
+                <td style="padding:6px 12px;font-weight:bold;">CTR</td>
+                <td style="padding:6px 12px;text-align:center;">{yd.get('ctr', 0)}%</td>
+                <td style="padding:6px 12px;text-align:center;">{s7.get('ctr', 0)}%</td>
+                <td style="padding:6px 12px;text-align:center;">{s30.get('ctr', 0)}%</td>
+            </tr>
+            <tr>
+                <td style="padding:6px 12px;font-weight:bold;">Conversions (7d)</td>
+                <td style="padding:6px 12px;text-align:center;">-</td>
+                <td style="padding:6px 12px;text-align:center;">{s7.get('purchases', 0)} orders (CPA ${s7.get('cpa', 0):.2f})</td>
+                <td style="padding:6px 12px;text-align:center;">-</td>
+            </tr>
+        </table>
+    </div>"""
+
+    # ---- Section 2: Anomalies ----
+    anomaly_html = ""
+    if anomalies:
+        items = "".join(f'<li style="margin:4px 0;color:#856404;">{a}</li>' for a in anomalies[:10])
+        anomaly_html = f"""
+    <div style="background:#fff3cd;padding:12px 20px;border-radius:8px;margin:15px 0;border-left:4px solid #ffc107;">
+        <h3 style="margin:0 0 8px;color:#856404;">Anomalies Detected ({len(anomalies)})</h3>
+        <ul style="margin:0;padding-left:20px;">{items}</ul>
+    </div>"""
+
+    # ---- Section 3: Action Proposals ----
+    proposals_html = ""
+    if proposals:
+        rows_html = ""
+        for p in proposals:
+            m7 = p["metrics"]["7d"]
+            action_text = p["proposed_action"]
+            if p.get("bid_change_pct"):
+                action_text += f" (bid {p['bid_change_pct']:+d}%)"
+            if p.get("new_daily_budget"):
+                action_text += f" (${p['currentDailyBudget']}->${p['new_daily_budget']})"
+
+            rows_html += f"""
+            <tr>
+                <td style="padding:6px 8px;border:1px solid #ddd;">{tier_badge(p.get('tier', 'Monitor'))}</td>
+                <td style="padding:6px 8px;border:1px solid #ddd;font-size:12px;">[{p.get('campaignType','?')}] {p['campaignName']}</td>
+                <td style="padding:6px 8px;border:1px solid #ddd;color:{roas_color(m7['roas'])};font-weight:bold;">{m7['roas']}x</td>
+                <td style="padding:6px 8px;border:1px solid #ddd;">{m7.get('acos') or '-'}%</td>
+                <td style="padding:6px 8px;border:1px solid #ddd;">${m7['spend']:.0f}</td>
+                <td style="padding:6px 8px;border:1px solid #ddd;">${m7['sales']:.0f}</td>
+                <td style="padding:6px 8px;border:1px solid #ddd;font-weight:bold;">{action_text}</td>
+            </tr>"""
+
+        urgent = [p for p in proposals if p.get("tier") == "No-Brainer"]
+        strong = [p for p in proposals if p.get("tier") == "Strong"]
+        moderate = [p for p in proposals if p.get("tier") == "Moderate"]
+        proposals_html = f"""
+    <h3 style="color:#333;margin-top:25px;">Action Proposals ({len(proposals)})</h3>
+    <div style="display:flex;gap:15px;margin:10px 0;">
+        <div style="background:#f8d7da;padding:8px 15px;border-radius:6px;font-size:13px;"><strong>{len(urgent)}</strong> No-Brainer</div>
+        <div style="background:#ffe0b2;padding:8px 15px;border-radius:6px;font-size:13px;"><strong>{len(strong)}</strong> Strong</div>
+        <div style="background:#fff9c4;padding:8px 15px;border-radius:6px;font-size:13px;"><strong>{len(moderate)}</strong> Moderate</div>
+    </div>
+    <table style="border-collapse:collapse;width:100%;">
+        <tr style="background:#343a40;color:white;">
+            <th style="padding:8px;border:1px solid #ddd;">Tier</th>
+            <th style="padding:8px;border:1px solid #ddd;">Campaign</th>
+            <th style="padding:8px;border:1px solid #ddd;">7d ROAS</th>
+            <th style="padding:8px;border:1px solid #ddd;">7d ACOS</th>
+            <th style="padding:8px;border:1px solid #ddd;">7d Spend</th>
+            <th style="padding:8px;border:1px solid #ddd;">7d Sales</th>
+            <th style="padding:8px;border:1px solid #ddd;">Proposed Action</th>
+        </tr>
+        {rows_html}
+    </table>"""
+    else:
+        proposals_html = """
+    <div style="background:#d4edda;padding:12px 20px;border-radius:8px;margin:15px 0;border-left:4px solid #28a745;">
+        <strong>All campaigns within healthy ROAS range.</strong> No urgent action items. See campaign breakdown below for optimization opportunities.
+    </div>"""
+
+    # ---- Section 4: All Campaigns Overview ----
+    all_camps_html = ""
+    if all_camps:
+        camp_rows = ""
+        for c in all_camps[:30]:  # Top 30 by spend
+            m7 = c["metrics"]["7d"]
+            myd = c["metrics"]["yesterday"]
+            m30 = c["metrics"]["30d"]
+            trend_pct = ""
+            if m30["roas"] > 0:
+                pct = (m7["roas"] - m30["roas"]) / m30["roas"] * 100
+                tc = "#28a745" if pct > 0 else "#dc3545"
+                trend_pct = f'<span style="color:{tc};font-size:11px;">({pct:+.0f}%)</span>'
+
+            camp_rows += f"""
+            <tr>
+                <td style="padding:5px 8px;border:1px solid #eee;font-size:12px;">{tier_badge(c.get('tier', 'Monitor'))}</td>
+                <td style="padding:5px 8px;border:1px solid #eee;font-size:11px;">[{c.get('campaignType','?')}] {c['campaignName'][:45]}</td>
+                <td style="padding:5px 8px;border:1px solid #eee;text-align:right;">${myd.get('spend', 0):.0f}</td>
+                <td style="padding:5px 8px;border:1px solid #eee;text-align:right;color:{roas_color(myd.get('roas', 0))};">{myd.get('roas', 0)}x</td>
+                <td style="padding:5px 8px;border:1px solid #eee;text-align:right;">${m7['spend']:.0f}</td>
+                <td style="padding:5px 8px;border:1px solid #eee;text-align:right;color:{roas_color(m7['roas'])};font-weight:bold;">{m7['roas']}x</td>
+                <td style="padding:5px 8px;border:1px solid #eee;text-align:right;">{m7.get('acos') or '-'}%</td>
+                <td style="padding:5px 8px;border:1px solid #eee;text-align:right;">${m7['cpc']:.2f}</td>
+                <td style="padding:5px 8px;border:1px solid #eee;text-align:right;">{m7.get('ctr', 0)}%</td>
+                <td style="padding:5px 8px;border:1px solid #eee;text-align:right;color:{roas_color(m30['roas'])};">{m30['roas']}x {trend_pct}</td>
+            </tr>"""
+
+        all_camps_html = f"""
+    <h3 style="color:#333;margin-top:25px;">All Campaigns ({len(all_camps)} active)</h3>
+    <p style="color:#666;font-size:12px;margin:0 0 8px;">Sorted by 7d spend. Top 30 shown.</p>
+    <table style="border-collapse:collapse;width:100%;font-size:12px;">
+        <tr style="background:#495057;color:white;">
+            <th style="padding:6px;">Tier</th>
+            <th style="padding:6px;">Campaign</th>
+            <th style="padding:6px;">Yd $</th>
+            <th style="padding:6px;">Yd ROAS</th>
+            <th style="padding:6px;">7d $</th>
+            <th style="padding:6px;">7d ROAS</th>
+            <th style="padding:6px;">7d ACOS</th>
+            <th style="padding:6px;">CPC</th>
+            <th style="padding:6px;">CTR</th>
+            <th style="padding:6px;">30d ROAS</th>
+        </tr>
+        {camp_rows}
+    </table>"""
 
     html = f"""<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
 <body style="font-family:Arial,sans-serif;max-width:1200px;margin:0 auto;padding:20px;">
-    <h2 style="color:#333;">{cfg['brand_display']} ({cfg['seller_name']}) PPC Change Proposal</h2>
-    <p style="color:#666;">{now} | Daily Budget Cap: ${cfg['total_daily_budget']:,.0f} (Manual {cfg['targeting']['MANUAL']['budget_share']*100:.0f}% / Auto {cfg['targeting']['AUTO']['budget_share']*100:.0f}%)</p>
+    <h2 style="color:#333;">{cfg['brand_display']} ({cfg['seller_name']}) PPC Daily Proposal</h2>
+    <p style="color:#666;">{now} | Daily Budget: ${cfg['total_daily_budget']:,.0f} | ACOS targets: Manual {cfg['targeting']['MANUAL']['target_acos']}% / Auto {cfg['targeting']['AUTO']['target_acos']}%</p>
 
-    <div style="display:flex;gap:20px;margin:15px 0;">
-        <div style="background:#f8f9fa;padding:12px 20px;border-radius:8px;">
-            <strong>{len(proposals)}</strong> total proposals
-        </div>
-        <div style="background:#fff3cd;padding:12px 20px;border-radius:8px;">
-            <strong>{len(urgent)}</strong> urgent | <strong>{len(high)}</strong> high | <strong>{len(medium)}</strong> medium
-        </div>
-        <div style="background:#e8f5e9;padding:12px 20px;border-radius:8px;">
-            Manual: <strong>{len(manual)}</strong> | Auto: <strong>{len(auto)}</strong>
-        </div>
-    </div>
+    {summary_html}
 
-    <table style="border-collapse:collapse;width:100%;margin-top:15px;">
-        <tr style="background:#343a40;color:white;">
-            <th style="padding:10px;border:1px solid #ddd;">Priority</th>
-            <th style="padding:10px;border:1px solid #ddd;">Campaign</th>
-            <th style="padding:10px;border:1px solid #ddd;">7d ROAS</th>
-            <th style="padding:10px;border:1px solid #ddd;">7d ACOS</th>
-            <th style="padding:10px;border:1px solid #ddd;">7d Spend</th>
-            <th style="padding:10px;border:1px solid #ddd;">7d Sales</th>
-            <th style="padding:10px;border:1px solid #ddd;">Proposed Action</th>
-            <th style="padding:10px;border:1px solid #ddd;">Reason</th>
-        </tr>
-        {rows_html}
-    </table>
+    {anomaly_html}
+
+    {proposals_html}
 
     {_build_keyword_html(kw_proposals)}
 
+    {all_camps_html}
+
     {_build_cross_platform_html(xp_context) if xp_context else ''}
 
-    <div style="margin-top:25px;padding:15px;background:#fff3cd;border-radius:8px;">
-        <strong>Action Required:</strong> Reply with approved campaign changes, or edit the JSON file at
-        <code>.tmp/ppc_proposal_*.json</code> and run <code>--execute</code>.
+    <div style="margin-top:25px;padding:15px;background:#e3f2fd;border-radius:8px;border-left:4px solid #2196f3;">
+        <strong>To execute proposals:</strong> Reply "execute" to this email, or edit <code>.tmp/ppc_proposal_*.json</code> and run <code>--execute</code>.
     </div>
 
-    <p style="color:#999;margin-top:20px;font-size:12px;">
-        Generated by Mazone PPC Executor | 6-hour analysis cycle | Next analysis in ~6 hours
+    <p style="color:#999;margin-top:20px;font-size:11px;">
+        Amazon PPC Executor ({cfg['brand_display']}) | Scheduled daily KST 08:00 | Auto-check for "execute" reply every 2h
     </p>
 </body>
 </html>"""
@@ -1964,19 +2189,25 @@ def send_proposal_email(proposals: List[Dict], to: str = DEFAULT_TO,
                         kw_proposals: Optional[List[Dict]] = None,
                         cc: str = DEFAULT_CC,
                         brand_key: str = "naeiae",
-                        xp_context: Optional[Dict] = None) -> Optional[str]:
+                        xp_context: Optional[Dict] = None,
+                        analysis: Optional[Dict] = None) -> Optional[str]:
     """Send proposal HTML email via send_gmail.py. Returns Gmail message ID or None."""
     cfg = BRAND_CONFIGS[brand_key]
-    html = build_proposal_html(proposals, kw_proposals, brand_key=brand_key, xp_context=xp_context)
+    html = build_proposal_html(proposals, kw_proposals, brand_key=brand_key,
+                               xp_context=xp_context, analysis=analysis)
     html_path = TMP_DIR / f"ppc_proposal_{brand_key}_{date.today().strftime('%Y%m%d')}_{datetime.now().strftime('%H%M')}.html"
     html_path.write_text(html, encoding="utf-8")
 
-    urgent_count = sum(1 for p in proposals if p["priority"] == "urgent")
     kw_count = len(kw_proposals) if kw_proposals else 0
+    anomaly_count = len(analysis.get("anomalies", [])) if analysis else 0
+    s7 = analysis.get("summary", {}).get("7d", {}) if analysis else {}
+    roas_7d_str = f" | ROAS {s7.get('roas', '?')}x" if s7 else ""
+
+    action_count = len(proposals)
     subject = (
-        f"[Amazon PPC] {cfg['brand_display']} Proposal - {len(proposals)} campaign, "
-        f"{kw_count} keyword changes"
-        f" ({urgent_count} urgent) | {datetime.now().strftime('%m/%d %H:%M')}"
+        f"[Amazon PPC] {cfg['brand_display']} Daily{roas_7d_str} | "
+        f"{action_count} actions, {kw_count} kw, {anomaly_count} anomalies"
+        f" | {datetime.now().strftime('%m/%d')}"
     )
 
     send_gmail_path = TOOLS_DIR / "send_gmail.py"
@@ -2379,7 +2610,15 @@ def run_propose_single(args, brand_key: str):
     print(f"  {len(report_rows)} daily metric rows collected")
 
     print(f"\n[3/7] Analyzing campaigns (ROAS framework)...")
-    proposals = analyze_campaigns(campaigns, report_rows)
+    proposals, analysis = analyze_campaigns(campaigns, report_rows)
+    all_camps = analysis["all_campaigns"]
+    anomalies = analysis["anomalies"]
+    summary = analysis["summary"]
+
+    print(f"  {len(all_camps)} active campaigns analyzed")
+    print(f"  {len(proposals)} action proposals, {len(anomalies)} anomalies detected")
+    s7 = summary.get("7d", {})
+    print(f"  7d Total: ${s7.get('spend', 0):,.0f} spend / ${s7.get('sales', 0):,.0f} sales / {s7.get('roas', 0)}x ROAS")
 
     # --- Search Term & Keyword Analysis ---
     kw_proposals = []
@@ -2422,18 +2661,16 @@ def run_propose_single(args, brand_key: str):
     except Exception as e:
         print(f"  [WARN] Cross-platform analysis failed: {e}")
 
-    if not proposals and not kw_proposals:
-        print(f"\n[OK] {brand_display}: All campaigns within normal range. No changes needed.")
-        return
-
+    # Always save and send — even with 0 action proposals, the analysis is valuable
     filepath = save_proposal(proposals, profile_id, kw_proposals, brand_key=brand_key)
-    print_proposal_summary(proposals, brand_key=brand_key)
+    if proposals:
+        print_proposal_summary(proposals, brand_key=brand_key)
     if kw_proposals:
         print_keyword_summary(kw_proposals)
 
     print(f"\n[7/7] Sending {brand_display} proposal email...")
     send_proposal_email(proposals, args.to, kw_proposals, cc=args.cc, brand_key=brand_key,
-                        xp_context=xp_context)
+                        xp_context=xp_context, analysis=analysis)
 
 
 def run_propose(args):
