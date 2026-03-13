@@ -174,17 +174,17 @@ def generate_proposals(
             messages=[{"role": "user", "content": user_message}],
         )
         raw = response.content[0].text.strip()
-        # Strip accidental markdown fences
-        if raw.startswith("```"):
-            raw = raw.split("```")[1]
-            if raw.startswith("json"):
-                raw = raw[4:]
+        # Strip accidental markdown fences (```json ... ``` or ``` ... ```)
+        import re as _re
+        fence_match = _re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', raw)
+        if fence_match:
+            raw = fence_match.group(1)
         proposals = json.loads(raw)
         if not isinstance(proposals, list):
             print("WARNING: Claude returned non-list JSON -- ignoring")
             return []
         return proposals
-    except (json.JSONDecodeError, Exception) as e:
+    except Exception as e:
         print(f"WARNING: proposal generation failed: {e}")
         return []
 
