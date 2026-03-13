@@ -615,7 +615,7 @@ def build_rows(orders, paypal_txns, syncly_data, since_date=None):
         else:
             account_display = ""
 
-        # Profile URL
+        # Profile URL — prefer Syncly platform, fallback to account handle
         profile_url = ""
         if matched_uname:
             plat_lower = syncly_idx["platform_map"].get(matched_uname, "")
@@ -623,6 +623,13 @@ def build_rows(orders, paypal_txns, syncly_data, since_date=None):
                 profile_url = f"https://www.instagram.com/{matched_uname}/"
             elif "tiktok" in plat_lower:
                 profile_url = f"https://www.tiktok.com/@{matched_uname}"
+        if not profile_url and handle and " " not in handle:
+            # Generate profile URL from Shopify-extracted handle
+            # Only if handle looks like a real username (no spaces)
+            if acct_type == "Instagram":
+                profile_url = f"https://www.instagram.com/{handle}/"
+            elif acct_type == "TikTok":
+                profile_url = f"https://www.tiktok.com/@{handle}"
 
         # Influencer fee
         fee = ""
@@ -666,6 +673,18 @@ def build_rows(orders, paypal_txns, syncly_data, since_date=None):
             like_val = best["curr_like"]
             view_val = best["curr_view"]
             stats["matched"] += 1
+
+            # Override channel + profile URL from content link URL (most accurate signal)
+            if "tiktok.com" in url:
+                channel = "TikTok"
+                if matched_uname:
+                    profile_url = f"https://www.tiktok.com/@{matched_uname}"
+            elif "instagram.com" in url:
+                channel = "Instagram"
+                if matched_uname:
+                    profile_url = f"https://www.instagram.com/{matched_uname}/"
+            elif "youtube.com" in url or "youtu.be" in url:
+                channel = "YouTube"
         else:
             stats["no_content"] += 1
 
@@ -771,7 +790,7 @@ def compute_diff(old_rows, new_rows):
     }
 
 
-def write_summary(diff, stats):
+def write_summary(diff, stats, xc_issues=None):
     """Write summary JSON for email reporting."""
     summary = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -787,6 +806,15 @@ def write_summary(diff, stats):
             "newly_matched": diff["newly_matched"][:20],
         },
     }
+    if xc_issues:
+        xc_summary = {}
+        for key, items in xc_issues.items():
+            if items:
+                xc_summary[key] = {"count": len(items), "samples": items[:5]}
+        summary["cross_check"] = {
+            "total_issues": sum(len(v) for v in xc_issues.values()),
+            "issues": xc_summary,
+        }
     SUMMARY_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(SUMMARY_PATH, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2, ensure_ascii=False)
@@ -821,6 +849,161 @@ def print_report(diff):
 
     if not diff["new_shipments"] and not diff["newly_matched"]:
         print("\n  No changes since last sync.")
+    print("=" * 60 + "\n")
+
+
+# ── Cross-check validation ────────────────────────────────────────────────
+
+def cross_check(rows):
+    """Validate data integrity across row fields.
+
+    Returns dict of issue_type -> list of {row_no, name, account, detail}.
+    """
+    issues = {
+        "content_link_no_profile": [],     # Content Link exists but Profile URL empty
+        "metrics_no_link": [],             # Metrics nonzero but Content Link empty
+        "account_no_profile": [],          # Account exists but Profile URL empty
+        "profile_no_account": [],          # Profile URL exists but Account empty
+        "link_account_mismatch": [],       # Content Link username != Account handle
+        "channel_link_mismatch": [],       # Channel vs Content Link domain mismatch
+        "link_no_metrics": [],             # Content Link exists but all metrics zero
+        "channel_profile_mismatch": [],    # Channel vs Profile URL domain mismatch
+    }
+
+    for row in rows:
+        row_no = row[0]
+        channel = str(row[1]).strip()
+        name = str(row[2]).strip()
+        account = str(row[3]).strip()       # @handle
+        content_link = str(row[11]).strip()  # =HYPERLINK("url","label")
+        d_days = row[13]
+        cmt = row[14]
+        like = row[15]
+        view = row[16]
+        profile_url = str(row[17]).strip()
+
+        # Parse content link URL from HYPERLINK formula
+        link_url = ""
+        link_match = re.search(r'HYPERLINK\("([^"]+)"', content_link, re.IGNORECASE)
+        if link_match:
+            link_url = link_match.group(1)
+
+        has_link = bool(link_url)
+        has_metrics = any(safe_int(v) > 0 for v in [d_days, cmt, like, view])
+        has_account = bool(account and account != "@")
+        has_profile = bool(profile_url)
+
+        info = {"row_no": row_no, "name": name, "account": account}
+
+        # 1. Content Link exists but Profile URL empty
+        if has_link and not has_profile:
+            issues["content_link_no_profile"].append({
+                **info, "detail": f"link={link_url[:60]}"})
+
+        # 2. Metrics nonzero but no Content Link
+        if has_metrics and not has_link:
+            issues["metrics_no_link"].append({
+                **info, "detail": f"D+={d_days} cmt={cmt} like={like} view={view}"})
+
+        # 3. Account exists but Profile URL empty
+        if has_account and not has_profile and not has_link:
+            issues["account_no_profile"].append({
+                **info, "detail": f"channel={channel}"})
+
+        # 4. Profile URL exists but Account empty
+        if has_profile and not has_account:
+            issues["profile_no_account"].append({
+                **info, "detail": f"profile={profile_url}"})
+
+        # 5. Content Link username != Account handle
+        if has_link and has_account:
+            # Extract username from content URL
+            link_user = ""
+            ig_m = re.search(r"instagram\.com/(?:p|reel)/[^/]+", link_url)
+            if ig_m:
+                # Can't extract poster from post URL directly — skip this sub-check
+                pass
+            tiktok_m = re.search(r"tiktok\.com/@([^/?]+)", link_url)
+            if tiktok_m:
+                link_user = tiktok_m.group(1).lower()
+
+            acct_handle = account.lstrip("@").lower()
+            if link_user and acct_handle and link_user != acct_handle:
+                issues["link_account_mismatch"].append({
+                    **info, "detail": f"link_user=@{link_user} vs account={account}"})
+
+        # 6. Channel vs Content Link domain mismatch
+        if has_link and channel:
+            is_ig_link = "instagram.com" in link_url
+            is_tt_link = "tiktok.com" in link_url
+            is_yt_link = "youtube.com" in link_url or "youtu.be" in link_url
+            ch_lower = channel.lower()
+            if is_ig_link and "instagram" not in ch_lower:
+                issues["channel_link_mismatch"].append({
+                    **info, "detail": f"channel={channel} but link is Instagram"})
+            elif is_tt_link and "tiktok" not in ch_lower:
+                issues["channel_link_mismatch"].append({
+                    **info, "detail": f"channel={channel} but link is TikTok"})
+            elif is_yt_link and "youtube" not in ch_lower:
+                issues["channel_link_mismatch"].append({
+                    **info, "detail": f"channel={channel} but link is YouTube"})
+
+        # 7. Content Link exists but all metrics zero
+        if has_link and not has_metrics:
+            issues["link_no_metrics"].append({
+                **info, "detail": f"D+={d_days} cmt={cmt} like={like} view={view}"})
+
+        # 8. Channel vs Profile URL domain mismatch
+        if has_profile and channel:
+            is_ig_prof = "instagram.com" in profile_url
+            is_tt_prof = "tiktok.com" in profile_url
+            ch_lower = channel.lower()
+            if is_ig_prof and "instagram" not in ch_lower:
+                issues["channel_profile_mismatch"].append({
+                    **info, "detail": f"channel={channel} but profile is Instagram"})
+            elif is_tt_prof and "tiktok" not in ch_lower:
+                issues["channel_profile_mismatch"].append({
+                    **info, "detail": f"channel={channel} but profile is TikTok"})
+
+    return issues
+
+
+def print_cross_check(issues):
+    """Print cross-check validation report."""
+    labels = {
+        "content_link_no_profile": "Content Link exists but no Profile URL",
+        "metrics_no_link": "Metrics nonzero but no Content Link",
+        "account_no_profile": "Account exists but no Profile URL (no content)",
+        "profile_no_account": "Profile URL exists but Account is empty",
+        "link_account_mismatch": "Content Link username != Account handle",
+        "channel_link_mismatch": "Channel vs Content Link domain mismatch",
+        "link_no_metrics": "Content Link exists but all metrics = 0",
+        "channel_profile_mismatch": "Channel vs Profile URL domain mismatch",
+    }
+
+    total_issues = sum(len(v) for v in issues.values())
+    print("\n" + "=" * 60)
+    print("  CROSS-CHECK VALIDATION")
+    print("=" * 60)
+
+    if total_issues == 0:
+        print("  All checks passed! No data inconsistencies found.")
+        print("=" * 60 + "\n")
+        return
+
+    print(f"  Total issues: {total_issues}\n")
+
+    for key, label in labels.items():
+        items = issues[key]
+        if not items:
+            continue
+        print(f"  [{len(items)}] {label}")
+        for item in items[:10]:
+            print(f"    Row {item['row_no']}: {item['name']} ({item['account']}) - {item['detail']}")
+        if len(items) > 10:
+            print(f"    ... +{len(items) - 10} more")
+        print()
+
     print("=" * 60 + "\n")
 
 
@@ -1017,7 +1200,12 @@ def main():
     # Compute diff and print report
     diff = compute_diff(old_rows, rows)
     print_report(diff)
-    write_summary(diff, stats)
+
+    # Cross-check validation
+    xc_issues = cross_check(rows)
+    print_cross_check(xc_issues)
+
+    write_summary(diff, stats, xc_issues)
 
     write_to_sheet(gc, args.target_sheet_id, rows, dry_run=args.dry_run)
 
