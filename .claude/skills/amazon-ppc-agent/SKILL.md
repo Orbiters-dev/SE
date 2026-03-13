@@ -160,21 +160,47 @@ sales = float(row.get('sales', 0))
 
 ### Cross-Platform Data Sources (MUST leverage)
 
-| Source | Data | How to Use |
-|--------|------|------------|
-| `amazon_ads_daily` (DataKeeper) | Daily ad metrics by brand/campaign | Primary PPC data |
-| `amazon_sales_daily` (DataKeeper) | Marketplace organic + ad sales | Total revenue context |
-| `shopify_orders_daily` (DataKeeper) | DTC orders (includes FBA MCF) | Cross-channel comparison |
-| `meta_ads_daily` (DataKeeper) | Meta Ads spend/ROAS | Multi-channel budget allocation |
-| `google_ads_daily` (DataKeeper) | Google Ads metrics | Multi-channel context |
-| `ga4_daily` (DataKeeper) | Website traffic/conversion | Landing page quality signal |
-| `Syncly D+60 Tracker` | Influencer content metrics | Content-driven demand correlation |
+| Source | DataKeeper Table | Key Fields | How to Use |
+|--------|-----------------|------------|------------|
+| Amazon Ads | `amazon_ads_daily` | `spend`, `sales`, `clicks`, `impressions` | Primary PPC data |
+| Amazon Sales | `amazon_sales_daily` | `ordered_product_sales`, `units_ordered` | Total revenue, organic vs ad ratio |
+| Google Ads | `google_ads_daily` | `spend`, `conversions_value`, `clicks`, `impressions` | CPC benchmark, ROAS comparison, budget allocation |
+| Meta Ads | `meta_ads_daily` | `spend`, `purchase_value`, `purchases` | Awareness -> demand lag, multi-channel ROAS |
+| Shopify DTC | `shopify_orders_daily` | `total_price`, orders | Cross-channel conversion, AOV trends |
+| GA4 | `ga4_daily` | `sessions`, `conversions` | Landing page quality signal |
+| Syncly D+60 | External sheet | Views, likes, comments | Content-driven demand correlation |
 
-**Cross-platform analysis examples:**
-- If Amazon ROAS drops but Shopify ROAS is stable -> Amazon-specific issue (listing, competition)
-- If both drop simultaneously -> market/seasonal issue or brand-level problem
-- High Meta spend + low Amazon organic -> check if Meta is cannibalizing Amazon search
-- Influencer content posted (Syncly) + Amazon sales spike -> attribute and increase budget
+### Cross-Platform Decision Rules (Automated in Executor)
+
+Every proposal email now includes a **Cross-Platform Context** section with Google Ads, Meta, Shopify, and Amazon Sales data. This is fetched via `fetch_cross_platform_context()`.
+
+**Rule 1: Multi-Channel ROAS Comparison**
+- Amazon ROAS drops, Google/Meta stable -> Amazon-specific issue (listing, competitor)
+- All channels drop -> market/seasonal (reduce proportionally)
+- Amazon stable, Google drops -> potential budget reallocation opportunity
+
+**Rule 2: Google Ads CPC as Bid Ceiling Signal**
+- Google Search CPC for same keywords = market price signal
+- If Google CPC > Amazon CPC -> room to increase Amazon bids
+- If Google CPC dropping -> market cooling, hold Amazon bids
+
+**Rule 3: Meta Awareness -> Amazon Demand Lag (7-14 days)**
+- Meta spend increase -> 7-14 day lag -> Amazon organic search increase
+- Track: meta_spend_7d vs amazon_organic_sales_next_7d
+- If meta spend UP and Amazon branded search UP -> increase Amazon brand defense
+
+**Rule 4: Organic vs Ad Sales Ratio**
+- < 20% ad ratio: Under-invested in ads
+- 20-40%: Balanced
+- 40-60%: Ad-dependent, watch diminishing returns
+- > 60%: Over-reliance, focus organic growth
+
+**Rule 5: Budget Allocation Across Platforms**
+- Optimal split (baby products): Amazon 50-60%, Google 20-30%, Meta 15-20%
+- Reallocation: channel ROAS > 1.5x avg for 14d -> increase 20%
+- Never reallocate > 30% of any channel in single move
+
+**Full reference:** `references/cross-platform-analysis.md`
 
 ### Known Issues & Fixes
 
@@ -487,7 +513,8 @@ See `references/` directory for:
 - `amazon-execution-rules.md` - Bid presets, search term rules, API execution details
 - `amazon-query-patterns.md` - Natural language query examples and scoping guide
 - `benchmarks.md` - Industry benchmarks and scoring
-- `bidding-strategies.md` - Bid optimization strategies (cross-platform)
+- `bidding-strategies.md` - Multi-platform bid optimization (Google, Meta, LinkedIn, TikTok, Microsoft)
 - `budget-allocation.md` - Budget distribution best practices
 - `conversion-tracking.md` - Attribution and tracking setup
 - `scoring-system.md` - Performance scoring methodology
+- `cross-platform-analysis.md` - **Google Ads + Meta + Shopify cross-platform decision rules, seasonal patterns, budget allocation formulas**

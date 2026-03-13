@@ -1578,9 +1578,210 @@ def execute_approved(proposal_data: Dict) -> List[Dict]:
 DEFAULT_TO = "wj.choi@orbiters.co.kr"
 DEFAULT_CC = "mj.lee@orbiters.co.kr"
 
+
+# ===========================================================================
+# Cross-Platform Analysis (Google Ads + Meta + Shopify context)
+# ===========================================================================
+
+def fetch_cross_platform_context(brand_key: str, days: int = 30) -> Dict:
+    """Pull Google Ads, Meta Ads, Shopify, Amazon Sales data from DataKeeper
+    to provide cross-platform context for Amazon PPC proposals."""
+    try:
+        from data_keeper_client import DataKeeper
+        dk = DataKeeper()
+    except Exception as e:
+        print(f"  [WARN] DataKeeper not available for cross-platform: {e}")
+        return {}
+
+    brand_map = {
+        "naeiae": "Naeiae",
+        "grosmimi": "Grosmimi",
+        "chaenmom": "CHA&MOM",
+    }
+    brand_name = brand_map.get(brand_key, brand_key)
+    ctx = {"brand": brand_name, "periods": {}}
+
+    for period_label, period_days in [("7d", 7), ("30d", days)]:
+        period = {}
+
+        # --- Google Ads ---
+        try:
+            gads = dk.get("google_ads_daily", days=period_days)
+            if gads:
+                g_spend = sum(float(r.get("spend") or r.get("cost") or 0) for r in gads)
+                g_conv_val = sum(float(r.get("conversions_value") or r.get("conversion_value") or 0) for r in gads)
+                g_clicks = sum(int(r.get("clicks") or 0) for r in gads)
+                g_impressions = sum(int(r.get("impressions") or 0) for r in gads)
+                period["google_ads"] = {
+                    "spend": round(g_spend, 2),
+                    "conversions_value": round(g_conv_val, 2),
+                    "roas": round(g_conv_val / g_spend, 2) if g_spend > 0 else 0,
+                    "clicks": g_clicks,
+                    "impressions": g_impressions,
+                    "cpc": round(g_spend / g_clicks, 2) if g_clicks > 0 else 0,
+                    "ctr": round(g_clicks / g_impressions * 100, 2) if g_impressions > 0 else 0,
+                }
+        except Exception as e:
+            print(f"  [WARN] Google Ads cross-platform data: {e}")
+
+        # --- Meta Ads ---
+        try:
+            meta = dk.get("meta_ads_daily", days=period_days)
+            if meta:
+                m_spend = sum(float(r.get("spend") or 0) for r in meta)
+                m_revenue = sum(float(r.get("purchase_value") or r.get("conversions_value") or r.get("revenue") or 0) for r in meta)
+                m_purchases = sum(int(r.get("purchases") or r.get("conversions") or 0) for r in meta)
+                period["meta_ads"] = {
+                    "spend": round(m_spend, 2),
+                    "revenue": round(m_revenue, 2),
+                    "roas": round(m_revenue / m_spend, 2) if m_spend > 0 else 0,
+                    "purchases": m_purchases,
+                    "cpa": round(m_spend / m_purchases, 2) if m_purchases > 0 else 0,
+                }
+        except Exception as e:
+            print(f"  [WARN] Meta Ads cross-platform data: {e}")
+
+        # --- Amazon Sales (organic + ad) ---
+        try:
+            amz_sales = dk.get("amazon_sales_daily", days=period_days, brand=brand_name)
+            if amz_sales:
+                total_rev = sum(float(r.get("ordered_product_sales") or r.get("revenue") or 0) for r in amz_sales)
+                total_units = sum(int(r.get("units_ordered") or r.get("units") or 0) for r in amz_sales)
+                period["amazon_sales"] = {
+                    "total_revenue": round(total_rev, 2),
+                    "total_units": total_units,
+                }
+        except Exception as e:
+            print(f"  [WARN] Amazon Sales cross-platform data: {e}")
+
+        # --- Shopify DTC ---
+        try:
+            shopify = dk.get("shopify_orders_daily", days=period_days)
+            if shopify:
+                s_revenue = sum(float(r.get("total_price") or r.get("revenue") or 0) for r in shopify)
+                s_orders = len(shopify)
+                period["shopify"] = {
+                    "revenue": round(s_revenue, 2),
+                    "orders": s_orders,
+                    "aov": round(s_revenue / s_orders, 2) if s_orders > 0 else 0,
+                }
+        except Exception as e:
+            print(f"  [WARN] Shopify cross-platform data: {e}")
+
+        ctx["periods"][period_label] = period
+
+    # --- Cross-platform insights ---
+    insights = []
+    p30 = ctx["periods"].get("30d", {})
+    p7 = ctx["periods"].get("7d", {})
+
+    # Insight: Amazon vs Google ROAS comparison
+    amz_ads_7d = p7.get("amazon_ads", {})
+    gads_7d = p7.get("google_ads", {})
+    if gads_7d.get("roas") and amz_ads_7d:
+        g_roas = gads_7d["roas"]
+        if g_roas > 0:
+            insights.append(f"Google Ads 7d ROAS: {g_roas}x (CPC ${gads_7d.get('cpc', '?')})")
+
+    # Insight: Meta ROAS comparison
+    meta_7d = p7.get("meta_ads", {})
+    if meta_7d.get("roas"):
+        insights.append(f"Meta Ads 7d ROAS: {meta_7d['roas']}x (CPA ${meta_7d.get('cpa', '?')})")
+
+    # Insight: Organic vs Ad sales ratio
+    amz_sales_30d = p30.get("amazon_sales", {})
+    if amz_sales_30d.get("total_revenue"):
+        insights.append(f"Amazon Total Revenue (30d): ${amz_sales_30d['total_revenue']:,.0f} ({amz_sales_30d.get('total_units', 0)} units)")
+
+    # Insight: Google Ads spend vs Amazon Ads spend comparison
+    gads_30d = p30.get("google_ads", {})
+    if gads_30d.get("spend") and gads_30d["spend"] > 0:
+        insights.append(f"Google Ads 30d: ${gads_30d['spend']:,.0f} spend -> ${gads_30d.get('conversions_value', 0):,.0f} rev ({gads_30d['roas']}x)")
+
+    # Insight: Shopify DTC performance
+    shopify_7d = p7.get("shopify", {})
+    if shopify_7d.get("revenue"):
+        insights.append(f"Shopify DTC 7d: ${shopify_7d['revenue']:,.0f} ({shopify_7d['orders']} orders, AOV ${shopify_7d['aov']})")
+
+    ctx["insights"] = insights
+    return ctx
+
+
+def _build_cross_platform_html(xp_ctx: Dict) -> str:
+    """Build HTML section for cross-platform analysis context."""
+    if not xp_ctx or not xp_ctx.get("periods"):
+        return ""
+
+    insights = xp_ctx.get("insights", [])
+    p7 = xp_ctx["periods"].get("7d", {})
+    p30 = xp_ctx["periods"].get("30d", {})
+
+    rows = ""
+    channels = [
+        ("Google Ads", "google_ads", "roas", "spend"),
+        ("Meta Ads", "meta_ads", "roas", "spend"),
+        ("Amazon Sales", "amazon_sales", None, "total_revenue"),
+        ("Shopify DTC", "shopify", None, "revenue"),
+    ]
+
+    for label, key, roas_field, spend_field in channels:
+        d7 = p7.get(key, {})
+        d30 = p30.get(key, {})
+        if not d7 and not d30:
+            continue
+
+        spend_7 = d7.get(spend_field, 0)
+        spend_30 = d30.get(spend_field, 0)
+        roas_7 = d7.get(roas_field, "-") if roas_field else "-"
+        roas_30 = d30.get(roas_field, "-") if roas_field else "-"
+
+        def _rc(v):
+            if v == "-" or not v: return "#666"
+            try:
+                v = float(v)
+                if v >= 3.0: return "#28a745"
+                if v >= 2.0: return "#ffc107"
+                return "#dc3545"
+            except: return "#666"
+
+        rows += f"""<tr>
+            <td style="padding:6px 10px;border:1px solid #ddd;font-weight:bold;">{label}</td>
+            <td style="padding:6px 10px;border:1px solid #ddd;">${spend_7:,.0f}</td>
+            <td style="padding:6px 10px;border:1px solid #ddd;color:{_rc(roas_7)};font-weight:bold;">{roas_7}{'x' if roas_7 != '-' else ''}</td>
+            <td style="padding:6px 10px;border:1px solid #ddd;">${spend_30:,.0f}</td>
+            <td style="padding:6px 10px;border:1px solid #ddd;color:{_rc(roas_30)};font-weight:bold;">{roas_30}{'x' if roas_30 != '-' else ''}</td>
+        </tr>"""
+
+    if not rows and not insights:
+        return ""
+
+    insights_html = ""
+    if insights:
+        items = "".join(f'<li style="margin:4px 0;font-size:13px;">{i}</li>' for i in insights)
+        insights_html = f'<ul style="margin:8px 0;padding-left:20px;">{items}</ul>'
+
+    return f"""
+    <div style="margin-top:25px;padding:15px;background:#f0f4ff;border-radius:8px;border-left:4px solid #4a90d9;">
+        <h3 style="margin:0 0 10px;color:#2c5282;">Cross-Platform Context</h3>
+        <p style="color:#666;font-size:12px;margin:0 0 10px;">Other channels performance (from DataKeeper) — use to contextualize Amazon PPC decisions</p>
+        <table style="border-collapse:collapse;width:100%;margin-bottom:10px;">
+            <tr style="background:#e2e8f0;">
+                <th style="padding:8px 10px;text-align:left;">Channel</th>
+                <th style="padding:8px 10px;">7d Spend/Rev</th>
+                <th style="padding:8px 10px;">7d ROAS</th>
+                <th style="padding:8px 10px;">30d Spend/Rev</th>
+                <th style="padding:8px 10px;">30d ROAS</th>
+            </tr>
+            {rows}
+        </table>
+        {insights_html}
+    </div>"""
+
+
 def build_proposal_html(proposals: List[Dict],
                         kw_proposals: Optional[List[Dict]] = None,
-                        brand_key: str = "naeiae") -> str:
+                        brand_key: str = "naeiae",
+                        xp_context: Optional[Dict] = None) -> str:
     """Build HTML email showing all proposed changes for review."""
     cfg = BRAND_CONFIGS[brand_key]
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -1656,6 +1857,8 @@ def build_proposal_html(proposals: List[Dict],
     </table>
 
     {_build_keyword_html(kw_proposals)}
+
+    {_build_cross_platform_html(xp_context) if xp_context else ''}
 
     <div style="margin-top:25px;padding:15px;background:#fff3cd;border-radius:8px;">
         <strong>Action Required:</strong> Reply with approved campaign changes, or edit the JSON file at
@@ -1760,10 +1963,11 @@ def _build_keyword_html(kw_proposals: Optional[List[Dict]]) -> str:
 def send_proposal_email(proposals: List[Dict], to: str = DEFAULT_TO,
                         kw_proposals: Optional[List[Dict]] = None,
                         cc: str = DEFAULT_CC,
-                        brand_key: str = "naeiae") -> Optional[str]:
+                        brand_key: str = "naeiae",
+                        xp_context: Optional[Dict] = None) -> Optional[str]:
     """Send proposal HTML email via send_gmail.py. Returns Gmail message ID or None."""
     cfg = BRAND_CONFIGS[brand_key]
-    html = build_proposal_html(proposals, kw_proposals, brand_key=brand_key)
+    html = build_proposal_html(proposals, kw_proposals, brand_key=brand_key, xp_context=xp_context)
     html_path = TMP_DIR / f"ppc_proposal_{brand_key}_{date.today().strftime('%Y%m%d')}_{datetime.now().strftime('%H%M')}.html"
     html_path.write_text(html, encoding="utf-8")
 
@@ -2157,7 +2361,7 @@ def run_propose_single(args, brand_key: str):
     print(f"  Budget: ${cfg['total_daily_budget']:,.0f}/day | ACOS targets: Manual {cfg['targeting']['MANUAL']['target_acos']}% / Auto {cfg['targeting']['AUTO']['target_acos']}%")
     print(f"{'#'*70}")
 
-    print(f"\n[1/6] Finding {cfg['seller_name']} profile...")
+    print(f"\n[1/7] Finding {cfg['seller_name']} profile...")
     profile = get_brand_profile(brand_key)
     if not profile:
         print(f"[ERROR] {cfg['seller_name']} profile not found! Skipping.")
@@ -2165,7 +2369,7 @@ def run_propose_single(args, brand_key: str):
     profile_id = profile["profile_id"]
     print(f"  Found: profile_id={profile_id}")
 
-    print(f"\n[2/6] Collecting {args.days}d campaign data...")
+    print(f"\n[2/7] Collecting {args.days}d campaign data...")
     campaigns = fetch_campaigns(profile_id)
     print(f"  {len(campaigns)} campaigns found")
 
@@ -2174,7 +2378,7 @@ def run_propose_single(args, brand_key: str):
     report_rows = fetch_sp_report(profile_id, start_date, end_date)
     print(f"  {len(report_rows)} daily metric rows collected")
 
-    print(f"\n[3/6] Analyzing campaigns (ROAS framework)...")
+    print(f"\n[3/7] Analyzing campaigns (ROAS framework)...")
     proposals = analyze_campaigns(campaigns, report_rows)
 
     # --- Search Term & Keyword Analysis ---
@@ -2182,7 +2386,7 @@ def run_propose_single(args, brand_key: str):
 
     if not args.skip_keywords:
         st_start = end_date - timedelta(days=13)  # 14-day window for attribution
-        print(f"\n[4/6] Fetching search term report ({st_start} ~ {end_date})...")
+        print(f"\n[4/7] Fetching search term report ({st_start} ~ {end_date})...")
         try:
             st_rows = fetch_search_term_report(profile_id, st_start, end_date)
             print(f"  {len(st_rows)} search term rows")
@@ -2190,7 +2394,7 @@ def run_propose_single(args, brand_key: str):
             kw_rows = fetch_keyword_report(profile_id, st_start, end_date)
             print(f"  {len(kw_rows)} keyword rows")
 
-            print(f"\n[5/6] Analyzing search terms & keywords...")
+            print(f"\n[5/7] Analyzing search terms & keywords...")
             st_analysis = analyze_search_terms(st_rows, campaigns, kw_rows)
             kw_bid_proposals = analyze_keyword_bids(kw_rows, campaigns)
 
@@ -2202,8 +2406,21 @@ def run_propose_single(args, brand_key: str):
             print(f"  [WARN] Search term/keyword analysis failed: {e}")
             print(f"  Continuing with campaign-level proposals only.")
     else:
-        print(f"\n[4/6] Skipping keyword analysis (--skip-keywords)")
-        print(f"[5/6] Skipped")
+        print(f"\n[4/7] Skipping keyword analysis (--skip-keywords)")
+        print(f"[5/7] Skipped")
+
+    # --- Cross-Platform Context (Google Ads, Meta, Shopify, Amazon Sales) ---
+    print(f"\n[6/7] Fetching cross-platform context (Google Ads, Meta, Shopify)...")
+    xp_context = {}
+    try:
+        xp_context = fetch_cross_platform_context(brand_key, days=args.days)
+        if xp_context.get("insights"):
+            for ins in xp_context["insights"]:
+                print(f"  >> {ins}")
+        else:
+            print(f"  No cross-platform insights available")
+    except Exception as e:
+        print(f"  [WARN] Cross-platform analysis failed: {e}")
 
     if not proposals and not kw_proposals:
         print(f"\n[OK] {brand_display}: All campaigns within normal range. No changes needed.")
@@ -2214,8 +2431,9 @@ def run_propose_single(args, brand_key: str):
     if kw_proposals:
         print_keyword_summary(kw_proposals)
 
-    print(f"\n[6/6] Sending {brand_display} proposal email...")
-    send_proposal_email(proposals, args.to, kw_proposals, cc=args.cc, brand_key=brand_key)
+    print(f"\n[7/7] Sending {brand_display} proposal email...")
+    send_proposal_email(proposals, args.to, kw_proposals, cc=args.cc, brand_key=brand_key,
+                        xp_context=xp_context)
 
 
 def run_propose(args):

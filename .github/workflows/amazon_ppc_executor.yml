@@ -35,6 +35,8 @@ jobs:
           AMZ_ADS_CLIENT_ID=${{ secrets.AMZ_ADS_CLIENT_ID }}
           AMZ_ADS_CLIENT_SECRET=${{ secrets.AMZ_ADS_CLIENT_SECRET }}
           AMZ_ADS_REFRESH_TOKEN=${{ secrets.AMZ_ADS_REFRESH_TOKEN }}
+          ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
+          ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
           GMAIL_OAUTH_CREDENTIALS_PATH=credentials/gmail_oauth_credentials.json
           GMAIL_TOKEN_PATH=credentials/gmail_token.json
           GMAIL_SENDER=orbiters11@gmail.com
