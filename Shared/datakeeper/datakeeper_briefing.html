@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORBI Data Keeper — Team Briefing</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  :root {
+    --bg: #0b0b11;
+    --surface: rgba(255,255,255,0.025);
+    --border: rgba(255,255,255,0.06);
+    --border-hover: rgba(255,255,255,0.14);
+    --text: #e2e8f0;
+    --text-dim: #64748b;
+    --text-mid: #94a3b8;
+    --blue: #60a5fa;
+    --purple: #a78bfa;
+    --pink: #f472b6;
+    --green: #34d399;
+    --orange: #fb923c;
+    --cyan: #38bdf8;
+    --red: #f87171;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* ─── Gamma-style slides ─── */
+  .slide {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 40px;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+  }
+  .slide-inner {
+    max-width: 1100px;
+    width: 100%;
+  }
+
+  /* ─── Hero ─── */
+  .hero-slide {
+    background: linear-gradient(160deg, #0b0b18 0%, #111827 40%, #1e1b4b 100%);
+    text-align: center;
+    overflow: hidden;
+  }
+  .hero-slide::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 25% 40%, rgba(96,165,250,0.07) 0%, transparent 50%),
+      radial-gradient(circle at 75% 60%, rgba(167,139,250,0.06) 0%, transparent 50%);
+  }
+  .hero-slide .slide-inner { position: relative; z-index: 1; }
+  .hero-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--blue);
+    background: rgba(96,165,250,0.1);
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 28px;
+  }
+  .hero-title {
+    font-size: clamp(2.8rem, 6vw, 4.5rem);
+    font-weight: 900;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+  }
+  .hero-sub {
+    font-size: 1.2rem;
+    color: var(--text-mid);
+    max-width: 620px;
+    margin: 0 auto 40px;
+  }
+  .hero-principle {
+    display: inline-block;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--green);
+    background: rgba(52,211,153,0.08);
+    border: 1px solid rgba(52,211,153,0.2);
+    padding: 12px 28px;
+    border-radius: 12px;
+  }
+
+  /* ─── Section titles ─── */
+  .s-num {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--purple);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .s-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+  .s-desc {
+    font-size: 1rem;
+    color: var(--text-mid);
+    margin-bottom: 40px;
+    max-width: 700px;
+  }
+
+  /* ─── Cards grid ─── */
+  .card-grid {
+    display: grid;
+    gap: 16px;
+  }
+  .grid-7 { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+  .grid-2 { grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s;
+  }
+  .card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .card-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+  .tag {
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 10px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .tag-ads     { background: rgba(251,146,60,0.12); color: var(--orange); }
+  .tag-sales   { background: rgba(52,211,153,0.12); color: var(--green); }
+  .tag-analytics { background: rgba(167,139,250,0.12); color: var(--purple); }
+  .tag-email   { background: rgba(244,114,182,0.12); color: var(--pink); }
+  .tag-store   { background: rgba(56,189,248,0.12); color: var(--cyan); }
+  .tag-warn    { background: rgba(248,113,113,0.12); color: var(--red); }
+
+  .card-detail {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    margin-bottom: 3px;
+  }
+  .card-detail b { color: var(--text-mid); font-weight: 500; }
+  .card-mono {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.75rem;
+    color: var(--purple);
+    background: rgba(167,139,250,0.06);
+    padding: 6px 12px;
+    border-radius: 8px;
+    margin-top: 10px;
+    display: inline-block;
+  }
+
+  /* ─── Flow diagram ─── */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin: 20px 0;
+  }
+  .flow-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 32px;
+    text-align: center;
+    min-width: 300px;
+    transition: all 0.3s;
+  }
+  .flow-box:hover { border-color: var(--border-hover); }
+  .flow-box.primary {
+    border-color: rgba(96,165,250,0.35);
+    background: rgba(59,130,246,0.05);
+  }
+  .flow-box h4 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+  .flow-box p { font-size: 0.8rem; color: var(--text-dim); }
+  .flow-box code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--purple);
+  }
+  .arrow {
+    width: 2px;
+    height: 36px;
+    background: linear-gradient(to bottom, rgba(96,165,250,0.4), rgba(96,165,250,0.12));
+    position: relative;
+  }
+  .arrow::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: -4px;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid rgba(96,165,250,0.4);
+  }
+  .flow-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    position: relative;
+  }
+  .flow-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12%;
+    right: 12%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(96,165,250,0.25), transparent);
+  }
+
+  /* ─── Table ─── */
+  .tbl-wrap {
+    overflow-x: auto;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  th {
+    text-align: left;
+    padding: 14px 18px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.015);
+  }
+  td {
+    padding: 12px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+  }
+  tr:hover td { background: rgba(255,255,255,0.015); }
+  .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--purple);
+  }
+
+  /* ─── Pills ─── */
+  .pills {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 24px 0;
+  }
+  .pill {
+    padding: 10px 22px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border: 1px solid;
+  }
+  .p-gros   { border-color: rgba(52,211,153,0.35); color: var(--green); background: rgba(52,211,153,0.05); }
+  .p-cha    { border-color: rgba(251,146,60,0.35); color: var(--orange); background: rgba(251,146,60,0.05); }
+  .p-nae    { border-color: rgba(96,165,250,0.35); color: var(--blue); background: rgba(96,165,250,0.05); }
+  .p-onz    { border-color: rgba(244,114,182,0.35); color: var(--pink); background: rgba(244,114,182,0.05); }
+  .p-alp    { border-color: rgba(167,139,250,0.35); color: var(--purple); background: rgba(167,139,250,0.05); }
+
+  /* ─── Rule block ─── */
+  .rule-block {
+    border-radius: 14px;
+    padding: 28px;
+    margin-bottom: 16px;
+  }
+  .rule-do {
+    background: rgba(52,211,153,0.04);
+    border: 1px solid rgba(52,211,153,0.15);
+  }
+  .rule-dont {
+    background: rgba(248,113,113,0.04);
+    border: 1px solid rgba(248,113,113,0.15);
+  }
+  .rule-warn {
+    background: rgba(251,146,60,0.04);
+    border: 1px solid rgba(251,146,60,0.18);
+  }
+  .rule-block h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .rule-block li {
+    font-size: 0.85rem;
+    color: var(--text-mid);
+    padding: 5px 0;
+    line-height: 1.6;
+  }
+
+  /* ─── File tree ─── */
+  .file-tree {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 2.2;
+    color: var(--text-mid);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 32px;
+  }
+  .file-tree .dir { color: var(--blue); font-weight: 600; }
+  .file-tree .sig { color: var(--orange); font-weight: 600; }
+  .file-tree .cmt { color: var(--text-dim); font-size: 0.72rem; }
+
+  /* ─── Schedule ─── */
+  .sched-row {
+    display: flex;
+    gap: 60px;
+    justify-content: center;
+    margin: 32px 0;
+  }
+  .sched-item { text-align: center; }
+  .sched-time {
+    font-size: 3.2rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .sched-label { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; }
+
+  /* ─── API method badge ─── */
+  .method {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    text-align: center;
+    display: inline-block;
+    min-width: 44px;
+  }
+  .m-get  { background: rgba(52,211,153,0.12); color: var(--green); }
+  .m-post { background: rgba(251,146,60,0.12); color: var(--orange); }
+
+  /* ─── Consumer grid ─── */
+  .consumer-card {
+    text-align: center;
+    padding: 28px 20px;
+  }
+  .consumer-card .icon {
+    font-size: 2.4rem;
+    margin-bottom: 10px;
+  }
+  .consumer-card h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .consumer-card .sub {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .consumer-card code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--purple);
+  }
+
+  /* ─── Summary steps ─── */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 24px;
+    transition: all 0.3s;
+  }
+  .step:hover { border-color: var(--border-hover); }
+  .step-num {
+    font-size: 1.6rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    flex-shrink: 0;
+    width: 40px;
+    text-align: center;
+  }
+  .step-text {
+    font-size: 0.92rem;
+    color: var(--text);
+  }
+  .step-text code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--purple);
+    background: rgba(167,139,250,0.08);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  /* ─── Footer ─── */
+  .footer {
+    text-align: center;
+    padding: 48px 40px;
+    color: var(--text-dim);
+    font-size: 0.78rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 768px) {
+    .slide { padding: 60px 20px; }
+    .hero-title { font-size: 2.2rem; }
+    .sched-row { gap: 30px; }
+    .sched-time { font-size: 2.2rem; }
+    .flow-row { flex-direction: column; align-items: center; }
+    .grid-7, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 1 — HERO
+     ══════════════════════════════════════════════════ -->
+<div class="slide hero-slide">
+  <div class="slide-inner">
+    <div class="hero-tag">Team Briefing &middot; 2026-03-11</div>
+    <h1 class="hero-title">ORBI Data Keeper</h1>
+    <p class="hero-sub">7개 채널 광고/판매 데이터를 하루 2회 자동 수집하여 PostgreSQL에 저장하는 단일 데이터 게이트웨이</p>
+    <div class="hero-principle">Data Keeper만 쓰기 &mdash; 나머지는 읽기 전용</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 2 — BRANDS & SCHEDULE
+     ══════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-inner">
+    <div class="s-num">01 &mdash; Overview</div>
+    <div class="s-title">5 Brands &middot; 2x Daily</div>
+    <div class="s-desc">ORBI가 운영하는 5개 브랜드의 데이터를 PST 0:00 / 12:00에 자동 수집한다.</div>
+
+    <div class="pills">
+      <span class="pill p-gros">Grosmimi</span>
+      <span class="pill p-cha">CHA&MOM</span>
+      <span class="pill p-nae">Naeiae</span>
+      <span class="pill p-onz">Onzenna</span>
+      <span class="pill p-alp">Alpremio</span>
+    </div>
+
+    <div class="sched-row">
+      <div class="sched-item">
+        <div class="sched-time">00:00</div>
+        <div class="sched-label">PST (UTC 08:00)</div>
+      </div>
+      <div class="sched-item">
+        <div class="sched-time">12:00</div>
+        <div class="sched-label">PST (UTC 20:00)</div>
+      </div>
+    </div>
+    <p style="text-align:center; font-size:0.85rem; color:var(--text-dim);">35일 lookback &middot; upsert 중복 방지 &middot; GitHub Actions 자동화</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 3 — ARCHITECTURE FLOW
+     ══════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-inner">
+    <div class="s-num">02 &mdash; Architecture</div>
+    <div class="s-title">Data Flow</div>
+    <div class="s-desc">수집 → 저장 → 배포 → 소비 4단계.</div>
+
+    <div class="flow">
+      <div class="flow-box">
+        <h4>GitHub Actions</h4>
+        <p>PST 0:00 / 12:00 자동 실행 or 수동 dispatch</p>
+        <code>.github/workflows/data_keeper.yml</code>
+      </div>
+      <div class="arrow"></div>
+
+      <div class="flow-box primary">
+        <h4>data_keeper.py</h4>
+        <p>7채널 순차 수집 &mdash; API 호출 → 파싱 → 정규화</p>
+        <code>tools/data_keeper.py</code>
+      </div>
+      <div class="arrow"></div>
+
+      <div class="flow-row">
+        <div class="flow-box" style="min-width:220px;">
+          <h4>Local Cache</h4>
+          <p>디버깅 / 백업</p>
+          <code>.tmp/datakeeper/*.json</code>
+        </div>
+        <div class="flow-box primary" style="min-width:220px;">
+          <h4>PostgreSQL</h4>
+          <p>정식 저장소 (9개 gk_* 테이블)</p>
+          <code>orbitools.orbiters.co.kr</code>
+        </div>
+        <div class="flow-box" style="min-width:220px;">
+          <h4>Shared Export</h4>
+          <p>팀 에이전트용 읽기 전용 JSON</p>
+          <code>Shared/datakeeper/latest/</code>
+        </div>
+      </div>
+      <div class="arrow"></div>
+
+      <div class="flow-box">
+        <h4>data_keeper_client.py</h4>
+        <p>읽기 전용 클라이언트</p>
+        <code>dk.get("amazon_ads_daily", days=30, brand="Naeiae")</code>
+      </div>
+      <div class="arrow"></div>
+
+      <div class="flow-row">
+        <div class="flow-box" style="min-width:160px;"><h4>아마존퍼포마</h4><p>PPC 실행</p></div>
+        <div class="flow-box" style="min-width:160px;"><h4>KPI 리포트</h4><p>Excel 생성</p></div>
+        <div class="flow-box" style="min-width:160px;"><h4>커뮤니케이터</h4><p>상태 이메일</p></div>
+        <div class="flow-box" style="min-width:160px;"><h4>Meta 에이전트</h4><p>광고 분석</p></div>
+        <div class="flow-box" style="min-width:160px;"><h4>골만이</h4><p>재무 모델링</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 4 — 7 CHANNELS
+     ══════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-inner">
+    <div class="s-num">03 &mdash; Data Sources</div>
+    <div class="s-title">7 Collection Channels</div>
+    <div class="s-desc">각 채널의 API, 계정 수, PG 테이블명.</div>
+
+    <div class="card-grid grid-7">
+      <div class="card">
+        <div class="card-head"><span class="card-name">Amazon Ads</span><span class="tag tag-ads">ADS</span></div>
+        <div class="card-detail">API: <b>Reporting v3 (비동기)</b></div>
+        <div class="card-detail">계정: <b>3 프로필</b></div>
+        <div class="card-detail">Orbitool &middot; GROSMIMI &middot; Fleeters</div>
+        <div class="card-mono">gk_amazon_ads_daily</div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><span class="card-name">Amazon Sales</span><span class="tag tag-sales">SALES</span></div>
+        <div class="card-detail">API: <b>SP-API flat-file</b></div>
+        <div class="card-detail">셀러: <b>3개</b></div>
+        <div class="card-detail">Grosmimi USA &middot; Fleeters Inc &middot; Orbitool</div>
+        <div class="card-mono">gk_amazon_sales_daily</div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><span class="card-name">Meta Ads</span><span class="tag tag-ads">ADS</span></div>
+        <div class="card-detail">API: <b>Graph API v18 insights</b></div>
+        <div class="card-detail">계정: <b>1 ad account</b></div>
+        <div class="card-mono">gk_meta_ads_daily</div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><span class="card-name">Google Ads</span><span class="tag tag-ads">ADS</span></div>
+        <div class="card-detail">API: <b>search_stream (GAQL)</b></div>
+        <div class="card-detail">계정: <b>MCC + 하위</b></div>
+        <div class="card-mono">gk_google_ads_daily</div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><span class="card-name">GA4</span><span class="tag tag-analytics">ANALYTICS</span></div>
+        <div class="card-detail">API: <b>Analytics Data API</b></div>
+        <div class="card-detail">Property: <b>397533207</b></div>
+        <div class="card-mono">gk_ga4_daily</div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><span class="card-name">Klaviyo</span><span class="tag tag-email">EMAIL</span></div>
+        <div class="card-detail">API: <b>REST API</b></div>
+        <div class="card-detail">계정: <b>1</b></div>
+        <div class="card-mono">gk_klaviyo_daily</div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><span class="card-name">Shopify</span><span class="tag tag-store">STORE</span></div>
+        <div class="card-detail">API: <b>Admin REST API</b></div>
+        <div class="card-detail">샵: <b>onzenna.myshopify.com</b></div>
+        <div class="card-mono">gk_shopify_orders_daily</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 5 — PG TABLES
+     ══════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-inner">
+    <div class="s-num">04 &mdash; Storage</div>
+    <div class="s-title">PostgreSQL Tables</div>
+    <div class="s-desc">9개 gk_* 테이블. 모든 테이블은 unique key 기반 upsert.</div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Table</th><th>Unique Key</th><th>Type</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">gk_shopify_orders_daily</td><td>(date, brand, channel)</td><td>주문 집계</td></tr>
+          <tr><td class="mono">gk_amazon_sales_daily</td><td>(date, seller_id, channel)</td><td>판매 집계</td></tr>
+          <tr><td class="mono">gk_amazon_ads_daily</td><td>(date, campaign_id)</td><td>캠페인 일별</td></tr>
+          <tr><td class="mono">gk_amazon_campaigns</td><td>(campaign_id)</td><td>캠페인 메타</td></tr>
+          <tr><td class="mono">gk_meta_ads_daily</td><td>(date, ad_id)</td><td>광고 일별</td></tr>
+          <tr><td class="mono">gk_meta_campaigns</td><td>(campaign_id)</td><td>캠페인 메타</td></tr>
+          <tr><td class="mono">gk_google_ads_daily</td><td>(date, campaign_id)</td><td>캠페인 일별</td></tr>
+          <tr><td class="mono">gk_ga4_daily</td><td>(date, channel_grouping)</td><td>채널별 세션</td></tr>
+          <tr><td class="mono">gk_klaviyo_daily</td><td>(date, source_type, source_id)</td><td>이메일 성과</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 6 — ACCESS RULES
+     ══════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-inner">
+    <div class="s-num">05 &mdash; Rules</div>
+    <div class="s-title">팀 에이전트 접근 규칙</div>
+    <div class="s-desc">데이터가 필요할 때 따라야 할 2단계 프로세스.</div>
+
+    <div class="card-grid grid-2">
+      <div>
+        <div class="rule-block rule-do">
+          <h4 style="color:var(--green);">DO — 이렇게 하세요</h4>
+          <ol style="padding-left:18px;">
+            <li><code>Shared/datakeeper/latest/manifest.json</code> 먼저 확인</li>
+            <li>채널이 있으면 &rarr; 해당 JSON 파일 읽기 (끝)</li>
+            <li>채널이 없으면 &rarr; API 직접 스크래핑</li>
+            <li>스크래핑 후 <code>data_signals/</code>에 YAML 시그널 드롭</li>
+          </ol>
+        </div>
+
+        <div class="rule-block rule-dont">
+          <h4 style="color:var(--red);">DON'T — 절대 하지 마세요</h4>
+          <ul style="list-style:none;">
+            <li>&#x2716; PostgreSQL <code>gk_*</code> 테이블에 직접 쓰기</li>
+            <li>&#x2716; <code>Shared/datakeeper/latest/</code> 파일 수정</li>
+            <li>&#x2716; 이미 수집 중인 채널을 별도 API로 중복 수집</li>
+          </ul>
+        </div>
+      </div>
+
+      <div>
+        <div class="file-tree">
+          <div><span class="dir">Shared/datakeeper/</span></div>
+          <div>&nbsp;&nbsp;├── <span class="dir">latest/</span> <span class="cmt">← 읽기 전용 JSON (7채널)</span></div>
+          <div>&nbsp;&nbsp;│&nbsp;&nbsp; ├── manifest.json <span class="cmt">← 채널 목록</span></div>
+          <div>&nbsp;&nbsp;│&nbsp;&nbsp; ├── amazon_ads_daily.json</div>
+          <div>&nbsp;&nbsp;│&nbsp;&nbsp; ├── amazon_sales_daily.json</div>
+          <div>&nbsp;&nbsp;│&nbsp;&nbsp; ├── meta_ads_daily.json</div>
+          <div>&nbsp;&nbsp;│&nbsp;&nbsp; ├── google_ads_daily.json</div>
+          <div>&nbsp;&nbsp;│&nbsp;&nbsp; ├── ga4_daily.json</div>
+          <div>&nbsp;&nbsp;│&nbsp;&nbsp; ├── klaviyo_daily.json</div>
+          <div>&nbsp;&nbsp;│&nbsp;&nbsp; └── shopify_orders_daily.json</div>
+          <div>&nbsp;&nbsp;├── <span class="sig">data_signals/</span> <span class="cmt">← 시그널 드롭존</span></div>
+          <div>&nbsp;&nbsp;├── BRIEFING.md</div>
+          <div>&nbsp;&nbsp;├── CLAUDE.md</div>
+          <div>&nbsp;&nbsp;└── README.md</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 7 — API
+     ══════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-inner">
+    <div class="s-num">06 &mdash; API</div>
+    <div class="s-title">Orbitools REST API</div>
+    <div class="s-desc">Base: <code>https://orbitools.orbiters.co.kr/api/datakeeper</code> &middot; Auth: HTTP Basic</div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Purpose</th><th>Access</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="method m-get">GET</span></td>
+            <td class="mono">/query/?table=...&date_from=...&brand=...</td>
+            <td>데이터 조회 (필터 지원)</td>
+            <td style="color:var(--green);">All</td>
+          </tr>
+          <tr>
+            <td><span class="method m-get">GET</span></td>
+            <td class="mono">/tables/</td>
+            <td>테이블 목록 + row 수</td>
+            <td style="color:var(--green);">All</td>
+          </tr>
+          <tr>
+            <td><span class="method m-get">GET</span></td>
+            <td class="mono">/status/</td>
+            <td>최종 수집 시각 확인</td>
+            <td style="color:var(--green);">All</td>
+          </tr>
+          <tr>
+            <td><span class="method m-post">POST</span></td>
+            <td class="mono">/save/</td>
+            <td>Bulk upsert (500/chunk)</td>
+            <td style="color:var(--red);">Data Keeper only</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 8 — WARNINGS
+     ══════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-inner">
+    <div class="s-num">07 &mdash; Gotchas</div>
+    <div class="s-title">주의사항</div>
+    <div class="s-desc">데이터 해석 시 반드시 알아야 할 함정들.</div>
+
+    <div class="card-grid grid-2">
+      <div class="card" style="border-color:rgba(248,113,113,0.2);">
+        <div class="card-head">
+          <span class="card-name">Shopify "Amazon" 채널 함정</span>
+          <span class="tag tag-warn">Critical</span>
+        </div>
+        <div class="card-detail" style="margin-top:8px;">
+          <code>shopify_orders_daily</code>의 channel="Amazon"은 <b style="color:var(--red);">진짜 Amazon 판매가 아님</b>
+        </div>
+        <ul style="font-size:0.82rem; color:var(--text-mid); padding-left:18px; margin-top:10px;">
+          <li><b>FBA MCF</b> = Shopify DTC인데 Amazon 물류 사용 &rarr; 실제로 D2C</li>
+          <li><b>Faire</b> = B2B 도매 &rarr; 실제로 B2B</li>
+          <li>진짜 Amazon = <code>amazon_sales_daily</code> (SP-API)</li>
+        </ul>
+      </div>
+
+      <div class="card" style="border-color:rgba(251,146,60,0.2);">
+        <div class="card-head">
+          <span class="card-name">Grosmimi 가격 변경</span>
+          <span class="tag tag-warn">Warning</span>
+        </div>
+        <div class="card-detail" style="margin-top:8px;">
+          2025-03-01 기준으로 소매가 변경
+        </div>
+        <ul style="font-size:0.82rem; color:var(--text-mid); padding-left:18px; margin-top:10px;">
+          <li>이전: <code>GROSMIMI_OLD_PRICES</code> 딕셔너리</li>
+          <li>이후: 현재 Shopify 가격</li>
+          <li>Floor: <code>max(ref, sell)</code> &rarr; 음수 할인 방지</li>
+        </ul>
+      </div>
+
+      <div class="card" style="border-color:rgba(251,146,60,0.2);">
+        <div class="card-head">
+          <span class="card-name">Amazon Ads 히스토리 제한</span>
+          <span class="tag tag-warn">Warning</span>
+        </div>
+        <ul style="font-size:0.82rem; color:var(--text-mid); padding-left:18px; margin-top:12px;">
+          <li>API가 60~90일만 보관</li>
+          <li>Naeiae: 2025-12월부터만 PG에 존재</li>
+          <li>그 이전 = 물리적으로 불가</li>
+        </ul>
+      </div>
+
+      <div class="card" style="border-color:rgba(96,165,250,0.2);">
+        <div class="card-head">
+          <span class="card-name">데이터 Freshness</span>
+          <span class="tag" style="background:rgba(96,165,250,0.12); color:var(--blue);">Info</span>
+        </div>
+        <ul style="font-size:0.82rem; color:var(--text-mid); padding-left:18px; margin-top:12px;">
+          <li>하루 2회 수집 (PST 0:00, 12:00)</li>
+          <li><code>/status/</code> API로 최종 시각 확인</li>
+          <li>14시간 이내 = fresh, 이후 = stale</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 9 — AGENT ECOSYSTEM
+     ══════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-inner">
+    <div class="s-num">08 &mdash; Ecosystem</div>
+    <div class="s-title">에이전트 생태계</div>
+    <div class="s-desc">Data Keeper를 소비하는 6개 에이전트 + 팀 11명.</div>
+
+    <div class="card-grid grid-3">
+      <div class="card consumer-card">
+        <div class="icon">&#127919;</div>
+        <h4>아마존퍼포마</h4>
+        <div class="sub">Amazon PPC 분석 &middot; 입찰/예산 실행</div>
+        <code>amazon_ads + amazon_sales</code>
+      </div>
+
+      <div class="card consumer-card">
+        <div class="icon">&#128200;</div>
+        <h4>KPI 월간 리포트</h4>
+        <div class="sub">할인율 &middot; 광고비 &middot; 시딩비용 Excel</div>
+        <code>전 채널</code>
+      </div>
+
+      <div class="card consumer-card">
+        <div class="icon">&#128231;</div>
+        <h4>커뮤니케이터</h4>
+        <div class="sub">12시간 상태 이메일</div>
+        <code>/status/ endpoint</code>
+      </div>
+
+      <div class="card consumer-card">
+        <div class="icon">&#128241;</div>
+        <h4>Meta 에이전트</h4>
+        <div class="sub">Meta Ads 분석 &middot; Breakdown Effect</div>
+        <code>meta_ads_daily</code>
+      </div>
+
+      <div class="card consumer-card">
+        <div class="icon">&#128270;</div>
+        <h4>골만이</h4>
+        <div class="sub">DCF &middot; Comps &middot; 피치덱</div>
+        <code>전 채널 (매출/비용)</code>
+      </div>
+
+      <div class="card consumer-card">
+        <div class="icon">&#128101;</div>
+        <h4>팀 에이전트 (11명)</h4>
+        <div class="sub">Shared JSON 읽기 전용</div>
+        <code>manifest.json &rarr; channel.json</code>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 10 — SUMMARY
+     ══════════════════════════════════════════════════ -->
+<div class="slide" style="background: linear-gradient(160deg, #0b0b18 0%, #111827 40%, #1e1b4b 100%);">
+  <div class="slide-inner" style="text-align:center;">
+    <div class="s-num">Summary</div>
+    <div class="s-title" style="margin-bottom:40px;">5 Rules to Remember</div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">데이터 필요하면 &rarr; <code>manifest.json</code> 먼저 확인</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">채널이 있으면 &rarr; 해당 JSON 파일 읽기 (끝)</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">없으면 &rarr; 직접 스크래핑 + <code>data_signals/</code>에 YAML 드롭</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text">PostgreSQL <code>gk_*</code> 직접 쓰기 <b style="color:var(--red);">절대 금지</b></div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-text">Shopify "Amazon" <b style="color:var(--red);">&#8800;</b> 진짜 Amazon &mdash; 항상 기억</div>
+      </div>
+    </div>
+
+    <p style="margin-top:48px; font-size:0.85rem; color:var(--text-dim);">
+      참조: <code>.claude/skills/data-keeper/SKILL.md</code> &middot; <code>Shared/datakeeper/BRIEFING.md</code>
+    </p>
+  </div>
+</div>
+
+<div class="footer">
+  ORBI Data Keeper &middot; Team Briefing &middot; 2026-03-11 &middot; Generated by Claude
+</div>
+
+</body>
+</html>
