@@ -175,12 +175,12 @@ Not Started → Draft Ready → Sent → Replied → Needs Review
 | `mmkBpmvhzbgmSayh` | Approval Send | 16 | Active | PROD +4 머지 |
 | `nVtYmhU0InRqRn4K` | Reply Handler | 50 | Active | PROD +7 머지 (HT Reply) |
 | `4q5NCzMb3nMGYqL4` | Gifting | 12 | Active | |
-| `734aqkcOIfiylExL` | **Gifting2 → Draft Order** | 14 | Inactive | **PROD에서 복제** |
+| `734aqkcOIfiylExL` | **Gifting2 → Draft Order** | 14 | **Inactive** | **검증 후 활성화 필요** |
 | `UP1OnpNEFN54AOUn` | Fulfillment → Airtable | 37 | Active | PROD +12 머지 |
 | `Vd5NiKMwdLT7b9wa` | Sample Sent → Complete | 7 | Active | |
 | `2vsXyHtjo79hnFoD` | Shipped → Delivered | 11 | Active | |
 | `82t55jurzbY3iUM4` | Delivered → Posted | 8 | Active | |
-| `FT70hFR6qI0mVc2T` | **Syncly Metrics Sync** | 5 | Inactive | **PROD에서 복제** |
+| `FT70hFR6qI0mVc2T` | **Syncly Metrics Sync** | 5 | **Inactive** | **검증 후 활성화 필요** |
 | `wyttsPSZJlWLgy86` | Customer Lookup | 5 | Active | |
 | `zKmOX0tEWi6EBT9h` | Content Tracking | 23 | Active | |
 | `6BNQRz57oCtdROlH` | Syncly Data Processing | 64 | Active | |
