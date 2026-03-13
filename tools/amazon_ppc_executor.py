@@ -2476,7 +2476,7 @@ def main():
     parser.add_argument("--cycle", action="store_true", help="Run 6-hour analysis cycle")
     parser.add_argument("--brand", type=str, default=None,
                         help="Target brand: naeiae/grosmimi/chaenmom (default: all)")
-    parser.add_argument("--days", type=int, default=30, help="Days of data to analyze (default: 30)")
+    parser.add_argument("--days", type=int, default=14, help="Days of data to analyze (default: 14, max 60)")
     parser.add_argument("--to", type=str, default=DEFAULT_TO, help="Email recipient")
     parser.add_argument("--cc", type=str, default=DEFAULT_CC, help="CC email recipient")
     parser.add_argument("--skip-keywords", action="store_true",

@@ -8,7 +8,7 @@ on:
 jobs:
   ppc-propose:
     runs-on: ubuntu-latest
-    timeout-minutes: 120   # 3 brands × ~30min each
+    timeout-minutes: 240   # 3 brands × ~60-80min each (report API polling can be slow)
 
     steps:
       - name: Checkout repo
