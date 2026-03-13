@@ -15,6 +15,7 @@ Usage:
 """
 
 import argparse
+import difflib
 import json
 import os
 import subprocess
@@ -320,8 +321,6 @@ def execute_proposals(proposal_id_str: str) -> None:
     Load proposals from .tmp/proposals_latest.json and apply the specified IDs.
     Prints unified diff before each change. Commits if any changes applied.
     """
-    import difflib
-
     proposals_path = TMP_DIR / "proposals_latest.json"
     if not proposals_path.exists():
         print("ERROR: No proposals file found. Run without --execute first.")
