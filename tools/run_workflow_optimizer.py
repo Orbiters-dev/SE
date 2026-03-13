@@ -307,7 +307,7 @@ def send_proposal_email(html: str, date_str: str, proposal_count: int) -> None:
     TMP_DIR.mkdir(exist_ok=True)
     tmp_html = TMP_DIR / "workflow_optimizer_preview.html"
     tmp_html.write_text(html, encoding="utf-8")
-    subject = f"[ORBI Optimizer] {proposal_count} proposals — {date_str}"
+    subject = f"[ORBI Optimizer] {proposal_count} proposals -- {date_str}"
     subprocess.run(
         [sys.executable, str(Path(__file__).parent / "send_gmail.py"),
          "--to", RECIPIENT,
