@@ -1,0 +1,90 @@
+name: Apify Content Daily Pipeline
+
+on:
+  schedule:
+    - cron: '0 23 * * *'   # KST 08:00 (= UTC 23:00 previous day)
+  workflow_dispatch:
+    inputs:
+      region:
+        description: 'Region (us, jp, all)'
+        required: false
+        default: 'all'
+      dry_run:
+        description: 'Dry run - skip API calls (true/false)'
+        required: false
+        default: 'false'
+
+jobs:
+  apify-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --quiet \
+            requests \
+            python-dotenv \
+            gspread \
+            google-auth \
+            google-auth-oauthlib \
+            google-api-python-client \
+            apify-client
+
+      - name: Write .env
+        run: |
+          cat > .env <<'ENVEOF'
+          APIFY_API_TOKEN=${{ secrets.APIFY_API_TOKEN }}
+          GOOGLE_SERVICE_ACCOUNT_PATH=credentials/google_service_account.json
+          ENVEOF
+          sed -i 's/^[[:space:]]*//' .env
+
+      - name: Write credentials
+        run: |
+          mkdir -p credentials
+          echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > credentials/google_service_account.json
+          echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
+          echo '${{ secrets.GMAIL_TOKEN_JSON }}' > credentials/gmail_token.json
+
+      - name: Create data directory
+        run: mkdir -p "Data Storage/apify"
+
+      - name: Run Apify pipeline
+        id: pipeline
+        env:
+          APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
+        run: |
+          REGION="${{ github.event.inputs.region || 'all' }}"
+          DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
+          CMD="python -u tools/fetch_apify_content.py --daily --region $REGION"
+          if [ "$DRY_RUN" = "true" ]; then
+            CMD="$CMD --dry-run"
+          fi
+          echo "Running: $CMD"
+          $CMD
+
+      - name: Send failure email
+        if: failure()
+        run: |
+          python -u tools/send_gmail.py \
+            --to "wj.choi@orbiters.co.kr" \
+            --subject "[Apify Pipeline] FAILED $(date -u +%Y-%m-%d)" \
+            --body "Apify content pipeline failed.\n\nCheck: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        continue-on-error: true
+
+      - name: Upload data artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apify-data-${{ github.run_id }}
+          path: |
+            Data Storage/apify/*.json
+          retention-days: 7
