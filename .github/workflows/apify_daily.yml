@@ -122,13 +122,13 @@ jobs:
               total_creators = hd.get("total_creators", 0)
 
           if highlights:
-              lines += ["== HIGHLIGHTS =="]
+              lines += ["== HIGHLIGHTS (Apify US Posts Master 기준) =="]
               for h in highlights:
-                  lines.append(f"  @{h['username']} ({h['nickname']})")
+                  lines.append(f"  @{h['username']} ({h.get('nickname','')})  [{h.get('date','')}]")
                   for r in h["reasons"]:
                       lines.append(f"    - {r}")
                   if h.get("url"):
-                      lines.append(f"    Link: {h['url']}")
+                      lines.append(f"    {h['url']}")
               lines.append("")
 
           # === HEADER ===

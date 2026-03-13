@@ -126,12 +126,19 @@ def aggregate_by_user(posts):
     return sorted(by_user.values(), key=lambda x: x["total_views"], reverse=True)
 
 
-def detect_highlights(aggregated, prev_metrics):
+def detect_highlights(posts, prev_metrics):
+    """포스트 단위(URL 기준)로 하이라이트 감지"""
     highlights = []
-    for row in aggregated:
-        u = row["username"]
-        cur_views = row["total_views"]
-        prev_views = prev_metrics.get(u, {}).get("total_views", 0)
+    seen_urls = set()
+
+    for p in posts:
+        url = p["url"]
+        if not url or url in seen_urls:
+            continue
+        seen_urls.add(url)
+
+        cur_views  = p["views"]
+        prev_views = prev_metrics.get(url, {}).get("views", 0)
 
         reasons = []
         if cur_views >= VIEW_ABSOLUTE_THRESHOLD:
@@ -143,14 +150,17 @@ def detect_highlights(aggregated, prev_metrics):
 
         if reasons:
             highlights.append({
-                "username":    u,
-                "nickname":    row["nickname"],
-                "url":         row["latest_url"],
-                "total_views": cur_views,
-                "prev_views":  prev_views,
-                "reasons":     reasons,
+                "username":   p["username"],
+                "nickname":   p["nickname"],
+                "url":        url,
+                "date":       p["date"],
+                "views":      cur_views,
+                "prev_views": prev_views,
+                "reasons":    reasons,
             })
 
+    # 뷰 높은 순 정렬
+    highlights.sort(key=lambda x: x["views"], reverse=True)
     return highlights
 
 
@@ -229,18 +239,18 @@ def run(dry_run=False):
         except Exception:
             pass
 
-    print("[3] 하이라이트 감지...")
-    highlights = detect_highlights(aggregated, prev_metrics)
+    print("[3] 하이라이트 감지... (포스트 단위)")
+    highlights = detect_highlights(posts, prev_metrics)
     print(f"    하이라이트: {len(highlights)}건")
     for h in highlights:
-        print(f"    @{h['username']}: {', '.join(h['reasons'])}")
+        print(f"    @{h['username']} ({h['date']}): {', '.join(h['reasons'])}")
 
     print("[4] USA_LLM 탭 업데이트...")
     write_llm_tab(sh_sns, aggregated, dry_run=dry_run)
 
-    # 현재 메트릭 저장 (다음 날 비교용)
+    # 현재 메트릭 저장 — 포스트(URL) 단위 (다음 날 비교용)
     if not dry_run:
-        new_prev = {row["username"]: {"total_views": row["total_views"]} for row in aggregated}
+        new_prev = {p["url"]: {"views": p["views"]} for p in posts if p["url"]}
         PREV_METRICS_PATH.parent.mkdir(parents=True, exist_ok=True)
         PREV_METRICS_PATH.write_text(json.dumps(new_prev, ensure_ascii=False, indent=2), encoding="utf-8")
 
