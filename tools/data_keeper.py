@@ -1634,8 +1634,9 @@ def _send_collection_email(results=None, elapsed_total=0, recipient=None):
 
     subject = f"[Data Keeper] {health} - {kst_now}"
     try:
-        result = send_email(to=recipient, subject=subject, body_html=html)
-        print(f"  [Notify] Email sent to {recipient} (id: {result.get('id', '?')})")
+        cc = os.getenv("DATA_KEEPER_CC", "grosmimi.usa@gmail.com")
+        result = send_email(to=recipient, subject=subject, body_html=html, cc=cc)
+        print(f"  [Notify] Email sent to {recipient} (cc: {cc}) (id: {result.get('id', '?')})")
     except Exception as e:
         print(f"  [Notify] Email failed: {e}")
 

@@ -80,6 +80,7 @@ jobs:
           ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
           PPC_REPORT_RECIPIENT=${{ secrets.PPC_REPORT_RECIPIENT }}
           DATA_KEEPER_RECIPIENT=${{ secrets.DATA_KEEPER_RECIPIENT }}
+          DATA_KEEPER_CC=${{ secrets.DATA_KEEPER_CC }}
           ENVEOF
           # Strip leading whitespace from heredoc indentation
           sed -i 's/^[[:space:]]*//' .env
