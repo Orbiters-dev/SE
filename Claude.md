@@ -799,3 +799,26 @@ Next.js 16(Vercel) + Django REST(EC2) + Supabase Auth 아키텍처를 통합 관
 - `workflows/shopify_tester.md` — E2E 테스트 워크플로우
 
 Python 경로: `/c/Users/wjcho/AppData/Local/Programs/Python/Python312/python.exe`
+
+---
+
+## 워크플로우 분석기 (Workflow Analyzer)
+
+"워크플로우 분석기" 또는 관련 명령이 오면 즉시 아래를 실행한다:
+
+### 명령
+
+| 명령 | 설명 |
+|------|------|
+| `python tools/run_workflow_analyzer.py --dry-run` | 분석만 (발송 없음) |
+| `python tools/run_workflow_analyzer.py --preview` | HTML 프리뷰 → `.tmp/workflow_analysis.html` |
+| `python tools/run_workflow_analyzer.py --execute --dry-run` | 수정 제안 diff 출력 |
+| `python tools/run_workflow_analyzer.py --execute` | 안전한 문서 수정 적용 + 발송 |
+| `python tools/run_workflow_analyzer.py --days 30` | 30일 GitHub Actions 이력 분석 |
+
+### 자동화
+- GitHub Actions `workflow_analyzer.yml` — 매일 UTC 02:00 자동 실행
+- 수신자: `COMMUNICATOR_RECIPIENT`
+
+### 트리거 키워드
+워크플로우 분석기, workflow analyzer, 워크플로우 효율, 고아 툴, orphan tool, broken workflow, GitHub Actions 분석
