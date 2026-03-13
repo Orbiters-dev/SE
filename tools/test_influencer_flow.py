@@ -99,6 +99,8 @@ WJ_WEBHOOKS = {
     "fulfillment":  f"{WJ_WEBHOOK_BASE}/wj-test-shopify-fulfillment",
     "content":      f"{WJ_WEBHOOK_BASE}/wj-test-check-content",
     "contract":     f"{WJ_WEBHOOK_BASE}/wj-test-contract-approve",
+    "draft_gen":    f"{WJ_WEBHOOK_BASE}/wj-test-draft-gen",
+    "approval":     f"{WJ_WEBHOOK_BASE}/wj-test-approval-send",
 }
 
 REQUIRED_ENVS = {
@@ -1080,19 +1082,36 @@ def flow_pipeline(email=None):
                 },
             },
 
-            # ── Phase 4: Trigger Outreach Draft Generation ──
+            # ── Phase 4: Trigger Outreach Draft Generation (via webhook) ──
             {
                 "step_id": "trigger_draft_gen",
-                "type": "n8n_execute",
-                "name": "4. Trigger [WJ TEST] Outreach - Draft Generation",
-                "workflow_key": "draft_gen",
+                "type": "http_post",
+                "name": "4. Trigger Draft Gen via webhook (wj-test-draft-gen)",
+                "url": WJ_WEBHOOKS["draft_gen"],
+                "payload": {
+                    "records": [{
+                        "id": "{{creator_record_id}}",
+                        "fields": {
+                            "Username": test_ig,
+                            "Email": test_email,
+                            "Platform": "Instagram",
+                            "Outreach Type": "Low Touch",
+                            "Outreach Status": "Not Started",
+                            "Name": test_name,
+                            "Brand Classification": "Grosmimi",
+                        },
+                        "createdTime": "{{now_iso}}",
+                    }]
+                },
+                "expect_status": 200,
                 "critical": False,
+                "capture": {"draft_gen_response": "$"},
             },
             {
                 "step_id": "wait_draft",
                 "type": "wait",
                 "name": "4b. Wait for Claude AI draft generation",
-                "seconds": 15,
+                "seconds": 30,
             },
             {
                 "step_id": "verify_conversation_created",
@@ -1132,19 +1151,33 @@ def flow_pipeline(email=None):
                 "critical": False,
             },
 
-            # ── Phase 6: Trigger Approval Send ──
+            # ── Phase 6: Trigger Approval Send (via webhook) ──
             {
                 "step_id": "trigger_approval_send",
-                "type": "n8n_execute",
-                "name": "6. Trigger [WJ TEST] Outreach - Approval Send",
-                "workflow_key": "approval",
+                "type": "http_post",
+                "name": "6. Trigger Approval Send via webhook (wj-test-approval-send)",
+                "url": WJ_WEBHOOKS["approval"],
+                "payload": {
+                    "records": [{
+                        "id": "{{creator_record_id}}",
+                        "fields": {
+                            "Username": test_ig,
+                            "Email": test_email,
+                            "Name": test_name,
+                            "Outreach Status": "Sent",
+                        },
+                        "createdTime": "{{now_iso}}",
+                    }]
+                },
+                "expect_status": 200,
                 "critical": False,
+                "capture": {"approval_response": "$"},
             },
             {
                 "step_id": "wait_approval",
                 "type": "wait",
                 "name": "6b. Wait for email send",
-                "seconds": 10,
+                "seconds": 15,
             },
 
             # ── Phase 7: Simulate influencer confirms -> Fulfillment ──
