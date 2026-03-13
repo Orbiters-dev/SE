@@ -189,6 +189,19 @@ def generate_proposals(
         return []
 
 
+def save_proposals(proposals: list[dict], issue_count: int) -> Path:
+    """Save proposals to .tmp/proposals_latest.json. Returns the path."""
+    TMP_DIR.mkdir(exist_ok=True)
+    data = {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "issue_count": issue_count,
+        "proposals": proposals,
+    }
+    path = TMP_DIR / "proposals_latest.json"
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+    return path
+
+
 def main():
     parser = argparse.ArgumentParser(description="ORBI Workflow Optimizer")
     parser.add_argument("--dry-run",  action="store_true", help="No email, print summary")

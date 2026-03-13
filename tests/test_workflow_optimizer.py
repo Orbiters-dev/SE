@@ -110,3 +110,21 @@ def test_generate_proposals_invalid_json_returns_empty(monkeypatch):
         proposals = generate_proposals(issues, {}, model="haiku")
 
     assert proposals == []
+
+
+def test_save_and_load_proposals(tmp_path, monkeypatch):
+    from run_workflow_optimizer import save_proposals
+    import json
+    monkeypatch.setattr("run_workflow_optimizer.TMP_DIR", tmp_path)
+
+    proposals = [{"id": 1, "change_type": "workflow_md", "file": "workflows/foo.md",
+                  "original": "old", "replacement": "new",
+                  "issue_type": "BROKEN_REF", "source": "foo", "rationale": "test"}]
+    path = save_proposals(proposals, issue_count=5)
+
+    assert path.exists()
+    data = json.loads(path.read_text())
+    assert data["issue_count"] == 5
+    assert len(data["proposals"]) == 1
+    assert data["proposals"][0]["id"] == 1
+    assert "generated_at" in data
