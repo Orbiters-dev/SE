@@ -1,18 +1,21 @@
 """
-amazon_ppc_executor.py - Amazon PPC Campaign Executor (Approval-Based)
+amazon_ppc_executor.py - Amazon PPC Campaign Executor (Multi-Brand, Approval-Based)
 
-Analyzes Fleeters Inc (Naeiae) campaigns every 6 hours, proposes changes,
-emails proposal for review, then executes only approved actions.
+Analyzes all 3 US seller profiles (Naeiae, Grosmimi, CHA&MOM), proposes changes,
+and emails a separate proposal per brand for review. Executes only approved actions.
 
 Usage:
-    python tools/amazon_ppc_executor.py --propose              # Analyze & email proposal
-    python tools/amazon_ppc_executor.py --execute              # Execute approved changes
-    python tools/amazon_ppc_executor.py --status               # Show pending proposals
-    python tools/amazon_ppc_executor.py --cycle                # Run 6-hour analysis cycle
+    python tools/amazon_ppc_executor.py --propose                        # All 3 brands
+    python tools/amazon_ppc_executor.py --propose --brand naeiae         # Single brand
+    python tools/amazon_ppc_executor.py --propose --brand grosmimi
+    python tools/amazon_ppc_executor.py --propose --brand chaenmom
+    python tools/amazon_ppc_executor.py --execute --brand naeiae         # Execute approved
+    python tools/amazon_ppc_executor.py --status                         # Show pending
+    python tools/amazon_ppc_executor.py --cycle                          # 6-hour cycle
     python tools/amazon_ppc_executor.py --propose --to wj.choi@orbiters.co.kr
 
 Flow:
-    1. --propose: Collect data -> Analyze -> Email proposal to user
+    1. --propose: Collect data -> Analyze -> Email proposal (per brand)
     2. User replies with approval (or edits JSON)
     3. --execute: Execute approved items -> Log to Google Sheets -> Email confirmation
     4. --cycle: Auto-run --propose every 6 hours
@@ -49,11 +52,56 @@ AD_REFRESH_TOKEN = os.getenv("AMZ_ADS_REFRESH_TOKEN")
 
 API_BASE = "https://advertising-api.amazon.com"
 
-# --- ONLY Fleeters Inc (Naeiae) ---
-TARGET_SELLER = "Fleeters Inc"
-TARGET_BRAND  = "Naeiae"
+# ===========================================================================
+# Multi-Brand Configuration
+# ===========================================================================
 
-# --- ROAS Decision Framework ---
+BRAND_CONFIGS = {
+    "naeiae": {
+        "seller_name": "Fleeters Inc",
+        "brand_display": "Naeiae",
+        "total_daily_budget": 120.0,
+        "max_single_campaign_budget": 50.0,
+        "max_bid": 3.0,
+        "targeting": {
+            "MANUAL": {"target_acos": 25.0, "min_roas": 2.5, "budget_share": 0.60},
+            "AUTO":   {"target_acos": 35.0, "min_roas": 1.5, "budget_share": 0.40},
+        },
+    },
+    "grosmimi": {
+        "seller_name": "GROSMIMI USA",
+        "brand_display": "Grosmimi",
+        "total_daily_budget": 3000.0,        # High-volume brand
+        "max_single_campaign_budget": 500.0,  # Scale with budget
+        "max_bid": 5.0,                       # Higher ceiling for competitive keywords
+        "targeting": {
+            "MANUAL": {"target_acos": 20.0, "min_roas": 3.0, "budget_share": 0.60},
+            "AUTO":   {"target_acos": 30.0, "min_roas": 2.0, "budget_share": 0.40},
+        },
+    },
+    "chaenmom": {
+        "seller_name": "Orbitool",
+        "brand_display": "CHA&MOM",
+        "total_daily_budget": 150.0,          # Growth phase
+        "max_single_campaign_budget": 60.0,
+        "max_bid": 3.0,
+        "targeting": {
+            "MANUAL": {"target_acos": 30.0, "min_roas": 2.0, "budget_share": 0.60},
+            "AUTO":   {"target_acos": 40.0, "min_roas": 1.5, "budget_share": 0.40},
+        },
+    },
+}
+
+ALL_BRAND_KEYS = list(BRAND_CONFIGS.keys())
+
+# --- Backward compat: default brand context (set per-iteration) ---
+_active_brand_key = "naeiae"
+
+def _cfg():
+    """Get active brand config."""
+    return BRAND_CONFIGS[_active_brand_key]
+
+# --- ROAS Decision Framework (shared across brands) ---
 ROAS_RULES = [
     # (min_roas, max_roas, action, bid_change_pct, budget_change_pct, priority)
     (None, 1.0,  "pause",           None, None, "urgent"),
@@ -64,28 +112,41 @@ ROAS_RULES = [
     (5.0,  None, "increase_budget", +10,  +30,  "high"),
 ]
 
-# --- Daily budget cap (safety) ---
-TOTAL_DAILY_BUDGET_USD = 120.0   # Start at $120/day, scale to $150 if performing well
-MAX_SINGLE_CAMPAIGN_BUDGET = 50.0  # No single campaign exceeds this
-MAX_BID_USD = 3.0                  # Bid safety cap
+# --- Safety caps (per-brand overridable via BRAND_CONFIGS) ---
+TOTAL_DAILY_BUDGET_USD = 120.0   # Default, overridden by _cfg()
+MAX_SINGLE_CAMPAIGN_BUDGET = 50.0
+MAX_BID_USD = 3.0
 
-# --- Manual vs Auto optimization targets ---
-# Manual campaigns: higher ROAS expected (tighter keyword control)
-# Auto campaigns: discovery + harvesting (lower ROAS acceptable initially)
+# --- Manual vs Auto optimization targets (default, overridden by _cfg()) ---
 TARGETING_CONFIG = {
     "MANUAL": {
-        "target_acos": 25.0,    # Tighter ACOS target
-        "min_roas": 2.5,        # Higher floor
-        "budget_share": 0.60,   # 60% of total budget -> manual
+        "target_acos": 25.0,
+        "min_roas": 2.5,
+        "budget_share": 0.60,
         "description": "Manual campaigns - exact/phrase keywords, tighter control",
     },
     "AUTO": {
-        "target_acos": 35.0,    # Looser ACOS for discovery
-        "min_roas": 1.5,        # Lower floor (harvesting phase)
-        "budget_share": 0.40,   # 40% of total budget -> auto
+        "target_acos": 35.0,
+        "min_roas": 1.5,
+        "budget_share": 0.40,
         "description": "Auto campaigns - keyword discovery, broader reach",
     },
 }
+
+def _apply_brand_config(brand_key: str):
+    """Set active brand and update module-level config vars."""
+    global _active_brand_key, TOTAL_DAILY_BUDGET_USD, MAX_SINGLE_CAMPAIGN_BUDGET, MAX_BID_USD, TARGETING_CONFIG
+    _active_brand_key = brand_key
+    cfg = BRAND_CONFIGS[brand_key]
+    TOTAL_DAILY_BUDGET_USD = cfg["total_daily_budget"]
+    MAX_SINGLE_CAMPAIGN_BUDGET = cfg["max_single_campaign_budget"]
+    MAX_BID_USD = cfg["max_bid"]
+    TARGETING_CONFIG["MANUAL"]["target_acos"] = cfg["targeting"]["MANUAL"]["target_acos"]
+    TARGETING_CONFIG["MANUAL"]["min_roas"] = cfg["targeting"]["MANUAL"]["min_roas"]
+    TARGETING_CONFIG["MANUAL"]["budget_share"] = cfg["targeting"]["MANUAL"]["budget_share"]
+    TARGETING_CONFIG["AUTO"]["target_acos"] = cfg["targeting"]["AUTO"]["target_acos"]
+    TARGETING_CONFIG["AUTO"]["min_roas"] = cfg["targeting"]["AUTO"]["min_roas"]
+    TARGETING_CONFIG["AUTO"]["budget_share"] = cfg["targeting"]["AUTO"]["budget_share"]
 
 # --- Keyword-level Bid Presets ---
 BID_PRESETS = {
@@ -182,10 +243,11 @@ def _headers_reporting(profile_id: int) -> Dict:
 
 
 # ===========================================================================
-# Data Collection (Fleeters Inc only)
+# Data Collection (Multi-Brand)
 # ===========================================================================
 
-def get_fleeters_profile() -> Optional[Dict]:
+def get_all_us_profiles() -> Dict[str, Dict]:
+    """Fetch all US seller profiles and map to brand keys."""
     resp = requests.get(
         f"{API_BASE}/v2/profiles",
         headers={
@@ -195,15 +257,37 @@ def get_fleeters_profile() -> Optional[Dict]:
         timeout=30,
     )
     resp.raise_for_status()
+
+    # Build reverse map: seller_name -> brand_key
+    seller_to_brand = {}
+    for key, cfg in BRAND_CONFIGS.items():
+        seller_to_brand[cfg["seller_name"]] = key
+
+    profiles = {}
     for p in resp.json():
         if (p.get("countryCode") == "US"
-            and p.get("accountInfo", {}).get("type") == "seller"
-            and p.get("accountInfo", {}).get("name") == TARGET_SELLER):
-            return {
-                "profile_id": p["profileId"],
-                "seller": p["accountInfo"]["name"],
-            }
-    return None
+            and p.get("accountInfo", {}).get("type") == "seller"):
+            seller_name = p.get("accountInfo", {}).get("name", "")
+            brand_key = seller_to_brand.get(seller_name)
+            if brand_key:
+                profiles[brand_key] = {
+                    "profile_id": p["profileId"],
+                    "seller": seller_name,
+                    "brand_key": brand_key,
+                    "brand_display": BRAND_CONFIGS[brand_key]["brand_display"],
+                }
+    return profiles
+
+
+def get_brand_profile(brand_key: str) -> Optional[Dict]:
+    """Get a single brand's profile."""
+    profiles = get_all_us_profiles()
+    return profiles.get(brand_key)
+
+
+def get_fleeters_profile() -> Optional[Dict]:
+    """Backward compat: get Naeiae profile."""
+    return get_brand_profile("naeiae")
 
 
 def fetch_campaigns(profile_id: int) -> List[Dict]:
@@ -1201,15 +1285,18 @@ def log_to_sheets(executed_changes: List[Dict]):
 # ===========================================================================
 
 def save_proposal(proposals: List[Dict], profile_id: int,
-                   keyword_proposals: Optional[List[Dict]] = None):
+                   keyword_proposals: Optional[List[Dict]] = None,
+                   brand_key: str = "naeiae"):
+    cfg = BRAND_CONFIGS[brand_key]
     today_str = date.today().strftime("%Y%m%d")
-    filepath = TMP_DIR / f"ppc_proposal_{today_str}.json"
+    filepath = TMP_DIR / f"ppc_proposal_{brand_key}_{today_str}.json"
 
     kw_props = keyword_proposals or []
     payload = {
         "generated_at": datetime.now().isoformat(),
-        "brand": TARGET_BRAND,
-        "seller": TARGET_SELLER,
+        "brand_key": brand_key,
+        "brand": cfg["brand_display"],
+        "seller": cfg["seller_name"],
         "profile_id": profile_id,
         "total_proposals": len(proposals),
         "total_keyword_proposals": len(kw_props),
@@ -1227,8 +1314,12 @@ def save_proposal(proposals: List[Dict], profile_id: int,
     return filepath
 
 
-def load_latest_proposal() -> Optional[Dict]:
-    proposals = sorted(TMP_DIR.glob("ppc_proposal_*.json"), reverse=True)
+def load_latest_proposal(brand_key: str = None) -> Optional[Dict]:
+    """Load latest proposal. If brand_key given, filter to that brand."""
+    if brand_key:
+        proposals = sorted(TMP_DIR.glob(f"ppc_proposal_{brand_key}_*.json"), reverse=True)
+    else:
+        proposals = sorted(TMP_DIR.glob("ppc_proposal_*.json"), reverse=True)
     if not proposals:
         return None
     return json.loads(proposals[0].read_text(encoding="utf-8"))
@@ -1238,10 +1329,11 @@ def load_latest_proposal() -> Optional[Dict]:
 # Pretty Print Proposal
 # ===========================================================================
 
-def print_proposal_summary(proposals: List[Dict]):
+def print_proposal_summary(proposals: List[Dict], brand_key: str = "naeiae"):
+    cfg = BRAND_CONFIGS[brand_key]
     print(f"\n{'='*70}")
-    print(f"  NAEIAE (Fleeters Inc) PPC Change Proposals - {date.today()}")
-    print(f"  Daily Budget Cap: ${TOTAL_DAILY_BUDGET_USD} (Manual 60% / Auto 40%)")
+    print(f"  {cfg['brand_display']} ({cfg['seller_name']}) PPC Change Proposals - {date.today()}")
+    print(f"  Daily Budget Cap: ${cfg['total_daily_budget']} (Manual 60% / Auto 40%)")
     print(f"{'='*70}")
 
     # Manual vs Auto breakdown
@@ -1487,8 +1579,10 @@ DEFAULT_TO = "wj.choi@orbiters.co.kr"
 DEFAULT_CC = "mj.lee@orbiters.co.kr"
 
 def build_proposal_html(proposals: List[Dict],
-                        kw_proposals: Optional[List[Dict]] = None) -> str:
+                        kw_proposals: Optional[List[Dict]] = None,
+                        brand_key: str = "naeiae") -> str:
     """Build HTML email showing all proposed changes for review."""
+    cfg = BRAND_CONFIGS[brand_key]
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     manual = [p for p in proposals if p.get("campaignType") == "MANUAL"]
     auto = [p for p in proposals if p.get("campaignType") == "AUTO"]
@@ -1532,8 +1626,8 @@ def build_proposal_html(proposals: List[Dict],
 <html>
 <head><meta charset="utf-8"></head>
 <body style="font-family:Arial,sans-serif;max-width:1200px;margin:0 auto;padding:20px;">
-    <h2 style="color:#333;">Naeiae (Fleeters Inc) PPC Change Proposal</h2>
-    <p style="color:#666;">{now} | Daily Budget Cap: ${TOTAL_DAILY_BUDGET_USD} (Manual 60% / Auto 40%)</p>
+    <h2 style="color:#333;">{cfg['brand_display']} ({cfg['seller_name']}) PPC Change Proposal</h2>
+    <p style="color:#666;">{now} | Daily Budget Cap: ${cfg['total_daily_budget']:,.0f} (Manual {cfg['targeting']['MANUAL']['budget_share']*100:.0f}% / Auto {cfg['targeting']['AUTO']['budget_share']*100:.0f}%)</p>
 
     <div style="display:flex;gap:20px;margin:15px 0;">
         <div style="background:#f8f9fa;padding:12px 20px;border-radius:8px;">
@@ -1665,16 +1759,18 @@ def _build_keyword_html(kw_proposals: Optional[List[Dict]]) -> str:
 
 def send_proposal_email(proposals: List[Dict], to: str = DEFAULT_TO,
                         kw_proposals: Optional[List[Dict]] = None,
-                        cc: str = DEFAULT_CC) -> Optional[str]:
+                        cc: str = DEFAULT_CC,
+                        brand_key: str = "naeiae") -> Optional[str]:
     """Send proposal HTML email via send_gmail.py. Returns Gmail message ID or None."""
-    html = build_proposal_html(proposals, kw_proposals)
-    html_path = TMP_DIR / f"ppc_proposal_{date.today().strftime('%Y%m%d')}_{datetime.now().strftime('%H%M')}.html"
+    cfg = BRAND_CONFIGS[brand_key]
+    html = build_proposal_html(proposals, kw_proposals, brand_key=brand_key)
+    html_path = TMP_DIR / f"ppc_proposal_{brand_key}_{date.today().strftime('%Y%m%d')}_{datetime.now().strftime('%H%M')}.html"
     html_path.write_text(html, encoding="utf-8")
 
     urgent_count = sum(1 for p in proposals if p["priority"] == "urgent")
     kw_count = len(kw_proposals) if kw_proposals else 0
     subject = (
-        f"[Amazon PPC] {TARGET_BRAND} Proposal - {len(proposals)} campaign, "
+        f"[Amazon PPC] {cfg['brand_display']} Proposal - {len(proposals)} campaign, "
         f"{kw_count} keyword changes"
         f" ({urgent_count} urgent) | {datetime.now().strftime('%m/%d %H:%M')}"
     )
@@ -1699,7 +1795,7 @@ def send_proposal_email(proposals: List[Dict], to: str = DEFAULT_TO,
         match = re.search(r"Message ID:\s*(\S+)", result.stdout)
         if match:
             msg_id = match.group(1)
-            _save_proposal_email_id(msg_id, subject)
+            _save_proposal_email_id(msg_id, subject, brand_key=brand_key)
             return msg_id
     else:
         print(f"[ERROR] Email failed: {result.stderr}")
@@ -1707,9 +1803,9 @@ def send_proposal_email(proposals: List[Dict], to: str = DEFAULT_TO,
     return None
 
 
-def _save_proposal_email_id(message_id: str, subject: str):
+def _save_proposal_email_id(message_id: str, subject: str, brand_key: str = "naeiae"):
     """Save the proposal email message ID to the latest proposal JSON."""
-    proposal_path = sorted(TMP_DIR.glob("ppc_proposal_*.json"), reverse=True)
+    proposal_path = sorted(TMP_DIR.glob(f"ppc_proposal_{brand_key}_*.json"), reverse=True)
     if not proposal_path:
         return
     filepath = proposal_path[0]
@@ -1723,8 +1819,9 @@ def _save_proposal_email_id(message_id: str, subject: str):
 
 
 def send_execution_email(executed: List[Dict], to: str = DEFAULT_TO,
-                         cc: str = DEFAULT_CC):
+                         cc: str = DEFAULT_CC, brand_key: str = "naeiae"):
     """Send execution confirmation email."""
+    cfg = BRAND_CONFIGS[brand_key]
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     td = 'style="padding:6px 10px;border:1px solid #ddd;"'
     th = 'style="padding:8px 10px;text-align:left;"'
@@ -1850,7 +1947,7 @@ def send_execution_email(executed: List[Dict], to: str = DEFAULT_TO,
     html = f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8"></head>
 <body style="font-family:Arial,sans-serif;max-width:960px;margin:0 auto;padding:20px;">
-    <h2 style="color:{summary_color};">Naeiae PPC Changes Executed</h2>
+    <h2 style="color:{summary_color};">{cfg['brand_display']} PPC Changes Executed</h2>
     <p>{now} | {len(executed)} changes applied ({summary_text})</p>
     {camp_html}
     {kw_html}
@@ -1860,7 +1957,7 @@ def send_execution_email(executed: List[Dict], to: str = DEFAULT_TO,
     html_path = TMP_DIR / f"ppc_executed_{date.today().strftime('%Y%m%d')}_{datetime.now().strftime('%H%M')}.html"
     html_path.write_text(html, encoding="utf-8")
 
-    subject = f"[Amazon PPC] EXECUTED - {len(executed)} changes applied | {now}"
+    subject = f"[Amazon PPC] {cfg['brand_display']} EXECUTED - {len(executed)} changes applied | {now}"
     send_gmail_path = TOOLS_DIR / "send_gmail.py"
     if not send_gmail_path.exists():
         return
