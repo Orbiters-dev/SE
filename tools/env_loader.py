@@ -26,9 +26,9 @@ _PROJECT_ENV = os.path.join(
 
 def load_env():
     """Load environment variables from secrets file + project .env."""
-    # Load project .env first as base layer
+    # Load project .env first as base layer (override=True so GH Actions .env always wins)
     if os.path.exists(_PROJECT_ENV):
-        load_dotenv(_PROJECT_ENV, override=False)
+        load_dotenv(_PROJECT_ENV, override=True)
     # Then overlay secrets file (takes precedence over .env)
     if os.path.exists(SECRETS_PATH):
         load_dotenv(SECRETS_PATH, override=True)

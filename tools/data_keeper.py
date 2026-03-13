@@ -1674,7 +1674,7 @@ def _send_collection_email(results=None, elapsed_total=0, recipient=None):
 
     subject = f"[Data Keeper] {health} - {kst_now}"
     try:
-        cc = os.getenv("DATA_KEEPER_CC", "grosmimi.usa@gmail.com")
+        cc = os.getenv("DATA_KEEPER_CC", "")  # set DATA_KEEPER_CC env/secret to enable CC
         result = send_email(to=recipient, subject=subject, body_html=html, cc=cc)
         print(f"  [Notify] Email sent to {recipient} (cc: {cc}) (id: {result.get('id', '?')})")
     except Exception as e:
