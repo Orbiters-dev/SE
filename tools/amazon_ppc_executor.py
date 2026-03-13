@@ -107,7 +107,8 @@ ROAS_RULES = [
     (None, 1.0,  "pause",           None, None, "urgent"),
     (1.0,  1.5,  "reduce_bid",      -30,  None, "urgent"),
     (1.5,  2.0,  "reduce_bid",      -15,  None, "high"),
-    (2.0,  3.0,  "monitor",         None, None, "medium"),
+    (2.0,  2.5,  "optimize",        -10,  None, "medium"),    # Not just monitor — fine-tune bids
+    (2.5,  3.0,  "optimize",        None, None, "medium"),    # Close to target, optimize keywords
     (3.0,  5.0,  "increase_budget", None, +20,  "medium"),
     (5.0,  None, "increase_budget", +10,  +30,  "high"),
 ]
@@ -834,6 +835,8 @@ def _confidence_tier(action: str, priority: str) -> str:
         return "Strong"
     if action in ("increase_budget",) and priority == "high":
         return "Strong"
+    if action == "optimize":
+        return "Optimize"
     if priority == "medium":
         return "Moderate"
     return "Monitor"
@@ -950,14 +953,49 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
                 reason = f"[{camp_type}] 7d: ${cost_7d:.1f} spent, {m7['clicks']} clicks, $0 sales"
                 anomalies.append(f"Zero-sales: {camp['name']} - ${cost_7d:.0f} wasted (7d)")
 
+        # Pre-compute CTR for reason and anomaly checks
+        ctr_7d = round(m7["clicks"] / m7["impressions"] * 100, 2) if m7["impressions"] > 0 else 0
+
         # ROAS-based reason
         if not reason:
             trend = ""
             if roas_30d > 0:
                 pct_change = round((roas_7d - roas_30d) / roas_30d * 100, 1)
                 trend = f"7d vs 30d: {'+' if pct_change >= 0 else ''}{pct_change}%"
-            reason = (f"[{camp_type}] 7d ROAS {roas_7d}x (ACOS {acos_7d}%) | "
-                      f"30d ROAS {roas_30d}x | target ACOS {config['target_acos']}% | {trend}")
+
+            cpc_7d = round(cost_7d / m7["clicks"], 2) if m7["clicks"] > 0 else 0
+
+            if action == "optimize":
+                # Build rich optimization reasoning
+                target_acos = config["target_acos"]
+                acos_gap = round(acos_7d - target_acos, 1) if acos_7d else 0
+                opt_tips = []
+                if acos_7d and acos_gap > 0:
+                    opt_tips.append(f"ACOS {acos_7d}% exceeds target {target_acos}% by {acos_gap}pp -> bid -10%")
+                elif acos_7d and acos_gap <= -5:
+                    opt_tips.append(f"ACOS {acos_7d}% is {abs(acos_gap):.0f}pp below target {target_acos}% -> room to increase bid for more volume")
+                else:
+                    opt_tips.append(f"ACOS {acos_7d}% near target {target_acos}% -> fine-tune keyword bids")
+
+                if cpc_7d > 0 and m7["clicks"] > 20:
+                    if ctr_7d < 0.4:
+                        opt_tips.append(f"CTR {ctr_7d}% is low -> review listing images, titles, pricing")
+                    elif ctr_7d > 0.8:
+                        opt_tips.append(f"CTR {ctr_7d}% is strong -> consider increasing bid to capture more impressions")
+
+                if m7["purchases"] > 0:
+                    cvr = round(m7["purchases"] / m7["clicks"] * 100, 2) if m7["clicks"] > 0 else 0
+                    if cvr < 5:
+                        opt_tips.append(f"CVR {cvr}% is below 5% benchmark -> optimize product page, A+ content, reviews")
+                    elif cvr > 15:
+                        opt_tips.append(f"CVR {cvr}% is excellent -> scale with more budget")
+
+                reason = (f"[{camp_type}] 7d ROAS {roas_7d}x (ACOS {acos_7d}%) | "
+                          f"30d ROAS {roas_30d}x | {trend}\n"
+                          f"Optimization: {' | '.join(opt_tips)}")
+            else:
+                reason = (f"[{camp_type}] 7d ROAS {roas_7d}x (ACOS {acos_7d}%) | "
+                          f"30d ROAS {roas_30d}x | target ACOS {config['target_acos']}% | {trend}")
 
         # Additional rule: yesterday ROAS drop 30%+ vs 7d avg
         additional_action = None
@@ -977,7 +1015,6 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
             anomalies.append(f"Budget hog: {camp['name']} consuming {cost_7d/total_7d_cost*100:.0f}% of total spend")
 
         # Anomaly: CTR below 0.3%
-        ctr_7d = round(m7["clicks"] / m7["impressions"] * 100, 2) if m7["impressions"] > 0 else 0
         if m7["impressions"] > 500 and ctr_7d < 0.3:
             anomalies.append(f"Low CTR: {camp['name']} CTR {ctr_7d}% ({m7['impressions']} impr)")
 
@@ -1879,7 +1916,7 @@ def build_proposal_html(proposals: List[Dict],
         return "#dc3545"
 
     def tier_badge(tier):
-        colors = {"No-Brainer": "#dc3545", "Strong": "#fd7e14", "Moderate": "#ffc107", "Monitor": "#6c757d"}
+        colors = {"No-Brainer": "#dc3545", "Strong": "#fd7e14", "Optimize": "#17a2b8", "Moderate": "#ffc107", "Monitor": "#6c757d"}
         c = colors.get(tier, "#6c757d")
         return f'<span style="background:{c};color:white;padding:2px 6px;border-radius:3px;font-size:10px;white-space:nowrap;">{tier}</span>'
 
@@ -1981,6 +2018,7 @@ def build_proposal_html(proposals: List[Dict],
             if p.get("new_daily_budget"):
                 action_text += f" (${p['currentDailyBudget']}->${p['new_daily_budget']})"
 
+            reason_text = p.get("reason", "").replace("\n", "<br>")
             rows_html += f"""
             <tr>
                 <td style="padding:6px 8px;border:1px solid #ddd;">{tier_badge(p.get('tier', 'Monitor'))}</td>
@@ -1990,16 +2028,21 @@ def build_proposal_html(proposals: List[Dict],
                 <td style="padding:6px 8px;border:1px solid #ddd;">${m7['spend']:.0f}</td>
                 <td style="padding:6px 8px;border:1px solid #ddd;">${m7['sales']:.0f}</td>
                 <td style="padding:6px 8px;border:1px solid #ddd;font-weight:bold;">{action_text}</td>
+            </tr>
+            <tr>
+                <td colspan="7" style="padding:4px 8px 8px 30px;border:1px solid #eee;font-size:11px;color:#555;background:#fafafa;">{reason_text}</td>
             </tr>"""
 
         urgent = [p for p in proposals if p.get("tier") == "No-Brainer"]
         strong = [p for p in proposals if p.get("tier") == "Strong"]
+        optimize = [p for p in proposals if p.get("tier") == "Optimize"]
         moderate = [p for p in proposals if p.get("tier") == "Moderate"]
         proposals_html = f"""
     <h3 style="color:#333;margin-top:25px;">Action Proposals ({len(proposals)})</h3>
-    <div style="display:flex;gap:15px;margin:10px 0;">
+    <div style="display:flex;gap:15px;margin:10px 0;flex-wrap:wrap;">
         <div style="background:#f8d7da;padding:8px 15px;border-radius:6px;font-size:13px;"><strong>{len(urgent)}</strong> No-Brainer</div>
         <div style="background:#ffe0b2;padding:8px 15px;border-radius:6px;font-size:13px;"><strong>{len(strong)}</strong> Strong</div>
+        <div style="background:#b3e5fc;padding:8px 15px;border-radius:6px;font-size:13px;"><strong>{len(optimize)}</strong> Optimize</div>
         <div style="background:#fff9c4;padding:8px 15px;border-radius:6px;font-size:13px;"><strong>{len(moderate)}</strong> Moderate</div>
     </div>
     <table style="border-collapse:collapse;width:100%;">
