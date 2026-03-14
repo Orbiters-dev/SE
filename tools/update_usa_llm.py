@@ -5,8 +5,7 @@ Apify test 시트의 US Posts Master 데이터를 읽어
 Grosmimi SNS 시트의 USA_LLM 탭을 갱신.
 
 하이라이트 감지:
-  - 전일 대비 조회수 30%+ 증가한 콘텐츠
-  - 총 10만 뷰 이상 달성한 콘텐츠
+  - 지난 24시간 내 업로드된 포스트 (뷰 순 정렬)
 
 결과를 .tmp/usa_llm_highlights.json 에 저장 → 이메일 보고에 포함.
 
@@ -19,7 +18,7 @@ import argparse
 import json
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -38,7 +37,7 @@ LLM_TAB        = "USA_LLM"
 PREV_METRICS_PATH = PROJECT_ROOT / ".tmp" / "usa_llm_prev.json"
 HIGHLIGHTS_PATH   = PROJECT_ROOT / ".tmp" / "usa_llm_highlights.json"
 
-VIEW_INCREASE_THRESHOLD = 0.30   # 30% day-over-day increase only
+HIGHLIGHTS_WINDOW_HOURS = 24   # show posts uploaded within last N hours
 
 
 def to_int(v):
@@ -127,10 +126,11 @@ def aggregate_by_user(posts):
     return sorted(by_user.values(), key=lambda x: x["total_views"], reverse=True)
 
 
-def detect_highlights(posts, prev_metrics):
-    """포스트 단위(URL 기준)로 하이라이트 감지"""
-    highlights = []
+def detect_highlights(posts):
+    """지난 24시간 내 업로드된 포스트만 뷰 순으로 반환."""
+    cutoff = datetime.now(tz=timezone.utc) - timedelta(hours=HIGHLIGHTS_WINDOW_HOURS)
     seen_urls = set()
+    highlights = []
 
     for p in posts:
         url = p["url"]
@@ -138,23 +138,33 @@ def detect_highlights(posts, prev_metrics):
             continue
         seen_urls.add(url)
 
-        cur_views  = p["views"]
-        prev_views = prev_metrics.get(url, {}).get("views", 0)
+        date_str = p.get("date", "")
+        if not date_str:
+            continue
 
-        # Only detect new growth (day-over-day), not absolute thresholds
-        if prev_views > 0:
-            change = (cur_views - prev_views) / prev_views
-            if change >= VIEW_INCREASE_THRESHOLD:
-                highlights.append({
-                    "username":   p["username"],
-                    "nickname":   p["nickname"],
-                    "url":        url,
-                    "date":       p["date"],
-                    "views":      cur_views,
-                    "prev_views": prev_views,
-                    "growth_pct": round(change * 100),
-                    "hashtags":   p.get("hashtags", ""),
-                })
+        # Parse post date — try several common formats
+        date_obj = None
+        for fmt in ("%Y-%m-%d", "%Y/%m/%d", "%m/%d/%Y", "%d/%m/%Y", "%Y-%m-%dT%H:%M:%S"):
+            try:
+                date_obj = datetime.strptime(date_str[:len(fmt)], fmt).replace(tzinfo=timezone.utc)
+                break
+            except Exception:
+                continue
+
+        if date_obj is None:
+            continue
+
+        if date_obj < cutoff:
+            continue
+
+        highlights.append({
+            "username":   p["username"],
+            "nickname":   p["nickname"],
+            "url":        url,
+            "date":       date_str,
+            "views":      p["views"],
+            "hashtags":   p.get("hashtags", ""),
+        })
 
     # 뷰 높은 순 정렬
     highlights.sort(key=lambda x: x["views"], reverse=True)
@@ -228,28 +238,15 @@ def run(dry_run=False):
     aggregated = aggregate_by_user(posts)
     print(f"    크리에이터: {len(aggregated)}명")
 
-    # 이전 메트릭 로드
-    prev_metrics = {}
-    if PREV_METRICS_PATH.exists():
-        try:
-            prev_metrics = json.loads(PREV_METRICS_PATH.read_text(encoding="utf-8"))
-        except Exception:
-            pass
-
-    print("[3] 하이라이트 감지... (포스트 단위)")
-    highlights = detect_highlights(posts, prev_metrics)
+    print("[3] 하이라이트 감지... (최근 24시간 업로드, 뷰 순)")
+    highlights = detect_highlights(posts)
     print(f"    하이라이트: {len(highlights)}건")
     for h in highlights:
-        print(f"    @{h['username']} ({h['date']}): {', '.join(h['reasons'])}")
+        print(f"    @{h['username']} ({h['date']}): {h['views']:,} views")
 
     print("[4] USA_LLM 탭 업데이트...")
     write_llm_tab(sh_sns, aggregated, dry_run=dry_run)
 
-    # 현재 메트릭 저장 — 포스트(URL) 단위 (다음 날 비교용)
-    if not dry_run:
-        new_prev = {p["url"]: {"views": p["views"]} for p in posts if p["url"]}
-        PREV_METRICS_PATH.parent.mkdir(parents=True, exist_ok=True)
-        PREV_METRICS_PATH.write_text(json.dumps(new_prev, ensure_ascii=False, indent=2), encoding="utf-8")
 
     # 하이라이트 저장
     HIGHLIGHTS_PATH.parent.mkdir(parents=True, exist_ok=True)

@@ -141,8 +141,6 @@ def build_highlights_section(highlights: list) -> str:
         url        = h.get("url", "")
         date_str   = h.get("date", "")
         views      = h.get("views", 0)
-        prev_views = h.get("prev_views", 0)
-        growth_pct = h.get("growth_pct", 0)
         hashtags   = h.get("hashtags", "")
 
         # products from order map
@@ -170,13 +168,6 @@ def build_highlights_section(highlights: list) -> str:
                     + "</div>"
                 )
 
-        growth_html = (
-            f'<span style="font-family:\'Courier New\',monospace;font-size:10px;'
-            f'color:#059669;background:#D1FAE5;padding:1px 6px;border-radius:3px;">'
-            f'+{growth_pct}%</span>'
-            if growth_pct else ""
-        )
-
         link_html = (
             f'<a href="{url}" style="font-size:11px;font-family:\'Courier New\',monospace;'
             f'color:#1E3A5F;text-decoration:none;background:#EBF2FF;padding:2px 7px;'
@@ -200,7 +191,6 @@ def build_highlights_section(highlights: list) -> str:
             <div style="font-family:'Courier New',monospace;font-size:14px;font-weight:700;
                         color:#F59E0B;">{views:,}</div>
             <div style="font-size:9px;color:#9CA3AF;">views</div>
-            <div style="margin-top:2px;">{growth_html}</div>
           </td>
           <td style="padding:10px 6px;font-size:10px;color:#9CA3AF;
                      font-family:'Courier New',monospace;text-align:center;white-space:nowrap;">{date_str}</td>
@@ -213,7 +203,7 @@ def build_highlights_section(highlights: list) -> str:
         <span style="font-size:10px;letter-spacing:2px;text-transform:uppercase;
                      color:#9CA3AF;font-family:'Courier New',monospace;">&#11088; Today's Highlights</span>
         <span style="font-size:10px;color:#C9A84C;font-family:'Courier New',monospace;
-                     margin-left:8px;">{len(highlights)} new posts detected &middot; 30%+ view growth</span>
+                     margin-left:8px;">{len(highlights)} posts uploaded in the last 24h &middot; sorted by views</span>
       </div>
       <table width="100%" cellpadding="0" cellspacing="0"
              style="border-collapse:collapse;border:1px solid #E9E7E4;border-radius:8px;overflow:hidden;">
@@ -224,7 +214,7 @@ def build_highlights_section(highlights: list) -> str:
             <th style="padding:6px 8px;font-size:9px;color:#9CA3AF;font-weight:600;
                        letter-spacing:1px;text-align:left;">CREATOR &middot; PRODUCT &middot; TAGS</th>
             <th style="padding:6px 6px;font-size:9px;color:#9CA3AF;font-weight:600;
-                       letter-spacing:1px;text-align:center;">VIEWS / GROWTH</th>
+                       letter-spacing:1px;text-align:center;">VIEWS</th>
             <th style="padding:6px 6px;font-size:9px;color:#9CA3AF;font-weight:600;
                        letter-spacing:1px;text-align:center;">DATE</th>
             <th style="padding:6px 8px;width:60px;"></th>
