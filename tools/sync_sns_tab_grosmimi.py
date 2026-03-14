@@ -354,6 +354,7 @@ def sync(dry_run=False):
             if no_col is not None and no_col < len(row) and row[no_col].isdigit():
                 max_no = max(max_no, int(row[no_col]))
 
+        next_row = len(sns_vals) + 1
         new_rows = []
         for x in to_add:
             row_data = [""] * len(header)
@@ -385,7 +386,6 @@ def sync(dry_run=False):
 
             new_rows.append(row_data)
 
-        next_row = len(sns_vals) + 1
         if next_row + len(new_rows) > ws_sns.row_count:
             ws_sns.add_rows(len(new_rows) + 50)
 
