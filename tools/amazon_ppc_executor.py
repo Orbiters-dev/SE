@@ -725,8 +725,15 @@ def analyze_search_terms(
 def analyze_keyword_bids(
     kw_rows: List[Dict],
     campaigns: List[Dict],
+    dataforseo: Optional[Dict[str, Dict]] = None,
 ) -> List[Dict]:
-    """Apply preset-based bid adjustment logic per keyword."""
+    """Apply preset-based bid adjustment logic per keyword.
+
+    When dataforseo data is available, uses Google CPC as a market benchmark:
+    - If Amazon CPC > Google CPC * 1.5: overbidding, recommend -15% (cap)
+    - If Amazon CPC < Google CPC * 0.5 and ROAS > 2: underbidding, recommend +20%
+    - Adjusts bid ceiling based on Google CPC (max bid = Google CPC * 2.0)
+    """
     camp_map = {}
     for c in campaigns:
         try:
@@ -734,6 +741,7 @@ def analyze_keyword_bids(
         except (ValueError, TypeError):
             camp_map[c["campaignId"]] = c
     proposals = []
+    dataforseo = dataforseo or {}
 
     for kw in kw_rows:
         clicks = int(kw.get("clicks", 0) or 0)
@@ -756,23 +764,41 @@ def analyze_keyword_bids(
         p = BID_PRESETS.get(camp_type, BID_PRESETS["MANUAL"])
 
         acos = (cost / sales) if sales > 0 else None
+        roas = (sales / cost) if cost > 0 else 0
+        amz_cpc = (cost / clicks) if clicks > 0 else 0
         action = None
         new_bid = current_bid
         reason = ""
 
+        # --- DataForSEO Google CPC benchmark adjustment ---
+        google_cpc = 0
+        gdata = dataforseo.get(kw_text.lower().strip())
+        if gdata:
+            google_cpc = float(gdata.get("cpc", 0) or 0)
+
         # Case 1: Strong performer
         if acos is not None and acos < p["mid_acos"] and clicks >= p["click_limit"] and sales > 0:
             new_bid = round(current_bid * (1 + p["increase_by"]), 2)
+            # If Google CPC is available and we're underbidding, be more aggressive
+            if google_cpc > 0 and amz_cpc < google_cpc * 0.5 and roas > 2.0:
+                bump = min(p["increase_by"] + 0.10, 0.30)  # Extra 10% bump, max 30%
+                new_bid = round(current_bid * (1 + bump), 2)
+                reason = f"ACOS {acos*100:.1f}% (strong) + underbidding vs Google CPC ${google_cpc:.2f}, +{bump*100:.0f}%"
+            else:
+                reason = f"ACOS {acos*100:.1f}% < {p['mid_acos']*100}% (strong), +{p['increase_by']*100:.0f}%"
             new_bid = min(new_bid, p["max_bid"])
-            action = "increase_bid"
-            reason = f"ACOS {acos*100:.1f}% < {p['mid_acos']*100}% (strong), +{p['increase_by']*100:.0f}%"
 
         # Case 2: Inefficient
         elif acos is not None and acos > p["high_acos"] and clicks >= p["click_limit"]:
             new_bid = round(current_bid * (1 - p["decrease_by"]), 2)
+            # If Google CPC confirms overbidding, be more aggressive on reduction
+            if google_cpc > 0 and amz_cpc > google_cpc * 1.5:
+                cut = min(p["decrease_by"] + 0.10, 0.35)  # Extra 10% cut, max 35%
+                new_bid = round(current_bid * (1 - cut), 2)
+                reason = f"ACOS {acos*100:.1f}% (high) + overbidding vs Google CPC ${google_cpc:.2f} by {amz_cpc/google_cpc:.1f}x, -{cut*100:.0f}%"
+            else:
+                reason = f"ACOS {acos*100:.1f}% > {p['high_acos']*100}% (high), -{p['decrease_by']*100:.0f}%"
             new_bid = max(new_bid, p["min_bid"])
-            action = "decrease_bid"
-            reason = f"ACOS {acos*100:.1f}% > {p['high_acos']*100}% (high), -{p['decrease_by']*100:.0f}%"
 
         # Case 3: Spending with no sales
         elif clicks >= p["click_limit"] and sales == 0 and cost > 0:
@@ -794,7 +820,23 @@ def analyze_keyword_bids(
             new_bid = current_bid
             reason = "0 impressions in period -> pause"
 
+        # Case 6 (NEW): Google CPC overbidding check (even if ACOS is OK)
+        # If Amazon CPC > Google CPC * 1.5 and enough data, recommend reduction
+        elif google_cpc > 0 and amz_cpc > google_cpc * 1.5 and clicks >= 5 and roas < 3.0:
+            cut_pct = 0.15
+            new_bid = round(current_bid * (1 - cut_pct), 2)
+            new_bid = max(new_bid, p["min_bid"])
+            action = "decrease_bid"
+            reason = f"Overbidding: AMZ CPC ${amz_cpc:.2f} vs Google ${google_cpc:.2f} ({amz_cpc/google_cpc:.1f}x), ROAS {roas:.1f}x, -15%"
+
+        if not action and new_bid != current_bid:
+            action = "increase_bid" if new_bid > current_bid else "decrease_bid"
+
         if action and new_bid != current_bid:
+            # Append Google CPC context to reason if available and not already mentioned
+            if google_cpc > 0 and "Google" not in reason:
+                reason += f" | Google CPC: ${google_cpc:.2f}"
+
             proposals.append({
                 "type": "keyword_bid",
                 "keywordId": kw_id,
@@ -811,6 +853,7 @@ def analyze_keyword_bids(
                 "cost": round(cost, 2),
                 "sales": round(sales, 2),
                 "acos_pct": round(acos * 100, 1) if acos else None,
+                "google_cpc": google_cpc if google_cpc > 0 else None,
                 "priority": "high" if action == "decrease_bid" and sales == 0 else "medium",
                 "reason": reason,
                 "approved": False,
@@ -3335,18 +3378,20 @@ def run_propose_single(args, brand_key: str):
             print(f"  {len(kw_rows_30d)} keyword rows (30d)")
             kw_rows = kw_rows_30d  # Use 30d for main analysis
 
-            print(f"\n[5/8] Analyzing search terms & keywords...")
+            # Fetch DataForSEO FIRST so it can feed into both bid analysis and matrix
+            print(f"\n[5/8] Fetching DataForSEO + analyzing search terms & keywords...")
+            dataforseo = fetch_dataforseo_keywords(brand_key)
+
             st_analysis = analyze_search_terms(st_rows, campaigns, kw_rows)
-            kw_bid_proposals = analyze_keyword_bids(kw_rows, campaigns)
+            kw_bid_proposals = analyze_keyword_bids(kw_rows, campaigns, dataforseo=dataforseo)
 
             kw_proposals = st_analysis["harvest"] + st_analysis["negate"] + kw_bid_proposals
             print(f"  {len(st_analysis['harvest'])} harvest candidates")
             print(f"  {len(st_analysis['negate'])} negative candidates")
             print(f"  {len(kw_bid_proposals)} keyword bid adjustments")
 
-            # DataForSEO + keyword performance matrix with 7d vs 30d trend
-            print(f"\n[6/8] Building keyword performance matrix + DataForSEO...")
-            dataforseo = fetch_dataforseo_keywords(brand_key)
+            # Keyword performance matrix with 7d vs 30d trend
+            print(f"\n[6/8] Building keyword performance matrix...")
             kw_matrix = build_keyword_performance_matrix(
                 kw_rows_30d, st_rows, campaigns, dataforseo, kw_rows_7d=kw_rows_7d)
             print(f"  {kw_matrix['total_keywords']} keywords analyzed")
