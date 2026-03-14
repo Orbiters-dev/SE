@@ -34,6 +34,8 @@ TABLE_MAP = {
     "klaviyo_daily": models.KlaviyoDaily,
     "gsc_daily": models.GscDaily,
     "dataforseo_keywords": models.DataForSeoKeywords,
+    "amazon_ads_search_terms": models.AmazonAdsSearchTerms,
+    "amazon_ads_keywords": models.AmazonAdsKeywords,
 }
 
 
