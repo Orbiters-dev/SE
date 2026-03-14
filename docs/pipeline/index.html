@@ -164,7 +164,7 @@
   <div class="hero">
     <h1><span>WJ</span> Influencer TEST1</h1>
     <p class="subtitle">End-to-end automation from influencer data collection to content post detection &mdash; 8-stage pipeline</p>
-    <div class="test-time">As of March 13, 2026</div>
+    <div class="test-time">As of March 14, 2026 &middot; E2E Test: 22/23 PASS</div>
   </div>
 
   <div class="legend">
@@ -459,7 +459,7 @@ What do I need to do next?</div>
         <div class="step-content">
           <div class="step-label human">&#9998; Human in the Loop</div>
           <div class="step-title">Influencer Fills Out Gifting Application</div>
-          <div class="step-desc">Submit form at <a href="https://onzenna.com/pages/influencer-gifting" target="_blank">onzenna.com/pages/influencer-gifting</a></div>
+          <div class="step-desc">Submit form at <a href="https://onzenna.com/pages/influencer-gifting" target="_blank">onzenna.com/pages/influencer-gifting</a> &mdash; <strong>No login required</strong> (outbound form sent to influencers). Logged-in customers get address/phone pre-filled.</div>
           <div class="data-box">
             <h4>&#128203; Information Provided by Influencer</h4>
             <div class="data-row"><span class="data-key">Name / Email</span><span class="data-val">Personal info + contact details</span></div>
@@ -482,7 +482,7 @@ What do I need to do next?</div>
             <div class="data-row"><span class="data-key">2. Draft Order</span><span class="data-val">100% PR Discount &rarr; $0.00 free order</span></div>
             <div class="data-row"><span class="data-key">3. Metafields</span><span class="data-val">influencer.instagram, .tiktok, .child_1_birthday</span></div>
             <div class="data-row"><span class="data-key">4. <a href="https://airtable.com/appT2gLRR0PqMFgII/tbloYjIEr5OtEppT0" target="_blank">Airtable</a></span><span class="data-val">Create Inbound CRM record (Status: New)</span></div>
-            <div class="data-row"><span class="data-key">5. <a href="https://orbitools.orbiters.co.kr/api/onzenna/gifting/list/" target="_blank">PostgreSQL</a></span><span class="data-val">orbitools API &rarr; INSERT into gifting table</span></div>
+            <div class="data-row"><span class="data-key">5. <a href="https://orbitools.orbiters.co.kr/api/onzenna/outreach/list/" target="_blank">PostgreSQL</a></span><span class="data-val">Parallel branch from Draft Order &rarr; <code>onz_influencer_outreach</code> (status: Needs Review, no AT dependency)</span></div>
           </div>
           <div class="result-badge pass">&#10003; Shopify + Airtable + PG all PASS</div>
         </div>
@@ -494,8 +494,8 @@ What do I need to do next?</div>
   <div class="test-panel">
     <div class="test-header">
       <span class="test-badge">Test #3</span>
-      <span class="test-title">Stage 2: Gifting Form Webhook &rarr; Draft Order</span>
-      <span class="test-meta">2026-03-13 07:55 UTC | Exec #98492 <span class="test-status pass">PASS</span></span>
+      <span class="test-title">Stage 2: Gifting Form Webhook &rarr; Draft Order + PG Outreach</span>
+      <span class="test-meta">2026-03-14 | Exec #98492 <span class="test-status pass">PASS</span></span>
     </div>
     <div class="test-grid">
       <div class="test-card">
@@ -540,6 +540,14 @@ What do I need to do next?</div>
         <div class="test-row"><span class="test-key">Address</span><span class="test-val">5900 Katella Ave, BLDG C, STE 100, Cypress, CA 90630, US</span></div>
         <div class="test-row"><span class="test-key">Order Note</span><span class="test-val">Influencer Gifting Application --- Instagram: @wj_choi_test, TikTok: @wj_choi_test, Child 1: 2024-12-15 (14 months)</span></div>
         <div class="test-row"><span class="test-key">Airtable</span><span class="test-val">recX3M4AuAGKNr98l &rarr; Draft Order ID = 1515675976050</span></div>
+      </div>
+      <div class="test-card full">
+        <h5>&#128200; PostgreSQL: onz_influencer_outreach (NEW)</h5>
+        <div class="test-row"><span class="test-key">Table</span><span class="test-val">onz_influencer_outreach &mdash; outbound Pathlight pipeline storage (separate from inbound gifting)</span></div>
+        <div class="test-row"><span class="test-key">Status</span><span class="test-val">Needs Review (parallel branch from Create Draft Order &mdash; no Airtable dependency)</span></div>
+        <div class="test-row"><span class="test-key">Shopify ID</span><span class="test-val">customer_id: 7057180098882, draft_order_id: 1515675976050 (#D1484)</span></div>
+        <div class="test-row"><span class="test-key">Arch Note</span><span class="test-val">PG save runs in parallel even if Airtable AT update fails &mdash; continueOnFail on AT nodes</span></div>
+        <div class="test-row"><span class="test-key">API</span><span class="test-val"><a href="https://orbitools.orbiters.co.kr/api/onzenna/outreach/list/" target="_blank">orbitools.orbiters.co.kr/api/onzenna/outreach/list/</a></span></div>
       </div>
     </div>
     <div class="test-note">
@@ -633,7 +641,7 @@ What do I need to do next?</div>
         <div class="step-content">
           <div class="step-label human">&#9998; Human in the Loop</div>
           <div class="step-title">Creator Fills Out Sample Form</div>
-          <div class="step-desc">Confirm shipping address + select product/color via email link</div>
+          <div class="step-desc">Confirm shipping address + select product/color via email link &mdash; <strong>No login required</strong> (outbound link). CHA&amp;MOM gifting form also accessible without login.</div>
           <div class="result-badge pass">&#10003; Form submitted successfully</div>
         </div>
       </div>
@@ -648,6 +656,7 @@ What do I need to do next?</div>
             <div class="data-row"><span class="data-key">Customer</span><span class="data-val">Shopify Customer (tags: inbound-onz, influencer-gifting, PR)</span></div>
             <div class="data-row"><span class="data-key">Draft Order</span><span class="data-val">100% PR Discount &rarr; $0.00</span></div>
             <div class="data-row"><span class="data-key">Airtable</span><span class="data-val">Status &rarr; Sample Form Completed, Draft Order ID recorded</span></div>
+            <div class="data-row"><span class="data-key">PostgreSQL</span><span class="data-val">Parallel branch &rarr; <code>onz_influencer_outreach</code> updated (status: Sample Sent, draft_order_id)</span></div>
           </div>
           <div class="result-badge pass">&#10003; Draft Order + Airtable update complete</div>
         </div>
@@ -717,7 +726,8 @@ What do I need to do next?</div>
             <h4>Auto Processing Flow</h4>
             <div class="data-row"><span class="data-key">1. Check</span><span class="data-val">Shopify: Query fulfillment_status</span></div>
             <div class="data-row"><span class="data-key">2. Detect</span><span class="data-val">IF status = "delivered"</span></div>
-            <div class="data-row"><span class="data-key">3. Update</span><span class="data-val">Airtable: Status &rarr; "Sample Delivered" + Delivered Date</span></div>
+            <div class="data-row"><span class="data-key">3. Update AT</span><span class="data-val">Airtable: Status &rarr; "Sample Delivered" + Delivered Date</span></div>
+            <div class="data-row"><span class="data-key">4. Update PG</span><span class="data-val"><code>onz_influencer_outreach</code>: outreach_status &rarr; "Sample Delivered"</span></div>
           </div>
         </div>
       </div>
@@ -789,8 +799,9 @@ What do I need to do next?</div>
             <h4>Auto Processing Flow</h4>
             <div class="data-row"><span class="data-key">1. Scan</span><span class="data-val"><a href="https://docs.google.com/spreadsheets/d/1bOXrARt8wx_YeKyXMlAS1nKzkZBypeaSilI6xDg4_Tc" target="_blank">D+60 Tracker</a>: Search for influencer handle</span></div>
             <div class="data-row"><span class="data-key">2. Match</span><span class="data-val">IF handle found in new posts</span></div>
-            <div class="data-row"><span class="data-key">3. Update</span><span class="data-val">Airtable: Status &rarr; "Posted" + Post URL + Metrics</span></div>
-            <div class="data-row"><span class="data-key">4. Track</span><span class="data-val">Start D+60 performance tracking (Views, Likes, Comments)</span></div>
+            <div class="data-row"><span class="data-key">3. Update AT</span><span class="data-val">Airtable: Status &rarr; "Posted" + Post URL + Metrics</span></div>
+            <div class="data-row"><span class="data-key">4. Update PG</span><span class="data-val"><code>onz_influencer_outreach</code>: outreach_status &rarr; "Posted"</span></div>
+            <div class="data-row"><span class="data-key">5. Track</span><span class="data-val">Start D+60 performance tracking (Views, Likes, Comments)</span></div>
           </div>
         </div>
       </div>
@@ -800,7 +811,7 @@ What do I need to do next?</div>
   <!-- ==================== n8n WORKFLOW STATUS ==================== -->
   <div class="summary-section" style="margin-top:48px; margin-bottom:0;">
     <h3>n8n Workflow Status (WJ TEST)</h3>
-    <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">As of 2026-03-13 &middot; Docusign excluded &middot; Production Pathlight managed separately</p>
+    <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">As of 2026-03-14 &middot; Docusign excluded &middot; Production Pathlight managed separately</p>
     <table style="width:100%; border-collapse:collapse; font-size:13px;">
       <thead>
         <tr style="border-bottom:2px solid var(--border);">
@@ -840,6 +851,12 @@ What do I need to do next?</div>
           <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
           <td style="text-align:center; font-size:12px; color:var(--text-dim);">&mdash;</td>
           <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Shopify only (no AT needed)</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border); background:#fef9f0;">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/734aqkcOIfiylExL" target="_blank" style="color:#d97706; text-decoration:none;">Gifting2 &rarr; Draft Order (Sample Request)</a></td>
+          <td style="text-align:center;"><span style="background:#fef3c7; color:#92400e; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PENDING</span></td>
+          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
+          <td style="padding:8px 6px; font-size:12px; color:#92400e;">Stage 4 &mdash; Inactive, awaiting final E2E verification before activation</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/Vd5NiKMwdLT7b9wa" target="_blank" style="color:var(--accent); text-decoration:none;">Sample Sent &rarr; Complete</a></td>
@@ -921,13 +938,14 @@ What do I need to do next?</div>
     <div style="margin-top:24px; padding:16px; background:var(--bg); border-radius:10px;">
       <h4 style="font-size:14px; margin-bottom:12px;">&#128161; Key Highlights</h4>
       <div style="font-size:13px; line-height:1.8; color:var(--text-dim);">
-        <div><strong style="color:var(--pass);">Stage 2 (Gifting App)</strong> &mdash; All pass! Form &rarr; Shopify &rarr; Draft Order &rarr; Airtable &rarr; PG fully working</div>
+        <div><strong style="color:var(--pass);">Stage 2 (Gifting App)</strong> &mdash; 22/23 PASS (2026-03-14). Form &rarr; Shopify &rarr; Draft Order &rarr; Airtable &rarr; PG (<code>onz_influencer_outreach</code>) all working. No login required.</div>
         <div><strong style="color:var(--pass);">Stage 3 (Creator Profile)</strong> &mdash; Airtable save + IG scraping confirmed</div>
-        <div><strong style="color:var(--pass);">Stage 4 (Sample Request)</strong> &mdash; Acceptance email &rarr; sample form &rarr; Draft Order all working</div>
-        <div><strong style="color:var(--auto);">Stage 5-7</strong> &mdash; Polling chain (5min/30min/6hr) + Content Guideline email auto-send</div>
+        <div><strong style="color:var(--pass);">Stage 4 (Sample Request)</strong> &mdash; Acceptance email &rarr; sample form (no login) &rarr; Draft Order + PG update all working</div>
+        <div><strong style="color:var(--auto);">Stage 5-7</strong> &mdash; Polling chain (5min/30min/6hr) + Content Guideline email + PG status updates at each stage</div>
+        <div><strong style="color:var(--store);">PG Lifecycle Tracking</strong> &mdash; <code>onz_influencer_outreach</code> records status at: Needs Review &rarr; Sample Sent &rarr; Sample Delivered &rarr; Posted</div>
         <div><strong style="color:var(--accent);">Stage 0-1</strong> &mdash; Syncly ingestion + AI outreach pipeline</div>
-        <div><strong style="color:var(--fail);">ManyChat</strong> &mdash; Manual trigger only, cannot auto-activate</div>
-        <div><strong style="color:var(--fail);">Full Pipeline</strong> &mdash; executeCommand node deprecated, needs httpRequest replacement</div>
+        <div><strong style="color:#d97706);">Gifting2</strong> &mdash; Inactive pending final E2E verification before activation</div>
+        <div><strong style="color:var(--fail);">Syncly Trigger (Step 3)</strong> &mdash; n8n API 405 for schedule-triggered workflows (non-critical, manual trigger works)</div>
       </div>
     </div>
 
@@ -967,7 +985,7 @@ What do I need to do next?</div>
   </div>
 
   <div class="footer">
-    Pathlight Pipeline &middot; ORBI WAT Framework &middot; ORBITOOL Marketing Module &middot; Generated 2026-03-13
+    Pathlight Pipeline &middot; ORBI WAT Framework &middot; ORBITOOL Marketing Module &middot; Generated 2026-03-14 &middot; E2E 22/23 PASS
   </div>
 
 </div>
