@@ -1197,7 +1197,81 @@ def collect_klaviyo(date_from: str, date_to: str) -> list[dict]:
     total_opens = sum(r["opens"] for r in all_rows)
     total_rev = sum(r["revenue"] for r in all_rows)
     print(f"  {len(all_rows)} campaigns | sends={total_sends} opens={total_opens} rev=${total_rev:.0f}")
+
+    # Step 4: Collect Flow metrics
+    flow_rows = _collect_klaviyo_flows(headers, post_headers, date_from, date_to)
+    all_rows.extend(flow_rows)
+
     return all_rows
+
+
+def _collect_klaviyo_flows(headers: dict, post_headers: dict, date_from: str, date_to: str) -> list[dict]:
+    """Collect Klaviyo Flow (automated sequence) metrics via Flow Values Report."""
+    print("  [Flows] Fetching flow list...")
+    flow_meta = {}  # flow_id -> name
+    url = "https://a.klaviyo.com/api/flows/?sort=-created"
+    while url:
+        try:
+            r = requests.get(url, headers=headers, timeout=30)
+            r.raise_for_status()
+            data = r.json()
+            for f in data.get("data", []):
+                fid = f["id"]
+                flow_meta[fid] = f.get("attributes", {}).get("name", fid)
+            url = data.get("links", {}).get("next")
+        except Exception as e:
+            print(f"  [WARN] Flows list: {e}")
+            break
+
+    print(f"  [Flows] Total flows: {len(flow_meta)}")
+    if not flow_meta:
+        return []
+
+    # Flow Values Report — aggregate stats per flow over the date range
+    try:
+        payload = {
+            "data": {
+                "type": "flow-values-report",
+                "attributes": {
+                    "timeframe": {
+                        "start": f"{date_from}T00:00:00+00:00",
+                        "end": f"{date_to}T23:59:59+00:00",
+                    },
+                    "conversion_metric_id": "SnXiMV",
+                    "statistics": ["delivered", "opens", "clicks", "conversions", "conversion_value"],
+                }
+            }
+        }
+        r = requests.post(
+            "https://a.klaviyo.com/api/flow-values-reports/",
+            headers=post_headers, json=payload, timeout=60
+        )
+        r.raise_for_status()
+        results = r.json().get("data", {}).get("attributes", {}).get("results", [])
+    except Exception as e:
+        print(f"  [WARN] Flow values report failed: {e}")
+        return []
+
+    rows = []
+    for row in results:
+        fid = row.get("groupings", {}).get("flow_id", "")
+        stats = row.get("statistics", {})
+        rows.append({
+            "date": date_to,  # flow stats aggregated over range; date_to as anchor
+            "source_type": "flow",
+            "source_name": flow_meta.get(fid, fid),
+            "source_id": fid,
+            "sends": int(stats.get("delivered", 0) or 0),
+            "opens": int(stats.get("opens", 0) or 0),
+            "clicks": int(stats.get("clicks", 0) or 0),
+            "conversions": int(stats.get("conversions", 0) or 0),
+            "revenue": float(stats.get("conversion_value", 0) or 0),
+        })
+
+    total_rev = sum(r["revenue"] for r in rows)
+    total_sends = sum(r["sends"] for r in rows)
+    print(f"  [Flows] {len(rows)} flows | sends={total_sends} rev=${total_rev:.0f}")
+    return rows
 
 
 def _fetch_variant_prices(base: str, headers: dict) -> tuple:

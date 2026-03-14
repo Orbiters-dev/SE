@@ -116,7 +116,7 @@ Loaded via `tools/env_loader.py`:
 | Meta Ads | `meta_ads_daily` | Graph API v18 insights | 35d | 1 ad account |
 | Google Ads | `google_ads_daily` | search_stream | 35d | MCC + sub-accounts |
 | GA4 | `ga4_daily` | Analytics Data API | 35d | 1 property |
-| Klaviyo | `klaviyo_daily` | REST API | 35d | 1 account |
+| Klaviyo | `klaviyo_daily` | REST API (Campaigns + **Flows**) | 35d | 1 account |
 | Shopify | `shopify_orders_daily` | Admin REST API | 35d | 1 shop |
 | GSC | `gsc_daily` | Search Console API v1 | 35d | 3 sites (onzenna/grosmimi/naeiae) |
 | Keyword Volume | `dataforseo_keywords` | **Google Ads Keyword Planner** (NOT DataForSEO) | weekly | DATAFORSEO_KEYWORDS dict |
@@ -190,7 +190,7 @@ All on orbitools EC2, `gk_` prefix, upsert on unique keys.
 | `gk_meta_campaigns` | (campaign_id) |
 | `gk_google_ads_daily` | (date, campaign_id) |
 | `gk_ga4_daily` | (date, channel_grouping) |
-| `gk_klaviyo_daily` | (date, source_type, source_id) |
+| `gk_klaviyo_daily` | (date, source_type, source_id) — source_type: "campaign" \| "flow" |
 | `gk_gsc_daily` | (date, site_url, query) |
 | `gk_dataforseo_keywords` | (date, keyword, brand) |
 
