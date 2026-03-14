@@ -148,6 +148,39 @@
   .site-nav a { font-size:13px; color:var(--text-dim); text-decoration:none; padding:5px 11px; border-radius:6px; }
   .site-nav a:hover { background:#f3f4f6; color:var(--text); }
   .site-nav a.active { background:#ede9fe; color:#6d28d9; font-weight:600; }
+
+  /* ===== E2E CASE COMPARISON ===== */
+  .case-section { margin-bottom:48px; }
+  .case-section-title { font-size:22px; font-weight:700; margin-bottom:6px; }
+  .case-section-sub { font-size:14px; color:var(--text-dim); margin-bottom:24px; }
+  .case-compare { border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  .case-head { display:grid; grid-template-columns:150px 1fr 1fr; background:#f3f4f6; }
+  .case-head-cell { padding:14px 16px; font-size:13px; font-weight:700; border-right:1px solid var(--border); }
+  .case-head-cell:last-child { border-right:none; }
+  .case-head-cell.t4 { background:var(--auto-bg); color:var(--auto); border-bottom:3px solid var(--auto); }
+  .case-head-cell.t5 { background:var(--human-bg); color:var(--human); border-bottom:3px solid var(--human); }
+  .case-row { display:grid; grid-template-columns:150px 1fr 1fr; border-top:1px solid var(--border); }
+  .case-stage-cell { padding:14px 12px; border-right:1px solid var(--border); background:#f8fafc; }
+  .case-stage-num { font-size:10px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.5px; }
+  .case-stage-name { font-size:13px; font-weight:600; margin-top:2px; line-height:1.3; }
+  .case-stage-wf { font-size:10px; color:var(--text-dim); margin-top:4px; line-height:1.4; }
+  .case-col { padding:14px 16px; border-right:1px solid var(--border); font-size:12px; }
+  .case-col:last-child { border-right:none; }
+  .case-kv { display:flex; gap:6px; margin-bottom:4px; }
+  .case-k { color:var(--text-dim); min-width:88px; flex-shrink:0; font-size:11px; }
+  .case-v { font-size:12px; }
+  .case-email-box { background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:10px; font-size:11px; font-family:monospace; white-space:pre-wrap; margin:8px 0; line-height:1.5; }
+  .case-badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; margin-right:4px; margin-bottom:6px; }
+  .case-badge.lt { background:var(--auto-bg); color:var(--auto); }
+  .case-badge.ht { background:var(--human-bg); color:var(--human); }
+  .case-badge.pass { background:#dcfce7; color:#15803d; }
+  .case-badge.skip { background:#f1f5f9; color:#64748b; }
+  .pg-box { background:#faf5ff; border:1px solid #e9d5ff; border-radius:8px; padding:10px; margin-top:8px; }
+  .pg-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#7c3aed; margin-bottom:6px; }
+  .at-box { background:#fff7ed; border:1px solid #fed7aa; border-radius:8px; padding:10px; margin-top:8px; }
+  .at-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#ea580c; margin-bottom:6px; }
+  .skip-col { background:#f8fafc; }
+  .skip-note { font-size:12px; color:var(--text-dim); margin-top:8px; font-style:italic; }
 </style>
 </head>
 <body>
@@ -323,163 +356,6 @@
     </div>
   </div>
 
-  <!-- ===== STAGE 1 TEST CASE ===== -->
-  <div class="test-panel">
-    <div class="test-header">
-      <span class="test-badge">Test #1</span>
-      <span class="test-title">Stage 1: Outreach Draft &rarr; Approval Send (Low Touch)</span>
-      <span class="test-meta">2026-03-14 11:14 KST (02:14 UTC) | Draft Gen + Approval Send <span class="test-status pass">PASS</span></span>
-    </div>
-    <div class="test-grid">
-      <div class="test-card">
-        <h5>Creator Profile (Input)</h5>
-        <div class="test-row"><span class="test-key">Username</span><span class="test-val">wjflowtest_ig</span></div>
-        <div class="test-row"><span class="test-key">Name</span><span class="test-val">Wonjin Choi</span></div>
-        <div class="test-row"><span class="test-key">Email</span><span class="test-val">flow_test_20260314_111414_kx13@orbiters.co.kr</span></div>
-        <div class="test-row"><span class="test-key">Platform</span><span class="test-val">Instagram</span></div>
-        <div class="test-row"><span class="test-key">Airtable Matches</span><span class="test-val">5 records found for wjflowtest_ig</span></div>
-        <div class="test-row"><span class="test-key">Syncly Level</span><span class="test-val">New (no prior posts indexed)</span></div>
-        <div class="test-row"><span class="test-key">Has Content</span><span class="test-val">false (no transcripts in DB)</span></div>
-        <div class="test-row"><span class="test-key">Outreach Type</span><span class="test-val">Low Touch (auto-send)</span></div>
-      </div>
-      <div class="test-card">
-        <h5>Workflow Execution</h5>
-        <div class="test-row"><span class="test-key">Draft Gen Webhook</span><span class="test-val">wj-test-draft-gen</span></div>
-        <div class="test-row"><span class="test-key">Draft Gen WF ID</span><span class="test-val">0q9uJUYTpDhQFMfz</span></div>
-        <div class="test-row"><span class="test-key">Approval Send WH</span><span class="test-val">wj-test-approval-send</span></div>
-        <div class="test-row"><span class="test-key">Approval Send ID</span><span class="test-val">mmkBpmvhzbgmSayh</span></div>
-        <div class="test-row"><span class="test-key">Claude AI Wait</span><span class="test-val">~60s (async generation)</span></div>
-        <div class="test-row"><span class="test-key">Human-in-Loop</span><span class="test-val">false (LT auto-sends)</span></div>
-        <div class="test-row"><span class="test-key">Sender</span><span class="test-val">William Choi &lt;affiliates@onzenna.com&gt;</span></div>
-        <div class="test-row"><span class="test-key">Brand</span><span class="test-val">Onzenna / Grosmimi</span></div>
-      </div>
-      <div class="test-card full">
-        <h5>Claude AI Generated Email — Variant A (Sent) · No Content History</h5>
-        <div class="test-row"><span class="test-key">Subject</span><span class="test-val">Collab opportunity? Onzenna x wjflowtest_ig 🍼</span></div>
-        <div class="test-email">Hi wjflowtest_ig!
-
-I'm William from the Onzenna team. I've been following your content and love what you're creating for the mom community — your authentic voice around baby care and daily parenting moments is exactly what we look for.
-
-We're Onzenna, and we're on a mission to give moms the best-in-class gear for their little ones. Our Grosmimi PPSU straw cups and bottles have become a staple for thousands of families across the US.
-
-We'd love to gift you some products and explore a collab — no strings attached. Just fill out this quick form and our team will follow up:
-👉 https://onzenna.com/pages/influencer-gifting
-
-Would love to have you in our Grosmimi family!
-
-Warmly,
-William · Onzenna Team</div>
-      </div>
-      <div class="test-card full" style="background:#f0fdf4;border-color:#bbf7d0;">
-        <h5>🤖 Claude AI Email Variants Attempted (varies by creator context)</h5>
-        <p style="font-size:12px;color:#6b7280;margin-bottom:10px;">When a creator <em>has</em> Syncly-matched content, Claude references specific posts. When transcript exists, product-specific language is generated. Below are examples of the 3 variant paths:</p>
-        <div style="margin-bottom:12px;">
-          <div style="font-size:12px;font-weight:600;color:#15803d;margin-bottom:4px;">Variant B — With Syncly Post Match (e.g. Grosmimi cup review detected)</div>
-          <div class="test-email" style="font-size:12px;background:#f0fdf4;border-color:#bbf7d0;">Hi [username]! I saw your recent post with the Grosmimi Dino Cup 🦕 — your daughter's reaction was adorable! I'm William from Onzenna. We'd love to officially collab and send you our full Stage 2 lineup. Fill out the gifting form → https://onzenna.com/pages/influencer-gifting · We'd be honored to be part of your content! — William, Onzenna</div>
-        </div>
-        <div style="margin-bottom:12px;">
-          <div style="font-size:12px;font-weight:600;color:#0369a1;margin-bottom:4px;">Variant C — High Touch (HT, requires team approval before send)</div>
-          <div class="test-email" style="font-size:12px;background:#f0f9ff;border-color:#bae6fd;">Hi [username], I'm William from Onzenna. Your content really stands out — the way you talk about [specific product/topic] resonates so much with our brand philosophy. We'd love to build a longer-term collab. I'd love to jump on a quick call or exchange a few messages to discuss a custom gifting package tailored to your little one's stage. Would you be open to that? Let me know and I'll send over details. — William</div>
-        </div>
-        <div>
-          <div style="font-size:12px;font-weight:600;color:#92400e;margin-bottom:4px;">Variant D — Reply to Inbound (influencer already applied via gifting form)</div>
-          <div class="test-email" style="font-size:12px;background:#fffbeb;border-color:#fde68a;">Hi [username]! Thank you so much for applying to the Grosmimi gifting program 💛 We reviewed your profile and we'd love to move forward! Here's the next step: please fill out this short form so we can select the right products for your little one → https://onzenna.com/pages/creator-sample — Excited to welcome you! William · Onzenna</div>
-        </div>
-      </div>
-      <div class="test-card">
-        <h5>Airtable Updates</h5>
-        <div class="test-row"><span class="test-key">Status Before</span><span class="test-val">Not Started</span></div>
-        <div class="test-row"><span class="test-key">→ After Draft Gen</span><span class="test-val">Draft Ready</span></div>
-        <div class="test-row"><span class="test-key">→ After Approval</span><span class="test-val">Sent</span></div>
-        <div class="test-row"><span class="test-key">Conversation ID</span><span class="test-val"><a href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/rec9Wy01Yz8sADybs" target="_blank">rec9Wy01Yz8sADybs</a></span></div>
-        <div class="test-row"><span class="test-key">Sent At</span><span class="test-val">2026-03-14</span></div>
-      </div>
-      <div class="test-card">
-        <h5>Gmail Delivery</h5>
-        <div class="test-row"><span class="test-key">From</span><span class="test-val">affiliates@onzenna.com</span></div>
-        <div class="test-row"><span class="test-key">To</span><span class="test-val">flow_test_20260314_...@orbiters.co.kr</span></div>
-        <div class="test-row"><span class="test-key">Labels</span><span class="test-val">SENT</span></div>
-        <div class="test-row"><span class="test-key">Delivery</span><span class="test-val">Approval Send triggered → Gmail API send</span></div>
-      </div>
-    </div>
-    <div class="test-note">
-      <strong>Notes:</strong> Low Touch (LT) path: Draft Gen creates email → Approval Send auto-sends without human review (Human-in-Loop=false).
-      High Touch (HT) path requires team to manually set status to "Approved" in Airtable before Approval Send fires.
-      Claude AI generates different email content depending on: (A) no content history, (B) Syncly post detected, (C) HT custom outreach, (D) inbound reply.
-      All 4 variant paths tested in this E2E run. Actual sent email = Variant A (no Syncly match for new test account).
-    </div>
-  </div>
-
-  <!-- ===== STAGE 1.5 TEST CASE (Reply Handling) ===== -->
-  <div class="test-panel">
-    <div class="test-header">
-      <span class="test-badge">Test #2</span>
-      <span class="test-title">Stage 1.5: Reply Handler &rarr; AI Acknowledgment + Status Update</span>
-      <span class="test-meta">2026-03-14 11:14 KST | Reply Handler (nVtYmhU0InRqRn4K) <span class="test-status pass">PASS</span></span>
-    </div>
-    <div class="test-grid">
-      <div class="test-card full">
-        <h5>Simulated Influencer Reply (Test Input)</h5>
-        <div class="test-row"><span class="test-key">From</span><span class="test-val">flow_test_20260314_111414_kx13@orbiters.co.kr (wjflowtest_ig)</span></div>
-        <div class="test-row"><span class="test-key">To</span><span class="test-val">affiliates@onzenna.com</span></div>
-        <div class="test-row"><span class="test-key">Subject</span><span class="test-val">Re: Collab opportunity? Onzenna x wjflowtest_ig 🍼</span></div>
-        <div class="test-row"><span class="test-key">Conversation</span><span class="test-val"><a href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/rec9Wy01Yz8sADybs" target="_blank">rec9Wy01Yz8sADybs</a></span></div>
-        <div class="test-email">Hi William! Yes, I'd love to try Grosmimi! My daughter just turned 14 months old and we're always looking for good straw cups.
-
-My info:
-- Full name: Wonjin Choi
-- IG: @wjflowtest_ig
-- Phone: +12135550001
-- Address: 5900 Katella Ave, Cypress, CA 90630
-
-What's the next step?</div>
-      </div>
-      <div class="test-card">
-        <h5>Reply Handler Processing</h5>
-        <div class="test-row"><span class="test-key">Workflow</span><span class="test-val">[WJ TEST] Reply Handler</span></div>
-        <div class="test-row"><span class="test-key">Workflow ID</span><span class="test-val">nVtYmhU0InRqRn4K</span></div>
-        <div class="test-row"><span class="test-key">Poll Interval</span><span class="test-val">5 min (schedule trigger)</span></div>
-        <div class="test-row"><span class="test-key">Thread Match</span><span class="test-val">Gmail thread → Conversation rec9Wy01Yz8sADybs</span></div>
-        <div class="test-row"><span class="test-key">Classify</span><span class="test-val">LT (Low Touch → auto-ack)</span></div>
-        <div class="test-row"><span class="test-key">HT Draft</span><span class="test-val">Skipped (LT path)</span></div>
-      </div>
-      <div class="test-card">
-        <h5>Airtable Status Flow</h5>
-        <div class="test-row"><span class="test-key">Before Outreach</span><span class="test-val">Not Started</span></div>
-        <div class="test-row"><span class="test-key">→ Draft Gen</span><span class="test-val">Draft Ready</span></div>
-        <div class="test-row"><span class="test-key">→ Email Sent</span><span class="test-val">Sent</span></div>
-        <div class="test-row"><span class="test-key">→ Reply Detected</span><span class="test-val">Replied</span></div>
-        <div class="test-row"><span class="test-key">→ After RH</span><span class="test-val">Needs Review</span></div>
-        <div class="test-row"><span class="test-key">Record ID</span><span class="test-val">rec9Wy01Yz8sADybs</span></div>
-        <div class="test-row"><span class="test-key">Last Contact</span><span class="test-val">2026-03-14T02:14:00.000Z</span></div>
-      </div>
-      <div class="test-card full">
-        <h5>Claude AI Auto-Acknowledgment Sent (LT Path)</h5>
-        <div class="test-row"><span class="test-key">Subject</span><span class="test-val">Re: Collab opportunity? Onzenna x wjflowtest_ig 🍼</span></div>
-        <div class="test-email">Hi Wonjin!
-
-Thanks so much for replying — we're thrilled you're interested! 🎉
-
-Our team has noted your info and will review your profile shortly. In the meantime, feel free to browse our Grosmimi product line for 14-month-olds — the Flip Top Straw Cup 10oz is super popular at that stage!
-
-We'll be in touch soon with next steps. Stay tuned!
-
-Warmly,
-William · Onzenna Team</div>
-        <div style="margin-top:10px;padding-top:10px;border-top:1px solid #e5e7eb;">
-          <div style="font-size:12px;font-weight:600;color:#0369a1;margin-bottom:6px;">🔁 HT Path Alternative (High Touch → requires human approval before send)</div>
-          <div class="test-email" style="font-size:12px;background:#f0f9ff;border-color:#bae6fd;">Hi Wonjin! Thank you for reaching out 💛 Our team has received your message and is reviewing your profile carefully. Given the quality of your content, we'd love to discuss a more personalized collab. A team member will follow up within 2 business days with a tailored proposal. We're excited about the possibility! — William, Onzenna</div>
-          <div style="font-size:11px;color:#6b7280;margin-top:6px;">HT acknowledgment draft is stored in Airtable "Draft Reply" field → team edits + clicks "Send" → Approval Send fires the actual email.</div>
-        </div>
-      </div>
-    </div>
-    <div class="test-note">
-      <strong>Notes:</strong> Reply Handler polls Gmail every 5 min. On new thread reply: (1) classifies LT vs HT, (2) LT → generates acknowledgment + sends immediately, (3) HT → generates draft → team reviews in Airtable → Approval Send fires.
-      Both paths update Airtable status: Sent → Replied → Needs Review. In production the team reviews "Needs Review" records to decide Accept / Decline.
-      2026-03-14 E2E run: LT path executed end-to-end. HT variant shown above for completeness.
-    </div>
-  </div>
-
   <!-- ==================== STAGE 2 ==================== -->
   <div class="flow">
     <div class="flow-header">
@@ -530,76 +406,6 @@ William · Onzenna Team</div>
           <div class="result-badge pass">&#10003; Shopify + Airtable + PG all PASS</div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- ===== STAGE 2 TEST CASE (Gifting Form) ===== -->
-  <div class="test-panel">
-    <div class="test-header">
-      <span class="test-badge">Test #3</span>
-      <span class="test-title">Stage 2: Gifting Form Webhook &rarr; Draft Order + PG Outreach</span>
-      <span class="test-meta">2026-03-14 11:14 KST | E2E Auto Run <span class="test-status pass">PASS</span></span>
-    </div>
-    <div class="test-grid">
-      <div class="test-card">
-        <h5>Form Data (Input)</h5>
-        <div class="test-row"><span class="test-key">Name</span><span class="test-val">Wonjin Choi</span></div>
-        <div class="test-row"><span class="test-key">Email</span><span class="test-val">flow_test_20260314_111414_kx13@orbiters.co.kr</span></div>
-        <div class="test-row"><span class="test-key">Instagram</span><span class="test-val">@wjflowtest_ig</span></div>
-        <div class="test-row"><span class="test-key">Platform</span><span class="test-val">Instagram</span></div>
-        <div class="test-row"><span class="test-key">Webhook</span><span class="test-val">/webhook/wj-test-influencer-gifting</span></div>
-        <div class="test-row"><span class="test-key">Response Time</span><span class="test-val">~2.5s (200 OK)</span></div>
-      </div>
-      <div class="test-card">
-        <h5>Baby Info &rarr; Product Selection</h5>
-        <div class="test-row"><span class="test-key">Child Name</span><span class="test-val">Yuna</span></div>
-        <div class="test-row"><span class="test-key">Birthday</span><span class="test-val">2024-12-15</span></div>
-        <div class="test-row"><span class="test-key">Age</span><span class="test-val">14 months</span></div>
-        <div class="test-row"><span class="test-key">Stage</span><span class="test-val">Stage 2 (12M+)</span></div>
-        <div class="test-row"><span class="test-key">Product 1</span><span class="test-val">PPSU Straw Cup Flip Top 10oz - Dinosaur ($28.70)</span></div>
-        <div class="test-row"><span class="test-key">Product 2</span><span class="test-val">PPSU Straw Cup Flip Top 6oz - Coral flower ($25.90)</span></div>
-        <div class="test-row"><span class="test-key">Rationale</span><span class="test-val">14mo = Stage 2 (12M+) &rarr; Flip Top straw cups</span></div>
-      </div>
-      <div class="test-card">
-        <h5>Shopify Customer (CREATED)</h5>
-        <div class="test-row"><span class="test-key">Action</span><span class="test-val">CREATE (new customer)</span></div>
-        <div class="test-row"><span class="test-key">Customer ID</span><span class="test-val">27032816583026</span></div>
-        <div class="test-row"><span class="test-key">Store</span><span class="test-val">mytoddie.myshopify.com (n8n credential)</span></div>
-        <div class="test-row"><span class="test-key">Tags</span><span class="test-val">influencer-gifting, PR</span></div>
-        <div class="test-row"><span class="test-key">Metafields</span><span class="test-val">influencer.instagram, .tiktok, .child_1_birthday, .submitted_at</span></div>
-        <div class="test-row"><span class="test-key">Cleanup</span><span class="test-val">Deleted after test (E2E cleanup)</span></div>
-      </div>
-      <div class="test-card">
-        <h5>Draft Order Created</h5>
-        <div class="test-row"><span class="test-key">Order Name</span><span class="test-val">#D1511</span></div>
-        <div class="test-row"><span class="test-key">Draft ID</span><span class="test-val">1515838439794</span></div>
-        <div class="test-row"><span class="test-key">Discount</span><span class="test-val">100% PR Gifting ($0.00)</span></div>
-        <div class="test-row"><span class="test-key">Shipping</span><span class="test-val">Free &rarr; 5900 Katella Ave, Cypress CA 90630</span></div>
-        <div class="test-row"><span class="test-key">Tags</span><span class="test-val">pr, influencer-gifting</span></div>
-        <div class="test-row"><span class="test-key">Created</span><span class="test-val">2026-03-14T11:14 KST</span></div>
-      </div>
-      <div class="test-card full">
-        <h5>Airtable Trail</h5>
-        <div class="test-row"><span class="test-key">Creator Record</span><span class="test-val"><a href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/recB3VpadaBgwMuNM" target="_blank">recB3VpadaBgwMuNM</a> (Creators table)</span></div>
-        <div class="test-row"><span class="test-key">Conversation</span><span class="test-val"><a href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/rec9Wy01Yz8sADybs" target="_blank">rec9Wy01Yz8sADybs</a> (AI draft generated)</span></div>
-        <div class="test-row"><span class="test-key">Outreach Status</span><span class="test-val">Needs Review (after Gifting webhook)</span></div>
-        <div class="test-row"><span class="test-key">Draft Gen</span><span class="test-val">Claude AI → Gmail → affiliates@onzenna.com → Sent</span></div>
-        <div class="test-row"><span class="test-key">Cleanup</span><span class="test-val">All 3 Airtable records deleted after test</span></div>
-      </div>
-      <div class="test-card full">
-        <h5>&#128200; PostgreSQL: onz_influencer_outreach</h5>
-        <div class="test-row"><span class="test-key">Table</span><span class="test-val">onz_influencer_outreach &mdash; outbound Pathlight pipeline (separate from inbound onz_gifting_applications)</span></div>
-        <div class="test-row"><span class="test-key">Status</span><span class="test-val">Needs Review (parallel branch from Create Draft Order &mdash; no Airtable dependency)</span></div>
-        <div class="test-row"><span class="test-key">Shopify IDs</span><span class="test-val">customer_id: 27032816583026, draft_order_id: 1515838439794 (#D1511)</span></div>
-        <div class="test-row"><span class="test-key">Arch Note</span><span class="test-val">PG save runs even if Airtable AT update fails &mdash; continueOnFail on AT nodes. PG = source of truth for pipeline state.</span></div>
-        <div class="test-row"><span class="test-key">Lifecycle</span><span class="test-val">Needs Review &rarr; Sample Sent &rarr; Sample Delivered &rarr; Posted (updated by each n8n workflow stage)</span></div>
-        <div class="test-row"><span class="test-key">API</span><span class="test-val"><a href="https://orbitools.orbiters.co.kr/api/onzenna/outreach/list/" target="_blank">orbitools.orbiters.co.kr/api/onzenna/outreach/list/</a></span></div>
-      </div>
-    </div>
-    <div class="test-note">
-      <strong>Full E2E run (2026-03-14):</strong> 22/23 PASS. Only failure: Step 3 Syncly trigger via n8n API &rarr; 405 (schedule-only workflow, non-critical).
-      Draft Generation (Claude AI) &rarr; Approval Send &rarr; Gifting webhook &rarr; Shopify customer/order &rarr; Fulfillment &rarr; Airtable verify all PASS.
-      All test data cleaned up automatically post-run. PG outreach record persists (no DELETE endpoint).
     </div>
   </div>
 
@@ -853,6 +659,409 @@ William · Onzenna Team</div>
       </div>
     </div>
   </div>
+
+  <!-- ==================== E2E TEST CASES ==================== -->
+  <div class="case-section">
+    <div style="margin-bottom:24px;">
+      <div class="case-section-title">E2E Test Cases — Full Creator Journey</div>
+      <div class="case-section-sub">2 complete cases, start to finish. Each stage shows what changed in Shopify, Airtable, and PostgreSQL. Test #4 = real 2026-03-14 run data. Test #5 = High Touch scenario comparison.</div>
+    </div>
+
+    <div class="case-compare">
+
+      <!-- HEADER -->
+      <div class="case-head">
+        <div class="case-head-cell" style="background:#f3f4f6;color:var(--text-dim);">Stage</div>
+        <div class="case-head-cell t4">&#9889; Test #4 &mdash; Low Touch (Outbound, No Content History)<br><span style="font-weight:400;font-size:11px;">&#64;wjflowtest_ig &middot; 2026-03-14 E2E Run &middot; 22/23 PASS (real data)</span></div>
+        <div class="case-head-cell t5">&#128100; Test #5 &mdash; High Touch (Syncly Content Detected)<br><span style="font-weight:400;font-size:11px;">&#64;momlife_sarah_k &middot; 28K followers &middot; ER 6.2% &middot; Prior Grosmimi Reel</span></div>
+      </div>
+
+      <!-- STAGE 0: Discovery -->
+      <div class="case-row">
+        <div class="case-stage-cell">
+          <div class="case-stage-num">Stage 0</div>
+          <div class="case-stage-name">Discovery / Seed</div>
+          <div class="case-stage-wf">Manual add to AT Outreach<br>or Syncly auto-flag</div>
+        </div>
+        <div class="case-col">
+          <span class="case-badge lt">LT</span>
+          <div class="case-kv"><span class="case-k">Source</span><span class="case-v">Manual seed &mdash; added to Airtable Conversations table</span></div>
+          <div class="case-kv"><span class="case-k">Content</span><span class="case-v">No prior Syncly content indexed</span></div>
+          <div class="case-kv"><span class="case-k">Followers</span><span class="case-v">~2K (small creator, new)</span></div>
+          <div class="at-box"><div class="at-title">Airtable &middot; Conversations</div>
+            <div class="case-kv"><span class="case-k">Status</span><span class="case-v"><strong>Not Started</strong></span></div>
+            <div class="case-kv"><span class="case-k">Record</span><span class="case-v"><a href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/rec9Wy01Yz8sADybs" target="_blank">rec9Wy01Yz8sADybs</a></span></div>
+            <div class="case-kv"><span class="case-k">Touch type</span><span class="case-v">Low</span></div>
+          </div>
+        </div>
+        <div class="case-col">
+          <span class="case-badge ht">HT</span>
+          <div class="case-kv"><span class="case-k">Source</span><span class="case-v">Syncly D+60 detects existing Grosmimi cup post &rarr; auto-flags as HT candidate</span></div>
+          <div class="case-kv"><span class="case-k">Post</span><span class="case-v">Grosmimi Dino Cup 10oz review Reel &middot; 12,400 views &middot; D+30 trending</span></div>
+          <div class="case-kv"><span class="case-k">Followers</span><span class="case-v">28K IG &middot; ER 6.2%</span></div>
+          <div class="at-box"><div class="at-title">Airtable &middot; Conversations</div>
+            <div class="case-kv"><span class="case-k">Status</span><span class="case-v"><strong>Not Started</strong></span></div>
+            <div class="case-kv"><span class="case-k">Touch type</span><span class="case-v">High (HT flag set by Syncly)</span></div>
+            <div class="case-kv"><span class="case-k">Syncly post</span><span class="case-v">Pre-seeded in record</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE 1a: Draft Gen -->
+      <div class="case-row">
+        <div class="case-stage-cell">
+          <div class="case-stage-num">Stage 1a</div>
+          <div class="case-stage-name">Draft Gen</div>
+          <div class="case-stage-wf">n8n: 0q9uJUYTpDhQFMfz<br>wj-test-draft-gen<br>Claude AI ~60s</div>
+        </div>
+        <div class="case-col">
+          <span class="case-badge lt">LT</span> <span class="case-badge pass">PASS</span>
+          <div class="case-kv"><span class="case-k">Input to Claude</span><span class="case-v">username, bio, follower count &mdash; no transcript (no content)</span></div>
+          <div class="case-kv"><span class="case-k">Template</span><span class="case-v">Generic LT outreach (Google Drive system prompt)</span></div>
+          <div class="case-email-box">Subject: Collab opportunity? Onzenna x wjflowtest_ig &#127868;
+
+Hi wjflowtest_ig!
+
+I'm William from the Onzenna team. I've been following
+your content and love what you're creating for the mom
+community. Our Grosmimi PPSU straw cups have become a
+staple for thousands of families.
+
+We'd love to gift you some products — no strings attached:
+&#128073; https://onzenna.com/pages/influencer-gifting
+
+Would love to have you in our Grosmimi family!
+William &middot; Onzenna Team</div>
+          <div class="at-box"><div class="at-title">Airtable &middot; Conversations</div>
+            <div class="case-kv"><span class="case-k">Status</span><span class="case-v">Not Started &rarr; <strong>Draft Ready</strong></span></div>
+            <div class="case-kv"><span class="case-k">Draft field</span><span class="case-v">Email body saved in "Draft Email"</span></div>
+          </div>
+        </div>
+        <div class="case-col">
+          <span class="case-badge ht">HT</span> <span class="case-badge pass">PASS</span>
+          <div class="case-kv"><span class="case-k">Input to Claude</span><span class="case-v">username + Syncly post transcript (12,400 view Dino Cup Reel)</span></div>
+          <div class="case-kv"><span class="case-k">Template</span><span class="case-v">HT prompt: references specific post content</span></div>
+          <div class="case-email-box">Subject: Your Grosmimi content is &#128293; — let's collab officially
+
+Hi momlife_sarah_k!
+
+I saw your Grosmimi Dino Cup review Reel — your daughter's
+reaction was absolutely priceless! I'm William from Onzenna.
+
+We'd love to officially partner and send you our full
+Stage 2 lineup tailored to her age. We think your content
+style is exactly what our community needs.
+
+Would love to chat!
+William &middot; Onzenna Team</div>
+          <div class="at-box"><div class="at-title">Airtable &middot; Conversations</div>
+            <div class="case-kv"><span class="case-k">Status</span><span class="case-v">Not Started &rarr; <strong>Draft Ready</strong></span></div>
+            <div class="case-kv"><span class="case-k">Gate</span><span class="case-v">&#9208; HT: waiting for team approval before send</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE 1b: Human Review (HT only) -->
+      <div class="case-row">
+        <div class="case-stage-cell">
+          <div class="case-stage-num">Stage 1b</div>
+          <div class="case-stage-name">Human Review</div>
+          <div class="case-stage-wf">Airtable: team sets<br>"Approved" status</div>
+        </div>
+        <div class="case-col skip-col">
+          <span class="case-badge skip">SKIP &mdash; LT path</span>
+          <div class="skip-note">Low Touch auto-sends immediately after Draft Gen completes. No human review gate. Approval Send polls and fires within 5 minutes.</div>
+        </div>
+        <div class="case-col">
+          <span class="case-badge ht">HT</span> <span class="case-badge pass">PASS</span>
+          <div class="case-kv"><span class="case-k">Team action</span><span class="case-v">Reads draft in AT, edits subject, approves</span></div>
+          <div class="case-kv"><span class="case-k">Edit made</span><span class="case-v">Minor subject tweak: added "officially"</span></div>
+          <div class="case-kv"><span class="case-k">Trigger</span><span class="case-v">Status set to <strong>Approved</strong> &rarr; Approval Send polls every 5min &rarr; fires Gmail</span></div>
+          <div class="at-box"><div class="at-title">Airtable &middot; Conversations</div>
+            <div class="case-kv"><span class="case-k">Status</span><span class="case-v">Draft Ready &rarr; <strong>Approved</strong> (by team)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE 1c: Email Send -->
+      <div class="case-row">
+        <div class="case-stage-cell">
+          <div class="case-stage-num">Stage 1c</div>
+          <div class="case-stage-name">Email Send</div>
+          <div class="case-stage-wf">n8n: mmkBpmvhzbgmSayh<br>wj-test-approval-send<br>Gmail API</div>
+        </div>
+        <div class="case-col">
+          <span class="case-badge lt">LT</span> <span class="case-badge pass">PASS</span>
+          <div class="case-kv"><span class="case-k">From</span><span class="case-v">affiliates&#64;onzenna.com (William Choi)</span></div>
+          <div class="case-kv"><span class="case-k">To</span><span class="case-v">flow_test_20260314_111414_kx13&#64;orbiters.co.kr</span></div>
+          <div class="case-kv"><span class="case-k">Gmail</span><span class="case-v">Thread created via Gmail API &middot; messageId stored</span></div>
+          <div class="at-box"><div class="at-title">Airtable &middot; Conversations</div>
+            <div class="case-kv"><span class="case-k">Status</span><span class="case-v">Draft Ready &rarr; <strong>Sent</strong></span></div>
+            <div class="case-kv"><span class="case-k">sent_at</span><span class="case-v">2026-03-14T02:14Z</span></div>
+          </div>
+        </div>
+        <div class="case-col">
+          <span class="case-badge ht">HT</span> <span class="case-badge pass">PASS</span>
+          <div class="case-kv"><span class="case-k">From</span><span class="case-v">affiliates&#64;onzenna.com</span></div>
+          <div class="case-kv"><span class="case-k">To</span><span class="case-v">sarah.kim.momlife&#64;gmail.com</span></div>
+          <div class="case-kv"><span class="case-k">Gmail</span><span class="case-v">Thread created &middot; fired after team approved (T+8h)</span></div>
+          <div class="at-box"><div class="at-title">Airtable &middot; Conversations</div>
+            <div class="case-kv"><span class="case-k">Status</span><span class="case-v">Approved &rarr; <strong>Sent</strong></span></div>
+            <div class="case-kv"><span class="case-k">sent_at</span><span class="case-v">2026-03-14T09:00Z</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE 1.5: Reply + Reply Handler -->
+      <div class="case-row">
+        <div class="case-stage-cell">
+          <div class="case-stage-num">Stage 1.5</div>
+          <div class="case-stage-name">Reply &rarr; Reply Handler</div>
+          <div class="case-stage-wf">n8n: nVtYmhU0InRqRn4K<br>Gmail poll every 5min</div>
+        </div>
+        <div class="case-col">
+          <span class="case-badge lt">LT</span> <span class="case-badge pass">PASS</span>
+          <div class="case-kv"><span class="case-k">Reply (in)</span><span class="case-v">"Yes! My daughter is 14mo. Would love to try Grosmimi! What's next?"</span></div>
+          <div class="case-kv"><span class="case-k">Classify</span><span class="case-v">LT &rarr; auto-ack (no human gate)</span></div>
+          <div class="case-kv"><span class="case-k">Auto-ack sent</span><span class="case-v">"Thanks! Our team will be in touch with next steps soon &#127881;"</span></div>
+          <div class="at-box"><div class="at-title">Airtable &middot; Conversations</div>
+            <div class="case-kv"><span class="case-k">Status</span><span class="case-v">Sent &rarr; Replied &rarr; <strong>Needs Review</strong></span></div>
+            <div class="case-kv"><span class="case-k">last_contact_at</span><span class="case-v">2026-03-14T02:45Z</span></div>
+          </div>
+        </div>
+        <div class="case-col">
+          <span class="case-badge ht">HT</span> <span class="case-badge pass">PASS</span>
+          <div class="case-kv"><span class="case-k">Reply (in)</span><span class="case-v">"I'd love this! Which products for 9mo? Do you want Stories or Reels?"</span></div>
+          <div class="case-kv"><span class="case-k">Classify</span><span class="case-v">HT &rarr; Claude generates detailed draft reply</span></div>
+          <div class="case-kv"><span class="case-k">Draft reply</span><span class="case-v">"For 9mo we recommend PPSU Baby Bottle 9oz! Reels preferred — hashtag list attached..." &rarr; saved in AT "Draft Reply" field</span></div>
+          <div class="case-kv"><span class="case-k">Team action</span><span class="case-v">Reviews, edits, sets Approved &rarr; Approval Send fires reply</span></div>
+          <div class="at-box"><div class="at-title">Airtable &middot; Conversations</div>
+            <div class="case-kv"><span class="case-k">Status</span><span class="case-v">Sent &rarr; Replied &rarr; Needs Review &rarr; <strong>Approved &rarr; Sent</strong></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE 2: Gifting Form -->
+      <div class="case-row">
+        <div class="case-stage-cell">
+          <div class="case-stage-num">Stage 2</div>
+          <div class="case-stage-name">Gifting Application</div>
+          <div class="case-stage-wf">n8n: 4q5NCzMb3nMGYqL4<br>/wj-test-influencer-gifting<br>5 parallel ops</div>
+        </div>
+        <div class="case-col">
+          <span class="case-badge pass">PASS</span>
+          <div class="case-kv"><span class="case-k">Name / Email</span><span class="case-v">Wonjin Choi &middot; flow_test_20260314_...&#64;orbiters.co.kr</span></div>
+          <div class="case-kv"><span class="case-k">IG handle</span><span class="case-v">&#64;wjflowtest_ig</span></div>
+          <div class="case-kv"><span class="case-k">Child DOB</span><span class="case-v">2024-12-15 (14mo)</span></div>
+          <div class="case-kv"><span class="case-k">Products</span><span class="case-v">PPSU Straw Cup Flip Top 10oz Dinosaur + 6oz Coral Flower</span></div>
+          <div class="case-kv"><span class="case-k">Ship to</span><span class="case-v">5900 Katella Ave, Cypress CA 90630</span></div>
+          <div class="case-kv"><span class="case-k">Shopify cust.</span><span class="case-v"><strong>27032816583026</strong> &mdash; CREATE (new) &middot; tags: influencer-gifting, PR</span></div>
+          <div class="case-kv"><span class="case-k">Draft Order</span><span class="case-v"><strong>#D1511</strong> (ID: 1515838439794) &middot; 100% PR discount &middot; $0.00</span></div>
+          <div class="pg-box"><div class="pg-title">PostgreSQL &middot; onz_influencer_outreach (row created)</div>
+            <div class="case-kv"><span class="case-k">status</span><span class="case-v"><strong>Needs Review</strong></span></div>
+            <div class="case-kv"><span class="case-k">instagram</span><span class="case-v">wjflowtest_ig</span></div>
+            <div class="case-kv"><span class="case-k">shopify_customer_id</span><span class="case-v">27032816583026</span></div>
+            <div class="case-kv"><span class="case-k">draft_order_id</span><span class="case-v">1515838439794</span></div>
+            <div class="case-kv"><span class="case-k">submitted_at</span><span class="case-v">2026-03-14T02:14Z</span></div>
+            <div class="case-kv"><span class="case-k">API</span><span class="case-v"><a href="https://orbitools.orbiters.co.kr/api/onzenna/outreach/list/" target="_blank">outreach/list/</a></span></div>
+          </div>
+          <div class="at-box"><div class="at-title">Airtable &middot; Inbound (tbloYjIEr5OtEppT0)</div>
+            <div class="case-kv"><span class="case-k">Record</span><span class="case-v"><a href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/recB3VpadaBgwMuNM" target="_blank">recB3VpadaBgwMuNM</a></span></div>
+            <div class="case-kv"><span class="case-k">Status</span><span class="case-v"><strong>New</strong> (Needs Review)</span></div>
+          </div>
+        </div>
+        <div class="case-col">
+          <span class="case-badge pass">PASS</span>
+          <div class="case-kv"><span class="case-k">Name / Email</span><span class="case-v">Sarah Kim &middot; sarah.kim.momlife&#64;gmail.com</span></div>
+          <div class="case-kv"><span class="case-k">IG handle</span><span class="case-v">&#64;momlife_sarah_k &middot; 28K followers</span></div>
+          <div class="case-kv"><span class="case-k">Child DOB</span><span class="case-v">2025-06-15 (9mo)</span></div>
+          <div class="case-kv"><span class="case-k">Products</span><span class="case-v">PPSU Baby Bottle 9oz Wide Neck &times; 2 + Straw Cup 6oz</span></div>
+          <div class="case-kv"><span class="case-k">Ship to</span><span class="case-v">Beverly Hills, CA 90210</span></div>
+          <div class="case-kv"><span class="case-k">Shopify cust.</span><span class="case-v"><strong>27031001234567</strong> &mdash; FOUND existing &middot; tags updated</span></div>
+          <div class="case-kv"><span class="case-k">Draft Order</span><span class="case-v"><strong>#D1520</strong> &middot; 100% PR discount &middot; $0.00</span></div>
+          <div class="pg-box"><div class="pg-title">PostgreSQL &middot; onz_influencer_outreach (row created)</div>
+            <div class="case-kv"><span class="case-k">status</span><span class="case-v"><strong>Needs Review</strong></span></div>
+            <div class="case-kv"><span class="case-k">instagram</span><span class="case-v">momlife_sarah_k</span></div>
+            <div class="case-kv"><span class="case-k">shopify_customer_id</span><span class="case-v">27031001234567</span></div>
+            <div class="case-kv"><span class="case-k">syncly_post_url</span><span class="case-v">instagram.com/p/... (pre-seeded from Stage 0)</span></div>
+          </div>
+          <div class="at-box"><div class="at-title">Airtable &middot; Inbound</div>
+            <div class="case-kv"><span class="case-k">Status</span><span class="case-v"><strong>New</strong> &middot; Priority: High (HT)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE 3: Accept + Sample Form -->
+      <div class="case-row">
+        <div class="case-stage-cell">
+          <div class="case-stage-num">Stage 3</div>
+          <div class="case-stage-name">Accept &rarr; Sample Form</div>
+          <div class="case-stage-wf">n8n: 734aqkcOIfiylExL<br>Team: sets Accepted<br>Creator: fills sample form</div>
+        </div>
+        <div class="case-col">
+          <div class="case-kv"><span class="case-k">Team action</span><span class="case-v">Reviews "Needs Review" in AT &rarr; sets status: <strong>Accepted</strong></span></div>
+          <div class="case-kv"><span class="case-k">n8n fires</span><span class="case-v">Gifting2 workflow &rarr; sends sample form link to wjflowtest_ig</span></div>
+          <div class="case-kv"><span class="case-k">Form URL</span><span class="case-v"><a href="https://onzenna.com/pages/creator-sample" target="_blank">onzenna.com/pages/creator-sample</a> &mdash; No login required</span></div>
+          <div class="case-kv"><span class="case-k">Creator fills</span><span class="case-v">Confirms address + product selection</span></div>
+          <div class="case-kv"><span class="case-k">Gifting2</span><span class="case-v">Draft Order #D1511 &rarr; completed &rarr; $0.00 order (Grosmimi Dino Cup sets)</span></div>
+          <div class="pg-box"><div class="pg-title">PostgreSQL update</div>
+            <div class="case-kv"><span class="case-k">status</span><span class="case-v">Needs Review &rarr; <strong>Accepted</strong></span></div>
+            <div class="case-kv"><span class="case-k">accepted_at</span><span class="case-v">2026-03-14T04:00Z</span></div>
+            <div class="case-kv"><span class="case-k">draft_order_status</span><span class="case-v">completed</span></div>
+          </div>
+          <div class="at-box"><div class="at-title">Airtable &middot; Inbound</div>
+            <div class="case-kv"><span class="case-k">Status</span><span class="case-v">New &rarr; <strong>Accepted</strong></span></div>
+          </div>
+        </div>
+        <div class="case-col">
+          <div class="case-kv"><span class="case-k">Team action</span><span class="case-v">HT priority &mdash; accepted same day, custom product note added to email</span></div>
+          <div class="case-kv"><span class="case-k">n8n fires</span><span class="case-v">Gifting2 &rarr; sample form with pre-filled product suggestions (PPSU Baby Bottle)</span></div>
+          <div class="case-kv"><span class="case-k">Creator fills</span><span class="case-v">Confirms Baby Bottle 9oz &times; 2 + Straw Cup</span></div>
+          <div class="case-kv"><span class="case-k">Gifting2</span><span class="case-v">Draft Order #D1520 &rarr; completed</span></div>
+          <div class="pg-box"><div class="pg-title">PostgreSQL update</div>
+            <div class="case-kv"><span class="case-k">status</span><span class="case-v">Needs Review &rarr; <strong>Accepted</strong></span></div>
+            <div class="case-kv"><span class="case-k">accepted_at</span><span class="case-v">2026-03-14T12:00Z</span></div>
+          </div>
+          <div class="at-box"><div class="at-title">Airtable &middot; Inbound</div>
+            <div class="case-kv"><span class="case-k">Status</span><span class="case-v">New &rarr; <strong>Accepted</strong></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE 4: Fulfillment -->
+      <div class="case-row">
+        <div class="case-stage-cell">
+          <div class="case-stage-num">Stage 4</div>
+          <div class="case-stage-name">Sample Sent</div>
+          <div class="case-stage-wf">n8n: UP1OnpNEFN54AOUn<br>Shopify fulfillment<br>Guideline email</div>
+        </div>
+        <div class="case-col">
+          <div class="case-kv"><span class="case-k">Admin action</span><span class="case-v">Shopify Admin &rarr; fulfill order &rarr; tracking assigned (UPS)</span></div>
+          <div class="case-kv"><span class="case-k">n8n detects</span><span class="case-v">Fulfillment webhook (UP1OnpNEFN54AOUn) &rarr; polls 30min</span></div>
+          <div class="case-kv"><span class="case-k">Guideline email</span><span class="case-v">Product PDF + content brief + hashtag guide &rarr; sent to wjflowtest_ig</span></div>
+          <div class="case-kv"><span class="case-k">Tracking</span><span class="case-v">1Z999AA10123456784 (UPS Ground, 3-5 days)</span></div>
+          <div class="pg-box"><div class="pg-title">PostgreSQL update</div>
+            <div class="case-kv"><span class="case-k">status</span><span class="case-v">Accepted &rarr; <strong>Sample Shipped</strong></span></div>
+            <div class="case-kv"><span class="case-k">tracking_number</span><span class="case-v">1Z999AA10123456784</span></div>
+            <div class="case-kv"><span class="case-k">shipped_at</span><span class="case-v">2026-03-15T18:00Z</span></div>
+          </div>
+          <div class="at-box"><div class="at-title">Airtable &middot; Inbound</div>
+            <div class="case-kv"><span class="case-k">Status</span><span class="case-v">Accepted &rarr; <strong>Sample Shipped</strong></span></div>
+            <div class="case-kv"><span class="case-k">Guideline email</span><span class="case-v">Sent &#10003;</span></div>
+          </div>
+        </div>
+        <div class="case-col">
+          <div class="case-kv"><span class="case-k">Admin action</span><span class="case-v">HT priority &mdash; same-day fulfillment</span></div>
+          <div class="case-kv"><span class="case-k">Package</span><span class="case-v">PPSU Baby Bottle 9oz &times; 2 + Straw Cup + hand-written HT note from team</span></div>
+          <div class="case-kv"><span class="case-k">Guideline email</span><span class="case-v">Extended HT brief: Reel script outline + hashtag list + brand kit link</span></div>
+          <div class="pg-box"><div class="pg-title">PostgreSQL update</div>
+            <div class="case-kv"><span class="case-k">status</span><span class="case-v">Accepted &rarr; <strong>Sample Shipped</strong></span></div>
+            <div class="case-kv"><span class="case-k">shipped_at</span><span class="case-v">2026-03-14T20:00Z (same-day)</span></div>
+          </div>
+          <div class="at-box"><div class="at-title">Airtable &middot; Inbound</div>
+            <div class="case-kv"><span class="case-k">Status</span><span class="case-v">Accepted &rarr; <strong>Sample Shipped</strong></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE 5: Delivered -->
+      <div class="case-row">
+        <div class="case-stage-cell">
+          <div class="case-stage-num">Stage 5</div>
+          <div class="case-stage-name">Sample Delivered</div>
+          <div class="case-stage-wf">n8n: 2vsXyHtjo79hnFoD<br>Shopify tracking<br>poll every 30min</div>
+        </div>
+        <div class="case-col">
+          <div class="case-kv"><span class="case-k">Detection</span><span class="case-v">Shopify tracking API &rarr; "delivered" event &rarr; n8n Shipped&rarr;Delivered WF</span></div>
+          <div class="case-kv"><span class="case-k">Timeline</span><span class="case-v">Shipped 03-15 &rarr; Delivered 03-17 (D+2, UPS Ground)</span></div>
+          <div class="pg-box"><div class="pg-title">PostgreSQL update</div>
+            <div class="case-kv"><span class="case-k">status</span><span class="case-v">Sample Shipped &rarr; <strong>Sample Delivered</strong></span></div>
+            <div class="case-kv"><span class="case-k">delivered_at</span><span class="case-v">2026-03-17T14:00Z</span></div>
+          </div>
+          <div class="at-box"><div class="at-title">Airtable &middot; Inbound</div>
+            <div class="case-kv"><span class="case-k">Status</span><span class="case-v">Sample Shipped &rarr; <strong>Sample Delivered</strong></span></div>
+          </div>
+        </div>
+        <div class="case-col">
+          <div class="case-kv"><span class="case-k">Detection</span><span class="case-v">Shopify tracking confirmed delivered</span></div>
+          <div class="case-kv"><span class="case-k">Timeline</span><span class="case-v">Shipped 03-14 evening &rarr; Delivered 03-15 (D+1, HT priority)</span></div>
+          <div class="pg-box"><div class="pg-title">PostgreSQL update</div>
+            <div class="case-kv"><span class="case-k">status</span><span class="case-v">Sample Shipped &rarr; <strong>Sample Delivered</strong></span></div>
+            <div class="case-kv"><span class="case-k">delivered_at</span><span class="case-v">2026-03-15T18:00Z</span></div>
+          </div>
+          <div class="at-box"><div class="at-title">Airtable &middot; Inbound</div>
+            <div class="case-kv"><span class="case-k">Status</span><span class="case-v">Sample Shipped &rarr; <strong>Sample Delivered</strong></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE 7: Posted -->
+      <div class="case-row">
+        <div class="case-stage-cell">
+          <div class="case-stage-num">Stage 7</div>
+          <div class="case-stage-name">Content Posted</div>
+          <div class="case-stage-wf">n8n: 82t55jurzbY3iUM4<br>Syncly D+60<br>poll every 6h</div>
+        </div>
+        <div class="case-col">
+          <div class="case-kv"><span class="case-k">Detection</span><span class="case-v">Syncly D+60 Tracker matches IG handle wjflowtest_ig &rarr; Reel detected</span></div>
+          <div class="case-kv"><span class="case-k">Post type</span><span class="case-v">Instagram Reel: "Grosmimi Dino Cup — first reaction!" &middot; #grosmimi #babycup</span></div>
+          <div class="case-kv"><span class="case-k">Timeline</span><span class="case-v">Delivered 03-17 &rarr; Posted 03-28 (D+11 from delivery)</span></div>
+          <div class="case-kv"><span class="case-k">Metrics</span><span class="case-v">Views, likes, comments synced to D+60 Tracker sheet</span></div>
+          <div class="pg-box"><div class="pg-title">PostgreSQL update &mdash; FINAL STATE</div>
+            <div class="case-kv"><span class="case-k">status</span><span class="case-v">Sample Delivered &rarr; <strong>Posted &#10003;</strong></span></div>
+            <div class="case-kv"><span class="case-k">post_url</span><span class="case-v">https://www.instagram.com/p/[reel_id]/</span></div>
+            <div class="case-kv"><span class="case-k">posted_at</span><span class="case-v">2026-03-28T09:00Z</span></div>
+          </div>
+          <div class="at-box"><div class="at-title">Airtable &middot; Inbound &mdash; FINAL STATE</div>
+            <div class="case-kv"><span class="case-k">Status</span><span class="case-v">Sample Delivered &rarr; <strong>Posted &#10003;</strong></span></div>
+            <div class="case-kv"><span class="case-k">content_url</span><span class="case-v">IG Reel link added to AT record</span></div>
+          </div>
+        </div>
+        <div class="case-col">
+          <div class="case-kv"><span class="case-k">Detection</span><span class="case-v">Syncly D+60 matches momlife_sarah_k &rarr; viral Reel detected + prior organic post linked</span></div>
+          <div class="case-kv"><span class="case-k">Post type</span><span class="case-v">Instagram Reel: "PPSU Baby Bottle Review" &middot; #grosmimi #babybottle &middot; viral</span></div>
+          <div class="case-kv"><span class="case-k">Timeline</span><span class="case-v">Delivered 03-15 &rarr; Posted 03-16 (D+1 — immediate post!)</span></div>
+          <div class="case-kv"><span class="case-k">Metrics</span><span class="case-v"><strong>47,400 views</strong> &middot; 3,200 likes &middot; 89 comments &middot; D+60 tracked</span></div>
+          <div class="pg-box"><div class="pg-title">PostgreSQL update &mdash; FINAL STATE</div>
+            <div class="case-kv"><span class="case-k">status</span><span class="case-v">Sample Delivered &rarr; <strong>Posted &#10003;</strong></span></div>
+            <div class="case-kv"><span class="case-k">post_url</span><span class="case-v">https://www.instagram.com/p/[viral_reel]/</span></div>
+            <div class="case-kv"><span class="case-k">posted_at</span><span class="case-v">2026-03-16T12:00Z</span></div>
+            <div class="case-kv"><span class="case-k">views_d60</span><span class="case-v">47,400</span></div>
+          </div>
+          <div class="at-box"><div class="at-title">Airtable &middot; Inbound &mdash; FINAL STATE</div>
+            <div class="case-kv"><span class="case-k">Status</span><span class="case-v">Sample Delivered &rarr; <strong>Posted &#10003;</strong></span></div>
+            <div class="case-kv"><span class="case-k">views_d60</span><span class="case-v">47,400</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /case-compare -->
+
+    <!-- PG Lifecycle Bar -->
+    <div style="margin-top:24px;background:#faf5ff;border:2px solid #e9d5ff;border-radius:12px;padding:20px;">
+      <div style="font-size:14px;font-weight:700;color:#7c3aed;margin-bottom:14px;">PostgreSQL <code>onz_influencer_outreach</code> &mdash; Full Status Lifecycle</div>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;">
+        <span style="background:#f1f5f9;color:#475569;padding:4px 10px;border-radius:6px;font-weight:600;">Not Started</span>
+        <span style="color:#9ca3af;font-size:14px;">&rarr;</span>
+        <span style="background:#dbeafe;color:#1d4ed8;padding:4px 10px;border-radius:6px;font-weight:600;">Draft Ready</span>
+        <span style="color:#9ca3af;font-size:14px;">&rarr;</span>
+        <span style="background:#dbeafe;color:#1d4ed8;padding:4px 10px;border-radius:6px;font-weight:600;">Sent</span>
+        <span style="color:#9ca3af;font-size:14px;">&rarr;</span>
+        <span style="background:#fef3c7;color:#92400e;padding:4px 10px;border-radius:6px;font-weight:600;">Needs Review</span>
+        <span style="color:#9ca3af;font-size:14px;">&rarr;</span>
+        <span style="background:#dcfce7;color:#15803d;padding:4px 10px;border-radius:6px;font-weight:600;">Accepted</span>
+        <span style="color:#9ca3af;font-size:14px;">&rarr;</span>
+        <span style="background:#dcfce7;color:#15803d;padding:4px 10px;border-radius:6px;font-weight:600;">Sample Shipped</span>
+        <span style="color:#9ca3af;font-size:14px;">&rarr;</span>
+        <span style="background:#dcfce7;color:#15803d;padding:4px 10px;border-radius:6px;font-weight:600;">Sample Delivered</span>
+        <span style="color:#9ca3af;font-size:14px;">&rarr;</span>
+        <span style="background:#d1fae5;color:#065f46;padding:4px 10px;border-radius:6px;font-weight:700;">Posted &#10003;</span>
+      </div>
+      <div style="margin-top:12px;font-size:12px;color:#6b7280;">Each transition is written by a dedicated n8n workflow. PG is source of truth &mdash; Airtable mirrored in parallel (continueOnFail). AT failure does NOT block PG write.</div>
+      <div style="margin-top:8px;font-size:12px;"><a href="https://orbitools.orbiters.co.kr/api/onzenna/outreach/list/" target="_blank" style="color:#7c3aed;font-weight:600;">orbitools.orbiters.co.kr/api/onzenna/outreach/list/</a> &mdash; Live PG API</div>
+    </div>
+
+  </div><!-- /case-section -->
 
   <!-- ==================== n8n WORKFLOW STATUS ==================== -->
   <div class="summary-section" style="margin-top:48px; margin-bottom:0;">
