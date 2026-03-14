@@ -1,6 +1,6 @@
 ---
 name: kpi-monthly
-description: "Monthly KPI Excel report generator for ORBI brands. Use this skill when generating, updating, or debugging the monthly KPI report (run_kpi_monthly.py), analyzing discount rates by brand/channel, investigating Amazon discount anomalies, checking ad spend trends, seeding cost analysis, or explaining any KPI tab structure. Also trigger when the user mentions 'KPI 리포트', 'v14', 'KPI_할인율', 'KPI_광고비', 'KPI_시딩비용', 'KPI_Amazon할인_상세', discount rate investigation, or asks why a specific month's numbers look unusual."
+description: "Monthly KPI Excel report generator for ORBI brands. Use this skill when generating, updating, or debugging the monthly KPI report (run_kpi_monthly.py), analyzing discount rates by brand/channel, investigating Amazon discount anomalies, checking ad spend trends, seeding cost analysis, COGS analysis, or explaining any KPI tab structure. Also trigger when the user mentions 'KPI 리포트', 'v14', 'KPI_할인율', 'KPI_광고비', 'KPI_시딩비용', 'KPI_Amazon할인_상세', 'COGS 분석', 'COGS 업데이트', 'Executive Summary', 'D2C KPI', 'seeding cost', 'influencer cost', 'wide format', '매출 리포트', discount rate investigation, or asks why a specific month's numbers look unusual."
 ---
 
 # KPI Monthly Report

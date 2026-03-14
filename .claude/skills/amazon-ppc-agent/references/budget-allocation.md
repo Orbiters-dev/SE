@@ -134,6 +134,66 @@ MER = Total Revenue / Total Ad Spend (all platforms combined)
 | LinkedIn Ads | $3,000 | High CPCs; $10/day minimum × multiple campaigns |
 | TikTok Ads | $300 | $50/day campaign min × creative testing needs |
 | Microsoft Ads | $200-$300 | 20-30% of Google budget |
+| Amazon Ads | $500-$1,000 | SP campaigns need $10-20/day minimum per campaign for data collection |
+
+## Amazon Ads Budget Distribution
+
+```
+SP (Sponsored Products): 70-80% of total Amazon ad spend
+SB (Sponsored Brands):   10-15% (brand awareness + headline search)
+SD (Sponsored Display):  5-15%  (retargeting + competitor targeting)
+
+Within SP:
+  Auto campaigns:  40% (discovery, broad reach)
+  Manual campaigns: 60% (exact/phrase, proven performers)
+```
+
+### Amazon Scaling Rules
+- Increase daily budget by max 20% per adjustment (avoid rank volatility)
+- Wait 7-14 days between budget changes (14-day attribution window)
+- Scale ACOS < 20% campaigns first (proven ROI)
+- Pause campaigns with ACOS > 60% and 14d spend > 3× target CPA with zero profit
+- Seasonal: Prime Day (Jul) budget +50-100%, BFCM (Nov) budget +80-150%
+| Amazon Ads | $500-$1,000 | SP campaigns need $10-20/day minimum per campaign for data collection |
+
+## Amazon Ads Budget Distribution
+
+```
+SP (Sponsored Products): 70-80% of total Amazon ad spend
+SB (Sponsored Brands):   10-15% (brand awareness + headline search)
+SD (Sponsored Display):  5-15%  (retargeting + competitor targeting)
+
+Within SP:
+  Auto campaigns:  40% (discovery, broad reach)
+  Manual campaigns: 60% (exact/phrase, proven performers)
+```
+
+### Amazon Scaling Rules
+- Increase daily budget by max 20% per adjustment (avoid rank volatility)
+- Wait 7-14 days between budget changes (14-day attribution window)
+- Scale ACOS < 20% campaigns first (proven ROI)
+- Pause campaigns with ACOS > 60% and 14d spend > 3× target CPA with zero profit
+- Seasonal: Prime Day (Jul) budget +50-100%, BFCM (Nov) budget +80-150%
+| Amazon Ads | $500-$1,000 | SP campaigns need $10-20/day minimum per campaign for data collection |
+
+## Amazon Ads Budget Distribution
+
+```
+SP (Sponsored Products): 70-80% of total Amazon ad spend
+SB (Sponsored Brands):   10-15% (brand awareness + headline search)
+SD (Sponsored Display):  5-15%  (retargeting + competitor targeting)
+
+Within SP:
+  Auto campaigns:  40% (discovery, broad reach)
+  Manual campaigns: 60% (exact/phrase, proven performers)
+```
+
+### Amazon Scaling Rules
+- Increase daily budget by max 20% per adjustment (avoid rank volatility)
+- Wait 7-14 days between budget changes (14-day attribution window)
+- Scale ACOS < 20% campaigns first (proven ROI)
+- Pause campaigns with ACOS > 60% and 14d spend > 3× target CPA with zero profit
+- Seasonal: Prime Day (Jul) budget +50-100%, BFCM (Nov) budget +80-150%
 
 ## Cross-Platform Attribution Hierarchy
 

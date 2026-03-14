@@ -127,6 +127,9 @@ Col J+: D+0 Cmt/Like/View, D+1 Cmt/Like/View, ... D+60 Cmt/Like/View
 
 - **KST 08:00 daily** via Windows Task Scheduler (`DailySynclyExport`) — PC 꺼져있으면 실행 안됨
 - **GitHub Actions** `syncly_daily.yml` — KST 08:00 (UTC 23:00) 자동 실행 (크롤링 + 시트 동기화 + SNS 탭 전체)
+  - Required Secrets: `GOOGLE_SERVICE_ACCOUNT_JSON`, `GMAIL_OAUTH_CREDENTIALS_JSON`, `GMAIL_TOKEN_JSON`, `PPC_REPORT_RECIPIENT`, `SYNCLY_SESSION_STATE` (browser profile)
+  - Steps: Install Playwright browsers → Restore Syncly session → fetch_syncly_export (US+JP) → sync_syncly_to_sheets (US+JP) → sync_sns_tab (all brands) → syncly_daily_email
+  - ⚠️ Playwright in CI: headless mode only, Syncly session may expire → check `SYNCLY_SESSION_STATE` secret freshness
 
 ## Pipeline Steps
 

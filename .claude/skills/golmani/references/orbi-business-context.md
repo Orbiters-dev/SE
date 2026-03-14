@@ -111,7 +111,7 @@ Code reference: `GROSMIMI_PRICE_CUTOFF = "2025-03-01"` in `data_keeper.py`
 | Amazon Ads | Naeiae (primary), Grosmimi, CHA&MOM | ~$80K/mo (2026) | Dec 2025 |
 | Meta Ads | All brands | ~$25K/mo | Aug 2024 |
 | Google Ads | All brands | ~$12K/mo | Jan 2024 |
-| TikTok Ads | Limited | ~$2K/mo (2025, paused) | Not in DataKeeper |
+| TikTok Ads | Limited | ~$2K/mo (2025, paused as of 2026-03) | Not in DataKeeper — manual input required for any TikTok spend in financial models |
 
 ---
 

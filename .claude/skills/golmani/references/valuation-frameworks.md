@@ -20,6 +20,7 @@ Adapted for DTC/e-commerce consumer brands.
    - Cost of equity: CAPM or build-up method
    - For private companies: add size premium + company-specific risk
    - ORBI range: 15-20% (early-stage, Korea-to-US, multi-brand complexity)
+   - Build-up estimate: Risk-free ~4.5% + ERP ~5.5% + Size premium ~4-6% (micro-cap) + Country/FX ~1-2% (KRW→USD) + Company-specific ~0-2% = 15-20%
 
 3. **Calculate Terminal Value**
    - Perpetuity growth: FCF_n+1 / (WACC - g), g = 2-3%

@@ -78,8 +78,15 @@ wb = openpyxl.load_workbook(path, data_only=True)
 ### Gmail 검색
 
 ```bash
+# 검색 (메타데이터 반환: subject, from, date, snippet, attachment names)
 python tools/send_gmail.py --search "QUERY" --max-results 10
+
+# 첨부파일 다운로드 (message ID 지정)
+python tools/send_gmail.py --download-attachment MESSAGE_ID --output-dir "Data Storage/export/gmail/"
 ```
+
+**출력 형식:** JSON 배열 — 각 항목에 `subject`, `from`, `date`, `snippet`, `has_attachment`, `attachment_names` 포함.
+첨부파일이 필요하면 message ID로 개별 다운로드 후 `Data Storage/export/` 에 저장.
 
 **Gmail 검색 문법:**
 | 패턴 | 설명 |

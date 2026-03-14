@@ -181,6 +181,14 @@ cd /home/ubuntu/n8n && docker compose down && docker compose up -d
 | EC2에서 자기 도메인 curl 실패 | 루프백 불가 | `curl -sk https://127.0.0.1/ -H "Host: n8n.orbiters.co.kr"` |
 | API 응답 인코딩 깨짐 | 한글 워크플로우 이름 | 파일 저장 후 `utf-8` 디코딩 |
 
+## PROD Workflow Inventory (17, as of 2026-03-13)
+
+| # | ID | 이름 | 상태 | WJ TEST 대응 |
+|---|------|------|------|-------------|
+| — | — | (PROD 워크플로우 목록을 `GET /api/v1/workflows` 로 조회해 채울 것) | — | — |
+
+> **TODO**: PROD 인벤토리를 실제 API 조회로 채워야 함. `curl -sk -H "X-N8N-API-KEY: $KEY" https://n8n.orbiters.co.kr/api/v1/workflows?limit=100` 실행 후 업데이트.
+
 ## WJ TEST Workflow Inventory (18, as of 2026-03-13)
 
 | # | ID | 이름 | 노드 | 상태 |
