@@ -88,71 +88,150 @@ def badge(status: str) -> str:
         )
 
 
+# ── Order → product mapping ───────────────────────────────────────────────────
+
+import re as _re
+
+def _build_order_map() -> dict:
+    """Build {username_lower: [product_title, ...]} from influencer orders."""
+    orders_path = PROJECT_ROOT / ".tmp" / "polar_data" / "q10_influencer_orders.json"
+    if not orders_path.exists():
+        return {}
+    try:
+        data   = json.loads(orders_path.read_text(encoding="utf-8"))
+        orders = data.get("orders", [])
+    except Exception:
+        return {}
+
+    mapping: dict[str, list[str]] = {}
+    handle_re = _re.compile(r"(?:IG|TikTok|Instagram|tiktok)[:\s]+@?([\w.]+)", _re.IGNORECASE)
+
+    for o in orders:
+        note  = o.get("note", "") or ""
+        items = o.get("line_items", [])
+        if not items:
+            continue
+        products = [li["title"] for li in items if li.get("title")]
+        if not products:
+            continue
+
+        handles = [m.group(1).lower().strip() for m in handle_re.finditer(note)]
+        for handle in handles:
+            if handle not in mapping:
+                mapping[handle] = []
+            for p in products:
+                if p not in mapping[handle]:
+                    mapping[handle].append(p)
+
+    return mapping
+
+
 # ── Highlights ────────────────────────────────────────────────────────────────
 
 def build_highlights_section(highlights: list) -> str:
     if not highlights:
         return ""
 
-    items_html = ""
-    for h in highlights:
-        reasons_html = "".join(
-            f'<div style="font-size:12px;color:#92400E;margin-top:3px;">&#9658; {r}</div>'
-            for r in h.get("reasons", [])
+    order_map = _build_order_map()
+
+    rows_html = ""
+    for i, h in enumerate(highlights):
+        username   = h.get("username", "")
+        nickname   = h.get("nickname", "") or username
+        url        = h.get("url", "")
+        date_str   = h.get("date", "")
+        views      = h.get("views", 0)
+        prev_views = h.get("prev_views", 0)
+        growth_pct = h.get("growth_pct", 0)
+        hashtags   = h.get("hashtags", "")
+
+        # products from order map
+        products = order_map.get(username, [])
+        prod_html = ""
+        if products:
+            prod_list = " &middot; ".join(
+                f'<span style="background:#E0F2FE;color:#0369A1;padding:1px 6px;'
+                f'border-radius:3px;font-size:9px;font-weight:600;">{p}</span>'
+                for p in products[:2]
+            )
+            prod_html = f'<div style="margin-top:4px;">{prod_list}</div>'
+
+        # top hashtags (first 4)
+        hash_html = ""
+        if hashtags:
+            tags = [t.strip() for t in hashtags.replace(",", " ").split() if t.startswith("#")][:4]
+            if tags:
+                hash_html = (
+                    '<div style="margin-top:3px;">'
+                    + " ".join(
+                        f'<span style="font-size:9px;color:#6B7280;font-family:\'Courier New\',monospace;">{t}</span>'
+                        for t in tags
+                    )
+                    + "</div>"
+                )
+
+        growth_html = (
+            f'<span style="font-family:\'Courier New\',monospace;font-size:10px;'
+            f'color:#059669;background:#D1FAE5;padding:1px 6px;border-radius:3px;">'
+            f'+{growth_pct}%</span>'
+            if growth_pct else ""
         )
-        url      = h.get("url", "")
-        username = h.get("username", "")
-        nickname = h.get("nickname", "")
-        date_str = h.get("date", "")
-        views    = h.get("views", 0)
 
         link_html = (
-            f'<a href="{url}" style="display:inline-block;margin-top:6px;'
-            f'font-size:11px;font-family:\'Courier New\',monospace;color:#92400E;'
-            f'text-decoration:underline;">&rarr; view post</a>'
+            f'<a href="{url}" style="font-size:11px;font-family:\'Courier New\',monospace;'
+            f'color:#1E3A5F;text-decoration:none;background:#EBF2FF;padding:2px 7px;'
+            f'border-radius:4px;white-space:nowrap;">view&#8599;</a>'
             if url else ""
         )
-        nick_html = (
-            f'<span style="font-size:12px;color:#92400E;margin-left:6px;">({nickname})</span>'
-            if nickname else ""
-        )
 
-        items_html += f"""
-        <div style="background:rgba(255,255,255,0.55);border-radius:6px;padding:12px 14px;margin-bottom:8px;">
-          <table width="100%" cellpadding="0" cellspacing="0">
-            <tr>
-              <td>
-                <span style="font-size:14px;font-weight:700;color:#78350F;">@{username}</span>
-                {nick_html}
-                <span style="font-size:11px;color:#B45309;margin-left:8px;
-                             font-family:'Courier New',monospace;">{date_str}</span>
-                {reasons_html}
-                {link_html}
-              </td>
-              <td style="text-align:right;vertical-align:top;white-space:nowrap;padding-left:12px;">
-                <span style="font-family:'Courier New',monospace;font-size:15px;
-                             font-weight:700;color:#78350F;">{views:,}</span>
-                <div style="font-size:10px;color:#B45309;text-align:right;">views</div>
-              </td>
-            </tr>
-          </table>
-        </div>"""
+        bg = "#FFFEF0" if i < 3 else "#FFFFFF"
+        medal = ["🥇","🥈","🥉"][i] if i < 3 else f"#{i+1}"
+
+        rows_html += f"""
+        <tr style="background:{bg};border-bottom:1px solid #F0EFEC;">
+          <td style="padding:10px 8px;font-size:16px;text-align:center;width:32px;">{medal}</td>
+          <td style="padding:10px 8px;">
+            <div style="font-size:12px;font-weight:700;color:#0A1628;">@{username}</div>
+            <div style="font-size:10px;color:#6B7280;">{nickname}</div>
+            {prod_html}
+            {hash_html}
+          </td>
+          <td style="padding:10px 6px;text-align:center;white-space:nowrap;">
+            <div style="font-family:'Courier New',monospace;font-size:14px;font-weight:700;
+                        color:#F59E0B;">{views:,}</div>
+            <div style="font-size:9px;color:#9CA3AF;">views</div>
+            <div style="margin-top:2px;">{growth_html}</div>
+          </td>
+          <td style="padding:10px 6px;font-size:10px;color:#9CA3AF;
+                     font-family:'Courier New',monospace;text-align:center;white-space:nowrap;">{date_str}</td>
+          <td style="padding:10px 8px;text-align:right;">{link_html}</td>
+        </tr>"""
 
     return f"""
-    <div style="background:linear-gradient(135deg,#FEF3C7,#FDE68A);border-left:4px solid #D97706;
-                border-radius:8px;padding:20px 22px;margin-bottom:24px;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:14px;">
-        <tr>
-          <td>
-            <span style="font-size:16px;margin-right:6px;">&#11088;</span>
-            <span style="font-size:13px;font-weight:700;letter-spacing:1.5px;color:#78350F;
-                         text-transform:uppercase;font-family:'Courier New',monospace;">
-              Highlights &middot; {len(highlights)} posts detected
-            </span>
-          </td>
-        </tr>
+    <div style="margin-bottom:24px;">
+      <div style="margin-bottom:8px;">
+        <span style="font-size:10px;letter-spacing:2px;text-transform:uppercase;
+                     color:#9CA3AF;font-family:'Courier New',monospace;">&#11088; Today's Highlights</span>
+        <span style="font-size:10px;color:#C9A84C;font-family:'Courier New',monospace;
+                     margin-left:8px;">{len(highlights)} new posts detected &middot; 30%+ view growth</span>
+      </div>
+      <table width="100%" cellpadding="0" cellspacing="0"
+             style="border-collapse:collapse;border:1px solid #E9E7E4;border-radius:8px;overflow:hidden;">
+        <thead>
+          <tr style="background:#F59E0B18;">
+            <th style="padding:6px 8px;font-size:9px;color:#9CA3AF;font-weight:600;
+                       letter-spacing:1px;text-align:center;width:32px;">#</th>
+            <th style="padding:6px 8px;font-size:9px;color:#9CA3AF;font-weight:600;
+                       letter-spacing:1px;text-align:left;">CREATOR &middot; PRODUCT &middot; TAGS</th>
+            <th style="padding:6px 6px;font-size:9px;color:#9CA3AF;font-weight:600;
+                       letter-spacing:1px;text-align:center;">VIEWS / GROWTH</th>
+            <th style="padding:6px 6px;font-size:9px;color:#9CA3AF;font-weight:600;
+                       letter-spacing:1px;text-align:center;">DATE</th>
+            <th style="padding:6px 8px;width:60px;"></th>
+          </tr>
+        </thead>
+        <tbody>{rows_html}</tbody>
       </table>
-      {items_html}
     </div>"""
 
 

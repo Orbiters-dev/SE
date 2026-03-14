@@ -38,8 +38,7 @@ LLM_TAB        = "USA_LLM"
 PREV_METRICS_PATH = PROJECT_ROOT / ".tmp" / "usa_llm_prev.json"
 HIGHLIGHTS_PATH   = PROJECT_ROOT / ".tmp" / "usa_llm_highlights.json"
 
-VIEW_INCREASE_THRESHOLD = 0.30   # 30%
-VIEW_ABSOLUTE_THRESHOLD = 100000  # 10만
+VIEW_INCREASE_THRESHOLD = 0.30   # 30% day-over-day increase only
 
 
 def to_int(v):
@@ -60,14 +59,15 @@ def load_us_posts_master(sh_apify):
         try: return h.index(name)
         except ValueError: return None
 
-    url_col  = ci("URL")
-    user_col = ci("Username")
-    nick_col = ci("Nickname")
-    date_col = ci("Post Date")
-    comm_col = ci("Comments")
-    like_col = ci("Likes")
-    view_col = ci("Views")
-    foll_col = ci("Followers")
+    url_col   = ci("URL")
+    user_col  = ci("Username")
+    nick_col  = ci("Nickname")
+    date_col  = ci("Post Date")
+    comm_col  = ci("Comments")
+    like_col  = ci("Likes")
+    view_col  = ci("Views")
+    foll_col  = ci("Followers")
+    hash_col  = ci("Hashtags")
 
     posts = []
     for row in vals[1:]:
@@ -92,6 +92,7 @@ def load_us_posts_master(sh_apify):
             "comments":  to_int(get(comm_col)),
             "likes":     to_int(get(like_col)),
             "views":     to_int(get(view_col)),
+            "hashtags":  get(hash_col),
         })
 
     return posts
@@ -140,24 +141,20 @@ def detect_highlights(posts, prev_metrics):
         cur_views  = p["views"]
         prev_views = prev_metrics.get(url, {}).get("views", 0)
 
-        reasons = []
-        if cur_views >= VIEW_ABSOLUTE_THRESHOLD:
-            reasons.append(f"100K+ 뷰 ({cur_views:,})")
+        # Only detect new growth (day-over-day), not absolute thresholds
         if prev_views > 0:
             change = (cur_views - prev_views) / prev_views
             if change >= VIEW_INCREASE_THRESHOLD:
-                reasons.append(f"전일대비 +{change*100:.0f}% 조회수 증가 ({prev_views:,} → {cur_views:,})")
-
-        if reasons:
-            highlights.append({
-                "username":   p["username"],
-                "nickname":   p["nickname"],
-                "url":        url,
-                "date":       p["date"],
-                "views":      cur_views,
-                "prev_views": prev_views,
-                "reasons":    reasons,
-            })
+                highlights.append({
+                    "username":   p["username"],
+                    "nickname":   p["nickname"],
+                    "url":        url,
+                    "date":       p["date"],
+                    "views":      cur_views,
+                    "prev_views": prev_views,
+                    "growth_pct": round(change * 100),
+                    "hashtags":   p.get("hashtags", ""),
+                })
 
     # 뷰 높은 순 정렬
     highlights.sort(key=lambda x: x["views"], reverse=True)
