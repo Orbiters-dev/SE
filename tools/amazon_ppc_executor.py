@@ -82,7 +82,7 @@ BRAND_CONFIGS = {
     "chaenmom": {
         "seller_name": "Orbitool",
         "brand_display": "CHA&MOM",
-        "total_daily_budget": 150.0,          # Growth phase
+        "total_daily_budget": 150.0,          # Spend target $150/day
         "max_single_campaign_budget": 60.0,
         "max_bid": 3.0,
         "targeting": {
@@ -1648,6 +1648,37 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
         elif trend_pct > 30:
             anomalies.insert(0, f"Overall ROAS improving: 7d {summary['7d']['roas']}x vs 30d {summary['30d']['roas']}x ({trend_pct:+.0f}%)")
 
+    # Underspend detection: actual 7d daily avg vs budget target
+    cfg = _cfg()
+    target_daily = cfg["total_daily_budget"]
+    actual_daily_7d = summary["7d"]["spend"] / 7 if summary["7d"]["spend"] > 0 else 0
+    if target_daily > 0 and actual_daily_7d > 0:
+        utilization = actual_daily_7d / target_daily * 100
+        if utilization < 60:
+            anomalies.insert(0,
+                f"UNDERSPEND: Actual ${actual_daily_7d:.0f}/day vs target ${target_daily:.0f}/day "
+                f"({utilization:.0f}% utilization). Aggressive budget increase recommended.")
+            # Boost all increase_budget proposals
+            for p in proposals:
+                if p["proposed_action"] == "increase_budget" and p.get("budget_change_pct"):
+                    old_pct = p["budget_change_pct"]
+                    p["budget_change_pct"] = min(old_pct + 30, 80)  # Extra +30% boost, cap at +80%
+                    if p.get("new_daily_budget") and p["currentDailyBudget"] > 0:
+                        p["new_daily_budget"] = round(p["currentDailyBudget"] * (1 + p["budget_change_pct"] / 100), 2)
+                        if p["new_daily_budget"] > MAX_SINGLE_CAMPAIGN_BUDGET:
+                            p["new_daily_budget"] = MAX_SINGLE_CAMPAIGN_BUDGET
+                    p["reason"] += f"\n** UNDERSPEND BOOST: budget increase amplified ({old_pct:+d}% -> {p['budget_change_pct']:+d}%) to reach ${target_daily}/day target"
+            # Also boost bid increases for campaigns with good ROAS
+            for p in proposals:
+                if p["proposed_action"] in ("increase_budget", "optimize") and p["metrics"]["7d"]["roas"] >= 2.0:
+                    if not p.get("bid_change_pct") or p["bid_change_pct"] == 0:
+                        p["bid_change_pct"] = 15
+                        p["reason"] += f"\n** UNDERSPEND: bid +15% to increase impressions/clicks (ROAS {p['metrics']['7d']['roas']}x supports growth)"
+        elif utilization < 80:
+            anomalies.insert(0,
+                f"Budget underutilized: ${actual_daily_7d:.0f}/day of ${target_daily:.0f}/day ({utilization:.0f}%). "
+                f"Consider increasing bids for more ad impressions.")
+
     # Deduplicate anomalies
     anomalies = list(dict.fromkeys(anomalies))
 
@@ -2336,6 +2367,37 @@ def fetch_cross_platform_context(brand_key: str, days: int = 30) -> Dict:
         except Exception as e:
             print(f"  [WARN] Shopify cross-platform data: {e}")
 
+        # --- GA4 ---
+        try:
+            ga4 = dk.get("ga4_daily", days=period_days)
+            if ga4:
+                ga4_sessions = sum(int(r.get("sessions") or r.get("active_users") or 0) for r in ga4)
+                ga4_conv = sum(float(r.get("conversions") or r.get("ecommerce_purchases") or 0) for r in ga4)
+                ga4_rev = sum(float(r.get("total_revenue") or r.get("purchase_revenue") or 0) for r in ga4)
+                period["ga4"] = {
+                    "sessions": ga4_sessions,
+                    "conversions": round(ga4_conv),
+                    "revenue": round(ga4_rev, 2),
+                    "conv_rate": round(ga4_conv / ga4_sessions * 100, 2) if ga4_sessions > 0 else 0,
+                }
+        except Exception as e:
+            print(f"  [WARN] GA4 cross-platform data: {e}")
+
+        # --- Klaviyo ---
+        try:
+            klaviyo = dk.get("klaviyo_daily", days=period_days)
+            if klaviyo:
+                kl_revenue = sum(float(r.get("revenue") or r.get("attributed_revenue") or 0) for r in klaviyo)
+                kl_opens = sum(int(r.get("opens") or r.get("unique_opens") or 0) for r in klaviyo)
+                kl_clicks = sum(int(r.get("clicks") or r.get("unique_clicks") or 0) for r in klaviyo)
+                period["klaviyo"] = {
+                    "revenue": round(kl_revenue, 2),
+                    "opens": kl_opens,
+                    "clicks": kl_clicks,
+                }
+        except Exception as e:
+            print(f"  [WARN] Klaviyo cross-platform data: {e}")
+
         ctx["periods"][period_label] = period
 
     # --- Cross-platform insights ---
@@ -2817,17 +2879,35 @@ def build_proposal_html(proposals: List[Dict],
          "High-converting email products suggest Amazon ad focus areas."),
     ]
 
+    # Map appendix keys to xp_context period keys (which may differ)
+    _xp_key_map = {"shopify_dtc": "shopify"}  # appendix key -> xp_context key
+
     for ch_key, ch_label, ch_table, ch_usage in all_dk_channels:
-        ch_data = xp_context.get(ch_key, {}) if xp_context else {}
-        spend_7d = ch_data.get("7d", {}).get("spend", 0)
-        rev_7d = ch_data.get("7d", {}).get("revenue", 0)
-        roas_7d = ch_data.get("7d", {}).get("roas", 0)
-        has_data = spend_7d > 0 or rev_7d > 0
+        xp_key = _xp_key_map.get(ch_key, ch_key)
+        p7 = xp_context.get("periods", {}).get("7d", {}) if xp_context else {}
+        ch_data = p7.get(xp_key, {})
+        spend_7d = ch_data.get("spend", 0)
+        rev_7d = ch_data.get("revenue", 0)
+        roas_7d = ch_data.get("roas", 0)
+        sessions_7d = ch_data.get("sessions", 0)
+        has_data = spend_7d > 0 or rev_7d > 0 or sessions_7d > 0
 
         if has_data:
-            val = spend_7d or rev_7d
-            data_sources.append(f"{ch_label.split('(')[0].strip()}: ${val:,.0f}/7d")
-            summary_text = f"7d: ${spend_7d:,.0f} spend" if spend_7d else f"7d: ${rev_7d:,.0f} revenue"
+            if spend_7d:
+                data_sources.append(f"{ch_label.split('(')[0].strip()}: ${spend_7d:,.0f}/7d")
+                summary_text = f"7d: ${spend_7d:,.0f} spend"
+            elif rev_7d:
+                data_sources.append(f"{ch_label.split('(')[0].strip()}: ${rev_7d:,.0f}/7d")
+                summary_text = f"7d: ${rev_7d:,.0f} revenue"
+            elif sessions_7d:
+                data_sources.append(f"{ch_label.split('(')[0].strip()}: {sessions_7d:,} sessions/7d")
+                summary_text = f"7d: {sessions_7d:,} sessions"
+                conv_rate = ch_data.get("conv_rate", 0)
+                if conv_rate:
+                    summary_text += f", {conv_rate}% conv rate"
+            else:
+                summary_text = "7d: data present"
+                data_sources.append(f"{ch_label.split('(')[0].strip()}: active")
             if roas_7d:
                 summary_text += f", ROAS {roas_7d}x"
             status_icon = "ACTIVE"
@@ -2845,12 +2925,31 @@ def build_proposal_html(proposals: List[Dict],
             ch_usage if has_data else f"<i style='color:#999;'>{ch_usage}</i>"
         ))
 
-        if has_data and ch_key in ("google_ads", "meta_ads"):
-            roas_label = f"{roas_7d}x" if roas_7d else "N/A"
-            analysis_notes.append(
-                f"{ch_label}: 7d ${spend_7d:,.0f} spend, ROAS {roas_label}. "
-                f"{'Outperforming' if roas_7d and roas_7d > (s7.get('roas',0) if analysis else 0) else 'Underperforming'} vs Amazon Ads."
-            )
+        if has_data:
+            amz_roas = s7.get('roas', 0) if analysis else 0
+            if ch_key in ("google_ads", "meta_ads") and spend_7d > 0:
+                roas_label = f"{roas_7d}x" if roas_7d else "N/A"
+                comparison = 'Outperforming' if roas_7d and roas_7d > amz_roas else 'Underperforming'
+                analysis_notes.append(
+                    f"{ch_label}: 7d ${spend_7d:,.0f} spend, ROAS {roas_label}. "
+                    f"{comparison} vs Amazon Ads ({amz_roas}x). "
+                    f"{'Budget reallocation signal.' if roas_7d and roas_7d > amz_roas * 1.5 else ''}"
+                )
+            elif ch_key == "amazon_sales" and rev_7d > 0:
+                analysis_notes.append(
+                    f"{ch_label}: 7d ${rev_7d:,.0f} total revenue (organic+ad). "
+                    f"Used to validate ad spend efficiency."
+                )
+            elif ch_key == "ga4" and sessions_7d > 0:
+                analysis_notes.append(
+                    f"{ch_label}: 7d {sessions_7d:,} sessions, {ch_data.get('conv_rate',0)}% conv. "
+                    f"Organic search keywords inform Amazon keyword expansion."
+                )
+            elif ch_key == "klaviyo" and (ch_data.get("opens", 0) > 0 or rev_7d > 0):
+                analysis_notes.append(
+                    f"{ch_label}: 7d ${rev_7d:,.0f} attributed revenue, {ch_data.get('opens',0):,} opens. "
+                    f"High-converting email products suggest ad focus areas."
+                )
 
     sources_str = " | ".join(data_sources) if data_sources else "No data sources"
 
@@ -2964,7 +3063,7 @@ def build_proposal_html(proposals: List[Dict],
 
     {proposals_html}
 
-    {_build_keyword_html(kw_proposals)}
+    {_build_keyword_html(kw_proposals, label_start=len(proposals) if proposals else 0)}
 
     {_build_keyword_matrix_html(kw_matrix) if kw_matrix else ''}
 
@@ -2990,21 +3089,32 @@ def build_proposal_html(proposals: List[Dict],
     return html
 
 
-def _build_keyword_html(kw_proposals: Optional[List[Dict]]) -> str:
-    """Build HTML section for keyword-level proposals."""
+def _build_keyword_html(kw_proposals: Optional[List[Dict]], label_start: int = 0) -> str:
+    """Build HTML section for keyword-level proposals with A/B/C labels continuing from campaign proposals."""
     if not kw_proposals:
         return ""
+
+    def _label(idx):
+        i = label_start + idx
+        if i < 26:
+            return chr(65 + i)
+        return chr(65 + i // 26 - 1) + chr(65 + i % 26)
 
     harvest = [p for p in kw_proposals if p.get("type") == "harvest"]
     negate = [p for p in kw_proposals if p.get("type", "").startswith("negate")]
     bid_adj = [p for p in kw_proposals if p.get("type") == "keyword_bid"]
 
     sections = []
+    lbl_idx = 0  # running counter across all keyword types
 
     if harvest:
         rows = ""
         for h in harvest[:20]:
+            lbl = _label(lbl_idx)
+            h["_label"] = lbl
+            lbl_idx += 1
             rows += f"""<tr>
+                <td style="padding:6px;border:1px solid #ddd;font-weight:bold;font-size:14px;text-align:center;background:#f5f5f5;width:30px;">{lbl}</td>
                 <td style="padding:6px;border:1px solid #ddd;">{h['searchTerm']}</td>
                 <td style="padding:6px;border:1px solid #ddd;">{h['acos']}%</td>
                 <td style="padding:6px;border:1px solid #ddd;">{h['purchases']}</td>
@@ -3014,9 +3124,10 @@ def _build_keyword_html(kw_proposals: Optional[List[Dict]]) -> str:
             </tr>"""
         sections.append(f"""
         <h3 style="color:#28a745;margin-top:25px;">Keyword Harvesting ({len(harvest)} candidates)</h3>
-        <p style="color:#666;font-size:13px;">Profitable search terms to add as exact match keywords</p>
+        <p style="color:#666;font-size:13px;">Profitable search terms to add as exact match keywords in Manual campaign. <b>Execute by letter code (e.g., "Execute {_label(0)}, {_label(min(2,len(harvest)-1))}").</b></p>
         <table style="border-collapse:collapse;width:100%;">
             <tr style="background:#28a745;color:white;">
+                <th style="padding:8px;">ID</th>
                 <th style="padding:8px;">Search Term</th>
                 <th style="padding:8px;">ACOS</th>
                 <th style="padding:8px;">Sales</th>
@@ -3029,7 +3140,11 @@ def _build_keyword_html(kw_proposals: Optional[List[Dict]]) -> str:
     if negate:
         rows = ""
         for n in negate[:20]:
+            lbl = _label(lbl_idx)
+            n["_label"] = lbl
+            lbl_idx += 1
             rows += f"""<tr>
+                <td style="padding:6px;border:1px solid #ddd;font-weight:bold;font-size:14px;text-align:center;background:#f5f5f5;width:30px;">{lbl}</td>
                 <td style="padding:6px;border:1px solid #ddd;">{n['searchTerm']}</td>
                 <td style="padding:6px;border:1px solid #ddd;">${n['cost']}</td>
                 <td style="padding:6px;border:1px solid #ddd;">{n.get('sales', 0)}</td>
@@ -3038,9 +3153,10 @@ def _build_keyword_html(kw_proposals: Optional[List[Dict]]) -> str:
             </tr>"""
         sections.append(f"""
         <h3 style="color:#dc3545;margin-top:25px;">Negative Keywords ({len(negate)} candidates)</h3>
-        <p style="color:#666;font-size:13px;">Unprofitable search terms to block</p>
+        <p style="color:#666;font-size:13px;">Unprofitable search terms to block in Auto campaign. <b>Execute by letter code.</b></p>
         <table style="border-collapse:collapse;width:100%;">
             <tr style="background:#dc3545;color:white;">
+                <th style="padding:8px;">ID</th>
                 <th style="padding:8px;">Search Term</th>
                 <th style="padding:8px;">Cost</th>
                 <th style="padding:8px;">Sales</th>
@@ -3052,8 +3168,12 @@ def _build_keyword_html(kw_proposals: Optional[List[Dict]]) -> str:
     if bid_adj:
         rows = ""
         for b in bid_adj[:20]:
+            lbl = _label(lbl_idx)
+            b["_label"] = lbl
+            lbl_idx += 1
             color = "#28a745" if "increase" in b.get("action", "") else "#dc3545"
             rows += f"""<tr>
+                <td style="padding:6px;border:1px solid #ddd;font-weight:bold;font-size:14px;text-align:center;background:#f5f5f5;width:30px;">{lbl}</td>
                 <td style="padding:6px;border:1px solid #ddd;">{b['keywordText']}</td>
                 <td style="padding:6px;border:1px solid #ddd;">{b.get('matchType', '')}</td>
                 <td style="padding:6px;border:1px solid #ddd;">${b['current_bid']}</td>
@@ -3063,8 +3183,10 @@ def _build_keyword_html(kw_proposals: Optional[List[Dict]]) -> str:
             </tr>"""
         sections.append(f"""
         <h3 style="color:#fd7e14;margin-top:25px;">Keyword Bid Adjustments ({len(bid_adj)})</h3>
+        <p style="color:#666;font-size:13px;"><b>Execute by letter code.</b></p>
         <table style="border-collapse:collapse;width:100%;">
             <tr style="background:#fd7e14;color:white;">
+                <th style="padding:8px;">ID</th>
                 <th style="padding:8px;">Keyword</th>
                 <th style="padding:8px;">Match</th>
                 <th style="padding:8px;">Current Bid</th>
