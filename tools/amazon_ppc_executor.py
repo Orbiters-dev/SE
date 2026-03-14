@@ -2353,14 +2353,17 @@ def fetch_cross_platform_context(brand_key: str, days: int = 30) -> Dict:
         except Exception as e:
             print(f"  [WARN] Amazon Sales cross-platform data: {e}")
 
-        # --- Shopify DTC ---
+        # --- Shopify DTC (D2C channel only, brand-filtered, PR/B2B excluded) ---
         try:
-            shopify = dk.get("shopify_orders_daily", days=period_days)
+            shopify_all = dk.get("shopify_orders_daily", days=period_days, brand=brand_name)
+            shopify = [r for r in shopify_all if r.get("channel") == "D2C"]
             if shopify:
                 s_revenue = sum(float(r.get("gross_sales") or r.get("net_sales") or r.get("total_price") or 0) for r in shopify)
-                s_orders = len(shopify)
+                s_net = sum(float(r.get("net_sales") or 0) for r in shopify)
+                s_orders = sum(int(r.get("orders") or 1) for r in shopify)
                 period["shopify"] = {
                     "revenue": round(s_revenue, 2),
+                    "net_sales": round(s_net, 2),
                     "orders": s_orders,
                     "aov": round(s_revenue / s_orders, 2) if s_orders > 0 else 0,
                 }
