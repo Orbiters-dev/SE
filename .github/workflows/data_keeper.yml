@@ -8,7 +8,7 @@ on:
   workflow_dispatch:         # manual trigger
     inputs:
       channel:
-        description: 'Channel to collect (all, amazon_ads, amazon_sales, meta, google, ga4, klaviyo, shopify, gsc, dataforseo)'
+        description: 'Channel to collect (all, amazon_ads, amazon_ads_search_terms, amazon_ads_keywords, amazon_sales, meta, google, ga4, klaviyo, shopify, gsc, dataforseo)'
         required: false
         default: 'all'
       days:
@@ -147,6 +147,12 @@ jobs:
         if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all')
         run: |
           cd tools && python -u fetch_influencer_orders.py || echo "Influencer orders fetch failed (non-fatal)"
+
+      - name: Collect Amazon Ads Keywords & Search Terms
+        if: steps.mode.outputs.notify_only == 'false' && steps.mode.outputs.is_daily == 'true' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_ads_search_terms' || github.event.inputs.channel == 'amazon_ads_keywords')
+        run: |
+          python -u tools/data_keeper.py --channel amazon_ads_search_terms --days 14 --skip-pg || echo "Search terms collection failed (non-fatal)"
+          python -u tools/data_keeper.py --channel amazon_ads_keywords --days 14 --skip-pg || echo "Keywords collection failed (non-fatal)"
 
       - name: Run Amazon PPC Analysis
         if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_ads')

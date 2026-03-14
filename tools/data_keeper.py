@@ -2036,7 +2036,12 @@ def main():
     print(f"  Skip PG: {args.skip_pg}")
     print()
 
-    channels = list(CHANNEL_COLLECTORS.keys()) if args.channel == "all" else [args.channel]
+    # "all" excludes slow keyword channels (run separately in GitHub Actions)
+    SLOW_CHANNELS = {"amazon_ads_search_terms", "amazon_ads_keywords"}
+    if args.channel == "all":
+        channels = [c for c in CHANNEL_COLLECTORS.keys() if c not in SLOW_CHANNELS]
+    else:
+        channels = [args.channel]
 
     total_start = time.time()
     results = {}
