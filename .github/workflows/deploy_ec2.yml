@@ -88,9 +88,35 @@ jobs:
           SSH_CMD="ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST}"
 
           ${SSH_CMD} "cd ${EC2_PATH} && \
-            python3 -c \"import django; import os; os.environ['DJANGO_SETTINGS_MODULE']='export_calculator.settings.production'; django.setup(); from django.db import connection; cursor=connection.cursor(); cursor.execute(\\\"DELETE FROM django_migrations WHERE app='${APP}'\\\"); print(f'Cleared {cursor.rowcount} migration records for ${APP}')\" && \
+            python3 -c \"
+import django, os
+os.environ['DJANGO_SETTINGS_MODULE']='export_calculator.settings.production'
+django.setup()
+from django.db import connection
+c = connection.cursor()
+# Create missing tables, ignore if exists
+for sql in [
+    '''CREATE TABLE IF NOT EXISTS gk_amazon_ads_search_terms (
+        id SERIAL PRIMARY KEY, date VARCHAR(30), profile_id VARCHAR(50), brand VARCHAR(100),
+        campaign_id VARCHAR(50), ad_group_id VARCHAR(50), keyword_id VARCHAR(50) DEFAULT '',
+        search_term VARCHAR(500), impressions INTEGER DEFAULT 0, clicks INTEGER DEFAULT 0,
+        spend NUMERIC(12,2) DEFAULT 0, sales NUMERIC(12,2) DEFAULT 0, purchases INTEGER DEFAULT 0,
+        collected_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        UNIQUE(date, profile_id, campaign_id, ad_group_id, search_term))''',
+    '''CREATE TABLE IF NOT EXISTS gk_amazon_ads_keywords (
+        id SERIAL PRIMARY KEY, date VARCHAR(30), profile_id VARCHAR(50), brand VARCHAR(100),
+        campaign_id VARCHAR(50), ad_group_id VARCHAR(50), keyword_id VARCHAR(50) DEFAULT '',
+        keyword_text VARCHAR(500) DEFAULT '', match_type VARCHAR(30) DEFAULT '',
+        impressions INTEGER DEFAULT 0, clicks INTEGER DEFAULT 0,
+        spend NUMERIC(12,2) DEFAULT 0, sales NUMERIC(12,2) DEFAULT 0, purchases INTEGER DEFAULT 0,
+        collected_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        UNIQUE(date, profile_id, campaign_id, ad_group_id, keyword_id))''',
+]:
+    c.execute(sql)
+    print(f'OK: {sql[:60]}...')
+\" && \
             python3 manage.py makemigrations ${APP} --settings=export_calculator.settings.production && \
-            python3 manage.py migrate ${APP} --fake-initial --settings=export_calculator.settings.production && \
+            python3 manage.py migrate ${APP} --fake --settings=export_calculator.settings.production && \
             sudo systemctl restart export_calculator && \
             echo 'Deploy complete!'"
 
