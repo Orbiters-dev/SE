@@ -107,7 +107,7 @@ ROAS_RULES = [
     (None, 1.0,  "pause",           None, None, "urgent"),
     (1.0,  1.5,  "reduce_bid",      -30,  None, "urgent"),
     (1.5,  2.0,  "reduce_bid",      -15,  None, "high"),
-    (2.0,  2.5,  "optimize",        -10,  None, "medium"),    # Not just monitor — fine-tune bids
+    (2.0,  2.5,  "optimize",        -10,  None, "medium"),    # Not just monitor -- fine-tune bids
     (2.5,  3.0,  "optimize",        None, None, "medium"),    # Close to target, optimize keywords
     (3.0,  5.0,  "increase_budget", None, +20,  "medium"),
     (5.0,  None, "increase_budget", +10,  +30,  "high"),
@@ -303,7 +303,7 @@ def fetch_campaigns(profile_id: int) -> List[Dict]:
             f"{API_BASE}/sp/campaigns/list",
             headers=headers,
             json={
-                "stateFilter": {"include": ["ENABLED", "PAUSED"]},
+                "stateFilter": {"include": ["ENABLED"]},
                 "startIndex": start_index,
                 "count": 1000,
             },
@@ -821,6 +821,279 @@ def analyze_keyword_bids(
     return proposals[:MAX_KEYWORD_CHANGES_PER_CYCLE]
 
 
+def fetch_dataforseo_keywords(brand_key: str) -> Dict[str, Dict]:
+    """Fetch DataForSEO/Google Ads keyword data for bid benchmarking.
+
+    Returns dict keyed by lowercase keyword text:
+      {"korean snacks": {"search_volume": 22200, "cpc": 1.28, "competition": 4, ...}}
+    """
+    try:
+        from data_keeper_client import DataKeeper
+        dk = DataKeeper()
+        brand_display = BRAND_CONFIGS[brand_key]["brand_display"]
+        rows = dk.get("dataforseo_keywords", days=30)
+        if not rows:
+            return {}
+        out = {}
+        for r in rows:
+            if r.get("brand", "") != brand_display:
+                continue
+            kw = r.get("keyword", "").lower().strip()
+            if kw:
+                out[kw] = {
+                    "search_volume": int(r.get("search_volume", 0) or 0),
+                    "cpc": float(r.get("cpc", 0) or 0),
+                    "competition": r.get("competition", ""),
+                    "competition_index": int(r.get("competition_index", 0) or 0),
+                }
+        print(f"  DataForSEO: {len(out)} keywords for {brand_display}")
+        return out
+    except Exception as e:
+        print(f"  [WARN] DataForSEO fetch failed: {e}")
+        return {}
+
+
+def build_keyword_performance_matrix(
+    kw_rows: List[Dict], st_rows: List[Dict], campaigns: List[Dict],
+    dataforseo: Dict[str, Dict]
+) -> Dict:
+    """Build detailed keyword-level performance analysis.
+
+    Returns:
+        {
+            "top_keywords": [...],   # Top 10 by ROAS
+            "bottom_keywords": [...], # Bottom 10 by ACOS (with spend)
+            "adgroup_breakdown": {...}, # Per-adgroup metrics
+            "match_type_breakdown": {...}, # Exact vs Phrase vs Broad
+            "keyword_vs_google": [...], # Amazon CPC vs Google CPC comparison
+        }
+    """
+    camp_map = {}
+    for c in campaigns:
+        camp_map[str(c["campaignId"])] = c
+
+    # 1. Aggregate keyword metrics
+    kw_agg = {}
+    for kw in kw_rows:
+        kid = kw.get("keywordId", "")
+        kw_text = kw.get("keywordText", "").strip()
+        if not kw_text:
+            continue
+        if kid not in kw_agg:
+            kw_agg[kid] = {
+                "keywordId": kid, "keywordText": kw_text,
+                "matchType": kw.get("matchType", ""),
+                "campaignId": str(kw.get("campaignId", "")),
+                "adGroupId": str(kw.get("adGroupId", "")),
+                "clicks": 0, "impressions": 0, "cost": 0.0, "sales": 0.0, "purchases": 0,
+            }
+        a = kw_agg[kid]
+        a["clicks"] += int(kw.get("clicks", 0) or 0)
+        a["impressions"] += int(kw.get("impressions", 0) or 0)
+        a["cost"] += float(kw.get("cost", 0) or 0)
+        a["sales"] += float(kw.get("sales14d", 0) or 0)
+        a["purchases"] += int(kw.get("purchases14d", 0) or 0)
+
+    # Compute derived metrics
+    for k in kw_agg.values():
+        k["roas"] = round(k["sales"] / k["cost"], 2) if k["cost"] > 0 else 0
+        k["acos"] = round(k["cost"] / k["sales"] * 100, 1) if k["sales"] > 0 else None
+        k["ctr"] = round(k["clicks"] / k["impressions"] * 100, 2) if k["impressions"] > 0 else 0
+        k["cpc"] = round(k["cost"] / k["clicks"], 2) if k["clicks"] > 0 else 0
+        k["cvr"] = round(k["purchases"] / k["clicks"] * 100, 1) if k["clicks"] > 0 else 0
+        camp = camp_map.get(k["campaignId"], {})
+        k["campaignName"] = camp.get("name", "")
+
+    all_kws = sorted(kw_agg.values(), key=lambda x: x["cost"], reverse=True)
+
+    # 2. Top/Bottom keywords
+    with_sales = [k for k in all_kws if k["sales"] > 0]
+    top_kws = sorted(with_sales, key=lambda x: x["roas"], reverse=True)[:10]
+    bottom_kws = sorted([k for k in all_kws if k["cost"] > 1], key=lambda x: (x["acos"] or 9999), reverse=True)[:10]
+
+    # 3. Ad group breakdown
+    ag_map = {}
+    for k in all_kws:
+        agid = k["adGroupId"]
+        if agid not in ag_map:
+            ag_map[agid] = {"adGroupId": agid, "keywords": 0, "clicks": 0, "cost": 0.0,
+                            "sales": 0.0, "impressions": 0, "purchases": 0, "campaignName": k["campaignName"]}
+        ag = ag_map[agid]
+        ag["keywords"] += 1
+        ag["clicks"] += k["clicks"]
+        ag["cost"] += k["cost"]
+        ag["sales"] += k["sales"]
+        ag["impressions"] += k["impressions"]
+        ag["purchases"] += k["purchases"]
+    for ag in ag_map.values():
+        ag["roas"] = round(ag["sales"] / ag["cost"], 2) if ag["cost"] > 0 else 0
+        ag["acos"] = round(ag["cost"] / ag["sales"] * 100, 1) if ag["sales"] > 0 else None
+        ag["cpc"] = round(ag["cost"] / ag["clicks"], 2) if ag["clicks"] > 0 else 0
+
+    # 4. Match type breakdown
+    mt_map = {}
+    for k in all_kws:
+        mt = k.get("matchType", "UNKNOWN")
+        if mt not in mt_map:
+            mt_map[mt] = {"matchType": mt, "keywords": 0, "clicks": 0, "cost": 0.0,
+                          "sales": 0.0, "impressions": 0}
+        m = mt_map[mt]
+        m["keywords"] += 1
+        m["clicks"] += k["clicks"]
+        m["cost"] += k["cost"]
+        m["sales"] += k["sales"]
+        m["impressions"] += k["impressions"]
+    for m in mt_map.values():
+        m["roas"] = round(m["sales"] / m["cost"], 2) if m["cost"] > 0 else 0
+        m["acos"] = round(m["cost"] / m["sales"] * 100, 1) if m["sales"] > 0 else None
+
+    # 5. Amazon CPC vs Google CPC comparison
+    amz_vs_google = []
+    for k in all_kws:
+        kw_lower = k["keywordText"].lower()
+        gdata = dataforseo.get(kw_lower)
+        if gdata and k["cpc"] > 0:
+            amz_vs_google.append({
+                "keyword": k["keywordText"],
+                "amazon_cpc": k["cpc"],
+                "google_cpc": gdata["cpc"],
+                "search_volume": gdata["search_volume"],
+                "cpc_gap": round(gdata["cpc"] - k["cpc"], 2) if gdata["cpc"] > 0 else None,
+                "roas": k["roas"],
+            })
+
+    return {
+        "top_keywords": top_kws,
+        "bottom_keywords": bottom_kws,
+        "adgroup_breakdown": sorted(ag_map.values(), key=lambda x: x["cost"], reverse=True),
+        "match_type_breakdown": sorted(mt_map.values(), key=lambda x: x["cost"], reverse=True),
+        "keyword_vs_google": amz_vs_google,
+        "total_keywords": len(all_kws),
+    }
+
+
+def _build_keyword_matrix_html(matrix: Optional[Dict]) -> str:
+    """Build HTML for detailed keyword performance matrix."""
+    if not matrix or matrix.get("total_keywords", 0) == 0:
+        return ""
+
+    sections = []
+
+    # --- Ad Group Breakdown ---
+    ag_rows = ""
+    for ag in matrix.get("adgroup_breakdown", []):
+        rcolor = "#28a745" if ag["roas"] >= 3.0 else ("#ffc107" if ag["roas"] >= 2.0 else "#dc3545")
+        ag_rows += f"""<tr>
+            <td style="padding:5px 8px;border:1px solid #eee;font-size:11px;">{ag['campaignName'][:40]}</td>
+            <td style="padding:5px 8px;border:1px solid #eee;text-align:center;">{ag['keywords']}</td>
+            <td style="padding:5px 8px;border:1px solid #eee;text-align:right;">${ag['cost']:.0f}</td>
+            <td style="padding:5px 8px;border:1px solid #eee;text-align:right;">${ag['sales']:.0f}</td>
+            <td style="padding:5px 8px;border:1px solid #eee;text-align:right;color:{rcolor};font-weight:bold;">{ag['roas']}x</td>
+            <td style="padding:5px 8px;border:1px solid #eee;text-align:right;">{ag['acos'] or '-'}%</td>
+            <td style="padding:5px 8px;border:1px solid #eee;text-align:right;">${ag['cpc']:.2f}</td>
+        </tr>"""
+    sections.append(f"""
+    <h3 style="color:#333;margin-top:25px;">Ad Group Performance</h3>
+    <table style="border-collapse:collapse;width:100%;font-size:12px;">
+        <tr style="background:#37474f;color:white;">
+            <th style="padding:6px;">Campaign / Ad Group</th><th style="padding:6px;">KWs</th>
+            <th style="padding:6px;">Spend</th><th style="padding:6px;">Sales</th>
+            <th style="padding:6px;">ROAS</th><th style="padding:6px;">ACOS</th><th style="padding:6px;">CPC</th>
+        </tr>{ag_rows}
+    </table>""")
+
+    # --- Match Type Breakdown ---
+    mt_rows = ""
+    for m in matrix.get("match_type_breakdown", []):
+        mt_rows += f"""<tr>
+            <td style="padding:5px 8px;border:1px solid #eee;">{m['matchType']}</td>
+            <td style="padding:5px 8px;border:1px solid #eee;text-align:center;">{m['keywords']}</td>
+            <td style="padding:5px 8px;border:1px solid #eee;text-align:right;">${m['cost']:.0f}</td>
+            <td style="padding:5px 8px;border:1px solid #eee;text-align:right;">${m['sales']:.0f}</td>
+            <td style="padding:5px 8px;border:1px solid #eee;text-align:right;font-weight:bold;">{m['roas']}x</td>
+            <td style="padding:5px 8px;border:1px solid #eee;text-align:right;">{m['acos'] or '-'}%</td>
+        </tr>"""
+    sections.append(f"""
+    <h3 style="color:#333;margin-top:20px;">Match Type Performance</h3>
+    <table style="border-collapse:collapse;width:80%;font-size:12px;">
+        <tr style="background:#546e7a;color:white;">
+            <th style="padding:6px;">Match Type</th><th style="padding:6px;">KWs</th>
+            <th style="padding:6px;">Spend</th><th style="padding:6px;">Sales</th>
+            <th style="padding:6px;">ROAS</th><th style="padding:6px;">ACOS</th>
+        </tr>{mt_rows}
+    </table>""")
+
+    # --- Top 10 Keywords by ROAS ---
+    top_rows = ""
+    for k in matrix.get("top_keywords", []):
+        top_rows += f"""<tr>
+            <td style="padding:4px 8px;border:1px solid #eee;font-size:11px;">{k['keywordText']}</td>
+            <td style="padding:4px 8px;border:1px solid #eee;text-align:center;font-size:11px;">{k['matchType']}</td>
+            <td style="padding:4px 8px;border:1px solid #eee;text-align:right;">${k['cost']:.0f}</td>
+            <td style="padding:4px 8px;border:1px solid #eee;text-align:right;">${k['sales']:.0f}</td>
+            <td style="padding:4px 8px;border:1px solid #eee;text-align:right;color:#28a745;font-weight:bold;">{k['roas']}x</td>
+            <td style="padding:4px 8px;border:1px solid #eee;text-align:right;">{k['acos'] or '-'}%</td>
+            <td style="padding:4px 8px;border:1px solid #eee;text-align:right;">{k['cvr']}%</td>
+        </tr>"""
+    sections.append(f"""
+    <h3 style="color:#28a745;margin-top:20px;">Top 10 Keywords (by ROAS)</h3>
+    <table style="border-collapse:collapse;width:100%;font-size:12px;">
+        <tr style="background:#2e7d32;color:white;">
+            <th style="padding:6px;">Keyword</th><th style="padding:6px;">Match</th>
+            <th style="padding:6px;">Spend</th><th style="padding:6px;">Sales</th>
+            <th style="padding:6px;">ROAS</th><th style="padding:6px;">ACOS</th><th style="padding:6px;">CVR</th>
+        </tr>{top_rows}
+    </table>""")
+
+    # --- Bottom 10 Keywords (worst ACOS) ---
+    bot_rows = ""
+    for k in matrix.get("bottom_keywords", []):
+        bot_rows += f"""<tr>
+            <td style="padding:4px 8px;border:1px solid #eee;font-size:11px;">{k['keywordText']}</td>
+            <td style="padding:4px 8px;border:1px solid #eee;text-align:right;">${k['cost']:.0f}</td>
+            <td style="padding:4px 8px;border:1px solid #eee;text-align:right;">${k['sales']:.0f}</td>
+            <td style="padding:4px 8px;border:1px solid #eee;text-align:right;color:#dc3545;font-weight:bold;">{k['acos'] or 'N/S'}{'%' if k['acos'] else ''}</td>
+            <td style="padding:4px 8px;border:1px solid #eee;text-align:right;">{k['clicks']} / {k['impressions']}</td>
+        </tr>"""
+    sections.append(f"""
+    <h3 style="color:#dc3545;margin-top:20px;">Bottom 10 Keywords (worst ACOS)</h3>
+    <table style="border-collapse:collapse;width:100%;font-size:12px;">
+        <tr style="background:#c62828;color:white;">
+            <th style="padding:6px;">Keyword</th><th style="padding:6px;">Spend</th>
+            <th style="padding:6px;">Sales</th><th style="padding:6px;">ACOS</th><th style="padding:6px;">Clicks/Impr</th>
+        </tr>{bot_rows}
+    </table>""")
+
+    # --- Amazon CPC vs Google CPC ---
+    cpc_data = matrix.get("keyword_vs_google", [])
+    if cpc_data:
+        cpc_rows = ""
+        for c in cpc_data:
+            gap = c.get("cpc_gap")
+            gap_str = f"${gap:+.2f}" if gap is not None else "-"
+            gap_color = "#28a745" if gap and gap > 0 else "#dc3545"
+            cpc_rows += f"""<tr>
+                <td style="padding:4px 8px;border:1px solid #eee;font-size:11px;">{c['keyword']}</td>
+                <td style="padding:4px 8px;border:1px solid #eee;text-align:right;">${c['amazon_cpc']:.2f}</td>
+                <td style="padding:4px 8px;border:1px solid #eee;text-align:right;">${c['google_cpc']:.2f}</td>
+                <td style="padding:4px 8px;border:1px solid #eee;text-align:right;color:{gap_color};">{gap_str}</td>
+                <td style="padding:4px 8px;border:1px solid #eee;text-align:right;">{c['search_volume']:,}</td>
+                <td style="padding:4px 8px;border:1px solid #eee;text-align:right;">{c['roas']}x</td>
+            </tr>"""
+        sections.append(f"""
+        <h3 style="color:#1565c0;margin-top:20px;">Amazon CPC vs Google CPC (DataForSEO)</h3>
+        <p style="color:#666;font-size:11px;">Positive gap = room to increase Amazon bid. Negative = Amazon overbidding vs Google market.</p>
+        <table style="border-collapse:collapse;width:100%;font-size:12px;">
+            <tr style="background:#1565c0;color:white;">
+                <th style="padding:6px;">Keyword</th><th style="padding:6px;">AMZ CPC</th>
+                <th style="padding:6px;">Google CPC</th><th style="padding:6px;">Gap</th>
+                <th style="padding:6px;">Monthly Vol</th><th style="padding:6px;">AMZ ROAS</th>
+            </tr>{cpc_rows}
+        </table>""")
+
+    return "\n".join(sections)
+
+
 # ===========================================================================
 # Analysis & Proposal Generation
 # ===========================================================================
@@ -893,7 +1166,7 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
     - all_campaign_summary: every enabled campaign with metrics (for overview table)
     - anomalies: list of detected anomaly strings
     """
-    # Use actual latest date from data (not today-1) — data may lag 1-2 days
+    # Use actual latest date from data (not today-1) -- data may lag 1-2 days
     all_dates = set()
     for r in report_rows:
         try:
@@ -1944,7 +2217,7 @@ def _build_cross_platform_html(xp_ctx: Dict) -> str:
     return f"""
     <div style="margin-top:25px;padding:15px;background:#f0f4ff;border-radius:8px;border-left:4px solid #4a90d9;">
         <h3 style="margin:0 0 10px;color:#2c5282;">Cross-Platform Context</h3>
-        <p style="color:#666;font-size:12px;margin:0 0 10px;">Other channels performance (from DataKeeper) — use to contextualize Amazon PPC decisions</p>
+        <p style="color:#666;font-size:12px;margin:0 0 10px;">Other channels performance (from DataKeeper) -- use to contextualize Amazon PPC decisions</p>
         <table style="border-collapse:collapse;width:100%;margin-bottom:10px;">
             <tr style="background:#e2e8f0;">
                 <th style="padding:8px 10px;text-align:left;">Channel</th>
@@ -1963,8 +2236,9 @@ def build_proposal_html(proposals: List[Dict],
                         kw_proposals: Optional[List[Dict]] = None,
                         brand_key: str = "naeiae",
                         xp_context: Optional[Dict] = None,
-                        analysis: Optional[Dict] = None) -> str:
-    """Build comprehensive HTML email with performance summary, all campaigns, proposals, and cross-platform context."""
+                        analysis: Optional[Dict] = None,
+                        kw_matrix: Optional[Dict] = None) -> str:
+    """Build comprehensive HTML email with performance summary, all campaigns, proposals, keyword matrix, and cross-platform context."""
     cfg = BRAND_CONFIGS[brand_key]
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
 
@@ -2173,12 +2447,28 @@ def build_proposal_html(proposals: List[Dict],
         {camp_rows}
     </table>"""
 
+    # Build data source freshness banner
+    data_sources = []
+    if analysis:
+        data_sources.append(f"Amazon Ads: through {analysis.get('latest_date', '?')}")
+    if xp_context:
+        for ch in ["google_ads", "meta_ads", "amazon_sales", "shopify_dtc"]:
+            ch_data = xp_context.get(ch, {})
+            if ch_data.get("7d", {}).get("spend", 0) > 0 or ch_data.get("7d", {}).get("revenue", 0) > 0:
+                data_sources.append(f"{ch.replace('_', ' ').title()}: active")
+            else:
+                data_sources.append(f"{ch.replace('_', ' ').title()}: no data")
+    sources_str = " | ".join(data_sources) if data_sources else "No data sources"
+
     html = f"""<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
 <body style="font-family:Arial,sans-serif;max-width:1200px;margin:0 auto;padding:20px;">
+    <div style="background:#263238;color:white;padding:10px 18px;border-radius:6px;margin-bottom:15px;font-size:12px;">
+        <strong>Data Sources:</strong> {sources_str}
+    </div>
     <h2 style="color:#333;">{cfg['brand_display']} ({cfg['seller_name']}) PPC Daily Proposal</h2>
-    <p style="color:#666;">Generated: {now} | Data through: {analysis.get('latest_date', 'N/A') if analysis else 'N/A'} | Daily Budget: ${cfg['total_daily_budget']:,.0f} | ACOS targets: Manual {cfg['targeting']['MANUAL']['target_acos']}% / Auto {cfg['targeting']['AUTO']['target_acos']}%</p>
+    <p style="color:#666;">Generated: {now} | Daily Budget: ${cfg['total_daily_budget']:,.0f} | ACOS targets: Manual {cfg['targeting']['MANUAL']['target_acos']}% / Auto {cfg['targeting']['AUTO']['target_acos']}%</p>
 
     {summary_html}
 
@@ -2187,6 +2477,8 @@ def build_proposal_html(proposals: List[Dict],
     {proposals_html}
 
     {_build_keyword_html(kw_proposals)}
+
+    {_build_keyword_matrix_html(kw_matrix) if kw_matrix else ''}
 
     {all_camps_html}
 
@@ -2296,11 +2588,12 @@ def send_proposal_email(proposals: List[Dict], to: str = DEFAULT_TO,
                         cc: str = DEFAULT_CC,
                         brand_key: str = "naeiae",
                         xp_context: Optional[Dict] = None,
-                        analysis: Optional[Dict] = None) -> Optional[str]:
+                        analysis: Optional[Dict] = None,
+                        kw_matrix: Optional[Dict] = None) -> Optional[str]:
     """Send proposal HTML email via send_gmail.py. Returns Gmail message ID or None."""
     cfg = BRAND_CONFIGS[brand_key]
     html = build_proposal_html(proposals, kw_proposals, brand_key=brand_key,
-                               xp_context=xp_context, analysis=analysis)
+                               xp_context=xp_context, analysis=analysis, kw_matrix=kw_matrix)
     html_path = TMP_DIR / f"ppc_proposal_{brand_key}_{date.today().strftime('%Y%m%d')}_{datetime.now().strftime('%H%M')}.html"
     html_path.write_text(html, encoding="utf-8")
 
@@ -2634,7 +2927,7 @@ def _check_execute_for_brand(args, brand_key: str):
                 msg_date = msg_date.replace(tzinfo=timezone.utc)
             prop_time_aware = proposal_time if proposal_time.tzinfo else proposal_time.replace(tzinfo=timezone.utc)
             if msg_date < prop_time_aware:
-                continue  # Reply is older than proposal — ignore
+                continue  # Reply is older than proposal -- ignore
         except Exception:
             pass  # If date parsing fails, still check content
 
@@ -2695,7 +2988,7 @@ def run_propose_single(args, brand_key: str):
     brand_display = cfg["brand_display"]
 
     print(f"\n{'#'*70}")
-    print(f"  {brand_display} ({cfg['seller_name']}) — Proposal Analysis")
+    print(f"  {brand_display} ({cfg['seller_name']}) - Proposal Analysis")
     print(f"  Budget: ${cfg['total_daily_budget']:,.0f}/day | ACOS targets: Manual {cfg['targeting']['MANUAL']['target_acos']}% / Auto {cfg['targeting']['AUTO']['target_acos']}%")
     print(f"{'#'*70}")
 
@@ -2735,10 +3028,13 @@ def run_propose_single(args, brand_key: str):
 
     # --- Search Term & Keyword Analysis ---
     kw_proposals = []
+    kw_matrix = None
+    st_rows = []
+    kw_rows = []
 
     if not args.skip_keywords:
         st_start = end_date - timedelta(days=13)  # 14-day window for attribution
-        print(f"\n[4/7] Fetching search term report ({st_start} ~ {end_date})...")
+        print(f"\n[4/8] Fetching search term report ({st_start} ~ {end_date})...")
         try:
             st_rows = fetch_search_term_report(profile_id, st_start, end_date)
             print(f"  {len(st_rows)} search term rows")
@@ -2746,7 +3042,7 @@ def run_propose_single(args, brand_key: str):
             kw_rows = fetch_keyword_report(profile_id, st_start, end_date)
             print(f"  {len(kw_rows)} keyword rows")
 
-            print(f"\n[5/7] Analyzing search terms & keywords...")
+            print(f"\n[5/8] Analyzing search terms & keywords...")
             st_analysis = analyze_search_terms(st_rows, campaigns, kw_rows)
             kw_bid_proposals = analyze_keyword_bids(kw_rows, campaigns)
 
@@ -2754,15 +3050,24 @@ def run_propose_single(args, brand_key: str):
             print(f"  {len(st_analysis['harvest'])} harvest candidates")
             print(f"  {len(st_analysis['negate'])} negative candidates")
             print(f"  {len(kw_bid_proposals)} keyword bid adjustments")
+
+            # DataForSEO + keyword performance matrix
+            print(f"\n[6/8] Building keyword performance matrix + DataForSEO...")
+            dataforseo = fetch_dataforseo_keywords(brand_key)
+            kw_matrix = build_keyword_performance_matrix(kw_rows, st_rows, campaigns, dataforseo)
+            print(f"  {kw_matrix['total_keywords']} keywords analyzed")
+            print(f"  {len(kw_matrix.get('keyword_vs_google', []))} keywords matched to Google CPC")
         except Exception as e:
             print(f"  [WARN] Search term/keyword analysis failed: {e}")
+            import traceback; traceback.print_exc()
             print(f"  Continuing with campaign-level proposals only.")
     else:
-        print(f"\n[4/7] Skipping keyword analysis (--skip-keywords)")
-        print(f"[5/7] Skipped")
+        print(f"\n[4/8] Skipping keyword analysis (--skip-keywords)")
+        print(f"[5/8] Skipped")
+        print(f"[6/8] Skipped")
 
     # --- Cross-Platform Context (Google Ads, Meta, Shopify, Amazon Sales) ---
-    print(f"\n[6/7] Fetching cross-platform context (Google Ads, Meta, Shopify)...")
+    print(f"\n[7/8] Fetching cross-platform context (Google Ads, Meta, Shopify)...")
     xp_context = {}
     try:
         xp_context = fetch_cross_platform_context(brand_key, days=args.days)
@@ -2774,16 +3079,16 @@ def run_propose_single(args, brand_key: str):
     except Exception as e:
         print(f"  [WARN] Cross-platform analysis failed: {e}")
 
-    # Always save and send — even with 0 action proposals, the analysis is valuable
+    # Always save and send -- even with 0 action proposals, the analysis is valuable
     filepath = save_proposal(proposals, profile_id, kw_proposals, brand_key=brand_key)
     if proposals:
         print_proposal_summary(proposals, brand_key=brand_key)
     if kw_proposals:
         print_keyword_summary(kw_proposals)
 
-    print(f"\n[7/7] Sending {brand_display} proposal email...")
+    print(f"\n[8/8] Sending {brand_display} proposal email...")
     send_proposal_email(proposals, args.to, kw_proposals, cc=args.cc, brand_key=brand_key,
-                        xp_context=xp_context, analysis=analysis)
+                        xp_context=xp_context, analysis=analysis, kw_matrix=kw_matrix)
 
 
 def run_propose(args):
