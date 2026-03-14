@@ -86,8 +86,9 @@ jobs:
           SSH_CMD="ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST}"
 
           ${SSH_CMD} "cd ${EC2_PATH} && \
+            rm -rf ${APP}/migrations && \
             python3 manage.py makemigrations ${APP} --settings=export_calculator.settings.production && \
-            python3 manage.py migrate ${APP} --settings=export_calculator.settings.production && \
+            python3 manage.py migrate ${APP} --fake-initial --settings=export_calculator.settings.production && \
             sudo systemctl restart export_calculator && \
             echo 'Deploy complete!'"
 
