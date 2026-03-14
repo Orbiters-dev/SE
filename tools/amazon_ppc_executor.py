@@ -60,8 +60,8 @@ BRAND_CONFIGS = {
     "naeiae": {
         "seller_name": "Fleeters Inc",
         "brand_display": "Naeiae",
-        "total_daily_budget": 120.0,
-        "max_single_campaign_budget": 50.0,
+        "total_daily_budget": 150.0,            # Increased from $120 (2026-03-15)
+        "max_single_campaign_budget": 75.0,     # Increased from $50
         "max_bid": 3.0,
         "targeting": {
             "MANUAL": {"target_acos": 25.0, "min_roas": 2.5, "budget_share": 0.60},
@@ -83,7 +83,7 @@ BRAND_CONFIGS = {
         "seller_name": "Orbitool",
         "brand_display": "CHA&MOM",
         "total_daily_budget": 150.0,          # Spend target $150/day
-        "max_single_campaign_budget": 60.0,
+        "max_single_campaign_budget": 75.0,   # Increased from $60 (2026-03-15)
         "max_bid": 3.0,
         "targeting": {
             "MANUAL": {"target_acos": 30.0, "min_roas": 2.0, "budget_share": 0.60},
@@ -1773,7 +1773,14 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
 
         all_campaigns.append(campaign_entry)
 
-        if action != "monitor" and not negligible:
+        # Skip no-op proposals (e.g., budget capped at same value)
+        has_real_change = (
+            campaign_entry.get("bid_change_pct")
+            or (campaign_entry.get("new_daily_budget") and
+                campaign_entry["new_daily_budget"] != campaign_entry["currentDailyBudget"])
+            or action in ("pause", "reduce_bid")
+        )
+        if action != "monitor" and not negligible and has_real_change:
             proposals.append(campaign_entry)
 
     # Sort by priority
