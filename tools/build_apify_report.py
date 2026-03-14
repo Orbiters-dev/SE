@@ -14,7 +14,7 @@ import argparse
 import json
 import os
 import sys
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, date, timezone, timedelta
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -292,6 +292,119 @@ def build_links_section(repo: str, run_id: str) -> str:
     </div>"""
 
 
+# ── Ranking section (reuses build_ranking_dashboard logic) ───────────────────
+
+MEDAL = ["🥇", "🥈", "🥉"]
+
+def _fmt(n: int) -> str:
+    if n >= 1_000_000: return f"{n/1_000_000:.1f}M"
+    if n >= 1_000:     return f"{n/1_000:.1f}K"
+    return str(n)
+
+def _rank_row(rank: int, p: dict, accent: str) -> str:
+    medal = MEDAL[rank - 1] if rank <= 3 else f"#{rank}"
+    url   = p["url"]
+    link  = (
+        f'<a href="{url}" style="font-size:11px;font-family:\'Courier New\',monospace;'
+        f'color:#1E3A5F;text-decoration:none;background:#EBF2FF;padding:2px 7px;'
+        f'border-radius:4px;white-space:nowrap;">view&#8599;</a>' if url else ""
+    )
+    bg   = "#FFFEF0" if rank <= 3 else "#FFFFFF"
+    foll = _fmt(p["followers"]) if p["followers"] else "—"
+    return f"""
+    <tr style="background:{bg};border-bottom:1px solid #F0EFEC;">
+      <td style="padding:9px 6px;font-size:16px;text-align:center;width:30px;">{medal}</td>
+      <td style="padding:9px 7px;">
+        <div style="font-size:12px;font-weight:700;color:#0A1628;">@{p['username']}</div>
+        <div style="font-size:10px;color:#6B7280;">{p['nickname'] or p['username']}</div>
+      </td>
+      <td style="padding:9px 5px;text-align:center;white-space:nowrap;">
+        <div style="font-family:'Courier New',monospace;font-size:11px;color:#374151;">{foll}</div>
+        <div style="font-size:9px;color:#9CA3AF;">followers</div>
+      </td>
+      <td style="padding:9px 5px;text-align:center;white-space:nowrap;">
+        <div style="font-family:'Courier New',monospace;font-size:14px;font-weight:700;color:{accent};">{_fmt(p['views'])}</div>
+        <div style="font-size:9px;color:#9CA3AF;">views</div>
+      </td>
+      <td style="padding:9px 5px;text-align:center;white-space:nowrap;">
+        <div style="font-family:'Courier New',monospace;font-size:11px;color:#374151;">{_fmt(p['likes'])}</div>
+        <div style="font-size:9px;color:#9CA3AF;">likes</div>
+      </td>
+      <td style="padding:9px 5px;font-size:10px;color:#9CA3AF;font-family:'Courier New',monospace;
+                 text-align:center;white-space:nowrap;">{p['date'] or '—'}</td>
+      <td style="padding:9px 7px;text-align:right;">{link}</td>
+    </tr>"""
+
+def _ranking_block(title: str, emoji: str, posts: list, accent: str) -> str:
+    if not posts:
+        return ""
+    rows = "".join(_rank_row(i+1, p, accent) for i, p in enumerate(posts))
+    return f"""
+    <div style="margin-bottom:24px;">
+      <div style="margin-bottom:7px;">
+        <span style="font-size:10px;letter-spacing:2px;text-transform:uppercase;
+                     color:#9CA3AF;font-family:'Courier New',monospace;">{emoji} {title}</span>
+        <span style="font-size:10px;color:#C9A84C;font-family:'Courier New',monospace;
+                     margin-left:8px;">Top {len(posts)} posts</span>
+      </div>
+      <table width="100%" cellpadding="0" cellspacing="0"
+             style="border-collapse:collapse;border:1px solid #E9E7E4;border-radius:8px;overflow:hidden;">
+        <thead>
+          <tr style="background:{accent}15;">
+            <th style="padding:6px;font-size:9px;color:#9CA3AF;font-weight:600;letter-spacing:1px;text-align:center;width:30px;">#</th>
+            <th style="padding:6px 7px;font-size:9px;color:#9CA3AF;font-weight:600;letter-spacing:1px;text-align:left;">CREATOR</th>
+            <th style="padding:6px 5px;font-size:9px;color:#9CA3AF;font-weight:600;letter-spacing:1px;text-align:center;">FOLLOWERS</th>
+            <th style="padding:6px 5px;font-size:9px;color:#9CA3AF;font-weight:600;letter-spacing:1px;text-align:center;">VIEWS</th>
+            <th style="padding:6px 5px;font-size:9px;color:#9CA3AF;font-weight:600;letter-spacing:1px;text-align:center;">LIKES</th>
+            <th style="padding:6px 5px;font-size:9px;color:#9CA3AF;font-weight:600;letter-spacing:1px;text-align:center;">DATE</th>
+            <th style="padding:6px 7px;width:55px;"></th>
+          </tr>
+        </thead>
+        <tbody>{rows}</tbody>
+      </table>
+    </div>"""
+
+def build_rankings_section(posts: list) -> str:
+    if not posts:
+        return ""
+    today  = date.today()
+
+    def top10(since=None):
+        f = [p for p in posts if p["views"] > 0]
+        if since:
+            f = [p for p in f if p.get("date_obj") and p["date_obj"] >= since]
+        seen = {}
+        for p in f:
+            k = p["url"] or f"{p['username']}_{p['date']}"
+            if k not in seen or p["views"] > seen[k]["views"]:
+                seen[k] = p
+        return sorted(seen.values(), key=lambda x: x["views"], reverse=True)[:10]
+
+    r7   = _ranking_block("Last 7 Days",  "🔥", top10(today - timedelta(days=7)),  "#EF4444")
+    r30  = _ranking_block("Last 30 Days", "📈", top10(today - timedelta(days=30)), "#F59E0B")
+    rall = _ranking_block("All-Time Best","👑", top10(),                            "#6366F1")
+
+    return f"""
+    <div style="padding-top:20px;border-top:1px solid #E9E7E4;margin-bottom:0;">
+      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;
+                  color:#9CA3AF;font-family:'Courier New',monospace;margin-bottom:18px;">
+        Content Rankings &middot; 🇺🇸 US Posts Master
+      </div>
+      {r7}{r30}{rall}
+    </div>"""
+
+
+def _load_us_posts_for_rankings() -> list:
+    """Load US Posts Master silently; return [] on any error."""
+    try:
+        sys.path.insert(0, str(PROJECT_ROOT / "tools"))
+        from build_ranking_dashboard import load_posts
+        return load_posts("US Posts Master")
+    except Exception as e:
+        print(f"[WARN] Could not load US posts for rankings: {e}")
+        return []
+
+
 # ── HTML assembly ─────────────────────────────────────────────────────────────
 
 def build_html(
@@ -306,6 +419,11 @@ def build_html(
     highlights_html = build_highlights_section(highlights)
     pipeline_html   = build_pipeline_section(statuses)
     stats_html      = build_stats_section(sns_summary, len(highlights), total_creators)
+
+    # Load US posts for rankings (graceful fallback if sheets unavailable)
+    us_posts       = _load_us_posts_for_rankings()
+    rankings_html  = build_rankings_section(us_posts)
+
     links_html      = build_links_section(repo, run_id)
 
     return f"""<!DOCTYPE html>
@@ -356,6 +474,7 @@ def build_html(
             {highlights_html}
             {pipeline_html}
             {stats_html}
+            {rankings_html}
             {links_html}
           </td>
         </tr>
