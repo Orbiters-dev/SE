@@ -43,6 +43,7 @@ ANTHROPIC_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 MODEL_MAP = {
     "haiku":  "claude-haiku-4-5-20251001",
     "sonnet": "claude-sonnet-4-6",
+    "opus":   "claude-opus-4-6",
 }
 
 # Always include these skills regardless of recent changes
