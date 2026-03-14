@@ -2344,10 +2344,10 @@ def fetch_cross_platform_context(brand_key: str, days: int = 30) -> Dict:
         try:
             amz_sales = dk.get("amazon_sales_daily", days=period_days, brand=brand_name)
             if amz_sales:
-                total_rev = sum(float(r.get("ordered_product_sales") or r.get("revenue") or 0) for r in amz_sales)
+                total_rev = sum(float(r.get("gross_sales") or r.get("net_sales") or r.get("ordered_product_sales") or 0) for r in amz_sales)
                 total_units = sum(int(r.get("units_ordered") or r.get("units") or 0) for r in amz_sales)
                 period["amazon_sales"] = {
-                    "total_revenue": round(total_rev, 2),
+                    "revenue": round(total_rev, 2),
                     "total_units": total_units,
                 }
         except Exception as e:
@@ -2357,7 +2357,7 @@ def fetch_cross_platform_context(brand_key: str, days: int = 30) -> Dict:
         try:
             shopify = dk.get("shopify_orders_daily", days=period_days)
             if shopify:
-                s_revenue = sum(float(r.get("total_price") or r.get("revenue") or 0) for r in shopify)
+                s_revenue = sum(float(r.get("gross_sales") or r.get("net_sales") or r.get("total_price") or 0) for r in shopify)
                 s_orders = len(shopify)
                 period["shopify"] = {
                     "revenue": round(s_revenue, 2),
