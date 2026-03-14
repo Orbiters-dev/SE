@@ -853,26 +853,8 @@ def fetch_dataforseo_keywords(brand_key: str) -> Dict[str, Dict]:
         return {}
 
 
-def build_keyword_performance_matrix(
-    kw_rows: List[Dict], st_rows: List[Dict], campaigns: List[Dict],
-    dataforseo: Dict[str, Dict]
-) -> Dict:
-    """Build detailed keyword-level performance analysis.
-
-    Returns:
-        {
-            "top_keywords": [...],   # Top 10 by ROAS
-            "bottom_keywords": [...], # Bottom 10 by ACOS (with spend)
-            "adgroup_breakdown": {...}, # Per-adgroup metrics
-            "match_type_breakdown": {...}, # Exact vs Phrase vs Broad
-            "keyword_vs_google": [...], # Amazon CPC vs Google CPC comparison
-        }
-    """
-    camp_map = {}
-    for c in campaigns:
-        camp_map[str(c["campaignId"])] = c
-
-    # 1. Aggregate keyword metrics
+def _agg_keyword_rows(kw_rows: List[Dict], camp_map: Dict) -> Dict:
+    """Aggregate keyword report rows by keywordId."""
     kw_agg = {}
     for kw in kw_rows:
         kid = kw.get("keywordId", "")
@@ -893,8 +875,6 @@ def build_keyword_performance_matrix(
         a["cost"] += float(kw.get("cost", 0) or 0)
         a["sales"] += float(kw.get("sales14d", 0) or 0)
         a["purchases"] += int(kw.get("purchases14d", 0) or 0)
-
-    # Compute derived metrics
     for k in kw_agg.values():
         k["roas"] = round(k["sales"] / k["cost"], 2) if k["cost"] > 0 else 0
         k["acos"] = round(k["cost"] / k["sales"] * 100, 1) if k["sales"] > 0 else None
@@ -903,8 +883,61 @@ def build_keyword_performance_matrix(
         k["cvr"] = round(k["purchases"] / k["clicks"] * 100, 1) if k["clicks"] > 0 else 0
         camp = camp_map.get(k["campaignId"], {})
         k["campaignName"] = camp.get("name", "")
+    return kw_agg
 
+
+def build_keyword_performance_matrix(
+    kw_rows: List[Dict], st_rows: List[Dict], campaigns: List[Dict],
+    dataforseo: Dict[str, Dict], kw_rows_7d: Optional[List[Dict]] = None
+) -> Dict:
+    """Build detailed keyword-level performance analysis with 7d vs 30d trends.
+
+    Returns dict with: top_keywords, bottom_keywords, adgroup_breakdown,
+    match_type_breakdown, keyword_vs_google, keyword_trends, cannibalization
+    """
+    camp_map = {}
+    for c in campaigns:
+        camp_map[str(c["campaignId"])] = c
+
+    # 1. Aggregate 30d keyword metrics (primary)
+    kw_agg = _agg_keyword_rows(kw_rows, camp_map)
     all_kws = sorted(kw_agg.values(), key=lambda x: x["cost"], reverse=True)
+
+    # 1b. Aggregate 7d keyword metrics (for trend comparison)
+    kw_trends = []
+    if kw_rows_7d:
+        kw_agg_7d = _agg_keyword_rows(kw_rows_7d, camp_map)
+        # Compare 7d vs 30d for keywords with meaningful spend
+        for kid, k30 in kw_agg.items():
+            if k30["cost"] < 2:
+                continue
+            k7 = kw_agg_7d.get(kid, {"roas": 0, "acos": None, "cost": 0, "sales": 0, "cpc": 0})
+            # 30d-exclusive period (days 8-30) for comparison
+            cost_prev = k30["cost"] - k7.get("cost", 0)
+            sales_prev = k30["sales"] - k7.get("sales", 0)
+            roas_prev = round(sales_prev / cost_prev, 2) if cost_prev > 1 else 0
+            roas_7d = k7.get("roas", 0)
+            if roas_prev > 0 and roas_7d > 0:
+                trend_pct = round((roas_7d - roas_prev) / roas_prev * 100, 1)
+            elif roas_7d > 0 and roas_prev == 0:
+                trend_pct = 100.0  # New performer
+            elif roas_7d == 0 and roas_prev > 0:
+                trend_pct = -100.0  # Stopped performing
+            else:
+                trend_pct = 0
+            kw_trends.append({
+                "keywordText": k30["keywordText"],
+                "matchType": k30["matchType"],
+                "roas_7d": roas_7d,
+                "roas_prev": roas_prev,
+                "acos_7d": k7.get("acos"),
+                "acos_30d": k30["acos"],
+                "trend_pct": trend_pct,
+                "cost_7d": round(k7.get("cost", 0), 2),
+                "cost_30d": round(k30["cost"], 2),
+                "direction": "up" if trend_pct > 10 else ("down" if trend_pct < -10 else "stable"),
+            })
+        kw_trends.sort(key=lambda x: abs(x["trend_pct"]), reverse=True)
 
     # 2. Top/Bottom keywords
     with_sales = [k for k in all_kws if k["sales"] > 0]
@@ -962,12 +995,72 @@ def build_keyword_performance_matrix(
                 "roas": k["roas"],
             })
 
+    # 6. Cannibalization detection
+    # Same keyword text appearing in multiple campaigns or ad groups
+    cannibalization = []
+    kw_by_text = defaultdict(list)
+    for k in all_kws:
+        kw_by_text[k["keywordText"].lower()].append(k)
+    # Also check search terms hitting multiple campaigns
+    st_by_query = defaultdict(list)
+    for st in st_rows:
+        q = st.get("searchTerm", st.get("query", "")).lower().strip()
+        cid = str(st.get("campaignId", ""))
+        if q and cid:
+            st_by_query[q].append({
+                "campaignId": cid,
+                "campaignName": camp_map.get(cid, {}).get("name", cid[:20]),
+                "cost": float(st.get("cost", 0) or 0),
+                "sales": float(st.get("sales14d", 0) or 0),
+            })
+
+    # Keywords in multiple campaigns/ad groups
+    for kw_text, entries in kw_by_text.items():
+        if len(entries) < 2:
+            continue
+        unique_camps = set(e["campaignId"] for e in entries)
+        unique_ags = set(e["adGroupId"] for e in entries)
+        if len(unique_camps) > 1 or len(unique_ags) > 1:
+            total_cost = sum(e["cost"] for e in entries)
+            camp_names = [e["campaignName"][:30] or e["campaignId"][:15] for e in entries]
+            cannibalization.append({
+                "keyword": kw_text,
+                "type": "keyword_overlap",
+                "campaigns": list(unique_camps),
+                "campaign_names": camp_names,
+                "total_cost": round(total_cost, 2),
+                "entries": len(entries),
+                "detail": f"'{kw_text}' in {len(unique_camps)} campaigns: {', '.join(camp_names)}",
+            })
+
+    # Search terms hitting multiple campaigns
+    for query, hits in st_by_query.items():
+        unique_camps = set(h["campaignId"] for h in hits)
+        if len(unique_camps) > 1:
+            total_cost = sum(h["cost"] for h in hits)
+            if total_cost < 2:
+                continue
+            camp_names = list(set(h["campaignName"] for h in hits))
+            cannibalization.append({
+                "keyword": query,
+                "type": "search_term_overlap",
+                "campaigns": list(unique_camps),
+                "campaign_names": camp_names,
+                "total_cost": round(total_cost, 2),
+                "entries": len(hits),
+                "detail": f"Search term '{query}' matched in {len(unique_camps)} campaigns (${total_cost:.0f} total)",
+            })
+
+    cannibalization.sort(key=lambda x: x["total_cost"], reverse=True)
+
     return {
         "top_keywords": top_kws,
         "bottom_keywords": bottom_kws,
         "adgroup_breakdown": sorted(ag_map.values(), key=lambda x: x["cost"], reverse=True),
         "match_type_breakdown": sorted(mt_map.values(), key=lambda x: x["cost"], reverse=True),
         "keyword_vs_google": amz_vs_google,
+        "keyword_trends": kw_trends[:20],  # Top 20 by trend magnitude
+        "cannibalization": cannibalization[:15],  # Top 15 by cost
         "total_keywords": len(all_kws),
     }
 
@@ -1064,6 +1157,66 @@ def _build_keyword_matrix_html(matrix: Optional[Dict]) -> str:
         </tr>{bot_rows}
     </table>""")
 
+    # --- Keyword Trends (7d vs Previous Period) ---
+    trends = matrix.get("keyword_trends", [])
+    if trends:
+        trend_rows = ""
+        for t in trends[:15]:
+            if t["direction"] == "up":
+                arrow = "^"
+                tcolor = "#28a745"
+            elif t["direction"] == "down":
+                arrow = "v"
+                tcolor = "#dc3545"
+            else:
+                arrow = "-"
+                tcolor = "#999"
+            trend_rows += f"""<tr>
+                <td style="padding:4px 8px;border:1px solid #eee;font-size:11px;">{t['keywordText']}</td>
+                <td style="padding:4px 8px;border:1px solid #eee;text-align:center;font-size:10px;">{t['matchType']}</td>
+                <td style="padding:4px 8px;border:1px solid #eee;text-align:right;">{t['roas_7d']}x</td>
+                <td style="padding:4px 8px;border:1px solid #eee;text-align:right;">{t['roas_prev']}x</td>
+                <td style="padding:4px 8px;border:1px solid #eee;text-align:right;color:{tcolor};font-weight:bold;">{arrow} {t['trend_pct']:+.0f}%</td>
+                <td style="padding:4px 8px;border:1px solid #eee;text-align:right;">{t['acos_7d'] or '-'}%</td>
+                <td style="padding:4px 8px;border:1px solid #eee;text-align:right;">${t['cost_7d']:.0f}</td>
+            </tr>"""
+        sections.append(f"""
+        <h3 style="color:#6a1b9a;margin-top:20px;">Keyword Trends (7d vs Previous Period)</h3>
+        <p style="color:#666;font-size:11px;">Compares last 7 days ROAS against days 8-30 ROAS to detect momentum shifts.</p>
+        <table style="border-collapse:collapse;width:100%;font-size:12px;">
+            <tr style="background:#6a1b9a;color:white;">
+                <th style="padding:6px;">Keyword</th><th style="padding:6px;">Match</th>
+                <th style="padding:6px;">ROAS 7d</th><th style="padding:6px;">ROAS prev</th>
+                <th style="padding:6px;">Trend</th><th style="padding:6px;">ACOS 7d</th><th style="padding:6px;">Spend 7d</th>
+            </tr>{trend_rows}
+        </table>""")
+
+    # --- Cannibalization Detection ---
+    cannibal = matrix.get("cannibalization", [])
+    if cannibal:
+        can_rows = ""
+        for c in cannibal[:10]:
+            type_label = "KW Overlap" if c["type"] == "keyword_overlap" else "ST Overlap"
+            type_bg = "#ff6f00" if c["type"] == "keyword_overlap" else "#e65100"
+            can_rows += f"""<tr>
+                <td style="padding:4px 8px;border:1px solid #eee;font-size:11px;">{c['keyword'][:40]}</td>
+                <td style="padding:4px 8px;border:1px solid #eee;text-align:center;">
+                    <span style="background:{type_bg};color:white;padding:1px 6px;border-radius:3px;font-size:10px;">{type_label}</span>
+                </td>
+                <td style="padding:4px 8px;border:1px solid #eee;text-align:center;">{len(c['campaigns'])}</td>
+                <td style="padding:4px 8px;border:1px solid #eee;text-align:right;font-weight:bold;">${c['total_cost']:.0f}</td>
+                <td style="padding:4px 8px;border:1px solid #eee;font-size:10px;">{', '.join(n[:25] for n in c['campaign_names'][:3])}</td>
+            </tr>"""
+        sections.append(f"""
+        <h3 style="color:#e65100;margin-top:20px;">Cannibalization Alerts</h3>
+        <p style="color:#666;font-size:11px;">Keywords or search terms competing across multiple campaigns, inflating CPCs.</p>
+        <table style="border-collapse:collapse;width:100%;font-size:12px;">
+            <tr style="background:#e65100;color:white;">
+                <th style="padding:6px;">Keyword / Search Term</th><th style="padding:6px;">Type</th>
+                <th style="padding:6px;">Camps</th><th style="padding:6px;">Total Cost</th><th style="padding:6px;">Campaigns</th>
+            </tr>{can_rows}
+        </table>""")
+
     # --- Amazon CPC vs Google CPC ---
     cpc_data = matrix.get("keyword_vs_google", [])
     if cpc_data:
@@ -1144,18 +1297,36 @@ def compute_budget_allocation(campaigns: List[Dict], agg_7d: Dict) -> Dict[str, 
 
 
 def _confidence_tier(action: str, priority: str) -> str:
-    """Map action+priority to confidence tier label."""
-    if action == "pause" or (action in ("reduce_bid",) and priority == "urgent"):
-        return "No-Brainer"
-    if priority == "urgent" or (action == "reduce_bid" and priority == "high"):
-        return "Strong"
-    if action in ("increase_budget",) and priority == "high":
-        return "Strong"
+    """Map action+priority to confidence score (1-10) with label.
+
+    Score system:
+    10-9: No-Brainer (must-do, losing money or obvious win)
+     8-7: Strong (high confidence, clear ROI signal)
+     6-5: Optimize (actionable, needs fine-tuning)
+     4-3: Moderate (worth considering, lower urgency)
+     2-1: Monitor (watch but don't change yet)
+    """
+    if action == "pause" and priority == "urgent":
+        return "10 No-Brainer"
+    if action == "reduce_bid" and priority == "urgent":
+        return "9 No-Brainer"
+    if action == "reduce_bid" and priority == "high":
+        return "8 Strong"
+    if action == "increase_budget" and priority == "high":
+        return "8 Strong"
+    if priority == "urgent":
+        return "9 No-Brainer"
+    if action == "increase_budget" and priority == "medium":
+        return "7 Strong"
+    if action == "optimize" and priority == "medium":
+        return "6 Optimize"
     if action == "optimize":
-        return "Optimize"
+        return "5 Optimize"
     if priority == "medium":
-        return "Moderate"
-    return "Monitor"
+        return "4 Moderate"
+    if priority == "low" and action != "monitor":
+        return "3 Moderate"
+    return "1 Monitor"
 
 
 def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
@@ -2251,9 +2422,29 @@ def build_proposal_html(proposals: List[Dict],
         return "#dc3545"
 
     def tier_badge(tier):
-        colors = {"No-Brainer": "#dc3545", "Strong": "#fd7e14", "Optimize": "#17a2b8", "Moderate": "#ffc107", "Monitor": "#6c757d"}
-        c = colors.get(tier, "#6c757d")
-        return f'<span style="background:{c};color:white;padding:2px 6px;border-radius:3px;font-size:10px;white-space:nowrap;">{tier}</span>'
+        # Extract score number from tier string (e.g., "8 Strong" -> 8)
+        score = 1
+        label = tier
+        parts = tier.split(" ", 1)
+        if len(parts) == 2 and parts[0].isdigit():
+            score = int(parts[0])
+            label = parts[1]
+        # Gradient: same hue family, darker = higher score
+        gradient = {
+            10: "#b71c1c",  # Deep red - must do NOW
+            9:  "#c62828",  # Red
+            8:  "#d84315",  # Deep orange
+            7:  "#e65100",  # Orange
+            6:  "#00838f",  # Teal dark
+            5:  "#00acc1",  # Teal
+            4:  "#f9a825",  # Amber
+            3:  "#fbc02d",  # Yellow
+            2:  "#90a4ae",  # Grey
+            1:  "#b0bec5",  # Light grey
+        }
+        c = gradient.get(score, "#b0bec5")
+        text_color = "white" if score >= 4 else "#333"
+        return f'<span style="background:{c};color:{text_color};padding:2px 8px;border-radius:3px;font-size:10px;white-space:nowrap;"><b>{score}</b> {label}</span>'
 
     # ---- Section 1: Performance Summary ----
     summary_html = ""
@@ -2370,17 +2561,23 @@ def build_proposal_html(proposals: List[Dict],
                 <td colspan="7" style="padding:4px 8px 8px 30px;border:1px solid #eee;font-size:11px;color:#555;background:#fafafa;">{reason_text}</td>
             </tr>"""
 
-        urgent = [p for p in proposals if p.get("tier") == "No-Brainer"]
-        strong = [p for p in proposals if p.get("tier") == "Strong"]
-        optimize = [p for p in proposals if p.get("tier") == "Optimize"]
-        moderate = [p for p in proposals if p.get("tier") == "Moderate"]
+        # Count tiers by label (tier format: "8 Strong")
+        def _tier_label(t): return t.split(" ", 1)[1] if " " in t else t
+        urgent = [p for p in proposals if _tier_label(p.get("tier", "")) == "No-Brainer"]
+        strong = [p for p in proposals if _tier_label(p.get("tier", "")) == "Strong"]
+        optimize = [p for p in proposals if _tier_label(p.get("tier", "")) == "Optimize"]
+        moderate = [p for p in proposals if _tier_label(p.get("tier", "")) == "Moderate"]
+        # Score distribution
+        scores = [int(p.get("tier", "1").split(" ")[0]) for p in proposals if p.get("tier", "1 ")[0].isdigit()]
+        avg_score = round(sum(scores) / len(scores), 1) if scores else 0
+        max_score = max(scores) if scores else 0
         proposals_html = f"""
-    <h3 style="color:#333;margin-top:25px;">Action Proposals ({len(proposals)})</h3>
+    <h3 style="color:#333;margin-top:25px;">Action Proposals ({len(proposals)}) -- Avg Score: {avg_score}/10, Max: {max_score}</h3>
     <div style="display:flex;gap:15px;margin:10px 0;flex-wrap:wrap;">
-        <div style="background:#f8d7da;padding:8px 15px;border-radius:6px;font-size:13px;"><strong>{len(urgent)}</strong> No-Brainer</div>
-        <div style="background:#ffe0b2;padding:8px 15px;border-radius:6px;font-size:13px;"><strong>{len(strong)}</strong> Strong</div>
-        <div style="background:#b3e5fc;padding:8px 15px;border-radius:6px;font-size:13px;"><strong>{len(optimize)}</strong> Optimize</div>
-        <div style="background:#fff9c4;padding:8px 15px;border-radius:6px;font-size:13px;"><strong>{len(moderate)}</strong> Moderate</div>
+        <div style="background:#ffcdd2;padding:8px 15px;border-radius:6px;font-size:13px;"><strong>{len(urgent)}</strong> No-Brainer (9-10)</div>
+        <div style="background:#ffe0b2;padding:8px 15px;border-radius:6px;font-size:13px;"><strong>{len(strong)}</strong> Strong (7-8)</div>
+        <div style="background:#b2ebf2;padding:8px 15px;border-radius:6px;font-size:13px;"><strong>{len(optimize)}</strong> Optimize (5-6)</div>
+        <div style="background:#fff9c4;padding:8px 15px;border-radius:6px;font-size:13px;"><strong>{len(moderate)}</strong> Moderate (3-4)</div>
     </div>
     <table style="border-collapse:collapse;width:100%;">
         <tr style="background:#343a40;color:white;">
@@ -2447,18 +2644,101 @@ def build_proposal_html(proposals: List[Dict],
         {camp_rows}
     </table>"""
 
-    # Build data source freshness banner
+    # Build data source freshness banner with dates
     data_sources = []
+    data_appendix_rows = []  # For detailed appendix
     if analysis:
-        data_sources.append(f"Amazon Ads: through {analysis.get('latest_date', '?')}")
+        latest = analysis.get("latest_date", "?")
+        d7_start = analysis.get("d7_start", "?")
+        data_sources.append(f"Amazon Ads: {d7_start} ~ {latest}")
+        data_appendix_rows.append(("Amazon Ads (DataKeeper)", f"{d7_start} ~ {latest}", "Campaign spend, sales, clicks, impressions"))
+    if kw_matrix and kw_matrix.get("total_keywords", 0) > 0:
+        data_sources.append(f"Keywords: {kw_matrix['total_keywords']} analyzed")
+        data_appendix_rows.append(("Amazon Keyword Report (API)", "Last 30 days", f"{kw_matrix['total_keywords']} keywords, search terms, match types"))
+    if kw_matrix and kw_matrix.get("keyword_vs_google"):
+        n_google = len(kw_matrix["keyword_vs_google"])
+        data_sources.append(f"DataForSEO: {n_google} kw matched")
+        data_appendix_rows.append(("DataForSEO / Google Ads (DataKeeper)", "Last 30 days", f"{n_google} keywords with search volume + Google CPC"))
     if xp_context:
         for ch in ["google_ads", "meta_ads", "amazon_sales", "shopify_dtc"]:
             ch_data = xp_context.get(ch, {})
             if ch_data.get("7d", {}).get("spend", 0) > 0 or ch_data.get("7d", {}).get("revenue", 0) > 0:
                 data_sources.append(f"{ch.replace('_', ' ').title()}: active")
-            else:
-                data_sources.append(f"{ch.replace('_', ' ').title()}: no data")
+                data_appendix_rows.append((ch.replace("_", " ").title() + " (DataKeeper)", "Last 7-30 days", "Cross-platform context"))
     sources_str = " | ".join(data_sources) if data_sources else "No data sources"
+
+    # Build tier legend HTML
+    tier_legend = """
+    <div style="margin-top:30px;padding:15px;background:#f5f5f5;border-radius:8px;border:1px solid #e0e0e0;">
+        <h3 style="color:#333;margin:0 0 10px;">Confidence Score Guide (1-10)</h3>
+        <table style="border-collapse:collapse;width:100%;font-size:12px;">
+            <tr>
+                <td style="padding:4px 8px;"><span style="background:#b71c1c;color:white;padding:2px 8px;border-radius:3px;font-size:10px;"><b>10</b> No-Brainer</span></td>
+                <td style="padding:4px 8px;color:#666;">Must do. Losing money or obvious massive win. Execute immediately.</td>
+            </tr>
+            <tr>
+                <td style="padding:4px 8px;"><span style="background:#c62828;color:white;padding:2px 8px;border-radius:3px;font-size:10px;"><b>9</b> No-Brainer</span></td>
+                <td style="padding:4px 8px;color:#666;">Strong urgency. Clear waste or high-confidence bid reduction needed.</td>
+            </tr>
+            <tr>
+                <td style="padding:4px 8px;"><span style="background:#d84315;color:white;padding:2px 8px;border-radius:3px;font-size:10px;"><b>8</b> Strong</span></td>
+                <td style="padding:4px 8px;color:#666;">High confidence. Clear ROI signal supports this change.</td>
+            </tr>
+            <tr>
+                <td style="padding:4px 8px;"><span style="background:#e65100;color:white;padding:2px 8px;border-radius:3px;font-size:10px;"><b>7</b> Strong</span></td>
+                <td style="padding:4px 8px;color:#666;">Good data backing. Budget increase or bid adjustment recommended.</td>
+            </tr>
+            <tr>
+                <td style="padding:4px 8px;"><span style="background:#00838f;color:white;padding:2px 8px;border-radius:3px;font-size:10px;"><b>6</b> Optimize</span></td>
+                <td style="padding:4px 8px;color:#666;">Actionable optimization. Fine-tune bids, test new keywords.</td>
+            </tr>
+            <tr>
+                <td style="padding:4px 8px;"><span style="background:#00acc1;color:white;padding:2px 8px;border-radius:3px;font-size:10px;"><b>5</b> Optimize</span></td>
+                <td style="padding:4px 8px;color:#666;">Worth trying. Moderate signal, monitor after applying.</td>
+            </tr>
+            <tr>
+                <td style="padding:4px 8px;"><span style="background:#f9a825;color:white;padding:2px 8px;border-radius:3px;font-size:10px;"><b>4</b> Moderate</span></td>
+                <td style="padding:4px 8px;color:#666;">Consider it. Lower urgency but could improve efficiency.</td>
+            </tr>
+            <tr>
+                <td style="padding:4px 8px;"><span style="background:#fbc02d;color:white;padding:2px 8px;border-radius:3px;font-size:10px;"><b>3</b> Moderate</span></td>
+                <td style="padding:4px 8px;color:#666;">Low priority. Apply if bandwidth allows.</td>
+            </tr>
+            <tr>
+                <td style="padding:4px 8px;"><span style="background:#90a4ae;color:#333;padding:2px 8px;border-radius:3px;font-size:10px;"><b>2</b> Monitor</span></td>
+                <td style="padding:4px 8px;color:#666;">Watch. Insufficient data or borderline performance.</td>
+            </tr>
+            <tr>
+                <td style="padding:4px 8px;"><span style="background:#b0bec5;color:#333;padding:2px 8px;border-radius:3px;font-size:10px;"><b>1</b> Monitor</span></td>
+                <td style="padding:4px 8px;color:#666;">No action. Performance within acceptable range.</td>
+            </tr>
+        </table>
+    </div>"""
+
+    # Build data appendix HTML
+    appendix_rows_html = ""
+    for src_name, period, detail in data_appendix_rows:
+        appendix_rows_html += f"""<tr>
+            <td style="padding:5px 8px;border:1px solid #e0e0e0;font-size:11px;">{src_name}</td>
+            <td style="padding:5px 8px;border:1px solid #e0e0e0;font-size:11px;">{period}</td>
+            <td style="padding:5px 8px;border:1px solid #e0e0e0;font-size:11px;color:#666;">{detail}</td>
+        </tr>"""
+    data_appendix = f"""
+    <div style="margin-top:25px;padding:15px;background:#fafafa;border-radius:8px;border:1px solid #e0e0e0;">
+        <h3 style="color:#546e7a;margin:0 0 10px;">Appendix: Data Sources & Freshness</h3>
+        <table style="border-collapse:collapse;width:100%;font-size:12px;">
+            <tr style="background:#78909c;color:white;">
+                <th style="padding:6px;">Source</th>
+                <th style="padding:6px;">Period</th>
+                <th style="padding:6px;">Details</th>
+            </tr>
+            {appendix_rows_html}
+        </table>
+        <p style="color:#999;font-size:10px;margin-top:8px;">
+            Amazon Ads API has a 1-day reporting lag (D+1). Data for today becomes available tomorrow KST 17:00.
+            DataKeeper refreshes 2x daily (PST 00:00, 12:00).
+        </p>
+    </div>""" if data_appendix_rows else ""
 
     html = f"""<!DOCTYPE html>
 <html>
@@ -2487,6 +2767,10 @@ def build_proposal_html(proposals: List[Dict],
     <div style="margin-top:25px;padding:15px;background:#e3f2fd;border-radius:8px;border-left:4px solid #2196f3;">
         <strong>To execute proposals:</strong> Reply "execute" to this email, or edit <code>.tmp/ppc_proposal_*.json</code> and run <code>--execute</code>.
     </div>
+
+    {tier_legend}
+
+    {data_appendix}
 
     <p style="color:#999;margin-top:20px;font-size:11px;">
         Amazon PPC Executor ({cfg['brand_display']}) | Scheduled daily KST 08:00 | Auto-check for "execute" reply every 2h
@@ -3033,14 +3317,23 @@ def run_propose_single(args, brand_key: str):
     kw_rows = []
 
     if not args.skip_keywords:
-        st_start = end_date - timedelta(days=13)  # 14-day window for attribution
-        print(f"\n[4/8] Fetching search term report ({st_start} ~ {end_date})...")
+        # Use latest_date from analysis instead of end_date for proper alignment
+        latest = analysis["summary"].get("latest_date", end_date)
+        if isinstance(latest, str):
+            latest = datetime.strptime(latest[:10], "%Y-%m-%d").date()
+        st_start_7d = latest - timedelta(days=6)   # 7-day window
+        st_start_30d = latest - timedelta(days=29)  # 30-day window
+        print(f"\n[4/8] Fetching keyword reports (7d: {st_start_7d}~{latest}, 30d: {st_start_30d}~{latest})...")
         try:
-            st_rows = fetch_search_term_report(profile_id, st_start, end_date)
-            print(f"  {len(st_rows)} search term rows")
+            st_rows = fetch_search_term_report(profile_id, st_start_30d, latest)
+            print(f"  {len(st_rows)} search term rows (30d)")
 
-            kw_rows = fetch_keyword_report(profile_id, st_start, end_date)
-            print(f"  {len(kw_rows)} keyword rows")
+            # Fetch 7d and 30d keyword reports separately for trend analysis
+            kw_rows_7d = fetch_keyword_report(profile_id, st_start_7d, latest)
+            print(f"  {len(kw_rows_7d)} keyword rows (7d)")
+            kw_rows_30d = fetch_keyword_report(profile_id, st_start_30d, latest)
+            print(f"  {len(kw_rows_30d)} keyword rows (30d)")
+            kw_rows = kw_rows_30d  # Use 30d for main analysis
 
             print(f"\n[5/8] Analyzing search terms & keywords...")
             st_analysis = analyze_search_terms(st_rows, campaigns, kw_rows)
@@ -3051,12 +3344,14 @@ def run_propose_single(args, brand_key: str):
             print(f"  {len(st_analysis['negate'])} negative candidates")
             print(f"  {len(kw_bid_proposals)} keyword bid adjustments")
 
-            # DataForSEO + keyword performance matrix
+            # DataForSEO + keyword performance matrix with 7d vs 30d trend
             print(f"\n[6/8] Building keyword performance matrix + DataForSEO...")
             dataforseo = fetch_dataforseo_keywords(brand_key)
-            kw_matrix = build_keyword_performance_matrix(kw_rows, st_rows, campaigns, dataforseo)
+            kw_matrix = build_keyword_performance_matrix(
+                kw_rows_30d, st_rows, campaigns, dataforseo, kw_rows_7d=kw_rows_7d)
             print(f"  {kw_matrix['total_keywords']} keywords analyzed")
             print(f"  {len(kw_matrix.get('keyword_vs_google', []))} keywords matched to Google CPC")
+            print(f"  {len(kw_matrix.get('cannibalization', []))} cannibalization alerts")
         except Exception as e:
             print(f"  [WARN] Search term/keyword analysis failed: {e}")
             import traceback; traceback.print_exc()
