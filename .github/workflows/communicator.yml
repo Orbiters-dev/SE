@@ -15,6 +15,7 @@ jobs:
   communicate:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    if: contains(github.repository, 'WJ') || contains(github.repository, 'wj')
 
     steps:
       - name: Checkout repo
