@@ -325,52 +325,56 @@ def build_stat_card(label: str, value: str, sub: str = "") -> str:
     </td>"""
 
 
-def build_stats_section(sns: dict, highlights_count: int, total_creators: int) -> str:
-    total   = sns.get("total_influencers", 0)
-    new_24h = sns.get("new_24h", sns.get("new_count", 0))
-    new_7d  = sns.get("new_7d", 0)
-    new_30d = sns.get("new_30d", 0)
-    with_c  = sns.get("with_content", 0)
-    upd_c   = sns.get("update_count", 0)
+def build_stats_section(sns: dict, llm: dict, total_creators: int) -> str:
+    # Shipped stats (from sync_sns_tab_grosmimi)
+    total        = sns.get("total_influencers", 0)
+    shipped_24h  = sns.get("new_24h", sns.get("new_count", 0))
+    shipped_7d   = sns.get("new_7d", 0)
+    shipped_30d  = sns.get("new_30d", 0)
+    upd_c        = sns.get("update_count", 0)
+
+    # Content detected stats (from update_usa_llm)
+    content_24h  = llm.get("new_content_24h", 0)
+    content_7d   = llm.get("new_content_7d", 0)
+    content_30d  = llm.get("new_content_30d", 0)
+    highlights_count = len(llm.get("highlights", []))
 
     wf_ts, _ = _wf_info("apify_daily.yml")
-    sns_ts = wf_ts
-    llm_ts = wf_ts
+    ts_html = (
+        f'<span style="font-size:10px;color:#9CA3AF;font-family:\'Courier New\',monospace;'
+        f'margin-left:6px;">as of {wf_ts}</span>' if wf_ts else ""
+    )
 
-    sns_ts_html = (
-        f'<span style="font-size:10px;color:#9CA3AF;font-family:\'Courier New\',monospace;'
-        f'margin-left:6px;">as of {sns_ts}</span>' if sns_ts else ""
-    )
-    llm_ts_html = (
-        f'<span style="font-size:10px;color:#9CA3AF;font-family:\'Courier New\',monospace;'
-        f'margin-left:6px;">as of {llm_ts}</span>' if llm_ts else ""
-    )
+    def section_label(title):
+        return (
+            f'<div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;'
+            f'color:#9CA3AF;font-family:\'Courier New\',monospace;margin-bottom:10px;">'
+            f'{title} {ts_html}</div>'
+        )
 
     return f"""
     <div style="margin-bottom:24px;">
-      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;
-                  color:#9CA3AF;font-family:'Courier New',monospace;
-                  margin-bottom:10px;">Grosmimi US SNS Tab {sns_ts_html}</div>
+      {section_label("Grosmimi US SNS &mdash; Newly Shipped")}
       <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
         <tr>
           {build_stat_card("Total Influencers", str(total))}
-          {build_stat_card("Newly Added · 24h", str(new_24h), f"with content: {with_c}")}
-          {build_stat_card("Newly Added · 7d", str(new_7d))}
-          {build_stat_card("Newly Added · 30d", str(new_30d))}
+          {build_stat_card("Shipped · 24h", str(shipped_24h))}
+          {build_stat_card("Shipped · 7d", str(shipped_7d))}
+          {build_stat_card("Shipped · 30d", str(shipped_30d))}
           {build_stat_card("Updated", str(upd_c))}
         </tr>
       </table>
     </div>
 
     <div style="margin-bottom:24px;">
-      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;
-                  color:#9CA3AF;font-family:'Courier New',monospace;
-                  margin-bottom:10px;">USA_LLM {llm_ts_html}</div>
+      {section_label("New Content Detected (USA_LLM)")}
       <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
         <tr>
           {build_stat_card("Creators Tracked", str(total_creators))}
-          {build_stat_card("Highlights", str(highlights_count), "posts detected")}
-          <td style="padding:0 5px;"></td>
+          {build_stat_card("Content · 24h", str(content_24h), "new posts found")}
+          {build_stat_card("Content · 7d", str(content_7d))}
+          {build_stat_card("Content · 30d", str(content_30d))}
+          {build_stat_card("Highlights Today", str(highlights_count), "first detected")}
         </tr>
       </table>
     </div>"""
@@ -523,13 +527,14 @@ def build_html(
     highlights: list,
     total_creators: int,
     sns_summary: dict,
+    llm_data: dict,
     statuses: dict,
     repo: str = "",
     run_id: str = "",
 ) -> str:
     highlights_html = build_highlights_section(highlights)
     pipeline_html   = build_pipeline_section(statuses)
-    stats_html      = build_stats_section(sns_summary, len(highlights), total_creators)
+    stats_html      = build_stats_section(sns_summary, llm_data, total_creators)
 
     # Load US posts for rankings (graceful fallback if sheets unavailable)
     us_posts       = _load_us_posts_for_rankings()
@@ -621,12 +626,12 @@ def main():
     parser.add_argument("--llm",      default=os.environ.get("LLM_OUTCOME",      "unknown"))
     args = parser.parse_args()
 
-    highlights, total_creators = [], 0
+    highlights, total_creators, llm_data = [], 0, {}
     if HIGHLIGHTS_PATH.exists():
         try:
-            d = json.loads(HIGHLIGHTS_PATH.read_text(encoding="utf-8"))
-            highlights     = d.get("highlights", [])
-            total_creators = d.get("total_creators", 0)
+            llm_data       = json.loads(HIGHLIGHTS_PATH.read_text(encoding="utf-8"))
+            highlights     = llm_data.get("highlights", [])
+            total_creators = llm_data.get("total_creators", 0)
         except Exception as e:
             print(f"[WARN] Could not load highlights: {e}")
 
@@ -654,6 +659,7 @@ def main():
         highlights=highlights,
         total_creators=total_creators,
         sns_summary=sns_summary,
+        llm_data=llm_data,
         statuses=statuses,
         repo=repo,
         run_id=run_id,

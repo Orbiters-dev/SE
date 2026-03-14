@@ -4,8 +4,10 @@ USA_LLM Tab Updater
 Apify test 시트의 US Posts Master 데이터를 읽어
 Grosmimi SNS 시트의 USA_LLM 탭을 갱신.
 
-하이라이트 감지:
-  - 지난 24시간 내 업로드된 포스트 (뷰 순 정렬)
+하이라이트 감지 (detection_log 기반):
+  - URL별 최초 감지 날짜를 .tmp/content_detection_log.json 에 영속 저장
+  - 오늘 처음 감지된 포스트 = Highlights (뷰 순)
+  - New Content Detected 통계: 24h / 7d / 30d
 
 결과를 .tmp/usa_llm_highlights.json 에 저장 → 이메일 보고에 포함.
 
@@ -30,14 +32,12 @@ load_env()
 import gspread
 from google.oauth2.service_account import Credentials
 
-APIFY_SHEET_ID = "1mYofqMBYqIHS3XNQ29vDA__SzYBfkkGCPn3Jb8OxAkY"
-SNS_SHEET_ID   = "1SwO4uAbf25vOR0UYWOUlxzy5gCbFRrNXwO2kAWydyeA"
-LLM_TAB        = "USA_LLM"
+APIFY_SHEET_ID    = "1mYofqMBYqIHS3XNQ29vDA__SzYBfkkGCPn3Jb8OxAkY"
+SNS_SHEET_ID      = "1SwO4uAbf25vOR0UYWOUlxzy5gCbFRrNXwO2kAWydyeA"
+LLM_TAB           = "USA_LLM"
 
-PREV_METRICS_PATH = PROJECT_ROOT / ".tmp" / "usa_llm_prev.json"
-HIGHLIGHTS_PATH   = PROJECT_ROOT / ".tmp" / "usa_llm_highlights.json"
-
-HIGHLIGHTS_WINDOW_HOURS = 24   # show posts uploaded within last N hours
+DETECTION_LOG_PATH = PROJECT_ROOT / ".tmp" / "content_detection_log.json"
+HIGHLIGHTS_PATH    = PROJECT_ROOT / ".tmp" / "usa_llm_highlights.json"
 
 
 def to_int(v):
@@ -104,15 +104,15 @@ def aggregate_by_user(posts):
         u = p["username"]
         if u not in by_user:
             by_user[u] = {
-                "username":     u,
-                "nickname":     p["nickname"],
-                "followers":    p["followers"],
-                "latest_date":  p["date"],
-                "latest_url":   p["url"],
-                "total_views":  0,
-                "total_likes":  0,
+                "username":       u,
+                "nickname":       p["nickname"],
+                "followers":      p["followers"],
+                "latest_date":    p["date"],
+                "latest_url":     p["url"],
+                "total_views":    0,
+                "total_likes":    0,
                 "total_comments": 0,
-                "post_count":   0,
+                "post_count":     0,
             }
         by_user[u]["total_views"]    += p["views"]
         by_user[u]["total_likes"]    += p["likes"]
@@ -126,47 +126,67 @@ def aggregate_by_user(posts):
     return sorted(by_user.values(), key=lambda x: x["total_views"], reverse=True)
 
 
-def detect_highlights(posts):
-    """지난 24시간 내 업로드된 포스트만 뷰 순으로 반환."""
-    cutoff = datetime.now(tz=timezone.utc) - timedelta(hours=HIGHLIGHTS_WINDOW_HOURS)
-    seen_urls = set()
-    highlights = []
+def update_detection_log(posts, dry_run=False):
+    """
+    URL별 최초 감지 날짜를 detection_log에 기록.
+    Returns: (updated_log, newly_detected_urls_set)
+    """
+    today = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d")
 
+    # Load existing log
+    log = {}
+    if DETECTION_LOG_PATH.exists():
+        try:
+            log = json.loads(DETECTION_LOG_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+
+    newly_detected = set()
+    seen = set()
     for p in posts:
         url = p["url"]
-        if not url or url in seen_urls:
+        if not url or url in seen:
             continue
-        seen_urls.add(url)
+        seen.add(url)
+        if url not in log:
+            log[url] = today
+            newly_detected.add(url)
 
-        date_str = p.get("date", "")
-        if not date_str:
+    if not dry_run:
+        DETECTION_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        DETECTION_LOG_PATH.write_text(
+            json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+
+    return log, newly_detected
+
+
+def count_content_within(log, days):
+    """detection_log에서 최근 N일 내 감지된 URL 수."""
+    cutoff = (datetime.now(tz=timezone.utc) - timedelta(days=days)).strftime("%Y-%m-%d")
+    return sum(1 for d in log.values() if d >= cutoff)
+
+
+def detect_highlights(posts, newly_detected_urls):
+    """오늘 처음 감지된 포스트 → 뷰 순 정렬."""
+    seen = set()
+    highlights = []
+    for p in posts:
+        url = p["url"]
+        if not url or url in seen:
             continue
-
-        # Parse post date — try several common formats
-        date_obj = None
-        for fmt in ("%Y-%m-%d", "%Y/%m/%d", "%m/%d/%Y", "%d/%m/%Y", "%Y-%m-%dT%H:%M:%S"):
-            try:
-                date_obj = datetime.strptime(date_str[:len(fmt)], fmt).replace(tzinfo=timezone.utc)
-                break
-            except Exception:
-                continue
-
-        if date_obj is None:
+        seen.add(url)
+        if url not in newly_detected_urls:
             continue
-
-        if date_obj < cutoff:
-            continue
-
         highlights.append({
-            "username":   p["username"],
-            "nickname":   p["nickname"],
-            "url":        url,
-            "date":       date_str,
-            "views":      p["views"],
-            "hashtags":   p.get("hashtags", ""),
+            "username":  p["username"],
+            "nickname":  p["nickname"],
+            "url":       url,
+            "date":      p["date"],
+            "views":     p["views"],
+            "hashtags":  p.get("hashtags", ""),
         })
 
-    # 뷰 높은 순 정렬
     highlights.sort(key=lambda x: x["views"], reverse=True)
     return highlights
 
@@ -178,7 +198,7 @@ def write_llm_tab(sh_sns, aggregated, dry_run=False):
         "Total Views", "Total Likes", "Total Comments", "Post Count",
         "Updated At",
     ]
-    today = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+    today = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     rows = [headers]
     for row in aggregated:
         url = row["latest_url"]
@@ -238,22 +258,33 @@ def run(dry_run=False):
     aggregated = aggregate_by_user(posts)
     print(f"    크리에이터: {len(aggregated)}명")
 
-    print("[3] 하이라이트 감지... (최근 24시간 업로드, 뷰 순)")
-    highlights = detect_highlights(posts)
+    print("[3] Detection log 업데이트...")
+    detection_log, newly_detected = update_detection_log(posts, dry_run=dry_run)
+    print(f"    신규 감지: {len(newly_detected)}개 URL")
+
+    new_content_24h = count_content_within(detection_log, 1)
+    new_content_7d  = count_content_within(detection_log, 7)
+    new_content_30d = count_content_within(detection_log, 30)
+    print(f"    Content detected - 24h: {new_content_24h} / 7d: {new_content_7d} / 30d: {new_content_30d}")
+
+    print("[4] 하이라이트 감지... (오늘 첫 감지된 포스트, 뷰 순)")
+    highlights = detect_highlights(posts, newly_detected)
     print(f"    하이라이트: {len(highlights)}건")
     for h in highlights:
         print(f"    @{h['username']} ({h['date']}): {h['views']:,} views")
 
-    print("[4] USA_LLM 탭 업데이트...")
+    print("[5] USA_LLM 탭 업데이트...")
     write_llm_tab(sh_sns, aggregated, dry_run=dry_run)
 
-
-    # 하이라이트 저장
+    # 하이라이트 + 콘텐츠 통계 저장
     HIGHLIGHTS_PATH.parent.mkdir(parents=True, exist_ok=True)
     HIGHLIGHTS_PATH.write_text(json.dumps({
-        "highlights": highlights,
-        "total_creators": len(aggregated),
-        "total_posts": len(posts),
+        "highlights":       highlights,
+        "total_creators":   len(aggregated),
+        "total_posts":      len(posts),
+        "new_content_24h":  new_content_24h,
+        "new_content_7d":   new_content_7d,
+        "new_content_30d":  new_content_30d,
     }, ensure_ascii=False, indent=2), encoding="utf-8")
 
     return highlights, aggregated
