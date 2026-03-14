@@ -4317,6 +4317,78 @@ def _check_execute_for_brand(args, brand_key: str):
 # Main
 # ===========================================================================
 
+def _ensure_datakeeper_fresh():
+    """Check DataKeeper freshness and auto-refresh if stale.
+
+    Amazon Ads data is available T-2 (today=3/15 -> 3/13 latest).
+    If cache latest date is older than expected, trigger collection.
+    Returns the latest date found after refresh.
+    """
+    try:
+        from data_keeper_client import DataKeeper
+    except ImportError:
+        print("  [WARN] DataKeeper client not available, skipping freshness check")
+        return None
+
+    dk = DataKeeper()
+    today = date.today()
+    expected_latest = today - timedelta(days=2)  # T-2 for Amazon Ads
+
+    # Check campaign data freshness
+    rows = dk.get("amazon_ads_daily", days=7, limit=50000)
+    if not rows:
+        print("  [WARN] No amazon_ads_daily data in cache")
+        actual_latest = None
+    else:
+        dates = sorted(set(r.get("date", "") for r in rows))
+        actual_latest = dates[-1] if dates else None
+
+    if actual_latest:
+        actual_date = datetime.strptime(actual_latest, "%Y-%m-%d").date()
+    else:
+        actual_date = date(2000, 1, 1)
+
+    print(f"  DataKeeper freshness: latest={actual_latest}, expected>={expected_latest}")
+
+    if actual_date >= expected_latest:
+        print(f"  [OK] Data is fresh (T-2 = {expected_latest})")
+        return actual_latest
+
+    # Stale -> auto-refresh
+    print(f"  [STALE] Refreshing DataKeeper (amazon_ads + search_terms + keywords)...")
+    import subprocess
+    python = sys.executable
+    base_dir = str(Path(__file__).parent)
+
+    for channel in ["amazon_ads", "amazon_ads_search_terms", "amazon_ads_keywords"]:
+        days = 7 if channel == "amazon_ads" else 14
+        cmd = [python, "-u", os.path.join(base_dir, "data_keeper.py"),
+               "--channel", channel, "--days", str(days), "--skip-pg"]
+        print(f"  -> Collecting {channel} ({days}d)...")
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=600, cwd=base_dir)
+            if result.returncode != 0:
+                print(f"    [WARN] {channel} collection failed: {result.stderr[-200:]}")
+            else:
+                # Count rows from output
+                for line in result.stdout.split("\n"):
+                    if "rows" in line.lower() and ("cache" in line.lower() or "done" in line.lower()):
+                        print(f"    {line.strip()}")
+        except subprocess.TimeoutExpired:
+            print(f"    [WARN] {channel} timed out after 600s")
+        except Exception as e:
+            print(f"    [WARN] {channel} error: {e}")
+
+    # Re-check
+    rows = dk.get("amazon_ads_daily", days=7, limit=50000)
+    if rows:
+        dates = sorted(set(r.get("date", "") for r in rows))
+        new_latest = dates[-1] if dates else actual_latest
+        print(f"  [REFRESHED] New latest: {new_latest}")
+        return new_latest
+    return actual_latest
+
+
 def run_propose_single(args, brand_key: str):
     """Core propose logic for a single brand."""
     _apply_brand_config(brand_key)
@@ -4439,9 +4511,7 @@ def run_propose_single(args, brand_key: str):
         print(f"[6/8] Skipped")
         keyword_data_status = "skipped (--skip-keywords)"
 
-    # --- Ensure DataKeeper data is fresh before cross-platform context ---
     print(f"\n[7/9] Fetching cross-platform context (Google Ads, Meta, Shopify)...")
-    _ensure_datakeeper_fresh()
     xp_context = {}
     try:
         xp_context = fetch_cross_platform_context(brand_key, days=args.days)
@@ -4485,6 +4555,11 @@ def run_propose(args):
     """Run propose for all requested brands (default: all 3)."""
     brands_to_run = _resolve_brands(args)
     print(f"\n[Multi-Brand Propose] Running for: {', '.join(BRAND_CONFIGS[b]['brand_display'] for b in brands_to_run)}")
+
+    # Pre-flight: ensure DataKeeper has fresh data before any brand analysis
+    print(f"\n[Pre-flight] Checking DataKeeper freshness...")
+    _ensure_datakeeper_fresh()
+
     for brand_key in brands_to_run:
         try:
             run_propose_single(args, brand_key)
