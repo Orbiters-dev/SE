@@ -31,6 +31,11 @@ urlpatterns = [
     path("gifting/update/", views.update_gifting, name="update_gifting"),
     path("gifting/list/", views.list_gifting, name="list_gifting"),
 
+    # Influencer Outreach (Outbound / Pathlight)
+    path("outreach/save/", views.save_outreach, name="save_outreach"),
+    path("outreach/update/", views.update_outreach, name="update_outreach"),
+    path("outreach/list/", views.list_outreach, name="list_outreach"),
+
     # Monitoring
     path("tables/", views.list_tables, name="list_tables"),
 ]

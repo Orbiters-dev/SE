@@ -149,3 +149,46 @@ class OnzGiftingApplication(models.Model):
 
     def __str__(self):
         return f"{self.full_name} ({self.email}) - {self.status}"
+
+
+class OnzInfluencerOutreach(models.Model):
+    """Outbound influencer outreach pipeline (Pathlight).
+    Separate from inbound gifting applications (OnzGiftingApplication).
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+
+    # Creator identity
+    email = models.EmailField(db_index=True)
+    ig_handle = models.CharField(max_length=200, blank=True, default="")
+    tiktok_handle = models.CharField(max_length=200, blank=True, default="")
+    platform = models.CharField(max_length=30, blank=True, default="")  # Instagram, TikTok
+    full_name = models.CharField(max_length=200, blank=True, default="")
+
+    # Outreach metadata
+    outreach_type = models.CharField(max_length=10, blank=True, default="")   # LT, HT
+    outreach_status = models.CharField(max_length=30, default="Not Started")
+    # Not Started / Draft Ready / Sent / Replied / Needs Review / Accepted / Declined
+
+    # Airtable sync (source of truth for status)
+    airtable_base_id = models.CharField(max_length=30, blank=True, default="")
+    airtable_record_id = models.CharField(max_length=30, blank=True, default="", db_index=True)
+    airtable_conversation_id = models.CharField(max_length=30, blank=True, default="")
+
+    # Shopify (set after gifting accepted)
+    shopify_customer_id = models.CharField(max_length=50, blank=True, default="")
+    shopify_draft_order_id = models.CharField(max_length=50, blank=True, default="")
+    shopify_draft_order_name = models.CharField(max_length=50, blank=True, default="")
+
+    # Source tracking
+    source = models.CharField(max_length=30, default="pathlight_outbound")
+    environment = models.CharField(max_length=10, default="wj_test")  # wj_test / production
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "onz_influencer_outreach"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.ig_handle or self.email} [{self.outreach_status}]"

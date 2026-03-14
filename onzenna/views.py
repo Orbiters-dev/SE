@@ -15,6 +15,7 @@ from .models import (
     OnzLoyaltySurvey,
     OnzCreatorProfile,
     OnzGiftingApplication,
+    OnzInfluencerOutreach,
 )
 
 
@@ -437,6 +438,107 @@ def list_gifting(request):
     return JsonResponse([_serialize(a) for a in apps], safe=False)
 
 
+# --- Influencer Outreach (Outbound / Pathlight pipeline) ---
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def save_outreach(request):
+    """Upsert an outbound influencer outreach record (Pathlight pipeline).
+    Separate from inbound gifting applications.
+    Upsert key: airtable_record_id (if given), else email.
+    """
+    body = _json_body(request)
+    email = body.get("email", "").strip().lower()
+    airtable_record_id = body.get("airtable_record_id", "").strip()
+
+    if not email and not airtable_record_id:
+        return JsonResponse({"error": "email or airtable_record_id required"}, status=400)
+
+    defaults = {
+        "email": email,
+        "ig_handle": body.get("ig_handle", body.get("instagram", "")),
+        "tiktok_handle": body.get("tiktok_handle", body.get("tiktok", "")),
+        "platform": body.get("platform", ""),
+        "full_name": body.get("full_name", ""),
+        "outreach_type": body.get("outreach_type", ""),
+        "outreach_status": body.get("outreach_status", "Not Started"),
+        "airtable_base_id": body.get("airtable_base_id", ""),
+        "airtable_conversation_id": body.get("airtable_conversation_id", ""),
+        "source": body.get("source", "pathlight_outbound"),
+        "environment": body.get("environment", "wj_test"),
+    }
+    for field in ("shopify_customer_id", "shopify_draft_order_id", "shopify_draft_order_name"):
+        if body.get(field):
+            defaults[field] = str(body[field])
+
+    if airtable_record_id:
+        obj, created = OnzInfluencerOutreach.objects.update_or_create(
+            airtable_record_id=airtable_record_id, defaults=defaults
+        )
+    else:
+        obj, created = OnzInfluencerOutreach.objects.update_or_create(
+            email=email, defaults=defaults
+        )
+
+    return JsonResponse(_serialize(obj), status=201 if created else 200)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def update_outreach(request):
+    """Update outreach record fields (status, shopify IDs, etc.)."""
+    body = _json_body(request)
+    airtable_record_id = body.get("airtable_record_id", "").strip()
+    email = body.get("email", "").strip().lower()
+
+    if not airtable_record_id and not email:
+        return JsonResponse({"error": "airtable_record_id or email required"}, status=400)
+
+    try:
+        if airtable_record_id:
+            obj = OnzInfluencerOutreach.objects.get(airtable_record_id=airtable_record_id)
+        else:
+            obj = OnzInfluencerOutreach.objects.filter(email=email).order_by("-created_at").first()
+            if not obj:
+                return JsonResponse({"error": "Not found"}, status=404)
+    except OnzInfluencerOutreach.DoesNotExist:
+        return JsonResponse({"error": "Not found"}, status=404)
+
+    for field in ("outreach_status", "outreach_type", "shopify_customer_id",
+                  "shopify_draft_order_id", "shopify_draft_order_name",
+                  "airtable_conversation_id", "ig_handle", "tiktok_handle"):
+        if field in body:
+            setattr(obj, field, body[field])
+    obj.save()
+
+    return JsonResponse(_serialize(obj))
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def list_outreach(request):
+    """List outreach records with optional filters."""
+    qs = OnzInfluencerOutreach.objects.all()
+
+    email = request.GET.get("email")
+    status = request.GET.get("status")
+    environment = request.GET.get("environment")
+    airtable_record_id = request.GET.get("airtable_record_id")
+
+    if email:
+        qs = qs.filter(email=email.lower())
+    if status:
+        qs = qs.filter(outreach_status=status)
+    if environment:
+        qs = qs.filter(environment=environment)
+    if airtable_record_id:
+        qs = qs.filter(airtable_record_id=airtable_record_id)
+
+    limit = int(request.GET.get("limit", 50))
+    return JsonResponse([_serialize(o) for o in qs[:limit]], safe=False)
+
+
 # --- Tables (for monitoring) ---
 
 
@@ -452,5 +554,6 @@ def list_tables(request):
         "onz_loyalty_survey": OnzLoyaltySurvey.objects.count(),
         "onz_creator_profile": OnzCreatorProfile.objects.count(),
         "onz_gifting_applications": OnzGiftingApplication.objects.count(),
+        "onz_influencer_outreach": OnzInfluencerOutreach.objects.count(),
     }
     return JsonResponse({"tables": tables})
