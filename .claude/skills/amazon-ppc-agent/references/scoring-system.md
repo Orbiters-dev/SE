@@ -88,24 +88,6 @@ S_total = Σ(C_pass × W_sev × W_cat) / Σ(C_total × W_sev × W_cat) × 100
 | Budget Efficiency | 15% | Budget utilization rate, daily depletion timing, scaling cadence |
 | Keyword Coverage | 15% | Match type distribution, keyword-to-ASIN relevance, long-tail coverage |
 
-### Amazon Ads
-| Category | Weight | Rationale |
-|----------|--------|-----------|
-| Campaign Structure | 25% | Auto/Manual split (60/40), brand/non-brand separation, ad group organization |
-| Search Term Hygiene | 25% | Negative keywords, wasted spend (>$10 zero-sale terms), harvesting pipeline |
-| Bid Optimization | 20% | ROAS-based bid bands, ACOS vs target, bid adjustment frequency |
-| Budget Efficiency | 15% | Budget utilization rate, daily depletion timing, scaling cadence |
-| Keyword Coverage | 15% | Match type distribution, keyword-to-ASIN relevance, long-tail coverage |
-
-### Amazon Ads
-| Category | Weight | Rationale |
-|----------|--------|-----------|
-| Campaign Structure | 25% | Auto/Manual split (60/40), brand/non-brand separation, ad group organization |
-| Search Term Hygiene | 25% | Negative keywords, wasted spend (>$10 zero-sale terms), harvesting pipeline |
-| Bid Optimization | 20% | ROAS-based bid bands, ACOS vs target, bid adjustment frequency |
-| Budget Efficiency | 15% | Budget utilization rate, daily depletion timing, scaling cadence |
-| Keyword Coverage | 15% | Match type distribution, keyword-to-ASIN relevance, long-tail coverage |
-
 ## Grading Thresholds
 
 | Grade | Score | Label | Action Required |
