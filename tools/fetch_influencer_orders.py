@@ -6,7 +6,8 @@ Two-pass approach:
 
 Saves to .tmp/polar_data/q10_influencer_orders.json
 """
-import os, json, urllib.request, urllib.parse, time, re
+import os, json, urllib.parse, time, re
+import requests as _requests
 from dotenv import load_dotenv
 
 DIR = os.path.dirname(os.path.abspath(__file__))
@@ -19,6 +20,9 @@ API_VERSION = "2024-01"
 BASE = f"https://{SHOP}/admin/api/{API_VERSION}"
 OUT = os.path.join(ROOT, ".tmp", "polar_data", "q10_influencer_orders.json")
 
+_SESSION = _requests.Session()
+_SESSION.headers.update({"X-Shopify-Access-Token": TOKEN})
+
 # Tags to query from Shopify API (separate requests per tag)
 QUERY_TAGS = ["PR", "supporter", "supporters", "sample", "free sample",
               "giveaway", "collab", "collaboration"]
@@ -30,18 +34,27 @@ INFLUENCER_KEYWORDS = ("pr", "supporter", "sample", "influencer", "giveaway", "c
 NOTE_KEYWORDS = ("pr", "sample", "supporter", "influencer", "giveaway", "collab")
 
 
-def shopify_get(url):
-    """GET with auth header, returns (data_dict, next_link_url or None)."""
-    req = urllib.request.Request(url, headers={"X-Shopify-Access-Token": TOKEN})
-    with urllib.request.urlopen(req) as resp:
-        data = json.loads(resp.read())
-        link_header = resp.headers.get("Link", "")
-        next_url = None
-        if 'rel="next"' in link_header:
-            for part in link_header.split(","):
-                if 'rel="next"' in part:
-                    next_url = part.split("<")[1].split(">")[0]
-        return data, next_url
+def shopify_get(url, retries=3):
+    """GET with auth header + retry, returns (data_dict, next_link_url or None)."""
+    for attempt in range(retries):
+        try:
+            resp = _SESSION.get(url, timeout=90)
+            resp.raise_for_status()
+            data = resp.json()
+            link_header = resp.headers.get("Link", "")
+            next_url = None
+            if 'rel="next"' in link_header:
+                for part in link_header.split(","):
+                    if 'rel="next"' in part:
+                        next_url = part.split("<")[1].split(">")[0]
+            return data, next_url
+        except Exception as e:
+            if attempt < retries - 1:
+                wait = 2 ** attempt
+                print(f"    [retry {attempt+1}/{retries}] {e} — waiting {wait}s...")
+                time.sleep(wait)
+            else:
+                raise
 
 
 def is_influencer_order(tags_str, note_str=""):

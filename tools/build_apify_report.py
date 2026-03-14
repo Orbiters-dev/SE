@@ -34,40 +34,10 @@ STEP_OUTPUT_FILES = {
 KST = timezone(timedelta(hours=9))
 
 
-import subprocess as _subprocess
-
-
-def gh_last_run_kst(workflow: str) -> tuple[str | None, str | None]:
-    """Return (last_run_kst, status) for the most recent GitHub Actions run of a workflow."""
-    try:
-        result = _subprocess.run(
-            ["gh", "run", "list", f"--workflow={workflow}", "--limit=1",
-             "--json", "createdAt,conclusion"],
-            capture_output=True, text=True, timeout=10,
-        )
-        if result.returncode != 0:
-            return None, None
-        runs = json.loads(result.stdout)
-        if not runs:
-            return None, None
-        r = runs[0]
-        created = r.get("createdAt", "")
-        conclusion = r.get("conclusion", "unknown")
-        # Parse ISO8601 UTC → KST
-        dt = datetime.fromisoformat(created.replace("Z", "+00:00"))
-        kst_str = dt.astimezone(KST).strftime("%Y-%m-%d %H:%M KST")
-        return kst_str, conclusion
-    except Exception:
-        return None, None
-
-
-# Cache workflow run times (call gh once per workflow, not per step)
-_WF_CACHE: dict[str, tuple] = {}
-
-def _wf_info(workflow: str) -> tuple[str | None, str | None]:
-    if workflow not in _WF_CACHE:
-        _WF_CACHE[workflow] = gh_last_run_kst(workflow)
-    return _WF_CACHE[workflow]
+def _wf_info(workflow: str = "") -> tuple[str | None, str | None]:
+    """Return (run_kst, None). Timestamp = current time in KST."""
+    kst_str = datetime.now(tz=KST).strftime("%Y-%m-%d %H:%M KST")
+    return kst_str, None
 
 
 def file_mtime_kst(path: Path) -> str | None:
@@ -87,14 +57,10 @@ def file_mtime_kst(path: Path) -> str | None:
 
 
 def infer_status(step: str, given: str) -> str:
-    """If GitHub Actions didn't set the status, infer from GH Actions run result."""
-    if given.lower() not in ("unknown", ""):
-        return given
-    _, conclusion = _wf_info("apify_daily.yml")
-    if conclusion in ("success",):
-        return "success"
-    if conclusion in ("failure", "cancelled"):
-        return "failure"
+    """Return status from env var (passed by GitHub Actions step outcome)."""
+    s = given.lower()
+    if s not in ("unknown", ""):
+        return s
     return "unknown"
 
 
@@ -237,7 +203,7 @@ def build_highlights_section(highlights: list) -> str:
         <span style="font-size:10px;letter-spacing:2px;text-transform:uppercase;
                      color:#9CA3AF;font-family:'Courier New',monospace;">&#11088; Today's Highlights</span>
         <span style="font-size:10px;color:#C9A84C;font-family:'Courier New',monospace;
-                     margin-left:8px;">{len(highlights)} posts uploaded in the last 24h &middot; sorted by views</span>
+                     margin-left:8px;">{len(highlights)} posts first detected today &middot; sorted by views</span>
       </div>
       <table width="100%" cellpadding="0" cellspacing="0"
              style="border-collapse:collapse;border:1px solid #E9E7E4;border-radius:8px;overflow:hidden;">
@@ -270,7 +236,7 @@ def build_pipeline_section(statuses: dict) -> str:
         ("llm",      "USA_LLM Update"),
     ]
     # Get actual GH Actions run time (single call, cached)
-    wf_last_run, _ = _wf_info("apify_daily.yml")
+    wf_last_run, _ = _wf_info()
 
     rows = ""
     for i, (key, name) in enumerate(steps):
@@ -339,7 +305,7 @@ def build_stats_section(sns: dict, llm: dict, total_creators: int) -> str:
     content_30d    = llm.get("new_content_30d", 0)
     trending_count = llm.get("trending_count", 0)
 
-    wf_ts, _ = _wf_info("apify_daily.yml")
+    wf_ts, _ = _wf_info()
     ts_html = (
         f'<span style="font-size:10px;color:#9CA3AF;font-family:\'Courier New\',monospace;'
         f'margin-left:6px;">as of {wf_ts}</span>' if wf_ts else ""

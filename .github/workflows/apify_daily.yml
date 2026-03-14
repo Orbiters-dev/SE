@@ -62,8 +62,8 @@ jobs:
           path: |
             .tmp/content_detection_log.json
             .tmp/usa_llm_prev.json
-          key: tmp-state-${{ runner.os }}
-          restore-keys: tmp-state-
+          key: tmp-state-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: tmp-state-${{ runner.os }}-
 
       - name: Create data directory
         run: |
