@@ -168,7 +168,14 @@ sales = float(row.get('sales', 0))
 | Meta Ads | `meta_ads_daily` | `spend`, `purchase_value`, `purchases` | Awareness -> demand lag, multi-channel ROAS |
 | Shopify DTC | `shopify_orders_daily` | `total_price`, orders | Cross-channel conversion, AOV trends |
 | GA4 | `ga4_daily` | `sessions`, `conversions` | Landing page quality signal |
+| Keyword Volume | `dataforseo_keywords` | `keyword`, `avg_monthly_searches`, `low_top_of_page_bid_micros`, `high_top_of_page_bid_micros` | Google market CPC vs Amazon bid comparison |
+| GSC | `gsc_daily` | `query`, `clicks`, `impressions`, `position` | Organic search demand signals |
 | Syncly D+60 | External sheet | Views, likes, comments | Content-driven demand correlation |
+
+**dataforseo_keywords 활용 패턴:**
+- `fetch_dataforseo_keywords(brand_key)` — 브랜드별 키워드 볼륨 + Google CPC 조회 (Data Keeper → PG)
+- Amazon bid vs Google `high_top_of_page_bid_micros/1e6` 비교 → bid ceiling 판단
+- 소스는 **Google Ads Keyword Planner** (DataForSEO 아님) — Data Keeper `--channel dataforseo`로 수집
 
 ### Cross-Platform Decision Rules (Automated in Executor)
 

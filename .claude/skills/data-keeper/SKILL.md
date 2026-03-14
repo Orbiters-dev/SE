@@ -107,7 +107,7 @@ Loaded via `tools/env_loader.py`:
 | Orbitools PG | `ORBITOOLS_USER`, `ORBITOOLS_PASS` | **Missing** |
 | EC2 Deploy | `EC2_SSH_KEY`, `EC2_HOST`, `EC2_USER` | **Missing** |
 
-## Data Sources (7 Channels)
+## Data Sources (9 Channels)
 
 | Channel | Table | API | Lookback | Accounts |
 |---------|-------|-----|----------|----------|
@@ -118,6 +118,21 @@ Loaded via `tools/env_loader.py`:
 | GA4 | `ga4_daily` | Analytics Data API | 35d | 1 property |
 | Klaviyo | `klaviyo_daily` | REST API | 35d | 1 account |
 | Shopify | `shopify_orders_daily` | Admin REST API | 35d | 1 shop |
+| GSC | `gsc_daily` | Search Console API v1 | 35d | 3 sites (onzenna/grosmimi/naeiae) |
+| Keyword Volume | `dataforseo_keywords` | **Google Ads Keyword Planner** (NOT DataForSEO) | weekly | DATAFORSEO_KEYWORDS dict |
+
+### Keyword Volume (dataforseo_keywords) — Important Notes
+
+- **실제 소스**: Google Ads Keyword Planner API (`GenerateKeywordHistoricalMetrics`) — DataForSEO 유료 API 대체
+- **저장 테이블명**은 `dataforseo_keywords`이지만 데이터는 Google Ads에서 수집
+- **추적 키워드**: 브랜드별 정의 (`DATAFORSEO_KEYWORDS` dict in `data_keeper.py`)
+  - Onzenna: onzenna, onzenna sunscreen, tinted sunscreen 등 6개
+  - Naeiae: pop rice snack, baby rice crackers, 떡뻥 등 10개
+  - Grosmimi: grosmimi, baby teether, silicone baby teether 등 6개
+  - CHA&MOM: cha and mom, korean baby food 등 4개
+- **컬럼**: `keyword`, `brand`, `avg_monthly_searches`, `competition`, `low_top_of_page_bid_micros`, `high_top_of_page_bid_micros`, `date`
+- **사용처**: `amazon_ppc_executor.py` (Amazon CPC vs Google CPC 비교), `run_communicator.py` (SEO Insights 섹션)
+- **키워드 추가**: `data_keeper.py` `DATAFORSEO_KEYWORDS` dict 수정 후 `--channel dataforseo` 재실행
 
 ### Amazon SP-API Sellers
 
@@ -176,6 +191,8 @@ All on orbitools EC2, `gk_` prefix, upsert on unique keys.
 | `gk_google_ads_daily` | (date, campaign_id) |
 | `gk_ga4_daily` | (date, channel_grouping) |
 | `gk_klaviyo_daily` | (date, source_type, source_id) |
+| `gk_gsc_daily` | (date, site_url, query) |
+| `gk_dataforseo_keywords` | (date, keyword, brand) |
 
 ## Orbitools API
 

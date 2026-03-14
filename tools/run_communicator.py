@@ -55,15 +55,17 @@ ESCALATE_THRESHOLD = 2
 
 # ── 채널 메타데이터 ────────────────────────────────────────────────────
 CHANNEL_META = {
-    "shopify_orders_daily": {"label": "Shopify Orders",   "max_age_h": 14},
-    "amazon_sales_daily":   {"label": "Amazon Sales",     "max_age_h": 14},
-    "amazon_ads_daily":     {"label": "Amazon Ads",       "max_age_h": 14},
-    "amazon_campaigns":     {"label": "Amazon Campaigns", "max_age_h": 25},
-    "meta_ads_daily":       {"label": "Meta Ads",         "max_age_h": 14},
-    "meta_campaigns":       {"label": "Meta Campaigns",   "max_age_h": 25},
-    "google_ads_daily":     {"label": "Google Ads",       "max_age_h": 14},
-    "ga4_daily":            {"label": "GA4",              "max_age_h": 14},
-    "klaviyo_daily":        {"label": "Klaviyo",          "max_age_h": 14},
+    "shopify_orders_daily": {"label": "Shopify Orders",      "max_age_h": 14},
+    "amazon_sales_daily":   {"label": "Amazon Sales",        "max_age_h": 14},
+    "amazon_ads_daily":     {"label": "Amazon Ads",          "max_age_h": 14},
+    "amazon_campaigns":     {"label": "Amazon Campaigns",    "max_age_h": 25},
+    "meta_ads_daily":       {"label": "Meta Ads",            "max_age_h": 14},
+    "meta_campaigns":       {"label": "Meta Campaigns",      "max_age_h": 25},
+    "google_ads_daily":     {"label": "Google Ads",          "max_age_h": 14},
+    "ga4_daily":            {"label": "GA4",                 "max_age_h": 14},
+    "klaviyo_daily":        {"label": "Klaviyo",             "max_age_h": 14},
+    "gsc_daily":            {"label": "GSC (Search Console)","max_age_h": 25},
+    "dataforseo_keywords":  {"label": "Keyword Volume (GKP)","max_age_h": 25},
 }
 
 CHANNEL_LINKS = {

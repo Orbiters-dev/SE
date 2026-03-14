@@ -106,10 +106,14 @@ attribution lag(2-3일)가 있으므로 실행 직후 변화 작음 — 정상.
 
 ## SEO Insights 섹션
 
-`get_seo_insights_html()` — DataForSEO + GSC 데이터가 있을 때만 포함.
+`get_seo_insights_html()` — 키워드 볼륨 + GSC 데이터가 있을 때만 포함.
 
-- **DataForSEO**: `dataforseo_keywords` 테이블 최근 7일. 브랜드별 상위 4 키워드 (월 검색량·CPC·경쟁도)
-- **GSC**: `gsc_daily` 테이블 최근 7일. 사이트별 상위 8 쿼리 (클릭·노출·CTR)
+- **Keyword Volume** (`dataforseo_keywords` 테이블): 최근 7일. 브랜드별 상위 4 키워드 (월 검색량·Google CPC·경쟁도)
+  - ⚠️ 테이블명은 `dataforseo_keywords`지만 **실제 소스는 Google Ads Keyword Planner** (DataForSEO 유료 API 아님)
+  - Data Keeper `--channel dataforseo`로 수집, `--channel all`에 포함됨
+  - 추적 키워드: `DATAFORSEO_KEYWORDS` dict (`data_keeper.py`) — Onzenna 6개, Naeiae 10개, Grosmimi 6개, CHA&MOM 4개
+- **GSC** (`gsc_daily` 테이블): 최근 7일. 사이트별 상위 8 쿼리 (클릭·노출·CTR)
+  - 모니터링 사이트: onzenna.com, grosmimi.com, naeiae.com (3개)
 
 ## GitHub Actions 스케줄
 
@@ -137,6 +141,7 @@ attribution lag(2-3일)가 있으므로 실행 직후 변화 작음 — 정상.
 |------|----------|
 | shopify_orders_daily, amazon_sales_daily, amazon_ads_daily, meta_ads_daily, google_ads_daily, ga4_daily, klaviyo_daily | 14시간 |
 | amazon_campaigns, meta_campaigns | 25시간 |
+| gsc_daily, dataforseo_keywords | 25시간 |
 
 ## 트러블슈팅
 
