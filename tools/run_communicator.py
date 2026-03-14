@@ -1234,6 +1234,11 @@ def main():
         preview_path.parent.mkdir(exist_ok=True)
         preview_path.write_text(html, encoding="utf-8")
         print(f"[Preview] {preview_path}")
+        return  # preview only — no email
+
+    if args.reset_state:
+        print("[Reset] 상태 초기화 완료 — 이메일 발송 안 함")
+        return
 
     period  = "자정" if NOW_PST.hour < 12 else "정오"
     if critical:

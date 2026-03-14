@@ -148,6 +148,32 @@ attribution lag(2-3일)가 있으므로 실행 직후 변화 작음 — 정상.
 | amazon_campaigns, meta_campaigns | 25시간 |
 | gsc_daily, dataforseo_keywords | 25시간 |
 
+## 알려진 오탐(False Positive) 패턴
+
+**로컬에서 절대 `python tools/run_communicator.py` 를 그냥 실행하지 말 것.**
+로컬은 `GH_PAT`/`GITHUB_REPOSITORY` 미설정 → 모든 워크플로우 "fail" 처리 → 연속 카운터 누적 → 긴급 이메일 폭탄.
+
+| 오탐 케이스 | 원인 | 실제 상태 확인법 |
+|-------------|------|----------------|
+| 워크플로우 전부 fail | 로컬에 `GH_PAT` 없음 | GitHub Actions 탭 직접 확인 |
+| `amazon_campaigns` / `meta_campaigns` 🔴 | orbitools API 응답에 `latest_collected` 필드 없음 (설계상) | `count > 0` 이면 정상 수집 중 |
+| 연속 오류 15회+ | state.json 누적 (GH_PAT 없는 로컬 실행 반복) | `--reset-state` 로 초기화 |
+
+**로컬 실행 안전 명령어 (이메일 발송 없음):**
+```bash
+python tools/run_communicator.py --dry-run    # 콘솔 출력만
+python tools/run_communicator.py --preview    # HTML 저장만 (.tmp/communicator_preview.html)
+python tools/run_communicator.py --reset-state  # 상태 초기화만
+```
+
+**⚠️ 주의:** `--preview`와 `--reset-state`는 이메일을 보내지 않는다 (2026-03-14 수정).
+이전 버전은 `--preview`도 이메일을 발송하는 버그가 있었음.
+
+**상태 파일 수동 초기화:**
+```bash
+echo '{"channels":{},"workflows":{},"last_run":null,"syncly":{}}' > .tmp/communicator_state.json
+```
+
 ## 트러블슈팅
 
 | 증상 | 원인 | 해결 |
@@ -156,6 +182,8 @@ attribution lag(2-3일)가 있으므로 실행 직후 변화 작음 — 정상.
 | Data Keeper 상태 없음 | `ORBITOOLS_PASS` 오류 또는 EC2 다운 | orbitools 서버 확인 |
 | Gmail 전송 실패 | OAuth token 만료 | `python tools/send_gmail.py` 로 토큰 갱신 |
 | 채널 🔴 표시 | 데이터 수집 자체 실패 | Data Keeper 워크플로우 로그 확인 |
+| `amazon_campaigns` / `meta_campaigns` 🔴 | API에 `latest_collected` 없음 — 오탐 | `count > 0` 이면 정상. 무시. |
+| 긴급 이메일 폭탄 | state.json 누적 + 로컬 실행 | `--reset-state` 후 state.json 수동 초기화 |
 | Syncly 탭 통계 없음 | Service Account JSON 없음 | `credentials/google_service_account.json` 확인 |
 | Naeiae PPC 섹션 없음 | baseline JSON 없음 | `amazon_ppc_executor.py --execute` 실행 후 생성됨 |
 | SEO 섹션 없음 | dataforseo/gsc 테이블 비어있음 | Data Keeper `--channel dataforseo` 실행 |
