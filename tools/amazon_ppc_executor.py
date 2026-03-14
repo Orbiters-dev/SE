@@ -2698,10 +2698,17 @@ def build_proposal_html(proposals: List[Dict],
         {camp_rows}
     </table>"""
 
-    # Build data source freshness banner with dates
-    data_sources = []
-    data_appendix_rows = []  # For detailed appendix
+    # ============================================================
+    # Build COMPREHENSIVE data source appendix
+    # Shows ALL DataKeeper channels with freshness + usage detail
+    # ============================================================
+    data_sources = []  # Top banner (short)
+    data_appendix_rows = []  # Detailed appendix (5 columns)
+    analysis_notes = []  # How each source influenced proposals
+
     n_all_camps = len(analysis.get("all_campaigns", [])) if analysis else 0
+
+    # --- 1. Amazon Ads (primary source) ---
     if analysis:
         latest = analysis.get("latest_date", "?")
         d7_start = analysis.get("d7_start", "?")
@@ -2710,55 +2717,141 @@ def build_proposal_html(proposals: List[Dict],
         s30 = analysis.get("summary", {}).get("30d", {})
         data_appendix_rows.append((
             "Amazon Ads Campaign Metrics",
-            "DataKeeper gk_amazon_ads_daily (PostgreSQL)",
+            "DataKeeper gk_amazon_ads_daily",
             f"{d7_start} ~ {latest}",
-            f"{n_all_camps} active campaigns. 7d: ${s7.get('spend',0):,.0f} spend, {s7.get('clicks',0):,} clicks, {s7.get('impressions',0):,} impressions. "
+            f"{n_all_camps} active campaigns. 7d: ${s7.get('spend',0):,.0f} spend, {s7.get('clicks',0):,} clicks, "
+            f"{s7.get('impressions',0):,} impr, {s7.get('purchases',0)} purchases. "
             f"30d: ${s30.get('spend',0):,.0f} spend, ${s30.get('sales',0):,.0f} sales.",
-            "Campaign-level ROAS framework, budget allocation, anomaly detection, performance summary"
+            "ROAS Decision Framework (1-10 score), budget allocation, trend anomaly detection, "
+            "campaign-level bid/budget proposals, yesterday vs 7d vs 30d comparison"
         ))
+        analysis_notes.append(
+            f"Campaign ROAS framework applied to {n_all_camps} campaigns using {d7_start}~{latest} data. "
+            f"7d ROAS {s7.get('roas',0)}x drove tier scoring. "
+            f"30d ROAS used for trend comparison ({'+' if s7.get('roas',0) > s30.get('roas',0) else '-'}trend)."
+        )
+
+    # --- 2. Amazon Keyword Reports (API) ---
     if kw_matrix and kw_matrix.get("total_keywords", 0) > 0:
         n_kw = kw_matrix["total_keywords"]
         n_trends = len(kw_matrix.get("keyword_trends", []))
         n_cannibal = len(kw_matrix.get("cannibalization", []))
-        data_sources.append(f"Keywords: {n_kw} analyzed")
+        mt_list = ', '.join(m['matchType'] for m in kw_matrix.get('match_type_breakdown', []))
+        data_sources.append(f"Keywords: {n_kw}")
         data_appendix_rows.append((
-            "Amazon Keyword Report",
-            "Amazon Ads Reporting API v3 (direct)",
-            "7d + 30d (two separate pulls)",
-            f"{n_kw} keywords across all ad groups. Match types: {', '.join(m['matchType'] for m in kw_matrix.get('match_type_breakdown', []))}. "
-            f"Trend analysis: {n_trends} keywords compared. Cannibalization: {n_cannibal} alerts.",
-            "Top/bottom keyword ranking, match type comparison, 7d vs 30d trend, cannibalization detection, bid adjustments"
+            "Amazon Keyword Report (7d)",
+            "Amazon Ads Reporting API v3",
+            "Last 7 days (SUMMARY)",
+            f"{n_kw} keywords. Used for recent performance snapshot.",
+            "7d vs previous period ROAS trend per keyword, recent bid efficiency check"
         ))
+        data_appendix_rows.append((
+            "Amazon Keyword Report (30d)",
+            "Amazon Ads Reporting API v3",
+            "Last 30 days (SUMMARY)",
+            f"{n_kw} keywords. Match types: {mt_list}. Trend: {n_trends} keywords compared.",
+            "Top/bottom 10 ranking, match type comparison, ad group breakdown, "
+            f"keyword bid adjustments, cannibalization detection ({n_cannibal} alerts)"
+        ))
+        data_appendix_rows.append((
+            "Amazon Search Term Report (30d)",
+            "Amazon Ads Reporting API v3",
+            "Last 30 days (SUMMARY)",
+            "Customer search queries matched to campaigns.",
+            "New keyword harvesting (exact match), negative keyword candidates, "
+            "search term cannibalization across campaigns"
+        ))
+        analysis_notes.append(
+            f"Keyword analysis: {n_kw} keywords analyzed across {mt_list}. "
+            f"7d vs previous ROAS compared for {n_trends} keywords to detect momentum shifts. "
+            f"{n_cannibal} cannibalization alerts (same keyword/search term in multiple campaigns)."
+        )
+
+    # --- 3. DataForSEO / Google Keyword Planner ---
     if kw_matrix and kw_matrix.get("keyword_vs_google"):
         n_google = len(kw_matrix["keyword_vs_google"])
-        data_sources.append(f"DataForSEO: {n_google} kw matched")
+        data_sources.append(f"DataForSEO: {n_google} kw")
         data_appendix_rows.append((
             "DataForSEO / Google Keyword Planner",
-            "DataKeeper gk_dataforseo_keywords (PostgreSQL)",
+            "DataKeeper gk_dataforseo_keywords",
             "Last 30 days",
-            f"{n_google} keywords matched to Google search volume and CPC data. "
-            f"Used as market benchmark for bid recommendations.",
-            "CPC comparison table, overbidding/underbidding detection, bid adjustment modifiers"
+            f"{n_google} keywords with Google search volume, CPC, competition index. "
+            f"Cross-referenced with Amazon keyword CPC for market benchmarking.",
+            "Google CPC vs Amazon CPC gap analysis. Overbidding detection "
+            "(AMZ CPC > Google CPC x1.5 -> bid reduction). Underbidding detection "
+            "(AMZ CPC < Google CPC x0.5 + ROAS >2 -> bid increase). "
+            "Search volume used for keyword priority ranking."
         ))
-    if xp_context:
-        xp_details = []
-        for ch, label, use in [
-            ("google_ads", "Google Ads", "Cross-platform ROAS comparison"),
-            ("meta_ads", "Meta Ads", "Cross-platform CPA/ROAS comparison"),
-            ("amazon_sales", "Amazon Sales (SP-API)", "Organic vs ad-attributed sales gap"),
-            ("shopify_dtc", "Shopify DTC Orders", "DTC channel context"),
-        ]:
-            ch_data = xp_context.get(ch, {})
-            s = ch_data.get("7d", {}).get("spend", 0) or ch_data.get("7d", {}).get("revenue", 0)
-            if s > 0:
-                data_sources.append(f"{label}: active")
-                data_appendix_rows.append((
-                    label,
-                    f"DataKeeper gk_{ch.replace(' ', '_')}_daily",
-                    "Last 7-30 days",
-                    f"7d active (${s:,.0f})",
-                    use
-                ))
+        analysis_notes.append(
+            f"DataForSEO: {n_google} Amazon keywords matched to Google CPC. "
+            f"Overbidding/underbidding adjustments applied to bid proposals."
+        )
+    else:
+        data_appendix_rows.append((
+            "DataForSEO / Google Keyword Planner",
+            "DataKeeper gk_dataforseo_keywords",
+            "N/A",
+            "No keyword matches found for this brand.",
+            "Would provide Google CPC benchmark for bid optimization if keywords matched."
+        ))
+
+    # --- 4. Cross-platform DataKeeper channels (ALL channels, active or not) ---
+    all_dk_channels = [
+        ("google_ads", "Google Ads", "gk_google_ads_daily",
+         "Cross-platform ROAS comparison. If Google Ads ROAS > Amazon ROAS, "
+         "signals potential budget reallocation. Campaign type and keyword overlap analysis."),
+        ("meta_ads", "Meta Ads (Facebook/Instagram)", "gk_meta_ads_daily",
+         "Cross-platform CPA/ROAS comparison. Meta's audience signals inform "
+         "Amazon keyword strategy (high-converting Meta audiences -> Amazon keyword themes)."),
+        ("amazon_sales", "Amazon Sales (SP-API)", "gk_amazon_sales_daily",
+         "Organic vs ad-attributed sales gap. If organic sales are high, "
+         "ad spend efficiency is validated. Brand vs non-brand sales split."),
+        ("shopify_dtc", "Shopify DTC Orders", "gk_shopify_orders_daily",
+         "DTC pricing context. Discount rates vs Amazon pricing. "
+         "Influencer code usage patterns inform keyword targeting strategy."),
+        ("ga4", "Google Analytics 4", "gk_ga4_daily",
+         "Website traffic sources, conversion paths. Organic search keywords "
+         "inform Amazon keyword expansion. Landing page performance context."),
+        ("klaviyo", "Klaviyo Email/SMS", "gk_klaviyo_daily",
+         "Email campaign performance, subscriber engagement. "
+         "High-converting email products suggest Amazon ad focus areas."),
+    ]
+
+    for ch_key, ch_label, ch_table, ch_usage in all_dk_channels:
+        ch_data = xp_context.get(ch_key, {}) if xp_context else {}
+        spend_7d = ch_data.get("7d", {}).get("spend", 0)
+        rev_7d = ch_data.get("7d", {}).get("revenue", 0)
+        roas_7d = ch_data.get("7d", {}).get("roas", 0)
+        has_data = spend_7d > 0 or rev_7d > 0
+
+        if has_data:
+            val = spend_7d or rev_7d
+            data_sources.append(f"{ch_label.split('(')[0].strip()}: ${val:,.0f}/7d")
+            summary_text = f"7d: ${spend_7d:,.0f} spend" if spend_7d else f"7d: ${rev_7d:,.0f} revenue"
+            if roas_7d:
+                summary_text += f", ROAS {roas_7d}x"
+            status_icon = "ACTIVE"
+            status_color = "#28a745"
+        else:
+            summary_text = "No recent data or channel not applicable for this brand."
+            status_icon = "NO DATA"
+            status_color = "#999"
+
+        data_appendix_rows.append((
+            f'<span style="color:{status_color};font-size:9px;">[{status_icon}]</span> {ch_label}',
+            f"DataKeeper {ch_table}",
+            "Last 7-30 days" if has_data else "--",
+            summary_text,
+            ch_usage if has_data else f"<i style='color:#999;'>{ch_usage}</i>"
+        ))
+
+        if has_data and ch_key in ("google_ads", "meta_ads"):
+            roas_label = f"{roas_7d}x" if roas_7d else "N/A"
+            analysis_notes.append(
+                f"{ch_label}: 7d ${spend_7d:,.0f} spend, ROAS {roas_label}. "
+                f"{'Outperforming' if roas_7d and roas_7d > (s7.get('roas',0) if analysis else 0) else 'Underperforming'} vs Amazon Ads."
+            )
+
     sources_str = " | ".join(data_sources) if data_sources else "No data sources"
 
     # Build tier legend HTML
@@ -2840,6 +2933,21 @@ def build_proposal_html(proposals: List[Dict],
         </p>
     </div>""" if data_appendix_rows else ""
 
+    # Build analysis notes HTML -- detailed explanation of how each data source influenced proposals
+    analysis_notes_html = ""
+    if analysis_notes:
+        notes_items = ""
+        for i, note in enumerate(analysis_notes, 1):
+            notes_items += f'<li style="padding:4px 0;font-size:11px;color:#37474f;line-height:1.5;">{note}</li>\n'
+        analysis_notes_html = f"""
+    <div style="margin-top:20px;padding:15px;background:#fff8e1;border-radius:8px;border-left:4px solid #ff8f00;">
+        <h3 style="color:#e65100;margin:0 0 10px;font-size:14px;">Analysis Notes: How Data Sources Influenced Proposals</h3>
+        <p style="color:#999;font-size:10px;margin:0 0 8px;">Each note below explains what data was analyzed and how it shaped specific recommendations in this report.</p>
+        <ol style="margin:0;padding-left:20px;">
+            {notes_items}
+        </ol>
+    </div>"""
+
     html = f"""<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
@@ -2871,6 +2979,8 @@ def build_proposal_html(proposals: List[Dict],
     {tier_legend}
 
     {data_appendix}
+
+    {analysis_notes_html}
 
     <p style="color:#999;margin-top:20px;font-size:11px;">
         Amazon PPC Executor ({cfg['brand_display']}) | Scheduled daily KST 08:00 | Auto-check for "execute" reply every 2h
