@@ -374,8 +374,24 @@ def fetch_report_from_datakeeper(brand_key: str, days: int) -> List[Dict]:
     return out
 
 
+def _normalize_dk_to_api(row: Dict) -> Dict:
+    """Normalize DataKeeper field names to Amazon API format for compatibility."""
+    return {
+        **row,
+        "searchTerm": row.get("search_term", row.get("searchTerm", "")),
+        "campaignId": row.get("campaign_id", row.get("campaignId", "")),
+        "adGroupId": row.get("ad_group_id", row.get("adGroupId", "")),
+        "keywordId": row.get("keyword_id", row.get("keywordId", "")),
+        "keywordText": row.get("keyword_text", row.get("keywordText", "")),
+        "matchType": row.get("match_type", row.get("matchType", "")),
+        "cost": float(row.get("spend", 0) or row.get("cost", 0) or 0),
+        "sales14d": float(row.get("sales", 0) or row.get("sales14d", 0) or 0),
+        "purchases14d": int(row.get("purchases", 0) or row.get("purchases14d", 0) or 0),
+    }
+
+
 def fetch_search_terms_from_datakeeper(brand_key: str, days: int = 30) -> List[Dict]:
-    """Fetch search term data from DataKeeper cache."""
+    """Fetch search term data from DataKeeper cache, normalized to API format."""
     try:
         from data_keeper_client import DataKeeper
     except ImportError:
@@ -386,13 +402,13 @@ def fetch_search_terms_from_datakeeper(brand_key: str, days: int = 30) -> List[D
     if not rows:
         print(f"  [WARN] DataKeeper has no amazon_ads_search_terms data")
         return []
-    out = [r for r in rows if r.get("brand", "") == brand_display]
+    out = [_normalize_dk_to_api(r) for r in rows if r.get("brand", "") == brand_display]
     print(f"  DataKeeper -> {len(out)} search term rows for {brand_display}")
     return out
 
 
 def fetch_keywords_from_datakeeper(brand_key: str, days: int = 30) -> List[Dict]:
-    """Fetch keyword data from DataKeeper cache."""
+    """Fetch keyword data from DataKeeper cache, normalized to API format."""
     try:
         from data_keeper_client import DataKeeper
     except ImportError:
@@ -403,7 +419,7 @@ def fetch_keywords_from_datakeeper(brand_key: str, days: int = 30) -> List[Dict]
     if not rows:
         print(f"  [WARN] DataKeeper has no amazon_ads_keywords data")
         return []
-    out = [r for r in rows if r.get("brand", "") == brand_display]
+    out = [_normalize_dk_to_api(r) for r in rows if r.get("brand", "") == brand_display]
     print(f"  DataKeeper -> {len(out)} keyword rows for {brand_display}")
     return out
 
@@ -684,18 +700,18 @@ def analyze_search_terms(
         "campaignId": None, "adGroupId": None,
     })
     for r in st_rows:
-        term = (r.get("searchTerm", "") or "").strip().lower()
+        term = (r.get("searchTerm") or r.get("search_term") or "").strip().lower()
         if not term:
             continue
         b = agg[term]
         b["impressions"] += int(r.get("impressions", 0) or 0)
         b["clicks"] += int(r.get("clicks", 0) or 0)
-        b["cost"] += float(r.get("cost", 0) or 0)
-        b["sales"] += float(r.get("sales14d", 0) or 0)
-        b["purchases"] += int(r.get("purchases14d", 0) or 0)
+        b["cost"] += float(r.get("cost", 0) or r.get("spend", 0) or 0)
+        b["sales"] += float(r.get("sales14d", 0) or r.get("sales", 0) or 0)
+        b["purchases"] += int(r.get("purchases14d", 0) or r.get("purchases", 0) or 0)
         if not b["campaignId"]:
-            b["campaignId"] = r.get("campaignId")
-            b["adGroupId"] = r.get("adGroupId")
+            b["campaignId"] = r.get("campaignId") or r.get("campaign_id")
+            b["adGroupId"] = r.get("adGroupId") or r.get("ad_group_id")
 
     harvest = []
     negate = []
@@ -814,8 +830,8 @@ def analyze_keyword_bids(
     for kw in kw_rows:
         clicks = int(kw.get("clicks", 0) or 0)
         impressions = int(kw.get("impressions", 0) or 0)
-        cost = float(kw.get("cost", 0) or 0)
-        sales = float(kw.get("sales14d", 0) or 0)
+        cost = float(kw.get("cost", 0) or kw.get("spend", 0) or 0)
+        sales = float(kw.get("sales14d", 0) or kw.get("sales", 0) or 0)
         current_bid = float(kw.get("keywordBid", 0) or 0)
         kw_id = kw.get("keywordId")
         kw_text = kw.get("keywordText", "")
@@ -983,9 +999,9 @@ def _agg_keyword_rows(kw_rows: List[Dict], camp_map: Dict) -> Dict:
         a = kw_agg[kid]
         a["clicks"] += int(kw.get("clicks", 0) or 0)
         a["impressions"] += int(kw.get("impressions", 0) or 0)
-        a["cost"] += float(kw.get("cost", 0) or 0)
-        a["sales"] += float(kw.get("sales14d", 0) or 0)
-        a["purchases"] += int(kw.get("purchases14d", 0) or 0)
+        a["cost"] += float(kw.get("cost", 0) or kw.get("spend", 0) or 0)
+        a["sales"] += float(kw.get("sales14d", 0) or kw.get("sales", 0) or 0)
+        a["purchases"] += int(kw.get("purchases14d", 0) or kw.get("purchases", 0) or 0)
     for k in kw_agg.values():
         k["roas"] = round(k["sales"] / k["cost"], 2) if k["cost"] > 0 else 0
         k["acos"] = round(k["cost"] / k["sales"] * 100, 1) if k["sales"] > 0 else None
@@ -1121,8 +1137,8 @@ def build_keyword_performance_matrix(
             st_by_query[q].append({
                 "campaignId": cid,
                 "campaignName": camp_map.get(cid, {}).get("name", cid[:20]),
-                "cost": float(st.get("cost", 0) or 0),
-                "sales": float(st.get("sales14d", 0) or 0),
+                "cost": float(st.get("cost", 0) or st.get("spend", 0) or 0),
+                "sales": float(st.get("sales14d", 0) or st.get("sales", 0) or 0),
             })
 
     # Keywords in multiple campaigns/ad groups
@@ -3015,20 +3031,6 @@ def _build_sku_intelligence_html(sku_context: Optional[Dict]) -> str:
     return_rate = sku_context.get("return_rate", 0.05)
     brand_ad_spend = sku_context.get("brand_ad_spend", 0)
     if asins:
-        asin_rows = ""
-        for a in asins[:10]:
-            margin_color = "#28a745" if a["margin_pct"] >= 30 else "#ffc107" if a["margin_pct"] >= 15 else "#dc3545"
-            acos_color = "#28a745" if a["max_sustainable_acos"] >= 30 else "#ffc107" if a["max_sustainable_acos"] >= 15 else "#dc3545"
-            asin_rows += f"""<tr>
-                <td style="padding:4px 6px;border:1px solid #e0e0e0;font-size:10px;font-family:monospace;">{a['asin']}</td>
-                <td style="padding:4px 6px;border:1px solid #e0e0e0;font-size:10px;" title="{a['product_name']}">{a['product_name'][:30]}</td>
-                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">{a['units']}</td>
-                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">${a['revenue']:,.0f}</td>
-                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">${a['asp']:.2f}</td>
-                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;color:{margin_color};font-weight:bold;">{a['margin_pct']}%</td>
-                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;color:{acos_color};font-weight:bold;">{a['max_sustainable_acos']}%</td>
-            </tr>"""
-
         total_rev = sku_context.get("amazon_total_revenue", 0)
         total_units = sku_context.get("amazon_total_units", 0)
         total_asins = sku_context.get("total_amazon_asins", 0)
@@ -3043,24 +3045,124 @@ def _build_sku_intelligence_html(sku_context: Optional[Dict]) -> str:
         cm_after_str = f"CM after ads {brand_cm_after:.1f}%" if brand_cm_after is not None else ""
         ad_summary = f" | Brand: {acos_str}, {tacos_str}, {cm_after_str}" if brand_ad_spend > 0 else ""
 
-        cost_note = f"COGS ${cogs}/u + FBA ${fba_fee}/u"
-        sections.append(f"""
-        <h4 style="margin:10px 0 5px;color:#1a365d;">Amazon P&L by ASIN ({total_asins} products, {total_units} units, ${total_rev:,.0f} rev / 14d)</h4>
-        <p style="font-size:11px;color:#666;margin:0 0 5px;">
-            {cost_note} + Export ${export_cost}/u + Returns {return_rate*100:.0f}%. Top 3 conc: {conc}%.{ad_summary}
-        </p>
-        <table style="border-collapse:collapse;width:100%;font-size:11px;">
-            <tr style="background:#e8eef4;">
-                <th style="padding:5px;border:1px solid #ddd;">ASIN</th>
-                <th style="padding:5px;border:1px solid #ddd;">Product</th>
-                <th style="padding:5px;border:1px solid #ddd;">Units</th>
-                <th style="padding:5px;border:1px solid #ddd;">Revenue</th>
-                <th style="padding:5px;border:1px solid #ddd;">ASP</th>
-                <th style="padding:5px;border:1px solid #ddd;">CM%<br><span style="font-weight:normal;font-size:9px;">(pre-ads)</span></th>
-                <th style="padding:5px;border:1px solid #ddd;">Max<br>ACOS</th>
-            </tr>
-            {asin_rows}
-        </table>""")
+        # Group by category (parent ASIN concept) for brands with categories
+        has_categories = any(a.get("category") for a in asins)
+        if has_categories:
+            from collections import defaultdict
+            cat_agg = defaultdict(lambda: {"units": 0, "revenue": 0, "total_costs": 0, "est_margin": 0,
+                                           "cogs": 0, "fba": 0, "export": 0, "returns": 0, "referral": 0, "asin_count": 0})
+            for a in asins:
+                cat = a.get("category", "Other") or "Other"
+                cat_agg[cat]["units"] += a["units"]
+                cat_agg[cat]["revenue"] += a["revenue"]
+                cat_agg[cat]["total_costs"] += a["total_costs"]
+                cat_agg[cat]["est_margin"] += a["est_margin"]
+                cat_agg[cat]["cogs"] += a.get("est_cogs", 0)
+                cat_agg[cat]["fba"] += a.get("fba_costs", 0)
+                cat_agg[cat]["export"] += a.get("export_costs", 0)
+                cat_agg[cat]["returns"] += a.get("return_costs", 0)
+                cat_agg[cat]["referral"] += a.get("referral_fees", 0)
+                cat_agg[cat]["asin_count"] += 1
+
+            cat_rows = ""
+            for cat, d in sorted(cat_agg.items(), key=lambda x: -x[1]["revenue"]):
+                m_pct = round(d["est_margin"] / d["revenue"] * 100, 1) if d["revenue"] > 0 else 0
+                max_acos = round(m_pct, 1) if m_pct > 0 else 0
+                asp = round(d["revenue"] / d["units"], 2) if d["units"] > 0 else 0
+                margin_color = "#28a745" if m_pct >= 30 else "#ffc107" if m_pct >= 15 else "#dc3545"
+                rev_share = round(d["revenue"] / total_rev * 100, 1) if total_rev > 0 else 0
+                cat_rows += f"""<tr>
+                    <td style="padding:5px 8px;border:1px solid #e0e0e0;font-weight:bold;">{cat}</td>
+                    <td style="padding:5px 8px;border:1px solid #e0e0e0;text-align:center;color:#666;">{d['asin_count']}</td>
+                    <td style="padding:5px 8px;border:1px solid #e0e0e0;text-align:right;">{d['units']:,}</td>
+                    <td style="padding:5px 8px;border:1px solid #e0e0e0;text-align:right;">${d['revenue']:,.0f}</td>
+                    <td style="padding:5px 8px;border:1px solid #e0e0e0;text-align:right;">{rev_share}%</td>
+                    <td style="padding:5px 8px;border:1px solid #e0e0e0;text-align:right;">${asp:.2f}</td>
+                    <td style="padding:5px 8px;border:1px solid #e0e0e0;text-align:right;">${d['cogs']:,.0f}</td>
+                    <td style="padding:5px 8px;border:1px solid #e0e0e0;text-align:right;">${d['referral']:,.0f}</td>
+                    <td style="padding:5px 8px;border:1px solid #e0e0e0;text-align:right;">${d['fba']:,.0f}</td>
+                    <td style="padding:5px 8px;border:1px solid #e0e0e0;text-align:right;">${d['export']:,.0f}</td>
+                    <td style="padding:5px 8px;border:1px solid #e0e0e0;text-align:right;">${d['returns']:,.0f}</td>
+                    <td style="padding:5px 8px;border:1px solid #e0e0e0;text-align:right;color:{margin_color};font-weight:bold;">{m_pct}%</td>
+                    <td style="padding:5px 8px;border:1px solid #e0e0e0;text-align:right;font-weight:bold;">{max_acos}%</td>
+                </tr>"""
+            # Total row
+            total_margin = sum(d["est_margin"] for d in cat_agg.values())
+            total_m_pct = round(total_margin / total_rev * 100, 1) if total_rev > 0 else 0
+            total_max_acos = round(total_m_pct, 1) if total_m_pct > 0 else 0
+            cat_rows += f"""<tr style="background:#e8eef4;font-weight:bold;">
+                <td style="padding:5px 8px;border:1px solid #ddd;">TOTAL</td>
+                <td style="padding:5px 8px;border:1px solid #ddd;text-align:center;">{total_asins}</td>
+                <td style="padding:5px 8px;border:1px solid #ddd;text-align:right;">{total_units:,}</td>
+                <td style="padding:5px 8px;border:1px solid #ddd;text-align:right;">${total_rev:,.0f}</td>
+                <td style="padding:5px 8px;border:1px solid #ddd;text-align:right;">100%</td>
+                <td style="padding:5px 8px;border:1px solid #ddd;"></td>
+                <td style="padding:5px 8px;border:1px solid #ddd;"></td>
+                <td style="padding:5px 8px;border:1px solid #ddd;"></td>
+                <td style="padding:5px 8px;border:1px solid #ddd;"></td>
+                <td style="padding:5px 8px;border:1px solid #ddd;"></td>
+                <td style="padding:5px 8px;border:1px solid #ddd;"></td>
+                <td style="padding:5px 8px;border:1px solid #ddd;text-align:right;">{total_m_pct}%</td>
+                <td style="padding:5px 8px;border:1px solid #ddd;text-align:right;">{total_max_acos}%</td>
+            </tr>"""
+
+            sections.append(f"""
+            <h4 style="margin:10px 0 5px;color:#1a365d;">Amazon P&L by Product Category ({total_asins} ASINs, {total_units:,} units, ${total_rev:,.0f} rev / 14d)</h4>
+            <p style="font-size:11px;color:#666;margin:0 0 5px;">
+                Full-cost waterfall: Revenue - COGS - Referral(15%) - FBA - Export(${export_cost}/u) - Returns({return_rate*100:.0f}%) = CM.{ad_summary}
+            </p>
+            <table style="border-collapse:collapse;width:100%;font-size:11px;">
+                <tr style="background:#e8eef4;">
+                    <th style="padding:5px;border:1px solid #ddd;">Category</th>
+                    <th style="padding:5px;border:1px solid #ddd;">ASINs</th>
+                    <th style="padding:5px;border:1px solid #ddd;">Units</th>
+                    <th style="padding:5px;border:1px solid #ddd;">Revenue</th>
+                    <th style="padding:5px;border:1px solid #ddd;">Rev%</th>
+                    <th style="padding:5px;border:1px solid #ddd;">ASP</th>
+                    <th style="padding:5px;border:1px solid #ddd;">COGS</th>
+                    <th style="padding:5px;border:1px solid #ddd;">Referral</th>
+                    <th style="padding:5px;border:1px solid #ddd;">FBA</th>
+                    <th style="padding:5px;border:1px solid #ddd;">Export</th>
+                    <th style="padding:5px;border:1px solid #ddd;">Returns</th>
+                    <th style="padding:5px;border:1px solid #ddd;">CM%</th>
+                    <th style="padding:5px;border:1px solid #ddd;">Max<br>ACOS</th>
+                </tr>
+                {cat_rows}
+            </table>""")
+        else:
+            # Non-category brands: simple ASIN table (top 10)
+            asin_rows = ""
+            for a in asins[:10]:
+                margin_color = "#28a745" if a["margin_pct"] >= 30 else "#ffc107" if a["margin_pct"] >= 15 else "#dc3545"
+                acos_color = "#28a745" if a["max_sustainable_acos"] >= 30 else "#ffc107" if a["max_sustainable_acos"] >= 15 else "#dc3545"
+                asin_rows += f"""<tr>
+                    <td style="padding:4px 6px;border:1px solid #e0e0e0;font-size:10px;font-family:monospace;">{a['asin']}</td>
+                    <td style="padding:4px 6px;border:1px solid #e0e0e0;font-size:10px;" title="{a['product_name']}">{a['product_name'][:30]}</td>
+                    <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">{a['units']}</td>
+                    <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">${a['revenue']:,.0f}</td>
+                    <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">${a['asp']:.2f}</td>
+                    <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;color:{margin_color};font-weight:bold;">{a['margin_pct']}%</td>
+                    <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;color:{acos_color};font-weight:bold;">{a['max_sustainable_acos']}%</td>
+                </tr>"""
+
+            cost_note = f"COGS ${cogs}/u + FBA ${fba_fee}/u"
+            sections.append(f"""
+            <h4 style="margin:10px 0 5px;color:#1a365d;">Amazon P&L by ASIN ({total_asins} products, {total_units:,} units, ${total_rev:,.0f} rev / 14d)</h4>
+            <p style="font-size:11px;color:#666;margin:0 0 5px;">
+                {cost_note} + Export ${export_cost}/u + Returns {return_rate*100:.0f}%. Top 3 conc: {conc}%.{ad_summary}
+            </p>
+            <table style="border-collapse:collapse;width:100%;font-size:11px;">
+                <tr style="background:#e8eef4;">
+                    <th style="padding:5px;border:1px solid #ddd;">ASIN</th>
+                    <th style="padding:5px;border:1px solid #ddd;">Product</th>
+                    <th style="padding:5px;border:1px solid #ddd;">Units</th>
+                    <th style="padding:5px;border:1px solid #ddd;">Revenue</th>
+                    <th style="padding:5px;border:1px solid #ddd;">ASP</th>
+                    <th style="padding:5px;border:1px solid #ddd;">CM%<br><span style="font-weight:normal;font-size:9px;">(pre-ads)</span></th>
+                    <th style="padding:5px;border:1px solid #ddd;">Max<br>ACOS</th>
+                </tr>
+                {asin_rows}
+            </table>""")
 
     # Shopify section removed — Amazon PPC email focuses on Amazon only
 
@@ -3680,11 +3782,7 @@ def build_proposal_html(proposals: List[Dict],
 
     {_build_keyword_html(kw_proposals, label_start=len(proposals) if proposals else 0)}
 
-    {_build_keyword_matrix_html(kw_matrix) if kw_matrix else ''}
-
     {all_camps_html}
-
-    {_build_cross_platform_html(xp_context) if xp_context else ''}
 
     <div style="margin-top:25px;padding:15px;background:#e3f2fd;border-radius:8px;border-left:4px solid #2196f3;">
         <strong>To execute proposals:</strong> Reply "execute" to this email, or edit <code>.tmp/ppc_proposal_*.json</code> and run <code>--execute</code>.

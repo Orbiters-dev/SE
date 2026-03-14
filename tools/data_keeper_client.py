@@ -39,7 +39,8 @@ ORBITOOLS_PASS = os.getenv("ORBITOOLS_PASS", "")
 VALID_TABLES = [
     "shopify_orders_daily", "shopify_orders_sku_daily",
     "amazon_sales_daily", "amazon_sales_sku_daily",
-    "amazon_ads_daily", "amazon_campaigns",
+    "amazon_ads_daily", "amazon_ads_search_terms", "amazon_ads_keywords",
+    "amazon_campaigns",
     "meta_ads_daily", "meta_campaigns",
     "google_ads_daily", "ga4_daily", "klaviyo_daily",
     "gsc_daily", "dataforseo_keywords",
