@@ -46,7 +46,7 @@ MODEL_MAP = {
 }
 
 # Always include these skills regardless of recent changes
-MANDATORY_SKILLS = {"amazon-ppc-agent", "golmani", "syncly-crawler"}
+MANDATORY_SKILLS = {"amazon-ppc-agent", "golmani", "syncly-crawler", "kpi-monthly"}
 
 MAX_FILE_BYTES = 12_288   # 12 KB per skill file
 MAX_REFS_PER_SKILL = 3    # max reference files to include per skill
