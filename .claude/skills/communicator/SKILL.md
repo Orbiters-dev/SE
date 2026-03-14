@@ -130,10 +130,10 @@ attribution lag(2-3일)가 있으므로 실행 직후 변화 작음 — 정상.
 |------|--------|----------------|----------|
 | `data_keeper.yml` | Data Keeper | **22:00, 11:00** 매일 | `0 13 * * *`, `0 2 * * *` |
 | `amazon_ppc_daily.yml` | Amazon PPC | 08:00 매일 | `0 23 * * *` |
-| `meta_ads_daily.yml` | Meta Ads | PST 0:00, 12:00 | PST 기준 유지 |
-| `syncly_daily.yml` | Syncly Sync | 08:00 매일 | `0 23 * * *` |
-| `kpi_weekly.yml` | KPI Weekly | 08:00 월요일 | `0 23 * * 0` |
-| `communicator.yml` | Communicator | 00:00, 12:00 (PST) | PST 기준 유지 |
+| `meta_ads_daily.yml` | Meta Ads | KST 17:00, 05:00 | `0 8,20 * * *` |
+| `syncly_daily.yml` | Syncly Sync | KST 08:00 매일 | `0 23 * * *` |
+| `kpi_weekly.yml` | KPI Weekly | KST 08:00 월요일 | `0 23 * * 0` |
+| `communicator.yml` | Communicator | KST 17:00, 05:00 | `0 8,20 * * *` |
 
 **Data Keeper 스케줄 변경 이유 (2026-03-14):**
 - 기존 PST 0:00 (KST 17:00)은 Amazon Ads async 리포트가 자정 직후 미완성일 가능성

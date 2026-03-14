@@ -118,7 +118,7 @@ Supabase Auth
 
 **주의:**
 - EC2 SSH 키 없음 -- Instance Connect만 사용 가능
-- AWS Console: `orbiters11@gmail.com` / `Orbitool1010!`
+- AWS Console: credentials in `~/.wat_secrets` (key: `AWS_CONSOLE_USER`, `AWS_CONSOLE_PASS`)
 - INSTALLED_APPS에 `'onzenna'` 있는지 확인
 - urls.py에 `path('api/onzenna/', include('onzenna.urls'))` 있는지 확인
 

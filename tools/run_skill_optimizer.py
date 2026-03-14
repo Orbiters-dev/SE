@@ -254,22 +254,22 @@ def execute_proposals(proposals: list[dict]) -> list[int]:
         replacement = p.get("replacement", "")
 
         if not file_rel or not original or original == "FILE_NOT_EXISTS":
-            print(f"  #{pid}: SKIP — missing file/original")
+            print(f"  #{pid}: SKIP - missing file/original")
             continue
 
         file_path = PROJECT_ROOT / file_rel
         if not file_path.exists():
-            print(f"  #{pid}: SKIP — file not found: {file_rel}")
+            print(f"  #{pid}: SKIP - file not found: {file_rel}")
             continue
 
         # Refuse to touch .env or secrets
         if any(part in file_rel for part in [".env", "credentials/", "secrets"]):
-            print(f"  #{pid}: SKIP — protected path: {file_rel}")
+            print(f"  #{pid}: SKIP - protected path: {file_rel}")
             continue
 
         text = file_path.read_text(encoding="utf-8", errors="replace")
         if original not in text:
-            print(f"  #{pid}: SKIP — original text not found in {file_rel}")
+            print(f"  #{pid}: SKIP - original text not found in {file_rel}")
             continue
 
         new_text = text.replace(original, replacement, 1)
@@ -279,7 +279,10 @@ def execute_proposals(proposals: list[dict]) -> list[int]:
             fromfile=f"a/{file_rel}", tofile=f"b/{file_rel}",
         ))
         print(f"\n  #{pid}: {p.get('issue', '')} [{file_rel}]")
-        print("".join(diff_lines) if diff_lines else "  (no diff)")
+        diff_str = "".join(diff_lines) if diff_lines else "  (no diff)"
+        sys.stdout.buffer.write(diff_str.encode("utf-8", errors="replace"))
+        sys.stdout.buffer.write(b"\n")
+        sys.stdout.flush()
 
         file_path.write_text(new_text, encoding="utf-8")
         applied.append(pid)
@@ -364,7 +367,7 @@ def check_and_execute() -> None:
         body_lower = (msg.get("body", "") + " " + msg.get("snippet", "")).lower().strip()
         for kw in EXECUTE_KEYWORDS:
             if kw in body_lower.split() or body_lower.startswith(kw):
-                print(f"[check-execute] Found '{kw}' in reply — applying proposals")
+                print(f"[check-execute] Found '{kw}' in reply -- applying proposals")
                 found = True
                 break
         if found:
