@@ -125,8 +125,8 @@ Col J+: D+0 Cmt/Like/View, D+1 Cmt/Like/View, ... D+60 Cmt/Like/View
 
 ## Schedule
 
-- **KST 08:00 daily** via Windows Task Scheduler (`DailySynclyExport`)
-- PC 꺼져있으면 실행 안됨 — NAS 이전 시 cron으로 전환 필요
+- **KST 08:00 daily** via Windows Task Scheduler (`DailySynclyExport`) — PC 꺼져있으면 실행 안됨
+- **GitHub Actions** `syncly_daily.yml` — KST 08:00 (UTC 23:00) 자동 실행 (크롤링 + 시트 동기화 + SNS 탭 전체)
 
 ## Pipeline Steps
 
@@ -195,9 +195,83 @@ tools/daily_syncly_export.bat
 powershell.exe -Command "schtasks /query /tn 'DailySynclyExport' /v /fo list"
 ```
 
+## SNS 탭 파이프라인 (sync_sns_tab*.py)
+
+Syncly D+60 Tracker + Shopify PR/샘플 주문 데이터를 매칭해 브랜드별 SNS 탭에 기록.
+
+### 4개 툴 (브랜드별)
+
+| 툴 | 타겟 시트 | 탭 | 브랜드 |
+|----|----------|-----|--------|
+| `sync_sns_tab.py` | ONZENNA SNS (`1SwO4...`) | SNS | Grosmimi US (onzenna.com 주문) |
+| `sync_sns_tab_chaenmom.py` | CHA&MOM SNS (`16XUPd...`) | SNS | CHA&MOM |
+| `sync_sns_tab_jp.py` | (별도) | SNS | Grosmimi JP |
+| `sync_sns_tab_grosmimi.py` | (별도) | SNS | Grosmimi 통합 |
+
+### 데이터 흐름
+
+```
+Shopify PR/샘플 주문
+  (.tmp/polar_data/q10_influencer_orders.json)
+      +
+PayPal 인플루언서 결제
+  (.tmp/polar_data/q11_paypal_transactions.json)
+      +
+Syncly D+60 Tracker (Posts Master + D+60 Tracker 탭)
+      ↓
+계정명(Account) 기준 매칭
+      ↓
+SNS 탭 기록 (No, Channel, Name, Account, Product Type1~4,
+              Product Name, Influencer Fee, Shipping Date,
+              Content Link, D+ Days, Curr Cmt/Like/View, ...)
+```
+
+### SNS 탭 헤더 (19개 열)
+
+```
+No | Channel | Name | Account |
+Product Type1 | Product Type2 | Product Type3 | Product Type4 |
+Product Name | Influencer Fee | Shipping Date |
+Content Link | Approved for Cross-Market Use |
+D+ Days | Curr Comment | Curr Like | Curr View | Profile URL
+```
+
+### Product Type 분류 (7개 카테고리)
+
+| 카테고리 | 해당 제품 |
+|----------|----------|
+| PPSU Straw Cup | PPSU 소재 빨대컵 (Flip Top 포함) |
+| PPSU Tumbler | PPSU 텀블러 |
+| PPSU Baby Bottle | PPSU 젖병 |
+| Stainless Straw Cup | 스테인리스 빨대컵 |
+| Stainless Tumbler | 스테인리스 텀블러 |
+| Accessory | Tray, Brush, Teether, Lunch Bag |
+| Replacement | Strap, Accessory Pack, Straw Kit |
+
+### 계정 추출 패턴
+
+- IG handle: 주문 노트에서 `IG (@handle)` 정규식 파싱
+- TikTok: `TikTokOrderID:` 또는 `@scs.tiktokw.us` 이메일 도메인 기준
+
+### 실행 명령
+
+```bash
+python tools/sync_sns_tab.py               # ONZENNA SNS
+python tools/sync_sns_tab.py --dry-run     # 프리뷰만
+python tools/sync_sns_tab_chaenmom.py      # CHA&MOM SNS
+python tools/sync_sns_tab_chaenmom.py --dry-run
+```
+
+### 필터링 규칙
+
+- Grosmimi 제품 포함 주문만 (non-Grosmimi 브랜드 제외)
+- giveaway/이벤트 주문 제외
+- Syncly 포스트 중 non-Grosmimi 컨텐츠 키워드 포함 시 제외
+
 ## Cross-Platform Context
 
 - 인플루언서 콘텐츠가 참조하는 제품: **Shopify DTC** (onzenna.com, zezebaebae.com)
 - 인플루언서 관리: Airtable (`appT2gLRR0PqMFgII`)
 - 광고 성과와 연계: Amazon PPC (`amazon-ppc-agent`), Meta Ads (`meta-ads-agent`)
 - 재무 모델: `tools/no_polar/` (Shopify/Amazon/Meta/Google 월간 데이터)
+- SNS 탭 상태는 Communicator 이메일에 자동 포함 (`run_communicator.py`)

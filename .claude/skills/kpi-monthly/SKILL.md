@@ -16,6 +16,8 @@ python tools/run_kpi_monthly.py
 
 **Output:** `kpis_model_<date>_v<N>.xlsx` (increments version automatically, loads previous version as base)
 
+**Current version:** v31 (2026-03-14 기준)
+
 ---
 
 ## Tab Structure
@@ -26,8 +28,33 @@ python tools/run_kpi_monthly.py
 | `KPI_광고비` | **Wide** (months as columns) | Ad spend by platform + Amazon brand breakdown |
 | `KPI_시딩비용` | **Wide** (months as columns) | Influencer seeding cost (PayPal + COGS + shipping) |
 | `KPI_Amazon할인_상세` | Long + wide summary | Daily Amazon channel discount detail |
-| Executive Summary | Existing sheet | COGS rows updated (rows 14/15/16) |
-| D2C KPI Summary | Appended section | Monthly D2C gross/net/discount/ad spend/seeding |
+| Executive Summary | Existing sheet | **rows 14/15/16 COGS 업데이트** (D2C Grosmimi/CHA&MOM/Naeiae) |
+| D2C KPI Summary | Appended section | **월별 D2C gross/net/discount/ad spend/seeding 추가 섹션** |
+
+### Executive Summary COGS 업데이트
+
+`update_legacy_cogs(wb, cogs_monthly)` 가 기존 Executive Summary 시트에서:
+- Row 14: Grosmimi COGS
+- Row 15: CHA&MOM COGS
+- Row 16: Naeiae COGS
+
+를 월별 컬럼에 맞춰 채워넣음. `_find_partial_month_col(ws, year, month)` 로 헤더 행에서 월 컬럼 위치를 찾아 정확히 삽입.
+
+### D2C KPI Summary 섹션
+
+`add_summary_d2c_section(wb, d2c_monthly, seeding_rows, adspend_rows)` 가 기존 시트에 새 섹션을 append:
+
+| 행 | 내용 |
+|----|------|
+| Gross Revenue | D2C 채널 총 매출 |
+| Discount | D2C 할인 금액 |
+| Net Revenue | 순매출 (Gross - Discount) |
+| Discount Rate | 할인율 % |
+| Ad Spend | 플랫폼별 광고비 합산 |
+| Seeding Cost | 인플루언서 시딩비용 |
+
+- `_parse_wide_total(rows)` 로 wide-format TOTAL 행에서 `{month: value}` 딕셔너리 추출
+- `_scan_legacy_*_rows()` helpers: 기존 시트에서 레거시 데이터 행 스캔 후 재활용
 
 ### Wide Format Conventions
 
