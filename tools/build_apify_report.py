@@ -266,7 +266,7 @@ def build_pipeline_section(statuses: dict) -> str:
         ("pipeline", "Apify Crawl"),
         ("orders",   "Fetch Influencer Orders"),
         ("migrate",  "Syncly Migration"),
-        ("sns",      "Grosmimi SNS Sync"),
+        ("sns",      "Onzenna SNS Sync"),
         ("llm",      "USA_LLM Update"),
     ]
     # Get actual GH Actions run time (single call, cached)
@@ -333,11 +333,11 @@ def build_stats_section(sns: dict, llm: dict, total_creators: int) -> str:
     shipped_30d  = sns.get("new_30d", 0)
     upd_c        = sns.get("update_count", 0)
 
-    # Content detected stats (from update_usa_llm)
-    content_24h  = llm.get("new_content_24h", 0)
-    content_7d   = llm.get("new_content_7d", 0)
-    content_30d  = llm.get("new_content_30d", 0)
-    highlights_count = len(llm.get("highlights", []))
+    # Content stats by post upload date (from update_usa_llm)
+    content_24h    = llm.get("new_content_24h", 0)
+    content_7d     = llm.get("new_content_7d", 0)
+    content_30d    = llm.get("new_content_30d", 0)
+    trending_count = llm.get("trending_count", 0)
 
     wf_ts, _ = _wf_info("apify_daily.yml")
     ts_html = (
@@ -354,27 +354,26 @@ def build_stats_section(sns: dict, llm: dict, total_creators: int) -> str:
 
     return f"""
     <div style="margin-bottom:24px;">
-      {section_label("Grosmimi US SNS &mdash; Newly Shipped")}
+      {section_label("Onzenna US SNS &mdash; Newly Shipped")}
       <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
         <tr>
           {build_stat_card("Total Influencers", str(total))}
           {build_stat_card("Shipped · 24h", str(shipped_24h))}
           {build_stat_card("Shipped · 7d", str(shipped_7d))}
           {build_stat_card("Shipped · 30d", str(shipped_30d))}
-          {build_stat_card("Updated", str(upd_c))}
         </tr>
       </table>
     </div>
 
     <div style="margin-bottom:24px;">
-      {section_label("New Content Detected (USA_LLM)")}
+      {section_label("Creator Content (USA_LLM)")}
       <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
         <tr>
           {build_stat_card("Creators Tracked", str(total_creators))}
-          {build_stat_card("Content · 24h", str(content_24h), "new posts found")}
-          {build_stat_card("Content · 7d", str(content_7d))}
-          {build_stat_card("Content · 30d", str(content_30d))}
-          {build_stat_card("Highlights Today", str(highlights_count), "first detected")}
+          {build_stat_card("Posts · 24h", str(content_24h), "by upload date")}
+          {build_stat_card("Posts · 7d", str(content_7d))}
+          {build_stat_card("Posts · 30d", str(content_30d))}
+          {build_stat_card("Trending", str(trending_count), "50%+ view change vs. yesterday")}
         </tr>
       </table>
     </div>"""
@@ -566,7 +565,7 @@ def build_html(
                 <td>
                   <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;
                                color:#C9A84C;font-family:'Courier New',monospace;
-                               margin-bottom:6px;">Grosmimi &middot; Daily Report</div>
+                               margin-bottom:6px;">Onzenna &middot; Daily Report</div>
                   <div style="font-size:22px;font-weight:700;color:#FFFFFF;
                                font-family:Georgia,serif;line-height:1.2;">
                     Apify <span style="color:#C9A84C;">+</span> SNS Intelligence

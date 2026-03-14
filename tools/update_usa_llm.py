@@ -37,7 +37,10 @@ SNS_SHEET_ID      = "1SwO4uAbf25vOR0UYWOUlxzy5gCbFRrNXwO2kAWydyeA"
 LLM_TAB           = "USA_LLM"
 
 DETECTION_LOG_PATH = PROJECT_ROOT / ".tmp" / "content_detection_log.json"
+PREV_METRICS_PATH  = PROJECT_ROOT / ".tmp" / "usa_llm_prev.json"
 HIGHLIGHTS_PATH    = PROJECT_ROOT / ".tmp" / "usa_llm_highlights.json"
+
+TRENDING_THRESHOLD = 0.50   # 50% view change vs. previous day
 
 
 def to_int(v):
@@ -161,10 +164,36 @@ def update_detection_log(posts, dry_run=False):
     return log, newly_detected
 
 
-def count_content_within(log, days):
-    """detection_log에서 최근 N일 내 감지된 URL 수."""
+def count_posts_by_date(posts, days):
+    """Count unique posts where post_date >= today - N days."""
     cutoff = (datetime.now(tz=timezone.utc) - timedelta(days=days)).strftime("%Y-%m-%d")
-    return sum(1 for d in log.values() if d >= cutoff)
+    seen = set()
+    count = 0
+    for p in posts:
+        url = p.get("url", "")
+        if not url or url in seen:
+            continue
+        seen.add(url)
+        if p.get("date", "") >= cutoff:
+            count += 1
+    return count
+
+
+def count_trending(posts, prev_metrics):
+    """Count posts with >=50% view change vs. previous day."""
+    seen = set()
+    count = 0
+    for p in posts:
+        url = p.get("url", "")
+        if not url or url in seen:
+            continue
+        seen.add(url)
+        prev = prev_metrics.get(url, {}).get("views", 0)
+        cur  = p.get("views", 0)
+        if prev > 0 and cur > 0:
+            if abs(cur - prev) / prev >= TRENDING_THRESHOLD:
+                count += 1
+    return count
 
 
 def detect_highlights(posts, newly_detected_urls):
@@ -258,25 +287,44 @@ def run(dry_run=False):
     aggregated = aggregate_by_user(posts)
     print(f"    크리에이터: {len(aggregated)}명")
 
-    print("[3] Detection log 업데이트...")
+    print("[3] Detection log + trending 업데이트...")
     detection_log, newly_detected = update_detection_log(posts, dry_run=dry_run)
-    print(f"    신규 감지: {len(newly_detected)}개 URL")
+    print(f"    New URLs detected today: {len(newly_detected)}")
 
-    new_content_24h = count_content_within(detection_log, 1)
-    new_content_7d  = count_content_within(detection_log, 7)
-    new_content_30d = count_content_within(detection_log, 30)
-    print(f"    Content detected - 24h: {new_content_24h} / 7d: {new_content_7d} / 30d: {new_content_30d}")
+    # Content counts by post date (when creator uploaded)
+    new_content_24h = count_posts_by_date(posts, 1)
+    new_content_7d  = count_posts_by_date(posts, 7)
+    new_content_30d = count_posts_by_date(posts, 30)
+    print(f"    Posts by upload date - 24h: {new_content_24h} / 7d: {new_content_7d} / 30d: {new_content_30d}")
 
-    print("[4] 하이라이트 감지... (오늘 첫 감지된 포스트, 뷰 순)")
+    # Trending: 50%+ view change vs. previous day
+    prev_metrics = {}
+    if PREV_METRICS_PATH.exists():
+        try:
+            prev_metrics = json.loads(PREV_METRICS_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    trending_count = count_trending(posts, prev_metrics)
+    print(f"    Trending (50%+ view change): {trending_count}")
+
+    print("[4] Highlights (first detected today, sorted by views)...")
     highlights = detect_highlights(posts, newly_detected)
-    print(f"    하이라이트: {len(highlights)}건")
+    print(f"    Highlights: {len(highlights)}")
     for h in highlights:
         print(f"    @{h['username']} ({h['date']}): {h['views']:,} views")
 
-    print("[5] USA_LLM 탭 업데이트...")
+    print("[5] USA_LLM tab update...")
     write_llm_tab(sh_sns, aggregated, dry_run=dry_run)
 
-    # 하이라이트 + 콘텐츠 통계 저장
+    # Save prev metrics for next-day trending comparison
+    if not dry_run:
+        new_prev = {p["url"]: {"views": p["views"]} for p in posts if p["url"]}
+        PREV_METRICS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        PREV_METRICS_PATH.write_text(
+            json.dumps(new_prev, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+
+    # Save highlights + content stats
     HIGHLIGHTS_PATH.parent.mkdir(parents=True, exist_ok=True)
     HIGHLIGHTS_PATH.write_text(json.dumps({
         "highlights":       highlights,
@@ -285,6 +333,7 @@ def run(dry_run=False):
         "new_content_24h":  new_content_24h,
         "new_content_7d":   new_content_7d,
         "new_content_30d":  new_content_30d,
+        "trending_count":   trending_count,
     }, ensure_ascii=False, indent=2), encoding="utf-8")
 
     return highlights, aggregated
