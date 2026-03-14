@@ -22,7 +22,9 @@ from . import models
 # Table name -> Model class mapping
 TABLE_MAP = {
     "shopify_orders_daily": models.ShopifyOrdersDaily,
+    "shopify_orders_sku_daily": models.ShopifyOrdersSkuDaily,
     "amazon_sales_daily": models.AmazonSalesDaily,
+    "amazon_sales_sku_daily": models.AmazonSalesSkuDaily,
     "amazon_ads_daily": models.AmazonAdsDaily,
     "amazon_campaigns": models.AmazonCampaigns,
     "meta_ads_daily": models.MetaAdsDaily,

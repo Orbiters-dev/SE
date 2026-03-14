@@ -237,3 +237,57 @@ class DataForSeoKeywords(models.Model):
 
     def __str__(self):
         return f"{self.date} {self.keyword} vol={self.search_volume}"
+
+
+class ShopifyOrdersSkuDaily(models.Model):
+    """Daily Shopify orders at SKU/variant level (most granular breakdown).
+
+    Aggregated by (date, brand, channel, variant_id).
+    Same pricing logic as ShopifyOrdersDaily — D2C uses compare_at_price, Amazon uses base price.
+    Collected as a side effect of collect_shopify() — no extra API calls.
+    """
+    date = models.DateField()
+    brand = models.CharField(max_length=100)
+    channel = models.CharField(max_length=50)       # D2C, Amazon, TikTok, B2B, PR
+    variant_id = models.CharField(max_length=50, blank=True, default="")
+    sku = models.CharField(max_length=200, blank=True, default="")
+    product_title = models.CharField(max_length=500, blank=True, default="")
+    gross_sales = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    discounts = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    net_sales = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    units = models.IntegerField(default=0)
+    collected_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "gk_shopify_orders_sku_daily"
+        unique_together = ("date", "brand", "channel", "variant_id")
+
+    def __str__(self):
+        return f"{self.date} {self.brand} {self.channel} {self.sku}"
+
+
+class AmazonSalesSkuDaily(models.Model):
+    """Daily Amazon sales at ASIN/SKU level from SP-API flat-file orders report.
+
+    Aggregated by (date, seller_id, channel, asin, sku).
+    Collected as a side effect of collect_amazon_sales() — no extra API calls.
+    """
+    date = models.DateField()
+    seller_id = models.CharField(max_length=50)
+    brand = models.CharField(max_length=100)
+    channel = models.CharField(max_length=50, default="Amazon")  # Amazon, Target+
+    asin = models.CharField(max_length=20, blank=True, default="")
+    sku = models.CharField(max_length=200, blank=True, default="")
+    product_name = models.CharField(max_length=500, blank=True, default="")
+    units = models.IntegerField(default=0)
+    ordered_product_sales = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    fees = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    net_sales = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    collected_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "gk_amazon_sales_sku_daily"
+        unique_together = ("date", "seller_id", "channel", "asin", "sku")
+
+    def __str__(self):
+        return f"{self.date} {self.brand} {self.asin} {self.sku}"

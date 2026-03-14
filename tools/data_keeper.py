@@ -511,6 +511,7 @@ def collect_amazon_sales(date_from: str, date_to: str) -> list[dict]:
     """Collect Amazon SP-API sales (all sellers)."""
     print("[Amazon Sales] Collecting...")
     all_rows = []
+    all_sku_rows = []
 
     for seller in SELLER_CONFIGS:
         if not seller["refresh_token"]:
@@ -542,15 +543,23 @@ def collect_amazon_sales(date_from: str, date_to: str) -> list[dict]:
         cur = d_from
         seller_rows = []
 
+        seller_sku_rows = []
         while cur <= d_to:
             chunk_end = min(cur + timedelta(days=29), d_to)
-            rows = _fetch_sp_orders(sp_headers, cur.isoformat(), chunk_end.isoformat(),
-                                     seller, AMZ_SP_MARKETPLACE_ID)
-            seller_rows.extend(rows)
+            daily_rows, sku_rows = _fetch_sp_orders(sp_headers, cur.isoformat(), chunk_end.isoformat(),
+                                                    seller, AMZ_SP_MARKETPLACE_ID)
+            seller_rows.extend(daily_rows)
+            seller_sku_rows.extend(sku_rows)
             cur = chunk_end + timedelta(days=1)
 
         all_rows.extend(seller_rows)
-        print(f"  {seller['name']} ({seller['brand']}): {len(seller_rows)} rows")
+        all_sku_rows.extend(seller_sku_rows)
+        print(f"  {seller['name']} ({seller['brand']}): {len(seller_rows)} daily rows, {len(seller_sku_rows)} SKU rows")
+
+    # Push SKU-level data as side effect (same API call, no extra cost)
+    if all_sku_rows:
+        _save_cache("amazon_sales_sku_daily", all_sku_rows)
+        _push_to_pg("amazon_sales_sku_daily", all_sku_rows)
 
     return all_rows
 
@@ -613,6 +622,7 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
 
         header = lines[0].split("\t")
         daily_agg = {}
+        sku_agg = {}
         for line in lines[1:]:
             cols = line.split("\t")
             row = dict(zip(header, cols))
@@ -620,6 +630,14 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
             if not date_str:
                 continue
             channel = "Target+" if "target" in row.get("sales-channel", "").lower() else "Amazon"
+            try:
+                amt = float(row.get("item-price", 0) or 0)
+                qty = int(row.get("quantity", 1) or 1)
+            except (ValueError, TypeError):
+                amt, qty = 0, 1
+            fee_rate = 0.08 if channel == "Target+" else 0.15
+
+            # Daily aggregation (date × channel)
             key = (date_str, channel)
             if key not in daily_agg:
                 daily_agg[key] = {
@@ -630,23 +648,41 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
                     "gross_sales": 0, "net_sales": 0, "orders": 0,
                     "units": 0, "fees": 0, "refunds": 0,
                 }
-            try:
-                amt = float(row.get("item-price", 0) or 0)
-                qty = int(row.get("quantity", 1) or 1)
-            except (ValueError, TypeError):
-                amt, qty = 0, 1
             daily_agg[key]["gross_sales"] += amt
             daily_agg[key]["orders"] += 1
             daily_agg[key]["units"] += qty
-            fee_rate = 0.08 if channel == "Target+" else 0.15
             daily_agg[key]["fees"] += amt * fee_rate
             daily_agg[key]["net_sales"] += amt * (1 - fee_rate)
 
-        return list(daily_agg.values())
+            # SKU/ASIN aggregation (date × channel × asin × sku)
+            asin         = row.get("asin", "") or row.get("asin1", "") or ""
+            sku          = row.get("sku", "") or ""
+            product_name = (row.get("product-name") or "")[:300]
+            sku_key = (date_str, channel, asin, sku)
+            if sku_key not in sku_agg:
+                sku_agg[sku_key] = {
+                    "date": date_str,
+                    "seller_id": seller["seller_id"],
+                    "brand": seller["brand"],
+                    "channel": channel,
+                    "asin": asin,
+                    "sku": sku,
+                    "product_name": product_name,
+                    "units": 0,
+                    "ordered_product_sales": 0.0,
+                    "fees": 0.0,
+                    "net_sales": 0.0,
+                }
+            sku_agg[sku_key]["units"]                 += qty
+            sku_agg[sku_key]["ordered_product_sales"] += amt
+            sku_agg[sku_key]["fees"]                  += amt * fee_rate
+            sku_agg[sku_key]["net_sales"]             += amt * (1 - fee_rate)
+
+        return list(daily_agg.values()), list(sku_agg.values())
 
     except Exception as e:
         print(f"    [ERROR] SP report {start}~{end}: {e}")
-        return []
+        return [], []
 
 
 def collect_meta_ads(date_from: str, date_to: str) -> list[dict]:
@@ -1346,8 +1382,9 @@ def collect_shopify(date_from: str, date_to: str) -> list[dict]:
 
     print(f"  Orders fetched: {len(all_orders)}")
 
-    # Aggregate daily by brand/channel using line-item level pricing
+    # Aggregate daily by brand/channel + SKU level in one pass
     daily = {}
+    sku_daily = {}
     for order in all_orders:
         date_str = order["created_at"][:10]
         tags   = (order.get("tags")        or "").lower()
@@ -1378,16 +1415,19 @@ def collect_shopify(date_from: str, date_to: str) -> list[dict]:
         # Brand detection (order level, from line items)
         brand = _detect_shopify_brand(order.get("line_items", []))
 
-        # Compute gross/discount/net from line items
+        # Compute gross/discount/net — iterate line items for both daily and SKU aggregation
         # - ONZ/D2C channels: list_price = compare_at_price ?? price (Shopify MSRP ref)
         # - Amazon channel: sell_price IS the reference price; discount = promo only
         gross = net = discount = 0.0
         units = 0
         for li in order.get("line_items", []):
-            vid        = li.get("variant_id")
-            qty        = int(li.get("quantity", 1) or 1)
-            sell_price = float(li.get("price", 0) or 0)        # unit price before coupon
-            line_disc  = float(li.get("total_discount", 0) or 0)  # coupon/promo on this line
+            vid           = li.get("variant_id")
+            qty           = int(li.get("quantity", 1) or 1)
+            sell_price    = float(li.get("price", 0) or 0)        # unit price before coupon
+            line_disc     = float(li.get("total_discount", 0) or 0)  # coupon/promo on this line
+            sku           = li.get("sku") or ""
+            product_title = (li.get("title") or "")[:300]
+            item_brand    = _detect_shopify_brand([li]) or brand  # line-item brand (more precise)
 
             if channel == "Amazon":
                 # Amazon: ref = Shopify base price (price, NOT compare_at_price)
@@ -1397,17 +1437,35 @@ def collect_shopify(date_from: str, date_to: str) -> list[dict]:
                 else:
                     ref_price = amazon_prices.get(vid, sell_price)
                 # If Amazon listed above Shopify ref (premium pricing), treat as 0 discount
-                ref_price = max(ref_price, sell_price)
-                gross    += ref_price * qty
-                net      += sell_price * qty - line_disc
-                discount += (ref_price - sell_price) * qty + line_disc
+                ref_price     = max(ref_price, sell_price)
+                li_gross      = ref_price * qty
+                li_net        = sell_price * qty - line_disc
+                li_discount   = (ref_price - sell_price) * qty + line_disc
             else:
                 # D2C/ONZ: ref = compare_at_price ?? price (Shopify MSRP)
-                list_price = d2c_prices.get(vid, sell_price)
-                gross    += list_price * qty
-                net      += sell_price * qty - line_disc
-                discount += list_price * qty - (sell_price * qty - line_disc)
+                list_price    = d2c_prices.get(vid, sell_price)
+                li_gross      = list_price * qty
+                li_net        = sell_price * qty - line_disc
+                li_discount   = list_price * qty - (sell_price * qty - line_disc)
+
+            gross    += li_gross
+            net      += li_net
+            discount += li_discount
             units    += qty
+
+            # SKU-level aggregation (date × brand × channel × variant_id)
+            sku_key = (date_str, item_brand, channel, str(vid or ""), sku)
+            if sku_key not in sku_daily:
+                sku_daily[sku_key] = {
+                    "date": date_str, "brand": item_brand, "channel": channel,
+                    "variant_id": str(vid or ""), "sku": sku,
+                    "product_title": product_title,
+                    "gross_sales": 0.0, "discounts": 0.0, "net_sales": 0.0, "units": 0,
+                }
+            sku_daily[sku_key]["gross_sales"] += li_gross
+            sku_daily[sku_key]["discounts"]   += li_discount
+            sku_daily[sku_key]["net_sales"]   += li_net
+            sku_daily[sku_key]["units"]       += qty
 
         key = (date_str, brand, channel)
         if key not in daily:
@@ -1423,7 +1481,14 @@ def collect_shopify(date_from: str, date_to: str) -> list[dict]:
         daily[key]["units"]       += units
 
     rows = list(daily.values())
-    print(f"  Daily aggregated: {len(rows)} rows")
+    sku_rows = list(sku_daily.values())
+    print(f"  Daily aggregated: {len(rows)} rows, SKU level: {len(sku_rows)} rows")
+
+    # Push SKU-level data as side effect (same API call, no extra cost)
+    if sku_rows:
+        _save_cache("shopify_orders_sku_daily", sku_rows)
+        _push_to_pg("shopify_orders_sku_daily", sku_rows)
+
     return rows
 
 

@@ -23,6 +23,27 @@ All metric formulas trace back to `tools/data_keeper.py` and `tools/run_kpi_mont
 
 **Identity:** `gross_sales - discounts = net_sales` (always holds)
 
+### `shopify_orders_sku_daily` (Shopify Line-Item Level — Most Granular)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `date` | str (YYYY-MM-DD) | Order date |
+| `brand` | str | Line-item brand (more precise than order-level detection) |
+| `channel` | str | Same classification as shopify_orders_daily |
+| `variant_id` | str | Shopify variant ID |
+| `sku` | str | Seller SKU |
+| `product_title` | str | Product name from Shopify |
+| `gross_sales` | float | Reference price × qty |
+| `discounts` | float | Discount amount |
+| `net_sales` | float | Actual revenue |
+| `units` | int | Units sold |
+
+**Unique key:** `(date, brand, channel, variant_id)`
+**Source:** Collected as side effect of collect_shopify() — same API call, no extra cost.
+**Use for:** SKU-level revenue analysis, COGS mapping, product-level discount analysis.
+
+---
+
 ### `amazon_sales_daily` (Amazon Marketplace via SP-API)
 
 | Field | Type | Description |
@@ -42,6 +63,28 @@ All metric formulas trace back to `tools/data_keeper.py` and `tools/run_kpi_mont
 - `GROSMIMI USA` (A3IA0XWP2WCD15) -> Grosmimi
 - `Fleeters Inc` (A2RE0E056TH6H3) -> Naeiae
 - `Orbitool` (A3H2CLSAX0BTX6) -> CHA&MOM
+
+### `amazon_sales_sku_daily` (Amazon ASIN/SKU Level — Most Granular)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `date` | str | Sales date |
+| `seller_id` | str | Amazon Seller Central ID |
+| `brand` | str | From seller profile map |
+| `channel` | str | "Amazon" or "Target+" |
+| `asin` | str | Amazon Standard Identification Number |
+| `sku` | str | Seller SKU |
+| `product_name` | str | Product name from flat file |
+| `units` | int | Units ordered |
+| `ordered_product_sales` | float | Revenue before fees |
+| `fees` | float | Estimated Amazon fees (~15%) |
+| `net_sales` | float | Revenue after fees |
+
+**Unique key:** `(date, seller_id, channel, asin, sku)`
+**Source:** Collected as side effect of collect_amazon_sales() — same SP-API report, no extra polling.
+**Use for:** ASIN-level revenue, best-seller ranking, product mix analysis, SKU-level ROAS.
+
+---
 
 ### `amazon_ads_daily` (Amazon Advertising API)
 
