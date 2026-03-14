@@ -87,7 +87,7 @@ jobs:
 
           ${SSH_CMD} "cd ${EC2_PATH} && \
             python3 manage.py makemigrations ${APP} --settings=export_calculator.settings.production && \
-            python3 manage.py migrate ${APP} --settings=export_calculator.settings.production && \
+            python3 manage.py migrate ${APP} --fake-initial --settings=export_calculator.settings.production && \
             sudo systemctl restart export_calculator && \
             echo 'Deploy complete!'"
 
