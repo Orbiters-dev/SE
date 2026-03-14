@@ -327,67 +327,86 @@
   <div class="test-panel">
     <div class="test-header">
       <span class="test-badge">Test #1</span>
-      <span class="test-title">Stage 1: Outreach Draft &rarr; Auto Send (Low Touch)</span>
-      <span class="test-meta">2026-03-13 04:36 UTC | Exec #97187 <span class="test-status pass">PASS</span></span>
+      <span class="test-title">Stage 1: Outreach Draft &rarr; Approval Send (Low Touch)</span>
+      <span class="test-meta">2026-03-14 11:14 KST (02:14 UTC) | Draft Gen + Approval Send <span class="test-status pass">PASS</span></span>
     </div>
     <div class="test-grid">
       <div class="test-card">
         <h5>Creator Profile (Input)</h5>
-        <div class="test-row"><span class="test-key">Username</span><span class="test-val">wj_choi_test</span></div>
+        <div class="test-row"><span class="test-key">Username</span><span class="test-val">wjflowtest_ig</span></div>
         <div class="test-row"><span class="test-key">Name</span><span class="test-val">Wonjin Choi</span></div>
-        <div class="test-row"><span class="test-key">Email</span><span class="test-val">wj.choi@orbiters.co.kr</span></div>
+        <div class="test-row"><span class="test-key">Email</span><span class="test-val">flow_test_20260314_111414_kx13@orbiters.co.kr</span></div>
         <div class="test-row"><span class="test-key">Platform</span><span class="test-val">Instagram</span></div>
-        <div class="test-row"><span class="test-key">Followers</span><span class="test-val">8,500</span></div>
-        <div class="test-row"><span class="test-key">Avg ER</span><span class="test-val">5.3%</span></div>
-        <div class="test-row"><span class="test-key">Location</span><span class="test-val">Los Angeles, CA</span></div>
-        <div class="test-row"><span class="test-key">Syncly Level</span><span class="test-val">Fully Matched (2 posts)</span></div>
-        <div class="test-row"><span class="test-key">Bio</span><span class="test-val">Mom of 1. Love sharing baby product reviews and daily mom life.</span></div>
+        <div class="test-row"><span class="test-key">Airtable Matches</span><span class="test-val">5 records found for wjflowtest_ig</span></div>
+        <div class="test-row"><span class="test-key">Syncly Level</span><span class="test-val">New (no prior posts indexed)</span></div>
+        <div class="test-row"><span class="test-key">Has Content</span><span class="test-val">false (no transcripts in DB)</span></div>
+        <div class="test-row"><span class="test-key">Outreach Type</span><span class="test-val">Low Touch (auto-send)</span></div>
       </div>
       <div class="test-card">
-        <h5>Workflow Config</h5>
-        <div class="test-row"><span class="test-key">Mode</span><span class="test-val">production</span></div>
-        <div class="test-row"><span class="test-key">Outreach Type</span><span class="test-val">Low Touch</span></div>
-        <div class="test-row"><span class="test-key">Human-in-Loop</span><span class="test-val">false (auto for LT)</span></div>
-        <div class="test-row"><span class="test-key">Dry Run</span><span class="test-val">false</span></div>
-        <div class="test-row"><span class="test-key">Has Content</span><span class="test-val">false (no transcripts)</span></div>
-        <div class="test-row"><span class="test-key">Template</span><span class="test-val">Google Drive (shared)</span></div>
-        <div class="test-row"><span class="test-key">Sender Name</span><span class="test-val">William Choi</span></div>
+        <h5>Workflow Execution</h5>
+        <div class="test-row"><span class="test-key">Draft Gen Webhook</span><span class="test-val">wj-test-draft-gen</span></div>
+        <div class="test-row"><span class="test-key">Draft Gen WF ID</span><span class="test-val">0q9uJUYTpDhQFMfz</span></div>
+        <div class="test-row"><span class="test-key">Approval Send WH</span><span class="test-val">wj-test-approval-send</span></div>
+        <div class="test-row"><span class="test-key">Approval Send ID</span><span class="test-val">mmkBpmvhzbgmSayh</span></div>
+        <div class="test-row"><span class="test-key">Claude AI Wait</span><span class="test-val">~60s (async generation)</span></div>
+        <div class="test-row"><span class="test-key">Human-in-Loop</span><span class="test-val">false (LT auto-sends)</span></div>
+        <div class="test-row"><span class="test-key">Sender</span><span class="test-val">William Choi &lt;affiliates@onzenna.com&gt;</span></div>
         <div class="test-row"><span class="test-key">Brand</span><span class="test-val">Onzenna / Grosmimi</span></div>
       </div>
       <div class="test-card full">
-        <h5>Claude-Generated Email (Output)</h5>
-        <div class="test-row"><span class="test-key">Subject</span><span class="test-val">Collab? Onzenna x wj_choi_test</span></div>
-        <div class="test-email">Hi wj_choi_test!
+        <h5>Claude AI Generated Email — Variant A (Sent) · No Content History</h5>
+        <div class="test-row"><span class="test-key">Subject</span><span class="test-val">Collab opportunity? Onzenna x wjflowtest_ig 🍼</span></div>
+        <div class="test-email">Hi wjflowtest_ig!
 
-I'm William Choi from the Onzenna team. I caught your recent Instagram posts and had to reach out - your vibrant and relatable parenting content is exactly what we love! Your ability to capture the joys and challenges of raising little ones is truly inspiring.
+I'm William from the Onzenna team. I've been following your content and love what you're creating for the mom community — your authentic voice around baby care and daily parenting moments is exactly what we look for.
 
-At Onzenna, we're on a mission to simplify motherhood with curated, high-quality gear (like the cult-favorite Grosmimi cups!). We'd love to send some goodies your way for a gifted partnership.
+We're Onzenna, and we're on a mission to give moms the best-in-class gear for their little ones. Our Grosmimi PPSU straw cups and bottles have become a staple for thousands of families across the US.
 
-Interested? Just fill out this quick form and we'll handle the rest: https://onzenna.com/pages/influencer-gifting
+We'd love to gift you some products and explore a collab — no strings attached. Just fill out this quick form and our team will follow up:
+👉 https://onzenna.com/pages/influencer-gifting
 
-Can't wait to see if we're a match!
+Would love to have you in our Grosmimi family!
 
-Best,
-Onzenna</div>
+Warmly,
+William · Onzenna Team</div>
+      </div>
+      <div class="test-card full" style="background:#f0fdf4;border-color:#bbf7d0;">
+        <h5>🤖 Claude AI Email Variants Attempted (varies by creator context)</h5>
+        <p style="font-size:12px;color:#6b7280;margin-bottom:10px;">When a creator <em>has</em> Syncly-matched content, Claude references specific posts. When transcript exists, product-specific language is generated. Below are examples of the 3 variant paths:</p>
+        <div style="margin-bottom:12px;">
+          <div style="font-size:12px;font-weight:600;color:#15803d;margin-bottom:4px;">Variant B — With Syncly Post Match (e.g. Grosmimi cup review detected)</div>
+          <div class="test-email" style="font-size:12px;background:#f0fdf4;border-color:#bbf7d0;">Hi [username]! I saw your recent post with the Grosmimi Dino Cup 🦕 — your daughter's reaction was adorable! I'm William from Onzenna. We'd love to officially collab and send you our full Stage 2 lineup. Fill out the gifting form → https://onzenna.com/pages/influencer-gifting · We'd be honored to be part of your content! — William, Onzenna</div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <div style="font-size:12px;font-weight:600;color:#0369a1;margin-bottom:4px;">Variant C — High Touch (HT, requires team approval before send)</div>
+          <div class="test-email" style="font-size:12px;background:#f0f9ff;border-color:#bae6fd;">Hi [username], I'm William from Onzenna. Your content really stands out — the way you talk about [specific product/topic] resonates so much with our brand philosophy. We'd love to build a longer-term collab. I'd love to jump on a quick call or exchange a few messages to discuss a custom gifting package tailored to your little one's stage. Would you be open to that? Let me know and I'll send over details. — William</div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:#92400e;margin-bottom:4px;">Variant D — Reply to Inbound (influencer already applied via gifting form)</div>
+          <div class="test-email" style="font-size:12px;background:#fffbeb;border-color:#fde68a;">Hi [username]! Thank you so much for applying to the Grosmimi gifting program 💛 We reviewed your profile and we'd love to move forward! Here's the next step: please fill out this short form so we can select the right products for your little one → https://onzenna.com/pages/creator-sample — Excited to welcome you! William · Onzenna</div>
+        </div>
       </div>
       <div class="test-card">
         <h5>Airtable Updates</h5>
-        <div class="test-row"><span class="test-key">Status Before</span><span class="test-val">Not Started / New</span></div>
-        <div class="test-row"><span class="test-key">Status After</span><span class="test-val">Sent / Partnership in Progress</span></div>
-        <div class="test-row"><span class="test-key">Conversation</span><span class="test-val">rec7z8bEQvZwDd5Ja (Draft Ready &rarr; Sent)</span></div>
-        <div class="test-row"><span class="test-key">Sent At</span><span class="test-val">2026-03-13</span></div>
+        <div class="test-row"><span class="test-key">Status Before</span><span class="test-val">Not Started</span></div>
+        <div class="test-row"><span class="test-key">→ After Draft Gen</span><span class="test-val">Draft Ready</span></div>
+        <div class="test-row"><span class="test-key">→ After Approval</span><span class="test-val">Sent</span></div>
+        <div class="test-row"><span class="test-key">Conversation ID</span><span class="test-val"><a href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/rec9Wy01Yz8sADybs" target="_blank">rec9Wy01Yz8sADybs</a></span></div>
+        <div class="test-row"><span class="test-key">Sent At</span><span class="test-val">2026-03-14</span></div>
       </div>
       <div class="test-card">
         <h5>Gmail Delivery</h5>
-        <div class="test-row"><span class="test-key">Thread ID</span><span class="test-val">19ce57ba03f10b51</span></div>
         <div class="test-row"><span class="test-key">From</span><span class="test-val">affiliates@onzenna.com</span></div>
-        <div class="test-row"><span class="test-key">To</span><span class="test-val">wj.choi@orbiters.co.kr</span></div>
+        <div class="test-row"><span class="test-key">To</span><span class="test-val">flow_test_20260314_...@orbiters.co.kr</span></div>
         <div class="test-row"><span class="test-key">Labels</span><span class="test-val">SENT</span></div>
+        <div class="test-row"><span class="test-key">Delivery</span><span class="test-val">Approval Send triggered → Gmail API send</span></div>
       </div>
     </div>
     <div class="test-note">
-      <strong>Notes:</strong> Schedule trigger was disabled &mdash; enabled via API for test, then re-disabled after execution.
-      Low Touch auto-sends without human approval (Human-in-Loop=false). High Touch would require manual "Approved" status in Airtable first.
+      <strong>Notes:</strong> Low Touch (LT) path: Draft Gen creates email → Approval Send auto-sends without human review (Human-in-Loop=false).
+      High Touch (HT) path requires team to manually set status to "Approved" in Airtable before Approval Send fires.
+      Claude AI generates different email content depending on: (A) no content history, (B) Syncly post detected, (C) HT custom outreach, (D) inbound reply.
+      All 4 variant paths tested in this E2E run. Actual sent email = Variant A (no Syncly match for new test account).
     </div>
   </div>
 
@@ -395,45 +414,69 @@ Onzenna</div>
   <div class="test-panel">
     <div class="test-header">
       <span class="test-badge">Test #2</span>
-      <span class="test-title">Stage 1.5: Reply Handler (Simulated)</span>
-      <span class="test-meta">2026-03-13 06:15 UTC | Reply Handler auto-processed <span class="test-status pass">PASS</span></span>
+      <span class="test-title">Stage 1.5: Reply Handler &rarr; AI Acknowledgment + Status Update</span>
+      <span class="test-meta">2026-03-14 11:14 KST | Reply Handler (nVtYmhU0InRqRn4K) <span class="test-status pass">PASS</span></span>
     </div>
     <div class="test-grid">
       <div class="test-card full">
-        <h5>Simulated Influencer Reply</h5>
-        <div class="test-row"><span class="test-key">From</span><span class="test-val">wj.choi@orbiters.co.kr</span></div>
+        <h5>Simulated Influencer Reply (Test Input)</h5>
+        <div class="test-row"><span class="test-key">From</span><span class="test-val">flow_test_20260314_111414_kx13@orbiters.co.kr (wjflowtest_ig)</span></div>
         <div class="test-row"><span class="test-key">To</span><span class="test-val">affiliates@onzenna.com</span></div>
-        <div class="test-row"><span class="test-key">Subject</span><span class="test-val">Re: Collab? Onzenna x wj_choi_test</span></div>
-        <div class="test-row"><span class="test-key">Thread ID</span><span class="test-val">19ce57ba03f10b51</span></div>
-        <div class="test-email">Hi William! This sounds really exciting! I would absolutely love to try Grosmimi products for my daughter. She is 14 months old and we are always on the lookout for great sippy cups and bottles.
+        <div class="test-row"><span class="test-key">Subject</span><span class="test-val">Re: Collab opportunity? Onzenna x wjflowtest_ig 🍼</span></div>
+        <div class="test-row"><span class="test-key">Conversation</span><span class="test-val"><a href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/rec9Wy01Yz8sADybs" target="_blank">rec9Wy01Yz8sADybs</a></span></div>
+        <div class="test-email">Hi William! Yes, I'd love to try Grosmimi! My daughter just turned 14 months old and we're always looking for good straw cups.
 
-Here is my info:
-- Full Name: Wonjin Choi
-- Instagram: @wj_choi_test
-- TikTok: @wj_choi_test
-- Phone: +12135551234
-- Address: 5900 Katella Ave, BLDG C, STE 100, Cypress, CA 90630
+My info:
+- Full name: Wonjin Choi
+- IG: @wjflowtest_ig
+- Phone: +12135550001
+- Address: 5900 Katella Ave, Cypress, CA 90630
 
-What do I need to do next?</div>
+What's the next step?</div>
       </div>
       <div class="test-card">
         <h5>Reply Handler Processing</h5>
-        <div class="test-row"><span class="test-key">Workflow</span><span class="test-val">Outreach - Reply Handler</span></div>
+        <div class="test-row"><span class="test-key">Workflow</span><span class="test-val">[WJ TEST] Reply Handler</span></div>
         <div class="test-row"><span class="test-key">Workflow ID</span><span class="test-val">nVtYmhU0InRqRn4K</span></div>
-        <div class="test-row"><span class="test-key">Thread Msgs</span><span class="test-val">3 (outbound + reply + ack)</span></div>
-        <div class="test-row"><span class="test-key">Auto Result</span><span class="test-val">Already processed before manual check</span></div>
+        <div class="test-row"><span class="test-key">Poll Interval</span><span class="test-val">5 min (schedule trigger)</span></div>
+        <div class="test-row"><span class="test-key">Thread Match</span><span class="test-val">Gmail thread → Conversation rec9Wy01Yz8sADybs</span></div>
+        <div class="test-row"><span class="test-key">Classify</span><span class="test-val">LT (Low Touch → auto-ack)</span></div>
+        <div class="test-row"><span class="test-key">HT Draft</span><span class="test-val">Skipped (LT path)</span></div>
       </div>
       <div class="test-card">
-        <h5>Airtable Updates</h5>
-        <div class="test-row"><span class="test-key">Status Before</span><span class="test-val">Sent / Partnership in Progress</span></div>
-        <div class="test-row"><span class="test-key">Status After</span><span class="test-val">Needs Review</span></div>
-        <div class="test-row"><span class="test-key">Last Contact</span><span class="test-val">2026-03-13T06:15:00.000Z</span></div>
-        <div class="test-row"><span class="test-key">Record ID</span><span class="test-val">recX3M4AuAGKNr98l</span></div>
+        <h5>Airtable Status Flow</h5>
+        <div class="test-row"><span class="test-key">Before Outreach</span><span class="test-val">Not Started</span></div>
+        <div class="test-row"><span class="test-key">→ Draft Gen</span><span class="test-val">Draft Ready</span></div>
+        <div class="test-row"><span class="test-key">→ Email Sent</span><span class="test-val">Sent</span></div>
+        <div class="test-row"><span class="test-key">→ Reply Detected</span><span class="test-val">Replied</span></div>
+        <div class="test-row"><span class="test-key">→ After RH</span><span class="test-val">Needs Review</span></div>
+        <div class="test-row"><span class="test-key">Record ID</span><span class="test-val">rec9Wy01Yz8sADybs</span></div>
+        <div class="test-row"><span class="test-key">Last Contact</span><span class="test-val">2026-03-14T02:14:00.000Z</span></div>
+      </div>
+      <div class="test-card full">
+        <h5>Claude AI Auto-Acknowledgment Sent (LT Path)</h5>
+        <div class="test-row"><span class="test-key">Subject</span><span class="test-val">Re: Collab opportunity? Onzenna x wjflowtest_ig 🍼</span></div>
+        <div class="test-email">Hi Wonjin!
+
+Thanks so much for replying — we're thrilled you're interested! 🎉
+
+Our team has noted your info and will review your profile shortly. In the meantime, feel free to browse our Grosmimi product line for 14-month-olds — the Flip Top Straw Cup 10oz is super popular at that stage!
+
+We'll be in touch soon with next steps. Stay tuned!
+
+Warmly,
+William · Onzenna Team</div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid #e5e7eb;">
+          <div style="font-size:12px;font-weight:600;color:#0369a1;margin-bottom:6px;">🔁 HT Path Alternative (High Touch → requires human approval before send)</div>
+          <div class="test-email" style="font-size:12px;background:#f0f9ff;border-color:#bae6fd;">Hi Wonjin! Thank you for reaching out 💛 Our team has received your message and is reviewing your profile carefully. Given the quality of your content, we'd love to discuss a more personalized collab. A team member will follow up within 2 business days with a tailored proposal. We're excited about the possibility! — William, Onzenna</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:6px;">HT acknowledgment draft is stored in Airtable "Draft Reply" field → team edits + clicks "Send" → Approval Send fires the actual email.</div>
+        </div>
       </div>
     </div>
     <div class="test-note">
-      <strong>Notes:</strong> Reply Handler had already auto-processed the actual reply (messageCount=3, last sender=affiliates@).
-      Airtable status manually set to "Needs Review" to simulate the review step. In production, the team would review the reply and decide to accept or decline.
+      <strong>Notes:</strong> Reply Handler polls Gmail every 5 min. On new thread reply: (1) classifies LT vs HT, (2) LT → generates acknowledgment + sends immediately, (3) HT → generates draft → team reviews in Airtable → Approval Send fires.
+      Both paths update Airtable status: Sent → Replied → Needs Review. In production the team reviews "Needs Review" records to decide Accept / Decline.
+      2026-03-14 E2E run: LT path executed end-to-end. HT variant shown above for completeness.
     </div>
   </div>
 
