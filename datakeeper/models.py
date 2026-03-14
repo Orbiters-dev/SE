@@ -239,6 +239,61 @@ class DataForSeoKeywords(models.Model):
         return f"{self.date} {self.keyword} vol={self.search_volume}"
 
 
+class AmazonAdsSearchTerms(models.Model):
+    """Amazon Ads search term report data (weekly chunks).
+
+    date is a CharField because Amazon reports use range format "2026-03-01~2026-03-07".
+    """
+    date = models.CharField(max_length=30)  # "YYYY-MM-DD~YYYY-MM-DD" range
+    profile_id = models.CharField(max_length=50)
+    brand = models.CharField(max_length=100)
+    campaign_id = models.CharField(max_length=50)
+    ad_group_id = models.CharField(max_length=50)
+    keyword_id = models.CharField(max_length=50, blank=True, default="")
+    search_term = models.CharField(max_length=500)
+    impressions = models.IntegerField(default=0)
+    clicks = models.IntegerField(default=0)
+    spend = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    sales = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    purchases = models.IntegerField(default=0)
+    collected_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "gk_amazon_ads_search_terms"
+        unique_together = ("date", "profile_id", "campaign_id", "ad_group_id", "search_term")
+
+    def __str__(self):
+        return f"{self.date} {self.brand} {self.search_term}"
+
+
+class AmazonAdsKeywords(models.Model):
+    """Amazon Ads keyword-level report data (weekly chunks).
+
+    date is a CharField because Amazon reports use range format "2026-03-01~2026-03-07".
+    """
+    date = models.CharField(max_length=30)  # "YYYY-MM-DD~YYYY-MM-DD" range
+    profile_id = models.CharField(max_length=50)
+    brand = models.CharField(max_length=100)
+    campaign_id = models.CharField(max_length=50)
+    ad_group_id = models.CharField(max_length=50)
+    keyword_id = models.CharField(max_length=50, blank=True, default="")
+    keyword_text = models.CharField(max_length=500, blank=True, default="")
+    match_type = models.CharField(max_length=30, blank=True, default="")
+    impressions = models.IntegerField(default=0)
+    clicks = models.IntegerField(default=0)
+    spend = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    sales = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    purchases = models.IntegerField(default=0)
+    collected_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "gk_amazon_ads_keywords"
+        unique_together = ("date", "profile_id", "campaign_id", "ad_group_id", "keyword_id")
+
+    def __str__(self):
+        return f"{self.date} {self.brand} {self.keyword_text}"
+
+
 class ShopifyOrdersSkuDaily(models.Model):
     """Daily Shopify orders at SKU/variant level (most granular breakdown).
 

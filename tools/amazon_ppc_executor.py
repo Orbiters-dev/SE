@@ -398,11 +398,11 @@ def fetch_search_terms_from_datakeeper(brand_key: str, days: int = 30) -> List[D
         return []
     dk = DataKeeper()
     brand_display = BRAND_CONFIGS[brand_key]["brand_display"]
-    rows = dk.get("amazon_ads_search_terms", days=days)
+    rows = dk.get("amazon_ads_search_terms", days=days, brand=brand_display, limit=50000)
     if not rows:
         print(f"  [WARN] DataKeeper has no amazon_ads_search_terms data")
         return []
-    out = [_normalize_dk_to_api(r) for r in rows if r.get("brand", "") == brand_display]
+    out = [_normalize_dk_to_api(r) for r in rows]
     print(f"  DataKeeper -> {len(out)} search term rows for {brand_display}")
     return out
 
@@ -415,11 +415,11 @@ def fetch_keywords_from_datakeeper(brand_key: str, days: int = 30) -> List[Dict]
         return []
     dk = DataKeeper()
     brand_display = BRAND_CONFIGS[brand_key]["brand_display"]
-    rows = dk.get("amazon_ads_keywords", days=days)
+    rows = dk.get("amazon_ads_keywords", days=days, brand=brand_display, limit=50000)
     if not rows:
         print(f"  [WARN] DataKeeper has no amazon_ads_keywords data")
         return []
-    out = [_normalize_dk_to_api(r) for r in rows if r.get("brand", "") == brand_display]
+    out = [_normalize_dk_to_api(r) for r in rows]
     print(f"  DataKeeper -> {len(out)} keyword rows for {brand_display}")
     return out
 

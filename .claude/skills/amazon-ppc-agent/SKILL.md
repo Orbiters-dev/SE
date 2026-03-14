@@ -215,6 +215,32 @@ Every proposal email now includes a **Cross-Platform Context** section with Goog
 
 **Full reference:** `references/cross-platform-analysis.md`
 
+### DataKeeper Keyword Channels (NEW)
+
+| Table | Content | Collection |
+|-------|---------|------------|
+| `amazon_ads_search_terms` | Search term level: term, spend, sales, clicks, campaign, ad group | Daily (GitHub Actions) |
+| `amazon_ads_keywords` | Keyword level: keyword text, match type, bid, spend, sales | Daily (GitHub Actions) |
+
+**Data flow:**
+```
+data_keeper.py --channel amazon_ads_search_terms  ->  .tmp/datakeeper/amazon_ads_search_terms.json
+data_keeper.py --channel amazon_ads_keywords      ->  .tmp/datakeeper/amazon_ads_keywords.json
+                                                       |
+executor: fetch_search_terms_from_datakeeper()  <------+
+executor: fetch_keywords_from_datakeeper()      <------+
+                                                       |
+                              analyze_search_terms() -> harvest + negate proposals
+                              analyze_keyword_bids() -> bid adjustment proposals
+```
+
+**Important:**
+- `--channel all` does NOT include keyword channels (slow, timeout risk)
+- GitHub Actions runs them as separate step: `is_daily == 'true'` only (1x/day)
+- 14-day lookback default (shorter than campaign data's 35d)
+- `limit=50000` required — default 10k truncates Grosmimi's 13k+ search terms
+- CHA&MOM keyword report often timeouts (few campaigns = slow API response)
+
 ### Known Issues & Fixes
 
 | Issue | Fix |
