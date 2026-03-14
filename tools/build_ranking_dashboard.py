@@ -180,12 +180,17 @@ def ranking_table_html(title: str, emoji: str, posts: list[dict],
         </div>"""
 
     rows = "".join(rank_row(i + 1, p, accent) for i, p in enumerate(posts))
+    sub_html = (
+        "<span style='font-size:10px;color:#C9A84C;"
+        "font-family:\"Courier New\",monospace;margin-left:8px;'>"
+        + sub + "</span>"
+    ) if sub else ""
     return f"""
     <div style="margin-bottom:28px;">
       <div style="margin-bottom:8px;">
         <span style="font-size:10px;letter-spacing:2px;text-transform:uppercase;
                      color:#9CA3AF;font-family:'Courier New',monospace;">{emoji} {title}</span>
-        {"<span style='font-size:10px;color:#C9A84C;font-family:\"Courier New\",monospace;margin-left:8px;'>" + sub + "</span>" if sub else ""}
+        {sub_html}
       </div>
       <table width="100%" cellpadding="0" cellspacing="0"
              style="border-collapse:collapse;border:1px solid #E9E7E4;border-radius:8px;overflow:hidden;">
