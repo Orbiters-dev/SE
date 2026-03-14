@@ -670,20 +670,94 @@ def fetch_keyword_report(profile_id: int, start: date, end: date) -> List[Dict]:
     return all_rows
 
 
+def _load_executed_history(brand_key: str, lookback_days: int = 30) -> Dict[str, set]:
+    """Load previously executed keyword/campaign changes to avoid re-proposing.
+
+    Returns dict with sets:
+      - 'harvested_terms': search terms already added as exact keywords
+      - 'negated_terms': search terms already added as negatives
+      - 'campaign_actions': set of (campaignId, action) tuples already executed
+    """
+    harvested = set()
+    negated = set()
+    camp_actions = set()
+
+    cutoff = (date.today() - timedelta(days=lookback_days)).isoformat()
+
+    # Scan proposal files for this brand with executed=True
+    for p_file in sorted(TMP_DIR.glob(f"ppc_proposal_{brand_key}_*.json"), reverse=True):
+        try:
+            data = json.loads(p_file.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+
+        # Only count files that were actually executed
+        if not data.get("executed"):
+            continue
+
+        gen_date = data.get("generated_at", "")[:10]
+        if gen_date < cutoff:
+            break  # Too old
+
+        # Keyword proposals that were approved+executed
+        for kp in data.get("keyword_proposals", []):
+            if not kp.get("approved"):
+                continue
+            term = (kp.get("searchTerm") or "").lower().strip()
+            if not term:
+                continue
+            if kp.get("type") == "harvest":
+                harvested.add(term)
+            elif "negate" in kp.get("type", ""):
+                negated.add(term)
+
+        # Campaign proposals that were approved+executed
+        for cp in data.get("proposals", []):
+            if not cp.get("approved"):
+                continue
+            cid = str(cp.get("campaignId", ""))
+            action = cp.get("proposed_action", "")
+            camp_actions.add((cid, action))
+
+    # Also scan executed JSON files (older format)
+    for e_file in sorted(TMP_DIR.glob("ppc_executed_*.json"), reverse=True):
+        try:
+            raw = json.loads(e_file.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        items = raw if isinstance(raw, list) else raw.get("changes", [])
+        for item in items:
+            kw = (item.get("keyword") or item.get("search_term") or "").lower().strip()
+            if kw:
+                action_type = item.get("type", item.get("action", ""))
+                if action_type in ("harvest", "add_keyword"):
+                    harvested.add(kw)
+                elif "negate" in action_type:
+                    negated.add(kw)
+
+    return {"harvested_terms": harvested, "negated_terms": negated, "campaign_actions": camp_actions}
+
+
 def analyze_search_terms(
     st_rows: List[Dict],
     campaigns: List[Dict],
     existing_keywords: List[Dict],
+    executed_history: Optional[Dict] = None,
 ) -> Dict[str, List[Dict]]:
     """Analyze search terms for harvesting and negative keyword opportunities.
 
     Returns dict with 'harvest' and 'negate' lists.
+    executed_history: from _load_executed_history(), used to skip already-executed items.
     """
     # Build set of existing exact-match keyword texts for dedup
     existing_exact = set()
     for kw in existing_keywords:
         if kw.get("matchType", "").upper() == "EXACT":
             existing_exact.add(kw.get("keywordText", "").lower().strip())
+
+    # Add previously executed harvests to existing_exact (don't re-propose)
+    if executed_history:
+        existing_exact.update(executed_history.get("harvested_terms", set()))
 
     # Build campaign name lookup (normalize to int keys for consistent matching)
     camp_map = {}
@@ -757,10 +831,13 @@ def analyze_search_terms(
             })
 
         # --- Negative: zero sales with high spend ---
+        # Skip if already negated in a previous execution
+        already_negated = executed_history.get("negated_terms", set()) if executed_history else set()
         target_cpa = presets["desired_acos"] * 20  # rough estimate: $20 AOV * target ACOS
         if (clicks >= presets["click_limit"]
                 and m["purchases"] == 0
-                and cost > target_cpa * NEGATIVE_ZERO_SALES_SPEND_MULT):
+                and cost > target_cpa * NEGATIVE_ZERO_SALES_SPEND_MULT
+                and term not in already_negated):
             negate.append({
                 "type": "negate_zero_sales",
                 "searchTerm": term,
@@ -4480,11 +4557,19 @@ def run_propose_single(args, brand_key: str):
             print(f"  {len(kw_rows_7d)} keyword rows (7d subset)")
             kw_rows = kw_rows_30d  # Use 30d for main analysis
 
+            # Load execution history to deduplicate proposals
+            exec_history = _load_executed_history(brand_key)
+            dedup_h = len(exec_history.get("harvested_terms", set()))
+            dedup_n = len(exec_history.get("negated_terms", set()))
+            dedup_c = len(exec_history.get("campaign_actions", set()))
+            if dedup_h or dedup_n or dedup_c:
+                print(f"  [DEDUP] Excluding {dedup_h} harvested, {dedup_n} negated, {dedup_c} campaign actions from prior executions")
+
             # Fetch DataForSEO FIRST so it can feed into both bid analysis and matrix
             print(f"\n[5/8] Fetching DataForSEO + analyzing search terms & keywords...")
             dataforseo = fetch_dataforseo_keywords(brand_key)
 
-            st_analysis = analyze_search_terms(st_rows, campaigns, kw_rows)
+            st_analysis = analyze_search_terms(st_rows, campaigns, kw_rows, executed_history=exec_history)
             kw_bid_proposals = analyze_keyword_bids(kw_rows, campaigns, dataforseo=dataforseo)
 
             kw_proposals = st_analysis["harvest"] + st_analysis["negate"] + kw_bid_proposals
