@@ -326,10 +326,12 @@ def build_stat_card(label: str, value: str, sub: str = "") -> str:
 
 
 def build_stats_section(sns: dict, highlights_count: int, total_creators: int) -> str:
-    total  = sns.get("total_influencers", 0)
-    new_c  = sns.get("new_count", 0)
-    with_c = sns.get("with_content", 0)
-    upd_c  = sns.get("update_count", 0)
+    total   = sns.get("total_influencers", 0)
+    new_24h = sns.get("new_24h", sns.get("new_count", 0))
+    new_7d  = sns.get("new_7d", 0)
+    new_30d = sns.get("new_30d", 0)
+    with_c  = sns.get("with_content", 0)
+    upd_c   = sns.get("update_count", 0)
 
     wf_ts, _ = _wf_info("apify_daily.yml")
     sns_ts = wf_ts
@@ -352,7 +354,9 @@ def build_stats_section(sns: dict, highlights_count: int, total_creators: int) -
       <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
         <tr>
           {build_stat_card("Total Influencers", str(total))}
-          {build_stat_card("Newly Added", str(new_c), f"with content link: {with_c}")}
+          {build_stat_card("Newly Added · 24h", str(new_24h), f"with content: {with_c}")}
+          {build_stat_card("Newly Added · 7d", str(new_7d))}
+          {build_stat_card("Newly Added · 30d", str(new_30d))}
           {build_stat_card("Updated", str(upd_c))}
         </tr>
       </table>

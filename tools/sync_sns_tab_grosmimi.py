@@ -27,7 +27,7 @@ import json
 import re
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -400,9 +400,18 @@ def sync(dry_run=False):
 
     print("\n[DONE] US SNS 동기화 완료")
 
+    # 기간별 신규 카운트 (ship_date 기준)
+    now = datetime.now(tz=timezone.utc)
+    def count_new_within(days):
+        cutoff = (now - timedelta(days=days)).strftime("%Y-%m-%d")
+        return sum(1 for info in influencers.values() if info.get("ship_date", "") >= cutoff)
+
     # 요약 저장
     summary = {
         "new_count":    len(to_add),
+        "new_24h":      count_new_within(1),
+        "new_7d":       count_new_within(7),
+        "new_30d":      count_new_within(30),
         "update_count": len(to_update),
         "with_content": sum(1 for x in to_add if x["content_url"]),
         "total_influencers": len(influencers),
