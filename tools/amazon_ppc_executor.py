@@ -331,8 +331,51 @@ def fetch_campaigns(profile_id: int) -> List[Dict]:
     return campaigns
 
 
+def fetch_report_from_datakeeper(brand_key: str, days: int) -> List[Dict]:
+    """Fetch campaign metrics from DataKeeper (proven reliable source).
+
+    Returns rows in the same format as fetch_sp_report() for compatibility
+    with analyze_campaigns().
+    """
+    try:
+        from data_keeper_client import DataKeeper
+    except ImportError:
+        print("  [WARN] DataKeeper client not available, falling back to API")
+        return []
+
+    dk = DataKeeper()
+    brand_display = BRAND_CONFIGS[brand_key]["brand_display"]
+    rows = dk.get("amazon_ads_daily", days=days)
+    if not rows:
+        print(f"  [WARN] DataKeeper returned no amazon_ads_daily data")
+        return []
+
+    # Filter by brand and convert field names to match analyze_campaigns expectations
+    out = []
+    for r in rows:
+        if r.get("brand", "") != brand_display:
+            continue
+        out.append({
+            "date": r.get("date", ""),
+            "campaignId": r.get("campaign_id", ""),
+            "campaignName": r.get("campaign_name", r.get("campaign_id", "")),
+            "cost": float(r.get("spend", 0) or 0),
+            "sales14d": float(r.get("sales", 0) or 0),
+            "purchases14d": int(r.get("purchases", 0) or 0),
+            "clicks": int(r.get("clicks", 0) or 0),
+            "impressions": int(r.get("impressions", 0) or 0),
+        })
+
+    dates = sorted(set(r["date"] for r in out)) if out else []
+    campaigns_n = len(set(r["campaignId"] for r in out))
+    print(f"  DataKeeper -> {len(out)} rows for {brand_display} | {campaigns_n} campaigns")
+    if dates:
+        print(f"  Period: {dates[0]} ~ {dates[-1]}")
+    return out
+
+
 def fetch_sp_report(profile_id: int, start: date, end: date) -> List[Dict]:
-    """Fetch SP campaign daily metrics for date range."""
+    """Fetch SP campaign daily metrics for date range (direct API, used as fallback)."""
     all_rows = []
     cur = start
 
@@ -861,7 +904,7 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
         for r in rows:
             rd = datetime.strptime(r.get("date", "")[:10], "%Y-%m-%d").date()
             if from_d <= rd <= to_d:
-                cid = r.get("campaignId")
+                cid = str(r.get("campaignId", ""))
                 b = bucket[cid]
                 b["cost"] += float(r.get("cost", 0) or 0)
                 b["sales"] += float(r.get("sales14d", 0) or 0)
@@ -887,7 +930,7 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
               "30d": {"cost": 0, "sales": 0, "clicks": 0, "impressions": 0}}
 
     for camp in campaigns:
-        cid = camp["campaignId"]
+        cid = str(camp["campaignId"])
         if camp["state"] != "ENABLED":
             continue
 
@@ -2649,7 +2692,13 @@ def run_propose_single(args, brand_key: str):
 
     end_date = date.today() - timedelta(days=1)
     start_date = end_date - timedelta(days=args.days - 1)
-    report_rows = fetch_sp_report(profile_id, start_date, end_date)
+
+    # Primary: DataKeeper (cached, reliable). Fallback: direct API.
+    dk_days = max(args.days, 35)  # Always need 30+ days for the 30d analysis window
+    report_rows = fetch_report_from_datakeeper(brand_key, days=dk_days)
+    if not report_rows:
+        print("  [INFO] DataKeeper unavailable, falling back to direct API...")
+        report_rows = fetch_sp_report(profile_id, start_date, end_date)
     print(f"  {len(report_rows)} daily metric rows collected")
 
     print(f"\n[3/7] Analyzing campaigns (ROAS framework)...")
