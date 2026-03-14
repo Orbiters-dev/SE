@@ -126,6 +126,12 @@ Python path: `/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe`
    NOTE: run_amazon_ppc_daily.py uses DataKeeper as PRIMARY source (not API).
          Field mapping: DK.spend -> cost, DK.sales -> sales14d, DK.campaign_id -> campaignId
 
+   ⏰ 자동화 스케줄 (KST):
+   - KST 22:00: Data Keeper 수집 1회차 (T-1 전채널 데이터 확정)
+   - KST 11:00: Data Keeper 수집 2회차
+   - KST 08:00: amazon_ppc_daily.yml 자동 분석 (22:00 수집 데이터 기반)
+   → PPC 분석은 항상 가장 최근 Data Keeper 데이터(KST 22:00 수집분) 사용
+
 2. Proposal & Execution (per brand):
    DataKeeper -> .tmp/ppc_proposal_{brand}_YYYYMMDD.json -> Human approval
      -> API execution -> .tmp/ppc_executed_YYYYMMDD.json -> Google Sheets changelog

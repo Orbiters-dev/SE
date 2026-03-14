@@ -126,14 +126,19 @@ attribution lag(2-3일)가 있으므로 실행 직후 변화 작음 — 정상.
 
 수정 시 `run_communicator.py` 내 `WORKFLOW_SCHEDULE` 리스트 직접 편집.
 
-| 파일 | 레이블 | 실행 시간 (PST) |
-|------|--------|----------------|
-| `data_keeper.yml` | Data Keeper | 00:00, 12:00 매일 |
-| `amazon_ppc_daily.yml` | Amazon PPC | 08:00, 20:00 매일 |
-| `meta_ads_daily.yml` | Meta Ads | 00:00, 12:00 매일 |
-| `syncly_daily.yml` | Syncly Sync | 08:00 매일 |
-| `kpi_weekly.yml` | KPI Weekly | 08:00 월요일 |
-| `communicator.yml` | Communicator | 00:00, 12:00 매일 |
+| 파일 | 레이블 | 실행 시간 (KST) | UTC cron |
+|------|--------|----------------|----------|
+| `data_keeper.yml` | Data Keeper | **22:00, 11:00** 매일 | `0 13 * * *`, `0 2 * * *` |
+| `amazon_ppc_daily.yml` | Amazon PPC | 08:00 매일 | `0 23 * * *` |
+| `meta_ads_daily.yml` | Meta Ads | PST 0:00, 12:00 | PST 기준 유지 |
+| `syncly_daily.yml` | Syncly Sync | 08:00 매일 | `0 23 * * *` |
+| `kpi_weekly.yml` | KPI Weekly | 08:00 월요일 | `0 23 * * 0` |
+| `communicator.yml` | Communicator | 00:00, 12:00 (PST) | PST 기준 유지 |
+
+**Data Keeper 스케줄 변경 이유 (2026-03-14):**
+- 기존 PST 0:00 (KST 17:00)은 Amazon Ads async 리포트가 자정 직후 미완성일 가능성
+- PST 05:00 (KST 22:00) 이후 실행 시 전채널 T-1 데이터 완전 확정
+- KST 기준 일과 흐름: **22:00 수집 → 11:00 수집 → 08:00 PPC분석 + 상태이메일**
 
 ## 채널 freshness 기준
 

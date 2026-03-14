@@ -2,9 +2,9 @@ name: Data Keeper - Daily Collection
 
 on:
   schedule:
-    - cron: '0 8 * * *'    # PST 0:00 (= UTC 8:00) - full daily
-    - cron: '0 20 * * *'   # PST 12:00 (= UTC 20:00) - midday refresh
-    - cron: '0 23 * * *'   # KST 8:00 AM (= UTC 23:00) - daily status email
+    - cron: '0 13 * * *'   # KST 22:00 (= UTC 13:00 = PST 5:00) - full daily (Amazon Ads 확정 후)
+    - cron: '0 2 * * *'    # KST 11:00 (= UTC 02:00 = PST 18:00) - midday refresh
+    - cron: '0 23 * * *'   # KST 8:00 AM (= UTC 23:00) - daily status email only
   workflow_dispatch:         # manual trigger
     inputs:
       channel:
@@ -112,8 +112,8 @@ jobs:
           else
             echo "notify_only=false" >> $GITHUB_OUTPUT
           fi
-          # PST 0:00 (UTC 8:00) = main daily → send full email to all@
-          if [ "$CRON" = "0 8 * * *" ]; then
+          # KST 22:00 (UTC 13:00) = main daily → send full email to all@
+          if [ "$CRON" = "0 13 * * *" ]; then
             echo "is_daily=true" >> $GITHUB_OUTPUT
           else
             echo "is_daily=false" >> $GITHUB_OUTPUT
