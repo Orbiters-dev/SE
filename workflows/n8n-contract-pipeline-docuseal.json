@@ -1,0 +1,249 @@
+{
+  "name": "Onzenna — Contract Pipeline (DocuSeal)",
+  "nodes": [
+
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "contract-create",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a01-webhook",
+      "name": "Webhook: POST /contract-create",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [100, 200],
+      "webhookId": "onzenna-contract-create"
+    },
+
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.DOCUSEAL_BASE_URL || 'https://docuseal.orbiters.co.kr' }}/api/submissions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "X-Auth-Token", "value": "={{ $vars.DOCUSEAL_API_KEY }}"},
+            {"name": "Content-Type", "value": "application/json"}
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ template_id: Number($vars.DOCUSEAL_TEMPLATE_ID || '1'), send_email: true, submitters: [{ name: $json.body.name, email: $json.body.email, role: 'First Party', fields: [ { name: 'AGREEMENT_DATE', default_value: new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'}), readonly: true }, { name: 'INFLUENCER_NAME', default_value: $json.body.name, readonly: true }, { name: 'ACCOUNT_HANDLE', default_value: $json.body.handle, readonly: true }, { name: 'DELIVERABLES_SUMMARY', default_value: $json.body.deliverables, readonly: true }, { name: 'PRODUCTS_LIST', default_value: $json.body.products, readonly: true }, { name: 'W9_LINE', default_value: Number($json.body.payment) >= 600 ? 'Submit a signed W-9 form' : '(not required)', readonly: true }, { name: 'PAYMENT_AMOUNT', default_value: '$' + $json.body.payment, readonly: true }, { name: 'VIDEO_COUNT', default_value: String($json.body.video_count || '1'), readonly: true }, { name: 'CADENCE_SUFFIX', default_value: Number($json.body.video_count) > 1 ? ', to be produced and published at a cadence of ' + ($json.body.cadence || 'one (1) video every three to four (3–4) weeks') : '', readonly: true }, { name: 'PLATFORMS', default_value: $json.body.platforms || 'Instagram Reels and/or TikTok', readonly: true }, { name: 'PRODUCT_BRAND', default_value: $json.body.product_brand || 'GROSMIMI Cups', readonly: true }, { name: 'WHITELISTING_TERMS', default_value: $json.body.whitelisting || 'without any fixed end date', readonly: true }, { name: 'COMPANY_NAME', default_value: $json.body.company_name || 'Jane Jeon', readonly: true }, { name: 'COMPANY_TITLE', default_value: $json.body.company_title || 'Brand manager', readonly: true } ] }], message: { subject: 'Influencer Content Agreement - Signature Required', body: 'Hi ' + $json.body.name + ',\\n\\nPlease review and sign the attached Influencer Content Agreement.\\n\\nThank you!' } }) }}"
+      },
+      "id": "a02-docuseal-create",
+      "name": "HTTP: DocuSeal — Create Submission",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [380, 200]
+    },
+
+    {
+      "parameters": {
+        "jsCode": "const result = $input.first().json;\nconst webhook = $('Webhook: POST /contract-create').first().json;\nconst sub = Array.isArray(result) ? result[0] : result;\nreturn [{ json: {\n  success: true,\n  submission_id: sub.submission_id || sub.id,\n  slug: sub.slug || '',\n  status: sub.status || 'pending',\n  sign_url: sub.slug ? ($vars.DOCUSEAL_BASE_URL || 'https://docuseal.orbiters.co.kr') + '/s/' + sub.slug : '',\n  handle: webhook.body.handle,\n  name: webhook.body.name,\n  email: webhook.body.email,\n  payment: webhook.body.payment\n} }];"
+      },
+      "id": "a03-parse",
+      "name": "Code: Parse Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 200]
+    },
+
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "a04-respond",
+      "name": "Respond: Submission Created",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [940, 200]
+    },
+
+
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "docuseal-webhook",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "b01-ds-webhook",
+      "name": "Webhook: DocuSeal Event",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [100, 500],
+      "webhookId": "onzenna-docuseal-webhook"
+    },
+
+    {
+      "parameters": {
+        "conditions": {
+          "options": {"version": 2},
+          "conditions": [
+            {
+              "id": "is-completed",
+              "leftValue": "={{ $json.body.event_type || $json.event_type }}",
+              "rightValue": "submission.completed",
+              "operator": {"type": "string", "operation": "equals"}
+            }
+          ]
+        }
+      },
+      "id": "b02-if-completed",
+      "name": "If: Submission Completed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [380, 500]
+    },
+
+    {
+      "parameters": {},
+      "id": "b02b-noop",
+      "name": "Not Completed (ignore)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [380, 700]
+    },
+
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst data = body.data || body;\nconst submitters = data.submitters || [];\nconst sub = submitters[0] || {};\nreturn [{ json: {\n  submission_id: data.submission_id || data.id,\n  status: 'completed',\n  signer_name: sub.name || '',\n  signer_email: sub.email || '',\n  completed_at: sub.completed_at || new Date().toISOString(),\n  documents: (data.documents || []).map(d => ({ name: d.name, url: d.url }))\n} }];"
+      },
+      "id": "b03-extract",
+      "name": "Code: Extract Signed Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 500]
+    },
+
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ ($vars.DOCUSEAL_BASE_URL || 'https://docuseal.orbiters.co.kr') + '/api/submissions/' + $json.submission_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "X-Auth-Token", "value": "={{ $vars.DOCUSEAL_API_KEY }}"}
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {"responseFormat": "json"}
+          }
+        }
+      },
+      "id": "b04-get-submission",
+      "name": "HTTP: DocuSeal — Get Submission",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [940, 500]
+    },
+
+    {
+      "parameters": {
+        "jsCode": "const sub = $input.first().json;\nconst docs = sub.documents || [];\nconst pdfDoc = docs.find(d => d.url && d.url.endsWith('.pdf')) || docs[0] || {};\nreturn [{ json: {\n  submission_id: sub.id,\n  signer_name: (sub.submitters || [{}])[0].name || '',\n  signer_email: (sub.submitters || [{}])[0].email || '',\n  pdf_url: pdfDoc.url || '',\n  completed_at: (sub.submitters || [{}])[0].completed_at || '',\n  all_documents: docs\n} }];"
+      },
+      "id": "b05-build-output",
+      "name": "Code: Build Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1220, 500]
+    },
+
+
+    {
+      "parameters": {
+        "rule": {"interval": [{"field": "minutes", "minutesInterval": 30}]}
+      },
+      "id": "c01-schedule",
+      "name": "Every 30 min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [100, 900]
+    },
+
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ ($vars.DOCUSEAL_BASE_URL || 'https://docuseal.orbiters.co.kr') + '/api/submissions?limit=50' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "X-Auth-Token", "value": "={{ $vars.DOCUSEAL_API_KEY }}"}
+          ]
+        }
+      },
+      "id": "c02-list",
+      "name": "HTTP: DocuSeal — List Submissions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [380, 900]
+    },
+
+    {
+      "parameters": {
+        "jsCode": "const result = $input.first().json;\nconst subs = result.data || result || [];\nconst pending = subs.filter(s => {\n  const submitters = s.submitters || [];\n  return submitters.some(sub => sub.status === 'pending' || sub.status === 'sent' || sub.status === 'opened');\n});\nif (!pending.length) return [{ json: { _noPending: true, total: subs.length } }];\nreturn pending.map(s => ({ json: s }));"
+      },
+      "id": "c03-filter",
+      "name": "Code: Filter Pending",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 900]
+    },
+
+    {
+      "parameters": {
+        "conditions": {
+          "options": {"version": 2},
+          "conditions": [
+            {
+              "id": "has-pending",
+              "leftValue": "={{ $json._noPending }}",
+              "rightValue": true,
+              "operator": {"type": "boolean", "operation": "notEquals"}
+            }
+          ]
+        }
+      },
+      "id": "c04-if",
+      "name": "If: Pending?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [940, 900]
+    },
+
+    {
+      "parameters": {},
+      "id": "c04b-noop",
+      "name": "Nothing Pending",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [940, 1100]
+    }
+  ],
+  "connections": {
+    "Webhook: POST /contract-create": {"main": [[{"node": "HTTP: DocuSeal — Create Submission", "type": "main", "index": 0}]]},
+    "HTTP: DocuSeal — Create Submission": {"main": [[{"node": "Code: Parse Response", "type": "main", "index": 0}]]},
+    "Code: Parse Response": {"main": [[{"node": "Respond: Submission Created", "type": "main", "index": 0}]]},
+
+    "Webhook: DocuSeal Event": {"main": [[{"node": "If: Submission Completed?", "type": "main", "index": 0}]]},
+    "If: Submission Completed?": {"main": [[{"node": "Code: Extract Signed Data", "type": "main", "index": 0}], [{"node": "Not Completed (ignore)", "type": "main", "index": 0}]]},
+    "Code: Extract Signed Data": {"main": [[{"node": "HTTP: DocuSeal — Get Submission", "type": "main", "index": 0}]]},
+    "HTTP: DocuSeal — Get Submission": {"main": [[{"node": "Code: Build Output", "type": "main", "index": 0}]]},
+
+    "Every 30 min": {"main": [[{"node": "HTTP: DocuSeal — List Submissions", "type": "main", "index": 0}]]},
+    "HTTP: DocuSeal — List Submissions": {"main": [[{"node": "Code: Filter Pending", "type": "main", "index": 0}]]},
+    "Code: Filter Pending": {"main": [[{"node": "If: Pending?", "type": "main", "index": 0}]]},
+    "If: Pending?": {"main": [[],[{"node": "Nothing Pending", "type": "main", "index": 0}]]}
+  },
+  "active": false,
+  "settings": {"executionOrder": "v1"},
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "notes": "DocuSeal version of contract pipeline. Replaces DocuSign.\n\nLane A: Webhook → DocuSeal submission → respond\nLane B: DocuSeal webhook (signed) → download PDF\nLane C: Poll pending submissions every 30min\n\nRequired n8n variables:\n- DOCUSEAL_BASE_URL: https://docuseal.orbiters.co.kr\n- DOCUSEAL_API_KEY: (from .env)\n- DOCUSEAL_TEMPLATE_ID: 1"
+  }
+}

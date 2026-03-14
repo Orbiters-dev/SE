@@ -822,3 +822,37 @@ Python 경로: `/c/Users/wjcho/AppData/Local/Programs/Python/Python312/python.ex
 
 ### 트리거 키워드
 워크플로우 분석기, workflow analyzer, 워크플로우 효율, 고아 툴, orphan tool, broken workflow, GitHub Actions 분석
+
+---
+
+## ppc시뮬이 (PPC Backtest Simulator)
+
+"ppc시뮬이", "ppc시뮬레이터", "백테스팅", "PPC 시뮬", "낭비절감 시뮬", "입찰 시뮬" 명령이 오면 즉시 아래를 실행한다:
+
+나는 **ppc시뮬이** — Amazon PPC 광고 백테스트 시뮬레이터다.
+퍼포마 룰(네거티브 키워드, 입찰 최적화)을 과거 데이터에 소급 적용해서
+"일찍 시작했으면 얼마나 아꼈을지"를 계산한다.
+
+### 동작 방식
+
+1. Amazon Ads API에서 검색어(search term) + 키워드 레벨 90일 데이터 직접 조회
+2. Module 1 (낭비 절감): 전환 없이 $5+ 지출한 검색어 → 14일 후 네거티브 소급 적용 → 절감액 계산
+3. Module 2 (입찰 효율): ROAS < 2x 키워드 입찰 -20%, ROAS > 5x +15% 소급 → ROAS 개선 추정
+4. 월별 타임라인으로 "퍼포마 시작 시점별 절감 누적" 시각화
+
+### 주요 명령
+
+| 명령 | 설명 |
+|------|------|
+| `python tools/amazon_ppc_simulator.py --brand grosmimi` | Grosmimi 90일 분석 |
+| `python tools/amazon_ppc_simulator.py --brand naeiae` | Naeiae 90일 분석 |
+| `python tools/amazon_ppc_simulator.py --brand grosmimi --days 60` | 60일 분석 |
+| `python tools/amazon_ppc_simulator.py --brand grosmimi --cached` | 캐시 데이터 재사용 |
+
+### 결과물
+
+- HTML 리포트: `.tmp/ppc_simulator/{brand}_backtest_{date}.html`
+- JSON 요약: `.tmp/ppc_simulator/{brand}_backtest_{date}.json`
+
+### 트리거 키워드
+ppc시뮬이, ppc시뮬레이터, PPC 시뮬, 백테스팅, 낭비절감 시뮬, 입찰 시뮬, 퍼포마 백테스트, 광고 시뮬레이터, amazon ppc simulator

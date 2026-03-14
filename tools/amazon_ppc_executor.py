@@ -2141,7 +2141,8 @@ def execute_approved(proposal_data: Dict) -> List[Dict]:
         print("[INFO] No approved proposals found. Set 'approved': true in the JSON file.")
         return []
 
-    print(f"\n[EXECUTE] {total_approved} approved changes for {TARGET_BRAND}")
+    brand_name = proposal_data.get("brand", "Unknown")
+    print(f"\n[EXECUTE] {total_approved} approved changes for {brand_name}")
     print(f"  Campaign-level: {len(approved)} | Keyword-level: {len(approved_kw)}")
     print(f"{'='*50}")
 
@@ -2165,6 +2166,14 @@ def execute_approved(proposal_data: Dict) -> List[Dict]:
                 result = update_campaign_bid(profile_id, cid, p["bid_change_pct"])
                 n_groups = len(result.get("ad_group_updates", []))
                 print(f"    -> Bid adjusted {p['bid_change_pct']:+d}% across {n_groups} ad groups")
+
+            elif action == "optimize" and p.get("bid_change_pct"):
+                result = update_campaign_bid(profile_id, cid, p["bid_change_pct"])
+                n_groups = len(result.get("ad_group_updates", []))
+                print(f"    -> Bid adjusted {p['bid_change_pct']:+d}% across {n_groups} ad groups")
+                if p.get("new_daily_budget"):
+                    result = update_campaign_budget(profile_id, cid, p["new_daily_budget"])
+                    print(f"    -> Budget: ${p['currentDailyBudget']} -> ${p['new_daily_budget']}")
 
             elif action == "increase_budget":
                 if p.get("new_daily_budget"):
@@ -2281,6 +2290,81 @@ DEFAULT_CC = "mj.lee@orbiters.co.kr"
 # ===========================================================================
 # Cross-Platform Analysis (Google Ads + Meta + Shopify context)
 # ===========================================================================
+
+# Channels that MUST have data before sending proposals
+_REQUIRED_CHANNELS = ["shopify", "amazon_sales", "google_ads", "meta_ads", "ga4", "klaviyo"]
+_DK_CHANNEL_MAP = {
+    "shopify": "shopify", "amazon_sales": "amazon_sales",
+    "google_ads": "google_ads", "meta_ads": "meta_ads",
+    "ga4": "ga4", "klaviyo": "klaviyo",
+}
+
+
+def _ensure_datakeeper_fresh():
+    """Check DataKeeper data freshness. If channels are empty, run collection.
+
+    Rule: NEVER send proposals with [NO DATA]. Run data_keeper.py until filled.
+    """
+    try:
+        from data_keeper_client import DataKeeper
+        dk = DataKeeper()
+    except Exception:
+        return
+
+    # Map logical channel to DataKeeper table name
+    _table_map = {
+        "shopify": "shopify_orders_daily",
+        "amazon_sales": "amazon_sales_daily",
+        "google_ads": "google_ads_daily",
+        "meta_ads": "meta_ads_daily",
+        "ga4": "ga4_daily",
+        "klaviyo": "klaviyo_daily",
+    }
+
+    empty_channels = []
+    for ch in _REQUIRED_CHANNELS:
+        try:
+            table = _table_map.get(ch, f"{ch}_daily")
+            rows = dk.get(table, days=7)
+            if not rows:
+                empty_channels.append(ch)
+        except Exception:
+            empty_channels.append(ch)
+
+    if not empty_channels:
+        return
+
+    print(f"  [DataKeeper] Empty channels detected: {empty_channels}")
+    print(f"  [DataKeeper] Running collection to fill data...")
+
+    # Map channel names to data_keeper.py --channel args
+    dk_channel_args = {
+        "shopify": "shopify", "amazon_sales": "amazon_sales",
+        "google_ads": "google_ads", "meta_ads": "meta",
+        "ga4": "ga4", "klaviyo": "klaviyo",
+    }
+
+    import subprocess
+    python = str(Path(__file__).parent.parent / "tools" / "data_keeper.py")
+    if not Path(python).exists():
+        python = str(Path(__file__).parent / "data_keeper.py")
+
+    for ch in empty_channels:
+        dk_ch = dk_channel_args.get(ch, ch)
+        cmd = [sys.executable, python, "--channel", dk_ch, "--days", "14"]
+        print(f"  [DataKeeper] Collecting {dk_ch}...")
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300,
+                                    cwd=str(Path(__file__).parent))
+            if result.returncode == 0:
+                print(f"  [DataKeeper] {dk_ch} collected OK")
+            else:
+                print(f"  [DataKeeper] {dk_ch} collection failed: {result.stderr[-200:]}")
+        except subprocess.TimeoutExpired:
+            print(f"  [DataKeeper] {dk_ch} collection timed out (300s)")
+        except Exception as e:
+            print(f"  [DataKeeper] {dk_ch} collection error: {e}")
+
 
 def fetch_cross_platform_context(brand_key: str, days: int = 30) -> Dict:
     """Pull Google Ads, Meta Ads, Shopify, Amazon Sales data from DataKeeper
@@ -2511,12 +2595,452 @@ def _build_cross_platform_html(xp_ctx: Dict) -> str:
     </div>"""
 
 
+# ===========================================================================
+# Product-Level Intelligence (SKU/ASIN Breakdown + Golmani Margin Framework)
+# ===========================================================================
+
+# COGS & margin data from Golmani KPI taxonomy (kpi-data-taxonomy.md)
+AVG_COGS = {
+    "Grosmimi": 8.41, "Naeiae": 5.35, "CHA&MOM": 7.53,
+    "Onzenna": 5.35, "Alpremio": 12.57, "Unknown": 8.00,
+}
+AVG_PRICE = {
+    "Grosmimi": 28.0, "Naeiae": 18.0, "CHA&MOM": 32.0,
+    "Onzenna": 22.0, "Alpremio": 38.0, "Unknown": 25.0,
+}
+# Channel contribution margins (Golmani waterfall, updated with full costs)
+# Amazon: Rev -> -COGS(~30%) -> -Referral(15%) -> -FBA(~15-20%) -> -Export($0.5/u) -> -Returns(5%) = CM
+# D2C:    Rev -> -COGS(~30%) -> -Shopify(3%) -> -Shipping(~8%) -> -Export($0.5/u) -> -Returns(5%) = CM
+CHANNEL_CM = {
+    "amazon": {"cogs": 0.30, "referral_fee": 0.15, "fba_fulfillment": "per_unit", "export": 0.50, "returns": 0.05},
+    "d2c":    {"cogs": 0.30, "payment_processing": 0.03, "shipping": 0.08, "export": 0.50, "returns": 0.05},
+}
+
+# FBA fulfillment fee per unit (estimated by brand/product type)
+# Grosmimi: cups/bottles, Large Standard 1-2lb -> ~$5.39
+# Naeiae: snacks, Small Standard <1lb -> ~$3.50
+# CHA&MOM: skincare/baby care, Standard -> ~$4.25
+FBA_FEE_PER_UNIT = {
+    "Grosmimi": 5.39, "Naeiae": 3.50, "CHA&MOM": 4.25,
+    "Onzenna": 4.00, "Alpremio": 5.50, "Unknown": 4.50,
+}
+EXPORT_COST_PER_UNIT = {
+    "Grosmimi": 0.50, "Naeiae": 3.00, "CHA&MOM": 0.50,
+    "Onzenna": 0.50, "Alpremio": 0.50, "Unknown": 0.50,
+}
+RETURN_RATE = 0.05            # 5% estimated return rate (FBA returns)
+
+# Grosmimi product category classification (keyword -> category)
+# Each category has its own COGS and FBA fee
+GROSMIMI_CATEGORIES = {
+    "Replacements": {
+        "keywords": ["replacement", "straw kit", "straw only", "weighted kit", "nipple", "reemplazos"],
+        "cogs": 2.50, "fba_fee": 3.50,
+    },
+    "PPSU Straw Cup": {
+        "keywords": ["magic sippy cup", "magic sippy", "taza magica", "taza m\u00e1gica",
+                      "spill proof magic", "spill proof no spill magic"],
+        "cogs": 8.41, "fba_fee": 5.39,
+    },
+    "PPSU Flip Top": {
+        "keywords": ["flip top spill proof sippy cup", "flip top"],
+        "cogs": 8.50, "fba_fee": 5.39,
+    },
+    "PPSU Tumbler": {
+        "keywords": ["slow flow toddler tumbler"],
+        "cogs": 9.00, "fba_fee": 5.39,
+        "filter": lambda name: "stainless" not in name.lower(),
+    },
+    "Stainless Straw Cup": {
+        "keywords": ["stainless steel spill proof straw cup", "insulated 316 stainless"],
+        "cogs": 12.00, "fba_fee": 6.50,
+    },
+    "Stainless Tumbler": {
+        "keywords": ["slow flow toddler tumbler"],
+        "cogs": 13.00, "fba_fee": 6.50,
+        "filter": lambda name: "stainless" in name.lower(),
+    },
+    "PPSU Baby Bottle": {
+        "keywords": ["ppsu baby bottle"],
+        "cogs": 7.00, "fba_fee": 5.00,
+    },
+}
+
+def _classify_grosmimi_product(product_name: str) -> tuple:
+    """Classify a Grosmimi product into a category. Returns (category, cogs, fba_fee)."""
+    name_lower = product_name.lower()
+    # Check Stainless Tumbler before PPSU Tumbler (both match "slow flow")
+    for cat in ["Replacements", "Stainless Tumbler", "Stainless Straw Cup",
+                 "PPSU Flip Top", "PPSU Baby Bottle", "PPSU Tumbler", "PPSU Straw Cup"]:
+        info = GROSMIMI_CATEGORIES[cat]
+        filt = info.get("filter")
+        if filt and not filt(product_name):
+            continue
+        for kw in info["keywords"]:
+            if kw.lower() in name_lower:
+                return cat, info["cogs"], info["fba_fee"]
+    # Also check for "sorbos" / "derrames con pajita" (Spanish PPSU straw cup)
+    if "sorbos" in name_lower or "derrames con pajita" in name_lower:
+        if "flip" in name_lower:
+            i = GROSMIMI_CATEGORIES["PPSU Flip Top"]
+            return "PPSU Flip Top", i["cogs"], i["fba_fee"]
+        i = GROSMIMI_CATEGORIES["PPSU Straw Cup"]
+        return "PPSU Straw Cup", i["cogs"], i["fba_fee"]
+    if "acero inoxidable" in name_lower or "stainless" in name_lower:
+        if "tumbler" in name_lower:
+            i = GROSMIMI_CATEGORIES["Stainless Tumbler"]
+            return "Stainless Tumbler", i["cogs"], i["fba_fee"]
+        i = GROSMIMI_CATEGORIES["Stainless Straw Cup"]
+        return "Stainless Straw Cup", i["cogs"], i["fba_fee"]
+    return "Other", 8.41, 5.39  # fallback to brand average
+
+
+def fetch_sku_level_context(brand_key: str, days: int = 14) -> Dict:
+    """Fetch ASIN/SKU-level breakdown from DataKeeper for product-level PPC intelligence.
+
+    Uses amazon_sales_sku_daily and shopify_orders_sku_daily tables.
+    Integrates Golmani COGS framework for per-product margin analysis.
+
+    Returns dict with top_amazon_asins, top_shopify_skus, product_mix, margin_insights.
+    """
+    try:
+        from data_keeper_client import DataKeeper
+        dk = DataKeeper()
+    except Exception as e:
+        print(f"  [WARN] DataKeeper not available for SKU context: {e}")
+        return {}
+
+    brand_map = {"naeiae": "Naeiae", "grosmimi": "Grosmimi", "chaenmom": "CHA&MOM"}
+    brand_name = brand_map.get(brand_key, brand_key)
+    cogs_per_unit = AVG_COGS.get(brand_name, 8.0)
+    fba_fee_unit = FBA_FEE_PER_UNIT.get(brand_name, 4.50)
+    export_cost_unit = EXPORT_COST_PER_UNIT.get(brand_name, 0.50)
+    avg_price = AVG_PRICE.get(brand_name, 25.0)
+    is_grosmimi = (brand_name == "Grosmimi")
+    result = {"brand": brand_name, "cogs_per_unit": cogs_per_unit,
+              "fba_fee_unit": fba_fee_unit, "export_cost_unit": export_cost_unit,
+              "return_rate": RETURN_RATE}
+
+    # --- Amazon ASIN-level ---
+    try:
+        amz_sku = dk.get("amazon_sales_sku_daily", days=days, brand=brand_name)
+        if amz_sku:
+            from collections import defaultdict
+            asin_agg = defaultdict(lambda: {"units": 0, "revenue": 0, "fees": 0, "net_sales": 0, "product_name": ""})
+            for r in amz_sku:
+                asin = r.get("asin", "?")
+                asin_agg[asin]["units"] += int(r.get("units") or 0)
+                asin_agg[asin]["revenue"] += float(r.get("ordered_product_sales") or r.get("net_sales") or 0)
+                asin_agg[asin]["fees"] += float(r.get("fees") or 0)
+                asin_agg[asin]["net_sales"] += float(r.get("net_sales") or 0)
+                if r.get("product_name"):
+                    asin_agg[asin]["product_name"] = r["product_name"]
+
+            top_asins = []
+            for asin, data in sorted(asin_agg.items(), key=lambda x: -x[1]["revenue"]):
+                units = data["units"]
+                rev = data["revenue"]
+                asp = round(rev / units, 2) if units > 0 else 0
+                # Grosmimi: per-category COGS & FBA
+                if is_grosmimi:
+                    cat, cat_cogs, cat_fba = _classify_grosmimi_product(data["product_name"])
+                else:
+                    cat = ""
+                    cat_cogs = cogs_per_unit
+                    cat_fba = fba_fee_unit
+                # Full cost waterfall:
+                # 1) COGS (product cost)
+                est_cogs = units * cat_cogs
+                # 2) Amazon referral fee (already in data["fees"] = ~15%)
+                referral_fees = data["fees"]
+                # 3) FBA fulfillment fee (pick+pack+ship, per unit)
+                fba_costs = units * cat_fba
+                # 4) Export costs Korea->US (per unit, brand-specific)
+                export_costs = units * export_cost_unit
+                # 5) Return costs (5% of revenue - refund + return shipping)
+                return_costs = rev * RETURN_RATE
+                # Total costs & margin
+                total_costs = est_cogs + referral_fees + fba_costs + export_costs + return_costs
+                est_margin = rev - total_costs
+                margin_pct = round(est_margin / rev * 100, 1) if rev > 0 else 0
+                # Max sustainable ACOS = margin_pct (if ACOS > margin, we lose money)
+                max_acos = round(margin_pct, 1) if margin_pct > 0 else 0
+                top_asins.append({
+                    "asin": asin,
+                    "product_name": data["product_name"][:60],
+                    "category": cat,
+                    "units": units,
+                    "revenue": round(rev, 2),
+                    "asp": asp,
+                    "referral_fees": round(referral_fees, 2),
+                    "fba_costs": round(fba_costs, 2),
+                    "export_costs": round(export_costs, 2),
+                    "return_costs": round(return_costs, 2),
+                    "est_cogs": round(est_cogs, 2),
+                    "total_costs": round(total_costs, 2),
+                    "est_margin": round(est_margin, 2),
+                    "margin_pct": margin_pct,
+                    "max_sustainable_acos": max_acos,
+                })
+            # --- Fetch brand ad spend and allocate to ASINs by revenue share ---
+            total_asin_rev = sum(a["revenue"] for a in top_asins)
+            brand_ad_spend = 0
+            try:
+                amz_ads = dk.get("amazon_ads_daily", days=days, brand=brand_name)
+                if amz_ads:
+                    brand_ad_spend = sum(float(r.get("spend") or 0) for r in amz_ads)
+            except Exception:
+                pass
+            result["brand_ad_spend"] = round(brand_ad_spend, 2)
+
+            for a in top_asins:
+                rev_share = a["revenue"] / total_asin_rev if total_asin_rev > 0 else 0
+                allocated_ad_cost = brand_ad_spend * rev_share
+                a["ad_spend"] = round(allocated_ad_cost, 2)
+                a["cm_after_ads"] = round(a["est_margin"] - allocated_ad_cost, 2)
+                a["cm_after_ads_pct"] = round(a["cm_after_ads"] / a["revenue"] * 100, 1) if a["revenue"] > 0 else 0
+                # Actual ACOS (ad spend / revenue)
+                a["actual_acos"] = round(allocated_ad_cost / a["revenue"] * 100, 1) if a["revenue"] > 0 else 0
+
+            result["top_amazon_asins"] = top_asins[:15]
+            result["total_amazon_asins"] = len(top_asins)
+            result["amazon_total_revenue"] = round(total_asin_rev, 2)
+            result["amazon_total_units"] = sum(a["units"] for a in top_asins)
+            # Revenue concentration: top 3 ASINs share
+            if len(top_asins) >= 3:
+                top3_rev = sum(a["revenue"] for a in top_asins[:3])
+                result["top3_concentration"] = round(top3_rev / total_asin_rev * 100, 1) if total_asin_rev > 0 else 0
+    except Exception as e:
+        print(f"  [WARN] Amazon SKU data: {e}")
+
+    # --- Shopify SKU-level ---
+    try:
+        shop_sku = dk.get("shopify_orders_sku_daily", days=days, brand=brand_name)
+        if shop_sku:
+            from collections import defaultdict
+            sku_agg = defaultdict(lambda: {"units": 0, "gross": 0, "disc": 0, "net": 0, "title": ""})
+            for r in shop_sku:
+                sku = r.get("sku") or r.get("variant_id", "?")
+                sku_agg[sku]["units"] += int(r.get("units") or 0)
+                sku_agg[sku]["gross"] += float(r.get("gross_sales") or 0)
+                sku_agg[sku]["disc"] += float(r.get("discounts") or 0)
+                sku_agg[sku]["net"] += float(r.get("net_sales") or 0)
+                if r.get("product_title"):
+                    sku_agg[sku]["title"] = r["product_title"]
+
+            top_skus = []
+            for sku, data in sorted(sku_agg.items(), key=lambda x: -x[1]["net"]):
+                units = data["units"]
+                net = data["net"]
+                disc_rate = round(data["disc"] / data["gross"] * 100, 1) if data["gross"] > 0 else 0
+                asp = round(net / units, 2) if units > 0 else 0
+                est_cogs = units * cogs_per_unit
+                # D2C: no FBA but still export + Shopify processing (~3%) + returns
+                shopify_fees = net * 0.03  # payment processing
+                export_costs = units * export_cost_unit
+                return_costs = net * RETURN_RATE
+                est_margin = net - est_cogs - shopify_fees - export_costs - return_costs
+                margin_pct = round(est_margin / net * 100, 1) if net > 0 else 0
+                top_skus.append({
+                    "sku": sku,
+                    "product_title": data["title"][:60],
+                    "units": units,
+                    "gross_sales": round(data["gross"], 2),
+                    "discounts": round(data["disc"], 2),
+                    "net_sales": round(net, 2),
+                    "disc_rate": disc_rate,
+                    "asp": asp,
+                    "margin_pct": margin_pct,
+                })
+            result["top_shopify_skus"] = top_skus[:10]
+            result["shopify_total_revenue"] = round(sum(s["net_sales"] for s in top_skus), 2)
+    except Exception as e:
+        print(f"  [WARN] Shopify SKU data: {e}")
+
+    # --- Margin-based PPC insights ---
+    insights = []
+    asins = result.get("top_amazon_asins", [])
+    if asins:
+        avg_margin = sum(a["margin_pct"] for a in asins) / len(asins)
+        cfg = BRAND_CONFIGS.get(brand_key, {})
+        target_acos = cfg.get("targeting", {}).get("MANUAL", {}).get("target_acos", 25)
+        if avg_margin > target_acos * 1.5:
+            insights.append(f"Average margin ({avg_margin:.0f}%) is {avg_margin/target_acos:.1f}x target ACOS ({target_acos}%) - room to bid more aggressively")
+        elif avg_margin < target_acos:
+            insights.append(f"WARNING: Average margin ({avg_margin:.0f}%) below target ACOS ({target_acos}%) - current bids may be unprofitable")
+
+        # Find ASINs where margin can't sustain current ACOS target
+        thin_margin = [a for a in asins if a["margin_pct"] < target_acos and a["units"] > 5]
+        if thin_margin:
+            names = ", ".join(a["asin"] for a in thin_margin[:3])
+            insights.append(f"Thin-margin ASINs (margin < {target_acos}% ACOS target): {names} - reduce bids or improve pricing")
+
+        # Revenue concentration warning
+        conc = result.get("top3_concentration", 0)
+        if conc > 80:
+            insights.append(f"Revenue highly concentrated: top 3 ASINs = {conc}% - diversification risk")
+
+        # Category-level summary (Grosmimi)
+        if is_grosmimi:
+            from collections import defaultdict
+            cat_summary = defaultdict(lambda: {"units": 0, "rev": 0, "margin": 0})
+            for a in asins:
+                c = a.get("category", "Other")
+                cat_summary[c]["units"] += a["units"]
+                cat_summary[c]["rev"] += a["revenue"]
+                cat_summary[c]["margin"] += a["est_margin"]
+            cat_lines = []
+            for c, d in sorted(cat_summary.items(), key=lambda x: -x[1]["rev"]):
+                pct = d["margin"] / d["rev"] * 100 if d["rev"] > 0 else 0
+                flag = " [LOSS]" if pct < 0 else ""
+                cat_lines.append(f"{c}: {d['units']}u ${d['rev']:,.0f}rev CM {pct:.0f}%{flag}")
+            insights.append("By category: " + " | ".join(cat_lines))
+            result["category_summary"] = dict(cat_summary)
+
+        # Ad spend insights
+        ad_spend = result.get("brand_ad_spend", 0)
+        total_rev = result.get("amazon_total_revenue", 0)
+        if ad_spend > 0 and total_rev > 0:
+            overall_acos = ad_spend / total_rev * 100
+            overall_cm_after = sum(a.get("cm_after_ads", 0) for a in asins)
+            overall_cm_after_pct = overall_cm_after / total_rev * 100
+            insights.append(f"Overall ACOS: {overall_acos:.1f}% | Ad spend ${ad_spend:,.0f} / Rev ${total_rev:,.0f}")
+            if overall_cm_after_pct < 0:
+                insights.append(f"CRITICAL: CM after ads is NEGATIVE ({overall_cm_after_pct:.1f}%) - brand is losing money overall")
+            elif overall_cm_after_pct < 10:
+                insights.append(f"WARNING: CM after ads only {overall_cm_after_pct:.1f}% - very thin profitability")
+            # ASINs losing money after ads
+            losing = [a for a in asins if a.get("cm_after_ads_pct", 0) < 0 and a["units"] > 5]
+            if losing:
+                names = ", ".join(f"{a['asin']}({a['cm_after_ads_pct']}%)" for a in losing[:3])
+                insights.append(f"ASINs losing money after ads: {names}")
+
+    result["margin_insights"] = insights
+    return result
+
+
+def _build_sku_intelligence_html(sku_context: Optional[Dict]) -> str:
+    """Build HTML section for product-level intelligence in proposal email."""
+    if not sku_context:
+        return ""
+
+    sections = []
+    brand = sku_context.get("brand", "")
+    cogs = sku_context.get("cogs_per_unit", 0)
+
+    # Amazon ASIN table
+    asins = sku_context.get("top_amazon_asins", [])
+    fba_fee = sku_context.get("fba_fee_unit", 0)
+    export_cost = sku_context.get("export_cost_unit", 0.5)
+    return_rate = sku_context.get("return_rate", 0.05)
+    brand_ad_spend = sku_context.get("brand_ad_spend", 0)
+    has_categories = any(a.get("category") for a in asins)
+    if asins:
+        asin_rows = ""
+        for a in asins[:10]:
+            margin_color = "#28a745" if a["margin_pct"] >= 30 else "#ffc107" if a["margin_pct"] >= 15 else "#dc3545"
+            acos_color = "#28a745" if a["max_sustainable_acos"] >= 30 else "#ffc107" if a["max_sustainable_acos"] >= 15 else "#dc3545"
+            # CM after ads color
+            cm_after = a.get("cm_after_ads_pct", 0)
+            cm_after_color = "#28a745" if cm_after >= 15 else "#ffc107" if cm_after >= 0 else "#dc3545"
+            cat_label = a.get('category', '')
+            cat_td = f'<td style="padding:4px 6px;border:1px solid #e0e0e0;font-size:9px;">{cat_label}</td>' if has_categories else ''
+            asin_rows += f"""<tr>
+                <td style="padding:4px 6px;border:1px solid #e0e0e0;font-size:10px;font-family:monospace;">{a['asin']}</td>
+                {cat_td}
+                <td style="padding:4px 6px;border:1px solid #e0e0e0;font-size:10px;" title="{a['product_name']}">{a['product_name'][:25]}</td>
+                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">{a['units']}</td>
+                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">${a['revenue']:,.0f}</td>
+                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">${a['asp']:.2f}</td>
+                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;color:{margin_color};font-weight:bold;">{a['margin_pct']}%</td>
+                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;color:{acos_color};font-weight:bold;">{a['max_sustainable_acos']}%</td>
+                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;color:#c53030;">${a.get('ad_spend', 0):,.0f}</td>
+                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">{a.get('actual_acos', 0)}%</td>
+                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;color:{cm_after_color};font-weight:bold;">{cm_after}%</td>
+            </tr>"""
+
+        total_rev = sku_context.get("amazon_total_revenue", 0)
+        total_units = sku_context.get("amazon_total_units", 0)
+        total_asins = sku_context.get("total_amazon_asins", 0)
+        conc = sku_context.get("top3_concentration", 0)
+
+        cat_th = '<th style="padding:5px;border:1px solid #ddd;">Type</th>' if has_categories else ''
+        cost_note = f"COGS/FBA by product type" if has_categories else f"COGS ${cogs}/u + FBA ${fba_fee}/u"
+        sections.append(f"""
+        <h4 style="margin:10px 0 5px;color:#1a365d;">Amazon P&L by ASIN ({total_asins} products, {total_units} units, ${total_rev:,.0f} rev / 14d)</h4>
+        <p style="font-size:11px;color:#666;margin:0 0 5px;">
+            {cost_note} + Export ${export_cost}/u + Returns {return_rate*100:.0f}%.
+            Ad spend ${brand_ad_spend:,.0f}/14d allocated by rev share. Top 3 conc: {conc}%.
+        </p>
+        <table style="border-collapse:collapse;width:100%;font-size:11px;">
+            <tr style="background:#e8eef4;">
+                <th style="padding:5px;border:1px solid #ddd;">ASIN</th>
+                {cat_th}
+                <th style="padding:5px;border:1px solid #ddd;">Product</th>
+                <th style="padding:5px;border:1px solid #ddd;">Units</th>
+                <th style="padding:5px;border:1px solid #ddd;">Revenue</th>
+                <th style="padding:5px;border:1px solid #ddd;">ASP</th>
+                <th style="padding:5px;border:1px solid #ddd;">CM%<br><span style="font-weight:normal;font-size:9px;">(pre-ads)</span></th>
+                <th style="padding:5px;border:1px solid #ddd;">Max<br>ACOS</th>
+                <th style="padding:5px;border:1px solid #ddd;">Ad $<br><span style="font-weight:normal;font-size:9px;">(est.)</span></th>
+                <th style="padding:5px;border:1px solid #ddd;">ACOS<br><span style="font-weight:normal;font-size:9px;">(actual)</span></th>
+                <th style="padding:5px;border:1px solid #ddd;">CM%<br><span style="font-weight:normal;font-size:9px;">(post-ads)</span></th>
+            </tr>
+            {asin_rows}
+        </table>""")
+
+    # Shopify comparison
+    skus = sku_context.get("top_shopify_skus", [])
+    if skus:
+        sku_rows = ""
+        for s in skus[:5]:
+            sku_rows += f"""<tr>
+                <td style="padding:4px 6px;border:1px solid #e0e0e0;font-size:10px;">{s['product_title'][:40]}</td>
+                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">{s['units']}</td>
+                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">${s['net_sales']:,.0f}</td>
+                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">${s['asp']:.2f}</td>
+                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">{s['disc_rate']}%</td>
+                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">{s['margin_pct']}%</td>
+            </tr>"""
+        shop_rev = sku_context.get("shopify_total_revenue", 0)
+        sections.append(f"""
+        <h4 style="margin:15px 0 5px;color:#1a365d;">Shopify DTC Top Products (${shop_rev:,.0f} rev / 14d)</h4>
+        <table style="border-collapse:collapse;width:100%;font-size:11px;">
+            <tr style="background:#e8f5e9;">
+                <th style="padding:5px;border:1px solid #ddd;">Product</th>
+                <th style="padding:5px;border:1px solid #ddd;">Units</th>
+                <th style="padding:5px;border:1px solid #ddd;">Net Sales</th>
+                <th style="padding:5px;border:1px solid #ddd;">ASP</th>
+                <th style="padding:5px;border:1px solid #ddd;">Disc Rate</th>
+                <th style="padding:5px;border:1px solid #ddd;">Margin</th>
+            </tr>
+            {sku_rows}
+        </table>""")
+
+    # Margin insights
+    insights = sku_context.get("margin_insights", [])
+    if insights:
+        items = "".join(f'<li style="margin:4px 0;font-size:12px;">{i}</li>' for i in insights)
+        sections.append(f'<ul style="margin:8px 0;padding-left:20px;">{items}</ul>')
+
+    if not sections:
+        return ""
+
+    return f"""
+    <div style="margin-top:25px;padding:15px;background:#fafbfc;border-radius:8px;border-left:4px solid #2d3748;">
+        <h3 style="margin:0 0 10px;color:#1a202c;">Product-Level Intelligence (Golmani Margin Framework)</h3>
+        <p style="color:#666;font-size:11px;margin:0 0 10px;">ASIN/SKU breakdown with full-cost margin: COGS + Referral Fee + FBA Fulfillment + Export ($0.50/unit) + Returns (5%). Max ACOS = break-even.</p>
+        {"".join(sections)}
+    </div>"""
+
+
 def build_proposal_html(proposals: List[Dict],
                         kw_proposals: Optional[List[Dict]] = None,
                         brand_key: str = "naeiae",
                         xp_context: Optional[Dict] = None,
                         analysis: Optional[Dict] = None,
-                        kw_matrix: Optional[Dict] = None) -> str:
+                        kw_matrix: Optional[Dict] = None,
+                        sku_context: Optional[Dict] = None) -> str:
     """Build comprehensive HTML email with performance summary, all campaigns, proposals, keyword matrix, and cross-platform context."""
     cfg = BRAND_CONFIGS[brand_key]
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -3082,6 +3606,8 @@ def build_proposal_html(proposals: List[Dict],
 
     {data_appendix}
 
+    {_build_sku_intelligence_html(sku_context)}
+
     {analysis_notes_html}
 
     <p style="color:#999;margin-top:20px;font-size:11px;">
@@ -3208,11 +3734,13 @@ def send_proposal_email(proposals: List[Dict], to: str = DEFAULT_TO,
                         brand_key: str = "naeiae",
                         xp_context: Optional[Dict] = None,
                         analysis: Optional[Dict] = None,
-                        kw_matrix: Optional[Dict] = None) -> Optional[str]:
+                        kw_matrix: Optional[Dict] = None,
+                        sku_context: Optional[Dict] = None) -> Optional[str]:
     """Send proposal HTML email via send_gmail.py. Returns Gmail message ID or None."""
     cfg = BRAND_CONFIGS[brand_key]
     html = build_proposal_html(proposals, kw_proposals, brand_key=brand_key,
-                               xp_context=xp_context, analysis=analysis, kw_matrix=kw_matrix)
+                               xp_context=xp_context, analysis=analysis, kw_matrix=kw_matrix,
+                               sku_context=sku_context)
     html_path = TMP_DIR / f"ppc_proposal_{brand_key}_{date.today().strftime('%Y%m%d')}_{datetime.now().strftime('%H%M')}.html"
     html_path.write_text(html, encoding="utf-8")
 
@@ -3698,8 +4226,9 @@ def run_propose_single(args, brand_key: str):
         print(f"[5/8] Skipped")
         print(f"[6/8] Skipped")
 
-    # --- Cross-Platform Context (Google Ads, Meta, Shopify, Amazon Sales) ---
-    print(f"\n[7/8] Fetching cross-platform context (Google Ads, Meta, Shopify)...")
+    # --- Ensure DataKeeper data is fresh before cross-platform context ---
+    print(f"\n[7/9] Fetching cross-platform context (Google Ads, Meta, Shopify)...")
+    _ensure_datakeeper_fresh()
     xp_context = {}
     try:
         xp_context = fetch_cross_platform_context(brand_key, days=args.days)
@@ -3711,6 +4240,21 @@ def run_propose_single(args, brand_key: str):
     except Exception as e:
         print(f"  [WARN] Cross-platform analysis failed: {e}")
 
+    # --- Product-Level Intelligence (SKU/ASIN + Golmani Margin) ---
+    print(f"\n[8/9] Fetching product-level intelligence (ASIN/SKU breakdown)...")
+    sku_context = {}
+    try:
+        sku_context = fetch_sku_level_context(brand_key, days=14)
+        n_asins = len(sku_context.get("top_amazon_asins", []))
+        n_skus = len(sku_context.get("top_shopify_skus", []))
+        amz_rev = sku_context.get("amazon_total_revenue", 0)
+        print(f"  {sku_context.get('total_amazon_asins', 0)} Amazon ASINs (${amz_rev:,.0f} / 14d)")
+        print(f"  {n_skus} Shopify SKUs")
+        for ins in sku_context.get("margin_insights", []):
+            print(f"  >> {ins}")
+    except Exception as e:
+        print(f"  [WARN] SKU-level analysis failed: {e}")
+
     # Always save and send -- even with 0 action proposals, the analysis is valuable
     filepath = save_proposal(proposals, profile_id, kw_proposals, brand_key=brand_key)
     if proposals:
@@ -3718,9 +4262,10 @@ def run_propose_single(args, brand_key: str):
     if kw_proposals:
         print_keyword_summary(kw_proposals)
 
-    print(f"\n[8/8] Sending {brand_display} proposal email...")
+    print(f"\n[9/9] Sending {brand_display} proposal email...")
     send_proposal_email(proposals, args.to, kw_proposals, cc=args.cc, brand_key=brand_key,
-                        xp_context=xp_context, analysis=analysis, kw_matrix=kw_matrix)
+                        xp_context=xp_context, analysis=analysis, kw_matrix=kw_matrix,
+                        sku_context=sku_context)
 
 
 def run_propose(args):

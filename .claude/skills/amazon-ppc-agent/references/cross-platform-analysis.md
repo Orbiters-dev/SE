@@ -4,15 +4,58 @@
 
 Amazon PPC decisions should not be made in isolation. Google Ads, Meta Ads, Shopify DTC, and Amazon organic sales data provide critical context for bid/budget optimization.
 
-## Data Sources (DataKeeper)
+## Data Sources & Granularity (DataKeeper)
 
-| Channel | Table | Key Fields |
-|---------|-------|------------|
-| Google Ads | `google_ads_daily` | `spend`, `conversions_value`, `clicks`, `impressions` |
-| Meta Ads | `meta_ads_daily` | `spend`, `purchase_value`, `purchases` |
-| Amazon Sales | `amazon_sales_daily` | `ordered_product_sales`, `units_ordered` |
-| Shopify DTC | `shopify_orders_daily` | `total_price`, orders count |
-| GA4 | `ga4_daily` | `sessions`, `conversions` |
+### Aggregate-Level Data (Cross-Platform Context)
+
+| Channel | Table | Key Fields | Granularity | Brand Filter |
+|---------|-------|------------|-------------|--------------|
+| Google Ads | `google_ads_daily` | `spend`, `conversion_value`, `clicks`, `impressions` | Daily × Campaign | By campaign name |
+| Meta Ads | `meta_ads_daily` | `spend`, `purchase_value`, `purchases`, `reach` | Daily × Ad | By campaign name |
+| Amazon Ads | `amazon_ads_daily` | `spend`, `sales`, `clicks`, `impressions` | Daily × Campaign | By profile_id |
+| Amazon Sales | `amazon_sales_daily` | `gross_sales`, `net_sales`, `units`, `fees` | Daily × Seller × Brand | By seller_id |
+| Shopify DTC | `shopify_orders_daily` | `gross_sales`, `net_sales`, `discounts`, `units` | Daily × Brand × Channel | By brand |
+| GA4 | `ga4_daily` | `sessions`, `purchases` | Daily × Channel Grouping | No |
+| Klaviyo | `klaviyo_daily` | `revenue`, `opens`, `clicks`, `conversions` | Daily × Source | No |
+
+### Item-Level Data (Product Intelligence)
+
+| Table | Key Fields | Granularity | Use Case |
+|-------|------------|-------------|----------|
+| `amazon_sales_sku_daily` | `asin`, `sku`, `product_name`, `units`, `ordered_product_sales`, `fees`, `net_sales` | Daily × ASIN × Seller | ASIN-level revenue, per-product ROAS, margin analysis |
+| `shopify_orders_sku_daily` | `variant_id`, `sku`, `product_title`, `gross_sales`, `discounts`, `net_sales`, `units` | Daily × SKU × Brand × Channel | SKU-level revenue, discount analysis, cross-channel price comparison |
+| `amazon_campaigns` | `campaign_id`, `name`, `status`, `budget`, `bid_strategy`, `campaign_type` | Campaign metadata (snapshot) | Campaign structure mapping |
+| `meta_campaigns` | `campaign_id`, `name`, `objective`, `status`, `brand`, `campaign_type` | Campaign metadata (snapshot) | Cross-platform campaign structure |
+
+### How Item-Level Data Informs PPC Decisions
+
+```
+ASIN-Level Revenue (amazon_sales_sku_daily)
+  → Identify best-selling ASINs → allocate ad budget proportionally
+  → Calculate per-ASIN full-cost margin → set max sustainable ACOS
+  → Track ASIN revenue trends → detect declining products before ad waste
+
+SKU-Level Shopify (shopify_orders_sku_daily)
+  → Compare D2C vs Amazon pricing for same product → arbitrage detection
+  → Identify influencer-driven products (PR channel SKUs) → boost Amazon ads
+  → Track discount patterns → avoid cannibalizing full-price sales
+
+Golmani Full-Cost Margin Framework:
+  → AVG_COGS per brand: Grosmimi $8.41, Naeiae $5.35, CHA&MOM $7.53
+  → FBA Fulfillment per unit: Grosmimi $5.39, Naeiae $3.50, CHA&MOM $4.25
+  → Export costs (Korea→US): $0.50/unit (ocean freight + customs)
+  → Return rate: 5% of revenue (FBA returns + refund processing)
+  → Amazon cost waterfall per ASIN:
+      Revenue
+      - COGS (product cost per unit)
+      - Referral Fee (15% of revenue, from amazon_sales_sku_daily.fees)
+      - FBA Fulfillment (per unit, varies by size/weight)
+      - Export Cost ($0.50/unit)
+      - Return Cost (5% of revenue)
+      = Contribution Margin (CM)
+  → Max Sustainable ACOS = CM / Revenue
+  → If campaign ACOS > Max Sustainable ACOS → product is losing money on ads
+```
 
 ## Cross-Platform Decision Rules
 
@@ -117,13 +160,23 @@ Shopify has full pricing transparency:
 
 ## Implementation in Executor
 
-The `fetch_cross_platform_context()` function in `amazon_ppc_executor.py`:
-1. Queries DataKeeper for all channels (7d + 30d windows)
+### `fetch_cross_platform_context(brand_key, days=30)`
+1. Queries DataKeeper for all 6 channels (7d + 30d windows)
 2. Computes ROAS/CPC/CTR per channel
 3. Generates actionable insights list
-4. Builds HTML section in proposal email
+4. Builds HTML "Cross-Platform Context" section in proposal email
 
-Cross-platform data is **context only** — it informs but does not override the ROAS Decision Framework thresholds for Amazon PPC actions.
+### `fetch_sku_level_context(brand_key, days=14)`
+1. Queries `amazon_sales_sku_daily` and `shopify_orders_sku_daily`
+2. Aggregates by ASIN/SKU: units, revenue, ASP, estimated COGS, margin
+3. Computes max sustainable ACOS per ASIN using Golmani margin framework
+4. Identifies thin-margin products, revenue concentration risks
+5. Builds HTML "Product-Level Intelligence" section in proposal email
+
+### Data Freshness Rule
+**IMPORTANT:** Before running proposals, executor MUST verify DataKeeper has fresh data. If any channel returns empty, run `data_keeper.py` collection first — never send proposals with [NO DATA] sections.
+
+Cross-platform and product-level data are **context** — they inform but do not override the ROAS Decision Framework thresholds for Amazon PPC actions.
 
 ## Google Ads Campaign Types (Reference)
 
