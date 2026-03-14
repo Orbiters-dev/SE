@@ -374,6 +374,40 @@ def fetch_report_from_datakeeper(brand_key: str, days: int) -> List[Dict]:
     return out
 
 
+def fetch_search_terms_from_datakeeper(brand_key: str, days: int = 30) -> List[Dict]:
+    """Fetch search term data from DataKeeper cache."""
+    try:
+        from data_keeper_client import DataKeeper
+    except ImportError:
+        return []
+    dk = DataKeeper()
+    brand_display = BRAND_CONFIGS[brand_key]["brand_display"]
+    rows = dk.get("amazon_ads_search_terms", days=days)
+    if not rows:
+        print(f"  [WARN] DataKeeper has no amazon_ads_search_terms data")
+        return []
+    out = [r for r in rows if r.get("brand", "") == brand_display]
+    print(f"  DataKeeper -> {len(out)} search term rows for {brand_display}")
+    return out
+
+
+def fetch_keywords_from_datakeeper(brand_key: str, days: int = 30) -> List[Dict]:
+    """Fetch keyword data from DataKeeper cache."""
+    try:
+        from data_keeper_client import DataKeeper
+    except ImportError:
+        return []
+    dk = DataKeeper()
+    brand_display = BRAND_CONFIGS[brand_key]["brand_display"]
+    rows = dk.get("amazon_ads_keywords", days=days)
+    if not rows:
+        print(f"  [WARN] DataKeeper has no amazon_ads_keywords data")
+        return []
+    out = [r for r in rows if r.get("brand", "") == brand_display]
+    print(f"  DataKeeper -> {len(out)} keyword rows for {brand_display}")
+    return out
+
+
 def fetch_sp_report(profile_id: int, start: date, end: date) -> List[Dict]:
     """Fetch SP campaign daily metrics for date range (direct API, used as fallback)."""
     all_rows = []
@@ -446,6 +480,31 @@ def fetch_sp_report(profile_id: int, start: date, end: date) -> List[Dict]:
 # Search Term Report & Keyword-Level Data
 # ===========================================================================
 
+def _keyword_cache_path(brand_key: str, report_type: str, d: date) -> Path:
+    """Cache path for keyword/search term data. Valid for 24 hours."""
+    return TMP_DIR / f"ppc_{report_type}_{brand_key}_{d.isoformat()}.json"
+
+
+def _load_keyword_cache(brand_key: str, report_type: str, start: date, end: date) -> Optional[List[Dict]]:
+    """Load cached keyword/search term data if fresh (< 24h old)."""
+    cache = _keyword_cache_path(brand_key, report_type, end)
+    if cache.exists():
+        age_h = (time.time() - cache.stat().st_mtime) / 3600
+        if age_h < 24:
+            data = json.loads(cache.read_text(encoding="utf-8"))
+            print(f"  [CACHE] {report_type} loaded from cache ({len(data)} rows, {age_h:.1f}h old)")
+            return data
+        print(f"  [CACHE] {report_type} cache expired ({age_h:.1f}h old)")
+    return None
+
+
+def _save_keyword_cache(brand_key: str, report_type: str, end: date, rows: List[Dict]):
+    """Save keyword/search term data to cache."""
+    cache = _keyword_cache_path(brand_key, report_type, end)
+    cache.write_text(json.dumps(rows, ensure_ascii=False), encoding="utf-8")
+    print(f"  [CACHE] {report_type} saved ({len(rows)} rows)")
+
+
 def fetch_search_term_report(profile_id: int, start: date, end: date) -> List[Dict]:
     """Fetch SP search term report for keyword harvesting & negative analysis."""
     all_rows = []
@@ -474,11 +533,15 @@ def fetch_search_term_report(profile_id: int, start: date, end: date) -> List[Di
         }
 
         headers = _headers_reporting(profile_id)
-        resp = requests.post(f"{API_BASE}/reporting/reports", headers=headers, json=body, timeout=60)
-        if resp.status_code == 425:
-            print("  [425] Rate limited, waiting 30s...")
-            time.sleep(30)
+        # Retry with exponential backoff for 425 rate limits
+        resp = None
+        for attempt in range(4):
             resp = requests.post(f"{API_BASE}/reporting/reports", headers=headers, json=body, timeout=60)
+            if resp.status_code != 425:
+                break
+            wait = 30 * (attempt + 1)
+            print(f"  [425] Rate limited, waiting {wait}s (attempt {attempt+1}/4)...")
+            time.sleep(wait)
         resp.raise_for_status()
         report_id = resp.json()["reportId"]
 
@@ -545,10 +608,15 @@ def fetch_keyword_report(profile_id: int, start: date, end: date) -> List[Dict]:
         }
 
         headers = _headers_reporting(profile_id)
-        resp = requests.post(f"{API_BASE}/reporting/reports", headers=headers, json=body, timeout=60)
-        if resp.status_code == 425:
-            time.sleep(30)
+        # Retry with exponential backoff for 425 rate limits
+        resp = None
+        for attempt in range(4):
             resp = requests.post(f"{API_BASE}/reporting/reports", headers=headers, json=body, timeout=60)
+            if resp.status_code != 425:
+                break
+            wait = 30 * (attempt + 1)
+            print(f"  [425] Rate limited, waiting {wait}s (attempt {attempt+1}/4)...")
+            time.sleep(wait)
         resp.raise_for_status()
         report_id = resp.json()["reportId"]
 
@@ -3019,7 +3087,8 @@ def build_proposal_html(proposals: List[Dict],
                         xp_context: Optional[Dict] = None,
                         analysis: Optional[Dict] = None,
                         kw_matrix: Optional[Dict] = None,
-                        sku_context: Optional[Dict] = None) -> str:
+                        sku_context: Optional[Dict] = None,
+                        keyword_data_status: str = "not_attempted") -> str:
     """Build comprehensive HTML email with performance summary, all campaigns, proposals, keyword matrix, and cross-platform context."""
     cfg = BRAND_CONFIGS[brand_key]
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -3553,6 +3622,44 @@ def build_proposal_html(proposals: List[Dict],
         </ol>
     </div>"""
 
+    # Budget impact summary
+    budget_impact_html = ""
+    if proposals:
+        current_total_budget = sum(p.get("currentDailyBudget", 0) for p in proposals if p.get("new_daily_budget"))
+        proposed_total_budget = sum(p.get("new_daily_budget", 0) for p in proposals if p.get("new_daily_budget"))
+        bid_changes = [(p["campaignName"], p["bid_change_pct"]) for p in proposals if p.get("bid_change_pct")]
+        budget_changes = [(p["campaignName"], p["currentDailyBudget"], p["new_daily_budget"])
+                          for p in proposals if p.get("new_daily_budget")]
+
+        budget_rows = ""
+        for name, cur_b, new_b in budget_changes:
+            diff = new_b - cur_b
+            color_b = "#28a745" if diff > 0 else "#dc3545"
+            budget_rows += f'<tr><td style="padding:3px 8px;font-size:12px;">{name}</td><td style="padding:3px 8px;text-align:right;">${cur_b:,.0f}</td><td style="padding:3px 8px;text-align:right;color:{color_b};font-weight:bold;">${new_b:,.0f}</td><td style="padding:3px 8px;text-align:right;color:{color_b};">{diff:+,.0f}</td></tr>'
+
+        bid_rows = ""
+        for name, pct in bid_changes:
+            color_bid = "#28a745" if pct > 0 else "#dc3545"
+            bid_rows += f'<tr><td style="padding:3px 8px;font-size:12px;">{name}</td><td style="padding:3px 8px;text-align:right;color:{color_bid};font-weight:bold;">{pct:+d}%</td></tr>'
+
+        budget_diff = proposed_total_budget - current_total_budget
+        budget_impact_html = f"""
+    <div style="margin-top:25px;padding:15px;background:#e8f5e9;border-radius:8px;border-left:4px solid #4caf50;">
+        <h3 style="color:#2e7d32;margin:0 0 10px;">Budget Impact Summary</h3>
+        <p style="font-size:13px;margin:5px 0;"><strong>Daily Budget Change:</strong> ${current_total_budget:,.0f} → ${proposed_total_budget:,.0f} (<span style="color:{'#28a745' if budget_diff >= 0 else '#dc3545'};font-weight:bold;">{budget_diff:+,.0f}/day</span>)</p>
+        {'<table style="border-collapse:collapse;width:100%;margin:8px 0;"><tr style="background:#c8e6c9;"><th style="padding:4px 8px;text-align:left;font-size:11px;">Campaign</th><th style="padding:4px 8px;text-align:right;font-size:11px;">Current</th><th style="padding:4px 8px;text-align:right;font-size:11px;">Proposed</th><th style="padding:4px 8px;text-align:right;font-size:11px;">Diff</th></tr>' + budget_rows + '</table>' if budget_rows else ''}
+        {'<table style="border-collapse:collapse;width:100%;margin:8px 0;"><tr style="background:#c8e6c9;"><th style="padding:4px 8px;text-align:left;font-size:11px;">Campaign</th><th style="padding:4px 8px;text-align:right;font-size:11px;">Bid Change</th></tr>' + bid_rows + '</table>' if bid_rows else ''}
+    </div>"""
+
+    # Keyword data status
+    kw_status_color = "#28a745" if keyword_data_status.startswith("collected") else "#f44336" if "FAIL" in keyword_data_status else "#ff9800"
+    kw_status_icon = "&#9989;" if keyword_data_status.startswith("collected") else "&#10060;" if "FAIL" in keyword_data_status else "&#9888;"
+    kw_status_html = f"""
+    <div style="margin-top:15px;padding:10px 15px;background:#f5f5f5;border-radius:6px;font-size:11px;color:#666;">
+        <strong>Keyword Data:</strong> <span style="color:{kw_status_color};">{kw_status_icon} {keyword_data_status}</span>
+        {' | <span style="color:#f44336;">Keyword harvesting & negative recommendations unavailable due to data collection failure</span>' if 'FAIL' in keyword_data_status else ''}
+    </div>"""
+
     html = f"""<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
@@ -3568,6 +3675,8 @@ def build_proposal_html(proposals: List[Dict],
     {anomaly_html}
 
     {proposals_html}
+
+    {budget_impact_html}
 
     {_build_keyword_html(kw_proposals, label_start=len(proposals) if proposals else 0)}
 
@@ -3588,6 +3697,8 @@ def build_proposal_html(proposals: List[Dict],
     {_build_sku_intelligence_html(sku_context)}
 
     {analysis_notes_html}
+
+    {kw_status_html}
 
     <p style="color:#999;margin-top:20px;font-size:11px;">
         Amazon PPC Executor ({cfg['brand_display']}) | Scheduled daily KST 08:00 | Auto-check for "execute" reply every 2h
@@ -3714,12 +3825,13 @@ def send_proposal_email(proposals: List[Dict], to: str = DEFAULT_TO,
                         xp_context: Optional[Dict] = None,
                         analysis: Optional[Dict] = None,
                         kw_matrix: Optional[Dict] = None,
-                        sku_context: Optional[Dict] = None) -> Optional[str]:
+                        sku_context: Optional[Dict] = None,
+                        keyword_data_status: str = "not_attempted") -> Optional[str]:
     """Send proposal HTML email via send_gmail.py. Returns Gmail message ID or None."""
     cfg = BRAND_CONFIGS[brand_key]
     html = build_proposal_html(proposals, kw_proposals, brand_key=brand_key,
                                xp_context=xp_context, analysis=analysis, kw_matrix=kw_matrix,
-                               sku_context=sku_context)
+                               sku_context=sku_context, keyword_data_status=keyword_data_status)
     html_path = TMP_DIR / f"ppc_proposal_{brand_key}_{date.today().strftime('%Y%m%d')}_{datetime.now().strftime('%H%M')}.html"
     html_path.write_text(html, encoding="utf-8")
 
@@ -4158,6 +4270,7 @@ def run_propose_single(args, brand_key: str):
     st_rows = []
     kw_rows = []
 
+    keyword_data_status = "not_attempted"  # Track for email footer
     if not args.skip_keywords:
         # Use latest_date from analysis instead of end_date for proper alignment
         latest = analysis["summary"].get("latest_date", end_date)
@@ -4165,16 +4278,36 @@ def run_propose_single(args, brand_key: str):
             latest = datetime.strptime(latest[:10], "%Y-%m-%d").date()
         st_start_7d = latest - timedelta(days=6)   # 7-day window
         st_start_30d = latest - timedelta(days=29)  # 30-day window
-        print(f"\n[4/8] Fetching keyword reports (7d: {st_start_7d}~{latest}, 30d: {st_start_30d}~{latest})...")
+        print(f"\n[4/8] Fetching keyword reports from DataKeeper (30d window)...")
         try:
-            st_rows = fetch_search_term_report(profile_id, st_start_30d, latest)
+            # PRIMARY: DataKeeper (collected by data_keeper.py)
+            st_rows = fetch_search_terms_from_datakeeper(brand_key, days=max(args.days, 35))
+            if not st_rows:
+                print("  [FALLBACK] DataKeeper empty, trying direct API...")
+                st_rows = _load_keyword_cache(brand_key, "search_term_30d", st_start_30d, latest)
+                if st_rows is None:
+                    st_rows = fetch_search_term_report(profile_id, st_start_30d, latest)
+                    if st_rows:
+                        _save_keyword_cache(brand_key, "search_term_30d", latest, st_rows)
             print(f"  {len(st_rows)} search term rows (30d)")
 
-            # Fetch 7d and 30d keyword reports separately for trend analysis
-            kw_rows_7d = fetch_keyword_report(profile_id, st_start_7d, latest)
-            print(f"  {len(kw_rows_7d)} keyword rows (7d)")
-            kw_rows_30d = fetch_keyword_report(profile_id, st_start_30d, latest)
+            kw_rows_30d = fetch_keywords_from_datakeeper(brand_key, days=max(args.days, 35))
+            if not kw_rows_30d:
+                print("  [FALLBACK] DataKeeper empty, trying direct API...")
+                kw_rows_30d = _load_keyword_cache(brand_key, "keyword_30d", st_start_30d, latest)
+                if kw_rows_30d is None:
+                    kw_rows_30d = fetch_keyword_report(profile_id, st_start_30d, latest)
+                    if kw_rows_30d:
+                        _save_keyword_cache(brand_key, "keyword_30d", latest, kw_rows_30d)
             print(f"  {len(kw_rows_30d)} keyword rows (30d)")
+
+            # 7d subset: filter from 30d data
+            kw_rows_7d = [r for r in kw_rows_30d
+                          if r.get("date", "") >= st_start_7d.isoformat()
+                          or "~" in r.get("date", "")]  # SUMMARY rows have date range
+            if not kw_rows_7d:
+                kw_rows_7d = kw_rows_30d  # fallback: use all 30d data
+            print(f"  {len(kw_rows_7d)} keyword rows (7d subset)")
             kw_rows = kw_rows_30d  # Use 30d for main analysis
 
             # Fetch DataForSEO FIRST so it can feed into both bid analysis and matrix
@@ -4196,14 +4329,17 @@ def run_propose_single(args, brand_key: str):
             print(f"  {kw_matrix['total_keywords']} keywords analyzed")
             print(f"  {len(kw_matrix.get('keyword_vs_google', []))} keywords matched to Google CPC")
             print(f"  {len(kw_matrix.get('cannibalization', []))} cannibalization alerts")
+            keyword_data_status = f"collected ({len(st_rows)} search terms, {len(kw_rows)} keywords)"
         except Exception as e:
             print(f"  [WARN] Search term/keyword analysis failed: {e}")
             import traceback; traceback.print_exc()
             print(f"  Continuing with campaign-level proposals only.")
+            keyword_data_status = f"FAILED: {e}"
     else:
         print(f"\n[4/8] Skipping keyword analysis (--skip-keywords)")
         print(f"[5/8] Skipped")
         print(f"[6/8] Skipped")
+        keyword_data_status = "skipped (--skip-keywords)"
 
     # --- Ensure DataKeeper data is fresh before cross-platform context ---
     print(f"\n[7/9] Fetching cross-platform context (Google Ads, Meta, Shopify)...")
@@ -4244,7 +4380,7 @@ def run_propose_single(args, brand_key: str):
     print(f"\n[9/9] Sending {brand_display} proposal email...")
     send_proposal_email(proposals, args.to, kw_proposals, cc=args.cc, brand_key=brand_key,
                         xp_context=xp_context, analysis=analysis, kw_matrix=kw_matrix,
-                        sku_context=sku_context)
+                        sku_context=sku_context, keyword_data_status=keyword_data_status)
 
 
 def run_propose(args):

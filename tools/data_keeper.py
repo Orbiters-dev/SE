@@ -507,6 +507,183 @@ def _fetch_amz_ads_report(headers, profile_id, start, end):
         return []
 
 
+def _fetch_amz_ads_report_generic(headers, profile_id, start, end, report_type_id, group_by, columns):
+    """Generic Amazon Ads report fetcher with 425 retry support."""
+    body = {
+        "reportDate": None,
+        "startDate": start,
+        "endDate": end,
+        "configuration": {
+            "adProduct": "SPONSORED_PRODUCTS",
+            "groupBy": group_by,
+            "columns": columns,
+            "reportTypeId": report_type_id,
+            "timeUnit": "SUMMARY",
+            "format": "GZIP_JSON",
+        },
+    }
+    try:
+        # Retry with exponential backoff for 425 rate limits
+        r = None
+        for attempt in range(4):
+            r = requests.post(
+                "https://advertising-api.amazon.com/reporting/reports",
+                headers=headers, json=body, timeout=30,
+            )
+            if r.status_code != 425:
+                break
+            wait = 30 * (attempt + 1)
+            print(f"    [425] Rate limited, waiting {wait}s (attempt {attempt+1}/4)...")
+            time.sleep(wait)
+        r.raise_for_status()
+        report_id = r.json().get("reportId")
+
+        for _ in range(40):
+            time.sleep(15)
+            fresh_h = {**_fresh_amz_ads_headers(),
+                       "Amazon-Advertising-API-Scope": profile_id}
+            r2 = requests.get(
+                f"https://advertising-api.amazon.com/reporting/reports/{report_id}",
+                headers=fresh_h, timeout=30,
+            )
+            r2.raise_for_status()
+            status = r2.json().get("status")
+            if status == "COMPLETED":
+                url = r2.json().get("url")
+                r3 = requests.get(url, timeout=60)
+                r3.raise_for_status()
+                raw = gzip.decompress(r3.content)
+                data = json.loads(raw)
+                if isinstance(data, dict):
+                    for k in ("data", "results", "records"):
+                        if k in data:
+                            data = data[k]
+                            break
+                return data
+            elif status == "FAILURE":
+                print(f"    [WARN] Report failed: {start}~{end}")
+                return []
+        print(f"    [WARN] Report timeout: {start}~{end}")
+        return []
+    except Exception as e:
+        print(f"    [ERROR] Report {start}~{end}: {e}")
+        return []
+
+
+def collect_amazon_ads_search_terms(date_from: str, date_to: str) -> list[dict]:
+    """Collect Amazon Ads search term reports (all profiles, 7-day chunks)."""
+    print("[Amazon Ads Search Terms] Collecting...")
+    headers = _fresh_amz_ads_headers()
+
+    resp = requests.get("https://advertising-api.amazon.com/v2/profiles",
+                        headers=headers, timeout=30)
+    resp.raise_for_status()
+    profiles = [p for p in resp.json()
+                if p.get("countryCode") == "US" and p.get("accountInfo", {}).get("type") == "seller"]
+
+    all_rows = []
+    d_from = datetime.strptime(date_from, "%Y-%m-%d").date()
+    d_to = datetime.strptime(date_to, "%Y-%m-%d").date()
+
+    for p in profiles:
+        pid = str(p["profileId"])
+        pname = p.get("accountInfo", {}).get("name", pid)
+        brand = PROFILE_BRAND_MAP.get(pname, pname)
+        headers = _fresh_amz_ads_headers()
+        h = {**headers, "Amazon-Advertising-API-Scope": pid}
+
+        cur = d_from
+        while cur <= d_to:
+            chunk_end = min(cur + timedelta(days=6), d_to)
+            print(f"  [{brand}] Search terms {cur}~{chunk_end}...")
+            rows = _fetch_amz_ads_report_generic(
+                h, pid, cur.isoformat(), chunk_end.isoformat(),
+                report_type_id="spSearchTerm",
+                group_by=["searchTerm"],
+                columns=["campaignId", "adGroupId", "keywordId",
+                         "searchTerm", "impressions", "clicks", "cost",
+                         "sales14d", "purchases14d"],
+            )
+            for row in rows:
+                all_rows.append({
+                    "date": f"{cur}~{chunk_end}",
+                    "profile_id": pid,
+                    "brand": brand,
+                    "campaign_id": str(row.get("campaignId", "")),
+                    "ad_group_id": str(row.get("adGroupId", "")),
+                    "keyword_id": str(row.get("keywordId", "")),
+                    "search_term": row.get("searchTerm", ""),
+                    "impressions": int(row.get("impressions", 0)),
+                    "clicks": int(row.get("clicks", 0)),
+                    "spend": float(row.get("cost", 0)),
+                    "sales": float(row.get("sales14d", 0)),
+                    "purchases": int(row.get("purchases14d", 0)),
+                })
+            cur = chunk_end + timedelta(days=1)
+            time.sleep(3)
+        print(f"  {brand}: {sum(1 for r in all_rows if r['profile_id'] == pid)} search term rows")
+
+    return all_rows
+
+
+def collect_amazon_ads_keywords(date_from: str, date_to: str) -> list[dict]:
+    """Collect Amazon Ads keyword-level reports (all profiles, 7-day chunks)."""
+    print("[Amazon Ads Keywords] Collecting...")
+    headers = _fresh_amz_ads_headers()
+
+    resp = requests.get("https://advertising-api.amazon.com/v2/profiles",
+                        headers=headers, timeout=30)
+    resp.raise_for_status()
+    profiles = [p for p in resp.json()
+                if p.get("countryCode") == "US" and p.get("accountInfo", {}).get("type") == "seller"]
+
+    all_rows = []
+    d_from = datetime.strptime(date_from, "%Y-%m-%d").date()
+    d_to = datetime.strptime(date_to, "%Y-%m-%d").date()
+
+    for p in profiles:
+        pid = str(p["profileId"])
+        pname = p.get("accountInfo", {}).get("name", pid)
+        brand = PROFILE_BRAND_MAP.get(pname, pname)
+        headers = _fresh_amz_ads_headers()
+        h = {**headers, "Amazon-Advertising-API-Scope": pid}
+
+        cur = d_from
+        while cur <= d_to:
+            chunk_end = min(cur + timedelta(days=6), d_to)
+            print(f"  [{brand}] Keywords {cur}~{chunk_end}...")
+            rows = _fetch_amz_ads_report_generic(
+                h, pid, cur.isoformat(), chunk_end.isoformat(),
+                report_type_id="spKeywords",
+                group_by=["adGroup"],
+                columns=["campaignId", "adGroupId", "keywordId",
+                         "keywordText", "matchType",
+                         "impressions", "clicks", "cost",
+                         "sales14d", "purchases14d"],
+            )
+            for row in rows:
+                all_rows.append({
+                    "date": f"{cur}~{chunk_end}",
+                    "profile_id": pid,
+                    "brand": brand,
+                    "campaign_id": str(row.get("campaignId", "")),
+                    "ad_group_id": str(row.get("adGroupId", "")),
+                    "keyword_id": str(row.get("keywordId", "")),
+                    "keyword_text": row.get("keywordText", ""),
+                    "match_type": row.get("matchType", ""),
+                    "impressions": int(row.get("impressions", 0)),
+                    "clicks": int(row.get("clicks", 0)),
+                    "spend": float(row.get("cost", 0)),
+                    "sales": float(row.get("sales14d", 0)),
+                    "purchases": int(row.get("purchases14d", 0)),
+                })
+            cur = chunk_end + timedelta(days=1)
+            time.sleep(3)
+        print(f"  {brand}: {sum(1 for r in all_rows if r['profile_id'] == pid)} keyword rows")
+
+    return all_rows
+
+
 def collect_amazon_sales(date_from: str, date_to: str) -> list[dict]:
     """Collect Amazon SP-API sales (all sellers)."""
     print("[Amazon Sales] Collecting...")
@@ -1620,6 +1797,8 @@ def collect_meta_campaigns(date_from: str, date_to: str) -> list[dict]:
 
 CHANNEL_COLLECTORS = {
     "amazon_ads": ("amazon_ads_daily", collect_amazon_ads),
+    "amazon_ads_search_terms": ("amazon_ads_search_terms", collect_amazon_ads_search_terms),
+    "amazon_ads_keywords": ("amazon_ads_keywords", collect_amazon_ads_keywords),
     "amazon_sales": ("amazon_sales_daily", collect_amazon_sales),
     "amazon_campaigns": ("amazon_campaigns", collect_amazon_campaigns),
     "meta": ("meta_ads_daily", collect_meta_ads),
