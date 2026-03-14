@@ -35,9 +35,9 @@ jobs:
           if [ "$APP" = "all" ] || [ "$APP" = "datakeeper" ]; then
             echo "=== Deploying datakeeper ==="
             # Remove old app dir (including stale migrations) before copying fresh code
-            ${SSH_CMD} "rm -rf ${EC2_PATH}/datakeeper"
+            ${SSH_CMD} "rm -rf ${EC2_PATH}/datakeeper && mkdir -p ${EC2_PATH}/datakeeper"
             scp -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no -r \
-              datakeeper/ ${EC2_USER}@${EC2_HOST}:${EC2_PATH}/datakeeper/
+              datakeeper/ ${EC2_USER}@${EC2_HOST}:${EC2_PATH}/
           fi
 
           if [ "$APP" = "all" ] || [ "$APP" = "onzenna" ]; then
