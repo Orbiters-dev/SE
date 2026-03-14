@@ -34,11 +34,46 @@ STEP_OUTPUT_FILES = {
 KST = timezone(timedelta(hours=9))
 
 
+import subprocess as _subprocess
+
+
+def gh_last_run_kst(workflow: str) -> tuple[str | None, str | None]:
+    """Return (last_run_kst, status) for the most recent GitHub Actions run of a workflow."""
+    try:
+        result = _subprocess.run(
+            ["gh", "run", "list", f"--workflow={workflow}", "--limit=1",
+             "--json", "createdAt,conclusion"],
+            capture_output=True, text=True, timeout=10,
+        )
+        if result.returncode != 0:
+            return None, None
+        runs = json.loads(result.stdout)
+        if not runs:
+            return None, None
+        r = runs[0]
+        created = r.get("createdAt", "")
+        conclusion = r.get("conclusion", "unknown")
+        # Parse ISO8601 UTC → KST
+        dt = datetime.fromisoformat(created.replace("Z", "+00:00"))
+        kst_str = dt.astimezone(KST).strftime("%Y-%m-%d %H:%M KST")
+        return kst_str, conclusion
+    except Exception:
+        return None, None
+
+
+# Cache workflow run times (call gh once per workflow, not per step)
+_WF_CACHE: dict[str, tuple] = {}
+
+def _wf_info(workflow: str) -> tuple[str | None, str | None]:
+    if workflow not in _WF_CACHE:
+        _WF_CACHE[workflow] = gh_last_run_kst(workflow)
+    return _WF_CACHE[workflow]
+
+
 def file_mtime_kst(path: Path) -> str | None:
     """Return last-modified time in KST as 'YYYY-MM-DD HH:MM KST', or None."""
     try:
         if path.is_dir():
-            # Use the most recently modified file in the directory
             files = list(path.glob("*.json"))
             if not files:
                 return None
@@ -52,15 +87,14 @@ def file_mtime_kst(path: Path) -> str | None:
 
 
 def infer_status(step: str, given: str) -> str:
-    """If GitHub Actions didn't set the status, infer from file existence."""
+    """If GitHub Actions didn't set the status, infer from GH Actions run result."""
     if given.lower() not in ("unknown", ""):
         return given
-    path = STEP_OUTPUT_FILES.get(step)
-    if path is None:
-        return "unknown"
-    ts = file_mtime_kst(path)
-    if ts:
+    _, conclusion = _wf_info("apify_daily.yml")
+    if conclusion in ("success",):
         return "success"
+    if conclusion in ("failure", "cancelled"):
+        return "failure"
     return "unknown"
 
 
@@ -235,10 +269,13 @@ def build_pipeline_section(statuses: dict) -> str:
         ("sns",      "Grosmimi SNS Sync"),
         ("llm",      "USA_LLM Update"),
     ]
+    # Get actual GH Actions run time (single call, cached)
+    wf_last_run, _ = _wf_info("apify_daily.yml")
+
     rows = ""
     for i, (key, name) in enumerate(steps):
         status = infer_status(key, statuses.get(key, "unknown"))
-        last_run = file_mtime_kst(STEP_OUTPUT_FILES[key])
+        last_run = wf_last_run  # use GH Actions actual run time for all steps
         ts_html = (
             f'<span style="font-size:10px;color:#9CA3AF;font-family:\'Courier New\',monospace;'
             f'margin-left:8px;">Last run: {last_run}</span>'
@@ -294,8 +331,9 @@ def build_stats_section(sns: dict, highlights_count: int, total_creators: int) -
     with_c = sns.get("with_content", 0)
     upd_c  = sns.get("update_count", 0)
 
-    sns_ts = file_mtime_kst(SNS_SUMMARY_PATH)
-    llm_ts = file_mtime_kst(HIGHLIGHTS_PATH)
+    wf_ts, _ = _wf_info("apify_daily.yml")
+    sns_ts = wf_ts
+    llm_ts = wf_ts
 
     sns_ts_html = (
         f'<span style="font-size:10px;color:#9CA3AF;font-family:\'Courier New\',monospace;'
