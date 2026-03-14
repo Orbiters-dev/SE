@@ -2736,8 +2736,20 @@ def fetch_sku_level_context(brand_key: str, days: int = 14) -> Dict:
                 if r.get("product_name"):
                     asin_agg[asin]["product_name"] = r["product_name"]
 
+            # Filter out non-brand products for multi-brand sellers (e.g., Orbitool sells CHA&MOM + others)
+            BRAND_PRODUCT_FILTERS = {
+                "CHA&MOM": lambda name: any(kw in name.lower() for kw in ["cha&mom", "chamom", "cha & mom", "chaenmom",
+                    "cream", "lotion", "wash", "baby skin", "phyto seline", "head-to-toe", "soothing", "moistur"]),
+                "Naeiae": lambda name: any(kw in name.lower() for kw in ["naeiae", "pop", "rice snack", "rice pop",
+                    "떡뻥", "organic snack"]),
+            }
+            brand_filter = BRAND_PRODUCT_FILTERS.get(brand_name)
+
             top_asins = []
             for asin, data in sorted(asin_agg.items(), key=lambda x: -x[1]["revenue"]):
+                # Skip non-brand products if filter exists
+                if brand_filter and data["product_name"] and not brand_filter(data["product_name"]):
+                    continue
                 units = data["units"]
                 rev = data["revenue"]
                 asp = round(rev / units, 2) if units > 0 else 0
@@ -2782,25 +2794,27 @@ def fetch_sku_level_context(brand_key: str, days: int = 14) -> Dict:
                     "margin_pct": margin_pct,
                     "max_sustainable_acos": max_acos,
                 })
-            # --- Fetch brand ad spend and allocate to ASINs by revenue share ---
+            # --- Brand-level ad metrics (NOT per-ASIN — need advertised product report for that) ---
             total_asin_rev = sum(a["revenue"] for a in top_asins)
             brand_ad_spend = 0
+            brand_ad_sales = 0  # ad-attributed sales from campaign data
             try:
                 amz_ads = dk.get("amazon_ads_daily", days=days, brand=brand_name)
                 if amz_ads:
                     brand_ad_spend = sum(float(r.get("spend") or 0) for r in amz_ads)
+                    brand_ad_sales = sum(float(r.get("sales") or 0) for r in amz_ads)
             except Exception:
                 pass
             result["brand_ad_spend"] = round(brand_ad_spend, 2)
-
-            for a in top_asins:
-                rev_share = a["revenue"] / total_asin_rev if total_asin_rev > 0 else 0
-                allocated_ad_cost = brand_ad_spend * rev_share
-                a["ad_spend"] = round(allocated_ad_cost, 2)
-                a["cm_after_ads"] = round(a["est_margin"] - allocated_ad_cost, 2)
-                a["cm_after_ads_pct"] = round(a["cm_after_ads"] / a["revenue"] * 100, 1) if a["revenue"] > 0 else 0
-                # Actual ACOS (ad spend / revenue)
-                a["actual_acos"] = round(allocated_ad_cost / a["revenue"] * 100, 1) if a["revenue"] > 0 else 0
+            result["brand_ad_sales"] = round(brand_ad_sales, 2)
+            # Brand-level ACOS = ad spend / ad-attributed sales (NOT total sales)
+            result["brand_acos"] = round(brand_ad_spend / brand_ad_sales * 100, 1) if brand_ad_sales > 0 else None
+            # Brand-level TACOS = ad spend / total sales (organic + ad)
+            result["brand_tacos"] = round(brand_ad_spend / total_asin_rev * 100, 1) if total_asin_rev > 0 else None
+            # Brand-level CM after ads
+            total_margin = sum(a["est_margin"] for a in top_asins)
+            result["brand_cm_after_ads"] = round(total_margin - brand_ad_spend, 2)
+            result["brand_cm_after_ads_pct"] = round((total_margin - brand_ad_spend) / total_asin_rev * 100, 1) if total_asin_rev > 0 else None
 
             result["top_amazon_asins"] = top_asins[:15]
             result["total_amazon_asins"] = len(top_asins)
@@ -2897,23 +2911,21 @@ def fetch_sku_level_context(brand_key: str, days: int = 14) -> Dict:
             insights.append("By category: " + " | ".join(cat_lines))
             result["category_summary"] = dict(cat_summary)
 
-        # Ad spend insights
+        # Brand-level ad spend insights
         ad_spend = result.get("brand_ad_spend", 0)
+        ad_sales = result.get("brand_ad_sales", 0)
         total_rev = result.get("amazon_total_revenue", 0)
+        brand_acos = result.get("brand_acos")
+        brand_tacos = result.get("brand_tacos")
+        cm_after_ads_pct = result.get("brand_cm_after_ads_pct")
         if ad_spend > 0 and total_rev > 0:
-            overall_acos = ad_spend / total_rev * 100
-            overall_cm_after = sum(a.get("cm_after_ads", 0) for a in asins)
-            overall_cm_after_pct = overall_cm_after / total_rev * 100
-            insights.append(f"Overall ACOS: {overall_acos:.1f}% | Ad spend ${ad_spend:,.0f} / Rev ${total_rev:,.0f}")
-            if overall_cm_after_pct < 0:
-                insights.append(f"CRITICAL: CM after ads is NEGATIVE ({overall_cm_after_pct:.1f}%) - brand is losing money overall")
-            elif overall_cm_after_pct < 10:
-                insights.append(f"WARNING: CM after ads only {overall_cm_after_pct:.1f}% - very thin profitability")
-            # ASINs losing money after ads
-            losing = [a for a in asins if a.get("cm_after_ads_pct", 0) < 0 and a["units"] > 5]
-            if losing:
-                names = ", ".join(f"{a['asin']}({a['cm_after_ads_pct']}%)" for a in losing[:3])
-                insights.append(f"ASINs losing money after ads: {names}")
+            acos_str = f"ACOS {brand_acos:.1f}%" if brand_acos else "ACOS N/A"
+            insights.append(f"Brand: {acos_str} (ad spend ${ad_spend:,.0f} / ad sales ${ad_sales:,.0f}) | TACOS {brand_tacos:.1f}% (vs total rev ${total_rev:,.0f})")
+            if cm_after_ads_pct is not None:
+                if cm_after_ads_pct < 0:
+                    insights.append(f"CRITICAL: CM after ads is NEGATIVE ({cm_after_ads_pct:.1f}%) - brand is losing money overall")
+                elif cm_after_ads_pct < 10:
+                    insights.append(f"WARNING: CM after ads only {cm_after_ads_pct:.1f}% - very thin profitability")
 
     result["margin_insights"] = insights
     return result
@@ -2934,29 +2946,19 @@ def _build_sku_intelligence_html(sku_context: Optional[Dict]) -> str:
     export_cost = sku_context.get("export_cost_unit", 0.5)
     return_rate = sku_context.get("return_rate", 0.05)
     brand_ad_spend = sku_context.get("brand_ad_spend", 0)
-    has_categories = any(a.get("category") for a in asins)
     if asins:
         asin_rows = ""
         for a in asins[:10]:
             margin_color = "#28a745" if a["margin_pct"] >= 30 else "#ffc107" if a["margin_pct"] >= 15 else "#dc3545"
             acos_color = "#28a745" if a["max_sustainable_acos"] >= 30 else "#ffc107" if a["max_sustainable_acos"] >= 15 else "#dc3545"
-            # CM after ads color
-            cm_after = a.get("cm_after_ads_pct", 0)
-            cm_after_color = "#28a745" if cm_after >= 15 else "#ffc107" if cm_after >= 0 else "#dc3545"
-            cat_label = a.get('category', '')
-            cat_td = f'<td style="padding:4px 6px;border:1px solid #e0e0e0;font-size:9px;">{cat_label}</td>' if has_categories else ''
             asin_rows += f"""<tr>
                 <td style="padding:4px 6px;border:1px solid #e0e0e0;font-size:10px;font-family:monospace;">{a['asin']}</td>
-                {cat_td}
-                <td style="padding:4px 6px;border:1px solid #e0e0e0;font-size:10px;" title="{a['product_name']}">{a['product_name'][:25]}</td>
+                <td style="padding:4px 6px;border:1px solid #e0e0e0;font-size:10px;" title="{a['product_name']}">{a['product_name'][:30]}</td>
                 <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">{a['units']}</td>
                 <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">${a['revenue']:,.0f}</td>
                 <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">${a['asp']:.2f}</td>
                 <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;color:{margin_color};font-weight:bold;">{a['margin_pct']}%</td>
                 <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;color:{acos_color};font-weight:bold;">{a['max_sustainable_acos']}%</td>
-                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;color:#c53030;">${a.get('ad_spend', 0):,.0f}</td>
-                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">{a.get('actual_acos', 0)}%</td>
-                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;color:{cm_after_color};font-weight:bold;">{cm_after}%</td>
             </tr>"""
 
         total_rev = sku_context.get("amazon_total_revenue", 0)
@@ -2964,58 +2966,35 @@ def _build_sku_intelligence_html(sku_context: Optional[Dict]) -> str:
         total_asins = sku_context.get("total_amazon_asins", 0)
         conc = sku_context.get("top3_concentration", 0)
 
-        cat_th = '<th style="padding:5px;border:1px solid #ddd;">Type</th>' if has_categories else ''
-        cost_note = f"COGS/FBA by product type" if has_categories else f"COGS ${cogs}/u + FBA ${fba_fee}/u"
+        # Brand-level ad metrics summary
+        brand_acos = sku_context.get("brand_acos")
+        brand_tacos = sku_context.get("brand_tacos")
+        brand_cm_after = sku_context.get("brand_cm_after_ads_pct")
+        acos_str = f"ACOS {brand_acos:.1f}%" if brand_acos else "ACOS N/A"
+        tacos_str = f"TACOS {brand_tacos:.1f}%" if brand_tacos else ""
+        cm_after_str = f"CM after ads {brand_cm_after:.1f}%" if brand_cm_after is not None else ""
+        ad_summary = f" | Brand: {acos_str}, {tacos_str}, {cm_after_str}" if brand_ad_spend > 0 else ""
+
+        cost_note = f"COGS ${cogs}/u + FBA ${fba_fee}/u"
         sections.append(f"""
         <h4 style="margin:10px 0 5px;color:#1a365d;">Amazon P&L by ASIN ({total_asins} products, {total_units} units, ${total_rev:,.0f} rev / 14d)</h4>
         <p style="font-size:11px;color:#666;margin:0 0 5px;">
-            {cost_note} + Export ${export_cost}/u + Returns {return_rate*100:.0f}%.
-            Ad spend ${brand_ad_spend:,.0f}/14d allocated by rev share. Top 3 conc: {conc}%.
+            {cost_note} + Export ${export_cost}/u + Returns {return_rate*100:.0f}%. Top 3 conc: {conc}%.{ad_summary}
         </p>
         <table style="border-collapse:collapse;width:100%;font-size:11px;">
             <tr style="background:#e8eef4;">
                 <th style="padding:5px;border:1px solid #ddd;">ASIN</th>
-                {cat_th}
                 <th style="padding:5px;border:1px solid #ddd;">Product</th>
                 <th style="padding:5px;border:1px solid #ddd;">Units</th>
                 <th style="padding:5px;border:1px solid #ddd;">Revenue</th>
                 <th style="padding:5px;border:1px solid #ddd;">ASP</th>
                 <th style="padding:5px;border:1px solid #ddd;">CM%<br><span style="font-weight:normal;font-size:9px;">(pre-ads)</span></th>
                 <th style="padding:5px;border:1px solid #ddd;">Max<br>ACOS</th>
-                <th style="padding:5px;border:1px solid #ddd;">Ad $<br><span style="font-weight:normal;font-size:9px;">(est.)</span></th>
-                <th style="padding:5px;border:1px solid #ddd;">ACOS<br><span style="font-weight:normal;font-size:9px;">(actual)</span></th>
-                <th style="padding:5px;border:1px solid #ddd;">CM%<br><span style="font-weight:normal;font-size:9px;">(post-ads)</span></th>
             </tr>
             {asin_rows}
         </table>""")
 
-    # Shopify comparison
-    skus = sku_context.get("top_shopify_skus", [])
-    if skus:
-        sku_rows = ""
-        for s in skus[:5]:
-            sku_rows += f"""<tr>
-                <td style="padding:4px 6px;border:1px solid #e0e0e0;font-size:10px;">{s['product_title'][:40]}</td>
-                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">{s['units']}</td>
-                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">${s['net_sales']:,.0f}</td>
-                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">${s['asp']:.2f}</td>
-                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">{s['disc_rate']}%</td>
-                <td style="padding:4px 6px;border:1px solid #e0e0e0;text-align:right;">{s['margin_pct']}%</td>
-            </tr>"""
-        shop_rev = sku_context.get("shopify_total_revenue", 0)
-        sections.append(f"""
-        <h4 style="margin:15px 0 5px;color:#1a365d;">Shopify DTC Top Products (${shop_rev:,.0f} rev / 14d)</h4>
-        <table style="border-collapse:collapse;width:100%;font-size:11px;">
-            <tr style="background:#e8f5e9;">
-                <th style="padding:5px;border:1px solid #ddd;">Product</th>
-                <th style="padding:5px;border:1px solid #ddd;">Units</th>
-                <th style="padding:5px;border:1px solid #ddd;">Net Sales</th>
-                <th style="padding:5px;border:1px solid #ddd;">ASP</th>
-                <th style="padding:5px;border:1px solid #ddd;">Disc Rate</th>
-                <th style="padding:5px;border:1px solid #ddd;">Margin</th>
-            </tr>
-            {sku_rows}
-        </table>""")
+    # Shopify section removed — Amazon PPC email focuses on Amazon only
 
     # Margin insights
     insights = sku_context.get("margin_insights", [])
@@ -3029,7 +3008,7 @@ def _build_sku_intelligence_html(sku_context: Optional[Dict]) -> str:
     return f"""
     <div style="margin-top:25px;padding:15px;background:#fafbfc;border-radius:8px;border-left:4px solid #2d3748;">
         <h3 style="margin:0 0 10px;color:#1a202c;">Product-Level Intelligence (Golmani Margin Framework)</h3>
-        <p style="color:#666;font-size:11px;margin:0 0 10px;">ASIN/SKU breakdown with full-cost margin: COGS + Referral Fee + FBA Fulfillment + Export ($0.50/unit) + Returns (5%). Max ACOS = break-even.</p>
+        <p style="color:#666;font-size:11px;margin:0 0 10px;">Full-cost margin per ASIN: COGS + Referral Fee (15%) + FBA Fulfillment + Export + Returns (5%). Max ACOS = break-even point. Brand-level ACOS from campaign data.</p>
         {"".join(sections)}
     </div>"""
 

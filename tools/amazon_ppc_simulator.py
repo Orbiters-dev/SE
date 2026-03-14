@@ -167,12 +167,11 @@ def pull_keyword_data(profile_id: int, start: date, end: date,
             "endDate":       chunk_end.strftime("%Y-%m-%d"),
             "configuration": {
                 "adProduct":    "SPONSORED_PRODUCTS",
-                "groupBy":      ["adGroup"],
+                "groupBy":      ["targeting"],
                 "columns":      ["campaignId", "campaignName", "adGroupId",
-                                 "keywordId", "keywordText", "matchType",
-                                 "impressions", "clicks", "cost",
+                                 "targeting", "impressions", "clicks", "cost",
                                  "sales14d", "purchases14d"],
-                "reportTypeId": "spKeyword",
+                "reportTypeId": "spTargeting",
                 "timeUnit":     "SUMMARY",
                 "format":       "GZIP_JSON",
             },
@@ -291,14 +290,14 @@ def backtest_bid_efficiency(kw_rows: list, brand_key: str) -> dict:
                                  "impressions": 0, "purchases": 0, "campaign": "",
                                  "keyword": "", "match_type": ""})
     for r in kw_rows:
-        kw_id = r.get("keywordId", r.get("keywordText", "?"))
+        kw_id = r.get("targeting", r.get("keywordId", r.get("keywordText", "?")))
         by_kw[kw_id]["spend"]       += float(r.get("cost", 0))
         by_kw[kw_id]["sales"]       += float(r.get("sales14d", 0))
         by_kw[kw_id]["clicks"]      += int(r.get("clicks", 0))
         by_kw[kw_id]["impressions"] += int(r.get("impressions", 0))
         by_kw[kw_id]["purchases"]   += int(r.get("purchases14d", 0))
         by_kw[kw_id]["campaign"]     = r.get("campaignName", "")
-        by_kw[kw_id]["keyword"]      = r.get("keywordText", str(kw_id))
+        by_kw[kw_id]["keyword"]      = r.get("targeting", r.get("keywordText", str(kw_id)))
         by_kw[kw_id]["match_type"]   = r.get("matchType", "")
 
     total_actual_spend  = 0.0
