@@ -893,16 +893,33 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
     - all_campaign_summary: every enabled campaign with metrics (for overview table)
     - anomalies: list of detected anomaly strings
     """
-    today = date.today()
-    yesterday = today - timedelta(days=1)
-    d7_start = today - timedelta(days=7)
-    d30_start = today - timedelta(days=30)
+    # Use actual latest date from data (not today-1) — data may lag 1-2 days
+    all_dates = set()
+    for r in report_rows:
+        try:
+            all_dates.add(datetime.strptime(r.get("date", "")[:10], "%Y-%m-%d").date())
+        except (ValueError, TypeError):
+            pass
+
+    if all_dates:
+        latest_date = max(all_dates)
+    else:
+        latest_date = date.today() - timedelta(days=1)
+
+    yesterday = latest_date  # "yesterday" = most recent full day with data
+    d7_start = latest_date - timedelta(days=6)  # 7 days ending at latest_date
+    d30_start = latest_date - timedelta(days=29)  # 30 days ending at latest_date
+
+    print(f"  Data range: latest={latest_date}, 7d={d7_start}~{latest_date}, 30d={d30_start}~{latest_date}")
 
     # Aggregate by campaign for yd, 7d, 30d
     def agg(rows, from_d, to_d):
         bucket = defaultdict(lambda: {"cost": 0.0, "sales": 0.0, "clicks": 0, "impressions": 0, "purchases": 0})
         for r in rows:
-            rd = datetime.strptime(r.get("date", "")[:10], "%Y-%m-%d").date()
+            try:
+                rd = datetime.strptime(r.get("date", "")[:10], "%Y-%m-%d").date()
+            except (ValueError, TypeError):
+                continue
             if from_d <= rd <= to_d:
                 cid = str(r.get("campaignId", ""))
                 b = bucket[cid]
@@ -1147,7 +1164,8 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
     # Deduplicate anomalies
     anomalies = list(dict.fromkeys(anomalies))
 
-    return proposals, {"summary": summary, "all_campaigns": all_campaigns, "anomalies": anomalies}
+    return proposals, {"summary": summary, "all_campaigns": all_campaigns, "anomalies": anomalies,
+                        "latest_date": latest_date.isoformat(), "d7_start": d7_start.isoformat()}
 
 
 # ===========================================================================
@@ -1984,14 +2002,16 @@ def build_proposal_html(proposals: List[Dict],
             tc = "#28a745" if pct > 0 else "#dc3545"
             roas_trend = f' <span style="color:{tc};font-size:12px;">({arrow}{abs(pct):.0f}% vs 30d)</span>'
 
+        latest_dt = analysis.get("latest_date", "Yesterday")
+        d7_start = analysis.get("d7_start", "")
         summary_html = f"""
     <div style="background:#f8f9fa;padding:15px 20px;border-radius:8px;margin:15px 0;border-left:4px solid #343a40;">
         <h3 style="margin:0 0 12px;color:#333;">Performance Summary</h3>
         <table style="border-collapse:collapse;width:100%;">
             <tr style="background:#e9ecef;">
                 <th style="padding:8px 12px;text-align:left;"></th>
-                <th style="padding:8px 12px;">Yesterday</th>
-                <th style="padding:8px 12px;">7-Day Avg</th>
+                <th style="padding:8px 12px;">Latest ({latest_dt})</th>
+                <th style="padding:8px 12px;">7-Day ({d7_start}~{latest_dt})</th>
                 <th style="padding:8px 12px;">30-Day Avg</th>
             </tr>
             <tr>
@@ -2158,7 +2178,7 @@ def build_proposal_html(proposals: List[Dict],
 <head><meta charset="utf-8"></head>
 <body style="font-family:Arial,sans-serif;max-width:1200px;margin:0 auto;padding:20px;">
     <h2 style="color:#333;">{cfg['brand_display']} ({cfg['seller_name']}) PPC Daily Proposal</h2>
-    <p style="color:#666;">{now} | Daily Budget: ${cfg['total_daily_budget']:,.0f} | ACOS targets: Manual {cfg['targeting']['MANUAL']['target_acos']}% / Auto {cfg['targeting']['AUTO']['target_acos']}%</p>
+    <p style="color:#666;">Generated: {now} | Data through: {analysis.get('latest_date', 'N/A') if analysis else 'N/A'} | Daily Budget: ${cfg['total_daily_budget']:,.0f} | ACOS targets: Manual {cfg['targeting']['MANUAL']['target_acos']}% / Auto {cfg['targeting']['AUTO']['target_acos']}%</p>
 
     {summary_html}
 
@@ -2290,10 +2310,11 @@ def send_proposal_email(proposals: List[Dict], to: str = DEFAULT_TO,
     roas_7d_str = f" | ROAS {s7.get('roas', '?')}x" if s7 else ""
 
     action_count = len(proposals)
+    data_date = analysis.get("latest_date", datetime.now().strftime("%Y-%m-%d")) if analysis else datetime.now().strftime("%Y-%m-%d")
     subject = (
         f"[Amazon PPC] {cfg['brand_display']} Daily{roas_7d_str} | "
         f"{action_count} actions, {kw_count} kw, {anomaly_count} anomalies"
-        f" | {datetime.now().strftime('%m/%d')}"
+        f" | data:{data_date}"
     )
 
     send_gmail_path = TOOLS_DIR / "send_gmail.py"
