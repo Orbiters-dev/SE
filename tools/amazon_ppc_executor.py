@@ -2581,7 +2581,15 @@ def build_proposal_html(proposals: List[Dict],
     proposals_html = ""
     if proposals:
         rows_html = ""
-        for p in proposals:
+        # A, B, C, ... Z, AA, AB, ... labeling for selective execution
+        def _proposal_label(idx):
+            if idx < 26:
+                return chr(65 + idx)  # A-Z
+            return chr(65 + idx // 26 - 1) + chr(65 + idx % 26)  # AA, AB, ...
+
+        for i, p in enumerate(proposals):
+            label = _proposal_label(i)
+            p["_label"] = label  # Store for JSON reference
             m7 = p["metrics"]["7d"]
             action_text = p["proposed_action"]
             if p.get("bid_change_pct"):
@@ -2592,6 +2600,7 @@ def build_proposal_html(proposals: List[Dict],
             reason_text = p.get("reason", "").replace("\n", "<br>")
             rows_html += f"""
             <tr>
+                <td style="padding:6px 8px;border:1px solid #ddd;font-weight:bold;font-size:14px;text-align:center;background:#f5f5f5;width:30px;">{label}</td>
                 <td style="padding:6px 8px;border:1px solid #ddd;">{tier_badge(p.get('tier', 'Monitor'))}</td>
                 <td style="padding:6px 8px;border:1px solid #ddd;font-size:12px;">[{p.get('campaignType','?')}] {p['campaignName']}</td>
                 <td style="padding:6px 8px;border:1px solid #ddd;color:{roas_color(m7['roas'])};font-weight:bold;">{m7['roas']}x</td>
@@ -2601,7 +2610,7 @@ def build_proposal_html(proposals: List[Dict],
                 <td style="padding:6px 8px;border:1px solid #ddd;font-weight:bold;">{action_text}</td>
             </tr>
             <tr>
-                <td colspan="7" style="padding:4px 8px 8px 30px;border:1px solid #eee;font-size:11px;color:#555;background:#fafafa;">{reason_text}</td>
+                <td colspan="8" style="padding:4px 8px 8px 30px;border:1px solid #eee;font-size:11px;color:#555;background:#fafafa;">{reason_text}</td>
             </tr>"""
 
         # Count tiers by label (tier format: "8 Strong")
@@ -2622,8 +2631,10 @@ def build_proposal_html(proposals: List[Dict],
         <div style="background:#b2ebf2;padding:8px 15px;border-radius:6px;font-size:13px;"><strong>{len(optimize)}</strong> Optimize (5-6)</div>
         <div style="background:#fff9c4;padding:8px 15px;border-radius:6px;font-size:13px;"><strong>{len(moderate)}</strong> Moderate (3-4)</div>
     </div>
+    <p style="color:#666;font-size:12px;margin:5px 0;">Reply with letter codes to execute selectively (e.g., "Execute A, C, E" or "Execute all").</p>
     <table style="border-collapse:collapse;width:100%;">
         <tr style="background:#343a40;color:white;">
+            <th style="padding:8px;border:1px solid #ddd;">ID</th>
             <th style="padding:8px;border:1px solid #ddd;">Tier</th>
             <th style="padding:8px;border:1px solid #ddd;">Campaign</th>
             <th style="padding:8px;border:1px solid #ddd;">7d ROAS</th>
@@ -2690,24 +2701,64 @@ def build_proposal_html(proposals: List[Dict],
     # Build data source freshness banner with dates
     data_sources = []
     data_appendix_rows = []  # For detailed appendix
+    n_all_camps = len(analysis.get("all_campaigns", [])) if analysis else 0
     if analysis:
         latest = analysis.get("latest_date", "?")
         d7_start = analysis.get("d7_start", "?")
         data_sources.append(f"Amazon Ads: {d7_start} ~ {latest}")
-        data_appendix_rows.append(("Amazon Ads (DataKeeper)", f"{d7_start} ~ {latest}", "Campaign spend, sales, clicks, impressions"))
+        s7 = analysis.get("summary", {}).get("7d", {})
+        s30 = analysis.get("summary", {}).get("30d", {})
+        data_appendix_rows.append((
+            "Amazon Ads Campaign Metrics",
+            "DataKeeper gk_amazon_ads_daily (PostgreSQL)",
+            f"{d7_start} ~ {latest}",
+            f"{n_all_camps} active campaigns. 7d: ${s7.get('spend',0):,.0f} spend, {s7.get('clicks',0):,} clicks, {s7.get('impressions',0):,} impressions. "
+            f"30d: ${s30.get('spend',0):,.0f} spend, ${s30.get('sales',0):,.0f} sales.",
+            "Campaign-level ROAS framework, budget allocation, anomaly detection, performance summary"
+        ))
     if kw_matrix and kw_matrix.get("total_keywords", 0) > 0:
-        data_sources.append(f"Keywords: {kw_matrix['total_keywords']} analyzed")
-        data_appendix_rows.append(("Amazon Keyword Report (API)", "Last 30 days", f"{kw_matrix['total_keywords']} keywords, search terms, match types"))
+        n_kw = kw_matrix["total_keywords"]
+        n_trends = len(kw_matrix.get("keyword_trends", []))
+        n_cannibal = len(kw_matrix.get("cannibalization", []))
+        data_sources.append(f"Keywords: {n_kw} analyzed")
+        data_appendix_rows.append((
+            "Amazon Keyword Report",
+            "Amazon Ads Reporting API v3 (direct)",
+            "7d + 30d (two separate pulls)",
+            f"{n_kw} keywords across all ad groups. Match types: {', '.join(m['matchType'] for m in kw_matrix.get('match_type_breakdown', []))}. "
+            f"Trend analysis: {n_trends} keywords compared. Cannibalization: {n_cannibal} alerts.",
+            "Top/bottom keyword ranking, match type comparison, 7d vs 30d trend, cannibalization detection, bid adjustments"
+        ))
     if kw_matrix and kw_matrix.get("keyword_vs_google"):
         n_google = len(kw_matrix["keyword_vs_google"])
         data_sources.append(f"DataForSEO: {n_google} kw matched")
-        data_appendix_rows.append(("DataForSEO / Google Ads (DataKeeper)", "Last 30 days", f"{n_google} keywords with search volume + Google CPC"))
+        data_appendix_rows.append((
+            "DataForSEO / Google Keyword Planner",
+            "DataKeeper gk_dataforseo_keywords (PostgreSQL)",
+            "Last 30 days",
+            f"{n_google} keywords matched to Google search volume and CPC data. "
+            f"Used as market benchmark for bid recommendations.",
+            "CPC comparison table, overbidding/underbidding detection, bid adjustment modifiers"
+        ))
     if xp_context:
-        for ch in ["google_ads", "meta_ads", "amazon_sales", "shopify_dtc"]:
+        xp_details = []
+        for ch, label, use in [
+            ("google_ads", "Google Ads", "Cross-platform ROAS comparison"),
+            ("meta_ads", "Meta Ads", "Cross-platform CPA/ROAS comparison"),
+            ("amazon_sales", "Amazon Sales (SP-API)", "Organic vs ad-attributed sales gap"),
+            ("shopify_dtc", "Shopify DTC Orders", "DTC channel context"),
+        ]:
             ch_data = xp_context.get(ch, {})
-            if ch_data.get("7d", {}).get("spend", 0) > 0 or ch_data.get("7d", {}).get("revenue", 0) > 0:
-                data_sources.append(f"{ch.replace('_', ' ').title()}: active")
-                data_appendix_rows.append((ch.replace("_", " ").title() + " (DataKeeper)", "Last 7-30 days", "Cross-platform context"))
+            s = ch_data.get("7d", {}).get("spend", 0) or ch_data.get("7d", {}).get("revenue", 0)
+            if s > 0:
+                data_sources.append(f"{label}: active")
+                data_appendix_rows.append((
+                    label,
+                    f"DataKeeper gk_{ch.replace(' ', '_')}_daily",
+                    "Last 7-30 days",
+                    f"7d active (${s:,.0f})",
+                    use
+                ))
     sources_str = " | ".join(data_sources) if data_sources else "No data sources"
 
     # Build tier legend HTML
@@ -2758,28 +2809,34 @@ def build_proposal_html(proposals: List[Dict],
         </table>
     </div>"""
 
-    # Build data appendix HTML
+    # Build data appendix HTML (5-column: source, storage, period, data summary, usage in this report)
     appendix_rows_html = ""
-    for src_name, period, detail in data_appendix_rows:
+    for row in data_appendix_rows:
+        src_name, storage, period, data_summary, usage = row
         appendix_rows_html += f"""<tr>
-            <td style="padding:5px 8px;border:1px solid #e0e0e0;font-size:11px;">{src_name}</td>
-            <td style="padding:5px 8px;border:1px solid #e0e0e0;font-size:11px;">{period}</td>
-            <td style="padding:5px 8px;border:1px solid #e0e0e0;font-size:11px;color:#666;">{detail}</td>
+            <td style="padding:5px 8px;border:1px solid #e0e0e0;font-size:11px;font-weight:bold;">{src_name}</td>
+            <td style="padding:5px 8px;border:1px solid #e0e0e0;font-size:10px;color:#546e7a;font-family:monospace;">{storage}</td>
+            <td style="padding:5px 8px;border:1px solid #e0e0e0;font-size:11px;white-space:nowrap;">{period}</td>
+            <td style="padding:5px 8px;border:1px solid #e0e0e0;font-size:10px;color:#666;">{data_summary}</td>
+            <td style="padding:5px 8px;border:1px solid #e0e0e0;font-size:10px;color:#1565c0;">{usage}</td>
         </tr>"""
     data_appendix = f"""
     <div style="margin-top:25px;padding:15px;background:#fafafa;border-radius:8px;border:1px solid #e0e0e0;">
         <h3 style="color:#546e7a;margin:0 0 10px;">Appendix: Data Sources & Freshness</h3>
         <table style="border-collapse:collapse;width:100%;font-size:12px;">
             <tr style="background:#78909c;color:white;">
-                <th style="padding:6px;">Source</th>
+                <th style="padding:6px;">Data Source</th>
+                <th style="padding:6px;">Storage / API</th>
                 <th style="padding:6px;">Period</th>
-                <th style="padding:6px;">Details</th>
+                <th style="padding:6px;">Data Summary</th>
+                <th style="padding:6px;">Used For</th>
             </tr>
             {appendix_rows_html}
         </table>
         <p style="color:#999;font-size:10px;margin-top:8px;">
-            Amazon Ads API has a 1-day reporting lag (D+1). Data for today becomes available tomorrow KST 17:00.
-            DataKeeper refreshes 2x daily (PST 00:00, 12:00).
+            DataKeeper = orbitools.orbiters.co.kr PostgreSQL (gk_* tables). Refreshes 2x daily (PST 00:00, 12:00).<br>
+            Amazon Ads API has a 1-day reporting lag (D+1). Data for today becomes available tomorrow KST 17:00.<br>
+            Keyword reports fetched directly from Amazon Ads Reporting API v3 (async submit -> poll -> download GZIP).
         </p>
     </div>""" if data_appendix_rows else ""
 
