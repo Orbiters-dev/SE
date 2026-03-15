@@ -1390,9 +1390,9 @@ function renderAnalytics(bk, el) {
     +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">ROAS 7d</div><div style="font-size:28px;font-weight:800;color:'+roasColor(roas7)+'">'+roas7+'x</div><div style="font-size:11px;color:var(--dim)">30d: '+roas30+'x '+arrow(roas7,roas30)+'</div></div>'
     +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">ACOS 7d</div><div style="font-size:28px;font-weight:800;color:'+acosColor(acos7,tgt)+'">'+acos7+'%</div><div style="font-size:11px;color:var(--dim)">target: '+tgt+'%</div></div>'
     +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">TACOS 7d</div><div style="font-size:28px;font-weight:800;color:'+acosColor(tacos7,tgt*0.6)+'">'+tacos7+'%</div><div style="font-size:11px;color:var(--dim)">Ad Spend / Total Rev</div></div>'
-    +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Ad Sales 7d</div><div style="font-size:28px;font-weight:800">$'+Math.round(rev7)+'</div><div style="font-size:11px;color:var(--dim)">30d: $'+Math.round(rev30)+'</div></div>'
-    +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Total Sales 7d</div><div style="font-size:28px;font-weight:800;color:var(--g)">$'+Math.round(tot7)+'</div><div style="font-size:11px;color:var(--dim)">30d: $'+Math.round(tot30)+'</div></div>'
-    +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Ad Spend 7d</div><div style="font-size:28px;font-weight:800">$'+Math.round(s7)+'</div><div style="font-size:11px;color:var(--dim)">CPC: $'+cpc7+'</div></div>'
+    +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Ad Sales 7d</div><div style="font-size:28px;font-weight:800">$'+fmtN(rev7)+'</div><div style="font-size:11px;color:var(--dim)">30d: $'+fmtN(rev30)+'</div></div>'
+    +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Total Sales 7d</div><div style="font-size:28px;font-weight:800;color:var(--g)">$'+fmtN(tot7)+'</div><div style="font-size:11px;color:var(--dim)">30d: $'+fmtN(tot30)+'</div></div>'
+    +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Ad Spend 7d</div><div style="font-size:28px;font-weight:800">$'+fmtN(s7)+'</div><div style="font-size:11px;color:var(--dim)">CPC: $'+cpc7+'</div></div>'
     +'</div>'
     // 30d chart
     +'<div style="font-size:10px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">30-Day Performance — Ad Sales · Total Sales · ROAS</div>'
@@ -1996,13 +1996,13 @@ function recalcOverride(bk,dt){
     if(inp) checkedTotal += parseFloat(inp.value) || 0;
   });
   var totEl = document.getElementById('override-total-'+bk+'-'+dt);
-  if(totEl) totEl.textContent = '$'+fmtN(total).toLocaleString();
+  if(totEl) totEl.textContent = '$'+fmtN(total);
   var sumEl = document.getElementById('override-summary-'+bk+'-'+dt);
-  if(sumEl) sumEl.textContent = '$'+fmtN(total).toLocaleString()+'/day';
+  if(sumEl) sumEl.textContent = '$'+fmtN(total)+'/day';
   var deltaEl = document.getElementById('override-delta-'+bk+'-'+dt);
   if(deltaEl){
     var delta = total - budBefore;
-    deltaEl.textContent = (delta>=0?'+':'')+'$'+fmtN(delta).toLocaleString();
+    deltaEl.textContent = (delta>=0?'+':'')+'$'+fmtN(delta);
     deltaEl.style.color = delta>=0 ? 'var(--g)' : 'var(--r)';
   }
 }
