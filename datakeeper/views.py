@@ -42,7 +42,8 @@ def cors_headers(view_func):
             response["Access-Control-Max-Age"] = "86400"
             return response
         response = view_func(request, *args, **kwargs)
-        # Use * to match nginx (avoids duplicate header conflict)
+        # Force single CORS header (delete any nginx-added duplicates)
+        del response["Access-Control-Allow-Origin"]  # Remove if exists
         response["Access-Control-Allow-Origin"] = "*"
         response["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
         response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
