@@ -167,6 +167,7 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
   <div data-p="tab-config">Config & Propose</div>
   <div data-p="tab-execlog">Execution Log</div>
   <div data-p="tab-backtest">Backtest Log</div>
+  <div data-p="tab-analytics">Live Analytics</div>
 </div>
 
 <!-- ══════════ TAB 1: FLOW ══════════ -->
@@ -621,6 +622,17 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
       <div id="lab-history"></div>
     </div>
   </div>
+</div>
+
+<!-- ══════════ TAB 5: LIVE ANALYTICS ══════════ -->
+<div class="mp" id="tab-analytics">
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap" id="analyticssBrandTabs">
+    <div class="on" data-abrand="grosmimi" onclick="renderAnalytics('grosmimi',this)" style="padding:6px 16px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:var(--abg);border:1px solid var(--a);color:var(--a)">Grosmimi</div>
+    <div data-abrand="naeiae" onclick="renderAnalytics('naeiae',this)" style="padding:6px 16px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:var(--card);border:1px solid var(--border);color:var(--dim)">Naeiae</div>
+    <div data-abrand="chaenmom" onclick="renderAnalytics('chaenmom',this)" style="padding:6px 16px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:var(--card);border:1px solid var(--border);color:var(--dim)">CHA&amp;MOM</div>
+    <div id="analytics-loading" style="margin-left:auto;font-size:11px;color:var(--dim);padding:6px 0">Loading live data...</div>
+  </div>
+  <div id="analytics-content"></div>
 </div>
 
 <!-- ══════════ PAT AUTH MODAL ══════════ -->
@@ -1096,6 +1108,13 @@ async function fetchLiveMetrics(){
 
     // Store for other uses
     window._liveMetrics = liveBrands;
+    window._rawAdsData = adsData;  // Daily campaign-level rows for Analytics tab
+    document.getElementById('analytics-loading').textContent = 'Live (' + (adsData.length ? adsData[0].date : '?') + ')';
+    // If analytics tab is already open, refresh it
+    if (document.getElementById('tab-analytics').classList.contains('on')) {
+      var ab = document.querySelector('#analyticssBrandTabs .on');
+      if (ab) renderAnalytics(ab.dataset.abrand, ab);
+    }
 
     var latestDate = adsData.length ? adsData[0].date : '?';
     statusEl.innerHTML = '<span class="dot" style="background:var(--g)"></span> LIVE ('+latestDate+')';
@@ -1118,6 +1137,188 @@ async function fetchLiveMetrics(){
 }
 fetchLiveMetrics();
 
+// ── Live Analytics Tab ──────────────────────────────────────────────────────
+
+var BRAND_API_KEY = {grosmimi:'Grosmimi', naeiae:'Naeiae', chaenmom:'CHA&MOM'};
+var ACOS_TARGET   = {grosmimi:20, naeiae:25, chaenmom:30};
+
+function sparkline(vals, w, h, stroke, fill) {
+  if (!vals || vals.length < 2) return '<svg width="'+w+'" height="'+h+'"></svg>';
+  var min = Math.min.apply(null,vals), max = Math.max.apply(null,vals);
+  var rng = max - min || 0.001;
+  var pts = vals.map(function(v,i){
+    return (i/(vals.length-1)*w).toFixed(1)+','+(h-(v-min)/rng*(h-4)+2).toFixed(1);
+  }).join(' ');
+  var last = pts.split(' ').pop();
+  var lx = parseFloat(last), ly = parseFloat(last.split(',')[1]);
+  return '<svg width="'+w+'" height="'+h+'" style="overflow:visible;display:block">'
+    +(fill?'<polyline points="'+pts+' '+w+','+h+' 0,'+h+'" fill="'+fill+'" stroke="none" opacity=".15"/>':'')
+    +'<polyline points="'+pts+'" fill="none" stroke="'+stroke+'" stroke-width="2" stroke-linejoin="round"/>'
+    +'<circle cx="'+(vals.length-1)/(vals.length-1)*w+'" cy="'+(h-(vals[vals.length-1]-min)/rng*(h-4)+2)+'" r="3" fill="'+stroke+'"/>'
+    +'</svg>';
+}
+
+function roasColor(r){ return r>=3?'var(--g)':r>=2?'var(--am)':'var(--r)'; }
+function acosColor(a,tgt){ return a<=tgt?'var(--g)':a<=tgt*1.3?'var(--am)':'var(--r)'; }
+function arrow(v7,v30){ if(!v30) return ''; var d=v7-v30; return d>0.1?'<span style="color:var(--g)">&#9650;</span>':d<-0.1?'<span style="color:var(--r)">&#9660;</span>':'<span style="color:var(--muted)">&#8212;</span>'; }
+
+function renderAnalytics(bk, el) {
+  // Update brand tab styles
+  document.querySelectorAll('#analyticssBrandTabs [data-abrand]').forEach(function(t){
+    t.style.background='var(--card)'; t.style.borderColor='var(--border)'; t.style.color='var(--dim)';
+  });
+  if (el) { el.style.background='var(--abg)'; el.style.borderColor='var(--a)'; el.style.color='var(--a)'; }
+
+  var rows = window._rawAdsData || [];
+  var brandKey = BRAND_API_KEY[bk];
+  var tgt = ACOS_TARGET[bk];
+  var bRows = rows.filter(function(r){ return r.brand === brandKey; });
+
+  if (!bRows.length) {
+    document.getElementById('analytics-content').innerHTML = '<div class="card" style="text-align:center;color:var(--dim);padding:40px">Live data loading... (DataKeeper API)</div>';
+    return;
+  }
+
+  // ── Daily brand-level aggregates (30d) ──
+  var dailyBrand = {};
+  bRows.forEach(function(r){
+    if (!dailyBrand[r.date]) dailyBrand[r.date] = {spend:0,sales:0,clicks:0,impr:0};
+    var d = dailyBrand[r.date];
+    d.spend  += +(r.spend||0);
+    d.sales  += +(r.sales||0);
+    d.clicks += +(r.clicks||0);
+    d.impr   += +(r.impressions||0);
+  });
+  var dates = Object.keys(dailyBrand).sort();
+  var roasSeries = dates.map(function(d){ var x=dailyBrand[d]; return x.spend>0?Math.round(x.sales/x.spend*100)/100:0; });
+  var spendSeries = dates.map(function(d){ return dailyBrand[d].spend; });
+  var maxSpend = Math.max.apply(null, spendSeries) || 1;
+
+  // 7d / 30d aggregates
+  var cutoff7 = new Date(); cutoff7.setDate(cutoff7.getDate()-7); var c7 = cutoff7.toISOString().slice(0,10);
+  var s7=0,rev7=0,s30=0,rev30=0,cl7=0;
+  bRows.forEach(function(r){
+    s30+=+(r.spend||0); rev30+=+(r.sales||0);
+    if(r.date>=c7){s7+=+(r.spend||0);rev7+=+(r.sales||0);cl7+=+(r.clicks||0);}
+  });
+  var roas7=s7>0?Math.round(rev7/s7*100)/100:0;
+  var roas30=s30>0?Math.round(rev30/s30*100)/100:0;
+  var acos7=rev7>0?Math.round(s7/rev7*1000)/10:0;
+  var cpc7=cl7>0?Math.round(s7/cl7*100)/100:0;
+
+  // Spend bar chart (30d)
+  var barHtml = dates.map(function(d,i){
+    var h = Math.max(2, Math.round(spendSeries[i]/maxSpend*48));
+    var col = roasColor(roasSeries[i]);
+    return '<div title="'+d+': $'+Math.round(spendSeries[i])+' spend, '+roasSeries[i]+'x ROAS" style="flex:1;height:'+h+'px;background:'+col+';border-radius:2px 2px 0 0;min-width:3px;cursor:default"></div>';
+  }).join('');
+
+  // ── Campaign-level aggregates ──
+  var byCamp = {};
+  bRows.forEach(function(r){
+    var cn = r.campaign_name || r.campaignName || 'Unknown';
+    if (!byCamp[cn]) byCamp[cn] = {spend7:0,sales7:0,spend30:0,sales30:0,clicks7:0,type:'',daily:{}};
+    var c = byCamp[cn];
+    c.type = r.ad_type || '';
+    c.spend30 += +(r.spend||0); c.sales30 += +(r.sales||0);
+    if(r.date>=c7){c.spend7+=+(r.spend||0);c.sales7+=+(r.sales||0);c.clicks7+=+(r.clicks||0);}
+    if(!c.daily[r.date]) c.daily[r.date]={spend:0,sales:0,clicks:0};
+    c.daily[r.date].spend+=+(r.spend||0);
+    c.daily[r.date].sales+=+(r.sales||0);
+    c.daily[r.date].clicks+=+(r.clicks||0);
+  });
+
+  var camps = Object.entries(byCamp).sort(function(a,b){ return b[1].spend7-a[1].spend7; });
+
+  var campRows = camps.map(function(entry, idx){
+    var cn=entry[0], c=entry[1];
+    var r7 = c.spend7>0?Math.round(c.sales7/c.spend7*100)/100:0;
+    var r30= c.spend30>0?Math.round(c.sales30/c.spend30*100)/100:0;
+    var a7 = c.sales7>0?Math.round(c.spend7/c.sales7*1000)/10:0;
+    var campDates = Object.keys(c.daily).sort().slice(-14);
+    var campRoas = campDates.map(function(d){ var x=c.daily[d]; return x.spend>0?Math.round(x.sales/x.spend*100)/100:0; });
+    var sp = sparkline(campRoas, 80, 28, roasColor(r7), roasColor(r7));
+    return '<tr style="cursor:pointer;border-bottom:1px solid var(--border)" onclick="toggleCampDrill(\'adrill-'+idx+'\')">'
+      +'<td style="padding:8px 10px;font-size:12px;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+cn+'">'+cn+'</td>'
+      +'<td style="padding:8px 6px;font-size:10px;color:var(--dim)">'+c.type+'</td>'
+      +'<td style="padding:8px 6px;font-size:12px;font-weight:600">$'+Math.round(c.spend7)+'</td>'
+      +'<td style="padding:8px 6px;font-size:12px">$'+Math.round(c.sales7)+'</td>'
+      +'<td style="padding:8px 6px;font-size:12px;font-weight:700;color:'+roasColor(r7)+'">'+r7+'x</td>'
+      +'<td style="padding:8px 6px;font-size:11px;color:'+acosColor(a7,tgt)+'">'+a7+'%</td>'
+      +'<td style="padding:8px 6px">'+arrow(r7,r30)+'</td>'
+      +'<td style="padding:8px 6px">'+sp+'</td>'
+      +'<td style="padding:8px 6px;font-size:10px;color:var(--muted)">&#9660;</td>'
+      +'</tr>'
+      +'<tr id="adrill-'+idx+'" style="display:none;background:#f8fafc"><td colspan="9" style="padding:0">'
+      +buildCampDrill(c, campDates)
+      +'</td></tr>';
+  }).join('');
+
+  document.getElementById('analytics-content').innerHTML =
+    '<div class="card" style="margin-bottom:16px">'
+    +'<div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px">'
+    +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">ROAS 7d</div><div style="font-size:28px;font-weight:800;color:'+roasColor(roas7)+'">'+roas7+'x</div><div style="font-size:11px;color:var(--dim)">30d: '+roas30+'x '+arrow(roas7,roas30)+'</div></div>'
+    +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">ACOS 7d</div><div style="font-size:28px;font-weight:800;color:'+acosColor(acos7,tgt)+'">'+acos7+'%</div><div style="font-size:11px;color:var(--dim)">target: '+tgt+'%</div></div>'
+    +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Spend 7d</div><div style="font-size:28px;font-weight:800">$'+Math.round(s7)+'</div><div style="font-size:11px;color:var(--dim)">CPC: $'+cpc7+'</div></div>'
+    +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Ad Sales 7d</div><div style="font-size:28px;font-weight:800">$'+Math.round(rev7)+'</div><div style="font-size:11px;color:var(--dim)">30d: $'+Math.round(rev30)+'</div></div>'
+    +'</div>'
+    +'<div style="font-size:10px;color:var(--dim);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">30-Day ROAS Trend</div>'
+    +'<div style="width:100%">'+ sparkline(roasSeries, Math.max(300, dates.length*14), 52, 'var(--a)', 'var(--a)') +'</div>'
+    +'<div style="display:flex;gap:1px;align-items:flex-end;height:52px;margin:8px 0 2px;border-bottom:1px solid var(--border)">'+barHtml+'</div>'
+    +'<div style="font-size:9px;color:var(--muted)">Daily spend (bar height) · color = ROAS quality · '+dates.length+' days</div>'
+    +'</div>'
+
+    +'<div class="card" style="padding:0;overflow:hidden">'
+    +'<div style="padding:12px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px">Campaign Breakdown <span style="font-weight:400;color:var(--dim);font-size:11px">— click row to expand 14d detail</span></div>'
+    +'<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">'
+    +'<thead><tr style="background:#f8fafc;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.4px">'
+    +'<th style="padding:8px 10px;text-align:left;font-weight:600">Campaign</th>'
+    +'<th style="padding:8px 6px;text-align:left;font-weight:600">Type</th>'
+    +'<th style="padding:8px 6px;text-align:right;font-weight:600">Spend 7d</th>'
+    +'<th style="padding:8px 6px;text-align:right;font-weight:600">Sales 7d</th>'
+    +'<th style="padding:8px 6px;text-align:right;font-weight:600">ROAS 7d</th>'
+    +'<th style="padding:8px 6px;text-align:right;font-weight:600">ACOS</th>'
+    +'<th style="padding:8px 6px;text-align:center;font-weight:600">Trend</th>'
+    +'<th style="padding:8px 6px;font-weight:600">14d Sparkline</th>'
+    +'<th style="padding:8px 6px"></th>'
+    +'</tr></thead>'
+    +'<tbody>'+campRows+'</tbody>'
+    +'</table></div></div>';
+}
+
+function buildCampDrill(c, campDates) {
+  if (!campDates.length) return '<div style="padding:12px;color:var(--dim);font-size:11px">No daily data</div>';
+  var rows = campDates.slice().reverse().map(function(d){
+    var x = c.daily[d];
+    var r = x.spend>0?Math.round(x.sales/x.spend*100)/100:0;
+    var a = x.sales>0?Math.round(x.spend/x.sales*1000)/10:0;
+    return '<tr style="border-bottom:1px solid #f1f5f9">'
+      +'<td style="padding:5px 12px;font-size:11px;color:var(--dim)">'+d+'</td>'
+      +'<td style="padding:5px 10px;font-size:11px;text-align:right">$'+x.spend.toFixed(2)+'</td>'
+      +'<td style="padding:5px 10px;font-size:11px;text-align:right">$'+Math.round(x.sales)+'</td>'
+      +'<td style="padding:5px 10px;font-size:11px;text-align:right;font-weight:700;color:'+roasColor(r)+'">'+r+'x</td>'
+      +'<td style="padding:5px 10px;font-size:11px;text-align:right">'+a+'%</td>'
+      +'<td style="padding:5px 10px;font-size:11px;text-align:right;color:var(--dim)">'+x.clicks+' clicks</td>'
+      +'</tr>';
+  }).join('');
+  return '<div style="padding:10px 16px">'
+    +'<table style="width:100%;border-collapse:collapse;font-size:11px">'
+    +'<thead><tr style="font-size:10px;color:var(--dim);text-transform:uppercase">'
+    +'<th style="padding:4px 12px;text-align:left">Date</th>'
+    +'<th style="padding:4px 10px;text-align:right">Spend</th>'
+    +'<th style="padding:4px 10px;text-align:right">Sales</th>'
+    +'<th style="padding:4px 10px;text-align:right">ROAS</th>'
+    +'<th style="padding:4px 10px;text-align:right">ACOS</th>'
+    +'<th style="padding:4px 10px;text-align:right">Clicks</th>'
+    +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+function toggleCampDrill(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = el.style.display === 'none' ? 'table-row' : 'none';
+}
+
 // Main tabs
 document.querySelectorAll('.mt>div').forEach(function(t){
   t.onclick=function(){
@@ -1126,6 +1327,10 @@ document.querySelectorAll('.mt>div').forEach(function(t){
     t.classList.add('on');
     document.getElementById(t.dataset.p).classList.add('on');
     if(t.dataset.p==='tab-execlog') renderExecAudit();
+    if(t.dataset.p==='tab-analytics'){
+      var ab = document.querySelector('#analyticssBrandTabs .on');
+      renderAnalytics(ab ? ab.dataset.abrand : 'grosmimi', ab);
+    }
   };
 });
 
