@@ -425,50 +425,40 @@ def build_monthly_timeline(waste_terms: list, st_rows: list) -> list:
 
 # ── HTML Report ──────────────────────────────────────────────────────────────
 
-# Path to the premium HTML template (dark terminal design)
-HTML_TEMPLATE = ROOT / ".tmp" / "ppc_simulator" / "grosmimi_preview.html"
+HTML_TEMPLATE = ROOT / ".tmp" / "ppc_simulator" / "backtest_template.html"
 
 
 def build_html_report(brand_display: str, analysis_days: int,
                       waste: dict, bid: dict, timeline: list,
                       start_date: date, end_date: date) -> str:
+    """Inject real data into the premium backtest HTML template."""
+    import json as _json
 
-    """Inject real data into the premium dark-terminal HTML template."""
-    # Build full data payload for JS injection
+    # Build data payload matching template's window.BACKTEST_DATA format
     data_payload = {
-        "brand":  brand_display,
+        "brand": brand_display,
         "period": {"start": str(start_date), "end": str(end_date), "days": analysis_days},
-        "waste":  {
-            **{k: v for k, v in waste.items() if k != "top_terms"},
-            "top_terms": waste.get("top_terms", [])[:20],
-        },
-        "bid": {
-            **{k: v for k, v in bid.items() if k not in ("underperformers", "scalable")},
-            "underperformers": bid.get("underperformers", [])[:20],
-            "scalable":        bid.get("scalable",        [])[:15],
-        },
+        "waste_backtest": {k: v for k, v in waste.items() if k != "top_terms"},
+        "bid_backtest": {k: v for k, v in bid.items()
+                         if k not in ("underperformers", "scalable")},
         "timeline": timeline,
+        "top_waste_terms": waste.get("top_terms", [])[:20],
     }
 
-    # Load template and inject data + update header meta
-    import json as _json
     template = HTML_TEMPLATE.read_text(encoding="utf-8")
-    data_js   = _json.dumps(data_payload, ensure_ascii=False)
-    injection = f"window.__PPC_DATA__ = {data_js};"
+    data_js = _json.dumps(data_payload, ensure_ascii=False)
 
-    # Replace placeholder const DATA line with injected data
-    new_data_line = injection + "\nconst DATA = window.__PPC_DATA__ || {"
-    template = template.replace(
-        "const DATA = window.__PPC_DATA__ || {",
-        new_data_line,
+    # Inject real data by replacing the demo BACKTEST_DATA block
+    injection = f"window.BACKTEST_DATA = {data_js};"
+    # Find and replace the demo data block
+    import re
+    template = re.sub(
+        r'window\.BACKTEST_DATA\s*=\s*\{.*?\};',
+        injection,
+        template,
+        count=1,
+        flags=re.DOTALL,
     )
-    # Update header meta values
-    template = template.replace("GROSMIMI", brand_display.upper())
-    template = template.replace(
-        "2026-01-13 ~ 2026-03-13",
-        f"{start_date} ~ {end_date}"
-    )
-    template = template.replace("60D", f"{analysis_days}D")
 
     return template
 

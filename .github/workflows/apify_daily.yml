@@ -46,6 +46,10 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_PATH=credentials/google_service_account.json
           SHOPIFY_SHOP=${{ secrets.SHOPIFY_SHOP }}
           SHOPIFY_ACCESS_TOKEN=${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+          META_GRAPH_IG_TOKEN=${{ secrets.META_GRAPH_IG_TOKEN }}
+          IG_BUSINESS_USER_ID_ONZENNA=${{ secrets.IG_BUSINESS_USER_ID_ONZENNA }}
+          IG_BUSINESS_USER_ID_GROSMIMI_USA=${{ secrets.IG_BUSINESS_USER_ID_GROSMIMI_USA }}
+          IG_BUSINESS_USER_ID_GROSMIMI_JP=${{ secrets.IG_BUSINESS_USER_ID_GROSMIMI_JP }}
           ENVEOF
           sed -i 's/^[[:space:]]*//' .env
 

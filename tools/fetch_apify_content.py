@@ -22,6 +22,7 @@ import json
 import os
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from collections import defaultdict
@@ -69,6 +70,90 @@ EXCLUDE = {
 import re as _re
 INFLUENCER_ORDERS_PATH = PROJECT_ROOT / ".tmp" / "polar_data" / "q10_influencer_orders.json"
 _IG_HANDLE_RE = _re.compile(r"IG\s*\(@?([^)\s]+)\)", _re.IGNORECASE)
+
+# Instagram Graph API (replaces Apify for tagged post detection)
+# IG Business User IDs per brand account
+IG_GRAPH_ACCOUNTS = {
+    "onzenna.official": os.getenv("IG_BUSINESS_USER_ID_ONZENNA", "17841458739542512"),
+    "grosmimi_usa":     os.getenv("IG_BUSINESS_USER_ID_GROSMIMI_USA", ""),
+    "grosmimi_japan":   os.getenv("IG_BUSINESS_USER_ID_GROSMIMI_JP", ""),
+}
+
+
+# ---------------------------------------------------------------------------
+# Instagram Graph API — tagged post detection (FREE, replaces Apify scraper)
+# ---------------------------------------------------------------------------
+
+def fetch_ig_tagged_graph(account_ids: dict, token: str, limit: int = 500) -> list:
+    """
+    Fetch posts where brand accounts are tagged, via Instagram Graph API.
+    Returns items in the same format as fetch_ig_tagged() for pipeline compatibility.
+    account_ids: {username: ig_business_user_id}
+    """
+    all_items = []
+    fields = "id,timestamp,like_count,comments_count,permalink,username,caption,media_type"
+
+    for acct, ig_id in account_ids.items():
+        if not ig_id:
+            print(f"[GRAPH] @{acct}: no IG Business User ID - skipping")
+            continue
+
+        print(f"[GRAPH] @{acct}/tags (limit={limit})...")
+        collected, next_url = [], None
+        base = (
+            f"https://graph.facebook.com/v21.0/{ig_id}/tags"
+            f"?fields={fields}&limit=50&access_token={urllib.parse.quote(token)}"
+        )
+        url = base
+
+        try:
+            while len(collected) < limit:
+                # Retry up to 3 times with exponential backoff for 5xx errors
+                data = None
+                for attempt in range(3):
+                    try:
+                        with urllib.request.urlopen(url, timeout=60) as r:
+                            data = json.loads(r.read())
+                        break
+                    except urllib.error.HTTPError as e:
+                        if e.code >= 500 and attempt < 2:
+                            wait = 10 * (2 ** attempt)
+                            print(f"  [RETRY] HTTP {e.code}, waiting {wait}s (attempt {attempt+1}/3)...")
+                            time.sleep(wait)
+                        else:
+                            raise
+                if data is None:
+                    break
+                posts = data.get("data", [])
+                for p in posts:
+                    permalink = p.get("permalink", "")
+                    sc = permalink.rstrip("/").split("/")[-1] if permalink else p.get("id", "")
+                    collected.append({
+                        "shortCode":      sc,
+                        "id":             p.get("id", ""),
+                        "url":            permalink,
+                        "ownerUsername":  p.get("username", ""),
+                        "ownerFullName":  "",
+                        "timestamp":      p.get("timestamp", ""),
+                        "caption":        p.get("caption", ""),
+                        "hashtags":       [],
+                        "likesCount":     p.get("like_count") or 0,
+                        "commentsCount":  p.get("comments_count") or 0,
+                        "videoViewCount": 0,
+                        "_tagged_account": acct,
+                        "_source": "graph_api",
+                    })
+                next_url = data.get("paging", {}).get("next")
+                if not next_url or len(collected) >= limit:
+                    break
+                url = next_url
+
+            print(f"  @{acct}: {len(collected)} tagged posts")
+            all_items.extend(collected)
+        except Exception as e:
+            print(f"  [WARN] @{acct} Graph API failed: {e}")
+
+    return all_items
 
 
 # ---------------------------------------------------------------------------
@@ -492,7 +577,7 @@ def update_d60_tracker(sh, data, tab_name, pm_tab_name=None, pm_pid_to_row=None)
 def update_influencer_tracker(sh, data, tab_name, pm_tab_name=None):
     """크리에이터별 집계 탭. 최근 포스트 기준 내림차순 정렬."""
     if not data:
-        print(f"[{tab_name}] No data — skipping (existing data preserved)")
+        print(f"[{tab_name}] No data - skipping (existing data preserved)")
         return
 
     headers = [
@@ -638,17 +723,25 @@ def save_json(data, name):
 
 def run_daily(region="all", dry_run=False, send_mail=True):
     summary = {}
+    load_env()
+    graph_token = os.environ.get("META_GRAPH_IG_TOKEN", "")
+    use_graph = bool(graph_token)
     client = None if dry_run else get_client()
 
     # --- US ---
     if region in ("all", "us"):
         print("\n===== US Pipeline =====")
 
-        # IG tagged
+        # IG tagged — Graph API (free) or Apify fallback
         if dry_run:
             ig_path = max(OUTPUT_DIR.glob("*_us_tagged*.json"), key=os.path.getmtime, default=None)
             ig_raw = json.load(open(ig_path, encoding="utf-8")) if ig_path else []
             print(f"[DRY] Loaded {len(ig_raw)} from {ig_path}")
+        elif use_graph:
+            us_accounts = {k: v for k, v in IG_GRAPH_ACCOUNTS.items()
+                           if k in ("onzenna.official", "grosmimi_usa")}
+            ig_raw = fetch_ig_tagged_graph(us_accounts, graph_token)
+            save_json(ig_raw, "us_tagged_raw")
         else:
             ig_raw = fetch_ig_tagged(client, US_TAGGED_URLS, limit=2000)
             save_json(ig_raw, "us_tagged_raw")
