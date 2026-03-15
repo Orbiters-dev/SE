@@ -340,9 +340,19 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--a);cursor:pointer
       <tr><td><b>CHA&MOM</b></td><td>$7.53</td><td>$4.25</td><td>$0.50</td><td>5%</td><td>30%</td></tr>
     </tbody></table></div>
     <div class="card" id="pl-category-detail">
-      <h3>Grosmimi P&L by Product Category (Parent ASIN)</h3>
+      <h3>Grosmimi P&L by Product Category</h3>
       <div class="desc">14d data from DataKeeper amazon_sales_sku_daily. Full-cost: COGS + Ref 15% + FBA + Export $0.50 + Returns 5%.</div>
       <div id="pl-table"></div>
+    </div>
+    <div class="card">
+      <h3>Naeiae P&L by Product Category</h3>
+      <div class="desc">14d data. Full-cost: COGS $5.35 + Ref 15% + FBA $3.50 + <b style="color:var(--am)">Export $3.00</b> + Returns 5%.</div>
+      <div id="pl-table-naeiae"></div>
+    </div>
+    <div class="card">
+      <h3>CHA&MOM P&L by Product Category</h3>
+      <div class="desc">14d data. Full-cost: COGS $7.53 + Ref 15% + FBA $4.25 + Export $0.50 + Returns 5%.</div>
+      <div id="pl-table-chaenmom"></div>
     </div>
   </div>
 </div>
@@ -414,9 +424,9 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--a);cursor:pointer
 const D = PPC_DATA;
 const BRAND_LABELS = {grosmimi:'🟣 Grosmimi', naeiae:'🟡 Naeiae', chaenmom:'🔵 CHA&MOM'};
 const BRAND_PL = {
-  grosmimi: {acos:'23.9%',tacos:'13.3%',budget:'$3,000',insight:'50 harvest + 50 negate (8 SIM). $4,405 backtest savings. 7 product categories.'},
-  naeiae: {acos:'34.1%',tacos:'n/a',budget:'$150',insight:'Export $3/unit (heavy snacks). Prior executions: 5H+4N (03/08-09). Budget $120→$150.'},
-  chaenmom: {acos:'26.4%',tacos:'4.8%',budget:'$150',insight:'Competitor Targeting ACOS 70% → bid -30%. Cream/Wash ROAS 30x/4x → budget up.'}
+  grosmimi: {acos7d:'25.7%',acos30d:'22.8%',tacos7d:'13.7%',tacos30d:'13.3%',budget:'$3,000',insight:'50 harvest + 50 negate (8 SIM). $4,405 backtest savings. 7 product categories.'},
+  naeiae: {acos7d:'27.6%',acos30d:'34.8%',tacos7d:'11.6%',tacos30d:'15.7%',budget:'$150',insight:'Export $3/unit (heavy snacks). Prior executions: 5H+4N (03/08-09). Budget $120→$150.'},
+  chaenmom: {acos7d:'23.3%',acos30d:'31.5%',tacos7d:'9.1%',tacos30d:'16.1%',budget:'$150',insight:'Competitor Targeting ACOS 70% → bid -30%. Cream/Wash ROAS 30x/4x → budget up.'}
 };
 
 const BRAND_DEFAULTS = {
@@ -654,8 +664,8 @@ function renderConfigBrand(bk){
   var html = '<div class="card" style="border-left:3px solid var(--a);margin-bottom:14px">' +
     '<h3>P&L Insight</h3>' +
     '<div class="stats">' +
-      '<div class="stat accent"><div class="sl">ACOS</div><div class="sv">' + pl.acos + '</div></div>' +
-      '<div class="stat cyan"><div class="sl">TACOS</div><div class="sv">' + pl.tacos + '</div></div>' +
+      '<div class="stat accent"><div class="sl">ACOS (7d)</div><div class="sv">' + pl.acos7d + '</div><div class="ss">30d: ' + pl.acos30d + '</div></div>' +
+      '<div class="stat cyan"><div class="sl">TACOS (7d)</div><div class="sv">' + pl.tacos7d + '</div><div class="ss">30d: ' + pl.tacos30d + '</div></div>' +
       '<div class="stat amber"><div class="sl">Daily Budget</div><div class="sv">' + pl.budget + '</div></div>' +
     '</div>' +
     '<div class="desc">' + pl.insight + '</div>' +
@@ -811,33 +821,39 @@ function renderExecution(bk, dt, containerId){
   '</div>';
 }
 
-// P&L Category Table
-function renderPL(){
-  if(typeof PL_DATA==='undefined') return;
-  var cats = PL_DATA.grosmimi;
-  var tot = PL_DATA.total;
+// P&L Category Table (all brands)
+function renderPLBrand(cats, tot, targetElId){
+  if(!cats || !cats.length) { document.getElementById(targetElId).innerHTML='<div class="desc">No SKU data available.</div>'; return; }
   var rows = cats.map(function(c){
     var cmB = c.cm_pct>=30?badge(c.cm_pct+'%','g'):c.cm_pct>=15?badge(c.cm_pct+'%','am'):badge(c.cm_pct+'%','r');
     var gmB = c.gm_pct>=70?badge(c.gm_pct+'%','g'):c.gm_pct>=50?badge(c.gm_pct+'%','am'):badge(c.gm_pct+'%','r');
     var topA = c.top_asins.map(function(a){return '<span style="font-size:8px;color:var(--muted)" title="'+a.name+'">'+a.asin+' ($'+a.rev.toLocaleString()+')</span>';}).join(', ');
     return '<tr>' +
-      '<td><b>'+c.category+'</b></td><td>'+c.units.toLocaleString()+'</td>' +
+      '<td><b style="font-size:10px">'+c.category+'</b></td><td>'+c.units.toLocaleString()+'</td>' +
       '<td>$'+c.rev.toLocaleString()+'</td><td>$'+c.asp+'</td>' +
       '<td>$'+c.cogs+'</td><td>$'+c.fba+'</td>' +
       '<td>'+gmB+'</td><td>$'+c.cm.toLocaleString()+'</td><td>'+cmB+'</td>' +
       '<td style="font-size:8px;max-width:180px">'+topA+'</td>' +
     '</tr>';
   }).join('');
-  var totCm = tot.rev>0?Math.round(tot.cm/tot.rev*100*10)/10:0;
-  rows += '<tr style="font-weight:700;background:#f0fdf4">' +
-    '<td>TOTAL</td><td>'+tot.units.toLocaleString()+'</td><td>$'+tot.rev.toLocaleString()+'</td>' +
-    '<td>—</td><td>—</td><td>—</td><td>—</td><td>$'+tot.cm.toLocaleString()+'</td>' +
-    '<td>'+badge(totCm+'%','g')+'</td><td></td></tr>';
-  document.getElementById('pl-table').innerHTML =
+  if(tot){
+    var totCm = tot.rev>0?Math.round(tot.cm/tot.rev*100*10)/10:0;
+    rows += '<tr style="font-weight:700;background:#f0fdf4">' +
+      '<td>TOTAL</td><td>'+tot.units.toLocaleString()+'</td><td>$'+tot.rev.toLocaleString()+'</td>' +
+      '<td>—</td><td>—</td><td>—</td><td>—</td><td>$'+tot.cm.toLocaleString()+'</td>' +
+      '<td>'+badge(totCm+'%','g')+'</td><td></td></tr>';
+  }
+  document.getElementById(targetElId).innerHTML =
     '<div style="overflow-x:auto"><table>' +
       '<thead><tr><th>Category</th><th>Units</th><th>Revenue</th><th>ASP</th><th>COGS</th><th>FBA</th><th>GM%</th><th>CM $</th><th>CM%</th><th>Top ASINs</th></tr></thead>' +
       '<tbody>'+rows+'</tbody>' +
     '</table></div>';
+}
+function renderPL(){
+  if(typeof PL_DATA==='undefined') return;
+  renderPLBrand(PL_DATA.grosmimi, PL_DATA.total, 'pl-table');
+  renderPLBrand(PL_DATA.naeiae, PL_DATA.naeiae_total, 'pl-table-naeiae');
+  renderPLBrand(PL_DATA.chaenmom, PL_DATA.chaenmom_total, 'pl-table-chaenmom');
 }
 renderPL();
 
