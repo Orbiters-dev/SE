@@ -771,7 +771,7 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
         )
         if r.status_code >= 400:
             print(f"    [ERROR] SP report {start}~{end}: {r.status_code} {r.text[:200]}")
-            return []
+            return [], []
         r.raise_for_status()
         report_id = r.json().get("reportId")
 
@@ -788,9 +788,9 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
                 doc_id = r2.json().get("reportDocumentId")
                 break
             elif status in ("CANCELLED", "FATAL"):
-                return []
+                return [], []
         else:
-            return []
+            return [], []
 
         # Download document
         r3 = requests.get(
@@ -810,7 +810,7 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
         # Parse TSV
         lines = content.decode("utf-8", errors="replace").strip().split("\n")
         if len(lines) < 2:
-            return []
+            return [], []
 
         header = lines[0].split("\t")
         daily_agg = {}
