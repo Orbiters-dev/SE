@@ -22,6 +22,8 @@ import json
 import os
 import sys
 import time
+import urllib.parse
+import urllib.request
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -62,6 +64,11 @@ EXCLUDE = {
     "grosmimiofficial_sg", "zezebaebae", "baby.boutique.official",
     "grosmimi_korea", "onzenna", "grosmimi",
 }
+
+# Shopify PR/Sample influencer orders
+import re as _re
+INFLUENCER_ORDERS_PATH = PROJECT_ROOT / ".tmp" / "polar_data" / "q10_influencer_orders.json"
+_IG_HANDLE_RE = _re.compile(r"IG\s*\(@?([^)\s]+)\)", _re.IGNORECASE)
 
 
 # ---------------------------------------------------------------------------
@@ -484,6 +491,10 @@ def update_d60_tracker(sh, data, tab_name, pm_tab_name=None, pm_pid_to_row=None)
 
 def update_influencer_tracker(sh, data, tab_name, pm_tab_name=None):
     """크리에이터별 집계 탭. 최근 포스트 기준 내림차순 정렬."""
+    if not data:
+        print(f"[{tab_name}] No data — skipping (existing data preserved)")
+        return
+
     headers = [
         "Username", "Nickname", "Platform", "Followers",
         "Last Post", "First Post", "Post Count",
@@ -734,9 +745,152 @@ def run_daily(region="all", dry_run=False, send_mail=True):
     return summary
 
 
+# ---------------------------------------------------------------------------
+# Influencer upload scanner (Airtable → Apify → Posts Master)
+# ---------------------------------------------------------------------------
+
+def fetch_shopify_pr_handles() -> list:
+    """Return unique IG handles from Shopify PR/sample orders (q10_influencer_orders.json)."""
+    if not INFLUENCER_ORDERS_PATH.exists():
+        print(f"[SHOPIFY] {INFLUENCER_ORDERS_PATH.name} not found - skipping")
+        return []
+
+    raw = json.loads(INFLUENCER_ORDERS_PATH.read_text(encoding="utf-8"))
+    orders = raw.get("orders", raw) if isinstance(raw, dict) else raw
+
+    handles = set()
+    for order in orders:
+        if not isinstance(order, dict):
+            continue
+        for text in (order.get("tags", "") or "", order.get("note", "") or ""):
+            m = _IG_HANDLE_RE.search(text)
+            if m:
+                handles.add(m.group(1).lower().strip())
+                break
+
+    result = sorted(handles)
+    print(f"[SHOPIFY] {len(result)} unique IG handles from PR/sample orders")
+    return result
+
+
+def normalize_ig_profile_posts(profile_items) -> list:
+    """Normalize latestPosts from profile-scraper into the shared post format."""
+    result, seen = [], set()
+    for profile in profile_items:
+        uname = (profile.get("username", "") or "").lower()
+        followers = profile.get("followersCount", profile.get("followedByCount", 0)) or 0
+
+        for post in (profile.get("latestPosts", []) or []):
+            sc = post.get("shortCode", post.get("id", ""))
+            if not sc or sc in seen or not uname or uname in EXCLUDE:
+                continue
+            seen.add(sc)
+            ts = str(post.get("timestamp", "") or "")[:10]
+            hashtags = post.get("hashtags", []) or []
+            result.append({
+                "post_id": sc,
+                "url": post.get("url", "") or f"https://www.instagram.com/p/{sc}/",
+                "platform": "instagram",
+                "username": uname,
+                "nickname": profile.get("fullName", "") or "",
+                "followers": followers,
+                "caption": (post.get("caption", "") or "")[:500],
+                "hashtags": ", ".join(
+                    h if isinstance(h, str) else h.get("name", "") for h in hashtags
+                ),
+                "tagged_account": "influencer_monitor",
+                "post_date": ts,
+                "comments": post.get("commentsCount", 0) or 0,
+                "likes": post.get("likesCount", 0) or 0,
+                "views": post.get("videoViewCount", 0) or 0,
+            })
+    return result
+
+
+def run_influencer_scan(dry_run: bool = False) -> dict:
+    """Scan Airtable active influencer profiles and add new posts to US Posts Master."""
+    print("\n===== Influencer Upload Scan =====")
+    load_env()
+
+    # 1. Get handles from Airtable
+    cache_path = OUTPUT_DIR / "influencer_handles_cache.json"
+    if dry_run:
+        handles = json.load(open(cache_path, encoding="utf-8")) if cache_path.exists() else []
+        print(f"[DRY] {len(handles)} handles from cache")
+    else:
+        handles = fetch_shopify_pr_handles()
+        if handles:
+            OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+            with open(cache_path, "w", encoding="utf-8") as f:
+                json.dump(handles, f)
+
+    if not handles:
+        print("[INFLUENCER] No active handles - done")
+        return {"handles": 0, "new_posts": 0}
+
+    # 2. Fetch recent posts via Apify (profile scraper, batches of 20)
+    raw_cache = OUTPUT_DIR / f"{TODAY}_influencer_profiles.json"
+    if dry_run:
+        raw = json.load(open(raw_cache, encoding="utf-8")) if raw_cache.exists() else []
+        print(f"[DRY] {len(raw)} profiles from cache")
+    else:
+        client = get_client()
+        raw = []
+        BATCH = 20
+        for i in range(0, len(handles), BATCH):
+            batch = handles[i:i + BATCH]
+            print(f"[INFLUENCER] Profiles {i + 1}-{min(i + BATCH, len(handles))}/{len(handles)}...")
+            try:
+                run = client.actor(IG_PROFILE_SCRAPER).call(
+                    run_input={"usernames": batch},
+                    timeout_secs=300,
+                )
+                items = list(client.dataset(run["defaultDatasetId"]).iterate_items())
+                raw.extend(items)
+                time.sleep(2)
+            except Exception as e:
+                print(f"[INFLUENCER] Batch {i // BATCH + 1} failed: {e}")
+        save_json(raw, "influencer_profiles")
+
+    # 3. Normalize into post format
+    posts = normalize_ig_profile_posts(raw)
+    print(f"[INFLUENCER] {len(posts)} posts extracted from {len(raw)} profiles")
+
+    if not posts:
+        return {"handles": len(handles), "new_posts": 0}
+
+    # 4. Get existing post_ids from US Posts Master
+    sh, _ = get_sheets()
+    try:
+        pm_ws = sh.worksheet("US Posts Master")
+        existing_ids = set(pm_ws.col_values(1)[1:])  # col A, skip header
+    except Exception as e:
+        print(f"[INFLUENCER] Could not read US Posts Master: {e}")
+        existing_ids = set()
+
+    new_posts = [p for p in posts if p["post_id"] not in existing_ids]
+    print(f"[INFLUENCER] {len(new_posts)} new posts not yet in Posts Master")
+
+    if not new_posts:
+        return {"handles": len(handles), "new_posts": 0}
+
+    # 5. Add to US Posts Master + D+60 Tracker
+    new_count = update_posts_master(sh, new_posts, "US Posts Master")
+    time.sleep(1)
+    pm_ws = sh.worksheet("US Posts Master")
+    pm_pid_map = get_post_id_to_row(pm_ws)
+    update_d60_tracker(sh, new_posts, "US D+60 Tracker",
+                       pm_tab_name="US Posts Master", pm_pid_to_row=pm_pid_map)
+
+    print(f"[INFLUENCER] Done: +{new_count} new posts added")
+    return {"handles": len(handles), "new_posts": new_count}
+
+
 def main():
     parser = argparse.ArgumentParser(description="Apify Content Pipeline")
     parser.add_argument("--daily", action="store_true", help="Run daily pipeline")
+    parser.add_argument("--influencer-scan", action="store_true",
+                        help="Scan active Airtable influencers for new posts")
     parser.add_argument("--region", default="all", choices=["all", "us", "jp"])
     parser.add_argument("--dry-run", action="store_true", help="Use cached JSON, no API calls")
     parser.add_argument("--no-email", action="store_true", help="Skip email notification")
@@ -744,6 +898,8 @@ def main():
 
     if args.daily:
         run_daily(region=args.region, dry_run=args.dry_run, send_mail=not args.no_email)
+    elif args.influencer_scan:
+        run_influencer_scan(dry_run=args.dry_run)
     else:
         parser.print_help()
 
