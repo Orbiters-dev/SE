@@ -129,10 +129,32 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
 .exp-active{background:var(--gbg)!important;border-color:var(--g)!important}
 
 @media(max-width:700px){.fb{flex-wrap:wrap;justify-content:center}.fa{display:none}.cf{flex-direction:column}.cfa{transform:rotate(90deg)}}
+/* Page gate */
+#page-gate{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999}
+#page-gate .gate-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:40px 36px;width:340px;box-shadow:0 8px 32px rgba(0,0,0,.08);text-align:center}
+#page-gate h2{font-size:18px;font-weight:800;margin-bottom:4px}
+#page-gate .sub{color:var(--dim);font-size:12px;margin-bottom:24px}
+#page-gate input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:var(--mono);margin-bottom:8px;background:var(--bg)}
+#page-gate button{width:100%;padding:10px;background:var(--a);color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;margin-top:4px}
+#page-gate button:hover{opacity:.9}
+#page-gate .err{color:var(--r);font-size:11px;margin-top:8px;display:none}
 </style>
 </head>
 <body>
-<div class="ctr">
+
+<!-- Page-level login gate -->
+<div id="page-gate">
+  <div class="gate-card">
+    <h2>Amazon PPC <span style="background:linear-gradient(135deg,#6366f1,#0ea5e9);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Intelligence</span></h2>
+    <div class="sub">Authorized access only</div>
+    <input type="text" id="gate-id" placeholder="ID" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('gate-pw').focus()">
+    <input type="password" id="gate-pw" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doPageLogin()">
+    <button onclick="doPageLogin()">Login</button>
+    <div class="err" id="gate-err">Invalid ID or password.</div>
+  </div>
+</div>
+
+<div class="ctr" id="main-content" style="display:none">
 
 <div class="hero">
   <h1>Amazon PPC <span>Intelligence</span></h1>
@@ -378,17 +400,8 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
 <!-- ══════════ TAB 2: CONFIG & PROPOSE ══════════ -->
 <div class="mp" id="tab-config">
 
-  <!-- Login Gate -->
-  <div id="config-login-gate">
-    <div class="card" style="max-width:360px;margin:40px auto;text-align:center;border-left:3px solid var(--a)">
-      <h3 style="margin-bottom:12px">🔐 Config Access</h3>
-      <div class="desc" style="margin-bottom:16px">Authorized users only. Changes are logged.</div>
-      <input type="text" id="login-id" placeholder="ID" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:var(--mono);margin-bottom:8px">
-      <input type="password" id="login-pw" placeholder="Password" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:var(--mono);margin-bottom:12px" onkeydown="if(event.key==='Enter')doLogin()">
-      <button class="cfg-btn" onclick="doLogin()" style="width:100%;margin-top:0">Login</button>
-      <div id="login-error" style="color:var(--r);font-size:11px;margin-top:8px;display:none">Invalid ID or password.</div>
-    </div>
-  </div>
+  <!-- config-login-gate removed: page is gated at the top level -->
+  <div id="config-login-gate" style="display:none"></div>
 
   <!-- Config Content (hidden until login) -->
   <div id="config-content" style="display:none">
@@ -657,46 +670,69 @@ async function sha256(message) {
   return hashArray.map(function(b){return b.toString(16).padStart(2,'0');}).join('');
 }
 
+var SESSION_DURATION = 30 * 24 * 60 * 60 * 1000; // 30 days in ms
+
 function getLoggedInUser() {
-  return localStorage.getItem('ppc_config_user') || '';
+  var user = localStorage.getItem('ppc_config_user') || '';
+  var expires = parseInt(localStorage.getItem('ppc_session_expires') || '0');
+  if (user && Date.now() < expires) return user;
+  // Expired — clear
+  localStorage.removeItem('ppc_config_user');
+  localStorage.removeItem('ppc_session_expires');
+  return '';
 }
 
-async function doLogin() {
-  var id = document.getElementById('login-id').value.trim().toUpperCase();
-  var pw = document.getElementById('login-pw').value.trim();
-  var errEl = document.getElementById('login-error');
-  if (!id || !pw) { errEl.style.display='block'; errEl.textContent='Please enter ID and password.'; return; }
+// ── Page-level login ──
+async function doPageLogin() {
+  var id = document.getElementById('gate-id').value.trim().toUpperCase();
+  var pw = document.getElementById('gate-pw').value.trim();
+  var errEl = document.getElementById('gate-err');
+  if (!id || !pw) { errEl.style.display='block'; errEl.textContent='ID와 비밀번호를 입력하세요.'; return; }
 
-  var hash = await sha256(pw + id.toLowerCase());  // salted: pw + username prevents rainbow table
+  var hash = await sha256(pw + id.toLowerCase());
   if (AUTH_USERS[id] && AUTH_USERS[id] === hash) {
     localStorage.setItem('ppc_config_user', id);
-    showConfigContent(id);
-    errEl.style.display='none';
+    localStorage.setItem('ppc_session_expires', Date.now() + SESSION_DURATION);
+    unlockPage(id);
   } else {
     errEl.style.display='block';
-    errEl.textContent='Invalid ID or password.';
-    document.getElementById('login-pw').value='';
+    errEl.textContent='ID 또는 비밀번호가 올바르지 않습니다.';
+    document.getElementById('gate-pw').value='';
   }
+}
+
+function unlockPage(user) {
+  document.getElementById('page-gate').style.display='none';
+  document.getElementById('main-content').style.display='block';
+  // Auto-unlock config content too (no separate login needed)
+  showConfigContent(user);
 }
 
 function doLogout() {
   localStorage.removeItem('ppc_config_user');
-  document.getElementById('config-login-gate').style.display='block';
-  document.getElementById('config-content').style.display='none';
+  localStorage.removeItem('ppc_session_expires');
+  document.getElementById('page-gate').style.display='flex';
+  document.getElementById('main-content').style.display='none';
+  document.getElementById('gate-id').value='';
+  document.getElementById('gate-pw').value='';
+  document.getElementById('gate-err').style.display='none';
 }
+
+// doLogin() kept for backward compat (config tab still calls it via old references)
+async function doLogin() { return doPageLogin(); }
 
 function showConfigContent(user) {
   document.getElementById('config-login-gate').style.display='none';
   document.getElementById('config-content').style.display='block';
-  document.getElementById('config-user').textContent=user;
+  if (document.getElementById('config-user')) document.getElementById('config-user').textContent=user;
   renderConfigLog();
 }
 
-// Auto-login if session exists
+// Auto-unlock if valid session exists
 (function checkSession(){
   var user = getLoggedInUser();
-  if(user && AUTH_USERS[user]) {
-    showConfigContent(user);
+  if (user && AUTH_USERS[user]) {
+    unlockPage(user);
   }
 })();
 
