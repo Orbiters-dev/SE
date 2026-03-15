@@ -1489,32 +1489,42 @@ function renderExecAudit(){
   var el = document.getElementById('exec-audit-content');
   if(!el) return;
   if(!log.length){ el.innerHTML='<div class="desc" style="text-align:center;padding:12px">No executions logged yet. Execute from Config & Propose tab.</div>'; return; }
-  var html='<table><thead><tr><th>Time (PST)</th><th>User</th><th>Brand</th><th>Actions</th><th>Note</th></tr></thead><tbody>';
-  log.forEach(function(e){
+  var html='<table><thead><tr><th>Time (PST)</th><th>User</th><th>Brand</th><th>Actions</th><th>Note</th><th></th></tr></thead><tbody>';
+  log.forEach(function(e,logIdx){
     var d = e.details||{};
-    var actStr = '';
-    if(d.campaigns){
-      var campCount = Array.isArray(d.campaigns)?d.campaigns.length:0;
-      actStr = campCount+' camps';
-      d.campaigns.forEach(function(c){
-        if(typeof c==='object' && c.override_budget){
-          actStr += ' (budget→$'+c.override_budget+')';
-        }
-      });
-    }
-    if(d.harvest) actStr += (actStr?', ':'')+d.harvest+'H';
-    if(d.negate) actStr += (actStr?', ':'')+d.negate+'N';
+    var camps = Array.isArray(d.campaigns)?d.campaigns:[];
+    var campCount = camps.length;
+    var actStr = campCount+' camp'+(campCount!==1?'s':'');
+    if(d.harvest) actStr += ', '+d.harvest+'H';
+    if(d.negate) actStr += ', '+d.negate+'N';
     var brandB = {'grosmimi':'🟣','naeiae':'🟡','chaenmom':'🔵'}[e.brand]||'';
-    html += '<tr>' +
+    html += '<tr style="cursor:pointer" onclick="toggleAuditDetail('+logIdx+')">' +
       '<td style="font-family:var(--mono);font-size:10px;white-space:nowrap">'+e.timestamp+'</td>' +
       '<td><b style="color:var(--a)">'+e.user+'</b></td>' +
       '<td>'+brandB+' '+(e.brand||'')+'</td>' +
       '<td style="font-size:10px">'+actStr+'</td>' +
       '<td style="font-size:10px;color:var(--dim);max-width:250px">'+(e.note||'<i>no note</i>')+'</td>' +
+      '<td><span style="font-size:10px;color:var(--a)">+</span></td>' +
     '</tr>';
+    // Campaign-level detail row (hidden)
+    if(camps.length){
+      html += '<tr id="audit-detail-'+logIdx+'" style="display:none"><td colspan="6" style="padding:6px 12px;background:#f8fafc">' +
+        '<table style="font-size:10px"><thead><tr><th>Campaign</th><th>Override Budget</th><th>Note</th></tr></thead><tbody>';
+      camps.forEach(function(c){
+        html += '<tr><td><b>'+(c.name||'#'+c.idx)+'</b></td>' +
+          '<td style="font-family:var(--mono)">'+(c.override_budget?'$'+c.override_budget:'—')+'</td>' +
+          '<td style="color:var(--dim)">'+(c.note||'')+'</td></tr>';
+      });
+      html += '</tbody></table></td></tr>';
+    }
   });
   html += '</tbody></table>';
   el.innerHTML = html;
+}
+
+function toggleAuditDetail(idx){
+  var r=document.getElementById('audit-detail-'+idx);
+  if(r) r.style.display=r.style.display==='none'?'table-row':'none';
 }
 
 // Init — render first brand in all tabs
