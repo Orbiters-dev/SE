@@ -137,8 +137,8 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--a);cursor:pointer
 
 <div class="mt" id="mainTabs">
   <div class="on" data-p="tab-flow">Architecture & Flow</div>
-  <div data-p="tab-output">Output & Execution Log</div>
-  <div data-p="tab-config">Config</div>
+  <div data-p="tab-config">Config & Propose</div>
+  <div data-p="tab-execlog">Execution Log</div>
 </div>
 
 <!-- ══════════ TAB 1: FLOW ══════════ -->
@@ -226,17 +226,12 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--a);cursor:pointer
   </div>
 </div>
 
-<!-- ══════════ TAB 2: OUTPUT ══════════ -->
-<div class="mp" id="tab-output">
-  <div class="st" id="brandTabs"></div>
-  <div id="output-content"></div>
-</div>
-
-<!-- ══════════ TAB 3: CONFIG ══════════ -->
+<!-- ══════════ TAB 2: CONFIG & PROPOSE ══════════ -->
 <div class="mp" id="tab-config">
-  <div class="card" style="border-left:3px solid var(--a)">
+  <!-- Config Table -->
+  <div class="card" style="border-left:3px solid var(--a);margin-bottom:20px">
     <h3>Brand Configuration</h3>
-    <div class="desc">Edit values below and click "Save & Re-run Propose" to trigger a new proposal cycle via GitHub Actions.</div>
+    <div class="desc">Edit values and click "Save & Re-run Propose" to trigger a new proposal via GitHub Actions. Results appear below per brand.</div>
     <div style="overflow-x:auto">
       <table id="config-table">
         <thead>
@@ -257,6 +252,16 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--a);cursor:pointer
       <button class="cfg-btn" onclick="saveConfig()">Save & Re-run Propose</button>
     </div>
   </div>
+
+  <!-- Brand Sub-tabs for Proposals -->
+  <div class="st" id="configBrandTabs"></div>
+  <div id="config-propose-content"></div>
+</div>
+
+<!-- ══════════ TAB 3: EXECUTION LOG ══════════ -->
+<div class="mp" id="tab-execlog">
+  <div class="st" id="execBrandTabs"></div>
+  <div id="execlog-content"></div>
 </div>
 
 <!-- ══════════ PAT AUTH MODAL ══════════ -->
@@ -481,27 +486,39 @@ document.querySelectorAll('.fn[data-t]').forEach(function(n){
   };
 });
 
-// Brand tabs
+// Brand tabs — Config & Propose tab
 var brands = Object.keys(D.brands);
-var btEl = document.getElementById('brandTabs');
+var cfgBtEl = document.getElementById('configBrandTabs');
 brands.forEach(function(bk,i){
   var d = document.createElement('div');
   d.textContent = BRAND_LABELS[bk];
   d.dataset.brand = bk;
   if(i===0) d.classList.add('on');
-  d.onclick = function(){ btEl.querySelectorAll('div').forEach(function(x){x.classList.remove('on');}); d.classList.add('on'); renderBrand(bk); };
-  btEl.appendChild(d);
+  d.onclick = function(){ cfgBtEl.querySelectorAll('div').forEach(function(x){x.classList.remove('on');}); d.classList.add('on'); renderConfigBrand(bk); };
+  cfgBtEl.appendChild(d);
+});
+
+// Brand tabs — Execution Log tab
+var execBtEl = document.getElementById('execBrandTabs');
+brands.forEach(function(bk,i){
+  var d = document.createElement('div');
+  d.textContent = BRAND_LABELS[bk];
+  d.dataset.brand = bk;
+  if(i===0) d.classList.add('on');
+  d.onclick = function(){ execBtEl.querySelectorAll('div').forEach(function(x){x.classList.remove('on');}); d.classList.add('on'); renderExecLog(bk); };
+  execBtEl.appendChild(d);
 });
 
 function badge(v,type){return '<span class="b '+type+'">'+v+'</span>';}
 function roasB(r){return r>=3?badge(r+'x','g'):r>=2?badge(r+'x','am'):badge(r+'x','r');}
 function $(s){return document.querySelector(s);}
 
-function renderBrand(bk){
+// ── Config & Propose tab: brand → date → proposals ──
+function renderConfigBrand(bk){
   var bd = D.brands[bk];
   var dates = Object.keys(bd.dates).sort().reverse();
   var pl = BRAND_PL[bk];
-  var el = document.getElementById('output-content');
+  var el = document.getElementById('config-propose-content');
 
   var html = '<div class="card" style="border-left:3px solid var(--a);margin-bottom:14px">' +
     '<h3>P&L Insight</h3>' +
@@ -512,49 +529,60 @@ function renderBrand(bk){
     '</div>' +
     '<div class="desc">' + pl.insight + '</div>' +
   '</div>' +
-  '<div class="sst" id="dateTabs-' + bk + '"></div>' +
-  '<div id="dateContent-' + bk + '"></div>';
+  '<div class="sst" id="cfgDateTabs-' + bk + '"></div>' +
+  '<div id="cfgDateContent-' + bk + '"></div>';
   el.innerHTML = html;
 
-  // Date sub-tabs
-  var dtEl = document.getElementById('dateTabs-' + bk);
+  var dtEl = document.getElementById('cfgDateTabs-' + bk);
   dates.forEach(function(dt,i){
     var d = document.createElement('div');
     d.textContent = dt;
     d.dataset.dt = dt;
     if(i===0) d.classList.add('on');
-    d.onclick = function(){ dtEl.querySelectorAll('div').forEach(function(x){x.classList.remove('on');}); d.classList.add('on'); renderDate(bk,dt); };
+    d.onclick = function(){ dtEl.querySelectorAll('div').forEach(function(x){x.classList.remove('on');}); d.classList.add('on'); renderConfigDate(bk,dt); };
     dtEl.appendChild(d);
   });
-  if(dates.length) renderDate(bk, dates[0]);
+  if(dates.length) renderConfigDate(bk, dates[0]);
 }
 
-function renderDate(bk, dt){
+function renderConfigDate(bk, dt){
   var dd = D.brands[bk].dates[dt];
-  var el = document.getElementById('dateContent-' + bk);
-  var c = dd.counts;
+  var el = document.getElementById('cfgDateContent-' + bk);
+  el.innerHTML = '<div id="cfgViewContent-' + bk + '-' + dt + '"></div>';
+  renderPropose(bk, dt, 'cfgViewContent-' + bk + '-' + dt);
+}
 
-  var html = '<div class="ssst" id="viewTabs-' + bk + '-' + dt + '">' +
-    '<div class="on" data-v="propose">Propose (' + c.campaigns + 'camp, ' + c.harvest + 'H, ' + c.negate + 'N)</div>' +
-    '<div data-v="execution">Execution</div>' +
-  '</div>' +
-  '<div id="viewContent-' + bk + '-' + dt + '"></div>';
+// ── Execution Log tab: brand → date → executed only ──
+function renderExecLog(bk){
+  var bd = D.brands[bk];
+  var dates = Object.keys(bd.dates).sort().reverse();
+  var el = document.getElementById('execlog-content');
+
+  var html = '<div class="sst" id="execDateTabs-' + bk + '"></div>' +
+    '<div id="execDateContent-' + bk + '"></div>';
   el.innerHTML = html;
 
-  document.querySelectorAll('#viewTabs-' + bk + '-' + dt + '>div').forEach(function(t){
-    t.onclick=function(){
-      document.querySelectorAll('#viewTabs-' + bk + '-' + dt + '>div').forEach(function(x){x.classList.remove('on');});
-      t.classList.add('on');
-      if(t.dataset.v==='propose') renderPropose(bk,dt);
-      else renderExecution(bk,dt);
-    };
+  var dtEl = document.getElementById('execDateTabs-' + bk);
+  dates.forEach(function(dt,i){
+    var d = document.createElement('div');
+    d.textContent = dt;
+    d.dataset.dt = dt;
+    if(i===0) d.classList.add('on');
+    d.onclick = function(){ dtEl.querySelectorAll('div').forEach(function(x){x.classList.remove('on');}); d.classList.add('on'); renderExecLogDate(bk,dt); };
+    dtEl.appendChild(d);
   });
-  renderPropose(bk,dt);
+  if(dates.length) renderExecLogDate(bk, dates[0]);
 }
 
-function renderPropose(bk,dt){
+function renderExecLogDate(bk, dt){
+  var el = document.getElementById('execDateContent-' + bk);
+  el.innerHTML = '<div id="execLogView-' + bk + '-' + dt + '"></div>';
+  renderExecution(bk, dt, 'execLogView-' + bk + '-' + dt);
+}
+
+function renderPropose(bk, dt, containerId){
   var dd = D.brands[bk].dates[dt];
-  var el = document.getElementById('viewContent-' + bk + '-' + dt);
+  var el = document.getElementById(containerId || ('viewContent-' + bk + '-' + dt));
 
   // Campaign table with checkboxes
   var campRows = dd.campaigns.map(function(c,i){
@@ -627,9 +655,9 @@ function renderPropose(bk,dt){
     '</div>';
 }
 
-function renderExecution(bk,dt){
+function renderExecution(bk, dt, containerId){
   var dd = D.brands[bk].dates[dt];
-  var el = document.getElementById('viewContent-' + bk + '-' + dt);
+  var el = document.getElementById(containerId || ('viewContent-' + bk + '-' + dt));
 
   if(!dd.executed){
     el.innerHTML = '<div class="card"><div class="desc" style="text-align:center;padding:20px;color:var(--am)">' +
@@ -682,8 +710,9 @@ function renderPL(){
 }
 renderPL();
 
-// Init
-renderBrand(brands[0]);
+// Init — render first brand in both tabs
+renderConfigBrand(brands[0]);
+renderExecLog(brands[0]);
 </script>
 </body>
 </html>
