@@ -626,13 +626,20 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
 
 <!-- ══════════ TAB 5: LIVE ANALYTICS ══════════ -->
 <div class="mp" id="tab-analytics">
-  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap" id="analyticssBrandTabs">
-    <div class="on" data-abrand="grosmimi" onclick="renderAnalytics('grosmimi',this)" style="padding:6px 16px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:var(--abg);border:1px solid var(--a);color:var(--a)">Grosmimi</div>
-    <div data-abrand="naeiae" onclick="renderAnalytics('naeiae',this)" style="padding:6px 16px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:var(--card);border:1px solid var(--border);color:var(--dim)">Naeiae</div>
-    <div data-abrand="chaenmom" onclick="renderAnalytics('chaenmom',this)" style="padding:6px 16px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:var(--card);border:1px solid var(--border);color:var(--dim)">CHA&amp;MOM</div>
+  <!-- Brand selector -->
+  <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center" id="analyticssBrandTabs">
+    <div class="on" data-abrand="grosmimi" onclick="switchAnalyticsBrand('grosmimi',this)" style="padding:6px 16px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:var(--abg);border:1px solid var(--a);color:var(--a)">Grosmimi</div>
+    <div data-abrand="naeiae" onclick="switchAnalyticsBrand('naeiae',this)" style="padding:6px 16px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:var(--card);border:1px solid var(--border);color:var(--dim)">Naeiae</div>
+    <div data-abrand="chaenmom" onclick="switchAnalyticsBrand('chaenmom',this)" style="padding:6px 16px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:var(--card);border:1px solid var(--border);color:var(--dim)">CHA&amp;MOM</div>
     <div id="analytics-loading" style="margin-left:auto;font-size:11px;color:var(--dim);padding:6px 0">Loading live data...</div>
   </div>
+  <!-- Sub-tab: Campaigns / Search Terms -->
+  <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:16px" id="analyticsSubTabs">
+    <div class="on" data-asub="campaigns" onclick="switchAnalyticsSub('campaigns',this)" style="padding:8px 20px;font-size:11px;font-weight:700;cursor:pointer;color:var(--a);border-bottom:3px solid var(--a);margin-bottom:-2px">Campaigns</div>
+    <div data-asub="searchterms" onclick="switchAnalyticsSub('searchterms',this)" style="padding:8px 20px;font-size:11px;font-weight:700;cursor:pointer;color:var(--dim);border-bottom:3px solid transparent;margin-bottom:-2px">Search Terms</div>
+  </div>
   <div id="analytics-content"></div>
+  <div id="analytics-st-content" style="display:none"></div>
 </div>
 
 <!-- ══════════ PAT AUTH MODAL ══════════ -->
@@ -1319,6 +1326,160 @@ function toggleCampDrill(id) {
   el.style.display = el.style.display === 'none' ? 'table-row' : 'none';
 }
 
+// ── Analytics brand/sub-tab switching ──────────────────────────────────────
+
+var _currentAnalyticsBrand = 'grosmimi';
+var _currentAnalyticsSub   = 'campaigns';
+var _stCache = {};  // brand → search term rows (cache per session)
+
+function switchAnalyticsBrand(bk, el) {
+  _currentAnalyticsBrand = bk;
+  document.querySelectorAll('#analyticssBrandTabs [data-abrand]').forEach(function(t){
+    t.style.background='var(--card)'; t.style.borderColor='var(--border)'; t.style.color='var(--dim)';
+  });
+  if (el) { el.style.background='var(--abg)'; el.style.borderColor='var(--a)'; el.style.color='var(--a)'; }
+  if (_currentAnalyticsSub === 'campaigns') renderAnalytics(bk, null);
+  else fetchAndRenderSearchTerms(bk);
+}
+
+function switchAnalyticsSub(sub, el) {
+  _currentAnalyticsSub = sub;
+  document.querySelectorAll('#analyticsSubTabs [data-asub]').forEach(function(t){
+    t.style.color='var(--dim)'; t.style.borderBottomColor='transparent';
+  });
+  if (el) { el.style.color='var(--a)'; el.style.borderBottomColor='var(--a)'; }
+
+  if (sub === 'campaigns') {
+    document.getElementById('analytics-content').style.display='block';
+    document.getElementById('analytics-st-content').style.display='none';
+    renderAnalytics(_currentAnalyticsBrand, null);
+  } else {
+    document.getElementById('analytics-content').style.display='none';
+    document.getElementById('analytics-st-content').style.display='block';
+    fetchAndRenderSearchTerms(_currentAnalyticsBrand);
+  }
+}
+
+// ── Search Term View ────────────────────────────────────────────────────────
+
+async function fetchAndRenderSearchTerms(bk) {
+  var el = document.getElementById('analytics-st-content');
+  el.innerHTML = '<div style="padding:20px;color:var(--dim);font-size:12px">Loading search terms...</div>';
+
+  if (_stCache[bk]) { renderSearchTerms(bk, _stCache[bk]); return; }
+
+  try {
+    var brandKey = BRAND_API_KEY[bk];
+    var res = await fetch(API_BASE+'/query/?table=amazon_ads_search_terms&limit=20000', {mode:'cors'});
+    if (!res.ok) throw new Error('API '+res.status);
+    var data = (await res.json()).rows || [];
+    var rows = data.filter(function(r){ return r.brand === brandKey; });
+    _stCache[bk] = rows;
+    renderSearchTerms(bk, rows);
+  } catch(e) {
+    el.innerHTML = '<div class="card" style="color:var(--r)">Search term fetch failed: '+e.message+'</div>';
+  }
+}
+
+function renderSearchTerms(bk, rows) {
+  var el = document.getElementById('analytics-st-content');
+  var tgt = ACOS_TARGET[bk];
+
+  // Aggregate by search_term (may have multiple date windows)
+  var byTerm = {};
+  rows.forEach(function(r){
+    var t = r.search_term || '(unknown)';
+    var camp = r.campaign_name || r.campaign_id || '';
+    if (!byTerm[t]) byTerm[t] = {spend:0,sales:0,purchases:0,clicks:0,impr:0,camp:camp};
+    var x = byTerm[t];
+    x.spend    += +(r.spend||0);
+    x.sales    += +(r.sales||0);
+    x.purchases+= +(r.purchases||0);
+    x.clicks   += +(r.clicks||0);
+    x.impr     += +(r.impressions||0);
+  });
+
+  var terms = Object.entries(byTerm);
+
+  // Split into waste / harvest / all
+  var waste   = terms.filter(function(e){ return e[1].purchases===0 && e[1].spend>0; })
+                     .sort(function(a,b){ return b[1].spend-a[1].spend; });
+  var harvest = terms.filter(function(e){ var x=e[1]; return x.purchases>0 && x.sales>0 && x.spend>0 && x.spend/x.sales*100<=tgt; })
+                     .sort(function(a,b){ return b[1].sales-a[1].sales; });
+  var highAcos= terms.filter(function(e){ var x=e[1]; return x.purchases>0 && x.sales>0 && x.spend/x.sales*100>tgt*1.5; })
+                     .sort(function(a,b){ return b[1].spend-a[1].spend; });
+
+  var totalWasteSpend = waste.reduce(function(s,e){return s+e[1].spend;},0);
+  var totalHarvestSales= harvest.reduce(function(s,e){return s+e[1].sales;},0);
+
+  function stRow(e, badge) {
+    var t=e[0], x=e[1];
+    var acos = x.sales>0 ? Math.round(x.spend/x.sales*1000)/10 : null;
+    var acosStr = acos!==null ? acos+'%' : '—';
+    var acosCol = acos===null ? 'var(--dim)' : acosColor(acos, tgt);
+    var cpc = x.clicks>0 ? Math.round(x.spend/x.clicks*100)/100 : 0;
+    return '<tr style="border-bottom:1px solid var(--border)">'
+      +'<td style="padding:7px 10px;font-size:12px;max-width:240px;word-break:break-all">'+t
+      +(badge?'<span style="margin-left:6px;background:'+badge.bg+';color:'+badge.fg+';font-size:9px;padding:1px 5px;border-radius:3px;font-weight:700">'+badge.label+'</span>':'')
+      +'</td>'
+      +'<td style="padding:7px 8px;font-size:11px;text-align:right;font-weight:600;color:var(--r)">$'+x.spend.toFixed(2)+'</td>'
+      +'<td style="padding:7px 8px;font-size:11px;text-align:right">$'+Math.round(x.sales)+'</td>'
+      +'<td style="padding:7px 8px;font-size:11px;text-align:right;font-weight:700;color:'+acosCol+'">'+acosStr+'</td>'
+      +'<td style="padding:7px 8px;font-size:11px;text-align:right">'+x.purchases+'</td>'
+      +'<td style="padding:7px 8px;font-size:11px;text-align:right;color:var(--dim)">'+x.clicks+'</td>'
+      +'<td style="padding:7px 8px;font-size:11px;text-align:right;color:var(--dim)">$'+cpc+'</td>'
+      +'</tr>';
+  }
+
+  var th = '<thead><tr style="background:#f8fafc;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.4px">'
+    +'<th style="padding:7px 10px;text-align:left;font-weight:600">Search Term</th>'
+    +'<th style="padding:7px 8px;text-align:right;font-weight:600">Spend</th>'
+    +'<th style="padding:7px 8px;text-align:right;font-weight:600">Sales</th>'
+    +'<th style="padding:7px 8px;text-align:right;font-weight:600">ACOS</th>'
+    +'<th style="padding:7px 8px;text-align:right;font-weight:600">Conv</th>'
+    +'<th style="padding:7px 8px;text-align:right;font-weight:600">Clicks</th>'
+    +'<th style="padding:7px 8px;text-align:right;font-weight:600">CPC</th>'
+    +'</tr></thead>';
+
+  el.innerHTML =
+    // Summary pills
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">'
+    +'<div class="card" style="flex:1;min-width:140px;border-left:3px solid var(--r);padding:12px 16px">'
+    +'<div style="font-size:10px;color:var(--dim);text-transform:uppercase;font-weight:600">Waste Candidates</div>'
+    +'<div style="font-size:22px;font-weight:800;color:var(--r)">$'+Math.round(totalWasteSpend)+'</div>'
+    +'<div style="font-size:11px;color:var(--dim)">'+waste.length+' terms · 0 conversions</div></div>'
+    +'<div class="card" style="flex:1;min-width:140px;border-left:3px solid var(--g);padding:12px 16px">'
+    +'<div style="font-size:10px;color:var(--dim);text-transform:uppercase;font-weight:600">Harvest Candidates</div>'
+    +'<div style="font-size:22px;font-weight:800;color:var(--g)">'+harvest.length+'</div>'
+    +'<div style="font-size:11px;color:var(--dim)">ACOS &lt; '+tgt+'% · $'+Math.round(totalHarvestSales)+' sales</div></div>'
+    +'<div class="card" style="flex:1;min-width:140px;border-left:3px solid var(--am);padding:12px 16px">'
+    +'<div style="font-size:10px;color:var(--dim);text-transform:uppercase;font-weight:600">High ACOS</div>'
+    +'<div style="font-size:22px;font-weight:800;color:var(--am)">'+highAcos.length+'</div>'
+    +'<div style="font-size:11px;color:var(--dim)">ACOS &gt; '+Math.round(tgt*1.5)+'% · converting</div></div>'
+    +'</div>'
+
+    // Waste table
+    +(waste.length?'<div class="card" style="padding:0;overflow:hidden;margin-bottom:16px">'
+    +'<div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px;background:#fef2f2">🚫 Waste — 0 Conversions <span style="font-weight:400;color:var(--dim);font-size:11px">sorted by spend</span></div>'
+    +'<div style="overflow-x:auto;max-height:320px;overflow-y:auto"><table style="width:100%;border-collapse:collapse">'+th
+    +'<tbody>'+waste.slice(0,50).map(function(e){ return stRow(e,{label:'WASTE',bg:'#fef2f2',fg:'var(--r)'}); }).join('')+'</tbody>'
+    +'</table></div></div>':'')
+
+    // Harvest table
+    +(harvest.length?'<div class="card" style="padding:0;overflow:hidden;margin-bottom:16px">'
+    +'<div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px;background:#ecfdf5">✅ Harvest Candidates — ACOS &lt; '+tgt+'% <span style="font-weight:400;color:var(--dim);font-size:11px">sorted by sales</span></div>'
+    +'<div style="overflow-x:auto;max-height:320px;overflow-y:auto"><table style="width:100%;border-collapse:collapse">'+th
+    +'<tbody>'+harvest.slice(0,30).map(function(e){ return stRow(e,{label:'HARVEST',bg:'#ecfdf5',fg:'var(--g)'}); }).join('')+'</tbody>'
+    +'</table></div></div>':'')
+
+    // High ACOS table
+    +(highAcos.length?'<div class="card" style="padding:0;overflow:hidden">'
+    +'<div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px;background:#fffbeb">⚠️ High ACOS — Converting but Inefficient <span style="font-weight:400;color:var(--dim);font-size:11px">ACOS &gt; '+Math.round(tgt*1.5)+'%</span></div>'
+    +'<div style="overflow-x:auto;max-height:320px;overflow-y:auto"><table style="width:100%;border-collapse:collapse">'+th
+    +'<tbody>'+highAcos.slice(0,30).map(function(e){ return stRow(e,{label:'HIGH ACOS',bg:'#fffbeb',fg:'var(--am)'}); }).join('')+'</tbody>'
+    +'</table></div></div>':'');
+}
+
 // Main tabs
 document.querySelectorAll('.mt>div').forEach(function(t){
   t.onclick=function(){
@@ -1329,7 +1490,9 @@ document.querySelectorAll('.mt>div').forEach(function(t){
     if(t.dataset.p==='tab-execlog') renderExecAudit();
     if(t.dataset.p==='tab-analytics'){
       var ab = document.querySelector('#analyticssBrandTabs .on');
-      renderAnalytics(ab ? ab.dataset.abrand : 'grosmimi', ab);
+      var bk = ab ? ab.dataset.abrand : 'grosmimi';
+      if (_currentAnalyticsSub === 'searchterms') fetchAndRenderSearchTerms(bk);
+      else renderAnalytics(bk, ab);
     }
   };
 });
