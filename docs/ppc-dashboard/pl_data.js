@@ -2,13 +2,13 @@ const PL_DATA = {
  "grosmimi": [
   {
    "category": "PPSU Straw Cup 6oz",
-   "units": 3695,
+   "units": 3693,
    "rev": 84224,
-   "asp": 22.79,
+   "asp": 22.81,
    "cogs": 8.84,
    "fba": 5.0,
    "gm_pct": 61.2,
-   "cm": 14393,
+   "cm": 14422,
    "cm_pct": 17.1,
    "asin_count": 11,
    "top_asins": [
@@ -90,14 +90,14 @@ const PL_DATA = {
   },
   {
    "category": "PPSU Flip Top 10oz",
-   "units": 1791,
+   "units": 1789,
    "rev": 53054,
-   "asp": 29.62,
+   "asp": 29.66,
    "cogs": 9.5,
    "fba": 5.39,
-   "gm_pct": 67.9,
-   "cm": 14880,
-   "cm_pct": 28.0,
+   "gm_pct": 68.0,
+   "cm": 14910,
+   "cm_pct": 28.1,
    "asin_count": 9,
    "top_asins": [
     {
@@ -178,13 +178,13 @@ const PL_DATA = {
   },
   {
    "category": "Replacements: Straw 2P",
-   "units": 1144,
+   "units": 1143,
    "rev": 18140,
-   "asp": 15.86,
+   "asp": 15.87,
    "cogs": 5.58,
    "fba": 3.5,
    "gm_pct": 64.8,
-   "cm": 3552,
+   "cm": 3562,
    "cm_pct": 19.6,
    "asin_count": 2,
    "top_asins": [
@@ -230,14 +230,14 @@ const PL_DATA = {
   },
   {
    "category": "PPSU Flip Top 6oz",
-   "units": 585,
+   "units": 563,
    "rev": 15610,
-   "asp": 26.68,
+   "asp": 27.73,
    "cogs": 8.5,
    "fba": 5.0,
-   "gm_pct": 68.1,
-   "cm": 4298,
-   "cm_pct": 27.5,
+   "gm_pct": 69.3,
+   "cm": 4606,
+   "cm_pct": 29.5,
    "asin_count": 5,
    "top_asins": [
     {
@@ -274,14 +274,14 @@ const PL_DATA = {
   },
   {
    "category": "PPSU Flip Top (Knotted)",
-   "units": 211,
+   "units": 202,
    "rev": 4659,
-   "asp": 22.08,
+   "asp": 23.07,
    "cogs": 10.0,
    "fba": 5.39,
-   "gm_pct": 54.7,
-   "cm": 375,
-   "cm_pct": 8.0,
+   "gm_pct": 56.6,
+   "cm": 518,
+   "cm_pct": 11.1,
    "asin_count": 6,
    "top_asins": [
     {
@@ -318,14 +318,14 @@ const PL_DATA = {
   },
   {
    "category": "Stainless Tumbler",
-   "units": 149,
+   "units": 135,
    "rev": 4178,
-   "asp": 28.04,
+   "asp": 30.95,
    "cogs": 14.8,
    "fba": 6.5,
-   "gm_pct": 47.2,
-   "cm": 94,
-   "cm_pct": 2.3,
+   "gm_pct": 52.2,
+   "cm": 400,
+   "cm_pct": 9.6,
    "asin_count": 3,
    "top_asins": [
     {
@@ -370,14 +370,14 @@ const PL_DATA = {
   },
   {
    "category": "PPSU Tumbler",
-   "units": 69,
+   "units": 63,
    "rev": 1636,
-   "asp": 23.7,
+   "asp": 25.96,
    "cogs": 4.76,
    "fba": 5.39,
-   "gm_pct": 79.9,
-   "cm": 574,
-   "cm_pct": 35.1,
+   "gm_pct": 81.7,
+   "cm": 638,
+   "cm_pct": 39.0,
    "asin_count": 3,
    "top_asins": [
     {
@@ -472,8 +472,8 @@ const PL_DATA = {
   }
  ],
  "total": {
-  "units": 12800,
+  "units": 12744,
   "rev": 321692,
-  "cm": 72173
+  "cm": 73063
  }
 };
