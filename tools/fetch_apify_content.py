@@ -498,8 +498,14 @@ def update_d60_tracker(sh, data, tab_name, pm_tab_name=None, pm_pid_to_row=None)
             "values": [[d_plus, d["comments"], d["likes"], d["views"]]],
         })
 
-        # Fill D+N column if within range
-        if 0 <= d_plus <= 60:
+        # Fill D+N snapshot column based on schedule:
+        # D+0~D+30: daily, D+31~D+90: Monday only, D+90+: skip
+        is_monday = datetime.now().weekday() == 0
+        should_snapshot = (
+            0 <= d_plus <= 30 or
+            (31 <= d_plus <= 90 and is_monday)
+        )
+        if should_snapshot:
             # Fixed cols: A-F (6) + Status: G-J (4) = 10 total fixed columns
             # D+0 starts at col index 10 (K), D+1 at 13, etc.
             col_start = 10 + d_plus * 3  # 0-based
@@ -543,8 +549,8 @@ def update_d60_tracker(sh, data, tab_name, pm_tab_name=None, pm_pid_to_row=None)
                 str(d_plus) if d_plus != "" else "",
                 str(d["comments"]), str(d["likes"]), str(d["views"]),
             ]
-            for dn in range(61):
-                if isinstance(d_plus, int) and dn == d_plus and d_plus <= 60:
+            for dn in range(91):
+                if isinstance(d_plus, int) and dn == d_plus and d_plus <= 90:
                     row += [str(d["comments"]), str(d["likes"]), str(d["views"])]
                 else:
                     row += ["", "", ""]
@@ -755,15 +761,20 @@ def run_daily(region="all", dry_run=False, send_mail=True):
             tt_raw = fetch_tiktok(client)
             save_json(tt_raw, "us_tiktok_raw")
 
-        # IG profiles for follower data
+        # IG profiles for follower data — new creators only
         ig_norm = normalize_ig(ig_raw)
         ig_usernames = set(d["username"] for d in ig_norm)
+        fmap_path = max(OUTPUT_DIR.glob("*_us_follower_map.json"), key=os.path.getmtime, default=None)
+        fmap = json.load(open(fmap_path, encoding="utf-8")) if fmap_path else {}
         if not dry_run and ig_usernames:
-            fmap = fetch_ig_profiles(client, ig_usernames)
-            save_json(fmap, "us_follower_map")
-        else:
-            fmap_path = max(OUTPUT_DIR.glob("*_us_follower_map.json"), key=os.path.getmtime, default=None)
-            fmap = json.load(open(fmap_path, encoding="utf-8")) if fmap_path else {}
+            new_usernames = ig_usernames - set(fmap.keys())
+            if new_usernames:
+                print(f"[PROFILE] {len(new_usernames)} new creators (skip {len(ig_usernames)-len(new_usernames)} known)")
+                new_fmap = fetch_ig_profiles(client, new_usernames)
+                fmap.update(new_fmap)
+                save_json(fmap, "us_follower_map")
+            else:
+                print(f"[PROFILE] All {len(ig_usernames)} creators known - skipping Apify")
 
         # Re-normalize with follower data
         ig_norm = normalize_ig(ig_raw, fmap)

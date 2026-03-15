@@ -55,8 +55,8 @@ def _tab(name):
 # v3: FIXED_COLS = 9 (+Brand between Post Date and D+ Days)
 FIXED_COLS = 9
 METRICS_PER_DAY = 3       # Comments, Likes, Views
-MAX_DAYS = 61             # D+0 ~ D+60
-TOTAL_TRACKER_COLS = FIXED_COLS + MAX_DAYS * METRICS_PER_DAY  # 9 + 183 = 192
+MAX_DAYS = 91             # D+0 ~ D+90
+TOTAL_TRACKER_COLS = FIXED_COLS + MAX_DAYS * METRICS_PER_DAY  # 9 + 273 = 282
 
 # D+0 starts at column index 9 (0-based) = column J (1-based)
 D0_COL_LETTER = "J"
@@ -894,7 +894,7 @@ def sync_tracker(sh, rows, today):
             continue
 
         days_since = (today - post_date).days
-        if days_since < 0 or days_since > 60:
+        if days_since < 0 or days_since > 90:
             skipped_old += 1
             continue
 
@@ -915,14 +915,20 @@ def sync_tracker(sh, rows, today):
             ]
             brand = detect_brands(" ".join(text_parts))
 
+        # D+N snapshot schedule: D+0~30 daily, D+31~90 Monday only
+        is_monday = datetime.now().weekday() == 0
+        should_snapshot = (days_since <= 30 or (days_since <= 90 and is_monday))
+
         if post_id in post_row_map:
-            # 기존 행: D+N 메트릭 + Curr(G/H/I) 업데이트
+            # 기존 행: Curr(G/H/I) 매일 업데이트, D+N 스냅샷은 스케줄에 따라
             sheet_row = post_row_map[post_id] + 1  # 1-indexed
-            sl = col_letter(col_start)
-            el = col_letter(col_start + METRICS_PER_DAY - 1)
-            batch_cells.append((f"{sl}{sheet_row}:{el}{sheet_row}", [metrics]))
-            # Curr Comment/Like/View: 최신 스냅샷값으로 덮어쓰기
+            # Curr Comment/Like/View: 항상 최신값으로 업데이트
             batch_cells.append((f"G{sheet_row}:I{sheet_row}", [metrics]))
+            # D+N 스냅샷: 스케줄에 따라
+            if should_snapshot:
+                sl = col_letter(col_start)
+                el = col_letter(col_start + METRICS_PER_DAY - 1)
+                batch_cells.append((f"{sl}{sheet_row}:{el}{sheet_row}", [metrics]))
             # Brand 업데이트 (빈 값이면 덮어쓰지 않음)
             if brand:
                 batch_cells.append((f"E{sheet_row}", [[brand]]))
