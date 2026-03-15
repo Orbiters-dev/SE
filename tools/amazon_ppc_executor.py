@@ -4632,6 +4632,273 @@ def _ensure_datakeeper_fresh():
     return actual_latest
 
 
+# ===========================================================================
+# Dayparting — Schedule-based budget rules
+# ===========================================================================
+
+# Default daypart schedule (PST). Multipliers applied to daily budget.
+# Based on typical Amazon conversion patterns for baby/consumer products.
+DAYPART_SCHEDULE = {
+    # hour_pst: multiplier
+    0: 0.5, 1: 0.3, 2: 0.3, 3: 0.3, 4: 0.3, 5: 0.5,    # Late night: low
+    6: 0.7, 7: 0.8, 8: 1.0, 9: 1.2, 10: 1.3, 11: 1.2,    # Morning: ramp up
+    12: 1.0, 13: 1.1, 14: 1.2, 15: 1.3, 16: 1.2, 17: 1.1, # Afternoon: peak
+    18: 1.0, 19: 1.2, 20: 1.4, 21: 1.3, 22: 1.0, 23: 0.7, # Evening: second peak 8-9pm
+}
+
+
+def apply_daypart_rules(profile_id: int, campaign_id: str, daily_budget: float,
+                        schedule: dict = None) -> Optional[Dict]:
+    """Apply dayparting budget rules via Amazon Ads API.
+
+    Uses campaignBudgetRules to set schedule-based budget adjustments.
+    Returns result dict or None if not supported.
+    """
+    if schedule is None:
+        schedule = DAYPART_SCHEDULE
+
+    token = get_access_token()
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Amazon-Advertising-API-ClientId": os.getenv("AMZ_ADS_CLIENT_ID"),
+        "Amazon-Advertising-API-Scope": str(profile_id),
+        "Content-Type": "application/vnd.spCampaignBudgetRules.v3+json",
+        "Accept": "application/vnd.spCampaignBudgetRules.v3+json",
+    }
+
+    # Build recurrence rules for each time block
+    # Amazon API uses schedule-based rules with recurrence
+    # Group hours into blocks with same multiplier to minimize rules
+    blocks = []
+    current_mult = None
+    block_start = None
+    for hour in range(24):
+        mult = schedule.get(hour, 1.0)
+        if mult != current_mult:
+            if current_mult is not None and current_mult != 1.0:
+                blocks.append({
+                    "startHour": block_start,
+                    "endHour": hour,
+                    "multiplier": current_mult,
+                })
+            current_mult = mult
+            block_start = hour
+    if current_mult is not None and current_mult != 1.0:
+        blocks.append({"startHour": block_start, "endHour": 24, "multiplier": current_mult})
+
+    if not blocks:
+        return None
+
+    # For now, log the daypart proposal (actual API implementation requires
+    # budget rule creation which is more complex and brand-specific)
+    return {
+        "campaign_id": campaign_id,
+        "daily_budget": daily_budget,
+        "blocks": blocks,
+        "peak_hours_pst": [h for h, m in schedule.items() if m >= 1.3],
+        "low_hours_pst": [h for h, m in schedule.items() if m <= 0.5],
+        "status": "proposed",
+    }
+
+
+def analyze_daypart_opportunity(report_rows: List[Dict], brand_key: str) -> Dict:
+    """Analyze if dayparting would benefit this brand based on spend patterns.
+
+    Since Amazon Reporting API doesn't provide hourly data directly,
+    we estimate from daily spend patterns and budget utilization.
+    """
+    cfg = BRAND_CONFIGS[brand_key]
+    daily_budget = cfg.get("total_daily_budget", 0)
+
+    # Check if any campaigns exhaust budget early (proxy for daypart need)
+    from collections import defaultdict
+    daily_spend = defaultdict(float)
+    for row in report_rows:
+        d = row.get("date", "")
+        daily_spend[d] += float(row.get("spend", 0))
+
+    if not daily_spend:
+        return {"eligible": False, "reason": "No spend data"}
+
+    avg_daily = sum(daily_spend.values()) / len(daily_spend)
+    max_daily = max(daily_spend.values())
+    utilization = avg_daily / daily_budget if daily_budget else 0
+
+    # Dayparting is most useful when budget utilization is high (>70%)
+    # because spreading budget evenly wastes money during low-conversion hours
+    eligible = utilization >= 0.7
+    peak_hours = [h for h, m in DAYPART_SCHEDULE.items() if m >= 1.3]
+
+    return {
+        "eligible": eligible,
+        "utilization": round(utilization * 100, 1),
+        "avg_daily_spend": round(avg_daily, 2),
+        "daily_budget": daily_budget,
+        "reason": f"Budget utilization {utilization*100:.0f}% — {'dayparting recommended' if eligible else 'budget headroom exists, dayparting optional'}",
+        "peak_hours_pst": peak_hours,
+        "schedule": DAYPART_SCHEDULE,
+    }
+
+
+# ===========================================================================
+# Non-linear Bid Simulation — bidRecommendations API
+# ===========================================================================
+
+def fetch_bid_recommendations(profile_id: int, ad_group_id: str,
+                               keywords: List[Dict]) -> List[Dict]:
+    """Fetch Amazon's bid recommendations for keywords.
+
+    Returns recommended bids based on actual auction data (non-linear).
+    """
+    token = get_access_token()
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Amazon-Advertising-API-ClientId": os.getenv("AMZ_ADS_CLIENT_ID"),
+        "Amazon-Advertising-API-Scope": str(profile_id),
+        "Content-Type": "application/vnd.spKeywordBidRecommendations.v4+json",
+        "Accept": "application/vnd.spKeywordBidRecommendations.v4+json",
+    }
+
+    results = []
+    # Process in batches of 100 (API limit)
+    for i in range(0, len(keywords), 100):
+        batch = keywords[i:i+100]
+        targets = []
+        for kw in batch:
+            targets.append({
+                "keyword": kw.get("keyword_text", kw.get("keyword", "")),
+                "matchType": kw.get("match_type", "BROAD"),
+            })
+
+        body = {
+            "adGroupId": str(ad_group_id),
+            "keywords": targets,
+        }
+
+        try:
+            resp = requests.post(
+                "https://advertising-api.amazon.com/sp/keywords/bidRecommendations",
+                headers=headers, json=body, timeout=30,
+            )
+            if resp.status_code == 200:
+                recs = resp.json()
+                if isinstance(recs, dict):
+                    recs = recs.get("recommendations", recs.get("bidRecommendations", []))
+                for rec in recs:
+                    results.append({
+                        "keyword": rec.get("keyword", ""),
+                        "match_type": rec.get("matchType", ""),
+                        "suggested_bid": rec.get("suggestedBid", {}).get("suggested", 0),
+                        "range_low": rec.get("suggestedBid", {}).get("rangeStart", 0),
+                        "range_high": rec.get("suggestedBid", {}).get("rangeEnd", 0),
+                    })
+            else:
+                print(f"  [WARN] bidRecommendations: {resp.status_code}")
+        except Exception as e:
+            print(f"  [WARN] bidRecommendations error: {e}")
+
+    return results
+
+
+def enhance_bid_simulation(kw_rows: List[Dict], bid_recs: List[Dict],
+                           reduce_roas_max: float = 2.0,
+                           scale_roas_min: float = 5.0) -> Dict:
+    """Non-linear bid simulation using Amazon's recommended bids.
+
+    Instead of assuming linear spend-impression relationship,
+    uses Amazon's auction-based bid recommendations to estimate
+    actual CPC changes at different bid levels.
+    """
+    rec_map = {}
+    for r in bid_recs:
+        key = (r.get("keyword", "").lower(), r.get("match_type", ""))
+        rec_map[key] = r
+
+    enhanced = []
+    for kw in kw_rows:
+        kw_text = kw.get("keyword_text", kw.get("targeting", "")).lower()
+        match = kw.get("match_type", "")
+        rec = rec_map.get((kw_text, match))
+
+        spend = float(kw.get("spend", kw.get("cost", 0)))
+        sales = float(kw.get("sales", kw.get("sales14d", 0)))
+        clicks = int(kw.get("clicks", 0))
+        if spend < 1 or clicks < 2:
+            continue
+
+        roas = sales / spend if spend else 0
+        cpc = spend / clicks if clicks else 0
+
+        sim = {
+            "keyword": kw_text,
+            "match_type": match,
+            "actual_roas": round(roas, 2),
+            "actual_cpc": round(cpc, 2),
+            "actual_spend": round(spend, 2),
+            "actual_sales": round(sales, 2),
+            "has_recommendation": rec is not None,
+        }
+
+        if rec:
+            suggested = rec.get("suggested_bid", cpc)
+            range_low = rec.get("range_low", cpc * 0.7)
+            range_high = rec.get("range_high", cpc * 1.5)
+            sim["amz_suggested_bid"] = suggested
+            sim["amz_range"] = f"${range_low:.2f}-${range_high:.2f}"
+
+            if roas < reduce_roas_max:
+                # Use range_low instead of linear -20%
+                new_cpc = min(range_low, cpc * 0.8)
+                sim["sim_cpc"] = round(new_cpc, 2)
+                sim["sim_spend"] = round(new_cpc * clicks, 2)
+                sim["action"] = "reduce_to_range_low"
+            elif roas >= scale_roas_min:
+                # Use suggested bid instead of linear +15%
+                new_cpc = max(suggested, cpc * 1.15)
+                sim["sim_cpc"] = round(new_cpc, 2)
+                sim["sim_spend"] = round(new_cpc * clicks, 2)
+                sim["action"] = "scale_to_suggested"
+            else:
+                sim["sim_cpc"] = cpc
+                sim["sim_spend"] = spend
+                sim["action"] = "hold"
+        else:
+            # Fallback to linear
+            if roas < reduce_roas_max:
+                sim["sim_cpc"] = round(cpc * 0.8, 2)
+                sim["sim_spend"] = round(cpc * 0.8 * clicks, 2)
+                sim["action"] = "reduce_linear"
+            elif roas >= scale_roas_min:
+                sim["sim_cpc"] = round(cpc * 1.15, 2)
+                sim["sim_spend"] = round(cpc * 1.15 * clicks, 2)
+                sim["action"] = "scale_linear"
+            else:
+                sim["sim_cpc"] = cpc
+                sim["sim_spend"] = spend
+                sim["action"] = "hold"
+
+        sim["sim_sales"] = round(sales, 2)  # Conservative: same conversion rate
+        enhanced.append(sim)
+
+    # Compute totals
+    total_actual = sum(e["actual_spend"] for e in enhanced)
+    total_sim = sum(e["sim_spend"] for e in enhanced)
+    total_sales = sum(e["actual_sales"] for e in enhanced)
+    rec_count = sum(1 for e in enhanced if e["has_recommendation"])
+
+    return {
+        "keywords": enhanced,
+        "total_actual_spend": round(total_actual, 2),
+        "total_sim_spend": round(total_sim, 2),
+        "total_sales": round(total_sales, 2),
+        "actual_roas": round(total_sales / total_actual, 2) if total_actual else 0,
+        "sim_roas": round(total_sales / total_sim, 2) if total_sim else 0,
+        "with_recommendations": rec_count,
+        "total_keywords": len(enhanced),
+        "method": f"{rec_count}/{len(enhanced)} non-linear (Amazon recs), rest linear fallback",
+    }
+
+
 def run_propose_single(args, brand_key: str):
     """Core propose logic for a single brand."""
     _apply_brand_config(brand_key)

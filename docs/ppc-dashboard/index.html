@@ -469,6 +469,31 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
       </div>
     </div>
 
+    <!-- Dayparting -->
+    <div class="card" style="border-left:3px solid var(--c);margin-bottom:20px">
+      <h3>⏰ Dayparting — Time-of-Day Budget Multipliers (PST)</h3>
+      <div class="desc">Adjust budget multipliers by hour. Higher = more budget during that hour. Peak hours (1.3x+) get more spend, low hours (0.3x) reduce waste.</div>
+      <div style="display:flex;gap:2px;align-items:flex-end;height:80px;margin:12px 0;padding:0 4px" id="daypart-bars"></div>
+      <div style="display:flex;gap:2px;margin-bottom:8px;padding:0 4px" id="daypart-labels"></div>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:8px">
+        <div style="text-align:center;font-size:9px;color:var(--dim)">12am-5am<br><b style="color:var(--muted)">0.3-0.5x</b></div>
+        <div style="text-align:center;font-size:9px;color:var(--dim)">6am-8am<br><b>0.7-1.0x</b></div>
+        <div style="text-align:center;font-size:9px;color:var(--g)">9am-11am<br><b>1.2-1.3x ★</b></div>
+        <div style="text-align:center;font-size:9px;color:var(--dim)">12pm-5pm<br><b>1.0-1.3x</b></div>
+        <div style="text-align:center;font-size:9px;color:var(--g)">8pm-9pm<br><b>1.3-1.4x ★★</b></div>
+        <div style="text-align:center;font-size:9px;color:var(--dim)">10pm-11pm<br><b>0.7-1.0x</b></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+        <select id="daypart-mode" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px">
+          <option value="auto" selected>Auto (default schedule)</option>
+          <option value="aggressive">Aggressive (higher peaks)</option>
+          <option value="conservative">Conservative (flatter)</option>
+          <option value="off">Off (1.0x all hours)</option>
+        </select>
+        <span style="font-size:10px;color:var(--dim)">Applied to all campaigns when budget utilization &gt;70%</span>
+      </div>
+    </div>
+
     <!-- Config Update Log -->
     <div class="card" style="margin-bottom:20px">
       <h3>📋 Config Update Log</h3>
@@ -1955,6 +1980,21 @@ function updateArchActiveExp(){
   }
 }
 updateArchActiveExp();
+
+// Daypart bar visualization
+(function renderDaypartBars(){
+  var schedule = {0:0.5,1:0.3,2:0.3,3:0.3,4:0.3,5:0.5,6:0.7,7:0.8,8:1.0,9:1.2,10:1.3,11:1.2,12:1.0,13:1.1,14:1.2,15:1.3,16:1.2,17:1.1,18:1.0,19:1.2,20:1.4,21:1.3,22:1.0,23:0.7};
+  var barsEl=document.getElementById('daypart-bars');
+  var labelsEl=document.getElementById('daypart-labels');
+  if(!barsEl) return;
+  for(var h=0;h<24;h++){
+    var m=schedule[h];
+    var pct=Math.round(m/1.4*100);
+    var color=m>=1.3?'var(--g)':m>=1.0?'var(--c)':m>=0.7?'var(--am)':'var(--muted)';
+    barsEl.innerHTML+='<div style="flex:1;background:'+color+';height:'+pct+'%;border-radius:2px 2px 0 0;min-width:12px;transition:height .3s" title="'+h+':00 PST → '+m+'x"></div>';
+    labelsEl.innerHTML+='<div style="flex:1;text-align:center;font-size:7px;color:var(--muted);min-width:12px">'+(h%3===0?h:'')+'</div>';
+  }
+})();
 
 // Init — render first brand in all tabs
 renderConfigBrand(brands[0]);

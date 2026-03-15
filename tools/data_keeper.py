@@ -522,8 +522,16 @@ def _fetch_amz_ads_report(headers, profile_id, start, end,
         return []
 
 
-def _fetch_amz_ads_report_generic(headers, profile_id, start, end, report_type_id, group_by, columns):
-    """Generic Amazon Ads report fetcher with 425 retry support."""
+def _fetch_amz_ads_report_generic(headers, profile_id, start, end,
+                                   report_type_id, group_by, columns,
+                                   time_unit="DAILY"):
+    """Generic Amazon Ads report fetcher with 425 retry support.
+    time_unit: DAILY (per-day rows) or SUMMARY (aggregated across range).
+    """
+    # DAILY requires "date" in columns
+    cols = list(columns)
+    if time_unit == "DAILY" and "date" not in cols:
+        cols.insert(0, "date")
     body = {
         "reportDate": None,
         "startDate": start,
@@ -531,9 +539,9 @@ def _fetch_amz_ads_report_generic(headers, profile_id, start, end, report_type_i
         "configuration": {
             "adProduct": "SPONSORED_PRODUCTS",
             "groupBy": group_by,
-            "columns": columns,
+            "columns": cols,
             "reportTypeId": report_type_id,
-            "timeUnit": "SUMMARY",
+            "timeUnit": time_unit,
             "format": "GZIP_JSON",
         },
     }
@@ -618,10 +626,13 @@ def collect_amazon_ads_search_terms(date_from: str, date_to: str) -> list[dict]:
                 columns=["campaignId", "adGroupId", "keywordId",
                          "searchTerm", "impressions", "clicks", "cost",
                          "sales14d", "purchases14d"],
+                time_unit="DAILY",
             )
             for row in rows:
+                # DAILY: row has "date" field; SUMMARY fallback: use range
+                row_date = row.get("date", f"{cur}~{chunk_end}")
                 all_rows.append({
-                    "date": f"{cur}~{chunk_end}",
+                    "date": row_date,
                     "profile_id": pid,
                     "brand": brand,
                     "campaign_id": str(row.get("campaignId", "")),
@@ -675,10 +686,12 @@ def collect_amazon_ads_keywords(date_from: str, date_to: str) -> list[dict]:
                          "keywordText", "matchType",
                          "impressions", "clicks", "cost",
                          "sales14d", "purchases14d"],
+                time_unit="DAILY",
             )
             for row in rows:
+                row_date = row.get("date", f"{cur}~{chunk_end}")
                 all_rows.append({
-                    "date": f"{cur}~{chunk_end}",
+                    "date": row_date,
                     "profile_id": pid,
                     "brand": brand,
                     "campaign_id": str(row.get("campaignId", "")),
