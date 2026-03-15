@@ -87,12 +87,13 @@ def migrate_keyword_fallback(sh_apify, gc, dry_run=False):
     id_col   = ci("source.id")
     user_col = ci("author.username")
     nick_col = ci("author.nickname")
-    foll_col = ci("author.followers")
-    date_col = ci("updated_date")
-    # optional metric cols
-    view_col = ci("author.videoCount") or ci("views") or ci("video_count")
-    like_col = ci("likes") or ci("digg_count")
-    comm_col = ci("comments") or ci("comment_count")
+    foll_col = ci("author.follower_count")
+    date_col = ci("date") or ci("updated_date")
+    view_col = ci("extraction.engagement.view")
+    like_col = ci("extraction.engagement.like")
+    comm_col = ci("extraction.engagement.comment")
+    hash_col = ci("extraction.hashtags")
+    cont_col = ci("extraction.content")
 
     def get(row, col):
         return row[col].strip() if col is not None and col < len(row) else ""
@@ -114,13 +115,13 @@ def migrate_keyword_fallback(sh_apify, gc, dry_run=False):
             "username":  get(row, user_col).lower(),
             "nickname":  get(row, nick_col),
             "followers": get(row, foll_col),
-            "content":   "",
-            "hashtags":  "",
+            "content":   get(row, cont_col)[:500] if cont_col is not None else "",
+            "hashtags":  get(row, hash_col),
             "tagged":    kw,
             "post_date": get(row, date_col)[:10] if date_col is not None else "",
             "comments":  get(row, comm_col) or "0",
             "likes":     get(row, like_col) or "0",
-            "views":     "0",
+            "views":     get(row, view_col) or "0",
         })
 
     print(f"[KEYWORD] 브랜드 키워드 포스트: {len(kw_posts)}개")
