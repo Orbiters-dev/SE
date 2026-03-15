@@ -4321,10 +4321,11 @@ def _check_execute_for_brand(args, brand_key: str):
                 continue
         print(f"[check-execute] EXECUTED emails found but all predate this proposal. Proceeding.")
 
-    # Search for replies to PPC proposal emails from the approver
+    # Search for replies to THIS BRAND's PPC proposal email from the approver
     approver = args.to  # The person who receives proposals
+    brand_display = cfg["brand_display"]
     query = (
-        f'subject:"[Amazon PPC]" from:{approver} newer_than:2d'
+        f'subject:"[Amazon PPC] {brand_display}" from:{approver} newer_than:2d'
     )
     print(f"[check-execute] Searching Gmail: {query}")
     messages = search_emails(query, max_results=10)
