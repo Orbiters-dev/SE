@@ -25,8 +25,12 @@ load_env()
 import gspread
 from google.oauth2.service_account import Credentials
 
-SYNCLY_SHEET_ID = "1bOXrARt8wx_YeKyXMlAS1nKzkZBypeaSilI6xDg4_Tc"
-APIFY_SHEET_ID  = "1mYofqMBYqIHS3XNQ29vDA__SzYBfkkGCPn3Jb8OxAkY"
+SYNCLY_SHEET_ID   = "1bOXrARt8wx_YeKyXMlAS1nKzkZBypeaSilI6xDg4_Tc"
+SYNCLY_KEYWORD_ID = "1nla5CZPPeLSRe12vNMq0O4woG6duMXaboxG0d8nw6wQ"  # [오비터스<>싱클리] keyword별 업데이트내역
+APIFY_SHEET_ID    = "1mYofqMBYqIHS3XNQ29vDA__SzYBfkkGCPn3Jb8OxAkY"
+
+# 우리 브랜드 키워드만 처리
+BRAND_KEYWORDS = {"zezebaebae", "onzenna", "grosmimi", "grosmimi_usa", "naeiae", "chaandmom"}
 
 # Apify Posts Master 컬럼 순서 (13개)
 APIFY_HEADERS = [
@@ -44,6 +48,140 @@ def get_sheets():
     sh_syncly = gc.open_by_key(SYNCLY_SHEET_ID)
     sh_apify  = gc.open_by_key(APIFY_SHEET_ID)
     return sh_syncly, sh_apify
+
+
+def migrate_keyword_fallback(sh_apify, gc, dry_run=False):
+    """
+    [오비터스<>싱클리] keyword별 업데이트내역 → US Posts Master fallback.
+    Apify TikTok이 못 잡은 포스트를 Syncly 키워드 시트로 보완.
+    중복 기준: source.id 또는 source.url.
+    """
+    print("\n=== Syncly Keyword Fallback ===")
+
+    try:
+        sh_kw = gc.open_by_key(SYNCLY_KEYWORD_ID)
+    except Exception as e:
+        print(f"[KEYWORD] 접근 불가 (서비스 계정 권한 필요): {e}")
+        print(f"[KEYWORD] 시트 공유 필요: 서비스 계정 이메일을 Syncly 시트에 추가해주세요")
+        return 0
+
+    try:
+        ws_kw = sh_kw.worksheet("keyword별 업데이트내역")
+        kw_vals = ws_kw.get_all_values()
+    except Exception as e:
+        print(f"[KEYWORD] 탭 읽기 실패: {e}")
+        return 0
+
+    if not kw_vals:
+        print("[KEYWORD] 데이터 없음")
+        return 0
+
+    h = kw_vals[0]
+    def ci(name):
+        try: return h.index(name)
+        except ValueError: return None
+
+    kw_col   = ci("keyword")
+    url_col  = ci("source.url")
+    plat_col = ci("source.platform")
+    id_col   = ci("source.id")
+    user_col = ci("author.username")
+    nick_col = ci("author.nickname")
+    foll_col = ci("author.followers")
+    date_col = ci("updated_date")
+    # optional metric cols
+    view_col = ci("author.videoCount") or ci("views") or ci("video_count")
+    like_col = ci("likes") or ci("digg_count")
+    comm_col = ci("comments") or ci("comment_count")
+
+    def get(row, col):
+        return row[col].strip() if col is not None and col < len(row) else ""
+
+    # 브랜드 키워드만 필터
+    kw_posts = []
+    for row in kw_vals[1:]:
+        kw = get(row, kw_col).lower()
+        if kw not in BRAND_KEYWORDS:
+            continue
+        url = get(row, url_col)
+        src_id = get(row, id_col)
+        if not url and not src_id:
+            continue
+        kw_posts.append({
+            "post_id":   src_id,
+            "url":       url,
+            "platform":  get(row, plat_col) or "tiktok",
+            "username":  get(row, user_col).lower(),
+            "nickname":  get(row, nick_col),
+            "followers": get(row, foll_col),
+            "content":   "",
+            "hashtags":  "",
+            "tagged":    kw,
+            "post_date": get(row, date_col)[:10] if date_col is not None else "",
+            "comments":  get(row, comm_col) or "0",
+            "likes":     get(row, like_col) or "0",
+            "views":     "0",
+        })
+
+    print(f"[KEYWORD] 브랜드 키워드 포스트: {len(kw_posts)}개")
+
+    # Apify US Posts Master 기존 데이터 로드
+    try:
+        ws_a = sh_apify.worksheet("US Posts Master")
+        a_vals = ws_a.get_all_values()
+    except Exception as e:
+        print(f"[KEYWORD] Apify 시트 읽기 실패: {e}")
+        return 0
+
+    existing_ids  = set()
+    existing_urls = set()
+    for row in a_vals[1:]:
+        if row and row[0]: existing_ids.add(row[0].strip())
+        if len(row) > 1 and row[1]:
+            raw = row[1].strip()
+            if raw.startswith('=HYPERLINK('):
+                try: existing_urls.add(raw.split('"')[1])
+                except: pass
+            else:
+                existing_urls.add(raw)
+
+    # 중복 제거 → 신규만
+    new_posts = []
+    for p in kw_posts:
+        if p["post_id"] and p["post_id"] in existing_ids: continue
+        if p["url"] and p["url"] in existing_urls: continue
+        new_posts.append(p)
+
+    print(f"[KEYWORD] 신규 (fallback): {len(new_posts)}개")
+
+    if not new_posts:
+        print("[KEYWORD] 추가할 포스트 없음")
+        return 0
+
+    if dry_run:
+        for p in new_posts[:5]:
+            print(f"  @{p['username']} | {p['url'][:60]}")
+        if len(new_posts) > 5:
+            print(f"  ... +{len(new_posts)-5}개 더")
+        return len(new_posts)
+
+    rows_to_add = [[
+        p["post_id"], p["url"], p["platform"], p["username"],
+        p["nickname"], p["followers"], p["content"], p["hashtags"],
+        p["tagged"], p["post_date"], p["comments"], p["likes"], p["views"],
+    ] for p in new_posts]
+
+    next_row = len(a_vals) + 1
+    if next_row + len(rows_to_add) > ws_a.row_count:
+        ws_a.add_rows(len(rows_to_add) + 100)
+
+    for i in range(0, len(rows_to_add), 80):
+        ws_a.update(range_name=f"A{next_row + i}", values=rows_to_add[i:i+80],
+                    value_input_option="USER_ENTERED")
+        time.sleep(0.5)
+
+    print(f"[KEYWORD] {len(new_posts)}개 추가 완료 (US Posts Master 행 {next_row}~)")
+    return len(new_posts)
 
 
 def migrate_region(sh_syncly, sh_apify, region="us", dry_run=False):
@@ -203,13 +341,23 @@ def main():
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
-    sh_syncly, sh_apify = get_sheets()
+    creds = Credentials.from_service_account_file(
+        str(PROJECT_ROOT / "credentials" / "google_service_account.json"),
+        scopes=["https://www.googleapis.com/auth/spreadsheets"],
+    )
+    gc = gspread.authorize(creds)
+    sh_syncly = gc.open_by_key(SYNCLY_SHEET_ID)
+    sh_apify  = gc.open_by_key(APIFY_SHEET_ID)
 
     total = 0
     if args.region in ("all", "us"):
         total += migrate_region(sh_syncly, sh_apify, "us", args.dry_run)
     if args.region in ("all", "jp"):
         total += migrate_region(sh_syncly, sh_apify, "jp", args.dry_run)
+
+    # Syncly 키워드 시트 fallback (US only, TikTok 보완)
+    if args.region in ("all", "us"):
+        total += migrate_keyword_fallback(sh_apify, gc, args.dry_run)
 
     print(f"\n총 {total}개 포스트 {'(dry run)' if args.dry_run else '추가됨'}")
 
