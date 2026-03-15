@@ -738,16 +738,62 @@ def _load_executed_history(brand_key: str, lookback_days: int = 30) -> Dict[str,
     return {"harvested_terms": harvested, "negated_terms": negated, "campaign_actions": camp_actions}
 
 
+def _load_simulator_backtest(brand_key: str) -> Optional[Dict]:
+    """Load the most recent simulator backtest data for a brand.
+
+    Returns dict with waste_backtest, bid_backtest, top_waste_terms, etc.
+    Prints reference info for logging.
+    """
+    import glob as _glob
+    sim_dir = ROOT / ".tmp" / "ppc_simulator"
+
+    # Try yesterday, today, then most recent
+    for delta in [1, 0]:
+        bt_path = sim_dir / f"{brand_key}_backtest_{date.today() - timedelta(days=delta)}.json"
+        if bt_path.exists():
+            break
+    else:
+        files = sorted(_glob.glob(str(sim_dir / f"{brand_key}_backtest_*.json")))
+        bt_path = Path(files[-1]) if files else None
+
+    if not bt_path or not bt_path.exists():
+        print(f"  [Simulator] No backtest data for {brand_key}")
+        return None
+
+    try:
+        data = json.loads(bt_path.read_text(encoding="utf-8"))
+        period = data.get("period", {})
+        age = (date.today() - datetime.strptime(period.get("end", "2000-01-01"), "%Y-%m-%d").date()).days
+        if age > 14:
+            print(f"  [Simulator] {bt_path.name} too old ({age}d), skipping")
+            return None
+
+        waste = data.get("waste_backtest", {})
+        bid = data.get("bid_backtest", {})
+        n_waste = len(data.get("top_waste_terms", []))
+        print(f"  [Simulator] Loaded {bt_path.name} ({period.get('days',0)}d, age {age}d)")
+        print(f"    Waste: ${waste.get('total_simulated_save',0):,.0f} saveable ({waste.get('negated_terms_count',0)} terms)")
+        print(f"    Bids: ROAS {bid.get('actual_roas',0)}x -> {bid.get('sim_roas',0)}x ({bid.get('underperformer_count',0)} down, {bid.get('scalable_count',0)} up)")
+        data["_source_file"] = bt_path.name
+        data["_age_days"] = age
+        return data
+    except Exception as e:
+        print(f"  [Simulator] Failed to load {bt_path}: {e}")
+        return None
+
+
 def analyze_search_terms(
     st_rows: List[Dict],
     campaigns: List[Dict],
     existing_keywords: List[Dict],
     executed_history: Optional[Dict] = None,
+    simulator_data: Optional[Dict] = None,
 ) -> Dict[str, List[Dict]]:
     """Analyze search terms for harvesting and negative keyword opportunities.
 
     Returns dict with 'harvest' and 'negate' lists.
     executed_history: from _load_executed_history(), used to skip already-executed items.
+    simulator_data: from _load_simulator_backtest(), boosts negate confidence for known waste terms.
     """
     # Build set of existing exact-match keyword texts for dedup
     existing_exact = set()
@@ -758,6 +804,14 @@ def analyze_search_terms(
     # Add previously executed harvests to existing_exact (don't re-propose)
     if executed_history:
         existing_exact.update(executed_history.get("harvested_terms", set()))
+
+    # Build simulator waste lookup: term -> {would_save, windows, conversions}
+    sim_waste_map = {}
+    if simulator_data:
+        for wt in simulator_data.get("top_waste_terms", []):
+            term = wt.get("search_term", "").lower().strip()
+            if term:
+                sim_waste_map[term] = wt
 
     # Build campaign name lookup (normalize to int keys for consistent matching)
     camp_map = {}
@@ -872,9 +926,43 @@ def analyze_search_terms(
                 "approved": False,
             })
 
+    # --- Simulator-boosted negatives: terms confirmed wasteful by backtest ---
+    if sim_waste_map:
+        existing_negate_terms = {n["searchTerm"] for n in negate}
+        for term, sim in sim_waste_map.items():
+            if term in existing_negate_terms or term in already_negated:
+                continue  # Already proposed or executed
+            # Simulator says this term is wasteful — add even if current 30d data doesn't trip threshold
+            if sim.get("would_save", 0) >= 10:  # At least $10 saveable
+                # Find campaign/adgroup from aggregated data if available
+                m = agg.get(term, {})
+                negate.append({
+                    "type": "negate_sim_confirmed",
+                    "searchTerm": term,
+                    "campaignId": str(sim.get("campaign", m.get("campaignId", ""))),
+                    "campaignName": camp_map.get(int(sim.get("campaign", 0)), {}).get("name", "") if sim.get("campaign") else "",
+                    "adGroupId": m.get("adGroupId", ""),
+                    "clicks": int(m.get("clicks", 0)),
+                    "cost": round(float(m.get("cost", sim.get("actual_spend", 0))), 2),
+                    "sales": round(float(m.get("sales", 0)), 2),
+                    "sim_would_save": round(sim.get("would_save", 0), 2),
+                    "sim_windows": sim.get("windows", 0),
+                    "priority": "high",
+                    "reason": f"Simulator: ${sim.get('would_save',0):,.0f} saveable over {sim.get('windows',0)} windows ({sim.get('conversions',0)} conv at ${sim.get('actual_spend',0):,.0f} spend)",
+                    "approved": False,
+                })
+
+    # Annotate existing negates with simulator data if available
+    for n in negate:
+        sim = sim_waste_map.get(n["searchTerm"])
+        if sim and n["type"] != "negate_sim_confirmed":
+            n["sim_would_save"] = round(sim.get("would_save", 0), 2)
+            n["sim_windows"] = sim.get("windows", 0)
+            n["reason"] += f" | Backtest: ${sim.get('would_save',0):,.0f} saveable"
+
     # Sort by impact
     harvest.sort(key=lambda x: x["sales"], reverse=True)
-    negate.sort(key=lambda x: x["cost"], reverse=True)
+    negate.sort(key=lambda x: x.get("sim_would_save", x["cost"]), reverse=True)
 
     # Cap to prevent API overload
     harvest = harvest[:MAX_KEYWORD_CHANGES_PER_CYCLE]
@@ -887,13 +975,12 @@ def analyze_keyword_bids(
     kw_rows: List[Dict],
     campaigns: List[Dict],
     dataforseo: Optional[Dict[str, Dict]] = None,
+    simulator_data: Optional[Dict] = None,
 ) -> List[Dict]:
     """Apply preset-based bid adjustment logic per keyword.
 
-    When dataforseo data is available, uses Google CPC as a market benchmark:
-    - If Amazon CPC > Google CPC * 1.5: overbidding, recommend -15% (cap)
-    - If Amazon CPC < Google CPC * 0.5 and ROAS > 2: underbidding, recommend +20%
-    - Adjusts bid ceiling based on Google CPC (max bid = Google CPC * 2.0)
+    When dataforseo data is available, uses Google CPC as a market benchmark.
+    When simulator_data is available, cross-references bid backtest results.
     """
     camp_map = {}
     for c in campaigns:
@@ -3940,22 +4027,27 @@ def _build_keyword_html(kw_proposals: Optional[List[Dict]], label_start: int = 0
         </table>""")
 
     if negate:
+        n_sim = sum(1 for n in negate if n.get("sim_would_save"))
         rows = ""
         for n in negate[:20]:
             lbl = _label(lbl_idx)
             n["_label"] = lbl
             lbl_idx += 1
+            sim_badge = ""
+            if n.get("sim_would_save"):
+                sim_badge = f' <span style="background:#059669;color:white;padding:1px 5px;border-radius:3px;font-size:9px;">SIM ${n["sim_would_save"]:,.0f}</span>'
             rows += f"""<tr>
                 <td style="padding:6px;border:1px solid #ddd;font-weight:bold;font-size:14px;text-align:center;background:#f5f5f5;width:30px;">{lbl}</td>
-                <td style="padding:6px;border:1px solid #ddd;">{n['searchTerm']}</td>
+                <td style="padding:6px;border:1px solid #ddd;">{n['searchTerm']}{sim_badge}</td>
                 <td style="padding:6px;border:1px solid #ddd;">${n['cost']}</td>
                 <td style="padding:6px;border:1px solid #ddd;">{n.get('sales', 0)}</td>
                 <td style="padding:6px;border:1px solid #ddd;">{n['clicks']}</td>
                 <td style="padding:6px;border:1px solid #ddd;font-size:11px;">{n['reason']}</td>
             </tr>"""
+        sim_note = f" ({n_sim} simulator-confirmed)" if n_sim else ""
         sections.append(f"""
-        <h3 style="color:#dc3545;margin-top:25px;">Negative Keywords ({len(negate)} candidates)</h3>
-        <p style="color:#666;font-size:13px;">Unprofitable search terms to block in Auto campaign. <b>Execute by letter code.</b></p>
+        <h3 style="color:#dc3545;margin-top:25px;">Negative Keywords ({len(negate)} candidates{sim_note})</h3>
+        <p style="color:#666;font-size:13px;">Unprofitable search terms to block. <b>Execute by letter code.</b> <span style="background:#059669;color:white;padding:1px 5px;border-radius:3px;font-size:9px;">SIM</span> = backtest confirmed.</p>
         <table style="border-collapse:collapse;width:100%;">
             <tr style="background:#dc3545;color:white;">
                 <th style="padding:8px;">ID</th>
@@ -4054,7 +4146,11 @@ def _build_keyword_html(kw_proposals: Optional[List[Dict]], label_start: int = 0
             </table>
             {timeline_html}
             {'<h4 style="margin:12px 0 8px;color:#166534;">Top Wasteful Search Terms</h4><table style="width:100%;border-collapse:collapse;font-size:12px;"><tr style="background:#dcfce7;"><th style="padding:6px;text-align:left;">Search Term</th><th style="padding:6px;text-align:right;">Spend</th><th style="padding:6px;text-align:right;">Would Save</th><th style="padding:6px;text-align:center;">Conv</th></tr>' + waste_rows + '</table>' if waste_rows else ''}
-            <p style="margin:8px 0 0;font-size:10px;color:#888;">Generated by PPC Backtest Simulator (weekly, {bt_period.get('days',30)}d lookback)</p>
+            <p style="margin:8px 0 0;font-size:10px;color:#888;">
+                Source: {backtest.get('_source_file', '?')} (age: {backtest.get('_age_days', '?')}d) |
+                Generated by PPC Backtest Simulator ({bt_period.get('days',30)}d lookback) |
+                Sim negates fed into keyword analysis above
+            </p>
         </div>""")
 
     return "\n".join(sections)
@@ -4586,6 +4682,7 @@ def run_propose_single(args, brand_key: str):
     kw_matrix = None
     st_rows = []
     kw_rows = []
+    sim_data = _load_simulator_backtest(brand_key)  # Load once, use for analysis + email
 
     keyword_data_status = "not_attempted"  # Track for email footer
     if not args.skip_keywords:
@@ -4639,8 +4736,11 @@ def run_propose_single(args, brand_key: str):
             print(f"\n[5/8] Fetching DataForSEO + analyzing search terms & keywords...")
             dataforseo = fetch_dataforseo_keywords(brand_key)
 
-            st_analysis = analyze_search_terms(st_rows, campaigns, kw_rows, executed_history=exec_history)
-            kw_bid_proposals = analyze_keyword_bids(kw_rows, campaigns, dataforseo=dataforseo)
+            st_analysis = analyze_search_terms(st_rows, campaigns, kw_rows,
+                                               executed_history=exec_history,
+                                               simulator_data=sim_data)
+            kw_bid_proposals = analyze_keyword_bids(kw_rows, campaigns, dataforseo=dataforseo,
+                                                    simulator_data=sim_data)
 
             kw_proposals = st_analysis["harvest"] + st_analysis["negate"] + kw_bid_proposals
             print(f"  {len(st_analysis['harvest'])} harvest candidates")
@@ -4693,29 +4793,8 @@ def run_propose_single(args, brand_key: str):
     except Exception as e:
         print(f"  [WARN] SKU-level analysis failed: {e}")
 
-    # --- Backtest Insights (weekly simulator results) ---
-    backtest_summary = None
-    try:
-        bt_path = ROOT / ".tmp" / "ppc_simulator" / f"{brand_key}_backtest_{date.today() - timedelta(days=1)}.json"
-        if not bt_path.exists():
-            # Try today's date
-            bt_path = ROOT / ".tmp" / "ppc_simulator" / f"{brand_key}_backtest_{date.today()}.json"
-        if not bt_path.exists():
-            # Try most recent file
-            import glob
-            files = sorted(glob.glob(str(ROOT / ".tmp" / "ppc_simulator" / f"{brand_key}_backtest_*.json")))
-            if files:
-                bt_path = Path(files[-1])
-        if bt_path.exists():
-            backtest_summary = json.loads(bt_path.read_text(encoding="utf-8"))
-            bt_age = (date.today() - datetime.strptime(backtest_summary["period"]["end"], "%Y-%m-%d").date()).days
-            if bt_age <= 14:  # Only use if less than 2 weeks old
-                print(f"  [Backtest] Loaded {bt_path.name} (age: {bt_age}d)")
-            else:
-                print(f"  [Backtest] {bt_path.name} too old ({bt_age}d), skipping")
-                backtest_summary = None
-    except Exception as e:
-        print(f"  [Backtest] Could not load: {e}")
+    # sim_data already loaded at function start via _load_simulator_backtest()
+    backtest_summary = sim_data
 
     # Always save and send -- even with 0 action proposals, the analysis is valuable
     filepath = save_proposal(proposals, profile_id, kw_proposals, brand_key=brand_key)
