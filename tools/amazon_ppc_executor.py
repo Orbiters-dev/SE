@@ -5070,11 +5070,14 @@ def run_propose_single(args, brand_key: str):
     if kw_proposals:
         print_keyword_summary(kw_proposals)
 
-    print(f"\n[9/9] Sending {brand_display} proposal email...")
-    send_proposal_email(proposals, args.to, kw_proposals, cc=args.cc, brand_key=brand_key,
-                        xp_context=xp_context, analysis=analysis, kw_matrix=kw_matrix,
-                        sku_context=sku_context, keyword_data_status=keyword_data_status,
-                        backtest=backtest_summary)
+    if getattr(args, "no_email", False):
+        print(f"\n[9/9] --no-email: skipping email, proposal saved to {filepath}")
+    else:
+        print(f"\n[9/9] Sending {brand_display} proposal email...")
+        send_proposal_email(proposals, args.to, kw_proposals, cc=args.cc, brand_key=brand_key,
+                            xp_context=xp_context, analysis=analysis, kw_matrix=kw_matrix,
+                            sku_context=sku_context, keyword_data_status=keyword_data_status,
+                            backtest=backtest_summary)
 
 
 def run_propose(args):
@@ -5120,6 +5123,8 @@ def main():
     parser.add_argument("--check-execute", action="store_true", help="Poll Gmail for 'execute' reply and auto-execute")
     parser.add_argument("--status", action="store_true", help="Show latest proposal status")
     parser.add_argument("--cycle", action="store_true", help="Run 6-hour analysis cycle")
+    parser.add_argument("--send-email", action="store_true", help="Send email for existing saved proposals (no re-analysis)")
+    parser.add_argument("--no-email", action="store_true", help="Run --propose but skip sending email (save proposal only)")
     parser.add_argument("--brand", type=str, default=None,
                         help="Target brand: naeiae/grosmimi/chaenmom (default: all)")
     parser.add_argument("--days", type=int, default=14, help="Days of data to analyze (default: 14, max 60)")
@@ -5177,6 +5182,23 @@ def main():
 
     if args.propose:
         run_propose(args)
+        return
+
+    if args.send_email:
+        brands = _resolve_brands(args)
+        print(f"\n[Send Email] Sending saved proposals for: {', '.join(brands)}")
+        for bk in brands:
+            data = load_latest_proposal(brand_key=bk)
+            if not data:
+                print(f"  [{bk}] No saved proposal found - skipping")
+                continue
+            if data.get("executed"):
+                print(f"  [{bk}] Proposal already executed - skipping email")
+                continue
+            proposals = data.get("proposals", [])
+            kw_proposals = data.get("kw_proposals", [])
+            print(f"  [{bk}] Sending email ({len(proposals)} proposals)...")
+            send_proposal_email(proposals, args.to, kw_proposals, cc=args.cc, brand_key=bk)
         return
 
     parser.print_help()

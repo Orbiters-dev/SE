@@ -1,9 +1,7 @@
 name: Amazon PPC Daily Report
 
 on:
-  schedule:
-    - cron: '0 23 * * *'   # 매일 KST 08:00 (= 23:00 UTC 전날)
-  workflow_dispatch:        # 수동 실행 버튼
+  workflow_dispatch:        # 수동 실행만 (자동 스케줄은 amazon_ppc_pipeline.yml 로 통합)
 
 jobs:
   ppc-report:

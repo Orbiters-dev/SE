@@ -497,88 +497,8 @@ const PL_DATA = {
    }
   ]
  },
- {
-  "category": "Comme Moi Kids' Large Double-Sided Easel - Learnin",
-  "units": 4,
-  "rev": 1196,
-  "asp": 299.0,
-  "cogs": 5.35,
-  "fba": 3.5,
-  "gm_pct": 82.0,
-  "cm": 909,
-  "cm_pct": 76.0,
-  "asin_count": 1,
-  "top_asins": [
-   {
-    "asin": "B0DCJMQSKL",
-    "name": "Comme Moi Kids' Large Double-Sided Easel",
-    "units": 4,
-    "rev": 1196
-   }
-  ]
- },
- {
-  "category": "CHA&MOM Korean Baby Skincare - Hypoallergenic, Pla",
-  "units": 7,
-  "rev": 201,
-  "asp": 28.7,
-  "cogs": 5.35,
-  "fba": 3.5,
-  "gm_pct": 54.2,
-  "cm": 78,
-  "cm_pct": 38.7,
-  "asin_count": 1,
-  "top_asins": [
-   {
-    "asin": "B0F1XGS9JF",
-    "name": "CHA&MOM Korean Baby Skincare - Hypoaller",
-    "units": 7,
-    "rev": 201
-   }
-  ]
- },
- {
-  "category": "Cha&Mom Head-to-toe Korean Baby Skincare - Hypoall",
-  "units": 7,
-  "rev": 186,
-  "asp": 26.5,
-  "cogs": 5.35,
-  "fba": 3.5,
-  "gm_pct": 51.6,
-  "cm": 65,
-  "cm_pct": 35.3,
-  "asin_count": 1,
-  "top_asins": [
-   {
-    "asin": "B0F1Y2FTNL",
-    "name": "Cha&Mom Head-to-toe Korean Baby Skincare",
-    "units": 7,
-    "rev": 186
-   }
-  ]
- },
- {
-  "category": "CHA&MOM Phyto Seline Intense Baby Cream, 5.29oz - ",
-  "units": 3,
-  "rev": 89,
-  "asp": 29.7,
-  "cogs": 5.35,
-  "fba": 3.5,
-  "gm_pct": 55.2,
-  "cm": 36,
-  "cm_pct": 40.1,
-  "asin_count": 1,
-  "top_asins": [
-   {
-    "asin": "B0FXKBPXTB",
-    "name": "CHA&MOM Phyto Seline Intense Baby Cream,",
-    "units": 3,
-    "rev": 89
-   }
-  ]
- }
 ],
- "naeiae_total": {"units": 288, "rev": 8191, "cm": 3140},
+ "naeiae_total": {"units": 267, "rev": 6519, "cm": 2052},
  "chaenmom": [
  {
   "category": "CHA&MOM Korean Baby Skincare - Hypoallergenic, Pla",
