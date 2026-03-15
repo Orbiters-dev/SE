@@ -7,578 +7,508 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #f8fafc;
-  --card: #ffffff;
-  --border: #e2e8f0;
-  --text: #1e293b;
-  --text-dim: #64748b;
-  --text-muted: #94a3b8;
-  --accent: #6366f1;
-  --accent-bg: #eef2ff;
-  --accent-border: #c7d2fe;
-  --green: #10b981;
-  --green-bg: #ecfdf5;
-  --green-border: #a7f3d0;
-  --amber: #f59e0b;
-  --amber-bg: #fffbeb;
-  --amber-border: #fde68a;
-  --red: #ef4444;
-  --red-bg: #fef2f2;
-  --red-border: #fecaca;
-  --cyan: #0ea5e9;
-  --cyan-bg: #f0f9ff;
-  --cyan-border: #bae6fd;
-  --pink: #ec4899;
-  --mono: 'SF Mono','Fira Code',Consolas,monospace;
+  --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0;
+  --text: #1e293b; --text-dim: #64748b; --text-muted: #94a3b8;
+  --accent: #6366f1; --accent-bg: #eef2ff; --accent-border: #c7d2fe;
+  --green: #10b981; --green-bg: #ecfdf5; --green-border: #a7f3d0;
+  --amber: #f59e0b; --amber-bg: #fffbeb; --amber-border: #fde68a;
+  --red: #ef4444; --red-bg: #fef2f2; --red-border: #fecaca;
+  --cyan: #0ea5e9; --cyan-bg: #f0f9ff; --cyan-border: #bae6fd;
+  --pink: #ec4899; --mono: 'SF Mono','Fira Code',Consolas,monospace;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; font-size:14px; }
-.container { max-width:980px; margin:0 auto; padding:32px 20px 80px; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:14px}
+.container{max-width:980px;margin:0 auto;padding:32px 20px 80px}
 
-/* ── Hero ── */
-.hero { text-align:center; margin-bottom:40px; }
-.hero h1 { font-size:28px; font-weight:800; letter-spacing:-.5px; margin-bottom:6px; }
-.hero h1 span { background:linear-gradient(135deg,#6366f1,#0ea5e9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-.hero .subtitle { color:var(--text-dim); font-size:14px; }
-.hero .meta { display:flex; gap:12px; justify-content:center; margin-top:14px; flex-wrap:wrap; }
-.hero .pill { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:4px 14px; font-size:12px; color:var(--text-dim); display:inline-flex; align-items:center; gap:6px; }
-.hero .pill .dot { width:7px; height:7px; border-radius:50%; }
-.hero .pill .dot.green { background:var(--green); box-shadow:0 0 4px var(--green); }
+.hero{text-align:center;margin-bottom:32px}
+.hero h1{font-size:28px;font-weight:800;letter-spacing:-.5px}
+.hero h1 span{background:linear-gradient(135deg,#6366f1,#0ea5e9);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero .sub{color:var(--text-dim);font-size:14px;margin-top:4px}
+.hero .meta{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.pill{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:3px 12px;font-size:11px;color:var(--text-dim);display:inline-flex;align-items:center;gap:5px}
+.pill .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 4px var(--green)}
 
-/* ── Flow Diagram (clickable top bar) ── */
-.flow-bar { display:flex; align-items:center; gap:0; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px 20px; margin-bottom:40px; overflow-x:auto; }
-.flow-node { flex:1; min-width:120px; text-align:center; padding:12px 8px; border-radius:10px; cursor:pointer; transition:all .2s; border:2px solid transparent; }
-.flow-node:hover { background:var(--accent-bg); }
-.flow-node.active { background:var(--accent-bg); border-color:var(--accent); }
-.flow-node .fn-icon { font-size:24px; margin-bottom:4px; }
-.flow-node .fn-title { font-size:12px; font-weight:700; color:var(--text); }
-.flow-node .fn-sub { font-size:10px; color:var(--text-muted); line-height:1.3; }
-.flow-arrow { color:var(--text-muted); font-size:16px; flex-shrink:0; padding:0 2px; }
+/* Main Tabs */
+.main-tabs{display:flex;gap:0;margin-bottom:0;border-bottom:2px solid var(--border)}
+.main-tab{padding:12px 28px;font-size:13px;font-weight:700;cursor:pointer;color:var(--text-dim);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s}
+.main-tab:hover{color:var(--text)}
+.main-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.main-panel{display:none;padding-top:24px}.main-panel.active{display:block}
 
-/* ── Section Headers ── */
-.section { scroll-margin-top:20px; margin-bottom:48px; }
-.section-head { display:flex; align-items:center; gap:14px; margin-bottom:20px; padding-bottom:14px; border-bottom:2px solid var(--border); }
-.section-num { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; color:#fff; flex-shrink:0; }
-.section-num.accent { background:var(--accent); }
-.section-num.cyan { background:var(--cyan); }
-.section-num.green { background:var(--green); }
-.section-num.amber { background:var(--amber); }
-.section-num.pink { background:var(--pink); }
-.section-info h2 { font-size:18px; font-weight:700; }
-.section-info p { font-size:13px; color:var(--text-dim); }
+/* Sub Tabs (brands) */
+.sub-tabs{display:flex;gap:6px;margin-bottom:20px}
+.sub-tab{padding:8px 18px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text-dim);background:var(--card);border:1px solid var(--border);transition:all .15s}
+.sub-tab:hover{border-color:var(--accent);color:var(--text)}
+.sub-tab.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
+.sub-panel{display:none}.sub-panel.active{display:block}
 
-/* ── Cards ── */
-.card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:14px; }
-.card h3 { font-size:14px; font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
-.card .desc { font-size:12px; color:var(--text-dim); margin-bottom:14px; }
+/* Flow bar */
+.flow-bar{display:flex;align-items:center;gap:0;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:28px;overflow-x:auto}
+.fn{flex:1;min-width:100px;text-align:center;padding:10px 6px;border-radius:10px;cursor:pointer;transition:all .15s;border:2px solid transparent}
+.fn:hover{background:var(--accent-bg)}.fn.active{background:var(--accent-bg);border-color:var(--accent)}
+.fn .fi{font-size:22px;margin-bottom:2px}.fn .ft{font-size:11px;font-weight:700}.fn .fs{font-size:9px;color:var(--text-muted)}
+.fa{color:var(--text-muted);font-size:14px;flex-shrink:0;padding:0 2px}
 
-/* ── Channel Grid ── */
-.channel-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:10px; }
-.ch-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px; transition:all .15s; }
-.ch-card:hover { border-color:var(--accent); box-shadow:0 2px 12px rgba(99,102,241,.08); transform:translateY(-1px); }
-.ch-card .ch-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
-.ch-card .ch-name { font-size:12px; font-weight:700; font-family:var(--mono); color:var(--text); }
-.ch-card .ch-badge { font-size:9px; font-weight:600; padding:2px 8px; border-radius:4px; background:#f1f5f9; color:var(--text-dim); }
-.ch-card .ch-desc { font-size:11px; color:var(--text-dim); line-height:1.5; }
-.ch-card .ch-desc b { color:var(--text); font-weight:600; }
+/* Section */
+.sec{scroll-margin-top:16px;margin-bottom:40px}
+.sec-h{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--border)}
+.sec-n{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0}
+.sec-n.a{background:var(--accent)}.sec-n.c{background:var(--cyan)}.sec-n.g{background:var(--green)}.sec-n.am{background:var(--amber)}.sec-n.p{background:var(--pink)}
+.sec-t h2{font-size:17px;font-weight:700}.sec-t p{font-size:12px;color:var(--text-dim)}
 
-/* ── Pipeline Steps ── */
-.steps { position:relative; padding-left:30px; }
-.steps::before { content:''; position:absolute; left:13px; top:0; bottom:0; width:2px; background:linear-gradient(to bottom,var(--accent),var(--cyan),var(--green),var(--amber)); border-radius:1px; }
-.step { position:relative; margin-bottom:18px; }
-.step .dot { position:absolute; left:-23px; top:5px; width:10px; height:10px; border-radius:50%; border:2px solid var(--bg); }
-.step .dot.accent { background:var(--accent); }
-.step .dot.cyan { background:var(--cyan); }
-.step .dot.green { background:var(--green); }
-.step .dot.amber { background:var(--amber); }
-.step .s-label { font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-muted); }
-.step .s-title { font-size:13px; font-weight:700; color:var(--text); }
-.step .s-desc { font-size:12px; color:var(--text-dim); }
-.step .s-box { background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-top:6px; font-size:11px; font-family:var(--mono); color:var(--accent); line-height:1.7; }
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:12px}
+.card h3{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.card .desc{font-size:11px;color:var(--text-dim);margin-bottom:10px}
 
-/* ── Stats Grid ── */
-.stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin:14px 0; }
-.stat { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px; }
-.stat .s-label { font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:var(--text-muted); font-weight:600; }
-.stat .s-val { font-size:24px; font-weight:800; letter-spacing:-.5px; font-family:var(--mono); margin-top:2px; }
-.stat .s-sub { font-size:10px; color:var(--text-dim); margin-top:2px; }
-.stat.green .s-val { color:var(--green); }
-.stat.red .s-val { color:var(--red); }
-.stat.amber .s-val { color:var(--amber); }
-.stat.accent .s-val { color:var(--accent); }
-.stat.cyan .s-val { color:var(--cyan); }
+/* Channel grid */
+.chg{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
+.ch{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;transition:all .12s}
+.ch:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 2px 8px rgba(99,102,241,.06)}
+.ch .ct{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.ch .cn{font-size:11px;font-weight:700;font-family:var(--mono)}.ch .cb{font-size:9px;font-weight:600;padding:1px 6px;border-radius:3px;background:#f1f5f9;color:var(--text-dim)}
+.ch .cd{font-size:10px;color:var(--text-dim);line-height:1.4}.ch .cd b{color:var(--text);font-weight:600}
 
-/* ── Tables ── */
-table { width:100%; border-collapse:collapse; font-size:12px; }
-th { background:#f8fafc; color:var(--text-dim); font-weight:600; text-transform:uppercase; letter-spacing:.5px; font-size:10px; padding:8px 10px; text-align:left; border-bottom:2px solid var(--border); }
-td { padding:8px 10px; border-bottom:1px solid #f1f5f9; }
-tr:hover td { background:#fafbff; }
-.badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:10px; font-weight:600; }
-.badge.green { background:var(--green-bg); color:var(--green); }
-.badge.red { background:var(--red-bg); color:var(--red); }
-.badge.amber { background:var(--amber-bg); color:var(--amber); }
-.badge.cyan { background:var(--cyan-bg); color:var(--cyan); }
-.badge.accent { background:var(--accent-bg); color:var(--accent); }
-.badge.sim { background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; font-size:9px; }
+/* Pipeline steps */
+.steps{position:relative;padding-left:28px}.steps::before{content:'';position:absolute;left:12px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accent),var(--cyan),var(--green),var(--amber));border-radius:1px}
+.st{position:relative;margin-bottom:14px}
+.st .d{position:absolute;left:-21px;top:5px;width:9px;height:9px;border-radius:50%;border:2px solid var(--bg)}
+.st .d.a{background:var(--accent)}.st .d.c{background:var(--cyan)}.st .d.g{background:var(--green)}.st .d.am{background:var(--amber)}
+.st .sl{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-muted)}
+.st .sn{font-size:12px;font-weight:700}.st .sd{font-size:11px;color:var(--text-dim)}
+.st .sb{background:#f8fafc;border:1px solid var(--border);border-radius:6px;padding:8px 10px;margin-top:4px;font-size:10px;font-family:var(--mono);color:var(--accent);line-height:1.6}
 
-/* ── Rule Cards ── */
-.rules { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px; margin:12px 0; }
-.rule { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:12px; border-left:3px solid var(--accent); }
-.rule.waste { border-left-color:var(--red); }
-.rule.down { border-left-color:var(--amber); }
-.rule.up { border-left-color:var(--green); }
-.rule .r-name { font-size:12px; font-weight:700; margin-bottom:3px; }
-.rule .r-val { font-family:var(--mono); font-size:11px; color:var(--accent); margin-bottom:3px; }
-.rule .r-desc { font-size:10px; color:var(--text-dim); }
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:12px 0}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px}
+.stat .sl{font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:var(--text-muted);font-weight:600}
+.stat .sv{font-size:22px;font-weight:800;letter-spacing:-.5px;font-family:var(--mono);margin-top:1px}
+.stat .ss{font-size:9px;color:var(--text-dim);margin-top:1px}
+.stat.green .sv{color:var(--green)}.stat.red .sv{color:var(--red)}.stat.amber .sv{color:var(--amber)}.stat.accent .sv{color:var(--accent)}.stat.cyan .sv{color:var(--cyan)}
 
-/* ── Cost Flow ── */
-.cost-flow { display:flex; align-items:center; gap:0; flex-wrap:wrap; justify-content:center; margin:16px 0; }
-.cost-node { text-align:center; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:10px; min-width:110px; }
-.cost-node .cn-icon { font-size:20px; }
-.cost-node .cn-title { font-size:11px; font-weight:700; margin-top:2px; }
-.cost-node .cn-sub { font-size:10px; color:var(--text-dim); }
-.cost-arrow { padding:0 4px; color:var(--text-muted); font-size:14px; font-weight:700; }
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{background:#f8fafc;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.4px;font-size:9px;padding:7px 8px;text-align:left;border-bottom:2px solid var(--border)}
+td{padding:7px 8px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbff}
+.badge{display:inline-block;padding:1px 7px;border-radius:4px;font-size:9px;font-weight:600}
+.badge.green{background:var(--green-bg);color:var(--green)}.badge.red{background:var(--red-bg);color:var(--red)}.badge.amber{background:var(--amber-bg);color:var(--amber)}
+.badge.cyan{background:var(--cyan-bg);color:var(--cyan)}.badge.accent{background:var(--accent-bg);color:var(--accent)}
+.badge.sim{background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-size:8px}
 
-/* ── Responsive ── */
-@media(max-width:700px) {
-  .flow-bar { flex-wrap:wrap; justify-content:center; }
-  .flow-arrow { display:none; }
-  .cost-flow { flex-direction:column; }
-  .cost-arrow { transform:rotate(90deg); }
-}
+/* Rules */
+.rules{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin:10px 0}
+.rule{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px;border-left:3px solid var(--accent)}
+.rule.w{border-left-color:var(--red)}.rule.d{border-left-color:var(--amber)}.rule.u{border-left-color:var(--green)}
+.rule .rn{font-size:11px;font-weight:700;margin-bottom:2px}.rule .rv{font-family:var(--mono);font-size:10px;color:var(--accent);margin-bottom:2px}.rule .rd{font-size:9px;color:var(--text-dim)}
+
+/* Cost flow */
+.cf{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;margin:14px 0}
+.cfn{text-align:center;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;min-width:90px}
+.cfn .ci{font-size:18px}.cfn .ct{font-size:10px;font-weight:700;margin-top:1px}.cfn .cs{font-size:9px;color:var(--text-dim)}
+.cfa{padding:0 3px;color:var(--text-muted);font-size:12px;font-weight:700}
+
+/* Log timeline */
+.log{margin:12px 0}
+.log-entry{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px}
+.log-entry .le-time{font-size:10px;font-family:var(--mono);color:var(--text-muted);white-space:nowrap;min-width:70px;padding-top:2px}
+.log-entry .le-body{flex:1}
+.log-entry .le-title{font-size:12px;font-weight:700}
+.log-entry .le-desc{font-size:11px;color:var(--text-dim)}
+.log-entry .le-badge{display:inline-block;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:600;margin-left:6px}
+.log-entry.propose{border-left:3px solid var(--accent)}
+.log-entry.execute{border-left:3px solid var(--green)}
+.log-entry.rollback{border-left:3px solid var(--amber)}
+.log-entry.collect{border-left:3px solid var(--cyan)}
+
+@media(max-width:700px){.flow-bar{flex-wrap:wrap;justify-content:center}.fa{display:none}.cf{flex-direction:column}.cfa{transform:rotate(90deg)}}
 </style>
 </head>
 <body>
 <div class="container">
 
-<!-- ═══ HERO ═══ -->
 <div class="hero">
   <h1>Amazon PPC <span>Intelligence</span></h1>
-  <div class="subtitle">Data Pipeline, Backtest Engine & Optimization Output</div>
+  <div class="sub">Data Pipeline, Backtest Engine & Optimization Output</div>
   <div class="meta">
-    <span class="pill"><span class="dot green"></span> DataKeeper Fresh (T-2)</span>
-    <span class="pill"><span class="dot green"></span> Simulator 1d old</span>
+    <span class="pill"><span class="dot"></span> DataKeeper Fresh (T-2)</span>
+    <span class="pill"><span class="dot"></span> Simulator 1d old</span>
     <span class="pill">3 Brands &middot; 18 Campaigns &middot; 14.6K Search Terms</span>
   </div>
 </div>
 
-<!-- ═══ FLOW BAR (clickable) ═══ -->
-<div class="flow-bar" id="flowBar">
-  <div class="flow-node active" data-target="sec-datakeeper">
-    <div class="fn-icon">🗄️</div>
-    <div class="fn-title">Data Keeper</div>
-    <div class="fn-sub">13 channels, 2x/day</div>
-  </div>
-  <div class="flow-arrow">→</div>
-  <div class="flow-node" data-target="sec-executor">
-    <div class="fn-icon">📊</div>
-    <div class="fn-title">Executor</div>
-    <div class="fn-sub">9-stage analysis</div>
-  </div>
-  <div class="flow-arrow">→</div>
-  <div class="flow-node" data-target="sec-simulator">
-    <div class="fn-icon">🧪</div>
-    <div class="fn-title">Simulator</div>
-    <div class="fn-sub">60d backtest</div>
-  </div>
-  <div class="flow-arrow">→</div>
-  <div class="flow-node" data-target="sec-campaigns">
-    <div class="fn-icon">📧</div>
-    <div class="fn-title">Proposals</div>
-    <div class="fn-sub">Campaign + Keyword</div>
-  </div>
-  <div class="flow-arrow">→</div>
-  <div class="flow-node" data-target="sec-keywords">
-    <div class="fn-icon">🔑</div>
-    <div class="fn-title">Keywords</div>
-    <div class="fn-sub">Harvest + Negate</div>
-  </div>
-  <div class="flow-arrow">→</div>
-  <div class="flow-node" data-target="sec-asin">
-    <div class="fn-icon">💰</div>
-    <div class="fn-title">ASIN P&L</div>
-    <div class="fn-sub">Full-cost margin</div>
-  </div>
+<!-- ═══ MAIN TABS ═══ -->
+<div class="main-tabs">
+  <div class="main-tab active" data-panel="tab-flow">Architecture & Flow</div>
+  <div class="main-tab" data-panel="tab-output">Output & Execution Log</div>
 </div>
 
-<!-- ═════════════════════════════════════════════════ -->
-<!-- SECTION 1: DATA KEEPER                           -->
-<!-- ═════════════════════════════════════════════════ -->
-<div class="section" id="sec-datakeeper">
-  <div class="section-head">
-    <div class="section-num accent">1</div>
-    <div class="section-info">
-      <h2>Data Keeper — Collection Layer</h2>
-      <p>Centralized data gateway. 13 channels collected 2x daily via GitHub Actions.</p>
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- MAIN TAB 1: ARCHITECTURE & FLOW                          -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="main-panel active" id="tab-flow">
+
+  <!-- Flow Bar -->
+  <div class="flow-bar" style="margin-top:20px">
+    <div class="fn active" data-target="s-dk"><div class="fi">🗄️</div><div class="ft">Data Keeper</div><div class="fs">13ch, 2x/day</div></div>
+    <div class="fa">→</div>
+    <div class="fn" data-target="s-ex"><div class="fi">📊</div><div class="ft">Executor</div><div class="fs">9-stage</div></div>
+    <div class="fa">→</div>
+    <div class="fn" data-target="s-sim"><div class="fi">🧪</div><div class="ft">Simulator</div><div class="fs">60d backtest</div></div>
+    <div class="fa">→</div>
+    <div class="fn" data-target="s-prop"><div class="fi">📧</div><div class="ft">Proposal</div><div class="fs">Email + JSON</div></div>
+    <div class="fa">→</div>
+    <div class="fn" data-target="s-exec"><div class="fi">⚡</div><div class="ft">Execution</div><div class="fs">Gmail trigger</div></div>
+    <div class="fa">→</div>
+    <div class="fn" data-target="s-asin"><div class="fi">💰</div><div class="ft">ASIN P&L</div><div class="fs">Full-cost</div></div>
+  </div>
+
+  <!-- S1: DataKeeper -->
+  <div class="sec" id="s-dk">
+    <div class="sec-h"><div class="sec-n a">1</div><div class="sec-t"><h2>Data Keeper — Collection Layer</h2><p>13 channels collected 2x daily via GitHub Actions. Primary data source for all analysis.</p></div></div>
+    <div class="chg">
+      <div class="ch"><div class="ct"><span class="cn">amazon_ads_daily</span><span class="cb">2x daily</span></div><div class="cd">Campaign: <b>spend, sales, ROAS, ACOS</b><br>3 brands &middot; Amazon Ads Reporting v3</div></div>
+      <div class="ch"><div class="ct"><span class="cn">amazon_ads_search_terms</span><span class="cb">1x daily</span></div><div class="cd">Search term: <b>clicks, spend, sales, conv</b><br>14d lookback &middot; 14.4K rows &middot; harvest+negate</div></div>
+      <div class="ch"><div class="ct"><span class="cn">amazon_ads_keywords</span><span class="cb">1x daily</span></div><div class="cd">Keyword: <b>bid, match type, ROAS</b><br>170 rows &middot; bid adjustment proposals</div></div>
+      <div class="ch"><div class="ct"><span class="cn">amazon_sales_daily</span><span class="cb">2x daily</span></div><div class="cd">SP-API: <b>sales, units, fees</b><br>3 sellers &middot; SKU breakdown for ASIN P&L</div></div>
+      <div class="ch"><div class="ct"><span class="cn">meta_ads_daily</span><span class="cb">2x daily</span></div><div class="cd">Meta: <b>spend, ROAS, CPA</b><br>Cross-platform context</div></div>
+      <div class="ch"><div class="ct"><span class="cn">google_ads_daily</span><span class="cb">2x daily</span></div><div class="cd">Google: <b>spend, conv, CPC</b><br>Bid ceiling benchmark</div></div>
+      <div class="ch"><div class="ct"><span class="cn">shopify_orders_daily</span><span class="cb">2x daily</span></div><div class="cd">DTC: <b>revenue, AOV, units</b><br>All brands &middot; P&L cross-ref</div></div>
+      <div class="ch"><div class="ct"><span class="cn">dataforseo_keywords</span><span class="cb">2x daily</span></div><div class="cd">Google KW Planner: <b>volume, CPC</b><br>Amazon vs Google CPC comparison</div></div>
     </div>
   </div>
 
-  <div class="channel-grid">
-    <div class="ch-card">
-      <div class="ch-top"><span class="ch-name">amazon_ads_daily</span><span class="ch-badge">2x daily</span></div>
-      <div class="ch-desc">Campaign metrics: <b>spend, sales, ROAS, ACOS</b><br>Amazon Ads Reporting API v3 &middot; 3 brands</div>
-    </div>
-    <div class="ch-card">
-      <div class="ch-top"><span class="ch-name">amazon_ads_search_terms</span><span class="ch-badge">1x daily</span></div>
-      <div class="ch-desc">Search term: <b>clicks, spend, sales, conv</b><br>14d lookback &middot; 14.4K rows &middot; Feeds harvest+negate</div>
-    </div>
-    <div class="ch-card">
-      <div class="ch-top"><span class="ch-name">amazon_ads_keywords</span><span class="ch-badge">1x daily</span></div>
-      <div class="ch-desc">Keyword: <b>bid, match type, ROAS</b><br>170 rows &middot; Feeds bid adjustment proposals</div>
-    </div>
-    <div class="ch-card">
-      <div class="ch-top"><span class="ch-name">amazon_sales_daily</span><span class="ch-badge">2x daily</span></div>
-      <div class="ch-desc">SP-API: <b>ordered_product_sales, units, fees</b><br>3 sellers &middot; SKU-level breakdown for ASIN P&L</div>
-    </div>
-    <div class="ch-card">
-      <div class="ch-top"><span class="ch-name">meta_ads_daily</span><span class="ch-badge">2x daily</span></div>
-      <div class="ch-desc">Meta Graph API: <b>spend, ROAS, CPA</b><br>Cross-platform context for proposals</div>
-    </div>
-    <div class="ch-card">
-      <div class="ch-top"><span class="ch-name">google_ads_daily</span><span class="ch-badge">2x daily</span></div>
-      <div class="ch-desc">Google Ads: <b>spend, conversions, CPC</b><br>CPC benchmark for Amazon bid ceiling</div>
-    </div>
-    <div class="ch-card">
-      <div class="ch-top"><span class="ch-name">shopify_orders_daily</span><span class="ch-badge">2x daily</span></div>
-      <div class="ch-desc">DTC orders: <b>revenue, AOV, units</b><br>All brands &middot; ASIN P&L cross-reference</div>
-    </div>
-    <div class="ch-card">
-      <div class="ch-top"><span class="ch-name">dataforseo_keywords</span><span class="ch-badge">2x daily</span></div>
-      <div class="ch-desc">Google Keyword Planner: <b>volume, CPC</b><br>Amazon vs Google CPC comparison</div>
-    </div>
-  </div>
-</div>
-
-<!-- ═════════════════════════════════════════════════ -->
-<!-- SECTION 2: EXECUTOR                              -->
-<!-- ═════════════════════════════════════════════════ -->
-<div class="section" id="sec-executor">
-  <div class="section-head">
-    <div class="section-num cyan">2</div>
-    <div class="section-info">
-      <h2>Executor — 9-Stage Analysis Pipeline</h2>
-      <p>Reads DataKeeper → applies ROAS framework → generates proposals per brand.</p>
-    </div>
-  </div>
-
-  <div class="steps">
-    <div class="step">
-      <div class="dot accent"></div>
-      <div class="s-label">Pre-flight</div>
-      <div class="s-title">DataKeeper Freshness Check</div>
-      <div class="s-desc">Verify latest data >= T-2. If stale, auto-trigger collection for amazon_ads + search_terms + keywords.</div>
-    </div>
-    <div class="step">
-      <div class="dot accent"></div>
-      <div class="s-label">Stage 1-2</div>
-      <div class="s-title">Profile & Campaign Data</div>
-      <div class="s-desc">Load brand config (budget caps, ACOS targets). Fetch all ENABLED campaigns from Amazon Ads API.</div>
-    </div>
-    <div class="step">
-      <div class="dot cyan"></div>
-      <div class="s-label">Stage 3</div>
-      <div class="s-title">Campaign Analysis — ROAS Decision Framework</div>
-      <div class="s-desc">7 ROAS rules applied per campaign. Generates: pause, reduce_bid, optimize, increase_budget proposals.</div>
-      <div class="s-box">
-ROAS &lt; 1.0 → pause | 1.0-1.5 → bid -30% | 1.5-2.0 → bid -15%
-2.0-2.5 → optimize -10% | 2.5-3.0 → optimize | 3.0-5.0 → budget +20% | &gt;5.0 → bid +10%, budget +30%</div>
-    </div>
-    <div class="step">
-      <div class="dot cyan"></div>
-      <div class="s-label">Stage 4</div>
-      <div class="s-title">Search Term & Keyword Data</div>
-      <div class="s-desc">Primary: DataKeeper (limit=50K). Fallback: direct API. Load execution history for dedup (skip already-executed keywords).</div>
-    </div>
-    <div class="step">
-      <div class="dot green"></div>
-      <div class="s-label">Stage 5</div>
-      <div class="s-title">Simulator + DataForSEO + Keyword Analysis</div>
-      <div class="s-desc">Load backtest JSON → boost negate confidence with SIM data. Cross-reference Google CPC for bid ceiling.</div>
-      <div class="s-box">
-Harvest: ACOS &lt; target, 10+ clicks, 1+ sale → exact match
-Negate: $0 sales + high spend | ACOS &gt; 2x target | SIM confirmed ($10+)
-Bids: strong → +20% | inefficient → -20% | no sales → -30%</div>
-    </div>
-    <div class="step">
-      <div class="dot green"></div>
-      <div class="s-label">Stage 6</div>
-      <div class="s-title">Keyword Performance Matrix</div>
-      <div class="s-desc">7d vs 30d trends. Cannibalization detection. Google CPC benchmarking per keyword.</div>
-    </div>
-    <div class="step">
-      <div class="dot amber"></div>
-      <div class="s-label">Stage 7-8</div>
-      <div class="s-title">Cross-Platform + ASIN P&L</div>
-      <div class="s-desc">Google/Meta/Shopify context. Full-cost margin per ASIN: COGS + FBA + Export + Returns. Grosmimi 7 product categories.</div>
-    </div>
-    <div class="step">
-      <div class="dot amber"></div>
-      <div class="s-label">Stage 9</div>
-      <div class="s-title">Save Proposal JSON & Send Email</div>
-      <div class="s-desc">HTML email with all sections. Budget impact summary. Backtest insights section with SIM badges.</div>
-    </div>
-  </div>
-</div>
-
-<!-- ═════════════════════════════════════════════════ -->
-<!-- SECTION 3: SIMULATOR                             -->
-<!-- ═════════════════════════════════════════════════ -->
-<div class="section" id="sec-simulator">
-  <div class="section-head">
-    <div class="section-num green">3</div>
-    <div class="section-info">
-      <h2>Backtest Simulator — Waste & Bid Engine</h2>
-      <p>Retroactively applies optimization rules to 60-90d historical data. Feeds confirmed waste terms into executor.</p>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>🗑️ Module 1: Wasted Spend Detection</h3>
-    <div class="desc">Scans search terms across 14-day rolling windows. $5+ spend with 0 conversions → negate after 14d reaction time.</div>
-    <div class="rules">
-      <div class="rule waste"><div class="r-name">Spend Threshold</div><div class="r-val">$5.00 per window</div><div class="r-desc">Min spend to flag as waste</div></div>
-      <div class="rule waste"><div class="r-name">Reaction Window</div><div class="r-val">14 days</div><div class="r-desc">Wait before simulating negative</div></div>
-      <div class="rule waste"><div class="r-name">Savings</div><div class="r-val">spend_after_negate = saved</div><div class="r-desc">All subsequent spend prevented</div></div>
-    </div>
-    <div class="stats">
-      <div class="stat green"><div class="s-label">Grosmimi Saveable</div><div class="s-val">$4,405</div><div class="s-sub">19.7% of 60d spend</div></div>
-      <div class="stat amber"><div class="s-label">Terms Flagged</div><div class="s-val">51</div><div class="s-sub">Search terms to negate</div></div>
-      <div class="stat cyan"><div class="s-label">Top Waste</div><div class="s-val">$948</div><div class="s-sub">"baby straw cup" — 6 windows</div></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>⚖️ Module 2: Bid Efficiency</h3>
-    <div class="desc">ROAS-based bid rules applied retroactively per keyword. Under-performers get reduction, scalable get increase.</div>
-    <div class="rules">
-      <div class="rule down"><div class="r-name">Under-performer</div><div class="r-val">ROAS &lt; 2.0x → Bid -20%</div><div class="r-desc">Same conversions, 20% less cost</div></div>
-      <div class="rule up"><div class="r-name">Scalable</div><div class="r-val">ROAS &gt; 5.0x → Bid +15%</div><div class="r-desc">More impressions = more revenue</div></div>
-      <div class="rule"><div class="r-name">Min Data</div><div class="r-val">$1+ spend, 2+ clicks</div><div class="r-desc">Skip insufficient data</div></div>
-    </div>
-    <div class="stats">
-      <div class="stat green"><div class="s-label">ROAS Improvement</div><div class="s-val">+0.53x</div><div class="s-sub">4.06x → 4.59x simulated</div></div>
-      <div class="stat red"><div class="s-label">Under-performers</div><div class="s-val">17</div><div class="s-sub">Keywords need bid ↓</div></div>
-      <div class="stat green"><div class="s-label">Scalable</div><div class="s-val">8</div><div class="s-sub">Keywords with growth potential</div></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>🔗 How Simulator Feeds Executor</h3>
+  <!-- S2: Executor -->
+  <div class="sec" id="s-ex">
+    <div class="sec-h"><div class="sec-n c">2</div><div class="sec-t"><h2>Executor — 9-Stage Analysis Pipeline</h2><p>DataKeeper → ROAS framework → proposals per brand. Pre-flight freshness auto-check.</p></div></div>
     <div class="steps">
-      <div class="step"><div class="dot green"></div><div class="s-title">1. Load Backtest JSON</div><div class="s-desc"><code style="font-family:var(--mono);color:var(--accent);font-size:11px">_load_simulator_backtest(brand_key)</code> — most recent file, max 14d old</div></div>
-      <div class="step"><div class="dot green"></div><div class="s-title">2. Boost Negate Confidence</div><div class="s-desc">top_waste_terms with would_save >= $10 → added as <span class="badge sim">SIM confirmed</span> negates</div></div>
-      <div class="step"><div class="dot green"></div><div class="s-title">3. Annotate Existing Negates</div><div class="s-desc">Existing proposals get sim_would_save + sim_windows. Sort by savings amount.</div></div>
-      <div class="step"><div class="dot green"></div><div class="s-title">4. Email: SIM Badges + Backtest Section</div><div class="s-desc">Source file + age logged. Savings + ROAS improvement shown in dedicated section.</div></div>
+      <div class="st"><div class="d a"></div><div class="sl">Pre-flight</div><div class="sn">DataKeeper Freshness Check</div><div class="sd">Verify latest >= T-2. If stale, auto-collect amazon_ads + search_terms + keywords.</div></div>
+      <div class="st"><div class="d a"></div><div class="sl">Stage 1-2</div><div class="sn">Profile & Campaign Data</div><div class="sd">Brand config (budget, ACOS targets) + fetch all ENABLED campaigns.</div></div>
+      <div class="st"><div class="d c"></div><div class="sl">Stage 3</div><div class="sn">Campaign Analysis — ROAS Framework</div><div class="sd">7 rules per campaign → pause, reduce_bid, optimize, increase_budget.</div>
+        <div class="sb">&lt;1.0→pause | 1.0-1.5→bid-30% | 1.5-2.0→bid-15% | 2.0-2.5→opt-10% | 2.5-3.0→opt | 3.0-5.0→bud+20% | &gt;5.0→bid+10%,bud+30%</div></div>
+      <div class="st"><div class="d c"></div><div class="sl">Stage 4</div><div class="sn">Search Term & Keyword Data</div><div class="sd">DataKeeper (limit=50K) → fallback API. Load execution history for dedup.</div></div>
+      <div class="st"><div class="d g"></div><div class="sl">Stage 5</div><div class="sn">Simulator + DataForSEO + Analysis</div><div class="sd">Backtest JSON → SIM negate boost. Google CPC → bid ceiling. Harvest/negate/bid proposals.</div>
+        <div class="sb">Harvest: ACOS&lt;target, 10+clicks, 1+sale → exact match<br>Negate: $0sales+high$, ACOS&gt;2x, SIM($10+) | Bids: strong+20%, inefficient-20%</div></div>
+      <div class="st"><div class="d g"></div><div class="sl">Stage 6</div><div class="sn">Keyword Performance Matrix</div><div class="sd">7d vs 30d trends. Cannibalization. Google CPC benchmarks.</div></div>
+      <div class="st"><div class="d am"></div><div class="sl">Stage 7-8</div><div class="sn">Cross-Platform + ASIN P&L</div><div class="sd">Google/Meta/Shopify context. Full-cost margin: COGS+FBA+Export+Returns.</div></div>
+      <div class="st"><div class="d am"></div><div class="sl">Stage 9</div><div class="sn">Save JSON & Send Email</div><div class="sd">HTML email with all sections + budget impact + backtest insights.</div></div>
+    </div>
+  </div>
+
+  <!-- S3: Simulator -->
+  <div class="sec" id="s-sim">
+    <div class="sec-h"><div class="sec-n g">3</div><div class="sec-t"><h2>Backtest Simulator — Waste & Bid Engine</h2><p>60-90d historical data → retroactive rule application → feeds executor negates.</p></div></div>
+    <div class="card">
+      <h3>🗑️ Module 1: Waste Detection</h3>
+      <div class="desc">14d rolling windows. $5+ spend with 0 conv → negate after 14d.</div>
+      <div class="stats">
+        <div class="stat green"><div class="sl">Grosmimi Save</div><div class="sv">$4,405</div><div class="ss">19.7% of 60d spend</div></div>
+        <div class="stat amber"><div class="sl">Terms Flagged</div><div class="sv">51</div><div class="ss">to negate</div></div>
+        <div class="stat cyan"><div class="sl">Top Waste</div><div class="sv">$948</div><div class="ss">"baby straw cup"</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>⚖️ Module 2: Bid Efficiency</h3>
+      <div class="desc">ROAS &lt; 2.0x → bid -20%. ROAS &gt; 5.0x → bid +15%. Per keyword.</div>
+      <div class="stats">
+        <div class="stat green"><div class="sl">ROAS Lift</div><div class="sv">+0.53x</div><div class="ss">4.06x → 4.59x</div></div>
+        <div class="stat red"><div class="sl">Under-perf</div><div class="sv">17</div><div class="ss">bid ↓</div></div>
+        <div class="stat green"><div class="sl">Scalable</div><div class="sv">8</div><div class="ss">bid ↑</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>🔗 SIM → Executor Integration</h3>
+      <div class="desc">1) Load JSON (max 14d old) → 2) top_waste_terms with $10+ → <span class="badge sim">SIM confirmed</span> negates → 3) Annotate + sort by savings → 4) SIM badges in email.</div>
+    </div>
+  </div>
+
+  <!-- S4: Proposal -->
+  <div class="sec" id="s-prop">
+    <div class="sec-h"><div class="sec-n am">4</div><div class="sec-t"><h2>Proposal — Email Structure</h2><p>Campaign proposals + keyword harvest/negate + backtest insights + budget impact → single HTML email per brand.</p></div></div>
+    <div class="card">
+      <h3>Email Sections</h3>
+      <div class="steps">
+        <div class="st"><div class="d a"></div><div class="sn">Executive Summary</div><div class="sd">7d spend/sales/ROAS, trend vs 30d, action count</div></div>
+        <div class="st"><div class="d a"></div><div class="sn">Anomalies & Alerts</div><div class="sd">ROAS drops, underspend, CTR issues, budget concentration</div></div>
+        <div class="st"><div class="d c"></div><div class="sn">Campaign Action Proposals</div><div class="sd">Tier-scored (1-10). Letter codes for selective execution.</div></div>
+        <div class="st"><div class="d g"></div><div class="sn">Keyword Harvesting</div><div class="sd">Profitable search terms → exact match. ACOS, bid, campaign shown.</div></div>
+        <div class="st"><div class="d g"></div><div class="sn">Negative Keywords</div><div class="sd">Waste terms with <span class="badge sim">SIM</span> badges. Zero-sales + high-ACOS + sim-confirmed.</div></div>
+        <div class="st"><div class="d am"></div><div class="sn">Budget Impact Summary</div><div class="sd">Before/after budget table. Net daily change per brand.</div></div>
+        <div class="st"><div class="d am"></div><div class="sn">Backtest Insights</div><div class="sd">Simulator savings, ROAS improvement, top waste terms. Source file logged.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S5: Execution -->
+  <div class="sec" id="s-exec">
+    <div class="sec-h"><div class="sec-n p">5</div><div class="sec-t"><h2>Execution — Gmail Reply Trigger</h2><p>Brand-specific Gmail matching. "Execute all" reply → auto-approve → API calls → confirmation email.</p></div></div>
+    <div class="card">
+      <h3>Execution Flow</h3>
+      <div class="steps">
+        <div class="st"><div class="d g"></div><div class="sn">1. Gmail Search</div><div class="sd"><code style="font-family:var(--mono);font-size:10px;color:var(--accent)">subject:"[Amazon PPC] {Brand}" from:{approver}</code> — brand-specific match prevents cross-brand execution.</div></div>
+        <div class="st"><div class="d g"></div><div class="sn">2. Approve All Proposals</div><div class="sd">Set approved=true on all campaign + keyword proposals. Dedup: check for existing EXECUTED email.</div></div>
+        <div class="st"><div class="d g"></div><div class="sn">3. API Execution</div><div class="sd">Campaign: update_campaign_budget(), update_campaign_bid(). Keywords: add_keyword(), add_negative_keyword().</div></div>
+        <div class="st"><div class="d g"></div><div class="sn">4. Confirmation Email</div><div class="sd">Subject: "[Amazon PPC] EXECUTED". Changes logged to ppc_executed_{date}.json.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S6: ASIN P&L -->
+  <div class="sec" id="s-asin">
+    <div class="sec-h"><div class="sec-n a">6</div><div class="sec-t"><h2>ASIN P&L — Full-Cost Waterfall</h2><p>Revenue − COGS − Referral 15% − FBA − Export − Returns = CM</p></div></div>
+    <div class="cf">
+      <div class="cfn"><div class="ci">💰</div><div class="ct">Revenue</div></div><div class="cfa">−</div>
+      <div class="cfn"><div class="ci">📦</div><div class="ct">COGS</div><div class="cs">$2.50~$13</div></div><div class="cfa">−</div>
+      <div class="cfn"><div class="ci">🏷️</div><div class="ct">Ref 15%</div></div><div class="cfa">−</div>
+      <div class="cfn"><div class="ci">🚚</div><div class="ct">FBA</div><div class="cs">$3.50~$6.50</div></div><div class="cfa">−</div>
+      <div class="cfn"><div class="ci">🌊</div><div class="ct">Export+Ret</div><div class="cs">Nae $3, 5%</div></div><div class="cfa">=</div>
+      <div class="cfn" style="border-color:var(--green);background:var(--green-bg)"><div class="ci">✅</div><div class="ct">CM</div></div>
+    </div>
+    <div class="card">
+      <h3>Brand Costs</h3>
+      <table>
+        <thead><tr><th>Brand</th><th>COGS</th><th>FBA</th><th>Export</th><th>Ret</th><th>Target ACOS</th></tr></thead>
+        <tbody>
+          <tr><td><b>Grosmimi</b></td><td>$8.41</td><td>$5.39</td><td>$0.50</td><td>5%</td><td>20%</td></tr>
+          <tr><td><b>Naeiae</b></td><td>$5.35</td><td>$3.50</td><td style="color:var(--amber);font-weight:700">$3.00</td><td>5%</td><td>25%</td></tr>
+          <tr><td><b>CHA&MOM</b></td><td>$7.53</td><td>$4.25</td><td>$0.50</td><td>5%</td><td>30%</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
 
-<!-- ═════════════════════════════════════════════════ -->
-<!-- SECTION 4: CAMPAIGN PROPOSALS                    -->
-<!-- ═════════════════════════════════════════════════ -->
-<div class="section" id="sec-campaigns">
-  <div class="section-head">
-    <div class="section-num amber">4</div>
-    <div class="section-info">
-      <h2>Campaign Proposals — ROAS Framework Output</h2>
-      <p>Latest proposals by brand. Budget + bid changes based on 7d/30d performance.</p>
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- MAIN TAB 2: OUTPUT & EXECUTION LOG                       -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="main-panel" id="tab-output">
+
+  <div class="sub-tabs" style="margin-top:20px">
+    <div class="sub-tab active" data-sub="out-gros">🟣 Grosmimi</div>
+    <div class="sub-tab" data-sub="out-nae">🟡 Naeiae</div>
+    <div class="sub-tab" data-sub="out-cha">🔵 CHA&MOM</div>
+  </div>
+
+  <!-- ── GROSMIMI ── -->
+  <div class="sub-panel active" id="out-gros">
+    <div class="stats">
+      <div class="stat accent"><div class="sl">7d ROAS</div><div class="sv">3.89x</div><div class="ss">$22,257 / $86,610</div></div>
+      <div class="stat green"><div class="sl">ACOS</div><div class="sv">23.9%</div><div class="ss">ad spend / ad sales</div></div>
+      <div class="stat cyan"><div class="sl">TACOS</div><div class="sv">13.3%</div><div class="ss">vs total $300K rev</div></div>
+      <div class="stat amber"><div class="sl">Daily Budget</div><div class="sv">$3,000</div><div class="ss">Manual 60% / Auto 40%</div></div>
+    </div>
+
+    <div class="sec-h" style="margin-top:20px"><div class="sec-n c">→</div><div class="sec-t"><h2>Execution Timeline</h2><p>Chronological flow: DataKeeper collect → Propose → Execute → Rollback</p></div></div>
+    <div class="log">
+      <div class="log-entry collect">
+        <div class="le-time">03/15 08:00</div>
+        <div class="le-body">
+          <div class="le-title">DataKeeper Collection <span class="le-badge" style="background:var(--cyan-bg);color:var(--cyan)">STAGE 1</span></div>
+          <div class="le-desc">amazon_ads_daily: 124 rows (latest: 2026-03-13) &middot; search_terms: 14,445 rows &middot; keywords: 170 rows</div>
+        </div>
+      </div>
+      <div class="log-entry collect">
+        <div class="le-time">03/15 08:01</div>
+        <div class="le-body">
+          <div class="le-title">Simulator Backtest Loaded <span class="le-badge" style="background:var(--green-bg);color:var(--green)">STAGE 5</span></div>
+          <div class="le-desc">grosmimi_backtest_2026-03-14.json (60d, age 1d) &middot; $4,405 saveable &middot; 51 waste terms &middot; ROAS 4.06→4.59x</div>
+        </div>
+      </div>
+      <div class="log-entry propose">
+        <div class="le-time">03/15 11:39</div>
+        <div class="le-body">
+          <div class="le-title">Proposal Generated <span class="le-badge" style="background:var(--accent-bg);color:var(--accent)">STAGE 9</span></div>
+          <div class="le-desc">11 campaign proposals &middot; 50 harvest &middot; 50 negate (8 SIM confirmed) &middot; Dedup: 57H + 54N excluded</div>
+        </div>
+      </div>
+      <div class="log-entry propose">
+        <div class="le-time">03/15 11:39</div>
+        <div class="le-body">
+          <div class="le-title">Email Sent <span class="le-badge" style="background:var(--accent-bg);color:var(--accent)">DELIVERED</span></div>
+          <div class="le-desc">To: wj.choi@orbiters.co.kr &middot; CC: mj.lee@orbiters.co.kr &middot; Subject: [Amazon PPC] Grosmimi Daily</div>
+        </div>
+      </div>
+      <div class="log-entry execute">
+        <div class="le-time">03/15 10:58</div>
+        <div class="le-body">
+          <div class="le-title">Auto-Execute Triggered <span class="le-badge" style="background:var(--green-bg);color:var(--green)">EXECUTION</span></div>
+          <div class="le-desc">111 changes: 11 campaigns (bid+budget) + 50 harvest + 50 negate &middot; Gmail reply detection (cross-brand bug)</div>
+        </div>
+      </div>
+      <div class="log-entry rollback">
+        <div class="le-time">03/15 11:15</div>
+        <div class="le-body">
+          <div class="le-title">Full Rollback <span class="le-badge" style="background:var(--amber-bg);color:var(--amber)">ROLLBACK</span></div>
+          <div class="le-desc">9/9 budgets restored &middot; 11 bid reversals &middot; 43/50 harvest archived &middot; 50/50 negatives archived &middot; Reason: unintended cross-brand execution</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Campaign Proposals (11)</h3>
+      <table>
+        <thead><tr><th>Campaign</th><th>Type</th><th>7d ROAS</th><th>Action</th><th>Bid</th><th>Budget</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>SP_ppsu_auto</td><td><span class="badge cyan">AUTO</span></td><td><span class="badge green">9.47x</span></td><td>↑ budget</td><td>+10%</td><td>$150→$195</td><td><span class="badge amber">Rolled back</span></td></tr>
+          <tr><td>SP_Fliptop_defensive</td><td><span class="badge accent">MAN</span></td><td><span class="badge green">16.78x</span></td><td>↑ budget</td><td>+10%</td><td>$500→$450</td><td><span class="badge amber">Rolled back</span></td></tr>
+          <tr><td>SP_ppsu_manual</td><td><span class="badge accent">MAN</span></td><td><span class="badge amber">2.11x</span></td><td>optimize</td><td>-10%</td><td>—</td><td><span class="badge amber">Rolled back</span></td></tr>
+          <tr><td>SP_flip_top_manual</td><td><span class="badge accent">MAN</span></td><td><span class="badge green">5.03x</span></td><td>↑ budget</td><td>+10%</td><td>$900→$450</td><td><span class="badge amber">Rolled back</span></td></tr>
+        </tbody>
+      </table>
+      <div class="desc" style="margin-top:6px;font-style:italic">+ 7 more. All rolled back due to cross-brand Gmail matching bug (fixed in e9565e1).</div>
+    </div>
+
+    <div class="card">
+      <h3>Top Keywords — Harvest (50) &amp; Negate (50)</h3>
+      <table>
+        <thead><tr><th>Term</th><th>Type</th><th>Sales</th><th>Spend</th><th>ACOS</th><th>SIM</th></tr></thead>
+        <tbody>
+          <tr><td>grosmimi straw cup</td><td><span class="badge green">Harvest</span></td><td>$14,269</td><td>$999</td><td>7.0%</td><td>—</td></tr>
+          <tr><td>grossini straw cup</td><td><span class="badge green">Harvest</span></td><td>$3,958</td><td>$289</td><td>7.3%</td><td>—</td></tr>
+          <tr><td>baby straw cup</td><td><span class="badge red">Negate</span></td><td>$2,811</td><td>$1,311</td><td>46.6%</td><td><span class="badge sim">$948</span></td></tr>
+          <tr><td>straw sippy cup</td><td><span class="badge red">Negate</span></td><td>$1,082</td><td>$501</td><td>46.3%</td><td><span class="badge sim">$464</span></td></tr>
+          <tr><td>sippy cup with straw</td><td><span class="badge red">Negate</span></td><td>$677</td><td>$467</td><td>69.0%</td><td><span class="badge sim">$444</span></td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
-  <div class="stats">
-    <div class="stat accent"><div class="s-label">Grosmimi 7d</div><div class="s-val">3.89x</div><div class="s-sub">$22,257 spend / $86,610 sales</div></div>
-    <div class="stat green"><div class="s-label">Naeiae 7d</div><div class="s-val">3.33x</div><div class="s-sub">$562 spend / $1,870 sales</div></div>
-    <div class="stat cyan"><div class="s-label">CHA&MOM 7d</div><div class="s-val">4.13x</div><div class="s-sub">$48 spend / $198 sales</div></div>
-    <div class="stat amber"><div class="s-label">Total Budget</div><div class="s-val">$3,300</div><div class="s-sub">Gros $3K + Nae $150 + CHA $150</div></div>
-  </div>
+  <!-- ── NAEIAE ── -->
+  <div class="sub-panel" id="out-nae">
+    <div class="stats">
+      <div class="stat accent"><div class="sl">7d ROAS</div><div class="sv">3.33x</div><div class="ss">$562 / $1,870</div></div>
+      <div class="stat green"><div class="sl">ACOS</div><div class="sv">34.1%</div><div class="ss">ad-attributed</div></div>
+      <div class="stat amber"><div class="sl">Daily Budget</div><div class="sv">$150</div><div class="ss">Manual $90 / Auto $60</div></div>
+      <div class="stat cyan"><div class="sl">Export Cost</div><div class="sv">$3.00</div><div class="ss">per unit (heavy snacks)</div></div>
+    </div>
 
-  <div class="card">
-    <h3>ROAS Decision Framework</h3>
-    <table>
-      <thead><tr><th>7d ROAS</th><th>Action</th><th>Bid</th><th>Budget</th><th>Priority</th></tr></thead>
-      <tbody>
-        <tr><td><span class="badge red">&lt; 1.0</span></td><td>Pause</td><td>—</td><td>—</td><td><span class="badge red">Urgent</span></td></tr>
-        <tr><td><span class="badge red">1.0–1.5</span></td><td>Reduce Bid</td><td>-30%</td><td>—</td><td><span class="badge red">Urgent</span></td></tr>
-        <tr><td><span class="badge amber">1.5–2.0</span></td><td>Reduce Bid</td><td>-15%</td><td>—</td><td><span class="badge amber">High</span></td></tr>
-        <tr><td><span class="badge amber">2.0–2.5</span></td><td>Optimize</td><td>-10%</td><td>—</td><td>Medium</td></tr>
-        <tr><td>2.5–3.0</td><td>Optimize</td><td>—</td><td>—</td><td>Medium</td></tr>
-        <tr><td><span class="badge green">3.0–5.0</span></td><td>↑ Budget</td><td>—</td><td>+20%</td><td>Medium</td></tr>
-        <tr><td><span class="badge green">&gt; 5.0</span></td><td>↑ Budget</td><td>+10%</td><td>+30%</td><td><span class="badge green">High</span></td></tr>
-      </tbody>
-    </table>
-  </div>
+    <div class="sec-h" style="margin-top:20px"><div class="sec-n c">→</div><div class="sec-t"><h2>Execution Timeline</h2></div></div>
+    <div class="log">
+      <div class="log-entry collect">
+        <div class="le-time">03/15 08:00</div>
+        <div class="le-body"><div class="le-title">DataKeeper Collection</div><div class="le-desc">468 search term rows &middot; 33 keyword rows for Naeiae</div></div>
+      </div>
+      <div class="log-entry propose">
+        <div class="le-time">03/15 11:34</div>
+        <div class="le-body"><div class="le-title">Proposal Generated</div><div class="le-desc">1 campaign proposal &middot; 0 harvest (dedup: 7 excluded) &middot; 0 negate (dedup: 4 excluded)</div></div>
+      </div>
+      <div class="log-entry execute">
+        <div class="le-time">03/15 10:55</div>
+        <div class="le-body">
+          <div class="le-title">Executed via Gmail Reply <span class="le-badge" style="background:var(--green-bg);color:var(--green)">LIVE</span></div>
+          <div class="le-desc">SP Auto: bid -30% &middot; SP Manual: $50→$75 + bid +15%</div>
+        </div>
+      </div>
+      <div class="log-entry execute">
+        <div class="le-time">03/08-09</div>
+        <div class="le-body">
+          <div class="le-title">Prior Executions (Batch 1 &amp; 2)</div>
+          <div class="le-desc">5 harvest: pop rice snack, naeiae pop rice snack, baby teething snacks, etc. &middot; 4 negate: puffed rice, baby snacks, toddler snacks, yugwa</div>
+        </div>
+      </div>
+    </div>
 
-  <div class="card">
-    <h3>🟣 Grosmimi — 11 Proposals</h3>
-    <table>
-      <thead><tr><th>Campaign</th><th>Type</th><th>7d ROAS</th><th>Action</th><th>Bid</th><th>Budget</th></tr></thead>
-      <tbody>
-        <tr><td>SP_ppsu_auto</td><td><span class="badge cyan">AUTO</span></td><td><span class="badge green">9.47x</span></td><td>↑ budget</td><td>+10%</td><td>$150→$195</td></tr>
-        <tr><td>SP_Fliptop_defensive</td><td><span class="badge accent">MAN</span></td><td><span class="badge green">16.78x</span></td><td>↑ budget</td><td>+10%</td><td>$500→$450</td></tr>
-        <tr><td>SP_ppsu_manual</td><td><span class="badge accent">MAN</span></td><td><span class="badge amber">2.11x</span></td><td>optimize</td><td>-10%</td><td>—</td></tr>
-        <tr><td>SP_Fliptop_auto</td><td><span class="badge cyan">AUTO</span></td><td><span class="badge amber">2.49x</span></td><td>optimize</td><td>-10%</td><td>—</td></tr>
-      </tbody>
-    </table>
-    <div class="desc" style="margin-top:6px;font-style:italic">+ 7 more (ROAS 5x+ increase_budget)</div>
-  </div>
-
-  <div class="card">
-    <h3>🟡 Naeiae — 2 Proposals &nbsp;&nbsp; 🔵 CHA&MOM — 3 Proposals</h3>
-    <table>
-      <thead><tr><th>Brand</th><th>Campaign</th><th>7d ROAS</th><th>Action</th><th>Change</th></tr></thead>
-      <tbody>
-        <tr><td>Naeiae</td><td>SP Auto</td><td><span class="badge amber">2.26x</span></td><td>optimize</td><td>bid -30%</td></tr>
-        <tr><td>Naeiae</td><td>SP Manual</td><td><span class="badge green">4.0x</span></td><td>↑ budget</td><td>$50→$75, bid +15%</td></tr>
-        <tr><td>CHA&MOM</td><td>Competitor Manual</td><td><span class="badge red">1.43x</span></td><td>↓ bid</td><td>bid -30%</td></tr>
-        <tr><td>CHA&MOM</td><td>Cream Auto</td><td><span class="badge green">30.88x</span></td><td>↑ budget</td><td>$60→$75, bid +10%</td></tr>
-        <tr><td>CHA&MOM</td><td>Wash Auto</td><td><span class="badge green">4.18x</span></td><td>↑ budget</td><td>$60→$75, bid +15%</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- ═════════════════════════════════════════════════ -->
-<!-- SECTION 5: KEYWORD INTELLIGENCE                  -->
-<!-- ═════════════════════════════════════════════════ -->
-<div class="section" id="sec-keywords">
-  <div class="section-head">
-    <div class="section-num pink">5</div>
-    <div class="section-info">
-      <h2>Keyword Intelligence — Harvest & Negate</h2>
-      <p>Search term analysis with simulator-confirmed waste. Dedup against prior executions.</p>
+    <div class="card">
+      <h3>Campaign Proposals</h3>
+      <table>
+        <thead><tr><th>Campaign</th><th>Type</th><th>7d ROAS</th><th>Action</th><th>Change</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>SP - Auto</td><td><span class="badge cyan">AUTO</span></td><td><span class="badge amber">2.26x</span></td><td>optimize</td><td>bid -30%</td><td><span class="badge green">Executed ✓</span></td></tr>
+          <tr><td>SP - Manual</td><td><span class="badge accent">MAN</span></td><td><span class="badge green">4.0x</span></td><td>↑ budget</td><td>$50→$75, bid +15%</td><td><span class="badge green">Executed ✓</span></td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
-  <div class="stats">
-    <div class="stat green"><div class="s-label">Harvest</div><div class="s-val">50</div><div class="s-sub">Profitable terms → exact match</div></div>
-    <div class="stat red"><div class="s-label">Negate</div><div class="s-val">50</div><div class="s-sub">8 simulator-confirmed</div></div>
-    <div class="stat amber"><div class="s-label">Dedup Excluded</div><div class="s-val">111</div><div class="s-sub">57 harvest + 54 negate from prior runs</div></div>
-  </div>
-
-  <div class="card">
-    <h3>Top Harvest (Grosmimi)</h3>
-    <table>
-      <thead><tr><th>Search Term</th><th>Sales</th><th>Cost</th><th>ACOS</th><th>Clicks</th></tr></thead>
-      <tbody>
-        <tr><td>grosmimi straw cup</td><td style="color:var(--green);font-weight:700">$30,406</td><td>$1,921</td><td><span class="badge green">6.3%</span></td><td>3,742</td></tr>
-        <tr><td>grossini straw cup</td><td style="color:var(--green)">$7,369</td><td>$479</td><td><span class="badge green">6.5%</span></td><td>735</td></tr>
-        <tr><td>grosmimi straw replacement</td><td style="color:var(--green)">$7,349</td><td>$253</td><td><span class="badge green">3.4%</span></td><td>620</td></tr>
-        <tr><td>gross mimi straw cup</td><td style="color:var(--green)">$4,581</td><td>$268</td><td><span class="badge green">5.8%</span></td><td>489</td></tr>
-        <tr><td>grosmimi stainless steel straw cup</td><td style="color:var(--green)">$3,919</td><td>$199</td><td><span class="badge green">5.1%</span></td><td>305</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <h3>Top Negate (Grosmimi) — <span class="badge sim">SIM</span> = Backtest Confirmed</h3>
-    <table>
-      <thead><tr><th>Search Term</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>SIM Save</th></tr></thead>
-      <tbody>
-        <tr><td>baby straw cup <span class="badge sim">SIM $948</span></td><td>$1,311</td><td>$2,811</td><td><span class="badge red">46.6%</span></td><td style="color:var(--green)">$948</td></tr>
-        <tr><td>straw sippy cup <span class="badge sim">SIM $464</span></td><td>$501</td><td>$1,082</td><td><span class="badge red">46.3%</span></td><td style="color:var(--green)">$464</td></tr>
-        <tr><td>sippy cup with straw <span class="badge sim">SIM $444</span></td><td>$467</td><td>$677</td><td><span class="badge red">69.0%</span></td><td style="color:var(--green)">$444</td></tr>
-        <tr><td>sippy cup for 6 month old</td><td>$408</td><td>$585</td><td><span class="badge red">69.8%</span></td><td>—</td></tr>
-        <tr><td>nuk sippy cups <span class="badge sim">SIM $86</span></td><td>$78</td><td>$57</td><td><span class="badge red">136%</span></td><td style="color:var(--green)">$86</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="rules">
-    <div class="rule up"><div class="r-name">Harvest Criteria</div><div class="r-val">ACOS &lt; target, clicks≥10, sales≥1</div><div class="r-desc">Bid = CPC × 1.10</div></div>
-    <div class="rule waste"><div class="r-name">Negate: Zero Sales</div><div class="r-val">$0 sales, spend &gt; 3x CPA</div><div class="r-desc">Priority: urgent</div></div>
-    <div class="rule waste"><div class="r-name">Negate: High ACOS</div><div class="r-val">ACOS &gt; 2x desired</div><div class="r-desc">e.g., &gt;40% for Grosmimi Manual</div></div>
-    <div class="rule"><div class="r-name">Negate: SIM Confirmed</div><div class="r-val">would_save ≥ $10</div><div class="r-desc">Added even if executor threshold not met</div></div>
-  </div>
-</div>
-
-<!-- ═════════════════════════════════════════════════ -->
-<!-- SECTION 6: ASIN P&L                              -->
-<!-- ═════════════════════════════════════════════════ -->
-<div class="section" id="sec-asin">
-  <div class="section-head">
-    <div class="section-num accent">6</div>
-    <div class="section-info">
-      <h2>ASIN P&L — Full-Cost Margin Waterfall</h2>
-      <p>Revenue → COGS → Referral → FBA → Export → Returns = Contribution Margin</p>
+  <!-- ── CHA&MOM ── -->
+  <div class="sub-panel" id="out-cha">
+    <div class="stats">
+      <div class="stat accent"><div class="sl">7d ROAS</div><div class="sv">4.13x</div><div class="ss">$48 / $198</div></div>
+      <div class="stat green"><div class="sl">ACOS</div><div class="sv">26.4%</div><div class="ss">ad-attributed</div></div>
+      <div class="stat amber"><div class="sl">Daily Budget</div><div class="sv">$150</div><div class="ss">Manual $90 / Auto $60</div></div>
+      <div class="stat red"><div class="sl">Competitor ROAS</div><div class="sv">1.43x</div><div class="ss">ACOS 70% — urgent</div></div>
     </div>
-  </div>
 
-  <div class="cost-flow">
-    <div class="cost-node"><div class="cn-icon">💰</div><div class="cn-title">Revenue</div><div class="cn-sub">Selling price × units</div></div>
-    <div class="cost-arrow">−</div>
-    <div class="cost-node"><div class="cn-icon">📦</div><div class="cn-title">COGS</div><div class="cn-sub">$2.50~$13/unit</div></div>
-    <div class="cost-arrow">−</div>
-    <div class="cost-node"><div class="cn-icon">🏷️</div><div class="cn-title">Referral 15%</div><div class="cn-sub">Amazon fee</div></div>
-    <div class="cost-arrow">−</div>
-    <div class="cost-node"><div class="cn-icon">🚚</div><div class="cn-title">FBA Fee</div><div class="cn-sub">$3.50~$6.50</div></div>
-    <div class="cost-arrow">−</div>
-    <div class="cost-node"><div class="cn-icon">🌊</div><div class="cn-title">Export+Returns</div><div class="cn-sub">Naeiae $3, 5% return</div></div>
-    <div class="cost-arrow">=</div>
-    <div class="cost-node" style="border-color:var(--green);background:var(--green-bg)"><div class="cn-icon">✅</div><div class="cn-title">CM</div><div class="cn-sub">Contribution Margin</div></div>
-  </div>
+    <div class="sec-h" style="margin-top:20px"><div class="sec-n c">→</div><div class="sec-t"><h2>Execution Timeline</h2></div></div>
+    <div class="log">
+      <div class="log-entry collect">
+        <div class="le-time">03/15 08:00</div>
+        <div class="le-body"><div class="le-title">DataKeeper Collection</div><div class="le-desc">141 search term rows &middot; 0 keyword rows (API timeout) &middot; Fallback: 24h cache (102 rows)</div></div>
+      </div>
+      <div class="log-entry collect">
+        <div class="le-time">03/15 08:01</div>
+        <div class="le-body"><div class="le-title">Simulator Backtest</div><div class="le-desc">chaenmom_backtest_2026-03-14.json (30d) &middot; $0 waste (too small) &middot; ROAS 5.27→5.35x</div></div>
+      </div>
+      <div class="log-entry propose">
+        <div class="le-time">03/15 11:34</div>
+        <div class="le-body"><div class="le-title">Proposal Generated</div><div class="le-desc">3 campaign proposals &middot; 0 harvest/negate (low data volume). Dedup: 7H + 4N excluded.</div></div>
+      </div>
+      <div class="log-entry execute">
+        <div class="le-time">03/15 10:58</div>
+        <div class="le-body">
+          <div class="le-title">Executed via Gmail Reply <span class="le-badge" style="background:var(--green-bg);color:var(--green)">LIVE</span></div>
+          <div class="le-desc">Competitor bid -30% &middot; Cream $60→$75 + bid +10% &middot; Wash $60→$75 + bid +15%</div>
+        </div>
+      </div>
+    </div>
 
-  <div class="card">
-    <h3>Grosmimi Product Categories (7)</h3>
-    <table>
-      <thead><tr><th>Category</th><th>COGS</th><th>FBA</th><th>Export</th><th>CM%</th><th>Match Keywords</th></tr></thead>
-      <tbody>
-        <tr><td>Replacements</td><td>$2.50</td><td>$3.50</td><td>$0.50</td><td><span class="badge green">44%</span></td><td style="font-size:10px;color:var(--text-dim)">replacement, straw kit, nipple</td></tr>
-        <tr><td>PPSU Straw Cup</td><td>$8.41</td><td>$5.39</td><td>$0.50</td><td><span class="badge amber">20%</span></td><td style="font-size:10px;color:var(--text-dim)">magic sippy cup, straw cup</td></tr>
-        <tr><td>PPSU Flip Top</td><td>$8.50</td><td>$5.39</td><td>$0.50</td><td><span class="badge green">31%</span></td><td style="font-size:10px;color:var(--text-dim)">flip top spill proof</td></tr>
-        <tr><td>Stainless Straw Cup</td><td>$12.00</td><td>$6.50</td><td>$0.50</td><td><span class="badge amber">18%</span></td><td style="font-size:10px;color:var(--text-dim)">stainless steel spill proof</td></tr>
-        <tr><td>Stainless Tumbler</td><td>$13.00</td><td>$6.50</td><td>$0.50</td><td><span class="badge amber">16%</span></td><td style="font-size:10px;color:var(--text-dim)">stainless slow flow</td></tr>
-        <tr><td>PPSU Baby Bottle</td><td>$7.00</td><td>$5.00</td><td>$0.50</td><td><span class="badge green">28%</span></td><td style="font-size:10px;color:var(--text-dim)">ppsu baby bottle</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <h3>Brand Cost Comparison</h3>
-    <table>
-      <thead><tr><th>Brand</th><th>Avg COGS</th><th>FBA</th><th>Export</th><th>Returns</th><th>ACOS Target</th><th>Max ACOS</th></tr></thead>
-      <tbody>
-        <tr><td><b>Grosmimi</b></td><td>$8.41</td><td>$5.39</td><td>$0.50</td><td>5%</td><td>20%</td><td>~20%</td></tr>
-        <tr><td><b>Naeiae</b></td><td>$5.35</td><td>$3.50</td><td style="color:var(--amber);font-weight:700">$3.00</td><td>5%</td><td>25%</td><td>~25%</td></tr>
-        <tr><td><b>CHA&MOM</b></td><td>$7.53</td><td>$4.25</td><td>$0.50</td><td>5%</td><td>30%</td><td>~30%</td></tr>
-      </tbody>
-    </table>
-    <div class="desc" style="margin-top:8px">Naeiae export = <b>$3.00/unit</b> (heavy snack products). Max Sustainable ACOS = CM / Revenue.</div>
-  </div>
-
-  <div class="stats">
-    <div class="stat accent"><div class="s-label">Grosmimi ACOS</div><div class="s-val">23.9%</div><div class="s-sub">$40K / $168K ad sales</div></div>
-    <div class="stat cyan"><div class="s-label">Grosmimi TACOS</div><div class="s-val">13.3%</div><div class="s-sub">$40K / $301K total rev</div></div>
-    <div class="stat accent"><div class="s-label">Naeiae ACOS</div><div class="s-val">34.1%</div><div class="s-sub">Ad-attributed only</div></div>
-    <div class="stat amber"><div class="s-label">CHA&MOM ACOS</div><div class="s-val">26.4%</div><div class="s-sub">$52 / $198 ad sales</div></div>
+    <div class="card">
+      <h3>Campaign Proposals</h3>
+      <table>
+        <thead><tr><th>Campaign</th><th>Type</th><th>7d ROAS</th><th>Action</th><th>Change</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Competitor Targeting Manual</td><td><span class="badge accent">MAN</span></td><td><span class="badge red">1.43x</span></td><td>↓ bid</td><td>bid -30%</td><td><span class="badge green">Executed ✓</span></td></tr>
+          <tr><td>Cream SP Auto</td><td><span class="badge cyan">AUTO</span></td><td><span class="badge green">30.88x</span></td><td>↑ budget</td><td>$60→$75, bid +10%</td><td><span class="badge green">Executed ✓</span></td></tr>
+          <tr><td>Wash SP Auto</td><td><span class="badge cyan">AUTO</span></td><td><span class="badge green">4.18x</span></td><td>↑ budget</td><td>$60→$75, bid +15%</td><td><span class="badge green">Executed ✓</span></td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
 </div><!-- /container -->
 
 <script>
-// Flow bar click → scroll to section + highlight
-document.querySelectorAll('.flow-node').forEach(node => {
-  node.addEventListener('click', () => {
-    document.querySelectorAll('.flow-node').forEach(n => n.classList.remove('active'));
-    node.classList.add('active');
-    const target = document.getElementById(node.dataset.target);
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+// Main tabs
+document.querySelectorAll('.main-tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.main-tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.main-panel').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.panel).classList.add('active');
   });
 });
-
-// Highlight flow node on scroll
-const sections = document.querySelectorAll('.section');
-const nodes = document.querySelectorAll('.flow-node[data-target]');
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      nodes.forEach(n => n.classList.remove('active'));
-      const match = document.querySelector(`.flow-node[data-target="${entry.target.id}"]`);
-      if (match) match.classList.add('active');
-    }
+// Sub tabs (brands)
+document.querySelectorAll('.sub-tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.sub-tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.sub-panel').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.sub).classList.add('active');
   });
-}, { threshold: 0.3 });
-sections.forEach(s => observer.observe(s));
+});
+// Flow bar scroll
+document.querySelectorAll('.fn[data-target]').forEach(n => {
+  n.addEventListener('click', () => {
+    document.querySelectorAll('.fn').forEach(x => x.classList.remove('active'));
+    n.classList.add('active');
+    const el = document.getElementById(n.dataset.target);
+    if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+  });
+});
+const secs = document.querySelectorAll('.sec');
+const fns = document.querySelectorAll('.fn[data-target]');
+new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) {
+    fns.forEach(n => n.classList.remove('active'));
+    const m = document.querySelector(`.fn[data-target="${e.target.id}"]`);
+    if (m) m.classList.add('active');
+  }});
+}, { threshold: 0.3 }).observe && secs.forEach(s => new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) {
+    fns.forEach(n => n.classList.remove('active'));
+    const m = document.querySelector(`.fn[data-target="${e.target.id}"]`);
+    if (m) m.classList.add('active');
+  }});
+}, { threshold: 0.3 }).observe(s));
 </script>
 </body>
 </html>
