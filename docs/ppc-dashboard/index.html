@@ -979,18 +979,23 @@ async function executeSelected(bk, dt) {
       selectedCamps.push({idx: idx, name: campName, override_budget: overrideVal, note: campNote});
     });
     document.querySelectorAll('.harvest-check[data-bk="' + bk + '"][data-dt="' + dt + '"]:checked').forEach(function(cb){
-      selectedHarvest.push(parseInt(cb.dataset.idx));
+      var term = cb.dataset.term || '';
+      var kwNote = getKwNote(bk, term);
+      selectedHarvest.push({idx: parseInt(cb.dataset.idx), term: term, note: kwNote});
     });
     document.querySelectorAll('.negate-check[data-bk="' + bk + '"][data-dt="' + dt + '"]:checked').forEach(function(cb){
-      selectedNegate.push(parseInt(cb.dataset.idx));
+      var term = cb.dataset.term || '';
+      var kwNote = getKwNote(bk, term);
+      selectedNegate.push({idx: parseInt(cb.dataset.idx), term: term, note: kwNote});
     });
 
+    // Backend only needs idx arrays; notes are audit-only
     var selection = {
       brand: bk,
       date: dt,
       campaigns: selectedCamps,
-      harvest: selectedHarvest,
-      negate: selectedNegate
+      harvest: selectedHarvest.map(function(h){ return h.idx; }),
+      negate: selectedNegate.map(function(n){ return n.idx; })
     };
 
     try {
@@ -1000,11 +1005,11 @@ async function executeSelected(bk, dt) {
         selected_ids: JSON.stringify(selection)
       });
       if(res.status === 204) {
-        // Log to audit trail
+        // Log to audit trail (full objects with notes)
         addExecAuditEntry(user, bk, {
           campaigns: selectedCamps,
-          harvest: selectedHarvest.length,
-          negate: selectedNegate.length,
+          harvest: selectedHarvest,
+          negate: selectedNegate,
           date: dt
         }, note);
         showToast('Executed by ' + user + ': ' + selectedCamps.length + ' camps + ' + selectedHarvest.length + 'H + ' + selectedNegate.length + 'N for ' + bk + '!', 'ok');
@@ -1176,6 +1181,49 @@ function acosColor(a,tgt){ return a<=tgt?'var(--g)':a<=tgt*1.3?'var(--am)':'var(
 function arrow(v7,v30){ if(!v30) return ''; var d=v7-v30; return d>0.1?'<span style="color:var(--g)">&#9650;</span>':d<-0.1?'<span style="color:var(--r)">&#9660;</span>':'<span style="color:var(--muted)">&#8212;</span>'; }
 function fmtN(n){ return Math.round(n).toLocaleString('en-US'); }
 function fmtD(n){ return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function escQ(s){ return String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+
+// ── Keyword Notes (per brand+term, persisted in localStorage) ──
+function getKwNote(bk, term) { return localStorage.getItem('kwnote_'+bk+'_'+term) || ''; }
+function setKwNote(bk, term, val) {
+  if (val) localStorage.setItem('kwnote_'+bk+'_'+term, val);
+  else localStorage.removeItem('kwnote_'+bk+'_'+term);
+}
+function openKwNote(bk, term, btnEl) {
+  var cell = btnEl.closest ? btnEl.closest('td') : btnEl.parentElement;
+  var inp = cell.querySelector('.kw-note-inp');
+  if (inp) { inp.focus(); inp.select(); return; }
+  inp = document.createElement('input');
+  inp.type = 'text';
+  inp.className = 'kw-note-inp';
+  inp.value = getKwNote(bk, term);
+  inp.placeholder = 'Add note...';
+  inp.style.cssText = 'width:130px;padding:3px 6px;border:1px solid var(--a);border-radius:3px;font-size:10px;margin-top:3px;display:block';
+  inp.onblur = function() {
+    setKwNote(bk, term, inp.value.trim());
+    var lbl = cell.querySelector('.kw-note-lbl');
+    if (lbl) lbl.textContent = inp.value.trim();
+    else if (inp.value.trim()) {
+      var l = document.createElement('span');
+      l.className = 'kw-note-lbl';
+      l.style.cssText = 'font-size:9px;color:var(--dim);display:block;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+      l.title = inp.value.trim();
+      l.textContent = inp.value.trim();
+      cell.insertBefore(l, cell.querySelector('button'));
+    }
+  };
+  inp.onkeydown = function(e) { if(e.key==='Enter'||e.key==='Escape') inp.blur(); };
+  cell.appendChild(inp);
+  setTimeout(function(){inp.focus();}, 30);
+}
+
+function kwNoteCell(bk, term) {
+  var note = getKwNote(bk, term);
+  return '<td style="min-width:80px;vertical-align:middle">'
+    + (note?'<span class="kw-note-lbl" style="font-size:9px;color:var(--dim);display:block;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+escQ(note)+'">'+escQ(note)+'</span>':'')
+    + '<button onclick="openKwNote(\''+escQ(bk)+'\',\''+escQ(term)+'\',this)" title="Add/edit note" style="background:none;border:none;cursor:pointer;color:var(--a);font-size:11px;padding:1px 3px;opacity:.7">📝</button>'
+    + '</td>';
+}
 
 function renderAnalytics(bk, el) {
   var rows      = window._rawAdsData   || [];
@@ -1857,10 +1905,11 @@ function renderPropose(bk, dt, containerId){
   var harvestRows = dd.harvest.map(function(h,i){
     var simB = h.sim_confirmed ? ' '+badge('SIM','sim') : (h.acos && h.acos<15 ? ' '+badge('HIGH ROAS','g') : '');
     return '<tr>' +
-      '<td><input type="checkbox" class="harvest-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'" checked></td>' +
+      '<td><input type="checkbox" class="harvest-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'" data-term="'+escQ(h.term)+'" checked></td>' +
       '<td>'+h.term+simB+'</td><td style="color:var(--g);font-weight:700">$'+h.sales+'</td><td>$'+h.cost+'</td>' +
       '<td>'+(h.acos?badge(h.acos+'%','g'):'—')+'</td><td>'+h.clicks+'</td><td>'+h.purchases+'</td>' +
       '<td>$'+h.bid+'</td><td style="font-size:9px;color:var(--dim)">'+h.campaign+'</td>' +
+      kwNoteCell(bk, h.term) +
     '</tr>';
   }).join('');
 
@@ -1868,11 +1917,12 @@ function renderPropose(bk, dt, containerId){
   var negRows = dd.negate.map(function(n,i){
     var simB = n.sim_save>0?' '+badge('SIM $'+n.sim_save,'sim'):'';
     return '<tr>' +
-      '<td><input type="checkbox" class="negate-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'" checked></td>' +
+      '<td><input type="checkbox" class="negate-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'" data-term="'+escQ(n.term)+'" checked></td>' +
       '<td>'+n.term+simB+'</td><td>$'+n.cost+'</td><td>'+(n.sales?'$'+n.sales:'$0')+'</td>' +
       '<td>'+(n.acos?badge(n.acos+'%','r'):'—')+'</td><td>'+n.clicks+'</td>' +
       '<td>'+badge(n.type.replace('negate_',''),'r')+'</td>' +
-      '<td style="font-size:9px;color:var(--dim);max-width:250px">'+n.reason+'</td>' +
+      '<td style="font-size:9px;color:var(--dim);max-width:200px">'+n.reason+'</td>' +
+      kwNoteCell(bk, n.term) +
     '</tr>';
   }).join('');
 
@@ -1889,7 +1939,7 @@ function renderPropose(bk, dt, containerId){
     '<div class="card">' +
       '<h3>Keyword Harvest ('+dd.harvest.length+')</h3>' +
       (dd.harvest.length?'<div style="overflow-x:auto"><table>' +
-        '<thead><tr><th><input type="checkbox" id="checkAll-harvest-'+bk+'-'+dt+'"> All</th><th>Search Term</th><th>Sales</th><th>Cost</th><th>ACOS</th><th>Clicks</th><th>Conv</th><th>Bid</th><th>Campaign</th></tr></thead>' +
+        '<thead><tr><th><input type="checkbox" id="checkAll-harvest-'+bk+'-'+dt+'"> All</th><th>Search Term</th><th>Sales</th><th>Cost</th><th>ACOS</th><th>Clicks</th><th>Conv</th><th>Bid</th><th>Campaign</th><th>Note 📝</th></tr></thead>' +
         '<tbody>'+harvestRows+'</tbody>' +
       '</table></div>':'<div class="desc">No harvest candidates.</div>') +
     '</div>' +
@@ -1897,7 +1947,7 @@ function renderPropose(bk, dt, containerId){
     '<div class="card">' +
       '<h3>Negative Keywords ('+dd.negate.length+') '+(dd.negate.filter(function(n){return n.sim_save>0;}).length?'— '+dd.negate.filter(function(n){return n.sim_save>0;}).length+' SIM confirmed':'')+'</h3>' +
       (dd.negate.length?'<div style="overflow-x:auto"><table>' +
-        '<thead><tr><th><input type="checkbox" id="checkAll-negate-'+bk+'-'+dt+'"> All</th><th>Search Term</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Clicks</th><th>Type</th><th>Reason</th></tr></thead>' +
+        '<thead><tr><th><input type="checkbox" id="checkAll-negate-'+bk+'-'+dt+'"> All</th><th>Search Term</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Clicks</th><th>Type</th><th>Reason</th><th>Note 📝</th></tr></thead>' +
         '<tbody>'+negRows+'</tbody>' +
       '</table></div>':'<div class="desc">No negative candidates.</div>') +
     '</div>' +
@@ -2410,9 +2460,13 @@ function renderExecAudit(){
     var d = e.details||{};
     var camps = Array.isArray(d.campaigns)?d.campaigns:[];
     var campCount = camps.length;
+    var harvArr = Array.isArray(d.harvest) ? d.harvest : [];
+    var negArr  = Array.isArray(d.negate)  ? d.negate  : [];
+    var harvCount = typeof d.harvest === 'number' ? d.harvest : harvArr.length;
+    var negCount  = typeof d.negate  === 'number' ? d.negate  : negArr.length;
     var actStr = campCount+' camp'+(campCount!==1?'s':'');
-    if(d.harvest) actStr += ', '+d.harvest+'H';
-    if(d.negate) actStr += ', '+d.negate+'N';
+    if(harvCount) actStr += ', '+harvCount+'H';
+    if(negCount)  actStr += ', '+negCount+'N';
     var brandB = {'grosmimi':'🟣','naeiae':'🟡','chaenmom':'🔵'}[e.brand]||'';
     html += '<tr style="cursor:pointer" onclick="toggleAuditDetail('+logIdx+')">' +
       '<td style="font-family:var(--mono);font-size:10px;white-space:nowrap">'+e.timestamp+'</td>' +
@@ -2422,16 +2476,40 @@ function renderExecAudit(){
       '<td style="font-size:10px;color:var(--dim);max-width:250px">'+(e.note||'<i>no note</i>')+'</td>' +
       '<td><span style="font-size:10px;color:var(--a)">+</span></td>' +
     '</tr>';
-    // Campaign-level detail row (hidden)
-    if(camps.length){
-      html += '<tr id="audit-detail-'+logIdx+'" style="display:none"><td colspan="6" style="padding:6px 12px;background:#f8fafc">' +
-        '<table style="font-size:10px"><thead><tr><th>Campaign</th><th>Override Budget</th><th>Note</th></tr></thead><tbody>';
-      camps.forEach(function(c){
-        html += '<tr><td><b>'+(c.name||'#'+c.idx)+'</b></td>' +
-          '<td style="font-family:var(--mono)">'+(c.override_budget?'$'+c.override_budget:'—')+'</td>' +
-          '<td style="color:var(--dim)">'+(c.note||'')+'</td></tr>';
-      });
-      html += '</tbody></table></td></tr>';
+    // Detail row (camps + harvest + negate with notes)
+    if(camps.length || harvArr.length || negArr.length){
+      html += '<tr id="audit-detail-'+logIdx+'" style="display:none"><td colspan="6" style="padding:8px 12px;background:#f8fafc">';
+      if(camps.length){
+        html += '<div style="font-size:10px;font-weight:700;margin-bottom:4px;color:var(--dim)">Campaigns</div>'
+          +'<table style="font-size:10px;margin-bottom:10px"><thead><tr><th>Campaign</th><th>Override</th><th>Note</th></tr></thead><tbody>';
+        camps.forEach(function(c){
+          html += '<tr><td><b>'+(c.name||'#'+c.idx)+'</b></td>'
+            +'<td style="font-family:var(--mono)">'+(c.override_budget?'$'+c.override_budget:'—')+'</td>'
+            +'<td style="color:var(--dim)">'+(c.note||'')+'</td></tr>';
+        });
+        html += '</tbody></table>';
+      }
+      if(harvArr.length){
+        html += '<div style="font-size:10px;font-weight:700;margin-bottom:4px;color:var(--g)">Harvest ('+harvArr.length+')</div>'
+          +'<table style="font-size:10px;margin-bottom:10px"><thead><tr><th>Search Term</th><th>Note</th></tr></thead><tbody>';
+        harvArr.forEach(function(h){
+          if(typeof h === 'object'){
+            html += '<tr><td>'+(h.term||'#'+h.idx)+'</td><td style="color:var(--dim)">'+(h.note?'<i style="color:var(--a)">📝 '+h.note+'</i>':'—')+'</td></tr>';
+          }
+        });
+        html += '</tbody></table>';
+      }
+      if(negArr.length){
+        html += '<div style="font-size:10px;font-weight:700;margin-bottom:4px;color:var(--r)">Negatives ('+negArr.length+')</div>'
+          +'<table style="font-size:10px"><thead><tr><th>Search Term</th><th>Note</th></tr></thead><tbody>';
+        negArr.forEach(function(n){
+          if(typeof n === 'object'){
+            html += '<tr><td>'+(n.term||'#'+n.idx)+'</td><td style="color:var(--dim)">'+(n.note?'<i style="color:var(--a)">📝 '+n.note+'</i>':'—')+'</td></tr>';
+          }
+        });
+        html += '</tbody></table>';
+      }
+      html += '</td></tr>';
     }
   });
   html += '</tbody></table>';
