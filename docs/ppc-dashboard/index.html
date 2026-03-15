@@ -123,6 +123,10 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--a);cursor:pointer
 .exec-btn{background:var(--g);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:.15s}
 .exec-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
 .exec-btn:disabled{background:#cbd5e1;cursor:not-allowed;transform:none}
+/* Lab */
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
+.exp-active{background:var(--gbg)!important;border-color:var(--g)!important}
 
 @media(max-width:700px){.fb{flex-wrap:wrap;justify-content:center}.fa{display:none}.cf{flex-direction:column}.cfa{transform:rotate(90deg)}}
 </style>
@@ -431,12 +435,93 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--a);cursor:pointer
 
 <!-- ══════════ TAB 4: BACKTEST LOG ══════════ -->
 <div class="mp" id="tab-backtest">
-  <div class="card" style="border-left:3px solid var(--g);margin-bottom:16px">
-    <h3>📊 PPC Backtest Simulator Results</h3>
-    <div class="desc">Weekly simulation results per brand. Shows what 퍼포마's rules would have saved if applied from day 1. Schedule: Monday KST 23:00, 30d lookback.</div>
+
+  <!-- Sub-tabs within Backtest -->
+  <div class="st" id="btSubTabs">
+    <div class="on" data-btsub="bt-results">Results</div>
+    <div data-btsub="bt-lab">🧪 Experiment Lab</div>
   </div>
-  <div class="st" id="btBrandTabs"></div>
-  <div id="bt-content"></div>
+
+  <!-- Sub-tab 1: Results -->
+  <div id="bt-results" class="pnl on" style="padding-top:14px">
+    <div class="st" id="btBrandTabs"></div>
+    <div id="bt-content"></div>
+  </div>
+
+  <!-- Sub-tab 2: Experiment Lab -->
+  <div id="bt-lab" class="pnl" style="padding-top:14px">
+    <div class="card" style="border-left:3px solid var(--p);margin-bottom:16px">
+      <h3>🧪 Experiment Lab — What-If Simulator</h3>
+      <div class="desc">Adjust 퍼포마 rule parameters and instantly see how results change. Save experiments and select which rules feed into the next propose cycle.</div>
+    </div>
+
+    <!-- Brand selector -->
+    <div class="st" id="labBrandTabs"></div>
+
+    <!-- Experiment Config -->
+    <div class="card" style="margin-top:12px;margin-bottom:16px">
+      <h3>Rule Parameters</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Module 1: Wasted Spend</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <label style="font-size:11px;width:120px">Spend Threshold</label>
+            <input type="range" id="lab-waste-threshold" min="1" max="30" step="1" value="5" style="flex:1" oninput="document.getElementById('lab-waste-threshold-val').textContent='$'+this.value">
+            <span id="lab-waste-threshold-val" style="font-family:var(--mono);font-size:12px;font-weight:700;width:35px">$5</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <label style="font-size:11px;width:120px">Window Days</label>
+            <input type="range" id="lab-waste-window" min="7" max="30" step="1" value="14" style="flex:1" oninput="document.getElementById('lab-waste-window-val').textContent=this.value+'d'">
+            <span id="lab-waste-window-val" style="font-family:var(--mono);font-size:12px;font-weight:700;width:35px">14d</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Module 2: Bid Efficiency</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <label style="font-size:11px;width:120px">Reduce if ROAS &lt;</label>
+            <input type="range" id="lab-bid-reduce-roas" min="0.5" max="4" step="0.1" value="2.0" style="flex:1" oninput="document.getElementById('lab-bid-reduce-roas-val').textContent=this.value+'x'">
+            <span id="lab-bid-reduce-roas-val" style="font-family:var(--mono);font-size:12px;font-weight:700;width:35px">2.0x</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <label style="font-size:11px;width:120px">Scale if ROAS &gt;</label>
+            <input type="range" id="lab-bid-scale-roas" min="3" max="10" step="0.5" value="5.0" style="flex:1" oninput="document.getElementById('lab-bid-scale-roas-val').textContent=this.value+'x'">
+            <span id="lab-bid-scale-roas-val" style="font-family:var(--mono);font-size:12px;font-weight:700;width:35px">5.0x</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <label style="font-size:11px;width:120px">Reduce bid by</label>
+            <input type="range" id="lab-bid-reduce-pct" min="5" max="50" step="5" value="20" style="flex:1" oninput="document.getElementById('lab-bid-reduce-pct-val').textContent=this.value+'%'">
+            <span id="lab-bid-reduce-pct-val" style="font-family:var(--mono);font-size:12px;font-weight:700;width:35px">20%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <label style="font-size:11px;width:120px">Scale bid by</label>
+            <input type="range" id="lab-bid-scale-pct" min="5" max="50" step="5" value="15" style="flex:1" oninput="document.getElementById('lab-bid-scale-pct-val').textContent=this.value+'%'">
+            <span id="lab-bid-scale-pct-val" style="font-family:var(--mono);font-size:12px;font-weight:700;width:35px">15%</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:14px;align-items:center">
+        <button class="cfg-btn" onclick="runExperiment()" style="margin:0">
+          <span id="lab-run-text">▶ Run Experiment</span>
+          <span id="lab-spinner" style="display:none">
+            <svg width="16" height="16" viewBox="0 0 24 24" style="animation:spin 1s linear infinite;vertical-align:middle"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" stroke-width="3" fill="none"/><path d="M12 2a10 10 0 0 1 10 10" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+            Calculating...
+          </span>
+        </button>
+        <input type="text" id="lab-exp-name" placeholder="Experiment name (e.g. 'Aggressive negatives')" style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:11px">
+        <button onclick="saveExperiment()" style="background:var(--g);color:#fff;border:none;padding:8px 16px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">💾 Save</button>
+      </div>
+    </div>
+
+    <!-- Experiment Results -->
+    <div id="lab-results" style="display:none"></div>
+
+    <!-- Experiment History -->
+    <div class="card" style="margin-top:16px">
+      <h3>📁 Saved Experiments</h3>
+      <div class="desc">Click "Use for Propose" to apply an experiment's rules to the next proposal cycle.</div>
+      <div id="lab-history"></div>
+    </div>
+  </div>
 </div>
 
 <!-- ══════════ PAT AUTH MODAL ══════════ -->
@@ -1526,6 +1611,250 @@ function toggleAuditDetail(idx){
   var r=document.getElementById('audit-detail-'+idx);
   if(r) r.style.display=r.style.display==='none'?'table-row':'none';
 }
+
+// ── Backtest Sub-tabs ──
+document.querySelectorAll('#btSubTabs>div').forEach(function(t){
+  t.onclick=function(){
+    document.querySelectorAll('#btSubTabs>div').forEach(function(x){x.classList.remove('on');});
+    document.querySelectorAll('#tab-backtest>.pnl').forEach(function(x){x.classList.remove('on');});
+    t.classList.add('on');
+    document.getElementById(t.dataset.btsub).classList.add('on');
+  };
+});
+
+// ── Experiment Lab ──
+var _labBrand = 'grosmimi';
+var _labResult = null;
+
+// Lab brand tabs
+var labBtEl = document.getElementById('labBrandTabs');
+if(labBtEl){
+  btBrands.forEach(function(bk,i){
+    var d=document.createElement('div');
+    d.textContent=BRAND_LABELS[bk]||bk;
+    d.dataset.brand=bk;
+    if(i===0) d.classList.add('on');
+    d.onclick=function(){ labBtEl.querySelectorAll('div').forEach(function(x){x.classList.remove('on');}); d.classList.add('on'); _labBrand=bk; };
+    labBtEl.appendChild(d);
+  });
+}
+
+function runExperiment(){
+  var btn=document.getElementById('lab-run-text');
+  var spinner=document.getElementById('lab-spinner');
+  btn.style.display='none'; spinner.style.display='inline';
+
+  setTimeout(function(){
+    var entries=(typeof BACKTEST_LOG!=='undefined'?BACKTEST_LOG[_labBrand]:[])||[];
+    if(!entries.length){
+      document.getElementById('lab-results').innerHTML='<div class="card"><div class="desc">No backtest data for '+_labBrand+'</div></div>';
+      document.getElementById('lab-results').style.display='block';
+      btn.style.display='inline'; spinner.style.display='none';
+      return;
+    }
+    var latest=entries[entries.length-1];
+    var terms=latest.top_waste_terms||[];
+    var under=latest.bid_underperformers||[];
+    var scale=latest.bid_scalable||[];
+    var w=latest.waste_backtest||{};
+    var b=latest.bid_backtest||{};
+
+    // Get experiment params
+    var wasteThreshold=parseFloat(document.getElementById('lab-waste-threshold').value);
+    var bidReduceRoas=parseFloat(document.getElementById('lab-bid-reduce-roas').value);
+    var bidScaleRoas=parseFloat(document.getElementById('lab-bid-scale-roas').value);
+    var bidReducePct=parseInt(document.getElementById('lab-bid-reduce-pct').value)/100;
+    var bidScalePct=parseInt(document.getElementById('lab-bid-scale-pct').value)/100;
+
+    // ── Module 1: Re-simulate waste with new threshold ──
+    // Approximate: terms with actual_spend > threshold → still negated
+    // Higher threshold = fewer terms negated = less savings
+    var simWasteTerms=[];
+    var simWasteSave=0;
+    terms.forEach(function(t){
+      // Original: negated when cumulative spend >= $5 with 0 conv
+      // With higher threshold: only negate if spend justifies it
+      // Approximation: scale would_save proportionally
+      var originalThreshold=w.rule_threshold||5;
+      if(t.actual_spend >= wasteThreshold){
+        // Term would still be flagged, but savings might change
+        // If threshold is higher, we'd negate later → less savings
+        var ratio = Math.max(0, 1 - (wasteThreshold - originalThreshold) / t.actual_spend);
+        var adjSave = t.would_save * Math.min(1, ratio);
+        if(adjSave > 0){
+          simWasteTerms.push({search_term:t.search_term, actual_spend:t.actual_spend, would_save:Math.round(adjSave*100)/100, conversions:t.conversions});
+          simWasteSave += adjSave;
+        }
+      }
+    });
+    var simWastePct = w.total_actual_spend>0 ? Math.round(simWasteSave/w.total_actual_spend*1000)/10 : 0;
+
+    // ── Module 2: Re-simulate bids with new ROAS thresholds ──
+    var allKw = (under||[]).concat(scale||[]);
+    // Also need "in-range" keywords from original — approximate from totals
+    var origUnderSpend=0, origUnderSales=0, origScaleSpend=0, origScaleSales=0;
+    (under||[]).forEach(function(u){ origUnderSpend+=u.actual_spend; origUnderSales+=u.actual_sales; });
+    (scale||[]).forEach(function(s){ origScaleSpend+=s.actual_spend; origScaleSales+=s.actual_sales; });
+    var inRangeSpend = (b.total_actual_spend||0) - origUnderSpend - origScaleSpend;
+    var inRangeSales = (b.total_actual_sales||0) - origUnderSales - origScaleSales;
+
+    var simSpend=inRangeSpend, simSales=inRangeSales;
+    var simUnder=0, simScale=0;
+
+    allKw.forEach(function(kw){
+      var roas = kw.actual_roas||0;
+      var spend = kw.actual_spend||0;
+      var sales = kw.actual_sales || (spend * roas);
+      if(roas < bidReduceRoas){
+        var newSpend = spend * (1-bidReducePct);
+        simSpend += newSpend;
+        simSales += sales;
+        simUnder++;
+      } else if(roas > bidScaleRoas){
+        var scaleFactor = 1 + bidScalePct;
+        simSpend += spend * scaleFactor;
+        simSales += sales * scaleFactor;
+        simScale++;
+      } else {
+        simSpend += spend;
+        simSales += sales;
+      }
+    });
+    var simRoas = simSpend>0 ? Math.round(simSales/simSpend*100)/100 : 0;
+    var origRoas = b.actual_roas||0;
+
+    _labResult = {
+      brand: _labBrand,
+      params: {
+        waste_threshold: wasteThreshold,
+        bid_reduce_roas: bidReduceRoas,
+        bid_scale_roas: bidScaleRoas,
+        bid_reduce_pct: bidReducePct*100,
+        bid_scale_pct: bidScalePct*100,
+      },
+      waste: { total_save: Math.round(simWasteSave), save_pct: simWastePct, terms_count: simWasteTerms.length, terms: simWasteTerms },
+      bid: { actual_roas: origRoas, sim_roas: simRoas, delta: Math.round((simRoas-origRoas)*100)/100, under: simUnder, scale: simScale, sim_spend: Math.round(simSpend), sim_sales: Math.round(simSales) },
+    };
+
+    // Render results
+    var origSave = Math.round(w.total_simulated_save||0);
+    var deltaWaste = Math.round(simWasteSave) - origSave;
+    var deltaRoas = _labResult.bid.delta - (b.roas_delta||0);
+
+    var h = '<div class="card" style="border-left:3px solid var(--p);margin-bottom:12px">' +
+      '<h3>Experiment Results for '+(BRAND_LABELS[_labBrand]||_labBrand)+'</h3>' +
+      '<div class="stats" style="margin:8px 0">' +
+        '<div class="stat '+(simWasteSave>origSave?'green':'red')+'"><div class="sl">Waste Savings</div><div class="sv">$'+Math.round(simWasteSave).toLocaleString()+'</div><div class="ss">vs baseline $'+origSave.toLocaleString()+' ('+(deltaWaste>=0?'+':'')+deltaWaste+')</div></div>' +
+        '<div class="stat"><div class="sl">Save %</div><div class="sv">'+simWastePct+'%</div><div class="ss">vs baseline '+(w.save_pct||0)+'%</div></div>' +
+        '<div class="stat '+(simRoas>origRoas?'green':'red')+'"><div class="sl">Sim ROAS</div><div class="sv">'+simRoas+'x</div><div class="ss">vs actual '+origRoas+'x (+'+ _labResult.bid.delta+'x)</div></div>' +
+        '<div class="stat accent"><div class="sl">Adjustments</div><div class="sv">'+simUnder+'↓ '+simScale+'↑</div><div class="ss">'+simWasteTerms.length+' negated</div></div>' +
+      '</div>';
+
+    // Comparison table: Baseline vs Experiment
+    h += '<table><thead><tr><th>Metric</th><th>Baseline (default rules)</th><th>This Experiment</th><th>Δ</th></tr></thead><tbody>' +
+      '<tr><td>Waste Threshold</td><td>$'+(w.rule_threshold||5)+'</td><td style="color:var(--a);font-weight:700">$'+wasteThreshold+'</td><td></td></tr>' +
+      '<tr><td>Terms Negated</td><td>'+(w.negated_terms_count||0)+'</td><td>'+simWasteTerms.length+'</td><td>'+(simWasteTerms.length-(w.negated_terms_count||0))+'</td></tr>' +
+      '<tr><td>Waste Savings</td><td>$'+origSave.toLocaleString()+'</td><td style="color:var(--g);font-weight:700">$'+Math.round(simWasteSave).toLocaleString()+'</td><td style="color:'+(deltaWaste>=0?'var(--g)':'var(--r)')+'">'+(deltaWaste>=0?'+':'')+deltaWaste+'</td></tr>' +
+      '<tr><td>Reduce ROAS &lt;</td><td>'+(b.rule_reduce_threshold||2)+'x</td><td style="color:var(--a);font-weight:700">'+bidReduceRoas+'x</td><td></td></tr>' +
+      '<tr><td>Scale ROAS &gt;</td><td>'+(b.rule_scale_threshold||5)+'x</td><td style="color:var(--a);font-weight:700">'+bidScaleRoas+'x</td><td></td></tr>' +
+      '<tr><td>Sim ROAS</td><td>'+(b.sim_roas||0)+'x</td><td style="color:var(--g);font-weight:700">'+simRoas+'x</td><td style="color:'+(deltaRoas>=0?'var(--g)':'var(--r)')+'">'+((deltaRoas>=0?'+':'')+Math.round(deltaRoas*100)/100)+'x</td></tr>' +
+    '</tbody></table></div>';
+
+    // Top affected terms
+    if(simWasteTerms.length){
+      h += '<div class="card"><h3>Top Affected Search Terms ('+simWasteTerms.length+')</h3><div style="overflow-x:auto"><table>' +
+        '<thead><tr><th>#</th><th>Term</th><th>Spend</th><th>Would Save</th><th>Conv</th></tr></thead><tbody>';
+      simWasteTerms.slice(0,15).forEach(function(t,i){
+        h += '<tr><td>'+(i+1)+'</td><td><b>'+t.search_term+'</b></td><td style="font-family:var(--mono)">$'+t.actual_spend.toLocaleString()+'</td><td style="color:var(--g);font-weight:700;font-family:var(--mono)">$'+t.would_save.toLocaleString()+'</td><td>'+t.conversions+'</td></tr>';
+      });
+      h += '</tbody></table></div></div>';
+    }
+
+    document.getElementById('lab-results').innerHTML=h;
+    document.getElementById('lab-results').style.display='block';
+    btn.style.display='inline'; spinner.style.display='none';
+  }, 600); // Slight delay for spinner effect
+}
+
+// ── Save/Load Experiments ──
+function getExperiments(){
+  try{return JSON.parse(localStorage.getItem('ppc_experiments')||'[]');}catch(e){return [];}
+}
+
+function saveExperiment(){
+  if(!_labResult){ showToast('Run an experiment first.','err'); return; }
+  var name = document.getElementById('lab-exp-name').value.trim() || ('Experiment '+(getExperiments().length+1));
+  var user = getLoggedInUser()||'anonymous';
+  var now = new Date();
+  var pstStr = now.toLocaleString('en-US',{timeZone:'America/Los_Angeles',month:'2-digit',day:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})+' PST';
+
+  var exp = {
+    name: name,
+    user: user,
+    timestamp: pstStr,
+    brand: _labResult.brand,
+    params: _labResult.params,
+    waste_save: _labResult.waste.total_save,
+    waste_pct: _labResult.waste.save_pct,
+    sim_roas: _labResult.bid.sim_roas,
+    roas_delta: _labResult.bid.delta,
+    active: false
+  };
+  var exps = getExperiments();
+  exps.unshift(exp);
+  if(exps.length>50) exps=exps.slice(0,50);
+  localStorage.setItem('ppc_experiments',JSON.stringify(exps));
+  showToast('Saved: '+name+' by '+user,'ok');
+  renderLabHistory();
+}
+
+function activateExperiment(idx){
+  var exps=getExperiments();
+  exps.forEach(function(e,i){e.active=(i===idx);});
+  localStorage.setItem('ppc_experiments',JSON.stringify(exps));
+  showToast('Activated: '+exps[idx].name+' — these rules will be used for next propose.','ok');
+  renderLabHistory();
+}
+
+function deleteExperiment(idx){
+  var exps=getExperiments();
+  exps.splice(idx,1);
+  localStorage.setItem('ppc_experiments',JSON.stringify(exps));
+  renderLabHistory();
+}
+
+function renderLabHistory(){
+  var exps=getExperiments();
+  var el=document.getElementById('lab-history');
+  if(!el) return;
+  if(!exps.length){ el.innerHTML='<div class="desc" style="text-align:center;padding:12px">No saved experiments. Run one and click Save.</div>'; return; }
+
+  var html='<table><thead><tr><th></th><th>Name</th><th>User</th><th>Brand</th><th>Waste $</th><th>Save%</th><th>Sim ROAS</th><th>Δ</th><th>Params</th><th>Time</th><th></th></tr></thead><tbody>';
+  exps.forEach(function(e,i){
+    var isActive=e.active;
+    var rowClass=isActive?'class="exp-active"':'';
+    var activeBadge=isActive?badge('ACTIVE','g'):'';
+    var paramStr='W$'+e.params.waste_threshold+' R<'+e.params.bid_reduce_roas+'x S>'+e.params.bid_scale_roas+'x -'+e.params.bid_reduce_pct+'%/+'+e.params.bid_scale_pct+'%';
+    html+='<tr '+rowClass+'>' +
+      '<td>'+activeBadge+'</td>' +
+      '<td><b>'+e.name+'</b></td>' +
+      '<td style="color:var(--a)">'+e.user+'</td>' +
+      '<td>'+({'grosmimi':'🟣','naeiae':'🟡','chaenmom':'🔵'}[e.brand]||'')+' '+e.brand+'</td>' +
+      '<td style="font-family:var(--mono);color:var(--g)">$'+(e.waste_save||0).toLocaleString()+'</td>' +
+      '<td>'+badge((e.waste_pct||0)+'%',(e.waste_pct||0)>=15?'g':'am')+'</td>' +
+      '<td style="font-family:var(--mono)">'+(e.sim_roas||0)+'x</td>' +
+      '<td>'+badge('+'+(e.roas_delta||0)+'x',(e.roas_delta||0)>=0.3?'g':'am')+'</td>' +
+      '<td style="font-size:9px;font-family:var(--mono);color:var(--dim)">'+paramStr+'</td>' +
+      '<td style="font-size:9px;color:var(--dim)">'+e.timestamp+'</td>' +
+      '<td>' +
+        (isActive?'':'<button onclick="activateExperiment('+i+')" style="background:var(--gbg);color:var(--g);border:1px solid var(--g);padding:2px 8px;border-radius:4px;font-size:9px;font-weight:700;cursor:pointer;margin-right:4px">Use for Propose</button>') +
+        '<button onclick="deleteExperiment('+i+')" style="background:#fff;color:var(--r);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:9px;cursor:pointer">✕</button>' +
+      '</td></tr>';
+  });
+  html+='</tbody></table>';
+  el.innerHTML=html;
+}
+renderLabHistory();
 
 // Init — render first brand in all tabs
 renderConfigBrand(brands[0]);
