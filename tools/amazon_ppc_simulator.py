@@ -423,6 +423,78 @@ def build_monthly_timeline(waste_terms: list, st_rows: list) -> list:
     return timeline
 
 
+# ── Execution History Loader ──────────────────────────────────────────────────
+
+def _load_execution_history(brand_key: str) -> list:
+    """Load all ppc_executed_*.json files and filter to this brand's actions."""
+    import glob
+    history = []
+    files = sorted(glob.glob(str(ROOT / ".tmp" / "ppc_executed_*.json")))
+    brand_display = BRAND_CONFIGS[brand_key]["brand_display"]
+
+    for fpath in files:
+        try:
+            data = json.loads(Path(fpath).read_text(encoding="utf-8"))
+            exec_date = Path(fpath).stem.replace("ppc_executed_", "")[:8]  # YYYYMMDD
+            exec_date_fmt = f"{exec_date[:4]}-{exec_date[4:6]}-{exec_date[6:8]}"
+            for item in data:
+                # Filter by brand (campaign name contains brand, or all if no name)
+                cname = item.get("campaignName", "")
+                kw = item.get("keyword", "")
+                action = item.get("action", "")
+                # Match brand by campaign name prefix or seller context
+                is_match = (
+                    brand_display.lower() in cname.lower()
+                    or (brand_key == "naeiae" and ("fleeters" in cname.lower() or cname == ""))
+                    or (brand_key == "chaenmom" and "cha&mom" in cname.lower())
+                    or (brand_key == "grosmimi" and "grosmimi" in cname.lower())
+                )
+                if not is_match:
+                    # Check if brand_key matches based on campaign IDs from BRAND_CONFIGS
+                    pass  # Skip non-matching brands
+
+                if is_match:
+                    history.append({
+                        "date": exec_date_fmt,
+                        "action": action,
+                        "campaign": cname[:50] if cname else "(auto)",
+                        "keyword": kw,
+                        "spend_7d": item.get("spend_7d", 0),
+                        "sales_7d": item.get("sales_7d", 0),
+                        "roas_7d": item.get("roas_7d"),
+                        "bid_change": item.get("bid_change_pct"),
+                        "new_budget": item.get("new_budget"),
+                        "reason": item.get("reason", "")[:80],
+                        "status": item.get("result_status", ""),
+                    })
+        except Exception:
+            continue
+
+    # Also load baseline if exists
+    baseline_path = ROOT / ".tmp" / f"{brand_key}_execution_baseline.json"
+    if not baseline_path.exists():
+        baseline_path = ROOT / ".tmp" / "naeiae_execution_baseline.json"
+    if baseline_path.exists() and brand_key in baseline_path.name.replace("_execution_baseline", ""):
+        try:
+            bl = json.loads(baseline_path.read_text(encoding="utf-8"))
+            if bl.get("brand", "").lower() == brand_display.lower():
+                history.insert(0, {
+                    "type": "baseline",
+                    "date": bl.get("executed_date", ""),
+                    "before_roas_7d": bl.get("before", {}).get("roas_7d"),
+                    "before_acos_7d": bl.get("before", {}).get("acos_7d"),
+                    "negatives_added": len(bl.get("changes_executed", {}).get("negatives_added", [])),
+                    "bid_reductions": len(bl.get("changes_executed", {}).get("bid_reductions", [])),
+                    "keywords_harvested": len(bl.get("changes_executed", {}).get("keywords_harvested", [])),
+                    "wasted_spend_blocked": bl.get("changes_executed", {}).get("wasted_spend_14d", 0),
+                })
+        except Exception:
+            pass
+
+    print(f"  [History] {len(history)} execution records loaded for {brand_display}")
+    return history
+
+
 # ── HTML Report ──────────────────────────────────────────────────────────────
 
 HTML_TEMPLATE = ROOT / ".tmp" / "ppc_simulator" / "backtest_template.html"
@@ -597,7 +669,18 @@ def main():
     out_path.write_text(html, encoding="utf-8")
     print(f"\nHTML report saved: {out_path}")
 
-    # Save JSON summary
+    # Load execution history for this brand
+    execution_history = _load_execution_history(brand_key)
+
+    # Save JSON summary (PST timezone)
+    try:
+        from zoneinfo import ZoneInfo
+        now_pst = datetime.now(ZoneInfo("America/Los_Angeles"))
+    except Exception:
+        # Windows without tzdata: manual UTC-8 offset
+        from datetime import timezone
+        now_pst = datetime.now(timezone(timedelta(hours=-7)))  # PDT (UTC-7)
+
     summary = {
         "brand": brand_key,
         "period": {"start": str(start_date), "end": str(end_date), "days": args.days},
@@ -606,7 +689,8 @@ def main():
                            if k not in ("underperformers", "scalable")},
         "timeline": timeline,
         "top_waste_terms": waste["top_terms"][:10],
-        "generated_at": datetime.now().isoformat(),
+        "execution_history": execution_history,
+        "generated_at": now_pst.strftime("%Y-%m-%d %H:%M PST"),
     }
     json_path = TMP_DIR / f"{brand_key}_backtest_{end_date}.json"
     json_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2),
