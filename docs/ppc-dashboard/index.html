@@ -286,6 +286,20 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
       </div>
     </div>
 
+    <!-- ─── Experiment Lab Flow ─── -->
+    <div class="card" style="border-left:3px solid var(--p)">
+      <h3>🧪 Experiment Lab → Propose Pipeline</h3>
+      <div class="desc">Interactive what-if simulator. Adjust rules, test impact, select winner, feed into next propose cycle.</div>
+      <div class="cf" style="margin:12px 0">
+        <div class="cfn" style="border-color:var(--p)"><div class="ci">🎛️</div><div class="ctt">Adjust</div><div class="cs">Sliders</div></div><div class="cfa">→</div>
+        <div class="cfn" style="border-color:var(--p)"><div class="ci">⚡</div><div class="ctt">Run</div><div class="cs">Instant calc</div></div><div class="cfa">→</div>
+        <div class="cfn" style="border-color:var(--g)"><div class="ci">💾</div><div class="ctt">Save</div><div class="cs">Named exp</div></div><div class="cfa">→</div>
+        <div class="cfn" style="border-color:var(--g);background:var(--gbg)"><div class="ci">✅</div><div class="ctt">Activate</div><div class="cs">For propose</div></div><div class="cfa">→</div>
+        <div class="cfn"><div class="ci">📧</div><div class="ctt">Propose</div><div class="cs">Uses rules</div></div>
+      </div>
+      <div class="desc"><b>Currently active:</b> <span id="arch-active-exp" style="color:var(--g);font-weight:700">Default rules (baseline)</span></div>
+    </div>
+
     <!-- ─── Output Files ─── -->
     <div class="card">
       <h3>📁 Output Files</h3>
@@ -1365,8 +1379,9 @@ function renderBacktestBrand(bk){
   '</div>';
 
   // History table — each row is clickable
+  var canDelete = DELETE_USERS.indexOf(getLoggedInUser())>=0;
   html += '<div class="card"><h3>Backtest History <span style="font-size:10px;color:var(--dim);font-weight:400">— click a row to expand full detail</span></h3><div style="overflow-x:auto"><table>' +
-    '<thead><tr><th>#</th><th>Period</th><th>Days</th><th>Total Spend</th><th>Would Save</th><th>Save %</th><th>Neg Terms</th><th>Actual ROAS</th><th>Sim ROAS</th><th>Delta</th><th>Under</th><th>Scale</th><th>Generated</th></tr></thead><tbody>';
+    '<thead><tr><th>#</th><th>Period</th><th>Days</th><th>Total Spend</th><th>Would Save</th><th>Save %</th><th>Neg Terms</th><th>Actual ROAS</th><th>Sim ROAS</th><th>Delta</th><th>Under</th><th>Scale</th><th>Generated</th>'+(canDelete?'<th></th>':'')+'</tr></thead><tbody>';
 
   var rev = entries.slice().reverse();
   rev.forEach(function(e,i){
@@ -1382,8 +1397,10 @@ function renderBacktestBrand(bk){
       '<td>'+savePctB+'</td><td>'+(ew.negated_terms_count||0)+'</td>' +
       '<td>'+roasB(eb.actual_roas||0)+'</td><td style="color:var(--g);font-weight:700">'+(eb.sim_roas||0)+'x</td>' +
       '<td>'+roasB2+'</td><td>'+(eb.underperformer_count||0)+'</td><td>'+(eb.scalable_count||0)+'</td>' +
-      '<td style="font-size:9px;color:var(--dim)">'+(e.generated_at||'')+'</td></tr>' +
-      '<tr id="bt-detail-'+bk+'-'+i+'" style="display:none"><td colspan="13" style="padding:0;background:#f8fafc"><div id="bt-detail-content-'+bk+'-'+i+'"></div></td></tr>';
+      '<td style="font-size:9px;color:var(--dim)">'+(e.generated_at||'')+'</td>' +
+      (canDelete?'<td><button onclick="event.stopPropagation();deleteBtEntry(\''+bk+'\','+i+')" style="background:#fff;color:var(--r);border:1px solid var(--border);padding:1px 5px;border-radius:3px;font-size:8px;cursor:pointer">✕</button></td>':'') +
+      '</tr>' +
+      '<tr id="bt-detail-'+bk+'-'+i+'" style="display:none"><td colspan="'+(canDelete?'14':'13')+'" style="padding:0;background:#f8fafc"><div id="bt-detail-content-'+bk+'-'+i+'"></div></td></tr>';
   });
   html += '</tbody></table></div></div>';
 
@@ -1392,6 +1409,16 @@ function renderBacktestBrand(bk){
   window._btEntries[bk] = rev;
 
   el.innerHTML = html;
+}
+
+function deleteBtEntry(bk, idx){
+  if(DELETE_USERS.indexOf(getLoggedInUser())<0){ showToast('Only WJ, MJ, CAL can delete.','err'); return; }
+  if(!confirm('Delete this backtest entry?')) return;
+  // Remove from BACKTEST_LOG (runtime only — bt_data.js unchanged)
+  var rev=window._btEntries[bk];
+  rev.splice(idx,1);
+  renderBacktestBrand(bk);
+  showToast('Entry deleted (runtime only).','ok');
 }
 
 function toggleBtDetail(bk, idx){
@@ -1814,6 +1841,7 @@ function activateExperiment(idx){
   localStorage.setItem('ppc_experiments',JSON.stringify(exps));
   showToast('Activated: '+exps[idx].name+' — these rules will be used for next propose.','ok');
   renderLabHistory();
+  updateArchActiveExp();
 }
 
 function deleteExperiment(idx){
@@ -1855,6 +1883,19 @@ function renderLabHistory(){
   el.innerHTML=html;
 }
 renderLabHistory();
+
+// Show active experiment in Architecture tab
+var DELETE_USERS = ['WJ','MJ','CAL'];
+function updateArchActiveExp(){
+  var exps=getExperiments();
+  var active=exps.find(function(e){return e.active;});
+  var el=document.getElementById('arch-active-exp');
+  if(el){
+    if(active) el.innerHTML='<span style="background:var(--gbg);padding:2px 8px;border-radius:4px;border:1px solid var(--g)">'+active.name+'</span> by '+active.user+' — W$'+active.params.waste_threshold+' R&lt;'+active.params.bid_reduce_roas+'x S&gt;'+active.params.bid_scale_roas+'x -'+active.params.bid_reduce_pct+'%/+'+active.params.bid_scale_pct+'%';
+    else el.textContent='Default rules (baseline) — W$5, R<2.0x, S>5.0x, -20%/+15%';
+  }
+}
+updateArchActiveExp();
 
 // Init — render first brand in all tabs
 renderConfigBrand(brands[0]);
