@@ -10,6 +10,7 @@ Endpoints:
 import json
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
+from functools import wraps
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -18,6 +19,38 @@ from django.contrib.auth.decorators import login_required
 from django.db import models as db_models
 
 from . import models
+
+# CORS: Allow GitHub Pages dashboard to fetch directly
+CORS_ALLOWED_ORIGINS = [
+    "https://orbiters-dev.github.io",
+    "http://localhost",
+    "http://127.0.0.1",
+    "null",  # file:// protocol
+]
+
+
+def cors_headers(view_func):
+    """Add CORS headers to allow cross-origin requests from dashboard."""
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        # Handle preflight OPTIONS
+        if request.method == "OPTIONS":
+            response = JsonResponse({})
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+            response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+            response["Access-Control-Max-Age"] = "86400"
+            return response
+        response = view_func(request, *args, **kwargs)
+        origin = request.META.get("HTTP_ORIGIN", "")
+        if any(origin.startswith(o) for o in CORS_ALLOWED_ORIGINS) or not origin:
+            response["Access-Control-Allow-Origin"] = origin or "*"
+        else:
+            response["Access-Control-Allow-Origin"] = "https://orbiters-dev.github.io"
+        response["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+        response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        return response
+    return wrapper
 
 # Table name -> Model class mapping
 TABLE_MAP = {
@@ -152,7 +185,8 @@ def save_rows(request):
 
 
 @csrf_exempt
-@require_http_methods(["GET"])
+@cors_headers
+@require_http_methods(["GET", "OPTIONS"])
 def query_rows(request):
     """Query rows from a Data Keeper table.
 
@@ -226,7 +260,8 @@ def query_rows(request):
 
 
 @csrf_exempt
-@require_http_methods(["GET"])
+@cors_headers
+@require_http_methods(["GET", "OPTIONS"])
 def list_tables(request):
     """List all available Data Keeper tables with row counts."""
     result = {}
@@ -239,7 +274,8 @@ def list_tables(request):
 
 
 @csrf_exempt
-@require_http_methods(["GET"])
+@cors_headers
+@require_http_methods(["GET", "OPTIONS"])
 def status(request):
     """Get latest collection timestamps per table."""
     result = {}

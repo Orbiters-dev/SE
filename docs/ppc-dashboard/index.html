@@ -985,7 +985,88 @@ document.addEventListener('input', function(e) {
 });
 
 // Hero meta
-document.getElementById('hero-meta').innerHTML = '<span class="pill"><span class="dot"></span> DataKeeper: ' + D.generated_pst + '</span><span class="pill">3 Brands &middot; Data from data.js</span>';
+document.getElementById('hero-meta').innerHTML = '<span class="pill"><span class="dot"></span> DataKeeper: ' + D.generated_pst + '</span><span class="pill">3 Brands</span><span class="pill" id="live-status">Connecting to API...</span>';
+
+// ── Live API Fetch ──
+var API_BASE = 'https://orbitools.orbiters.co.kr/api/datakeeper';
+var API_AUTH = ''; // Set via PAT modal or hardcoded basic auth
+
+async function fetchLiveMetrics(){
+  var statusEl = document.getElementById('live-status');
+  try {
+    // Fetch latest 7d + 30d amazon_ads_daily for all brands
+    var d7 = new Date(); d7.setDate(d7.getDate()-7);
+    var d30 = new Date(); d30.setDate(d30.getDate()-30);
+    var d7s = d7.toISOString().slice(0,10);
+    var d30s = d30.toISOString().slice(0,10);
+
+    var [adsRes, salesRes] = await Promise.all([
+      fetch(API_BASE+'/query/?table=amazon_ads_daily&limit=10000&date_from='+d30s, {headers:{'Authorization':'Basic '+btoa('admin:admin')}}),
+      fetch(API_BASE+'/query/?table=amazon_sales_daily&limit=5000&date_from='+d30s, {headers:{'Authorization':'Basic '+btoa('admin:admin')}}),
+    ]);
+
+    if(!adsRes.ok || !salesRes.ok) throw new Error('API '+adsRes.status);
+
+    var adsData = (await adsRes.json()).rows || [];
+    var salesData = (await salesRes.json()).rows || [];
+
+    // Compute live ACOS/TACOS per brand
+    var liveBrands = {};
+    ['Grosmimi','Naeiae','CHA&MOM'].forEach(function(brand){
+      var bk = brand.toLowerCase().replace('&','').replace(' ','');
+      if(bk==='chamom') bk='chaenmom';
+      var ads7 = adsData.filter(function(r){return r.brand===brand && r.date>=d7s;});
+      var ads30 = adsData.filter(function(r){return r.brand===brand && r.date>=d30s;});
+      var sales7 = salesData.filter(function(r){return r.brand===brand && r.date>=d7s;});
+      var sales30 = salesData.filter(function(r){return r.brand===brand && r.date>=d30s;});
+
+      var spend7=0,adSales7=0,spend30=0,adSales30=0,totSales7=0,totSales30=0;
+      ads7.forEach(function(r){spend7+=+(r.spend||0);adSales7+=+(r.sales||0);});
+      ads30.forEach(function(r){spend30+=+(r.spend||0);adSales30+=+(r.sales||0);});
+      sales7.forEach(function(r){totSales7+=+(r.gross_sales||r.ordered_product_sales||0);});
+      sales30.forEach(function(r){totSales30+=+(r.gross_sales||r.ordered_product_sales||0);});
+
+      liveBrands[bk] = {
+        acos7d: adSales7>0 ? Math.round(spend7/adSales7*1000)/10 : 0,
+        acos30d: adSales30>0 ? Math.round(spend30/adSales30*1000)/10 : 0,
+        tacos7d: totSales7>0 ? Math.round(spend7/totSales7*1000)/10 : 0,
+        tacos30d: totSales30>0 ? Math.round(spend30/totSales30*1000)/10 : 0,
+        roas7d: spend7>0 ? Math.round(adSales7/spend7*100)/100 : 0,
+        roas30d: spend30>0 ? Math.round(adSales30/spend30*100)/100 : 0,
+        spend7d: Math.round(spend7),
+        sales7d: Math.round(adSales7),
+      };
+    });
+
+    // Update BRAND_PL with live data
+    Object.keys(liveBrands).forEach(function(bk){
+      if(BRAND_PL[bk]){
+        var lb = liveBrands[bk];
+        BRAND_PL[bk].acos7d = lb.acos7d+'%';
+        BRAND_PL[bk].acos30d = lb.acos30d+'%';
+        BRAND_PL[bk].tacos7d = lb.tacos7d+'%';
+        BRAND_PL[bk].tacos30d = lb.tacos30d+'%';
+      }
+    });
+
+    // Store for other uses
+    window._liveMetrics = liveBrands;
+
+    var latestDate = adsData.length ? adsData[0].date : '?';
+    statusEl.innerHTML = '<span class="dot" style="background:var(--g)"></span> LIVE ('+latestDate+')';
+    statusEl.style.borderColor = 'var(--g)';
+
+    // Refresh current brand view if on Config tab
+    var activeConfigBrand = document.querySelector('#configBrandTabs .on');
+    if(activeConfigBrand) renderConfigBrand(activeConfigBrand.dataset.brand);
+
+  } catch(e) {
+    statusEl.innerHTML = 'Offline (data.js)';
+    statusEl.style.borderColor = 'var(--am)';
+    console.log('Live API fetch failed:', e.message);
+  }
+}
+fetchLiveMetrics();
 
 // Main tabs
 document.querySelectorAll('.mt>div').forEach(function(t){
