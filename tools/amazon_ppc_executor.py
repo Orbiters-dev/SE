@@ -3952,7 +3952,7 @@ def build_proposal_html(proposals: List[Dict],
 
     {budget_impact_html}
 
-    {_build_keyword_html(kw_proposals, label_start=len(proposals) if proposals else 0)}
+    {_build_keyword_html(kw_proposals, label_start=len(proposals) if proposals else 0, backtest=backtest)}
 
     {all_camps_html}
 
@@ -3978,7 +3978,7 @@ def build_proposal_html(proposals: List[Dict],
     return html
 
 
-def _build_keyword_html(kw_proposals: Optional[List[Dict]], label_start: int = 0) -> str:
+def _build_keyword_html(kw_proposals: Optional[List[Dict]], label_start: int = 0, backtest: Optional[Dict] = None) -> str:
     """Build HTML section for keyword-level proposals with A/B/C labels continuing from campaign proposals."""
     if not kw_proposals:
         return ""
