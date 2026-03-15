@@ -89,16 +89,16 @@ const PL_DATA = {
    ]
   },
   {
-   "category": "PPSU Flip Top",
-   "units": 2587,
-   "rev": 73323,
-   "asp": 28.34,
+   "category": "PPSU Flip Top 10oz",
+   "units": 1791,
+   "rev": 53054,
+   "asp": 29.62,
    "cogs": 9.5,
    "fba": 5.39,
-   "gm_pct": 66.5,
-   "cm": 18844,
-   "cm_pct": 25.7,
-   "asin_count": 20,
+   "gm_pct": 67.9,
+   "cm": 14880,
+   "cm_pct": 28.0,
+   "asin_count": 9,
    "top_asins": [
     {
      "asin": "B0DB7SPP2P",
@@ -225,6 +225,94 @@ const PL_DATA = {
      "name": "Grosmimi Replacements (Straw kit 4-counts, Stage2)",
      "units": 194,
      "rev": 4474
+    }
+   ]
+  },
+  {
+   "category": "PPSU Flip Top 6oz",
+   "units": 585,
+   "rev": 15610,
+   "asp": 26.68,
+   "cogs": 8.5,
+   "fba": 5.0,
+   "gm_pct": 68.1,
+   "cm": 4298,
+   "cm_pct": 27.5,
+   "asin_count": 5,
+   "top_asins": [
+    {
+     "asin": "B0F4D28MC3",
+     "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA",
+     "units": 164,
+     "rev": 3701
+    },
+    {
+     "asin": "B0F4D8L1HL",
+     "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA",
+     "units": 131,
+     "rev": 3367
+    },
+    {
+     "asin": "B0F4D3YZ8H",
+     "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA",
+     "units": 122,
+     "rev": 3160
+    },
+    {
+     "asin": "B0F4CRT6LV",
+     "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA",
+     "units": 87,
+     "rev": 2756
+    },
+    {
+     "asin": "B0F4D1V39Q",
+     "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA",
+     "units": 81,
+     "rev": 2626
+    }
+   ]
+  },
+  {
+   "category": "PPSU Flip Top (Knotted)",
+   "units": 211,
+   "rev": 4659,
+   "asp": 22.08,
+   "cogs": 10.0,
+   "fba": 5.39,
+   "gm_pct": 54.7,
+   "cm": 375,
+   "cm_pct": 8.0,
+   "asin_count": 6,
+   "top_asins": [
+    {
+     "asin": "B0F9NPRCTM",
+     "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup,",
+     "units": 75,
+     "rev": 1778
+    },
+    {
+     "asin": "B0F8QHJN6G",
+     "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup,",
+     "units": 47,
+     "rev": 1088
+    },
+    {
+     "asin": "B0F8QGZ7TH",
+     "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup,",
+     "units": 26,
+     "rev": 622
+    },
+    {
+     "asin": "B0F8Q8RK18",
+     "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup,",
+     "units": 31,
+     "rev": 603
+    },
+    {
+     "asin": "B0F8QHRGKW",
+     "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup,",
+     "units": 18,
+     "rev": 311
     }
    ]
   },
@@ -386,6 +474,6 @@ const PL_DATA = {
  "total": {
   "units": 12800,
   "rev": 321692,
-  "cm": 71464
+  "cm": 72173
  }
 };
