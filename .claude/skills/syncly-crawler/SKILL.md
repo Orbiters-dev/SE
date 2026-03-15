@@ -131,6 +131,46 @@ Col J+: D+0 Cmt/Like/View, D+1 Cmt/Like/View, ... D+60 Cmt/Like/View
   - Steps: Install Playwright browsers → Restore Syncly session → fetch_syncly_export (US+JP) → sync_syncly_to_sheets (US+JP) → sync_sns_tab (all brands) → syncly_daily_email
   - ⚠️ Playwright in CI: headless mode only, Syncly session may expire → check `SYNCLY_SESSION_STATE` secret freshness
 
+### GitHub Actions 세션 초기화 & 갱신
+**첫 설정 (한 번만):**
+```bash
+# 로컬 브라우저 프로필 백업
+tar -czf syncly_session.tar.gz ~/.syncly_state/chrome_profile/
+# Base64 인코딩
+base64 -w0 syncly_session.tar.gz > syncly_session_b64.txt
+# GitHub > Settings > Secrets > New secret
+# Name: SYNCLY_SESSION_STATE
+# Value: (syncly_session_b64.txt 내용 붙여넣기)
+```
+
+**세션 만료 판별:**
+- GitHub Actions 로그에서 `Syncly: Login required` 또는 `403 Forbidden` 에러
+- 최근 3주 이상 CI 실행 안 했을 경우 (Syncly cookie TTL ~30일)
+
+**세션 갱신 (만료 시):**
+```bash
+# 1. 로컬에서 수동 갱신
+python tools/fetch_syncly_export.py --region us --login
+# → Chrome profile 재인증 (Google OAuth)
+# 2. 새 프로필 백업 & Base64 인코딩
+tar -czf syncly_session.tar.gz ~/.syncly_state/chrome_profile/
+base64 -i syncly_session.tar.gz > syncly_session_b64.txt
+# 3. GitHub secret 갱신
+# Settings > Secrets > SYNCLY_SESSION_STATE > Update value
+# 4. Verify
+python tools/fetch_syncly_export.py --region us
+# 성공 → GitHub Actions 재실행
+```
+
+### Troubleshooting
+
+| 증상 | 원인 | 해결 |
+|------|------|------|
+| `Error: Failed to download Syncly CSV` | 세션 만료 | 갱신 절차 실행 |
+| `base64: command not found` (Windows) | PowerShell 환경 | `certutil -encode syncly_session.tar.gz syncly_session_b64.txt` 사용 |
+| CI 성공하나 데이터 업로드 안 됨 | `GOOGLE_SERVICE_ACCOUNT_JSON` 누락 | Secrets 확인 (모두 5개) |
+| 로컬 크롤링은 성공, CI만 실패 | Playwright headless 미호환 | CI: `channel="chromium"` 사용 (번들 Chromium) |
+
 ## Pipeline Steps
 
 ```
