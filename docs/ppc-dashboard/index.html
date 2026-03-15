@@ -419,6 +419,12 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--a);cursor:pointer
 
 <!-- ══════════ TAB 3: EXECUTION LOG ══════════ -->
 <div class="mp" id="tab-execlog">
+  <!-- Audit Trail (who changed what) -->
+  <div class="card" style="border-left:3px solid var(--p);margin-bottom:16px">
+    <h3>📋 Execution Audit Trail</h3>
+    <div class="desc">Who executed what, when, and why. Stored locally per browser. Config changes are in Config tab log.</div>
+    <div id="exec-audit-content" style="max-height:250px;overflow-y:auto"></div>
+  </div>
   <div class="st" id="execBrandTabs"></div>
   <div id="execlog-content"></div>
 </div>
@@ -462,7 +468,9 @@ const BRAND_PL = {
 var AUTH_USERS = {
   'WJ':  'ce0def455fe638a6c621de7f42b868e0af232f71d1664d691f89a63bcddc543d',
   'CAL': '9b3ab6b1b5c1d23f9ca24c48cc585ccd69ecda8e637055c3e68be1361c5d56fa',
-  'MJ':  '010b9063e59e7cf38e4249c2fa85ce9ebe9805fe952dec6776306a9a45862375'
+  'MJ':  '010b9063e59e7cf38e4249c2fa85ce9ebe9805fe952dec6776306a9a45862375',
+  'HJ':  'b1390a8dc4b5d29bbb2e1458c31cf867049316cc6e5dac08fc0bd61676af4017',
+  'JS':  'c6d75a1953366cdcc94191f6ff4db255e467e0c8a532b17484fee1172ee8031f'
 };
 
 // Simple hash function (for client-side only — not bank-level security)
@@ -680,9 +688,31 @@ function updateExecCount(bk, dt) {
   if(btn) btn.disabled = total === 0;
 }
 
+// ── Execution Audit Log ──
+function getExecAuditLog() {
+  try { return JSON.parse(localStorage.getItem('ppc_exec_audit') || '[]'); } catch(e) { return []; }
+}
+
+function addExecAuditEntry(user, brand, details, note) {
+  var log = getExecAuditLog();
+  var now = new Date();
+  var pstStr = now.toLocaleString('en-US', {timeZone:'America/Los_Angeles', year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}) + ' PST';
+  log.unshift({
+    user: user,
+    timestamp: pstStr,
+    brand: brand,
+    note: note,
+    details: details
+  });
+  if(log.length > 200) log = log.slice(0,200);
+  localStorage.setItem('ppc_exec_audit', JSON.stringify(log));
+}
+
 async function executeSelected(bk, dt) {
   var user = getLoggedInUser();
   if(!user) { showToast('Please login in Config tab first.', 'err'); return; }
+  var noteEl = document.getElementById('exec-note-'+bk+'-'+dt);
+  var note = noteEl ? noteEl.value.trim() : '';
   requirePAT(async function(){
     var selectedCamps = [];
     var selectedHarvest = [];
@@ -716,7 +746,14 @@ async function executeSelected(bk, dt) {
         selected_ids: JSON.stringify(selection)
       });
       if(res.status === 204) {
-        showToast('Executing ' + selectedCamps.length + ' campaigns + ' + selectedHarvest.length + ' harvest + ' + selectedNegate.length + ' negates for ' + bk + '!', 'ok');
+        // Log to audit trail
+        addExecAuditEntry(user, bk, {
+          campaigns: selectedCamps,
+          harvest: selectedHarvest.length,
+          negate: selectedNegate.length,
+          date: dt
+        }, note);
+        showToast('Executed by ' + user + ': ' + selectedCamps.length + ' camps + ' + selectedHarvest.length + 'H + ' + selectedNegate.length + 'N for ' + bk + '!', 'ok');
       } else {
         showToast('Error: ' + res.status, 'err');
       }
@@ -771,6 +808,7 @@ document.querySelectorAll('.mt>div').forEach(function(t){
     document.querySelectorAll('.mp').forEach(function(x){x.classList.remove('on');});
     t.classList.add('on');
     document.getElementById(t.dataset.p).classList.add('on');
+    if(t.dataset.p==='tab-execlog') renderExecAudit();
   };
 });
 
@@ -981,15 +1019,21 @@ function renderPropose(bk, dt, containerId){
       '</table></div>':'<div class="desc">No negative candidates.</div>') +
     '</div>' +
 
-    '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:8px">' +
-      '<div style="font-size:12px;color:var(--dim)">' +
-        'Budget: <b style="color:var(--text)">$'+Math.round(totBudBefore).toLocaleString()+'/day</b> → ' +
-        'Override Total: <b style="color:var(--a)" id="override-summary-'+bk+'-'+dt+'">$'+Math.round(totBudAfter).toLocaleString()+'/day</b> ' +
-        '(<span id="override-delta-'+bk+'-'+dt+'" style="color:var(--g)">+$'+Math.round(totBudAfter-totBudBefore).toLocaleString()+'</span>)' +
+    '<div style="margin-top:16px;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:8px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
+        '<div style="font-size:12px;color:var(--dim)">' +
+          'Budget: <b style="color:var(--text)">$'+Math.round(totBudBefore).toLocaleString()+'/day</b> → ' +
+          'Override: <b style="color:var(--a)" id="override-summary-'+bk+'-'+dt+'">$'+Math.round(totBudAfter).toLocaleString()+'/day</b> ' +
+          '(<span id="override-delta-'+bk+'-'+dt+'" style="color:var(--g)">+$'+Math.round(totBudAfter-totBudBefore).toLocaleString()+'</span>)' +
+        '</div>' +
+        '<button id="execBtn-'+bk+'-'+dt+'" class="exec-btn" onclick="executeSelected(\''+bk+'\',\''+dt+'\')">' +
+          '⚡ Execute Selected (<span id="execCount-'+bk+'-'+dt+'">'+hasChange.length+'</span>)' +
+        '</button>' +
       '</div>' +
-      '<button id="execBtn-'+bk+'-'+dt+'" class="exec-btn" onclick="executeSelected(\''+bk+'\',\''+dt+'\')">' +
-        '⚡ Execute Selected (<span id="execCount-'+bk+'-'+dt+'">'+hasChange.length+'</span>)' +
-      '</button>' +
+      '<div style="display:flex;gap:8px;align-items:center">' +
+        '<span style="font-size:11px;color:var(--dim);white-space:nowrap">📝 Note:</span>' +
+        '<input type="text" id="exec-note-'+bk+'-'+dt+'" placeholder="Reason for this execution (optional)" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px">' +
+      '</div>' +
     '</div>';
 
   // Recalc totals after render
@@ -1374,9 +1418,44 @@ function renderBtDetail(bk, idx, el){
   el.innerHTML = h;
 }
 
+// ── Execution Audit Trail Renderer ──
+function renderExecAudit(){
+  var log = getExecAuditLog();
+  var el = document.getElementById('exec-audit-content');
+  if(!el) return;
+  if(!log.length){ el.innerHTML='<div class="desc" style="text-align:center;padding:12px">No executions logged yet. Execute from Config & Propose tab.</div>'; return; }
+  var html='<table><thead><tr><th>Time (PST)</th><th>User</th><th>Brand</th><th>Actions</th><th>Note</th></tr></thead><tbody>';
+  log.forEach(function(e){
+    var d = e.details||{};
+    var actStr = '';
+    if(d.campaigns){
+      var campCount = Array.isArray(d.campaigns)?d.campaigns.length:0;
+      actStr = campCount+' camps';
+      d.campaigns.forEach(function(c){
+        if(typeof c==='object' && c.override_budget){
+          actStr += ' (budget→$'+c.override_budget+')';
+        }
+      });
+    }
+    if(d.harvest) actStr += (actStr?', ':'')+d.harvest+'H';
+    if(d.negate) actStr += (actStr?', ':'')+d.negate+'N';
+    var brandB = {'grosmimi':'🟣','naeiae':'🟡','chaenmom':'🔵'}[e.brand]||'';
+    html += '<tr>' +
+      '<td style="font-family:var(--mono);font-size:10px;white-space:nowrap">'+e.timestamp+'</td>' +
+      '<td><b style="color:var(--a)">'+e.user+'</b></td>' +
+      '<td>'+brandB+' '+(e.brand||'')+'</td>' +
+      '<td style="font-size:10px">'+actStr+'</td>' +
+      '<td style="font-size:10px;color:var(--dim);max-width:250px">'+(e.note||'<i>no note</i>')+'</td>' +
+    '</tr>';
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
 // Init — render first brand in all tabs
 renderConfigBrand(brands[0]);
 renderExecLog(brands[0]);
+renderExecAudit();
 if(btBrands.length) renderBacktestBrand(btBrands[0]);
 </script>
 </body>
