@@ -422,6 +422,53 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
       </div>
     </div>
 
+    <!-- Auto-Execute (Autopilot) Settings -->
+    <div class="card" style="border-left:3px solid var(--g);margin-bottom:20px">
+      <h3>🤖 Autopilot — Auto-Execute by Tier</h3>
+      <div class="desc">Actions at each tier level will be executed automatically without human approval. Higher tiers = more confidence = safer to automate.</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px">
+        <div style="background:var(--gbg);border:1px solid var(--g);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--g)">Tier 1: No-Brainer</div>
+          <div style="font-size:10px;color:var(--dim);margin:4px 0">ROAS &lt;1x pause, $5+ 0-conv negate, ACOS &gt;200%</div>
+          <select id="autopilot-tier1" style="width:100%;padding:4px;border:1px solid var(--g);border-radius:4px;font-size:11px;font-weight:700;color:var(--g);background:var(--gbg)">
+            <option value="auto" selected>🟢 AUTO-EXECUTE</option>
+            <option value="approve">🟡 Require Approval</option>
+            <option value="off">🔴 Disabled</option>
+          </select>
+        </div>
+        <div style="background:var(--ambg);border:1px solid var(--am);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:#b45309">Tier 2: Strong Recommend</div>
+          <div style="font-size:10px;color:var(--dim);margin:4px 0">ROAS 1~1.5x bid-30%, profitable harvest, ROAS drop 40%+</div>
+          <select id="autopilot-tier2" style="width:100%;padding:4px;border:1px solid var(--am);border-radius:4px;font-size:11px;font-weight:700;color:#b45309;background:var(--ambg)">
+            <option value="auto">🟢 Auto-Execute</option>
+            <option value="approve" selected>🟡 REQUIRE APPROVAL</option>
+            <option value="off">🔴 Disabled</option>
+          </select>
+        </div>
+        <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--dim)">Tier 3: Moderate</div>
+          <div style="font-size:10px;color:var(--dim);margin:4px 0">ROAS 1.5~2x bid-15%, budget increase 3~5x, bid tweaks</div>
+          <select id="autopilot-tier3" style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-weight:700;color:var(--dim)">
+            <option value="auto">🟢 Auto-Execute</option>
+            <option value="approve" selected>🟡 REQUIRE APPROVAL</option>
+            <option value="off">🔴 Disabled</option>
+          </select>
+        </div>
+        <div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted)">Tier 4: Monitor</div>
+          <div style="font-size:10px;color:var(--dim);margin:4px 0">ROAS 2~3x (healthy), new campaigns &lt;7d, seasonal</div>
+          <select id="autopilot-tier4" style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;font-size:11px;color:var(--muted)">
+            <option value="auto">🟢 Auto-Execute</option>
+            <option value="approve">🟡 Require Approval</option>
+            <option value="off" selected>🔴 MONITOR ONLY</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:10px;color:var(--dim)">
+        <b>Safety rails:</b> Max single budget change $50 | Max daily auto-executions: 10 | Emergency stop: if 3+ failures in 1 hour → pause all auto
+      </div>
+    </div>
+
     <!-- Config Update Log -->
     <div class="card" style="margin-bottom:20px">
       <h3>📋 Config Update Log</h3>
@@ -757,6 +804,18 @@ async function saveConfig() {
       if(!config[bk]) config[bk] = {};
       config[bk][field] = parseFloat(inp.value) || inp.value;
     });
+
+    // Autopilot settings
+    config._autopilot = {
+      tier1: document.getElementById('autopilot-tier1').value,
+      tier2: document.getElementById('autopilot-tier2').value,
+      tier3: document.getElementById('autopilot-tier3').value,
+      tier4: document.getElementById('autopilot-tier4').value,
+    };
+
+    // Active experiment (if any)
+    var activeExp = getExperiments().find(function(e){return e.active;});
+    if(activeExp) config._experiment = activeExp.params;
 
     // Log the change
     addConfigLogEntry(user, config);

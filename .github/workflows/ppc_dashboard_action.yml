@@ -81,6 +81,19 @@ jobs:
           echo '${{ inputs.selected_ids }}' > .tmp/dashboard_execute_selection.json
           python -u tools/amazon_ppc_executor.py --execute-selection .tmp/dashboard_execute_selection.json 2>&1 || echo "[WARN] Execute finished with errors"
 
+      - name: Update dashboard data.js
+        run: |
+          echo "=== Regenerating dashboard data ==="
+          python -u tools/generate_dashboard_data.py 2>&1 || echo "[WARN] data.js generation had issues"
+
+      - name: Push updated data to GitHub Pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/ppc-dashboard/data.js docs/ppc-dashboard/bt_data.js
+          git diff --cached --quiet || git commit -m "auto: update PPC dashboard data [skip ci]"
+          git push || echo "[WARN] Push failed (maybe no changes)"
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:

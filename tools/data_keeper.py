@@ -429,45 +429,60 @@ def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
         headers = _fresh_amz_ads_headers()
         h = {**headers, "Amazon-Advertising-API-Scope": pid}
 
-        cur = d_from
-        while cur <= d_to:
-            chunk_end = min(cur + timedelta(days=chunk_days), d_to)
-            report_rows = _fetch_amz_ads_report(
-                h, pid, cur.isoformat(), chunk_end.isoformat()
-            )
-            for row in report_rows:
-                cid = str(row.get("campaignId", ""))
-                all_rows.append({
-                    "date": row.get("date", ""),
-                    "profile_id": pid,
-                    "brand": brand,
-                    "campaign_id": cid,
-                    "campaign_name": campaign_names.get(cid, cid),
-                    "ad_type": "SP",
-                    "impressions": int(row.get("impressions", 0)),
-                    "clicks": int(row.get("clicks", 0)),
-                    "spend": float(row.get("cost", 0)),
-                    "sales": float(row.get("sales14d", 0)),
-                    "purchases": int(row.get("purchases14d", 0)),
-                })
-            cur = chunk_end + timedelta(days=1)
-        print(f"  {pname} ({brand}): {sum(1 for r in all_rows if r['profile_id'] == pid)} rows")
+        # Collect SP, SB, SD for each profile
+        AD_TYPES = [
+            ("SP", "SPONSORED_PRODUCTS", "spCampaigns"),
+            ("SB", "SPONSORED_BRANDS", "sbCampaigns"),
+            ("SD", "SPONSORED_DISPLAY", "sdCampaigns"),
+        ]
+        for ad_type, ad_product, report_type_id in AD_TYPES:
+            cur = d_from
+            type_rows = 0
+            while cur <= d_to:
+                chunk_end = min(cur + timedelta(days=chunk_days), d_to)
+                report_rows = _fetch_amz_ads_report(
+                    h, pid, cur.isoformat(), chunk_end.isoformat(),
+                    ad_product=ad_product, report_type_id=report_type_id,
+                )
+                for row in report_rows:
+                    cid = str(row.get("campaignId", ""))
+                    all_rows.append({
+                        "date": row.get("date", ""),
+                        "profile_id": pid,
+                        "brand": brand,
+                        "campaign_id": cid,
+                        "campaign_name": campaign_names.get(cid, cid),
+                        "ad_type": ad_type,
+                        "impressions": int(row.get("impressions", 0)),
+                        "clicks": int(row.get("clicks", 0)),
+                        "spend": float(row.get("cost", 0)),
+                        "sales": float(row.get("sales14d", 0)),
+                        "purchases": int(row.get("purchases14d", 0)),
+                    })
+                    type_rows += 1
+                cur = chunk_end + timedelta(days=1)
+            if type_rows:
+                print(f"  {pname} ({brand}) {ad_type}: {type_rows} rows")
+        total_profile = sum(1 for r in all_rows if r['profile_id'] == pid)
+        print(f"  {pname} ({brand}) total: {total_profile} rows")
 
     return all_rows
 
 
-def _fetch_amz_ads_report(headers, profile_id, start, end):
+def _fetch_amz_ads_report(headers, profile_id, start, end,
+                          ad_product="SPONSORED_PRODUCTS",
+                          report_type_id="spCampaigns"):
     """Submit, poll, download a single Amazon Ads report chunk."""
     body = {
         "reportDate": None,
         "startDate": start,
         "endDate": end,
         "configuration": {
-            "adProduct": "SPONSORED_PRODUCTS",
+            "adProduct": ad_product,
             "groupBy": ["campaign"],
             "columns": ["date", "campaignId", "impressions", "clicks",
                         "cost", "sales14d", "purchases14d"],
-            "reportTypeId": "spCampaigns",
+            "reportTypeId": report_type_id,
             "timeUnit": "DAILY",
             "format": "GZIP_JSON",
         },
