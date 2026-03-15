@@ -501,65 +501,65 @@ const PL_DATA = {
  "naeiae_total": {"units": 267, "rev": 6519, "cm": 2052},
  "chaenmom": [
  {
-  "category": "CHA&MOM Korean Baby Skincare - Hypoallergenic, Pla",
+  "category": "CHA&MOM Moisture Lotion",
   "units": 19,
   "rev": 545,
   "asp": 28.7,
-  "cogs": 7.53,
+  "cogs": 7.14,
   "fba": 4.25,
-  "gm_pct": 44.0,
-  "cm": 203,
-  "cm_pct": 37.2,
+  "gm_pct": 45.8,
+  "cm": 210,
+  "cm_pct": 38.6,
   "asin_count": 1,
   "top_asins": [
    {
     "asin": "B0F1XGS9JF",
-    "name": "CHA&MOM Korean Baby Skincare - Hypoaller",
+    "name": "CHA&MOM Moisture Lotion",
     "units": 19,
     "rev": 545
    }
   ]
  },
  {
-  "category": "Cha&Mom Head-to-toe Korean Baby Skincare - Hypoall",
+  "category": "CHA&MOM Hair & Body Wash",
   "units": 15,
   "rev": 398,
   "asp": 26.5,
-  "cogs": 7.53,
+  "cogs": 5.77,
   "fba": 4.25,
-  "gm_pct": 40.6,
-  "cm": 134,
-  "cm_pct": 33.7,
+  "gm_pct": 46.4,
+  "cm": 153,
+  "cm_pct": 38.5,
   "asin_count": 1,
   "top_asins": [
    {
     "asin": "B0F1Y2FTNL",
-    "name": "Cha&Mom Head-to-toe Korean Baby Skincare",
+    "name": "CHA&MOM Hair & Body Wash",
     "units": 15,
     "rev": 398
    }
   ]
  },
  {
-  "category": "CHA&MOM Phyto Seline Intense Baby Cream, 5.29oz - ",
+  "category": "CHA&MOM Intense Cream",
   "units": 5,
   "rev": 148,
   "asp": 29.7,
-  "cogs": 7.53,
+  "cogs": 6.86,
   "fba": 4.25,
-  "gm_pct": 45.3,
-  "cm": 57,
-  "cm_pct": 38.6,
+  "gm_pct": 47.8,
+  "cm": 60,
+  "cm_pct": 40.4,
   "asin_count": 1,
   "top_asins": [
    {
     "asin": "B0FXKBPXTB",
-    "name": "CHA&MOM Phyto Seline Intense Baby Cream,",
+    "name": "CHA&MOM Intense Cream",
     "units": 5,
     "rev": 148
    }
   ]
  }
 ],
- "chaenmom_total": {"units": 39, "rev": 1091, "cm": 394}
+ "chaenmom_total": {"units": 39, "rev": 1091, "cm": 423}
 };
