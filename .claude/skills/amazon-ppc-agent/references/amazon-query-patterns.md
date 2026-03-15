@@ -97,6 +97,21 @@ Include: search term, campaign, spend, sales, ACOS, clicks.
 These need bid reduction or negative keyword treatment."
 ```
 
+### Keyword Quality Audit
+```
+"Show all keywords for [brand] with: keyword text, match type, 14d spend, sales, ACOS, CPC,
+impressions, clicks, CTR. Calculate CTR/ACOS ratio by match type.
+Flag keywords where CTR < 0.5% (low relevance) or ACOS > 40% + spend > $5 (high waste).
+Rank by (spend × ACOS) to identify optimization priority."
+```
+
+### Wasted Keywords (Extended)
+```
+"Keywords with 14d spend > $10 but zero sales for [brand].
+Include: keyword text, match type, campaign, impressions, clicks, CPC, spend.
+Sort by spend descending. These need bid reduction or pause."
+```
+
 ---
 
 ## Budget & Spend Queries

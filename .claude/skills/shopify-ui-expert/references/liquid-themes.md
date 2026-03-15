@@ -154,6 +154,18 @@ sessionStorage.setItem('onzenna_signup_data', JSON.stringify(formData));
 var prevData = JSON.parse(sessionStorage.getItem('onzenna_signup_data') || '{}');
 ```
 
+### Escaping Troubleshooting
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `SyntaxError: f-string: expecting '}'` | Unescaped `{` or `}` in Liquid/HTML inside Python f-string | Double the braces: `{{` and `}}` for literal braces |
+| `Liquid syntax error: Unknown tag` | Python variable interpolation broke Liquid tag | Use `{% raw %}...{% endraw %}` around Liquid blocks, or build HTML string with `.format()` instead of f-string |
+| Blank page after deploy | f-string swallowed a Liquid variable like `{{ product.title }}` | Escape as `{{{{ product.title }}}}` in f-string, or use template file instead of inline string |
+| `UnicodeEncodeError: 'ascii'` | Korean text in f-string with print() on Windows | Use `PYTHONIOENCODING=utf-8` or write to file with `encoding='utf-8'` |
+| Double-escaped HTML entities | `&amp;amp;` instead of `&amp;` | Check if both Python AND Liquid are escaping — use `| raw` filter in Liquid |
+
+**Best Practice:** For complex Liquid pages, use a separate `.liquid` template file and read it with `Path.read_text()` instead of embedding in Python f-strings. This avoids all escaping issues.
+
 ## 새 Liquid 페이지 개발 체크리스트
 
 1. 가장 유사한 기존 `deploy_*.py`를 복사

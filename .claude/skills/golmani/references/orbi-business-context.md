@@ -64,11 +64,16 @@ else                             -> D2C
 
 ## Amazon Seller Accounts
 
-| Seller | Brand | Seller ID | Notes |
-|--------|-------|-----------|-------|
-| Grosmimi USA | Grosmimi | A3IA0XWP2WCD15 | Largest Amazon presence |
-| Fleeters Inc | Naeiae | A2RE0E056TH6H3 | Amazon Ads actively managed |
-| Orbitool | CHA&MOM | A3H2CLSAX0BTX6 | Smaller, growing |
+| Seller | Brand | Seller ID | Status | PPC Active | 2026 Revenue Estimate | Notes |
+|--------|-------|-----------|--------|------------|----------------------|-------|
+| Grosmimi USA | Grosmimi | A3IA0XWP2WCD15 | ACTIVE | Yes | $450K-500K | Largest Amazon presence; auto + manual campaigns |
+| Fleeters Inc | Naeiae | A2RE0E056TH6H3 | ACTIVE | Yes | $120K-150K | Amazon Ads actively managed (dashboard integrated Dec 2025) |
+| Orbitool | CHA&MOM | A3H2CLSAX0BTX6 | ACTIVE | Limited | $40K-60K | Smaller, growing; consider consolidation into Grosmimi USA |
+
+**Recent Changes (2026 H1):**
+- Fleeters Inc PPC data fully synced to 'amazon_ads_daily' as of 2025-12-15
+- Orbitool and Grosmimi USA PPC integration pending
+- Consolidation timeline: Q2 2026 (target: single seller account for simplification + FBA tier optimization)
 
 ---
 

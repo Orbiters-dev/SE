@@ -188,6 +188,31 @@ curl -u admin:admin https://13.124.157.191/api/onzenna/gifting/list/
 4. 로열티 설문 완료
 5. EC2 DB에 데이터 확인: `/api/onzenna/status/{user_id}/`
 
+### Test 4: Error Handling (Failure Cases)
+
+**Scenario 4A: EC2 API 500 Error**
+
+```bash
+# EC2 API 시뮬레이션: 일시적 오류 후 복구
+sudo systemctl stop export_calculator
+curl -u admin:admin https://13.124.157.191/api/onzenna/users/
+# Expected: 500 or connection refused
+# Fix: sudo systemctl start export_calculator
+# Retry 후 성공 확인
+```
+
+**Scenario 4B: Supabase Auth Timeout**
+
+Browser DevTools → Network → throttle to "Slow 3G" → Click "Sign in with Google" → 30초 이상 대기
+Expected: 타임아웃 후 "Auth session expired. Please sign in again." 메시지
+Recovery: Refresh → 새 로그인 시도 성공
+
+**Scenario 4C: Network Timeout During Onboarding Submit**
+
+Onboarding form 입력 후 Submit 직전 → DevTools → Offline mode 전환
+Expected: "Network error. Your response will be saved locally." (sessionStorage fallback)
+Recovery: Online 복구 후 Submit retry → 성공
+
 ## Troubleshooting
 
 ### EC2 접속 안 될 때
