@@ -1126,32 +1126,62 @@ function renderExecution(bk, dt, containerId){
   var dd = D.brands[bk].dates[dt];
   var el = document.getElementById(containerId || ('viewContent-' + bk + '-' + dt));
   var execLog = D.brands[bk].execution_log || [];
-  var ac = {harvest:'g',negate_zero_sales:'r',negate_high_acos:'r',reduce_bid:'am',increase_budget:'g',pause:'r'};
-  var al = {harvest:'+ Harvest',negate_zero_sales:'- Negate (0 sales)',negate_high_acos:'- Negate (ACOS)',reduce_bid:'Bid Down',increase_budget:'Budget Up',pause:'Pause'};
+  var ac = {harvest:'g',negate_zero_sales:'r',negate_high_acos:'r',reduce_bid:'am',increase_budget:'g',pause:'r',optimize:'',monitor:''};
+  var al = {harvest:'+ Harvest',negate_zero_sales:'- Negate (0 sales)',negate_high_acos:'- Negate (ACOS)',reduce_bid:'Bid Down',increase_budget:'Budget Up',pause:'Pause',optimize:'No Change',monitor:'Monitor'};
 
   var html = '';
 
-  // Campaign-level executions (from proposals)
-  if(dd.executed){
-    var execCamps = dd.campaigns.filter(function(c){return c.approved;});
-    var campRows = execCamps.map(function(c){
-      var budStr = c.bud_after?'$'+c.bud_before+'→$'+c.bud_after:'—';
-      return '<tr><td>'+c.name+'</td><td>'+badge(c.action,'a')+'</td><td>'+(c.bid_pct?c.bid_pct+'%':'—')+'</td><td>'+budStr+'</td>' +
-        '<td>'+roasB(c.roas7d)+'</td><td>'+badge('Executed','g')+'</td></tr>';
-    }).join('');
-    html += '<div class="card" style="border-left:3px solid var(--g)">' +
-      '<h3>Campaign Executions</h3>' +
-      '<div class="desc">Executed at: '+(dd.executed_at||'—')+'</div>' +
-      (campRows?'<div style="overflow-x:auto"><table><thead><tr><th>Campaign</th><th>Action</th><th>Bid</th><th>Budget</th><th>ROAS</th><th>Status</th></tr></thead><tbody>'+campRows+'</tbody></table></div>'
-      :'<div class="desc">No campaign executions.</div>') +
-    '</div>';
+  // ─ Proposed vs Executed comparison ─
+  var proposed = dd.campaigns || [];
+  var hasPropose = proposed.length > 0;
+  var executed = proposed.filter(function(c){return c.approved;});
+
+  if(hasPropose){
+    html += '<div class="card" style="border-left:3px solid var(--a);margin-bottom:12px">' +
+      '<h3>Proposed → Executed ('+dt+')</h3>' +
+      '<div class="desc">Left: what 퍼포마 recommended. Right: what was actually executed. Gray = proposed but not executed.</div>' +
+      '<div style="overflow-x:auto"><table>' +
+      '<thead><tr><th>Campaign</th><th>Action</th><th>ROAS</th><th>Budget Change</th><th>Bid</th><th>Proposed</th><th>Executed</th></tr></thead><tbody>';
+    proposed.forEach(function(c){
+      var isAction = c.action!=='optimize' && c.action!=='monitor';
+      var wasExecuted = c.approved;
+      var budStr = c.bud_after ? '$'+c.bud_before+'→$'+c.bud_after : '—';
+      var propB = isAction ? badge(c.action,'a') : '<span style="color:var(--muted)">—</span>';
+      var execB = wasExecuted ? badge('Executed','g') : (isAction ? badge('Pending','am') : '<span style="color:var(--muted)">—</span>');
+      var rowStyle = wasExecuted ? '' : (isAction ? 'style="background:#fffbeb"' : 'style="opacity:0.5"');
+      html += '<tr '+rowStyle+'>' +
+        '<td><b>'+c.name+'</b></td>' +
+        '<td>'+propB+'</td>' +
+        '<td>'+roasB(c.roas7d)+'</td>' +
+        '<td style="font-family:var(--mono)">'+budStr+'</td>' +
+        '<td>'+(c.bid_pct?(c.bid_pct>0?'+':'')+c.bid_pct+'%':'—')+'</td>' +
+        '<td>'+badge('Proposed','c')+'</td>' +
+        '<td>'+execB+'</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table></div></div>';
   }
 
-  // Full execution log (all dates, from ppc_executed_*.json)
+  // ─ Full execution log (from ppc_executed_*.json) ─
   if(execLog.length){
-    html += '<div class="card" style="margin-top:12px">' +
-      '<h3>All Execution History — '+execLog.length+' Actions</h3>' +
-      '<div class="desc">Complete log of all 퍼포마 actions executed for this brand (from ppc_executed_*.json files)</div>' +
+    // Summary stats
+    var totalActions = execLog.length;
+    var harvests = execLog.filter(function(h){return h.action==='harvest';}).length;
+    var negates = execLog.filter(function(h){return h.action&&h.action.startsWith('negate');}).length;
+    var bidChanges = execLog.filter(function(h){return h.action==='reduce_bid';}).length;
+    var budgetChanges = execLog.filter(function(h){return h.action==='increase_budget';}).length;
+    var pauses = execLog.filter(function(h){return h.action==='pause';}).length;
+    var dates = execLog.map(function(h){return h.exec_date;}).filter(function(v,i,a){return a.indexOf(v)===i;});
+
+    html += '<div class="stats" style="margin-bottom:12px">' +
+      '<div class="stat accent"><div class="sl">Total Executed</div><div class="sv">'+totalActions+'</div><div class="ss">'+dates.length+' dates</div></div>' +
+      '<div class="stat green"><div class="sl">Harvests</div><div class="sv">'+harvests+'</div></div>' +
+      '<div class="stat red"><div class="sl">Negates</div><div class="sv">'+negates+'</div></div>' +
+      '<div class="stat amber"><div class="sl">Bid / Budget / Pause</div><div class="sv">'+bidChanges+' / '+budgetChanges+' / '+pauses+'</div></div>' +
+    '</div>';
+
+    html += '<div class="card">' +
+      '<h3>Execution Detail — '+execLog.length+' Actions</h3>' +
       '<div style="overflow-x:auto"><table>' +
       '<thead><tr><th>Date</th><th>Action</th><th>Campaign</th><th>Keyword</th><th>7d Spend</th><th>7d Sales</th><th>ROAS</th><th>Bid Δ</th><th>Budget</th><th>Reason</th><th>Status</th></tr></thead><tbody>';
     execLog.sort(function(a,b){return (b.exec_date||'').localeCompare(a.exec_date||'');});
@@ -1172,25 +1202,9 @@ function renderExecution(bk, dt, containerId){
       '</tr>';
     });
     html += '</tbody></table></div></div>';
-
-    // Summary stats
-    var totalActions = execLog.length;
-    var harvests = execLog.filter(function(h){return h.action==='harvest';}).length;
-    var negates = execLog.filter(function(h){return h.action&&h.action.startsWith('negate');}).length;
-    var bidChanges = execLog.filter(function(h){return h.action==='reduce_bid';}).length;
-    var budgetChanges = execLog.filter(function(h){return h.action==='increase_budget';}).length;
-    var pauses = execLog.filter(function(h){return h.action==='pause';}).length;
-    var dates = execLog.map(function(h){return h.exec_date;}).filter(function(v,i,a){return a.indexOf(v)===i;});
-
-    html = '<div class="stats" style="margin-bottom:16px">' +
-      '<div class="stat accent"><div class="sl">Total Actions</div><div class="sv">'+totalActions+'</div><div class="ss">'+dates.length+' dates</div></div>' +
-      '<div class="stat green"><div class="sl">Harvests</div><div class="sv">'+harvests+'</div></div>' +
-      '<div class="stat red"><div class="sl">Negates</div><div class="sv">'+negates+'</div></div>' +
-      '<div class="stat amber"><div class="sl">Bid / Budget / Pause</div><div class="sv">'+bidChanges+' / '+budgetChanges+' / '+pauses+'</div></div>' +
-    '</div>' + html;
-  } else if(!dd.executed) {
-    html = '<div class="card"><div class="desc" style="text-align:center;padding:20px;color:var(--am)">' +
-      'No executions yet for this brand. Use "Execute Selected" in Config & Propose tab or reply to proposal email.' +
+  } else if(!hasPropose) {
+    html += '<div class="card"><div class="desc" style="text-align:center;padding:20px;color:var(--am)">' +
+      'No executions or proposals for this brand/date.' +
     '</div></div>';
   }
 
