@@ -96,6 +96,10 @@ jobs:
             sudo systemctl restart export_calculator && \
             echo 'Deploy complete!'"
 
+          # Fix nginx CORS: allow GitHub Pages dashboard
+          ${SSH_CMD} "sudo sed -i 's|add_header Access-Control-Allow-Origin [^;]*;|add_header Access-Control-Allow-Origin \"*\" always;|g' /etc/nginx/sites-enabled/default && \
+            sudo nginx -t && sudo systemctl reload nginx && echo 'Nginx CORS fixed'"
+
       - name: Verify deployment
         run: |
           sleep 5

@@ -1003,9 +1003,10 @@ async function fetchLiveMetrics(){
     var d7s = d7.toISOString().slice(0,10);
     var d30s = d30.toISOString().slice(0,10);
 
+    // Simple GET without Auth header → no CORS preflight needed
     var [adsRes, salesRes] = await Promise.all([
-      fetch(API_BASE+'/query/?table=amazon_ads_daily&limit=10000&date_from='+d30s, {headers:{'Authorization':'Basic '+btoa('admin:admin')}}),
-      fetch(API_BASE+'/query/?table=amazon_sales_daily&limit=5000&date_from='+d30s, {headers:{'Authorization':'Basic '+btoa('admin:admin')}}),
+      fetch(API_BASE+'/query/?table=amazon_ads_daily&limit=10000&date_from='+d30s, {mode:'cors'}),
+      fetch(API_BASE+'/query/?table=amazon_sales_daily&limit=5000&date_from='+d30s, {mode:'cors'}),
     ]);
 
     if(!adsRes.ok || !salesRes.ok) throw new Error('API '+adsRes.status);
@@ -1395,35 +1396,93 @@ function renderExecution(bk, dt, containerId){
   var execLog = D.brands[bk].execution_log || [];
   var ac = {harvest:'g',negate_zero_sales:'r',negate_high_acos:'r',reduce_bid:'am',increase_budget:'g',pause:'r',optimize:'',monitor:''};
   var al = {harvest:'+ Harvest',negate_zero_sales:'- Negate (0 sales)',negate_high_acos:'- Negate (ACOS)',reduce_bid:'Bid Down',increase_budget:'Budget Up',pause:'Pause',optimize:'No Change',monitor:'Monitor'};
+  var execNotes = getExecNotes(bk);
 
   var html = '';
 
-  // ─ Proposed vs Executed comparison ─
+  // ─ Date-level Note ─
+  var dateNote = execNotes[dt] || '';
+  html += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">' +
+    '<span style="font-size:11px;font-weight:600;color:var(--dim)">📝 Note for '+dt+':</span>' +
+    '<input type="text" id="exec-date-note-'+bk+'-'+dt+'" value="'+(dateNote||'').replace(/"/g,'&quot;')+'" placeholder="Add note for this date..." style="flex:1;padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px" onchange="saveExecNote(\''+bk+'\',\''+dt+'\',this.value)">' +
+  '</div>';
+
+  // ─ Campaign Proposals: Proposed vs Executed ─
   var proposed = dd.campaigns || [];
   var hasPropose = proposed.length > 0;
-  var executed = proposed.filter(function(c){return c.approved;});
 
   if(hasPropose){
     html += '<div class="card" style="border-left:3px solid var(--a);margin-bottom:12px">' +
-      '<h3>Proposed → Executed ('+dt+')</h3>' +
-      '<div class="desc">Left: what 퍼포마 recommended. Right: what was actually executed. Gray = proposed but not executed.</div>' +
+      '<h3>Campaign Proposals → Execution ('+dt+')</h3>' +
       '<div style="overflow-x:auto"><table>' +
-      '<thead><tr><th>Campaign</th><th>Action</th><th>ROAS</th><th>Budget Change</th><th>Bid</th><th>Proposed</th><th>Executed</th></tr></thead><tbody>';
+      '<thead><tr><th>Campaign</th><th>Action</th><th>ROAS</th><th>Suggested Budget</th><th>Applied Budget</th><th>Bid</th><th>Status</th></tr></thead><tbody>';
     proposed.forEach(function(c){
       var isAction = c.action!=='optimize' && c.action!=='monitor';
       var wasExecuted = c.approved;
-      var budStr = c.bud_after ? '$'+c.bud_before+'→$'+c.bud_after : '—';
-      var propB = isAction ? badge(c.action,'a') : '<span style="color:var(--muted)">—</span>';
+      var sugBud = c.bud_after ? '$'+c.bud_after : '—';
+      // Check if there's an override from audit log
+      var appliedBud = sugBud;
       var execB = wasExecuted ? badge('Executed','g') : (isAction ? badge('Pending','am') : '<span style="color:var(--muted)">—</span>');
       var rowStyle = wasExecuted ? '' : (isAction ? 'style="background:#fffbeb"' : 'style="opacity:0.5"');
       html += '<tr '+rowStyle+'>' +
         '<td><b>'+c.name+'</b></td>' +
-        '<td>'+propB+'</td>' +
+        '<td>'+(isAction ? badge(c.action,'a') : '<span style="color:var(--muted)">No Change</span>')+'</td>' +
         '<td>'+roasB(c.roas7d)+'</td>' +
-        '<td style="font-family:var(--mono)">'+budStr+'</td>' +
+        '<td style="font-family:var(--mono)">'+sugBud+'</td>' +
+        '<td style="font-family:var(--mono);font-weight:700;color:'+(wasExecuted?'var(--g)':'var(--dim)')+'">'+appliedBud+'</td>' +
         '<td>'+(c.bid_pct?(c.bid_pct>0?'+':'')+c.bid_pct+'%':'—')+'</td>' +
-        '<td>'+badge('Proposed','c')+'</td>' +
         '<td>'+execB+'</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table></div></div>';
+  }
+
+  // ─ Harvest Proposals: Proposed vs Executed ─
+  var harvests = dd.harvest || [];
+  if(harvests.length){
+    // Match against execLog
+    var execHarvested = {};
+    execLog.forEach(function(h){if(h.action==='harvest') execHarvested[h.keyword]=h;});
+
+    html += '<div class="card" style="border-left:3px solid var(--g);margin-bottom:12px">' +
+      '<h3>Keyword Harvest — Proposed vs Executed</h3>' +
+      '<div style="overflow-x:auto"><table>' +
+      '<thead><tr><th>Search Term</th><th>Sales</th><th>ACOS</th><th>Suggested Bid</th><th>Status</th></tr></thead><tbody>';
+    harvests.forEach(function(h){
+      var exec = execHarvested[h.term];
+      var statusB = exec ? badge('Executed','g') : badge('Pending','am');
+      var bidStr = exec ? '$'+(exec.new_bid||h.bid) : '$'+h.bid;
+      html += '<tr>' +
+        '<td><b>'+h.term+'</b></td>' +
+        '<td style="font-family:var(--mono);color:var(--g)">$'+h.sales+'</td>' +
+        '<td>'+(h.acos?badge(h.acos+'%','g'):'—')+'</td>' +
+        '<td style="font-family:var(--mono)">'+bidStr+'</td>' +
+        '<td>'+statusB+'</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table></div></div>';
+  }
+
+  // ─ Negate Proposals: Proposed vs Executed ─
+  var negates = dd.negate || [];
+  if(negates.length){
+    var execNegated = {};
+    execLog.forEach(function(h){if(h.action&&h.action.startsWith('negate')) execNegated[h.keyword]=h;});
+
+    html += '<div class="card" style="border-left:3px solid var(--r);margin-bottom:12px">' +
+      '<h3>Negative Keywords — Proposed vs Executed</h3>' +
+      '<div style="overflow-x:auto"><table>' +
+      '<thead><tr><th>Search Term</th><th>Spend</th><th>Type</th><th>Reason</th><th>Status</th></tr></thead><tbody>';
+    negates.forEach(function(n){
+      var exec = execNegated[n.term];
+      var statusB = exec ? badge('Executed','g') : badge('Pending','am');
+      var simB = n.sim_save>0 ? ' '+badge('SIM $'+n.sim_save,'sim') : '';
+      html += '<tr>' +
+        '<td><b>'+n.term+'</b>'+simB+'</td>' +
+        '<td style="font-family:var(--mono)">$'+n.cost+'</td>' +
+        '<td>'+badge(n.type.replace('negate_',''),'r')+'</td>' +
+        '<td style="font-size:9px;color:var(--dim);max-width:200px">'+n.reason.substring(0,60)+'</td>' +
+        '<td>'+statusB+'</td>' +
       '</tr>';
     });
     html += '</tbody></table></div></div>';
@@ -1761,6 +1820,16 @@ function renderBtDetail(bk, idx, el){
 
   h += '</div>';
   el.innerHTML = h;
+}
+
+// ── Execution Date Notes (per brand, per date) ──
+function getExecNotes(bk){
+  try{return JSON.parse(localStorage.getItem('ppc_exec_notes_'+bk)||'{}');}catch(e){return {};}
+}
+function saveExecNote(bk,dt,note){
+  var notes=getExecNotes(bk);
+  notes[dt]=note;
+  localStorage.setItem('ppc_exec_notes_'+bk, JSON.stringify(notes));
 }
 
 // ── Execution Audit Trail Renderer ──
