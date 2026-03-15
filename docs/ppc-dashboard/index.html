@@ -359,34 +359,62 @@ input[type=checkbox]{width:14px;height:14px;accent-color:var(--a);cursor:pointer
 
 <!-- ══════════ TAB 2: CONFIG & PROPOSE ══════════ -->
 <div class="mp" id="tab-config">
-  <!-- Config Table -->
-  <div class="card" style="border-left:3px solid var(--a);margin-bottom:20px">
-    <h3>Brand Configuration</h3>
-    <div class="desc">Edit values and click "Save & Re-run Propose" to trigger a new proposal via GitHub Actions. Results appear below per brand.</div>
-    <div style="overflow-x:auto">
-      <table id="config-table">
-        <thead>
-          <tr>
-            <th>Brand</th>
-            <th>Daily Budget</th>
-            <th>Target ROAS</th>
-            <th>Manual ACOS%</th>
-            <th>Auto ACOS%</th>
-            <th>Max Bid</th>
-            <th>Max Campaign $</th>
-          </tr>
-        </thead>
-        <tbody id="config-tbody"></tbody>
-      </table>
-    </div>
-    <div style="text-align:right">
-      <button class="cfg-btn" onclick="saveConfig()">Save & Re-run Propose</button>
+
+  <!-- Login Gate -->
+  <div id="config-login-gate">
+    <div class="card" style="max-width:360px;margin:40px auto;text-align:center;border-left:3px solid var(--a)">
+      <h3 style="margin-bottom:12px">🔐 Config Access</h3>
+      <div class="desc" style="margin-bottom:16px">Authorized users only. Changes are logged.</div>
+      <input type="text" id="login-id" placeholder="ID" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:var(--mono);margin-bottom:8px">
+      <input type="password" id="login-pw" placeholder="Password" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:var(--mono);margin-bottom:12px" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="cfg-btn" onclick="doLogin()" style="width:100%;margin-top:0">Login</button>
+      <div id="login-error" style="color:var(--r);font-size:11px;margin-top:8px;display:none">Invalid ID or password.</div>
     </div>
   </div>
 
-  <!-- Brand Sub-tabs for Proposals -->
-  <div class="st" id="configBrandTabs"></div>
-  <div id="config-propose-content"></div>
+  <!-- Config Content (hidden until login) -->
+  <div id="config-content" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:12px;color:var(--dim)">Logged in as: <b id="config-user" style="color:var(--a)">—</b></div>
+      <button onclick="doLogout()" style="background:#f1f5f9;color:var(--dim);border:1px solid var(--border);padding:4px 12px;border-radius:6px;font-size:11px;cursor:pointer">Logout</button>
+    </div>
+
+    <!-- Config Table -->
+    <div class="card" style="border-left:3px solid var(--a);margin-bottom:20px">
+      <h3>Brand Configuration</h3>
+      <div class="desc">Edit values and click "Save & Re-run Propose" to trigger a new proposal via GitHub Actions. Results appear below per brand.</div>
+      <div style="overflow-x:auto">
+        <table id="config-table">
+          <thead>
+            <tr>
+              <th>Brand</th>
+              <th>Daily Budget</th>
+              <th>Target ROAS</th>
+              <th>Manual ACOS%</th>
+              <th>Auto ACOS%</th>
+              <th>Max Bid</th>
+              <th>Max Campaign $</th>
+            </tr>
+          </thead>
+          <tbody id="config-tbody"></tbody>
+        </table>
+      </div>
+      <div style="text-align:right">
+        <button class="cfg-btn" onclick="saveConfig()">Save & Re-run Propose</button>
+      </div>
+    </div>
+
+    <!-- Config Update Log -->
+    <div class="card" style="margin-bottom:20px">
+      <h3>📋 Config Update Log</h3>
+      <div class="desc">All configuration changes are recorded with user, timestamp (PST), and values.</div>
+      <div id="config-log-content" style="max-height:300px;overflow-y:auto"></div>
+    </div>
+
+    <!-- Brand Sub-tabs for Proposals -->
+    <div class="st" id="configBrandTabs"></div>
+    <div id="config-propose-content"></div>
+  </div>
 </div>
 
 <!-- ══════════ TAB 3: EXECUTION LOG ══════════ -->
@@ -428,6 +456,114 @@ const BRAND_PL = {
   naeiae: {acos7d:'27.6%',acos30d:'34.8%',tacos7d:'11.6%',tacos30d:'15.7%',budget:'$150',insight:'Export $3/unit (heavy snacks). Prior executions: 5H+4N (03/08-09). Budget $120→$150.'},
   chaenmom: {acos7d:'23.3%',acos30d:'31.5%',tacos7d:'9.1%',tacos30d:'16.1%',budget:'$150',insight:'Competitor Targeting ACOS 70% → bid -30%. Cream/Wash ROAS 30x/4x → budget up.'}
 };
+
+// ── Auth System ──
+// SHA-256 hashed passwords (original passwords are NOT stored in code)
+var AUTH_USERS = {
+  'WJ':  'ce0def455fe638a6c621de7f42b868e0af232f71d1664d691f89a63bcddc543d',
+  'CAL': '9b3ab6b1b5c1d23f9ca24c48cc585ccd69ecda8e637055c3e68be1361c5d56fa',
+  'MJ':  '010b9063e59e7cf38e4249c2fa85ce9ebe9805fe952dec6776306a9a45862375'
+};
+
+// Simple hash function (for client-side only — not bank-level security)
+async function sha256(message) {
+  var msgBuffer = new TextEncoder().encode(message);
+  var hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  var hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+
+function getLoggedInUser() {
+  return localStorage.getItem('ppc_config_user') || '';
+}
+
+async function doLogin() {
+  var id = document.getElementById('login-id').value.trim().toUpperCase();
+  var pw = document.getElementById('login-pw').value.trim();
+  var errEl = document.getElementById('login-error');
+  if (!id || !pw) { errEl.style.display='block'; errEl.textContent='Please enter ID and password.'; return; }
+
+  var hash = await sha256(pw);
+  if (AUTH_USERS[id] && AUTH_USERS[id] === hash) {
+    localStorage.setItem('ppc_config_user', id);
+    showConfigContent(id);
+    errEl.style.display='none';
+  } else {
+    errEl.style.display='block';
+    errEl.textContent='Invalid ID or password.';
+    document.getElementById('login-pw').value='';
+  }
+}
+
+function doLogout() {
+  localStorage.removeItem('ppc_config_user');
+  document.getElementById('config-login-gate').style.display='block';
+  document.getElementById('config-content').style.display='none';
+}
+
+function showConfigContent(user) {
+  document.getElementById('config-login-gate').style.display='none';
+  document.getElementById('config-content').style.display='block';
+  document.getElementById('config-user').textContent=user;
+  renderConfigLog();
+}
+
+// Auto-login if session exists
+(function checkSession(){
+  var user = getLoggedInUser();
+  if(user && AUTH_USERS[user]) {
+    showConfigContent(user);
+  }
+})();
+
+// ── Config Update Log ──
+function getConfigLog() {
+  try { return JSON.parse(localStorage.getItem('ppc_config_log') || '[]'); } catch(e) { return []; }
+}
+
+function addConfigLogEntry(user, changes) {
+  var log = getConfigLog();
+  var now = new Date();
+  var pstStr = now.toLocaleString('en-US', {timeZone:'America/Los_Angeles', year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}) + ' PST';
+  log.unshift({
+    user: user,
+    timestamp: pstStr,
+    changes: changes
+  });
+  // Keep last 100 entries
+  if(log.length > 100) log = log.slice(0,100);
+  localStorage.setItem('ppc_config_log', JSON.stringify(log));
+  renderConfigLog();
+}
+
+function renderConfigLog() {
+  var log = getConfigLog();
+  var el = document.getElementById('config-log-content');
+  if(!el) return;
+  if(!log.length) { el.innerHTML='<div class="desc" style="text-align:center;padding:12px">No config changes yet.</div>'; return; }
+
+  var html = '<table><thead><tr><th>Time (PST)</th><th>User</th><th>Changes</th></tr></thead><tbody>';
+  log.forEach(function(entry){
+    var changesHtml = '';
+    if(typeof entry.changes === 'object') {
+      Object.keys(entry.changes).forEach(function(bk){
+        var bc = entry.changes[bk];
+        Object.keys(bc).forEach(function(field){
+          changesHtml += '<span class="b a" style="margin:1px">' + bk + '.' + field + '=' + bc[field] + '</span> ';
+        });
+      });
+    } else {
+      changesHtml = String(entry.changes);
+    }
+    html += '<tr>' +
+      '<td style="font-family:var(--mono);font-size:10px;white-space:nowrap">' + entry.timestamp + '</td>' +
+      '<td><b style="color:var(--a)">' + entry.user + '</b></td>' +
+      '<td style="font-size:10px">' + changesHtml + '</td>' +
+    '</tr>';
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
 
 const BRAND_DEFAULTS = {
   grosmimi: {daily_budget:3000, target_roas:3.0, manual_acos:20, auto_acos:30, max_bid:5.00, max_campaign:500},
@@ -503,6 +639,9 @@ function renderConfigTab() {
 renderConfigTab();
 
 async function saveConfig() {
+  var user = getLoggedInUser();
+  if(!user) { showToast('Please login first.', 'err'); return; }
+
   requirePAT(async function(){
     var config = {};
     document.querySelectorAll('#config-table input[data-field]').forEach(function(inp){
@@ -511,13 +650,17 @@ async function saveConfig() {
       if(!config[bk]) config[bk] = {};
       config[bk][field] = parseFloat(inp.value) || inp.value;
     });
+
+    // Log the change
+    addConfigLogEntry(user, config);
+
     try {
       var res = await dispatchWorkflow({
         action: 'propose',
         config_json: JSON.stringify(config),
         selected_ids: ''
       });
-      if(res.status === 204) showToast('Propose dispatched! Check GitHub Actions in ~5 min.', 'ok');
+      if(res.status === 204) showToast('Propose dispatched by ' + user + '! Check Actions in ~5 min.', 'ok');
       else showToast('Error: ' + res.status + ' ' + (await res.text()), 'err');
     } catch(e) {
       showToast('Network error: ' + e.message, 'err');
@@ -538,6 +681,8 @@ function updateExecCount(bk, dt) {
 }
 
 async function executeSelected(bk, dt) {
+  var user = getLoggedInUser();
+  if(!user) { showToast('Please login in Config tab first.', 'err'); return; }
   requirePAT(async function(){
     var selectedCamps = [];
     var selectedHarvest = [];
