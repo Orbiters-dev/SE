@@ -1878,8 +1878,9 @@ def show_status():
     if summary["pg"]:
         print("\n=== PostgreSQL Status ===\n")
         for table, info in summary["pg"].items():
+            latest_val = info.get('latest_date') or 'metadata (no date field)'
             print(f"  {table:30s} | {info.get('count', 0):>6,} rows | "
-                  f"latest: {info.get('latest_date', '?')}")
+                  f"latest: {latest_val}")
     else:
         print("\n  [PG] Not reachable (orbitools API)")
 
@@ -1943,8 +1944,13 @@ def _send_collection_email(results=None, elapsed_total=0, recipient=None):
     # PG status table
     pg_rows = ""
     for table, info in summary["pg"].items():
-        latest = info.get("latest_date", "?")
+        latest_raw = info.get("latest_date")
         count = info.get("count", 0)
+        # Metadata tables (campaigns) have no date field — show note instead of ?
+        if latest_raw is None:
+            latest = '<span style="color:#888;font-style:italic">metadata (updated_at only)</span>'
+        else:
+            latest = latest_raw
         is_stale = any(s["table"] == table for s in summary["stale"])
         bg = "#fff5f5" if is_stale else "#f8f9fc"
         stale_tag = f' <span style="color:#c0392b;font-weight:bold">({next(s["days_behind"] for s in summary["stale"] if s["table"] == table)}d behind)</span>' if is_stale else ""

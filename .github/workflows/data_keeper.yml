@@ -80,7 +80,6 @@ jobs:
           ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
           PPC_REPORT_RECIPIENT=${{ secrets.PPC_REPORT_RECIPIENT }}
           DATA_KEEPER_RECIPIENT=${{ secrets.DATA_KEEPER_RECIPIENT }}
-          DATA_KEEPER_CC=${{ secrets.DATA_KEEPER_CC }}
           ENVEOF
           # Strip leading whitespace from heredoc indentation
           sed -i 's/^[[:space:]]*//' .env
@@ -130,11 +129,11 @@ jobs:
           CHANNEL="${{ github.event.inputs.channel || 'all' }}"
           DAYS="${{ github.event.inputs.days || '35' }}"
           SKIP_PG="${{ github.event.inputs.skip_pg || 'false' }}"
-          CMD="python -u tools/data_keeper.py --channel $CHANNEL --days $DAYS --notify"
+          CMD="python -u tools/data_keeper.py --channel $CHANNEL --days $DAYS"
           if [ "$SKIP_PG" = "true" ]; then CMD="$CMD --skip-pg"; fi
-          # Only PST 0:00 daily run sends to all@; midday refresh goes to wj.choi@
-          if [ "${{ steps.mode.outputs.is_daily }}" = "false" ]; then
-            CMD="$CMD --notify-to wj.choi@orbiters.co.kr"
+          # Only the main daily schedule (KST 22:00) sends email; manual dispatch = no email
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "${{ steps.mode.outputs.is_daily }}" = "true" ]; then
+            CMD="$CMD --notify"
           fi
           $CMD
 
