@@ -218,6 +218,11 @@ def backtest_wasted_spend(st_rows: list) -> dict:
         term_conversions    = sum(int(w.get("purchases14d", 0)) for w in windows)
         total_actual_spend += term_actual_spend
 
+        # Skip terms with any conversions — they belong to bid efficiency module (Module 2)
+        # Only pure zero-conversion terms are "wasted spend"
+        if term_conversions > 0:
+            continue
+
         # Simulate: scan windows in order, track cumulative 0-conversion spend
         cum_zero_spend = 0.0
         negated_at     = None   # date string when we would have added negative
@@ -246,14 +251,14 @@ def backtest_wasted_spend(st_rows: list) -> dict:
 
         total_simulated_save += sim_saved
 
-        if sim_saved > 0:
+        if sim_saved > 0 and term_conversions == 0:
             term_roas = (sum(float(w.get("sales14d", 0)) for w in windows) /
                          term_actual_spend) if term_actual_spend else 0
             top_waste_terms.append({
                 "campaign":       camp,
                 "search_term":    term,
                 "actual_spend":   round(term_actual_spend, 2),
-                "conversions":    term_conversions,
+                "conversions":    0,
                 "would_save":     round(sim_saved, 2),
                 "negated_after":  negated_at,
                 "windows":        len(windows),

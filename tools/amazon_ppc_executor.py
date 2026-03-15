@@ -45,6 +45,30 @@ ROOT = TOOLS_DIR.parent
 TMP_DIR = ROOT / ".tmp"
 TMP_DIR.mkdir(exist_ok=True)
 
+CONFIG_OVERRIDE_PATH = TMP_DIR / "dashboard_config_override.json"
+
+
+def load_dashboard_config() -> dict:
+    """Load config written by the PPC dashboard (via ppc_dashboard_action.yml)."""
+    if CONFIG_OVERRIDE_PATH.exists():
+        try:
+            return json.loads(CONFIG_OVERRIDE_PATH.read_text(encoding="utf-8"))
+        except Exception as e:
+            print(f"  [WARN] Could not read dashboard config override: {e}")
+    return {}
+
+
+def _get_tier_number(tier_str: str) -> int:
+    """Map human-readable tier string to tier number (1-4)."""
+    t = tier_str.lower()
+    if "no-brainer" in t or "no brainer" in t or "10" in t:
+        return 1
+    if "strong" in t or "8" in t:
+        return 2
+    if "moderate" in t or "5" in t:
+        return 3
+    return 4  # monitor
+
 # --- credentials ---
 AD_CLIENT_ID     = os.getenv("AMZ_ADS_CLIENT_ID")
 AD_CLIENT_SECRET = os.getenv("AMZ_ADS_CLIENT_SECRET")
@@ -5062,6 +5086,33 @@ def run_propose_single(args, brand_key: str):
 
     # sim_data already loaded at function start via _load_simulator_backtest()
     backtest_summary = sim_data
+
+    # --- Autopilot: auto-approve based on dashboard tier settings ---
+    dash_cfg = load_dashboard_config()
+    autopilot = dash_cfg.get("_autopilot", {})
+    if autopilot:
+        print(f"\n[AUTO] Autopilot config found: {autopilot}")
+        auto_approved_count = 0
+        for prop in proposals:
+            tier_num = _get_tier_number(prop.get("tier", ""))
+            tier_mode = autopilot.get(f"tier{tier_num}", "approve")
+            if tier_mode == "auto":
+                prop["approved"] = True
+                prop["auto_approved"] = True
+                auto_approved_count += 1
+                print(f"  [AUTOPILOT] Auto-approved: {prop.get('campaignName','?')} (Tier {tier_num})")
+        for prop in kw_proposals:
+            tier_num = _get_tier_number(prop.get("tier", ""))
+            tier_mode = autopilot.get(f"tier{tier_num}", "approve")
+            if tier_mode == "auto":
+                prop["approved"] = True
+                prop["auto_approved"] = True
+                auto_approved_count += 1
+                print(f"  [AUTOPILOT] Auto-approved keyword: {prop.get('searchTerm', prop.get('keyword','?'))} (Tier {tier_num})")
+        if auto_approved_count:
+            print(f"  [AUTOPILOT] {auto_approved_count} items auto-approved for {brand_display}")
+        else:
+            print(f"  [AUTOPILOT] No items matched auto tier settings")
 
     # Always save and send -- even with 0 action proposals, the analysis is valuable
     filepath = save_proposal(proposals, profile_id, kw_proposals, brand_key=brand_key)
