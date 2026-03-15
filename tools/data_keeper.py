@@ -806,7 +806,16 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
             date_str = (row.get("purchase-date") or row.get("order-date", ""))[:10]
             if not date_str:
                 continue
-            channel = "Target+" if "target" in row.get("sales-channel", "").lower() else "Amazon"
+            sales_ch = row.get("sales-channel", "").strip()
+
+            # Filter out MCF (Multi-Channel Fulfillment) orders
+            # MCF = "Non-Amazon" in sales-channel (Shopify DTC fulfilled via Amazon FBA)
+            # These have no item-price and are not Amazon Marketplace revenue
+            # Keep only: "Amazon.com", "Target+", or other Amazon channels
+            if "non-amazon" in sales_ch.lower():
+                continue  # Skip MCF orders — Shopify DTC fulfilled via FBA
+
+            channel = "Target+" if "target" in sales_ch.lower() else "Amazon"
             try:
                 amt = float(row.get("item-price", 0) or 0)
                 qty = int(row.get("quantity", 1) or 1)
