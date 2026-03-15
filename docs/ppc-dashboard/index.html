@@ -108,6 +108,21 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 #output-content td{padding:5px 6px}
 #output-content th{padding:5px 6px;font-size:8px}
 
+/* Config tab */
+#config-table input{border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:11px;font-family:var(--mono);width:70px;text-align:right}
+#config-table input:focus{border-color:var(--a);outline:none;box-shadow:0 0 0 2px var(--abg)}
+.cfg-btn{background:var(--a);color:#fff;border:none;padding:10px 28px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-top:14px;transition:.15s}
+.cfg-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+/* Checkbox */
+input[type=checkbox]{width:14px;height:14px;accent-color:var(--a);cursor:pointer}
+/* Toast */
+.toast-enter{animation:slideIn .3s ease}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+/* Execute button */
+.exec-btn{background:var(--g);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:.15s}
+.exec-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.exec-btn:disabled{background:#cbd5e1;cursor:not-allowed;transform:none}
+
 @media(max-width:700px){.fb{flex-wrap:wrap;justify-content:center}.fa{display:none}.cf{flex-direction:column}.cfa{transform:rotate(90deg)}}
 </style>
 </head>
@@ -123,6 +138,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 <div class="mt" id="mainTabs">
   <div class="on" data-p="tab-flow">Architecture & Flow</div>
   <div data-p="tab-output">Output & Execution Log</div>
+  <div data-p="tab-config">Config</div>
 </div>
 
 <!-- ══════════ TAB 1: FLOW ══════════ -->
@@ -216,6 +232,46 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
   <div id="output-content"></div>
 </div>
 
+<!-- ══════════ TAB 3: CONFIG ══════════ -->
+<div class="mp" id="tab-config">
+  <div class="card" style="border-left:3px solid var(--a)">
+    <h3>Brand Configuration</h3>
+    <div class="desc">Edit values below and click "Save & Re-run Propose" to trigger a new proposal cycle via GitHub Actions.</div>
+    <div style="overflow-x:auto">
+      <table id="config-table">
+        <thead>
+          <tr>
+            <th>Brand</th>
+            <th>Daily Budget</th>
+            <th>Target ROAS</th>
+            <th>Manual ACOS%</th>
+            <th>Auto ACOS%</th>
+            <th>Max Bid</th>
+            <th>Max Campaign $</th>
+          </tr>
+        </thead>
+        <tbody id="config-tbody"></tbody>
+      </table>
+    </div>
+    <div style="text-align:right">
+      <button class="cfg-btn" onclick="saveConfig()">Save & Re-run Propose</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAT AUTH MODAL ══════════ -->
+<div id="pat-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:12px;padding:32px;max-width:450px;width:90%;">
+    <h3>GitHub Personal Access Token</h3>
+    <p style="font-size:12px;color:#64748b;margin:8px 0 16px;">Required to trigger GitHub Actions. Stored in localStorage only.</p>
+    <input type="password" id="pat-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;font-family:monospace;">
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button onclick="savePAT()" style="flex:1;background:var(--a);color:#fff;border:none;padding:10px;border-radius:8px;font-weight:700;cursor:pointer;">Save & Continue</button>
+      <button onclick="closePATModal()" style="flex:1;background:#f1f5f9;color:#64748b;border:none;padding:10px;border-radius:8px;font-weight:700;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
+
 </div>
 
 <script>
@@ -227,94 +283,267 @@ const BRAND_PL = {
   chaenmom: {acos:'26.4%',tacos:'4.8%',budget:'$150',insight:'Competitor Targeting ACOS 70% → bid -30%. Cream/Wash ROAS 30x/4x → budget up.'}
 };
 
+const BRAND_DEFAULTS = {
+  grosmimi: {daily_budget:3000, target_roas:3.0, manual_acos:20, auto_acos:30, max_bid:5.00, max_campaign:500},
+  naeiae: {daily_budget:120, target_roas:2.5, manual_acos:25, auto_acos:35, max_bid:3.00, max_campaign:50},
+  chaenmom: {daily_budget:150, target_roas:2.0, manual_acos:30, auto_acos:40, max_bid:3.00, max_campaign:50}
+};
+
+const REPO = 'Orbiters-dev/WJ-Test1';
+const WORKFLOW_FILE = 'ppc_dashboard_action.yml';
+
+// ── PAT Auth ──
+function getPAT() {
+  return localStorage.getItem('ppc_gh_pat') || '';
+}
+
+function requirePAT(callback) {
+  if (getPAT()) { callback(); return; }
+  window._patCallback = callback;
+  document.getElementById('pat-modal').style.display = 'flex';
+}
+
+function savePAT() {
+  var pat = document.getElementById('pat-input').value.trim();
+  if (!pat) return;
+  localStorage.setItem('ppc_gh_pat', pat);
+  closePATModal();
+  if (window._patCallback) { window._patCallback(); window._patCallback = null; }
+}
+
+function closePATModal() {
+  document.getElementById('pat-modal').style.display = 'none';
+}
+
+// ── GitHub Actions Dispatch ──
+async function dispatchWorkflow(inputs) {
+  var pat = getPAT();
+  var res = await fetch('https://api.github.com/repos/' + REPO + '/actions/workflows/' + WORKFLOW_FILE + '/dispatches', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'token ' + pat,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ ref: 'main', inputs: inputs })
+  });
+  return res;
+}
+
+function showToast(msg, type) {
+  var t = document.createElement('div');
+  t.className = 'toast-enter';
+  t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:' + (type==='ok'?'var(--g)':'var(--r)') + ';color:#fff;padding:12px 24px;border-radius:8px;font-size:13px;font-weight:600;z-index:2000;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:opacity 0.3s;';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function(){ t.style.opacity='0'; setTimeout(function(){t.remove();}, 300); }, 4000);
+}
+
+// ── Config Tab ──
+function renderConfigTab() {
+  var tbody = document.getElementById('config-tbody');
+  var fields = ['daily_budget','target_roas','manual_acos','auto_acos','max_bid','max_campaign'];
+  var html = '';
+  Object.keys(BRAND_DEFAULTS).forEach(function(bk){
+    var d = BRAND_DEFAULTS[bk];
+    html += '<tr><td style="font-weight:700;font-size:11px">' + (BRAND_LABELS[bk]||bk) + '</td>';
+    fields.forEach(function(f){
+      html += '<td><input type="number" step="any" value="' + d[f] + '" data-brand="' + bk + '" data-field="' + f + '"></td>';
+    });
+    html += '</tr>';
+  });
+  tbody.innerHTML = html;
+}
+renderConfigTab();
+
+async function saveConfig() {
+  requirePAT(async function(){
+    var config = {};
+    document.querySelectorAll('#config-table input[data-field]').forEach(function(inp){
+      var bk = inp.dataset.brand;
+      var field = inp.dataset.field;
+      if(!config[bk]) config[bk] = {};
+      config[bk][field] = parseFloat(inp.value) || inp.value;
+    });
+    try {
+      var res = await dispatchWorkflow({
+        action: 'propose',
+        config_json: JSON.stringify(config),
+        selected_ids: ''
+      });
+      if(res.status === 204) showToast('Propose dispatched! Check GitHub Actions in ~5 min.', 'ok');
+      else showToast('Error: ' + res.status + ' ' + (await res.text()), 'err');
+    } catch(e) {
+      showToast('Network error: ' + e.message, 'err');
+    }
+  });
+}
+
+// ── Exec Count + Execute ──
+function updateExecCount(bk, dt) {
+  var camps = document.querySelectorAll('.camp-check[data-bk="' + bk + '"][data-dt="' + dt + '"]:checked').length;
+  var harvests = document.querySelectorAll('.harvest-check[data-bk="' + bk + '"][data-dt="' + dt + '"]:checked').length;
+  var negs = document.querySelectorAll('.negate-check[data-bk="' + bk + '"][data-dt="' + dt + '"]:checked').length;
+  var total = camps + harvests + negs;
+  var el = document.getElementById('execCount-' + bk + '-' + dt);
+  if(el) el.textContent = total;
+  var btn = document.getElementById('execBtn-' + bk + '-' + dt);
+  if(btn) btn.disabled = total === 0;
+}
+
+async function executeSelected(bk, dt) {
+  requirePAT(async function(){
+    var selectedCamps = [];
+    var selectedHarvest = [];
+    var selectedNegate = [];
+
+    document.querySelectorAll('.camp-check[data-bk="' + bk + '"][data-dt="' + dt + '"]:checked').forEach(function(cb){
+      selectedCamps.push(parseInt(cb.dataset.idx));
+    });
+    document.querySelectorAll('.harvest-check[data-bk="' + bk + '"][data-dt="' + dt + '"]:checked').forEach(function(cb){
+      selectedHarvest.push(parseInt(cb.dataset.idx));
+    });
+    document.querySelectorAll('.negate-check[data-bk="' + bk + '"][data-dt="' + dt + '"]:checked').forEach(function(cb){
+      selectedNegate.push(parseInt(cb.dataset.idx));
+    });
+
+    var selection = {
+      brand: bk,
+      date: dt,
+      campaigns: selectedCamps,
+      harvest: selectedHarvest,
+      negate: selectedNegate
+    };
+
+    try {
+      var res = await dispatchWorkflow({
+        action: 'execute',
+        config_json: '',
+        selected_ids: JSON.stringify(selection)
+      });
+      if(res.status === 204) {
+        showToast('Executing ' + selectedCamps.length + ' campaigns + ' + selectedHarvest.length + ' harvest + ' + selectedNegate.length + ' negates for ' + bk + '!', 'ok');
+      } else {
+        showToast('Error: ' + res.status, 'err');
+      }
+    } catch(e) {
+      showToast('Network error: ' + e.message, 'err');
+    }
+  });
+}
+
+// ── Checkbox Toggle Delegation ──
+document.addEventListener('change', function(e) {
+  // "All" checkbox for campaigns
+  if (e.target.id && e.target.id.startsWith('checkAll-camp-')) {
+    var campParts = e.target.id.replace('checkAll-camp-','').split('-');
+    var campBk = campParts[0], campDt = campParts.slice(1).join('-');
+    document.querySelectorAll('.camp-check[data-bk="' + campBk + '"][data-dt="' + campDt + '"]').forEach(function(cb){cb.checked=e.target.checked;});
+    updateExecCount(campBk, campDt);
+  }
+  if (e.target.id && e.target.id.startsWith('checkAll-harvest-')) {
+    var hParts = e.target.id.replace('checkAll-harvest-','').split('-');
+    var hBk = hParts[0], hDt = hParts.slice(1).join('-');
+    document.querySelectorAll('.harvest-check[data-bk="' + hBk + '"][data-dt="' + hDt + '"]').forEach(function(cb){cb.checked=e.target.checked;});
+    updateExecCount(hBk, hDt);
+  }
+  if (e.target.id && e.target.id.startsWith('checkAll-negate-')) {
+    var nParts = e.target.id.replace('checkAll-negate-','').split('-');
+    var nBk = nParts[0], nDt = nParts.slice(1).join('-');
+    document.querySelectorAll('.negate-check[data-bk="' + nBk + '"][data-dt="' + nDt + '"]').forEach(function(cb){cb.checked=e.target.checked;});
+    updateExecCount(nBk, nDt);
+  }
+  // Individual checkbox changes
+  if (e.target.classList.contains('camp-check') || e.target.classList.contains('harvest-check') || e.target.classList.contains('negate-check')) {
+    updateExecCount(e.target.dataset.bk, e.target.dataset.dt);
+  }
+});
+
 // Hero meta
-document.getElementById('hero-meta').innerHTML = `
-  <span class="pill"><span class="dot"></span> DataKeeper: ${D.generated_pst}</span>
-  <span class="pill">3 Brands &middot; Data from data.js</span>`;
+document.getElementById('hero-meta').innerHTML = '<span class="pill"><span class="dot"></span> DataKeeper: ' + D.generated_pst + '</span><span class="pill">3 Brands &middot; Data from data.js</span>';
 
 // Main tabs
-document.querySelectorAll('.mt>div').forEach(t=>{
-  t.onclick=()=>{
-    document.querySelectorAll('.mt>div').forEach(x=>x.classList.remove('on'));
-    document.querySelectorAll('.mp').forEach(x=>x.classList.remove('on'));
+document.querySelectorAll('.mt>div').forEach(function(t){
+  t.onclick=function(){
+    document.querySelectorAll('.mt>div').forEach(function(x){x.classList.remove('on');});
+    document.querySelectorAll('.mp').forEach(function(x){x.classList.remove('on');});
     t.classList.add('on');
     document.getElementById(t.dataset.p).classList.add('on');
   };
 });
 
 // Flow bar scroll
-document.querySelectorAll('.fn[data-t]').forEach(n=>{
-  n.onclick=()=>{
-    document.querySelectorAll('.fn').forEach(x=>x.classList.remove('on'));n.classList.add('on');
-    document.getElementById(n.dataset.t)?.scrollIntoView({behavior:'smooth',block:'start'});
+document.querySelectorAll('.fn[data-t]').forEach(function(n){
+  n.onclick=function(){
+    document.querySelectorAll('.fn').forEach(function(x){x.classList.remove('on');});n.classList.add('on');
+    var target = document.getElementById(n.dataset.t);
+    if(target) target.scrollIntoView({behavior:'smooth',block:'start'});
   };
 });
 
 // Brand tabs
-const brands = Object.keys(D.brands);
-const btEl = document.getElementById('brandTabs');
-brands.forEach((bk,i)=>{
-  const d = document.createElement('div');
+var brands = Object.keys(D.brands);
+var btEl = document.getElementById('brandTabs');
+brands.forEach(function(bk,i){
+  var d = document.createElement('div');
   d.textContent = BRAND_LABELS[bk];
   d.dataset.brand = bk;
   if(i===0) d.classList.add('on');
-  d.onclick = ()=>{ btEl.querySelectorAll('div').forEach(x=>x.classList.remove('on')); d.classList.add('on'); renderBrand(bk); };
+  d.onclick = function(){ btEl.querySelectorAll('div').forEach(function(x){x.classList.remove('on');}); d.classList.add('on'); renderBrand(bk); };
   btEl.appendChild(d);
 });
 
-function badge(v,type){return `<span class="b ${type}">${v}</span>`}
-function roasB(r){return r>=3?badge(r+'x','g'):r>=2?badge(r+'x','am'):badge(r+'x','r')}
-function $(s){return document.querySelector(s)}
+function badge(v,type){return '<span class="b '+type+'">'+v+'</span>';}
+function roasB(r){return r>=3?badge(r+'x','g'):r>=2?badge(r+'x','am'):badge(r+'x','r');}
+function $(s){return document.querySelector(s);}
 
 function renderBrand(bk){
-  const bd = D.brands[bk];
-  const dates = Object.keys(bd.dates).sort().reverse();
-  const pl = BRAND_PL[bk];
-  const el = document.getElementById('output-content');
+  var bd = D.brands[bk];
+  var dates = Object.keys(bd.dates).sort().reverse();
+  var pl = BRAND_PL[bk];
+  var el = document.getElementById('output-content');
 
-  let html = `
-    <div class="card" style="border-left:3px solid var(--a);margin-bottom:14px">
-      <h3>P&L Insight</h3>
-      <div class="stats">
-        <div class="stat accent"><div class="sl">ACOS</div><div class="sv">${pl.acos}</div></div>
-        <div class="stat cyan"><div class="sl">TACOS</div><div class="sv">${pl.tacos}</div></div>
-        <div class="stat amber"><div class="sl">Daily Budget</div><div class="sv">${pl.budget}</div></div>
-      </div>
-      <div class="desc">${pl.insight}</div>
-    </div>
-    <div class="sst" id="dateTabs-${bk}"></div>
-    <div id="dateContent-${bk}"></div>`;
+  var html = '<div class="card" style="border-left:3px solid var(--a);margin-bottom:14px">' +
+    '<h3>P&L Insight</h3>' +
+    '<div class="stats">' +
+      '<div class="stat accent"><div class="sl">ACOS</div><div class="sv">' + pl.acos + '</div></div>' +
+      '<div class="stat cyan"><div class="sl">TACOS</div><div class="sv">' + pl.tacos + '</div></div>' +
+      '<div class="stat amber"><div class="sl">Daily Budget</div><div class="sv">' + pl.budget + '</div></div>' +
+    '</div>' +
+    '<div class="desc">' + pl.insight + '</div>' +
+  '</div>' +
+  '<div class="sst" id="dateTabs-' + bk + '"></div>' +
+  '<div id="dateContent-' + bk + '"></div>';
   el.innerHTML = html;
 
   // Date sub-tabs
-  const dtEl = document.getElementById(`dateTabs-${bk}`);
-  dates.forEach((dt,i)=>{
-    const d = document.createElement('div');
+  var dtEl = document.getElementById('dateTabs-' + bk);
+  dates.forEach(function(dt,i){
+    var d = document.createElement('div');
     d.textContent = dt;
     d.dataset.dt = dt;
     if(i===0) d.classList.add('on');
-    d.onclick = ()=>{ dtEl.querySelectorAll('div').forEach(x=>x.classList.remove('on')); d.classList.add('on'); renderDate(bk,dt); };
+    d.onclick = function(){ dtEl.querySelectorAll('div').forEach(function(x){x.classList.remove('on');}); d.classList.add('on'); renderDate(bk,dt); };
     dtEl.appendChild(d);
   });
   if(dates.length) renderDate(bk, dates[0]);
 }
 
 function renderDate(bk, dt){
-  const dd = D.brands[bk].dates[dt];
-  const el = document.getElementById(`dateContent-${bk}`);
-  const c = dd.counts;
+  var dd = D.brands[bk].dates[dt];
+  var el = document.getElementById('dateContent-' + bk);
+  var c = dd.counts;
 
-  let html = `
-    <div class="ssst" id="viewTabs-${bk}-${dt}">
-      <div class="on" data-v="propose">Propose (${c.campaigns}camp, ${c.harvest}H, ${c.negate}N)</div>
-      <div data-v="execution">Execution</div>
-    </div>
-    <div id="viewContent-${bk}-${dt}"></div>`;
+  var html = '<div class="ssst" id="viewTabs-' + bk + '-' + dt + '">' +
+    '<div class="on" data-v="propose">Propose (' + c.campaigns + 'camp, ' + c.harvest + 'H, ' + c.negate + 'N)</div>' +
+    '<div data-v="execution">Execution</div>' +
+  '</div>' +
+  '<div id="viewContent-' + bk + '-' + dt + '"></div>';
   el.innerHTML = html;
 
-  document.querySelectorAll(`#viewTabs-${bk}-${dt}>div`).forEach(t=>{
-    t.onclick=()=>{
-      document.querySelectorAll(`#viewTabs-${bk}-${dt}>div`).forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('#viewTabs-' + bk + '-' + dt + '>div').forEach(function(t){
+    t.onclick=function(){
+      document.querySelectorAll('#viewTabs-' + bk + '-' + dt + '>div').forEach(function(x){x.classList.remove('on');});
       t.classList.add('on');
       if(t.dataset.v==='propose') renderPropose(bk,dt);
       else renderExecution(bk,dt);
@@ -324,121 +553,132 @@ function renderDate(bk, dt){
 }
 
 function renderPropose(bk,dt){
-  const dd = D.brands[bk].dates[dt];
-  const el = document.getElementById(`viewContent-${bk}-${dt}`);
+  var dd = D.brands[bk].dates[dt];
+  var el = document.getElementById('viewContent-' + bk + '-' + dt);
 
-  // Campaign table (ALL)
-  let campRows = dd.campaigns.map(c=>{
-    const budStr = c.bud_after ? `$${c.bud_before}→$${c.bud_after}` : '—';
-    const bidStr = c.bid_pct ? `${c.bid_pct>0?'+':''}${c.bid_pct}%` : '—';
-    const typeB = c.type==='AUTO'?badge('AUTO','c'):badge('MAN','a');
-    return `<tr>
-      <td>${badge(c.tier,'a')}</td>
-      <td>${c.name}</td><td>${typeB}</td>
-      <td>${roasB(c.roas7d)}</td><td>${c.acos7d||'—'}%</td>
-      <td>$${c.spend7d}</td><td>$${c.sales7d}</td>
-      <td><b>${c.action}</b></td><td>${bidStr}</td><td>${budStr}</td>
-      <td style="font-size:9px;color:var(--dim);max-width:200px">${c.reason}</td>
-    </tr>`;
+  // Campaign table with checkboxes
+  var campRows = dd.campaigns.map(function(c,i){
+    var budStr = c.bud_after ? '$'+c.bud_before+'→$'+c.bud_after : '—';
+    var bidStr = c.bid_pct ? (c.bid_pct>0?'+':'')+c.bid_pct+'%' : '—';
+    var typeB = c.type==='AUTO'?badge('AUTO','c'):badge('MAN','a');
+    return '<tr>' +
+      '<td><input type="checkbox" class="camp-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'"></td>' +
+      '<td>'+badge(c.tier,'a')+'</td>' +
+      '<td>'+c.name+'</td><td>'+typeB+'</td>' +
+      '<td>'+roasB(c.roas7d)+'</td><td>'+(c.acos7d||'—')+'%</td>' +
+      '<td>$'+c.spend7d+'</td><td>$'+c.sales7d+'</td>' +
+      '<td><b>'+c.action+'</b></td><td>'+bidStr+'</td><td>'+budStr+'</td>' +
+      '<td style="font-size:9px;color:var(--dim);max-width:200px">'+c.reason+'</td>' +
+    '</tr>';
   }).join('');
 
-  // Harvest table (ALL)
-  let harvestRows = dd.harvest.map(h=>`<tr>
-    <td>${h.term}</td><td style="color:var(--g);font-weight:700">$${h.sales}</td><td>$${h.cost}</td>
-    <td>${h.acos?badge(h.acos+'%','g'):'—'}</td><td>${h.clicks}</td><td>${h.purchases}</td>
-    <td>$${h.bid}</td><td style="font-size:9px;color:var(--dim)">${h.campaign}</td>
-  </tr>`).join('');
-
-  // Negate table (ALL)
-  let negRows = dd.negate.map(n=>{
-    const simB = n.sim_save>0?` ${badge('SIM $'+n.sim_save,'sim')}`:'';
-    return `<tr>
-      <td>${n.term}${simB}</td><td>$${n.cost}</td><td>${n.sales?'$'+n.sales:'$0'}</td>
-      <td>${n.acos?badge(n.acos+'%','r'):'—'}</td><td>${n.clicks}</td>
-      <td>${badge(n.type.replace('negate_',''),'r')}</td>
-      <td style="font-size:9px;color:var(--dim);max-width:250px">${n.reason}</td>
-    </tr>`;
+  // Harvest table with checkboxes
+  var harvestRows = dd.harvest.map(function(h,i){
+    return '<tr>' +
+      '<td><input type="checkbox" class="harvest-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'"></td>' +
+      '<td>'+h.term+'</td><td style="color:var(--g);font-weight:700">$'+h.sales+'</td><td>$'+h.cost+'</td>' +
+      '<td>'+(h.acos?badge(h.acos+'%','g'):'—')+'</td><td>'+h.clicks+'</td><td>'+h.purchases+'</td>' +
+      '<td>$'+h.bid+'</td><td style="font-size:9px;color:var(--dim)">'+h.campaign+'</td>' +
+    '</tr>';
   }).join('');
 
-  el.innerHTML = `
-    <div class="card">
-      <h3>Campaign Proposals (${dd.campaigns.length})</h3>
-      <div class="desc">Generated: ${dd.generated} | Data: ${dt}</div>
-      ${dd.campaigns.length?`<div style="overflow-x:auto"><table>
-        <thead><tr><th>Tier</th><th>Campaign</th><th>Type</th><th>ROAS</th><th>ACOS</th><th>Spend</th><th>Sales</th><th>Action</th><th>Bid</th><th>Budget</th><th>Reason</th></tr></thead>
-        <tbody>${campRows}</tbody>
-      </table></div>`:'<div class="desc">No campaign proposals for this date.</div>'}
-    </div>
+  // Negate table with checkboxes
+  var negRows = dd.negate.map(function(n,i){
+    var simB = n.sim_save>0?' '+badge('SIM $'+n.sim_save,'sim'):'';
+    return '<tr>' +
+      '<td><input type="checkbox" class="negate-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'"></td>' +
+      '<td>'+n.term+simB+'</td><td>$'+n.cost+'</td><td>'+(n.sales?'$'+n.sales:'$0')+'</td>' +
+      '<td>'+(n.acos?badge(n.acos+'%','r'):'—')+'</td><td>'+n.clicks+'</td>' +
+      '<td>'+badge(n.type.replace('negate_',''),'r')+'</td>' +
+      '<td style="font-size:9px;color:var(--dim);max-width:250px">'+n.reason+'</td>' +
+    '</tr>';
+  }).join('');
 
-    <div class="card">
-      <h3>Keyword Harvest (${dd.harvest.length})</h3>
-      ${dd.harvest.length?`<div style="overflow-x:auto"><table>
-        <thead><tr><th>Search Term</th><th>Sales</th><th>Cost</th><th>ACOS</th><th>Clicks</th><th>Conv</th><th>Bid</th><th>Campaign</th></tr></thead>
-        <tbody>${harvestRows}</tbody>
-      </table></div>`:'<div class="desc">No harvest candidates (dedup or insufficient data).</div>'}
-    </div>
+  el.innerHTML =
+    '<div class="card">' +
+      '<h3>Campaign Proposals ('+dd.campaigns.length+')</h3>' +
+      '<div class="desc">Generated: '+dd.generated+' | Data: '+dt+'</div>' +
+      (dd.campaigns.length?'<div style="overflow-x:auto"><table>' +
+        '<thead><tr><th><input type="checkbox" id="checkAll-camp-'+bk+'-'+dt+'"> All</th><th>Tier</th><th>Campaign</th><th>Type</th><th>ROAS</th><th>ACOS</th><th>Spend</th><th>Sales</th><th>Action</th><th>Bid</th><th>Budget</th><th>Reason</th></tr></thead>' +
+        '<tbody>'+campRows+'</tbody>' +
+      '</table></div>':'<div class="desc">No campaign proposals for this date.</div>') +
+    '</div>' +
 
-    <div class="card">
-      <h3>Negative Keywords (${dd.negate.length}) ${dd.negate.filter(n=>n.sim_save>0).length?'— '+dd.negate.filter(n=>n.sim_save>0).length+' SIM confirmed':''}</h3>
-      ${dd.negate.length?`<div style="overflow-x:auto"><table>
-        <thead><tr><th>Search Term</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Clicks</th><th>Type</th><th>Reason</th></tr></thead>
-        <tbody>${negRows}</tbody>
-      </table></div>`:'<div class="desc">No negative candidates.</div>'}
-    </div>`;
+    '<div class="card">' +
+      '<h3>Keyword Harvest ('+dd.harvest.length+')</h3>' +
+      (dd.harvest.length?'<div style="overflow-x:auto"><table>' +
+        '<thead><tr><th><input type="checkbox" id="checkAll-harvest-'+bk+'-'+dt+'"> All</th><th>Search Term</th><th>Sales</th><th>Cost</th><th>ACOS</th><th>Clicks</th><th>Conv</th><th>Bid</th><th>Campaign</th></tr></thead>' +
+        '<tbody>'+harvestRows+'</tbody>' +
+      '</table></div>':'<div class="desc">No harvest candidates (dedup or insufficient data).</div>') +
+    '</div>' +
+
+    '<div class="card">' +
+      '<h3>Negative Keywords ('+dd.negate.length+') '+(dd.negate.filter(function(n){return n.sim_save>0;}).length?'— '+dd.negate.filter(function(n){return n.sim_save>0;}).length+' SIM confirmed':'')+'</h3>' +
+      (dd.negate.length?'<div style="overflow-x:auto"><table>' +
+        '<thead><tr><th><input type="checkbox" id="checkAll-negate-'+bk+'-'+dt+'"> All</th><th>Search Term</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Clicks</th><th>Type</th><th>Reason</th></tr></thead>' +
+        '<tbody>'+negRows+'</tbody>' +
+      '</table></div>':'<div class="desc">No negative candidates.</div>') +
+    '</div>' +
+
+    '<div style="text-align:right;margin-top:16px;">' +
+      '<button id="execBtn-'+bk+'-'+dt+'" class="exec-btn" onclick="executeSelected(\''+bk+'\',\''+dt+'\')" disabled>' +
+        '⚡ Execute Selected (<span id="execCount-'+bk+'-'+dt+'">0</span>)' +
+      '</button>' +
+    '</div>';
 }
 
 function renderExecution(bk,dt){
-  const dd = D.brands[bk].dates[dt];
-  const el = document.getElementById(`viewContent-${bk}-${dt}`);
+  var dd = D.brands[bk].dates[dt];
+  var el = document.getElementById('viewContent-' + bk + '-' + dt);
 
   if(!dd.executed){
-    el.innerHTML = `<div class="card"><div class="desc" style="text-align:center;padding:20px;color:var(--am)">
-      Not executed yet. Reply "Execute all" to the proposal email to trigger.
-    </div></div>`;
+    el.innerHTML = '<div class="card"><div class="desc" style="text-align:center;padding:20px;color:var(--am)">' +
+      'Not executed yet. Reply "Execute all" to the proposal email to trigger.' +
+    '</div></div>';
     return;
   }
 
-  const execCamps = dd.campaigns.filter(c=>c.approved);
-  let rows = execCamps.map(c=>{
-    const budStr = c.bud_after?`$${c.bud_before}→$${c.bud_after}`:'—';
-    return `<tr><td>${c.name}</td><td>${c.action}</td><td>${c.bid_pct?c.bid_pct+'%':'—'}</td><td>${budStr}</td><td>${badge('Executed','g')}</td></tr>`;
+  var execCamps = dd.campaigns.filter(function(c){return c.approved;});
+  var rows = execCamps.map(function(c){
+    var budStr = c.bud_after?'$'+c.bud_before+'→$'+c.bud_after:'—';
+    return '<tr><td>'+c.name+'</td><td>'+c.action+'</td><td>'+(c.bid_pct?c.bid_pct+'%':'—')+'</td><td>'+budStr+'</td><td>'+badge('Executed','g')+'</td></tr>';
   }).join('');
 
-  el.innerHTML = `<div class="card">
-    <h3>Execution Log</h3>
-    <div class="desc">Executed at: ${dd.executed_at||'—'}</div>
-    ${rows?`<table><thead><tr><th>Campaign</th><th>Action</th><th>Bid</th><th>Budget</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>`
-    :'<div class="desc">No details available.</div>'}
-  </div>`;
+  el.innerHTML = '<div class="card">' +
+    '<h3>Execution Log</h3>' +
+    '<div class="desc">Executed at: '+(dd.executed_at||'—')+'</div>' +
+    (rows?'<table><thead><tr><th>Campaign</th><th>Action</th><th>Bid</th><th>Budget</th><th>Status</th></tr></thead><tbody>'+rows+'</tbody></table>'
+    :'<div class="desc">No details available.</div>') +
+  '</div>';
 }
 
 // P&L Category Table
 function renderPL(){
   if(typeof PL_DATA==='undefined') return;
-  const cats = PL_DATA.grosmimi;
-  const tot = PL_DATA.total;
-  let rows = cats.map(c=>{
-    const cmB = c.cm_pct>=30?badge(c.cm_pct+'%','g'):c.cm_pct>=15?badge(c.cm_pct+'%','am'):badge(c.cm_pct+'%','r');
-    const gmB = c.gm_pct>=70?badge(c.gm_pct+'%','g'):c.gm_pct>=50?badge(c.gm_pct+'%','am'):badge(c.gm_pct+'%','r');
-    const topA = c.top_asins.map(a=>`<span style="font-size:8px;color:var(--muted)" title="${a.name}">${a.asin} ($${a.rev.toLocaleString()})</span>`).join(', ');
-    return `<tr>
-      <td><b>${c.category}</b></td><td>${c.units.toLocaleString()}</td>
-      <td>$${c.rev.toLocaleString()}</td><td>$${c.asp}</td>
-      <td>$${c.cogs}</td><td>$${c.fba}</td>
-      <td>${gmB}</td><td>$${c.cm.toLocaleString()}</td><td>${cmB}</td>
-      <td style="font-size:8px;max-width:180px">${topA}</td>
-    </tr>`;
+  var cats = PL_DATA.grosmimi;
+  var tot = PL_DATA.total;
+  var rows = cats.map(function(c){
+    var cmB = c.cm_pct>=30?badge(c.cm_pct+'%','g'):c.cm_pct>=15?badge(c.cm_pct+'%','am'):badge(c.cm_pct+'%','r');
+    var gmB = c.gm_pct>=70?badge(c.gm_pct+'%','g'):c.gm_pct>=50?badge(c.gm_pct+'%','am'):badge(c.gm_pct+'%','r');
+    var topA = c.top_asins.map(function(a){return '<span style="font-size:8px;color:var(--muted)" title="'+a.name+'">'+a.asin+' ($'+a.rev.toLocaleString()+')</span>';}).join(', ');
+    return '<tr>' +
+      '<td><b>'+c.category+'</b></td><td>'+c.units.toLocaleString()+'</td>' +
+      '<td>$'+c.rev.toLocaleString()+'</td><td>$'+c.asp+'</td>' +
+      '<td>$'+c.cogs+'</td><td>$'+c.fba+'</td>' +
+      '<td>'+gmB+'</td><td>$'+c.cm.toLocaleString()+'</td><td>'+cmB+'</td>' +
+      '<td style="font-size:8px;max-width:180px">'+topA+'</td>' +
+    '</tr>';
   }).join('');
-  const totCm = tot.rev>0?Math.round(tot.cm/tot.rev*100*10)/10:0;
-  rows += `<tr style="font-weight:700;background:#f0fdf4">
-    <td>TOTAL</td><td>${tot.units.toLocaleString()}</td><td>$${tot.rev.toLocaleString()}</td>
-    <td>—</td><td>—</td><td>—</td><td>—</td><td>$${tot.cm.toLocaleString()}</td>
-    <td>${badge(totCm+'%','g')}</td><td></td></tr>`;
-  document.getElementById('pl-table').innerHTML = `
-    <div style="overflow-x:auto"><table>
-      <thead><tr><th>Category</th><th>Units</th><th>Revenue</th><th>ASP</th><th>COGS</th><th>FBA</th><th>GM%</th><th>CM $</th><th>CM%</th><th>Top ASINs</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table></div>`;
+  var totCm = tot.rev>0?Math.round(tot.cm/tot.rev*100*10)/10:0;
+  rows += '<tr style="font-weight:700;background:#f0fdf4">' +
+    '<td>TOTAL</td><td>'+tot.units.toLocaleString()+'</td><td>$'+tot.rev.toLocaleString()+'</td>' +
+    '<td>—</td><td>—</td><td>—</td><td>—</td><td>$'+tot.cm.toLocaleString()+'</td>' +
+    '<td>'+badge(totCm+'%','g')+'</td><td></td></tr>';
+  document.getElementById('pl-table').innerHTML =
+    '<div style="overflow-x:auto"><table>' +
+      '<thead><tr><th>Category</th><th>Units</th><th>Revenue</th><th>ASP</th><th>COGS</th><th>FBA</th><th>GM%</th><th>CM $</th><th>CM%</th><th>Top ASINs</th></tr></thead>' +
+      '<tbody>'+rows+'</tbody>' +
+    '</table></div>';
 }
 renderPL();
 

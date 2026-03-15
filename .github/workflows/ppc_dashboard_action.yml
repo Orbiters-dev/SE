@@ -1,0 +1,94 @@
+name: PPC Dashboard Action
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action type (propose or execute)'
+        required: true
+        default: 'propose'
+      config_json:
+        description: 'Brand config JSON (for propose)'
+        required: false
+        default: ''
+      selected_ids:
+        description: 'Selected proposal IDs JSON (for execute)'
+        required: false
+        default: ''
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests google-auth google-auth-oauthlib google-api-python-client
+
+      - name: Write credentials
+        run: |
+          cat > .env << ENVEOF
+          AMZ_ADS_CLIENT_ID=${{ secrets.AMZ_ADS_CLIENT_ID }}
+          AMZ_ADS_CLIENT_SECRET=${{ secrets.AMZ_ADS_CLIENT_SECRET }}
+          AMZ_ADS_REFRESH_TOKEN=${{ secrets.AMZ_ADS_REFRESH_TOKEN }}
+          AMZ_SP_CLIENT_ID=${{ secrets.AMZ_SP_CLIENT_ID }}
+          AMZ_SP_CLIENT_SECRET=${{ secrets.AMZ_SP_CLIENT_SECRET }}
+          AMZ_SP_REFRESH_TOKEN_FLEETERS=${{ secrets.AMZ_SP_REFRESH_TOKEN_FLEETERS }}
+          AMZ_SP_REFRESH_TOKEN_GROSMIMI=${{ secrets.AMZ_SP_REFRESH_TOKEN_GROSMIMI }}
+          AMZ_SP_REFRESH_TOKEN_ORBITOOL=${{ secrets.AMZ_SP_REFRESH_TOKEN_ORBITOOL }}
+          ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
+          ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
+          PPC_REPORT_RECIPIENT=${{ secrets.PPC_REPORT_RECIPIENT }}
+          ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+          ENVEOF
+
+          # Gmail OAuth
+          echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials.json
+          echo '${{ secrets.GMAIL_TOKEN_JSON }}' > token.json
+
+      - name: Apply config override (if provided)
+        if: inputs.config_json != ''
+        run: |
+          echo "Config override provided:"
+          echo '${{ inputs.config_json }}' | python -m json.tool || echo "(not valid JSON)"
+          # Save config for executor to pick up
+          echo '${{ inputs.config_json }}' > .tmp/dashboard_config_override.json
+          mkdir -p .tmp
+
+      - name: Run Propose
+        if: inputs.action == 'propose'
+        run: |
+          echo "=== Running propose (all brands) ==="
+          python -u tools/amazon_ppc_executor.py --propose --to "$PPC_REPORT_RECIPIENT" 2>&1 || echo "[WARN] Propose finished with errors"
+        env:
+          PPC_REPORT_RECIPIENT: ${{ secrets.PPC_REPORT_RECIPIENT }}
+
+      - name: Run Execute
+        if: inputs.action == 'execute' && inputs.selected_ids != ''
+        run: |
+          echo "=== Running selective execute ==="
+          echo "Selection: ${{ inputs.selected_ids }}"
+          # Save selection for executor
+          mkdir -p .tmp
+          echo '${{ inputs.selected_ids }}' > .tmp/dashboard_execute_selection.json
+          python -u tools/amazon_ppc_executor.py --execute-selection .tmp/dashboard_execute_selection.json 2>&1 || echo "[WARN] Execute finished with errors"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ppc-dashboard-action-results
+          path: |
+            .tmp/ppc_proposal_*.html
+            .tmp/ppc_proposal_*.json
+            .tmp/ppc_executed_*.json
+            .tmp/ppc_executed_*.html
+          retention-days: 7
+          if-no-files-found: warn
