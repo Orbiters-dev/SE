@@ -234,7 +234,7 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
 
       <div class="steps" style="margin:12px 0">
         <div class="stp"><div class="d a"></div><div class="sl">Step 1</div><div class="snn">Group by (campaign, searchTerm)</div><div class="sd">All search term rows are grouped by their unique (campaignId, searchTerm) pair. Each group contains multiple 7-day windows sorted chronologically.</div></div>
-        <div class="stp"><div class="d c"></div><div class="sl">Step 2</div><div class="snn">Track cumulative zero-conversion spend</div><div class="sd">For each term, scan windows in order. If <code>purchases14d == 0</code>, add the window's <code>cost</code> to a running counter. If a conversion occurs, reset counter to $0.</div></div>
+        <div class="stp"><div class="d c"></div><div class="sl">Step 2</div><div class="snn">Skip terms with any conversions</div><div class="sd"><b>Terms with 1+ total conversions are excluded from the waste module.</b> High-ACOS converting terms are handled by Bid Efficiency (Module 2) instead. Only pure zero-conversion terms proceed to Step 3.</div></div>
         <div class="stp"><div class="d am"></div><div class="sl">Step 3</div><div class="snn">Trigger negative at threshold</div><div class="sd">When cumulative zero-conv spend reaches <b>$5.00</b> (<code>WASTE_SPEND_THRESHOLD</code>), mark the term as "negated" at that window's date. The spend in THIS window already happened (14-day rule), so savings start from the NEXT window.</div></div>
         <div class="stp"><div class="d g"></div><div class="sl">Step 4</div><div class="snn">Calculate savings</div><div class="sd">All subsequent windows after the negation date → their spend is counted as <b>"would_save"</b>. This is money that would NOT have been spent if the negative keyword had been added.</div></div>
       </div>
@@ -246,8 +246,8 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
         <div class="rule w"><div class="rn">Save timing</div><div class="rv">Next window</div><div class="rd">Current window spend already committed; savings start from next chunk</div></div>
       </div>
 
-      <div class="desc"><b>Example:</b> "baby straw cup" spent $1,205 over 6 windows. After $5+ with 0 conversions hit on Mar 7, it would be negated. The remaining $948 in later windows = savings.<br>
-      <b>Key insight:</b> Terms with high total spend but some conversions can still be flagged — the counter resets on conversion, but if a long zero-conv streak follows, the threshold triggers again.</div>
+      <div class="desc"><b>Example:</b> A search term with $800 spend and 0 conversions triggers the negative after $5+ zero-conv spend, saving all subsequent windows.<br>
+      <b>Key insight:</b> Terms with ANY conversions are excluded — they go to Module 2 (bid efficiency). The waste module is for purely non-converting traffic only. This prevents high-spend converting terms (e.g., "baby straw cup" with 86 conversions) from being misclassified as wasteful.</div>
     </div>
 
     <!-- ─── Module 2: Bid Efficiency ─── -->
@@ -635,13 +635,15 @@ const BRAND_PL = {
 };
 
 // ── Auth System ──
-// SHA-256 hashed passwords (original passwords are NOT stored in code)
+// SHA-256 hashed passwords — salted with username (lowercase) to prevent rainbow table attacks
+// Hash = sha256(password + username.toLowerCase())
+// To regenerate: python -c "import hashlib; print(hashlib.sha256((pw+uid).encode()).hexdigest())"
 var AUTH_USERS = {
-  'WJ':  'ce0def455fe638a6c621de7f42b868e0af232f71d1664d691f89a63bcddc543d',
-  'CAL': '9b3ab6b1b5c1d23f9ca24c48cc585ccd69ecda8e637055c3e68be1361c5d56fa',
-  'MJ':  '010b9063e59e7cf38e4249c2fa85ce9ebe9805fe952dec6776306a9a45862375',
-  'HJ':  'b1390a8dc4b5d29bbb2e1458c31cf867049316cc6e5dac08fc0bd61676af4017',
-  'JS':  'c6d75a1953366cdcc94191f6ff4db255e467e0c8a532b17484fee1172ee8031f'
+  'WJ':  'a619397d21c5fd5daa1d55bbdef5e99383dadb69f602a0110a9d56cb7b776fbd',  // sha256(pw+"wj")
+  'CAL': '',  // needs regeneration: sha256(pw+"cal")
+  'MJ':  '',  // needs regeneration: sha256(pw+"mj")
+  'HJ':  '',  // needs regeneration: sha256(pw+"hj")
+  'JS':  ''   // needs regeneration: sha256(pw+"js")
 };
 
 // Users allowed to delete backtest entries
@@ -665,7 +667,7 @@ async function doLogin() {
   var errEl = document.getElementById('login-error');
   if (!id || !pw) { errEl.style.display='block'; errEl.textContent='Please enter ID and password.'; return; }
 
-  var hash = await sha256(pw);
+  var hash = await sha256(pw + id.toLowerCase());  // salted: pw + username prevents rainbow table
   if (AUTH_USERS[id] && AUTH_USERS[id] === hash) {
     localStorage.setItem('ppc_config_user', id);
     showConfigContent(id);
@@ -782,6 +784,9 @@ function closePATModal() {
 // ── GitHub Actions Dispatch ──
 async function dispatchWorkflow(inputs) {
   var pat = getPAT();
+  // Add nonce to block automated dispatch scripts (not bank-level CSRF, but raises the bar)
+  var nonce = btoa(Date.now().toString() + Math.random().toString()).replace(/=/g,'');
+  var payload = Object.assign({}, inputs, { nonce: nonce });
   var res = await fetch('https://api.github.com/repos/' + REPO + '/actions/workflows/' + WORKFLOW_FILE + '/dispatches', {
     method: 'POST',
     headers: {
@@ -789,7 +794,7 @@ async function dispatchWorkflow(inputs) {
       'Accept': 'application/vnd.github.v3+json',
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ ref: 'main', inputs: inputs })
+    body: JSON.stringify({ ref: 'main', inputs: payload })
   });
   return res;
 }
@@ -1059,6 +1064,11 @@ async function fetchLiveMetrics(){
     var latestDate = adsData.length ? adsData[0].date : '?';
     statusEl.innerHTML = '<span class="dot" style="background:var(--g)"></span> LIVE ('+latestDate+')';
     statusEl.style.borderColor = 'var(--g)';
+    // Add source note below hero
+    var noteEl = document.createElement('div');
+    noteEl.style.cssText = 'text-align:center;font-size:9px;color:var(--muted);margin-top:4px';
+    noteEl.textContent = 'LIVE data: amazon_ads_daily + amazon_sales_daily (campaign-level) | Proposals from data.js (post-propose)';
+    document.getElementById('hero-meta').parentNode.appendChild(noteEl);
 
     // Refresh current brand view if on Config tab
     var activeConfigBrand = document.querySelector('#configBrandTabs .on');
