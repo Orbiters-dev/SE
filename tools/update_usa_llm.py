@@ -196,8 +196,30 @@ def count_trending(posts, prev_metrics):
     return count
 
 
-def detect_highlights(posts, newly_detected_urls):
-    """오늘 처음 감지된 포스트 → 뷰 순 정렬."""
+def get_highlight_dates():
+    """Return (target_date_set, label_str) based on day of week (KST).
+    Mon: include Sat+Sun+Mon. Tue-Fri: today only.
+    """
+    KST = timezone(timedelta(hours=9))
+    today = datetime.now(tz=KST).date()
+    weekday = today.weekday()  # 0=Mon
+
+    if weekday == 0:  # Monday → include Sat, Sun, Mon
+        target = {
+            (today - timedelta(days=2)).isoformat(),
+            (today - timedelta(days=1)).isoformat(),
+            today.isoformat(),
+        }
+        label = "uploaded Sat\u2013Mon"
+    else:
+        target = {today.isoformat()}
+        label = "uploaded today"
+
+    return target, label
+
+
+def detect_highlights(posts, target_dates):
+    """target_dates(upload date) 기준 포스트 → 뷰 순 정렬."""
     seen = set()
     highlights = []
     for p in posts:
@@ -205,7 +227,7 @@ def detect_highlights(posts, newly_detected_urls):
         if not url or url in seen:
             continue
         seen.add(url)
-        if url not in newly_detected_urls:
+        if p.get("date", "") not in target_dates:
             continue
         highlights.append({
             "username":  p["username"],
@@ -307,8 +329,10 @@ def run(dry_run=False):
     trending_count = count_trending(posts, prev_metrics)
     print(f"    Trending (50%+ view change): {trending_count}")
 
-    print("[4] Highlights (first detected today, sorted by views)...")
-    highlights = detect_highlights(posts, newly_detected)
+    print("[4] Highlights (by post upload date, sorted by views)...")
+    target_dates, date_label = get_highlight_dates()
+    print(f"    Target dates: {sorted(target_dates)} ({date_label})")
+    highlights = detect_highlights(posts, target_dates)
     print(f"    Highlights: {len(highlights)}")
     for h in highlights:
         print(f"    @{h['username']} ({h['date']}): {h['views']:,} views")
@@ -328,6 +352,7 @@ def run(dry_run=False):
     HIGHLIGHTS_PATH.parent.mkdir(parents=True, exist_ok=True)
     HIGHLIGHTS_PATH.write_text(json.dumps({
         "highlights":       highlights,
+        "date_label":       date_label,
         "total_creators":   len(aggregated),
         "total_posts":      len(posts),
         "new_content_24h":  new_content_24h,

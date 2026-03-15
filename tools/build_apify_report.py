@@ -128,7 +128,7 @@ def _build_order_map() -> dict:
 
 # ── Highlights ────────────────────────────────────────────────────────────────
 
-def build_highlights_section(highlights: list) -> str:
+def build_highlights_section(highlights: list, date_label: str = "uploaded today") -> str:
     if not highlights:
         return ""
 
@@ -203,7 +203,7 @@ def build_highlights_section(highlights: list) -> str:
         <span style="font-size:10px;letter-spacing:2px;text-transform:uppercase;
                      color:#9CA3AF;font-family:'Courier New',monospace;">&#11088; Today's Highlights</span>
         <span style="font-size:10px;color:#C9A84C;font-family:'Courier New',monospace;
-                     margin-left:8px;">{len(highlights)} posts first detected today &middot; sorted by views</span>
+                     margin-left:8px;">{len(highlights)} posts {date_label} &middot; sorted by views</span>
       </div>
       <table width="100%" cellpadding="0" cellspacing="0"
              style="border-collapse:collapse;border:1px solid #E9E7E4;border-radius:8px;overflow:hidden;">
@@ -496,8 +496,9 @@ def build_html(
     statuses: dict,
     repo: str = "",
     run_id: str = "",
+    date_label: str = "uploaded today",
 ) -> str:
-    highlights_html = build_highlights_section(highlights)
+    highlights_html = build_highlights_section(highlights, date_label)
     pipeline_html   = build_pipeline_section(statuses)
     stats_html      = build_stats_section(sns_summary, llm_data, total_creators)
 
@@ -591,12 +592,13 @@ def main():
     parser.add_argument("--llm",      default=os.environ.get("LLM_OUTCOME",      "unknown"))
     args = parser.parse_args()
 
-    highlights, total_creators, llm_data = [], 0, {}
+    highlights, total_creators, llm_data, date_label = [], 0, {}, "uploaded today"
     if HIGHLIGHTS_PATH.exists():
         try:
             llm_data       = json.loads(HIGHLIGHTS_PATH.read_text(encoding="utf-8"))
             highlights     = llm_data.get("highlights", [])
             total_creators = llm_data.get("total_creators", 0)
+            date_label     = llm_data.get("date_label", "uploaded today")
         except Exception as e:
             print(f"[WARN] Could not load highlights: {e}")
 
@@ -628,6 +630,7 @@ def main():
         statuses=statuses,
         repo=repo,
         run_id=run_id,
+        date_label=date_label,
     )
 
     if args.dry_run:
