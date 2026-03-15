@@ -1,5 +1,5 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-14 19:48 PST",
+ "generated_pst": "2026-03-15 16:35 PST",
  "brands": {
   "grosmimi": {
    "dates": {
@@ -1419,7 +1419,8 @@ const PPC_DATA = {
       "negate": 50
      }
     }
-   }
+   },
+   "execution_log": []
   },
   "naeiae": {
    "dates": {
@@ -1479,8 +1480,8 @@ const PPC_DATA = {
     },
     "2026-03-15": {
      "generated": "2026-03-15T11:34",
-     "executed": false,
-     "executed_at": "",
+     "executed": true,
+     "executed_at": "2026-03-09 (from ppc_executed_*.json)",
      "summary_7d": {
       "spend": 0,
       "sales": 0,
@@ -1503,7 +1504,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "6 Optimize",
        "reason": "[AUTO] 7d ROAS 2.26x (ACOS 44.2%) | 30d ROAS 2.26x | 7d vs 30d: +0.0%\nOptimization: ACOS 44.2% exceeds target 35.0% by 9.2pp -> bid -10% | CTR 0.37% is low -> review listing images, titles, pricing",
-       "approved": false
+       "approved": true
       }
      ],
      "harvest": [],
@@ -1514,14 +1515,376 @@ const PPC_DATA = {
       "negate": 0
      }
     }
-   }
+   },
+   "execution_log": [
+    {
+     "campaignId": 365330679770972,
+     "campaignName": "",
+     "action": "harvest",
+     "priority": "medium",
+     "reason": "Profitable ST: ACOS 9.9% < target 25.0%, 6 sales",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "pop rice snack",
+     "old_bid": null,
+     "new_bid": 0.67,
+     "roas_7d": null,
+     "spend_7d": 14.68,
+     "sales_7d": 147.6,
+     "result_status": "OK",
+     "exec_date": "2026-03-08"
+    },
+    {
+     "campaignId": 365330679770972,
+     "campaignName": "",
+     "action": "harvest",
+     "priority": "medium",
+     "reason": "Profitable ST: ACOS 12.0% < target 25.0%, 5 sales",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "떡뻥",
+     "old_bid": null,
+     "new_bid": 0.86,
+     "roas_7d": null,
+     "spend_7d": 14.77,
+     "sales_7d": 123.0,
+     "result_status": "OK",
+     "exec_date": "2026-03-08"
+    },
+    {
+     "campaignId": 365330679770972,
+     "campaignName": "",
+     "action": "harvest",
+     "priority": "medium",
+     "reason": "Profitable ST: ACOS 10.4% < target 25.0%, 4 sales",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "naeiae pop rice snack",
+     "old_bid": null,
+     "new_bid": 0.63,
+     "roas_7d": null,
+     "spend_7d": 10.23,
+     "sales_7d": 98.4,
+     "result_status": "OK",
+     "exec_date": "2026-03-08"
+    },
+    {
+     "campaignId": 444108265805305,
+     "campaignName": "",
+     "action": "harvest",
+     "priority": "medium",
+     "reason": "Profitable ST: ACOS 19.1% < target 25.0%, 3 sales",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "baby teething snacks",
+     "old_bid": null,
+     "new_bid": 1.2,
+     "roas_7d": null,
+     "spend_7d": 14.13,
+     "sales_7d": 73.8,
+     "result_status": "OK",
+     "exec_date": "2026-03-08"
+    },
+    {
+     "campaignId": 365330679770972,
+     "campaignName": "",
+     "action": "harvest",
+     "priority": "medium",
+     "reason": "Profitable ST: ACOS 19.9% < target 25.0%, 3 sales",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "pop rice snack baby",
+     "old_bid": null,
+     "new_bid": 1.01,
+     "roas_7d": null,
+     "spend_7d": 14.65,
+     "sales_7d": 73.8,
+     "result_status": "OK",
+     "exec_date": "2026-03-08"
+    },
+    {
+     "campaignId": 365330679770972,
+     "campaignName": "",
+     "action": "negate_high_acos",
+     "priority": "high",
+     "reason": "ACOS 130.8% > 50.0% threshold",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "puffed rice",
+     "old_bid": null,
+     "new_bid": null,
+     "roas_7d": null,
+     "spend_7d": 32.17,
+     "sales_7d": 24.6,
+     "result_status": "OK",
+     "exec_date": "2026-03-08"
+    },
+    {
+     "campaignId": 365330679770972,
+     "campaignName": "",
+     "action": "negate_zero_sales",
+     "priority": "urgent",
+     "reason": "$27.76 spent, 28 clicks, 0 sales (>3.0x target CPA)",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "baby snacks",
+     "old_bid": null,
+     "new_bid": null,
+     "roas_7d": null,
+     "spend_7d": 27.76,
+     "sales_7d": 0,
+     "result_status": "OK",
+     "exec_date": "2026-03-08"
+    },
+    {
+     "campaignId": 444108265805305,
+     "campaignName": "",
+     "action": "negate_high_acos",
+     "priority": "high",
+     "reason": "ACOS 102.5% > 50.0% threshold",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "toddler snacks",
+     "old_bid": null,
+     "new_bid": null,
+     "roas_7d": null,
+     "spend_7d": 25.22,
+     "sales_7d": 24.6,
+     "result_status": "OK",
+     "exec_date": "2026-03-08"
+    },
+    {
+     "campaignId": 365330679770972,
+     "campaignName": "",
+     "action": "negate_zero_sales",
+     "priority": "urgent",
+     "reason": "$15.18 spent, 16 clicks, 0 sales (>3.0x target CPA)",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "yugwa korean rice puff snack",
+     "old_bid": null,
+     "new_bid": null,
+     "roas_7d": null,
+     "spend_7d": 15.18,
+     "sales_7d": 0,
+     "result_status": "OK",
+     "exec_date": "2026-03-08"
+    },
+    {
+     "campaignId": 365330679770972,
+     "campaignName": "",
+     "action": "harvest",
+     "priority": "medium",
+     "reason": "Profitable ST: ACOS 9.9% < target 25.0%, 6 sales",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "pop rice snack",
+     "old_bid": null,
+     "new_bid": 0.67,
+     "roas_7d": null,
+     "spend_7d": 14.68,
+     "sales_7d": 147.6,
+     "result_status": "OK",
+     "exec_date": "2026-03-09"
+    },
+    {
+     "campaignId": 444108265805305,
+     "campaignName": "",
+     "action": "harvest",
+     "priority": "medium",
+     "reason": "Profitable ST: ACOS 10.3% < target 25.0%, 5 sales",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "b0bmh153y7",
+     "old_bid": null,
+     "new_bid": 0.87,
+     "roas_7d": null,
+     "spend_7d": 12.66,
+     "sales_7d": 123.0,
+     "result_status": "OK",
+     "exec_date": "2026-03-09"
+    },
+    {
+     "campaignId": 365330679770972,
+     "campaignName": "",
+     "action": "harvest",
+     "priority": "medium",
+     "reason": "Profitable ST: ACOS 12.0% < target 25.0%, 5 sales",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "떡뻥",
+     "old_bid": null,
+     "new_bid": 0.86,
+     "roas_7d": null,
+     "spend_7d": 14.77,
+     "sales_7d": 123.0,
+     "result_status": "OK",
+     "exec_date": "2026-03-09"
+    },
+    {
+     "campaignId": 365330679770972,
+     "campaignName": "",
+     "action": "harvest",
+     "priority": "medium",
+     "reason": "Profitable ST: ACOS 10.4% < target 25.0%, 4 sales",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "naeiae pop rice snack",
+     "old_bid": null,
+     "new_bid": 0.63,
+     "roas_7d": null,
+     "spend_7d": 10.23,
+     "sales_7d": 98.4,
+     "result_status": "OK",
+     "exec_date": "2026-03-09"
+    },
+    {
+     "campaignId": 444108265805305,
+     "campaignName": "",
+     "action": "harvest",
+     "priority": "medium",
+     "reason": "Profitable ST: ACOS 8.0% < target 25.0%, 3 sales",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "b08tqn3h7t",
+     "old_bid": null,
+     "new_bid": 0.46,
+     "roas_7d": null,
+     "spend_7d": 5.9,
+     "sales_7d": 73.8,
+     "result_status": "OK",
+     "exec_date": "2026-03-09"
+    },
+    {
+     "campaignId": 444108265805305,
+     "campaignName": "",
+     "action": "harvest",
+     "priority": "medium",
+     "reason": "Profitable ST: ACOS 19.1% < target 25.0%, 3 sales",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "baby teething snacks",
+     "old_bid": null,
+     "new_bid": 1.2,
+     "roas_7d": null,
+     "spend_7d": 14.13,
+     "sales_7d": 73.8,
+     "result_status": "OK",
+     "exec_date": "2026-03-09"
+    },
+    {
+     "campaignId": 365330679770972,
+     "campaignName": "",
+     "action": "harvest",
+     "priority": "medium",
+     "reason": "Profitable ST: ACOS 19.9% < target 25.0%, 3 sales",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "pop rice snack baby",
+     "old_bid": null,
+     "new_bid": 1.01,
+     "roas_7d": null,
+     "spend_7d": 14.65,
+     "sales_7d": 73.8,
+     "result_status": "OK",
+     "exec_date": "2026-03-09"
+    },
+    {
+     "campaignId": 365330679770972,
+     "campaignName": "",
+     "action": "negate_high_acos",
+     "priority": "high",
+     "reason": "ACOS 130.8% > 50.0% threshold",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "puffed rice",
+     "old_bid": null,
+     "new_bid": null,
+     "roas_7d": null,
+     "spend_7d": 32.17,
+     "sales_7d": 24.6,
+     "result_status": "OK",
+     "exec_date": "2026-03-09"
+    },
+    {
+     "campaignId": 365330679770972,
+     "campaignName": "",
+     "action": "negate_zero_sales",
+     "priority": "urgent",
+     "reason": "$27.76 spent, 28 clicks, 0 sales (>3.0x target CPA)",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "baby snacks",
+     "old_bid": null,
+     "new_bid": null,
+     "roas_7d": null,
+     "spend_7d": 27.76,
+     "sales_7d": 0,
+     "result_status": "OK",
+     "exec_date": "2026-03-09"
+    },
+    {
+     "campaignId": 444108265805305,
+     "campaignName": "",
+     "action": "negate_high_acos",
+     "priority": "high",
+     "reason": "ACOS 102.5% > 50.0% threshold",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "toddler snacks",
+     "old_bid": null,
+     "new_bid": null,
+     "roas_7d": null,
+     "spend_7d": 25.22,
+     "sales_7d": 24.6,
+     "result_status": "OK",
+     "exec_date": "2026-03-09"
+    },
+    {
+     "campaignId": 365330679770972,
+     "campaignName": "",
+     "action": "negate_zero_sales",
+     "priority": "urgent",
+     "reason": "$15.18 spent, 16 clicks, 0 sales (>3.0x target CPA)",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "yugwa korean rice puff snack",
+     "old_bid": null,
+     "new_bid": null,
+     "roas_7d": null,
+     "spend_7d": 15.18,
+     "sales_7d": 0,
+     "result_status": "OK",
+     "exec_date": "2026-03-09"
+    }
+   ]
   },
   "chaenmom": {
    "dates": {
     "2026-03-14": {
      "generated": "2026-03-14T23:57",
-     "executed": false,
-     "executed_at": "",
+     "executed": true,
+     "executed_at": "2026-03-14 (from ppc_executed_*.json)",
      "summary_7d": {
       "spend": 0,
       "sales": 0,
@@ -1544,7 +1907,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "9 No-Brainer",
        "reason": "[MANUAL] 7d ROAS 1.35x (ACOS 73.9%) | 30d ROAS 1.13x | target ACOS 30.0% | 7d vs 30d: +19.5%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "CHA&MOM_Cream_SP_Auto",
@@ -1561,7 +1924,7 @@ const PPC_DATA = {
        "bud_after": 60.0,
        "tier": "8 Strong",
        "reason": "[AUTO] 7d ROAS 30.88x (ACOS 3.2%) | 30d ROAS 15.15x | target ACOS 40.0% | 7d vs 30d: +103.8%\n** UNDERSPEND BOOST: budget increase amplified (+30% -> +60%) to reach $150.0/day target",
-       "approved": false
+       "approved": true
       },
       {
        "name": "CHA&MOM_Wash_SP_Auto",
@@ -1578,7 +1941,7 @@ const PPC_DATA = {
        "bud_after": 60.0,
        "tier": "8 Strong",
        "reason": "[AUTO] 7d ROAS 7.1x (ACOS 14.1%) | 30d ROAS 7.87x | target ACOS 40.0% | 7d vs 30d: -9.8%\n** UNDERSPEND BOOST: budget increase amplified (+30% -> +60%) to reach $150.0/day target",
-       "approved": false
+       "approved": true
       }
      ],
      "harvest": [],
@@ -1591,8 +1954,8 @@ const PPC_DATA = {
     },
     "2026-03-15": {
      "generated": "2026-03-15T11:34",
-     "executed": false,
-     "executed_at": "",
+     "executed": true,
+     "executed_at": "2026-03-15 (from ppc_executed_*.json)",
      "summary_7d": {
       "spend": 0,
       "sales": 0,
@@ -1615,7 +1978,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "9 No-Brainer",
        "reason": "[MANUAL] 7d ROAS 1.43x (ACOS 70.1%) | 30d ROAS 1.43x | target ACOS 30.0% | 7d vs 30d: +0.0%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "CHA&MOM_Cream_SP_Auto",
@@ -1632,7 +1995,7 @@ const PPC_DATA = {
        "bud_after": 75.0,
        "tier": "8 Strong",
        "reason": "[AUTO] 7d ROAS 30.88x (ACOS 3.2%) | 30d ROAS 30.88x | target ACOS 40.0% | 7d vs 30d: +0.0%\n** UNDERSPEND BOOST: budget increase amplified (+30% -> +60%) to reach $150.0/day target",
-       "approved": false
+       "approved": true
       },
       {
        "name": "CHA&MOM_Wash_SP_Auto",
@@ -1649,7 +2012,7 @@ const PPC_DATA = {
        "bud_after": 75.0,
        "tier": "7 Strong",
        "reason": "[AUTO] 7d ROAS 4.18x (ACOS 23.9%) | 30d ROAS 4.18x | target ACOS 40.0% | 7d vs 30d: +0.0%\n** UNDERSPEND BOOST: budget increase amplified (+20% -> +50%) to reach $150.0/day target\n** UNDERSPEND: bid +15% to increase impressions/clicks (ROAS 4.18x supports growth)",
-       "approved": false
+       "approved": true
       }
      ],
      "harvest": [],
@@ -1660,7 +2023,114 @@ const PPC_DATA = {
       "negate": 0
      }
     }
-   }
+   },
+   "execution_log": [
+    {
+     "campaignId": "306557038962339",
+     "campaignName": "CHA&MOM_Keyword_Lotion_SP_Manual",
+     "action": "pause",
+     "priority": "urgent",
+     "reason": "[MANUAL] 7d ROAS 0.0x (ACOS None%) | 30d ROAS 0.0x | target ACOS 30.0% | ",
+     "old_budget": 40.0,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "roas_7d": 0.0,
+     "spend_7d": 6.7,
+     "sales_7d": 0.0,
+     "result_status": "OK",
+     "exec_date": "2026-03-14"
+    },
+    {
+     "campaignId": "544958892271499",
+     "campaignName": "CHA&MOM _Competitor Targeting_SP_Manual",
+     "action": "reduce_bid",
+     "priority": "urgent",
+     "reason": "[MANUAL] 7d ROAS 1.35x (ACOS 73.9%) | 30d ROAS 1.13x | target ACOS 30.0% | 7d vs 30d: +19.5%",
+     "old_budget": 50.0,
+     "new_budget": null,
+     "bid_change_pct": -30,
+     "roas_7d": 1.35,
+     "spend_7d": 39.15,
+     "sales_7d": 53.0,
+     "result_status": "OK",
+     "exec_date": "2026-03-14"
+    },
+    {
+     "campaignId": "283428786376604",
+     "campaignName": "CHA&MOM_Cream_SP_Auto",
+     "action": "increase_budget",
+     "priority": "high",
+     "reason": "[AUTO] 7d ROAS 30.88x (ACOS 3.2%) | 30d ROAS 15.15x | target ACOS 40.0% | 7d vs 30d: +103.8%\n** UNDERSPEND BOOST: budget increase amplified (+30% -> +60%) to reach $150.0/day target",
+     "old_budget": 90.0,
+     "new_budget": 60.0,
+     "bid_change_pct": 10,
+     "roas_7d": 30.88,
+     "spend_7d": 3.75,
+     "sales_7d": 115.8,
+     "result_status": "OK",
+     "exec_date": "2026-03-14"
+    },
+    {
+     "campaignId": "310329880624911",
+     "campaignName": "CHA&MOM_Wash_SP_Auto",
+     "action": "increase_budget",
+     "priority": "high",
+     "reason": "[AUTO] 7d ROAS 7.1x (ACOS 14.1%) | 30d ROAS 7.87x | target ACOS 40.0% | 7d vs 30d: -9.8%\n** UNDERSPEND BOOST: budget increase amplified (+30% -> +60%) to reach $150.0/day target",
+     "old_budget": 45.0,
+     "new_budget": 60.0,
+     "bid_change_pct": 10,
+     "roas_7d": 7.1,
+     "spend_7d": 7.77,
+     "sales_7d": 55.2,
+     "result_status": "OK",
+     "exec_date": "2026-03-14"
+    },
+    {
+     "campaignId": "544958892271499",
+     "campaignName": "CHA&MOM _Competitor Targeting_SP_Manual",
+     "action": "reduce_bid",
+     "priority": "urgent",
+     "reason": "[MANUAL] 7d ROAS 1.43x (ACOS 70.1%) | 30d ROAS 1.43x | target ACOS 30.0% | 7d vs 30d: +0.0%",
+     "old_budget": 50.0,
+     "new_budget": null,
+     "bid_change_pct": -30,
+     "roas_7d": 1.43,
+     "spend_7d": 37.15,
+     "sales_7d": 53.0,
+     "result_status": "OK",
+     "exec_date": "2026-03-15"
+    },
+    {
+     "campaignId": "283428786376604",
+     "campaignName": "CHA&MOM_Cream_SP_Auto",
+     "action": "increase_budget",
+     "priority": "high",
+     "reason": "[AUTO] 7d ROAS 30.88x (ACOS 3.2%) | 30d ROAS 30.88x | target ACOS 40.0% | 7d vs 30d: +0.0%\n** UNDERSPEND BOOST: budget increase amplified (+30% -> +60%) to reach $150.0/day target",
+     "old_budget": 60.0,
+     "new_budget": 75.0,
+     "bid_change_pct": 10,
+     "roas_7d": 30.88,
+     "spend_7d": 3.75,
+     "sales_7d": 115.8,
+     "result_status": "OK",
+     "exec_date": "2026-03-15"
+    },
+    {
+     "campaignId": "310329880624911",
+     "campaignName": "CHA&MOM_Wash_SP_Auto",
+     "action": "increase_budget",
+     "priority": "medium",
+     "reason": "[AUTO] 7d ROAS 4.18x (ACOS 23.9%) | 30d ROAS 4.18x | target ACOS 40.0% | 7d vs 30d: +0.0%\n** UNDERSPEND BOOST: budget increase amplified (+20% -> +50%) to reach $150.0/day target\n** UNDERSPEND: bid +15% to increase impressions/clicks (ROAS 4.18x supports growth)",
+     "old_budget": 60.0,
+     "new_budget": 75.0,
+     "bid_change_pct": 15,
+     "roas_7d": 4.18,
+     "spend_7d": 6.87,
+     "sales_7d": 28.7,
+     "result_status": "OK",
+     "exec_date": "2026-03-15"
+    }
+   ]
   }
  }
 };
