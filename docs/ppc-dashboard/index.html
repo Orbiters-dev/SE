@@ -722,7 +722,10 @@ async function executeSelected(bk, dt) {
       var idx = parseInt(cb.dataset.idx);
       var overrideInp = document.querySelector('.override-input[data-bk="'+bk+'"][data-dt="'+dt+'"][data-idx="'+idx+'"]');
       var overrideVal = overrideInp ? parseFloat(overrideInp.value) : null;
-      selectedCamps.push({idx: idx, override_budget: overrideVal});
+      var noteInp = document.querySelector('.camp-note[data-bk="'+bk+'"][data-dt="'+dt+'"][data-idx="'+idx+'"]');
+      var campNote = noteInp ? noteInp.value.trim() : '';
+      var campName = dd.campaigns[idx] ? dd.campaigns[idx].name : '';
+      selectedCamps.push({idx: idx, name: campName, override_budget: overrideVal, note: campNote});
     });
     document.querySelectorAll('.harvest-check[data-bk="' + bk + '"][data-dt="' + dt + '"]:checked').forEach(function(cb){
       selectedHarvest.push(parseInt(cb.dataset.idx));
@@ -925,6 +928,28 @@ function renderPropose(bk, dt, containerId){
   var totSpend=0, totSales=0, totBudBefore=0, totBudAfter=0;
   dd.campaigns.forEach(function(c){ totSpend+=c.spend7d||0; totSales+=c.sales7d||0; totBudBefore+=c.bud_before||0; totBudAfter+=(c.bud_after||c.bud_before||0); });
 
+  // Product mapping from campaign names
+  var CAMP_PRODUCTS = {
+    'ppsu':'PPSU Straw Cup / Baby Bottle','fliptop':'Fliptop Straw Cup','stage1_6':'Stage 1-6 Cups','stage1_10':'Stage 1-10 Cups',
+    'replacements':'Replacement Parts','tumbler':'Tumbler','stainless':'Stainless Steel Cup','all_auto':'All Products (Auto)',
+    'competitor':'Competitor Targeting','lotion':'CHA&MOM Lotion','cream':'CHA&MOM Cream','wash':'CHA&MOM Baby Wash',
+    'keyword':'Keyword Targeting','pop_rice':'Naeiae Pop Rice Snack','snack':'Baby Snacks','teething':'Teething Snacks'
+  };
+  var CAMP_CM = {
+    'ppsu':19.1,'fliptop':22.3,'stage1_6':18.5,'stage1_10':18.5,'replacements':35.2,'tumbler':15.8,'stainless':12.4,
+    'lotion':18.0,'cream':22.5,'wash':20.1,'pop_rice':38.3,'snack':35.0
+  };
+  function guessProduct(name){
+    var n=name.toLowerCase();
+    for(var k in CAMP_PRODUCTS) if(n.indexOf(k)>=0) return CAMP_PRODUCTS[k];
+    return '';
+  }
+  function guessCM(name){
+    var n=name.toLowerCase();
+    for(var k in CAMP_CM) if(n.indexOf(k)>=0) return CAMP_CM[k];
+    return null;
+  }
+
   // Campaign rows
   var campRows = dd.campaigns.map(function(c,i){
     var isAction = c.action!=='optimize' && c.action!=='monitor';
@@ -935,10 +960,17 @@ function renderPropose(bk, dt, containerId){
     var tierB = c.tier ? badge(c.tier,'a') : badge('—','');
     var rowBg = isAction ? '' : 'style="opacity:0.6"';
     var overrideVal = c.bud_after || c.bud_before || 0;
+    var product = guessProduct(c.name);
+    var cm = guessCM(c.name);
+    var prodTag = product ? '<div style="font-size:9px;color:var(--c)">'+product+'</div>' : '';
     return '<tr '+rowBg+' id="camp-row-'+bk+'-'+dt+'-'+i+'">' +
       '<td><input type="checkbox" class="camp-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'"'+(isAction?' checked':'')+' data-bud-before="'+(c.bud_before||0)+'" data-bud-suggest="'+(c.bud_after||c.bud_before||0)+'"></td>' +
       '<td>'+tierB+'</td>' +
-      '<td style="cursor:pointer" onclick="toggleCampDetail(\''+bk+'\',\''+dt+'\','+i+')"><b>'+c.name+'</b> <span style="font-size:9px;color:var(--muted)">▼</span></td>' +
+      '<td style="cursor:pointer" onclick="toggleCampDetail(\''+bk+'\',\''+dt+'\','+i+')">' +
+        '<div style="display:flex;align-items:center;gap:4px"><b>'+c.name+'</b>' +
+        '<span class="camp-expand-icon" id="camp-icon-'+bk+'-'+dt+'-'+i+'" style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:#f1f5f9;font-size:10px;color:var(--a);transition:transform .2s">+</span></div>' +
+        prodTag +
+      '</td>' +
       '<td>'+typeB+'</td>' +
       '<td>'+roasB(c.roas7d)+'</td><td>'+(c.acos7d||'—')+'%</td>' +
       '<td style="font-family:var(--mono)">$'+c.spend7d+'</td>' +
@@ -947,16 +979,31 @@ function renderPropose(bk, dt, containerId){
       '<td style="font-size:9px;color:var(--dim);max-width:160px">'+c.reason.substring(0,60)+'</td>' +
       '<td><input type="number" step="1" class="override-input" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'" value="'+overrideVal+'" style="width:65px;padding:3px 5px;border:1px solid var(--border);border-radius:4px;font-family:var(--mono);font-size:11px;text-align:right"></td>' +
     '</tr>' +
-    '<tr id="camp-detail-'+bk+'-'+dt+'-'+i+'" style="display:none"><td colspan="13" style="padding:8px 12px;background:#f8fafc;font-size:10px;color:var(--dim)">' +
-      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">' +
-        '<div><b>CPC:</b> $'+(c.cpc||0)+'</div>' +
-        '<div><b>CTR:</b> '+(c.ctr||0)+'%</div>' +
-        '<div><b>Budget Before:</b> $'+(c.bud_before||0)+'</div>' +
-        '<div><b>Budget Suggested:</b> $'+(c.bud_after||c.bud_before||0)+'</div>' +
-        '<div><b>Bid Change:</b> '+(c.bid_pct?c.bid_pct+'%':'None')+'</div>' +
-        '<div><b>ROAS 7d:</b> '+(c.roas7d||0)+'x</div>' +
+    '<tr id="camp-detail-'+bk+'-'+dt+'-'+i+'" style="display:none"><td colspan="13" style="padding:0;background:#f8fafc">' +
+      '<div style="padding:12px 16px">' +
+        // Product & CM header
+        (product?'<div style="display:flex;gap:12px;align-items:center;margin-bottom:10px;padding:8px 12px;background:#fff;border:1px solid var(--border);border-radius:6px">' +
+          '<div style="font-size:12px"><b>Product:</b> '+product+'</div>' +
+          (cm!==null?'<div style="font-size:12px"><b>CM%:</b> '+badge(cm+'%',cm>=20?'g':cm>=10?'am':'r')+'</div>':'') +
+          '<div style="font-size:12px"><b>Type:</b> '+c.type+'</div>' +
+        '</div>':'') +
+        // Metrics grid
+        '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px">' +
+          '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);font-weight:600">CPC</div><div style="font-size:16px;font-weight:700;font-family:var(--mono)">$'+(c.cpc||0)+'</div></div>' +
+          '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);font-weight:600">CTR</div><div style="font-size:16px;font-weight:700;font-family:var(--mono)">'+(c.ctr||0)+'%</div></div>' +
+          '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);font-weight:600">Budget Before</div><div style="font-size:16px;font-weight:700;font-family:var(--mono)">$'+(c.bud_before||0)+'</div></div>' +
+          '<div style="background:var(--abg);border:1px solid var(--a);border-radius:6px;padding:8px;text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--a);font-weight:600">Suggested</div><div style="font-size:16px;font-weight:700;font-family:var(--mono);color:var(--a)">$'+(c.bud_after||c.bud_before||0)+'</div></div>' +
+        '</div>' +
+        // Reason
+        '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;font-size:11px;margin-bottom:8px">' +
+          '<b>Full Reason:</b> '+c.reason +
+        '</div>' +
+        // Note per campaign
+        '<div style="display:flex;gap:6px;align-items:center">' +
+          '<span style="font-size:10px;color:var(--dim);white-space:nowrap">📝 Note:</span>' +
+          '<input type="text" class="camp-note" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'" placeholder="Why this change? (logged on execute)" style="flex:1;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:10px">' +
+        '</div>' +
       '</div>' +
-      '<div style="margin-top:4px"><b>Full Reason:</b> '+c.reason+'</div>' +
     '</td></tr>';
   }).join('');
 
@@ -971,11 +1018,12 @@ function renderPropose(bk, dt, containerId){
     '<td style="font-family:var(--mono);color:var(--a)" id="override-total-'+bk+'-'+dt+'">$'+Math.round(totBudAfter).toLocaleString()+'</td>' +
   '</tr>';
 
-  // Harvest
+  // Harvest (with SIM badge if from simulator)
   var harvestRows = dd.harvest.map(function(h,i){
+    var simB = h.sim_confirmed ? ' '+badge('SIM','sim') : (h.acos && h.acos<15 ? ' '+badge('HIGH ROAS','g') : '');
     return '<tr>' +
       '<td><input type="checkbox" class="harvest-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'" checked></td>' +
-      '<td>'+h.term+'</td><td style="color:var(--g);font-weight:700">$'+h.sales+'</td><td>$'+h.cost+'</td>' +
+      '<td>'+h.term+simB+'</td><td style="color:var(--g);font-weight:700">$'+h.sales+'</td><td>$'+h.cost+'</td>' +
       '<td>'+(h.acos?badge(h.acos+'%','g'):'—')+'</td><td>'+h.clicks+'</td><td>'+h.purchases+'</td>' +
       '<td>$'+h.bid+'</td><td style="font-size:9px;color:var(--dim)">'+h.campaign+'</td>' +
     '</tr>';
@@ -1042,7 +1090,10 @@ function renderPropose(bk, dt, containerId){
 
 function toggleCampDetail(bk,dt,idx){
   var row = document.getElementById('camp-detail-'+bk+'-'+dt+'-'+idx);
-  row.style.display = row.style.display==='none' ? 'table-row' : 'none';
+  var icon = document.getElementById('camp-icon-'+bk+'-'+dt+'-'+idx);
+  var isOpen = row.style.display!=='none';
+  row.style.display = isOpen ? 'none' : 'table-row';
+  if(icon){ icon.textContent = isOpen ? '+' : '−'; icon.style.background = isOpen ? '#f1f5f9' : 'var(--abg)'; }
 }
 
 function recalcOverride(bk,dt){
