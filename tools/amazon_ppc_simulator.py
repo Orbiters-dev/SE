@@ -507,17 +507,58 @@ def main():
     st_cache  = TMP_DIR / f"{brand_key}_st_{start_date}_{end_date}.json"
     kw_cache  = TMP_DIR / f"{brand_key}_kw_{start_date}_{end_date}.json"
 
-    # Pull data
-    print(f"\n[1/2] Pulling search term data...")
-    st_rows = pull_search_term_data(profile_id, start_date, end_date,
-                                    st_cache, args.cached)
+    # Pull data — prefer Data Keeper, fallback to direct API
+    st_rows = []
+    kw_rows = []
+    try:
+        from amazon_ppc_executor import fetch_search_terms_from_datakeeper, fetch_keywords_from_datakeeper
+        print(f"\n[1/2] Fetching search term data from DataKeeper...")
+        st_rows = fetch_search_terms_from_datakeeper(brand_key, days=args.days)
+        if st_rows:
+            # Convert DataKeeper format to simulator format
+            for r in st_rows:
+                date_range = r.get("date", "")
+                if "~" in date_range:
+                    r["_start"], r["_end"] = date_range.split("~")
+                else:
+                    r["_start"] = r["_end"] = date_range
+                r["campaignName"] = r.get("campaign_id", "")
+                r["searchTerm"] = r.get("search_term", "")
+                r["cost"] = r.get("spend", 0)
+                r["sales14d"] = r.get("sales", 0)
+                r["purchases14d"] = r.get("purchases", 0)
+            print(f"  DataKeeper -> {len(st_rows)} search term rows")
 
-    print(f"\n[2/2] Pulling keyword data...")
-    kw_rows = pull_keyword_data(profile_id, start_date, end_date,
-                                kw_cache, args.cached)
+        print(f"\n[2/2] Fetching keyword data from DataKeeper...")
+        kw_rows = fetch_keywords_from_datakeeper(brand_key, days=args.days)
+        if kw_rows:
+            for r in kw_rows:
+                date_range = r.get("date", "")
+                if "~" in date_range:
+                    r["_start"], r["_end"] = date_range.split("~")
+                else:
+                    r["_start"] = r["_end"] = date_range
+                r["campaignName"] = r.get("campaign_id", "")
+                r["targeting"] = r.get("keyword_text", "")
+                r["cost"] = r.get("spend", 0)
+                r["sales14d"] = r.get("sales", 0)
+                r["purchases14d"] = r.get("purchases", 0)
+            print(f"  DataKeeper -> {len(kw_rows)} keyword rows")
+    except ImportError:
+        print("  [WARN] DataKeeper functions not available")
+
+    # Fallback to direct API if DataKeeper returned nothing
+    if not st_rows:
+        print(f"\n[1/2] Pulling search term data from API...")
+        st_rows = pull_search_term_data(profile_id, start_date, end_date,
+                                        st_cache, args.cached)
+    if not kw_rows:
+        print(f"\n[2/2] Pulling keyword data from API...")
+        kw_rows = pull_keyword_data(profile_id, start_date, end_date,
+                                    kw_cache, args.cached)
 
     if not st_rows and not kw_rows:
-        print("ERROR: No data returned from API.")
+        print("ERROR: No data returned.")
         sys.exit(1)
 
     print(f"\nData: {len(st_rows)} search term rows, {len(kw_rows)} keyword rows")

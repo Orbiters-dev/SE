@@ -1,0 +1,67 @@
+name: PPC Backtest Simulator (Weekly)
+
+on:
+  schedule:
+    - cron: '0 14 * * 1'   # Every Monday KST 23:00 (= UTC 14:00)
+  workflow_dispatch:
+    inputs:
+      brand:
+        description: 'Brand (all, grosmimi, naeiae, chaenmom)'
+        required: false
+        default: 'all'
+      days:
+        description: 'Lookback days'
+        required: false
+        default: '30'
+
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Write .env
+        run: |
+          cat > .env << 'ENVEOF'
+          AMZ_ADS_CLIENT_ID=${{ secrets.AMZ_ADS_CLIENT_ID }}
+          AMZ_ADS_CLIENT_SECRET=${{ secrets.AMZ_ADS_CLIENT_SECRET }}
+          AMZ_ADS_REFRESH_TOKEN=${{ secrets.AMZ_ADS_REFRESH_TOKEN }}
+          ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
+          ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
+          ENVEOF
+
+      - name: Run simulator (all brands)
+        run: |
+          BRAND="${{ github.event.inputs.brand || 'all' }}"
+          DAYS="${{ github.event.inputs.days || '30' }}"
+          mkdir -p .tmp/ppc_simulator
+
+          if [ "$BRAND" = "all" ]; then
+            for b in grosmimi naeiae chaenmom; do
+              echo "=== Simulating $b ==="
+              python tools/amazon_ppc_simulator.py --brand "$b" --days "$DAYS" || echo "[WARN] $b failed"
+            done
+          else
+            python tools/amazon_ppc_simulator.py --brand "$BRAND" --days "$DAYS"
+          fi
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: ppc-backtest-reports
+          path: |
+            .tmp/ppc_simulator/*_backtest_*.html
+            .tmp/ppc_simulator/*_backtest_*.json
+          retention-days: 30
+          if-no-files-found: warn

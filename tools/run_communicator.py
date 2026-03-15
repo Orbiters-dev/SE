@@ -142,6 +142,78 @@ SHEET_URLS = {
 }
 
 
+# ── PPC Backtest 인사이트 ──────────────────────────────────────────────
+BACKTEST_DIR = PROJECT_ROOT / ".tmp" / "ppc_simulator"
+
+
+def _build_backtest_section() -> str:
+    """Load latest backtest JSON for all brands and build HTML summary."""
+    if not BACKTEST_DIR.exists():
+        return ""
+
+    brands = []
+    for brand_key in ("grosmimi", "naeiae", "chaenmom"):
+        import glob
+        files = sorted(glob.glob(str(BACKTEST_DIR / f"{brand_key}_backtest_*.json")))
+        if not files:
+            continue
+        try:
+            data = json.loads(Path(files[-1]).read_text(encoding="utf-8"))
+            period = data.get("period", {})
+            # Skip if older than 14 days
+            from datetime import datetime as _dt
+            end_date = _dt.strptime(period.get("end", "2000-01-01"), "%Y-%m-%d").date()
+            age = (NOW_UTC.date() - end_date).days if hasattr(NOW_UTC, "date") else 99
+            if age > 14:
+                continue
+            waste = data.get("waste_backtest", {})
+            bid = data.get("bid_backtest", {})
+            brands.append({
+                "brand": data.get("brand", brand_key),
+                "days": period.get("days", 30),
+                "period": f"{period.get('start','')} ~ {period.get('end','')}",
+                "waste_save": waste.get("total_simulated_save", 0),
+                "waste_pct": waste.get("save_pct", 0),
+                "negated_count": waste.get("negated_terms_count", 0),
+                "actual_roas": bid.get("actual_roas", 0),
+                "sim_roas": bid.get("sim_roas", 0),
+                "roas_delta": bid.get("roas_delta", 0),
+            })
+        except Exception:
+            continue
+
+    if not brands:
+        return ""
+
+    rows = ""
+    for b in brands:
+        roas_color = "#006100" if b["roas_delta"] > 0 else "#9C0006"
+        rows += f"""<tr>
+            <td style="padding:6px 10px;border-bottom:1px solid #eee;font-weight:bold">{b['brand'].title()}</td>
+            <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:right;color:#006100;font-weight:bold">${b['waste_save']:,.0f} ({b['waste_pct']}%)</td>
+            <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:center">{b['negated_count']}</td>
+            <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:right">{b['actual_roas']}x</td>
+            <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:right;color:{roas_color};font-weight:bold">{b['sim_roas']}x (+{b['roas_delta']}x)</td>
+        </tr>"""
+
+    return f"""
+    <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:14px;margin-top:16px">
+      <h3 style="margin:0 0 10px;color:#166534">📊 PPC Backtest Simulator ({brands[0]['days']}d lookback)</h3>
+      <p style="margin:0 0 8px;font-size:11px;color:#666">{brands[0]['period']}</p>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-size:13px">
+        <tr bgcolor="#dcfce7">
+          <th style="padding:6px 10px;text-align:left">Brand</th>
+          <th style="padding:6px 10px;text-align:right">Waste Savings</th>
+          <th style="padding:6px 10px;text-align:center">Neg Terms</th>
+          <th style="padding:6px 10px;text-align:right">Actual ROAS</th>
+          <th style="padding:6px 10px;text-align:right">Sim ROAS</th>
+        </tr>
+        {rows}
+      </table>
+      <p style="margin:8px 0 0;font-size:10px;color:#888">Weekly backtest — "퍼포마 had been running from day 1" simulation</p>
+    </div>"""
+
+
 # ── Naeiae PPC 변경 추적 ──────────────────────────────────────────────
 NAEIAE_BASELINE_PATH = PROJECT_ROOT / ".tmp" / "naeiae_execution_baseline.json"
 
@@ -985,6 +1057,9 @@ def build_html(dk_status: dict, gh_runs: list[dict], state: dict,
     # ─ Naeiae PPC 변경 추적 섹션 ────────────────────────────────────
     ppc_tracking_html = get_naeiae_ppc_tracking_html()
 
+    # ─ PPC Backtest 인사이트 섹션 ─────────────────────────────────
+    backtest_html = _build_backtest_section()
+
     # ─ SEO 인사이트 섹션 (DataForSEO + GSC) ──────────────────────────
     seo_insights_html = get_seo_insights_html()
 
@@ -1152,6 +1227,9 @@ def build_html(dk_status: dict, gh_runs: list[dict], state: dict,
 
     <!-- Naeiae PPC 변경 추적 -->
     {ppc_tracking_html}
+
+    <!-- PPC Backtest 인사이트 -->
+    {backtest_html}
 
     <!-- SEO 인사이트 -->
     {seo_insights_html}
