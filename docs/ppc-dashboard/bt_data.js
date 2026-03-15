@@ -1,7 +1,3 @@
-  Skip old: .tmp/ppc_simulator\grosmimi_backtest_2026-03-13.json
-grosmimi: 1 entries
-naeiae: 1 entries
-chaenmom: 1 entries
 const BACKTEST_LOG = {
  "grosmimi": [
   {
@@ -28,7 +24,7 @@ const BACKTEST_LOG = {
     "negated_terms_count": 51,
     "rule_threshold": 5.0,
     "rule_window_days": 14,
-    "rule_description": "If cumulative zero-conv spend >= $5.0 over 14d windows ¡æ add negative. Savings start from NEXT window."
+    "rule_description": "If cumulative zero-conv spend >= $5.0 over 14d windows ï¿½ï¿½ add negative. Savings start from NEXT window."
    },
    "top_waste_terms": [
     {
@@ -316,7 +312,7 @@ const BACKTEST_LOG = {
     "rule_reduce_pct": 0.2,
     "rule_scale_threshold": 5.0,
     "rule_scale_pct": 0.15,
-    "rule_description": "ROAS < 2.0x ¡æ bid -20% | ROAS > 5.0x ¡æ bid +15% | In-range: hold"
+    "rule_description": "ROAS < 2.0x ï¿½ï¿½ bid -20% | ROAS > 5.0x ï¿½ï¿½ bid +15% | In-range: hold"
    },
    "bid_underperformers": [
     {
@@ -659,7 +655,7 @@ const BACKTEST_LOG = {
     "negated_terms_count": 1,
     "rule_threshold": 5.0,
     "rule_window_days": 14,
-    "rule_description": "If cumulative zero-conv spend >= $5.0 over 14d windows ¡æ add negative. Savings start from NEXT window."
+    "rule_description": "If cumulative zero-conv spend >= $5.0 over 14d windows ï¿½ï¿½ add negative. Savings start from NEXT window."
    },
    "top_waste_terms": [
     {
@@ -686,7 +682,7 @@ const BACKTEST_LOG = {
     "rule_reduce_pct": 0.2,
     "rule_scale_threshold": 5.0,
     "rule_scale_pct": 0.15,
-    "rule_description": "ROAS < 2.0x ¡æ bid -20% | ROAS > 5.0x ¡æ bid +15% | In-range: hold"
+    "rule_description": "ROAS < 2.0x ï¿½ï¿½ bid -20% | ROAS > 5.0x ï¿½ï¿½ bid +15% | In-range: hold"
    },
    "bid_underperformers": [
     {
@@ -769,7 +765,7 @@ const BACKTEST_LOG = {
      "date": "2026-03-08",
      "action": "harvest",
      "campaign": "(auto)",
-     "keyword": "¶±»½",
+     "keyword": "ï¿½ï¿½ï¿½ï¿½",
      "spend_7d": 14.77,
      "sales_7d": 123.0,
      "roas_7d": null,
@@ -899,7 +895,7 @@ const BACKTEST_LOG = {
      "date": "2026-03-09",
      "action": "harvest",
      "campaign": "(auto)",
-     "keyword": "¶±»½",
+     "keyword": "ï¿½ï¿½ï¿½ï¿½",
      "spend_7d": 14.77,
      "sales_7d": 123.0,
      "roas_7d": null,
@@ -1048,7 +1044,7 @@ const BACKTEST_LOG = {
     "negated_terms_count": 0,
     "rule_threshold": 5.0,
     "rule_window_days": 14,
-    "rule_description": "If cumulative zero-conv spend >= $5.0 over 14d windows ¡æ add negative. Savings start from NEXT window."
+    "rule_description": "If cumulative zero-conv spend >= $5.0 over 14d windows ï¿½ï¿½ add negative. Savings start from NEXT window."
    },
    "top_waste_terms": [],
    "bid_backtest": {
@@ -1065,7 +1061,7 @@ const BACKTEST_LOG = {
     "rule_reduce_pct": 0.2,
     "rule_scale_threshold": 5.0,
     "rule_scale_pct": 0.15,
-    "rule_description": "ROAS < 2.0x ¡æ bid -20% | ROAS > 5.0x ¡æ bid +15% | In-range: hold"
+    "rule_description": "ROAS < 2.0x ï¿½ï¿½ bid -20% | ROAS > 5.0x ï¿½ï¿½ bid +15% | In-range: hold"
    },
    "bid_underperformers": [
     {

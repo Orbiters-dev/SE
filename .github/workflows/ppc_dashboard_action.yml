@@ -60,8 +60,8 @@ jobs:
           echo "Config override provided:"
           echo '${{ inputs.config_json }}' | python -m json.tool || echo "(not valid JSON)"
           # Save config for executor to pick up
-          echo '${{ inputs.config_json }}' > .tmp/dashboard_config_override.json
           mkdir -p .tmp
+          echo '${{ inputs.config_json }}' > .tmp/dashboard_config_override.json
 
       - name: Run Propose
         if: inputs.action == 'propose'

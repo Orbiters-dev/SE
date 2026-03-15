@@ -644,6 +644,9 @@ var AUTH_USERS = {
   'JS':  'c6d75a1953366cdcc94191f6ff4db255e467e0c8a532b17484fee1172ee8031f'
 };
 
+// Users allowed to delete backtest entries
+var DELETE_USERS = ['WJ', 'MJ', 'CAL'];
+
 // Simple hash function (for client-side only — not bank-level security)
 async function sha256(message) {
   var msgBuffer = new TextEncoder().encode(message);
@@ -907,7 +910,7 @@ async function executeSelected(bk, dt) {
       var overrideVal = overrideInp ? parseFloat(overrideInp.value) : null;
       var noteInp = document.querySelector('.camp-note[data-bk="'+bk+'"][data-dt="'+dt+'"][data-idx="'+idx+'"]');
       var campNote = noteInp ? noteInp.value.trim() : '';
-      var campName = dd.campaigns[idx] ? dd.campaigns[idx].name : '';
+      var campName = D.brands[bk].dates[dt].campaigns[idx] ? D.brands[bk].dates[dt].campaigns[idx].name : '';
       selectedCamps.push({idx: idx, name: campName, override_budget: overrideVal, note: campNote});
     });
     document.querySelectorAll('.harvest-check[data-bk="' + bk + '"][data-dt="' + dt + '"]:checked').forEach(function(cb){

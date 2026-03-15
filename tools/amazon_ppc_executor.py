@@ -5125,6 +5125,8 @@ def main():
     parser.add_argument("--cycle", action="store_true", help="Run 6-hour analysis cycle")
     parser.add_argument("--send-email", action="store_true", help="Send email for existing saved proposals (no re-analysis)")
     parser.add_argument("--no-email", action="store_true", help="Run --propose but skip sending email (save proposal only)")
+    parser.add_argument("--execute-selection", type=str, default=None, metavar="FILE",
+                        help="Execute specific proposals from dashboard JSON selection file")
     parser.add_argument("--brand", type=str, default=None,
                         help="Target brand: naeiae/grosmimi/chaenmom (default: all)")
     parser.add_argument("--days", type=int, default=14, help="Days of data to analyze (default: 14, max 60)")
@@ -5182,6 +5184,61 @@ def main():
 
     if args.propose:
         run_propose(args)
+        return
+
+    if args.execute_selection:
+        sel_path = Path(args.execute_selection)
+        if not sel_path.exists():
+            print(f"[ERROR] Selection file not found: {args.execute_selection}")
+            return
+        sel = json.loads(sel_path.read_text(encoding="utf-8"))
+        bk = sel.get("brand", "")
+        if bk not in BRAND_CONFIGS:
+            print(f"[ERROR] Unknown brand in selection: {bk}")
+            return
+        _apply_brand_config(bk)
+        data = load_latest_proposal(brand_key=bk)
+        if not data:
+            print(f"[ERROR] No proposal found for {bk}. Run --propose first.")
+            return
+
+        proposals_all = data.get("proposals", [])
+        # Split into campaigns / harvest / negate (mirrors generate_dashboard_data.py logic)
+        camp_items = [p for p in proposals_all if p.get("action") not in ("harvest",) and not str(p.get("action","")).startswith("negate")]
+        harvest_items = [p for p in proposals_all if p.get("action") == "harvest"]
+        negate_items = [p for p in proposals_all if str(p.get("action","")).startswith("negate")]
+
+        # Mark selected campaigns approved, apply override budgets
+        selected_camp_dicts = {c["idx"]: c for c in sel.get("campaigns", [])}
+        for p in proposals_all:
+            p["approved"] = False  # reset all
+        for idx, sc in selected_camp_dicts.items():
+            if 0 <= idx < len(camp_items):
+                camp_items[idx]["approved"] = True
+                if sc.get("override_budget"):
+                    camp_items[idx]["new_budget"] = sc["override_budget"]
+        # Mark selected harvest/negate approved
+        for idx in sel.get("harvest", []):
+            if 0 <= idx < len(harvest_items):
+                harvest_items[idx]["approved"] = True
+        for idx in sel.get("negate", []):
+            if 0 <= idx < len(negate_items):
+                negate_items[idx]["approved"] = True
+
+        print(f"\n[Dashboard Execute] {bk}: {len(selected_camp_dicts)} camps, "
+              f"{len(sel.get('harvest',[]))}H, {len(sel.get('negate',[]))}N")
+        executed = execute_approved(data)
+        if executed:
+            data["executed"] = True
+            data["executed_at"] = datetime.now().isoformat()
+            latest_path = sorted(TMP_DIR.glob(f"ppc_proposal_{bk}_*.json"), reverse=True)
+            if latest_path:
+                latest_path[0].write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+            log_to_sheets(executed, brand_key=bk)
+            send_execution_email(executed, args.to, cc=args.cc, brand_key=bk)
+            print(f"[DONE] {len(executed)} changes executed, logged, emailed.")
+        else:
+            print("[INFO] No approved changes to execute.")
         return
 
     if args.send_email:
