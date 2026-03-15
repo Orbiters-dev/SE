@@ -42,11 +42,8 @@ def cors_headers(view_func):
             response["Access-Control-Max-Age"] = "86400"
             return response
         response = view_func(request, *args, **kwargs)
-        origin = request.META.get("HTTP_ORIGIN", "")
-        if any(origin.startswith(o) for o in CORS_ALLOWED_ORIGINS) or not origin:
-            response["Access-Control-Allow-Origin"] = origin or "*"
-        else:
-            response["Access-Control-Allow-Origin"] = "https://orbiters-dev.github.io"
+        # Use * to match nginx (avoids duplicate header conflict)
+        response["Access-Control-Allow-Origin"] = "*"
         response["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
         response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
         return response
