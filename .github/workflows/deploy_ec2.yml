@@ -97,8 +97,11 @@ jobs:
             echo 'Deploy complete!'"
 
           # Fix nginx CORS: allow GitHub Pages dashboard
-          ${SSH_CMD} "sudo sed -i 's|add_header Access-Control-Allow-Origin [^;]*;|add_header Access-Control-Allow-Origin \"*\" always;|g' /etc/nginx/sites-enabled/default && \
-            sudo nginx -t && sudo systemctl reload nginx && echo 'Nginx CORS fixed'"
+          ${SSH_CMD} "NGINX_CONF=\$(sudo find /etc/nginx -name '*.conf' -o -name 'default' 2>/dev/null | head -5) && \
+            for f in \$NGINX_CONF; do \
+              sudo sed -i 's|add_header Access-Control-Allow-Origin [^;]*;|add_header Access-Control-Allow-Origin \"*\" always;|g' \$f 2>/dev/null; \
+            done && \
+            sudo nginx -t && sudo systemctl reload nginx && echo 'Nginx CORS fixed'" || echo "[WARN] nginx CORS fix skipped"
 
       - name: Verify deployment
         run: |
