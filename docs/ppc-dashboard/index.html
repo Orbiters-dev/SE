@@ -5,510 +5,409 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Amazon PPC Intelligence Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="data.js"></script>
 <style>
-:root {
-  --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0;
-  --text: #1e293b; --text-dim: #64748b; --text-muted: #94a3b8;
-  --accent: #6366f1; --accent-bg: #eef2ff; --accent-border: #c7d2fe;
-  --green: #10b981; --green-bg: #ecfdf5; --green-border: #a7f3d0;
-  --amber: #f59e0b; --amber-bg: #fffbeb; --amber-border: #fde68a;
-  --red: #ef4444; --red-bg: #fef2f2; --red-border: #fecaca;
-  --cyan: #0ea5e9; --cyan-bg: #f0f9ff; --cyan-border: #bae6fd;
-  --pink: #ec4899; --mono: 'SF Mono','Fira Code',Consolas,monospace;
-}
+:root{--bg:#f8fafc;--card:#fff;--border:#e2e8f0;--text:#1e293b;--dim:#64748b;--muted:#94a3b8;--a:#6366f1;--abg:#eef2ff;--g:#10b981;--gbg:#ecfdf5;--am:#f59e0b;--ambg:#fffbeb;--r:#ef4444;--rbg:#fef2f2;--c:#0ea5e9;--cbg:#f0f9ff;--p:#ec4899;--mono:'SF Mono','Fira Code',Consolas,monospace}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:14px}
-.container{max-width:980px;margin:0 auto;padding:32px 20px 80px}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:13px}
+.ctr{max-width:1020px;margin:0 auto;padding:28px 20px 80px}
+.hero{text-align:center;margin-bottom:28px}
+.hero h1{font-size:26px;font-weight:800;letter-spacing:-.5px}.hero h1 span{background:linear-gradient(135deg,#6366f1,#0ea5e9);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero .sub{color:var(--dim);font-size:13px;margin-top:3px}
+.hero .meta{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.pill{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2px 10px;font-size:10px;color:var(--dim);display:inline-flex;align-items:center;gap:4px}
+.pill .dot{width:5px;height:5px;border-radius:50%;background:var(--g);box-shadow:0 0 3px var(--g)}
 
-.hero{text-align:center;margin-bottom:32px}
-.hero h1{font-size:28px;font-weight:800;letter-spacing:-.5px}
-.hero h1 span{background:linear-gradient(135deg,#6366f1,#0ea5e9);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero .sub{color:var(--text-dim);font-size:14px;margin-top:4px}
-.hero .meta{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
-.pill{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:3px 12px;font-size:11px;color:var(--text-dim);display:inline-flex;align-items:center;gap:5px}
-.pill .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 4px var(--green)}
+/* Tabs */
+.mt{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:0}
+.mt>div{padding:10px 24px;font-size:12px;font-weight:700;cursor:pointer;color:var(--dim);border-bottom:3px solid transparent;margin-bottom:-2px;transition:.12s}
+.mt>div:hover{color:var(--text)}.mt>div.on{color:var(--a);border-bottom-color:var(--a)}
+.mp{display:none;padding-top:20px}.mp.on{display:block}
 
-/* Main Tabs */
-.main-tabs{display:flex;gap:0;margin-bottom:0;border-bottom:2px solid var(--border)}
-.main-tab{padding:12px 28px;font-size:13px;font-weight:700;cursor:pointer;color:var(--text-dim);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s}
-.main-tab:hover{color:var(--text)}
-.main-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.main-panel{display:none;padding-top:24px}.main-panel.active{display:block}
+.st{display:flex;gap:4px;margin-bottom:16px;flex-wrap:wrap}
+.st>div{padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;color:var(--dim);background:var(--card);border:1px solid var(--border);transition:.12s}
+.st>div:hover{border-color:var(--a);color:var(--text)}.st>div.on{background:var(--abg);border-color:var(--a);color:var(--a)}
 
-/* Sub Tabs (brands) */
-.sub-tabs{display:flex;gap:6px;margin-bottom:20px}
-.sub-tab{padding:8px 18px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text-dim);background:var(--card);border:1px solid var(--border);transition:all .15s}
-.sub-tab:hover{border-color:var(--accent);color:var(--text)}
-.sub-tab.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
-.sub-panel{display:none}.sub-panel.active{display:block}
+.sst{display:flex;gap:3px;margin-bottom:12px;flex-wrap:wrap}
+.sst>div{padding:4px 10px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;color:var(--muted);background:#f1f5f9;transition:.12s}
+.sst>div:hover{color:var(--text)}.sst>div.on{background:var(--a);color:#fff}
+
+.ssst{display:flex;gap:3px;margin-bottom:10px}
+.ssst>div{padding:3px 10px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;color:var(--dim);border:1px solid var(--border);transition:.12s}
+.ssst>div:hover{border-color:var(--a)}.ssst>div.on{border-color:var(--a);color:var(--a);background:var(--abg)}
+
+.pnl{display:none}.pnl.on{display:block}
 
 /* Flow bar */
-.flow-bar{display:flex;align-items:center;gap:0;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:28px;overflow-x:auto}
-.fn{flex:1;min-width:100px;text-align:center;padding:10px 6px;border-radius:10px;cursor:pointer;transition:all .15s;border:2px solid transparent}
-.fn:hover{background:var(--accent-bg)}.fn.active{background:var(--accent-bg);border-color:var(--accent)}
-.fn .fi{font-size:22px;margin-bottom:2px}.fn .ft{font-size:11px;font-weight:700}.fn .fs{font-size:9px;color:var(--text-muted)}
-.fa{color:var(--text-muted);font-size:14px;flex-shrink:0;padding:0 2px}
+.fb{display:flex;align-items:center;gap:0;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:24px;overflow-x:auto}
+.fn{flex:1;min-width:90px;text-align:center;padding:8px 4px;border-radius:8px;cursor:pointer;transition:.12s;border:2px solid transparent}
+.fn:hover{background:var(--abg)}.fn.on{background:var(--abg);border-color:var(--a)}
+.fn .fi{font-size:20px}.fn .ft{font-size:10px;font-weight:700}.fn .fs{font-size:8px;color:var(--muted)}
+.fa{color:var(--muted);font-size:12px;flex-shrink:0;padding:0 1px}
 
-/* Section */
-.sec{scroll-margin-top:16px;margin-bottom:40px}
-.sec-h{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--border)}
-.sec-n{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0}
-.sec-n.a{background:var(--accent)}.sec-n.c{background:var(--cyan)}.sec-n.g{background:var(--green)}.sec-n.am{background:var(--amber)}.sec-n.p{background:var(--pink)}
-.sec-t h2{font-size:17px;font-weight:700}.sec-t p{font-size:12px;color:var(--text-dim)}
+/* Sections */
+.sec{scroll-margin-top:16px;margin-bottom:36px}
+.sh{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--border)}
+.sn{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
+.sn.a{background:var(--a)}.sn.c{background:var(--c)}.sn.g{background:var(--g)}.sn.am{background:var(--am)}.sn.p{background:var(--p)}
+.si h2{font-size:15px;font-weight:700}.si p{font-size:11px;color:var(--dim)}
 
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:12px}
-.card h3{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.card .desc{font-size:11px;color:var(--text-dim);margin-bottom:10px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px}
+.card h3{font-size:12px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.card .desc{font-size:10px;color:var(--dim);margin-bottom:8px}
 
 /* Channel grid */
-.chg{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
-.ch{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;transition:all .12s}
-.ch:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 2px 8px rgba(99,102,241,.06)}
-.ch .ct{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.ch .cn{font-size:11px;font-weight:700;font-family:var(--mono)}.ch .cb{font-size:9px;font-weight:600;padding:1px 6px;border-radius:3px;background:#f1f5f9;color:var(--text-dim)}
-.ch .cd{font-size:10px;color:var(--text-dim);line-height:1.4}.ch .cd b{color:var(--text);font-weight:600}
+.chg{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px}
+.ch{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px;transition:.12s}
+.ch:hover{border-color:var(--a);transform:translateY(-1px)}
+.ch .ct{display:flex;justify-content:space-between;margin-bottom:3px}
+.ch .cn{font-size:10px;font-weight:700;font-family:var(--mono)}.ch .cb{font-size:8px;font-weight:600;padding:1px 5px;border-radius:3px;background:#f1f5f9;color:var(--dim)}
+.ch .cd{font-size:9px;color:var(--dim);line-height:1.3}.ch .cd b{color:var(--text)}
 
-/* Pipeline steps */
-.steps{position:relative;padding-left:28px}.steps::before{content:'';position:absolute;left:12px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accent),var(--cyan),var(--green),var(--amber));border-radius:1px}
-.st{position:relative;margin-bottom:14px}
-.st .d{position:absolute;left:-21px;top:5px;width:9px;height:9px;border-radius:50%;border:2px solid var(--bg)}
-.st .d.a{background:var(--accent)}.st .d.c{background:var(--cyan)}.st .d.g{background:var(--green)}.st .d.am{background:var(--amber)}
-.st .sl{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-muted)}
-.st .sn{font-size:12px;font-weight:700}.st .sd{font-size:11px;color:var(--text-dim)}
-.st .sb{background:#f8fafc;border:1px solid var(--border);border-radius:6px;padding:8px 10px;margin-top:4px;font-size:10px;font-family:var(--mono);color:var(--accent);line-height:1.6}
+/* Steps */
+.steps{position:relative;padding-left:24px}.steps::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--a),var(--c),var(--g),var(--am))}
+.stp{position:relative;margin-bottom:12px}
+.stp .d{position:absolute;left:-18px;top:4px;width:8px;height:8px;border-radius:50%;border:2px solid var(--bg)}
+.stp .d.a{background:var(--a)}.stp .d.c{background:var(--c)}.stp .d.g{background:var(--g)}.stp .d.am{background:var(--am)}
+.stp .sl{font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.stp .snn{font-size:11px;font-weight:700}.stp .sd{font-size:10px;color:var(--dim)}
+.stp .sb{background:#f8fafc;border:1px solid var(--border);border-radius:4px;padding:6px 8px;margin-top:3px;font-size:9px;font-family:var(--mono);color:var(--a);line-height:1.5}
 
 /* Stats */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:12px 0}
-.stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px}
-.stat .sl{font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:var(--text-muted);font-weight:600}
-.stat .sv{font-size:22px;font-weight:800;letter-spacing:-.5px;font-family:var(--mono);margin-top:1px}
-.stat .ss{font-size:9px;color:var(--text-dim);margin-top:1px}
-.stat.green .sv{color:var(--green)}.stat.red .sv{color:var(--red)}.stat.amber .sv{color:var(--amber)}.stat.accent .sv{color:var(--accent)}.stat.cyan .sv{color:var(--cyan)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;margin:10px 0}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px}
+.stat .sl{font-size:8px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:600}
+.stat .sv{font-size:20px;font-weight:800;letter-spacing:-.5px;font-family:var(--mono)}
+.stat .ss{font-size:8px;color:var(--dim)}
+.stat.green .sv{color:var(--g)}.stat.red .sv{color:var(--r)}.stat.amber .sv{color:var(--am)}.stat.accent .sv{color:var(--a)}.stat.cyan .sv{color:var(--c)}
 
 /* Tables */
 table{width:100%;border-collapse:collapse;font-size:11px}
-th{background:#f8fafc;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.4px;font-size:9px;padding:7px 8px;text-align:left;border-bottom:2px solid var(--border)}
-td{padding:7px 8px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbff}
-.badge{display:inline-block;padding:1px 7px;border-radius:4px;font-size:9px;font-weight:600}
-.badge.green{background:var(--green-bg);color:var(--green)}.badge.red{background:var(--red-bg);color:var(--red)}.badge.amber{background:var(--amber-bg);color:var(--amber)}
-.badge.cyan{background:var(--cyan-bg);color:var(--cyan)}.badge.accent{background:var(--accent-bg);color:var(--accent)}
-.badge.sim{background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-size:8px}
+th{background:#f8fafc;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.3px;font-size:9px;padding:6px 7px;text-align:left;border-bottom:2px solid var(--border)}
+td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbff}
+.b{display:inline-block;padding:1px 6px;border-radius:3px;font-size:8px;font-weight:600}
+.b.g{background:var(--gbg);color:var(--g)}.b.r{background:var(--rbg);color:var(--r)}.b.am{background:var(--ambg);color:var(--am)}
+.b.c{background:var(--cbg);color:var(--c)}.b.a{background:var(--abg);color:var(--a)}
+.b.sim{background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-size:7px}
 
 /* Rules */
-.rules{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin:10px 0}
-.rule{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px;border-left:3px solid var(--accent)}
-.rule.w{border-left-color:var(--red)}.rule.d{border-left-color:var(--amber)}.rule.u{border-left-color:var(--green)}
-.rule .rn{font-size:11px;font-weight:700;margin-bottom:2px}.rule .rv{font-family:var(--mono);font-size:10px;color:var(--accent);margin-bottom:2px}.rule .rd{font-size:9px;color:var(--text-dim)}
+.rules{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:6px;margin:8px 0}
+.rule{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:8px;border-left:3px solid var(--a)}
+.rule.w{border-left-color:var(--r)}.rule.d{border-left-color:var(--am)}.rule.u{border-left-color:var(--g)}
+.rule .rn{font-size:10px;font-weight:700}.rule .rv{font-family:var(--mono);font-size:9px;color:var(--a)}.rule .rd{font-size:8px;color:var(--dim)}
 
 /* Cost flow */
-.cf{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;margin:14px 0}
-.cfn{text-align:center;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;min-width:90px}
-.cfn .ci{font-size:18px}.cfn .ct{font-size:10px;font-weight:700;margin-top:1px}.cfn .cs{font-size:9px;color:var(--text-dim)}
-.cfa{padding:0 3px;color:var(--text-muted);font-size:12px;font-weight:700}
+.cf{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;margin:12px 0}
+.cfn{text-align:center;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:6px;min-width:80px}
+.cfn .ci{font-size:16px}.cfn .ctt{font-size:9px;font-weight:700}.cfn .cs{font-size:8px;color:var(--dim)}
+.cfa{padding:0 2px;color:var(--muted);font-size:11px;font-weight:700}
 
-/* Log timeline */
-.log{margin:12px 0}
-.log-entry{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px}
-.log-entry .le-time{font-size:10px;font-family:var(--mono);color:var(--text-muted);white-space:nowrap;min-width:70px;padding-top:2px}
-.log-entry .le-body{flex:1}
-.log-entry .le-title{font-size:12px;font-weight:700}
-.log-entry .le-desc{font-size:11px;color:var(--text-dim)}
-.log-entry .le-badge{display:inline-block;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:600;margin-left:6px}
-.log-entry.propose{border-left:3px solid var(--accent)}
-.log-entry.execute{border-left:3px solid var(--green)}
-.log-entry.rollback{border-left:3px solid var(--amber)}
-.log-entry.collect{border-left:3px solid var(--cyan)}
+/* Dynamic content */
+#output-content table{font-size:10px}
+#output-content td{padding:5px 6px}
+#output-content th{padding:5px 6px;font-size:8px}
 
-@media(max-width:700px){.flow-bar{flex-wrap:wrap;justify-content:center}.fa{display:none}.cf{flex-direction:column}.cfa{transform:rotate(90deg)}}
+@media(max-width:700px){.fb{flex-wrap:wrap;justify-content:center}.fa{display:none}.cf{flex-direction:column}.cfa{transform:rotate(90deg)}}
 </style>
 </head>
 <body>
-<div class="container">
+<div class="ctr">
 
 <div class="hero">
   <h1>Amazon PPC <span>Intelligence</span></h1>
   <div class="sub">Data Pipeline, Backtest Engine & Optimization Output</div>
-  <div class="meta">
-    <span class="pill"><span class="dot"></span> DataKeeper Fresh (T-2)</span>
-    <span class="pill"><span class="dot"></span> Simulator 1d old</span>
-    <span class="pill">3 Brands &middot; 18 Campaigns &middot; 14.6K Search Terms</span>
-  </div>
+  <div class="meta" id="hero-meta"></div>
 </div>
 
-<!-- ═══ MAIN TABS ═══ -->
-<div class="main-tabs">
-  <div class="main-tab active" data-panel="tab-flow">Architecture & Flow</div>
-  <div class="main-tab" data-panel="tab-output">Output & Execution Log</div>
+<div class="mt" id="mainTabs">
+  <div class="on" data-p="tab-flow">Architecture & Flow</div>
+  <div data-p="tab-output">Output & Execution Log</div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════ -->
-<!-- MAIN TAB 1: ARCHITECTURE & FLOW                          -->
-<!-- ══════════════════════════════════════════════════════════ -->
-<div class="main-panel active" id="tab-flow">
-
-  <!-- Flow Bar -->
-  <div class="flow-bar" style="margin-top:20px">
-    <div class="fn active" data-target="s-dk"><div class="fi">🗄️</div><div class="ft">Data Keeper</div><div class="fs">13ch, 2x/day</div></div>
-    <div class="fa">→</div>
-    <div class="fn" data-target="s-ex"><div class="fi">📊</div><div class="ft">Executor</div><div class="fs">9-stage</div></div>
-    <div class="fa">→</div>
-    <div class="fn" data-target="s-sim"><div class="fi">🧪</div><div class="ft">Simulator</div><div class="fs">60d backtest</div></div>
-    <div class="fa">→</div>
-    <div class="fn" data-target="s-prop"><div class="fi">📧</div><div class="ft">Proposal</div><div class="fs">Email + JSON</div></div>
-    <div class="fa">→</div>
-    <div class="fn" data-target="s-exec"><div class="fi">⚡</div><div class="ft">Execution</div><div class="fs">Gmail trigger</div></div>
-    <div class="fa">→</div>
-    <div class="fn" data-target="s-asin"><div class="fi">💰</div><div class="ft">ASIN P&L</div><div class="fs">Full-cost</div></div>
+<!-- ══════════ TAB 1: FLOW ══════════ -->
+<div class="mp on" id="tab-flow">
+  <div class="fb">
+    <div class="fn on" data-t="s-dk"><div class="fi">🗄️</div><div class="ft">Data Keeper</div><div class="fs">13ch, 2x/day</div></div><div class="fa">→</div>
+    <div class="fn" data-t="s-ex"><div class="fi">📊</div><div class="ft">Executor</div><div class="fs">9-stage</div></div><div class="fa">→</div>
+    <div class="fn" data-t="s-sim"><div class="fi">🧪</div><div class="ft">Simulator</div><div class="fs">60d backtest</div></div><div class="fa">→</div>
+    <div class="fn" data-t="s-prop"><div class="fi">📧</div><div class="ft">Proposal</div><div class="fs">Email+JSON</div></div><div class="fa">→</div>
+    <div class="fn" data-t="s-exec"><div class="fi">⚡</div><div class="ft">Execution</div><div class="fs">Gmail trigger</div></div><div class="fa">→</div>
+    <div class="fn" data-t="s-asin"><div class="fi">💰</div><div class="ft">ASIN P&L</div><div class="fs">Full-cost</div></div>
   </div>
 
-  <!-- S1: DataKeeper -->
   <div class="sec" id="s-dk">
-    <div class="sec-h"><div class="sec-n a">1</div><div class="sec-t"><h2>Data Keeper — Collection Layer</h2><p>13 channels collected 2x daily via GitHub Actions. Primary data source for all analysis.</p></div></div>
+    <div class="sh"><div class="sn a">1</div><div class="si"><h2>Data Keeper — Collection Layer</h2><p>13 channels, 2x daily (PST 0:00 & 12:00) via GitHub Actions</p></div></div>
     <div class="chg">
-      <div class="ch"><div class="ct"><span class="cn">amazon_ads_daily</span><span class="cb">2x daily</span></div><div class="cd">Campaign: <b>spend, sales, ROAS, ACOS</b><br>3 brands &middot; Amazon Ads Reporting v3</div></div>
-      <div class="ch"><div class="ct"><span class="cn">amazon_ads_search_terms</span><span class="cb">1x daily</span></div><div class="cd">Search term: <b>clicks, spend, sales, conv</b><br>14d lookback &middot; 14.4K rows &middot; harvest+negate</div></div>
-      <div class="ch"><div class="ct"><span class="cn">amazon_ads_keywords</span><span class="cb">1x daily</span></div><div class="cd">Keyword: <b>bid, match type, ROAS</b><br>170 rows &middot; bid adjustment proposals</div></div>
-      <div class="ch"><div class="ct"><span class="cn">amazon_sales_daily</span><span class="cb">2x daily</span></div><div class="cd">SP-API: <b>sales, units, fees</b><br>3 sellers &middot; SKU breakdown for ASIN P&L</div></div>
-      <div class="ch"><div class="ct"><span class="cn">meta_ads_daily</span><span class="cb">2x daily</span></div><div class="cd">Meta: <b>spend, ROAS, CPA</b><br>Cross-platform context</div></div>
-      <div class="ch"><div class="ct"><span class="cn">google_ads_daily</span><span class="cb">2x daily</span></div><div class="cd">Google: <b>spend, conv, CPC</b><br>Bid ceiling benchmark</div></div>
-      <div class="ch"><div class="ct"><span class="cn">shopify_orders_daily</span><span class="cb">2x daily</span></div><div class="cd">DTC: <b>revenue, AOV, units</b><br>All brands &middot; P&L cross-ref</div></div>
-      <div class="ch"><div class="ct"><span class="cn">dataforseo_keywords</span><span class="cb">2x daily</span></div><div class="cd">Google KW Planner: <b>volume, CPC</b><br>Amazon vs Google CPC comparison</div></div>
+      <div class="ch"><div class="ct"><span class="cn">amazon_ads_daily</span><span class="cb">2x daily</span></div><div class="cd"><b>spend, sales, ROAS, ACOS</b><br>3 brands &middot; Ads Reporting v3</div></div>
+      <div class="ch"><div class="ct"><span class="cn">amazon_ads_search_terms</span><span class="cb">1x daily</span></div><div class="cd"><b>clicks, spend, sales, conv</b><br>14d &middot; 14.4K rows &middot; harvest+negate</div></div>
+      <div class="ch"><div class="ct"><span class="cn">amazon_ads_keywords</span><span class="cb">1x daily</span></div><div class="cd"><b>bid, match, ROAS</b><br>170 rows &middot; bid proposals</div></div>
+      <div class="ch"><div class="ct"><span class="cn">amazon_sales_daily</span><span class="cb">2x daily</span></div><div class="cd"><b>sales, units, fees</b><br>3 sellers &middot; ASIN P&L</div></div>
+      <div class="ch"><div class="ct"><span class="cn">meta_ads_daily</span><span class="cb">2x daily</span></div><div class="cd"><b>spend, ROAS, CPA</b><br>Cross-platform context</div></div>
+      <div class="ch"><div class="ct"><span class="cn">google_ads_daily</span><span class="cb">2x daily</span></div><div class="cd"><b>spend, conv, CPC</b><br>Bid ceiling benchmark</div></div>
+      <div class="ch"><div class="ct"><span class="cn">shopify_orders_daily</span><span class="cb">2x daily</span></div><div class="cd"><b>revenue, AOV</b><br>All brands &middot; P&L ref</div></div>
+      <div class="ch"><div class="ct"><span class="cn">dataforseo_keywords</span><span class="cb">2x daily</span></div><div class="cd"><b>volume, CPC</b><br>Google vs Amazon CPC</div></div>
     </div>
   </div>
 
-  <!-- S2: Executor -->
   <div class="sec" id="s-ex">
-    <div class="sec-h"><div class="sec-n c">2</div><div class="sec-t"><h2>Executor — 9-Stage Analysis Pipeline</h2><p>DataKeeper → ROAS framework → proposals per brand. Pre-flight freshness auto-check.</p></div></div>
+    <div class="sh"><div class="sn c">2</div><div class="si"><h2>Executor — 9-Stage Pipeline</h2><p>DataKeeper → ROAS framework → proposals per brand</p></div></div>
     <div class="steps">
-      <div class="st"><div class="d a"></div><div class="sl">Pre-flight</div><div class="sn">DataKeeper Freshness Check</div><div class="sd">Verify latest >= T-2. If stale, auto-collect amazon_ads + search_terms + keywords.</div></div>
-      <div class="st"><div class="d a"></div><div class="sl">Stage 1-2</div><div class="sn">Profile & Campaign Data</div><div class="sd">Brand config (budget, ACOS targets) + fetch all ENABLED campaigns.</div></div>
-      <div class="st"><div class="d c"></div><div class="sl">Stage 3</div><div class="sn">Campaign Analysis — ROAS Framework</div><div class="sd">7 rules per campaign → pause, reduce_bid, optimize, increase_budget.</div>
-        <div class="sb">&lt;1.0→pause | 1.0-1.5→bid-30% | 1.5-2.0→bid-15% | 2.0-2.5→opt-10% | 2.5-3.0→opt | 3.0-5.0→bud+20% | &gt;5.0→bid+10%,bud+30%</div></div>
-      <div class="st"><div class="d c"></div><div class="sl">Stage 4</div><div class="sn">Search Term & Keyword Data</div><div class="sd">DataKeeper (limit=50K) → fallback API. Load execution history for dedup.</div></div>
-      <div class="st"><div class="d g"></div><div class="sl">Stage 5</div><div class="sn">Simulator + DataForSEO + Analysis</div><div class="sd">Backtest JSON → SIM negate boost. Google CPC → bid ceiling. Harvest/negate/bid proposals.</div>
-        <div class="sb">Harvest: ACOS&lt;target, 10+clicks, 1+sale → exact match<br>Negate: $0sales+high$, ACOS&gt;2x, SIM($10+) | Bids: strong+20%, inefficient-20%</div></div>
-      <div class="st"><div class="d g"></div><div class="sl">Stage 6</div><div class="sn">Keyword Performance Matrix</div><div class="sd">7d vs 30d trends. Cannibalization. Google CPC benchmarks.</div></div>
-      <div class="st"><div class="d am"></div><div class="sl">Stage 7-8</div><div class="sn">Cross-Platform + ASIN P&L</div><div class="sd">Google/Meta/Shopify context. Full-cost margin: COGS+FBA+Export+Returns.</div></div>
-      <div class="st"><div class="d am"></div><div class="sl">Stage 9</div><div class="sn">Save JSON & Send Email</div><div class="sd">HTML email with all sections + budget impact + backtest insights.</div></div>
+      <div class="stp"><div class="d a"></div><div class="sl">Pre-flight</div><div class="snn">DataKeeper Freshness Check</div><div class="sd">Verify latest >= T-2. If stale, auto-collect 3 channels.</div></div>
+      <div class="stp"><div class="d a"></div><div class="sl">Stage 1-2</div><div class="snn">Profile & Campaign Data</div><div class="sd">Brand config + fetch ENABLED campaigns.</div></div>
+      <div class="stp"><div class="d c"></div><div class="sl">Stage 3</div><div class="snn">Campaign Analysis — ROAS Framework</div><div class="sb">&lt;1.0→pause | 1.0-1.5→bid-30% | 1.5-2.0→bid-15% | 2.0-2.5→opt-10% | 2.5-3.0→opt | 3.0-5.0→bud+20% | &gt;5.0→bid+10%,bud+30%</div></div>
+      <div class="stp"><div class="d c"></div><div class="sl">Stage 4</div><div class="snn">Search Term & Keyword Data</div><div class="sd">DataKeeper (50K limit) → dedup vs execution history.</div></div>
+      <div class="stp"><div class="d g"></div><div class="sl">Stage 5</div><div class="snn">Simulator + DataForSEO + Analysis</div><div class="sb">Harvest: ACOS&lt;target, 10+clicks, 1+sale | Negate: $0+high$, ACOS&gt;2x, SIM($10+) | Bids: strong+20%, ineff-20%</div></div>
+      <div class="stp"><div class="d g"></div><div class="sl">Stage 6</div><div class="snn">Keyword Matrix</div><div class="sd">7d vs 30d trends, cannibalization, Google CPC benchmarks.</div></div>
+      <div class="stp"><div class="d am"></div><div class="sl">Stage 7-8</div><div class="snn">Cross-Platform + ASIN P&L</div><div class="sd">Google/Meta/Shopify. Full-cost margin: COGS+FBA+Export+Returns.</div></div>
+      <div class="stp"><div class="d am"></div><div class="sl">Stage 9</div><div class="snn">Save & Email</div><div class="sd">HTML email + JSON proposal + budget impact summary.</div></div>
     </div>
   </div>
 
-  <!-- S3: Simulator -->
   <div class="sec" id="s-sim">
-    <div class="sec-h"><div class="sec-n g">3</div><div class="sec-t"><h2>Backtest Simulator — Waste & Bid Engine</h2><p>60-90d historical data → retroactive rule application → feeds executor negates.</p></div></div>
-    <div class="card">
-      <h3>🗑️ Module 1: Waste Detection</h3>
-      <div class="desc">14d rolling windows. $5+ spend with 0 conv → negate after 14d.</div>
-      <div class="stats">
-        <div class="stat green"><div class="sl">Grosmimi Save</div><div class="sv">$4,405</div><div class="ss">19.7% of 60d spend</div></div>
-        <div class="stat amber"><div class="sl">Terms Flagged</div><div class="sv">51</div><div class="ss">to negate</div></div>
-        <div class="stat cyan"><div class="sl">Top Waste</div><div class="sv">$948</div><div class="ss">"baby straw cup"</div></div>
-      </div>
-    </div>
-    <div class="card">
-      <h3>⚖️ Module 2: Bid Efficiency</h3>
-      <div class="desc">ROAS &lt; 2.0x → bid -20%. ROAS &gt; 5.0x → bid +15%. Per keyword.</div>
-      <div class="stats">
-        <div class="stat green"><div class="sl">ROAS Lift</div><div class="sv">+0.53x</div><div class="ss">4.06x → 4.59x</div></div>
-        <div class="stat red"><div class="sl">Under-perf</div><div class="sv">17</div><div class="ss">bid ↓</div></div>
-        <div class="stat green"><div class="sl">Scalable</div><div class="sv">8</div><div class="ss">bid ↑</div></div>
-      </div>
-    </div>
-    <div class="card">
-      <h3>🔗 SIM → Executor Integration</h3>
-      <div class="desc">1) Load JSON (max 14d old) → 2) top_waste_terms with $10+ → <span class="badge sim">SIM confirmed</span> negates → 3) Annotate + sort by savings → 4) SIM badges in email.</div>
-    </div>
+    <div class="sh"><div class="sn g">3</div><div class="si"><h2>Backtest Simulator</h2><p>60-90d retroactive rule application → feeds executor negates</p></div></div>
+    <div class="card"><h3>🗑️ Module 1: Waste</h3><div class="desc">14d windows. $5+ spend, 0 conv → negate. Grosmimi: $4,405 saveable (19.7%), 51 terms.</div></div>
+    <div class="card"><h3>⚖️ Module 2: Bids</h3><div class="desc">ROAS &lt;2x→bid-20%, &gt;5x→bid+15%. Grosmimi: 4.06→4.59x (+0.53). 17 down, 8 up.</div></div>
+    <div class="card"><h3>🔗 SIM→Executor</h3><div class="desc">top_waste_terms ($10+ save) → <span class="b sim">SIM</span> negates. Annotate+sort by savings. Source file logged in email.</div></div>
   </div>
 
-  <!-- S4: Proposal -->
   <div class="sec" id="s-prop">
-    <div class="sec-h"><div class="sec-n am">4</div><div class="sec-t"><h2>Proposal — Email Structure</h2><p>Campaign proposals + keyword harvest/negate + backtest insights + budget impact → single HTML email per brand.</p></div></div>
-    <div class="card">
-      <h3>Email Sections</h3>
-      <div class="steps">
-        <div class="st"><div class="d a"></div><div class="sn">Executive Summary</div><div class="sd">7d spend/sales/ROAS, trend vs 30d, action count</div></div>
-        <div class="st"><div class="d a"></div><div class="sn">Anomalies & Alerts</div><div class="sd">ROAS drops, underspend, CTR issues, budget concentration</div></div>
-        <div class="st"><div class="d c"></div><div class="sn">Campaign Action Proposals</div><div class="sd">Tier-scored (1-10). Letter codes for selective execution.</div></div>
-        <div class="st"><div class="d g"></div><div class="sn">Keyword Harvesting</div><div class="sd">Profitable search terms → exact match. ACOS, bid, campaign shown.</div></div>
-        <div class="st"><div class="d g"></div><div class="sn">Negative Keywords</div><div class="sd">Waste terms with <span class="badge sim">SIM</span> badges. Zero-sales + high-ACOS + sim-confirmed.</div></div>
-        <div class="st"><div class="d am"></div><div class="sn">Budget Impact Summary</div><div class="sd">Before/after budget table. Net daily change per brand.</div></div>
-        <div class="st"><div class="d am"></div><div class="sn">Backtest Insights</div><div class="sd">Simulator savings, ROAS improvement, top waste terms. Source file logged.</div></div>
-      </div>
+    <div class="sh"><div class="sn am">4</div><div class="si"><h2>Proposal Email Structure</h2></div></div>
+    <div class="steps">
+      <div class="stp"><div class="d a"></div><div class="snn">Executive Summary</div><div class="sd">7d spend/sales/ROAS, trend vs 30d</div></div>
+      <div class="stp"><div class="d a"></div><div class="snn">Anomalies</div><div class="sd">ROAS drops, underspend, CTR, budget concentration</div></div>
+      <div class="stp"><div class="d c"></div><div class="snn">Campaign Proposals</div><div class="sd">Tier-scored, letter codes for selective exec</div></div>
+      <div class="stp"><div class="d g"></div><div class="snn">Harvest + Negate Keywords</div><div class="sd">SIM badges, zero-sales + high-ACOS + sim-confirmed</div></div>
+      <div class="stp"><div class="d am"></div><div class="snn">Budget Impact + Backtest Insights</div><div class="sd">Before/after table, simulator savings, source file</div></div>
     </div>
   </div>
 
-  <!-- S5: Execution -->
   <div class="sec" id="s-exec">
-    <div class="sec-h"><div class="sec-n p">5</div><div class="sec-t"><h2>Execution — Gmail Reply Trigger</h2><p>Brand-specific Gmail matching. "Execute all" reply → auto-approve → API calls → confirmation email.</p></div></div>
-    <div class="card">
-      <h3>Execution Flow</h3>
-      <div class="steps">
-        <div class="st"><div class="d g"></div><div class="sn">1. Gmail Search</div><div class="sd"><code style="font-family:var(--mono);font-size:10px;color:var(--accent)">subject:"[Amazon PPC] {Brand}" from:{approver}</code> — brand-specific match prevents cross-brand execution.</div></div>
-        <div class="st"><div class="d g"></div><div class="sn">2. Approve All Proposals</div><div class="sd">Set approved=true on all campaign + keyword proposals. Dedup: check for existing EXECUTED email.</div></div>
-        <div class="st"><div class="d g"></div><div class="sn">3. API Execution</div><div class="sd">Campaign: update_campaign_budget(), update_campaign_bid(). Keywords: add_keyword(), add_negative_keyword().</div></div>
-        <div class="st"><div class="d g"></div><div class="sn">4. Confirmation Email</div><div class="sd">Subject: "[Amazon PPC] EXECUTED". Changes logged to ppc_executed_{date}.json.</div></div>
-      </div>
-    </div>
+    <div class="sh"><div class="sn p">5</div><div class="si"><h2>Execution — Gmail Reply</h2><p>Brand-specific matching: subject:"[Amazon PPC] {Brand}" from:{approver}</p></div></div>
+    <div class="card"><div class="desc">1) Gmail search (brand-specific) → 2) Approve all → 3) API calls (budget, bid, keywords) → 4) Confirmation email + JSON log</div></div>
   </div>
 
-  <!-- S6: ASIN P&L -->
   <div class="sec" id="s-asin">
-    <div class="sec-h"><div class="sec-n a">6</div><div class="sec-t"><h2>ASIN P&L — Full-Cost Waterfall</h2><p>Revenue − COGS − Referral 15% − FBA − Export − Returns = CM</p></div></div>
+    <div class="sh"><div class="sn a">6</div><div class="si"><h2>ASIN P&L — Full-Cost Waterfall</h2></div></div>
     <div class="cf">
-      <div class="cfn"><div class="ci">💰</div><div class="ct">Revenue</div></div><div class="cfa">−</div>
-      <div class="cfn"><div class="ci">📦</div><div class="ct">COGS</div><div class="cs">$2.50~$13</div></div><div class="cfa">−</div>
-      <div class="cfn"><div class="ci">🏷️</div><div class="ct">Ref 15%</div></div><div class="cfa">−</div>
-      <div class="cfn"><div class="ci">🚚</div><div class="ct">FBA</div><div class="cs">$3.50~$6.50</div></div><div class="cfa">−</div>
-      <div class="cfn"><div class="ci">🌊</div><div class="ct">Export+Ret</div><div class="cs">Nae $3, 5%</div></div><div class="cfa">=</div>
-      <div class="cfn" style="border-color:var(--green);background:var(--green-bg)"><div class="ci">✅</div><div class="ct">CM</div></div>
+      <div class="cfn"><div class="ci">💰</div><div class="ctt">Revenue</div></div><div class="cfa">−</div>
+      <div class="cfn"><div class="ci">📦</div><div class="ctt">COGS</div><div class="cs">$2.50~$13</div></div><div class="cfa">−</div>
+      <div class="cfn"><div class="ci">🏷️</div><div class="ctt">Ref 15%</div></div><div class="cfa">−</div>
+      <div class="cfn"><div class="ci">🚚</div><div class="ctt">FBA</div><div class="cs">$3.50~$6.50</div></div><div class="cfa">−</div>
+      <div class="cfn"><div class="ci">🌊</div><div class="ctt">Exp+Ret</div><div class="cs">Nae $3, 5%</div></div><div class="cfa">=</div>
+      <div class="cfn" style="border-color:var(--g);background:var(--gbg)"><div class="ci">✅</div><div class="ctt">CM</div></div>
     </div>
-    <div class="card">
-      <h3>Brand Costs</h3>
-      <table>
-        <thead><tr><th>Brand</th><th>COGS</th><th>FBA</th><th>Export</th><th>Ret</th><th>Target ACOS</th></tr></thead>
-        <tbody>
-          <tr><td><b>Grosmimi</b></td><td>$8.41</td><td>$5.39</td><td>$0.50</td><td>5%</td><td>20%</td></tr>
-          <tr><td><b>Naeiae</b></td><td>$5.35</td><td>$3.50</td><td style="color:var(--amber);font-weight:700">$3.00</td><td>5%</td><td>25%</td></tr>
-          <tr><td><b>CHA&MOM</b></td><td>$7.53</td><td>$4.25</td><td>$0.50</td><td>5%</td><td>30%</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <div class="card"><table><thead><tr><th>Brand</th><th>COGS</th><th>FBA</th><th>Export</th><th>Ret</th><th>ACOS Tgt</th></tr></thead><tbody>
+      <tr><td><b>Grosmimi</b></td><td>$8.41</td><td>$5.39</td><td>$0.50</td><td>5%</td><td>20%</td></tr>
+      <tr><td><b>Naeiae</b></td><td>$5.35</td><td>$3.50</td><td style="color:var(--am);font-weight:700">$3.00</td><td>5%</td><td>25%</td></tr>
+      <tr><td><b>CHA&MOM</b></td><td>$7.53</td><td>$4.25</td><td>$0.50</td><td>5%</td><td>30%</td></tr>
+    </tbody></table></div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════ -->
-<!-- MAIN TAB 2: OUTPUT & EXECUTION LOG                       -->
-<!-- ══════════════════════════════════════════════════════════ -->
-<div class="main-panel" id="tab-output">
-
-  <div class="sub-tabs" style="margin-top:20px">
-    <div class="sub-tab active" data-sub="out-gros">🟣 Grosmimi</div>
-    <div class="sub-tab" data-sub="out-nae">🟡 Naeiae</div>
-    <div class="sub-tab" data-sub="out-cha">🔵 CHA&MOM</div>
-  </div>
-
-  <!-- ── GROSMIMI ── -->
-  <div class="sub-panel active" id="out-gros">
-    <div class="stats">
-      <div class="stat accent"><div class="sl">7d ROAS</div><div class="sv">3.89x</div><div class="ss">$22,257 / $86,610</div></div>
-      <div class="stat green"><div class="sl">ACOS</div><div class="sv">23.9%</div><div class="ss">ad spend / ad sales</div></div>
-      <div class="stat cyan"><div class="sl">TACOS</div><div class="sv">13.3%</div><div class="ss">vs total $300K rev</div></div>
-      <div class="stat amber"><div class="sl">Daily Budget</div><div class="sv">$3,000</div><div class="ss">Manual 60% / Auto 40%</div></div>
-    </div>
-
-    <div class="sec-h" style="margin-top:20px"><div class="sec-n c">→</div><div class="sec-t"><h2>Execution Timeline</h2><p>Chronological flow: DataKeeper collect → Propose → Execute → Rollback</p></div></div>
-    <div class="log">
-      <div class="log-entry collect">
-        <div class="le-time">03/15 08:00</div>
-        <div class="le-body">
-          <div class="le-title">DataKeeper Collection <span class="le-badge" style="background:var(--cyan-bg);color:var(--cyan)">STAGE 1</span></div>
-          <div class="le-desc">amazon_ads_daily: 124 rows (latest: 2026-03-13) &middot; search_terms: 14,445 rows &middot; keywords: 170 rows</div>
-        </div>
-      </div>
-      <div class="log-entry collect">
-        <div class="le-time">03/15 08:01</div>
-        <div class="le-body">
-          <div class="le-title">Simulator Backtest Loaded <span class="le-badge" style="background:var(--green-bg);color:var(--green)">STAGE 5</span></div>
-          <div class="le-desc">grosmimi_backtest_2026-03-14.json (60d, age 1d) &middot; $4,405 saveable &middot; 51 waste terms &middot; ROAS 4.06→4.59x</div>
-        </div>
-      </div>
-      <div class="log-entry propose">
-        <div class="le-time">03/15 11:39</div>
-        <div class="le-body">
-          <div class="le-title">Proposal Generated <span class="le-badge" style="background:var(--accent-bg);color:var(--accent)">STAGE 9</span></div>
-          <div class="le-desc">11 campaign proposals &middot; 50 harvest &middot; 50 negate (8 SIM confirmed) &middot; Dedup: 57H + 54N excluded</div>
-        </div>
-      </div>
-      <div class="log-entry propose">
-        <div class="le-time">03/15 11:39</div>
-        <div class="le-body">
-          <div class="le-title">Email Sent <span class="le-badge" style="background:var(--accent-bg);color:var(--accent)">DELIVERED</span></div>
-          <div class="le-desc">To: wj.choi@orbiters.co.kr &middot; CC: mj.lee@orbiters.co.kr &middot; Subject: [Amazon PPC] Grosmimi Daily</div>
-        </div>
-      </div>
-      <div class="log-entry execute">
-        <div class="le-time">03/15 10:58</div>
-        <div class="le-body">
-          <div class="le-title">Auto-Execute Triggered <span class="le-badge" style="background:var(--green-bg);color:var(--green)">EXECUTION</span></div>
-          <div class="le-desc">111 changes: 11 campaigns (bid+budget) + 50 harvest + 50 negate &middot; Gmail reply detection (cross-brand bug)</div>
-        </div>
-      </div>
-      <div class="log-entry rollback">
-        <div class="le-time">03/15 11:15</div>
-        <div class="le-body">
-          <div class="le-title">Full Rollback <span class="le-badge" style="background:var(--amber-bg);color:var(--amber)">ROLLBACK</span></div>
-          <div class="le-desc">9/9 budgets restored &middot; 11 bid reversals &middot; 43/50 harvest archived &middot; 50/50 negatives archived &middot; Reason: unintended cross-brand execution</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Campaign Proposals (11)</h3>
-      <table>
-        <thead><tr><th>Campaign</th><th>Type</th><th>7d ROAS</th><th>Action</th><th>Bid</th><th>Budget</th><th>Status</th></tr></thead>
-        <tbody>
-          <tr><td>SP_ppsu_auto</td><td><span class="badge cyan">AUTO</span></td><td><span class="badge green">9.47x</span></td><td>↑ budget</td><td>+10%</td><td>$150→$195</td><td><span class="badge amber">Rolled back</span></td></tr>
-          <tr><td>SP_Fliptop_defensive</td><td><span class="badge accent">MAN</span></td><td><span class="badge green">16.78x</span></td><td>↑ budget</td><td>+10%</td><td>$500→$450</td><td><span class="badge amber">Rolled back</span></td></tr>
-          <tr><td>SP_ppsu_manual</td><td><span class="badge accent">MAN</span></td><td><span class="badge amber">2.11x</span></td><td>optimize</td><td>-10%</td><td>—</td><td><span class="badge amber">Rolled back</span></td></tr>
-          <tr><td>SP_flip_top_manual</td><td><span class="badge accent">MAN</span></td><td><span class="badge green">5.03x</span></td><td>↑ budget</td><td>+10%</td><td>$900→$450</td><td><span class="badge amber">Rolled back</span></td></tr>
-        </tbody>
-      </table>
-      <div class="desc" style="margin-top:6px;font-style:italic">+ 7 more. All rolled back due to cross-brand Gmail matching bug (fixed in e9565e1).</div>
-    </div>
-
-    <div class="card">
-      <h3>Top Keywords — Harvest (50) &amp; Negate (50)</h3>
-      <table>
-        <thead><tr><th>Term</th><th>Type</th><th>Sales</th><th>Spend</th><th>ACOS</th><th>SIM</th></tr></thead>
-        <tbody>
-          <tr><td>grosmimi straw cup</td><td><span class="badge green">Harvest</span></td><td>$14,269</td><td>$999</td><td>7.0%</td><td>—</td></tr>
-          <tr><td>grossini straw cup</td><td><span class="badge green">Harvest</span></td><td>$3,958</td><td>$289</td><td>7.3%</td><td>—</td></tr>
-          <tr><td>baby straw cup</td><td><span class="badge red">Negate</span></td><td>$2,811</td><td>$1,311</td><td>46.6%</td><td><span class="badge sim">$948</span></td></tr>
-          <tr><td>straw sippy cup</td><td><span class="badge red">Negate</span></td><td>$1,082</td><td>$501</td><td>46.3%</td><td><span class="badge sim">$464</span></td></tr>
-          <tr><td>sippy cup with straw</td><td><span class="badge red">Negate</span></td><td>$677</td><td>$467</td><td>69.0%</td><td><span class="badge sim">$444</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- ── NAEIAE ── -->
-  <div class="sub-panel" id="out-nae">
-    <div class="stats">
-      <div class="stat accent"><div class="sl">7d ROAS</div><div class="sv">3.33x</div><div class="ss">$562 / $1,870</div></div>
-      <div class="stat green"><div class="sl">ACOS</div><div class="sv">34.1%</div><div class="ss">ad-attributed</div></div>
-      <div class="stat amber"><div class="sl">Daily Budget</div><div class="sv">$150</div><div class="ss">Manual $90 / Auto $60</div></div>
-      <div class="stat cyan"><div class="sl">Export Cost</div><div class="sv">$3.00</div><div class="ss">per unit (heavy snacks)</div></div>
-    </div>
-
-    <div class="sec-h" style="margin-top:20px"><div class="sec-n c">→</div><div class="sec-t"><h2>Execution Timeline</h2></div></div>
-    <div class="log">
-      <div class="log-entry collect">
-        <div class="le-time">03/15 08:00</div>
-        <div class="le-body"><div class="le-title">DataKeeper Collection</div><div class="le-desc">468 search term rows &middot; 33 keyword rows for Naeiae</div></div>
-      </div>
-      <div class="log-entry propose">
-        <div class="le-time">03/15 11:34</div>
-        <div class="le-body"><div class="le-title">Proposal Generated</div><div class="le-desc">1 campaign proposal &middot; 0 harvest (dedup: 7 excluded) &middot; 0 negate (dedup: 4 excluded)</div></div>
-      </div>
-      <div class="log-entry execute">
-        <div class="le-time">03/15 10:55</div>
-        <div class="le-body">
-          <div class="le-title">Executed via Gmail Reply <span class="le-badge" style="background:var(--green-bg);color:var(--green)">LIVE</span></div>
-          <div class="le-desc">SP Auto: bid -30% &middot; SP Manual: $50→$75 + bid +15%</div>
-        </div>
-      </div>
-      <div class="log-entry execute">
-        <div class="le-time">03/08-09</div>
-        <div class="le-body">
-          <div class="le-title">Prior Executions (Batch 1 &amp; 2)</div>
-          <div class="le-desc">5 harvest: pop rice snack, naeiae pop rice snack, baby teething snacks, etc. &middot; 4 negate: puffed rice, baby snacks, toddler snacks, yugwa</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Campaign Proposals</h3>
-      <table>
-        <thead><tr><th>Campaign</th><th>Type</th><th>7d ROAS</th><th>Action</th><th>Change</th><th>Status</th></tr></thead>
-        <tbody>
-          <tr><td>SP - Auto</td><td><span class="badge cyan">AUTO</span></td><td><span class="badge amber">2.26x</span></td><td>optimize</td><td>bid -30%</td><td><span class="badge green">Executed ✓</span></td></tr>
-          <tr><td>SP - Manual</td><td><span class="badge accent">MAN</span></td><td><span class="badge green">4.0x</span></td><td>↑ budget</td><td>$50→$75, bid +15%</td><td><span class="badge green">Executed ✓</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- ── CHA&MOM ── -->
-  <div class="sub-panel" id="out-cha">
-    <div class="stats">
-      <div class="stat accent"><div class="sl">7d ROAS</div><div class="sv">4.13x</div><div class="ss">$48 / $198</div></div>
-      <div class="stat green"><div class="sl">ACOS</div><div class="sv">26.4%</div><div class="ss">ad-attributed</div></div>
-      <div class="stat amber"><div class="sl">Daily Budget</div><div class="sv">$150</div><div class="ss">Manual $90 / Auto $60</div></div>
-      <div class="stat red"><div class="sl">Competitor ROAS</div><div class="sv">1.43x</div><div class="ss">ACOS 70% — urgent</div></div>
-    </div>
-
-    <div class="sec-h" style="margin-top:20px"><div class="sec-n c">→</div><div class="sec-t"><h2>Execution Timeline</h2></div></div>
-    <div class="log">
-      <div class="log-entry collect">
-        <div class="le-time">03/15 08:00</div>
-        <div class="le-body"><div class="le-title">DataKeeper Collection</div><div class="le-desc">141 search term rows &middot; 0 keyword rows (API timeout) &middot; Fallback: 24h cache (102 rows)</div></div>
-      </div>
-      <div class="log-entry collect">
-        <div class="le-time">03/15 08:01</div>
-        <div class="le-body"><div class="le-title">Simulator Backtest</div><div class="le-desc">chaenmom_backtest_2026-03-14.json (30d) &middot; $0 waste (too small) &middot; ROAS 5.27→5.35x</div></div>
-      </div>
-      <div class="log-entry propose">
-        <div class="le-time">03/15 11:34</div>
-        <div class="le-body"><div class="le-title">Proposal Generated</div><div class="le-desc">3 campaign proposals &middot; 0 harvest/negate (low data volume). Dedup: 7H + 4N excluded.</div></div>
-      </div>
-      <div class="log-entry execute">
-        <div class="le-time">03/15 10:58</div>
-        <div class="le-body">
-          <div class="le-title">Executed via Gmail Reply <span class="le-badge" style="background:var(--green-bg);color:var(--green)">LIVE</span></div>
-          <div class="le-desc">Competitor bid -30% &middot; Cream $60→$75 + bid +10% &middot; Wash $60→$75 + bid +15%</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Campaign Proposals</h3>
-      <table>
-        <thead><tr><th>Campaign</th><th>Type</th><th>7d ROAS</th><th>Action</th><th>Change</th><th>Status</th></tr></thead>
-        <tbody>
-          <tr><td>Competitor Targeting Manual</td><td><span class="badge accent">MAN</span></td><td><span class="badge red">1.43x</span></td><td>↓ bid</td><td>bid -30%</td><td><span class="badge green">Executed ✓</span></td></tr>
-          <tr><td>Cream SP Auto</td><td><span class="badge cyan">AUTO</span></td><td><span class="badge green">30.88x</span></td><td>↑ budget</td><td>$60→$75, bid +10%</td><td><span class="badge green">Executed ✓</span></td></tr>
-          <tr><td>Wash SP Auto</td><td><span class="badge cyan">AUTO</span></td><td><span class="badge green">4.18x</span></td><td>↑ budget</td><td>$60→$75, bid +15%</td><td><span class="badge green">Executed ✓</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+<!-- ══════════ TAB 2: OUTPUT ══════════ -->
+<div class="mp" id="tab-output">
+  <div class="st" id="brandTabs"></div>
+  <div id="output-content"></div>
 </div>
 
-</div><!-- /container -->
+</div>
 
 <script>
+const D = PPC_DATA;
+const BRAND_LABELS = {grosmimi:'🟣 Grosmimi', naeiae:'🟡 Naeiae', chaenmom:'🔵 CHA&MOM'};
+const BRAND_PL = {
+  grosmimi: {acos:'23.9%',tacos:'13.3%',budget:'$3,000',insight:'50 harvest + 50 negate (8 SIM). $4,405 backtest savings. 7 product categories.'},
+  naeiae: {acos:'34.1%',tacos:'n/a',budget:'$150',insight:'Export $3/unit (heavy snacks). Prior executions: 5H+4N (03/08-09). Budget $120→$150.'},
+  chaenmom: {acos:'26.4%',tacos:'4.8%',budget:'$150',insight:'Competitor Targeting ACOS 70% → bid -30%. Cream/Wash ROAS 30x/4x → budget up.'}
+};
+
+// Hero meta
+document.getElementById('hero-meta').innerHTML = `
+  <span class="pill"><span class="dot"></span> DataKeeper: ${D.generated_pst}</span>
+  <span class="pill">3 Brands &middot; Data from data.js</span>`;
+
 // Main tabs
-document.querySelectorAll('.main-tab').forEach(t => {
-  t.addEventListener('click', () => {
-    document.querySelectorAll('.main-tab').forEach(x => x.classList.remove('active'));
-    document.querySelectorAll('.main-panel').forEach(x => x.classList.remove('active'));
-    t.classList.add('active');
-    document.getElementById(t.dataset.panel).classList.add('active');
-  });
+document.querySelectorAll('.mt>div').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.mt>div').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.mp').forEach(x=>x.classList.remove('on'));
+    t.classList.add('on');
+    document.getElementById(t.dataset.p).classList.add('on');
+  };
 });
-// Sub tabs (brands)
-document.querySelectorAll('.sub-tab').forEach(t => {
-  t.addEventListener('click', () => {
-    document.querySelectorAll('.sub-tab').forEach(x => x.classList.remove('active'));
-    document.querySelectorAll('.sub-panel').forEach(x => x.classList.remove('active'));
-    t.classList.add('active');
-    document.getElementById(t.dataset.sub).classList.add('active');
-  });
-});
+
 // Flow bar scroll
-document.querySelectorAll('.fn[data-target]').forEach(n => {
-  n.addEventListener('click', () => {
-    document.querySelectorAll('.fn').forEach(x => x.classList.remove('active'));
-    n.classList.add('active');
-    const el = document.getElementById(n.dataset.target);
-    if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
-  });
+document.querySelectorAll('.fn[data-t]').forEach(n=>{
+  n.onclick=()=>{
+    document.querySelectorAll('.fn').forEach(x=>x.classList.remove('on'));n.classList.add('on');
+    document.getElementById(n.dataset.t)?.scrollIntoView({behavior:'smooth',block:'start'});
+  };
 });
-const secs = document.querySelectorAll('.sec');
-const fns = document.querySelectorAll('.fn[data-target]');
-new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) {
-    fns.forEach(n => n.classList.remove('active'));
-    const m = document.querySelector(`.fn[data-target="${e.target.id}"]`);
-    if (m) m.classList.add('active');
-  }});
-}, { threshold: 0.3 }).observe && secs.forEach(s => new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) {
-    fns.forEach(n => n.classList.remove('active'));
-    const m = document.querySelector(`.fn[data-target="${e.target.id}"]`);
-    if (m) m.classList.add('active');
-  }});
-}, { threshold: 0.3 }).observe(s));
+
+// Brand tabs
+const brands = Object.keys(D.brands);
+const btEl = document.getElementById('brandTabs');
+brands.forEach((bk,i)=>{
+  const d = document.createElement('div');
+  d.textContent = BRAND_LABELS[bk];
+  d.dataset.brand = bk;
+  if(i===0) d.classList.add('on');
+  d.onclick = ()=>{ btEl.querySelectorAll('div').forEach(x=>x.classList.remove('on')); d.classList.add('on'); renderBrand(bk); };
+  btEl.appendChild(d);
+});
+
+function badge(v,type){return `<span class="b ${type}">${v}</span>`}
+function roasB(r){return r>=3?badge(r+'x','g'):r>=2?badge(r+'x','am'):badge(r+'x','r')}
+function $(s){return document.querySelector(s)}
+
+function renderBrand(bk){
+  const bd = D.brands[bk];
+  const dates = Object.keys(bd.dates).sort().reverse();
+  const pl = BRAND_PL[bk];
+  const el = document.getElementById('output-content');
+
+  let html = `
+    <div class="card" style="border-left:3px solid var(--a);margin-bottom:14px">
+      <h3>P&L Insight</h3>
+      <div class="stats">
+        <div class="stat accent"><div class="sl">ACOS</div><div class="sv">${pl.acos}</div></div>
+        <div class="stat cyan"><div class="sl">TACOS</div><div class="sv">${pl.tacos}</div></div>
+        <div class="stat amber"><div class="sl">Daily Budget</div><div class="sv">${pl.budget}</div></div>
+      </div>
+      <div class="desc">${pl.insight}</div>
+    </div>
+    <div class="sst" id="dateTabs-${bk}"></div>
+    <div id="dateContent-${bk}"></div>`;
+  el.innerHTML = html;
+
+  // Date sub-tabs
+  const dtEl = document.getElementById(`dateTabs-${bk}`);
+  dates.forEach((dt,i)=>{
+    const d = document.createElement('div');
+    d.textContent = dt;
+    d.dataset.dt = dt;
+    if(i===0) d.classList.add('on');
+    d.onclick = ()=>{ dtEl.querySelectorAll('div').forEach(x=>x.classList.remove('on')); d.classList.add('on'); renderDate(bk,dt); };
+    dtEl.appendChild(d);
+  });
+  if(dates.length) renderDate(bk, dates[0]);
+}
+
+function renderDate(bk, dt){
+  const dd = D.brands[bk].dates[dt];
+  const el = document.getElementById(`dateContent-${bk}`);
+  const c = dd.counts;
+
+  let html = `
+    <div class="ssst" id="viewTabs-${bk}-${dt}">
+      <div class="on" data-v="propose">Propose (${c.campaigns}camp, ${c.harvest}H, ${c.negate}N)</div>
+      <div data-v="execution">Execution</div>
+    </div>
+    <div id="viewContent-${bk}-${dt}"></div>`;
+  el.innerHTML = html;
+
+  document.querySelectorAll(`#viewTabs-${bk}-${dt}>div`).forEach(t=>{
+    t.onclick=()=>{
+      document.querySelectorAll(`#viewTabs-${bk}-${dt}>div`).forEach(x=>x.classList.remove('on'));
+      t.classList.add('on');
+      if(t.dataset.v==='propose') renderPropose(bk,dt);
+      else renderExecution(bk,dt);
+    };
+  });
+  renderPropose(bk,dt);
+}
+
+function renderPropose(bk,dt){
+  const dd = D.brands[bk].dates[dt];
+  const el = document.getElementById(`viewContent-${bk}-${dt}`);
+
+  // Campaign table (ALL)
+  let campRows = dd.campaigns.map(c=>{
+    const budStr = c.bud_after ? `$${c.bud_before}→$${c.bud_after}` : '—';
+    const bidStr = c.bid_pct ? `${c.bid_pct>0?'+':''}${c.bid_pct}%` : '—';
+    const typeB = c.type==='AUTO'?badge('AUTO','c'):badge('MAN','a');
+    return `<tr>
+      <td>${badge(c.tier,'a')}</td>
+      <td>${c.name}</td><td>${typeB}</td>
+      <td>${roasB(c.roas7d)}</td><td>${c.acos7d||'—'}%</td>
+      <td>$${c.spend7d}</td><td>$${c.sales7d}</td>
+      <td><b>${c.action}</b></td><td>${bidStr}</td><td>${budStr}</td>
+      <td style="font-size:9px;color:var(--dim);max-width:200px">${c.reason}</td>
+    </tr>`;
+  }).join('');
+
+  // Harvest table (ALL)
+  let harvestRows = dd.harvest.map(h=>`<tr>
+    <td>${h.term}</td><td style="color:var(--g);font-weight:700">$${h.sales}</td><td>$${h.cost}</td>
+    <td>${h.acos?badge(h.acos+'%','g'):'—'}</td><td>${h.clicks}</td><td>${h.purchases}</td>
+    <td>$${h.bid}</td><td style="font-size:9px;color:var(--dim)">${h.campaign}</td>
+  </tr>`).join('');
+
+  // Negate table (ALL)
+  let negRows = dd.negate.map(n=>{
+    const simB = n.sim_save>0?` ${badge('SIM $'+n.sim_save,'sim')}`:'';
+    return `<tr>
+      <td>${n.term}${simB}</td><td>$${n.cost}</td><td>${n.sales?'$'+n.sales:'$0'}</td>
+      <td>${n.acos?badge(n.acos+'%','r'):'—'}</td><td>${n.clicks}</td>
+      <td>${badge(n.type.replace('negate_',''),'r')}</td>
+      <td style="font-size:9px;color:var(--dim);max-width:250px">${n.reason}</td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="card">
+      <h3>Campaign Proposals (${dd.campaigns.length})</h3>
+      <div class="desc">Generated: ${dd.generated} | Data: ${dt}</div>
+      ${dd.campaigns.length?`<div style="overflow-x:auto"><table>
+        <thead><tr><th>Tier</th><th>Campaign</th><th>Type</th><th>ROAS</th><th>ACOS</th><th>Spend</th><th>Sales</th><th>Action</th><th>Bid</th><th>Budget</th><th>Reason</th></tr></thead>
+        <tbody>${campRows}</tbody>
+      </table></div>`:'<div class="desc">No campaign proposals for this date.</div>'}
+    </div>
+
+    <div class="card">
+      <h3>Keyword Harvest (${dd.harvest.length})</h3>
+      ${dd.harvest.length?`<div style="overflow-x:auto"><table>
+        <thead><tr><th>Search Term</th><th>Sales</th><th>Cost</th><th>ACOS</th><th>Clicks</th><th>Conv</th><th>Bid</th><th>Campaign</th></tr></thead>
+        <tbody>${harvestRows}</tbody>
+      </table></div>`:'<div class="desc">No harvest candidates (dedup or insufficient data).</div>'}
+    </div>
+
+    <div class="card">
+      <h3>Negative Keywords (${dd.negate.length}) ${dd.negate.filter(n=>n.sim_save>0).length?'— '+dd.negate.filter(n=>n.sim_save>0).length+' SIM confirmed':''}</h3>
+      ${dd.negate.length?`<div style="overflow-x:auto"><table>
+        <thead><tr><th>Search Term</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Clicks</th><th>Type</th><th>Reason</th></tr></thead>
+        <tbody>${negRows}</tbody>
+      </table></div>`:'<div class="desc">No negative candidates.</div>'}
+    </div>`;
+}
+
+function renderExecution(bk,dt){
+  const dd = D.brands[bk].dates[dt];
+  const el = document.getElementById(`viewContent-${bk}-${dt}`);
+
+  if(!dd.executed){
+    el.innerHTML = `<div class="card"><div class="desc" style="text-align:center;padding:20px;color:var(--am)">
+      Not executed yet. Reply "Execute all" to the proposal email to trigger.
+    </div></div>`;
+    return;
+  }
+
+  const execCamps = dd.campaigns.filter(c=>c.approved);
+  let rows = execCamps.map(c=>{
+    const budStr = c.bud_after?`$${c.bud_before}→$${c.bud_after}`:'—';
+    return `<tr><td>${c.name}</td><td>${c.action}</td><td>${c.bid_pct?c.bid_pct+'%':'—'}</td><td>${budStr}</td><td>${badge('Executed','g')}</td></tr>`;
+  }).join('');
+
+  el.innerHTML = `<div class="card">
+    <h3>Execution Log</h3>
+    <div class="desc">Executed at: ${dd.executed_at||'—'}</div>
+    ${rows?`<table><thead><tr><th>Campaign</th><th>Action</th><th>Bid</th><th>Budget</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>`
+    :'<div class="desc">No details available.</div>'}
+  </div>`;
+}
+
+// Init
+renderBrand(brands[0]);
 </script>
 </body>
 </html>
