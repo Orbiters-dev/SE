@@ -1115,7 +1115,8 @@ async function fetchLiveMetrics(){
 
     // Store for other uses
     window._liveMetrics = liveBrands;
-    window._rawAdsData = adsData;  // Daily campaign-level rows for Analytics tab
+    window._rawAdsData  = adsData;    // Daily campaign-level rows for Analytics tab
+    window._rawSalesData = salesData; // Total sales rows for TACOS / trend chart
     document.getElementById('analytics-loading').textContent = 'Live (' + (adsData.length ? adsData[0].date : '?') + ')';
     // If analytics tab is already open, refresh it
     if (document.getElementById('tab-analytics').classList.contains('on')) {
@@ -1170,55 +1171,117 @@ function acosColor(a,tgt){ return a<=tgt?'var(--g)':a<=tgt*1.3?'var(--am)':'var(
 function arrow(v7,v30){ if(!v30) return ''; var d=v7-v30; return d>0.1?'<span style="color:var(--g)">&#9650;</span>':d<-0.1?'<span style="color:var(--r)">&#9660;</span>':'<span style="color:var(--muted)">&#8212;</span>'; }
 
 function renderAnalytics(bk, el) {
-  // Update brand tab styles
-  document.querySelectorAll('#analyticssBrandTabs [data-abrand]').forEach(function(t){
-    t.style.background='var(--card)'; t.style.borderColor='var(--border)'; t.style.color='var(--dim)';
-  });
-  if (el) { el.style.background='var(--abg)'; el.style.borderColor='var(--a)'; el.style.color='var(--a)'; }
-
-  var rows = window._rawAdsData || [];
-  var brandKey = BRAND_API_KEY[bk];
-  var tgt = ACOS_TARGET[bk];
-  var bRows = rows.filter(function(r){ return r.brand === brandKey; });
+  var rows      = window._rawAdsData   || [];
+  var salesRows = window._rawSalesData || [];
+  var brandKey  = BRAND_API_KEY[bk];
+  var tgt       = ACOS_TARGET[bk];
+  var bRows     = rows.filter(function(r){ return r.brand === brandKey; });
+  var sRows     = salesRows.filter(function(r){ return r.brand === brandKey; });
 
   if (!bRows.length) {
     document.getElementById('analytics-content').innerHTML = '<div class="card" style="text-align:center;color:var(--dim);padding:40px">Live data loading... (DataKeeper API)</div>';
     return;
   }
 
-  // ── Daily brand-level aggregates (30d) ──
-  var dailyBrand = {};
+  // ── Daily brand-level aggregates ──
+  var dailyAds = {}, dailyTotal = {};
   bRows.forEach(function(r){
-    if (!dailyBrand[r.date]) dailyBrand[r.date] = {spend:0,sales:0,clicks:0,impr:0};
-    var d = dailyBrand[r.date];
-    d.spend  += +(r.spend||0);
-    d.sales  += +(r.sales||0);
-    d.clicks += +(r.clicks||0);
-    d.impr   += +(r.impressions||0);
+    if (!dailyAds[r.date]) dailyAds[r.date] = {spend:0,sales:0,clicks:0};
+    dailyAds[r.date].spend  += +(r.spend||0);
+    dailyAds[r.date].sales  += +(r.sales||0);
+    dailyAds[r.date].clicks += +(r.clicks||0);
   });
-  var dates = Object.keys(dailyBrand).sort();
-  var roasSeries = dates.map(function(d){ var x=dailyBrand[d]; return x.spend>0?Math.round(x.sales/x.spend*100)/100:0; });
-  var spendSeries = dates.map(function(d){ return dailyBrand[d].spend; });
-  var maxSpend = Math.max.apply(null, spendSeries) || 1;
+  sRows.forEach(function(r){
+    var tot = +(r.gross_sales||r.ordered_product_sales||0);
+    dailyTotal[r.date] = (dailyTotal[r.date]||0) + tot;
+  });
+
+  var dates = Object.keys(dailyAds).sort();
 
   // 7d / 30d aggregates
   var cutoff7 = new Date(); cutoff7.setDate(cutoff7.getDate()-7); var c7 = cutoff7.toISOString().slice(0,10);
-  var s7=0,rev7=0,s30=0,rev30=0,cl7=0;
+  var s7=0,rev7=0,s30=0,rev30=0,cl7=0,tot7=0,tot30=0;
   bRows.forEach(function(r){
     s30+=+(r.spend||0); rev30+=+(r.sales||0);
     if(r.date>=c7){s7+=+(r.spend||0);rev7+=+(r.sales||0);cl7+=+(r.clicks||0);}
   });
+  sRows.forEach(function(r){
+    var v=+(r.gross_sales||r.ordered_product_sales||0);
+    tot30+=v; if(r.date>=c7) tot7+=v;
+  });
   var roas7=s7>0?Math.round(rev7/s7*100)/100:0;
   var roas30=s30>0?Math.round(rev30/s30*100)/100:0;
   var acos7=rev7>0?Math.round(s7/rev7*1000)/10:0;
+  var tacos7=tot7>0?Math.round(s7/tot7*1000)/10:0;
   var cpc7=cl7>0?Math.round(s7/cl7*100)/100:0;
 
-  // Spend bar chart (30d)
-  var barHtml = dates.map(function(d,i){
-    var h = Math.max(2, Math.round(spendSeries[i]/maxSpend*48));
-    var col = roasColor(roasSeries[i]);
-    return '<div title="'+d+': $'+Math.round(spendSeries[i])+' spend, '+roasSeries[i]+'x ROAS" style="flex:1;height:'+h+'px;background:'+col+';border-radius:2px 2px 0 0;min-width:3px;cursor:default"></div>';
+  // ── 30-Day Combined Chart (SVG) ──
+  // Bars: Ad Spend (gray), Ad Sales (blue), Total Sales (green line)
+  // Line overlay: ROAS (orange, right axis)
+  var W=860, H=140, PAD_L=48, PAD_R=48, PAD_T=12, PAD_B=24;
+  var cW=W-PAD_L-PAD_R, cH=H-PAD_T-PAD_B;
+  var n=dates.length||1;
+
+  var adSalesSeries  = dates.map(function(d){ return dailyAds[d]?dailyAds[d].sales:0; });
+  var spendSeries    = dates.map(function(d){ return dailyAds[d]?dailyAds[d].spend:0; });
+  var totSalesSeries = dates.map(function(d){ return dailyTotal[d]||0; });
+  var roasSeries     = dates.map(function(d){ var x=dailyAds[d]; return x&&x.spend>0?Math.round(x.sales/x.spend*100)/100:0; });
+
+  var maxSales = Math.max.apply(null, totSalesSeries.concat(adSalesSeries)) || 1;
+  var maxRoas  = Math.max.apply(null, roasSeries) || 1;
+
+  function xPos(i){ return PAD_L + i/(n-1||1)*cW; }
+  function yPos(v,max){ return PAD_T + cH - v/max*cH; }
+  function yRoas(v){ return PAD_T + cH - v/maxRoas*cH; }
+
+  var barW = Math.max(2, cW/n*0.6);
+
+  // Bars: Total Sales (light green bg) + Ad Sales (blue) side by side
+  var bars = dates.map(function(d,i){
+    var x = PAD_L + i/(n-1||1)*cW - barW;
+    var hTot = totSalesSeries[i]/maxSales*cH;
+    var hAd  = adSalesSeries[i]/maxSales*cH;
+    var hSp  = spendSeries[i]/maxSales*cH;
+    return (hTot?'<rect x="'+(x-barW/2).toFixed(1)+'" y="'+(PAD_T+cH-hTot).toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+hTot.toFixed(1)+'" fill="#bbf7d0" rx="1"/>'  :'')
+          +(hAd? '<rect x="'+(x+barW/2+1).toFixed(1)+'" y="'+(PAD_T+cH-hAd).toFixed(1)+'"  width="'+barW.toFixed(1)+'" height="'+hAd.toFixed(1)+'"  fill="#93c5fd" rx="1"/>' :'')
+          +(hSp? '<rect x="'+(x+barW*1.5+2).toFixed(1)+'" y="'+(PAD_T+cH-hSp).toFixed(1)+'" width="'+(barW*.7).toFixed(1)+'" height="'+hSp.toFixed(1)+'" fill="#e2e8f0" rx="1"/>':'');
   }).join('');
+
+  // ROAS line
+  var rPts = dates.map(function(d,i){ return xPos(i).toFixed(1)+','+yRoas(roasSeries[i]).toFixed(1); }).join(' ');
+
+  // X-axis labels (every ~5 days)
+  var xLabels = dates.map(function(d,i){
+    if(i%5!==0 && i!==dates.length-1) return '';
+    return '<text x="'+xPos(i).toFixed(1)+'" y="'+(H-4)+'" text-anchor="middle" font-size="8" fill="#94a3b8">'+d.slice(5)+'</text>';
+  }).join('');
+
+  // Y-axis left (sales)
+  var ySteps=['0','$'+Math.round(maxSales/2/1000)+'K','$'+Math.round(maxSales/1000)+'K'];
+  var yLabels = ySteps.map(function(l,i){
+    var y=PAD_T+cH-i*(cH/2);
+    return '<text x="'+(PAD_L-4)+'" y="'+(y+3)+'" text-anchor="end" font-size="8" fill="#94a3b8">'+l+'</text>'
+          +'<line x1="'+PAD_L+'" y1="'+y+'" x2="'+(W-PAD_R)+'" y2="'+y+'" stroke="#f1f5f9" stroke-width="1"/>';
+  }).join('');
+
+  // Y-axis right (ROAS)
+  var rMax=Math.ceil(maxRoas);
+  var rLabels='<text x="'+(W-PAD_R+4)+'" y="'+(PAD_T+3)+'" font-size="8" fill="#f59e0b">'+rMax+'x</text>'
+    +'<text x="'+(W-PAD_R+4)+'" y="'+(PAD_T+cH/2+3)+'" font-size="8" fill="#f59e0b">'+(rMax/2).toFixed(1)+'x</text>'
+    +'<text x="'+(W-PAD_R+4)+'" y="'+(PAD_T+cH+3)+'" font-size="8" fill="#f59e0b">0x</text>';
+
+  var svgChart = '<div style="overflow-x:auto;margin-bottom:4px">'
+    +'<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;min-width:480px;height:auto;display:block">'
+    +yLabels+bars
+    +'<polyline points="'+rPts+'" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linejoin="round"/>'
+    +xLabels+rLabels
+    +'</svg></div>'
+    +'<div style="display:flex;gap:16px;font-size:10px;color:var(--dim);margin-top:2px;flex-wrap:wrap">'
+    +'<span><span style="display:inline-block;width:10px;height:10px;background:#bbf7d0;border-radius:2px;margin-right:3px"></span>Total Sales</span>'
+    +'<span><span style="display:inline-block;width:10px;height:10px;background:#93c5fd;border-radius:2px;margin-right:3px"></span>Ad Sales</span>'
+    +'<span><span style="display:inline-block;width:10px;height:10px;background:#e2e8f0;border-radius:2px;margin-right:3px"></span>Ad Spend</span>'
+    +'<span><span style="display:inline-block;width:20px;height:2px;background:#f59e0b;border-radius:2px;vertical-align:middle;margin-right:3px"></span>ROAS (right axis)</span>'
+    +'</div>';
 
   // ── Campaign-level aggregates ──
   var byCamp = {};
@@ -1227,24 +1290,22 @@ function renderAnalytics(bk, el) {
     if (!byCamp[cn]) byCamp[cn] = {spend7:0,sales7:0,spend30:0,sales30:0,clicks7:0,type:'',daily:{}};
     var c = byCamp[cn];
     c.type = r.ad_type || '';
-    c.spend30 += +(r.spend||0); c.sales30 += +(r.sales||0);
+    c.spend30+=+(r.spend||0); c.sales30+=+(r.sales||0);
     if(r.date>=c7){c.spend7+=+(r.spend||0);c.sales7+=+(r.sales||0);c.clicks7+=+(r.clicks||0);}
     if(!c.daily[r.date]) c.daily[r.date]={spend:0,sales:0,clicks:0};
     c.daily[r.date].spend+=+(r.spend||0);
     c.daily[r.date].sales+=+(r.sales||0);
     c.daily[r.date].clicks+=+(r.clicks||0);
   });
-
   var camps = Object.entries(byCamp).sort(function(a,b){ return b[1].spend7-a[1].spend7; });
-
   var campRows = camps.map(function(entry, idx){
     var cn=entry[0], c=entry[1];
-    var r7 = c.spend7>0?Math.round(c.sales7/c.spend7*100)/100:0;
-    var r30= c.spend30>0?Math.round(c.sales30/c.spend30*100)/100:0;
-    var a7 = c.sales7>0?Math.round(c.spend7/c.sales7*1000)/10:0;
-    var campDates = Object.keys(c.daily).sort().slice(-14);
-    var campRoas = campDates.map(function(d){ var x=c.daily[d]; return x.spend>0?Math.round(x.sales/x.spend*100)/100:0; });
-    var sp = sparkline(campRoas, 80, 28, roasColor(r7), roasColor(r7));
+    var r7=c.spend7>0?Math.round(c.sales7/c.spend7*100)/100:0;
+    var r30=c.spend30>0?Math.round(c.sales30/c.spend30*100)/100:0;
+    var a7=c.sales7>0?Math.round(c.spend7/c.sales7*1000)/10:0;
+    var campDates=Object.keys(c.daily).sort().slice(-14);
+    var campRoas=campDates.map(function(d){ var x=c.daily[d]; return x.spend>0?Math.round(x.sales/x.spend*100)/100:0; });
+    var sp=sparkline(campRoas,80,28,roasColor(r7),roasColor(r7));
     return '<tr style="cursor:pointer;border-bottom:1px solid var(--border)" onclick="toggleCampDrill(\'adrill-'+idx+'\')">'
       +'<td style="padding:8px 10px;font-size:12px;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+cn+'">'+cn+'</td>'
       +'<td style="padding:8px 6px;font-size:10px;color:var(--dim)">'+c.type+'</td>'
@@ -1257,38 +1318,38 @@ function renderAnalytics(bk, el) {
       +'<td style="padding:8px 6px;font-size:10px;color:var(--muted)">&#9660;</td>'
       +'</tr>'
       +'<tr id="adrill-'+idx+'" style="display:none;background:#f8fafc"><td colspan="9" style="padding:0">'
-      +buildCampDrill(c, campDates)
-      +'</td></tr>';
+      +buildCampDrill(c, campDates)+'</td></tr>';
   }).join('');
 
   document.getElementById('analytics-content').innerHTML =
+    // Hero metrics
     '<div class="card" style="margin-bottom:16px">'
-    +'<div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px">'
+    +'<div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:20px">'
     +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">ROAS 7d</div><div style="font-size:28px;font-weight:800;color:'+roasColor(roas7)+'">'+roas7+'x</div><div style="font-size:11px;color:var(--dim)">30d: '+roas30+'x '+arrow(roas7,roas30)+'</div></div>'
     +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">ACOS 7d</div><div style="font-size:28px;font-weight:800;color:'+acosColor(acos7,tgt)+'">'+acos7+'%</div><div style="font-size:11px;color:var(--dim)">target: '+tgt+'%</div></div>'
-    +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Spend 7d</div><div style="font-size:28px;font-weight:800">$'+Math.round(s7)+'</div><div style="font-size:11px;color:var(--dim)">CPC: $'+cpc7+'</div></div>'
+    +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">TACOS 7d</div><div style="font-size:28px;font-weight:800;color:'+acosColor(tacos7,tgt*0.6)+'">'+tacos7+'%</div><div style="font-size:11px;color:var(--dim)">Ad Spend / Total Rev</div></div>'
     +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Ad Sales 7d</div><div style="font-size:28px;font-weight:800">$'+Math.round(rev7)+'</div><div style="font-size:11px;color:var(--dim)">30d: $'+Math.round(rev30)+'</div></div>'
+    +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Total Sales 7d</div><div style="font-size:28px;font-weight:800;color:var(--g)">$'+Math.round(tot7)+'</div><div style="font-size:11px;color:var(--dim)">30d: $'+Math.round(tot30)+'</div></div>'
+    +'<div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Ad Spend 7d</div><div style="font-size:28px;font-weight:800">$'+Math.round(s7)+'</div><div style="font-size:11px;color:var(--dim)">CPC: $'+cpc7+'</div></div>'
     +'</div>'
-    +'<div style="font-size:10px;color:var(--dim);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">30-Day ROAS Trend</div>'
-    +'<div style="width:100%">'+ sparkline(roasSeries, Math.max(300, dates.length*14), 52, 'var(--a)', 'var(--a)') +'</div>'
-    +'<div style="display:flex;gap:1px;align-items:flex-end;height:52px;margin:8px 0 2px;border-bottom:1px solid var(--border)">'+barHtml+'</div>'
-    +'<div style="font-size:9px;color:var(--muted)">Daily spend (bar height) · color = ROAS quality · '+dates.length+' days</div>'
+    // 30d chart
+    +'<div style="font-size:10px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">30-Day Performance — Ad Sales · Total Sales · ROAS</div>'
+    +svgChart
     +'</div>'
-
+    // Campaign table
     +'<div class="card" style="padding:0;overflow:hidden">'
     +'<div style="padding:12px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px">Campaign Breakdown <span style="font-weight:400;color:var(--dim);font-size:11px">— click row to expand 14d detail</span></div>'
     +'<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">'
     +'<thead><tr style="background:#f8fafc;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.4px">'
     +'<th style="padding:8px 10px;text-align:left;font-weight:600">Campaign</th>'
-    +'<th style="padding:8px 6px;text-align:left;font-weight:600">Type</th>'
+    +'<th style="padding:8px 6px;font-weight:600">Type</th>'
     +'<th style="padding:8px 6px;text-align:right;font-weight:600">Spend 7d</th>'
     +'<th style="padding:8px 6px;text-align:right;font-weight:600">Sales 7d</th>'
     +'<th style="padding:8px 6px;text-align:right;font-weight:600">ROAS 7d</th>'
     +'<th style="padding:8px 6px;text-align:right;font-weight:600">ACOS</th>'
-    +'<th style="padding:8px 6px;text-align:center;font-weight:600">Trend</th>'
+    +'<th style="padding:8px 6px;text-align:center;font-weight:600">vs 30d</th>'
     +'<th style="padding:8px 6px;font-weight:600">14d Sparkline</th>'
-    +'<th style="padding:8px 6px"></th>'
-    +'</tr></thead>'
+    +'<th></th></tr></thead>'
     +'<tbody>'+campRows+'</tbody>'
     +'</table></div></div>';
 }
