@@ -137,29 +137,30 @@ const BACKTEST_LOG = {
   },
   {
    "brand": "grosmimi",
+   "brand_display": "Grosmimi",
    "period": {
     "start": "2026-01-14",
     "end": "2026-03-14",
     "days": 60
    },
+   "data_inputs": {
+    "search_term_rows": 7120,
+    "keyword_rows": 137,
+    "unique_search_terms": 6746,
+    "unique_keywords": 54,
+    "unique_campaigns": 11,
+    "data_source": "DataKeeper PG",
+    "date_format": "7-day SUMMARY chunks"
+   },
    "waste_backtest": {
     "total_actual_spend": 22401.66,
     "total_simulated_save": 4404.55,
     "save_pct": 19.7,
-    "negated_terms_count": 51
+    "negated_terms_count": 51,
+    "rule_threshold": 5.0,
+    "rule_window_days": 14,
+    "rule_description": "If cumulative zero-conv spend >= $5.0 over 14d windows ¡æ add negative. Savings start from NEXT window."
    },
-   "bid_backtest": {
-    "total_actual_spend": 20102.48,
-    "total_actual_sales": 81679.29,
-    "actual_roas": 4.06,
-    "total_sim_spend": 18658.02,
-    "total_sim_sales": 85612.73,
-    "sim_roas": 4.59,
-    "roas_delta": 0.53,
-    "underperformer_count": 17,
-    "scalable_count": 8
-   },
-   "timeline": [],
    "top_waste_terms": [
     {
      "campaign": "263965495217853",
@@ -250,38 +251,547 @@ const BACKTEST_LOG = {
      "would_save": 86.38,
      "negated_after": "2026-03-07",
      "windows": 4
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "toddler sippy cups",
+     "actual_spend": 64.38,
+     "conversions": 2,
+     "would_save": 48.0,
+     "negated_after": "2026-03-07",
+     "windows": 4
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "316 stainless steel cup",
+     "actual_spend": 53.49,
+     "conversions": 0,
+     "would_save": 41.92,
+     "negated_after": "2026-03-07",
+     "windows": 4
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "transition sippy cup",
+     "actual_spend": 58.64,
+     "conversions": 2,
+     "would_save": 33.77,
+     "negated_after": "2026-03-07",
+     "windows": 4
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "spill proof straw cups for toddlers",
+     "actual_spend": 53.86,
+     "conversions": 6,
+     "would_save": 26.89,
+     "negated_after": "2026-03-07",
+     "windows": 2
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "ubmom straw cup",
+     "actual_spend": 31.63,
+     "conversions": 0,
+     "would_save": 25.12,
+     "negated_after": "2026-03-07",
+     "windows": 3
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "munchkin straw cup",
+     "actual_spend": 31.93,
+     "conversions": 1,
+     "would_save": 22.49,
+     "negated_after": "2026-03-07",
+     "windows": 2
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "straw cup for milk",
+     "actual_spend": 37.6,
+     "conversions": 0,
+     "would_save": 22.1,
+     "negated_after": "2026-03-07",
+     "windows": 2
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "nuk learner straw cup",
+     "actual_spend": 24.17,
+     "conversions": 1,
+     "would_save": 19.17,
+     "negated_after": "2026-03-07",
+     "windows": 2
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "glass sippy cups for toddlers 1-3",
+     "actual_spend": 33.44,
+     "conversions": 2,
+     "would_save": 19.11,
+     "negated_after": "2026-03-07",
+     "windows": 3
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "milk sippy cup for toddlers 1-3",
+     "actual_spend": 27.98,
+     "conversions": 1,
+     "would_save": 18.72,
+     "negated_after": "2026-03-07",
+     "windows": 2
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "baby first straw cup",
+     "actual_spend": 29.55,
+     "conversions": 0,
+     "would_save": 17.63,
+     "negated_after": "2026-03-07",
+     "windows": 2
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "kids straw cups",
+     "actual_spend": 20.97,
+     "conversions": 3,
+     "would_save": 13.52,
+     "negated_after": "2026-03-07",
+     "windows": 2
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "nuk sippy cups for toddlers 1-3",
+     "actual_spend": 17.07,
+     "conversions": 0,
+     "would_save": 11.51,
+     "negated_after": "2026-03-07",
+     "windows": 3
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "toddler cup with straw",
+     "actual_spend": 20.26,
+     "conversions": 0,
+     "would_save": 9.94,
+     "negated_after": "2026-03-07",
+     "windows": 2
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "sippy cup for 1+ year old",
+     "actual_spend": 18.89,
+     "conversions": 0,
+     "would_save": 9.64,
+     "negated_after": "2026-03-07",
+     "windows": 3
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "stainless steel baby straw cup",
+     "actual_spend": 23.71,
+     "conversions": 0,
+     "would_save": 9.63,
+     "negated_after": "2026-03-07",
+     "windows": 2
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "oxo tot straw cup",
+     "actual_spend": 15.96,
+     "conversions": 0,
+     "would_save": 8.58,
+     "negated_after": "2026-03-07",
+     "windows": 2
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "dr brown sippy cups",
+     "actual_spend": 13.29,
+     "conversions": 1,
+     "would_save": 7.38,
+     "negated_after": "2026-03-07",
+     "windows": 2
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "dr browns sippy cup",
+     "actual_spend": 28.17,
+     "conversions": 2,
+     "would_save": 6.82,
+     "negated_after": "2026-03-07",
+     "windows": 3
+    },
+    {
+     "campaign": "263965495217853",
+     "search_term": "straw cup for baby",
+     "actual_spend": 23.6,
+     "conversions": 0,
+     "would_save": 5.16,
+     "negated_after": "2026-03-07",
+     "windows": 2
     }
    ],
+   "bid_backtest": {
+    "total_actual_spend": 20102.48,
+    "total_actual_sales": 81679.29,
+    "actual_roas": 4.06,
+    "total_sim_spend": 18658.02,
+    "total_sim_sales": 85612.73,
+    "sim_roas": 4.59,
+    "roas_delta": 0.53,
+    "underperformer_count": 17,
+    "scalable_count": 8,
+    "rule_reduce_threshold": 2.0,
+    "rule_reduce_pct": 0.2,
+    "rule_scale_threshold": 5.0,
+    "rule_scale_pct": 0.15,
+    "rule_description": "ROAS < 2.0x ¡æ bid -20% | ROAS > 5.0x ¡æ bid +15% | In-range: hold"
+   },
+   "bid_underperformers": [
+    {
+     "campaign": "263965495217853",
+     "keyword": "straw sippy cup for baby",
+     "match_type": "BROAD",
+     "actual_roas": 1.89,
+     "actual_spend": 4931.44,
+     "actual_sales": 9320.44,
+     "sim_spend": 3945.15,
+     "sim_roas": 2.36,
+     "estimated_save": 986.29,
+     "action": "reduce_bid -20%"
+    },
+    {
+     "campaign": "263965495217853",
+     "keyword": "infant sippy cups",
+     "match_type": "PHRASE",
+     "actual_roas": 1.75,
+     "actual_spend": 813.15,
+     "actual_sales": 1424.7,
+     "sim_spend": 650.52,
+     "sim_roas": 2.19,
+     "estimated_save": 162.63,
+     "action": "reduce_bid -20%"
+    },
+    {
+     "campaign": "263965495217853",
+     "keyword": "sippy cups for baby",
+     "match_type": "EXACT",
+     "actual_roas": 1.61,
+     "actual_spend": 632.75,
+     "actual_sales": 1016.4,
+     "sim_spend": 506.2,
+     "sim_roas": 2.01,
+     "estimated_save": 126.55,
+     "action": "reduce_bid -20%"
+    },
+    {
+     "campaign": "263965495217853",
+     "keyword": "toddler sippy cups",
+     "match_type": "EXACT",
+     "actual_roas": 1.99,
+     "actual_spend": 595.99,
+     "actual_sales": 1185.0,
+     "sim_spend": 476.79,
+     "sim_roas": 2.49,
+     "estimated_save": 119.2,
+     "action": "reduce_bid -20%"
+    },
+    {
+     "campaign": "263965495217853",
+     "keyword": "sippy cups with straw for infant",
+     "match_type": "BROAD",
+     "actual_roas": 1.21,
+     "actual_spend": 529.26,
+     "actual_sales": 642.2,
+     "sim_spend": 423.41,
+     "sim_roas": 1.52,
+     "estimated_save": 105.85,
+     "action": "reduce_bid -20%"
+    },
+    {
+     "campaign": "263965495217853",
+     "keyword": "sippy cups for toddlers",
+     "match_type": "EXACT",
+     "actual_roas": 1.57,
+     "actual_spend": 244.29,
+     "actual_sales": 383.23,
+     "sim_spend": 195.43,
+     "sim_roas": 1.96,
+     "estimated_save": 48.86,
+     "action": "reduce_bid -20%"
+    },
+    {
+     "campaign": "263965495217853",
+     "keyword": "sippy cup with straw for infant",
+     "match_type": "BROAD",
+     "actual_roas": 0.25,
+     "actual_spend": 101.5,
+     "actual_sales": 24.9,
+     "sim_spend": 81.2,
+     "sim_roas": 0.31,
+     "estimated_save": 20.3,
+     "action": "reduce_bid -20%"
+    },
+    {
+     "campaign": "263965495217853",
+     "keyword": "first straw cup",
+     "match_type": "BROAD",
+     "actual_roas": 1.64,
+     "actual_spend": 88.51,
+     "actual_sales": 145.1,
+     "sim_spend": 70.81,
+     "sim_roas": 2.05,
+     "estimated_save": 17.7,
+     "action": "reduce_bid -20%"
+    },
+    {
+     "campaign": "340267150899607",
+     "keyword": "milk cup for toddlers 1-3",
+     "match_type": "EXACT",
+     "actual_roas": 1.95,
+     "actual_spend": 77.2,
+     "actual_sales": 150.8,
+     "sim_spend": 61.76,
+     "sim_roas": 2.44,
+     "estimated_save": 15.44,
+     "action": "reduce_bid -20%"
+    },
+    {
+     "campaign": "263965495217853",
+     "keyword": "baby sippy cups",
+     "match_type": "EXACT",
+     "actual_roas": 1.25,
+     "actual_spend": 58.88,
+     "actual_sales": 73.5,
+     "sim_spend": 47.1,
+     "sim_roas": 1.56,
+     "estimated_save": 11.78,
+     "action": "reduce_bid -20%"
+    },
+    {
+     "campaign": "263965495217853",
+     "keyword": "straw sippy cups for infant",
+     "match_type": "BROAD",
+     "actual_roas": 1.24,
+     "actual_spend": 33.23,
+     "actual_sales": 41.3,
+     "sim_spend": 26.58,
+     "sim_roas": 1.55,
+     "estimated_save": 6.65,
+     "action": "reduce_bid -20%"
+    },
+    {
+     "campaign": "263965495217853",
+     "keyword": "sippy cup with straw for baby",
+     "match_type": "BROAD",
+     "actual_roas": 0.0,
+     "actual_spend": 31.17,
+     "actual_sales": 0.0,
+     "sim_spend": 24.94,
+     "sim_roas": 0.0,
+     "estimated_save": 6.23,
+     "action": "reduce_bid -20%"
+    },
+    {
+     "campaign": "263965495217853",
+     "keyword": "first sippy cup",
+     "match_type": "EXACT",
+     "actual_roas": 1.23,
+     "actual_spend": 18.55,
+     "actual_sales": 22.8,
+     "sim_spend": 14.84,
+     "sim_roas": 1.54,
+     "estimated_save": 3.71,
+     "action": "reduce_bid -20%"
+    },
+    {
+     "campaign": "263965495217853",
+     "keyword": "baby straw bottle",
+     "match_type": "PHRASE",
+     "actual_roas": 0.0,
+     "actual_spend": 3.91,
+     "actual_sales": 0.0,
+     "sim_spend": 3.13,
+     "sim_roas": 0.0,
+     "estimated_save": 0.78,
+     "action": "reduce_bid -20%"
+    },
+    {
+     "campaign": "412813716858145",
+     "keyword": "baby bottle with straw",
+     "match_type": "EXACT",
+     "actual_roas": 0.0,
+     "actual_spend": 3.17,
+     "actual_sales": 0.0,
+     "sim_spend": 2.54,
+     "sim_roas": 0.0,
+     "estimated_save": 0.63,
+     "action": "reduce_bid -20%"
+    },
+    {
+     "campaign": "263965495217853",
+     "keyword": "straw sippy cups for baby",
+     "match_type": "BROAD",
+     "actual_roas": 0.0,
+     "actual_spend": 2.72,
+     "actual_sales": 0.0,
+     "sim_spend": 2.18,
+     "sim_roas": 0.0,
+     "estimated_save": 0.54,
+     "action": "reduce_bid -20%"
+    },
+    {
+     "campaign": "263965495217853",
+     "keyword": "infant straw cup",
+     "match_type": "BROAD",
+     "actual_roas": 0.0,
+     "actual_spend": 2.12,
+     "actual_sales": 0.0,
+     "sim_spend": 1.7,
+     "sim_roas": 0.0,
+     "estimated_save": 0.42,
+     "action": "reduce_bid -20%"
+    }
+   ],
+   "bid_scalable": [
+    {
+     "campaign": "340267150899607",
+     "keyword": "grosmimi",
+     "match_type": "EXACT",
+     "actual_roas": 21.01,
+     "actual_spend": 1139.3,
+     "actual_sales": 23939.39,
+     "sim_spend": 1310.2,
+     "sim_sales": 27530.3,
+     "extra_profit": 3420.01,
+     "action": "scale_bid +15%"
+    },
+    {
+     "campaign": "380111568693446",
+     "keyword": "grosmimi replacement",
+     "match_type": "PHRASE",
+     "actual_roas": 25.08,
+     "actual_spend": 60.75,
+     "actual_sales": 1523.34,
+     "sim_spend": 69.86,
+     "sim_sales": 1751.84,
+     "extra_profit": 219.39,
+     "action": "scale_bid +15%"
+    },
+    {
+     "campaign": "412813716858145",
+     "keyword": "baby water bottle",
+     "match_type": "PHRASE",
+     "actual_roas": 15.53,
+     "actual_spend": 27.28,
+     "actual_sales": 423.6,
+     "sim_spend": 31.37,
+     "sim_sales": 487.14,
+     "extra_profit": 59.45,
+     "action": "scale_bid +15%"
+    },
+    {
+     "campaign": "263965495217853",
+     "keyword": "toddler water bottle",
+     "match_type": "EXACT",
+     "actual_roas": 19.55,
+     "actual_spend": 4.88,
+     "actual_sales": 95.4,
+     "sim_spend": 5.61,
+     "sim_sales": 109.71,
+     "extra_profit": 13.58,
+     "action": "scale_bid +15%"
+    },
+    {
+     "campaign": "412813716858145",
+     "keyword": "sippy cups",
+     "match_type": "EXACT",
+     "actual_roas": 7.93,
+     "actual_spend": 12.14,
+     "actual_sales": 96.3,
+     "sim_spend": 13.96,
+     "sim_sales": 110.74,
+     "extra_profit": 12.62,
+     "action": "scale_bid +15%"
+    },
+    {
+     "campaign": "263965495217853",
+     "keyword": "straw cup for milk",
+     "match_type": "BROAD",
+     "actual_roas": 33.8,
+     "actual_spend": 2.0,
+     "actual_sales": 67.6,
+     "sim_spend": 2.3,
+     "sim_sales": 77.74,
+     "extra_profit": 9.84,
+     "action": "scale_bid +15%"
+    },
+    {
+     "campaign": "340267150899607",
+     "keyword": "toddler straw cup",
+     "match_type": "PHRASE",
+     "actual_roas": 5.36,
+     "actual_spend": 10.17,
+     "actual_sales": 54.5,
+     "sim_spend": 11.7,
+     "sim_sales": 62.67,
+     "extra_profit": 6.65,
+     "action": "scale_bid +15%"
+    },
+    {
+     "campaign": "263965495217853",
+     "keyword": "first cup for baby",
+     "match_type": "BROAD",
+     "actual_roas": 5.47,
+     "actual_spend": 4.17,
+     "actual_sales": 22.8,
+     "sim_spend": 4.8,
+     "sim_sales": 26.22,
+     "extra_profit": 2.79,
+     "action": "scale_bid +15%"
+    }
+   ],
+   "timeline": [],
    "execution_history": [],
-   "generated_at": "2026-03-14 21:44 PST"
+   "config_used": {
+    "brand_key": "grosmimi",
+    "seller": "GROSMIMI USA",
+    "total_daily_budget": 3000.0,
+    "manual_target_acos": 20.0,
+    "auto_target_acos": 30.0
+   },
+   "generated_at": "2026-03-15 00:31 PST"
   }
  ],
  "naeiae": [
   {
    "brand": "naeiae",
+   "brand_display": "Naeiae",
    "period": {
     "start": "2026-02-13",
     "end": "2026-03-14",
     "days": 30
    },
+   "data_inputs": {
+    "search_term_rows": 353,
+    "keyword_rows": 33,
+    "unique_search_terms": 349,
+    "unique_keywords": 15,
+    "unique_campaigns": 2,
+    "data_source": "DataKeeper PG",
+    "date_format": "7-day SUMMARY chunks"
+   },
    "waste_backtest": {
     "total_actual_spend": 561.62,
     "total_simulated_save": 0.98,
     "save_pct": 0.2,
-    "negated_terms_count": 1
+    "negated_terms_count": 1,
+    "rule_threshold": 5.0,
+    "rule_window_days": 14,
+    "rule_description": "If cumulative zero-conv spend >= $5.0 over 14d windows ¡æ add negative. Savings start from NEXT window."
    },
-   "bid_backtest": {
-    "total_actual_spend": 74.97,
-    "total_actual_sales": 98.4,
-    "actual_roas": 1.31,
-    "total_sim_spend": 66.16,
-    "total_sim_sales": 105.78,
-    "sim_roas": 1.6,
-    "roas_delta": 0.29,
-    "underperformer_count": 3,
-    "scalable_count": 1
-   },
-   "timeline": [],
    "top_waste_terms": [
     {
      "campaign": "444108265805305",
@@ -293,6 +803,75 @@ const BACKTEST_LOG = {
      "windows": 2
     }
    ],
+   "bid_backtest": {
+    "total_actual_spend": 74.97,
+    "total_actual_sales": 98.4,
+    "actual_roas": 1.31,
+    "total_sim_spend": 66.16,
+    "total_sim_sales": 105.78,
+    "sim_roas": 1.6,
+    "roas_delta": 0.29,
+    "underperformer_count": 3,
+    "scalable_count": 1,
+    "rule_reduce_threshold": 2.0,
+    "rule_reduce_pct": 0.2,
+    "rule_scale_threshold": 5.0,
+    "rule_scale_pct": 0.15,
+    "rule_description": "ROAS < 2.0x ¡æ bid -20% | ROAS > 5.0x ¡æ bid +15% | In-range: hold"
+   },
+   "bid_underperformers": [
+    {
+     "campaign": "444108265805305",
+     "keyword": "baby snack",
+     "match_type": "EXACT",
+     "actual_roas": 0.0,
+     "actual_spend": 32.11,
+     "actual_sales": 0.0,
+     "sim_spend": 25.69,
+     "sim_roas": 0.0,
+     "estimated_save": 6.42,
+     "action": "reduce_bid -20%"
+    },
+    {
+     "campaign": "444108265805305",
+     "keyword": "toddler snack",
+     "match_type": "EXACT",
+     "actual_roas": 0.0,
+     "actual_spend": 13.71,
+     "actual_sales": 0.0,
+     "sim_spend": 10.97,
+     "sim_roas": 0.0,
+     "estimated_save": 2.74,
+     "action": "reduce_bid -20%"
+    },
+    {
+     "campaign": "444108265805305",
+     "keyword": "rice snack",
+     "match_type": "EXACT",
+     "actual_roas": 0.0,
+     "actual_spend": 2.93,
+     "actual_sales": 0.0,
+     "sim_spend": 2.34,
+     "sim_roas": 0.0,
+     "estimated_save": 0.59,
+     "action": "reduce_bid -20%"
+    }
+   ],
+   "bid_scalable": [
+    {
+     "campaign": "444108265805305",
+     "keyword": "baby puff snack",
+     "match_type": "EXACT",
+     "actual_roas": 7.82,
+     "actual_spend": 6.29,
+     "actual_sales": 49.2,
+     "sim_spend": 7.23,
+     "sim_sales": 56.58,
+     "extra_profit": 6.44,
+     "action": "scale_bid +15%"
+    }
+   ],
+   "timeline": [],
    "execution_history": [
     {
      "type": "baseline",
@@ -565,23 +1144,44 @@ const BACKTEST_LOG = {
      "status": "OK"
     }
    ],
-   "generated_at": "2026-03-14 21:44 PST"
+   "config_used": {
+    "brand_key": "naeiae",
+    "seller": "Fleeters Inc",
+    "total_daily_budget": 150.0,
+    "manual_target_acos": 25.0,
+    "auto_target_acos": 35.0
+   },
+   "generated_at": "2026-03-15 00:31 PST"
   }
  ],
  "chaenmom": [
   {
    "brand": "chaenmom",
+   "brand_display": "CHA&MOM",
    "period": {
     "start": "2026-02-13",
     "end": "2026-03-14",
     "days": 30
    },
+   "data_inputs": {
+    "search_term_rows": 32,
+    "keyword_rows": 112,
+    "unique_search_terms": 30,
+    "unique_keywords": 30,
+    "unique_campaigns": 5,
+    "data_source": "DataKeeper PG",
+    "date_format": "7-day SUMMARY chunks"
+   },
    "waste_backtest": {
     "total_actual_spend": 52.19,
     "total_simulated_save": 0.0,
     "save_pct": 0.0,
-    "negated_terms_count": 0
+    "negated_terms_count": 0,
+    "rule_threshold": 5.0,
+    "rule_window_days": 14,
+    "rule_description": "If cumulative zero-conv spend >= $5.0 over 14d windows ¡æ add negative. Savings start from NEXT window."
    },
+   "top_waste_terms": [],
    "bid_backtest": {
     "total_actual_spend": 53.39,
     "total_actual_sales": 281.4,
@@ -591,10 +1191,54 @@ const BACKTEST_LOG = {
     "sim_roas": 5.35,
     "roas_delta": 0.08,
     "underperformer_count": 1,
-    "scalable_count": 2
+    "scalable_count": 2,
+    "rule_reduce_threshold": 2.0,
+    "rule_reduce_pct": 0.2,
+    "rule_scale_threshold": 5.0,
+    "rule_scale_pct": 0.15,
+    "rule_description": "ROAS < 2.0x ¡æ bid -20% | ROAS > 5.0x ¡æ bid +15% | In-range: hold"
    },
+   "bid_underperformers": [
+    {
+     "campaign": "306557038962339",
+     "keyword": "korean baby lotion",
+     "match_type": "EXACT",
+     "actual_roas": 0.0,
+     "actual_spend": 2.67,
+     "actual_sales": 0.0,
+     "sim_spend": 2.14,
+     "sim_roas": 0.0,
+     "estimated_save": 0.53,
+     "action": "reduce_bid -20%"
+    }
+   ],
+   "bid_scalable": [
+    {
+     "campaign": "306557038962339",
+     "keyword": "baby lotion",
+     "match_type": "BROAD",
+     "actual_roas": 5.1,
+     "actual_spend": 43.92,
+     "actual_sales": 224.0,
+     "sim_spend": 50.51,
+     "sim_sales": 257.6,
+     "extra_profit": 27.01,
+     "action": "scale_bid +15%"
+    },
+    {
+     "campaign": "306557038962339",
+     "keyword": "baby moisture lotion",
+     "match_type": "BROAD",
+     "actual_roas": 8.44,
+     "actual_spend": 6.8,
+     "actual_sales": 57.4,
+     "sim_spend": 7.82,
+     "sim_sales": 66.01,
+     "extra_profit": 7.59,
+     "action": "scale_bid +15%"
+    }
+   ],
    "timeline": [],
-   "top_waste_terms": [],
    "execution_history": [
     {
      "date": "2026-03-14",
@@ -688,7 +1332,14 @@ const BACKTEST_LOG = {
      "status": "OK"
     }
    ],
-   "generated_at": "2026-03-14 21:44 PST"
+   "config_used": {
+    "brand_key": "chaenmom",
+    "seller": "Orbitool",
+    "total_daily_budget": 150.0,
+    "manual_target_acos": 30.0,
+    "auto_target_acos": 40.0
+   },
+   "generated_at": "2026-03-15 00:31 PST"
   }
  ]
 };

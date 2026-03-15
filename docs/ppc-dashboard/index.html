@@ -1019,81 +1019,223 @@ function renderBacktestBrand(bk){
   var el = document.getElementById('bt-content');
   if(!entries.length){ el.innerHTML='<div class="card"><div class="desc">No backtest data available for this brand.</div></div>'; return; }
 
-  // Summary card for latest
   var latest = entries[entries.length-1];
   var w = latest.waste_backtest || {};
   var b = latest.bid_backtest || {};
   var p = latest.period || {};
+  var di = latest.data_inputs || {};
+  var cfg = latest.config_used || {};
 
+  // Summary stats
   var html = '<div class="stats" style="margin-bottom:16px">' +
-    '<div class="stat green"><div class="sl">Latest Savings</div><div class="sv">$'+Math.round(w.total_simulated_save||0).toLocaleString()+'</div><div class="ss">'+( w.save_pct||0)+'% of spend</div></div>' +
-    '<div class="stat accent"><div class="sl">ROAS Improvement</div><div class="sv">'+(b.actual_roas||0)+'→'+(b.sim_roas||0)+'x</div><div class="ss">+' +(b.roas_delta||0)+'x delta</div></div>' +
+    '<div class="stat green"><div class="sl">Latest Savings</div><div class="sv">$'+Math.round(w.total_simulated_save||0).toLocaleString()+'</div><div class="ss">'+(w.save_pct||0)+'% of spend</div></div>' +
+    '<div class="stat accent"><div class="sl">ROAS Improvement</div><div class="sv">'+(b.actual_roas||0)+'→'+(b.sim_roas||0)+'x</div><div class="ss">+'+(b.roas_delta||0)+'x delta</div></div>' +
     '<div class="stat amber"><div class="sl">Wasteful Terms</div><div class="sv">'+(w.negated_terms_count||0)+'</div><div class="ss">would be negated</div></div>' +
-    '<div class="stat cyan"><div class="sl">Period</div><div class="sv">'+(p.days||30)+'d</div><div class="ss">'+(p.start||'')+'~'+(p.end||'')+'</div></div>' +
+    '<div class="stat cyan"><div class="sl">Data Rows</div><div class="sv">'+(di.search_term_rows||0).toLocaleString()+'</div><div class="ss">ST + '+(di.keyword_rows||0)+' KW</div></div>' +
   '</div>';
 
-  // History table
-  html += '<div class="card"><h3>Backtest History</h3><div style="overflow-x:auto"><table>' +
-    '<thead><tr><th>Period</th><th>Days</th><th>Total Spend</th><th>Would Save</th><th>Save %</th><th>Neg Terms</th><th>Actual ROAS</th><th>Sim ROAS</th><th>Delta</th><th>Under</th><th>Scale</th><th>Generated</th></tr></thead><tbody>';
+  // History table — each row is clickable
+  html += '<div class="card"><h3>Backtest History <span style="font-size:10px;color:var(--dim);font-weight:400">— click a row to expand full detail</span></h3><div style="overflow-x:auto"><table>' +
+    '<thead><tr><th>#</th><th>Period</th><th>Days</th><th>Total Spend</th><th>Would Save</th><th>Save %</th><th>Neg Terms</th><th>Actual ROAS</th><th>Sim ROAS</th><th>Delta</th><th>Under</th><th>Scale</th><th>Generated</th></tr></thead><tbody>';
 
-  entries.slice().reverse().forEach(function(e){
-    var ew = e.waste_backtest||{};
-    var eb = e.bid_backtest||{};
-    var ep = e.period||{};
-    var savePctB = (ew.save_pct||0)>=15 ? badge((ew.save_pct||0)+'%','g') : (ew.save_pct||0)>=5 ? badge((ew.save_pct||0)+'%','am') : badge((ew.save_pct||0)+'%','r');
-    var roasB2 = (eb.roas_delta||0)>=0.3 ? badge('+'+(eb.roas_delta||0)+'x','g') : badge('+'+(eb.roas_delta||0)+'x','am');
-    html += '<tr>' +
+  var rev = entries.slice().reverse();
+  rev.forEach(function(e,i){
+    var ew=e.waste_backtest||{}, eb=e.bid_backtest||{}, ep=e.period||{};
+    var savePctB=(ew.save_pct||0)>=15?badge((ew.save_pct||0)+'%','g'):(ew.save_pct||0)>=5?badge((ew.save_pct||0)+'%','am'):badge((ew.save_pct||0)+'%','r');
+    var roasB2=(eb.roas_delta||0)>=0.3?badge('+'+(eb.roas_delta||0)+'x','g'):badge('+'+(eb.roas_delta||0)+'x','am');
+    html += '<tr style="cursor:pointer" onclick="toggleBtDetail(\''+bk+'\','+i+')" id="bt-row-'+bk+'-'+i+'">' +
+      '<td><b>'+(i+1)+'</b></td>' +
       '<td style="font-family:var(--mono);font-size:10px">'+(ep.start||'')+'~'+(ep.end||'')+'</td>' +
       '<td>'+(ep.days||'')+'</td>' +
       '<td style="font-family:var(--mono)">$'+Math.round(ew.total_actual_spend||0).toLocaleString()+'</td>' +
       '<td style="font-family:var(--mono);color:var(--g);font-weight:700">$'+Math.round(ew.total_simulated_save||0).toLocaleString()+'</td>' +
-      '<td>'+savePctB+'</td>' +
-      '<td>'+(ew.negated_terms_count||0)+'</td>' +
-      '<td>'+roasB(eb.actual_roas||0)+'</td>' +
-      '<td style="color:var(--g);font-weight:700">'+(eb.sim_roas||0)+'x</td>' +
-      '<td>'+roasB2+'</td>' +
-      '<td>'+(eb.underperformer_count||0)+'</td>' +
-      '<td>'+(eb.scalable_count||0)+'</td>' +
-      '<td style="font-size:9px;color:var(--dim)">'+(e.generated_at||'')+'</td>' +
-    '</tr>';
+      '<td>'+savePctB+'</td><td>'+(ew.negated_terms_count||0)+'</td>' +
+      '<td>'+roasB(eb.actual_roas||0)+'</td><td style="color:var(--g);font-weight:700">'+(eb.sim_roas||0)+'x</td>' +
+      '<td>'+roasB2+'</td><td>'+(eb.underperformer_count||0)+'</td><td>'+(eb.scalable_count||0)+'</td>' +
+      '<td style="font-size:9px;color:var(--dim)">'+(e.generated_at||'')+'</td></tr>' +
+      '<tr id="bt-detail-'+bk+'-'+i+'" style="display:none"><td colspan="13" style="padding:0;background:#f8fafc"><div id="bt-detail-content-'+bk+'-'+i+'"></div></td></tr>';
   });
   html += '</tbody></table></div></div>';
 
-  // Top waste terms from latest
-  var terms = latest.top_waste_terms || [];
-  if(terms.length){
-    html += '<div class="card"><h3>Top Wasteful Search Terms (Latest Run)</h3><div style="overflow-x:auto"><table>' +
-      '<thead><tr><th>#</th><th>Search Term</th><th>Spend</th><th>Would Save</th><th>Conversions</th><th>Negated After</th></tr></thead><tbody>';
-    terms.forEach(function(t,i){
-      html += '<tr><td>'+(i+1)+'</td><td><b>'+t.search_term+'</b></td>' +
-        '<td style="font-family:var(--mono)">$'+(t.actual_spend||0).toLocaleString()+'</td>' +
-        '<td style="font-family:var(--mono);color:var(--g);font-weight:700">$'+(t.would_save||0).toLocaleString()+'</td>' +
-        '<td>'+(t.conversions||0)+'</td>' +
-        '<td style="font-size:10px;color:var(--dim)">'+(t.negated_after||'')+'</td></tr>';
-    });
-    html += '</tbody></table></div></div>';
-  }
-
-  // Execution history from latest
-  var execH = latest.execution_history || [];
-  if(execH.length){
-    html += '<div class="card"><h3>Execution History (퍼포마 Actions)</h3><div style="overflow-x:auto"><table>' +
-      '<thead><tr><th>Date</th><th>Action</th><th>Target</th><th>7d Spend</th><th>7d Sales</th><th>Status</th></tr></thead><tbody>';
-    execH.forEach(function(h){
-      if(h.type==='baseline') return;
-      var ac = {harvest:'g',negate_zero_sales:'r',negate_high_acos:'r',reduce_bid:'am',increase_budget:'g',pause:'r'};
-      var al = {harvest:'+ Harvest',negate_zero_sales:'- Negate',negate_high_acos:'- Negate',reduce_bid:'Bid Down',increase_budget:'Budget Up',pause:'Pause'};
-      html += '<tr><td style="font-family:var(--mono);font-size:10px">'+(h.date||'')+'</td>' +
-        '<td>'+badge(al[h.action]||h.action, ac[h.action]||'a')+'</td>' +
-        '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(h.keyword||h.campaign||'')+'</td>' +
-        '<td style="font-family:var(--mono)">'+(h.spend_7d?'$'+h.spend_7d:'—')+'</td>' +
-        '<td style="font-family:var(--mono)">'+(h.sales_7d?'$'+h.sales_7d:'—')+'</td>' +
-        '<td>'+badge(h.status||'—', h.status==='OK'?'g':'r')+'</td></tr>';
-    });
-    html += '</tbody></table></div></div>';
-  }
+  // Store entries for detail rendering
+  window._btEntries = window._btEntries || {};
+  window._btEntries[bk] = rev;
 
   el.innerHTML = html;
+}
+
+function toggleBtDetail(bk, idx){
+  var detailRow = document.getElementById('bt-detail-'+bk+'-'+idx);
+  var contentEl = document.getElementById('bt-detail-content-'+bk+'-'+idx);
+  if(detailRow.style.display==='none'){
+    detailRow.style.display='table-row';
+    if(!contentEl.innerHTML) renderBtDetail(bk, idx, contentEl);
+  } else {
+    detailRow.style.display='none';
+  }
+}
+
+function renderBtDetail(bk, idx, el){
+  var e = window._btEntries[bk][idx];
+  var w=e.waste_backtest||{}, b=e.bid_backtest||{}, p=e.period||{}, di=e.data_inputs||{}, cfg=e.config_used||{};
+  var terms=e.top_waste_terms||[], under=e.bid_underperformers||[], scale=e.bid_scalable||[];
+  var execH=e.execution_history||[];
+
+  var h = '<div style="padding:16px">';
+
+  // ─ Section 1: Test Configuration ─
+  h += '<div class="card" style="border-left:3px solid var(--a);margin-bottom:12px">' +
+    '<h3>1. Test Configuration</h3>' +
+    '<div class="stats" style="margin:8px 0">' +
+      '<div class="stat accent"><div class="sl">Brand</div><div class="sv" style="font-size:14px">'+(e.brand_display||bk)+'</div><div class="ss">'+(cfg.seller||'')+'</div></div>' +
+      '<div class="stat"><div class="sl">Period</div><div class="sv" style="font-size:14px">'+(p.days||30)+'d</div><div class="ss">'+(p.start||'')+'~'+(p.end||'')+'</div></div>' +
+      '<div class="stat"><div class="sl">Daily Budget</div><div class="sv" style="font-size:14px">$'+(cfg.total_daily_budget||0).toLocaleString()+'</div></div>' +
+      '<div class="stat"><div class="sl">ACOS Targets</div><div class="sv" style="font-size:14px">M:'+(cfg.manual_target_acos||0)+'%</div><div class="ss">Auto: '+(cfg.auto_target_acos||0)+'%</div></div>' +
+    '</div></div>';
+
+  // ─ Section 2: Data Inputs ─
+  h += '<div class="card" style="margin-bottom:12px">' +
+    '<h3>2. Data Inputs</h3>' +
+    '<table><thead><tr><th>Metric</th><th>Value</th><th>Notes</th></tr></thead><tbody>' +
+    '<tr><td>Search Term Rows</td><td style="font-family:var(--mono);font-weight:700">'+(di.search_term_rows||0).toLocaleString()+'</td><td>Raw rows from DataKeeper <code>amazon_ads_search_terms</code></td></tr>' +
+    '<tr><td>Keyword Rows</td><td style="font-family:var(--mono);font-weight:700">'+(di.keyword_rows||0).toLocaleString()+'</td><td>Raw rows from DataKeeper <code>amazon_ads_keywords</code></td></tr>' +
+    '<tr><td>Unique Search Terms</td><td style="font-family:var(--mono)">'+(di.unique_search_terms||0).toLocaleString()+'</td><td>Distinct (campaign, searchTerm) pairs</td></tr>' +
+    '<tr><td>Unique Keywords</td><td style="font-family:var(--mono)">'+(di.unique_keywords||0).toLocaleString()+'</td><td>Distinct targeting/keyword entries</td></tr>' +
+    '<tr><td>Campaigns</td><td style="font-family:var(--mono)">'+(di.unique_campaigns||0)+'</td><td>Unique campaign IDs in data</td></tr>' +
+    '<tr><td>Data Source</td><td>'+badge(di.data_source||'unknown','a')+'</td><td>'+(di.date_format||'')+'</td></tr>' +
+    '</tbody></table></div>';
+
+  // ─ Section 3: Module 1 — Wasted Spend ─
+  h += '<div class="card" style="border-left:3px solid var(--r);margin-bottom:12px">' +
+    '<h3>3. Module 1 — Wasted Spend Backtest</h3>' +
+    '<div class="desc" style="margin:6px 0"><b>Rule:</b> '+(w.rule_description||'$5 threshold, 14d window, reset on conversion')+'</div>' +
+    '<div class="stats" style="margin:8px 0">' +
+      '<div class="stat"><div class="sl">Total ST Spend</div><div class="sv" style="font-size:14px">$'+Math.round(w.total_actual_spend||0).toLocaleString()+'</div></div>' +
+      '<div class="stat green"><div class="sl">Would Save</div><div class="sv" style="font-size:14px">$'+Math.round(w.total_simulated_save||0).toLocaleString()+'</div><div class="ss">'+(w.save_pct||0)+'%</div></div>' +
+      '<div class="stat red"><div class="sl">Terms Negated</div><div class="sv" style="font-size:14px">'+(w.negated_terms_count||0)+'</div></div>' +
+      '<div class="stat"><div class="sl">Threshold</div><div class="sv" style="font-size:14px">$'+(w.rule_threshold||5)+'</div><div class="ss">'+(w.rule_window_days||14)+'d window</div></div>' +
+    '</div>';
+
+  // Step-by-step logic
+  h += '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:10px;margin:8px 0;font-size:11px;color:var(--dim)">' +
+    '<b style="color:var(--text)">Logic Flow:</b><br>' +
+    '① Group '+(di.search_term_rows||0)+' rows by (campaign, searchTerm) → '+(di.unique_search_terms||0)+' unique terms<br>' +
+    '② For each term, scan 7-day windows chronologically<br>' +
+    '③ If purchases14d==0: add cost to cumulative counter<br>' +
+    '④ If counter ≥ $'+(w.rule_threshold||5)+': mark as "negated" at this window date<br>' +
+    '⑤ All spend in SUBSEQUENT windows = "would_save"<br>' +
+    '⑥ If any conversion occurs: reset counter to $0 (term is not wasteful)<br>' +
+    '⑦ Sort all flagged terms by would_save descending</div>';
+
+  // Waste terms table
+  if(terms.length){
+    h += '<div style="overflow-x:auto;margin-top:8px"><table>' +
+      '<thead><tr><th>#</th><th>Search Term</th><th>Campaign</th><th>Total Spend</th><th>Would Save</th><th>Conv</th><th>Windows</th><th>Negated After</th></tr></thead><tbody>';
+    terms.forEach(function(t,i){
+      var saveB = (t.would_save||0)>=500?badge('$'+(t.would_save||0).toLocaleString(),'g'):
+                  (t.would_save||0)>=100?badge('$'+(t.would_save||0).toLocaleString(),'am'):
+                  badge('$'+(t.would_save||0).toLocaleString(),'r');
+      h += '<tr><td><b>'+(i+1)+'</b></td><td><b>'+t.search_term+'</b></td>' +
+        '<td style="font-size:9px;font-family:var(--mono);color:var(--dim)">'+(t.campaign||'').substring(0,15)+'</td>' +
+        '<td style="font-family:var(--mono)">$'+(t.actual_spend||0).toLocaleString()+'</td>' +
+        '<td>'+saveB+'</td><td>'+(t.conversions||0)+'</td><td>'+(t.windows||0)+'</td>' +
+        '<td style="font-family:var(--mono);font-size:10px">'+(t.negated_after||'')+'</td></tr>';
+    });
+    h += '</tbody></table></div>';
+  }
+  h += '</div>';
+
+  // ─ Section 4: Module 2 — Bid Efficiency ─
+  h += '<div class="card" style="border-left:3px solid var(--am);margin-bottom:12px">' +
+    '<h3>4. Module 2 — Bid Efficiency Backtest</h3>' +
+    '<div class="desc" style="margin:6px 0"><b>Rule:</b> '+(b.rule_description||'ROAS < 2x → bid -20% | ROAS > 5x → bid +15%')+'</div>' +
+    '<div class="stats" style="margin:8px 0">' +
+      '<div class="stat"><div class="sl">KW Spend (analyzed)</div><div class="sv" style="font-size:14px">$'+Math.round(b.total_actual_spend||0).toLocaleString()+'</div></div>' +
+      '<div class="stat"><div class="sl">KW Sales (actual)</div><div class="sv" style="font-size:14px">$'+Math.round(b.total_actual_sales||0).toLocaleString()+'</div></div>' +
+      '<div class="stat"><div class="sl">Actual ROAS</div><div class="sv" style="font-size:14px">'+(b.actual_roas||0)+'x</div></div>' +
+      '<div class="stat green"><div class="sl">Simulated ROAS</div><div class="sv" style="font-size:14px">'+(b.sim_roas||0)+'x</div><div class="ss">+'+(b.roas_delta||0)+'x</div></div>' +
+    '</div>';
+
+  h += '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:10px;margin:8px 0;font-size:11px;color:var(--dim)">' +
+    '<b style="color:var(--text)">Logic Flow:</b><br>' +
+    '① Aggregate '+(di.keyword_rows||0)+' keyword rows by keyword ID → '+(di.unique_keywords||0)+' unique keywords<br>' +
+    '② Filter: keep only keywords with spend ≥ $1 and clicks ≥ 2<br>' +
+    '③ Calculate per-keyword ROAS = sales / spend, CPC = spend / clicks<br>' +
+    '④ <span style="color:var(--r)">ROAS &lt; '+(b.rule_reduce_threshold||2)+'x</span>: new_CPC = CPC × '+(1-(b.rule_reduce_pct||0.2)).toFixed(2)+' → new_spend = new_CPC × clicks (sales unchanged)<br>' +
+    '⑤ <span style="color:var(--g)">ROAS &gt; '+(b.rule_scale_threshold||5)+'x</span>: scale factor '+(1+(b.rule_scale_pct||0.15)).toFixed(2)+' → spend × scale, sales × scale (linear assumption)<br>' +
+    '⑥ 2x ≤ ROAS ≤ 5x: pass through unchanged<br>' +
+    '⑦ Sum all simulated spend/sales → simulated ROAS</div>';
+
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">';
+
+  // Under-performers
+  h += '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:10px">' +
+    '<div style="font-size:11px;font-weight:700;color:var(--r);margin-bottom:6px">▼ Under-Performers ('+(b.underperformer_count||0)+' keywords, ROAS &lt; '+(b.rule_reduce_threshold||2)+'x)</div>';
+  if(under.length){
+    h += '<table style="font-size:10px"><thead><tr><th>Keyword</th><th>ROAS</th><th>Spend</th><th>Sim ROAS</th><th>Saved</th></tr></thead><tbody>';
+    under.forEach(function(u){
+      h += '<tr><td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+u.keyword+'">'+u.keyword+'</td>' +
+        '<td>'+roasB(u.actual_roas)+'</td><td style="font-family:var(--mono)">$'+Math.round(u.actual_spend)+'</td>' +
+        '<td style="color:var(--g)">'+(u.sim_roas||0)+'x</td><td style="color:var(--g);font-family:var(--mono)">$'+Math.round(u.estimated_save||0)+'</td></tr>';
+    });
+    h += '</tbody></table>';
+  } else { h += '<div style="font-size:10px;color:var(--dim)">None in this run.</div>'; }
+  h += '</div>';
+
+  // Scalable winners
+  h += '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:10px">' +
+    '<div style="font-size:11px;font-weight:700;color:var(--g);margin-bottom:6px">▲ Scalable Winners ('+(b.scalable_count||0)+' keywords, ROAS &gt; '+(b.rule_scale_threshold||5)+'x)</div>';
+  if(scale.length){
+    h += '<table style="font-size:10px"><thead><tr><th>Keyword</th><th>ROAS</th><th>Spend</th><th>Sim Sales</th><th>Extra Profit</th></tr></thead><tbody>';
+    scale.forEach(function(s){
+      h += '<tr><td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+s.keyword+'">'+s.keyword+'</td>' +
+        '<td>'+roasB(s.actual_roas)+'</td><td style="font-family:var(--mono)">$'+Math.round(s.actual_spend)+'</td>' +
+        '<td style="font-family:var(--mono)">$'+Math.round(s.sim_sales||0)+'</td><td style="color:var(--g);font-family:var(--mono)">+$'+Math.round(s.extra_profit||0)+'</td></tr>';
+    });
+    h += '</tbody></table>';
+  } else { h += '<div style="font-size:10px;color:var(--dim)">None in this run.</div>'; }
+  h += '</div></div></div>';
+
+  // ─ Section 5: Execution History ─
+  if(execH.length){
+    var ac={harvest:'g',negate_zero_sales:'r',negate_high_acos:'r',reduce_bid:'am',increase_budget:'g',pause:'r'};
+    var al={harvest:'+ Harvest',negate_zero_sales:'- Negate (0 sales)',negate_high_acos:'- Negate (ACOS)',reduce_bid:'Bid Down',increase_budget:'Budget Up',pause:'Pause'};
+    h += '<div class="card" style="border-left:3px solid var(--c);margin-bottom:12px">' +
+      '<h3>5. Execution History — '+execH.length+' Actions Taken</h3>' +
+      '<div class="desc">These changes were actually executed by 퍼포마 during this period. The backtest simulation accounts for what ADDITIONAL savings could have been achieved.</div>' +
+      '<div style="overflow-x:auto"><table>' +
+      '<thead><tr><th>Date (PST)</th><th>Action</th><th>Target</th><th>7d Spend</th><th>7d Sales</th><th>Bid Δ</th><th>Budget</th><th>Status</th><th>Reason</th></tr></thead><tbody>';
+    execH.forEach(function(hh){
+      if(hh.type==='baseline') return;
+      h += '<tr><td style="font-family:var(--mono);font-size:10px">'+(hh.date||'')+'</td>' +
+        '<td>'+badge(al[hh.action]||hh.action, ac[hh.action]||'a')+'</td>' +
+        '<td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+(hh.keyword||hh.campaign||'')+'">'+(hh.keyword||hh.campaign||'')+'</td>' +
+        '<td style="font-family:var(--mono)">'+(hh.spend_7d?'$'+hh.spend_7d:'—')+'</td>' +
+        '<td style="font-family:var(--mono)">'+(hh.sales_7d?'$'+hh.sales_7d:'—')+'</td>' +
+        '<td>'+(hh.bid_change?hh.bid_change+'%':'—')+'</td>' +
+        '<td>'+(hh.new_budget?'$'+hh.new_budget:'—')+'</td>' +
+        '<td>'+badge(hh.status||'—', hh.status==='OK'?'g':'r')+'</td>' +
+        '<td style="font-size:9px;color:var(--dim);max-width:200px">'+(hh.reason||'')+'</td></tr>';
+    });
+    h += '</tbody></table></div></div>';
+  }
+
+  // ─ Section 6: Summary Verdict ─
+  var monthlySave = (w.total_simulated_save||0)/((p.days||30)/30);
+  var annualSave = monthlySave*12;
+  h += '<div class="card" style="border-left:3px solid var(--g);margin-bottom:8px">' +
+    '<h3>6. Summary Verdict</h3>' +
+    '<div class="stats" style="margin:8px 0">' +
+      '<div class="stat green"><div class="sl">Monthly Savings</div><div class="sv" style="font-size:14px">$'+Math.round(monthlySave).toLocaleString()+'/mo</div></div>' +
+      '<div class="stat green"><div class="sl">Annual Projection</div><div class="sv" style="font-size:14px">$'+Math.round(annualSave).toLocaleString()+'/yr</div></div>' +
+      '<div class="stat accent"><div class="sl">ROAS Lift</div><div class="sv" style="font-size:14px">+'+(b.roas_delta||0)+'x</div></div>' +
+      '<div class="stat"><div class="sl">Exec Actions</div><div class="sv" style="font-size:14px">'+execH.filter(function(x){return x.type!=='baseline';}).length+'</div><div class="ss">already applied</div></div>' +
+    '</div>' +
+    '<div class="desc">If 퍼포마 had been running from Day 1 of this '+(p.days||30)+'d period, <b style="color:var(--g)">$'+Math.round(w.total_simulated_save||0).toLocaleString()+'</b> in wasted spend would have been prevented and ROAS would have improved from <b>'+(b.actual_roas||0)+'x → '+(b.sim_roas||0)+'x</b>.</div>' +
+  '</div>';
+
+  h += '</div>';
+  el.innerHTML = h;
 }
 
 // Init — render first brand in all tabs

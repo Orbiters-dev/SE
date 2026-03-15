@@ -681,15 +681,63 @@ def main():
         from datetime import timezone
         now_pst = datetime.now(timezone(timedelta(hours=-7)))  # PDT (UTC-7)
 
+    # Compute data stats for the detail view
+    unique_terms = len(set((r.get("campaignName",""), r.get("searchTerm","")) for r in st_rows))
+    unique_kws = len(set(r.get("targeting", r.get("keywordText","")) for r in kw_rows))
+    unique_campaigns = len(set(r.get("campaignName","") or r.get("campaign_id","") for r in st_rows))
+
     summary = {
         "brand": brand_key,
+        "brand_display": cfg["brand_display"],
         "period": {"start": str(start_date), "end": str(end_date), "days": args.days},
-        "waste_backtest": {k: v for k, v in waste.items() if k != "top_terms"},
-        "bid_backtest":   {k: v for k, v in bid.items()
-                           if k not in ("underperformers", "scalable")},
+
+        # Data inputs
+        "data_inputs": {
+            "search_term_rows": len(st_rows),
+            "keyword_rows": len(kw_rows),
+            "unique_search_terms": unique_terms,
+            "unique_keywords": unique_kws,
+            "unique_campaigns": unique_campaigns,
+            "data_source": "DataKeeper PG" if st_rows else "API Direct",
+            "date_format": "7-day SUMMARY chunks",
+        },
+
+        # Module 1: Full waste analysis
+        "waste_backtest": {
+            **{k: v for k, v in waste.items() if k != "top_terms"},
+            "rule_threshold": WASTE_SPEND_THRESHOLD,
+            "rule_window_days": WASTE_WINDOW_DAYS,
+            "rule_description": f"If cumulative zero-conv spend >= ${WASTE_SPEND_THRESHOLD} over {WASTE_WINDOW_DAYS}d windows → add negative. Savings start from NEXT window.",
+        },
+        "top_waste_terms": waste["top_terms"][:30],  # Full 30 terms
+
+        # Module 2: Full bid analysis with individual keyword data
+        "bid_backtest": {
+            **{k: v for k, v in bid.items() if k not in ("underperformers", "scalable")},
+            "rule_reduce_threshold": BID_REDUCE_ROAS_MAX,
+            "rule_reduce_pct": BID_REDUCE_PCT,
+            "rule_scale_threshold": BID_SCALE_ROAS_MIN,
+            "rule_scale_pct": BID_SCALE_PCT,
+            "rule_description": f"ROAS < {BID_REDUCE_ROAS_MAX}x → bid -{int(BID_REDUCE_PCT*100)}% | ROAS > {BID_SCALE_ROAS_MIN}x → bid +{int(BID_SCALE_PCT*100)}% | In-range: hold",
+        },
+        "bid_underperformers": bid.get("underperformers", [])[:20],
+        "bid_scalable": bid.get("scalable", [])[:15],
+
+        # Timeline
         "timeline": timeline,
-        "top_waste_terms": waste["top_terms"][:10],
+
+        # Execution history
         "execution_history": execution_history,
+
+        # Config used
+        "config_used": {
+            "brand_key": brand_key,
+            "seller": cfg.get("seller_name", ""),
+            "total_daily_budget": cfg.get("total_daily_budget", 0),
+            "manual_target_acos": cfg["targeting"]["MANUAL"]["target_acos"],
+            "auto_target_acos": cfg["targeting"]["AUTO"]["target_acos"],
+        },
+
         "generated_at": now_pst.strftime("%Y-%m-%d %H:%M PST"),
     }
     json_path = TMP_DIR / f"{brand_key}_backtest_{end_date}.json"
