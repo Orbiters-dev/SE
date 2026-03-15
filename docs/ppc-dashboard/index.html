@@ -166,7 +166,7 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
   <div class="on" data-p="tab-flow">Architecture & Flow</div>
   <div data-p="tab-config">Config & Propose</div>
   <div data-p="tab-execlog">Execution Log</div>
-  <div data-p="tab-backtest">Backtest Log</div>
+  <div data-p="tab-backtest">Simulator & Test Log</div>
   <div data-p="tab-analytics">Live Analytics</div>
 </div>
 
@@ -174,7 +174,7 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
 <div class="mp on" id="tab-flow">
   <div class="fb">
     <div class="fn on" data-t="s-dk"><div class="fi">🗄️</div><div class="ft">Data Keeper</div><div class="fs">13ch, 2x/day</div></div><div class="fa">→</div>
-    <div class="fn" data-t="s-ex"><div class="fi">📊</div><div class="ft">Executor</div><div class="fs">9-stage</div></div><div class="fa">→</div>
+    <div class="fn" data-t="s-ex"><div class="fi">📊</div><div class="ft">Analyzer</div><div class="fs">9-stage</div></div><div class="fa">→</div>
     <div class="fn" data-t="s-sim"><div class="fi">🧪</div><div class="ft">Simulator</div><div class="fs">60d backtest</div></div><div class="fa">→</div>
     <div class="fn" data-t="s-prop"><div class="fi">📧</div><div class="ft">Proposal</div><div class="fs">Email+JSON</div></div><div class="fa">→</div>
     <div class="fn" data-t="s-exec"><div class="fi">⚡</div><div class="ft">Execution</div><div class="fs">Gmail trigger</div></div><div class="fa">→</div>
@@ -196,7 +196,7 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
   </div>
 
   <div class="sec" id="s-ex">
-    <div class="sh"><div class="sn c">2</div><div class="si"><h2>Executor — 9-Stage Pipeline</h2><p>DataKeeper → ROAS framework → proposals per brand</p></div></div>
+    <div class="sh"><div class="sn c">2</div><div class="si"><h2>Analyzer — 9-Stage Pipeline</h2><p>DataKeeper → ROAS framework → proposals per brand · test run from Simulator tab → execute directly from Config</p></div></div>
     <div class="steps">
       <div class="stp"><div class="d a"></div><div class="sl">Pre-flight</div><div class="snn">DataKeeper Freshness Check</div><div class="sd">Verify latest >= T-2. If stale, auto-collect 3 channels.</div></div>
       <div class="stp"><div class="d a"></div><div class="sl">Stage 1-2</div><div class="snn">Profile & Campaign Data</div><div class="sd">Brand config + fetch ENABLED campaigns.</div></div>
@@ -205,7 +205,7 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
       <div class="stp"><div class="d g"></div><div class="sl">Stage 5</div><div class="snn">Simulator + DataForSEO + Analysis</div><div class="sb">Harvest: ACOS&lt;target, 10+clicks, 1+sale | Negate: $0+high$, ACOS&gt;2x, SIM($10+) | Bids: strong+20%, ineff-20%</div></div>
       <div class="stp"><div class="d g"></div><div class="sl">Stage 6</div><div class="snn">Keyword Matrix</div><div class="sd">7d vs 30d trends, cannibalization, Google CPC benchmarks.</div></div>
       <div class="stp"><div class="d am"></div><div class="sl">Stage 7-8</div><div class="snn">Cross-Platform + ASIN P&L</div><div class="sd">Google/Meta/Shopify. Full-cost margin: COGS+FBA+Export+Returns.</div></div>
-      <div class="stp"><div class="d am"></div><div class="sl">Stage 9</div><div class="snn">Save & Email</div><div class="sd">HTML email + JSON proposal + budget impact summary.</div></div>
+      <div class="stp"><div class="d am"></div><div class="sl">Stage 9</div><div class="snn">Save & Propose</div><div class="sd">JSON proposal saved for review in Config tab. Test-run changes in Simulator, then Execute directly from dashboard — no email reply needed.</div></div>
     </div>
   </div>
 
@@ -361,8 +361,8 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
   </div>
 
   <div class="sec" id="s-exec">
-    <div class="sh"><div class="sn p">5</div><div class="si"><h2>Execution — Gmail Reply</h2><p>Brand-specific matching: subject:"[Amazon PPC] {Brand}" from:{approver}</p></div></div>
-    <div class="card"><div class="desc">1) Gmail search (brand-specific) → 2) Approve all or selectively (letter codes: "Execute A, C, E") → 3) API calls (budget, bid, keywords) → 4) Confirmation email + JSON log</div></div>
+    <div class="sh"><div class="sn p">5</div><div class="si"><h2>Execution — Dashboard First</h2><p>Review proposals in Config tab → check boxes → Execute from browser. No email required.</p></div></div>
+    <div class="card"><div class="desc">1) Config tab: proposals appear per brand → 2) Check items to approve (or use Autopilot auto-execute) → 3) Click Execute → 4) API calls (budget, bid, keywords) → 5) JSON log + audit trail in Execution Log tab</div></div>
   </div>
 
   <div class="sec" id="s-asin">
@@ -411,100 +411,21 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
       <button onclick="doLogout()" style="background:#f1f5f9;color:var(--dim);border:1px solid var(--border);padding:4px 12px;border-radius:6px;font-size:11px;cursor:pointer">Logout</button>
     </div>
 
-    <!-- Config Table -->
+    <!-- Brand Settings (tabbed per brand) -->
     <div class="card" style="border-left:3px solid var(--a);margin-bottom:20px">
-      <h3>Brand Configuration</h3>
-      <div class="desc">Edit values and click "Save & Re-run Propose" to trigger a new proposal via GitHub Actions. Results appear below per brand.</div>
-      <div style="overflow-x:auto">
-        <table id="config-table">
-          <thead>
-            <tr>
-              <th>Brand</th>
-              <th>Daily Budget ($)</th>
-              <th>Target ROAS (x)</th>
-              <th>Manual ACOS (%)</th>
-              <th>Auto ACOS (%)</th>
-              <th>Max Bid ($)</th>
-              <th>Max Campaign ($)</th>
-            </tr>
-          </thead>
-          <tbody id="config-tbody"></tbody>
-        </table>
+      <h3>Brand Settings</h3>
+      <div class="desc">Select a brand to configure budget, autopilot tiers, and dayparting independently. Click "Save & Re-run Propose" to trigger a new analysis via GitHub Actions.</div>
+      <!-- Brand selector tabs -->
+      <div style="display:flex;gap:4px;margin:12px 0 16px" id="cfg-brand-selector">
+        <div onclick="switchCfgBrand('grosmimi',this)" style="padding:5px 14px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:var(--abg);border:1px solid var(--a);color:var(--a)">Grosmimi</div>
+        <div onclick="switchCfgBrand('naeiae',this)" style="padding:5px 14px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:var(--card);border:1px solid var(--border);color:var(--dim)">Naeiae</div>
+        <div onclick="switchCfgBrand('chaenmom',this)" style="padding:5px 14px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:var(--card);border:1px solid var(--border);color:var(--dim)">CHA&amp;MOM</div>
       </div>
-      <div style="text-align:right">
+      <!-- Per-brand panel (dynamically rendered) -->
+      <div id="cfg-brand-content"></div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px">
+        <button onclick="saveSettingsOnly()" style="background:var(--card);color:var(--a);border:1.5px solid var(--a);padding:8px 18px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">💾 Save Settings</button>
         <button class="cfg-btn" onclick="saveConfig()">Save & Re-run Propose</button>
-      </div>
-    </div>
-
-    <!-- Auto-Execute (Autopilot) Settings -->
-    <div class="card" style="border-left:3px solid var(--g);margin-bottom:20px">
-      <h3>🤖 Autopilot — Auto-Execute by Tier</h3>
-      <div class="desc">Actions at each tier level will be executed automatically without human approval. Higher tiers = more confidence = safer to automate.</div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px">
-        <div style="background:var(--gbg);border:1px solid var(--g);border-radius:8px;padding:12px;text-align:center">
-          <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--g)">Tier 1: No-Brainer</div>
-          <div style="font-size:10px;color:var(--dim);margin:4px 0">ROAS &lt;1x pause, $5+ 0-conv negate, ACOS &gt;200%</div>
-          <select id="autopilot-tier1" style="width:100%;padding:4px;border:1px solid var(--g);border-radius:4px;font-size:11px;font-weight:700;color:var(--g);background:var(--gbg)">
-            <option value="auto" selected>🟢 AUTO-EXECUTE</option>
-            <option value="approve">🟡 Require Approval</option>
-            <option value="off">🔴 Disabled</option>
-          </select>
-        </div>
-        <div style="background:var(--ambg);border:1px solid var(--am);border-radius:8px;padding:12px;text-align:center">
-          <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:#b45309">Tier 2: Strong Recommend</div>
-          <div style="font-size:10px;color:var(--dim);margin:4px 0">ROAS 1~1.5x bid-30%, profitable harvest, ROAS drop 40%+</div>
-          <select id="autopilot-tier2" style="width:100%;padding:4px;border:1px solid var(--am);border-radius:4px;font-size:11px;font-weight:700;color:#b45309;background:var(--ambg)">
-            <option value="auto">🟢 Auto-Execute</option>
-            <option value="approve" selected>🟡 REQUIRE APPROVAL</option>
-            <option value="off">🔴 Disabled</option>
-          </select>
-        </div>
-        <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center">
-          <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--dim)">Tier 3: Moderate</div>
-          <div style="font-size:10px;color:var(--dim);margin:4px 0">ROAS 1.5~2x bid-15%, budget increase 3~5x, bid tweaks</div>
-          <select id="autopilot-tier3" style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-weight:700;color:var(--dim)">
-            <option value="auto">🟢 Auto-Execute</option>
-            <option value="approve" selected>🟡 REQUIRE APPROVAL</option>
-            <option value="off">🔴 Disabled</option>
-          </select>
-        </div>
-        <div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center">
-          <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted)">Tier 4: Monitor</div>
-          <div style="font-size:10px;color:var(--dim);margin:4px 0">ROAS 2~3x (healthy), new campaigns &lt;7d, seasonal</div>
-          <select id="autopilot-tier4" style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;font-size:11px;color:var(--muted)">
-            <option value="auto">🟢 Auto-Execute</option>
-            <option value="approve">🟡 Require Approval</option>
-            <option value="off" selected>🔴 MONITOR ONLY</option>
-          </select>
-        </div>
-      </div>
-      <div style="margin-top:10px;font-size:10px;color:var(--dim)">
-        <b>Safety rails:</b> Max single budget change $50 | Max daily auto-executions: 10 | Emergency stop: if 3+ failures in 1 hour → pause all auto
-      </div>
-    </div>
-
-    <!-- Dayparting -->
-    <div class="card" style="border-left:3px solid var(--c);margin-bottom:20px">
-      <h3>⏰ Dayparting — Time-of-Day Budget Multipliers (PST)</h3>
-      <div class="desc">Adjust budget multipliers by hour. Higher = more budget during that hour. Peak hours (1.3x+) get more spend, low hours (0.3x) reduce waste.</div>
-      <div style="display:flex;gap:2px;align-items:flex-end;height:80px;margin:12px 0;padding:0 4px" id="daypart-bars"></div>
-      <div style="display:flex;gap:2px;margin-bottom:8px;padding:0 4px" id="daypart-labels"></div>
-      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:8px">
-        <div style="text-align:center;font-size:9px;color:var(--dim)">12am-5am<br><b style="color:var(--muted)">0.3-0.5x</b></div>
-        <div style="text-align:center;font-size:9px;color:var(--dim)">6am-8am<br><b>0.7-1.0x</b></div>
-        <div style="text-align:center;font-size:9px;color:var(--g)">9am-11am<br><b>1.2-1.3x ★</b></div>
-        <div style="text-align:center;font-size:9px;color:var(--dim)">12pm-5pm<br><b>1.0-1.3x</b></div>
-        <div style="text-align:center;font-size:9px;color:var(--g)">8pm-9pm<br><b>1.3-1.4x ★★</b></div>
-        <div style="text-align:center;font-size:9px;color:var(--dim)">10pm-11pm<br><b>0.7-1.0x</b></div>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
-        <select id="daypart-mode" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px">
-          <option value="auto" selected>Auto (default schedule)</option>
-          <option value="aggressive">Aggressive (higher peaks)</option>
-          <option value="conservative">Conservative (flatter)</option>
-          <option value="off">Off (1.0x all hours)</option>
-        </select>
-        <span style="font-size:10px;color:var(--dim)">Applied to all campaigns when budget utilization &gt;70%</span>
       </div>
     </div>
 
@@ -863,22 +784,93 @@ function showToast(msg, type) {
   setTimeout(function(){ t.style.opacity='0'; setTimeout(function(){t.remove();}, 300); }, 4000);
 }
 
-// ── Config Tab ──
-function renderConfigTab() {
-  var tbody = document.getElementById('config-tbody');
-  var fields = ['daily_budget','target_roas','manual_acos','auto_acos','max_bid','max_campaign'];
-  var html = '';
-  Object.keys(BRAND_DEFAULTS).forEach(function(bk){
-    var d = BRAND_DEFAULTS[bk];
-    html += '<tr><td style="font-weight:700;font-size:11px">' + (BRAND_LABELS[bk]||bk) + '</td>';
-    fields.forEach(function(f){
-      html += '<td><input type="number" step="any" value="' + d[f] + '" data-brand="' + bk + '" data-field="' + f + '"></td>';
-    });
-    html += '</tr>';
-  });
-  tbody.innerHTML = html;
+// ── Config Tab (brand-tabbed) ──
+var _cfgBrand = 'grosmimi';
+
+var CFG_FIELD_LABELS = {daily_budget:'Daily Budget ($)', target_roas:'Target ROAS (x)', manual_acos:'Manual ACOS (%)', auto_acos:'Auto ACOS (%)', max_bid:'Max Bid ($)', max_campaign:'Max Campaign ($)'};
+var CFG_FIELDS = ['daily_budget','target_roas','manual_acos','auto_acos','max_bid','max_campaign'];
+
+var TIER_DEFS = [
+  {key:'tier1', label:'Tier 1: No-Brainer', desc:'ROAS <1x pause, $5+ 0-conv negate, ACOS >200%', color:'var(--g)', bg:'var(--gbg)', def:'auto'},
+  {key:'tier2', label:'Tier 2: Strong',     desc:'ROAS 1~1.5x bid-30%, profitable harvest, drop 40%+', color:'#b45309', bg:'var(--ambg)', def:'approve'},
+  {key:'tier3', label:'Tier 3: Moderate',   desc:'ROAS 1.5~2x bid-15%, budget increase 3~5x', color:'var(--dim)', bg:'#fff', def:'approve'},
+  {key:'tier4', label:'Tier 4: Monitor',    desc:'ROAS 2~3x (healthy), new campaigns <7d', color:'var(--muted)', bg:'#f8fafc', def:'off'}
+];
+
+function getCfgVal(bk, key, def) {
+  return localStorage.getItem('cfg_'+bk+'_'+key) || def;
 }
-renderConfigTab();
+function setCfgVal(bk, key, val) {
+  localStorage.setItem('cfg_'+bk+'_'+key, val);
+}
+
+function switchCfgBrand(bk, el) {
+  _cfgBrand = bk;
+  document.querySelectorAll('#cfg-brand-selector div').forEach(function(t){
+    t.style.background='var(--card)'; t.style.borderColor='var(--border)'; t.style.color='var(--dim)';
+  });
+  if (el) { el.style.background='var(--abg)'; el.style.borderColor='var(--a)'; el.style.color='var(--a)'; }
+  renderCfgBrandPanel(bk);
+}
+
+function renderCfgBrandPanel(bk) {
+  var d = BRAND_DEFAULTS[bk];
+  var budgetHtml = CFG_FIELDS.map(function(f){
+    var saved = getCfgVal(bk, f, d[f]);
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'
+      +'<label style="font-size:11px;width:140px;color:var(--dim)">'+CFG_FIELD_LABELS[f]+'</label>'
+      +'<input type="number" step="any" value="'+saved+'" data-brand="'+bk+'" data-field="'+f
+      +'" class="cfg-brand-input" onchange="setCfgVal(\''+bk+'\',\''+f+'\',this.value)"'
+      +' style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:12px;width:100px">'
+      +'</div>';
+  }).join('');
+
+  var autopilotHtml = TIER_DEFS.map(function(t){
+    var saved = getCfgVal(bk, 'autopilot_'+t.key, t.def);
+    return '<div style="background:'+t.bg+';border:1px solid '+t.color+';border-radius:8px;padding:10px;text-align:center">'
+      +'<div style="font-size:9px;font-weight:700;text-transform:uppercase;color:'+t.color+';margin-bottom:3px">'+t.label+'</div>'
+      +'<div style="font-size:9px;color:var(--dim);margin-bottom:5px">'+t.desc+'</div>'
+      +'<select id="ap-'+bk+'-'+t.key+'" onchange="setCfgVal(\''+bk+'\',\'autopilot_'+t.key+'\',this.value)"'
+      +' style="width:100%;padding:4px;border:1px solid '+t.color+';border-radius:4px;font-size:10px;font-weight:700;color:'+t.color+';background:'+t.bg+'">'
+      +'<option value="auto"'+(saved==='auto'?' selected':'')+'>🟢 AUTO-EXECUTE</option>'
+      +'<option value="approve"'+(saved==='approve'?' selected':'')+'>🟡 Require Approval</option>'
+      +'<option value="off"'+(saved==='off'?' selected':'')+'>🔴 Disabled</option>'
+      +'</select></div>';
+  }).join('');
+
+  var savedDp = getCfgVal(bk, 'daypart', 'auto');
+  var dpOpts = [{v:'auto',l:'Auto (default schedule)'},{v:'aggressive',l:'Aggressive (higher peaks)'},{v:'conservative',l:'Conservative (flatter)'},{v:'off',l:'Off (1.0x all hours)'}];
+  var daypartHtml = dpOpts.map(function(o){ return '<option value="'+o.v+'"'+(savedDp===o.v?' selected':'')+'>'+o.l+'</option>'; }).join('');
+
+  document.getElementById('cfg-brand-content').innerHTML =
+    '<div style="margin-bottom:14px">'
+    +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--dim);margin-bottom:8px;letter-spacing:.4px">💰 Budget & Targets</div>'
+    +budgetHtml
+    +'</div>'
+    +'<div style="margin-bottom:14px">'
+    +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--dim);margin-bottom:8px;letter-spacing:.4px">🤖 Autopilot — Auto-Execute by Tier</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">'+autopilotHtml+'</div>'
+    +'<div style="margin-top:8px;font-size:10px;color:var(--dim)"><b>Safety:</b> Max budget change $50 · Max 10 auto-executions/day</div>'
+    +'</div>'
+    +'<div>'
+    +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--dim);margin-bottom:8px;letter-spacing:.4px">⏰ Dayparting — Time-of-Day Multipliers (PST)</div>'
+    +'<div style="display:flex;align-items:center;gap:8px">'
+    +'<select id="dp-'+bk+'" onchange="setCfgVal(\''+bk+'\',\'daypart\',this.value)" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px">'+daypartHtml+'</select>'
+    +'<span style="font-size:10px;color:var(--dim)">Applied when budget utilization &gt;70%</span>'
+    +'</div>'
+    +'</div>';
+}
+
+// Initialize config panel
+renderCfgBrandPanel(_cfgBrand);
+
+function saveSettingsOnly() {
+  // Flush any live inputs currently shown
+  document.querySelectorAll('.cfg-brand-input[data-field]').forEach(function(inp){
+    setCfgVal(inp.dataset.brand, inp.dataset.field, inp.value);
+  });
+  showToast('Settings saved locally for ' + (BRAND_LABELS[_cfgBrand]||_cfgBrand) + '. Use "Save & Re-run Propose" to apply to next run.', 'ok');
+}
 
 async function saveConfig() {
   var user = getLoggedInUser();
@@ -886,20 +878,28 @@ async function saveConfig() {
 
   requirePAT(async function(){
     var config = {};
-    document.querySelectorAll('#config-table input[data-field]').forEach(function(inp){
-      var bk = inp.dataset.brand;
-      var field = inp.dataset.field;
-      if(!config[bk]) config[bk] = {};
-      config[bk][field] = parseFloat(inp.value) || inp.value;
+    // Read brand settings from localStorage (persisted by setCfgVal)
+    Object.keys(BRAND_DEFAULTS).forEach(function(bk){
+      config[bk] = {};
+      CFG_FIELDS.forEach(function(f){
+        config[bk][f] = parseFloat(getCfgVal(bk, f, BRAND_DEFAULTS[bk][f]));
+      });
+    });
+    // Also pick up any live inputs currently displayed
+    document.querySelectorAll('.cfg-brand-input[data-field]').forEach(function(inp){
+      var bk = inp.dataset.brand, f = inp.dataset.field;
+      if(config[bk]) config[bk][f] = parseFloat(inp.value) || inp.value;
     });
 
-    // Autopilot settings
-    config._autopilot = {
-      tier1: document.getElementById('autopilot-tier1').value,
-      tier2: document.getElementById('autopilot-tier2').value,
-      tier3: document.getElementById('autopilot-tier3').value,
-      tier4: document.getElementById('autopilot-tier4').value,
-    };
+    // Autopilot settings (brand-specific)
+    config._autopilot = {};
+    Object.keys(BRAND_DEFAULTS).forEach(function(bk){
+      config._autopilot[bk] = {};
+      TIER_DEFS.forEach(function(t){
+        config._autopilot[bk][t.key] = getCfgVal(bk, 'autopilot_'+t.key, t.def);
+      });
+      config._autopilot[bk].daypart = getCfgVal(bk, 'daypart', 'auto');
+    });
 
     // Active experiment (if any)
     var activeExp = getExperiments().find(function(e){return e.active;});
@@ -1283,13 +1283,17 @@ function renderAnalytics(bk, el) {
     +'<span><span style="display:inline-block;width:20px;height:2px;background:#f59e0b;border-radius:2px;vertical-align:middle;margin-right:3px"></span>ROAS (right axis)</span>'
     +'</div>';
 
+  // Pre-fetch search terms in background (for campaign drill-down)
+  if (!_stCache[bk]) fetchAndCacheSearchTerms(bk);
+
   // ── Campaign-level aggregates ──
   var byCamp = {};
   bRows.forEach(function(r){
     var cn = r.campaign_name || r.campaignName || 'Unknown';
-    if (!byCamp[cn]) byCamp[cn] = {spend7:0,sales7:0,spend30:0,sales30:0,clicks7:0,type:'',daily:{}};
+    if (!byCamp[cn]) byCamp[cn] = {spend7:0,sales7:0,spend30:0,sales30:0,clicks7:0,type:'',campId:'',daily:{}};
     var c = byCamp[cn];
-    c.type = r.ad_type || '';
+    c.type   = r.ad_type || '';
+    c.campId = r.campaign_id || c.campId;
     c.spend30+=+(r.spend||0); c.sales30+=+(r.sales||0);
     if(r.date>=c7){c.spend7+=+(r.spend||0);c.sales7+=+(r.sales||0);c.clicks7+=+(r.clicks||0);}
     if(!c.daily[r.date]) c.daily[r.date]={spend:0,sales:0,clicks:0};
@@ -1369,8 +1373,8 @@ function buildCampDrill(c, campDates) {
       +'<td style="padding:5px 10px;font-size:11px;text-align:right;color:var(--dim)">'+x.clicks+' clicks</td>'
       +'</tr>';
   }).join('');
-  return '<div style="padding:10px 16px">'
-    +'<table style="width:100%;border-collapse:collapse;font-size:11px">'
+
+  var dailyTable = '<table style="width:100%;border-collapse:collapse;font-size:11px">'
     +'<thead><tr style="font-size:10px;color:var(--dim);text-transform:uppercase">'
     +'<th style="padding:4px 12px;text-align:left">Date</th>'
     +'<th style="padding:4px 10px;text-align:right">Spend</th>'
@@ -1378,7 +1382,73 @@ function buildCampDrill(c, campDates) {
     +'<th style="padding:4px 10px;text-align:right">ROAS</th>'
     +'<th style="padding:4px 10px;text-align:right">ACOS</th>'
     +'<th style="padding:4px 10px;text-align:right">Clicks</th>'
-    +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+    +'</tr></thead><tbody>'+rows+'</tbody></table>';
+
+  // Search terms for this campaign (from cache)
+  var bk = _currentAnalyticsBrand;
+  var tgt = ACOS_TARGET[bk] || 25;
+  var stSection = '';
+  var stRows = _stCache[bk];
+  if (stRows && c.campId) {
+    var campTerms = stRows.filter(function(r){ return String(r.campaign_id) === String(c.campId); });
+    if (campTerms.length) {
+      // Aggregate by term
+      var byT = {};
+      campTerms.forEach(function(r){
+        var t = r.search_term || '(unknown)';
+        if (!byT[t]) byT[t] = {spend:0,sales:0,purchases:0,clicks:0};
+        byT[t].spend+=+(r.spend||0); byT[t].sales+=+(r.sales||0);
+        byT[t].purchases+=+(r.purchases||0); byT[t].clicks+=+(r.clicks||0);
+      });
+      var terms = Object.entries(byT).sort(function(a,b){return b[1].spend-a[1].spend;});
+      var waste   = terms.filter(function(e){return e[1].purchases===0&&e[1].spend>0;});
+      var harvest = terms.filter(function(e){var x=e[1];return x.purchases>0&&x.sales>0&&x.spend>0&&x.spend/x.sales*100<=tgt;});
+      var highA   = terms.filter(function(e){var x=e[1];return x.purchases>0&&x.sales>0&&x.spend/x.sales*100>tgt*1.5;});
+
+      function miniRow(e) {
+        var t=e[0],x=e[1];
+        var acos=x.sales>0?Math.round(x.spend/x.sales*1000)/10:null;
+        var badge = x.purchases===0?'<span style="margin-left:4px;background:#fef2f2;color:var(--r);font-size:8px;padding:1px 4px;border-radius:2px;font-weight:700">WASTE</span>'
+          : (acos!==null&&acos<=tgt?'<span style="margin-left:4px;background:#ecfdf5;color:var(--g);font-size:8px;padding:1px 4px;border-radius:2px;font-weight:700">HARVEST</span>'
+          : (acos!==null&&acos>tgt*1.5?'<span style="margin-left:4px;background:#fffbeb;color:var(--am);font-size:8px;padding:1px 4px;border-radius:2px;font-weight:700">HI-ACOS</span>':''));
+        return '<tr style="border-bottom:1px solid #f8fafc">'
+          +'<td style="padding:4px 10px;font-size:10px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+t+badge+'</td>'
+          +'<td style="padding:4px 8px;font-size:10px;text-align:right">$'+x.spend.toFixed(2)+'</td>'
+          +'<td style="padding:4px 8px;font-size:10px;text-align:right">$'+Math.round(x.sales)+'</td>'
+          +'<td style="padding:4px 8px;font-size:10px;text-align:right;font-weight:600">'+(acos!==null?acos+'%':'—')+'</td>'
+          +'<td style="padding:4px 8px;font-size:10px;text-align:right;color:var(--dim)">'+x.purchases+'/'+x.clicks+'</td>'
+          +'</tr>';
+      }
+      var stTh = '<thead><tr style="font-size:9px;color:var(--dim);text-transform:uppercase;background:#f8fafc">'
+        +'<th style="padding:4px 10px;text-align:left">Search Term</th>'
+        +'<th style="padding:4px 8px;text-align:right">Spend</th>'
+        +'<th style="padding:4px 8px;text-align:right">Sales</th>'
+        +'<th style="padding:4px 8px;text-align:right">ACOS</th>'
+        +'<th style="padding:4px 8px;text-align:right">Conv/Clicks</th>'
+        +'</tr></thead>';
+
+      var pills = '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">'
+        +(waste.length?'<span style="background:#fef2f2;color:var(--r);font-size:9px;padding:2px 8px;border-radius:3px;font-weight:700">🚫 Waste: '+waste.length+'</span>':'')
+        +(harvest.length?'<span style="background:#ecfdf5;color:var(--g);font-size:9px;padding:2px 8px;border-radius:3px;font-weight:700">✅ Harvest: '+harvest.length+'</span>':'')
+        +(highA.length?'<span style="background:#fffbeb;color:var(--am);font-size:9px;padding:2px 8px;border-radius:3px;font-weight:700">⚠️ Hi-ACOS: '+highA.length+'</span>':'')
+        +'<span style="color:var(--muted);font-size:9px;padding:2px 0">'+terms.length+' terms total</span>'
+        +'</div>';
+
+      stSection = '<div style="margin-top:10px;border-top:1px solid #e2e8f0;padding-top:10px">'
+        +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--dim);letter-spacing:.4px;margin-bottom:6px">Search Terms</div>'
+        +pills
+        +'<div style="overflow-x:auto;max-height:200px;overflow-y:auto">'
+        +'<table style="width:100%;border-collapse:collapse">'+stTh
+        +'<tbody>'+terms.slice(0,40).map(miniRow).join('')+'</tbody></table>'
+        +'</div></div>';
+    } else {
+      stSection = '<div style="margin-top:8px;border-top:1px solid #f1f5f9;padding-top:8px;font-size:10px;color:var(--muted)">No search term data for this campaign yet — fetching in background…</div>';
+    }
+  } else if (!stRows) {
+    stSection = '<div style="margin-top:8px;border-top:1px solid #f1f5f9;padding-top:8px;font-size:10px;color:var(--muted)">Search term data loading…</div>';
+  }
+
+  return '<div style="padding:10px 16px">'+dailyTable+stSection+'</div>';
 }
 
 function toggleCampDrill(id) {
@@ -1422,6 +1492,18 @@ function switchAnalyticsSub(sub, el) {
 }
 
 // ── Search Term View ────────────────────────────────────────────────────────
+
+// Background-only fetch — populates _stCache[bk] without rendering
+async function fetchAndCacheSearchTerms(bk) {
+  if (_stCache[bk]) return;
+  try {
+    var brandKey = BRAND_API_KEY[bk];
+    var res = await fetch(API_BASE+'/query/?table=amazon_ads_search_terms&limit=20000', {mode:'cors'});
+    if (!res.ok) return;
+    var data = (await res.json()).rows || [];
+    _stCache[bk] = data.filter(function(r){ return r.brand === brandKey; });
+  } catch(e) { /* silent fail for background fetch */ }
+}
 
 async function fetchAndRenderSearchTerms(bk) {
   var el = document.getElementById('analytics-st-content');

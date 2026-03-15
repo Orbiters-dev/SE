@@ -5089,9 +5089,14 @@ def run_propose_single(args, brand_key: str):
 
     # --- Autopilot: auto-approve based on dashboard tier settings ---
     dash_cfg = load_dashboard_config()
-    autopilot = dash_cfg.get("_autopilot", {})
+    raw_autopilot = dash_cfg.get("_autopilot", {})
+    # Support both brand-specific {grosmimi: {tier1: ...}} and flat {tier1: ...} formats
+    if isinstance(raw_autopilot.get(brand_key), dict):
+        autopilot = raw_autopilot[brand_key]
+    else:
+        autopilot = raw_autopilot  # flat format fallback
     if autopilot:
-        print(f"\n[AUTO] Autopilot config found: {autopilot}")
+        print(f"\n[AUTO] Autopilot config for {brand_key}: {autopilot}")
         auto_approved_count = 0
         for prop in proposals:
             tier_num = _get_tier_number(prop.get("tier", ""))
