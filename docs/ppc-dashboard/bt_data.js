@@ -1,4 +1,7 @@
-  Skipping .tmp/ppc_simulator\grosmimi_backtest_2026-03-13.json (old format)
+  Skip old: .tmp/ppc_simulator\grosmimi_backtest_2026-03-13.json
+grosmimi: 1 entries
+naeiae: 1 entries
+chaenmom: 1 entries
 const BACKTEST_LOG = {
  "grosmimi": [
   {

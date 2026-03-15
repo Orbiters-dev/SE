@@ -1941,30 +1941,49 @@ function renderLabHistory(){
   if(!el) return;
   if(!exps.length){ el.innerHTML='<div class="desc" style="text-align:center;padding:12px">No saved experiments. Run one and click Save.</div>'; return; }
 
-  var html='<table><thead><tr><th></th><th>Name</th><th>User</th><th>Brand</th><th>Waste $</th><th>Save%</th><th>Sim ROAS</th><th>Δ</th><th>Params</th><th>Time</th><th></th></tr></thead><tbody>';
+  // Default baseline card
+  var anyActive = exps.some(function(e){return e.active;});
+  var html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px">';
+
+  // Baseline card (default rules)
+  html += '<div onclick="deactivateAll()" style="cursor:pointer;background:'+(anyActive?'var(--card)':'var(--gbg)')+';border:2px solid '+(anyActive?'var(--border)':'var(--g)')+';border-radius:10px;padding:14px;transition:.15s;position:relative">' +
+    (!anyActive?'<div style="position:absolute;top:8px;right:10px;background:var(--g);color:#fff;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700">✓ ACTIVE</div>':'') +
+    '<div style="font-size:13px;font-weight:700">Default Baseline</div>' +
+    '<div style="font-size:10px;color:var(--dim);margin:4px 0">Standard 퍼포마 rules</div>' +
+    '<div style="font-size:10px;font-family:var(--mono);color:var(--muted)">W$5 · R&lt;2.0x · S&gt;5.0x · -20%/+15%</div>' +
+  '</div>';
+
+  // Saved experiment cards
   exps.forEach(function(e,i){
     var isActive=e.active;
-    var rowClass=isActive?'class="exp-active"':'';
-    var activeBadge=isActive?badge('ACTIVE','g'):'';
-    var paramStr='W$'+e.params.waste_threshold+' R<'+e.params.bid_reduce_roas+'x S>'+e.params.bid_scale_roas+'x -'+e.params.bid_reduce_pct+'%/+'+e.params.bid_scale_pct+'%';
-    html+='<tr '+rowClass+'>' +
-      '<td>'+activeBadge+'</td>' +
-      '<td><b>'+e.name+'</b></td>' +
-      '<td style="color:var(--a)">'+e.user+'</td>' +
-      '<td>'+({'grosmimi':'🟣','naeiae':'🟡','chaenmom':'🔵'}[e.brand]||'')+' '+e.brand+'</td>' +
-      '<td style="font-family:var(--mono);color:var(--g)">$'+(e.waste_save||0).toLocaleString()+'</td>' +
-      '<td>'+badge((e.waste_pct||0)+'%',(e.waste_pct||0)>=15?'g':'am')+'</td>' +
-      '<td style="font-family:var(--mono)">'+(e.sim_roas||0)+'x</td>' +
-      '<td>'+badge('+'+(e.roas_delta||0)+'x',(e.roas_delta||0)>=0.3?'g':'am')+'</td>' +
-      '<td style="font-size:9px;font-family:var(--mono);color:var(--dim)">'+paramStr+'</td>' +
-      '<td style="font-size:9px;color:var(--dim)">'+e.timestamp+'</td>' +
-      '<td>' +
-        (isActive?'':'<button onclick="activateExperiment('+i+')" style="background:var(--gbg);color:var(--g);border:1px solid var(--g);padding:2px 8px;border-radius:4px;font-size:9px;font-weight:700;cursor:pointer;margin-right:4px">Use for Propose</button>') +
-        '<button onclick="deleteExperiment('+i+')" style="background:#fff;color:var(--r);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:9px;cursor:pointer">✕</button>' +
-      '</td></tr>';
+    var brandIcon={'grosmimi':'🟣','naeiae':'🟡','chaenmom':'🔵'}[e.brand]||'';
+    var paramStr='W$'+e.params.waste_threshold+' · R&lt;'+e.params.bid_reduce_roas+'x · S&gt;'+e.params.bid_scale_roas+'x · -'+e.params.bid_reduce_pct+'%/+'+e.params.bid_scale_pct+'%';
+    var canDel=DELETE_USERS.indexOf(getLoggedInUser())>=0;
+
+    html += '<div onclick="activateExperiment('+i+')" style="cursor:pointer;background:'+(isActive?'var(--gbg)':'var(--card)')+';border:2px solid '+(isActive?'var(--g)':'var(--border)')+';border-radius:10px;padding:14px;transition:.15s;position:relative">' +
+      (isActive?'<div style="position:absolute;top:8px;right:10px;background:var(--g);color:#fff;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700">✓ ACTIVE</div>':'') +
+      (canDel?'<button onclick="event.stopPropagation();deleteExperiment('+i+')" style="position:absolute;top:8px;right:'+(isActive?'70':'10')+'px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px" title="Delete">✕</button>':'') +
+      '<div style="font-size:13px;font-weight:700">'+e.name+'</div>' +
+      '<div style="font-size:10px;color:var(--dim);margin:4px 0">'+brandIcon+' '+e.brand+' · by <b style="color:var(--a)">'+e.user+'</b> · '+e.timestamp+'</div>' +
+      '<div style="display:flex;gap:8px;margin:8px 0">' +
+        '<div style="background:#f8fafc;border-radius:4px;padding:4px 8px;font-size:10px"><b style="color:var(--g)">$'+(e.waste_save||0).toLocaleString()+'</b> saved</div>' +
+        '<div style="background:#f8fafc;border-radius:4px;padding:4px 8px;font-size:10px"><b>'+(e.sim_roas||0)+'x</b> ROAS</div>' +
+        '<div style="background:#f8fafc;border-radius:4px;padding:4px 8px;font-size:10px">+'+(e.roas_delta||0)+'x</div>' +
+      '</div>' +
+      '<div style="font-size:9px;font-family:var(--mono);color:var(--muted)">'+paramStr+'</div>' +
+    '</div>';
   });
-  html+='</tbody></table>';
+  html += '</div>';
   el.innerHTML=html;
+}
+
+function deactivateAll(){
+  var exps=getExperiments();
+  exps.forEach(function(e){e.active=false;});
+  localStorage.setItem('ppc_experiments',JSON.stringify(exps));
+  showToast('Switched to Default Baseline rules.','ok');
+  renderLabHistory();
+  updateArchActiveExp();
 }
 renderLabHistory();
 
