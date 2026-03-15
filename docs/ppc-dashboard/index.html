@@ -6,6 +6,7 @@
 <title>Amazon PPC Intelligence Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="data.js"></script>
+<script src="pl_data.js"></script>
 <style>
 :root{--bg:#f8fafc;--card:#fff;--border:#e2e8f0;--text:#1e293b;--dim:#64748b;--muted:#94a3b8;--a:#6366f1;--abg:#eef2ff;--g:#10b981;--gbg:#ecfdf5;--am:#f59e0b;--ambg:#fffbeb;--r:#ef4444;--rbg:#fef2f2;--c:#0ea5e9;--cbg:#f0f9ff;--p:#ec4899;--mono:'SF Mono','Fira Code',Consolas,monospace}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -183,7 +184,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 
   <div class="sec" id="s-exec">
     <div class="sh"><div class="sn p">5</div><div class="si"><h2>Execution — Gmail Reply</h2><p>Brand-specific matching: subject:"[Amazon PPC] {Brand}" from:{approver}</p></div></div>
-    <div class="card"><div class="desc">1) Gmail search (brand-specific) → 2) Approve all → 3) API calls (budget, bid, keywords) → 4) Confirmation email + JSON log</div></div>
+    <div class="card"><div class="desc">1) Gmail search (brand-specific) → 2) Approve all or selectively (letter codes: "Execute A, C, E") → 3) API calls (budget, bid, keywords) → 4) Confirmation email + JSON log</div></div>
   </div>
 
   <div class="sec" id="s-asin">
@@ -201,6 +202,11 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
       <tr><td><b>Naeiae</b></td><td>$5.35</td><td>$3.50</td><td style="color:var(--am);font-weight:700">$3.00</td><td>5%</td><td>25%</td></tr>
       <tr><td><b>CHA&MOM</b></td><td>$7.53</td><td>$4.25</td><td>$0.50</td><td>5%</td><td>30%</td></tr>
     </tbody></table></div>
+    <div class="card" id="pl-category-detail">
+      <h3>Grosmimi P&L by Product Category (Parent ASIN)</h3>
+      <div class="desc">14d data from DataKeeper amazon_sales_sku_daily. Full-cost: COGS + Ref 15% + FBA + Export $0.50 + Returns 5%.</div>
+      <div id="pl-table"></div>
+    </div>
   </div>
 </div>
 
@@ -405,6 +411,36 @@ function renderExecution(bk,dt){
     :'<div class="desc">No details available.</div>'}
   </div>`;
 }
+
+// P&L Category Table
+function renderPL(){
+  if(typeof PL_DATA==='undefined') return;
+  const cats = PL_DATA.grosmimi;
+  const tot = PL_DATA.total;
+  let rows = cats.map(c=>{
+    const cmB = c.cm_pct>=30?badge(c.cm_pct+'%','g'):c.cm_pct>=15?badge(c.cm_pct+'%','am'):badge(c.cm_pct+'%','r');
+    const gmB = c.gm_pct>=70?badge(c.gm_pct+'%','g'):c.gm_pct>=50?badge(c.gm_pct+'%','am'):badge(c.gm_pct+'%','r');
+    const topA = c.top_asins.map(a=>`<span style="font-size:8px;color:var(--muted)" title="${a.name}">${a.asin} ($${a.rev.toLocaleString()})</span>`).join(', ');
+    return `<tr>
+      <td><b>${c.category}</b></td><td>${c.units.toLocaleString()}</td>
+      <td>$${c.rev.toLocaleString()}</td><td>$${c.asp}</td>
+      <td>$${c.cogs}</td><td>$${c.fba}</td>
+      <td>${gmB}</td><td>$${c.cm.toLocaleString()}</td><td>${cmB}</td>
+      <td style="font-size:8px;max-width:180px">${topA}</td>
+    </tr>`;
+  }).join('');
+  const totCm = tot.rev>0?Math.round(tot.cm/tot.rev*100*10)/10:0;
+  rows += `<tr style="font-weight:700;background:#f0fdf4">
+    <td>TOTAL</td><td>${tot.units.toLocaleString()}</td><td>$${tot.rev.toLocaleString()}</td>
+    <td>—</td><td>—</td><td>—</td><td>—</td><td>$${tot.cm.toLocaleString()}</td>
+    <td>${badge(totCm+'%','g')}</td><td></td></tr>`;
+  document.getElementById('pl-table').innerHTML = `
+    <div style="overflow-x:auto"><table>
+      <thead><tr><th>Category</th><th>Units</th><th>Revenue</th><th>ASP</th><th>COGS</th><th>FBA</th><th>GM%</th><th>CM $</th><th>CM%</th><th>Top ASINs</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+}
+renderPL();
 
 // Init
 renderBrand(brands[0]);

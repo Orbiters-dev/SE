@@ -1,0 +1,391 @@
+const PL_DATA = {
+ "grosmimi": [
+  {
+   "category": "PPSU Straw Cup 6oz",
+   "units": 3695,
+   "rev": 84224,
+   "asp": 22.79,
+   "cogs": 7.5,
+   "fba": 5.0,
+   "gm_pct": 67.1,
+   "cm": 19344,
+   "cm_pct": 23.0,
+   "asin_count": 11,
+   "top_asins": [
+    {
+     "asin": "B07YKJ18D5",
+     "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw wit",
+     "units": 708,
+     "rev": 15630
+    },
+    {
+     "asin": "B07YKKWFTN",
+     "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw wit",
+     "units": 649,
+     "rev": 14540
+    },
+    {
+     "asin": "B08398KZ2B",
+     "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw wit",
+     "units": 588,
+     "rev": 13705
+    },
+    {
+     "asin": "B0C1N3QZ7K",
+     "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw wit",
+     "units": 472,
+     "rev": 10500
+    },
+    {
+     "asin": "B082SSPN4X",
+     "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw wit",
+     "units": 378,
+     "rev": 8782
+    }
+   ]
+  },
+  {
+   "category": "PPSU Straw Cup 10oz",
+   "units": 2925,
+   "rev": 74388,
+   "asp": 25.43,
+   "cogs": 8.41,
+   "fba": 5.39,
+   "gm_pct": 66.9,
+   "cm": 17683,
+   "cm_pct": 23.8,
+   "asin_count": 10,
+   "top_asins": [
+    {
+     "asin": "B0C1N1PLYD",
+     "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw wit",
+     "units": 477,
+     "rev": 12276
+    },
+    {
+     "asin": "B08398HJRD",
+     "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw wit",
+     "units": 392,
+     "rev": 9828
+    },
+    {
+     "asin": "B083986L91",
+     "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw wit",
+     "units": 391,
+     "rev": 9623
+    },
+    {
+     "asin": "B083XT642K",
+     "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw wit",
+     "units": 354,
+     "rev": 9146
+    },
+    {
+     "asin": "B0842DMZ3H",
+     "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw wit",
+     "units": 351,
+     "rev": 8616
+    }
+   ]
+  },
+  {
+   "category": "PPSU Flip Top",
+   "units": 2587,
+   "rev": 73323,
+   "asp": 28.34,
+   "cogs": 8.5,
+   "fba": 5.39,
+   "gm_pct": 70.0,
+   "cm": 21431,
+   "cm_pct": 29.2,
+   "asin_count": 20,
+   "top_asins": [
+    {
+     "asin": "B0DB7SPP2P",
+     "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 ",
+     "units": 481,
+     "rev": 14288
+    },
+    {
+     "asin": "B0DY6SM9Y7",
+     "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 ",
+     "units": 288,
+     "rev": 8178
+    },
+    {
+     "asin": "B0DCV7MTLS",
+     "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 ",
+     "units": 255,
+     "rev": 7858
+    },
+    {
+     "asin": "B0DB7V1BW3",
+     "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 ",
+     "units": 270,
+     "rev": 7462
+    },
+    {
+     "asin": "B0DY6SKQ2N",
+     "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 ",
+     "units": 180,
+     "rev": 5166
+    }
+   ]
+  },
+  {
+   "category": "Stainless Straw Cup",
+   "units": 1176,
+   "rev": 42746,
+   "asp": 36.35,
+   "cogs": 12.0,
+   "fba": 6.5,
+   "gm_pct": 67.0,
+   "cm": 11853,
+   "cm_pct": 27.7,
+   "asin_count": 10,
+   "top_asins": [
+    {
+     "asin": "B0FKGFN121",
+     "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup",
+     "units": 142,
+     "rev": 6194
+    },
+    {
+     "asin": "B0FKG59ZMN",
+     "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup",
+     "units": 180,
+     "rev": 5874
+    },
+    {
+     "asin": "B0FHKFQPGR",
+     "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup",
+     "units": 150,
+     "rev": 5616
+    },
+    {
+     "asin": "B0FKG6RCDC",
+     "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup",
+     "units": 145,
+     "rev": 5252
+    },
+    {
+     "asin": "B0FKFW6PND",
+     "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup",
+     "units": 133,
+     "rev": 4818
+    }
+   ]
+  },
+  {
+   "category": "Replacements: Straw 2P",
+   "units": 1144,
+   "rev": 18140,
+   "asp": 15.86,
+   "cogs": 2.0,
+   "fba": 3.5,
+   "gm_pct": 87.4,
+   "cm": 7648,
+   "cm_pct": 42.2,
+   "asin_count": 2,
+   "top_asins": [
+    {
+     "asin": "B083JC7W2W",
+     "name": "Grosmimi Replacements (Straw kit 2-Counts, Stage 2)",
+     "units": 1092,
+     "rev": 17380
+    },
+    {
+     "asin": "B083JBY1BQ",
+     "name": "Grosmimi Replacements (Straw kit 2-Counts, Stage1)",
+     "units": 52,
+     "rev": 760
+    }
+   ]
+  },
+  {
+   "category": "Replacements: Straw 4P",
+   "units": 794,
+   "rev": 17583,
+   "asp": 22.15,
+   "cogs": 3.5,
+   "fba": 3.5,
+   "gm_pct": 84.2,
+   "cm": 8112,
+   "cm_pct": 46.1,
+   "asin_count": 2,
+   "top_asins": [
+    {
+     "asin": "B0848R8XBB",
+     "name": "Grosmimi Replacements (Straw only 4-counts, Stage 2)",
+     "units": 600,
+     "rev": 13109
+    },
+    {
+     "asin": "B0DHVHLKMC",
+     "name": "Grosmimi Replacements (Straw kit 4-counts, Stage2)",
+     "units": 194,
+     "rev": 4474
+    }
+   ]
+  },
+  {
+   "category": "Stainless Tumbler",
+   "units": 149,
+   "rev": 4178,
+   "asp": 28.04,
+   "cogs": 13.0,
+   "fba": 6.5,
+   "gm_pct": 53.6,
+   "cm": 363,
+   "cm_pct": 8.7,
+   "asin_count": 3,
+   "top_asins": [
+    {
+     "asin": "B0FR4FGBPP",
+     "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 ",
+     "units": 62,
+     "rev": 1594
+    },
+    {
+     "asin": "B0FR4RQRNR",
+     "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 ",
+     "units": 53,
+     "rev": 1444
+    },
+    {
+     "asin": "B0FR4Q6LXQ",
+     "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 ",
+     "units": 34,
+     "rev": 1140
+    }
+   ]
+  },
+  {
+   "category": "Replacements: Multi Pack",
+   "units": 167,
+   "rev": 4138,
+   "asp": 24.78,
+   "cogs": 4.0,
+   "fba": 3.8,
+   "gm_pct": 83.9,
+   "cm": 1924,
+   "cm_pct": 46.5,
+   "asin_count": 1,
+   "top_asins": [
+    {
+     "asin": "B09F74M4H6",
+     "name": "Grosmimi Replacements (Multipack, Stage 2)",
+     "units": 167,
+     "rev": 4138
+    }
+   ]
+  },
+  {
+   "category": "PPSU Tumbler",
+   "units": 69,
+   "rev": 1636,
+   "asp": 23.7,
+   "cogs": 9.0,
+   "fba": 5.39,
+   "gm_pct": 62.0,
+   "cm": 281,
+   "cm_pct": 17.2,
+   "asin_count": 3,
+   "top_asins": [
+    {
+     "asin": "B0FR43XGSS",
+     "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 ",
+     "units": 31,
+     "rev": 870
+    },
+    {
+     "asin": "B0FR4MVTL7",
+     "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 ",
+     "units": 22,
+     "rev": 418
+    },
+    {
+     "asin": "B0FR442PNC",
+     "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 ",
+     "units": 16,
+     "rev": 348
+    }
+   ]
+  },
+  {
+   "category": "PPSU Baby Bottle",
+   "units": 54,
+   "rev": 836,
+   "asp": 15.48,
+   "cogs": 7.0,
+   "fba": 5.0,
+   "gm_pct": 54.8,
+   "cm": -6,
+   "cm_pct": -0.8,
+   "asin_count": 12,
+   "top_asins": [
+    {
+     "asin": "B09DD2CXTL",
+     "name": "Grosmimi PPSU Baby Bottle, BPA Free (6oz Bear_White)",
+     "units": 8,
+     "rev": 147
+    },
+    {
+     "asin": "B09DD2WBV9",
+     "name": "Grosmimi PPSU Baby Bottle, BPA Free (10oz Bear_White)",
+     "units": 7,
+     "rev": 137
+    },
+    {
+     "asin": "B09TR2Q525",
+     "name": "Grosmimi PPSU Baby Bottle, BPA Free (10oz Cherry_Rose Gold)",
+     "units": 5,
+     "rev": 98
+    },
+    {
+     "asin": "B09DD3D6PM",
+     "name": "Grosmimi PPSU Baby Bottle, BPA Free (10oz Bear_Pure Gold)",
+     "units": 4,
+     "rev": 78
+    },
+    {
+     "asin": "B09DD28LSF",
+     "name": "Grosmimi PPSU Baby Bottle, BPA Free (6oz Bear_Pure Gold)",
+     "units": 4,
+     "rev": 74
+    }
+   ]
+  },
+  {
+   "category": "Others",
+   "units": 40,
+   "rev": 500,
+   "asp": 12.5,
+   "cogs": 8.41,
+   "fba": 5.39,
+   "gm_pct": 32.7,
+   "cm": -172,
+   "cm_pct": -34.4,
+   "asin_count": 2,
+   "top_asins": [
+    {
+     "asin": "B084FSKGGZ",
+     "name": "GROSMIMI Weighted Kit (Spout)",
+     "units": 35,
+     "rev": 438
+    },
+    {
+     "asin": "B0848QD5KP",
+     "name": "Grosmimi Weighted Kit (Nipple)",
+     "units": 5,
+     "rev": 62
+    }
+   ]
+  }
+ ],
+ "total": {
+  "units": 12800,
+  "rev": 321692,
+  "cm": 88461
+ }
+};
