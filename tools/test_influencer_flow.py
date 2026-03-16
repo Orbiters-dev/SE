@@ -2454,8 +2454,627 @@ Onzenna Team"""
     }
 
 
+def flow_journey_2(email=None):
+    """Test #2: TikTok creator, High Touch, asks questions before accepting.
+    Different persona from flow_journey: male creator, baby bottle stage, Q&A email thread."""
+    test_email = email or "wj.choi@orbiters.co.kr"
+    test_name = "Mike Torres"
+    test_ig = f"miketorres_flowtest_{datetime.now().strftime('%m%d%H%M')}"
+    test_profile_url = f"https://tiktok.com/@{test_ig}"
+    test_phone = _make_test_phone()
+    ts_iso = datetime.now().isoformat()
+
+    outreach_subject = f"Grosmimi x @{test_ig} - Baby Bottle Collab"
+    outreach_body = f"""Hi {test_name},
+
+We noticed your TikTok videos about dad life and baby gear unboxings - your style is so relatable and your audience clearly loves your honest takes!
+
+We'd love to send you our Grosmimi PPSU Baby Bottle (9oz) for your little one. It's BPA-free, anti-colic, and designed for daily use.
+
+No commitments - just try it and share your honest thoughts if you'd like:
+https://onzenna.com/pages/influencer-gifting
+
+William - Onzenna Team"""
+
+    # Test #2 difference: Creator asks QUESTIONS before accepting
+    question_body = f"""Hey William!
+
+Thanks for reaching out. I'm interested but have a few questions:
+
+1. Is the bottle really BPA-free? My wife is very particular about materials
+2. What age range is it designed for? Our son is 7 months
+3. Do I need to post within a specific timeframe?
+4. Can I be honest in my review even if something doesn't work well?
+
+Let me know and we can go from there!
+
+- Mike
+@{test_ig}"""
+
+    answer_body = f"""Hi Mike!
+
+Great questions - love that you're thorough! Here are the answers:
+
+1. YES - 100% BPA-free PPSU material (same used in medical equipment). We have safety certifications from FDA and SGS
+2. The 9oz bottle is perfect for 6-12 months. The nipple flow rate is designed for that stage
+3. We ask for content within 30 days of delivery, but there's flexibility
+4. ABSOLUTELY - we value honest reviews. If something doesn't work, we want to know. Our best improvements come from real feedback
+
+Would you like to proceed? Just fill out the gifting form and we'll ship it out!
+
+Best,
+William - Onzenna Team"""
+
+    accept_body = f"""William,
+
+Perfect - those answers check all the boxes. My wife is on board too!
+
+I'll fill out the form today. Planning to do a TikTok unboxing + a follow-up review after using it for a week. My son Lucas should be a great tester.
+
+Talk soon!
+Mike"""
+
+    confirmation_body = f"""Hi {test_name}!
+
+Awesome - so glad to have you on board! Here's what happens next:
+
+1. Fill out the gifting form: onzenna.com/pages/influencer-gifting
+2. We'll ship the PPSU Baby Bottle (9oz) in Sage Green
+3. You'll have 30 days to post (but take your time!)
+
+Content tips:
+- Unboxing + first feeding reaction works great on TikTok
+- Tag @onzenna and use #grosmimi #babybottle
+- Voiceover style matches your brand perfectly
+
+Can't wait to see Lucas try it!
+
+Best,
+Onzenna Team"""
+
+    guidelines_body = f"""Hi {test_name},
+
+Your sample order is confirmed! Here are the details:
+
+Order: Gifting Sample (100% discount)
+Product: Grosmimi PPSU Baby Bottle 9oz - Sage Green
+Shipping: 789 FlowTest Blvd, Austin TX 78701
+
+Content guidelines:
+- Post within 30 days of receiving
+- TikTok video (30-60 sec recommended)
+- Tag @onzenna + #grosmimi #babybottle
+- Show real use with Lucas
+- Honest review (we mean it!)
+
+Tracking info coming to {test_email} once shipped.
+
+Best,
+Onzenna Team"""
+
+    return {
+        "flow_id": "customer_journey_2",
+        "flow_name": "Journey #2: TikTok Dad Creator + Q&A Thread",
+        "description": "High Touch journey with pre-acceptance Q&A. TikTok creator, baby bottle stage, 7 email conversations.",
+        "test_email": test_email,
+        "steps": [
+            # ═══ STAGE 0: DISCOVERY ═══
+            {
+                "step_id": "seed_creator",
+                "type": "airtable_create",
+                "name": "0a. [Discovery] Create TikTok creator profile",
+                "table_id": AT_CREATORS,
+                "fields": {
+                    "Name": test_name,
+                    "Email": test_email,
+                    "Username": test_ig,
+                    "Platform": "TikTok",
+                    "Profile URL": test_profile_url,
+                    "Bio": "Dad of 1 | Baby gear unboxing | Austin TX | Honest reviews only",
+                    "Location": "Austin, TX",
+                    "Followers": 12000,
+                    "Number of fully matched posts": 1,
+                    "Average views": 5500,
+                    "Average likes": 820,
+                    "Average ER": 6.7,
+                    "Recent 30-Day Views": 7200,
+                    "Recent 30-Day Likes": 1100,
+                    "Recent 30-Day Avg ER": 7.1,
+                    "Syncly Level": "Partially Matched",
+                    "Brand Classification": "Grosmimi",
+                    "Source": "Syncly Outbound",
+                    "Partnership Status": "New",
+                    "Outreach Status": "Not Started",
+                    "Outreach Type": "High Touch",
+                    "Communication Channel": "Email",
+                },
+                "typecast": True,
+                "capture": {"creator_record_id": "$.id", "creator_fields": "$.fields"},
+            },
+            {
+                "step_id": "verify_creator_seeded",
+                "type": "verify_airtable",
+                "name": "0b. Verify creator record seeded",
+                "base_id": AT_BASE,
+                "table_id": AT_CREATORS,
+                "filter_field": "Username",
+                "filter_value": test_ig,
+                "expect_exists": True,
+                "expect_fields": {"Platform": "TikTok", "Partnership Status": "New", "Outreach Type": "High Touch"},
+            },
+
+            # ═══ STAGE 1: AI OUTREACH ═══
+            {
+                "step_id": "trigger_draft_gen",
+                "type": "http_post",
+                "name": "1a. [Outreach] Trigger Draft Generation (High Touch TikTok creator)",
+                "url": WJ_WEBHOOKS["draft_gen"],
+                "payload": {
+                    "records": [{
+                        "id": "{{creator_record_id}}",
+                        "fields": {
+                            "Username": test_ig, "Email": test_email,
+                            "Platform": "TikTok", "Outreach Type": "High Touch",
+                            "Outreach Status": "Not Started", "Name": test_name,
+                            "Brand Classification": "Grosmimi",
+                        },
+                        "createdTime": ts_iso,
+                    }]
+                },
+                "expect_status": 200,
+                "critical": False,
+                "capture": {"draft_gen_response": "$"},
+            },
+            {
+                "step_id": "wait_draft_gen",
+                "type": "wait",
+                "name": "1b. Wait for Claude AI draft generation (~65s)",
+                "seconds": 65,
+            },
+            {
+                "step_id": "verify_ai_draft",
+                "type": "verify_airtable",
+                "name": "1c. Verify AI-generated draft (TikTok-specific language)",
+                "base_id": AT_BASE,
+                "table_id": AT_CONVERSATIONS,
+                "filter_formula": "FIND('" + test_ig + "', {Subject})",
+                "expect_exists": True,
+                "capture": {
+                    "conversation_record_id": "$.records[0].id",
+                    "draft_subject": "$.records[0].fields.Subject",
+                    "draft_content": "$.records[0].fields.Message Content",
+                },
+                "critical": False,
+            },
+            {
+                "step_id": "verify_creator_draft_ready",
+                "type": "verify_airtable",
+                "name": "1d. Verify creator status -> Draft Ready",
+                "base_id": AT_BASE,
+                "table_id": AT_CREATORS,
+                "filter_field": "Username",
+                "filter_value": test_ig,
+                "expect_exists": True,
+                "expect_fields": {},
+                "capture": {"post_draft_status": "$.records[0].fields.Outreach Status"},
+                "critical": False,
+            },
+
+            # ═══ STAGE 2: APPROVAL + SEND ═══
+            {
+                "step_id": "human_approve",
+                "type": "human_checkpoint",
+                "name": "2a. [Approval] Marketer reviews AI draft (High Touch = manual review)",
+                "description": "HT creators require human review before sending. Marketer checks tone, TikTok-specific language.",
+                "simulated": True,
+                "instructions": ["1. Review AI draft for TikTok creator tone", "2. Check product match (Baby Bottle for 7mo)", "3. Approve"],
+            },
+            {
+                "step_id": "log_outreach_email",
+                "type": "airtable_create",
+                "name": "2b. Log outreach email (Outbound)",
+                "table_id": AT_CONVERSATIONS,
+                "fields": {
+                    "Message Title": f"Outreach: {outreach_subject}",
+                    "Subject": outreach_subject,
+                    "Channel": "Email", "Direction": "Outbound",
+                    "Message Content": outreach_body,
+                    "Conversation Context": f"Outreach to TikTok creator @{test_ig}. Brand: Grosmimi Baby Bottle. Type: High Touch.",
+                    "AI Generated": True, "AI Approved": True,
+                    "Reviewed By": "WJ Flow Test (manual review sim)",
+                    "Status": "Sent",
+                    "Creator": ["{{creator_record_id}}"],
+                },
+                "typecast": True,
+                "capture": {"outreach_conv_id": "$.id"},
+                "critical": False,
+            },
+            {
+                "step_id": "update_creator_sent",
+                "type": "airtable_update",
+                "name": "2c. Update creator status -> Sent",
+                "table_id": AT_CREATORS,
+                "record_id": "{{creator_record_id}}",
+                "fields": {"Outreach Status": "Sent", "Outreach Sent At": datetime.now().strftime("%Y-%m-%d")},
+            },
+
+            # ═══ STAGE 3: INFLUENCER ASKS QUESTIONS (unique to Test #2) ═══
+            {
+                "step_id": "wait_reply",
+                "type": "wait",
+                "name": "3a. [Q&A] Waiting for influencer response...",
+                "seconds": 3,
+            },
+            {
+                "step_id": "log_question_email",
+                "type": "airtable_create",
+                "name": "3b. Log influencer QUESTION email (Inbound - asks 4 questions)",
+                "table_id": AT_CONVERSATIONS,
+                "fields": {
+                    "Message Title": f"Questions from @{test_ig}",
+                    "Subject": f"Re: {outreach_subject}",
+                    "Channel": "Email", "Direction": "Inbound",
+                    "Message Content": question_body,
+                    "Conversation Context": f"Creator @{test_ig} interested but asking material safety, age range, timeline, and honesty policy questions. High Touch = needs detailed human response.",
+                    "AI Generated": False, "Status": "Sent",
+                    "Creator": ["{{creator_record_id}}"],
+                },
+                "typecast": True,
+                "capture": {"question_conv_id": "$.id"},
+            },
+            {
+                "step_id": "update_creator_replied",
+                "type": "airtable_update",
+                "name": "3c. Update creator status -> Replied (question received)",
+                "table_id": AT_CREATORS,
+                "record_id": "{{creator_record_id}}",
+                "fields": {"Outreach Status": "Replied", "Partnership Status": "In Progress", "Last Contact At": ts_iso},
+            },
+
+            # ═══ STAGE 3.5: TEAM ANSWERS QUESTIONS (Human in the Loop) ═══
+            {
+                "step_id": "human_answer",
+                "type": "human_checkpoint",
+                "name": "3d. [Human] Team answers creator's questions",
+                "description": "High Touch requires manual response to questions about BPA safety, age range, timeline flexibility, and honest review policy.",
+                "simulated": True,
+                "instructions": ["1. Answer BPA-free + FDA/SGS certifications", "2. Confirm 9oz for 6-12mo", "3. Explain 30-day flexible timeline", "4. Emphasize honest reviews welcome"],
+            },
+            {
+                "step_id": "log_answer_email",
+                "type": "airtable_create",
+                "name": "3e. Log team ANSWER email (Outbound - addresses all 4 questions)",
+                "table_id": AT_CONVERSATIONS,
+                "fields": {
+                    "Message Title": f"Answers to @{test_ig}'s questions",
+                    "Subject": f"Re: {outreach_subject}",
+                    "Channel": "Email", "Direction": "Outbound",
+                    "Message Content": answer_body,
+                    "Conversation Context": "Addressed all 4 questions: BPA safety (FDA/SGS), age range (6-12mo), timeline (30 days flexible), honesty policy (welcomed).",
+                    "AI Generated": False, "AI Approved": False,
+                    "Reviewed By": "WJ Flow Test (human response sim)",
+                    "Status": "Sent",
+                    "Creator": ["{{creator_record_id}}"],
+                },
+                "typecast": True,
+                "capture": {"answer_conv_id": "$.id"},
+            },
+
+            # ═══ STAGE 3.7: CREATOR ACCEPTS (after Q&A) ═══
+            {
+                "step_id": "log_accept_email",
+                "type": "airtable_create",
+                "name": "3f. Log creator ACCEPTANCE email (Inbound - confirmed after Q&A)",
+                "table_id": AT_CONVERSATIONS,
+                "fields": {
+                    "Message Title": f"Acceptance from @{test_ig} (post-Q&A)",
+                    "Subject": f"Re: {outreach_subject}",
+                    "Channel": "Email", "Direction": "Inbound",
+                    "Message Content": accept_body,
+                    "Conversation Context": f"Creator @{test_ig} accepted after Q&A. Wife approved materials. Planning TikTok unboxing + follow-up review. Son Lucas (7mo) will be tester.",
+                    "AI Generated": False, "Status": "Sent",
+                    "Creator": ["{{creator_record_id}}"],
+                },
+                "typecast": True,
+                "capture": {"accept_conv_id": "$.id"},
+            },
+
+            # ═══ STAGE 4: CONFIRMATION ═══
+            {
+                "step_id": "log_confirmation_email",
+                "type": "airtable_create",
+                "name": "4a. [Confirmation] Send gifting form link + content tips",
+                "table_id": AT_CONVERSATIONS,
+                "fields": {
+                    "Message Title": f"Confirmation + Gifting Form: @{test_ig}",
+                    "Subject": f"Re: {outreach_subject}",
+                    "Channel": "Email", "Direction": "Outbound",
+                    "Message Content": confirmation_body,
+                    "Conversation Context": "Sent gifting form link and TikTok-specific content tips. Creator confirmed, wife approved. Next: wait for form submission.",
+                    "AI Generated": True, "AI Approved": True,
+                    "Reviewed By": "WJ Flow Test (auto)",
+                    "Status": "Sent",
+                    "Creator": ["{{creator_record_id}}"],
+                },
+                "typecast": True,
+                "capture": {"confirmation_conv_id": "$.id"},
+            },
+            {
+                "step_id": "update_creator_confirmed",
+                "type": "airtable_update",
+                "name": "4b. Update creator status -> Confirmed",
+                "table_id": AT_CREATORS,
+                "record_id": "{{creator_record_id}}",
+                "fields": {"Outreach Status": "Confirmed"},
+            },
+
+            # ═══ STAGE 5: GIFTING FORM (n8n webhook) ═══
+            {
+                "step_id": "submit_gifting",
+                "type": "http_post",
+                "name": "5a. [Gifting] Creator submits gifting application form",
+                "url": WJ_WEBHOOKS["gifting"],
+                "payload": {
+                    "form_type": "influencer_gifting",
+                    "submitted_at": ts_iso,
+                    "personal_info": {
+                        "full_name": test_name,
+                        "email": test_email,
+                        "phone": test_phone,
+                        "instagram": "None",
+                        "tiktok": f"@{test_ig}",
+                    },
+                    "baby_info": {
+                        "child_1": {"birthday": "2025-08-10", "age_months": 7},
+                        "child_2": None,
+                    },
+                    "selected_products": [{
+                        "product_key": "ppsu_bottle",
+                        "product_id": 8288579256642,
+                        "variant_id": 45018985431362,
+                        "title": "Grosmimi PPSU Baby Bottle 9oz",
+                        "color": "Sage Green",
+                        "price": "$22.90",
+                    }],
+                    "shipping_address": {
+                        "street": "789 FlowTest Blvd",
+                        "apt": "Unit 4B",
+                        "city": "Austin",
+                        "state": "TX",
+                        "zip": "78701",
+                        "country": "US",
+                    },
+                    "terms_accepted": True,
+                    "shopify_customer_id": None,
+                },
+                "expect_status": 200,
+                "capture": {"gifting_response": "$"},
+            },
+            {
+                "step_id": "wait_gifting",
+                "type": "wait",
+                "name": "5b. Wait for n8n gifting processing",
+                "seconds": 12,
+            },
+            {
+                "step_id": "verify_applicant",
+                "type": "verify_airtable",
+                "name": "5c. Verify Applicants table record",
+                "filter_field": "Email",
+                "filter_value": test_email,
+                "expect_exists": True,
+                "capture": {"applicant_record_id": "$.records[0].id"},
+            },
+            {
+                "step_id": "verify_shopify_customer",
+                "type": "verify_shopify",
+                "name": "5d. Verify Shopify customer created",
+                "resource": "customer",
+                "filter": {"email": test_email},
+                "expect_exists": True,
+                "capture": {"shopify_customer_id": "$.customers[0].id"},
+                "critical": False,
+            },
+            {
+                "step_id": "verify_postgres",
+                "type": "verify_postgres",
+                "name": "5e. Verify PostgreSQL gifting record",
+                "endpoint": "/api/onzenna/gifting/list/",
+                "filter": {"email": test_email},
+                "expect_exists": True,
+                "critical": False,
+            },
+
+            # ═══ STAGE 6: SAMPLE SENT + ORDER ═══
+            {
+                "step_id": "update_creator_sample_sent",
+                "type": "airtable_update",
+                "name": "6a. [Sample] Update creator status -> Sample Sent",
+                "table_id": AT_CREATORS,
+                "record_id": "{{creator_record_id}}",
+                "fields": {"Outreach Status": "Sample Sent"},
+            },
+            {
+                "step_id": "log_guidelines_email",
+                "type": "airtable_create",
+                "name": "6b. Log guidelines email (order confirmation + content brief)",
+                "table_id": AT_CONVERSATIONS,
+                "fields": {
+                    "Message Title": f"Guidelines + Order: @{test_ig}",
+                    "Subject": f"Your Grosmimi Baby Bottle is on the way! - @{test_ig}",
+                    "Channel": "Email", "Direction": "Outbound",
+                    "Message Content": guidelines_body,
+                    "Conversation Context": "Sample order created. Sent TikTok-specific guidelines. Baby Bottle 9oz Sage Green to Austin TX.",
+                    "AI Generated": True, "AI Approved": True,
+                    "Reviewed By": "WJ Flow Test (auto)",
+                    "Status": "Sent",
+                    "Creator": ["{{creator_record_id}}"],
+                },
+                "typecast": True,
+                "capture": {"guidelines_conv_id": "$.id"},
+                "critical": False,
+            },
+            {
+                "step_id": "create_order_record",
+                "type": "airtable_create",
+                "name": "6c. Create Order record",
+                "base_id": AT_BASE,
+                "table_id": AT_ORDERS,
+                "fields": {
+                    "Order Title": f"Gifting Sample - {test_name} (@{test_ig})",
+                    "Outreach Type": "High Touch",
+                    "Brand": "Grosmimi",
+                    "Specific Item": "PPSU Baby Bottle 9oz - Sage Green",
+                    "Content Deadline": (datetime.now().__class__(2026, 4, 16)).strftime("%Y-%m-%d"),
+                    "Recipient Name": test_name,
+                    "[WJ Test] Creators": ["{{creator_record_id}}"],
+                },
+                "typecast": True,
+                "capture": {"order_record_id": "$.id"},
+                "critical": False,
+            },
+
+            # ═══ STAGE 7: FULFILLMENT ═══
+            {
+                "step_id": "trigger_fulfillment",
+                "type": "http_post",
+                "name": "7a. [Fulfillment] Trigger Shopify fulfillment webhook",
+                "url": WJ_WEBHOOKS["fulfillment"],
+                "payload": {
+                    "order_id": "{{order_record_id}}",
+                    "customer_email": test_email,
+                    "customer_name": test_name,
+                    "source": "wj_journey_test_2",
+                },
+                "expect_status": 200,
+                "critical": False,
+                "capture": {"fulfillment_response": "$"},
+            },
+            {
+                "step_id": "wait_fulfillment",
+                "type": "wait",
+                "name": "7b. Wait for fulfillment processing",
+                "seconds": 8,
+            },
+            {
+                "step_id": "update_creator_shipped",
+                "type": "airtable_update",
+                "name": "7c. Update creator status -> Sample Shipped",
+                "table_id": AT_CREATORS,
+                "record_id": "{{creator_record_id}}",
+                "fields": {"Outreach Status": "Sample Shipped"},
+                "critical": False,
+            },
+
+            # ═══ STAGE 8: CONTENT POSTED ═══
+            {
+                "step_id": "wait_content",
+                "type": "wait",
+                "name": "8a. [Content] Simulating delivery + content creation...",
+                "seconds": 3,
+            },
+            {
+                "step_id": "create_content_record",
+                "type": "airtable_create",
+                "name": "8b. Create Content record (TikTok unboxing + review)",
+                "base_id": AT_BASE,
+                "table_id": AT_CONTENT,
+                "fields": {
+                    "Content Title": f"Grosmimi Baby Bottle Unboxing by @{test_ig}",
+                    "Post URL": f"https://www.tiktok.com/@{test_ig}/video/flowtest_content",
+                    "Platform": "TikTok",
+                    "Post Date": datetime.now().strftime("%Y-%m-%d"),
+                    "Views": 12400,
+                    "Likes": 1850,
+                    "Comments": 127,
+                    "[WJ Test] Creators": ["{{creator_record_id}}"],
+                },
+                "typecast": True,
+                "capture": {"content_record_id": "$.id"},
+                "critical": False,
+            },
+            {
+                "step_id": "log_content_thankyou",
+                "type": "airtable_create",
+                "name": "8c. Log thank-you email",
+                "table_id": AT_CONVERSATIONS,
+                "fields": {
+                    "Message Title": f"Thank you for the viral TikTok! @{test_ig}",
+                    "Subject": f"Amazing content {test_name}! Your TikTok is going viral!",
+                    "Channel": "Email", "Direction": "Outbound",
+                    "Message Content": f"Hi {test_name},\n\nYour Grosmimi unboxing TikTok is amazing! Lucas's reaction was so genuine - your followers clearly loved it. 12.4K views in the first 24 hours!\n\nWe'd love to continue working with you. Would you be interested in trying our PPSU Straw Cup next? It's the perfect follow-up for Lucas as he gets older.\n\nThank you for being part of the Grosmimi family!\n\nBest,\nOnzenna Team",
+                    "Conversation Context": f"Content posted on TikTok. 12.4K views, 1850 likes, 127 comments. Unboxing + first feeding review. ER=14.9%. Partnership completed - exploring ongoing collab.",
+                    "AI Generated": True, "AI Approved": True,
+                    "Status": "Sent",
+                    "Creator": ["{{creator_record_id}}"],
+                },
+                "typecast": True,
+                "capture": {"thankyou_conv_id": "$.id"},
+                "critical": False,
+            },
+            {
+                "step_id": "update_creator_completed",
+                "type": "airtable_update",
+                "name": "8d. Update creator -> Partnership Completed",
+                "table_id": AT_CREATORS,
+                "record_id": "{{creator_record_id}}",
+                "fields": {
+                    "Partnership Status": "Completed",
+                    "Content Guideline Sent": "Yes",
+                    "Cumulative Posts": 1,
+                    "Cumulative Likes": 1850,
+                },
+            },
+
+            # ═══ FINAL VERIFY ═══
+            {
+                "step_id": "verify_final_creator",
+                "type": "verify_airtable",
+                "name": "9a. [Final] Verify creator record (complete journey)",
+                "base_id": AT_BASE,
+                "table_id": AT_CREATORS,
+                "filter_field": "Username",
+                "filter_value": test_ig,
+                "expect_exists": True,
+                "expect_fields": {"Partnership Status": "Completed"},
+                "capture": {"final_creator_fields": "$.records[0].fields"},
+            },
+            {
+                "step_id": "verify_conversation_count",
+                "type": "verify_airtable",
+                "name": "9b. Verify conversation trail (should have 6+ emails including Q&A)",
+                "base_id": AT_BASE,
+                "table_id": AT_CONVERSATIONS,
+                "filter_formula": "FIND('" + test_ig + "', {Subject})",
+                "expect_exists": True,
+                "capture": {"total_conversations": "$.records"},
+                "critical": False,
+            },
+        ],
+        "cleanup": {
+            "airtable_records": [
+                {"table_id": AT_CREATORS, "record_id": "{{creator_record_id}}"},
+                {"table_id": AT_CONVERSATIONS, "record_id": "{{outreach_conv_id}}"},
+                {"table_id": AT_CONVERSATIONS, "record_id": "{{question_conv_id}}"},
+                {"table_id": AT_CONVERSATIONS, "record_id": "{{answer_conv_id}}"},
+                {"table_id": AT_CONVERSATIONS, "record_id": "{{accept_conv_id}}"},
+                {"table_id": AT_CONVERSATIONS, "record_id": "{{confirmation_conv_id}}"},
+                {"table_id": AT_CONVERSATIONS, "record_id": "{{guidelines_conv_id}}"},
+                {"table_id": AT_CONVERSATIONS, "record_id": "{{thankyou_conv_id}}"},
+                {"table_id": AT_CONVERSATIONS, "record_id": "{{conversation_record_id}}"},
+                {"table_id": AT_ORDERS, "record_id": "{{order_record_id}}"},
+                {"table_id": AT_CONTENT, "record_id": "{{content_record_id}}"},
+                {"table_id": AT_APPLICANTS, "record_id": "{{applicant_record_id}}"},
+            ],
+            "shopify_customer_id": "{{shopify_customer_id}}",
+            "test_email": test_email,
+        },
+    }
+
+
 FLOW_REGISTRY = {
     "journey":        flow_journey,        # Full realistic customer journey with email trail
+    "journey_2":      flow_journey_2,      # Test #2: TikTok dad creator + Q&A thread
     "pipeline":       flow_pipeline,
     "gifting":        flow_gifting,
     "creator":        flow_creator,

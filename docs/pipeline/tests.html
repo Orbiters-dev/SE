@@ -3,29 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WJ TEST · E2E Test Results by Pipeline Stage</title>
+<title>WJ TEST · E2E Test Results</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
   :root {
     --bg: #fafbfc; --card: #fff; --border: #e5e7eb;
-    --text: #1f2937; --dim: #6b7280;
+    --text: #1f2937; --dim: #6b7280; --light: #9ca3af;
     --green: #22c55e; --green-bg: #f0fdf4; --green-border: #bbf7d0;
     --red: #ef4444; --red-bg: #fef2f2; --red-border: #fecaca;
-    --yellow: #eab308; --yellow-bg: #fefce8; --yellow-border: #fef08a;
     --blue: #3b82f6; --blue-bg: #eff6ff; --blue-border: #bfdbfe;
     --purple: #8b5cf6; --purple-bg: #f5f3ff; --purple-border: #ddd6fe;
     --teal: #0d9488; --teal-bg: #f0fdfa; --teal-border: #99f6e4;
     --orange: #f59e0b; --orange-bg: #fffbeb; --orange-border: #fde68a;
     --human: #8b5cf6; --human-bg: #f5f3ff; --human-border: #ddd6fe;
     --auto: #0ea5e9; --auto-bg: #f0f9ff; --auto-border: #bae6fd;
-    --store: #10b981; --store-bg: #ecfdf5; --store-border: #a7f3d0;
-    --poll: #f59e0b; --poll-bg: #fffbeb; --poll-border: #fde68a;
+    --verify: #10b981; --verify-bg: #ecfdf5; --verify-border: #a7f3d0;
     --accent: #6366f1;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
 
-  .nav { background:#fff; border-bottom:1px solid var(--border); padding:0 32px; display:flex; align-items:center; gap:4px; height:52px; }
+  /* Nav */
+  .nav { background:#fff; border-bottom:1px solid var(--border); padding:0 32px; display:flex; align-items:center; gap:4px; height:52px; position:sticky; top:0; z-index:100; }
   .nav-brand { font-size:13px; font-weight:700; color:var(--accent); margin-right:16px; text-decoration:none; }
   .nav a { font-size:13px; color:var(--dim); text-decoration:none; padding:6px 12px; border-radius:6px; transition:all .15s; }
   .nav a:hover { background:#f3f4f6; color:var(--text); }
@@ -33,548 +32,866 @@
 
   .container { max-width:1100px; margin:0 auto; padding:40px 20px 80px; }
 
-  .hero { margin-bottom:40px; }
-  .hero-meta { display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
-  .badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
+  /* Hero */
+  .hero { margin-bottom:36px; }
+  .hero-meta { display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+  .badge { display:inline-flex; align-items:center; gap:4px; padding:2px 10px; border-radius:12px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
   .badge-green { background:var(--green-bg); color:#15803d; border:1px solid var(--green-border); }
+  .badge-red   { background:var(--red-bg); color:#dc2626; border:1px solid var(--red-border); }
   .badge-blue  { background:var(--blue-bg); color:#1d4ed8; border:1px solid var(--blue-border); }
   .badge-dim   { background:#f3f4f6; color:var(--dim); border:1px solid var(--border); }
-  .hero h1 { font-size:26px; font-weight:700; letter-spacing:-.02em; margin-bottom:6px; }
+  .badge-purple { background:var(--purple-bg); color:var(--human); border:1px solid var(--purple-border); }
+  .hero h1 { font-size:24px; font-weight:700; letter-spacing:-.02em; margin-bottom:4px; }
   .hero h1 span { color:var(--accent); }
-  .hero .sub { font-size:14px; color:var(--dim); }
+  .hero .sub { font-size:13px; color:var(--dim); }
 
-  .scorecard-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:36px; }
-  .sc { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px; position:relative; overflow:hidden; }
-  .sc::after { content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:12px 12px 0 0; }
-  .sc.g::after { background:var(--green); }
-  .sc.p::after { background:var(--purple); }
-  .sc.t::after { background:var(--teal); }
-  .sc.o::after { background:var(--orange); }
-  .sc-lbl { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--dim); margin-bottom:6px; }
+  /* Scorecard */
+  .scorecard { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:36px; }
+  .sc { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; position:relative; overflow:hidden; }
+  .sc::after { content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:10px 10px 0 0; }
+  .sc.g::after { background:var(--green); } .sc.r::after { background:var(--red); } .sc.p::after { background:var(--purple); } .sc.b::after { background:var(--blue); }
   .sc-val { font-size:28px; font-weight:700; }
-  .sc-val.g { color:var(--green); }
-  .sc-val.p { color:var(--purple); }
-  .sc-val.t { color:var(--teal); }
-  .sc-val.o { color:var(--orange); }
-  .sc-sub { font-size:11px; color:var(--dim); margin-top:3px; }
+  .sc-label { font-size:12px; color:var(--dim); margin-top:2px; }
 
-  /* Case comparison table */
-  .case-section { margin-bottom:48px; }
-  .case-section-title { font-size:22px; font-weight:700; margin-bottom:6px; }
-  .case-section-sub { font-size:14px; color:var(--dim); margin-bottom:24px; }
-  .case-compare { border:1px solid var(--border); border-radius:14px; overflow:hidden; }
-  .case-head { display:grid; grid-template-columns:160px 1fr 1fr; background:#f3f4f6; }
-  .case-head-cell { padding:14px 16px; font-size:13px; font-weight:700; border-right:1px solid var(--border); }
-  .case-head-cell:last-child { border-right:none; }
-  .case-head-cell.journey { background:var(--purple-bg); color:var(--purple); border-bottom:3px solid var(--purple); }
-  .case-head-cell.component { background:var(--teal-bg); color:var(--teal); border-bottom:3px solid var(--teal); }
-  .case-row { display:grid; grid-template-columns:160px 1fr 1fr; border-top:1px solid var(--border); }
-  .case-stage-cell { padding:14px 12px; border-right:1px solid var(--border); background:#f8fafc; }
-  .case-stage-num { font-size:10px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.5px; }
-  .case-stage-name { font-size:13px; font-weight:600; margin-top:2px; line-height:1.3; }
-  .case-stage-wf { font-size:10px; color:var(--dim); margin-top:4px; line-height:1.4; }
-  .case-col { padding:14px 16px; border-right:1px solid var(--border); font-size:12px; }
-  .case-col:last-child { border-right:none; }
-  .case-kv { display:flex; gap:6px; margin-bottom:4px; }
-  .case-k { color:var(--dim); min-width:88px; flex-shrink:0; font-size:11px; }
-  .case-v { font-size:12px; }
-  .case-email-box { background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:10px; font-size:11px; font-family:monospace; white-space:pre-wrap; margin:8px 0; line-height:1.5; }
-  .case-badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; margin-right:4px; margin-bottom:6px; }
-  .case-badge.pass { background:#dcfce7; color:#15803d; }
-  .case-badge.fail { background:#fee2e2; color:#dc2626; }
-  .case-badge.skip { background:#f1f5f9; color:#64748b; }
-  .case-badge.journey-b { background:var(--purple-bg); color:var(--purple); }
-  .case-badge.component-b { background:var(--teal-bg); color:var(--teal); }
-  .pg-box { background:#faf5ff; border:1px solid #e9d5ff; border-radius:8px; padding:10px; margin-top:8px; }
-  .pg-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#7c3aed; margin-bottom:6px; }
-  .at-box { background:#fff7ed; border:1px solid #fed7aa; border-radius:8px; padding:10px; margin-top:8px; }
-  .at-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#ea580c; margin-bottom:6px; }
-  .shopify-box { background:var(--teal-bg); border:1px solid var(--teal-border); border-radius:8px; padding:10px; margin-top:8px; }
-  .shopify-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--teal); margin-bottom:6px; }
-  .skip-col { background:#f8fafc; }
-  .skip-note { font-size:12px; color:var(--dim); margin-top:8px; font-style:italic; }
+  /* Test Profile Cards */
+  .profiles { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:36px; }
+  .profile { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:20px; }
+  .profile-head { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .profile-num { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px; color:#fff; }
+  .profile-num.t1 { background:var(--accent); }
+  .profile-num.t2 { background:var(--teal); }
+  .profile-title { font-size:15px; font-weight:600; }
+  .profile-sub { font-size:12px; color:var(--dim); }
+  .profile-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px 16px; font-size:13px; }
+  .profile-grid dt { color:var(--dim); font-weight:500; }
+  .profile-grid dd { font-weight:500; }
+  .profile-result { margin-top:14px; padding-top:12px; border-top:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+  .profile-result .num { font-size:22px; font-weight:700; }
+  .profile-result .lbl { font-size:12px; color:var(--dim); }
 
-  /* Summary table */
-  .summary-block { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:20px; }
-  .summary-block table { width:100%; border-collapse:collapse; }
-  .summary-block th { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--dim); padding:10px 22px 8px; text-align:left; border-bottom:1px solid var(--border); background:#fafbfc; }
-  .summary-block td { padding:11px 22px; font-size:13px; border-bottom:1px solid #f3f4f6; }
-  .summary-block tr:last-child td { border-bottom:none; }
+  /* Stage */
+  .stage { background:var(--card); border:1px solid var(--border); border-radius:10px; margin-bottom:16px; overflow:hidden; }
+  .stage-head { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+  .stage-num { width:32px; height:32px; border-radius:8px; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0; }
+  .stage-title { font-size:15px; font-weight:600; flex:1; }
+  .stage-badges { display:flex; gap:6px; }
 
-  .status-pill { display:inline-flex; align-items:center; gap:4px; padding:2px 9px; border-radius:8px; font-size:11px; font-weight:600; }
-  .sp-pass { background:var(--green-bg); color:#15803d; }
-  .sp-fail { background:var(--red-bg); color:#b91c1c; }
-  .sp-skip { background:var(--yellow-bg); color:#a16207; }
+  .stage-body { padding:0; }
+  .step-row { display:grid; grid-template-columns:90px 1fr 1fr; border-bottom:1px solid #f3f4f6; font-size:13px; }
+  .step-row:last-child { border-bottom:none; }
+  .step-type { padding:10px 14px; display:flex; align-items:center; justify-content:center; background:#fafbfc; border-right:1px solid #f3f4f6; }
+  .step-t1, .step-t2 { padding:10px 14px; }
+  .step-t2 { border-left:1px solid #f3f4f6; }
+  .step-header { display:grid; grid-template-columns:90px 1fr 1fr; border-bottom:1px solid var(--border); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--dim); background:#fafbfc; }
+  .step-header > div { padding:8px 14px; }
+  .step-header > div:nth-child(3) { border-left:1px solid #f3f4f6; }
 
-  .note-block { background:var(--yellow-bg); border:1px solid var(--yellow-border); border-radius:10px; padding:14px 18px; margin:16px 0; font-size:12px; color:#92400e; line-height:1.6; }
-  .note-block strong { color:#78350f; }
+  /* Type badges */
+  .type-tag { display:inline-flex; align-items:center; gap:3px; padding:2px 8px; border-radius:6px; font-size:10px; font-weight:600; letter-spacing:.04em; white-space:nowrap; }
+  .type-human { background:var(--human-bg); color:var(--human); border:1px solid var(--human-border); }
+  .type-auto  { background:var(--auto-bg); color:var(--auto); border:1px solid var(--auto-border); }
+  .type-verify { background:var(--verify-bg); color:var(--verify); border:1px solid var(--verify-border); }
 
-  .footer { text-align:center; font-size:12px; color:var(--dim); margin-top:48px; padding-top:20px; border-top:1px solid var(--border); }
+  /* Result indicators */
+  .r-pass { color:var(--green); font-weight:600; }
+  .r-fail { color:var(--red); font-weight:600; }
+  .r-skip { color:var(--light); font-style:italic; }
+  .step-desc { color:var(--dim); font-size:12px; margin-top:2px; }
+  .step-link { font-size:11px; color:var(--blue); text-decoration:none; word-break:break-all; }
+  .step-link:hover { text-decoration:underline; }
 
-  @media(max-width:800px) {
-    .case-head, .case-row { grid-template-columns:1fr; }
-    .scorecard-row { grid-template-columns:repeat(2,1fr); }
+  /* Legend */
+  .legend { display:flex; gap:16px; margin-bottom:24px; flex-wrap:wrap; }
+  .legend-item { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--dim); }
+
+  /* Diff highlight for Test #2 */
+  .diff { background:#fef3c7; padding:1px 4px; border-radius:3px; font-size:12px; }
+
+  @media (max-width:768px) {
+    .scorecard { grid-template-columns:repeat(2,1fr); }
+    .profiles { grid-template-columns:1fr; }
+    .step-row, .step-header { grid-template-columns:70px 1fr 1fr; }
   }
 </style>
 </head>
 <body>
 
 <nav class="nav">
-  <a href="." class="nav-brand">Pathlight</a>
-  <a href=".">Pipeline (EN)</a>
-  <a href="ko.html">Pipeline (KR)</a>
-  <a href="migration.html">Migration Report</a>
-  <a href="tests.html" class="active">Test Results</a>
+  <a href="index.html" class="nav-brand">PATHLIGHT</a>
+  <a href="index.html">Pipeline EN</a>
+  <a href="pipeline_kr.html">Pipeline KR</a>
+  <a href="tests.html" class="active">E2E Tests</a>
 </nav>
 
 <div class="container">
 
-  <div class="hero">
-    <div class="hero-meta">
-      <span class="badge badge-green">47/50 PASS</span>
-      <span class="badge badge-blue">WJ TEST</span>
-      <span class="badge badge-dim">2026-03-16 10:34 KST</span>
-    </div>
-    <h1>E2E Test Results <span>by Pipeline Stage</span></h1>
-    <div class="sub">All 4 test flows mapped to Pipeline stages 0&ndash;7 &middot; Journey (30/31) + Gifting (7/7) + Creator (5/6) + Sample (5/6)</div>
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-meta">
+    <span class="badge badge-green">63 / 65 PASS</span>
+    <span class="badge badge-dim">2 tests</span>
+    <span class="badge badge-dim">8 pipeline stages</span>
+    <span class="badge badge-dim">2026-03-16</span>
   </div>
-
-  <!-- SCORECARD -->
-  <div class="scorecard-row">
-    <div class="sc g"><div class="sc-lbl">Total Steps</div><div class="sc-val g">47/50</div><div class="sc-sub">1 skip + 2 non-critical</div></div>
-    <div class="sc p"><div class="sc-lbl">Flows Run</div><div class="sc-val p">4</div><div class="sc-sub">Journey + Gifting + Creator + Sample</div></div>
-    <div class="sc t"><div class="sc-lbl">Pipeline Stages</div><div class="sc-val t">8</div><div class="sc-sub">Stage 0 through 7 all covered</div></div>
-    <div class="sc o"><div class="sc-lbl">n8n Webhooks</div><div class="sc-val o">5</div><div class="sc-sub">draft-gen, gifting, gifting2, fulfillment, approval</div></div>
-  </div>
-
-  <!-- FLOW SUMMARY TABLE -->
-  <div class="summary-block">
-    <table>
-      <thead><tr><th>Flow</th><th>Covers Stages</th><th>Steps</th><th>Result</th><th>Key Systems</th></tr></thead>
-      <tbody>
-        <tr style="background:var(--purple-bg);">
-          <td><strong>Full Customer Journey</strong></td>
-          <td style="font-size:12px;">0 &rarr; 1a &rarr; 1c &rarr; 1.5 &rarr; 2 &rarr; 4 &rarr; 5 &rarr; 6.5 &rarr; 7</td>
-          <td>30/31</td>
-          <td><span class="status-pill sp-pass">PASS</span></td>
-          <td style="font-size:12px;">n8n + Airtable + Shopify + Claude AI</td>
-        </tr>
-        <tr>
-          <td><strong>Influencer Gifting</strong></td>
-          <td style="font-size:12px;">Stage 2</td>
-          <td>7/7</td>
-          <td><span class="status-pill sp-pass">PASS</span></td>
-          <td style="font-size:12px;">n8n + Airtable + Shopify + PG</td>
-        </tr>
-        <tr>
-          <td><strong>Creator Profile</strong></td>
-          <td style="font-size:12px;">Stage 3</td>
-          <td>5/6</td>
-          <td><span class="status-pill sp-pass">PASS</span></td>
-          <td style="font-size:12px;">n8n + Airtable</td>
-        </tr>
-        <tr>
-          <td><strong>Sample Request</strong></td>
-          <td style="font-size:12px;">Stage 3 &rarr; 4</td>
-          <td>5/6</td>
-          <td><span class="status-pill sp-pass">PASS</span></td>
-          <td style="font-size:12px;">n8n + Airtable + Shopify</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- ==================== STAGE-BY-STAGE TEST CASES ==================== -->
-  <div class="case-section">
-    <div style="margin-bottom:24px;">
-      <div class="case-section-title">E2E Test Cases &mdash; By Pipeline Stage</div>
-      <div class="case-section-sub">Real E2E runs executed 2026-03-16. Journey flow covers full pipeline end-to-end. Component flows provide independent verification of individual stages. All Shopify IDs, Draft Orders, and Airtable records are real.</div>
-    </div>
-
-    <div class="case-compare">
-
-      <!-- HEADER -->
-      <div class="case-head">
-        <div class="case-head-cell" style="background:#f3f4f6;color:var(--dim);">Stage</div>
-        <div class="case-head-cell journey">Journey Flow &middot; @sarahkim_flowtest_03161034<br><span style="font-weight:400;font-size:11px;">Full customer journey &middot; 30/31 PASS &middot; 5 email conversations &middot; 10:34 KST</span></div>
-        <div class="case-head-cell component">Component Flows (Gifting + Creator + Sample)<br><span style="font-weight:400;font-size:11px;">Independent stage verification &middot; 17/19 PASS &middot; 10:36 KST</span></div>
-      </div>
-
-      <!-- STAGE 0: Discovery -->
-      <div class="case-row">
-        <div class="case-stage-cell">
-          <div class="case-stage-num">Stage 0</div>
-          <div class="case-stage-name">Discovery / Seed</div>
-          <div class="case-stage-wf">Syncly detection<br>or manual seed<br>to Airtable Creators</div>
-        </div>
-        <div class="case-col">
-          <span class="case-badge journey-b">JOURNEY</span> <span class="case-badge pass">PASS</span>
-          <div class="case-kv"><span class="case-k">Source</span><span class="case-v">Manual seed &mdash; simulates Syncly detecting a creator</span></div>
-          <div class="case-kv"><span class="case-k">Username</span><span class="case-v">sarahkim_flowtest_03161034</span></div>
-          <div class="case-kv"><span class="case-k">Email</span><span class="case-v">wj.choi@orbiters.co.kr</span></div>
-          <div class="case-kv"><span class="case-k">Profile</span><span class="case-v">IG &middot; 8.5K followers &middot; ER 5.3% &middot; LA based</span></div>
-          <div class="case-kv"><span class="case-k">Classification</span><span class="case-v">Grosmimi &middot; Syncly Level: Fully Matched</span></div>
-          <div class="at-box"><div class="at-title">Airtable &middot; Creators (tbl7zJ1MscP852p9N)</div>
-            <div class="case-kv"><span class="case-k">Record</span><span class="case-v"><a href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/rec1Pceig30lPvJ1h" target="_blank">rec1Pceig30lPvJ1h</a></span></div>
-            <div class="case-kv"><span class="case-k">Partnership</span><span class="case-v"><strong>New</strong></span></div>
-            <div class="case-kv"><span class="case-k">Outreach Status</span><span class="case-v"><strong>Not Started</strong></span></div>
-            <div class="case-kv"><span class="case-k">Touch type</span><span class="case-v">Low</span></div>
-          </div>
-        </div>
-        <div class="case-col skip-col">
-          <span class="case-badge skip">NOT COVERED</span>
-          <div class="skip-note">Component flows start at Stage 2 (Gifting) or Stage 3 (Creator/Sample). Discovery is only tested in the Journey flow.</div>
-        </div>
-      </div>
-
-      <!-- STAGE 1a: Draft Gen -->
-      <div class="case-row">
-        <div class="case-stage-cell">
-          <div class="case-stage-num">Stage 1a</div>
-          <div class="case-stage-name">Draft Gen</div>
-          <div class="case-stage-wf">n8n: 0q9uJUYTpDhQFMfz<br>wj-test-draft-gen<br>Claude AI ~60s</div>
-        </div>
-        <div class="case-col">
-          <span class="case-badge journey-b">JOURNEY</span> <span class="case-badge pass">PASS</span>
-          <div class="case-kv"><span class="case-k">Input to Claude</span><span class="case-v">username, bio, follower count, brand classification</span></div>
-          <div class="case-kv"><span class="case-k">Template</span><span class="case-v">Generic LT outreach (Google Drive system prompt)</span></div>
-          <div class="case-email-box">Subject: Collab? Onzenna x sarahkim_flowtest_03161034
-
-Hi sarahkim_flowtest_03161034!
-
-I'm William Choi from the Onzenna team. I checked out
-your recent Instagram content and was really impressed
-by how you capture the authentic, everyday moments of
-motherhood...
-
-Our Grosmimi PPSU straw cups have become a staple for
-thousands of families.
-
-We'd love to gift you some products - no strings attached:
-https://onzenna.com/pages/influencer-gifting
-
-William &middot; Onzenna Team</div>
-          <div style="font-size:11px;color:var(--dim);margin-top:4px;">Auto-generated by Claude AI (Stage 1a n8n) &middot; LT = no human approval needed</div>
-          <div class="at-box"><div class="at-title">Airtable &middot; Conversations (tblUnBCTmGzBb4BjZ)</div>
-            <div class="case-kv"><span class="case-k">Record</span><span class="case-v"><a href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recanldCppjSRaoVZ" target="_blank">recanldCppjSRaoVZ</a></span></div>
-            <div class="case-kv"><span class="case-k">Status</span><span class="case-v">Not Started &rarr; <strong>Draft Ready</strong></span></div>
-            <div class="case-kv"><span class="case-k">Draft field</span><span class="case-v">Email body saved in "Draft Email"</span></div>
-          </div>
-        </div>
-        <div class="case-col skip-col">
-          <span class="case-badge skip">NOT COVERED</span>
-          <div class="skip-note">Draft generation is only tested in the Journey flow (requires Claude AI + Airtable Conversations table).</div>
-        </div>
-      </div>
-
-      <!-- STAGE 1c: Email Send -->
-      <div class="case-row">
-        <div class="case-stage-cell">
-          <div class="case-stage-num">Stage 1c</div>
-          <div class="case-stage-name">Email Send</div>
-          <div class="case-stage-wf">n8n: mmkBpmvhzbgmSayh<br>wj-test-approval-send<br>Gmail API</div>
-        </div>
-        <div class="case-col">
-          <span class="case-badge journey-b">JOURNEY</span> <span class="case-badge pass">PASS</span>
-          <div class="case-kv"><span class="case-k">Simulated</span><span class="case-v">Outbound email conversation record created in Airtable</span></div>
-          <div class="case-kv"><span class="case-k">Direction</span><span class="case-v">Outbound</span></div>
-          <div class="case-kv"><span class="case-k">Channel</span><span class="case-v">Email</span></div>
-          <div class="case-email-box">Subject: Grosmimi x @sarahkim Collab Opportunity
-
-Hi Sarah!
-
-I'm William from the Onzenna team. We love your content
-about honest baby product reviews...
-
-[Full outreach email]</div>
-          <div class="at-box"><div class="at-title">Airtable &middot; Conversations</div>
-            <div class="case-kv"><span class="case-k">Record</span><span class="case-v"><a href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recV55bRfS6gqgfmd" target="_blank">recV55bRfS6gqgfmd</a></span></div>
-            <div class="case-kv"><span class="case-k">Status</span><span class="case-v">Draft Ready &rarr; <strong>Sent</strong></span></div>
-          </div>
-        </div>
-        <div class="case-col skip-col">
-          <span class="case-badge skip">NOT COVERED</span>
-          <div class="skip-note">Email send is only tested in the Journey flow. Component flows skip outreach stages.</div>
-        </div>
-      </div>
-
-      <!-- STAGE 1.5: Reply Handler -->
-      <div class="case-row">
-        <div class="case-stage-cell">
-          <div class="case-stage-num">Stage 1.5</div>
-          <div class="case-stage-name">Reply &rarr; Reply Handler</div>
-          <div class="case-stage-wf">n8n: nVtYmhU0InRqRn4K<br>Gmail poll every 5min</div>
-        </div>
-        <div class="case-col">
-          <span class="case-badge journey-b">JOURNEY</span> <span class="case-badge pass">PASS</span>
-          <div class="case-kv"><span class="case-k">Reply (in)</span><span class="case-v">"Hi William! I'd love to try the PPSU Straw Cup for my daughter. She's 14 months and we're transitioning from bottles. What are the next steps?"</span></div>
-          <div class="case-kv"><span class="case-k">Classify</span><span class="case-v">LT &rarr; auto-ack (no human gate)</span></div>
-          <div class="at-box"><div class="at-title">Airtable &middot; Conversations</div>
-            <div class="case-kv"><span class="case-k">Record</span><span class="case-v"><a href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recRRSMEB3RYIuDlA" target="_blank">recRRSMEB3RYIuDlA</a></span></div>
-            <div class="case-kv"><span class="case-k">Direction</span><span class="case-v"><strong>Inbound</strong></span></div>
-            <div class="case-kv"><span class="case-k">Status</span><span class="case-v">Sent &rarr; Replied &rarr; <strong>Needs Review</strong></span></div>
-          </div>
-          <div style="margin-top:8px;">
-            <div class="case-kv"><span class="case-k">Confirmation</span><span class="case-v">Outbound: gifting form link + content guidelines sent</span></div>
-            <div class="at-box"><div class="at-title">Airtable &middot; Conversations (Confirmation)</div>
-              <div class="case-kv"><span class="case-k">Record</span><span class="case-v"><a href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recMtLMnCrP6Xh8Gm" target="_blank">recMtLMnCrP6Xh8Gm</a></span></div>
-              <div class="case-kv"><span class="case-k">Direction</span><span class="case-v">Outbound</span></div>
-            </div>
-          </div>
-        </div>
-        <div class="case-col skip-col">
-          <span class="case-badge skip">NOT COVERED</span>
-          <div class="skip-note">Reply handling is only tested in the Journey flow. Component flows start from form submission.</div>
-        </div>
-      </div>
-
-      <!-- STAGE 2: Gifting Application -->
-      <div class="case-row">
-        <div class="case-stage-cell">
-          <div class="case-stage-num">Stage 2</div>
-          <div class="case-stage-name">Gifting Application</div>
-          <div class="case-stage-wf">n8n: 4q5NCzMb3nMGYqL4<br>/wj-test-influencer-gifting<br>5 parallel ops</div>
-        </div>
-        <div class="case-col">
-          <span class="case-badge journey-b">JOURNEY</span> <span class="case-badge pass">PASS</span>
-          <div class="case-kv"><span class="case-k">IG handle</span><span class="case-v">@sarahkim_flowtest_03161034</span></div>
-          <div class="case-kv"><span class="case-k">Products</span><span class="case-v">Grosmimi PPSU Straw Cup 10oz White</span></div>
-          <div class="case-kv"><span class="case-k">Ship to</span><span class="case-v">456 Demo Ave, Los Angeles CA 90002</span></div>
-          <div class="shopify-box"><div class="shopify-title">Shopify</div>
-            <div class="case-kv"><span class="case-k">Customer</span><span class="case-v"><a href="https://toddie-4080.myshopify.com/admin/customers/7057180098882" target="_blank"><strong>7057180098882</strong></a> &mdash; tags: influencer-gifting, PR</span></div>
-            <div class="case-kv"><span class="case-k">Draft Order</span><span class="case-v"><strong>#D1518</strong> (ID: 1516065980786) &middot; 100% PR discount &middot; $0.00</span></div>
-          </div>
-          <div class="at-box"><div class="at-title">Airtable &middot; Applicants (tbloYjIEr5OtEppT0)</div>
-            <div class="case-kv"><span class="case-k">Record</span><span class="case-v"><a href="https://airtable.com/appT2gLRR0PqMFgII/tbloYjIEr5OtEppT0/recLlFdvv7W032zO0" target="_blank">recLlFdvv7W032zO0</a></span></div>
-            <div class="case-kv"><span class="case-k">Status</span><span class="case-v"><strong>New</strong></span></div>
-          </div>
-        </div>
-        <div class="case-col">
-          <span class="case-badge component-b">GIFTING</span> <span class="case-badge pass">PASS 7/7</span>
-          <div class="case-kv"><span class="case-k">Name / Email</span><span class="case-v">FlowTest &middot; flow_test_20260316_103600@orbiters.co.kr</span></div>
-          <div class="case-kv"><span class="case-k">IG handle</span><span class="case-v">@flowtest_ig_03161036</span></div>
-          <div class="case-kv"><span class="case-k">Products</span><span class="case-v">Grosmimi PPSU Straw Cup 10oz White</span></div>
-          <div class="shopify-box"><div class="shopify-title">Shopify</div>
-            <div class="case-kv"><span class="case-k">Customer</span><span class="case-v"><a href="https://toddie-4080.myshopify.com/admin/customers/27036239036786" target="_blank"><strong>27036239036786</strong></a> &mdash; tags: influencer-gifting, PR</span></div>
-            <div class="case-kv"><span class="case-k">Draft Order</span><span class="case-v"><strong>#D1519</strong> &middot; 100% PR discount &middot; $0.00</span></div>
-            <div class="case-kv"><span class="case-k">Metafields</span><span class="case-v">influencer.instagram + .tiktok verified</span></div>
-          </div>
-          <div class="at-box"><div class="at-title">Airtable &middot; Applicants + Creators</div>
-            <div class="case-kv"><span class="case-k">Applicant</span><span class="case-v"><a href="https://airtable.com/appT2gLRR0PqMFgII/tbloYjIEr5OtEppT0/rec22vNt2dj3dkxSi" target="_blank">rec22vNt2dj3dkxSi</a></span></div>
-            <div class="case-kv"><span class="case-k">Creator</span><span class="case-v"><a href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/recEnSElQgPzNnHsX" target="_blank">recEnSElQgPzNnHsX</a> (Outreach: Needs Review)</span></div>
-          </div>
-          <div class="pg-box"><div class="pg-title">PostgreSQL &middot; Gifting API</div>
-            <div class="case-kv"><span class="case-k">Endpoint</span><span class="case-v">orbitools gifting/list/ &mdash; record confirmed</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- STAGE 3: Creator Profile + Accept -->
-      <div class="case-row">
-        <div class="case-stage-cell">
-          <div class="case-stage-num">Stage 3</div>
-          <div class="case-stage-name">Creator Profile &amp; Accept &rarr; Sample Form</div>
-          <div class="case-stage-wf">n8n: creator-to-airtable<br>+ n8n: 734aqkcOIfiylExL<br>Gifting2 (Sample Request)</div>
-        </div>
-        <div class="case-col skip-col">
-          <span class="case-badge skip">NOT COVERED</span>
-          <div class="skip-note">Journey flow skips the standalone creator profile step (creator is seeded directly at Stage 0). Creator profile and sample form are tested independently via component flows.</div>
-        </div>
-        <div class="case-col">
-          <span class="case-badge component-b">CREATOR</span> <span class="case-badge pass">PASS 5/6</span>
-          <div class="case-kv"><span class="case-k">Name / Email</span><span class="case-v">FlowTest Creator &middot; flow_test_20260316@orbiters.co.kr</span></div>
-          <div class="case-kv"><span class="case-k">Platform</span><span class="case-v">Instagram</span></div>
-          <div class="case-kv"><span class="case-k">Shopify</span><span class="case-v">No customer created (expected &mdash; creator-only flow)</span></div>
-          <div class="at-box"><div class="at-title">Airtable &middot; Applicants</div>
-            <div class="case-kv"><span class="case-k">Record</span><span class="case-v"><a href="https://airtable.com/appT2gLRR0PqMFgII/tbloYjIEr5OtEppT0/recjDN7MmHcz20qy6" target="_blank">recjDN7MmHcz20qy6</a> (Status: New)</span></div>
-          </div>
-          <div class="note-block" style="margin:8px 0 0;"><strong>Step 5 SKIP:</strong> Metafield check skipped &mdash; creator flow does not create Shopify customer. Expected behavior.</div>
-          <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
-            <span class="case-badge component-b">SAMPLE</span> <span class="case-badge pass">PASS 5/6</span>
-            <div class="case-kv"><span class="case-k">Name / Email</span><span class="case-v">FlowTest Sample &middot; flow_test_20260316@orbiters.co.kr</span></div>
-            <div class="case-kv"><span class="case-k">Products</span><span class="case-v">Grosmimi PPSU Straw Cup 10oz White</span></div>
-            <div class="shopify-box"><div class="shopify-title">Shopify</div>
-              <div class="case-kv"><span class="case-k">Customer</span><span class="case-v"><a href="https://toddie-4080.myshopify.com/admin/customers/27036239626610" target="_blank"><strong>27036239626610</strong></a></span></div>
-              <div class="case-kv"><span class="case-k">Draft Order</span><span class="case-v">ID: 1516066111858 &middot; 100% PR discount</span></div>
-            </div>
-            <div class="at-box"><div class="at-title">Airtable &middot; Applicants + Creators</div>
-              <div class="case-kv"><span class="case-k">Applicant</span><span class="case-v"><a href="https://airtable.com/appT2gLRR0PqMFgII/tbloYjIEr5OtEppT0/recr1n3IPoAiZy9Zy" target="_blank">recr1n3IPoAiZy9Zy</a> (Status: Accepted)</span></div>
-              <div class="case-kv"><span class="case-k">Creator</span><span class="case-v"><a href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/recQcnw8emXcSwjhB" target="_blank">recQcnw8emXcSwjhB</a> (Outreach: Sample Sent)</span></div>
-            </div>
-            <div class="note-block" style="margin:8px 0 0;"><strong>Step 4 FAIL* (non-critical):</strong> Draft order created (webhook returned <code>draft_order_id: 1516066111858</code>), but Shopify Draft Orders list API doesn't support filtering by customer_id. Order exists &mdash; Airtable captured it. Test limitation, not pipeline issue.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- STAGE 4: Fulfillment / Sample Sent -->
-      <div class="case-row">
-        <div class="case-stage-cell">
-          <div class="case-stage-num">Stage 4</div>
-          <div class="case-stage-name">Sample Sent</div>
-          <div class="case-stage-wf">n8n: UP1OnpNEFN54AOUn<br>Shopify fulfillment<br>wj-test-shopify-fulfillment</div>
-        </div>
-        <div class="case-col">
-          <span class="case-badge journey-b">JOURNEY</span> <span class="case-badge pass">PASS</span>
-          <div class="case-kv"><span class="case-k">n8n webhook</span><span class="case-v">wj-test-shopify-fulfillment &rarr; "Workflow was started"</span></div>
-          <div class="case-kv"><span class="case-k">Order</span><span class="case-v">Grosmimi PPSU Straw Cup 10oz White (qty 1)</span></div>
-          <div class="case-kv"><span class="case-k">Guideline email</span><span class="case-v">Simulated via Conversations record</span></div>
-          <div class="at-box"><div class="at-title">Airtable &middot; Orders (tblCcWpvDZX7UZmSd)</div>
-            <div class="case-kv"><span class="case-k">Record</span><span class="case-v"><a href="https://airtable.com/appT2gLRR0PqMFgII/tblCcWpvDZX7UZmSd/reccxaZrukhTTvdYi" target="_blank">reccxaZrukhTTvdYi</a></span></div>
-            <div class="case-kv"><span class="case-k">Status</span><span class="case-v">Accepted &rarr; <strong>Sample Shipped</strong></span></div>
-          </div>
-          <div class="at-box"><div class="at-title">Airtable &middot; Conversations (Guidelines Email)</div>
-            <div class="case-kv"><span class="case-k">Record</span><span class="case-v"><a href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recYsu6cwSPPwV0ja" target="_blank">recYsu6cwSPPwV0ja</a></span></div>
-            <div class="case-kv"><span class="case-k">Direction</span><span class="case-v">Outbound &mdash; order confirmation + shipping details + 30-day deadline</span></div>
-          </div>
-        </div>
-        <div class="case-col skip-col">
-          <span class="case-badge skip">NOT COVERED</span>
-          <div class="skip-note">Fulfillment is only tested via the Journey flow's n8n fulfillment webhook trigger.</div>
-        </div>
-      </div>
-
-      <!-- STAGE 5: Delivered -->
-      <div class="case-row">
-        <div class="case-stage-cell">
-          <div class="case-stage-num">Stage 5</div>
-          <div class="case-stage-name">Sample Delivered</div>
-          <div class="case-stage-wf">n8n: 2vsXyHtjo79hnFoD<br>Shopify tracking<br>poll every 30min</div>
-        </div>
-        <div class="case-col">
-          <span class="case-badge journey-b">JOURNEY</span> <span class="case-badge pass">PASS (simulated)</span>
-          <div class="case-kv"><span class="case-k">Method</span><span class="case-v">Creator status updated to "Sample Shipped" via fulfillment webhook</span></div>
-          <div class="case-kv"><span class="case-k">Verified</span><span class="case-v">Airtable Creator record shows Status = "Sample Shipped"</span></div>
-          <div class="skip-note">Delivery detection (30-min polling) is a time-dependent process &mdash; simulated by updating status directly. The n8n workflow (2vsXyHtjo79hnFoD) is active and ON.</div>
-        </div>
-        <div class="case-col skip-col">
-          <span class="case-badge skip">NOT COVERED</span>
-          <div class="skip-note">Delivery detection requires real Shopify fulfillment tracking. Covered by Journey flow simulation.</div>
-        </div>
-      </div>
-
-      <!-- STAGE 6.5: Content Guideline -->
-      <div class="case-row">
-        <div class="case-stage-cell">
-          <div class="case-stage-num">Stage 6.5</div>
-          <div class="case-stage-name">Content Guideline Email</div>
-          <div class="case-stage-wf">Post-delivery auto<br>affiliates@onzenna.com<br>PDF + hashtag guide</div>
-        </div>
-        <div class="case-col">
-          <span class="case-badge journey-b">JOURNEY</span> <span class="case-badge pass">PASS (simulated)</span>
-          <div class="case-kv"><span class="case-k">Method</span><span class="case-v">Content guideline conversation record created in Airtable</span></div>
-          <div class="case-kv"><span class="case-k">Content</span><span class="case-v">Product guidelines + 30-day content deadline + hashtag requirements</span></div>
-          <div class="at-box"><div class="at-title">Airtable &middot; Conversations</div>
-            <div class="case-kv"><span class="case-k">Record</span><span class="case-v"><a href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recYsu6cwSPPwV0ja" target="_blank">recYsu6cwSPPwV0ja</a></span></div>
-            <div class="case-kv"><span class="case-k">Direction</span><span class="case-v">Outbound</span></div>
-          </div>
-        </div>
-        <div class="case-col skip-col">
-          <span class="case-badge skip">NOT COVERED</span>
-          <div class="skip-note">Guideline email is post-delivery automation. Covered by Journey flow simulation.</div>
-        </div>
-      </div>
-
-      <!-- STAGE 7: Posted -->
-      <div class="case-row">
-        <div class="case-stage-cell">
-          <div class="case-stage-num">Stage 7</div>
-          <div class="case-stage-name">Content Posted</div>
-          <div class="case-stage-wf">n8n: 82t55jurzbY3iUM4<br>Syncly D+60<br>poll every 6h</div>
-        </div>
-        <div class="case-col">
-          <span class="case-badge journey-b">JOURNEY</span> <span class="case-badge pass">PASS</span>
-          <div class="case-kv"><span class="case-k">Post type</span><span class="case-v">Instagram Reel: 2,800 views, 5.3% ER</span></div>
-          <div class="case-kv"><span class="case-k">Detection</span><span class="case-v">Simulates Syncly D+60 match &rarr; Content record created</span></div>
-          <div class="at-box"><div class="at-title">Airtable &middot; Content (tblSva2askQRwgGV1)</div>
-            <div class="case-kv"><span class="case-k">Record</span><span class="case-v"><a href="https://airtable.com/appT2gLRR0PqMFgII/tblSva2askQRwgGV1/recvvZb6PW3nxAsaG" target="_blank">recvvZb6PW3nxAsaG</a></span></div>
-            <div class="case-kv"><span class="case-k">Metrics</span><span class="case-v">2800 views &middot; 450 likes &middot; 85 comments</span></div>
-          </div>
-          <div class="at-box"><div class="at-title">Airtable &middot; Conversations (Thank-you)</div>
-            <div class="case-kv"><span class="case-k">Record</span><span class="case-v"><a href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recWiMCMQwJihzx0B" target="_blank">recWiMCMQwJihzx0B</a></span></div>
-            <div class="case-kv"><span class="case-k">Direction</span><span class="case-v">Outbound &mdash; thank-you email with performance metrics</span></div>
-          </div>
-          <div class="at-box"><div class="at-title">Airtable &middot; Creators &mdash; FINAL STATE</div>
-            <div class="case-kv"><span class="case-k">Record</span><span class="case-v"><a href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/rec1Pceig30lPvJ1h" target="_blank">rec1Pceig30lPvJ1h</a></span></div>
-            <div class="case-kv"><span class="case-k">Partnership</span><span class="case-v">New &rarr; <strong>Completed</strong></span></div>
-            <div class="case-kv"><span class="case-k">Conversations</span><span class="case-v"><strong>5 total</strong> (2 outbound, 1 inbound, 1 guidelines, 1 thank-you)</span></div>
-          </div>
-        </div>
-        <div class="case-col skip-col">
-          <span class="case-badge skip">NOT COVERED</span>
-          <div class="skip-note">Content detection is post-delivery automation. Covered by Journey flow simulation.</div>
-        </div>
-      </div>
-
-    </div><!-- /case-compare -->
-
-    <!-- PG Lifecycle Bar -->
-    <div style="margin-top:24px;background:#faf5ff;border:2px solid #e9d5ff;border-radius:12px;padding:20px;">
-      <div style="font-size:14px;font-weight:700;color:#7c3aed;margin-bottom:14px;">Pipeline Status Lifecycle &mdash; Full Journey Verified</div>
-      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;">
-        <span style="background:#f1f5f9;color:#475569;padding:4px 10px;border-radius:6px;font-weight:600;">Not Started</span>
-        <span style="color:#9ca3af;font-size:14px;">&rarr;</span>
-        <span style="background:#dbeafe;color:#1d4ed8;padding:4px 10px;border-radius:6px;font-weight:600;">Draft Ready</span>
-        <span style="color:#9ca3af;font-size:14px;">&rarr;</span>
-        <span style="background:#dbeafe;color:#1d4ed8;padding:4px 10px;border-radius:6px;font-weight:600;">Sent</span>
-        <span style="color:#9ca3af;font-size:14px;">&rarr;</span>
-        <span style="background:#fef3c7;color:#92400e;padding:4px 10px;border-radius:6px;font-weight:600;">Needs Review</span>
-        <span style="color:#9ca3af;font-size:14px;">&rarr;</span>
-        <span style="background:#dcfce7;color:#15803d;padding:4px 10px;border-radius:6px;font-weight:600;">Accepted</span>
-        <span style="color:#9ca3af;font-size:14px;">&rarr;</span>
-        <span style="background:#dcfce7;color:#15803d;padding:4px 10px;border-radius:6px;font-weight:600;">Sample Shipped</span>
-        <span style="color:#9ca3af;font-size:14px;">&rarr;</span>
-        <span style="background:#dcfce7;color:#15803d;padding:4px 10px;border-radius:6px;font-weight:600;">Sample Delivered</span>
-        <span style="color:#9ca3af;font-size:14px;">&rarr;</span>
-        <span style="background:#d1fae5;color:#065f46;padding:4px 10px;border-radius:6px;font-weight:700;">Posted &#10003;</span>
-      </div>
-      <div style="margin-top:12px;font-size:12px;color:#6b7280;">Journey flow verified transitions: Not Started &rarr; Draft Ready &rarr; Sent &rarr; Needs Review &rarr; Accepted &rarr; Sample Shipped &rarr; Completed. Each transition triggered by a dedicated n8n workflow or Airtable API call.</div>
-    </div>
-
-    <!-- Non-critical failures note -->
-    <div class="note-block" style="margin-top:16px;">
-      <strong>Non-critical Failures (3/50):</strong><br>
-      1. <strong>Journey Step 19:</strong> PostgreSQL gifting list endpoint returned empty. Gifting webhook works (Airtable + Shopify confirmed), but PG write may use different endpoint.<br>
-      2. <strong>Creator Step 5:</strong> Metafield check skipped &mdash; creator flow doesn't create Shopify customer. Expected behavior.<br>
-      3. <strong>Sample Step 4:</strong> Draft order created (webhook confirmed), but Shopify Draft Orders list API doesn't support filtering by customer_id. Test limitation only.
-    </div>
-  </div>
-
-  <!-- STAGE COVERAGE MATRIX -->
-  <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px;">
-    <h3 style="font-size:16px;font-weight:700;margin-bottom:16px;">Stage Coverage Matrix</h3>
-    <table style="width:100%;border-collapse:collapse;font-size:13px;">
-      <thead>
-        <tr style="border-bottom:2px solid var(--border);">
-          <th style="text-align:left;padding:8px;font-size:11px;text-transform:uppercase;color:var(--dim);">Pipeline Stage</th>
-          <th style="text-align:center;padding:8px;font-size:11px;text-transform:uppercase;color:var(--purple);">Journey</th>
-          <th style="text-align:center;padding:8px;font-size:11px;text-transform:uppercase;color:var(--teal);">Gifting</th>
-          <th style="text-align:center;padding:8px;font-size:11px;text-transform:uppercase;color:var(--teal);">Creator</th>
-          <th style="text-align:center;padding:8px;font-size:11px;text-transform:uppercase;color:var(--teal);">Sample</th>
-          <th style="text-align:center;padding:8px;font-size:11px;text-transform:uppercase;color:var(--dim);">Method</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:8px;font-weight:600;">0. Discovery</td><td style="text-align:center;color:var(--green);">PASS</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;font-size:11px;color:var(--dim);">Airtable seed</td></tr>
-        <tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:8px;font-weight:600;">1a. Draft Gen</td><td style="text-align:center;color:var(--green);">PASS</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;font-size:11px;color:var(--dim);">n8n webhook + Claude AI</td></tr>
-        <tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:8px;font-weight:600;">1c. Email Send</td><td style="text-align:center;color:var(--green);">PASS</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;font-size:11px;color:var(--dim);">Airtable conversation</td></tr>
-        <tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:8px;font-weight:600;">1.5. Reply</td><td style="text-align:center;color:var(--green);">PASS</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;font-size:11px;color:var(--dim);">Airtable conversation</td></tr>
-        <tr style="border-bottom:1px solid #f3f4f6;background:var(--green-bg);"><td style="padding:8px;font-weight:600;">2. Gifting App</td><td style="text-align:center;color:var(--green);font-weight:700;">PASS</td><td style="text-align:center;color:var(--green);font-weight:700;">7/7</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;font-size:11px;color:var(--dim);">n8n webhook (real)</td></tr>
-        <tr style="border-bottom:1px solid #f3f4f6;background:var(--green-bg);"><td style="padding:8px;font-weight:600;">3. Creator + Sample</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;color:var(--green);font-weight:700;">5/6</td><td style="text-align:center;color:var(--green);font-weight:700;">5/6</td><td style="text-align:center;font-size:11px;color:var(--dim);">n8n webhook (real)</td></tr>
-        <tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:8px;font-weight:600;">4. Fulfillment</td><td style="text-align:center;color:var(--green);">PASS</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;font-size:11px;color:var(--dim);">n8n webhook (real)</td></tr>
-        <tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:8px;font-weight:600;">5. Delivered</td><td style="text-align:center;color:var(--green);">PASS*</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;font-size:11px;color:var(--dim);">Simulated</td></tr>
-        <tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:8px;font-weight:600;">6.5. Guideline</td><td style="text-align:center;color:var(--green);">PASS*</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;font-size:11px;color:var(--dim);">Simulated</td></tr>
-        <tr><td style="padding:8px;font-weight:600;">7. Posted</td><td style="text-align:center;color:var(--green);">PASS</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;color:var(--dim);">&mdash;</td><td style="text-align:center;font-size:11px;color:var(--dim);">Airtable content record</td></tr>
-      </tbody>
-    </table>
-    <div style="margin-top:12px;font-size:11px;color:var(--dim);">* Simulated = status transition verified via Airtable API, but actual polling/tracking (time-dependent) not triggered in test. n8n workflows are active and ON.</div>
-  </div>
-
-  <div class="footer">
-    Pathlight WJ TEST &middot; E2E Run 2026-03-16 10:34 KST &nbsp;|&nbsp;
-    <a href="." style="color:var(--accent);text-decoration:none;">Pipeline</a> &nbsp;&middot;&nbsp;
-    <a href="migration.html" style="color:var(--accent);text-decoration:none;">Migration</a>
-  </div>
-
+  <h1>E2E Test Results &mdash; <span>Human vs Auto</span></h1>
+  <p class="sub">Full journey tests with Human-in-the-Loop checkpoints identified at each pipeline stage. Two different creator profiles tested end-to-end.</p>
 </div>
+
+<!-- Scorecard -->
+<div class="scorecard">
+  <div class="sc g">
+    <div class="sc-val">63<span style="font-size:16px;color:var(--dim)">/65</span></div>
+    <div class="sc-label">Steps Passed</div>
+  </div>
+  <div class="sc p">
+    <div class="sc-val">5</div>
+    <div class="sc-label">Human Checkpoints</div>
+  </div>
+  <div class="sc b">
+    <div class="sc-val">8</div>
+    <div class="sc-label">Pipeline Stages</div>
+  </div>
+  <div class="sc r">
+    <div class="sc-val">2</div>
+    <div class="sc-label">Failures (PG sync)</div>
+  </div>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item"><span class="type-tag type-human">HUMAN</span> Human-in-the-Loop action</div>
+  <div class="legend-item"><span class="type-tag type-auto">AUTO</span> Automated by n8n / Claude AI</div>
+  <div class="legend-item"><span class="type-tag type-verify">VERIFY</span> Automated assertion check</div>
+  <div class="legend-item"><span class="r-pass">PASS</span> / <span class="r-fail">FAIL</span> Test result</div>
+</div>
+
+<!-- Test Profiles -->
+<div class="profiles">
+  <div class="profile">
+    <div class="profile-head">
+      <div class="profile-num t1">1</div>
+      <div>
+        <div class="profile-title">Sarah Kim &mdash; Instagram, Low Touch</div>
+        <div class="profile-sub">Mom creator, 5 email conversations, auto-approved</div>
+      </div>
+    </div>
+    <dl class="profile-grid">
+      <dt>Platform</dt><dd>Instagram</dd>
+      <dt>Outreach Type</dt><dd>Low Touch (auto-approve)</dd>
+      <dt>Followers</dt><dd>8,500 (5.3% ER)</dd>
+      <dt>Product</dt><dd>Straw Cup 10oz White</dd>
+      <dt>Location</dt><dd>Los Angeles, CA</dd>
+      <dt>Emails</dt><dd>5 conversations</dd>
+      <dt>Creator ID</dt><dd><a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/rec1Pceig30lPvJ1h" target="_blank">rec1Pceig30lPvJ1h</a></dd>
+      <dt>Draft Order</dt><dd>#D1518</dd>
+    </dl>
+    <div class="profile-result">
+      <div class="num r-pass">30/31</div>
+      <div class="lbl">steps passed &bull; PG sync fail (non-critical)</div>
+    </div>
+  </div>
+
+  <div class="profile">
+    <div class="profile-head">
+      <div class="profile-num t2">2</div>
+      <div>
+        <div class="profile-title">Mike Torres &mdash; TikTok, High Touch</div>
+        <div class="profile-sub">Dad creator, 7 email conversations, Q&A before accept</div>
+      </div>
+    </div>
+    <dl class="profile-grid">
+      <dt>Platform</dt><dd>TikTok <span class="diff">differs</span></dd>
+      <dt>Outreach Type</dt><dd>High Touch <span class="diff">differs</span></dd>
+      <dt>Followers</dt><dd>12,000 (6.7% ER) <span class="diff">differs</span></dd>
+      <dt>Product</dt><dd>Baby Bottle 9oz Sage Green <span class="diff">differs</span></dd>
+      <dt>Location</dt><dd>Austin, TX <span class="diff">differs</span></dd>
+      <dt>Emails</dt><dd>7 conversations <span class="diff">+Q&A</span></dd>
+      <dt>Creator ID</dt><dd><a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/recxyCxX5kS7m0ZNi" target="_blank">recxyCxX5kS7m0ZNi</a></dd>
+      <dt>Draft Order</dt><dd>#D1524 <span class="diff">differs</span></dd>
+    </dl>
+    <div class="profile-result">
+      <div class="num r-pass">33/34</div>
+      <div class="lbl">steps passed &bull; PG sync fail (non-critical)</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- STAGE 0: Discovery & Scoring -->
+<!-- ============================================================ -->
+<div class="stage">
+  <div class="stage-head">
+    <div class="stage-num">0</div>
+    <div class="stage-title">Discovery &amp; Scoring</div>
+    <div class="stage-badges">
+      <span class="type-tag type-auto">AUTO</span>
+    </div>
+  </div>
+  <div class="step-header">
+    <div>Type</div>
+    <div>Test #1 &mdash; Sarah Kim (IG / LT)</div>
+    <div>Test #2 &mdash; Mike Torres (TT / HT)</div>
+  </div>
+  <div class="stage-body">
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Seed IG creator profile in Airtable Creators
+        <div class="step-desc">8.5K followers, 5.3% ER, Low Touch, Straw Cup stage</div>
+        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/rec1Pceig30lPvJ1h" target="_blank">Creators &rarr; rec1Pce...</a>
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Seed TikTok creator profile in Airtable Creators
+        <div class="step-desc">12K followers, 6.7% ER, High Touch, Baby Bottle stage</div>
+        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/recxyCxX5kS7m0ZNi" target="_blank">Creators &rarr; recxyC...</a>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Verify: Platform=Instagram, Status=New, Type=Low Touch
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Verify: Platform=TikTok, Status=New, Type=High Touch
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- STAGE 1: AI Draft Generation -->
+<!-- ============================================================ -->
+<div class="stage">
+  <div class="stage-head">
+    <div class="stage-num">1</div>
+    <div class="stage-title">AI Draft Generation</div>
+    <div class="stage-badges">
+      <span class="type-tag type-auto">AUTO</span>
+    </div>
+  </div>
+  <div class="step-header">
+    <div>Type</div>
+    <div>Test #1 &mdash; Sarah Kim (IG / LT)</div>
+    <div>Test #2 &mdash; Mike Torres (TT / HT)</div>
+  </div>
+  <div class="stage-body">
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Trigger n8n draft-gen webhook
+        <div class="step-desc">POST /webhook/wj-test-draft-gen &rarr; 200 OK</div>
+        <a class="step-link" href="https://n8n.orbiters.co.kr/workflow/0q9uJUYTpDhQFMfz" target="_blank">n8n Workflow &rarr; draft-gen</a>
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Trigger n8n draft-gen webhook
+        <div class="step-desc">POST /webhook/wj-test-draft-gen &rarr; 200 OK</div>
+        <a class="step-link" href="https://n8n.orbiters.co.kr/workflow/0q9uJUYTpDhQFMfz" target="_blank">n8n Workflow &rarr; draft-gen</a>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Wait 65s for Claude AI generation
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Wait 65s for Claude AI generation
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> AI draft in Conversations table (IG-specific language)
+        <div class="step-desc">Subject: "Paid Collab Opportunity: Onzenna x sarahkim_flowtest..."</div>
+        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recanldCppjSRaoVZ" target="_blank">Conversations &rarr; recanl...</a>
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> AI draft in Conversations table (TikTok-specific language)
+        <div class="step-desc">Subject: "Paid Collab Opportunity: Onzenna x miketorres_flowtest..."</div>
+        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recwvaiYiuEHbd2Uu" target="_blank">Conversations &rarr; recwva...</a>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Creator status &rarr; "Draft Ready"
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Creator status &rarr; "Draft Ready"
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- STAGE 2: Review & Send -->
+<!-- ============================================================ -->
+<div class="stage">
+  <div class="stage-head">
+    <div class="stage-num">2</div>
+    <div class="stage-title">Review &amp; Send</div>
+    <div class="stage-badges">
+      <span class="type-tag type-human">HUMAN (HT)</span>
+      <span class="type-tag type-auto">AUTO (LT)</span>
+    </div>
+  </div>
+  <div class="step-header">
+    <div>Type</div>
+    <div>Test #1 &mdash; Sarah Kim (IG / LT)</div>
+    <div>Test #2 &mdash; Mike Torres (TT / HT)</div>
+  </div>
+  <div class="stage-body">
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-human">HUMAN</span></div>
+      <div class="step-t1">
+        <span class="r-skip">SKIPPED</span> <em>Low Touch = auto-approved, no human review needed</em>
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Marketer reviews AI draft (High Touch checkpoint)
+        <div class="step-desc">Checks TikTok tone, product match (Baby Bottle 9oz for 7mo), approve</div>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Log outreach email in Conversations (Outbound)
+        <div class="step-desc">Direction: Outbound, Channel: Email, Status: Sent</div>
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Log outreach email in Conversations (Outbound)
+        <div class="step-desc">Direction: Outbound, Channel: Email, Status: Sent</div>
+        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recukPgwgjVVdPwEj" target="_blank">Conversations &rarr; recukP...</a>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Update creator Outreach Status &rarr; "Sent"
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Update creator Outreach Status &rarr; "Sent"
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- STAGE 3: Reply & Q&A -->
+<!-- ============================================================ -->
+<div class="stage">
+  <div class="stage-head">
+    <div class="stage-num">3</div>
+    <div class="stage-title">Reply Processing &amp; Q&amp;A</div>
+    <div class="stage-badges">
+      <span class="type-tag type-human">HUMAN (HT Q&A)</span>
+      <span class="type-tag type-auto">AUTO</span>
+    </div>
+  </div>
+  <div class="step-header">
+    <div>Type</div>
+    <div>Test #1 &mdash; Sarah Kim (IG / LT)</div>
+    <div>Test #2 &mdash; Mike Torres (TT / HT)</div>
+  </div>
+  <div class="stage-body">
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Log acceptance reply (Inbound)
+        <div class="step-desc">Creator directly accepts: "I'd love to collaborate!"</div>
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Log QUESTION email (Inbound)
+        <div class="step-desc">Creator asks 4 questions: BPA safety, age range, timeline, honesty policy</div>
+        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recLEV0hQjF1gLuJG" target="_blank">Conversations &rarr; recLEV...</a>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Update status &rarr; "Replied"
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Update status &rarr; "Replied", Partnership &rarr; "In Progress"
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-human">HUMAN</span></div>
+      <div class="step-t1">
+        <span class="r-skip">SKIPPED</span> <em>No Q&A needed (Low Touch direct accept)</em>
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Team answers 4 questions (Human checkpoint)
+        <div class="step-desc">BPA-free + FDA/SGS certs, 9oz for 6-12mo, 30-day timeline, honest reviews welcome</div>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1" style="visibility:hidden">&mdash;</div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Log team ANSWER email (Outbound)
+        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recj7MN1Ar00HaW7H" target="_blank">Conversations &rarr; recj7M...</a>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1" style="visibility:hidden">&mdash;</div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Log creator ACCEPTANCE email (Inbound, post-Q&A)
+        <div class="step-desc">"Thanks for the answers! I'm in. Send me the form."</div>
+        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/reckENzt4rW5gAclY" target="_blank">Conversations &rarr; reckEN...</a>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Send confirmation email + gifting form link
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Send confirmation email + gifting form link + content tips
+        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/rechoAEtTOTdzisUm" target="_blank">Conversations &rarr; rechoA...</a>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Update status &rarr; "Confirmed"
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Update status &rarr; "Confirmed"
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- STAGE 4: Gifting Application -->
+<!-- ============================================================ -->
+<div class="stage">
+  <div class="stage-head">
+    <div class="stage-num">4</div>
+    <div class="stage-title">Gifting Application</div>
+    <div class="stage-badges">
+      <span class="type-tag type-human">HUMAN (form)</span>
+      <span class="type-tag type-auto">AUTO</span>
+    </div>
+  </div>
+  <div class="step-header">
+    <div>Type</div>
+    <div>Test #1 &mdash; Sarah Kim (IG / LT)</div>
+    <div>Test #2 &mdash; Mike Torres (TT / HT)</div>
+  </div>
+  <div class="stage-body">
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-human">HUMAN</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Creator submits gifting form (simulated via webhook)
+        <div class="step-desc">POST /webhook/wj-test-influencer-gifting &rarr; 200</div>
+        <a class="step-link" href="https://n8n.orbiters.co.kr/workflow/4q5NCzMb3nMGYqL4" target="_blank">n8n Workflow &rarr; gifting</a>
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Creator submits gifting form (simulated via webhook)
+        <div class="step-desc">POST /webhook/wj-test-influencer-gifting &rarr; 200</div>
+        <a class="step-link" href="https://n8n.orbiters.co.kr/workflow/4q5NCzMb3nMGYqL4" target="_blank">n8n Workflow &rarr; gifting</a>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> n8n creates Draft Order #D1518
+        <div class="step-desc">Shopify draft order + Airtable Applicant record auto-created</div>
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> n8n creates Draft Order #D1524
+        <div class="step-desc">Shopify draft order + Airtable Applicant record auto-created</div>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Applicant record exists in Airtable
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Applicant record exists in Airtable
+        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbloYjIEr5OtEppT0/recLlFdvv7W032zO0" target="_blank">Applicants &rarr; recLlF...</a>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Shopify customer created
+        <a class="step-link" href="https://toddie-4080.myshopify.com/admin/customers/7057180098882" target="_blank">Shopify Customer &rarr; 7057...</a>
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Shopify customer created
+        <a class="step-link" href="https://toddie-4080.myshopify.com/admin/customers/7057180098882" target="_blank">Shopify Customer &rarr; 7057...</a>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Shopify draft order verified
+      </div>
+      <div class="step-t2" style="color:var(--dim);font-style:italic">
+        (Draft order verified via gifting response)
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
+      <div class="step-t1">
+        <span class="r-fail">FAIL</span> PostgreSQL gifting record
+        <div class="step-desc">Non-critical: PG sync not yet deployed to WJ TEST</div>
+      </div>
+      <div class="step-t2">
+        <span class="r-fail">FAIL</span> PostgreSQL gifting record
+        <div class="step-desc">Non-critical: PG sync not yet deployed to WJ TEST</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- STAGE 5: Sample & Order -->
+<!-- ============================================================ -->
+<div class="stage">
+  <div class="stage-head">
+    <div class="stage-num">5</div>
+    <div class="stage-title">Sample &amp; Order Processing</div>
+    <div class="stage-badges">
+      <span class="type-tag type-human">HUMAN (review)</span>
+      <span class="type-tag type-auto">AUTO</span>
+    </div>
+  </div>
+  <div class="step-header">
+    <div>Type</div>
+    <div>Test #1 &mdash; Sarah Kim (IG / LT)</div>
+    <div>Test #2 &mdash; Mike Torres (TT / HT)</div>
+  </div>
+  <div class="stage-body">
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Submit sample request (gifting2 webhook)
+        <div class="step-desc">POST /webhook/wj-test-gifting2 &rarr; 200</div>
+        <a class="step-link" href="https://n8n.orbiters.co.kr/workflow/734aqkcOIfiylExL" target="_blank">n8n Workflow &rarr; gifting2</a>
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Update creator status &rarr; "Sample Sent"
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Creators table updated (Draft Order ID synced)
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Log guidelines email (order confirmation + content brief)
+        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recTHIAAyOLaEuPk7" target="_blank">Conversations &rarr; recTHI...</a>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Verify Applicants table updated
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Create Order record in Orders table
+        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblCcWpvDZX7UZmSd/recW0UHo9gm9MnSrV" target="_blank">Orders &rarr; recW0U...</a>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Verify Creators table updated
+      </div>
+      <div class="step-t2" style="visibility:hidden">&mdash;</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- STAGE 6: Fulfillment -->
+<!-- ============================================================ -->
+<div class="stage">
+  <div class="stage-head">
+    <div class="stage-num">6</div>
+    <div class="stage-title">Fulfillment &amp; Shipping</div>
+    <div class="stage-badges">
+      <span class="type-tag type-auto">AUTO</span>
+    </div>
+  </div>
+  <div class="step-header">
+    <div>Type</div>
+    <div>Test #1 &mdash; Sarah Kim (IG / LT)</div>
+    <div>Test #2 &mdash; Mike Torres (TT / HT)</div>
+  </div>
+  <div class="stage-body">
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Trigger Shopify fulfillment webhook
+        <div class="step-desc">POST /webhook/wj-test-shopify-fulfillment &rarr; 200</div>
+        <a class="step-link" href="https://n8n.orbiters.co.kr/workflow/UP1OnpNEFN54AOUn" target="_blank">n8n Workflow &rarr; fulfillment</a>
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Trigger Shopify fulfillment webhook
+        <div class="step-desc">POST /webhook/wj-test-shopify-fulfillment &rarr; 200</div>
+        <a class="step-link" href="https://n8n.orbiters.co.kr/workflow/UP1OnpNEFN54AOUn" target="_blank">n8n Workflow &rarr; fulfillment</a>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Wait for fulfillment processing (8s)
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Wait for fulfillment processing (8s)
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1" style="visibility:hidden">&mdash;</div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Update creator status &rarr; "Sample Shipped"
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- STAGE 7: Content & Completion -->
+<!-- ============================================================ -->
+<div class="stage">
+  <div class="stage-head">
+    <div class="stage-num">7</div>
+    <div class="stage-title">Content Creation &amp; Completion</div>
+    <div class="stage-badges">
+      <span class="type-tag type-human">HUMAN (content)</span>
+      <span class="type-tag type-auto">AUTO</span>
+    </div>
+  </div>
+  <div class="step-header">
+    <div>Type</div>
+    <div>Test #1 &mdash; Sarah Kim (IG / LT)</div>
+    <div>Test #2 &mdash; Mike Torres (TT / HT)</div>
+  </div>
+  <div class="stage-body">
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-human">HUMAN</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Creator publishes content (simulated)
+        <div class="step-desc">IG carousel: unboxing + toddler drinking + swipe CTA</div>
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Creator publishes content (simulated)
+        <div class="step-desc">TikTok unboxing + 7mo feeding review video</div>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Create Content record in Airtable
+        <div class="step-desc">Type: IG Carousel, Status: Posted</div>
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Create Content record in Airtable
+        <div class="step-desc">Type: TikTok Video, Status: Posted, 1850 likes</div>
+        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblSva2askQRwgGV1/rec5Sjws9OSXOMaka" target="_blank">Content &rarr; rec5Sj...</a>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1" style="visibility:hidden">&mdash;</div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Log thank-you email (Outbound)
+        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/rec0SN1XayU9QiaRi" target="_blank">Conversations &rarr; rec0SN...</a>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Update creator &rarr; Partnership "Completed"
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Update creator &rarr; Partnership "Completed", Cumulative Posts: 1
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- STAGE 8: Final Verification -->
+<!-- ============================================================ -->
+<div class="stage">
+  <div class="stage-head">
+    <div class="stage-num" style="background:var(--green);">&#10003;</div>
+    <div class="stage-title">Final Verification</div>
+    <div class="stage-badges">
+      <span class="type-tag type-verify">VERIFY</span>
+    </div>
+  </div>
+  <div class="step-header">
+    <div>Type</div>
+    <div>Test #1 &mdash; Sarah Kim (IG / LT)</div>
+    <div>Test #2 &mdash; Mike Torres (TT / HT)</div>
+  </div>
+  <div class="stage-body">
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Creator final state: Partnership = "Completed"
+        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/rec1Pceig30lPvJ1h" target="_blank">Creators &rarr; rec1Pc...</a>
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Creator final state: Partnership = "Completed"
+        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/recxyCxX5kS7m0ZNi" target="_blank">Creators &rarr; recxyC...</a>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
+      <div class="step-t1">
+        <span class="r-pass">PASS</span> Conversation trail: 5 emails found
+        <div class="step-desc">Outreach &rarr; Accept &rarr; Confirm &rarr; Guidelines &rarr; Thanks</div>
+      </div>
+      <div class="step-t2">
+        <span class="r-pass">PASS</span> Conversation trail: 5+ emails found
+        <div class="step-desc">Draft &rarr; Outreach &rarr; Question &rarr; Answer &rarr; Accept &rarr; Confirm &rarr; Guidelines &rarr; Thanks</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- Human vs Auto Summary -->
+<!-- ============================================================ -->
+<div style="margin-top:40px;">
+  <h2 style="font-size:18px; font-weight:700; margin-bottom:16px;">Human-in-the-Loop Summary</h2>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+
+    <div style="background:var(--human-bg); border:1px solid var(--human-border); border-radius:10px; padding:20px;">
+      <div style="font-size:14px; font-weight:600; color:var(--human); margin-bottom:12px;">Human Checkpoints (5 total)</div>
+      <table style="width:100%; font-size:13px; border-collapse:collapse;">
+        <tr style="border-bottom:1px solid var(--human-border);">
+          <td style="padding:6px 0; font-weight:500;">Stage 2: Draft Review</td>
+          <td style="padding:6px 0; text-align:right;">HT only</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--human-border);">
+          <td style="padding:6px 0; font-weight:500;">Stage 3: Q&A Response</td>
+          <td style="padding:6px 0; text-align:right;">HT only</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--human-border);">
+          <td style="padding:6px 0; font-weight:500;">Stage 4: Gifting Form</td>
+          <td style="padding:6px 0; text-align:right;">Both LT &amp; HT</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--human-border);">
+          <td style="padding:6px 0; font-weight:500;">Stage 5: Order Review</td>
+          <td style="padding:6px 0; text-align:right;">Both LT &amp; HT</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; font-weight:500;">Stage 7: Content Creation</td>
+          <td style="padding:6px 0; text-align:right;">Both LT &amp; HT</td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="background:var(--auto-bg); border:1px solid var(--auto-border); border-radius:10px; padding:20px;">
+      <div style="font-size:14px; font-weight:600; color:var(--auto); margin-bottom:12px;">Automated Steps (60 total)</div>
+      <table style="width:100%; font-size:13px; border-collapse:collapse;">
+        <tr style="border-bottom:1px solid var(--auto-border);">
+          <td style="padding:6px 0; font-weight:500;">Syncly Scoring</td>
+          <td style="padding:6px 0; text-align:right;">Stage 0</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--auto-border);">
+          <td style="padding:6px 0; font-weight:500;">Claude AI Draft Generation</td>
+          <td style="padding:6px 0; text-align:right;">Stage 1</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--auto-border);">
+          <td style="padding:6px 0; font-weight:500;">n8n Webhook Processing</td>
+          <td style="padding:6px 0; text-align:right;">Stages 4-6</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--auto-border);">
+          <td style="padding:6px 0; font-weight:500;">Shopify Customer + Draft Order</td>
+          <td style="padding:6px 0; text-align:right;">Stage 4</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--auto-border);">
+          <td style="padding:6px 0; font-weight:500;">Airtable Record Management</td>
+          <td style="padding:6px 0; text-align:right;">All stages</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; font-weight:500;">Email Send + Status Updates</td>
+          <td style="padding:6px 0; text-align:right;">Stages 2-7</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Key Differences -->
+<div style="margin-top:24px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:20px;">
+  <div style="font-size:14px; font-weight:600; margin-bottom:12px;">Key Differences: Low Touch vs High Touch</div>
+  <table style="width:100%; font-size:13px; border-collapse:collapse;">
+    <thead>
+      <tr style="border-bottom:2px solid var(--border);">
+        <th style="padding:8px 0; text-align:left; color:var(--dim); font-size:11px; text-transform:uppercase;">Aspect</th>
+        <th style="padding:8px 0; text-align:left; color:var(--dim); font-size:11px; text-transform:uppercase;">Test #1 (Low Touch)</th>
+        <th style="padding:8px 0; text-align:left; color:var(--dim); font-size:11px; text-transform:uppercase;">Test #2 (High Touch)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom:1px solid #f3f4f6;">
+        <td style="padding:8px 0; font-weight:500;">Draft Review</td>
+        <td style="padding:8px 0;">Auto-approved</td>
+        <td style="padding:8px 0;">Manual marketer review</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6;">
+        <td style="padding:8px 0; font-weight:500;">Reply Handling</td>
+        <td style="padding:8px 0;">Direct acceptance (1 email)</td>
+        <td style="padding:8px 0;">Q&A thread (3 emails: question + answer + accept)</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6;">
+        <td style="padding:8px 0; font-weight:500;">Total Steps</td>
+        <td style="padding:8px 0;">31 steps</td>
+        <td style="padding:8px 0;">34 steps (+3 for Q&A)</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6;">
+        <td style="padding:8px 0; font-weight:500;">Email Conversations</td>
+        <td style="padding:8px 0;">5 total</td>
+        <td style="padding:8px 0;">7+ total</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 0; font-weight:500;">Human Checkpoints</td>
+        <td style="padding:8px 0;">3 (form, review, content)</td>
+        <td style="padding:8px 0;">5 (+ draft review, Q&A response)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Known Issues -->
+<div style="margin-top:24px; background:var(--red-bg); border:1px solid var(--red-border); border-radius:10px; padding:20px;">
+  <div style="font-size:14px; font-weight:600; color:#dc2626; margin-bottom:8px;">Known Issues (2 failures)</div>
+  <div style="font-size:13px; color:#991b1b;">
+    <strong>PostgreSQL gifting record not found</strong> &mdash; Both tests fail at PG verification step.
+    The n8n gifting workflow writes to Airtable and Shopify but PG sync is not yet deployed to the WJ TEST environment.
+    This is a non-critical issue: the data exists in Airtable and Shopify (which are the primary stores).
+    PG sync will be enabled once the <code>create_missing_tables.py</code> migration runs on WJ TEST.
+  </div>
+</div>
+
+<!-- Footer -->
+<div style="margin-top:40px; padding-top:20px; border-top:1px solid var(--border); font-size:12px; color:var(--light); display:flex; justify-content:space-between;">
+  <div>Last updated: 2026-03-16 11:05 KST &bull; Environment: WJ TEST (Airtable appT2gLRR0PqMFgII / Shopify toddie-4080)</div>
+  <div>Generated by test_influencer_flow.py</div>
+</div>
+
+</div><!-- /container -->
 </body>
 </html>
