@@ -193,10 +193,15 @@ def pull_keyword_data(profile_id: int, start: date, end: date,
 
 # ── Module 1: Wasted Spend Backtest ─────────────────────────────────────────
 
-def backtest_wasted_spend(st_rows: list) -> dict:
+def backtest_wasted_spend(st_rows: list, ba_data: dict = None) -> dict:
     """
     Simulate: if 퍼포마 added negatives 14 days after a search term accumulated
     WASTE_SPEND_THRESHOLD with 0 conversions, how much total spend would be saved?
+
+    When ba_data is provided, uses dynamic thresholds based on search frequency rank:
+    - High-volume keywords get more patience (up to 2x threshold)
+    - Low-volume keywords get cut faster (down to 0.5x threshold)
+    - Keywords where no competitor converts either get cut at 0.5x
 
     Returns dict with summary stats + per-term breakdown.
     """
@@ -210,6 +215,8 @@ def backtest_wasted_spend(st_rows: list) -> dict:
     total_simulated_save = 0.0
     top_waste_terms      = []
 
+    ba_data = ba_data or {}
+
     for (camp, term), windows in by_term.items():
         # Sort windows chronologically
         windows = sorted(windows, key=lambda x: x.get("_start", ""))
@@ -222,6 +229,16 @@ def backtest_wasted_spend(st_rows: list) -> dict:
         # Only pure zero-conversion terms are "wasted spend"
         if term_conversions > 0:
             continue
+
+        # Dynamic threshold based on BA search frequency rank
+        term_threshold = WASTE_SPEND_THRESHOLD
+        ba = ba_data.get(term.lower().strip(), {})
+        ba_sfr = ba.get("search_frequency_rank", 0)
+        if ba_sfr > 0:
+            import math
+            # SFR 10 -> factor 1.4 ($7), SFR 1000 -> factor 1.0 ($5), SFR 100000 -> factor 0.6 ($3)
+            sfr_factor = max(0.5, min(2.0, math.log10(8_300_000 / ba_sfr) / 5))
+            term_threshold = WASTE_SPEND_THRESHOLD * sfr_factor
 
         # Simulate: scan windows in order, track cumulative 0-conversion spend
         cum_zero_spend = 0.0
@@ -240,7 +257,7 @@ def backtest_wasted_spend(st_rows: list) -> dict:
 
             if convs == 0:
                 cum_zero_spend += spend
-                if cum_zero_spend >= WASTE_SPEND_THRESHOLD:
+                if cum_zero_spend >= term_threshold:
                     # Would have added negative after this window
                     negated_at = w_start
                     # Spend in THIS window already happened (14-day rule)
@@ -630,9 +647,17 @@ def main():
 
     print(f"\nData: {len(st_rows)} search term rows, {len(kw_rows)} keyword rows")
 
+    # Fetch Brand Analytics for dynamic thresholds
+    ba_data = {}
+    try:
+        from amazon_ppc_executor import fetch_brand_analytics
+        ba_data = fetch_brand_analytics()
+    except Exception as e:
+        print(f"  [WARN] BA data unavailable for simulator: {e}")
+
     # Run backtests
     print("\n[Backtest 1] Wasted spend analysis...")
-    waste = backtest_wasted_spend(st_rows)
+    waste = backtest_wasted_spend(st_rows, ba_data=ba_data)
 
     print("[Backtest 2] Bid efficiency analysis...")
     bid   = backtest_bid_efficiency(kw_rows, brand_key)

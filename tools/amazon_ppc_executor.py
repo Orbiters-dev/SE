@@ -812,12 +812,14 @@ def analyze_search_terms(
     existing_keywords: List[Dict],
     executed_history: Optional[Dict] = None,
     simulator_data: Optional[Dict] = None,
+    ba_data: Optional[Dict[str, Dict]] = None,
 ) -> Dict[str, List[Dict]]:
     """Analyze search terms for harvesting and negative keyword opportunities.
 
     Returns dict with 'harvest' and 'negate' lists.
     executed_history: from _load_executed_history(), used to skip already-executed items.
     simulator_data: from _load_simulator_backtest(), boosts negate confidence for known waste terms.
+    ba_data: from fetch_brand_analytics(), used for market-weighted scoring + dynamic thresholds.
     """
     # Build set of existing exact-match keyword texts for dedup
     existing_exact = set()
@@ -884,12 +886,50 @@ def analyze_search_terms(
         camp_type = classify_targeting(camp.get("name", ""), camp.get("targetingType", ""))
         presets = BID_PRESETS.get(camp_type, BID_PRESETS["MANUAL"])
 
+        # --- Brand Analytics market data for this term ---
+        ba = (ba_data or {}).get(term, {})
+        ba_sfr = ba.get("search_frequency_rank", 0)
+        ba_our_cs = ba.get("our_click_share", 0)
+        ba_our_cvs = ba.get("our_conversion_share", 0)
+        ba_comp_cs = ba.get("competitor_click_share", 0)
+
         # --- Harvesting: profitable terms not yet in exact match ---
         if (acos is not None
                 and acos < presets["desired_acos"]
                 and clicks >= HARVEST_MIN_CLICKS
                 and m["purchases"] >= HARVEST_MIN_SALES
                 and term not in existing_exact):
+            # Market-Weighted Harvest Score (BA enrichment)
+            # Higher score = more strategic value to harvest
+            harvest_score = 0.0
+            ba_reason_parts = []
+            if ba_sfr > 0:
+                # Inverse rank weighting: rank 10 -> 5.9, rank 100 -> 4.9, rank 10000 -> 3.1
+                import math
+                harvest_score = math.log10(8_300_000 / max(ba_sfr, 1))
+                # Boost if we have low click share (growth opportunity)
+                if ba_our_cs > 0 and ba_our_cs < 0.20:
+                    harvest_score *= (1.5 - ba_our_cs)  # Up to 1.5x boost at 0% share
+                # Boost if high conversion share (product-market fit confirmed)
+                if ba_our_cvs > 0.10:
+                    harvest_score *= 1.3
+                ba_reason_parts.append(f"BA: SFR#{ba_sfr}")
+                if ba_our_cs > 0:
+                    ba_reason_parts.append(f"ClickShare {ba_our_cs*100:.1f}%")
+                if ba_our_cvs > 0:
+                    ba_reason_parts.append(f"ConvShare {ba_our_cvs*100:.1f}%")
+
+            # Priority upgrade based on BA data
+            priority = "medium"
+            if harvest_score > 5.0:
+                priority = "high"  # High-volume keyword we're underweight on
+            elif ba_our_cvs > 0.15:
+                priority = "high"  # Strong conversion share = proven demand
+
+            reason = f"Profitable ST: ACOS {round(acos*100,1)}% < target {presets['desired_acos']*100}%, {m['purchases']} sales"
+            if ba_reason_parts:
+                reason += f" | {', '.join(ba_reason_parts)}"
+
             harvest.append({
                 "type": "harvest",
                 "searchTerm": term,
@@ -903,8 +943,12 @@ def analyze_search_terms(
                 "acos": round(acos * 100, 1) if acos else None,
                 "cpc": round(cpc, 2),
                 "proposed_bid": round(cpc * HARVEST_BID_MULTIPLIER, 2),
-                "priority": "medium",
-                "reason": f"Profitable ST: ACOS {round(acos*100,1)}% < target {presets['desired_acos']*100}%, {m['purchases']} sales",
+                "priority": priority,
+                "harvest_score": round(harvest_score, 2),
+                "ba_sfr": ba_sfr,
+                "ba_click_share": ba_our_cs,
+                "ba_conv_share": ba_our_cvs,
+                "reason": reason,
                 "approved": False,
             })
 
@@ -912,9 +956,27 @@ def analyze_search_terms(
         # Skip if already negated in a previous execution
         already_negated = executed_history.get("negated_terms", set()) if executed_history else set()
         target_cpa = presets["desired_acos"] * 20  # rough estimate: $20 AOV * target ACOS
+
+        # Dynamic negate threshold based on BA search frequency rank
+        # High-volume keywords get more patience; low-volume get cut faster
+        negate_spend_mult = NEGATIVE_ZERO_SALES_SPEND_MULT
+        ba_negate_note = ""
+        if ba_sfr > 0:
+            import math
+            # SFR 10 (top) -> mult 1.8x (patient), SFR 100000 -> mult 0.5x (cut fast)
+            sfr_factor = max(0.5, min(2.0, math.log10(8_300_000 / ba_sfr) / 5))
+            negate_spend_mult = NEGATIVE_ZERO_SALES_SPEND_MULT * sfr_factor
+            # If competitors ALSO have 0 conversion share → category mismatch, cut faster
+            if ba_comp_cs > 0 and ba.get("our_conversion_share", 0) == 0:
+                comp_cvs = max(a.get("conversion_share", 0) for a in ba.get("top_asins", [{}]) if not a.get("is_ours"))
+                if comp_cvs == 0:
+                    negate_spend_mult *= 0.5  # Nobody converts → cut fast
+                    ba_negate_note = " | BA: no competitor conversions either"
+            ba_negate_note = f" | BA: SFR#{ba_sfr}, dynamic threshold ${target_cpa * negate_spend_mult:.0f}" + ba_negate_note
+
         if (clicks >= presets["click_limit"]
                 and m["purchases"] == 0
-                and cost > target_cpa * NEGATIVE_ZERO_SALES_SPEND_MULT
+                and cost > target_cpa * negate_spend_mult
                 and term not in already_negated):
             negate.append({
                 "type": "negate_zero_sales",
@@ -926,8 +988,9 @@ def analyze_search_terms(
                 "cost": round(cost, 2),
                 "sales": 0,
                 "impressions": impressions,
+                "ba_sfr": ba_sfr,
                 "priority": "urgent",
-                "reason": f"${cost:.2f} spent, {clicks} clicks, 0 sales (>{NEGATIVE_ZERO_SALES_SPEND_MULT}x target CPA)",
+                "reason": f"${cost:.2f} spent, {clicks} clicks, 0 sales (>{negate_spend_mult:.1f}x target CPA){ba_negate_note}",
                 "approved": False,
             })
 
@@ -984,8 +1047,8 @@ def analyze_search_terms(
             n["sim_windows"] = sim.get("windows", 0)
             n["reason"] += f" | Backtest: ${sim.get('would_save',0):,.0f} saveable"
 
-    # Sort by impact
-    harvest.sort(key=lambda x: x["sales"], reverse=True)
+    # Sort by impact (BA harvest_score > sales for prioritization)
+    harvest.sort(key=lambda x: (x.get("harvest_score", 0), x["sales"]), reverse=True)
     negate.sort(key=lambda x: x.get("sim_would_save", x["cost"]), reverse=True)
 
     # Cap to prevent API overload
@@ -1000,11 +1063,13 @@ def analyze_keyword_bids(
     campaigns: List[Dict],
     dataforseo: Optional[Dict[str, Dict]] = None,
     simulator_data: Optional[Dict] = None,
+    ba_data: Optional[Dict[str, Dict]] = None,
 ) -> List[Dict]:
     """Apply preset-based bid adjustment logic per keyword.
 
     When dataforseo data is available, uses Google CPC as a market benchmark.
     When simulator_data is available, cross-references bid backtest results.
+    When ba_data is available, uses BA click share for competitive bid floor/ceiling.
     """
     camp_map = {}
     for c in campaigns:
@@ -1047,6 +1112,12 @@ def analyze_keyword_bids(
         gdata = dataforseo.get(kw_text.lower().strip())
         if gdata:
             google_cpc = float(gdata.get("cpc", 0) or 0)
+
+        # --- Brand Analytics competitive intelligence ---
+        ba = (ba_data or {}).get(kw_text.lower().strip(), {})
+        ba_our_cs = ba.get("our_click_share", 0)
+        ba_comp_cs = ba.get("competitor_click_share", 0)
+        ba_sfr = ba.get("search_frequency_rank", 0)
 
         # Case 1: Strong performer
         if acos is not None and acos < p["mid_acos"] and clicks >= p["click_limit"] and sales > 0:
@@ -1101,6 +1172,21 @@ def analyze_keyword_bids(
             action = "decrease_bid"
             reason = f"Overbidding: AMZ CPC ${amz_cpc:.2f} vs Google ${google_cpc:.2f} ({amz_cpc/google_cpc:.1f}x), ROAS {roas:.1f}x, -15%"
 
+        # Case 7 (BA): Competitive bid floor — if we have low click share on a
+        # high-volume keyword, ensure bid doesn't drop below a floor
+        if ba_sfr > 0 and ba_sfr < 5000 and ba_our_cs < 0.15 and ba_our_cs > 0:
+            # High-volume keyword where we're underweight → set bid floor
+            if action == "decrease_bid" and new_bid < current_bid * 0.85:
+                # Don't cut more than 15% on strategic keywords
+                new_bid = round(current_bid * 0.85, 2)
+                reason += f" | BA floor: SFR#{ba_sfr}, ClickShare {ba_our_cs*100:.1f}% (underweight, limiting cut)"
+            elif not action and ba_our_cs < 0.08 and clicks >= 3 and sales > 0:
+                # We're severely underweight but converting — push bid up
+                action = "increase_bid"
+                new_bid = round(current_bid * 1.15, 2)
+                new_bid = min(new_bid, p["max_bid"])
+                reason = f"BA: SFR#{ba_sfr}, only {ba_our_cs*100:.1f}% click share but converting, +15%"
+
         if not action and new_bid != current_bid:
             action = "increase_bid" if new_bid > current_bid else "decrease_bid"
 
@@ -1108,6 +1194,9 @@ def analyze_keyword_bids(
             # Append Google CPC context to reason if available and not already mentioned
             if google_cpc > 0 and "Google" not in reason:
                 reason += f" | Google CPC: ${google_cpc:.2f}"
+            # Append BA context if available and not already mentioned
+            if ba_sfr > 0 and "BA" not in reason:
+                reason += f" | BA: SFR#{ba_sfr}, CS {ba_our_cs*100:.1f}%"
 
             proposals.append({
                 "type": "keyword_bid",
@@ -1165,6 +1254,67 @@ def fetch_dataforseo_keywords(brand_key: str) -> Dict[str, Dict]:
         return out
     except Exception as e:
         print(f"  [WARN] DataForSEO fetch failed: {e}")
+        return {}
+
+
+def fetch_brand_analytics() -> Dict[str, Dict]:
+    """Fetch Brand Analytics data for market intelligence (all brands).
+
+    Returns dict keyed by lowercase search term:
+      {"toddler cups": {
+          "search_frequency_rank": 12,
+          "our_click_share": 0.15,     # max click share across our ASINs
+          "our_conversion_share": 0.12,
+          "competitor_click_share": 0.35,  # max click share of non-our ASIN
+          "top_asins": [{"asin": "B0...", "click_share": 0.15, "is_ours": True}, ...],
+      }}
+    """
+    try:
+        from data_keeper_client import DataKeeper
+        dk = DataKeeper()
+        rows = dk.get("amazon_brand_analytics", days=14, limit=10000)
+        if not rows:
+            print("  [BA] No Brand Analytics data available")
+            return {}
+
+        ba_map = {}  # term -> aggregated data
+        for r in rows:
+            term = (r.get("search_term") or "").lower().strip()
+            if not term:
+                continue
+            if term not in ba_map:
+                ba_map[term] = {
+                    "search_frequency_rank": int(r.get("search_frequency_rank", 0) or 0),
+                    "our_click_share": 0.0,
+                    "our_conversion_share": 0.0,
+                    "competitor_click_share": 0.0,
+                    "top_asins": [],
+                }
+            entry = ba_map[term]
+            # Update sfr to latest (take min = most popular)
+            sfr = int(r.get("search_frequency_rank", 0) or 0)
+            if sfr > 0 and (entry["search_frequency_rank"] == 0 or sfr < entry["search_frequency_rank"]):
+                entry["search_frequency_rank"] = sfr
+            cs = float(r.get("click_share", 0) or 0)
+            cvs = float(r.get("conversion_share", 0) or 0)
+            is_ours = bool(r.get("is_ours", False))
+            entry["top_asins"].append({
+                "asin": r.get("asin", ""),
+                "click_share": cs,
+                "conversion_share": cvs,
+                "is_ours": is_ours,
+                "asin_rank": int(r.get("asin_rank", 0) or 0),
+            })
+            if is_ours:
+                entry["our_click_share"] = max(entry["our_click_share"], cs)
+                entry["our_conversion_share"] = max(entry["our_conversion_share"], cvs)
+            else:
+                entry["competitor_click_share"] = max(entry["competitor_click_share"], cs)
+
+        print(f"  [BA] {len(ba_map)} search terms with market intelligence")
+        return ba_map
+    except Exception as e:
+        print(f"  [WARN] Brand Analytics fetch failed: {e}")
         return {}
 
 
@@ -2907,7 +3057,15 @@ EXPORT_COST_PER_UNIT = {
     "Grosmimi": 0.50, "Naeiae": 3.00, "CHA&MOM": 0.50,
     "Onzenna": 0.50, "Alpremio": 0.50, "Unknown": 0.50,
 }
-RETURN_RATE = 0.05            # 5% estimated return rate (FBA returns)
+RETURN_RATE_BY_BRAND = {
+    "Naeiae": 0.00,               # Food: 0% return (perishable)
+    "Grosmimi": 0.05,             # Baby products: 5% FBA returns
+    "CHA&MOM": 0.05,
+    "Onzenna": 0.05,
+    "Alpremio": 0.05,
+    "Unknown": 0.05,
+}
+RETURN_RATE = 0.05            # Default fallback
 
 # Grosmimi product category classification (keyword -> category)
 # Each category has its own COGS and FBA fee
@@ -2998,7 +3156,7 @@ def fetch_sku_level_context(brand_key: str, days: int = 14) -> Dict:
     is_grosmimi = (brand_name == "Grosmimi")
     result = {"brand": brand_name, "cogs_per_unit": cogs_per_unit,
               "fba_fee_unit": fba_fee_unit, "export_cost_unit": export_cost_unit,
-              "return_rate": RETURN_RATE}
+              "return_rate": RETURN_RATE_BY_BRAND.get(brand_name, RETURN_RATE)}
 
     # --- Amazon ASIN-level ---
     try:
@@ -3048,8 +3206,9 @@ def fetch_sku_level_context(brand_key: str, days: int = 14) -> Dict:
                 fba_costs = units * cat_fba
                 # 4) Export costs Korea->US (per unit, brand-specific)
                 export_costs = units * export_cost_unit
-                # 5) Return costs (5% of revenue - refund + return shipping)
-                return_costs = rev * RETURN_RATE
+                # 5) Return costs (brand-specific rate)
+                brand_return_rate = RETURN_RATE_BY_BRAND.get(brand_name, RETURN_RATE)
+                return_costs = rev * brand_return_rate
                 # Total costs & margin
                 total_costs = est_cogs + referral_fees + fba_costs + export_costs + return_costs
                 est_margin = rev - total_costs
@@ -3131,7 +3290,8 @@ def fetch_sku_level_context(brand_key: str, days: int = 14) -> Dict:
                 # D2C: no FBA but still export + Shopify processing (~3%) + returns
                 shopify_fees = net * 0.03  # payment processing
                 export_costs = units * export_cost_unit
-                return_costs = net * RETURN_RATE
+                brand_return_rate = RETURN_RATE_BY_BRAND.get(brand_name, RETURN_RATE)
+                return_costs = net * brand_return_rate
                 est_margin = net - est_cogs - shopify_fees - export_costs - return_costs
                 margin_pct = round(est_margin / net * 100, 1) if net > 0 else 0
                 top_skus.append({
@@ -5023,15 +5183,18 @@ def run_propose_single(args, brand_key: str):
             if dedup_h or dedup_n or dedup_c:
                 print(f"  [DEDUP] Excluding {dedup_h} harvested, {dedup_n} negated, {dedup_c} campaign actions from prior executions")
 
-            # Fetch DataForSEO FIRST so it can feed into both bid analysis and matrix
-            print(f"\n[5/8] Fetching DataForSEO + analyzing search terms & keywords...")
+            # Fetch DataForSEO + Brand Analytics for market intelligence
+            print(f"\n[5/8] Fetching DataForSEO + Brand Analytics + analyzing search terms & keywords...")
             dataforseo = fetch_dataforseo_keywords(brand_key)
+            ba_data = fetch_brand_analytics()
 
             st_analysis = analyze_search_terms(st_rows, campaigns, kw_rows,
                                                executed_history=exec_history,
-                                               simulator_data=sim_data)
+                                               simulator_data=sim_data,
+                                               ba_data=ba_data)
             kw_bid_proposals = analyze_keyword_bids(kw_rows, campaigns, dataforseo=dataforseo,
-                                                    simulator_data=sim_data)
+                                                    simulator_data=sim_data,
+                                                    ba_data=ba_data)
 
             kw_proposals = st_analysis["harvest"] + st_analysis["negate"] + kw_bid_proposals
             print(f"  {len(st_analysis['harvest'])} harvest candidates")

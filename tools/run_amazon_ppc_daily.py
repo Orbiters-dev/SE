@@ -307,7 +307,36 @@ def build_analysis_payload(rows: List[Dict], analysis_date: date) -> Dict:
         "anomalies_detected": anomalies[:15],
         "total_active_30d": len([c for c, v in camp_30d.items() if v["cost"] > 0]),
         "total_active_7d":  len([c for c, v in camp_7d.items()  if v["cost"] > 0]),
+        "brand_analytics": _get_ba_summary(),
     }
+
+
+def _get_ba_summary() -> Dict:
+    """Pull Brand Analytics summary for Claude daily analysis context."""
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from amazon_ppc_executor import fetch_brand_analytics
+        ba = fetch_brand_analytics()
+        if not ba:
+            return {}
+        # Top 10 keywords where we have presence
+        our_terms = [(t, d) for t, d in ba.items() if d.get("our_click_share", 0) > 0]
+        our_terms.sort(key=lambda x: x[1].get("search_frequency_rank", 999999))
+        top_our = [{
+            "term": t,
+            "sfr": d["search_frequency_rank"],
+            "our_click_share": round(d["our_click_share"] * 100, 1),
+            "our_conv_share": round(d.get("our_conversion_share", 0) * 100, 1),
+            "comp_click_share": round(d.get("competitor_click_share", 0) * 100, 1),
+        } for t, d in our_terms[:10]]
+        return {
+            "total_tracked_terms": len(ba),
+            "terms_with_our_presence": len(our_terms),
+            "top_our_keywords": top_our,
+            "note": "SFR=Search Frequency Rank (lower=more popular). Click/Conv share from Brand Analytics."
+        }
+    except Exception:
+        return {}
 
 
 # ===========================================================================
@@ -327,6 +356,8 @@ e-커머스 Baby/Kids 카테고리 (Grosmimi=유아식기, CHA&MOM=스킨케어,
 - CTR: 노출 -> 클릭 비율. SP 벤치마크: 0.40% (전체), Baby Products: 0.30-0.45%
   CTR < 0.20%: 타겟팅/크리에이티브 문제 | CTR 0.30-0.50%: 정상 | CTR > 0.60%: 우수
 - CPC: Baby Products 평균 $0.75-1.20. CPC > $1.50이면 입찰 과다 의심
+- Brand Analytics 데이터가 있으면 (brand_analytics 섹션): SFR(Search Frequency Rank)로 키워드 중요도,
+  Click/Conversion Share로 시장 점유율을 실측 확인. 우리 Click Share < 10%인 고SFR 키워드 = 성장 기회.
 
 2단계: ROAS/ACOS 판단 기준
 - ROAS >= 5.0: 최우수 (ACOS 20% 이하) -> 공격적 스케일업
