@@ -8,7 +8,7 @@ on:
   workflow_dispatch:         # manual trigger
     inputs:
       channel:
-        description: 'Channel to collect (all, amazon_ads, amazon_ads_search_terms, amazon_ads_keywords, amazon_sales, meta, google, ga4, klaviyo, shopify, gsc, dataforseo)'
+        description: 'Channel to collect (all, amazon_ads, amazon_ads_search_terms, amazon_ads_keywords, amazon_brand_analytics, amazon_sales, meta, google, google_ads_search_terms, ga4, klaviyo, shopify, gsc, dataforseo)'
         required: false
         default: 'all'
       days:
@@ -157,6 +157,11 @@ jobs:
         if: steps.mode.outputs.notify_only == 'false' && steps.mode.outputs.is_daily == 'true' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'google_ads_search_terms')
         run: |
           python -u tools/data_keeper.py --channel google_ads_search_terms --days 14 || echo "Google Ads search terms collection failed (non-fatal)"
+
+      - name: Collect Amazon Brand Analytics
+        if: steps.mode.outputs.notify_only == 'false' && steps.mode.outputs.is_daily == 'true' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_brand_analytics')
+        run: |
+          python -u tools/data_keeper.py --channel amazon_brand_analytics --days 35 || echo "Brand Analytics collection failed (non-fatal)"
 
       - name: Run Amazon PPC Analysis
         if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_ads')

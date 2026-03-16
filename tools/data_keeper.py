@@ -972,6 +972,222 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
         return [], []
 
 
+def collect_amazon_brand_analytics(date_from: str, date_to: str) -> list[dict]:
+    """Collect Amazon Brand Analytics Search Terms report (all sellers).
+
+    Uses SP-API Reports API with GET_BRAND_ANALYTICS_SEARCH_TERMS_REPORT.
+    Requires Brand Registry enrollment for each seller account.
+    Returns weekly search term data: search frequency rank, click/conversion share per ASIN.
+    """
+    print("[Amazon Brand Analytics] Collecting...")
+    all_rows = []
+
+    for seller in SELLER_CONFIGS:
+        if not seller["refresh_token"]:
+            print(f"  [SKIP] {seller['name']}: no refresh token")
+            continue
+
+        # Get SP-API access token
+        try:
+            r = requests.post("https://api.amazon.com/auth/o2/token", data={
+                "grant_type": "refresh_token",
+                "client_id": seller["client_id"],
+                "client_secret": seller["client_secret"],
+                "refresh_token": seller["refresh_token"],
+            }, timeout=30)
+            r.raise_for_status()
+            sp_token = r.json()["access_token"]
+        except Exception as e:
+            print(f"  [ERROR] {seller['name']} token: {e}")
+            continue
+
+        sp_headers = {
+            "x-amz-access-token": sp_token,
+            "Content-Type": "application/json",
+        }
+
+        # Brand Analytics reports are weekly — iterate week by week
+        d_from = datetime.strptime(date_from, "%Y-%m-%d").date()
+        d_to = datetime.strptime(date_to, "%Y-%m-%d").date()
+        seller_rows = []
+
+        # Align to week boundaries (Sunday start for Amazon BA)
+        cur = d_from
+        while cur <= d_to:
+            week_end = min(cur + timedelta(days=6), d_to)
+            rows = _fetch_brand_analytics_report(
+                sp_headers, cur.isoformat(), week_end.isoformat(),
+                seller, AMZ_SP_MARKETPLACE_ID
+            )
+            seller_rows.extend(rows)
+            cur = week_end + timedelta(days=1)
+
+        all_rows.extend(seller_rows)
+        print(f"  {seller['name']} ({seller['brand']}): {len(seller_rows)} search term rows")
+
+    return all_rows
+
+
+def _fetch_brand_analytics_report(headers, start, end, seller, marketplace_id):
+    """Fetch a single Brand Analytics Search Terms report via SP-API."""
+    try:
+        body = {
+            "reportType": "GET_BRAND_ANALYTICS_SEARCH_TERMS_REPORT",
+            "dataStartTime": f"{start}T00:00:00Z",
+            "dataEndTime": f"{end}T23:59:59Z",
+            "marketplaceIds": [marketplace_id],
+            "reportOptions": {
+                "reportPeriod": "WEEK",
+            },
+        }
+        r = requests.post(
+            "https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/reports",
+            headers=headers, json=body, timeout=30,
+        )
+        if r.status_code == 403:
+            print(f"    [SKIP] {seller['name']}: Brand Analytics not authorized (403)")
+            return []
+        if r.status_code >= 400:
+            print(f"    [ERROR] BA report {start}~{end}: {r.status_code} {r.text[:200]}")
+            return []
+        r.raise_for_status()
+        report_id = r.json().get("reportId")
+
+        # Poll for completion (BA reports can take a few minutes)
+        for _ in range(60):
+            time.sleep(10)
+            # Re-auth if needed (long poll)
+            try:
+                tr = requests.post("https://api.amazon.com/auth/o2/token", data={
+                    "grant_type": "refresh_token",
+                    "client_id": seller["client_id"],
+                    "client_secret": seller["client_secret"],
+                    "refresh_token": seller["refresh_token"],
+                }, timeout=30)
+                tr.raise_for_status()
+                fresh_token = tr.json()["access_token"]
+                headers = {
+                    "x-amz-access-token": fresh_token,
+                    "Content-Type": "application/json",
+                }
+            except Exception:
+                pass  # use existing token
+
+            r2 = requests.get(
+                f"https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/reports/{report_id}",
+                headers=headers, timeout=30,
+            )
+            r2.raise_for_status()
+            status = r2.json().get("processingStatus")
+            if status == "DONE":
+                doc_id = r2.json().get("reportDocumentId")
+                break
+            elif status in ("CANCELLED", "FATAL"):
+                print(f"    [WARN] BA report {status}: {start}~{end}")
+                return []
+        else:
+            print(f"    [WARN] BA report timeout: {start}~{end}")
+            return []
+
+        # Download document
+        r3 = requests.get(
+            f"https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/documents/{doc_id}",
+            headers=headers, timeout=30,
+        )
+        r3.raise_for_status()
+        doc = r3.json()
+        dl_url = doc.get("url")
+        r4 = requests.get(dl_url, timeout=60)
+        r4.raise_for_status()
+
+        content = r4.content
+        if doc.get("compressionAlgorithm") == "GZIP":
+            content = gzip.decompress(content)
+
+        # Parse — Brand Analytics returns JSON
+        text = content.decode("utf-8", errors="replace").strip()
+        if not text:
+            return []
+
+        # Try JSON first, fall back to TSV
+        rows = []
+        try:
+            data = json.loads(text)
+            if isinstance(data, list):
+                raw_items = data
+            elif isinstance(data, dict):
+                raw_items = data.get("dataByDepartmentAndSearchTerm", [])
+            else:
+                raw_items = []
+
+            for item in raw_items:
+                search_term = item.get("searchTerm", "")
+                search_freq_rank = item.get("searchFrequencyRank", 0)
+                dept = item.get("departmentName", "")
+                week_start = start
+
+                # Each search term has up to 3 clicked ASINs
+                for i in range(1, 4):
+                    asin = item.get(f"clickedAsin{i}", "")
+                    if not asin:
+                        continue
+                    rows.append({
+                        "date": week_start,
+                        "week_end": end,
+                        "seller_id": seller["seller_id"],
+                        "brand": seller["brand"],
+                        "department": dept,
+                        "search_term": search_term,
+                        "search_frequency_rank": int(search_freq_rank) if search_freq_rank else 0,
+                        "asin": asin,
+                        "asin_rank": i,
+                        "click_share": float(item.get(f"clickShareRank{i}", 0) or 0),
+                        "conversion_share": float(item.get(f"conversionShareRank{i}", 0) or 0),
+                    })
+        except (json.JSONDecodeError, ValueError):
+            # TSV fallback
+            lines = text.split("\n")
+            if len(lines) < 2:
+                return []
+            header = lines[0].split("\t")
+            for line in lines[1:]:
+                if not line.strip():
+                    continue
+                cols = line.split("\t")
+                record = dict(zip(header, cols))
+                search_term = record.get("Search Term", record.get("search_term", ""))
+                search_freq_rank = record.get("Search Frequency Rank",
+                                              record.get("search_frequency_rank", "0"))
+                dept = record.get("Department", record.get("department", ""))
+
+                for i in range(1, 4):
+                    asin_key = f"Clicked ASIN {i}" if f"Clicked ASIN {i}" in record else f"clicked_asin_{i}"
+                    click_key = f"Click Share Rank {i}" if f"Click Share Rank {i}" in record else f"click_share_rank_{i}"
+                    conv_key = f"Conversion Share Rank {i}" if f"Conversion Share Rank {i}" in record else f"conversion_share_rank_{i}"
+                    asin = record.get(asin_key, "")
+                    if not asin:
+                        continue
+                    rows.append({
+                        "date": start,
+                        "week_end": end,
+                        "seller_id": seller["seller_id"],
+                        "brand": seller["brand"],
+                        "department": dept,
+                        "search_term": search_term,
+                        "search_frequency_rank": int(search_freq_rank) if search_freq_rank else 0,
+                        "asin": asin,
+                        "asin_rank": i,
+                        "click_share": float(record.get(click_key, 0) or 0),
+                        "conversion_share": float(record.get(conv_key, 0) or 0),
+                    })
+
+        return rows
+
+    except Exception as e:
+        print(f"    [ERROR] BA report {start}~{end}: {e}")
+        return []
+
+
 def collect_meta_ads(date_from: str, date_to: str) -> list[dict]:
     """Collect Meta Ads ad-level daily insights."""
     print("[Meta Ads] Collecting...")
@@ -1999,6 +2215,7 @@ CHANNEL_COLLECTORS = {
     "amazon_ads_search_terms": ("amazon_ads_search_terms", collect_amazon_ads_search_terms),
     "amazon_ads_keywords": ("amazon_ads_keywords", collect_amazon_ads_keywords),
     "amazon_sales": ("amazon_sales_daily", collect_amazon_sales),
+    "amazon_brand_analytics": ("amazon_brand_analytics", collect_amazon_brand_analytics),
     "amazon_campaigns": ("amazon_campaigns", collect_amazon_campaigns),
     "meta": ("meta_ads_daily", collect_meta_ads),
     "meta_campaigns": ("meta_campaigns", collect_meta_campaigns),
@@ -2250,7 +2467,7 @@ def main():
     print()
 
     # "all" excludes slow keyword channels (run separately in GitHub Actions)
-    SLOW_CHANNELS = {"amazon_ads_search_terms", "amazon_ads_keywords", "google_ads_search_terms"}
+    SLOW_CHANNELS = {"amazon_ads_search_terms", "amazon_ads_keywords", "google_ads_search_terms", "amazon_brand_analytics"}
     if args.channel == "all":
         channels = [c for c in CHANNEL_COLLECTORS.keys() if c not in SLOW_CHANNELS]
     else:
