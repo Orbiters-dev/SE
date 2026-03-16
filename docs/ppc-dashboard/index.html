@@ -173,6 +173,7 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
   <div data-p="tab-execlog">Execution Log</div>
   <div data-p="tab-backtest">Simulator & Test Log</div>
   <div data-p="tab-analytics">Live Analytics</div>
+  <div data-p="tab-sysadmin">System Admin</div>
 </div>
 
 <!-- ══════════ TAB 1: FLOW ══════════ -->
@@ -566,6 +567,16 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
   </div>
   <div id="analytics-content"></div>
   <div id="analytics-st-content" style="display:none"></div>
+</div>
+
+<!-- ══════════ TAB 6: SYSTEM ADMIN ══════════ -->
+<div class="mp" id="tab-sysadmin">
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+    <div class="on" data-sysub="workflows" onclick="switchSysAdminSub('workflows',this)" style="padding:8px 20px;font-size:11px;font-weight:700;cursor:pointer;color:var(--a);border-bottom:3px solid var(--a);margin-bottom:-2px;border-radius:0">Workflow Status</div>
+    <div data-sysub="datalog" onclick="switchSysAdminSub('datalog',this)" style="padding:8px 20px;font-size:11px;font-weight:700;cursor:pointer;color:var(--dim);border-bottom:3px solid transparent;margin-bottom:-2px;border-radius:0">Data Connection Log</div>
+  </div>
+  <div id="sysadmin-workflows"></div>
+  <div id="sysadmin-datalog" style="display:none"></div>
 </div>
 
 <!-- ══════════ PAT AUTH MODAL ══════════ -->
@@ -1681,22 +1692,7 @@ function renderSearchTerms(bk, rows) {
     +'</table></div></div>':'');
 }
 
-// Main tabs
-document.querySelectorAll('.mt>div').forEach(function(t){
-  t.onclick=function(){
-    document.querySelectorAll('.mt>div').forEach(function(x){x.classList.remove('on');});
-    document.querySelectorAll('.mp').forEach(function(x){x.classList.remove('on');});
-    t.classList.add('on');
-    document.getElementById(t.dataset.p).classList.add('on');
-    if(t.dataset.p==='tab-execlog') renderExecAudit();
-    if(t.dataset.p==='tab-analytics'){
-      var ab = document.querySelector('#analyticssBrandTabs .on');
-      var bk = ab ? ab.dataset.abrand : 'grosmimi';
-      if (_currentAnalyticsSub === 'searchterms') fetchAndRenderSearchTerms(bk);
-      else renderAnalytics(bk, ab);
-    }
-  };
-});
+// Main tabs — handled by IIFE at bottom (includes sysadmin tab)
 
 // Flow bar scroll
 document.querySelectorAll('.fn[data-t]').forEach(function(n){
@@ -2866,6 +2862,373 @@ function showChartTooltip(evt, containerEl) {
 function hideChartTooltip() {
   document.getElementById('chart-tip').style.display = 'none';
 }
+
+// ══════════ SYSTEM ADMIN TAB ══════════
+
+var GITHUB_REPO = 'Orbiters-dev/WJ-Test1';
+var GITHUB_API = 'https://api.github.com/repos/' + GITHUB_REPO;
+
+// Workflow registry: name → schedule description + category
+var WF_REGISTRY = {
+  'Data Keeper - Daily Collection':       {sched:'KST 22:00 / 11:00 / 08:00', cat:'data', icon:'&#x1F5C4;'},
+  'Amazon PPC Daily Report':              {sched:'PST ~15:00 (cron UTC 23:24)', cat:'ppc', icon:'&#x1F4CA;'},
+  'Amazon PPC Pipeline':                  {sched:'KST 23:30 / 07:30', cat:'ppc', icon:'&#x26D3;'},
+  'Amazon PPC Executor (Propose)':        {sched:'Triggered by Pipeline', cat:'ppc', icon:'&#x1F4E7;'},
+  'Amazon PPC Auto-Execute (Email Reply)':{sched:'Every 2 hours', cat:'ppc', icon:'&#x2699;'},
+  'PPC Backtest Simulator (Weekly)':      {sched:'Monday KST 23:00', cat:'ppc', icon:'&#x1F9EA;'},
+  'PPC Dashboard Action':                 {sched:'On push (docs/ppc-dashboard)', cat:'ppc', icon:'&#x1F4BB;'},
+  'Meta Ads Daily Report':                {sched:'PST 00:00 / 12:00', cat:'ads', icon:'&#x1F4F1;'},
+  'Syncly Daily Crawl + Sync':            {sched:'KST 08:00', cat:'content', icon:'&#x1F50D;'},
+  'Apify Content Daily Pipeline':         {sched:'KST Mon-Fri 08:00', cat:'content', icon:'&#x1F916;'},
+  'KPI Weekly Report':                    {sched:'Monday KST 08:00', cat:'report', icon:'&#x1F4C8;'},
+  'ORBI Communicator - Status Email':     {sched:'PST 00:00 / 12:00', cat:'report', icon:'&#x1F4EC;'},
+  'Skill Optimizer (Daily)':              {sched:'KST 10:00', cat:'system', icon:'&#x1F527;'},
+  'Skill Optimizer (Check Execute)':      {sched:'Every 2 hours', cat:'system', icon:'&#x1F504;'},
+  'ORBI Workflow Analyzer':               {sched:'Daily PST 18:00', cat:'system', icon:'&#x1F50E;'},
+  'Deploy Django App to EC2':             {sched:'Manual', cat:'deploy', icon:'&#x1F680;'},
+  'pages-build-deployment':               {sched:'On push (docs/)', cat:'deploy', icon:'&#x1F310;'},
+};
+
+var CAT_COLORS = {ppc:'var(--a)',data:'var(--c)',ads:'var(--p)',content:'var(--g)',report:'var(--am)',system:'var(--muted)',deploy:'#8b5cf6'};
+var CAT_LABELS = {ppc:'PPC',data:'DATA',ads:'ADS',content:'CONTENT',report:'REPORT',system:'SYSTEM',deploy:'DEPLOY'};
+
+function switchSysAdminSub(sub, el){
+  document.querySelectorAll('#tab-sysadmin [data-sysub]').forEach(function(t){
+    t.style.color='var(--dim)'; t.style.borderBottomColor='transparent';
+  });
+  el.style.color='var(--a)'; el.style.borderBottomColor='var(--a)';
+  document.getElementById('sysadmin-workflows').style.display = sub==='workflows'?'block':'none';
+  document.getElementById('sysadmin-datalog').style.display = sub==='datalog'?'block':'none';
+  if(sub==='datalog' && !window._datalogLoaded) fetchDataConnectionLog();
+}
+
+function timeSince(dateStr){
+  var d = new Date(dateStr);
+  var now = new Date();
+  var diff = Math.floor((now - d)/1000);
+  if(diff < 60) return diff+'s ago';
+  if(diff < 3600) return Math.floor(diff/60)+'m ago';
+  if(diff < 86400) return Math.floor(diff/3600)+'h ago';
+  return Math.floor(diff/86400)+'d ago';
+}
+
+function statusBadge(conclusion, status){
+  if(conclusion==='success') return '<span class="b g">SUCCESS</span>';
+  if(conclusion==='failure') return '<span class="b r">FAILURE</span>';
+  if(conclusion==='cancelled') return '<span class="b am">CANCELLED</span>';
+  if(status==='in_progress') return '<span class="b c">RUNNING</span>';
+  if(status==='queued') return '<span class="b a">QUEUED</span>';
+  return '<span class="b" style="background:#f1f5f9;color:var(--dim)">'+(conclusion||status||'UNKNOWN')+'</span>';
+}
+
+function liveBadge(isLive){
+  if(!isLive) return '<span style="font-size:9px;color:var(--muted)">IDLE</span>';
+  return '<span style="font-size:9px;font-weight:700;color:var(--g);display:inline-flex;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:var(--g);box-shadow:0 0 4px var(--g);display:inline-block"></span>LIVE</span>';
+}
+
+async function fetchWorkflowRuns(){
+  var el = document.getElementById('sysadmin-workflows');
+  el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--dim)">Loading workflow status from GitHub...</div>';
+
+  try {
+    var res = await fetch(GITHUB_API + '/actions/runs?per_page=100', {
+      headers: localStorage.getItem('gh_pat') ? {'Authorization':'token '+localStorage.getItem('gh_pat')} : {}
+    });
+    if(!res.ok) throw new Error('GitHub API '+res.status);
+    var data = await res.json();
+    var runs = data.workflow_runs || [];
+
+    // Group: latest run per workflow
+    var latest = {};
+    var recentAll = [];
+    runs.forEach(function(r){
+      if(!latest[r.name]) latest[r.name] = r;
+      recentAll.push(r);
+    });
+
+    // Sort by category then name
+    var wfNames = Object.keys(latest).sort(function(a,b){
+      var ca = (WF_REGISTRY[a]||{}).cat||'z';
+      var cb = (WF_REGISTRY[b]||{}).cat||'z';
+      if(ca!==cb) return ca<cb?-1:1;
+      return a<b?-1:1;
+    });
+
+    var html = '';
+
+    // ── Summary cards ──
+    var total = wfNames.length;
+    var passing = wfNames.filter(function(n){return latest[n].conclusion==='success';}).length;
+    var failing = wfNames.filter(function(n){return latest[n].conclusion==='failure';}).length;
+    var running = wfNames.filter(function(n){return latest[n].status==='in_progress';}).length;
+    var neverRun = Object.keys(WF_REGISTRY).filter(function(n){return !latest[n];});
+
+    html += '<div class="stats">';
+    html += '<div class="stat green"><div class="sl">PASSING</div><div class="sv">'+passing+'/'+total+'</div></div>';
+    html += '<div class="stat'+(failing>0?' red':' green')+'"><div class="sl">FAILING</div><div class="sv">'+failing+'</div></div>';
+    html += '<div class="stat cyan"><div class="sl">RUNNING</div><div class="sv">'+running+'</div></div>';
+    html += '<div class="stat"><div class="sl">REGISTERED</div><div class="sv">'+Object.keys(WF_REGISTRY).length+'</div></div>';
+    html += '</div>';
+
+    // ── Workflow table ──
+    html += '<div class="card" style="margin-top:12px"><h3>GitHub Actions — All Workflows</h3>';
+    html += '<div style="overflow-x:auto"><table><thead><tr>';
+    html += '<th>Status</th><th>Workflow</th><th>Category</th><th>Schedule</th><th>Last Run</th><th>Duration</th><th>Live</th>';
+    html += '</tr></thead><tbody>';
+
+    wfNames.forEach(function(name){
+      var r = latest[name];
+      var reg = WF_REGISTRY[name] || {sched:'—', cat:'unknown', icon:'&#x2753;'};
+      var catColor = CAT_COLORS[reg.cat] || 'var(--dim)';
+      var catLabel = CAT_LABELS[reg.cat] || reg.cat.toUpperCase();
+      var dur = '';
+      if(r.updated_at && r.run_started_at){
+        var secs = Math.round((new Date(r.updated_at)-new Date(r.run_started_at))/1000);
+        dur = secs>=60 ? Math.floor(secs/60)+'m'+((secs%60)>0?(secs%60)+'s':'') : secs+'s';
+      }
+      // Determine LIVE: ran within last 26 hours and succeeded or is running
+      var isLive = false;
+      var lastRunTime = new Date(r.updated_at||r.created_at);
+      var hoursSince = (new Date()-lastRunTime)/3600000;
+      if(hoursSince < 26 && (r.conclusion==='success'||r.status==='in_progress')) isLive = true;
+
+      html += '<tr>';
+      html += '<td>'+statusBadge(r.conclusion,r.status)+'</td>';
+      html += '<td style="font-weight:600;font-size:11px">'+reg.icon+' '+name+'</td>';
+      html += '<td><span style="font-size:8px;font-weight:700;padding:2px 6px;border-radius:3px;background:'+catColor+'22;color:'+catColor+'">'+catLabel+'</span></td>';
+      html += '<td style="font-size:10px;color:var(--dim)">'+reg.sched+'</td>';
+      html += '<td style="font-size:10px;font-family:var(--mono)">'+timeSince(r.updated_at)+'</td>';
+      html += '<td style="font-size:10px;font-family:var(--mono)">'+(dur||'—')+'</td>';
+      html += '<td>'+liveBadge(isLive)+'</td>';
+      html += '</tr>';
+    });
+
+    // Never-run workflows
+    neverRun.forEach(function(name){
+      var reg = WF_REGISTRY[name];
+      var catColor = CAT_COLORS[reg.cat] || 'var(--dim)';
+      var catLabel = CAT_LABELS[reg.cat] || reg.cat.toUpperCase();
+      html += '<tr style="opacity:0.5">';
+      html += '<td><span class="b" style="background:#f1f5f9;color:var(--muted)">NEVER RUN</span></td>';
+      html += '<td style="font-weight:600;font-size:11px">'+reg.icon+' '+name+'</td>';
+      html += '<td><span style="font-size:8px;font-weight:700;padding:2px 6px;border-radius:3px;background:'+catColor+'22;color:'+catColor+'">'+catLabel+'</span></td>';
+      html += '<td style="font-size:10px;color:var(--dim)">'+reg.sched+'</td>';
+      html += '<td colspan="2" style="font-size:10px;color:var(--muted)">—</td>';
+      html += '<td>'+liveBadge(false)+'</td>';
+      html += '</tr>';
+    });
+
+    html += '</tbody></table></div></div>';
+
+    // ── Recent Activity Feed (last 15 runs) ──
+    html += '<div class="card" style="margin-top:12px"><h3>Recent Activity (last 15 runs)</h3>';
+    html += '<div style="overflow-x:auto"><table><thead><tr><th>Status</th><th>Workflow</th><th>Trigger</th><th>Branch</th><th>Started</th><th>Duration</th></tr></thead><tbody>';
+    recentAll.slice(0,15).forEach(function(r){
+      var dur = '';
+      if(r.updated_at && r.run_started_at){
+        var secs = Math.round((new Date(r.updated_at)-new Date(r.run_started_at))/1000);
+        dur = secs>=60 ? Math.floor(secs/60)+'m'+((secs%60)>0?(secs%60)+'s':'') : secs+'s';
+      }
+      var reg = WF_REGISTRY[r.name]||{icon:'&#x2753;'};
+      html += '<tr>';
+      html += '<td>'+statusBadge(r.conclusion,r.status)+'</td>';
+      html += '<td style="font-size:11px">'+reg.icon+' '+r.name+'</td>';
+      html += '<td><span class="b a">'+r.event+'</span></td>';
+      html += '<td style="font-size:10px;font-family:var(--mono)">'+r.head_branch+'</td>';
+      html += '<td style="font-size:10px;font-family:var(--mono)">'+new Date(r.run_started_at||r.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})+'</td>';
+      html += '<td style="font-size:10px;font-family:var(--mono)">'+(dur||'—')+'</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table></div></div>';
+
+    el.innerHTML = html;
+
+  } catch(e) {
+    el.innerHTML = '<div class="card" style="border-left:3px solid var(--r)">'
+      +'<h3 style="color:var(--r)">Failed to load workflow status</h3>'
+      +'<div class="desc">'+e.message+'. Make sure GitHub PAT is set (click lock icon in Config tab).</div>'
+      +'<button onclick="fetchWorkflowRuns()" style="margin-top:8px;padding:6px 16px;border-radius:6px;border:1px solid var(--a);background:var(--abg);color:var(--a);font-weight:700;font-size:11px;cursor:pointer">Retry</button>'
+      +'</div>';
+  }
+}
+
+// ── Data Connection Log ──
+var DK_CHANNELS = [
+  {table:'amazon_ads_daily',       label:'Amazon Ads',     icon:'&#x1F4CA;', freq:'2x daily'},
+  {table:'amazon_sales_daily',     label:'Amazon Sales',   icon:'&#x1F4E6;', freq:'2x daily'},
+  {table:'amazon_ads_keyword_daily',label:'Amazon Keywords',icon:'&#x1F511;', freq:'Daily'},
+  {table:'meta_ads_daily',         label:'Meta Ads',       icon:'&#x1F4F1;', freq:'2x daily'},
+  {table:'google_ads_daily',       label:'Google Ads',     icon:'&#x1F50D;', freq:'2x daily'},
+  {table:'ga4_daily',              label:'GA4',            icon:'&#x1F4C8;', freq:'2x daily'},
+  {table:'klaviyo_daily',          label:'Klaviyo',        icon:'&#x1F4E7;', freq:'2x daily'},
+  {table:'shopify_orders_daily',   label:'Shopify Orders', icon:'&#x1F6D2;', freq:'2x daily'},
+];
+
+async function fetchDataConnectionLog(){
+  var el = document.getElementById('sysadmin-datalog');
+  el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--dim)">Loading data connection status from DataKeeper API...</div>';
+
+  try {
+    var results = await Promise.all(DK_CHANNELS.map(function(ch){
+      return fetch(API_BASE+'/query/?table='+ch.table+'&limit=1&ordering=-date', {mode:'cors'})
+        .then(function(r){return r.ok?r.json():{rows:[],total:0};})
+        .then(function(d){return {ch:ch, rows:d.rows||[], total:d.total||0};})
+        .catch(function(){return {ch:ch, rows:[], total:0, error:true};});
+    }));
+
+    var html = '';
+
+    // Summary
+    var connected = results.filter(function(r){return r.rows.length>0;}).length;
+    var stale = results.filter(function(r){
+      if(!r.rows.length) return false;
+      var lastDate = r.rows[0].date || r.rows[0].created_at || '';
+      var hoursSince = (new Date() - new Date(lastDate)) / 3600000;
+      return hoursSince > 48;
+    }).length;
+
+    html += '<div class="stats">';
+    html += '<div class="stat green"><div class="sl">CONNECTED</div><div class="sv">'+connected+'/'+DK_CHANNELS.length+'</div></div>';
+    html += '<div class="stat'+(stale>0?' amber':' green')+'"><div class="sl">STALE (>48h)</div><div class="sv">'+stale+'</div></div>';
+    html += '<div class="stat cyan"><div class="sl">TOTAL CHANNELS</div><div class="sv">'+DK_CHANNELS.length+'</div></div>';
+    html += '</div>';
+
+    // Channel detail table
+    html += '<div class="card" style="margin-top:12px"><h3>Data Keeper — Channel Status</h3>';
+    html += '<div class="desc">Source: <code style="font-size:10px">'+API_BASE+'</code> | Refresh: 2x daily (PST 00:00, 12:00)</div>';
+    html += '<div style="overflow-x:auto"><table><thead><tr>';
+    html += '<th>Live</th><th>Channel</th><th>Frequency</th><th>Latest Date</th><th>Freshness</th><th>Total Rows</th><th>Sample</th>';
+    html += '</tr></thead><tbody>';
+
+    results.forEach(function(r){
+      var ch = r.ch;
+      var lastDate = r.rows.length ? (r.rows[0].date||'—') : '—';
+      var freshness = '—';
+      var isLive = false;
+      var freshnessColor = 'var(--dim)';
+
+      if(r.rows.length && r.rows[0].date){
+        var hoursSince = (new Date() - new Date(r.rows[0].date+'T23:59:59')) / 3600000;
+        if(hoursSince < 36){freshness = 'Fresh'; freshnessColor = 'var(--g)'; isLive = true;}
+        else if(hoursSince < 72){freshness = timeSince(r.rows[0].date+'T23:59:59'); freshnessColor = 'var(--am)';}
+        else {freshness = timeSince(r.rows[0].date+'T23:59:59'); freshnessColor = 'var(--r)';}
+      }
+      if(r.error){freshness = 'ERROR'; freshnessColor = 'var(--r)';}
+
+      // Sample: show brand or key field
+      var sample = '—';
+      if(r.rows.length){
+        var row = r.rows[0];
+        if(row.brand) sample = row.brand;
+        else if(row.campaign_name) sample = row.campaign_name.substring(0,25);
+        else if(row.source) sample = row.source;
+      }
+
+      html += '<tr>';
+      html += '<td>'+liveBadge(isLive)+'</td>';
+      html += '<td style="font-weight:600;font-size:11px">'+ch.icon+' '+ch.label+'</td>';
+      html += '<td style="font-size:10px;color:var(--dim)">'+ch.freq+'</td>';
+      html += '<td style="font-size:10px;font-family:var(--mono)">'+lastDate+'</td>';
+      html += '<td style="font-size:10px;font-weight:700;color:'+freshnessColor+'">'+freshness+'</td>';
+      html += '<td style="font-size:10px;font-family:var(--mono)">'+fmtN(r.total)+'</td>';
+      html += '<td style="font-size:10px;color:var(--dim)">'+sample+'</td>';
+      html += '</tr>';
+    });
+
+    html += '</tbody></table></div></div>';
+
+    // ── Collection Timeline (last 7 days) ──
+    html += '<div class="card" style="margin-top:12px"><h3>Collection Timeline (Last 7 Days)</h3>';
+    html += '<div class="desc">Shows which channels have data for each of the last 7 days</div>';
+
+    var days = [];
+    for(var i=0;i<7;i++){
+      var d = new Date(); d.setDate(d.getDate()-i);
+      days.push(d.toISOString().slice(0,10));
+    }
+
+    // Fetch row counts per day per channel
+    var countPromises = DK_CHANNELS.map(function(ch){
+      return fetch(API_BASE+'/query/?table='+ch.table+'&limit=1&date_from='+days[6]+'&date_to='+days[0], {mode:'cors'})
+        .then(function(r){return r.ok?r.json():{rows:[],total:0};})
+        .then(function(d){return {ch:ch, total:d.total||0};})
+        .catch(function(){return {ch:ch, total:0};});
+    });
+
+    html += '<div style="overflow-x:auto"><table><thead><tr><th>Channel</th>';
+    days.forEach(function(d){
+      var dayLabel = new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+      html += '<th style="text-align:center;font-size:8px">'+dayLabel+'</th>';
+    });
+    html += '</tr></thead><tbody id="timeline-body">';
+    html += '<tr><td colspan="'+(days.length+1)+'" style="text-align:center;color:var(--dim);padding:12px">Loading timeline...</td></tr>';
+    html += '</tbody></table></div></div>';
+
+    el.innerHTML = html;
+    window._datalogLoaded = true;
+
+    // Fill timeline async
+    Promise.all(DK_CHANNELS.map(function(ch){
+      return fetch(API_BASE+'/query/?table='+ch.table+'&limit=10000&date_from='+days[6]+'&date_to='+days[0], {mode:'cors'})
+        .then(function(r){return r.ok?r.json():{rows:[]};})
+        .then(function(d){
+          var byDate = {};
+          (d.rows||[]).forEach(function(row){
+            var rd = row.date||'';
+            byDate[rd] = (byDate[rd]||0)+1;
+          });
+          return {ch:ch, byDate:byDate};
+        })
+        .catch(function(){return {ch:ch, byDate:{}};});
+    })).then(function(tResults){
+      var tbody = document.getElementById('timeline-body');
+      if(!tbody) return;
+      var thtml = '';
+      tResults.forEach(function(tr){
+        thtml += '<tr><td style="font-size:10px;font-weight:600">'+tr.ch.icon+' '+tr.ch.label+'</td>';
+        days.forEach(function(d){
+          var cnt = tr.byDate[d]||0;
+          if(cnt > 0){
+            thtml += '<td style="text-align:center"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:var(--gbg);color:var(--g);font-size:9px;font-weight:700">'+cnt+'</span></td>';
+          } else {
+            thtml += '<td style="text-align:center"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#fef2f2;color:var(--r);font-size:9px">0</span></td>';
+          }
+        });
+        thtml += '</tr>';
+      });
+      tbody.innerHTML = thtml;
+    });
+
+  } catch(e) {
+    el.innerHTML = '<div class="card" style="border-left:3px solid var(--r)">'
+      +'<h3 style="color:var(--r)">Failed to load data connection log</h3>'
+      +'<div class="desc">'+e.message+'</div>'
+      +'<button onclick="fetchDataConnectionLog()" style="margin-top:8px;padding:6px 16px;border-radius:6px;border:1px solid var(--a);background:var(--abg);color:var(--a);font-weight:700;font-size:11px;cursor:pointer">Retry</button>'
+      +'</div>';
+  }
+}
+
+// Hook into main tab switch
+(function(){
+  var orig = document.querySelectorAll('.mt>div');
+  orig.forEach(function(t){
+    var origClick = t.onclick;
+    t.onclick = function(){
+      document.querySelectorAll('.mt>div').forEach(function(x){x.classList.remove('on');});
+      document.querySelectorAll('.mp').forEach(function(x){x.classList.remove('on');});
+      t.classList.add('on');
+      document.getElementById(t.dataset.p).classList.add('on');
+      if(t.dataset.p==='tab-execlog') renderExecAudit();
+      if(t.dataset.p==='tab-analytics'){
+        var ab = document.querySelector('#analyticssBrandTabs .on');
+        var bk = ab ? ab.dataset.abrand : 'grosmimi';
+        if (_currentAnalyticsSub === 'searchterms') fetchAndRenderSearchTerms(bk);
+        else renderAnalytics(bk, ab);
+      }
+      if(t.dataset.p==='tab-sysadmin') fetchWorkflowRuns();
+    };
+  });
+})();
 </script>
 </body>
 </html>
