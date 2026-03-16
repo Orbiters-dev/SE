@@ -44,8 +44,15 @@ def load_proposals():
 
     for f in sorted(glob.glob(str(PROPOSAL_DIR / "ppc_proposal_*_*.json"))):
         try:
-            data = json.loads(Path(f).read_text(encoding="utf-8"))
-            if not isinstance(data, list):
+            raw = json.loads(Path(f).read_text(encoding="utf-8"))
+            # Support both list format (legacy) and dict format (new save_proposal)
+            if isinstance(raw, dict):
+                data = raw.get("proposals", [])
+            elif isinstance(raw, list):
+                data = raw
+            else:
+                continue
+            if not data:
                 continue
             # Extract brand and date from filename: ppc_proposal_{brand}_{date}.json
             stem = Path(f).stem  # ppc_proposal_naeiae_20260315
@@ -65,7 +72,7 @@ def load_proposals():
             for item in data:
                 if not isinstance(item, dict):
                     continue
-                action = item.get("action", "")
+                action = item.get("action", "") or item.get("proposed_action", "")
                 if action in ("harvest",):
                     harvest.append({
                         "term": item.get("keyword", ""),
@@ -91,19 +98,30 @@ def load_proposals():
                     })
                 else:
                     # Campaign-level proposal
+                    # Handle both old (flat) and new (nested metrics) formats
+                    m7 = item.get("metrics", {}).get("7d", {})
+                    roas7 = item.get("roas_7d") or m7.get("roas", 0) or 0
+                    spend7 = item.get("spend_7d") or m7.get("spend", 0) or 0
+                    sales7 = item.get("sales_7d") or m7.get("sales", 0) or 0
+                    acos7 = round(1 / roas7 * 100, 1) if roas7 > 0 else 0
+                    cpc = item.get("cpc") or m7.get("cpc", 0) or 0
+                    ctr = item.get("ctr") or m7.get("ctr", 0) or 0
+                    camp_type = item.get("campaign_type") or item.get("campaignType", "AUTO")
+                    ad_type = item.get("adType", item.get("ad_type", "SP"))
                     campaigns.append({
                         "name": item.get("campaignName", ""),
-                        "type": item.get("campaign_type", "AUTO"),
-                        "roas7d": item.get("roas_7d", 0) or 0,
-                        "acos7d": round(1 / item["roas_7d"] * 100, 1) if item.get("roas_7d") and item["roas_7d"] > 0 else 0,
-                        "spend7d": round(item.get("spend_7d", 0) or 0),
-                        "sales7d": round(item.get("sales_7d", 0) or 0),
-                        "cpc": item.get("cpc", 0) or 0,
-                        "ctr": item.get("ctr", 0) or 0,
+                        "type": camp_type,
+                        "ad_type": ad_type,
+                        "roas7d": roas7,
+                        "acos7d": acos7,
+                        "spend7d": round(spend7),
+                        "sales7d": round(sales7),
+                        "cpc": cpc,
+                        "ctr": ctr,
                         "action": action,
                         "bid_pct": item.get("bid_change_pct"),
-                        "bud_before": item.get("old_budget"),
-                        "bud_after": item.get("new_budget"),
+                        "bud_before": item.get("old_budget") or item.get("currentDailyBudget"),
+                        "bud_after": item.get("new_budget") or item.get("new_daily_budget"),
                         "tier": item.get("tier", ""),
                         "reason": item.get("reason", ""),
                         "approved": item.get("approved", False),

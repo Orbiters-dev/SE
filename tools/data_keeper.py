@@ -503,12 +503,19 @@ def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
         h = {**headers, "Amazon-Advertising-API-Scope": pid}
 
         # Collect SP, SB, SD for each profile
+        # Each ad type uses different column names in Amazon Ads Reporting API v3
         AD_TYPES = [
-            ("SP", "SPONSORED_PRODUCTS", "spCampaigns"),
-            ("SB", "SPONSORED_BRANDS", "sbCampaigns"),
-            ("SD", "SPONSORED_DISPLAY", "sdCampaigns"),
+            ("SP", "SPONSORED_PRODUCTS", "spCampaigns",
+             ["date", "campaignId", "impressions", "clicks", "cost", "sales14d", "purchases14d"],
+             {"sales": "sales14d", "purchases": "purchases14d"}),
+            ("SB", "SPONSORED_BRANDS", "sbCampaigns",
+             ["date", "campaignId", "impressions", "clicks", "cost", "sales", "purchases"],
+             {"sales": "sales", "purchases": "purchases"}),
+            ("SD", "SPONSORED_DISPLAY", "sdCampaigns",
+             ["date", "campaignId", "impressions", "clicks", "cost", "sales", "unitsSold"],
+             {"sales": "sales", "purchases": "unitsSold"}),
         ]
-        for ad_type, ad_product, report_type_id in AD_TYPES:
+        for ad_type, ad_product, report_type_id, cols, field_map in AD_TYPES:
             cur = d_from
             type_rows = 0
             while cur <= d_to:
@@ -516,6 +523,7 @@ def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
                 report_rows = _fetch_amz_ads_report(
                     h, pid, cur.isoformat(), chunk_end.isoformat(),
                     ad_product=ad_product, report_type_id=report_type_id,
+                    columns=cols,
                 )
                 for row in report_rows:
                     cid = str(row.get("campaignId", ""))
@@ -529,13 +537,15 @@ def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
                         "impressions": int(row.get("impressions", 0)),
                         "clicks": int(row.get("clicks", 0)),
                         "spend": float(row.get("cost", 0)),
-                        "sales": float(row.get("sales14d", 0)),
-                        "purchases": int(row.get("purchases14d", 0)),
+                        "sales": float(row.get(field_map["sales"], 0)),
+                        "purchases": int(row.get(field_map["purchases"], 0)),
                     })
                     type_rows += 1
                 cur = chunk_end + timedelta(days=1)
             if type_rows:
                 print(f"  {pname} ({brand}) {ad_type}: {type_rows} rows")
+            elif ad_type != "SP":
+                print(f"  {pname} ({brand}) {ad_type}: 0 rows (may not have {ad_type} campaigns)")
         total_profile = sum(1 for r in all_rows if r['profile_id'] == pid)
         print(f"  {pname} ({brand}) total: {total_profile} rows")
 
@@ -544,8 +554,12 @@ def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
 
 def _fetch_amz_ads_report(headers, profile_id, start, end,
                           ad_product="SPONSORED_PRODUCTS",
-                          report_type_id="spCampaigns"):
+                          report_type_id="spCampaigns",
+                          columns=None):
     """Submit, poll, download a single Amazon Ads report chunk."""
+    if columns is None:
+        columns = ["date", "campaignId", "impressions", "clicks",
+                   "cost", "sales14d", "purchases14d"]
     body = {
         "reportDate": None,
         "startDate": start,
@@ -553,8 +567,7 @@ def _fetch_amz_ads_report(headers, profile_id, start, end,
         "configuration": {
             "adProduct": ad_product,
             "groupBy": ["campaign"],
-            "columns": ["date", "campaignId", "impressions", "clicks",
-                        "cost", "sales14d", "purchases14d"],
+            "columns": columns,
             "reportTypeId": report_type_id,
             "timeUnit": "DAILY",
             "format": "GZIP_JSON",
@@ -2288,12 +2301,13 @@ def collect_amazon_campaigns(date_from: str, date_to: str) -> list[dict]:
         pid = str(p["profileId"])
         pname = p.get("accountInfo", {}).get("name", pid)
         brand = PROFILE_BRAND_MAP.get(pname, pname)
-        h = {**headers, "Amazon-Advertising-API-Scope": pid}
+        h_sp = {**headers, "Amazon-Advertising-API-Scope": pid}
 
+        # --- SP campaigns ---
         try:
             r = requests.post(
                 "https://advertising-api.amazon.com/sp/campaigns/list",
-                headers=h, json={"maxResults": 5000}, timeout=20,
+                headers=h_sp, json={"maxResults": 5000}, timeout=20,
             )
             r.raise_for_status()
             data = r.json()
@@ -2313,9 +2327,74 @@ def collect_amazon_campaigns(date_from: str, date_to: str) -> list[dict]:
                                     if isinstance(c.get("dynamicBidding"), dict) else "",
                     "campaign_type": "SP",
                 })
-            print(f"  {pname} ({brand}): {len(camps)} campaigns")
+            print(f"  {pname} ({brand}) SP: {len(camps)} campaigns")
         except Exception as e:
-            print(f"  [WARN] {pname}: {e}")
+            print(f"  [WARN] {pname} SP: {e}")
+
+        # --- SB campaigns ---
+        try:
+            h_sb = {
+                "Amazon-Advertising-API-ClientId": AMZ_ADS_CLIENT_ID,
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/vnd.sbCampaignResource.v4+json",
+                "Accept": "application/vnd.sbCampaignResource.v4+json",
+                "Amazon-Advertising-API-Scope": pid,
+            }
+            r = requests.post(
+                "https://advertising-api.amazon.com/sb/v4/campaigns/list",
+                headers=h_sb, json={"maxResults": 100}, timeout=20,
+            )
+            r.raise_for_status()
+            data = r.json()
+            camps = data if isinstance(data, list) else data.get("campaigns", [])
+            for c in camps:
+                budget_obj = c.get("budget", {})
+                all_campaigns.append({
+                    "campaign_id": str(c.get("campaignId", "")),
+                    "profile_id": pid,
+                    "brand": brand,
+                    "name": c.get("name", ""),
+                    "status": c.get("state", c.get("status", "UNKNOWN")).upper(),
+                    "budget": float(budget_obj.get("budget", 0)
+                                    if isinstance(budget_obj, dict)
+                                    else budget_obj or 0),
+                    "bid_strategy": "",
+                    "campaign_type": "SB",
+                })
+            if camps:
+                print(f"  {pname} ({brand}) SB: {len(camps)} campaigns")
+        except Exception as e:
+            print(f"  [WARN] {pname} SB: {e}")
+
+        # --- SD campaigns ---
+        try:
+            h_sd = {
+                "Amazon-Advertising-API-ClientId": AMZ_ADS_CLIENT_ID,
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+                "Amazon-Advertising-API-Scope": pid,
+            }
+            r = requests.get(
+                "https://advertising-api.amazon.com/sd/campaigns",
+                headers=h_sd, timeout=20,
+            )
+            r.raise_for_status()
+            camps = r.json() if isinstance(r.json(), list) else r.json().get("campaigns", [])
+            for c in camps:
+                all_campaigns.append({
+                    "campaign_id": str(c.get("campaignId", "")),
+                    "profile_id": pid,
+                    "brand": brand,
+                    "name": c.get("name", ""),
+                    "status": c.get("state", c.get("status", "UNKNOWN")).upper(),
+                    "budget": float(c.get("budget", 0) or 0),
+                    "bid_strategy": c.get("bidOptimization", ""),
+                    "campaign_type": "SD",
+                })
+            if camps:
+                print(f"  {pname} ({brand}) SD: {len(camps)} campaigns")
+        except Exception as e:
+            print(f"  [WARN] {pname} SD: {e}")
 
     print(f"  Total: {len(all_campaigns)} campaigns")
     return all_campaigns

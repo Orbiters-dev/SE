@@ -156,6 +156,18 @@ TARGETING_CONFIG = {
         "budget_share": 0.40,
         "description": "Auto campaigns - keyword discovery, broader reach",
     },
+    "SB": {
+        "target_acos": 30.0,
+        "min_roas": 2.0,
+        "budget_share": 0.0,  # SB share computed dynamically in budget_allocation
+        "description": "Sponsored Brands - brand awareness + top-of-search placement",
+    },
+    "SD": {
+        "target_acos": 35.0,
+        "min_roas": 1.5,
+        "budget_share": 0.0,  # SD share computed dynamically
+        "description": "Sponsored Display - retargeting + audience targeting",
+    },
 }
 
 def _apply_brand_config(brand_key: str):
@@ -316,9 +328,11 @@ def get_fleeters_profile() -> Optional[Dict]:
 
 
 def fetch_campaigns(profile_id: int) -> List[Dict]:
-    """Fetch all SP campaigns with their current state, budget, bid info."""
-    headers = _headers_sp(profile_id)
+    """Fetch all SP, SB, SD campaigns with their current state, budget, bid info."""
     campaigns = []
+
+    # --- SP campaigns ---
+    headers = _headers_sp(profile_id)
     start_index = 0
     deadline = time.time() + 60
 
@@ -346,11 +360,73 @@ def fetch_campaigns(profile_id: int) -> List[Dict]:
                 "dailyBudget": float(c.get("budget", {}).get("budget", 0) if isinstance(c.get("budget"), dict) else c.get("dailyBudget", 0)),
                 "targetingType": c.get("targetingType", ""),
                 "startDate": c.get("startDate", ""),
+                "adType": "SP",
             })
 
         if len(items) < 1000:
             break
         start_index += 1000
+
+    print(f"  SP: {len(campaigns)} campaigns")
+
+    # --- SB campaigns ---
+    try:
+        h_sb = _headers(profile_id)
+        h_sb["Content-Type"] = "application/vnd.sbCampaignResource.v4+json"
+        h_sb["Accept"] = "application/vnd.sbCampaignResource.v4+json"
+        resp = requests.post(
+            f"{API_BASE}/sb/v4/campaigns/list",
+            headers=h_sb,
+            json={"stateFilter": {"include": ["ENABLED"]}, "maxResults": 100},
+            timeout=20,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        sb_camps = data if isinstance(data, list) else data.get("campaigns", [])
+        for c in sb_camps:
+            budget_obj = c.get("budget", {})
+            campaigns.append({
+                "campaignId": c.get("campaignId"),
+                "name": c.get("name", ""),
+                "state": c.get("state", ""),
+                "dailyBudget": float(budget_obj.get("budget", 0) if isinstance(budget_obj, dict) else c.get("dailyBudget", 0)),
+                "targetingType": "SB",
+                "startDate": c.get("startDate", ""),
+                "adType": "SB",
+            })
+        if sb_camps:
+            print(f"  SB: {len(sb_camps)} campaigns")
+    except Exception as e:
+        print(f"  [WARN] SB campaigns: {e}")
+
+    # --- SD campaigns ---
+    try:
+        h_sd = _headers(profile_id)
+        resp = requests.get(
+            f"{API_BASE}/sd/campaigns",
+            headers=h_sd,
+            timeout=20,
+        )
+        resp.raise_for_status()
+        sd_data = resp.json()
+        sd_camps = sd_data if isinstance(sd_data, list) else sd_data.get("campaigns", [])
+        for c in sd_camps:
+            if c.get("state", "").upper() != "ENABLED":
+                continue
+            campaigns.append({
+                "campaignId": c.get("campaignId"),
+                "name": c.get("name", ""),
+                "state": "ENABLED",
+                "dailyBudget": float(c.get("budget", 0) or 0),
+                "targetingType": "SD",
+                "startDate": c.get("startDate", ""),
+                "adType": "SD",
+            })
+        enabled_sd = sum(1 for c in campaigns if c.get("adType") == "SD")
+        if enabled_sd:
+            print(f"  SD: {enabled_sd} campaigns")
+    except Exception as e:
+        print(f"  [WARN] SD campaigns: {e}")
 
     return campaigns
 
@@ -376,13 +452,17 @@ def fetch_report_from_datakeeper(brand_key: str, days: int) -> List[Dict]:
 
     # Filter by brand and convert field names to match analyze_campaigns expectations
     out = []
+    ad_type_counts = {"SP": 0, "SB": 0, "SD": 0}
     for r in rows:
         if r.get("brand", "") != brand_display:
             continue
+        at = r.get("ad_type", "SP")
+        ad_type_counts[at] = ad_type_counts.get(at, 0) + 1
         out.append({
             "date": r.get("date", ""),
             "campaignId": r.get("campaign_id", ""),
             "campaignName": r.get("campaign_name", r.get("campaign_id", "")),
+            "adType": at,
             "cost": float(r.get("spend", 0) or 0),
             "sales14d": float(r.get("sales", 0) or 0),
             "purchases14d": int(r.get("purchases", 0) or 0),
@@ -392,7 +472,8 @@ def fetch_report_from_datakeeper(brand_key: str, days: int) -> List[Dict]:
 
     dates = sorted(set(r["date"] for r in out)) if out else []
     campaigns_n = len(set(r["campaignId"] for r in out))
-    print(f"  DataKeeper -> {len(out)} rows for {brand_display} | {campaigns_n} campaigns")
+    type_str = " | ".join(f"{k}:{v}" for k, v in ad_type_counts.items() if v > 0)
+    print(f"  DataKeeper -> {len(out)} rows for {brand_display} | {campaigns_n} campaigns | {type_str}")
     if dates:
         print(f"  Period: {dates[0]} ~ {dates[-1]}")
     return out
@@ -1767,8 +1848,14 @@ def _build_keyword_matrix_html(matrix: Optional[Dict]) -> str:
 # Analysis & Proposal Generation
 # ===========================================================================
 
-def classify_targeting(campaign_name: str, targeting_type: str) -> str:
-    """Classify campaign as MANUAL or AUTO based on name and targeting type."""
+def classify_targeting(campaign_name: str, targeting_type: str, ad_type: str = "SP") -> str:
+    """Classify campaign as MANUAL, AUTO, SB, or SD.
+
+    SB/SD campaigns get their own category so they can have
+    separate budget allocation and targeting rules.
+    """
+    if ad_type in ("SB", "SD"):
+        return ad_type
     name_lower = campaign_name.lower()
     if "auto" in name_lower or targeting_type.upper() == "AUTO":
         return "AUTO"
@@ -1776,38 +1863,61 @@ def classify_targeting(campaign_name: str, targeting_type: str) -> str:
 
 
 def compute_budget_allocation(campaigns: List[Dict], agg_7d: Dict) -> Dict[str, float]:
-    """Compute optimal budget split: manual vs auto within $150/day total."""
-    manual_budget = TOTAL_DAILY_BUDGET_USD * TARGETING_CONFIG["MANUAL"]["budget_share"]
-    auto_budget = TOTAL_DAILY_BUDGET_USD * TARGETING_CONFIG["AUTO"]["budget_share"]
+    """Compute optimal budget split: manual vs auto vs SB vs SD."""
+    # Base allocation: SP gets MANUAL/AUTO split, SB/SD share remaining
+    sp_budget = TOTAL_DAILY_BUDGET_USD  # start with full budget for SP
 
     # Count active campaigns per type
-    manual_camps = []
-    auto_camps = []
+    type_camps = {"MANUAL": [], "AUTO": [], "SB": [], "SD": []}
     for c in campaigns:
         if c["state"] != "ENABLED":
             continue
-        ctype = classify_targeting(c["name"], c.get("targetingType", ""))
-        m = agg_7d.get(c["campaignId"], {})
+        ctype = classify_targeting(c["name"], c.get("targetingType", ""),
+                                   c.get("adType", "SP"))
+        m = agg_7d.get(str(c["campaignId"]), {})
         roas = 0
         cost = m.get("cost", 0)
         sales = m.get("sales", 0)
         if cost > 0:
             roas = sales / cost
         entry = {"campaign": c, "roas": roas, "spend_7d": cost}
-        if ctype == "MANUAL":
-            manual_camps.append(entry)
+        if ctype in type_camps:
+            type_camps[ctype].append(entry)
         else:
-            auto_camps.append(entry)
+            type_camps["MANUAL"].append(entry)
 
-    # If one type has no campaigns, give full budget to the other
-    if not manual_camps and auto_camps:
-        auto_budget = TOTAL_DAILY_BUDGET_USD
-    elif not auto_camps and manual_camps:
-        manual_budget = TOTAL_DAILY_BUDGET_USD
+    # Calculate SB/SD actual spend share to allocate proportionally
+    total_7d_spend = sum(e["spend_7d"] for camps in type_camps.values() for e in camps)
+    sb_spend = sum(e["spend_7d"] for e in type_camps["SB"])
+    sd_spend = sum(e["spend_7d"] for e in type_camps["SD"])
+
+    # SB/SD budget = their actual spend share of total (minimum 10% each if they exist)
+    sb_budget = 0
+    sd_budget = 0
+    if type_camps["SB"]:
+        sb_share = max(sb_spend / total_7d_spend, 0.10) if total_7d_spend > 0 else 0.15
+        sb_budget = round(TOTAL_DAILY_BUDGET_USD * sb_share, 2)
+    if type_camps["SD"]:
+        sd_share = max(sd_spend / total_7d_spend, 0.10) if total_7d_spend > 0 else 0.10
+        sd_budget = round(TOTAL_DAILY_BUDGET_USD * sd_share, 2)
+
+    sp_budget = TOTAL_DAILY_BUDGET_USD - sb_budget - sd_budget
+    manual_budget = sp_budget * TARGETING_CONFIG["MANUAL"]["budget_share"]
+    auto_budget = sp_budget * TARGETING_CONFIG["AUTO"]["budget_share"]
+
+    # If one SP type has no campaigns, give its budget to the other
+    if not type_camps["MANUAL"] and type_camps["AUTO"]:
+        auto_budget = sp_budget
+        manual_budget = 0
+    elif not type_camps["AUTO"] and type_camps["MANUAL"]:
+        manual_budget = sp_budget
+        auto_budget = 0
 
     return {
-        "MANUAL": {"budget": round(manual_budget, 2), "campaigns": len(manual_camps)},
-        "AUTO": {"budget": round(auto_budget, 2), "campaigns": len(auto_camps)},
+        "MANUAL": {"budget": round(manual_budget, 2), "campaigns": len(type_camps["MANUAL"])},
+        "AUTO": {"budget": round(auto_budget, 2), "campaigns": len(type_camps["AUTO"])},
+        "SB": {"budget": round(sb_budget, 2), "campaigns": len(type_camps["SB"])},
+        "SD": {"budget": round(sd_budget, 2), "campaigns": len(type_camps["SD"])},
         "total": TOTAL_DAILY_BUDGET_USD,
     }
 
@@ -1911,8 +2021,10 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
         if camp["state"] != "ENABLED":
             continue
 
-        camp_type = classify_targeting(camp["name"], camp.get("targetingType", ""))
-        config = TARGETING_CONFIG[camp_type]
+        ad_type = camp.get("adType", "SP")
+        camp_type = classify_targeting(camp["name"], camp.get("targetingType", ""), ad_type)
+        # SB/SD use MANUAL config as baseline (target ACOS, min ROAS)
+        config = TARGETING_CONFIG.get(camp_type, TARGETING_CONFIG["MANUAL"])
 
         m7 = agg_7d.get(cid, {"cost": 0, "sales": 0, "clicks": 0, "impressions": 0, "purchases": 0})
         m30 = agg_30d.get(cid, {"cost": 0, "sales": 0, "clicks": 0, "impressions": 0, "purchases": 0})
@@ -2039,8 +2151,9 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
             anomalies.append(f"Low CTR: {camp['name']} CTR {ctr_7d}% ({m7['impressions']} impr)")
 
         # Budget safety cap
-        type_budget = allocation[camp_type]["budget"]
-        type_camp_count = max(allocation[camp_type]["campaigns"], 1)
+        alloc_key = camp_type if camp_type in allocation else "MANUAL"
+        type_budget = allocation[alloc_key]["budget"]
+        type_camp_count = max(allocation[alloc_key]["campaigns"], 1)
         per_camp_share = round(type_budget / type_camp_count, 2)
         max_budget = min(per_camp_share * 2, MAX_SINGLE_CAMPAIGN_BUDGET)
 
@@ -2056,6 +2169,7 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
             "campaignId": cid,
             "campaignName": camp["name"],
             "campaignType": camp_type,
+            "adType": ad_type,
             "targetingType": camp.get("targetingType", ""),
             "currentState": camp["state"],
             "currentDailyBudget": camp["dailyBudget"],
@@ -2515,11 +2629,17 @@ def print_proposal_summary(proposals: List[Dict], brand_key: str = "naeiae"):
     print(f"  Daily Budget Cap: ${cfg['total_daily_budget']} (Manual 60% / Auto 40%)")
     print(f"{'='*70}")
 
-    # Manual vs Auto breakdown
+    # Type breakdown
     manual_props = [p for p in proposals if p.get("campaignType") == "MANUAL"]
     auto_props = [p for p in proposals if p.get("campaignType") == "AUTO"]
-    print(f"\n  Manual campaigns: {len(manual_props)} proposals")
-    print(f"  Auto campaigns:   {len(auto_props)} proposals")
+    sb_props = [p for p in proposals if p.get("adType") == "SB"]
+    sd_props = [p for p in proposals if p.get("adType") == "SD"]
+    print(f"\n  SP Manual: {len(manual_props)} | SP Auto: {len(auto_props)}", end="")
+    if sb_props:
+        print(f" | SB: {len(sb_props)}", end="")
+    if sd_props:
+        print(f" | SD: {len(sd_props)}", end="")
+    print()
 
     urgent = [p for p in proposals if p["priority"] == "urgent"]
     high = [p for p in proposals if p["priority"] == "high"]
