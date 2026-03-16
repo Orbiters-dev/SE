@@ -998,6 +998,9 @@ def _get_our_asins() -> tuple[set, dict]:
     return asins, asin_brand
 
 
+# How many top search terms (by search frequency rank) to always collect
+BA_TOP_N_RANK = 10
+
 # Category keywords to also capture competitor data for BSR-relevant search terms
 BA_CATEGORY_KEYWORDS = {
     # Grosmimi / baby cups & bottles
@@ -1188,18 +1191,19 @@ def _fetch_brand_analytics_report(headers, start, end, seller, marketplace_id, o
 def _parse_ba_report_streaming(tmp_path, is_gzip, start, end, seller, our_asins, asin_brand_map=None):
     """Parse Brand Analytics JSON report, filtering to our ASINs.
 
-    Uses ijson streaming parser to avoid loading the entire 3GB+ file
-    into memory. Each item in dataByDepartmentAndSearchTerm is parsed
-    independently. brand is resolved per-ASIN from asin_brand_map.
+    Uses ijson streaming parser if available, otherwise falls back to
+    a line-scanner that reads the file in chunks without loading it all.
+    brand is resolved per-ASIN from asin_brand_map.
     """
-    import ijson
     if asin_brand_map is None:
         asin_brand_map = {}
     rows = []
     total_items = 0
     matched_items = 0
 
+    # Try ijson first (best performance)
     try:
+        import ijson
         if is_gzip:
             f = gzip.open(tmp_path, "rb")
         else:
@@ -1207,78 +1211,76 @@ def _parse_ba_report_streaming(tmp_path, is_gzip, start, end, seller, our_asins,
 
         for item in ijson.items(f, "dataByDepartmentAndSearchTerm.item"):
             total_items += 1
-
-            # Quick ASIN check before building row dicts
-            item_asins = []
-            for i in range(1, 4):
-                a = item.get(f"clickedAsin{i}", "")
-                if a:
-                    item_asins.append((i, a))
-
-            has_our_asin = any(a in our_asins for _, a in item_asins)
-            # Also match category keywords for competitor analysis
-            search_term_lower = (item.get("searchTerm", "") or "").lower()
-            has_keyword = search_term_lower in BA_CATEGORY_KEYWORDS
-            if not has_our_asin and not has_keyword:
+            matched = _ba_item_matches(item, our_asins)
+            if not matched:
                 continue
-
             matched_items += 1
-            search_term = item.get("searchTerm", "")
-            search_freq_rank = item.get("searchFrequencyRank", 0)
-            dept = item.get("departmentName", "")
-
-            for rank, asin in item_asins:
-                rows.append({
-                    "date": start,
-                    "week_end": end,
-                    "brand": asin_brand_map.get(asin, "unknown"),
-                    "is_ours": asin in our_asins,
-                    "department": dept,
-                    "search_term": search_term,
-                    "search_frequency_rank": int(search_freq_rank) if search_freq_rank else 0,
-                    "asin": asin,
-                    "asin_rank": rank,
-                    "click_share": float(item.get(f"clickShareRank{rank}", 0) or 0),
-                    "conversion_share": float(item.get(f"conversionShareRank{rank}", 0) or 0),
-                })
+            rows.extend(_ba_item_to_rows(item, start, end, our_asins, asin_brand_map))
 
         f.close()
-        print(f"    Parsed {total_items:,} search terms, {matched_items:,} matched our ASINs -> {len(rows)} rows")
+        print(f"    [ijson] Parsed {total_items:,} search terms, {matched_items:,} matched -> {len(rows)} rows")
         return rows
-
     except ImportError:
-        # ijson not available — fallback to full load
-        print("    [WARN] ijson not installed, falling back to full JSON load (may use lots of memory)")
-        if is_gzip:
-            with gzip.open(tmp_path, "rb") as f:
-                data = json.loads(f.read().decode("utf-8", errors="replace"))
-        else:
-            with open(tmp_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
+        pass
+    except Exception as e:
+        print(f"    [WARN] ijson failed ({e}), trying line scanner...")
 
-        raw_items = data.get("dataByDepartmentAndSearchTerm", []) if isinstance(data, dict) else data
-        rows = []
-        for item in raw_items:
-            item_asins = [(i, item.get(f"clickedAsin{i}", "")) for i in range(1, 4)]
-            item_asins = [(i, a) for i, a in item_asins if a]
-            st_lower = (item.get("searchTerm", "") or "").lower()
-            if not any(a in our_asins for _, a in item_asins) and st_lower not in BA_CATEGORY_KEYWORDS:
+    # Fallback: line-by-line scanner (no extra deps, memory-safe)
+    # BA JSON has one item per ~300 bytes avg; we accumulate each object
+    # between { } braces at depth=2 (inside the array)
+    print("    Using line scanner (no ijson)...")
+    try:
+        if is_gzip:
+            f = gzip.open(tmp_path, "rt", encoding="utf-8", errors="replace")
+        else:
+            f = open(tmp_path, "r", encoding="utf-8", errors="replace")
+
+        # Skip to "dataByDepartmentAndSearchTerm" array
+        in_array = False
+        brace_depth = 0
+        item_lines = []
+
+        for line in f:
+            stripped = line.strip()
+
+            if not in_array:
+                if '"dataByDepartmentAndSearchTerm"' in stripped:
+                    in_array = True
                 continue
-            for rank, asin in item_asins:
-                rows.append({
-                    "date": start,
-                    "week_end": end,
-                    "brand": asin_brand_map.get(asin, "unknown"),
-                    "is_ours": asin in our_asins,
-                    "department": item.get("departmentName", ""),
-                    "search_term": item.get("searchTerm", ""),
-                    "search_frequency_rank": int(item.get("searchFrequencyRank", 0) or 0),
-                    "asin": asin,
-                    "asin_rank": rank,
-                    "click_share": float(item.get(f"clickShareRank{rank}", 0) or 0),
-                    "conversion_share": float(item.get(f"conversionShareRank{rank}", 0) or 0),
-                })
-        print(f"    Parsed {len(raw_items):,} items -> {len(rows)} rows (our ASINs)")
+
+            # Track braces to isolate individual items
+            for ch in stripped:
+                if ch == '{':
+                    if brace_depth == 0:
+                        item_lines = []
+                    brace_depth += 1
+                elif ch == '}':
+                    brace_depth -= 1
+
+            item_lines.append(stripped)
+
+            if brace_depth == 0 and item_lines:
+                # We have a complete item
+                total_items += 1
+                raw = " ".join(item_lines)
+                # Strip trailing comma
+                if raw.endswith(","):
+                    raw = raw[:-1]
+                try:
+                    item = json.loads(raw)
+                    if _ba_item_matches(item, our_asins):
+                        matched_items += 1
+                        rows.extend(_ba_item_to_rows(item, start, end, our_asins, asin_brand_map))
+                except json.JSONDecodeError:
+                    pass
+                item_lines = []
+
+                # Progress every 500k items
+                if total_items % 500000 == 0:
+                    print(f"    ... {total_items:,} scanned, {matched_items:,} matched")
+
+        f.close()
+        print(f"    [scanner] Parsed {total_items:,} search terms, {matched_items:,} matched -> {len(rows)} rows")
         return rows
 
     except Exception as e:
@@ -1288,6 +1290,55 @@ def _parse_ba_report_streaming(tmp_path, is_gzip, start, end, seller, our_asins,
         except Exception:
             pass
         return []
+
+
+def _ba_item_matches(item, our_asins):
+    """Check if a BA item matches our filters (ASIN, keyword, or top N).
+
+    NOTE: BA JSON has each clicked ASIN as a separate object:
+      {"searchTerm": "...", "clickedAsin": "B0...", "clickShareRank": 1, ...}
+    NOT clickedAsin1/2/3 in the same object.
+    """
+    # Check ASIN (single field per object)
+    asin = item.get("clickedAsin", "")
+    if asin in our_asins:
+        return True
+    # Check category keywords
+    st = (item.get("searchTerm", "") or "").lower()
+    if st in BA_CATEGORY_KEYWORDS:
+        return True
+    # Check top N rank
+    sfr = item.get("searchFrequencyRank", 0)
+    if isinstance(sfr, (int, float)) and 0 < sfr <= BA_TOP_N_RANK:
+        return True
+    return False
+
+
+def _ba_item_to_rows(item, start, end, our_asins, asin_brand_map):
+    """Convert a single BA item to an output row.
+
+    Each BA item is one searchTerm + one clickedAsin (rank 1, 2, or 3).
+    """
+    asin = item.get("clickedAsin", "")
+    if not asin:
+        return []
+    click_share_rank = item.get("clickShareRank", 0)
+    click_share = item.get("clickShare", 0)
+    conv_share = item.get("conversionShare", 0)
+    return [{
+        "date": start,
+        "week_end": end,
+        "brand": asin_brand_map.get(asin, "unknown"),
+        "is_ours": asin in our_asins,
+        "department": item.get("departmentName", ""),
+        "search_term": item.get("searchTerm", ""),
+        "search_frequency_rank": int(item.get("searchFrequencyRank", 0) or 0),
+        "asin": asin,
+        "asin_name": (item.get("clickedItemName", "") or "")[:200],
+        "asin_rank": int(click_share_rank) if click_share_rank else 0,
+        "click_share": float(click_share) if click_share is not None else 0.0,
+        "conversion_share": float(conv_share) if conv_share is not None else 0.0,
+    }]
 
 
 def collect_meta_ads(date_from: str, date_to: str) -> list[dict]:
