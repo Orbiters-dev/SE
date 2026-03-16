@@ -324,9 +324,17 @@ def list_tables(request):
 @csrf_exempt
 @cors_headers
 @require_http_methods(["GET", "OPTIONS"])
+def _safe_iso(val):
+    """Convert date/datetime to ISO string, handling already-string values."""
+    if val is None:
+        return None
+    if isinstance(val, str):
+        return val
+    return val.isoformat()
+
+
 def status(request):
     """Get latest collection timestamps per table."""
-    import traceback
     result = {}
     for name, model in TABLE_MAP.items():
         try:
@@ -336,17 +344,14 @@ def status(request):
             if "collected_at" in field_names:
                 latest = model.objects.order_by("-collected_at").first()
                 info["latest_collected"] = (
-                    latest.collected_at.isoformat()
-                    if latest and latest.collected_at else None
+                    _safe_iso(latest.collected_at) if latest else None
                 )
             if "date" in field_names:
                 latest = model.objects.order_by("-date").first()
                 info["latest_date"] = (
-                    latest.date.isoformat()
-                    if latest and latest.date else None
+                    _safe_iso(latest.date) if latest else None
                 )
             result[name] = info
         except Exception as e:
-            result[name] = {"error": f"{type(e).__name__}: {e}",
-                            "trace": traceback.format_exc()[-500:]}
+            result[name] = {"error": str(e)}
     return JsonResponse({"status": result})
