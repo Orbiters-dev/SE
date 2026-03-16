@@ -836,6 +836,51 @@ def run_daily(region="all", dry_run=False, send_mail=True):
             "d60_updated": True,
         }
 
+    # ── Push to PostgreSQL ──
+    print("\n===== Push to PostgreSQL =====")
+    try:
+        from push_content_to_pg import push_posts, push_metrics
+
+        all_posts = []
+        all_metrics = []
+
+        if "us" in summary:
+            for p in us_data:
+                p["brand"] = p.get("brand", "")
+                p["region"] = "us"
+                p["source"] = "apify"
+                all_posts.append(p)
+                all_metrics.append({
+                    "post_id": p["post_id"],
+                    "date": TODAY,
+                    "comments": p.get("comments", 0),
+                    "likes": p.get("likes", 0),
+                    "views": p.get("views", 0),
+                })
+
+        if "jp" in summary:
+            for p in jp_norm:
+                p["brand"] = p.get("brand", "")
+                p["region"] = "jp"
+                p["source"] = "apify"
+                all_posts.append(p)
+                all_metrics.append({
+                    "post_id": p["post_id"],
+                    "date": TODAY,
+                    "comments": p.get("comments", 0),
+                    "likes": p.get("likes", 0),
+                    "views": p.get("views", 0),
+                })
+
+        if all_posts:
+            push_posts(all_posts)
+            push_metrics(all_metrics)
+            print(f"[PG] Pushed {len(all_posts)} posts + {len(all_metrics)} metrics")
+        else:
+            print("[PG] No posts to push")
+    except Exception as e:
+        print(f"[PG WARN] Push failed (non-fatal): {e}")
+
     # Summary
     print("\n===== Daily Summary =====")
     print(f"Date: {TODAY}")

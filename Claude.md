@@ -1,3 +1,10 @@
+# Session Startup
+
+세션 시작 시 반드시 최근 60시간 git log를 확인하고, 주요 작업 맥락을 파악한 뒤 대화를 시작할 것.
+명령: `git log --since="60 hours ago" --oneline --all`
+
+---
+
 # Agent Instructions
 
 You're working inside the **WAT framework** (Workflows, Agents, Tools). This architecture separates concerns so that probabilistic AI handles reasoning while deterministic code handles execution. That separation is what makes this system reliable.

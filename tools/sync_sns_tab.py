@@ -1209,6 +1209,43 @@ def main():
 
     write_to_sheet(gc, args.target_sheet_id, rows, dry_run=args.dry_run)
 
+    # ── Push influencer orders to PostgreSQL ──
+    if not args.dry_run:
+        try:
+            from push_content_to_pg import push_influencer_orders
+
+            pg_orders = []
+            for row in rows:
+                # row is a list matching SNS tab columns
+                # [No, Channel, Name, Account, PT1-4, ProductName, Fee, ShipDate, Link, Approved, D+, Cmt, Like, View, ProfileURL]
+                pg_orders.append({
+                    "order_id": str(row[0]) if row[0] else "",  # No as temp ID
+                    "order_name": "",
+                    "customer_name": row[2] if len(row) > 2 else "",
+                    "customer_email": "",
+                    "account_handle": row[3] if len(row) > 3 else "",
+                    "channel": row[1] if len(row) > 1 else "",
+                    "product_types": ", ".join(filter(None, row[4:8])) if len(row) > 7 else "",
+                    "product_names": row[8] if len(row) > 8 else "",
+                    "influencer_fee": str(row[9]).replace("$", "").replace(",", "") if len(row) > 9 and row[9] else "0",
+                    "shipping_date": row[10] if len(row) > 10 and row[10] else None,
+                    "fulfillment_status": "fulfilled",
+                    "brand": "Grosmimi",
+                    "tags": "",
+                })
+
+            # Use account_handle as unique key since No is sequential
+            for po in pg_orders:
+                if po["account_handle"] and po["shipping_date"]:
+                    po["order_id"] = f"{po['account_handle']}_{po['shipping_date']}"
+
+            pg_orders = [po for po in pg_orders if po.get("order_id")]
+            if pg_orders:
+                push_influencer_orders(pg_orders)
+                print(f"[PG] Pushed {len(pg_orders)} influencer orders")
+        except Exception as e:
+            print(f"[PG WARN] Push failed (non-fatal): {e}")
+
 
 if __name__ == "__main__":
     main()

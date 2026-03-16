@@ -50,6 +50,8 @@ jobs:
           IG_BUSINESS_USER_ID_ONZENNA=${{ secrets.IG_BUSINESS_USER_ID_ONZENNA }}
           IG_BUSINESS_USER_ID_GROSMIMI_USA=${{ secrets.IG_BUSINESS_USER_ID_GROSMIMI_USA }}
           IG_BUSINESS_USER_ID_GROSMIMI_JP=${{ secrets.IG_BUSINESS_USER_ID_GROSMIMI_JP }}
+          ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
+          ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
           ENVEOF
           sed -i 's/^[[:space:]]*//' .env
 

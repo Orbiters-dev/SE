@@ -346,3 +346,70 @@ class AmazonSalesSkuDaily(models.Model):
 
     def __str__(self):
         return f"{self.date} {self.brand} {self.asin} {self.sku}"
+
+
+class ContentPosts(models.Model):
+    """Master table for influencer content posts (Syncly + Apify sources)."""
+    post_id = models.CharField(max_length=200, unique=True)
+    url = models.URLField(max_length=1000, blank=True, default="")
+    platform = models.CharField(max_length=20)  # instagram, tiktok
+    username = models.CharField(max_length=200)
+    nickname = models.CharField(max_length=200, blank=True, default="")
+    followers = models.IntegerField(default=0)
+    caption = models.TextField(blank=True, default="")
+    hashtags = models.TextField(blank=True, default="")
+    tagged_account = models.CharField(max_length=200, blank=True, default="")
+    post_date = models.DateField()
+    brand = models.CharField(max_length=100, blank=True, default="")
+    region = models.CharField(max_length=10, default="us")  # us, jp
+    source = models.CharField(max_length=20, default="syncly")  # syncly, apify
+    collected_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "gk_content_posts"
+        unique_together = (("post_id",),)
+
+    def __str__(self):
+        return f"{self.post_date} {self.platform} @{self.username}"
+
+
+class ContentMetricsDaily(models.Model):
+    """Daily engagement metrics snapshot per post."""
+    post_id = models.CharField(max_length=200)
+    date = models.DateField()
+    comments = models.IntegerField(default=0)
+    likes = models.IntegerField(default=0)
+    views = models.IntegerField(default=0)
+    collected_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "gk_content_metrics_daily"
+        unique_together = (("post_id", "date"),)
+
+    def __str__(self):
+        return f"{self.date} {self.post_id}"
+
+
+class InfluencerOrders(models.Model):
+    """Shopify PR/sample orders sent to influencers."""
+    order_id = models.CharField(max_length=50, unique=True)
+    order_name = models.CharField(max_length=50, blank=True, default="")
+    customer_name = models.CharField(max_length=200)
+    customer_email = models.CharField(max_length=200, blank=True, default="")
+    account_handle = models.CharField(max_length=200, blank=True, default="")
+    channel = models.CharField(max_length=20, blank=True, default="")
+    product_types = models.TextField(blank=True, default="")
+    product_names = models.TextField(blank=True, default="")
+    influencer_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    shipping_date = models.DateField(null=True, blank=True)
+    fulfillment_status = models.CharField(max_length=50, blank=True, default="")
+    brand = models.CharField(max_length=100, blank=True, default="")
+    tags = models.TextField(blank=True, default="")
+    collected_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "gk_influencer_orders"
+        unique_together = (("order_id",),)
+
+    def __str__(self):
+        return f"{self.order_name} {self.customer_name}"

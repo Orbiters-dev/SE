@@ -67,6 +67,9 @@ TABLE_MAP = {
     "dataforseo_keywords": models.DataForSeoKeywords,
     "amazon_ads_search_terms": models.AmazonAdsSearchTerms,
     "amazon_ads_keywords": models.AmazonAdsKeywords,
+    "content_posts": models.ContentPosts,
+    "content_metrics_daily": models.ContentMetricsDaily,
+    "influencer_orders": models.InfluencerOrders,
 }
 
 

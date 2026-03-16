@@ -376,6 +376,65 @@ def do_export(url: str, output_dir: str, chunk_days: int = 30):
     print(f"[EXPORT] File: {final_path}")
     print(f"[EXPORT] Size: {file_size:,} bytes")
     print("[EXPORT] Done!")
+
+    # ── Push to PostgreSQL ──
+    try:
+        from push_content_to_pg import push_posts, push_metrics
+        from datetime import date as _date
+
+        today_str = _date.today().isoformat()
+        region = "us"
+        if "jp" in str(final_path).lower():
+            region = "jp"
+
+        posts = []
+        metrics = []
+        with open(final_path, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                pid = row.get("source.id", "")
+                if not pid:
+                    continue
+
+                # Safely parse integers
+                def safe_int(val):
+                    try:
+                        return int(float(val)) if val else 0
+                    except (ValueError, TypeError):
+                        return 0
+
+                posts.append({
+                    "post_id": pid,
+                    "url": row.get("source.url", ""),
+                    "platform": row.get("source.platform", "instagram"),
+                    "username": row.get("author.username", ""),
+                    "nickname": row.get("author.nickname", ""),
+                    "followers": safe_int(row.get("author.follower_count")),
+                    "caption": (row.get("extraction.content", "") or "")[:500],
+                    "hashtags": row.get("extraction.hashtags", ""),
+                    "tagged_account": "",
+                    "post_date": (row.get("date", "") or "")[:10],
+                    "brand": row.get("analyzation.brand", ""),
+                    "region": region,
+                    "source": "syncly",
+                })
+                metrics.append({
+                    "post_id": pid,
+                    "date": today_str,
+                    "comments": safe_int(row.get("extraction.engagement.comment")),
+                    "likes": safe_int(row.get("extraction.engagement.like")),
+                    "views": safe_int(row.get("extraction.engagement.view")),
+                })
+
+        if posts:
+            push_posts(posts)
+            push_metrics(metrics)
+            print(f"[PG] Pushed {len(posts)} posts + {len(metrics)} metrics")
+        else:
+            print("[PG] No posts to push")
+    except Exception as e:
+        print(f"[PG WARN] Push failed (non-fatal): {e}")
+
     return str(final_path)
 
 
