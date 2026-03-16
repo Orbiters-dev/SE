@@ -2,6 +2,7 @@
 
 Endpoints:
   POST /api/datakeeper/save/           - Bulk upsert rows (any table)
+  POST /api/datakeeper/delete/         - Delete rows by filter
   GET  /api/datakeeper/query/          - Query rows with filters
   GET  /api/datakeeper/tables/         - List available tables
   GET  /api/datakeeper/status/         - Latest collection timestamps
@@ -182,6 +183,47 @@ def save_rows(request):
         "updated": updated,
         "total": len(rows),
         "errors": errors,
+    })
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def delete_rows(request):
+    """Delete rows from a Data Keeper table by field filters.
+
+    POST body:
+    {
+        "table": "content_posts",
+        "filters": {"username__in": ["grosmimi_usa", "baby.boutique.kh"]}
+    }
+    Supported lookups: field=value, field__in=[...], field__contains=value
+    """
+    try:
+        body = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    table_name = body.get("table", "")
+    filters = body.get("filters", {})
+
+    if table_name not in TABLE_MAP:
+        return JsonResponse({
+            "error": f"Unknown table: {table_name}",
+            "available": list(TABLE_MAP.keys()),
+        }, status=400)
+
+    if not filters:
+        return JsonResponse({"error": "Filters required (safety)"}, status=400)
+
+    model = TABLE_MAP[table_name]
+    qs = model.objects.filter(**filters)
+    count = qs.count()
+    qs.delete()
+
+    return JsonResponse({
+        "table": table_name,
+        "deleted": count,
+        "filters": filters,
     })
 
 

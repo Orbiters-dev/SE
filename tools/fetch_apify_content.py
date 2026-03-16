@@ -58,12 +58,22 @@ TT_KEYWORDS = {
     "commemoi", "alpremio", "zzbb", "straw cup", "gros mimi",
 }
 
-# Exclude brand/store accounts
+# Exclude brand/store/reseller accounts (only collect UGC from real influencers)
+# Our accounts: US(onzenna.official, grosmimi_usa), JP(grosmimi_japan)
 EXCLUDE = {
+    # -- Our brand accounts --
     "onzenna.official", "grosmimi_usa", "grosmimi_japan", "grosmimi_official",
-    "grosmimi.id", "grosmimi_thailand", "grosmimi_cambodia", "grosmimi_uae",
-    "grosmimiofficial_sg", "zezebaebae", "baby.boutique.official",
-    "grosmimi_korea", "onzenna", "grosmimi",
+    "grosmimi_korea", "onzenna", "grosmimi", "zezebaebae",
+    # -- Other country brand accounts --
+    "grosmimithailand", "grosmimi_thailand", "grosmimi_cambodia", "grosmimi_uae",
+    "grosmimi.id", "grosmimi.indo", "grosmimi_malaysia",
+    "grosmimivietnam.official", "grosmimi.vietnam",
+    "grosmimiofficial_sg", "grosmimi_sk", "grosmimi_hu",
+    # -- Sister brand country accounts --
+    "chaandmom.vn", "commemoi.vietnam", "commemoi._.official",
+    "naeiae.official", "naeiae",
+    # -- Reseller/distributor accounts --
+    "baby.boutique.official", "baby.boutique.kh", "chez.gros.mimi",
 }
 
 # Shopify PR/Sample influencer orders
