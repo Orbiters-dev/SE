@@ -1,6 +1,7 @@
-"""Data Keeper Client - Read from local cache or PostgreSQL.
+"""Data Keeper Client - Read from PostgreSQL (primary) or local cache (fallback).
 
 All consumer tools import this instead of calling APIs directly.
+PG is always the source of truth; local cache is only used when PG is unreachable.
 
 Usage:
     from data_keeper_client import DataKeeper
@@ -48,12 +49,12 @@ VALID_TABLES = [
 
 
 class DataKeeper:
-    """Client to read Data Keeper cache/DB."""
+    """Client to read Data Keeper DB (primary) or local cache (fallback)."""
 
-    def __init__(self, prefer_cache=True):
+    def __init__(self, prefer_cache=False):
         """
         Args:
-            prefer_cache: If True, read local cache first. If False, always query PG.
+            prefer_cache: If True, read local cache first. If False (default), query PG first.
         """
         self.prefer_cache = prefer_cache
 
@@ -63,8 +64,8 @@ class DataKeeper:
             channel: str = None, limit: int = 10000) -> list[dict]:
         """Get rows from Data Keeper.
 
-        Tries local cache first, falls back to PG API.
-        Filters applied client-side for cache, server-side for PG.
+        Default: PG API first, local cache fallback (when PG unreachable).
+        If prefer_cache=True: local cache first, PG fallback.
         """
         if table not in VALID_TABLES:
             raise ValueError(f"Unknown table: {table}. Valid: {VALID_TABLES}")
@@ -75,23 +76,33 @@ class DataKeeper:
             date_from = (today - timedelta(days=days)).isoformat()
             date_to = date_to or today.isoformat()
 
-        # Try cache first
         if self.prefer_cache:
+            # Legacy mode: cache first, PG fallback
             rows = self._read_cache(table)
             if rows:
                 filtered = self._filter(rows, date_from, date_to, brand,
                                         campaign_id, channel, limit)
                 if filtered:
                     return filtered
-                # Cache exists but filtered result empty (stale) -> fall through to PG
 
-        # Fallback to PG
+            rows = self._read_pg(table, date_from, date_to, brand,
+                                 campaign_id, channel, limit)
+            return rows if rows else []
+
+        # Default: PG first, cache fallback
         rows = self._read_pg(table, date_from, date_to, brand,
                              campaign_id, channel, limit)
         if rows:
             return rows
 
-        # Last resort: empty cache
+        # PG unreachable — try local cache
+        rows = self._read_cache(table)
+        if rows:
+            filtered = self._filter(rows, date_from, date_to, brand,
+                                    campaign_id, channel, limit)
+            if filtered:
+                return filtered
+
         return []
 
     def _read_cache(self, table: str) -> list[dict]:

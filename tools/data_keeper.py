@@ -13,6 +13,7 @@ Usage:
     python tools/data_keeper.py --days 60          # Override lookback window
     python tools/data_keeper.py --skip-pg          # Local cache only (no PG push)
     python tools/data_keeper.py --status           # Show collection status
+    python tools/data_keeper.py --sync-nas         # Pull PG data -> NAS (local only)
 """
 
 import os
@@ -309,6 +310,78 @@ def _export_to_shared():
     with open(manifest_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, default=str, ensure_ascii=False)
     print(f"  [Shared] manifest.json updated ({len(manifest['channels'])} channels)")
+
+
+def _sync_nas_from_pg():
+    """Pull latest data from PostgreSQL via API and write to NAS Shared folder.
+
+    This solves the issue where GitHub Actions (cloud runner) cannot write to NAS.
+    Run this locally via Task Scheduler to keep NAS in sync with PG.
+    """
+    shared_parent = os.path.join(SHARED_DIR, "..")
+    if not os.path.isdir(shared_parent):
+        print("[sync-nas] ERROR: Shared folder not accessible")
+        print(f"  Expected: {shared_parent}")
+        return False
+
+    os.makedirs(SHARED_DIR, exist_ok=True)
+    manifest = {"last_updated": datetime.now(timezone.utc).isoformat(), "channels": {}}
+
+    pst_today = _get_pst_today()
+    date_from = (pst_today - timedelta(days=DEFAULT_LOOKBACK_DAYS)).isoformat()
+    date_to = pst_today.isoformat()
+
+    success_count = 0
+    for channel, (table, _) in CHANNEL_COLLECTORS.items():
+        try:
+            params = {"table": table, "limit": 50000}
+            # Metadata tables (campaigns) don't have date field
+            if "campaigns" not in table:
+                params["date_from"] = date_from
+                params["date_to"] = date_to
+            r = requests.get(
+                f"{ORBITOOLS_BASE}/query/",
+                params=params,
+                auth=(ORBITOOLS_USER, ORBITOOLS_PASS),
+                timeout=60,
+            )
+            r.raise_for_status()
+            rows = r.json().get("rows", [])
+
+            if not rows:
+                print(f"  [{table}] 0 rows from PG - skipping")
+                continue
+
+            # Write to NAS
+            shared_path = os.path.join(SHARED_DIR, f"{table}.json")
+            with open(shared_path, "w", encoding="utf-8") as f:
+                json.dump(rows, f, default=str, ensure_ascii=False)
+
+            # Also update local cache
+            cache_path = os.path.join(CACHE_DIR, f"{table}.json")
+            with open(cache_path, "w", encoding="utf-8") as f:
+                json.dump(rows, f, default=str, ensure_ascii=False)
+
+            dates = sorted(set(r_row.get("date", "") for r_row in rows if r_row.get("date")))
+            brands = sorted(set(r_row.get("brand", "") for r_row in rows if r_row.get("brand")))
+            manifest["channels"][table] = {
+                "status": "collecting",
+                "last_collected": datetime.now(timezone.utc).isoformat(),
+                "row_count": len(rows),
+                "date_range": [dates[0], dates[-1]] if dates else [],
+                "brands": brands,
+            }
+            print(f"  [{table}] {len(rows):,} rows synced to NAS")
+            success_count += 1
+        except Exception as e:
+            print(f"  [{table}] FAILED: {e}")
+
+    # Write manifest
+    manifest_path = os.path.join(SHARED_DIR, "manifest.json")
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2, default=str, ensure_ascii=False)
+    print(f"\n[sync-nas] Done: {success_count}/{len(CHANNEL_COLLECTORS)} channels synced")
+    return True
 
 
 def _scan_signals():
@@ -2058,10 +2131,17 @@ def main():
                         help="Send status email only (no collection)")
     parser.add_argument("--notify-to", type=str, default=None,
                         help="Override email recipient")
+    parser.add_argument("--sync-nas", action="store_true",
+                        help="Pull latest data from PG and sync to NAS Shared folder")
     args = parser.parse_args()
 
     if args.status:
         show_status()
+        return
+
+    if args.sync_nas:
+        print("[sync-nas] Pulling data from PG -> NAS...")
+        _sync_nas_from_pg()
         return
 
     if args.notify_only:
