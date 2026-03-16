@@ -1,7 +1,7 @@
-"""Data Keeper Client - Read from PostgreSQL (primary) or local cache (fallback).
+"""Data Keeper Client - Read from PostgreSQL (primary) or NAS/local cache (fallback).
 
 All consumer tools import this instead of calling APIs directly.
-PG is always the source of truth; local cache is only used when PG is unreachable.
+PG is always the source of truth; NAS cache and local cache are fallbacks.
 
 Usage:
     from data_keeper_client import DataKeeper
@@ -18,6 +18,7 @@ Usage:
 
 import os
 import json
+import time
 from datetime import datetime, timedelta, timezone
 
 import requests
@@ -25,6 +26,11 @@ import requests
 DIR = os.path.dirname(os.path.abspath(__file__))
 CACHE_DIR = os.path.join(DIR, "..", ".tmp", "datakeeper")
 PST = timezone(timedelta(hours=-8))
+
+# NAS shared cache (read-only for team members)
+NAS_CACHE_DIR = os.path.normpath(os.path.join(
+    DIR, "..", "..", "Shared", "datakeeper", "latest"
+))
 
 # Load env if not already loaded
 try:
@@ -51,12 +57,15 @@ VALID_TABLES = [
 
 
 class DataKeeper:
-    """Client to read Data Keeper DB (primary) or local cache (fallback)."""
+    """Client to read Data Keeper DB (primary) or cache (fallback).
+
+    Fallback chain: PG API -> NAS shared cache -> local .tmp cache
+    """
 
     def __init__(self, prefer_cache=False):
         """
         Args:
-            prefer_cache: If True, read local cache first. If False (default), query PG first.
+            prefer_cache: If True, read NAS/local cache first. If False (default), query PG first.
         """
         self.prefer_cache = prefer_cache
 
@@ -66,8 +75,8 @@ class DataKeeper:
             channel: str = None, limit: int = 10000) -> list[dict]:
         """Get rows from Data Keeper.
 
-        Default: PG API first, local cache fallback (when PG unreachable).
-        If prefer_cache=True: local cache first, PG fallback.
+        Default: PG API first, NAS cache fallback, local cache last resort.
+        If prefer_cache=True: NAS cache first, local cache, PG last.
         """
         if table not in VALID_TABLES:
             raise ValueError(f"Unknown table: {table}. Valid: {VALID_TABLES}")
@@ -79,36 +88,49 @@ class DataKeeper:
             date_to = date_to or today.isoformat()
 
         if self.prefer_cache:
-            # Legacy mode: cache first, PG fallback
-            rows = self._read_cache(table)
+            # Cache-first mode: NAS -> local -> PG
+            for reader in [self._read_nas_cache, self._read_cache]:
+                rows = reader(table)
+                if rows:
+                    filtered = self._filter(rows, date_from, date_to, brand,
+                                            campaign_id, channel, limit)
+                    if filtered:
+                        return filtered
+
+            rows = self._read_pg(table, date_from, date_to, brand,
+                                 campaign_id, channel, limit)
+            return rows if rows else []
+
+        # Default: PG first, NAS fallback, local last
+        rows = self._read_pg(table, date_from, date_to, brand,
+                             campaign_id, channel, limit)
+        if rows:
+            return rows
+
+        # PG unreachable -- try NAS cache, then local cache
+        for reader in [self._read_nas_cache, self._read_cache]:
+            rows = reader(table)
             if rows:
                 filtered = self._filter(rows, date_from, date_to, brand,
                                         campaign_id, channel, limit)
                 if filtered:
                     return filtered
 
-            rows = self._read_pg(table, date_from, date_to, brand,
-                                 campaign_id, channel, limit)
-            return rows if rows else []
-
-        # Default: PG first, cache fallback
-        rows = self._read_pg(table, date_from, date_to, brand,
-                             campaign_id, channel, limit)
-        if rows:
-            return rows
-
-        # PG unreachable — try local cache
-        rows = self._read_cache(table)
-        if rows:
-            filtered = self._filter(rows, date_from, date_to, brand,
-                                    campaign_id, channel, limit)
-            if filtered:
-                return filtered
-
         return []
 
+    def _read_nas_cache(self, table: str) -> list[dict]:
+        """Read from NAS shared JSON cache (Shared/datakeeper/latest/)."""
+        path = os.path.join(NAS_CACHE_DIR, f"{table}.json")
+        if not os.path.exists(path):
+            return []
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, IOError):
+            return []
+
     def _read_cache(self, table: str) -> list[dict]:
-        """Read from local JSON cache."""
+        """Read from local JSON cache (.tmp/datakeeper/)."""
         path = os.path.join(CACHE_DIR, f"{table}.json")
         if not os.path.exists(path):
             return []
@@ -162,42 +184,47 @@ class DataKeeper:
         return result[:limit]
 
     def last_updated(self, table: str) -> str | None:
-        """Get last cache update time."""
-        path = os.path.join(CACHE_DIR, f"{table}.json")
-        if os.path.exists(path):
-            mtime = os.path.getmtime(path)
-            return datetime.fromtimestamp(mtime).isoformat()
+        """Get last update time (checks NAS first, then local)."""
+        for cache_dir in [NAS_CACHE_DIR, CACHE_DIR]:
+            path = os.path.join(cache_dir, f"{table}.json")
+            if os.path.exists(path):
+                mtime = os.path.getmtime(path)
+                return datetime.fromtimestamp(mtime).isoformat()
         return None
 
     def is_fresh(self, table: str, max_age_hours: int = 14) -> bool:
-        """Check if cache is fresh enough (default: within 14 hours for 2x/day)."""
-        path = os.path.join(CACHE_DIR, f"{table}.json")
-        if not os.path.exists(path):
-            return False
-        age = time.time() - os.path.getmtime(path)
-        return age < max_age_hours * 3600
+        """Check if any cache is fresh enough (default: within 14 hours for 2x/day)."""
+        for cache_dir in [NAS_CACHE_DIR, CACHE_DIR]:
+            path = os.path.join(cache_dir, f"{table}.json")
+            if os.path.exists(path):
+                age = time.time() - os.path.getmtime(path)
+                if age < max_age_hours * 3600:
+                    return True
+        return False
 
     def status(self) -> dict:
-        """Get status of all tables."""
+        """Get status of all tables (checks NAS and local)."""
         result = {}
         for table in VALID_TABLES:
-            path = os.path.join(CACHE_DIR, f"{table}.json")
-            if os.path.exists(path):
-                mtime = datetime.fromtimestamp(os.path.getmtime(path))
-                try:
-                    with open(path, "r") as f:
-                        rows = json.load(f)
-                    dates = sorted(set(r.get("date", "") for r in rows if r.get("date")))
-                    result[table] = {
-                        "rows": len(rows),
-                        "date_range": f"{dates[0]}~{dates[-1]}" if dates else "?",
-                        "updated": mtime.isoformat(),
-                    }
-                except Exception:
-                    result[table] = {"rows": 0, "error": "parse failed"}
-            else:
+            found = False
+            for label, cache_dir in [("nas", NAS_CACHE_DIR), ("local", CACHE_DIR)]:
+                path = os.path.join(cache_dir, f"{table}.json")
+                if os.path.exists(path):
+                    mtime = datetime.fromtimestamp(os.path.getmtime(path))
+                    try:
+                        with open(path, "r") as f:
+                            rows = json.load(f)
+                        dates = sorted(set(r.get("date", "") for r in rows if r.get("date")))
+                        result[table] = {
+                            "rows": len(rows),
+                            "date_range": f"{dates[0]}~{dates[-1]}" if dates else "?",
+                            "updated": mtime.isoformat(),
+                            "source": label,
+                        }
+                        found = True
+                        break
+                    except Exception:
+                        pass
+            if not found:
                 result[table] = {"rows": 0, "cached": False}
         return result
-
-
-import time  # needed for is_fresh

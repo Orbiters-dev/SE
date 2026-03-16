@@ -527,43 +527,65 @@ Gifting 신청 → Needs Review → Accepted → Sample Sent → Sample Shipped 
 
 ## Data Keeper - Team Data Rules
 
-When you need advertising/sales data (Amazon, Meta, Google Ads, GA4, Klaviyo, Shopify, etc.), you MUST check Data Keeper first.
+When you need advertising/sales data (Amazon, Meta, Google Ads, GA4, Klaviyo, Shopify, etc.), you MUST use Data Keeper.
+
+### How to Use
+
+**Option 1: Python Client (Recommended)**
+```python
+from data_keeper_client import DataKeeper
+
+dk = DataKeeper()
+rows = dk.get("amazon_ads_daily", days=30)
+rows = dk.get("meta_ads_daily", brand="Grosmimi", date_from="2026-03-01")
+```
+
+**Option 2: Direct API**
+```bash
+curl -u admin:PASSWORD "https://orbitools.orbiters.co.kr/api/datakeeper/query/?table=amazon_ads_daily&days=30"
+```
+
+**Option 3: NAS Cache (Read-Only)**
+- Check `../Shared/datakeeper/latest/manifest.json`
+- Read from `../Shared/datakeeper/latest/{channel}.json`
+
+### Fallback Chain
+
+`data_keeper_client.py` automatically tries: **PG API -> NAS Cache -> Local Cache**
+No manual fallback logic needed.
 
 ### Rules
 
-1. Check `../Shared/datakeeper/latest/manifest.json` first
-2. If channel exists in manifest, read from `../Shared/datakeeper/latest/{channel}.json`. Do NOT call the API directly.
-3. If channel is NOT in manifest, scrape API directly, then create a signal YAML:
+1. ALWAYS use `data_keeper_client.py` for data access -- do NOT call APIs directly
+2. NEVER write to PostgreSQL `gk_*` tables -- Data Keeper is the sole writer
+3. NEVER modify files in `../Shared/datakeeper/latest/` -- read-only
+4. If a channel is NOT available, create a signal YAML in `../Shared/datakeeper/data_signals/`
 
-Save to: `../Shared/datakeeper/data_signals/{channel_name}.yaml`
-```yaml
-channel: tiktok_ads
-requested_by: your_name
-created: 2026-03-09
-api_endpoint: https://api.example.com/...
-credentials_needed:
-  - API_KEY_NAME
-sample_data_path: your_folder/.tmp/sample.json
-status: pending
+### Available Channels
 
-```
+| Table | Content |
+|-------|---------|
+| amazon_ads_daily | Amazon Ads (3 brands) |
+| amazon_ads_search_terms | Amazon Ads Search Terms |
+| amazon_ads_keywords | Amazon Ads Keywords |
+| amazon_sales_daily | Amazon Sales (3 sellers) |
+| amazon_campaigns | Amazon Campaign metadata |
+| amazon_brand_analytics | Amazon Brand Analytics |
+| meta_ads_daily | Meta Ads |
+| meta_campaigns | Meta Campaign metadata |
+| google_ads_daily | Google Ads |
+| google_ads_search_terms | Google Ads Search Terms |
+| ga4_daily | GA4 |
+| klaviyo_daily | Klaviyo |
+| shopify_orders_daily | Shopify (all brands) |
+| gsc_daily | Google Search Console |
+| dataforseo_keywords | DataForSEO Keyword Rankings |
+| content_posts | Influencer Content Posts |
+| content_metrics_daily | Content Metrics (D+60) |
+| influencer_orders | Influencer Sample Orders |
 
-4. NEVER write to PostgreSQL `gk_*` tables directly - Data Keeper is the sole writer
-5. NEVER modify files in `../Shared/datakeeper/latest/` - read-only
-
-### Currently Collected Channels
-
-| File | Content |
-|------|---------|
-| amazon_ads_daily.json | Amazon Ads (3 brands) |
-| amazon_sales_daily.json | Amazon Sales (3 sellers) |
-| meta_ads_daily.json | Meta Ads |
-| google_ads_daily.json | Google Ads |
-| ga4_daily.json | GA4 |
-| klaviyo_daily.json | Klaviyo |
-| shopify_orders_daily.json | Shopify (all brands) |
-
-Data refreshes 2x daily (PST 00:00 and 12:00).
+Data refreshes 2x daily (PST 00:00 and 12:00) via GitHub Actions.
+NAS cache syncs automatically via Task Scheduler.
 
 UI테스터야, 쇼피파이 UI, Shopify UI, Checkout Extension, Liquid 페이지, Polaris, Hydrogen,
 메타필드, 데이터 파이프라인, n8n 웹훅, E2E 테스트, 폼 개발, UI 개발,
