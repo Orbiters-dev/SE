@@ -326,21 +326,27 @@ def list_tables(request):
 @require_http_methods(["GET", "OPTIONS"])
 def status(request):
     """Get latest collection timestamps per table."""
+    import traceback
     result = {}
     for name, model in TABLE_MAP.items():
-        field_names = [f.name for f in model._meta.get_fields() if hasattr(f, "column")]
-        info = {"count": model.objects.count()}
-        if "collected_at" in field_names:
-            latest = model.objects.order_by("-collected_at").first()
-            info["latest_collected"] = (
-                latest.collected_at.isoformat()
-                if latest and latest.collected_at else None
-            )
-        if "date" in field_names:
-            latest = model.objects.order_by("-date").first()
-            info["latest_date"] = (
-                latest.date.isoformat()
-                if latest and latest.date else None
-            )
-        result[name] = info
+        try:
+            field_names = [f.name for f in model._meta.get_fields()
+                           if hasattr(f, "column")]
+            info = {"count": model.objects.count()}
+            if "collected_at" in field_names:
+                latest = model.objects.order_by("-collected_at").first()
+                info["latest_collected"] = (
+                    latest.collected_at.isoformat()
+                    if latest and latest.collected_at else None
+                )
+            if "date" in field_names:
+                latest = model.objects.order_by("-date").first()
+                info["latest_date"] = (
+                    latest.date.isoformat()
+                    if latest and latest.date else None
+                )
+            result[name] = info
+        except Exception as e:
+            result[name] = {"error": f"{type(e).__name__}: {e}",
+                            "trace": traceback.format_exc()[-500:]}
     return JsonResponse({"status": result})
