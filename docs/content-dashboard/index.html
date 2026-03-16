@@ -153,6 +153,7 @@ var _currentTab = 'race';
 var RACE_COLORS = ['#6366f1','#0ea5e9','#10b981','#f59e0b','#ef4444','#ec4899','#8b5cf6','#14b8a6','#f97316','#64748b'];
 var _aggGranularity = 'monthly';
 var _pipelineGranularity = 'monthly';
+var _alltimeWindow = 0; // 0=all-time, 7, 30
 
 // ══════════ HELPERS ══════════
 function fmtN(n){ return Math.round(n).toLocaleString('en-US'); }
@@ -399,10 +400,27 @@ function renderContentRace(){
 // ══════════ TAB 2: ALL-TIME TOP ══════════
 function renderAllTimeTop(){
   var el = document.getElementById('alltime-inner');
+  var now = new Date();
+
+  // Toggle header
+  var windowLabel = _alltimeWindow===0?'All-Time':(_alltimeWindow===7?'Last 7 Days':'Last 30 Days');
+  var toggleHtml='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">'
+    +'<div style="font-size:14px;font-weight:800">Content Leaderboard &mdash; '+windowLabel+'</div>'
+    +'<div class="content-toggle">'
+    +'<div '+(_alltimeWindow===7?'class="on"':'')+' onclick="setAlltimeWindow(7)">Last 7d</div>'
+    +'<div '+(_alltimeWindow===30?'class="on"':'')+' onclick="setAlltimeWindow(30)">Last 30d</div>'
+    +'<div '+(_alltimeWindow===0?'class="on"':'')+' onclick="setAlltimeWindow(0)">All-Time</div>'
+    +'</div></div>';
 
   // Get max metrics per post
   var postMax={};
+  var cutoffStr='';
+  if(_alltimeWindow>0){
+    var cutoff=new Date(now); cutoff.setDate(cutoff.getDate()-_alltimeWindow);
+    cutoffStr=cutoff.toISOString().slice(0,10);
+  }
   _posts.forEach(function(p){
+    if(cutoffStr && p.post_date<cutoffStr) return;
     postMax[p.post_id]={views:0,likes:0,comments:0,platform:p.platform,post_date:p.post_date,
       username:p.username,url:p.url,followers:p.followers,brand:p.brand,post_id:p.post_id};
   });
@@ -427,17 +445,16 @@ function renderAllTimeTop(){
     +'<div class="stat amber"><div class="sl">TOTAL COMMENTS</div><div class="sv">'+fmtN(totalC)+'</div></div>'
     +'</div>';
 
-  // Full table (top 50 shown, rest collapsed)
+  // Table
   var showCount = Math.min(50, allPosts.length);
   var tb='<div class="card" style="padding:0;overflow:hidden">'
     +'<div style="padding:12px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px;display:flex;justify-content:space-between;align-items:center">'
-    +'<span>All-Time Content Leaderboard</span>'
-    +'<span style="font-size:10px;color:var(--dim)">'+allPosts.length+' total posts</span></div>'
+    +'<span>'+windowLabel+' Leaderboard</span>'
+    +'<span style="font-size:10px;color:var(--dim)">'+allPosts.length+' posts</span></div>'
     +'<div style="overflow-x:auto"><table><thead><tr style="font-size:10px"><th>#</th><th>Username</th><th>Platform</th><th>Post Date</th><th>Views</th><th>Likes</th><th>Comments</th><th>Followers</th><th>Products</th><th>Link</th></tr></thead><tbody>';
 
   for(var i=0;i<showCount;i++){
     var p=allPosts[i];
-    // Match to order for product info
     var nh=normHandle(p.username);
     var matchedOrders=_ordersByHandle[nh]||[];
     var prodHtml='<span style="color:var(--muted);font-size:9px">-</span>';
@@ -467,9 +484,9 @@ function renderAllTimeTop(){
     tb+='<div style="text-align:center;padding:12px;font-size:10px;color:var(--dim)">Showing top '+showCount+' of '+allPosts.length+' posts</div>';
   }
 
-  el.innerHTML='<div style="font-size:14px;font-weight:800;margin-bottom:12px">All-Time Top &mdash; Cumulative Leaderboard</div>'
-    +statsHtml+tb;
+  el.innerHTML=toggleHtml+statsHtml+tb;
 }
+function setAlltimeWindow(d){ _alltimeWindow=d; renderAllTimeTop(); }
 
 // ══════════ TAB 3: PIPELINE KPI ══════════
 function renderPipelineKPI(){
