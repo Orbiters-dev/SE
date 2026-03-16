@@ -71,6 +71,8 @@ TABLE_MAP = {
     "content_posts": models.ContentPosts,
     "content_metrics_daily": models.ContentMetricsDaily,
     "influencer_orders": models.InfluencerOrders,
+    "amazon_brand_analytics": models.AmazonBrandAnalytics,
+    "google_ads_search_terms": models.GoogleAdsSearchTerms,
 }
 
 

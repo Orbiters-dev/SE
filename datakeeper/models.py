@@ -413,3 +413,56 @@ class InfluencerOrders(models.Model):
 
     def __str__(self):
         return f"{self.order_name} {self.customer_name}"
+
+
+class AmazonBrandAnalytics(models.Model):
+    """Amazon Brand Analytics weekly search term report.
+
+    One row per (week_start, search_term, asin).
+    Data is marketplace-wide; is_ours flag marks our ASINs.
+    """
+    date = models.DateField()  # week start (Sunday)
+    week_end = models.DateField()  # week end (Saturday)
+    brand = models.CharField(max_length=100)
+    is_ours = models.BooleanField(default=False)
+    department = models.CharField(max_length=200, blank=True, default="")
+    search_term = models.CharField(max_length=500)
+    search_frequency_rank = models.IntegerField(default=0)
+    asin = models.CharField(max_length=20)
+    asin_name = models.CharField(max_length=200, blank=True, default="")
+    asin_rank = models.IntegerField(default=0)  # 1, 2, or 3
+    click_share = models.DecimalField(max_digits=8, decimal_places=4, default=0)
+    conversion_share = models.DecimalField(max_digits=8, decimal_places=4, default=0)
+    collected_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "gk_amazon_brand_analytics"
+        unique_together = ("date", "search_term", "asin")
+
+    def __str__(self):
+        return f"{self.date} {self.search_term} {self.asin}"
+
+
+class GoogleAdsSearchTerms(models.Model):
+    """Google Ads search term view daily metrics."""
+    date = models.DateField()
+    customer_id = models.CharField(max_length=50)
+    campaign_id = models.CharField(max_length=50)
+    campaign_name = models.CharField(max_length=500)
+    ad_group_id = models.CharField(max_length=50)
+    ad_group_name = models.CharField(max_length=500)
+    search_term = models.CharField(max_length=500)
+    brand = models.CharField(max_length=100)
+    impressions = models.IntegerField(default=0)
+    clicks = models.IntegerField(default=0)
+    spend = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    conversions = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    conversion_value = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    collected_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "gk_google_ads_search_terms"
+        unique_together = ("date", "campaign_id", "ad_group_id", "search_term")
+
+    def __str__(self):
+        return f"{self.date} {self.brand} {self.search_term}"
