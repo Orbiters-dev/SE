@@ -43,7 +43,8 @@ VALID_TABLES = [
     "amazon_ads_daily", "amazon_ads_search_terms", "amazon_ads_keywords",
     "amazon_campaigns",
     "meta_ads_daily", "meta_campaigns",
-    "google_ads_daily", "ga4_daily", "klaviyo_daily",
+    "google_ads_daily", "google_ads_search_terms",
+    "ga4_daily", "klaviyo_daily",
     "gsc_daily", "dataforseo_keywords",
     "content_posts", "content_metrics_daily", "influencer_orders",
 ]

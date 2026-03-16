@@ -150,8 +150,13 @@ jobs:
       - name: Collect Amazon Ads Keywords & Search Terms
         if: steps.mode.outputs.notify_only == 'false' && steps.mode.outputs.is_daily == 'true' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_ads_search_terms' || github.event.inputs.channel == 'amazon_ads_keywords')
         run: |
-          python -u tools/data_keeper.py --channel amazon_ads_search_terms --days 14 --skip-pg || echo "Search terms collection failed (non-fatal)"
-          python -u tools/data_keeper.py --channel amazon_ads_keywords --days 14 --skip-pg || echo "Keywords collection failed (non-fatal)"
+          python -u tools/data_keeper.py --channel amazon_ads_search_terms --days 14 || echo "Search terms collection failed (non-fatal)"
+          python -u tools/data_keeper.py --channel amazon_ads_keywords --days 14 || echo "Keywords collection failed (non-fatal)"
+
+      - name: Collect Google Ads Search Terms
+        if: steps.mode.outputs.notify_only == 'false' && steps.mode.outputs.is_daily == 'true' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'google_ads_search_terms')
+        run: |
+          python -u tools/data_keeper.py --channel google_ads_search_terms --days 14 || echo "Google Ads search terms collection failed (non-fatal)"
 
       - name: Run Amazon PPC Analysis
         if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_ads')

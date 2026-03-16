@@ -1204,6 +1204,95 @@ def _detect_google_brand(campaign_name: str) -> str:
     return "Unknown"
 
 
+def collect_google_ads_search_terms(date_from: str, date_to: str) -> list[dict]:
+    """Collect Google Ads search term view daily metrics."""
+    print("[Google Ads Search Terms] Collecting...")
+    if not GOOGLE_ADS_DEV_TOKEN:
+        print("  [SKIP] No GOOGLE_ADS_DEVELOPER_TOKEN")
+        return []
+
+    try:
+        from google.ads.googleads.client import GoogleAdsClient
+    except ImportError:
+        print("  [SKIP] google-ads package not installed")
+        return []
+
+    config = {
+        "developer_token": GOOGLE_ADS_DEV_TOKEN,
+        "client_id": GOOGLE_ADS_CLIENT_ID,
+        "client_secret": GOOGLE_ADS_CLIENT_SECRET,
+        "refresh_token": GOOGLE_ADS_REFRESH_TOKEN,
+        "login_customer_id": GOOGLE_ADS_LOGIN_CUSTOMER_ID,
+        "use_proto_plus": True,
+    }
+    client = GoogleAdsClient.load_from_dict(config)
+    ga_service = client.get_service("GoogleAdsService")
+
+    # Discover sub-accounts
+    query_accounts = """
+        SELECT customer_client.id, customer_client.descriptive_name, customer_client.manager
+        FROM customer_client
+        WHERE customer_client.manager = false AND customer_client.status = 'ENABLED'
+    """
+    all_rows = []
+
+    try:
+        stream = ga_service.search_stream(
+            customer_id=GOOGLE_ADS_LOGIN_CUSTOMER_ID,
+            query=query_accounts,
+        )
+        sub_accounts = []
+        for batch in stream:
+            for row in batch.results:
+                sub_accounts.append({
+                    "id": str(row.customer_client.id),
+                    "name": row.customer_client.descriptive_name,
+                })
+        print(f"  Sub-accounts: {len(sub_accounts)}")
+    except Exception as e:
+        print(f"  [ERROR] Account discovery: {e}")
+        return []
+
+    for acct in sub_accounts:
+        query = f"""
+            SELECT segments.date,
+                   search_term_view.search_term,
+                   campaign.id, campaign.name,
+                   ad_group.id, ad_group.name,
+                   metrics.impressions, metrics.clicks, metrics.cost_micros,
+                   metrics.conversions, metrics.conversions_value
+            FROM search_term_view
+            WHERE segments.date BETWEEN '{date_from}' AND '{date_to}'
+              AND campaign.status != 'REMOVED'
+            ORDER BY segments.date
+        """
+        try:
+            stream = ga_service.search_stream(customer_id=acct["id"], query=query)
+            for batch in stream:
+                for row in batch.results:
+                    all_rows.append({
+                        "date": row.segments.date,
+                        "customer_id": acct["id"],
+                        "campaign_id": str(row.campaign.id),
+                        "campaign_name": row.campaign.name,
+                        "ad_group_id": str(row.ad_group.id),
+                        "ad_group_name": row.ad_group.name,
+                        "search_term": row.search_term_view.search_term,
+                        "brand": _detect_google_brand(row.campaign.name),
+                        "impressions": row.metrics.impressions,
+                        "clicks": row.metrics.clicks,
+                        "spend": row.metrics.cost_micros / 1_000_000,
+                        "conversions": float(row.metrics.conversions),
+                        "conversion_value": float(row.metrics.conversions_value),
+                    })
+            time.sleep(2)
+        except Exception as e:
+            print(f"  [WARN] {acct['name']}: {e}")
+
+    print(f"  Total: {len(all_rows)} search term rows")
+    return all_rows
+
+
 def collect_ga4(date_from: str, date_to: str) -> list[dict]:
     """Collect GA4 daily sessions and purchases."""
     print("[GA4] Collecting...")
@@ -1914,6 +2003,7 @@ CHANNEL_COLLECTORS = {
     "meta": ("meta_ads_daily", collect_meta_ads),
     "meta_campaigns": ("meta_campaigns", collect_meta_campaigns),
     "google": ("google_ads_daily", collect_google_ads),
+    "google_ads_search_terms": ("google_ads_search_terms", collect_google_ads_search_terms),
     "ga4": ("ga4_daily", collect_ga4),
     "klaviyo": ("klaviyo_daily", collect_klaviyo),
     "shopify": ("shopify_orders_daily", collect_shopify),
@@ -2160,7 +2250,7 @@ def main():
     print()
 
     # "all" excludes slow keyword channels (run separately in GitHub Actions)
-    SLOW_CHANNELS = {"amazon_ads_search_terms", "amazon_ads_keywords"}
+    SLOW_CHANNELS = {"amazon_ads_search_terms", "amazon_ads_keywords", "google_ads_search_terms"}
     if args.channel == "all":
         channels = [c for c in CHANNEL_COLLECTORS.keys() if c not in SLOW_CHANNELS]
     else:
