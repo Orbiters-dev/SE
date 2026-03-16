@@ -453,9 +453,9 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
       </div>
     </div>
 
-    <!-- Config Update Log -->
+    <!-- Config Update Log (filtered by selected brand above) -->
     <div class="card" style="margin-bottom:20px">
-      <h3>📋 Config Update Log</h3>
+      <h3>📋 Config Update Log <span id="config-log-brand-label" style="font-size:11px;color:var(--a)"></span></h3>
       <div class="desc">All configuration changes are recorded with user, timestamp (PST), and values.</div>
       <div id="config-log-content" style="max-height:300px;overflow-y:auto"></div>
     </div>
@@ -719,25 +719,38 @@ function addConfigLogEntry(user, changes) {
   renderConfigLog();
 }
 
-function renderConfigLog() {
+function renderConfigLog(filterBrand) {
+  var bk = filterBrand || _cfgBrand || 'grosmimi';
   var log = getConfigLog();
   var el = document.getElementById('config-log-content');
   if(!el) return;
-  if(!log.length) { el.innerHTML='<div class="desc" style="text-align:center;padding:12px">No config changes yet.</div>'; return; }
+  var lbl = document.getElementById('config-log-brand-label');
+  if(lbl) lbl.textContent = '— ' + (BRAND_LABELS[bk]||bk);
+  // Filter entries that contain changes for this brand
+  var filtered = log.filter(function(entry){
+    if(typeof entry.changes !== 'object') return true;
+    return Object.keys(entry.changes).indexOf(bk) >= 0;
+  });
+  if(!filtered.length) { el.innerHTML='<div class="desc" style="text-align:center;padding:12px">No config changes for '+(BRAND_LABELS[bk]||bk)+'.</div>'; return; }
 
   var html = '<table><thead><tr><th>Time (PST)</th><th>User</th><th>Changes</th></tr></thead><tbody>';
-  log.forEach(function(entry){
+  filtered.forEach(function(entry){
     var changesHtml = '';
     if(typeof entry.changes === 'object') {
-      Object.keys(entry.changes).forEach(function(bk){
-        var bc = entry.changes[bk];
+      // Show only selected brand's changes (highlighted), others dimmed
+      Object.keys(entry.changes).forEach(function(ek){
+        var bc = entry.changes[ek];
+        var isCurrent = ek === bk;
         Object.keys(bc).forEach(function(field){
-          changesHtml += '<span class="b a" style="margin:1px">' + bk + '.' + field + '=' + bc[field] + '</span> ';
+          if(isCurrent) {
+            changesHtml += '<span class="b a" style="margin:1px">' + field + '=' + bc[field] + '</span> ';
+          }
         });
       });
     } else {
       changesHtml = String(entry.changes);
     }
+    if(!changesHtml.trim()) return;
     html += '<tr>' +
       '<td style="font-family:var(--mono);font-size:10px;white-space:nowrap">' + entry.timestamp + '</td>' +
       '<td><b style="color:var(--a)">' + entry.user + '</b></td>' +
@@ -821,6 +834,13 @@ function switchCfgBrand(bk, el) {
   });
   if (el) { el.style.background='var(--abg)'; el.style.borderColor='var(--a)'; el.style.color='var(--a)'; }
   renderCfgBrandPanel(bk);
+  renderConfigLog(bk);
+  // Sync Config & Propose brand tab
+  var cfgBtEl = document.getElementById('configBrandTabs');
+  if (cfgBtEl) {
+    var tab = cfgBtEl.querySelector('[data-brand="'+bk+'"]');
+    if (tab) { tab.click(); }
+  }
 }
 
 function renderCfgBrandPanel(bk) {
@@ -1373,16 +1393,21 @@ function renderAnalytics(bk, el) {
     var campDates=Object.keys(c.daily).sort().slice(-14);
     var campRoas=campDates.map(function(d){ var x=c.daily[d]; return x.spend>0?Math.round(x.sales/x.spend*100)/100:0; });
     var sp=sparkline(campRoas,80,28,roasColor(r7),roasColor(r7));
-    return '<tr style="cursor:pointer;border-bottom:1px solid var(--border)" onclick="toggleCampDrill(\'adrill-'+idx+'\')">'
-      +'<td style="padding:8px 10px;font-size:12px;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+cn+'">'+cn+'</td>'
-      +'<td style="padding:8px 6px;font-size:10px;color:var(--dim)">'+c.type+'</td>'
-      +'<td style="padding:8px 6px;font-size:12px;font-weight:600">$'+fmtN(c.spend7)+'</td>'
-      +'<td style="padding:8px 6px;font-size:12px">$'+fmtN(c.sales7)+'</td>'
-      +'<td style="padding:8px 6px;font-size:12px;font-weight:700;color:'+roasColor(r7)+'">'+r7+'x</td>'
-      +'<td style="padding:8px 6px;font-size:11px;color:'+acosColor(a7,tgt)+'">'+a7+'%</td>'
-      +'<td style="padding:8px 6px">'+arrow(r7,r30)+'</td>'
-      +'<td style="padding:8px 6px">'+sp+'</td>'
-      +'<td style="padding:8px 6px;font-size:10px;color:var(--muted)">&#9660;</td>'
+    return '<tr class="camp-drill-row" style="cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s" onclick="toggleCampDrill(\'adrill-'+idx+'\',this)" onmouseenter="this.style.background=\'#f0f4ff\'" onmouseleave="this.style.background=\'\'">'
+      +'<td style="padding:10px 10px;font-size:12px;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+cn+'">'
+        +'<div style="display:flex;align-items:center;gap:6px">'
+          +'<span class="drill-icon" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:5px;background:var(--abg);color:var(--a);font-size:11px;font-weight:700;flex-shrink:0;transition:transform .2s,background .2s">+</span>'
+          +'<span>'+cn+'</span>'
+        +'</div>'
+      +'</td>'
+      +'<td style="padding:10px 6px;font-size:10px;color:var(--dim)">'+c.type+'</td>'
+      +'<td style="padding:10px 6px;font-size:12px;font-weight:600">$'+fmtN(c.spend7)+'</td>'
+      +'<td style="padding:10px 6px;font-size:12px">$'+fmtN(c.sales7)+'</td>'
+      +'<td style="padding:10px 6px;font-size:12px;font-weight:700;color:'+roasColor(r7)+'">'+r7+'x</td>'
+      +'<td style="padding:10px 6px;font-size:11px;color:'+acosColor(a7,tgt)+'">'+a7+'%</td>'
+      +'<td style="padding:10px 6px">'+arrow(r7,r30)+'</td>'
+      +'<td style="padding:10px 6px">'+sp+'</td>'
+      +'<td style="padding:10px 6px;font-size:10px;color:var(--a);font-weight:600">Detail &#9662;</td>'
       +'</tr>'
       +'<tr id="adrill-'+idx+'" style="display:none;background:#f8fafc"><td colspan="9" style="padding:0">'
       +buildCampDrill(c, campDates)+'</td></tr>';
@@ -1405,7 +1430,7 @@ function renderAnalytics(bk, el) {
     +'</div>'
     // Campaign table
     +'<div class="card" style="padding:0;overflow:hidden">'
-    +'<div style="padding:12px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px">Campaign Breakdown <span style="font-weight:400;color:var(--dim);font-size:11px">— click row to expand 14d detail</span></div>'
+    +'<div style="padding:12px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px;display:flex;align-items:center;gap:8px">Campaign Breakdown <span style="font-weight:500;color:var(--a);font-size:10px;background:var(--abg);padding:2px 8px;border-radius:10px">click row for 14d detail + search terms</span></div>'
     +'<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">'
     +'<thead><tr style="background:#f8fafc;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.4px">'
     +'<th style="padding:8px 10px;text-align:left;font-weight:600">Campaign</th>'
@@ -1514,10 +1539,22 @@ function buildCampDrill(c, campDates) {
   return '<div style="padding:10px 16px">'+dailyTable+stSection+'</div>';
 }
 
-function toggleCampDrill(id) {
+function toggleCampDrill(id, rowEl) {
   var el = document.getElementById(id);
   if (!el) return;
-  el.style.display = el.style.display === 'none' ? 'table-row' : 'none';
+  var isOpen = el.style.display !== 'none';
+  el.style.display = isOpen ? 'none' : 'table-row';
+  // Toggle icon in the clicked row
+  if (rowEl) {
+    var icon = rowEl.querySelector('.drill-icon');
+    if (icon) {
+      icon.textContent = isOpen ? '+' : '\u2212';
+      icon.style.background = isOpen ? 'var(--abg)' : 'var(--a)';
+      icon.style.color = isOpen ? 'var(--a)' : '#fff';
+    }
+    var detailTd = rowEl.querySelector('td:last-child');
+    if (detailTd) detailTd.innerHTML = isOpen ? 'Detail &#9662;' : 'Close &#9652;';
+  }
 }
 
 // ── Analytics brand/sub-tab switching ──────────────────────────────────────
@@ -1826,7 +1863,7 @@ function renderPropose(bk, dt, containerId){
   // Campaign rows
   var campRows = dd.campaigns.map(function(c,i){
     var isAction = c.action!=='optimize' && c.action!=='monitor';
-    var budStr = c.bud_after ? '$'+c.bud_before+'→$'+c.bud_after : '$'+(c.bud_before||0);
+    var budStr = (c.bud_after && c.bud_after !== c.bud_before) ? '$'+c.bud_before+'→$'+c.bud_after : '$'+(c.bud_before||0);
     var bidStr = c.bid_pct ? (c.bid_pct>0?'+':'')+c.bid_pct+'%' : '—';
     var typeB = c.type==='AUTO'?badge('AUTO','c'):badge('MAN','a');
     var actionB = isAction ? '<b style="color:var(--a)">'+c.action+'</b>' : '<span style="color:var(--muted)">No Change</span>';
@@ -1886,7 +1923,7 @@ function renderPropose(bk, dt, containerId){
     '<td style="font-family:var(--mono)">$'+fmtN(totSpend)+'</td>' +
     '<td style="font-family:var(--mono)">$'+fmtN(totSales)+'</td>' +
     '<td></td><td></td>' +
-    '<td style="font-family:var(--mono)">$'+fmtN(totBudBefore)+'→$'+fmtN(totBudAfter)+'</td>' +
+    '<td style="font-family:var(--mono)">'+(totBudAfter!==totBudBefore?'$'+fmtN(totBudBefore)+'→$'+fmtN(totBudAfter):'$'+fmtN(totBudBefore))+'</td>' +
     '<td></td>' +
     '<td style="font-family:var(--mono);color:var(--a)" id="override-total-'+bk+'-'+dt+'">$'+fmtN(totBudAfter)+'</td>' +
   '</tr>';
