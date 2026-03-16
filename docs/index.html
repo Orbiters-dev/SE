@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ORBI Intelligence Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f8fafc;--card:#fff;--border:#e2e8f0;--text:#1e293b;--dim:#64748b;--muted:#94a3b8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.hub{max-width:720px;width:90%;text-align:center}
+.hub h1{font-size:28px;font-weight:800;letter-spacing:-.5px;margin-bottom:4px}
+.hub h1 span{background:linear-gradient(135deg,#6366f1,#0ea5e9,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hub .sub{color:var(--dim);font-size:13px;margin-bottom:36px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:560px){.cards{grid-template-columns:1fr}}
+.dash-card{background:var(--card);border:2px solid var(--border);border-radius:16px;padding:36px 28px;cursor:pointer;transition:.2s;text-decoration:none;color:var(--text);display:block}
+.dash-card:hover{border-color:#6366f1;transform:translateY(-4px);box-shadow:0 12px 32px rgba(99,102,241,.12)}
+.dash-card .icon{font-size:40px;margin-bottom:12px}
+.dash-card h2{font-size:17px;font-weight:800;margin-bottom:6px}
+.dash-card p{font-size:11px;color:var(--dim);line-height:1.5}
+.dash-card .tags{margin-top:12px;display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
+.dash-card .tag{font-size:9px;font-weight:600;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:var(--muted)}
+.ppc-card:hover{border-color:#6366f1}
+.ppc-card:hover h2{color:#6366f1}
+.content-card:hover{border-color:#ec4899}
+.content-card:hover h2{color:#ec4899}
+.footer{margin-top:32px;font-size:10px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="hub">
+  <h1>ORBI <span>Intelligence Hub</span></h1>
+  <div class="sub">Select a dashboard to get started</div>
+  <div class="cards">
+    <a href="ppc-dashboard/index.html" class="dash-card ppc-card">
+      <div class="icon">&#x1F4CA;</div>
+      <h2>Amazon PPC Intelligence</h2>
+      <p>Campaign analysis, bid optimization, keyword harvesting, backtest simulator, live analytics</p>
+      <div class="tags">
+        <span class="tag">3 Brands</span>
+        <span class="tag">Live API</span>
+        <span class="tag">Auto-Propose</span>
+        <span class="tag">Backtest</span>
+      </div>
+    </a>
+    <a href="content-dashboard/index.html" class="dash-card content-card">
+      <div class="icon">&#x1F3AC;</div>
+      <h2>Content Intelligence</h2>
+      <p>Influencer content tracking, video race chart, pipeline KPI, sales correlation analysis</p>
+      <div class="tags">
+        <span class="tag">IG + TikTok</span>
+        <span class="tag">Video Embed</span>
+        <span class="tag">Sales Overlay</span>
+        <span class="tag">D+60</span>
+      </div>
+    </a>
+  </div>
+  <div class="footer">ORBI WAT Framework &middot; DataKeeper API</div>
+</div>
+</body>
+</html>
