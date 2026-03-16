@@ -228,6 +228,94 @@ def fetch_tiktok(client):
         return []
 
 
+def fetch_tiktok_by_urls(client, post_urls):
+    """Scrape individual TikTok posts by URL for D+60 metric tracking.
+
+    Used when TikTok keyword search misses posts already in our tracker.
+    These posts were previously discovered but didn't appear in today's search.
+    """
+    if not post_urls:
+        return []
+    print(f"[TT-URL] Scraping {len(post_urls)} TikTok posts by URL...")
+    try:
+        run = client.actor(TT_SCRAPER).call(
+            run_input={
+                "postURLs": post_urls,
+                "shouldDownloadCovers": False,
+                "shouldDownloadVideos": False,
+                "shouldDownloadSubtitles": False,
+            },
+            timeout_secs=300,
+        )
+        items = list(client.dataset(run["defaultDatasetId"]).iterate_items())
+        print(f"[TT-URL] Got {len(items)} results")
+        return items
+    except Exception as e:
+        print(f"[TT-URL] Failed: {e}")
+        return []
+
+
+def get_missing_tiktok_urls(sh, tracker_tab, collected_data, max_d_plus=30):
+    """Find TikTok posts in D+60 tracker that are missing from today's crawl.
+
+    Returns list of TikTok URLs that need direct scraping.
+    Only includes posts within D+0~max_d_plus range (active tracking window).
+    """
+    try:
+        ws = sh.worksheet(tracker_tab)
+        rows = ws.get_all_values()
+    except Exception:
+        return []
+
+    if len(rows) <= 2:
+        return []
+
+    collected_pids = set(d["post_id"] for d in collected_data)
+    missing_urls = []
+    now = datetime.now()
+
+    for row in rows[2:]:  # skip 2 header rows
+        if not row or len(row) < 5:
+            continue
+
+        post_id = row[0]
+        if post_id.startswith("=HYPERLINK"):
+            parts = post_id.split('"')
+            post_id = parts[3] if len(parts) > 3 else parts[1]
+
+        if post_id in collected_pids:
+            continue  # already in today's crawl
+
+        platform = row[2].lower() if len(row) > 2 else ""
+        if platform != "tiktok":
+            continue  # only TikTok needs URL scraping (IG uses Graph API)
+
+        post_date_str = row[4] if len(row) > 4 else ""
+        if not post_date_str:
+            continue
+        try:
+            pd = datetime.strptime(post_date_str, "%Y-%m-%d")
+            d_plus = (now - pd).days
+        except ValueError:
+            continue
+
+        if d_plus < 0 or d_plus > max_d_plus:
+            continue  # outside active tracking window
+
+        # Extract URL
+        url_cell = row[1] if len(row) > 1 else ""
+        if url_cell.startswith("=HYPERLINK"):
+            parts = url_cell.split('"')
+            url = parts[1] if len(parts) > 1 else ""
+        else:
+            url = url_cell
+
+        if url and "tiktok.com" in url:
+            missing_urls.append(url)
+
+    return missing_urls
+
+
 def fetch_ig_profiles(client, usernames):
     """Fetch follower counts for username list."""
     if not usernames:
@@ -287,7 +375,7 @@ def normalize_ig(items, fmap=None):
     return result
 
 
-def normalize_tt(items):
+def normalize_tt(items, skip_keyword_filter=False):
     result, seen = [], set()
     for item in items:
         vid = str(item.get("id", ""))
@@ -295,12 +383,13 @@ def normalize_tt(items):
         uname = (am.get("name", "") or "").lower()
         if not vid or vid in seen or not uname or uname in EXCLUDE:
             continue
-        # Relevance filter
-        text = (item.get("text", "") or "").lower()
-        ht_names = [h.get("name", "").lower() for h in (item.get("hashtags", []) or [])]
-        all_text = text + " " + " ".join(ht_names)
-        if not any(kw in all_text for kw in TT_KEYWORDS):
-            continue
+        # Relevance filter (skip for URL-scraped posts — already verified relevant)
+        if not skip_keyword_filter:
+            text = (item.get("text", "") or "").lower()
+            ht_names = [h.get("name", "").lower() for h in (item.get("hashtags", []) or [])]
+            all_text = text + " " + " ".join(ht_names)
+            if not any(kw in all_text for kw in TT_KEYWORDS):
+                continue
         seen.add(vid)
         result.append({
             "post_id": vid,
@@ -795,8 +884,19 @@ def run_daily(region="all", dry_run=False, send_mail=True):
         us_creators = set(d["username"] for d in us_data)
         print(f"[US] Total: {len(us_data)} posts ({len(ig_norm)} IG + {len(tt_norm)} TT), {len(us_creators)} creators")
 
-        # Update sheets
+        # Fetch metrics for tracked TikTok posts missing from today's search
         sh, creds = get_sheets()
+        if not dry_run:
+            missing_tt_urls = get_missing_tiktok_urls(sh, "US D+60 Tracker", us_data)
+            if missing_tt_urls:
+                tt_url_raw = fetch_tiktok_by_urls(client, missing_tt_urls)
+                tt_url_norm = normalize_tt(tt_url_raw, skip_keyword_filter=True)
+                us_data.extend(tt_url_norm)
+                print(f"[US] +{len(tt_url_norm)} TikTok posts via URL scrape (D+60 gap fill)")
+            else:
+                print("[US] No missing TikTok posts in D+0~D+30 range")
+
+        # Update sheets
         new_pm = update_posts_master(sh, us_data, "US Posts Master")
         time.sleep(1)
         pm_ws_us = sh.worksheet("US Posts Master")
