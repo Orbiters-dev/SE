@@ -597,18 +597,7 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
   <div id="sysadmin-datalog" style="display:none"></div>
 </div>
 
-<!-- ══════════ PAT AUTH MODAL ══════════ -->
-<div id="pat-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
-  <div style="background:white;border-radius:12px;padding:32px;max-width:450px;width:90%;">
-    <h3>GitHub Personal Access Token</h3>
-    <p style="font-size:12px;color:#64748b;margin:8px 0 16px;">Required to trigger GitHub Actions. Stored in localStorage only.</p>
-    <input type="password" id="pat-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;font-family:monospace;">
-    <div style="display:flex;gap:8px;margin-top:16px;">
-      <button onclick="savePAT()" style="flex:1;background:var(--a);color:#fff;border:none;padding:10px;border-radius:8px;font-weight:700;cursor:pointer;">Save & Continue</button>
-      <button onclick="closePATModal()" style="flex:1;background:#f1f5f9;color:#64748b;border:none;padding:10px;border-radius:8px;font-weight:700;cursor:pointer;">Cancel</button>
-    </div>
-  </div>
-</div>
+<!-- PAT modal removed — GitHub Actions triggered via CLI only -->
 
 </div>
 
@@ -768,27 +757,14 @@ const BRAND_DEFAULTS = {
 const REPO = 'Orbiters-dev/WJ-Test1';
 const WORKFLOW_FILE = 'ppc_dashboard_action.yml';
 
-// ── PAT Auth ──
+// ── Auth (PAT removed — actions dispatch directly via stored token) ──
 function getPAT() {
   return localStorage.getItem('ppc_gh_pat') || '';
 }
 
 function requirePAT(callback) {
-  if (getPAT()) { callback(); return; }
-  window._patCallback = callback;
-  document.getElementById('pat-modal').style.display = 'flex';
-}
-
-function savePAT() {
-  var pat = document.getElementById('pat-input').value.trim();
-  if (!pat) return;
-  localStorage.setItem('ppc_gh_pat', pat);
-  closePATModal();
-  if (window._patCallback) { window._patCallback(); window._patCallback = null; }
-}
-
-function closePATModal() {
-  document.getElementById('pat-modal').style.display = 'none';
+  // PAT modal removed — just execute callback directly
+  callback();
 }
 
 // ── GitHub Actions Dispatch ──
@@ -3064,7 +3040,7 @@ async function fetchWorkflowRuns(){
   } catch(e) {
     el.innerHTML = '<div class="card" style="border-left:3px solid var(--r)">'
       +'<h3 style="color:var(--r)">Failed to load workflow status</h3>'
-      +'<div class="desc">'+e.message+'. Make sure GitHub PAT is set (click lock icon in Config tab).</div>'
+      +'<div class="desc">'+e.message+'</div>'
       +'<button onclick="fetchWorkflowRuns()" style="margin-top:8px;padding:6px 16px;border-radius:6px;border:1px solid var(--a);background:var(--abg);color:var(--a);font-weight:700;font-size:11px;cursor:pointer">Retry</button>'
       +'</div>';
   }
