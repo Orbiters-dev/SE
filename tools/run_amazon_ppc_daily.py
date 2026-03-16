@@ -319,21 +319,53 @@ def _get_ba_summary() -> Dict:
         ba = fetch_brand_analytics()
         if not ba:
             return {}
-        # Top 10 keywords where we have presence
+        # Top 10 keywords where we have presence — with ASIN competitive breakdown
         our_terms = [(t, d) for t, d in ba.items() if d.get("our_click_share", 0) > 0]
         our_terms.sort(key=lambda x: x[1].get("search_frequency_rank", 999999))
-        top_our = [{
-            "term": t,
-            "sfr": d["search_frequency_rank"],
-            "our_click_share": round(d["our_click_share"] * 100, 1),
-            "our_conv_share": round(d.get("our_conversion_share", 0) * 100, 1),
-            "comp_click_share": round(d.get("competitor_click_share", 0) * 100, 1),
-        } for t, d in our_terms[:10]]
+        top_our = []
+        for t, d in our_terms[:10]:
+            asins = []
+            for a in d.get("top_asins", [])[:3]:  # Top 3 ASINs per term
+                asins.append({
+                    "asin": a.get("asin", ""),
+                    "name": (a.get("asin_name", "") or "")[:50],
+                    "click_share": round(a.get("click_share", 0) * 100, 1),
+                    "conv_share": round(a.get("conversion_share", 0) * 100, 1),
+                    "is_ours": a.get("is_ours", False),
+                })
+            top_our.append({
+                "term": t,
+                "sfr": d["search_frequency_rank"],
+                "department": d.get("department", ""),
+                "our_click_share": round(d["our_click_share"] * 100, 1),
+                "our_conv_share": round(d.get("our_conversion_share", 0) * 100, 1),
+                "our_rank": d.get("our_rank", 0),
+                "top_asins": asins,
+            })
+
+        # Category keywords where we have NO presence but competitors dominate
+        no_presence = [(t, d) for t, d in ba.items()
+                       if d.get("our_click_share", 0) == 0
+                       and d.get("search_frequency_rank", 0) > 0
+                       and d.get("search_frequency_rank", 999999) < 50000]
+        no_presence.sort(key=lambda x: x[1].get("search_frequency_rank", 999999))
+        gaps = []
+        for t, d in no_presence[:5]:
+            leader = d.get("top_asins", [{}])[0] if d.get("top_asins") else {}
+            gaps.append({
+                "term": t,
+                "sfr": d["search_frequency_rank"],
+                "leader_asin": leader.get("asin", ""),
+                "leader_name": (leader.get("asin_name", "") or "")[:50],
+                "leader_click_share": round(leader.get("click_share", 0) * 100, 1),
+            })
+
         return {
             "total_tracked_terms": len(ba),
             "terms_with_our_presence": len(our_terms),
             "top_our_keywords": top_our,
-            "note": "SFR=Search Frequency Rank (lower=more popular). Click/Conv share from Brand Analytics."
+            "market_gaps": gaps,
+            "note": "SFR=Search Frequency Rank (lower=more popular). top_asins sorted by click_share desc. market_gaps=high-volume terms where we have 0 click share."
         }
     except Exception:
         return {}
@@ -356,8 +388,13 @@ e-커머스 Baby/Kids 카테고리 (Grosmimi=유아식기, CHA&MOM=스킨케어,
 - CTR: 노출 -> 클릭 비율. SP 벤치마크: 0.40% (전체), Baby Products: 0.30-0.45%
   CTR < 0.20%: 타겟팅/크리에이티브 문제 | CTR 0.30-0.50%: 정상 | CTR > 0.60%: 우수
 - CPC: Baby Products 평균 $0.75-1.20. CPC > $1.50이면 입찰 과다 의심
-- Brand Analytics 데이터가 있으면 (brand_analytics 섹션): SFR(Search Frequency Rank)로 키워드 중요도,
-  Click/Conversion Share로 시장 점유율을 실측 확인. 우리 Click Share < 10%인 고SFR 키워드 = 성장 기회.
+- Brand Analytics 데이터가 있으면 (brand_analytics 섹션):
+  - SFR(Search Frequency Rank)로 키워드 중요도, Click/Conversion Share로 시장 점유율 실측 확인
+  - top_asins: 각 키워드별 Top ASIN 경쟁 비교 (is_ours=True가 우리 제품)
+  - our_rank: Top ASIN 중 우리 순위 (0=Top 3 밖, 1=1위, 2=2위, 3=3위)
+  - 우리 Click Share < 10%인 고SFR 키워드 = 성장 기회 (입찰 강화 대상)
+  - market_gaps: 고볼륨인데 우리 click share = 0인 키워드 (신규 진출 기회)
+  - 경쟁 ASIN의 Click Share > 30%이면 dominant player 존재 → PPC만으로 이기기 어려움, 리스팅 최적화 병행
 
 2단계: ROAS/ACOS 판단 기준
 - ROAS >= 5.0: 최우수 (ACOS 20% 이하) -> 공격적 스케일업

@@ -806,6 +806,28 @@ def _load_simulator_backtest(brand_key: str) -> Optional[Dict]:
         return None
 
 
+def _build_competitive_landscape(ba: Dict) -> List[Dict]:
+    """Build competitive landscape from BA top_asins for a single search term.
+
+    Returns list of dicts sorted by click_share desc:
+      [{"asin": "B0...", "name": "Product...", "click_share": 15.5,
+        "conv_share": 12.3, "is_ours": True, "rank": 1}, ...]
+    """
+    if not ba or not ba.get("top_asins"):
+        return []
+    landscape = []
+    for i, a in enumerate(ba.get("top_asins", [])[:5], 1):  # Top 5 ASINs max
+        landscape.append({
+            "asin": a.get("asin", ""),
+            "name": a.get("asin_name", ""),
+            "click_share": round(a.get("click_share", 0) * 100, 2),
+            "conv_share": round(a.get("conversion_share", 0) * 100, 2),
+            "is_ours": a.get("is_ours", False),
+            "rank": i,
+        })
+    return landscape
+
+
 def analyze_search_terms(
     st_rows: List[Dict],
     campaigns: List[Dict],
@@ -948,6 +970,8 @@ def analyze_search_terms(
                 "ba_sfr": ba_sfr,
                 "ba_click_share": ba_our_cs,
                 "ba_conv_share": ba_our_cvs,
+                "ba_our_rank": ba.get("our_rank", 0),
+                "competitive_landscape": _build_competitive_landscape(ba),
                 "reason": reason,
                 "approved": False,
             })
@@ -989,6 +1013,7 @@ def analyze_search_terms(
                 "sales": 0,
                 "impressions": impressions,
                 "ba_sfr": ba_sfr,
+                "competitive_landscape": _build_competitive_landscape(ba),
                 "priority": "urgent",
                 "reason": f"${cost:.2f} spent, {clicks} clicks, 0 sales (>{negate_spend_mult:.1f}x target CPA){ba_negate_note}",
                 "approved": False,
@@ -1008,6 +1033,7 @@ def analyze_search_terms(
                 "cost": round(cost, 2),
                 "sales": round(sales, 2),
                 "acos": round(acos * 100, 1),
+                "competitive_landscape": _build_competitive_landscape(ba),
                 "priority": "high",
                 "reason": f"ACOS {round(acos*100,1)}% > {presets['desired_acos']*NEGATIVE_HIGH_ACOS_MULT*100}% threshold",
                 "approved": False,
@@ -1215,6 +1241,9 @@ def analyze_keyword_bids(
                 "sales": round(sales, 2),
                 "acos_pct": round(acos * 100, 1) if acos else None,
                 "google_cpc": google_cpc if google_cpc > 0 else None,
+                "ba_sfr": ba_sfr if ba_sfr > 0 else None,
+                "ba_our_rank": ba.get("our_rank", 0) if ba else None,
+                "competitive_landscape": _build_competitive_landscape(ba) if ba else [],
                 "priority": "high" if action == "decrease_bid" and sales == 0 else "medium",
                 "reason": reason,
                 "approved": False,
@@ -1288,6 +1317,8 @@ def fetch_brand_analytics() -> Dict[str, Dict]:
                     "our_click_share": 0.0,
                     "our_conversion_share": 0.0,
                     "competitor_click_share": 0.0,
+                    "department": "",
+                    "our_rank": 0,
                     "top_asins": [],
                 }
             entry = ba_map[term]
@@ -1298,8 +1329,10 @@ def fetch_brand_analytics() -> Dict[str, Dict]:
             cs = float(r.get("click_share", 0) or 0)
             cvs = float(r.get("conversion_share", 0) or 0)
             is_ours = bool(r.get("is_ours", False))
+            asin_id = r.get("asin", "")
             entry["top_asins"].append({
-                "asin": r.get("asin", ""),
+                "asin": asin_id,
+                "asin_name": (r.get("asin_name", "") or "")[:80],
                 "click_share": cs,
                 "conversion_share": cvs,
                 "is_ours": is_ours,
@@ -1310,6 +1343,24 @@ def fetch_brand_analytics() -> Dict[str, Dict]:
                 entry["our_conversion_share"] = max(entry["our_conversion_share"], cvs)
             else:
                 entry["competitor_click_share"] = max(entry["competitor_click_share"], cs)
+            if not entry.get("department") and r.get("department"):
+                entry["department"] = r.get("department", "")
+
+        # Deduplicate ASINs (keep latest/highest click_share) and sort by click_share desc
+        for term, entry in ba_map.items():
+            seen = {}
+            for a in entry["top_asins"]:
+                aid = a["asin"]
+                if aid not in seen or a["click_share"] > seen[aid]["click_share"]:
+                    seen[aid] = a
+            sorted_asins = sorted(seen.values(), key=lambda x: -x["click_share"])
+            entry["top_asins"] = sorted_asins
+            # Determine our rank among top ASINs (0 = not present)
+            entry["our_rank"] = 0
+            for i, a in enumerate(sorted_asins, 1):
+                if a["is_ours"]:
+                    entry["our_rank"] = i
+                    break
 
         print(f"  [BA] {len(ba_map)} search terms with market intelligence")
         return ba_map

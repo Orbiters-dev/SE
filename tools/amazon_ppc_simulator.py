@@ -271,6 +271,16 @@ def backtest_wasted_spend(st_rows: list, ba_data: dict = None) -> dict:
         if sim_saved > 0 and term_conversions == 0:
             term_roas = (sum(float(w.get("sales14d", 0)) for w in windows) /
                          term_actual_spend) if term_actual_spend else 0
+            # Build competitive landscape for this waste term
+            comp_landscape = []
+            for a in ba.get("top_asins", [])[:3]:
+                comp_landscape.append({
+                    "asin": a.get("asin", ""),
+                    "name": (a.get("asin_name", "") or "")[:60],
+                    "click_share": round(a.get("click_share", 0) * 100, 1),
+                    "conv_share": round(a.get("conversion_share", 0) * 100, 1),
+                    "is_ours": a.get("is_ours", False),
+                })
             top_waste_terms.append({
                 "campaign":       camp,
                 "search_term":    term,
@@ -279,6 +289,8 @@ def backtest_wasted_spend(st_rows: list, ba_data: dict = None) -> dict:
                 "would_save":     round(sim_saved, 2),
                 "negated_after":  negated_at,
                 "windows":        len(windows),
+                "ba_sfr":         ba_sfr if ba_sfr > 0 else None,
+                "competitive_landscape": comp_landscape if comp_landscape else None,
             })
 
     # Sort by would_save desc
