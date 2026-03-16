@@ -321,9 +321,6 @@ def list_tables(request):
     return JsonResponse({"tables": result})
 
 
-@csrf_exempt
-@cors_headers
-@require_http_methods(["GET", "OPTIONS"])
 def _safe_iso(val):
     """Convert date/datetime to ISO string, handling already-string values."""
     if val is None:
@@ -333,6 +330,9 @@ def _safe_iso(val):
     return val.isoformat()
 
 
+@csrf_exempt
+@cors_headers
+@require_http_methods(["GET", "OPTIONS"])
 def status(request):
     """Get latest collection timestamps per table."""
     result = {}
