@@ -872,8 +872,34 @@ function renderCfgBrandPanel(bk) {
   var dpOpts = [{v:'auto',l:'Auto (default schedule)'},{v:'aggressive',l:'Aggressive (higher peaks)'},{v:'conservative',l:'Conservative (flatter)'},{v:'off',l:'Off (1.0x all hours)'}];
   var daypartHtml = dpOpts.map(function(o){ return '<option value="'+o.v+'"'+(savedDp===o.v?' selected':'')+'>'+o.l+'</option>'; }).join('');
 
+  // Actual spend info from live data
+  var lm = (window._liveMetrics || {})[bk];
+  var actualSpendHtml = '';
+  if (lm && lm.spend7d) {
+    var avgDaily = Math.round(lm.spend7d / 7);
+    var budgetCap = getCfgVal(bk, 'daily_budget', d.daily_budget || 0);
+    var util = budgetCap > 0 ? Math.round(avgDaily / budgetCap * 100) : 0;
+    var utilColor = util >= 80 ? 'var(--r)' : util >= 50 ? '#f59e0b' : 'var(--g)';
+    var barW = Math.min(util, 100);
+    actualSpendHtml = '<div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:14px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+        +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--dim);letter-spacing:.4px">📊 Actual vs Budget</div>'
+        +'<div style="font-size:10px;color:var(--dim)">7d avg</div>'
+      +'</div>'
+      +'<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">'
+        +'<div style="font-size:22px;font-weight:800;font-family:var(--mono)">$'+fmtN(avgDaily)+'<span style="font-size:11px;color:var(--dim);font-weight:400">/day</span></div>'
+        +'<div style="font-size:11px;color:var(--dim)">of $'+fmtN(budgetCap)+' cap</div>'
+        +'<div style="font-size:11px;font-weight:700;color:'+utilColor+'">'+util+'% utilization</div>'
+      +'</div>'
+      +'<div style="background:#e5e7eb;border-radius:4px;height:6px;overflow:hidden">'
+        +'<div style="background:'+utilColor+';height:100%;width:'+barW+'%;border-radius:4px;transition:width .3s"></div>'
+      +'</div>'
+    +'</div>';
+  }
+
   document.getElementById('cfg-brand-content').innerHTML =
-    '<div style="margin-bottom:14px">'
+    actualSpendHtml
+    +'<div style="margin-bottom:14px">'
     +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--dim);margin-bottom:8px;letter-spacing:.4px">💰 Budget & Targets</div>'
     +budgetHtml
     +'</div>'
@@ -1152,6 +1178,10 @@ async function fetchLiveMetrics(){
     window._liveMetrics = liveBrands;
     window._rawAdsData  = adsData;    // Daily campaign-level rows for Analytics tab
     window._rawSalesData = salesData; // Total sales rows for TACOS / trend chart
+    // Refresh Brand Settings panel with live spend data
+    if (typeof renderCfgBrandPanel === 'function' && typeof _cfgBrand !== 'undefined') {
+      renderCfgBrandPanel(_cfgBrand);
+    }
     document.getElementById('analytics-loading').textContent = 'Live (' + (adsData.length ? adsData[0].date : '?') + ')';
     // If analytics tab is already open, refresh it
     if (document.getElementById('tab-analytics').classList.contains('on')) {
