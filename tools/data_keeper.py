@@ -972,14 +972,42 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
         return [], []
 
 
+def _get_our_asins() -> set:
+    """Get set of ASINs we sell from cached amazon_sales_sku_daily."""
+    asins = set()
+    cache_path = os.path.join(CACHE_DIR, "amazon_sales_sku_daily.json")
+    if os.path.exists(cache_path):
+        try:
+            with open(cache_path, "r", encoding="utf-8") as f:
+                rows = json.load(f)
+            for r in rows:
+                if r.get("asin"):
+                    asins.add(r["asin"])
+        except Exception:
+            pass
+    # Hardcoded fallback ASINs (top sellers) in case no cache
+    if not asins:
+        asins = {
+            "B07RRT71CZ", "B082KZFGZG", "B082KZY3CX", "B083921731",
+            "B09DD28LSF", "B09DD2CXTL", "B0DB7SPP2P", "B0DCV766MB",
+            "B0F4CRT6LV", "B0F1XGS9JF", "B0FXKBPXTB",
+        }
+    return asins
+
+
 def collect_amazon_brand_analytics(date_from: str, date_to: str) -> list[dict]:
     """Collect Amazon Brand Analytics Search Terms report (all sellers).
 
     Uses SP-API Reports API with GET_BRAND_ANALYTICS_SEARCH_TERMS_REPORT.
     Requires Brand Registry enrollment for each seller account.
-    Returns weekly search term data: search frequency rank, click/conversion share per ASIN.
+    Returns weekly search term data filtered to OUR ASINs only.
+
+    IMPORTANT: Full BA report is ~3GB (all Amazon search terms).
+    We stream-parse and only keep rows where one of clicked ASINs matches ours.
     """
     print("[Amazon Brand Analytics] Collecting...")
+    our_asins = _get_our_asins()
+    print(f"  Filtering to {len(our_asins)} known ASINs")
     all_rows = []
 
     for seller in SELLER_CONFIGS:
@@ -1017,7 +1045,7 @@ def collect_amazon_brand_analytics(date_from: str, date_to: str) -> list[dict]:
             week_end = min(cur + timedelta(days=6), d_to)
             rows = _fetch_brand_analytics_report(
                 sp_headers, cur.isoformat(), week_end.isoformat(),
-                seller, AMZ_SP_MARKETPLACE_ID
+                seller, AMZ_SP_MARKETPLACE_ID, our_asins
             )
             seller_rows.extend(rows)
             cur = week_end + timedelta(days=1)
@@ -1028,8 +1056,13 @@ def collect_amazon_brand_analytics(date_from: str, date_to: str) -> list[dict]:
     return all_rows
 
 
-def _fetch_brand_analytics_report(headers, start, end, seller, marketplace_id):
-    """Fetch a single Brand Analytics Search Terms report via SP-API."""
+def _fetch_brand_analytics_report(headers, start, end, seller, marketplace_id, our_asins):
+    """Fetch a single Brand Analytics Search Terms report via SP-API.
+
+    Streams the download to a temp file and parses line-by-line to avoid
+    loading the full ~3GB JSON into memory. Only keeps rows where at least
+    one of the top-3 clicked ASINs belongs to our catalog.
+    """
     try:
         body = {
             "reportType": "GET_BRAND_ANALYTICS_SEARCH_TERMS_REPORT",
@@ -1083,13 +1116,15 @@ def _fetch_brand_analytics_report(headers, start, end, seller, marketplace_id):
                 doc_id = r2.json().get("reportDocumentId")
                 break
             elif status in ("CANCELLED", "FATAL"):
-                print(f"    [WARN] BA report {status}: {start}~{end}")
+                resp_body = r2.json()
+                print(f"    [WARN] BA report {status}: {start}~{end} "
+                      f"seller={seller['name']} resp={json.dumps(resp_body)[:300]}")
                 return []
         else:
             print(f"    [WARN] BA report timeout: {start}~{end}")
             return []
 
-        # Download document
+        # Download document — stream to temp file to avoid OOM on 3GB+ reports
         r3 = requests.get(
             f"https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/documents/{doc_id}",
             headers=headers, timeout=30,
@@ -1097,94 +1132,133 @@ def _fetch_brand_analytics_report(headers, start, end, seller, marketplace_id):
         r3.raise_for_status()
         doc = r3.json()
         dl_url = doc.get("url")
-        r4 = requests.get(dl_url, timeout=60)
-        r4.raise_for_status()
+        is_gzip = doc.get("compressionAlgorithm") == "GZIP"
 
-        content = r4.content
-        if doc.get("compressionAlgorithm") == "GZIP":
-            content = gzip.decompress(content)
+        tmp_path = os.path.join(CACHE_DIR, f"_ba_tmp_{seller['seller_id']}.json.gz" if is_gzip else f"_ba_tmp_{seller['seller_id']}.json")
+        print(f"    Downloading BA report {start}~{end} for {seller['name']}...")
+        with requests.get(dl_url, stream=True, timeout=300) as dl:
+            dl.raise_for_status()
+            total_bytes = 0
+            with open(tmp_path, "wb") as f:
+                for chunk in dl.iter_content(chunk_size=8192 * 16):
+                    f.write(chunk)
+                    total_bytes += len(chunk)
+        print(f"    Downloaded {total_bytes / 1024 / 1024:.1f} MB")
 
-        # Parse — Brand Analytics returns JSON
-        text = content.decode("utf-8", errors="replace").strip()
-        if not text:
-            return []
+        # Parse with ijson (streaming) if available, else chunked read
+        rows = _parse_ba_report_streaming(tmp_path, is_gzip, start, end, seller, our_asins)
 
-        # Try JSON first, fall back to TSV
-        rows = []
+        # Cleanup temp file
         try:
-            data = json.loads(text)
-            if isinstance(data, list):
-                raw_items = data
-            elif isinstance(data, dict):
-                raw_items = data.get("dataByDepartmentAndSearchTerm", [])
-            else:
-                raw_items = []
-
-            for item in raw_items:
-                search_term = item.get("searchTerm", "")
-                search_freq_rank = item.get("searchFrequencyRank", 0)
-                dept = item.get("departmentName", "")
-                week_start = start
-
-                # Each search term has up to 3 clicked ASINs
-                for i in range(1, 4):
-                    asin = item.get(f"clickedAsin{i}", "")
-                    if not asin:
-                        continue
-                    rows.append({
-                        "date": week_start,
-                        "week_end": end,
-                        "seller_id": seller["seller_id"],
-                        "brand": seller["brand"],
-                        "department": dept,
-                        "search_term": search_term,
-                        "search_frequency_rank": int(search_freq_rank) if search_freq_rank else 0,
-                        "asin": asin,
-                        "asin_rank": i,
-                        "click_share": float(item.get(f"clickShareRank{i}", 0) or 0),
-                        "conversion_share": float(item.get(f"conversionShareRank{i}", 0) or 0),
-                    })
-        except (json.JSONDecodeError, ValueError):
-            # TSV fallback
-            lines = text.split("\n")
-            if len(lines) < 2:
-                return []
-            header = lines[0].split("\t")
-            for line in lines[1:]:
-                if not line.strip():
-                    continue
-                cols = line.split("\t")
-                record = dict(zip(header, cols))
-                search_term = record.get("Search Term", record.get("search_term", ""))
-                search_freq_rank = record.get("Search Frequency Rank",
-                                              record.get("search_frequency_rank", "0"))
-                dept = record.get("Department", record.get("department", ""))
-
-                for i in range(1, 4):
-                    asin_key = f"Clicked ASIN {i}" if f"Clicked ASIN {i}" in record else f"clicked_asin_{i}"
-                    click_key = f"Click Share Rank {i}" if f"Click Share Rank {i}" in record else f"click_share_rank_{i}"
-                    conv_key = f"Conversion Share Rank {i}" if f"Conversion Share Rank {i}" in record else f"conversion_share_rank_{i}"
-                    asin = record.get(asin_key, "")
-                    if not asin:
-                        continue
-                    rows.append({
-                        "date": start,
-                        "week_end": end,
-                        "seller_id": seller["seller_id"],
-                        "brand": seller["brand"],
-                        "department": dept,
-                        "search_term": search_term,
-                        "search_frequency_rank": int(search_freq_rank) if search_freq_rank else 0,
-                        "asin": asin,
-                        "asin_rank": i,
-                        "click_share": float(record.get(click_key, 0) or 0),
-                        "conversion_share": float(record.get(conv_key, 0) or 0),
-                    })
+            os.remove(tmp_path)
+        except Exception:
+            pass
 
         return rows
 
     except Exception as e:
         print(f"    [ERROR] BA report {start}~{end}: {e}")
+        return []
+
+
+def _parse_ba_report_streaming(tmp_path, is_gzip, start, end, seller, our_asins):
+    """Parse Brand Analytics JSON report, filtering to our ASINs.
+
+    Uses chunked reading with a simple state machine to avoid loading
+    the entire 3GB+ file into memory at once. Each item in the
+    dataByDepartmentAndSearchTerm array is an independent object,
+    so we can parse one-by-one.
+    """
+    import ijson
+    rows = []
+    total_items = 0
+    matched_items = 0
+
+    try:
+        if is_gzip:
+            f = gzip.open(tmp_path, "rb")
+        else:
+            f = open(tmp_path, "rb")
+
+        # ijson streams JSON objects from the array
+        for item in ijson.items(f, "dataByDepartmentAndSearchTerm.item"):
+            total_items += 1
+
+            # Quick ASIN check before building row dicts
+            item_asins = []
+            for i in range(1, 4):
+                a = item.get(f"clickedAsin{i}", "")
+                if a:
+                    item_asins.append((i, a))
+
+            has_our_asin = any(a in our_asins for _, a in item_asins)
+            if not has_our_asin:
+                continue
+
+            matched_items += 1
+            search_term = item.get("searchTerm", "")
+            search_freq_rank = item.get("searchFrequencyRank", 0)
+            dept = item.get("departmentName", "")
+
+            for rank, asin in item_asins:
+                rows.append({
+                    "date": start,
+                    "week_end": end,
+                    "seller_id": seller["seller_id"],
+                    "brand": seller["brand"],
+                    "department": dept,
+                    "search_term": search_term,
+                    "search_frequency_rank": int(search_freq_rank) if search_freq_rank else 0,
+                    "asin": asin,
+                    "asin_rank": rank,
+                    "click_share": float(item.get(f"clickShareRank{rank}", 0) or 0),
+                    "conversion_share": float(item.get(f"conversionShareRank{rank}", 0) or 0),
+                })
+
+        f.close()
+        print(f"    Parsed {total_items:,} search terms, {matched_items:,} matched our ASINs -> {len(rows)} rows")
+        return rows
+
+    except ImportError:
+        # ijson not available — fallback to full load (works for smaller reports)
+        print("    [WARN] ijson not installed, falling back to full JSON load")
+        if is_gzip:
+            with gzip.open(tmp_path, "rb") as f:
+                data = json.loads(f.read().decode("utf-8", errors="replace"))
+        else:
+            with open(tmp_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+        raw_items = data.get("dataByDepartmentAndSearchTerm", []) if isinstance(data, dict) else data
+        rows = []
+        for item in raw_items:
+            item_asins = [(i, item.get(f"clickedAsin{i}", "")) for i in range(1, 4)]
+            item_asins = [(i, a) for i, a in item_asins if a]
+            if not any(a in our_asins for _, a in item_asins):
+                continue
+            for rank, asin in item_asins:
+                rows.append({
+                    "date": start,
+                    "week_end": end,
+                    "seller_id": seller["seller_id"],
+                    "brand": seller["brand"],
+                    "department": dept if 'dept' in dir() else item.get("departmentName", ""),
+                    "search_term": item.get("searchTerm", ""),
+                    "search_frequency_rank": int(item.get("searchFrequencyRank", 0) or 0),
+                    "asin": asin,
+                    "asin_rank": rank,
+                    "click_share": float(item.get(f"clickShareRank{rank}", 0) or 0),
+                    "conversion_share": float(item.get(f"conversionShareRank{rank}", 0) or 0),
+                })
+        print(f"    Parsed {len(raw_items):,} items -> {len(rows)} rows (our ASINs)")
+        return rows
+
+    except Exception as e:
+        print(f"    [ERROR] BA parse: {e}")
+        try:
+            f.close()
+        except Exception:
+            pass
         return []
 
 

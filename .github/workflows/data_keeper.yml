@@ -41,7 +41,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --quiet \
-            requests python-dotenv google-ads
+            requests python-dotenv google-ads ijson
 
       - name: Write .env
         run: |
