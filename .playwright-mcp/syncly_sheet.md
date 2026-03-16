@@ -1,0 +1,118 @@
+- application [ref=e1]:
+  - iframe [ref=e2]:
+    
+  - iframe [ref=e3]:
+    
+  - banner "Menu bar" [ref=e4]:
+    - generic [ref=e7]:
+      - link "Sheets home" [ref=e9] [cursor=pointer]:
+        - /url: https://docs.google.com/spreadsheets/u/0/?authuser=0&usp=sheets_web
+      - generic [ref=e16]:
+        - generic "[오비터스<>싱클리] Post data tracking 공유용 시트" [ref=e18]:
+          - generic [ref=e19]:
+            - generic: "[오비터스<>싱클리] Post data tracking 공유용 시트"
+            - textbox "Rename" [ref=e21]: "[오비터스<>싱클리] Post data tracking 공유용 시트"
+          - generic [ref=e22]:
+            - button "Owned externally" [ref=e24] [cursor=pointer]
+            - checkbox "Star" [ref=e28] [cursor=pointer]
+            - button "Add shortcut to Drive" [ref=e32] [cursor=pointer]
+            - 'button "Document status: Saved to Drive." [ref=e36]'
+        - generic [ref=e44]:
+          - button "1 hidden 1 viewer" [ref=e48] [cursor=pointer]:
+            - generic [ref=e51]: "1"
+          - button "Last edit was made 2 days ago by Soobin Choi" [ref=e55] [cursor=pointer]
+          - button "Show all comments" [ref=e59] [cursor=pointer]
+          - button "Join a call here or present this tab to the call" [ref=e63] [cursor=pointer]
+          - button "Share. syncly.app. Anyone in this group with the link can open" [ref=e69] [cursor=pointer]
+          - generic [ref=e73]:
+            - generic:
+              - button "Ask Gemini" [ref=e76] [cursor=pointer]:
+                - img [ref=e79]
+              - tooltip [ref=e82]: Ask Gemini
+          - 'button "Google Account: Affiliates Onzenna (affiliates@onzenna.com)" [ref=e85] [cursor=pointer]':
+            - img [ref=e86]
+    - generic [ref=e87]:
+      - menubar [ref=e89]:
+        - menuitem "File" [ref=e90] [cursor=pointer]
+        - menuitem "Edit" [ref=e91] [cursor=pointer]
+        - menuitem "View" [ref=e92] [cursor=pointer]
+        - menuitem "Insert" [ref=e93] [cursor=pointer]
+        - menuitem "Format" [ref=e94] [cursor=pointer]
+        - menuitem "Data" [ref=e95] [cursor=pointer]
+        - menuitem "Tools" [ref=e96] [cursor=pointer]
+        - menuitem "Gemini" [ref=e97] [cursor=pointer]
+        - menuitem "Extensions" [ref=e98] [cursor=pointer]
+        - menuitem "Help" [ref=e99] [cursor=pointer]
+      - generic [ref=e100]:
+        - generic [ref=e101]:
+          - toolbar "Search the menus (Alt+/)" [ref=e102]:
+            - combobox "Menus" [ref=e104]
+          - toolbar "Main" [ref=e105]:
+            - button "Undo (Ctrl+Z)" [ref=e106] [cursor=pointer]
+            - button "Redo (Ctrl+Y)" [ref=e111] [cursor=pointer]
+            - button "Print (Ctrl+P)" [ref=e116] [cursor=pointer]
+            - button "Paint format" [ref=e121] [cursor=pointer]
+            - combobox "Zoom" [ref=e126] [cursor=pointer]:
+              - option "Zoom list. 100% selected." [selected] [ref=e129]:
+                - textbox "Zoom" [ref=e130]: 100%
+            - separator [disabled] [ref=e134]
+            - button "Format as currency" [ref=e135] [cursor=pointer]:
+              - generic [ref=e137]: $
+            - button "Format as percent" [ref=e138] [cursor=pointer]:
+              - generic [ref=e140]: "%"
+            - button "Decrease decimal places" [ref=e141] [cursor=pointer]
+            - button "Increase decimal places" [ref=e146] [cursor=pointer]
+            - button "More formats" [ref=e151] [cursor=pointer]:
+              - generic [ref=e154]: "123"
+            - separator [disabled] [ref=e155]
+            - listbox "Font" [ref=e156] [cursor=pointer]:
+              - option "Font list. Default (Arial) selected." [selected] [ref=e159]: Default (Arial)
+            - separator [disabled] [ref=e163]
+            - button "Decrease font size (Ctrl+Shift+comma)" [ref=e164] [cursor=pointer]
+            - combobox "Font size" [ref=e169] [cursor=pointer]:
+              - option "Font size list. 10 selected." [selected] [ref=e172]:
+                - textbox "Font size" [ref=e173]: "10"
+            - button "Increase font size (Ctrl+Shift+period)" [ref=e174] [cursor=pointer]
+            - separator [disabled] [ref=e179]
+            - button "Bold (Ctrl+B)" [ref=e180] [cursor=pointer]
+            - button "Italic (Ctrl+I)" [ref=e185] [cursor=pointer]
+            - button "Strikethrough (Alt+Shift+5)" [ref=e190] [cursor=pointer]
+            - button "Text color" [ref=e195] [cursor=pointer]
+            - separator [disabled] [ref=e202]
+            - button "Fill color" [ref=e203] [cursor=pointer]
+            - button "Borders" [ref=e210] [cursor=pointer]
+            - button "Merge cells" [disabled] [ref=e216]
+            - button "Select merge type" [disabled] [ref=e221]
+            - separator [disabled] [ref=e227]
+            - button "More" [ref=e228] [cursor=pointer]
+        - toolbar "Mode and view" [ref=e235]:
+          - button "Hide the menus (Ctrl+Shift+F)" [ref=e236] [cursor=pointer]
+    - generic:
+      - generic:
+        - button "Show side panel" [pressed]:
+          - img [ref=e242] [cursor=pointer]
+    - generic [ref=e247]:
+      - generic "Name box (Ctrl + J)" [ref=e248]:
+        - textbox [ref=e249]: A1
+        - button "Name box menu button. Select one of the menu items to navigate to its corresponding named range." [ref=e251] [cursor=pointer]
+      - textbox [ref=e264]
+      - button "Summarize this data" [ref=e265] [cursor=pointer]:
+        - img [ref=e266]
+        - generic [ref=e268]: Summarize this data
+  - navigation "Sheet tab bar" [ref=e307]:
+    - toolbar [ref=e308]:
+      - button "Add Sheet" [ref=e309] [cursor=pointer]
+      - button "All Sheets" [ref=e314] [cursor=pointer]
+    - toolbar [ref=e321]:
+      - button "keyword별 업데이트내역" [ref=e322]:
+        - generic [ref=e326]: keyword별 업데이트내역
+    - toolbar [ref=e330]
+  - generic [ref=e331]:
+    - textbox [active]
+  - link "Turn on screen reader support" [ref=e332] [cursor=pointer]:
+    - /url: "#"
+  - textbox [ref=e333]
+  - region [ref=e334]: To enable screen reader support, press Ctrl+Alt+Z To learn about keyboard shortcuts, press Ctrl+slash
+  - region
+  - generic [ref=e335]: 쿼리 키워드
+  - generic [ref=e337]: Wonjun Choi has joined the document.

@@ -2148,6 +2148,8 @@ def collect_shopify(date_from: str, date_to: str) -> list[dict]:
             channel = "D2C"   # FBA MCF (fulfilled or rejected): sale is on Shopify, not Amazon Marketplace
         elif "amazon" in tags or "amazon" in source:
             channel = "Amazon"
+        elif "target" in source:
+            channel = "Target+"
         elif "tiktok" in tags or "tiktok" in source:
             channel = "TikTok"
         elif any(k in tags for k in ["b2b", "wholesale"]):

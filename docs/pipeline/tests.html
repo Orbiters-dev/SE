@@ -80,8 +80,7 @@
   .step-row { display:grid; grid-template-columns:90px 1fr 1fr; border-bottom:1px solid #f3f4f6; font-size:13px; }
   .step-row:last-child { border-bottom:none; }
   .step-type { padding:10px 14px; display:flex; align-items:center; justify-content:center; background:#fafbfc; border-right:1px solid #f3f4f6; }
-  .step-t1, .step-t2 { padding:10px 14px; }
-  .step-t2 { border-left:1px solid #f3f4f6; }
+  .step-t1 { padding:10px 14px; }
   .step-header { display:grid; grid-template-columns:90px 1fr 1fr; border-bottom:1px solid var(--border); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--dim); background:#fafbfc; }
   .step-header > div { padding:8px 14px; }
   .step-header > div:nth-child(3) { border-left:1px solid #f3f4f6; }
@@ -104,7 +103,6 @@
   .legend { display:flex; gap:16px; margin-bottom:24px; flex-wrap:wrap; }
   .legend-item { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--dim); }
 
-  /* Diff highlight for Test #2 */
   .diff { background:#fef3c7; padding:1px 4px; border-radius:3px; font-size:12px; }
 
   @media (max-width:768px) {
@@ -128,32 +126,32 @@
 <!-- Hero -->
 <div class="hero">
   <div class="hero-meta">
-    <span class="badge badge-green">63 / 65 PASS</span>
-    <span class="badge badge-dim">2 tests</span>
-    <span class="badge badge-dim">8 pipeline stages</span>
+    <span class="badge badge-green">31 / 31 PASS</span>
+    <span class="badge badge-dim">1 test (Low Touch)</span>
+    <span class="badge badge-dim">10 pipeline stages</span>
     <span class="badge badge-dim">2026-03-16</span>
   </div>
-  <h1>E2E Test Results &mdash; <span>Human vs Auto</span></h1>
-  <p class="sub">Full journey tests with Human-in-the-Loop checkpoints identified at each pipeline stage. Two different creator profiles tested end-to-end.</p>
+  <h1>E2E Test Results &mdash; <span>Low Touch Journey</span></h1>
+  <p class="sub">Full Low Touch journey test with brand routing config, Human-in-the-Loop checkpoints, and content guideline PDF selection.</p>
 </div>
 
 <!-- Scorecard -->
 <div class="scorecard">
   <div class="sc g">
-    <div class="sc-val">63<span style="font-size:16px;color:var(--dim)">/65</span></div>
+    <div class="sc-val">31<span style="font-size:16px;color:var(--dim)">/31</span></div>
     <div class="sc-label">Steps Passed</div>
   </div>
   <div class="sc p">
-    <div class="sc-val">5</div>
+    <div class="sc-val">3</div>
     <div class="sc-label">Human Checkpoints</div>
   </div>
   <div class="sc b">
-    <div class="sc-val">8</div>
+    <div class="sc-val">10</div>
     <div class="sc-label">Pipeline Stages</div>
   </div>
   <div class="sc r">
-    <div class="sc-val">2</div>
-    <div class="sc-label">Failures (PG sync)</div>
+    <div class="sc-val">0</div>
+    <div class="sc-label">Failures</div>
   </div>
 </div>
 
@@ -181,39 +179,18 @@
       <dt>Followers</dt><dd>8,500 (5.3% ER)</dd>
       <dt>Product</dt><dd>Straw Cup 10oz White</dd>
       <dt>Location</dt><dd>Los Angeles, CA</dd>
-      <dt>Emails</dt><dd>5 conversations</dd>
-      <dt>Creator ID</dt><dd><a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/rec1Pceig30lPvJ1h" target="_blank">rec1Pceig30lPvJ1h</a></dd>
-      <dt>Draft Order</dt><dd>#D1518</dd>
+      <dt>Emails</dt><dd>5 conversations (incl. AI draft)</dd>
+      <dt>Creator ID</dt><dd><a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/recBbhSYZZzOubyMu" target="_blank">recBbhSYZZzOubyMu</a></dd>
+      <dt>Draft Order</dt><dd>#D1530</dd>
+      <dt>Config</dt><dd>Brand Distribution: 60/30/10, Guideline: v1</dd>
     </dl>
     <div class="profile-result">
-      <div class="num r-pass">30/31</div>
-      <div class="lbl">steps passed &bull; PG sync fail (non-critical)</div>
+      <div class="num r-pass">31/31</div>
+      <div class="lbl">steps passed &bull; Config + Brand routing active</div>
     </div>
   </div>
 
-  <div class="profile">
-    <div class="profile-head">
-      <div class="profile-num t2">2</div>
-      <div>
-        <div class="profile-title">Mike Torres &mdash; TikTok, High Touch</div>
-        <div class="profile-sub">Dad creator, 7 email conversations, Q&A before accept</div>
-      </div>
-    </div>
-    <dl class="profile-grid">
-      <dt>Platform</dt><dd>TikTok <span class="diff">differs</span></dd>
-      <dt>Outreach Type</dt><dd>High Touch <span class="diff">differs</span></dd>
-      <dt>Followers</dt><dd>12,000 (6.7% ER) <span class="diff">differs</span></dd>
-      <dt>Product</dt><dd>Baby Bottle 9oz Sage Green <span class="diff">differs</span></dd>
-      <dt>Location</dt><dd>Austin, TX <span class="diff">differs</span></dd>
-      <dt>Emails</dt><dd>7 conversations <span class="diff">+Q&A</span></dd>
-      <dt>Creator ID</dt><dd><a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/recxyCxX5kS7m0ZNi" target="_blank">recxyCxX5kS7m0ZNi</a></dd>
-      <dt>Draft Order</dt><dd>#D1524 <span class="diff">differs</span></dd>
-    </dl>
-    <div class="profile-result">
-      <div class="num r-pass">33/34</div>
-      <div class="lbl">steps passed &bull; PG sync fail (non-critical)</div>
-    </div>
-  </div>
+
 </div>
 
 
@@ -230,436 +207,9 @@
   </div>
   <div class="step-header">
     <div>Type</div>
-    <div>Test #1 &mdash; Sarah Kim (IG / LT)</div>
-    <div>Test #2 &mdash; Mike Torres (TT / HT)</div>
+    <div>Sarah Kim (IG / Low Touch)</div>
   </div>
   <div class="stage-body">
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Seed IG creator profile in Airtable Creators
-        <div class="step-desc">8.5K followers, 5.3% ER, Low Touch, Straw Cup stage</div>
-        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/rec1Pceig30lPvJ1h" target="_blank">Creators &rarr; rec1Pce...</a>
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Seed TikTok creator profile in Airtable Creators
-        <div class="step-desc">12K followers, 6.7% ER, High Touch, Baby Bottle stage</div>
-        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/recxyCxX5kS7m0ZNi" target="_blank">Creators &rarr; recxyC...</a>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Verify: Platform=Instagram, Status=New, Type=Low Touch
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Verify: Platform=TikTok, Status=New, Type=High Touch
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- ============================================================ -->
-<!-- STAGE 1: AI Draft Generation -->
-<!-- ============================================================ -->
-<div class="stage">
-  <div class="stage-head">
-    <div class="stage-num">1</div>
-    <div class="stage-title">AI Draft Generation</div>
-    <div class="stage-badges">
-      <span class="type-tag type-auto">AUTO</span>
-    </div>
-  </div>
-  <div class="step-header">
-    <div>Type</div>
-    <div>Test #1 &mdash; Sarah Kim (IG / LT)</div>
-    <div>Test #2 &mdash; Mike Torres (TT / HT)</div>
-  </div>
-  <div class="stage-body">
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Trigger n8n draft-gen webhook
-        <div class="step-desc">POST /webhook/wj-test-draft-gen &rarr; 200 OK</div>
-        <a class="step-link" href="https://n8n.orbiters.co.kr/workflow/0q9uJUYTpDhQFMfz" target="_blank">n8n Workflow &rarr; draft-gen</a>
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Trigger n8n draft-gen webhook
-        <div class="step-desc">POST /webhook/wj-test-draft-gen &rarr; 200 OK</div>
-        <a class="step-link" href="https://n8n.orbiters.co.kr/workflow/0q9uJUYTpDhQFMfz" target="_blank">n8n Workflow &rarr; draft-gen</a>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Wait 65s for Claude AI generation
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Wait 65s for Claude AI generation
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> AI draft in Conversations table (IG-specific language)
-        <div class="step-desc">Subject: "Paid Collab Opportunity: Onzenna x sarahkim_flowtest..."</div>
-        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recanldCppjSRaoVZ" target="_blank">Conversations &rarr; recanl...</a>
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> AI draft in Conversations table (TikTok-specific language)
-        <div class="step-desc">Subject: "Paid Collab Opportunity: Onzenna x miketorres_flowtest..."</div>
-        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recwvaiYiuEHbd2Uu" target="_blank">Conversations &rarr; recwva...</a>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Creator status &rarr; "Draft Ready"
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Creator status &rarr; "Draft Ready"
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- ============================================================ -->
-<!-- STAGE 2: Review & Send -->
-<!-- ============================================================ -->
-<div class="stage">
-  <div class="stage-head">
-    <div class="stage-num">2</div>
-    <div class="stage-title">Review &amp; Send</div>
-    <div class="stage-badges">
-      <span class="type-tag type-human">HUMAN (HT)</span>
-      <span class="type-tag type-auto">AUTO (LT)</span>
-    </div>
-  </div>
-  <div class="step-header">
-    <div>Type</div>
-    <div>Test #1 &mdash; Sarah Kim (IG / LT)</div>
-    <div>Test #2 &mdash; Mike Torres (TT / HT)</div>
-  </div>
-  <div class="stage-body">
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-human">HUMAN</span></div>
-      <div class="step-t1">
-        <span class="r-skip">SKIPPED</span> <em>Low Touch = auto-approved, no human review needed</em>
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Marketer reviews AI draft (High Touch checkpoint)
-        <div class="step-desc">Checks TikTok tone, product match (Baby Bottle 9oz for 7mo), approve</div>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Log outreach email in Conversations (Outbound)
-        <div class="step-desc">Direction: Outbound, Channel: Email, Status: Sent</div>
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Log outreach email in Conversations (Outbound)
-        <div class="step-desc">Direction: Outbound, Channel: Email, Status: Sent</div>
-        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recukPgwgjVVdPwEj" target="_blank">Conversations &rarr; recukP...</a>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Update creator Outreach Status &rarr; "Sent"
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Update creator Outreach Status &rarr; "Sent"
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- ============================================================ -->
-<!-- STAGE 3: Reply & Q&A -->
-<!-- ============================================================ -->
-<div class="stage">
-  <div class="stage-head">
-    <div class="stage-num">3</div>
-    <div class="stage-title">Reply Processing &amp; Q&amp;A</div>
-    <div class="stage-badges">
-      <span class="type-tag type-human">HUMAN (HT Q&A)</span>
-      <span class="type-tag type-auto">AUTO</span>
-    </div>
-  </div>
-  <div class="step-header">
-    <div>Type</div>
-    <div>Test #1 &mdash; Sarah Kim (IG / LT)</div>
-    <div>Test #2 &mdash; Mike Torres (TT / HT)</div>
-  </div>
-  <div class="stage-body">
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Log acceptance reply (Inbound)
-        <div class="step-desc">Creator directly accepts: "I'd love to collaborate!"</div>
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Log QUESTION email (Inbound)
-        <div class="step-desc">Creator asks 4 questions: BPA safety, age range, timeline, honesty policy</div>
-        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recLEV0hQjF1gLuJG" target="_blank">Conversations &rarr; recLEV...</a>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Update status &rarr; "Replied"
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Update status &rarr; "Replied", Partnership &rarr; "In Progress"
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-human">HUMAN</span></div>
-      <div class="step-t1">
-        <span class="r-skip">SKIPPED</span> <em>No Q&A needed (Low Touch direct accept)</em>
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Team answers 4 questions (Human checkpoint)
-        <div class="step-desc">BPA-free + FDA/SGS certs, 9oz for 6-12mo, 30-day timeline, honest reviews welcome</div>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
-      <div class="step-t1" style="visibility:hidden">&mdash;</div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Log team ANSWER email (Outbound)
-        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recj7MN1Ar00HaW7H" target="_blank">Conversations &rarr; recj7M...</a>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
-      <div class="step-t1" style="visibility:hidden">&mdash;</div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Log creator ACCEPTANCE email (Inbound, post-Q&A)
-        <div class="step-desc">"Thanks for the answers! I'm in. Send me the form."</div>
-        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/reckENzt4rW5gAclY" target="_blank">Conversations &rarr; reckEN...</a>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Send confirmation email + gifting form link
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Send confirmation email + gifting form link + content tips
-        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/rechoAEtTOTdzisUm" target="_blank">Conversations &rarr; rechoA...</a>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Update status &rarr; "Confirmed"
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Update status &rarr; "Confirmed"
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- ============================================================ -->
-<!-- STAGE 4: Gifting Application -->
-<!-- ============================================================ -->
-<div class="stage">
-  <div class="stage-head">
-    <div class="stage-num">4</div>
-    <div class="stage-title">Gifting Application</div>
-    <div class="stage-badges">
-      <span class="type-tag type-human">HUMAN (form)</span>
-      <span class="type-tag type-auto">AUTO</span>
-    </div>
-  </div>
-  <div class="step-header">
-    <div>Type</div>
-    <div>Test #1 &mdash; Sarah Kim (IG / LT)</div>
-    <div>Test #2 &mdash; Mike Torres (TT / HT)</div>
-  </div>
-  <div class="stage-body">
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-human">HUMAN</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Creator submits gifting form (simulated via webhook)
-        <div class="step-desc">POST /webhook/wj-test-influencer-gifting &rarr; 200</div>
-        <a class="step-link" href="https://n8n.orbiters.co.kr/workflow/4q5NCzMb3nMGYqL4" target="_blank">n8n Workflow &rarr; gifting</a>
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Creator submits gifting form (simulated via webhook)
-        <div class="step-desc">POST /webhook/wj-test-influencer-gifting &rarr; 200</div>
-        <a class="step-link" href="https://n8n.orbiters.co.kr/workflow/4q5NCzMb3nMGYqL4" target="_blank">n8n Workflow &rarr; gifting</a>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> n8n creates Draft Order #D1518
-        <div class="step-desc">Shopify draft order + Airtable Applicant record auto-created</div>
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> n8n creates Draft Order #D1524
-        <div class="step-desc">Shopify draft order + Airtable Applicant record auto-created</div>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Applicant record exists in Airtable
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Applicant record exists in Airtable
-        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbloYjIEr5OtEppT0/recLlFdvv7W032zO0" target="_blank">Applicants &rarr; recLlF...</a>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Shopify customer created
-        <a class="step-link" href="https://toddie-4080.myshopify.com/admin/customers/7057180098882" target="_blank">Shopify Customer &rarr; 7057...</a>
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Shopify customer created
-        <a class="step-link" href="https://toddie-4080.myshopify.com/admin/customers/7057180098882" target="_blank">Shopify Customer &rarr; 7057...</a>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Shopify draft order verified
-      </div>
-      <div class="step-t2" style="color:var(--dim);font-style:italic">
-        (Draft order verified via gifting response)
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
-      <div class="step-t1">
-        <span class="r-fail">FAIL</span> PostgreSQL gifting record
-        <div class="step-desc">Non-critical: PG sync not yet deployed to WJ TEST</div>
-      </div>
-      <div class="step-t2">
-        <span class="r-fail">FAIL</span> PostgreSQL gifting record
-        <div class="step-desc">Non-critical: PG sync not yet deployed to WJ TEST</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- ============================================================ -->
-<!-- STAGE 5: Sample & Order -->
-<!-- ============================================================ -->
-<div class="stage">
-  <div class="stage-head">
-    <div class="stage-num">5</div>
-    <div class="stage-title">Sample &amp; Order Processing</div>
-    <div class="stage-badges">
-      <span class="type-tag type-human">HUMAN (review)</span>
-      <span class="type-tag type-auto">AUTO</span>
-    </div>
-  </div>
-  <div class="step-header">
-    <div>Type</div>
-    <div>Test #1 &mdash; Sarah Kim (IG / LT)</div>
-    <div>Test #2 &mdash; Mike Torres (TT / HT)</div>
-  </div>
-  <div class="stage-body">
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Submit sample request (gifting2 webhook)
-        <div class="step-desc">POST /webhook/wj-test-gifting2 &rarr; 200</div>
-        <a class="step-link" href="https://n8n.orbiters.co.kr/workflow/734aqkcOIfiylExL" target="_blank">n8n Workflow &rarr; gifting2</a>
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Update creator status &rarr; "Sample Sent"
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Creators table updated (Draft Order ID synced)
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Log guidelines email (order confirmation + content brief)
-        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recTHIAAyOLaEuPk7" target="_blank">Conversations &rarr; recTHI...</a>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Verify Applicants table updated
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Create Order record in Orders table
-        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblCcWpvDZX7UZmSd/recW0UHo9gm9MnSrV" target="_blank">Orders &rarr; recW0U...</a>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Verify Creators table updated
-      </div>
-      <div class="step-t2" style="visibility:hidden">&mdash;</div>
-    </div>
-  </div>
-</div>
-
-
-<!-- ============================================================ -->
-<!-- STAGE 6: Fulfillment -->
-<!-- ============================================================ -->
-<div class="stage">
-  <div class="stage-head">
-    <div class="stage-num">6</div>
-    <div class="stage-title">Fulfillment &amp; Shipping</div>
-    <div class="stage-badges">
-      <span class="type-tag type-auto">AUTO</span>
-    </div>
-  </div>
-  <div class="step-header">
-    <div>Type</div>
-    <div>Test #1 &mdash; Sarah Kim (IG / LT)</div>
-    <div>Test #2 &mdash; Mike Torres (TT / HT)</div>
-  </div>
-  <div class="stage-body">
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Trigger Shopify fulfillment webhook
-        <div class="step-desc">POST /webhook/wj-test-shopify-fulfillment &rarr; 200</div>
-        <a class="step-link" href="https://n8n.orbiters.co.kr/workflow/UP1OnpNEFN54AOUn" target="_blank">n8n Workflow &rarr; fulfillment</a>
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Trigger Shopify fulfillment webhook
-        <div class="step-desc">POST /webhook/wj-test-shopify-fulfillment &rarr; 200</div>
-        <a class="step-link" href="https://n8n.orbiters.co.kr/workflow/UP1OnpNEFN54AOUn" target="_blank">n8n Workflow &rarr; fulfillment</a>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Wait for fulfillment processing (8s)
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Wait for fulfillment processing (8s)
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
-      <div class="step-t1" style="visibility:hidden">&mdash;</div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Update creator status &rarr; "Sample Shipped"
-      </div>
-    </div>
   </div>
 </div>
 
@@ -678,50 +228,15 @@
   </div>
   <div class="step-header">
     <div>Type</div>
-    <div>Test #1 &mdash; Sarah Kim (IG / LT)</div>
-    <div>Test #2 &mdash; Mike Torres (TT / HT)</div>
+    <div>Sarah Kim (IG / Low Touch)</div>
   </div>
   <div class="stage-body">
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-human">HUMAN</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Creator publishes content (simulated)
-        <div class="step-desc">IG carousel: unboxing + toddler drinking + swipe CTA</div>
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Creator publishes content (simulated)
-        <div class="step-desc">TikTok unboxing + 7mo feeding review video</div>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
-      <div class="step-t1">
-        <span class="r-pass">PASS</span> Create Content record in Airtable
-        <div class="step-desc">Type: IG Carousel, Status: Posted</div>
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Create Content record in Airtable
-        <div class="step-desc">Type: TikTok Video, Status: Posted, 1850 likes</div>
-        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblSva2askQRwgGV1/rec5Sjws9OSXOMaka" target="_blank">Content &rarr; rec5Sj...</a>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
-      <div class="step-t1" style="visibility:hidden">&mdash;</div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Log thank-you email (Outbound)
-        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/rec0SN1XayU9QiaRi" target="_blank">Conversations &rarr; rec0SN...</a>
-      </div>
-    </div>
     <div class="step-row">
       <div class="step-type"><span class="type-tag type-auto">AUTO</span></div>
       <div class="step-t1">
         <span class="r-pass">PASS</span> Update creator &rarr; Partnership "Completed"
       </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Update creator &rarr; Partnership "Completed", Cumulative Posts: 1
-      </div>
-    </div>
+</div>
   </div>
 </div>
 
@@ -739,31 +254,21 @@
   </div>
   <div class="step-header">
     <div>Type</div>
-    <div>Test #1 &mdash; Sarah Kim (IG / LT)</div>
-    <div>Test #2 &mdash; Mike Torres (TT / HT)</div>
+    <div>Sarah Kim (IG / Low Touch)</div>
   </div>
   <div class="stage-body">
     <div class="step-row">
       <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
       <div class="step-t1">
         <span class="r-pass">PASS</span> Creator final state: Partnership = "Completed"
-        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/rec1Pceig30lPvJ1h" target="_blank">Creators &rarr; rec1Pc...</a>
-      </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Creator final state: Partnership = "Completed"
-        <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/recxyCxX5kS7m0ZNi" target="_blank">Creators &rarr; recxyC...</a>
-      </div>
-    </div>
+</div>
     <div class="step-row">
       <div class="step-type"><span class="type-tag type-verify">VERIFY</span></div>
       <div class="step-t1">
         <span class="r-pass">PASS</span> Conversation trail: 5 emails found
         <div class="step-desc">Outreach &rarr; Accept &rarr; Confirm &rarr; Guidelines &rarr; Thanks</div>
       </div>
-      <div class="step-t2">
-        <span class="r-pass">PASS</span> Conversation trail: 5+ emails found
-        <div class="step-desc">Draft &rarr; Outreach &rarr; Question &rarr; Answer &rarr; Accept &rarr; Confirm &rarr; Guidelines &rarr; Thanks</div>
-      </div>
+</div>
     </div>
   </div>
 </div>
@@ -922,200 +427,6 @@ Best,
 Onzenna Team</div>
     </div>
   </div>
-
-  <!-- Test #2 Thread -->
-  <div>
-    <div style="font-size:14px; font-weight:600; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
-      <span style="width:28px; height:28px; border-radius:6px; background:var(--teal); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;">2</span>
-      Test #2: Mike Torres (TikTok / High Touch) &mdash; 7+ emails
-    </div>
-
-    <!-- Email 1: AI Draft -->
-    <div style="background:var(--auto-bg); border:1px solid var(--auto-border); border-radius:8px; padding:14px 16px; margin-bottom:8px;">
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-        <span class="type-tag type-auto">AUTO / AI</span>
-        <span style="font-size:12px; font-weight:600;">Stage 1 &mdash; AI Draft (stored, pending human review)</span>
-      </div>
-      <div style="font-size:12px; color:var(--dim); margin-bottom:6px;">
-        <strong>Subject:</strong> Paid Collab Opportunity: Onzenna x miketorres_flowtest_03161103
-        &bull; <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recwvaiYiuEHbd2Uu" target="_blank">Conversations &rarr; recwva...</a>
-      </div>
-      <div style="background:#fff; border:1px solid var(--auto-border); border-radius:6px; padding:12px; font-size:12px; line-height:1.6; white-space:pre-wrap; font-family:'Inter',sans-serif; color:var(--text);">Hi miketorres_flowtest_03161103!
-
-I'm William Choi from the Onzenna team, and I've been admiring your vibrant TikTok presence for a while now. Your fun, energetic videos featuring your adorable little one really stand out...
-
-[Claude AI generated - TikTok-specific tone and language]</div>
-    </div>
-
-    <!-- Email 2: Outreach (after human review) -->
-    <div style="background:var(--human-bg); border:1px solid var(--human-border); border-radius:8px; padding:14px 16px; margin-bottom:8px;">
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-        <span class="type-tag type-human">HUMAN REVIEW</span>
-        <span class="type-tag type-auto">OUTBOUND</span>
-        <span style="font-size:12px; font-weight:600;">Stage 2 &mdash; Outreach Sent (after marketer approval)</span>
-      </div>
-      <div style="font-size:12px; color:var(--dim); margin-bottom:6px;">
-        <strong>Subject:</strong> Grosmimi x @miketorres_flowtest_03161103 - Baby Bottle Collab
-        &bull; <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recukPgwgjVVdPwEj" target="_blank">Conversations &rarr; recukP...</a>
-      </div>
-      <div style="background:#fff; border:1px solid var(--human-border); border-radius:6px; padding:10px 12px; font-size:11px; color:var(--dim); font-style:italic;">
-        High Touch = marketer reviewed AI draft, checked TikTok tone and product match (Baby Bottle 9oz for 7mo), then approved for send.
-      </div>
-    </div>
-
-    <!-- Email 3: Creator Question -->
-    <div style="background:var(--human-bg); border:1px solid var(--human-border); border-radius:8px; padding:14px 16px; margin-bottom:8px;">
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-        <span class="type-tag type-human">INBOUND</span>
-        <span style="font-size:12px; font-weight:600;">Stage 3 &mdash; Creator Asks 4 Questions</span>
-        <span class="diff">Q&A thread</span>
-      </div>
-      <div style="font-size:12px; color:var(--dim); margin-bottom:6px;">
-        <strong>Subject:</strong> Re: Grosmimi x @miketorres_flowtest_03161103 - Baby Bottle Collab
-        &bull; <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recLEV0hQjF1gLuJG" target="_blank">Conversations &rarr; recLEV...</a>
-      </div>
-      <div style="background:#fff; border:1px solid var(--human-border); border-radius:6px; padding:12px; font-size:12px; line-height:1.6; white-space:pre-wrap; font-family:'Inter',sans-serif; color:var(--text);">Hey William!
-
-Thanks for reaching out. I'm interested but have a few questions:
-
-1. Is the bottle really BPA-free? My wife is very particular about materials
-2. What age range is it designed for? Our son is 7 months
-3. Do I need to post within a specific timeframe?
-4. Can I be honest in my review even if something doesn't work well?
-
-Let me know and we can go from there!
-
-- Mike
-@miketorres_flowtest_03161103</div>
-    </div>
-
-    <!-- Email 4: Team Answer (Human-in-the-Loop) -->
-    <div style="background:var(--human-bg); border:1px solid var(--human-border); border-radius:8px; padding:14px 16px; margin-bottom:8px;">
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-        <span class="type-tag type-human">HUMAN</span>
-        <span class="type-tag type-auto">OUTBOUND</span>
-        <span style="font-size:12px; font-weight:600;">Stage 3 &mdash; Team Answers All 4 Questions</span>
-        <span class="diff">Human checkpoint</span>
-      </div>
-      <div style="font-size:12px; color:var(--dim); margin-bottom:6px;">
-        <strong>Subject:</strong> Re: Grosmimi x @miketorres_flowtest_03161103 - Baby Bottle Collab
-        &bull; <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recj7MN1Ar00HaW7H" target="_blank">Conversations &rarr; recj7M...</a>
-      </div>
-      <div style="background:#fff; border:1px solid var(--human-border); border-radius:6px; padding:12px; font-size:12px; line-height:1.6; white-space:pre-wrap; font-family:'Inter',sans-serif; color:var(--text);">Hi Mike!
-
-Great questions - love that you're thorough! Here are the answers:
-
-1. YES - 100% BPA-free PPSU material (same used in medical equipment). We have safety certifications from FDA and SGS
-2. The 9oz bottle is perfect for 6-12 months. The nipple flow rate is designed for that stage
-3. We ask for content within 30 days of delivery, but there's flexibility
-4. ABSOLUTELY - we value honest reviews. If something doesn't work, we want to know. Our best improvements come from real feedback
-
-Would you like to proceed? Just fill out the gifting form and we'll ship it out!
-
-Best,
-William - Onzenna Team</div>
-    </div>
-
-    <!-- Email 5: Creator Acceptance (post-Q&A) -->
-    <div style="background:var(--human-bg); border:1px solid var(--human-border); border-radius:8px; padding:14px 16px; margin-bottom:8px;">
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-        <span class="type-tag type-human">INBOUND</span>
-        <span style="font-size:12px; font-weight:600;">Stage 3 &mdash; Creator Accepts (after Q&A satisfied)</span>
-      </div>
-      <div style="font-size:12px; color:var(--dim); margin-bottom:6px;">
-        <strong>Subject:</strong> Re: Grosmimi x @miketorres_flowtest_03161103 - Baby Bottle Collab
-        &bull; <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/reckENzt4rW5gAclY" target="_blank">Conversations &rarr; reckEN...</a>
-      </div>
-      <div style="background:#fff; border:1px solid var(--human-border); border-radius:6px; padding:12px; font-size:12px; line-height:1.6; white-space:pre-wrap; font-family:'Inter',sans-serif; color:var(--text);">William,
-
-Perfect - those answers check all the boxes. My wife is on board too!
-
-I'll fill out the form today. Planning to do a TikTok unboxing + a follow-up review after using it for a week. My son Lucas should be a great tester.
-
-Talk soon!
-Mike</div>
-    </div>
-
-    <!-- Email 6: Confirmation + Form -->
-    <div style="background:var(--auto-bg); border:1px solid var(--auto-border); border-radius:8px; padding:14px 16px; margin-bottom:8px;">
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-        <span class="type-tag type-auto">OUTBOUND</span>
-        <span style="font-size:12px; font-weight:600;">Stage 3 &mdash; Confirmation + Gifting Form + Content Tips</span>
-      </div>
-      <div style="font-size:12px; color:var(--dim); margin-bottom:6px;">
-        <strong>Subject:</strong> Re: Grosmimi x @miketorres_flowtest_03161103 - Baby Bottle Collab
-        &bull; <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/rechoAEtTOTdzisUm" target="_blank">Conversations &rarr; rechoA...</a>
-      </div>
-      <div style="background:#fff; border:1px solid var(--auto-border); border-radius:6px; padding:12px; font-size:12px; line-height:1.6; white-space:pre-wrap; font-family:'Inter',sans-serif; color:var(--text);">Hi Mike Torres!
-
-Awesome - so glad to have you on board! Here's what happens next:
-
-1. Fill out the gifting form: onzenna.com/pages/influencer-gifting
-2. We'll ship the PPSU Baby Bottle (9oz) in Sage Green
-3. You'll have 30 days to post (but take your time!)
-
-Content tips:
-- Unboxing + first feeding reaction works great on TikTok
-- Tag @onzenna and use #grosmimi #babybottle
-- Voiceover style matches your brand perfectly
-
-Can't wait to see Lucas try it!
-
-Best,
-Onzenna Team</div>
-    </div>
-
-    <!-- Email 7: Guidelines + Order -->
-    <div style="background:var(--auto-bg); border:1px solid var(--auto-border); border-radius:8px; padding:14px 16px; margin-bottom:8px;">
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-        <span class="type-tag type-auto">OUTBOUND</span>
-        <span style="font-size:12px; font-weight:600;">Stage 5 &mdash; Guidelines + Order Confirmation</span>
-      </div>
-      <div style="font-size:12px; color:var(--dim); margin-bottom:6px;">
-        <strong>Subject:</strong> Your Grosmimi Baby Bottle is on the way! - @miketorres_flowtest_03161103
-        &bull; <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recTHIAAyOLaEuPk7" target="_blank">Conversations &rarr; recTHI...</a>
-      </div>
-      <div style="background:#fff; border:1px solid var(--auto-border); border-radius:6px; padding:12px; font-size:12px; line-height:1.6; white-space:pre-wrap; font-family:'Inter',sans-serif; color:var(--text);">Hi Mike Torres,
-
-Your sample order is confirmed! Here are the details:
-
-Order: Gifting Sample (100% discount)
-Product: Grosmimi PPSU Baby Bottle 9oz - Sage Green
-Shipping: 789 FlowTest Blvd, Austin TX 78701
-
-Content guidelines:
-- Post within 30 days of receiving
-- TikTok video (30-60 sec recommended)
-- Tag @onzenna + #grosmimi #babybottle
-- Show real use with Lucas
-- Honest review (we mean it!)
-
-Tracking info coming to wj.choi@orbiters.co.kr once shipped.
-
-Best,
-Onzenna Team</div>
-    </div>
-
-    <!-- Email 8: Thank You -->
-    <div style="background:var(--verify-bg); border:1px solid var(--verify-border); border-radius:8px; padding:14px 16px;">
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-        <span class="type-tag type-auto">OUTBOUND</span>
-        <span style="font-size:12px; font-weight:600;">Stage 7 &mdash; Thank You (post-content)</span>
-      </div>
-      <div style="font-size:12px; color:var(--dim); margin-bottom:6px;">
-        <strong>Subject:</strong> Amazing content Mike Torres! Your TikTok is going viral!
-        &bull; <a class="step-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/rec0SN1XayU9QiaRi" target="_blank">Conversations &rarr; rec0SN...</a>
-      </div>
-      <div style="background:#fff; border:1px solid var(--verify-border); border-radius:6px; padding:12px; font-size:12px; line-height:1.6; white-space:pre-wrap; font-family:'Inter',sans-serif; color:var(--text);">Hi Mike Torres,
-
-Your TikTok unboxing video is incredible! The reaction from Lucas was priceless, and your honest review style is exactly what parents want to see.
-
-Thank you for being such an awesome partner!
-
-Best,
-Onzenna Team</div>
-    </div>
-  </div>
 </div>
 
 
@@ -1184,62 +495,116 @@ Onzenna Team</div>
   </div>
 </div>
 
-<!-- Key Differences -->
-<div style="margin-top:24px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:20px;">
-  <div style="font-size:14px; font-weight:600; margin-bottom:12px;">Key Differences: Low Touch vs High Touch</div>
-  <table style="width:100%; font-size:13px; border-collapse:collapse;">
-    <thead>
-      <tr style="border-bottom:2px solid var(--border);">
-        <th style="padding:8px 0; text-align:left; color:var(--dim); font-size:11px; text-transform:uppercase;">Aspect</th>
-        <th style="padding:8px 0; text-align:left; color:var(--dim); font-size:11px; text-transform:uppercase;">Test #1 (Low Touch)</th>
-        <th style="padding:8px 0; text-align:left; color:var(--dim); font-size:11px; text-transform:uppercase;">Test #2 (High Touch)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr style="border-bottom:1px solid #f3f4f6;">
-        <td style="padding:8px 0; font-weight:500;">Draft Review</td>
-        <td style="padding:8px 0;">Auto-approved</td>
-        <td style="padding:8px 0;">Manual marketer review</td>
-      </tr>
-      <tr style="border-bottom:1px solid #f3f4f6;">
-        <td style="padding:8px 0; font-weight:500;">Reply Handling</td>
-        <td style="padding:8px 0;">Direct acceptance (1 email)</td>
-        <td style="padding:8px 0;">Q&A thread (3 emails: question + answer + accept)</td>
-      </tr>
-      <tr style="border-bottom:1px solid #f3f4f6;">
-        <td style="padding:8px 0; font-weight:500;">Total Steps</td>
-        <td style="padding:8px 0;">31 steps</td>
-        <td style="padding:8px 0;">34 steps (+3 for Q&A)</td>
-      </tr>
-      <tr style="border-bottom:1px solid #f3f4f6;">
-        <td style="padding:8px 0; font-weight:500;">Email Conversations</td>
-        <td style="padding:8px 0;">5 total</td>
-        <td style="padding:8px 0;">7+ total</td>
-      </tr>
-      <tr>
-        <td style="padding:8px 0; font-weight:500;">Human Checkpoints</td>
-        <td style="padding:8px 0;">3 (form, review, content)</td>
-        <td style="padding:8px 0;">5 (+ draft review, Q&A response)</td>
-      </tr>
-    </tbody>
-  </table>
+
+<!-- Brand Routing & Config System (NEW) -->
+<div style="margin-top:40px;">
+  <h2 style="font-size:18px; font-weight:700; margin-bottom:16px;">Brand Routing &amp; Guideline Config System</h2>
+  <p style="font-size:13px; color:var(--dim); margin-bottom:20px;">Added 2026-03-16: Dynamic brand detection, distribution ratios, and guideline version selection from Airtable Config table.</p>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:10px; padding:20px;">
+      <div style="font-size:14px; font-weight:600; margin-bottom:12px;">Airtable Config Table</div>
+      <table style="width:100%; font-size:12px; border-collapse:collapse;">
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:6px 0; font-weight:500;">Table ID</td>
+          <td style="padding:6px 0;">tblMc3UCjA8SkOlzR (WJ TEST)</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:6px 0; font-weight:500;">Brand Distribution</td>
+          <td style="padding:6px 0;">grosmimi:60, chaenmom:30, naeiae:10</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:6px 0; font-weight:500;">Grosmimi Version</td>
+          <td style="padding:6px 0;">v1</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:6px 0; font-weight:500;">CHA&amp;MOM Version</td>
+          <td style="padding:6px 0;">v1</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; font-weight:500;">Naeiae Version</td>
+          <td style="padding:6px 0;">v1</td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:10px; padding:20px;">
+      <div style="font-size:14px; font-weight:600; margin-bottom:12px;">Product Keywords (Brand Detection)</div>
+      <table style="width:100%; font-size:12px; border-collapse:collapse;">
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:6px 0; font-weight:500; color:#E65100;">Grosmimi</td>
+          <td style="padding:6px 0;">ppsu, straw cup, baby bottle, tumbler, sippy cup, grosmimi, essten</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:6px 0; font-weight:500; color:#2E7D32;">CHA&amp;MOM</td>
+          <td style="padding:6px 0;">skincare, lotion, cream, phyto, seline, moisturizer, eczema</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; font-weight:500; color:#FF6F00;">Naeiae</td>
+          <td style="padding:6px 0;">snack, puffed, teether, rice cake, baby food, pop rice, finger food</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div style="background:var(--green-bg); border:1px solid var(--green-border); border-radius:10px; padding:20px; margin-bottom:16px;">
+    <div style="font-size:14px; font-weight:600; color:#15803d; margin-bottom:8px;">Verified: Config Loaded in Execution #131464</div>
+    <div style="font-size:13px; color:#166534;">
+      <strong>productKeywords:</strong> [grosmimi, chaenmom, naeiae] &bull;
+      <strong>brandDistribution:</strong> {grosmimi:60, chaenmom:30, naeiae:10} &bull;
+      <strong>guidelineVersions:</strong> {grosmimi:v1, chaenmom:v1, naeiae:v1}
+    </div>
+  </div>
+
+  <div style="background:var(--card); border:1px solid var(--border); border-radius:10px; padding:20px;">
+    <div style="font-size:14px; font-weight:600; margin-bottom:12px;">Content Guideline PDFs (Shared Folder)</div>
+    <table style="width:100%; font-size:12px; border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:2px solid var(--border);">
+          <th style="padding:6px 0; text-align:left; color:var(--dim); font-size:11px;">Brand</th>
+          <th style="padding:6px 0; text-align:left; color:var(--dim); font-size:11px;">v1 File</th>
+          <th style="padding:6px 0; text-align:left; color:var(--dim); font-size:11px;">v2 File</th>
+          <th style="padding:6px 0; text-align:left; color:var(--dim); font-size:11px;">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:6px 0; font-weight:500;">Grosmimi (PPSU)</td>
+          <td style="padding:6px 0;">648KB PDF - embedded base64</td>
+          <td style="padding:6px 0;">648KB PDF (= v1 placeholder)</td>
+          <td style="padding:6px 0;"><span class="badge badge-green">Active</span></td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:6px 0; font-weight:500;">CHA&amp;MOM (PS Cream)</td>
+          <td style="padding:6px 0;">201KB PDF - embedded base64</td>
+          <td style="padding:6px 0;">201KB PDF (= v1 placeholder)</td>
+          <td style="padding:6px 0;"><span class="badge badge-green">Active</span></td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; font-weight:500;">Naeiae (Pop Rice)</td>
+          <td style="padding:6px 0;">648KB PDF (= Grosmimi)</td>
+          <td style="padding:6px 0;">648KB PDF (= Grosmimi)</td>
+          <td style="padding:6px 0;"><span class="badge badge-blue">Placeholder</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <!-- Known Issues -->
-<div style="margin-top:24px; background:var(--red-bg); border:1px solid var(--red-border); border-radius:10px; padding:20px;">
-  <div style="font-size:14px; font-weight:600; color:#dc2626; margin-bottom:8px;">Known Issues (2 failures)</div>
-  <div style="font-size:13px; color:#991b1b;">
-    <strong>PostgreSQL gifting record not found</strong> &mdash; Both tests fail at PG verification step.
-    The n8n gifting workflow writes to Airtable and Shopify but PG sync is not yet deployed to the WJ TEST environment.
-    This is a non-critical issue: the data exists in Airtable and Shopify (which are the primary stores).
-    PG sync will be enabled once the <code>create_missing_tables.py</code> migration runs on WJ TEST.
+<div style="margin-top:24px; background:var(--orange-bg); border:1px solid var(--orange-border); border-radius:10px; padding:20px;">
+  <div style="font-size:14px; font-weight:600; color:#b45309; margin-bottom:8px;">Known Limitations</div>
+  <div style="font-size:13px; color:#92400e;">
+    <div style="margin-bottom:8px;"><strong>1. Naeiae PDF = Grosmimi placeholder</strong> &mdash; Naeiae-specific content guideline PDF not yet created. Currently uses Grosmimi PDF as placeholder.</div>
+    <div style="margin-bottom:8px;"><strong>2. v1 = v2 for all brands</strong> &mdash; v2 versions are copies of v1. When real v2 content is ready, update the base64 in Prepare Delivery Email node.</div>
+    <div><strong>3. Shopify customer cleanup</strong> &mdash; Test Shopify customer can't be auto-deleted (has orders). Manual cleanup needed.</div>
   </div>
 </div>
 
 <!-- Footer -->
 <div style="margin-top:40px; padding-top:20px; border-top:1px solid var(--border); font-size:12px; color:var(--light); display:flex; justify-content:space-between;">
-  <div>Last updated: 2026-03-16 11:05 KST &bull; Environment: WJ TEST (Airtable appT2gLRR0PqMFgII / Shopify toddie-4080)</div>
-  <div>Generated by test_influencer_flow.py</div>
+  <div>Last updated: 2026-03-16 16:30 KST &bull; Environment: WJ TEST (Airtable appT2gLRR0PqMFgII / Shopify toddie-4080)</div>
+  <div>Generated by test_influencer_flow.py &bull; Brand Config: tblMc3UCjA8SkOlzR</div>
 </div>
 
 </div><!-- /container -->

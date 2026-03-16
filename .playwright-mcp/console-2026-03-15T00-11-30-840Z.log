@@ -1,0 +1,7 @@
+[    1449ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://docs.google.com/spreadsheets/d/1nla5CZPPeLSRe12vNMq0O4woG6duMXaboxG0d8nw6wQ/edit?gid=25647623#gid=25647623:0
+[  548973ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[  553054ms] [WARNING] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing. @ https://docs.google.com/drivesharing/clientmodel?id=1nla5CZPPeLSRe12vNMq0O4woG6duMXaboxG0d8nw6wQ&foreignService=ritz&authuser=0&origin=https%3A%2F%2Fdocs.google.com:0
+[  554532ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[  554790ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[  554805ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[  554808ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
