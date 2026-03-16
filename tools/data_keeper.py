@@ -150,8 +150,8 @@ SELLER_CONFIGS = [
         "name": "Orbitool", "brand": "CHA&MOM",
         "refresh_token": os.getenv("AMZ_SP_REFRESH_TOKEN_ORBITOOL",
                                    os.getenv("AMZ_SP_REFRESH_TOKEN", "")),
-        "client_id": AMZ_SP_CLIENT_ID,
-        "client_secret": AMZ_SP_CLIENT_SECRET,
+        "client_id": os.getenv("AMZ_SP_ORBITOOL_CLIENT_ID") or AMZ_SP_CLIENT_ID,
+        "client_secret": os.getenv("AMZ_SP_ORBITOOL_CLIENT_SECRET") or AMZ_SP_CLIENT_SECRET,
         "seller_id": "A3H2CLSAX0BTX6",
     },
 ]
@@ -972,9 +972,10 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
         return [], []
 
 
-def _get_our_asins() -> set:
-    """Get set of ASINs we sell from cached amazon_sales_sku_daily."""
+def _get_our_asins() -> tuple[set, dict]:
+    """Get set of ASINs we sell + ASIN->brand mapping from cached data."""
     asins = set()
+    asin_brand = {}  # asin -> brand
     cache_path = os.path.join(CACHE_DIR, "amazon_sales_sku_daily.json")
     if os.path.exists(cache_path):
         try:
@@ -983,6 +984,8 @@ def _get_our_asins() -> set:
             for r in rows:
                 if r.get("asin"):
                     asins.add(r["asin"])
+                    if r.get("brand"):
+                        asin_brand[r["asin"]] = r["brand"]
         except Exception:
             pass
     # Hardcoded fallback ASINs (top sellers) in case no cache
@@ -992,77 +995,98 @@ def _get_our_asins() -> set:
             "B09DD28LSF", "B09DD2CXTL", "B0DB7SPP2P", "B0DCV766MB",
             "B0F4CRT6LV", "B0F1XGS9JF", "B0FXKBPXTB",
         }
-    return asins
+    return asins, asin_brand
+
+
+# Category keywords to also capture competitor data for BSR-relevant search terms
+BA_CATEGORY_KEYWORDS = {
+    # Grosmimi / baby cups & bottles
+    "toddler cup", "toddler cups", "sippy cup", "straw cup", "baby cup",
+    "baby bottle", "ppsu bottle", "ppsu cup", "ppsu straw",
+    "toddler straw cup", "baby straw cup", "sippy cups for toddlers",
+    "training cup", "transition cup", "weighted straw cup",
+    # Naeiae / baby snacks
+    "baby snack", "baby rice puff", "baby puffs", "toddler snack",
+    "baby rice cracker", "baby teething wafer", "organic baby snack",
+    # CHA&MOM
+    "baby wipe", "baby wipes", "water wipes",
+}
 
 
 def collect_amazon_brand_analytics(date_from: str, date_to: str) -> list[dict]:
-    """Collect Amazon Brand Analytics Search Terms report (all sellers).
+    """Collect Amazon Brand Analytics Search Terms report.
 
     Uses SP-API Reports API with GET_BRAND_ANALYTICS_SEARCH_TERMS_REPORT.
-    Requires Brand Registry enrollment for each seller account.
-    Returns weekly search term data filtered to OUR ASINs only.
+    BA data is marketplace-wide (not seller-specific), so we only request
+    ONCE using the first available seller token — avoids 3x redundant 3GB downloads.
 
-    IMPORTANT: Full BA report is ~3GB (all Amazon search terms).
-    We stream-parse and only keep rows where one of clicked ASINs matches ours.
+    Returns weekly search term data filtered to OUR ASINs only.
+    Full BA report is ~3GB (all Amazon search terms); we stream-parse and
+    only keep rows where at least one clicked ASIN belongs to our catalog.
     """
     print("[Amazon Brand Analytics] Collecting...")
-    our_asins = _get_our_asins()
-    print(f"  Filtering to {len(our_asins)} known ASINs")
+    our_asins, asin_brand_map = _get_our_asins()
+    print(f"  Filtering to {len(our_asins)} known ASINs + {len(BA_CATEGORY_KEYWORDS)} category keywords")
     all_rows = []
 
-    for seller in SELLER_CONFIGS:
-        if not seller["refresh_token"]:
-            print(f"  [SKIP] {seller['name']}: no refresh token")
+    # BA data is marketplace-level — use first available seller token
+    seller = None
+    sp_token = None
+    for s in SELLER_CONFIGS:
+        if not s["refresh_token"]:
             continue
-
-        # Get SP-API access token
         try:
             r = requests.post("https://api.amazon.com/auth/o2/token", data={
                 "grant_type": "refresh_token",
-                "client_id": seller["client_id"],
-                "client_secret": seller["client_secret"],
-                "refresh_token": seller["refresh_token"],
+                "client_id": s["client_id"],
+                "client_secret": s["client_secret"],
+                "refresh_token": s["refresh_token"],
             }, timeout=30)
             r.raise_for_status()
             sp_token = r.json()["access_token"]
+            seller = s
+            break
         except Exception as e:
-            print(f"  [ERROR] {seller['name']} token: {e}")
+            print(f"  [WARN] {s['name']} token failed: {e}, trying next...")
             continue
 
-        sp_headers = {
-            "x-amz-access-token": sp_token,
-            "Content-Type": "application/json",
-        }
+    if not seller or not sp_token:
+        print("  [ERROR] No valid SP-API token available")
+        return []
 
-        # Brand Analytics reports are weekly — iterate week by week
-        d_from = datetime.strptime(date_from, "%Y-%m-%d").date()
-        d_to = datetime.strptime(date_to, "%Y-%m-%d").date()
-        seller_rows = []
+    print(f"  Using {seller['name']} token (BA data is marketplace-wide)")
+    sp_headers = {
+        "x-amz-access-token": sp_token,
+        "Content-Type": "application/json",
+    }
 
-        # Align to week boundaries (Sunday start for Amazon BA)
-        cur = d_from
-        while cur <= d_to:
-            week_end = min(cur + timedelta(days=6), d_to)
-            rows = _fetch_brand_analytics_report(
-                sp_headers, cur.isoformat(), week_end.isoformat(),
-                seller, AMZ_SP_MARKETPLACE_ID, our_asins
-            )
-            seller_rows.extend(rows)
-            cur = week_end + timedelta(days=1)
+    # Brand Analytics reports are weekly — iterate week by week
+    d_from = datetime.strptime(date_from, "%Y-%m-%d").date()
+    d_to = datetime.strptime(date_to, "%Y-%m-%d").date()
 
-        all_rows.extend(seller_rows)
-        print(f"  {seller['name']} ({seller['brand']}): {len(seller_rows)} search term rows")
+    cur = d_from
+    while cur <= d_to:
+        week_end = min(cur + timedelta(days=6), d_to)
+        rows = _fetch_brand_analytics_report(
+            sp_headers, cur.isoformat(), week_end.isoformat(),
+            seller, AMZ_SP_MARKETPLACE_ID, our_asins, asin_brand_map
+        )
+        all_rows.extend(rows)
+        cur = week_end + timedelta(days=1)
 
+    print(f"  Total: {len(all_rows)} search term rows (all brands combined)")
     return all_rows
 
 
-def _fetch_brand_analytics_report(headers, start, end, seller, marketplace_id, our_asins):
+def _fetch_brand_analytics_report(headers, start, end, seller, marketplace_id, our_asins, asin_brand_map=None):
     """Fetch a single Brand Analytics Search Terms report via SP-API.
 
     Streams the download to a temp file and parses line-by-line to avoid
     loading the full ~3GB JSON into memory. Only keeps rows where at least
     one of the top-3 clicked ASINs belongs to our catalog.
     """
+    if asin_brand_map is None:
+        asin_brand_map = {}
     try:
         body = {
             "reportType": "GET_BRAND_ANALYTICS_SEARCH_TERMS_REPORT",
@@ -1146,7 +1170,7 @@ def _fetch_brand_analytics_report(headers, start, end, seller, marketplace_id, o
         print(f"    Downloaded {total_bytes / 1024 / 1024:.1f} MB")
 
         # Parse with ijson (streaming) if available, else chunked read
-        rows = _parse_ba_report_streaming(tmp_path, is_gzip, start, end, seller, our_asins)
+        rows = _parse_ba_report_streaming(tmp_path, is_gzip, start, end, seller, our_asins, asin_brand_map)
 
         # Cleanup temp file
         try:
@@ -1161,15 +1185,16 @@ def _fetch_brand_analytics_report(headers, start, end, seller, marketplace_id, o
         return []
 
 
-def _parse_ba_report_streaming(tmp_path, is_gzip, start, end, seller, our_asins):
+def _parse_ba_report_streaming(tmp_path, is_gzip, start, end, seller, our_asins, asin_brand_map=None):
     """Parse Brand Analytics JSON report, filtering to our ASINs.
 
-    Uses chunked reading with a simple state machine to avoid loading
-    the entire 3GB+ file into memory at once. Each item in the
-    dataByDepartmentAndSearchTerm array is an independent object,
-    so we can parse one-by-one.
+    Uses ijson streaming parser to avoid loading the entire 3GB+ file
+    into memory. Each item in dataByDepartmentAndSearchTerm is parsed
+    independently. brand is resolved per-ASIN from asin_brand_map.
     """
     import ijson
+    if asin_brand_map is None:
+        asin_brand_map = {}
     rows = []
     total_items = 0
     matched_items = 0
@@ -1180,7 +1205,6 @@ def _parse_ba_report_streaming(tmp_path, is_gzip, start, end, seller, our_asins)
         else:
             f = open(tmp_path, "rb")
 
-        # ijson streams JSON objects from the array
         for item in ijson.items(f, "dataByDepartmentAndSearchTerm.item"):
             total_items += 1
 
@@ -1192,7 +1216,10 @@ def _parse_ba_report_streaming(tmp_path, is_gzip, start, end, seller, our_asins)
                     item_asins.append((i, a))
 
             has_our_asin = any(a in our_asins for _, a in item_asins)
-            if not has_our_asin:
+            # Also match category keywords for competitor analysis
+            search_term_lower = (item.get("searchTerm", "") or "").lower()
+            has_keyword = search_term_lower in BA_CATEGORY_KEYWORDS
+            if not has_our_asin and not has_keyword:
                 continue
 
             matched_items += 1
@@ -1204,8 +1231,8 @@ def _parse_ba_report_streaming(tmp_path, is_gzip, start, end, seller, our_asins)
                 rows.append({
                     "date": start,
                     "week_end": end,
-                    "seller_id": seller["seller_id"],
-                    "brand": seller["brand"],
+                    "brand": asin_brand_map.get(asin, "unknown"),
+                    "is_ours": asin in our_asins,
                     "department": dept,
                     "search_term": search_term,
                     "search_frequency_rank": int(search_freq_rank) if search_freq_rank else 0,
@@ -1220,8 +1247,8 @@ def _parse_ba_report_streaming(tmp_path, is_gzip, start, end, seller, our_asins)
         return rows
 
     except ImportError:
-        # ijson not available — fallback to full load (works for smaller reports)
-        print("    [WARN] ijson not installed, falling back to full JSON load")
+        # ijson not available — fallback to full load
+        print("    [WARN] ijson not installed, falling back to full JSON load (may use lots of memory)")
         if is_gzip:
             with gzip.open(tmp_path, "rb") as f:
                 data = json.loads(f.read().decode("utf-8", errors="replace"))
@@ -1234,15 +1261,16 @@ def _parse_ba_report_streaming(tmp_path, is_gzip, start, end, seller, our_asins)
         for item in raw_items:
             item_asins = [(i, item.get(f"clickedAsin{i}", "")) for i in range(1, 4)]
             item_asins = [(i, a) for i, a in item_asins if a]
-            if not any(a in our_asins for _, a in item_asins):
+            st_lower = (item.get("searchTerm", "") or "").lower()
+            if not any(a in our_asins for _, a in item_asins) and st_lower not in BA_CATEGORY_KEYWORDS:
                 continue
             for rank, asin in item_asins:
                 rows.append({
                     "date": start,
                     "week_end": end,
-                    "seller_id": seller["seller_id"],
-                    "brand": seller["brand"],
-                    "department": dept if 'dept' in dir() else item.get("departmentName", ""),
+                    "brand": asin_brand_map.get(asin, "unknown"),
+                    "is_ours": asin in our_asins,
+                    "department": item.get("departmentName", ""),
                     "search_term": item.get("searchTerm", ""),
                     "search_frequency_rank": int(item.get("searchFrequencyRank", 0) or 0),
                     "asin": asin,
