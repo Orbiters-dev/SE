@@ -46,6 +46,50 @@ TABLES = [
         collected_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         UNIQUE(date, profile_id, campaign_id, ad_group_id, keyword_id)
     )""",
+    """CREATE TABLE IF NOT EXISTS gk_content_posts (
+        id SERIAL PRIMARY KEY,
+        post_id VARCHAR(200) UNIQUE NOT NULL,
+        url VARCHAR(1000) DEFAULT '',
+        platform VARCHAR(20) NOT NULL,
+        username VARCHAR(200) NOT NULL,
+        nickname VARCHAR(200) DEFAULT '',
+        followers INTEGER DEFAULT 0,
+        caption TEXT DEFAULT '',
+        hashtags TEXT DEFAULT '',
+        tagged_account VARCHAR(200) DEFAULT '',
+        post_date DATE NOT NULL,
+        brand VARCHAR(100) DEFAULT '',
+        region VARCHAR(10) DEFAULT 'us',
+        source VARCHAR(20) DEFAULT 'syncly',
+        collected_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )""",
+    """CREATE TABLE IF NOT EXISTS gk_content_metrics_daily (
+        id SERIAL PRIMARY KEY,
+        post_id VARCHAR(200) NOT NULL,
+        date DATE NOT NULL,
+        comments INTEGER DEFAULT 0,
+        likes INTEGER DEFAULT 0,
+        views INTEGER DEFAULT 0,
+        collected_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        UNIQUE(post_id, date)
+    )""",
+    """CREATE TABLE IF NOT EXISTS gk_influencer_orders (
+        id SERIAL PRIMARY KEY,
+        order_id VARCHAR(50) UNIQUE NOT NULL,
+        order_name VARCHAR(50) DEFAULT '',
+        customer_name VARCHAR(200) NOT NULL,
+        customer_email VARCHAR(200) DEFAULT '',
+        account_handle VARCHAR(200) DEFAULT '',
+        channel VARCHAR(20) DEFAULT '',
+        product_types TEXT DEFAULT '',
+        product_names TEXT DEFAULT '',
+        influencer_fee NUMERIC(10,2) DEFAULT 0,
+        shipping_date DATE,
+        fulfillment_status VARCHAR(50) DEFAULT '',
+        brand VARCHAR(100) DEFAULT '',
+        tags TEXT DEFAULT '',
+        collected_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )""",
 ]
 
 if __name__ == "__main__":
