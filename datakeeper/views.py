@@ -333,12 +333,14 @@ def status(request):
         if "collected_at" in field_names:
             latest = model.objects.order_by("-collected_at").first()
             info["latest_collected"] = (
-                latest.collected_at.isoformat() if latest else None
+                latest.collected_at.isoformat()
+                if latest and latest.collected_at else None
             )
         if "date" in field_names:
             latest = model.objects.order_by("-date").first()
             info["latest_date"] = (
-                latest.date.isoformat() if latest else None
+                latest.date.isoformat()
+                if latest and latest.date else None
             )
         result[name] = info
     return JsonResponse({"status": result})

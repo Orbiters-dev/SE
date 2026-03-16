@@ -2485,7 +2485,7 @@ def _get_collection_summary():
         else:
             cache_status[channel] = None
 
-    # PG status
+    # PG status — try /status/ first, fallback to /tables/
     pg_status = {}
     try:
         r = requests.get(f"{ORBITOOLS_BASE}/status/",
@@ -2494,6 +2494,18 @@ def _get_collection_summary():
             pg_status = r.json().get("status", {})
     except Exception:
         pass
+
+    # Fallback: if /status/ failed, use /tables/ for basic info
+    if not pg_status:
+        try:
+            r = requests.get(f"{ORBITOOLS_BASE}/tables/",
+                             auth=(ORBITOOLS_USER, ORBITOOLS_PASS), timeout=10)
+            if r.status_code == 200:
+                tables = r.json().get("tables", {})
+                for tname, tinfo in tables.items():
+                    pg_status[tname] = {"count": tinfo.get("count", 0)}
+        except Exception:
+            pass
 
     # Identify stale channels (latest_date < yesterday)
     stale = []
