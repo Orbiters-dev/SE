@@ -485,6 +485,12 @@ def build_syncly_index(syncly_data):
     }
 
 
+def _normalize_handle(s):
+    """Remove dots, underscores, dashes for fuzzy handle matching."""
+    import re
+    return re.sub(r'[_.\-]', '', s.lower())
+
+
 def match_to_syncly(account_type, handle, customer_name, syncly_idx):
     """Match an order to Syncly content posts. Returns (username, posts)."""
     by_username = syncly_idx["by_username"]
@@ -493,6 +499,13 @@ def match_to_syncly(account_type, handle, customer_name, syncly_idx):
         key = handle.lower().strip()
         if key in by_username:
             return key, by_username[key]
+
+    # Fuzzy handle match: normalize dots/underscores/dashes
+    if handle:
+        norm = _normalize_handle(handle)
+        for uname in by_username:
+            if _normalize_handle(uname) == norm and uname != handle.lower().strip():
+                return uname, by_username[uname]
 
     # TikTok or Unknown: try customer name against nicknames
     if customer_name:
@@ -887,8 +900,10 @@ def cross_check(rows):
 
             acct_handle = account.lstrip("@").lower()
             if link_user and acct_handle and link_user != acct_handle:
-                issues["link_account_mismatch"].append({
-                    **info, "detail": f"link_user=@{link_user} vs account={account}"})
+                # Skip if normalized handles match (cross-platform: _ vs .)
+                if _normalize_handle(link_user) != _normalize_handle(acct_handle):
+                    issues["link_account_mismatch"].append({
+                        **info, "detail": f"link_user=@{link_user} vs account={account}"})
 
         # 3. Channel vs Content Link domain mismatch
         if has_link and channel:
