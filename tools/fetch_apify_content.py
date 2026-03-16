@@ -228,6 +228,32 @@ def fetch_tiktok(client):
         return []
 
 
+def fetch_ig_by_urls(client, post_urls):
+    """Scrape individual IG posts by URL for views + updated metrics.
+
+    Graph API doesn't return views for tagged posts.
+    This fills the gap by scraping each post URL via Apify.
+    """
+    if not post_urls:
+        return []
+    print(f"[IG-URL] Scraping {len(post_urls)} IG posts by URL...")
+    try:
+        run = client.actor(IG_SCRAPER).call(
+            run_input={
+                "directUrls": post_urls,
+                "resultsLimit": len(post_urls),
+                "resultsType": "posts",
+            },
+            timeout_secs=600,
+        )
+        items = list(client.dataset(run["defaultDatasetId"]).iterate_items())
+        print(f"[IG-URL] Got {len(items)} results")
+        return items
+    except Exception as e:
+        print(f"[IG-URL] Failed: {e}")
+        return []
+
+
 def fetch_tiktok_by_urls(client, post_urls):
     """Scrape individual TikTok posts by URL for D+60 metric tracking.
 
@@ -314,6 +340,57 @@ def get_missing_tiktok_urls(sh, tracker_tab, collected_data, max_d_plus=30):
             missing_urls.append(url)
 
     return missing_urls
+
+
+def get_active_ig_urls(sh, tracker_tab, max_d_plus=30):
+    """Get ALL IG post URLs in D+0~max_d_plus range for view metric scraping.
+
+    Unlike TikTok (where we only scrape missing posts), IG needs ALL posts
+    scraped because Graph API doesn't return views.
+    """
+    try:
+        ws = sh.worksheet(tracker_tab)
+        rows = ws.get_all_values()
+    except Exception:
+        return []
+
+    if len(rows) <= 2:
+        return []
+
+    ig_urls = []
+    now = datetime.now()
+
+    for row in rows[2:]:
+        if not row or len(row) < 5:
+            continue
+
+        platform = row[2].lower() if len(row) > 2 else ""
+        if platform != "instagram":
+            continue
+
+        post_date_str = row[4] if len(row) > 4 else ""
+        if not post_date_str:
+            continue
+        try:
+            pd = datetime.strptime(post_date_str, "%Y-%m-%d")
+            d_plus = (now - pd).days
+        except ValueError:
+            continue
+
+        if d_plus < 0 or d_plus > max_d_plus:
+            continue
+
+        url_cell = row[1] if len(row) > 1 else ""
+        if url_cell.startswith("=HYPERLINK"):
+            parts = url_cell.split('"')
+            url = parts[1] if len(parts) > 1 else ""
+        else:
+            url = url_cell
+
+        if url and "instagram.com" in url:
+            ig_urls.append(url)
+
+    return ig_urls
 
 
 def fetch_ig_profiles(client, usernames):
@@ -884,17 +961,39 @@ def run_daily(region="all", dry_run=False, send_mail=True):
         us_creators = set(d["username"] for d in us_data)
         print(f"[US] Total: {len(us_data)} posts ({len(ig_norm)} IG + {len(tt_norm)} TT), {len(us_creators)} creators")
 
-        # Fetch metrics for tracked TikTok posts missing from today's search
+        # Fetch metrics for tracked posts via direct URL scraping
         sh, creds = get_sheets()
         if not dry_run:
+            # TikTok: scrape posts missing from keyword search
             missing_tt_urls = get_missing_tiktok_urls(sh, "US D+60 Tracker", us_data)
             if missing_tt_urls:
                 tt_url_raw = fetch_tiktok_by_urls(client, missing_tt_urls)
                 tt_url_norm = normalize_tt(tt_url_raw, skip_keyword_filter=True)
                 us_data.extend(tt_url_norm)
-                print(f"[US] +{len(tt_url_norm)} TikTok posts via URL scrape (D+60 gap fill)")
+                print(f"[US] +{len(tt_url_norm)} TikTok via URL scrape (gap fill)")
             else:
                 print("[US] No missing TikTok posts in D+0~D+30 range")
+
+            # IG: scrape ALL active posts for views (Graph API doesn't return views)
+            active_ig_urls = get_active_ig_urls(sh, "US D+60 Tracker", max_d_plus=30)
+            if active_ig_urls:
+                ig_url_raw = fetch_ig_by_urls(client, active_ig_urls)
+                ig_url_norm = normalize_ig(ig_url_raw, fmap)
+                # Merge: update views for IG posts already in us_data
+                existing_pids = {d["post_id"]: d for d in us_data}
+                ig_url_added = 0
+                for d in ig_url_norm:
+                    if d["post_id"] in existing_pids:
+                        existing_pids[d["post_id"]]["views"] = d["views"]
+                        existing_pids[d["post_id"]]["likes"] = d["likes"]
+                        existing_pids[d["post_id"]]["comments"] = d["comments"]
+                    else:
+                        us_data.append(d)
+                        ig_url_added += 1
+                print(f"[US] IG URL scrape: {len(ig_url_norm)} scraped, "
+                      f"{len(ig_url_norm) - ig_url_added} updated, +{ig_url_added} new")
+            else:
+                print("[US] No active IG posts in D+0~D+30 range")
 
         # Update sheets
         new_pm = update_posts_master(sh, us_data, "US Posts Master")
