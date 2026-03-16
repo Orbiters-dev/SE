@@ -1,12 +1,12 @@
-"""Sync SNS Tab - Shopify PR orders + Syncly D+60 content metrics -> Google Sheet.
+"""Sync US SNS Tab - Shopify PR orders + Apify content metrics -> Google Sheet.
 
 Reads:
   - .tmp/polar_data/q10_influencer_orders.json (Shopify PR/sample orders)
   - .tmp/polar_data/q11_paypal_transactions.json (PayPal transactions)
-  - Syncly D+60 Tracker Google Sheet (Posts Master + D+60 Tracker tabs)
+  - Apify content tracker Google Sheet (US Posts Master + US D+60 Tracker tabs)
 
 Writes:
-  - Target Google Sheet -> "SNS" tab
+  - Target Google Sheet -> "US SNS" tab
 
 Usage:
   python tools/sync_sns_tab.py
@@ -15,6 +15,7 @@ Usage:
 """
 
 import argparse
+import io
 import json
 import os
 import re
@@ -22,6 +23,9 @@ import sys
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
+
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 import gspread
 from google.oauth2.service_account import Credentials
@@ -37,9 +41,9 @@ Q10_PATH = DATA_DIR / "q10_influencer_orders.json"
 Q11_PATH = DATA_DIR / "q11_paypal_transactions.json"
 
 # ── Sheet IDs ──────────────────────────────────────────────────────────────
-DEFAULT_SYNCLY_SHEET_ID = "1bOXrARt8wx_YeKyXMlAS1nKzkZBypeaSilI6xDg4_Tc"
+DEFAULT_APIFY_SHEET_ID = "1mYofqMBYqIHS3XNQ29vDA__SzYBfkkGCPn3Jb8OxAkY"
 DEFAULT_TARGET_SHEET_ID = "1SwO4uAbf25vOR0UYWOUlxzy5gCbFRrNXwO2kAWydyeA"
-SNS_TAB = "SNS"
+SNS_TAB = "US SNS"
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
 # ── Regex ──────────────────────────────────────────────────────────────────
@@ -67,7 +71,6 @@ SNS_HEADERS = [
     "Product Name", "Influencer Fee", "Shipping Date",
     "Content Link", "Approved for Cross-Market Use",
     "D+ Days", "Curr Comment", "Curr Like", "Curr View",
-    "Profile URL",
 ]
 
 # ── Product Type classification ───────────────────────────────────────────
@@ -161,13 +164,14 @@ def load_paypal(path=Q11_PATH):
 
 
 def load_syncly(gc, sheet_id):
-    """Read Syncly sheet: Posts Master + D+60 Tracker."""
+    """Read Apify sheet: US Posts Master + US D+60 Tracker."""
     sh = gc.open_by_key(sheet_id)
 
-    # Posts Master: platform mapping
+    # Posts Master: PostID[0], URL[1], Platform[2], Username[3], Nickname[4],
+    #   Followers[5], Content[6], Hashtags[7], TaggedAccount[8], PostDate[9],
+    #   Comments[10], Likes[11], Views[12]
     pm_ws = sh.worksheet("US Posts Master")
     pm_rows = pm_ws.get_all_values()
-    pm_header = pm_rows[0] if pm_rows else []
     posts_master = []
     for row in pm_rows[1:]:
         if not row[0]:
@@ -181,11 +185,12 @@ def load_syncly(gc, sheet_id):
             "followers": row[5] if len(row) > 5 else "",
             "content": row[6] if len(row) > 6 else "",
             "hashtags": row[7] if len(row) > 7 else "",
-            "brand": row[9] if len(row) > 9 else "",
-            "post_date": row[12] if len(row) > 12 else "",
+            "brand": "",
+            "post_date": row[9] if len(row) > 9 else "",
         })
 
-    # D+60 Tracker: metrics
+    # D+60 Tracker: PostID[0], URL[1], Platform[2], Username[3], PostDate[4],
+    #   TaggedAccount[5], D+Days[6], CurrComment[7], CurrLike[8], CurrView[9]
     tr_ws = sh.worksheet("US D+60 Tracker")
     tr_rows = tr_ws.get_all_values()
     tracker = []
@@ -195,12 +200,12 @@ def load_syncly(gc, sheet_id):
         tracker.append({
             "post_id": row[0],
             "url": row[1],
-            "username": row[2],
-            "post_date": row[3],
-            "d_plus_days": safe_int(row[4]),
-            "curr_comment": safe_int(row[5]),
-            "curr_like": safe_int(row[6]),
-            "curr_view": safe_int(row[7]),
+            "username": row[3] if len(row) > 3 else "",
+            "post_date": row[4] if len(row) > 4 else "",
+            "d_plus_days": safe_int(row[6]) if len(row) > 6 else 0,
+            "curr_comment": safe_int(row[7]) if len(row) > 7 else 0,
+            "curr_like": safe_int(row[8]) if len(row) > 8 else 0,
+            "curr_view": safe_int(row[9]) if len(row) > 9 else 0,
         })
 
     return {"posts_master": posts_master, "tracker": tracker}
@@ -615,22 +620,6 @@ def build_rows(orders, paypal_txns, syncly_data, since_date=None):
         else:
             account_display = ""
 
-        # Profile URL — prefer Syncly platform, fallback to account handle
-        profile_url = ""
-        if matched_uname:
-            plat_lower = syncly_idx["platform_map"].get(matched_uname, "")
-            if "instagram" in plat_lower:
-                profile_url = f"https://www.instagram.com/{matched_uname}/"
-            elif "tiktok" in plat_lower:
-                profile_url = f"https://www.tiktok.com/@{matched_uname}"
-        if not profile_url and handle and " " not in handle:
-            # Generate profile URL from Shopify-extracted handle
-            # Only if handle looks like a real username (no spaces)
-            if acct_type == "Instagram":
-                profile_url = f"https://www.instagram.com/{handle}/"
-            elif acct_type == "TikTok":
-                profile_url = f"https://www.tiktok.com/@{handle}"
-
         # Influencer fee
         fee = ""
         key = (cust_name.lower(), cust_email)
@@ -674,15 +663,11 @@ def build_rows(orders, paypal_txns, syncly_data, since_date=None):
             view_val = best["curr_view"]
             stats["matched"] += 1
 
-            # Override channel + profile URL from content link URL (most accurate signal)
+            # Override channel from content link URL (most accurate signal)
             if "tiktok.com" in url:
                 channel = "TikTok"
-                if matched_uname:
-                    profile_url = f"https://www.tiktok.com/@{matched_uname}"
             elif "instagram.com" in url:
                 channel = "Instagram"
-                if matched_uname:
-                    profile_url = f"https://www.instagram.com/{matched_uname}/"
             elif "youtube.com" in url or "youtu.be" in url:
                 channel = "YouTube"
         else:
@@ -711,7 +696,6 @@ def build_rows(orders, paypal_txns, syncly_data, since_date=None):
             cmt_val,      # O: Curr Comment
             like_val,     # P: Curr Like
             view_val,     # Q: Curr View
-            profile_url,  # R: Profile URL
         ])
 
     # Fill sequential No
@@ -860,14 +844,10 @@ def cross_check(rows):
     Returns dict of issue_type -> list of {row_no, name, account, detail}.
     """
     issues = {
-        "content_link_no_profile": [],     # Content Link exists but Profile URL empty
         "metrics_no_link": [],             # Metrics nonzero but Content Link empty
-        "account_no_profile": [],          # Account exists but Profile URL empty
-        "profile_no_account": [],          # Profile URL exists but Account empty
         "link_account_mismatch": [],       # Content Link username != Account handle
         "channel_link_mismatch": [],       # Channel vs Content Link domain mismatch
         "link_no_metrics": [],             # Content Link exists but all metrics zero
-        "channel_profile_mismatch": [],    # Channel vs Profile URL domain mismatch
     }
 
     for row in rows:
@@ -880,7 +860,6 @@ def cross_check(rows):
         cmt = row[14]
         like = row[15]
         view = row[16]
-        profile_url = str(row[17]).strip()
 
         # Parse content link URL from HYPERLINK formula
         link_url = ""
@@ -891,38 +870,17 @@ def cross_check(rows):
         has_link = bool(link_url)
         has_metrics = any(safe_int(v) > 0 for v in [d_days, cmt, like, view])
         has_account = bool(account and account != "@")
-        has_profile = bool(profile_url)
 
         info = {"row_no": row_no, "name": name, "account": account}
 
-        # 1. Content Link exists but Profile URL empty
-        if has_link and not has_profile:
-            issues["content_link_no_profile"].append({
-                **info, "detail": f"link={link_url[:60]}"})
-
-        # 2. Metrics nonzero but no Content Link
+        # 1. Metrics nonzero but no Content Link
         if has_metrics and not has_link:
             issues["metrics_no_link"].append({
                 **info, "detail": f"D+={d_days} cmt={cmt} like={like} view={view}"})
 
-        # 3. Account exists but Profile URL empty
-        if has_account and not has_profile and not has_link:
-            issues["account_no_profile"].append({
-                **info, "detail": f"channel={channel}"})
-
-        # 4. Profile URL exists but Account empty
-        if has_profile and not has_account:
-            issues["profile_no_account"].append({
-                **info, "detail": f"profile={profile_url}"})
-
-        # 5. Content Link username != Account handle
+        # 2. Content Link username != Account handle
         if has_link and has_account:
-            # Extract username from content URL
             link_user = ""
-            ig_m = re.search(r"instagram\.com/(?:p|reel)/[^/]+", link_url)
-            if ig_m:
-                # Can't extract poster from post URL directly — skip this sub-check
-                pass
             tiktok_m = re.search(r"tiktok\.com/@([^/?]+)", link_url)
             if tiktok_m:
                 link_user = tiktok_m.group(1).lower()
@@ -932,7 +890,7 @@ def cross_check(rows):
                 issues["link_account_mismatch"].append({
                     **info, "detail": f"link_user=@{link_user} vs account={account}"})
 
-        # 6. Channel vs Content Link domain mismatch
+        # 3. Channel vs Content Link domain mismatch
         if has_link and channel:
             is_ig_link = "instagram.com" in link_url
             is_tt_link = "tiktok.com" in link_url
@@ -948,22 +906,10 @@ def cross_check(rows):
                 issues["channel_link_mismatch"].append({
                     **info, "detail": f"channel={channel} but link is YouTube"})
 
-        # 7. Content Link exists but all metrics zero
+        # 4. Content Link exists but all metrics zero
         if has_link and not has_metrics:
             issues["link_no_metrics"].append({
                 **info, "detail": f"D+={d_days} cmt={cmt} like={like} view={view}"})
-
-        # 8. Channel vs Profile URL domain mismatch
-        if has_profile and channel:
-            is_ig_prof = "instagram.com" in profile_url
-            is_tt_prof = "tiktok.com" in profile_url
-            ch_lower = channel.lower()
-            if is_ig_prof and "instagram" not in ch_lower:
-                issues["channel_profile_mismatch"].append({
-                    **info, "detail": f"channel={channel} but profile is Instagram"})
-            elif is_tt_prof and "tiktok" not in ch_lower:
-                issues["channel_profile_mismatch"].append({
-                    **info, "detail": f"channel={channel} but profile is TikTok"})
 
     return issues
 
@@ -971,14 +917,10 @@ def cross_check(rows):
 def print_cross_check(issues):
     """Print cross-check validation report."""
     labels = {
-        "content_link_no_profile": "Content Link exists but no Profile URL",
         "metrics_no_link": "Metrics nonzero but no Content Link",
-        "account_no_profile": "Account exists but no Profile URL (no content)",
-        "profile_no_account": "Profile URL exists but Account is empty",
         "link_account_mismatch": "Content Link username != Account handle",
         "channel_link_mismatch": "Channel vs Content Link domain mismatch",
         "link_no_metrics": "Content Link exists but all metrics = 0",
-        "channel_profile_mismatch": "Channel vs Profile URL domain mismatch",
     }
 
     total_issues = sum(len(v) for v in issues.values())
@@ -1042,7 +984,11 @@ def write_to_sheet(gc, target_sheet_id, rows, dry_run=False):
     if ws.col_count < needed_cols:
         ws.resize(cols=needed_cols)
 
-    # Write headers in Row 2 (Row 1 stays blank per existing pattern)
+    # Write last updated timestamp in Row 1
+    updated_at = datetime.now().strftime("%Y-%m-%d %H:%M")
+    ws.update(values=[[f"Last Updated: {updated_at}"]], range_name="A1", value_input_option="RAW")
+
+    # Write headers in Row 2
     end_hdr = col_letter(len(SNS_HEADERS) - 1)
     ws.update(values=[SNS_HEADERS], range_name=f"A2:{end_hdr}2", value_input_option="RAW")
 
@@ -1153,15 +1099,15 @@ def format_sns_tab(sh, ws, num_rows):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Sync SNS tab: Shopify orders + PayPal + Syncly metrics"
+        description="Sync US SNS tab: Shopify orders + PayPal + Apify content metrics"
     )
     parser.add_argument(
         "--target-sheet-id", default=DEFAULT_TARGET_SHEET_ID,
         help="Target Google Sheet ID"
     )
     parser.add_argument(
-        "--syncly-sheet-id", default=DEFAULT_SYNCLY_SHEET_ID,
-        help="Syncly D+60 Tracker Sheet ID"
+        "--syncly-sheet-id", default=DEFAULT_APIFY_SHEET_ID,
+        help="Apify content tracker Sheet ID"
     )
     parser.add_argument("--q10", default=str(Q10_PATH), help="q10 JSON path")
     parser.add_argument("--q11", default=str(Q11_PATH), help="q11 JSON path")

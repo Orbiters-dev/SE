@@ -962,20 +962,25 @@ def run_daily(region="all", dry_run=False, send_mail=True):
         print(f"[US] Total: {len(us_data)} posts ({len(ig_norm)} IG + {len(tt_norm)} TT), {len(us_creators)} creators")
 
         # Fetch metrics for tracked posts via direct URL scraping
+        # D+0~D+30: daily, D+31~D+90: Monday only (matches snapshot schedule)
         sh, creds = get_sheets()
+        is_monday = datetime.now().weekday() == 0
+        scrape_max_d = 90 if is_monday else 30
+        if is_monday:
+            print(f"[URL-SCRAPE] Monday -> expanded range D+0~D+{scrape_max_d}")
         if not dry_run:
             # TikTok: scrape posts missing from keyword search
-            missing_tt_urls = get_missing_tiktok_urls(sh, "US D+60 Tracker", us_data)
+            missing_tt_urls = get_missing_tiktok_urls(sh, "US D+60 Tracker", us_data, max_d_plus=scrape_max_d)
             if missing_tt_urls:
                 tt_url_raw = fetch_tiktok_by_urls(client, missing_tt_urls)
                 tt_url_norm = normalize_tt(tt_url_raw, skip_keyword_filter=True)
                 us_data.extend(tt_url_norm)
-                print(f"[US] +{len(tt_url_norm)} TikTok via URL scrape (gap fill)")
+                print(f"[US] +{len(tt_url_norm)} TikTok via URL scrape (gap fill, D+0~D+{scrape_max_d})")
             else:
-                print("[US] No missing TikTok posts in D+0~D+30 range")
+                print(f"[US] No missing TikTok posts in D+0~D+{scrape_max_d} range")
 
             # IG: scrape ALL active posts for views (Graph API doesn't return views)
-            active_ig_urls = get_active_ig_urls(sh, "US D+60 Tracker", max_d_plus=30)
+            active_ig_urls = get_active_ig_urls(sh, "US D+60 Tracker", max_d_plus=scrape_max_d)
             if active_ig_urls:
                 ig_url_raw = fetch_ig_by_urls(client, active_ig_urls)
                 ig_url_norm = normalize_ig(ig_url_raw, fmap)
@@ -993,7 +998,7 @@ def run_daily(region="all", dry_run=False, send_mail=True):
                 print(f"[US] IG URL scrape: {len(ig_url_norm)} scraped, "
                       f"{len(ig_url_norm) - ig_url_added} updated, +{ig_url_added} new")
             else:
-                print("[US] No active IG posts in D+0~D+30 range")
+                print(f"[US] No active IG posts in D+0~D+{scrape_max_d} range")
 
         # Update sheets
         new_pm = update_posts_master(sh, us_data, "US Posts Master")

@@ -67,7 +67,6 @@ jobs:
         with:
           path: |
             .tmp/content_detection_log.json
-            .tmp/usa_llm_prev.json
           key: tmp-state-${{ runner.os }}-${{ github.run_id }}
           restore-keys: tmp-state-${{ runner.os }}-
 
@@ -95,19 +94,14 @@ jobs:
         run: python -u tools/fetch_influencer_orders.py
         continue-on-error: true
 
-      - name: Migrate Syncly posts to Apify sheet
-        id: migrate_syncly
-        run: python -u tools/migrate_syncly_to_apify.py --region us || echo "Migrate failed (non-fatal)"
+      - name: Sync US SNS Tab (Shopify + Apify)
+        id: sns_us
+        run: python -u tools/sync_sns_tab.py || echo "US SNS sync failed (non-fatal)"
         continue-on-error: true
 
-      - name: Sync Grosmimi US SNS Tab (Apify-based)
-        id: sns_grosmimi
-        run: python -u tools/sync_sns_tab_grosmimi.py || echo "SNS Grosmimi sync failed (non-fatal)"
-        continue-on-error: true
-
-      - name: Update USA_LLM tab + detect highlights
-        id: usa_llm
-        run: python -u tools/update_usa_llm.py || echo "USA_LLM update failed (non-fatal)"
+      - name: Sync CHA&MOM SNS Tab
+        id: sns_chaenmom
+        run: python -u tools/sync_sns_tab_chaenmom.py || echo "CHA&MOM SNS sync failed (non-fatal)"
         continue-on-error: true
 
       - name: Build and send daily report
@@ -122,9 +116,7 @@ jobs:
         env:
           PIPELINE_OUTCOME: ${{ steps.pipeline.outcome }}
           ORDERS_OUTCOME:   ${{ steps.fetch_orders.outcome }}
-          MIGRATE_OUTCOME:  ${{ steps.migrate_syncly.outcome }}
-          SNS_OUTCOME:      ${{ steps.sns_grosmimi.outcome }}
-          LLM_OUTCOME:      ${{ steps.usa_llm.outcome }}
+          SNS_OUTCOME:      ${{ steps.sns_us.outcome }}
         continue-on-error: true
 
       - name: Save .tmp state cache
@@ -133,7 +125,6 @@ jobs:
         with:
           path: |
             .tmp/content_detection_log.json
-            .tmp/usa_llm_prev.json
           key: tmp-state-${{ runner.os }}-${{ github.run_id }}
 
       - name: Upload data artifacts

@@ -231,9 +231,7 @@ def build_pipeline_section(statuses: dict) -> str:
     steps = [
         ("pipeline", "Apify Crawl"),
         ("orders",   "Fetch Influencer Orders"),
-        ("migrate",  "Syncly Migration"),
-        ("sns",      "Onzenna SNS Sync"),
-        ("llm",      "USA_LLM Update"),
+        ("sns",      "US SNS Sync"),
     ]
     # Get actual GH Actions run time (single call, cached)
     wf_last_run, _ = _wf_info()
@@ -292,18 +290,11 @@ def build_stat_card(label: str, value: str, sub: str = "") -> str:
 
 
 def build_stats_section(sns: dict, llm: dict, total_creators: int) -> str:
-    # Shipped stats (from sync_sns_tab_grosmimi)
+    # Shipped stats (from sync_sns_tab)
     total        = sns.get("total_influencers", 0)
     shipped_24h  = sns.get("new_24h", sns.get("new_count", 0))
     shipped_7d   = sns.get("new_7d", 0)
     shipped_30d  = sns.get("new_30d", 0)
-    upd_c        = sns.get("update_count", 0)
-
-    # Content stats by post upload date (from update_usa_llm)
-    content_24h    = llm.get("new_content_24h", 0)
-    content_7d     = llm.get("new_content_7d", 0)
-    content_30d    = llm.get("new_content_30d", 0)
-    trending_count = llm.get("trending_count", 0)
 
     wf_ts, _ = _wf_info()
     ts_html = (
@@ -320,26 +311,13 @@ def build_stats_section(sns: dict, llm: dict, total_creators: int) -> str:
 
     return f"""
     <div style="margin-bottom:24px;">
-      {section_label("Onzenna US SNS &mdash; Newly Shipped")}
+      {section_label("Onzenna US SNS &mdash; Shipped + Content")}
       <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
         <tr>
           {build_stat_card("Total Influencers", str(total))}
           {build_stat_card("Shipped · 24h", str(shipped_24h))}
           {build_stat_card("Shipped · 7d", str(shipped_7d))}
           {build_stat_card("Shipped · 30d", str(shipped_30d))}
-        </tr>
-      </table>
-    </div>
-
-    <div style="margin-bottom:24px;">
-      {section_label("Creator Content (USA_LLM)")}
-      <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
-        <tr>
-          {build_stat_card("Creators Tracked", str(total_creators))}
-          {build_stat_card("Posts · 24h", str(content_24h), "by upload date")}
-          {build_stat_card("Posts · 7d", str(content_7d))}
-          {build_stat_card("Posts · 30d", str(content_30d))}
-          {build_stat_card("Trending", str(trending_count), "50%+ view change vs. yesterday")}
         </tr>
       </table>
     </div>"""
@@ -587,9 +565,7 @@ def main():
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--pipeline", default=os.environ.get("PIPELINE_OUTCOME", "unknown"))
     parser.add_argument("--orders",   default=os.environ.get("ORDERS_OUTCOME",   "unknown"))
-    parser.add_argument("--migrate",  default=os.environ.get("MIGRATE_OUTCOME",  "unknown"))
     parser.add_argument("--sns",      default=os.environ.get("SNS_OUTCOME",      "unknown"))
-    parser.add_argument("--llm",      default=os.environ.get("LLM_OUTCOME",      "unknown"))
     args = parser.parse_args()
 
     highlights, total_creators, llm_data, date_label = [], 0, {}, "uploaded today"
@@ -612,9 +588,7 @@ def main():
     statuses = {
         "pipeline": args.pipeline,
         "orders":   args.orders,
-        "migrate":  args.migrate,
         "sns":      args.sns,
-        "llm":      args.llm,
     }
 
     date_str = datetime.now(tz=KST).strftime("%Y-%m-%d")
