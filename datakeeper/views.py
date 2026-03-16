@@ -44,7 +44,10 @@ def cors_headers(view_func):
             return response
         response = view_func(request, *args, **kwargs)
         # Force single CORS header (delete any nginx-added duplicates)
-        del response["Access-Control-Allow-Origin"]  # Remove if exists
+        try:
+            del response["Access-Control-Allow-Origin"]
+        except KeyError:
+            pass
         response["Access-Control-Allow-Origin"] = "*"
         response["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
         response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"

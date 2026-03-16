@@ -215,7 +215,12 @@ async function initContentDashboard(){
 
     renderTab(_currentTab);
   }catch(e){
-    loadEl.innerHTML = '<div class="card" style="border-left:3px solid var(--r)"><h3 style="color:var(--r)">Failed to load data</h3><div class="desc">'+e.message+'</div>'
+    console.error('Content Dashboard load error:', e);
+    var errMsg = e.message || e.toString() || 'Unknown error';
+    if(errMsg==='Failed to fetch' || errMsg==='Load failed'){
+      errMsg += ' — Check browser console. Possible CORS or network issue. API: '+API_BASE;
+    }
+    loadEl.innerHTML = '<div class="card" style="border-left:3px solid var(--r)"><h3 style="color:var(--r)">Failed to load data</h3><div class="desc" style="word-break:break-all">'+errMsg+'</div>'
       +'<button onclick="_loaded=false;initContentDashboard()" style="margin-top:8px;padding:6px 16px;border-radius:6px;border:1px solid var(--a);background:var(--abg);color:var(--a);font-weight:700;font-size:11px;cursor:pointer">Retry</button></div>';
   }
 }
