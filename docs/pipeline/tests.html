@@ -121,7 +121,7 @@
     <div class="hero-meta">
       <span class="badge badge-green">47/50 PASS</span>
       <span class="badge badge-blue">WJ TEST</span>
-      <span class="badge badge-dim">2026-03-16 10:27 KST</span>
+      <span class="badge badge-dim">2026-03-16 10:34 KST</span>
     </div>
     <h1>E2E <span>Test Results</span></h1>
     <div class="sub">Full Customer Journey (31 steps) + 3 Component Flows (19 steps) · 5 email conversations · PROD merge verified</div>
@@ -241,7 +241,7 @@
       </tbody>
     </table>
     <div class="note-block">
-      <strong>Step 4 FAIL* (non-critical):</strong> Draft order <code>#D1515</code> was created successfully (webhook returned <code>draft_order_id: 1516064047474</code>), but the Shopify Draft Orders list API doesn't support filtering by customer_id. The order exists — Airtable captured it correctly. This is a test limitation, not a pipeline issue.
+      <strong>Step 4 FAIL* (non-critical):</strong> Draft order was created successfully (webhook returned <code>draft_order_id: 1516066111858</code>), but the Shopify Draft Orders list API doesn't support filtering by customer_id. The order exists — Airtable captured it correctly. This is a test limitation, not a pipeline issue.
     </div>
   </div>
 
@@ -262,49 +262,49 @@
           <td>2</td>
           <td><span class="type-chip tc-at">Airtable</span></td>
           <td><span class="status-pill sp-pass">PASS</span></td>
-          <td style="font-size:11px;">Creator <code>rec8emYu5hb6SRqdp</code></td>
+          <td style="font-size:11px;">Creator <code>rec1Pceig30lPvJ1h</code></td>
         </tr>
         <tr>
           <td><strong>1. AI Outreach</strong><br><span style="font-size:11px;color:var(--dim);">Claude AI generates email draft via n8n</span></td>
           <td>4</td>
           <td><span class="type-chip tc-http">n8n</span> <span class="type-chip tc-at">Airtable</span></td>
           <td><span class="status-pill sp-pass">PASS</span></td>
-          <td style="font-size:11px;">Draft <code>recE7jz7bzI7cKRQr</code> (AI-generated)</td>
+          <td style="font-size:11px;">Draft <code>recanldCppjSRaoVZ</code> (AI-generated)</td>
         </tr>
         <tr>
           <td><strong>2. Approval</strong><br><span style="font-size:11px;color:var(--dim);">Marketer approves + sends email</span></td>
           <td>3</td>
           <td><span class="type-chip tc-at">Airtable</span></td>
           <td><span class="status-pill sp-pass">PASS</span></td>
-          <td style="font-size:11px;">Conv <code>recpy96O3wrGPoaxs</code> (Outbound)</td>
+          <td style="font-size:11px;">Conv <code>recV55bRfS6gqgfmd</code> (Outbound)</td>
         </tr>
         <tr>
           <td><strong>3. Reply</strong><br><span style="font-size:11px;color:var(--dim);">Influencer replies with interest</span></td>
           <td>3</td>
           <td><span class="type-chip tc-at">Airtable</span></td>
           <td><span class="status-pill sp-pass">PASS</span></td>
-          <td style="font-size:11px;">Conv <code>rec9fs2C6mMv9jfpl</code> (Inbound)</td>
+          <td style="font-size:11px;">Conv <code>recRRSMEB3RYIuDlA</code> (Inbound)</td>
         </tr>
         <tr>
           <td><strong>4. Confirmation</strong><br><span style="font-size:11px;color:var(--dim);">Send gifting form + guidelines</span></td>
           <td>2</td>
           <td><span class="type-chip tc-at">Airtable</span></td>
           <td><span class="status-pill sp-pass">PASS</span></td>
-          <td style="font-size:11px;">Conv <code>reclBV0qNAcwp1pYQ</code></td>
+          <td style="font-size:11px;">Conv <code>recMtLMnCrP6Xh8Gm</code></td>
         </tr>
         <tr>
           <td><strong>5. Gifting Form</strong><br><span style="font-size:11px;color:var(--dim);">n8n -> Airtable + Shopify + PG</span></td>
           <td>5</td>
           <td><span class="type-chip tc-http">n8n</span> <span class="type-chip tc-at">Airtable</span> <span class="type-chip tc-shopify">Shopify</span></td>
           <td><span class="status-pill sp-pass">PASS</span></td>
-          <td style="font-size:11px;">Customer <code>7057180098882</code>, Draft #D1517</td>
+          <td style="font-size:11px;">Customer <code>7057180098882</code>, Draft #D1518</td>
         </tr>
         <tr>
           <td><strong>6. Sample Sent</strong><br><span style="font-size:11px;color:var(--dim);">Order + guidelines email</span></td>
           <td>3</td>
           <td><span class="type-chip tc-at">Airtable</span></td>
           <td><span class="status-pill sp-pass">PASS</span></td>
-          <td style="font-size:11px;">Order <code>recX9QPNuC4OrbQRI</code></td>
+          <td style="font-size:11px;">Order <code>reccxaZrukhTTvdYi</code></td>
         </tr>
         <tr>
           <td><strong>7. Fulfillment</strong><br><span style="font-size:11px;color:var(--dim);">Shopify fulfillment webhook</span></td>
@@ -318,7 +318,7 @@
           <td>4</td>
           <td><span class="type-chip tc-at">Airtable</span></td>
           <td><span class="status-pill sp-pass">PASS</span></td>
-          <td style="font-size:11px;">Content <code>recpBg1rop7n03Qwx</code></td>
+          <td style="font-size:11px;">Content <code>recvvZb6PW3nxAsaG</code></td>
         </tr>
         <tr>
           <td><strong>9. Final Verify</strong><br><span style="font-size:11px;color:var(--dim);">Partnership=Completed, 5 emails</span></td>
@@ -378,25 +378,25 @@
     <div class="flow-head" style="background:var(--purple-bg);">
       <div>
         <div class="flow-title-row"><span class="flow-title">Data Trail — Full Customer Journey</span></div>
-        <div class="flow-desc">Creator: sarahkim_flowtest_03161027 | Email: wj.choi@orbiters.co.kr | 2026-03-16 10:27 KST</div>
+        <div class="flow-desc">Creator: sarahkim_flowtest_03161034 | Email: wj.choi@orbiters.co.kr | 2026-03-16 10:34 KST</div>
       </div>
     </div>
     <table class="steps-table">
       <thead><tr><th>Stage</th><th>System</th><th>Record</th></tr></thead>
       <tbody>
-        <tr><td rowspan="2" style="font-weight:600;">0. Discovery</td><td><span class="type-chip tc-at">Airtable</span> Creators</td><td style="font-size:12px;">rec8emYu5hb6SRqdp (Partnership: New -> Completed)</td></tr>
-        <tr><td><span class="type-chip tc-at">Airtable</span> Conversations</td><td style="font-size:12px;">recE7jz7bzI7cKRQr (AI Draft by Claude)</td></tr>
-        <tr><td rowspan="2" style="font-weight:600;">1-2. Outreach</td><td><span class="type-chip tc-at">Airtable</span> Conversations</td><td style="font-size:12px;">recpy96O3wrGPoaxs (Outbound: outreach email)</td></tr>
+        <tr><td rowspan="2" style="font-weight:600;">0. Discovery</td><td><span class="type-chip tc-at">Airtable</span> Creators</td><td style="font-size:12px;">rec1Pceig30lPvJ1h (Partnership: New -> Completed)</td></tr>
+        <tr><td><span class="type-chip tc-at">Airtable</span> Conversations</td><td style="font-size:12px;">recanldCppjSRaoVZ (AI Draft by Claude)</td></tr>
+        <tr><td rowspan="2" style="font-weight:600;">1-2. Outreach</td><td><span class="type-chip tc-at">Airtable</span> Conversations</td><td style="font-size:12px;">recV55bRfS6gqgfmd (Outbound: outreach email)</td></tr>
         <tr><td><span class="type-chip tc-http">n8n</span> Draft Gen</td><td style="font-size:12px;">wj-test-draft-gen webhook -> Claude AI</td></tr>
-        <tr><td style="font-weight:600;">3. Reply</td><td><span class="type-chip tc-at">Airtable</span> Conversations</td><td style="font-size:12px;">rec9fs2C6mMv9jfpl (Inbound: influencer reply)</td></tr>
-        <tr><td style="font-weight:600;">4. Confirmation</td><td><span class="type-chip tc-at">Airtable</span> Conversations</td><td style="font-size:12px;">reclBV0qNAcwp1pYQ (Outbound: form link + guidelines)</td></tr>
+        <tr><td style="font-weight:600;">3. Reply</td><td><span class="type-chip tc-at">Airtable</span> Conversations</td><td style="font-size:12px;">recRRSMEB3RYIuDlA (Inbound: influencer reply)</td></tr>
+        <tr><td style="font-weight:600;">4. Confirmation</td><td><span class="type-chip tc-at">Airtable</span> Conversations</td><td style="font-size:12px;">recMtLMnCrP6Xh8Gm (Outbound: form link + guidelines)</td></tr>
         <tr><td rowspan="3" style="font-weight:600;">5. Gifting</td><td><span class="type-chip tc-at">Airtable</span> Applicants</td><td style="font-size:12px;">recLlFdvv7W032zO0</td></tr>
         <tr><td><span class="type-chip tc-shopify">Shopify</span> Customer</td><td style="font-size:12px;">7057180098882 (tags: influencer-gifting, PR)</td></tr>
-        <tr><td><span class="type-chip tc-shopify">Shopify</span> Draft Order</td><td style="font-size:12px;">#D1517 (ID: 1516064899442)</td></tr>
-        <tr><td rowspan="2" style="font-weight:600;">6. Sample</td><td><span class="type-chip tc-at">Airtable</span> Orders</td><td style="font-size:12px;">recX9QPNuC4OrbQRI (Grosmimi PPSU Straw Cup)</td></tr>
-        <tr><td><span class="type-chip tc-at">Airtable</span> Conversations</td><td style="font-size:12px;">recqwXt0R57PNk9hC (Outbound: guidelines + order confirmation)</td></tr>
-        <tr><td rowspan="2" style="font-weight:600;">8. Content</td><td><span class="type-chip tc-at">Airtable</span> Content</td><td style="font-size:12px;">recpBg1rop7n03Qwx (Instagram reel, 2800 views)</td></tr>
-        <tr><td><span class="type-chip tc-at">Airtable</span> Conversations</td><td style="font-size:12px;">recrkNwRWFRuieTIa (Outbound: thank-you email)</td></tr>
+        <tr><td><span class="type-chip tc-shopify">Shopify</span> Draft Order</td><td style="font-size:12px;">#D1518 (ID: 1516065980786)</td></tr>
+        <tr><td rowspan="2" style="font-weight:600;">6. Sample</td><td><span class="type-chip tc-at">Airtable</span> Orders</td><td style="font-size:12px;">reccxaZrukhTTvdYi (Grosmimi PPSU Straw Cup)</td></tr>
+        <tr><td><span class="type-chip tc-at">Airtable</span> Conversations</td><td style="font-size:12px;">recYsu6cwSPPwV0ja (Outbound: guidelines + order confirmation)</td></tr>
+        <tr><td rowspan="2" style="font-weight:600;">8. Content</td><td><span class="type-chip tc-at">Airtable</span> Content</td><td style="font-size:12px;">recvvZb6PW3nxAsaG (Instagram reel, 2800 views)</td></tr>
+        <tr><td><span class="type-chip tc-at">Airtable</span> Conversations</td><td style="font-size:12px;">recWiMCMQwJihzx0B (Outbound: thank-you email)</td></tr>
       </tbody>
     </table>
   </div>
@@ -406,26 +406,26 @@
     <div class="flow-head" style="background:#fafbfc;">
       <div>
         <div class="flow-title-row"><span class="flow-title">Data Trail — Component Flows</span></div>
-        <div class="flow-desc">Records from individual flow tests (--no-cleanup) · 2026-03-16 10:11 KST</div>
+        <div class="flow-desc">Records from individual flow tests (--no-cleanup) · 2026-03-16 10:36 KST</div>
       </div>
     </div>
     <table class="steps-table">
       <thead><tr><th>Flow</th><th>System</th><th>Record</th></tr></thead>
       <tbody>
-        <tr><td rowspan="4" style="font-weight:600;">Gifting</td><td><span class="type-chip tc-at">Airtable</span> Applicants</td><td style="font-size:12px;">recBo5dTYZ6EW0Q9k</td></tr>
-        <tr><td><span class="type-chip tc-at">Airtable</span> Creators</td><td style="font-size:12px;">recGSEWFnGCgl5NWf (Outreach: Needs Review)</td></tr>
-        <tr><td><span class="type-chip tc-shopify">Shopify</span> Customer</td><td style="font-size:12px;">27036200763762 (tags: influencer-gifting, PR)</td></tr>
-        <tr><td><span class="type-chip tc-pg">PG</span> Gifting</td><td style="font-size:12px;">Draft Order #D1515</td></tr>
-        <tr><td style="font-weight:600;">Creator</td><td><span class="type-chip tc-at">Airtable</span> Applicants</td><td style="font-size:12px;">recoJmepqihxgsGQ3 (Platform: instagram)</td></tr>
-        <tr><td rowspan="3" style="font-weight:600;">Sample</td><td><span class="type-chip tc-shopify">Shopify</span> Customer</td><td style="font-size:12px;">27036201615730</td></tr>
-        <tr><td><span class="type-chip tc-at">Airtable</span> Applicants</td><td style="font-size:12px;">recNARspRUYQaZerx (Status: Accepted)</td></tr>
-        <tr><td><span class="type-chip tc-at">Airtable</span> Creators</td><td style="font-size:12px;">recBbDdOlJCVkZbhf (Outreach: Sample Sent)</td></tr>
+        <tr><td rowspan="4" style="font-weight:600;">Gifting</td><td><span class="type-chip tc-at">Airtable</span> Applicants</td><td style="font-size:12px;">rec22vNt2dj3dkxSi</td></tr>
+        <tr><td><span class="type-chip tc-at">Airtable</span> Creators</td><td style="font-size:12px;">recEnSElQgPzNnHsX (Outreach: Needs Review)</td></tr>
+        <tr><td><span class="type-chip tc-shopify">Shopify</span> Customer</td><td style="font-size:12px;">27036239036786 (tags: influencer-gifting, PR)</td></tr>
+        <tr><td><span class="type-chip tc-pg">PG</span> Gifting</td><td style="font-size:12px;">Draft Order #D1519</td></tr>
+        <tr><td style="font-weight:600;">Creator</td><td><span class="type-chip tc-at">Airtable</span> Applicants</td><td style="font-size:12px;">recjDN7MmHcz20qy6 (Platform: instagram)</td></tr>
+        <tr><td rowspan="3" style="font-weight:600;">Sample</td><td><span class="type-chip tc-shopify">Shopify</span> Customer</td><td style="font-size:12px;">27036239626610</td></tr>
+        <tr><td><span class="type-chip tc-at">Airtable</span> Applicants</td><td style="font-size:12px;">recr1n3IPoAiZy9Zy (Status: Accepted)</td></tr>
+        <tr><td><span class="type-chip tc-at">Airtable</span> Creators</td><td style="font-size:12px;">recQcnw8emXcSwjhB (Outreach: Sample Sent)</td></tr>
       </tbody>
     </table>
   </div>
 
   <div class="footer">
-    Pathlight WJ TEST · E2E Run 2026-03-16 10:27 KST &nbsp;|&nbsp;
+    Pathlight WJ TEST · E2E Run 2026-03-16 10:34 KST &nbsp;|&nbsp;
     <a href="." style="color:var(--accent);text-decoration:none;">Pipeline</a> &nbsp;&middot;&nbsp;
     <a href="migration.html" style="color:var(--accent);text-decoration:none;">Migration</a>
   </div>
