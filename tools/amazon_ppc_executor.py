@@ -2332,7 +2332,7 @@ def update_campaign_budget(profile_id: int, campaign_id: int, new_budget: float)
         headers=headers,
         json={
             "campaigns": [{
-                "campaignId": campaign_id,
+                "campaignId": str(campaign_id),
                 "budget": {"budget": new_budget, "budgetType": "DAILY"},
             }]
         },
