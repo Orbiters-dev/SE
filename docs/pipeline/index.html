@@ -188,16 +188,23 @@
   <a href="." class="brand">Pathlight</a>
   <a href="." class="active">Pipeline (EN)</a>
   <a href="ko.html">Pipeline (KR)</a>
-  <a href="migration.html">Migration Report</a>
-  <a href="tests.html">Test Results</a>
-  <a href="tests-ko.html">테스트 결과</a>
+  <a href="tests.html">PROD E2E Tests</a>
 </nav>
 <div class="container">
 
   <div class="hero">
-    <h1><span>WJ</span> Influencer TEST1</h1>
-    <p class="subtitle">End-to-end automation from influencer data collection to content post detection &mdash; 8-stage pipeline</p>
-    <div class="test-time">As of March 14, 2026 &middot; E2E Test: 22/23 PASS</div>
+    <h1><span>Pathlight</span> Influencer Pipeline</h1>
+    <p class="subtitle">End-to-end automation from AI outreach to content post detection &mdash; 10-stage pipeline (PROD + WJ TEST)</p>
+    <div class="test-time">Updated March 17, 2026 &middot; PROD: 14 workflows &middot; WJ TEST E2E: 22/23 PASS</div>
+  </div>
+
+  <!-- PROD Status Alert -->
+  <div style="background:#fef2f2; border:2px solid #fecaca; border-radius:12px; padding:16px 20px; margin-bottom:24px; display:flex; align-items:center; gap:14px;">
+    <span style="font-size:28px; flex-shrink:0;">&#9888;</span>
+    <div>
+      <div style="font-size:14px; font-weight:700; color:#dc2626;">PROD Airtable Credential Issue (2026-03-17)</div>
+      <div style="font-size:12px; color:#991b1b; margin-top:4px;">6 of 14 PROD workflows failing with <code style="background:#fee2e2; padding:1px 4px; border-radius:3px; font-size:11px;">"Forbidden"</code> &mdash; n8n credential <code style="font-size:11px;">Onzenna Airtable</code> lacks access to new PROD base <code style="font-size:11px;">app3Vnmh7hLAVsevE</code>. <a href="tests.html" style="color:#dc2626; font-weight:600;">See full test results &rarr;</a></div>
+    </div>
   </div>
 
   <div class="legend">
@@ -237,120 +244,142 @@
 
   <!-- Status Flow -->
   <div class="status-bar">
-    <span class="status-pill" style="background:#f1f5f9; color:#64748b;">Syncly Ingest</span>
+    <span class="status-pill" style="background:#faf5ff; color:#7c3aed;">Config</span>
     <span class="status-arrow">&rarr;</span>
-    <span class="status-pill" style="background:#f1f5f9; color:#64748b;">Outreach</span>
+    <span class="status-pill" style="background:var(--auto-bg); color:var(--auto);">AI Draft</span>
     <span class="status-arrow">&rarr;</span>
-    <span class="status-pill" style="background:var(--human-bg); color:var(--human);">Form Submit</span>
+    <span class="status-pill" style="background:var(--auto-bg); color:var(--auto);">Send</span>
     <span class="status-arrow">&rarr;</span>
-    <span class="status-pill" style="background:var(--store-bg); color:var(--store);">New</span>
+    <span class="status-pill" style="background:var(--auto-bg); color:var(--auto);">Reply</span>
     <span class="status-arrow">&rarr;</span>
-    <span class="status-pill" style="background:var(--human-bg); color:var(--human);">Needs Review</span>
+    <span class="status-pill" style="background:var(--human-bg); color:var(--human);">Form</span>
     <span class="status-arrow">&rarr;</span>
-    <span class="status-pill" style="background:var(--auto-bg); color:var(--auto);">Accepted</span>
+    <span class="status-pill" style="background:var(--human-bg); color:var(--human);">Accept</span>
     <span class="status-arrow">&rarr;</span>
-    <span class="status-pill" style="background:var(--poll-bg); color:var(--poll);">Sample Sent</span>
+    <span class="status-pill" style="background:var(--poll-bg); color:var(--poll);">Sample</span>
     <span class="status-arrow">&rarr;</span>
-    <span class="status-pill" style="background:var(--poll-bg); color:var(--poll);">Shipped</span>
+    <span class="status-pill" style="background:var(--poll-bg); color:var(--poll);">Ship</span>
     <span class="status-arrow">&rarr;</span>
-    <span class="status-pill" style="background:var(--poll-bg); color:var(--poll);">Delivered</span>
+    <span class="status-pill" style="background:var(--auto-bg); color:var(--auto);">Guide</span>
     <span class="status-arrow">&rarr;</span>
-    <span class="status-pill" style="background:var(--auto-bg); color:var(--auto);">Guideline</span>
+    <span class="status-pill" style="background:var(--store-bg); color:var(--store);">Post</span>
     <span class="status-arrow">&rarr;</span>
-    <span class="status-pill" style="background:var(--store-bg); color:var(--store);">Posted</span>
+    <span class="status-pill" style="background:#fff1f2; color:#e11d48;">Contract (HT)</span>
   </div>
 
-  <!-- ==================== STAGE 0 ==================== -->
+  <!-- ==================== STAGE 0: CONFIG SYSTEM ==================== -->
   <div class="flow">
     <div class="flow-header">
-      <div class="flow-num pre-num">0</div>
+      <div class="flow-num" style="background:#7c3aed;">0</div>
       <div class="flow-info">
-        <h2>Syncly Influencer Discovery &rarr; Airtable Sync</h2>
-        <p>Syncly discovers influencers &rarr; Shares data in Google Sheet &rarr; n8n syncs creators &amp; content to Airtable CRM &rarr; Writes status back</p>
+        <h2>Config System + Syncly Discovery</h2>
+        <p>Dashboard &amp; Daily Config control the entire pipeline. Mode Switcher auto-applies presets. Syncly discovers influencers.</p>
         <div class="flow-links">
-          <a class="flow-link" href="https://docs.google.com/spreadsheets/d/1dIAhP8wCEdFulSAai3K-RoZTvLBIaWxAK7hzInBsF0o/edit?gid=817788377" target="_blank">Syncly Discovery Sheet</a>
-          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/6BNQRz57oCtdROlH" target="_blank">n8n: Syncly Data Processing (WJ TEST)</a>
-          <a class="flow-link" href="https://airtable.com/appT2gLRR0PqMFgII" target="_blank">Airtable (WJ TEST)</a>
+          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/nTUJqlaKT61Di5A6" target="_blank">n8n: Daily Config Row (PROD)</a>
+          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/OQGl3EVBTxathqSg" target="_blank">n8n: Mode Switcher (PROD)</a>
+          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/6BNQRz57oCtdROlH" target="_blank">n8n: Syncly Data (WJ TEST)</a>
         </div>
       </div>
-      <div class="flow-status auto-status">AUTO (Manual Trigger)</div>
+      <div class="flow-status auto-status">AUTO (cron + 2min poll)</div>
     </div>
     <div class="journey">
       <div class="step">
-        <div class="step-icon store">&#128202;</div>
+        <div class="step-icon" style="background:#faf5ff; border-color:#e9d5ff;">&#9881;</div>
         <div class="step-content">
-          <div class="step-label store">&#128196; Data Source</div>
-          <div class="step-title">Syncly Influencer Discovery Google Sheet</div>
-          <div class="step-desc">Syncly platform discovers influencers and shares creator + content data via a shared <a href="https://docs.google.com/spreadsheets/d/1dIAhP8wCEdFulSAai3K-RoZTvLBIaWxAK7hzInBsF0o/edit?gid=817788377" target="_blank">Google Sheet</a></div>
+          <div class="step-label" style="background:#faf5ff; color:#7c3aed;">&#9881; PROD Config</div>
+          <div class="step-title">Dashboard Table &rarr; Pipeline Master Switch</div>
+          <div class="step-desc">Single-row Airtable table controls the entire PROD pipeline. All workflows read this on every execution.</div>
+          <div class="data-box">
+            <h4>Dashboard Fields (Change This &rarr; Get That)</h4>
+            <div class="data-row"><span class="data-key">Active</span><span class="data-val">true/false &mdash; entire pipeline ON/OFF</span></div>
+            <div class="data-row"><span class="data-key">HiL (Draft Gen)</span><span class="data-val">on/off/auto &mdash; auto: LT=skip, HT=require approval</span></div>
+            <div class="data-row"><span class="data-key">HiL (Reply)</span><span class="data-val">true/false &mdash; auto-reply vs approval wait</span></div>
+            <div class="data-row"><span class="data-key">Sender Email</span><span class="data-val">All outbound from this address</span></div>
+            <div class="data-row"><span class="data-key">Test Override</span><span class="data-val">Set = all emails go here (for testing)</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon poll">&#128260;</div>
+        <div class="step-content">
+          <div class="step-label poll">&#128337; Every 2 minutes</div>
+          <div class="step-title">Mode Switcher &mdash; Auto-Apply Dashboard Presets</div>
+          <div class="step-desc">Polls Dashboard "Mode" field every 2 minutes. If changed, applies preset config values automatically.</div>
         </div>
       </div>
       <div class="step">
         <div class="step-icon auto">&#128260;</div>
         <div class="step-content">
-          <div class="step-label auto">&#9889; n8n Sync (64 nodes)</div>
-          <div class="step-title">Creator Sync: Google Sheet &rarr; Airtable CRM</div>
-          <div class="step-desc">n8n reads creator data from sheet &rarr; Deduplication check &rarr; Create or update Creator records in Airtable</div>
+          <div class="step-label auto">&#9889; Daily Config Row (04:00 UTC)</div>
+          <div class="step-title">Auto-Create Today's Config</div>
+          <div class="step-desc">Copies yesterday's Config row if today's doesn't exist. Controls: HT threshold, template version, brand distribution, guideline version.</div>
           <div class="data-box">
-            <h4>Creator Sync Pipeline</h4>
-            <div class="data-row"><span class="data-key">1. Read Sheet</span><span class="data-val">Fetch creator list from Syncly discovery sheet</span></div>
-            <div class="data-row"><span class="data-key">2. Dedup</span><span class="data-val">Check existing Airtable creators &rarr; Build lookup map</span></div>
-            <div class="data-row"><span class="data-key">3. Sync</span><span class="data-val">Create new / Update existing Creator records in Airtable</span></div>
-            <div class="data-row"><span class="data-key">4. Writeback</span><span class="data-val">Write processing status back to Google Sheet</span></div>
+            <h4>Config Fields</h4>
+            <div class="data-row"><span class="data-key">HT Req (Views)</span><span class="data-val">50,000+ R30D views = auto High Touch</span></div>
+            <div class="data-row"><span class="data-key">Template</span><span class="data-val">Active outreach template for Claude AI</span></div>
+            <div class="data-row"><span class="data-key">Brand Dist</span><span class="data-val">grosmimi:60, chaenmom:30, naeiae:10</span></div>
           </div>
         </div>
       </div>
       <div class="step">
-        <div class="step-icon auto">&#128196;</div>
+        <div class="step-icon store">&#128202;</div>
         <div class="step-content">
-          <div class="step-label auto">&#9889; Content Sync</div>
-          <div class="step-title">Content Sync: Google Sheet &rarr; Airtable + Creator Linking</div>
-          <div class="step-desc">Sync content records from sheet &rarr; Auto-link to creator records &rarr; Auto-create missing creators &rarr; Gmail notifications</div>
-          <div class="data-box">
-            <h4>Content Sync Pipeline</h4>
-            <div class="data-row"><span class="data-key">1. Read</span><span class="data-val">Fetch content data from sheet</span></div>
-            <div class="data-row"><span class="data-key">2. Link</span><span class="data-val">Match content to creators &rarr; Auto-create if missing</span></div>
-            <div class="data-row"><span class="data-key">3. Sync</span><span class="data-val">Create/Update Content records in Airtable</span></div>
-            <div class="data-row"><span class="data-key">4. Notify</span><span class="data-val">Gmail summary: sync results + writeback status</span></div>
-          </div>
+          <div class="step-label store">&#128196; Data Source</div>
+          <div class="step-title">Syncly Influencer Discovery &rarr; Airtable CRM</div>
+          <div class="step-desc">Syncly discovers influencers via shared Google Sheet. n8n syncs creators + content to Airtable (64-node workflow).</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== STAGE 1 ==================== -->
+  <!-- ==================== STAGE 1: AI OUTREACH (3 workflows) ==================== -->
   <div class="flow">
     <div class="flow-header">
-      <div class="flow-num pre-num">1</div>
+      <div class="flow-num">1</div>
       <div class="flow-info">
-        <h2>Bulk Outreach &amp; Inquiry Handling</h2>
-        <p>Claude API generates personalized outreach emails/DMs &rarr; Send &rarr; Track responses &rarr; Handle inquiries</p>
+        <h2>AI Outreach (3 PROD Workflows)</h2>
+        <p>Draft Generation (30min) &rarr; Approval Send (1min) &rarr; Reply Handler (1min). LT vs HT branching at every step.</p>
         <div class="flow-links">
-          <a class="flow-link" href="https://n8n.orbiters.co.kr" target="_blank">n8n Dashboard</a>
+          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/fwwOeLiDLSnR77E1" target="_blank">n8n: Draft Gen (PROD)</a>
+          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/jf9uxkPww2xeCr82" target="_blank">n8n: Approval Send (PROD)</a>
+          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/K99grtW9iWq8V79f" target="_blank">n8n: Reply Handler (PROD)</a>
         </div>
       </div>
-      <div class="flow-status auto-status">AUTO + HUMAN</div>
+      <div class="flow-status" style="background:#fee2e2; color:#dc2626;">FAIL (credential)</div>
     </div>
     <div class="journey">
       <div class="step">
-        <div class="step-icon auto">&#128231;</div>
+        <div class="step-icon poll">&#128260;</div>
         <div class="step-content">
-          <div class="step-label auto">&#9889; AI-Generated + Auto Send</div>
-          <div class="step-title">Claude API Personalized Outreach &rarr; Gmail Bulk Send</div>
-          <div class="step-desc">Generate tailored messages based on influencer profile &rarr; Send from affiliates@onzenna.com &rarr; Update Airtable status to "Sent"</div>
+          <div class="step-label poll">&#128337; Every 30 minutes (42 nodes)</div>
+          <div class="step-title">Draft Generation &mdash; Claude AI Personalized Outreach</div>
+          <div class="step-desc">Polls Creators with Status="Not Started" + Partnership="New". Loads Config + Dashboard. Claude generates draft email.</div>
           <div class="data-box">
-            <h4>Outreach Flow</h4>
-            <div class="data-row"><span class="data-key">1. Draft</span><span class="data-val">Claude API generates profile-based personalized messages</span></div>
-            <div class="data-row"><span class="data-key">2. Send</span><span class="data-val">Gmail OAuth &rarr; Bulk email (affiliates@onzenna.com)</span></div>
-            <div class="data-row"><span class="data-key">3. Track</span><span class="data-val">Airtable: Status &rarr; "Sent", Last Contact At recorded</span></div>
+            <h4>LT vs HT Difference</h4>
+            <div class="data-row"><span class="data-key" style="color:var(--auto);">Low Touch</span><span class="data-val">LT Guidelines Sheet + LT System Prompt. HiL auto = <strong>false</strong> &rarr; auto-sends without approval</span></div>
+            <div class="data-row"><span class="data-key" style="color:var(--human);">High Touch</span><span class="data-val">HT Guidelines Sheet + HT System Prompt. HiL auto = <strong>true</strong> &rarr; stops at "Draft Ready" for human approval</span></div>
           </div>
         </div>
       </div>
       <div class="step">
-        <div class="step-icon human">&#128172;</div>
+        <div class="step-icon auto">&#128231;</div>
         <div class="step-content">
-          <div class="step-label human">&#9998; Human + AI</div>
-          <div class="step-title">Inquiry Handling &amp; Follow-ups</div>
-          <div class="step-desc">Team reviews influencer replies + AI-assisted responses. Status: Replied &rarr; Needs Review</div>
+          <div class="step-label auto">&#9889; Every 1 minute (17 nodes)</div>
+          <div class="step-title">Approval Send &mdash; Gmail Dispatch</div>
+          <div class="step-desc">Polls Status="Draft Ready" &rarr; Gmail send from affiliates@onzenna.com &rarr; Status="Sent"</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon auto">&#128172;</div>
+        <div class="step-content">
+          <div class="step-label auto">&#9889; Every 1 minute (48 nodes)</div>
+          <div class="step-title">Reply Handler &mdash; Claude AI Response + Intent Routing</div>
+          <div class="step-desc">Checks Gmail threads for new replies. Claude classifies intent (Accept/FAQ_GAP/Normal). Routes accordingly.</div>
+          <div class="data-box">
+            <h4>LT vs HT Reply Handling</h4>
+            <div class="data-row"><span class="data-key" style="color:var(--auto);">Low Touch</span><span class="data-val">Claude auto-responds immediately. FAQ_GAP logged + alert. Accept &rarr; link gifting form.</span></div>
+            <div class="data-row"><span class="data-key" style="color:var(--human);">High Touch</span><span class="data-val">Claude generates draft &rarr; saved as "Needs Review" &rarr; human must approve before sending.</span></div>
+          </div>
         </div>
       </div>
     </div>
@@ -654,6 +683,45 @@
             <div class="data-row"><span class="data-key">3. Update AT</span><span class="data-val">Airtable: Status &rarr; "Posted" + Post URL + Metrics</span></div>
             <div class="data-row"><span class="data-key">4. Update PG</span><span class="data-val"><code>onz_influencer_outreach</code>: outreach_status &rarr; "Posted"</span></div>
             <div class="data-row"><span class="data-key">5. Track</span><span class="data-val">Start D+60 performance tracking (Views, Likes, Comments)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STAGE 8: DOCUSEAL (HT ONLY) ==================== -->
+  <div class="flow">
+    <div class="flow-header">
+      <div class="flow-num" style="background:#e11d48;">8</div>
+      <div class="flow-info">
+        <h2>DocuSeal Contracting (High Touch Only)</h2>
+        <p>HT creators with Status="Send Contract" &rarr; DocuSeal API generates contract &rarr; Auto-email &rarr; Signature webhook</p>
+        <div class="flow-links">
+          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/HeJtfn0m3PJoPzg0" target="_blank">n8n: DocuSeal (PROD)</a>
+        </div>
+      </div>
+      <div class="flow-status" style="background:#fee2e2; color:#dc2626;">HT ONLY &middot; FAIL</div>
+    </div>
+    <div class="journey">
+      <div class="step">
+        <div class="step-icon poll">&#128260;</div>
+        <div class="step-content">
+          <div class="step-label poll">&#128337; Every 5 minutes</div>
+          <div class="step-title">Poll: Status="Send Contract" AND Type="High Touch"</div>
+          <div class="step-desc">Only triggers for High Touch creators. Low Touch creators skip this stage entirely.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon auto">&#128196;</div>
+        <div class="step-content">
+          <div class="step-label auto">&#9889; DocuSeal API</div>
+          <div class="step-title">Auto-Generate Contract &rarr; Email for Signature</div>
+          <div class="step-desc">Creates a deal record in Airtable Deals table. Sends contract via DocuSeal to creator's email for e-signature.</div>
+          <div class="data-box">
+            <h4>3 Sub-Flows</h4>
+            <div class="data-row"><span class="data-key">1. Create Deal</span><span class="data-val">Airtable Deals table: new record with creator + terms</span></div>
+            <div class="data-row"><span class="data-key">2. Send Contract</span><span class="data-val">DocuSeal API: generate PDF from template &rarr; email to creator</span></div>
+            <div class="data-row"><span class="data-key">3. Signed Webhook</span><span class="data-val"><code>/docuseal-signed</code> &rarr; Update AT status to "Contract Signed"</span></div>
           </div>
         </div>
       </div>
@@ -1052,9 +1120,94 @@ William &middot; Onzenna Team</div>
   </div><!-- /case-section -->
 
   <!-- ==================== n8n WORKFLOW STATUS ==================== -->
-  <div class="summary-section" style="margin-top:48px; margin-bottom:0;">
-    <h3>n8n Workflow Status (WJ TEST)</h3>
-    <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">As of 2026-03-14 &middot; Docusign excluded &middot; Production Pathlight managed separately</p>
+  <!-- PROD Workflows -->
+  <div class="summary-section" style="margin-top:48px; margin-bottom:16px;">
+    <h3>n8n Workflow Status &mdash; PROD</h3>
+    <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">As of 2026-03-17 06:51 UTC &middot; 250 executions analyzed &middot; Base: <code style="font-size:11px;">app3Vnmh7hLAVsevE</code></p>
+    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+      <thead>
+        <tr style="border-bottom:2px solid var(--border);">
+          <th style="text-align:left; padding:8px 6px; color:var(--text-dim); font-size:11px; text-transform:uppercase;">Workflow</th>
+          <th style="text-align:center; padding:8px 6px; color:var(--text-dim); font-size:11px; text-transform:uppercase;">Status</th>
+          <th style="text-align:center; padding:8px 6px; color:var(--text-dim); font-size:11px; text-transform:uppercase;">Execs</th>
+          <th style="text-align:left; padding:8px 6px; color:var(--text-dim); font-size:11px; text-transform:uppercase;">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/nTUJqlaKT61Di5A6" target="_blank" style="color:var(--accent); text-decoration:none;">Daily Config Row</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
+          <td style="text-align:center; font-size:12px; color:var(--text-dim);">0 (daily)</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 0 &mdash; 04:00 UTC cron</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border); background:#fef2f2;">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/OQGl3EVBTxathqSg" target="_blank" style="color:var(--fail); text-decoration:none;">Mode Switcher</a></td>
+          <td style="text-align:center;"><span style="background:#fee2e2; color:#dc2626; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">FAIL</span></td>
+          <td style="text-align:center; font-size:12px;">0/16</td>
+          <td style="padding:8px 6px; font-size:12px; color:#dc2626;">Forbidden &mdash; Airtable credential issue</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border); background:#fef2f2;">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/fwwOeLiDLSnR77E1" target="_blank" style="color:var(--fail); text-decoration:none;">Draft Generation</a></td>
+          <td style="text-align:center;"><span style="background:#fee2e2; color:#dc2626; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">FAIL</span></td>
+          <td style="text-align:center; font-size:12px;">0/31</td>
+          <td style="padding:8px 6px; font-size:12px; color:#dc2626;">Stage 1 &mdash; 42 nodes, Forbidden at Poll New Creators</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border); background:#fef2f2;">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/jf9uxkPww2xeCr82" target="_blank" style="color:var(--fail); text-decoration:none;">Approval Send</a></td>
+          <td style="text-align:center;"><span style="background:#fee2e2; color:#dc2626; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">FAIL</span></td>
+          <td style="text-align:center; font-size:12px;">0/31</td>
+          <td style="padding:8px 6px; font-size:12px; color:#dc2626;">Stage 1 &mdash; Forbidden at Fetch Dashboard</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border); background:#fef2f2;">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/K99grtW9iWq8V79f" target="_blank" style="color:var(--fail); text-decoration:none;">Reply Handler</a></td>
+          <td style="text-align:center;"><span style="background:#fee2e2; color:#dc2626; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">FAIL</span></td>
+          <td style="text-align:center; font-size:12px;">0/32</td>
+          <td style="padding:8px 6px; font-size:12px; color:#dc2626;">Stage 1 &mdash; 48 nodes, Forbidden at Fetch Tracked Threads</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/F0sv8RsCS1v56Gkw" target="_blank" style="color:var(--accent); text-decoration:none;">Gifting Draft Order</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
+          <td style="text-align:center; font-size:12px; color:var(--text-dim);">0 (wh)</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 2 &mdash; Webhook, no triggers in window</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border); background:#f0fdf4;">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/onIxBINIcTX1LxMH" target="_blank" style="color:var(--accent); text-decoration:none;">Accepted Email (Sample Form)</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="text-align:center; font-size:12px; color:#15803d;">10/0</td>
+          <td style="padding:8px 6px; font-size:12px; color:#15803d;">Stage 3 &mdash; Only working PROD poller (uses hardcoded WJ TEST base)</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border); background:#f8fafc;">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/m89xU9RUbPgnkBy8" target="_blank" style="color:var(--text-dim); text-decoration:none;">Sample Sent Complete</a></td>
+          <td style="text-align:center;"><span style="background:#f3f4f6; color:#6b7280; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">OFF</span></td>
+          <td style="text-align:center; font-size:12px; color:var(--text-dim);">0</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 5 &mdash; Intentionally inactive</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border); background:#fef2f2;">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/ufMPgU6cjwuzLM0y" target="_blank" style="color:var(--fail); text-decoration:none;">Fulfillment Airtable</a></td>
+          <td style="text-align:center;"><span style="background:#fee2e2; color:#dc2626; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">FAIL</span></td>
+          <td style="text-align:center; font-size:12px;">0/32</td>
+          <td style="padding:8px 6px; font-size:12px; color:#dc2626;">Stage 6 &mdash; 33 nodes, Forbidden</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/jH3YKdFFRupaIyQW" target="_blank" style="color:var(--accent); text-decoration:none;">Content Tracking</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
+          <td style="text-align:center; font-size:12px; color:var(--text-dim);">0 (6hr)</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 7 &mdash; 41 nodes, likely same credential issue</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border); background:#fef2f2;">
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/HeJtfn0m3PJoPzg0" target="_blank" style="color:var(--fail); text-decoration:none;">DocuSeal Contracting</a></td>
+          <td style="text-align:center;"><span style="background:#fee2e2; color:#dc2626; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">FAIL</span></td>
+          <td style="text-align:center; font-size:12px;">0/14</td>
+          <td style="padding:8px 6px; font-size:12px; color:#dc2626;">Stage 8 (HT only) &mdash; 31 nodes, Forbidden</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- WJ TEST Workflows -->
+  <div class="summary-section" style="margin-top:0; margin-bottom:0;">
+    <h3>n8n Workflow Status &mdash; WJ TEST</h3>
+    <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">As of 2026-03-14 &middot; Base: <code style="font-size:11px;">appT2gLRR0PqMFgII</code></p>
     <table style="width:100%; border-collapse:collapse; font-size:13px;">
       <thead>
         <tr style="border-bottom:2px solid var(--border);">
@@ -1152,7 +1305,7 @@ William &middot; Onzenna Team</div>
       </tbody>
     </table>
     <div style="margin-top:12px; font-size:12px; color:var(--text-dim); text-align:right;">
-      Docusign Contracting &mdash; excluded for low-touch mode (SKIP)
+      DocuSeal Contracting &mdash; PROD only, HT-only (see <a href="tests.html" style="color:var(--accent);">PROD E2E Tests</a>)
     </div>
   </div>
 
@@ -1161,34 +1314,35 @@ William &middot; Onzenna Team</div>
     <h3>Pipeline Summary</h3>
     <div class="summary-grid">
       <div class="summary-item">
-        <div class="num blue">8</div>
+        <div class="num blue">10</div>
         <div class="label">Total Stages</div>
       </div>
       <div class="summary-item">
-        <div class="num green">11</div>
-        <div class="label">Active Workflows</div>
+        <div class="num blue">14</div>
+        <div class="label">PROD Workflows</div>
       </div>
       <div class="summary-item">
-        <div class="num" style="color:var(--human);">6</div>
-        <div class="label">Human Touch Points</div>
+        <div class="num green">1</div>
+        <div class="label">PROD PASS</div>
       </div>
       <div class="summary-item">
-        <div class="num red">2</div>
-        <div class="label">Inactive (Issues)</div>
+        <div class="num red">6</div>
+        <div class="label">PROD FAIL</div>
+      </div>
+      <div class="summary-item">
+        <div class="num" style="color:var(--human);">5</div>
+        <div class="label">LT/HT Diff Points</div>
       </div>
     </div>
 
     <div style="margin-top:24px; padding:16px; background:var(--bg); border-radius:10px;">
-      <h4 style="font-size:14px; margin-bottom:12px;">&#128161; Key Highlights</h4>
+      <h4 style="font-size:14px; margin-bottom:12px;">&#128161; Key Findings (2026-03-17)</h4>
       <div style="font-size:13px; line-height:1.8; color:var(--text-dim);">
-        <div><strong style="color:var(--pass);">Stage 2 (Gifting App)</strong> &mdash; 22/23 PASS (2026-03-14). Form &rarr; Shopify &rarr; Draft Order &rarr; Airtable &rarr; PG (<code>onz_influencer_outreach</code>) all working. No login required.</div>
-        <div><strong style="color:var(--pass);">Stage 3 (Creator Profile)</strong> &mdash; Airtable save + IG scraping confirmed</div>
-        <div><strong style="color:var(--pass);">Stage 4 (Sample Request)</strong> &mdash; Acceptance email &rarr; sample form (no login) &rarr; Draft Order + PG update all working</div>
-        <div><strong style="color:var(--auto);">Stage 5-7</strong> &mdash; Polling chain (5min/30min/6hr) + Content Guideline email + PG status updates at each stage</div>
-        <div><strong style="color:var(--store);">PG Lifecycle Tracking</strong> &mdash; <code>onz_influencer_outreach</code> records status at: Needs Review &rarr; Sample Sent &rarr; Sample Delivered &rarr; Posted</div>
-        <div><strong style="color:var(--accent);">Stage 0-1</strong> &mdash; Syncly ingestion + AI outreach pipeline</div>
-        <div><strong style="color:#d97706);">Gifting2</strong> &mdash; Inactive pending final E2E verification before activation</div>
-        <div><strong style="color:var(--fail);">Syncly Trigger (Step 3)</strong> &mdash; n8n API 405 for schedule-triggered workflows (non-critical, manual trigger works)</div>
+        <div><strong style="color:var(--fail);">PROD Critical</strong> &mdash; 6 polling workflows all FAIL with "Forbidden" &mdash; <code>Onzenna Airtable</code> credential lacks access to new PROD base <code>app3Vnmh7hLAVsevE</code>. Fix: update PAT scope.</div>
+        <div><strong style="color:var(--pass);">WJ TEST E2E</strong> &mdash; 22/23 PASS (2026-03-14). Gifting webhook, Draft Order, Airtable, PostgreSQL all verified with real data.</div>
+        <div><strong style="color:var(--accent);">LT vs HT</strong> &mdash; 5 branching points: Draft Gen HiL, Reply Handler routing, DocuSeal (HT-only), Guidelines template, Reply approval. <a href="tests.html" style="color:var(--accent);">See detailed comparison &rarr;</a></div>
+        <div><strong style="color:var(--store);">Config System</strong> &mdash; Dashboard (master switch) + Daily Config (template/threshold) + Mode Switcher (2min preset auto-apply). <a href="tests.html" style="color:var(--accent);">See config guide &rarr;</a></div>
+        <div><strong style="color:#d97706;">Stage 8 (DocuSeal)</strong> &mdash; HT-only contracting. 3 sub-flows: Create Deal, Send Contract, Signed Webhook. Currently failing (same credential).</div>
       </div>
     </div>
 
@@ -1228,7 +1382,7 @@ William &middot; Onzenna Team</div>
   </div>
 
   <div class="footer">
-    Pathlight Pipeline &middot; ORBI WAT Framework &middot; ORBITOOL Marketing Module &middot; Generated 2026-03-14 &middot; E2E 22/23 PASS
+    Pathlight Pipeline &middot; ORBI WAT Framework &middot; Updated 2026-03-17 &middot; PROD 14 WFs + WJ TEST E2E 22/23 PASS &middot; <a href="tests.html" style="color:var(--accent);">PROD E2E Tests</a>
   </div>
 
 </div>
