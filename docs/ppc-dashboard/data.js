@@ -683,12 +683,30 @@ const PPC_DATA = {
        "tier": "6 Optimize",
        "reason": "[AUTO] 7d ROAS 2.36x (ACOS 42.4%) | 30d ROAS 2.26x | 7d vs 30d: +4.4%\nOptimization: ACOS 42.4% exceeds target 30.0% by 12.4pp -> bid -10% | CVR 4.53% is below 5% benchmark -> optimize product page, A+ content, reviews",
        "approved": false
+      },
+      {
+       "name": "SB-manual - 11/2/2022 10:20:00",
+       "type": "SB",
+       "ad_type": "SB",
+       "roas7d": 0,
+       "acos7d": 0,
+       "spend7d": 0,
+       "sales7d": 0,
+       "cpc": 0,
+       "ctr": 0,
+       "action": "monitor",
+       "bid_pct": null,
+       "bud_before": 0.0,
+       "bud_after": null,
+       "tier": "1 Monitor",
+       "reason": "[SB] 7d ROAS 0x (ACOS None%) | 30d ROAS 0x | target ACOS 30.0% | ",
+       "approved": false
       }
      ],
      "harvest": [],
      "negate": [],
      "counts": {
-      "campaigns": 13,
+      "campaigns": 14,
       "harvest": 0,
       "negate": 0
      }
@@ -820,12 +838,48 @@ const PPC_DATA = {
        "tier": "6 Optimize",
        "reason": "[AUTO] 7d ROAS 2.69x (ACOS 37.2%) | 30d ROAS 2.85x | 7d vs 30d: -5.6%\nOptimization: ACOS 37.2% exceeds target 35.0% by 2.2pp -> bid -10% | CTR 0.34% is low -> review listing images, titles, pricing",
        "approved": false
+      },
+      {
+       "name": "Naeiae Rice Pop - SP - Manual",
+       "type": "MANUAL",
+       "ad_type": "SP",
+       "roas7d": 4.72,
+       "acos7d": 21.2,
+       "spend7d": 219,
+       "sales7d": 1033,
+       "cpc": 0.96,
+       "ctr": 0.78,
+       "action": "increase_budget",
+       "bid_pct": null,
+       "bud_before": 75.0,
+       "bud_after": 75.0,
+       "tier": "7 Strong",
+       "reason": "[MANUAL] 7d ROAS 4.72x (ACOS 21.2%) | 30d ROAS 3.08x | target ACOS 25.0% | 7d vs 30d: +53.2%",
+       "approved": false
+      },
+      {
+       "name": "Naeiae Rice Pop - SB - Manual",
+       "type": "SB",
+       "ad_type": "SB",
+       "roas7d": 0,
+       "acos7d": 0,
+       "spend7d": 0,
+       "sales7d": 0,
+       "cpc": 0,
+       "ctr": 0,
+       "action": "monitor",
+       "bid_pct": null,
+       "bud_before": 0.0,
+       "bud_after": null,
+       "tier": "1 Monitor",
+       "reason": "[SB] 7d ROAS 0x (ACOS None%) | 30d ROAS 0x | target ACOS 30.0% | ",
+       "approved": false
       }
      ],
      "harvest": [],
      "negate": [],
      "counts": {
-      "campaigns": 1,
+      "campaigns": 3,
       "harvest": 0,
       "negate": 0
      }

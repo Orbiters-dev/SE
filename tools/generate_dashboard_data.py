@@ -48,9 +48,13 @@ def load_proposals():
             # Support both list format (legacy) and dict format (new save_proposal)
             if isinstance(raw, dict):
                 data = raw.get("proposals", [])
-                # Fallback: if no action proposals, use all_campaigns (includes no-change)
-                if not data and raw.get("all_campaigns"):
-                    data = raw["all_campaigns"]
+                # Merge all_campaigns: add any campaigns not already in proposals
+                all_camps = raw.get("all_campaigns", [])
+                if all_camps:
+                    proposal_names = {p.get("campaignName", "") for p in data}
+                    for c in all_camps:
+                        if c.get("campaignName", "") not in proposal_names:
+                            data.append(c)
             elif isinstance(raw, list):
                 data = raw
             else:
