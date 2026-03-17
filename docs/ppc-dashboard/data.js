@@ -1,10 +1,10 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-17 16:35 PST",
+ "generated_pst": "2026-03-17 16:54 PST",
  "brands": {
   "grosmimi": {
    "dates": {
     "2026-03-17": {
-     "generated": "2026-03-17T16:35",
+     "generated": "2026-03-17T16:54",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -846,6 +846,7 @@ const PPC_DATA = {
        "clicks": 284,
        "type": "negate_high_acos",
        "reason": "ACOS 70.8% > 50.0% threshold",
+       "campaign": "SP_stage1_keyword",
        "sim_save": 0
       },
       {
@@ -856,6 +857,7 @@ const PPC_DATA = {
        "clicks": 115,
        "type": "negate_high_acos",
        "reason": "ACOS 126.2% > 50.0% threshold",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -866,6 +868,7 @@ const PPC_DATA = {
        "clicks": 75,
        "type": "negate_high_acos",
        "reason": "ACOS 64.6% > 50.0% threshold",
+       "campaign": "SP_knotted_manual",
        "sim_save": 0
       },
       {
@@ -876,6 +879,7 @@ const PPC_DATA = {
        "clicks": 123,
        "type": "negate_high_acos",
        "reason": "ACOS 186.0% > 50.0% threshold",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -886,6 +890,7 @@ const PPC_DATA = {
        "clicks": 58,
        "type": "negate_high_acos",
        "reason": "ACOS 399.6% > 50.0% threshold",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -896,6 +901,7 @@ const PPC_DATA = {
        "clicks": 135,
        "type": "negate_high_acos",
        "reason": "ACOS 146.8% > 70.0% threshold",
+       "campaign": "SP_Fliptop_auto",
        "sim_save": 0
       },
       {
@@ -906,6 +912,7 @@ const PPC_DATA = {
        "clicks": 60,
        "type": "negate_high_acos",
        "reason": "ACOS 168.0% > 50.0% threshold",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -916,6 +923,7 @@ const PPC_DATA = {
        "clicks": 38,
        "type": "negate_high_acos",
        "reason": "ACOS 62.3% > 50.0% threshold",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -926,6 +934,7 @@ const PPC_DATA = {
        "clicks": 126,
        "type": "negate_high_acos",
        "reason": "ACOS 262.0% > 70.0% threshold",
+       "campaign": "SP_Fliptop_auto",
        "sim_save": 0
       },
       {
@@ -936,6 +945,7 @@ const PPC_DATA = {
        "clicks": 34,
        "type": "negate_high_acos",
        "reason": "ACOS 88.3% > 50.0% threshold",
+       "campaign": "SP_ppsu_manual",
        "sim_save": 0
       },
       {
@@ -946,6 +956,7 @@ const PPC_DATA = {
        "clicks": 62,
        "type": "negate_high_acos",
        "reason": "ACOS 61.4% > 50.0% threshold",
+       "campaign": "SP_knotted_manual",
        "sim_save": 0
       },
       {
@@ -956,6 +967,7 @@ const PPC_DATA = {
        "clicks": 60,
        "type": "negate_high_acos",
        "reason": "ACOS 61.4% > 50.0% threshold",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -966,6 +978,7 @@ const PPC_DATA = {
        "clicks": 84,
        "type": "negate_high_acos",
        "reason": "ACOS 68.9% > 50.0% threshold",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -976,6 +989,7 @@ const PPC_DATA = {
        "clicks": 50,
        "type": "negate_high_acos",
        "reason": "ACOS 52.8% > 50.0% threshold",
+       "campaign": "SP_knotted_manual",
        "sim_save": 0
       },
       {
@@ -986,6 +1000,7 @@ const PPC_DATA = {
        "clicks": 33,
        "type": "negate_high_acos",
        "reason": "ACOS 59.0% > 50.0% threshold",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -996,6 +1011,7 @@ const PPC_DATA = {
        "clicks": 67,
        "type": "negate_high_acos",
        "reason": "ACOS 137.7% > 50.0% threshold",
+       "campaign": "SP_stage1_keyword",
        "sim_save": 0
       },
       {
@@ -1006,6 +1022,7 @@ const PPC_DATA = {
        "clicks": 37,
        "type": "negate_high_acos",
        "reason": "ACOS 73.9% > 50.0% threshold",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -1016,6 +1033,7 @@ const PPC_DATA = {
        "clicks": 54,
        "type": "negate_zero_sales",
        "reason": "$32.59 spent, 54 clicks, 0 sales (>3.0x target CPA)",
+       "campaign": "SP_Fliptop_auto",
        "sim_save": 0
       },
       {
@@ -1026,6 +1044,7 @@ const PPC_DATA = {
        "clicks": 39,
        "type": "negate_high_acos",
        "reason": "ACOS 70.9% > 50.0% threshold",
+       "campaign": "SP_knotted_manual",
        "sim_save": 0
       },
       {
@@ -1036,6 +1055,7 @@ const PPC_DATA = {
        "clicks": 31,
        "type": "negate_high_acos",
        "reason": "ACOS 67.3% > 50.0% threshold",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -1046,6 +1066,7 @@ const PPC_DATA = {
        "clicks": 34,
        "type": "negate_zero_sales",
        "reason": "$29.10 spent, 34 clicks, 0 sales (>3.0x target CPA)",
+       "campaign": "SP_stage1_keyword",
        "sim_save": 0
       },
       {
@@ -1056,6 +1077,7 @@ const PPC_DATA = {
        "clicks": 43,
        "type": "negate_high_acos",
        "reason": "ACOS 127.4% > 50.0% threshold",
+       "campaign": "SP_stage1_keyword",
        "sim_save": 0
       },
       {
@@ -1066,6 +1088,7 @@ const PPC_DATA = {
        "clicks": 15,
        "type": "negate_high_acos",
        "reason": "ACOS 106.5% > 50.0% threshold",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -1076,6 +1099,7 @@ const PPC_DATA = {
        "clicks": 43,
        "type": "negate_zero_sales",
        "reason": "$27.50 spent, 43 clicks, 0 sales (>3.0x target CPA)",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -1086,6 +1110,7 @@ const PPC_DATA = {
        "clicks": 24,
        "type": "negate_high_acos",
        "reason": "ACOS 105.9% > 50.0% threshold",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -1096,6 +1121,7 @@ const PPC_DATA = {
        "clicks": 22,
        "type": "negate_high_acos",
        "reason": "ACOS 55.9% > 50.0% threshold",
+       "campaign": "SP_knotted_manual",
        "sim_save": 0
       },
       {
@@ -1106,6 +1132,7 @@ const PPC_DATA = {
        "clicks": 17,
        "type": "negate_zero_sales",
        "reason": "$26.18 spent, 17 clicks, 0 sales (>3.0x target CPA)",
+       "campaign": "SP_knotted_manual",
        "sim_save": 0
       },
       {
@@ -1116,6 +1143,7 @@ const PPC_DATA = {
        "clicks": 11,
        "type": "negate_high_acos",
        "reason": "ACOS 113.6% > 50.0% threshold",
+       "campaign": "SP_ppsu_manual",
        "sim_save": 0
       },
       {
@@ -1126,6 +1154,7 @@ const PPC_DATA = {
        "clicks": 29,
        "type": "negate_high_acos",
        "reason": "ACOS 101.3% > 50.0% threshold",
+       "campaign": "SP_stage1_keyword",
        "sim_save": 0
       },
       {
@@ -1136,6 +1165,7 @@ const PPC_DATA = {
        "clicks": 12,
        "type": "negate_zero_sales",
        "reason": "$25.05 spent, 12 clicks, 0 sales (>3.0x target CPA)",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -1146,6 +1176,7 @@ const PPC_DATA = {
        "clicks": 34,
        "type": "negate_high_acos",
        "reason": "ACOS 99.7% > 50.0% threshold",
+       "campaign": "SP_stage1_keyword",
        "sim_save": 0
       },
       {
@@ -1156,6 +1187,7 @@ const PPC_DATA = {
        "clicks": 25,
        "type": "negate_high_acos",
        "reason": "ACOS 53.7% > 50.0% threshold",
+       "campaign": "SP_knotted_manual",
        "sim_save": 0
       },
       {
@@ -1166,6 +1198,7 @@ const PPC_DATA = {
        "clicks": 20,
        "type": "negate_zero_sales",
        "reason": "$24.17 spent, 20 clicks, 0 sales (>3.0x target CPA)",
+       "campaign": "SP_ppsu_manual",
        "sim_save": 0
       },
       {
@@ -1176,6 +1209,7 @@ const PPC_DATA = {
        "clicks": 38,
        "type": "negate_high_acos",
        "reason": "ACOS 81.6% > 70.0% threshold",
+       "campaign": "SP_Fliptop_auto",
        "sim_save": 0
       },
       {
@@ -1186,6 +1220,7 @@ const PPC_DATA = {
        "clicks": 37,
        "type": "negate_high_acos",
        "reason": "ACOS 76.6% > 70.0% threshold",
+       "campaign": "SP_Fliptop_auto",
        "sim_save": 0
       },
       {
@@ -1196,6 +1231,7 @@ const PPC_DATA = {
        "clicks": 26,
        "type": "negate_zero_sales",
        "reason": "$21.90 spent, 26 clicks, 0 sales (>3.0x target CPA)",
+       "campaign": "SP_Fliptop_auto",
        "sim_save": 0
       },
       {
@@ -1206,6 +1242,7 @@ const PPC_DATA = {
        "clicks": 23,
        "type": "negate_high_acos",
        "reason": "ACOS 95.2% > 50.0% threshold",
+       "campaign": "SP_knotted_manual",
        "sim_save": 0
       },
       {
@@ -1216,6 +1253,7 @@ const PPC_DATA = {
        "clicks": 16,
        "type": "negate_zero_sales",
        "reason": "$21.29 spent, 16 clicks, 0 sales (>3.0x target CPA)",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -1226,6 +1264,7 @@ const PPC_DATA = {
        "clicks": 21,
        "type": "negate_high_acos",
        "reason": "ACOS 68.5% > 50.0% threshold",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -1236,6 +1275,7 @@ const PPC_DATA = {
        "clicks": 14,
        "type": "negate_high_acos",
        "reason": "ACOS 53.9% > 50.0% threshold",
+       "campaign": "SP_knotted_manual",
        "sim_save": 0
       },
       {
@@ -1246,6 +1286,7 @@ const PPC_DATA = {
        "clicks": 24,
        "type": "negate_zero_sales",
        "reason": "$20.92 spent, 24 clicks, 0 sales (>3.0x target CPA)",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -1256,6 +1297,7 @@ const PPC_DATA = {
        "clicks": 34,
        "type": "negate_high_acos",
        "reason": "ACOS 51.6% > 50.0% threshold",
+       "campaign": "SP_stage1_keyword",
        "sim_save": 0
       },
       {
@@ -1266,6 +1308,7 @@ const PPC_DATA = {
        "clicks": 29,
        "type": "negate_zero_sales",
        "reason": "$19.98 spent, 29 clicks, 0 sales (>3.0x target CPA)",
+       "campaign": "SP_stage1_keyword",
        "sim_save": 0
       },
       {
@@ -1276,6 +1319,7 @@ const PPC_DATA = {
        "clicks": 15,
        "type": "negate_zero_sales",
        "reason": "$19.75 spent, 15 clicks, 0 sales (>3.0x target CPA)",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -1286,6 +1330,7 @@ const PPC_DATA = {
        "clicks": 11,
        "type": "negate_zero_sales",
        "reason": "$17.93 spent, 11 clicks, 0 sales (>3.0x target CPA)",
+       "campaign": "SP_ppsu_manual",
        "sim_save": 0
       },
       {
@@ -1296,6 +1341,7 @@ const PPC_DATA = {
        "clicks": 23,
        "type": "negate_high_acos",
        "reason": "ACOS 78.2% > 50.0% threshold",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -1306,6 +1352,7 @@ const PPC_DATA = {
        "clicks": 19,
        "type": "negate_zero_sales",
        "reason": "$17.79 spent, 19 clicks, 0 sales (>3.0x target CPA)",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -1316,6 +1363,7 @@ const PPC_DATA = {
        "clicks": 15,
        "type": "negate_zero_sales",
        "reason": "$17.67 spent, 15 clicks, 0 sales (>3.0x target CPA)",
+       "campaign": "SP_flip top_manual",
        "sim_save": 0
       },
       {
@@ -1326,6 +1374,7 @@ const PPC_DATA = {
        "clicks": 18,
        "type": "negate_zero_sales",
        "reason": "$17.44 spent, 18 clicks, 0 sales (>3.0x target CPA)",
+       "campaign": "SP_knotted_manual",
        "sim_save": 0
       },
       {
@@ -1336,6 +1385,7 @@ const PPC_DATA = {
        "clicks": 10,
        "type": "negate_high_acos",
        "reason": "ACOS 72.5% > 50.0% threshold",
+       "campaign": "SP_ppsu_manual",
        "sim_save": 0
       }
      ],
@@ -1351,7 +1401,7 @@ const PPC_DATA = {
   "naeiae": {
    "dates": {
     "2026-03-17": {
-     "generated": "2026-03-17T16:35",
+     "generated": "2026-03-17T16:54",
      "executed": true,
      "executed_at": "2026-03-17",
      "summary_7d": {
@@ -1548,6 +1598,7 @@ const PPC_DATA = {
        "clicks": 62,
        "type": "negate_zero_sales",
        "reason": "$65.33 spent, 62 clicks, 0 sales (>3.0x target CPA)",
+       "campaign": "Naeiae Rice Pop - SP - Manual",
        "sim_save": 0
       },
       {
@@ -1558,6 +1609,7 @@ const PPC_DATA = {
        "clicks": 62,
        "type": "negate_high_acos",
        "reason": "ACOS 210.2% > 70.0% threshold",
+       "campaign": "Naeiae Rice Pop - SP - Auto",
        "sim_save": 0
       },
       {
@@ -1568,6 +1620,7 @@ const PPC_DATA = {
        "clicks": 33,
        "type": "negate_high_acos",
        "reason": "ACOS 72.9% > 50.0% threshold",
+       "campaign": "Naeiae Rice Pop - SP - Manual",
        "sim_save": 0
       },
       {
@@ -1578,6 +1631,7 @@ const PPC_DATA = {
        "clicks": 36,
        "type": "negate_zero_sales",
        "reason": "$33.59 spent, 36 clicks, 0 sales (>3.0x target CPA)",
+       "campaign": "Naeiae Rice Pop - SP - Auto",
        "sim_save": 0
       }
      ],
@@ -1666,7 +1720,7 @@ const PPC_DATA = {
   "chaenmom": {
    "dates": {
     "2026-03-17": {
-     "generated": "2026-03-17T16:35",
+     "generated": "2026-03-17T16:54",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -1782,6 +1836,7 @@ const PPC_DATA = {
        "clicks": 23,
        "type": "negate_high_acos",
        "reason": "ACOS 107.0% > 50.0% threshold",
+       "campaign": "CHA&MOM _Competitor Targeting_",
        "sim_save": 0
       }
      ],
