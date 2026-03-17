@@ -115,6 +115,7 @@ def load_proposals():
                         "clicks": kw.get("clicks", 0),
                         "type": kw_type,
                         "reason": kw.get("reason", ""),
+                        "campaign": kw.get("sourceCampaignName", kw.get("campaignName", ""))[:30],
                         "sim_save": kw.get("sim_save", 0),
                     })
 
@@ -145,6 +146,7 @@ def load_proposals():
                         "clicks": item.get("clicks", 0),
                         "type": action,
                         "reason": item.get("reason", ""),
+                        "campaign": item.get("campaignName", item.get("sourceCampaignName", ""))[:30],
                         "sim_save": item.get("sim_save", 0),
                     })
                 else:

@@ -1948,7 +1948,7 @@ function renderPropose(bk, dt, containerId){
     var tierB = c.tier ? badge(c.tier,'a') : badge('—','');
     var rowBg = isAction ? '' : 'style="opacity:0.6"';
     var hasBudgetChange = c.bud_after && c.bud_after !== c.bud_before;
-    var overrideVal = hasBudgetChange ? c.bud_after : '';
+    var overrideVal = hasBudgetChange ? c.bud_after : (c.bud_before || '');
     var product = guessProduct(c.name);
     var cm = guessCM(c.name);
     var prodTag = product ? '<div style="font-size:9px;color:var(--c)">'+product+'</div>' : '';
@@ -2027,6 +2027,7 @@ function renderPropose(bk, dt, containerId){
       '<td>'+n.term+simB+'</td><td>$'+n.cost+'</td><td>'+(n.sales?'$'+n.sales:'$0')+'</td>' +
       '<td>'+(n.acos?badge(n.acos+'%','r'):'—')+'</td><td>'+n.clicks+'</td>' +
       '<td>'+badge(n.type.replace('negate_',''),'r')+'</td>' +
+      '<td style="font-size:9px;color:var(--dim)">'+( n.campaign||'—')+'</td>' +
       '<td style="font-size:9px;color:var(--dim);max-width:200px">'+n.reason+'</td>' +
       kwNoteCell(bk, n.term) +
     '</tr>';
@@ -2035,7 +2036,7 @@ function renderPropose(bk, dt, containerId){
   el.innerHTML =
     '<div class="card">' +
       '<h3>All Campaigns ('+dd.campaigns.length+') — <span style="color:var(--a)">'+hasChange.length+' with proposals</span>, <span style="color:var(--muted)">'+noChange.length+' no change</span></h3>' +
-      '<div class="desc">Generated: '+dd.generated+' | Data: '+dt+' | Click campaign name to expand detail | Override column = your final budget</div>' +
+      '<div class="desc">Generated: '+dd.generated.replace('T',' ')+' PST | Data: '+dt+' | Click campaign name to expand detail | Override column = your final budget</div>' +
       '<div style="overflow-x:auto"><table>' +
         '<thead><tr><th><input type="checkbox" id="checkAll-camp-'+bk+'-'+dt+'"> All</th><th>Tier</th><th>Campaign ▼</th><th>Type</th><th>ROAS</th><th>ACOS</th><th>7d Spend</th><th>7d Sales</th><th>Action</th><th>Bid</th><th>Budget</th><th>Reason</th><th style="color:var(--a)">Override $</th></tr></thead>' +
         '<tbody>'+campRows+totRow+'</tbody>' +
@@ -2053,7 +2054,7 @@ function renderPropose(bk, dt, containerId){
     '<div class="card">' +
       '<h3>Negative Keywords ('+dd.negate.length+') '+(dd.negate.filter(function(n){return n.sim_save>0;}).length?'— '+dd.negate.filter(function(n){return n.sim_save>0;}).length+' SIM confirmed':'')+'</h3>' +
       (dd.negate.length?'<div style="overflow-x:auto"><table>' +
-        '<thead><tr><th><input type="checkbox" id="checkAll-negate-'+bk+'-'+dt+'"> All</th><th>Search Term</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Clicks</th><th>Type</th><th>Reason</th><th>Note 📝</th></tr></thead>' +
+        '<thead><tr><th><input type="checkbox" id="checkAll-negate-'+bk+'-'+dt+'"> All</th><th>Search Term</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Clicks</th><th>Type</th><th>Campaign</th><th>Reason</th><th>Note 📝</th></tr></thead>' +
         '<tbody>'+negRows+'</tbody>' +
       '</table></div>':'<div class="desc">No negative candidates.</div>') +
     '</div>' +
