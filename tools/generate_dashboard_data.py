@@ -198,6 +198,14 @@ def load_proposals():
             print(f"  [WARN] {f}: {e}")
             continue
 
+    # Only keep latest date per brand (re-run replaces old proposals)
+    for bk in list(brands.keys()):
+        dates = sorted(brands[bk].keys())
+        if len(dates) > 1:
+            latest = dates[-1]
+            for old_dt in dates[:-1]:
+                del brands[bk][old_dt]
+
     return brands
 
 

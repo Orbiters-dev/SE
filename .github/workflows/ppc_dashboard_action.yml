@@ -1,6 +1,9 @@
 name: PPC Dashboard Action
 
 on:
+  schedule:
+    # Daily propose at KST 7:00 AM (UTC 22:00 previous day)
+    - cron: '0 22 * * *'
   workflow_dispatch:
     inputs:
       action:
@@ -71,7 +74,7 @@ jobs:
           echo '${{ inputs.config_json }}' > .tmp/dashboard_config_override.json
 
       - name: Run Propose
-        if: inputs.action == 'propose'
+        if: inputs.action == 'propose' || inputs.action == ''
         run: |
           echo "=== Running propose (all brands) ==="
           python -u tools/amazon_ppc_executor.py --propose --to "$PPC_REPORT_RECIPIENT" 2>&1 || echo "[WARN] Propose finished with errors"
@@ -99,7 +102,7 @@ jobs:
           python -u tools/amazon_ppc_executor.py --execute-selection .tmp/dashboard_execute_selection.json 2>&1 || echo "[WARN] Execute finished with errors"
 
       - name: Run Autopilot Execute (after propose, if any items were auto-approved)
-        if: inputs.action == 'propose'
+        if: inputs.action == 'propose' || inputs.action == ''
         run: |
           echo "=== Checking for autopilot-approved items ==="
           # If any proposals were auto-approved, execute them now
