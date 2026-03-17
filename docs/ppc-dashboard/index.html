@@ -2091,15 +2091,11 @@ function recalcOverride(bk,dt){
   var total = 0;
   var budBefore = 0;
   document.querySelectorAll('.override-input[data-bk="'+bk+'"][data-dt="'+dt+'"]').forEach(function(inp){
-    total += parseFloat(inp.value) || 0;
-    budBefore += parseFloat(inp.dataset.budBefore || inp.getAttribute('data-bud-before')) || 0;
-  });
-  // Only count checked items for override
-  var checkedTotal = 0;
-  document.querySelectorAll('.camp-check[data-bk="'+bk+'"][data-dt="'+dt+'"]:checked').forEach(function(cb){
-    var idx = cb.dataset.idx;
-    var inp = document.querySelector('.override-input[data-bk="'+bk+'"][data-dt="'+dt+'"][data-idx="'+idx+'"]');
-    if(inp) checkedTotal += parseFloat(inp.value) || 0;
+    var cb = document.querySelector('.camp-check[data-bk="'+bk+'"][data-dt="'+dt+'"][data-idx="'+inp.dataset.idx+'"]');
+    var bef = parseFloat(cb ? cb.dataset.budBefore : 0) || 0;
+    var val = inp.value.trim() !== '' ? parseFloat(inp.value) : bef;
+    total += isNaN(val) ? bef : val;
+    budBefore += bef;
   });
   var totEl = document.getElementById('override-total-'+bk+'-'+dt);
   if(totEl) totEl.textContent = '$'+fmtN(total);
