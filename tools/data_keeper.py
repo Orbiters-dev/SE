@@ -2303,31 +2303,41 @@ def collect_amazon_campaigns(date_from: str, date_to: str) -> list[dict]:
         brand = PROFILE_BRAND_MAP.get(pname, pname)
         h_sp = {**headers, "Amazon-Advertising-API-Scope": pid}
 
-        # --- SP campaigns ---
+        # --- SP campaigns (paginated — API caps at 1000/page) ---
         try:
-            r = requests.post(
-                "https://advertising-api.amazon.com/sp/campaigns/list",
-                headers=h_sp, json={"maxResults": 5000}, timeout=20,
-            )
-            r.raise_for_status()
-            data = r.json()
-            camps = data if isinstance(data, list) else data.get("campaigns", [])
-            for c in camps:
-                budget_obj = c.get("budget", {})
-                all_campaigns.append({
-                    "campaign_id": str(c.get("campaignId", "")),
-                    "profile_id": pid,
-                    "brand": brand,
-                    "name": c.get("name", ""),
-                    "status": c.get("state", c.get("status", "UNKNOWN")).upper(),
-                    "budget": float(budget_obj.get("budget", 0)
-                                    if isinstance(budget_obj, dict)
-                                    else budget_obj or 0),
-                    "bid_strategy": c.get("dynamicBidding", {}).get("strategy", "")
-                                    if isinstance(c.get("dynamicBidding"), dict) else "",
-                    "campaign_type": "SP",
-                })
-            print(f"  {pname} ({brand}) SP: {len(camps)} campaigns")
+            sp_count = 0
+            next_token = None
+            while True:
+                body = {"maxResults": 1000}
+                if next_token:
+                    body["nextToken"] = next_token
+                r = requests.post(
+                    "https://advertising-api.amazon.com/sp/campaigns/list",
+                    headers=h_sp, json=body, timeout=30,
+                )
+                r.raise_for_status()
+                data = r.json()
+                camps = data if isinstance(data, list) else data.get("campaigns", [])
+                for c in camps:
+                    budget_obj = c.get("budget", {})
+                    all_campaigns.append({
+                        "campaign_id": str(c.get("campaignId", "")),
+                        "profile_id": pid,
+                        "brand": brand,
+                        "name": c.get("name", ""),
+                        "status": c.get("state", c.get("status", "UNKNOWN")).upper(),
+                        "budget": float(budget_obj.get("budget", 0)
+                                        if isinstance(budget_obj, dict)
+                                        else budget_obj or 0),
+                        "bid_strategy": c.get("dynamicBidding", {}).get("strategy", "")
+                                        if isinstance(c.get("dynamicBidding"), dict) else "",
+                        "campaign_type": "SP",
+                    })
+                sp_count += len(camps)
+                next_token = data.get("nextToken") if isinstance(data, dict) else None
+                if not next_token:
+                    break
+            print(f"  {pname} ({brand}) SP: {sp_count} campaigns")
         except Exception as e:
             print(f"  [WARN] {pname} SP: {e}")
 
