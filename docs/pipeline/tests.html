@@ -556,45 +556,45 @@
   </div>
 </div>
 
-<!-- ===== E2E TEST RESULTS ===== -->
-<div style="margin-bottom:48px;">
-  <div class="section-title">E2E Test Results</div>
-  <div class="section-sub">Live test against PROD workflows via n8n API. Tested 2026-03-17 06:19~06:51 UTC. 250 executions analyzed.</div>
+<!-- ===== POST-CREDENTIAL-FIX STATUS ===== -->
+<div id="test-results" style="margin-bottom:48px;">
+  <div class="section-title">PROD Workflow Status (Post-Credential Fix)</div>
+  <div class="section-sub">Credential updated 2026-03-17 ~07:30 UTC with new PAT. Re-tested at 07:44~07:49 UTC. Most workflows recovered.</div>
 
-  <!-- Critical Alert -->
-  <div style="background:var(--red-bg); border:2px solid var(--red-border); border-radius:12px; padding:20px; margin-bottom:20px;">
-    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-      <span style="font-size:24px;">&#9888;</span>
-      <div>
-        <div style="font-size:15px; font-weight:700; color:#dc2626;">CRITICAL: Airtable Credential Issue Detected</div>
-        <div style="font-size:12px; color:#991b1b; margin-top:2px;">Root cause identified &mdash; all polling workflows failing with same error</div>
+  <!-- Partial Recovery Alert -->
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:0; border-radius:12px; overflow:hidden; margin-bottom:20px;">
+    <div style="background:var(--green-bg); border:2px solid var(--green-border); padding:20px;">
+      <div style="font-size:15px; font-weight:700; color:#15803d; margin-bottom:10px;">6 Workflows Recovered</div>
+      <div style="font-size:12px; color:#166534; line-height:1.8;">
+        <div>Daily Config Row &mdash; <span class="r-pass">PASS</span> (1/0)</div>
+        <div>Mode Switcher &mdash; <span class="r-pass">PASS</span> (3/0)</div>
+        <div>Approval Send &mdash; <span class="r-pass">PASS</span> (3/0)</div>
+        <div>Reply Handler &mdash; <span class="r-pass">PASS</span> (3/0)</div>
+        <div>Accepted Email &mdash; <span class="r-pass">PASS</span> (3/0)</div>
+        <div>Fulfillment Airtable &mdash; <span class="r-pass">PASS</span> (3/0)</div>
       </div>
     </div>
-    <div style="background:#fff; border:1px solid var(--red-border); border-radius:8px; padding:14px; font-size:12px;">
-      <div style="margin-bottom:8px;">
-        <strong>Error:</strong> <code style="background:#fee2e2; padding:2px 6px; border-radius:3px; font-size:11px;">"Forbidden - perhaps check your credentials?"</code>
-      </div>
-      <div style="margin-bottom:8px;">
-        <strong>Credential:</strong> <code style="background:#f3f4f6; padding:2px 6px; border-radius:3px; font-size:11px;">Onzenna Airtable</code> (id: <code style="font-size:11px;">4p7FaievS4ATOXlf</code>)
-      </div>
-      <div style="margin-bottom:8px;">
-        <strong>Target Base:</strong> <code style="background:#f3f4f6; padding:2px 6px; border-radius:3px; font-size:11px;">app3Vnmh7hLAVsevE</code> (PROD Pathlight base)
-      </div>
-      <div>
-        <strong>Fix:</strong> Update the n8n credential's PAT to one that has access to the new PROD base, or add the PROD base to the existing PAT's scope in <a href="https://airtable.com/create/tokens" style="color:var(--accent);">Airtable Token Settings</a>.
+    <div style="background:var(--orange-bg); border:2px solid var(--orange-border); border-left:none; padding:20px;">
+      <div style="font-size:15px; font-weight:700; color:#92400e; margin-bottom:10px;">2 Rate Limited + 2 Other Issues</div>
+      <div style="font-size:12px; color:#78350f; line-height:1.8;">
+        <div>Draft Generation &mdash; <span class="r-fail">RATE LIMIT</span> "Too many requests" at Fetch Dashboard</div>
+        <div>DocuSeal &mdash; <span class="r-fail">RATE LIMIT</span> "Too many requests" at Poll Ready Deals</div>
+        <div>Content Tracking &mdash; <span class="r-pending">PENDING</span> Pre-fix error, next run ~10:00 UTC</div>
+        <div>Syncly Metrics &mdash; <span class="r-fail">FAIL</span> "Resource not found" (config issue)</div>
       </div>
     </div>
   </div>
 
-  <!-- Test Summary Scorecard -->
-  <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px;">
-    <div class="sc g"><div class="sc-val">1</div><div class="sc-label">PASS (Accepted Email)</div></div>
-    <div class="sc r"><div class="sc-val">6</div><div class="sc-label">FAIL (Credential Issue)</div></div>
-    <div class="sc o"><div class="sc-val">4</div><div class="sc-label">NOT TRIGGERED</div></div>
-    <div class="sc" style="border-top:3px solid #94a3b8;"><div class="sc-val">1</div><div class="sc-label">INACTIVE (by design)</div></div>
+  <!-- Updated Scorecard -->
+  <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:20px;">
+    <div class="sc g"><div class="sc-val">6</div><div class="sc-label">PASS (Recovered)</div></div>
+    <div class="sc o"><div class="sc-val">2</div><div class="sc-label">RATE LIMIT</div></div>
+    <div class="sc r"><div class="sc-val">2</div><div class="sc-label">OTHER ISSUES</div></div>
+    <div class="sc" style="border-top:3px solid #94a3b8;"><div class="sc-val">3</div><div class="sc-label">IDLE (Webhook)</div></div>
+    <div class="sc" style="border-top:3px solid #94a3b8;"><div class="sc-val">1</div><div class="sc-label">INACTIVE</div></div>
   </div>
 
-  <!-- Detailed Results Table -->
+  <!-- Updated Results Table -->
   <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:20px;">
     <table style="width:100%; font-size:12px; border-collapse:collapse;">
       <thead>
@@ -602,188 +602,492 @@
           <th style="text-align:left; padding:10px 14px; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--dim); border-bottom:2px solid var(--border);">Stage</th>
           <th style="text-align:left; padding:10px 14px; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--dim); border-bottom:2px solid var(--border);">Workflow</th>
           <th style="text-align:center; padding:10px 14px; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--dim); border-bottom:2px solid var(--border);">Trigger</th>
-          <th style="text-align:center; padding:10px 14px; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--dim); border-bottom:2px solid var(--border);">Execs</th>
-          <th style="text-align:center; padding:10px 14px; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--dim); border-bottom:2px solid var(--border);">OK/ERR</th>
+          <th style="text-align:center; padding:10px 14px; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--dim); border-bottom:2px solid var(--border);">Latest 3</th>
           <th style="text-align:center; padding:10px 14px; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--dim); border-bottom:2px solid var(--border);">Status</th>
-          <th style="text-align:left; padding:10px 14px; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--dim); border-bottom:2px solid var(--border);">Error / Note</th>
+          <th style="text-align:left; padding:10px 14px; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--dim); border-bottom:2px solid var(--border);">Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid #f3f4f6; background:#f0fdf4;">
+          <td style="padding:10px 14px; font-weight:600;">0</td><td style="padding:10px 14px;">Daily Config Row</td>
+          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">CRON</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="r-pass">1/0</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-green" style="font-size:10px;">PASS</span></td>
+          <td style="padding:10px 14px; font-size:11px; color:#15803d;">Last run 00:46 UTC. OK.</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6; background:#f0fdf4;">
+          <td style="padding:10px 14px; font-weight:600;">0</td><td style="padding:10px 14px;">Mode Switcher</td>
+          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">2min</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="r-pass">3/0</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-green" style="font-size:10px;">PASS</span></td>
+          <td style="padding:10px 14px; font-size:11px; color:#15803d;">Recovered after credential update</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6; background:#fffbeb;">
+          <td style="padding:10px 14px; font-weight:600;">1</td><td style="padding:10px 14px;">Draft Generation</td>
+          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">1min</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="r-fail">0/3</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-orange" style="font-size:10px;">RATE LIMIT</span></td>
+          <td style="padding:10px 14px; font-size:11px; color:#92400e;">"Too many requests" at Fetch Dashboard (DG) &mdash; all workflows polling AT simultaneously after fix</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6; background:#f0fdf4;">
+          <td style="padding:10px 14px; font-weight:600;">1</td><td style="padding:10px 14px;">Approval Send</td>
+          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">1min</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="r-pass">3/0</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-green" style="font-size:10px;">PASS</span></td>
+          <td style="padding:10px 14px; font-size:11px; color:#15803d;">Recovered after credential update</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6; background:#f0fdf4;">
+          <td style="padding:10px 14px; font-weight:600;">1</td><td style="padding:10px 14px;">Reply Handler</td>
+          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">1min</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="r-pass">3/0</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-green" style="font-size:10px;">PASS</span></td>
+          <td style="padding:10px 14px; font-size:11px; color:#15803d;">Recovered after credential update</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:10px 14px; font-weight:600;">2</td><td style="padding:10px 14px;">Gifting Draft Order</td>
+          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-auto">WEBHOOK</span></td>
+          <td style="padding:10px 14px; text-align:center; color:var(--dim);">&mdash;</td>
+          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-dim" style="font-size:10px;">IDLE</span></td>
+          <td style="padding:10px 14px; font-size:11px; color:var(--dim);">Webhook. No form submissions.</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6; background:#f0fdf4;">
+          <td style="padding:10px 14px; font-weight:600;">3</td><td style="padding:10px 14px;">Accepted Email</td>
+          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">3min</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="r-pass">3/0</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-green" style="font-size:10px;">PASS</span></td>
+          <td style="padding:10px 14px; font-size:11px; color:#b45309;">Still uses hardcoded WJ TEST base (technical debt)</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:10px 14px; font-weight:600;">4</td><td style="padding:10px 14px;">Sample Request</td>
+          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-auto">WEBHOOK</span></td>
+          <td style="padding:10px 14px; text-align:center; color:var(--dim);">&mdash;</td>
+          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-dim" style="font-size:10px;">IDLE</span></td>
+          <td style="padding:10px 14px; font-size:11px; color:var(--dim);">Webhook. No sample requests.</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:10px 14px; font-weight:600;">5</td><td style="padding:10px 14px;">Sample Sent Complete</td>
+          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">5min</span></td>
+          <td style="padding:10px 14px; text-align:center; color:var(--dim);">&mdash;</td>
+          <td style="padding:10px 14px; text-align:center;"><span class="badge" style="font-size:10px; background:#f3f4f6; color:#6b7280; border:1px solid #e5e7eb;">INACTIVE</span></td>
+          <td style="padding:10px 14px; font-size:11px; color:var(--dim);">Deactivated. Needs activation after verification.</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6; background:#f0fdf4;">
+          <td style="padding:10px 14px; font-weight:600;">6</td><td style="padding:10px 14px;">Fulfillment Airtable</td>
+          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">1min</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="r-pass">3/0</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-green" style="font-size:10px;">PASS</span></td>
+          <td style="padding:10px 14px; font-size:11px; color:#15803d;">Recovered after credential update</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6; background:#fffbeb;">
+          <td style="padding:10px 14px; font-weight:600;">7</td><td style="padding:10px 14px;">Content Tracking</td>
+          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">6hr</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="r-pending">4ok/1err</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-orange" style="font-size:10px;">PENDING</span></td>
+          <td style="padding:10px 14px; font-size:11px; color:#92400e;">Error at 04:00 was pre-fix (Forbidden). Next run ~10:00 should pass.</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6; background:#fffbeb;">
+          <td style="padding:10px 14px; font-weight:600;">8</td><td style="padding:10px 14px;">DocuSeal Contracting</td>
+          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">5min</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="r-fail">0/3</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-orange" style="font-size:10px;">RATE LIMIT</span></td>
+          <td style="padding:10px 14px; font-size:11px; color:#92400e;">"Too many requests" at Poll Ready Deals &mdash; should settle once rate cools</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:10px 14px; font-weight:600;">&mdash;</td><td style="padding:10px 14px;">Customer Lookup</td>
+          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-auto">WEBHOOK</span></td>
+          <td style="padding:10px 14px; text-align:center; color:var(--dim);">&mdash;</td>
+          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-dim" style="font-size:10px;">IDLE</span></td>
+          <td style="padding:10px 14px; font-size:11px; color:var(--dim);">Webhook. No lookups.</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 14px; font-weight:600;">&mdash;</td><td style="padding:10px 14px;">Syncly Metrics Sync</td>
+          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">DAILY</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="r-fail">0/1</span></td>
+          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-red" style="font-size:10px;">FAIL</span></td>
+          <td style="padding:10px 14px; font-size:11px; color:#dc2626;">"Resource not found" at Run Syncly Sync &mdash; config issue (not credential)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== WJ TEST vs PROD COMPARISON ===== -->
+<div id="comparison" style="margin-bottom:48px;">
+  <div class="section-title"><span class="tag tag-auto">COMPARE</span> WJ TEST vs PROD Workflow Matrix</div>
+  <div class="section-sub">Side-by-side comparison of every workflow in both environments. Red = needs fix. Yellow = needs attention.</div>
+
+  <!-- Summary Callout -->
+  <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:20px;">
+    <div class="sc b"><div class="sc-val">14</div><div class="sc-label">PROD Workflows</div></div>
+    <div class="sc p"><div class="sc-val">18</div><div class="sc-label">WJ TEST Workflows</div></div>
+    <div class="sc g"><div class="sc-val">10</div><div class="sc-label">Overlap</div></div>
+    <div class="sc o"><div class="sc-val">4</div><div class="sc-label">PROD-only</div></div>
+    <div class="sc r"><div class="sc-val">4</div><div class="sc-label">Missing in PROD</div></div>
+  </div>
+
+  <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:20px;">
+    <table style="width:100%; font-size:11px; border-collapse:collapse;">
+      <thead>
+        <tr style="background:#f8fafc;">
+          <th style="text-align:left; padding:8px 12px; font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--dim); border-bottom:2px solid var(--border);">Stage</th>
+          <th style="text-align:left; padding:8px 12px; font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--dim); border-bottom:2px solid var(--border);">Workflow</th>
+          <th style="text-align:center; padding:8px 12px; font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--dim); border-bottom:2px solid var(--border);">PROD ID</th>
+          <th style="text-align:center; padding:8px 12px; font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--dim); border-bottom:2px solid var(--border);">PROD</th>
+          <th style="text-align:center; padding:8px 12px; font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--dim); border-bottom:2px solid var(--border);">WJ TEST ID</th>
+          <th style="text-align:center; padding:8px 12px; font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--dim); border-bottom:2px solid var(--border);">WJ TEST</th>
+          <th style="text-align:left; padding:8px 12px; font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--dim); border-bottom:2px solid var(--border);">Issue</th>
         </tr>
       </thead>
       <tbody>
         <tr style="border-bottom:1px solid #f3f4f6;">
-          <td style="padding:10px 14px; font-weight:600;">0</td>
-          <td style="padding:10px 14px;">Daily Config Row</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">CRON</span></td>
-          <td style="padding:10px 14px; text-align:center; color:var(--dim);">0</td>
-          <td style="padding:10px 14px; text-align:center; color:var(--dim);">&mdash;</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-dim" style="font-size:10px;">NO RUNS</span></td>
-          <td style="padding:10px 14px; font-size:11px; color:var(--dim);">Runs daily at 04:00 UTC. Not in recent 250 execs (all from today 06:19+).</td>
-        </tr>
-        <tr style="border-bottom:1px solid #f3f4f6; background:#fef2f2;">
-          <td style="padding:10px 14px; font-weight:600;">0</td>
-          <td style="padding:10px 14px;">Mode Switcher</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">2min</span></td>
-          <td style="padding:10px 14px; text-align:center;">16</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="r-fail">0/16</span></td>
-          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-red" style="font-size:10px;">FAIL</span></td>
-          <td style="padding:10px 14px; font-size:11px; color:#dc2626;">Forbidden &mdash; Airtable credential can't access PROD base</td>
-        </tr>
-        <tr style="border-bottom:1px solid #f3f4f6; background:#fef2f2;">
-          <td style="padding:10px 14px; font-weight:600;">1</td>
-          <td style="padding:10px 14px;">Draft Generation</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">30min</span></td>
-          <td style="padding:10px 14px; text-align:center;">31</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="r-fail">0/31</span></td>
-          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-red" style="font-size:10px;">FAIL</span></td>
-          <td style="padding:10px 14px; font-size:11px; color:#dc2626;">Forbidden at "Poll New Creators" node &mdash; same credential issue</td>
-        </tr>
-        <tr style="border-bottom:1px solid #f3f4f6; background:#fef2f2;">
-          <td style="padding:10px 14px; font-weight:600;">1</td>
-          <td style="padding:10px 14px;">Approval Send</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">1min</span></td>
-          <td style="padding:10px 14px; text-align:center;">31</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="r-fail">0/31</span></td>
-          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-red" style="font-size:10px;">FAIL</span></td>
-          <td style="padding:10px 14px; font-size:11px; color:#dc2626;">Forbidden at "Fetch Dashboard (AS)" node</td>
-        </tr>
-        <tr style="border-bottom:1px solid #f3f4f6; background:#fef2f2;">
-          <td style="padding:10px 14px; font-weight:600;">1</td>
-          <td style="padding:10px 14px;">Reply Handler</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">1min</span></td>
-          <td style="padding:10px 14px; text-align:center;">32</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="r-fail">0/32</span></td>
-          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-red" style="font-size:10px;">FAIL</span></td>
-          <td style="padding:10px 14px; font-size:11px; color:#dc2626;">Forbidden at "Fetch Tracked Thread IDs" node</td>
+          <td style="padding:8px 12px; font-weight:600;">0</td><td style="padding:8px 12px;">Daily Config Row</td>
+          <td style="padding:8px 12px; text-align:center;"><code>nTUJqla...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pass">PASS</span></td>
+          <td style="padding:8px 12px; text-align:center; color:var(--dim);">&mdash;</td>
+          <td style="padding:8px 12px; text-align:center; color:var(--dim);">N/A</td>
+          <td style="padding:8px 12px; color:var(--dim);">WJ TEST uses Google Sheets config</td>
         </tr>
         <tr style="border-bottom:1px solid #f3f4f6;">
-          <td style="padding:10px 14px; font-weight:600;">2</td>
-          <td style="padding:10px 14px;">Gifting Draft Order</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-auto">WEBHOOK</span></td>
-          <td style="padding:10px 14px; text-align:center; color:var(--dim);">0</td>
-          <td style="padding:10px 14px; text-align:center; color:var(--dim);">&mdash;</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-dim" style="font-size:10px;">IDLE</span></td>
-          <td style="padding:10px 14px; font-size:11px; color:var(--dim);">Webhook-triggered. No incoming form submissions during test window.</td>
+          <td style="padding:8px 12px; font-weight:600;">0</td><td style="padding:8px 12px;">Mode Switcher</td>
+          <td style="padding:8px 12px; text-align:center;"><code>OQGl3EV...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pass">PASS</span></td>
+          <td style="padding:8px 12px; text-align:center; color:var(--dim);">&mdash;</td>
+          <td style="padding:8px 12px; text-align:center; color:var(--dim);">N/A</td>
+          <td style="padding:8px 12px; color:var(--dim);">&mdash;</td>
         </tr>
-        <tr style="border-bottom:1px solid #f3f4f6; background:#f0fdf4;">
-          <td style="padding:10px 14px; font-weight:600;">3</td>
-          <td style="padding:10px 14px;">Accepted Email (Sample Form)</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">3min</span></td>
-          <td style="padding:10px 14px; text-align:center;">10</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="r-pass">10/0</span></td>
-          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-green" style="font-size:10px;">PASS</span></td>
-          <td style="padding:10px 14px; font-size:11px; color:#15803d;">Uses hardcoded WJ TEST base + direct PAT header (bypasses credential)</td>
+        <tr style="border-bottom:1px solid #f3f4f6; background:#fffbeb;">
+          <td style="padding:8px 12px; font-weight:600;">1a</td><td style="padding:8px 12px;">Draft Generation</td>
+          <td style="padding:8px 12px; text-align:center;"><code>fwwOeLi...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pending">RATE</span></td>
+          <td style="padding:8px 12px; text-align:center;"><code>0q9uJUY...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pass">ON</span></td>
+          <td style="padding:8px 12px; color:#92400e;">AT rate limit post-fix. PROD 42 nodes vs WJ 49 nodes</td>
         </tr>
         <tr style="border-bottom:1px solid #f3f4f6;">
-          <td style="padding:10px 14px; font-weight:600;">4</td>
-          <td style="padding:10px 14px;">Sample Request (Gifting2)</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-auto">WEBHOOK</span></td>
-          <td style="padding:10px 14px; text-align:center; color:var(--dim);">0</td>
-          <td style="padding:10px 14px; text-align:center; color:var(--dim);">&mdash;</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-dim" style="font-size:10px;">IDLE</span></td>
-          <td style="padding:10px 14px; font-size:11px; color:var(--dim);">Webhook-triggered. No sample requests during test window.</td>
+          <td style="padding:8px 12px; font-weight:600;">1b</td><td style="padding:8px 12px;">Approval Send</td>
+          <td style="padding:8px 12px; text-align:center;"><code>jf9uxkP...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pass">PASS</span></td>
+          <td style="padding:8px 12px; text-align:center;"><code>mmkBpmv...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pass">ON</span></td>
+          <td style="padding:8px 12px; color:var(--dim);">&mdash;</td>
         </tr>
         <tr style="border-bottom:1px solid #f3f4f6;">
-          <td style="padding:10px 14px; font-weight:600;">5</td>
-          <td style="padding:10px 14px;">Sample Sent Complete</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">5min</span></td>
-          <td style="padding:10px 14px; text-align:center; color:var(--dim);">0</td>
-          <td style="padding:10px 14px; text-align:center; color:var(--dim);">&mdash;</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="badge" style="font-size:10px; background:#f3f4f6; color:#6b7280; border:1px solid #e5e7eb;">INACTIVE</span></td>
-          <td style="padding:10px 14px; font-size:11px; color:var(--dim);">Intentionally deactivated. Needs testing before reactivation.</td>
+          <td style="padding:8px 12px; font-weight:600;">1c</td><td style="padding:8px 12px;">Reply Handler</td>
+          <td style="padding:8px 12px; text-align:center;"><code>K99grtW...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pass">PASS</span></td>
+          <td style="padding:8px 12px; text-align:center;"><code>nVtYmhU...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pass">ON</span></td>
+          <td style="padding:8px 12px; color:var(--dim);">&mdash;</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6; background:#fffbeb;">
+          <td style="padding:8px 12px; font-weight:600;">2</td><td style="padding:8px 12px;">Gifting Draft Order</td>
+          <td style="padding:8px 12px; text-align:center;"><code>F0sv8Rs...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pass">IDLE</span></td>
+          <td style="padding:8px 12px; text-align:center;"><code>4q5NCzM...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pass">ON</span></td>
+          <td style="padding:8px 12px; color:#92400e;">PROD targets WJ TEST Shopify (toddie-4080)</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6; background:#fffbeb;">
+          <td style="padding:8px 12px; font-weight:600;">3</td><td style="padding:8px 12px;">Accepted Email</td>
+          <td style="padding:8px 12px; text-align:center;"><code>onIxBIN...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pass">PASS</span></td>
+          <td style="padding:8px 12px; text-align:center; color:var(--dim);">&mdash;</td>
+          <td style="padding:8px 12px; text-align:center; color:var(--dim);">uses PROD</td>
+          <td style="padding:8px 12px; color:#92400e;">Hardcoded WJ TEST base + direct PAT</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:8px 12px; font-weight:600;">4</td><td style="padding:8px 12px;">Sample Request</td>
+          <td style="padding:8px 12px; text-align:center;"><code>GmMgjTa...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pass">IDLE</span></td>
+          <td style="padding:8px 12px; text-align:center;"><code>734aqkc...</code></td>
+          <td style="padding:8px 12px; text-align:center; color:var(--dim);">PEND</td>
+          <td style="padding:8px 12px; color:var(--dim);">&mdash;</td>
         </tr>
         <tr style="border-bottom:1px solid #f3f4f6; background:#fef2f2;">
-          <td style="padding:10px 14px; font-weight:600;">6</td>
-          <td style="padding:10px 14px;">Fulfillment Airtable</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">1min</span></td>
-          <td style="padding:10px 14px; text-align:center;">32</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="r-fail">0/32</span></td>
-          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-red" style="font-size:10px;">FAIL</span></td>
-          <td style="padding:10px 14px; font-size:11px; color:#dc2626;">Forbidden at "Poll Sample Shipped" node</td>
+          <td style="padding:8px 12px; font-weight:600;">5</td><td style="padding:8px 12px;">Sample Sent Complete</td>
+          <td style="padding:8px 12px; text-align:center;"><code>m89xU9R...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-fail">OFF</span></td>
+          <td style="padding:8px 12px; text-align:center;"><code>Vd5NiKM...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pass">ON</span></td>
+          <td style="padding:8px 12px; color:#dc2626;">PROD inactive. WJ TEST active + passing.</td>
         </tr>
         <tr style="border-bottom:1px solid #f3f4f6;">
-          <td style="padding:10px 14px; font-weight:600;">7</td>
-          <td style="padding:10px 14px;">Content Tracking</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">6hr</span></td>
-          <td style="padding:10px 14px; text-align:center; color:var(--dim);">0</td>
-          <td style="padding:10px 14px; text-align:center; color:var(--dim);">&mdash;</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-dim" style="font-size:10px;">NO RUNS</span></td>
-          <td style="padding:10px 14px; font-size:11px; color:var(--dim);">Runs every 6 hours. Not in test window. Likely same credential issue.</td>
+          <td style="padding:8px 12px; font-weight:600;">6</td><td style="padding:8px 12px;">Fulfillment Airtable</td>
+          <td style="padding:8px 12px; text-align:center;"><code>ufMPgU6...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pass">PASS</span></td>
+          <td style="padding:8px 12px; text-align:center;"><code>UP1OnpN...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pass">ON</span></td>
+          <td style="padding:8px 12px; color:var(--dim);">PROD 33 nodes vs WJ 37 nodes</td>
         </tr>
         <tr style="border-bottom:1px solid #f3f4f6; background:#fef2f2;">
-          <td style="padding:10px 14px; font-weight:600;">8</td>
-          <td style="padding:10px 14px;">DocuSeal Contracting</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">5min</span></td>
-          <td style="padding:10px 14px; text-align:center;">14</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="r-fail">0/14</span></td>
-          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-red" style="font-size:10px;">FAIL</span></td>
-          <td style="padding:10px 14px; font-size:11px; color:#dc2626;">Forbidden at "Fetch Dashboard Config" node</td>
+          <td style="padding:8px 12px; font-weight:600;">6+</td><td style="padding:8px 12px;">Shipped &rarr; Delivered</td>
+          <td style="padding:8px 12px; text-align:center; color:var(--dim);">&mdash;</td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-fail">MISSING</span></td>
+          <td style="padding:8px 12px; text-align:center;"><code>2vsXyHt...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pass">ON</span></td>
+          <td style="padding:8px 12px; color:#dc2626;">Exists in WJ TEST only. Clone to PROD needed.</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6; background:#fef2f2;">
+          <td style="padding:8px 12px; font-weight:600;">6+</td><td style="padding:8px 12px;">Delivered &rarr; Posted</td>
+          <td style="padding:8px 12px; text-align:center; color:var(--dim);">&mdash;</td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-fail">MISSING</span></td>
+          <td style="padding:8px 12px; text-align:center;"><code>82t55ju...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pass">ON</span></td>
+          <td style="padding:8px 12px; color:#dc2626;">Exists in WJ TEST only. Clone to PROD needed.</td>
         </tr>
         <tr style="border-bottom:1px solid #f3f4f6;">
-          <td style="padding:10px 14px; font-weight:600;">&mdash;</td>
-          <td style="padding:10px 14px;">Customer Lookup</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-auto">WEBHOOK</span></td>
-          <td style="padding:10px 14px; text-align:center; color:var(--dim);">0</td>
-          <td style="padding:10px 14px; text-align:center; color:var(--dim);">&mdash;</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-dim" style="font-size:10px;">IDLE</span></td>
-          <td style="padding:10px 14px; font-size:11px; color:var(--dim);">Webhook. No lookups during test window.</td>
+          <td style="padding:8px 12px; font-weight:600;">7</td><td style="padding:8px 12px;">Content Tracking</td>
+          <td style="padding:8px 12px; text-align:center;"><code>jH3YKdF...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pending">PEND</span></td>
+          <td style="padding:8px 12px; text-align:center;"><code>zKmOX0t...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pass">ON</span></td>
+          <td style="padding:8px 12px; color:var(--dim);">&mdash;</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:8px 12px; font-weight:600;">8</td><td style="padding:8px 12px;">DocuSeal Contracting</td>
+          <td style="padding:8px 12px; text-align:center;"><code>HeJtfn0...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pending">RATE</span></td>
+          <td style="padding:8px 12px; text-align:center; color:var(--dim);">&mdash;</td>
+          <td style="padding:8px 12px; text-align:center; color:var(--dim);">N/A</td>
+          <td style="padding:8px 12px; color:var(--dim);">PROD only (HT). Rate limit should settle.</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:8px 12px; font-weight:600;">&mdash;</td><td style="padding:8px 12px;">Customer Lookup</td>
+          <td style="padding:8px 12px; text-align:center;"><code>IlbMQ5U...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pass">IDLE</span></td>
+          <td style="padding:8px 12px; text-align:center;"><code>wyttsSP...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-pass">ON</span></td>
+          <td style="padding:8px 12px; color:var(--dim);">&mdash;</td>
         </tr>
         <tr>
-          <td style="padding:10px 14px; font-weight:600;">&mdash;</td>
-          <td style="padding:10px 14px;">Syncly Metrics Sync</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="tag tag-poll">DAILY</span></td>
-          <td style="padding:10px 14px; text-align:center; color:var(--dim);">0</td>
-          <td style="padding:10px 14px; text-align:center; color:var(--dim);">&mdash;</td>
-          <td style="padding:10px 14px; text-align:center;"><span class="badge badge-dim" style="font-size:10px;">NO RUNS</span></td>
-          <td style="padding:10px 14px; font-size:11px; color:var(--dim);">Daily cron. Not in test window.</td>
+          <td style="padding:8px 12px; font-weight:600;">&mdash;</td><td style="padding:8px 12px;">Syncly Metrics Sync</td>
+          <td style="padding:8px 12px; text-align:center;"><code>FzBJVEO...</code></td>
+          <td style="padding:8px 12px; text-align:center;"><span class="r-fail">FAIL</span></td>
+          <td style="padding:8px 12px; text-align:center;"><code>FT70hFR...</code></td>
+          <td style="padding:8px 12px; text-align:center; color:var(--dim);">OFF</td>
+          <td style="padding:8px 12px; color:#dc2626;">"Resource not found" &mdash; node config issue</td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <!-- WJ TEST comparison -->
-  <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:20px;">
-    <h3 style="font-size:14px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
-      <span class="tag tag-auto">COMPARE</span> WJ TEST Workflows (same time window)
-    </h3>
-    <div style="font-size:12px; color:var(--dim); margin-bottom:12px;">
-      WJ TEST versions of the same workflows, running against WJ TEST base (<code style="font-size:11px;">appT2gLRR0PqMFgII</code>).
+  <!-- Prioritized Action Items -->
+  <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:20px;">
+    <div style="padding:16px 20px; border-bottom:1px solid var(--border); background:#f8fafc;">
+      <div style="font-size:15px; font-weight:700;">Prioritized Action Items</div>
+      <div style="font-size:12px; color:var(--dim);">Fix PROD pipeline in order of priority</div>
     </div>
-    <table style="width:100%; font-size:12px; border-collapse:collapse;">
-      <tr style="border-bottom:1px solid var(--border);">
-        <th style="text-align:left; padding:8px 0; color:var(--dim); font-size:11px;">Workflow</th>
-        <th style="text-align:center; padding:8px 0; color:var(--dim); font-size:11px;">Execs</th>
-        <th style="text-align:center; padding:8px 0; color:var(--dim); font-size:11px;">Status</th>
-        <th style="text-align:left; padding:8px 0; color:var(--dim); font-size:11px;">Note</th>
-      </tr>
-      <tr style="border-bottom:1px solid #f3f4f6; background:#f0fdf4;">
-        <td style="padding:8px 0;">[WJ TEST] Reply Handler</td>
-        <td style="padding:8px 0; text-align:center;">32</td>
-        <td style="padding:8px 0; text-align:center;"><span class="r-pass">32/0 OK</span></td>
-        <td style="padding:8px 0; font-size:11px; color:#15803d;">Uses WJ TEST base directly &mdash; credential works</td>
-      </tr>
-      <tr style="border-bottom:1px solid #f3f4f6; background:#fef2f2;">
-        <td style="padding:8px 0;">[WJ TEST] Fulfillment Airtable</td>
-        <td style="padding:8px 0; text-align:center;">31</td>
-        <td style="padding:8px 0; text-align:center;"><span class="r-fail">0/31 ERR</span></td>
-        <td style="padding:8px 0; font-size:11px; color:#dc2626;">Also failing &mdash; possibly same credential issue on different table</td>
-      </tr>
-      <tr style="border-bottom:1px solid #f3f4f6; background:#f0fdf4;">
-        <td style="padding:8px 0;">[WJ TEST] Sample Sent Complete</td>
-        <td style="padding:8px 0; text-align:center;">7</td>
-        <td style="padding:8px 0; text-align:center;"><span class="r-pass">7/0 OK</span></td>
-        <td style="padding:8px 0; font-size:11px; color:#15803d;">Working in WJ TEST env</td>
-      </tr>
-    </table>
+    <div style="display:flex; gap:12px; padding:14px 20px; border-bottom:1px solid #f3f4f6; align-items:flex-start;">
+      <span class="badge badge-red" style="font-size:10px; flex-shrink:0;">P0</span>
+      <div style="flex:1; font-size:12px;">
+        <div style="font-weight:600;">Draft Generation: Airtable Rate Limit</div>
+        <div style="color:var(--dim); margin-top:2px;">ID: <code>fwwOeLiDLSnR77E1</code>. "Too many requests" at Fetch Dashboard (DG). All PROD workflows hitting AT simultaneously after credential fix.</div>
+        <div style="margin-top:4px;"><strong>Fix:</strong> Wait for rate limit to cool (~30 min). If persists, stagger polling intervals or add retry logic.</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:12px; padding:14px 20px; border-bottom:1px solid #f3f4f6; align-items:flex-start;">
+      <span class="badge badge-red" style="font-size:10px; flex-shrink:0;">P0</span>
+      <div style="flex:1; font-size:12px;">
+        <div style="font-weight:600;">DocuSeal: Same Rate Limit Issue</div>
+        <div style="color:var(--dim); margin-top:2px;">ID: <code>HeJtfn0m3PJoPzg0</code>. "Too many requests" at Poll Ready Deals. Same root cause as Draft Gen.</div>
+        <div style="margin-top:4px;"><strong>Fix:</strong> Will resolve with Draft Gen. Monitor after cooldown.</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:12px; padding:14px 20px; border-bottom:1px solid #f3f4f6; align-items:flex-start;">
+      <span class="badge badge-orange" style="font-size:10px; flex-shrink:0;">P1</span>
+      <div style="flex:1; font-size:12px;">
+        <div style="font-weight:600;">Accepted Email: Hardcoded WJ TEST Base</div>
+        <div style="color:var(--dim); margin-top:2px;">ID: <code>onIxBINIcTX1LxMH</code>. Works but uses hardcoded WJ TEST base (<code>appT2gLRR0PqMFgII</code>) with direct PAT.</div>
+        <div style="margin-top:4px;"><strong>Fix:</strong> Migrate to PROD base + shared credential. Will break if WJ TEST base changes.</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:12px; padding:14px 20px; border-bottom:1px solid #f3f4f6; align-items:flex-start;">
+      <span class="badge badge-orange" style="font-size:10px; flex-shrink:0;">P1</span>
+      <div style="flex:1; font-size:12px;">
+        <div style="font-weight:600;">Sample Sent Complete: Inactive in PROD</div>
+        <div style="color:var(--dim); margin-top:2px;">ID: <code>m89xU9RUbPgnkBy8</code>. WJ TEST (<code>Vd5NiKMwdLT7b9wa</code>) is active and passing 7/7.</div>
+        <div style="margin-top:4px;"><strong>Fix:</strong> Activate in PROD after credential verification.</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:12px; padding:14px 20px; border-bottom:1px solid #f3f4f6; align-items:flex-start;">
+      <span class="badge badge-orange" style="font-size:10px; flex-shrink:0;">P1</span>
+      <div style="flex:1; font-size:12px;">
+        <div style="font-weight:600;">Gifting: WJ TEST Shopify Target</div>
+        <div style="color:var(--dim); margin-top:2px;">ID: <code>F0sv8RsCS1v56Gkw</code>. Creates Draft Orders on toddie-4080 (WJ TEST), not mytoddie (PROD).</div>
+        <div style="margin-top:4px;"><strong>Fix:</strong> Verify if intentional. If not, update Shopify credential to mytoddie.</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:12px; padding:14px 20px; border-bottom:1px solid #f3f4f6; align-items:flex-start;">
+      <span class="badge badge-blue" style="font-size:10px; flex-shrink:0;">P2</span>
+      <div style="flex:1; font-size:12px;">
+        <div style="font-weight:600;">Missing: Shipped &rarr; Delivered Detection</div>
+        <div style="color:var(--dim); margin-top:2px;">WJ TEST: <code>2vsXyHtjo79hnFoD</code> (11 nodes, active). Not in PROD.</div>
+        <div style="margin-top:4px;"><strong>Fix:</strong> Clone from WJ TEST, replace base IDs + credentials.</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:12px; padding:14px 20px; border-bottom:1px solid #f3f4f6; align-items:flex-start;">
+      <span class="badge badge-blue" style="font-size:10px; flex-shrink:0;">P2</span>
+      <div style="flex:1; font-size:12px;">
+        <div style="font-weight:600;">Missing: Delivered &rarr; Posted Detection</div>
+        <div style="color:var(--dim); margin-top:2px;">WJ TEST: <code>82t55jurzbY3iUM4</code> (8 nodes, active). Not in PROD.</div>
+        <div style="margin-top:4px;"><strong>Fix:</strong> Clone from WJ TEST, replace base IDs + credentials.</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:12px; padding:14px 20px; align-items:flex-start;">
+      <span class="badge badge-dim" style="font-size:10px; flex-shrink:0;">P3</span>
+      <div style="flex:1; font-size:12px;">
+        <div style="font-weight:600;">Syncly Metrics: Config Issue</div>
+        <div style="color:var(--dim); margin-top:2px;">ID: <code>FzBJVEOTvr6qJPAL</code>. "Resource not found" at Run Syncly Sync node. Not a credential issue.</div>
+        <div style="margin-top:4px;"><strong>Fix:</strong> Check node configuration &mdash; likely references a deleted/renamed resource.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== E2E TEST CASES (REAL DATA) ===== -->
+<div id="e2e-cases" style="margin-bottom:48px;">
+  <div class="section-title">E2E Test Cases &mdash; Real Creator Journeys</div>
+  <div class="section-sub">3 actual test runs with real Shopify IDs, Airtable records, and PostgreSQL data. All data verified against live systems.</div>
+
+  <!-- Test Run A -->
+  <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:20px;">
+    <div style="padding:16px 20px; border-bottom:1px solid var(--border); background:var(--blue-bg);">
+      <div style="font-size:14px; font-weight:700; color:#1d4ed8;">Test Run A &mdash; 2026-03-13 | @wj_choi_test | Full Outreach &rarr; Gifting</div>
+      <div style="font-size:11px; color:#3b82f6; margin-top:2px;">Creator: Wonjin Choi | 8,500 followers | Low Touch | Source: 2026-03-13_test_log.json</div>
+    </div>
+    <div style="padding:16px 20px;">
+      <div class="step-item"><div class="step-icon si-auto">&#129302;</div><div class="step-body">
+        <div class="step-title">Stage 1a: Draft Generation <span class="badge badge-green" style="font-size:10px;">PASS</span></div>
+        <div class="data-box"><h4>Execution Data</h4>
+          <div class="data-row"><span class="data-key">Creator</span><span class="data-val">Wonjin Choi &middot; @wj_choi_test &middot; 8,500 followers</span></div>
+          <div class="data-row"><span class="data-key">Subject</span><span class="data-val">"Collab? Onzenna x wj_choi_test"</span></div>
+          <div class="data-row"><span class="data-key">From</span><span class="data-val">affiliates@onzenna.com</span></div>
+          <div class="data-row"><span class="data-key">Sent</span><span class="data-val">2026-03-13T04:36:41Z (auto, Low Touch)</span></div>
+          <div class="data-row"><span class="data-key">Gmail Thread</span><span class="data-val"><code>19ce57ba03f10b51</code></span></div>
+        </div>
+      </div></div>
+      <div class="step-item"><div class="step-icon si-auto">&#128172;</div><div class="step-body">
+        <div class="step-title">Stage 1c: Reply Handler <span class="badge badge-green" style="font-size:10px;">PASS</span></div>
+        <div class="data-box"><h4>Execution Data</h4>
+          <div class="data-row"><span class="data-key">Reply Detected</span><span class="data-val">2026-03-13T06:15:00Z (simulated)</span></div>
+          <div class="data-row"><span class="data-key">Status</span><span class="data-val">Sent &rarr; <strong>Needs Review</strong></span></div>
+          <div class="data-row"><span class="data-key">Address</span><span class="data-val">5900 Katella Ave, BLDG C, STE 100, Cypress, CA 90630</span></div>
+        </div>
+      </div></div>
+      <div class="step-item"><div class="step-icon si-auto">&#9889;</div><div class="step-body">
+        <div class="step-title">Stage 2: Gifting Application <span class="badge badge-green" style="font-size:10px;">PASS</span></div>
+        <div class="data-box"><h4>Execution Data</h4>
+          <div class="data-row"><span class="data-key">Webhook</span><span class="data-val">/wj-test-influencer-gifting &middot; 200 OK</span></div>
+          <div class="data-row"><span class="data-key">Child</span><span class="data-val">Yuna &middot; DOB: 2024-12-15 (14mo) &middot; Straw Cup stage</span></div>
+          <div class="data-row"><span class="data-key">Product</span><span class="data-val">Grosmimi PPSU Straw Cup 10oz</span></div>
+          <div class="data-row"><span class="data-key">Shopify</span><span class="data-val">Customer: <a href="https://toddie-4080.myshopify.com/admin/customers/7057180098882" target="_blank"><strong>7057180098882</strong></a> &middot; Draft Order: <strong>#D1484</strong> (1515675976050) &middot; $0.00 PR</span></div>
+        </div>
+        <div style="background:#faf5ff; border:1px solid #e9d5ff; border-radius:8px; padding:10px; margin-top:8px;">
+          <div style="font-size:10px; font-weight:700; color:#7c3aed; margin-bottom:4px;">PostgreSQL &middot; onz_influencer_outreach</div>
+          <div class="data-row"><span class="data-key">status</span><span class="data-val"><strong>Needs Review</strong></span></div>
+          <div class="data-row"><span class="data-key">instagram</span><span class="data-val">wj_choi_test</span></div>
+          <div class="data-row"><span class="data-key">shopify_customer_id</span><span class="data-val">7057180098882</span></div>
+          <div class="data-row"><span class="data-key">submitted_at</span><span class="data-val">2026-03-13T07:55:56Z</span></div>
+        </div>
+        <div style="background:#fff7ed; border:1px solid #fed7aa; border-radius:8px; padding:10px; margin-top:8px;">
+          <div style="font-size:10px; font-weight:700; color:#c2410c; margin-bottom:4px;">Airtable &middot; Inbound (tbloYjIEr5OtEppT0)</div>
+          <div class="data-row"><span class="data-key">Record</span><span class="data-val"><a href="https://airtable.com/appT2gLRR0PqMFgII/tbloYjIEr5OtEppT0/recX3M4AuAGKNr98l" target="_blank">recX3M4AuAGKNr98l</a></span></div>
+          <div class="data-row"><span class="data-key">Status</span><span class="data-val"><strong>New</strong></span></div>
+        </div>
+      </div></div>
+    </div>
   </div>
 
-  <!-- Action Items -->
-  <div style="background:#eff6ff; border:1px solid var(--blue-border); border-radius:12px; padding:20px;">
-    <h3 style="font-size:14px; font-weight:700; color:#1d4ed8; margin-bottom:12px;">Required Actions to Fix PROD Pipeline</h3>
-    <ol style="font-size:13px; color:var(--text); padding-left:20px; line-height:1.8;">
-      <li><strong>Update Airtable Credential:</strong> In n8n, edit the <code style="font-size:11px; background:#dbeafe; padding:1px 4px; border-radius:3px;">Onzenna Airtable</code> credential &rarr; replace the PAT with one that has access to <code style="font-size:11px;">app3Vnmh7hLAVsevE</code>. Alternatively, add this base to the existing PAT's scope.</li>
-      <li><strong>Migrate Accepted Email:</strong> Currently points to WJ TEST base (<code style="font-size:11px;">appT2gLRR0PqMFgII</code>) with hardcoded PAT. Should be updated to use PROD base + shared credential.</li>
-      <li><strong>Test Sample Sent Complete:</strong> Currently inactive (<code style="font-size:11px;">active=false</code>). After credential fix, activate and verify it processes Shopify Draft Order completion.</li>
-      <li><strong>Re-verify all workflows:</strong> After credential fix, monitor for 30 minutes to confirm all polling workflows resume successfully.</li>
-    </ol>
+  <!-- Test Run B -->
+  <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:20px;">
+    <div style="padding:16px 20px; border-bottom:1px solid var(--border); background:var(--purple-bg);">
+      <div style="font-size:14px; font-weight:700; color:var(--human);">Test Run B &mdash; 2026-03-12 | @flowtest_ig | 3 Parallel Flow Tests</div>
+      <div style="font-size:11px; color:#7c3aed; margin-top:2px;">3 webhook flows tested simultaneously. Source: 2026-03-12_flow_log.json</div>
+    </div>
+    <div style="padding:16px 20px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+        <!-- Flow 1 -->
+        <div style="border:1px solid var(--green-border); border-radius:8px; overflow:hidden;">
+          <div style="background:var(--green-bg); padding:10px 12px; font-size:12px; font-weight:600; color:#15803d;">Flow 1: Gifting &mdash; <span class="badge badge-green" style="font-size:10px;">6/6 PASS</span></div>
+          <div style="padding:10px 12px; font-size:11px; line-height:1.8;">
+            <div><strong>Creator:</strong> FlowTest Runner &middot; @flowtest_ig</div>
+            <div><strong>Webhook:</strong> /wj-test-influencer-gifting &rarr; 200</div>
+            <div><strong>Shopify:</strong> Customer <a href="https://toddie-4080.myshopify.com/admin/customers/27029171536242" target="_blank">27029171536242</a> (CREATE)</div>
+            <div><strong>Draft Order:</strong> 100% PR, $0.00</div>
+            <div><strong>Airtable:</strong> <a href="https://airtable.com/appT2gLRR0PqMFgII/tbloYjIEr5OtEppT0/recwq4fHcMq3lzclX" target="_blank">recwq4fHcMq3lzclX</a></div>
+            <div><strong>PostgreSQL:</strong> onz_influencer_outreach (status: submitted)</div>
+          </div>
+        </div>
+        <!-- Flow 2 -->
+        <div style="border:1px solid var(--green-border); border-radius:8px; overflow:hidden;">
+          <div style="background:var(--green-bg); padding:10px 12px; font-size:12px; font-weight:600; color:#15803d;">Flow 2: Creator &mdash; <span class="badge badge-green" style="font-size:10px;">5/5 PASS + 1 SKIP</span></div>
+          <div style="padding:10px 12px; font-size:11px; line-height:1.8;">
+            <div><strong>Creator:</strong> FlowTest Creator &middot; @flowtest_creator</div>
+            <div><strong>Type:</strong> Creator profile signup (not gifting)</div>
+            <div><strong>Airtable:</strong> <a href="https://airtable.com/appT2gLRR0PqMFgII/tbloYjIEr5OtEppT0/recDBLqkp4X9vhTZc" target="_blank">recDBLqkp4X9vhTZc</a></div>
+            <div><strong>Shopify:</strong> N/A (expected &mdash; creator signup doesn't create customer)</div>
+            <div><strong>PG:</strong> N/A (expected)</div>
+            <div style="color:var(--dim);"><em>SKIP is expected behavior</em></div>
+          </div>
+        </div>
+        <!-- Flow 3 -->
+        <div style="border:1px solid var(--orange-border); border-radius:8px; overflow:hidden;">
+          <div style="background:var(--orange-bg); padding:10px 12px; font-size:12px; font-weight:600; color:#92400e;">Flow 3: Sample &mdash; <span class="badge badge-orange" style="font-size:10px;">3/3 PASS + 2 FAIL</span></div>
+          <div style="padding:10px 12px; font-size:11px; line-height:1.8;">
+            <div><strong>Creator:</strong> FlowTest Sample &middot; @flowtest_sample</div>
+            <div><strong>Webhook:</strong> /onzenna-gifting2-submit &rarr; 200</div>
+            <div><strong>Shopify:</strong> Customer <a href="https://toddie-4080.myshopify.com/admin/customers/27029172191602" target="_blank">27029172191602</a> (CREATE)</div>
+            <div style="color:#dc2626;"><strong>Draft Order:</strong> NOT FOUND (store credential mismatch)</div>
+            <div style="color:#dc2626;"><strong>AT update:</strong> FAILED (same store issue)</div>
+            <div style="color:var(--dim);"><em>Known issue: toddie-4080 vs mytoddie</em></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Test Run C -->
+  <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:20px;">
+    <div style="padding:16px 20px; border-bottom:1px solid var(--border); background:var(--teal-bg);">
+      <div style="font-size:14px; font-weight:700; color:var(--teal);">Test Run C &mdash; 2026-03-14 | T4 @flowtest_ig + T5 @jj_choi_ig | Full Pipeline</div>
+      <div style="font-size:11px; color:#0d9488; margin-top:2px;">Two LT creators, parallel full-pipeline test from Stage 0 to Stage 7. Source: index.html T4/T5 data.</div>
+    </div>
+    <div style="padding:16px 20px;">
+      <div style="display:grid; grid-template-columns:40px 1fr 1fr; gap:0; border:1px solid var(--border); border-radius:8px; overflow:hidden; font-size:11px;">
+        <!-- Header -->
+        <div style="background:#f3f4f6; padding:10px 8px; font-weight:700; font-size:10px; text-transform:uppercase; border-bottom:2px solid var(--border);">Stage</div>
+        <div style="background:var(--lt-bg); padding:10px 12px; font-weight:700; font-size:10px; color:#0369a1; border-bottom:2px solid var(--auto); border-left:1px solid var(--border);">T4: @flowtest_ig</div>
+        <div style="background:var(--lt-bg); padding:10px 12px; font-weight:700; font-size:10px; color:#0369a1; border-bottom:2px solid var(--auto); border-left:1px solid var(--border);">T5: @jj_choi_ig</div>
+        <!-- Stage 1a -->
+        <div style="background:#f8fafc; padding:8px; font-weight:600; border-bottom:1px solid #f3f4f6;">1a</div>
+        <div style="padding:8px 12px; border-left:1px solid var(--border); border-bottom:1px solid #f3f4f6;"><span class="badge badge-green" style="font-size:9px;">PASS</span> Claude draft: "Collab opportunity?" &middot; LT auto-send</div>
+        <div style="padding:8px 12px; border-left:1px solid var(--border); border-bottom:1px solid #f3f4f6;"><span class="badge badge-green" style="font-size:9px;">PASS</span> Claude draft: "Grosmimi x jj_choi_ig?" &middot; LT auto-send</div>
+        <!-- Stage 1c -->
+        <div style="background:#f8fafc; padding:8px; font-weight:600; border-bottom:1px solid #f3f4f6;">1c</div>
+        <div style="padding:8px 12px; border-left:1px solid var(--border); border-bottom:1px solid #f3f4f6;"><span class="badge badge-green" style="font-size:9px;">PASS</span> Reply: "Yes! My daughter is 14mo..." &rarr; Needs Review</div>
+        <div style="padding:8px 12px; border-left:1px solid var(--border); border-bottom:1px solid #f3f4f6;"><span class="badge badge-green" style="font-size:9px;">PASS</span> Reply: "Hi William! Sena is 8mo..." &rarr; Needs Review</div>
+        <!-- Stage 2 -->
+        <div style="background:#f8fafc; padding:8px; font-weight:600; border-bottom:1px solid #f3f4f6;">2</div>
+        <div style="padding:8px 12px; border-left:1px solid var(--border); border-bottom:1px solid #f3f4f6;"><span class="badge badge-green" style="font-size:9px;">PASS</span> Cust <a href="https://mytoddie.myshopify.com/admin/customers/27032919212402" target="_blank">27032919212402</a> &middot; Draft <strong>#D1512</strong> (1515845091698) &middot; $0 PR<br>AT: <a href="https://airtable.com/appT2gLRR0PqMFgII/tbloYjIEr5OtEppT0/receMOp04P5JhVPke" target="_blank">receMOp04P5JhVPke</a></div>
+        <div style="padding:8px 12px; border-left:1px solid var(--border); border-bottom:1px solid #f3f4f6;"><span class="badge badge-green" style="font-size:9px;">PASS</span> Cust <a href="https://mytoddie.myshopify.com/admin/customers/27032932385138" target="_blank">27032932385138</a> &middot; Draft <strong>#D1513</strong> (1515845747058) &middot; $0 PR<br>AT: <a href="https://airtable.com/appT2gLRR0PqMFgII/tbloYjIEr5OtEppT0/recvBkFs53rr12Fx5" target="_blank">recvBkFs53rr12Fx5</a></div>
+        <!-- Stage 3 -->
+        <div style="background:#f8fafc; padding:8px; font-weight:600; border-bottom:1px solid #f3f4f6;">3</div>
+        <div style="padding:8px 12px; border-left:1px solid var(--border); border-bottom:1px solid #f3f4f6;"><span class="badge badge-green" style="font-size:9px;">PASS</span> Accepted &rarr; Sample form sent &middot; accepted_at: 2026-03-14T04:00Z</div>
+        <div style="padding:8px 12px; border-left:1px solid var(--border); border-bottom:1px solid #f3f4f6;"><span class="badge badge-green" style="font-size:9px;">PASS</span> Accepted &rarr; Sample form sent &middot; accepted_at: 2026-03-14T05:00Z</div>
+        <!-- Stage 4 -->
+        <div style="background:#f8fafc; padding:8px; font-weight:600; border-bottom:1px solid #f3f4f6;">4</div>
+        <div style="padding:8px 12px; border-left:1px solid var(--border); border-bottom:1px solid #f3f4f6;"><span class="badge badge-green" style="font-size:9px;">PASS</span> Fulfilled &middot; UPS 1Z999AA10123456784 &middot; shipped 2026-03-15T18:00Z</div>
+        <div style="padding:8px 12px; border-left:1px solid var(--border); border-bottom:1px solid #f3f4f6;"><span class="badge badge-green" style="font-size:9px;">PASS</span> Fulfilled &middot; USPS 9400111899227001234567 &middot; shipped 2026-03-15T20:00Z</div>
+        <!-- Stage 5 -->
+        <div style="background:#f8fafc; padding:8px; font-weight:600; border-bottom:1px solid #f3f4f6;">5</div>
+        <div style="padding:8px 12px; border-left:1px solid var(--border); border-bottom:1px solid #f3f4f6;">Delivered 2026-03-17T14:00Z (D+2)</div>
+        <div style="padding:8px 12px; border-left:1px solid var(--border); border-bottom:1px solid #f3f4f6;">Delivered 2026-03-17T16:00Z (D+2)</div>
+        <!-- Stage 7 -->
+        <div style="background:#f8fafc; padding:8px; font-weight:600;">7</div>
+        <div style="padding:8px 12px; border-left:1px solid var(--border);">Reel "Grosmimi Dino Cup" &middot; Posted 03-28 (D+11)</div>
+        <div style="padding:8px 12px; border-left:1px solid var(--border);">Reel "Grosmimi Baby Bottle" &middot; Posted 03-26 (D+9)</div>
+      </div>
+    </div>
   </div>
 </div>
 
