@@ -185,13 +185,13 @@ async function initContentDashboard(){
   var loadEl = document.getElementById('loading');
   loadEl.style.display = 'block';
   try{
-    var fetchOpts = {mode:'cors', cache:'no-store'};
+    var _cb = '&_t='+Date.now();
     var [postsRes, metricsRes, ordersRes, amzRes, shopRes] = await Promise.all([
-      fetch(API_BASE+'/query/?table=content_posts&limit=10000',fetchOpts),
-      fetch(API_BASE+'/query/?table=content_metrics_daily&limit=50000',fetchOpts),
-      fetch(API_BASE+'/query/?table=influencer_orders&limit=10000',fetchOpts),
-      fetch(API_BASE+'/query/?table=amazon_sales_daily&limit=50000&date_from=2025-01-01',fetchOpts),
-      fetch(API_BASE+'/query/?table=shopify_orders_daily&limit=50000&date_from=2025-01-01',fetchOpts)
+      fetch(API_BASE+'/query/?table=content_posts&limit=10000'+_cb),
+      fetch(API_BASE+'/query/?table=content_metrics_daily&limit=50000'+_cb),
+      fetch(API_BASE+'/query/?table=influencer_orders&limit=10000'+_cb),
+      fetch(API_BASE+'/query/?table=amazon_sales_daily&limit=50000&date_from=2025-01-01'+_cb),
+      fetch(API_BASE+'/query/?table=shopify_orders_daily&limit=50000&date_from=2025-01-01'+_cb)
     ]);
     if(!postsRes.ok) throw new Error('content_posts: '+postsRes.status);
     if(!metricsRes.ok) throw new Error('content_metrics_daily: '+metricsRes.status);
