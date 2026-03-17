@@ -1,10 +1,10 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-17 02:05 PST",
+ "generated_pst": "2026-03-17 02:09 PST",
  "brands": {
   "grosmimi": {
    "dates": {
     "2026-03-14": {
-     "generated": "2026-03-17T02:05",
+     "generated": "2026-03-17T02:09",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -63,7 +63,7 @@ const PPC_DATA = {
        "action": "increase_budget",
        "bid_pct": 10,
        "bud_before": 500.0,
-       "bud_after": 450.0,
+       "bud_after": null,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 16.78x (ACOS 6.0%) | 30d ROAS 17.52x | target ACOS 20.0% | 7d vs 30d: -4.2%",
        "approved": false
@@ -153,7 +153,7 @@ const PPC_DATA = {
        "action": "increase_budget",
        "bid_pct": 10,
        "bud_before": 900.0,
-       "bud_after": 450.0,
+       "bud_after": null,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 5.03x (ACOS 19.9%) | 30d ROAS 5.26x | target ACOS 20.0% | 7d vs 30d: -4.4%",
        "approved": false
@@ -171,7 +171,7 @@ const PPC_DATA = {
        "action": "increase_budget",
        "bid_pct": 10,
        "bud_before": 600.0,
-       "bud_after": 450.0,
+       "bud_after": null,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 8.2x (ACOS 12.2%) | 30d ROAS 7.99x | target ACOS 20.0% | 7d vs 30d: +2.6%",
        "approved": false
@@ -222,7 +222,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-15": {
-     "generated": "2026-03-17T02:05",
+     "generated": "2026-03-17T02:09",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -281,7 +281,7 @@ const PPC_DATA = {
        "action": "increase_budget",
        "bid_pct": 10,
        "bud_before": 500.0,
-       "bud_after": 450.0,
+       "bud_after": null,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 17.11x (ACOS 5.8%) | 30d ROAS 17.11x | target ACOS 20.0% | 7d vs 30d: +0.0%",
        "approved": false
@@ -371,7 +371,7 @@ const PPC_DATA = {
        "action": "increase_budget",
        "bid_pct": 10,
        "bud_before": 900.0,
-       "bud_after": 450.0,
+       "bud_after": null,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 5.23x (ACOS 19.1%) | 30d ROAS 5.23x | target ACOS 20.0% | 7d vs 30d: +0.0%",
        "approved": false
@@ -389,7 +389,7 @@ const PPC_DATA = {
        "action": "increase_budget",
        "bid_pct": -10,
        "bud_before": 600.0,
-       "bud_after": 450.0,
+       "bud_after": null,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 7.89x (ACOS 12.7%) | 30d ROAS 7.89x | target ACOS 20.0% | 7d vs 30d: +0.0%",
        "approved": false
@@ -1492,7 +1492,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-17": {
-     "generated": "2026-03-17T02:05",
+     "generated": "2026-03-17T02:09",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -2821,7 +2821,7 @@ const PPC_DATA = {
   "naeiae": {
    "dates": {
     "2026-03-14": {
-     "generated": "2026-03-17T02:05",
+     "generated": "2026-03-17T02:09",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -2862,7 +2862,7 @@ const PPC_DATA = {
        "action": "increase_budget",
        "bid_pct": null,
        "bud_before": 50.0,
-       "bud_after": 50.0,
+       "bud_after": null,
        "tier": "7 Strong",
        "reason": "[MANUAL] 7d ROAS 4.0x (ACOS 25.0%) | 30d ROAS 3.41x | target ACOS 25.0% | 7d vs 30d: +17.3%",
        "approved": false
@@ -2877,7 +2877,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-15": {
-     "generated": "2026-03-17T02:05",
+     "generated": "2026-03-17T02:09",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -2915,7 +2915,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-17": {
-     "generated": "2026-03-17T02:05",
+     "generated": "2026-03-17T02:09",
      "executed": true,
      "executed_at": "2026-03-08",
      "summary_7d": {
@@ -3421,7 +3421,7 @@ const PPC_DATA = {
   "chaenmom": {
    "dates": {
     "2026-03-14": {
-     "generated": "2026-03-17T02:05",
+     "generated": "2026-03-17T02:09",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -3462,7 +3462,7 @@ const PPC_DATA = {
        "action": "increase_budget",
        "bid_pct": 10,
        "bud_before": 60.0,
-       "bud_after": 60.0,
+       "bud_after": null,
        "tier": "8 Strong",
        "reason": "[AUTO] 7d ROAS 30.88x (ACOS 3.2%) | 30d ROAS 15.15x | target ACOS 40.0% | 7d vs 30d: +103.8%\n** UNDERSPEND BOOST: budget increase amplified (+30% -> +60%) to reach $150.0/day target",
        "approved": false
@@ -3480,7 +3480,7 @@ const PPC_DATA = {
        "action": "increase_budget",
        "bid_pct": 10,
        "bud_before": 60.0,
-       "bud_after": 60.0,
+       "bud_after": null,
        "tier": "8 Strong",
        "reason": "[AUTO] 7d ROAS 7.1x (ACOS 14.1%) | 30d ROAS 7.87x | target ACOS 40.0% | 7d vs 30d: -9.8%\n** UNDERSPEND BOOST: budget increase amplified (+30% -> +60%) to reach $150.0/day target",
        "approved": false
@@ -3495,7 +3495,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-15": {
-     "generated": "2026-03-17T02:05",
+     "generated": "2026-03-17T02:09",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -3536,7 +3536,7 @@ const PPC_DATA = {
        "action": "increase_budget",
        "bid_pct": 10,
        "bud_before": 75.0,
-       "bud_after": 75.0,
+       "bud_after": null,
        "tier": "8 Strong",
        "reason": "[AUTO] 7d ROAS 30.88x (ACOS 3.2%) | 30d ROAS 30.88x | target ACOS 40.0% | 7d vs 30d: +0.0%\n** UNDERSPEND BOOST: budget increase amplified (+30% -> +60%) to reach $150.0/day target",
        "approved": false
@@ -3554,7 +3554,7 @@ const PPC_DATA = {
        "action": "increase_budget",
        "bid_pct": 15,
        "bud_before": 75.0,
-       "bud_after": 75.0,
+       "bud_after": null,
        "tier": "7 Strong",
        "reason": "[AUTO] 7d ROAS 4.18x (ACOS 23.9%) | 30d ROAS 4.18x | target ACOS 40.0% | 7d vs 30d: +0.0%\n** UNDERSPEND BOOST: budget increase amplified (+20% -> +50%) to reach $150.0/day target\n** UNDERSPEND: bid +15% to increase impressions/clicks (ROAS 4.18x supports growth)",
        "approved": false
@@ -3569,7 +3569,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-17": {
-     "generated": "2026-03-17T02:05",
+     "generated": "2026-03-17T02:09",
      "executed": true,
      "executed_at": "2026-03-14",
      "summary_7d": {

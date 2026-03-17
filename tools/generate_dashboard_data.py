@@ -29,6 +29,17 @@ PDT = timezone(timedelta(hours=-7))
 BRAND_LABELS = {"grosmimi": "Grosmimi", "naeiae": "Naeiae", "chaenmom": "CHA&MOM"}
 
 
+def _sanitize_bud_after(bud_after, bud_before):
+    """Never let bud_after be less than bud_before (prevents legacy budget decrease bugs)."""
+    if bud_after is None:
+        return None
+    if bud_before and bud_after < bud_before:
+        return None  # Treat as no-change
+    if bud_before and bud_after == bud_before:
+        return None  # Same = no real change
+    return bud_after
+
+
 def detect_brand(item):
     cn = (item.get("campaignName", "") or "").lower()
     if "cha&mom" in cn or "cha_mom" in cn:
@@ -160,7 +171,9 @@ def load_proposals():
                         "action": action,
                         "bid_pct": item.get("bid_change_pct"),
                         "bud_before": item.get("old_budget") or item.get("currentDailyBudget"),
-                        "bud_after": item.get("new_budget") or item.get("new_daily_budget"),
+                        "bud_after": _sanitize_bud_after(
+                            item.get("new_budget") or item.get("new_daily_budget"),
+                            item.get("old_budget") or item.get("currentDailyBudget")),
                         "tier": item.get("tier", ""),
                         "reason": item.get("reason", ""),
                         "approved": item.get("approved", False),
