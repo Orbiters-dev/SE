@@ -78,6 +78,16 @@ jobs:
         env:
           PPC_REPORT_RECIPIENT: ${{ secrets.PPC_REPORT_RECIPIENT }}
 
+      - name: Pre-Execute Propose (generate fresh proposal for execute)
+        if: inputs.action == 'execute' && inputs.selected_ids != ''
+        run: |
+          # Extract brand from selection JSON and run propose for that brand first
+          BRAND=$(echo '${{ inputs.selected_ids }}' | python -c "import sys,json; print(json.load(sys.stdin).get('brand',''))")
+          echo "=== Pre-generating proposal for $BRAND ==="
+          python -u tools/amazon_ppc_executor.py --propose --brand "$BRAND" 2>&1 || echo "[WARN] Pre-propose had issues"
+        env:
+          PPC_REPORT_RECIPIENT: ${{ secrets.PPC_REPORT_RECIPIENT }}
+
       - name: Run Execute
         if: inputs.action == 'execute' && inputs.selected_ids != ''
         run: |
