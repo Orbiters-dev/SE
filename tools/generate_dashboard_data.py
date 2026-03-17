@@ -76,28 +76,60 @@ def load_proposals():
             harvest = []
             negate = []
 
+            # --- Keyword proposals (separate field in new format) ---
+            kw_proposals = raw.get("keyword_proposals", []) if isinstance(raw, dict) else []
+            for kw in kw_proposals:
+                if not isinstance(kw, dict):
+                    continue
+                kw_type = kw.get("type", "") or kw.get("action", "")
+                if kw_type == "harvest":
+                    harvest.append({
+                        "term": kw.get("searchTerm", kw.get("keyword", "")),
+                        "sales": kw.get("sales", kw.get("sales_7d", 0)),
+                        "cost": kw.get("cost", kw.get("spend_7d", 0)),
+                        "acos": round(kw.get("acos", 0), 1) if kw.get("acos") else 0,
+                        "clicks": kw.get("clicks", 0),
+                        "purchases": kw.get("purchases", 0),
+                        "bid": kw.get("proposed_bid", kw.get("new_bid", 0)),
+                        "campaign": kw.get("sourceCampaignName", kw.get("campaignName", ""))[:30],
+                        "sim_confirmed": kw.get("sim_confirmed", False),
+                    })
+                elif kw_type.startswith("negate"):
+                    negate.append({
+                        "term": kw.get("searchTerm", kw.get("keyword", "")),
+                        "cost": kw.get("cost", kw.get("spend_7d", 0)),
+                        "sales": kw.get("sales", kw.get("sales_7d", 0)),
+                        "acos": round(kw.get("acos", 0), 1) if kw.get("acos") else 0,
+                        "clicks": kw.get("clicks", 0),
+                        "type": kw_type,
+                        "reason": kw.get("reason", ""),
+                        "sim_save": kw.get("sim_save", 0),
+                    })
+
+            # --- Campaign proposals (legacy also checked via action field) ---
             for item in data:
                 if not isinstance(item, dict):
                     continue
                 action = item.get("action", "") or item.get("proposed_action", "")
+                # Legacy: keyword proposals mixed in with campaigns
                 if action in ("harvest",):
                     harvest.append({
-                        "term": item.get("keyword", ""),
-                        "sales": item.get("sales_7d", 0),
-                        "cost": item.get("spend_7d", 0),
-                        "acos": round(item["spend_7d"] / item["sales_7d"] * 100, 1) if item.get("sales_7d") else 0,
+                        "term": item.get("keyword", item.get("searchTerm", "")),
+                        "sales": item.get("sales_7d", item.get("sales", 0)),
+                        "cost": item.get("spend_7d", item.get("cost", 0)),
+                        "acos": round(item.get("spend_7d", item.get("cost", 0)) / item.get("sales_7d", item.get("sales", 1)) * 100, 1) if item.get("sales_7d", item.get("sales")) else 0,
                         "clicks": item.get("clicks", 0),
                         "purchases": item.get("purchases", 0),
-                        "bid": item.get("new_bid", 0),
-                        "campaign": item.get("campaignName", "")[:30],
+                        "bid": item.get("new_bid", item.get("proposed_bid", 0)),
+                        "campaign": item.get("campaignName", item.get("sourceCampaignName", ""))[:30],
                         "sim_confirmed": item.get("sim_confirmed", False),
                     })
                 elif action.startswith("negate"):
                     negate.append({
-                        "term": item.get("keyword", ""),
-                        "cost": item.get("spend_7d", 0),
-                        "sales": item.get("sales_7d", 0),
-                        "acos": round(item["spend_7d"] / item["sales_7d"] * 100, 1) if item.get("sales_7d") else 0,
+                        "term": item.get("keyword", item.get("searchTerm", "")),
+                        "cost": item.get("spend_7d", item.get("cost", 0)),
+                        "sales": item.get("sales_7d", item.get("sales", 0)),
+                        "acos": round(item.get("spend_7d", item.get("cost", 0)) / item.get("sales_7d", item.get("sales", 1)) * 100, 1) if item.get("sales_7d", item.get("sales")) else 0,
                         "clicks": item.get("clicks", 0),
                         "type": action,
                         "reason": item.get("reason", ""),

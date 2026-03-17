@@ -1,10 +1,10 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-17 01:07 PST",
+ "generated_pst": "2026-03-17 01:24 PST",
  "brands": {
   "grosmimi": {
    "dates": {
     "2026-03-14": {
-     "generated": "2026-03-17T01:07",
+     "generated": "2026-03-17T01:24",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -222,7 +222,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-15": {
-     "generated": "2026-03-17T01:07",
+     "generated": "2026-03-17T01:24",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -431,16 +431,1068 @@ const PPC_DATA = {
        "approved": false
       }
      ],
-     "harvest": [],
-     "negate": [],
+     "harvest": [
+      {
+       "term": "grosmimi straw cup",
+       "sales": 14269.04,
+       "cost": 1005.28,
+       "acos": 7.0,
+       "clicks": 1944,
+       "purchases": 523,
+       "bid": 0.57,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grossini straw cup",
+       "sales": 3957.6,
+       "cost": 288.15,
+       "acos": 7.3,
+       "clicks": 417,
+       "purchases": 147,
+       "bid": 0.76,
+       "campaign": "SP_ppsu_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi straw replacement",
+       "sales": 3712.99,
+       "cost": 125.32,
+       "acos": 3.4,
+       "clicks": 301,
+       "purchases": 178,
+       "bid": 0.46,
+       "campaign": "SP_Replacements_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "gross mimi straw cup",
+       "sales": 1649.1,
+       "cost": 132.6,
+       "acos": 8.0,
+       "clicks": 208,
+       "purchases": 57,
+       "bid": 0.7,
+       "campaign": "SP_all_auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi stainless steel straw cup",
+       "sales": 862.89,
+       "cost": 74.1,
+       "acos": 8.6,
+       "clicks": 122,
+       "purchases": 26,
+       "bid": 0.67,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "sippy cup for 6+ month old",
+       "sales": 777.0,
+       "cost": 172.53,
+       "acos": 22.2,
+       "clicks": 143,
+       "purchases": 26,
+       "bid": 1.33,
+       "campaign": "SP_Fliptop_auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi sippy cup",
+       "sales": 515.2,
+       "cost": 36.75,
+       "acos": 7.1,
+       "clicks": 70,
+       "purchases": 18,
+       "bid": 0.58,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi cup",
+       "sales": 464.9,
+       "cost": 23.15,
+       "acos": 5.0,
+       "clicks": 57,
+       "purchases": 18,
+       "bid": 0.45,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi straw cup 12 months",
+       "sales": 430.5,
+       "cost": 21.56,
+       "acos": 5.0,
+       "clicks": 41,
+       "purchases": 16,
+       "bid": 0.58,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "toddler straw cup grosmimi",
+       "sales": 408.1,
+       "cost": 16.66,
+       "acos": 4.1,
+       "clicks": 29,
+       "purchases": 12,
+       "bid": 0.63,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi stage 2 straw",
+       "sales": 358.5,
+       "cost": 10.04,
+       "acos": 2.8,
+       "clicks": 25,
+       "purchases": 13,
+       "bid": 0.44,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi straw cup stainless steel",
+       "sales": 329.8,
+       "cost": 20.19,
+       "acos": 6.1,
+       "clicks": 32,
+       "purchases": 9,
+       "bid": 0.69,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "straw cup baby",
+       "sales": 316.5,
+       "cost": 73.15,
+       "acos": 23.1,
+       "clicks": 51,
+       "purchases": 12,
+       "bid": 1.58,
+       "campaign": "SP_ppsu_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "weighted straw cup",
+       "sales": 309.2,
+       "cost": 71.86,
+       "acos": 23.2,
+       "clicks": 112,
+       "purchases": 11,
+       "bid": 0.71,
+       "campaign": "SP_stage1_keyword",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi weighted straw",
+       "sales": 293.8,
+       "cost": 7.02,
+       "acos": 2.4,
+       "clicks": 16,
+       "purchases": 10,
+       "bid": 0.48,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "toddler cup",
+       "sales": 282.0,
+       "cost": 20.84,
+       "acos": 7.4,
+       "clicks": 30,
+       "purchases": 11,
+       "bid": 0.76,
+       "campaign": "SP_ppsu_auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmini",
+       "sales": 260.1,
+       "cost": 8.03,
+       "acos": 3.1,
+       "clicks": 19,
+       "purchases": 9,
+       "bid": 0.46,
+       "campaign": "SP_ppsu_auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi straw cup replacement",
+       "sales": 253.8,
+       "cost": 11.09,
+       "acos": 4.4,
+       "clicks": 25,
+       "purchases": 13,
+       "bid": 0.49,
+       "campaign": "SP_Replacements_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi ppsu straw cup",
+       "sales": 236.2,
+       "cost": 17.35,
+       "acos": 7.3,
+       "clicks": 31,
+       "purchases": 8,
+       "bid": 0.62,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi straw cup stage 2",
+       "sales": 216.6,
+       "cost": 19.95,
+       "acos": 9.2,
+       "clicks": 43,
+       "purchases": 9,
+       "bid": 0.51,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "straw sippy cups for baby",
+       "sales": 211.4,
+       "cost": 33.22,
+       "acos": 15.7,
+       "clicks": 20,
+       "purchases": 7,
+       "bid": 1.83,
+       "campaign": "SP_ppsu_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi replacement top",
+       "sales": 203.0,
+       "cost": 8.53,
+       "acos": 4.2,
+       "clicks": 22,
+       "purchases": 9,
+       "bid": 0.43,
+       "campaign": "SP_Replacements_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "toddler milk bottle",
+       "sales": 174.4,
+       "cost": 22.51,
+       "acos": 12.9,
+       "clicks": 37,
+       "purchases": 6,
+       "bid": 0.67,
+       "campaign": "SP_ppsu_auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi sippy cups for toddlers 1-3",
+       "sales": 160.8,
+       "cost": 12.5,
+       "acos": 7.8,
+       "clicks": 24,
+       "purchases": 6,
+       "bid": 0.57,
+       "campaign": "SP_Replacements_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi straw",
+       "sales": 160.19,
+       "cost": 10.96,
+       "acos": 6.8,
+       "clicks": 26,
+       "purchases": 9,
+       "bid": 0.46,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "straw cups",
+       "sales": 156.7,
+       "cost": 28.59,
+       "acos": 18.2,
+       "clicks": 24,
+       "purchases": 6,
+       "bid": 1.31,
+       "campaign": "SP_ppsu_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "toddler cups",
+       "sales": 148.7,
+       "cost": 30.92,
+       "acos": 20.8,
+       "clicks": 34,
+       "purchases": 6,
+       "bid": 1.0,
+       "campaign": "SP_ppsu_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "toddler sippy cups 2 year old",
+       "sales": 136.8,
+       "cost": 29.67,
+       "acos": 21.7,
+       "clicks": 31,
+       "purchases": 5,
+       "bid": 1.05,
+       "campaign": "SP_ppsu_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "straw bottle for toddlers 1-3",
+       "sales": 133.9,
+       "cost": 15.01,
+       "acos": 11.2,
+       "clicks": 22,
+       "purchases": 5,
+       "bid": 0.75,
+       "campaign": "SP_ppsu_auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "gossimini straw cup",
+       "sales": 130.7,
+       "cost": 5.92,
+       "acos": 4.5,
+       "clicks": 10,
+       "purchases": 5,
+       "bid": 0.65,
+       "campaign": "SP_ppsu_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "milk straw cup",
+       "sales": 124.3,
+       "cost": 14.86,
+       "acos": 12.0,
+       "clicks": 13,
+       "purchases": 5,
+       "bid": 1.26,
+       "campaign": "SP_ppsu_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "onzenna toddler cup",
+       "sales": 121.5,
+       "cost": 15.89,
+       "acos": 13.1,
+       "clicks": 19,
+       "purchases": 4,
+       "bid": 0.92,
+       "campaign": "SP_ppsu_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "gromini straw cup",
+       "sales": 119.9,
+       "cost": 11.47,
+       "acos": 9.6,
+       "clicks": 18,
+       "purchases": 5,
+       "bid": 0.7,
+       "campaign": "SP_ppsu_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "best baby sippy cups 12-18 months",
+       "sales": 114.8,
+       "cost": 7.27,
+       "acos": 6.3,
+       "clicks": 10,
+       "purchases": 4,
+       "bid": 0.8,
+       "campaign": "SP_ppsu_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi straw cup stage 1",
+       "sales": 108.8,
+       "cost": 8.59,
+       "acos": 7.9,
+       "clicks": 16,
+       "purchases": 5,
+       "bid": 0.59,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi replacement straw",
+       "sales": 108.5,
+       "cost": 8.11,
+       "acos": 7.5,
+       "clicks": 20,
+       "purchases": 5,
+       "bid": 0.45,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "toddler cups with straws",
+       "sales": 100.1,
+       "cost": 22.16,
+       "acos": 22.1,
+       "clicks": 23,
+       "purchases": 3,
+       "bid": 1.06,
+       "campaign": "SP_ppsu_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "straw sippy cup for 1 year old",
+       "sales": 93.2,
+       "cost": 19.27,
+       "acos": 20.7,
+       "clicks": 16,
+       "purchases": 4,
+       "bid": 1.32,
+       "campaign": "SP_ppsu_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "sippy cup with straw spill proof",
+       "sales": 91.2,
+       "cost": 20.17,
+       "acos": 22.1,
+       "clicks": 14,
+       "purchases": 1,
+       "bid": 1.58,
+       "campaign": "SP_ppsu_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "best toddler sippy cup with straw",
+       "sales": 90.1,
+       "cost": 17.94,
+       "acos": 19.9,
+       "clicks": 17,
+       "purchases": 3,
+       "bid": 1.16,
+       "campaign": "SP_ppsu_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi stage 2",
+       "sales": 89.6,
+       "cost": 6.52,
+       "acos": 7.3,
+       "clicks": 19,
+       "purchases": 3,
+       "bid": 0.38,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "no spill sippy cup",
+       "sales": 83.9,
+       "cost": 11.31,
+       "acos": 13.5,
+       "clicks": 11,
+       "purchases": 4,
+       "bid": 1.13,
+       "campaign": "SP_ppsu_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "milk transition cup for 1 year old",
+       "sales": 79.4,
+       "cost": 15.8,
+       "acos": 19.9,
+       "clicks": 19,
+       "purchases": 3,
+       "bid": 0.91,
+       "campaign": "SP_ppsu_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi 10oz straw cup",
+       "sales": 71.7,
+       "cost": 5.16,
+       "acos": 7.2,
+       "clicks": 10,
+       "purchases": 2,
+       "bid": 0.57,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi weighted straw cup",
+       "sales": 71.5,
+       "cost": 11.56,
+       "acos": 16.2,
+       "clicks": 20,
+       "purchases": 3,
+       "bid": 0.64,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi cups",
+       "sales": 70.5,
+       "cost": 6.9,
+       "acos": 9.8,
+       "clicks": 14,
+       "purchases": 3,
+       "bid": 0.54,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "spill proof sippy cup with straw",
+       "sales": 70.4,
+       "cost": 16.83,
+       "acos": 23.9,
+       "clicks": 10,
+       "purchases": 3,
+       "bid": 1.85,
+       "campaign": "SP_ppsu_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi stage 1",
+       "sales": 67.6,
+       "cost": 6.59,
+       "acos": 9.7,
+       "clicks": 16,
+       "purchases": 3,
+       "bid": 0.45,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "glass straw cup toddler",
+       "sales": 61.7,
+       "cost": 11.92,
+       "acos": 19.3,
+       "clicks": 10,
+       "purchases": 2,
+       "bid": 1.31,
+       "campaign": "SP_ppsu_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "b09zkqd8nt",
+       "sales": 57.4,
+       "cost": 8.52,
+       "acos": 14.8,
+       "clicks": 16,
+       "purchases": 2,
+       "bid": 0.59,
+       "campaign": "SP_Fliptop_auto",
+       "sim_confirmed": false
+      }
+     ],
+     "negate": [
+      {
+       "term": "baby straw cup",
+       "cost": 1310.59,
+       "sales": 2811.39,
+       "acos": 0,
+       "clicks": 841,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $948 saveable over 6 windows (86 conv at $1,205 spend)",
+       "sim_save": 0
+      },
+      {
+       "term": "straw sippy cup",
+       "cost": 501.11,
+       "sales": 1081.5,
+       "acos": 0,
+       "clicks": 294,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $464 saveable over 6 windows (36 conv at $472 spend)",
+       "sim_save": 0
+      },
+      {
+       "term": "sippy cup with straw",
+       "cost": 467.19,
+       "sales": 677.2,
+       "acos": 69.0,
+       "clicks": 264,
+       "type": "negate_high_acos",
+       "reason": "ACOS 69.0% > 50.0% threshold | Backtest: $444 saveable",
+       "sim_save": 0
+      },
+      {
+       "term": "sippy cup for 6 month old",
+       "cost": 407.85,
+       "sales": 584.6,
+       "acos": 69.8,
+       "clicks": 319,
+       "type": "negate_high_acos",
+       "reason": "ACOS 69.8% > 50.0% threshold | Backtest: $349 saveable",
+       "sim_save": 0
+      },
+      {
+       "term": "stainless steel straw cup toddler",
+       "cost": 265.89,
+       "sales": 356.7,
+       "acos": 74.5,
+       "clicks": 136,
+       "type": "negate_high_acos",
+       "reason": "ACOS 74.5% > 50.0% threshold | Backtest: $255 saveable",
+       "sim_save": 0
+      },
+      {
+       "term": "baby sippy cup with straw",
+       "cost": 237.8,
+       "sales": 188.5,
+       "acos": 126.2,
+       "clicks": 115,
+       "type": "negate_high_acos",
+       "reason": "ACOS 126.2% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "baby sippy cup",
+       "cost": 323.94,
+       "sales": 1145.19,
+       "acos": 0,
+       "clicks": 300,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $231 saveable over 6 windows (14 conv at $236 spend)",
+       "sim_save": 0
+      },
+      {
+       "term": "baby straw cups 6-12 months",
+       "cost": 186.3,
+       "sales": 269.3,
+       "acos": 69.2,
+       "clicks": 105,
+       "type": "negate_high_acos",
+       "reason": "ACOS 69.2% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "sippy cup",
+       "cost": 132.9,
+       "sales": 382.19,
+       "acos": 0,
+       "clicks": 111,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $114 saveable over 9 windows (10 conv at $120 spend)",
+       "sim_save": 0
+      },
+      {
+       "term": "baby sippy cup straw",
+       "cost": 91.1,
+       "sales": 22.8,
+       "acos": 399.6,
+       "clicks": 58,
+       "type": "negate_high_acos",
+       "reason": "ACOS 399.6% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "stainless steel straw cup baby",
+       "cost": 86.92,
+       "sales": 76.4,
+       "acos": 113.8,
+       "clicks": 54,
+       "type": "negate_high_acos",
+       "reason": "ACOS 113.8% > 70.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "sippy cups for toddlers 1-3",
+       "cost": 1253.71,
+       "sales": 4512.7,
+       "acos": 0,
+       "clicks": 1491,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $86 saveable over 4 windows (27 conv at $92 spend)",
+       "sim_save": 0
+      },
+      {
+       "term": "nuk straw cup",
+       "cost": 86.24,
+       "sales": 142.0,
+       "acos": 60.7,
+       "clicks": 72,
+       "type": "negate_high_acos",
+       "reason": "ACOS 60.7% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "toddler straw cup spill proof",
+       "cost": 81.84,
+       "sales": 124.1,
+       "acos": 65.9,
+       "clicks": 59,
+       "type": "negate_high_acos",
+       "reason": "ACOS 65.9% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "nuk sippy cups for toddlers 1-3",
+       "cost": 78.27,
+       "sales": 57.4,
+       "acos": 136.4,
+       "clicks": 87,
+       "type": "negate_high_acos",
+       "reason": "ACOS 136.4% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "sippy cups for toddlers",
+       "cost": 74.78,
+       "sales": 45.6,
+       "acos": 164.0,
+       "clicks": 57,
+       "type": "negate_high_acos",
+       "reason": "ACOS 164.0% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "transition sippy cup",
+       "cost": 69.27,
+       "sales": 48.6,
+       "acos": 142.5,
+       "clicks": 48,
+       "type": "negate_high_acos",
+       "reason": "ACOS 142.5% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "baby straw sippy cup",
+       "cost": 62.19,
+       "sales": 70.4,
+       "acos": 88.3,
+       "clicks": 34,
+       "type": "negate_high_acos",
+       "reason": "ACOS 88.3% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "b0dq63hvl1",
+       "cost": 61.06,
+       "sales": 57.4,
+       "acos": 106.4,
+       "clicks": 99,
+       "type": "negate_high_acos",
+       "reason": "ACOS 106.4% > 70.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "316 stainless steel cup",
+       "cost": 55.75,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 37,
+       "type": "negate_zero_sales",
+       "reason": "$55.75 spent, 37 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      },
+      {
+       "term": "baby straw cups 12-18 months",
+       "cost": 54.26,
+       "sales": 97.4,
+       "acos": 55.7,
+       "clicks": 31,
+       "type": "negate_high_acos",
+       "reason": "ACOS 55.7% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "glass sippy cups for toddlers 1-3",
+       "cost": 43.21,
+       "sales": 78.5,
+       "acos": 55.0,
+       "clicks": 38,
+       "type": "negate_high_acos",
+       "reason": "ACOS 55.0% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "baby sippy cups 12-18 months",
+       "cost": 42.74,
+       "sales": 72.5,
+       "acos": 59.0,
+       "clicks": 33,
+       "type": "negate_high_acos",
+       "reason": "ACOS 59.0% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "b0f3ln98nq",
+       "cost": 42.39,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 70,
+       "type": "negate_zero_sales",
+       "reason": "$42.39 spent, 70 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      },
+      {
+       "term": "straw cup for 1 year old",
+       "cost": 39.71,
+       "sales": 71.5,
+       "acos": 55.5,
+       "clicks": 35,
+       "type": "negate_high_acos",
+       "reason": "ACOS 55.5% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "baby first straw cup",
+       "cost": 39.13,
+       "sales": 48.7,
+       "acos": 80.3,
+       "clicks": 31,
+       "type": "negate_high_acos",
+       "reason": "ACOS 80.3% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "glass sippy cup",
+       "cost": 38.56,
+       "sales": 22.8,
+       "acos": 169.1,
+       "clicks": 36,
+       "type": "negate_high_acos",
+       "reason": "ACOS 169.1% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "dr browns sippy cup",
+       "cost": 38.03,
+       "sales": 47.7,
+       "acos": 79.7,
+       "clicks": 40,
+       "type": "negate_high_acos",
+       "reason": "ACOS 79.7% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "straw cup for milk",
+       "cost": 37.6,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 24,
+       "type": "negate_zero_sales",
+       "reason": "$37.60 spent, 24 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      },
+      {
+       "term": "ubmom straw cup",
+       "cost": 35.38,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 28,
+       "type": "negate_zero_sales",
+       "reason": "$35.38 spent, 28 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      },
+      {
+       "term": "toddler sippy cups 1 year old",
+       "cost": 35.16,
+       "sales": 23.8,
+       "acos": 147.7,
+       "clicks": 31,
+       "type": "negate_high_acos",
+       "reason": "ACOS 147.7% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "munchkin straw cup",
+       "cost": 34.68,
+       "sales": 25.8,
+       "acos": 134.4,
+       "clicks": 25,
+       "type": "negate_high_acos",
+       "reason": "ACOS 134.4% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "zak toddler cup with straw",
+       "cost": 34.27,
+       "sales": 53.6,
+       "acos": 63.9,
+       "clicks": 50,
+       "type": "negate_high_acos",
+       "reason": "ACOS 63.9% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "b09zk9w3ng",
+       "cost": 31.96,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 51,
+       "type": "negate_zero_sales",
+       "reason": "$31.96 spent, 51 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      },
+      {
+       "term": "straw cup for baby",
+       "cost": 30.44,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 24,
+       "type": "negate_zero_sales",
+       "reason": "$30.44 spent, 24 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      },
+      {
+       "term": "baby water bottle",
+       "cost": 29.82,
+       "sales": 46.6,
+       "acos": 64.0,
+       "clicks": 44,
+       "type": "negate_high_acos",
+       "reason": "ACOS 64.0% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "infant straw cup",
+       "cost": 28.26,
+       "sales": 22.8,
+       "acos": 123.9,
+       "clicks": 17,
+       "type": "negate_high_acos",
+       "reason": "ACOS 123.9% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "sippy cup straw",
+       "cost": 28.07,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 17,
+       "type": "negate_zero_sales",
+       "reason": "$28.07 spent, 17 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      },
+      {
+       "term": "stainless steel straw sippy cup",
+       "cost": 26.57,
+       "sales": 38.9,
+       "acos": 68.3,
+       "clicks": 11,
+       "type": "negate_high_acos",
+       "reason": "ACOS 68.3% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "ppsu straw cup",
+       "cost": 26.1,
+       "sales": 45.6,
+       "acos": 57.2,
+       "clicks": 30,
+       "type": "negate_high_acos",
+       "reason": "ACOS 57.2% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "squeeze straw cup baby",
+       "cost": 25.89,
+       "sales": 22.8,
+       "acos": 113.6,
+       "clicks": 11,
+       "type": "negate_high_acos",
+       "reason": "ACOS 113.6% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "dr brown straw cup",
+       "cost": 25.57,
+       "sales": 46.6,
+       "acos": 54.9,
+       "clicks": 23,
+       "type": "negate_high_acos",
+       "reason": "ACOS 54.9% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "stainless steel baby straw cup",
+       "cost": 25.33,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 18,
+       "type": "negate_zero_sales",
+       "reason": "$25.33 spent, 18 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      },
+      {
+       "term": "first sippy cup",
+       "cost": 25.05,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 12,
+       "type": "negate_zero_sales",
+       "reason": "$25.05 spent, 12 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      },
+      {
+       "term": "nuk learner straw cup",
+       "cost": 24.86,
+       "sales": 31.0,
+       "acos": 80.2,
+       "clicks": 21,
+       "type": "negate_high_acos",
+       "reason": "ACOS 80.2% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "baby cup",
+       "cost": 24.21,
+       "sales": 24.9,
+       "acos": 97.2,
+       "clicks": 27,
+       "type": "negate_high_acos",
+       "reason": "ACOS 97.2% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "sippy cup for 1+ year old",
+       "cost": 24.12,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 25,
+       "type": "negate_zero_sales",
+       "reason": "$24.12 spent, 25 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      },
+      {
+       "term": "glass straw cup",
+       "cost": 23.45,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 13,
+       "type": "negate_zero_sales",
+       "reason": "$23.45 spent, 13 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      },
+      {
+       "term": "baby straw cup stainless steel",
+       "cost": 23.4,
+       "sales": 38.9,
+       "acos": 60.2,
+       "clicks": 15,
+       "type": "negate_high_acos",
+       "reason": "ACOS 60.2% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "b09zk8y6sb",
+       "cost": 22.77,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 38,
+       "type": "negate_zero_sales",
+       "reason": "$22.77 spent, 38 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      }
+     ],
      "counts": {
       "campaigns": 11,
-      "harvest": 0,
-      "negate": 0
+      "harvest": 50,
+      "negate": 50
      }
     },
     "2026-03-17": {
-     "generated": "2026-03-17T01:07",
+     "generated": "2026-03-17T01:24",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -703,12 +1755,1064 @@ const PPC_DATA = {
        "approved": false
       }
      ],
-     "harvest": [],
-     "negate": [],
+     "harvest": [
+      {
+       "term": "grosmimi straw cup",
+       "sales": 26079.58,
+       "cost": 1569.58,
+       "acos": 6.0,
+       "clicks": 3174,
+       "purchases": 943,
+       "bid": 0.54,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi straw replacement",
+       "sales": 8016.07,
+       "cost": 256.08,
+       "acos": 3.2,
+       "clicks": 629,
+       "purchases": 382,
+       "bid": 0.45,
+       "campaign": "SP_Replacements_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grossini straw cup",
+       "sales": 4777.0,
+       "cost": 273.21,
+       "acos": 5.7,
+       "clicks": 491,
+       "purchases": 170,
+       "bid": 0.61,
+       "campaign": "SP_Fliptop_auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "gross mimi straw cup",
+       "sales": 2312.5,
+       "cost": 186.76,
+       "acos": 8.1,
+       "clicks": 303,
+       "purchases": 80,
+       "bid": 0.68,
+       "campaign": "SP_all_auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi stainless steel straw cup",
+       "sales": 1934.26,
+       "cost": 146.74,
+       "acos": 7.6,
+       "clicks": 253,
+       "purchases": 57,
+       "bid": 0.64,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi sippy cup",
+       "sales": 1024.88,
+       "cost": 61.86,
+       "acos": 6.0,
+       "clicks": 124,
+       "purchases": 38,
+       "bid": 0.55,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi cup",
+       "sales": 1015.1,
+       "cost": 43.86,
+       "acos": 4.3,
+       "clicks": 112,
+       "purchases": 39,
+       "bid": 0.43,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi replacement top",
+       "sales": 803.79,
+       "cost": 29.17,
+       "acos": 3.6,
+       "clicks": 73,
+       "purchases": 36,
+       "bid": 0.44,
+       "campaign": "SP_Replacements_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi straw cup 12 months",
+       "sales": 688.5,
+       "cost": 36.1,
+       "acos": 5.2,
+       "clicks": 68,
+       "purchases": 27,
+       "bid": 0.58,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "toddler straw cup grosmimi",
+       "sales": 623.0,
+       "cost": 34.5,
+       "acos": 5.5,
+       "clicks": 59,
+       "purchases": 21,
+       "bid": 0.64,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi stage 2 straw",
+       "sales": 563.4,
+       "cost": 17.55,
+       "acos": 3.1,
+       "clicks": 45,
+       "purchases": 21,
+       "bid": 0.43,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi straw cup stainless steel",
+       "sales": 529.8,
+       "cost": 30.17,
+       "acos": 5.7,
+       "clicks": 50,
+       "purchases": 16,
+       "bid": 0.66,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi straw cup stage 2",
+       "sales": 492.5,
+       "cost": 34.28,
+       "acos": 7.0,
+       "clicks": 75,
+       "purchases": 20,
+       "bid": 0.5,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "toddler straw cup",
+       "sales": 465.06,
+       "cost": 98.17,
+       "acos": 21.1,
+       "clicks": 115,
+       "purchases": 18,
+       "bid": 0.94,
+       "campaign": "SP_knotted_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi weighted straw",
+       "sales": 453.99,
+       "cost": 18.57,
+       "acos": 4.1,
+       "clicks": 36,
+       "purchases": 16,
+       "bid": 0.57,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi straw cup replacement",
+       "sales": 429.3,
+       "cost": 17.46,
+       "acos": 4.1,
+       "clicks": 39,
+       "purchases": 23,
+       "bid": 0.49,
+       "campaign": "SP_Replacements_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi replacement straw",
+       "sales": 386.59,
+       "cost": 22.36,
+       "acos": 5.8,
+       "clicks": 56,
+       "purchases": 18,
+       "bid": 0.44,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi straw",
+       "sales": 379.88,
+       "cost": 25.38,
+       "acos": 6.7,
+       "clicks": 60,
+       "purchases": 21,
+       "bid": 0.47,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmini",
+       "sales": 364.8,
+       "cost": 11.1,
+       "acos": 3.0,
+       "clicks": 26,
+       "purchases": 12,
+       "bid": 0.47,
+       "campaign": "SP_Fliptop_auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "weighted straw cup",
+       "sales": 343.0,
+       "cost": 78.83,
+       "acos": 23.0,
+       "clicks": 125,
+       "purchases": 12,
+       "bid": 0.69,
+       "campaign": "SP_stage1_keyword",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi tumbler",
+       "sales": 312.2,
+       "cost": 5.16,
+       "acos": 1.7,
+       "clicks": 10,
+       "purchases": 9,
+       "bid": 0.57,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi ppsu straw cup",
+       "sales": 286.9,
+       "cost": 20.9,
+       "acos": 7.3,
+       "clicks": 38,
+       "purchases": 10,
+       "bid": 0.61,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi straw cup stage 1",
+       "sales": 284.2,
+       "cost": 16.27,
+       "acos": 5.7,
+       "clicks": 33,
+       "purchases": 11,
+       "bid": 0.54,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi stage 2",
+       "sales": 280.8,
+       "cost": 11.79,
+       "acos": 4.2,
+       "clicks": 32,
+       "purchases": 11,
+       "bid": 0.41,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "straw cup baby",
+       "sales": 273.0,
+       "cost": 48.98,
+       "acos": 17.9,
+       "clicks": 36,
+       "purchases": 10,
+       "bid": 1.5,
+       "campaign": "SP_flip top_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi sippy cups for toddlers 1-3",
+       "sales": 231.09,
+       "cost": 15.93,
+       "acos": 6.9,
+       "clicks": 31,
+       "purchases": 8,
+       "bid": 0.57,
+       "campaign": "SP_Replacements_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "straw bottle for toddlers 1-3",
+       "sales": 229.49,
+       "cost": 18.66,
+       "acos": 8.1,
+       "clicks": 28,
+       "purchases": 9,
+       "bid": 0.73,
+       "campaign": "SP_stage1_keyword",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi stage 2 straw cup",
+       "sales": 226.7,
+       "cost": 9.91,
+       "acos": 4.4,
+       "clicks": 26,
+       "purchases": 9,
+       "bid": 0.42,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "toddler milk bottle",
+       "sales": 221.7,
+       "cost": 31.88,
+       "acos": 14.4,
+       "clicks": 53,
+       "purchases": 7,
+       "bid": 0.66,
+       "campaign": "SP_stage1_keyword",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi water bottle",
+       "sales": 213.6,
+       "cost": 6.3,
+       "acos": 2.9,
+       "clicks": 17,
+       "purchases": 7,
+       "bid": 0.41,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi spill proof straw cup",
+       "sales": 209.5,
+       "cost": 14.06,
+       "acos": 6.7,
+       "clicks": 27,
+       "purchases": 6,
+       "bid": 0.57,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi flip top",
+       "sales": 209.0,
+       "cost": 3.07,
+       "acos": 1.5,
+       "clicks": 12,
+       "purchases": 8,
+       "bid": 0.28,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "spill proof straw cups for toddlers",
+       "sales": 201.4,
+       "cost": 34.6,
+       "acos": 17.2,
+       "clicks": 31,
+       "purchases": 7,
+       "bid": 1.23,
+       "campaign": "SP_knotted_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "onzenna toddler cup",
+       "sales": 191.1,
+       "cost": 20.28,
+       "acos": 10.6,
+       "clicks": 25,
+       "purchases": 5,
+       "bid": 0.89,
+       "campaign": "SP_flip top_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi cups",
+       "sales": 177.5,
+       "cost": 10.08,
+       "acos": 5.7,
+       "clicks": 22,
+       "purchases": 7,
+       "bid": 0.5,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi insulated straw cup",
+       "sales": 173.7,
+       "cost": 8.59,
+       "acos": 4.9,
+       "clicks": 14,
+       "purchases": 5,
+       "bid": 0.67,
+       "campaign": "SP_Fliptop_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi bottle",
+       "sales": 169.6,
+       "cost": 7.58,
+       "acos": 4.5,
+       "clicks": 19,
+       "purchases": 7,
+       "bid": 0.44,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi straw cup 6 months",
+       "sales": 162.7,
+       "cost": 17.41,
+       "acos": 10.7,
+       "clicks": 34,
+       "purchases": 7,
+       "bid": 0.56,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi straw cup weighted straw",
+       "sales": 157.2,
+       "cost": 16.79,
+       "acos": 10.7,
+       "clicks": 34,
+       "purchases": 6,
+       "bid": 0.54,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "straw cups",
+       "sales": 156.7,
+       "cost": 29.97,
+       "acos": 19.1,
+       "clicks": 26,
+       "purchases": 6,
+       "bid": 1.27,
+       "campaign": "SP_flip top_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "baby sippy cups 6-12 months",
+       "sales": 149.7,
+       "cost": 24.79,
+       "acos": 16.6,
+       "clicks": 37,
+       "purchases": 5,
+       "bid": 0.74,
+       "campaign": "SP_stage1_keyword",
+       "sim_confirmed": false
+      },
+      {
+       "term": "toddler cups",
+       "sales": 148.7,
+       "cost": 18.75,
+       "acos": 12.6,
+       "clicks": 30,
+       "purchases": 6,
+       "bid": 0.69,
+       "campaign": "SP_stage1_keyword",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi straw cup flip top",
+       "sales": 140.6,
+       "cost": 6.84,
+       "acos": 4.9,
+       "clicks": 12,
+       "purchases": 4,
+       "bid": 0.63,
+       "campaign": "SP_knotted_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "straw cup grosmimi",
+       "sales": 137.6,
+       "cost": 7.56,
+       "acos": 5.5,
+       "clicks": 15,
+       "purchases": 5,
+       "bid": 0.55,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi replacement parts",
+       "sales": 133.88,
+       "cost": 6.64,
+       "acos": 5.0,
+       "clicks": 16,
+       "purchases": 7,
+       "bid": 0.46,
+       "campaign": "SP_Replacements_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "gossimini straw cup",
+       "sales": 130.7,
+       "cost": 6.61,
+       "acos": 5.1,
+       "clicks": 11,
+       "purchases": 5,
+       "bid": 0.66,
+       "campaign": "SP_flip top_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "milk straw cup",
+       "sales": 124.3,
+       "cost": 13.42,
+       "acos": 10.8,
+       "clicks": 12,
+       "purchases": 5,
+       "bid": 1.23,
+       "campaign": "SP_flip top_manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi stainless steel",
+       "sales": 123.3,
+       "cost": 4.62,
+       "acos": 3.7,
+       "clicks": 11,
+       "purchases": 4,
+       "bid": 0.46,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      },
+      {
+       "term": "munchkin sippy cup",
+       "sales": 122.9,
+       "cost": 25.11,
+       "acos": 20.4,
+       "clicks": 29,
+       "purchases": 5,
+       "bid": 0.95,
+       "campaign": "SP_Fliptop_auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "grosmimi 10oz straw cup",
+       "sales": 122.4,
+       "cost": 8.26,
+       "acos": 6.7,
+       "clicks": 18,
+       "purchases": 4,
+       "bid": 0.5,
+       "campaign": "SP_stage1_10_defensive",
+       "sim_confirmed": false
+      }
+     ],
+     "negate": [
+      {
+       "term": "baby straw cup",
+       "cost": 121.03,
+       "sales": 734.5,
+       "acos": 0,
+       "clicks": 189,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $948 saveable over 6 windows (86 conv at $1,205 spend)",
+       "sim_save": 0
+      },
+      {
+       "term": "straw sippy cup",
+       "cost": 101.6,
+       "sales": 410.4,
+       "acos": 0,
+       "clicks": 120,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $464 saveable over 6 windows (36 conv at $472 spend)",
+       "sim_save": 0
+      },
+      {
+       "term": "sippy cup with straw",
+       "cost": 257.06,
+       "sales": 566.1,
+       "acos": 0,
+       "clicks": 183,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $444 saveable over 5 windows (21 conv at $450 spend)",
+       "sim_save": 0
+      },
+      {
+       "term": "sippy cup for 6 month old",
+       "cost": 366.44,
+       "sales": 517.6,
+       "acos": 70.8,
+       "clicks": 284,
+       "type": "negate_high_acos",
+       "reason": "ACOS 70.8% > 50.0% threshold | Backtest: $349 saveable",
+       "sim_save": 0
+      },
+      {
+       "term": "stainless steel straw cup toddler",
+       "cost": 45.37,
+       "sales": 94.4,
+       "acos": 0,
+       "clicks": 43,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $255 saveable over 3 windows (10 conv at $262 spend)",
+       "sim_save": 0
+      },
+      {
+       "term": "baby sippy cup with straw",
+       "cost": 237.8,
+       "sales": 188.5,
+       "acos": 126.2,
+       "clicks": 115,
+       "type": "negate_high_acos",
+       "reason": "ACOS 126.2% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "baby sippy cup",
+       "cost": 206.41,
+       "sales": 877.0,
+       "acos": 0,
+       "clicks": 172,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $231 saveable over 6 windows (14 conv at $236 spend)",
+       "sim_save": 0
+      },
+      {
+       "term": "baby straw cups 6-12 months",
+       "cost": 138.91,
+       "sales": 214.9,
+       "acos": 64.6,
+       "clicks": 75,
+       "type": "negate_high_acos",
+       "reason": "ACOS 64.6% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "sippy cup",
+       "cost": 65.85,
+       "sales": 249.5,
+       "acos": 0,
+       "clicks": 79,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $114 saveable over 9 windows (10 conv at $120 spend)",
+       "sim_save": 0
+      },
+      {
+       "term": "baby sippy cup straw",
+       "cost": 91.1,
+       "sales": 22.8,
+       "acos": 399.6,
+       "clicks": 58,
+       "type": "negate_high_acos",
+       "reason": "ACOS 399.6% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "sippy cups for toddlers 1-3",
+       "cost": 1066.69,
+       "sales": 4952.9,
+       "acos": 0,
+       "clicks": 1363,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $86 saveable over 4 windows (27 conv at $92 spend)",
+       "sim_save": 0
+      },
+      {
+       "term": "b0dq63hvl1",
+       "cost": 84.25,
+       "sales": 57.4,
+       "acos": 146.8,
+       "clicks": 135,
+       "type": "negate_high_acos",
+       "reason": "ACOS 146.8% > 70.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "sippy cups for toddlers",
+       "cost": 76.62,
+       "sales": 45.6,
+       "acos": 168.0,
+       "clicks": 60,
+       "type": "negate_high_acos",
+       "reason": "ACOS 168.0% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "baby cup with straw",
+       "cost": 75.95,
+       "sales": 122.0,
+       "acos": 62.3,
+       "clicks": 38,
+       "type": "negate_high_acos",
+       "reason": "ACOS 62.3% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "b0f3ln98nq",
+       "cost": 75.19,
+       "sales": 28.7,
+       "acos": 262.0,
+       "clicks": 126,
+       "type": "negate_high_acos",
+       "reason": "ACOS 262.0% > 70.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "baby straw sippy cup",
+       "cost": 62.19,
+       "sales": 70.4,
+       "acos": 88.3,
+       "clicks": 34,
+       "type": "negate_high_acos",
+       "reason": "ACOS 88.3% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "straw cup for 6+ month old",
+       "cost": 61.08,
+       "sales": 99.4,
+       "acos": 61.4,
+       "clicks": 62,
+       "type": "negate_high_acos",
+       "reason": "ACOS 61.4% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "nuk straw cup",
+       "cost": 57.29,
+       "sales": 93.3,
+       "acos": 61.4,
+       "clicks": 60,
+       "type": "negate_high_acos",
+       "reason": "ACOS 61.4% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "zak toddler cup with straw",
+       "cost": 56.71,
+       "sales": 82.3,
+       "acos": 68.9,
+       "clicks": 84,
+       "type": "negate_high_acos",
+       "reason": "ACOS 68.9% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "straw cup for 6 month old",
+       "cost": 50.24,
+       "sales": 95.2,
+       "acos": 52.8,
+       "clicks": 50,
+       "type": "negate_high_acos",
+       "reason": "ACOS 52.8% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "toddler sippy cups",
+       "cost": 30.71,
+       "sales": 139.7,
+       "acos": 0,
+       "clicks": 40,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $48 saveable over 4 windows (2 conv at $64 spend)",
+       "sim_save": 0
+      },
+      {
+       "term": "baby sippy cups 12-18 months",
+       "cost": 42.74,
+       "sales": 72.5,
+       "acos": 59.0,
+       "clicks": 33,
+       "type": "negate_high_acos",
+       "reason": "ACOS 59.0% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "316 stainless steel cup",
+       "cost": 3.38,
+       "sales": 0.0,
+       "acos": 0,
+       "clicks": 4,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $42 saveable over 4 windows (0 conv at $53 spend)",
+       "sim_save": 0
+      },
+      {
+       "term": "toddler bottles for milk",
+       "cost": 39.53,
+       "sales": 28.7,
+       "acos": 137.7,
+       "clicks": 67,
+       "type": "negate_high_acos",
+       "reason": "ACOS 137.7% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "transition sippy cup",
+       "cost": 24.82,
+       "sales": 24.9,
+       "acos": 99.7,
+       "clicks": 34,
+       "type": "negate_high_acos",
+       "reason": "ACOS 99.7% > 50.0% threshold | Backtest: $34 saveable",
+       "sim_save": 0
+      },
+      {
+       "term": "b09zk8y6sb",
+       "cost": 32.59,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 54,
+       "type": "negate_zero_sales",
+       "reason": "$32.59 spent, 54 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      },
+      {
+       "term": "ppsu straw cup",
+       "cost": 32.31,
+       "sales": 45.6,
+       "acos": 70.9,
+       "clicks": 39,
+       "type": "negate_high_acos",
+       "reason": "ACOS 70.9% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "dr brown straw cup",
+       "cost": 31.35,
+       "sales": 46.6,
+       "acos": 67.3,
+       "clicks": 31,
+       "type": "negate_high_acos",
+       "reason": "ACOS 67.3% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "glass sippy cup",
+       "cost": 29.1,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 34,
+       "type": "negate_zero_sales",
+       "reason": "$29.10 spent, 34 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      },
+      {
+       "term": "weighted straw sippy cup",
+       "cost": 29.04,
+       "sales": 22.8,
+       "acos": 127.4,
+       "clicks": 43,
+       "type": "negate_high_acos",
+       "reason": "ACOS 127.4% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "baby straw cups 12-18 months",
+       "cost": 27.59,
+       "sales": 25.9,
+       "acos": 106.5,
+       "clicks": 15,
+       "type": "negate_high_acos",
+       "reason": "ACOS 106.5% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "zak straw cup",
+       "cost": 27.5,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 43,
+       "type": "negate_zero_sales",
+       "reason": "$27.50 spent, 43 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      },
+      {
+       "term": "spill proof straw cups for toddlers",
+       "cost": 34.6,
+       "sales": 201.4,
+       "acos": 0,
+       "clicks": 31,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $27 saveable over 2 windows (6 conv at $54 spend)",
+       "sim_save": 0
+      },
+      {
+       "term": "sippy cup straw",
+       "cost": 26.18,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 17,
+       "type": "negate_zero_sales",
+       "reason": "$26.18 spent, 17 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      },
+      {
+       "term": "squeeze straw cup baby",
+       "cost": 25.89,
+       "sales": 22.8,
+       "acos": 113.6,
+       "clicks": 11,
+       "type": "negate_high_acos",
+       "reason": "ACOS 113.6% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "baby cup",
+       "cost": 25.23,
+       "sales": 24.9,
+       "acos": 101.3,
+       "clicks": 29,
+       "type": "negate_high_acos",
+       "reason": "ACOS 101.3% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "ubmom straw cup",
+       "cost": 20.92,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 24,
+       "type": "negate_zero_sales",
+       "reason": "$20.92 spent, 24 clicks, 0 sales (>3.0x target CPA) | Backtest: $25 saveable",
+       "sim_save": 0
+      },
+      {
+       "term": "first sippy cup",
+       "cost": 25.05,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 12,
+       "type": "negate_zero_sales",
+       "reason": "$25.05 spent, 12 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      },
+      {
+       "term": "hegen straw cup",
+       "cost": 24.47,
+       "sales": 45.6,
+       "acos": 53.7,
+       "clicks": 25,
+       "type": "negate_high_acos",
+       "reason": "ACOS 53.7% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "b0dq64xpxt",
+       "cost": 23.42,
+       "sales": 28.7,
+       "acos": 81.6,
+       "clicks": 38,
+       "type": "negate_high_acos",
+       "reason": "ACOS 81.6% > 70.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "munchkin straw cup",
+       "cost": 27.31,
+       "sales": 25.8,
+       "acos": 105.9,
+       "clicks": 24,
+       "type": "negate_high_acos",
+       "reason": "ACOS 105.9% > 50.0% threshold | Backtest: $22 saveable",
+       "sim_save": 0
+      },
+      {
+       "term": "straw cup for milk",
+       "cost": 24.17,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 20,
+       "type": "negate_zero_sales",
+       "reason": "$24.17 spent, 20 clicks, 0 sales (>3.0x target CPA) | Backtest: $22 saveable",
+       "sim_save": 0
+      },
+      {
+       "term": "b09rsjq7ms",
+       "cost": 21.98,
+       "sales": 28.7,
+       "acos": 76.6,
+       "clicks": 37,
+       "type": "negate_high_acos",
+       "reason": "ACOS 76.6% > 70.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "transition bottles for 1 year old for milk",
+       "cost": 21.9,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 26,
+       "type": "negate_zero_sales",
+       "reason": "$21.90 spent, 26 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      },
+      {
+       "term": "leak proof sippy cups for toddlers 1-3",
+       "cost": 21.71,
+       "sales": 22.8,
+       "acos": 95.2,
+       "clicks": 23,
+       "type": "negate_high_acos",
+       "reason": "ACOS 95.2% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "sippy cups with straw",
+       "cost": 21.29,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 16,
+       "type": "negate_zero_sales",
+       "reason": "$21.29 spent, 16 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      },
+      {
+       "term": "baby straw cup stainless steel",
+       "cost": 20.96,
+       "sales": 38.9,
+       "acos": 53.9,
+       "clicks": 14,
+       "type": "negate_high_acos",
+       "reason": "ACOS 53.9% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "stainless steel sippy cup",
+       "cost": 20.29,
+       "sales": 39.3,
+       "acos": 51.6,
+       "clicks": 34,
+       "type": "negate_high_acos",
+       "reason": "ACOS 51.6% > 50.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "honeybear straw cup baby",
+       "cost": 19.75,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 15,
+       "type": "negate_zero_sales",
+       "reason": "$19.75 spent, 15 clicks, 0 sales (>3.0x target CPA)",
+       "sim_save": 0
+      },
+      {
+       "term": "nuk learner straw cup",
+       "cost": 21.24,
+       "sales": 31.0,
+       "acos": 68.5,
+       "clicks": 21,
+       "type": "negate_high_acos",
+       "reason": "ACOS 68.5% > 50.0% threshold | Backtest: $19 saveable",
+       "sim_save": 0
+      }
+     ],
      "counts": {
       "campaigns": 14,
-      "harvest": 0,
-      "negate": 0
+      "harvest": 50,
+      "negate": 50
      }
     }
    },
@@ -717,7 +2821,7 @@ const PPC_DATA = {
   "naeiae": {
    "dates": {
     "2026-03-14": {
-     "generated": "2026-03-17T01:07",
+     "generated": "2026-03-17T01:24",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -773,7 +2877,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-15": {
-     "generated": "2026-03-17T01:07",
+     "generated": "2026-03-17T01:24",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -811,7 +2915,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-17": {
-     "generated": "2026-03-17T01:07",
+     "generated": "2026-03-17T01:24",
      "executed": true,
      "executed_at": "2026-03-08",
      "summary_7d": {
@@ -876,12 +2980,78 @@ const PPC_DATA = {
        "approved": false
       }
      ],
-     "harvest": [],
-     "negate": [],
+     "harvest": [
+      {
+       "term": "rice cakes",
+       "sales": 49.2,
+       "cost": 8.92,
+       "acos": 18.1,
+       "clicks": 11,
+       "purchases": 2,
+       "bid": 0.89,
+       "campaign": "Naeiae Rice Pop - SP - Auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "korean snacks",
+       "sales": 49.2,
+       "cost": 12.37,
+       "acos": 25.1,
+       "clicks": 15,
+       "purchases": 2,
+       "bid": 0.91,
+       "campaign": "Naeiae Rice Pop - SP - Auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "korean baby snack",
+       "sales": 49.2,
+       "cost": 10.44,
+       "acos": 21.2,
+       "clicks": 11,
+       "purchases": 2,
+       "bid": 1.04,
+       "campaign": "Naeiae Rice Pop - SP - Auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "korean baby food",
+       "sales": 49.2,
+       "cost": 9.47,
+       "acos": 19.2,
+       "clicks": 10,
+       "purchases": 2,
+       "bid": 1.04,
+       "campaign": "Naeiae Rice Pop - SP - Auto",
+       "sim_confirmed": false
+      }
+     ],
+     "negate": [
+      {
+       "term": "puffed rice",
+       "cost": 51.72,
+       "sales": 24.6,
+       "acos": 210.2,
+       "clicks": 62,
+       "type": "negate_high_acos",
+       "reason": "ACOS 210.2% > 70.0% threshold",
+       "sim_save": 0
+      },
+      {
+       "term": "toddler snacks",
+       "cost": 35.85,
+       "sales": 49.2,
+       "acos": 72.9,
+       "clicks": 33,
+       "type": "negate_high_acos",
+       "reason": "ACOS 72.9% > 50.0% threshold",
+       "sim_save": 0
+      }
+     ],
      "counts": {
       "campaigns": 3,
-      "harvest": 0,
-      "negate": 0
+      "harvest": 4,
+      "negate": 2
      }
     }
    },
@@ -1251,7 +3421,7 @@ const PPC_DATA = {
   "chaenmom": {
    "dates": {
     "2026-03-14": {
-     "generated": "2026-03-17T01:07",
+     "generated": "2026-03-17T01:24",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -1325,7 +3495,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-15": {
-     "generated": "2026-03-17T01:07",
+     "generated": "2026-03-17T01:24",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -1399,7 +3569,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-17": {
-     "generated": "2026-03-17T01:07",
+     "generated": "2026-03-17T01:24",
      "executed": true,
      "executed_at": "2026-03-14",
      "summary_7d": {
@@ -1482,12 +3652,46 @@ const PPC_DATA = {
        "approved": true
       }
      ],
-     "harvest": [],
-     "negate": [],
+     "harvest": [
+      {
+       "term": "b0f1xgs9jf",
+       "sales": 169.8,
+       "cost": 18.02,
+       "acos": 10.6,
+       "clicks": 13,
+       "purchases": 6,
+       "bid": 1.52,
+       "campaign": "CHA&MOM_Cream_SP_Auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "cha and mom",
+       "sales": 136.9,
+       "cost": 6.08,
+       "acos": 4.4,
+       "clicks": 10,
+       "purchases": 5,
+       "bid": 0.67,
+       "campaign": "CHA&MOM_Wash_SP_Auto",
+       "sim_confirmed": false
+      }
+     ],
+     "negate": [
+      {
+       "term": "b0b3fvl358",
+       "cost": 56.71,
+       "sales": 53.0,
+       "acos": 107.0,
+       "clicks": 23,
+       "type": "negate_high_acos",
+       "reason": "ACOS 107.0% > 50.0% threshold",
+       "sim_save": 0
+      }
+     ],
      "counts": {
       "campaigns": 4,
-      "harvest": 0,
-      "negate": 0
+      "harvest": 2,
+      "negate": 1
      }
     }
    },
