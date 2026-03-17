@@ -3041,7 +3041,7 @@ async function fetchWorkflowRuns(){
 
   try {
     var res = await fetch(GITHUB_API + '/actions/runs?per_page=100', {
-      headers: (localStorage.getItem('gh_pat')||localStorage.getItem('ppc_gh_pat')) ? {'Authorization':'token '+(localStorage.getItem('gh_pat')||localStorage.getItem('ppc_gh_pat'))} : {}
+      headers: getPAT() ? {'Authorization':'token '+getPAT()} : {}
     });
     if(!res.ok) throw new Error('GitHub API '+res.status);
     var data = await res.json();
@@ -3153,7 +3153,7 @@ async function fetchWorkflowRuns(){
     el.innerHTML = html;
 
   } catch(e) {
-    var hasToken = !!(localStorage.getItem('gh_pat')||localStorage.getItem('ppc_gh_pat'));
+    var hasToken = !!getPAT();
     el.innerHTML = '<div class="card" style="border-left:3px solid var(--r)">'
       +'<h3 style="color:var(--r)">Failed to load workflow status</h3>'
       +'<div class="desc">'+e.message+'</div>'
