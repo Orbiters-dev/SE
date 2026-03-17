@@ -876,7 +876,8 @@ function renderCfgBrandPanel(bk) {
   var lm = (window._liveMetrics || {})[bk];
   var actualSpendHtml = '';
   if (lm && lm.spend7d) {
-    var avgDaily = Math.round(lm.spend7d / 7);
+    var nDays = lm.days7d || 7;
+    var avgDaily = Math.round(lm.spend7d / nDays);
     var budgetCap = getCfgVal(bk, 'daily_budget', d.daily_budget || 0);
     var util = budgetCap > 0 ? Math.round(avgDaily / budgetCap * 100) : 0;
     var utilColor = util >= 80 ? 'var(--r)' : util >= 50 ? '#f59e0b' : 'var(--g)';
@@ -884,7 +885,7 @@ function renderCfgBrandPanel(bk) {
     actualSpendHtml = '<div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:14px">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
         +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--dim);letter-spacing:.4px">📊 Actual vs Budget</div>'
-        +'<div style="font-size:10px;color:var(--dim)">7d avg</div>'
+        +'<div style="font-size:10px;color:var(--dim)">'+nDays+'d avg</div>'
       +'</div>'
       +'<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">'
         +'<div style="font-size:22px;font-weight:800;font-family:var(--mono)">$'+fmtN(avgDaily)+'<span style="font-size:11px;color:var(--dim);font-weight:400">/day</span></div>'
@@ -1151,6 +1152,11 @@ async function fetchLiveMetrics(){
       sales7.forEach(function(r){totSales7+=+(r.gross_sales||r.ordered_product_sales||0);});
       sales30.forEach(function(r){totSales30+=+(r.gross_sales||r.ordered_product_sales||0);});
 
+      // Count actual distinct dates with data (not always 7 if collection is behind)
+      var dates7 = {};
+      ads7.forEach(function(r){ if(r.date) dates7[r.date]=1; });
+      var nDays7 = Math.max(Object.keys(dates7).length, 1);
+
       liveBrands[bk] = {
         acos7d: adSales7>0 ? Math.round(spend7/adSales7*1000)/10 : 0,
         acos30d: adSales30>0 ? Math.round(spend30/adSales30*1000)/10 : 0,
@@ -1160,6 +1166,7 @@ async function fetchLiveMetrics(){
         roas30d: spend30>0 ? Math.round(adSales30/spend30*100)/100 : 0,
         spend7d: Math.round(spend7),
         sales7d: Math.round(adSales7),
+        days7d: nDays7,
       };
     });
 
