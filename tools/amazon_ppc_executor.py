@@ -2772,7 +2772,7 @@ def execute_approved(proposal_data: Dict) -> List[Dict]:
     # --- Campaign-level actions ---
     for p in approved:
         cid = p["campaignId"]
-        action = p["proposed_action"]
+        action = p.get("proposed_action") or p.get("action", "")
         name = p["campaignName"]
 
         print(f"\n  Executing: {action} on '{name}' (ID: {cid})")
@@ -5635,7 +5635,10 @@ def main():
             if 0 <= idx < len(camp_items):
                 camp_items[idx]["approved"] = True
                 if sc.get("override_budget"):
-                    camp_items[idx]["new_budget"] = sc["override_budget"]
+                    camp_items[idx]["new_daily_budget"] = sc["override_budget"]
+                    # Ensure action is set so execute_approved processes it
+                    if not camp_items[idx].get("proposed_action"):
+                        camp_items[idx]["proposed_action"] = "increase_budget"
         # Mark selected harvest/negate approved
         for idx in sel.get("harvest", []):
             if 0 <= idx < len(harvest_items):
