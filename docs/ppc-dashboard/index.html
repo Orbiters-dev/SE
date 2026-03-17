@@ -1140,10 +1140,8 @@ var API_AUTH = ''; // Set via PAT modal or hardcoded basic auth
 async function fetchLiveMetrics(){
   var statusEl = document.getElementById('live-status');
   try {
-    // Fetch latest 7d + 30d amazon_ads_daily for all brands
-    var d7 = new Date(); d7.setDate(d7.getDate()-7);
+    // Fetch 30d window; 7d avg uses last 7 full completed days (excludes today)
     var d30 = new Date(); d30.setDate(d30.getDate()-30);
-    var d7s = d7.toISOString().slice(0,10);
     var d30s = d30.toISOString().slice(0,10);
 
     // Simple GET without Auth header → no CORS preflight needed
@@ -1164,12 +1162,17 @@ async function fetchLiveMetrics(){
     ['Grosmimi','Naeiae','CHA&MOM'].forEach(function(brand){
       var bk = brand.toLowerCase().replace('&','').replace(' ','');
       if(bk==='chamom') bk='chaenmom';
-      // Exclude today (partial day) — only use full completed days
+      // Pick last 7 FULL completed days (exclude today, then take most recent 7)
       var todayStr = new Date().toISOString().slice(0,10);
-      var ads7 = adsData.filter(function(r){return r.brand===brand && r.date>=d7s && r.date<todayStr;});
-      var ads30 = adsData.filter(function(r){return r.brand===brand && r.date>=d30s && r.date<todayStr;});
-      var sales7 = salesData.filter(function(r){return r.brand===brand && r.date>=d7s && r.date<todayStr;});
-      var sales30 = salesData.filter(function(r){return r.brand===brand && r.date>=d30s && r.date<todayStr;});
+      var brandAds = adsData.filter(function(r){return r.brand===brand && r.date<todayStr;});
+      var brandSales = salesData.filter(function(r){return r.brand===brand && r.date<todayStr;});
+      var allAdsDates = {}; brandAds.forEach(function(r){if(r.date) allAdsDates[r.date]=1;});
+      var last7dates = Object.keys(allAdsDates).sort().reverse().slice(0,7);
+      var d7cutoff = last7dates.length ? last7dates[last7dates.length-1] : todayStr;
+      var ads7 = brandAds.filter(function(r){return r.date>=d7cutoff;});
+      var ads30 = brandAds.filter(function(r){return r.date>=d30s;});
+      var sales7 = brandSales.filter(function(r){return r.date>=d7cutoff;});
+      var sales30 = brandSales.filter(function(r){return r.date>=d30s;});
 
       var spend7=0,adSales7=0,spend30=0,adSales30=0,totSales7=0,totSales30=0;
       ads7.forEach(function(r){spend7+=+(r.spend||0);adSales7+=+(r.sales||0);});
