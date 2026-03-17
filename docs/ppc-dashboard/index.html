@@ -3041,7 +3041,7 @@ async function fetchWorkflowRuns(){
 
   try {
     var res = await fetch(GITHUB_API + '/actions/runs?per_page=100', {
-      headers: localStorage.getItem('gh_pat') ? {'Authorization':'token '+localStorage.getItem('gh_pat')} : {}
+      headers: (localStorage.getItem('gh_pat')||localStorage.getItem('ppc_gh_pat')) ? {'Authorization':'token '+(localStorage.getItem('gh_pat')||localStorage.getItem('ppc_gh_pat'))} : {}
     });
     if(!res.ok) throw new Error('GitHub API '+res.status);
     var data = await res.json();
@@ -3153,9 +3153,11 @@ async function fetchWorkflowRuns(){
     el.innerHTML = html;
 
   } catch(e) {
+    var hasToken = !!(localStorage.getItem('gh_pat')||localStorage.getItem('ppc_gh_pat'));
     el.innerHTML = '<div class="card" style="border-left:3px solid var(--r)">'
       +'<h3 style="color:var(--r)">Failed to load workflow status</h3>'
       +'<div class="desc">'+e.message+'</div>'
+      +(!hasToken ? '<div class="desc" style="margin-top:8px;color:var(--dim)">This is a private repo. Set a GitHub PAT in browser console:<br><code style="font-size:11px;background:#f0f0f0;padding:2px 6px;border-radius:3px">localStorage.setItem(\'gh_pat\',\'ghp_YOUR_TOKEN\')</code> then retry.</div>' : '')
       +'<button onclick="fetchWorkflowRuns()" style="margin-top:8px;padding:6px 16px;border-radius:6px;border:1px solid var(--a);background:var(--abg);color:var(--a);font-weight:700;font-size:11px;cursor:pointer">Retry</button>'
       +'</div>';
   }
