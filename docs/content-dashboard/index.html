@@ -81,12 +81,18 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
     </div>
   </div>
 
+  <div id="regionToggle" style="display:flex;justify-content:center;margin-bottom:12px">
+    <div class="content-toggle" style="font-size:12px">
+      <div class="on" onclick="setRegion('us')">&#x1F1FA;&#x1F1F8; US</div>
+      <div onclick="setRegion('jp')">&#x1F1EF;&#x1F1F5; Japan</div>
+    </div>
+  </div>
+
   <div class="tabs" id="mainTabs">
     <div class="on" data-tab="alltime">Leaderboard</div>
     <div data-tab="race">Content Race</div>
     <div data-tab="pipeline">Pipeline KPI</div>
     <div data-tab="aggregate">Aggregate</div>
-    <div data-tab="japan">Japan &#x1F1EF;&#x1F1F5;</div>
   </div>
 
   <div id="loading" style="text-align:center;padding:40px;color:var(--dim);font-size:12px">Loading content data from DataKeeper...</div>
@@ -95,7 +101,6 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
   <div id="panel-race" class="pnl"><div id="race-inner"></div></div>
   <div id="panel-pipeline" class="pnl"><div id="pipeline-inner"></div></div>
   <div id="panel-aggregate" class="pnl"><div id="aggregate-inner"></div></div>
-  <div id="panel-japan" class="pnl"><div id="japan-inner"></div></div>
 </div>
 </div>
 
@@ -151,6 +156,8 @@ var _shopSales = [];
 var _metricsByPost = {};
 var _ordersByHandle = {};
 var _currentTab = 'alltime';
+var _region = 'us';
+var _pipelineView = 'overview'; // overview, brand, products
 
 var RACE_COLORS = ['#6366f1','#0ea5e9','#10b981','#f59e0b','#ef4444','#ec4899','#8b5cf6','#14b8a6','#f97316','#64748b'];
 var _aggGranularity = 'monthly';
@@ -255,7 +262,13 @@ function renderTab(tab){
   else if(tab==='alltime') renderAllTimeTop();
   else if(tab==='pipeline') renderPipelineKPI();
   else if(tab==='aggregate') renderAggregatePerformance();
-  else if(tab==='japan') renderJapan();
+}
+function setRegion(r){
+  _region = r;
+  var btns = document.querySelectorAll('#regionToggle .content-toggle>div');
+  btns.forEach(function(b){ b.classList.remove('on'); });
+  if(r==='us') btns[0].classList.add('on'); else btns[1].classList.add('on');
+  if(_loaded) renderTab(_currentTab);
 }
 
 // ══════════ VIDEO MODAL ══════════
@@ -302,7 +315,7 @@ function renderContentRace(){
   // Posts uploaded within last 90 days
   var cutoff90=new Date(now); cutoff90.setDate(cutoff90.getDate()-90);
   var cutoff90Str=cutoff90.toISOString().slice(0,10);
-  var eligible=_posts.filter(function(p){ return p.post_date>=cutoff90Str; });
+  var eligible=_posts.filter(function(p){ return p.post_date>=cutoff90Str && (p.region||'us')===_region; });
 
   var racers=eligible.map(function(p){
     var snaps=(_metricsByPost[p.post_id]||[]).slice();
@@ -439,7 +452,7 @@ function renderAllTimeTop(){
     cutoffStr=cutoff.toISOString().slice(0,10);
   }
   _posts.forEach(function(p){
-    if(p.region==='jp') return; // JP has its own tab
+    if((p.region||'us')!==_region) return;
     if(cutoffStr && p.post_date<cutoffStr) return;
     postMax[p.post_id]={views:0,likes:0,comments:0,platform:p.platform,post_date:p.post_date,
       username:p.username,url:p.url,followers:p.followers,brand:p.brand,post_id:p.post_id};
@@ -459,7 +472,7 @@ function renderAllTimeTop(){
   var totalV=0,totalL=0,totalC=0;
   allPosts.forEach(function(p){totalV+=p.views;totalL+=p.likes;totalC+=p.comments;});
   var statsHtml='<div class="stats" style="margin-bottom:12px">'
-    +'<div class="stat accent"><div class="sl">US POSTS</div><div class="sv">'+fmtN(allPosts.length)+'</div></div>'
+    +'<div class="stat accent"><div class="sl">TOTAL POSTS</div><div class="sv">'+fmtN(allPosts.length)+'</div></div>'
     +'<div class="stat cyan"><div class="sl">TOTAL VIEWS</div><div class="sv">'+formatViewsShort(totalV)+'</div></div>'
     +'<div class="stat green"><div class="sl">TOTAL LIKES</div><div class="sv">'+fmtN(totalL)+'</div></div>'
     +'<div class="stat amber"><div class="sl">TOTAL COMMENTS</div><div class="sv">'+fmtN(totalC)+'</div></div>'
@@ -539,156 +552,66 @@ function renderAllTimeTop(){
 }
 function setAlltimeWindow(d){ _alltimeWindow=d; renderAllTimeTop(); }
 
-// ══════════ TAB: JAPAN ══════════
-var _jpWindow = 0; // 0=all-time, 7, 30
-function renderJapan(){
-  var el = document.getElementById('japan-inner');
-  var now = new Date();
-  var windowLabel = _jpWindow===0?'All-Time':(_jpWindow===7?'Last 7 Days':'Last 30 Days');
-
-  var toggleHtml='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">'
-    +'<div style="font-size:14px;font-weight:800">&#x1F1EF;&#x1F1F5; Japan Content Leaderboard &mdash; '+windowLabel+'</div>'
-    +'<div class="content-toggle">'
-    +'<div '+(_jpWindow===7?'class="on"':'')+' onclick="setJpWindow(7)">Last 7d</div>'
-    +'<div '+(_jpWindow===30?'class="on"':'')+' onclick="setJpWindow(30)">Last 30d</div>'
-    +'<div '+(_jpWindow===0?'class="on"':'')+' onclick="setJpWindow(0)">All-Time</div>'
-    +'</div></div>';
-
-  // Filter JP posts only
-  var cutoffStr='';
-  if(_jpWindow>0){
-    var cutoff=new Date(now); cutoff.setDate(cutoff.getDate()-_jpWindow);
-    cutoffStr=cutoff.toISOString().slice(0,10);
-  }
-  var postMax={};
-  _posts.forEach(function(p){
-    if(p.region!=='jp') return;
-    if(cutoffStr && p.post_date<cutoffStr) return;
-    postMax[p.post_id]={views:0,likes:0,comments:0,platform:p.platform,post_date:p.post_date,
-      username:p.username,url:p.url,followers:p.followers,brand:p.brand,post_id:p.post_id};
-  });
-  _metrics.forEach(function(m){
-    if(!postMax[m.post_id]) return;
-    var pm=postMax[m.post_id];
-    if(+(m.views||0)>pm.views) pm.views=+(m.views||0);
-    if(+(m.likes||0)>pm.likes) pm.likes=+(m.likes||0);
-    if(+(m.comments||0)>pm.comments) pm.comments=+(m.comments||0);
-  });
-
-  var allPosts=Object.values(postMax);
-  allPosts.sort(function(a,b){ return b.views-a.views; });
-
-  // Stats
-  var totalV=0,totalL=0,totalC=0;
-  allPosts.forEach(function(p){totalV+=p.views;totalL+=p.likes;totalC+=p.comments;});
-  var statsHtml='<div class="stats" style="margin-bottom:12px">'
-    +'<div class="stat accent"><div class="sl">JP POSTS</div><div class="sv">'+fmtN(allPosts.length)+'</div></div>'
-    +'<div class="stat cyan"><div class="sl">TOTAL VIEWS</div><div class="sv">'+formatViewsShort(totalV)+'</div></div>'
-    +'<div class="stat green"><div class="sl">TOTAL LIKES</div><div class="sv">'+fmtN(totalL)+'</div></div>'
-    +'<div class="stat amber"><div class="sl">TOTAL COMMENTS</div><div class="sv">'+fmtN(totalC)+'</div></div>'
-    +'</div>';
-
-  if(allPosts.length===0){
-    el.innerHTML=toggleHtml+statsHtml+'<div class="card" style="text-align:center;padding:32px;color:var(--dim)">No Japan posts found for this period</div>';
-    return;
-  }
-
-  // Leaderboard cards (same style as main leaderboard)
-  var showCount = Math.min(50, allPosts.length);
-  var tb='<div class="card" style="padding:0;overflow:hidden">'
-    +'<div style="padding:12px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px;display:flex;justify-content:space-between;align-items:center">'
-    +'<span>'+windowLabel+' Japan Leaderboard</span>'
-    +'<span style="font-size:10px;color:var(--dim)">'+allPosts.length+' posts</span></div>'
-    +'<div style="padding:8px">';
-
-  for(var i=0;i<showCount;i++){
-    var p=allPosts[i];
-    var rankBg='var(--abg)'; var rankColor='var(--a)';
-    if(i===0){rankBg='linear-gradient(135deg,#fbbf24,#f59e0b)';rankColor='#fff';}
-    else if(i===1){rankBg='linear-gradient(135deg,#cbd5e1,#94a3b8)';rankColor='#fff';}
-    else if(i===2){rankBg='linear-gradient(135deg,#fdba74,#f97316)';rankColor='#fff';}
-    var engRate=p.followers>0?((p.likes+p.comments)/p.followers*100).toFixed(1):'--';
-    var viewsPct=allPosts[0].views>0?Math.max(4,Math.round(p.views/allPosts[0].views*100)):0;
-
-    tb+='<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:4px;border-radius:8px;border:1px solid transparent;cursor:pointer;transition:all .15s ease" '
-      +'onmouseover="this.style.background=\'var(--abg)\';this.style.borderColor=\'var(--a)\';this.style.transform=\'translateX(4px)\'" '
-      +'onmouseout="this.style.background=\'\';this.style.borderColor=\'transparent\';this.style.transform=\'\'" '
-      +'onclick="openVideoModal(\''+escQ(p.post_id)+'\',\''+p.platform+'\',\''+escQ(p.url)+'\',\''+escQ(p.username)+'\','+p.views+','+p.likes+')">'
-      +'<div style="min-width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:'+rankColor+';background:'+rankBg+'">'+(i+1)+'</div>'
-      +'<div style="flex:1;min-width:0">'
-        +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'
-          +platformBadge(p.platform)
-          +'<span style="font-weight:700;font-size:12px">@'+p.username+'</span>'
-          +'<span style="font-size:9px;color:var(--muted);font-family:var(--mono)">'+p.post_date+'</span>'
-        +'</div>'
-        +'<div style="display:flex;align-items:center;gap:8px">'
-          +'<div style="flex:1;background:#f1f5f9;border-radius:3px;height:6px;overflow:hidden"><div style="height:100%;border-radius:3px;width:'+viewsPct+'%;background:linear-gradient(90deg,#ef4444,#f59e0b)"></div></div>'
-          +'<span style="font-weight:800;font-size:12px;font-family:var(--mono);min-width:60px;text-align:right">'+formatViewsShort(p.views)+'</span>'
-        +'</div>'
-      +'</div>'
-      +'<div style="display:flex;gap:12px;align-items:center;flex-shrink:0">'
-        +'<div style="text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px">Likes</div><div style="font-weight:700;font-size:12px;font-family:var(--mono)">'+formatViewsShort(p.likes)+'</div></div>'
-        +'<div style="text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px">Comments</div><div style="font-weight:700;font-size:12px;font-family:var(--mono)">'+formatViewsShort(p.comments)+'</div></div>'
-        +'<div style="text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px">Eng %</div><div style="font-weight:700;font-size:12px;font-family:var(--mono);color:'+(parseFloat(engRate)>=5?'var(--g)':parseFloat(engRate)>=2?'var(--am)':'var(--dim)')+'">'+engRate+'%</div></div>'
-        +'<div style="color:var(--muted);font-size:14px;margin-left:4px">&#x203A;</div>'
-      +'</div>'
-    +'</div>';
-  }
-  tb+='</div></div>';
-
-  if(allPosts.length>showCount){
-    tb+='<div style="text-align:center;padding:12px;font-size:10px;color:var(--dim)">Showing top '+showCount+' of '+allPosts.length+' posts</div>';
-  }
-
-  el.innerHTML=toggleHtml+statsHtml+tb;
-}
-function setJpWindow(d){ _jpWindow=d; renderJapan(); }
-
 // ══════════ TAB 3: PIPELINE KPI ══════════
-function renderPipelineKPI(){
-  var el = document.getElementById('pipeline-inner');
-
-  var toggleHtml='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">'
-    +'<div style="font-size:14px;font-weight:800">Pipeline KPI &mdash; Ship-to-Post Conversion</div>'
-    +'<div class="content-toggle">'
-    +'<div '+(_pipelineGranularity==='weekly'?'class="on"':'')+' onclick="setPipelineGran(\'weekly\')">Weekly</div>'
-    +'<div '+(_pipelineGranularity==='monthly'?'class="on"':'')+' onclick="setPipelineGran(\'monthly\')">Monthly</div>'
-    +'</div></div>';
-
+// Shared: compute order→post matching data
+function _pipelineData(){
   var postsByUser={};
-  _posts.forEach(function(p){ var u=(p.username||'').toLowerCase(); if(!postsByUser[u]) postsByUser[u]=[]; postsByUser[u].push(p); });
-
-  var buckets={};
+  _posts.forEach(function(p){ if((p.region||'us')!==_region) return; var u=(p.username||'').toLowerCase(); if(!postsByUser[u]) postsByUser[u]=[]; postsByUser[u].push(p); });
+  var results=[];
   _orders.forEach(function(o){
     if(!o.shipping_date) return;
-    var key;
-    if(_pipelineGranularity==='monthly'){
-      key=o.shipping_date.slice(0,7);
-    }else{
-      var d=new Date(o.shipping_date+'T00:00:00');
-      var day=d.getDay()||7; d.setDate(d.getDate()-day+1);
-      key=d.toISOString().slice(0,10);
-    }
-    if(!buckets[key]) buckets[key]={shipped:0,posted:0};
-    buckets[key].shipped++;
-
     var handle=(o.account_handle||'').toLowerCase().replace('@','');
     var matchedPosts=postsByUser[handle];
     if(!matchedPosts && handle){
       var nh=normHandle(handle);
       for(var uu in postsByUser){ if(normHandle(uu)===nh){matchedPosts=postsByUser[uu]; break;} }
     }
+    var posted=false;
     if(handle && matchedPosts){
       var shipDate=new Date(o.shipping_date+'T00:00:00');
       var deadline=new Date(shipDate); deadline.setDate(deadline.getDate()+60);
-      var hasPost=matchedPosts.some(function(p){ var pd=new Date(p.post_date+'T00:00:00'); return pd>=shipDate && pd<=deadline; });
-      if(hasPost) buckets[key].posted++;
+      posted=matchedPosts.some(function(p){ var pd=new Date(p.post_date+'T00:00:00'); return pd>=shipDate && pd<=deadline; });
     }
+    results.push({order:o, posted:posted, handle:handle});
   });
+  return results;
+}
 
+function renderPipelineKPI(){
+  var el = document.getElementById('pipeline-inner');
+
+  // Sub-tab selector
+  var subHtml='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">'
+    +'<div style="font-size:14px;font-weight:800">Pipeline KPI</div>'
+    +'<div style="display:flex;gap:8px;align-items:center">'
+    +'<div class="content-toggle">'
+    +'<div '+(_pipelineView==='overview'?'class="on"':'')+' onclick="setPipelineView(\'overview\')">Overview</div>'
+    +'<div '+(_pipelineView==='brand'?'class="on"':'')+' onclick="setPipelineView(\'brand\')">By Brand</div>'
+    +'<div '+(_pipelineView==='products'?'class="on"':'')+' onclick="setPipelineView(\'products\')">By Products</div>'
+    +'</div>'
+    +'<div class="content-toggle">'
+    +'<div '+(_pipelineGranularity==='weekly'?'class="on"':'')+' onclick="setPipelineGran(\'weekly\')">Weekly</div>'
+    +'<div '+(_pipelineGranularity==='monthly'?'class="on"':'')+' onclick="setPipelineGran(\'monthly\')">Monthly</div>'
+    +'</div>'
+    +'</div></div>';
+
+  var data = _pipelineData();
+
+  if(_pipelineView==='brand') { el.innerHTML = subHtml + _renderPipelineByGroup(data, 'brand'); return; }
+  if(_pipelineView==='products') { el.innerHTML = subHtml + _renderPipelineByGroup(data, 'products'); return; }
+
+  // ── Overview (original) ──
+  var buckets={};
+  data.forEach(function(d){
+    var o=d.order;
+    var key;
+    if(_pipelineGranularity==='monthly'){ key=o.shipping_date.slice(0,7); }
+    else{ var dt=new Date(o.shipping_date+'T00:00:00'); var day=dt.getDay()||7; dt.setDate(dt.getDate()-day+1); key=dt.toISOString().slice(0,10); }
+    if(!buckets[key]) buckets[key]={shipped:0,posted:0};
+    buckets[key].shipped++;
+    if(d.posted) buckets[key].posted++;
+  });
   var periods=Object.keys(buckets).sort();
-
-  // Summary
   var totShipped=0, totPosted=0;
   periods.forEach(function(k){totShipped+=buckets[k].shipped; totPosted+=buckets[k].posted;});
   var overallRate=totShipped>0?Math.round(totPosted/totShipped*100):0;
@@ -703,7 +626,6 @@ function renderPipelineKPI(){
   var cW=W-PL-PR, cH=H-PT-PB;
   var n=periods.length||1, maxVal=1;
   periods.forEach(function(k){if(buckets[k].shipped>maxVal) maxVal=buckets[k].shipped;});
-
   var barW=Math.max(8,Math.min(40,cW/n*0.3));
   var bars='',xLabels='';
   periods.forEach(function(k,i){
@@ -717,7 +639,6 @@ function renderPipelineKPI(){
     var lbl=_pipelineGranularity==='monthly'?k:k.slice(5);
     xLabels+='<text x="'+x+'" y="'+(H-4)+'" text-anchor="middle" font-size="8" fill="#94a3b8" transform="rotate(-30,'+x+','+(H-4)+')">'+lbl+'</text>';
   });
-
   var yLabels='';
   for(var yi=0;yi<=4;yi++){
     var yv=maxVal/4*yi, yy=PT+cH-yi*(cH/4);
@@ -729,7 +650,6 @@ function renderPipelineKPI(){
     +'<span><span style="display:inline-block;width:10px;height:10px;background:#93c5fd;border-radius:2px;margin-right:3px"></span>Shipped</span>'
     +'<span><span style="display:inline-block;width:10px;height:10px;background:var(--g);border-radius:2px;margin-right:3px"></span>Posted (within 60d)</span></div>';
 
-  // Rate table
   var rateTable='<div class="card" style="margin-top:12px"><h3>Posting Rate by Shipping Cohort</h3>'
     +'<div class="desc">Of influencers shipped in each period, what % posted content within 60 days?</div>'
     +'<table><thead><tr><th>Period</th><th>Shipped</th><th>Posted</th><th>Rate</th><th style="width:120px">Progress</th></tr></thead><tbody>';
@@ -745,11 +665,84 @@ function renderPipelineKPI(){
   });
   rateTable+='</tbody></table></div>';
 
-  el.innerHTML=toggleHtml+summaryHtml
+  el.innerHTML=subHtml+summaryHtml
     +'<div class="card"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Shipped vs Posted by Period</div>'
     +'<div style="overflow-x:auto">'+svgChart+'</div>'+legend+'</div>'
     +rateTable;
 }
+
+// ── Pipeline: By Brand / By Products ──
+function _renderPipelineByGroup(data, mode){
+  var groups={};
+  data.forEach(function(d){
+    var o=d.order;
+    if(mode==='brand'){
+      var g=o.brand||'Unknown';
+      if(!groups[g]) groups[g]={shipped:0,posted:0};
+      groups[g].shipped++; if(d.posted) groups[g].posted++;
+    } else {
+      var types=(o.product_types||'').split(',');
+      var seen={};
+      types.forEach(function(t){
+        t=t.trim(); if(!t||seen[t]) return; seen[t]=1;
+        if(!groups[t]) groups[t]={shipped:0,posted:0};
+        groups[t].shipped++; if(d.posted) groups[t].posted++;
+      });
+      if(types.length===0||!o.product_types){
+        if(!groups['Unknown']) groups['Unknown']={shipped:0,posted:0};
+        groups['Unknown'].shipped++; if(d.posted) groups['Unknown'].posted++;
+      }
+    }
+  });
+
+  var sorted=Object.keys(groups).sort(function(a,b){return groups[b].shipped-groups[a].shipped;});
+  var maxShipped=1;
+  sorted.forEach(function(k){if(groups[k].shipped>maxShipped) maxShipped=groups[k].shipped;});
+
+  var title = mode==='brand' ? 'Shipped by Brand' : 'Shipped by Product Type';
+  var html='<div class="card"><h3>'+title+'</h3>'
+    +'<div class="desc">Shipping count and posting rate grouped by '+(mode==='brand'?'brand':'product type')+'</div>'
+    +'<div style="margin-top:12px">';
+
+  sorted.forEach(function(k){
+    var g=groups[k];
+    var rate=g.shipped>0?Math.round(g.posted/g.shipped*100):0;
+    var barColor=rate>=70?'var(--g)':rate>=40?'var(--am)':'var(--r)';
+    var barW=Math.round(g.shipped/maxShipped*100);
+
+    html+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9">'
+      +'<div style="min-width:140px;font-weight:700;font-size:11px">'+k+'</div>'
+      +'<div style="flex:1">'
+        +'<div style="display:flex;align-items:center;gap:6px">'
+          +'<div style="flex:1;background:#f1f5f9;border-radius:4px;height:16px;position:relative;overflow:hidden">'
+            +'<div style="position:absolute;left:0;top:0;height:100%;width:'+barW+'%;background:#93c5fd;border-radius:4px"></div>'
+            +'<div style="position:absolute;left:0;top:0;height:100%;width:'+Math.round(g.posted/maxShipped*100)+'%;background:var(--g);border-radius:4px"></div>'
+          +'</div>'
+          +'<span style="min-width:40px;font-family:var(--mono);font-size:11px;text-align:right">'+g.shipped+'</span>'
+        +'</div>'
+      +'</div>'
+      +'<div style="min-width:50px;text-align:center"><span style="font-weight:800;font-size:11px;color:var(--g)">'+g.posted+'</span><span style="font-size:9px;color:var(--dim)"> posted</span></div>'
+      +'<div style="min-width:50px;text-align:right;font-weight:800;font-size:12px;font-family:var(--mono);color:'+barColor+'">'+rate+'%</div>'
+    +'</div>';
+  });
+
+  html+='</div></div>';
+
+  // Summary stats
+  var totS=0,totP=0;
+  sorted.forEach(function(k){totS+=groups[k].shipped;totP+=groups[k].posted;});
+  var totR=totS>0?Math.round(totP/totS*100):0;
+  var statsHtml='<div class="stats" style="margin-bottom:12px">'
+    +'<div class="stat accent"><div class="sl">'+(mode==='brand'?'BRANDS':'PRODUCT TYPES')+'</div><div class="sv">'+sorted.length+'</div></div>'
+    +'<div class="stat cyan"><div class="sl">TOTAL SHIPPED</div><div class="sv">'+fmtN(totS)+'</div></div>'
+    +'<div class="stat green"><div class="sl">TOTAL POSTED</div><div class="sv">'+fmtN(totP)+'</div></div>'
+    +'<div class="stat '+(totR>=50?'green':'amber')+'"><div class="sl">OVERALL RATE</div><div class="sv">'+totR+'%</div></div>'
+    +'</div>';
+
+  return statsHtml+html;
+}
+
+function setPipelineView(v){ _pipelineView=v; renderPipelineKPI(); }
 function setPipelineGran(g){ _pipelineGranularity=g; renderPipelineKPI(); }
 
 // ══════════ TAB 4: AGGREGATE PERFORMANCE + SALES ══════════
@@ -763,9 +756,9 @@ function renderAggregatePerformance(){
     +'<div '+(_aggGranularity==='monthly'?'class="on"':'')+' onclick="setAggGran(\'monthly\')">Monthly</div>'
     +'</div></div>';
 
-  // Build post aggregates
+  // Build post aggregates (region-filtered)
   var postAgg={};
-  _posts.forEach(function(p){ postAgg[p.post_id]={views:0,likes:0,comments:0,platform:p.platform,post_date:p.post_date}; });
+  _posts.forEach(function(p){ if((p.region||'us')!==_region) return; postAgg[p.post_id]={views:0,likes:0,comments:0,platform:p.platform,post_date:p.post_date}; });
   _metrics.forEach(function(m){
     if(!postAgg[m.post_id]) return;
     var pa=postAgg[m.post_id];
