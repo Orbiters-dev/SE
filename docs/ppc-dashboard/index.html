@@ -1913,7 +1913,7 @@ function renderPropose(bk, dt, containerId){
 
   // Totals
   var totSpend=0, totSales=0, totBudBefore=0, totBudAfter=0;
-  dd.campaigns.forEach(function(c){ totSpend+=c.spend7d||0; totSales+=c.sales7d||0; totBudBefore+=c.bud_before||0; totBudAfter+=(c.bud_after||c.bud_before||0); });
+  dd.campaigns.forEach(function(c){ totSpend+=c.spend7d||0; totSales+=c.sales7d||0; totBudBefore+=c.bud_before||0; totBudAfter+=(c.bud_after&&c.bud_after!==c.bud_before?c.bud_after:c.bud_before||0); });
 
   // Product mapping from campaign names
   var CAMP_PRODUCTS = {
@@ -1947,7 +1947,8 @@ function renderPropose(bk, dt, containerId){
     var actionB = isAction ? '<b style="color:var(--a)">'+c.action+'</b>' : '<span style="color:var(--muted)">No Change</span>';
     var tierB = c.tier ? badge(c.tier,'a') : badge('—','');
     var rowBg = isAction ? '' : 'style="opacity:0.6"';
-    var overrideVal = c.bud_after || c.bud_before || 0;
+    var hasBudgetChange = c.bud_after && c.bud_after !== c.bud_before;
+    var overrideVal = hasBudgetChange ? c.bud_after : '';
     var product = guessProduct(c.name);
     var cm = guessCM(c.name);
     var prodTag = product ? '<div style="font-size:9px;color:var(--c)">'+product+'</div>' : '';
@@ -1980,7 +1981,7 @@ function renderPropose(bk, dt, containerId){
           '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);font-weight:600">CPC</div><div style="font-size:16px;font-weight:700;font-family:var(--mono)">$'+(c.cpc||0)+'</div></div>' +
           '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);font-weight:600">CTR</div><div style="font-size:16px;font-weight:700;font-family:var(--mono)">'+(c.ctr||0)+'%</div></div>' +
           '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);font-weight:600">Budget Before</div><div style="font-size:16px;font-weight:700;font-family:var(--mono)">$'+(c.bud_before||0)+'</div></div>' +
-          '<div style="background:var(--abg);border:1px solid var(--a);border-radius:6px;padding:8px;text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--a);font-weight:600">Suggested</div><div style="font-size:16px;font-weight:700;font-family:var(--mono);color:var(--a)">$'+(c.bud_after||c.bud_before||0)+'</div></div>' +
+          '<div style="background:'+(c.bud_after&&c.bud_after!==c.bud_before?'var(--abg)':'#fff')+';border:1px solid '+(c.bud_after&&c.bud_after!==c.bud_before?'var(--a)':'var(--border)')+';border-radius:6px;padding:8px;text-align:center"><div style="font-size:8px;text-transform:uppercase;color:'+(c.bud_after&&c.bud_after!==c.bud_before?'var(--a)':'var(--muted)')+';font-weight:600">Suggested</div><div style="font-size:16px;font-weight:700;font-family:var(--mono);color:'+(c.bud_after&&c.bud_after!==c.bud_before?'var(--a)':'var(--dim)')+'">$'+(c.bud_after&&c.bud_after!==c.bud_before?c.bud_after:(c.bud_before||0))+'</div></div>' +
         '</div>' +
         // Reason
         '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;font-size:11px;margin-bottom:8px">' +
