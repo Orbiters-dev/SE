@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pathlight PROD Pipeline — E2E Tests &amp; Visual Guide</title>
+<title>Creator Collab PROD Pipeline — E2E Tests &amp; Visual Guide</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
   :root {
@@ -159,7 +159,7 @@
 <body>
 
 <nav class="nav">
-  <a href="index.html" class="nav-brand">PATHLIGHT</a>
+  <a href="index.html" class="nav-brand">CREATOR COLLAB</a>
   <a href="index.html">Pipeline EN</a>
   <a href="ko.html">Pipeline KR</a>
   <a href="tests.html" class="active">PROD E2E Tests</a>
@@ -174,7 +174,7 @@
     <span class="badge badge-dim">10 Pipeline Stages</span>
     <span class="badge badge-dim">2026-03-17</span>
   </div>
-  <h1><span>Pathlight</span> PROD Pipeline &mdash; E2E Test &amp; Visual Guide</h1>
+  <h1><span>Creator Collab</span> PROD Pipeline &mdash; E2E Test &amp; Visual Guide</h1>
   <p class="sub">Complete pipeline documentation with Low Touch vs High Touch comparison. Every trigger, button, and data flow mapped for first-time users.</p>
 </div>
 
@@ -254,7 +254,9 @@
           <tr><td>Active</td><td><span class="config-val on">true</span> / <span class="config-val off">false</span></td><td>Master ON/OFF for entire pipeline</td></tr>
           <tr><td>Human-in-Loop<br>(Draft Gen)</td><td><span class="config-val on">on</span> / <span class="config-val off">off</span> / <span class="config-val auto">auto</span></td><td><b>on</b>: all drafts need approval<br><b>off</b>: all auto-send<br><b>auto</b>: LT=auto, HT=approval</td></tr>
           <tr><td>Human-in-Loop<br>(Reply Handler)</td><td><span class="config-val on">true</span> / <span class="config-val off">false</span></td><td><b>true</b>: team approves replies<br><b>false</b>: Claude auto-replies</td></tr>
-          <tr><td>Sender Email</td><td><span class="config-val text">william@pathlightai.io</span></td><td>All outbound email "From" address</td></tr>
+          <tr><td>Sender Email</td><td><span class="config-val text">affiliates@onzenna.com</span></td><td>All outbound email "From" address</td></tr>
+          <tr><td>Assistant Name</td><td><span class="config-val text">Jenny Lee</span></td><td>Email sender display name in outreach</td></tr>
+          <tr><td>Company Signer Name</td><td><span class="config-val text">Jenny Lee</span></td><td>Contract/DocuSeal signer name</td></tr>
           <tr><td>Test Email Override</td><td><span class="config-val text">email or blank</span></td><td>If set, ALL emails go here (for testing)</td></tr>
           <tr><td>Brand Name</td><td><span class="config-val text">Onzenna</span></td><td>Email signatures + Claude prompts</td></tr>
           <tr><td>Mode</td><td><span class="config-val text">preset</span></td><td>Mode Switcher (2-min) applies preset</td></tr>
@@ -871,6 +873,43 @@
     </table>
   </div>
 
+  <!-- Completed Configuration Changes (2026-03-17) -->
+  <div style="background:var(--card); border:1px solid var(--green-border); border-radius:12px; overflow:hidden; margin-bottom:20px;">
+    <div style="padding:16px 20px; border-bottom:1px solid var(--green-border); background:var(--green-bg);">
+      <div style="font-size:15px; font-weight:700; color:#15803d;">Completed: Configuration Changes (2026-03-17)</div>
+      <div style="font-size:12px; color:#16a34a;">Applied to PROD Airtable Dashboard + Draft Gen workflow via API</div>
+    </div>
+    <div style="display:flex; gap:12px; padding:14px 20px; border-bottom:1px solid #f3f4f6; align-items:flex-start;">
+      <span class="badge badge-green" style="font-size:10px; flex-shrink:0;">DONE</span>
+      <div style="flex:1; font-size:12px;">
+        <div style="font-weight:600;">Sender Name: William &rarr; Jenny Lee</div>
+        <div style="color:var(--dim); margin-top:2px;">Dashboard <code>Assistant Name</code> and <code>Company Signer Name</code> fields updated. All Draft Gen and Approval Send emails now sign as Jenny Lee.</div>
+        <div style="margin-top:4px;"><strong>Before:</strong> <code>Assistant Name: William</code>, <code>Company Signer Name: Wonjun Choi</code></div>
+        <div><strong>After:</strong> <code>Assistant Name: Jenny Lee</code>, <code>Company Signer Name: Jenny Lee</code></div>
+      </div>
+    </div>
+    <div style="display:flex; gap:12px; padding:14px 20px; border-bottom:1px solid #f3f4f6; align-items:flex-start;">
+      <span class="badge badge-green" style="font-size:10px; flex-shrink:0;">DONE</span>
+      <div style="flex:1; font-size:12px;">
+        <div style="font-weight:600;">Brand-Specific Product Context (Grosmimi / CHA&amp;MOM / Naeiae)</div>
+        <div style="color:var(--dim); margin-top:2px;">
+          <code>Build Claude Prompt (LT)</code> and <code>(HT)</code> nodes in Draft Gen (<code>fwwOeLiDLSnR77E1</code>) now include
+          <code>brandProducts</code> dictionary with per-brand products, taglines, and highlights.
+        </div>
+        <div style="margin-top:4px;"><strong>Before:</strong> Generic "Onzenna" branding for all outreach</div>
+        <div><strong>After:</strong> Grosmimi: "PPSU baby bottles, straw cups" | CHA&amp;MOM: "PS Cream, baby skincare" | Naeiae: "organic baby snacks"</div>
+        <div style="margin-top:4px; color:var(--dim);">Brand detection via <code>Detect Product from Content</code> node &rarr; <code>brandProducts[detectedProduct]</code></div>
+      </div>
+    </div>
+    <div style="display:flex; gap:12px; padding:14px 20px; align-items:flex-start;">
+      <span class="badge badge-dim" style="font-size:10px; flex-shrink:0;">NOTE</span>
+      <div style="flex:1; font-size:12px;">
+        <div style="font-weight:600;">Notification Email: Still william@pathlightai.io</div>
+        <div style="color:var(--dim); margin-top:2px;">Fallback defaults in Approval Send and Reply Handler use <code>william@pathlightai.io</code>. These only fire if Dashboard fields are empty (they aren't). Notification Email kept as-is for monitoring.</div>
+      </div>
+    </div>
+  </div>
+
   <!-- Prioritized Action Items -->
   <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:20px;">
     <div style="padding:16px 20px; border-bottom:1px solid var(--border); background:#f8fafc;">
@@ -1091,7 +1130,7 @@
   </div>
 </div>
 
-<div class="footer">Pathlight PROD Pipeline Guide &middot; 2026-03-17 &middot; <a href="https://n8n.orbiters.co.kr">n8n Dashboard</a> &middot; Tested via n8n Executions API</div>
+<div class="footer">Creator Collab PROD Pipeline Guide &middot; 2026-03-17 &middot; <a href="https://n8n.orbiters.co.kr">n8n Dashboard</a> &middot; Tested via n8n Executions API</div>
 
 </div>
 </body>
