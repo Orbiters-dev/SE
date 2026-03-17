@@ -232,6 +232,7 @@ def build_pipeline_section(statuses: dict) -> str:
         ("pipeline", "Apify Crawl"),
         ("orders",   "Fetch Influencer Orders"),
         ("sns",      "US SNS Sync"),
+        ("usa_llm",  "Content Intelligence (USA_LLM)"),
     ]
     # Get actual GH Actions run time (single call, cached)
     wf_last_run, _ = _wf_info()
@@ -566,6 +567,7 @@ def main():
     parser.add_argument("--pipeline", default=os.environ.get("PIPELINE_OUTCOME", "unknown"))
     parser.add_argument("--orders",   default=os.environ.get("ORDERS_OUTCOME",   "unknown"))
     parser.add_argument("--sns",      default=os.environ.get("SNS_OUTCOME",      "unknown"))
+    parser.add_argument("--usa-llm", default=os.environ.get("USA_LLM_OUTCOME",  "unknown"))
     args = parser.parse_args()
 
     highlights, total_creators, llm_data, date_label = [], 0, {}, "uploaded today"
@@ -589,6 +591,7 @@ def main():
         "pipeline": args.pipeline,
         "orders":   args.orders,
         "sns":      args.sns,
+        "usa_llm":  args.usa_llm,
     }
 
     date_str = datetime.now(tz=KST).strftime("%Y-%m-%d")

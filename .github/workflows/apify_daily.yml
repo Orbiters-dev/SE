@@ -104,6 +104,11 @@ jobs:
         run: python -u tools/sync_sns_tab_chaenmom.py || echo "CHA&MOM SNS sync failed (non-fatal)"
         continue-on-error: true
 
+      - name: Update USA_LLM tab + Content Intelligence
+        id: usa_llm
+        run: python -u tools/update_usa_llm.py
+        continue-on-error: true
+
       - name: Build and send daily report
         id: report
         if: always()
@@ -117,6 +122,7 @@ jobs:
           PIPELINE_OUTCOME: ${{ steps.pipeline.outcome }}
           ORDERS_OUTCOME:   ${{ steps.fetch_orders.outcome }}
           SNS_OUTCOME:      ${{ steps.sns_us.outcome }}
+          USA_LLM_OUTCOME:  ${{ steps.usa_llm.outcome }}
         continue-on-error: true
 
       - name: Save .tmp state cache
