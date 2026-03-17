@@ -1,10 +1,10 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-17 15:23 PST",
+ "generated_pst": "2026-03-17 16:35 PST",
  "brands": {
   "grosmimi": {
    "dates": {
     "2026-03-17": {
-     "generated": "2026-03-17T15:23",
+     "generated": "2026-03-17T16:35",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -1351,7 +1351,7 @@ const PPC_DATA = {
   "naeiae": {
    "dates": {
     "2026-03-17": {
-     "generated": "2026-03-17T15:23",
+     "generated": "2026-03-17T16:35",
      "executed": true,
      "executed_at": "2026-03-17",
      "summary_7d": {
@@ -1666,7 +1666,7 @@ const PPC_DATA = {
   "chaenmom": {
    "dates": {
     "2026-03-17": {
-     "generated": "2026-03-17T15:23",
+     "generated": "2026-03-17T16:35",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -1692,7 +1692,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "10 No-Brainer",
        "reason": "[AUTO] 7d ROAS 0.0x (ACOS None%) | 30d ROAS 2.76x | target ACOS 40.0% | 7d vs 30d: -100.0%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "CHA&MOM_Cream_SP_Auto",
