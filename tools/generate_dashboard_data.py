@@ -23,6 +23,7 @@ PROPOSAL_DIR = ROOT / ".tmp"
 EXEC_DIR = ROOT / ".tmp"
 OUTPUT = ROOT / "docs" / "ppc-dashboard" / "data.js"
 BT_OUTPUT = ROOT / "docs" / "ppc-dashboard" / "bt_data.js"
+EXEC_LOG = ROOT / "docs" / "ppc-dashboard" / "exec_log.json"
 
 PDT = timezone(timedelta(hours=-7))
 
@@ -210,9 +211,17 @@ def load_proposals():
 
 
 def inject_executions(brands):
-    """Mark proposals as executed based on ppc_executed_*.json files."""
-    exec_by_brand = defaultdict(list)
+    """Mark proposals as executed based on ppc_executed_*.json files.
+    Persists execution log to exec_log.json (cumulative across runs)."""
+    # Load existing persistent log
+    persistent_log = {}
+    if EXEC_LOG.exists():
+        try:
+            persistent_log = json.loads(EXEC_LOG.read_text(encoding="utf-8"))
+        except Exception:
+            persistent_log = {}
 
+    # Collect new executions from .tmp/
     for f in sorted(glob.glob(str(EXEC_DIR / "ppc_executed_2026*.json"))):
         try:
             data = json.loads(Path(f).read_text(encoding="utf-8"))
@@ -225,28 +234,35 @@ def inject_executions(brands):
                     continue
                 bk = detect_brand(item)
                 item["exec_date"] = dt
-                exec_by_brand[bk].append(item)
+                existing = persistent_log.setdefault(bk, [])
+                existing_keys = {(e.get("campaignName",""), e.get("exec_date","")) for e in existing}
+                key = (item.get("campaignName",""), dt)
+                if key not in existing_keys:
+                    existing.append(item)
         except Exception:
             continue
 
-    for bk, exec_list in exec_by_brand.items():
+    # Save persistent log
+    EXEC_LOG.write_text(json.dumps(persistent_log, ensure_ascii=False, indent=1), encoding="utf-8")
+
+    # Inject into brands data
+    for bk, exec_list in persistent_log.items():
         if bk not in brands:
             continue
         brands[bk]["execution_log"] = exec_list
-        # Mark closest date as executed
-        dates = sorted(brands[bk].keys())
-        dates = [d for d in dates if d != "execution_log"]
+        dates = sorted(d for d in brands[bk].keys() if d != "execution_log")
         if dates:
             latest = dates[-1]
-            brands[bk][latest]["executed"] = True
-            brands[bk][latest]["executed_at"] = exec_list[0].get("exec_date", "")
-            # Mark campaigns as approved
+            latest_execs = [e for e in exec_list if e.get("exec_date", "") >= latest]
+            if latest_execs:
+                brands[bk][latest]["executed"] = True
+                brands[bk][latest]["executed_at"] = latest_execs[0].get("exec_date", "")
             for item in exec_list:
                 cn = item.get("campaignName", "")
                 for c in brands[bk][latest].get("campaigns", []):
                     if c["name"] == cn:
                         c["approved"] = True
-        print(f"  {bk}: {len(exec_list)} execution records injected")
+        print(f"  {bk}: {len(exec_list)} execution records (persistent)")
 
 
 def generate_bt_data():

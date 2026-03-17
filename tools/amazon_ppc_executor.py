@@ -5614,15 +5614,23 @@ def main():
             return
 
         proposals_all = data.get("proposals", [])
-        # Split into campaigns / harvest / negate (mirrors generate_dashboard_data.py logic)
+        kw_proposals_all = data.get("keyword_proposals", [])
+
+        # Campaign proposals (exclude any legacy harvest/negate mixed in)
         camp_items = [p for p in proposals_all if p.get("action") not in ("harvest",) and not str(p.get("action","")).startswith("negate")]
-        harvest_items = [p for p in proposals_all if p.get("action") == "harvest"]
-        negate_items = [p for p in proposals_all if str(p.get("action","")).startswith("negate")]
+
+        # Keyword proposals from keyword_proposals field (type field, not action)
+        harvest_items = [k for k in kw_proposals_all if k.get("type") == "harvest"]
+        negate_items = [k for k in kw_proposals_all if str(k.get("type","")).startswith("negate")]
+
+        # Reset all approvals
+        for p in proposals_all:
+            p["approved"] = False
+        for k in kw_proposals_all:
+            k["approved"] = False
 
         # Mark selected campaigns approved, apply override budgets
         selected_camp_dicts = {c["idx"]: c for c in sel.get("campaigns", [])}
-        for p in proposals_all:
-            p["approved"] = False  # reset all
         for idx, sc in selected_camp_dicts.items():
             if 0 <= idx < len(camp_items):
                 camp_items[idx]["approved"] = True
