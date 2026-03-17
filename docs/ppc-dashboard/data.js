@@ -1,10 +1,10 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-17 01:24 PST",
+ "generated_pst": "2026-03-17 01:39 PST",
  "brands": {
   "grosmimi": {
    "dates": {
     "2026-03-14": {
-     "generated": "2026-03-17T01:24",
+     "generated": "2026-03-17T01:39",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -222,7 +222,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-15": {
-     "generated": "2026-03-17T01:24",
+     "generated": "2026-03-17T01:39",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -1492,7 +1492,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-17": {
-     "generated": "2026-03-17T01:24",
+     "generated": "2026-03-17T01:39",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -1587,9 +1587,9 @@ const PPC_DATA = {
        "action": "increase_budget",
        "bid_pct": 10,
        "bud_before": 500.0,
-       "bud_after": 360.0,
+       "bud_after": null,
        "tier": "8 Strong",
-       "reason": "[MANUAL] 7d ROAS 17.1x (ACOS 5.8%) | 30d ROAS 18.46x | target ACOS 20.0% | 7d vs 30d: -7.4%",
+       "reason": "[MANUAL] 7d ROAS 17.1x (ACOS 5.8%) | 30d ROAS 18.46x | target ACOS 20.0% | 7d vs 30d: -7.4%\nBudget already at cap ($360/campaign)",
        "approved": true
       },
       {
@@ -1677,9 +1677,9 @@ const PPC_DATA = {
        "action": "increase_budget",
        "bid_pct": 10,
        "bud_before": 900.0,
-       "bud_after": 360.0,
+       "bud_after": null,
        "tier": "8 Strong",
-       "reason": "[MANUAL] 7d ROAS 5.83x (ACOS 17.1%) | 30d ROAS 5.77x | target ACOS 20.0% | 7d vs 30d: +1.0%",
+       "reason": "[MANUAL] 7d ROAS 5.83x (ACOS 17.1%) | 30d ROAS 5.77x | target ACOS 20.0% | 7d vs 30d: +1.0%\nBudget already at cap ($360/campaign)",
        "approved": true
       },
       {
@@ -1695,9 +1695,9 @@ const PPC_DATA = {
        "action": "increase_budget",
        "bid_pct": 10,
        "bud_before": 600.0,
-       "bud_after": 360.0,
+       "bud_after": null,
        "tier": "8 Strong",
-       "reason": "[MANUAL] 7d ROAS 8.74x (ACOS 11.4%) | 30d ROAS 8.89x | target ACOS 20.0% | 7d vs 30d: -1.7%",
+       "reason": "[MANUAL] 7d ROAS 8.74x (ACOS 11.4%) | 30d ROAS 8.89x | target ACOS 20.0% | 7d vs 30d: -1.7%\nBudget already at cap ($360/campaign)",
        "approved": true
       },
       {
@@ -2821,7 +2821,7 @@ const PPC_DATA = {
   "naeiae": {
    "dates": {
     "2026-03-14": {
-     "generated": "2026-03-17T01:24",
+     "generated": "2026-03-17T01:39",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -2877,7 +2877,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-15": {
-     "generated": "2026-03-17T01:24",
+     "generated": "2026-03-17T01:39",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -2915,7 +2915,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-17": {
-     "generated": "2026-03-17T01:24",
+     "generated": "2026-03-17T01:39",
      "executed": true,
      "executed_at": "2026-03-08",
      "summary_7d": {
@@ -2954,12 +2954,12 @@ const PPC_DATA = {
        "cpc": 0.96,
        "ctr": 0.78,
        "action": "increase_budget",
-       "bid_pct": null,
+       "bid_pct": 15,
        "bud_before": 75.0,
-       "bud_after": 75.0,
+       "bud_after": 100.0,
        "tier": "7 Strong",
-       "reason": "[MANUAL] 7d ROAS 4.72x (ACOS 21.2%) | 30d ROAS 3.08x | target ACOS 25.0% | 7d vs 30d: +53.2%",
-       "approved": false
+       "reason": "[MANUAL] 7d ROAS 4.72x (ACOS 21.2%) | 30d ROAS 3.08x | target ACOS 25.0% | 7d vs 30d: +53.2%\n** UNDERSPEND BOOST: budget increase amplified (+20% -> +50%) to reach $150.0/day target\n** UNDERSPEND: bid +15% to increase impressions/clicks (ROAS 4.72x supports growth)",
+       "approved": true
       },
       {
        "name": "Naeiae Rice Pop - SB - Manual",
@@ -3421,7 +3421,7 @@ const PPC_DATA = {
   "chaenmom": {
    "dates": {
     "2026-03-14": {
-     "generated": "2026-03-17T01:24",
+     "generated": "2026-03-17T01:39",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -3495,7 +3495,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-15": {
-     "generated": "2026-03-17T01:24",
+     "generated": "2026-03-17T01:39",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -3569,7 +3569,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-17": {
-     "generated": "2026-03-17T01:24",
+     "generated": "2026-03-17T01:39",
      "executed": true,
      "executed_at": "2026-03-14",
      "summary_7d": {
@@ -3610,9 +3610,9 @@ const PPC_DATA = {
        "action": "increase_budget",
        "bid_pct": 10,
        "bud_before": 75.0,
-       "bud_after": 75.0,
+       "bud_after": null,
        "tier": "8 Strong",
-       "reason": "[AUTO] 7d ROAS 13.2x (ACOS 7.6%) | 30d ROAS 7.66x | target ACOS 40.0% | 7d vs 30d: +72.3%\n** UNDERSPEND BOOST: budget increase amplified (+30% -> +60%) to reach $150.0/day target",
+       "reason": "[AUTO] 7d ROAS 13.2x (ACOS 7.6%) | 30d ROAS 7.66x | target ACOS 40.0% | 7d vs 30d: +72.3%\nBudget already at cap ($40/campaign)",
        "approved": true
       },
       {

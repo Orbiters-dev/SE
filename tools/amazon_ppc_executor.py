@@ -86,7 +86,7 @@ BRAND_CONFIGS = {
         "seller_name": "Fleeters Inc",
         "brand_display": "Naeiae",
         "total_daily_budget": 150.0,            # Increased from $120 (2026-03-15)
-        "max_single_campaign_budget": 75.0,     # Increased from $50
+        "max_single_campaign_budget": 100.0,    # Increased from $75 — allows growth for high-ROAS campaigns
         "max_bid": 3.0,
         "targeting": {
             "MANUAL": {"target_acos": 25.0, "min_roas": 2.5, "budget_share": 0.60},
@@ -172,7 +172,8 @@ TARGETING_CONFIG = {
 }
 
 def _apply_brand_config(brand_key: str):
-    """Set active brand and update module-level config vars."""
+    """Set active brand and update module-level config vars.
+    Also applies dashboard config override if present."""
     global _active_brand_key, TOTAL_DAILY_BUDGET_USD, MAX_SINGLE_CAMPAIGN_BUDGET, MAX_BID_USD, TARGETING_CONFIG
     _active_brand_key = brand_key
     cfg = BRAND_CONFIGS[brand_key]
@@ -185,6 +186,16 @@ def _apply_brand_config(brand_key: str):
     TARGETING_CONFIG["AUTO"]["target_acos"] = cfg["targeting"]["AUTO"]["target_acos"]
     TARGETING_CONFIG["AUTO"]["min_roas"] = cfg["targeting"]["AUTO"]["min_roas"]
     TARGETING_CONFIG["AUTO"]["budget_share"] = cfg["targeting"]["AUTO"]["budget_share"]
+    # Apply dashboard config override (set by user in PPC dashboard UI)
+    dash = load_dashboard_config().get(brand_key, {})
+    if dash.get("daily_budget"):
+        TOTAL_DAILY_BUDGET_USD = float(dash["daily_budget"])
+    if dash.get("max_bid"):
+        MAX_BID_USD = float(dash["max_bid"])
+    if dash.get("manual_acos"):
+        TARGETING_CONFIG["MANUAL"]["target_acos"] = float(dash["manual_acos"])
+    if dash.get("auto_acos"):
+        TARGETING_CONFIG["AUTO"]["target_acos"] = float(dash["auto_acos"])
 
 # --- Keyword-level Bid Presets ---
 BID_PRESETS = {
@@ -2163,6 +2174,13 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
             new_budget = round(camp["dailyBudget"] * (1 + budget_change_pct / 100), 2)
             if new_budget > max_budget:
                 new_budget = max_budget
+            # Never decrease budget when action implies increase
+            if new_budget < camp["dailyBudget"]:
+                new_budget = camp["dailyBudget"]
+            # If capped at same value, clear budget change — no real increase possible
+            if new_budget == camp["dailyBudget"]:
+                reason += f"\nBudget already at cap (${max_budget:.0f}/campaign)"
+                budget_change_pct = None
 
         tier = _confidence_tier(action, priority)
 
@@ -5463,14 +5481,14 @@ def run_propose_single(args, brand_key: str):
     if kw_proposals:
         print_keyword_summary(kw_proposals)
 
-    if getattr(args, "no_email", False):
-        print(f"\n[9/9] --no-email: skipping email, proposal saved to {filepath}")
-    else:
+    if getattr(args, "send_email", False):
         print(f"\n[9/9] Sending {brand_display} proposal email...")
         send_proposal_email(proposals, args.to, kw_proposals, cc=args.cc, brand_key=brand_key,
                             xp_context=xp_context, analysis=analysis, kw_matrix=kw_matrix,
                             sku_context=sku_context, keyword_data_status=keyword_data_status,
                             backtest=backtest_summary)
+    else:
+        print(f"\n[9/9] Email skipped (use --send-email to send). Proposal saved to {filepath}")
 
 
 def run_propose(args):
