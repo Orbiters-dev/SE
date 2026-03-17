@@ -664,6 +664,154 @@
     </div>
   </div>
 
+  <!-- ==================== E2E TEST CASE ==================== -->
+  <div class="summary-section" style="margin-bottom:0;">
+    <h3>E2E Test: Low Touch Gifting Flow</h3>
+    <p style="font-size:13px; color:var(--text-dim); margin-bottom:20px;">Live test executed March 17, 2026 09:38 UTC &mdash; full pipeline traversal with real data</p>
+
+    <div style="display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
+      <div style="flex:1; min-width:200px; background:#dcfce7; border:1px solid #86efac; border-radius:10px; padding:14px; text-align:center;">
+        <div style="font-size:24px; font-weight:700; color:#15803d;">5 / 5</div>
+        <div style="font-size:12px; color:#166534; margin-top:4px;">Stages Passed</div>
+      </div>
+      <div style="flex:1; min-width:200px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:14px; text-align:center;">
+        <div style="font-size:24px; font-weight:700; color:#0369a1;">2.5s</div>
+        <div style="font-size:12px; color:#0c4a6e; margin-top:4px;">Avg Response Time</div>
+      </div>
+      <div style="flex:1; min-width:200px; background:#fef3c7; border:1px solid #fde68a; border-radius:10px; padding:14px; text-align:center;">
+        <div style="font-size:24px; font-weight:700; color:#92400e;">2</div>
+        <div style="font-size:12px; color:#78350f; margin-top:4px;">Bug Fixes Applied</div>
+      </div>
+    </div>
+
+    <!-- Test Subject -->
+    <div style="background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:16px; margin-bottom:16px;">
+      <h4 style="font-size:13px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-dim); margin-bottom:10px;">Test Subject</h4>
+      <div class="data-row"><span class="data-key">Creator</span><span class="data-val">@e2e_lt_test_0317 (E2E Test Creator LT)</span></div>
+      <div class="data-row"><span class="data-key">Email</span><span class="data-val">wj.choi+e2e@orbiters.co.kr</span></div>
+      <div class="data-row"><span class="data-key">Flow Type</span><span class="data-val">Low Touch (auto-send, no human approval)</span></div>
+      <div class="data-row"><span class="data-key">Product</span><span class="data-val">Grosmimi PPSU Straw Cup 10oz (White)</span></div>
+    </div>
+
+    <!-- Step 1: Webhook Call -->
+    <div style="border-left:3px solid var(--pass); padding-left:16px; margin-bottom:20px;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+        <span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span>
+        <span style="font-size:15px; font-weight:600;">Step 1: Gifting Form Submission (Webhook)</span>
+      </div>
+      <div style="font-size:13px; color:var(--text-dim); margin-bottom:8px;">
+        POST /webhook/influencer-gifting &rarr; 200 OK in 2.8s
+      </div>
+      <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px; font-size:12px;">
+        <div class="data-row"><span class="data-key">Draft Order</span><span class="data-val">#D1533 (ID: 1516290507122)</span></div>
+        <div class="data-row"><span class="data-key">Shopify Customer</span><span class="data-val">ID: 7057180098882 (existing &rarr; updated)</span></div>
+        <div class="data-row"><span class="data-key">Discount</span><span class="data-val">100% PR Gifting &rarr; $0.00</span></div>
+        <div class="data-row"><span class="data-key">PostgreSQL</span><span class="data-val">Saved to gifting table via API</span></div>
+      </div>
+    </div>
+
+    <!-- Step 2: Airtable Records -->
+    <div style="border-left:3px solid var(--pass); padding-left:16px; margin-bottom:20px;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+        <span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span>
+        <span style="font-size:15px; font-weight:600;">Step 2: Airtable CRM Records Created</span>
+      </div>
+      <div style="font-size:13px; color:var(--text-dim); margin-bottom:8px;">
+        Both Creators and Orders tables populated correctly
+      </div>
+      <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px; font-size:12px;">
+        <div class="data-row"><span class="data-key">Creators Record</span><span class="data-val">recUYEcV5hU5bbL4x &mdash; Username: e2e_lt_test_0317, Status: Needs Review</span></div>
+        <div class="data-row"><span class="data-key">Orders Record</span><span class="data-val">recNF9PPaYgyDhUEC &mdash; Order #1, Status: Pending, Brand: Grosmimi</span></div>
+        <div class="data-row"><span class="data-key">Outreach Type</span><span class="data-val">Low Touch (auto-set from form)</span></div>
+        <div class="data-row"><span class="data-key">Partnership</span><span class="data-val">New</span></div>
+      </div>
+    </div>
+
+    <!-- Step 3: Accepted Email -->
+    <div style="border-left:3px solid var(--pass); padding-left:16px; margin-bottom:20px;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+        <span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span>
+        <span style="font-size:15px; font-weight:600;">Step 3: Acceptance Email Auto-Sent</span>
+      </div>
+      <div style="font-size:13px; color:var(--text-dim); margin-bottom:8px;">
+        3-minute polling detected "Needs Review" &rarr; email sent within 1 cycle
+      </div>
+      <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px; font-size:12px;">
+        <div class="data-row"><span class="data-key">Gmail Thread</span><span class="data-val">19cfb2a587654797</span></div>
+        <div class="data-row"><span class="data-key">Subject</span><span class="data-val">"You're an Onzenna Creator! Choose your free samples"</span></div>
+        <div class="data-row"><span class="data-key">From</span><span class="data-val">affiliates@onzenna.com</span></div>
+        <div class="data-row"><span class="data-key">Status After</span><span class="data-val">Needs Review &rarr; Sample Sent (auto-updated)</span></div>
+        <div class="data-row"><span class="data-key">n8n Execution</span><span class="data-val">#143896 (success)</span></div>
+      </div>
+    </div>
+
+    <!-- Step 4: Status Progression -->
+    <div style="border-left:3px solid var(--pass); padding-left:16px; margin-bottom:20px;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+        <span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span>
+        <span style="font-size:15px; font-weight:600;">Step 4: Status Progression (Sample Sent &rarr; Shipped)</span>
+      </div>
+      <div style="font-size:13px; color:var(--text-dim); margin-bottom:8px;">
+        Manual update to "Sample Shipped" &rarr; Fulfillment workflow detected within 1 minute
+      </div>
+      <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px; font-size:12px;">
+        <div class="data-row"><span class="data-key">Order Status</span><span class="data-val">Pending &rarr; Fulfillment (tracking: E2E_TEST_TRACK_0317)</span></div>
+        <div class="data-row"><span class="data-key">Creator Status</span><span class="data-val">Sample Sent &rarr; Sample Shipped</span></div>
+      </div>
+    </div>
+
+    <!-- Step 5: Fulfillment Workflow -->
+    <div style="border-left:3px solid var(--pass); padding-left:16px; margin-bottom:20px;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+        <span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span>
+        <span style="font-size:15px; font-weight:600;">Step 5: Fulfillment Workflow Triggered</span>
+      </div>
+      <div style="font-size:13px; color:var(--text-dim); margin-bottom:8px;">
+        1-minute polling picked up "Sample Shipped" &rarr; fetched Draft Order from Shopify &rarr; checked completion status
+      </div>
+      <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px; font-size:12px;">
+        <div class="data-row"><span class="data-key">Poll Result</span><span class="data-val">Found recUYEcV5hU5bbL4x (e2e_lt_test_0317)</span></div>
+        <div class="data-row"><span class="data-key">Draft Order</span><span class="data-val">Fetched #D1533 &mdash; status: open (not yet completed)</span></div>
+        <div class="data-row"><span class="data-key">Next Action</span><span class="data-val">Waiting for Draft Order to be completed before fulfillment</span></div>
+        <div class="data-row"><span class="data-key">n8n Execution</span><span class="data-val">#143916 (success)</span></div>
+      </div>
+    </div>
+
+    <!-- Bugs Found & Fixed -->
+    <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:16px; margin-top:8px;">
+      <h4 style="font-size:13px; color:#dc2626; margin-bottom:10px;">Bugs Found &amp; Fixed During Test</h4>
+      <div style="font-size:12px;">
+        <div style="margin-bottom:8px;">
+          <strong style="color:#991b1b;">Bug 1:</strong> Airtable Orders table used wrong field names (Email, Name, Status vs PROD schema: Recipient Name, Phone Number, Order Status)
+          <br><span style="color:#166534; font-weight:600;">Fix:</span> Updated Prepare Airtable Payload node to match PROD schema. Changed method from PATCH to POST (new records).
+        </div>
+        <div>
+          <strong style="color:#991b1b;">Bug 2:</strong> Creators payload included non-existent fields (Phone, TikTok Handle, Child/Address fields)
+          <br><span style="color:#166534; font-weight:600;">Fix:</span> Stripped to only PROD-valid fields (Username, Email, Name, Platform, Profile URL, Outreach Status, etc.)
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Flow Visualization -->
+    <div style="margin-top:20px; padding:16px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px;">
+      <h4 style="font-size:13px; margin-bottom:12px; color:#0369a1;">Status Transitions Observed</h4>
+      <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:12px; justify-content:center;">
+        <span style="background:#f1f5f9; border:1px solid #cbd5e1; padding:5px 10px; border-radius:6px;">(form submit)</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:var(--store-bg); border:1px solid var(--store-border); padding:5px 10px; border-radius:6px; font-weight:600;">Needs Review</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:var(--auto-bg); border:1px solid var(--auto-border); padding:5px 10px; border-radius:6px; font-weight:600;">Sample Sent</span>
+        <span style="color:var(--text-dim); font-size:10px;">(auto, 3 min)</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:var(--poll-bg); border:1px solid var(--poll-border); padding:5px 10px; border-radius:6px; font-weight:600;">Sample Shipped</span>
+        <span style="color:var(--text-dim); font-size:10px;">(manual)</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:var(--poll-bg); border:1px solid var(--poll-border); padding:5px 10px; border-radius:6px; font-weight:600;">Fulfillment Check</span>
+        <span style="color:var(--text-dim); font-size:10px;">(auto, 1 min)</span>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== SUMMARY ==================== -->
   <div class="summary-section">
     <h3>Pipeline Summary</h3>
