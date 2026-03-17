@@ -109,8 +109,13 @@ jobs:
 
       - name: Update dashboard data.js
         run: |
-          echo "=== Regenerating dashboard data ==="
-          python -u tools/generate_dashboard_data.py 2>&1 || echo "[WARN] data.js generation had issues"
+          # Only regenerate if proposal JSONs exist (avoid pushing empty data.js)
+          if ls .tmp/ppc_proposal_*_*.json 1>/dev/null 2>&1; then
+            echo "=== Regenerating dashboard data ==="
+            python -u tools/generate_dashboard_data.py 2>&1 || echo "[WARN] data.js generation had issues"
+          else
+            echo "=== No proposal JSONs found, skipping data.js regeneration ==="
+          fi
 
       - name: Push updated data to GitHub Pages
         run: |

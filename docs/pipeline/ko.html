@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Influencer Gifting Pipeline - Visual Flow</title>
+<title>Creator Collab Pipeline - Onzenna</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
   :root {
     --bg: #fafbfc;
     --card: #ffffff;
@@ -29,7 +29,7 @@
     --accent: #6366f1;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'Noto Sans KR', -apple-system, sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+  body { font-family:'Inter', -apple-system, sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
   .container { max-width:960px; margin:0 auto; padding:32px 20px 60px; }
 
   .hero { text-align:center; margin-bottom:48px; }
@@ -42,7 +42,6 @@
   .legend-item { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-dim); }
   .legend-dot { width:12px; height:12px; border-radius:3px; }
 
-  /* Two-column zone boxes */
   .zone-row { display:flex; gap:16px; margin-bottom:40px; }
   .zone-box { flex:1; border-radius:14px; padding:20px; }
   .zone-box.human-zone { background:var(--human-bg); border:2px solid var(--human-border); }
@@ -56,12 +55,10 @@
   .zone-box.human-zone .zone-items li::before { background:var(--human); }
   .zone-box.auto-zone .zone-items li::before { background:var(--auto); }
 
-  /* Status Flow Bar */
   .status-bar { display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:center; padding:20px; background:var(--card); border:1px solid var(--border); border-radius:12px; margin-bottom:40px; }
   .status-pill { padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600; }
   .status-arrow { color:var(--text-dim); font-size:14px; }
 
-  /* Flow Section */
   .flow { margin-bottom:48px; }
   .flow-header { display:flex; align-items:center; gap:16px; margin-bottom:20px; padding-bottom:16px; border-bottom:2px solid var(--border); }
   .flow-num { width:40px; height:40px; border-radius:10px; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; flex-shrink:0; }
@@ -75,11 +72,7 @@
   .flow-status.pass { background:#dcfce7; color:#15803d; }
   .flow-status.partial { background:#fef3c7; color:#92400e; }
   .flow-status.auto-status { background:#e0f2fe; color:#0369a1; }
-  .flow-links { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
-  .flow-link { font-size:11px; padding:3px 10px; border-radius:6px; background:#f3f4f6; color:var(--accent); text-decoration:none; font-weight:600; border:1px solid var(--border); }
-  .flow-link:hover { background:#e0e7ff; }
 
-  /* Journey Steps */
   .journey { position:relative; }
   .journey::before { content:''; position:absolute; left:24px; top:0; bottom:0; width:2px; background:var(--border); z-index:0; }
   .step { display:flex; gap:20px; position:relative; }
@@ -101,20 +94,13 @@
   .data-box h4 { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); margin-bottom:10px; }
   .data-row { display:flex; align-items:flex-start; gap:8px; margin-bottom:6px; font-size:13px; }
   .data-row:last-child { margin-bottom:0; }
-  .data-key { color:var(--text-dim); min-width:110px; flex-shrink:0; }
+  .data-key { color:var(--text-dim); min-width:120px; flex-shrink:0; }
   .data-val { color:var(--text); font-weight:500; word-break:break-all; }
-  .data-val.highlight { color:var(--accent); font-family:'Consolas', monospace; font-size:12px; }
-  .data-val a { color:var(--accent); text-decoration:none; }
-  .data-val a:hover { text-decoration:underline; }
 
   .result-badge { display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; padding:3px 10px; border-radius:12px; margin-top:8px; }
   .result-badge.pass { background:#dcfce7; color:#15803d; }
   .result-badge.fail { background:#fee2e2; color:#dc2626; }
 
-  .note { background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:10px 14px; margin-top:8px; font-size:12px; color:#92400e; display:flex; align-items:flex-start; gap:8px; }
-  .note::before { content:'!'; background:#f59e0b; color:#fff; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; margin-top:1px; }
-
-  /* Summary */
   .summary-section { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:28px; margin-top:40px; }
   .summary-section h3 { font-size:18px; font-weight:600; margin-bottom:20px; }
   .summary-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:16px; }
@@ -127,60 +113,36 @@
 
   .footer { text-align:center; margin-top:48px; font-size:12px; color:var(--text-dim); }
 
-  /* Test Case Panels */
-  .test-panel { background:linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border:2px solid #fde68a; border-radius:14px; padding:20px; margin-top:-24px; margin-bottom:48px; position:relative; }
-  .test-panel::before { content:''; position:absolute; top:-12px; left:32px; width:24px; height:24px; background:#fbbf24; border-radius:6px; }
-  .test-header { display:flex; align-items:center; gap:10px; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #fde68a; }
-  .test-badge { background:#fbbf24; color:#78350f; font-size:11px; font-weight:700; padding:3px 10px; border-radius:6px; text-transform:uppercase; letter-spacing:0.5px; }
-  .test-title { font-size:14px; font-weight:600; color:#92400e; }
-  .test-meta { font-size:11px; color:#a16207; margin-left:auto; }
-  .test-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  .test-card { background:rgba(255,255,255,0.7); border:1px solid #fde68a; border-radius:8px; padding:12px; }
-  .test-card.full { grid-column:1/-1; }
-  .test-card h5 { font-size:11px; text-transform:uppercase; letter-spacing:0.8px; color:#92400e; margin-bottom:8px; }
-  .test-row { display:flex; gap:6px; margin-bottom:4px; font-size:12px; }
-  .test-key { color:#a16207; min-width:90px; flex-shrink:0; font-weight:500; }
-  .test-val { color:#78350f; word-break:break-all; }
-  .test-email { background:#fefce8; border:1px solid #fde68a; border-radius:6px; padding:10px; font-size:12px; color:#78350f; white-space:pre-wrap; line-height:1.5; margin-top:6px; }
-  .test-note { background:rgba(251,191,36,0.15); border-left:3px solid #fbbf24; padding:8px 12px; font-size:12px; color:#92400e; border-radius:0 6px 6px 0; margin-top:8px; }
-  .test-status { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:2px 8px; border-radius:10px; }
-  .test-status.pass { background:#dcfce7; color:#15803d; }
-  .test-status.pending { background:#e0f2fe; color:#0369a1; }
-
-  @media(max-width:700px) {
-    .zone-row { flex-direction:column; }
-    .summary-grid { grid-template-columns:repeat(2,1fr); }
-    .test-grid { grid-template-columns:1fr; }
-  }
   .site-nav { background:#fff; border-bottom:1px solid var(--border); padding:0 24px; display:flex; align-items:center; gap:4px; height:48px; margin-bottom:0; }
   .site-nav .brand { font-size:13px; font-weight:700; color:var(--accent); margin-right:14px; text-decoration:none; }
   .site-nav a { font-size:13px; color:var(--text-dim); text-decoration:none; padding:5px 11px; border-radius:6px; }
   .site-nav a:hover { background:#f3f4f6; color:var(--text); }
   .site-nav a.active { background:#ede9fe; color:#6d28d9; font-weight:600; }
+
+  @media(max-width:700px) {
+    .zone-row { flex-direction:column; }
+    .summary-grid { grid-template-columns:repeat(2,1fr); }
+  }
 </style>
 </head>
 <body>
 <nav class="site-nav">
   <a href="." class="brand">Creator Collab</a>
-  <a href=".">Pipeline (EN)</a>
-  <a href="ko.html" class="active">Pipeline (KR)</a>
-  <a href="migration.html">Migration Report</a>
-  <a href="tests.html">Test Results</a>
-  <a href="tests-ko.html">테스트 결과</a>
+  <a href="ko.html" class="active">Pipeline</a>
 </nav>
 <div class="container">
 
   <div class="hero">
-    <h1><span>WJ</span> Influencer TEST1</h1>
-    <p class="subtitle">인플루언서 데이터 수집부터 컨텐츠 게시 감지까지 — 8단계 전체 자동화 흐름</p>
-    <div class="test-time">2026년 3월 13일 기준</div>
+    <h1><span>Creator Collab</span> Pipeline</h1>
+    <p class="subtitle">End-to-end influencer gifting automation &mdash; from discovery to content tracking in 8 stages</p>
+    <div class="test-time">Last updated: March 17, 2026</div>
   </div>
 
   <div class="legend">
     <div class="legend-item"><div class="legend-dot" style="background:var(--human)"></div> Human in the Loop</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--auto)"></div> Webhook 자동</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--store)"></div> 데이터 저장</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--poll)"></div> Polling 자동</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--auto)"></div> Webhook Auto</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--store)"></div> Data Store</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--poll)"></div> Polling Auto</div>
   </div>
 
   <!-- Human vs Auto Zone -->
@@ -188,36 +150,36 @@
     <div class="zone-box human-zone">
       <div class="zone-title human-t">&#9998; Human in the Loop</div>
       <ul class="zone-items">
-        <li>인플루언서 기프팅 폼 작성 (Stage 2)</li>
-        <li>크리에이터 프로필 등록 (Stage 3)</li>
-        <li>팀 리뷰 &amp; Accepted 상태 변경</li>
-        <li>샘플 제품 선택 폼 작성 (Stage 4)</li>
-        <li>Airtable "Sample Sent" 상태 변경</li>
-        <li>인플루언서 컨텐츠 촬영 &amp; 게시</li>
+        <li>Influencer fills out gifting form (Stage 2)</li>
+        <li>Creator profile registration (Stage 3)</li>
+        <li>Team review &amp; Accept/Decline decision</li>
+        <li>Sample product selection form (Stage 4)</li>
+        <li>Mark "Sample Sent" in Airtable</li>
+        <li>Influencer films &amp; posts content</li>
       </ul>
     </div>
     <div class="zone-box auto-zone">
       <div class="zone-title auto-t">&#9889; Fully Automated</div>
       <ul class="zone-items">
-        <li>Syncly 크롤링 &rarr; Airtable 수집 (Stage 0)</li>
-        <li>벌크 아웃리치 이메일 발송 (Stage 1)</li>
-        <li>Shopify 고객+Draft Order 생성 (Stage 2)</li>
-        <li>수락 이메일 &amp; 샘플 폼 링크 (Stage 3&rarr;4)</li>
-        <li>Draft Order Complete (5분 폴링, Stage 5)</li>
-        <li>배송 완료 감지 (30분 폴링, Stage 6)</li>
-        <li>Content Guideline 이메일 (Stage 6.5)</li>
-        <li>컨텐츠 게시 감지 (6시간 폴링, Stage 7)</li>
+        <li>Syncly crawl &rarr; Airtable sync (Stage 0)</li>
+        <li>Bulk outreach email via Claude AI (Stage 1)</li>
+        <li>Shopify customer + Draft Order creation (Stage 2)</li>
+        <li>Acceptance email &amp; sample form link (Stage 3&rarr;4)</li>
+        <li>Draft Order completion (5-min polling, Stage 5)</li>
+        <li>Delivery detection (30-min polling, Stage 6)</li>
+        <li>Content guideline email (Stage 6.5)</li>
+        <li>Content post detection (6-hr polling, Stage 7)</li>
       </ul>
     </div>
   </div>
 
   <!-- Status Flow -->
   <div class="status-bar">
-    <span class="status-pill" style="background:#f1f5f9; color:#64748b;">Syncly 수집</span>
+    <span class="status-pill" style="background:#f1f5f9; color:#64748b;">Discovery</span>
     <span class="status-arrow">&rarr;</span>
-    <span class="status-pill" style="background:#f1f5f9; color:#64748b;">아웃리치</span>
+    <span class="status-pill" style="background:#f1f5f9; color:#64748b;">Outreach</span>
     <span class="status-arrow">&rarr;</span>
-    <span class="status-pill" style="background:var(--human-bg); color:var(--human);">폼 제출</span>
+    <span class="status-pill" style="background:var(--human-bg); color:var(--human);">Form Submit</span>
     <span class="status-arrow">&rarr;</span>
     <span class="status-pill" style="background:var(--store-bg); color:var(--store);">New</span>
     <span class="status-arrow">&rarr;</span>
@@ -241,37 +203,32 @@
     <div class="flow-header">
       <div class="flow-num pre-num">0</div>
       <div class="flow-info">
-        <h2>Syncly 인플루언서 발굴 &rarr; Airtable 동기화</h2>
-        <p>Syncly가 인플루언서 발굴 &rarr; Google Sheet에 공유 &rarr; n8n이 크리에이터 &amp; 컨텐츠를 Airtable CRM에 동기화 &rarr; 상태 기록</p>
-        <div class="flow-links">
-          <a class="flow-link" href="https://docs.google.com/spreadsheets/d/1dIAhP8wCEdFulSAai3K-RoZTvLBIaWxAK7hzInBsF0o/edit?gid=817788377" target="_blank">Syncly 발굴 시트</a>
-          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/6BNQRz57oCtdROlH" target="_blank">n8n: Syncly Data Processing (WJ TEST)</a>
-          <a class="flow-link" href="https://airtable.com/appT2gLRR0PqMFgII" target="_blank">Airtable (WJ TEST)</a>
-        </div>
+        <h2>Influencer Discovery &rarr; CRM Sync</h2>
+        <p>Syncly discovers influencers &rarr; shares via Google Sheet &rarr; n8n syncs creators &amp; content to Airtable CRM</p>
       </div>
-      <div class="flow-status auto-status">AUTO (수동 트리거)</div>
+      <div class="flow-status auto-status">AUTO</div>
     </div>
     <div class="journey">
       <div class="step">
         <div class="step-icon store">&#128202;</div>
         <div class="step-content">
-          <div class="step-label store">&#128196; 데이터 소스</div>
-          <div class="step-title">Syncly 인플루언서 발굴 Google Sheet</div>
-          <div class="step-desc">Syncly 플랫폼이 인플루언서를 발굴하고, 크리에이터 + 컨텐츠 데이터를 공유 <a href="https://docs.google.com/spreadsheets/d/1dIAhP8wCEdFulSAai3K-RoZTvLBIaWxAK7hzInBsF0o/edit?gid=817788377" target="_blank">Google Sheet</a>에 기록</div>
+          <div class="step-label store">&#128196; Data Source</div>
+          <div class="step-title">Syncly Influencer Discovery Sheet</div>
+          <div class="step-desc">Syncly platform discovers relevant influencers and logs creator + content data to a shared Google Sheet</div>
         </div>
       </div>
       <div class="step">
         <div class="step-icon auto">&#128260;</div>
         <div class="step-content">
-          <div class="step-label auto">&#9889; n8n 동기화 (64 nodes)</div>
+          <div class="step-label auto">&#9889; n8n Sync (64 nodes)</div>
           <div class="step-title">Creator Sync: Google Sheet &rarr; Airtable CRM</div>
-          <div class="step-desc">n8n이 시트에서 크리에이터 데이터 읽기 &rarr; 중복 체크 &rarr; Airtable에 Creator 레코드 생성/업데이트</div>
+          <div class="step-desc">n8n reads creator data from sheet &rarr; dedup check &rarr; create/update Creator records in Airtable</div>
           <div class="data-box">
-            <h4>Creator Sync 파이프라인</h4>
-            <div class="data-row"><span class="data-key">1. 시트 읽기</span><span class="data-val">Syncly 발굴 시트에서 크리에이터 목록 가져오기</span></div>
-            <div class="data-row"><span class="data-key">2. 중복 체크</span><span class="data-val">기존 Airtable 크리에이터 확인 &rarr; Lookup 맵 생성</span></div>
-            <div class="data-row"><span class="data-key">3. 동기화</span><span class="data-val">새 크리에이터 생성 / 기존 레코드 업데이트</span></div>
-            <div class="data-row"><span class="data-key">4. Writeback</span><span class="data-val">처리 상태를 Google Sheet에 기록</span></div>
+            <h4>Creator Sync Pipeline</h4>
+            <div class="data-row"><span class="data-key">1. Read Sheet</span><span class="data-val">Fetch creator list from Syncly discovery sheet</span></div>
+            <div class="data-row"><span class="data-key">2. Dedup Check</span><span class="data-val">Check existing Airtable creators &rarr; build lookup map</span></div>
+            <div class="data-row"><span class="data-key">3. Sync</span><span class="data-val">Create new creators / update existing records</span></div>
+            <div class="data-row"><span class="data-key">4. Writeback</span><span class="data-val">Write processing status back to Google Sheet</span></div>
           </div>
         </div>
       </div>
@@ -279,14 +236,14 @@
         <div class="step-icon auto">&#128196;</div>
         <div class="step-content">
           <div class="step-label auto">&#9889; Content Sync</div>
-          <div class="step-title">Content Sync: Google Sheet &rarr; Airtable + 크리에이터 연결</div>
-          <div class="step-desc">시트에서 컨텐츠 레코드 동기화 &rarr; 크리에이터 자동 연결 &rarr; 누락 크리에이터 자동 생성 &rarr; Gmail 알림</div>
+          <div class="step-title">Content Sync: Google Sheet &rarr; Airtable + Creator Linking</div>
+          <div class="step-desc">Sync content records from sheet &rarr; auto-link to creators &rarr; auto-create missing creators &rarr; Gmail notification</div>
           <div class="data-box">
-            <h4>Content Sync 파이프라인</h4>
-            <div class="data-row"><span class="data-key">1. 읽기</span><span class="data-val">시트에서 컨텐츠 데이터 가져오기</span></div>
-            <div class="data-row"><span class="data-key">2. 연결</span><span class="data-val">컨텐츠를 크리에이터에 매칭 &rarr; 누락 시 자동 생성</span></div>
-            <div class="data-row"><span class="data-key">3. 동기화</span><span class="data-val">Airtable에 Content 레코드 생성/업데이트</span></div>
-            <div class="data-row"><span class="data-key">4. 알림</span><span class="data-val">Gmail 요약: 동기화 결과 + writeback 상태</span></div>
+            <h4>Content Sync Pipeline</h4>
+            <div class="data-row"><span class="data-key">1. Read</span><span class="data-val">Fetch content data from sheet</span></div>
+            <div class="data-row"><span class="data-key">2. Link</span><span class="data-val">Match content to creators &rarr; auto-create if missing</span></div>
+            <div class="data-row"><span class="data-key">3. Sync</span><span class="data-val">Create/update Content records in Airtable</span></div>
+            <div class="data-row"><span class="data-key">4. Notify</span><span class="data-val">Gmail summary: sync results + writeback status</span></div>
           </div>
         </div>
       </div>
@@ -298,11 +255,8 @@
     <div class="flow-header">
       <div class="flow-num pre-num">1</div>
       <div class="flow-info">
-        <h2>벌크 아웃리치 &amp; 문의 응대</h2>
-        <p>Claude API로 개인화된 아웃리치 이메일/DM 생성 &rarr; 발송 &rarr; 응답 추적 &rarr; 문의 응대</p>
-        <div class="flow-links">
-          <a class="flow-link" href="https://n8n.orbiters.co.kr" target="_blank">n8n Dashboard</a>
-        </div>
+        <h2>Bulk Outreach &amp; Reply Handling</h2>
+        <p>Claude AI generates personalized outreach emails &rarr; auto-send via Gmail &rarr; track replies &rarr; handle inquiries</p>
       </div>
       <div class="flow-status auto-status">AUTO + HUMAN</div>
     </div>
@@ -310,14 +264,14 @@
       <div class="step">
         <div class="step-icon auto">&#128231;</div>
         <div class="step-content">
-          <div class="step-label auto">&#9889; AI 생성 + 자동 발송</div>
-          <div class="step-title">Claude API 개인화 아웃리치 &rarr; Gmail 벌크 발송</div>
-          <div class="step-desc">인플루언서 프로필 기반 맞춤 메시지 생성 &rarr; affiliates@onzenna.com에서 이메일 발송 &rarr; Airtable 상태 "Sent"</div>
+          <div class="step-label auto">&#9889; AI Generation + Auto Send</div>
+          <div class="step-title">Claude API Personalized Outreach &rarr; Gmail Bulk Send</div>
+          <div class="step-desc">Generate tailored messages based on influencer profiles &rarr; send from affiliates@onzenna.com &rarr; Airtable status "Sent"</div>
           <div class="data-box">
-            <h4>아웃리치 플로우</h4>
-            <div class="data-row"><span class="data-key">1. 드래프트</span><span class="data-val">Claude API가 프로필 기반 개인화 메시지 생성</span></div>
-            <div class="data-row"><span class="data-key">2. 발송</span><span class="data-val">Gmail OAuth &rarr; 벌크 이메일 (affiliates@onzenna.com)</span></div>
-            <div class="data-row"><span class="data-key">3. 추적</span><span class="data-val">Airtable: Status &rarr; "Sent", Last Contact At 기록</span></div>
+            <h4>Outreach Flow</h4>
+            <div class="data-row"><span class="data-key">1. Draft</span><span class="data-val">Claude API generates personalized message from creator profile</span></div>
+            <div class="data-row"><span class="data-key">2. Send</span><span class="data-val">Gmail OAuth &rarr; bulk email from affiliates@onzenna.com</span></div>
+            <div class="data-row"><span class="data-key">3. Track</span><span class="data-val">Airtable: Outreach Status &rarr; "Sent", Last Contact At logged</span></div>
           </div>
         </div>
       </div>
@@ -325,123 +279,10 @@
         <div class="step-icon human">&#128172;</div>
         <div class="step-content">
           <div class="step-label human">&#9998; Human + AI</div>
-          <div class="step-title">문의 응대 &amp; 팔로업</div>
-          <div class="step-desc">인플루언서 회신에 대해 팀 리뷰 + AI 보조 응답. Status: Replied &rarr; Needs Review</div>
+          <div class="step-title">Reply Handling &amp; Follow-up</div>
+          <div class="step-desc">Influencer replies are auto-detected &rarr; team reviews &rarr; AI-assisted response. Status: Replied &rarr; Needs Review</div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- ===== STAGE 1 TEST CASE ===== -->
-  <div class="test-panel">
-    <div class="test-header">
-      <span class="test-badge">Test #1</span>
-      <span class="test-title">Stage 1: Outreach Draft &rarr; Auto Send (Low Touch)</span>
-      <span class="test-meta">2026-03-13 04:36 UTC | Exec #97187 <span class="test-status pass">PASS</span></span>
-    </div>
-    <div class="test-grid">
-      <div class="test-card">
-        <h5>Creator Profile (Input)</h5>
-        <div class="test-row"><span class="test-key">Username</span><span class="test-val">wj_choi_test</span></div>
-        <div class="test-row"><span class="test-key">Name</span><span class="test-val">Wonjin Choi</span></div>
-        <div class="test-row"><span class="test-key">Email</span><span class="test-val">wj.choi@orbiters.co.kr</span></div>
-        <div class="test-row"><span class="test-key">Platform</span><span class="test-val">Instagram</span></div>
-        <div class="test-row"><span class="test-key">Followers</span><span class="test-val">8,500</span></div>
-        <div class="test-row"><span class="test-key">Avg ER</span><span class="test-val">5.3%</span></div>
-        <div class="test-row"><span class="test-key">Location</span><span class="test-val">Los Angeles, CA</span></div>
-        <div class="test-row"><span class="test-key">Syncly Level</span><span class="test-val">Fully Matched (2 posts)</span></div>
-        <div class="test-row"><span class="test-key">Bio</span><span class="test-val">Mom of 1. Love sharing baby product reviews and daily mom life.</span></div>
-      </div>
-      <div class="test-card">
-        <h5>Workflow Config</h5>
-        <div class="test-row"><span class="test-key">Mode</span><span class="test-val">production</span></div>
-        <div class="test-row"><span class="test-key">Outreach Type</span><span class="test-val">Low Touch</span></div>
-        <div class="test-row"><span class="test-key">Human-in-Loop</span><span class="test-val">false (LT는 자동 발송)</span></div>
-        <div class="test-row"><span class="test-key">Dry Run</span><span class="test-val">false</span></div>
-        <div class="test-row"><span class="test-key">Has Content</span><span class="test-val">false (트랜스크립트 없음)</span></div>
-        <div class="test-row"><span class="test-key">Template</span><span class="test-val">Google Drive (공유 템플릿)</span></div>
-        <div class="test-row"><span class="test-key">Sender Name</span><span class="test-val">William Choi</span></div>
-        <div class="test-row"><span class="test-key">Brand</span><span class="test-val">Onzenna / Grosmimi</span></div>
-      </div>
-      <div class="test-card full">
-        <h5>Claude가 생성한 이메일 (Output)</h5>
-        <div class="test-row"><span class="test-key">Subject</span><span class="test-val">Collab? Onzenna x wj_choi_test</span></div>
-        <div class="test-email">Hi wj_choi_test!
-
-I'm William Choi from the Onzenna team. I caught your recent Instagram posts and had to reach out - your vibrant and relatable parenting content is exactly what we love! Your ability to capture the joys and challenges of raising little ones is truly inspiring.
-
-At Onzenna, we're on a mission to simplify motherhood with curated, high-quality gear (like the cult-favorite Grosmimi cups!). We'd love to send some goodies your way for a gifted partnership.
-
-Interested? Just fill out this quick form and we'll handle the rest: https://onzenna.com/pages/influencer-gifting
-
-Can't wait to see if we're a match!
-
-Best,
-Onzenna</div>
-      </div>
-      <div class="test-card">
-        <h5>Airtable 업데이트</h5>
-        <div class="test-row"><span class="test-key">Before</span><span class="test-val">Not Started / New</span></div>
-        <div class="test-row"><span class="test-key">After</span><span class="test-val">Sent / 제휴 진행중</span></div>
-        <div class="test-row"><span class="test-key">Conversation</span><span class="test-val">rec7z8bEQvZwDd5Ja</span></div>
-        <div class="test-row"><span class="test-key">Sent At</span><span class="test-val">2026-03-13</span></div>
-      </div>
-      <div class="test-card">
-        <h5>Gmail 발송</h5>
-        <div class="test-row"><span class="test-key">Thread ID</span><span class="test-val">19ce57ba03f10b51</span></div>
-        <div class="test-row"><span class="test-key">From</span><span class="test-val">affiliates@onzenna.com</span></div>
-        <div class="test-row"><span class="test-key">To</span><span class="test-val">wj.choi@orbiters.co.kr</span></div>
-        <div class="test-row"><span class="test-key">Labels</span><span class="test-val">SENT</span></div>
-      </div>
-    </div>
-    <div class="test-note">
-      <strong>Notes:</strong> 스케줄 트리거가 비활성화 상태여서 API로 활성화 후 테스트, 완료 후 재비활성화.
-      Low Touch는 Human-in-Loop=false로 자동 발송. High Touch는 Airtable에서 "Approved" 수동 승인 필요.
-    </div>
-  </div>
-
-  <!-- ===== STAGE 1.5 TEST CASE (Reply Handling) ===== -->
-  <div class="test-panel">
-    <div class="test-header">
-      <span class="test-badge">Test #2</span>
-      <span class="test-title">Stage 1.5: Reply Handler (시뮬레이션)</span>
-      <span class="test-meta">2026-03-13 06:15 UTC | Reply Handler 자동 처리 <span class="test-status pass">PASS</span></span>
-    </div>
-    <div class="test-grid">
-      <div class="test-card full">
-        <h5>시뮬레이션 인플루언서 회신</h5>
-        <div class="test-row"><span class="test-key">From</span><span class="test-val">wj.choi@orbiters.co.kr</span></div>
-        <div class="test-row"><span class="test-key">To</span><span class="test-val">affiliates@onzenna.com</span></div>
-        <div class="test-row"><span class="test-key">Subject</span><span class="test-val">Re: Collab? Onzenna x wj_choi_test</span></div>
-        <div class="test-row"><span class="test-key">Thread ID</span><span class="test-val">19ce57ba03f10b51</span></div>
-        <div class="test-email">Hi William! This sounds really exciting! I would absolutely love to try Grosmimi products for my daughter. She is 14 months old and we are always on the lookout for great sippy cups and bottles.
-
-Here is my info:
-- Full Name: Wonjin Choi
-- Instagram: @wj_choi_test
-- TikTok: @wj_choi_test
-- Phone: +12135551234
-- Address: 5900 Katella Ave, BLDG C, STE 100, Cypress, CA 90630
-
-What do I need to do next?</div>
-      </div>
-      <div class="test-card">
-        <h5>Reply Handler 처리</h5>
-        <div class="test-row"><span class="test-key">Workflow</span><span class="test-val">Outreach - Reply Handler</span></div>
-        <div class="test-row"><span class="test-key">Workflow ID</span><span class="test-val">nVtYmhU0InRqRn4K</span></div>
-        <div class="test-row"><span class="test-key">Thread 메시지</span><span class="test-val">3개 (발신 + 회신 + 확인)</span></div>
-        <div class="test-row"><span class="test-key">자동 처리</span><span class="test-val">수동 확인 전 이미 처리됨</span></div>
-      </div>
-      <div class="test-card">
-        <h5>Airtable 업데이트</h5>
-        <div class="test-row"><span class="test-key">Before</span><span class="test-val">Sent / 제휴 진행중</span></div>
-        <div class="test-row"><span class="test-key">After</span><span class="test-val">Needs Review</span></div>
-        <div class="test-row"><span class="test-key">Last Contact</span><span class="test-val">2026-03-13T06:15:00.000Z</span></div>
-        <div class="test-row"><span class="test-key">Record ID</span><span class="test-val">recX3M4AuAGKNr98l</span></div>
-      </div>
-    </div>
-    <div class="test-note">
-      <strong>Notes:</strong> Reply Handler가 실제 회신을 이미 자동 처리 (messageCount=3). Airtable 상태를 "Needs Review"로 수동 설정하여 리뷰 단계를 시뮬레이션. 프로덕션에서는 팀이 회신을 검토 후 수락/거절 결정.
     </div>
   </div>
 
@@ -450,110 +291,45 @@ What do I need to do next?</div>
     <div class="flow-header">
       <div class="flow-num">2</div>
       <div class="flow-info">
-        <h2>인플루언서 기프팅 신청</h2>
-        <p>인플루언서가 기프팅 폼 작성 &rarr; 자동으로 고객+주문+CRM 전부 생성</p>
-        <div class="flow-links">
-          <a class="flow-link" href="https://onzenna.com/pages/influencer-gifting" target="_blank">Gifting 폼 페이지</a>
-          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/F0sv8RsCS1v56Gkw" target="_blank">n8n: Gifting (Prod)</a>
-          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/4q5NCzMb3nMGYqL4" target="_blank">n8n: Gifting (WJ TEST)</a>
-          <a class="flow-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbloYjIEr5OtEppT0" target="_blank">Airtable: Inbound</a>
-        </div>
+        <h2>Influencer Gifting Application</h2>
+        <p>Influencer fills out gifting form &rarr; auto-creates customer + draft order + CRM record</p>
       </div>
-      <div class="flow-status pass">PASS 6/6</div>
+      <div class="flow-status pass">PASS</div>
     </div>
     <div class="journey">
       <div class="step">
         <div class="step-icon human">&#128221;</div>
         <div class="step-content">
           <div class="step-label human">&#9998; Human in the Loop</div>
-          <div class="step-title">인플루언서가 기프팅 신청서 작성</div>
-          <div class="step-desc"><a href="https://onzenna.com/pages/influencer-gifting" target="_blank">onzenna.com/pages/influencer-gifting</a> 에서 폼 작성 후 제출</div>
+          <div class="step-title">Influencer Submits Gifting Application</div>
+          <div class="step-desc">Creator fills out the form at <a href="https://onzenna.com/pages/influencer-gifting" target="_blank">onzenna.com/pages/influencer-gifting</a></div>
           <div class="data-box">
-            <h4>&#128203; 인플루언서가 입력하는 정보</h4>
-            <div class="data-row"><span class="data-key">이름 / 이메일</span><span class="data-val">개인정보 + 연락처</span></div>
-            <div class="data-row"><span class="data-key">SNS</span><span class="data-val">Instagram / TikTok 핸들</span></div>
-            <div class="data-row"><span class="data-key">아이 정보</span><span class="data-val">생일, 월령</span></div>
-            <div class="data-row"><span class="data-key">제품 선택</span><span class="data-val">Grosmimi PPSU 제품군 중 선택</span></div>
-            <div class="data-row"><span class="data-key">배송지</span><span class="data-val">US 주소</span></div>
+            <h4>Form Fields</h4>
+            <div class="data-row"><span class="data-key">Name / Email</span><span class="data-val">Personal info + contact details</span></div>
+            <div class="data-row"><span class="data-key">Social</span><span class="data-val">Instagram / TikTok handles</span></div>
+            <div class="data-row"><span class="data-key">Child Info</span><span class="data-val">Birthday, age in months</span></div>
+            <div class="data-row"><span class="data-key">Product Selection</span><span class="data-val">Choose from Grosmimi PPSU product line</span></div>
+            <div class="data-row"><span class="data-key">Shipping</span><span class="data-val">US address</span></div>
           </div>
-          <div class="result-badge pass">&#10003; 폼 제출 성공 (2.5초)</div>
+          <div class="result-badge pass">&#10003; Form submitted (2.5s)</div>
         </div>
       </div>
       <div class="step">
         <div class="step-icon auto">&#9881;</div>
         <div class="step-content">
-          <div class="step-label auto">&#9889; 자동 처리 (n8n, ~12초)</div>
-          <div class="step-title">Webhook 수신 &rarr; 5개 병렬 처리</div>
+          <div class="step-label auto">&#9889; Auto Processing (n8n, ~12s)</div>
+          <div class="step-title">Webhook Received &rarr; 5 Parallel Operations</div>
           <div class="data-box">
-            <h4>n8n이 자동으로 하는 일들</h4>
-            <div class="data-row"><span class="data-key">1. Shopify</span><span class="data-val">Customer 검색/생성 (tags: influencer-gifting, PR)</span></div>
-            <div class="data-row"><span class="data-key">2. Draft Order</span><span class="data-val">100% PR Discount &rarr; $0.00 무료 주문</span></div>
+            <h4>Automated Actions</h4>
+            <div class="data-row"><span class="data-key">1. Shopify</span><span class="data-val">Find or create customer (tags: influencer-gifting, PR)</span></div>
+            <div class="data-row"><span class="data-key">2. Draft Order</span><span class="data-val">100% PR discount &rarr; $0.00 free order</span></div>
             <div class="data-row"><span class="data-key">3. Metafields</span><span class="data-val">influencer.instagram, .tiktok, .child_1_birthday</span></div>
-            <div class="data-row"><span class="data-key">4. <a href="https://airtable.com/appT2gLRR0PqMFgII/tbloYjIEr5OtEppT0" target="_blank">Airtable</a></span><span class="data-val">Inbound CRM 레코드 생성 (Status: New)</span></div>
-            <div class="data-row"><span class="data-key">5. <a href="https://orbitools.orbiters.co.kr/api/onzenna/gifting/list/" target="_blank">PostgreSQL</a></span><span class="data-val">orbitools API &rarr; gifting 테이블 INSERT</span></div>
+            <div class="data-row"><span class="data-key">4. Airtable</span><span class="data-val">Create CRM record (Status: New)</span></div>
+            <div class="data-row"><span class="data-key">5. PostgreSQL</span><span class="data-val">Insert into gifting table via API</span></div>
           </div>
-          <div class="result-badge pass">&#10003; Shopify + Airtable + PG 모두 PASS</div>
+          <div class="result-badge pass">&#10003; Shopify + Airtable + PG all PASS</div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- ===== STAGE 2 TEST CASE (Gifting Form) ===== -->
-  <div class="test-panel">
-    <div class="test-header">
-      <span class="test-badge">Test #3</span>
-      <span class="test-title">Stage 2: 기프팅 폼 Webhook &rarr; Draft Order</span>
-      <span class="test-meta">2026-03-13 07:55 UTC | Exec #98492 <span class="test-status pass">PASS</span></span>
-    </div>
-    <div class="test-grid">
-      <div class="test-card">
-        <h5>폼 데이터 (Input)</h5>
-        <div class="test-row"><span class="test-key">이름</span><span class="test-val">Wonjin Choi</span></div>
-        <div class="test-row"><span class="test-key">이메일</span><span class="test-val">wj.choi@orbiters.co.kr</span></div>
-        <div class="test-row"><span class="test-key">전화번호</span><span class="test-val">+12135551234</span></div>
-        <div class="test-row"><span class="test-key">Instagram</span><span class="test-val">@wj_choi_test</span></div>
-        <div class="test-row"><span class="test-key">TikTok</span><span class="test-val">@wj_choi_test</span></div>
-        <div class="test-row"><span class="test-key">Webhook</span><span class="test-val">/webhook/wj-test-influencer-gifting</span></div>
-      </div>
-      <div class="test-card">
-        <h5>아기 정보 &rarr; 제품 선택</h5>
-        <div class="test-row"><span class="test-key">아이 이름</span><span class="test-val">Yuna</span></div>
-        <div class="test-row"><span class="test-key">생년월일</span><span class="test-val">2024-12-15</span></div>
-        <div class="test-row"><span class="test-key">월령</span><span class="test-val">14개월</span></div>
-        <div class="test-row"><span class="test-key">단계</span><span class="test-val">Stage 2 (12M+)</span></div>
-        <div class="test-row"><span class="test-key">제품 1</span><span class="test-val">PPSU Straw Cup Flip Top 10oz - Dinosaur ($28.70)</span></div>
-        <div class="test-row"><span class="test-key">제품 2</span><span class="test-val">PPSU Straw Cup Flip Top 6oz - Coral flower ($25.90)</span></div>
-        <div class="test-row"><span class="test-key">선택 기준</span><span class="test-val">14개월 = Stage 2 (12M+) &rarr; Flip Top 빨대컵</span></div>
-      </div>
-      <div class="test-card">
-        <h5>Shopify 고객</h5>
-        <div class="test-row"><span class="test-key">Action</span><span class="test-val">UPDATE (기존 고객)</span></div>
-        <div class="test-row"><span class="test-key">Customer ID</span><span class="test-val">7057180098882</span></div>
-        <div class="test-row"><span class="test-key">기존 태그</span><span class="test-val">influencer-gifting, PR, newsletter</span></div>
-        <div class="test-row"><span class="test-key">기존 주문</span><span class="test-val">3건</span></div>
-        <div class="test-row"><span class="test-key">Metafields</span><span class="test-val">influencer.instagram, .tiktok, .child_1_birthday, .submitted_at</span></div>
-      </div>
-      <div class="test-card">
-        <h5>Draft Order 생성</h5>
-        <div class="test-row"><span class="test-key">주문번호</span><span class="test-val">#D1484</span></div>
-        <div class="test-row"><span class="test-key">Draft ID</span><span class="test-val">1515675976050</span></div>
-        <div class="test-row"><span class="test-key">할인</span><span class="test-val">100% PR Gifting ($0.00)</span></div>
-        <div class="test-row"><span class="test-key">배송</span><span class="test-val">무료 &rarr; 5900 Katella Ave, Cypress CA 90630</span></div>
-        <div class="test-row"><span class="test-key">태그</span><span class="test-val">pr, influencer-gifting</span></div>
-        <div class="test-row"><span class="test-key">상태</span><span class="test-val">open (아직 미완료)</span></div>
-        <div class="test-row"><span class="test-key">생성일</span><span class="test-val">2026-03-13T00:55:58-07:00</span></div>
-      </div>
-      <div class="test-card full">
-        <h5>배송 주소 &amp; Airtable 업데이트</h5>
-        <div class="test-row"><span class="test-key">주소</span><span class="test-val">5900 Katella Ave, BLDG C, STE 100, Cypress, CA 90630, US</span></div>
-        <div class="test-row"><span class="test-key">주문 메모</span><span class="test-val">Influencer Gifting Application --- Instagram: @wj_choi_test, TikTok: @wj_choi_test, Child 1: 2024-12-15 (14개월)</span></div>
-        <div class="test-row"><span class="test-key">Airtable</span><span class="test-val">recX3M4AuAGKNr98l &rarr; Draft Order ID = 1515675976050</span></div>
-      </div>
-    </div>
-    <div class="test-note">
-      <strong>Notes:</strong> 첫 webhook 시도 실패 ("No products selected") &mdash; 폼 페이로드에 <code>selected_products</code> 배열 누락.
-      실제 Shopify variant ID로 제품 배열 추가하여 해결. 배송 주소는 <code>street</code>/<code>apt</code> 키 사용 (<code>address1</code>/<code>address2</code> 아님).
-      고객이 이미 존재(ID 7057180098882)하여 생성 대신 업데이트.
     </div>
   </div>
 
@@ -562,46 +338,43 @@ What do I need to do next?</div>
     <div class="flow-header">
       <div class="flow-num">3</div>
       <div class="flow-info">
-        <h2>크리에이터 프로필 등록</h2>
-        <p>인플루언서가 상세 프로필(플랫폼, 팔로워 규모, 컨텐츠 유형) 등록</p>
-        <div class="flow-links">
-          <a class="flow-link" href="https://onzenna.com/pages/creator-profile" target="_blank">Creator Profile 폼</a>
-        </div>
+        <h2>Creator Profile Registration</h2>
+        <p>Influencer registers detailed profile (platform, follower count, content type)</p>
       </div>
-      <div class="flow-status pass">PASS 5/5</div>
+      <div class="flow-status pass">PASS</div>
     </div>
     <div class="journey">
       <div class="step">
         <div class="step-icon human">&#128221;</div>
         <div class="step-content">
           <div class="step-label human">&#9998; Human in the Loop</div>
-          <div class="step-title">크리에이터 프로필 폼 작성</div>
-          <div class="step-desc"><a href="https://onzenna.com/pages/creator-profile" target="_blank">onzenna.com/pages/creator-profile</a> 에서 상세 정보 입력</div>
+          <div class="step-title">Creator Fills Out Profile Form</div>
+          <div class="step-desc">Detailed info submitted at <a href="https://onzenna.com/pages/creator-profile" target="_blank">onzenna.com/pages/creator-profile</a></div>
           <div class="data-box">
-            <h4>&#128203; 크리에이터가 추가 입력하는 정보</h4>
-            <div class="data-row"><span class="data-key">주 플랫폼</span><span class="data-val">Instagram / TikTok / YouTube</span></div>
-            <div class="data-row"><span class="data-key">팔로워 규모</span><span class="data-val">1K~10K / 10K~50K / 50K+ 등</span></div>
-            <div class="data-row"><span class="data-key">컨텐츠 유형</span><span class="data-val">제품 리뷰, 라이프스타일, 언박싱 등</span></div>
-            <div class="data-row"><span class="data-key">해시태그</span><span class="data-val">사용 중인 해시태그 목록</span></div>
+            <h4>Additional Profile Fields</h4>
+            <div class="data-row"><span class="data-key">Primary Platform</span><span class="data-val">Instagram / TikTok / YouTube</span></div>
+            <div class="data-row"><span class="data-key">Follower Range</span><span class="data-val">1K-10K / 10K-50K / 50K+ etc.</span></div>
+            <div class="data-row"><span class="data-key">Content Type</span><span class="data-val">Product review, lifestyle, unboxing, etc.</span></div>
+            <div class="data-row"><span class="data-key">Hashtags</span><span class="data-val">Frequently used hashtags</span></div>
           </div>
-          <div class="result-badge pass">&#10003; 폼 제출 성공</div>
+          <div class="result-badge pass">&#10003; Form submitted</div>
         </div>
       </div>
       <div class="step">
         <div class="step-icon auto">&#128202;</div>
         <div class="step-content">
-          <div class="step-label auto">&#9889; 자동 저장</div>
-          <div class="step-title">Airtable 프로필 저장 + IG 스크래핑</div>
-          <div class="step-desc">프로필 정보를 CRM에 저장하고, IG 공개 메트릭 수집 시도</div>
-          <div class="result-badge pass">&#10003; Airtable 저장 + IG 데이터 확인됨</div>
+          <div class="step-label auto">&#9889; Auto Save</div>
+          <div class="step-title">Airtable Profile Save + IG Metrics Scrape</div>
+          <div class="step-desc">Profile data saved to CRM, public Instagram metrics collected automatically</div>
+          <div class="result-badge pass">&#10003; Airtable saved + IG data verified</div>
         </div>
       </div>
       <div class="step">
         <div class="step-icon human">&#128270;</div>
         <div class="step-content">
           <div class="step-label human">&#9998; Human in the Loop</div>
-          <div class="step-title">팀 리뷰 &rarr; Accepted / Declined 결정</div>
-          <div class="step-desc">Airtable에서 신청자 프로필 검토 후 Outreach Status를 "Accepted" 또는 "Declined"로 변경</div>
+          <div class="step-title">Team Review &rarr; Accept or Decline</div>
+          <div class="step-desc">Team reviews applicant profile in Airtable, sets Outreach Status to "Accepted" or "Declined"</div>
         </div>
       </div>
     </div>
@@ -612,27 +385,22 @@ What do I need to do next?</div>
     <div class="flow-header">
       <div class="flow-num">4</div>
       <div class="flow-info">
-        <h2>샘플 요청 (Gifting2)</h2>
-        <p>Accepted &rarr; 자동 이메일 &rarr; 크리에이터가 샘플 폼 작성 &rarr; Draft Order 자동 생성</p>
-        <div class="flow-links">
-          <a class="flow-link" href="https://onzenna.com/pages/influencer-gifting2" target="_blank">Gifting2 폼 페이지</a>
-          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/KqICsN9F1mPwnAQ9" target="_blank">n8n: Gifting2 (Prod)</a>
-        </div>
+        <h2>Sample Request</h2>
+        <p>Accepted &rarr; auto email &rarr; creator selects sample products &rarr; Draft Order auto-created</p>
       </div>
-      <div class="flow-status pass">PASS 5/5</div>
+      <div class="flow-status pass">PASS</div>
     </div>
     <div class="journey">
       <div class="step">
         <div class="step-icon auto">&#128231;</div>
         <div class="step-content">
-          <div class="step-label auto">&#9889; 자동 이메일 (3분 폴링)</div>
-          <div class="step-title">수락 이메일 자동 발송</div>
-          <div class="step-desc">n8n이 Airtable에서 "Accepted" 상태 감지 &rarr; affiliates@onzenna.com에서 샘플 폼 링크 이메일 자동 발송</div>
+          <div class="step-label auto">&#9889; Auto Email (3-min polling)</div>
+          <div class="step-title">Acceptance Email Sent Automatically</div>
+          <div class="step-desc">n8n detects "Accepted" status in Airtable &rarr; sends sample form link email from affiliates@onzenna.com</div>
           <div class="data-box">
-            <h4>수락 이메일 내용</h4>
-            <div class="data-row"><span class="data-key">발신</span><span class="data-val">affiliates@onzenna.com (Gmail OAuth)</span></div>
-            <div class="data-row"><span class="data-key">내용</span><span class="data-val">축하 메시지 + 샘플 제품 선택 폼 링크</span></div>
-            <div class="data-row"><span class="data-key">Setup</span><span class="data-val"><a href="#">setup_n8n_accepted_email.py</a></span></div>
+            <h4>Acceptance Email</h4>
+            <div class="data-row"><span class="data-key">From</span><span class="data-val">affiliates@onzenna.com (Gmail OAuth)</span></div>
+            <div class="data-row"><span class="data-key">Content</span><span class="data-val">Congratulations message + sample product selection form link</span></div>
           </div>
         </div>
       </div>
@@ -640,24 +408,24 @@ What do I need to do next?</div>
         <div class="step-icon human">&#128221;</div>
         <div class="step-content">
           <div class="step-label human">&#9998; Human in the Loop</div>
-          <div class="step-title">크리에이터가 샘플 폼 작성</div>
-          <div class="step-desc">이메일 링크에서 배송지 + 제품/컬러 선택 후 제출</div>
-          <div class="result-badge pass">&#10003; 폼 제출 성공</div>
+          <div class="step-title">Creator Fills Out Sample Form</div>
+          <div class="step-desc">Selects shipping address + product/color preferences from the emailed link</div>
+          <div class="result-badge pass">&#10003; Form submitted</div>
         </div>
       </div>
       <div class="step">
         <div class="step-icon auto">&#128230;</div>
         <div class="step-content">
-          <div class="step-label auto">&#9889; 자동 처리</div>
-          <div class="step-title">Shopify Customer + 100% 할인 Draft Order 생성</div>
-          <div class="step-desc">n8n Gifting2 webhook &rarr; Customer 생성/조회 &rarr; Draft Order (무료) &rarr; Airtable 업데이트</div>
+          <div class="step-label auto">&#9889; Auto Processing</div>
+          <div class="step-title">Shopify Customer + 100% Discount Draft Order</div>
+          <div class="step-desc">n8n webhook &rarr; create/find customer &rarr; Draft Order (free) &rarr; Airtable update</div>
           <div class="data-box">
-            <h4>처리 결과</h4>
-            <div class="data-row"><span class="data-key">고객</span><span class="data-val">Shopify Customer (tags: inbound-onz, influencer-gifting, PR)</span></div>
+            <h4>Processing Result</h4>
+            <div class="data-row"><span class="data-key">Customer</span><span class="data-val">Shopify customer (tags: inbound-onz, influencer-gifting, PR)</span></div>
             <div class="data-row"><span class="data-key">Draft Order</span><span class="data-val">100% PR Discount &rarr; $0.00</span></div>
-            <div class="data-row"><span class="data-key">Airtable</span><span class="data-val">Status &rarr; Sample Form Completed, Draft Order ID 기록</span></div>
+            <div class="data-row"><span class="data-key">Airtable</span><span class="data-val">Status &rarr; Sample Form Completed, Draft Order ID logged</span></div>
           </div>
-          <div class="result-badge pass">&#10003; Draft Order + Airtable 업데이트 완료</div>
+          <div class="result-badge pass">&#10003; Draft Order + Airtable update complete</div>
         </div>
       </div>
     </div>
@@ -669,31 +437,27 @@ What do I need to do next?</div>
       <div class="flow-num poll-num">5</div>
       <div class="flow-info">
         <h2>Sample Sent &rarr; Order Complete</h2>
-        <p>팀이 "Sample Sent" 변경 &rarr; n8n 5분 폴링 &rarr; Draft Order 자동 완료</p>
-        <div class="flow-links">
-          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/m89xU9RUbPgnkBy8" target="_blank">n8n: Sample Sent (Prod)</a>
-          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/Vd5NiKMwdLT7b9wa" target="_blank">n8n: Sample Sent (WJ TEST)</a>
-        </div>
+        <p>Team marks "Sample Sent" &rarr; n8n 5-min polling &rarr; Draft Order auto-completed</p>
       </div>
-      <div class="flow-status auto-status">AUTO (5분 폴링)</div>
+      <div class="flow-status auto-status">AUTO (5-min polling)</div>
     </div>
     <div class="journey">
       <div class="step">
         <div class="step-icon human">&#128230;</div>
         <div class="step-content">
           <div class="step-label human">&#9998; Human in the Loop</div>
-          <div class="step-title">팀이 Airtable에서 "Sample Sent" 상태로 변경</div>
-          <div class="step-desc">실제 샘플을 포장/발송 후 Airtable Outreach Status를 수동으로 변경</div>
+          <div class="step-title">Team Marks "Sample Sent" in Airtable</div>
+          <div class="step-desc">After physically packing and shipping the sample, team manually updates Outreach Status</div>
         </div>
       </div>
       <div class="step">
         <div class="step-icon poll">&#128260;</div>
         <div class="step-content">
-          <div class="step-label poll">&#128337; 5분마다 자동 감시</div>
-          <div class="step-title">n8n이 "Sample Sent" 감지 &rarr; Draft Order Complete</div>
+          <div class="step-label poll">&#128337; Every 5 Minutes</div>
+          <div class="step-title">n8n Detects "Sample Sent" &rarr; Completes Draft Order</div>
           <div class="data-box">
-            <h4>자동 처리 흐름</h4>
-            <div class="data-row"><span class="data-key">1. Poll</span><span class="data-val">Airtable: Status = "Sample Sent" 필터링</span></div>
+            <h4>Auto Processing Flow</h4>
+            <div class="data-row"><span class="data-key">1. Poll</span><span class="data-val">Airtable: filter Status = "Sample Sent"</span></div>
             <div class="data-row"><span class="data-key">2. Complete</span><span class="data-val">Shopify: POST /draft_orders/{id}/complete.json</span></div>
             <div class="data-row"><span class="data-key">3. Update</span><span class="data-val">Airtable: Status &rarr; "Sample Shipped"</span></div>
           </div>
@@ -708,22 +472,19 @@ What do I need to do next?</div>
       <div class="flow-num poll-num">6</div>
       <div class="flow-info">
         <h2>Shipped &rarr; Delivered Detection</h2>
-        <p>n8n 30분 폴링: Shopify fulfillment 배송 완료 자동 감지</p>
-        <div class="flow-links">
-          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/2vsXyHtjo79hnFoD" target="_blank">n8n: Shipped&rarr;Delivered (WJ TEST)</a>
-        </div>
+        <p>n8n 30-min polling: auto-detects Shopify fulfillment delivery status</p>
       </div>
-      <div class="flow-status auto-status">AUTO (30분 폴링)</div>
+      <div class="flow-status auto-status">AUTO (30-min polling)</div>
     </div>
     <div class="journey">
       <div class="step">
         <div class="step-icon poll">&#128666;</div>
         <div class="step-content">
-          <div class="step-label poll">&#128337; 30분마다 자동 감시</div>
-          <div class="step-title">Shopify 배송 추적 &rarr; 배송 완료 감지</div>
+          <div class="step-label poll">&#128337; Every 30 Minutes</div>
+          <div class="step-title">Shopify Tracking &rarr; Delivery Detection</div>
           <div class="data-box">
-            <h4>자동 처리 흐름</h4>
-            <div class="data-row"><span class="data-key">1. Check</span><span class="data-val">Shopify: fulfillment_status 조회</span></div>
+            <h4>Auto Processing Flow</h4>
+            <div class="data-row"><span class="data-key">1. Check</span><span class="data-val">Shopify: query fulfillment_status</span></div>
             <div class="data-row"><span class="data-key">2. Detect</span><span class="data-val">IF status = "delivered"</span></div>
             <div class="data-row"><span class="data-key">3. Update</span><span class="data-val">Airtable: Status &rarr; "Sample Delivered" + Delivered Date</span></div>
           </div>
@@ -737,28 +498,25 @@ What do I need to do next?</div>
     <div class="flow-header">
       <div class="flow-num" style="background:#06b6d4;">6.5</div>
       <div class="flow-info">
-        <h2>Content Guideline 이메일 발송</h2>
-        <p>배송 완료 감지 직후 &rarr; 브랜드별 컨텐츠 가이드라인 PDF + 해시태그/태그 요구사항 이메일 자동 발송</p>
-        <div class="flow-links">
-          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/2vsXyHtjo79hnFoD" target="_blank">n8n: Delivery Email (WJ TEST)</a>
-        </div>
+        <h2>Content Guideline Email</h2>
+        <p>Immediately after delivery detection &rarr; sends brand-specific content guidelines PDF + hashtag/tag requirements</p>
       </div>
-      <div class="flow-status auto-status">AUTO (배송 후 즉시)</div>
+      <div class="flow-status auto-status">AUTO (post-delivery)</div>
     </div>
     <div class="journey">
       <div class="step">
         <div class="step-icon auto">&#128231;</div>
         <div class="step-content">
-          <div class="step-label auto">&#9889; 자동 이메일</div>
-          <div class="step-title">Content Guideline PDF + 촬영 요구사항 발송</div>
-          <div class="step-desc">"Sample Delivered" 감지 직후 affiliates@onzenna.com에서 자동 발송</div>
+          <div class="step-label auto">&#9889; Auto Email</div>
+          <div class="step-title">Content Guideline PDF + Shooting Requirements</div>
+          <div class="step-desc">Sent automatically from affiliates@onzenna.com right after "Sample Delivered" is detected</div>
           <div class="data-box">
-            <h4>이메일 내용</h4>
-            <div class="data-row"><span class="data-key">제목</span><span class="data-val">"Your [Brand] sample has been delivered! Here are your content guidelines"</span></div>
-            <div class="data-row"><span class="data-key">PDF 첨부</span><span class="data-val">Grosmimi Content Guidelines.pdf / CHA&amp;MOM Guidelines.pdf (브랜드별)</span></div>
-            <div class="data-row"><span class="data-key">촬영 요구</span><span class="data-val">30초 영상, 보이스오버, 자막 포함</span></div>
-            <div class="data-row"><span class="data-key">필수 태그</span><span class="data-val">@onzenna + #Grosmimi #PPSUbabybottle (브랜드별 자동 생성)</span></div>
-            <div class="data-row"><span class="data-key">데드라인</span><span class="data-val">배송 후 14일 이내</span></div>
+            <h4>Email Content</h4>
+            <div class="data-row"><span class="data-key">Subject</span><span class="data-val">"Your [Brand] sample has been delivered! Here are your content guidelines"</span></div>
+            <div class="data-row"><span class="data-key">PDF Attachment</span><span class="data-val">Grosmimi Content Guidelines.pdf / CHA&amp;MOM Guidelines.pdf (per brand)</span></div>
+            <div class="data-row"><span class="data-key">Requirements</span><span class="data-val">30-second video, voiceover, subtitles</span></div>
+            <div class="data-row"><span class="data-key">Required Tags</span><span class="data-val">@onzenna + #Grosmimi #PPSUbabybottle (auto-generated per brand)</span></div>
+            <div class="data-row"><span class="data-key">Deadline</span><span class="data-val">14 days after delivery</span></div>
           </div>
         </div>
       </div>
@@ -770,183 +528,172 @@ What do I need to do next?</div>
     <div class="flow-header">
       <div class="flow-num green-num">7</div>
       <div class="flow-info">
-        <h2>Delivered &rarr; Posted Detection</h2>
-        <p>n8n 6시간 폴링: Syncly D+60 트래커에서 컨텐츠 게시 자동 감지</p>
-        <div class="flow-links">
-          <a class="flow-link" href="https://n8n.orbiters.co.kr/workflow/82t55jurzbY3iUM4" target="_blank">n8n: Posted Detection (WJ TEST)</a>
-          <a class="flow-link" href="https://docs.google.com/spreadsheets/d/1bOXrARt8wx_YeKyXMlAS1nKzkZBypeaSilI6xDg4_Tc" target="_blank">D+60 Tracker Sheet</a>
-        </div>
+        <h2>Delivered &rarr; Content Posted Detection</h2>
+        <p>n8n 6-hour polling: scans Syncly D+60 tracker for new content posts by the influencer</p>
       </div>
-      <div class="flow-status auto-status">AUTO (6시간 폴링)</div>
+      <div class="flow-status auto-status">AUTO (6-hr polling)</div>
     </div>
     <div class="journey">
       <div class="step">
         <div class="step-icon human">&#128247;</div>
         <div class="step-content">
           <div class="step-label human">&#9998; Human in the Loop</div>
-          <div class="step-title">인플루언서가 컨텐츠 촬영 &amp; SNS 게시</div>
-          <div class="step-desc">가이드라인에 따라 제품 리뷰 영상/사진을 Instagram/TikTok에 게시</div>
+          <div class="step-title">Influencer Films &amp; Posts Content</div>
+          <div class="step-desc">Following the guidelines, creator posts a product review video/photo on Instagram or TikTok</div>
         </div>
       </div>
       <div class="step">
         <div class="step-icon poll">&#128269;</div>
         <div class="step-content">
-          <div class="step-label poll">&#128337; 6시간마다 자동 감시</div>
-          <div class="step-title">Syncly D+60 트래커 스캔 &rarr; 컨텐츠 게시 감지</div>
+          <div class="step-label poll">&#128337; Every 6 Hours</div>
+          <div class="step-title">Syncly D+60 Tracker Scan &rarr; Post Detection</div>
           <div class="data-box">
-            <h4>자동 처리 흐름</h4>
-            <div class="data-row"><span class="data-key">1. Scan</span><span class="data-val"><a href="https://docs.google.com/spreadsheets/d/1bOXrARt8wx_YeKyXMlAS1nKzkZBypeaSilI6xDg4_Tc" target="_blank">D+60 Tracker</a>: 인플루언서 핸들 검색</span></div>
+            <h4>Auto Processing Flow</h4>
+            <div class="data-row"><span class="data-key">1. Scan</span><span class="data-val">D+60 Tracker: search by influencer handle</span></div>
             <div class="data-row"><span class="data-key">2. Match</span><span class="data-val">IF handle found in new posts</span></div>
             <div class="data-row"><span class="data-key">3. Update</span><span class="data-val">Airtable: Status &rarr; "Posted" + Post URL + Metrics</span></div>
-            <div class="data-row"><span class="data-key">4. Track</span><span class="data-val">D+60 성과 추적 시작 (Views, Likes, Comments)</span></div>
+            <div class="data-row"><span class="data-key">4. Track</span><span class="data-val">Begin D+60 performance tracking (Views, Likes, Comments)</span></div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== n8n WORKFLOW STATUS ==================== -->
+  <!-- ==================== WORKFLOW STATUS ==================== -->
   <div class="summary-section" style="margin-top:48px; margin-bottom:0;">
-    <h3>n8n 워크플로우 현황 (WJ TEST)</h3>
-    <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">2026-03-13 기준 &middot; Docusign 제외 &middot; Production Creator Collab는 별도 관리</p>
+    <h3>n8n Workflow Status (Production)</h3>
+    <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">As of March 17, 2026</p>
     <table style="width:100%; border-collapse:collapse; font-size:13px;">
       <thead>
         <tr style="border-bottom:2px solid var(--border);">
-          <th style="text-align:left; padding:8px 6px; color:var(--text-dim); font-size:11px; text-transform:uppercase;">워크플로우</th>
-          <th style="text-align:center; padding:8px 6px; color:var(--text-dim); font-size:11px; text-transform:uppercase;">상태</th>
-          <th style="text-align:center; padding:8px 6px; color:var(--text-dim); font-size:11px; text-transform:uppercase;">AT 연결</th>
-          <th style="text-align:left; padding:8px 6px; color:var(--text-dim); font-size:11px; text-transform:uppercase;">비고</th>
+          <th style="text-align:left; padding:8px 6px; color:var(--text-dim); font-size:11px; text-transform:uppercase;">Stage</th>
+          <th style="text-align:left; padding:8px 6px; color:var(--text-dim); font-size:11px; text-transform:uppercase;">Workflow</th>
+          <th style="text-align:center; padding:8px 6px; color:var(--text-dim); font-size:11px; text-transform:uppercase;">Status</th>
+          <th style="text-align:left; padding:8px 6px; color:var(--text-dim); font-size:11px; text-transform:uppercase;">Notes</th>
         </tr>
       </thead>
       <tbody>
         <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/4q5NCzMb3nMGYqL4" target="_blank" style="color:var(--accent); text-decoration:none;">Gifting &rarr; Shopify Draft Order</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
-          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 2</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">0</td>
+          <td style="padding:8px 6px;">Daily Config Row</td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Google Sheets daily config</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/0q9uJUYTpDhQFMfz" target="_blank" style="color:var(--accent); text-decoration:none;">Outreach - Draft Generation</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
-          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 1 &mdash; Claude AI 이메일 생성</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">0</td>
+          <td style="padding:8px 6px;">Mode Switcher</td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Checks mode every 2 min</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/nVtYmhU0InRqRn4K" target="_blank" style="color:var(--accent); text-decoration:none;">Outreach - Reply Handler</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
-          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 1 &mdash; 응답 추적</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">1a</td>
+          <td style="padding:8px 6px;">Draft Generation</td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Claude AI email generation (30-min polling)</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/mmkBpmvhzbgmSayh" target="_blank" style="color:var(--accent); text-decoration:none;">Outreach - Approval Send</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
-          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 1 &mdash; 승인 후 발송</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">1b</td>
+          <td style="padding:8px 6px;">Approval Send</td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Checks approvals every 1 min</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/wyttsPSZJlWLgy86" target="_blank" style="color:var(--accent); text-decoration:none;">Customer Lookup</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
-          <td style="text-align:center; font-size:12px; color:var(--text-dim);">&mdash;</td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Shopify 전용 (AT 불필요)</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">1c</td>
+          <td style="padding:8px 6px;">Reply Handler</td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Detects replies every 1 min</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/Vd5NiKMwdLT7b9wa" target="_blank" style="color:var(--accent); text-decoration:none;">Sample Sent &rarr; Complete</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
-          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 5 &mdash; 5분 폴링</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">2</td>
+          <td style="padding:8px 6px;">Gifting Draft Order</td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Webhook &rarr; Shopify + Airtable</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/2vsXyHtjo79hnFoD" target="_blank" style="color:var(--accent); text-decoration:none;">Shipped &rarr; Delivered</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
-          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 6 &mdash; 30분 폴링</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">3</td>
+          <td style="padding:8px 6px;">Accepted Email</td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Polls Needs Review every 3 min</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/82t55jurzbY3iUM4" target="_blank" style="color:var(--accent); text-decoration:none;">Delivered &rarr; Posted</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
-          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 7 &mdash; 6시간 폴링</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">4</td>
+          <td style="padding:8px 6px;">Sample Request</td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Sample form &rarr; Draft Order</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/6BNQRz57oCtdROlH" target="_blank" style="color:var(--accent); text-decoration:none;">Syncly Data Processing</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
-          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 0 &mdash; 64 nodes</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">5</td>
+          <td style="padding:8px 6px;">Sample Sent Complete</td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">5-min polling</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/UP1OnpNEFN54AOUn" target="_blank" style="color:var(--accent); text-decoration:none;">Shopify Fulfillment &rarr; Airtable</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
-          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 5-6 보조</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">5-6</td>
+          <td style="padding:8px 6px;">Fulfillment Sync</td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Shopify fulfillment &rarr; Airtable</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/zKmOX0tEWi6EBT9h" target="_blank" style="color:var(--accent); text-decoration:none;">Content Tracking</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ON</span></td>
-          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Stage 7 보조</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">6</td>
+          <td style="padding:8px 6px;">Shipped &rarr; Delivered</td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">30-min polling</td>
         </tr>
-        <tr style="border-bottom:1px solid var(--border); background:#fef2f2;">
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/k08R16VJIuSPdi6T" target="_blank" style="color:var(--fail); text-decoration:none;">ManyChat Automation</a></td>
-          <td style="text-align:center;"><span style="background:#fee2e2; color:#dc2626; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">OFF</span></td>
-          <td style="text-align:center; color:var(--pass); font-size:12px;">WJ TEST</td>
-          <td style="padding:8px 6px; font-size:12px; color:#dc2626;">Manual trigger only &mdash; 자동 트리거 노드 없음</td>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">7</td>
+          <td style="padding:8px 6px;">Content Posted Detection</td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">6-hr polling via Syncly D+60</td>
         </tr>
-        <tr style="background:#fef2f2;">
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/CEWr3kQlDg07310Y" target="_blank" style="color:var(--fail); text-decoration:none;">Full Pipeline (통합)</a></td>
-          <td style="text-align:center;"><span style="background:#fee2e2; color:#dc2626; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">OFF</span></td>
-          <td style="text-align:center; font-size:12px; color:var(--text-dim);">&mdash;</td>
-          <td style="padding:8px 6px; font-size:12px; color:#dc2626;">executeCommand 노드 deprecated &mdash; httpRequest로 교체 필요</td>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">7</td>
+          <td style="padding:8px 6px;">Content Tracking</td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Content metrics collection</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">&mdash;</td>
+          <td style="padding:8px 6px;">Customer Lookup</td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Shopify customer search</td>
         </tr>
       </tbody>
     </table>
     <div style="margin-top:12px; font-size:12px; color:var(--text-dim); text-align:right;">
-      Docusign Contracting &mdash; low touch 모드에서 제외 (SKIP)
+      14 production workflows &middot; All passing
     </div>
   </div>
 
   <!-- ==================== SUMMARY ==================== -->
   <div class="summary-section">
-    <h3>전체 파이프라인 요약</h3>
+    <h3>Pipeline Summary</h3>
     <div class="summary-grid">
       <div class="summary-item">
         <div class="num blue">8</div>
-        <div class="label">전체 단계</div>
+        <div class="label">Total Stages</div>
       </div>
       <div class="summary-item">
-        <div class="num green">11</div>
-        <div class="label">활성 워크플로우</div>
+        <div class="num green">14</div>
+        <div class="label">Active Workflows</div>
       </div>
       <div class="summary-item">
         <div class="num" style="color:var(--human);">6</div>
         <div class="label">Human Touch Points</div>
       </div>
       <div class="summary-item">
-        <div class="num red">2</div>
-        <div class="label">비활성 (이슈)</div>
+        <div class="num" style="color:var(--auto);">8</div>
+        <div class="label">Fully Automated</div>
       </div>
     </div>
 
-    <div style="margin-top:24px; padding:16px; background:var(--bg); border-radius:10px;">
-      <h4 style="font-size:14px; margin-bottom:12px;">&#128161; 핵심 포인트</h4>
-      <div style="font-size:13px; line-height:1.8; color:var(--text-dim);">
-        <div><strong style="color:var(--pass);">Stage 2 (기프팅 신청)</strong> &mdash; 완벽 통과! 폼 &rarr; Shopify &rarr; Draft Order &rarr; Airtable &rarr; PG 전체 정상</div>
-        <div><strong style="color:var(--pass);">Stage 3 (크리에이터)</strong> &mdash; Airtable 저장 + IG 스크래핑 정상</div>
-        <div><strong style="color:var(--pass);">Stage 4 (샘플 요청)</strong> &mdash; 수락 이메일 &rarr; 샘플 폼 &rarr; Draft Order 전체 정상</div>
-        <div><strong style="color:var(--auto);">Stage 5-7</strong> &mdash; Polling 체인 (5분/30분/6시간) + Content Guideline 이메일 자동 발송</div>
-        <div><strong style="color:var(--accent);">Stage 0-1</strong> &mdash; Syncly 수집 + AI 아웃리치 파이프라인</div>
-        <div><strong style="color:var(--fail);">ManyChat</strong> &mdash; 수동 트리거 전용, 자동 활성화 불가</div>
-        <div><strong style="color:var(--fail);">Full Pipeline</strong> &mdash; executeCommand 노드 deprecated, httpRequest로 교체 필요</div>
-      </div>
-    </div>
-
-    <div style="margin-top:20px; padding:16px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px;">
-      <h4 style="font-size:14px; margin-bottom:12px;">&#128640; 전체 자동화 프로세스</h4>
+    <div style="margin-top:24px; padding:16px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px;">
+      <h4 style="font-size:14px; margin-bottom:12px;">End-to-End Automation Flow</h4>
       <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; justify-content:center;">
-        <span style="background:#f1f5f9; border:1px solid #cbd5e1; padding:6px 10px; border-radius:8px;">&#128269; Syncly 수집</span>
+        <span style="background:#f1f5f9; border:1px solid #cbd5e1; padding:6px 10px; border-radius:8px;">&#128269; Discovery</span>
         <span style="color:var(--text-dim);">&rarr;</span>
-        <span style="background:#f1f5f9; border:1px solid #cbd5e1; padding:6px 10px; border-radius:8px;">&#128231; 아웃리치</span>
+        <span style="background:#f1f5f9; border:1px solid #cbd5e1; padding:6px 10px; border-radius:8px;">&#128231; Outreach</span>
         <span style="color:var(--text-dim);">&rarr;</span>
-        <span style="background:var(--human-bg); border:1px solid var(--human-border); padding:6px 10px; border-radius:8px;">&#128221; 폼 작성</span>
+        <span style="background:var(--human-bg); border:1px solid var(--human-border); padding:6px 10px; border-radius:8px;">&#128221; Form</span>
         <span style="color:var(--text-dim);">&rarr;</span>
         <span style="background:var(--auto-bg); border:1px solid var(--auto-border); padding:6px 10px; border-radius:8px;">&#9881; n8n</span>
         <span style="color:var(--text-dim);">&rarr;</span>
@@ -956,26 +703,26 @@ What do I need to do next?</div>
         <span style="color:var(--text-dim);">&darr;</span>
       </div>
       <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; justify-content:center; margin-top:4px;">
-        <span style="background:var(--poll-bg); border:1px solid var(--poll-border); padding:6px 10px; border-radius:8px;">&#128260; 5분 폴링</span>
+        <span style="background:var(--poll-bg); border:1px solid var(--poll-border); padding:6px 10px; border-radius:8px;">&#128260; 5-min poll</span>
         <span style="color:var(--text-dim);">&rarr;</span>
-        <span style="background:var(--poll-bg); border:1px solid var(--poll-border); padding:6px 10px; border-radius:8px;">&#128666; 30분 폴링</span>
+        <span style="background:var(--poll-bg); border:1px solid var(--poll-border); padding:6px 10px; border-radius:8px;">&#128666; 30-min poll</span>
         <span style="color:var(--text-dim);">&rarr;</span>
         <span style="background:var(--auto-bg); border:1px solid var(--auto-border); padding:6px 10px; border-radius:8px;">&#128231; Guideline</span>
         <span style="color:var(--text-dim);">&rarr;</span>
-        <span style="background:var(--human-bg); border:1px solid var(--human-border); padding:6px 10px; border-radius:8px;">&#128247; 촬영</span>
+        <span style="background:var(--human-bg); border:1px solid var(--human-border); padding:6px 10px; border-radius:8px;">&#128247; Filming</span>
         <span style="color:var(--text-dim);">&rarr;</span>
-        <span style="background:var(--poll-bg); border:1px solid var(--poll-border); padding:6px 10px; border-radius:8px;">&#128269; 6시간 감지</span>
+        <span style="background:var(--poll-bg); border:1px solid var(--poll-border); padding:6px 10px; border-radius:8px;">&#128269; 6-hr detect</span>
         <span style="color:var(--text-dim);">&rarr;</span>
         <span style="background:var(--store-bg); border:1px solid var(--store-border); padding:6px 10px; border-radius:8px;">&#10004; Posted</span>
       </div>
       <div style="text-align:center; margin-top:10px; font-size:12px; color:var(--text-dim);">
-        사람은 폼 작성 + 리뷰 + 촬영만 &mdash; 나머지는 전부 자동
+        Humans only handle form submissions + review + filming &mdash; everything else is fully automated
       </div>
     </div>
   </div>
 
   <div class="footer">
-    Creator Collab Pipeline &middot; ORBI WAT Framework &middot; Generated 2026-03-13
+    Creator Collab Pipeline &middot; Onzenna &middot; Updated March 2026
   </div>
 
 </div>
