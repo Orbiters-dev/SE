@@ -59,13 +59,14 @@ def load_dashboard_config() -> dict:
 
 
 def _get_tier_number(tier_str: str) -> int:
-    """Map human-readable tier string to tier number (1-4)."""
+    """Map human-readable tier string to tier number (1-4).
+    Tier labels: 10 No-brainer, 8/7 Strong, 6/5 Optimize/Moderate, 1 Monitor"""
     t = tier_str.lower()
     if "no-brainer" in t or "no brainer" in t or "10" in t:
         return 1
-    if "strong" in t or "8" in t:
+    if "strong" in t or "7" in t or "8" in t:
         return 2
-    if "moderate" in t or "5" in t:
+    if "optimize" in t or "moderate" in t or "5" in t or "6" in t:
         return 3
     return 4  # monitor
 
@@ -132,7 +133,7 @@ ROAS_RULES = [
     (1.0,  1.5,  "reduce_bid",      -30,  None, "urgent"),
     (1.5,  2.0,  "reduce_bid",      -15,  None, "high"),
     (2.0,  2.5,  "optimize",        -10,  None, "medium"),    # Not just monitor -- fine-tune bids
-    (2.5,  3.0,  "optimize",        None, None, "medium"),    # Close to target, optimize keywords
+    (2.5,  3.0,  "optimize",        -5,   None, "medium"),    # Close to target, small bid reduction
     (3.0,  5.0,  "increase_budget", None, +20,  "medium"),
     (5.0,  None, "increase_budget", +10,  +30,  "high"),
 ]
@@ -2204,7 +2205,7 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
             campaign_entry.get("bid_change_pct")
             or (campaign_entry.get("new_daily_budget") and
                 campaign_entry["new_daily_budget"] != campaign_entry["currentDailyBudget"])
-            or action in ("pause", "reduce_bid")
+            or action in ("pause", "reduce_bid", "optimize")
         )
         if action != "monitor" and not negligible and has_real_change:
             proposals.append(campaign_entry)

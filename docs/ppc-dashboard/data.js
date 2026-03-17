@@ -1,10 +1,10 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-17 00:59 PST",
+ "generated_pst": "2026-03-17 01:07 PST",
  "brands": {
   "grosmimi": {
    "dates": {
     "2026-03-14": {
-     "generated": "2026-03-17T00:59",
+     "generated": "2026-03-17T01:07",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -222,7 +222,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-15": {
-     "generated": "2026-03-17T00:59",
+     "generated": "2026-03-17T01:07",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -440,7 +440,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-17": {
-     "generated": "2026-03-17T00:59",
+     "generated": "2026-03-17T01:07",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -466,7 +466,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "10 No-Brainer",
        "reason": "[SD] 7d ROAS 0x (ACOS None%) | 30d ROAS 0.0x | target ACOS 35.0% | ",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SD_stage2cup",
@@ -484,7 +484,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "10 No-Brainer",
        "reason": "[SD] 7d ROAS 0x (ACOS None%) | 30d ROAS 0.0x | target ACOS 35.0% | ",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_ppsu_auto",
@@ -502,7 +502,7 @@ const PPC_DATA = {
        "bud_after": 195.0,
        "tier": "8 Strong",
        "reason": "[AUTO] 7d ROAS 9.23x (ACOS 10.8%) | 30d ROAS 7.7x | target ACOS 30.0% | 7d vs 30d: +19.9%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_all_auto",
@@ -520,7 +520,7 @@ const PPC_DATA = {
        "bud_after": 13.0,
        "tier": "8 Strong",
        "reason": "[AUTO] 7d ROAS 44.51x (ACOS 2.2%) | 30d ROAS 40.36x | target ACOS 30.0% | 7d vs 30d: +10.3%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_Fliptop_defensive",
@@ -538,7 +538,7 @@ const PPC_DATA = {
        "bud_after": 360.0,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 17.1x (ACOS 5.8%) | 30d ROAS 18.46x | target ACOS 20.0% | 7d vs 30d: -7.4%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_stage1_6_defensive",
@@ -556,7 +556,7 @@ const PPC_DATA = {
        "bud_after": 130.0,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 18.76x (ACOS 5.3%) | 30d ROAS 21.34x | target ACOS 20.0% | 7d vs 30d: -12.1%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_stage1_10_defensive",
@@ -574,7 +574,7 @@ const PPC_DATA = {
        "bud_after": 130.0,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 21.86x (ACOS 4.6%) | 30d ROAS 23.87x | target ACOS 20.0% | 7d vs 30d: -8.4%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_Replacements_defensive",
@@ -592,7 +592,7 @@ const PPC_DATA = {
        "bud_after": 130.0,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 31.84x (ACOS 3.1%) | 30d ROAS 32.8x | target ACOS 20.0% | 7d vs 30d: -2.9%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_stage1_keyword",
@@ -610,7 +610,7 @@ const PPC_DATA = {
        "bud_after": 260.0,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 9.25x (ACOS 10.8%) | 30d ROAS 9.31x | target ACOS 20.0% | 7d vs 30d: -0.6%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_flip top_manual",
@@ -628,7 +628,7 @@ const PPC_DATA = {
        "bud_after": 360.0,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 5.83x (ACOS 17.1%) | 30d ROAS 5.77x | target ACOS 20.0% | 7d vs 30d: +1.0%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_knotted_manual",
@@ -646,7 +646,7 @@ const PPC_DATA = {
        "bud_after": 360.0,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 8.74x (ACOS 11.4%) | 30d ROAS 8.89x | target ACOS 20.0% | 7d vs 30d: -1.7%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_ppsu_manual",
@@ -699,7 +699,7 @@ const PPC_DATA = {
   "naeiae": {
    "dates": {
     "2026-03-14": {
-     "generated": "2026-03-17T00:59",
+     "generated": "2026-03-17T01:07",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -755,7 +755,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-15": {
-     "generated": "2026-03-17T00:59",
+     "generated": "2026-03-17T01:07",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -793,7 +793,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-17": {
-     "generated": "2026-03-17T00:59",
+     "generated": "2026-03-17T01:07",
      "executed": true,
      "executed_at": "2026-03-08",
      "summary_7d": {
@@ -814,54 +814,18 @@ const PPC_DATA = {
        "cpc": 0.8,
        "ctr": 0.34,
        "action": "optimize",
-       "bid_pct": null,
+       "bid_pct": -5,
        "bud_before": 80.0,
        "bud_after": null,
        "tier": "6 Optimize",
        "reason": "[AUTO] 7d ROAS 2.69x (ACOS 37.2%) | 30d ROAS 2.85x | 7d vs 30d: -5.6%\nOptimization: ACOS 37.2% exceeds target 35.0% by 2.2pp -> bid -10% | CTR 0.34% is low -> review listing images, titles, pricing",
-       "approved": false
-      },
-      {
-       "name": "Naeiae Rice Pop - SP - Manual",
-       "type": "MANUAL",
-       "ad_type": "SP",
-       "roas7d": 4.72,
-       "acos7d": 21.2,
-       "spend7d": 219,
-       "sales7d": 1033,
-       "cpc": 0.96,
-       "ctr": 0.78,
-       "action": "increase_budget",
-       "bid_pct": null,
-       "bud_before": 75.0,
-       "bud_after": 75.0,
-       "tier": "7 Strong",
-       "reason": "[MANUAL] 7d ROAS 4.72x (ACOS 21.2%) | 30d ROAS 3.08x | target ACOS 25.0% | 7d vs 30d: +53.2%",
-       "approved": false
-      },
-      {
-       "name": "Naeiae Rice Pop - SB - Manual",
-       "type": "SB",
-       "ad_type": "SB",
-       "roas7d": 0,
-       "acos7d": 0,
-       "spend7d": 0,
-       "sales7d": 0,
-       "cpc": 0,
-       "ctr": 0,
-       "action": "monitor",
-       "bid_pct": null,
-       "bud_before": 0.0,
-       "bud_after": null,
-       "tier": "1 Monitor",
-       "reason": "[SB] 7d ROAS 0x (ACOS None%) | 30d ROAS 0x | target ACOS 30.0% | ",
        "approved": false
       }
      ],
      "harvest": [],
      "negate": [],
      "counts": {
-      "campaigns": 3,
+      "campaigns": 1,
       "harvest": 0,
       "negate": 0
      }
@@ -1233,7 +1197,7 @@ const PPC_DATA = {
   "chaenmom": {
    "dates": {
     "2026-03-14": {
-     "generated": "2026-03-17T00:59",
+     "generated": "2026-03-17T01:07",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -1307,7 +1271,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-15": {
-     "generated": "2026-03-17T00:59",
+     "generated": "2026-03-17T01:07",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -1381,7 +1345,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-17": {
-     "generated": "2026-03-17T00:59",
+     "generated": "2026-03-17T01:07",
      "executed": true,
      "executed_at": "2026-03-14",
      "summary_7d": {
@@ -1407,7 +1371,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "10 No-Brainer",
        "reason": "[AUTO] 7d ROAS 0.0x (ACOS None%) | 30d ROAS 2.76x | target ACOS 40.0% | 7d vs 30d: -100.0%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "CHA&MOM_Cream_SP_Auto",
@@ -1456,7 +1420,7 @@ const PPC_DATA = {
        "cpc": 2.16,
        "ctr": 0.12,
        "action": "optimize",
-       "bid_pct": -20,
+       "bid_pct": -25,
        "bud_before": 50.0,
        "bud_after": null,
        "tier": "6 Optimize",
