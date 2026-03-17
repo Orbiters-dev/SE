@@ -2511,13 +2511,18 @@ def _get_collection_summary():
     stale = []
     for table, info in pg_status.items():
         latest = info.get("latest_date", "")
-        if latest and latest < yesterday:
-            days_behind = (pst_today - timedelta(days=1) - datetime.fromisoformat(latest).date() if isinstance(latest, str) else timedelta(0))
-            try:
-                days_behind = (datetime.fromisoformat(yesterday).date() - datetime.fromisoformat(latest).date()).days
-            except Exception:
-                days_behind = "?"
-            stale.append({"table": table, "latest": latest, "days_behind": days_behind})
+        if not latest:
+            continue
+        try:
+            # Handle week-range strings like "2026-03-07~2026-03-13"
+            date_str = latest.split("~")[-1].strip() if "~" in str(latest) else str(latest)
+            latest_date = datetime.fromisoformat(date_str).date()
+            yesterday_date = datetime.fromisoformat(yesterday).date()
+            if latest_date < yesterday_date:
+                days_behind = (yesterday_date - latest_date).days
+                stale.append({"table": table, "latest": latest, "days_behind": days_behind})
+        except Exception:
+            pass
 
     return {"pst_today": pst_today.isoformat(), "yesterday": yesterday,
             "cache": cache_status, "pg": pg_status, "stale": stale}

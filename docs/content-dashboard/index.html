@@ -580,6 +580,15 @@ function _pipelineData(){
 function renderPipelineKPI(){
   var el = document.getElementById('pipeline-inner');
 
+  // JP region: N/A placeholder
+  if(_region==='jp'){
+    el.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:300px;flex-direction:column;gap:12px">'
+      +'<div style="font-size:48px;opacity:.3">N/A</div>'
+      +'<div style="color:#888;font-size:14px">Japan Pipeline KPI data will be added later.</div>'
+      +'</div>';
+    return;
+  }
+
   // Sub-tab selector
   var subHtml='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">'
     +'<div style="font-size:14px;font-weight:800">Pipeline KPI</div>'

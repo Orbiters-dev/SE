@@ -1148,7 +1148,7 @@ async function fetchLiveMetrics(){
     var [adsRes, salesRes, campRes] = await Promise.all([
       fetch(API_BASE+'/query/?table=amazon_ads_daily&limit=10000&date_from='+d30s, {mode:'cors'}),
       fetch(API_BASE+'/query/?table=amazon_sales_daily&limit=5000&date_from='+d30s, {mode:'cors'}),
-      fetch(API_BASE+'/query/?table=amazon_campaigns&limit=500', {mode:'cors'}),
+      fetch(API_BASE+'/query/?table=amazon_campaigns&limit=2000', {mode:'cors'}),
     ]);
 
     if(!adsRes.ok || !salesRes.ok) throw new Error('API '+adsRes.status);
