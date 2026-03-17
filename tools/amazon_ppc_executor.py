@@ -2579,7 +2579,8 @@ def log_to_sheets(executed_changes: List[Dict], brand_key: str = "naeiae"):
 
 def save_proposal(proposals: List[Dict], profile_id: int,
                    keyword_proposals: Optional[List[Dict]] = None,
-                   brand_key: str = "naeiae"):
+                   brand_key: str = "naeiae",
+                   all_campaigns: Optional[List[Dict]] = None):
     cfg = BRAND_CONFIGS[brand_key]
     today_str = date.today().strftime("%Y%m%d")
     filepath = TMP_DIR / f"ppc_proposal_{brand_key}_{today_str}.json"
@@ -2594,6 +2595,7 @@ def save_proposal(proposals: List[Dict], profile_id: int,
         "total_proposals": len(proposals),
         "total_keyword_proposals": len(kw_props),
         "proposals": proposals,
+        "all_campaigns": all_campaigns or [],
         "keyword_proposals": kw_props,
         "instructions": (
             "Review each proposal. Set 'approved': true for items you want to execute. "
@@ -5454,7 +5456,7 @@ def run_propose_single(args, brand_key: str):
             print(f"  [AUTOPILOT] No items matched auto tier settings")
 
     # Always save and send -- even with 0 action proposals, the analysis is valuable
-    filepath = save_proposal(proposals, profile_id, kw_proposals, brand_key=brand_key)
+    filepath = save_proposal(proposals, profile_id, kw_proposals, brand_key=brand_key, all_campaigns=all_camps)
     if proposals:
         print_proposal_summary(proposals, brand_key=brand_key)
     if kw_proposals:

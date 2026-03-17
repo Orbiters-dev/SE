@@ -48,6 +48,9 @@ def load_proposals():
             # Support both list format (legacy) and dict format (new save_proposal)
             if isinstance(raw, dict):
                 data = raw.get("proposals", [])
+                # Fallback: if no action proposals, use all_campaigns (includes no-change)
+                if not data and raw.get("all_campaigns"):
+                    data = raw["all_campaigns"]
             elif isinstance(raw, list):
                 data = raw
             else:
