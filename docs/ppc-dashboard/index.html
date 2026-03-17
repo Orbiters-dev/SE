@@ -1164,10 +1164,12 @@ async function fetchLiveMetrics(){
     ['Grosmimi','Naeiae','CHA&MOM'].forEach(function(brand){
       var bk = brand.toLowerCase().replace('&','').replace(' ','');
       if(bk==='chamom') bk='chaenmom';
-      var ads7 = adsData.filter(function(r){return r.brand===brand && r.date>=d7s;});
-      var ads30 = adsData.filter(function(r){return r.brand===brand && r.date>=d30s;});
-      var sales7 = salesData.filter(function(r){return r.brand===brand && r.date>=d7s;});
-      var sales30 = salesData.filter(function(r){return r.brand===brand && r.date>=d30s;});
+      // Exclude today (partial day) — only use full completed days
+      var todayStr = new Date().toISOString().slice(0,10);
+      var ads7 = adsData.filter(function(r){return r.brand===brand && r.date>=d7s && r.date<todayStr;});
+      var ads30 = adsData.filter(function(r){return r.brand===brand && r.date>=d30s && r.date<todayStr;});
+      var sales7 = salesData.filter(function(r){return r.brand===brand && r.date>=d7s && r.date<todayStr;});
+      var sales30 = salesData.filter(function(r){return r.brand===brand && r.date>=d30s && r.date<todayStr;});
 
       var spend7=0,adSales7=0,spend30=0,adSales30=0,totSales7=0,totSales30=0;
       ads7.forEach(function(r){spend7+=+(r.spend||0);adSales7+=+(r.sales||0);});
