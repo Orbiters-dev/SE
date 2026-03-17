@@ -20,6 +20,9 @@ on:
         required: false
         default: ''
 
+permissions:
+  contents: write
+
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -35,7 +38,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install requests google-auth google-auth-oauthlib google-api-python-client
+        run: pip install requests python-dotenv google-auth google-auth-oauthlib google-api-python-client
 
       - name: Write credentials
         run: |
