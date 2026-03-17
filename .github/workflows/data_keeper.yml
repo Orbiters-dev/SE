@@ -2,9 +2,8 @@ name: Data Keeper - Daily Collection
 
 on:
   schedule:
-    - cron: '0 13 * * *'   # KST 22:00 (= UTC 13:00 = PST 5:00) - full daily (Amazon Ads 확정 후)
-    - cron: '0 2 * * *'    # KST 11:00 (= UTC 02:00 = PST 18:00) - midday refresh
-    - cron: '0 23 * * *'   # KST 8:00 AM (= UTC 23:00) - daily status email only
+    - cron: '0 8 * * *'    # PST 0:00 (= UTC 08:00 = KST 17:00) - night collection
+    - cron: '0 20 * * *'   # PST 12:00 (= UTC 20:00 = KST 05:00) - midday collection
   workflow_dispatch:         # manual trigger
     inputs:
       channel:
@@ -108,13 +107,13 @@ jobs:
         run: |
           CRON="${{ github.event.schedule }}"
           NOTIFY_ONLY="${{ github.event.inputs.notify_only || 'false' }}"
-          if [ "$CRON" = "0 23 * * *" ] || [ "$NOTIFY_ONLY" = "true" ]; then
+          if [ "$NOTIFY_ONLY" = "true" ]; then
             echo "notify_only=true" >> $GITHUB_OUTPUT
           else
             echo "notify_only=false" >> $GITHUB_OUTPUT
           fi
-          # KST 22:00 (UTC 13:00) = main daily → send full email to all@
-          if [ "$CRON" = "0 13 * * *" ]; then
+          # PST 0:00 (UTC 08:00) = night collection → send full email
+          if [ "$CRON" = "0 8 * * *" ]; then
             echo "is_daily=true" >> $GITHUB_OUTPUT
           else
             echo "is_daily=false" >> $GITHUB_OUTPUT
