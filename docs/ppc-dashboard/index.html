@@ -878,22 +878,43 @@ function renderCfgBrandPanel(bk) {
   if (lm && lm.spend7d) {
     var nDays = lm.days7d || 7;
     var avgDaily = Math.round(lm.spend7d / nDays);
-    var budgetCap = getCfgVal(bk, 'daily_budget', d.daily_budget || 0);
-    var util = budgetCap > 0 ? Math.round(avgDaily / budgetCap * 100) : 0;
-    var utilColor = util >= 80 ? 'var(--r)' : util >= 50 ? '#f59e0b' : 'var(--g)';
-    var barW = Math.min(util, 100);
+    var targetBudget = getCfgVal(bk, 'daily_budget', d.daily_budget || 0);
+    var campCap = lm.budgetCap || 0;
+    // Utilization vs campaign cap (Amazon-side limit)
+    var utilCap = campCap > 0 ? Math.round(avgDaily / campCap * 100) : 0;
+    var utilCapColor = utilCap >= 80 ? 'var(--r)' : utilCap >= 50 ? '#f59e0b' : 'var(--g)';
+    // Utilization vs our target
+    var utilTarget = targetBudget > 0 ? Math.round(avgDaily / targetBudget * 100) : 0;
+    var utilTargetColor = utilTarget >= 120 ? 'var(--r)' : utilTarget >= 80 ? '#f59e0b' : 'var(--g)';
+    var barCapW = Math.min(utilCap, 100);
+    var barTargetW = Math.min(utilTarget, 150);
     actualSpendHtml = '<div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:14px">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
         +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--dim);letter-spacing:.4px">📊 Actual vs Budget</div>'
         +'<div style="font-size:10px;color:var(--dim)">'+nDays+'d avg</div>'
       +'</div>'
-      +'<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">'
+      +'<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px">'
         +'<div style="font-size:22px;font-weight:800;font-family:var(--mono)">$'+fmtN(avgDaily)+'<span style="font-size:11px;color:var(--dim);font-weight:400">/day</span></div>'
-        +'<div style="font-size:11px;color:var(--dim)">of $'+fmtN(budgetCap)+' cap</div>'
-        +'<div style="font-size:11px;font-weight:700;color:'+utilColor+'">'+util+'% utilization</div>'
       +'</div>'
-      +'<div style="background:#e5e7eb;border-radius:4px;height:6px;overflow:hidden">'
-        +'<div style="background:'+utilColor+';height:100%;width:'+barW+'%;border-radius:4px;transition:width .3s"></div>'
+      // Campaign Cap bar
+      +'<div style="margin-bottom:6px">'
+        +'<div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px">'
+          +'<span style="color:var(--dim)">Campaign Cap <b style="font-family:var(--mono)">$'+fmtN(campCap)+'</b></span>'
+          +'<span style="font-weight:700;color:'+utilCapColor+'">'+utilCap+'%</span>'
+        +'</div>'
+        +'<div style="background:#e5e7eb;border-radius:4px;height:5px;overflow:hidden">'
+          +'<div style="background:'+utilCapColor+';height:100%;width:'+barCapW+'%;border-radius:4px;transition:width .3s"></div>'
+        +'</div>'
+      +'</div>'
+      // Target bar
+      +'<div>'
+        +'<div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px">'
+          +'<span style="color:var(--dim)">Our Target <b style="font-family:var(--mono)">$'+fmtN(targetBudget)+'</b></span>'
+          +'<span style="font-weight:700;color:'+utilTargetColor+'">'+utilTarget+'%</span>'
+        +'</div>'
+        +'<div style="background:#e5e7eb;border-radius:4px;height:5px;overflow:hidden">'
+          +'<div style="background:'+utilTargetColor+';height:100%;width:'+Math.min(barTargetW,100)+'%;border-radius:4px;transition:width .3s"></div>'
+        +'</div>'
       +'</div>'
     +'</div>';
   }
@@ -1126,15 +1147,17 @@ async function fetchLiveMetrics(){
     var d30s = d30.toISOString().slice(0,10);
 
     // Simple GET without Auth header → no CORS preflight needed
-    var [adsRes, salesRes] = await Promise.all([
+    var [adsRes, salesRes, campRes] = await Promise.all([
       fetch(API_BASE+'/query/?table=amazon_ads_daily&limit=10000&date_from='+d30s, {mode:'cors'}),
       fetch(API_BASE+'/query/?table=amazon_sales_daily&limit=5000&date_from='+d30s, {mode:'cors'}),
+      fetch(API_BASE+'/query/?table=amazon_campaigns&limit=500', {mode:'cors'}),
     ]);
 
     if(!adsRes.ok || !salesRes.ok) throw new Error('API '+adsRes.status);
 
     var adsData = (await adsRes.json()).rows || [];
     var salesData = (await salesRes.json()).rows || [];
+    var campData = campRes.ok ? ((await campRes.json()).rows || []) : [];
 
     // Compute live ACOS/TACOS per brand
     var liveBrands = {};
@@ -1157,6 +1180,11 @@ async function fetchLiveMetrics(){
       ads7.forEach(function(r){ if(r.date) dates7[r.date]=1; });
       var nDays7 = Math.max(Object.keys(dates7).length, 1);
 
+      // Sum ENABLED campaign budgets = Budget Cap (Amazon-side limit)
+      var campBudgetCap = 0;
+      campData.filter(function(c){return c.brand===brand && c.status==='ENABLED';})
+        .forEach(function(c){ campBudgetCap += +(c.budget||0); });
+
       liveBrands[bk] = {
         acos7d: adSales7>0 ? Math.round(spend7/adSales7*1000)/10 : 0,
         acos30d: adSales30>0 ? Math.round(spend30/adSales30*1000)/10 : 0,
@@ -1167,6 +1195,7 @@ async function fetchLiveMetrics(){
         spend7d: Math.round(spend7),
         sales7d: Math.round(adSales7),
         days7d: nDays7,
+        budgetCap: Math.round(campBudgetCap),
       };
     });
 
