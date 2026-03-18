@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-18 01:24 PST",
+ "generated_pst": "2026-03-18 01:36 PST",
  "through_date": "2026-03-16",
  "months": [
   "2025-06",
@@ -93,14 +93,14 @@ const FIN_DATA = {
    "amazon_revenue": 131201,
    "total_orders": 5900,
    "total_ad_spend": 23963,
-   "ad_attributed_sales": 67903,
-   "organic_revenue": 79901,
+   "ad_attributed_sales": 74926,
+   "organic_revenue": 72878,
    "gross_margin": 94202,
    "gm_pct": 63.7,
    "contribution_margin": 68417,
    "cm_pct": 46.3,
    "mer": 6.17,
-   "roas": 2.83,
+   "roas": 3.13,
    "discount_rate": 9.9
   },
   "30d": {
@@ -109,14 +109,14 @@ const FIN_DATA = {
    "amazon_revenue": 570999,
    "total_orders": 26771,
    "total_ad_spend": 123044,
-   "ad_attributed_sales": 376046,
-   "organic_revenue": 313934,
+   "ad_attributed_sales": 415175,
+   "organic_revenue": 274806,
    "gross_margin": 440754,
    "gm_pct": 63.9,
    "contribution_margin": 310396,
    "cm_pct": 45.0,
    "mer": 5.61,
-   "roas": 3.06,
+   "roas": 3.37,
    "discount_rate": 5.8
   },
   "mtd": {
@@ -125,14 +125,14 @@ const FIN_DATA = {
    "amazon_revenue": 331070,
    "total_orders": 15287,
    "total_ad_spend": 67361,
-   "ad_attributed_sales": 207680,
-   "organic_revenue": 178887,
+   "ad_attributed_sales": 226924,
+   "organic_revenue": 159644,
    "gross_margin": 245425,
    "gm_pct": 63.5,
    "contribution_margin": 173630,
    "cm_pct": 44.9,
    "mer": 5.74,
-   "roas": 3.08,
+   "roas": 3.37,
    "discount_rate": 7.4
   }
  },
@@ -512,28 +512,28 @@ const FIN_DATA = {
     22861
    ],
    "sales": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    18708,
+    23501,
+    39153,
+    42017,
+    32297,
+    35972,
+    29513,
+    37226,
+    32453,
+    9154
    ],
    "sales_proj": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    18708,
+    23501,
+    39153,
+    42017,
+    32297,
+    35972,
+    29513,
+    37226,
+    32453,
+    17736
    ],
    "impressions": [
     481818,
@@ -587,28 +587,28 @@ const FIN_DATA = {
     12753
    ],
    "sales": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    24251,
+    39573,
+    60199,
+    77665,
+    52756,
+    54925,
+    28010,
+    21556,
+    19551,
+    10089
    ],
    "sales_proj": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    24251,
+    39573,
+    60199,
+    77665,
+    52756,
+    54925,
+    28010,
+    21556,
+    19551,
+    19547
    ],
    "impressions": [
     906416,
@@ -661,78 +661,191 @@ const FIN_DATA = {
     108277
    ],
    "ad_sales": [
-    376893,
-    342566,
-    202852
+    406758,
+    366451,
+    216906
    ],
    "ad_sales_proj": [
-    376893,
-    342566,
-    393026
+    406758,
+    366451,
+    420255
    ],
    "organic": [
-    249131,
-    269326,
-    162488
+    219266,
+    245441,
+    148434
    ],
    "organic_proj": [
-    249131,
-    269326,
-    314820
+    219266,
+    245441,
+    287591
    ],
    "color": "#8b5cf6",
    "products": {
     "PPSU Straw Cup": {
-     "spend": [
+     "total_sales": [
       0,
-      52241,
-      34549
+      14749,
+      12874
+     ],
+     "total_sales_proj": [
+      0,
+      14749,
+      24943
+     ],
+     "spend": [
+      75309,
+      74914,
+      46744
      ],
      "sales": [
+      334211,
+      302424,
+      182608
+     ],
+     "organic": [
       0,
-      179900,
-      111944
+      0,
+      0
+     ],
+     "organic_proj": [
+      0,
+      0,
+      0
      ],
      "color": "#8b5cf6"
     },
-    "Flip Top Cup": {
+    "Stainless Straw Cup": {
+     "total_sales": [
+      0,
+      21327,
+      15730
+     ],
+     "total_sales_proj": [
+      0,
+      21327,
+      30477
+     ],
      "spend": [
       0,
-      19382,
-      12194
+      0,
+      0
      ],
      "sales": [
       0,
-      109906,
-      70665
+      0,
+      0
+     ],
+     "organic": [
+      0,
+      21327,
+      15730
+     ],
+     "organic_proj": [
+      0,
+      21327,
+      30477
      ],
      "color": "#a78bfa"
     },
-    "Replacements": {
+    "Tumbler": {
+     "total_sales": [
+      0,
+      11809,
+      6454
+     ],
+     "total_sales_proj": [
+      0,
+      11809,
+      12505
+     ],
      "spend": [
       0,
-      1107,
-      639
+      0,
+      0
      ],
      "sales": [
       0,
-      37705,
-      19759
+      0,
+      0
+     ],
+     "organic": [
+      0,
+      11809,
+      6454
+     ],
+     "organic_proj": [
+      0,
+      11809,
+      12505
      ],
      "color": "#c4b5fd"
     },
-    "Other": {
+    "Replacements": {
+     "total_sales": [
+      0,
+      3663,
+      2829
+     ],
+     "total_sales_proj": [
+      0,
+      3663,
+      5481
+     ],
      "spend": [
-      76511,
-      3496,
+      1169,
+      1164,
+      639
+     ],
+     "sales": [
+      41296,
+      39508,
+      19759
+     ],
+     "organic": [
+      0,
+      0,
+      0
+     ],
+     "organic_proj": [
+      0,
+      0,
+      0
+     ],
+     "color": "#ddd6fe"
+    },
+    "Other": {
+     "total_sales": [
+      0,
+      378,
+      329
+     ],
+     "total_sales_proj": [
+      0,
+      378,
+      637
+     ],
+     "spend": [
+      33,
+      148,
       11
      ],
      "sales": [
-      376893,
-      15054,
+      1387,
+      634,
       485
      ],
-     "color": "#ddd6fe"
+     "organic": [
+      0,
+      0,
+      0
+     ],
+     "organic_proj": [
+      0,
+      0,
+      0
+     ],
+     "color": "#e8e0ff"
     }
    }
   },
@@ -844,76 +957,76 @@ const FIN_DATA = {
     2401
    ],
    "ad_sales": [
-    0,
-    0,
-    0
+    500,
+    2271,
+    1050
    ],
    "ad_sales_proj": [
-    0,
-    0,
-    0
+    500,
+    2271,
+    2034
    ],
    "organic": [
-    6541,
-    15523,
-    5649
+    6041,
+    13252,
+    4599
    ],
    "organic_proj": [
-    6541,
-    15523,
-    10945
+    6041,
+    13252,
+    8911
    ],
    "color": "#f97316"
   }
  },
  "paid_organic": {
   "paid": [
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   224013,
-   387330,
-   351781,
-   207680
+   42958,
+   63075,
+   99352,
+   119681,
+   85053,
+   90896,
+   281536,
+   446112,
+   403786,
+   226924
   ],
   "paid_proj": [
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   224013,
-   387330,
-   351781,
-   402380
+   42958,
+   63075,
+   99352,
+   119681,
+   85053,
+   90896,
+   281536,
+   446112,
+   403786,
+   439665
   ],
   "organic": [
-   567576,
-   745768,
-   653095,
-   572861,
-   638319,
-   695291,
-   376754,
-   268298,
-   314308,
-   178888
+   524618,
+   682693,
+   553743,
+   453180,
+   553266,
+   604395,
+   319231,
+   209516,
+   262303,
+   159644
   ],
   "organic_proj": [
-   567576,
-   745768,
-   653095,
-   572861,
-   638319,
-   695291,
-   376754,
-   268298,
-   314308,
-   346596
+   524618,
+   682693,
+   553743,
+   453180,
+   553266,
+   604395,
+   319231,
+   209516,
+   262303,
+   309310
   ]
  },
  "waterfall": {
@@ -2301,7 +2414,7 @@ const FIN_DATA = {
     "query": "zezebaebae",
     "clicks": 11,
     "impressions": 37,
-    "avg_position": 2.4,
+    "avg_position": 2.5,
     "ctr": 29.73,
     "weekly_positions": [
      2.5
@@ -2598,7 +2711,7 @@ const FIN_DATA = {
      3.3,
      4.2,
      4.9,
-     4.2
+     4.1
     ]
    },
    {
@@ -2611,7 +2724,7 @@ const FIN_DATA = {
      6.0,
      3.6,
      3.8,
-     4.7
+     4.6
     ]
    },
    {
@@ -2624,7 +2737,7 @@ const FIN_DATA = {
      9.0,
      9.4,
      9.5,
-     9.7
+     9.8
     ]
    },
    {
@@ -3256,7 +3369,7 @@ const FIN_DATA = {
  "kw_positions_summary": [
   {
    "query": "zezebaebae",
-   "pos_7d": 2.4,
+   "pos_7d": 2.5,
    "clicks_7d": 11,
    "impressions_7d": 37,
    "pos_30d": 4.5,

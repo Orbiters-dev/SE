@@ -792,9 +792,8 @@ function buildBrandPerfTable(F, months, mLabels, lastIdx, isPartialLast, compact
   var isPartialA=isPartialLast&&(si+aLastIdx===lastIdx);
   var html='<div class="sec"><div class="sec-title">Brand Performance &mdash; Total Sales / Paid / Organic + Ad Spend (Jan 2026+)</div>';
   html+='<div class="card">';
-  html+='<div class="desc">Total Sales = Shopify + Amazon. Paid = Ad-attributed sales. Organic = Total - Paid. ROAS = Ad Sales / Ad Spend.</div>';
+  html+='<div class="desc">Total = Shopify + Amazon. Paid = Ad-attributed. Organic = Total - Paid. ROAS = Ad Sales / Ad$. TROAS = Total Sales / Ad$ (incl organic).</div>';
   if(!compact){
-    // Stacked bar: organic (green) + paid (purple) per brand
     var stackDs=[];
     Object.keys(bp).forEach(function(b){
       var total=(bp[b].organic||[]).reduce(function(a,c){return a+c;},0)+(bp[b].ad_sales||[]).reduce(function(a,c){return a+c;},0);
@@ -803,11 +802,11 @@ function buildBrandPerfTable(F, months, mLabels, lastIdx, isPartialLast, compact
     stackDs.sort(function(a,b){return b.total-a.total;});
     html+=barChart(stackDs, aLabels, {w:940,h:170,barW:20,stacked:true});
   }
-  // 5-column per month: Total Sales | Paid | Organic | Ad Spend | ROAS
+  // 6-column per month: Total | Paid | Organic | Ad$ | ROAS | TROAS
   html+='<div style="overflow-x:auto;margin-top:8px"><table><thead><tr><th>Brand</th>';
   aLabels.forEach(function(m,i){
     var bg=i===aLastIdx&&isPartialA?';background:#f5f3ff':'';
-    html+='<th style="text-align:right'+bg+'" colspan="5">'+m+'</th>';
+    html+='<th style="text-align:right'+bg+'" colspan="6">'+m+'</th>';
   });
   html+='</tr><tr><th></th>';
   aLabels.forEach(function(m,i){
@@ -817,6 +816,7 @@ function buildBrandPerfTable(F, months, mLabels, lastIdx, isPartialLast, compact
     html+='<th style="text-align:right;font-size:7px;color:#10b981'+bg+'">Organic</th>';
     html+='<th style="text-align:right;font-size:7px;color:var(--r)'+bg+'">Ad $</th>';
     html+='<th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">ROAS</th>';
+    html+='<th style="text-align:right;font-size:7px;color:#7c3aed'+bg+'">TROAS</th>';
   });
   html+='</tr></thead><tbody>';
   Object.keys(bp).forEach(function(b){
@@ -828,28 +828,38 @@ function buildBrandPerfTable(F, months, mLabels, lastIdx, isPartialLast, compact
       var org=(bd.organic||[])[i]||0, orgP=(bd.organic_proj||[])[i]||org;
       var spend=bd.ad_spend[i]||0, spendP=(bd.ad_spend_proj||[])[i]||spend;
       var roas=spend>0?paid/spend:0;
+      var troas=spend>0?sales/spend:0;
       var rc=roas>=3?'var(--g)':roas>=1.5?'var(--am)':spend>0?'var(--r)':'var(--muted)';
+      var tc=troas>=5?'var(--g)':troas>=2?'#7c3aed':spend>0?'var(--am)':'var(--muted)';
       var isL=i===aLastIdx&&isPartialA;
       html+=fmCell(sales, salesP, isL, {fs:'9px'});
       html+=fmCell(paid, paidP, isL, {fs:'9px',color:'#6366f1'});
       html+=fmCell(org, orgP, isL, {fs:'9px',color:'var(--g)'});
       html+=fmCell(spend, spendP, isL, {fs:'9px',color:'var(--r)'});
       html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+rc+'">'+(spend>0?roas.toFixed(1)+'x':'-')+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+tc+'">'+(spend>0?troas.toFixed(1)+'x':'-')+'</td>';
     }
     html+='</tr>';
-    // Grosmimi product-type breakdown
+    // Grosmimi product-type breakdown (with SKU-level total sales)
     if(b==='Grosmimi' && bd.products){
       Object.keys(bd.products).forEach(function(pt){
         var pd=bd.products[pt];
         html+='<tr style="font-size:9px;color:var(--dim)"><td style="padding-left:20px"><span style="display:inline-block;width:6px;height:6px;border-radius:1px;background:'+pd.color+';margin-right:4px"></span>'+pt+'</td>';
         for(var i=0;i<aLen;i++){
+          var ptotal=(pd.total_sales||[])[i]||0, ptotalP=(pd.total_sales_proj||pd.total_sales||[])[i]||ptotal;
           var psales=pd.sales[i]||0, pspend=pd.spend[i]||0;
+          var porg=(pd.organic||[])[i]||0, porgP=(pd.organic_proj||pd.organic||[])[i]||porg;
           var proas=pspend>0?psales/pspend:0;
+          var ptroas=pspend>0?ptotal/pspend:0;
           var prc=proas>=3?'var(--g)':proas>=1.5?'var(--am)':pspend>0?'var(--r)':'var(--muted)';
-          html+='<td style="text-align:right;font-family:var(--mono);font-size:8px">'+$(psales)+'</td>';
-          html+='<td colspan="2"></td>';
+          var ptc=ptroas>=5?'var(--g)':ptroas>=2?'#7c3aed':pspend>0?'var(--am)':'var(--muted)';
+          var isL=i===aLastIdx&&isPartialA;
+          html+=fmCell(ptotal, ptotalP, isL, {fs:'8px'});
+          html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:#6366f1">'+$(psales)+'</td>';
+          html+=fmCell(porg, porgP, isL, {fs:'8px',color:'var(--g)'});
           html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:var(--r)">'+$(pspend)+'</td>';
           html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:'+prc+'">'+(pspend>0?proas.toFixed(1)+'x':'-')+'</td>';
+          html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:'+ptc+'">'+(pspend>0?ptroas.toFixed(1)+'x':'-')+'</td>';
         }
         html+='</tr>';
       });
@@ -872,13 +882,14 @@ function buildBrandPerfTable(F, months, mLabels, lastIdx, isPartialLast, compact
     html+=fmCell(to, toP, isL, {fs:'9px',color:'var(--g)',bold:true});
     html+=fmCell(tsp, tspP, isL, {fs:'9px',color:'var(--r)',bold:true});
     html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700">'+(tsp>0?(tasales/tsp).toFixed(1)+'x':'-')+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:#7c3aed">'+(tsp>0?(ts/tsp).toFixed(1)+'x':'-')+'</td>';
   }
   // Organic % row
   html+='</tr><tr style="color:var(--dim);font-size:9px"><td><b>Organic %</b></td>';
   for(var i=0;i<aLen;i++){
     var ts=0,to=0;
     Object.keys(bp).forEach(function(b){ ts+=bp[b].total_sales[i]||0; to+=(bp[b].organic||[])[i]||0; });
-    html+='<td colspan="5" style="text-align:center;font-family:var(--mono);font-size:9px;font-weight:700">'+(ts>0?(to/ts*100).toFixed(1):'0')+'%</td>';
+    html+='<td colspan="6" style="text-align:center;font-family:var(--mono);font-size:9px;font-weight:700">'+(ts>0?(to/ts*100).toFixed(1):'0')+'%</td>';
   }
   html+='</tr></tbody></table></div></div></div>';
   return html;

@@ -93,10 +93,11 @@ def generate():
     search_terms = dk.get("amazon_ads_search_terms", days=30)
     gsc = dk.get("gsc_daily", days=30)
     brand_analytics = dk.get("amazon_brand_analytics", days=30)
+    shopify_sku = dk.get("shopify_orders_sku_daily", date_from="2025-06-01")
     print(f"  Shopify: {len(shopify)} rows, Amazon Sales: {len(amazon_sales)}")
     print(f"  Amazon Ads: {len(amazon_ads)}, Meta: {len(meta_ads)}, Google: {len(google_ads)}")
     print(f"  GA4: {len(ga4)}, Search Terms: {len(search_terms)}, GSC: {len(gsc)}")
-    print(f"  Brand Analytics: {len(brand_analytics)}")
+    print(f"  Brand Analytics: {len(brand_analytics)}, Shopify SKU: {len(shopify_sku)}")
 
     # ── Compute through-date ─────────────────────────────────────────────────
     def max_date(rows):
@@ -239,7 +240,7 @@ def generate():
             continue
         month = d[:7]
         ad_monthly["Meta Ads"][month]["spend"] += float(r.get("spend") or 0)
-        ad_monthly["Meta Ads"][month]["sales"] += float(r.get("revenue") or r.get("conversions_value") or 0)
+        ad_monthly["Meta Ads"][month]["sales"] += float(r.get("purchase_value") or 0)
         ad_monthly["Meta Ads"][month]["impressions"] += int(r.get("impressions") or 0)
         ad_monthly["Meta Ads"][month]["clicks"] += int(r.get("clicks") or 0)
 
@@ -249,7 +250,7 @@ def generate():
             continue
         month = d[:7]
         ad_monthly["Google Ads"][month]["spend"] += float(r.get("spend") or 0)
-        ad_monthly["Google Ads"][month]["sales"] += float(r.get("conversions_value") or r.get("revenue") or 0)
+        ad_monthly["Google Ads"][month]["sales"] += float(r.get("conversion_value") or 0)
         ad_monthly["Google Ads"][month]["impressions"] += int(r.get("impressions") or 0)
         ad_monthly["Google Ads"][month]["clicks"] += int(r.get("clicks") or 0)
 
@@ -276,7 +277,7 @@ def generate():
         if brand not in BRAND_ORDER:
             brand = "Other"
         brand_ad_monthly[brand][month]["spend"] += float(r.get("spend") or 0)
-        brand_ad_monthly[brand][month]["sales"] += float(r.get("revenue") or r.get("conversions_value") or 0)
+        brand_ad_monthly[brand][month]["sales"] += float(r.get("purchase_value") or 0)
 
     for r in google_ads:
         d = r.get("date", "")
@@ -285,7 +286,7 @@ def generate():
         month = d[:7]
         # All Google Ads campaigns are Grosmimi (Mint | prefix)
         brand_ad_monthly["Grosmimi"][month]["spend"] += float(r.get("spend") or 0)
-        brand_ad_monthly["Grosmimi"][month]["sales"] += float(r.get("conversions_value") or r.get("revenue") or 0)
+        brand_ad_monthly["Grosmimi"][month]["sales"] += float(r.get("conversion_value") or 0)
 
     # ── Build month list ──────────────────────────────────────────────────────
     all_months_set = set()
@@ -359,12 +360,12 @@ def generate():
             d = r.get("date", "")
             if d and date_from <= d <= date_to:
                 total_ad_spend += float(r.get("spend") or 0)
-                ad_attributed_sales += float(r.get("revenue") or r.get("conversions_value") or 0)
+                ad_attributed_sales += float(r.get("purchase_value") or 0)
         for r in google_ads:
             d = r.get("date", "")
             if d and date_from <= d <= date_to:
                 total_ad_spend += float(r.get("spend") or 0)
-                ad_attributed_sales += float(r.get("conversions_value") or r.get("revenue") or 0)
+                ad_attributed_sales += float(r.get("conversion_value") or 0)
 
         # Amazon COGS estimate (brand-level)
         amz_cogs = 0
@@ -763,21 +764,47 @@ def generate():
                 "color": AD_COLORS.get(platform, "#94a3b8"),
             }
 
-    # Grosmimi product-type breakdown from campaign names
-    GROSMIMI_PRODUCT_MAP = {
-        "PPSU Straw Cup": ["ppsu_manual", "ppsu_auto", "knotted", "stage1"],
-        "Flip Top Cup": ["flip top", "fliptop", "flip_top"],
+    # Grosmimi product-type breakdown
+    GROSMIMI_PRODUCT_TYPES = ["PPSU Straw Cup", "Stainless Straw Cup", "Tumbler", "Replacements", "Other"]
+
+    # Campaign name → product type (Amazon Ads)
+    GROSMIMI_CAMPAIGN_MAP = {
+        "PPSU Straw Cup": ["ppsu", "knotted", "fliptop", "flip top", "flip_top", "stage1"],
+        "Stainless Straw Cup": ["stainless"],
+        "Tumbler": ["tumbler"],
         "Replacements": ["replacement"],
     }
 
     def classify_grosmimi_campaign(campaign_name):
         cn = campaign_name.lower()
-        for product_type, patterns in GROSMIMI_PRODUCT_MAP.items():
+        for product_type, patterns in GROSMIMI_CAMPAIGN_MAP.items():
             if any(p in cn for p in patterns):
                 return product_type
         return "Other"
 
-    # Aggregate Grosmimi ad spend/sales by product type by month
+    # SKU title → product type (Shopify)
+    def classify_grosmimi_title(title):
+        t = title.lower()
+        if "tumbler" in t:
+            return "Tumbler"
+        if "stainless" in t and ("straw" in t or "cup" in t):
+            return "Stainless Straw Cup"
+        if any(kw in t for kw in ["ppsu", "knotted", "flip top", "baby bottle"]):
+            return "PPSU Straw Cup"
+        if any(kw in t for kw in ["replacement", "replacements", "one touch cap",
+                                   "weighted kit", "straw kit", "accessory pack"]):
+            return "Replacements"
+        return "Other"
+
+    # Build campaign_id → campaign_name lookup (some months have numeric IDs as names)
+    campaign_name_lookup = {}
+    for r in amazon_ads:
+        cid = str(r.get("campaign_id") or "")
+        cn = r.get("campaign_name") or ""
+        if cid and cn and cn != cid:  # Only store descriptive names
+            campaign_name_lookup[cid] = cn
+
+    # Aggregate Grosmimi ad spend/sales by product type by month (from campaign names)
     gros_product_monthly = defaultdict(lambda: defaultdict(lambda: {"spend": 0, "sales": 0}))
     for r in amazon_ads:
         if (r.get("brand") or "") != "Grosmimi":
@@ -789,11 +816,34 @@ def generate():
         if m not in set(ad_months):
             continue
         camp = r.get("campaign_name") or ""
+        # Resolve numeric campaign names to descriptive names
+        cid = str(r.get("campaign_id") or "")
+        if camp == cid and cid in campaign_name_lookup:
+            camp = campaign_name_lookup[cid]
         pt = classify_grosmimi_campaign(camp)
         gros_product_monthly[pt][m]["spend"] += float(r.get("spend") or 0)
         gros_product_monthly[pt][m]["sales"] += float(r.get("sales") or 0)
 
-    PRODUCT_COLORS = {"PPSU Straw Cup": "#8b5cf6", "Flip Top Cup": "#a78bfa", "Replacements": "#c4b5fd", "Other": "#ddd6fe"}
+    # Aggregate Grosmimi total sales by product type by month (from Shopify SKU titles)
+    gros_sku_monthly = defaultdict(lambda: defaultdict(lambda: {"net": 0, "units": 0}))
+    for r in shopify_sku:
+        if (r.get("brand") or "") != "Grosmimi":
+            continue
+        if r.get("channel") == "PR":
+            continue
+        d = r.get("date", "")
+        if not d or d > through:
+            continue
+        m = d[:7]
+        title = r.get("product_title") or ""
+        pt = classify_grosmimi_title(title)
+        gros_sku_monthly[pt][m]["net"] += float(r.get("net_sales") or 0)
+        gros_sku_monthly[pt][m]["units"] += int(r.get("units") or 0)
+
+    PRODUCT_COLORS = {
+        "PPSU Straw Cup": "#8b5cf6", "Stainless Straw Cup": "#a78bfa",
+        "Tumbler": "#c4b5fd", "Replacements": "#ddd6fe", "Other": "#e8e0ff",
+    }
 
     # Brand performance (ad + total sales, from 2026-01+)
     brand_perf_out = {}
@@ -820,16 +870,22 @@ def generate():
                 "organic_proj": proj_for(organic_vals, ad_months),
                 "color": BRAND_COLORS.get(brand, "#94a3b8"),
             }
-            # Grosmimi product-type breakdown
+            # Grosmimi product-type breakdown (SKU sales + campaign ads)
             if brand == "Grosmimi":
                 products = {}
-                for pt in ["PPSU Straw Cup", "Flip Top Cup", "Replacements", "Other"]:
+                for pt in GROSMIMI_PRODUCT_TYPES:
+                    total_v = [round(gros_sku_monthly.get(pt, {}).get(m, {}).get("net", 0)) for m in ad_months]
                     spend_v = [round(gros_product_monthly.get(pt, {}).get(m, {}).get("spend", 0)) for m in ad_months]
                     sales_v = [round(gros_product_monthly.get(pt, {}).get(m, {}).get("sales", 0)) for m in ad_months]
-                    if any(v > 0 for v in spend_v):
+                    organic_v = [max(0, t - s) for t, s in zip(total_v, sales_v)]
+                    if any(v > 0 for v in total_v) or any(v > 0 for v in spend_v):
                         products[pt] = {
+                            "total_sales": total_v,
+                            "total_sales_proj": proj_for(total_v, ad_months),
                             "spend": spend_v,
                             "sales": sales_v,
+                            "organic": organic_v,
+                            "organic_proj": proj_for(organic_v, ad_months),
                             "color": PRODUCT_COLORS.get(pt, "#94a3b8"),
                         }
                 entry["products"] = products
