@@ -2293,11 +2293,15 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
                 f"Consider increasing bids for more ad impressions.")
 
     # ── Total budget cap enforcement ────────────────────────────────────────
-    # Sum ALL campaign budgets (proposed or current) and block increases if over cap
+    # Amazon rarely spends 100% of campaign budgets. To actually spend $X/day,
+    # total campaign budgets need to be ~2.2x that amount (utilization ~45%).
+    # E.g., target_daily=$3000 → budget_ceiling=$6600 in campaign budget sum.
+    BUDGET_HEADROOM_MULTIPLIER = 2.2
+    budget_ceiling = round(target_daily * BUDGET_HEADROOM_MULTIPLIER, 2)
+
     current_total = sum(c["currentDailyBudget"] for c in all_campaigns)
     proposed_total = 0
     for c in all_campaigns:
-        # Find matching proposal
         matched = next((p for p in proposals if p["campaignId"] == c["campaignId"]), None)
         if matched and matched.get("new_daily_budget"):
             proposed_total += matched["new_daily_budget"]
@@ -2306,22 +2310,21 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
         else:
             proposed_total += c["currentDailyBudget"]
 
-    if current_total > target_daily:
+    if current_total > budget_ceiling:
         anomalies.insert(0,
-            f"OVER BUDGET: Current campaign budgets total ${current_total:,.0f}/day vs cap ${target_daily:,.0f}/day. "
-            f"Budget increases blocked until total is reduced.")
-        # Remove budget increases — keep only pause/reduce/optimize actions
+            f"OVER BUDGET: Campaign budgets total ${current_total:,.0f} vs ceiling ${budget_ceiling:,.0f} "
+            f"(target spend ${target_daily:,.0f}/day × {BUDGET_HEADROOM_MULTIPLIER}x headroom). "
+            f"Budget increases blocked.")
         for p in proposals:
             if p.get("new_daily_budget") and p["new_daily_budget"] > p["currentDailyBudget"]:
-                p["reason"] += f"\n⚠ Budget increase blocked: total ${current_total:,.0f} already exceeds ${target_daily:,.0f}/day cap"
+                p["reason"] += f"\n Budget increase blocked: total budgets ${current_total:,.0f} exceed ceiling ${budget_ceiling:,.0f}"
                 p["new_daily_budget"] = None
                 p["budget_change_pct"] = None
-    elif proposed_total > target_daily:
+    elif proposed_total > budget_ceiling:
         anomalies.insert(0,
-            f"BUDGET WARNING: Proposed budgets total ${proposed_total:,.0f}/day vs cap ${target_daily:,.0f}/day. "
-            f"Scaling down budget increases.")
-        # Scale down proportionally
-        overshoot = proposed_total - target_daily
+            f"BUDGET WARNING: Proposed budgets ${proposed_total:,.0f} vs ceiling ${budget_ceiling:,.0f}. "
+            f"Scaling down increases.")
+        overshoot = proposed_total - budget_ceiling
         increase_proposals = [p for p in proposals
                               if p.get("new_daily_budget") and p["new_daily_budget"] > p["currentDailyBudget"]]
         if increase_proposals:
@@ -2334,7 +2337,7 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
                     if p["new_daily_budget"] <= p["currentDailyBudget"]:
                         p["new_daily_budget"] = None
                         p["budget_change_pct"] = None
-                    p["reason"] += f"\n** Budget scaled to fit ${target_daily:,.0f}/day cap"
+                    p["reason"] += f"\n** Budget scaled to fit ${budget_ceiling:,.0f} ceiling"
 
     # Deduplicate anomalies
     anomalies = list(dict.fromkeys(anomalies))
