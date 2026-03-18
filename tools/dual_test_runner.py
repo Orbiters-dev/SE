@@ -213,6 +213,18 @@ def at_delete(table_id, record_id):
     status, body = http_request("DELETE", url, headers=_at_headers())
     return status, body
 
+def find_orders_by_phone(phone, max_records=5):
+    """Find Orders by Phone Number (PROD: Orders has no Email field)."""
+    if not phone:
+        return []
+    safe = phone.replace("'", "\\'")
+    formula = urllib.parse.quote(f"{{Phone Number}}='{safe}'")
+    url = f"https://api.airtable.com/v0/{AT_BASE}/{AT_ORDERS}?filterByFormula={formula}&maxRecords={max_records}"
+    status, body = http_request("GET", url, headers=_at_headers())
+    if status == 200 and isinstance(body, dict):
+        return body.get("records", [])
+    return []
+
 def shopify_find_customer(email):
     if not SHOPIFY_STORE or not SHOPIFY_TOKEN:
         return []
@@ -390,6 +402,10 @@ class ExecutorAgent:
         if status == 200:
             ok(f"[1a.2] Draft gen triggered: HTTP {status}")
             checks.append(Check("[1a] POST draft_gen webhook", True))
+        elif status == 404:
+            warn(f"[1a.2] Draft gen webhook 404 (PROD uses schedule trigger, not webhook)")
+            checks.append(Check("[1a] POST draft_gen webhook", None,
+                detail="PROD uses scheduleTrigger — skipping webhook test"))
         else:
             fail(f"[1a.2] Draft gen failed: HTTP {status}")
             checks.append(Check("[1a] POST draft_gen webhook", False, expected="200", actual=str(status)))
@@ -397,10 +413,13 @@ class ExecutorAgent:
         ctx["creator_record_id"] = creator_record_id
         ctx["draft_gen_response"] = resp if isinstance(resp, dict) else str(resp)[:500]
 
-        wait_sec = 65
-        info(f"  [1a.3] Waiting {wait_sec}s for Claude AI + Sheets + Gmail...")
-        time.sleep(wait_sec)
-        checks.append(Check(f"[1a] Wait {wait_sec}s for AI generation", True))
+        if status == 404:
+            info(f"  [1a.3] Skipping wait (webhook not available on PROD)")
+        else:
+            wait_sec = 65
+            info(f"  [1a.3] Waiting {wait_sec}s for Claude AI + Sheets + Gmail...")
+            time.sleep(wait_sec)
+            checks.append(Check(f"[1a] Wait {wait_sec}s for AI generation", True))
 
         return checks, ctx
 
@@ -422,17 +441,13 @@ class ExecutorAgent:
             records = at_find(AT_CREATORS, "Email", self.config.test_email)
             creator_record_id = records[0]["id"] if records else ""
 
-        # Log outreach email in Conversations
+        # Log outreach email in Conversations (PROD fields only)
         conv_fields = {
-            "Message Title": f"Outreach: {subj}",
             "Subject": subj,
             "Channel": "Email",
             "Direction": "Outbound",
             "Message Content": body,
             "Conversation Context": f"AI-generated outreach to @{test_ig}. Brand: Grosmimi. Type: Low Touch.",
-            "AI Generated": True,
-            "AI Approved": True,
-            "Reviewed By": "Dual Test (auto)",
             "Status": "Sent",
         }
         if creator_record_id:
@@ -485,13 +500,11 @@ class ExecutorAgent:
             creator_record_id = records[0]["id"] if records else ""
 
         conv_fields = {
-            "Message Title": f"Reply from @{test_ig}",
             "Subject": f"Re: {subj}",
             "Channel": "Email",
             "Direction": "Inbound",
             "Message Content": reply_body,
             "Conversation Context": f"Influencer @{test_ig} expressed interest in Grosmimi collab. Positive response.",
-            "AI Generated": False,
             "Status": "Sent",
         }
         if creator_record_id:
@@ -542,15 +555,11 @@ class ExecutorAgent:
             creator_record_id = records[0]["id"] if records else ""
 
         conv_fields = {
-            "Message Title": f"Confirmation + Gifting Form: @{test_ig}",
             "Subject": f"Re: {subj}",
             "Channel": "Email",
             "Direction": "Outbound",
             "Message Content": confirm_body,
             "Conversation Context": "Sent gifting form link and content guidelines.",
-            "AI Generated": True,
-            "AI Approved": True,
-            "Reviewed By": "Dual Test (auto)",
             "Status": "Sent",
         }
         if creator_record_id:
@@ -846,15 +855,16 @@ class VerifierAgent:
             fail("[V-0.1] AT Creators: record NOT found")
             checks.append(Check("[V-0] AT Creators: record exists", False))
 
-        # Negative: Applicants should NOT exist yet (Stage 2 hasn't run)
-        info(f"  [V-0.3] Negative check: Applicants should NOT exist yet")
-        app_records = at_find(AT_APPLICANTS, "Email", email)
+        # Negative: Orders should NOT exist yet (Stage 2 hasn't run)
+        info(f"  [V-0.3] Negative check: Orders should NOT exist yet")
+        phone = self.config.test_phone
+        app_records = find_orders_by_phone(phone)
         if not app_records:
-            ok("[V-0.3] AT Applicants: correctly empty (no gifting form yet)")
-            checks.append(Check("[V-0] AT Applicants: NOT exists (neg)", True))
+            ok("[V-0.3] AT Orders: correctly empty (no gifting form yet)")
+            checks.append(Check("[V-0] AT Orders: NOT exists (neg)", True))
         else:
-            warn(f"[V-0.3] AT Applicants: unexpected record found ({len(app_records)})")
-            checks.append(Check("[V-0] AT Applicants: NOT exists (neg)", False,
+            warn(f"[V-0.3] AT Orders: unexpected record found ({len(app_records)})")
+            checks.append(Check("[V-0] AT Orders: NOT exists (neg)", False,
                 expected="0 records", actual=f"{len(app_records)} records"))
 
         # Negative: Shopify customer should NOT exist yet
@@ -1045,17 +1055,18 @@ class VerifierAgent:
             checks.append(Check("DRY-RUN: Would verify gifting", True))
             return checks
 
-        # 1) Airtable Applicants (Inbound table)
-        info(f"  [V-2.1] Checking Airtable Applicants (Inbound) for {email}")
-        app_records = at_find(AT_APPLICANTS, "Email", email)
+        # 1) Airtable Orders (PROD: search by Phone Number)
+        phone = self.config.test_phone
+        info(f"  [V-2.1] Checking Airtable Orders for phone {phone}")
+        app_records = find_orders_by_phone(phone)
         if app_records:
             fields = app_records[0].get("fields", {})
-            ok(f"[V-2.1] AT Applicants: record exists ({app_records[0]['id']})")
-            info(f"         Name={fields.get('Name')}, IG={fields.get('Instagram')}, Status={fields.get('Status')}")
-            checks.append(Check("[V-2] AT Applicants: record exists", True, detail=app_records[0]["id"]))
+            ok(f"[V-2.1] AT Orders: record exists ({app_records[0]['id']})")
+            info(f"         Recipient={fields.get('Recipient Name')}, Status={fields.get('Order Status')}, Brand={fields.get('Brand')}")
+            checks.append(Check("[V-2] AT Orders: record exists", True, detail=app_records[0]["id"]))
         else:
-            fail("[V-2.1] AT Applicants: record NOT found")
-            checks.append(Check("[V-2] AT Applicants: record exists", False))
+            fail("[V-2.1] AT Orders: record NOT found")
+            checks.append(Check("[V-2] AT Orders: record exists", False))
 
         # 2) Airtable Creators — Outreach Status should be "Needs Review"
         info(f"  [V-2.2] Checking Airtable Creators status (expected: Needs Review)")
@@ -1097,17 +1108,17 @@ class VerifierAgent:
             warn("[V-2.4] PostgreSQL: no record found")
             checks.append(Check("[V-2] PostgreSQL: gifting record", None))
 
-        # 5) Cross-system: email consistency across AT Applicants + AT Creators
-        info(f"  [V-2.5] Cross-system consistency: email match across 3 systems")
+        # 5) Cross-system: Order phone matches + Creator email matches
+        info(f"  [V-2.5] Cross-system consistency: phone + email")
         if app_records and cr_records:
-            app_email = app_records[0].get("fields", {}).get("Email", "")
             cr_email = cr_records[0].get("fields", {}).get("Email", "")
-            if app_email == cr_email == email:
-                ok(f"[V-2.5] X-SYS: email consistent (Applicants=Creators=input)")
-                checks.append(Check("[V-2] X-SYS: email consistent", True))
+            order_phone = app_records[0].get("fields", {}).get("Phone Number", "")
+            if cr_email == email and order_phone == phone:
+                ok(f"[V-2.5] X-SYS: Creator email + Order phone match")
+                checks.append(Check("[V-2] X-SYS: email+phone consistent", True))
             else:
-                fail(f"[V-2.5] X-SYS: email mismatch (app={app_email}, cr={cr_email})")
-                checks.append(Check("[V-2] X-SYS: email consistent", False))
+                fail(f"[V-2.5] X-SYS: mismatch (cr_email={cr_email}, order_phone={order_phone})")
+                checks.append(Check("[V-2] X-SYS: email+phone consistent", False))
 
         return checks
 
@@ -1121,23 +1132,24 @@ class VerifierAgent:
             checks.append(Check("DRY-RUN: Would verify gifting2", True))
             return checks
 
-        # 1) Airtable Applicants — Draft Order ID populated
-        info(f"  [V-4.1] Checking Airtable Applicants for Draft Order ID")
-        app_records = at_find(AT_APPLICANTS, "Email", email)
+        # 1) Airtable Orders — Shopify Order ID populated (PROD: search by Phone)
+        phone = self.config.test_phone
+        info(f"  [V-4.1] Checking Airtable Orders for Shopify Order ID (phone={phone})")
+        app_records = find_orders_by_phone(phone)
         if app_records:
             fields = app_records[0].get("fields", {})
-            do_id = fields.get("Draft Order ID", "")
-            info(f"         Draft Order ID = '{do_id}', Status = '{fields.get('Status')}'")
+            do_id = fields.get("Shopify Order ID", "") or fields.get("Draft Order ID", "")
+            info(f"         Shopify Order ID = '{fields.get('Shopify Order ID')}', Status = '{fields.get('Order Status')}'")
             if do_id:
-                ok(f"[V-4.1] AT Applicants: Draft Order ID = {do_id}")
-                checks.append(Check("[V-4] AT Applicants: Draft Order ID", True, detail=str(do_id)))
+                ok(f"[V-4.1] AT Orders: Order ID = {do_id}")
+                checks.append(Check("[V-4] AT Orders: Order ID", True, detail=str(do_id)))
             else:
-                warn("[V-4.1] AT Applicants: Draft Order ID empty (may be stored elsewhere)")
-                checks.append(Check("[V-4] AT Applicants: Draft Order ID", None,
+                warn("[V-4.1] AT Orders: Order ID empty (may not be set yet)")
+                checks.append(Check("[V-4] AT Orders: Order ID", None,
                     detail="Field may differ"))
         else:
-            fail("[V-4.1] AT Applicants: record NOT found after gifting2")
-            checks.append(Check("[V-4] AT Applicants: record exists", False))
+            fail("[V-4.1] AT Orders: record NOT found after gifting2")
+            checks.append(Check("[V-4] AT Orders: record exists", False))
 
         # 2) Airtable Creators — still exists and status tracked
         info(f"  [V-4.2] Checking Airtable Creators persistence")
@@ -1237,14 +1249,9 @@ def run_cleanup(config, signal_data):
         s, _ = at_delete(AT_CREATORS, creator_id)
         info(f"Delete AT Creators {creator_id}: {s}")
 
-    # Delete Airtable Applicants
-    app_records = at_find(AT_APPLICANTS, "Email", email)
-    for r in app_records:
-        s, _ = at_delete(AT_APPLICANTS, r["id"])
-        info(f"Delete AT Applicants {r['id']}: {s}")
-
-    # Delete Airtable Orders
-    order_records = at_find(AT_ORDERS, "Email", email)
+    # Delete Airtable Orders (search by phone)
+    phone = config.test_phone
+    order_records = find_orders_by_phone(phone)
     for r in order_records:
         s, _ = at_delete(AT_ORDERS, r["id"])
         info(f"Delete AT Orders {r['id']}: {s}")

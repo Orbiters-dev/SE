@@ -2495,10 +2495,10 @@ We'd love to send you our Grosmimi PPSU Baby Bottle (9oz) for your little one. I
 No commitments - just try it and share your honest thoughts if you'd like:
 https://onzenna.com/pages/influencer-gifting
 
-William - Onzenna Team"""
+Jenny - Onzenna Team"""
 
     # Test #2 difference: Creator asks QUESTIONS before accepting
-    question_body = f"""Hey William!
+    question_body = f"""Hey Jenny!
 
 Thanks for reaching out. I'm interested but have a few questions:
 
@@ -2524,9 +2524,9 @@ Great questions - love that you're thorough! Here are the answers:
 Would you like to proceed? Just fill out the gifting form and we'll ship it out!
 
 Best,
-William - Onzenna Team"""
+Jenny - Onzenna Team"""
 
-    accept_body = f"""William,
+    accept_body = f"""Jenny,
 
 Perfect - those answers check all the boxes. My wife is on board too!
 
