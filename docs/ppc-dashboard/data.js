@@ -1,10 +1,10 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-18 02:12 PST",
+ "generated_pst": "2026-03-18 02:22 PST",
  "brands": {
   "grosmimi": {
    "dates": {
     "2026-03-18": {
-     "generated": "2026-03-18T02:12",
+     "generated": "2026-03-18T02:22",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -1401,7 +1401,7 @@ const PPC_DATA = {
   "naeiae": {
    "dates": {
     "2026-03-18": {
-     "generated": "2026-03-18T02:12",
+     "generated": "2026-03-18T02:22",
      "executed": true,
      "executed_at": "2026-03-18",
      "summary_7d": {
@@ -1756,7 +1756,7 @@ const PPC_DATA = {
   "chaenmom": {
    "dates": {
     "2026-03-18": {
-     "generated": "2026-03-18T02:12",
+     "generated": "2026-03-18T02:22",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
