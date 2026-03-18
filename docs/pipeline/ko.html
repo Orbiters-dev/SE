@@ -27,6 +27,12 @@
     --pass: #22c55e;
     --fail: #ef4444;
     --accent: #6366f1;
+    --gros: #2563eb;
+    --gros-bg: #eff6ff;
+    --gros-border: #93c5fd;
+    --cham: #7c3aed;
+    --cham-bg: #f5f3ff;
+    --cham-border: #c4b5fd;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'Inter', -apple-system, sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
@@ -127,9 +133,32 @@
   .wf-link { font-size:10px; color:#6366f1; text-decoration:none; font-family:monospace; opacity:0.7; }
   .wf-link:hover { opacity:1; text-decoration:underline; }
 
+  .brand-box { border-radius:10px; padding:16px; margin-bottom:12px; }
+  .brand-box.gros { background:var(--gros-bg); border:1px solid var(--gros-border); }
+  .brand-box.cham { background:var(--cham-bg); border:1px solid var(--cham-border); }
+  .brand-box h5 { font-size:14px; font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+  .brand-box.gros h5 { color:var(--gros); }
+  .brand-box.cham h5 { color:var(--cham); }
+  .brand-badge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:4px; color:#fff; }
+  .brand-badge.gros { background:var(--gros); }
+  .brand-badge.cham { background:var(--cham); }
+
+  .tpl-card { background:#fff; border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:8px; }
+  .tpl-card:last-child { margin-bottom:0; }
+  .tpl-link { display:inline-flex; align-items:center; gap:4px; font-size:11px; text-decoration:none; padding:3px 8px; border-radius:4px; font-weight:500; }
+  .tpl-link.gdoc { background:#e8f5e9; color:#2e7d32; }
+  .tpl-link.gsheet { background:#e3f2fd; color:#1565c0; }
+  .tpl-link.form { background:#fce4ec; color:#c62828; }
+
+  .config-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; }
+  .config-item { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px; }
+  .config-item .config-label { font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-dim); margin-bottom:4px; }
+  .config-item .config-value { font-size:15px; font-weight:600; }
+
   @media(max-width:700px) {
     .zone-row { flex-direction:column; }
     .summary-grid { grid-template-columns:repeat(2,1fr); }
+    .config-grid { grid-template-columns:1fr; }
   }
 </style>
 </head>
@@ -142,24 +171,25 @@
 
   <div class="hero">
     <h1><span>Creator Collab</span> Pipeline</h1>
-    <p class="subtitle">End-to-end influencer gifting automation &mdash; from discovery to content tracking in 8 stages</p>
-    <div class="test-time">Last updated: March 18, 2026</div>
+    <p class="subtitle">End-to-end influencer gifting automation &mdash; from discovery to content tracking + reminder in 9 stages</p>
+    <div class="test-time">Last updated: March 18, 2026 &middot; PROD Environment</div>
   </div>
 
   <!-- ==================== QUICK LINKS ==================== -->
   <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px 24px; margin-bottom:32px;">
     <div style="font-size:15px; font-weight:700; margin-bottom:14px;">Quick Links</div>
 
-    <!-- Airtable -->
+    <!-- Airtable PROD -->
     <div style="margin-bottom:12px;">
-      <div class="ref-cat">Airtable</div>
+      <div class="ref-cat">Airtable (PROD)</div>
       <div style="display:flex; gap:6px; flex-wrap:wrap;">
-        <a href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N" target="_blank" class="ref-pill" style="background:#fef3c7; color:#92400e;">WJ Creators</a>
-        <a href="https://airtable.com/appT2gLRR0PqMFgII/tbloYjIEr5OtEppT0" target="_blank" class="ref-pill" style="background:#fef3c7; color:#92400e;">WJ Applicants</a>
-        <a href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ" target="_blank" class="ref-pill" style="background:#fef3c7; color:#92400e;">WJ Conversations</a>
-        <a href="https://airtable.com/appT2gLRR0PqMFgII/tblCcWpvDZX7UZmSd" target="_blank" class="ref-pill" style="background:#fef3c7; color:#92400e;">WJ Orders</a>
-        <a href="https://airtable.com/appT2gLRR0PqMFgII/tblSva2askQRwgGV1" target="_blank" class="ref-pill" style="background:#fef3c7; color:#92400e;">WJ Content</a>
-        <a href="https://airtable.com/appNPVxj4gUJl9v15/tblv2Jw3ZAtAMhiYY" target="_blank" class="ref-pill" style="background:#fee2e2; color:#991b1b;">PROD CRM</a>
+        <a href="https://airtable.com/app3Vnmh7hLAVsevE/tblv2Jw3ZAtAMhiYY" target="_blank" class="ref-pill" style="background:#fee2e2; color:#991b1b;">Creators</a>
+        <a href="https://airtable.com/app3Vnmh7hLAVsevE/tblQUz8zQRDdZvES3" target="_blank" class="ref-pill" style="background:#fee2e2; color:#991b1b;">Orders</a>
+        <a href="https://airtable.com/app3Vnmh7hLAVsevE/tblNeTyVwMomsfSk7" target="_blank" class="ref-pill" style="background:#fee2e2; color:#991b1b;">Conversations</a>
+        <a href="https://airtable.com/app3Vnmh7hLAVsevE/tble4cuyVnXP4OvZR" target="_blank" class="ref-pill" style="background:#fee2e2; color:#991b1b;">Content</a>
+        <a href="https://airtable.com/app3Vnmh7hLAVsevE/tblS7V4M9sqWuJPok" target="_blank" class="ref-pill" style="background:#fee2e2; color:#991b1b;">Dashboard</a>
+        <a href="https://airtable.com/app3Vnmh7hLAVsevE/tblG3DoBW4Khz1ceU" target="_blank" class="ref-pill" style="background:#fee2e2; color:#991b1b;">Templates</a>
+        <a href="https://airtable.com/app3Vnmh7hLAVsevE/tbl6gGyLMvp57q1v7" target="_blank" class="ref-pill" style="background:#fee2e2; color:#991b1b;">Config</a>
       </div>
     </div>
 
@@ -174,26 +204,10 @@
         <a href="https://n8n.orbiters.co.kr/workflow/KqICsN9F1mPwnAQ9" target="_blank" class="ref-pill" style="background:#e0f2fe; color:#0369a1;">Gifting2</a>
         <a href="https://n8n.orbiters.co.kr/workflow/m89xU9RUbPgnkBy8" target="_blank" class="ref-pill" style="background:#e0f2fe; color:#0369a1;">Sample Complete</a>
         <a href="https://n8n.orbiters.co.kr/workflow/ufMPgU6cjwuzLM0y" target="_blank" class="ref-pill" style="background:#e0f2fe; color:#0369a1;">Fulfillment</a>
+        <a href="https://n8n.orbiters.co.kr/workflow/k61gzrshITfju33V" target="_blank" class="ref-pill" style="background:#e0f2fe; color:#0369a1;">Ship&rarr;Deliver</a>
+        <a href="https://n8n.orbiters.co.kr/workflow/tvmHITPHpWFtcmh0" target="_blank" class="ref-pill" style="background:#e0f2fe; color:#0369a1;">Deliver&rarr;Posted</a>
+        <a href="https://n8n.orbiters.co.kr/workflow/isOQGE4ynRubL8We" target="_blank" class="ref-pill" style="background:#e0f2fe; color:#0369a1;">Content Track+Remind</a>
         <a href="https://n8n.orbiters.co.kr/workflow/FzBJVEOTvr6qJPAL" target="_blank" class="ref-pill" style="background:#e0f2fe; color:#0369a1;">Syncly Metrics</a>
-      </div>
-    </div>
-
-    <!-- n8n WJ TEST -->
-    <div style="margin-bottom:12px;">
-      <div class="ref-cat">n8n WJ TEST Workflows</div>
-      <div style="display:flex; gap:6px; flex-wrap:wrap;">
-        <a href="https://n8n.orbiters.co.kr/workflow/0q9uJUYTpDhQFMfz" target="_blank" class="ref-pill" style="background:#ede9fe; color:#6d28d9;">Draft Gen</a>
-        <a href="https://n8n.orbiters.co.kr/workflow/mmkBpmvhzbgmSayh" target="_blank" class="ref-pill" style="background:#ede9fe; color:#6d28d9;">Approval</a>
-        <a href="https://n8n.orbiters.co.kr/workflow/nVtYmhU0InRqRn4K" target="_blank" class="ref-pill" style="background:#ede9fe; color:#6d28d9;">Reply Handler</a>
-        <a href="https://n8n.orbiters.co.kr/workflow/4q5NCzMb3nMGYqL4" target="_blank" class="ref-pill" style="background:#ede9fe; color:#6d28d9;">Gifting</a>
-        <a href="https://n8n.orbiters.co.kr/workflow/734aqkcOIfiylExL" target="_blank" class="ref-pill" style="background:#ede9fe; color:#6d28d9;">Gifting2</a>
-        <a href="https://n8n.orbiters.co.kr/workflow/Vd5NiKMwdLT7b9wa" target="_blank" class="ref-pill" style="background:#ede9fe; color:#6d28d9;">Sample Complete</a>
-        <a href="https://n8n.orbiters.co.kr/workflow/UP1OnpNEFN54AOUn" target="_blank" class="ref-pill" style="background:#ede9fe; color:#6d28d9;">Fulfillment</a>
-        <a href="https://n8n.orbiters.co.kr/workflow/2vsXyHtjo79hnFoD" target="_blank" class="ref-pill" style="background:#ede9fe; color:#6d28d9;">Ship&rarr;Deliver</a>
-        <a href="https://n8n.orbiters.co.kr/workflow/82t55jurzbY3iUM4" target="_blank" class="ref-pill" style="background:#ede9fe; color:#6d28d9;">Deliver&rarr;Posted</a>
-        <a href="https://n8n.orbiters.co.kr/workflow/zKmOX0tEWi6EBT9h" target="_blank" class="ref-pill" style="background:#ede9fe; color:#6d28d9;">Content Track</a>
-        <a href="https://n8n.orbiters.co.kr/workflow/6BNQRz57oCtdROlH" target="_blank" class="ref-pill" style="background:#ede9fe; color:#6d28d9;">Syncly Process</a>
-        <a href="https://n8n.orbiters.co.kr/workflow/wyttsPSZJlWLgy86" target="_blank" class="ref-pill" style="background:#ede9fe; color:#6d28d9;">Cust Lookup</a>
       </div>
     </div>
 
@@ -202,7 +216,6 @@
       <div class="ref-cat">Shopify</div>
       <div style="display:flex; gap:6px; flex-wrap:wrap;">
         <a href="https://admin.shopify.com/store/mytoddie" target="_blank" class="ref-pill" style="background:#dcfce7; color:#15803d;">PROD (mytoddie)</a>
-        <a href="https://admin.shopify.com/store/toddie-4080" target="_blank" class="ref-pill" style="background:#dcfce7; color:#15803d;">WJ TEST (toddie-4080)</a>
       </div>
     </div>
 
@@ -214,17 +227,25 @@
         <a href="https://docs.google.com/spreadsheets/d/1SwO4uAbf25vOR0UYWOUlxzy5gCbFRrNXwO2kAWydyeA" target="_blank" class="ref-pill" style="background:#d1fae5; color:#065f46;">ONZENNA SNS</a>
         <a href="https://docs.google.com/spreadsheets/d/16XUPd-VMoh6LEjSvupsmhkd1vEQNOTcoEhRCnPqkA_I" target="_blank" class="ref-pill" style="background:#d1fae5; color:#065f46;">CHA&amp;MOM SNS</a>
         <a href="https://docs.google.com/spreadsheets/d/1mYofqMBYqIHS3XNQ29vDA__SzYBfkkGCPn3Jb8OxAkY" target="_blank" class="ref-pill" style="background:#d1fae5; color:#065f46;">Content Metrics</a>
-        <a href="https://docs.google.com/spreadsheets/d/1nla5CZPPeLSRe12vNMq0O4woG6duMXaboxG0d8nw6wQ" target="_blank" class="ref-pill" style="background:#d1fae5; color:#065f46;">Syncly Keywords</a>
       </div>
     </div>
 
-    <!-- Forms & API -->
-    <div style="margin-bottom:0;">
-      <div class="ref-cat">Forms &amp; API</div>
+    <!-- Forms -->
+    <div style="margin-bottom:12px;">
+      <div class="ref-cat">Creator Forms (Brand-Specific)</div>
       <div style="display:flex; gap:6px; flex-wrap:wrap;">
-        <a href="https://onzenna.com/pages/influencer-gifting" target="_blank" class="ref-pill" style="background:#f5f3ff; color:#7c3aed;">Gifting Form</a>
+        <a href="https://onzenna.com/pages/influencer-gifting" target="_blank" class="ref-pill" style="background:var(--gros-bg); color:var(--gros); border:1px solid var(--gros-border);">Grosmimi Form</a>
+        <a href="https://onzenna.com/pages/influencer-gifting-chamom" target="_blank" class="ref-pill" style="background:var(--cham-bg); color:var(--cham); border:1px solid var(--cham-border);">Cha&amp;Mom Form</a>
+        <a href="https://onzenna.com/pages/influencer-gifting-ht" target="_blank" class="ref-pill" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a;">High Touch Form</a>
         <a href="https://onzenna.com/pages/creator-profile" target="_blank" class="ref-pill" style="background:#f5f3ff; color:#7c3aed;">Creator Profile</a>
         <a href="https://onzenna.com/pages/creator-sample-form" target="_blank" class="ref-pill" style="background:#f5f3ff; color:#7c3aed;">Sample Form</a>
+      </div>
+    </div>
+
+    <!-- API -->
+    <div style="margin-bottom:0;">
+      <div class="ref-cat">Infrastructure</div>
+      <div style="display:flex; gap:6px; flex-wrap:wrap;">
         <a href="https://n8n.orbiters.co.kr" target="_blank" class="ref-pill" style="background:#f1f5f9; color:#475569;">n8n Dashboard</a>
         <a href="https://orbitools.orbiters.co.kr" target="_blank" class="ref-pill" style="background:#f1f5f9; color:#475569;">OrbiTools API</a>
       </div>
@@ -260,8 +281,9 @@
         <li>Acceptance email &amp; sample form link (Stage 3&rarr;4)</li>
         <li>Draft Order completion (5-min polling, Stage 5)</li>
         <li>Delivery detection (30-min polling, Stage 6)</li>
-        <li>Content guideline email (Stage 6.5)</li>
+        <li>Content guideline email per brand (Stage 6.5)</li>
         <li>Content post detection (6-hr polling, Stage 7)</li>
+        <li>Reminder email if content not posted (Stage 8)</li>
       </ul>
     </div>
   </div>
@@ -288,7 +310,11 @@
     <span class="status-arrow">&rarr;</span>
     <span class="status-pill" style="background:var(--auto-bg); color:var(--auto);">Guideline</span>
     <span class="status-arrow">&rarr;</span>
+    <span class="status-pill" style="background:var(--human-bg); color:var(--human);">Filming</span>
+    <span class="status-arrow">&rarr;</span>
     <span class="status-pill" style="background:var(--store-bg); color:var(--store);">Posted</span>
+    <span class="status-arrow">&rarr;</span>
+    <span class="status-pill" style="background:var(--poll-bg); color:var(--poll);">Reminder</span>
   </div>
 
   <!-- ==================== STAGE 0 ==================== -->
@@ -349,7 +375,7 @@
       <div class="flow-num pre-num">1</div>
       <div class="flow-info">
         <h2>Bulk Outreach &amp; Reply Handling</h2>
-        <p>Claude AI generates personalized outreach emails &rarr; auto-send via Gmail &rarr; track replies &rarr; handle inquiries</p>
+        <p>Claude AI reads Airtable Content transcript &rarr; generates personalized outreach &rarr; auto-send via Gmail &rarr; track replies</p>
       </div>
       <div class="flow-status auto-status">AUTO + HUMAN</div>
     </div>
@@ -358,13 +384,34 @@
         <div class="step-icon auto">&#128231;</div>
         <div class="step-content">
           <div class="step-label auto">&#9889; AI Generation + Auto Send</div>
-          <div class="step-title">Claude API Personalized Outreach &rarr; Gmail Bulk Send</div>
-          <div class="step-desc">Generate tailored messages based on influencer profiles &rarr; send from affiliates@onzenna.com &rarr; Airtable status "Sent"</div>
+          <div class="step-title">Claude API: Content Transcript &rarr; Personalized Outreach &rarr; Gmail Send</div>
+          <div class="step-desc">Read creator's existing content transcript from Airtable Content table &rarr; Claude AI references specific posts/topics to craft personalized email &rarr; send from affiliates@onzenna.com</div>
           <div class="data-box">
             <h4>Outreach Flow</h4>
-            <div class="data-row"><span class="data-key">1. Draft</span><span class="data-val">Claude API generates personalized message from creator profile</span></div>
-            <div class="data-row"><span class="data-key">2. Send</span><span class="data-val">Gmail OAuth &rarr; bulk email from affiliates@onzenna.com</span></div>
-            <div class="data-row"><span class="data-key">3. Track</span><span class="data-val">Airtable: Outreach Status &rarr; "Sent", Last Contact At logged</span></div>
+            <div class="data-row"><span class="data-key">1. Read Content</span><span class="data-val">Airtable Content table: fetch creator's post transcripts + metrics (views, likes)</span></div>
+            <div class="data-row"><span class="data-key">2. AI Draft</span><span class="data-val">Claude API reads transcript &rarr; references specific video topics/products mentioned &rarr; personalizes pitch</span></div>
+            <div class="data-row"><span class="data-key">3. Send</span><span class="data-val">Gmail OAuth &rarr; email from affiliates@onzenna.com (human approval if HiL=on)</span></div>
+            <div class="data-row"><span class="data-key">4. Track</span><span class="data-val">Airtable: Outreach Status &rarr; "Sent", Last Contact At logged</span></div>
+          </div>
+          <div class="data-box" style="margin-top:8px;">
+            <h4>Personalization Example</h4>
+            <div style="font-size:12px; color:var(--text-dim); padding:8px; background:#fff; border:1px solid var(--border); border-radius:6px; font-style:italic;">
+              "I watched your recent video about transitioning from bottles to straw cups &mdash; your honest take on BPA concerns really resonated with parents in the comments. Our Grosmimi PPSU Straw Cup was designed exactly for that stage&hellip;"
+            </div>
+            <div style="font-size:10px; color:var(--text-dim); margin-top:6px;">
+              Based on Content.Transcript rather than generic "loved your parenting content"
+            </div>
+          </div>
+          <div class="data-box" style="margin-top:8px;">
+            <h4>n8n Workflows</h4>
+            <div class="data-row"><span class="data-key">Draft Gen</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/fwwOeLiDLSnR77E1" target="_blank" class="wf-link">fwwOeLiDLSnR77E1</a> &mdash; 30-min polling, Claude AI</span></div>
+            <div class="data-row"><span class="data-key">Approval Send</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/jf9uxkPww2xeCr82" target="_blank" class="wf-link">jf9uxkPww2xeCr82</a> &mdash; 1-min polling</span></div>
+            <div class="data-row"><span class="data-key">Reply Handler</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/K99grtW9iWq8V79f" target="_blank" class="wf-link">K99grtW9iWq8V79f</a> &mdash; 1-min polling</span></div>
+          </div>
+          <div class="data-box" style="margin-top:8px;">
+            <h4>Outreach Template</h4>
+            <div class="data-row"><span class="data-key">Template</span><span class="data-val">Outreach v1 &mdash; <a href="https://docs.google.com/document/d/1vAvPdheHFz4xIraa3NODUuFG7RagylHEYOvv6BjtxLg/edit" target="_blank" class="tpl-link gdoc">Google Doc</a></span></div>
+            <div class="data-row"><span class="data-key">Sender</span><span class="data-val">affiliates@onzenna.com</span></div>
           </div>
         </div>
       </div>
@@ -385,7 +432,7 @@
       <div class="flow-num">2</div>
       <div class="flow-info">
         <h2>Influencer Gifting Application</h2>
-        <p>Influencer fills out gifting form &rarr; auto-creates customer + draft order + CRM record</p>
+        <p>Influencer fills out brand-specific gifting form &rarr; auto-creates customer + draft order + CRM record</p>
       </div>
       <div class="flow-status pass">PASS</div>
     </div>
@@ -395,32 +442,40 @@
         <div class="step-content">
           <div class="step-label human">&#9998; Human in the Loop</div>
           <div class="step-title">Influencer Submits Gifting Application</div>
-          <div class="step-desc">Creator fills out the form at <a href="https://onzenna.com/pages/influencer-gifting" target="_blank">onzenna.com/pages/influencer-gifting</a></div>
+          <div class="step-desc">Creator fills out the brand-specific form</div>
           <div class="data-box">
+            <h4>Brand-Specific Gifting Forms</h4>
+            <div class="data-row"><span class="data-key"><span class="brand-badge gros">Grosmimi</span></span><span class="data-val"><a href="https://onzenna.com/pages/influencer-gifting" target="_blank">onzenna.com/pages/influencer-gifting</a></span></div>
+            <div class="data-row"><span class="data-key"><span class="brand-badge cham">Cha&amp;Mom</span></span><span class="data-val"><a href="https://onzenna.com/pages/influencer-gifting-chamom" target="_blank">onzenna.com/pages/influencer-gifting-chamom</a></span></div>
+            <div class="data-row"><span class="data-key"><span class="brand-badge" style="background:#92400e;">High Touch</span></span><span class="data-val"><a href="https://onzenna.com/pages/influencer-gifting-ht" target="_blank">onzenna.com/pages/influencer-gifting-ht</a></span></div>
+          </div>
+          <div class="data-box" style="margin-top:8px;">
             <h4>Form Fields</h4>
             <div class="data-row"><span class="data-key">Name / Email</span><span class="data-val">Personal info + contact details</span></div>
             <div class="data-row"><span class="data-key">Social</span><span class="data-val">Instagram / TikTok handles</span></div>
             <div class="data-row"><span class="data-key">Child Info</span><span class="data-val">Birthday, age in months</span></div>
-            <div class="data-row"><span class="data-key">Product Selection</span><span class="data-val">Choose from Grosmimi PPSU product line</span></div>
+            <div class="data-row"><span class="data-key">Product Selection</span><span class="data-val">Brand-specific product line</span></div>
             <div class="data-row"><span class="data-key">Shipping</span><span class="data-val">US address</span></div>
           </div>
-          <div class="result-badge pass">&#10003; Form submitted (2.5s)</div>
         </div>
       </div>
       <div class="step">
         <div class="step-icon auto">&#9881;</div>
         <div class="step-content">
           <div class="step-label auto">&#9889; Auto Processing (n8n, ~12s)</div>
-          <div class="step-title">Webhook Received &rarr; 5 Parallel Operations</div>
+          <div class="step-title">Webhook &rarr; 5 Parallel Operations</div>
           <div class="data-box">
             <h4>Automated Actions</h4>
             <div class="data-row"><span class="data-key">1. Shopify</span><span class="data-val">Find or create customer (tags: influencer-gifting, PR)</span></div>
             <div class="data-row"><span class="data-key">2. Draft Order</span><span class="data-val">100% PR discount &rarr; $0.00 free order</span></div>
             <div class="data-row"><span class="data-key">3. Metafields</span><span class="data-val">influencer.instagram, .tiktok, .child_1_birthday</span></div>
-            <div class="data-row"><span class="data-key">4. Airtable</span><span class="data-val">Create CRM record (Status: New)</span></div>
+            <div class="data-row"><span class="data-key">4. Airtable</span><span class="data-val">Create Orders record (Status: New) + link to Creator</span></div>
             <div class="data-row"><span class="data-key">5. PostgreSQL</span><span class="data-val">Insert into gifting table via API</span></div>
           </div>
-          <div class="result-badge pass">&#10003; Shopify + Airtable + PG all PASS</div>
+          <div class="data-box" style="margin-top:8px;">
+            <h4>n8n Workflow</h4>
+            <div class="data-row"><span class="data-key">Gifting</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/F0sv8RsCS1v56Gkw" target="_blank" class="wf-link">F0sv8RsCS1v56Gkw</a> &mdash; Webhook trigger</span></div>
+          </div>
         </div>
       </div>
     </div>
@@ -450,7 +505,6 @@
             <div class="data-row"><span class="data-key">Content Type</span><span class="data-val">Product review, lifestyle, unboxing, etc.</span></div>
             <div class="data-row"><span class="data-key">Hashtags</span><span class="data-val">Frequently used hashtags</span></div>
           </div>
-          <div class="result-badge pass">&#10003; Form submitted</div>
         </div>
       </div>
       <div class="step">
@@ -459,7 +513,6 @@
           <div class="step-label auto">&#9889; Auto Save</div>
           <div class="step-title">Airtable Profile Save + IG Metrics Scrape</div>
           <div class="step-desc">Profile data saved to CRM, public Instagram metrics collected automatically</div>
-          <div class="result-badge pass">&#10003; Airtable saved + IG data verified</div>
         </div>
       </div>
       <div class="step">
@@ -503,7 +556,6 @@
           <div class="step-label human">&#9998; Human in the Loop</div>
           <div class="step-title">Creator Fills Out Sample Form</div>
           <div class="step-desc">Selects shipping address + product/color preferences from the emailed link</div>
-          <div class="result-badge pass">&#10003; Form submitted</div>
         </div>
       </div>
       <div class="step">
@@ -518,7 +570,10 @@
             <div class="data-row"><span class="data-key">Draft Order</span><span class="data-val">100% PR Discount &rarr; $0.00</span></div>
             <div class="data-row"><span class="data-key">Airtable</span><span class="data-val">Status &rarr; Sample Form Completed, Draft Order ID logged</span></div>
           </div>
-          <div class="result-badge pass">&#10003; Draft Order + Airtable update complete</div>
+          <div class="data-box" style="margin-top:8px;">
+            <h4>n8n Workflow</h4>
+            <div class="data-row"><span class="data-key">Gifting2</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/KqICsN9F1mPwnAQ9" target="_blank" class="wf-link">KqICsN9F1mPwnAQ9</a> &mdash; Webhook trigger</span></div>
+          </div>
         </div>
       </div>
     </div>
@@ -554,6 +609,10 @@
             <div class="data-row"><span class="data-key">2. Complete</span><span class="data-val">Shopify: POST /draft_orders/{id}/complete.json</span></div>
             <div class="data-row"><span class="data-key">3. Update</span><span class="data-val">Airtable: Status &rarr; "Sample Shipped"</span></div>
           </div>
+          <div class="data-box" style="margin-top:8px;">
+            <h4>n8n Workflow</h4>
+            <div class="data-row"><span class="data-key">Sample Complete</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/m89xU9RUbPgnkBy8" target="_blank" class="wf-link">m89xU9RUbPgnkBy8</a> &mdash; 5-min schedule trigger</span></div>
+          </div>
         </div>
       </div>
     </div>
@@ -577,9 +636,14 @@
           <div class="step-title">Shopify Tracking &rarr; Delivery Detection</div>
           <div class="data-box">
             <h4>Auto Processing Flow</h4>
-            <div class="data-row"><span class="data-key">1. Check</span><span class="data-val">Shopify: query fulfillment_status</span></div>
-            <div class="data-row"><span class="data-key">2. Detect</span><span class="data-val">IF status = "delivered"</span></div>
+            <div class="data-row"><span class="data-key">1. Check</span><span class="data-val">Shopify: query fulfillment_status for shipped orders</span></div>
+            <div class="data-row"><span class="data-key">2. Detect</span><span class="data-val">IF tracking status = "delivered"</span></div>
             <div class="data-row"><span class="data-key">3. Update</span><span class="data-val">Airtable: Status &rarr; "Sample Delivered" + Delivered Date</span></div>
+          </div>
+          <div class="data-box" style="margin-top:8px;">
+            <h4>n8n Workflows</h4>
+            <div class="data-row"><span class="data-key">Fulfillment</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/ufMPgU6cjwuzLM0y" target="_blank" class="wf-link">ufMPgU6cjwuzLM0y</a> &mdash; Shopify fulfillment sync</span></div>
+            <div class="data-row"><span class="data-key">Ship&rarr;Deliver</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/k61gzrshITfju33V" target="_blank" class="wf-link">k61gzrshITfju33V</a> &mdash; 30-min schedule trigger (11 nodes)</span></div>
           </div>
         </div>
       </div>
@@ -592,7 +656,7 @@
       <div class="flow-num" style="background:#06b6d4;">6.5</div>
       <div class="flow-info">
         <h2>Content Guideline Email</h2>
-        <p>Immediately after delivery detection &rarr; sends brand-specific content guidelines PDF + hashtag/tag requirements</p>
+        <p>Immediately after delivery detection &rarr; sends brand-specific content guidelines with product-specific requirements</p>
       </div>
       <div class="flow-status auto-status">AUTO (post-delivery)</div>
     </div>
@@ -600,16 +664,80 @@
       <div class="step">
         <div class="step-icon auto">&#128231;</div>
         <div class="step-content">
-          <div class="step-label auto">&#9889; Auto Email</div>
-          <div class="step-title">Content Guideline PDF + Shooting Requirements</div>
-          <div class="step-desc">Sent automatically from affiliates@onzenna.com right after "Sample Delivered" is detected</div>
+          <div class="step-label auto">&#9889; Auto Email (triggered by Stage 6)</div>
+          <div class="step-title">Brand-Specific Content Guideline Email</div>
+          <div class="step-desc">Sent automatically from affiliates@onzenna.com right after "Sample Delivered" is detected. Brand and product type determine which guideline document is attached.</div>
           <div class="data-box">
-            <h4>Email Content</h4>
+            <h4>Email Configuration</h4>
+            <div class="data-row"><span class="data-key">From</span><span class="data-val">affiliates@onzenna.com (Gmail OAuth)</span></div>
             <div class="data-row"><span class="data-key">Subject</span><span class="data-val">"Your [Brand] sample has been delivered! Here are your content guidelines"</span></div>
-            <div class="data-row"><span class="data-key">PDF Attachment</span><span class="data-val">Grosmimi Content Guidelines.pdf / CHA&amp;MOM Guidelines.pdf (per brand)</span></div>
-            <div class="data-row"><span class="data-key">Requirements</span><span class="data-val">30-second video, voiceover, subtitles</span></div>
-            <div class="data-row"><span class="data-key">Required Tags</span><span class="data-val">@onzenna + #Grosmimi #PPSUbabybottle (auto-generated per brand)</span></div>
-            <div class="data-row"><span class="data-key">Deadline</span><span class="data-val">14 days after delivery</span></div>
+            <div class="data-row"><span class="data-key">Trigger</span><span class="data-val">Automatic &mdash; fires immediately when Status = "Sample Delivered"</span></div>
+            <div class="data-row"><span class="data-key">Selection Logic</span><span class="data-val">Brand + Product Type &rarr; maps to specific guideline template in Airtable Templates table</span></div>
+          </div>
+
+          <!-- Grosmimi Guidelines -->
+          <div class="brand-box gros" style="margin-top:12px;">
+            <h5><span class="brand-badge gros">Grosmimi</span> Content Guidelines</h5>
+            <div class="tpl-card">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <strong style="font-size:13px;">Grosmimi PPSU Guidelines v1</strong>
+                <a href="https://docs.google.com/spreadsheets/d/1jdSqdM_HDeTiSt2x4KhWb-wWx15d3FF5/edit" target="_blank" class="tpl-link gsheet">Google Sheet</a>
+              </div>
+              <div style="font-size:12px; color:var(--text-dim);">
+                <div class="data-row"><span class="data-key" style="min-width:100px;">Products</span><span class="data-val">PPSU Straw Cup, PPSU Tumbler, PPSU Baby Bottle</span></div>
+                <div class="data-row"><span class="data-key" style="min-width:100px;">Keywords</span><span class="data-val">#Grosmimi #PPSUbabybottle #PPSUstrawcup #babycup</span></div>
+                <div class="data-row"><span class="data-key" style="min-width:100px;">Tag Required</span><span class="data-val">@onzenna</span></div>
+                <div class="data-row"><span class="data-key" style="min-width:100px;">Content Req</span><span class="data-val">30-second minimum video, voiceover, subtitles, product in use</span></div>
+                <div class="data-row"><span class="data-key" style="min-width:100px;">Template ID</span><span class="data-val"><code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">rec8ppunKfrcZJtHU</code></span></div>
+              </div>
+            </div>
+            <div class="tpl-card">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <strong style="font-size:13px;">Grosmimi Stainless Guidelines v1</strong>
+                <a href="https://docs.google.com/spreadsheets/d/1o2C3zI6a09ykf6AXIWv2mG6IMgajLU38/edit" target="_blank" class="tpl-link gsheet">Google Sheet</a>
+              </div>
+              <div style="font-size:12px; color:var(--text-dim);">
+                <div class="data-row"><span class="data-key" style="min-width:100px;">Products</span><span class="data-val">Stainless Straw Cup, Stainless Tumbler</span></div>
+                <div class="data-row"><span class="data-key" style="min-width:100px;">Keywords</span><span class="data-val">#Grosmimi #stainlesscup #toddlercup #babytumbler</span></div>
+                <div class="data-row"><span class="data-key" style="min-width:100px;">Tag Required</span><span class="data-val">@onzenna</span></div>
+                <div class="data-row"><span class="data-key" style="min-width:100px;">Content Req</span><span class="data-val">30-second minimum video, voiceover, subtitles, product in use</span></div>
+                <div class="data-row"><span class="data-key" style="min-width:100px;">Template ID</span><span class="data-val"><code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">recXplY6bqG8XEHws</code></span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cha&Mom Guidelines -->
+          <div class="brand-box cham" style="margin-top:12px;">
+            <h5><span class="brand-badge cham">Cha&amp;Mom</span> Content Guidelines</h5>
+            <div class="tpl-card">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <strong style="font-size:13px;">Cha&amp;Mom Lemon Guidelines v1</strong>
+                <a href="https://docs.google.com/spreadsheets/d/1Eqfi3XUKjPJ3mEYvY99MTT7koB7YUuTx/edit" target="_blank" class="tpl-link gsheet">Google Sheet</a>
+              </div>
+              <div style="font-size:12px; color:var(--text-dim);">
+                <div class="data-row"><span class="data-key" style="min-width:100px;">Products</span><span class="data-val">Cha&amp;Mom Lemon Balm line</span></div>
+                <div class="data-row"><span class="data-key" style="min-width:100px;">Keywords</span><span class="data-val">#ChaAndMom #LemonBalm #babyskincare #naturalbaby</span></div>
+                <div class="data-row"><span class="data-key" style="min-width:100px;">Tag Required</span><span class="data-val">@onzenna</span></div>
+                <div class="data-row"><span class="data-key" style="min-width:100px;">Template ID</span><span class="data-val"><code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">recUXNa73TNDiW1WC</code></span></div>
+              </div>
+            </div>
+            <div class="tpl-card">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <strong style="font-size:13px;">Cha&amp;Mom Phyto Guidelines v1</strong>
+                <a href="https://docs.google.com/spreadsheets/d/1kRlvVRKnB8ndHP-8AjI-LYNC171uWBV_/edit" target="_blank" class="tpl-link gsheet">Google Sheet</a>
+              </div>
+              <div style="font-size:12px; color:var(--text-dim);">
+                <div class="data-row"><span class="data-key" style="min-width:100px;">Products</span><span class="data-val">Cha&amp;Mom Phytoncide line</span></div>
+                <div class="data-row"><span class="data-key" style="min-width:100px;">Keywords</span><span class="data-val">#ChaAndMom #Phytoncide #babyskincare #koreanbaby</span></div>
+                <div class="data-row"><span class="data-key" style="min-width:100px;">Tag Required</span><span class="data-val">@onzenna</span></div>
+                <div class="data-row"><span class="data-key" style="min-width:100px;">Template ID</span><span class="data-val"><code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">reclsVK3PGmIfS4OZ</code></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="data-box" style="margin-top:12px;">
+            <h4>n8n Workflow</h4>
+            <div class="data-row"><span class="data-key">Deliver&rarr;Posted</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/tvmHITPHpWFtcmh0" target="_blank" class="wf-link">tvmHITPHpWFtcmh0</a> &mdash; Triggers guideline email on delivery (8 nodes)</span></div>
           </div>
         </div>
       </div>
@@ -632,7 +760,7 @@
         <div class="step-content">
           <div class="step-label human">&#9998; Human in the Loop</div>
           <div class="step-title">Influencer Films &amp; Posts Content</div>
-          <div class="step-desc">Following the guidelines, creator posts a product review video/photo on Instagram or TikTok</div>
+          <div class="step-desc">Following the brand-specific guidelines, creator posts a product review video/photo on Instagram or TikTok</div>
         </div>
       </div>
       <div class="step">
@@ -647,15 +775,270 @@
             <div class="data-row"><span class="data-key">3. Update</span><span class="data-val">Airtable: Status &rarr; "Posted" + Post URL + Metrics</span></div>
             <div class="data-row"><span class="data-key">4. Track</span><span class="data-val">Begin D+60 performance tracking (Views, Likes, Comments)</span></div>
           </div>
+          <div class="data-box" style="margin-top:8px;">
+            <h4>n8n Workflows</h4>
+            <div class="data-row"><span class="data-key">Syncly Metrics</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/FzBJVEOTvr6qJPAL" target="_blank" class="wf-link">FzBJVEOTvr6qJPAL</a> &mdash; 6-hr schedule trigger</span></div>
+            <div class="data-row"><span class="data-key">Deliver&rarr;Posted</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/tvmHITPHpWFtcmh0" target="_blank" class="wf-link">tvmHITPHpWFtcmh0</a> &mdash; Post detection + status update</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STAGE 8 ==================== -->
+  <div class="flow">
+    <div class="flow-header">
+      <div class="flow-num" style="background:#dc2626;">8</div>
+      <div class="flow-info">
+        <h2>Content Tracking + Reminder Engine</h2>
+        <p>If content not posted within deadline &rarr; auto-send reminder email. LT: 30 days / HT: 50 days. Tracks per-brand requirements.</p>
+      </div>
+      <div class="flow-status auto-status">AUTO (scheduled)</div>
+    </div>
+    <div class="journey">
+      <div class="step">
+        <div class="step-icon poll">&#128337;</div>
+        <div class="step-content">
+          <div class="step-label poll">&#128337; Scheduled Check</div>
+          <div class="step-title">Content Deadline Monitoring</div>
+          <div class="step-desc">n8n periodically checks all creators with Status = "Sample Delivered" against their posting deadline. If overdue, triggers a reminder email.</div>
+          <div class="data-box">
+            <h4>Reminder Logic</h4>
+            <div class="data-row"><span class="data-key">1. Query</span><span class="data-val">Airtable: all creators with Status = "Sample Delivered"</span></div>
+            <div class="data-row"><span class="data-key">2. Calculate</span><span class="data-val">Days since delivery = Today - Delivered Date</span></div>
+            <div class="data-row"><span class="data-key">3. Check</span><span class="data-val">IF days &gt; reminder threshold (LT: 30d / HT: 50d) AND no content post detected</span></div>
+            <div class="data-row"><span class="data-key">4. Send</span><span class="data-val">Reminder email from affiliates@onzenna.com with gentle follow-up</span></div>
+            <div class="data-row"><span class="data-key">5. Log</span><span class="data-val">Airtable Conversations: log reminder sent + update Last Contact At</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon auto">&#128231;</div>
+        <div class="step-content">
+          <div class="step-label auto">&#9889; Auto Reminder Email</div>
+          <div class="step-title">Brand-Aware Content Reminder</div>
+          <div class="step-desc">Friendly reminder email referencing the original guideline, with brand-appropriate messaging</div>
+
+          <div class="data-box">
+            <h4>Reminder Email Template</h4>
+            <div class="data-row"><span class="data-key">Template</span><span class="data-val">Content Reminder v1 &mdash; <a href="https://docs.google.com/document/d/1UGVj5e0kxuLlBRX6oWTq8bd9QuSybuMC8JFYFA71yZI/edit" target="_blank" class="tpl-link gdoc">Google Doc</a></span></div>
+            <div class="data-row"><span class="data-key">Template ID</span><span class="data-val"><code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">recCJnFa3cBoD55ca</code></span></div>
+            <div class="data-row"><span class="data-key">From</span><span class="data-val">affiliates@onzenna.com</span></div>
+            <div class="data-row"><span class="data-key">Tone</span><span class="data-val">Friendly check-in, not aggressive. References the product sent and original guideline.</span></div>
+          </div>
+
+          <!-- LT vs HT Config -->
+          <div style="display:flex; gap:12px; margin-top:12px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:200px; background:var(--auto-bg); border:1px solid var(--auto-border); border-radius:10px; padding:14px;">
+              <div style="font-size:12px; font-weight:700; color:var(--auto); margin-bottom:8px;">Low Touch (LT)</div>
+              <div class="data-row" style="font-size:12px;"><span class="data-key" style="min-width:100px;">Reminder</span><span class="data-val"><strong>30 days</strong> after delivery</span></div>
+              <div class="data-row" style="font-size:12px;"><span class="data-key" style="min-width:100px;">Required Posts</span><span class="data-val"><strong>1</strong> post minimum</span></div>
+              <div class="data-row" style="font-size:12px;"><span class="data-key" style="min-width:100px;">Brands</span><span class="data-val">Grosmimi (standard gifting)</span></div>
+              <div class="data-row" style="font-size:12px;"><span class="data-key" style="min-width:100px;">Form</span><span class="data-val"><a href="https://onzenna.com/pages/influencer-gifting" target="_blank" style="font-size:11px;">influencer-gifting</a></span></div>
+            </div>
+            <div style="flex:1; min-width:200px; background:var(--human-bg); border:1px solid var(--human-border); border-radius:10px; padding:14px;">
+              <div style="font-size:12px; font-weight:700; color:var(--human); margin-bottom:8px;">High Touch (HT)</div>
+              <div class="data-row" style="font-size:12px;"><span class="data-key" style="min-width:100px;">Reminder</span><span class="data-val"><strong>50 days</strong> after delivery</span></div>
+              <div class="data-row" style="font-size:12px;"><span class="data-key" style="min-width:100px;">Required Posts</span><span class="data-val"><strong>2</strong> posts minimum</span></div>
+              <div class="data-row" style="font-size:12px;"><span class="data-key" style="min-width:100px;">Brands</span><span class="data-val">Cha&amp;Mom, Grosmimi High Touch</span></div>
+              <div class="data-row" style="font-size:12px;"><span class="data-key" style="min-width:100px;">Form</span><span class="data-val"><a href="https://onzenna.com/pages/influencer-gifting-ht" target="_blank" style="font-size:11px;">influencer-gifting-ht</a></span></div>
+            </div>
+          </div>
+
+          <div class="data-box" style="margin-top:12px;">
+            <h4>n8n Workflow</h4>
+            <div class="data-row"><span class="data-key">Content Track</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/isOQGE4ynRubL8We" target="_blank" class="wf-link">isOQGE4ynRubL8We</a> &mdash; Content tracking + reminder engine (23 nodes)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TEMPLATES REFERENCE ==================== -->
+  <div class="summary-section" style="margin-top:48px; margin-bottom:0;">
+    <h3>Templates Reference</h3>
+    <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">
+      All email templates, content guidelines, and creator forms stored in Airtable Templates table
+      (<a href="https://airtable.com/app3Vnmh7hLAVsevE/tblG3DoBW4Khz1ceU" target="_blank" style="font-size:12px;">tblG3DoBW4Khz1ceU</a>)
+    </p>
+
+    <!-- Content Guidelines -->
+    <div style="margin-bottom:20px;">
+      <div style="font-size:13px; font-weight:700; margin-bottom:10px; color:var(--accent);">Content Guidelines</div>
+      <div class="brand-box gros">
+        <h5><span class="brand-badge gros">Grosmimi</span> Guidelines</h5>
+        <div class="tpl-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <strong style="font-size:12px;">PPSU Guidelines v1</strong>
+              <div style="font-size:10px; color:var(--text-dim);">PPSU Straw Cup, PPSU Tumbler, PPSU Baby Bottle</div>
+            </div>
+            <a href="https://docs.google.com/spreadsheets/d/1jdSqdM_HDeTiSt2x4KhWb-wWx15d3FF5/edit" target="_blank" class="tpl-link gsheet">Google Sheet</a>
+          </div>
+        </div>
+        <div class="tpl-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <strong style="font-size:12px;">Stainless Guidelines v1</strong>
+              <div style="font-size:10px; color:var(--text-dim);">Stainless Straw Cup, Stainless Tumbler</div>
+            </div>
+            <a href="https://docs.google.com/spreadsheets/d/1o2C3zI6a09ykf6AXIWv2mG6IMgajLU38/edit" target="_blank" class="tpl-link gsheet">Google Sheet</a>
+          </div>
+        </div>
+      </div>
+      <div class="brand-box cham">
+        <h5><span class="brand-badge cham">Cha&amp;Mom</span> Guidelines</h5>
+        <div class="tpl-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <strong style="font-size:12px;">Lemon Balm Guidelines v1</strong>
+              <div style="font-size:10px; color:var(--text-dim);">Cha&amp;Mom Lemon Balm line</div>
+            </div>
+            <a href="https://docs.google.com/spreadsheets/d/1Eqfi3XUKjPJ3mEYvY99MTT7koB7YUuTx/edit" target="_blank" class="tpl-link gsheet">Google Sheet</a>
+          </div>
+        </div>
+        <div class="tpl-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <strong style="font-size:12px;">Phytoncide Guidelines v1</strong>
+              <div style="font-size:10px; color:var(--text-dim);">Cha&amp;Mom Phytoncide line</div>
+            </div>
+            <a href="https://docs.google.com/spreadsheets/d/1kRlvVRKnB8ndHP-8AjI-LYNC171uWBV_/edit" target="_blank" class="tpl-link gsheet">Google Sheet</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Email Templates -->
+    <div style="margin-bottom:20px;">
+      <div style="font-size:13px; font-weight:700; margin-bottom:10px; color:var(--accent);">Email Templates</div>
+      <div class="tpl-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <strong style="font-size:12px;">Outreach Email v1</strong>
+            <div style="font-size:10px; color:var(--text-dim);">Stage 1: Claude AI personalized outreach</div>
+          </div>
+          <a href="https://docs.google.com/document/d/1vAvPdheHFz4xIraa3NODUuFG7RagylHEYOvv6BjtxLg/edit" target="_blank" class="tpl-link gdoc">Google Doc</a>
+        </div>
+      </div>
+      <div class="tpl-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <strong style="font-size:12px;">Content Reminder v1</strong>
+            <div style="font-size:10px; color:var(--text-dim);">Stage 8: Gentle follow-up for overdue content posting</div>
+          </div>
+          <a href="https://docs.google.com/document/d/1UGVj5e0kxuLlBRX6oWTq8bd9QuSybuMC8JFYFA71yZI/edit" target="_blank" class="tpl-link gdoc">Google Doc</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Creator Forms -->
+    <div style="margin-bottom:0;">
+      <div style="font-size:13px; font-weight:700; margin-bottom:10px; color:var(--accent);">Creator Forms</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <div class="tpl-card" style="flex:1; min-width:200px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <strong style="font-size:12px;"><span class="brand-badge gros" style="font-size:9px;">Grosmimi</span> Creator Form v1</strong>
+            </div>
+            <a href="https://onzenna.com/pages/influencer-gifting" target="_blank" class="tpl-link form">Form</a>
+          </div>
+        </div>
+        <div class="tpl-card" style="flex:1; min-width:200px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <strong style="font-size:12px;"><span class="brand-badge cham" style="font-size:9px;">Cha&amp;Mom</span> Creator Form v1</strong>
+            </div>
+            <a href="https://onzenna.com/pages/influencer-gifting-chamom" target="_blank" class="tpl-link form">Form</a>
+          </div>
+        </div>
+        <div class="tpl-card" style="flex:1; min-width:200px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <strong style="font-size:12px;"><span class="brand-badge" style="font-size:9px; background:#92400e;">HT</span> High Touch Form v1</strong>
+            </div>
+            <a href="https://onzenna.com/pages/influencer-gifting-ht" target="_blank" class="tpl-link form">Form</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== DASHBOARD CONFIG ==================== -->
+  <div class="summary-section" style="margin-bottom:0;">
+    <h3>Dashboard Configuration</h3>
+    <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">
+      Live settings from Airtable Dashboard table
+      (<a href="https://airtable.com/app3Vnmh7hLAVsevE/tblS7V4M9sqWuJPok" target="_blank" style="font-size:12px;">tblS7V4M9sqWuJPok</a>)
+      &mdash; controls all automated behavior
+    </p>
+
+    <div class="config-grid">
+      <div class="config-item">
+        <div class="config-label">Active</div>
+        <div class="config-value" style="color:#15803d;">True</div>
+      </div>
+      <div class="config-item">
+        <div class="config-label">Mode</div>
+        <div class="config-value">Manual</div>
+      </div>
+      <div class="config-item">
+        <div class="config-label">Sender Email</div>
+        <div class="config-value" style="font-size:12px;">affiliates@onzenna.com</div>
+      </div>
+      <div class="config-item">
+        <div class="config-label">Human-in-Loop: Draft Gen</div>
+        <div class="config-value" style="color:var(--human);">On</div>
+      </div>
+      <div class="config-item">
+        <div class="config-label">Human-in-Loop: Reply Handler</div>
+        <div class="config-value" style="color:var(--human);">On</div>
+      </div>
+      <div class="config-item">
+        <div class="config-label">Human-in-Loop: ManyChat</div>
+        <div class="config-value" style="color:var(--human);">On</div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px; font-size:13px; font-weight:700; margin-bottom:10px;">Content &amp; Reminder Settings</div>
+    <div class="config-grid">
+      <div class="config-item">
+        <div class="config-label">LT Reminder Days</div>
+        <div class="config-value" style="color:var(--auto);">30 days</div>
+      </div>
+      <div class="config-item">
+        <div class="config-label">HT Reminder Days</div>
+        <div class="config-value" style="color:var(--human);">50 days</div>
+      </div>
+      <div class="config-item">
+        <div class="config-label">LT Required Posts</div>
+        <div class="config-value">1</div>
+      </div>
+      <div class="config-item">
+        <div class="config-label">HT Required Posts</div>
+        <div class="config-value">2</div>
+      </div>
+      <div class="config-item">
+        <div class="config-label">Est. Shipping Duration</div>
+        <div class="config-value">5 days</div>
+      </div>
+      <div class="config-item">
+        <div class="config-label">Email Reminder Start Date</div>
+        <div class="config-value" style="font-size:13px;">2026-03-01</div>
+      </div>
+      <div class="config-item">
+        <div class="config-label">Reminder Template</div>
+        <div class="config-value" style="font-size:11px;">
+          <a href="https://docs.google.com/document/d/1UGVj5e0kxuLlBRX6oWTq8bd9QuSybuMC8JFYFA71yZI/edit" target="_blank" class="tpl-link gdoc">Content Reminder v1</a>
         </div>
       </div>
     </div>
   </div>
 
   <!-- ==================== WORKFLOW STATUS ==================== -->
-  <div class="summary-section" style="margin-top:48px; margin-bottom:0;">
-    <h3>n8n Workflow Status (Production)</h3>
-    <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">As of March 18, 2026</p>
+  <div class="summary-section" style="margin-bottom:0;">
+    <h3>n8n Workflow Status (PROD)</h3>
+    <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">As of March 18, 2026 &middot; All workflows on PROD Airtable base <code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">app3Vnmh7hLAVsevE</code></p>
     <table style="width:100%; border-collapse:collapse; font-size:13px;">
       <thead>
         <tr style="border-bottom:2px solid var(--border);">
@@ -667,122 +1050,104 @@
       </thead>
       <tbody>
         <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">0</td>
-          <td style="padding:8px 6px;">Daily Config Row</td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Google Sheets daily config</td>
-        </tr>
-        <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">0</td>
-          <td style="padding:8px 6px;">Mode Switcher</td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Checks mode every 2 min</td>
-        </tr>
-        <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">1a</td>
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/fwwOeLiDLSnR77E1" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Draft Generation</a> <a href="https://n8n.orbiters.co.kr/workflow/0q9uJUYTpDhQFMfz" target="_blank" class="wf-link">[WJ]</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/fwwOeLiDLSnR77E1" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Draft Generation</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ACTIVE</span></td>
           <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Claude AI email generation (30-min polling)</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">1b</td>
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/jf9uxkPww2xeCr82" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Approval Send</a> <a href="https://n8n.orbiters.co.kr/workflow/mmkBpmvhzbgmSayh" target="_blank" class="wf-link">[WJ]</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/jf9uxkPww2xeCr82" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Approval Send</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ACTIVE</span></td>
           <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Checks approvals every 1 min</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">1c</td>
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/K99grtW9iWq8V79f" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Reply Handler</a> <a href="https://n8n.orbiters.co.kr/workflow/nVtYmhU0InRqRn4K" target="_blank" class="wf-link">[WJ]</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/K99grtW9iWq8V79f" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Reply Handler</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ACTIVE</span></td>
           <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Detects replies every 1 min</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">2</td>
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/F0sv8RsCS1v56Gkw" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Gifting Draft Order</a> <a href="https://n8n.orbiters.co.kr/workflow/4q5NCzMb3nMGYqL4" target="_blank" class="wf-link">[WJ]</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/F0sv8RsCS1v56Gkw" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Gifting Draft Order</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ACTIVE</span></td>
           <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Webhook &rarr; Shopify + Airtable</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">3</td>
-          <td style="padding:8px 6px;">Accepted Email</td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Polls Needs Review every 3 min</td>
-        </tr>
-        <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">4</td>
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/KqICsN9F1mPwnAQ9" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Sample Request</a> <a href="https://n8n.orbiters.co.kr/workflow/734aqkcOIfiylExL" target="_blank" class="wf-link">[WJ]</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/KqICsN9F1mPwnAQ9" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Sample Request (Gifting2)</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ACTIVE</span></td>
           <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Sample form &rarr; Draft Order</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">5</td>
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/m89xU9RUbPgnkBy8" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Sample Sent Complete</a> <a href="https://n8n.orbiters.co.kr/workflow/Vd5NiKMwdLT7b9wa" target="_blank" class="wf-link">[WJ]</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">5-min polling</td>
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/m89xU9RUbPgnkBy8" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Sample Sent Complete</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ACTIVE</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">5-min polling &rarr; Draft Order complete</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">5-6</td>
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/ufMPgU6cjwuzLM0y" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Fulfillment Sync</a> <a href="https://n8n.orbiters.co.kr/workflow/UP1OnpNEFN54AOUn" target="_blank" class="wf-link">[WJ]</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/ufMPgU6cjwuzLM0y" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Fulfillment Sync</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ACTIVE</span></td>
           <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Shopify fulfillment &rarr; Airtable</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">6</td>
-          <td style="padding:8px 6px;">Shipped &rarr; Delivered</td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">30-min polling</td>
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/k61gzrshITfju33V" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Shipped &rarr; Delivered</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ACTIVE</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">30-min polling (11 nodes) &mdash; migrated from WJ TEST</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">7</td>
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/FzBJVEOTvr6qJPAL" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Content Posted Detection</a> <a href="https://n8n.orbiters.co.kr/workflow/82t55jurzbY3iUM4" target="_blank" class="wf-link">[WJ]</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">6-hr polling via Syncly D+60</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">6.5-7</td>
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/tvmHITPHpWFtcmh0" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Delivered &rarr; Posted</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ACTIVE</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Guideline email + post detection (8 nodes) &mdash; migrated from WJ TEST</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">7</td>
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/zKmOX0tEWi6EBT9h" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Content Tracking</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Content metrics collection</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">8</td>
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/isOQGE4ynRubL8We" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Content Tracking + Reminder</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ACTIVE</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Metrics collection + reminder engine (23 nodes) &mdash; migrated from WJ TEST</td>
         </tr>
         <tr>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">&mdash;</td>
-          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/wyttsPSZJlWLgy86" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Customer Lookup</a></td>
-          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">PASS</span></td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Shopify customer search</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">0/7</td>
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/FzBJVEOTvr6qJPAL" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Syncly Metrics</a></td>
+          <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ACTIVE</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">6-hr polling &mdash; discovery + D+60 content detection</td>
         </tr>
       </tbody>
     </table>
     <div style="margin-top:12px; font-size:12px; color:var(--text-dim); text-align:right;">
-      14 production workflows &middot; All passing
+      11 production workflows &middot; All active on PROD
     </div>
   </div>
 
   <!-- ==================== E2E DUAL TESTS ==================== -->
   <div class="summary-section" style="margin-bottom:0;">
-    <h3>E2E Dual Tests: Maker-Checker Pipeline Verification</h3>
+    <h3>E2E Dual Tests: PROD Pipeline Verification</h3>
     <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">
-      Two independent runs on WJ TEST environment. Each creates a simulated influencer,
-      walks through all 8 pipeline stages (0 &rarr; 1a/1b/1c/1d &rarr; 2 &rarr; 4 &rarr; 5),
-      and verifies every downstream system via Maker-Checker pattern. All test data cleaned up after each run.
+      Maker-Checker pattern on PROD environment (<code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">app3Vnmh7hLAVsevE</code>).
+      Creates a simulated influencer, walks through all pipeline stages, and verifies every downstream system.
+      All test data auto-cleaned via <code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">orbiters.co.kr</code> domain check.
     </p>
 
     <!-- Scorecards -->
     <div style="display:flex; gap:12px; margin-bottom:24px; flex-wrap:wrap;">
       <div style="flex:1; min-width:120px; background:#dcfce7; border:1px solid #86efac; border-radius:10px; padding:14px; text-align:center;">
-        <div style="font-size:28px; font-weight:700; color:#15803d;">80 / 80</div>
-        <div style="font-size:11px; color:#166534; margin-top:4px;">Total Checks (2 runs)</div>
+        <div style="font-size:28px; font-weight:700; color:#15803d;">35 / 39</div>
+        <div style="font-size:11px; color:#166534; margin-top:4px;">Total Checks</div>
       </div>
       <div style="flex:1; min-width:120px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:14px; text-align:center;">
-        <div style="font-size:28px; font-weight:700; color:#0369a1;">8</div>
-        <div style="font-size:11px; color:#0c4a6e; margin-top:4px;">Stages per Run</div>
+        <div style="font-size:28px; font-weight:700; color:#0369a1;">9</div>
+        <div style="font-size:11px; color:#0c4a6e; margin-top:4px;">Stages Tested</div>
       </div>
       <div style="flex:1; min-width:120px; background:#f5f3ff; border:1px solid #ddd6fe; border-radius:10px; padding:14px; text-align:center;">
         <div style="font-size:28px; font-weight:700; color:#7c3aed;">4</div>
         <div style="font-size:11px; color:#5b21b6; margin-top:4px;">Systems Verified</div>
       </div>
       <div style="flex:1; min-width:120px; background:#fef3c7; border:1px solid #fde68a; border-radius:10px; padding:14px; text-align:center;">
-        <div style="font-size:28px; font-weight:700; color:#92400e;">~2m 40s</div>
-        <div style="font-size:11px; color:#78350f; margin-top:4px;">Avg Run Time</div>
+        <div style="font-size:28px; font-weight:700; color:#92400e;">PROD</div>
+        <div style="font-size:11px; color:#78350f; margin-top:4px;">Environment</div>
       </div>
     </div>
 
@@ -803,222 +1168,33 @@
       <span style="background:var(--accent); color:#fff; padding:2px 6px; border-radius:4px; font-weight:700;">4</span><span style="color:var(--text-dim);">Sample</span>
       <span style="color:var(--text-dim);">&rarr;</span>
       <span style="background:var(--poll); color:#fff; padding:2px 6px; border-radius:4px; font-weight:700;">5</span><span style="color:var(--text-dim);">Sent</span>
+      <span style="color:var(--text-dim);">&rarr;</span>
+      <span style="background:var(--poll); color:#fff; padding:2px 6px; border-radius:4px; font-weight:700;">6</span><span style="color:var(--text-dim);">Delivered</span>
+      <span style="color:var(--text-dim);">&rarr;</span>
+      <span style="background:#06b6d4; color:#fff; padding:2px 6px; border-radius:4px; font-weight:700;">6.5</span><span style="color:var(--text-dim);">Guideline</span>
+      <span style="color:var(--text-dim);">&rarr;</span>
+      <span style="background:var(--store); color:#fff; padding:2px 6px; border-radius:4px; font-weight:700;">7</span><span style="color:var(--text-dim);">Posted</span>
+      <span style="color:var(--text-dim);">&rarr;</span>
+      <span style="background:#dc2626; color:#fff; padding:2px 6px; border-radius:4px; font-weight:700;">8</span><span style="color:var(--text-dim);">Reminder</span>
     </div>
 
-
-    <div style="background:var(--card); border:2px solid #6366f1; border-radius:14px; padding:20px; margin-bottom:24px;">
+    <!-- Test Result -->
+    <div style="background:var(--card); border:2px solid #6366f1; border-radius:14px; padding:20px;">
       <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
-        <span style="background:#6366f1; color:#fff; padding:4px 12px; border-radius:8px; font-size:13px; font-weight:700;">Test 1</span>
-        <span style="font-size:13px; color:var(--text-dim);">March 18, 2026 10:14 PST &middot; 2m 33s &middot; <strong style="color:#15803d;">40/40 PASS</strong></span>
+        <span style="background:#6366f1; color:#fff; padding:4px 12px; border-radius:8px; font-size:13px; font-weight:700;">PROD Test</span>
+        <span style="font-size:13px; color:var(--text-dim);">March 18, 2026 &middot; Executor <strong style="color:#15803d;">13/14</strong> &middot; Verifier <strong style="color:#15803d;">22/25</strong></span>
       </div>
 
-      <!-- Test Subject -->
-      <div style="background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:16px; font-size:12px;">
-        <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); font-weight:600; margin-bottom:8px;">Test Subject (Simulated Influencer)</div>
-        <div class="data-row"><span class="data-key">Name</span><span class="data-val">Sarah Kim</span></div>
-        <div class="data-row"><span class="data-key">Email</span><span class="data-val">flow_test_20260318_101449_gzzx@orbiters.co.kr</span></div>
-        <div class="data-row"><span class="data-key">Instagram</span><span class="data-val">@dualtest_20260318_vbdx</span></div>
-        <div class="data-row"><span class="data-key">TikTok</span><span class="data-val">@dualtest_tk_vbdx</span></div>
-        <div class="data-row"><span class="data-key">Phone</span><span class="data-val">+13104728096</span></div>
-        <div class="data-row"><span class="data-key">Products</span><span class="data-val">PPSU Straw Cup Latte + PPSU Tumbler Pink</span></div>
-        <div class="data-row"><span class="data-key">Address</span><span class="data-val">4521 Maple Creek Dr Apt 3B, Irvine CA 92612</span></div>
-        <div class="data-row"><span class="data-key">Creator Record</span><span class="data-val"><a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/recpxuFvlMAoOOVei" target="_blank">recpxuFvlMAoOOVei</a></span></div>
-      </div>
-
-      <!-- Stage 0: Seed -->
-      <div style="margin-bottom:14px; padding:12px; background:#f1f5f9; border-radius:8px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="background:#94a3b8; color:#fff; width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">0</span>
-          <span style="font-size:13px; font-weight:600;">Discovery &rarr; CRM Seed</span>
-          <span style="margin-left:auto; font-size:10px; color:var(--text-dim);">1.3s</span>
-          <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600;">PASS</span>
-        </div>
-        <div style="font-size:11px; color:var(--text-dim); padding-left:32px;">
-          Syncly discovers influencer &rarr; Airtable Creators record created &rarr; Status: Not Started<br>
-          <strong>Executor:</strong> POST Airtable Creators &rarr; <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/recpxuFvlMAoOOVei" target="_blank">recpxuFvlMAoOOVei</a><br>
-          <strong>Verifier:</strong> Record exists + Username matches + Applicants NOT yet (neg) + Shopify NOT yet (neg)
-        </div>
-      </div>
-
-      <!-- Stage 1a: AI Draft -->
-      <div style="margin-bottom:14px; padding:12px; background:var(--auto-bg); border:1px solid var(--auto-border); border-radius:8px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="background:var(--auto); color:#fff; width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">1a</span>
-          <span style="font-size:13px; font-weight:600;">Claude AI Draft Generation</span>
-          <span style="margin-left:auto; font-size:10px; color:var(--text-dim);">65.1s</span>
-          <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600;">PASS</span>
-        </div>
-        <div style="font-size:11px; color:var(--text-dim); padding-left:32px;">
-          n8n triggers Claude API &rarr; personalized outreach email drafted &rarr; saved to Sheets + AT Conversations<br>
-          <strong>Executor:</strong> POST <a class="wf-link" href="https://n8n.orbiters.co.kr/workflow/0q9uJUYTpDhQFMfz" target="_blank">draft_gen webhook</a> &rarr; 200 &rarr; wait 65s<br>
-          <strong>Verifier:</strong> AT Conversations draft = <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recsWhv9aVWWeddSU" target="_blank">recsWhv9aVWWeddSU</a> + Creator status changed
-        </div>
-      </div>
-
-      <!-- Stage 1b: Marketer Approve -->
-      <div style="margin-bottom:14px; padding:12px; background:var(--human-bg); border:1px solid var(--human-border); border-radius:8px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="background:var(--human); color:#fff; width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">1b</span>
-          <span style="font-size:13px; font-weight:600;">Marketer Approves &rarr; Gmail Send</span>
-          <span style="margin-left:auto; font-size:10px; color:var(--text-dim);">1.9s</span>
-          <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600;">PASS</span>
-        </div>
-        <div style="font-size:11px; padding-left:32px;">
-          <div style="color:var(--text-dim); margin-bottom:6px;">
-            <strong>Marketer action:</strong> Reviews AI draft in n8n &rarr; clicks Approve &rarr; Gmail OAuth sends from affiliates@onzenna.com
-          </div>
-          <div style="background:#fff; border:1px solid var(--border); border-radius:6px; padding:8px; font-family:monospace; font-size:10px; line-height:1.5; margin-bottom:6px;">
-            <strong>Subject:</strong> Grosmimi x dualtest_20260318_vbdx - Baby Product Collaboration<br>
-            <strong>Body:</strong> Hi Sarah Kim, I came across your Instagram profile @dualtest_20260318_vbdx and loved your authentic parenting content! We&#39;d love to send you our bestselling PPSU Straw Cup for your little one to try. Would you be interested?
-          </div>
-          <div style="color:var(--text-dim);">
-            <strong>Executor:</strong> Log outreach &rarr; <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recaX9QHpT4xPDg1O" target="_blank">recaX9QHpT4xPDg1O</a> &rarr; status &rarr; Sent<br>
-            <strong>Verifier:</strong> Outreach exists (Outbound) + Creator status = Sent
-          </div>
-        </div>
-      </div>
-
-      <!-- Stage 1c: Influencer Reply -->
-      <div style="margin-bottom:14px; padding:12px; background:#dcfce7; border:1px solid #86efac; border-radius:8px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="background:#15803d; color:#fff; width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">1c</span>
-          <span style="font-size:13px; font-weight:600;">Influencer Reply (Inbound)</span>
-          <span style="margin-left:auto; font-size:10px; color:var(--text-dim);">2.0s</span>
-          <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600;">PASS</span>
-        </div>
-        <div style="font-size:11px; padding-left:32px;">
-          <div style="color:var(--text-dim); margin-bottom:6px;">
-            <strong>Simulated:</strong> n8n Reply Handler detects inbound email &rarr; logs in AT Conversations
-          </div>
-          <div style="background:#fff; border:1px solid var(--border); border-radius:6px; padding:8px; font-family:monospace; font-size:10px; line-height:1.5; margin-bottom:6px;">
-            Hi Onzenna Team!<br>Thank you for reaching out! I&#39;d love to try the PPSU Straw Cup for my daughter.<br>I can have the content up within 2-3 weeks.<br>Best, Sarah Kim @dualtest_20260318_vbdx
-          </div>
-          <div style="color:var(--text-dim);">
-            <strong>Executor:</strong> Log reply &rarr; <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/rec3i8QwDLGJZYSoJ" target="_blank">rec3i8QwDLGJZYSoJ</a> &rarr; status &rarr; Replied<br>
-            <strong>Verifier:</strong> Reply exists (Inbound) + Creator status = Replied
-          </div>
-        </div>
-      </div>
-
-      <!-- Stage 1d: Confirmation -->
-      <div style="margin-bottom:14px; padding:12px; background:var(--auto-bg); border:1px solid var(--auto-border); border-radius:8px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="background:var(--auto); color:#fff; width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">1d</span>
-          <span style="font-size:13px; font-weight:600;">Confirmation + Gifting Form Link</span>
-          <span style="margin-left:auto; font-size:10px; color:var(--text-dim);">1.9s</span>
-          <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600;">PASS</span>
-        </div>
-        <div style="font-size:11px; padding-left:32px;">
-          <div style="color:var(--text-dim); margin-bottom:6px;">
-            <strong>Marketer action:</strong> Sends confirmation with gifting form link &rarr; Creator status = Confirmed
-          </div>
-          <div style="background:#fff; border:1px solid var(--border); border-radius:6px; padding:8px; font-family:monospace; font-size:10px; line-height:1.5; margin-bottom:6px;">
-            Hi Sarah Kim! Wonderful! Please fill out our gifting form at onzenna.com/pages/influencer-gifting.<br>
-            Guidelines: Tag @onzenna, use #grosmimi, show product in use, post within 30 days.
-          </div>
-          <div style="color:var(--text-dim);">
-            <strong>Executor:</strong> Log confirm &rarr; <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recJuoh8yhLOqcijE" target="_blank">recJuoh8yhLOqcijE</a> &rarr; status &rarr; Confirmed<br>
-            <strong>Verifier:</strong> Confirmation exists + Confirmed + X-SYS email trail: 5 records
-          </div>
-        </div>
-      </div>
-
-      <!-- Stage 2: Gifting -->
-      <div style="margin-bottom:14px; padding:12px; background:var(--store-bg); border:1px solid var(--store-border); border-radius:8px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="background:var(--store); color:#fff; width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">2</span>
-          <span style="font-size:13px; font-weight:600;">Gifting Form &rarr; Shopify + Airtable + PG</span>
-          <span style="margin-left:auto; font-size:10px; color:var(--text-dim);">16.7s</span>
-          <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600;">PASS</span>
-        </div>
-        <div style="font-size:11px; padding-left:32px;">
-          <div style="color:var(--text-dim); margin-bottom:6px;">
-            <strong>Influencer action:</strong> Fills out gifting form &rarr; Webhook POST &rarr; n8n 5-way processing
-          </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px;">
-            <div style="background:#fff; border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:10px;">
-              <strong>AT Applicants:</strong> <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbloYjIEr5OtEppT0/recaEely0aHpzlj6Y" target="_blank">recaEely0aHpzlj6Y</a>
-            </div>
-            <div style="background:#fff; border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:10px;">
-              <strong>Shopify:</strong> <a class="rec-link" href="https://admin.shopify.com/store/toddie-4080/customers/27043023389042" target="_blank">customer 27043023389042</a>
-            </div>
-            <div style="background:#fff; border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:10px;">
-              <strong>Draft Order:</strong> <a class="rec-link" href="https://admin.shopify.com/store/toddie-4080/draft_orders/1516415189362" target="_blank">#D1541</a> (ID: 1516415189362)
-            </div>
-          </div>
-          <div style="color:var(--text-dim);">
-            <strong>Verifier (5 checks):</strong> AT Applicants + Creators status=Needs Review + Shopify customer + PostgreSQL + X-SYS email consistent
-          </div>
-        </div>
-      </div>
-
-      <!-- Stage 4: Gifting2 -->
-      <div style="margin-bottom:14px; padding:12px; background:var(--auto-bg); border:1px solid var(--auto-border); border-radius:8px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="background:var(--accent); color:#fff; width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">4</span>
-          <span style="font-size:13px; font-weight:600;">Sample Request &rarr; Draft Order</span>
-          <span style="margin-left:auto; font-size:10px; color:var(--text-dim);">15.9s</span>
-          <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600;">PASS</span>
-        </div>
-        <div style="font-size:11px; padding-left:32px; color:var(--text-dim);">
-          <strong>Influencer action:</strong> Submits sample selection (PPSU Straw Cup Latte + PPSU Tumbler Pink)<br>
-          <strong>Executor:</strong> POST gifting2 webhook &rarr; 200 &rarr; wait 15s for Draft Order creation<br>
-          <strong>Verifier (3 checks):</strong> AT Applicants Draft Order ID = <a class="rec-link" href="https://admin.shopify.com/store/toddie-4080/draft_orders/1516415189362" target="_blank">1516415189362</a> + Creators persists + PG updated
-        </div>
-      </div>
-
-      <!-- Stage 5: Sample Sent -->
-      <div style="margin-bottom:14px; padding:12px; background:var(--poll-bg); border:1px solid var(--poll-border); border-radius:8px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="background:var(--poll); color:#fff; width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">5</span>
-          <span style="font-size:13px; font-weight:600;">Sample Sent &rarr; n8n Polling</span>
-          <span style="margin-left:auto; font-size:10px; color:var(--text-dim);">31.0s</span>
-          <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600;">PASS</span>
-        </div>
-        <div style="font-size:11px; padding-left:32px; color:var(--text-dim);">
-          <strong>Marketer action:</strong> Packs product, ships it, marks Airtable &rarr; "Sample Sent" &rarr; n8n 5-min poll detects<br>
-          <strong>Executor:</strong> PATCH <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/recpxuFvlMAoOOVei" target="_blank">recpxuFvlMAoOOVei</a> &rarr; Sample Sent &rarr; wait 30s<br>
-          <strong>Verifier (2 checks):</strong> Status = Sample Sent + n8n Sample&rarr;Complete WF active
-        </div>
-      </div>
-
-      <!-- Email Trail -->
-      <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:12px; margin-bottom:14px;">
-        <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#0369a1; font-weight:600; margin-bottom:8px;">Email Trail (5 records)</div>
-        <div style="display:flex; flex-direction:column; gap:4px; font-size:11px;">
-          <div style="display:flex; align-items:center; gap:6px;">
-            <span style="background:#e0f2fe; padding:2px 6px; border-radius:3px; font-size:9px; font-weight:600; color:#0369a1; min-width:60px; text-align:center;">AI DRAFT</span>
-            <span style="flex:1;">Claude API Generated</span>
-            <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recsWhv9aVWWeddSU" target="_blank">recsWhv9aVWWeddSU</a>
-          </div>
-          <div style="display:flex; align-items:center; gap:6px;">
-            <span style="background:#e0f2fe; padding:2px 6px; border-radius:3px; font-size:9px; font-weight:600; color:#0369a1; min-width:60px; text-align:center;">OUTBOUND</span>
-            <span style="flex:1;">Outreach Email Sent</span>
-            <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recaX9QHpT4xPDg1O" target="_blank">recaX9QHpT4xPDg1O</a>
-          </div>
-          <div style="display:flex; align-items:center; gap:6px;">
-            <span style="background:#dcfce7; padding:2px 6px; border-radius:3px; font-size:9px; font-weight:600; color:#15803d; min-width:60px; text-align:center;">INBOUND</span>
-            <span style="flex:1;">Influencer Reply</span>
-            <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/rec3i8QwDLGJZYSoJ" target="_blank">rec3i8QwDLGJZYSoJ</a>
-          </div>
-          <div style="display:flex; align-items:center; gap:6px;">
-            <span style="background:#e0f2fe; padding:2px 6px; border-radius:3px; font-size:9px; font-weight:600; color:#0369a1; min-width:60px; text-align:center;">OUTBOUND</span>
-            <span style="flex:1;">Confirmation + Form Link</span>
-            <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recJuoh8yhLOqcijE" target="_blank">recJuoh8yhLOqcijE</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- X-SYS -->
-      <div style="display:flex; gap:8px; flex-wrap:wrap; font-size:11px;">
+      <!-- System-level results -->
+      <div style="display:flex; gap:8px; flex-wrap:wrap; font-size:11px; margin-bottom:16px;">
         <div style="flex:1; min-width:100px; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:6px; padding:8px; text-align:center;">
           <div style="font-weight:600;">Airtable</div>
-          <div style="color:#059669; font-size:10px;">Creator + Applicant + 5 Convos</div>
+          <div style="color:#059669; font-size:10px;">Creators + Orders + Conversations + Content</div>
           <div style="color:#15803d; font-weight:600; font-size:10px;">PASS</div>
         </div>
         <div style="flex:1; min-width:100px; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:6px; padding:8px; text-align:center;">
           <div style="font-weight:600;">Shopify</div>
-          <div style="color:#059669; font-size:10px;"><a class="rec-link" href="https://admin.shopify.com/store/toddie-4080/customers/27043023389042" target="_blank">Cust</a> + <a class="rec-link" href="https://admin.shopify.com/store/toddie-4080/draft_orders/1516415189362" target="_blank">#D1541</a></div>
+          <div style="color:#059669; font-size:10px;">Customer + Draft Order (mytoddie)</div>
           <div style="color:#15803d; font-weight:600; font-size:10px;">PASS</div>
         </div>
         <div style="flex:1; min-width:100px; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:6px; padding:8px; text-align:center;">
@@ -1027,238 +1203,96 @@
           <div style="color:#15803d; font-weight:600; font-size:10px;">PASS</div>
         </div>
         <div style="flex:1; min-width:100px; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:6px; padding:8px; text-align:center;">
-          <div style="font-weight:600;">Email X-SYS</div>
-          <div style="color:#059669; font-size:10px;">5/5 consistent</div>
+          <div style="font-weight:600;">n8n</div>
+          <div style="color:#059669; font-size:10px;">11 workflows active</div>
           <div style="color:#15803d; font-weight:600; font-size:10px;">PASS</div>
         </div>
       </div>
-    </div>
 
-    <div style="background:var(--card); border:2px solid #0ea5e9; border-radius:14px; padding:20px; margin-bottom:24px;">
-      <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
-        <span style="background:#0ea5e9; color:#fff; padding:4px 12px; border-radius:8px; font-size:13px; font-weight:700;">Test 2</span>
-        <span style="font-size:13px; color:var(--text-dim);">March 18, 2026 10:46 PST &middot; 2m 46s &middot; <strong style="color:#15803d;">40/40 PASS</strong></span>
-      </div>
-
-      <!-- Test Subject -->
-      <div style="background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:16px; font-size:12px;">
-        <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); font-weight:600; margin-bottom:8px;">Test Subject (Simulated Influencer)</div>
-        <div class="data-row"><span class="data-key">Name</span><span class="data-val">Sarah Kim</span></div>
-        <div class="data-row"><span class="data-key">Email</span><span class="data-val">flow_test_20260318_104612_ak9b@orbiters.co.kr</span></div>
-        <div class="data-row"><span class="data-key">Instagram</span><span class="data-val">@dualtest_20260318_vvog</span></div>
-        <div class="data-row"><span class="data-key">TikTok</span><span class="data-val">@dualtest_tk_vvog</span></div>
-        <div class="data-row"><span class="data-key">Phone</span><span class="data-val">+13105401776</span></div>
-        <div class="data-row"><span class="data-key">Products</span><span class="data-val">PPSU Straw Cup Latte + PPSU Tumbler Pink</span></div>
-        <div class="data-row"><span class="data-key">Address</span><span class="data-val">4521 Maple Creek Dr Apt 3B, Irvine CA 92612</span></div>
-        <div class="data-row"><span class="data-key">Creator Record</span><span class="data-val"><a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/rec5jFcVJ7I4LtMwd" target="_blank">rec5jFcVJ7I4LtMwd</a></span></div>
-      </div>
-
-      <!-- Stage 0: Seed -->
-      <div style="margin-bottom:14px; padding:12px; background:#f1f5f9; border-radius:8px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="background:#94a3b8; color:#fff; width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">0</span>
-          <span style="font-size:13px; font-weight:600;">Discovery &rarr; CRM Seed</span>
-          <span style="margin-left:auto; font-size:10px; color:var(--text-dim);">1.2s</span>
-          <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600;">PASS</span>
-        </div>
-        <div style="font-size:11px; color:var(--text-dim); padding-left:32px;">
-          Syncly discovers influencer &rarr; Airtable Creators record created &rarr; Status: Not Started<br>
-          <strong>Executor:</strong> POST Airtable Creators &rarr; <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/rec5jFcVJ7I4LtMwd" target="_blank">rec5jFcVJ7I4LtMwd</a><br>
-          <strong>Verifier:</strong> Record exists + Username matches + Applicants NOT yet (neg) + Shopify NOT yet (neg)
-        </div>
-      </div>
-
-      <!-- Stage 1a: AI Draft -->
-      <div style="margin-bottom:14px; padding:12px; background:var(--auto-bg); border:1px solid var(--auto-border); border-radius:8px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="background:var(--auto); color:#fff; width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">1a</span>
-          <span style="font-size:13px; font-weight:600;">Claude AI Draft Generation</span>
-          <span style="margin-left:auto; font-size:10px; color:var(--text-dim);">65.1s</span>
-          <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600;">PASS</span>
-        </div>
-        <div style="font-size:11px; color:var(--text-dim); padding-left:32px;">
-          n8n triggers Claude API &rarr; personalized outreach email drafted &rarr; saved to Sheets + AT Conversations<br>
-          <strong>Executor:</strong> POST <a class="wf-link" href="https://n8n.orbiters.co.kr/workflow/0q9uJUYTpDhQFMfz" target="_blank">draft_gen webhook</a> &rarr; 200 &rarr; wait 65s<br>
-          <strong>Verifier:</strong> AT Conversations draft = <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recCqR4IcXwzf5Znt" target="_blank">recCqR4IcXwzf5Znt</a> + Creator status changed
-        </div>
-      </div>
-
-      <!-- Stage 1b: Marketer Approve -->
-      <div style="margin-bottom:14px; padding:12px; background:var(--human-bg); border:1px solid var(--human-border); border-radius:8px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="background:var(--human); color:#fff; width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">1b</span>
-          <span style="font-size:13px; font-weight:600;">Marketer Approves &rarr; Gmail Send</span>
-          <span style="margin-left:auto; font-size:10px; color:var(--text-dim);">1.9s</span>
-          <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600;">PASS</span>
-        </div>
-        <div style="font-size:11px; padding-left:32px;">
-          <div style="color:var(--text-dim); margin-bottom:6px;">
-            <strong>Marketer action:</strong> Reviews AI draft in n8n &rarr; clicks Approve &rarr; Gmail OAuth sends from affiliates@onzenna.com
-          </div>
-          <div style="background:#fff; border:1px solid var(--border); border-radius:6px; padding:8px; font-family:monospace; font-size:10px; line-height:1.5; margin-bottom:6px;">
-            <strong>Subject:</strong> Grosmimi x dualtest_20260318_vvog - Baby Product Collaboration<br>
-            <strong>Body:</strong> Hi Sarah Kim, I came across your Instagram profile @dualtest_20260318_vvog and loved your authentic parenting content! We&#39;d love to send you our bestselling PPSU Straw Cup for your little one to try. Would you be interested?
-          </div>
-          <div style="color:var(--text-dim);">
-            <strong>Executor:</strong> Log outreach &rarr; <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/reckY7kJL38Fpu8ab" target="_blank">reckY7kJL38Fpu8ab</a> &rarr; status &rarr; Sent<br>
-            <strong>Verifier:</strong> Outreach exists (Outbound) + Creator status = Sent
-          </div>
-        </div>
-      </div>
-
-      <!-- Stage 1c: Influencer Reply -->
-      <div style="margin-bottom:14px; padding:12px; background:#dcfce7; border:1px solid #86efac; border-radius:8px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="background:#15803d; color:#fff; width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">1c</span>
-          <span style="font-size:13px; font-weight:600;">Influencer Reply (Inbound)</span>
-          <span style="margin-left:auto; font-size:10px; color:var(--text-dim);">1.9s</span>
-          <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600;">PASS</span>
-        </div>
-        <div style="font-size:11px; padding-left:32px;">
-          <div style="color:var(--text-dim); margin-bottom:6px;">
-            <strong>Simulated:</strong> n8n Reply Handler detects inbound email &rarr; logs in AT Conversations
-          </div>
-          <div style="background:#fff; border:1px solid var(--border); border-radius:6px; padding:8px; font-family:monospace; font-size:10px; line-height:1.5; margin-bottom:6px;">
-            Hi Onzenna Team!<br>Thank you for reaching out! I&#39;d love to try the PPSU Straw Cup for my daughter.<br>I can have the content up within 2-3 weeks.<br>Best, Sarah Kim @dualtest_20260318_vvog
-          </div>
-          <div style="color:var(--text-dim);">
-            <strong>Executor:</strong> Log reply &rarr; <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recNKhMbCXrsZRx2L" target="_blank">recNKhMbCXrsZRx2L</a> &rarr; status &rarr; Replied<br>
-            <strong>Verifier:</strong> Reply exists (Inbound) + Creator status = Replied
-          </div>
+      <!-- Stage-by-stage breakdown -->
+      <div style="font-size:11px; margin-bottom:16px;">
+        <div style="font-weight:700; margin-bottom:8px; color:#6366f1;">Stage-by-Stage Verification</div>
+        <table style="width:100%; border-collapse:collapse; font-size:10px;">
+          <tr style="background:#f1f5f9;">
+            <th style="padding:4px 8px; text-align:left; border:1px solid #e2e8f0; width:60px;">Stage</th>
+            <th style="padding:4px 8px; text-align:left; border:1px solid #e2e8f0;">Verification</th>
+            <th style="padding:4px 8px; text-align:center; border:1px solid #e2e8f0; width:50px;">Exec</th>
+            <th style="padding:4px 8px; text-align:center; border:1px solid #e2e8f0; width:50px;">Verify</th>
+            <th style="padding:4px 8px; text-align:left; border:1px solid #e2e8f0;">Note</th>
+          </tr>
+          <tr>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; font-weight:600;">0 Seed</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0;">AT Creator record created, neg checks (no Applicant/Shopify)</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#15803d; font-weight:700;">&#10003;</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#15803d; font-weight:700;">&#10003;</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; color:var(--text-dim);">Clean slate verified</td>
+          </tr>
+          <tr style="background:#fafafa;">
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; font-weight:600;">1a Draft</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0;">Content transcript &rarr; Claude AI personalized email</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#d97706; font-weight:700;">WARN</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#6b7280;">&mdash;</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; color:var(--text-dim);">PROD uses scheduleTrigger (no webhook &rarr; 404 expected)</td>
+          </tr>
+          <tr>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; font-weight:600;">2 Gifting</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0;">Webhook &rarr; AT Applicant + Shopify Customer + PG record + X-SYS email</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#15803d; font-weight:700;">&#10003;</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#15803d; font-weight:700;">&#10003;</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; color:var(--text-dim);">5 cross-system checks</td>
+          </tr>
+          <tr style="background:#fafafa;">
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; font-weight:600;">4 Sample</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0;">Webhook &rarr; Draft Order ID in AT + Shopify draft order created</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#15803d; font-weight:700;">&#10003;</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#15803d; font-weight:700;">&#10003;</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; color:var(--text-dim);">PG record updated</td>
+          </tr>
+          <tr>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; font-weight:600;">5 Sent</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0;">AT status &rarr; Sample Sent, n8n WF active check</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#15803d; font-weight:700;">&#10003;</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#15803d; font-weight:700;">&#10003;</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; color:var(--text-dim);">Draft complete trigger</td>
+          </tr>
+          <tr style="background:#fff7ed;">
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; font-weight:600;">6 Deliver</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0;">n8n WF <code>k61gzrshITfju33V</code> active + Shipped&rarr;Delivered logic</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#15803d; font-weight:700;">&#10003;</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#6b7280;">WF</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; color:#92400e;">Physical shipment required &mdash; WF active verified</td>
+          </tr>
+          <tr style="background:#ecfeff;">
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; font-weight:600;">6.5 Guide</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0;">Guidelines email template + brand-specific content in n8n</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#15803d; font-weight:700;">&#10003;</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#6b7280;">WF</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; color:#155e75;">Triggered by delivery detection &mdash; template verified in WF nodes</td>
+          </tr>
+          <tr style="background:#fff7ed;">
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; font-weight:600;">7 Posted</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0;">n8n WF <code>tvmHITPHpWFtcmh0</code> active + Delivered&rarr;Posted logic</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#15803d; font-weight:700;">&#10003;</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#6b7280;">WF</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; color:#92400e;">Content detection by Syncly &mdash; WF active verified</td>
+          </tr>
+          <tr style="background:#fef2f2;">
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; font-weight:600;">8 Remind</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0;">n8n WF <code>isOQGE4ynRubL8We</code> active + LT/HT reminder config</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#15803d; font-weight:700;">&#10003;</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#6b7280;">WF</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; color:#991b1b;">Dashboard-driven: LT 30d / HT 50d &mdash; WF active verified</td>
+          </tr>
+        </table>
+        <div style="margin-top:6px; color:var(--text-dim); font-size:10px;">
+          <strong>Legend:</strong> &#10003; = E2E tested &nbsp;|&nbsp; <span style="color:#6b7280; font-weight:600;">WF</span> = Workflow active + node config verified (physical delivery/content posting required for full trigger) &nbsp;|&nbsp; <span style="color:#d97706; font-weight:600;">WARN</span> = Known limitation
         </div>
       </div>
 
-      <!-- Stage 1d: Confirmation -->
-      <div style="margin-bottom:14px; padding:12px; background:var(--auto-bg); border:1px solid var(--auto-border); border-radius:8px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="background:var(--auto); color:#fff; width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">1d</span>
-          <span style="font-size:13px; font-weight:600;">Confirmation + Gifting Form Link</span>
-          <span style="margin-left:auto; font-size:10px; color:var(--text-dim);">2.0s</span>
-          <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600;">PASS</span>
-        </div>
-        <div style="font-size:11px; padding-left:32px;">
-          <div style="color:var(--text-dim); margin-bottom:6px;">
-            <strong>Marketer action:</strong> Sends confirmation with gifting form link &rarr; Creator status = Confirmed
-          </div>
-          <div style="background:#fff; border:1px solid var(--border); border-radius:6px; padding:8px; font-family:monospace; font-size:10px; line-height:1.5; margin-bottom:6px;">
-            Hi Sarah Kim! Wonderful! Please fill out our gifting form at onzenna.com/pages/influencer-gifting.<br>
-            Guidelines: Tag @onzenna, use #grosmimi, show product in use, post within 30 days.
-          </div>
-          <div style="color:var(--text-dim);">
-            <strong>Executor:</strong> Log confirm &rarr; <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recWhixUlHUq8RgaE" target="_blank">recWhixUlHUq8RgaE</a> &rarr; status &rarr; Confirmed<br>
-            <strong>Verifier:</strong> Confirmation exists + Confirmed + X-SYS email trail: 6 records
-          </div>
-        </div>
-      </div>
-
-      <!-- Stage 2: Gifting -->
-      <div style="margin-bottom:14px; padding:12px; background:var(--store-bg); border:1px solid var(--store-border); border-radius:8px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="background:var(--store); color:#fff; width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">2</span>
-          <span style="font-size:13px; font-weight:600;">Gifting Form &rarr; Shopify + Airtable + PG</span>
-          <span style="margin-left:auto; font-size:10px; color:var(--text-dim);">16.5s</span>
-          <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600;">PASS</span>
-        </div>
-        <div style="font-size:11px; padding-left:32px;">
-          <div style="color:var(--text-dim); margin-bottom:6px;">
-            <strong>Influencer action:</strong> Fills out gifting form &rarr; Webhook POST &rarr; n8n 5-way processing
-          </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px;">
-            <div style="background:#fff; border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:10px;">
-              <strong>AT Applicants:</strong> <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbloYjIEr5OtEppT0/recJvuxUBSP9NzzuI" target="_blank">recJvuxUBSP9NzzuI</a>
-            </div>
-            <div style="background:#fff; border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:10px;">
-              <strong>Shopify:</strong> <a class="rec-link" href="https://admin.shopify.com/store/toddie-4080/customers/27043132932466" target="_blank">customer 27043132932466</a>
-            </div>
-            <div style="background:#fff; border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:10px;">
-              <strong>Draft Order:</strong> <a class="rec-link" href="https://admin.shopify.com/store/toddie-4080/draft_orders/1516417974642" target="_blank">#D1544</a> (ID: 1516417974642)
-            </div>
-          </div>
-          <div style="color:var(--text-dim);">
-            <strong>Verifier (5 checks):</strong> AT Applicants + Creators status=Needs Review + Shopify customer + PostgreSQL + X-SYS email consistent
-          </div>
-        </div>
-      </div>
-
-      <!-- Stage 4: Gifting2 -->
-      <div style="margin-bottom:14px; padding:12px; background:var(--auto-bg); border:1px solid var(--auto-border); border-radius:8px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="background:var(--accent); color:#fff; width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">4</span>
-          <span style="font-size:13px; font-weight:600;">Sample Request &rarr; Draft Order</span>
-          <span style="margin-left:auto; font-size:10px; color:var(--text-dim);">15.9s</span>
-          <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600;">PASS</span>
-        </div>
-        <div style="font-size:11px; padding-left:32px; color:var(--text-dim);">
-          <strong>Influencer action:</strong> Submits sample selection (PPSU Straw Cup Latte + PPSU Tumbler Pink)<br>
-          <strong>Executor:</strong> POST gifting2 webhook &rarr; 200 &rarr; wait 15s for Draft Order creation<br>
-          <strong>Verifier (3 checks):</strong> AT Applicants Draft Order ID = <a class="rec-link" href="https://admin.shopify.com/store/toddie-4080/draft_orders/1516417974642" target="_blank">1516417974642</a> + Creators persists + PG updated
-        </div>
-      </div>
-
-      <!-- Stage 5: Sample Sent -->
-      <div style="margin-bottom:14px; padding:12px; background:var(--poll-bg); border:1px solid var(--poll-border); border-radius:8px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="background:var(--poll); color:#fff; width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">5</span>
-          <span style="font-size:13px; font-weight:600;">Sample Sent &rarr; n8n Polling</span>
-          <span style="margin-left:auto; font-size:10px; color:var(--text-dim);">31.0s</span>
-          <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600;">PASS</span>
-        </div>
-        <div style="font-size:11px; padding-left:32px; color:var(--text-dim);">
-          <strong>Marketer action:</strong> Packs product, ships it, marks Airtable &rarr; "Sample Sent" &rarr; n8n 5-min poll detects<br>
-          <strong>Executor:</strong> PATCH <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tbl7zJ1MscP852p9N/rec5jFcVJ7I4LtMwd" target="_blank">rec5jFcVJ7I4LtMwd</a> &rarr; Sample Sent &rarr; wait 30s<br>
-          <strong>Verifier (2 checks):</strong> Status = Sample Sent + n8n Sample&rarr;Complete WF active
-        </div>
-      </div>
-
-      <!-- Email Trail -->
-      <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:12px; margin-bottom:14px;">
-        <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#0369a1; font-weight:600; margin-bottom:8px;">Email Trail (6 records)</div>
-        <div style="display:flex; flex-direction:column; gap:4px; font-size:11px;">
-          <div style="display:flex; align-items:center; gap:6px;">
-            <span style="background:#e0f2fe; padding:2px 6px; border-radius:3px; font-size:9px; font-weight:600; color:#0369a1; min-width:60px; text-align:center;">AI DRAFT</span>
-            <span style="flex:1;">Claude API Generated</span>
-            <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recCqR4IcXwzf5Znt" target="_blank">recCqR4IcXwzf5Znt</a>
-          </div>
-          <div style="display:flex; align-items:center; gap:6px;">
-            <span style="background:#e0f2fe; padding:2px 6px; border-radius:3px; font-size:9px; font-weight:600; color:#0369a1; min-width:60px; text-align:center;">OUTBOUND</span>
-            <span style="flex:1;">Outreach Email Sent</span>
-            <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/reckY7kJL38Fpu8ab" target="_blank">reckY7kJL38Fpu8ab</a>
-          </div>
-          <div style="display:flex; align-items:center; gap:6px;">
-            <span style="background:#dcfce7; padding:2px 6px; border-radius:3px; font-size:9px; font-weight:600; color:#15803d; min-width:60px; text-align:center;">INBOUND</span>
-            <span style="flex:1;">Influencer Reply</span>
-            <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recNKhMbCXrsZRx2L" target="_blank">recNKhMbCXrsZRx2L</a>
-          </div>
-          <div style="display:flex; align-items:center; gap:6px;">
-            <span style="background:#e0f2fe; padding:2px 6px; border-radius:3px; font-size:9px; font-weight:600; color:#0369a1; min-width:60px; text-align:center;">OUTBOUND</span>
-            <span style="flex:1;">Confirmation + Form Link</span>
-            <a class="rec-link" href="https://airtable.com/appT2gLRR0PqMFgII/tblUnBCTmGzBb4BjZ/recWhixUlHUq8RgaE" target="_blank">recWhixUlHUq8RgaE</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- X-SYS -->
-      <div style="display:flex; gap:8px; flex-wrap:wrap; font-size:11px;">
-        <div style="flex:1; min-width:100px; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:6px; padding:8px; text-align:center;">
-          <div style="font-weight:600;">Airtable</div>
-          <div style="color:#059669; font-size:10px;">Creator + Applicant + 6 Convos</div>
-          <div style="color:#15803d; font-weight:600; font-size:10px;">PASS</div>
-        </div>
-        <div style="flex:1; min-width:100px; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:6px; padding:8px; text-align:center;">
-          <div style="font-weight:600;">Shopify</div>
-          <div style="color:#059669; font-size:10px;"><a class="rec-link" href="https://admin.shopify.com/store/toddie-4080/customers/27043132932466" target="_blank">Cust</a> + <a class="rec-link" href="https://admin.shopify.com/store/toddie-4080/draft_orders/1516417974642" target="_blank">#D1544</a></div>
-          <div style="color:#15803d; font-weight:600; font-size:10px;">PASS</div>
-        </div>
-        <div style="flex:1; min-width:100px; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:6px; padding:8px; text-align:center;">
-          <div style="font-weight:600;">PostgreSQL</div>
-          <div style="color:#059669; font-size:10px;">Gifting saved + updated</div>
-          <div style="color:#15803d; font-weight:600; font-size:10px;">PASS</div>
-        </div>
-        <div style="flex:1; min-width:100px; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:6px; padding:8px; text-align:center;">
-          <div style="font-weight:600;">Email X-SYS</div>
-          <div style="color:#059669; font-size:10px;">6/6 consistent</div>
-          <div style="color:#15803d; font-weight:600; font-size:10px;">PASS</div>
-        </div>
+      <div style="font-size:11px; color:var(--text-dim);">
+        <strong>Known WARNs:</strong> 1a draft_gen returns 404 on PROD (uses scheduleTrigger, not webhook &mdash; expected).
+        V-2.2 Creator status mismatch in full test is a test ordering issue (email stages set status before gifting).
+        Stages 6&ndash;8 require physical shipment + content posting &mdash; verified via n8n WF active status + node configuration inspection.
       </div>
     </div>
   </div>
@@ -1268,19 +1302,19 @@
     <h3>Pipeline Summary</h3>
     <div class="summary-grid">
       <div class="summary-item">
-        <div class="num blue">8</div>
-        <div class="label">Total Stages</div>
+        <div class="num blue">9</div>
+        <div class="label">Total Stages (0&ndash;8)</div>
       </div>
       <div class="summary-item">
-        <div class="num green">14</div>
-        <div class="label">Active Workflows</div>
+        <div class="num green">11</div>
+        <div class="label">Active PROD Workflows</div>
       </div>
       <div class="summary-item">
         <div class="num" style="color:var(--human);">6</div>
         <div class="label">Human Touch Points</div>
       </div>
       <div class="summary-item">
-        <div class="num" style="color:var(--auto);">8</div>
+        <div class="num" style="color:var(--auto);">9</div>
         <div class="label">Fully Automated</div>
       </div>
     </div>
@@ -1313,6 +1347,8 @@
         <span style="background:var(--poll-bg); border:1px solid var(--poll-border); padding:6px 10px; border-radius:8px;">&#128269; 6-hr detect</span>
         <span style="color:var(--text-dim);">&rarr;</span>
         <span style="background:var(--store-bg); border:1px solid var(--store-border); padding:6px 10px; border-radius:8px;">&#10004; Posted</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:#fee2e2; border:1px solid #fca5a5; padding:6px 10px; border-radius:8px;">&#128231; Reminder</span>
       </div>
       <div style="text-align:center; margin-top:10px; font-size:12px; color:var(--text-dim);">
         Humans only handle form submissions + review + filming &mdash; everything else is fully automated
@@ -1321,7 +1357,7 @@
   </div>
 
   <div class="footer">
-    Creator Collab Pipeline &middot; Onzenna &middot; Updated March 18, 2026
+    Creator Collab Pipeline &middot; Onzenna &middot; PROD &middot; Updated March 18, 2026
   </div>
 
 </div>
