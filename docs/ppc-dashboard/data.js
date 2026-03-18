@@ -1,10 +1,10 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-17 22:29 PST",
+ "generated_pst": "2026-03-18 00:50 PST",
  "brands": {
   "grosmimi": {
    "dates": {
     "2026-03-18": {
-     "generated": "2026-03-17T22:29",
+     "generated": "2026-03-18T00:50",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -1401,7 +1401,7 @@ const PPC_DATA = {
   "naeiae": {
    "dates": {
     "2026-03-18": {
-     "generated": "2026-03-17T22:29",
+     "generated": "2026-03-18T00:50",
      "executed": true,
      "executed_at": "2026-03-18",
      "summary_7d": {
@@ -1444,7 +1444,7 @@ const PPC_DATA = {
        "bud_before": 100.0,
        "bud_after": null,
        "tier": "7 Strong",
-       "reason": "[MANUAL] 7d ROAS 4.69x (ACOS 21.3%) | 30d ROAS 3.13x | target ACOS 25.0% | 7d vs 30d: +49.8%\nBudget already at cap ($100/campaign)",
+       "reason": "[MANUAL] 7d ROAS 4.69x (ACOS 21.3%) | 30d ROAS 3.13x | target ACOS 30.0% | 7d vs 30d: +49.8%\nBudget already at cap ($100/campaign)",
        "approved": true
       },
       {
@@ -1756,7 +1756,7 @@ const PPC_DATA = {
   "chaenmom": {
    "dates": {
     "2026-03-18": {
-     "generated": "2026-03-17T22:29",
+     "generated": "2026-03-18T00:50",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
