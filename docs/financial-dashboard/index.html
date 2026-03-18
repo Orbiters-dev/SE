@@ -334,18 +334,23 @@ function renderFinancial(){
   // GM → CM Waterfall (compact)
   sum+=buildWaterfall(F, months, mLabels, lastIdx, isPartialLast);
 
-  // Search & SEO teaser (compact — top 5 keywords only)
+  // Search & SEO teaser (compact — top 8 keywords with 7D/30D/90D positions)
+  var kwSumData=F.kw_positions_summary||[];
   sum+='<div class="sec"><div class="sec-title"><div class="num">7</div> Keyword Rankings</div>';
   sum+='<div class="card">';
-  sum+='<div class="desc">Top Google Search Console keywords by clicks (90d). <span style="cursor:pointer;color:var(--a);font-weight:700" onclick="switchFinTab(\'search\')">View full detail &rarr;</span></div>';
-  sum+='<table><thead><tr><th>Keyword</th><th style="text-align:center">Avg Position</th><th style="text-align:right">Clicks</th><th style="text-align:right">Impressions</th><th style="text-align:right">CTR</th><th style="text-align:center">Trend (6w)</th></tr></thead><tbody>';
-  (F.keyword_rankings||[]).slice(0,8).forEach(function(k){
+  sum+='<div class="desc">Google position for onzenna.com — 7D / 30D / 90D at a glance. <span style="cursor:pointer;color:var(--a);font-weight:700" onclick="switchFinTab(\'search\')">View full detail &rarr;</span></div>';
+  sum+='<table><thead><tr><th>Keyword</th>';
+  sum+='<th style="text-align:center;background:#ecfdf5">7D</th>';
+  sum+='<th style="text-align:center;background:#f0f9ff">30D</th>';
+  sum+='<th style="text-align:center;background:#faf5ff">90D</th>';
+  sum+='<th style="text-align:right">Clicks</th><th style="text-align:right">Impr</th></tr></thead><tbody>';
+  kwSumData.slice(0,10).forEach(function(k){
     sum+='<tr><td style="font-weight:600;font-size:11px">'+k.query+'</td>';
-    sum+='<td style="text-align:center">'+posBadge(k.avg_position)+'</td>';
-    sum+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.clicks)+'</td>';
-    sum+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.impressions)+'</td>';
-    sum+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+k.ctr.toFixed(1)+'%</td>';
-    sum+='<td style="text-align:center">'+sparkline(k.weekly_positions,'',true)+'</td>';
+    sum+='<td style="text-align:center;background:#f7fee7">'+(k.pos_7d!==null?posBadge(k.pos_7d):'<span style="color:var(--muted);font-size:9px">-</span>')+'</td>';
+    sum+='<td style="text-align:center;background:#f0f9ff">'+(k.pos_30d!==null?posBadge(k.pos_30d):'<span style="color:var(--muted);font-size:9px">-</span>')+'</td>';
+    sum+='<td style="text-align:center;background:#faf5ff">'+(k.pos_90d!==null?posBadge(k.pos_90d):'<span style="color:var(--muted);font-size:9px">-</span>')+'</td>';
+    sum+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.clicks_90d)+'</td>';
+    sum+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.impressions_90d)+'</td>';
     sum+='</tr>';
   });
   sum+='</tbody></table></div></div>';
@@ -388,27 +393,66 @@ function renderFinancial(){
   // ══════════════════════════════════════════════════════════════════════════
   var srch='';
 
-  // 4A: Keyword Rankings (GSC position tracking)
-  srch+='<div class="sec"><div class="sec-title"><div class="num">4A</div> Google Search Console &mdash; Keyword Rankings (90D)</div>';
+  // 4A: Keyword Position Summary (fixed — all 3 periods at a glance)
+  var kwSum=F.kw_positions_summary||[];
+  srch+='<div class="sec"><div class="sec-title"><div class="num">4A</div> Keyword Position Summary &mdash; All Periods</div>';
   srch+='<div class="card">';
-  srch+='<div class="desc">Average position on Google for onzenna.com. Lower is better. Trend shows weekly average position over 6 weeks.</div>';
-  srch+='<table><thead><tr><th>#</th><th>Keyword</th><th style="text-align:center">Avg Position</th><th style="text-align:right">Clicks</th><th style="text-align:right">Impressions</th><th style="text-align:right">CTR</th><th style="text-align:center">Weekly Trend (6w)</th></tr></thead><tbody>';
-  (F.keyword_rankings||[]).forEach(function(k,i){
+  srch+='<div class="desc">Average Google position for onzenna.com across 7D / 30D / 90D. Lower = better. Always visible regardless of period tab below.</div>';
+  srch+='<div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Keyword</th>';
+  srch+='<th style="text-align:center;background:#ecfdf5">Avg Pos (7D)</th>';
+  srch+='<th style="text-align:center;background:#f0f9ff">Avg Pos (30D)</th>';
+  srch+='<th style="text-align:center;background:#faf5ff">Avg Pos (90D)</th>';
+  srch+='<th style="text-align:right">Clicks (90D)</th>';
+  srch+='<th style="text-align:right">Impressions (90D)</th>';
+  srch+='</tr></thead><tbody>';
+  kwSum.forEach(function(k,i){
     srch+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
     srch+='<td style="font-weight:600;font-size:11px">'+k.query+'</td>';
-    srch+='<td style="text-align:center">'+posBadge(k.avg_position)+'</td>';
-    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.clicks)+'</td>';
-    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.impressions)+'</td>';
-    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+k.ctr.toFixed(1)+'%</td>';
-    srch+='<td style="text-align:center">'+sparkline(k.weekly_positions,'',true)+'</td>';
+    srch+='<td style="text-align:center;background:#f7fee7">'+(k.pos_7d!==null?posBadge(k.pos_7d):'<span style="color:var(--muted);font-size:9px">n/a</span>')+'</td>';
+    srch+='<td style="text-align:center;background:#f0f9ff">'+(k.pos_30d!==null?posBadge(k.pos_30d):'<span style="color:var(--muted);font-size:9px">n/a</span>')+'</td>';
+    srch+='<td style="text-align:center;background:#faf5ff">'+(k.pos_90d!==null?posBadge(k.pos_90d):'<span style="color:var(--muted);font-size:9px">n/a</span>')+'</td>';
+    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.clicks_90d)+'</td>';
+    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.impressions_90d)+'</td>';
     srch+='</tr>';
   });
-  srch+='</tbody></table></div></div>';
+  srch+='</tbody></table></div></div></div>';
 
-  // 4B: DataForSEO Keyword Volumes
+  // 4B: Keyword Rankings with period sub-tabs (7D / 30D / 90D)
+  var krData=F.keyword_rankings||{};
+  srch+='<div class="sec"><div class="sec-title"><div class="num">4B</div> Keyword Rankings &mdash; Detail</div>';
+  srch+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">';
+  srch+='<div class="period-tabs" id="kw-period-tabs">';
+  srch+='<div class="on" data-kwp="7d" onclick="switchKwPeriod(\'7d\',this)">7D</div>';
+  srch+='<div data-kwp="30d" onclick="switchKwPeriod(\'30d\',this)">30D</div>';
+  srch+='<div data-kwp="90d" onclick="switchKwPeriod(\'90d\',this)">90D</div>';
+  srch+='</div>';
+  srch+='<span style="font-size:10px;color:var(--dim)">Click period to switch the table below</span>';
+  srch+='</div>';
+  // Render all 3 period tables, show only active
+  ['7d','30d','90d'].forEach(function(p){
+    var pData=krData[p]||[];
+    var label=p.toUpperCase();
+    srch+='<div class="card kw-period-panel" id="kw-panel-'+p+'" style="'+(p==='7d'?'':'display:none')+'">';
+    srch+='<div class="desc">Top keywords by clicks ('+label+'). Weekly position trend shown as sparkline.</div>';
+    srch+='<table><thead><tr><th>#</th><th>Keyword</th><th style="text-align:center">Avg Position</th><th style="text-align:right">Clicks</th><th style="text-align:right">Impressions</th><th style="text-align:right">CTR</th><th style="text-align:center">Weekly Trend</th></tr></thead><tbody>';
+    pData.forEach(function(k,i){
+      srch+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+      srch+='<td style="font-weight:600;font-size:11px">'+k.query+'</td>';
+      srch+='<td style="text-align:center">'+posBadge(k.avg_position)+'</td>';
+      srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.clicks)+'</td>';
+      srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.impressions)+'</td>';
+      srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+k.ctr.toFixed(1)+'%</td>';
+      srch+='<td style="text-align:center">'+sparkline(k.weekly_positions,'',true)+'</td>';
+      srch+='</tr>';
+    });
+    srch+='</tbody></table></div>';
+  });
+  srch+='</div>';
+
+  // 4C: DataForSEO Keyword Volumes
   var maxVol=0;
   (F.keyword_volumes||[]).forEach(function(k){if(k.search_volume>maxVol)maxVol=k.search_volume;});
-  srch+='<div class="sec"><div class="sec-title"><div class="num">4B</div> Keyword Search Volumes &mdash; DataForSEO</div>';
+  srch+='<div class="sec"><div class="sec-title"><div class="num">4C</div> Keyword Search Volumes &mdash; DataForSEO</div>';
   srch+='<div class="card">';
   srch+='<div class="desc">Google monthly search volume for tracked brand keywords. Trend shows last 6 months of search volume.</div>';
   srch+='<table><thead><tr><th>#</th><th>Keyword</th><th>Brand</th><th style="text-align:right">Monthly Vol</th><th style="min-width:80px">Volume</th><th style="text-align:right">CPC</th><th style="text-align:right">Comp</th><th style="text-align:center">6mo Trend</th></tr></thead><tbody>';
@@ -426,8 +470,8 @@ function renderFinancial(){
   });
   srch+='</tbody></table></div></div>';
 
-  // 4C: Amazon Search Terms (existing)
-  srch+='<div class="sec"><div class="sec-title"><div class="num">4C</div> Amazon Sponsored Ads &mdash; Top Search Terms (30D)</div>';
+  // 4D: Amazon Search Terms (existing)
+  srch+='<div class="sec"><div class="sec-title"><div class="num">4D</div> Amazon Sponsored Ads &mdash; Top Search Terms (30D)</div>';
   srch+='<div class="card">';
   srch+='<table><thead><tr><th>#</th><th>Search Term</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">ACOS</th><th style="text-align:right">CVR</th><th style="text-align:right">Orders</th></tr></thead><tbody>';
   (F.search_queries||[]).forEach(function(q,i){
@@ -443,8 +487,8 @@ function renderFinancial(){
   });
   srch+='</tbody></table></div></div>';
 
-  // 4D: GSC Queries (existing)
-  srch+='<div class="sec"><div class="sec-title"><div class="num">4D</div> Google Search Console &mdash; Top Queries (30D)</div>';
+  // 4E: GSC Queries (existing)
+  srch+='<div class="sec"><div class="sec-title"><div class="num">4E</div> Google Search Console &mdash; Top Queries (30D)</div>';
   srch+='<div class="card">';
   srch+='<table><thead><tr><th>#</th><th>Query</th><th style="text-align:right">Clicks</th><th style="text-align:right">Impressions</th><th style="text-align:right">CTR</th><th style="text-align:center">Position</th></tr></thead><tbody>';
   (F.gsc_queries||[]).forEach(function(q,i){
@@ -655,6 +699,14 @@ function buildKpiCards(s){
   h+='<div class="stat"><div class="sl">DISC RATE</div><div class="sv">'+(s.discount_rate||0).toFixed(1)+'%</div><div class="ss">Shopify only</div></div>';
   h+='</div>';
   return h;
+}
+
+function switchKwPeriod(period, el){
+  document.querySelectorAll('#kw-period-tabs>div').forEach(function(t){t.classList.remove('on')});
+  if(el) el.classList.add('on');
+  document.querySelectorAll('.kw-period-panel').forEach(function(p){p.style.display='none'});
+  var panel=document.getElementById('kw-panel-'+period);
+  if(panel) panel.style.display='';
 }
 
 function switchPeriod(period, el){

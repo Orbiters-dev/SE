@@ -425,42 +425,82 @@ def generate():
         if pos > 0:
             kw_daily[q][d]["position"].append(pos)
 
-    # Aggregate totals for ranking
-    kw_totals = {}
-    for q, days_data in kw_daily.items():
-        total_clicks = sum(dd["clicks"] for dd in days_data.values())
-        total_impr = sum(dd["impressions"] for dd in days_data.values())
-        all_pos = [p for dd in days_data.values() for p in dd["position"]]
-        avg_pos = round(sum(all_pos) / len(all_pos), 1) if all_pos else 0
-        kw_totals[q] = {"clicks": total_clicks, "impressions": total_impr, "avg_position": avg_pos}
-
-    # Top 20 keywords by clicks
-    top_kw = sorted(kw_totals.items(), key=lambda x: x[1]["clicks"], reverse=True)[:20]
     kw_dates = sorted(set(d for days_data in kw_daily.values() for d in days_data.keys()))
 
-    keyword_rankings = []
-    for q, totals in top_kw:
-        # Weekly average positions for trend (last 6 weeks)
-        weekly_positions = []
-        for i in range(0, len(kw_dates), 7):
-            week_dates = kw_dates[i:i+7]
-            week_pos = []
-            for d in week_dates:
-                dd = kw_daily[q].get(d, {})
-                week_pos.extend(dd.get("position", []))
-            if week_pos:
-                weekly_positions.append(round(sum(week_pos) / len(week_pos), 1))
-            else:
-                weekly_positions.append(None)
-        ctr = round(totals["clicks"] / totals["impressions"] * 100, 2) if totals["impressions"] else 0
-        keyword_rankings.append({
-            "query": q,
-            "clicks": totals["clicks"],
-            "impressions": totals["impressions"],
-            "avg_position": totals["avg_position"],
-            "ctr": ctr,
-            "weekly_positions": weekly_positions,
-        })
+    def build_kw_rankings(kw_daily, kw_dates, cutoff_date, period_label):
+        """Build keyword rankings for a specific date range."""
+        kw_totals = {}
+        for q, days_data in kw_daily.items():
+            filtered = {d: dd for d, dd in days_data.items() if d >= cutoff_date}
+            if not filtered:
+                continue
+            total_clicks = sum(dd["clicks"] for dd in filtered.values())
+            total_impr = sum(dd["impressions"] for dd in filtered.values())
+            all_pos = [p for dd in filtered.values() for p in dd["position"]]
+            avg_pos = round(sum(all_pos) / len(all_pos), 1) if all_pos else 0
+            kw_totals[q] = {"clicks": total_clicks, "impressions": total_impr, "avg_position": avg_pos}
+
+        top_kw = sorted(kw_totals.items(), key=lambda x: x[1]["clicks"], reverse=True)[:25]
+        filtered_dates = sorted(d for d in kw_dates if d >= cutoff_date)
+
+        rankings = []
+        for q, totals in top_kw:
+            # Weekly average positions for trend
+            weekly_positions = []
+            for i in range(0, len(filtered_dates), 7):
+                week_dates = filtered_dates[i:i+7]
+                week_pos = []
+                for d in week_dates:
+                    dd = kw_daily[q].get(d, {})
+                    week_pos.extend(dd.get("position", []))
+                if week_pos:
+                    weekly_positions.append(round(sum(week_pos) / len(week_pos), 1))
+                else:
+                    weekly_positions.append(None)
+            ctr = round(totals["clicks"] / totals["impressions"] * 100, 2) if totals["impressions"] else 0
+            rankings.append({
+                "query": q,
+                "clicks": totals["clicks"],
+                "impressions": totals["impressions"],
+                "avg_position": totals["avg_position"],
+                "ctr": ctr,
+                "weekly_positions": weekly_positions,
+            })
+        return rankings
+
+    # Build rankings for 7D, 30D, 90D
+    cutoff_7d = (today - timedelta(days=7)).isoformat()
+    cutoff_30d = (today - timedelta(days=30)).isoformat()
+    cutoff_90d = (today - timedelta(days=90)).isoformat()
+
+    keyword_rankings = {
+        "7d": build_kw_rankings(kw_daily, kw_dates, cutoff_7d, "7D"),
+        "30d": build_kw_rankings(kw_daily, kw_dates, cutoff_30d, "30D"),
+        "90d": build_kw_rankings(kw_daily, kw_dates, cutoff_90d, "90D"),
+    }
+
+    # Collect all unique keywords across all periods for avg position summary
+    all_kw_set = set()
+    for period_data in keyword_rankings.values():
+        for k in period_data:
+            all_kw_set.add(k["query"])
+
+    # Build avg position per keyword per period (for the fixed header)
+    kw_positions_summary = []
+    for q in sorted(all_kw_set):
+        row = {"query": q}
+        for period in ["7d", "30d", "90d"]:
+            match = next((k for k in keyword_rankings[period] if k["query"] == q), None)
+            row["pos_" + period] = match["avg_position"] if match else None
+            row["clicks_" + period] = match["clicks"] if match else 0
+            row["impressions_" + period] = match["impressions"] if match else 0
+        # Sort key: use 90d clicks as primary
+        row["_sort"] = row["clicks_90d"]
+        kw_positions_summary.append(row)
+
+    kw_positions_summary.sort(key=lambda x: x["_sort"], reverse=True)
+    for r in kw_positions_summary:
+        del r["_sort"]
 
     # ── DataForSEO keyword volumes ─────────────────────────────────────────────
     dfseo = dk.get("dataforseo_keywords", days=7)
@@ -658,7 +698,7 @@ def generate():
         "search_queries": search_data,
         "gsc_queries": gsc_data,
         "keyword_rankings": keyword_rankings,
-        "keyword_ranking_dates": kw_dates,
+        "kw_positions_summary": kw_positions_summary,
         "keyword_volumes": keyword_volumes,
         "traffic_sources": traffic_data,
     }
