@@ -201,13 +201,7 @@ def load_proposals():
             print(f"  [WARN] {f}: {e}")
             continue
 
-    # Only keep latest date per brand (re-run replaces old proposals)
-    for bk in list(brands.keys()):
-        dates = sorted(brands[bk].keys())
-        if len(dates) > 1:
-            latest = dates[-1]
-            for old_dt in dates[:-1]:
-                del brands[bk][old_dt]
+    # Keep ALL dates per brand (accumulate proposal history)
 
     return brands
 
@@ -257,18 +251,18 @@ def inject_executions(brands):
         if bk not in brands:
             continue
         brands[bk]["execution_log"] = exec_list
+        # Mark each date that has execution records
         dates = sorted(d for d in brands[bk].keys() if d != "execution_log")
-        if dates:
-            latest = dates[-1]
-            latest_execs = [e for e in exec_list if e.get("exec_date", "") >= latest]
-            if latest_execs:
-                brands[bk][latest]["executed"] = True
-                brands[bk][latest]["executed_at"] = latest_execs[0].get("exec_date", "")
-            for item in exec_list:
-                cn = item.get("campaignName", "")
-                for c in brands[bk][latest].get("campaigns", []):
-                    if c["name"] == cn:
-                        c["approved"] = True
+        for d in dates:
+            d_execs = [e for e in exec_list if e.get("exec_date", "") == d]
+            if d_execs:
+                brands[bk][d]["executed"] = True
+                brands[bk][d]["executed_at"] = d
+                for item in d_execs:
+                    cn = item.get("campaignName", "")
+                    for c in brands[bk][d].get("campaigns", []):
+                        if c["name"] == cn:
+                            c["approved"] = True
         print(f"  {bk}: {len(exec_list)} execution records (persistent)")
 
 
