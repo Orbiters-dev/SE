@@ -349,33 +349,33 @@
             <div style="flex:1; min-width:280px; background:#fff; border-radius:8px; padding:12px; font-size:11px;">
               <div style="font-weight:700; color:var(--auto); margin-bottom:6px; font-size:12px;">Creator Sync</div>
               <div style="color:var(--text-dim); line-height:1.7;">
-                <b>1. Read Sheet</b> &mdash; Google Sheet <code style="font-size:9px; background:#e3f2fd; padding:1px 3px; border-radius:3px;">1MgEodo...</code> Creator 탭 읽기<br>
-                <b>2. Build Lookup Map</b> &mdash; AT Creators 전체 fetch &rarr; <code style="font-size:9px; background:#e3f2fd; padding:1px 3px; border-radius:3px;">username.lower() &rarr; recordId</code> 매핑<br>
-                <b>3. Dedup Check</b> &mdash; Sheet 각 행의 username을 Lookup Map에서 조회<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; <span style="color:#15803d;">존재하면</span> &rarr; <b>UPDATE</b>: Followers, Avg Views, ER, 30일 메트릭 등 갱신<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; <span style="color:#2563eb;">없으면</span> &rarr; <b>CREATE</b>: Source=&quot;Syncly&quot;, Status=&quot;New&quot;, Outreach=&quot;Not Started&quot;<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; <span style="color:#dc2626;">Blacklist</span> &rarr; Sheet에 Blacklist=TRUE면 Partnership Status=&quot;Blacklist&quot; 설정<br>
-                <b>4. Outreach Type 분류</b> &mdash; 최근 30일 조회수 &gt; 50K = <b>High Touch</b>, 이하 = <b>Low Touch</b><br>
-                <b>5. Writeback</b> &mdash; AT가 source of truth. AT 상태를 시트에 역동기화:<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; AT=&quot;Blacklist&quot;인데 시트에 미반영 &rarr; 시트 Blacklist=TRUE 기록<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; AT=&quot;제휴 진행중/완료&quot;인데 시트에 미반영 &rarr; 시트 제휴 상태 기록<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; <code style="font-size:9px; background:#fff3cd; padding:1px 3px; border-radius:3px;">Write Status to Sheet</code> 노드로 Google Sheet에 직접 쓰기
+                <b>1. Read Sheet</b> &mdash; Google Sheet <code style="font-size:9px; background:#e3f2fd; padding:1px 3px; border-radius:3px;">1MgEodo...</code> Creator tab<br>
+                <b>2. Build Lookup Map</b> &mdash; Fetch all AT Creators &rarr; build <code style="font-size:9px; background:#e3f2fd; padding:1px 3px; border-radius:3px;">username.lower() &rarr; recordId</code> map<br>
+                <b>3. Dedup Check</b> &mdash; Match each sheet row username against Lookup Map<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; <span style="color:#15803d;">Exists</span> &rarr; <b>UPDATE</b>: refresh Followers, Avg Views, ER, 30-day metrics<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; <span style="color:#2563eb;">New</span> &rarr; <b>CREATE</b>: Source=&quot;Syncly&quot;, Status=&quot;New&quot;, Outreach=&quot;Not Started&quot;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; <span style="color:#dc2626;">Blacklist</span> &rarr; If sheet Blacklist=TRUE, set Partnership Status=&quot;Blacklist&quot;<br>
+                <b>4. Outreach Type</b> &mdash; Recent 30-Day Views &gt; 50K = <b>High Touch</b>, else = <b>Low Touch</b><br>
+                <b>5. Writeback</b> &mdash; AT is source of truth. Sync AT status back to sheet:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; AT=&quot;Blacklist&quot; but sheet not marked &rarr; write Blacklist=TRUE to sheet<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; AT=&quot;In Progress/Completed&quot; but sheet not updated &rarr; write Partnership Status to sheet<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; Uses <code style="font-size:9px; background:#fff3cd; padding:1px 3px; border-radius:3px;">Write Status to Sheet</code> node to write directly to Google Sheet
               </div>
             </div>
             <!-- Content Sync -->
             <div style="flex:1; min-width:280px; background:#fff; border-radius:8px; padding:12px; font-size:11px;">
               <div style="font-weight:700; color:var(--auto); margin-bottom:6px; font-size:12px;">Content Sync</div>
               <div style="color:var(--text-dim); line-height:1.7;">
-                <b>1. Read Content Sheet</b> &mdash; Content 탭 읽기, <code style="font-size:9px; background:#e3f2fd; padding:1px 3px; border-radius:3px;">Level=full_matched</code> 행만 필터<br>
-                <b>2. Build Content Lookup</b> &mdash; AT Content 테이블 fetch &rarr; <code style="font-size:9px; background:#e3f2fd; padding:1px 3px; border-radius:3px;">postUrl.lower() &rarr; recordId</code> 매핑<br>
-                <b>3. Dedup &amp; Link Creator</b> &mdash; 각 포스트의 Post URL로 AT 중복 확인 + username &rarr; Creator recordId 연결<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; <span style="color:#15803d;">AT에 있음</span> &rarr; <b>UPDATE</b>: Transcript, Caption, Views 등 갱신<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; <span style="color:#2563eb;">AT에 없음</span> &rarr; <b>CREATE</b>: Content Status=&quot;Pending&quot;, Creator 링크 연결<br>
-                <b>4. Missing Creator 처리</b> &mdash; Content에 연결할 Creator가 AT에 없을 때:<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; <span style="color:#f59e0b;">Test 모드</span>: 건너뜀 (Creator Sync 먼저 실행 필요)<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; <span style="color:#15803d;">Prod 모드</span>: Source=&quot;Content Sync (Auto)&quot;로 Creator 자동생성 &rarr; Link 해결<br>
-                <b>5. Resolve Creator Links</b> &mdash; 자동생성된 Creator recordId로 <code style="font-size:9px; background:#e3f2fd; padding:1px 3px; border-radius:3px;">_PENDING_</code> 플래그 치환<br>
-                <b>6. Notify</b> &mdash; Gmail로 동기화 결과 이메일: N건 생성, M건 업데이트
+                <b>1. Read Content Sheet</b> &mdash; Content tab, filter only <code style="font-size:9px; background:#e3f2fd; padding:1px 3px; border-radius:3px;">Level=full_matched</code> rows<br>
+                <b>2. Build Content Lookup</b> &mdash; Fetch AT Content table &rarr; build <code style="font-size:9px; background:#e3f2fd; padding:1px 3px; border-radius:3px;">postUrl.lower() &rarr; recordId</code> map<br>
+                <b>3. Dedup &amp; Link Creator</b> &mdash; Check Post URL against AT for duplicates + resolve username &rarr; Creator recordId<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; <span style="color:#15803d;">Exists in AT</span> &rarr; <b>UPDATE</b>: refresh Transcript, Caption, Views<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; <span style="color:#2563eb;">New</span> &rarr; <b>CREATE</b>: Content Status=&quot;Pending&quot;, link to Creator record<br>
+                <b>4. Handle Missing Creators</b> &mdash; When Content references a Creator not yet in AT:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; <span style="color:#f59e0b;">Test mode</span>: Skip (run Creator Sync first)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&#8226; <span style="color:#15803d;">Prod mode</span>: Auto-create Creator with Source=&quot;Content Sync (Auto)&quot; &rarr; resolve link<br>
+                <b>5. Resolve Creator Links</b> &mdash; Replace <code style="font-size:9px; background:#e3f2fd; padding:1px 3px; border-radius:3px;">_PENDING_</code> flags with actual Creator recordIds<br>
+                <b>6. Notify</b> &mdash; Send Gmail with sync results: N created, M updated
               </div>
             </div>
           </div>
@@ -385,15 +385,15 @@
             <code>Username (id)</code> &rarr; Username &nbsp;|&nbsp;
             <code>Followers</code> &rarr; Followers &nbsp;|&nbsp;
             <code>Average view</code> &rarr; Avg Views &nbsp;|&nbsp;
-            <code>최근 30일 조회수</code> &rarr; Recent 30-Day Views &nbsp;|&nbsp;
+            <code>Recent 30-Day Views</code> &rarr; Recent 30-Day Views &nbsp;|&nbsp;
             <code>Post URL</code> &rarr; Post URL &nbsp;|&nbsp;
             <code>Transcript</code> &rarr; Transcript &nbsp;|&nbsp;
-            <code>제휴 상태</code> &harr; Partnership Status <span style="color:#f59e0b;">(양방향)</span>
+            <code>Partnership Status</code> &harr; Partnership Status <span style="color:#f59e0b;">(bidirectional)</span>
           </div>
           <div style="margin-top:8px; font-size:10px; color:var(--text-dim);">
             <a href="https://n8n.orbiters.co.kr/workflow/6BNQRz57oCtdROlH" target="_blank" class="wf-link">WJ TEST: 6BNQRz57oCtdROlH</a> &middot;
             <span style="color:#f59e0b;">PROD: inactive (l86XnrL1JPFOMSA4GOoYy)</span>
-            &nbsp;&middot;&nbsp; <span style="font-style:italic;">현재 test 모드 (Creator 5건, Content 10건 제한)</span>
+            &nbsp;&middot;&nbsp; <span style="font-style:italic;">Currently in test mode (Creator 5, Content 10 limit)</span>
           </div>
         </div>
       </div>
