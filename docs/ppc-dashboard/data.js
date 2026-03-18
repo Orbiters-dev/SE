@@ -1,5 +1,5 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-18 02:39 PST",
+ "generated_pst": "2026-03-18 02:41 PST",
  "brands": {
   "grosmimi": {
    "dates": {},
@@ -8,7 +8,7 @@ const PPC_DATA = {
   "naeiae": {
    "dates": {
     "2026-03-18": {
-     "generated": "2026-03-18T02:39",
+     "generated": "2026-03-18T02:41",
      "executed": true,
      "executed_at": "2026-03-18",
      "summary_7d": {
