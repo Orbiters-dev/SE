@@ -28,6 +28,39 @@ Output quality = what you'd present to an MD. Rules:
 
 ---
 
+## Squad Architecture
+
+골만이 leads a team of two sub-skills for KPI data management:
+
+| Role | Skill | Tool | Responsibility |
+|------|-------|------|---------------|
+| VP / Lead | 골만이 | `run_kpi_monthly.py` | Orchestration, computation, business logic |
+| Associate | 검증이 (`golmani-validator`) | `kpi_validator.py` | Data validation, anomaly detection |
+| Analyst | 포맷이 (`golmani-formatter`) | `kpi_formatter.py` | Excel formatting, charts, templates |
+
+### Pipeline
+
+```
+DataKeeper (12h refresh) → 검증이 (validate) → 골만이 (compute) → 포맷이 (format) → Excel
+```
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `python tools/kpi_validator.py` | 검증이: Validate all DataKeeper tables |
+| `python tools/run_kpi_monthly.py` | Full 3-stage pipeline (validate → compute → format) |
+| `python tools/run_kpi_monthly.py --skip-validation` | Skip validation step |
+| `python tools/run_kpi_monthly.py --template executive` | Executive-only tabs |
+| `python tools/kpi_formatter.py` | 포맷이: Standalone formatting |
+
+### Automation
+
+- `kpi_validator.yml` — Daily PST 1:00 AM (data quality check)
+- `kpi_weekly.yml` — Weekly Monday KST 8:00 AM (full report with validation)
+
+---
+
 ## When to Use This Skill
 
 - Build financial models (DCF, LBO, 3-statements, merger model)

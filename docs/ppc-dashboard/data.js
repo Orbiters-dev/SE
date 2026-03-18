@@ -1,10 +1,10 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-17 16:54 PST",
+ "generated_pst": "2026-03-17 18:40 PST",
  "brands": {
   "grosmimi": {
    "dates": {
     "2026-03-17": {
-     "generated": "2026-03-17T16:54",
+     "generated": "2026-03-17T18:40",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -30,7 +30,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "10 No-Brainer",
        "reason": "[SD] 7d ROAS 0x (ACOS None%) | 30d ROAS 0.0x | target ACOS 35.0% | ",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SD_stage2cup",
@@ -48,7 +48,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "10 No-Brainer",
        "reason": "[SD] 7d ROAS 0x (ACOS None%) | 30d ROAS 0.0x | target ACOS 35.0% | ",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_ppsu_auto",
@@ -66,7 +66,7 @@ const PPC_DATA = {
        "bud_after": 195.0,
        "tier": "8 Strong",
        "reason": "[AUTO] 7d ROAS 9.23x (ACOS 10.8%) | 30d ROAS 7.7x | target ACOS 30.0% | 7d vs 30d: +19.9%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_all_auto",
@@ -84,7 +84,7 @@ const PPC_DATA = {
        "bud_after": 13.0,
        "tier": "8 Strong",
        "reason": "[AUTO] 7d ROAS 44.51x (ACOS 2.2%) | 30d ROAS 40.36x | target ACOS 30.0% | 7d vs 30d: +10.3%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_Fliptop_defensive",
@@ -102,7 +102,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 17.1x (ACOS 5.8%) | 30d ROAS 18.46x | target ACOS 20.0% | 7d vs 30d: -7.4%\nBudget already at cap ($360/campaign)",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_stage1_6_defensive",
@@ -120,7 +120,7 @@ const PPC_DATA = {
        "bud_after": 130.0,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 18.76x (ACOS 5.3%) | 30d ROAS 21.34x | target ACOS 20.0% | 7d vs 30d: -12.1%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_stage1_10_defensive",
@@ -138,7 +138,7 @@ const PPC_DATA = {
        "bud_after": 130.0,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 21.86x (ACOS 4.6%) | 30d ROAS 23.87x | target ACOS 20.0% | 7d vs 30d: -8.4%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_Replacements_defensive",
@@ -156,7 +156,7 @@ const PPC_DATA = {
        "bud_after": 130.0,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 31.84x (ACOS 3.1%) | 30d ROAS 32.8x | target ACOS 20.0% | 7d vs 30d: -2.9%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_stage1_keyword",
@@ -174,7 +174,7 @@ const PPC_DATA = {
        "bud_after": 260.0,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 9.25x (ACOS 10.8%) | 30d ROAS 9.31x | target ACOS 20.0% | 7d vs 30d: -0.6%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_flip top_manual",
@@ -192,7 +192,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 5.83x (ACOS 17.1%) | 30d ROAS 5.77x | target ACOS 20.0% | 7d vs 30d: +1.0%\nBudget already at cap ($360/campaign)",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_knotted_manual",
@@ -210,7 +210,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 8.74x (ACOS 11.4%) | 30d ROAS 8.89x | target ACOS 20.0% | 7d vs 30d: -1.7%\nBudget already at cap ($360/campaign)",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_ppsu_manual",
@@ -250,24 +250,6 @@ const PPC_DATA = {
       },
       {
        "name": "SB-manual - 11/2/2022 10:20:00",
-       "type": "SB",
-       "ad_type": "SB",
-       "roas7d": 0,
-       "acos7d": 0,
-       "spend7d": 0,
-       "sales7d": 0,
-       "cpc": 0,
-       "ctr": 0,
-       "action": "monitor",
-       "bid_pct": null,
-       "bud_before": 0.0,
-       "bud_after": null,
-       "tier": "1 Monitor",
-       "reason": "[SB] 7d ROAS 0x (ACOS None%) | 30d ROAS 0x | target ACOS 30.0% | ",
-       "approved": false
-      },
-      {
-       "name": "SBV_brand",
        "type": "SB",
        "ad_type": "SB",
        "roas7d": 0,
@@ -839,14 +821,58 @@ const PPC_DATA = {
      ],
      "negate": [
       {
+       "term": "baby straw cup",
+       "cost": 121.03,
+       "sales": 734.5,
+       "acos": 0,
+       "clicks": 189,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $948 saveable over 6 windows (86 conv at $1,205 spend)",
+       "campaign": "SP_ppsu_manual",
+       "sim_save": 0
+      },
+      {
+       "term": "straw sippy cup",
+       "cost": 101.6,
+       "sales": 410.4,
+       "acos": 0,
+       "clicks": 120,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $464 saveable over 6 windows (36 conv at $472 spend)",
+       "campaign": "SP_ppsu_manual",
+       "sim_save": 0
+      },
+      {
+       "term": "sippy cup with straw",
+       "cost": 257.06,
+       "sales": 566.1,
+       "acos": 0,
+       "clicks": 183,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $444 saveable over 5 windows (21 conv at $450 spend)",
+       "campaign": "SP_ppsu_manual",
+       "sim_save": 0
+      },
+      {
        "term": "sippy cup for 6 month old",
        "cost": 366.44,
        "sales": 517.6,
        "acos": 70.8,
        "clicks": 284,
        "type": "negate_high_acos",
-       "reason": "ACOS 70.8% > 50.0% threshold",
+       "reason": "ACOS 70.8% > 50.0% threshold | Backtest: $349 saveable",
        "campaign": "SP_stage1_keyword",
+       "sim_save": 0
+      },
+      {
+       "term": "stainless steel straw cup toddler",
+       "cost": 45.37,
+       "sales": 94.4,
+       "acos": 0,
+       "clicks": 43,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $255 saveable over 3 windows (10 conv at $262 spend)",
+       "campaign": "SP_ppsu_manual",
        "sim_save": 0
       },
       {
@@ -861,6 +887,17 @@ const PPC_DATA = {
        "sim_save": 0
       },
       {
+       "term": "baby sippy cup",
+       "cost": 206.41,
+       "sales": 877.0,
+       "acos": 0,
+       "clicks": 172,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $231 saveable over 6 windows (14 conv at $236 spend)",
+       "campaign": "SP_ppsu_manual",
+       "sim_save": 0
+      },
+      {
        "term": "baby straw cups 6-12 months",
        "cost": 138.91,
        "sales": 214.9,
@@ -872,14 +909,14 @@ const PPC_DATA = {
        "sim_save": 0
       },
       {
-       "term": "nuk sippy cups for toddlers 1-3",
-       "cost": 106.76,
-       "sales": 57.4,
-       "acos": 186.0,
-       "clicks": 123,
-       "type": "negate_high_acos",
-       "reason": "ACOS 186.0% > 50.0% threshold",
-       "campaign": "SP_flip top_manual",
+       "term": "sippy cup",
+       "cost": 65.85,
+       "sales": 249.5,
+       "acos": 0,
+       "clicks": 79,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $114 saveable over 9 windows (10 conv at $120 spend)",
+       "campaign": "SP_ppsu_manual",
        "sim_save": 0
       },
       {
@@ -891,6 +928,17 @@ const PPC_DATA = {
        "type": "negate_high_acos",
        "reason": "ACOS 399.6% > 50.0% threshold",
        "campaign": "SP_flip top_manual",
+       "sim_save": 0
+      },
+      {
+       "term": "sippy cups for toddlers 1-3",
+       "cost": 1066.69,
+       "sales": 4952.9,
+       "acos": 0,
+       "clicks": 1363,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $86 saveable over 4 windows (27 conv at $92 spend)",
+       "campaign": "SP_knotted_manual",
        "sim_save": 0
       },
       {
@@ -993,6 +1041,17 @@ const PPC_DATA = {
        "sim_save": 0
       },
       {
+       "term": "toddler sippy cups",
+       "cost": 30.71,
+       "sales": 139.7,
+       "acos": 0,
+       "clicks": 40,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $48 saveable over 4 windows (2 conv at $64 spend)",
+       "campaign": "SP_ppsu_manual",
+       "sim_save": 0
+      },
+      {
        "term": "baby sippy cups 12-18 months",
        "cost": 42.74,
        "sales": 72.5,
@@ -1001,6 +1060,17 @@ const PPC_DATA = {
        "type": "negate_high_acos",
        "reason": "ACOS 59.0% > 50.0% threshold",
        "campaign": "SP_flip top_manual",
+       "sim_save": 0
+      },
+      {
+       "term": "316 stainless steel cup",
+       "cost": 3.38,
+       "sales": 0.0,
+       "acos": 0,
+       "clicks": 4,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $42 saveable over 4 windows (0 conv at $53 spend)",
+       "campaign": "SP_ppsu_manual",
        "sim_save": 0
       },
       {
@@ -1015,14 +1085,14 @@ const PPC_DATA = {
        "sim_save": 0
       },
       {
-       "term": "glass sippy cups for toddlers 1-3",
-       "cost": 36.8,
-       "sales": 49.8,
-       "acos": 73.9,
-       "clicks": 37,
+       "term": "transition sippy cup",
+       "cost": 24.82,
+       "sales": 24.9,
+       "acos": 99.7,
+       "clicks": 34,
        "type": "negate_high_acos",
-       "reason": "ACOS 73.9% > 50.0% threshold",
-       "campaign": "SP_flip top_manual",
+       "reason": "ACOS 99.7% > 50.0% threshold | Backtest: $34 saveable",
+       "campaign": "SP_stage1_keyword",
        "sim_save": 0
       },
       {
@@ -1103,25 +1173,14 @@ const PPC_DATA = {
        "sim_save": 0
       },
       {
-       "term": "munchkin straw cup",
-       "cost": 27.31,
-       "sales": 25.8,
-       "acos": 105.9,
-       "clicks": 24,
-       "type": "negate_high_acos",
-       "reason": "ACOS 105.9% > 50.0% threshold",
-       "campaign": "SP_flip top_manual",
-       "sim_save": 0
-      },
-      {
-       "term": "baby first straw cup",
-       "cost": 27.21,
-       "sales": 48.7,
-       "acos": 55.9,
-       "clicks": 22,
-       "type": "negate_high_acos",
-       "reason": "ACOS 55.9% > 50.0% threshold",
-       "campaign": "SP_knotted_manual",
+       "term": "spill proof straw cups for toddlers",
+       "cost": 34.6,
+       "sales": 201.4,
+       "acos": 0,
+       "clicks": 31,
+       "type": "negate_sim_confirmed",
+       "reason": "Simulator: $27 saveable over 2 windows (6 conv at $54 spend)",
+       "campaign": "SP_ppsu_manual",
        "sim_save": 0
       },
       {
@@ -1158,6 +1217,17 @@ const PPC_DATA = {
        "sim_save": 0
       },
       {
+       "term": "ubmom straw cup",
+       "cost": 20.92,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 24,
+       "type": "negate_zero_sales",
+       "reason": "$20.92 spent, 24 clicks, 0 sales (>3.0x target CPA) | Backtest: $25 saveable",
+       "campaign": "SP_flip top_manual",
+       "sim_save": 0
+      },
+      {
        "term": "first sippy cup",
        "cost": 25.05,
        "sales": 0,
@@ -1166,17 +1236,6 @@ const PPC_DATA = {
        "type": "negate_zero_sales",
        "reason": "$25.05 spent, 12 clicks, 0 sales (>3.0x target CPA)",
        "campaign": "SP_flip top_manual",
-       "sim_save": 0
-      },
-      {
-       "term": "transition sippy cup",
-       "cost": 24.82,
-       "sales": 24.9,
-       "acos": 99.7,
-       "clicks": 34,
-       "type": "negate_high_acos",
-       "reason": "ACOS 99.7% > 50.0% threshold",
-       "campaign": "SP_stage1_keyword",
        "sim_save": 0
       },
       {
@@ -1191,17 +1250,6 @@ const PPC_DATA = {
        "sim_save": 0
       },
       {
-       "term": "straw cup for milk",
-       "cost": 24.17,
-       "sales": 0,
-       "acos": 0,
-       "clicks": 20,
-       "type": "negate_zero_sales",
-       "reason": "$24.17 spent, 20 clicks, 0 sales (>3.0x target CPA)",
-       "campaign": "SP_ppsu_manual",
-       "sim_save": 0
-      },
-      {
        "term": "b0dq64xpxt",
        "cost": 23.42,
        "sales": 28.7,
@@ -1210,6 +1258,28 @@ const PPC_DATA = {
        "type": "negate_high_acos",
        "reason": "ACOS 81.6% > 70.0% threshold",
        "campaign": "SP_Fliptop_auto",
+       "sim_save": 0
+      },
+      {
+       "term": "munchkin straw cup",
+       "cost": 27.31,
+       "sales": 25.8,
+       "acos": 105.9,
+       "clicks": 24,
+       "type": "negate_high_acos",
+       "reason": "ACOS 105.9% > 50.0% threshold | Backtest: $22 saveable",
+       "campaign": "SP_flip top_manual",
+       "sim_save": 0
+      },
+      {
+       "term": "straw cup for milk",
+       "cost": 24.17,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 20,
+       "type": "negate_zero_sales",
+       "reason": "$24.17 spent, 20 clicks, 0 sales (>3.0x target CPA) | Backtest: $22 saveable",
+       "campaign": "SP_ppsu_manual",
        "sim_save": 0
       },
       {
@@ -1257,17 +1327,6 @@ const PPC_DATA = {
        "sim_save": 0
       },
       {
-       "term": "nuk learner straw cup",
-       "cost": 21.24,
-       "sales": 31.0,
-       "acos": 68.5,
-       "clicks": 21,
-       "type": "negate_high_acos",
-       "reason": "ACOS 68.5% > 50.0% threshold",
-       "campaign": "SP_flip top_manual",
-       "sim_save": 0
-      },
-      {
        "term": "baby straw cup stainless steel",
        "cost": 20.96,
        "sales": 38.9,
@@ -1279,17 +1338,6 @@ const PPC_DATA = {
        "sim_save": 0
       },
       {
-       "term": "ubmom straw cup",
-       "cost": 20.92,
-       "sales": 0,
-       "acos": 0,
-       "clicks": 24,
-       "type": "negate_zero_sales",
-       "reason": "$20.92 spent, 24 clicks, 0 sales (>3.0x target CPA)",
-       "campaign": "SP_flip top_manual",
-       "sim_save": 0
-      },
-      {
        "term": "stainless steel sippy cup",
        "cost": 20.29,
        "sales": 39.3,
@@ -1297,17 +1345,6 @@ const PPC_DATA = {
        "clicks": 34,
        "type": "negate_high_acos",
        "reason": "ACOS 51.6% > 50.0% threshold",
-       "campaign": "SP_stage1_keyword",
-       "sim_save": 0
-      },
-      {
-       "term": "sippy cup for 1+ year old",
-       "cost": 19.98,
-       "sales": 0,
-       "acos": 0,
-       "clicks": 29,
-       "type": "negate_zero_sales",
-       "reason": "$19.98 spent, 29 clicks, 0 sales (>3.0x target CPA)",
        "campaign": "SP_stage1_keyword",
        "sim_save": 0
       },
@@ -1323,74 +1360,19 @@ const PPC_DATA = {
        "sim_save": 0
       },
       {
-       "term": "baby sippy straw cup",
-       "cost": 17.93,
-       "sales": 0,
-       "acos": 0,
-       "clicks": 11,
-       "type": "negate_zero_sales",
-       "reason": "$17.93 spent, 11 clicks, 0 sales (>3.0x target CPA)",
-       "campaign": "SP_ppsu_manual",
-       "sim_save": 0
-      },
-      {
-       "term": "glass toddler cup with straw",
-       "cost": 17.84,
-       "sales": 22.8,
-       "acos": 78.2,
-       "clicks": 23,
+       "term": "nuk learner straw cup",
+       "cost": 21.24,
+       "sales": 31.0,
+       "acos": 68.5,
+       "clicks": 21,
        "type": "negate_high_acos",
-       "reason": "ACOS 78.2% > 50.0% threshold",
+       "reason": "ACOS 68.5% > 50.0% threshold | Backtest: $19 saveable",
        "campaign": "SP_flip top_manual",
-       "sim_save": 0
-      },
-      {
-       "term": "mombella straw cup",
-       "cost": 17.79,
-       "sales": 0,
-       "acos": 0,
-       "clicks": 19,
-       "type": "negate_zero_sales",
-       "reason": "$17.79 spent, 19 clicks, 0 sales (>3.0x target CPA)",
-       "campaign": "SP_flip top_manual",
-       "sim_save": 0
-      },
-      {
-       "term": "first years straw cup",
-       "cost": 17.67,
-       "sales": 0,
-       "acos": 0,
-       "clicks": 15,
-       "type": "negate_zero_sales",
-       "reason": "$17.67 spent, 15 clicks, 0 sales (>3.0x target CPA)",
-       "campaign": "SP_flip top_manual",
-       "sim_save": 0
-      },
-      {
-       "term": "straw cup for toddler",
-       "cost": 17.44,
-       "sales": 0,
-       "acos": 0,
-       "clicks": 18,
-       "type": "negate_zero_sales",
-       "reason": "$17.44 spent, 18 clicks, 0 sales (>3.0x target CPA)",
-       "campaign": "SP_knotted_manual",
-       "sim_save": 0
-      },
-      {
-       "term": "sippy cup for adults",
-       "cost": 17.26,
-       "sales": 23.8,
-       "acos": 72.5,
-       "clicks": 10,
-       "type": "negate_high_acos",
-       "reason": "ACOS 72.5% > 50.0% threshold",
-       "campaign": "SP_ppsu_manual",
        "sim_save": 0
       }
      ],
      "counts": {
-      "campaigns": 15,
+      "campaigns": 14,
       "harvest": 50,
       "negate": 50
      }
@@ -1401,7 +1383,7 @@ const PPC_DATA = {
   "naeiae": {
    "dates": {
     "2026-03-17": {
-     "generated": "2026-03-17T16:54",
+     "generated": "2026-03-17T18:40",
      "executed": true,
      "executed_at": "2026-03-17",
      "summary_7d": {
@@ -1440,11 +1422,11 @@ const PPC_DATA = {
        "cpc": 0.96,
        "ctr": 0.78,
        "action": "increase_budget",
-       "bid_pct": null,
-       "bud_before": 100.0,
-       "bud_after": null,
+       "bid_pct": 15,
+       "bud_before": 75.0,
+       "bud_after": 100.0,
        "tier": "7 Strong",
-       "reason": "[MANUAL] 7d ROAS 4.72x (ACOS 21.2%) | 30d ROAS 3.08x | target ACOS 25.0% | 7d vs 30d: +53.2%\nBudget already at cap ($100/campaign)",
+       "reason": "[MANUAL] 7d ROAS 4.72x (ACOS 21.2%) | 30d ROAS 3.08x | target ACOS 25.0% | 7d vs 30d: +53.2%\n** UNDERSPEND BOOST: budget increase amplified (+20% -> +50%) to reach $150.0/day target\n** UNDERSPEND: bid +15% to increase impressions/clicks (ROAS 4.72x supports growth)",
        "approved": true
       },
       {
@@ -1467,83 +1449,6 @@ const PPC_DATA = {
       }
      ],
      "harvest": [
-      {
-       "term": "떡뻥",
-       "sales": 418.2,
-       "cost": 34.26,
-       "acos": 8.2,
-       "clicks": 47,
-       "purchases": 14,
-       "bid": 0.8,
-       "campaign": "Naeiae Rice Pop - SP - Manual",
-       "sim_confirmed": false
-      },
-      {
-       "term": "b0bmh153y7",
-       "sales": 295.2,
-       "cost": 40.72,
-       "acos": 13.8,
-       "clicks": 48,
-       "purchases": 12,
-       "bid": 0.93,
-       "campaign": "Naeiae Rice Pop - SP - Manual",
-       "sim_confirmed": false
-      },
-      {
-       "term": "naeiae pop rice snack",
-       "sales": 246.0,
-       "cost": 12.29,
-       "acos": 5.0,
-       "clicks": 23,
-       "purchases": 9,
-       "bid": 0.59,
-       "campaign": "Naeiae Rice Pop - SP - Auto",
-       "sim_confirmed": false
-      },
-      {
-       "term": "pop rice snack",
-       "sales": 123.0,
-       "cost": 15.25,
-       "acos": 12.4,
-       "clicks": 26,
-       "purchases": 5,
-       "bid": 0.65,
-       "campaign": "Naeiae Rice Pop - SP - Auto",
-       "sim_confirmed": false
-      },
-      {
-       "term": "baby teething snacks",
-       "sales": 98.4,
-       "cost": 20.93,
-       "acos": 21.3,
-       "clicks": 20,
-       "purchases": 4,
-       "bid": 1.15,
-       "campaign": "Naeiae Rice Pop - SP - Manual",
-       "sim_confirmed": false
-      },
-      {
-       "term": "b08tqn3h7t",
-       "sales": 98.4,
-       "cost": 8.84,
-       "acos": 9.0,
-       "clicks": 21,
-       "purchases": 4,
-       "bid": 0.46,
-       "campaign": "Naeiae Rice Pop - SP - Manual",
-       "sim_confirmed": false
-      },
-      {
-       "term": "pop rice snack baby",
-       "sales": 73.8,
-       "cost": 14.65,
-       "acos": 19.9,
-       "clicks": 16,
-       "purchases": 3,
-       "bid": 1.01,
-       "campaign": "Naeiae Rice Pop - SP - Auto",
-       "sim_confirmed": false
-      },
       {
        "term": "rice cakes",
        "sales": 49.2,
@@ -1591,17 +1496,6 @@ const PPC_DATA = {
      ],
      "negate": [
       {
-       "term": "baby snacks",
-       "cost": 65.33,
-       "sales": 0,
-       "acos": 0,
-       "clicks": 62,
-       "type": "negate_zero_sales",
-       "reason": "$65.33 spent, 62 clicks, 0 sales (>3.0x target CPA)",
-       "campaign": "Naeiae Rice Pop - SP - Manual",
-       "sim_save": 0
-      },
-      {
        "term": "puffed rice",
        "cost": 51.72,
        "sales": 24.6,
@@ -1622,23 +1516,12 @@ const PPC_DATA = {
        "reason": "ACOS 72.9% > 50.0% threshold",
        "campaign": "Naeiae Rice Pop - SP - Manual",
        "sim_save": 0
-      },
-      {
-       "term": "yugwa korean rice puff snack",
-       "cost": 33.59,
-       "sales": 0,
-       "acos": 0,
-       "clicks": 36,
-       "type": "negate_zero_sales",
-       "reason": "$33.59 spent, 36 clicks, 0 sales (>3.0x target CPA)",
-       "campaign": "Naeiae Rice Pop - SP - Auto",
-       "sim_save": 0
       }
      ],
      "counts": {
       "campaigns": 3,
-      "harvest": 11,
-      "negate": 4
+      "harvest": 4,
+      "negate": 2
      }
     }
    },
@@ -1720,7 +1603,7 @@ const PPC_DATA = {
   "chaenmom": {
    "dates": {
     "2026-03-17": {
-     "generated": "2026-03-17T16:54",
+     "generated": "2026-03-17T18:40",
      "executed": false,
      "executed_at": "",
      "summary_7d": {

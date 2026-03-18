@@ -3631,12 +3631,26 @@ def main():
     parser.add_argument("--from", dest="date_from", default="2024-01")
     parser.add_argument("--to",   dest="date_to",   default="2099-12")
     parser.add_argument("--no-sheet", action="store_true", help="Skip Google Sheet write")
+    parser.add_argument("--skip-validation", action="store_true", help="Skip 검증이 step")
+    parser.add_argument("--skip-legacy", action="store_true", help="Skip legacy Polar tabs")
+    parser.add_argument("--template", choices=["full", "executive"], default="full")
     args = parser.parse_args()
 
     print(f"\nKPI Monthly Analysis  [{args.date_from} ~ {args.date_to}]")
-    print(f"Data source: PG Data Keeper + Polar JSON\n")
+    print(f"골만이 Squad Pipeline: 검증이 → 골만이 → 포맷이\n")
 
-    # Compute consistent through_date from all main channels (PST)
+    # ── Stage 1: 검증이 (Validation) ──────────────────────────────────────
+    validation_report = None
+    if not args.skip_validation:
+        try:
+            from kpi_validator import validate_all
+            validation_report = validate_all(report_only=True)
+            if validation_report.get("overall_status") == "FAIL":
+                print("\n[WARN] 검증이: Data validation FAILED. Proceeding with caution.\n")
+        except Exception as e:
+            print(f"\n[WARN] 검증이 skipped: {e}\n")
+
+    # ── Stage 2: 골만이 (Computation) ─────────────────────────────────────
     through_date = compute_through_date()
     print(f"Consistent through_date: {through_date}\n")
 
@@ -3650,37 +3664,26 @@ def main():
         print("--no-sheet: Excel write skipped.")
         return
 
+    # ── Stage 3: 포맷이 (Formatting) ─────────────────────────────────────
     import openpyxl
     src = find_latest_model()
     dst = next_version_path(src)
     print(f"\nLoading: {src.name}")
     wb = openpyxl.load_workbook(str(src))
 
-    add_data_status_tab(wb, through_date)
-    write_tab(wb, "KPI_할인율",   rows_discount, header_row=3)
-    write_wide_tab(wb, "KPI_광고비",   rows_adspend)
-    write_wide_tab(wb, "KPI_시딩비용", rows_seeding)
-
-    expand_exec_summary_months(wb, target_start="2025-01")
-    update_exec_summary(wb, total_monthly)
-    add_mkt_spend_to_exec_summary(wb)
-    add_summary_d2c_section(wb, d2c_monthly, rows_seeding, rows_adspend)
-    add_amazon_discount_tab(wb, through_date)
-    add_amazon_marketplace_tab(wb, through_date)
-
-    # Summary tabs — powered by Data Keeper
-    update_sales_summary(wb, through_date)
-    update_ads_summary(wb, through_date)
-    update_unit_economics(wb, through_date)
-    update_campaign_details(wb, through_date)
-    update_influencer_dashboard(wb, through_date)
-
-    # Legacy Polar tabs — fill current month from Data Keeper PG
-    update_legacy_sales(wb, through_date)
-    update_legacy_cm(wb, through_date)
-    update_legacy_organic(wb, through_date)
-    update_legacy_ads(wb, through_date)
-    update_legacy_summary(wb, through_date)
+    from kpi_formatter import format_kpi_report
+    format_kpi_report(
+        wb=wb,
+        through_date=through_date,
+        rows_discount=rows_discount,
+        rows_adspend=rows_adspend,
+        rows_seeding=rows_seeding,
+        total_monthly=total_monthly,
+        d2c_monthly=d2c_monthly,
+        validation_report=validation_report,
+        template=args.template,
+        skip_legacy=args.skip_legacy,
+    )
 
     wb.save(str(dst))
     print(f"\nSaved: {dst.name}")
