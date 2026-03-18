@@ -45,6 +45,27 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 .prod-tag{display:inline-block;padding:1px 5px;border-radius:3px;font-size:8px;font-weight:600;background:#f3e8ff;color:#7c3aed;margin:1px 2px}
 .nav-link{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:var(--a);text-decoration:none;padding:4px 10px;border:1px solid var(--border);border-radius:6px;transition:.12s}
 .nav-link:hover{background:var(--abg);border-color:var(--a)}
+/* ── Mobile Responsive ── */
+@media(max-width:700px){
+  .ctr{padding:12px 8px 60px}
+  .hero h1{font-size:18px}
+  .hero .sub{font-size:11px}
+  /* Nav bar */
+  .ctr>div:first-child>div{flex-direction:column;border-radius:8px}
+  .ctr>div:first-child>div>*{padding:6px 14px!important;font-size:11px!important;text-align:center}
+  /* Tabs: horizontal scroll */
+  .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
+  .tabs>div{padding:8px 14px;font-size:10px;white-space:nowrap;flex-shrink:0}
+  /* Stats */
+  .stats{grid-template-columns:repeat(2,1fr);gap:4px}
+  .stat .sv{font-size:16px}
+  /* Tables: horizontal scroll */
+  .card{padding:10px 6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:500px}
+  th{padding:5px 4px;font-size:8px}td{padding:4px 4px;font-size:10px}
+  /* Login gate */
+  #login-gate>div{padding:28px 20px!important;width:92%!important}
+}
 </style>
 </head>
 <body>

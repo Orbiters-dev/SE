@@ -2944,7 +2944,72 @@ def execute_approved(proposal_data: Dict) -> List[Dict]:
     log_path.write_text(json.dumps(executed, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"\n[LOG] Execution log saved: {log_path}")
 
+    # Also update persistent exec_log.json directly (don't depend on generate_dashboard_data.py)
+    _update_persistent_exec_log(executed)
+
     return executed
+
+
+def _update_persistent_exec_log(executed: list):
+    """Directly update docs/ppc-dashboard/exec_log.json with execution results.
+
+    This ensures execution results are persisted even if generate_dashboard_data.py
+    doesn't run (e.g. when proposal files are missing in GitHub Actions).
+    """
+    exec_log_path = Path(__file__).resolve().parent.parent / "docs" / "ppc-dashboard" / "exec_log.json"
+    dt = date.today().strftime("%Y-%m-%d")
+
+    # Load existing
+    persistent = {}
+    if exec_log_path.exists():
+        try:
+            persistent = json.loads(exec_log_path.read_text(encoding="utf-8"))
+        except Exception:
+            persistent = {}
+
+    # Group new items by brand
+    new_by_brand = {}
+    for item in executed:
+        cn = (item.get("campaignName") or "").lower()
+        if "cha&mom" in cn or "cha_mom" in cn:
+            bk = "chaenmom"
+        elif "grosmimi" in cn:
+            bk = "grosmimi"
+        else:
+            bk = "naeiae"
+        item_copy = dict(item)
+        item_copy["exec_date"] = dt
+        new_by_brand.setdefault(bk, []).append(item_copy)
+
+    # Merge new entries for same brand+date (append without duplicates)
+    # Dedup key: campaignId + action + keyword
+    def _dedup_key(e):
+        return (str(e.get("campaignId", "")), e.get("action", ""), (e.get("keyword") or "").lower())
+
+    for bk, new_items in new_by_brand.items():
+        existing = persistent.setdefault(bk, [])
+        # Keep entries for other dates as-is
+        other_dates = [e for e in existing if e.get("exec_date", "") != dt]
+        same_date = [e for e in existing if e.get("exec_date", "") == dt]
+        # Merge: existing same-date entries + new items, deduped (new wins)
+        seen = set()
+        merged = []
+        for e in new_items:  # New items take priority
+            k = _dedup_key(e)
+            if k not in seen:
+                seen.add(k)
+                merged.append(e)
+        for e in same_date:  # Keep old items not in new batch
+            k = _dedup_key(e)
+            if k not in seen:
+                seen.add(k)
+                merged.append(e)
+        persistent[bk] = other_dates + merged
+
+    # Save
+    exec_log_path.write_text(json.dumps(persistent, ensure_ascii=False, indent=1), encoding="utf-8")
+    total = sum(len(v) for v in persistent.values())
+    print(f"[LOG] exec_log.json updated: {total} total records")
 
 
 # ===========================================================================

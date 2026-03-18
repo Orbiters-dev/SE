@@ -234,12 +234,27 @@ def inject_executions(brands):
                 bk = detect_brand(item)
                 item["exec_date"] = dt
                 new_by_brand.setdefault(bk, []).append(item)
-            # For each brand with new data, replace old entries for this date
+            # For each brand with new data, merge entries for this date (dedup by key)
+            def _dedup_key(e):
+                return (str(e.get("campaignId", "")), e.get("action", ""), (e.get("keyword") or "").lower())
+
             for bk, new_items in new_by_brand.items():
                 existing = persistent_log.setdefault(bk, [])
-                # Remove stale entries for this brand+date (latest wins)
-                persistent_log[bk] = [e for e in existing if e.get("exec_date", "") != dt]
-                persistent_log[bk].extend(new_items)
+                other_dates = [e for e in existing if e.get("exec_date", "") != dt]
+                same_date = [e for e in existing if e.get("exec_date", "") == dt]
+                seen = set()
+                merged = []
+                for e in new_items:  # New items take priority
+                    k = _dedup_key(e)
+                    if k not in seen:
+                        seen.add(k)
+                        merged.append(e)
+                for e in same_date:  # Keep old items not in new batch
+                    k = _dedup_key(e)
+                    if k not in seen:
+                        seen.add(k)
+                        merged.append(e)
+                persistent_log[bk] = other_dates + merged
         except Exception:
             continue
 

@@ -57,7 +57,35 @@ td{padding:6px 8px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#f8fff
 /* Volume bar */
 .vol-bar{height:6px;border-radius:3px;background:#e2e8f0;position:relative;overflow:hidden;min-width:60px}
 .vol-bar .fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#10b981,#0ea5e9)}
-@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}.src-grid{grid-template-columns:repeat(2,1fr)}.sub-tabs{font-size:10px}}
+/* ── Mobile Responsive ── */
+@media(max-width:700px){
+  .ctr{padding:12px 8px 60px}
+  .hero h1{font-size:18px}
+  .hero .sub{font-size:11px}
+  /* Nav bar */
+  .ctr>div:first-child>div{flex-direction:column;border-radius:8px}
+  .ctr>div:first-child>div>*{padding:6px 14px!important;font-size:11px!important;text-align:center}
+  /* Stats */
+  .stats{grid-template-columns:repeat(2,1fr);gap:4px}
+  .stat{padding:8px}.stat .sv{font-size:16px}
+  /* Source grid */
+  .src-grid{grid-template-columns:1fr}
+  /* Sub tabs: horizontal scroll */
+  .sub-tabs{font-size:10px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .sub-tab{padding:6px 12px;font-size:10px;flex-shrink:0}
+  /* Tables: horizontal scroll */
+  .card{padding:10px 6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .sec{margin-bottom:16px}
+  table{min-width:500px}
+  th{padding:5px 5px;font-size:8px}td{padding:4px 5px;font-size:10px}
+  /* Section titles */
+  .sec-title{font-size:12px;flex-wrap:wrap}
+  .sec-title .num{width:20px;height:20px;font-size:10px}
+  /* Period tabs */
+  .period-tabs>div{padding:5px 10px;font-size:9px}
+  /* Login gate */
+  #login-gate>div{padding:28px 20px!important;width:92%!important}
+}
 </style>
 </head>
 <body>

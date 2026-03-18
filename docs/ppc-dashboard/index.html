@@ -134,7 +134,50 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
 .exp-active{background:var(--gbg)!important;border-color:var(--g)!important}
 
 
-@media(max-width:700px){.fb{flex-wrap:wrap;justify-content:center}.fa{display:none}.cf{flex-direction:column}.cfa{transform:rotate(90deg)}}
+/* ── Mobile Responsive ── */
+@media(max-width:700px){
+  .ctr{padding:12px 8px 60px}
+  .hero h1{font-size:18px}
+  .hero .sub{font-size:11px}
+  /* Nav bar */
+  .ctr>div:first-child>div{flex-direction:column;border-radius:8px}
+  .ctr>div:first-child>div>*{padding:6px 14px!important;font-size:11px!important;text-align:center}
+  /* Main tabs: horizontal scroll */
+  .mt{overflow-x:auto;-webkit-overflow-scrolling:touch;gap:0;flex-wrap:nowrap}
+  .mt>div{padding:8px 14px;font-size:10px;white-space:nowrap;flex-shrink:0}
+  /* Sub tabs */
+  .st{gap:3px}.st>div{padding:5px 10px;font-size:10px}
+  .sst>div{padding:3px 8px;font-size:9px}
+  /* Flow bar */
+  .fb{flex-wrap:wrap;justify-content:center;padding:8px}.fa{display:none}
+  .fn{min-width:70px;padding:6px 2px}.fn .fi{font-size:16px}.fn .ft{font-size:9px}.fn .fs{font-size:7px}
+  /* Cost flow */
+  .cf{flex-direction:column}.cfa{transform:rotate(90deg)}
+  /* Stats */
+  .stats{grid-template-columns:repeat(2,1fr);gap:4px}
+  .stat .sv{font-size:16px}
+  /* Channel grid */
+  .chg{grid-template-columns:1fr}
+  /* Rules grid */
+  .rules{grid-template-columns:1fr}
+  /* Tables: horizontal scroll wrapper */
+  .card{padding:10px 6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .sec{margin-bottom:20px}
+  table{min-width:600px}
+  th{padding:5px 4px;font-size:8px}td{padding:4px 4px;font-size:10px}
+  #output-content table{min-width:500px}
+  /* Buttons */
+  .exec-btn{padding:12px 20px;font-size:14px;width:100%}
+  .cfg-btn{width:100%}
+  input[type=checkbox]{width:18px;height:18px}
+  /* Config inputs */
+  #config-table input{width:60px;font-size:10px;padding:6px 4px}
+  /* Section headers */
+  .sh{flex-wrap:wrap}.si h2{font-size:13px}
+  .sn{width:24px;height:24px;font-size:10px}
+  /* Login gate */
+  #page-gate .gate-card{width:90%;padding:28px 20px}
+}
 /* Page gate */
 #page-gate{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999}
 #page-gate .gate-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:40px 36px;width:340px;box-shadow:0 8px 32px rgba(0,0,0,.08);text-align:center}

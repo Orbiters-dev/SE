@@ -116,12 +116,12 @@ jobs:
 
       - name: Update dashboard data.js
         run: |
-          # Only regenerate if proposal JSONs exist (avoid pushing empty data.js)
-          if ls .tmp/ppc_proposal_*_*.json 1>/dev/null 2>&1; then
+          # Regenerate if proposal JSONs or execution logs exist
+          if ls .tmp/ppc_proposal_*_*.json 1>/dev/null 2>&1 || ls .tmp/ppc_executed_*.json 1>/dev/null 2>&1; then
             echo "=== Regenerating dashboard data ==="
             python -u tools/generate_dashboard_data.py 2>&1 || echo "[WARN] data.js generation had issues"
           else
-            echo "=== No proposal JSONs found, skipping data.js regeneration ==="
+            echo "=== No proposal/execution JSONs found, skipping data.js regeneration ==="
           fi
 
       - name: Update Financial KPIs data
