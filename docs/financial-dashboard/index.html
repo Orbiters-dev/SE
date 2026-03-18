@@ -11,7 +11,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:13px}
 .ctr{max-width:1080px;margin:0 auto;padding:28px 20px 80px}
-.hero{text-align:center;margin-bottom:24px}
+.hero{text-align:center;margin-bottom:16px}
 .hero h1{font-size:26px;font-weight:800;letter-spacing:-.5px}.hero h1 span{background:linear-gradient(135deg,#10b981,#0ea5e9);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .hero .sub{color:var(--dim);font-size:13px;margin-top:3px}
 .hero .meta{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
@@ -42,7 +42,22 @@ td{padding:6px 8px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#f8fff
 .src-card .sd{color:var(--dim);line-height:1.4}
 .src-card .sr{float:right;font-size:9px;color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-weight:600}
 .proj{color:#8b5cf6;font-size:9px;font-weight:600;font-family:var(--mono)}
-@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}.src-grid{grid-template-columns:repeat(2,1fr)}}
+/* Sub-tabs */
+.sub-tabs{display:flex;gap:2px;margin-bottom:16px;border-bottom:2px solid var(--border);padding-bottom:0;overflow-x:auto}
+.sub-tab{padding:8px 16px;font-size:11px;font-weight:700;color:var(--dim);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;white-space:nowrap;border-radius:6px 6px 0 0}
+.sub-tab:hover{color:var(--text);background:#f1f5f9}
+.sub-tab.active{color:var(--a);border-bottom-color:var(--a);background:var(--abg)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+/* Position badge */
+.pos-badge{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;font-family:var(--mono)}
+.pos-top3{background:#ecfdf5;color:#10b981}.pos-top10{background:#fffbeb;color:#f59e0b}.pos-low{background:#fef2f2;color:#ef4444}
+/* Sparkline */
+.sparkline{display:inline-flex;align-items:end;gap:1px;height:20px;vertical-align:middle}
+.sparkline .bar{width:4px;border-radius:1px;min-height:1px}
+/* Volume bar */
+.vol-bar{height:6px;border-radius:3px;background:#e2e8f0;position:relative;overflow:hidden;min-width:60px}
+.vol-bar .fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#10b981,#0ea5e9)}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}.src-grid{grid-template-columns:repeat(2,1fr)}.sub-tabs{font-size:10px}}
 </style>
 </head>
 <body>
@@ -73,13 +88,17 @@ td{padding:6px 8px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#f8fff
   </div>
 </div>
 
-<div class="hero" style="margin-bottom:16px">
+<div class="hero">
   <h1>Financial <span>KPIs</span></h1>
   <div class="sub">Revenue, Ad Performance, Margins & Traffic Analytics</div>
   <div class="meta" id="hero-meta"></div>
 </div>
 
-<div id="fin-content"></div>
+<!-- Sub-tabs -->
+<div class="sub-tabs" id="fin-sub-tabs"></div>
+
+<!-- Tab panels container -->
+<div id="fin-panels"></div>
 
 </div>
 </div>
@@ -120,9 +139,8 @@ if(checkAuth()) showDashboard();
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function $(v){ return typeof v==='number'?'$'+v.toLocaleString():v; }
 function num(v){ return typeof v==='number'?v.toLocaleString():v; }
+function pct(v){ return (typeof v==='number'?v.toFixed(1):'0')+'%'; }
 
-// Cell with optional full-month projection
-// isLast = true for partial month column
 function fmCell(actual, projected, isLast, opts){
   opts=opts||{};
   var sty='text-align:right;font-family:var(--mono);font-size:'+(opts.fs||'10px');
@@ -134,6 +152,35 @@ function fmCell(actual, projected, isLast, opts){
     return '<td style="'+sty+'">'+prefix+$(actual)+suffix+' <span class="proj">('+prefix+$(projected)+suffix+')</span></td>';
   }
   return '<td style="'+sty+'">'+prefix+$(actual)+suffix+'</td>';
+}
+
+function posBadge(pos){
+  if(pos<=0) return '<span class="pos-badge pos-low">--</span>';
+  var cls=pos<=3?'pos-top3':pos<=10?'pos-top10':'pos-low';
+  return '<span class="pos-badge '+cls+'">'+pos.toFixed(1)+'</span>';
+}
+
+function sparkline(values, color, invert){
+  // invert=true means lower is better (position)
+  var vals=values.filter(function(v){return v!==null&&v!==undefined});
+  if(!vals.length) return '';
+  var maxV=Math.max.apply(null,vals)||1;
+  var h='<span class="sparkline">';
+  values.forEach(function(v){
+    if(v===null||v===undefined){h+='<span class="bar" style="width:4px;height:1px;background:#e2e8f0"></span>';return;}
+    var pct=invert?(1-v/maxV):(v/maxV);
+    pct=Math.max(pct,0.05);
+    var c=color||'#10b981';
+    if(invert){ c=v<=3?'#10b981':v<=10?'#f59e0b':'#ef4444'; }
+    h+='<span class="bar" style="height:'+Math.round(pct*20)+'px;background:'+c+'"></span>';
+  });
+  h+='</span>';
+  return h;
+}
+
+function volBar(vol, maxVol){
+  var pct=maxVol>0?Math.min(vol/maxVol*100,100):0;
+  return '<span class="vol-bar"><span class="fill" style="width:'+pct+'%"></span></span>';
 }
 
 function barChart(datasets, labels, opts){
@@ -189,11 +236,23 @@ function barChart(datasets, labels, opts){
   return svg;
 }
 
+// ── Tab switching ────────────────────────────────────────────────────────────
+function switchFinTab(tabId){
+  document.querySelectorAll('.sub-tab').forEach(function(t){t.classList.remove('active')});
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});
+  var tab=document.querySelector('[data-tab="'+tabId+'"]');
+  var panel=document.getElementById('panel-'+tabId);
+  if(tab) tab.classList.add('active');
+  if(panel) panel.classList.add('active');
+  // Save to hash
+  if(history.replaceState) history.replaceState(null,null,'#'+tabId);
+}
+
 // ── Main Render ──────────────────────────────────────────────────────────────
 function renderFinancial(){
   var F = (typeof FIN_DATA !== 'undefined') ? FIN_DATA : null;
   if(!F){
-    document.getElementById('fin-content').innerHTML='<div class="card"><h3>No Data Available</h3><div class="desc">Run: python tools/generate_fin_data.py</div></div>';
+    document.getElementById('fin-panels').innerHTML='<div class="card"><h3>No Data Available</h3><div class="desc">Run: python tools/generate_fin_data.py</div></div>';
     return;
   }
 
@@ -202,7 +261,6 @@ function renderFinancial(){
   var lastIdx=months.length-1;
   var isPartialLast=pm.is_partial && months[lastIdx]===pm.month;
 
-  // Month labels — mark partial month
   var mLabels=months.map(function(m,i){
     var parts=m.split('-');
     var label=parts[1]+'/'+parts[0].substring(2);
@@ -216,90 +274,279 @@ function renderFinancial(){
   if(isPartialLast) metaHtml+='<span class="pill" style="border-color:#8b5cf6;color:#8b5cf6">'+pm.month+' = '+pm.days_elapsed+'/'+pm.days_in_month+'d &middot; FM &times;'+pm.multiplier.toFixed(2)+'</span>';
   document.getElementById('hero-meta').innerHTML=metaHtml;
 
-  var html='';
-
-  // ══ Section 0: Data Sources ═══════════════════════════════════════════════
-  html+='<div class="sec"><div class="sec-title"><div class="num" style="background:#64748b">0</div> Data Sources &mdash; Collection Layer</div>';
-  html+='<div class="desc" style="margin-bottom:8px">8 DataKeeper channels, 2x daily refresh (PST 0:00 & 12:00) via GitHub Actions</div>';
-  html+='<div class="src-grid">';
-  (F.data_sources||[]).forEach(function(s){
-    html+='<div class="src-card">';
-    html+='<span class="sr">'+s.refresh+'</span>';
-    html+='<div class="sn">'+s.name+'</div>';
-    html+='<div class="sd"><b>'+s.label+'</b><br>';
-    html+=s.rows.toLocaleString()+' rows';
-    if(s.min_date && s.max_date) html+=' &middot; '+s.min_date+' &rarr; '+s.max_date;
-    html+='</div></div>';
+  // ── Build sub-tabs ─────────────────────────────────────────────────────────
+  var tabs=[
+    {id:'summary',label:'Summary'},
+    {id:'revenue',label:'1. Revenue'},
+    {id:'ads',label:'2. Ad Performance'},
+    {id:'margins',label:'3. Margins & P&L'},
+    {id:'search',label:'4. Search & SEO'},
+    {id:'traffic',label:'5. Traffic'}
+  ];
+  var tabHtml='';
+  tabs.forEach(function(t,i){
+    tabHtml+='<div class="sub-tab'+(i===0?' active':'')+'" data-tab="'+t.id+'" onclick="switchFinTab(\''+t.id+'\')">'+t.label+'</div>';
   });
-  html+='</div></div>';
+  document.getElementById('fin-sub-tabs').innerHTML=tabHtml;
 
-  // ══ Section 1: KPI cards ══════════════════════════════════════════════════
-  html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">';
-  html+='<div class="sec-title" style="border:none;margin:0;padding:0"><div class="num">1</div> KPI Summary</div>';
-  html+='<div class="period-tabs" id="fin-period-tabs">';
-  html+='<div class="on" data-fp="7d" onclick="switchPeriod(\'7d\',this)">7D</div>';
-  html+='<div data-fp="30d" onclick="switchPeriod(\'30d\',this)">30D</div>';
-  html+='<div data-fp="mtd" onclick="switchPeriod(\'mtd\',this)">MTD</div>';
-  html+='</div></div>';
-  html+='<div id="fin-kpi-cards">'+buildKpiCards(F.summary['7d']||{})+'</div>';
+  // ══════════════════════════════════════════════════════════════════════════
+  // TAB: SUMMARY
+  // ══════════════════════════════════════════════════════════════════════════
+  var sum='';
 
-  // ══ Section 2: Revenue by Brand ═══════════════════════════════════════════
-  html+='<div class="sec"><div class="sec-title"><div class="num">2</div> Revenue by Brand</div>';
+  // Data Sources
+  sum+='<div class="sec"><div class="sec-title"><div class="num" style="background:#64748b">0</div> Data Sources &mdash; Collection Layer</div>';
+  sum+='<div class="desc" style="margin-bottom:8px">8 DataKeeper channels, 2x daily refresh (PST 0:00 & 12:00) via GitHub Actions</div>';
+  sum+='<div class="src-grid">';
+  (F.data_sources||[]).forEach(function(s){
+    sum+='<div class="src-card">';
+    sum+='<span class="sr">'+s.refresh+'</span>';
+    sum+='<div class="sn">'+s.name+'</div>';
+    sum+='<div class="sd"><b>'+s.label+'</b><br>';
+    sum+=s.rows.toLocaleString()+' rows';
+    if(s.min_date && s.max_date) sum+=' &middot; '+s.min_date+' &rarr; '+s.max_date;
+    sum+='</div></div>';
+  });
+  sum+='</div></div>';
+
+  // KPI cards
+  sum+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">';
+  sum+='<div class="sec-title" style="border:none;margin:0;padding:0"><div class="num">1</div> KPI Summary</div>';
+  sum+='<div class="period-tabs" id="fin-period-tabs">';
+  sum+='<div class="on" data-fp="7d" onclick="switchPeriod(\'7d\',this)">7D</div>';
+  sum+='<div data-fp="30d" onclick="switchPeriod(\'30d\',this)">30D</div>';
+  sum+='<div data-fp="mtd" onclick="switchPeriod(\'mtd\',this)">MTD</div>';
+  sum+='</div></div>';
+  sum+='<div id="fin-kpi-cards">'+buildKpiCards(F.summary['7d']||{})+'</div>';
+
+  // Brand Revenue (compact)
+  sum+=buildBrandTable(F, months, mLabels, lastIdx, isPartialLast, true);
+
+  // Channel Revenue (compact)
+  sum+=buildChannelTable(F, months, mLabels, lastIdx, isPartialLast, true);
+
+  // Ad Performance (compact)
+  sum+=buildAdTable(F, months, mLabels, lastIdx, isPartialLast, true);
+
+  // Paid vs Organic (compact)
+  sum+=buildPaidOrganic(F, months, mLabels, lastIdx, isPartialLast);
+
+  // GM → CM Waterfall (compact)
+  sum+=buildWaterfall(F, months, mLabels, lastIdx, isPartialLast);
+
+  // Search & SEO teaser (compact — top 5 keywords only)
+  sum+='<div class="sec"><div class="sec-title"><div class="num">7</div> Keyword Rankings</div>';
+  sum+='<div class="card">';
+  sum+='<div class="desc">Top Google Search Console keywords by clicks (90d). <span style="cursor:pointer;color:var(--a);font-weight:700" onclick="switchFinTab(\'search\')">View full detail &rarr;</span></div>';
+  sum+='<table><thead><tr><th>Keyword</th><th style="text-align:center">Avg Position</th><th style="text-align:right">Clicks</th><th style="text-align:right">Impressions</th><th style="text-align:right">CTR</th><th style="text-align:center">Trend (6w)</th></tr></thead><tbody>';
+  (F.keyword_rankings||[]).slice(0,8).forEach(function(k){
+    sum+='<tr><td style="font-weight:600;font-size:11px">'+k.query+'</td>';
+    sum+='<td style="text-align:center">'+posBadge(k.avg_position)+'</td>';
+    sum+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.clicks)+'</td>';
+    sum+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.impressions)+'</td>';
+    sum+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+k.ctr.toFixed(1)+'%</td>';
+    sum+='<td style="text-align:center">'+sparkline(k.weekly_positions,'',true)+'</td>';
+    sum+='</tr>';
+  });
+  sum+='</tbody></table></div></div>';
+
+  // Traffic teaser
+  sum+='<div class="sec"><div class="sec-title"><div class="num">8</div> Traffic Sources</div>';
+  sum+='<div class="card"><div class="desc">GA4 (30D). <span style="cursor:pointer;color:var(--a);font-weight:700" onclick="switchFinTab(\'traffic\')">View full detail &rarr;</span></div>';
+  sum+='<table><thead><tr><th>Source / Medium</th><th style="text-align:right">Sessions</th><th style="text-align:right">Users</th><th style="text-align:right">Revenue</th><th style="text-align:right">Conv %</th></tr></thead><tbody>';
+  (F.traffic_sources||[]).slice(0,8).forEach(function(t){
+    sum+='<tr><td style="font-weight:600">'+t.source+'</td>';
+    sum+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(t.sessions)+'</td>';
+    sum+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(t.users)+'</td>';
+    sum+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(t.revenue))+'</td>';
+    sum+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+t.conv_rate.toFixed(2)+'%</td></tr>';
+  });
+  sum+='</tbody></table></div></div>';
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TAB 1: REVENUE DETAIL
+  // ══════════════════════════════════════════════════════════════════════════
+  var rev='';
+  rev+=buildBrandTable(F, months, mLabels, lastIdx, isPartialLast, false);
+  rev+=buildChannelTable(F, months, mLabels, lastIdx, isPartialLast, false);
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TAB 2: AD PERFORMANCE DETAIL
+  // ══════════════════════════════════════════════════════════════════════════
+  var ads='';
+  ads+=buildAdTable(F, months, mLabels, lastIdx, isPartialLast, false);
+  ads+=buildPaidOrganic(F, months, mLabels, lastIdx, isPartialLast);
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TAB 3: MARGINS & P&L DETAIL
+  // ══════════════════════════════════════════════════════════════════════════
+  var mrg='';
+  mrg+=buildWaterfall(F, months, mLabels, lastIdx, isPartialLast);
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TAB 4: SEARCH & SEO
+  // ══════════════════════════════════════════════════════════════════════════
+  var srch='';
+
+  // 4A: Keyword Rankings (GSC position tracking)
+  srch+='<div class="sec"><div class="sec-title"><div class="num">4A</div> Google Search Console &mdash; Keyword Rankings (90D)</div>';
+  srch+='<div class="card">';
+  srch+='<div class="desc">Average position on Google for onzenna.com. Lower is better. Trend shows weekly average position over 6 weeks.</div>';
+  srch+='<table><thead><tr><th>#</th><th>Keyword</th><th style="text-align:center">Avg Position</th><th style="text-align:right">Clicks</th><th style="text-align:right">Impressions</th><th style="text-align:right">CTR</th><th style="text-align:center">Weekly Trend (6w)</th></tr></thead><tbody>';
+  (F.keyword_rankings||[]).forEach(function(k,i){
+    srch+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+    srch+='<td style="font-weight:600;font-size:11px">'+k.query+'</td>';
+    srch+='<td style="text-align:center">'+posBadge(k.avg_position)+'</td>';
+    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.clicks)+'</td>';
+    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.impressions)+'</td>';
+    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+k.ctr.toFixed(1)+'%</td>';
+    srch+='<td style="text-align:center">'+sparkline(k.weekly_positions,'',true)+'</td>';
+    srch+='</tr>';
+  });
+  srch+='</tbody></table></div></div>';
+
+  // 4B: DataForSEO Keyword Volumes
+  var maxVol=0;
+  (F.keyword_volumes||[]).forEach(function(k){if(k.search_volume>maxVol)maxVol=k.search_volume;});
+  srch+='<div class="sec"><div class="sec-title"><div class="num">4B</div> Keyword Search Volumes &mdash; DataForSEO</div>';
+  srch+='<div class="card">';
+  srch+='<div class="desc">Google monthly search volume for tracked brand keywords. Trend shows last 6 months of search volume.</div>';
+  srch+='<table><thead><tr><th>#</th><th>Keyword</th><th>Brand</th><th style="text-align:right">Monthly Vol</th><th style="min-width:80px">Volume</th><th style="text-align:right">CPC</th><th style="text-align:right">Comp</th><th style="text-align:center">6mo Trend</th></tr></thead><tbody>';
+  (F.keyword_volumes||[]).forEach(function(k,i){
+    var brandColor=({'Grosmimi':'#8b5cf6','Naeiae':'#eab308','CHA&MOM':'#0ea5e9','Onzenna':'#ec4899','Alpremio':'#f97316'})[k.brand]||'#94a3b8';
+    srch+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+    srch+='<td style="font-weight:600;font-size:11px">'+k.keyword+'</td>';
+    srch+='<td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+brandColor+';margin-right:4px"></span><span style="font-size:10px;color:var(--dim)">'+k.brand+'</span></td>';
+    srch+='<td style="text-align:right;font-family:var(--mono);font-size:11px;font-weight:700">'+num(k.search_volume)+'</td>';
+    srch+='<td>'+volBar(k.search_volume,maxVol)+'</td>';
+    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">$'+k.cpc.toFixed(2)+'</td>';
+    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+k.competition_index+'</td>';
+    srch+='<td style="text-align:center">'+sparkline(k.monthly_trend,'#0ea5e9',false)+'</td>';
+    srch+='</tr>';
+  });
+  srch+='</tbody></table></div></div>';
+
+  // 4C: Amazon Search Terms (existing)
+  srch+='<div class="sec"><div class="sec-title"><div class="num">4C</div> Amazon Sponsored Ads &mdash; Top Search Terms (30D)</div>';
+  srch+='<div class="card">';
+  srch+='<table><thead><tr><th>#</th><th>Search Term</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">ACOS</th><th style="text-align:right">CVR</th><th style="text-align:right">Orders</th></tr></thead><tbody>';
+  (F.search_queries||[]).forEach(function(q,i){
+    var ac=q.acos<=25?'var(--g)':q.acos<=40?'var(--am)':'var(--r)';
+    srch+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+    srch+='<td style="font-size:10px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+q.query+'">'+q.query+'</td>';
+    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(q.spend))+'</td>';
+    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(q.sales))+'</td>';
+    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+ac+'">'+q.acos.toFixed(1)+'%</td>';
+    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+q.cvr.toFixed(1)+'%</td>';
+    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+q.orders+'</td>';
+    srch+='</tr>';
+  });
+  srch+='</tbody></table></div></div>';
+
+  // 4D: GSC Queries (existing)
+  srch+='<div class="sec"><div class="sec-title"><div class="num">4D</div> Google Search Console &mdash; Top Queries (30D)</div>';
+  srch+='<div class="card">';
+  srch+='<table><thead><tr><th>#</th><th>Query</th><th style="text-align:right">Clicks</th><th style="text-align:right">Impressions</th><th style="text-align:right">CTR</th><th style="text-align:center">Position</th></tr></thead><tbody>';
+  (F.gsc_queries||[]).forEach(function(q,i){
+    srch+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+    srch+='<td style="font-size:10px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+q.query+'">'+q.query+'</td>';
+    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(q.clicks)+'</td>';
+    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(q.impressions)+'</td>';
+    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+q.ctr.toFixed(1)+'%</td>';
+    srch+='<td style="text-align:center">'+posBadge(q.position)+'</td>';
+    srch+='</tr>';
+  });
+  srch+='</tbody></table></div></div>';
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TAB 5: TRAFFIC
+  // ══════════════════════════════════════════════════════════════════════════
+  var traf='';
+  traf+='<div class="sec"><div class="sec-title"><div class="num">5</div> Traffic Sources &mdash; GA4 (30D)</div>';
+  traf+='<div class="card"><table><thead><tr><th>#</th><th>Source / Medium</th><th style="text-align:right">Sessions</th><th style="text-align:right">Users</th><th style="text-align:right">Revenue</th><th style="text-align:right">Conversions</th><th style="text-align:right">Conv %</th></tr></thead><tbody>';
+  (F.traffic_sources||[]).forEach(function(t,i){
+    traf+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+    traf+='<td style="font-weight:600">'+t.source+'</td>';
+    traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(t.sessions)+'</td>';
+    traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(t.users)+'</td>';
+    traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(t.revenue))+'</td>';
+    traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(t.conversions)+'</td>';
+    traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+t.conv_rate.toFixed(2)+'%</td></tr>';
+  });
+  traf+='</tbody></table></div></div>';
+
+  // ── Assemble panels ────────────────────────────────────────────────────────
+  var panelsHtml='';
+  panelsHtml+='<div class="tab-panel active" id="panel-summary">'+sum+'</div>';
+  panelsHtml+='<div class="tab-panel" id="panel-revenue">'+rev+'</div>';
+  panelsHtml+='<div class="tab-panel" id="panel-ads">'+ads+'</div>';
+  panelsHtml+='<div class="tab-panel" id="panel-margins">'+mrg+'</div>';
+  panelsHtml+='<div class="tab-panel" id="panel-search">'+srch+'</div>';
+  panelsHtml+='<div class="tab-panel" id="panel-traffic">'+traf+'</div>';
+  document.getElementById('fin-panels').innerHTML=panelsHtml;
+
+  // Check URL hash for tab
+  var hash=window.location.hash.replace('#','');
+  if(hash && document.getElementById('panel-'+hash)) switchFinTab(hash);
+}
+
+// ── Reusable section builders ────────────────────────────────────────────────
+
+function buildBrandTable(F, months, mLabels, lastIdx, isPartialLast, compact){
+  var html='<div class="sec"><div class="sec-title"><div class="num">2</div> Revenue by Brand</div>';
   html+='<div class="card">';
   var brandDs=[];
   Object.keys(F.brand_revenue).forEach(function(b){
     brandDs.push({label:b, data:F.brand_revenue[b].monthly, color:F.brand_revenue[b].color});
   });
-  html+=barChart(brandDs, mLabels, {w:940,h:190,barW:10});
+  html+=barChart(brandDs, mLabels, {w:940,h:compact?160:210,barW:compact?8:12});
   html+='<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Brand</th>';
   mLabels.forEach(function(m,i){ html+='<th style="text-align:right'+(i===lastIdx&&isPartialLast?';background:#f5f3ff':'')+'">'+m+'</th>'; });
   html+='<th style="text-align:right;background:#f0fdf4">Total</th></tr></thead><tbody>';
   Object.keys(F.brand_revenue).forEach(function(b){
     var br=F.brand_revenue[b], total=br.monthly.reduce(function(a,c){return a+c;},0);
     html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+br.color+';margin-right:6px"></span><b>'+b+'</b></td>';
-    br.monthly.forEach(function(v,i){
-      var pv=(br.monthly_proj||[])[i];
-      html+=fmCell(v, pv, i===lastIdx&&isPartialLast);
-    });
+    br.monthly.forEach(function(v,i){ html+=fmCell(v, (br.monthly_proj||[])[i], i===lastIdx&&isPartialLast); });
     html+='<td style="text-align:right;font-weight:700;font-family:var(--mono);font-size:10px;background:#f0fdf4">'+$(total)+'</td></tr>';
   });
-  // Total row
   var grandTotals=months.map(function(_,mi){ var t=0; Object.keys(F.brand_revenue).forEach(function(b){ t+=F.brand_revenue[b].monthly[mi]||0; }); return t; });
   var grandProj=months.map(function(_,mi){ var t=0; Object.keys(F.brand_revenue).forEach(function(b){ t+=(F.brand_revenue[b].monthly_proj||F.brand_revenue[b].monthly)[mi]||0; }); return t; });
   html+='<tr style="border-top:2px solid var(--border);font-weight:800"><td>TOTAL</td>';
   grandTotals.forEach(function(v,i){ html+=fmCell(v, grandProj[i], i===lastIdx&&isPartialLast, {bold:true}); });
   html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;background:#f0fdf4;font-weight:800">'+$(grandTotals.reduce(function(a,c){return a+c;},0))+'</td></tr>';
   html+='</tbody></table></div></div></div>';
+  return html;
+}
 
-  // ══ Section 3: Revenue by Channel ═════════════════════════════════════════
-  html+='<div class="sec"><div class="sec-title"><div class="num">3</div> Revenue by Channel</div>';
+function buildChannelTable(F, months, mLabels, lastIdx, isPartialLast, compact){
+  var html='<div class="sec"><div class="sec-title"><div class="num">3</div> Revenue by Channel</div>';
   html+='<div class="card">';
   var chDs=[];
   Object.keys(F.channel_revenue).forEach(function(ch){
     chDs.push({label:ch, data:F.channel_revenue[ch].monthly, color:F.channel_revenue[ch].color});
   });
-  html+=barChart(chDs, mLabels, {w:940,h:190,barW:14,stacked:true});
+  html+=barChart(chDs, mLabels, {w:940,h:compact?160:210,barW:compact?12:16,stacked:true});
   html+='<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Channel</th>';
   mLabels.forEach(function(m,i){ html+='<th style="text-align:right'+(i===lastIdx&&isPartialLast?';background:#f5f3ff':'')+'">'+m+'</th>'; });
   html+='<th style="text-align:right;background:#f0fdf4">Total</th></tr></thead><tbody>';
   Object.keys(F.channel_revenue).forEach(function(ch){
     var cr=F.channel_revenue[ch], total=cr.monthly.reduce(function(a,c){return a+c;},0);
     html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+cr.color+';margin-right:6px"></span>'+ch+'</td>';
-    cr.monthly.forEach(function(v,i){
-      html+=fmCell(v, (cr.monthly_proj||[])[i], i===lastIdx&&isPartialLast);
-    });
+    cr.monthly.forEach(function(v,i){ html+=fmCell(v, (cr.monthly_proj||[])[i], i===lastIdx&&isPartialLast); });
     html+='<td style="text-align:right;font-weight:700;font-family:var(--mono);font-size:10px;background:#f0fdf4">'+$(total)+'</td></tr>';
   });
   html+='</tbody></table></div></div></div>';
+  return html;
+}
 
-  // ══ Section 4: Ad Platform Performance ════════════════════════════════════
-  html+='<div class="sec"><div class="sec-title"><div class="num">4</div> Ad Platform Performance</div>';
+function buildAdTable(F, months, mLabels, lastIdx, isPartialLast, compact){
+  var html='<div class="sec"><div class="sec-title"><div class="num">4</div> Ad Platform Performance</div>';
   html+='<div class="card">';
   var adDs=[];
   Object.keys(F.ad_performance).forEach(function(p){
     adDs.push({label:p, data:F.ad_performance[p].spend, color:F.ad_performance[p].color});
   });
-  html+=barChart(adDs, mLabels, {w:940,h:170,barW:10});
+  html+=barChart(adDs, mLabels, {w:940,h:compact?150:190,barW:compact?8:12});
   html+='<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Platform</th>';
   mLabels.forEach(function(m,i){ html+='<th style="text-align:right'+(i===lastIdx&&isPartialLast?';background:#f5f3ff':'')+'" colspan="2">'+m+'</th>'; });
   html+='</tr><tr><th></th>';
@@ -313,7 +560,7 @@ function renderFinancial(){
     html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+ap.color+';margin-right:6px"></span><b>'+p+'</b></td>';
     for(var i=0;i<months.length;i++){
       var sp=ap.spend[i]||0, sl=ap.sales[i]||0;
-      var spP=(ap.spend_proj||[])[i]||sp, slP=(ap.sales_proj||[])[i]||sl;
+      var spP=(ap.spend_proj||[])[i]||sp;
       var roas=sp>0?(sl/sp):0;
       var rc=roas>=3?'var(--g)':roas>=1.5?'var(--am)':'var(--r)';
       var isL=i===lastIdx&&isPartialLast;
@@ -322,23 +569,23 @@ function renderFinancial(){
     }
     html+='</tr>';
   });
-  // totals
   html+='<tr style="border-top:2px solid var(--border);font-weight:700"><td>TOTAL</td>';
   for(var i=0;i<months.length;i++){
-    var ts=0,tl=0,tsP=0,tlP=0;
+    var ts=0,tl=0,tsP=0;
     Object.keys(F.ad_performance).forEach(function(p){
       ts+=F.ad_performance[p].spend[i]||0; tl+=F.ad_performance[p].sales[i]||0;
       tsP+=(F.ad_performance[p].spend_proj||F.ad_performance[p].spend)[i]||0;
-      tlP+=(F.ad_performance[p].sales_proj||F.ad_performance[p].sales)[i]||0;
     });
     var isL=i===lastIdx&&isPartialLast;
     html+=fmCell(ts, tsP, isL, {fs:'9px',bold:true});
     html+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+(ts>0?(tl/ts).toFixed(1):'0')+'x</td>';
   }
   html+='</tr></tbody></table></div></div></div>';
+  return html;
+}
 
-  // ══ Section 5: Paid vs Organic ════════════════════════════════════════════
-  html+='<div class="sec"><div class="sec-title"><div class="num">5</div> Ad-Attributed vs Organic Revenue</div>';
+function buildPaidOrganic(F, months, mLabels, lastIdx, isPartialLast){
+  var html='<div class="sec"><div class="sec-title"><div class="num">5</div> Ad-Attributed vs Organic Revenue</div>';
   html+='<div class="card">';
   html+='<div class="desc">Organic = Total Revenue - Ad-attributed sales (Amazon Ads + Meta + Google). Note: attribution overlap possible.</div>';
   html+=barChart([
@@ -363,12 +610,14 @@ function renderFinancial(){
     html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700">'+op+'%</td>';
   }
   html+='</tr></tbody></table></div></div></div>';
+  return html;
+}
 
-  // ══ Section 6: GM → CM Waterfall ══════════════════════════════════════════
-  html+='<div class="sec"><div class="sec-title"><div class="num">6</div> Gross Margin &rarr; Contribution Margin</div>';
+function buildWaterfall(F, months, mLabels, lastIdx, isPartialLast){
+  var wf=F.waterfall;
+  var html='<div class="sec"><div class="sec-title"><div class="num">6</div> Gross Margin &rarr; Contribution Margin</div>';
   html+='<div class="card">';
   html+='<div class="desc">CM = Gross Margin - Total Ad Spend. COGS estimated from brand-level averages (Shopify only).</div>';
-  var wf=F.waterfall;
   html+=barChart([
     {label:'Gross Margin', data:wf.gross_margin, color:'#10b981'},
     {label:'Ad Spend', data:wf.ad_spend, color:'#ef4444'},
@@ -377,75 +626,22 @@ function renderFinancial(){
   html+='<div style="overflow-x:auto;margin-top:8px"><table><thead><tr><th></th>';
   mLabels.forEach(function(m,i){ html+='<th style="text-align:right'+(i===lastIdx&&isPartialLast?';background:#f5f3ff':'')+'">'+m+'</th>'; });
   html+='</tr></thead><tbody>';
-  // Revenue
   html+='<tr><td>Revenue</td>';
   wf.revenue.forEach(function(v,i){ html+=fmCell(v, (wf.revenue_proj||[])[i], i===lastIdx&&isPartialLast); });
-  html+='</tr>';
-  // GM
-  html+='<tr><td>Gross Margin</td>';
+  html+='</tr><tr><td>Gross Margin</td>';
   wf.gross_margin.forEach(function(v,i){ html+=fmCell(v, (wf.gross_margin_proj||[])[i], i===lastIdx&&isPartialLast, {color:'var(--g)'}); });
-  html+='</tr>';
-  // GM %
-  html+='<tr><td>GM %</td>';
+  html+='</tr><tr><td>GM %</td>';
   wf.gross_margin.forEach(function(v,i){ var r=wf.revenue[i]; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+(r>0?(v/r*100).toFixed(1):'0')+'%</td>'; });
-  html+='</tr>';
-  // Ad Spend
-  html+='<tr><td>(-) Ad Spend</td>';
+  html+='</tr><tr><td>(-) Ad Spend</td>';
   wf.ad_spend.forEach(function(v,i){ html+=fmCell(v, (wf.ad_spend_proj||[])[i], i===lastIdx&&isPartialLast, {color:'var(--r)',prefix:'-'}); });
-  html+='</tr>';
-  // CM
-  html+='<tr style="border-top:2px solid var(--border);font-weight:800"><td>Contribution Margin</td>';
+  html+='</tr><tr style="border-top:2px solid var(--border);font-weight:800"><td>Contribution Margin</td>';
   wf.contribution_margin.forEach(function(v,i){
     html+=fmCell(v, (wf.contribution_margin_proj||[])[i], i===lastIdx&&isPartialLast, {color:v>=0?'#6366f1':'var(--r)',bold:true});
   });
-  html+='</tr>';
-  // CM %
-  html+='<tr><td><b>CM %</b></td>';
+  html+='</tr><tr><td><b>CM %</b></td>';
   wf.contribution_margin.forEach(function(v,i){ var r=wf.revenue[i]; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700">'+(r>0?(v/r*100).toFixed(1):'0')+'%</td>'; });
-  html+='</tr>';
-  html+='</tbody></table></div></div></div>';
-
-  // ══ Section 7: Search Queries ═════════════════════════════════════════════
-  html+='<div class="sec"><div class="sec-title"><div class="num">7</div> Search Queries (30D)</div>';
-  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
-  // Amazon
-  html+='<div class="card"><h3>Amazon Sponsored Ads</h3>';
-  html+='<div style="max-height:420px;overflow-y:auto"><table><thead><tr><th>Search Term</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">ACOS</th><th style="text-align:right">CVR</th></tr></thead><tbody>';
-  (F.search_queries||[]).forEach(function(q){
-    var ac=q.acos<=25?'var(--g)':q.acos<=40?'var(--am)':'var(--r)';
-    html+='<tr><td style="font-size:10px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+q.query+'">'+q.query+'</td>';
-    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(q.spend))+'</td>';
-    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(q.sales))+'</td>';
-    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+ac+'">'+q.acos.toFixed(1)+'%</td>';
-    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+q.cvr.toFixed(1)+'%</td></tr>';
-  });
-  html+='</tbody></table></div></div>';
-  // GSC
-  html+='<div class="card"><h3>Google Search Console</h3>';
-  html+='<div style="max-height:420px;overflow-y:auto"><table><thead><tr><th>Query</th><th style="text-align:right">Clicks</th><th style="text-align:right">Impressions</th><th style="text-align:right">CTR</th><th style="text-align:right">Pos</th></tr></thead><tbody>';
-  (F.gsc_queries||[]).forEach(function(q){
-    html+='<tr><td style="font-size:10px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+q.query+'">'+q.query+'</td>';
-    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(q.clicks)+'</td>';
-    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(q.impressions)+'</td>';
-    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+q.ctr.toFixed(1)+'%</td>';
-    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+q.position.toFixed(1)+'</td></tr>';
-  });
-  html+='</tbody></table></div></div>';
-  html+='</div></div>';
-
-  // ══ Section 8: GA4 Traffic ════════════════════════════════════════════════
-  html+='<div class="sec"><div class="sec-title"><div class="num">8</div> Traffic Sources &mdash; GA4 (30D)</div>';
-  html+='<div class="card"><table><thead><tr><th>Source / Medium</th><th style="text-align:right">Sessions</th><th style="text-align:right">Users</th><th style="text-align:right">Revenue</th><th style="text-align:right">Conv %</th></tr></thead><tbody>';
-  (F.traffic_sources||[]).forEach(function(t){
-    html+='<tr><td style="font-weight:600">'+t.source+'</td>';
-    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(t.sessions)+'</td>';
-    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(t.users)+'</td>';
-    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(t.revenue))+'</td>';
-    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+t.conv_rate.toFixed(2)+'%</td></tr>';
-  });
-  html+='</tbody></table></div></div>';
-
-  document.getElementById('fin-content').innerHTML=html;
+  html+='</tr></tbody></table></div></div></div>';
+  return html;
 }
 
 function buildKpiCards(s){

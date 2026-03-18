@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-17 18:34 PST",
+ "generated_pst": "2026-03-17 18:37 PST",
  "through_date": "2026-03-16",
  "months": [
   "2025-06",
@@ -1230,6 +1230,646 @@ const FIN_DATA = {
    "clicks": 2,
    "ctr": 1.39,
    "position": 8.1
+  }
+ ],
+ "keyword_rankings": [
+  {
+   "query": "zezebaebae",
+   "clicks": 77,
+   "impressions": 303,
+   "avg_position": 3.8,
+   "ctr": 25.41,
+   "weekly_positions": [
+    1.1,
+    2.2,
+    4.8,
+    4.0,
+    5.1,
+    4.1
+   ]
+  },
+  {
+   "query": "onzenna",
+   "clicks": 59,
+   "impressions": 410,
+   "avg_position": 4.5,
+   "ctr": 14.39,
+   "weekly_positions": [
+    2.7,
+    5.4,
+    5.6,
+    4.4,
+    4.6,
+    4.4
+   ]
+  },
+  {
+   "query": "grosmimi",
+   "clicks": 53,
+   "impressions": 1922,
+   "avg_position": 8.3,
+   "ctr": 2.76,
+   "weekly_positions": [
+    5.7,
+    11.1,
+    7.8,
+    8.8,
+    6.9,
+    10.3
+   ]
+  },
+  {
+   "query": "grosmimi straw cup",
+   "clicks": 42,
+   "impressions": 2301,
+   "avg_position": 9.0,
+   "ctr": 1.83,
+   "weekly_positions": [
+    4.2,
+    10.8,
+    9.0,
+    9.6,
+    9.3,
+    9.8
+   ]
+  },
+  {
+   "query": "grosmimi stainless steel",
+   "clicks": 12,
+   "impressions": 406,
+   "avg_position": 5.9,
+   "ctr": 2.96,
+   "weekly_positions": [
+    2.9,
+    3.7,
+    5.2,
+    7.3,
+    7.1,
+    7.1
+   ]
+  },
+  {
+   "query": "zezebaebae reviews",
+   "clicks": 9,
+   "impressions": 110,
+   "avg_position": 3.2,
+   "ctr": 8.18,
+   "weekly_positions": [
+    1.0,
+    1.7,
+    3.7,
+    5.9,
+    3.1,
+    2.8
+   ]
+  },
+  {
+   "query": "zezebebe",
+   "clicks": 9,
+   "impressions": 64,
+   "avg_position": 2.8,
+   "ctr": 14.06,
+   "weekly_positions": [
+    1.0,
+    1.0,
+    3.5,
+    3.0,
+    5.3,
+    2.7
+   ]
+  },
+  {
+   "query": "grosmimi cup",
+   "clicks": 9,
+   "impressions": 573,
+   "avg_position": 10.8,
+   "ctr": 1.57,
+   "weekly_positions": [
+    5.0,
+    12.7,
+    13.0,
+    11.9,
+    10.8,
+    11.0
+   ]
+  },
+  {
+   "query": "beemymagic",
+   "clicks": 7,
+   "impressions": 97,
+   "avg_position": 4.8,
+   "ctr": 7.22,
+   "weekly_positions": [
+    5.5,
+    7.4,
+    4.0,
+    3.9,
+    5.1,
+    4.0
+   ]
+  },
+  {
+   "query": "grosmimi stainless steel plate",
+   "clicks": 6,
+   "impressions": 76,
+   "avg_position": 5.8,
+   "ctr": 7.89,
+   "weekly_positions": [
+    2.5,
+    8.3,
+    11.5,
+    7.7,
+    8.0,
+    4.1
+   ]
+  },
+  {
+   "query": "beemymagic stainless steel",
+   "clicks": 6,
+   "impressions": 142,
+   "avg_position": 4.5,
+   "ctr": 4.23,
+   "weekly_positions": [
+    5.4,
+    4.2,
+    6.0,
+    4.0,
+    3.7,
+    4.6
+   ]
+  },
+  {
+   "query": "cha&mom",
+   "clicks": 6,
+   "impressions": 64,
+   "avg_position": 3.7,
+   "ctr": 9.38,
+   "weekly_positions": [
+    3.8,
+    2.5,
+    4.0,
+    5.1,
+    2.8,
+    3.3
+   ]
+  },
+  {
+   "query": "grosmimi tumbler cap",
+   "clicks": 5,
+   "impressions": 52,
+   "avg_position": 2.9,
+   "ctr": 9.62,
+   "weekly_positions": [
+    1.4,
+    6.0,
+    4.6,
+    2.8,
+    2.7,
+    1.9
+   ]
+  },
+  {
+   "query": "grosmimi stainless steel straw cup",
+   "clicks": 5,
+   "impressions": 275,
+   "avg_position": 7.1,
+   "ctr": 1.82,
+   "weekly_positions": [
+    2.0,
+    9.6,
+    7.5,
+    7.2,
+    8.6,
+    7.5
+   ]
+  },
+  {
+   "query": "alpremio",
+   "clicks": 5,
+   "impressions": 212,
+   "avg_position": 5.2,
+   "ctr": 2.36,
+   "weekly_positions": [
+    4.3,
+    4.4,
+    5.6,
+    6.3,
+    5.6,
+    4.3
+   ]
+  },
+  {
+   "query": "grosmimi stainless steel food tray with 5 compartment",
+   "clicks": 5,
+   "impressions": 22,
+   "avg_position": 6.0,
+   "ctr": 22.73,
+   "weekly_positions": [
+    null,
+    null,
+    7.3,
+    7.3,
+    7.0,
+    2.0
+   ]
+  },
+  {
+   "query": "alpremio feeding seat",
+   "clicks": 4,
+   "impressions": 157,
+   "avg_position": 5.4,
+   "ctr": 2.55,
+   "weekly_positions": [
+    3.9,
+    5.4,
+    4.4,
+    5.5,
+    7.0,
+    5.1
+   ]
+  },
+  {
+   "query": "best korean baby products",
+   "clicks": 4,
+   "impressions": 30,
+   "avg_position": 3.4,
+   "ctr": 13.33,
+   "weekly_positions": [
+    1.0,
+    1.0,
+    7.5,
+    5.8,
+    2.3,
+    4.3
+   ]
+  },
+  {
+   "query": "grosmimi bottle",
+   "clicks": 4,
+   "impressions": 147,
+   "avg_position": 7.1,
+   "ctr": 2.72,
+   "weekly_positions": [
+    4.1,
+    8.2,
+    6.1,
+    8.2,
+    7.6,
+    7.8
+   ]
+  },
+  {
+   "query": "grosmimi tumbler",
+   "clicks": 4,
+   "impressions": 105,
+   "avg_position": 5.1,
+   "ctr": 3.81,
+   "weekly_positions": [
+    2.7,
+    6.8,
+    6.0,
+    6.8,
+    4.3,
+    2.9
+   ]
+  }
+ ],
+ "keyword_ranking_dates": [
+  "2026-02-01",
+  "2026-02-02",
+  "2026-02-03",
+  "2026-02-04",
+  "2026-02-05",
+  "2026-02-06",
+  "2026-02-07",
+  "2026-02-08",
+  "2026-02-09",
+  "2026-02-10",
+  "2026-02-11",
+  "2026-02-12",
+  "2026-02-13",
+  "2026-02-14",
+  "2026-02-15",
+  "2026-02-16",
+  "2026-02-17",
+  "2026-02-18",
+  "2026-02-19",
+  "2026-02-20",
+  "2026-02-21",
+  "2026-02-22",
+  "2026-02-23",
+  "2026-02-24",
+  "2026-02-25",
+  "2026-02-26",
+  "2026-02-27",
+  "2026-02-28",
+  "2026-03-01",
+  "2026-03-02",
+  "2026-03-03",
+  "2026-03-04",
+  "2026-03-05",
+  "2026-03-06",
+  "2026-03-07",
+  "2026-03-08",
+  "2026-03-09",
+  "2026-03-10",
+  "2026-03-11",
+  "2026-03-12",
+  "2026-03-13",
+  "2026-03-14"
+ ],
+ "keyword_volumes": [
+  {
+   "keyword": "tinted sunscreen",
+   "brand": "Onzenna",
+   "search_volume": 40500,
+   "cpc": 2.75,
+   "competition_index": 100,
+   "monthly_trend": [
+    40500,
+    27100,
+    40500,
+    33100,
+    40500,
+    40500
+   ]
+  },
+  {
+   "keyword": "korean sunscreen",
+   "brand": "Onzenna",
+   "search_volume": 33100,
+   "cpc": 1.67,
+   "competition_index": 100,
+   "monthly_trend": [
+    27100,
+    22200,
+    22200,
+    27100,
+    27100,
+    33100
+   ]
+  },
+  {
+   "keyword": "korean snacks",
+   "brand": "Naeiae",
+   "search_volume": 22200,
+   "cpc": 1.8,
+   "competition_index": 65,
+   "monthly_trend": [
+    27100,
+    27100,
+    22200,
+    22200,
+    22200,
+    18100
+   ]
+  },
+  {
+   "keyword": "grosmimi",
+   "brand": "Grosmimi",
+   "search_volume": 1900,
+   "cpc": 2.95,
+   "competition_index": 100,
+   "monthly_trend": [
+    2400,
+    2400,
+    2400,
+    1900,
+    2400,
+    1900
+   ]
+  },
+  {
+   "keyword": "pop rice",
+   "brand": "Naeiae",
+   "search_volume": 1600,
+   "cpc": 0.95,
+   "competition_index": 52,
+   "monthly_trend": [
+    1600,
+    1600,
+    1600,
+    1600,
+    1900,
+    1600
+   ]
+  },
+  {
+   "keyword": "mineral sunscreen spf50",
+   "brand": "Onzenna",
+   "search_volume": 1000,
+   "cpc": 2.5,
+   "competition_index": 100,
+   "monthly_trend": [
+    480,
+    590,
+    390,
+    390,
+    1000,
+    880
+   ]
+  },
+  {
+   "keyword": "organic rice puff",
+   "brand": "Naeiae",
+   "search_volume": 320,
+   "cpc": 1.75,
+   "competition_index": 97,
+   "monthly_trend": [
+    480,
+    140,
+    140,
+    170,
+    720,
+    590
+   ]
+  },
+  {
+   "keyword": "떡뻥",
+   "brand": "Naeiae",
+   "search_volume": 170,
+   "cpc": 0.71,
+   "competition_index": 88,
+   "monthly_trend": [
+    170,
+    320,
+    170,
+    140,
+    170,
+    110
+   ]
+  },
+  {
+   "keyword": "pop rice snack",
+   "brand": "Naeiae",
+   "search_volume": 90,
+   "cpc": 2.42,
+   "competition_index": 98,
+   "monthly_trend": [
+    70,
+    90,
+    70,
+    70,
+    90,
+    110
+   ]
+  },
+  {
+   "keyword": "cha and mom",
+   "brand": "CHA&MOM",
+   "search_volume": 30,
+   "cpc": 5.97,
+   "competition_index": 5,
+   "monthly_trend": [
+    10,
+    10,
+    10,
+    10,
+    90,
+    170
+   ]
+  },
+  {
+   "keyword": "onzenna",
+   "brand": "Onzenna",
+   "search_volume": 20,
+   "cpc": 14.28,
+   "competition_index": 15,
+   "monthly_trend": [
+    0,
+    0,
+    0,
+    0,
+    30,
+    210
+   ]
+  },
+  {
+   "keyword": "naeiae pop rice snack",
+   "brand": "Naeiae",
+   "search_volume": 20,
+   "cpc": 3.23,
+   "competition_index": 90,
+   "monthly_trend": [
+    10,
+    10,
+    10,
+    10,
+    10,
+    20
+   ]
+  },
+  {
+   "keyword": "onzenna sunscreen",
+   "brand": "Onzenna",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "chamom",
+   "brand": "CHA&MOM",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "korean infant snack",
+   "brand": "CHA&MOM",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "korean baby food",
+   "brand": "CHA&MOM",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "baby chew toy",
+   "brand": "Grosmimi",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "grosmimi teether",
+   "brand": "Grosmimi",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "baby teething toy",
+   "brand": "Grosmimi",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "silicone baby teether",
+   "brand": "Grosmimi",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "baby teether",
+   "brand": "Grosmimi",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "baby teething snacks",
+   "brand": "Naeiae",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "rice snack baby",
+   "brand": "Naeiae",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "korean baby snack",
+   "brand": "Naeiae",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "baby rice crackers",
+   "brand": "Naeiae",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "onzenna skincare",
+   "brand": "Onzenna",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
   }
  ],
  "traffic_sources": [

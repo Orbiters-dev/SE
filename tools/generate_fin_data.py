@@ -410,6 +410,91 @@ def generate():
             "position": avg_pos,
         })
 
+    # ── Keyword Rankings (GSC daily position tracking) ────────────────────────
+    # Top keywords by clicks, with daily position history for sparklines
+    gsc_full = dk.get("gsc_daily", days=90)
+    kw_daily = defaultdict(lambda: defaultdict(lambda: {"clicks": 0, "impressions": 0, "position": []}))
+    for r in gsc_full:
+        q = (r.get("query") or "").strip().lower()
+        d = r.get("date", "")
+        if not q or not d:
+            continue
+        kw_daily[q][d]["clicks"] += int(r.get("clicks") or 0)
+        kw_daily[q][d]["impressions"] += int(r.get("impressions") or 0)
+        pos = float(r.get("position") or 0)
+        if pos > 0:
+            kw_daily[q][d]["position"].append(pos)
+
+    # Aggregate totals for ranking
+    kw_totals = {}
+    for q, days_data in kw_daily.items():
+        total_clicks = sum(dd["clicks"] for dd in days_data.values())
+        total_impr = sum(dd["impressions"] for dd in days_data.values())
+        all_pos = [p for dd in days_data.values() for p in dd["position"]]
+        avg_pos = round(sum(all_pos) / len(all_pos), 1) if all_pos else 0
+        kw_totals[q] = {"clicks": total_clicks, "impressions": total_impr, "avg_position": avg_pos}
+
+    # Top 20 keywords by clicks
+    top_kw = sorted(kw_totals.items(), key=lambda x: x[1]["clicks"], reverse=True)[:20]
+    kw_dates = sorted(set(d for days_data in kw_daily.values() for d in days_data.keys()))
+
+    keyword_rankings = []
+    for q, totals in top_kw:
+        # Weekly average positions for trend (last 6 weeks)
+        weekly_positions = []
+        for i in range(0, len(kw_dates), 7):
+            week_dates = kw_dates[i:i+7]
+            week_pos = []
+            for d in week_dates:
+                dd = kw_daily[q].get(d, {})
+                week_pos.extend(dd.get("position", []))
+            if week_pos:
+                weekly_positions.append(round(sum(week_pos) / len(week_pos), 1))
+            else:
+                weekly_positions.append(None)
+        ctr = round(totals["clicks"] / totals["impressions"] * 100, 2) if totals["impressions"] else 0
+        keyword_rankings.append({
+            "query": q,
+            "clicks": totals["clicks"],
+            "impressions": totals["impressions"],
+            "avg_position": totals["avg_position"],
+            "ctr": ctr,
+            "weekly_positions": weekly_positions,
+        })
+
+    # ── DataForSEO keyword volumes ─────────────────────────────────────────────
+    dfseo = dk.get("dataforseo_keywords", days=7)
+    # Deduplicate: latest date per keyword
+    latest_dfseo = {}
+    for r in dfseo:
+        kw = r.get("keyword", "")
+        d = r.get("date", "")
+        if kw and (kw not in latest_dfseo or d > latest_dfseo[kw].get("date", "")):
+            latest_dfseo[kw] = r
+
+    keyword_volumes = []
+    for kw, r in sorted(latest_dfseo.items(), key=lambda x: int(x[1].get("search_volume") or 0), reverse=True):
+        vol = int(r.get("search_volume") or 0)
+        # Parse monthly_searches JSON
+        monthly_raw = r.get("monthly_searches", "[]")
+        if isinstance(monthly_raw, str):
+            try:
+                monthly_parsed = json.loads(monthly_raw)
+            except (json.JSONDecodeError, TypeError):
+                monthly_parsed = []
+        else:
+            monthly_parsed = monthly_raw or []
+        # Extract last 6 months of search volume
+        monthly_trend = [m.get("monthly_searches", 0) for m in monthly_parsed[-6:]] if monthly_parsed else []
+        keyword_volumes.append({
+            "keyword": kw,
+            "brand": r.get("brand", ""),
+            "search_volume": vol,
+            "cpc": round(float(r.get("cpc") or 0), 2),
+            "competition_index": int(r.get("competition_index") or 0),
+            "monthly_trend": monthly_trend,
+        })
+
     # GA4 traffic sources (top 15 by sessions, last 30d)
     traffic_agg = defaultdict(lambda: {"sessions": 0, "users": 0, "revenue": 0, "conversions": 0})
     for r in ga4:
@@ -572,6 +657,9 @@ def generate():
         },
         "search_queries": search_data,
         "gsc_queries": gsc_data,
+        "keyword_rankings": keyword_rankings,
+        "keyword_ranking_dates": kw_dates,
+        "keyword_volumes": keyword_volumes,
         "traffic_sources": traffic_data,
     }
 
