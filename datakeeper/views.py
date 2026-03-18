@@ -278,6 +278,10 @@ def query_rows(request):
     if source_type and "source_type" in field_names:
         qs = qs.filter(source_type=source_type)
 
+    username = request.GET.get("username")
+    if username and "username" in field_names:
+        qs = qs.filter(username__iexact=username)
+
     # Order by date desc if available
     if "date" in field_names:
         qs = qs.order_by("-date")

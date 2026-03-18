@@ -299,7 +299,6 @@ def run(dry_run=False):
     gc = gspread.authorize(creds)
 
     sh_apify = gc.open_by_key(APIFY_SHEET_ID)
-    sh_sns   = gc.open_by_key(SNS_SHEET_ID)
 
     print("[1] US Posts Master 로드...")
     posts = load_us_posts_master(sh_apify)
@@ -337,8 +336,8 @@ def run(dry_run=False):
     for h in highlights:
         print(f"    @{h['username']} ({h['date']}): {h['views']:,} views")
 
-    print("[5] USA_LLM tab update...")
-    write_llm_tab(sh_sns, aggregated, dry_run=dry_run)
+    # USA_LLM tab removed (2026-03-18) — data integrated into US SNS tab
+    print("[5] USA_LLM tab skipped (deprecated)")
 
     # Save prev metrics for next-day trending comparison
     if not dry_run:
