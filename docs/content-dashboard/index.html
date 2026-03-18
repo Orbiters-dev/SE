@@ -67,8 +67,9 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 <div class="ctr">
   <div style="display:flex;justify-content:center;gap:4px;margin-bottom:20px">
     <div style="display:inline-flex;border:2px solid var(--border);border-radius:10px;overflow:hidden;font-size:12px;font-weight:700">
-      <a href="../ppc-dashboard/index.html" style="padding:8px 20px;color:var(--dim);text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center" onmouseover="this.style.background='var(--abg)';this.style.color='var(--a)'" onmouseout="this.style.background='';this.style.color='var(--dim)'">Amazon PPC Intelligence</a>
+      <a href="../ppc-dashboard/index.html" style="padding:8px 20px;color:var(--dim);text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center" onmouseover="this.style.background='#eef2ff';this.style.color='#6366f1'" onmouseout="this.style.background='';this.style.color='var(--dim)'">Amazon PPC Intelligence</a>
       <div style="padding:8px 20px;background:var(--a);color:#fff;cursor:default">Content Intelligence</div>
+      <a href="../financial-dashboard/index.html" style="padding:8px 20px;color:var(--dim);text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center" onmouseover="this.style.background='#ecfdf5';this.style.color='#10b981'" onmouseout="this.style.background='';this.style.color='var(--dim)'">Financial KPIs</a>
     </div>
   </div>
 
@@ -535,6 +536,8 @@ function renderAllTimeTop(){
       matchedOrders.forEach(function(o){(o.product_types||'').split(',').forEach(function(t){t=t.trim();if(t)pts[t]=1;});});
       var ptArr=Object.keys(pts);
       if(ptArr.length) prodHtml=ptArr.map(function(t){return '<span class="prod-tag">'+t+'</span>';}).join('');
+    } else if(p.product_types){
+      prodHtml=(p.product_types||'').split(',').map(function(t){t=t.trim();return t?'<span class="prod-tag">'+t+'</span>':'';}).join('');
     }
 
     // Rank badge style

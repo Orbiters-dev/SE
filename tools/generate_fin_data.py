@@ -32,7 +32,7 @@ load_env()
 
 from data_keeper_client import DataKeeper
 
-OUTPUT = ROOT / "docs" / "ppc-dashboard" / "fin_data.js"
+OUTPUT = ROOT / "docs" / "financial-dashboard" / "fin_data.js"
 PST = timezone(timedelta(hours=-8))
 
 # Brand / channel config (reuse from run_kpi_monthly)

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Financial KPIs Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="fin_data.js"></script>
+<style>
+:root{--bg:#f8fafc;--card:#fff;--border:#e2e8f0;--text:#1e293b;--dim:#64748b;--muted:#94a3b8;--a:#10b981;--abg:#ecfdf5;--g:#10b981;--gbg:#ecfdf5;--am:#f59e0b;--ambg:#fffbeb;--r:#ef4444;--rbg:#fef2f2;--c:#0ea5e9;--cbg:#f0f9ff;--p:#6366f1;--mono:'SF Mono','Fira Code',Consolas,monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:13px}
+.ctr{max-width:1080px;margin:0 auto;padding:28px 20px 80px}
+.hero{text-align:center;margin-bottom:24px}
+.hero h1{font-size:26px;font-weight:800;letter-spacing:-.5px}.hero h1 span{background:linear-gradient(135deg,#10b981,#0ea5e9);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero .sub{color:var(--dim);font-size:13px;margin-top:3px}
+.hero .meta{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.pill{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2px 10px;font-size:10px;color:var(--dim);display:inline-flex;align-items:center;gap:4px}
+.pill .dot{width:5px;height:5px;border-radius:50%;background:var(--g);box-shadow:0 0 3px var(--g)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px}
+.card h3{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.card .desc{font-size:10px;color:var(--dim);margin-bottom:8px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;margin:10px 0}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px}
+.stat .sl{font-size:8px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:600}
+.stat .sv{font-size:22px;font-weight:800;letter-spacing:-.5px;font-family:var(--mono)}
+.stat .ss{font-size:9px;color:var(--dim);margin-top:2px}
+.stat.green .sv{color:var(--g)}.stat.red .sv{color:var(--r)}.stat.amber .sv{color:var(--am)}.stat.accent .sv{color:var(--a)}.stat.cyan .sv{color:var(--c)}.stat.purple .sv{color:#6366f1}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{background:#f8fafc;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.3px;font-size:9px;padding:6px 8px;text-align:left;border-bottom:2px solid var(--border);position:sticky;top:0}
+td{padding:6px 8px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#f8fffe}
+.period-tabs{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;font-size:10px}
+.period-tabs>div{padding:5px 14px;cursor:pointer;font-weight:700;color:var(--dim);transition:.12s}
+.period-tabs>div.on{background:var(--a);color:#fff}
+.period-tabs>div:hover:not(.on){background:var(--abg)}
+.sec{margin-bottom:24px}
+.sec-title{font-size:14px;font-weight:800;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.sec-title .num{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;background:var(--a);flex-shrink:0}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN GATE -->
+<div id="login-gate" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)">
+  <div style="background:var(--card);border-radius:16px;padding:48px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.06);border:1px solid var(--border);text-align:center">
+    <div style="font-size:32px;margin-bottom:8px">&#x1F4CA;</div>
+    <h2 style="font-size:18px;font-weight:800;margin-bottom:4px">Financial KPIs</h2>
+    <p style="font-size:11px;color:var(--dim);margin-bottom:24px">Sign in to access the dashboard</p>
+    <input type="text" id="login-uid" placeholder="User ID" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:8px;font-family:inherit" onkeydown="if(event.key==='Enter')document.getElementById('login-pw').focus()">
+    <input type="password" id="login-pw" placeholder="Password" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:16px;font-family:inherit" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()" style="width:100%;background:var(--a);color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">Sign In</button>
+    <div id="login-err" style="color:var(--r);font-size:11px;margin-top:10px;display:none"></div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main-content" style="display:none">
+<div class="ctr">
+
+<!-- Top nav -->
+<div style="display:flex;justify-content:center;gap:4px;margin-bottom:20px">
+  <div style="display:inline-flex;border:2px solid var(--border);border-radius:10px;overflow:hidden;font-size:12px;font-weight:700">
+    <a href="../ppc-dashboard/index.html" style="padding:8px 20px;color:var(--dim);text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center" onmouseover="this.style.background='#eef2ff';this.style.color='#6366f1'" onmouseout="this.style.background='';this.style.color='var(--dim)'">Amazon PPC Intelligence</a>
+    <a href="../content-dashboard/index.html" style="padding:8px 20px;color:var(--dim);text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center" onmouseover="this.style.background='#fce7f3';this.style.color='#ec4899'" onmouseout="this.style.background='';this.style.color='var(--dim)'">Content Intelligence</a>
+    <div style="padding:8px 20px;background:var(--a);color:#fff;cursor:default">Financial KPIs</div>
+  </div>
+</div>
+
+<div class="hero" style="margin-bottom:16px">
+  <h1>Financial <span>KPIs</span></h1>
+  <div class="sub">Revenue, Ad Performance, Margins & Traffic Analytics</div>
+  <div class="meta" id="hero-meta"></div>
+</div>
+
+<div id="fin-content"></div>
+
+</div>
+</div>
+
+<script>
+// ── Auth ─────────────────────────────────────────────────────────────────────
+var AUTH_USERS = {
+  'WJ':  'a619397d21c5fd5daa1d55bbdef5e99383dadb69f602a0110a9d56cb7b776fbd',
+  'CAL': 'a1a137c402f2a79391d3ecd012536dc6a2dc6e4e3ee32c2880d01afa04f7402c',
+  'MJ':  'c8fe37479a933b489c5d4a1ff509cbe60095246f1e42f383bc017cb77b3efcbb',
+  'HJ':  '75c2e5a66c6bcc985f42b6d402dbb10050a09c9f0371ed735e1983c145da3ffe',
+  'JS':  '89d0eb2d586787c34782b6fa71300419edb51538e74596a8c7948c0abca66e6d',
+  'HC':  '357fca21bafbd5f23f141ff9433fe47422f58e9b0521c04e5735ae727313aef5'
+};
+async function sha256(s){var e=new TextEncoder().encode(s);var h=await crypto.subtle.digest('SHA-256',e);return Array.from(new Uint8Array(h)).map(function(b){return b.toString(16).padStart(2,'0')}).join('')}
+async function doLogin(){
+  var uid=document.getElementById('login-uid').value.trim().toUpperCase();
+  var pw=document.getElementById('login-pw').value;
+  if(!uid||!pw){document.getElementById('login-err').textContent='Enter ID and password';document.getElementById('login-err').style.display='block';return;}
+  var hash=await sha256(pw+uid.toLowerCase());
+  if(AUTH_USERS[uid]&&AUTH_USERS[uid]===hash){
+    localStorage.setItem('fin_auth',JSON.stringify({uid:uid,ts:Date.now()}));
+    showDashboard();
+  }else{document.getElementById('login-err').textContent='Invalid credentials';document.getElementById('login-err').style.display='block';}
+}
+function checkAuth(){
+  var s=localStorage.getItem('fin_auth');
+  if(!s)return false;
+  try{var d=JSON.parse(s);return(Date.now()-d.ts)<30*86400000;}catch(e){return false;}
+}
+function showDashboard(){
+  document.getElementById('login-gate').style.display='none';
+  document.getElementById('main-content').style.display='block';
+  renderFinancial();
+}
+if(checkAuth()) showDashboard();
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function $(v){ return typeof v==='number'?'$'+v.toLocaleString():v; }
+function num(v){ return typeof v==='number'?v.toLocaleString():v; }
+
+function barChart(datasets, labels, opts){
+  var w=opts.w||900, h=opts.h||170, pad=44, barW=opts.barW||12;
+  var n=labels.length, gapX=(w-pad*2)/n;
+  var allVals=[]; datasets.forEach(function(ds){ ds.data.forEach(function(v){ allVals.push(Math.abs(v)); }); });
+  var maxV=Math.max.apply(null, allVals)||1;
+  if(opts.stacked){
+    var stackMax=0;
+    for(var i=0;i<n;i++){
+      var s=0; datasets.forEach(function(ds){ s+=Math.abs(ds.data[i]||0); }); if(s>stackMax) stackMax=s;
+    }
+    maxV=stackMax;
+  }
+  var scaleY=(h-pad-24)/maxV;
+  var svg='<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;max-height:'+h+'px">';
+  for(var g=0;g<4;g++){
+    var gy=h-pad-((h-pad-24)/3*g);
+    var gv=Math.round(maxV/3*g);
+    svg+='<line x1="'+pad+'" y1="'+gy+'" x2="'+(w-10)+'" y2="'+gy+'" stroke="#e2e8f0" stroke-width="0.5"/>';
+    svg+='<text x="'+(pad-4)+'" y="'+(gy+3)+'" text-anchor="end" fill="#94a3b8" font-size="8" font-family="var(--mono)">$'+(gv>=1000?Math.round(gv/1000)+'K':gv)+'</text>';
+  }
+  if(opts.stacked){
+    for(var i=0;i<n;i++){
+      var x=pad+gapX*i+gapX/2;
+      var yBase=h-pad;
+      datasets.forEach(function(ds){
+        var v=Math.abs(ds.data[i]||0), bh=v*scaleY;
+        svg+='<rect x="'+(x-barW/2)+'" y="'+(yBase-bh)+'" width="'+barW+'" height="'+Math.max(bh,0.5)+'" fill="'+ds.color+'" rx="2" opacity="0.85"/>';
+        yBase-=bh;
+      });
+      svg+='<text x="'+x+'" y="'+(h-pad+14)+'" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="600">'+labels[i]+'</text>';
+    }
+  } else {
+    var numDs=datasets.length, totalBarW=barW*numDs+2*(numDs-1);
+    for(var i=0;i<n;i++){
+      var cx=pad+gapX*i+gapX/2;
+      datasets.forEach(function(ds, di){
+        var v=Math.abs(ds.data[i]||0), bh=v*scaleY;
+        var bx=cx-totalBarW/2+di*(barW+2);
+        svg+='<rect x="'+bx+'" y="'+(h-pad-bh)+'" width="'+barW+'" height="'+Math.max(bh,0.5)+'" fill="'+ds.color+'" rx="2" opacity="0.85"/>';
+      });
+      svg+='<text x="'+cx+'" y="'+(h-pad+14)+'" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="600">'+labels[i]+'</text>';
+    }
+  }
+  var lx=pad;
+  datasets.forEach(function(ds){
+    svg+='<rect x="'+lx+'" y="4" width="10" height="10" fill="'+ds.color+'" rx="2"/>';
+    svg+='<text x="'+(lx+14)+'" y="12" fill="#64748b" font-size="9" font-weight="600">'+ds.label+'</text>';
+    lx+=ds.label.length*6+28;
+  });
+  svg+='</svg>';
+  return svg;
+}
+
+// ── Main Render ──────────────────────────────────────────────────────────────
+function renderFinancial(){
+  var F = (typeof FIN_DATA !== 'undefined') ? FIN_DATA : null;
+  if(!F){
+    document.getElementById('fin-content').innerHTML='<div class="card"><h3>No Data Available</h3><div class="desc">Run: python tools/generate_fin_data.py</div></div>';
+    return;
+  }
+
+  var months=F.months||[];
+  var mLabels=months.map(function(m){ var parts=m.split('-'); return parts[1]+'/'+parts[0].substring(2); });
+
+  // Hero meta
+  document.getElementById('hero-meta').innerHTML=
+    '<span class="pill"><span class="dot"></span>Through '+F.through_date+'</span>'+
+    '<span class="pill">Generated '+F.generated_pst+'</span>';
+
+  var html='';
+
+  // ── Period toggle + KPI cards ─────────────────────────────────────────────
+  html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">';
+  html+='<div class="sec-title" style="border:none;margin:0;padding:0"><div class="num">1</div> KPI Summary</div>';
+  html+='<div class="period-tabs" id="fin-period-tabs">';
+  html+='<div class="on" data-fp="7d" onclick="switchPeriod(\'7d\',this)">7D</div>';
+  html+='<div data-fp="30d" onclick="switchPeriod(\'30d\',this)">30D</div>';
+  html+='<div data-fp="mtd" onclick="switchPeriod(\'mtd\',this)">MTD</div>';
+  html+='</div></div>';
+  html+='<div id="fin-kpi-cards">'+buildKpiCards(F.summary['7d']||{})+'</div>';
+
+  // ── Revenue by Brand ──────────────────────────────────────────────────────
+  html+='<div class="sec"><div class="sec-title"><div class="num">2</div> Revenue by Brand</div>';
+  html+='<div class="card">';
+  var brandDs=[];
+  Object.keys(F.brand_revenue).forEach(function(b){
+    var br=F.brand_revenue[b];
+    brandDs.push({label:b, data:br.monthly, color:br.color});
+  });
+  html+=barChart(brandDs, mLabels, {w:940,h:190,barW:10});
+  html+='<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Brand</th>';
+  mLabels.forEach(function(m){ html+='<th style="text-align:right">'+m+'</th>'; });
+  html+='<th style="text-align:right;background:#f0fdf4">Total</th></tr></thead><tbody>';
+  Object.keys(F.brand_revenue).forEach(function(b){
+    var br=F.brand_revenue[b], total=br.monthly.reduce(function(a,c){return a+c;},0);
+    html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+br.color+';margin-right:6px"></span><b>'+b+'</b></td>';
+    br.monthly.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(v)+'</td>'; });
+    html+='<td style="text-align:right;font-weight:700;font-family:var(--mono);font-size:10px;background:#f0fdf4">'+$(total)+'</td></tr>';
+  });
+  var grandTotals=months.map(function(_,mi){ var t=0; Object.keys(F.brand_revenue).forEach(function(b){ t+=F.brand_revenue[b].monthly[mi]||0; }); return t; });
+  html+='<tr style="border-top:2px solid var(--border);font-weight:800"><td>TOTAL</td>';
+  grandTotals.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(v)+'</td>'; });
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;background:#f0fdf4">'+$(grandTotals.reduce(function(a,c){return a+c;},0))+'</td></tr>';
+  html+='</tbody></table></div></div></div>';
+
+  // ── Revenue by Channel ────────────────────────────────────────────────────
+  html+='<div class="sec"><div class="sec-title"><div class="num">3</div> Revenue by Channel</div>';
+  html+='<div class="card">';
+  var chDs=[];
+  Object.keys(F.channel_revenue).forEach(function(ch){
+    var cr=F.channel_revenue[ch];
+    chDs.push({label:ch, data:cr.monthly, color:cr.color});
+  });
+  html+=barChart(chDs, mLabels, {w:940,h:190,barW:14,stacked:true});
+  html+='<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Channel</th>';
+  mLabels.forEach(function(m){ html+='<th style="text-align:right">'+m+'</th>'; });
+  html+='<th style="text-align:right;background:#f0fdf4">Total</th></tr></thead><tbody>';
+  Object.keys(F.channel_revenue).forEach(function(ch){
+    var cr=F.channel_revenue[ch], total=cr.monthly.reduce(function(a,c){return a+c;},0);
+    html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+cr.color+';margin-right:6px"></span>'+ch+'</td>';
+    cr.monthly.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(v)+'</td>'; });
+    html+='<td style="text-align:right;font-weight:700;font-family:var(--mono);font-size:10px;background:#f0fdf4">'+$(total)+'</td></tr>';
+  });
+  html+='</tbody></table></div></div></div>';
+
+  // ── Ad Platform Performance ───────────────────────────────────────────────
+  html+='<div class="sec"><div class="sec-title"><div class="num">4</div> Ad Platform Performance</div>';
+  html+='<div class="card">';
+  var adDs=[];
+  Object.keys(F.ad_performance).forEach(function(p){
+    adDs.push({label:p, data:F.ad_performance[p].spend, color:F.ad_performance[p].color});
+  });
+  html+=barChart(adDs, mLabels, {w:940,h:170,barW:10});
+  html+='<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Platform</th>';
+  mLabels.forEach(function(m){ html+='<th style="text-align:right" colspan="2">'+m+'</th>'; });
+  html+='</tr><tr><th></th>';
+  mLabels.forEach(function(){ html+='<th style="text-align:right;font-size:7px;color:var(--muted)">Spend</th><th style="text-align:right;font-size:7px;color:var(--muted)">ROAS</th>'; });
+  html+='</tr></thead><tbody>';
+  Object.keys(F.ad_performance).forEach(function(p){
+    var ap=F.ad_performance[p];
+    html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+ap.color+';margin-right:6px"></span><b>'+p+'</b></td>';
+    for(var i=0;i<months.length;i++){
+      var sp=ap.spend[i]||0, sl=ap.sales[i]||0;
+      var roas=sp>0?(sl/sp):0;
+      var rc=roas>=3?'var(--g)':roas>=1.5?'var(--am)':'var(--r)';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+$(sp)+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+rc+'">'+roas.toFixed(1)+'x</td>';
+    }
+    html+='</tr>';
+  });
+  // totals
+  html+='<tr style="border-top:2px solid var(--border);font-weight:700"><td>TOTAL</td>';
+  for(var i=0;i<months.length;i++){
+    var ts=0,tl=0;
+    Object.keys(F.ad_performance).forEach(function(p){ ts+=F.ad_performance[p].spend[i]||0; tl+=F.ad_performance[p].sales[i]||0; });
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+$(ts)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+(ts>0?(tl/ts).toFixed(1):'0')+'x</td>';
+  }
+  html+='</tr></tbody></table></div></div></div>';
+
+  // ── Paid vs Organic ───────────────────────────────────────────────────────
+  html+='<div class="sec"><div class="sec-title"><div class="num">5</div> Ad-Attributed vs Organic Revenue</div>';
+  html+='<div class="card">';
+  html+='<div class="desc">Organic = Total Revenue - Ad-attributed sales (Amazon Ads + Meta + Google). Note: attribution overlap possible.</div>';
+  html+=barChart([
+    {label:'Organic', data:F.paid_organic.organic, color:'#10b981'},
+    {label:'Ad-Attributed', data:F.paid_organic.paid, color:'#6366f1'}
+  ], mLabels, {w:940,h:170,barW:16,stacked:true});
+  html+='<div style="overflow-x:auto;margin-top:8px"><table><thead><tr><th></th>';
+  mLabels.forEach(function(m){ html+='<th style="text-align:right">'+m+'</th>'; });
+  html+='</tr></thead><tbody>';
+  html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#10b981;margin-right:6px"></span>Organic</td>';
+  F.paid_organic.organic.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--g)">'+$(v)+'</td>'; });
+  html+='</tr><tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#6366f1;margin-right:6px"></span>Ad-Attributed</td>';
+  F.paid_organic.paid.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:#6366f1">'+$(v)+'</td>'; });
+  html+='</tr><tr style="border-top:2px solid var(--border)"><td><b>Organic %</b></td>';
+  for(var i=0;i<months.length;i++){
+    var t=(F.paid_organic.organic[i]||0)+(F.paid_organic.paid[i]||0);
+    var op=t>0?((F.paid_organic.organic[i]||0)/t*100).toFixed(1):'0';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700">'+op+'%</td>';
+  }
+  html+='</tr></tbody></table></div></div></div>';
+
+  // ── GM → CM Waterfall ─────────────────────────────────────────────────────
+  html+='<div class="sec"><div class="sec-title"><div class="num">6</div> Gross Margin &rarr; Contribution Margin</div>';
+  html+='<div class="card">';
+  html+='<div class="desc">CM = Gross Margin - Total Ad Spend. COGS estimated from brand-level averages (Shopify only).</div>';
+  var wf=F.waterfall;
+  html+=barChart([
+    {label:'Gross Margin', data:wf.gross_margin, color:'#10b981'},
+    {label:'Ad Spend', data:wf.ad_spend, color:'#ef4444'},
+    {label:'Contribution', data:wf.contribution_margin.map(function(v){return Math.max(v,0);}), color:'#6366f1'}
+  ], mLabels, {w:940,h:190,barW:9});
+  html+='<div style="overflow-x:auto;margin-top:8px"><table><thead><tr><th></th>';
+  mLabels.forEach(function(m){ html+='<th style="text-align:right">'+m+'</th>'; });
+  html+='</tr></thead><tbody>';
+  html+='<tr><td>Revenue</td>'; wf.revenue.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(v)+'</td>'; }); html+='</tr>';
+  html+='<tr><td>Gross Margin</td>'; wf.gross_margin.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--g)">'+$(v)+'</td>'; }); html+='</tr>';
+  html+='<tr><td>GM %</td>'; wf.gross_margin.forEach(function(v,i){ var r=wf.revenue[i]; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+(r>0?(v/r*100).toFixed(1):'0')+'%</td>'; }); html+='</tr>';
+  html+='<tr><td>(-) Ad Spend</td>'; wf.ad_spend.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--r)">-'+$(v)+'</td>'; }); html+='</tr>';
+  html+='<tr style="border-top:2px solid var(--border);font-weight:800"><td>Contribution Margin</td>'; wf.contribution_margin.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:'+(v>=0?'#6366f1':'var(--r)')+'">'+$(v)+'</td>'; }); html+='</tr>';
+  html+='<tr><td><b>CM %</b></td>'; wf.contribution_margin.forEach(function(v,i){ var r=wf.revenue[i]; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700">'+(r>0?(v/r*100).toFixed(1):'0')+'%</td>'; }); html+='</tr>';
+  html+='</tbody></table></div></div></div>';
+
+  // ── Search Queries (side by side) ─────────────────────────────────────────
+  html+='<div class="sec"><div class="sec-title"><div class="num">7</div> Search Queries (30D)</div>';
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  // Amazon
+  html+='<div class="card"><h3>Amazon Sponsored Ads</h3>';
+  html+='<div style="max-height:420px;overflow-y:auto"><table><thead><tr><th>Search Term</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">ACOS</th><th style="text-align:right">CVR</th></tr></thead><tbody>';
+  (F.search_queries||[]).forEach(function(q){
+    var ac=q.acos<=25?'var(--g)':q.acos<=40?'var(--am)':'var(--r)';
+    html+='<tr><td style="font-size:10px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+q.query+'">'+q.query+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(q.spend))+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(q.sales))+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+ac+'">'+q.acos.toFixed(1)+'%</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+q.cvr.toFixed(1)+'%</td></tr>';
+  });
+  html+='</tbody></table></div></div>';
+  // GSC
+  html+='<div class="card"><h3>Google Search Console</h3>';
+  html+='<div style="max-height:420px;overflow-y:auto"><table><thead><tr><th>Query</th><th style="text-align:right">Clicks</th><th style="text-align:right">Impressions</th><th style="text-align:right">CTR</th><th style="text-align:right">Pos</th></tr></thead><tbody>';
+  (F.gsc_queries||[]).forEach(function(q){
+    html+='<tr><td style="font-size:10px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+q.query+'">'+q.query+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(q.clicks)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(q.impressions)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+q.ctr.toFixed(1)+'%</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+q.position.toFixed(1)+'</td></tr>';
+  });
+  html+='</tbody></table></div></div>';
+  html+='</div></div>';
+
+  // ── GA4 Traffic Sources ───────────────────────────────────────────────────
+  html+='<div class="sec"><div class="sec-title"><div class="num">8</div> Traffic Sources &mdash; GA4 (30D)</div>';
+  html+='<div class="card"><table><thead><tr><th>Source / Medium</th><th style="text-align:right">Sessions</th><th style="text-align:right">Users</th><th style="text-align:right">Revenue</th><th style="text-align:right">Conv %</th></tr></thead><tbody>';
+  (F.traffic_sources||[]).forEach(function(t,i){
+    html+='<tr><td style="font-weight:600">'+t.source+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(t.sessions)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(t.users)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(t.revenue))+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+t.conv_rate.toFixed(2)+'%</td></tr>';
+  });
+  html+='</tbody></table></div></div>';
+
+  document.getElementById('fin-content').innerHTML=html;
+}
+
+function buildKpiCards(s){
+  var h='<div class="stats" style="grid-template-columns:repeat(7,1fr)">';
+  h+='<div class="stat accent"><div class="sl">TOTAL REVENUE</div><div class="sv">$'+(s.total_revenue||0).toLocaleString()+'</div><div class="ss">Shopify + Amazon</div></div>';
+  h+='<div class="stat cyan"><div class="sl">TOTAL ORDERS</div><div class="sv">'+(s.total_orders||0).toLocaleString()+'</div><div class="ss">All channels</div></div>';
+  h+='<div class="stat red"><div class="sl">AD SPEND</div><div class="sv">$'+(s.total_ad_spend||0).toLocaleString()+'</div><div class="ss">Amz+Meta+Google</div></div>';
+  h+='<div class="stat green"><div class="sl">GROSS MARGIN</div><div class="sv">'+(s.gm_pct||0).toFixed(1)+'%</div><div class="ss">$'+(s.gross_margin||0).toLocaleString()+'</div></div>';
+  h+='<div class="stat '+(s.contribution_margin>=0?'purple':'red')+'"><div class="sl">CONTRIBUTION</div><div class="sv">$'+(s.contribution_margin||0).toLocaleString()+'</div><div class="ss">CM '+(s.cm_pct||0).toFixed(1)+'%</div></div>';
+  h+='<div class="stat amber"><div class="sl">MER</div><div class="sv">'+(s.mer||0).toFixed(1)+'x</div><div class="ss">Rev / Ad Spend</div></div>';
+  h+='<div class="stat"><div class="sl">DISC RATE</div><div class="sv">'+(s.discount_rate||0).toFixed(1)+'%</div><div class="ss">Shopify only</div></div>';
+  h+='</div>';
+  return h;
+}
+
+function switchPeriod(period, el){
+  var F=(typeof FIN_DATA!=='undefined')?FIN_DATA:null;
+  if(!F)return;
+  document.querySelectorAll('.period-tabs>div').forEach(function(t){ t.classList.remove('on'); });
+  if(el) el.classList.add('on');
+  document.getElementById('fin-kpi-cards').innerHTML=buildKpiCards(F.summary[period]||{});
+}
+</script>
+</body>
+</html>
