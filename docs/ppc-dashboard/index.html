@@ -841,6 +841,7 @@ function switchCfgBrand(bk, el) {
     var tab = cfgBtEl.querySelector('[data-brand="'+bk+'"]');
     if (tab) { tab.click(); }
   }
+  if(typeof _saveHash==='function') _saveHash();
 }
 
 function renderCfgBrandPanel(bk) {
@@ -1648,6 +1649,7 @@ function switchAnalyticsBrand(bk, el) {
   if (el) { el.style.background='var(--abg)'; el.style.borderColor='var(--a)'; el.style.color='var(--a)'; }
   if (_currentAnalyticsSub === 'campaigns') renderAnalytics(bk, null);
   else fetchAndRenderSearchTerms(bk);
+  if(typeof _saveHash==='function') _saveHash();
 }
 
 function switchAnalyticsSub(sub, el) {
@@ -1666,6 +1668,7 @@ function switchAnalyticsSub(sub, el) {
     document.getElementById('analytics-st-content').style.display='block';
     fetchAndRenderSearchTerms(_currentAnalyticsBrand);
   }
+  if(typeof _saveHash==='function') _saveHash();
 }
 
 // ── Search Term View ────────────────────────────────────────────────────────
@@ -3007,6 +3010,7 @@ function switchSysAdminSub(sub, el){
   document.getElementById('sysadmin-workflows').style.display = sub==='workflows'?'block':'none';
   document.getElementById('sysadmin-datalog').style.display = sub==='datalog'?'block':'none';
   if(sub==='datalog' && !window._datalogLoaded) fetchDataConnectionLog();
+  if(typeof _saveHash==='function') _saveHash();
 }
 
 function timeSince(dateStr){
@@ -3324,6 +3328,52 @@ async function fetchDataConnectionLog(){
 // (All Content Dashboard JS removed — see docs/content-dashboard/index.html)
 
 
+// ── URL hash state persistence ──────────────────────────────────────────────
+// Saves: main tab, config brand, analytics brand/sub, sysadmin sub
+function _saveHash(){
+  var mainTab = (document.querySelector('.mt>div.on')||{}).dataset;
+  var p = mainTab ? mainTab.p : 'tab-flow';
+  var parts = [p];
+  if(p==='tab-config') parts.push(_cfgBrand||'grosmimi');
+  if(p==='tab-analytics') parts.push(_currentAnalyticsBrand||'grosmimi', _currentAnalyticsSub||'campaigns');
+  if(p==='tab-sysadmin'){
+    var sa = document.querySelector('#tab-sysadmin [data-sysub].on') || document.querySelector('#tab-sysadmin [data-sysub][style*="color:var(--a)"]');
+    parts.push(sa ? sa.dataset.sysub : 'workflows');
+  }
+  history.replaceState(null,null,'#'+parts.join('/'));
+}
+function _restoreHash(){
+  var h = location.hash.replace('#','');
+  if(!h) return;
+  var parts = h.split('/');
+  var mainId = parts[0];
+  // Switch main tab
+  var mainBtn = document.querySelector('.mt>div[data-p="'+mainId+'"]');
+  if(mainBtn) mainBtn.click();
+  // Restore sub-state
+  if(mainId==='tab-config' && parts[1]){
+    var cfgBtn = null;
+    document.querySelectorAll('#cfg-brand-selector div').forEach(function(d){
+      if(d.getAttribute('onclick') && d.getAttribute('onclick').indexOf("'"+parts[1]+"'")>-1) cfgBtn=d;
+    });
+    if(cfgBtn) switchCfgBrand(parts[1], cfgBtn);
+  }
+  if(mainId==='tab-analytics'){
+    if(parts[1]){
+      var abtn = document.querySelector('#analyticssBrandTabs [data-abrand="'+parts[1]+'"]');
+      if(abtn) switchAnalyticsBrand(parts[1], abtn);
+    }
+    if(parts[2]){
+      var sbtn = document.querySelector('#analyticsSubTabs [data-asub="'+parts[2]+'"]');
+      if(sbtn) switchAnalyticsSub(parts[2], sbtn);
+    }
+  }
+  if(mainId==='tab-sysadmin' && parts[1]){
+    var sybtn = document.querySelector('#tab-sysadmin [data-sysub="'+parts[1]+'"]');
+    if(sybtn) switchSysAdminSub(parts[1], sybtn);
+  }
+}
+
 // Hook into main tab switch
 (function(){
   var orig = document.querySelectorAll('.mt>div');
@@ -3342,9 +3392,13 @@ async function fetchDataConnectionLog(){
         else renderAnalytics(bk, ab);
       }
       if(t.dataset.p==='tab-sysadmin') fetchWorkflowRuns();
+      _saveHash();
     };
   });
 })();
+
+// Restore tab state from URL hash on load
+_restoreHash();
 </script>
 </body>
 </html>
