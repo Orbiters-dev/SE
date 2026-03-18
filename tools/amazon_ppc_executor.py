@@ -2292,6 +2292,50 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
                 f"Budget underutilized: ${actual_daily_7d:.0f}/day of ${target_daily:.0f}/day ({utilization:.0f}%). "
                 f"Consider increasing bids for more ad impressions.")
 
+    # ── Total budget cap enforcement ────────────────────────────────────────
+    # Sum ALL campaign budgets (proposed or current) and block increases if over cap
+    current_total = sum(c["currentDailyBudget"] for c in all_campaigns)
+    proposed_total = 0
+    for c in all_campaigns:
+        # Find matching proposal
+        matched = next((p for p in proposals if p["campaignId"] == c["campaignId"]), None)
+        if matched and matched.get("new_daily_budget"):
+            proposed_total += matched["new_daily_budget"]
+        elif matched and matched.get("proposed_action") == "pause":
+            proposed_total += 0  # pause = $0
+        else:
+            proposed_total += c["currentDailyBudget"]
+
+    if current_total > target_daily:
+        anomalies.insert(0,
+            f"OVER BUDGET: Current campaign budgets total ${current_total:,.0f}/day vs cap ${target_daily:,.0f}/day. "
+            f"Budget increases blocked until total is reduced.")
+        # Remove budget increases — keep only pause/reduce/optimize actions
+        for p in proposals:
+            if p.get("new_daily_budget") and p["new_daily_budget"] > p["currentDailyBudget"]:
+                p["reason"] += f"\n⚠ Budget increase blocked: total ${current_total:,.0f} already exceeds ${target_daily:,.0f}/day cap"
+                p["new_daily_budget"] = None
+                p["budget_change_pct"] = None
+    elif proposed_total > target_daily:
+        anomalies.insert(0,
+            f"BUDGET WARNING: Proposed budgets total ${proposed_total:,.0f}/day vs cap ${target_daily:,.0f}/day. "
+            f"Scaling down budget increases.")
+        # Scale down proportionally
+        overshoot = proposed_total - target_daily
+        increase_proposals = [p for p in proposals
+                              if p.get("new_daily_budget") and p["new_daily_budget"] > p["currentDailyBudget"]]
+        if increase_proposals:
+            total_increase = sum(p["new_daily_budget"] - p["currentDailyBudget"] for p in increase_proposals)
+            if total_increase > 0:
+                scale = max(0, 1 - overshoot / total_increase)
+                for p in increase_proposals:
+                    delta = p["new_daily_budget"] - p["currentDailyBudget"]
+                    p["new_daily_budget"] = round(p["currentDailyBudget"] + delta * scale, 2)
+                    if p["new_daily_budget"] <= p["currentDailyBudget"]:
+                        p["new_daily_budget"] = None
+                        p["budget_change_pct"] = None
+                    p["reason"] += f"\n** Budget scaled to fit ${target_daily:,.0f}/day cap"
+
     # Deduplicate anomalies
     anomalies = list(dict.fromkeys(anomalies))
 

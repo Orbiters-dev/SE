@@ -1951,12 +1951,13 @@ function renderPropose(bk, dt, containerId){
     var tierB = c.tier ? badge(c.tier,'a') : badge('—','');
     var rowBg = isAction ? '' : 'style="opacity:0.6"';
     var hasBudgetChange = c.bud_after && c.bud_after !== c.bud_before;
-    var overrideVal = hasBudgetChange ? c.bud_after : (c.bud_before || '');
+    var isPause = c.action && c.action.toLowerCase() === 'pause';
+    var overrideVal = isPause ? 0 : (hasBudgetChange ? c.bud_after : (c.bud_before || ''));
     var product = guessProduct(c.name);
     var cm = guessCM(c.name);
     var prodTag = product ? '<div style="font-size:9px;color:var(--c)">'+product+'</div>' : '';
     return '<tr '+rowBg+' id="camp-row-'+bk+'-'+dt+'-'+i+'">' +
-      '<td><input type="checkbox" class="camp-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'"'+(isAction?' checked':'')+' data-bud-before="'+(c.bud_before||0)+'" data-bud-suggest="'+(c.bud_after||c.bud_before||0)+'"></td>' +
+      '<td><input type="checkbox" class="camp-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'"'+(isAction?' checked':'')+' data-bud-before="'+(c.bud_before||0)+'" data-bud-suggest="'+(isPause?0:(c.bud_after||c.bud_before||0))+'"></td>' +
       '<td>'+tierB+'</td>' +
       '<td style="cursor:pointer" onclick="toggleCampDetail(\''+bk+'\',\''+dt+'\','+i+')">' +
         '<div style="display:flex;align-items:center;gap:4px"><b>'+c.name+'</b>' +
