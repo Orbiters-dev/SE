@@ -386,6 +386,11 @@
           <div class="step-title">Claude API: Content Transcript &rarr; Personalized Outreach &rarr; Gmail Send</div>
           <div class="step-desc">Read creator's existing content transcript from Airtable Content table &rarr; Claude AI references specific posts/topics to craft personalized email &rarr; send from affiliates@onzenna.com</div>
           <div class="data-box">
+            <h4>Pre-Outreach Intelligence (Config toggles)</h4>
+            <div class="data-row"><span class="data-key">RAG Dedup</span><span class="data-val">Bulk-check emails against Gmail RAG DB &rarr; mark "Already Contacted" &rarr; skip. Status: <code>Completed: X excluded</code></span></div>
+            <div class="data-row"><span class="data-key">Apify Autofill</span><span class="data-val">Scrape IG profiles via Apify for creators without emails &rarr; fill Airtable Email field. Status: <code>Completed: X added</code></span></div>
+          </div>
+          <div class="data-box" style="margin-top:8px;">
             <h4>Outreach Flow</h4>
             <div class="data-row"><span class="data-key">1. Read Content</span><span class="data-val">Airtable Content table: fetch creator's post transcripts + metrics (views, likes)</span></div>
             <div class="data-row"><span class="data-key">2. AI Draft</span><span class="data-val">Claude API reads transcript &rarr; references specific video topics/products mentioned &rarr; personalizes pitch</span></div>
@@ -403,7 +408,7 @@
           </div>
           <div class="data-box" style="margin-top:8px;">
             <h4>n8n Workflows</h4>
-            <div class="data-row"><span class="data-key">Draft Gen</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/fwwOeLiDLSnR77E1" target="_blank" class="wf-link">fwwOeLiDLSnR77E1</a> &mdash; 30-min polling, Claude AI</span></div>
+            <div class="data-row"><span class="data-key">Draft Gen</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/fwwOeLiDLSnR77E1" target="_blank" class="wf-link">fwwOeLiDLSnR77E1</a> &mdash; 30-min polling, Claude AI (44 nodes)</span></div>
             <div class="data-row"><span class="data-key">Approval Send</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/jf9uxkPww2xeCr82" target="_blank" class="wf-link">jf9uxkPww2xeCr82</a> &mdash; 1-min polling</span></div>
             <div class="data-row"><span class="data-key">Reply Handler</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/K99grtW9iWq8V79f" target="_blank" class="wf-link">K99grtW9iWq8V79f</a> &mdash; 1-min polling</span></div>
           </div>
@@ -943,6 +948,25 @@
       <div class="config-item">
         <div class="config-label">Rag - Email Duplicate Check</div>
         <div class="config-value" style="color:var(--auto);">On</div>
+      </div>
+      <div class="config-item">
+        <div class="config-label">Apify - Email Autofill</div>
+        <div class="config-value" style="color:var(--auto);">On</div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px; font-size:13px; font-weight:700; margin-bottom:10px;">Intelligence Toggle Status</div>
+    <p style="font-size:12px; color:var(--text-dim); margin-bottom:10px;">
+      Status fields auto-updated by n8n during each Draft Gen execution.
+    </p>
+    <div class="config-grid">
+      <div class="config-item">
+        <div class="config-label">Rag Status</div>
+        <div class="config-value" style="font-size:11px; color:var(--text-dim);">In process... &rarr; Completed: X excluded</div>
+      </div>
+      <div class="config-item">
+        <div class="config-label">Apify Status</div>
+        <div class="config-value" style="font-size:11px; color:var(--text-dim);">In process... &rarr; Completed: X added</div>
       </div>
     </div>
 
