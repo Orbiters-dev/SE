@@ -1918,23 +1918,25 @@ function renderPropose(bk, dt, containerId){
   var hasChange = dd.campaigns.filter(function(c){return c.action!=='optimize' && c.action!=='monitor';});
   var noChange = dd.campaigns.filter(function(c){return c.action==='optimize' || c.action==='monitor';});
 
-  // Detect executed state: server-side (data.js) OR browser-local audit
-  var isExecuted = !!dd.executed;
-  if(!isExecuted){
-    var auditLog = getExecAuditLog();
-    isExecuted = auditLog.some(function(e){ return e.brand===bk && e.details && e.details.date===dt; });
-  }
-  // Build set of executed campaign names (for per-row badges)
+  // Build sets of executed items (per-item, not whole-page lock)
   var executedCamps = {};
+  var executedKws = {};
   var execLog = (D.brands[bk] && D.brands[bk].execution_log) || [];
   execLog.filter(function(e){ return e.exec_date===dt; }).forEach(function(e){
     if(e.campaignName) executedCamps[e.campaignName] = e.result_status||'OK';
+    if(e.keyword) executedKws[e.keyword] = e.result_status||'OK';
   });
-  // Build set of executed harvest/negate keywords
-  var executedKws = {};
-  execLog.filter(function(e){ return e.exec_date===dt && e.keyword; }).forEach(function(e){
-    executedKws[e.keyword] = e.result_status||'OK';
+  // Also check browser-local audit for dispatch records (before server reflects)
+  var auditLog = getExecAuditLog().filter(function(e){
+    return e.brand===bk && e.details && e.details.date===dt;
   });
+  auditLog.forEach(function(a){
+    var d = a.details||{};
+    if(Array.isArray(d.campaigns)) d.campaigns.forEach(function(c){ if(c.name) executedCamps[c.name] = executedCamps[c.name]||'DISPATCHED'; });
+    if(Array.isArray(d.harvest)) d.harvest.forEach(function(h){ if(h.term) executedKws[h.term] = executedKws[h.term]||'DISPATCHED'; });
+    if(Array.isArray(d.negate)) d.negate.forEach(function(n){ if(n.term) executedKws[n.term] = executedKws[n.term]||'DISPATCHED'; });
+  });
+  var hasAnyExecuted = Object.keys(executedCamps).length>0 || Object.keys(executedKws).length>0;
 
   // Totals
   var totSpend=0, totSales=0, totBudBefore=0, totBudAfter=0;
@@ -1978,9 +1980,9 @@ function renderPropose(bk, dt, containerId){
     var product = guessProduct(c.name);
     var cm = guessCM(c.name);
     var prodTag = product ? '<div style="font-size:9px;color:var(--c)">'+product+'</div>' : '';
-    // Executed state per campaign
-    var campExecStatus = executedCamps[c.name] || (c.approved ? 'OK' : '');
-    var campIsExec = isExecuted && (campExecStatus || c.approved);
+    // Executed state per campaign (per-item, not whole-page)
+    var campExecStatus = executedCamps[c.name] || '';
+    var campIsExec = !!campExecStatus;
     var checkboxHtml = campIsExec
       ? '<td>'+badge(campExecStatus||'OK', campExecStatus==='OK'?'g':(campExecStatus==='SKIPPED'?'':'r'))+'</td>'
       : '<td><input type="checkbox" class="camp-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'"'+(isAction?' checked':'')+' data-bud-before="'+(c.bud_before||0)+'" data-bud-suggest="'+(isPause?0:(c.bud_after||c.bud_before||0))+'"></td>';
@@ -2046,7 +2048,7 @@ function renderPropose(bk, dt, containerId){
   var harvestRows = dd.harvest.map(function(h,i){
     var simB = h.sim_confirmed ? ' '+badge('SIM','sim') : (h.acos && h.acos<15 ? ' '+badge('HIGH ROAS','g') : '');
     var hExec = executedKws[h.term] || '';
-    var hIsExec = isExecuted && hExec;
+    var hIsExec = !!hExec;
     return '<tr'+(hIsExec?' style="opacity:0.7;background:#f0fdf4"':'')+'>' +
       (hIsExec
         ? '<td>'+badge(hExec,'g')+'</td>'
@@ -2062,7 +2064,7 @@ function renderPropose(bk, dt, containerId){
   var negRows = dd.negate.map(function(n,i){
     var simB = n.sim_save>0?' '+badge('SIM $'+n.sim_save,'sim'):'';
     var nExec = executedKws[n.term] || '';
-    var nIsExec = isExecuted && nExec;
+    var nIsExec = !!nExec;
     return '<tr'+(nIsExec?' style="opacity:0.7;background:#f0fdf4"':'')+'>' +
       (nIsExec
         ? '<td>'+badge(nExec,'g')+'</td>'
@@ -2076,15 +2078,24 @@ function renderPropose(bk, dt, containerId){
     '</tr>';
   }).join('');
 
+  // Count un-executed actionable items to decide if Execute button should show
+  var unexecCamps = dd.campaigns.filter(function(c){ return (c.action!=='optimize' && c.action!=='monitor') && !executedCamps[c.name]; });
+  var unexecHarvest = dd.harvest.filter(function(h){ return !executedKws[h.term]; });
+  var unexecNegate = dd.negate.filter(function(n){ return !executedKws[n.term]; });
+  var hasUnexecuted = unexecCamps.length>0 || unexecHarvest.length>0 || unexecNegate.length>0;
+  var execSummary = hasAnyExecuted
+    ? (Object.keys(executedCamps).length+Object.keys(executedKws).length)+' done'
+    : '';
+
   el.innerHTML =
-    // Executed banner
-    (isExecuted ? '<div style="padding:10px 14px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;margin-bottom:12px;display:flex;align-items:center;gap:8px"><span style="font-size:16px">&#10003;</span><b style="color:#16a34a">Executed</b><span style="color:var(--dim);font-size:11px">'+(dd.executed_at?'on '+dd.executed_at:'dispatched')+'</span></div>' : '') +
+    // Partial/full executed banner
+    (hasAnyExecuted ? '<div style="padding:10px 14px;background:'+(hasUnexecuted?'#fffbeb':'#f0fdf4')+';border:1px solid '+(hasUnexecuted?'#fcd34d':'#86efac')+';border-radius:8px;margin-bottom:12px;display:flex;align-items:center;gap:8px"><span style="font-size:16px">'+(hasUnexecuted?'&#9711;':'&#10003;')+'</span><b style="color:'+(hasUnexecuted?'#d97706':'#16a34a')+'">'+(hasUnexecuted?'Partially Executed':'Executed')+'</b><span style="color:var(--dim);font-size:11px">'+execSummary+(dd.executed_at?' | '+dd.executed_at:'')+'</span>'+(hasUnexecuted?'<span style="margin-left:auto;font-size:11px;color:#d97706;font-weight:600">'+unexecCamps.length+'C + '+unexecHarvest.length+'H + '+unexecNegate.length+'N remaining</span>':'')+'</div>' : '') +
 
     '<div class="card">' +
-      '<h3>All Campaigns ('+dd.campaigns.length+') — <span style="color:var(--a)">'+hasChange.length+' with proposals</span>, <span style="color:var(--muted)">'+noChange.length+' no change</span>'+(isExecuted?' <span style="color:#16a34a;font-size:12px">[EXECUTED]</span>':'')+'</h3>' +
-      '<div class="desc">Generated: '+dd.generated.replace('T',' ')+' PST | Data: '+dt+' | Click campaign name to expand detail'+(isExecuted?'':' | Override column = your final budget')+'</div>' +
+      '<h3>All Campaigns ('+dd.campaigns.length+') — <span style="color:var(--a)">'+hasChange.length+' with proposals</span>, <span style="color:var(--muted)">'+noChange.length+' no change</span>'+(hasAnyExecuted&&!hasUnexecuted?' <span style="color:#16a34a;font-size:12px">[EXECUTED]</span>':'')+'</h3>' +
+      '<div class="desc">Generated: '+dd.generated.replace('T',' ')+' PST | Data: '+dt+' | Click campaign name to expand detail'+(hasUnexecuted?' | Override column = your final budget':'')+'</div>' +
       '<div style="overflow-x:auto"><table>' +
-        '<thead><tr><th>'+(isExecuted?'Status':'<input type="checkbox" id="checkAll-camp-'+bk+'-'+dt+'"> All')+'</th><th>Tier</th><th>Campaign ▼</th><th>Type</th><th>ROAS</th><th>ACOS</th><th>7d Spend</th><th>7d Sales</th><th>Action</th><th>Bid</th><th>Budget</th><th>Reason</th><th style="color:var(--a)">'+(isExecuted?'Budget':'Override $')+'</th></tr></thead>' +
+        '<thead><tr><th><input type="checkbox" id="checkAll-camp-'+bk+'-'+dt+'"> All</th><th>Tier</th><th>Campaign ▼</th><th>Type</th><th>ROAS</th><th>ACOS</th><th>7d Spend</th><th>7d Sales</th><th>Action</th><th>Bid</th><th>Budget</th><th>Reason</th><th style="color:var(--a)">Override $</th></tr></thead>' +
         '<tbody>'+campRows+totRow+'</tbody>' +
       '</table></div>' +
     '</div>' +
@@ -2092,7 +2103,7 @@ function renderPropose(bk, dt, containerId){
     '<div class="card">' +
       '<h3>Keyword Harvest ('+dd.harvest.length+')</h3>' +
       (dd.harvest.length?'<div style="overflow-x:auto"><table>' +
-        '<thead><tr><th>'+(isExecuted?'Status':'<input type="checkbox" id="checkAll-harvest-'+bk+'-'+dt+'"> All')+'</th><th>Search Term</th><th>Sales</th><th>Cost</th><th>ACOS</th><th>Clicks</th><th>Conv</th><th>Bid</th><th>Campaign</th><th>Note 📝</th></tr></thead>' +
+        '<thead><tr><th><input type="checkbox" id="checkAll-harvest-'+bk+'-'+dt+'"> All</th><th>Search Term</th><th>Sales</th><th>Cost</th><th>ACOS</th><th>Clicks</th><th>Conv</th><th>Bid</th><th>Campaign</th><th>Note 📝</th></tr></thead>' +
         '<tbody>'+harvestRows+'</tbody>' +
       '</table></div>':'<div class="desc">No harvest candidates.</div>') +
     '</div>' +
@@ -2100,29 +2111,28 @@ function renderPropose(bk, dt, containerId){
     '<div class="card">' +
       '<h3>Negative Keywords ('+dd.negate.length+') '+(dd.negate.filter(function(n){return n.sim_save>0;}).length?'— '+dd.negate.filter(function(n){return n.sim_save>0;}).length+' SIM confirmed':'')+'</h3>' +
       (dd.negate.length?'<div style="overflow-x:auto"><table>' +
-        '<thead><tr><th>'+(isExecuted?'Status':'<input type="checkbox" id="checkAll-negate-'+bk+'-'+dt+'"> All')+'</th><th>Search Term</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Clicks</th><th>Type</th><th>Campaign</th><th>Reason</th><th>Note 📝</th></tr></thead>' +
+        '<thead><tr><th><input type="checkbox" id="checkAll-negate-'+bk+'-'+dt+'"> All</th><th>Search Term</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Clicks</th><th>Type</th><th>Campaign</th><th>Reason</th><th>Note 📝</th></tr></thead>' +
         '<tbody>'+negRows+'</tbody>' +
       '</table></div>':'<div class="desc">No negative candidates.</div>') +
     '</div>' +
 
-    '<div style="margin-top:16px;padding:14px 16px;background:'+(isExecuted?'#f0fdf4':'var(--card)')+';border:1px solid '+(isExecuted?'#86efac':'var(--border)')+';border-radius:8px">' +
+    '<div style="margin-top:16px;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:8px">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
         '<div style="font-size:12px;color:var(--dim)">' +
           'Budget: <b style="color:var(--text)">$'+fmtN(totBudBefore)+'/day</b> → ' +
           'Override: <b style="color:var(--a)" id="override-summary-'+bk+'-'+dt+'">$'+fmtN(totBudAfter)+'/day</b> ' +
           '(<span id="override-delta-'+bk+'-'+dt+'" style="color:var(--g)">+$'+fmtN(totBudAfter-totBudBefore)+'</span>)' +
         '</div>' +
-        (isExecuted
-          ? '<span style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:#16a34a;color:#fff;border-radius:8px;font-weight:700;font-size:13px">&#10003; Executed</span>'
-          : '<button id="execBtn-'+bk+'-'+dt+'" class="exec-btn" onclick="executeSelected(\''+bk+'\',\''+dt+'\')">' +
-              '⚡ Execute Selected (<span id="execCount-'+bk+'-'+dt+'">'+hasChange.length+'</span>)' +
-            '</button>') +
+        (hasUnexecuted
+          ? '<button id="execBtn-'+bk+'-'+dt+'" class="exec-btn" onclick="executeSelected(\''+bk+'\',\''+dt+'\')">' +
+              '⚡ Execute Selected (<span id="execCount-'+bk+'-'+dt+'">0</span>)' +
+            '</button>'
+          : '<span style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:#16a34a;color:#fff;border-radius:8px;font-weight:700;font-size:13px">&#10003; All Executed</span>') +
       '</div>' +
-      (isExecuted ? '' :
       '<div style="display:flex;gap:8px;align-items:center">' +
         '<span style="font-size:11px;color:var(--dim);white-space:nowrap">📝 Note:</span>' +
         '<input type="text" id="exec-note-'+bk+'-'+dt+'" placeholder="Reason for this execution (optional)" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px">' +
-      '</div>') +
+      '</div>' +
     '</div>' +
 
     // ── Inline Execution Log container ──
