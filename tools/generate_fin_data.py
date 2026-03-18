@@ -250,6 +250,40 @@ def generate():
         ad_monthly["Google Ads"][month]["impressions"] += int(r.get("impressions") or 0)
         ad_monthly["Google Ads"][month]["clicks"] += int(r.get("clicks") or 0)
 
+    # ── Brand-level ad performance ────────────────────────────────────────────
+    brand_ad_monthly = defaultdict(lambda: defaultdict(lambda: {"spend": 0, "sales": 0}))
+
+    for r in amazon_ads:
+        d = r.get("date", "")
+        if not d or d > through:
+            continue
+        month = d[:7]
+        brand = r.get("brand") or "Other"
+        if brand not in BRAND_ORDER:
+            brand = "Other"
+        brand_ad_monthly[brand][month]["spend"] += float(r.get("spend") or 0)
+        brand_ad_monthly[brand][month]["sales"] += float(r.get("sales") or 0)
+
+    for r in meta_ads:
+        d = r.get("date", "")
+        if not d or d > through:
+            continue
+        month = d[:7]
+        brand = r.get("brand") or "Other"
+        if brand not in BRAND_ORDER:
+            brand = "Other"
+        brand_ad_monthly[brand][month]["spend"] += float(r.get("spend") or 0)
+        brand_ad_monthly[brand][month]["sales"] += float(r.get("revenue") or r.get("conversions_value") or 0)
+
+    for r in google_ads:
+        d = r.get("date", "")
+        if not d or d > through:
+            continue
+        month = d[:7]
+        # All Google Ads campaigns are Grosmimi (Mint | prefix)
+        brand_ad_monthly["Grosmimi"][month]["spend"] += float(r.get("spend") or 0)
+        brand_ad_monthly["Grosmimi"][month]["sales"] += float(r.get("conversions_value") or r.get("revenue") or 0)
+
     # ── Build month list ──────────────────────────────────────────────────────
     all_months_set = set()
     for d in [brand_monthly, amz_brand_monthly, channel_monthly]:
@@ -261,7 +295,10 @@ def generate():
     # Filter to last N months
     cutoff_month = (today - timedelta(days=args.months * 30)).strftime("%Y-%m")
     months = sorted(m for m in all_months_set if m >= cutoff_month)
+    ad_start_idx = next((i for i, m in enumerate(months) if m >= "2026-01"), 0)
+    ad_months = months[ad_start_idx:]
     print(f"  Months: {months[0]} → {months[-1]} ({len(months)} months)")
+    print(f"  Ad months: {ad_months[0] if ad_months else 'none'} → {ad_months[-1] if ad_months else 'none'} (from idx {ad_start_idx})")
 
     # ── 5. Compute summary KPIs (7d, 30d, MTD) ───────────────────────────────
     print("\n[5/7] Computing KPI summaries...")
@@ -579,6 +616,12 @@ def generate():
             return [round(v * fm_multiplier) if i == len(vals) - 1 else v for i, v in enumerate(vals)]
         return vals[:]
 
+    def proj_for(vals, month_list):
+        """Full-month projection for a specific month list."""
+        if is_partial and month_list and month_list[-1] == current_month and len(vals) > 0:
+            return [round(v * fm_multiplier) if i == len(vals) - 1 else v for i, v in enumerate(vals)]
+        return vals[:]
+
     # Build output arrays
     brand_rev_out = {}
     for brand in BRAND_ORDER:
@@ -619,6 +662,28 @@ def generate():
                 "impressions": impr_vals,
                 "clicks": click_vals,
                 "color": AD_COLORS.get(platform, "#94a3b8"),
+            }
+
+    # Brand performance (ad + total sales, from 2026-01+)
+    brand_perf_out = {}
+    for brand in BRAND_ORDER:
+        total_sales_vals = []
+        ad_spend_vals = []
+        ad_sales_vals = []
+        for m in ad_months:
+            shopify_net = brand_monthly.get(brand, {}).get(m, {}).get("net", 0)
+            amz_net = amz_brand_monthly.get(brand, {}).get(m, {}).get("net", 0)
+            total_sales_vals.append(round(shopify_net + amz_net))
+            ad_spend_vals.append(round(brand_ad_monthly.get(brand, {}).get(m, {}).get("spend", 0)))
+            ad_sales_vals.append(round(brand_ad_monthly.get(brand, {}).get(m, {}).get("sales", 0)))
+        if any(v > 0 for v in total_sales_vals) or any(v > 0 for v in ad_spend_vals):
+            brand_perf_out[brand] = {
+                "total_sales": total_sales_vals,
+                "total_sales_proj": proj_for(total_sales_vals, ad_months),
+                "ad_spend": ad_spend_vals,
+                "ad_spend_proj": proj_for(ad_spend_vals, ad_months),
+                "ad_sales": ad_sales_vals,
+                "color": BRAND_COLORS.get(brand, "#94a3b8"),
             }
 
     # Total monthly revenue & costs
@@ -679,6 +744,8 @@ def generate():
         "brand_revenue": brand_rev_out,
         "channel_revenue": channel_rev_out,
         "ad_performance": ad_out,
+        "ad_start_idx": ad_start_idx,
+        "brand_performance": brand_perf_out,
         "paid_organic": {
             "paid": paid_monthly,
             "paid_proj": proj_array(paid_monthly),

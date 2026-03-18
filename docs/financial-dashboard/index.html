@@ -325,10 +325,13 @@ function renderFinancial(){
   // Channel Revenue (compact)
   sum+=buildChannelTable(F, months, mLabels, lastIdx, isPartialLast, true);
 
-  // Ad Performance (compact)
+  // Ad Performance (compact, 2026-01+)
   sum+=buildAdTable(F, months, mLabels, lastIdx, isPartialLast, true);
 
-  // Paid vs Organic (compact)
+  // Brand Performance (compact, 2026-01+)
+  sum+=buildBrandPerfTable(F, months, mLabels, lastIdx, isPartialLast, true);
+
+  // Paid vs Organic (compact, 2026-01+)
   sum+=buildPaidOrganic(F, months, mLabels, lastIdx, isPartialLast);
 
   // GM → CM Waterfall (compact)
@@ -380,6 +383,7 @@ function renderFinancial(){
   // ══════════════════════════════════════════════════════════════════════════
   var ads='';
   ads+=buildAdTable(F, months, mLabels, lastIdx, isPartialLast, false);
+  ads+=buildBrandPerfTable(F, months, mLabels, lastIdx, isPartialLast, false);
   ads+=buildPaidOrganic(F, months, mLabels, lastIdx, isPartialLast);
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -417,42 +421,10 @@ function renderFinancial(){
   });
   srch+='</tbody></table></div></div></div>';
 
-  // 4B: Keyword Rankings with period sub-tabs (7D / 30D / 90D)
-  var krData=F.keyword_rankings||{};
-  srch+='<div class="sec"><div class="sec-title"><div class="num">4B</div> Keyword Rankings &mdash; Detail</div>';
-  srch+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">';
-  srch+='<div class="period-tabs" id="kw-period-tabs">';
-  srch+='<div class="on" data-kwp="7d" onclick="switchKwPeriod(\'7d\',this)">7D</div>';
-  srch+='<div data-kwp="30d" onclick="switchKwPeriod(\'30d\',this)">30D</div>';
-  srch+='<div data-kwp="90d" onclick="switchKwPeriod(\'90d\',this)">90D</div>';
-  srch+='</div>';
-  srch+='<span style="font-size:10px;color:var(--dim)">Click period to switch the table below</span>';
-  srch+='</div>';
-  // Render all 3 period tables, show only active
-  ['7d','30d','90d'].forEach(function(p){
-    var pData=krData[p]||[];
-    var label=p.toUpperCase();
-    srch+='<div class="card kw-period-panel" id="kw-panel-'+p+'" style="'+(p==='7d'?'':'display:none')+'">';
-    srch+='<div class="desc">Top keywords by clicks ('+label+'). Weekly position trend shown as sparkline.</div>';
-    srch+='<table><thead><tr><th>#</th><th>Keyword</th><th style="text-align:center">Avg Position</th><th style="text-align:right">Clicks</th><th style="text-align:right">Impressions</th><th style="text-align:right">CTR</th><th style="text-align:center">Weekly Trend</th></tr></thead><tbody>';
-    pData.forEach(function(k,i){
-      srch+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
-      srch+='<td style="font-weight:600;font-size:11px">'+k.query+'</td>';
-      srch+='<td style="text-align:center">'+posBadge(k.avg_position)+'</td>';
-      srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.clicks)+'</td>';
-      srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.impressions)+'</td>';
-      srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+k.ctr.toFixed(1)+'%</td>';
-      srch+='<td style="text-align:center">'+sparkline(k.weekly_positions,'',true)+'</td>';
-      srch+='</tr>';
-    });
-    srch+='</tbody></table></div>';
-  });
-  srch+='</div>';
-
-  // 4C: DataForSEO Keyword Volumes
+  // 4B: DataForSEO Keyword Volumes
   var maxVol=0;
   (F.keyword_volumes||[]).forEach(function(k){if(k.search_volume>maxVol)maxVol=k.search_volume;});
-  srch+='<div class="sec"><div class="sec-title"><div class="num">4C</div> Keyword Search Volumes &mdash; DataForSEO</div>';
+  srch+='<div class="sec"><div class="sec-title"><div class="num">4B</div> Keyword Search Volumes &mdash; DataForSEO</div>';
   srch+='<div class="card">';
   srch+='<div class="desc">Google monthly search volume for tracked brand keywords. Trend shows last 6 months of search volume.</div>';
   srch+='<table><thead><tr><th>#</th><th>Keyword</th><th>Brand</th><th style="text-align:right">Monthly Vol</th><th style="min-width:80px">Volume</th><th style="text-align:right">CPC</th><th style="text-align:right">Comp</th><th style="text-align:center">6mo Trend</th></tr></thead><tbody>';
@@ -471,7 +443,7 @@ function renderFinancial(){
   srch+='</tbody></table></div></div>';
 
   // 4D: Amazon Search Terms (existing)
-  srch+='<div class="sec"><div class="sec-title"><div class="num">4D</div> Amazon Sponsored Ads &mdash; Top Search Terms (30D)</div>';
+  srch+='<div class="sec"><div class="sec-title"><div class="num">4C</div> Amazon Sponsored Ads &mdash; Top Search Terms (30D)</div>';
   srch+='<div class="card">';
   srch+='<table><thead><tr><th>#</th><th>Search Term</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">ACOS</th><th style="text-align:right">CVR</th><th style="text-align:right">Orders</th></tr></thead><tbody>';
   (F.search_queries||[]).forEach(function(q,i){
@@ -488,7 +460,7 @@ function renderFinancial(){
   srch+='</tbody></table></div></div>';
 
   // 4E: GSC Queries (existing)
-  srch+='<div class="sec"><div class="sec-title"><div class="num">4E</div> Google Search Console &mdash; Top Queries (30D)</div>';
+  srch+='<div class="sec"><div class="sec-title"><div class="num">4D</div> Google Search Console &mdash; Top Queries (30D)</div>';
   srch+='<div class="card">';
   srch+='<table><thead><tr><th>#</th><th>Query</th><th style="text-align:right">Clicks</th><th style="text-align:right">Impressions</th><th style="text-align:right">CTR</th><th style="text-align:center">Position</th></tr></thead><tbody>';
   (F.gsc_queries||[]).forEach(function(q,i){
@@ -541,9 +513,12 @@ function buildBrandTable(F, months, mLabels, lastIdx, isPartialLast, compact){
   html+='<div class="card">';
   var brandDs=[];
   Object.keys(F.brand_revenue).forEach(function(b){
-    brandDs.push({label:b, data:F.brand_revenue[b].monthly, color:F.brand_revenue[b].color});
+    var total=F.brand_revenue[b].monthly.reduce(function(a,c){return a+c;},0);
+    brandDs.push({label:b, data:F.brand_revenue[b].monthly, color:F.brand_revenue[b].color, total:total});
   });
-  html+=barChart(brandDs, mLabels, {w:940,h:compact?160:210,barW:compact?8:12});
+  // Sort by total desc so largest brand is at bottom of stacked bar
+  brandDs.sort(function(a,b){return b.total-a.total;});
+  html+=barChart(brandDs, mLabels, {w:940,h:compact?160:210,barW:compact?18:24,stacked:true});
   html+='<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Brand</th>';
   mLabels.forEach(function(m,i){ html+='<th style="text-align:right'+(i===lastIdx&&isPartialLast?';background:#f5f3ff':'')+'">'+m+'</th>'; });
   html+='<th style="text-align:right;background:#f0fdf4">Total</th></tr></thead><tbody>';
@@ -584,43 +559,50 @@ function buildChannelTable(F, months, mLabels, lastIdx, isPartialLast, compact){
 }
 
 function buildAdTable(F, months, mLabels, lastIdx, isPartialLast, compact){
-  var html='<div class="sec"><div class="sec-title"><div class="num">4</div> Ad Platform Performance</div>';
+  var si=F.ad_start_idx||0;
+  var aLabels=mLabels.slice(si);
+  var aLen=aLabels.length;
+  var aLastIdx=aLen-1;
+  var isPartialA=isPartialLast&&(si+aLastIdx===lastIdx);
+  var html='<div class="sec"><div class="sec-title"><div class="num">4</div> Ad Platform Performance (Jan 2026+)</div>';
   html+='<div class="card">';
   var adDs=[];
   Object.keys(F.ad_performance).forEach(function(p){
-    adDs.push({label:p, data:F.ad_performance[p].spend, color:F.ad_performance[p].color});
+    adDs.push({label:p, data:F.ad_performance[p].spend.slice(si), color:F.ad_performance[p].color});
   });
-  html+=barChart(adDs, mLabels, {w:940,h:compact?150:190,barW:compact?8:12});
+  html+=barChart(adDs, aLabels, {w:940,h:compact?150:190,barW:compact?12:16,stacked:true});
   html+='<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Platform</th>';
-  mLabels.forEach(function(m,i){ html+='<th style="text-align:right'+(i===lastIdx&&isPartialLast?';background:#f5f3ff':'')+'" colspan="2">'+m+'</th>'; });
+  aLabels.forEach(function(m,i){ html+='<th style="text-align:right'+(i===aLastIdx&&isPartialA?';background:#f5f3ff':'')+'" colspan="2">'+m+'</th>'; });
   html+='</tr><tr><th></th>';
-  mLabels.forEach(function(m,i){
-    var bg=i===lastIdx&&isPartialLast?';background:#f5f3ff':'';
+  aLabels.forEach(function(m,i){
+    var bg=i===aLastIdx&&isPartialA?';background:#f5f3ff':'';
     html+='<th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">Spend</th><th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">ROAS</th>';
   });
   html+='</tr></thead><tbody>';
   Object.keys(F.ad_performance).forEach(function(p){
     var ap=F.ad_performance[p];
     html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+ap.color+';margin-right:6px"></span><b>'+p+'</b></td>';
-    for(var i=0;i<months.length;i++){
-      var sp=ap.spend[i]||0, sl=ap.sales[i]||0;
-      var spP=(ap.spend_proj||[])[i]||sp;
+    for(var i=0;i<aLen;i++){
+      var gi=si+i;
+      var sp=ap.spend[gi]||0, sl=ap.sales[gi]||0;
+      var spP=(ap.spend_proj||[])[gi]||sp;
       var roas=sp>0?(sl/sp):0;
       var rc=roas>=3?'var(--g)':roas>=1.5?'var(--am)':'var(--r)';
-      var isL=i===lastIdx&&isPartialLast;
+      var isL=i===aLastIdx&&isPartialA;
       html+=fmCell(sp, spP, isL, {fs:'9px'});
       html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+rc+'">'+roas.toFixed(1)+'x</td>';
     }
     html+='</tr>';
   });
   html+='<tr style="border-top:2px solid var(--border);font-weight:700"><td>TOTAL</td>';
-  for(var i=0;i<months.length;i++){
+  for(var i=0;i<aLen;i++){
+    var gi=si+i;
     var ts=0,tl=0,tsP=0;
     Object.keys(F.ad_performance).forEach(function(p){
-      ts+=F.ad_performance[p].spend[i]||0; tl+=F.ad_performance[p].sales[i]||0;
-      tsP+=(F.ad_performance[p].spend_proj||F.ad_performance[p].spend)[i]||0;
+      ts+=F.ad_performance[p].spend[gi]||0; tl+=F.ad_performance[p].sales[gi]||0;
+      tsP+=(F.ad_performance[p].spend_proj||F.ad_performance[p].spend)[gi]||0;
     });
-    var isL=i===lastIdx&&isPartialLast;
+    var isL=i===aLastIdx&&isPartialA;
     html+=fmCell(ts, tsP, isL, {fs:'9px',bold:true});
     html+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+(ts>0?(tl/ts).toFixed(1):'0')+'x</td>';
   }
@@ -629,28 +611,36 @@ function buildAdTable(F, months, mLabels, lastIdx, isPartialLast, compact){
 }
 
 function buildPaidOrganic(F, months, mLabels, lastIdx, isPartialLast){
-  var html='<div class="sec"><div class="sec-title"><div class="num">5</div> Ad-Attributed vs Organic Revenue</div>';
+  var si=F.ad_start_idx||0;
+  var aLabels=mLabels.slice(si);
+  var aLen=aLabels.length;
+  var aLastIdx=aLen-1;
+  var isPartialA=isPartialLast&&(si+aLastIdx===lastIdx);
+  var html='<div class="sec"><div class="sec-title"><div class="num">5</div> Ad-Attributed vs Organic Revenue (Jan 2026+)</div>';
   html+='<div class="card">';
   html+='<div class="desc">Organic = Total Revenue - Ad-attributed sales (Amazon Ads + Meta + Google). Note: attribution overlap possible.</div>';
   html+=barChart([
-    {label:'Organic', data:F.paid_organic.organic, color:'#10b981'},
-    {label:'Ad-Attributed', data:F.paid_organic.paid, color:'#6366f1'}
-  ], mLabels, {w:940,h:170,barW:16,stacked:true});
+    {label:'Organic', data:F.paid_organic.organic.slice(si), color:'#10b981'},
+    {label:'Ad-Attributed', data:F.paid_organic.paid.slice(si), color:'#6366f1'}
+  ], aLabels, {w:940,h:170,barW:20,stacked:true});
   html+='<div style="overflow-x:auto;margin-top:8px"><table><thead><tr><th></th>';
-  mLabels.forEach(function(m,i){ html+='<th style="text-align:right'+(i===lastIdx&&isPartialLast?';background:#f5f3ff':'')+'">'+m+'</th>'; });
+  aLabels.forEach(function(m,i){ html+='<th style="text-align:right'+(i===aLastIdx&&isPartialA?';background:#f5f3ff':'')+'">'+m+'</th>'; });
   html+='</tr></thead><tbody>';
   html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#10b981;margin-right:6px"></span>Organic</td>';
-  F.paid_organic.organic.forEach(function(v,i){
-    html+=fmCell(v, (F.paid_organic.organic_proj||[])[i], i===lastIdx&&isPartialLast, {color:'var(--g)'});
-  });
+  for(var i=0;i<aLen;i++){
+    var gi=si+i;
+    html+=fmCell(F.paid_organic.organic[gi], (F.paid_organic.organic_proj||[])[gi], i===aLastIdx&&isPartialA, {color:'var(--g)'});
+  }
   html+='</tr><tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#6366f1;margin-right:6px"></span>Ad-Attributed</td>';
-  F.paid_organic.paid.forEach(function(v,i){
-    html+=fmCell(v, (F.paid_organic.paid_proj||[])[i], i===lastIdx&&isPartialLast, {color:'#6366f1'});
-  });
+  for(var i=0;i<aLen;i++){
+    var gi=si+i;
+    html+=fmCell(F.paid_organic.paid[gi], (F.paid_organic.paid_proj||[])[gi], i===aLastIdx&&isPartialA, {color:'#6366f1'});
+  }
   html+='</tr><tr style="border-top:2px solid var(--border)"><td><b>Organic %</b></td>';
-  for(var i=0;i<months.length;i++){
-    var t=(F.paid_organic.organic[i]||0)+(F.paid_organic.paid[i]||0);
-    var op=t>0?((F.paid_organic.organic[i]||0)/t*100).toFixed(1):'0';
+  for(var i=0;i<aLen;i++){
+    var gi=si+i;
+    var t=(F.paid_organic.organic[gi]||0)+(F.paid_organic.paid[gi]||0);
+    var op=t>0?((F.paid_organic.organic[gi]||0)/t*100).toFixed(1):'0';
     html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700">'+op+'%</td>';
   }
   html+='</tr></tbody></table></div></div></div>';
@@ -688,6 +678,74 @@ function buildWaterfall(F, months, mLabels, lastIdx, isPartialLast){
   return html;
 }
 
+function buildBrandPerfTable(F, months, mLabels, lastIdx, isPartialLast, compact){
+  var bp=F.brand_performance;
+  if(!bp) return '';
+  var si=F.ad_start_idx||0;
+  var aLabels=mLabels.slice(si);
+  var aLen=aLabels.length;
+  var aLastIdx=aLen-1;
+  var isPartialA=isPartialLast&&(si+aLastIdx===lastIdx);
+  var html='<div class="sec"><div class="sec-title">Brand Performance &mdash; Sales + Ad Spend (Jan 2026+)</div>';
+  html+='<div class="card">';
+  if(!compact){
+    var adDs=[];
+    Object.keys(bp).forEach(function(b){
+      var total=bp[b].ad_spend.reduce(function(a,c){return a+c;},0);
+      adDs.push({label:b, data:bp[b].ad_spend, color:bp[b].color, total:total});
+    });
+    adDs.sort(function(a,b){return b.total-a.total;});
+    html+=barChart(adDs, aLabels, {w:940,h:170,barW:20,stacked:true});
+  }
+  html+='<div style="overflow-x:auto;margin-top:8px"><table><thead><tr><th>Brand</th>';
+  aLabels.forEach(function(m,i){
+    var bg=i===aLastIdx&&isPartialA?';background:#f5f3ff':'';
+    html+='<th style="text-align:right'+bg+'" colspan="3">'+m+'</th>';
+  });
+  html+='</tr><tr><th></th>';
+  aLabels.forEach(function(m,i){
+    var bg=i===aLastIdx&&isPartialA?';background:#f5f3ff':'';
+    html+='<th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">Sales</th>';
+    html+='<th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">Ad $</th>';
+    html+='<th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">ROAS</th>';
+  });
+  html+='</tr></thead><tbody>';
+  Object.keys(bp).forEach(function(b){
+    var bd=bp[b];
+    html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+bd.color+';margin-right:6px"></span><b>'+b+'</b></td>';
+    for(var i=0;i<aLen;i++){
+      var sales=bd.total_sales[i]||0;
+      var salesP=(bd.total_sales_proj||[])[i]||sales;
+      var spend=bd.ad_spend[i]||0;
+      var spendP=(bd.ad_spend_proj||[])[i]||spend;
+      var roas=spend>0?(bd.ad_sales[i]||0)/spend:0;
+      var rc=roas>=3?'var(--g)':roas>=1.5?'var(--am)':spend>0?'var(--r)':'var(--muted)';
+      var isL=i===aLastIdx&&isPartialA;
+      html+=fmCell(sales, salesP, isL, {fs:'9px'});
+      html+=fmCell(spend, spendP, isL, {fs:'9px',color:'var(--r)'});
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+rc+'">'+(spend>0?roas.toFixed(1)+'x':'-')+'</td>';
+    }
+    html+='</tr>';
+  });
+  html+='<tr style="border-top:2px solid var(--border);font-weight:700"><td>TOTAL</td>';
+  for(var i=0;i<aLen;i++){
+    var ts=0,tsP=0,tsp=0,tspP=0,tasales=0;
+    Object.keys(bp).forEach(function(b){
+      ts+=bp[b].total_sales[i]||0;
+      tsP+=(bp[b].total_sales_proj||bp[b].total_sales)[i]||0;
+      tsp+=bp[b].ad_spend[i]||0;
+      tspP+=(bp[b].ad_spend_proj||bp[b].ad_spend)[i]||0;
+      tasales+=bp[b].ad_sales[i]||0;
+    });
+    var isL=i===aLastIdx&&isPartialA;
+    html+=fmCell(ts, tsP, isL, {fs:'9px',bold:true});
+    html+=fmCell(tsp, tspP, isL, {fs:'9px',color:'var(--r)',bold:true});
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700">'+(tsp>0?(tasales/tsp).toFixed(1)+'x':'-')+'</td>';
+  }
+  html+='</tr></tbody></table></div></div></div>';
+  return html;
+}
+
 function buildKpiCards(s){
   var h='<div class="stats" style="grid-template-columns:repeat(7,1fr)">';
   h+='<div class="stat accent"><div class="sl">TOTAL REVENUE</div><div class="sv">$'+(s.total_revenue||0).toLocaleString()+'</div><div class="ss">Shopify + Amazon</div></div>';
@@ -699,14 +757,6 @@ function buildKpiCards(s){
   h+='<div class="stat"><div class="sl">DISC RATE</div><div class="sv">'+(s.discount_rate||0).toFixed(1)+'%</div><div class="ss">Shopify only</div></div>';
   h+='</div>';
   return h;
-}
-
-function switchKwPeriod(period, el){
-  document.querySelectorAll('#kw-period-tabs>div').forEach(function(t){t.classList.remove('on')});
-  if(el) el.classList.add('on');
-  document.querySelectorAll('.kw-period-panel').forEach(function(p){p.style.display='none'});
-  var panel=document.getElementById('kw-panel-'+period);
-  if(panel) panel.style.display='';
 }
 
 function switchPeriod(period, el){

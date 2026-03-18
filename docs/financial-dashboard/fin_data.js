@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-17 20:42 PST",
+ "generated_pst": "2026-03-17 20:50 PST",
  "through_date": "2026-03-16",
  "months": [
   "2025-06",
@@ -608,6 +608,121 @@ const FIN_DATA = {
     5704
    ],
    "color": "#10b981"
+  }
+ },
+ "ad_start_idx": 7,
+ "brand_performance": {
+  "Grosmimi": {
+   "total_sales": [
+    626024,
+    611892,
+    365340
+   ],
+   "total_sales_proj": [
+    626024,
+    611892,
+    707846
+   ],
+   "ad_spend": [
+    92352,
+    91668,
+    55885
+   ],
+   "ad_spend_proj": [
+    92352,
+    91668,
+    108277
+   ],
+   "ad_sales": [
+    376893,
+    342566,
+    202852
+   ],
+   "color": "#8b5cf6"
+  },
+  "Naeiae": {
+   "total_sales": [
+    12259,
+    13205,
+    9716
+   ],
+   "total_sales_proj": [
+    12259,
+    13205,
+    18825
+   ],
+   "ad_spend": [
+    2744,
+    2276,
+    1331
+   ],
+   "ad_spend_proj": [
+    2744,
+    2276,
+    2579
+   ],
+   "ad_sales": [
+    5929,
+    6347,
+    4280
+   ],
+   "color": "#eab308"
+  },
+  "CHA&MOM": {
+   "total_sales": [
+    8431,
+    9254,
+    3365
+   ],
+   "total_sales_proj": [
+    8431,
+    9254,
+    6520
+   ],
+   "ad_spend": [
+    1636,
+    2200,
+    1376
+   ],
+   "ad_spend_proj": [
+    1636,
+    2200,
+    2666
+   ],
+   "ad_sales": [
+    4508,
+    2868,
+    547
+   ],
+   "color": "#0ea5e9"
+  },
+  "Alpremio": {
+   "total_sales": [
+    6541,
+    15523,
+    5649
+   ],
+   "total_sales_proj": [
+    6541,
+    15523,
+    10945
+   ],
+   "ad_spend": [
+    619,
+    2692,
+    1239
+   ],
+   "ad_spend_proj": [
+    619,
+    2692,
+    2401
+   ],
+   "ad_sales": [
+    0,
+    0,
+    0
+   ],
+   "color": "#f97316"
   }
  },
  "paid_organic": {
