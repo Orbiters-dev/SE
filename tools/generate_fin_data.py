@@ -94,10 +94,11 @@ def generate():
     gsc = dk.get("gsc_daily", days=30)
     brand_analytics = dk.get("amazon_brand_analytics", days=30)
     shopify_sku = dk.get("shopify_orders_sku_daily", date_from="2025-06-01")
+    amazon_sku = dk.get("amazon_sales_sku_daily", days=days_back)
     print(f"  Shopify: {len(shopify)} rows, Amazon Sales: {len(amazon_sales)}")
     print(f"  Amazon Ads: {len(amazon_ads)}, Meta: {len(meta_ads)}, Google: {len(google_ads)}")
     print(f"  GA4: {len(ga4)}, Search Terms: {len(search_terms)}, GSC: {len(gsc)}")
-    print(f"  Brand Analytics: {len(brand_analytics)}, Shopify SKU: {len(shopify_sku)}")
+    print(f"  Brand Analytics: {len(brand_analytics)}, Shopify SKU: {len(shopify_sku)}, Amazon SKU: {len(amazon_sku)}")
 
     # ── Compute through-date ─────────────────────────────────────────────────
     def max_date(rows):
@@ -782,18 +783,30 @@ def generate():
                 return product_type
         return "Other"
 
-    # SKU title → product type (Shopify)
+    # SKU title → product type (Shopify product_title / Amazon product_name)
     def classify_grosmimi_title(title):
         t = title.lower()
+        # Stainless: check before PPSU (some are "stainless steel straw cup")
+        if "stainless" in t:
+            if "tumbler" in t:
+                return "Tumbler"
+            return "Stainless Straw Cup"
+        # Tumbler (PPSU)
         if "tumbler" in t:
             return "Tumbler"
-        if "stainless" in t and ("straw" in t or "cup" in t):
-            return "Stainless Straw Cup"
-        if any(kw in t for kw in ["ppsu", "knotted", "flip top", "baby bottle"]):
-            return "PPSU Straw Cup"
-        if any(kw in t for kw in ["replacement", "replacements", "one touch cap",
-                                   "weighted kit", "straw kit", "accessory pack"]):
+        # Replacements (parts, kits, accessories)
+        if any(kw in t for kw in [
+            "replacement", "replacements", "weighted kit", "weighted straw",
+            "one touch cap", "straw kit", "accessory pack", "nipple",
+            "spout", "brush", "strap", "teat", "month plus kit",
+        ]):
             return "Replacements"
+        # PPSU Straw Cup (includes Flip Top, KNOTTED, Magic Sippy, Baby Bottle)
+        if any(kw in t for kw in [
+            "ppsu", "sippy cup", "straw cup", "flip top", "knotted",
+            "baby bottle", "magic", "taza", "vaso",
+        ]):
+            return "PPSU Straw Cup"
         return "Other"
 
     # Build campaign_id → campaign_name lookup (some months have numeric IDs as names)
@@ -824,8 +837,11 @@ def generate():
         gros_product_monthly[pt][m]["spend"] += float(r.get("spend") or 0)
         gros_product_monthly[pt][m]["sales"] += float(r.get("sales") or 0)
 
-    # Aggregate Grosmimi total sales by product type by month (from Shopify SKU titles)
+    # Aggregate Grosmimi total sales by product type by month
+    # Sources: Shopify SKU (product_title) + Amazon SKU (product_name)
     gros_sku_monthly = defaultdict(lambda: defaultdict(lambda: {"net": 0, "units": 0}))
+
+    # Shopify SKU
     for r in shopify_sku:
         if (r.get("brand") or "") != "Grosmimi":
             continue
@@ -838,6 +854,19 @@ def generate():
         title = r.get("product_title") or ""
         pt = classify_grosmimi_title(title)
         gros_sku_monthly[pt][m]["net"] += float(r.get("net_sales") or 0)
+        gros_sku_monthly[pt][m]["units"] += int(r.get("units") or 0)
+
+    # Amazon SKU
+    for r in amazon_sku:
+        if (r.get("brand") or "") != "Grosmimi":
+            continue
+        d = r.get("date", "")
+        if not d or d > through:
+            continue
+        m = d[:7]
+        title = r.get("product_name") or ""
+        pt = classify_grosmimi_title(title)
+        gros_sku_monthly[pt][m]["net"] += float(r.get("net_sales") or r.get("ordered_product_sales") or 0)
         gros_sku_monthly[pt][m]["units"] += int(r.get("units") or 0)
 
     PRODUCT_COLORS = {

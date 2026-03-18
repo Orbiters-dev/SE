@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-18 01:41 PST",
+ "generated_pst": "2026-03-18 01:47 PST",
  "through_date": "2026-03-16",
  "months": [
   "2025-06",
@@ -684,14 +684,14 @@ const FIN_DATA = {
    "products": {
     "PPSU Straw Cup": {
      "total_sales": [
-      0,
-      14749,
-      12874
+      381957,
+      364910,
+      248681
      ],
      "total_sales_proj": [
-      0,
-      14749,
-      24943
+      381957,
+      364910,
+      481819
      ],
      "spend": [
       75309,
@@ -704,27 +704,27 @@ const FIN_DATA = {
       182608
      ],
      "organic": [
-      0,
-      0,
-      0
+      47746,
+      62486,
+      66073
      ],
      "organic_proj": [
-      0,
-      0,
-      0
+      47746,
+      62486,
+      128016
      ],
      "color": "#8b5cf6"
     },
     "Stainless Straw Cup": {
      "total_sales": [
-      0,
-      21327,
-      15730
+      52042,
+      80330,
+      56202
      ],
      "total_sales_proj": [
-      0,
-      21327,
-      30477
+      52042,
+      80330,
+      108891
      ],
      "spend": [
       0,
@@ -737,27 +737,27 @@ const FIN_DATA = {
       0
      ],
      "organic": [
-      0,
-      21327,
-      15730
+      52042,
+      80330,
+      56202
      ],
      "organic_proj": [
-      0,
-      21327,
-      30477
+      52042,
+      80330,
+      108891
      ],
      "color": "#a78bfa"
     },
     "Tumbler": {
      "total_sales": [
-      0,
-      11809,
-      6454
+      9469,
+      22235,
+      11806
      ],
      "total_sales_proj": [
-      0,
-      11809,
-      12505
+      9469,
+      22235,
+      22874
      ],
      "spend": [
       0,
@@ -770,27 +770,27 @@ const FIN_DATA = {
       0
      ],
      "organic": [
-      0,
-      11809,
-      6454
+      9469,
+      22235,
+      11806
      ],
      "organic_proj": [
-      0,
-      11809,
-      12505
+      9469,
+      22235,
+      22874
      ],
      "color": "#c4b5fd"
     },
     "Replacements": {
      "total_sales": [
-      0,
-      3663,
-      2829
+      73659,
+      67500,
+      42123
      ],
      "total_sales_proj": [
-      0,
-      3663,
-      5481
+      73659,
+      67500,
+      81613
      ],
      "spend": [
       1169,
@@ -803,27 +803,27 @@ const FIN_DATA = {
       19759
      ],
      "organic": [
-      0,
-      0,
-      0
+      32363,
+      27992,
+      22364
      ],
      "organic_proj": [
-      0,
-      0,
-      0
+      32363,
+      27992,
+      43330
      ],
      "color": "#ddd6fe"
     },
     "Other": {
      "total_sales": [
       0,
-      378,
-      329
+      6,
+      719
      ],
      "total_sales_proj": [
       0,
-      378,
-      637
+      6,
+      1393
      ],
      "spend": [
       33,
@@ -838,12 +838,12 @@ const FIN_DATA = {
      "organic": [
       0,
       0,
-      0
+      234
      ],
      "organic_proj": [
       0,
       0,
-      0
+      453
      ],
      "color": "#e8e0ff"
     }
@@ -2414,7 +2414,7 @@ const FIN_DATA = {
     "query": "zezebaebae",
     "clicks": 11,
     "impressions": 37,
-    "avg_position": 2.4,
+    "avg_position": 2.5,
     "ctr": 29.73,
     "weekly_positions": [
      2.5
@@ -2711,7 +2711,7 @@ const FIN_DATA = {
      3.3,
      4.2,
      4.9,
-     4.2
+     4.1
     ]
    },
    {
@@ -2724,7 +2724,7 @@ const FIN_DATA = {
      6.0,
      3.6,
      3.8,
-     4.7
+     4.6
     ]
    },
    {
@@ -2737,7 +2737,7 @@ const FIN_DATA = {
      9.0,
      9.4,
      9.5,
-     9.7
+     9.8
     ]
    },
    {
@@ -3369,7 +3369,7 @@ const FIN_DATA = {
  "kw_positions_summary": [
   {
    "query": "zezebaebae",
-   "pos_7d": 2.4,
+   "pos_7d": 2.5,
    "clicks_7d": 11,
    "impressions_7d": 37,
    "pos_30d": 4.5,
