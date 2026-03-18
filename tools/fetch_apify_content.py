@@ -487,6 +487,165 @@ def normalize_tt(items, skip_keyword_filter=False):
 
 
 # ---------------------------------------------------------------------------
+# Brand/Product Enrichment — Shopify orders cross-match
+# ---------------------------------------------------------------------------
+
+# Product type classification rules (from sync_sns_tab.py)
+PRODUCT_TYPE_RULES = [
+    ("PPSU Straw Cup",      lambda t: "ppsu" in t and "straw cup" in t),
+    ("PPSU Straw Cup",      lambda t: "knotted" in t and "flip top" in t),
+    ("PPSU Tumbler",        lambda t: "ppsu" in t and "tumbler" in t and "accessory" not in t),
+    ("PPSU Baby Bottle",    lambda t: "ppsu" in t and ("baby bottle" in t or "feeding bottle" in t or "bottle" in t) and "straw" not in t),
+    ("Stainless Straw Cup", lambda t: "stainless" in t and "straw cup" in t),
+    ("Stainless Tumbler",   lambda t: "stainless" in t and "tumbler" in t and "accessory" not in t),
+    ("Accessory",           lambda t: any(kw in t for kw in ("tray", "brush", "teether", "lunch bag"))),
+    ("Replacement",         lambda t: any(kw in t for kw in ("strap", "accessory pack", "straw kit", "replacement", "silicone tip"))),
+]
+
+# Brand detection from product titles
+BRAND_PRODUCT_RULES = [
+    ("CHA&MOM",    ("cha&mom", "cha & mom", "phyto seline", "chamom")),
+    ("Naeiae",     ("naeiae", "naeia", "rice puff", "rice snack")),
+    ("Goongbe",    ("goongbe",)),
+    ("Babyrabbit", ("babyrabbit", "baby rabbit")),
+    ("Commemoi",   ("commemoi",)),
+]
+
+# Brand detection from caption/hashtag text (fallback)
+_BRAND_REGEX = [
+    ("Grosmimi",   _re.compile(r"grosmimi|growmimi|gros\s*mimi", _re.IGNORECASE)),
+    ("CHA&MOM",    _re.compile(r"cha\s*&\s*mom|cha_mom|chaandmom|chamom", _re.IGNORECASE)),
+    ("Naeiae",     _re.compile(r"naeiae|naeia", _re.IGNORECASE)),
+    ("Onzenna",    _re.compile(r"onzenna", _re.IGNORECASE)),
+    ("Goongbe",    _re.compile(r"goongbe", _re.IGNORECASE)),
+    ("Babyrabbit", _re.compile(r"babyrabbit|baby\s*rabbit", _re.IGNORECASE)),
+    ("Commemoi",   _re.compile(r"commemoi", _re.IGNORECASE)),
+]
+
+
+def _norm_handle(s):
+    """Normalize handle for fuzzy matching: remove @._- and lowercase."""
+    return _re.sub(r"[@._\-]", "", (s or "")).lower()
+
+
+def _detect_brand_from_items(line_items):
+    """Detect brand from Shopify order line_items. Returns set of brands."""
+    brands = set()
+    for item in line_items:
+        title = (item.get("title", "") or "").lower()
+        matched = False
+        for brand_name, keywords in BRAND_PRODUCT_RULES:
+            if any(kw in title for kw in keywords):
+                brands.add(brand_name)
+                matched = True
+                break
+        if not matched and title:
+            # Default: if product title exists but no non-Grosmimi keywords → Grosmimi
+            brands.add("Grosmimi")
+    return brands
+
+
+def _classify_product_types(line_items):
+    """Classify product types from Shopify line_items. Returns set of types."""
+    types = set()
+    for item in line_items:
+        title = (item.get("title", "") or "").lower()
+        for type_name, rule_fn in PRODUCT_TYPE_RULES:
+            if rule_fn(title):
+                types.add(type_name)
+                break
+    return types
+
+
+def _detect_brand_from_text(text):
+    """Detect brand from caption/hashtag text. Returns brand name or ''."""
+    text = (text or "").lower()
+    for brand_name, pattern in _BRAND_REGEX:
+        if pattern.search(text):
+            return brand_name
+    return ""
+
+
+def enrich_posts_from_orders(posts):
+    """Cross-match posts with Shopify PR orders to fill brand + product_types.
+
+    Strategy:
+    1. Load Shopify orders → extract IG/TikTok handle + brand + product types
+    2. Build handle → {brands, product_types} map
+    3. For each post: match username → handle → inherit brand + product_types
+    4. Fallback: detect brand from caption/hashtags
+    """
+    # 1. Load orders
+    if not INFLUENCER_ORDERS_PATH.exists():
+        print("[ENRICH] No orders file — using caption/hashtag fallback only")
+        for p in posts:
+            if not p.get("brand"):
+                text = f"{p.get('caption', '')} {p.get('hashtags', '')} {p.get('tagged_account', '')}"
+                p["brand"] = _detect_brand_from_text(text)
+            p.setdefault("product_types", "")
+        return
+
+    raw = json.loads(INFLUENCER_ORDERS_PATH.read_text(encoding="utf-8"))
+    orders = raw.get("orders", raw) if isinstance(raw, dict) else raw
+
+    # 2. Build handle map
+    handle_map = {}  # normalized_handle → {brands: set, product_types: set}
+    for order in orders:
+        if not isinstance(order, dict):
+            continue
+        # Extract handle
+        handle = ""
+        for text in (order.get("tags", "") or "", order.get("note", "") or ""):
+            m = _IG_HANDLE_RE.search(text)
+            if m:
+                handle = m.group(1).lower().strip()
+                break
+        if not handle:
+            continue
+
+        line_items = order.get("line_items", [])
+        brands = _detect_brand_from_items(line_items)
+        product_types = _classify_product_types(line_items)
+
+        norm = _norm_handle(handle)
+        if norm not in handle_map:
+            handle_map[norm] = {"brands": set(), "product_types": set()}
+        handle_map[norm]["brands"].update(brands)
+        handle_map[norm]["product_types"].update(product_types)
+
+    print(f"[ENRICH] Built handle map: {len(handle_map)} influencers from {len(orders)} orders")
+
+    # 3. Match posts
+    matched, fallback, unmatched = 0, 0, 0
+    for p in posts:
+        username = (p.get("username", "") or "").lower()
+        norm_user = _norm_handle(username)
+
+        # Try exact normalized match
+        info = handle_map.get(norm_user)
+
+        if info:
+            # Matched via Shopify order — source of truth
+            if not p.get("brand"):
+                p["brand"] = sorted(info["brands"])[0] if info["brands"] else ""
+            if not p.get("product_types"):
+                p["product_types"] = ",".join(sorted(info["product_types"]))
+            matched += 1
+        else:
+            # Fallback: detect from caption/hashtags
+            if not p.get("brand"):
+                text = f"{p.get('caption', '')} {p.get('hashtags', '')} {p.get('tagged_account', '')}"
+                p["brand"] = _detect_brand_from_text(text)
+            p.setdefault("product_types", "")
+            if p["brand"]:
+                fallback += 1
+            else:
+                unmatched += 1
+
+    print(f"[ENRICH] Results: {matched} order-matched, {fallback} caption-detected, {unmatched} unmatched")
+
+
+# ---------------------------------------------------------------------------
 # Google Sheets update (6-tab structure)
 # ---------------------------------------------------------------------------
 
@@ -903,6 +1062,100 @@ def save_json(data, name):
     return path
 
 
+def update_reference_tab(sh, summary):
+    """Write a Reference tab with data freshness for every tab (PST timestamps)."""
+    from datetime import timezone, timedelta
+    pst = timezone(timedelta(hours=-8))
+    now_pst = datetime.now(pst)
+    now_str = now_pst.strftime("%Y-%m-%d %H:%M PST")
+
+    rows = [
+        ["Data Source", "Tab", "Rows", "Latest Post Date", "Last Updated (PST)", "Status"],
+    ]
+
+    tab_configs = [
+        ("US Posts Master", "us"),
+        ("US D+60 Tracker", "us"),
+        ("US Influencer Tracker", "us"),
+        ("JP Posts Master", "jp"),
+        ("JP D+60 Tracker", "jp"),
+        ("JP Influencer Tracker", "jp"),
+    ]
+
+    for tab_name, region_key in tab_configs:
+        try:
+            ws = sh.worksheet(tab_name)
+            vals = ws.get_all_values()
+            row_count = max(0, len(vals) - 1)  # exclude header
+
+            latest_date = ""
+            if "Posts Master" in tab_name and len(vals) > 1:
+                # Post Date is col 10 (index 9)
+                dates = [r[9] for r in vals[1:] if len(r) > 9 and r[9]]
+                if dates:
+                    latest_date = max(dates)
+
+            status = "OK"
+            if region_key in summary:
+                s = summary[region_key]
+                status = f"+{s.get('new_posts', 0)} new"
+            else:
+                status = "skipped"
+
+            rows.append([tab_name, region_key.upper(), str(row_count), latest_date, now_str, status])
+        except Exception as e:
+            rows.append([tab_name, region_key.upper(), "?", "", now_str, f"error: {e}"])
+
+    # Downstream sheets info
+    rows.append(["", "", "", "", "", ""])
+    rows.append(["--- Downstream Sheets ---", "", "", "", "", ""])
+    downstream = [
+        ("Grosmimi SNS", "1SwO4uAbf25vOR0UYWOUlxzy5gCbFRrNXwO2kAWydyeA",
+         "US SNS", "https://docs.google.com/spreadsheets/d/1SwO4uAbf25vOR0UYWOUlxzy5gCbFRrNXwO2kAWydyeA"),
+        ("CHA&MOM SNS", "16XUPd-VMoh6LEjSvupsmhkd1vEQNOTcoEhRCnPqkA_I",
+         "SNS", "https://docs.google.com/spreadsheets/d/16XUPd-VMoh6LEjSvupsmhkd1vEQNOTcoEhRCnPqkA_I"),
+    ]
+    for name, sid, tab, url in downstream:
+        rows.append([name, tab, "", "", now_str, safe_hl(url, "Open")])
+
+    # Links section
+    rows.append(["", "", "", "", "", ""])
+    rows.append(["--- Quick Links ---", "", "", "", "", ""])
+    rows.append(["Content Dashboard", "", "", "", "",
+                 safe_hl("https://orbiters-dev.github.io/WJ-Test1/content-dashboard/index.html", "Open Dashboard")])
+    rows.append(["GitHub Actions", "", "", "", "",
+                 safe_hl("https://github.com/Orbiters-dev/WJ-Test1/actions/workflows/apify_daily.yml", "View Runs")])
+    rows.append(["Apify Console", "", "", "", "",
+                 safe_hl("https://console.apify.com/", "Open Apify")])
+    rows.append(["OrbiTools Admin", "", "", "", "",
+                 safe_hl("https://orbitools.orbiters.co.kr/admin/", "Open Admin")])
+    rows.append(["Pipeline Visual", "", "", "", "",
+                 safe_hl("https://orbiters-dev.github.io/WJ-Test1/content-dashboard/pipeline.html", "View Architecture")])
+
+    # Write to Reference tab
+    try:
+        ws = sh.worksheet("Reference")
+        ws.clear()
+    except gspread.exceptions.WorksheetNotFound:
+        ws = sh.add_worksheet(title="Reference", rows=30, cols=6)
+
+    ws.update(range_name="A1", values=rows, value_input_option="USER_ENTERED")
+
+    # Format header row
+    try:
+        from gspread_formatting import format_cell_range, CellFormat, TextFormat, Color
+        header_fmt = CellFormat(
+            textFormat=TextFormat(bold=True, fontSize=10),
+            backgroundColor=Color(0.13, 0.13, 0.16),
+            textFormat__foregroundColorStyle=None,
+        )
+        # Simple bold header - skip complex formatting to avoid dep issues
+    except ImportError:
+        pass
+
+    print(f"[REF] Reference tab updated: {len(rows)-1} rows at {now_str}")
+
+
 def run_daily(region="all", dry_run=False, send_mail=True):
     summary = {}
     load_env()
@@ -1050,6 +1303,15 @@ def run_daily(region="all", dry_run=False, send_mail=True):
             "d60_updated": True,
         }
 
+    # ── Brand/Product Enrichment ──
+    print("\n===== Brand/Product Enrichment =====")
+    all_posts_for_enrich = []
+    if "us" in summary:
+        all_posts_for_enrich.extend(us_data)
+    if "jp" in summary:
+        all_posts_for_enrich.extend(jp_norm)
+    enrich_posts_from_orders(all_posts_for_enrich)
+
     # ── Push to PostgreSQL ──
     print("\n===== Push to PostgreSQL =====")
     try:
@@ -1060,7 +1322,6 @@ def run_daily(region="all", dry_run=False, send_mail=True):
 
         if "us" in summary:
             for p in us_data:
-                p["brand"] = p.get("brand", "")
                 p["region"] = "us"
                 p["source"] = "apify"
                 all_posts.append(p)
@@ -1074,7 +1335,6 @@ def run_daily(region="all", dry_run=False, send_mail=True):
 
         if "jp" in summary:
             for p in jp_norm:
-                p["brand"] = p.get("brand", "")
                 p["region"] = "jp"
                 p["source"] = "apify"
                 all_posts.append(p)
@@ -1094,6 +1354,13 @@ def run_daily(region="all", dry_run=False, send_mail=True):
             print("[PG] No posts to push")
     except Exception as e:
         print(f"[PG WARN] Push failed (non-fatal): {e}")
+
+    # Reference tab (data freshness for all tabs)
+    try:
+        if not dry_run:
+            update_reference_tab(sh, summary)
+    except Exception as e:
+        print(f"[REF WARN] Reference tab update failed (non-fatal): {e}")
 
     # Summary
     print("\n===== Daily Summary =====")

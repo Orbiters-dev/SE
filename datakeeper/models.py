@@ -361,6 +361,7 @@ class ContentPosts(models.Model):
     tagged_account = models.CharField(max_length=200, blank=True, default="")
     post_date = models.DateField()
     brand = models.CharField(max_length=100, blank=True, default="")
+    product_types = models.CharField(max_length=500, blank=True, default="")  # comma-separated: "PPSU Straw Cup,Stainless Tumbler"
     region = models.CharField(max_length=10, default="us")  # us, jp
     source = models.CharField(max_length=20, default="syncly")  # syncly, apify
     collected_at = models.DateTimeField(auto_now=True)
