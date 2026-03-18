@@ -534,14 +534,24 @@ BRAND_PRODUCT_RULES = [
 ]
 
 # Brand detection from caption/hashtag text (fallback)
+# NOTE: "Onzenna" is the umbrella storefront, NOT a brand.
+# Posts mentioning only @onzenna without a specific brand → use product keyword fallback.
 _BRAND_REGEX = [
     ("Grosmimi",   _re.compile(r"grosmimi|growmimi|gros\s*mimi", _re.IGNORECASE)),
-    ("CHA&MOM",    _re.compile(r"cha\s*&\s*mom|cha_mom|chaandmom|chamom", _re.IGNORECASE)),
-    ("Naeiae",     _re.compile(r"naeiae|naeia", _re.IGNORECASE)),
-    ("Onzenna",    _re.compile(r"onzenna", _re.IGNORECASE)),
+    ("CHA&MOM",    _re.compile(r"cha\s*&\s*mom|cha_mom|chaandmom|chamom|phyto.?seline", _re.IGNORECASE)),
+    ("Naeiae",     _re.compile(r"naeiae|naeia|rice\s*puff|rice\s*snack|rice\s*cracker", _re.IGNORECASE)),
     ("Goongbe",    _re.compile(r"goongbe", _re.IGNORECASE)),
     ("Babyrabbit", _re.compile(r"babyrabbit|baby\s*rabbit", _re.IGNORECASE)),
     ("Commemoi",   _re.compile(r"commemoi", _re.IGNORECASE)),
+]
+
+# Product-keyword fallback: when only @onzenna/zezebaebae is mentioned
+_PRODUCT_BRAND_REGEX = [
+    ("Grosmimi",   _re.compile(r"straw\s*cup|tumbler|sippy|bottle|ppsu|stainless\s*steel\s*(cup|bottle|tumbler)", _re.IGNORECASE)),
+    ("CHA&MOM",    _re.compile(r"lotion|cream|body\s*wash|moisturiz|skincare|hair\s*wash", _re.IGNORECASE)),
+    ("Naeiae",     _re.compile(r"rice|snack|cracker|puff", _re.IGNORECASE)),
+    ("Commemoi",   _re.compile(r"bookstand|stool|furniture|desk", _re.IGNORECASE)),
+    ("Babyrabbit", _re.compile(r"legging|clothing|pajama|outfit|onesie", _re.IGNORECASE)),
 ]
 
 
@@ -580,9 +590,18 @@ def _classify_product_types(line_items):
 
 
 def _detect_brand_from_text(text):
-    """Detect brand from caption/hashtag text. Returns brand name or ''."""
+    """Detect brand from caption/hashtag text. Returns brand name or ''.
+
+    Priority:
+    1. Explicit brand name (Grosmimi, CHA&MOM, Naeiae, etc.)
+    2. Product keyword fallback (straw cup → Grosmimi, lotion → CHA&MOM, etc.)
+    """
     text = (text or "").lower()
     for brand_name, pattern in _BRAND_REGEX:
+        if pattern.search(text):
+            return brand_name
+    # No explicit brand — try product keywords
+    for brand_name, pattern in _PRODUCT_BRAND_REGEX:
         if pattern.search(text):
             return brand_name
     return ""
@@ -717,7 +736,7 @@ def update_posts_master(sh, data, tab_name):
     headers = [
         "Post ID", "URL", "Platform", "Username", "Nickname", "Followers",
         "Content", "Hashtags", "Tagged Account", "Post Date",
-        "Comments", "Likes", "Views",
+        "Comments", "Likes", "Views", "Brand",
     ]
     try:
         ws = sh.worksheet(tab_name)
@@ -746,6 +765,7 @@ def update_posts_master(sh, data, tab_name):
                 d["nickname"], d["followers"], d["caption"], d["hashtags"],
                 d["tagged_account"], d["post_date"],
                 d["comments"], d["likes"], d["views"],
+                d.get("brand", ""),
             ])
         try:
             ws = sh.worksheet(tab_name)
@@ -771,6 +791,7 @@ def update_posts_master(sh, data, tab_name):
             d["nickname"], d["followers"], d["caption"], d["hashtags"],
             d["tagged_account"], d["post_date"],
             d["comments"], d["likes"], d["views"],
+            d.get("brand", ""),
         ])
     if new_rows:
         next_row = len(existing) + 1
@@ -785,7 +806,7 @@ def update_posts_master(sh, data, tab_name):
 
 
 def _update_pm_metrics(ws, existing, data):
-    """Update Comments/Likes/Views columns for existing posts."""
+    """Update Comments/Likes/Views/Brand columns for existing posts."""
     if len(existing) <= 1:
         return
     lookup = {d["post_id"]: d for d in data}
@@ -794,10 +815,10 @@ def _update_pm_metrics(ws, existing, data):
         pid = row[0]
         if pid in lookup:
             d = lookup[pid]
-            # K=Comments(11), L=Likes(12), M=Views(13) -- 1-indexed: K,L,M
+            # K=Comments(11), L=Likes(12), M=Views(13), N=Brand(14)
             updates.append({
-                "range": f"'{ws.title}'!K{row_idx}:M{row_idx}",
-                "values": [[d["comments"], d["likes"], d["views"]]],
+                "range": f"'{ws.title}'!K{row_idx}:N{row_idx}",
+                "values": [[d["comments"], d["likes"], d["views"], d.get("brand", "")]],
             })
     if updates:
         for i in range(0, len(updates), 200):
