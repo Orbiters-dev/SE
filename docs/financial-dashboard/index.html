@@ -720,7 +720,30 @@ function buildWaterfall(F, months, mLabels, lastIdx, isPartialLast){
   });
   html+='</tr><tr><td style="padding-left:16px;color:var(--dim)"><b>CM %</b></td>';
   wf.contribution_margin.forEach(function(v,i){ var r=wf.revenue[i]; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700">'+(r>0?(v/r*100).toFixed(1):'0')+'%</td>'; });
-  html+='</tr></tbody></table></div></div></div>';
+  html+='</tr></tbody></table></div>';
+  // % of Revenue table
+  html+='<div style="margin-top:12px"><div style="font-size:10px;font-weight:700;color:var(--dim);margin-bottom:4px">% of Revenue</div>';
+  html+='<div style="overflow-x:auto"><table><thead><tr><th></th>';
+  mLabels.forEach(function(m){ html+='<th style="text-align:right">'+m+'</th>'; });
+  html+='</tr></thead><tbody>';
+  function pctRow(label,arr,style){
+    html+='<tr'+(style?' style="'+style+'"':'')+'><td>'+label+'</td>';
+    (arr||[]).forEach(function(v,i){ var r=wf.revenue[i]; var p=r>0?(v/r*100).toFixed(1):'—'; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+p+'%</td>'; });
+    html+='</tr>';
+  }
+  pctRow('Revenue', wf.revenue, 'font-weight:700');
+  pctRow('<span style="color:var(--r)">(-) COGS</span>', wf.cogs||[]);
+  pctRow('<span style="color:var(--g);font-weight:700">Gross Margin</span>', wf.gross_margin, 'border-top:2px solid var(--border);font-weight:700');
+  html+='<tr><td colspan="'+(mLabels.length+1)+'" style="padding:2px 0;border:none"><div style="border-top:1px dashed var(--border)"></div></td></tr>';
+  pctRow('<span style="padding-left:8px;color:var(--r)">(-) Ad Spend</span>', wf.ad_spend);
+  pctRow('<span style="padding-left:8px;color:var(--r)">(-) Discounts</span>', wf.discounts||[]);
+  // Seeding row: show n/a if value is 0
+  html+='<tr><td><span style="padding-left:8px;color:var(--r)">(-) Seeding / Collab</span></td>';
+  (wf.seeding||[]).forEach(function(v,i){ var r=wf.revenue[i]; if(v===0) html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--muted)">n/a</td>'; else { var p=r>0?(v/r*100).toFixed(1):'—'; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+p+'%</td>'; } });
+  html+='</tr>';
+  pctRow('<span style="color:var(--r);font-weight:700">(-) MKT Total</span>', wf.mkt_total||wf.ad_spend, 'border-top:1px solid var(--border);font-weight:700');
+  pctRow('<span style="font-weight:800">Contribution Margin</span>', wf.contribution_margin, 'border-top:2px solid var(--border);font-weight:800');
+  html+='</tbody></table></div></div></div></div>';
   return html;
 }
 
