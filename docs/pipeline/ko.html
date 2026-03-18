@@ -328,16 +328,17 @@
       <div style="display:flex; align-items:center; gap:12px; width:100%;">
         <div style="flex:1; background:#e8f5e9; border:2px solid #a5d6a7; border-radius:12px; padding:16px; text-align:center;">
           <div style="font-size:20px; margin-bottom:4px;">&#128196;</div>
-          <div style="font-size:13px; font-weight:700; color:#2e7d32;">Syncly Discovery Sheet</div>
+          <div style="font-size:13px; font-weight:700; color:#2e7d32;">Syncly Influencer Discovery Sheet</div>
           <div style="font-size:11px; color:#388e3c; margin-top:4px;">Google Sheet <code style="font-size:9px; background:#c8e6c9; padding:1px 4px; border-radius:3px;">1MgEodo...</code></div>
-          <div style="font-size:10px; color:#4caf50; margin-top:6px;">Creator Tab: Username, Platform, Followers, Views<br>Content Tab: Post URL, Metrics, Transcript</div>
+          <div style="font-size:10px; color:#4caf50; margin-top:6px;">Tabs: <code style="font-size:9px;">Creators_updated_260220</code> | <code style="font-size:9px;">Output_updated_260220</code></div>
+          <div style="font-size:9px; color:#9e9e9e; margin-top:4px; font-style:italic;">Managed by Syncly platform &mdash; NOT the D+60 Tracker sheet (fetch_syncly_export.py)</div>
         </div>
       </div>
 
       <!-- Arrow -->
       <div style="font-size:24px; color:var(--auto); padding:4px 0; display:flex; flex-direction:column; align-items:center;">
         <span>&#8595;</span>
-        <span style="font-size:10px; color:var(--text-dim); font-weight:600;">n8n Manual Trigger</span>
+        <span style="font-size:10px; color:var(--text-dim); font-weight:600;">n8n Manual Trigger + Daily KST 8:00 <span style="color:#f59e0b;">(planned)</span></span>
       </div>
 
       <!-- Row 2: n8n Sync -->
@@ -355,7 +356,8 @@
                 &nbsp;&nbsp;&nbsp;&nbsp;&#8226; <span style="color:#15803d;">Exists</span> &rarr; <b>UPDATE</b>: refresh Followers, Avg Views, ER, 30-day metrics<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&#8226; <span style="color:#2563eb;">New</span> &rarr; <b>CREATE</b>: Source=&quot;Syncly&quot;, Status=&quot;New&quot;, Outreach=&quot;Not Started&quot;<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&#8226; <span style="color:#dc2626;">Blacklist</span> &rarr; If sheet Blacklist=TRUE, set Partnership Status=&quot;Blacklist&quot;<br>
-                <b>4. Outreach Type</b> &mdash; Recent 30-Day Views &gt; 50K = <b>High Touch</b>, else = <b>Low Touch</b><br>
+                <b>4. Outreach Type</b> &mdash; Recent 30-Day Views &gt; threshold = <b>High Touch</b>, else = <b>Low Touch</b><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:10px; color:#9e9e9e;">Currently hardcoded 50K in n8n. Daily Config table has &quot;High Touch Req&quot; field (not yet wired)</span><br>
                 <b>5. Writeback</b> &mdash; AT is source of truth. Sync AT status back to sheet:<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&#8226; AT=&quot;Blacklist&quot; but sheet not marked &rarr; write Blacklist=TRUE to sheet<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&#8226; AT=&quot;In Progress/Completed&quot; but sheet not updated &rarr; write Partnership Status to sheet<br>
@@ -427,39 +429,92 @@
         </div>
       </div>
 
+      <!-- Row 4: Config-Driven Pre-Flight (MOVED HERE from after Stage 2) -->
+      <div style="background:#fefce8; border:2px solid #fde68a; border-radius:12px; padding:16px; width:100%;">
+        <div style="font-size:12px; font-weight:700; color:#92400e; margin-bottom:10px;">&#9881; Config-Driven Pre-Flight <span style="font-size:10px; font-weight:400; color:var(--text-dim);">(Airtable Dashboard + Daily Config)</span></div>
+        <div style="font-size:10px; color:#9e9e9e; margin-bottom:10px; font-style:italic;">These checks run BEFORE any email is generated &mdash; inside Draft Generation Pre-Flight</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <div style="flex:1; min-width:150px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
+            <div style="font-weight:600; color:#dc2626; margin-bottom:4px;">Kill Switch</div>
+            <div style="color:var(--text-dim);"><code style="font-size:10px; background:#fee2e2; padding:1px 4px; border-radius:3px;">Active</code> = false &rarr; all outreach stops entirely</div>
+          </div>
+          <div style="flex:1; min-width:150px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
+            <div style="font-weight:600; color:#7c3aed; margin-bottom:4px;">Human-in-Loop</div>
+            <div style="color:var(--text-dim);">
+              <code style="font-size:10px; background:#ede9fe; padding:1px 4px; border-radius:3px;">off</code> auto-send all<br>
+              <code style="font-size:10px; background:#ede9fe; padding:1px 4px; border-radius:3px;">on</code> all drafts &rarr; wait approval <span style="background:#fecaca; padding:0 4px; border-radius:3px; font-size:9px; font-weight:600;">CURRENT</span><br>
+              <code style="font-size:10px; background:#ede9fe; padding:1px 4px; border-radius:3px;">auto</code> LT auto-send, HT draft only
+            </div>
+          </div>
+          <div style="flex:1; min-width:150px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
+            <div style="font-weight:600; color:#0369a1; margin-bottom:4px;">Pre-Send Checks</div>
+            <div style="color:var(--text-dim);">
+              <code style="font-size:10px; background:#e0f2fe; padding:1px 4px; border-radius:3px;">RAG Dedup</code> skip already-contacted<br>
+              <code style="font-size:10px; background:#e0f2fe; padding:1px 4px; border-radius:3px;">Apify Autofill</code> scrape missing emails
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+          <div style="flex:1; min-width:200px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
+            <div style="font-weight:600; color:#b45309; margin-bottom:4px;">HT Threshold <span style="font-size:9px; color:#9e9e9e; font-weight:400;">(Daily Config table)</span></div>
+            <div style="color:var(--text-dim);">
+              <code style="font-size:10px; background:#fef3c7; padding:1px 4px; border-radius:3px;">High Touch Req (R30D Views)</code> = <b>100,000</b><br>
+              <span style="font-size:10px; color:#9e9e9e;">e.g. HT: 23 creators | LT: 847 creators at this threshold</span><br>
+              <span style="font-size:9px; color:#d97706; font-style:italic;">Note: Syncly workflow still uses hardcoded 50K &mdash; Config field not yet wired</span>
+            </div>
+          </div>
+          <div style="flex:1; min-width:200px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
+            <div style="font-weight:600; color:#15803d; margin-bottom:4px;">Brand Keywords <span style="font-size:9px; color:#9e9e9e; font-weight:400;">(Airtable Templates table)</span></div>
+            <div style="color:var(--text-dim);">
+              Content transcript keyword matching &rarr; auto-detect brand<br>
+              <span style="font-size:10px; color:#9e9e9e;">e.g. Grosmimi: 450 | CHA&amp;MOM: 230 | Naeiae: 190</span><br>
+              <span style="font-size:9px; color:#9e9e9e;">ppsu, straw cup, bottle &rarr; Grosmimi | cream, skincare &rarr; CHA&amp;MOM | rice puff, snack &rarr; Naeiae</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:8px; font-size:10px; color:#9e9e9e;">
+          <code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">Template File ID</code> &rarr; Google Doc outreach template &nbsp;|&nbsp;
+          <code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">Sender</code> affiliates@onzenna.com &nbsp;|&nbsp;
+          Default brand fallback: Grosmimi
+        </div>
+      </div>
+
       <!-- Arrow: Trigger -->
       <div style="font-size:24px; color:var(--poll); padding:4px 0; display:flex; flex-direction:column; align-items:center;">
         <span>&#8595;</span>
-        <span style="font-size:10px; color:var(--text-dim); font-weight:600;">30-min polling: Outreach Status = "Not Started" &amp; Email != blank</span>
+        <span style="font-size:10px; color:var(--text-dim); font-weight:600;">30-min polling: <code style="font-size:9px;">AND({Email}!=BLANK(), {Outreach Status}='Not Started', {Partnership Status}='New')</code></span>
       </div>
 
-      <!-- Row 4: Draft Generation -->
+      <!-- Row 5: Draft Generation -->
       <div style="display:flex; gap:12px; width:100%;">
         <div style="flex:1; background:var(--auto-bg); border:2px solid var(--auto-border); border-radius:12px; padding:16px;">
-          <div style="font-size:12px; font-weight:700; color:var(--auto); margin-bottom:8px;">&#9889; n8n: Draft Generation <span style="font-size:10px; font-weight:400; color:var(--text-dim);">(39 nodes, 30-min poll)</span></div>
+          <div style="font-size:12px; font-weight:700; color:var(--auto); margin-bottom:8px;">&#9889; n8n: Draft Generation <span style="font-size:10px; font-weight:400; color:var(--text-dim);">(42 nodes, 30-min poll)</span></div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <div style="flex:1; min-width:120px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
+            <div style="flex:1; min-width:130px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
               <div style="font-weight:600; color:#f59e0b; margin-bottom:4px;">Pre-Flight</div>
               <div style="color:var(--text-dim);">
-                1. Dashboard: Active? <br>
+                1. Dashboard: Active?<br>
                 2. RAG Dedup Check<br>
-                3. Apify Email Autofill
+                3. Apify Email Autofill<br>
+                4. Load Config + Templates
               </div>
             </div>
-            <div style="flex:1; min-width:120px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
+            <div style="flex:1; min-width:130px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
               <div style="font-weight:600; color:#6366f1; margin-bottom:4px;">AI Draft</div>
               <div style="color:var(--text-dim);">
                 1. Pull Content Transcripts<br>
-                2. Detect Product from Content<br>
-                3. Claude API &rarr; personalized email
+                2. Detect Brand from keywords<br>
+                3. Select brand-specific form link<br>
+                4. Claude API &rarr; personalized email
               </div>
             </div>
-            <div style="flex:1; min-width:120px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
-              <div style="font-weight:600; color:#15803d; margin-bottom:4px;">Send</div>
+            <div style="flex:1; min-width:130px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
+              <div style="font-weight:600; color:#15803d; margin-bottom:4px;">Route &amp; Send</div>
               <div style="color:var(--text-dim);">
-                IF HiL=off: auto-send<br>
-                IF HiL=on: store draft &rarr; wait approval<br>
-                Save Thread ID to AT
+                Route by Outreach Type (LT/HT)<br>
+                HiL=off: auto-send via Gmail<br>
+                HiL=on: store draft &rarr; AT<br>
+                HiL=auto: LT send, HT draft
               </div>
             </div>
           </div>
@@ -473,22 +528,24 @@
       <div style="display:flex; gap:40px; width:100%; justify-content:center; padding:4px 0;">
         <div style="display:flex; flex-direction:column; align-items:center;">
           <span style="font-size:24px; color:var(--human);">&#8595;</span>
-          <span style="font-size:10px; color:var(--human); font-weight:600;">HiL=on: Draft &rarr; Airtable<br>"Approve" in UI</span>
+          <span style="font-size:10px; color:var(--human); font-weight:600;">HiL=on (current): All drafts &rarr; AT<br>Marketer sets &quot;Approved&quot; to send</span>
         </div>
         <div style="display:flex; flex-direction:column; align-items:center;">
           <span style="font-size:24px; color:var(--auto);">&#8595;</span>
-          <span style="font-size:10px; color:var(--auto); font-weight:600;">HiL=off: Direct send<br>via Gmail OAuth</span>
+          <span style="font-size:10px; color:var(--auto); font-weight:600;">HiL=off/auto-LT: Direct send<br>via Gmail OAuth</span>
         </div>
       </div>
 
-      <!-- Row 5: Approval Send -->
+      <!-- Row 6: Approval Send + Reply Handler -->
       <div style="display:flex; gap:12px; width:100%;">
         <div style="flex:1; background:var(--poll-bg); border:2px solid var(--poll-border); border-radius:12px; padding:16px;">
           <div style="font-size:12px; font-weight:700; color:var(--poll); margin-bottom:8px;">&#128337; n8n: Approval Send <span style="font-size:10px; font-weight:400; color:var(--text-dim);">(17 nodes, 1-min poll)</span></div>
-          <div style="display:flex; gap:8px;">
-            <div style="flex:1; background:#fff; border-radius:8px; padding:10px; font-size:11px; color:var(--text-dim);">
-              Poll Airtable for approved drafts &rarr; Gmail send &rarr; AT status: <strong style="color:var(--text);">"Sent"</strong> + Thread ID + Sent Date
-            </div>
+          <div style="flex:1; background:#fff; border-radius:8px; padding:10px; font-size:11px; color:var(--text-dim); line-height:1.6;">
+            <b>This IS the actual outreach email send</b> (not a notification)<br>
+            1. Polls Creators tab: <code style="font-size:9px; background:#e3f2fd; padding:1px 3px; border-radius:3px;">Outreach Status = &quot;Approved&quot;</code><br>
+            2. Sends outreach email via Gmail OAuth<br>
+            3. Updates AT: Status &rarr; &quot;Sent&quot; + Thread ID + Sent Date<br>
+            <span style="font-size:10px; color:#9e9e9e;">How to operate: Creators tab &rarr; review draft &rarr; change Outreach Status to &quot;Approved&quot;</span>
           </div>
           <div style="margin-top:8px; font-size:10px; color:var(--text-dim);">
             <a href="https://n8n.orbiters.co.kr/workflow/jf9uxkPww2xeCr82" target="_blank" class="wf-link">jf9uxkPww2xeCr82</a>
@@ -496,10 +553,11 @@
         </div>
         <div style="flex:1; background:var(--poll-bg); border:2px solid var(--poll-border); border-radius:12px; padding:16px;">
           <div style="font-size:12px; font-weight:700; color:var(--poll); margin-bottom:8px;">&#128172; n8n: Reply Handler <span style="font-size:10px; font-weight:400; color:var(--text-dim);">(44 nodes, 1-min poll)</span></div>
-          <div style="display:flex; gap:8px;">
-            <div style="flex:1; background:#fff; border-radius:8px; padding:10px; font-size:11px; color:var(--text-dim);">
-              Check Gmail threads &rarr; detect replies &rarr; Claude AI response &rarr; Route by intent (FAQ/Interest/Decline)
-            </div>
+          <div style="flex:1; background:#fff; border-radius:8px; padding:10px; font-size:11px; color:var(--text-dim); line-height:1.6;">
+            Check Gmail threads for replies &rarr; Claude AI routing<br>
+            <b>FAQ</b>: auto-respond with template<br>
+            <b>Interest</b>: send gifting form link (brand-specific)<br>
+            <b>Decline</b>: mark &quot;Declined&quot; in AT
           </div>
           <div style="margin-top:8px; font-size:10px; color:var(--text-dim);">
             <a href="https://n8n.orbiters.co.kr/workflow/K99grtW9iWq8V79f" target="_blank" class="wf-link">K99grtW9iWq8V79f</a>
@@ -510,39 +568,13 @@
       <!-- Arrow -->
       <div style="font-size:24px; color:var(--store); padding:4px 0; display:flex; flex-direction:column; align-items:center;">
         <span>&#8595;</span>
-        <span style="font-size:10px; color:var(--text-dim); font-weight:600;">Influencer replies with interest &rarr; gifting form link sent</span>
+        <span style="font-size:10px; color:var(--text-dim); font-weight:600;">Influencer replies with interest &rarr; brand-specific gifting form link sent</span>
       </div>
 
-      <!-- Row 6: Result -->
+      <!-- Row 7: Result -->
       <div style="background:#dcfce7; border:2px solid #86efac; border-radius:12px; padding:14px; width:100%; text-align:center;">
         <div style="font-size:13px; font-weight:700; color:#15803d;">Stage 2: Gifting Form Submit</div>
-        <div style="font-size:11px; color:#16a34a; margin-top:4px;">Creator fills form &rarr; Shopify Customer + Draft Order + Airtable record created automatically</div>
-      </div>
-    </div>
-
-    <!-- Key: Syncly Sheet columns -->
-    <div style="margin-top:20px; padding:14px; background:#fff; border:1px solid var(--border); border-radius:10px;">
-      <div style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; margin-bottom:8px;">Syncly Sheet &rarr; Airtable Field Mapping</div>
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:6px; font-size:11px;">
-        <div><span style="color:var(--text-dim);">Username (id)</span> &rarr; <strong>Creator.Username</strong></div>
-        <div><span style="color:var(--text-dim);">Platform</span> &rarr; <strong>Creator.Platform</strong></div>
-        <div><span style="color:var(--text-dim);">Recent 30D Views</span> &rarr; <strong>Outreach Type</strong> (&gt;50K = HT)</div>
-        <div><span style="color:var(--text-dim);">Post URL</span> &rarr; <strong>Content.Post URL</strong></div>
-        <div><span style="color:var(--text-dim);">Views/Likes/Comments</span> &rarr; <strong>Content Metrics</strong></div>
-        <div><span style="color:var(--text-dim);">Blacklist</span> &rarr; <strong>skip sync</strong></div>
-      </div>
-    </div>
-
-    <!-- Key: Config-driven behavior -->
-    <div style="margin-top:12px; padding:14px; background:#fff; border:1px solid var(--border); border-radius:10px;">
-      <div style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; margin-bottom:8px;">Config-Driven Email Behavior (Airtable Dashboard)</div>
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:6px; font-size:11px;">
-        <div><code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">Active</code> = false &rarr; <strong>all outreach stops</strong></div>
-        <div><code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">Human-in-Loop</code> = on &rarr; <strong>draft saved, wait approval</strong></div>
-        <div><code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">RAG Dedup</code> = on &rarr; <strong>skip already-contacted</strong></div>
-        <div><code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">Apify Autofill</code> = on &rarr; <strong>scrape missing emails</strong></div>
-        <div><code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">HT Threshold</code> = 50K &rarr; <strong>views &gt; 50K = High Touch</strong></div>
-        <div><code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">Template File ID</code> &rarr; <strong>Google Doc outreach template</strong></div>
+        <div style="font-size:11px; color:#16a34a; margin-top:4px;">Creator fills brand-specific form &rarr; Shopify Customer + Draft Order + Airtable record created automatically</div>
       </div>
     </div>
   </div>
@@ -645,9 +677,10 @@
           <div class="data-box" style="margin-top:8px;">
             <h4>Outreach Flow</h4>
             <div class="data-row"><span class="data-key">1. Read Content</span><span class="data-val">Airtable Content table: fetch creator's post transcripts + metrics (views, likes)</span></div>
-            <div class="data-row"><span class="data-key">2. AI Draft</span><span class="data-val">Claude API reads transcript &rarr; references specific video topics/products mentioned &rarr; personalizes pitch</span></div>
-            <div class="data-row"><span class="data-key">3. Send</span><span class="data-val">Gmail OAuth &rarr; email from affiliates@onzenna.com (human approval if HiL=on)</span></div>
-            <div class="data-row"><span class="data-key">4. Track</span><span class="data-val">Airtable: Outreach Status &rarr; "Sent", Last Contact At logged</span></div>
+            <div class="data-row"><span class="data-key">2. Detect Brand</span><span class="data-val">Scan transcript for keywords &rarr; Grosmimi (ppsu, straw cup) | CHA&amp;MOM (cream, skincare) | Naeiae (rice puff, snack). Default: Grosmimi</span></div>
+            <div class="data-row"><span class="data-key">3. AI Draft</span><span class="data-val">Claude API reads transcript + brand context &rarr; references specific video topics &rarr; includes brand-specific form link</span></div>
+            <div class="data-row"><span class="data-key">4. Route</span><span class="data-val">LT/HT routing &rarr; HiL=on (current): all drafts saved to AT for manual approval</span></div>
+            <div class="data-row"><span class="data-key">5. Track</span><span class="data-val">Airtable: Outreach Status &rarr; "Sent" (after approval), Last Contact At logged</span></div>
           </div>
           <div class="data-box" style="margin-top:8px;">
             <h4>Personalization Example</h4>
