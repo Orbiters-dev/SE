@@ -224,6 +224,7 @@ def inject_executions(brands):
             persistent_log = {}
 
     # Collect new executions from .tmp/
+    # Latest execution wins: for same brand+date, replace all old entries
     for f in sorted(glob.glob(str(EXEC_DIR / "ppc_executed_2026*.json"))):
         try:
             data = json.loads(Path(f).read_text(encoding="utf-8"))
@@ -231,16 +232,20 @@ def inject_executions(brands):
                 continue
             dt_str = Path(f).stem.replace("ppc_executed_", "")[:8]
             dt = f"{dt_str[:4]}-{dt_str[4:6]}-{dt_str[6:8]}"
+            # Group new items by brand
+            new_by_brand = {}
             for item in data:
                 if not isinstance(item, dict):
                     continue
                 bk = detect_brand(item)
                 item["exec_date"] = dt
+                new_by_brand.setdefault(bk, []).append(item)
+            # For each brand with new data, replace old entries for this date
+            for bk, new_items in new_by_brand.items():
                 existing = persistent_log.setdefault(bk, [])
-                existing_keys = {(e.get("campaignName",""), e.get("exec_date","")) for e in existing}
-                key = (item.get("campaignName",""), dt)
-                if key not in existing_keys:
-                    existing.append(item)
+                # Remove stale entries for this brand+date (latest wins)
+                persistent_log[bk] = [e for e in existing if e.get("exec_date", "") != dt]
+                persistent_log[bk].extend(new_items)
         except Exception:
             continue
 

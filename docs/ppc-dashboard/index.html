@@ -1096,6 +1096,8 @@ async function executeSelected(bk, dt) {
           date: dt
         }, note);
         showToast('Executed by ' + user + ': ' + selectedCamps.length + ' camps + ' + selectedHarvest.length + 'H + ' + selectedNegate.length + 'N for ' + bk + '!', 'ok');
+        // Refresh inline exec log to show the new dispatch entry
+        renderInlineExecLog(bk, dt);
       } else {
         showToast('Error: ' + res.status, 'err');
       }
@@ -2087,10 +2089,13 @@ function renderPropose(bk, dt, containerId){
         '<span style="font-size:11px;color:var(--dim);white-space:nowrap">📝 Note:</span>' +
         '<input type="text" id="exec-note-'+bk+'-'+dt+'" placeholder="Reason for this execution (optional)" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px">' +
       '</div>' +
-    '</div>';
+    '</div>' +
+
+    // ── Inline Execution Log container ──
+    '<div id="exec-inline-'+bk+'-'+dt+'" style="margin-top:12px"></div>';
 
   // Recalc totals after render
-  setTimeout(function(){ recalcOverride(bk,dt); updateExecCount(bk,dt); }, 50);
+  setTimeout(function(){ recalcOverride(bk,dt); updateExecCount(bk,dt); renderInlineExecLog(bk,dt); }, 50);
 }
 
 function toggleCampDetail(bk,dt,idx){
@@ -2550,6 +2555,84 @@ function renderBtDetail(bk, idx, el){
     '</div>' +
     '<div class="desc">If 퍼포마 had been running from Day 1 of this '+(p.days||30)+'d period, <b style="color:var(--g)">$'+fmtN(w.total_simulated_save||0)+'</b> in wasted spend would have been prevented and ROAS would have improved from <b>'+(b.actual_roas||0)+'x → '+(b.sim_roas||0)+'x</b>.</div>' +
   '</div>';
+
+  h += '</div>';
+  el.innerHTML = h;
+}
+
+// ── Inline Execution Log (shown on Propose tab below Execute button) ──
+function renderInlineExecLog(bk, dt){
+  var el = document.getElementById('exec-inline-'+bk+'-'+dt);
+  if(!el) return;
+
+  // 1. Server-side execution results from data.js
+  var execLog = (D.brands[bk] && D.brands[bk].execution_log) || [];
+  var dateEntries = execLog.filter(function(e){ return e.exec_date === dt; });
+
+  // 2. Browser-local audit entries
+  var auditLog = getExecAuditLog().filter(function(e){
+    return e.brand === bk && e.details && e.details.date === dt;
+  });
+
+  if(!dateEntries.length && !auditLog.length){ el.innerHTML=''; return; }
+
+  var h = '<div style="border:1px solid var(--border);border-left:3px solid var(--a);border-radius:8px;padding:12px 14px;background:var(--card)">';
+
+  // Browser-local audit (dispatch records)
+  if(auditLog.length){
+    h += '<div style="margin-bottom:'+(dateEntries.length?'10':'0')+'px">' +
+      '<div style="font-size:11px;font-weight:700;color:var(--a);margin-bottom:6px">Dispatch Log ('+auditLog.length+' dispatch'+(auditLog.length>1?'es':'')+')</div>' +
+      '<table style="font-size:10px;width:100%"><thead><tr><th>Time</th><th>User</th><th>Actions</th><th>Note</th></tr></thead><tbody>';
+    auditLog.forEach(function(a){
+      var d = a.details||{};
+      var camps = Array.isArray(d.campaigns)?d.campaigns:[];
+      var harvN = Array.isArray(d.harvest)?d.harvest.length:(typeof d.harvest==='number'?d.harvest:0);
+      var negN = Array.isArray(d.negate)?d.negate.length:(typeof d.negate==='number'?d.negate:0);
+      var actStr = camps.length+' camp'+(camps.length!==1?'s':'');
+      if(harvN) actStr+=', '+harvN+'H';
+      if(negN) actStr+=', '+negN+'N';
+      h += '<tr><td style="font-family:var(--mono);white-space:nowrap">'+a.timestamp+'</td>' +
+        '<td><b style="color:var(--a)">'+a.user+'</b></td>' +
+        '<td>'+actStr+'</td>' +
+        '<td style="color:var(--dim)">'+(a.note||'—')+'</td></tr>';
+    });
+    h += '</tbody></table></div>';
+  }
+
+  // Server-side execution results (from exec_log.json via data.js)
+  if(dateEntries.length){
+    var okCount = dateEntries.filter(function(e){return e.result_status==='OK';}).length;
+    var errCount = dateEntries.filter(function(e){return e.result_status&&e.result_status.indexOf('ERROR')===0;}).length;
+    var skipCount = dateEntries.filter(function(e){return e.result_status==='SKIPPED';}).length;
+    h += '<div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:6px">' +
+      'Execution Results — ' +
+      '<span style="color:var(--g)">'+okCount+' OK</span>' +
+      (errCount?'  <span style="color:var(--r)">'+errCount+' ERR</span>':'') +
+      (skipCount?'  <span style="color:var(--dim)">'+skipCount+' SKIP</span>':'') +
+    '</div>' +
+    '<div style="max-height:220px;overflow-y:auto">' +
+    '<table style="font-size:10px;width:100%"><thead><tr>' +
+      '<th>Action</th><th>Campaign / Keyword</th><th>7d Spend</th><th>7d Sales</th><th>Bid/Budget</th><th>Status</th>' +
+    '</tr></thead><tbody>';
+    dateEntries.forEach(function(e){
+      var label = e.keyword ? e.keyword : (e.campaignName||'—');
+      var isKw = !!e.keyword;
+      var bidBud = '';
+      if(e.new_bid!=null) bidBud = '$'+(+e.new_bid).toFixed(2);
+      else if(e.new_budget!=null) bidBud = '$'+fmtN(e.new_budget);
+      else if(e.bid_change_pct!=null) bidBud = e.bid_change_pct+'%';
+      var stColor = e.result_status==='OK'?'var(--g)':(e.result_status==='SKIPPED'?'var(--dim)':'var(--r)');
+      h += '<tr>' +
+        '<td>'+badge(e.action||'—', e.action==='harvest'?'g':(e.action==='pause'||e.action&&e.action.indexOf('negate')===0?'r':'a'))+'</td>' +
+        '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(isKw?'<span style="color:var(--dim);font-size:9px">KW</span> ':'')+label+'</td>' +
+        '<td style="font-family:var(--mono)">'+(e.spend_7d!=null?'$'+fmtN(e.spend_7d):'—')+'</td>' +
+        '<td style="font-family:var(--mono)">'+(e.sales_7d!=null?'$'+fmtN(e.sales_7d):'—')+'</td>' +
+        '<td style="font-family:var(--mono)">'+bidBud+'</td>' +
+        '<td><span style="color:'+stColor+';font-weight:700;font-size:10px">'+(e.result_status||'—')+'</span></td>' +
+      '</tr>';
+    });
+    h += '</tbody></table></div>';
+  }
 
   h += '</div>';
   el.innerHTML = h;
