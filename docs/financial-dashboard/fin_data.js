@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-18 01:36 PST",
+ "generated_pst": "2026-03-18 01:39 PST",
  "through_date": "2026-03-16",
  "months": [
   "2025-06",
@@ -2414,7 +2414,7 @@ const FIN_DATA = {
     "query": "zezebaebae",
     "clicks": 11,
     "impressions": 37,
-    "avg_position": 2.5,
+    "avg_position": 2.4,
     "ctr": 29.73,
     "weekly_positions": [
      2.5
@@ -2711,7 +2711,7 @@ const FIN_DATA = {
      3.3,
      4.2,
      4.9,
-     4.1
+     4.2
     ]
    },
    {
@@ -2724,7 +2724,7 @@ const FIN_DATA = {
      6.0,
      3.6,
      3.8,
-     4.6
+     4.7
     ]
    },
    {
@@ -2737,7 +2737,7 @@ const FIN_DATA = {
      9.0,
      9.4,
      9.5,
-     9.8
+     9.7
     ]
    },
    {
@@ -3369,7 +3369,7 @@ const FIN_DATA = {
  "kw_positions_summary": [
   {
    "query": "zezebaebae",
-   "pos_7d": 2.5,
+   "pos_7d": 2.4,
    "clicks_7d": 11,
    "impressions_7d": 37,
    "pos_30d": 4.5,
