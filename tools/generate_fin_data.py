@@ -77,6 +77,8 @@ def generate():
     mtd_start = today.replace(day=1).isoformat()
     ytd_start = f"{today.year}-01-01"
 
+    import calendar
+
     print("=== Generating Financial KPIs Data ===")
     print(f"  Today (PST): {today}")
 
@@ -101,6 +103,46 @@ def generate():
 
     through = min(max_date(shopify), max_date(amazon_ads), yesterday)
     print(f"  Through-date: {through}")
+
+    # ── Data source freshness metadata ────────────────────────────────────────
+    def source_meta(name, rows, label, refresh="2x daily"):
+        dates = [r.get("date", "") for r in rows if r.get("date")]
+        return {
+            "name": name,
+            "label": label,
+            "rows": len(rows),
+            "min_date": min(dates) if dates else "",
+            "max_date": max(dates) if dates else "",
+            "refresh": refresh,
+        }
+
+    data_sources = [
+        source_meta("shopify_orders_daily", shopify, "Shopify Orders"),
+        source_meta("amazon_sales_daily", amazon_sales, "Amazon Sales (SP-API)"),
+        source_meta("amazon_ads_daily", amazon_ads, "Amazon Ads"),
+        source_meta("meta_ads_daily", meta_ads, "Meta Ads"),
+        source_meta("google_ads_daily", google_ads, "Google Ads"),
+        source_meta("ga4_daily", ga4, "GA4 Analytics"),
+        source_meta("amazon_ads_search_terms", search_terms, "Amazon Search Terms", "1x daily"),
+        source_meta("gsc_daily", gsc, "Google Search Console"),
+    ]
+
+    # ── Partial month detection ───────────────────────────────────────────────
+    through_date_obj = datetime.strptime(through, "%Y-%m-%d").date()
+    current_month = through[:7]  # e.g. "2026-03"
+    days_elapsed = through_date_obj.day
+    days_in_month = calendar.monthrange(through_date_obj.year, through_date_obj.month)[1]
+    is_partial = days_elapsed < days_in_month
+    fm_multiplier = round(days_in_month / days_elapsed, 4) if days_elapsed > 0 else 1
+    print(f"  Partial month: {current_month} ({days_elapsed}/{days_in_month}d) → multiplier {fm_multiplier}x")
+
+    partial_month_info = {
+        "month": current_month,
+        "days_elapsed": days_elapsed,
+        "days_in_month": days_in_month,
+        "is_partial": is_partial,
+        "multiplier": fm_multiplier,
+    }
 
     # ── 2. Revenue by Brand (Shopify only, PR excluded) ───────────────────────
     print("\n[2/7] Computing revenue by brand...")
@@ -406,6 +448,12 @@ def generate():
             total += v.get(field, 0) if isinstance(v, dict) else 0
         return total
 
+    def proj_array(vals):
+        """Add full-month projection for partial last month."""
+        if is_partial and months and months[-1] == current_month and len(vals) > 0:
+            return [round(v * fm_multiplier) if i == len(vals) - 1 else v for i, v in enumerate(vals)]
+        return vals[:]
+
     # Build output arrays
     brand_rev_out = {}
     for brand in BRAND_ORDER:
@@ -417,6 +465,7 @@ def generate():
         if any(v > 0 for v in vals):
             brand_rev_out[brand] = {
                 "monthly": vals,
+                "monthly_proj": proj_array(vals),
                 "color": BRAND_COLORS.get(brand, "#94a3b8"),
             }
 
@@ -426,6 +475,7 @@ def generate():
         if any(v > 0 for v in vals):
             channel_rev_out[ch] = {
                 "monthly": vals,
+                "monthly_proj": proj_array(vals),
                 "color": CHANNEL_COLORS.get(ch, "#94a3b8"),
             }
 
@@ -438,7 +488,9 @@ def generate():
         if any(v > 0 for v in spend_vals):
             ad_out[platform] = {
                 "spend": spend_vals,
+                "spend_proj": proj_array(spend_vals),
                 "sales": sales_vals,
+                "sales_proj": proj_array(sales_vals),
                 "impressions": impr_vals,
                 "clicks": click_vals,
                 "color": AD_COLORS.get(platform, "#94a3b8"),
@@ -496,19 +548,27 @@ def generate():
         "generated_pst": now_pst.strftime("%Y-%m-%d %H:%M PST"),
         "through_date": through,
         "months": months,
+        "data_sources": data_sources,
+        "partial_month": partial_month_info,
         "summary": summary,
         "brand_revenue": brand_rev_out,
         "channel_revenue": channel_rev_out,
         "ad_performance": ad_out,
         "paid_organic": {
             "paid": paid_monthly,
+            "paid_proj": proj_array(paid_monthly),
             "organic": organic_monthly,
+            "organic_proj": proj_array(organic_monthly),
         },
         "waterfall": {
             "revenue": total_rev_monthly,
+            "revenue_proj": proj_array(total_rev_monthly),
             "ad_spend": total_ad_spend_monthly,
+            "ad_spend_proj": proj_array(total_ad_spend_monthly),
             "gross_margin": total_gm_monthly,
+            "gross_margin_proj": proj_array(total_gm_monthly),
             "contribution_margin": total_cm_monthly,
+            "contribution_margin_proj": proj_array(total_cm_monthly),
         },
         "search_queries": search_data,
         "gsc_queries": gsc_data,

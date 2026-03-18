@@ -36,7 +36,13 @@ td{padding:6px 8px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#f8fff
 .sec{margin-bottom:24px}
 .sec-title{font-size:14px;font-weight:800;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
 .sec-title .num{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;background:var(--a);flex-shrink:0}
-@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}}
+.src-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.src-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:10px}
+.src-card .sn{font-weight:700;font-size:11px;font-family:var(--mono);color:var(--text);margin-bottom:2px}
+.src-card .sd{color:var(--dim);line-height:1.4}
+.src-card .sr{float:right;font-size:9px;color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-weight:600}
+.proj{color:#8b5cf6;font-size:9px;font-weight:600;font-family:var(--mono)}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}.src-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -115,6 +121,21 @@ if(checkAuth()) showDashboard();
 function $(v){ return typeof v==='number'?'$'+v.toLocaleString():v; }
 function num(v){ return typeof v==='number'?v.toLocaleString():v; }
 
+// Cell with optional full-month projection
+// isLast = true for partial month column
+function fmCell(actual, projected, isLast, opts){
+  opts=opts||{};
+  var sty='text-align:right;font-family:var(--mono);font-size:'+(opts.fs||'10px');
+  if(opts.color) sty+=';color:'+opts.color;
+  if(opts.bold) sty+=';font-weight:700';
+  var prefix=opts.prefix||'';
+  var suffix=opts.suffix||'';
+  if(isLast && projected && projected !== actual){
+    return '<td style="'+sty+'">'+prefix+$(actual)+suffix+' <span class="proj">('+prefix+$(projected)+suffix+')</span></td>';
+  }
+  return '<td style="'+sty+'">'+prefix+$(actual)+suffix+'</td>';
+}
+
 function barChart(datasets, labels, opts){
   var w=opts.w||900, h=opts.h||170, pad=44, barW=opts.barW||12;
   var n=labels.length, gapX=(w-pad*2)/n;
@@ -177,16 +198,42 @@ function renderFinancial(){
   }
 
   var months=F.months||[];
-  var mLabels=months.map(function(m){ var parts=m.split('-'); return parts[1]+'/'+parts[0].substring(2); });
+  var pm=F.partial_month||{};
+  var lastIdx=months.length-1;
+  var isPartialLast=pm.is_partial && months[lastIdx]===pm.month;
+
+  // Month labels — mark partial month
+  var mLabels=months.map(function(m,i){
+    var parts=m.split('-');
+    var label=parts[1]+'/'+parts[0].substring(2);
+    if(i===lastIdx && isPartialLast) label+=' ('+pm.days_elapsed+'d)';
+    return label;
+  });
 
   // Hero meta
-  document.getElementById('hero-meta').innerHTML=
-    '<span class="pill"><span class="dot"></span>Through '+F.through_date+'</span>'+
-    '<span class="pill">Generated '+F.generated_pst+'</span>';
+  var metaHtml='<span class="pill"><span class="dot"></span>Through '+F.through_date+'</span>';
+  metaHtml+='<span class="pill">Generated '+F.generated_pst+'</span>';
+  if(isPartialLast) metaHtml+='<span class="pill" style="border-color:#8b5cf6;color:#8b5cf6">'+pm.month+' = '+pm.days_elapsed+'/'+pm.days_in_month+'d &middot; FM &times;'+pm.multiplier.toFixed(2)+'</span>';
+  document.getElementById('hero-meta').innerHTML=metaHtml;
 
   var html='';
 
-  // ── Period toggle + KPI cards ─────────────────────────────────────────────
+  // ══ Section 0: Data Sources ═══════════════════════════════════════════════
+  html+='<div class="sec"><div class="sec-title"><div class="num" style="background:#64748b">0</div> Data Sources &mdash; Collection Layer</div>';
+  html+='<div class="desc" style="margin-bottom:8px">8 DataKeeper channels, 2x daily refresh (PST 0:00 & 12:00) via GitHub Actions</div>';
+  html+='<div class="src-grid">';
+  (F.data_sources||[]).forEach(function(s){
+    html+='<div class="src-card">';
+    html+='<span class="sr">'+s.refresh+'</span>';
+    html+='<div class="sn">'+s.name+'</div>';
+    html+='<div class="sd"><b>'+s.label+'</b><br>';
+    html+=s.rows.toLocaleString()+' rows';
+    if(s.min_date && s.max_date) html+=' &middot; '+s.min_date+' &rarr; '+s.max_date;
+    html+='</div></div>';
+  });
+  html+='</div></div>';
+
+  // ══ Section 1: KPI cards ══════════════════════════════════════════════════
   html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">';
   html+='<div class="sec-title" style="border:none;margin:0;padding:0"><div class="num">1</div> KPI Summary</div>';
   html+='<div class="period-tabs" id="fin-period-tabs">';
@@ -196,51 +243,56 @@ function renderFinancial(){
   html+='</div></div>';
   html+='<div id="fin-kpi-cards">'+buildKpiCards(F.summary['7d']||{})+'</div>';
 
-  // ── Revenue by Brand ──────────────────────────────────────────────────────
+  // ══ Section 2: Revenue by Brand ═══════════════════════════════════════════
   html+='<div class="sec"><div class="sec-title"><div class="num">2</div> Revenue by Brand</div>';
   html+='<div class="card">';
   var brandDs=[];
   Object.keys(F.brand_revenue).forEach(function(b){
-    var br=F.brand_revenue[b];
-    brandDs.push({label:b, data:br.monthly, color:br.color});
+    brandDs.push({label:b, data:F.brand_revenue[b].monthly, color:F.brand_revenue[b].color});
   });
   html+=barChart(brandDs, mLabels, {w:940,h:190,barW:10});
   html+='<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Brand</th>';
-  mLabels.forEach(function(m){ html+='<th style="text-align:right">'+m+'</th>'; });
+  mLabels.forEach(function(m,i){ html+='<th style="text-align:right'+(i===lastIdx&&isPartialLast?';background:#f5f3ff':'')+'">'+m+'</th>'; });
   html+='<th style="text-align:right;background:#f0fdf4">Total</th></tr></thead><tbody>';
   Object.keys(F.brand_revenue).forEach(function(b){
     var br=F.brand_revenue[b], total=br.monthly.reduce(function(a,c){return a+c;},0);
     html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+br.color+';margin-right:6px"></span><b>'+b+'</b></td>';
-    br.monthly.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(v)+'</td>'; });
+    br.monthly.forEach(function(v,i){
+      var pv=(br.monthly_proj||[])[i];
+      html+=fmCell(v, pv, i===lastIdx&&isPartialLast);
+    });
     html+='<td style="text-align:right;font-weight:700;font-family:var(--mono);font-size:10px;background:#f0fdf4">'+$(total)+'</td></tr>';
   });
+  // Total row
   var grandTotals=months.map(function(_,mi){ var t=0; Object.keys(F.brand_revenue).forEach(function(b){ t+=F.brand_revenue[b].monthly[mi]||0; }); return t; });
+  var grandProj=months.map(function(_,mi){ var t=0; Object.keys(F.brand_revenue).forEach(function(b){ t+=(F.brand_revenue[b].monthly_proj||F.brand_revenue[b].monthly)[mi]||0; }); return t; });
   html+='<tr style="border-top:2px solid var(--border);font-weight:800"><td>TOTAL</td>';
-  grandTotals.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(v)+'</td>'; });
-  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;background:#f0fdf4">'+$(grandTotals.reduce(function(a,c){return a+c;},0))+'</td></tr>';
+  grandTotals.forEach(function(v,i){ html+=fmCell(v, grandProj[i], i===lastIdx&&isPartialLast, {bold:true}); });
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;background:#f0fdf4;font-weight:800">'+$(grandTotals.reduce(function(a,c){return a+c;},0))+'</td></tr>';
   html+='</tbody></table></div></div></div>';
 
-  // ── Revenue by Channel ────────────────────────────────────────────────────
+  // ══ Section 3: Revenue by Channel ═════════════════════════════════════════
   html+='<div class="sec"><div class="sec-title"><div class="num">3</div> Revenue by Channel</div>';
   html+='<div class="card">';
   var chDs=[];
   Object.keys(F.channel_revenue).forEach(function(ch){
-    var cr=F.channel_revenue[ch];
-    chDs.push({label:ch, data:cr.monthly, color:cr.color});
+    chDs.push({label:ch, data:F.channel_revenue[ch].monthly, color:F.channel_revenue[ch].color});
   });
   html+=barChart(chDs, mLabels, {w:940,h:190,barW:14,stacked:true});
   html+='<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Channel</th>';
-  mLabels.forEach(function(m){ html+='<th style="text-align:right">'+m+'</th>'; });
+  mLabels.forEach(function(m,i){ html+='<th style="text-align:right'+(i===lastIdx&&isPartialLast?';background:#f5f3ff':'')+'">'+m+'</th>'; });
   html+='<th style="text-align:right;background:#f0fdf4">Total</th></tr></thead><tbody>';
   Object.keys(F.channel_revenue).forEach(function(ch){
     var cr=F.channel_revenue[ch], total=cr.monthly.reduce(function(a,c){return a+c;},0);
     html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+cr.color+';margin-right:6px"></span>'+ch+'</td>';
-    cr.monthly.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(v)+'</td>'; });
+    cr.monthly.forEach(function(v,i){
+      html+=fmCell(v, (cr.monthly_proj||[])[i], i===lastIdx&&isPartialLast);
+    });
     html+='<td style="text-align:right;font-weight:700;font-family:var(--mono);font-size:10px;background:#f0fdf4">'+$(total)+'</td></tr>';
   });
   html+='</tbody></table></div></div></div>';
 
-  // ── Ad Platform Performance ───────────────────────────────────────────────
+  // ══ Section 4: Ad Platform Performance ════════════════════════════════════
   html+='<div class="sec"><div class="sec-title"><div class="num">4</div> Ad Platform Performance</div>';
   html+='<div class="card">';
   var adDs=[];
@@ -249,18 +301,23 @@ function renderFinancial(){
   });
   html+=barChart(adDs, mLabels, {w:940,h:170,barW:10});
   html+='<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Platform</th>';
-  mLabels.forEach(function(m){ html+='<th style="text-align:right" colspan="2">'+m+'</th>'; });
+  mLabels.forEach(function(m,i){ html+='<th style="text-align:right'+(i===lastIdx&&isPartialLast?';background:#f5f3ff':'')+'" colspan="2">'+m+'</th>'; });
   html+='</tr><tr><th></th>';
-  mLabels.forEach(function(){ html+='<th style="text-align:right;font-size:7px;color:var(--muted)">Spend</th><th style="text-align:right;font-size:7px;color:var(--muted)">ROAS</th>'; });
+  mLabels.forEach(function(m,i){
+    var bg=i===lastIdx&&isPartialLast?';background:#f5f3ff':'';
+    html+='<th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">Spend</th><th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">ROAS</th>';
+  });
   html+='</tr></thead><tbody>';
   Object.keys(F.ad_performance).forEach(function(p){
     var ap=F.ad_performance[p];
     html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+ap.color+';margin-right:6px"></span><b>'+p+'</b></td>';
     for(var i=0;i<months.length;i++){
       var sp=ap.spend[i]||0, sl=ap.sales[i]||0;
+      var spP=(ap.spend_proj||[])[i]||sp, slP=(ap.sales_proj||[])[i]||sl;
       var roas=sp>0?(sl/sp):0;
       var rc=roas>=3?'var(--g)':roas>=1.5?'var(--am)':'var(--r)';
-      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+$(sp)+'</td>';
+      var isL=i===lastIdx&&isPartialLast;
+      html+=fmCell(sp, spP, isL, {fs:'9px'});
       html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+rc+'">'+roas.toFixed(1)+'x</td>';
     }
     html+='</tr>';
@@ -268,14 +325,19 @@ function renderFinancial(){
   // totals
   html+='<tr style="border-top:2px solid var(--border);font-weight:700"><td>TOTAL</td>';
   for(var i=0;i<months.length;i++){
-    var ts=0,tl=0;
-    Object.keys(F.ad_performance).forEach(function(p){ ts+=F.ad_performance[p].spend[i]||0; tl+=F.ad_performance[p].sales[i]||0; });
-    html+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+$(ts)+'</td>';
+    var ts=0,tl=0,tsP=0,tlP=0;
+    Object.keys(F.ad_performance).forEach(function(p){
+      ts+=F.ad_performance[p].spend[i]||0; tl+=F.ad_performance[p].sales[i]||0;
+      tsP+=(F.ad_performance[p].spend_proj||F.ad_performance[p].spend)[i]||0;
+      tlP+=(F.ad_performance[p].sales_proj||F.ad_performance[p].sales)[i]||0;
+    });
+    var isL=i===lastIdx&&isPartialLast;
+    html+=fmCell(ts, tsP, isL, {fs:'9px',bold:true});
     html+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+(ts>0?(tl/ts).toFixed(1):'0')+'x</td>';
   }
   html+='</tr></tbody></table></div></div></div>';
 
-  // ── Paid vs Organic ───────────────────────────────────────────────────────
+  // ══ Section 5: Paid vs Organic ════════════════════════════════════════════
   html+='<div class="sec"><div class="sec-title"><div class="num">5</div> Ad-Attributed vs Organic Revenue</div>';
   html+='<div class="card">';
   html+='<div class="desc">Organic = Total Revenue - Ad-attributed sales (Amazon Ads + Meta + Google). Note: attribution overlap possible.</div>';
@@ -284,12 +346,16 @@ function renderFinancial(){
     {label:'Ad-Attributed', data:F.paid_organic.paid, color:'#6366f1'}
   ], mLabels, {w:940,h:170,barW:16,stacked:true});
   html+='<div style="overflow-x:auto;margin-top:8px"><table><thead><tr><th></th>';
-  mLabels.forEach(function(m){ html+='<th style="text-align:right">'+m+'</th>'; });
+  mLabels.forEach(function(m,i){ html+='<th style="text-align:right'+(i===lastIdx&&isPartialLast?';background:#f5f3ff':'')+'">'+m+'</th>'; });
   html+='</tr></thead><tbody>';
   html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#10b981;margin-right:6px"></span>Organic</td>';
-  F.paid_organic.organic.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--g)">'+$(v)+'</td>'; });
+  F.paid_organic.organic.forEach(function(v,i){
+    html+=fmCell(v, (F.paid_organic.organic_proj||[])[i], i===lastIdx&&isPartialLast, {color:'var(--g)'});
+  });
   html+='</tr><tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#6366f1;margin-right:6px"></span>Ad-Attributed</td>';
-  F.paid_organic.paid.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:#6366f1">'+$(v)+'</td>'; });
+  F.paid_organic.paid.forEach(function(v,i){
+    html+=fmCell(v, (F.paid_organic.paid_proj||[])[i], i===lastIdx&&isPartialLast, {color:'#6366f1'});
+  });
   html+='</tr><tr style="border-top:2px solid var(--border)"><td><b>Organic %</b></td>';
   for(var i=0;i<months.length;i++){
     var t=(F.paid_organic.organic[i]||0)+(F.paid_organic.paid[i]||0);
@@ -298,7 +364,7 @@ function renderFinancial(){
   }
   html+='</tr></tbody></table></div></div></div>';
 
-  // ── GM → CM Waterfall ─────────────────────────────────────────────────────
+  // ══ Section 6: GM → CM Waterfall ══════════════════════════════════════════
   html+='<div class="sec"><div class="sec-title"><div class="num">6</div> Gross Margin &rarr; Contribution Margin</div>';
   html+='<div class="card">';
   html+='<div class="desc">CM = Gross Margin - Total Ad Spend. COGS estimated from brand-level averages (Shopify only).</div>';
@@ -309,17 +375,37 @@ function renderFinancial(){
     {label:'Contribution', data:wf.contribution_margin.map(function(v){return Math.max(v,0);}), color:'#6366f1'}
   ], mLabels, {w:940,h:190,barW:9});
   html+='<div style="overflow-x:auto;margin-top:8px"><table><thead><tr><th></th>';
-  mLabels.forEach(function(m){ html+='<th style="text-align:right">'+m+'</th>'; });
+  mLabels.forEach(function(m,i){ html+='<th style="text-align:right'+(i===lastIdx&&isPartialLast?';background:#f5f3ff':'')+'">'+m+'</th>'; });
   html+='</tr></thead><tbody>';
-  html+='<tr><td>Revenue</td>'; wf.revenue.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(v)+'</td>'; }); html+='</tr>';
-  html+='<tr><td>Gross Margin</td>'; wf.gross_margin.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--g)">'+$(v)+'</td>'; }); html+='</tr>';
-  html+='<tr><td>GM %</td>'; wf.gross_margin.forEach(function(v,i){ var r=wf.revenue[i]; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+(r>0?(v/r*100).toFixed(1):'0')+'%</td>'; }); html+='</tr>';
-  html+='<tr><td>(-) Ad Spend</td>'; wf.ad_spend.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--r)">-'+$(v)+'</td>'; }); html+='</tr>';
-  html+='<tr style="border-top:2px solid var(--border);font-weight:800"><td>Contribution Margin</td>'; wf.contribution_margin.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:'+(v>=0?'#6366f1':'var(--r)')+'">'+$(v)+'</td>'; }); html+='</tr>';
-  html+='<tr><td><b>CM %</b></td>'; wf.contribution_margin.forEach(function(v,i){ var r=wf.revenue[i]; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700">'+(r>0?(v/r*100).toFixed(1):'0')+'%</td>'; }); html+='</tr>';
+  // Revenue
+  html+='<tr><td>Revenue</td>';
+  wf.revenue.forEach(function(v,i){ html+=fmCell(v, (wf.revenue_proj||[])[i], i===lastIdx&&isPartialLast); });
+  html+='</tr>';
+  // GM
+  html+='<tr><td>Gross Margin</td>';
+  wf.gross_margin.forEach(function(v,i){ html+=fmCell(v, (wf.gross_margin_proj||[])[i], i===lastIdx&&isPartialLast, {color:'var(--g)'}); });
+  html+='</tr>';
+  // GM %
+  html+='<tr><td>GM %</td>';
+  wf.gross_margin.forEach(function(v,i){ var r=wf.revenue[i]; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+(r>0?(v/r*100).toFixed(1):'0')+'%</td>'; });
+  html+='</tr>';
+  // Ad Spend
+  html+='<tr><td>(-) Ad Spend</td>';
+  wf.ad_spend.forEach(function(v,i){ html+=fmCell(v, (wf.ad_spend_proj||[])[i], i===lastIdx&&isPartialLast, {color:'var(--r)',prefix:'-'}); });
+  html+='</tr>';
+  // CM
+  html+='<tr style="border-top:2px solid var(--border);font-weight:800"><td>Contribution Margin</td>';
+  wf.contribution_margin.forEach(function(v,i){
+    html+=fmCell(v, (wf.contribution_margin_proj||[])[i], i===lastIdx&&isPartialLast, {color:v>=0?'#6366f1':'var(--r)',bold:true});
+  });
+  html+='</tr>';
+  // CM %
+  html+='<tr><td><b>CM %</b></td>';
+  wf.contribution_margin.forEach(function(v,i){ var r=wf.revenue[i]; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700">'+(r>0?(v/r*100).toFixed(1):'0')+'%</td>'; });
+  html+='</tr>';
   html+='</tbody></table></div></div></div>';
 
-  // ── Search Queries (side by side) ─────────────────────────────────────────
+  // ══ Section 7: Search Queries ═════════════════════════════════════════════
   html+='<div class="sec"><div class="sec-title"><div class="num">7</div> Search Queries (30D)</div>';
   html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
   // Amazon
@@ -347,10 +433,10 @@ function renderFinancial(){
   html+='</tbody></table></div></div>';
   html+='</div></div>';
 
-  // ── GA4 Traffic Sources ───────────────────────────────────────────────────
+  // ══ Section 8: GA4 Traffic ════════════════════════════════════════════════
   html+='<div class="sec"><div class="sec-title"><div class="num">8</div> Traffic Sources &mdash; GA4 (30D)</div>';
   html+='<div class="card"><table><thead><tr><th>Source / Medium</th><th style="text-align:right">Sessions</th><th style="text-align:right">Users</th><th style="text-align:right">Revenue</th><th style="text-align:right">Conv %</th></tr></thead><tbody>';
-  (F.traffic_sources||[]).forEach(function(t,i){
+  (F.traffic_sources||[]).forEach(function(t){
     html+='<tr><td style="font-weight:600">'+t.source+'</td>';
     html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(t.sessions)+'</td>';
     html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(t.users)+'</td>';
