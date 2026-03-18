@@ -1918,23 +1918,14 @@ function renderPropose(bk, dt, containerId){
   var hasChange = dd.campaigns.filter(function(c){return c.action!=='optimize' && c.action!=='monitor';});
   var noChange = dd.campaigns.filter(function(c){return c.action==='optimize' || c.action==='monitor';});
 
-  // Build sets of executed items (per-item, not whole-page lock)
+  // Build sets of EXECUTED items (server-side only — locks rows)
+  // DISPATCHED (localStorage) is informational only, does NOT lock items
   var executedCamps = {};
   var executedKws = {};
   var execLog = (D.brands[bk] && D.brands[bk].execution_log) || [];
   execLog.filter(function(e){ return e.exec_date===dt; }).forEach(function(e){
     if(e.campaignName) executedCamps[e.campaignName] = e.result_status||'OK';
     if(e.keyword) executedKws[e.keyword] = e.result_status||'OK';
-  });
-  // Also check browser-local audit for dispatch records (before server reflects)
-  var auditLog = getExecAuditLog().filter(function(e){
-    return e.brand===bk && e.details && e.details.date===dt;
-  });
-  auditLog.forEach(function(a){
-    var d = a.details||{};
-    if(Array.isArray(d.campaigns)) d.campaigns.forEach(function(c){ if(c.name) executedCamps[c.name] = executedCamps[c.name]||'DISPATCHED'; });
-    if(Array.isArray(d.harvest)) d.harvest.forEach(function(h){ if(h.term) executedKws[h.term] = executedKws[h.term]||'DISPATCHED'; });
-    if(Array.isArray(d.negate)) d.negate.forEach(function(n){ if(n.term) executedKws[n.term] = executedKws[n.term]||'DISPATCHED'; });
   });
   var hasAnyExecuted = Object.keys(executedCamps).length>0 || Object.keys(executedKws).length>0;
 
