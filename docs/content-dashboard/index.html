@@ -97,7 +97,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
   <div class="hero" style="margin-bottom:16px">
     <h1>&#x1F3AC; Content <span>Intelligence</span></h1>
     <div class="sub">Influencer content performance tracking &amp; sales correlation</div>
-    <div class="meta">
+    <div class="meta" id="hero-meta">
       <span class="pill"><span class="dot"></span>Live Data</span>
       <span class="pill">DataKeeper API</span>
     </div>
@@ -244,6 +244,43 @@ function unhighlightRacer(){
   document.querySelectorAll('.race-line').forEach(function(l){ l.style.opacity='1'; });
 }
 
+// ══════════ FRESHNESS ══════════
+function updateFreshness(){
+  var meta = document.getElementById('hero-meta');
+  if(!meta) return;
+
+  // Find latest post date
+  var latestPost = '';
+  _posts.forEach(function(p){ if(p.post_date && p.post_date > latestPost) latestPost = p.post_date; });
+
+  // Find latest metrics crawl date
+  var latestMetric = '';
+  _metrics.forEach(function(m){ if(m.date && m.date > latestMetric) latestMetric = m.date; });
+
+  // Convert to PST display
+  var now = new Date();
+  var pstOffset = -7; // PDT
+  var pstNow = new Date(now.getTime() + (now.getTimezoneOffset() + pstOffset*60)*60000);
+  var loadedPST = pstNow.toISOString().slice(0,16).replace('T',' ') + ' PST';
+
+  // March data range: "Mar 1-19" style
+  var dataRange = '';
+  if(latestMetric){
+    var mm = parseInt(latestMetric.slice(5,7));
+    var dd = parseInt(latestMetric.slice(8,10));
+    var yr = latestMetric.slice(0,4);
+    var months = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    dataRange = months[mm] + ' ' + yr + ': 1\u2013' + dd;
+  }
+
+  var pills = '<span class="pill"><span class="dot"></span>Live Data</span>'
+    + '<span class="pill">DataKeeper API</span>';
+  if(dataRange) pills += '<span class="pill" style="color:var(--a);font-weight:600">' + dataRange + '</span>';
+  pills += '<span class="pill">Loaded: ' + loadedPST + '</span>';
+  if(latestMetric) pills += '<span class="pill">Metrics thru: ' + latestMetric + '</span>';
+  meta.innerHTML = pills;
+}
+
 // ══════════ DATA LOADING ══════════
 var _retryCount = 0;
 async function initContentDashboard(){
@@ -285,6 +322,9 @@ async function initContentDashboard(){
       var h = normHandle(o.account_handle);
       if(h){ if(!_ordersByHandle[h]) _ordersByHandle[h]=[]; _ordersByHandle[h].push(o); }
     });
+
+    // Update hero with freshness info
+    updateFreshness();
 
     renderTab(_currentTab);
   }catch(e){
