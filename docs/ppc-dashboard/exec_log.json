@@ -71,6 +71,42 @@
    "sales_7d": 246.0,
    "result_status": "OK",
    "exec_date": "2026-03-17"
+  },
+  {
+   "campaignId": "444108265805305",
+   "campaignName": "Naeiae Rice Pop - SP - Manual",
+   "action": "harvest",
+   "priority": "medium",
+   "reason": "Profitable ST: ACOS 8.2% < target 25.0%, 14 sales",
+   "old_budget": null,
+   "new_budget": null,
+   "bid_change_pct": null,
+   "keyword": "떡뻥",
+   "old_bid": null,
+   "new_bid": 0.8,
+   "roas_7d": null,
+   "spend_7d": 34.26,
+   "sales_7d": 418.2,
+   "result_status": "OK",
+   "exec_date": "2026-03-18"
+  },
+  {
+   "campaignId": "365330679770972",
+   "campaignName": "Naeiae Rice Pop - SP - Auto",
+   "action": "harvest",
+   "priority": "medium",
+   "reason": "Profitable ST: ACOS 5.0% < target 35.0%, 9 sales",
+   "old_budget": null,
+   "new_budget": null,
+   "bid_change_pct": null,
+   "keyword": "naeiae pop rice snack",
+   "old_bid": null,
+   "new_bid": 0.59,
+   "roas_7d": null,
+   "spend_7d": 12.29,
+   "sales_7d": 246.0,
+   "result_status": "OK",
+   "exec_date": "2026-03-18"
   }
  ],
  "chaenmom": [
