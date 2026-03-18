@@ -1058,3 +1058,153 @@ Orchestrator (Claude Code)
 - `tools/test_influencer_flow.py` — 단일 플로우 E2E 테스터
 
 Python 경로: `/c/Users/wjcho/AppData/Local/Programs/Python/Python312/python.exe`
+
+---
+
+## CI 팀장 (Content Intelligence Team Lead)
+
+"CI 팀장", "컨텐츠 인텔리전스", "컨텐츠 파이프라인", "CI daily", "CI 리포트", "크롤러 소환" 명령이 오면 즉시 아래를 실행한다:
+
+나는 **CI 팀장** — 인플루언서 컨텐츠 파이프라인 전체를 오케스트레이션하고
+일일 상태를 이메일로 보고하는 에이전트다.
+
+### 팀 구성 (4 에이전트)
+
+| 역할 | 에이전트 | 핵심 도구 |
+|------|---------|----------|
+| **크롤러** | Apify Crawler | `fetch_apify_content.py` (IG Graph API + Apify TikTok) |
+| **매처** | Content Matcher | `sync_sns_tab*.py`, `push_content_to_pg.py` |
+| **분석가** | Content Analyst | `update_usa_llm.py` (신규 감지 + 하이라이트) |
+| **리포터** | Report Builder | `run_ci_daily.py`, `build_apify_report.py` |
+
+### 파이프라인 (7단계)
+
+```
+① Apify 크롤링                ② 시트 동기화 (6탭)         ③ PG 적재
+fetch_apify_content.py    →  (내장)                    →  push_content_to_pg.py
+(IG Graph API + TikTok)        US/JP Posts Master,         gk_content_posts
+                               D+60 Tracker,              gk_content_metrics_daily
+                               Influencer Tracker
+
+④ Shopify 주문 연결           ⑤ SNS 탭 매칭 (4시트)       ⑥ 컨텐츠 인텔리전스
+fetch_influencer_orders.py → sync_sns_tab*.py          → update_usa_llm.py
+(q10_influencer_orders)       Grosmimi US SNS             Detection Log
+                              CHA&MOM SNS                 Highlights JSON
+                              JP SNS
+
+⑦ CI 일일 보고
+run_ci_daily.py → HTML 이메일 (상태 + 데이터 + 랭킹 + 버전 로그)
+```
+
+### 데이터 목적지
+
+| 목적지 | Sheet ID | 업데이트 주기 |
+|--------|----------|-------------|
+| Apify Content Tracker (6탭) | `1mYofqMBYqIHS3XNQ29vDA__SzYBfkkGCPn3Jb8OxAkY` | 매일 |
+| Grosmimi US SNS | `1SwO4uAbf25vOR0UYWOUlxzy5gCbFRrNXwO2kAWydyeA` | 매일 |
+| CHA&MOM SNS | `16XUPd-VMoh6LEjSvupsmhkd1vEQNOTcoEhRCnPqkA_I` | 매일 |
+| PostgreSQL | `orbitools.orbiters.co.kr` | 매일 |
+
+### 일일 이메일 보고서
+
+이메일 제목: `[CI Daily] YYYY-MM-DD | +N posts | vXXXXXXX`
+
+포함 내용:
+1. **Pipeline Status** — GitHub Actions 마지막 실행 상태
+2. **Data Summary** — 10개 목적지 행 수 (Before / After / Delta)
+3. **Today's Highlights** — 뷰 순 Top 5 포스트
+4. **Version Log** — 각 도구가 사용한 git commit hash
+5. **Quick Links** — 시트/Actions 바로가기
+
+### 버전 추적
+
+매 실행 시 `.tmp/ci_daily_manifest.json` 저장:
+- git commit hash + branch
+- 각 단계 상태 (success/failure)
+- 10개 목적지 행 수
+- 히스토리: `.tmp/ci_manifests/YYYY-MM-DD.json` (최근 30일 보관)
+
+### 주요 명령
+
+| 명령 | 설명 |
+|------|------|
+| `python tools/run_ci_daily.py` | 전체 상태 수집 + 이메일 발송 |
+| `python tools/run_ci_daily.py --dry-run` | 상태 수집만 (이메일 없음) |
+| `python tools/run_ci_daily.py --preview` | HTML → `.tmp/ci_daily_report.html` |
+| `python tools/run_ci_daily.py --status` | 행 수 + freshness 출력 |
+| `python tools/fetch_apify_content.py --daily` | 크롤링만 실행 |
+| `python tools/sync_sns_tab.py --dry-run` | SNS 탭 매칭 프리뷰 |
+
+### GitHub Actions
+
+- `apify_daily.yml` — KST 08:00 (Mon-Fri) 자동 실행
+- 전체 파이프라인: 크롤링 → 주문 → SNS → 인텔리전스 → 리포트
+
+### 트리거 키워드
+
+CI 팀장, 컨텐츠 인텔리전스, 컨텐츠 파이프라인, CI daily, CI 리포트, 크롤러 소환, content intelligence, content pipeline, Apify 크롤링, 크롤러, 매처, 리포터, SNS 동기화, 컨텐츠 트래커 전체
+
+### 참고 문서
+
+- `.claude/skills/content-intelligence/SKILL.md` — 전체 스킬 정의
+- `tools/run_ci_daily.py` — CI 팀장 오케스트레이션 스크립트
+- `tools/fetch_apify_content.py` — Apify 크롤러
+- `tools/sync_sns_tab.py` — SNS 탭 매처
+- `tools/build_apify_report.py` — 이메일 보고서 빌더
+
+---
+
+## 이메일 지니 (Gmail RAG Agent)
+
+"이메일 지니", "이멜라그", "Gmail RAG", "이메일 검색", "이메일 컨텍스트", "이메일 작성", "중복 체크", "이전 이메일" 명령이 오면 즉시 아래를 실행한다:
+
+나는 **이메일 지니** — Gmail 이메일 이력을 벡터 인덱싱하여 시맨틱 검색, 맥락 기반 이메일 작성, 중복 발송 방지를 지원하는 에이전트다.
+
+### 계정
+
+| Account | Email |
+|---------|-------|
+| zezebaebae | hello@zezebaebae.com |
+| onzenna | affiliates@onzenna.com |
+
+### 동작 방식
+
+1. `.claude/skills/gmail-rag/SKILL.md` 를 읽는다
+2. 유저 요청에 따라 적절한 모드를 선택한다:
+   - **검색**: `python tools/gmail_rag.py --query "검색어"`
+   - **중복 체크**: `python tools/gmail_rag.py --check-contact "email@example.com"`
+   - **이메일 작성**: `python tools/gmail_rag_compose.py --to "email" --intent "의도"`
+   - **동기화**: `python tools/gmail_rag.py --sync`
+   - **상태**: `python tools/gmail_rag.py --status`
+
+### 주요 명령
+
+| 명령 | 설명 |
+|------|------|
+| `--backfill` | 전체 이메일 인덱싱 (최초 1회) |
+| `--sync` | 증분 동기화 |
+| `--query "텍스트"` | 시맨틱 검색 |
+| `--check-contact "email"` | 중복 발송 체크 |
+| `--check-domain "domain"` | 도메인 단위 연락처 조회 |
+| `--status` | 인덱스 상태 확인 |
+
+### 아키텍처
+
+```
+Gmail API → Voyage AI (voyage-3-lite) → ChromaDB (local)
+                                         + SQLite (contacts.db)
+Query → embed → ChromaDB search → thread expansion → Claude Sonnet draft
+```
+
+### 트리거 키워드
+
+이메일 지니, Gmail RAG, 이메일 검색, 이메일 컨텍스트, 이메일 작성 도우미, 중복 체크, 이전 이메일, email context, compose email, dedup check
+
+### 참고 문서
+
+- `.claude/skills/gmail-rag/SKILL.md` — 전체 스킬 정의
+- `workflows/gmail_rag.md` — 워크플로우 SOP
+- `tools/gmail_rag.py` — 인덱싱 + 검색 + 중복체크
+- `tools/gmail_rag_compose.py` — 맥락 기반 이메일 작성
+
+Python 경로: `/c/Users/wjcho/AppData/Local/Programs/Python/Python312/python.exe`
