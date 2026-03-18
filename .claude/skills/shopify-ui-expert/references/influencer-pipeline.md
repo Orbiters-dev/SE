@@ -33,8 +33,8 @@ Not Started → Draft Ready → Sent → Replied → Needs Review
 Shopify 배송 완료 ──Poll──>  Delivered Detection (30min) ──>  Airtable → Sample Delivered
   (Fulfillment delivered)                                        │
                                                                   │
-Syncly 컨텐츠 감지 ──Poll──>  Posted Detection (6hr) ──────>  Airtable → Posted
-  (D+60 Tracker 매칭)
+컨텐츠 감지 ──Poll──>  Posted Detection (6hr) ──────>  Airtable → Posted
+  (OrbiTools content_posts)
 ```
 
 ## 워크플로우 상세
@@ -143,8 +143,13 @@ Schedule (5min) → HTTP Request (Airtable GET, AT cred)
 **트리거**: Airtable Outreach Status = "Sample Delivered"
 **동작**:
 1. Airtable에서 "Sample Delivered" 레코드 + IG 핸들 조회
-2. Syncly D+60 Tracker Google Sheet에서 핸들로 검색
-3. 포스트 감지 시 Airtable → "Posted"
+2. OrbiTools API (`content_posts` 테이블)에서 username으로 검색
+3. 포스트 감지 시 Airtable → "Posted" + OrbiTools PG 업데이트
+
+**데이터 소스 변경 (2026-03-18)**: Syncly D+60 Tracker Sheet → OrbiTools content_posts (PostgreSQL)
+- 기존: Google Sheets API (인증 미설정으로 실질 미작동)
+- 변경: OrbiTools `GET /api/datakeeper/query/?table=content_posts&username=XXX`
+- 인증: OrbiTools Basic Auth (n8n credential ID: `THAQRJczCr1cJN2E`)
 
 **n8n Workflow IDs**:
 - WJ TEST: `82t55jurzbY3iUM4`
@@ -330,7 +335,7 @@ curl -s -w "\nHTTP %{http_code}" -X POST https://n8n.orbiters.co.kr/webhook/infl
 | Airtable 422 에러 | select 필드에 존재하지 않는 옵션 | `typecast: true`로 임시 레코드 생성 → 옵션 추가 → 삭제 |
 | Sample Sent 워크플로우 무동작 | Draft Order ID 필드가 비어있음 | Airtable 레코드에 Draft Order ID 먼저 기입 |
 | Delivered Detection 미동작 | WJ TEST에만 구현됨 | Production 워크플로우는 미생성 상태 |
-| Posted Detection 미동작 | Syncly D+60 시트에 데이터 없음 | Syncly 크롤링 정상 동작 확인 필요 |
+| Posted Detection 미동작 | (해결됨) 기존 Syncly Sheet 인증 미설정 → OrbiTools API로 전환 완료 (2026-03-18) |
 | n8n API PUT 400 | `name` 필드 누락 | payload에 `"name": wf.get("name")` 포함 필수 |
 | n8n API POST 400 `active is read-only` | `active` 필드 포함 | POST 시 `active` 필드 제거 |
 | Windows curl SSL 실패 | `CRYPT_E_NO_REVOCATION_CHECK` | `curl -sk` 사용 |
