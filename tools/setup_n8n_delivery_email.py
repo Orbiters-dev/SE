@@ -34,7 +34,7 @@ load_env()
 
 N8N_API_KEY = os.getenv("N8N_API_KEY", "")
 N8N_BASE_URL = os.getenv("N8N_BASE_URL", "https://n8n.orbiters.co.kr")
-WF_ID = "2vsXyHtjo79hnFoD"
+WF_ID = "k61gzrshITfju33V"   # PROD: Shipped -> Delivered (migrated 2026-03-18)
 
 # n8n credential IDs
 GMAIL_CRED_ID = "ZSCspnGLmbDXJMBu"

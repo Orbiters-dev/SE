@@ -23,6 +23,25 @@ Usage:
     python tools/test_influencer_flow.py --results              # 마지막 결과 보기
 """
 
+# ─── Public API (for dual_test_runner.py import) ─────────────────────────────
+__all__ = [
+    "FlowContext", "http_request", "extract_value",
+    "AT_BASE", "AT_CREATORS", "AT_CONTENT", "AT_ORDERS", "AT_CONVERSATIONS", "AT_APPLICANTS",
+    "WJ_WORKFLOWS", "WJ_WEBHOOKS", "WJ_WEBHOOK_BASE",
+    "AIRTABLE_API_KEY", "AIRTABLE_BASE_ID", "AIRTABLE_TABLE_ID",
+    "SHOPIFY_STORE", "SHOPIFY_TOKEN",
+    "ORBITOOLS_URL", "ORBITOOLS_USER", "ORBITOOLS_PASS",
+    "N8N_BASE_URL", "N8N_API_KEY",
+    "TEST_EMAIL_DOMAIN", "STEP_RUNNERS",
+    "_make_test_email", "_make_test_phone",
+    "run_verify_airtable", "run_verify_shopify", "run_verify_postgres",
+    "run_http_post", "run_http_get", "run_wait",
+    "run_airtable_create", "run_airtable_update",
+    "run_n8n_execute", "run_verify_n8n_workflow",
+    "generate_html_report", "run_flow",
+    "link_airtable", "link_shopify", "link_n8n_wf",
+]
+
 import os
 import sys
 import json
@@ -56,8 +75,8 @@ except ImportError:
 
 # ─── Config ─────────────────────────────────────────────────────────────────
 AIRTABLE_API_KEY = os.getenv("AIRTABLE_API_KEY", "")
-AIRTABLE_BASE_ID = os.getenv("AIRTABLE_INBOUND_BASE_ID", "appT2gLRR0PqMFgII")
-AIRTABLE_TABLE_ID = os.getenv("AIRTABLE_INBOUND_TABLE_ID", "tbloYjIEr5OtEppT0")
+AIRTABLE_BASE_ID = os.getenv("AIRTABLE_INBOUND_BASE_ID", "app3Vnmh7hLAVsevE")
+AIRTABLE_TABLE_ID = os.getenv("AIRTABLE_INBOUND_TABLE_ID", "tblQUz8zQRDdZvES3")
 SHOPIFY_STORE = os.getenv("SHOPIFY_SHOP", "")
 SHOPIFY_TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN", "")
 ORBITOOLS_URL = os.getenv("ORBITOOLS_URL", "https://orbitools.orbiters.co.kr")
@@ -66,41 +85,43 @@ ORBITOOLS_PASS = os.getenv("ORBITOOLS_PASS", "")
 N8N_BASE_URL = os.getenv("N8N_BASE_URL", "https://n8n.orbiters.co.kr")
 N8N_API_KEY = os.getenv("N8N_API_KEY", "")
 
-# ─── Airtable CRM Tables (Pathlight Workflows 사용) ─────────────────────────
-AT_BASE = "appT2gLRR0PqMFgII"
-AT_CREATORS = "tbl7zJ1MscP852p9N"
-AT_CONTENT = "tblSva2askQRwgGV1"
-AT_ORDERS = "tblCcWpvDZX7UZmSd"
-AT_CONVERSATIONS = "tblUnBCTmGzBb4BjZ"
-AT_APPLICANTS = "tbloYjIEr5OtEppT0"
+# ─── Airtable CRM Tables (PROD: app3Vnmh7hLAVsevE) ─────────────────────────
+AT_BASE = "app3Vnmh7hLAVsevE"
+AT_CREATORS = "tblv2Jw3ZAtAMhiYY"
+AT_CONTENT = "tble4cuyVnXP4OvZR"
+AT_ORDERS = "tblQUz8zQRDdZvES3"
+AT_CONVERSATIONS = "tblNeTyVwMomsfSk7"
+AT_APPLICANTS = "tblQUz8zQRDdZvES3"    # PROD: merged into Orders
 
-# ─── [WJ TEST] Workflow IDs (Pathlight 클론) ────────────────────────────────
+# ─── PROD Workflow IDs ────────────────────────────────────────────────────────
 WJ_WORKFLOWS = {
-    "syncly":       "6BNQRz57oCtdROlH",   # Syncly Data Processing
-    "content":      "zKmOX0tEWi6EBT9h",   # Content Tracking
-    "manychat":     "k08R16VJIuSPdi6T",   # ManyChat Automation
-    "draft_gen":    "0q9uJUYTpDhQFMfz",   # Outreach - Draft Generation
-    "approval":     "mmkBpmvhzbgmSayh",   # Outreach - Approval Send
-    "reply":        "nVtYmhU0InRqRn4K",   # Outreach - Reply Handler
-    "docusign":     "5BG7Qe7HtsbD4iP0",   # Docusign Contracting
-    "fulfillment":  "UP1OnpNEFN54AOUn",   # Shopify Fulfillment -> Airtable
-    "gifting":        "4q5NCzMb3nMGYqL4",   # Influencer Gifting -> Draft Order
-    "gifting2":       "734aqkcOIfiylExL",   # Gifting2 -> Draft Order + Airtable (2026-03-13)
-    "syncly_metrics": "FT70hFR6qI0mVc2T",   # Syncly Daily Metrics Sync (2026-03-13)
-    "lookup":         "wyttsPSZJlWLgy86",   # Influencer Customer Lookup
-    "full_pipeline":  "CEWr3kQlDg07310Y",  # Full Pipeline (JH&SY)
+    "syncly":           "l86XnrL1JPFOMSA4GOoYy",  # Syncly Data Processing
+    "content":          "isOQGE4ynRubL8We",        # Content Tracking v2 (migrated 2026-03-18)
+    "manychat":         "fsrnGT7aPn5jfVQ5m7I8C",  # ManyChat Automation
+    "draft_gen":        "fwwOeLiDLSnR77E1",        # Outreach - Draft Generation
+    "approval":         "jf9uxkPww2xeCr82",        # Outreach - Approval Send
+    "reply":            "K99grtW9iWq8V79f",        # Outreach - Reply Handler
+    "docusign":         "HeJtfn0m3PJoPzg0",        # Docusign Contracting
+    "fulfillment":      "ufMPgU6cjwuzLM0y",        # Shopify Fulfillment -> Airtable
+    "gifting":          "F0sv8RsCS1v56Gkw",        # Influencer Gifting -> Draft Order
+    "gifting2":         "KqICsN9F1mPwnAQ9",        # Gifting2 -> Draft Order
+    "syncly_metrics":   "FzBJVEOTvr6qJPAL",        # Syncly Daily Metrics Sync
+    "lookup":           "IlbMQ5UkvrZXQZLA",        # Influencer Customer Lookup
+    "full_pipeline":    "EqOhbPZ4mwvDQRmw",        # Full Pipeline (JH&SY)
+    "shipped_delivered": "k61gzrshITfju33V",       # Shipped -> Delivered (migrated 2026-03-18)
+    "delivered_posted":  "tvmHITPHpWFtcmh0",       # Delivered -> Posted (migrated 2026-03-18)
 }
 
-# ─── [WJ TEST] Webhook paths ───────────────────────────────────────────────
+# ─── PROD Webhook paths ───────────────────────────────────────────────────────
 WJ_WEBHOOK_BASE = "https://n8n.orbiters.co.kr/webhook"
 WJ_WEBHOOKS = {
-    "gifting":      f"{WJ_WEBHOOK_BASE}/wj-test-influencer-gifting",
+    "gifting":      f"{WJ_WEBHOOK_BASE}/influencer-gifting",
     "gifting2":     f"{WJ_WEBHOOK_BASE}/onzenna-gifting2-submit",
-    "fulfillment":  f"{WJ_WEBHOOK_BASE}/wj-test-shopify-fulfillment",
-    "content":      f"{WJ_WEBHOOK_BASE}/wj-test-check-content",
-    "contract":     f"{WJ_WEBHOOK_BASE}/wj-test-contract-approve",
-    "draft_gen":    f"{WJ_WEBHOOK_BASE}/wj-test-draft-gen",
-    "approval":     f"{WJ_WEBHOOK_BASE}/wj-test-approval-send",
+    "fulfillment":  f"{WJ_WEBHOOK_BASE}/shopify-fulfillment",
+    "content":      f"{WJ_WEBHOOK_BASE}/check-content",
+    "contract":     f"{WJ_WEBHOOK_BASE}/contract-approve",
+    "draft_gen":    f"{WJ_WEBHOOK_BASE}/draft-gen",
+    "approval":     f"{WJ_WEBHOOK_BASE}/approval-send",
 }
 
 REQUIRED_ENVS = {
