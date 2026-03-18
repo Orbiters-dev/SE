@@ -466,7 +466,10 @@ def generate():
         "multiplier": fm_multiplier,
     }
 
-    # ── 2. Revenue by Brand (Shopify only, PR excluded) ───────────────────────
+    # ── 2. Revenue by Brand (Shopify only, PR/Amazon excluded) ─────────────────
+    # Amazon channel = stale FBA MCF rows in PG (now reclassified as D2C in current code)
+    # True Amazon Marketplace sales come from amazon_sales_daily (SP-API)
+    SKIP_CHANNELS = {"PR", "Amazon"}
     print("\n[2/7] Computing revenue by brand...")
     brand_monthly = defaultdict(lambda: defaultdict(lambda: {
         "gross": 0, "net": 0, "disc": 0, "orders": 0, "units": 0
@@ -476,7 +479,7 @@ def generate():
         d = r.get("date", "")
         if not d or d > through:
             continue
-        if r.get("channel") == "PR":
+        if r.get("channel") in SKIP_CHANNELS:
             continue
         month = d[:7]
         brand = r.get("brand") or "Other"
@@ -520,7 +523,7 @@ def generate():
         d = r.get("date", "")
         if not d or d > through:
             continue
-        if r.get("channel") == "PR":
+        if r.get("channel") in SKIP_CHANNELS:
             continue
         month = d[:7]
         raw_ch = r.get("channel") or "Other"
@@ -637,7 +640,7 @@ def generate():
 
         for r in shopify:
             d = r.get("date", "")
-            if not d or d < date_from or d > date_to or r.get("channel") == "PR":
+            if not d or d < date_from or d > date_to or r.get("channel") in SKIP_CHANNELS:
                 continue
             net = float(r.get("net_sales") or 0)
             gross = float(r.get("gross_sales") or 0)
