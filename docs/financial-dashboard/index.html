@@ -400,7 +400,8 @@ function renderFinancial(){
   // TAB 3: MARGINS & P&L DETAIL
   // ══════════════════════════════════════════════════════════════════════════
   var mrg='';
-  mrg+=buildWaterfall(F, months, mLabels, lastIdx, isPartialLast);
+  if(F.pnl_polar) mrg+=buildPolarPnL(F.pnl_polar);
+  else mrg+=buildWaterfall(F, months, mLabels, lastIdx, isPartialLast);
 
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 4: SEARCH & SEO — with brand sub-tabs
@@ -779,6 +780,175 @@ function buildWaterfall(F, months, mLabels, lastIdx, isPartialLast){
   pctRow('<span style="color:var(--r);font-weight:700">(-) MKT Total</span>', wf.mkt_total||wf.ad_spend, 'border-top:1px solid var(--border);font-weight:700');
   pctRow('<span style="font-weight:800">Contribution Margin</span>', wf.contribution_margin, 'border-top:2px solid var(--border);font-weight:800');
   html+='</tbody></table></div></div></div></div>';
+  return html;
+}
+
+function buildPolarPnL(P){
+  var ms=P.months;
+  var fyIdx=P.fy2025_idx;
+  var html='';
+
+  // ── Section 1: Monthly Brand Sales ──
+  html+='<div class="sec"><div class="sec-title"><div class="num">3A</div> Monthly Sales by Brand (Source: Polar)</div>';
+  html+='<div class="card"><div class="desc">All brands, LFU+FLT combined (DTC + Amazon). FY2025 = Jan-Dec annual total.</div>';
+  html+='<div style="overflow-x:auto"><table><thead><tr><th>Brand</th>';
+  ms.forEach(function(m,i){
+    var sty='text-align:right;font-size:8px';
+    if(i===fyIdx) sty+=';background:#e0e7ff;font-weight:800;border-left:2px solid #6366f1;border-right:2px solid #6366f1';
+    html+='<th style="'+sty+'">'+m+'</th>';
+  });
+  html+='</tr></thead><tbody>';
+
+  // Brand rows sorted by FY2025 total desc
+  var brands=Object.keys(P.brand_sales);
+  brands.sort(function(a,b){ return (P.brand_sales[b].values[fyIdx]||0)-(P.brand_sales[a].values[fyIdx]||0); });
+
+  brands.forEach(function(b){
+    var bd=P.brand_sales[b];
+    html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+bd.color+';margin-right:6px"></span><b style="font-size:10px">'+b+'</b></td>';
+    bd.values.forEach(function(v,i){
+      var sty='text-align:right;font-family:var(--mono);font-size:9px';
+      if(i===fyIdx) sty+=';background:#eef2ff;font-weight:800;border-left:2px solid #6366f1;border-right:2px solid #6366f1';
+      html+='<td style="'+sty+'">'+(v>0?'$'+Math.round(v).toLocaleString():'<span style="color:var(--muted)">-</span>')+'</td>';
+    });
+    html+='</tr>';
+  });
+
+  // TOTAL row
+  html+='<tr style="border-top:2px solid var(--border);font-weight:700"><td><b>TOTAL</b></td>';
+  P.total_revenue.forEach(function(v,i){
+    var sty='text-align:right;font-family:var(--mono);font-size:10px;font-weight:800';
+    if(i===fyIdx) sty+=';background:#e0e7ff;border-left:2px solid #6366f1;border-right:2px solid #6366f1';
+    html+='<td style="'+sty+'">$'+Math.round(v).toLocaleString()+'</td>';
+  });
+  html+='</tr></tbody></table></div></div></div>';
+
+  // ── Section 2: P&L Waterfall ──
+  html+='<div class="sec"><div class="sec-title"><div class="num">3B</div> P&amp;L Waterfall: Revenue &rarr; GM &rarr; CM</div>';
+  html+='<div class="card"><div class="desc">GM = Revenue - COGS. CM = GM - Ads - Influencer. Source: Polar Analytics export.</div>';
+
+  // Bar chart
+  html+=barChart([
+    {label:'Gross Margin', data:P.gross_margin.slice(0,fyIdx), color:'#10b981'},
+    {label:'Ad Spend', data:P.ad_spend.total.slice(0,fyIdx), color:'#ef4444'},
+    {label:'CM (after all)', data:P.cm_final.slice(0,fyIdx).map(function(v){return Math.max(v,0);}), color:'#6366f1'}
+  ], ms.slice(0,fyIdx), {w:940,h:190,barW:7});
+
+  // Table
+  html+='<div style="overflow-x:auto;margin-top:8px"><table><thead><tr><th></th>';
+  ms.forEach(function(m,i){
+    var sty='text-align:right;font-size:8px';
+    if(i===fyIdx) sty+=';background:#e0e7ff;font-weight:800;border-left:2px solid #6366f1;border-right:2px solid #6366f1';
+    html+='<th style="'+sty+'">'+m+'</th>';
+  });
+  html+='</tr></thead><tbody>';
+
+  function pnlRow(label, arr, opts){
+    opts=opts||{};
+    var sty=opts.bold?'font-weight:700;':'';
+    sty+=opts.topBorder?'border-top:2px solid var(--border);':'';
+    html+='<tr style="'+sty+'"><td style="'+(opts.indent?'padding-left:'+(opts.indent*8)+'px;':'')+'color:'+(opts.color||'var(--text)')+'">'+label+'</td>';
+    arr.forEach(function(v,i){
+      var cs='text-align:right;font-family:var(--mono);font-size:'+(opts.fs||'10')+'px;color:'+(opts.color||'var(--text)');
+      if(i===fyIdx) cs+=';background:#eef2ff;font-weight:700;border-left:2px solid #6366f1;border-right:2px solid #6366f1';
+      if(opts.bold) cs+=';font-weight:700';
+      var prefix=opts.neg&&v>0?'-':'';
+      html+='<td style="'+cs+'">'+prefix+'$'+Math.abs(Math.round(v)).toLocaleString()+'</td>';
+    });
+    html+='</tr>';
+  }
+
+  function pctRow(label, numer, denom, opts){
+    opts=opts||{};
+    var sty=opts.topBorder?'border-top:2px solid var(--border);':'';
+    html+='<tr style="'+sty+'"><td style="padding-left:16px;color:var(--dim)">'+label+'</td>';
+    numer.forEach(function(v,i){
+      var d=denom[i]||1;
+      var p=d>0?(v/d*100).toFixed(1):'0';
+      var cs='text-align:right;font-family:var(--mono);font-size:9px;color:var(--dim)';
+      if(i===fyIdx) cs+=';background:#eef2ff;border-left:2px solid #6366f1;border-right:2px solid #6366f1';
+      html+='<td style="'+cs+'">'+p+'%</td>';
+    });
+    html+='</tr>';
+  }
+
+  pnlRow('Revenue', P.total_revenue, {bold:true});
+  pnlRow('(-) COGS', P.cogs, {color:'var(--r)',neg:true,fs:'9'});
+  pnlRow('Gross Margin', P.gross_margin, {bold:true,topBorder:true,color:'var(--g)'});
+  pctRow('GM %', P.gross_margin, P.total_revenue);
+
+  // Separator
+  html+='<tr><td colspan="'+(ms.length+1)+'" style="padding:3px 0;border:none"><div style="border-top:1px dashed var(--border)"></div></td></tr>';
+
+  // Ad Spend breakdown
+  pnlRow('(-) Ad Spend Total', P.ad_spend.total, {bold:true,color:'var(--r)',neg:true});
+  pnlRow('ONZENNA (Meta+Google+TT+T+)', P.ad_spend.onzenna, {indent:2,color:'var(--r)',fs:'9',neg:true});
+  pnlRow('Amazon Ads', P.ad_spend.amazon, {indent:2,color:'var(--r)',fs:'9',neg:true});
+
+  // Influencer
+  pnlRow('(-) Influencer / Collab', P.influencer_spend, {color:'var(--r)',fs:'9',neg:true});
+
+  // MKT Total
+  var mkt_total=P.ad_spend.total.map(function(v,i){ return v+(P.influencer_spend[i]||0); });
+  pnlRow('(-) MKT Total', mkt_total, {bold:true,topBorder:true,color:'var(--r)',neg:true});
+  pctRow('MKT %', mkt_total, P.total_revenue);
+
+  // CM after ads
+  pnlRow('CM after Ads', P.cm_after_ads, {bold:true,topBorder:true,color:'#6366f1'});
+  pctRow('CM %', P.cm_after_ads, P.total_revenue);
+
+  // Final CM
+  pnlRow('CM after Ads + Influencer', P.cm_final, {bold:true,topBorder:true,color:P.cm_final[P.cm_final.length-1]>=0?'#6366f1':'var(--r)'});
+  pctRow('CM %', P.cm_final, P.total_revenue);
+
+  html+='</tbody></table></div>';
+
+  // ── Section 3: ROAS summary ──
+  html+='<div style="margin-top:12px"><div style="font-size:10px;font-weight:700;color:var(--dim);margin-bottom:4px">ROAS by Channel</div>';
+  html+='<div style="overflow-x:auto"><table><thead><tr><th></th>';
+  ms.forEach(function(m,i){
+    var sty='text-align:right;font-size:8px';
+    if(i===fyIdx) sty+=';background:#e0e7ff;font-weight:800;border-left:2px solid #6366f1;border-right:2px solid #6366f1';
+    html+='<th style="'+sty+'">'+m+'</th>';
+  });
+  html+='</tr></thead><tbody>';
+
+  function roasRow(label,sales,spend){
+    html+='<tr><td style="font-size:10px">'+label+'</td>';
+    sales.forEach(function(s,i){
+      var sp=spend[i]||0;
+      var r=sp>0?s/sp:0;
+      var c=r>=3?'var(--g)':r>=1.5?'var(--am)':sp>0?'var(--r)':'var(--muted)';
+      var cs='text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+c;
+      if(i===fyIdx) cs+=';background:#eef2ff;border-left:2px solid #6366f1;border-right:2px solid #6366f1';
+      html+='<td style="'+cs+'">'+(sp>0?r.toFixed(1)+'x':'-')+'</td>';
+    });
+    html+='</tr>';
+  }
+
+  roasRow('ONZENNA ROAS', P.sales_from_ads.onzenna, P.ad_spend.onzenna);
+  roasRow('Amazon ROAS', P.sales_from_ads.amazon, P.ad_spend.amazon);
+  roasRow('Total ROAS', P.sales_from_ads.total, P.ad_spend.total);
+  // TROAS = total sales / ad spend
+  roasRow('<b>TROAS (Total Rev / Ad$)</b>', P.total_revenue, P.ad_spend.total);
+
+  html+='</tbody></table></div></div>';
+
+  // ── Section 4: Paid vs Organic ──
+  html+='<div style="margin-top:12px"><div style="font-size:10px;font-weight:700;color:var(--dim);margin-bottom:4px">Paid vs Organic Sales</div>';
+  html+='<div style="overflow-x:auto"><table><thead><tr><th></th>';
+  ms.forEach(function(m,i){
+    var sty='text-align:right;font-size:8px';
+    if(i===fyIdx) sty+=';background:#e0e7ff;font-weight:800;border-left:2px solid #6366f1;border-right:2px solid #6366f1';
+    html+='<th style="'+sty+'">'+m+'</th>';
+  });
+  html+='</tr></thead><tbody>';
+  pnlRow('Paid (Ad-attributed)', P.sales_from_ads.total, {color:'#6366f1',fs:'9'});
+  pnlRow('Organic', P.organic.total, {color:'var(--g)',fs:'9'});
+  pctRow('Organic %', P.organic.total, P.total_revenue);
+  html+='</tbody></table></div></div>';
+
+  html+='</div></div>';
   return html;
 }
 

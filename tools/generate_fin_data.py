@@ -16,6 +16,7 @@ Usage:
 Part of 골만이 Squad pipeline.
 """
 
+import csv
 import json
 import os
 import sys
@@ -56,6 +57,313 @@ AVG_PRICE = {
     "Grosmimi": 28.0, "Naeiae": 18.0, "CHA&MOM": 32.0,
     "Onzenna": 22.0, "Alpremio": 38.0,
 }
+
+
+# ── Polar CSV parser ──────────────────────────────────────────────────────
+POLAR_CSV = Path(os.path.expanduser("~")) / "Downloads" / "Monthly Sales by brands(폴라 희망).csv"
+
+# Map CSV brand names to our standard names
+POLAR_BRAND_MAP = {
+    "Grosmimi": "Grosmimi",
+    "Alpremio": "Alpremio",
+    "Naeiae": "Naeiae",
+    "CHA&MOM": "CHA&MOM",
+    "Comme Moi": "Comme Moi",
+    "BabyRabbit": "BabyRabbit",
+    "BambooBebe": "BambooBebe",
+    "Hattung": "Hattung",
+    "beemymagic": "beemymagic",
+    "Easy Shower": "Easy Shower",
+    "Nature Love Mere": "Nature Love Mere",
+}
+
+POLAR_BRAND_COLORS = {
+    "Grosmimi": "#8b5cf6", "Alpremio": "#f97316", "Naeiae": "#eab308",
+    "CHA&MOM": "#0ea5e9", "Comme Moi": "#14b8a6", "BabyRabbit": "#f472b6",
+    "BambooBebe": "#a3e635", "Hattung": "#fb923c", "beemymagic": "#c084fc",
+    "Easy Shower": "#94a3b8", "Nature Love Mere": "#6b7280",
+}
+
+
+def _parse_polar_val(s):
+    """Parse a Polar CSV cell value like ' 125,981 ' or ' - ' to float."""
+    s = s.strip().strip('"').strip()
+    if not s or s == "-":
+        return 0.0
+    return float(s.replace(",", ""))
+
+
+def parse_polar_csv():
+    """Parse the Polar CSV and return P&L data from Jan-25 onwards."""
+    if not POLAR_CSV.exists():
+        print(f"  [WARN] Polar CSV not found: {POLAR_CSV}")
+        return None
+
+    with open(POLAR_CSV, "r", encoding="utf-8-sig") as f:
+        rows = list(csv.reader(f))
+
+    # Find month header row (contains "Jan-22")
+    header_row_idx = None
+    month_cols = {}  # "Jan-25" -> col_idx
+    for i, row in enumerate(rows):
+        for j, cell in enumerate(row):
+            if cell.strip() == "Jan-22":
+                header_row_idx = i
+                # Map all month columns
+                for k in range(j, min(j + 60, len(row))):
+                    m = row[k].strip()
+                    if m:
+                        month_cols[m] = k
+                break
+        if header_row_idx is not None:
+            break
+
+    if header_row_idx is None:
+        print("  [WARN] Could not find month headers in Polar CSV")
+        return None
+
+    # Months we want: Jan-25 through Jan-26
+    target_months = []
+    for yr in [25, 26]:
+        for mi, mn in enumerate(["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], 1):
+            key = f"{mn}-{yr}"
+            if key in month_cols:
+                target_months.append(key)
+            if yr == 26 and mi >= 2:
+                break  # Only go up to Jan-26 (or whatever's available)
+
+    def _get_vals(row):
+        """Get values for target months from a CSV row."""
+        return [_parse_polar_val(row[month_cols[m]] if month_cols[m] < len(row) else "")
+                for m in target_months]
+
+    # Find section start rows by scanning for keywords
+    def _find_row(keyword, start=0, col=0, col2=None):
+        """Find the row index where col matches keyword."""
+        for i in range(start, len(rows)):
+            r = rows[i]
+            if len(r) > col and r[col].strip() == keyword:
+                return i
+            if col2 is not None and len(r) > col2 and r[col2].strip() == keyword:
+                return i
+        return None
+
+    def _find_brand_row(section_start, brand_name, max_rows=15):
+        """Find a brand row within a section."""
+        for i in range(section_start + 1, min(section_start + max_rows, len(rows))):
+            r = rows[i]
+            if len(r) > 1 and r[1].strip() == brand_name:
+                return i
+        return None
+
+    # ── Section 1: Sales By Brands (LFU+FLT) ──
+    sec_sales = _find_row("Sales By Brands (USD)")
+    brand_sales = {}
+    if sec_sales is not None:
+        for brand in POLAR_BRAND_MAP:
+            br = _find_brand_row(sec_sales + 1, brand, 20)
+            if br is not None:
+                brand_sales[brand] = _get_vals(rows[br])
+        # Total row
+        total_row = _find_brand_row(sec_sales + 1, "LFU+FLT ??", 20)
+        if total_row is None:
+            # Try matching partial
+            for i in range(sec_sales + 2, sec_sales + 25):
+                if i < len(rows) and len(rows[i]) > 1:
+                    cell = rows[i][1].strip()
+                    if "LFU+FLT" in cell and "?" in cell:
+                        total_row = i
+                        break
+
+    total_sales = _get_vals(rows[total_row]) if total_row else [0.0] * len(target_months)
+
+    # ── Section: ADS by Channel ──
+    sec_ads = _find_row("ADS by Channel") or _find_row("Ads Spent")
+    ad_spend_onzenna = [0.0] * len(target_months)
+    ad_spend_amazon = [0.0] * len(target_months)
+    ad_spend_total = [0.0] * len(target_months)
+    ad_spend_google = [0.0] * len(target_months)
+    ad_spend_amz_grosmimi = [0.0] * len(target_months)
+    ad_spend_amz_chaenmom = [0.0] * len(target_months)
+    ad_spend_amz_naeiae = [0.0] * len(target_months)
+
+    if sec_ads is not None:
+        for i in range(sec_ads + 1, min(sec_ads + 30, len(rows))):
+            r = rows[i]
+            c1 = r[1].strip() if len(r) > 1 else ""
+            c2 = r[2].strip() if len(r) > 2 else ""
+            if c1 == "ONZENNA":
+                ad_spend_onzenna = _get_vals(r)
+            elif c1 == "Amazon":
+                ad_spend_amazon = _get_vals(r)
+            elif c1 == "Total Ads Spent":
+                ad_spend_total = _get_vals(r)
+                break  # Don't scan past into "Sales from Ads"
+            # Sub-breakdowns (column 2)
+            if c2 == "google Ads":
+                ad_spend_google = _get_vals(r)
+            elif c2 == "Grosmimi" and i > sec_ads + 10:  # Amazon sub
+                ad_spend_amz_grosmimi = _get_vals(r)
+            elif "Cha" in c2 and "mom" in c2.lower():
+                ad_spend_amz_chaenmom = _get_vals(r)
+            elif "Naeiae" in c2 or "Others" in c2:
+                ad_spend_amz_naeiae = _get_vals(r)
+
+    # ── Sales from Ads ──
+    sec_sales_ads = _find_row("Sales from Ads")
+    sales_from_ads_total = [0.0] * len(target_months)
+    sales_from_ads_onz = [0.0] * len(target_months)
+    sales_from_ads_amz = [0.0] * len(target_months)
+
+    if sec_sales_ads is not None:
+        for i in range(sec_sales_ads + 1, min(sec_sales_ads + 20, len(rows))):
+            r = rows[i]
+            c1 = r[1].strip() if len(r) > 1 else ""
+            if c1 == "ONZENNA":
+                sales_from_ads_onz = _get_vals(r)
+            elif c1 == "Amazon":
+                sales_from_ads_amz = _get_vals(r)
+            elif c1 == "Total Sales from Ads":
+                sales_from_ads_total = _get_vals(r)
+                break
+
+    # ── Organic Sales ──
+    sec_organic = _find_row("Organic Sales")
+    organic_total = [0.0] * len(target_months)
+    organic_onz = [0.0] * len(target_months)
+    organic_amz = [0.0] * len(target_months)
+
+    if sec_organic is not None:
+        for i in range(sec_organic + 1, min(sec_organic + 15, len(rows))):
+            r = rows[i]
+            c1 = r[1].strip() if len(r) > 1 else ""
+            if c1 == "ONZENNA":
+                organic_onz = _get_vals(r)
+            elif c1 == "AMZ":
+                organic_amz = _get_vals(r)
+            elif c1 == "Total Organic Sales":
+                organic_total = _get_vals(r)
+                break
+
+    # ── CM before/after Ads ──
+    sec_cm_before = _find_row("CM before Ads")
+    cm_before_total = [0.0] * len(target_months)
+    cm_before_onz = [0.0] * len(target_months)
+    cm_before_amz = [0.0] * len(target_months)
+
+    if sec_cm_before is not None:
+        for i in range(sec_cm_before + 1, min(sec_cm_before + 15, len(rows))):
+            r = rows[i]
+            c1 = r[1].strip() if len(r) > 1 else ""
+            if c1 == "ONZENNA":
+                cm_before_onz = _get_vals(r)
+            elif c1 == "AMZ":
+                cm_before_amz = _get_vals(r)
+            elif c1 == "Total CM before Ads":
+                cm_before_total = _get_vals(r)
+                break
+
+    sec_cm_after = _find_row("CM After Ads")
+    cm_after_total = [0.0] * len(target_months)
+    cm_after_onz = [0.0] * len(target_months)
+    cm_after_amz = [0.0] * len(target_months)
+
+    if sec_cm_after is not None:
+        for i in range(sec_cm_after + 1, min(sec_cm_after + 15, len(rows))):
+            r = rows[i]
+            c1 = r[1].strip() if len(r) > 1 else ""
+            if c1 == "ONZENNA":
+                cm_after_onz = _get_vals(r)
+            elif c1 == "AMZ":
+                cm_after_amz = _get_vals(r)
+            elif c1 == "Total CM after Ads":
+                cm_after_total = _get_vals(r)
+                break
+
+    # ── Influencer Spend ──
+    sec_influencer = _find_row("Paid influencer collabs")
+    influencer_total = [0.0] * len(target_months)
+    if sec_influencer is not None:
+        for i in range(sec_influencer + 2, min(sec_influencer + 60, len(rows))):
+            r = rows[i]
+            c0 = r[0].strip() if len(r) > 0 else ""
+            if c0 == "Monthly Total":
+                influencer_total = _get_vals(r)
+                break
+
+    # ── Final CM (after ads + influencer) ──
+    sec_final_cm = _find_row("Total CM After ads & influencer collabs")
+    cm_final = [0.0] * len(target_months)
+    if sec_final_cm is not None:
+        cm_final = _get_vals(rows[sec_final_cm])
+
+    # ── COGS (from FLT COGS section) ──
+    # COGS = Revenue - CM before Ads (since CM before ads = Revenue × COGS margin)
+    # Actually: CM before Ads = GP = Revenue - COGS, so COGS = Revenue - CM before Ads
+    cogs = [round(rev - cm) for rev, cm in zip(total_sales, cm_before_total)]
+
+    # ── Build 2025 annual total ──
+    # Jan-25 through Dec-25 = first 12 entries
+    num_2025 = min(12, len(target_months))
+
+    def _annual(arr):
+        return round(sum(arr[:num_2025]))
+
+    # Convert month labels: "Jan-25" -> "Jan 25"
+    month_labels = [m.replace("-", " ") for m in target_months[:num_2025]]
+    month_labels.append("FY2025")
+    month_labels.extend([m.replace("-", " ") for m in target_months[num_2025:]])
+
+    def _with_annual(arr):
+        """Insert FY2025 total after the first 12 months."""
+        out = [round(v) for v in arr[:num_2025]]
+        out.append(_annual(arr))
+        out.extend([round(v) for v in arr[num_2025:]])
+        return out
+
+    result = {
+        "months": month_labels,
+        "fy2025_idx": num_2025,  # Index of "FY2025" column
+        "brand_sales": {},
+        "total_revenue": _with_annual(total_sales),
+        "cogs": _with_annual(cogs),
+        "gross_margin": _with_annual(cm_before_total),
+        "ad_spend": {
+            "onzenna": _with_annual(ad_spend_onzenna),
+            "amazon": _with_annual(ad_spend_amazon),
+            "total": _with_annual(ad_spend_total),
+        },
+        "ad_spend_detail": {
+            "google": _with_annual(ad_spend_google),
+            "amz_grosmimi": _with_annual(ad_spend_amz_grosmimi),
+            "amz_chaenmom": _with_annual(ad_spend_amz_chaenmom),
+            "amz_naeiae": _with_annual(ad_spend_amz_naeiae),
+        },
+        "sales_from_ads": {
+            "onzenna": _with_annual(sales_from_ads_onz),
+            "amazon": _with_annual(sales_from_ads_amz),
+            "total": _with_annual(sales_from_ads_total),
+        },
+        "organic": {
+            "onzenna": _with_annual(organic_onz),
+            "amazon": _with_annual(organic_amz),
+            "total": _with_annual(organic_total),
+        },
+        "influencer_spend": _with_annual(influencer_total),
+        "cm_after_ads": _with_annual(cm_after_total),
+        "cm_final": _with_annual(cm_final),
+    }
+
+    # Brand-level sales
+    for brand, vals in brand_sales.items():
+        result["brand_sales"][brand] = {
+            "values": _with_annual(vals),
+            "color": POLAR_BRAND_COLORS.get(brand, "#94a3b8"),
+        }
+
+    print(f"  Polar CSV parsed: {len(target_months)} months, {len(brand_sales)} brands")
+    return result
 
 
 def generate():
@@ -992,6 +1300,10 @@ def generate():
 
     organic_monthly = [max(0, rev - paid) for rev, paid in zip(total_rev_monthly, paid_monthly)]
 
+    # ── Parse Polar CSV for full P&L ────────────────────────────────────────
+    print("[7.5/8] Parsing Polar CSV for P&L...")
+    pnl_polar = parse_polar_csv()
+
     # ── Assemble final data ───────────────────────────────────────────────────
     fin_data = {
         "generated_pst": now_pst.strftime("%Y-%m-%d %H:%M PST"),
@@ -1038,6 +1350,7 @@ def generate():
         "brand_analytics": ba_data,
         "brand_analytics_category": ba_category_top,
         "traffic_sources": traffic_data,
+        "pnl_polar": pnl_polar,
     }
 
     # ── Write output ──────────────────────────────────────────────────────────
