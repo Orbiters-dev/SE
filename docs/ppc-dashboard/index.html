@@ -8,7 +8,6 @@
 <script src="data.js"></script>
 <script src="pl_data.js"></script>
 <script src="bt_data.js"></script>
-<script src="fin_data.js"></script>
 <style>
 :root{--bg:#f8fafc;--card:#fff;--border:#e2e8f0;--text:#1e293b;--dim:#64748b;--muted:#94a3b8;--a:#6366f1;--abg:#eef2ff;--g:#10b981;--gbg:#ecfdf5;--am:#f59e0b;--ambg:#fffbeb;--r:#ef4444;--rbg:#fef2f2;--c:#0ea5e9;--cbg:#f0f9ff;--p:#ec4899;--mono:'SF Mono','Fira Code',Consolas,monospace}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -167,7 +166,7 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
   <div style="display:inline-flex;border:2px solid var(--border);border-radius:10px;overflow:hidden;font-size:12px;font-weight:700">
     <div style="padding:8px 20px;background:var(--a);color:#fff;cursor:default">Amazon PPC Intelligence</div>
     <a href="../content-dashboard/index.html" style="padding:8px 20px;color:var(--dim);text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center" onmouseover="this.style.background='var(--abg)';this.style.color='var(--a)'" onmouseout="this.style.background='';this.style.color='var(--dim)'">Content Intelligence</a>
-    <div id="nav-financial" style="padding:8px 20px;color:var(--dim);cursor:pointer;transition:.15s;display:flex;align-items:center;font-weight:700;border-left:1px solid var(--border)" onclick="document.querySelector('.mt>div[data-p=tab-financial]').click()" onmouseover="this.style.background='var(--gbg)';this.style.color='var(--g)'" onmouseout="if(!document.querySelector('.mt>div[data-p=tab-financial]').classList.contains('on')){this.style.background='';this.style.color='var(--dim)'}">Financial KPIs</div>
+    <a href="../financial-dashboard/index.html" style="padding:8px 20px;color:var(--dim);text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center" onmouseover="this.style.background='var(--gbg)';this.style.color='var(--g)'" onmouseout="this.style.background='';this.style.color='var(--dim)'">Financial KPIs</a>
   </div>
 </div>
 
@@ -183,7 +182,6 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
   <div data-p="tab-execlog">Execution Log</div>
   <div data-p="tab-backtest">Simulator & Test Log</div>
   <div data-p="tab-analytics">Live Analytics</div>
-  <div data-p="tab-financial" style="color:var(--g)">Financial KPIs</div>
   <div data-p="tab-sysadmin">System Admin</div>
 </div>
 
@@ -588,11 +586,6 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
   </div>
   <div id="analytics-content"></div>
   <div id="analytics-st-content" style="display:none"></div>
-</div>
-
-<!-- ══════════ TAB: FINANCIAL KPIs ══════════ -->
-<div class="mp" id="tab-financial">
-  <div id="fin-content"></div>
 </div>
 
 <!-- ══════════ TAB 6: SYSTEM ADMIN ══════════ -->
@@ -1925,6 +1918,24 @@ function renderPropose(bk, dt, containerId){
   var hasChange = dd.campaigns.filter(function(c){return c.action!=='optimize' && c.action!=='monitor';});
   var noChange = dd.campaigns.filter(function(c){return c.action==='optimize' || c.action==='monitor';});
 
+  // Detect executed state: server-side (data.js) OR browser-local audit
+  var isExecuted = !!dd.executed;
+  if(!isExecuted){
+    var auditLog = getExecAuditLog();
+    isExecuted = auditLog.some(function(e){ return e.brand===bk && e.details && e.details.date===dt; });
+  }
+  // Build set of executed campaign names (for per-row badges)
+  var executedCamps = {};
+  var execLog = (D.brands[bk] && D.brands[bk].execution_log) || [];
+  execLog.filter(function(e){ return e.exec_date===dt; }).forEach(function(e){
+    if(e.campaignName) executedCamps[e.campaignName] = e.result_status||'OK';
+  });
+  // Build set of executed harvest/negate keywords
+  var executedKws = {};
+  execLog.filter(function(e){ return e.exec_date===dt && e.keyword; }).forEach(function(e){
+    executedKws[e.keyword] = e.result_status||'OK';
+  });
+
   // Totals
   var totSpend=0, totSales=0, totBudBefore=0, totBudAfter=0;
   dd.campaigns.forEach(function(c){ totSpend+=c.spend7d||0; totSales+=c.sales7d||0; totBudBefore+=c.bud_before||0; totBudAfter+=(c.bud_after&&c.bud_after!==c.bud_before?c.bud_after:c.bud_before||0); });
@@ -1967,8 +1978,17 @@ function renderPropose(bk, dt, containerId){
     var product = guessProduct(c.name);
     var cm = guessCM(c.name);
     var prodTag = product ? '<div style="font-size:9px;color:var(--c)">'+product+'</div>' : '';
-    return '<tr '+rowBg+' id="camp-row-'+bk+'-'+dt+'-'+i+'">' +
-      '<td><input type="checkbox" class="camp-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'"'+(isAction?' checked':'')+' data-bud-before="'+(c.bud_before||0)+'" data-bud-suggest="'+(isPause?0:(c.bud_after||c.bud_before||0))+'"></td>' +
+    // Executed state per campaign
+    var campExecStatus = executedCamps[c.name] || (c.approved ? 'OK' : '');
+    var campIsExec = isExecuted && (campExecStatus || c.approved);
+    var checkboxHtml = campIsExec
+      ? '<td>'+badge(campExecStatus||'OK', campExecStatus==='OK'?'g':(campExecStatus==='SKIPPED'?'':'r'))+'</td>'
+      : '<td><input type="checkbox" class="camp-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'"'+(isAction?' checked':'')+' data-bud-before="'+(c.bud_before||0)+'" data-bud-suggest="'+(isPause?0:(c.bud_after||c.bud_before||0))+'"></td>';
+    var overrideHtml = campIsExec
+      ? '<td style="font-family:var(--mono);color:var(--dim)">'+overrideVal+'</td>'
+      : '<td><input type="number" step="1" class="override-input" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'" value="'+overrideVal+'" style="width:65px;padding:3px 5px;border:1px solid var(--border);border-radius:4px;font-family:var(--mono);font-size:11px;text-align:right"></td>';
+    return '<tr '+(campIsExec?'style="opacity:0.7;background:#f0fdf4"':rowBg)+' id="camp-row-'+bk+'-'+dt+'-'+i+'">' +
+      checkboxHtml +
       '<td>'+tierB+'</td>' +
       '<td style="cursor:pointer" onclick="toggleCampDetail(\''+bk+'\',\''+dt+'\','+i+')">' +
         '<div style="display:flex;align-items:center;gap:4px"><b>'+c.name+'</b>' +
@@ -1981,7 +2001,7 @@ function renderPropose(bk, dt, containerId){
       '<td style="font-family:var(--mono)">$'+c.sales7d+'</td>' +
       '<td>'+actionB+'</td><td>'+bidStr+'</td><td>'+budStr+'</td>' +
       '<td style="font-size:9px;color:var(--dim);max-width:160px">'+c.reason.substring(0,60)+'</td>' +
-      '<td><input type="number" step="1" class="override-input" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'" value="'+overrideVal+'" style="width:65px;padding:3px 5px;border:1px solid var(--border);border-radius:4px;font-family:var(--mono);font-size:11px;text-align:right"></td>' +
+      overrideHtml +
     '</tr>' +
     '<tr id="camp-detail-'+bk+'-'+dt+'-'+i+'" style="display:none"><td colspan="13" style="padding:0;background:#f8fafc">' +
       '<div style="padding:12px 16px">' +
@@ -2025,8 +2045,12 @@ function renderPropose(bk, dt, containerId){
   // Harvest (with SIM badge if from simulator)
   var harvestRows = dd.harvest.map(function(h,i){
     var simB = h.sim_confirmed ? ' '+badge('SIM','sim') : (h.acos && h.acos<15 ? ' '+badge('HIGH ROAS','g') : '');
-    return '<tr>' +
-      '<td><input type="checkbox" class="harvest-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'" data-term="'+escQ(h.term)+'" checked></td>' +
+    var hExec = executedKws[h.term] || '';
+    var hIsExec = isExecuted && hExec;
+    return '<tr'+(hIsExec?' style="opacity:0.7;background:#f0fdf4"':'')+'>' +
+      (hIsExec
+        ? '<td>'+badge(hExec,'g')+'</td>'
+        : '<td><input type="checkbox" class="harvest-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'" data-term="'+escQ(h.term)+'" checked></td>') +
       '<td>'+h.term+simB+'</td><td style="color:var(--g);font-weight:700">$'+h.sales+'</td><td>$'+h.cost+'</td>' +
       '<td>'+(h.acos?badge(h.acos+'%','g'):'—')+'</td><td>'+h.clicks+'</td><td>'+h.purchases+'</td>' +
       '<td>$'+h.bid+'</td><td style="font-size:9px;color:var(--dim)">'+h.campaign+'</td>' +
@@ -2037,8 +2061,12 @@ function renderPropose(bk, dt, containerId){
   // Negate
   var negRows = dd.negate.map(function(n,i){
     var simB = n.sim_save>0?' '+badge('SIM $'+n.sim_save,'sim'):'';
-    return '<tr>' +
-      '<td><input type="checkbox" class="negate-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'" data-term="'+escQ(n.term)+'" checked></td>' +
+    var nExec = executedKws[n.term] || '';
+    var nIsExec = isExecuted && nExec;
+    return '<tr'+(nIsExec?' style="opacity:0.7;background:#f0fdf4"':'')+'>' +
+      (nIsExec
+        ? '<td>'+badge(nExec,'g')+'</td>'
+        : '<td><input type="checkbox" class="negate-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'" data-term="'+escQ(n.term)+'" checked></td>') +
       '<td>'+n.term+simB+'</td><td>$'+n.cost+'</td><td>'+(n.sales?'$'+n.sales:'$0')+'</td>' +
       '<td>'+(n.acos?badge(n.acos+'%','r'):'—')+'</td><td>'+n.clicks+'</td>' +
       '<td>'+badge(n.type.replace('negate_',''),'r')+'</td>' +
@@ -2049,11 +2077,14 @@ function renderPropose(bk, dt, containerId){
   }).join('');
 
   el.innerHTML =
+    // Executed banner
+    (isExecuted ? '<div style="padding:10px 14px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;margin-bottom:12px;display:flex;align-items:center;gap:8px"><span style="font-size:16px">&#10003;</span><b style="color:#16a34a">Executed</b><span style="color:var(--dim);font-size:11px">'+(dd.executed_at?'on '+dd.executed_at:'dispatched')+'</span></div>' : '') +
+
     '<div class="card">' +
-      '<h3>All Campaigns ('+dd.campaigns.length+') — <span style="color:var(--a)">'+hasChange.length+' with proposals</span>, <span style="color:var(--muted)">'+noChange.length+' no change</span></h3>' +
-      '<div class="desc">Generated: '+dd.generated.replace('T',' ')+' PST | Data: '+dt+' | Click campaign name to expand detail | Override column = your final budget</div>' +
+      '<h3>All Campaigns ('+dd.campaigns.length+') — <span style="color:var(--a)">'+hasChange.length+' with proposals</span>, <span style="color:var(--muted)">'+noChange.length+' no change</span>'+(isExecuted?' <span style="color:#16a34a;font-size:12px">[EXECUTED]</span>':'')+'</h3>' +
+      '<div class="desc">Generated: '+dd.generated.replace('T',' ')+' PST | Data: '+dt+' | Click campaign name to expand detail'+(isExecuted?'':' | Override column = your final budget')+'</div>' +
       '<div style="overflow-x:auto"><table>' +
-        '<thead><tr><th><input type="checkbox" id="checkAll-camp-'+bk+'-'+dt+'"> All</th><th>Tier</th><th>Campaign ▼</th><th>Type</th><th>ROAS</th><th>ACOS</th><th>7d Spend</th><th>7d Sales</th><th>Action</th><th>Bid</th><th>Budget</th><th>Reason</th><th style="color:var(--a)">Override $</th></tr></thead>' +
+        '<thead><tr><th>'+(isExecuted?'Status':'<input type="checkbox" id="checkAll-camp-'+bk+'-'+dt+'"> All')+'</th><th>Tier</th><th>Campaign ▼</th><th>Type</th><th>ROAS</th><th>ACOS</th><th>7d Spend</th><th>7d Sales</th><th>Action</th><th>Bid</th><th>Budget</th><th>Reason</th><th style="color:var(--a)">'+(isExecuted?'Budget':'Override $')+'</th></tr></thead>' +
         '<tbody>'+campRows+totRow+'</tbody>' +
       '</table></div>' +
     '</div>' +
@@ -2061,7 +2092,7 @@ function renderPropose(bk, dt, containerId){
     '<div class="card">' +
       '<h3>Keyword Harvest ('+dd.harvest.length+')</h3>' +
       (dd.harvest.length?'<div style="overflow-x:auto"><table>' +
-        '<thead><tr><th><input type="checkbox" id="checkAll-harvest-'+bk+'-'+dt+'"> All</th><th>Search Term</th><th>Sales</th><th>Cost</th><th>ACOS</th><th>Clicks</th><th>Conv</th><th>Bid</th><th>Campaign</th><th>Note 📝</th></tr></thead>' +
+        '<thead><tr><th>'+(isExecuted?'Status':'<input type="checkbox" id="checkAll-harvest-'+bk+'-'+dt+'"> All')+'</th><th>Search Term</th><th>Sales</th><th>Cost</th><th>ACOS</th><th>Clicks</th><th>Conv</th><th>Bid</th><th>Campaign</th><th>Note 📝</th></tr></thead>' +
         '<tbody>'+harvestRows+'</tbody>' +
       '</table></div>':'<div class="desc">No harvest candidates.</div>') +
     '</div>' +
@@ -2069,26 +2100,29 @@ function renderPropose(bk, dt, containerId){
     '<div class="card">' +
       '<h3>Negative Keywords ('+dd.negate.length+') '+(dd.negate.filter(function(n){return n.sim_save>0;}).length?'— '+dd.negate.filter(function(n){return n.sim_save>0;}).length+' SIM confirmed':'')+'</h3>' +
       (dd.negate.length?'<div style="overflow-x:auto"><table>' +
-        '<thead><tr><th><input type="checkbox" id="checkAll-negate-'+bk+'-'+dt+'"> All</th><th>Search Term</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Clicks</th><th>Type</th><th>Campaign</th><th>Reason</th><th>Note 📝</th></tr></thead>' +
+        '<thead><tr><th>'+(isExecuted?'Status':'<input type="checkbox" id="checkAll-negate-'+bk+'-'+dt+'"> All')+'</th><th>Search Term</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Clicks</th><th>Type</th><th>Campaign</th><th>Reason</th><th>Note 📝</th></tr></thead>' +
         '<tbody>'+negRows+'</tbody>' +
       '</table></div>':'<div class="desc">No negative candidates.</div>') +
     '</div>' +
 
-    '<div style="margin-top:16px;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:8px">' +
+    '<div style="margin-top:16px;padding:14px 16px;background:'+(isExecuted?'#f0fdf4':'var(--card)')+';border:1px solid '+(isExecuted?'#86efac':'var(--border)')+';border-radius:8px">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
         '<div style="font-size:12px;color:var(--dim)">' +
           'Budget: <b style="color:var(--text)">$'+fmtN(totBudBefore)+'/day</b> → ' +
           'Override: <b style="color:var(--a)" id="override-summary-'+bk+'-'+dt+'">$'+fmtN(totBudAfter)+'/day</b> ' +
           '(<span id="override-delta-'+bk+'-'+dt+'" style="color:var(--g)">+$'+fmtN(totBudAfter-totBudBefore)+'</span>)' +
         '</div>' +
-        '<button id="execBtn-'+bk+'-'+dt+'" class="exec-btn" onclick="executeSelected(\''+bk+'\',\''+dt+'\')">' +
-          '⚡ Execute Selected (<span id="execCount-'+bk+'-'+dt+'">'+hasChange.length+'</span>)' +
-        '</button>' +
+        (isExecuted
+          ? '<span style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:#16a34a;color:#fff;border-radius:8px;font-weight:700;font-size:13px">&#10003; Executed</span>'
+          : '<button id="execBtn-'+bk+'-'+dt+'" class="exec-btn" onclick="executeSelected(\''+bk+'\',\''+dt+'\')">' +
+              '⚡ Execute Selected (<span id="execCount-'+bk+'-'+dt+'">'+hasChange.length+'</span>)' +
+            '</button>') +
       '</div>' +
+      (isExecuted ? '' :
       '<div style="display:flex;gap:8px;align-items:center">' +
         '<span style="font-size:11px;color:var(--dim);white-space:nowrap">📝 Note:</span>' +
         '<input type="text" id="exec-note-'+bk+'-'+dt+'" placeholder="Reason for this execution (optional)" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px">' +
-      '</div>' +
+      '</div>') +
     '</div>' +
 
     // ── Inline Execution Log container ──
@@ -3418,16 +3452,9 @@ async function fetchDataConnectionLog(){
 }
 
 // Content Dashboard moved to standalone page: ../content-dashboard/
-// (All Content Dashboard JS removed — see docs/content-dashboard/index.html)
+// Financial KPIs moved to standalone page: ../financial-dashboard/
 
-
-// ══════════════════════════════════════════════════════════════════════════════
-// FINANCIAL KPIs TAB
-// ══════════════════════════════════════════════════════════════════════════════
-
-var _finRendered = false;
-
-function renderFinancial(){
+function renderFinancial_REMOVED(){
   if(_finRendered && document.getElementById('fin-content').innerHTML) return;
   _finRendered = true;
 
