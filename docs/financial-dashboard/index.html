@@ -342,11 +342,8 @@ function renderFinancial(){
   // Ad Performance (compact, 2026-01+)
   sum+=buildAdTable(F, months, mLabels, lastIdx, isPartialLast, true);
 
-  // Brand Performance (compact, 2026-01+)
+  // Brand Performance (compact, 2026-01+) — includes Paid/Organic
   sum+=buildBrandPerfTable(F, months, mLabels, lastIdx, isPartialLast, true);
-
-  // Paid vs Organic (compact, 2026-01+)
-  sum+=buildPaidOrganic(F, months, mLabels, lastIdx, isPartialLast);
 
   // GM → CM Waterfall (compact)
   sum+=buildWaterfall(F, months, mLabels, lastIdx, isPartialLast);
