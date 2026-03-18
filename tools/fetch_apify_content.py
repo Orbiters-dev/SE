@@ -421,6 +421,22 @@ def fetch_ig_profiles(client, usernames):
 # Normalize raw data to common format
 # ---------------------------------------------------------------------------
 
+# Language filter — keep only English/Japanese, skip Vietnamese/Thai/Arabic/Cyrillic
+_NON_ENJP_RE = _re.compile(
+    r'[\u0E00-\u0E7F]'          # Thai
+    r'|[\u0600-\u06FF]'          # Arabic
+    r'|[\u0400-\u04FF]'          # Cyrillic (Russian etc.)
+    r'|[ơưăđĐ]'                 # Vietnamese-specific
+    r'|[ầấẩẫậềếểễệờớởỡợừứửữựỳỷỹỵ]'  # Vietnamese diacritics
+)
+
+def _is_foreign_lang(text):
+    """Return True if text contains non-English/Japanese characters."""
+    if not text:
+        return False
+    return bool(_NON_ENJP_RE.search(text))
+
+
 def normalize_ig(items, fmap=None):
     fmap = fmap or {}
     result, seen = [], set()
@@ -428,6 +444,9 @@ def normalize_ig(items, fmap=None):
         sc = item.get("shortCode", item.get("id", ""))
         uname = (item.get("ownerUsername", "") or "").lower()
         if not sc or sc in seen or not uname or uname in EXCLUDE:
+            continue
+        caption_raw = item.get("caption", "") or ""
+        if _is_foreign_lang(caption_raw):
             continue
         seen.add(sc)
         ts = str(item.get("timestamp", "") or "")[:10]
@@ -439,7 +458,7 @@ def normalize_ig(items, fmap=None):
             "username": uname,
             "nickname": item.get("ownerFullName", "") or "",
             "followers": fmap.get(uname, 0),
-            "caption": (item.get("caption", "") or "")[:500],
+            "caption": caption_raw[:500],
             "hashtags": ", ".join(
                 h if isinstance(h, str) else h.get("name", "") for h in hashtags
             ),
@@ -460,9 +479,12 @@ def normalize_tt(items, skip_keyword_filter=False):
         uname = (am.get("name", "") or "").lower()
         if not vid or vid in seen or not uname or uname in EXCLUDE:
             continue
+        caption_raw = item.get("text", "") or ""
+        if _is_foreign_lang(caption_raw):
+            continue
         # Relevance filter (skip for URL-scraped posts — already verified relevant)
         if not skip_keyword_filter:
-            text = (item.get("text", "") or "").lower()
+            text = caption_raw.lower()
             ht_names = [h.get("name", "").lower() for h in (item.get("hashtags", []) or [])]
             all_text = text + " " + " ".join(ht_names)
             if not any(kw in all_text for kw in TT_KEYWORDS):
@@ -475,7 +497,7 @@ def normalize_tt(items, skip_keyword_filter=False):
             "username": uname,
             "nickname": am.get("nickName", "") or "",
             "followers": am.get("fans", 0) or 0,
-            "caption": (item.get("text", "") or "")[:500],
+            "caption": caption_raw[:500],
             "hashtags": ", ".join(h.get("name", "") for h in (item.get("hashtags", []) or [])),
             "tagged_account": "",
             "post_date": (item.get("createTimeISO", "") or "")[:10],
