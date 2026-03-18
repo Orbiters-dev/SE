@@ -135,7 +135,7 @@
   <div class="hero">
     <h1><span>Creator Collab</span> Pipeline</h1>
     <p class="subtitle">End-to-end influencer gifting automation &mdash; from discovery to content tracking in 8 stages</p>
-    <div class="test-time">Last updated: March 17, 2026</div>
+    <div class="test-time">Last updated: March 18, 2026</div>
   </div>
 
   <div class="legend">
@@ -562,7 +562,7 @@
   <!-- ==================== WORKFLOW STATUS ==================== -->
   <div class="summary-section" style="margin-top:48px; margin-bottom:0;">
     <h3>n8n Workflow Status (Production)</h3>
-    <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">As of March 17, 2026</p>
+    <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">As of March 18, 2026</p>
     <table style="width:100%; border-collapse:collapse; font-size:13px;">
       <thead>
         <tr style="border-bottom:2px solid var(--border);">
@@ -931,6 +931,369 @@
     </div>
   </div>
 
+  <!-- ==================== E2E DUAL TEST: test2 ==================== -->
+  <div class="summary-section" style="margin-bottom:0; border:2px solid var(--accent);">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px;">
+      <h3 style="margin-bottom:0;">E2E Dual Test: Full Pipeline + Email Round-Trip</h3>
+      <span style="background:var(--accent); color:#fff; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700;">test2</span>
+    </div>
+    <p style="font-size:13px; color:var(--text-dim); margin-bottom:20px;">March 18, 2026 10:14 PST &mdash; Maker-Checker dual verification across 8 stages including email conversation trail</p>
+
+    <!-- Architecture Diagram -->
+    <div style="background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:16px; margin-bottom:20px;">
+      <h4 style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); margin-bottom:12px;">Maker-Checker Architecture</h4>
+      <div style="display:flex; justify-content:center; align-items:center; gap:24px; flex-wrap:wrap; font-size:13px;">
+        <div style="text-align:center; padding:14px 20px; background:#ede9fe; border:2px solid #c4b5fd; border-radius:10px; min-width:160px;">
+          <div style="font-size:18px; margin-bottom:4px;">&#9881;</div>
+          <div style="font-weight:700; color:#7c3aed;">Executor (Maker)</div>
+          <div style="font-size:11px; color:#6d28d9; margin-top:2px;">Runs pipeline actions</div>
+          <div style="font-size:20px; font-weight:700; color:#7c3aed; margin-top:6px;">15 checks</div>
+        </div>
+        <div style="font-size:24px; color:var(--text-dim);">&#8596;</div>
+        <div style="text-align:center; padding:14px 20px; background:#dbeafe; border:2px solid #93c5fd; border-radius:10px; min-width:160px;">
+          <div style="font-size:18px; margin-bottom:4px;">&#128270;</div>
+          <div style="font-weight:700; color:#2563eb;">Verifier (Checker)</div>
+          <div style="font-size:11px; color:#1d4ed8; margin-top:2px;">Independent verification</div>
+          <div style="font-size:20px; font-weight:700; color:#2563eb; margin-top:6px;">25 checks</div>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:10px; font-size:12px; color:var(--text-dim);">
+        Cross-system: Airtable &middot; Shopify &middot; PostgreSQL &middot; n8n &middot; Email Trail
+      </div>
+    </div>
+
+    <!-- Scorecards -->
+    <div style="display:flex; gap:12px; margin-bottom:24px; flex-wrap:wrap;">
+      <div style="flex:1; min-width:120px; background:#dcfce7; border:1px solid #86efac; border-radius:10px; padding:14px; text-align:center;">
+        <div style="font-size:24px; font-weight:700; color:#15803d;">40 / 40</div>
+        <div style="font-size:11px; color:#166534; margin-top:4px;">All Checks Passed</div>
+      </div>
+      <div style="flex:1; min-width:120px; background:#f5f3ff; border:1px solid #ddd6fe; border-radius:10px; padding:14px; text-align:center;">
+        <div style="font-size:24px; font-weight:700; color:#7c3aed;">8</div>
+        <div style="font-size:11px; color:#5b21b6; margin-top:4px;">Stages Tested</div>
+      </div>
+      <div style="flex:1; min-width:120px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:14px; text-align:center;">
+        <div style="font-size:24px; font-weight:700; color:#0369a1;">5</div>
+        <div style="font-size:11px; color:#0c4a6e; margin-top:4px;">Email Trail Records</div>
+      </div>
+      <div style="flex:1; min-width:120px; background:#fef3c7; border:1px solid #fde68a; border-radius:10px; padding:14px; text-align:center;">
+        <div style="font-size:24px; font-weight:700; color:#92400e;">140s</div>
+        <div style="font-size:11px; color:#78350f; margin-top:4px;">Total Duration</div>
+      </div>
+    </div>
+
+    <!-- Test Subject -->
+    <div style="background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:16px; margin-bottom:24px;">
+      <h4 style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); margin-bottom:12px;">Test Subject</h4>
+      <div class="data-row"><span class="data-key">Creator Handle</span><span class="data-val">@dualtest_20260318_vbdx</span></div>
+      <div class="data-row"><span class="data-key">Email</span><span class="data-val">flow_test_20260318_101449_gzzx@orbiters.co.kr</span></div>
+      <div class="data-row"><span class="data-key">Test Type</span><span class="data-val">Maker-Checker Dual Verification (test2)</span></div>
+      <div class="data-row"><span class="data-key">Environment</span><span class="data-val">WJ TEST (Airtable appT2gLRR0PqMFgII + Shopify toddie-4080)</span></div>
+    </div>
+
+    <!-- ===== 8-Stage Timeline ===== -->
+
+    <!-- Stage 0: Seed -->
+    <div style="margin-bottom:20px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; padding-bottom:8px; border-bottom:2px solid var(--border);">
+        <div style="width:32px; height:32px; border-radius:8px; background:#94a3b8; color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700;">0</div>
+        <div style="flex:1;">
+          <div style="font-size:15px; font-weight:600;">Seed &mdash; Creator Record</div>
+          <div style="font-size:11px; color:var(--text-dim);">Airtable Creator 생성 + negative checks (Applicants/Shopify 미존재 확인)</div>
+        </div>
+        <span style="background:#dcfce7; color:#15803d; padding:3px 12px; border-radius:12px; font-size:11px; font-weight:600;">PASS</span>
+      </div>
+      <div style="display:flex; gap:12px; padding-left:42px; font-size:12px;">
+        <div style="flex:1; background:#ede9fe; border-radius:8px; padding:10px;">
+          <div style="font-size:10px; font-weight:700; color:#7c3aed; margin-bottom:4px;">EXECUTOR</div>
+          <div>Create AT Creator record</div>
+          <div style="color:var(--text-dim); font-size:11px; margin-top:2px;">recpxuFvlMAoOOVei (1.3s)</div>
+        </div>
+        <div style="flex:1; background:#dbeafe; border-radius:8px; padding:10px;">
+          <div style="font-size:10px; font-weight:700; color:#2563eb; margin-bottom:4px;">VERIFIER (4 checks)</div>
+          <div>AT Creator exists + Username match</div>
+          <div>AT Applicants NOT exists (neg)</div>
+          <div>Shopify NOT exists (neg)</div>
+          <div style="color:var(--text-dim); font-size:11px; margin-top:2px;">2.2s</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage 1a: Email Draft -->
+    <div style="margin-bottom:20px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; padding-bottom:8px; border-bottom:2px solid var(--border);">
+        <div style="width:32px; height:32px; border-radius:8px; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;">1a</div>
+        <div style="flex:1;">
+          <div style="font-size:15px; font-weight:600;">Email Draft &mdash; AI Generation</div>
+          <div style="font-size:11px; color:var(--text-dim);">Claude API drafts personalized outreach via n8n webhook &rarr; 65s AI generation wait</div>
+        </div>
+        <span style="background:#dcfce7; color:#15803d; padding:3px 12px; border-radius:12px; font-size:11px; font-weight:600;">PASS</span>
+      </div>
+      <div style="display:flex; gap:12px; padding-left:42px; font-size:12px;">
+        <div style="flex:1; background:#ede9fe; border-radius:8px; padding:10px;">
+          <div style="font-size:10px; font-weight:700; color:#7c3aed; margin-bottom:4px;">EXECUTOR</div>
+          <div>POST draft_gen webhook</div>
+          <div>Wait 65s for AI generation</div>
+          <div style="color:var(--text-dim); font-size:11px; margin-top:2px;">"Workflow was started" (65s)</div>
+        </div>
+        <div style="flex:1; background:#dbeafe; border-radius:8px; padding:10px;">
+          <div style="font-size:10px; font-weight:700; color:#2563eb; margin-bottom:4px;">VERIFIER (2 checks)</div>
+          <div>AT Conversations: draft exists</div>
+          <div>Creator status changed &rarr; Sent</div>
+          <div style="color:var(--text-dim); font-size:11px; margin-top:2px;">recsWhv9aVWWeddSU (1.9s)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage 1b: Email Approve -->
+    <div style="margin-bottom:20px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; padding-bottom:8px; border-bottom:2px solid var(--border);">
+        <div style="width:32px; height:32px; border-radius:8px; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;">1b</div>
+        <div style="flex:1;">
+          <div style="font-size:15px; font-weight:600;">Email Approve &mdash; Outreach Send</div>
+          <div style="font-size:11px; color:var(--text-dim);">Log outreach email to Conversations (Direction: Outbound) &rarr; Creator status = Sent</div>
+        </div>
+        <span style="background:#dcfce7; color:#15803d; padding:3px 12px; border-radius:12px; font-size:11px; font-weight:600;">PASS</span>
+      </div>
+      <div style="display:flex; gap:12px; padding-left:42px; font-size:12px;">
+        <div style="flex:1; background:#ede9fe; border-radius:8px; padding:10px;">
+          <div style="font-size:10px; font-weight:700; color:#7c3aed; margin-bottom:4px;">EXECUTOR</div>
+          <div>Log outreach email</div>
+          <div>Update status &rarr; Sent</div>
+          <div style="color:var(--text-dim); font-size:11px; margin-top:2px;">recaX9QHpT4xPDg1O (1.9s)</div>
+        </div>
+        <div style="flex:1; background:#dbeafe; border-radius:8px; padding:10px;">
+          <div style="font-size:10px; font-weight:700; color:#2563eb; margin-bottom:4px;">VERIFIER (3 checks)</div>
+          <div>Outreach email in Conversations</div>
+          <div>Direction = Outbound</div>
+          <div>Creator status = Sent</div>
+          <div style="color:var(--text-dim); font-size:11px; margin-top:2px;">1.8s</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage 1c: Email Reply -->
+    <div style="margin-bottom:20px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; padding-bottom:8px; border-bottom:2px solid var(--border);">
+        <div style="width:32px; height:32px; border-radius:8px; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;">1c</div>
+        <div style="flex:1;">
+          <div style="font-size:15px; font-weight:600;">Email Reply &mdash; Influencer Response</div>
+          <div style="font-size:11px; color:var(--text-dim);">Log influencer reply (Direction: Inbound) &rarr; Creator status = Replied</div>
+        </div>
+        <span style="background:#dcfce7; color:#15803d; padding:3px 12px; border-radius:12px; font-size:11px; font-weight:600;">PASS</span>
+      </div>
+      <div style="display:flex; gap:12px; padding-left:42px; font-size:12px;">
+        <div style="flex:1; background:#ede9fe; border-radius:8px; padding:10px;">
+          <div style="font-size:10px; font-weight:700; color:#7c3aed; margin-bottom:4px;">EXECUTOR</div>
+          <div>Log influencer reply</div>
+          <div>Update status &rarr; Replied</div>
+          <div style="color:var(--text-dim); font-size:11px; margin-top:2px;">rec3i8QwDLGJZYSoJ (2.0s)</div>
+        </div>
+        <div style="flex:1; background:#dbeafe; border-radius:8px; padding:10px;">
+          <div style="font-size:10px; font-weight:700; color:#2563eb; margin-bottom:4px;">VERIFIER (3 checks)</div>
+          <div>Reply in Conversations</div>
+          <div>Direction = Inbound</div>
+          <div>Creator status = Replied</div>
+          <div style="color:var(--text-dim); font-size:11px; margin-top:2px;">1.9s</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage 1d: Email Confirm -->
+    <div style="margin-bottom:20px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; padding-bottom:8px; border-bottom:2px solid var(--border);">
+        <div style="width:32px; height:32px; border-radius:8px; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;">1d</div>
+        <div style="flex:1;">
+          <div style="font-size:15px; font-weight:600;">Email Confirm &mdash; Gifting Form Link</div>
+          <div style="font-size:11px; color:var(--text-dim);">Confirmation email with gifting form link &rarr; Creator status = Confirmed &rarr; X-SYS email trail check</div>
+        </div>
+        <span style="background:#dcfce7; color:#15803d; padding:3px 12px; border-radius:12px; font-size:11px; font-weight:600;">PASS</span>
+      </div>
+      <div style="display:flex; gap:12px; padding-left:42px; font-size:12px;">
+        <div style="flex:1; background:#ede9fe; border-radius:8px; padding:10px;">
+          <div style="font-size:10px; font-weight:700; color:#7c3aed; margin-bottom:4px;">EXECUTOR</div>
+          <div>Log confirmation email</div>
+          <div>Update status &rarr; Confirmed</div>
+          <div style="color:var(--text-dim); font-size:11px; margin-top:2px;">recJuoh8yhLOqcijE (1.9s)</div>
+        </div>
+        <div style="flex:1; background:#dbeafe; border-radius:8px; padding:10px;">
+          <div style="font-size:10px; font-weight:700; color:#2563eb; margin-bottom:4px;">VERIFIER (3 checks)</div>
+          <div>Confirmation in Conversations</div>
+          <div>Creator status = Confirmed</div>
+          <div style="font-weight:600; color:#0369a1;">X-SYS: Email trail &ge; 3 &rarr; actual 5</div>
+          <div style="color:var(--text-dim); font-size:11px; margin-top:2px;">2.7s</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage 2: Gifting -->
+    <div style="margin-bottom:20px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; padding-bottom:8px; border-bottom:2px solid var(--border);">
+        <div style="width:32px; height:32px; border-radius:8px; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700;">2</div>
+        <div style="flex:1;">
+          <div style="font-size:15px; font-weight:600;">Gifting &mdash; Form &rarr; Shopify + Airtable + PG</div>
+          <div style="font-size:11px; color:var(--text-dim);">Webhook POST &rarr; Shopify customer + Draft Order + AT Applicants + PostgreSQL record</div>
+        </div>
+        <span style="background:#dcfce7; color:#15803d; padding:3px 12px; border-radius:12px; font-size:11px; font-weight:600;">PASS</span>
+      </div>
+      <div style="display:flex; gap:12px; padding-left:42px; font-size:12px;">
+        <div style="flex:1; background:#ede9fe; border-radius:8px; padding:10px;">
+          <div style="font-size:10px; font-weight:700; color:#7c3aed; margin-bottom:4px;">EXECUTOR</div>
+          <div>POST gifting webhook &rarr; 200</div>
+          <div>Wait 14s for n8n processing</div>
+          <div style="color:var(--text-dim); font-size:11px; margin-top:2px;">Draft Order #D1541 (16.7s)</div>
+        </div>
+        <div style="flex:1; background:#dbeafe; border-radius:8px; padding:10px;">
+          <div style="font-size:10px; font-weight:700; color:#2563eb; margin-bottom:4px;">VERIFIER (5 checks)</div>
+          <div>AT Applicants: recaEely0aHpzlj6Y</div>
+          <div>AT Creators: Status = Needs Review</div>
+          <div>Shopify: customer 27043023389042</div>
+          <div>PostgreSQL: gifting record saved</div>
+          <div style="font-weight:600; color:#0369a1;">X-SYS: email consistent</div>
+          <div style="color:var(--text-dim); font-size:11px; margin-top:2px;">2.4s</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage 4: Gifting2 -->
+    <div style="margin-bottom:20px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; padding-bottom:8px; border-bottom:2px solid var(--border);">
+        <div style="width:32px; height:32px; border-radius:8px; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700;">4</div>
+        <div style="flex:1;">
+          <div style="font-size:15px; font-weight:600;">Gifting2 &mdash; Sample Request &rarr; Draft Order</div>
+          <div style="font-size:11px; color:var(--text-dim);">Second webhook POST &rarr; Shopify Draft Order creation + Airtable/PG update</div>
+        </div>
+        <span style="background:#dcfce7; color:#15803d; padding:3px 12px; border-radius:12px; font-size:11px; font-weight:600;">PASS</span>
+      </div>
+      <div style="display:flex; gap:12px; padding-left:42px; font-size:12px;">
+        <div style="flex:1; background:#ede9fe; border-radius:8px; padding:10px;">
+          <div style="font-size:10px; font-weight:700; color:#7c3aed; margin-bottom:4px;">EXECUTOR</div>
+          <div>POST gifting2 webhook &rarr; 200</div>
+          <div>Wait 15s for Draft Order</div>
+          <div style="color:var(--text-dim); font-size:11px; margin-top:2px;">15.9s</div>
+        </div>
+        <div style="flex:1; background:#dbeafe; border-radius:8px; padding:10px;">
+          <div style="font-size:10px; font-weight:700; color:#2563eb; margin-bottom:4px;">VERIFIER (3 checks)</div>
+          <div>AT Applicants: Draft Order ID 1516415189362</div>
+          <div>AT Creators: record exists</div>
+          <div>PostgreSQL: record updated</div>
+          <div style="color:var(--text-dim); font-size:11px; margin-top:2px;">1.8s</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage 5: Sample Sent -->
+    <div style="margin-bottom:20px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; padding-bottom:8px; border-bottom:2px solid var(--border);">
+        <div style="width:32px; height:32px; border-radius:8px; background:var(--poll); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700;">5</div>
+        <div style="flex:1;">
+          <div style="font-size:15px; font-weight:600;">Sample Sent &mdash; Status + n8n Polling</div>
+          <div style="font-size:11px; color:var(--text-dim);">Update AT status &rarr; Sample Sent &rarr; n8n 5-min polling detects and completes Draft Order</div>
+        </div>
+        <span style="background:#dcfce7; color:#15803d; padding:3px 12px; border-radius:12px; font-size:11px; font-weight:600;">PASS</span>
+      </div>
+      <div style="display:flex; gap:12px; padding-left:42px; font-size:12px;">
+        <div style="flex:1; background:#ede9fe; border-radius:8px; padding:10px;">
+          <div style="font-size:10px; font-weight:700; color:#7c3aed; margin-bottom:4px;">EXECUTOR</div>
+          <div>Update AT status &rarr; Sample Sent</div>
+          <div>Wait 30s for n8n polling</div>
+          <div style="color:var(--text-dim); font-size:11px; margin-top:2px;">31.0s</div>
+        </div>
+        <div style="flex:1; background:#dbeafe; border-radius:8px; padding:10px;">
+          <div style="font-size:10px; font-weight:700; color:#2563eb; margin-bottom:4px;">VERIFIER (2 checks)</div>
+          <div>AT Creators: status = Sample Sent</div>
+          <div>n8n: Sample&rarr;Complete WF active</div>
+          <div style="color:var(--text-dim); font-size:11px; margin-top:2px;">1.2s</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Email Conversation Trail -->
+    <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:16px; margin-bottom:20px;">
+      <h4 style="font-size:12px; margin-bottom:12px; color:#0369a1; text-transform:uppercase; letter-spacing:0.5px;">Email Conversation Trail (5 records in AT Conversations)</h4>
+      <div style="display:flex; flex-direction:column; gap:6px; font-size:12px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="background:#e0f2fe; padding:3px 8px; border-radius:4px; font-size:10px; font-weight:600; color:#0369a1; min-width:70px; text-align:center;">OUTBOUND</span>
+          <span style="flex:1;">AI Draft Generated (Claude API)</span>
+          <span style="color:var(--text-dim); font-size:11px;">recsWhv9aVWWeddSU</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="background:#e0f2fe; padding:3px 8px; border-radius:4px; font-size:10px; font-weight:600; color:#0369a1; min-width:70px; text-align:center;">OUTBOUND</span>
+          <span style="flex:1;">Outreach Email Sent</span>
+          <span style="color:var(--text-dim); font-size:11px;">recaX9QHpT4xPDg1O</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="background:#dcfce7; padding:3px 8px; border-radius:4px; font-size:10px; font-weight:600; color:#15803d; min-width:70px; text-align:center;">INBOUND</span>
+          <span style="flex:1;">Influencer Reply</span>
+          <span style="color:var(--text-dim); font-size:11px;">rec3i8QwDLGJZYSoJ</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="background:#e0f2fe; padding:3px 8px; border-radius:4px; font-size:10px; font-weight:600; color:#0369a1; min-width:70px; text-align:center;">OUTBOUND</span>
+          <span style="flex:1;">Confirmation + Gifting Form Link</span>
+          <span style="color:var(--text-dim); font-size:11px;">recJuoh8yhLOqcijE</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="background:#fef3c7; padding:3px 8px; border-radius:4px; font-size:10px; font-weight:600; color:#92400e; min-width:70px; text-align:center;">SYSTEM</span>
+          <span style="flex:1;">Gifting Form Submission Record</span>
+          <span style="color:var(--text-dim); font-size:11px;">(auto-created by webhook)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cross-System Verification -->
+    <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:10px; padding:16px; margin-bottom:20px;">
+      <h4 style="font-size:12px; margin-bottom:12px; color:#059669; text-transform:uppercase; letter-spacing:0.5px;">Cross-System (X-SYS) Verification</h4>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; font-size:12px;">
+        <div style="flex:1; min-width:140px; background:#fff; border:1px solid #a7f3d0; border-radius:8px; padding:10px; text-align:center;">
+          <div style="font-size:14px; margin-bottom:2px;">&#128202;</div>
+          <div style="font-weight:600;">Airtable</div>
+          <div style="font-size:11px; color:#059669;">Creator + Applicant + Conversations</div>
+          <div style="font-size:11px; color:#15803d; font-weight:600; margin-top:4px;">PASS</div>
+        </div>
+        <div style="flex:1; min-width:140px; background:#fff; border:1px solid #a7f3d0; border-radius:8px; padding:10px; text-align:center;">
+          <div style="font-size:14px; margin-bottom:2px;">&#128722;</div>
+          <div style="font-weight:600;">Shopify</div>
+          <div style="font-size:11px; color:#059669;">Customer + Draft Order #D1541</div>
+          <div style="font-size:11px; color:#15803d; font-weight:600; margin-top:4px;">PASS</div>
+        </div>
+        <div style="flex:1; min-width:140px; background:#fff; border:1px solid #a7f3d0; border-radius:8px; padding:10px; text-align:center;">
+          <div style="font-size:14px; margin-bottom:2px;">&#128451;</div>
+          <div style="font-weight:600;">PostgreSQL</div>
+          <div style="font-size:11px; color:#059669;">Gifting record saved + updated</div>
+          <div style="font-size:11px; color:#15803d; font-weight:600; margin-top:4px;">PASS</div>
+        </div>
+        <div style="flex:1; min-width:140px; background:#fff; border:1px solid #a7f3d0; border-radius:8px; padding:10px; text-align:center;">
+          <div style="font-size:14px; margin-bottom:2px;">&#128231;</div>
+          <div style="font-weight:600;">Email Trail</div>
+          <div style="font-size:11px; color:#059669;">5/5 conversations consistent</div>
+          <div style="font-size:11px; color:#15803d; font-weight:600; margin-top:4px;">PASS</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Flow -->
+    <div style="padding:16px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px;">
+      <h4 style="font-size:12px; margin-bottom:12px; color:#0369a1; text-transform:uppercase; letter-spacing:0.5px;">Full Status Transitions (test2)</h4>
+      <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; font-size:11px; justify-content:center;">
+        <span style="background:#f1f5f9; border:1px solid #cbd5e1; padding:3px 8px; border-radius:5px;">Seed</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:var(--auto-bg); border:1px solid var(--auto-border); padding:3px 8px; border-radius:5px; font-weight:600;">AI Draft</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:var(--auto-bg); border:1px solid var(--auto-border); padding:3px 8px; border-radius:5px; font-weight:600;">Sent</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:var(--human-bg); border:1px solid var(--human-border); padding:3px 8px; border-radius:5px; font-weight:600;">Replied</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:var(--auto-bg); border:1px solid var(--auto-border); padding:3px 8px; border-radius:5px; font-weight:600;">Confirmed</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:var(--store-bg); border:1px solid var(--store-border); padding:3px 8px; border-radius:5px; font-weight:600;">Needs Review</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:var(--store-bg); border:1px solid var(--store-border); padding:3px 8px; border-radius:5px; font-weight:600;">Draft Order</span>
+        <span style="color:var(--text-dim);">&rarr;</span>
+        <span style="background:var(--poll-bg); border:1px solid var(--poll-border); padding:3px 8px; border-radius:5px; font-weight:600;">Sample Sent</span>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== SUMMARY ==================== -->
   <div class="summary-section">
     <h3>Pipeline Summary</h3>
@@ -989,7 +1352,7 @@
   </div>
 
   <div class="footer">
-    Creator Collab Pipeline &middot; Onzenna &middot; Updated March 2026
+    Creator Collab Pipeline &middot; Onzenna &middot; Updated March 18, 2026
   </div>
 
 </div>
