@@ -46,7 +46,8 @@ CHANNEL_COLORS = {
     "TikTok Shop": "#ec4899", "Target+": "#ef4444", "B2B": "#10b981", "Other": "#94a3b8",
 }
 AD_COLORS = {
-    "Amazon Ads": "#f59e0b", "Meta Ads": "#3b82f6", "Google Ads": "#10b981",
+    "Amazon Ads": "#f59e0b", "Meta CVR": "#3b82f6", "Meta Traffic": "#93c5fd",
+    "Google Ads": "#10b981",
 }
 AVG_COGS = {
     "Grosmimi": 8.41, "Naeiae": 5.35, "CHA&MOM": 7.53,
@@ -561,10 +562,15 @@ def generate():
         if not d or d > through:
             continue
         month = d[:7]
-        ad_monthly["Meta Ads"][month]["spend"] += float(r.get("spend") or 0)
-        ad_monthly["Meta Ads"][month]["sales"] += float(r.get("purchase_value") or 0)
-        ad_monthly["Meta Ads"][month]["impressions"] += int(r.get("impressions") or 0)
-        ad_monthly["Meta Ads"][month]["clicks"] += int(r.get("clicks") or 0)
+        # Classify by landing destination: Amazon-landing = Traffic, else = CVR
+        cname = (r.get("campaign_name") or "").lower()
+        landing = (r.get("landing_url") or "").lower()
+        is_amz = "amazon" in cname or "amz" in cname or "amazon" in landing
+        label = "Meta Traffic" if is_amz else "Meta CVR"
+        ad_monthly[label][month]["spend"] += float(r.get("spend") or 0)
+        ad_monthly[label][month]["sales"] += float(r.get("purchase_value") or 0)
+        ad_monthly[label][month]["impressions"] += int(r.get("impressions") or 0)
+        ad_monthly[label][month]["clicks"] += int(r.get("clicks") or 0)
 
     for r in google_ads:
         d = r.get("date", "")
@@ -1070,7 +1076,7 @@ def generate():
             }
 
     ad_out = {}
-    for platform in ["Amazon Ads", "Meta Ads", "Google Ads"]:
+    for platform in ["Amazon Ads", "Meta CVR", "Meta Traffic", "Google Ads"]:
         spend_vals = [round(ad_monthly.get(platform, {}).get(m, {}).get("spend", 0)) for m in months]
         sales_vals = [round(ad_monthly.get(platform, {}).get(m, {}).get("sales", 0)) for m in months]
         impr_vals = [ad_monthly.get(platform, {}).get(m, {}).get("impressions", 0) for m in months]
@@ -1085,6 +1091,36 @@ def generate():
                 "clicks": click_vals,
                 "color": AD_COLORS.get(platform, "#94a3b8"),
             }
+
+    # ── Ads Landing Channel TROAS ─────────────────────────────────────────
+    # Onzenna channel: Google Ads + Meta CVR → Shopify D2C revenue
+    # Amazon channel: Amazon Ads + Meta Traffic → Amazon MP revenue
+    ads_landing = {}
+    onz_spend = [0] * len(months)
+    amz_spend = [0] * len(months)
+    for i, m in enumerate(months):
+        for p in ["Google Ads", "Meta CVR"]:
+            onz_spend[i] += ad_monthly.get(p, {}).get(m, {}).get("spend", 0)
+        for p in ["Amazon Ads", "Meta Traffic"]:
+            amz_spend[i] += ad_monthly.get(p, {}).get(m, {}).get("spend", 0)
+    onz_rev = [round(channel_monthly.get("Onzenna D2C", {}).get(m, {}).get("net", 0)) for m in months]
+    amz_rev = [round(channel_monthly.get("Amazon MP", {}).get(m, {}).get("net", 0)) for m in months]
+    ads_landing["Onzenna"] = {
+        "spend": [round(v) for v in onz_spend],
+        "spend_proj": proj_array([round(v) for v in onz_spend]),
+        "revenue": onz_rev,
+        "revenue_proj": proj_array(onz_rev),
+        "platforms": "Google Ads + Meta CVR",
+        "color": "#6366f1",
+    }
+    ads_landing["Amazon"] = {
+        "spend": [round(v) for v in amz_spend],
+        "spend_proj": proj_array([round(v) for v in amz_spend]),
+        "revenue": amz_rev,
+        "revenue_proj": proj_array(amz_rev),
+        "platforms": "Amazon Ads + Meta Traffic",
+        "color": "#f59e0b",
+    }
 
     # Grosmimi product-type breakdown
     GROSMIMI_PRODUCT_TYPES = ["PPSU Straw Cup", "Stainless Straw Cup", "Tumbler", "Replacements", "Other"]
@@ -1332,6 +1368,7 @@ def generate():
         "brand_revenue": brand_rev_out,
         "channel_revenue": channel_rev_out,
         "ad_performance": ad_out,
+        "ads_landing": ads_landing,
         "ad_start_idx": ad_start_idx,
         "brand_performance": brand_perf_out,
         "paid_organic": {

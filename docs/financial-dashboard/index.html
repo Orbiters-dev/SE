@@ -693,29 +693,33 @@ function buildAdTable(F, months, mLabels, lastIdx, isPartialLast, compact){
   var html='<div class="sec"><div class="sec-title"><div class="num">4</div> Ad Platform Performance (Jan 2026+)</div>';
   html+='<div class="card">';
   var adDs=[];
-  Object.keys(F.ad_performance).forEach(function(p){
+  var adOrder=["Amazon Ads","Meta CVR","Meta Traffic","Google Ads"];
+  var adKeys=adOrder.filter(function(p){return F.ad_performance[p];});
+  adKeys.forEach(function(p){
     adDs.push({label:p, data:F.ad_performance[p].spend.slice(si), color:F.ad_performance[p].color});
   });
   html+=barChart(adDs, aLabels, {w:940,h:compact?150:190,barW:compact?12:16,stacked:true});
   html+='<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Platform</th>';
-  aLabels.forEach(function(m,i){ html+='<th style="text-align:right'+(i===aLastIdx&&isPartialA?';background:#f5f3ff':'')+'" colspan="2">'+m+'</th>'; });
+  aLabels.forEach(function(m,i){ html+='<th style="text-align:right'+(i===aLastIdx&&isPartialA?';background:#f5f3ff':'')+'" colspan="3">'+m+'</th>'; });
   html+='</tr><tr><th></th>';
   aLabels.forEach(function(m,i){
     var bg=i===aLastIdx&&isPartialA?';background:#f5f3ff':'';
-    html+='<th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">Spend</th><th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">ROAS</th>';
+    html+='<th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">Spend</th><th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">Sales</th><th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">ROAS</th>';
   });
   html+='</tr></thead><tbody>';
-  Object.keys(F.ad_performance).forEach(function(p){
+  adKeys.forEach(function(p){
     var ap=F.ad_performance[p];
     html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+ap.color+';margin-right:6px"></span><b>'+p+'</b></td>';
     for(var i=0;i<aLen;i++){
       var gi=si+i;
       var sp=ap.spend[gi]||0, sl=ap.sales[gi]||0;
       var spP=(ap.spend_proj||[])[gi]||sp;
+      var slP=(ap.sales_proj||[])[gi]||sl;
       var roas=sp>0?(sl/sp):0;
       var rc=roas>=3?'var(--g)':roas>=1.5?'var(--am)':'var(--r)';
       var isL=i===aLastIdx&&isPartialA;
       html+=fmCell(sp, spP, isL, {fs:'9px'});
+      html+=fmCell(sl, slP, isL, {fs:'9px'});
       html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+rc+'">'+roas.toFixed(1)+'x</td>';
     }
     html+='</tr>';
@@ -723,16 +727,66 @@ function buildAdTable(F, months, mLabels, lastIdx, isPartialLast, compact){
   html+='<tr style="border-top:2px solid var(--border);font-weight:700"><td>TOTAL</td>';
   for(var i=0;i<aLen;i++){
     var gi=si+i;
-    var ts=0,tl=0,tsP=0;
-    Object.keys(F.ad_performance).forEach(function(p){
+    var ts=0,tl=0,tsP=0,tlP=0;
+    adKeys.forEach(function(p){
       ts+=F.ad_performance[p].spend[gi]||0; tl+=F.ad_performance[p].sales[gi]||0;
       tsP+=(F.ad_performance[p].spend_proj||F.ad_performance[p].spend)[gi]||0;
+      tlP+=(F.ad_performance[p].sales_proj||F.ad_performance[p].sales)[gi]||0;
     });
     var isL=i===aLastIdx&&isPartialA;
     html+=fmCell(ts, tsP, isL, {fs:'9px',bold:true});
+    html+=fmCell(tl, tlP, isL, {fs:'9px',bold:true});
     html+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+(ts>0?(tl/ts).toFixed(1):'0')+'x</td>';
   }
-  html+='</tr></tbody></table></div></div></div>';
+  html+='</tr></tbody></table></div></div>';
+
+  // ── Ads Landing Channel TROAS ──
+  if(F.ads_landing){
+    html+='<div class="card" style="margin-top:12px">';
+    html+='<div style="font-size:13px;font-weight:700;margin-bottom:4px">Ads Landing &mdash; Channel Revenue &amp; TROAS</div>';
+    html+='<div class="desc">TROAS = Total channel revenue / Ad spend attributed to that channel. Onzenna = Google Ads + Meta CVR. Amazon = Amazon Ads + Meta Traffic.</div>';
+    html+='<div style="overflow-x:auto"><table><thead><tr><th>Channel</th><th style="font-size:8px;color:var(--muted)">Platforms</th>';
+    aLabels.forEach(function(m,i){ html+='<th style="text-align:right'+(i===aLastIdx&&isPartialA?';background:#f5f3ff':'')+'" colspan="3">'+m+'</th>'; });
+    html+='</tr><tr><th></th><th></th>';
+    aLabels.forEach(function(m,i){
+      var bg=i===aLastIdx&&isPartialA?';background:#f5f3ff':'';
+      html+='<th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">Spend</th><th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">Revenue</th><th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">TROAS</th>';
+    });
+    html+='</tr></thead><tbody>';
+    var landOrder=["Onzenna","Amazon"];
+    var landColors={"Onzenna":"#6366f1","Amazon":"#f59e0b"};
+    var totSp=[],totRv=[];
+    for(var i=0;i<aLen;i++){totSp.push(0);totRv.push(0);}
+    landOrder.forEach(function(ch){
+      var ld=F.ads_landing[ch]; if(!ld) return;
+      html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+(landColors[ch]||'#999')+';margin-right:6px"></span><b>'+ch+'</b></td>';
+      html+='<td style="font-size:8px;color:var(--muted)">'+ld.platforms+'</td>';
+      for(var i=0;i<aLen;i++){
+        var gi=si+i;
+        var sp=ld.spend[gi]||0, rv=ld.revenue[gi]||0;
+        var spP=(ld.spend_proj||[])[gi]||sp;
+        var rvP=(ld.revenue_proj||[])[gi]||rv;
+        var troas=sp>0?(rv/sp):0;
+        var tc=troas>=5?'var(--g)':troas>=2?'var(--am)':'var(--r)';
+        var isL=i===aLastIdx&&isPartialA;
+        totSp[i]+=sp; totRv[i]+=rv;
+        html+=fmCell(sp, spP, isL, {fs:'9px'});
+        html+=fmCell(rv, rvP, isL, {fs:'9px'});
+        html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+tc+'">'+troas.toFixed(1)+'x</td>';
+      }
+      html+='</tr>';
+    });
+    html+='<tr style="border-top:2px solid var(--border);font-weight:700"><td>TOTAL</td><td></td>';
+    for(var i=0;i<aLen;i++){
+      var isL=i===aLastIdx&&isPartialA;
+      html+=fmCell(totSp[i], totSp[i], isL, {fs:'9px',bold:true});
+      html+=fmCell(totRv[i], totRv[i], isL, {fs:'9px',bold:true});
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+(totSp[i]>0?(totRv[i]/totSp[i]).toFixed(1):'0')+'x</td>';
+    }
+    html+='</tr></tbody></table></div></div>';
+  }
+
+  html+='</div>';
   return html;
 }
 

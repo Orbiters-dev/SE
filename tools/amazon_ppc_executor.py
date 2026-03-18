@@ -2957,7 +2957,9 @@ def _update_persistent_exec_log(executed: list):
     doesn't run (e.g. when proposal files are missing in GitHub Actions).
     """
     exec_log_path = Path(__file__).resolve().parent.parent / "docs" / "ppc-dashboard" / "exec_log.json"
-    dt = date.today().strftime("%Y-%m-%d")
+    now = datetime.now()
+    dt = now.strftime("%Y-%m-%d")
+    exec_time = now.strftime("%Y-%m-%d %H:%M:%S")
 
     # Load existing
     persistent = {}
@@ -2979,6 +2981,7 @@ def _update_persistent_exec_log(executed: list):
             bk = "naeiae"
         item_copy = dict(item)
         item_copy["exec_date"] = dt
+        item_copy["exec_time"] = exec_time
         new_by_brand.setdefault(bk, []).append(item_copy)
 
     # Merge new entries for same brand+date (append without duplicates)

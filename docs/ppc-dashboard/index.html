@@ -2685,9 +2685,11 @@ function renderInlineExecLog(bk, dt){
     var harvExec = dateEntries.filter(function(e){return e.action==='harvest';});
     var negExec = dateEntries.filter(function(e){return e.action&&e.action.indexOf('negate')===0;});
     var campExec = dateEntries.filter(function(e){return !e.keyword;});
+    // Use exec_time from first entry if available, fallback to exec_date
+    var execTime = dateEntries[0].exec_time || dt;
     entries.push({
       type: 'result',
-      time: dt,
+      time: execTime,
       total: dateEntries.length,
       okN: okN, errN: errN, skipN: skipN,
       campCount: campExec.length,
