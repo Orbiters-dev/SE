@@ -16,6 +16,7 @@ from .models import (
     OnzCreatorProfile,
     OnzGiftingApplication,
     OnzInfluencerOutreach,
+    GmailContact,
 )
 
 
@@ -555,5 +556,103 @@ def list_tables(request):
         "onz_creator_profile": OnzCreatorProfile.objects.count(),
         "onz_gifting_applications": OnzGiftingApplication.objects.count(),
         "onz_influencer_outreach": OnzInfluencerOutreach.objects.count(),
+        "gk_gmail_contacts": GmailContact.objects.count(),
     }
     return JsonResponse({"tables": tables})
+
+
+# --- Gmail RAG Contact Lookup ---
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def check_gmail_contact(request):
+    """Check if an email exists in the Gmail RAG contact index."""
+    email = request.GET.get("email", "").strip().lower()
+    if not email:
+        return JsonResponse({"error": "email parameter required"}, status=400)
+    try:
+        c = GmailContact.objects.get(email=email)
+        return JsonResponse({
+            "found": True,
+            "email": c.email,
+            "name": c.name,
+            "account": c.account,
+            "total_sent": c.total_sent,
+            "total_received": c.total_received,
+            "last_contact_date": c.last_contact_date.isoformat() if c.last_contact_date else None,
+            "last_subject": c.last_subject,
+        })
+    except GmailContact.DoesNotExist:
+        return JsonResponse({"found": False, "email": email})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def bulk_check_gmail_contacts(request):
+    """Bulk check multiple emails against Gmail RAG contact index."""
+    try:
+        body = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    emails = body.get("emails", [])
+    if not emails or not isinstance(emails, list):
+        return JsonResponse({"error": "emails array required"}, status=400)
+
+    emails_lower = [e.strip().lower() for e in emails if isinstance(e, str)]
+    found = GmailContact.objects.filter(email__in=emails_lower)
+    found_map = {}
+    for c in found:
+        found_map[c.email] = {
+            "name": c.name,
+            "account": c.account,
+            "total_sent": c.total_sent,
+            "last_contact_date": c.last_contact_date.isoformat() if c.last_contact_date else None,
+        }
+
+    results = {}
+    for e in emails_lower:
+        results[e] = found_map.get(e, None)
+
+    return JsonResponse({"results": results, "total_checked": len(emails_lower), "total_found": len(found_map)})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def sync_gmail_contacts(request):
+    """Batch upsert Gmail contacts from SQLite sync script."""
+    try:
+        body = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    contacts = body.get("contacts", [])
+    if not contacts or not isinstance(contacts, list):
+        return JsonResponse({"error": "contacts array required"}, status=400)
+
+    created = 0
+    updated = 0
+    for c in contacts:
+        email = c.get("email", "").strip().lower()
+        if not email:
+            continue
+        obj, was_created = GmailContact.objects.update_or_create(
+            email=email,
+            defaults={
+                "name": c.get("name", ""),
+                "domain": c.get("domain", ""),
+                "account": c.get("account", "zezebaebae"),
+                "first_contact_date": c.get("first_contact_date"),
+                "last_contact_date": c.get("last_contact_date"),
+                "last_subject": c.get("last_subject", ""),
+                "total_sent": c.get("total_sent", 0),
+                "total_received": c.get("total_received", 0),
+            },
+        )
+        if was_created:
+            created += 1
+        else:
+            updated += 1
+
+    return JsonResponse({"created": created, "updated": updated, "total": len(contacts)})

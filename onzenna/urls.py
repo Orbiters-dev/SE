@@ -36,6 +36,11 @@ urlpatterns = [
     path("outreach/update/", views.update_outreach, name="update_outreach"),
     path("outreach/list/", views.list_outreach, name="list_outreach"),
 
+    # Gmail RAG Contact Lookup
+    path("gmail-rag/check-contact/", views.check_gmail_contact, name="check_gmail_contact"),
+    path("gmail-rag/bulk-check/", views.bulk_check_gmail_contacts, name="bulk_check_gmail_contacts"),
+    path("gmail-rag/sync/", views.sync_gmail_contacts, name="sync_gmail_contacts"),
+
     # Monitoring
     path("tables/", views.list_tables, name="list_tables"),
 ]

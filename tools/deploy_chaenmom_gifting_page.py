@@ -1,6 +1,6 @@
-"""CHA&MOM + Naeiae Influencer Gifting Page 배포
+"""CHA&MOM Influencer Gifting Page 배포
 
-CHA&MOM 제품 필수 (연령제한 없음) + Naeiae 옵셔널 (아기 6-24개월만 표시)
+CHA&MOM Lotion 필수 + Wash/Cream 옵셔널 (연령제한 없음)
 Conversational UI (gifting2 스타일) + Shopify Theme API 배포 구조.
 
 Usage:
@@ -29,8 +29,7 @@ PAGE_HANDLE = "influencer-gifting-chamom"
 PAGE_TITLE = "CHA&MOM Gifting Application"
 
 # ── Product Data ─────────────────────────────────────────────
-# CHA&MOM: optional, no age restriction (age_min=0, age_max=999)
-# Naeiae: optional, baby 6-24 months only
+# CHA&MOM Lotion: required (core), Wash/Cream: optional
 PRODUCTS = {
     "chamom_lotion": {
         "title": "CHA&MOM Phyto Seline Moisture Lotion",
@@ -42,7 +41,6 @@ PRODUCTS = {
         "variant_map": {"Default": 48635619148098},
         "image_map": {},
         "age_min": 0, "age_max": 999,
-        "optional": True,
         "brand": "CHA&MOM",
     },
     "chamom_wash": {
@@ -70,20 +68,6 @@ PRODUCTS = {
         "age_min": 0, "age_max": 999,
         "optional": True,
         "brand": "CHA&MOM",
-    },
-    # Naeiae: optional, only shown if baby 6-24 months
-    "naeiae_rice_snack": {
-        "title": "Naeiae Pop Rice Snack Bundle",
-        "subtitle": "5 Packs - Korean Organic Rice",
-        "shopify_product_id": 9699496853826,
-        "price": "$24.60",
-        "image_url": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/naeiae-korean-pop-rice-snack-bundle-5-packs-70-off-clearance-1741934.jpg?v=1772589433",
-        "colors": [],
-        "variant_map": {"Default": 49691166212418},
-        "image_map": {},
-        "age_min": 6, "age_max": 24,
-        "optional": True,
-        "brand": "Naeiae",
     },
 }
 

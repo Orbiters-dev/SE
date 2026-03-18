@@ -8,6 +8,7 @@ from .models import (
     OnzLoyaltySurvey,
     OnzCreatorProfile,
     OnzGiftingApplication,
+    GmailContact,
 )
 
 
@@ -59,3 +60,11 @@ class OnzGiftingApplicationAdmin(admin.ModelAdmin):
     search_fields = ("email", "full_name", "instagram", "tiktok")
     list_filter = ("status",)
     readonly_fields = ("id", "created_at", "updated_at")
+
+
+@admin.register(GmailContact)
+class GmailContactAdmin(admin.ModelAdmin):
+    list_display = ("email", "name", "account", "total_sent", "total_received", "last_contact_date", "synced_at")
+    search_fields = ("email", "name", "domain")
+    list_filter = ("account",)
+    readonly_fields = ("synced_at",)

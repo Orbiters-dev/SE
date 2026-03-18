@@ -1,8 +1,12 @@
-"""
-Shopify Influencer Gifting Page 배포 도구
-- Shopify Theme Asset API로 커스텀 Liquid 섹션 + 페이지 템플릿 업로드
-- Shopify Pages API로 페이지 생성
-- 실행 시 페이지 URL 출력
+"""Naeiae Influencer Gifting Page 배포
+
+Naeiae Rice Snack 필수 (아기 6-24개월)
+Conversational UI (gifting2 스타일) + Shopify Theme API 배포 구조.
+
+Usage:
+    python tools/deploy_naeiae_gifting_page.py
+    python tools/deploy_naeiae_gifting_page.py --dry-run
+    python tools/deploy_naeiae_gifting_page.py --rollback
 """
 
 import os
@@ -14,114 +18,30 @@ from env_loader import load_env
 
 load_env()
 
-SHOP = "mytoddie.myshopify.com"  # onzenna.com = mytoddie (NOT toddie-4080)
+SHOP = os.getenv("SHOPIFY_SHOP", "mytoddie.myshopify.com")
 TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN", "")
 API_VERSION = "2024-01"
-N8N_WEBHOOK_URL = os.getenv("N8N_INFLUENCER_WEBHOOK", "")
+N8N_WEBHOOK_URL = os.getenv("N8N_NAEIAE_GIFTING_WEBHOOK", "")
 
-# ── Product Data ─────────────────────────────────────────────────
-# bonus_age_min/max: age range where this product appears as optional "Bonus Pick"
+SECTION_KEY = "sections/influencer-gifting-naeiae.liquid"
+TEMPLATE_KEY = "templates/page.influencer-gifting-naeiae.json"
+PAGE_HANDLE = "influencer-gifting-naeiae"
+PAGE_TITLE = "Naeiae Gifting Application"
+
+# ── Product Data ─────────────────────────────────────────────
+# Naeiae Rice Snack: required (core), baby 6-24 months
 PRODUCTS = {
-    "ppsu_bottle": {
-        "title": "Grosmimi PPSU Baby Bottle 10oz",
-        "shopify_product_id": 8288604815682,
-        "price": "$19.60",
-        "product_url": "/products/ppsu-baby-bottle-10oz-300ml",
-        "image_url": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-baby-bottle-10oz-300ml-5231923.png?v=1765928785",
-        "colors": [
-            "Creamy Blue", "Rose Coral", "Olive White", "Bear Pure Gold",
-            "Bear White", "Cherry Pure Gold", "Cherry Rose Gold",
-            "Cherry Peach", "Bear Butter", "Olive Pistachio",
-        ],
-        "variant_map": {
-            "Creamy Blue": 51854035059058, "Rose Coral": 51854035091826,
-            "Olive White": 45019086586178, "Bear Pure Gold": 45019086618946,
-            "Bear White": 45019086651714, "Cherry Pure Gold": 45019086684482,
-            "Cherry Rose Gold": 45019086717250,
-            "Cherry Peach": 61621722349938, "Bear Butter": 61621722382706,
-            "Olive Pistachio": 61621722415474,
-        },
-        "image_map": {
-            "Creamy Blue": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-baby-bottle-10oz-300ml-5231923.png?v=1765928785",
-            "Rose Coral": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-baby-bottle-10oz-300ml-4508449.png?v=1765928785",
-            "Cherry Peach": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-baby-bottle-10oz-300ml-7825518.png?v=1773004689",
-            "Bear Butter": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-baby-bottle-10oz-300ml-1000369.png?v=1773004689",
-            "Olive Pistachio": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-baby-bottle-10oz-300ml-1787705.png?v=1773004689",
-        },
-        "age_min": 0, "age_max": 6,
-    },
-    "ppsu_straw": {
-        "title": "Grosmimi PPSU Straw Cup 10oz",
-        "shopify_product_id": 8288579256642,
-        "price": "$24.90",
-        "product_url": "/products/ppsu-straw-cup-10oz-300ml",
-        "image_url": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-stage-2-straw-replacement-kit-bundle-6846270.jpg?v=1769647041",
-        "colors": [
-            "Peach", "Skyblue", "White", "Aquagreen",
-            "Pink", "Beige", "Charcoal", "Butter",
-        ],
-        "variant_map": {
-            "Peach": 45373972545858, "Skyblue": 45018985595202,
-            "White": 45018985431362, "Aquagreen": 45018985529666,
-            "Pink": 45018985562434, "Beige": 45018985464130,
-            "Charcoal": 45018985496898, "Butter": 45373972513090,
-        },
-        "image_map": {
-            "Peach": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-stage-2-straw-replacement-kit-bundle-6846270.jpg?v=1769647041",
-            "Skyblue": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-stage-2-straw-replacement-kit-bundle-5894511.jpg?v=1769647041",
-            "White": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-stage-2-straw-replacement-kit-bundle-5455905.jpg?v=1769647041",
-            "Aquagreen": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-stage-2-straw-replacement-kit-bundle-7099813.jpg?v=1769647041",
-            "Pink": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-stage-2-straw-replacement-kit-bundle-6870757.jpg?v=1769647041",
-            "Beige": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-stage-2-straw-replacement-kit-bundle-8885168.jpg?v=1769647041",
-            "Charcoal": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-stage-2-straw-replacement-kit-bundle-6527979.jpg?v=1769647041",
-            "Butter": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-ppsu-stage-2-straw-replacement-kit-bundle-1988015.jpg?v=1769647041",
-        },
-        "age_min": 6, "age_max": 18,
-        "bonus_age_min": 0, "bonus_age_max": 6,
-    },
-    "ss_straw": {
-        "title": "Grosmimi Stainless Steel Straw Cup 10oz",
-        "shopify_product_id": 8864426557762,
-        "price": "$46.80",
-        "product_url": "/products/grosmimi-stainless-steel-straw-cup-with-flip-top-10oz-300ml",
-        "image_url": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-stainless-steel-straw-cup-with-flip-top-10oz-12-months-2204065.webp?v=1770248040",
-        "colors": [
-            "Flower Coral", "Air Balloon Blue", "Cherry Peach",
-            "Olive Pistachio", "Bear Butter",
-        ],
-        "variant_map": {
-            "Flower Coral": 51660007342450, "Air Balloon Blue": 51660005867890,
-            "Cherry Peach": 47142838042946, "Olive Pistachio": 47142887981378,
-            "Bear Butter": 47142838010178,
-        },
-        "image_map": {
-            "Flower Coral": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-stainless-steel-straw-cup-with-flip-top-10oz-12-months-2204065.webp?v=1770248040",
-            "Air Balloon Blue": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-stainless-steel-straw-cup-with-flip-top-10oz-12-months-8173628.webp?v=1766435768",
-            "Cherry Peach": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-stainless-steel-straw-cup-with-flip-top-10oz-12-months-9797780.webp?v=1770248040",
-            "Olive Pistachio": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-stainless-steel-straw-cup-with-flip-top-10oz-12-months-8797130.webp?v=1766435769",
-            "Bear Butter": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-stainless-steel-straw-cup-with-flip-top-10oz-12-months-6976331.webp?v=1766435769",
-        },
-        "age_min": 6, "age_max": 18,
-        "bonus_age_min": 0, "bonus_age_max": 6,
-    },
-    "ss_tumbler": {
-        "title": "Grosmimi Stainless Steel Tumbler 10oz",
-        "shopify_product_id": 14761459941746,
-        "price": "$49.80",
-        "product_url": "/products/grosmimi-stainless-steel-tumbler-10oz-300ml",
-        "image_url": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-stainless-steel-tumbler-10oz-300ml-2105333.png?v=1765928662",
-        "colors": ["Cherry Peach", "Bear Butter", "Olive Pistachio"],
-        "variant_map": {
-            "Cherry Peach": 52505654854002, "Bear Butter": 52505654886770,
-            "Olive Pistachio": 52505654919538,
-        },
-        "image_map": {
-            "Cherry Peach": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-stainless-steel-tumbler-10oz-300ml-2105333.png?v=1765928662",
-            "Bear Butter": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-stainless-steel-tumbler-10oz-300ml-4079603.png?v=1766377611",
-            "Olive Pistachio": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/grosmimi-stainless-steel-tumbler-10oz-300ml-8675516.png?v=1766377611",
-        },
-        "age_min": 18, "age_max": 36,
-        "bonus_age_min": 6, "bonus_age_max": 18,
+    "naeiae_rice_snack": {
+        "title": "Naeiae Pop Rice Snack Bundle",
+        "subtitle": "5 Packs - Korean Organic Rice",
+        "shopify_product_id": 9699496853826,
+        "price": "$24.60",
+        "image_url": "https://cdn.shopify.com/s/files/1/0738/7876/5890/files/naeiae-korean-pop-rice-snack-bundle-5-packs-70-off-clearance-1741934.jpg?v=1772589433",
+        "colors": [],
+        "variant_map": {"Default": 49691166212418},
+        "image_map": {},
+        "age_min": 6, "age_max": 24,
+        "brand": "Naeiae",
     },
 }
 
@@ -130,8 +50,10 @@ COLLAB_TERMS = (
     "<li>Total video length: 30 seconds</li>"
     "<li>Uploaded content must include voiceover + subtitles</li>"
     "<li>Must use royalty-free music</li>"
-    "<li>Must tag: @zezebaebae_official (IG), @zeze_baebae (TikTok), @grosmimi_usa (IG &amp; TikTok)</li>"
-    "<li>Must include: #Grosmimi #PPSU #sippycup #ppsusippycup #Onzenna</li>"
+    "<li>Must tag: @zezebaebae_official (IG), @zeze_baebae (TikTok), @naeiae_official (IG)</li>"
+    "<li>Must include: #Naeiae #KoreanBabySnack #BabyFood #Onzenna</li>"
+    "<li>Content must be posted within 14 days of receiving the product</li>"
+    "<li>You agree that Onzenna may repost your content with credit</li>"
     "</ul>"
 )
 
@@ -175,7 +97,6 @@ def shopify_request(method, path, data=None):
 
 
 def get_active_theme_id():
-    """Get the main/active theme ID"""
     result = shopify_request("GET", "/themes.json")
     for theme in result.get("themes", []):
         if theme.get("role") == "main":
@@ -184,17 +105,7 @@ def get_active_theme_id():
     raise RuntimeError("No active theme found")
 
 
-def is_os2_theme(theme_id):
-    """Check if theme is Online Store 2.0 (has JSON templates)"""
-    try:
-        shopify_request("GET", f"/themes/{theme_id}/assets.json?asset[key]=templates/index.json")
-        return True
-    except urllib.error.HTTPError:
-        return False
-
-
 def upload_theme_asset(theme_id, key, value):
-    """Upload a file to the theme"""
     print(f"  Uploading: {key} ...")
     shopify_request("PUT", f"/themes/{theme_id}/assets.json", {
         "asset": {"key": key, "value": value}
@@ -203,8 +114,6 @@ def upload_theme_asset(theme_id, key, value):
 
 
 def create_or_update_page(handle, title, template_suffix):
-    """Create or update a Shopify page"""
-    # Check if page exists
     result = shopify_request("GET", f"/pages.json?handle={handle}")
     pages = result.get("pages", [])
 
@@ -232,16 +141,14 @@ def create_or_update_page(handle, title, template_suffix):
         return page_id
 
 
-# ── Liquid Section Template Builder ─────────────────────────────
+# ── Liquid Section Builder ─────────────────────────────────────
 def build_products_js():
-    """Build the JavaScript PRODUCTS object from Python dict"""
     js_products = {}
     for key, p in PRODUCTS.items():
         js_products[key] = {
             "title": p["title"],
             "price": p["price"],
             "productId": p["shopify_product_id"],
-            "productUrl": p.get("product_url", ""),
             "image": p["image_url"],
             "colors": p["colors"],
             "variantMap": p["variant_map"],
@@ -250,14 +157,12 @@ def build_products_js():
             "ageMax": p["age_max"],
             "optional": p.get("optional", False),
             "subtitle": p.get("subtitle", ""),
-            "bonusAgeMin": p.get("bonus_age_min"),
-            "bonusAgeMax": p.get("bonus_age_max"),
+            "brand": p.get("brand", ""),
         }
     return json.dumps(js_products, indent=2)
 
 
 def build_state_options():
-    """Build HTML <option> tags for US states"""
     options = ['<option value="">Select State</option>']
     for code in US_STATES:
         name = US_STATE_NAMES[code]
@@ -269,37 +174,19 @@ def build_section_liquid(webhook_url):
     products_js = build_products_js()
     state_options = build_state_options()
 
-    return f'''<!-- Influencer Gifting Form — Conversational UI (Claude-inspired) -->
-<!-- Generated by tools/deploy_influencer_page.py -->
+    return f'''<!-- Naeiae Influencer Gifting Form — Conversational UI -->
+<!-- Generated by tools/deploy_naeiae_gifting_page.py -->
 
 {{% comment %}}
-  Customer data: passes logged-in customer info + metafields to JavaScript.
-  Used for pre-fill and smart form (skip already-collected fields).
+  Naeiae Rice Snack: required, baby 6-24 months
 {{% endcomment %}}
 {{% if customer %}}
 <script id="igf-customer-data" type="application/json">
-{{
-  "name": {{{{ customer.name | json }}}},
-  "email": {{{{ customer.email | json }}}},
-  "phone": {{{{ customer.phone | json }}}},
-  "id": {{{{ customer.id }}}},
-  "has_address": {{% if customer.default_address %}}true{{% else %}}false{{% endif %}},
-  "address1": {{{{ customer.default_address.address1 | default: "" | json }}}},
-  "address2": {{{{ customer.default_address.address2 | default: "" | json }}}},
-  "city": {{{{ customer.default_address.city | default: "" | json }}}},
-  "province_code": {{{{ customer.default_address.province_code | default: "" | json }}}},
-  "zip": {{{{ customer.default_address.zip | default: "" | json }}}},
-  "creator_completed": {{% if customer.metafields.onzenna_creator.creator_completed_at %}}"{{{{ customer.metafields.onzenna_creator.creator_completed_at.value }}}}"{{% else %}}null{{% endif %}},
-  "primary_platform": {{% if customer.metafields.onzenna_creator.primary_platform %}}"{{{{ customer.metafields.onzenna_creator.primary_platform.value }}}}"{{% else %}}null{{% endif %}},
-  "primary_handle": {{% if customer.metafields.onzenna_creator.primary_handle %}}"{{{{ customer.metafields.onzenna_creator.primary_handle.value }}}}"{{% else %}}null{{% endif %}}
-}}
+{{"name": {{{{ customer.name | json }}}}, "email": {{{{ customer.email | json }}}}, "phone": {{{{ customer.phone | json }}}}, "id": {{{{ customer.id }}}}}}
 </script>
 {{% endif %}}
 
-<!-- Uses Fustat font from parent Onzenna theme -->
-
 <style>
-  /* ── Base — Claude Desktop aesthetic ─────────────────── */
   :root {{
     --igf-accent: #D97757;
     --igf-accent-hover: #C16842;
@@ -330,7 +217,6 @@ def build_section_liquid(webhook_url):
   }}
   .igf-wrap * {{ box-sizing: border-box; }}
 
-  /* ── Progress ──────────────────────────────────────── */
   .igf-progress-bar {{
     position: fixed;
     top: 0;
@@ -341,7 +227,6 @@ def build_section_liquid(webhook_url):
     z-index: 9999;
   }}
 
-  /* ── Card Container ────────────────────────────────── */
   .igf-card {{
     width: 100%;
     max-width: 540px;
@@ -357,7 +242,6 @@ def build_section_liquid(webhook_url):
     .igf-card {{ padding: 36px 24px 28px; border-radius: 16px; }}
   }}
 
-  /* ── Slides ────────────────────────────────────────── */
   .igf-slide {{
     display: none;
     animation: igf-fadeIn 0.5s cubic-bezier(.16,1,.3,1);
@@ -367,8 +251,6 @@ def build_section_liquid(webhook_url):
     from {{ opacity: 0; transform: translateY(12px); }}
     to {{ opacity: 1; transform: translateY(0); }}
   }}
-
-  /* ── Typing reveal for questions ────────────────────── */
   .igf-slide.active .igf-question {{
     animation: igf-typeReveal 0.6s cubic-bezier(.16,1,.3,1) forwards;
   }}
@@ -386,7 +268,6 @@ def build_section_liquid(webhook_url):
     to {{ opacity: 1; transform: translateY(0); filter: blur(0); }}
   }}
 
-  /* ── Step Counter ──────────────────────────────────── */
   .igf-step-counter {{
     font-size: 0.72rem;
     font-weight: 600;
@@ -396,7 +277,6 @@ def build_section_liquid(webhook_url):
     margin-bottom: 12px;
   }}
 
-  /* ── Question Title ────────────────────────────────── */
   .igf-question {{
     font-family: var(--font-heading-family, Fustat), sans-serif;
     font-size: 1.4rem;
@@ -410,7 +290,6 @@ def build_section_liquid(webhook_url):
     .igf-question {{ font-size: 1.55rem; }}
   }}
 
-  /* ── Input Fields ──────────────────────────────────── */
   .igf-input {{
     width: 100%;
     padding: 14px 0;
@@ -423,15 +302,9 @@ def build_section_liquid(webhook_url):
     transition: border-color 0.3s cubic-bezier(.16,1,.3,1);
     outline: none;
   }}
-  .igf-input:focus {{
-    border-bottom-color: var(--igf-accent);
-  }}
-  .igf-input::placeholder {{
-    color: #C5BFB6;
-  }}
-  .igf-input.invalid {{
-    border-bottom-color: var(--igf-error);
-  }}
+  .igf-input:focus {{ border-bottom-color: var(--igf-accent); }}
+  .igf-input::placeholder {{ color: #C5BFB6; }}
+  .igf-input.invalid {{ border-bottom-color: var(--igf-error); }}
   select.igf-input {{
     cursor: pointer;
     -webkit-appearance: none;
@@ -453,10 +326,7 @@ def build_section_liquid(webhook_url):
     display: none;
   }}
 
-  /* ── Social Media Row ───────────────────────────────── */
-  .igf-social-group {{
-    margin-bottom: 20px;
-  }}
+  .igf-social-group {{ margin-bottom: 20px; }}
   .igf-social-label {{
     display: flex;
     align-items: center;
@@ -468,18 +338,9 @@ def build_section_liquid(webhook_url):
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }}
-  .igf-social-label svg {{
-    width: 16px;
-    height: 16px;
-    opacity: 0.6;
-  }}
+  .igf-social-label svg {{ width: 16px; height: 16px; opacity: 0.6; }}
 
-  /* ── Phone Prefix ──────────────────────────────────── */
-  .igf-phone-row {{
-    display: flex;
-    align-items: flex-end;
-    gap: 12px;
-  }}
+  .igf-phone-row {{ display: flex; align-items: flex-end; gap: 12px; }}
   .igf-phone-prefix {{
     padding: 14px 0;
     border-bottom: 2px solid var(--igf-border);
@@ -489,13 +350,7 @@ def build_section_liquid(webhook_url):
   }}
   .igf-phone-row .igf-input {{ flex: 1; }}
 
-  /* ── Buttons ───────────────────────────────────────── */
-  .igf-actions {{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 36px;
-  }}
+  .igf-actions {{ display: flex; align-items: center; gap: 10px; margin-top: 36px; }}
   .igf-btn {{
     display: inline-flex;
     align-items: center;
@@ -549,7 +404,6 @@ def build_section_liquid(webhook_url):
     margin-right: 4px;
   }}
 
-  /* ── Toggle / Checkbox ─────────────────────────────── */
   .igf-toggle {{
     display: flex;
     align-items: center;
@@ -571,7 +425,6 @@ def build_section_liquid(webhook_url):
     cursor: pointer;
   }}
 
-  /* ── Age Badge ─────────────────────────────────────── */
   .igf-age-badge {{
     display: inline-block;
     padding: 5px 14px;
@@ -587,11 +440,7 @@ def build_section_liquid(webhook_url):
     color: #D4760A;
   }}
 
-  /* ── Product Grid ──────────────────────────────────── */
-  .igf-products-wrap {{
-    max-width: 740px;
-    width: 100%;
-  }}
+  .igf-products-wrap {{ max-width: 740px; width: 100%; }}
   .igf-product-grid {{
     display: grid;
     grid-template-columns: 1fr;
@@ -605,7 +454,6 @@ def build_section_liquid(webhook_url):
     .igf-product-grid {{ grid-template-columns: repeat(3, 1fr); }}
   }}
 
-  /* ── Product Card ──────────────────────────────────── */
   .igf-pcard {{
     background: var(--igf-card);
     border: 2px solid var(--igf-border);
@@ -648,114 +496,9 @@ def build_section_liquid(webhook_url):
     font-weight: 700;
     font-size: 0.95rem;
     color: var(--igf-accent);
-    margin-bottom: 6px;
-  }}
-
-  /* ── Product Detail Link ────────────────────────────── */
-  .igf-pcard-link {{
-    display: inline-block;
-    font-size: 0.72rem;
-    font-weight: 500;
-    color: var(--igf-text-muted);
-    text-decoration: none;
     margin-bottom: 10px;
-    transition: color 0.2s;
   }}
-  .igf-pcard-link:hover {{ color: var(--igf-accent); text-decoration: underline; }}
 
-  /* ── Swatches ──────────────────────────────────────── */
-  .igf-swatches {{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    justify-content: center;
-    margin-bottom: 8px;
-  }}
-  .igf-sw {{
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    border: 2px solid #E8E4DE;
-    cursor: pointer;
-    transition: all 0.15s;
-    position: relative;
-  }}
-  .igf-sw:hover {{ border-color: #aaa; transform: scale(1.15); }}
-  .igf-sw.active {{
-    border-color: var(--igf-accent);
-    box-shadow: 0 0 0 2px var(--igf-accent-soft);
-    transform: scale(1.15);
-  }}
-  .igf-sw.active::after {{
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 8px;
-    height: 8px;
-    background: var(--igf-accent);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-  }}
-  .igf-sw-tooltip {{
-    display: none;
-    position: absolute;
-    bottom: calc(100% + 6px);
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--igf-text);
-    color: #fff;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.68rem;
-    white-space: nowrap;
-    z-index: 10;
-    pointer-events: none;
-  }}
-  .igf-sw:hover .igf-sw-tooltip {{ display: block; }}
-  .igf-sw-count {{
-    text-align: center;
-    font-size: 0.72rem;
-    color: var(--igf-text-muted);
-    margin-bottom: 6px;
-  }}
-  .igf-sw-count strong {{ color: var(--igf-accent); }}
-
-  /* ── Out-of-Stock Swatch ────────────────────────────── */
-  .igf-sw.oos {{
-    opacity: 0.45;
-    cursor: not-allowed;
-    pointer-events: none;
-  }}
-  .igf-sw.oos::before {{
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 120%;
-    height: 1.5px;
-    background: rgba(255,255,255,0.9);
-    box-shadow: 0 0 2px rgba(0,0,0,0.2);
-    transform: translate(-50%, -50%) rotate(-45deg);
-    border-radius: 2px;
-    z-index: 2;
-  }}
-  .igf-sw.oos::after {{
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 120%;
-    height: 1.5px;
-    background: rgba(255,255,255,0.9);
-    box-shadow: 0 0 2px rgba(0,0,0,0.2);
-    transform: translate(-50%, -50%) rotate(45deg);
-    border-radius: 2px;
-    z-index: 2;
-  }}
-  .igf-sw.oos .igf-sw-tooltip::after {{ content: " (sold out)"; }}
-
-  /* ── Card Pill Button ──────────────────────────────── */
   .igf-pcard-btn {{
     display: inline-flex;
     align-items: center;
@@ -779,7 +522,6 @@ def build_section_liquid(webhook_url):
     color: #fff;
   }}
 
-  /* ── Badges ────────────────────────────────────────── */
   .igf-badge {{
     position: absolute;
     top: 8px;
@@ -791,16 +533,11 @@ def build_section_liquid(webhook_url):
     letter-spacing: 0.03em;
     text-transform: uppercase;
   }}
-  .igf-badge-bonus {{
-    background: var(--igf-accent-soft);
-    color: var(--igf-accent);
-  }}
   .igf-badge-optional {{
     background: var(--igf-warm);
     color: #9A8E7E;
   }}
 
-  /* ── Section Labels ────────────────────────────────── */
   .igf-section-title {{
     font-family: var(--font-heading-family, Fustat), sans-serif;
     font-size: 0.88rem;
@@ -817,7 +554,6 @@ def build_section_liquid(webhook_url):
     margin-bottom: 14px;
   }}
 
-  /* ── Address Grid ──────────────────────────────────── */
   .igf-addr-grid {{
     display: grid;
     grid-template-columns: 1fr;
@@ -825,7 +561,6 @@ def build_section_liquid(webhook_url):
   }}
   @media (min-width: 480px) {{
     .igf-addr-grid.cols-3 {{ grid-template-columns: 2fr 1fr 1fr; }}
-    .igf-addr-grid.cols-2 {{ grid-template-columns: 1fr 1fr; }}
   }}
   .igf-addr-field {{ margin-bottom: 4px; }}
   .igf-addr-field label {{
@@ -838,11 +573,23 @@ def build_section_liquid(webhook_url):
     letter-spacing: 0.04em;
   }}
 
-  /* ── Success ───────────────────────────────────────── */
-  .igf-success-wrap {{
-    text-align: center;
-    padding: 48px 24px;
+  .igf-terms-box {{
+    background: var(--igf-warm);
+    border-radius: 12px;
+    padding: 16px 16px 16px 20px;
+    margin: 12px 0 16px;
+    font-size: 0.85rem;
+    line-height: 1.8;
+    color: var(--igf-text);
   }}
+  .igf-terms-list {{
+    list-style: disc;
+    padding-left: 18px;
+    margin: 0;
+  }}
+  .igf-terms-list li {{ margin-bottom: 4px; }}
+
+  .igf-success-wrap {{ text-align: center; padding: 48px 24px; }}
   .igf-success-icon {{
     width: 68px;
     height: 68px;
@@ -867,7 +614,6 @@ def build_section_liquid(webhook_url):
     line-height: 1.6;
   }}
 
-  /* ── Spinner ───────────────────────────────────────── */
   .igf-spinner {{
     display: inline-block;
     width: 16px;
@@ -890,7 +636,6 @@ def build_section_liquid(webhook_url):
     font-size: 0.9rem;
   }}
 
-  /* ── Date Dropdown Row ────────────────────────────── */
   .igf-date-row {{
     display: grid;
     grid-template-columns: 2fr 1fr 1.2fr;
@@ -899,14 +644,23 @@ def build_section_liquid(webhook_url):
   @media (max-width: 400px) {{
     .igf-date-row {{ grid-template-columns: 1fr; }}
   }}
+
+  .igf-naeiae-note {{
+    background: var(--igf-accent-soft);
+    border: 1px solid #E8A88D;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    color: var(--igf-text);
+    margin-top: 16px;
+  }}
 </style>
 
 <form id="igf-form" autocomplete="on" onsubmit="return false;">
 <div class="igf-wrap" id="igf-app">
-  <!-- Thin progress bar at top of viewport -->
   <div class="igf-progress-bar" id="igf-progress" style="width:0%"></div>
 
-  <!-- ── Slides 1-5: Personal + Baby (card layout) ── -->
+  <!-- Slides 1-5: Personal + Baby (card) -->
   <div class="igf-card" id="igf-card-main">
 
     <!-- Slide 1: Name -->
@@ -950,7 +704,7 @@ def build_section_liquid(webhook_url):
       </div>
     </div>
 
-    <!-- Slide 4: Social Media (Instagram + TikTok combined) -->
+    <!-- Slide 4: Social Media -->
     <div class="igf-slide" data-slide="4">
       <div class="igf-step-counter">Step 4 of 7</div>
       <div class="igf-question">Share your social media</div>
@@ -1006,6 +760,10 @@ def build_section_liquid(webhook_url):
       <div id="igf-baby1-age"></div>
       <div class="igf-error-msg" id="igf-err-baby">Please select month, day, and year</div>
 
+      <div id="igf-naeiae-hint" class="igf-naeiae-note" style="display:none">
+        Your child qualifies for Naeiae organic rice snacks (6-24 months)!
+      </div>
+
       <label class="igf-toggle">
         <input type="checkbox" id="igf-has-baby2">
         <span>I have another child</span>
@@ -1044,22 +802,20 @@ def build_section_liquid(webhook_url):
         <button type="button" class="igf-btn igf-btn-next" data-next="6">Continue <svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5"/></svg></button>
       </div>
     </div>
+
   </div><!-- /igf-card-main -->
 
-  <!-- ── Slide 6: Products (wider layout) ── -->
+  <!-- Slide 6: Products (wider layout) -->
   <div class="igf-slide igf-products-wrap" data-slide="6" style="display:none">
     <div class="igf-step-counter" style="text-align:center;margin-bottom:6px">Step 6 of 7</div>
     <div class="igf-question" style="text-align:center;margin-bottom:4px">Pick your products</div>
-    <p class="igf-section-desc" style="text-align:center;margin-bottom:24px">Tap a color to select your product</p>
+    <p class="igf-section-desc" style="text-align:center;margin-bottom:24px">Select the products you&rsquo;d like to try</p>
 
-    <div id="igf-core-section"></div>
-    <div class="igf-product-grid" id="igf-products-core"></div>
-
-    <div id="igf-optional-section" style="display:none">
-      <div class="igf-section-title">Optional Add-on</div>
-      <p class="igf-section-desc">Available for all ages</p>
+    <div id="igf-naeiae-section">
+      <div class="igf-section-title">Naeiae</div>
+      <p class="igf-section-desc">Organic rice snacks for babies 6-24 months</p>
     </div>
-    <div class="igf-product-grid" id="igf-products-optional"></div>
+    <div class="igf-product-grid" id="igf-products-naeiae"></div>
 
     <div class="igf-actions" style="justify-content:center;margin-top:32px">
       <button type="button" class="igf-btn igf-btn-back" data-prev="5">&larr; Back</button>
@@ -1067,11 +823,11 @@ def build_section_liquid(webhook_url):
     </div>
   </div>
 
-  <!-- ── Slide 7: Shipping Address (card layout) ── -->
+  <!-- Slide 7: Shipping + Terms + Submit (card) -->
   <div class="igf-card" id="igf-card-address" style="display:none">
     <div class="igf-slide active" data-slide="7">
       <div class="igf-step-counter">Step 7 of 7</div>
-      <div class="igf-question">Where should we send your samples?</div>
+      <div class="igf-question">Where should we send your products?</div>
 
       <div class="igf-addr-field">
         <label for="igf-street">Street Address *</label>
@@ -1109,6 +865,16 @@ def build_section_liquid(webhook_url):
         </select>
       </div>
 
+      <div style="margin-top:28px">
+        <div class="igf-section-title">Collaboration Terms</div>
+        <div class="igf-terms-box">{COLLAB_TERMS}</div>
+        <label class="igf-toggle">
+          <input type="checkbox" id="igf-agree">
+          <span>I agree to the collaboration terms *</span>
+        </label>
+        <div class="igf-error-msg" id="igf-err-agree">You must agree to the terms</div>
+      </div>
+
       <div class="igf-actions">
         <button type="button" class="igf-btn igf-btn-back" data-prev="6">&larr; Back</button>
         <button type="button" class="igf-btn igf-btn-next" id="igf-submit-btn">Submit Application <svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5"/></svg></button>
@@ -1116,7 +882,7 @@ def build_section_liquid(webhook_url):
     </div>
   </div>
 
-  <!-- ── Success ── -->
+  <!-- Success -->
   <div class="igf-card" id="igf-card-success" style="display:none">
     <div class="igf-success-wrap">
       <div class="igf-success-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
@@ -1124,6 +890,7 @@ def build_section_liquid(webhook_url):
       <p>We&rsquo;ll review your application and get back to you soon.<br>Keep an eye on your email!</p>
     </div>
   </div>
+
 </div>
 </form>
 
@@ -1136,17 +903,14 @@ def build_section_liquid(webhook_url):
   var TOTAL_SLIDES = 7;
   var currentSlide = 1;
   var selectedProducts = {{}};
-  var lastTappedColor = {{}};
-  var MAX_COLORS = 1;
 
-  // ── Containers ────────────────────────────────────────
   var cardMain = document.getElementById("igf-card-main");
   var cardAddr = document.getElementById("igf-card-address");
   var cardSuccess = document.getElementById("igf-card-success");
   var prodWrap = document.querySelector('.igf-products-wrap[data-slide="6"]');
   var progressBar = document.getElementById("igf-progress");
 
-  // ── Age helpers ───────────────────────────────────────
+  // ── Age helpers ─────────────────────────────────────────
   function calcAgeMonths(dateStr) {{
     if (!dateStr) return null;
     var bd = new Date(dateStr);
@@ -1172,20 +936,33 @@ def build_section_liquid(webhook_url):
     var bd2 = document.getElementById("igf-baby2-bday").value;
     document.getElementById("igf-baby1-age").innerHTML = ageLabel(calcAgeMonths(bd1));
     document.getElementById("igf-baby2-age").innerHTML = ageLabel(calcAgeMonths(bd2));
+    var hint = document.getElementById("igf-naeiae-hint");
+    if (hint) hint.style.display = isNaeiaeEligible() ? "block" : "none";
+  }}
+
+  function isNaeiaeEligible() {{
+    var bd1 = document.getElementById("igf-baby1-bday").value;
+    var bd2 = document.getElementById("igf-has-baby2").checked
+      ? document.getElementById("igf-baby2-bday").value : null;
+    var ages = [calcAgeMonths(bd1)];
+    if (bd2) ages.push(calcAgeMonths(bd2));
+    for (var i = 0; i < ages.length; i++) {{
+      var eff = (ages[i] === null || ages[i] < 0) ? 0 : ages[i];
+      if (eff >= 6 && eff < 24) return true;
+    }}
+    return false;
   }}
 
   // ── Date Dropdown Helpers ───────────────────────────────
   function initDateDropdowns(prefix) {{
     var daySel = document.getElementById(prefix + "-day");
     var yearSel = document.getElementById(prefix + "-year");
-    // Populate days 1-31
     for (var d = 1; d <= 31; d++) {{
       var opt = document.createElement("option");
       opt.value = d;
       opt.textContent = d;
       daySel.appendChild(opt);
     }}
-    // Populate years (current year down to 6 years ago + expecting)
     var currentYear = new Date().getFullYear();
     for (var y = currentYear; y >= currentYear - 6; y--) {{
       var opt = document.createElement("option");
@@ -1193,7 +970,6 @@ def build_section_liquid(webhook_url):
       opt.textContent = y;
       yearSel.appendChild(opt);
     }}
-    // Attach change listeners
     [prefix + "-month", prefix + "-day", prefix + "-year"].forEach(function(id) {{
       document.getElementById(id).addEventListener("change", updateAgeDisplay);
     }});
@@ -1214,240 +990,97 @@ def build_section_liquid(webhook_url):
   initDateDropdowns("igf-baby1");
   initDateDropdowns("igf-baby2");
 
-  // ── Product Visibility ────────────────────────────────
+  // ── Product Rendering ───────────────────────────────────
   function getVisibleProducts() {{
-    var bd1 = document.getElementById("igf-baby1-bday").value;
-    var bd2 = document.getElementById("igf-has-baby2").checked
-      ? document.getElementById("igf-baby2-bday").value : null;
-    var ages = [calcAgeMonths(bd1)];
-    if (bd2) ages.push(calcAgeMonths(bd2));
-
-    var result = {{ core: {{}}, optional: {{}} }};
+    var eligible = isNaeiaeEligible();
+    var result = {{ naeiae: {{}} }};
     for (var key in PRODUCTS) {{
       if (!PRODUCTS.hasOwnProperty(key)) continue;
       var p = PRODUCTS[key];
-      if (p.optional) {{ result.optional[key] = p; continue; }}
-      for (var i = 0; i < ages.length; i++) {{
-        var eff = (ages[i] === null || ages[i] < 0) ? 0 : ages[i];
-        if (eff >= p.ageMin && eff < p.ageMax) {{ result.core[key] = p; break; }}
-      }}
+      if (eligible) result.naeiae[key] = p;
     }}
     return result;
   }}
 
-  // ── Color Hex Map ─────────────────────────────────────
-  var COLOR_HEX = {{
-    "Creamy Blue":"#A4C8E1","Rose Coral":"#E88D8D","Olive White":"#C5C99A",
-    "Bear Pure Gold":"#D4A76A","Bear White":"#F5F0E8","Cherry Pure Gold":"#D4A76A",
-    "Cherry Rose Gold":"#E8B4B4","Peach":"#FFB899","Skyblue":"#87CEEB",
-    "White":"#F0F0F0","Aquagreen":"#7BC8A4","Pink":"#FFB6C1","Beige":"#D4C5A9",
-    "Charcoal":"#4A4A4A","Butter":"#F5E6B8","Flower Coral":"#FF8B7D",
-    "Air Balloon Blue":"#7EB5D6","Cherry Peach":"#FFB4A2","Olive Pistachio":"#A8BF8A",
-    "Bear Butter":"#F5E6B8"
-  }};
-
-  // ── Inventory / Out-of-Stock ────────────────────────────
-  var inventoryData = {{}};  // variantId -> boolean (true=available)
-  var inventoryLoaded = false;
-
-  function fetchInventory() {{
-    if (inventoryLoaded) return Promise.resolve();
-    var handles = [];
-    for (var key in PRODUCTS) {{
-      if (!PRODUCTS.hasOwnProperty(key)) continue;
-      var p = PRODUCTS[key];
-      if (p.productUrl) {{
-        var h = p.productUrl.replace(/^\\/products\\//, "");
-        handles.push({{ key: key, handle: h }});
-      }}
-    }}
-    console.log("[IGF] Fetching inventory for", handles.length, "products");
-    var promises = handles.map(function(item) {{
-      return fetch("/products/" + item.handle + ".js")
-        .then(function(r) {{
-          if (!r.ok) throw new Error("HTTP " + r.status);
-          return r.json();
-        }})
-        .then(function(data) {{
-          if (data && data.variants) {{
-            var availCount = 0;
-            data.variants.forEach(function(v) {{
-              inventoryData[v.id] = v.available;
-              if (v.available) availCount++;
-            }});
-            console.log("[IGF] " + item.handle + ": " + availCount + "/" + data.variants.length + " available");
-          }}
-        }})
-        .catch(function(err) {{
-          console.warn("[IGF] Inventory fetch failed for " + item.handle, err);
-        }});
-    }});
-    return Promise.all(promises).then(function() {{
-      inventoryLoaded = true;
-      console.log("[IGF] Inventory loaded:", Object.keys(inventoryData).length, "variants tracked");
-    }});
-  }}
-
-  function isColorAvailable(key, color) {{
-    var p = PRODUCTS[key];
-    if (!p.variantMap || !p.variantMap[color]) return true;
-    var vid = p.variantMap[color];
-    if (inventoryData[vid] === undefined) return true; // unknown = assume available
-    return inventoryData[vid];
-  }}
-
-  // ── Build Card ────────────────────────────────────────
-  function buildCard(key, p, badgeType) {{
+  function buildCard(key, p) {{
     var card = document.createElement("div");
-    var sel = selectedProducts[key];
-    var selCount = sel ? sel.selections.length : 0;
-    card.className = "igf-pcard" + (selCount > 0 ? " selected" : "");
+    var isSelected = !!selectedProducts[key];
+    card.className = "igf-pcard" + (isSelected ? " selected" : "");
     card.dataset.key = key;
-
-    var badge = "";
-    if (badgeType === "optional") badge = '<div class="igf-badge igf-badge-optional">Optional</div>';
-
-    // Color swatches
-    var colorHtml = "";
-    if (p.colors && p.colors.length > 0) {{
-      var selected = sel ? sel.selections.map(function(s){{ return s.color; }}) : [];
-      var dots = p.colors.map(function(c) {{
-        var hex = COLOR_HEX[c] || "#ccc";
-        var act = selected.indexOf(c) >= 0 ? " active" : "";
-        var oosClass = !isColorAvailable(key, c) ? " oos" : "";
-        return '<span class="igf-sw' + act + oosClass + '" style="background:' + hex + '" data-key="' + key + '" data-color="' + c + '"><span class="igf-sw-tooltip">' + c + '</span></span>';
-      }}).join("");
-      colorHtml = '<div class="igf-swatches">' + dots + '</div>';
-    }}
-
-    var btnText = (p.colors && p.colors.length > 0)
-      ? (selCount > 0 ? "&#10003; " + selCount + " selected" : "Tap colors")
-      : (selCount > 0 ? "&#10003; Selected" : "Select");
-
-    // Use imageMap for the most recently TAPPED color, else default image
-    var imgSrc = p.image;
-    if (lastTappedColor[key] && p.imageMap && p.imageMap[lastTappedColor[key]]) {{
-      imgSrc = p.imageMap[lastTappedColor[key]];
-    }} else if (sel && sel.selections.length > 0 && p.imageMap) {{
-      // Fallback: show last selected color's image if no tap tracked yet
-      var lastColor = sel.selections[sel.selections.length - 1].color;
-      if (p.imageMap[lastColor]) imgSrc = p.imageMap[lastColor];
-    }}
-
-    // Product detail link
-    var detailLink = "";
-    if (p.productUrl) {{
-      detailLink = '<a href="' + p.productUrl + '" target="_blank" class="igf-pcard-link" onclick="event.stopPropagation()">See details &rarr;</a>';
-    }}
-
+    var isOptional = p.optional;
+    var badge = isOptional
+      ? '<div class="igf-badge igf-badge-optional">Optional</div>'
+      : '<div class="igf-badge igf-badge-recommended">Recommended</div>';
+    var btnText = isSelected ? "&#10003; Selected" : "Select";
     card.innerHTML = badge
-      + '<img class="igf-pcard-img" src="' + imgSrc + '" alt="' + p.title + '" loading="lazy">'
+      + '<img class="igf-pcard-img" src="' + p.image + '" alt="' + p.title + '" loading="lazy">'
       + '<div class="igf-pcard-title">' + p.title + '</div>'
       + (p.subtitle ? '<div class="igf-pcard-subtitle">' + p.subtitle + '</div>' : '')
       + '<div class="igf-pcard-price">' + p.price + '</div>'
-      + detailLink
-      + colorHtml
       + '<button type="button" class="igf-pcard-btn" data-key="' + key + '">' + btnText + '</button>';
     return card;
   }}
 
-  // ── Attach card events ────────────────────────────────
   function attachCardEvents(grid) {{
-    grid.querySelectorAll(".igf-sw").forEach(function(sw) {{
-      sw.addEventListener("click", function(e) {{
-        e.stopPropagation();
-        toggleColorSelection(this.dataset.key, this.dataset.color);
-      }});
-    }});
     grid.querySelectorAll(".igf-pcard-btn").forEach(function(btn) {{
       btn.addEventListener("click", function(e) {{
         e.stopPropagation();
-        var k = this.dataset.key, p = PRODUCTS[k];
-        if (!p.colors || p.colors.length === 0) toggleSimpleProduct(k);
-        else if (selectedProducts[k]) {{ delete selectedProducts[k]; renderProducts(); }}
+        toggleProduct(this.dataset.key);
       }});
     }});
     grid.querySelectorAll(".igf-pcard").forEach(function(card) {{
       card.addEventListener("click", function(e) {{
-        if (e.target.closest(".igf-sw") || e.target.tagName === "BUTTON" || e.target.tagName === "A") return;
-        var k = this.dataset.key, p = PRODUCTS[k];
-        if (!p.colors || p.colors.length === 0) toggleSimpleProduct(k);
+        if (e.target.tagName === "BUTTON") return;
+        toggleProduct(this.dataset.key);
       }});
     }});
   }}
 
-  // ── Render Products ───────────────────────────────────
   function renderProducts() {{
     var visible = getVisibleProducts();
-    var coreGrid = document.getElementById("igf-products-core");
-    var optGrid = document.getElementById("igf-products-optional");
-    var coreSection = document.getElementById("igf-core-section");
-    var optSection = document.getElementById("igf-optional-section");
+    var naeiaeGrid = document.getElementById("igf-products-naeiae");
+    var naeiaeSection = document.getElementById("igf-naeiae-section");
 
-    coreGrid.innerHTML = "";
-    optGrid.innerHTML = "";
+    naeiaeGrid.innerHTML = "";
 
     for (var k in selectedProducts) {{
-      if (!visible.core[k] && !visible.optional[k]) delete selectedProducts[k];
+      if (!visible.naeiae[k]) delete selectedProducts[k];
     }}
 
-    var hasCore = Object.keys(visible.core).length > 0;
-    var hasOpt = Object.keys(visible.optional).length > 0;
+    var hasNaeiae = Object.keys(visible.naeiae).length > 0;
 
-    if (hasCore) {{
-      coreSection.innerHTML = '<div class="igf-section-title">Recommended for Your Baby</div><p class="igf-section-desc">Pick 1 color per product</p>';
-      for (var ck in visible.core) coreGrid.appendChild(buildCard(ck, visible.core[ck], "core"));
-      attachCardEvents(coreGrid);
-    }} else {{
-      coreSection.innerHTML = '<div class="igf-no-products">No core products for this age range.</div>';
-    }}
+    naeiaeSection.style.display = hasNaeiae ? "block" : "none";
+    if (hasNaeiae) {{
+      for (var nk in visible.naeiae) naeiaeGrid.appendChild(buildCard(nk, visible.naeiae[nk]));
+      attachCardEvents(naeiaeGrid);
 
-    optSection.style.display = hasOpt ? "block" : "none";
-    if (hasOpt) {{
-      for (var ok in visible.optional) optGrid.appendChild(buildCard(ok, visible.optional[ok], "optional"));
-      attachCardEvents(optGrid);
-    }}
-  }}
-
-  // ── Toggle Color Selection ────────────────────────────
-  function toggleColorSelection(key, color) {{
-    if (!isColorAvailable(key, color)) return; // OOS: can't select
-    lastTappedColor[key] = color;
-    var p = PRODUCTS[key];
-    if (!selectedProducts[key]) {{
-      selectedProducts[key] = {{
-        productKey: key, productId: p.productId, title: p.title, price: p.price,
-        selections: [{{ color: color, variantId: p.variantMap[color] || null }}]
-      }};
-    }} else {{
-      var sels = selectedProducts[key].selections;
-      var idx = -1;
-      for (var i = 0; i < sels.length; i++) if (sels[i].color === color) {{ idx = i; break; }}
-      if (idx >= 0) {{
-        sels.splice(idx, 1);
-        if (sels.length === 0) delete selectedProducts[key];
-      }} else if (sels.length < MAX_COLORS) {{
-        sels.push({{ color: color, variantId: p.variantMap[color] || null }});
-      }} else {{
-        sels[0] = {{ color: color, variantId: p.variantMap[color] || null }};
+      // Auto-select required products
+      for (var nk in visible.naeiae) {{
+        if (!visible.naeiae[nk].optional && !selectedProducts[nk]) {{
+          toggleProduct(nk);
+        }}
       }}
     }}
-    renderProducts();
   }}
 
-  function toggleSimpleProduct(key) {{
-    if (selectedProducts[key]) {{ delete selectedProducts[key]; }}
-    else {{
+  function toggleProduct(key) {{
+    if (selectedProducts[key]) {{
+      delete selectedProducts[key];
+    }} else {{
       var p = PRODUCTS[key];
       selectedProducts[key] = {{
-        productKey: key, productId: p.productId, title: p.title, price: p.price,
-        selections: [{{ color: "Default", variantId: p.variantMap["Default"] || null }}]
+        productKey: key,
+        productId: p.productId,
+        title: p.title,
+        price: p.price,
+        variantId: p.variantMap["Default"] || null,
+        brand: p.brand || "",
       }};
     }}
     renderProducts();
   }}
 
-  // ── Navigation ────────────────────────────────────────
+  // ── Navigation ──────────────────────────────────────────
   function goToSlide(n) {{
     if (typeof n === "string" && n === "success") {{
       cardMain.style.display = "none";
@@ -1460,15 +1093,8 @@ def build_section_liquid(webhook_url):
     }}
     n = parseInt(n);
     if (n > currentSlide && !validateSlide(currentSlide)) return;
+    if (n === 6) {{ updateAgeDisplay(); renderProducts(); }}
 
-    // Before entering product slide, fetch inventory + render products
-    if (n === 6) {{
-      updateAgeDisplay();
-      fetchInventory().then(function() {{ renderProducts(); }});
-      renderProducts(); // render immediately, update when inventory loads
-    }}
-
-    // Hide all containers, show the right one
     cardMain.style.display = "none";
     prodWrap.style.display = "none";
     cardAddr.style.display = "none";
@@ -1489,7 +1115,6 @@ def build_section_liquid(webhook_url):
     currentSlide = n;
     window.scrollTo({{ top: 0, behavior: "smooth" }});
 
-    // Auto-focus the input on the slide
     setTimeout(function() {{
       var activeSlide = document.querySelector('.igf-slide[data-slide="' + n + '"]')
         || document.querySelector('[data-slide="' + n + '"]');
@@ -1500,7 +1125,7 @@ def build_section_liquid(webhook_url):
     }}, 100);
   }}
 
-  // ── Validation ────────────────────────────────────────
+  // ── Validation ──────────────────────────────────────────
   function validateSlide(slide) {{
     var valid = true;
     function err(id, show) {{
@@ -1518,7 +1143,6 @@ def build_section_liquid(webhook_url):
       var bd1Val = document.getElementById("igf-baby1-bday").value;
       err("igf-baby1-bday", bd1Val !== "");
       if (!bd1Val) {{
-        // Highlight the empty dropdown(s)
         ["igf-baby1-month","igf-baby1-day","igf-baby1-year"].forEach(function(id) {{
           var el = document.getElementById(id);
           if (!el.value) el.classList.add("invalid");
@@ -1528,7 +1152,7 @@ def build_section_liquid(webhook_url):
       if (document.getElementById("igf-has-baby2").checked) {{
         syncDateDropdown("igf-baby2");
         var bd2Val = document.getElementById("igf-baby2-bday").value;
-        if (!bd2Val) {{ valid = false; }}
+        if (!bd2Val) valid = false;
       }}
     }}
     if (slide === 6) {{
@@ -1542,11 +1166,12 @@ def build_section_liquid(webhook_url):
       err("igf-city", document.getElementById("igf-city").value.trim().length > 0);
       err("igf-state", document.getElementById("igf-state").value !== "");
       err("igf-zip", document.getElementById("igf-zip").value.trim().length >= 5);
+      err("igf-agree", document.getElementById("igf-agree").checked);
     }}
     return valid;
   }}
 
-  // ── Submit ────────────────────────────────────────────
+  // ── Submit ──────────────────────────────────────────────
   function submit() {{
     if (!validateSlide(7)) return;
     var btn = document.getElementById("igf-submit-btn");
@@ -1561,28 +1186,30 @@ def build_section_liquid(webhook_url):
     for (var key in selectedProducts) {{
       if (!selectedProducts.hasOwnProperty(key)) continue;
       var sp = selectedProducts[key];
-      for (var i = 0; i < sp.selections.length; i++) {{
-        var s = sp.selections[i];
-        products.push({{
-          product_key: sp.productKey, product_id: sp.productId,
-          variant_id: s.variantId, title: sp.title, color: s.color, price: sp.price
-        }});
-      }}
+      products.push({{
+        product_key: sp.productKey,
+        product_id: sp.productId,
+        variant_id: sp.variantId,
+        title: sp.title,
+        color: "Default",
+        price: sp.price,
+        brand: sp.brand,
+      }});
     }}
 
     var payload = {{
-      form_type: "influencer_gifting",
+      form_type: "influencer_gifting_naeiae",
       submitted_at: new Date().toISOString(),
       personal_info: {{
         full_name: document.getElementById("igf-name").value.trim(),
         email: document.getElementById("igf-email").value.trim(),
         phone: "+1" + document.getElementById("igf-phone").value.replace(/\\D/g, ""),
         instagram: document.getElementById("igf-instagram").value.trim() || "None",
-        tiktok: document.getElementById("igf-tiktok").value.trim() || "None"
+        tiktok: document.getElementById("igf-tiktok").value.trim() || "None",
       }},
       baby_info: {{
         child_1: {{ birthday: bd1, age_months: calcAgeMonths(bd1) }},
-        child_2: bd2 ? {{ birthday: bd2, age_months: calcAgeMonths(bd2) }} : null
+        child_2: bd2 ? {{ birthday: bd2, age_months: calcAgeMonths(bd2) }} : null,
       }},
       selected_products: products,
       shipping_address: {{
@@ -1591,15 +1218,16 @@ def build_section_liquid(webhook_url):
         city: document.getElementById("igf-city").value.trim(),
         state: document.getElementById("igf-state").value,
         zip: document.getElementById("igf-zip").value.trim(),
-        country: document.getElementById("igf-country").value
+        country: document.getElementById("igf-country").value,
       }},
-      shopify_customer_id: window.__igf_customer ? window.__igf_customer.id : null
+      terms_accepted: true,
+      shopify_customer_id: window.__igf_customer ? window.__igf_customer.id : null,
     }};
 
     fetch(WEBHOOK_URL, {{
       method: "POST",
       headers: {{ "Content-Type": "application/json" }},
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     }})
     .then(function(r) {{
       if (!r.ok) throw new Error("HTTP " + r.status);
@@ -1613,74 +1241,27 @@ def build_section_liquid(webhook_url):
     }});
   }}
 
-  // ── Toggle Baby 2 ────────────────────────────────────
   function toggleBaby2() {{
     var show = document.getElementById("igf-has-baby2").checked;
     document.getElementById("igf-baby2-section").style.display = show ? "block" : "none";
     if (!show) document.getElementById("igf-baby2-bday").value = "";
+    updateAgeDisplay();
   }}
 
-  // ── Customer Pre-fill + Smart Form ──────────────────────
   function prefillCustomer() {{
     var el = document.getElementById("igf-customer-data");
     if (!el) return;
     var c = JSON.parse(el.textContent);
     if (!c) return;
     window.__igf_customer = c;
-
-    // Pre-fill basic fields
     if (c.name) document.getElementById("igf-name").value = c.name;
     if (c.email) document.getElementById("igf-email").value = c.email;
-    if (c.phone) {{
-      var ph = c.phone.replace(/[^0-9]/g, "");
-      if (ph.length === 11 && ph[0] === "1") ph = ph.substring(1);
-      if (ph.length === 10) document.getElementById("igf-phone").value = ph;
-    }}
-
-    // Pre-fill social handles from metafields
-    if (c.primary_platform && c.primary_handle) {{
-      var handle = c.primary_handle;
-      var platform = c.primary_platform.toLowerCase();
-      if (platform.indexOf("instagram") >= 0 || platform.indexOf("ig") >= 0) {{
-        document.getElementById("igf-instagram").value = handle;
-      }} else if (platform.indexOf("tiktok") >= 0 || platform.indexOf("tt") >= 0) {{
-        document.getElementById("igf-tiktok").value = handle;
-      }}
-    }}
-
-    // Pre-fill address
-    if (c.has_address) {{
-      if (c.address1) document.getElementById("igf-street").value = c.address1;
-      if (c.address2) document.getElementById("igf-apt").value = c.address2;
-      if (c.city) document.getElementById("igf-city").value = c.city;
-      if (c.province_code) document.getElementById("igf-state").value = c.province_code;
-      if (c.zip) document.getElementById("igf-zip").value = c.zip;
-    }}
-
-    // Smart skip: determine first slide that needs input
-    var startSlide = 1;
-    var hasName = c.name && c.name.trim().length > 0;
-    var hasEmail = c.email && c.email.trim().length > 0;
-    var hasPhone = c.phone && c.phone.replace(/[^0-9]/g, "").length >= 10;
-    var hasSocial = c.primary_handle && c.primary_handle.length > 0;
-
-    // Skip slides with pre-filled data
-    if (hasName) startSlide = 2;
-    if (hasName && hasEmail) startSlide = 3;
-    if (hasName && hasEmail && hasPhone) startSlide = 4;
-    if (hasName && hasEmail && hasPhone && hasSocial) startSlide = 5;
-
-    if (startSlide > 1) {{
-      // Jump directly to first needed slide
-      window.__igf_start_slide = startSlide;
-    }}
   }}
 
-  // ── Event Listeners ───────────────────────────────────
+  // ── Event Listeners ─────────────────────────────────────
   document.getElementById("igf-submit-btn").addEventListener("click", submit);
   document.getElementById("igf-has-baby2").addEventListener("change", toggleBaby2);
 
-  // Next / Back / Skip buttons
   document.querySelectorAll("[data-next]").forEach(function(btn) {{
     btn.addEventListener("click", function() {{ goToSlide(parseInt(this.dataset.next)); }});
   }});
@@ -1688,7 +1269,6 @@ def build_section_liquid(webhook_url):
     btn.addEventListener("click", function() {{ goToSlide(parseInt(this.dataset.prev)); }});
   }});
 
-  // Enter key advances to next slide
   document.addEventListener("keydown", function(e) {{
     if (e.key !== "Enter") return;
     if (e.target.tagName === "TEXTAREA") return;
@@ -1700,25 +1280,8 @@ def build_section_liquid(webhook_url):
     if (nextBtn) {{ e.preventDefault(); nextBtn.click(); }}
   }});
 
-  // ── Init ──────────────────────────────────────────────
   prefillCustomer();
-
-  // Smart start: jump to first slide that needs input
-  var startAt = window.__igf_start_slide || 1;
-  if (startAt > 1) {{
-    // Directly show the right slide without validation
-    currentSlide = 0; // bypass validation in goToSlide
-    cardMain.querySelectorAll(".igf-slide").forEach(function(s) {{ s.classList.remove("active"); }});
-    if (startAt <= 5) {{
-      var target = cardMain.querySelector('.igf-slide[data-slide="' + startAt + '"]');
-      if (target) target.classList.add("active");
-    }} else if (startAt === 6) {{
-      cardMain.style.display = "none";
-      prodWrap.style.display = "block";
-    }}
-    currentSlide = startAt;
-  }}
-  progressBar.style.width = Math.round((currentSlide / TOTAL_SLIDES) * 100) + "%";
+  progressBar.style.width = Math.round((1 / TOTAL_SLIDES) * 100) + "%";
 
   window.IGF = {{ goToSlide: goToSlide, submit: submit }};
 }})();
@@ -1726,20 +1289,19 @@ def build_section_liquid(webhook_url):
 
 {{% schema %}}
 {{
-  "name": "Influencer Gifting Form",
+  "name": "Naeiae Gifting Form",
   "tag": "section",
-  "class": "influencer-gifting-section"
+  "class": "influencer-gifting-naeiae-section"
 }}
 {{% endschema %}}
 '''
 
 
 def build_template_json():
-    """Build the JSON page template content"""
     return json.dumps({
         "sections": {
             "main": {
-                "type": "influencer-gifting",
+                "type": "influencer-gifting-naeiae",
                 "settings": {}
             }
         },
@@ -1747,121 +1309,82 @@ def build_template_json():
     }, indent=2)
 
 
-# ── Main Deploy Function ────────────────────────────────────────
+# ── Deploy ───────────────────────────────────────────────────────
 def deploy(dry_run=False):
-    """Deploy the influencer gifting page to Shopify"""
     print(f"\n{'='*60}")
-    print(f"  Shopify Influencer Gifting Page Deployment")
+    print(f"  Deploy Naeiae Gifting Page")
     print(f"{'='*60}")
     print(f"  Shop: {SHOP}")
     print(f"  Webhook: {N8N_WEBHOOK_URL or '(not set)'}")
 
     if not TOKEN:
-        print("\n  [ERROR] SHOPIFY_ACCESS_TOKEN not set in .env")
-        print("  Run: python tools/shopify_oauth.py")
+        print("\n  [ERROR] SHOPIFY_ACCESS_TOKEN not set")
         return
 
     if not N8N_WEBHOOK_URL:
-        print("\n  [WARN] N8N_INFLUENCER_WEBHOOK not set in .env")
+        print("\n  [WARN] N8N_NAEIAE_GIFTING_WEBHOOK not set")
         print("  Form submissions will fail until webhook URL is configured.")
 
-    # 1. Get active theme
     print(f"\n  [1/4] Getting active theme ...")
     theme_id = get_active_theme_id()
 
-    # 2. Check OS 2.0
-    os2 = is_os2_theme(theme_id)
-    print(f"  Theme type: {'Online Store 2.0' if os2 else 'Legacy'}")
-
-    # 3. Build assets
     print(f"\n  [2/4] Building template assets ...")
     section_content = build_section_liquid(N8N_WEBHOOK_URL or "")
     print(f"  Section size: {len(section_content):,} bytes")
 
     if dry_run:
         print(f"\n  [DRY RUN] Would upload:")
-        print(f"    - sections/influencer-gifting.liquid ({len(section_content):,} bytes)")
-        if os2:
-            template_content = build_template_json()
-            print(f"    - templates/page.influencer-gifting.json ({len(template_content):,} bytes)")
-        else:
-            print(f"    - templates/page.influencer-gifting.liquid")
-        print(f"    - Create page: influencer-gifting")
-        print(f"\n  [DRY RUN] No changes made.")
+        print(f"    - {SECTION_KEY} ({len(section_content):,} bytes)")
+        print(f"    - {TEMPLATE_KEY}")
+        print(f"    - Create page: {PAGE_HANDLE}")
         return
 
-    # 4. Upload assets
     print(f"\n  [3/4] Uploading theme assets ...")
-    upload_theme_asset(theme_id, "sections/influencer-gifting.liquid", section_content)
+    upload_theme_asset(theme_id, SECTION_KEY, section_content)
+    template_content = build_template_json()
+    upload_theme_asset(theme_id, TEMPLATE_KEY, template_content)
 
-    if os2:
-        template_content = build_template_json()
-        upload_theme_asset(theme_id, "templates/page.influencer-gifting.json", template_content)
-    else:
-        legacy_template = "{% section 'influencer-gifting' %}"
-        upload_theme_asset(theme_id, "templates/page.influencer-gifting.liquid", legacy_template)
-
-    # 5. Create page
     print(f"\n  [4/4] Creating Shopify page ...")
-    page_id = create_or_update_page(
-        handle="influencer-gifting",
-        title="Grosmimi Gifting Application",
-        template_suffix="influencer-gifting",
-    )
+    page_id = create_or_update_page(PAGE_HANDLE, PAGE_TITLE, "influencer-gifting-naeiae")
 
-    # Get store domain for URL
-    custom_domain = SHOP.replace(".myshopify.com", "")
-    page_url = f"https://{SHOP}/pages/influencer-gifting"
-
+    page_url = f"https://{SHOP}/pages/{PAGE_HANDLE}"
     print(f"\n{'='*60}")
     print(f"  [SUCCESS] Page deployed!")
     print(f"  Page ID: {page_id}")
     print(f"  URL: {page_url}")
     print(f"{'='*60}")
 
-    # Save deployment info
     os.makedirs(".tmp/shopify_gifting", exist_ok=True)
-    info = {
-        "page_id": page_id,
-        "page_url": page_url,
-        "theme_id": theme_id,
-        "webhook_url": N8N_WEBHOOK_URL,
-    }
-    with open(".tmp/shopify_gifting/deploy_info.json", "w", encoding="utf-8") as f:
+    info = {"page_id": page_id, "page_url": page_url, "theme_id": theme_id, "webhook_url": N8N_WEBHOOK_URL}
+    with open(".tmp/shopify_gifting/naeiae_deploy_info.json", "w", encoding="utf-8") as f:
         json.dump(info, f, indent=2)
-    print(f"\n  Deploy info saved to .tmp/shopify_gifting/deploy_info.json")
 
     return info
 
 
 def rollback():
-    """Remove deployed assets and page"""
     print(f"\n  Rolling back ...")
-
     if not TOKEN:
         print("  [ERROR] No token")
         return
 
     theme_id = get_active_theme_id()
 
-    # Delete section
     try:
-        shopify_request("DELETE", f"/themes/{theme_id}/assets.json?asset[key]=sections/influencer-gifting.liquid")
-        print("  [OK] Deleted sections/influencer-gifting.liquid")
+        shopify_request("DELETE", f"/themes/{theme_id}/assets.json?asset[key]={SECTION_KEY}")
+        print(f"  [OK] Deleted {SECTION_KEY}")
     except Exception as e:
         print(f"  [SKIP] Section: {e}")
 
-    # Delete template (try both OS2 and legacy)
-    for key in ["templates/page.influencer-gifting.json", "templates/page.influencer-gifting.liquid"]:
+    for key in [TEMPLATE_KEY, "templates/page.influencer-gifting-naeiae.liquid"]:
         try:
             shopify_request("DELETE", f"/themes/{theme_id}/assets.json?asset[key]={key}")
             print(f"  [OK] Deleted {key}")
         except Exception:
             pass
 
-    # Delete page
     try:
-        result = shopify_request("GET", "/pages.json?handle=influencer-gifting")
+        result = shopify_request("GET", f"/pages.json?handle={PAGE_HANDLE}")
         for page in result.get("pages", []):
             shopify_request("DELETE", f"/pages/{page['id']}.json")
             print(f"  [OK] Deleted page {page['id']}")
@@ -1871,10 +1394,8 @@ def rollback():
     print("  [DONE] Rollback complete")
 
 
-# ── CLI ──────────────────────────────────────────────────────────
 def main():
     args = sys.argv[1:]
-
     if "--rollback" in args:
         rollback()
     elif "--dry-run" in args:

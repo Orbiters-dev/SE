@@ -192,3 +192,23 @@ class OnzInfluencerOutreach(models.Model):
 
     def __str__(self):
         return f"{self.ig_handle or self.email} [{self.outreach_status}]"
+
+
+class GmailContact(models.Model):
+    """Gmail RAG contact index — tracks who we've emailed."""
+    email = models.EmailField(unique=True, db_index=True)
+    name = models.CharField(max_length=255, blank=True, default="")
+    domain = models.CharField(max_length=255, blank=True, default="", db_index=True)
+    account = models.CharField(max_length=50, default="zezebaebae")  # zezebaebae or onzenna
+    first_contact_date = models.DateTimeField(null=True, blank=True)
+    last_contact_date = models.DateTimeField(null=True, blank=True)
+    last_subject = models.CharField(max_length=500, blank=True, default="")
+    total_sent = models.IntegerField(default=0)
+    total_received = models.IntegerField(default=0)
+    synced_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "gk_gmail_contacts"
+
+    def __str__(self):
+        return f"{self.email} ({self.account}) sent={self.total_sent}"
