@@ -92,9 +92,11 @@ def generate():
     ga4 = dk.get("ga4_daily", days=days_back)
     search_terms = dk.get("amazon_ads_search_terms", days=30)
     gsc = dk.get("gsc_daily", days=30)
+    brand_analytics = dk.get("amazon_brand_analytics", days=30)
     print(f"  Shopify: {len(shopify)} rows, Amazon Sales: {len(amazon_sales)}")
     print(f"  Amazon Ads: {len(amazon_ads)}, Meta: {len(meta_ads)}, Google: {len(google_ads)}")
     print(f"  GA4: {len(ga4)}, Search Terms: {len(search_terms)}, GSC: {len(gsc)}")
+    print(f"  Brand Analytics: {len(brand_analytics)}")
 
     # ── Compute through-date ─────────────────────────────────────────────────
     def max_date(rows):
@@ -364,8 +366,25 @@ def generate():
                 total_ad_spend += float(r.get("spend") or 0)
                 ad_attributed_sales += float(r.get("conversions_value") or r.get("revenue") or 0)
 
-        gm = shopify_rev - shopify_cogs  # GM on Shopify only (Amazon COGS not available)
-        cm = gm - total_ad_spend  # Contribution Margin = GM - Ad Spend
+        # Amazon COGS estimate (brand-level)
+        amz_cogs = 0
+        for r in amazon_sales:
+            d = r.get("date", "")
+            if not d or d < date_from or d > date_to:
+                continue
+            brand = r.get("brand") or "Other"
+            units = int(r.get("units") or 0)
+            if units == 0:
+                net = float(r.get("net_sales") or 0)
+                if net > 0:
+                    units = int(net / AVG_PRICE.get(brand, 25))
+            amz_cogs += units * AVG_COGS.get(brand, 8)
+
+        total_cogs = shopify_cogs + amz_cogs
+        gm = total_rev - total_cogs  # GM = Total Revenue - Total COGS
+        total_discounts = abs(shopify_disc)
+        mkt_total = total_ad_spend + total_discounts  # + seeding (not available)
+        cm = gm - mkt_total  # CM = GM - MKT Total
 
         return {
             "total_revenue": round(total_rev),
@@ -376,7 +395,7 @@ def generate():
             "ad_attributed_sales": round(ad_attributed_sales),
             "organic_revenue": round(total_rev - ad_attributed_sales) if total_rev > ad_attributed_sales else 0,
             "gross_margin": round(gm),
-            "gm_pct": round(gm / shopify_rev * 100, 1) if shopify_rev else 0,
+            "gm_pct": round(gm / total_rev * 100, 1) if total_rev else 0,
             "contribution_margin": round(cm),
             "cm_pct": round(cm / total_rev * 100, 1) if total_rev else 0,
             "mer": round(total_rev / total_ad_spend, 2) if total_ad_spend else 0,
@@ -393,35 +412,60 @@ def generate():
     # ── 6. Search Queries & Traffic Sources ───────────────────────────────────
     print("\n[6/7] Computing search queries & traffic sources...")
 
-    # Amazon search terms (top 30 by spend)
-    st_agg = defaultdict(lambda: {"impressions": 0, "clicks": 0, "spend": 0, "sales": 0, "orders": 0})
+    # Amazon search terms (top 30 by spend) — with brand
+    st_agg = defaultdict(lambda: {"impressions": 0, "clicks": 0, "spend": 0, "sales": 0, "orders": 0, "brands": set()})
     for r in search_terms:
         q = (r.get("query") or r.get("search_term") or "").strip().lower()
         if not q:
             continue
+        brand = r.get("brand") or "Unknown"
         st_agg[q]["impressions"] += int(r.get("impressions") or 0)
         st_agg[q]["clicks"] += int(r.get("clicks") or 0)
         st_agg[q]["spend"] += float(r.get("spend") or r.get("cost") or 0)
         st_agg[q]["sales"] += float(r.get("sales") or r.get("revenue") or 0)
         st_agg[q]["orders"] += int(r.get("orders") or r.get("conversions") or 0)
+        st_agg[q]["brands"].add(brand)
 
-    top_queries = sorted(st_agg.items(), key=lambda x: x[1]["spend"], reverse=True)[:30]
-    search_data = []
-    for q, v in top_queries:
-        acos = round(v["spend"] / v["sales"] * 100, 1) if v["sales"] else 0
-        ctr = round(v["clicks"] / v["impressions"] * 100, 2) if v["impressions"] else 0
-        cvr = round(v["orders"] / v["clicks"] * 100, 2) if v["clicks"] else 0
-        search_data.append({
-            "query": q,
-            "impressions": v["impressions"],
-            "clicks": v["clicks"],
-            "ctr": ctr,
-            "spend": round(v["spend"], 2),
-            "sales": round(v["sales"], 2),
-            "orders": v["orders"],
-            "acos": acos,
-            "cvr": cvr,
-        })
+    # Also aggregate per-brand for brand sub-tabs
+    st_brand_agg = defaultdict(lambda: defaultdict(lambda: {"impressions": 0, "clicks": 0, "spend": 0, "sales": 0, "orders": 0}))
+    for r in search_terms:
+        q = (r.get("query") or r.get("search_term") or "").strip().lower()
+        brand = r.get("brand") or "Unknown"
+        if not q:
+            continue
+        st_brand_agg[brand][q]["impressions"] += int(r.get("impressions") or 0)
+        st_brand_agg[brand][q]["clicks"] += int(r.get("clicks") or 0)
+        st_brand_agg[brand][q]["spend"] += float(r.get("spend") or r.get("cost") or 0)
+        st_brand_agg[brand][q]["sales"] += float(r.get("sales") or r.get("revenue") or 0)
+        st_brand_agg[brand][q]["orders"] += int(r.get("orders") or r.get("conversions") or 0)
+
+    def build_search_data(agg, limit=30):
+        top = sorted(agg.items(), key=lambda x: x[1]["spend"], reverse=True)[:limit]
+        result = []
+        for q, v in top:
+            acos = round(v["spend"] / v["sales"] * 100, 1) if v["sales"] else 0
+            ctr = round(v["clicks"] / v["impressions"] * 100, 2) if v["impressions"] else 0
+            cvr = round(v["orders"] / v["clicks"] * 100, 2) if v["clicks"] else 0
+            entry = {
+                "query": q,
+                "impressions": v["impressions"],
+                "clicks": v["clicks"],
+                "ctr": ctr,
+                "spend": round(v["spend"], 2),
+                "sales": round(v["sales"], 2),
+                "orders": v["orders"],
+                "acos": acos,
+                "cvr": cvr,
+            }
+            if "brands" in v:
+                entry["brand"] = ", ".join(sorted(v["brands"]))
+            result.append(entry)
+        return result
+
+    search_data = build_search_data(st_agg)
+    search_by_brand = {}
+    for brand, agg in st_brand_agg.items():
+        search_by_brand[brand] = build_search_data(agg, 20)
 
     # GSC queries (top 20 by clicks)
     gsc_agg = defaultdict(lambda: {"impressions": 0, "clicks": 0, "position": []})
@@ -573,6 +617,60 @@ def generate():
             "monthly_trend": monthly_trend,
         })
 
+    # ── Brand Analytics (Amazon) ──────────────────────────────────────────────
+    # Group by brand, show top search terms with ranking + click/conversion share
+    BABY_CATEGORY_TERMS = {
+        "toddler cup", "toddler cups", "sippy cup", "straw cup", "baby cup",
+        "baby bottle", "ppsu bottle", "ppsu cup", "ppsu straw",
+        "toddler straw cup", "baby straw cup", "sippy cups for toddlers",
+        "training cup", "transition cup", "weighted straw cup",
+        "baby snack", "baby rice puff", "baby puffs", "toddler snack",
+        "baby rice cracker", "baby teething wafer", "organic baby snack",
+        "baby wipe", "baby wipes", "water wipes",
+    }
+
+    ba_by_brand = defaultdict(list)
+    ba_category = []  # Category competitor keywords
+    for r in brand_analytics:
+        term = (r.get("search_term") or "").strip().lower()
+        if not term:
+            continue
+        entry = {
+            "term": term,
+            "rank": int(r.get("search_frequency_rank") or 0),
+            "asin_rank": int(r.get("asin_rank") or 0),
+            "asin_name": (r.get("asin_name") or "")[:80],
+            "click_share": round(float(r.get("click_share") or 0) * 100, 2),
+            "conv_share": round(float(r.get("conversion_share") or 0) * 100, 2),
+            "is_ours": bool(r.get("is_ours")),
+        }
+        if r.get("is_ours"):
+            brand = r.get("brand") or "Unknown"
+            ba_by_brand[brand].append(entry)
+        else:
+            # Only keep baby-product related category terms
+            if any(cat in term for cat in BABY_CATEGORY_TERMS):
+                ba_category.append(entry)
+
+    # Deduplicate BA entries per brand (take latest/best per search_term + asin_rank)
+    ba_data = {}
+    for brand, entries in ba_by_brand.items():
+        seen = {}
+        for e in entries:
+            key = (e["term"], e["asin_rank"])
+            if key not in seen or e["click_share"] > seen[key]["click_share"]:
+                seen[key] = e
+        sorted_entries = sorted(seen.values(), key=lambda x: x["rank"])[:20]
+        ba_data[brand] = sorted_entries
+
+    # Category competitors (deduplicated, top 15)
+    cat_seen = {}
+    for e in ba_category:
+        key = (e["term"], e["asin_rank"])
+        if key not in cat_seen or e["click_share"] > cat_seen[key]["click_share"]:
+            cat_seen[key] = e
+    ba_category_top = sorted(cat_seen.values(), key=lambda x: x["rank"])[:15]
+
     # GA4 traffic sources (top 15 by sessions, last 30d)
     traffic_agg = defaultdict(lambda: {"sessions": 0, "users": 0, "revenue": 0, "conversions": 0})
     for r in ga4:
@@ -665,6 +763,38 @@ def generate():
                 "color": AD_COLORS.get(platform, "#94a3b8"),
             }
 
+    # Grosmimi product-type breakdown from campaign names
+    GROSMIMI_PRODUCT_MAP = {
+        "PPSU Straw Cup": ["ppsu_manual", "ppsu_auto", "knotted", "stage1"],
+        "Flip Top Cup": ["flip top", "fliptop", "flip_top"],
+        "Replacements": ["replacement"],
+    }
+
+    def classify_grosmimi_campaign(campaign_name):
+        cn = campaign_name.lower()
+        for product_type, patterns in GROSMIMI_PRODUCT_MAP.items():
+            if any(p in cn for p in patterns):
+                return product_type
+        return "Other"
+
+    # Aggregate Grosmimi ad spend/sales by product type by month
+    gros_product_monthly = defaultdict(lambda: defaultdict(lambda: {"spend": 0, "sales": 0}))
+    for r in amazon_ads:
+        if (r.get("brand") or "") != "Grosmimi":
+            continue
+        d = r.get("date", "")
+        if not d:
+            continue
+        m = d[:7]
+        if m not in set(ad_months):
+            continue
+        camp = r.get("campaign_name") or ""
+        pt = classify_grosmimi_campaign(camp)
+        gros_product_monthly[pt][m]["spend"] += float(r.get("spend") or 0)
+        gros_product_monthly[pt][m]["sales"] += float(r.get("sales") or 0)
+
+    PRODUCT_COLORS = {"PPSU Straw Cup": "#8b5cf6", "Flip Top Cup": "#a78bfa", "Replacements": "#c4b5fd", "Other": "#ddd6fe"}
+
     # Brand performance (ad + total sales, from 2026-01+)
     brand_perf_out = {}
     for brand in BRAND_ORDER:
@@ -677,15 +807,33 @@ def generate():
             total_sales_vals.append(round(shopify_net + amz_net))
             ad_spend_vals.append(round(brand_ad_monthly.get(brand, {}).get(m, {}).get("spend", 0)))
             ad_sales_vals.append(round(brand_ad_monthly.get(brand, {}).get(m, {}).get("sales", 0)))
+        organic_vals = [max(0, t - a) for t, a in zip(total_sales_vals, ad_sales_vals)]
         if any(v > 0 for v in total_sales_vals) or any(v > 0 for v in ad_spend_vals):
-            brand_perf_out[brand] = {
+            entry = {
                 "total_sales": total_sales_vals,
                 "total_sales_proj": proj_for(total_sales_vals, ad_months),
                 "ad_spend": ad_spend_vals,
                 "ad_spend_proj": proj_for(ad_spend_vals, ad_months),
                 "ad_sales": ad_sales_vals,
+                "ad_sales_proj": proj_for(ad_sales_vals, ad_months),
+                "organic": organic_vals,
+                "organic_proj": proj_for(organic_vals, ad_months),
                 "color": BRAND_COLORS.get(brand, "#94a3b8"),
             }
+            # Grosmimi product-type breakdown
+            if brand == "Grosmimi":
+                products = {}
+                for pt in ["PPSU Straw Cup", "Flip Top Cup", "Replacements", "Other"]:
+                    spend_v = [round(gros_product_monthly.get(pt, {}).get(m, {}).get("spend", 0)) for m in ad_months]
+                    sales_v = [round(gros_product_monthly.get(pt, {}).get(m, {}).get("sales", 0)) for m in ad_months]
+                    if any(v > 0 for v in spend_v):
+                        products[pt] = {
+                            "spend": spend_v,
+                            "sales": sales_v,
+                            "color": PRODUCT_COLORS.get(pt, "#94a3b8"),
+                        }
+                entry["products"] = products
+            brand_perf_out[brand] = entry
 
     # Total monthly revenue & costs (GM = Rev - COGS, CM = GM - MKT)
     total_rev_monthly = []
@@ -797,10 +945,13 @@ def generate():
             "contribution_margin_proj": proj_array(total_cm_monthly),
         },
         "search_queries": search_data,
+        "search_by_brand": search_by_brand,
         "gsc_queries": gsc_data,
         "keyword_rankings": keyword_rankings,
         "kw_positions_summary": kw_positions_summary,
         "keyword_volumes": keyword_volumes,
+        "brand_analytics": ba_data,
+        "brand_analytics_category": ba_category_top,
         "traffic_sources": traffic_data,
     }
 

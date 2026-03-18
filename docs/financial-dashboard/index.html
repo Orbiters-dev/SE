@@ -238,7 +238,7 @@ function barChart(datasets, labels, opts){
 
 // ── Tab switching ────────────────────────────────────────────────────────────
 function switchFinTab(tabId){
-  document.querySelectorAll('.sub-tab').forEach(function(t){t.classList.remove('active')});
+  document.querySelectorAll('[data-tab].sub-tab').forEach(function(t){t.classList.remove('active')});
   document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});
   var tab=document.querySelector('[data-tab="'+tabId+'"]');
   var panel=document.getElementById('panel-'+tabId);
@@ -246,6 +246,20 @@ function switchFinTab(tabId){
   if(panel) panel.classList.add('active');
   // Save to hash
   if(history.replaceState) history.replaceState(null,null,'#'+tabId);
+}
+
+function switchSeoBrand(brand){
+  // Toggle brand sub-tab styling
+  document.querySelectorAll('[data-seo-brand]').forEach(function(t){
+    var b=t.getAttribute('data-seo-brand');
+    var col=b==='All'?'#64748b':({'Grosmimi':'#8b5cf6','Naeiae':'#eab308','CHA&MOM':'#0ea5e9','Onzenna':'#ec4899','Alpremio':'#f97316'})[b]||'#94a3b8';
+    if(b===brand){t.style.background=col;t.style.color='#fff';}
+    else{t.style.background='transparent';t.style.color=col;}
+  });
+  // Toggle panels
+  document.querySelectorAll('.seo-brand-panel').forEach(function(p){
+    p.style.display=p.getAttribute('data-seo-panel')===brand?'':'none';
+  });
 }
 
 // ── Main Render ──────────────────────────────────────────────────────────────
@@ -384,7 +398,6 @@ function renderFinancial(){
   var ads='';
   ads+=buildAdTable(F, months, mLabels, lastIdx, isPartialLast, false);
   ads+=buildBrandPerfTable(F, months, mLabels, lastIdx, isPartialLast, false);
-  ads+=buildPaidOrganic(F, months, mLabels, lastIdx, isPartialLast);
 
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 3: MARGINS & P&L DETAIL
@@ -393,86 +406,148 @@ function renderFinancial(){
   mrg+=buildWaterfall(F, months, mLabels, lastIdx, isPartialLast);
 
   // ══════════════════════════════════════════════════════════════════════════
-  // TAB 4: SEARCH & SEO
+  // TAB 4: SEARCH & SEO — with brand sub-tabs
   // ══════════════════════════════════════════════════════════════════════════
   var srch='';
+  var brandColors={'Grosmimi':'#8b5cf6','Naeiae':'#eab308','CHA&MOM':'#0ea5e9','Onzenna':'#ec4899','Alpremio':'#f97316'};
+  var seoFilterBrands=['All','Grosmimi','Naeiae','CHA&MOM','Onzenna','Alpremio'];
 
-  // 4A: Keyword Position Summary (fixed — all 3 periods at a glance)
+  // Brand sub-tab pills
+  srch+='<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">';
+  seoFilterBrands.forEach(function(b,i){
+    var col=b==='All'?'#64748b':brandColors[b]||'#94a3b8';
+    srch+='<div class="sub-tab'+(i===0?' active':'')+'" data-seo-brand="'+b+'" onclick="switchSeoBrand(\''+b+'\')" style="font-size:11px;padding:4px 12px;border-radius:16px;cursor:pointer;border:1px solid '+col+';color:'+(i===0?'#fff':col)+';background:'+(i===0?col:'transparent')+'">'+b+'</div>';
+  });
+  srch+='</div>';
+
+  // Pre-compute merged keyword data
   var kwSum=F.kw_positions_summary||[];
-  srch+='<div class="sec"><div class="sec-title"><div class="num">4A</div> Keyword Position Summary &mdash; All Periods</div>';
-  srch+='<div class="card">';
-  srch+='<div class="desc">Average Google position for onzenna.com across 7D / 30D / 90D. Lower = better. Always visible regardless of period tab below.</div>';
-  srch+='<div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Keyword</th>';
-  srch+='<th style="text-align:center;background:#ecfdf5">Avg Pos (7D)</th>';
-  srch+='<th style="text-align:center;background:#f0f9ff">Avg Pos (30D)</th>';
-  srch+='<th style="text-align:center;background:#faf5ff">Avg Pos (90D)</th>';
-  srch+='<th style="text-align:right">Clicks (90D)</th>';
-  srch+='<th style="text-align:right">Impressions (90D)</th>';
-  srch+='</tr></thead><tbody>';
-  kwSum.forEach(function(k,i){
-    srch+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
-    srch+='<td style="font-weight:600;font-size:11px">'+k.query+'</td>';
-    srch+='<td style="text-align:center;background:#f7fee7">'+(k.pos_7d!==null?posBadge(k.pos_7d):'<span style="color:var(--muted);font-size:9px">n/a</span>')+'</td>';
-    srch+='<td style="text-align:center;background:#f0f9ff">'+(k.pos_30d!==null?posBadge(k.pos_30d):'<span style="color:var(--muted);font-size:9px">n/a</span>')+'</td>';
-    srch+='<td style="text-align:center;background:#faf5ff">'+(k.pos_90d!==null?posBadge(k.pos_90d):'<span style="color:var(--muted);font-size:9px">n/a</span>')+'</td>';
-    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.clicks_90d)+'</td>';
-    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.impressions_90d)+'</td>';
-    srch+='</tr>';
+  var kwVol=F.keyword_volumes||[];
+  var volMap={}, maxVol=0;
+  kwVol.forEach(function(k){volMap[k.keyword.toLowerCase()]=k; if(k.search_volume>maxVol)maxVol=k.search_volume;});
+  var mergedKw=[];
+  var seenKw={};
+  kwSum.forEach(function(k){
+    var key=k.query.toLowerCase();
+    var v=volMap[key]||{};
+    seenKw[key]=true;
+    mergedKw.push({query:k.query, brand:v.brand||'—', pos_7d:k.pos_7d, pos_30d:k.pos_30d, pos_90d:k.pos_90d, clicks:k.clicks_90d||0, impressions:k.impressions_90d||0, vol:v.search_volume||0, cpc:v.cpc||0, trend:v.monthly_trend||[]});
   });
-  srch+='</tbody></table></div></div></div>';
+  kwVol.forEach(function(k){
+    if(!seenKw[k.keyword.toLowerCase()]){
+      mergedKw.push({query:k.keyword, brand:k.brand, pos_7d:null, pos_30d:null, pos_90d:null, clicks:0, impressions:0, vol:k.search_volume||0, cpc:k.cpc||0, trend:k.monthly_trend||[]});
+    }
+  });
 
-  // 4B: DataForSEO Keyword Volumes
-  var maxVol=0;
-  (F.keyword_volumes||[]).forEach(function(k){if(k.search_volume>maxVol)maxVol=k.search_volume;});
-  srch+='<div class="sec"><div class="sec-title"><div class="num">4B</div> Keyword Search Volumes &mdash; DataForSEO</div>';
-  srch+='<div class="card">';
-  srch+='<div class="desc">Google monthly search volume for tracked brand keywords. Trend shows last 6 months of search volume.</div>';
-  srch+='<table><thead><tr><th>#</th><th>Keyword</th><th>Brand</th><th style="text-align:right">Monthly Vol</th><th style="min-width:80px">Volume</th><th style="text-align:right">CPC</th><th style="text-align:right">Comp</th><th style="text-align:center">6mo Trend</th></tr></thead><tbody>';
-  (F.keyword_volumes||[]).forEach(function(k,i){
-    var brandColor=({'Grosmimi':'#8b5cf6','Naeiae':'#eab308','CHA&MOM':'#0ea5e9','Onzenna':'#ec4899','Alpremio':'#f97316'})[k.brand]||'#94a3b8';
-    srch+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
-    srch+='<td style="font-weight:600;font-size:11px">'+k.keyword+'</td>';
-    srch+='<td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+brandColor+';margin-right:4px"></span><span style="font-size:10px;color:var(--dim)">'+k.brand+'</span></td>';
-    srch+='<td style="text-align:right;font-family:var(--mono);font-size:11px;font-weight:700">'+num(k.search_volume)+'</td>';
-    srch+='<td>'+volBar(k.search_volume,maxVol)+'</td>';
-    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">$'+k.cpc.toFixed(2)+'</td>';
-    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+k.competition_index+'</td>';
-    srch+='<td style="text-align:center">'+sparkline(k.monthly_trend,'#0ea5e9',false)+'</td>';
-    srch+='</tr>';
-  });
-  srch+='</tbody></table></div></div>';
+  // Helper: render keyword table for a brand filter
+  function renderKwTable(items, secNum){
+    var h='<div class="sec"><div class="sec-title"><div class="num">'+secNum+'</div> Keyword Rankings &mdash; GSC Position + Search Volume</div>';
+    h+='<div class="card"><div class="desc">Google position (GSC, 7/30/90D) + monthly search volume (DataForSEO).</div>';
+    h+='<div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Keyword</th><th>Brand</th>';
+    h+='<th style="text-align:center;background:#ecfdf5">Pos 7D</th>';
+    h+='<th style="text-align:center;background:#f0f9ff">Pos 30D</th>';
+    h+='<th style="text-align:center;background:#faf5ff">Pos 90D</th>';
+    h+='<th style="text-align:right">Clicks</th>';
+    h+='<th style="text-align:right">Mo. Vol</th><th style="min-width:60px">Vol</th>';
+    h+='<th style="text-align:right">CPC</th><th style="text-align:center">6mo</th>';
+    h+='</tr></thead><tbody>';
+    items.forEach(function(k,i){
+      var bc=brandColors[k.brand]||'#94a3b8';
+      h+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+      h+='<td style="font-weight:600;font-size:11px">'+k.query+'</td>';
+      h+='<td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+bc+';margin-right:4px"></span><span style="font-size:10px;color:var(--dim)">'+k.brand+'</span></td>';
+      h+='<td style="text-align:center;background:#f7fee7">'+(k.pos_7d!==null?posBadge(k.pos_7d):'<span style="color:var(--muted);font-size:9px">—</span>')+'</td>';
+      h+='<td style="text-align:center;background:#f0f9ff">'+(k.pos_30d!==null?posBadge(k.pos_30d):'<span style="color:var(--muted);font-size:9px">—</span>')+'</td>';
+      h+='<td style="text-align:center;background:#faf5ff">'+(k.pos_90d!==null?posBadge(k.pos_90d):'<span style="color:var(--muted);font-size:9px">—</span>')+'</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.clicks)+'</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:11px;font-weight:700">'+(k.vol>0?num(k.vol):'<span style="color:var(--muted);font-size:9px">—</span>')+'</td>';
+      h+='<td>'+(k.vol>0?volBar(k.vol,maxVol):'')+'</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+(k.cpc>0?'$'+k.cpc.toFixed(2):'<span style="color:var(--muted)">—</span>')+'</td>';
+      h+='<td style="text-align:center">'+(k.trend.length>0?sparkline(k.trend,'#0ea5e9',false):'')+'</td>';
+      h+='</tr>';
+    });
+    h+='</tbody></table></div></div></div>';
+    return h;
+  }
 
-  // 4D: Amazon Search Terms (existing)
-  srch+='<div class="sec"><div class="sec-title"><div class="num">4C</div> Amazon Sponsored Ads &mdash; Top Search Terms (30D)</div>';
-  srch+='<div class="card">';
-  srch+='<table><thead><tr><th>#</th><th>Search Term</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">ACOS</th><th style="text-align:right">CVR</th><th style="text-align:right">Orders</th></tr></thead><tbody>';
-  (F.search_queries||[]).forEach(function(q,i){
-    var ac=q.acos<=25?'var(--g)':q.acos<=40?'var(--am)':'var(--r)';
-    srch+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
-    srch+='<td style="font-size:10px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+q.query+'">'+q.query+'</td>';
-    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(q.spend))+'</td>';
-    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(q.sales))+'</td>';
-    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+ac+'">'+q.acos.toFixed(1)+'%</td>';
-    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+q.cvr.toFixed(1)+'%</td>';
-    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+q.orders+'</td>';
-    srch+='</tr>';
-  });
-  srch+='</tbody></table></div></div>';
+  // Helper: render Amazon search terms table
+  function renderAmzST(items, secNum){
+    var h='<div class="sec"><div class="sec-title"><div class="num">'+secNum+'</div> Amazon Sponsored Ads &mdash; Top Search Terms (30D)</div>';
+    h+='<div class="card"><table><thead><tr><th>#</th><th>Search Term</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">ACOS</th><th style="text-align:right">CVR</th><th style="text-align:right">Orders</th></tr></thead><tbody>';
+    items.forEach(function(q,i){
+      var ac=q.acos<=25?'var(--g)':q.acos<=40?'var(--am)':'var(--r)';
+      h+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+      h+='<td style="font-size:10px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+q.query+'">'+q.query+'</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(q.spend))+'</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(q.sales))+'</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+ac+'">'+q.acos.toFixed(1)+'%</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+q.cvr.toFixed(1)+'%</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+q.orders+'</td>';
+      h+='</tr>';
+    });
+    h+='</tbody></table></div></div>';
+    return h;
+  }
 
-  // 4E: GSC Queries (existing)
-  srch+='<div class="sec"><div class="sec-title"><div class="num">4D</div> Google Search Console &mdash; Top Queries (30D)</div>';
-  srch+='<div class="card">';
-  srch+='<table><thead><tr><th>#</th><th>Query</th><th style="text-align:right">Clicks</th><th style="text-align:right">Impressions</th><th style="text-align:right">CTR</th><th style="text-align:center">Position</th></tr></thead><tbody>';
-  (F.gsc_queries||[]).forEach(function(q,i){
-    srch+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
-    srch+='<td style="font-size:10px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+q.query+'">'+q.query+'</td>';
-    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(q.clicks)+'</td>';
-    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(q.impressions)+'</td>';
-    srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+q.ctr.toFixed(1)+'%</td>';
-    srch+='<td style="text-align:center">'+posBadge(q.position)+'</td>';
-    srch+='</tr>';
+  // Helper: render Brand Analytics table
+  function renderBA(items, secNum, title){
+    if(!items||!items.length) return '';
+    var h='<div class="sec"><div class="sec-title"><div class="num">'+secNum+'</div> '+title+'</div>';
+    h+='<div class="card"><div class="desc">Amazon Brand Analytics — search terms where our ASINs appear. Click/Conv share = % of all clicks/conversions on this search term.</div>';
+    h+='<table><thead><tr><th>#</th><th>Search Term</th><th style="text-align:right">Freq Rank</th><th style="text-align:center">ASIN Rank</th><th style="text-align:right">Click Share</th><th style="text-align:right">Conv Share</th></tr></thead><tbody>';
+    items.forEach(function(e,i){
+      var cc=e.conv_share>=5?'var(--g)':e.conv_share>=1?'var(--am)':'var(--dim)';
+      h+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+      h+='<td style="font-size:10px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+e.term+'">'+e.term+'</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(e.rank)+'</td>';
+      h+='<td style="text-align:center"><span style="display:inline-block;padding:1px 6px;border-radius:8px;font-size:9px;font-weight:700;background:'+(e.asin_rank===1?'#dcfce7':e.asin_rank===2?'#fef9c3':'#f1f5f9')+'">#'+e.asin_rank+'</span></td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700">'+e.click_share.toFixed(1)+'%</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+cc+'">'+e.conv_share.toFixed(1)+'%</td>';
+      h+='</tr>';
+    });
+    h+='</tbody></table></div></div>';
+    return h;
+  }
+
+  // Build per-brand panels
+  seoFilterBrands.forEach(function(brandFilter){
+    var vis=brandFilter==='All'?'':'display:none;';
+    srch+='<div class="seo-brand-panel" data-seo-panel="'+brandFilter+'" style="'+vis+'">';
+
+    if(brandFilter==='All'){
+      srch+=renderKwTable(mergedKw, '4A');
+      srch+=renderAmzST(F.search_queries||[], '4B');
+      srch+=renderBA((F.brand_analytics_category||[]), '4C', 'Brand Analytics &mdash; Category Keywords (Competitors)');
+      // GSC
+      srch+='<div class="sec"><div class="sec-title"><div class="num">4D</div> Google Search Console &mdash; Top Queries (30D)</div>';
+      srch+='<div class="card"><table><thead><tr><th>#</th><th>Query</th><th style="text-align:right">Clicks</th><th style="text-align:right">Impressions</th><th style="text-align:right">CTR</th><th style="text-align:center">Position</th></tr></thead><tbody>';
+      (F.gsc_queries||[]).forEach(function(q,i){
+        srch+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+        srch+='<td style="font-size:10px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+q.query+'">'+q.query+'</td>';
+        srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(q.clicks)+'</td>';
+        srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(q.impressions)+'</td>';
+        srch+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+q.ctr.toFixed(1)+'%</td>';
+        srch+='<td style="text-align:center">'+posBadge(q.position)+'</td>';
+        srch+='</tr>';
+      });
+      srch+='</tbody></table></div></div>';
+    } else {
+      // Filtered keyword rankings
+      var filtKw=mergedKw.filter(function(k){return k.brand===brandFilter;});
+      if(filtKw.length) srch+=renderKwTable(filtKw, '4A');
+      else srch+='<div class="sec"><div class="sec-title"><div class="num">4A</div> Keyword Rankings</div><div class="card"><div class="desc" style="color:var(--muted)">No tracked keywords for '+brandFilter+'</div></div></div>';
+
+      // Filtered Amazon search terms
+      var filtST=(F.search_by_brand||{})[brandFilter]||[];
+      if(filtST.length) srch+=renderAmzST(filtST, '4B');
+      else srch+='<div class="sec"><div class="sec-title"><div class="num">4B</div> Amazon Search Terms</div><div class="card"><div class="desc" style="color:var(--muted)">No Amazon Ads search terms for '+brandFilter+'</div></div></div>';
+
+      // Brand Analytics for this brand
+      var filtBA=(F.brand_analytics||{})[brandFilter]||[];
+      srch+=renderBA(filtBA, '4C', 'Brand Analytics &mdash; '+brandFilter+' Search Terms');
+    }
+    srch+='</div>';
   });
-  srch+='</tbody></table></div></div>';
 
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 5: TRAFFIC
@@ -635,43 +710,6 @@ function buildAdTable(F, months, mLabels, lastIdx, isPartialLast, compact){
   return html;
 }
 
-function buildPaidOrganic(F, months, mLabels, lastIdx, isPartialLast){
-  var si=F.ad_start_idx||0;
-  var aLabels=mLabels.slice(si);
-  var aLen=aLabels.length;
-  var aLastIdx=aLen-1;
-  var isPartialA=isPartialLast&&(si+aLastIdx===lastIdx);
-  var html='<div class="sec"><div class="sec-title"><div class="num">5</div> Ad-Attributed vs Organic Revenue (Jan 2026+)</div>';
-  html+='<div class="card">';
-  html+='<div class="desc">Organic = Total Revenue - Ad-attributed sales (Amazon Ads + Meta + Google). Note: attribution overlap possible.</div>';
-  html+=barChart([
-    {label:'Organic', data:F.paid_organic.organic.slice(si), color:'#10b981'},
-    {label:'Ad-Attributed', data:F.paid_organic.paid.slice(si), color:'#6366f1'}
-  ], aLabels, {w:940,h:170,barW:20,stacked:true});
-  html+='<div style="overflow-x:auto;margin-top:8px"><table><thead><tr><th></th>';
-  aLabels.forEach(function(m,i){ html+='<th style="text-align:right'+(i===aLastIdx&&isPartialA?';background:#f5f3ff':'')+'">'+m+'</th>'; });
-  html+='</tr></thead><tbody>';
-  html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#10b981;margin-right:6px"></span>Organic</td>';
-  for(var i=0;i<aLen;i++){
-    var gi=si+i;
-    html+=fmCell(F.paid_organic.organic[gi], (F.paid_organic.organic_proj||[])[gi], i===aLastIdx&&isPartialA, {color:'var(--g)'});
-  }
-  html+='</tr><tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#6366f1;margin-right:6px"></span>Ad-Attributed</td>';
-  for(var i=0;i<aLen;i++){
-    var gi=si+i;
-    html+=fmCell(F.paid_organic.paid[gi], (F.paid_organic.paid_proj||[])[gi], i===aLastIdx&&isPartialA, {color:'#6366f1'});
-  }
-  html+='</tr><tr style="border-top:2px solid var(--border)"><td><b>Organic %</b></td>';
-  for(var i=0;i<aLen;i++){
-    var gi=si+i;
-    var t=(F.paid_organic.organic[gi]||0)+(F.paid_organic.paid[gi]||0);
-    var op=t>0?((F.paid_organic.organic[gi]||0)/t*100).toFixed(1):'0';
-    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700">'+op+'%</td>';
-  }
-  html+='</tr></tbody></table></div></div></div>';
-  return html;
-}
-
 function buildWaterfall(F, months, mLabels, lastIdx, isPartialLast){
   var wf=F.waterfall;
   var html='<div class="sec"><div class="sec-title"><div class="num">6</div> P&amp;L Waterfall: Revenue &rarr; GM &rarr; CM</div>';
@@ -755,27 +793,32 @@ function buildBrandPerfTable(F, months, mLabels, lastIdx, isPartialLast, compact
   var aLen=aLabels.length;
   var aLastIdx=aLen-1;
   var isPartialA=isPartialLast&&(si+aLastIdx===lastIdx);
-  var html='<div class="sec"><div class="sec-title">Brand Performance &mdash; Sales + Ad Spend (Jan 2026+)</div>';
+  var html='<div class="sec"><div class="sec-title">Brand Performance &mdash; Total Sales / Paid / Organic + Ad Spend (Jan 2026+)</div>';
   html+='<div class="card">';
+  html+='<div class="desc">Total Sales = Shopify + Amazon. Paid = Ad-attributed sales. Organic = Total - Paid. ROAS = Ad Sales / Ad Spend.</div>';
   if(!compact){
-    var adDs=[];
+    // Stacked bar: organic (green) + paid (purple) per brand
+    var stackDs=[];
     Object.keys(bp).forEach(function(b){
-      var total=bp[b].ad_spend.reduce(function(a,c){return a+c;},0);
-      adDs.push({label:b, data:bp[b].ad_spend, color:bp[b].color, total:total});
+      var total=(bp[b].organic||[]).reduce(function(a,c){return a+c;},0)+(bp[b].ad_sales||[]).reduce(function(a,c){return a+c;},0);
+      stackDs.push({label:b+' Paid', data:bp[b].ad_sales||[], color:bp[b].color, total:total});
     });
-    adDs.sort(function(a,b){return b.total-a.total;});
-    html+=barChart(adDs, aLabels, {w:940,h:170,barW:20,stacked:true});
+    stackDs.sort(function(a,b){return b.total-a.total;});
+    html+=barChart(stackDs, aLabels, {w:940,h:170,barW:20,stacked:true});
   }
+  // 5-column per month: Total Sales | Paid | Organic | Ad Spend | ROAS
   html+='<div style="overflow-x:auto;margin-top:8px"><table><thead><tr><th>Brand</th>';
   aLabels.forEach(function(m,i){
     var bg=i===aLastIdx&&isPartialA?';background:#f5f3ff':'';
-    html+='<th style="text-align:right'+bg+'" colspan="3">'+m+'</th>';
+    html+='<th style="text-align:right'+bg+'" colspan="5">'+m+'</th>';
   });
   html+='</tr><tr><th></th>';
   aLabels.forEach(function(m,i){
     var bg=i===aLastIdx&&isPartialA?';background:#f5f3ff':'';
-    html+='<th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">Sales</th>';
-    html+='<th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">Ad $</th>';
+    html+='<th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">Total</th>';
+    html+='<th style="text-align:right;font-size:7px;color:#6366f1'+bg+'">Paid</th>';
+    html+='<th style="text-align:right;font-size:7px;color:#10b981'+bg+'">Organic</th>';
+    html+='<th style="text-align:right;font-size:7px;color:var(--r)'+bg+'">Ad $</th>';
     html+='<th style="text-align:right;font-size:7px;color:var(--muted)'+bg+'">ROAS</th>';
   });
   html+='</tr></thead><tbody>';
@@ -783,33 +826,62 @@ function buildBrandPerfTable(F, months, mLabels, lastIdx, isPartialLast, compact
     var bd=bp[b];
     html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+bd.color+';margin-right:6px"></span><b>'+b+'</b></td>';
     for(var i=0;i<aLen;i++){
-      var sales=bd.total_sales[i]||0;
-      var salesP=(bd.total_sales_proj||[])[i]||sales;
-      var spend=bd.ad_spend[i]||0;
-      var spendP=(bd.ad_spend_proj||[])[i]||spend;
-      var roas=spend>0?(bd.ad_sales[i]||0)/spend:0;
+      var sales=bd.total_sales[i]||0, salesP=(bd.total_sales_proj||[])[i]||sales;
+      var paid=bd.ad_sales[i]||0, paidP=(bd.ad_sales_proj||[])[i]||paid;
+      var org=(bd.organic||[])[i]||0, orgP=(bd.organic_proj||[])[i]||org;
+      var spend=bd.ad_spend[i]||0, spendP=(bd.ad_spend_proj||[])[i]||spend;
+      var roas=spend>0?paid/spend:0;
       var rc=roas>=3?'var(--g)':roas>=1.5?'var(--am)':spend>0?'var(--r)':'var(--muted)';
       var isL=i===aLastIdx&&isPartialA;
       html+=fmCell(sales, salesP, isL, {fs:'9px'});
+      html+=fmCell(paid, paidP, isL, {fs:'9px',color:'#6366f1'});
+      html+=fmCell(org, orgP, isL, {fs:'9px',color:'var(--g)'});
       html+=fmCell(spend, spendP, isL, {fs:'9px',color:'var(--r)'});
       html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+rc+'">'+(spend>0?roas.toFixed(1)+'x':'-')+'</td>';
     }
     html+='</tr>';
+    // Grosmimi product-type breakdown
+    if(b==='Grosmimi' && bd.products){
+      Object.keys(bd.products).forEach(function(pt){
+        var pd=bd.products[pt];
+        html+='<tr style="font-size:9px;color:var(--dim)"><td style="padding-left:20px"><span style="display:inline-block;width:6px;height:6px;border-radius:1px;background:'+pd.color+';margin-right:4px"></span>'+pt+'</td>';
+        for(var i=0;i<aLen;i++){
+          var psales=pd.sales[i]||0, pspend=pd.spend[i]||0;
+          var proas=pspend>0?psales/pspend:0;
+          var prc=proas>=3?'var(--g)':proas>=1.5?'var(--am)':pspend>0?'var(--r)':'var(--muted)';
+          html+='<td style="text-align:right;font-family:var(--mono);font-size:8px">'+$(psales)+'</td>';
+          html+='<td colspan="2"></td>';
+          html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:var(--r)">'+$(pspend)+'</td>';
+          html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:'+prc+'">'+(pspend>0?proas.toFixed(1)+'x':'-')+'</td>';
+        }
+        html+='</tr>';
+      });
+    }
   });
+  // TOTAL row
   html+='<tr style="border-top:2px solid var(--border);font-weight:700"><td>TOTAL</td>';
   for(var i=0;i<aLen;i++){
-    var ts=0,tsP=0,tsp=0,tspP=0,tasales=0;
+    var ts=0,tsP=0,tp=0,tpP=0,to=0,toP=0,tsp=0,tspP=0,tasales=0;
     Object.keys(bp).forEach(function(b){
-      ts+=bp[b].total_sales[i]||0;
-      tsP+=(bp[b].total_sales_proj||bp[b].total_sales)[i]||0;
-      tsp+=bp[b].ad_spend[i]||0;
-      tspP+=(bp[b].ad_spend_proj||bp[b].ad_spend)[i]||0;
+      ts+=bp[b].total_sales[i]||0; tsP+=(bp[b].total_sales_proj||bp[b].total_sales)[i]||0;
+      tp+=bp[b].ad_sales[i]||0; tpP+=(bp[b].ad_sales_proj||bp[b].ad_sales)[i]||0;
+      to+=(bp[b].organic||[])[i]||0; toP+=(bp[b].organic_proj||bp[b].organic||[])[i]||0;
+      tsp+=bp[b].ad_spend[i]||0; tspP+=(bp[b].ad_spend_proj||bp[b].ad_spend)[i]||0;
       tasales+=bp[b].ad_sales[i]||0;
     });
     var isL=i===aLastIdx&&isPartialA;
     html+=fmCell(ts, tsP, isL, {fs:'9px',bold:true});
+    html+=fmCell(tp, tpP, isL, {fs:'9px',color:'#6366f1',bold:true});
+    html+=fmCell(to, toP, isL, {fs:'9px',color:'var(--g)',bold:true});
     html+=fmCell(tsp, tspP, isL, {fs:'9px',color:'var(--r)',bold:true});
     html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700">'+(tsp>0?(tasales/tsp).toFixed(1)+'x':'-')+'</td>';
+  }
+  // Organic % row
+  html+='</tr><tr style="color:var(--dim);font-size:9px"><td><b>Organic %</b></td>';
+  for(var i=0;i<aLen;i++){
+    var ts=0,to=0;
+    Object.keys(bp).forEach(function(b){ ts+=bp[b].total_sales[i]||0; to+=(bp[b].organic||[])[i]||0; });
+    html+='<td colspan="5" style="text-align:center;font-family:var(--mono);font-size:9px;font-weight:700">'+(ts>0?(to/ts*100).toFixed(1):'0')+'%</td>';
   }
   html+='</tr></tbody></table></div></div></div>';
   return html;
