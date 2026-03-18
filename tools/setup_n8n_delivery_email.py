@@ -42,10 +42,12 @@ GMAIL_CRED_NAME = "Onzenna Gmail (affiliates@onzenna.com)"
 
 # Content guideline PDFs
 GUIDELINE_DIR = "Z:/Orbiters/ORBI CLAUDE_0223/ORBITERS CLAUDE/ORBITERS CLAUDE/Shared/ONZ Creator Collab/Content guideline"
-GROSMIMI_PDF = os.path.join(GUIDELINE_DIR, "Grosmimi (PPSU) Content Guidelines.pdf")
+GROSMIMI_PPSU_PDF = os.path.join(GUIDELINE_DIR, "Grosmimi (PPSU) Content Guidelines v2.pdf")
+GROSMIMI_SS_PDF = os.path.join(GUIDELINE_DIR, "Grosmimi (Stainless) Content Guidelines v1.pdf")
 CHAENMOM_PDF = os.path.join(
-    GUIDELINE_DIR, "CHA&MOM (PS Cream-Phyto Seline) Content Guidelines.pdf"
+    GUIDELINE_DIR, "CHA&MOM (PS Cream-Phyto Seline) Content Guidelines v2.pdf"
 )
+NAEIAE_PDF = os.path.join(GUIDELINE_DIR, "Naeiae (Pop rice snck) Content Guidelines v2.pdf")
 
 
 def n8n_request(method, path, data=None):
@@ -132,8 +134,10 @@ const shopifyItems = $('Check Shopify Orders').all();
 const results = [];
 
 // PDF base64 data (embedded)
-const GROSMIMI_PDF = '__GROSMIMI_PDF_B64__';
+const GROSMIMI_PPSU_PDF = '__GROSMIMI_PPSU_PDF_B64__';
+const GROSMIMI_SS_PDF = '__GROSMIMI_SS_PDF_B64__';
 const CHAENMOM_PDF = '__CHAENMOM_PDF_B64__';
+const NAEIAE_PDF = '__NAEIAE_PDF_B64__';
 
 // Brand detection from Shopify order line items
 function detectBrands(orderData) {
@@ -146,19 +150,33 @@ function detectBrands(orderData) {
       const title = (item.title || '').toLowerCase();
       productNames.push(item.title || '');
 
-      if (title.includes('grosmimi') || title.includes('ppsu') ||
-          title.includes('straw cup') || title.includes('tumbler') ||
-          title.includes('bottle') || title.includes('essten')) {
-        brands.add('grosmimi');
+      // Stainless products (check before generic grosmimi)
+      if (title.includes('stainless')) {
+        brands.add('grosmimi_stainless');
       }
+      // PPSU products
+      else if (title.includes('grosmimi') || title.includes('ppsu') ||
+               title.includes('bottle') || title.includes('essten')) {
+        brands.add('grosmimi_ppsu');
+      }
+      // Straw cup / tumbler without stainless = PPSU
+      else if (title.includes('straw cup') || title.includes('tumbler')) {
+        brands.add('grosmimi_ppsu');
+      }
+      // CHA&MOM
       if (title.includes('cha') || title.includes('phyto') ||
           title.includes('ps cream') || title.includes('seline') ||
-          title.includes('cream')) {
+          title.includes('cream') || title.includes('lotion')) {
         brands.add('chaenmom');
+      }
+      // Naeiae
+      if (title.includes('naeiae') || title.includes('rice') ||
+          title.includes('snack') || title.includes('pop rice')) {
+        brands.add('naeiae');
       }
     }
   }
-  if (brands.size === 0) brands.add('grosmimi'); // default
+  if (brands.size === 0) brands.add('grosmimi_ppsu'); // default
   return { brands: Array.from(brands), productNames };
 }
 
@@ -195,11 +213,14 @@ function getChaenmomHashtags() {
 
 function getTagsList(brands) {
   const tags = [];
-  if (brands.includes('grosmimi')) {
+  if (brands.includes('grosmimi_ppsu') || brands.includes('grosmimi_stainless')) {
     tags.push('@onzenna_official (IG)', '@grosmimi_usa (IG & TikTok)');
   }
   if (brands.includes('chaenmom')) {
     tags.push('@onzenna.official (IG & TikTok)');
+  }
+  if (brands.includes('naeiae')) {
+    tags.push('@onzenna_official (IG)', '@naeiae_usa (IG & TikTok)');
   }
   if (tags.length === 0) tags.push('@onzenna_official (IG & TikTok)');
   return tags.join(', ');
@@ -220,11 +241,14 @@ for (let i = 0; i < updateItems.length; i++) {
 
   // Build hashtags
   let hashtags = [];
-  if (brands.includes('grosmimi')) {
+  if (brands.includes('grosmimi_ppsu') || brands.includes('grosmimi_stainless')) {
     hashtags = hashtags.concat(getGrosmimiHashtags(productNames));
   }
   if (brands.includes('chaenmom')) {
     hashtags = hashtags.concat(getChaenmomHashtags());
+  }
+  if (brands.includes('naeiae')) {
+    hashtags = hashtags.concat(['#Naeiae', '#Onzenna', '#popricesnack', '#babysnack', '#organicsnack']);
   }
   hashtags = [...new Set(hashtags)];
 
@@ -240,24 +264,46 @@ for (let i = 0; i < updateItems.length; i++) {
   html = html.replace(/\$\{hashtagsList\}/g, hashtagsList);
 
   // Subject line
-  const brandName = brands.includes('chaenmom') && !brands.includes('grosmimi')
-    ? 'CHA&MOM' : brands.length > 1 ? 'Onzenna' : 'Grosmimi';
+  const hasGrosmimi = brands.includes('grosmimi_ppsu') || brands.includes('grosmimi_stainless');
+  const hasChaenmom = brands.includes('chaenmom');
+  const hasNaeiae = brands.includes('naeiae');
+  const brandCount = (hasGrosmimi ? 1 : 0) + (hasChaenmom ? 1 : 0) + (hasNaeiae ? 1 : 0);
+  let brandName = 'Onzenna';
+  if (brandCount === 1) {
+    if (hasGrosmimi) brandName = 'Grosmimi';
+    else if (hasChaenmom) brandName = 'CHA&MOM';
+    else if (hasNaeiae) brandName = 'Naeiae';
+  }
   const subject = 'Your ' + brandName + ' sample has been delivered! Here are your content guidelines';
 
   // Determine which PDF(s) to attach
   const binary = {};
-  if (brands.includes('grosmimi')) {
-    binary['grosmimi_pdf'] = {
-      data: GROSMIMI_PDF,
+  if (brands.includes('grosmimi_ppsu')) {
+    binary['grosmimi_ppsu_pdf'] = {
+      data: GROSMIMI_PPSU_PDF,
       mimeType: 'application/pdf',
       fileName: 'Grosmimi_PPSU_Content_Guidelines.pdf'
+    };
+  }
+  if (brands.includes('grosmimi_stainless')) {
+    binary['grosmimi_ss_pdf'] = {
+      data: GROSMIMI_SS_PDF,
+      mimeType: 'application/pdf',
+      fileName: 'Grosmimi_Stainless_Content_Guidelines.pdf'
     };
   }
   if (brands.includes('chaenmom')) {
     binary['chaenmom_pdf'] = {
       data: CHAENMOM_PDF,
       mimeType: 'application/pdf',
-      fileName: 'CHA_MOM_PS_Cream_Content_Guidelines.pdf'
+      fileName: 'CHA_MOM_Content_Guidelines.pdf'
+    };
+  }
+  if (brands.includes('naeiae')) {
+    binary['naeiae_pdf'] = {
+      data: NAEIAE_PDF,
+      mimeType: 'application/pdf',
+      fileName: 'Naeiae_Content_Guidelines.pdf'
     };
   }
 
@@ -281,12 +327,14 @@ return results;
 """
 
 
-def build_email_nodes(grosmimi_b64, chaenmom_b64):
+def build_email_nodes(grosmimi_ppsu_b64, grosmimi_ss_b64, chaenmom_b64, naeiae_b64):
     """Build the n8n nodes for delivery email."""
     # Prepare the Code with embedded PDF data and HTML
     code = PREPARE_EMAIL_CODE
-    code = code.replace("__GROSMIMI_PDF_B64__", grosmimi_b64)
+    code = code.replace("__GROSMIMI_PPSU_PDF_B64__", grosmimi_ppsu_b64)
+    code = code.replace("__GROSMIMI_SS_PDF_B64__", grosmimi_ss_b64)
     code = code.replace("__CHAENMOM_PDF_B64__", chaenmom_b64)
+    code = code.replace("__NAEIAE_PDF_B64__", naeiae_b64)
     code = code.replace("__EMAIL_HTML__", EMAIL_HTML.replace("`", "\\`").replace("${", "${"))
 
     nodes = []
@@ -318,7 +366,12 @@ def build_email_nodes(grosmimi_b64, chaenmom_b64):
                 "options": {
                     "appendAttribution": False,
                     "attachmentsUi": {
-                        "attachmentsBinary": [{"property": "grosmimi_pdf"}, {"property": "chaenmom_pdf"}],
+                        "attachmentsBinary": [
+                            {"property": "grosmimi_ppsu_pdf"},
+                            {"property": "grosmimi_ss_pdf"},
+                            {"property": "chaenmom_pdf"},
+                            {"property": "naeiae_pdf"},
+                        ],
                     },
                 },
             },
@@ -349,7 +402,13 @@ def main():
     print(f"{'=' * 60}\n")
 
     # Check PDFs exist
-    for path, name in [(GROSMIMI_PDF, "Grosmimi"), (CHAENMOM_PDF, "CHA&MOM")]:
+    pdf_map = [
+        (GROSMIMI_PPSU_PDF, "Grosmimi PPSU"),
+        (GROSMIMI_SS_PDF, "Grosmimi Stainless"),
+        (CHAENMOM_PDF, "CHA&MOM"),
+        (NAEIAE_PDF, "Naeiae"),
+    ]
+    for path, name in pdf_map:
         resolved = os.path.normpath(path)
         if os.path.exists(resolved):
             size = os.path.getsize(resolved)
@@ -360,13 +419,17 @@ def main():
 
     # Encode PDFs
     print("\n  Encoding PDFs to base64...")
-    grosmimi_b64 = encode_pdf(os.path.normpath(GROSMIMI_PDF))
+    grosmimi_ppsu_b64 = encode_pdf(os.path.normpath(GROSMIMI_PPSU_PDF))
+    grosmimi_ss_b64 = encode_pdf(os.path.normpath(GROSMIMI_SS_PDF))
     chaenmom_b64 = encode_pdf(os.path.normpath(CHAENMOM_PDF))
-    print(f"    Grosmimi: {len(grosmimi_b64):,} chars")
+    naeiae_b64 = encode_pdf(os.path.normpath(NAEIAE_PDF))
+    print(f"    Grosmimi PPSU: {len(grosmimi_ppsu_b64):,} chars")
+    print(f"    Grosmimi Stainless: {len(grosmimi_ss_b64):,} chars")
     print(f"    CHA&MOM: {len(chaenmom_b64):,} chars")
+    print(f"    Naeiae: {len(naeiae_b64):,} chars")
 
     if args.dry_run:
-        email_nodes = build_email_nodes(grosmimi_b64, chaenmom_b64)
+        email_nodes = build_email_nodes(grosmimi_ppsu_b64, grosmimi_ss_b64, chaenmom_b64, naeiae_b64)
         print(f"\n  [DRY RUN] Would add {len(email_nodes)} nodes:")
         for n in email_nodes:
             print(f"    - {n['name']} ({n['type']})")
@@ -390,7 +453,7 @@ def main():
         connections.pop(name, None)
 
     # Build and add new nodes
-    email_nodes = build_email_nodes(grosmimi_b64, chaenmom_b64)
+    email_nodes = build_email_nodes(grosmimi_ppsu_b64, grosmimi_ss_b64, chaenmom_b64, naeiae_b64)
     nodes.extend(email_nodes)
 
     # Wire: Update Airtable Delivered -> Prepare Delivery Email -> Send Delivery Email

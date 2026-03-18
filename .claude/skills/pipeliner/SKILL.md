@@ -42,7 +42,7 @@ Executor(Maker)가 액션을 실행하고, Verifier(Checker)가 독립적으로 
 | 5 | Sample Sent -> Draft Complete | 5min poll | m89xU9RUbPgnkBy8 |
 | 6 | Fulfillment -> Delivery Detection | 30min poll | ufMPgU6cjwuzLM0y |
 | 6.5 | Guidelines Email | Auto | (fulfillment WF) |
-| 7 | Content Posted Detection (Syncly) | 6hr poll | FzBJVEOTvr6qJPAL |
+| 7 | Content Posted Detection (Apify Crawler) | 6hr poll | FzBJVEOTvr6qJPAL |
 
 ## Dual Test CLI
 

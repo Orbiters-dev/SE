@@ -16,7 +16,6 @@ Usage:
 Part of 골만이 Squad pipeline.
 """
 
-import csv
 import json
 import os
 import sys
@@ -59,8 +58,9 @@ AVG_PRICE = {
 }
 
 
-# ── Polar CSV parser ──────────────────────────────────────────────────────
-POLAR_CSV = Path(os.path.expanduser("~")) / "Downloads" / "Monthly Sales by brands(폴라 희망).csv"
+# ── Polar Excel parser ─────────────────────────────────────────────────────
+POLAR_XLSX = ROOT / "Data Storage" / "_archive" / "Monthly Sales by brands_raw.xlsx"
+POLAR_SHEET = "폴라 희망"
 
 # Map CSV brand names to our standard names
 POLAR_BRAND_MAP = {
@@ -85,235 +85,245 @@ POLAR_BRAND_COLORS = {
 }
 
 
-def _parse_polar_val(s):
-    """Parse a Polar CSV cell value like ' 125,981 ' or ' - ' to float."""
-    s = s.strip().strip('"').strip()
-    if not s or s == "-":
-        return 0.0
-    return float(s.replace(",", ""))
+def parse_polar_excel():
+    """Parse the Polar Excel file (폴라 희망 sheet) and return P&L data from Jan-25 onwards.
 
-
-def parse_polar_csv():
-    """Parse the Polar CSV and return P&L data from Jan-25 onwards."""
-    if not POLAR_CSV.exists():
-        print(f"  [WARN] Polar CSV not found: {POLAR_CSV}")
+    Reads directly from Data Storage/_archive/Monthly Sales by brands_raw.xlsx
+    instead of CSV export. Amazon Ads costs for 2025 come from this file.
+    """
+    if not POLAR_XLSX.exists():
+        print(f"  [WARN] Polar Excel not found: {POLAR_XLSX}")
         return None
 
-    with open(POLAR_CSV, "r", encoding="utf-8-sig") as f:
-        rows = list(csv.reader(f))
+    import openpyxl
+    wb = openpyxl.load_workbook(str(POLAR_XLSX), data_only=True)
+    ws = wb[POLAR_SHEET]
 
-    # Find month header row (contains "Jan-22")
-    header_row_idx = None
-    month_cols = {}  # "Jan-25" -> col_idx
-    for i, row in enumerate(rows):
-        for j, cell in enumerate(row):
-            if cell.strip() == "Jan-22":
-                header_row_idx = i
-                # Map all month columns
-                for k in range(j, min(j + 60, len(row))):
-                    m = row[k].strip()
-                    if m:
-                        month_cols[m] = k
-                break
-        if header_row_idx is not None:
-            break
+    # Build month column mapping from row 3 (datetime objects)
+    month_cols = {}  # "2025-01" -> col_idx
+    for c in range(6, min(ws.max_column + 1, 60)):
+        v = ws.cell(3, c).value
+        if v and hasattr(v, "strftime"):
+            month_cols[v.strftime("%Y-%m")] = c
 
-    if header_row_idx is None:
-        print("  [WARN] Could not find month headers in Polar CSV")
-        return None
-
-    # Months we want: Jan-25 through Jan-26
+    # Target months: Jan-25 through latest available
     target_months = []
-    for yr in [25, 26]:
-        for mi, mn in enumerate(["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], 1):
-            key = f"{mn}-{yr}"
+    for yr in [2025, 2026]:
+        for mi in range(1, 13):
+            key = f"{yr}-{mi:02d}"
             if key in month_cols:
                 target_months.append(key)
-            if yr == 26 and mi >= 2:
-                break  # Only go up to Jan-26 (or whatever's available)
+            if yr == 2026 and mi >= 3:
+                break
 
-    def _get_vals(row):
-        """Get values for target months from a CSV row."""
-        return [_parse_polar_val(row[month_cols[m]] if month_cols[m] < len(row) else "")
-                for m in target_months]
-
-    # Find section start rows by scanning for keywords
-    def _find_row(keyword, start=0, col=0, col2=None):
-        """Find the row index where col matches keyword."""
-        for i in range(start, len(rows)):
-            r = rows[i]
-            if len(r) > col and r[col].strip() == keyword:
-                return i
-            if col2 is not None and len(r) > col2 and r[col2].strip() == keyword:
-                return i
+    if not target_months:
+        print("  [WARN] No target months found in Polar Excel")
+        wb.close()
         return None
 
-    def _find_brand_row(section_start, brand_name, max_rows=15):
-        """Find a brand row within a section."""
-        for i in range(section_start + 1, min(section_start + max_rows, len(rows))):
-            r = rows[i]
-            if len(r) > 1 and r[1].strip() == brand_name:
-                return i
+    n = len(target_months)
+    zeros = [0.0] * n
+
+    def _val(row, col):
+        v = ws.cell(row, col).value
+        if v is None or v == "" or v == "-":
+            return 0.0
+        try:
+            return float(v)
+        except (ValueError, TypeError):
+            return 0.0
+
+    def _get_vals(row):
+        return [_val(row, month_cols[m]) for m in target_months]
+
+    def _find_row(keyword, start=1, col=2):
+        """Find row where cell in col matches keyword exactly."""
+        for r in range(start, ws.max_row + 1):
+            v = ws.cell(r, col).value
+            if v and isinstance(v, str) and v.strip() == keyword:
+                return r
+        return None
+
+    def _find_row_contains(keyword, start=1, col=2):
+        """Find row where cell in col contains keyword."""
+        for r in range(start, ws.max_row + 1):
+            v = ws.cell(r, col).value
+            if v and isinstance(v, str) and keyword in v:
+                return r
+        return None
+
+    def _find_in(section_start, name, max_rows=20, col=3):
+        """Find a row within a section where col matches name."""
+        for r in range(section_start + 1, min(section_start + max_rows, ws.max_row + 1)):
+            v = ws.cell(r, col).value
+            if v and isinstance(v, str) and v.strip() == name:
+                return r
+        return None
+
+    def _find_in_contains(section_start, keyword, max_rows=20, col=3):
+        for r in range(section_start + 1, min(section_start + max_rows, ws.max_row + 1)):
+            v = ws.cell(r, col).value
+            if v and isinstance(v, str) and keyword in v:
+                return r
         return None
 
     # ── Section 1: Sales By Brands (LFU+FLT) ──
     sec_sales = _find_row("Sales By Brands (USD)")
     brand_sales = {}
-    if sec_sales is not None:
+    total_sales = list(zeros)
+    if sec_sales:
         for brand in POLAR_BRAND_MAP:
-            br = _find_brand_row(sec_sales + 1, brand, 20)
-            if br is not None:
-                brand_sales[brand] = _get_vals(rows[br])
-        # Total row
-        total_row = _find_brand_row(sec_sales + 1, "LFU+FLT ??", 20)
-        if total_row is None:
-            # Try matching partial
-            for i in range(sec_sales + 2, sec_sales + 25):
-                if i < len(rows) and len(rows[i]) > 1:
-                    cell = rows[i][1].strip()
-                    if "LFU+FLT" in cell and "?" in cell:
-                        total_row = i
-                        break
+            br = _find_in(sec_sales, brand, 20)
+            if br:
+                brand_sales[brand] = _get_vals(br)
+        # Total row: "LFU+FLT 매출"
+        tr = _find_in_contains(sec_sales, "LFU+FLT", 20)
+        if tr:
+            total_sales = _get_vals(tr)
 
-    total_sales = _get_vals(rows[total_row]) if total_row else [0.0] * len(target_months)
-
-    # ── Section: ADS by Channel ──
+    # ── ADS by Channel ──
     sec_ads = _find_row("ADS by Channel") or _find_row("Ads Spent")
-    ad_spend_onzenna = [0.0] * len(target_months)
-    ad_spend_amazon = [0.0] * len(target_months)
-    ad_spend_total = [0.0] * len(target_months)
-    ad_spend_google = [0.0] * len(target_months)
-    ad_spend_amz_grosmimi = [0.0] * len(target_months)
-    ad_spend_amz_chaenmom = [0.0] * len(target_months)
-    ad_spend_amz_naeiae = [0.0] * len(target_months)
+    ad_spend_onzenna = list(zeros)
+    ad_spend_amazon = list(zeros)
+    ad_spend_total = list(zeros)
+    ad_spend_google = list(zeros)
+    ad_spend_amz_grosmimi = list(zeros)
+    ad_spend_amz_chaenmom = list(zeros)
+    ad_spend_amz_naeiae = list(zeros)
 
-    if sec_ads is not None:
-        for i in range(sec_ads + 1, min(sec_ads + 30, len(rows))):
-            r = rows[i]
-            c1 = r[1].strip() if len(r) > 1 else ""
-            c2 = r[2].strip() if len(r) > 2 else ""
-            if c1 == "ONZENNA":
+    if sec_ads:
+        for r in range(sec_ads + 1, min(sec_ads + 30, ws.max_row + 1)):
+            c3 = str(ws.cell(r, 3).value or "").strip()
+            c4 = str(ws.cell(r, 4).value or "").strip()
+            if c3 == "ONZENNA":
                 ad_spend_onzenna = _get_vals(r)
-            elif c1 == "Amazon":
+            elif c3 == "Amazon":
                 ad_spend_amazon = _get_vals(r)
-            elif c1 == "Total Ads Spent":
+            elif c3 == "Total Ads Spent":
                 ad_spend_total = _get_vals(r)
-                break  # Don't scan past into "Sales from Ads"
-            # Sub-breakdowns (column 2)
-            if c2 == "google Ads":
+                break
+            # Sub-breakdowns (column D)
+            if c4.lower() in ("google ads",):
                 ad_spend_google = _get_vals(r)
-            elif c2 == "Grosmimi" and i > sec_ads + 10:  # Amazon sub
+            elif c4 == "Grosmimi" and r > sec_ads + 8:
                 ad_spend_amz_grosmimi = _get_vals(r)
-            elif "Cha" in c2 and "mom" in c2.lower():
+            elif "Cha" in c4 and "mom" in c4.lower():
                 ad_spend_amz_chaenmom = _get_vals(r)
-            elif "Naeiae" in c2 or "Others" in c2:
+            elif "Naeiae" in c4 or "Others" in c4:
                 ad_spend_amz_naeiae = _get_vals(r)
 
     # ── Sales from Ads ──
     sec_sales_ads = _find_row("Sales from Ads")
-    sales_from_ads_total = [0.0] * len(target_months)
-    sales_from_ads_onz = [0.0] * len(target_months)
-    sales_from_ads_amz = [0.0] * len(target_months)
+    sales_from_ads_total = list(zeros)
+    sales_from_ads_onz = list(zeros)
+    sales_from_ads_amz = list(zeros)
 
-    if sec_sales_ads is not None:
-        for i in range(sec_sales_ads + 1, min(sec_sales_ads + 20, len(rows))):
-            r = rows[i]
-            c1 = r[1].strip() if len(r) > 1 else ""
-            if c1 == "ONZENNA":
+    if sec_sales_ads:
+        for r in range(sec_sales_ads + 1, min(sec_sales_ads + 20, ws.max_row + 1)):
+            c3 = str(ws.cell(r, 3).value or "").strip()
+            if c3 == "ONZENNA":
                 sales_from_ads_onz = _get_vals(r)
-            elif c1 == "Amazon":
+            elif c3 == "Amazon":
                 sales_from_ads_amz = _get_vals(r)
-            elif c1 == "Total Sales from Ads":
+            elif c3 == "Total Sales from Ads":
                 sales_from_ads_total = _get_vals(r)
                 break
 
     # ── Organic Sales ──
     sec_organic = _find_row("Organic Sales")
-    organic_total = [0.0] * len(target_months)
-    organic_onz = [0.0] * len(target_months)
-    organic_amz = [0.0] * len(target_months)
+    organic_total = list(zeros)
+    organic_onz = list(zeros)
+    organic_amz = list(zeros)
 
-    if sec_organic is not None:
-        for i in range(sec_organic + 1, min(sec_organic + 15, len(rows))):
-            r = rows[i]
-            c1 = r[1].strip() if len(r) > 1 else ""
-            if c1 == "ONZENNA":
+    if sec_organic:
+        for r in range(sec_organic + 1, min(sec_organic + 15, ws.max_row + 1)):
+            c3 = str(ws.cell(r, 3).value or "").strip()
+            if c3 == "ONZENNA":
                 organic_onz = _get_vals(r)
-            elif c1 == "AMZ":
+            elif c3 == "AMZ":
                 organic_amz = _get_vals(r)
-            elif c1 == "Total Organic Sales":
+            elif c3 == "Total Organic Sales":
                 organic_total = _get_vals(r)
                 break
+        # Fallback: compute from ONZENNA + AMZ if no total row
+        if all(v == 0 for v in organic_total) and any(v > 0 for v in organic_onz):
+            organic_total = [a + b for a, b in zip(organic_onz, organic_amz)]
 
     # ── CM before/after Ads ──
     sec_cm_before = _find_row("CM before Ads")
-    cm_before_total = [0.0] * len(target_months)
-    cm_before_onz = [0.0] * len(target_months)
-    cm_before_amz = [0.0] * len(target_months)
+    cm_before_total = list(zeros)
+    cm_before_onz = list(zeros)
+    cm_before_amz = list(zeros)
 
-    if sec_cm_before is not None:
-        for i in range(sec_cm_before + 1, min(sec_cm_before + 15, len(rows))):
-            r = rows[i]
-            c1 = r[1].strip() if len(r) > 1 else ""
-            if c1 == "ONZENNA":
+    if sec_cm_before:
+        for r in range(sec_cm_before + 1, min(sec_cm_before + 15, ws.max_row + 1)):
+            c3 = str(ws.cell(r, 3).value or "").strip()
+            if c3 == "ONZENNA":
                 cm_before_onz = _get_vals(r)
-            elif c1 == "AMZ":
+            elif c3 == "AMZ":
                 cm_before_amz = _get_vals(r)
-            elif c1 == "Total CM before Ads":
+            elif "Total CM before Ads" in c3:
                 cm_before_total = _get_vals(r)
                 break
+        if all(v == 0 for v in cm_before_total) and any(v > 0 for v in cm_before_onz):
+            cm_before_total = [a + b for a, b in zip(cm_before_onz, cm_before_amz)]
 
     sec_cm_after = _find_row("CM After Ads")
-    cm_after_total = [0.0] * len(target_months)
-    cm_after_onz = [0.0] * len(target_months)
-    cm_after_amz = [0.0] * len(target_months)
+    cm_after_total = list(zeros)
+    cm_after_onz = list(zeros)
+    cm_after_amz = list(zeros)
 
-    if sec_cm_after is not None:
-        for i in range(sec_cm_after + 1, min(sec_cm_after + 15, len(rows))):
-            r = rows[i]
-            c1 = r[1].strip() if len(r) > 1 else ""
-            if c1 == "ONZENNA":
+    if sec_cm_after:
+        for r in range(sec_cm_after + 1, min(sec_cm_after + 15, ws.max_row + 1)):
+            c3 = str(ws.cell(r, 3).value or "").strip()
+            if c3 == "ONZENNA":
                 cm_after_onz = _get_vals(r)
-            elif c1 == "AMZ":
+            elif c3 == "AMZ":
                 cm_after_amz = _get_vals(r)
-            elif c1 == "Total CM after Ads":
+            elif "total cm after ads" in c3.lower():
                 cm_after_total = _get_vals(r)
                 break
+        if all(v == 0 for v in cm_after_total) and any(v > 0 for v in cm_after_onz):
+            cm_after_total = [a + b for a, b in zip(cm_after_onz, cm_after_amz)]
 
     # ── Influencer Spend ──
     sec_influencer = _find_row("Paid influencer collabs")
-    influencer_total = [0.0] * len(target_months)
-    if sec_influencer is not None:
-        for i in range(sec_influencer + 2, min(sec_influencer + 60, len(rows))):
-            r = rows[i]
-            c0 = r[0].strip() if len(r) > 0 else ""
-            if c0 == "Monthly Total":
+    influencer_total = list(zeros)
+    if sec_influencer:
+        # "Monthly Total" is in column B (2)
+        for r in range(sec_influencer + 2, min(sec_influencer + 60, ws.max_row + 1)):
+            v = ws.cell(r, 2).value
+            if v and isinstance(v, str) and v.strip() == "Monthly Total":
                 influencer_total = _get_vals(r)
                 break
 
     # ── Final CM (after ads + influencer) ──
-    sec_final_cm = _find_row("Total CM After ads & influencer collabs")
-    cm_final = [0.0] * len(target_months)
-    if sec_final_cm is not None:
-        cm_final = _get_vals(rows[sec_final_cm])
+    sec_final_cm = _find_row_contains("Total CM After ads & influencer")
+    cm_final = list(zeros)
+    if sec_final_cm:
+        cm_final = _get_vals(sec_final_cm)
 
-    # ── COGS (from FLT COGS section) ──
-    # COGS = Revenue - CM before Ads (since CM before ads = Revenue × COGS margin)
-    # Actually: CM before Ads = GP = Revenue - COGS, so COGS = Revenue - CM before Ads
+    # COGS = Revenue - CM before Ads
     cogs = [round(rev - cm) for rev, cm in zip(total_sales, cm_before_total)]
 
-    # ── Build 2025 annual total ──
-    # Jan-25 through Dec-25 = first 12 entries
+    # ── Build FY2025 annual total ──
     num_2025 = min(12, len(target_months))
 
     def _annual(arr):
         return round(sum(arr[:num_2025]))
 
-    # Convert month labels: "Jan-25" -> "Jan 25"
-    month_labels = [m.replace("-", " ") for m in target_months[:num_2025]]
+    MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    month_labels = []
+    for m in target_months[:num_2025]:
+        mi = int(m[5:7])
+        yr = m[2:4]
+        month_labels.append(f"{MONTH_NAMES[mi - 1]} {yr}")
     month_labels.append("FY2025")
-    month_labels.extend([m.replace("-", " ") for m in target_months[num_2025:]])
+    for m in target_months[num_2025:]:
+        mi = int(m[5:7])
+        yr = m[2:4]
+        month_labels.append(f"{MONTH_NAMES[mi - 1]} {yr}")
 
     def _with_annual(arr):
         """Insert FY2025 total after the first 12 months."""
@@ -324,7 +334,7 @@ def parse_polar_csv():
 
     result = {
         "months": month_labels,
-        "fy2025_idx": num_2025,  # Index of "FY2025" column
+        "fy2025_idx": num_2025,
         "brand_sales": {},
         "total_revenue": _with_annual(total_sales),
         "cogs": _with_annual(cogs),
@@ -355,14 +365,14 @@ def parse_polar_csv():
         "cm_final": _with_annual(cm_final),
     }
 
-    # Brand-level sales
     for brand, vals in brand_sales.items():
         result["brand_sales"][brand] = {
             "values": _with_annual(vals),
             "color": POLAR_BRAND_COLORS.get(brand, "#94a3b8"),
         }
 
-    print(f"  Polar CSV parsed: {len(target_months)} months, {len(brand_sales)} brands")
+    wb.close()
+    print(f"  Polar Excel parsed: {len(target_months)} months, {len(brand_sales)} brands")
     return result
 
 
@@ -1078,10 +1088,11 @@ def generate():
 
     # Campaign name → product type (Amazon Ads)
     GROSMIMI_CAMPAIGN_MAP = {
-        "PPSU Straw Cup": ["ppsu", "knotted", "fliptop", "flip top", "flip_top", "stage1"],
+        "PPSU Straw Cup": ["ppsu", "knotted", "fliptop", "flip top", "flip_top", "stage1",
+                           "magic", "sippy", "baby bottle", "sorbos", "taza"],
         "Stainless Straw Cup": ["stainless"],
         "Tumbler": ["tumbler"],
-        "Replacements": ["replacement"],
+        "Replacements": ["replacement", "reemplazos"],
     }
 
     def classify_grosmimi_campaign(campaign_name):
@@ -1092,27 +1103,30 @@ def generate():
         return "Other"
 
     # SKU title → product type (Shopify product_title / Amazon product_name)
+    # Ported from amazon_ppc_executor._classify_grosmimi_product (7-cat → 5-cat)
     def classify_grosmimi_title(title):
         t = title.lower()
-        # Stainless: check before PPSU (some are "stainless steel straw cup")
-        if "stainless" in t:
-            if "tumbler" in t:
-                return "Tumbler"
-            return "Stainless Straw Cup"
-        # Tumbler (PPSU)
-        if "tumbler" in t:
-            return "Tumbler"
-        # Replacements (parts, kits, accessories)
+        # 1. Replacements first (parts, kits, accessories)
         if any(kw in t for kw in [
             "replacement", "replacements", "weighted kit", "weighted straw",
             "one touch cap", "straw kit", "accessory pack", "nipple",
             "spout", "brush", "strap", "teat", "month plus kit",
+            "straw only", "reemplazos",
         ]):
             return "Replacements"
-        # PPSU Straw Cup (includes Flip Top, KNOTTED, Magic Sippy, Baby Bottle)
+        # 2. Stainless: check before PPSU (includes Spanish "acero inoxidable")
+        if "stainless" in t or "acero inoxidable" in t or "insulated 316" in t:
+            if "tumbler" in t:
+                return "Tumbler"
+            return "Stainless Straw Cup"
+        # 3. Tumbler (PPSU)
+        if "tumbler" in t or "slow flow toddler" in t:
+            return "Tumbler"
+        # 4. PPSU Straw Cup (includes Flip Top, KNOTTED, Magic Sippy, Baby Bottle)
         if any(kw in t for kw in [
             "ppsu", "sippy cup", "straw cup", "flip top", "knotted",
             "baby bottle", "magic", "taza", "vaso",
+            "sorbos", "derrames con pajita", "spill proof",
         ]):
             return "PPSU Straw Cup"
         return "Other"
@@ -1301,8 +1315,8 @@ def generate():
     organic_monthly = [max(0, rev - paid) for rev, paid in zip(total_rev_monthly, paid_monthly)]
 
     # ── Parse Polar CSV for full P&L ────────────────────────────────────────
-    print("[7.5/8] Parsing Polar CSV for P&L...")
-    pnl_polar = parse_polar_csv()
+    print("[7.5/8] Parsing Polar Excel for P&L...")
+    pnl_polar = parse_polar_excel()
 
     # ── Assemble final data ───────────────────────────────────────────────────
     fin_data = {

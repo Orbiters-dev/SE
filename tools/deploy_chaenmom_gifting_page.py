@@ -71,17 +71,7 @@ PRODUCTS = {
     },
 }
 
-COLLAB_TERMS = (
-    '<ul class="igf-terms-list">'
-    "<li>Total video length: 30 seconds</li>"
-    "<li>Uploaded content must include voiceover + subtitles</li>"
-    "<li>Must use royalty-free music</li>"
-    "<li>Must tag: @zezebaebae_official (IG), @zeze_baebae (TikTok), @chamom_official (IG)</li>"
-    "<li>Must include: #CHAMOM #ChaAndMom #BabySkincare #KBeautyBaby #Onzenna</li>"
-    "<li>Content must be posted within 14 days of receiving the product</li>"
-    "<li>You agree that Onzenna may repost your content with credit</li>"
-    "</ul>"
-)
+COLLAB_TERMS = ""  # now inline in HTML as collapsible
 
 US_STATES = [
     "AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL","GA","HI","ID","IL","IN",
@@ -600,21 +590,50 @@ def build_section_liquid(webhook_url):
     letter-spacing: 0.04em;
   }}
 
-  .igf-terms-box {{
+  .igf-terms-summary {{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: 14px 16px;
     background: var(--igf-warm);
     border-radius: 12px;
-    padding: 16px 16px 16px 20px;
-    margin: 12px 0 16px;
-    font-size: 0.85rem;
+    margin: 8px 0 0;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--igf-text);
+    user-select: none;
+    transition: background 0.2s;
+  }}
+  .igf-terms-summary:hover {{ background: #EAE3D8; }}
+  .igf-terms-arrow {{
+    transition: transform 0.25s;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }}
+  .igf-terms-arrow.open {{ transform: rotate(90deg); }}
+  .igf-terms-detail {{
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+    background: var(--igf-warm);
+    border-radius: 0 0 12px 12px;
+    margin-top: -2px;
+  }}
+  .igf-terms-detail.open {{ max-height: 500px; }}
+  .igf-terms-detail-inner {{
+    padding: 0 16px 16px 20px;
+    font-size: 0.82rem;
     line-height: 1.8;
     color: var(--igf-text);
   }}
-  .igf-terms-list {{
+  .igf-terms-detail-inner ul {{
     list-style: disc;
     padding-left: 18px;
     margin: 0;
   }}
-  .igf-terms-list li {{ margin-bottom: 4px; }}
+  .igf-terms-detail-inner li {{ padding: 2px 0; }}
 
   .igf-success-wrap {{ text-align: center; padding: 48px 24px; }}
   .igf-success-icon {{
@@ -898,9 +917,26 @@ def build_section_liquid(webhook_url):
         </select>
       </div>
 
-      <div style="margin-top:28px">
-        <div class="igf-section-title">Collaboration Terms</div>
-        <div class="igf-terms-box">{COLLAB_TERMS}</div>
+      <div class="igf-terms-wrap" style="margin-top:28px">
+        <div class="igf-section-title">Onzenna Terms &amp; Conditions</div>
+        <div class="igf-terms-summary" id="igf-terms-toggle">
+          <span>View collaboration terms</span>
+          <svg class="igf-terms-arrow" id="igf-terms-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3l5 5-5 5"/></svg>
+        </div>
+        <div class="igf-terms-detail" id="igf-terms-detail">
+          <div class="igf-terms-detail-inner">
+            <ul>
+              <li>Total video length: 30 secs.</li>
+              <li>Uploaded content should include voiceover + subtitles.</li>
+              <li>Must use royalty-free music if you plan to use music.</li>
+              <li>Add us as a Brand Partner (collaborator) on IG or TikTok.</li>
+              <li>Must tag: IG: @onzenna_official, @grosmimi_usa / TikTok: @onzenna.official</li>
+              <li>Add hashtags as suggested in the content guidelines (you&rsquo;ll receive them after your sample is delivered!).</li>
+              <li>We might request Meta whitelisting / Spark Ads code.</li>
+            </ul>
+            <p style="margin:10px 0 0;font-size:0.82rem;color:var(--igf-text-muted)">Reach out if you have any question!</p>
+          </div>
+        </div>
         <label class="igf-toggle">
           <input type="checkbox" id="igf-agree">
           <span>I agree to the collaboration terms *</span>
@@ -1292,6 +1328,14 @@ def build_section_liquid(webhook_url):
     if (c.name) document.getElementById("igf-name").value = c.name;
     if (c.email) document.getElementById("igf-email").value = c.email;
   }}
+
+  // ── Terms toggle ────────────────────────────────────
+  document.getElementById("igf-terms-toggle").addEventListener("click", function() {{
+    var detail = document.getElementById("igf-terms-detail");
+    var arrow = document.getElementById("igf-terms-arrow");
+    detail.classList.toggle("open");
+    arrow.classList.toggle("open");
+  }});
 
   // ── Event Listeners ─────────────────────────────────────
   document.getElementById("igf-submit-btn").addEventListener("click", submit);

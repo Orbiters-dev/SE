@@ -647,14 +647,21 @@ def enrich_posts_from_orders(posts):
         info = handle_map.get(norm_user)
 
         if info:
-            # Matched via Shopify order — source of truth
+            # Caption/hashtag brand takes priority over order (influencer may
+            # have bought via other channels or posted about a different brand)
             if not p.get("brand"):
-                p["brand"] = sorted(info["brands"])[0] if info["brands"] else ""
+                text = f"{p.get('caption', '')} {p.get('hashtags', '')} {p.get('tagged_account', '')}"
+                caption_brand = _detect_brand_from_text(text)
+                if caption_brand:
+                    p["brand"] = caption_brand
+                else:
+                    # No brand in caption — fall back to order
+                    p["brand"] = sorted(info["brands"])[0] if info["brands"] else ""
             if not p.get("product_types"):
                 p["product_types"] = ",".join(sorted(info["product_types"]))
             matched += 1
         else:
-            # Fallback: detect from caption/hashtags
+            # No order match: detect from caption/hashtags
             if not p.get("brand"):
                 text = f"{p.get('caption', '')} {p.get('hashtags', '')} {p.get('tagged_account', '')}"
                 p["brand"] = _detect_brand_from_text(text)

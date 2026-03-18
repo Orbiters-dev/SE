@@ -1764,7 +1764,7 @@ def collect_gsc(date_from: str, date_to: str) -> list[dict]:
             "endDate": date_to,
             "dimensions": ["date", "query"],
             "rowLimit": 5000,
-            "dataState": "final",
+            "dataState": "all",
         }
         try:
             r = requests.post(

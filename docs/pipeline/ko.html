@@ -172,7 +172,7 @@
   <div class="hero">
     <h1><span>Creator Collab</span> Pipeline</h1>
     <p class="subtitle">End-to-end influencer gifting automation &mdash; from discovery to content tracking + reminder in 9 stages</p>
-    <div class="test-time">Last updated: March 18, 2026 &middot; PROD Environment</div>
+    <div class="test-time">Last updated: March 19, 2026 &middot; PROD Environment</div>
   </div>
 
   <!-- ==================== QUICK LINKS ==================== -->
@@ -316,6 +316,200 @@
     <span class="status-pill" style="background:var(--poll-bg); color:var(--poll);">Reminder</span>
   </div>
 
+  <!-- ==================== DATA FLOW DIAGRAM ==================== -->
+  <div class="summary-section" style="margin-bottom:40px; background:linear-gradient(135deg, #fafbfc 0%, #f0f4ff 100%);">
+    <h3 style="margin-bottom:6px;">Data Flow: Syncly &rarr; Airtable &rarr; Email</h3>
+    <p style="font-size:12px; color:var(--text-dim); margin-bottom:20px;">Syncly Google Sheet &rarr; n8n Creator/Content Sync &rarr; Airtable CRM &rarr; Config-based outreach email</p>
+
+    <!-- Flow Diagram -->
+    <div style="display:flex; flex-direction:column; gap:0; align-items:center;">
+
+      <!-- Row 1: Syncly Sheet -->
+      <div style="display:flex; align-items:center; gap:12px; width:100%;">
+        <div style="flex:1; background:#e8f5e9; border:2px solid #a5d6a7; border-radius:12px; padding:16px; text-align:center;">
+          <div style="font-size:20px; margin-bottom:4px;">&#128196;</div>
+          <div style="font-size:13px; font-weight:700; color:#2e7d32;">Syncly Discovery Sheet</div>
+          <div style="font-size:11px; color:#388e3c; margin-top:4px;">Google Sheet <code style="font-size:9px; background:#c8e6c9; padding:1px 4px; border-radius:3px;">1MgEodo...</code></div>
+          <div style="font-size:10px; color:#4caf50; margin-top:6px;">Creator Tab: Username, Platform, Followers, Views<br>Content Tab: Post URL, Metrics, Transcript</div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div style="font-size:24px; color:var(--auto); padding:4px 0; display:flex; flex-direction:column; align-items:center;">
+        <span>&#8595;</span>
+        <span style="font-size:10px; color:var(--text-dim); font-weight:600;">n8n Manual Trigger</span>
+      </div>
+
+      <!-- Row 2: n8n Sync -->
+      <div style="display:flex; gap:12px; width:100%;">
+        <div style="flex:1; background:var(--auto-bg); border:2px solid var(--auto-border); border-radius:12px; padding:16px;">
+          <div style="font-size:12px; font-weight:700; color:var(--auto); margin-bottom:8px;">&#9889; n8n: Syncly Data Processing <span style="font-size:10px; font-weight:400; color:var(--text-dim);">(64 nodes)</span></div>
+          <div style="display:flex; gap:8px;">
+            <div style="flex:1; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
+              <div style="font-weight:600; color:var(--auto); margin-bottom:4px;">Creator Sync</div>
+              <div style="color:var(--text-dim);">1. Read Sheet &rarr; 2. Dedup Check<br>3. Create/Update AT &rarr; 4. Writeback</div>
+            </div>
+            <div style="flex:1; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
+              <div style="font-weight:600; color:var(--auto); margin-bottom:4px;">Content Sync</div>
+              <div style="color:var(--text-dim);">1. Read Sheet &rarr; 2. Link to Creator<br>3. Create/Update AT &rarr; 4. Notify</div>
+            </div>
+          </div>
+          <div style="margin-top:8px; font-size:10px; color:var(--text-dim);">
+            <a href="https://n8n.orbiters.co.kr/workflow/6BNQRz57oCtdROlH" target="_blank" class="wf-link">WJ TEST: 6BNQRz57oCtdROlH</a> &middot;
+            <span style="color:#f59e0b;">PROD: inactive (l86XnrL1JPFOMSA4GOoYy)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div style="font-size:24px; color:var(--store); padding:4px 0; display:flex; flex-direction:column; align-items:center;">
+        <span>&#8595;</span>
+        <span style="font-size:10px; color:var(--text-dim); font-weight:600;">Airtable API</span>
+      </div>
+
+      <!-- Row 3: Airtable CRM -->
+      <div style="background:#fee2e2; border:2px solid #fca5a5; border-radius:12px; padding:16px; width:100%;">
+        <div style="font-size:12px; font-weight:700; color:#dc2626; margin-bottom:10px;">&#128451; Airtable CRM <span style="font-size:10px; font-weight:400;">app3Vnmh7hLAVsevE</span></div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <div style="flex:1; min-width:140px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
+            <div style="font-weight:600; color:#dc2626; margin-bottom:4px;">Creators</div>
+            <div style="color:var(--text-dim);">Username, Email, Platform<br>Outreach Status, Partnership Status<br>Outreach Type (LT/HT)</div>
+          </div>
+          <div style="flex:1; min-width:140px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
+            <div style="font-weight:600; color:#dc2626; margin-bottom:4px;">Content</div>
+            <div style="color:var(--text-dim);">Post URL, Views, Likes<br>Transcript (for AI)<br>Linked to Creator</div>
+          </div>
+          <div style="flex:1; min-width:140px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
+            <div style="font-weight:600; color:#dc2626; margin-bottom:4px;">Dashboard</div>
+            <div style="color:var(--text-dim);">Active, Mode, HiL toggles<br>Guidelines, System Prompt<br>RAG &amp; Apify toggles</div>
+          </div>
+          <div style="flex:1; min-width:140px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
+            <div style="font-weight:600; color:#dc2626; margin-bottom:4px;">Config</div>
+            <div style="color:var(--text-dim);">HT Threshold (views)<br>Active Template ID<br>Product Keywords</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow: Trigger -->
+      <div style="font-size:24px; color:var(--poll); padding:4px 0; display:flex; flex-direction:column; align-items:center;">
+        <span>&#8595;</span>
+        <span style="font-size:10px; color:var(--text-dim); font-weight:600;">30-min polling: Outreach Status = "Not Started" &amp; Email != blank</span>
+      </div>
+
+      <!-- Row 4: Draft Generation -->
+      <div style="display:flex; gap:12px; width:100%;">
+        <div style="flex:1; background:var(--auto-bg); border:2px solid var(--auto-border); border-radius:12px; padding:16px;">
+          <div style="font-size:12px; font-weight:700; color:var(--auto); margin-bottom:8px;">&#9889; n8n: Draft Generation <span style="font-size:10px; font-weight:400; color:var(--text-dim);">(39 nodes, 30-min poll)</span></div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:120px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
+              <div style="font-weight:600; color:#f59e0b; margin-bottom:4px;">Pre-Flight</div>
+              <div style="color:var(--text-dim);">
+                1. Dashboard: Active? <br>
+                2. RAG Dedup Check<br>
+                3. Apify Email Autofill
+              </div>
+            </div>
+            <div style="flex:1; min-width:120px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
+              <div style="font-weight:600; color:#6366f1; margin-bottom:4px;">AI Draft</div>
+              <div style="color:var(--text-dim);">
+                1. Pull Content Transcripts<br>
+                2. Detect Product from Content<br>
+                3. Claude API &rarr; personalized email
+              </div>
+            </div>
+            <div style="flex:1; min-width:120px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
+              <div style="font-weight:600; color:#15803d; margin-bottom:4px;">Send</div>
+              <div style="color:var(--text-dim);">
+                IF HiL=off: auto-send<br>
+                IF HiL=on: store draft &rarr; wait approval<br>
+                Save Thread ID to AT
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:8px; font-size:10px; color:var(--text-dim);">
+            <a href="https://n8n.orbiters.co.kr/workflow/fwwOeLiDLSnR77E1" target="_blank" class="wf-link">fwwOeLiDLSnR77E1</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow: HiL approval -->
+      <div style="display:flex; gap:40px; width:100%; justify-content:center; padding:4px 0;">
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:24px; color:var(--human);">&#8595;</span>
+          <span style="font-size:10px; color:var(--human); font-weight:600;">HiL=on: Draft &rarr; Airtable<br>"Approve" in UI</span>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:24px; color:var(--auto);">&#8595;</span>
+          <span style="font-size:10px; color:var(--auto); font-weight:600;">HiL=off: Direct send<br>via Gmail OAuth</span>
+        </div>
+      </div>
+
+      <!-- Row 5: Approval Send -->
+      <div style="display:flex; gap:12px; width:100%;">
+        <div style="flex:1; background:var(--poll-bg); border:2px solid var(--poll-border); border-radius:12px; padding:16px;">
+          <div style="font-size:12px; font-weight:700; color:var(--poll); margin-bottom:8px;">&#128337; n8n: Approval Send <span style="font-size:10px; font-weight:400; color:var(--text-dim);">(17 nodes, 1-min poll)</span></div>
+          <div style="display:flex; gap:8px;">
+            <div style="flex:1; background:#fff; border-radius:8px; padding:10px; font-size:11px; color:var(--text-dim);">
+              Poll Airtable for approved drafts &rarr; Gmail send &rarr; AT status: <strong style="color:var(--text);">"Sent"</strong> + Thread ID + Sent Date
+            </div>
+          </div>
+          <div style="margin-top:8px; font-size:10px; color:var(--text-dim);">
+            <a href="https://n8n.orbiters.co.kr/workflow/jf9uxkPww2xeCr82" target="_blank" class="wf-link">jf9uxkPww2xeCr82</a>
+          </div>
+        </div>
+        <div style="flex:1; background:var(--poll-bg); border:2px solid var(--poll-border); border-radius:12px; padding:16px;">
+          <div style="font-size:12px; font-weight:700; color:var(--poll); margin-bottom:8px;">&#128172; n8n: Reply Handler <span style="font-size:10px; font-weight:400; color:var(--text-dim);">(44 nodes, 1-min poll)</span></div>
+          <div style="display:flex; gap:8px;">
+            <div style="flex:1; background:#fff; border-radius:8px; padding:10px; font-size:11px; color:var(--text-dim);">
+              Check Gmail threads &rarr; detect replies &rarr; Claude AI response &rarr; Route by intent (FAQ/Interest/Decline)
+            </div>
+          </div>
+          <div style="margin-top:8px; font-size:10px; color:var(--text-dim);">
+            <a href="https://n8n.orbiters.co.kr/workflow/K99grtW9iWq8V79f" target="_blank" class="wf-link">K99grtW9iWq8V79f</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div style="font-size:24px; color:var(--store); padding:4px 0; display:flex; flex-direction:column; align-items:center;">
+        <span>&#8595;</span>
+        <span style="font-size:10px; color:var(--text-dim); font-weight:600;">Influencer replies with interest &rarr; gifting form link sent</span>
+      </div>
+
+      <!-- Row 6: Result -->
+      <div style="background:#dcfce7; border:2px solid #86efac; border-radius:12px; padding:14px; width:100%; text-align:center;">
+        <div style="font-size:13px; font-weight:700; color:#15803d;">Stage 2: Gifting Form Submit</div>
+        <div style="font-size:11px; color:#16a34a; margin-top:4px;">Creator fills form &rarr; Shopify Customer + Draft Order + Airtable record created automatically</div>
+      </div>
+    </div>
+
+    <!-- Key: Syncly Sheet columns -->
+    <div style="margin-top:20px; padding:14px; background:#fff; border:1px solid var(--border); border-radius:10px;">
+      <div style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; margin-bottom:8px;">Syncly Sheet &rarr; Airtable Field Mapping</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:6px; font-size:11px;">
+        <div><span style="color:var(--text-dim);">Username (id)</span> &rarr; <strong>Creator.Username</strong></div>
+        <div><span style="color:var(--text-dim);">Platform</span> &rarr; <strong>Creator.Platform</strong></div>
+        <div><span style="color:var(--text-dim);">Recent 30D Views</span> &rarr; <strong>Outreach Type</strong> (&gt;50K = HT)</div>
+        <div><span style="color:var(--text-dim);">Post URL</span> &rarr; <strong>Content.Post URL</strong></div>
+        <div><span style="color:var(--text-dim);">Views/Likes/Comments</span> &rarr; <strong>Content Metrics</strong></div>
+        <div><span style="color:var(--text-dim);">Blacklist</span> &rarr; <strong>skip sync</strong></div>
+      </div>
+    </div>
+
+    <!-- Key: Config-driven behavior -->
+    <div style="margin-top:12px; padding:14px; background:#fff; border:1px solid var(--border); border-radius:10px;">
+      <div style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; margin-bottom:8px;">Config-Driven Email Behavior (Airtable Dashboard)</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:6px; font-size:11px;">
+        <div><code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">Active</code> = false &rarr; <strong>all outreach stops</strong></div>
+        <div><code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">Human-in-Loop</code> = on &rarr; <strong>draft saved, wait approval</strong></div>
+        <div><code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">RAG Dedup</code> = on &rarr; <strong>skip already-contacted</strong></div>
+        <div><code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">Apify Autofill</code> = on &rarr; <strong>scrape missing emails</strong></div>
+        <div><code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">HT Threshold</code> = 50K &rarr; <strong>views &gt; 50K = High Touch</strong></div>
+        <div><code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">Template File ID</code> &rarr; <strong>Google Doc outreach template</strong></div>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== STAGE 0 ==================== -->
   <div class="flow">
     <div class="flow-header">
@@ -332,7 +526,12 @@
         <div class="step-content">
           <div class="step-label store">&#128196; Data Source</div>
           <div class="step-title">Syncly Influencer Discovery Sheet</div>
-          <div class="step-desc">Syncly platform discovers relevant influencers and logs creator + content data to a shared Google Sheet</div>
+          <div class="step-desc">Syncly platform discovers relevant influencers and logs creator + content data to a shared Google Sheet (<code style="font-size:10px;">1MgEodoHhc6TuGKuzpJ52bgktH89Q92p1wFZ2l4TK47Q</code>)</div>
+          <div class="data-box">
+            <h4>Sheet Tabs</h4>
+            <div class="data-row"><span class="data-key">Creator Tab</span><span class="data-val">Username (id), Platform, Followers, Recent 30D Views, Blacklist</span></div>
+            <div class="data-row"><span class="data-key">Content Tab</span><span class="data-val">Post URL, Views, Likes, Comments, Transcript, Posted Date</span></div>
+          </div>
         </div>
       </div>
       <div class="step">
@@ -340,13 +539,14 @@
         <div class="step-content">
           <div class="step-label auto">&#9889; n8n Sync (64 nodes)</div>
           <div class="step-title">Creator Sync: Google Sheet &rarr; Airtable CRM</div>
-          <div class="step-desc">n8n reads creator data from sheet &rarr; dedup check &rarr; create/update Creator records in Airtable</div>
+          <div class="step-desc">n8n reads creator data from sheet &rarr; dedup check by username &rarr; auto-determine Outreach Type (LT/HT based on 30D views &gt;50K threshold) &rarr; create/update Creator records in Airtable</div>
           <div class="data-box">
             <h4>Creator Sync Pipeline</h4>
-            <div class="data-row"><span class="data-key">1. Read Sheet</span><span class="data-val">Fetch creator list from Syncly discovery sheet</span></div>
-            <div class="data-row"><span class="data-key">2. Dedup Check</span><span class="data-val">Check existing Airtable creators &rarr; build lookup map</span></div>
-            <div class="data-row"><span class="data-key">3. Sync</span><span class="data-val">Create new creators / update existing records</span></div>
-            <div class="data-row"><span class="data-key">4. Writeback</span><span class="data-val">Write processing status back to Google Sheet</span></div>
+            <div class="data-row"><span class="data-key">1. Read Sheet</span><span class="data-val">Fetch creator list from Syncly discovery sheet (Creator tab)</span></div>
+            <div class="data-row"><span class="data-key">2. Fetch AT</span><span class="data-val">GET all existing Airtable Creators &rarr; build username lookup map</span></div>
+            <div class="data-row"><span class="data-key">3. Map Fields</span><span class="data-val">Username, Platform, Followers &rarr; AT fields. Views &gt;50K &rarr; "High Touch", else "Low Touch"</span></div>
+            <div class="data-row"><span class="data-key">4. Dedup</span><span class="data-val">Username match &rarr; existing? UPDATE : CREATE new record (Status: "Not Started")</span></div>
+            <div class="data-row"><span class="data-key">5. Writeback</span><span class="data-val">Write Partnership Status from Airtable back to Google Sheet (bi-directional)</span></div>
           </div>
         </div>
       </div>
@@ -355,13 +555,28 @@
         <div class="step-content">
           <div class="step-label auto">&#9889; Content Sync</div>
           <div class="step-title">Content Sync: Google Sheet &rarr; Airtable + Creator Linking</div>
-          <div class="step-desc">Sync content records from sheet &rarr; auto-link to creators &rarr; auto-create missing creators &rarr; Gmail notification</div>
+          <div class="step-desc">Sync content records from sheet &rarr; auto-link to creators by username &rarr; auto-create missing creators &rarr; Gmail notification</div>
           <div class="data-box">
             <h4>Content Sync Pipeline</h4>
-            <div class="data-row"><span class="data-key">1. Read</span><span class="data-val">Fetch content data from sheet</span></div>
-            <div class="data-row"><span class="data-key">2. Link</span><span class="data-val">Match content to creators &rarr; auto-create if missing</span></div>
-            <div class="data-row"><span class="data-key">3. Sync</span><span class="data-val">Create/update Content records in Airtable</span></div>
-            <div class="data-row"><span class="data-key">4. Notify</span><span class="data-val">Gmail summary: sync results + writeback status</span></div>
+            <div class="data-row"><span class="data-key">1. Read</span><span class="data-val">Fetch content data from sheet (Content tab)</span></div>
+            <div class="data-row"><span class="data-key">2. Link</span><span class="data-val">Match content username to Creator records. Auto-create if creator missing.</span></div>
+            <div class="data-row"><span class="data-key">3. Dedup</span><span class="data-val">Check existing Content table by Post URL &rarr; skip duplicates</span></div>
+            <div class="data-row"><span class="data-key">4. Sync</span><span class="data-val">Create/update Content records with metrics + transcript</span></div>
+            <div class="data-row"><span class="data-key">5. Notify</span><span class="data-val">Gmail summary: X created, Y updated, Z missing creators</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon poll">&#128337;</div>
+        <div class="step-content">
+          <div class="step-label poll">&#128337; Outreach Trigger</div>
+          <div class="step-title">Auto-Triggered: New Creator with Email &rarr; Draft Generation</div>
+          <div class="step-desc">Once a creator has <code>Outreach Status = "Not Started"</code> AND <code>Email != blank</code>, Draft Generation (Stage 1) picks them up within 30 minutes automatically.</div>
+          <div class="data-box">
+            <h4>Trigger Condition (Airtable filter)</h4>
+            <div class="data-row"><span class="data-key">Filter</span><span class="data-val"><code style="font-size:11px;">AND({Email}!=BLANK(), {Outreach Status}='Not Started', {Partnership Status}='New')</code></span></div>
+            <div class="data-row"><span class="data-key">Polling</span><span class="data-val">Every 30 minutes by Draft Generation workflow</span></div>
+            <div class="data-row"><span class="data-key">Pre-checks</span><span class="data-val">Dashboard Active? &rarr; RAG Dedup &rarr; Apify Email Autofill &rarr; then draft</span></div>
           </div>
         </div>
       </div>
@@ -1008,7 +1223,7 @@
   <!-- ==================== WORKFLOW STATUS ==================== -->
   <div class="summary-section" style="margin-bottom:0;">
     <h3>n8n Workflow Status (PROD)</h3>
-    <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">As of March 18, 2026 &middot; All workflows on PROD Airtable base <code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">app3Vnmh7hLAVsevE</code></p>
+    <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">As of March 19, 2026 &middot; All workflows on PROD Airtable base <code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">app3Vnmh7hLAVsevE</code></p>
     <table style="width:100%; border-collapse:collapse; font-size:13px;">
       <thead>
         <tr style="border-bottom:2px solid var(--border);">
@@ -1019,6 +1234,12 @@
         </tr>
       </thead>
       <tbody>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">0</td>
+          <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/6BNQRz57oCtdROlH" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Syncly Data Processing</a></td>
+          <td style="text-align:center;"><span style="background:#fef3c7; color:#92400e; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">WJ TEST ONLY</span></td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Manual trigger, 64 nodes. PROD (<code style="font-size:9px;">l86X...</code>) inactive</td>
+        </tr>
         <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">1a</td>
           <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/fwwOeLiDLSnR77E1" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Draft Generation</a></td>

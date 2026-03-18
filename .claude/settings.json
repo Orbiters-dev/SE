@@ -15,5 +15,19 @@
       "mcp__*"
     ],
     "deny": []
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python c:/Users/wjcho/Desktop/WJ\\ Test1/tools/error_logger.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
   }
 }
