@@ -302,8 +302,6 @@
     <span class="status-arrow">&rarr;</span>
     <span class="status-pill" style="background:var(--auto-bg); color:var(--auto);">Accepted</span>
     <span class="status-arrow">&rarr;</span>
-    <span class="status-pill" style="background:var(--poll-bg); color:var(--poll);">Sample Sent</span>
-    <span class="status-arrow">&rarr;</span>
     <span class="status-pill" style="background:var(--poll-bg); color:var(--poll);">Shipped</span>
     <span class="status-arrow">&rarr;</span>
     <span class="status-pill" style="background:var(--poll-bg); color:var(--poll);">Delivered</span>
@@ -484,43 +482,26 @@
   <!-- ==================== STAGE 3 ==================== -->
   <div class="flow">
     <div class="flow-header">
-      <div class="flow-num">3</div>
+      <div class="flow-num human-num">3</div>
       <div class="flow-info">
-        <h2>Creator Profile Registration</h2>
-        <p>Influencer registers detailed profile (platform, follower count, content type)</p>
+        <h2>Team Review &rarr; Accept or Decline</h2>
+        <p>Marketer reviews gifting application in Airtable &rarr; sets Outreach Status to "Accepted" or "Declined"</p>
       </div>
       <div class="flow-status pass">PASS</div>
     </div>
     <div class="journey">
       <div class="step">
-        <div class="step-icon human">&#128221;</div>
-        <div class="step-content">
-          <div class="step-label human">&#9998; Human in the Loop</div>
-          <div class="step-title">Creator Fills Out Profile Form</div>
-          <div class="step-desc">Detailed info submitted at <a href="https://onzenna.com/pages/creator-profile" target="_blank">onzenna.com/pages/creator-profile</a></div>
-          <div class="data-box">
-            <h4>Additional Profile Fields</h4>
-            <div class="data-row"><span class="data-key">Primary Platform</span><span class="data-val">Instagram / TikTok / YouTube</span></div>
-            <div class="data-row"><span class="data-key">Follower Range</span><span class="data-val">1K-10K / 10K-50K / 50K+ etc.</span></div>
-            <div class="data-row"><span class="data-key">Content Type</span><span class="data-val">Product review, lifestyle, unboxing, etc.</span></div>
-            <div class="data-row"><span class="data-key">Hashtags</span><span class="data-val">Frequently used hashtags</span></div>
-          </div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-icon auto">&#128202;</div>
-        <div class="step-content">
-          <div class="step-label auto">&#9889; Auto Save</div>
-          <div class="step-title">Airtable Profile Save + IG Metrics Scrape</div>
-          <div class="step-desc">Profile data saved to CRM, public Instagram metrics collected automatically</div>
-        </div>
-      </div>
-      <div class="step">
         <div class="step-icon human">&#128270;</div>
         <div class="step-content">
           <div class="step-label human">&#9998; Human in the Loop</div>
-          <div class="step-title">Team Review &rarr; Accept or Decline</div>
-          <div class="step-desc">Team reviews applicant profile in Airtable, sets Outreach Status to "Accepted" or "Declined"</div>
+          <div class="step-title">Review Gifting Application in Airtable</div>
+          <div class="step-desc">Team reviews the gifting form submission (product selection, social profile, shipping info) and decides to accept or decline</div>
+          <div class="data-box">
+            <h4>Review Criteria</h4>
+            <div class="data-row"><span class="data-key">Social Profile</span><span class="data-val">Instagram / TikTok handle, follower count, engagement</span></div>
+            <div class="data-row"><span class="data-key">Content Fit</span><span class="data-val">Parenting / baby / lifestyle niche relevance</span></div>
+            <div class="data-row"><span class="data-key">Decision</span><span class="data-val">Outreach Status &rarr; "Accepted" or "Declined"</span></div>
+          </div>
         </div>
       </div>
     </div>
@@ -531,43 +512,22 @@
     <div class="flow-header">
       <div class="flow-num">4</div>
       <div class="flow-info">
-        <h2>Sample Request</h2>
-        <p>Accepted &rarr; auto email &rarr; creator selects sample products &rarr; Draft Order auto-created</p>
+        <h2>Accepted &rarr; Shopify Draft Order</h2>
+        <p>Marketer accepts &rarr; auto-creates Shopify customer + 100% discount Draft Order from the product already selected in Stage 2</p>
       </div>
       <div class="flow-status pass">PASS</div>
     </div>
     <div class="journey">
       <div class="step">
-        <div class="step-icon auto">&#128231;</div>
-        <div class="step-content">
-          <div class="step-label auto">&#9889; Auto Email (3-min polling)</div>
-          <div class="step-title">Acceptance Email Sent Automatically</div>
-          <div class="step-desc">n8n detects "Accepted" status in Airtable &rarr; sends sample form link email from affiliates@onzenna.com</div>
-          <div class="data-box">
-            <h4>Acceptance Email</h4>
-            <div class="data-row"><span class="data-key">From</span><span class="data-val">affiliates@onzenna.com (Gmail OAuth)</span></div>
-            <div class="data-row"><span class="data-key">Content</span><span class="data-val">Congratulations message + sample product selection form link</span></div>
-          </div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-icon human">&#128221;</div>
-        <div class="step-content">
-          <div class="step-label human">&#9998; Human in the Loop</div>
-          <div class="step-title">Creator Fills Out Sample Form</div>
-          <div class="step-desc">Selects shipping address + product/color preferences from the emailed link</div>
-        </div>
-      </div>
-      <div class="step">
         <div class="step-icon auto">&#128230;</div>
         <div class="step-content">
           <div class="step-label auto">&#9889; Auto Processing</div>
           <div class="step-title">Shopify Customer + 100% Discount Draft Order</div>
-          <div class="step-desc">n8n webhook &rarr; create/find customer &rarr; Draft Order (free) &rarr; Airtable update</div>
+          <div class="step-desc">Once marketer sets status to "Accepted", n8n auto-creates Shopify customer and Draft Order using the product/shipping info from the Stage 2 gifting form</div>
           <div class="data-box">
-            <h4>Processing Result</h4>
+            <h4>Auto Processing Result</h4>
             <div class="data-row"><span class="data-key">Customer</span><span class="data-val">Shopify customer (tags: inbound-onz, influencer-gifting, PR)</span></div>
-            <div class="data-row"><span class="data-key">Draft Order</span><span class="data-val">100% PR Discount &rarr; $0.00</span></div>
+            <div class="data-row"><span class="data-key">Draft Order</span><span class="data-val">100% PR Discount &rarr; $0.00 (products from gifting form)</span></div>
             <div class="data-row"><span class="data-key">Airtable</span><span class="data-val">Status &rarr; Sample Form Completed, Draft Order ID logged</span></div>
           </div>
           <div class="data-box" style="margin-top:8px;">
@@ -579,44 +539,7 @@
     </div>
   </div>
 
-  <!-- ==================== STAGE 5 ==================== -->
-  <div class="flow">
-    <div class="flow-header">
-      <div class="flow-num poll-num">5</div>
-      <div class="flow-info">
-        <h2>Sample Sent &rarr; Order Complete</h2>
-        <p>Team marks "Sample Sent" &rarr; n8n 5-min polling &rarr; Draft Order auto-completed</p>
-      </div>
-      <div class="flow-status auto-status">AUTO (5-min polling)</div>
-    </div>
-    <div class="journey">
-      <div class="step">
-        <div class="step-icon human">&#128230;</div>
-        <div class="step-content">
-          <div class="step-label human">&#9998; Human in the Loop</div>
-          <div class="step-title">Team Marks "Sample Sent" in Airtable</div>
-          <div class="step-desc">After physically packing and shipping the sample, team manually updates Outreach Status</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-icon poll">&#128260;</div>
-        <div class="step-content">
-          <div class="step-label poll">&#128337; Every 5 Minutes</div>
-          <div class="step-title">n8n Detects "Sample Sent" &rarr; Completes Draft Order</div>
-          <div class="data-box">
-            <h4>Auto Processing Flow</h4>
-            <div class="data-row"><span class="data-key">1. Poll</span><span class="data-val">Airtable: filter Status = "Sample Sent"</span></div>
-            <div class="data-row"><span class="data-key">2. Complete</span><span class="data-val">Shopify: POST /draft_orders/{id}/complete.json</span></div>
-            <div class="data-row"><span class="data-key">3. Update</span><span class="data-val">Airtable: Status &rarr; "Sample Shipped"</span></div>
-          </div>
-          <div class="data-box" style="margin-top:8px;">
-            <h4>n8n Workflow</h4>
-            <div class="data-row"><span class="data-key">Sample Complete</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/m89xU9RUbPgnkBy8" target="_blank" class="wf-link">m89xU9RUbPgnkBy8</a> &mdash; 5-min schedule trigger</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- ==================== STAGE 5 (Sample Sent → Order Complete) merged into Stage 4 auto flow ==================== -->
 
   <!-- ==================== STAGE 6 ==================== -->
   <div class="flow">
@@ -816,15 +739,16 @@
         <div class="step-icon auto">&#128231;</div>
         <div class="step-content">
           <div class="step-label auto">&#9889; Auto Reminder Email</div>
-          <div class="step-title">Brand-Aware Content Reminder</div>
-          <div class="step-desc">Friendly reminder email referencing the original guideline, with brand-appropriate messaging</div>
+          <div class="step-title">Brand-Aware Content Reminder + Guidelines Re-share</div>
+          <div class="step-desc">Friendly reminder email that re-attaches the brand-specific content guidelines spreadsheet from Stage 6.5</div>
 
           <div class="data-box">
             <h4>Reminder Email Template</h4>
             <div class="data-row"><span class="data-key">Template</span><span class="data-val">Content Reminder v1 &mdash; <a href="https://docs.google.com/document/d/1UGVj5e0kxuLlBRX6oWTq8bd9QuSybuMC8JFYFA71yZI/edit" target="_blank" class="tpl-link gdoc">Google Doc</a></span></div>
             <div class="data-row"><span class="data-key">Template ID</span><span class="data-val"><code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">recCJnFa3cBoD55ca</code></span></div>
             <div class="data-row"><span class="data-key">From</span><span class="data-val">affiliates@onzenna.com</span></div>
-            <div class="data-row"><span class="data-key">Tone</span><span class="data-val">Friendly check-in, not aggressive. References the product sent and original guideline.</span></div>
+            <div class="data-row"><span class="data-key">Tone</span><span class="data-val">Friendly check-in, not aggressive. References the product sent.</span></div>
+            <div class="data-row"><span class="data-key">Attachment</span><span class="data-val">Re-shares the same brand-specific content guidelines spreadsheet (from Stage 6.5) for easy reference</span></div>
           </div>
 
           <!-- LT vs HT Config -->
@@ -1165,9 +1089,9 @@
       <span style="color:var(--text-dim);">&rarr;</span>
       <span style="background:var(--store); color:#fff; padding:2px 6px; border-radius:4px; font-weight:700;">2</span><span style="color:var(--text-dim);">Gifting</span>
       <span style="color:var(--text-dim);">&rarr;</span>
-      <span style="background:var(--accent); color:#fff; padding:2px 6px; border-radius:4px; font-weight:700;">4</span><span style="color:var(--text-dim);">Sample</span>
+      <span style="background:var(--human); color:#fff; padding:2px 6px; border-radius:4px; font-weight:700;">3</span><span style="color:var(--text-dim);">Review</span>
       <span style="color:var(--text-dim);">&rarr;</span>
-      <span style="background:var(--poll); color:#fff; padding:2px 6px; border-radius:4px; font-weight:700;">5</span><span style="color:var(--text-dim);">Sent</span>
+      <span style="background:var(--accent); color:#fff; padding:2px 6px; border-radius:4px; font-weight:700;">4</span><span style="color:var(--text-dim);">Accept</span>
       <span style="color:var(--text-dim);">&rarr;</span>
       <span style="background:var(--poll); color:#fff; padding:2px 6px; border-radius:4px; font-weight:700;">6</span><span style="color:var(--text-dim);">Delivered</span>
       <span style="color:var(--text-dim);">&rarr;</span>
@@ -1242,18 +1166,11 @@
             <td style="padding:4px 8px; border:1px solid #e2e8f0; color:var(--text-dim);">5 cross-system checks</td>
           </tr>
           <tr style="background:#fafafa;">
-            <td style="padding:4px 8px; border:1px solid #e2e8f0; font-weight:600;">4 Sample</td>
-            <td style="padding:4px 8px; border:1px solid #e2e8f0;">Webhook &rarr; Draft Order ID in AT + Shopify draft order created</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; font-weight:600;">4 Accept</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0;">Accept &rarr; auto Shopify Draft Order + AT update + PG record</td>
             <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#15803d; font-weight:700;">&#10003;</td>
             <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#15803d; font-weight:700;">&#10003;</td>
-            <td style="padding:4px 8px; border:1px solid #e2e8f0; color:var(--text-dim);">PG record updated</td>
-          </tr>
-          <tr>
-            <td style="padding:4px 8px; border:1px solid #e2e8f0; font-weight:600;">5 Sent</td>
-            <td style="padding:4px 8px; border:1px solid #e2e8f0;">AT status &rarr; Sample Sent, n8n WF active check</td>
-            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#15803d; font-weight:700;">&#10003;</td>
-            <td style="padding:4px 8px; border:1px solid #e2e8f0; text-align:center; color:#15803d; font-weight:700;">&#10003;</td>
-            <td style="padding:4px 8px; border:1px solid #e2e8f0; color:var(--text-dim);">Draft complete trigger</td>
+            <td style="padding:4px 8px; border:1px solid #e2e8f0; color:var(--text-dim);">Products from Stage 2 form</td>
           </tr>
           <tr style="background:#fff7ed;">
             <td style="padding:4px 8px; border:1px solid #e2e8f0; font-weight:600;">6 Deliver</td>
