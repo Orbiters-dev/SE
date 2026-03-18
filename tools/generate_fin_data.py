@@ -43,7 +43,7 @@ BRAND_COLORS = {
 }
 CHANNEL_COLORS = {
     "Onzenna D2C": "#6366f1", "Amazon MP": "#f59e0b", "Amazon FBA MCF": "#fb923c",
-    "TikTok Shop": "#ec4899", "B2B": "#10b981", "Other": "#94a3b8",
+    "TikTok Shop": "#ec4899", "Target+": "#ef4444", "B2B": "#10b981", "Other": "#94a3b8",
 }
 AD_COLORS = {
     "Amazon Ads": "#f59e0b", "Meta Ads": "#3b82f6", "Google Ads": "#10b981",
@@ -191,6 +191,7 @@ def generate():
         "Amazon": "Amazon FBA MCF",
         "TikTok": "TikTok Shop",
         "B2B": "B2B",
+        "Target+": "Target+",
     }
 
     for r in shopify:
@@ -638,7 +639,7 @@ def generate():
             }
 
     channel_rev_out = {}
-    for ch in ["Onzenna D2C", "Amazon MP", "Amazon FBA MCF", "TikTok Shop", "B2B"]:
+    for ch in ["Onzenna D2C", "Amazon MP", "Amazon FBA MCF", "TikTok Shop", "Target+", "B2B"]:
         vals = [round(channel_monthly.get(ch, {}).get(m, {}).get("net", 0)) for m in months]
         if any(v > 0 for v in vals):
             channel_rev_out[ch] = {
@@ -686,10 +687,14 @@ def generate():
                 "color": BRAND_COLORS.get(brand, "#94a3b8"),
             }
 
-    # Total monthly revenue & costs
+    # Total monthly revenue & costs (GM = Rev - COGS, CM = GM - MKT)
     total_rev_monthly = []
-    total_ad_spend_monthly = []
+    total_cogs_monthly = []
     total_gm_monthly = []
+    total_ad_spend_monthly = []
+    total_disc_monthly = []
+    total_seeding_monthly = []
+    total_mkt_monthly = []
     total_cm_monthly = []
 
     for m in months:
@@ -698,28 +703,49 @@ def generate():
         amz_net = sum(amz_brand_monthly.get(b, {}).get(m, {}).get("net", 0) for b in BRAND_ORDER + ["Other"])
         rev = shopify_net + amz_net
 
-        # Estimated COGS from Shopify (brand-level avg)
+        # COGS from Shopify + Amazon (brand-level avg)
         cogs = 0
         for b in BRAND_ORDER:
+            # Shopify COGS
             v = brand_monthly.get(b, {}).get(m, {})
             units = v.get("units", 0)
             if units == 0 and v.get("gross", 0) > 0:
                 units = int(v["gross"] / AVG_PRICE.get(b, 25))
             cogs += units * AVG_COGS.get(b, 8)
+            # Amazon COGS
+            amz_v = amz_brand_monthly.get(b, {}).get(m, {})
+            amz_units = amz_v.get("units", 0)
+            if amz_units == 0 and amz_v.get("net", 0) > 0:
+                amz_units = int(amz_v["net"] / AVG_PRICE.get(b, 25))
+            cogs += amz_units * AVG_COGS.get(b, 8)
 
-        gm = shopify_net - cogs
+        gm = rev - cogs  # GM = Total Revenue - Total COGS
 
-        # Total ad spend
+        # MKT Cost 1: Ad Spend
         ad_total = sum(
             ad_monthly.get(p, {}).get(m, {}).get("spend", 0)
             for p in ["Amazon Ads", "Meta Ads", "Google Ads"]
         )
 
-        cm = gm - ad_total
+        # MKT Cost 2: Discounts (Shopify, absolute value)
+        disc_total = sum(
+            abs(brand_monthly.get(b, {}).get(m, {}).get("disc", 0))
+            for b in BRAND_ORDER + ["Other"]
+        )
+
+        # MKT Cost 3: Seeding / Influencer collab (not yet in DataKeeper)
+        seeding_total = 0
+
+        mkt_total = ad_total + disc_total + seeding_total
+        cm = gm - mkt_total  # CM = GM - Total MKT
 
         total_rev_monthly.append(round(rev))
-        total_ad_spend_monthly.append(round(ad_total))
+        total_cogs_monthly.append(round(cogs))
         total_gm_monthly.append(round(gm))
+        total_ad_spend_monthly.append(round(ad_total))
+        total_disc_monthly.append(round(disc_total))
+        total_seeding_monthly.append(round(seeding_total))
+        total_mkt_monthly.append(round(mkt_total))
         total_cm_monthly.append(round(cm))
 
     # Paid vs Organic (monthly)
@@ -755,10 +781,18 @@ def generate():
         "waterfall": {
             "revenue": total_rev_monthly,
             "revenue_proj": proj_array(total_rev_monthly),
-            "ad_spend": total_ad_spend_monthly,
-            "ad_spend_proj": proj_array(total_ad_spend_monthly),
+            "cogs": total_cogs_monthly,
+            "cogs_proj": proj_array(total_cogs_monthly),
             "gross_margin": total_gm_monthly,
             "gross_margin_proj": proj_array(total_gm_monthly),
+            "ad_spend": total_ad_spend_monthly,
+            "ad_spend_proj": proj_array(total_ad_spend_monthly),
+            "discounts": total_disc_monthly,
+            "discounts_proj": proj_array(total_disc_monthly),
+            "seeding": total_seeding_monthly,
+            "seeding_proj": proj_array(total_seeding_monthly),
+            "mkt_total": total_mkt_monthly,
+            "mkt_total_proj": proj_array(total_mkt_monthly),
             "contribution_margin": total_cm_monthly,
             "contribution_margin_proj": proj_array(total_cm_monthly),
         },
