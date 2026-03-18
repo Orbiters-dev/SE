@@ -26,6 +26,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: ppc-dashboard
+  cancel-in-progress: false
+
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -120,11 +124,16 @@ jobs:
             echo "=== No proposal JSONs found, skipping data.js regeneration ==="
           fi
 
+      - name: Update Financial KPIs data
+        run: |
+          echo "=== Regenerating Financial KPIs data ==="
+          python -u tools/generate_fin_data.py 2>&1 || echo "[WARN] fin_data.js generation had issues"
+
       - name: Push updated data to GitHub Pages
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/ppc-dashboard/data.js docs/ppc-dashboard/bt_data.js docs/ppc-dashboard/exec_log.json
+          git add docs/ppc-dashboard/data.js docs/ppc-dashboard/bt_data.js docs/ppc-dashboard/exec_log.json docs/ppc-dashboard/fin_data.js
           git diff --cached --quiet || git commit -m "auto: update PPC dashboard data [skip ci]"
           git pull --rebase || true
           git push || echo "[WARN] Push failed (maybe no changes)"
