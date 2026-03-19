@@ -36,10 +36,10 @@ OUTPUT = ROOT / "docs" / "financial-dashboard" / "fin_data.js"
 PST = timezone(timedelta(hours=-8))
 
 # Brand / channel config (reuse from run_kpi_monthly)
-BRAND_ORDER = ["Grosmimi", "Naeiae", "CHA&MOM", "Onzenna", "Alpremio"]
+BRAND_ORDER = ["Grosmimi", "Naeiae", "CHA&MOM", "Alpremio", "Other"]
 BRAND_COLORS = {
     "Grosmimi": "#8b5cf6", "Naeiae": "#eab308", "CHA&MOM": "#0ea5e9",
-    "Onzenna": "#ec4899", "Alpremio": "#f97316", "Other": "#94a3b8",
+    "Alpremio": "#f97316", "Other": "#94a3b8",
 }
 CHANNEL_COLORS = {
     "Onzenna D2C": "#6366f1", "Amazon MP": "#f59e0b", "Amazon FBA MCF": "#fb923c",
@@ -747,7 +747,7 @@ def generate():
         q = (r.get("query") or r.get("search_term") or "").strip().lower()
         if not q:
             continue
-        brand = r.get("brand") or "Unknown"
+        brand = r.get("brand") or "Other"
         st_agg[q]["impressions"] += int(r.get("impressions") or 0)
         st_agg[q]["clicks"] += int(r.get("clicks") or 0)
         st_agg[q]["spend"] += float(r.get("spend") or r.get("cost") or 0)
@@ -759,7 +759,7 @@ def generate():
     st_brand_agg = defaultdict(lambda: defaultdict(lambda: {"impressions": 0, "clicks": 0, "spend": 0, "sales": 0, "orders": 0}))
     for r in search_terms:
         q = (r.get("query") or r.get("search_term") or "").strip().lower()
-        brand = r.get("brand") or "Unknown"
+        brand = r.get("brand") or "Other"
         if not q:
             continue
         st_brand_agg[brand][q]["impressions"] += int(r.get("impressions") or 0)
@@ -974,7 +974,7 @@ def generate():
             "is_ours": bool(r.get("is_ours")),
         }
         if r.get("is_ours"):
-            brand = r.get("brand") or "Unknown"
+            brand = r.get("brand") or "Other"
             ba_by_brand[brand].append(entry)
         else:
             # Only keep baby-product related category terms
@@ -1122,119 +1122,6 @@ def generate():
         "color": "#f59e0b",
     }
 
-    # Grosmimi product-type breakdown
-    GROSMIMI_PRODUCT_TYPES = ["PPSU Straw Cup", "Stainless Straw Cup", "Tumbler", "Replacements", "Other"]
-
-    # Campaign name → product type (Amazon Ads)
-    GROSMIMI_CAMPAIGN_MAP = {
-        "PPSU Straw Cup": ["ppsu", "knotted", "fliptop", "flip top", "flip_top", "stage1",
-                           "magic", "sippy", "baby bottle", "sorbos", "taza"],
-        "Stainless Straw Cup": ["stainless"],
-        "Tumbler": ["tumbler"],
-        "Replacements": ["replacement", "reemplazos"],
-    }
-
-    def classify_grosmimi_campaign(campaign_name):
-        cn = campaign_name.lower()
-        for product_type, patterns in GROSMIMI_CAMPAIGN_MAP.items():
-            if any(p in cn for p in patterns):
-                return product_type
-        return "Other"
-
-    # SKU title → product type (Shopify product_title / Amazon product_name)
-    # Ported from amazon_ppc_executor._classify_grosmimi_product (7-cat → 5-cat)
-    def classify_grosmimi_title(title):
-        t = title.lower()
-        # 1. Replacements first (parts, kits, accessories)
-        if any(kw in t for kw in [
-            "replacement", "replacements", "weighted kit", "weighted straw",
-            "one touch cap", "straw kit", "accessory pack", "nipple",
-            "spout", "brush", "strap", "teat", "month plus kit",
-            "straw only", "reemplazos",
-        ]):
-            return "Replacements"
-        # 2. Stainless: check before PPSU (includes Spanish "acero inoxidable")
-        if "stainless" in t or "acero inoxidable" in t or "insulated 316" in t:
-            if "tumbler" in t:
-                return "Tumbler"
-            return "Stainless Straw Cup"
-        # 3. Tumbler (PPSU)
-        if "tumbler" in t or "slow flow toddler" in t:
-            return "Tumbler"
-        # 4. PPSU Straw Cup (includes Flip Top, KNOTTED, Magic Sippy, Baby Bottle)
-        if any(kw in t for kw in [
-            "ppsu", "sippy cup", "straw cup", "flip top", "knotted",
-            "baby bottle", "magic", "taza", "vaso",
-            "sorbos", "derrames con pajita", "spill proof",
-        ]):
-            return "PPSU Straw Cup"
-        return "Other"
-
-    # Build campaign_id → campaign_name lookup (some months have numeric IDs as names)
-    campaign_name_lookup = {}
-    for r in amazon_ads:
-        cid = str(r.get("campaign_id") or "")
-        cn = r.get("campaign_name") or ""
-        if cid and cn and cn != cid:  # Only store descriptive names
-            campaign_name_lookup[cid] = cn
-
-    # Aggregate Grosmimi ad spend/sales by product type by month (from campaign names)
-    gros_product_monthly = defaultdict(lambda: defaultdict(lambda: {"spend": 0, "sales": 0}))
-    for r in amazon_ads:
-        if (r.get("brand") or "") != "Grosmimi":
-            continue
-        d = r.get("date", "")
-        if not d:
-            continue
-        m = d[:7]
-        if m not in set(ad_months):
-            continue
-        camp = r.get("campaign_name") or ""
-        # Resolve numeric campaign names to descriptive names
-        cid = str(r.get("campaign_id") or "")
-        if camp == cid and cid in campaign_name_lookup:
-            camp = campaign_name_lookup[cid]
-        pt = classify_grosmimi_campaign(camp)
-        gros_product_monthly[pt][m]["spend"] += float(r.get("spend") or 0)
-        gros_product_monthly[pt][m]["sales"] += float(r.get("sales") or 0)
-
-    # Aggregate Grosmimi total sales by product type by month
-    # Sources: Shopify SKU (product_title) + Amazon SKU (product_name)
-    gros_sku_monthly = defaultdict(lambda: defaultdict(lambda: {"net": 0, "units": 0}))
-
-    # Shopify SKU
-    for r in shopify_sku:
-        if (r.get("brand") or "") != "Grosmimi":
-            continue
-        if r.get("channel") == "PR":
-            continue
-        d = r.get("date", "")
-        if not d or d > through:
-            continue
-        m = d[:7]
-        title = r.get("product_title") or ""
-        pt = classify_grosmimi_title(title)
-        gros_sku_monthly[pt][m]["net"] += float(r.get("net_sales") or 0)
-        gros_sku_monthly[pt][m]["units"] += int(r.get("units") or 0)
-
-    # Amazon SKU
-    for r in amazon_sku:
-        if (r.get("brand") or "") != "Grosmimi":
-            continue
-        d = r.get("date", "")
-        if not d or d > through:
-            continue
-        m = d[:7]
-        title = r.get("product_name") or ""
-        pt = classify_grosmimi_title(title)
-        gros_sku_monthly[pt][m]["net"] += float(r.get("net_sales") or r.get("ordered_product_sales") or 0)
-        gros_sku_monthly[pt][m]["units"] += int(r.get("units") or 0)
-
-    PRODUCT_COLORS = {
-        "PPSU Straw Cup": "#8b5cf6", "Stainless Straw Cup": "#a78bfa",
-        "Tumbler": "#c4b5fd", "Replacements": "#ddd6fe", "Other": "#e8e0ff",
-    }
-
     # Brand performance (ad + total sales, from 2026-01+)
     brand_perf_out = {}
     for brand in BRAND_ORDER:
@@ -1260,25 +1147,6 @@ def generate():
                 "organic_proj": proj_for(organic_vals, ad_months),
                 "color": BRAND_COLORS.get(brand, "#94a3b8"),
             }
-            # Grosmimi product-type breakdown (SKU sales + campaign ads)
-            if brand == "Grosmimi":
-                products = {}
-                for pt in GROSMIMI_PRODUCT_TYPES:
-                    total_v = [round(gros_sku_monthly.get(pt, {}).get(m, {}).get("net", 0)) for m in ad_months]
-                    spend_v = [round(gros_product_monthly.get(pt, {}).get(m, {}).get("spend", 0)) for m in ad_months]
-                    sales_v = [round(gros_product_monthly.get(pt, {}).get(m, {}).get("sales", 0)) for m in ad_months]
-                    organic_v = [max(0, t - s) for t, s in zip(total_v, sales_v)]
-                    if any(v > 0 for v in total_v) or any(v > 0 for v in spend_v):
-                        products[pt] = {
-                            "total_sales": total_v,
-                            "total_sales_proj": proj_for(total_v, ad_months),
-                            "spend": spend_v,
-                            "sales": sales_v,
-                            "organic": organic_v,
-                            "organic_proj": proj_for(organic_v, ad_months),
-                            "color": PRODUCT_COLORS.get(pt, "#94a3b8"),
-                        }
-                entry["products"] = products
             brand_perf_out[brand] = entry
 
     # Total monthly revenue & costs (GM = Rev - COGS, CM = GM - MKT)

@@ -1092,30 +1092,6 @@ function buildBrandPerfTable(F, months, mLabels, lastIdx, isPartialLast, compact
       html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+tc+'">'+(spend>0?troas.toFixed(1)+'x':'-')+'</td>';
     }
     html+='</tr>';
-    // Grosmimi product-type breakdown (with SKU-level total sales)
-    if(b==='Grosmimi' && bd.products){
-      Object.keys(bd.products).forEach(function(pt){
-        var pd=bd.products[pt];
-        html+='<tr style="font-size:9px;color:var(--dim)"><td style="padding-left:20px"><span style="display:inline-block;width:6px;height:6px;border-radius:1px;background:'+pd.color+';margin-right:4px"></span>'+pt+'</td>';
-        for(var i=0;i<aLen;i++){
-          var ptotal=(pd.total_sales||[])[i]||0, ptotalP=(pd.total_sales_proj||pd.total_sales||[])[i]||ptotal;
-          var psales=pd.sales[i]||0, pspend=pd.spend[i]||0;
-          var porg=(pd.organic||[])[i]||0, porgP=(pd.organic_proj||pd.organic||[])[i]||porg;
-          var proas=pspend>0?psales/pspend:0;
-          var ptroas=pspend>0?ptotal/pspend:0;
-          var prc=proas>=3?'var(--g)':proas>=1.5?'var(--am)':pspend>0?'var(--r)':'var(--muted)';
-          var ptc=ptroas>=5?'var(--g)':ptroas>=2?'#7c3aed':pspend>0?'var(--am)':'var(--muted)';
-          var isL=i===aLastIdx&&isPartialA;
-          html+=fmCell(ptotal, ptotalP, isL, {fs:'8px'});
-          html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:#6366f1">'+$(psales)+'</td>';
-          html+=fmCell(porg, porgP, isL, {fs:'8px',color:'var(--g)'});
-          html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:var(--r)">'+$(pspend)+'</td>';
-          html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:'+prc+'">'+(pspend>0?proas.toFixed(1)+'x':'-')+'</td>';
-          html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:'+ptc+'">'+(pspend>0?ptroas.toFixed(1)+'x':'-')+'</td>';
-        }
-        html+='</tr>';
-      });
-    }
   });
   // TOTAL row
   html+='<tr style="border-top:2px solid var(--border);font-weight:700"><td>TOTAL</td>';
