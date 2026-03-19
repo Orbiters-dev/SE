@@ -304,8 +304,20 @@ def parse_polar_excel():
     if sec_final_cm:
         cm_final = _get_vals(sec_final_cm)
 
-    # COGS = Revenue - CM before Ads
-    cogs = [round(rev - cm) for rev, cm in zip(total_sales, cm_before_total)]
+    # COGS = units * AVG_COGS per brand (product cost only, NOT fees/shipping)
+    # "CM before Ads" in this Excel = contribution margin (after all variable costs),
+    # so Revenue - CM would overstate COGS by including fees, shipping, etc.
+    cogs = list(zeros)
+    for i in range(n):
+        month_cogs = 0
+        for brand in POLAR_BRAND_MAP:
+            brand_rev = brand_sales.get(brand, zeros)[i] if brand in brand_sales else 0
+            if brand_rev > 0:
+                avg_price = AVG_PRICE.get(brand, 25.0)
+                avg_cogs = AVG_COGS.get(brand, 8.0)
+                units = brand_rev / avg_price
+                month_cogs += units * avg_cogs
+        cogs[i] = round(month_cogs)
 
     # ── Build FY2025 annual total ──
     num_2025 = min(12, len(target_months))
@@ -1221,97 +1233,118 @@ def generate():
 
     organic_monthly = [max(0, rev - paid) for rev, paid in zip(total_rev_monthly, paid_monthly)]
 
-    # ── Parse Polar CSV for full P&L ────────────────────────────────────────
-    print("[7.5/8] Parsing Polar Excel for P&L...")
-    pnl_polar = parse_polar_excel()
+    # ── Build P&L from DataKeeper (single source of truth) ──────────────────
+    print("[7.5/8] Building P&L from DataKeeper...")
+    MONTH_NAMES_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 
-    # ── Append months beyond Excel with DataKeeper data ───────────────────
-    if pnl_polar:
-        MONTH_NAMES_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
-        # Find which YYYY-MM keys the Polar data already covers
-        polar_month_keys = set()
-        for lbl in pnl_polar["months"]:
-            if lbl.startswith("FY"):
-                continue
-            parts = lbl.split()  # e.g. "Jan 25"
-            if len(parts) == 2:
-                mi = MONTH_NAMES_SHORT.index(parts[0]) + 1
-                yr = 2000 + int(parts[1])
-                polar_month_keys.add(f"{yr}-{mi:02d}")
+    # Use ALL months from DataKeeper (already sorted YYYY-MM)
+    all_pnl_months = sorted(months)  # same as waterfall months
 
-        # months from DataKeeper that are NOT in Polar yet
-        extra_months = sorted(m for m in months if m not in polar_month_keys and m > "2025-12")
+    # Build month labels
+    pnl_month_labels = []
+    for m in all_pnl_months:
+        mi = int(m[5:7])
+        yr = m[2:4]
+        pnl_month_labels.append(f"{MONTH_NAMES_SHORT[mi-1]} {yr}")
 
-        if extra_months:
-            fy_idx = pnl_polar["fy2025_idx"]
-            for em in extra_months:
-                mi = int(em[5:7])
-                yr = em[2:4]
-                lbl = f"{MONTH_NAMES_SHORT[mi-1]} {yr}"
-                pnl_polar["months"].append(lbl)
+    # Insert FY2025 annual total after Dec 2025
+    fy2025_months = [m for m in all_pnl_months if m.startswith("2025-")]
+    fy2026_months = [m for m in all_pnl_months if m.startswith("2026-")]
+    fy2025_idx = len(fy2025_months)  # index where FY2025 total goes
 
-                # Revenue & COGS from waterfall (already computed from DataKeeper)
-                wf_idx = months.index(em) if em in months else None
-                rev = total_rev_monthly[wf_idx] if wf_idx is not None else 0
-                cogs_v = total_cogs_monthly[wf_idx] if wf_idx is not None else 0
-                gm = total_gm_monthly[wf_idx] if wf_idx is not None else 0
-                ad_total_v = total_ad_spend_monthly[wf_idx] if wf_idx is not None else 0
+    def _pnl_with_annual(monthly_vals, annual_months_count):
+        """Insert FY2025 total after first N months."""
+        out = [round(v) for v in monthly_vals[:annual_months_count]]
+        out.append(round(sum(monthly_vals[:annual_months_count])))
+        out.extend([round(v) for v in monthly_vals[annual_months_count:]])
+        return out
 
-                pnl_polar["total_revenue"].append(rev)
-                pnl_polar["cogs"].append(cogs_v)
-                pnl_polar["gross_margin"].append(gm)
+    # ── Revenue by brand (Shopify + Amazon SP-API) ──
+    brand_rev_pnl = {}
+    for brand in BRAND_ORDER:
+        vals = []
+        for m in all_pnl_months:
+            shopify_net = brand_monthly.get(brand, {}).get(m, {}).get("net", 0)
+            amz_net = amz_brand_monthly.get(brand, {}).get(m, {}).get("net", 0)
+            vals.append(round(shopify_net + amz_net))
+        if any(v > 0 for v in vals):
+            brand_rev_pnl[brand] = {
+                "values": _pnl_with_annual(vals, fy2025_idx),
+                "color": BRAND_COLORS.get(brand, "#94a3b8"),
+            }
 
-                # Ad spend breakdown from ad_monthly
-                onz_spend = sum(
-                    ad_monthly.get(p, {}).get(em, {}).get("spend", 0)
-                    for p in ["Meta CVR", "Meta Traffic", "Google Ads"]
-                )
-                amz_spend = ad_monthly.get("Amazon Ads", {}).get(em, {}).get("spend", 0)
-                pnl_polar["ad_spend"]["onzenna"].append(round(onz_spend))
-                pnl_polar["ad_spend"]["amazon"].append(round(amz_spend))
-                pnl_polar["ad_spend"]["total"].append(round(onz_spend + amz_spend))
+    # ── Ad spend by channel ──
+    onz_spend_monthly = []
+    amz_spend_monthly = []
+    google_spend_monthly = []
+    total_ad_pnl = []
+    for m in all_pnl_months:
+        onz = sum(ad_monthly.get(p, {}).get(m, {}).get("spend", 0)
+                  for p in ["Meta CVR", "Meta Traffic", "Google Ads"])
+        amz = ad_monthly.get("Amazon Ads", {}).get(m, {}).get("spend", 0)
+        ggl = ad_monthly.get("Google Ads", {}).get(m, {}).get("spend", 0)
+        onz_spend_monthly.append(round(onz))
+        amz_spend_monthly.append(round(amz))
+        google_spend_monthly.append(round(ggl))
+        total_ad_pnl.append(round(onz + amz))
 
-                # Detail breakdowns
-                google_spend = ad_monthly.get("Google Ads", {}).get(em, {}).get("spend", 0)
-                pnl_polar["ad_spend_detail"]["google"].append(round(google_spend))
-                # Amazon brand breakdown not available from DK aggregation — use 0
-                pnl_polar["ad_spend_detail"]["amz_grosmimi"].append(0)
-                pnl_polar["ad_spend_detail"]["amz_chaenmom"].append(0)
-                pnl_polar["ad_spend_detail"]["amz_naeiae"].append(0)
+    # ── Sales from ads (paid) ──
+    onz_paid_monthly = []
+    amz_paid_monthly = []
+    total_paid_pnl = []
+    for m in all_pnl_months:
+        onz_p = sum(ad_monthly.get(p, {}).get(m, {}).get("sales", 0)
+                    for p in ["Meta CVR", "Meta Traffic", "Google Ads"])
+        amz_p = ad_monthly.get("Amazon Ads", {}).get(m, {}).get("sales", 0)
+        onz_paid_monthly.append(round(onz_p))
+        amz_paid_monthly.append(round(amz_p))
+        total_paid_pnl.append(round(onz_p + amz_p))
 
-                # Sales from ads — use DK paid data
-                paid_v = sum(
-                    ad_monthly.get(p, {}).get(em, {}).get("sales", 0)
-                    for p in ["Amazon Ads", "Meta CVR", "Meta Traffic", "Google Ads"]
-                )
-                onz_paid = sum(
-                    ad_monthly.get(p, {}).get(em, {}).get("sales", 0)
-                    for p in ["Meta CVR", "Meta Traffic", "Google Ads"]
-                )
-                amz_paid = ad_monthly.get("Amazon Ads", {}).get(em, {}).get("sales", 0)
-                pnl_polar["sales_from_ads"]["onzenna"].append(round(onz_paid))
-                pnl_polar["sales_from_ads"]["amazon"].append(round(amz_paid))
-                pnl_polar["sales_from_ads"]["total"].append(round(paid_v))
+    # ── Organic = Revenue - Paid ──
+    organic_pnl = [max(0, r - p) for r, p in zip(total_rev_monthly, total_paid_pnl)]
 
-                # Organic
-                org_v = max(0, rev - round(paid_v))
-                pnl_polar["organic"]["onzenna"].append(0)
-                pnl_polar["organic"]["amazon"].append(0)
-                pnl_polar["organic"]["total"].append(org_v)
+    # ── CM = GM - Ad Spend ──
+    cm_after_pnl = [g - a for g, a in zip(total_gm_monthly, total_ad_pnl)]
 
-                # Influencer spend not in DK
-                pnl_polar["influencer_spend"].append(0)
+    # Insert FY2025 label
+    final_labels = list(pnl_month_labels)
+    final_labels.insert(fy2025_idx, "FY2025")
+    if fy2026_months:
+        pass  # 2026 months already after the insert point
 
-                # CM after ads = GM - ad spend
-                cm_after = gm - round(onz_spend + amz_spend)
-                pnl_polar["cm_after_ads"].append(cm_after)
-                pnl_polar["cm_final"].append(cm_after)
-
-                # Brand sales — append 0 for each brand (DK doesn't have Polar brand breakdown)
-                for brand in pnl_polar["brand_sales"]:
-                    pnl_polar["brand_sales"][brand]["values"].append(0)
-
-            print(f"  Appended {len(extra_months)} extra months from DataKeeper: {extra_months}")
+    pnl_polar = {
+        "months": final_labels,
+        "fy2025_idx": fy2025_idx,
+        "brand_sales": brand_rev_pnl,
+        "total_revenue": _pnl_with_annual(total_rev_monthly, fy2025_idx),
+        "cogs": _pnl_with_annual(total_cogs_monthly, fy2025_idx),
+        "gross_margin": _pnl_with_annual(total_gm_monthly, fy2025_idx),
+        "ad_spend": {
+            "onzenna": _pnl_with_annual(onz_spend_monthly, fy2025_idx),
+            "amazon": _pnl_with_annual(amz_spend_monthly, fy2025_idx),
+            "total": _pnl_with_annual(total_ad_pnl, fy2025_idx),
+        },
+        "ad_spend_detail": {
+            "google": _pnl_with_annual(google_spend_monthly, fy2025_idx),
+            "amz_grosmimi": _pnl_with_annual([0]*len(all_pnl_months), fy2025_idx),
+            "amz_chaenmom": _pnl_with_annual([0]*len(all_pnl_months), fy2025_idx),
+            "amz_naeiae": _pnl_with_annual([0]*len(all_pnl_months), fy2025_idx),
+        },
+        "sales_from_ads": {
+            "onzenna": _pnl_with_annual(onz_paid_monthly, fy2025_idx),
+            "amazon": _pnl_with_annual(amz_paid_monthly, fy2025_idx),
+            "total": _pnl_with_annual(total_paid_pnl, fy2025_idx),
+        },
+        "organic": {
+            "onzenna": _pnl_with_annual([0]*len(all_pnl_months), fy2025_idx),
+            "amazon": _pnl_with_annual([0]*len(all_pnl_months), fy2025_idx),
+            "total": _pnl_with_annual(organic_pnl, fy2025_idx),
+        },
+        "influencer_spend": _pnl_with_annual([0]*len(all_pnl_months), fy2025_idx),
+        "cm_after_ads": _pnl_with_annual(cm_after_pnl, fy2025_idx),
+        "cm_final": _pnl_with_annual(cm_after_pnl, fy2025_idx),
+    }
+    print(f"  P&L built from DataKeeper: {len(all_pnl_months)} months, {len(brand_rev_pnl)} brands")
 
     # ── Assemble final data ───────────────────────────────────────────────────
     fin_data = {
