@@ -61,7 +61,7 @@ AVG_PRICE = {
 
 # ── Polar Excel parser ─────────────────────────────────────────────────────
 POLAR_XLSX = ROOT / "Data Storage" / "_archive" / "Monthly Sales by brands_raw.xlsx"
-POLAR_SHEET = "폴라 희망"
+POLAR_SHEET = "IR 매출분석"
 
 # Map CSV brand names to our standard names
 POLAR_BRAND_MAP = {
@@ -1186,7 +1186,7 @@ def generate():
         # MKT Cost 1: Ad Spend
         ad_total = sum(
             ad_monthly.get(p, {}).get(m, {}).get("spend", 0)
-            for p in ["Amazon Ads", "Meta Ads", "Google Ads"]
+            for p in ["Amazon Ads", "Meta CVR", "Meta Traffic", "Google Ads"]
         )
 
         # MKT Cost 2: Discounts (Shopify, absolute value)
@@ -1215,7 +1215,7 @@ def generate():
     for m in months:
         paid = sum(
             ad_monthly.get(p, {}).get(m, {}).get("sales", 0)
-            for p in ["Amazon Ads", "Meta Ads", "Google Ads"]
+            for p in ["Amazon Ads", "Meta CVR", "Meta Traffic", "Google Ads"]
         )
         paid_monthly.append(round(paid))
 

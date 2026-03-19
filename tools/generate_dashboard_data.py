@@ -216,11 +216,17 @@ def load_proposals():
                         "approved": item.get("approved", False),
                     })
 
+            # Compute summary from campaign-level data
+            sum_spend = sum(c.get("spend7d", 0) for c in campaigns)
+            sum_sales = sum(c.get("sales7d", 0) for c in campaigns)
+            sum_roas = round(sum_sales / sum_spend, 2) if sum_spend else 0
+            sum_acos = f"{round(sum_spend / sum_sales * 100, 1)}%" if sum_sales else ""
+
             brands[bk][dt] = {
                 "generated": datetime.now(PDT).strftime("%Y-%m-%dT%H:%M"),
                 "executed": False,
                 "executed_at": "",
-                "summary_7d": {"spend": 0, "sales": 0, "roas": 0, "acos": ""},
+                "summary_7d": {"spend": round(sum_spend), "sales": round(sum_sales), "roas": sum_roas, "acos": sum_acos},
                 "campaigns": campaigns,
                 "harvest": harvest,
                 "negate": negate,

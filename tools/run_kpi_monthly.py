@@ -250,7 +250,7 @@ def add_data_status_tab(wb, through_date):
 # ── 1. DISCOUNT RATE (Golmani wide format, brand x channel, PR excluded) ──────
 
 CHANNEL_ORDER = ["ONZ", "Amazon", "B2B", "TikTok", "Unknown"]  # PR excluded; D2C in PG = ONZ
-D2C_RAW_CHANNELS = {"D2C", "Amazon", "TikTok"}  # user's "D2C" = ONZ+Amazon+TikTok
+D2C_RAW_CHANNELS = {"D2C", "Amazon", "TikTok"}  # Shopify raw channels: "Amazon" = FBA MCF (DTC order, AMZ fulfillment)
 BRAND_ORDER   = ["Grosmimi", "Naeiae", "CHA&MOM", "Onzenna", "Alpremio", "Unknown"]
 
 # Avg COGS per unit by brand (from COGS by SKU.xlsx x Product Variant)
@@ -2278,7 +2278,7 @@ def update_sales_summary(wb, through_date):
     br_month = defaultdict(lambda: defaultdict(float))  # brand -> month -> net
     total_month = defaultdict(float)
 
-    CHANNEL_MAP = {"D2C": "Onzenna", "PR": None}
+    CHANNEL_MAP = {"D2C": "Onzenna", "Amazon": "Onzenna", "PR": None}
     for r in shopify:
         d = r.get("date", "")
         if d > through_date:
@@ -2895,7 +2895,7 @@ CHANNEL_MAP_PG_TO_LEGACY = {
     "TikTok": "TikTokShop",
     "TikTokShop": "TikTokShop",
     "PR": "PR",
-    "Amazon": "Amazon",
+    "Amazon": "Onzenna",  # Shopify Amazon = FBA MCF (DTC order, Amazon fulfillment)
 }
 
 
