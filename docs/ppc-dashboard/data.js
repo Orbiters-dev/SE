@@ -1,10 +1,10 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-19 15:17 PST",
+ "generated_pst": "2026-03-19 16:37 PST",
  "brands": {
   "grosmimi": {
    "dates": {
     "2026-03-19": {
-     "generated": "2026-03-19T15:17",
+     "generated": "2026-03-19T16:37",
      "executed": true,
      "executed_at": "2026-03-19",
      "summary_7d": {
@@ -5054,7 +5054,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-19": {
-     "generated": "2026-03-19T15:17",
+     "generated": "2026-03-19T16:37",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -6044,7 +6044,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-19": {
-     "generated": "2026-03-19T15:17",
+     "generated": "2026-03-19T16:37",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -6070,7 +6070,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "10 No-Brainer",
        "reason": "[AUTO] 7d ROAS 0.0x (ACOS None%) | 30d ROAS 1.69x | target ACOS 40.0% | 7d vs 30d: -100.0%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "CHA&MOM _Competitor Targeting_SP_Manual",
