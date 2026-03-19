@@ -1,0 +1,34 @@
+name: Amazon JP PPC Daily Briefing
+
+on:
+  schedule:
+    # KST 09:00 = UTC 00:00 (매일 아침 출근 시간에 받기)
+    - cron: "0 0 * * *"
+  workflow_dispatch:  # manual trigger from GitHub UI
+
+jobs:
+  send-ppc-briefing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install requests anthropic
+
+      - name: Run PPC Briefing
+        env:
+          ORBITOOLS_USER: ${{ secrets.ORBITOOLS_USER }}
+          ORBITOOLS_PASS: ${{ secrets.ORBITOOLS_PASS }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TEAMS_WEBHOOK_URL_SEEUN: ${{ secrets.TEAMS_WEBHOOK_URL_SEEUN }}
+        run: |
+          python tools/run_ppc_briefing.py
