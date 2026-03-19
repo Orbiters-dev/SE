@@ -497,6 +497,17 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
       </div>
     </div>
 
+    <!-- GitHub Token -->
+    <div class="card" style="border-left:3px solid #6366f1;margin-bottom:20px">
+      <h3>🔑 GitHub Token</h3>
+      <div class="desc">Execute / Re-run Propose 기능에 필요합니다. <a href="https://github.com/settings/tokens?type=beta" target="_blank" style="color:var(--a)">GitHub에서 발급</a> (repo + actions 권한)</div>
+      <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+        <input id="cfg-gh-pat" type="password" placeholder="ghp_xxxxxxxxxxxx" style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:monospace">
+        <button onclick="var v=document.getElementById('cfg-gh-pat').value.trim();if(v){localStorage.setItem('ppc_gh_pat',v);this.textContent='Saved!';this.style.background='#10b981';setTimeout(()=>{this.textContent='Save';this.style.background=''},1500)}else{alert('Token을 입력하세요')}" style="background:var(--a);color:#fff;border:none;padding:7px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Save</button>
+      </div>
+      <div style="margin-top:6px;font-size:10px;color:var(--dim)">브라우저 localStorage에 저장됩니다. 서버 전송 없음.</div>
+    </div>
+
     <!-- Config Update Log (filtered by selected brand above) -->
     <div class="card" style="margin-bottom:20px">
       <h3>📋 Config Update Log <span id="config-log-brand-label" style="font-size:11px;color:var(--a)"></span></h3>
@@ -733,6 +744,8 @@ function showConfigContent(user) {
   document.getElementById('config-login-gate').style.display='none';
   document.getElementById('config-content').style.display='block';
   if (document.getElementById('config-user')) document.getElementById('config-user').textContent=user;
+  var patInput = document.getElementById('cfg-gh-pat');
+  if (patInput) { var existing = getPAT(); if (existing) patInput.value = existing; }
   renderConfigLog();
 }
 
