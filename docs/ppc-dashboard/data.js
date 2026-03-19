@@ -1,10 +1,10 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-18 15:22 PST",
+ "generated_pst": "2026-03-18 17:41 PST",
  "brands": {
   "grosmimi": {
    "dates": {
-    "2026-03-18": {
-     "generated": "2026-03-18T15:22",
+    "2026-03-19": {
+     "generated": "2026-03-18T17:41",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -30,7 +30,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "9 No-Brainer",
        "reason": "[SD] 7d ROAS 1.04x (ACOS 96.4%) | 30d ROAS 2.31x | target ACOS 35.0% | 7d vs 30d: -55.0%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SD_stage2cup",
@@ -48,7 +48,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "10 No-Brainer",
        "reason": "[SD] 7d: $47.6 spent, 18 clicks, $0 sales",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_ppsu_auto",
@@ -1400,10 +1400,10 @@ const PPC_DATA = {
   },
   "naeiae": {
    "dates": {
-    "2026-03-18": {
-     "generated": "2026-03-18T15:22",
-     "executed": true,
-     "executed_at": "2026-03-18",
+    "2026-03-19": {
+     "generated": "2026-03-18T17:41",
+     "executed": false,
+     "executed_at": "",
      "summary_7d": {
       "spend": 0,
       "sales": 0,
@@ -1427,7 +1427,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "6 Optimize",
        "reason": "[AUTO] 7d ROAS 2.71x (ACOS 36.8%) | 30d ROAS 2.8x | 7d vs 30d: -3.2%\nOptimization: ACOS 36.8% exceeds target 35.0% by 1.8pp -> bid -10% | CTR 0.33% is low -> review listing images, titles, pricing",
-       "approved": true
+       "approved": false
       },
       {
        "name": "Naeiae Rice Pop - SP - Manual",
@@ -1445,7 +1445,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "7 Strong",
        "reason": "[MANUAL] 7d ROAS 4.51x (ACOS 22.2%) | 30d ROAS 3.06x | target ACOS 25.0% | 7d vs 30d: +47.4%\nBudget already at cap ($100/campaign)",
-       "approved": true
+       "approved": false
       },
       {
        "name": "Naeiae Rice Pop - SB - Manual",
@@ -1953,8 +1953,8 @@ const PPC_DATA = {
   },
   "chaenmom": {
    "dates": {
-    "2026-03-18": {
-     "generated": "2026-03-18T15:22",
+    "2026-03-19": {
+     "generated": "2026-03-18T17:41",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -1980,7 +1980,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "10 No-Brainer",
        "reason": "[AUTO] 7d ROAS 0.0x (ACOS None%) | 30d ROAS 2.65x | target ACOS 40.0% | 7d vs 30d: -100.0%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "CHA&MOM _Competitor Targeting_SP_Manual",
