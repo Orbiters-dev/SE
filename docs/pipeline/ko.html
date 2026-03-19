@@ -482,13 +482,13 @@
       <!-- Arrow: Trigger -->
       <div style="font-size:24px; color:var(--poll); padding:4px 0; display:flex; flex-direction:column; align-items:center;">
         <span>&#8595;</span>
-        <span style="font-size:10px; color:var(--text-dim); font-weight:600;">30-min polling: <code style="font-size:9px;">AND({Email}!=BLANK(), {Outreach Status}='Not Started', {Partnership Status}='New')</code></span>
+        <span style="font-size:10px; color:var(--text-dim); font-weight:600;">10-min polling: <code style="font-size:9px;">AND({Email}!=BLANK(), {Outreach Status}='Not Started', {Partnership Status}='New')</code></span>
       </div>
 
       <!-- Row 5: Draft Generation -->
       <div style="display:flex; gap:12px; width:100%;">
         <div style="flex:1; background:var(--auto-bg); border:2px solid var(--auto-border); border-radius:12px; padding:16px;">
-          <div style="font-size:12px; font-weight:700; color:var(--auto); margin-bottom:8px;">&#9889; n8n: Draft Generation <span style="font-size:10px; font-weight:400; color:var(--text-dim);">(42 nodes, 30-min poll)</span></div>
+          <div style="font-size:12px; font-weight:700; color:var(--auto); margin-bottom:8px;">&#9889; n8n: Draft Generation <span style="font-size:10px; font-weight:400; color:var(--text-dim);">(43 nodes, 10-min poll, multi-item batch)</span></div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <div style="flex:1; min-width:130px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
               <div style="font-weight:600; color:#f59e0b; margin-bottom:4px;">Pre-Flight</div>
@@ -518,6 +518,19 @@
               </div>
             </div>
           </div>
+          <!-- Multi-item Batch Processing -->
+          <div style="margin-top:10px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:10px; font-size:10px; color:#1e40af; line-height:1.7;">
+            <span style="font-weight:700;">Multi-Item Batch Processing</span> <span style="background:#dbeafe; padding:1px 6px; border-radius:3px; font-size:9px; font-weight:600;">NEW &mdash; Mar 19</span><br>
+            Processes <b>all matching creators per cycle</b> (not just 1). 14 nodes fixed: 6 Code nodes changed to <code style="font-size:9px; background:#dbeafe; padding:1px 3px; border-radius:3px;">runOnceForEachItem</code> mode, 8 expression nodes changed <code style="font-size:9px; background:#dbeafe; padding:1px 3px; border-radius:3px;">.first()</code> &rarr; <code style="font-size:9px; background:#dbeafe; padding:1px 3px; border-radius:3px;">.item</code> for per-creator data routing.<br>
+            <span style="color:#6b7280;">Verified: 3 creators processed in single cycle, each with correct brand detection + individual AT record updates.</span>
+          </div>
+          <!-- Gmail Auto Outreach -->
+          <div style="margin-top:8px; background:#fef3c7; border:1px solid #fde68a; border-radius:8px; padding:10px; font-size:10px; color:#92400e; line-height:1.7;">
+            <span style="font-weight:700;">Gmail Auto Outreach Label</span> <span style="background:#fde68a; padding:1px 6px; border-radius:3px; font-size:9px; font-weight:600;">NEW &mdash; Mar 19</span><br>
+            When HiL=on, draft preview emails are <b>inserted into Gmail</b> (affiliates@onzenna.com) with <code style="font-size:9px; background:#fde68a; padding:1px 3px; border-radius:3px;">Auto Outreach</code> label (Label_1).<br>
+            Subject: <code style="font-size:9px;">[Auto Draft] @handle | Brand</code> &mdash; includes creator info table + draft body preview.<br>
+            Uses Gmail API <code style="font-size:9px; background:#fde68a; padding:1px 3px; border-radius:3px;">messages.insert</code> (not send) &rarr; appears in mailbox for review without sending. +2 new nodes: <code style="font-size:9px;">Build Auto Outreach Email</code> + <code style="font-size:9px;">Save to Gmail (Auto Outreach)</code>
+          </div>
           <div style="margin-top:8px; font-size:10px; color:var(--text-dim);">
             <a href="https://n8n.orbiters.co.kr/workflow/fwwOeLiDLSnR77E1" target="_blank" class="wf-link">fwwOeLiDLSnR77E1</a>
           </div>
@@ -528,7 +541,7 @@
       <div style="display:flex; gap:40px; width:100%; justify-content:center; padding:4px 0;">
         <div style="display:flex; flex-direction:column; align-items:center;">
           <span style="font-size:24px; color:var(--human);">&#8595;</span>
-          <span style="font-size:10px; color:var(--human); font-weight:600;">HiL=on (current): All drafts &rarr; AT<br>Marketer sets &quot;Approved&quot; to send</span>
+          <span style="font-size:10px; color:var(--human); font-weight:600;">HiL=on (current): All drafts &rarr; AT<br>+ Gmail Auto Outreach label preview<br>Marketer sets &quot;Approved&quot; to send</span>
         </div>
         <div style="display:flex; flex-direction:column; align-items:center;">
           <span style="font-size:24px; color:var(--auto);">&#8595;</span>
@@ -640,11 +653,11 @@
         <div class="step-content">
           <div class="step-label poll">&#128337; Outreach Trigger</div>
           <div class="step-title">Auto-Triggered: New Creator with Email &rarr; Draft Generation</div>
-          <div class="step-desc">Once a creator has <code>Outreach Status = "Not Started"</code> AND <code>Email != blank</code>, Draft Generation (Stage 1) picks them up within 30 minutes automatically.</div>
+          <div class="step-desc">Once a creator has <code>Outreach Status = "Not Started"</code> AND <code>Email != blank</code>, Draft Generation (Stage 1) picks them up within 10 minutes automatically.</div>
           <div class="data-box">
             <h4>Trigger Condition (Airtable filter)</h4>
             <div class="data-row"><span class="data-key">Filter</span><span class="data-val"><code style="font-size:11px;">AND({Email}!=BLANK(), {Outreach Status}='Not Started', {Partnership Status}='New')</code></span></div>
-            <div class="data-row"><span class="data-key">Polling</span><span class="data-val">Every 30 minutes by Draft Generation workflow</span></div>
+            <div class="data-row"><span class="data-key">Polling</span><span class="data-val">Every 10 minutes by Draft Generation workflow</span></div>
             <div class="data-row"><span class="data-key">Pre-checks</span><span class="data-val">Dashboard Active? &rarr; RAG Dedup &rarr; Apify Email Autofill &rarr; then draft</span></div>
           </div>
         </div>
@@ -675,12 +688,37 @@
             <div class="data-row"><span class="data-key">Apify Autofill</span><span class="data-val">Scrape IG profiles via Apify for creators without emails &rarr; fill Airtable Email field. Status: <code>Completed: X added</code></span></div>
           </div>
           <div class="data-box" style="margin-top:8px;">
-            <h4>Outreach Flow</h4>
-            <div class="data-row"><span class="data-key">1. Read Content</span><span class="data-val">Airtable Content table: fetch creator's post transcripts + metrics (views, likes)</span></div>
-            <div class="data-row"><span class="data-key">2. Detect Brand</span><span class="data-val">Scan transcript for keywords &rarr; Grosmimi (ppsu, straw cup) | CHA&amp;MOM (cream, skincare) | Naeiae (rice puff, snack). Default: Grosmimi</span></div>
+            <h4>Outreach Flow <span style="background:#dbeafe; padding:1px 6px; border-radius:3px; font-size:9px; font-weight:600; color:#1e40af;">Multi-Item Batch</span></h4>
+            <div class="data-row"><span class="data-key">1. Read Content</span><span class="data-val">Airtable Content table: fetch each creator's post transcripts + metrics (views, likes). <b>Per-item processing</b> via <code style="font-size:9px;">runOnceForEachItem</code></span></div>
+            <div class="data-row"><span class="data-key">2. Detect Brand</span><span class="data-val"><b>Per-item keyword scoring</b>: scan transcript for keywords &rarr; Grosmimi (ppsu, straw cup, bottle) | CHA&amp;MOM (cream, skincare, lotion) | Naeiae (rice puff, snack, naeiae). Default: Grosmimi</span></div>
             <div class="data-row"><span class="data-key">3. AI Draft</span><span class="data-val">Claude API reads transcript + brand context &rarr; references specific video topics &rarr; includes brand-specific form link</span></div>
-            <div class="data-row"><span class="data-key">4. Route</span><span class="data-val">LT/HT routing &rarr; HiL=on (current): all drafts saved to AT for manual approval</span></div>
-            <div class="data-row"><span class="data-key">5. Track</span><span class="data-val">Airtable: Outreach Status &rarr; "Sent" (after approval), Last Contact At logged</span></div>
+            <div class="data-row"><span class="data-key">4. Route</span><span class="data-val">LT/HT routing &rarr; HiL=on (current): all drafts saved to AT for manual approval + <b>Gmail Auto Outreach label</b> preview</span></div>
+            <div class="data-row"><span class="data-key">5. Track</span><span class="data-val">Airtable: Outreach Status &rarr; "Draft Ready" (HiL=on) or "Sent" (HiL=off), each creator updated individually via <code style="font-size:9px;">.item</code></span></div>
+          </div>
+          <!-- Multi-item batch details -->
+          <div class="data-box" style="margin-top:8px; background:#eff6ff; border:1px solid #bfdbfe;">
+            <h4 style="color:#1e40af;">Multi-Item Batch Processing <span style="background:#dbeafe; padding:1px 6px; border-radius:3px; font-size:9px; font-weight:600;">VERIFIED Mar 19</span></h4>
+            <div style="font-size:11px; color:#1e40af; line-height:1.7;">
+              Previously only processed <b>1 creator per 30-min cycle</b> (default <code style="font-size:9px;">runOnceForAllItems</code> mode + <code style="font-size:9px;">.first()</code> references).<br>
+              Now processes <b>all matching creators per 10-min cycle</b>:
+            </div>
+            <div class="data-row"><span class="data-key" style="min-width:100px;">Code Nodes (6)</span><span class="data-val"><code style="font-size:9px;">Prepare Content Fetch</code>, <code style="font-size:9px;">Ensure Transcript Output</code>, <code style="font-size:9px;">Build Claude Prompt (LT)</code>, <code style="font-size:9px;">Build Claude Prompt (HT)</code>, <code style="font-size:9px;">Parse Email Draft</code>, <code style="font-size:9px;">Detect Product from Content</code> &rarr; all changed to <code style="font-size:9px;">runOnceForEachItem</code></span></div>
+            <div class="data-row"><span class="data-key" style="min-width:100px;">Expression Nodes (8)</span><span class="data-val"><code style="font-size:9px;">Update Creator: Draft Ready</code>, <code style="font-size:9px;">Send Email</code>, <code style="font-size:9px;">Save Gmail Thread ID</code>, <code style="font-size:9px;">Save Thread ID to Conversation</code>, <code style="font-size:9px;">Has Email?</code>, <code style="font-size:9px;">Notify Missing Email</code>, <code style="font-size:9px;">Stop: Missing Email</code> &rarr; all changed <code style="font-size:9px;">.first()</code> &rarr; <code style="font-size:9px;">.item</code></span></div>
+            <div class="data-row"><span class="data-key" style="min-width:100px;">Config (OK)</span><span class="data-val"><code style="font-size:9px;">Config: Environment</code>, <code style="font-size:9px;">Extract Template Text</code> &rarr; kept <code style="font-size:9px;">.first()</code> (shared config, always 1 item)</span></div>
+          </div>
+          <!-- Gmail Auto Outreach -->
+          <div class="data-box" style="margin-top:8px; background:#fefce8; border:1px solid #fde68a;">
+            <h4 style="color:#92400e;">Gmail Auto Outreach Label <span style="background:#fde68a; padding:1px 6px; border-radius:3px; font-size:9px; font-weight:600;">NEW Mar 19</span></h4>
+            <div style="font-size:11px; color:#78350f; line-height:1.7;">
+              When HiL=on, draft preview emails are automatically <b>inserted into Gmail</b> (affiliates@onzenna.com) with <code style="font-size:9px; background:#fde68a; padding:1px 3px; border-radius:3px;">Auto Outreach</code> label.<br>
+              Marketer can review drafts in Gmail label view alongside Airtable Creators tab.
+            </div>
+            <div class="data-row"><span class="data-key" style="min-width:100px;">Method</span><span class="data-val">Gmail API <code style="font-size:9px;">messages.insert</code> (not send) &rarr; message appears in mailbox without sending</span></div>
+            <div class="data-row"><span class="data-key" style="min-width:100px;">Label</span><span class="data-val"><code style="font-size:9px;">Label_1</code> = "Auto Outreach" custom Gmail label</span></div>
+            <div class="data-row"><span class="data-key" style="min-width:100px;">Subject</span><span class="data-val"><code style="font-size:9px;">[Auto Draft] @handle | Brand</code></span></div>
+            <div class="data-row"><span class="data-key" style="min-width:100px;">Body</span><span class="data-val">Creator info table (handle, email, brand, type, status) + full draft email preview</span></div>
+            <div class="data-row"><span class="data-key" style="min-width:100px;">Nodes (+2)</span><span class="data-val"><code style="font-size:9px;">Build Auto Outreach Email</code> (Code, runOnceForEachItem) &rarr; <code style="font-size:9px;">Save to Gmail (Auto Outreach)</code> (HTTP Request, Gmail OAuth)</span></div>
+            <div class="data-row"><span class="data-key" style="min-width:100px;">Connection</span><span class="data-val"><code style="font-size:9px;">Human-in-Loop?</code> branch 0 (true) &rarr; <code style="font-size:9px;">Build Auto Outreach Email</code> &rarr; <code style="font-size:9px;">Save to Gmail</code></span></div>
           </div>
           <div class="data-box" style="margin-top:8px;">
             <h4>Personalization Example</h4>
@@ -693,7 +731,7 @@
           </div>
           <div class="data-box" style="margin-top:8px;">
             <h4>n8n Workflows</h4>
-            <div class="data-row"><span class="data-key">Draft Gen</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/fwwOeLiDLSnR77E1" target="_blank" class="wf-link">fwwOeLiDLSnR77E1</a> &mdash; 30-min polling, Claude AI (44 nodes)</span></div>
+            <div class="data-row"><span class="data-key">Draft Gen</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/fwwOeLiDLSnR77E1" target="_blank" class="wf-link">fwwOeLiDLSnR77E1</a> &mdash; 10-min polling, Claude AI (43 nodes, multi-item batch)</span></div>
             <div class="data-row"><span class="data-key">Approval Send</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/jf9uxkPww2xeCr82" target="_blank" class="wf-link">jf9uxkPww2xeCr82</a> &mdash; 1-min polling</span></div>
             <div class="data-row"><span class="data-key">Reply Handler</span><span class="data-val"><a href="https://n8n.orbiters.co.kr/workflow/K99grtW9iWq8V79f" target="_blank" class="wf-link">K99grtW9iWq8V79f</a> &mdash; 1-min polling</span></div>
           </div>
@@ -701,6 +739,31 @@
             <h4>Outreach Template</h4>
             <div class="data-row"><span class="data-key">Template</span><span class="data-val">Outreach v1 &mdash; <a href="https://docs.google.com/document/d/1vAvPdheHFz4xIraa3NODUuFG7RagylHEYOvv6BjtxLg/edit" target="_blank" class="tpl-link gdoc">Google Doc</a></span></div>
             <div class="data-row"><span class="data-key">Sender</span><span class="data-val">affiliates@onzenna.com</span></div>
+          </div>
+          <!-- 3-Brand Detection Test Results -->
+          <div style="margin-top:12px; background:#ecfdf5; border:2px solid #a7f3d0; border-radius:10px; padding:14px;">
+            <h4 style="color:#15803d; margin-bottom:8px;">3-Brand Detection Test <span style="background:#dcfce7; padding:2px 8px; border-radius:6px; font-size:10px; font-weight:700;">PASS &mdash; Mar 19, 2026</span></h4>
+            <div style="font-size:11px; color:#166534; margin-bottom:10px;">3 test creators processed in single 10-min cycle. Each detected correct brand via per-item keyword scoring.</div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; font-size:11px;">
+              <div style="flex:1; min-width:150px; background:#fff; border-radius:8px; padding:10px; border:1px solid #d1fae5;">
+                <div style="font-weight:700; margin-bottom:4px;"><span class="brand-badge" style="background:#92400e; font-size:9px;">Naeiae</span> Score: 3</div>
+                <div style="color:var(--text-dim); font-size:10px;">Keywords: "naeiae", "rice puff", "snack"<br>Form: influencer-gifting-naeiae<br>Status: Draft Ready (individual AT update)</div>
+              </div>
+              <div style="flex:1; min-width:150px; background:#fff; border-radius:8px; padding:10px; border:1px solid #d1fae5;">
+                <div style="font-weight:700; margin-bottom:4px;"><span class="brand-badge cham" style="font-size:9px;">CHA&amp;MOM</span> Score: 2</div>
+                <div style="color:var(--text-dim); font-size:10px;">Keywords: "cream", "skincare", "lotion"<br>Form: influencer-gifting-chamom<br>Status: Draft Ready (individual AT update)</div>
+              </div>
+              <div style="flex:1; min-width:150px; background:#fff; border-radius:8px; padding:10px; border:1px solid #d1fae5;">
+                <div style="font-weight:700; margin-bottom:4px;"><span class="brand-badge gros" style="font-size:9px;">Grosmimi</span> Score: 2</div>
+                <div style="color:var(--text-dim); font-size:10px;">Keywords: "ppsu", "straw cup", "bottle"<br>Form: influencer-gifting<br>Status: Draft Ready (individual AT update)</div>
+              </div>
+            </div>
+            <div style="margin-top:8px; font-size:10px; color:#6b7280;">
+              <b>Config fix applied:</b> Daily Config table <code style="font-size:9px;">Active Creator Form</code> linked records now include all 3 brands (Grosmimi + CHA&amp;MOM + Naeiae). Previously Naeiae was missing &rarr; only 2 brands loaded from Templates table.
+            </div>
+            <div style="margin-top:4px; font-size:10px; color:#6b7280;">
+              <b>Gmail Auto Outreach:</b> 3 preview emails inserted into Gmail with <code style="font-size:9px;">Auto Outreach</code> label. Subject: <code style="font-size:9px;">[Auto Draft] @handle | Naeiae/Chamom/Grosmimi</code>
+            </div>
           </div>
         </div>
       </div>
@@ -1293,7 +1356,7 @@
   <!-- ==================== WORKFLOW STATUS ==================== -->
   <div class="summary-section" style="margin-bottom:0;">
     <h3>n8n Workflow Status (PROD)</h3>
-    <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">As of March 19, 2026 &middot; All workflows on PROD Airtable base <code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">app3Vnmh7hLAVsevE</code></p>
+    <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">As of March 19, 2026 &middot; All workflows on PROD Airtable base <code style="font-size:10px; background:#e8eaed; padding:1px 4px; border-radius:3px;">app3Vnmh7hLAVsevE</code> &middot; Draft Gen updated to 43 nodes (multi-item batch + Gmail Auto Outreach)</p>
     <table style="width:100%; border-collapse:collapse; font-size:13px;">
       <thead>
         <tr style="border-bottom:2px solid var(--border);">
@@ -1314,7 +1377,7 @@
           <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">1a</td>
           <td style="padding:8px 6px;"><a href="https://n8n.orbiters.co.kr/workflow/fwwOeLiDLSnR77E1" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dashed #93c5fd;">Draft Generation</a></td>
           <td style="text-align:center;"><span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600;">ACTIVE</span></td>
-          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Claude AI email generation (30-min polling)</td>
+          <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">Claude AI email generation (10-min polling, multi-item batch)</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:8px 6px; font-size:12px; color:var(--text-dim);">1b</td>
@@ -1548,6 +1611,38 @@
         V-2.2 Creator status mismatch in full test is a test ordering issue (email stages set status before gifting).
         Stages 6&ndash;8 require physical shipment + content posting &mdash; verified via n8n WF active status + node configuration inspection.
       </div>
+      <!-- March 19 Brand Detection Test -->
+      <div style="margin-top:16px; background:#f0fdf4; border:2px solid #86efac; border-radius:10px; padding:16px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+          <span style="background:#15803d; color:#fff; padding:4px 12px; border-radius:8px; font-size:13px; font-weight:700;">PROD Draft Gen Test</span>
+          <span style="font-size:13px; color:var(--text-dim);">March 19, 2026 &middot; 3-Brand Detection + Multi-Item Batch + Gmail Auto Outreach</span>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; font-size:11px;">
+          <div style="flex:1; min-width:140px; background:#fff; border:1px solid #a7f3d0; border-radius:6px; padding:8px; text-align:center;">
+            <div style="font-weight:600;">Multi-Item Batch</div>
+            <div style="color:#059669; font-size:10px;">3 creators in 1 cycle</div>
+            <div style="color:#15803d; font-weight:600; font-size:10px;">PASS</div>
+          </div>
+          <div style="flex:1; min-width:140px; background:#fff; border:1px solid #a7f3d0; border-radius:6px; padding:8px; text-align:center;">
+            <div style="font-weight:600;">Brand Detection</div>
+            <div style="color:#059669; font-size:10px;">Naeiae:3 | CHA&amp;MOM:2 | Grosmimi:2</div>
+            <div style="color:#15803d; font-weight:600; font-size:10px;">PASS</div>
+          </div>
+          <div style="flex:1; min-width:140px; background:#fff; border:1px solid #a7f3d0; border-radius:6px; padding:8px; text-align:center;">
+            <div style="font-weight:600;">Individual AT Updates</div>
+            <div style="color:#059669; font-size:10px;">3 records &rarr; Draft Ready</div>
+            <div style="color:#15803d; font-weight:600; font-size:10px;">PASS</div>
+          </div>
+          <div style="flex:1; min-width:140px; background:#fff; border:1px solid #a7f3d0; border-radius:6px; padding:8px; text-align:center;">
+            <div style="font-weight:600;">Gmail Auto Outreach</div>
+            <div style="color:#059669; font-size:10px;">3 emails in Label_1</div>
+            <div style="color:#15803d; font-weight:600; font-size:10px;">PASS</div>
+          </div>
+        </div>
+        <div style="margin-top:8px; font-size:10px; color:var(--text-dim);">
+          <strong>Fixes applied:</strong> 14 nodes fixed for multi-item processing (6 Code + 8 expression) &middot; Naeiae added to Config Active Creator Form &middot; +2 Gmail Auto Outreach nodes &middot; Polling interval 30min &rarr; 10min
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1611,7 +1706,7 @@
   </div>
 
   <div class="footer">
-    Creator Collab Pipeline &middot; Onzenna &middot; PROD &middot; Updated March 18, 2026
+    Creator Collab Pipeline &middot; Onzenna &middot; PROD &middot; Updated March 19, 2026
   </div>
 
 </div>
