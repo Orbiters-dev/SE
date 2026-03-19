@@ -1,10 +1,10 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-18 18:13 PST",
+ "generated_pst": "2026-03-19 00:55 PST",
  "brands": {
   "grosmimi": {
    "dates": {
     "2026-03-19": {
-     "generated": "2026-03-18T18:13",
+     "generated": "2026-03-19T00:55",
      "executed": true,
      "executed_at": "2026-03-19",
      "summary_7d": {
@@ -30,7 +30,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "9 No-Brainer",
        "reason": "[SD] 7d ROAS 1.04x (ACOS 96.4%) | 30d ROAS 2.31x | target ACOS 35.0% | 7d vs 30d: -55.0%",
-       "approved": true
+       "approved": false
       },
       {
        "name": "SD_stage2cup",
@@ -48,7 +48,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "10 No-Brainer",
        "reason": "[SD] 7d: $47.6 spent, 18 clicks, $0 sales",
-       "approved": true
+       "approved": false
       },
       {
        "name": "SP_ppsu_auto",
@@ -5054,7 +5054,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-19": {
-     "generated": "2026-03-18T18:13",
+     "generated": "2026-03-19T00:55",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -5097,7 +5097,7 @@ const PPC_DATA = {
        "bud_before": 100.0,
        "bud_after": null,
        "tier": "7 Strong",
-       "reason": "[MANUAL] 7d ROAS 4.51x (ACOS 22.2%) | 30d ROAS 3.06x | target ACOS 25.0% | 7d vs 30d: +47.4%\nBudget already at cap ($100/campaign)",
+       "reason": "[MANUAL] 7d ROAS 4.51x (ACOS 22.2%) | 30d ROAS 3.06x | target ACOS 30.0% | 7d vs 30d: +47.4%\nBudget already at cap ($100/campaign)",
        "approved": false
       },
       {
@@ -6206,7 +6206,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-19": {
-     "generated": "2026-03-18T18:13",
+     "generated": "2026-03-19T00:55",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -6250,7 +6250,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 1.89x (ACOS 52.9%) | 30d ROAS 1.98x | target ACOS 30.0% | 7d vs 30d: -4.5%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "CHA&MOM_Cream_SP_Auto",
@@ -6268,7 +6268,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "8 Strong",
        "reason": "[AUTO] 7d ROAS 23.78x (ACOS 4.2%) | 30d ROAS 12.98x | target ACOS 40.0% | 7d vs 30d: +83.2%\nBudget already at cap ($40/campaign)",
-       "approved": false
+       "approved": true
       },
       {
        "name": "CHA&MOM_Wash_SP_Auto",
