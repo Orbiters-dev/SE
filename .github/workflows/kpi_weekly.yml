@@ -37,7 +37,8 @@ jobs:
         run: |
           cat > .env <<'ENVEOF'
           ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
-          DATA_KEEPER_URL=${{ secrets.DATA_KEEPER_URL }}
+          ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
+          ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
           GOOGLE_SERVICE_ACCOUNT_PATH=credentials/google_service_account.json
           GMAIL_OAUTH_CREDENTIALS_PATH=credentials/gmail_oauth_credentials.json
           GMAIL_TOKEN_PATH=credentials/gmail_token.json
