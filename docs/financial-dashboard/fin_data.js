@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-19 00:20 PST",
+ "generated_pst": "2026-03-19 01:05 PST",
  "through_date": "2026-03-17",
  "months": [
   "2025-06",
@@ -25,9 +25,9 @@ const FIN_DATA = {
   {
    "name": "amazon_sales_daily",
    "label": "Amazon Sales (SP-API)",
-   "rows": 859,
+   "rows": 865,
    "min_date": "2025-05-14",
-   "max_date": "2026-03-17",
+   "max_date": "2026-03-18",
    "refresh": "2x daily"
   },
   {
@@ -88,50 +88,50 @@ const FIN_DATA = {
  },
  "summary": {
   "7d": {
-   "total_revenue": 146942,
+   "total_revenue": 147232,
    "shopify_revenue": 16593,
-   "amazon_revenue": 130349,
-   "total_orders": 5963,
+   "amazon_revenue": 130639,
+   "total_orders": 6232,
    "total_ad_spend": 27006,
    "ad_attributed_sales": 87695,
-   "organic_revenue": 59247,
-   "gross_margin": 93023,
-   "gm_pct": 63.3,
-   "contribution_margin": 64594,
-   "cm_pct": 44.0,
-   "mer": 5.44,
+   "organic_revenue": 59537,
+   "gross_margin": 90927,
+   "gm_pct": 61.8,
+   "contribution_margin": 62498,
+   "cm_pct": 42.4,
+   "mer": 5.45,
    "roas": 3.25,
    "discount_rate": 7.9
   },
   "30d": {
-   "total_revenue": 651460,
+   "total_revenue": 651750,
    "shopify_revenue": 78753,
-   "amazon_revenue": 572708,
-   "total_orders": 26209,
+   "amazon_revenue": 572998,
+   "total_orders": 27335,
    "total_ad_spend": 126995,
    "ad_attributed_sales": 440414,
-   "organic_revenue": 211047,
-   "gross_margin": 413873,
-   "gm_pct": 63.5,
-   "contribution_margin": 281532,
-   "cm_pct": 43.2,
+   "organic_revenue": 211337,
+   "gross_margin": 403763,
+   "gm_pct": 62.0,
+   "contribution_margin": 271423,
+   "cm_pct": 41.6,
    "mer": 5.13,
    "roas": 3.47,
    "discount_rate": 6.4
   },
   "mtd": {
-   "total_revenue": 398414,
+   "total_revenue": 398704,
    "shopify_revenue": 46267,
-   "amazon_revenue": 352147,
-   "total_orders": 16071,
+   "amazon_revenue": 352437,
+   "total_orders": 16777,
    "total_ad_spend": 75405,
    "ad_attributed_sales": 262775,
-   "organic_revenue": 135639,
-   "gross_margin": 252282,
-   "gm_pct": 63.3,
-   "contribution_margin": 173234,
-   "cm_pct": 43.5,
-   "mer": 5.28,
+   "organic_revenue": 135929,
+   "gross_margin": 246014,
+   "gm_pct": 61.7,
+   "contribution_margin": 166967,
+   "cm_pct": 41.9,
+   "mer": 5.29,
    "roas": 3.48,
    "discount_rate": 7.3
   }
@@ -148,7 +148,7 @@ const FIN_DATA = {
     557654,
     624480,
     554741,
-    379615
+    379555
    ],
    "monthly_proj": [
     540650,
@@ -160,7 +160,7 @@ const FIN_DATA = {
     557654,
     624480,
     554741,
-    692228
+    692119
    ],
    "color": "#8b5cf6"
   },
@@ -202,7 +202,7 @@ const FIN_DATA = {
     7647,
     8431,
     6797,
-    2429
+    2779
    ],
    "monthly_proj": [
     1798,
@@ -214,7 +214,7 @@ const FIN_DATA = {
     7647,
     8431,
     6797,
-    4429
+    5068
    ],
    "color": "#0ea5e9"
   },
@@ -312,7 +312,7 @@ const FIN_DATA = {
     511846,
     533042,
     498734,
-    352147
+    352437
    ],
    "monthly_proj": [
     463835,
@@ -324,7 +324,7 @@ const FIN_DATA = {
     511846,
     533042,
     498734,
-    642140
+    642669
    ],
    "color": "#f59e0b"
   },
@@ -800,7 +800,7 @@ const FIN_DATA = {
     511846,
     533042,
     498734,
-    352147
+    352437
    ],
    "revenue_proj": [
     463835,
@@ -812,7 +812,7 @@ const FIN_DATA = {
     511846,
     533042,
     498734,
-    642140
+    642669
    ],
    "platforms": "Amazon Ads + Meta Traffic",
    "color": "#f59e0b"
@@ -824,12 +824,12 @@ const FIN_DATA = {
    "total_sales": [
     624480,
     554741,
-    379615
+    379555
    ],
    "total_sales_proj": [
     624480,
     554741,
-    692228
+    692119
    ],
    "ad_spend": [
     92352,
@@ -854,12 +854,12 @@ const FIN_DATA = {
    "organic": [
     217722,
     179585,
-    127762
+    127702
    ],
    "organic_proj": [
     217722,
     179585,
-    232974
+    232865
    ],
    "color": "#8b5cf6"
   },
@@ -910,12 +910,12 @@ const FIN_DATA = {
    "total_sales": [
     8431,
     6797,
-    2429
+    2779
    ],
    "total_sales_proj": [
     8431,
     6797,
-    4429
+    5068
    ],
    "ad_spend": [
     1636,
@@ -940,12 +940,12 @@ const FIN_DATA = {
    "organic": [
     3923,
     3929,
-    1624
+    1974
    ],
    "organic_proj": [
     3923,
     3929,
-    2961
+    3600
    ],
    "color": "#0ea5e9"
   },
@@ -1071,7 +1071,7 @@ const FIN_DATA = {
    320395,
    210196,
    192622,
-   137545
+   137835
   ],
   "organic_proj": [
    530481,
@@ -1083,7 +1083,7 @@ const FIN_DATA = {
    320395,
    210196,
    192622,
-   250813
+   251342
   ]
  },
  "waterfall": {
@@ -1097,7 +1097,7 @@ const FIN_DATA = {
    601931,
    656308,
    605113,
-   400320
+   400610
   ],
   "revenue_proj": [
    573439,
@@ -1109,7 +1109,7 @@ const FIN_DATA = {
    601931,
    656308,
    605113,
-   729984
+   730512
   ],
   "cogs": [
    237213,
@@ -1120,8 +1120,8 @@ const FIN_DATA = {
    280762,
    227237,
    243697,
-   211772,
-   146133
+   216918,
+   152690
   ],
   "cogs_proj": [
    237213,
@@ -1132,8 +1132,8 @@ const FIN_DATA = {
    280762,
    227237,
    243697,
-   211772,
-   266474
+   216918,
+   278430
   ],
   "gross_margin": [
    336226,
@@ -1144,8 +1144,8 @@ const FIN_DATA = {
    419308,
    374694,
    412612,
-   393341,
-   254187
+   388195,
+   247920
   ],
   "gross_margin_proj": [
    336226,
@@ -1156,8 +1156,8 @@ const FIN_DATA = {
    419308,
    374694,
    412612,
-   393341,
-   463510
+   388195,
+   452082
   ],
   "ad_spend": [
    16451,
@@ -1264,8 +1264,8 @@ const FIN_DATA = {
    360035,
    294229,
    278375,
-   267232,
-   175116
+   262087,
+   168848
   ],
   "contribution_margin_proj": [
    296830,
@@ -1276,8 +1276,8 @@ const FIN_DATA = {
    360035,
    294229,
    278375,
-   267232,
-   319324
+   262087,
+   307894
   ]
  },
  "search_queries": [
@@ -4727,7 +4727,9 @@ const FIN_DATA = {
    "Nov 25",
    "Dec 25",
    "FY2025",
-   "Jan 26"
+   "Jan 26",
+   "Feb 26",
+   "Mar 26"
   ],
   "fy2025_idx": 12,
   "brand_sales": {
@@ -4746,7 +4748,9 @@ const FIN_DATA = {
      757800,
      642124,
      7470108,
-     707634
+     707634,
+     0,
+     0
     ],
     "color": "#8b5cf6"
    },
@@ -4765,7 +4769,9 @@ const FIN_DATA = {
      6029,
      5148,
      72952,
-     6179
+     6179,
+     0,
+     0
     ],
     "color": "#f97316"
    },
@@ -4784,7 +4790,9 @@ const FIN_DATA = {
      9402,
      8625,
      49769,
-     11287
+     11287,
+     0,
+     0
     ],
     "color": "#eab308"
    },
@@ -4803,7 +4811,9 @@ const FIN_DATA = {
      12862,
      9230,
      56745,
-     11071
+     11071,
+     0,
+     0
     ],
     "color": "#0ea5e9"
    },
@@ -4822,7 +4832,9 @@ const FIN_DATA = {
      5290,
      9046,
      90215,
-     4196
+     4196,
+     0,
+     0
     ],
     "color": "#14b8a6"
    },
@@ -4841,7 +4853,9 @@ const FIN_DATA = {
      4189,
      1996,
      31406,
-     3181
+     3181,
+     0,
+     0
     ],
     "color": "#f472b6"
    },
@@ -4860,7 +4874,9 @@ const FIN_DATA = {
      430,
      425,
      4582,
-     292
+     292,
+     0,
+     0
     ],
     "color": "#a3e635"
    },
@@ -4879,6 +4895,8 @@ const FIN_DATA = {
      1902,
      363,
      21653,
+     0,
+     0,
      0
     ],
     "color": "#fb923c"
@@ -4898,7 +4916,9 @@ const FIN_DATA = {
      253,
      406,
      8688,
-     388
+     388,
+     0,
+     0
     ],
     "color": "#c084fc"
    },
@@ -4917,6 +4937,8 @@ const FIN_DATA = {
      0,
      0,
      10400,
+     0,
+     0,
      0
     ],
     "color": "#94a3b8"
@@ -4936,7 +4958,9 @@ const FIN_DATA = {
      191,
      101,
      1850,
-     93
+     93,
+     0,
+     0
     ],
     "color": "#6b7280"
    }
@@ -4955,7 +4979,9 @@ const FIN_DATA = {
    798349,
    677464,
    7818366,
-   744322
+   744322,
+   605113,
+   400610
   ],
   "cogs": [
    366109,
@@ -4971,7 +4997,9 @@ const FIN_DATA = {
    536629,
    456462,
    5276854,
-   499387
+   499387,
+   216918,
+   152690
   ],
   "gross_margin": [
    143422,
@@ -4987,7 +5015,9 @@ const FIN_DATA = {
    261720,
    221002,
    2541510,
-   244936
+   244936,
+   388195,
+   247920
   ],
   "ad_spend": {
    "onzenna": [
@@ -5004,7 +5034,9 @@ const FIN_DATA = {
     40688,
     38375,
     298925,
-    40972
+    40972,
+    39411,
+    19372
    ],
    "amazon": [
     47847,
@@ -5020,7 +5052,9 @@ const FIN_DATA = {
     65391,
     52675,
     657669,
-    81456
+    81456,
+    80371,
+    56033
    ],
    "total": [
     68843,
@@ -5036,7 +5070,9 @@ const FIN_DATA = {
     106078,
     91049,
     956594,
-    122428
+    122428,
+    119783,
+    75405
    ]
   },
   "ad_spend_detail": {
@@ -5054,7 +5090,9 @@ const FIN_DATA = {
     13984,
     12712,
     132635,
-    11117
+    11117,
+    12652,
+    6828
    ],
    "amz_grosmimi": [
     39083,
@@ -5070,7 +5108,9 @@ const FIN_DATA = {
     59966,
     49471,
     610145,
-    78329
+    78329,
+    0,
+    0
    ],
    "amz_chaenmom": [
     0,
@@ -5086,7 +5126,9 @@ const FIN_DATA = {
     3012,
     1772,
     13038,
-    1347
+    1347,
+    0,
+    0
    ],
    "amz_naeiae": [
     8764,
@@ -5102,7 +5144,9 @@ const FIN_DATA = {
     2412,
     1432,
     34485,
-    1781
+    1781,
+    0,
+    0
    ]
   },
   "sales_from_ads": {
@@ -5120,7 +5164,9 @@ const FIN_DATA = {
     94896,
     64629,
     774008,
-    65745
+    65745,
+    52004,
+    20153
    ],
    "amazon": [
     230298,
@@ -5136,7 +5182,9 @@ const FIN_DATA = {
     386504,
     316759,
     3749169,
-    379429
+    379429,
+    360486,
+    242623
    ],
    "total": [
     284469,
@@ -5152,7 +5200,9 @@ const FIN_DATA = {
     481400,
     381389,
     4523177,
-    445174
+    445174,
+    412491,
+    262775
    ]
   },
   "organic": {
@@ -5170,7 +5220,9 @@ const FIN_DATA = {
     18738,
     26748,
     421741,
-    56093
+    56093,
+    0,
+    0
    ],
    "amazon": [
     180285,
@@ -5186,7 +5238,9 @@ const FIN_DATA = {
     298211,
     269327,
     2877576,
-    243056
+    243056,
+    0,
+    0
    ],
    "total": [
     228803,
@@ -5202,7 +5256,9 @@ const FIN_DATA = {
     316950,
     296075,
     3299317,
-    299148
+    299148,
+    192622,
+    137835
    ]
   },
   "influencer_spend": [
@@ -5219,7 +5275,9 @@ const FIN_DATA = {
    1318,
    1014,
    40161,
-   4950
+   4950,
+   0,
+   0
   ],
   "cm_after_ads": [
    74578,
@@ -5235,7 +5293,9 @@ const FIN_DATA = {
    155641,
    129953,
    1584916,
-   122508
+   122508,
+   268412,
+   172515
   ],
   "cm_final": [
    73478,
@@ -5251,7 +5311,9 @@ const FIN_DATA = {
    154323,
    128939,
    1544755,
-   117558
+   117558,
+   268412,
+   172515
   ]
  }
 };

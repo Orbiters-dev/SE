@@ -876,7 +876,7 @@ function buildPolarPnL(P){
   html+='<div style="overflow-x:auto"><table><thead><tr><th>Brand</th>';
   ms.forEach(function(m,i){
     var sty='text-align:right;font-size:8px';
-    if(i===fyIdx) sty+=';background:#e0e7ff;font-weight:800;border-left:2px solid #6366f1;border-right:2px solid #6366f1';
+    if(i===fyIdx) sty+=';background:#e0e7ff;font-weight:800';
     html+='<th style="'+sty+'">'+m+'</th>';
   });
   html+='</tr></thead><tbody>';
@@ -890,7 +890,7 @@ function buildPolarPnL(P){
     html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+bd.color+';margin-right:6px"></span><b style="font-size:10px">'+b+'</b></td>';
     bd.values.forEach(function(v,i){
       var sty='text-align:right;font-family:var(--mono);font-size:9px';
-      if(i===fyIdx) sty+=';background:#eef2ff;font-weight:800;border-left:2px solid #6366f1;border-right:2px solid #6366f1';
+      if(i===fyIdx) sty+=';background:#eef2ff;font-weight:800';
       html+='<td style="'+sty+'">'+(v>0?'$'+Math.round(v).toLocaleString():'<span style="color:var(--muted)">-</span>')+'</td>';
     });
     html+='</tr>';
@@ -900,7 +900,7 @@ function buildPolarPnL(P){
   html+='<tr style="border-top:2px solid var(--border);font-weight:700"><td><b>TOTAL</b></td>';
   P.total_revenue.forEach(function(v,i){
     var sty='text-align:right;font-family:var(--mono);font-size:10px;font-weight:800';
-    if(i===fyIdx) sty+=';background:#e0e7ff;border-left:2px solid #6366f1;border-right:2px solid #6366f1';
+    if(i===fyIdx) sty+=';background:#e0e7ff';
     html+='<td style="'+sty+'">$'+Math.round(v).toLocaleString()+'</td>';
   });
   html+='</tr></tbody></table></div></div></div>';
@@ -920,7 +920,7 @@ function buildPolarPnL(P){
   html+='<div style="overflow-x:auto;margin-top:8px"><table><thead><tr><th></th>';
   ms.forEach(function(m,i){
     var sty='text-align:right;font-size:8px';
-    if(i===fyIdx) sty+=';background:#e0e7ff;font-weight:800;border-left:2px solid #6366f1;border-right:2px solid #6366f1';
+    if(i===fyIdx) sty+=';background:#e0e7ff;font-weight:800';
     html+='<th style="'+sty+'">'+m+'</th>';
   });
   html+='</tr></thead><tbody>';
@@ -932,7 +932,7 @@ function buildPolarPnL(P){
     html+='<tr style="'+sty+'"><td style="'+(opts.indent?'padding-left:'+(opts.indent*8)+'px;':'')+'color:'+(opts.color||'var(--text)')+'">'+label+'</td>';
     arr.forEach(function(v,i){
       var cs='text-align:right;font-family:var(--mono);font-size:'+(opts.fs||'10')+'px;color:'+(opts.color||'var(--text)');
-      if(i===fyIdx) cs+=';background:#eef2ff;font-weight:700;border-left:2px solid #6366f1;border-right:2px solid #6366f1';
+      if(i===fyIdx) cs+=';background:#eef2ff;font-weight:700';
       if(opts.bold) cs+=';font-weight:700';
       var prefix=opts.neg&&v>0?'-':'';
       html+='<td style="'+cs+'">'+prefix+'$'+Math.abs(Math.round(v)).toLocaleString()+'</td>';
@@ -948,7 +948,7 @@ function buildPolarPnL(P){
       var d=denom[i]||1;
       var p=d>0?(v/d*100).toFixed(1):'0';
       var cs='text-align:right;font-family:var(--mono);font-size:9px;color:var(--dim)';
-      if(i===fyIdx) cs+=';background:#eef2ff;border-left:2px solid #6366f1;border-right:2px solid #6366f1';
+      if(i===fyIdx) cs+=';background:#eef2ff';
       html+='<td style="'+cs+'">'+p+'%</td>';
     });
     html+='</tr>';
@@ -990,7 +990,7 @@ function buildPolarPnL(P){
   html+='<div style="overflow-x:auto"><table><thead><tr><th></th>';
   ms.forEach(function(m,i){
     var sty='text-align:right;font-size:8px';
-    if(i===fyIdx) sty+=';background:#e0e7ff;font-weight:800;border-left:2px solid #6366f1;border-right:2px solid #6366f1';
+    if(i===fyIdx) sty+=';background:#e0e7ff;font-weight:800';
     html+='<th style="'+sty+'">'+m+'</th>';
   });
   html+='</tr></thead><tbody>';
@@ -1002,7 +1002,7 @@ function buildPolarPnL(P){
       var r=sp>0?s/sp:0;
       var c=r>=3?'var(--g)':r>=1.5?'var(--am)':sp>0?'var(--r)':'var(--muted)';
       var cs='text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+c;
-      if(i===fyIdx) cs+=';background:#eef2ff;border-left:2px solid #6366f1;border-right:2px solid #6366f1';
+      if(i===fyIdx) cs+=';background:#eef2ff';
       html+='<td style="'+cs+'">'+(sp>0?r.toFixed(1)+'x':'-')+'</td>';
     });
     html+='</tr>';
@@ -1021,7 +1021,7 @@ function buildPolarPnL(P){
   html+='<div style="overflow-x:auto"><table><thead><tr><th></th>';
   ms.forEach(function(m,i){
     var sty='text-align:right;font-size:8px';
-    if(i===fyIdx) sty+=';background:#e0e7ff;font-weight:800;border-left:2px solid #6366f1;border-right:2px solid #6366f1';
+    if(i===fyIdx) sty+=';background:#e0e7ff;font-weight:800';
     html+='<th style="'+sty+'">'+m+'</th>';
   });
   html+='</tr></thead><tbody>';

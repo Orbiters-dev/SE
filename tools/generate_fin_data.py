@@ -1225,6 +1225,94 @@ def generate():
     print("[7.5/8] Parsing Polar Excel for P&L...")
     pnl_polar = parse_polar_excel()
 
+    # ── Append months beyond Excel with DataKeeper data ───────────────────
+    if pnl_polar:
+        MONTH_NAMES_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+        # Find which YYYY-MM keys the Polar data already covers
+        polar_month_keys = set()
+        for lbl in pnl_polar["months"]:
+            if lbl.startswith("FY"):
+                continue
+            parts = lbl.split()  # e.g. "Jan 25"
+            if len(parts) == 2:
+                mi = MONTH_NAMES_SHORT.index(parts[0]) + 1
+                yr = 2000 + int(parts[1])
+                polar_month_keys.add(f"{yr}-{mi:02d}")
+
+        # months from DataKeeper that are NOT in Polar yet
+        extra_months = sorted(m for m in months if m not in polar_month_keys and m > "2025-12")
+
+        if extra_months:
+            fy_idx = pnl_polar["fy2025_idx"]
+            for em in extra_months:
+                mi = int(em[5:7])
+                yr = em[2:4]
+                lbl = f"{MONTH_NAMES_SHORT[mi-1]} {yr}"
+                pnl_polar["months"].append(lbl)
+
+                # Revenue & COGS from waterfall (already computed from DataKeeper)
+                wf_idx = months.index(em) if em in months else None
+                rev = total_rev_monthly[wf_idx] if wf_idx is not None else 0
+                cogs_v = total_cogs_monthly[wf_idx] if wf_idx is not None else 0
+                gm = total_gm_monthly[wf_idx] if wf_idx is not None else 0
+                ad_total_v = total_ad_spend_monthly[wf_idx] if wf_idx is not None else 0
+
+                pnl_polar["total_revenue"].append(rev)
+                pnl_polar["cogs"].append(cogs_v)
+                pnl_polar["gross_margin"].append(gm)
+
+                # Ad spend breakdown from ad_monthly
+                onz_spend = sum(
+                    ad_monthly.get(p, {}).get(em, {}).get("spend", 0)
+                    for p in ["Meta CVR", "Meta Traffic", "Google Ads"]
+                )
+                amz_spend = ad_monthly.get("Amazon Ads", {}).get(em, {}).get("spend", 0)
+                pnl_polar["ad_spend"]["onzenna"].append(round(onz_spend))
+                pnl_polar["ad_spend"]["amazon"].append(round(amz_spend))
+                pnl_polar["ad_spend"]["total"].append(round(onz_spend + amz_spend))
+
+                # Detail breakdowns
+                google_spend = ad_monthly.get("Google Ads", {}).get(em, {}).get("spend", 0)
+                pnl_polar["ad_spend_detail"]["google"].append(round(google_spend))
+                # Amazon brand breakdown not available from DK aggregation — use 0
+                pnl_polar["ad_spend_detail"]["amz_grosmimi"].append(0)
+                pnl_polar["ad_spend_detail"]["amz_chaenmom"].append(0)
+                pnl_polar["ad_spend_detail"]["amz_naeiae"].append(0)
+
+                # Sales from ads — use DK paid data
+                paid_v = sum(
+                    ad_monthly.get(p, {}).get(em, {}).get("sales", 0)
+                    for p in ["Amazon Ads", "Meta CVR", "Meta Traffic", "Google Ads"]
+                )
+                onz_paid = sum(
+                    ad_monthly.get(p, {}).get(em, {}).get("sales", 0)
+                    for p in ["Meta CVR", "Meta Traffic", "Google Ads"]
+                )
+                amz_paid = ad_monthly.get("Amazon Ads", {}).get(em, {}).get("sales", 0)
+                pnl_polar["sales_from_ads"]["onzenna"].append(round(onz_paid))
+                pnl_polar["sales_from_ads"]["amazon"].append(round(amz_paid))
+                pnl_polar["sales_from_ads"]["total"].append(round(paid_v))
+
+                # Organic
+                org_v = max(0, rev - round(paid_v))
+                pnl_polar["organic"]["onzenna"].append(0)
+                pnl_polar["organic"]["amazon"].append(0)
+                pnl_polar["organic"]["total"].append(org_v)
+
+                # Influencer spend not in DK
+                pnl_polar["influencer_spend"].append(0)
+
+                # CM after ads = GM - ad spend
+                cm_after = gm - round(onz_spend + amz_spend)
+                pnl_polar["cm_after_ads"].append(cm_after)
+                pnl_polar["cm_final"].append(cm_after)
+
+                # Brand sales — append 0 for each brand (DK doesn't have Polar brand breakdown)
+                for brand in pnl_polar["brand_sales"]:
+                    pnl_polar["brand_sales"][brand]["values"].append(0)
+
+            print(f"  Appended {len(extra_months)} extra months from DataKeeper: {extra_months}")
+
     # ── Assemble final data ───────────────────────────────────────────────────
     fin_data = {
         "generated_pst": now_pst.strftime("%Y-%m-%d %H:%M PST"),
