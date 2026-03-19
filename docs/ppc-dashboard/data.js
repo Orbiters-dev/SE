@@ -1,10 +1,10 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-18 17:57 PST",
+ "generated_pst": "2026-03-18 18:13 PST",
  "brands": {
   "grosmimi": {
    "dates": {
     "2026-03-19": {
-     "generated": "2026-03-18T17:43",
+     "generated": "2026-03-18T18:13",
      "executed": true,
      "executed_at": "2026-03-19",
      "summary_7d": {
@@ -30,7 +30,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "9 No-Brainer",
        "reason": "[SD] 7d ROAS 1.04x (ACOS 96.4%) | 30d ROAS 2.31x | target ACOS 35.0% | 7d vs 30d: -55.0%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SD_stage2cup",
@@ -48,7 +48,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "10 No-Brainer",
        "reason": "[SD] 7d: $47.6 spent, 18 clicks, $0 sales",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_ppsu_auto",
@@ -5052,6 +5052,247 @@ const PPC_DATA = {
       "harvest": 4,
       "negate": 2
      }
+    },
+    "2026-03-19": {
+     "generated": "2026-03-18T18:13",
+     "executed": false,
+     "executed_at": "",
+     "summary_7d": {
+      "spend": 0,
+      "sales": 0,
+      "roas": 0,
+      "acos": ""
+     },
+     "campaigns": [
+      {
+       "name": "Naeiae Rice Pop - SP - Auto",
+       "type": "AUTO",
+       "ad_type": "SP",
+       "roas7d": 2.71,
+       "acos7d": 36.9,
+       "spend7d": 217,
+       "sales7d": 590,
+       "cpc": 0.81,
+       "ctr": 0.33,
+       "action": "optimize",
+       "bid_pct": -25,
+       "bud_before": 80.0,
+       "bud_after": null,
+       "tier": "6 Optimize",
+       "reason": "[AUTO] 7d ROAS 2.71x (ACOS 36.8%) | 30d ROAS 2.8x | 7d vs 30d: -3.2%\nOptimization: ACOS 36.8% exceeds target 35.0% by 1.8pp -> bid -10% | CTR 0.33% is low -> review listing images, titles, pricing",
+       "approved": false
+      },
+      {
+       "name": "Naeiae Rice Pop - SP - Manual",
+       "type": "MANUAL",
+       "ad_type": "SP",
+       "roas7d": 4.51,
+       "acos7d": 22.2,
+       "spend7d": 224,
+       "sales7d": 1009,
+       "cpc": 1.0,
+       "ctr": 0.83,
+       "action": "increase_budget",
+       "bid_pct": null,
+       "bud_before": 100.0,
+       "bud_after": null,
+       "tier": "7 Strong",
+       "reason": "[MANUAL] 7d ROAS 4.51x (ACOS 22.2%) | 30d ROAS 3.06x | target ACOS 25.0% | 7d vs 30d: +47.4%\nBudget already at cap ($100/campaign)",
+       "approved": false
+      },
+      {
+       "name": "Naeiae Rice Pop - SB - Manual",
+       "type": "SB",
+       "ad_type": "SB",
+       "roas7d": 0,
+       "acos7d": 0,
+       "spend7d": 0,
+       "sales7d": 0,
+       "cpc": 0,
+       "ctr": 0,
+       "action": "monitor",
+       "bid_pct": null,
+       "bud_before": 0.0,
+       "bud_after": null,
+       "tier": "1 Monitor",
+       "reason": "[SB] 7d ROAS 0x (ACOS None%) | 30d ROAS 0x | target ACOS 30.0% | ",
+       "approved": false
+      }
+     ],
+     "harvest": [
+      {
+       "term": "떡뻥",
+       "sales": 418.2,
+       "cost": 34.26,
+       "acos": 8.2,
+       "clicks": 47,
+       "purchases": 14,
+       "bid": 0.8,
+       "campaign": "Naeiae Rice Pop - SP - Manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "b0bmh153y7",
+       "sales": 295.2,
+       "cost": 40.72,
+       "acos": 13.8,
+       "clicks": 48,
+       "purchases": 12,
+       "bid": 0.93,
+       "campaign": "Naeiae Rice Pop - SP - Manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "naeiae pop rice snack",
+       "sales": 246.0,
+       "cost": 12.29,
+       "acos": 5.0,
+       "clicks": 23,
+       "purchases": 9,
+       "bid": 0.59,
+       "campaign": "Naeiae Rice Pop - SP - Auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "pop rice snack",
+       "sales": 123.0,
+       "cost": 15.25,
+       "acos": 12.4,
+       "clicks": 26,
+       "purchases": 5,
+       "bid": 0.65,
+       "campaign": "Naeiae Rice Pop - SP - Auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "baby teething snacks",
+       "sales": 98.4,
+       "cost": 20.93,
+       "acos": 21.3,
+       "clicks": 20,
+       "purchases": 4,
+       "bid": 1.15,
+       "campaign": "Naeiae Rice Pop - SP - Manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "b08tqn3h7t",
+       "sales": 98.4,
+       "cost": 8.84,
+       "acos": 9.0,
+       "clicks": 21,
+       "purchases": 4,
+       "bid": 0.46,
+       "campaign": "Naeiae Rice Pop - SP - Manual",
+       "sim_confirmed": false
+      },
+      {
+       "term": "pop rice snack baby",
+       "sales": 73.8,
+       "cost": 14.65,
+       "acos": 19.9,
+       "clicks": 16,
+       "purchases": 3,
+       "bid": 1.01,
+       "campaign": "Naeiae Rice Pop - SP - Auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "rice cakes",
+       "sales": 49.2,
+       "cost": 8.92,
+       "acos": 18.1,
+       "clicks": 11,
+       "purchases": 2,
+       "bid": 0.89,
+       "campaign": "Naeiae Rice Pop - SP - Auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "korean snacks",
+       "sales": 49.2,
+       "cost": 12.37,
+       "acos": 25.1,
+       "clicks": 15,
+       "purchases": 2,
+       "bid": 0.91,
+       "campaign": "Naeiae Rice Pop - SP - Auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "korean baby snack",
+       "sales": 49.2,
+       "cost": 10.44,
+       "acos": 21.2,
+       "clicks": 11,
+       "purchases": 2,
+       "bid": 1.04,
+       "campaign": "Naeiae Rice Pop - SP - Auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "korean baby food",
+       "sales": 49.2,
+       "cost": 9.47,
+       "acos": 19.2,
+       "clicks": 10,
+       "purchases": 2,
+       "bid": 1.04,
+       "campaign": "Naeiae Rice Pop - SP - Auto",
+       "sim_confirmed": false
+      }
+     ],
+     "negate": [
+      {
+       "term": "baby snacks",
+       "cost": 65.33,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 62,
+       "type": "negate_zero_sales",
+       "reason": "$65.33 spent, 62 clicks, 0 sales (>3.0x target CPA)",
+       "campaign": "Naeiae Rice Pop - SP - Manual",
+       "sim_save": 0
+      },
+      {
+       "term": "puffed rice",
+       "cost": 51.72,
+       "sales": 24.6,
+       "acos": 210.2,
+       "clicks": 62,
+       "type": "negate_high_acos",
+       "reason": "ACOS 210.2% > 70.0% threshold",
+       "campaign": "Naeiae Rice Pop - SP - Auto",
+       "sim_save": 0
+      },
+      {
+       "term": "toddler snacks",
+       "cost": 35.85,
+       "sales": 49.2,
+       "acos": 72.9,
+       "clicks": 33,
+       "type": "negate_high_acos",
+       "reason": "ACOS 72.9% > 50.0% threshold",
+       "campaign": "Naeiae Rice Pop - SP - Manual",
+       "sim_save": 0
+      },
+      {
+       "term": "yugwa korean rice puff snack",
+       "cost": 33.59,
+       "sales": 0,
+       "acos": 0,
+       "clicks": 36,
+       "type": "negate_zero_sales",
+       "reason": "$33.59 spent, 36 clicks, 0 sales (>3.0x target CPA)",
+       "campaign": "Naeiae Rice Pop - SP - Auto",
+       "sim_save": 0
+      }
+     ],
+     "counts": {
+      "campaigns": 3,
+      "harvest": 11,
+      "negate": 4
+     }
     }
    },
    "execution_log": [
@@ -5918,6 +6159,133 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "6 Optimize",
        "reason": "[MANUAL] 7d ROAS 2.53x (ACOS 39.5%) | 30d ROAS 2.08x | 7d vs 30d: +21.6%\nOptimization: ACOS 39.5% exceeds target 30.0% by 9.5pp -> bid -10% | CTR 0.12% is low -> review listing images, titles, pricing | CVR 20.59% is excellent -> scale with more budget",
+       "approved": false
+      }
+     ],
+     "harvest": [
+      {
+       "term": "b0f1xgs9jf",
+       "sales": 169.8,
+       "cost": 18.02,
+       "acos": 10.6,
+       "clicks": 13,
+       "purchases": 6,
+       "bid": 1.52,
+       "campaign": "CHA&MOM_Cream_SP_Auto",
+       "sim_confirmed": false
+      },
+      {
+       "term": "cha and mom",
+       "sales": 136.9,
+       "cost": 6.08,
+       "acos": 4.4,
+       "clicks": 10,
+       "purchases": 5,
+       "bid": 0.67,
+       "campaign": "CHA&MOM_Wash_SP_Auto",
+       "sim_confirmed": false
+      }
+     ],
+     "negate": [
+      {
+       "term": "b0b3fvl358",
+       "cost": 56.71,
+       "sales": 53.0,
+       "acos": 107.0,
+       "clicks": 23,
+       "type": "negate_high_acos",
+       "reason": "ACOS 107.0% > 50.0% threshold",
+       "campaign": "CHA&MOM _Competitor Targeting_",
+       "sim_save": 0
+      }
+     ],
+     "counts": {
+      "campaigns": 4,
+      "harvest": 2,
+      "negate": 1
+     }
+    },
+    "2026-03-19": {
+     "generated": "2026-03-18T18:13",
+     "executed": false,
+     "executed_at": "",
+     "summary_7d": {
+      "spend": 0,
+      "sales": 0,
+      "roas": 0,
+      "acos": ""
+     },
+     "campaigns": [
+      {
+       "name": "CHA&MOM_Lotion_SP_Auto",
+       "type": "AUTO",
+       "ad_type": "SP",
+       "roas7d": 0,
+       "acos7d": 0,
+       "spend7d": 0,
+       "sales7d": 0,
+       "cpc": 0.06,
+       "ctr": 4.35,
+       "action": "pause",
+       "bid_pct": null,
+       "bud_before": 60.0,
+       "bud_after": null,
+       "tier": "10 No-Brainer",
+       "reason": "[AUTO] 7d ROAS 0.0x (ACOS None%) | 30d ROAS 2.65x | target ACOS 40.0% | 7d vs 30d: -100.0%",
+       "approved": true
+      },
+      {
+       "name": "CHA&MOM _Competitor Targeting_SP_Manual",
+       "type": "MANUAL",
+       "ad_type": "SP",
+       "roas7d": 1.89,
+       "acos7d": 52.9,
+       "spend7d": 112,
+       "sales7d": 212,
+       "cpc": 2.24,
+       "ctr": 0.11,
+       "action": "reduce_bid",
+       "bid_pct": -15,
+       "bud_before": 50.0,
+       "bud_after": null,
+       "tier": "8 Strong",
+       "reason": "[MANUAL] 7d ROAS 1.89x (ACOS 52.9%) | 30d ROAS 1.98x | target ACOS 30.0% | 7d vs 30d: -4.5%",
+       "approved": false
+      },
+      {
+       "name": "CHA&MOM_Cream_SP_Auto",
+       "type": "AUTO",
+       "ad_type": "SP",
+       "roas7d": 23.78,
+       "acos7d": 4.2,
+       "spend7d": 9,
+       "sales7d": 207,
+       "cpc": 1.09,
+       "ctr": 0.33,
+       "action": "increase_budget",
+       "bid_pct": 10,
+       "bud_before": 75.0,
+       "bud_after": null,
+       "tier": "8 Strong",
+       "reason": "[AUTO] 7d ROAS 23.78x (ACOS 4.2%) | 30d ROAS 12.98x | target ACOS 40.0% | 7d vs 30d: +83.2%\nBudget already at cap ($40/campaign)",
+       "approved": false
+      },
+      {
+       "name": "CHA&MOM_Wash_SP_Auto",
+       "type": "AUTO",
+       "ad_type": "SP",
+       "roas7d": 4.11,
+       "acos7d": 24.3,
+       "spend7d": 27,
+       "sales7d": 110,
+       "cpc": 0.93,
+       "ctr": 0.43,
+       "action": "increase_budget",
+       "bid_pct": null,
+       "bud_before": 75.0,
+       "bud_after": null,
+       "tier": "7 Strong",
+       "reason": "[AUTO] 7d ROAS 4.11x (ACOS 24.3%) | 30d ROAS 4.83x | target ACOS 40.0% | 7d vs 30d: -14.9%\nBudget already at cap ($40/campaign)",
        "approved": false
       }
      ],
