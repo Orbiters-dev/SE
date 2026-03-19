@@ -2810,6 +2810,7 @@ def execute_approved(proposal_data: Dict) -> List[Dict]:
         return []
 
     brand_name = proposal_data.get("brand", "Unknown")
+    brand_key = proposal_data.get("brand_key", "")
     print(f"\n[EXECUTE] {total_approved} approved changes for {brand_name}")
     print(f"  Campaign-level: {len(approved)} | Keyword-level: {len(approved_kw)}")
     print(f"{'='*50}")
@@ -2860,6 +2861,7 @@ def execute_approved(proposal_data: Dict) -> List[Dict]:
             result_status = f"ERROR: {e}"
 
         executed.append({
+            "brand_key": brand_key,
             "campaignId": cid,
             "campaignName": name,
             "action": action,
@@ -2922,6 +2924,7 @@ def execute_approved(proposal_data: Dict) -> List[Dict]:
             result_status = f"ERROR: {e}"
 
         executed.append({
+            "brand_key": brand_key,
             "campaignId": kp.get("campaignId") or kp.get("sourceCampaignId"),
             "campaignName": kp.get("campaignName") or kp.get("sourceCampaignName", ""),
             "action": kp_type,
@@ -2969,16 +2972,18 @@ def _update_persistent_exec_log(executed: list):
         except Exception:
             persistent = {}
 
-    # Group new items by brand
+    # Group new items by brand (use brand_key if present, else fallback to campaignName)
     new_by_brand = {}
     for item in executed:
-        cn = (item.get("campaignName") or "").lower()
-        if "cha&mom" in cn or "cha_mom" in cn:
-            bk = "chaenmom"
-        elif "grosmimi" in cn:
-            bk = "grosmimi"
-        else:
-            bk = "naeiae"
+        bk = item.get("brand_key", "")
+        if not bk:
+            cn = (item.get("campaignName") or "").lower()
+            if "cha&mom" in cn or "cha_mom" in cn:
+                bk = "chaenmom"
+            elif "grosmimi" in cn:
+                bk = "grosmimi"
+            else:
+                bk = "naeiae"
         item_copy = dict(item)
         item_copy["exec_date"] = dt
         item_copy["exec_time"] = exec_time

@@ -42,6 +42,9 @@ def _sanitize_bud_after(bud_after, bud_before):
 
 
 def detect_brand(item):
+    bk = item.get("brand_key", "")
+    if bk:
+        return bk
     cn = (item.get("campaignName", "") or "").lower()
     if "cha&mom" in cn or "cha_mom" in cn:
         return "chaenmom"
@@ -50,10 +53,41 @@ def detect_brand(item):
     return "naeiae"
 
 
+def _load_existing_data_js():
+    """Read existing data.js to preserve old dates not in .tmp/ anymore."""
+    if not OUTPUT.exists():
+        return {}
+    try:
+        text = OUTPUT.read_text(encoding="utf-8")
+        # Strip "const PPC_DATA = " prefix and ";" suffix
+        json_str = text.replace("const PPC_DATA = ", "", 1).rstrip().rstrip(";")
+        data = json.loads(json_str)
+        return data.get("brands", {})
+    except Exception as e:
+        print(f"  [WARN] Could not read existing data.js: {e}")
+        return {}
+
+
 def load_proposals():
-    """Load proposal JSONs by brand and date."""
+    """Load proposal JSONs by brand and date, merging with existing data.js."""
     brands = defaultdict(lambda: defaultdict(dict))
 
+    # ── Phase 0: Load existing data.js to preserve old dates ──
+    existing = _load_existing_data_js()
+    for bk in ["grosmimi", "naeiae", "chaenmom"]:
+        if bk in existing:
+            old_dates = existing[bk].get("dates", {})
+            for dt, dt_data in old_dates.items():
+                brands[bk][dt] = dt_data
+            # Preserve execution_log from existing data
+            old_exec_log = existing[bk].get("execution_log", [])
+            if old_exec_log:
+                brands[bk]["execution_log"] = old_exec_log
+    if existing:
+        old_count = sum(len(v.get("dates", {})) for v in existing.values())
+        print(f"  Loaded {old_count} existing date(s) from data.js")
+
+    # ── Phase 1: Overlay new proposals from .tmp/ JSONs (newer wins) ──
     for f in sorted(glob.glob(str(PROPOSAL_DIR / "ppc_proposal_*_*.json"))):
         try:
             raw = json.loads(Path(f).read_text(encoding="utf-8"))
@@ -261,10 +295,10 @@ def inject_executions(brands):
     # Save persistent log
     EXEC_LOG.write_text(json.dumps(persistent_log, ensure_ascii=False, indent=1), encoding="utf-8")
 
-    # Inject into brands data
+    # Inject into brands data (create brand entry if missing)
     for bk, exec_list in persistent_log.items():
         if bk not in brands:
-            continue
+            brands[bk] = {}
         brands[bk]["execution_log"] = exec_list
         # Mark each date that has execution records
         dates = sorted(d for d in brands[bk].keys() if d != "execution_log")
