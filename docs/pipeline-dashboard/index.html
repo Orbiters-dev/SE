@@ -190,7 +190,10 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
         </div>
       </div>
       <div style="display:flex;gap:8px;justify-content:center;margin:16px 0;flex-wrap:wrap">
+        <button class="btn btn-secondary" id="btn-cfg-preview" onclick="execAction('preview')">&#x1F50D; Preview Counts</button>
         <button class="btn btn-primary" id="btn-apply" onclick="applyConfig()">&#x2705; Apply Config</button>
+        <button class="btn btn-secondary" id="btn-cfg-draft" onclick="execAction('draft_gen')">&#x1F4DD; Generate Drafts</button>
+        <button class="btn btn-secondary" id="btn-cfg-send" onclick="execAction('send')" style="border:1px solid var(--am)">&#x1F4E8; Send Batch</button>
       </div>
       <div class="card">
         <h3>&#x1F4DD; Change Log</h3>
@@ -263,9 +266,43 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
       <h3>&#x1F3AF; Pipeline Funnel</h3>
       <div class="funnel" id="exec-funnel"></div>
     </div>
-    <!-- Action buttons -->
-    <div style="display:flex;gap:8px;justify-content:center;margin:16px 0;flex-wrap:wrap">
-      <button class="btn btn-secondary" onclick="refreshFunnel()">&#x1F504; Refresh Funnel</button>
+    <!-- Action buttons — Pipeline Operations -->
+    <div class="card">
+      <h3>&#x2699;&#xFE0F; Pipeline Operations</h3>
+      <div class="desc">Run pipeline stages. Each action logs to execution history below.</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px">
+        <button class="btn btn-secondary" id="btn-preview" onclick="execAction('preview')">
+          &#x1F50D; Preview Counts
+        </button>
+        <button class="btn btn-secondary" id="btn-draft" onclick="execAction('draft_gen')" style="border-left:3px solid var(--a)">
+          &#x1F4DD; Generate Drafts
+        </button>
+        <button class="btn btn-secondary" id="btn-send" onclick="execAction('send')" style="border-left:3px solid var(--am)">
+          &#x1F4E8; Send Batch
+        </button>
+        <button class="btn btn-secondary" onclick="refreshFunnel()">
+          &#x1F504; Refresh Funnel
+        </button>
+      </div>
+    </div>
+    <!-- Action buttons — Content & Sync -->
+    <div class="card">
+      <h3>&#x1F4F8; Content &amp; Sync</h3>
+      <div class="desc">Content tracking and data synchronization actions.</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px">
+        <button class="btn btn-secondary" id="btn-syncly" onclick="execAction('syncly_sync')" style="border-left:3px solid var(--c)">
+          &#x1F504; Sync Syncly
+        </button>
+        <button class="btn btn-secondary" id="btn-apify" onclick="execAction('apify_crawl')" style="border-left:3px solid var(--g)">
+          &#x1F577;&#xFE0F; Pull Content (Apify)
+        </button>
+        <button class="btn btn-secondary" id="btn-sns" onclick="execAction('sns_sync')" style="border-left:3px solid var(--p)">
+          &#x1F4CA; Sync SNS Tab
+        </button>
+        <button class="btn btn-secondary" id="btn-gmail-sync" onclick="execAction('gmail_sync')" style="border-left:3px solid var(--am)">
+          &#x1F4E7; Sync Gmail RAG
+        </button>
+      </div>
     </div>
     <!-- Execution log -->
     <div class="card">
@@ -273,6 +310,18 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
       <div class="desc">Pipeline actions triggered from dashboard or automation</div>
       <div id="exec-log" style="max-height:400px;overflow-y:auto">
         <div style="color:var(--muted);font-size:11px;padding:8px 0">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div id="confirm-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center">
+    <div style="background:var(--card);border-radius:12px;padding:28px;max-width:420px;width:90%;box-shadow:0 12px 40px rgba(0,0,0,.15)">
+      <h3 id="confirm-title" style="font-size:16px;font-weight:800;margin-bottom:8px"></h3>
+      <p id="confirm-desc" style="font-size:12px;color:var(--dim);margin-bottom:20px;line-height:1.5"></p>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-secondary" onclick="closeConfirm()">Cancel</button>
+        <button class="btn btn-primary" id="confirm-btn" onclick="confirmExec()">Confirm</button>
       </div>
     </div>
   </div>
@@ -584,6 +633,64 @@ function filterByStatus(status){
 async function refreshFunnel(){
   await loadCreatorStats();
   showToast('Funnel refreshed','ok');
+}
+
+// ========== ACTION BUTTONS ==========
+var ACTION_META={
+  preview:{title:'Preview Counts',desc:'Count eligible creators for today\'s batch based on current config. No emails will be sent.',btnId:'btn-preview',icon:'\uD83D\uDD0D'},
+  draft_gen:{title:'Generate Drafts',desc:'Generate outreach email drafts for eligible creators. Drafts will be saved but NOT sent until you click Send Batch.',btnId:'btn-draft',icon:'\uD83D\uDCDD'},
+  send:{title:'Send Batch',desc:'Send outreach emails to all Draft Ready creators. This will send real emails to real people. Are you sure?',btnId:'btn-send',icon:'\uD83D\uDCE8',danger:true},
+  syncly_sync:{title:'Sync Syncly',desc:'Pull latest content metrics from Syncly D+60 tracker and sync to Google Sheets.',btnId:'btn-syncly',icon:'\uD83D\uDD04'},
+  apify_crawl:{title:'Pull Content (Apify)',desc:'Crawl influencer posts via Apify (IG Graph API + TikTok). Takes 5-15 minutes.',btnId:'btn-apify',icon:'\uD83D\uDD77\uFE0F'},
+  sns_sync:{title:'Sync SNS Tab',desc:'Match influencer posts to Shopify orders and update SNS tracking sheets.',btnId:'btn-sns',icon:'\uD83D\uDCCA'},
+  gmail_sync:{title:'Sync Gmail RAG',desc:'Sync Gmail contact index for duplicate checking. Updates email history cache.',btnId:'btn-gmail-sync',icon:'\uD83D\uDCE7'}
+};
+var _pendingAction=null;
+
+function execAction(actionType){
+  var meta=ACTION_META[actionType];
+  if(!meta)return;
+  _pendingAction=actionType;
+  document.getElementById('confirm-title').textContent=meta.icon+' '+meta.title;
+  document.getElementById('confirm-desc').textContent=meta.desc;
+  var btn=document.getElementById('confirm-btn');
+  btn.textContent='Confirm '+meta.title;
+  if(meta.danger){btn.style.background='var(--r)'}else{btn.style.background=''}
+  document.getElementById('confirm-modal').style.display='flex';
+}
+function closeConfirm(){
+  document.getElementById('confirm-modal').style.display='none';
+  _pendingAction=null;
+}
+async function confirmExec(){
+  if(!_pendingAction)return;
+  var action=_pendingAction;
+  closeConfirm();
+  var meta=ACTION_META[action];
+  var btn=document.getElementById(meta.btnId);
+  if(btn){btn.disabled=true;btn.textContent='Running...'}
+  // Log to execution history
+  try{
+    await apiFetch('/pipeline/execution/log/',{
+      method:'POST',
+      body:JSON.stringify({
+        action_type:action,
+        triggered_by:_currentUser,
+        target_count:0,
+        status:'running',
+        details:{source:'dashboard',timestamp:new Date().toISOString()}
+      })
+    });
+  }catch(e){console.error('Log error:',e)}
+  // Show toast
+  showToast(meta.title+' triggered by '+_currentUser,'ok');
+  // Refresh exec log
+  _tabLoaded['execution']=false;
+  loadExecLog();
+  // Re-enable button after delay
+  setTimeout(function(){
+    if(btn){btn.disabled=false;btn.textContent=meta.icon+' '+meta.title}
+  },3000);
 }
 
 // ========== EXECUTION LOG ==========
