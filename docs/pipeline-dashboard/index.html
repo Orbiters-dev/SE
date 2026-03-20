@@ -712,14 +712,18 @@ var DEMO_FORM_QUESTIONS={
   naeiae:['Full Name','Email Address','Instagram Handle','Child\'s Birthday (MM/YYYY)','Any food allergies?','Shipping Address'],
   ht:['Full Name','Email Address','Instagram Handle','TikTok Handle','Content portfolio link','Preferred product category','Expected deliverables','Rate/Fee expectations','Shipping Address']
 };
-var DEMO_RESOURCES=[
+var DEMO_RESOURCES_DEFAULT=[
   {brand:'All',type:'DOC',title:'Outreach Email Template',url:'https://docs.google.com/document/d/1vAvPdheHFz4xIraa3NODUuFG7RagylHEYOvv6BjtxLg/edit'},
-  {brand:'Grosmimi',type:'PDF',product:'PPSU',title:'PPSU Content Guidelines v2',url:'NAS: Shared/ONZ Creator Collab/Content guideline/Grosmimi (PPSU) Content Guidelines v2.pdf'},
-  {brand:'Grosmimi',type:'PDF',product:'Stainless',title:'Stainless Content Guidelines v1',url:'NAS: Shared/ONZ Creator Collab/Content guideline/Grosmimi (Stainless) Content Guidelines v1.pdf'},
-  {brand:'CHA&MOM',type:'PDF',product:'PS Cream',title:'PS Cream Content Guidelines v2',url:'NAS: Shared/ONZ Creator Collab/Content guideline/CHA&MOM (PS Cream-Phyto Seline) Content Guidelines v2.pdf'},
-  {brand:'Naeiae',type:'PDF',product:'Pop Rice',title:'Pop Rice Snack Content Guidelines v2',url:'NAS: Shared/ONZ Creator Collab/Content guideline/Naeiae (Pop rice snck) Content Guidelines v2.pdf'},
+  {brand:'Grosmimi',type:'PDF',product:'PPSU',title:'PPSU Content Guidelines v2',url:''},
+  {brand:'Grosmimi',type:'PDF',product:'Stainless',title:'Stainless Content Guidelines v1',url:''},
+  {brand:'CHA&MOM',type:'PDF',product:'PS Cream',title:'PS Cream Content Guidelines v2',url:''},
+  {brand:'Naeiae',type:'PDF',product:'Pop Rice',title:'Pop Rice Snack Content Guidelines v2',url:''},
   {brand:'HT',type:'CONTRACT',title:'HT Contract Template',url:'https://docuseal.orbiters.co.kr'}
 ];
+// Load from localStorage, fall back to defaults
+var DEMO_RESOURCES=(function(){try{var s=localStorage.getItem('pipeline_resources');return s?JSON.parse(s):DEMO_RESOURCES_DEFAULT}catch(e){return DEMO_RESOURCES_DEFAULT}})();
+// Load saved form URLs from localStorage
+var _savedFormUrls=(function(){try{var s=localStorage.getItem('pipeline_form_urls');return s?JSON.parse(s):{}}catch(e){return{}}})();
 var _reviewedIds={};// track locally reviewed items
 
 function demoResponse(path){
@@ -907,6 +911,13 @@ async function applyConfig(){
   var btn=document.getElementById('btn-apply');btn.disabled=true;btn.textContent='Saving...';
   try{
     var data=collectConfigForm();
+    // Save form URLs to localStorage (persists even if API doesn't store them)
+    var formUrls={};
+    ['grosmimi','chaenmom','naeiae','ht'].forEach(function(k){
+      formUrls[k+'_form_url']=data[k+'_form_url']||'';
+    });
+    _savedFormUrls=formUrls;
+    try{localStorage.setItem('pipeline_form_urls',JSON.stringify(formUrls))}catch(e){}
     var date=_config?_config.date:new Date().toISOString().slice(0,10);
     _config=await apiFetch('/pipeline/config/'+date+'/',{method:'POST',body:JSON.stringify(data)});
     populateConfigForm(_config);showToast('Config saved!','ok');loadConfigHistory();
@@ -1365,7 +1376,7 @@ function renderBrandForms(config){
   var html='';
   for(var i=0;i<BRAND_FORMS.length;i++){
     var bf=BRAND_FORMS[i];
-    var url=config[bf.key+'_form_url']||'';
+    var url=config[bf.key+'_form_url']||_savedFormUrls[bf.key+'_form_url']||DEMO_CONFIG[bf.key+'_form_url']||'';
     var qs=DEMO_FORM_QUESTIONS[bf.key]||[];
     html+='<div style="border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px">';
     html+='<div class="form-row"><label>'+esc(bf.label)+' Form</label><input type="url" id="'+bf.inputId+'" value="'+esc(url)+'" placeholder="https://..." style="flex:1"></div>';
@@ -1417,32 +1428,54 @@ function updateForm(brand){
 }
 
 // ========== RESOURCES ==========
+function saveResources(){try{localStorage.setItem('pipeline_resources',JSON.stringify(DEMO_RESOURCES))}catch(e){}}
 function renderResources(){
   var el=document.getElementById('resources-list');
   var brandFilter=document.getElementById('res-brand-filter').value;
   var typeFilter=document.getElementById('res-type-filter').value;
-  var filtered=DEMO_RESOURCES.filter(function(r){
-    if(brandFilter&&r.brand!==brandFilter&&r.brand!=='All')return false;
-    if(typeFilter&&r.type!==typeFilter)return false;
-    return true;
-  });
+  // Build index map (filtered index → global index)
+  var indexMap=[];
+  var filtered=[];
+  for(var i=0;i<DEMO_RESOURCES.length;i++){
+    var r=DEMO_RESOURCES[i];
+    if(brandFilter&&r.brand!==brandFilter&&r.brand!=='All')continue;
+    if(typeFilter&&r.type!==typeFilter)continue;
+    indexMap.push(i);filtered.push(r);
+  }
   var html='<ul class="res-list">';
-  for(var i=0;i<filtered.length;i++){
-    var r=filtered[i];
+  for(var j=0;j<filtered.length;j++){
+    var r=filtered[j];var gi=indexMap[j];
     var tagColor=r.type==='DOC'?'background:var(--abg);color:var(--a)':r.type==='PDF'?'background:var(--gbg);color:var(--g)':r.type==='CONTRACT'?'background:var(--rbg);color:var(--r)':'background:var(--cbg);color:var(--c)';
-    var isExternal=r.url.startsWith('http');
-    html+='<li><span class="res-tag" style="'+tagColor+'">'+esc(r.type)+'</span>';
+    var hasUrl=r.url&&r.url.startsWith('http');
+    var noUrl=!r.url;
+    html+='<li style="flex-wrap:wrap;gap:4px">';
+    html+='<span class="res-tag" style="'+tagColor+'">'+esc(r.type)+'</span>';
     if(r.brand!=='All')html+='<span style="font-size:8px;color:var(--muted)">'+esc(r.brand)+(r.product?' / '+esc(r.product):'')+'</span>';
-    if(isExternal)html+='<a href="'+esc(r.url)+'" target="_blank">'+esc(r.title)+'</a>';
-    else html+='<a href="#" onclick="alert(\''+esc(r.url).replace(/'/g,"\\'")+'\');return false">'+esc(r.title)+'</a>';
-    html+='<button style="margin-left:auto;background:none;border:none;color:var(--r);cursor:pointer;font-size:12px" onclick="removeResource('+i+')">&times;</button>';
+    if(hasUrl)html+='<a href="'+esc(r.url)+'" target="_blank">'+esc(r.title)+'</a>';
+    else html+='<span style="color:var(--text)">'+esc(r.title)+'</span>';
+    if(noUrl)html+='<span style="font-size:9px;color:var(--am);background:var(--ambg);padding:1px 5px;border-radius:3px;cursor:pointer" onclick="editResourceUrl('+gi+',\''+esc(r.title).replace(/'/g,"\\'")+'\')" title="No URL — click to add">+ Add URL</span>';
+    else if(!hasUrl)html+='<span style="font-size:9px;color:var(--r);cursor:pointer" onclick="editResourceUrl('+gi+',\''+esc(r.title).replace(/'/g,"\\'")+'\')">⚠ local path — click to update</span>';
+    else html+='<span style="font-size:9px;color:var(--muted);cursor:pointer" onclick="editResourceUrl('+gi+',\''+esc(r.title).replace(/'/g,"\\'")+'\')" title="Edit URL">✏</span>';
+    html+='<button style="margin-left:auto;background:none;border:none;color:var(--r);cursor:pointer;font-size:12px" onclick="removeResource('+gi+')">&times;</button>';
     html+='</li>';
   }
   html+='</ul>';
   el.innerHTML=html;
 }
+function editResourceUrl(idx,title){
+  var current=DEMO_RESOURCES[idx].url||'';
+  var newUrl=prompt('URL for "'+title+'":\n(Google Drive, Sheets, Docs, or any https:// link)',current.startsWith('http')?current:'');
+  if(newUrl===null)return;
+  newUrl=newUrl.trim();
+  if(newUrl&&!newUrl.startsWith('http')){showToast('Must be an https:// URL','err');return}
+  DEMO_RESOURCES[idx].url=newUrl;
+  saveResources();
+  renderResources();
+  showToast('URL updated','ok');
+}
 function removeResource(idx){
   DEMO_RESOURCES.splice(idx,1);
+  saveResources();
   renderResources();
   showToast('Resource removed','ok');
 }
@@ -1450,11 +1483,12 @@ function addResource(){
   var title=document.getElementById('res-new-title').value.trim();
   var url=document.getElementById('res-new-url').value.trim();
   var brand=document.getElementById('res-new-brand').value;
-  if(!title||!url){showToast('Enter title and URL','err');return}
+  if(!title){showToast('Enter a title','err');return}
   var type=url.indexOf('docs.google.com')>=0||url.indexOf('sheets.google.com')>=0?'SHEET':url.indexOf('.pdf')>=0?'PDF':url.indexOf('docuseal')>=0?'CONTRACT':'DOC';
-  DEMO_RESOURCES.push({brand:brand,type:type,title:title,url:url});
+  DEMO_RESOURCES.push({brand:brand,type:type,title:title,url:url||''});
   document.getElementById('res-new-title').value='';
   document.getElementById('res-new-url').value='';
+  saveResources();
   renderResources();
   showToast('Resource added','ok');
 }
