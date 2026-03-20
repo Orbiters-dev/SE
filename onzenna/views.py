@@ -19,7 +19,7 @@ def _cors_headers(request, response):
     if origin in _CORS_ORIGINS:
         response['Access-Control-Allow-Origin'] = origin
         response['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
-        response['Access-Control-Allow-Headers'] = 'Content-Type'
+        response['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
         response['Access-Control-Max-Age'] = '86400'
     return response
 

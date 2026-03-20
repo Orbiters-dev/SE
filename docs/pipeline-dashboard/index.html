@@ -740,7 +740,9 @@ function demoResponse(path){
 // ========== API FETCH ==========
 async function apiFetch(path,opts){
   opts=opts||{};opts.mode='cors';opts.credentials='omit';
-  if(opts.body){opts.headers=opts.headers||{};opts.headers['Content-Type']='application/json'}
+  opts.headers=opts.headers||{};
+  opts.headers['Authorization']='Basic '+btoa('admin:admin');
+  if(opts.body){opts.headers['Content-Type']='application/json'}
   if(DEMO_MODE){
     if(opts.method==='POST'||opts.method==='PUT'){showToast('Demo mode: action simulated','ok');return{ok:true}}
     return demoResponse(path);

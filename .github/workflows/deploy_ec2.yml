@@ -102,6 +102,7 @@ jobs:
             echo 'Deploy complete!'"
 
           # Remove ALL nginx CORS headers everywhere (Django handles CORS)
+          # Also add OPTIONS preflight pass-through snippet for CORS + Basic Auth
           ${SSH_CMD} "echo '=== Finding CORS headers ===' && \
             sudo grep -rn 'Access-Control' /etc/nginx/ 2>/dev/null && \
             echo '=== Removing ===' && \
@@ -110,9 +111,25 @@ jobs:
             sudo find /etc/nginx/sites-enabled -type f -exec sudo sed -i '/[Aa]ccess-[Cc]ontrol/d' {} \; 2>/dev/null && \
             sudo find /etc/nginx/conf.d -type f -exec sudo sed -i '/[Aa]ccess-[Cc]ontrol/d' {} \; 2>/dev/null && \
             sudo find /etc/nginx/snippets -type f -exec sudo sed -i '/[Aa]ccess-[Cc]ontrol/d' {} \; 2>/dev/null && \
+            echo '=== Adding OPTIONS preflight snippet ===' && \
+            sudo tee /etc/nginx/snippets/cors-preflight.conf > /dev/null << 'NGINXEOF'
+# CORS preflight: bypass Basic Auth for OPTIONS requests
+if (\$request_method = OPTIONS) {
+    add_header Access-Control-Allow-Origin 'https://orbiters-dev.github.io' always;
+    add_header Access-Control-Allow-Methods 'GET, POST, PUT, OPTIONS' always;
+    add_header Access-Control-Allow-Headers 'Authorization, Content-Type' always;
+    add_header Access-Control-Max-Age 86400 always;
+    return 204;
+}
+NGINXEOF
+            echo '=== Injecting snippet into nginx site config ===' && \
+            NGINX_SITE=\$(sudo find /etc/nginx/sites-enabled -type f -o -type l | head -1) && \
+            if ! sudo grep -q 'cors-preflight' \$NGINX_SITE 2>/dev/null; then \
+              sudo sed -i '/location.*\\/.*{/a \\    include snippets/cors-preflight.conf;' \$NGINX_SITE 2>/dev/null || true; \
+            fi && \
             echo '=== Verifying ===' && \
-            sudo grep -rn 'Access-Control' /etc/nginx/ 2>/dev/null || echo 'No CORS headers remaining' && \
-            sudo nginx -t && sudo systemctl reload nginx && echo 'Nginx CORS fully cleaned'" || echo "[WARN] nginx fix skipped"
+            sudo grep -rn 'Access-Control' /etc/nginx/ 2>/dev/null || echo 'No stale CORS headers' && \
+            sudo nginx -t && sudo systemctl reload nginx && echo 'Nginx CORS + preflight configured'" || echo "[WARN] nginx fix skipped"
 
       - name: Verify deployment
         run: |
