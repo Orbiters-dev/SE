@@ -1540,8 +1540,8 @@ function scrollToHwSec(id){
 var E2E_FLOWS=[
   {name:'CORS Preflight',icon:'\uD83D\uDD12',tests:[
     {id:'cors-preflight',label:'OPTIONS /tables/',method:'OPTIONS',path:'/tables/',headers:{'Origin':'https://orbiters-dev.github.io','Access-Control-Request-Method':'GET','Access-Control-Request-Headers':'Authorization'},
-     check:function(r,h){return r.status===204&&(h.get('access-control-allow-origin')||'').includes('orbiters-dev')},
-     detail:function(r,h){return 'status='+r.status+', ACAO='+(h.get('access-control-allow-origin')||'none')}}
+     check:function(r,h){return (r.status===200||r.status===204)&&(h.get('access-control-allow-origin')||'').includes('orbiters-dev')},
+     detail:function(r,h){var acao=h.get('access-control-allow-origin')||'none';return 'status='+r.status+', ACAO='+acao+(acao==='none'?' ⚠ nginx missing ACAO header for /tables/':'')}}
   ]},
   {name:'Creators API',icon:'\uD83D\uDC65',tests:[
     {id:'stats',label:'GET /pipeline/creators/stats/',method:'GET',path:'/pipeline/creators/stats/',
@@ -1549,11 +1549,11 @@ var E2E_FLOWS=[
      detail:function(r,h,d){return 'total='+d.total+', brands='+Object.keys(d.by_brand||{}).join('/')}},
     {id:'list',label:'GET /pipeline/creators/?limit=3',method:'GET',path:'/pipeline/creators/?limit=3',
      check:function(r,h,d){return r.ok&&Array.isArray(d.results)&&d.results.length>0},
-     detail:function(r,h,d){return d.results.length+' returned, '+d.count+' total'}},
+     detail:function(r,h,d){return d.results.length+' returned, '+(d.total||d.count)+' total'}},
     {id:'detail',label:'GET /pipeline/creators/<id>/',method:'GET',path:null,dynamic:true,
      setup:async function(){var d=await apiFetchRaw('/pipeline/creators/?limit=1');return'/pipeline/creators/'+d.results[0].id+'/'},
-     check:function(r,h,d){return r.ok&&d.id&&d.status},
-     detail:function(r,h,d){return (d.ig_handle||d.handle||'?')+' ('+d.status+')'}}
+     check:function(r,h,d){return r.ok&&d.id&&(d.pipeline_status||d.status)},
+     detail:function(r,h,d){return (d.ig_handle||d.tiktok_handle||d.handle||'?')+' ('+(d.pipeline_status||d.status||'?')+')'}}
   ]},
   {name:'Config API',icon:'\u2699\uFE0F',tests:[
     {id:'config-today',label:'GET /pipeline/config/today/',method:'GET',path:'/pipeline/config/today/',
