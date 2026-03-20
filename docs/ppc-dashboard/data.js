@@ -1,5 +1,5 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-20 15:17 PST",
+ "generated_pst": "2026-03-20 15:55 PST",
  "brands": {
   "grosmimi": {
    "dates": {
@@ -4308,9 +4308,9 @@ const PPC_DATA = {
      }
     },
     "2026-03-20": {
-     "generated": "2026-03-20T15:17",
-     "executed": false,
-     "executed_at": "",
+     "generated": "2026-03-20T15:55",
+     "executed": true,
+     "executed_at": "2026-03-20",
      "summary_7d": {
       "spend": 22553,
       "sales": 92544,
@@ -4334,7 +4334,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "10 No-Brainer",
        "reason": "[SD] 7d ROAS 0.88x (ACOS 114.2%) | 30d ROAS 1.08x | target ACOS 35.0% | 7d vs 30d: -18.5%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SP_ppsu_auto",
@@ -6204,6 +6204,23 @@ const PPC_DATA = {
      "sales_7d": 23.8,
      "result_status": "OK",
      "exec_date": "2026-03-19"
+    },
+    {
+     "brand_key": "grosmimi",
+     "campaignId": "438350302164737",
+     "campaignName": "SD_stage2cup",
+     "action": "pause",
+     "priority": "urgent",
+     "reason": "[SD] 7d ROAS 0.88x (ACOS 114.2%) | 30d ROAS 1.08x | target ACOS 35.0% | 7d vs 30d: -18.5%",
+     "old_budget": 300.0,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "roas_7d": 0.88,
+     "spend_7d": 35.28,
+     "sales_7d": 30.9,
+     "result_status": "OK",
+     "exec_date": "2026-03-20",
+     "exec_time": "2026-03-20 22:55:56"
     }
    ]
   },
@@ -6687,7 +6704,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-20": {
-     "generated": "2026-03-20T15:17",
+     "generated": "2026-03-20T15:55",
      "executed": true,
      "executed_at": "2026-03-20",
      "summary_7d": {
@@ -6730,7 +6747,7 @@ const PPC_DATA = {
        "bud_before": 100.0,
        "bud_after": null,
        "tier": "7 Strong",
-       "reason": "[AUTO] 7d ROAS 3.45x (ACOS 29.0%) | 30d ROAS 2.9x | target ACOS 35.0% | 7d vs 30d: +19.0%\nBudget already at cap ($100/campaign)",
+       "reason": "[AUTO] 7d ROAS 3.45x (ACOS 29.0%) | 30d ROAS 2.9x | target ACOS 35.0% | 7d vs 30d: +19.0%\nBudget already at cap ($86/campaign)",
        "approved": true
       },
       {
@@ -8089,9 +8106,9 @@ const PPC_DATA = {
      }
     },
     "2026-03-20": {
-     "generated": "2026-03-20T15:17",
-     "executed": false,
-     "executed_at": "",
+     "generated": "2026-03-20T15:55",
+     "executed": true,
+     "executed_at": "2026-03-20",
      "summary_7d": {
       "spend": 166,
       "sales": 472,
@@ -8115,7 +8132,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "10 No-Brainer",
        "reason": "[AUTO] 7d ROAS 0.0x (ACOS None%) | 30d ROAS 2.04x | target ACOS 40.0% | 7d vs 30d: -100.0%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "CHA&MOM _Competitor Targeting_SP_Manual",
@@ -8150,7 +8167,7 @@ const PPC_DATA = {
        "bud_before": 75.0,
        "bud_after": null,
        "tier": "8 Strong",
-       "reason": "[AUTO] 7d ROAS 20.48x (ACOS 4.9%) | 30d ROAS 14.94x | target ACOS 40.0% | 7d vs 30d: +37.1%\nBudget already at cap ($40/campaign)",
+       "reason": "[AUTO] 7d ROAS 20.48x (ACOS 4.9%) | 30d ROAS 14.94x | target ACOS 40.0% | 7d vs 30d: +37.1%\nBudget already at cap ($53/campaign)",
        "approved": false
       },
       {
@@ -8321,6 +8338,22 @@ const PPC_DATA = {
      "sales_7d": 28.7,
      "result_status": "OK",
      "exec_date": "2026-03-15"
+    },
+    {
+     "brand_key": "chaenmom",
+     "campaignId": "496578934015367",
+     "campaignName": "CHA&MOM_Lotion_SP_Auto",
+     "action": "pause",
+     "priority": "urgent",
+     "reason": "[AUTO] 7d ROAS 0.0x (ACOS None%) | 30d ROAS 2.04x | target ACOS 40.0% | 7d vs 30d: -100.0%",
+     "old_budget": 60.0,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "roas_7d": 0.0,
+     "spend_7d": 0.91,
+     "sales_7d": 0.0,
+     "result_status": "OK",
+     "exec_date": "2026-03-20"
     }
    ]
   }

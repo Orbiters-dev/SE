@@ -859,6 +859,22 @@
    "sales_7d": 28.7,
    "result_status": "OK",
    "exec_date": "2026-03-15"
+  },
+  {
+   "brand_key": "chaenmom",
+   "campaignId": "496578934015367",
+   "campaignName": "CHA&MOM_Lotion_SP_Auto",
+   "action": "pause",
+   "priority": "urgent",
+   "reason": "[AUTO] 7d ROAS 0.0x (ACOS None%) | 30d ROAS 2.04x | target ACOS 40.0% | 7d vs 30d: -100.0%",
+   "old_budget": 60.0,
+   "new_budget": null,
+   "bid_change_pct": null,
+   "roas_7d": 0.0,
+   "spend_7d": 0.91,
+   "sales_7d": 0.0,
+   "result_status": "OK",
+   "exec_date": "2026-03-20"
   }
  ],
  "grosmimi": [
@@ -1365,6 +1381,23 @@
    "sales_7d": 23.8,
    "result_status": "OK",
    "exec_date": "2026-03-19"
+  },
+  {
+   "brand_key": "grosmimi",
+   "campaignId": "438350302164737",
+   "campaignName": "SD_stage2cup",
+   "action": "pause",
+   "priority": "urgent",
+   "reason": "[SD] 7d ROAS 0.88x (ACOS 114.2%) | 30d ROAS 1.08x | target ACOS 35.0% | 7d vs 30d: -18.5%",
+   "old_budget": 300.0,
+   "new_budget": null,
+   "bid_change_pct": null,
+   "roas_7d": 0.88,
+   "spend_7d": 35.28,
+   "sales_7d": 30.9,
+   "result_status": "OK",
+   "exec_date": "2026-03-20",
+   "exec_time": "2026-03-20 22:55:56"
   }
  ]
 }
