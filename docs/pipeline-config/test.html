@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html><head><title>API Test</title></head>
+<body>
+<h2>Pipeline Config API Test</h2>
+<pre id="out">Loading...</pre>
+<script>
+var url = 'https://orbitools.orbiters.co.kr/api/onzenna/pipeline/config/today/?_t=' + Date.now();
+document.getElementById('out').textContent = 'Fetching: ' + url + '\n\n';
+fetch(url, {mode:'cors', credentials:'omit'})
+  .then(function(r){
+    document.getElementById('out').textContent += 'Status: ' + r.status + '\n';
+    document.getElementById('out').textContent += 'Headers: ' + JSON.stringify([...r.headers.entries()]) + '\n\n';
+    return r.text();
+  })
+  .then(function(body){
+    document.getElementById('out').textContent += 'Body: ' + body;
+  })
+  .catch(function(err){
+    document.getElementById('out').textContent += 'ERROR: ' + err.message + '\n' + err.stack;
+  });
+</script>
+</body>
+</html>
