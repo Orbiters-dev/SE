@@ -775,11 +775,13 @@ var DEMO_FORM_PRODUCTS=(function(){
     if(!s)return DEMO_FORM_PRODUCTS_DEFAULT;
     var saved=JSON.parse(s);
     // Reset if old format: string[] or missing colors/bonusAges fields
+    // Also reset if grosmimi products have empty colors[] — old data embedded colors in title
     var needsReset=false;
     Object.keys(saved).forEach(function(k){
       var arr=saved[k];
       if(!arr||!arr.length)return;
       if(typeof arr[0]==='string'||!arr[0].hasOwnProperty('colors')||!arr[0].hasOwnProperty('bonusAges'))needsReset=true;
+      if(k==='grosmimi'&&arr[0].hasOwnProperty('colors')&&(!arr[0].colors||arr[0].colors.length===0))needsReset=true;
     });
     if(needsReset){localStorage.removeItem('pipeline_form_products');return DEMO_FORM_PRODUCTS_DEFAULT}
     return saved;
@@ -1511,7 +1513,7 @@ function renderBrandForms(config){
         } else if(onBonus){
           ageHtml+='<span onclick="toggleProdAge(\''+brand+'\','+idx+',\''+a+'\',true)" style="cursor:pointer;display:inline-block;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:600;margin:1px;background:#f3f0ff;color:#6d28d9;border:1px dashed #a78bfa" title="Bonus optional age — click to remove">+'+a+'</span>';
         } else {
-          ageHtml+='<span onclick="toggleProdAge(\''+brand+'\','+idx+',\''+a+'\',false)" style="cursor:pointer;display:inline-block;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:500;margin:1px;background:#f1f5f9;color:#94a3b8;border:1px solid #e2e8f0" title="Click = add required; Shift+click = add bonus">'+a+'</span>';
+          ageHtml+='<span onclick="toggleProdAge(event,\''+brand+'\','+idx+',\''+a+'\')" style="cursor:pointer;display:inline-block;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:500;margin:1px;background:#f1f5f9;color:#94a3b8;border:1px solid #e2e8f0" title="Click = add required; Shift+click = add bonus optional">'+a+'</span>';
         }
       });
       // Color swatches
@@ -1611,7 +1613,20 @@ function toggleProdReq(brand,idx){
   document.getElementById('fp-'+brand).style.display='block';
 }
 // isBonus=true → toggle bonusAges[], false → toggle ages[]
-function toggleProdAge(brand,idx,age,isBonus){
+// Unselected badge passes event so shift+click adds bonus instead of required
+function toggleProdAge(brandOrEvent,idxOrBrand,ageOrIdx,isBonus,extraAge){
+  // Detect overloaded call: (event, brand, idx, age) vs legacy (brand, idx, age, isBonus)
+  var brand,idx,age;
+  if(brandOrEvent&&typeof brandOrEvent==='object'&&brandOrEvent.type==='click'){
+    // new call: (event, brand, idx, age)
+    var ev=brandOrEvent;
+    brand=idxOrBrand; idx=ageOrIdx; age=isBonus;
+    isBonus=ev.shiftKey;
+  } else {
+    brand=brandOrEvent; idx=idxOrBrand; age=ageOrIdx;
+    // isBonus already set
+  }
+  void(extraAge);// unused
   _syncProdInputs(brand);
   if(!DEMO_FORM_PRODUCTS[brand]||!DEMO_FORM_PRODUCTS[brand][idx])return;
   var p=DEMO_FORM_PRODUCTS[brand][idx];

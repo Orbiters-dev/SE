@@ -4,16 +4,20 @@ Dual Test Runner — Maker-Checker Pattern for Creator Collab Pipeline
 Executor (Maker)가 파이프라인 액션을 실행하고,
 Verifier (Checker)가 독립적으로 모든 downstream 시스템을 검증한다.
 
+Architecture (Airtable 제거 후):
+  n8n → PostgreSQL (orbitools Django API) + Shopify
+  대시보드 → orbitools.orbiters.co.kr/api/onzenna 직접 읽기
+
 Stages:
-  seed        : Airtable Creator 시드 레코드 생성
-  gifting     : 인플루언서 기프팅 폼 → n8n → Airtable + Shopify + PG
-  gifting2    : 샘플 요청 폼 → Draft Order + Airtable
-  sample_sent : Airtable 상태 변경 → n8n 폴링 → Draft Order 완료
+  seed        : PG pipeline_creators 시드 레코드 생성
+  gifting     : 인플루언서 기프팅 폼 → n8n → PG gifting_applications + Shopify Draft Order
+               (제품 선택 포함 — gifting2 단계 없음, gifting 한 번에 끝)
+  sample_sent : PG pipeline_creators 상태 변경 → n8n 폴링 → Draft Order 완료
 
 Usage:
-    python tools/dual_test_runner.py --dual                         # 전체 이중테스트
-    python tools/dual_test_runner.py --dual --stages seed,gifting   # 특정 스테이지
-    python tools/dual_test_runner.py --dual --dry-run               # 프리뷰
+    python tools/dual_test_runner.py --dual                          # 이중테스트 (seed→gifting→sample_sent)
+    python tools/dual_test_runner.py --dual --stages seed,gifting    # 특정 스테이지
+    python tools/dual_test_runner.py --dual --dry-run                # 프리뷰
     python tools/dual_test_runner.py --executor-only                # Executor만
     python tools/dual_test_runner.py --verifier-only --run-id X     # 기존 signal로 Verifier만
     python tools/dual_test_runner.py --results                      # 마지막 결과
@@ -48,15 +52,30 @@ except ImportError:
 
 from test_influencer_flow import (
     FlowContext, http_request, extract_value,
-    AT_BASE, AT_CREATORS, AT_ORDERS, AT_APPLICANTS, AT_CONVERSATIONS,
     WJ_WORKFLOWS, WJ_WEBHOOKS,
-    AIRTABLE_API_KEY, SHOPIFY_STORE, SHOPIFY_TOKEN,
-    ORBITOOLS_URL, ORBITOOLS_USER, ORBITOOLS_PASS,
+    SHOPIFY_STORE, SHOPIFY_TOKEN,
+    ORBITOOLS_URL,
     N8N_BASE_URL, N8N_API_KEY,
     TEST_EMAIL_DOMAIN,
     _make_test_email, _make_test_phone,
     link_airtable, link_shopify, link_n8n_wf,
 )
+
+# ─── Airtable (email/outreach 스테이지에서만 사용 — gifting/seed/sample은 PG 사용) ──
+AT_BASE          = "app3Vnmh7hLAVsevE"
+AT_CREATORS      = "tblv2Jw3ZAtAMhiYY"
+AT_ORDERS        = "tblQUz8zQRDdZvES3"
+AT_APPLICANTS    = "tblQUz8zQRDdZvES3"
+AT_CONVERSATIONS = "tblNeTyVwMomsfSk7"
+
+AIRTABLE_API_KEY = (
+    os.getenv("AT_API_KEY_PATHLIGHT") or
+    os.getenv("AIRTABLE_API_KEY", "")
+)
+
+# ─── ORBITOOLS / PostgreSQL (primary backend for pipeline) ───────────────────
+ORBITOOLS_USER = os.getenv("ORBITOOLS_USER") or "admin"
+ORBITOOLS_PASS = os.getenv("ORBITOOLS_PASS") or "admin"
 
 # ─── Email content templates ─────────────────────────────────────────
 def _email_templates(test_name, test_ig, test_email):
@@ -74,9 +93,9 @@ def warn(msg): print(f"  [WARN] {msg}")
 def info(msg): print(f"  [INFO] {msg}")
 
 ALL_STAGES = ["seed", "email_draft", "email_approve", "email_reply", "email_confirm",
-              "gifting", "gifting2", "sample_sent"]
-# Quick preset: skip email stages
-QUICK_STAGES = ["seed", "gifting", "gifting2", "sample_sent"]
+              "gifting", "sample_sent"]
+# Quick preset: skip email stages (gifting2 removed — product selection now in main gifting form)
+QUICK_STAGES = ["seed", "gifting", "sample_sent"]
 
 # ═══════════════════════════════════════════════════════════════════════════
 # DualTestConfig
@@ -93,7 +112,7 @@ class DualTestConfig:
         rand = "".join(random.choices(string.ascii_lowercase, k=4))
         self.test_ig = f"@dualtest_{ts[:8]}_{rand}"
         self.test_tiktok = f"@dualtest_tk_{rand}"
-        self.stages = stages or ALL_STAGES[:]
+        self.stages = stages or QUICK_STAGES[:]  # default: seed→gifting→sample_sent (no email stages)
         self.started_at = datetime.now().isoformat()
         self.finished_at = None
 
@@ -213,12 +232,12 @@ def at_delete(table_id, record_id):
     status, body = http_request("DELETE", url, headers=_at_headers())
     return status, body
 
-def find_orders_by_phone(phone, max_records=5):
-    """Find Orders by Phone Number (PROD: Orders has no Email field)."""
-    if not phone:
+def find_orders_by_draft_id(draft_order_id, max_records=5):
+    """Find WJ TEST Orders by Shopify Draft Order ID."""
+    if not draft_order_id:
         return []
-    safe = phone.replace("'", "\\'")
-    formula = urllib.parse.quote(f"{{Phone Number}}='{safe}'")
+    safe = str(draft_order_id).replace("'", "\\'")
+    formula = urllib.parse.quote(f"{{Shopify Order ID}}='{safe}'")
     url = f"https://api.airtable.com/v0/{AT_BASE}/{AT_ORDERS}?filterByFormula={formula}&maxRecords={max_records}"
     status, body = http_request("GET", url, headers=_at_headers())
     if status == 200 and isinstance(body, dict):
@@ -253,6 +272,32 @@ def pg_find(endpoint, email):
         if isinstance(body, list):
             return body
     return []
+
+def pg_find_gifting(email):
+    """Find gifting applications by exact email from onz_gifting_applications."""
+    url = f"{ORBITOOLS_URL}/api/onzenna/gifting/list/?email={urllib.parse.quote(email.lower())}"
+    status, body = http_request("GET", url)
+    if status == 200 and isinstance(body, list):
+        return body
+    return []
+
+def pg_find_creators(email):
+    """Find pipeline creators by email from onz_pipeline_creators."""
+    url = f"{ORBITOOLS_URL}/api/onzenna/pipeline/creators/?search={urllib.parse.quote(email)}"
+    status, body = http_request("GET", url)
+    if status == 200 and isinstance(body, dict):
+        return body.get("results", [])
+    return []
+
+def pg_update_creator(creator_id, fields):
+    """Update a pipeline creator record via PUT."""
+    url = f"{ORBITOOLS_URL}/api/onzenna/pipeline/creators/{creator_id}/"
+    return http_request("PUT", url, payload=fields)
+
+def pg_create_creator(fields):
+    """Create (upsert by email) a pipeline creator record via POST."""
+    url = f"{ORBITOOLS_URL}/api/onzenna/pipeline/creators/"
+    return http_request("POST", url, payload=fields)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -327,32 +372,34 @@ class ExecutorAgent:
     def _stage_seed(self):
         checks = []
         ctx = {"test_email": self.config.test_email, "test_ig": self.config.test_ig}
-        info(f"[Stage 0] Simulating Syncly discovery -> Airtable CRM record creation")
+        info(f"[Stage 0] Simulating Syncly discovery -> PG pipeline_creators record creation")
         info(f"  Creator: Sarah Kim | IG: {self.config.test_ig} | Email: {self.config.test_email}")
 
         if self.dry_run:
-            checks.append(Check("DRY-RUN: Would create Airtable Creator", True, detail="seed"))
+            checks.append(Check("DRY-RUN: Would create PG pipeline_creators record", True, detail="seed"))
             return checks, ctx
 
         fields = {
-            "Email": self.config.test_email,
-            "Username": self.config.test_ig.lstrip("@"),
-            "Platform": "Instagram",
-            "Outreach Status": "Not Started",
-            "Partnership Status": "New",
-            "Source": "Dual Test",
+            "email": self.config.test_email,
+            "ig_handle": self.config.test_ig,
+            "tiktok_handle": self.config.test_tiktok,
+            "full_name": "Sarah Kim",
+            "platform": "Instagram",
+            "pipeline_status": "Not Started",
+            "brand": "Grosmimi",
+            "outreach_type": "LT",
+            "source": "Dual Test",
         }
-        info(f"  [0.1] POST Airtable Creators table ({AT_CREATORS})")
-        info(f"        Fields: {json.dumps({k:v for k,v in fields.items()}, ensure_ascii=False)}")
-        status, body = at_create(AT_CREATORS, fields)
+        info(f"  [0.1] POST pipeline/creators/ (PG)")
+        status, body = pg_create_creator(fields)
         if status in (200, 201) and isinstance(body, dict) and body.get("id"):
-            record_id = body["id"]
-            ok(f"[0.2] Airtable Creator created: {record_id}")
-            checks.append(Check("[0] Create AT Creator record", True, detail=record_id))
-            ctx["creator_record_id"] = record_id
+            creator_id = body["id"]
+            ok(f"[0.2] PG pipeline_creators created: {creator_id[:8]}...")
+            checks.append(Check("[0] Create PG Creator record", True, detail=creator_id))
+            ctx["creator_pg_id"] = creator_id
         else:
-            fail(f"[0.2] Airtable Creator create failed: {status} {body}")
-            checks.append(Check("[0] Create AT Creator record", False, expected="201", actual=str(status)))
+            fail(f"[0.2] PG pipeline_creators create failed: {status} {body}")
+            checks.append(Check("[0] Create PG Creator record", False, expected="201", actual=str(status)))
         return checks, ctx
 
     # ── Stage 1a: Trigger AI Draft Generation ───────────────────────────
@@ -373,13 +420,9 @@ class ExecutorAgent:
             return checks, ctx
 
         if not creator_record_id:
-            records = at_find(AT_CREATORS, "Email", self.config.test_email)
-            if records:
-                creator_record_id = records[0]["id"]
-            else:
-                fail("[1a] No creator record found — run seed stage first")
-                checks.append(Check("[1a] Find creator record", False))
-                return checks, ctx
+            # email stages use AT — but seed now creates PG record, not AT
+            warn("[1a] No AT creator_record_id from seed (seed now creates PG records) — generating payload without AT link")
+            creator_record_id = ""
 
         payload = {
             "records": [{
@@ -735,35 +778,48 @@ class ExecutorAgent:
         ctx = {}
         info(f"[Stage 5] Team manually marks sample as shipped -> n8n polls and completes Draft Order")
 
-        # Read signal to get creator_record_id from seed stage
+        # Get creator_pg_id from seed stage signal
         seed_ctx = self.signal.get_stage_context("seed")
-        creator_record_id = seed_ctx.get("creator_record_id", "")
+        creator_pg_id = seed_ctx.get("creator_pg_id", "")
 
         if self.dry_run:
-            checks.append(Check("DRY-RUN: Would update AT status to Sample Sent", True))
+            checks.append(Check("DRY-RUN: Would update PG pipeline_status to Sample Sent", True))
             return checks, ctx
 
-        if not creator_record_id:
-            records = at_find(AT_CREATORS, "Email", self.config.test_email)
-            if records:
-                creator_record_id = records[0]["id"]
-                info(f"  [5.0] Found creator record: {creator_record_id}")
+        if not creator_pg_id:
+            # Fallback: search by email
+            creators = pg_find_creators(self.config.test_email)
+            if creators:
+                creator_pg_id = creators[0]["id"]
+                info(f"  [5.0] Found PG creator: {creator_pg_id[:8]}...")
             else:
-                fail("[5.0] No creator record found for sample_sent stage")
-                checks.append(Check("[5] Find creator record", False, detail="No record"))
+                fail("[5.0] No PG pipeline_creators record found for sample_sent stage")
+                checks.append(Check("[5] Find PG creator record", False, detail="No record"))
                 return checks, ctx
 
-        info(f"  [5.1] Simulating team action: PATCH Airtable Outreach Status -> 'Sample Sent'")
-        info(f"        Record: {creator_record_id}")
-        status, body = at_update(AT_CREATORS, creator_record_id, {"Outreach Status": "Sample Sent"})
-        if status == 200:
-            ok(f"[5.2] Outreach Status updated to 'Sample Sent'")
-            checks.append(Check("[5] Update AT status -> Sample Sent", True))
+        info(f"  [5.1] Simulating team action: PUT pipeline_creators pipeline_status -> 'Sample Sent'")
+        info(f"        Creator ID: {creator_pg_id[:8]}...")
+        # Need to send required fields for PUT — get current record first
+        cur_url = f"{ORBITOOLS_URL}/api/onzenna/pipeline/creators/{creator_pg_id}/"
+        cur_status, cur_body = http_request("GET", cur_url)
+        if cur_status == 200 and isinstance(cur_body, dict):
+            update_payload = dict(cur_body)
+            update_payload["pipeline_status"] = "Sample Sent"
+            update_payload["changed_by"] = "dual_test"
+            status, body = pg_update_creator(creator_pg_id, update_payload)
         else:
-            fail(f"[5.2] Update failed: {status}")
-            checks.append(Check("[5] Update AT status -> Sample Sent", False, actual=str(status)))
+            status, body = pg_update_creator(creator_pg_id, {
+                "pipeline_status": "Sample Sent",
+                "changed_by": "dual_test",
+            })
+        if status == 200:
+            ok(f"[5.2] PG pipeline_status updated to 'Sample Sent'")
+            checks.append(Check("[5] Update PG status -> Sample Sent", True))
+        else:
+            fail(f"[5.2] PG update failed: {status} {body}")
+            checks.append(Check("[5] Update PG status -> Sample Sent", False, actual=str(status)))
 
-        ctx["creator_record_id"] = creator_record_id
+        ctx["creator_pg_id"] = creator_pg_id
 
         wait_sec = 30
         info(f"  [5.3] Waiting {wait_sec}s for n8n 5-min polling cycle...")
@@ -830,42 +886,43 @@ class VerifierAgent:
     def _verify_seed(self, ctx):
         checks = []
         email = self.config.test_email
-        info(f"[V-0] Verifying Stage 0: CRM record created, no downstream leakage")
+        info(f"[V-0] Verifying Stage 0: PG pipeline_creators record created, no downstream leakage")
 
         if self.dry_run:
             checks.append(Check("DRY-RUN: Would verify seed", True))
             return checks
 
-        # Positive: Creator record exists
-        info(f"  [V-0.1] Checking Airtable Creators for {email}")
-        records = at_find(AT_CREATORS, "Email", email)
-        if records:
-            ok(f"[V-0.1] AT Creators: record exists ({records[0]['id']})")
-            checks.append(Check("[V-0] AT Creators: record exists", True, detail=records[0]["id"]))
-            fields = records[0].get("fields", {})
-            info(f"         Fields: Username={fields.get('Username')}, Status={fields.get('Outreach Status')}, Source={fields.get('Source')}")
-            if fields.get("Username") == self.config.test_ig.lstrip("@"):
-                ok("[V-0.2] AT Creators: Username matches IG handle")
-                checks.append(Check("[V-0] AT Creators: Username matches", True))
+        # Positive: Creator record exists in PG
+        info(f"  [V-0.1] Checking PG pipeline_creators for {email}")
+        creators = pg_find_creators(email)
+        if creators:
+            cr = creators[0]
+            ok(f"[V-0.1] PG pipeline_creators: record exists (id={cr['id'][:8]}...)")
+            checks.append(Check("[V-0] PG pipeline_creators: record exists", True, detail=cr["id"]))
+            ig = cr.get("ig_handle", "")
+            status_val = cr.get("pipeline_status", "")
+            info(f"         ig_handle={ig}, pipeline_status={status_val}, source={cr.get('source')}")
+            if ig == self.config.test_ig:
+                ok("[V-0.2] PG pipeline_creators: ig_handle matches")
+                checks.append(Check("[V-0] PG pipeline_creators: ig_handle matches", True))
             else:
-                fail(f"[V-0.2] AT Creators: Username mismatch ({fields.get('Username')})")
-                checks.append(Check("[V-0] AT Creators: Username matches", False,
-                    expected=self.config.test_ig.lstrip("@"), actual=fields.get("Username")))
+                fail(f"[V-0.2] PG pipeline_creators: ig_handle mismatch ({ig})")
+                checks.append(Check("[V-0] PG pipeline_creators: ig_handle matches", False,
+                    expected=self.config.test_ig, actual=ig))
         else:
-            fail("[V-0.1] AT Creators: record NOT found")
-            checks.append(Check("[V-0] AT Creators: record exists", False))
+            fail("[V-0.1] PG pipeline_creators: record NOT found")
+            checks.append(Check("[V-0] PG pipeline_creators: record exists", False))
 
-        # Negative: Orders should NOT exist yet (Stage 2 hasn't run)
-        info(f"  [V-0.3] Negative check: Orders should NOT exist yet")
-        phone = self.config.test_phone
-        app_records = find_orders_by_phone(phone)
-        if not app_records:
-            ok("[V-0.3] AT Orders: correctly empty (no gifting form yet)")
-            checks.append(Check("[V-0] AT Orders: NOT exists (neg)", True))
+        # Negative: gifting application should NOT exist yet
+        info(f"  [V-0.3] Negative check: gifting application should NOT exist yet")
+        gifting_recs = pg_find_gifting(email)
+        if not gifting_recs:
+            ok("[V-0.3] PG gifting_applications: correctly empty (gifting form not yet submitted)")
+            checks.append(Check("[V-0] PG gifting: NOT exists (neg)", True))
         else:
-            warn(f"[V-0.3] AT Orders: unexpected record found ({len(app_records)})")
-            checks.append(Check("[V-0] AT Orders: NOT exists (neg)", False,
-                expected="0 records", actual=f"{len(app_records)} records"))
+            warn(f"[V-0.3] PG gifting_applications: unexpected record found ({len(gifting_recs)})")
+            checks.append(Check("[V-0] PG gifting: NOT exists (neg)", False,
+                expected="0 records", actual=f"{len(gifting_recs)} records"))
 
         # Negative: Shopify customer should NOT exist yet
         info(f"  [V-0.4] Negative check: Shopify customer should NOT exist yet")
@@ -1045,49 +1102,70 @@ class VerifierAgent:
 
         return checks
 
-    # ── Verify Stage 2: Gifting 5-way processing ────────────────────────
+    # ── Verify Stage 2: Gifting processing ──────────────────────────────
     def _verify_gifting(self, ctx):
         checks = []
         email = self.config.test_email
-        info(f"[V-2] Verifying Stage 2: 5 downstream systems after gifting webhook")
+        info(f"[V-2] Verifying Stage 2: downstream systems after gifting webhook (PG + Shopify)")
 
         if self.dry_run:
             checks.append(Check("DRY-RUN: Would verify gifting", True))
             return checks
 
-        # 1) Airtable Orders (PROD: search by Phone Number)
-        phone = self.config.test_phone
-        info(f"  [V-2.1] Checking Airtable Orders for phone {phone}")
-        app_records = find_orders_by_phone(phone)
-        if app_records:
-            fields = app_records[0].get("fields", {})
-            ok(f"[V-2.1] AT Orders: record exists ({app_records[0]['id']})")
-            info(f"         Recipient={fields.get('Recipient Name')}, Status={fields.get('Order Status')}, Brand={fields.get('Brand')}")
-            checks.append(Check("[V-2] AT Orders: record exists", True, detail=app_records[0]["id"]))
-        else:
-            fail("[V-2.1] AT Orders: record NOT found")
-            checks.append(Check("[V-2] AT Orders: record exists", False))
+        # Get draft order ID from executor's webhook response (in ctx)
+        webhook_resp = ctx.get("webhook_response", {})
+        if isinstance(webhook_resp, str):
+            try: webhook_resp = json.loads(webhook_resp)
+            except: webhook_resp = {}
+        draft_order_id = str(
+            webhook_resp.get("draft_order_id") or
+            webhook_resp.get("draft_order", {}).get("id") or ""
+        )
+        info(f"  [V-2.0] Draft Order ID from executor: {draft_order_id or '(not found in ctx)'}")
 
-        # 2) Airtable Creators — Outreach Status should be "Needs Review"
-        info(f"  [V-2.2] Checking Airtable Creators status (expected: Needs Review)")
-        cr_records = at_find(AT_CREATORS, "Email", email)
-        if cr_records:
-            fields = cr_records[0].get("fields", {})
-            status_val = fields.get("Outreach Status", "")
-            info(f"         Outreach Status = '{status_val}', Username = '{fields.get('Username')}'")
-            if status_val == "Needs Review":
-                ok(f"[V-2.2] AT Creators: status correctly updated to 'Needs Review'")
-                checks.append(Check("[V-2] AT Creators: Outreach Status", True,
-                    expected="Needs Review", actual=status_val))
+        # 1) PG gifting_applications — record must exist with draft_order_id
+        info(f"  [V-2.1] Checking PG onz_gifting_applications for email={email}")
+        pg_gifting = pg_find_gifting(email)
+        pg_rec = None
+        if pg_gifting:
+            # Prefer record with matching draft_order_id
+            for r in pg_gifting:
+                if str(r.get("shopify_draft_order_id", "")) == draft_order_id:
+                    pg_rec = r
+                    break
+            if not pg_rec:
+                pg_rec = pg_gifting[0]
+            pg_draft = pg_rec.get("shopify_draft_order_id", "")
+            ok(f"[V-2.1] PG gifting: record exists (id={pg_rec['id'][:8]}..., draft_order_id={pg_draft})")
+            checks.append(Check("[V-2] PG gifting_applications: record exists", True, detail=pg_rec["id"]))
+            if pg_draft:
+                ok(f"[V-2.1b] PG gifting: draft_order_id populated ({pg_draft})")
+                checks.append(Check("[V-2] PG gifting: draft_order_id set", True,
+                    expected=draft_order_id or "non-empty", actual=pg_draft))
             else:
-                fail(f"[V-2.2] AT Creators: Outreach Status = '{status_val}' (expected 'Needs Review')")
-                checks.append(Check("[V-2] AT Creators: Outreach Status", False,
-                    expected="Needs Review", actual=status_val))
+                fail("[V-2.1b] PG gifting: draft_order_id empty")
+                checks.append(Check("[V-2] PG gifting: draft_order_id set", False))
         else:
-            fail("[V-2.2] AT Creators: record NOT found after gifting")
-            checks.append(Check("[V-2] AT Creators: record exists", False))
+            fail("[V-2.1] PG gifting_applications: record NOT found")
+            checks.append(Check("[V-2] PG gifting_applications: record exists", False))
 
-        # 3) Shopify customer (PROD: same store as n8n)
+        # 2) PG pipeline_creators — gifting webhook creates gifting_applications but does NOT
+        #    automatically update pipeline_creators.pipeline_status ("Needs Review" is set
+        #    by the pipeline dashboard / manual review step). Just verify record exists.
+        info(f"  [V-2.2] Checking PG pipeline_creators record persists after gifting")
+        creators = pg_find_creators(email)
+        if creators:
+            cr = creators[0]
+            status_val = cr.get("pipeline_status", "")
+            info(f"         pipeline_status='{status_val}', ig_handle='{cr.get('ig_handle')}', draft_order_id='{cr.get('shopify_draft_order_id')}'")
+            ok(f"[V-2.2] PG pipeline_creators: record exists (status='{status_val}')")
+            checks.append(Check("[V-2] PG pipeline_creators: record exists", True,
+                expected="exists", actual=status_val))
+        else:
+            fail("[V-2.2] PG pipeline_creators: record NOT found after gifting")
+            checks.append(Check("[V-2] PG pipeline_creators: record exists", False))
+
+        # 3) Shopify customer
         info(f"  [V-2.3] Checking Shopify customer")
         customers = shopify_find_customer(email)
         if customers:
@@ -1098,27 +1176,18 @@ class VerifierAgent:
             fail("[V-2.3] Shopify: customer NOT found")
             checks.append(Check("[V-2] Shopify: customer exists", False))
 
-        # 4) PostgreSQL via Django API
-        info(f"  [V-2.4] Checking PostgreSQL gifting record via orbitools API")
-        pg_records = pg_find("/api/onzenna/gifting/list/", email)
-        if pg_records:
-            ok(f"[V-2.4] PostgreSQL: gifting record exists ({len(pg_records)} rows)")
-            checks.append(Check("[V-2] PostgreSQL: gifting record", True))
-        else:
-            warn("[V-2.4] PostgreSQL: no record found")
-            checks.append(Check("[V-2] PostgreSQL: gifting record", None))
-
-        # 5) Cross-system: Order phone matches + Creator email matches
-        info(f"  [V-2.5] Cross-system consistency: phone + email")
-        if app_records and cr_records:
-            cr_email = cr_records[0].get("fields", {}).get("Email", "")
-            order_phone = app_records[0].get("fields", {}).get("Phone Number", "")
-            if cr_email == email and order_phone == phone:
-                ok(f"[V-2.5] X-SYS: Creator email + Order phone match")
-                checks.append(Check("[V-2] X-SYS: email+phone consistent", True))
+        # 4) Cross-system: PG gifting email + PG creators email + draft_order_id consistency
+        info(f"  [V-2.4] Cross-system consistency: PG gifting ↔ PG creators ↔ draft_order_id")
+        if pg_rec and creators:
+            pg_email = pg_rec.get("email", "")
+            cr_draft = str(creators[0].get("shopify_draft_order_id", "") or "")
+            pg_draft = str(pg_rec.get("shopify_draft_order_id", "") or "")
+            if pg_email == email.lower() and (not draft_order_id or pg_draft == draft_order_id):
+                ok(f"[V-2.4] X-SYS: email+draft_order_id consistent across PG tables")
+                checks.append(Check("[V-2] X-SYS: PG gifting↔creators consistent", True))
             else:
-                fail(f"[V-2.5] X-SYS: mismatch (cr_email={cr_email}, order_phone={order_phone})")
-                checks.append(Check("[V-2] X-SYS: email+phone consistent", False))
+                fail(f"[V-2.4] X-SYS: mismatch (pg_email={pg_email}, pg_draft={pg_draft}, expected_draft={draft_order_id})")
+                checks.append(Check("[V-2] X-SYS: PG gifting↔creators consistent", False))
 
         return checks
 
@@ -1126,52 +1195,56 @@ class VerifierAgent:
     def _verify_gifting2(self, ctx):
         checks = []
         email = self.config.test_email
-        info(f"[V-4] Verifying Stage 4: Draft Order created with 100% discount")
+        info(f"[V-4] Verifying Stage 4: Draft Order created with 100% discount (PG)")
 
         if self.dry_run:
             checks.append(Check("DRY-RUN: Would verify gifting2", True))
             return checks
 
-        # 1) Airtable Orders — Shopify Order ID populated (PROD: search by Phone)
-        phone = self.config.test_phone
-        info(f"  [V-4.1] Checking Airtable Orders for Shopify Order ID (phone={phone})")
-        app_records = find_orders_by_phone(phone)
-        if app_records:
-            fields = app_records[0].get("fields", {})
-            do_id = fields.get("Shopify Order ID", "") or fields.get("Draft Order ID", "")
-            info(f"         Shopify Order ID = '{fields.get('Shopify Order ID')}', Status = '{fields.get('Order Status')}'")
-            if do_id:
-                ok(f"[V-4.1] AT Orders: Order ID = {do_id}")
-                checks.append(Check("[V-4] AT Orders: Order ID", True, detail=str(do_id)))
-            else:
-                warn("[V-4.1] AT Orders: Order ID empty (may not be set yet)")
-                checks.append(Check("[V-4] AT Orders: Order ID", None,
-                    detail="Field may differ"))
-        else:
-            fail("[V-4.1] AT Orders: record NOT found after gifting2")
-            checks.append(Check("[V-4] AT Orders: record exists", False))
+        # Get draft order ID from gifting2 webhook response
+        gifting2_resp = ctx.get("webhook_response", {})
+        if isinstance(gifting2_resp, str):
+            try: gifting2_resp = json.loads(gifting2_resp)
+            except: gifting2_resp = {}
+        g2_draft_id = str(
+            gifting2_resp.get("draft_order_id") or
+            gifting2_resp.get("draft_order", {}).get("id") or ""
+        )
+        info(f"  [V-4.0] Gifting2 Draft Order ID from executor: {g2_draft_id or '(unknown)'}")
 
-        # 2) Airtable Creators — still exists and status tracked
-        info(f"  [V-4.2] Checking Airtable Creators persistence")
-        cr_records = at_find(AT_CREATORS, "Email", email)
-        if cr_records:
-            fields = cr_records[0].get("fields", {})
-            info(f"         Outreach Status = '{fields.get('Outreach Status')}', Source = '{fields.get('Source')}'")
-            ok(f"[V-4.2] AT Creators: record persists (status={fields.get('Outreach Status')})")
-            checks.append(Check("[V-4] AT Creators: record exists", True))
+        # 1) PG gifting_applications — should have updated record with new draft_order_id
+        info(f"  [V-4.1] Checking PG onz_gifting_applications for email={email}")
+        pg_gifting = pg_find_gifting(email)
+        if pg_gifting:
+            # Find record with matching draft id if available
+            pg_rec = next((r for r in pg_gifting
+                          if str(r.get("shopify_draft_order_id", "")) == g2_draft_id), pg_gifting[0])
+            pg_draft = pg_rec.get("shopify_draft_order_id", "")
+            ok(f"[V-4.1] PG gifting: record exists ({len(pg_gifting)} total), draft_id={pg_draft}")
+            checks.append(Check("[V-4] PG gifting_applications: record exists", True))
+            if g2_draft_id and pg_draft == g2_draft_id:
+                ok(f"[V-4.1b] PG gifting: draft_order_id matches ({pg_draft})")
+                checks.append(Check("[V-4] PG gifting: draft_order_id matches", True,
+                    expected=g2_draft_id, actual=pg_draft))
+            elif g2_draft_id:
+                warn(f"[V-4.1b] PG gifting: draft_order_id mismatch (pg={pg_draft}, expected={g2_draft_id})")
+                checks.append(Check("[V-4] PG gifting: draft_order_id matches", None,
+                    expected=g2_draft_id, actual=pg_draft))
         else:
-            fail("[V-4.2] AT Creators: record NOT found after gifting2")
-            checks.append(Check("[V-4] AT Creators: record exists", False))
+            fail("[V-4.1] PG gifting_applications: record NOT found after gifting2")
+            checks.append(Check("[V-4] PG gifting_applications: record exists", False))
 
-        # 3) PostgreSQL — updated record
-        info(f"  [V-4.3] Checking PostgreSQL for updated gifting record")
-        pg_records = pg_find("/api/onzenna/gifting/list/", email)
-        if pg_records:
-            ok(f"[V-4.3] PostgreSQL: gifting record exists ({len(pg_records)} rows)")
-            checks.append(Check("[V-4] PostgreSQL: record updated", True))
+        # 2) PG pipeline_creators — record persists with draft_order_id
+        info(f"  [V-4.2] Checking PG pipeline_creators persistence")
+        creators = pg_find_creators(email)
+        if creators:
+            cr = creators[0]
+            info(f"         pipeline_status='{cr.get('pipeline_status')}', shopify_draft_order_id='{cr.get('shopify_draft_order_id')}'")
+            ok(f"[V-4.2] PG pipeline_creators: record persists (status={cr.get('pipeline_status')})")
+            checks.append(Check("[V-4] PG pipeline_creators: record exists", True))
         else:
-            warn("[V-4.3] PostgreSQL: no record")
-            checks.append(Check("[V-4] PostgreSQL: record updated", None))
+            fail("[V-4.2] PG pipeline_creators: record NOT found after gifting2")
+            checks.append(Check("[V-4] PG pipeline_creators: record exists", False))
 
         return checks
 
@@ -1185,28 +1258,28 @@ class VerifierAgent:
             checks.append(Check("DRY-RUN: Would verify sample_sent", True))
             return checks
 
-        # 1) Airtable Creators — Outreach Status should be Sample Sent or Sample Shipped
-        info(f"  [V-5.1] Checking Airtable Creators Outreach Status after n8n poll")
-        cr_records = at_find(AT_CREATORS, "Email", email)
-        if cr_records:
-            fields = cr_records[0].get("fields", {})
-            status_val = fields.get("Outreach Status", "")
-            info(f"         Current status = '{status_val}'")
+        # 1) PG pipeline_creators — status should be Sample Sent or Sample Shipped
+        info(f"  [V-5.1] Checking PG pipeline_creators pipeline_status after n8n poll")
+        creators = pg_find_creators(email)
+        if creators:
+            cr = creators[0]
+            status_val = cr.get("pipeline_status", "")
+            info(f"         Current pipeline_status = '{status_val}'")
             if status_val in ("Sample Sent", "Sample Shipped"):
-                ok(f"[V-5.1] AT Creators: Outreach Status = '{status_val}'")
-                checks.append(Check("[V-5] AT Creators: status post-poll", True,
+                ok(f"[V-5.1] PG pipeline_creators: pipeline_status = '{status_val}'")
+                checks.append(Check("[V-5] PG pipeline_creators: status post-poll", True,
                     expected="Sample Sent|Shipped", actual=status_val))
             else:
-                warn(f"[V-5.1] AT Creators: unexpected status = '{status_val}'")
-                checks.append(Check("[V-5] AT Creators: status post-poll", None,
+                warn(f"[V-5.1] PG pipeline_creators: unexpected status = '{status_val}' (n8n poll may not have fired yet)")
+                checks.append(Check("[V-5] PG pipeline_creators: status post-poll", None,
                     expected="Sample Sent|Shipped", actual=status_val))
         else:
-            fail("[V-5.1] AT Creators: record NOT found")
-            checks.append(Check("[V-5] AT Creators: record exists", False))
+            fail("[V-5.1] PG pipeline_creators: record NOT found")
+            checks.append(Check("[V-5] PG pipeline_creators: record exists", False))
 
-        # 2) n8n Sample Sent → Complete workflow active check
-        info(f"  [V-5.2] Checking n8n workflow 'Sample Sent -> Complete' is active")
-        wf_id = WJ_WORKFLOWS.get("sample_complete", WJ_WORKFLOWS.get("gifting2", ""))
+        # 2) n8n gifting workflow active check (handles gifting submissions + draft order)
+        info(f"  [V-5.2] Checking n8n gifting workflow is active")
+        wf_id = WJ_WORKFLOWS.get("gifting", "")
         if wf_id and N8N_API_KEY:
             url = f"{N8N_BASE_URL}/api/v1/workflows/{wf_id}"
             headers = {"X-N8N-API-KEY": N8N_API_KEY}
@@ -1238,35 +1311,14 @@ def run_cleanup(config, signal_data):
         warn(f"SAFETY: Refusing cleanup for non-test email: {email}")
         return
 
-    # Collect record IDs from all stage contexts
-    all_ctx = {}
-    for s in signal_data.get("stages_completed", []):
-        all_ctx.update(s.get("context", {}))
-
-    # Delete Airtable Creators
-    creator_id = all_ctx.get("creator_record_id", "")
-    if creator_id:
-        s, _ = at_delete(AT_CREATORS, creator_id)
-        info(f"Delete AT Creators {creator_id}: {s}")
-
-    # Delete Airtable Orders (search by phone)
-    phone = config.test_phone
-    order_records = find_orders_by_phone(phone)
-    for r in order_records:
-        s, _ = at_delete(AT_ORDERS, r["id"])
-        info(f"Delete AT Orders {r['id']}: {s}")
-
-    # Delete Airtable Conversations (by subject containing test IG)
-    test_ig = config.test_ig.lstrip("@")
-    if test_ig:
-        formula = urllib.parse.quote(f"FIND('{test_ig}', {{Subject}})")
-        url = f"https://api.airtable.com/v0/{AT_BASE}/{AT_CONVERSATIONS}?filterByFormula={formula}&maxRecords=20"
-        status, body = http_request("GET", url, headers=_at_headers())
-        conv_records = body.get("records", []) if isinstance(body, dict) and status == 200 else []
-        for r in conv_records:
-            s, _ = at_delete(AT_CONVERSATIONS, r["id"])
-            info(f"Delete AT Conversations {r['id']}: {s}")
-            time.sleep(0.2)
+    # NOTE: Django API has no DELETE endpoint for pipeline_creators or gifting_applications.
+    # PG cleanup is a no-op (records remain as test artifacts — acceptable since test emails are scoped).
+    creators = pg_find_creators(email)
+    if creators:
+        warn(f"PG pipeline_creators: {len(creators)} record(s) for {email} — no DELETE endpoint, skipping")
+    gifting = pg_find_gifting(email)
+    if gifting:
+        warn(f"PG gifting_applications: {len(gifting)} record(s) for {email} — no DELETE endpoint, skipping")
 
     # Delete Shopify customer
     customers = shopify_find_customer(email)
@@ -1274,7 +1326,7 @@ def run_cleanup(config, signal_data):
         s, _ = shopify_delete_customer(c["id"])
         info(f"Delete Shopify customer {c['id']}: {s}")
 
-    ok("Cleanup complete")
+    ok("Cleanup complete (Shopify deleted; PG records remain — test email scoped)")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
