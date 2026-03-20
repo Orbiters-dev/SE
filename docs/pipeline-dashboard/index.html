@@ -593,7 +593,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
   <div class="mp" id="p-tests">
     <div class="card">
       <h3>E2E Test Suite &mdash; Pipeline CRM API</h3>
-      <div class="desc">Live API endpoint verification against <code>orbitools.orbiters.co.kr</code>. Click "Run Tests" to execute all flows.</div>
+      <div class="desc">Read-only health check &mdash; GET requests only, no data modification. Verifies all API endpoints are alive and returning expected data.</div>
       <div style="display:flex;gap:8px;margin-bottom:14px">
         <button class="btn btn-primary" onclick="runE2ETests()" id="btn-run-tests">Run Tests</button>
         <span id="test-status" style="font-size:11px;color:var(--dim);display:flex;align-items:center"></span>
@@ -1525,60 +1525,45 @@ function scrollToHwSec(id){
 
 // ========== TESTS TAB ==========
 var E2E_FLOWS=[
-  {name:'CORS',icon:'\uD83D\uDD12',tests:[
-    {id:'cors-preflight',label:'OPTIONS preflight',method:'OPTIONS',path:'/tables/',headers:{'Origin':'https://orbiters-dev.github.io','Access-Control-Request-Method':'GET','Access-Control-Request-Headers':'Authorization'},
+  {name:'CORS Preflight',icon:'\uD83D\uDD12',tests:[
+    {id:'cors-preflight',label:'OPTIONS /tables/',method:'OPTIONS',path:'/tables/',headers:{'Origin':'https://orbiters-dev.github.io','Access-Control-Request-Method':'GET','Access-Control-Request-Headers':'Authorization'},
      check:function(r,h){return r.status===204&&(h.get('access-control-allow-origin')||'').includes('orbiters-dev')},
-     detail:function(r,h){return 'status='+r.status+', origin='+(h.get('access-control-allow-origin')||'none')}}
+     detail:function(r,h){return 'status='+r.status+', ACAO='+(h.get('access-control-allow-origin')||'none')}}
   ]},
-  {name:'Creators CRUD',icon:'\uD83D\uDC65',tests:[
-    {id:'stats',label:'GET /stats/',method:'GET',path:'/pipeline/creators/stats/',
-     check:function(r,h,d){return r.ok&&d.total!==undefined},
-     detail:function(r,h,d){return 'total='+d.total}},
-    {id:'list',label:'GET /creators/?limit=5',method:'GET',path:'/pipeline/creators/?limit=5',
-     check:function(r,h,d){return r.ok&&d.results},
-     detail:function(r,h,d){return (d.count||d.results.length)+' total'}},
-    {id:'detail',label:'GET /creators/<id>/',method:'GET',path:null,dynamic:true,
+  {name:'Creators API',icon:'\uD83D\uDC65',tests:[
+    {id:'stats',label:'GET /pipeline/creators/stats/',method:'GET',path:'/pipeline/creators/stats/',
+     check:function(r,h,d){return r.ok&&d.total!==undefined&&d.by_status&&d.by_brand},
+     detail:function(r,h,d){return 'total='+d.total+', brands='+Object.keys(d.by_brand||{}).join('/')}},
+    {id:'list',label:'GET /pipeline/creators/?limit=3',method:'GET',path:'/pipeline/creators/?limit=3',
+     check:function(r,h,d){return r.ok&&Array.isArray(d.results)&&d.results.length>0},
+     detail:function(r,h,d){return d.results.length+' returned, '+d.count+' total'}},
+    {id:'detail',label:'GET /pipeline/creators/<id>/',method:'GET',path:null,dynamic:true,
      setup:async function(){var d=await apiFetchRaw('/pipeline/creators/?limit=1');return'/pipeline/creators/'+d.results[0].id+'/'},
-     check:function(r,h,d){return r.ok&&d.id},
-     detail:function(r,h,d){return 'handle='+(d.handle||d.ig_handle||'ok')}},
-    {id:'bulk-status',label:'POST /bulk-status/',method:'POST',path:null,dynamic:true,
-     setup:async function(){var d=await apiFetchRaw('/pipeline/creators/?limit=1');return{path:'/pipeline/creators/bulk-status/',body:{ids:[d.results[0].id],status:'Not Started'}}},
-     check:function(r,h,d){return r.ok},
-     detail:function(r,h,d){return 'updated='+(d.updated||0)}}
+     check:function(r,h,d){return r.ok&&d.id&&d.status},
+     detail:function(r,h,d){return (d.ig_handle||d.handle||'?')+' ('+d.status+')'}}
   ]},
-  {name:'Config',icon:'\u2699\uFE0F',tests:[
-    {id:'config-today',label:'GET /config/today/',method:'GET',path:'/pipeline/config/today/',
-     check:function(r,h,d){return r.ok&&d.date},
-     detail:function(r,h,d){return 'date='+d.date}},
-    {id:'config-save',label:'POST /config/<date>/',method:'POST',path:'/pipeline/config/2026-03-20/',body:{creators_contacted:10,ht_threshold:100000,human_in_loop:'on'},
-     check:function(r,h,d){return r.ok},
-     detail:function(r,h,d){return 'status='+r.status}},
-    {id:'config-history',label:'GET /config/history/',method:'GET',path:'/pipeline/config/history/',
+  {name:'Config API',icon:'\u2699\uFE0F',tests:[
+    {id:'config-today',label:'GET /pipeline/config/today/',method:'GET',path:'/pipeline/config/today/',
+     check:function(r,h,d){return r.ok&&d.date&&d.creators_contacted!==undefined},
+     detail:function(r,h,d){return 'date='+d.date+', batch='+d.creators_contacted}},
+    {id:'config-history',label:'GET /pipeline/config/history/',method:'GET',path:'/pipeline/config/history/',
      check:function(r,h,d){return r.ok&&Array.isArray(d)},
-     detail:function(r,h,d){return d.length+' entries'}}
+     detail:function(r,h,d){return d.length+' config entries'}}
   ]},
   {name:'Execution Log',icon:'\uD83D\uDCCB',tests:[
-    {id:'exec-post',label:'POST /execution/log/',method:'POST',path:'/pipeline/execution/log/',body:{action_type:'e2e_dashboard',triggered_by:'test_tab',target_count:0,status:'completed'},
-     check:function(r,h,d){return r.status===201&&d.id},
-     detail:function(r,h,d){return 'id='+d.id}},
-    {id:'exec-get',label:'GET /execution/log/',method:'GET',path:'/pipeline/execution/log/',
-     check:function(r,h,d){return r.ok&&d.total>=1},
-     detail:function(r,h,d){return d.total+' entries'}}
-  ]},
-  {name:'Syncly Discovery',icon:'\uD83D\uDD0E',tests:[
-    {id:'discovery',label:'POST /import-discovery/',method:'POST',path:'/pipeline/creators/import-discovery/',body:{min_followers:500,limit:5},
-     check:function(r,h,d){return r.ok&&d.created!==undefined},
-     detail:function(r,h,d){return 'created='+d.created+', skipped='+d.skipped}}
+    {id:'exec-get',label:'GET /pipeline/execution/log/',method:'GET',path:'/pipeline/execution/log/',
+     check:function(r,h,d){return r.ok&&d.total!==undefined&&Array.isArray(d.results)},
+     detail:function(r,h,d){return d.total+' log entries'}}
   ]},
   {name:'Gmail RAG',icon:'\uD83D\uDCE7',tests:[
-    {id:'gmail-check',label:'GET /check-contact/',method:'GET',path:'/gmail-rag/check-contact/?email=test@example.com',
-     check:function(r,h,d){return r.ok},
+    {id:'gmail-check',label:'GET /gmail-rag/check-contact/',method:'GET',path:'/gmail-rag/check-contact/?email=test@example.com',
+     check:function(r,h,d){return r.ok&&d.found!==undefined},
      detail:function(r,h,d){return 'found='+d.found}}
   ]},
-  {name:'Monitoring',icon:'\uD83D\uDCCA',tests:[
+  {name:'DB Health',icon:'\uD83D\uDCCA',tests:[
     {id:'tables',label:'GET /tables/',method:'GET',path:'/tables/',
-     check:function(r,h,d){return r.ok&&d.tables},
-     detail:function(r,h,d){return Object.keys(d.tables).length+' tables'}}
+     check:function(r,h,d){return r.ok&&d.tables&&Object.keys(d.tables).length>=10},
+     detail:function(r,h,d){var t=d.tables;var k=Object.keys(t);return k.length+' tables, '+k.map(function(n){return n.replace('onz_','').replace('gk_','')+':'+t[n]}).join(', ')}}
   ]}
 ];
 
