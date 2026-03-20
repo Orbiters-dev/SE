@@ -335,8 +335,8 @@ Shopify                         Apify / Syncly                   Gmail RAG
       <div class="card">
         <h3>&#x1F4E6; Batch Control</h3>
         <div class="desc">Control which creators get contacted and how many per batch</div>
-        <div class="form-row"><label>Update Date</label><input type="date" id="f-update-date">
-          <label class="toggle" style="min-width:auto" title="Start From Beginning"><input type="checkbox" id="f-start-beginning"><span class="slider"></span></label>
+        <div class="form-row"><label>최초발견일자</label><input type="date" id="f-update-date">
+          <label class="toggle" style="min-width:auto" title="All dates (oldest first)"><input type="checkbox" id="f-start-beginning" onchange="toggleAllDates(this.checked)"><span class="slider"></span></label>
           <span style="font-size:10px;color:var(--dim)">All dates</span>
         </div>
         <div class="form-row"><label>Batch Size</label><input type="number" id="f-creators-contacted" min="1" max="500" step="1" oninput="var l=document.getElementById('alloc-batch-label');if(l)l.textContent=this.value;updateAllocation()"></div>
@@ -415,6 +415,11 @@ Shopify                         Apify / Syncly                   Gmail RAG
             <span id="alloc-warn" style="font-size:10px;font-weight:600;display:none"></span>
           </div>
         </div>
+      </div>
+      <div id="vintage-breakdown" class="card" style="display:none">
+        <h3>&#x1F4C5; Discovery Date Vintage</h3>
+        <div class="desc">최초발견일자별 크리에이터 분포 (oldest first)</div>
+        <div id="vintage-list" style="max-height:240px;overflow-y:auto"></div>
       </div>
       <div style="display:flex;gap:8px;justify-content:center;margin:16px 0;flex-wrap:wrap">
         <button class="btn btn-secondary" id="btn-cfg-preview" onclick="execAction('preview')">&#x1F50D; Preview Counts</button>
@@ -645,7 +650,17 @@ var DEMO_CREATORS=[
   {id:'d12',email:'thetottribe@gmail.com',ig_handle:'thetottribe',tiktok_handle:'thetottribe',full_name:'Christina Hall',platform:'Instagram',pipeline_status:'Sample Delivered',brand:'Grosmimi',outreach_type:'HT',source:'outbound',followers:189000,avg_views:25000,initial_discovery_date:'2026-02-10',created_at:'2026-02-10T10:00:00Z',notes:'Delivered 3/18, expecting post by 3/25'},
   {id:'d13',email:'happybabymama@gmail.com',ig_handle:'happybabymama_',tiktok_handle:'happybabymama',full_name:'Lauren White',platform:'Instagram',pipeline_status:'Needs Review',brand:'CHA&MOM',outreach_type:'LT',source:'inbound',followers:45000,avg_views:5800,initial_discovery_date:'2026-03-19',created_at:'2026-03-19T10:00:00Z',notes:'Applied via gifting form, skincare focus'},
   {id:'d14',email:'tinyhumans.daily@gmail.com',ig_handle:'tinyhumans_daily',tiktok_handle:'',full_name:'Priya Patel',platform:'Instagram',pipeline_status:'Needs Review',brand:'Grosmimi',outreach_type:'HT',source:'inbound',followers:312000,avg_views:42000,initial_discovery_date:'2026-03-20',created_at:'2026-03-20T10:00:00Z',notes:'High follower count, baby product niche'},
-  {id:'d15',email:'momventures@gmail.com',ig_handle:'momventures',tiktok_handle:'momventures_',full_name:'Diana Ross',platform:'TikTok',pipeline_status:'Needs Review',brand:'Naeiae',outreach_type:'LT',source:'inbound',followers:8200,avg_views:1200,initial_discovery_date:'2026-03-20',created_at:'2026-03-20T10:00:00Z',notes:'Small account, snack content'}
+  {id:'d15',email:'momventures@gmail.com',ig_handle:'momventures',tiktok_handle:'momventures_',full_name:'Diana Ross',platform:'TikTok',pipeline_status:'Needs Review',brand:'Naeiae',outreach_type:'LT',source:'inbound',followers:8200,avg_views:1200,initial_discovery_date:'2026-03-20',created_at:'2026-03-20T10:00:00Z',notes:'Small account, snack content'},
+  {id:'d16',email:'gentlemomblog@gmail.com',ig_handle:'gentlemom',tiktok_handle:'',full_name:'Kate Wilson',platform:'Instagram',pipeline_status:'Not Started',brand:'Grosmimi',outreach_type:'LT',source:'outbound',followers:22000,avg_views:2800,initial_discovery_date:'2025-11-02',created_at:'2025-11-02T10:00:00Z',notes:''},
+  {id:'d17',email:'babystyleco@gmail.com',ig_handle:'babystyleco',tiktok_handle:'babystyleco',full_name:'Mia Thompson',platform:'Instagram',pipeline_status:'Not Started',brand:'Grosmimi',outreach_type:'HT',source:'outbound',followers:145000,avg_views:19000,initial_discovery_date:'2025-11-02',created_at:'2025-11-02T10:00:00Z',notes:''},
+  {id:'d18',email:'tinytots.mama@gmail.com',ig_handle:'tinytots_mama',tiktok_handle:'',full_name:'Anna Kim',platform:'Instagram',pipeline_status:'Not Started',brand:'CHA&MOM',outreach_type:'LT',source:'outbound',followers:38000,avg_views:4500,initial_discovery_date:'2025-11-03',created_at:'2025-11-03T10:00:00Z',notes:''},
+  {id:'d19',email:'newparent.journey@gmail.com',ig_handle:'newparentjourney',tiktok_handle:'',full_name:'David Chen',platform:'Instagram',pipeline_status:'Not Started',brand:'Grosmimi',outreach_type:'LT',source:'outbound',followers:19000,avg_views:2100,initial_discovery_date:'2025-11-03',created_at:'2025-11-03T10:00:00Z',notes:''},
+  {id:'d20',email:'momlife.chronicles@gmail.com',ig_handle:'momlifechronicles',tiktok_handle:'',full_name:'Lucy Park',platform:'Instagram',pipeline_status:'Not Started',brand:'Naeiae',outreach_type:'LT',source:'outbound',followers:27000,avg_views:3200,initial_discovery_date:'2025-12-15',created_at:'2025-12-15T10:00:00Z',notes:''},
+  {id:'d21',email:'toddler.world@gmail.com',ig_handle:'toddlerworld_',tiktok_handle:'toddlerworld',full_name:'Sarah Min',platform:'TikTok',pipeline_status:'Not Started',brand:'Grosmimi',outreach_type:'HT',source:'outbound',followers:280000,avg_views:35000,initial_discovery_date:'2026-01-20',created_at:'2026-01-20T10:00:00Z',notes:''},
+  {id:'d22',email:'babyproduct.mom@gmail.com',ig_handle:'babyproductmom',tiktok_handle:'',full_name:'Jenny Lee',platform:'Instagram',pipeline_status:'Not Started',brand:'CHA&MOM',outreach_type:'LT',source:'outbound',followers:31000,avg_views:3800,initial_discovery_date:'2026-01-20',created_at:'2026-01-20T10:00:00Z',notes:''},
+  {id:'d23',email:'littleones.daily@gmail.com',ig_handle:'littleonesdaily',tiktok_handle:'',full_name:'Emma Davis',platform:'Instagram',pipeline_status:'Not Started',brand:'Grosmimi',outreach_type:'LT',source:'outbound',followers:16000,avg_views:1900,initial_discovery_date:'2026-02-05',created_at:'2026-02-05T10:00:00Z',notes:''},
+  {id:'d24',email:'snacktime.kids@gmail.com',ig_handle:'snacktimekids',tiktok_handle:'snacktimekids_',full_name:'Grace Yoo',platform:'Instagram',pipeline_status:'Not Started',brand:'Naeiae',outreach_type:'LT',source:'outbound',followers:48000,avg_views:6200,initial_discovery_date:'2026-02-05',created_at:'2026-02-05T10:00:00Z',notes:''},
+  {id:'d25',email:'organic.babyfood@gmail.com',ig_handle:'organicbabyfood',tiktok_handle:'',full_name:'Lisa Chang',platform:'Instagram',pipeline_status:'Not Started',brand:'Naeiae',outreach_type:'HT',source:'outbound',followers:195000,avg_views:24000,initial_discovery_date:'2026-03-01',created_at:'2026-03-01T10:00:00Z',notes:''}
 ];
 var DEMO_CONFIG={
   date:'2026-03-20',update_date:'2026-03-20',start_from_beginning:false,
@@ -657,8 +672,8 @@ var DEMO_CONFIG={
   chaenmom_form_url:'https://onzenna.com/pages/influencer-gifting-chamom',
   naeiae_form_url:'https://onzenna.com/pages/influencer-gifting-naeiae',
   ht_form_url:'https://onzenna.com/pages/influencer-gifting-ht',
-  eligible_total:2,eligible_grosmimi:0,eligible_chaenmom:0,eligible_naeiae:2,
-  ht_count:1,lt_count:1,
+  eligible_total:12,eligible_grosmimi:6,eligible_chaenmom:2,eligible_naeiae:4,
+  ht_count:3,lt_count:9,
   alloc_grosmimi:5,alloc_chaenmom:3,alloc_naeiae:2,
   updated_by:'WJ',updated_at:'2026-03-20T06:30:00Z'
 };
@@ -817,6 +832,7 @@ async function loadConfig(){
 function populateConfigForm(c){
   document.getElementById('f-update-date').value=c.update_date||'';
   document.getElementById('f-start-beginning').checked=c.start_from_beginning;
+  toggleAllDates(!!c.start_from_beginning);
   document.getElementById('f-creators-contacted').value=c.creators_contacted;
   document.getElementById('f-ht-threshold').value=c.ht_threshold;
   document.getElementById('f-rag-dedup').checked=c.rag_email_dedup;
@@ -876,6 +892,8 @@ async function applyConfig(){
     var date=_config?_config.date:new Date().toISOString().slice(0,10);
     _config=await apiFetch('/pipeline/config/'+date+'/',{method:'POST',body:JSON.stringify(data)});
     populateConfigForm(_config);showToast('Config saved!','ok');loadConfigHistory();
+    // Show vintage breakdown if All dates mode
+    if(data.start_from_beginning){renderVintageBreakdown();document.getElementById('vintage-breakdown').style.display=''}
   }catch(e){showToast('Save failed: '+e.message,'err')}
   finally{btn.disabled=false;btn.textContent='\u2705 Apply Config'}
 }
@@ -1378,6 +1396,54 @@ function updateAllocation(){
   document.getElementById('bar-grosmimi').style.width=Math.min(g/total*100,100)+'%';
   document.getElementById('bar-chaenmom').style.width=Math.min(c/total*100,100)+'%';
   document.getElementById('bar-naeiae').style.width=Math.min(n/total*100,100)+'%';
+}
+
+// ========== ALL DATES TOGGLE + VINTAGE ==========
+function toggleAllDates(on){
+  var di=document.getElementById('f-update-date');
+  di.disabled=on;
+  if(on){di.style.opacity='0.4';di.style.pointerEvents='none'}
+  else{di.style.opacity='1';di.style.pointerEvents='auto'}
+  // Show/hide vintage when toggled
+  var vb=document.getElementById('vintage-breakdown');
+  if(on){renderVintageBreakdown();vb.style.display=''}
+  else{vb.style.display='none'}
+}
+function renderVintageBreakdown(){
+  var creators=DEMO_MODE?DEMO_CREATORS:(_allCreators||[]);
+  // Filter "Not Started" only
+  var eligible=creators.filter(function(c){return c.pipeline_status==='Not Started'});
+  // Group by initial_discovery_date
+  var groups={};
+  eligible.forEach(function(c){
+    var d=c.initial_discovery_date||(c.created_at||'').slice(0,10)||'Unknown';
+    if(!groups[d])groups[d]={count:0,brands:{}};
+    groups[d].count++;
+    var b=c.brand||'Unknown';
+    groups[d].brands[b]=(groups[d].brands[b]||0)+1;
+  });
+  // Sort by date ascending (oldest first)
+  var dates=Object.keys(groups).sort();
+  var totalAll=eligible.length;
+  var html='<div style="font-size:11px">';
+  if(dates.length===0){html+='<div style="color:var(--muted);padding:8px">No eligible creators</div>'}
+  var cumul=0;
+  for(var i=0;i<dates.length;i++){
+    var d=dates[i];var g=groups[d];cumul+=g.count;
+    var brandStr=Object.keys(g.brands).map(function(b){return b+' '+g.brands[b]}).join(', ');
+    var pct=totalAll>0?Math.round(g.count/totalAll*100):0;
+    html+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">';
+    html+='<span style="min-width:90px;font-weight:600;font-family:var(--mono);color:var(--fg)">'+d+'</span>';
+    html+='<span style="min-width:40px;font-weight:700;color:var(--a);text-align:right">~'+g.count+'</span>';
+    html+='<div style="flex:1;background:var(--border);border-radius:3px;height:8px;overflow:hidden"><div style="height:100%;background:var(--a);width:'+pct+'%;transition:.2s"></div></div>';
+    html+='<span style="min-width:80px;font-size:10px;color:var(--dim)">'+brandStr+'</span>';
+    html+='</div>';
+  }
+  if(dates.length>0){
+    html+='<div style="padding:6px 0;font-weight:700;color:var(--fg)">Total: '+totalAll+'</div>';
+  }
+  html+='</div>';
+  document.getElementById('vintage-list').innerHTML=html;
 }
 
 // ========== HOW IT WORKS TAB ==========
