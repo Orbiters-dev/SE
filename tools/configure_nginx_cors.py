@@ -22,10 +22,21 @@ def fix_nginx_conf():
     with open(NGINX_CONF, "r") as f:
         content = f.read()
 
-    # Remove any broken entries from previous sed attempts
-    content = re.sub(r'\n\s*n\s*\n', '\n', content)
+    # Backup before modifying
+    with open(NGINX_CONF + ".bak", "w") as f:
+        f.write(content)
+
+    # Remove broken map blocks and comments from previous attempts
     content = re.sub(r'# Skip auth for OPTIONS.*?}\s*}', '', content, flags=re.DOTALL)
-    content = re.sub(r'map \$request_method \$auth_type\s*{[^}]*}', '', content)
+    content = re.sub(r'map \$request_method \$auth_type\s*\{[^}]*\}', '', content)
+
+    # Remove broken 'n' lines from previous sed \n escaping failures
+    lines = content.split('\n')
+    lines = [l for l in lines if l.strip() != 'n']
+    content = '\n'.join(lines)
+
+    # Clean up excessive blank lines (3+ → 2)
+    content = re.sub(r'\n{3,}', '\n\n', content)
 
     # Add map block inside http { ... }
     if 'map $request_method $auth_type' not in content:
@@ -74,10 +85,17 @@ def fix_site_config():
 
 
 def test_and_reload():
-    """Test nginx config and reload."""
+    """Test nginx config and reload. Restore backup on failure."""
     result = subprocess.run(["nginx", "-t"], capture_output=True, text=True)
     if result.returncode != 0:
         print(f"ERROR: nginx test failed:\n{result.stderr}")
+        # Restore backup
+        bak = NGINX_CONF + ".bak"
+        import os
+        if os.path.exists(bak):
+            import shutil
+            shutil.copy2(bak, NGINX_CONF)
+            print("RESTORED: nginx.conf reverted to backup")
         sys.exit(1)
     print("OK: nginx config test passed")
 
