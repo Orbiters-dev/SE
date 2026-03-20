@@ -96,6 +96,7 @@ WJ_WORKFLOWS = {
     "full_pipeline":    "EqOhbPZ4mwvDQRmw",        # Full Pipeline (JH&SY)
     "shipped_delivered": "k61gzrshITfju33V",       # Shipped -> Delivered (migrated 2026-03-18)
     "delivered_posted":  "tvmHITPHpWFtcmh0",       # Delivered -> Posted (migrated 2026-03-18)
+    "sample_complete":   "m89xU9RUbPgnkBy8",        # Sample Sent -> Complete (5min poller)
 }
 
 # ─── PROD Webhook paths ───────────────────────────────────────────────────────
@@ -377,90 +378,37 @@ def run_http_get(step, ctx):
     return passed, entry
 
 
-def run_verify_airtable(step, ctx):
-    base_id = ctx.interpolate(step.get("base_id", AIRTABLE_BASE_ID))
-    table_id = ctx.interpolate(step.get("table_id", AIRTABLE_TABLE_ID))
-    filter_field = step.get("filter_field", "Email")
-    filter_value = ctx.interpolate(step.get("filter_value", ""))
-    custom_formula = ctx.interpolate(step.get("filter_formula", ""))
-    expect_exists = step.get("expect_exists", True)
-    expect_fields = ctx.interpolate(step.get("expect_fields", {}))
+def run_http_put(step, ctx):
+    """PUT to a URL (used for PG status updates via orbitools API)."""
+    url = ctx.interpolate(step["url"])
+    payload = ctx.interpolate(step.get("payload", {}))
+    expect_status = step.get("expect_status", 200)
+    use_auth = step.get("use_orbitools_auth", False)
 
-    if not AIRTABLE_API_KEY:
-        warn("AIRTABLE_API_KEY not set -- skipping")
-        return None, {"skipped": "no AIRTABLE_API_KEY"}
+    log(f"  PUT {url}")
+    entry = {"request": {"method": "PUT", "url": url, "body": payload}, "response": {}, "assertions": []}
 
-    if custom_formula:
-        formula = urllib.parse.quote(custom_formula)
-    else:
-        safe_value = filter_value.replace("'", "\\'")
-        formula = urllib.parse.quote(f"{{{filter_field}}}='{safe_value}'")
-    url = f"https://api.airtable.com/v0/{base_id}/{table_id}?filterByFormula={formula}&maxRecords=5"
-
-    if custom_formula:
-        log(f"  Airtable: {base_id}/{table_id} formula: {custom_formula}")
-    else:
-        log(f"  Airtable: {base_id}/{table_id} where {filter_field}='{filter_value}'")
-    entry = {"request": {"method": "GET", "url": url}, "response": {}, "assertions": []}
-
-    headers = {"Authorization": f"Bearer {AIRTABLE_API_KEY}"}
-    req = urllib.request.Request(url, headers=headers)
-    try:
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            data = json.loads(resp.read().decode())
-    except urllib.error.HTTPError as e:
-        err_body = e.read().decode()[:300]
-        entry["response"] = {"status": e.code, "body": err_body}
-        # 422 INVALID_FILTER_BY_FORMULA: field doesn't exist in empty table
-        # If we don't expect the record to exist, treat as no records found → PASS
-        if e.code == 422 and not expect_exists:
-            warn(f"Airtable filter formula invalid (table likely empty/field missing) -- treating as no record (expected)")
-            entry["assertions"].append({"check": "record_not_exists", "expected": True, "actual": True, "pass": True})
-            return True, entry
-        fail(f"Airtable API error {e.code}: {err_body}")
-        return False, entry
-
-    records = data.get("records", [])
-    entry["response"] = {"status": 200, "record_count": len(records),
-                         "body": data if len(json.dumps(data)) < 5000 else {"records_count": len(records), "truncated": True}}
+    auth = (ORBITOOLS_USER, ORBITOOLS_PASS) if use_auth and ORBITOOLS_USER else None
+    status, body = http_request("PUT", url, payload=payload, basic_auth=auth)
+    entry["response"] = {"status": status, "body": body if isinstance(body, (dict, list)) else str(body)[:2000]}
 
     passed = True
-    if expect_exists and not records:
-        fail(f"No record found in Airtable (expected exists)")
-        entry["assertions"].append({"check": "record_exists", "expected": True, "actual": False, "pass": False})
-        return False, entry
-    elif not expect_exists and records:
-        fail(f"Record found in Airtable (expected NOT exists)")
-        entry["assertions"].append({"check": "record_not_exists", "expected": True, "actual": False, "pass": False})
-        return False, entry
-    elif expect_exists:
-        ok(f"Record found ({len(records)} match)")
-        entry["assertions"].append({"check": "record_exists", "expected": True, "actual": True, "pass": True})
-        fields = records[0].get("fields", {})
-        for field, expected in expect_fields.items():
-            actual = fields.get(field)
-            if actual == expected:
-                ok(f"  Field '{field}' = {expected!r}")
-                entry["assertions"].append({"check": f"field_{field}", "expected": expected, "actual": actual, "pass": True})
-            else:
-                fail(f"  Field '{field}': expected {expected!r}, got {actual!r}")
-                entry["assertions"].append({"check": f"field_{field}", "expected": expected, "actual": actual, "pass": False})
-                passed = False
+    if status != expect_status:
+        fail(f"Status {status} (expected {expect_status})")
+        entry["assertions"].append({"check": "status_code", "expected": expect_status, "actual": status, "pass": False})
+        passed = False
     else:
-        ok("No record in Airtable (as expected)")
+        ok(f"Status {status}")
+        entry["assertions"].append({"check": "status_code", "expected": expect_status, "actual": status, "pass": True})
 
-    # Capture: always provide record data for capture
-    capture_data = {"records": records}
-    _do_captures(step, capture_data, ctx, entry)
-
-    # Auto-generate Airtable links
-    entry["links"] = []
-    if records:
-        rid = records[0].get("id", "")
-        if rid:
-            entry["links"].append({"label": "Airtable Record", "url": link_airtable(table_id, rid), "id": rid})
-
+    _do_captures(step, body, ctx, entry)
     return passed, entry
+
+
+def run_verify_airtable(step, ctx):
+    """Airtable verification removed — AT is no longer used in this pipeline."""
+    warn("verify_airtable step skipped (AT removed from pipeline — use verify_postgres instead)")
+    return None, {"skipped": "AT removed from pipeline"}
 
 
 def run_verify_shopify(step, ctx):
@@ -664,6 +612,21 @@ def run_verify_postgres(step, ctx):
         ok(f"Record found in PostgreSQL ({count} rows)")
         entry["assertions"].append({"check": "record_exists", "expected": True, "actual": True, "pass": True})
 
+    # Field-level assertions
+    expect_fields = step.get("expect_fields", {})
+    if expect_fields and isinstance(results, list) and results:
+        first = results[0]
+        for field, expected in expect_fields.items():
+            actual = first.get(field)
+            match = str(actual) == str(expected) or actual == expected
+            if match:
+                ok(f"  {field}: {actual}")
+                entry["assertions"].append({"check": f"field:{field}", "expected": expected, "actual": actual, "pass": True})
+            else:
+                fail(f"  {field}: expected={expected}, actual={actual}")
+                entry["assertions"].append({"check": f"field:{field}", "expected": expected, "actual": actual, "pass": False})
+                passed = False
+
     _do_captures(step, body, ctx, entry)
     return passed, entry
 
@@ -749,90 +712,15 @@ def run_n8n_execute(step, ctx):
 
 
 def run_airtable_create(step, ctx):
-    """Create a record in Airtable (seed test data or simulate upstream output)."""
-    base_id = ctx.interpolate(step.get("base_id", AT_BASE))
-    table_id = ctx.interpolate(step.get("table_id", ""))
-    fields = ctx.interpolate(step.get("fields", {}))
-
-    if not AIRTABLE_API_KEY:
-        warn("AIRTABLE_API_KEY not set -- skipping")
-        return None, {"skipped": "no AIRTABLE_API_KEY"}
-
-    url = f"https://api.airtable.com/v0/{base_id}/{table_id}"
-    log(f"  Airtable CREATE: {base_id}/{table_id}")
-    entry = {"request": {"method": "POST", "url": url, "body": {"fields": fields}}, "response": {}, "assertions": []}
-
-    typecast = step.get("typecast", False)
-    body = {"fields": fields}
-    if typecast:
-        body["typecast"] = True
-    payload = json.dumps(body).encode()
-    req = urllib.request.Request(url, data=payload, method="POST")
-    req.add_header("Authorization", f"Bearer {AIRTABLE_API_KEY}")
-    req.add_header("Content-Type", "application/json")
-
-    try:
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            data = json.loads(resp.read().decode())
-            record_id = data.get("id", "")
-            entry["response"] = {"status": 200, "body": data}
-            ok(f"Created record {record_id}")
-            entry["assertions"].append({"check": "airtable_create", "expected": "created", "actual": record_id, "pass": True})
-            _do_captures(step, data, ctx, entry)
-            # Auto-capture record_id
-            if record_id:
-                ctx.set("_last_airtable_record_id", record_id)
-            # Auto-generate Airtable link
-            entry["links"] = []
-            if record_id:
-                entry["links"].append({"label": "Airtable Record (created)", "url": link_airtable(table_id, record_id), "id": record_id})
-            return True, entry
-    except urllib.error.HTTPError as e:
-        err_body = e.read().decode()[:500]
-        fail(f"Airtable create error {e.code}: {err_body[:200]}")
-        entry["response"] = {"status": e.code, "body": err_body}
-        entry["assertions"].append({"check": "airtable_create", "expected": "created", "actual": f"HTTP {e.code}", "pass": False})
-        return False, entry
+    """Airtable create removed — AT no longer used."""
+    warn("airtable_create step skipped (AT removed from pipeline — use http_post to PG instead)")
+    return None, {"skipped": "AT removed from pipeline"}
 
 
 def run_airtable_update(step, ctx):
-    """Update an Airtable record (simulate human-in-the-loop status changes)."""
-    base_id = ctx.interpolate(step.get("base_id", AT_BASE))
-    table_id = ctx.interpolate(step.get("table_id", ""))
-    record_id = ctx.interpolate(step.get("record_id", ""))
-    fields = ctx.interpolate(step.get("fields", {}))
-
-    if not AIRTABLE_API_KEY:
-        warn("AIRTABLE_API_KEY not set -- skipping")
-        return None, {"skipped": "no AIRTABLE_API_KEY"}
-
-    if not record_id:
-        fail("No record_id for Airtable update")
-        return False, {"error": "no record_id"}
-
-    url = f"https://api.airtable.com/v0/{base_id}/{table_id}/{record_id}"
-    log(f"  Airtable UPDATE: {record_id} -> {fields}")
-    entry = {"request": {"method": "PATCH", "url": url, "body": {"fields": fields}}, "response": {}, "assertions": []}
-
-    payload = json.dumps({"fields": fields}).encode()
-    req = urllib.request.Request(url, data=payload, method="PATCH")
-    req.add_header("Authorization", f"Bearer {AIRTABLE_API_KEY}")
-    req.add_header("Content-Type", "application/json")
-
-    try:
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            data = json.loads(resp.read().decode())
-            entry["response"] = {"status": 200, "body": data}
-            ok(f"Updated record {record_id}")
-            entry["assertions"].append({"check": "airtable_update", "expected": "updated", "actual": "success", "pass": True})
-            _do_captures(step, data, ctx, entry)
-            return True, entry
-    except urllib.error.HTTPError as e:
-        err_body = e.read().decode()[:500]
-        fail(f"Airtable update error {e.code}: {err_body[:200]}")
-        entry["response"] = {"status": e.code, "body": err_body}
-        entry["assertions"].append({"check": "airtable_update", "expected": "updated", "actual": f"HTTP {e.code}", "pass": False})
-        return False, entry
+    """Airtable update removed — AT no longer used."""
+    warn("airtable_update step skipped (AT removed from pipeline — use http_put to PG instead)")
+    return None, {"skipped": "AT removed from pipeline"}
 
 
 def run_human_checkpoint(step, ctx):
@@ -851,17 +739,7 @@ def run_human_checkpoint(step, ctx):
             log(f"  {instr}")
         log(f"")
 
-    # Auto-add relevant links from context
-    creator_rid = ctx.get("creator_record_id")
-    if creator_rid:
-        url = link_airtable(AT_CREATORS, creator_rid)
-        log(f"  [LINK] Airtable Creator: {url}")
-        entry["links"].append({"label": "Airtable Creator Record", "url": url, "id": creator_rid})
-    conv_rid = ctx.get("conversation_record_id")
-    if conv_rid:
-        url = link_airtable(AT_CONVERSATIONS, conv_rid)
-        log(f"  [LINK] Airtable Conversation: {url}")
-        entry["links"].append({"label": "Airtable Conversation", "url": url, "id": conv_rid})
+    # Auto-add Shopify link from context
     cust_id = ctx.get("shopify_customer_id")
     if cust_id:
         url = link_shopify("customers", cust_id)
@@ -955,16 +833,17 @@ def run_assert_captured(step, ctx):
 
 
 STEP_RUNNERS = {
-    "http_post":          run_http_post,
-    "http_get":           run_http_get,
-    "verify_airtable":    run_verify_airtable,
-    "verify_shopify":     run_verify_shopify,
-    "verify_postgres":    run_verify_postgres,
-    "wait":               run_wait,
+    "http_post":           run_http_post,
+    "http_put":            run_http_put,
+    "http_get":            run_http_get,
+    "verify_airtable":     run_verify_airtable,   # stub — AT removed
+    "verify_shopify":      run_verify_shopify,
+    "verify_postgres":     run_verify_postgres,
+    "wait":                run_wait,
     "n8n_execute":         run_n8n_execute,
     "verify_n8n_workflow": run_verify_n8n_workflow,
-    "airtable_create":     run_airtable_create,
-    "airtable_update":     run_airtable_update,
+    "airtable_create":     run_airtable_create,   # stub — AT removed
+    "airtable_update":     run_airtable_update,   # stub — AT removed
     "human_checkpoint":    run_human_checkpoint,
     "assert_captured":     run_assert_captured,
 }
@@ -1345,23 +1224,56 @@ def flow_pipeline(email=None):
     }
 
 
-def flow_gifting(email=None):
-    """Flow 1: Influencer Gifting Application (Main Entry)."""
+def flow_gifting(email=None, brand="grosmimi"):
+    """Flow 1: Influencer Gifting Application — PG + Shopify only (AT removed).
+
+    Brand-specific payloads:
+      naeiae    → Naeiae Pop Rice Snack (default, small catalog)
+      grosmimi  → Grosmimi PPSU Straw Cup
+      chamom    → CHA&MOM Lotion
+      ht        → High Touch (grosmimi products, higher-touch)
+    """
     test_email = email or _make_test_email()
     test_phone = _make_test_phone()
+
+    BRAND_PRODUCTS = {
+        "naeiae": [{
+            "product_key": "pop_rice", "product_id": 8483294552386,
+            "variant_id": 46136843452738, "title": "Naeiae Pop Rice Snack",
+            "color": "Original", "price": "$14.99",
+        }],
+        "grosmimi": [{
+            "product_key": "ppsu_straw", "product_id": 8288579256642,
+            "variant_id": 45018985431362, "title": "Grosmimi PPSU Straw Cup 10oz",
+            "color": "White", "price": "$24.90",
+        }],
+        "chamom": [{
+            "product_key": "lotion", "product_id": 8500000000001,
+            "variant_id": 46000000000001, "title": "CHA&MOM Baby Lotion",
+            "color": "N/A", "price": "$19.99",
+        }],
+        "ht": [{
+            "product_key": "ppsu_straw", "product_id": 8288579256642,
+            "variant_id": 45018985431362, "title": "Grosmimi PPSU Straw Cup 10oz",
+            "color": "White", "price": "$24.90",
+        }],
+    }
+    products = BRAND_PRODUCTS.get(brand, BRAND_PRODUCTS["naeiae"])
+
     return {
         "flow_id": "influencer_gifting",
-        "flow_name": "Flow 1: Influencer Gifting Application",
-        "description": "Form submit -> n8n -> Airtable + Shopify Customer + Metafields + PostgreSQL",
+        "flow_name": f"Flow 1: Influencer Gifting Application [{brand}]",
+        "description": "Form submit → n8n → PostgreSQL + Shopify Draft Order (AT removed)",
         "test_email": test_email,
         "steps": [
             {
                 "step_id": "submit_gifting_form",
                 "type": "http_post",
                 "name": "POST to n8n influencer-gifting webhook",
-                "url": "{{N8N_INFLUENCER_WEBHOOK}}",
+                "url": WJ_WEBHOOKS["gifting"],
                 "payload": {
                     "form_type": "influencer_gifting",
+                    "brand": brand,
                     "submitted_at": "{{now_iso}}",
                     "personal_info": {
                         "full_name": "FlowTest Runner",
@@ -1374,16 +1286,7 @@ def flow_gifting(email=None):
                         "child_1": {"birthday": "2025-06-15", "age_months": 9},
                         "child_2": None,
                     },
-                    "selected_products": [
-                        {
-                            "product_key": "ppsu_straw",
-                            "product_id": 8288579256642,
-                            "variant_id": 45018985431362,
-                            "title": "Grosmimi PPSU Straw Cup 10oz",
-                            "color": "White",
-                            "price": "$24.90",
-                        }
-                    ],
+                    "selected_products": products,
                     "shipping_address": {
                         "street": "123 FlowTest St",
                         "apt": "",
@@ -1396,7 +1299,10 @@ def flow_gifting(email=None):
                     "shopify_customer_id": None,
                 },
                 "expect_status": 200,
-                "capture": {"webhook_response": "$"},
+                "capture": {
+                    "webhook_response": "$",
+                    "draft_order_id_from_webhook": "$.draft_order_id",
+                },
             },
             {
                 "step_id": "wait_n8n_gifting",
@@ -1405,37 +1311,16 @@ def flow_gifting(email=None):
                 "seconds": 12,
             },
             {
-                "step_id": "verify_airtable_gifting",
-                "type": "verify_airtable",
-                "name": "Verify Applicants table record",
-                "filter_field": "Email",
-                "filter_value": test_email,
+                "step_id": "verify_postgres_gifting",
+                "type": "verify_postgres",
+                "name": "Verify PostgreSQL gifting record (primary)",
+                "endpoint": "/api/onzenna/gifting/list/",
+                "filter": {"email": test_email},
                 "expect_exists": True,
-                "expect_fields": {"Status": "New"},
                 "capture": {
-                    "airtable_record_id": "$.records[0].id",
-                    "airtable_name": "$.records[0].fields.Name",
+                    "pg_draft_order_id": "$.results[0].draft_order_id",
+                    "pg_record_id": "$.results[0].id",
                 },
-            },
-            {
-                "step_id": "verify_creators_gifting",
-                "type": "verify_airtable",
-                "name": "Verify Creators table record (Pathlight CRM)",
-                "table_id": AT_CREATORS,
-                "filter_field": "Email",
-                "filter_value": test_email,
-                "expect_exists": True,
-                "expect_fields": {
-                    "Outreach Status": "Needs Review",
-                    "Partnership Status": "New",
-                    "Source": "ManyChat Inbound",
-                },
-                "capture": {
-                    "creators_record_id": "$.records[0].id",
-                    "creators_username": "$.records[0].fields.Username",
-                    "creators_platform": "$.records[0].fields.Platform",
-                },
-                "critical": False,  # New node, non-critical until verified stable
             },
             {
                 "step_id": "verify_shopify_customer_gifting",
@@ -1445,32 +1330,20 @@ def flow_gifting(email=None):
                 "filter": {"email": test_email},
                 "expect_exists": True,
                 "capture": {"shopify_customer_id": "$.customers[0].id"},
-                "critical": False,  # n8n uses mytoddie store, test checks toddie-4080
+                "critical": False,
             },
             {
-                "step_id": "verify_metafields_gifting",
+                "step_id": "verify_draft_order_gifting",
                 "type": "verify_shopify",
-                "name": "Verify influencer metafields (instagram/tiktok)",
-                "resource": "metafield",
+                "name": "Verify Shopify Draft Order exists (100% discount)",
+                "resource": "draft_order",
                 "customer_id": "{{shopify_customer_id}}",
-                "critical": False,  # n8n uses mytoddie store
-                "expect_metafields": {
-                    "influencer.instagram": "@flowtest_ig",
-                    "influencer.tiktok": "@flowtest_tk",
-                },
-            },
-            {
-                "step_id": "verify_postgres_gifting",
-                "type": "verify_postgres",
-                "name": "Verify PostgreSQL record (orbitools)",
-                "endpoint": "/api/onzenna/gifting/list/",
-                "filter": {"email": test_email},
                 "expect_exists": True,
+                "capture": {"draft_order_id": "$.draft_orders[0].id"},
+                "critical": False,
             },
         ],
         "cleanup": {
-            "airtable_record_id": "{{airtable_record_id}}",
-            "creators_record_id": "{{creators_record_id}}",
             "shopify_customer_id": "{{shopify_customer_id}}",
             "test_email": test_email,
         },
@@ -1478,18 +1351,18 @@ def flow_gifting(email=None):
 
 
 def flow_creator(email=None):
-    """Flow 2: Creator Profile Signup."""
+    """Flow 2: Creator Profile Signup (AT removed — PG verify only)."""
     test_email = email or _make_test_email()
     return {
         "flow_id": "creator_profile",
         "flow_name": "Flow 2: Creator Profile Signup",
-        "description": "Creator profile form -> n8n -> Airtable + Shopify Metafields(onzenna_creator) + PostgreSQL",
+        "description": "Creator profile form -> n8n -> PostgreSQL (onz_pipeline_creators). AT removed.",
         "test_email": test_email,
         "steps": [
             {
                 "step_id": "submit_creator_profile",
                 "type": "http_post",
-                "name": "POST to n8n creator-to-airtable webhook",
+                "name": "POST to n8n creator webhook",
                 "url": "{{N8N_CREATOR_AIRTABLE_WEBHOOK}}",
                 "payload": {
                     "customer_name": "FlowTest Creator",
@@ -1530,181 +1403,87 @@ def flow_creator(email=None):
             {
                 "step_id": "wait_n8n_creator",
                 "type": "wait",
-                "name": "Wait for n8n async processing (includes IG scrape)",
+                "name": "Wait for n8n async processing",
                 "seconds": 10,
-            },
-            {
-                "step_id": "verify_airtable_creator",
-                "type": "verify_airtable",
-                "name": "Verify Airtable Applicants record",
-                "filter_field": "Email",
-                "filter_value": test_email,
-                "expect_exists": True,
-                "expect_fields": {
-                    "Name": "FlowTest Creator",
-                    "Primary Platform": "instagram",
-                    "Status": "New",
-                },
-                "capture": {
-                    "airtable_record_id": "$.records[0].id",
-                    "airtable_ig_handle": "$.records[0].fields.Instagram Handle",
-                },
-            },
-            {
-                "step_id": "verify_shopify_customer_creator",
-                "type": "verify_shopify",
-                "name": "Verify Shopify customer (creator workflow doesn't create)",
-                "resource": "customer",
-                "filter": {"email": test_email},
-                "expect_exists": False,  # Creator-to-Airtable workflow doesn't create Shopify customers
-                "capture": {"shopify_customer_id": "$.customers[0].id"},
-                "critical": False,
-            },
-            {
-                "step_id": "verify_metafields_creator",
-                "type": "verify_shopify",
-                "name": "Verify onzenna_creator metafields (skipped, no customer created)",
-                "resource": "metafield",
-                "customer_id": "{{shopify_customer_id}}",
-                "critical": False,  # No customer created by this flow
-                "expect_metafields": {
-                    "onzenna_creator.primary_platform": "instagram",
-                    "onzenna_creator.primary_handle": "@flowtest_creator",
-                    "onzenna_creator.following_size": "1k_10k",
-                },
             },
             {
                 "step_id": "verify_postgres_creator",
                 "type": "verify_postgres",
-                "name": "Verify PostgreSQL creator record (no PG integration in creator flow)",
-                "endpoint": "/api/onzenna/gifting/list/",
+                "name": "Verify PostgreSQL creator record (primary)",
+                "endpoint": "/api/onzenna/pipeline/creators/",
                 "filter": {"email": test_email},
-                "expect_exists": False,  # Creator-to-Airtable has no PG save node
-                "critical": False,
+                "expect_exists": True,
+                "capture": {
+                    "pg_creator_id": "$.results[0].id",
+                    "pg_creator_status": "$.results[0].pipeline_status",
+                },
             },
         ],
         "cleanup": {
-            "airtable_record_id": "{{airtable_record_id}}",
-            "shopify_customer_id": "{{shopify_customer_id}}",
             "test_email": test_email,
         },
     }
 
 
 def flow_sample(email=None):
-    """Flow 3: Sample Request (after acceptance)."""
+    """Flow 3: Sample Sent — PG status change test (AT + Gifting2 webhook removed).
+
+    Tests the pipeline_status transition: Accepted → Sample Sent via orbitools PG API.
+    Note: n8n 5-min poller triggers Draft Order creation after status change — not verified here
+    (real-time n8n verification is out of test scope; PG state is the authoritative check).
+    """
     test_email = email or _make_test_email()
     return {
-        "flow_id": "sample_request",
-        "flow_name": "Flow 3: Sample Request (Gifting2)",
-        "description": "Accepted creator submits sample form -> n8n -> Shopify Customer + Draft Order + Airtable update",
+        "flow_id": "sample_sent_status",
+        "flow_name": "Flow 3: Sample Sent (PG status change)",
+        "description": "Setup creator record in PG → PUT status=Sample Sent → verify PG status. Gifting2 webhook removed.",
         "test_email": test_email,
         "steps": [
             {
-                "step_id": "submit_gifting2_form",
+                "step_id": "setup_creator_pg",
                 "type": "http_post",
-                "name": "POST to n8n gifting2-submit webhook",
-                "url": "{{N8N_GIFTING2_WEBHOOK}}",
+                "name": "Setup: Create Accepted creator in PostgreSQL",
+                "url": f"{ORBITOOLS_URL}/api/onzenna/pipeline/creators/",
+                "use_orbitools_auth": True,
                 "payload": {
-                    "form_type": "influencer_gifting2",
-                    "submitted_at": "{{now_iso}}",
-                    "source": "inbound_pipeline",
-                    "personal_info": {
-                        "full_name": "FlowTest Sample",
-                        "email": test_email,
-                        "phone": _make_test_phone(),
-                        "instagram": "@flowtest_sample",
-                        "tiktok": "None",
-                    },
-                    "baby_info": {
-                        "child_1": {"birthday": "2025-03-01", "age_months": 12},
-                        "child_2": None,
-                    },
-                    "selected_products": [
-                        {
-                            "product_key": "ppsu_straw",
-                            "product_id": 8288579256642,
-                            "variant_id": 45018985431362,
-                            "title": "Grosmimi PPSU Straw Cup 10oz",
-                            "color": "White",
-                            "price": "$24.90",
-                        }
-                    ],
-                    "shipping_address": {
-                        "street": "789 Sample Blvd",
-                        "apt": "Unit 3",
-                        "city": "Austin",
-                        "state": "TX",
-                        "zip": "73301",
-                        "country": "US",
-                    },
-                    "terms_accepted": True,
-                    "shopify_customer_id": None,
-                    "airtable_email": test_email,
+                    "name": "FlowTest Sample",
+                    "email": test_email,
+                    "ig_handle": "@flowtest_sample",
+                    "brand": "grosmimi",
+                    "pipeline_status": "Accepted",
+                    "source": "e2e_test",
                 },
+                "expect_status": 201,
+                "capture": {"pg_creator_id": "$.id"},
+            },
+            {
+                "step_id": "put_sample_sent",
+                "type": "http_put",
+                "name": "PUT pipeline_status = Sample Sent",
+                "url": f"{ORBITOOLS_URL}/api/onzenna/pipeline/creators/{{{{pg_creator_id}}}}/",
+                "use_orbitools_auth": True,
+                "payload": {"pipeline_status": "Sample Sent"},
                 "expect_status": 200,
-                "capture": {"webhook_response": "$"},
             },
             {
-                "step_id": "wait_n8n_sample",
+                "step_id": "wait_pg_settle",
                 "type": "wait",
-                "name": "Wait for n8n async processing",
-                "seconds": 10,
+                "name": "Wait for PG write to settle",
+                "seconds": 3,
             },
             {
-                "step_id": "verify_shopify_customer_sample",
-                "type": "verify_shopify",
-                "name": "Verify Shopify customer created",
-                "resource": "customer",
+                "step_id": "verify_postgres_sample_sent",
+                "type": "verify_postgres",
+                "name": "Verify PG pipeline_status == Sample Sent (primary)",
+                "endpoint": "/api/onzenna/pipeline/creators/",
                 "filter": {"email": test_email},
                 "expect_exists": True,
-                "capture": {"shopify_customer_id": "$.customers[0].id"},
-                "critical": False,  # n8n uses mytoddie store, test checks toddie-4080
-            },
-            {
-                "step_id": "verify_draft_order",
-                "type": "verify_shopify",
-                "name": "Verify draft order created (100% discount)",
-                "resource": "draft_order",
-                "customer_id": "{{shopify_customer_id}}",
-                "expect_exists": True,
-                "capture": {"draft_order_id": "$.draft_orders[0].id"},
-                "critical": False,  # n8n uses mytoddie store
-            },
-            {
-                "step_id": "verify_airtable_updated",
-                "type": "verify_airtable",
-                "name": "Verify Applicants table updated (Gifting2 upsert)",
-                "filter_field": "Email",
-                "filter_value": test_email,
-                "expect_exists": True,
-                "expect_fields": {"Status": "Accepted"},
-                "capture": {
-                    "airtable_record_id": "$.records[0].id",
-                    "airtable_draft_order_id": "$.records[0].fields.Draft Order ID",
-                },
-                "critical": False,  # Gifting2 uses mytoddie store credentials
-            },
-            {
-                "step_id": "verify_creators_updated",
-                "type": "verify_airtable",
-                "name": "Verify Creators table updated (Gifting2 upsert)",
-                "table_id": AT_CREATORS,
-                "filter_field": "Email",
-                "filter_value": test_email,
-                "expect_exists": True,
-                "expect_fields": {
-                    "Outreach Status": "Sample Sent",
-                },
-                "capture": {
-                    "creators_draft_order_id": "$.records[0].fields.Draft Order ID",
-                },
-                "critical": False,  # New node, non-critical until verified stable
+                "expect_fields": {"pipeline_status": "Sample Sent"},
+                "capture": {"final_status": "$.results[0].pipeline_status"},
             },
         ],
         "cleanup": {
-            "airtable_record_id": "{{airtable_record_id}}",
-            "shopify_customer_id": "{{shopify_customer_id}}",
+            "pg_creator_id": "{{pg_creator_id}}",
             "test_email": test_email,
         },
     }
@@ -3245,20 +3024,6 @@ def run_flow(flow_spec, dry_run=False, wait_multiplier=1.0, step_num=None):
 # Cleanup
 # ═══════════════════════════════════════════════════════════════════════════
 
-def _delete_airtable_record(base_id, table_id, record_id):
-    """Delete a single Airtable record."""
-    if not record_id or not isinstance(record_id, str) or not record_id.startswith("rec"):
-        return
-    url = f"https://api.airtable.com/v0/{base_id}/{table_id}/{record_id}"
-    headers = {"Authorization": f"Bearer {AIRTABLE_API_KEY}"}
-    req = urllib.request.Request(url, headers=headers, method="DELETE")
-    try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            ok(f"Airtable record {record_id} deleted from {table_id}")
-    except Exception as e:
-        warn(f"Airtable cleanup failed ({record_id}): {e}")
-
-
 def run_cleanup(cleanup_spec, ctx):
     """Delete test data created during the flow."""
     resolved = ctx.interpolate(cleanup_spec)
@@ -3271,21 +3036,7 @@ def run_cleanup(cleanup_spec, ctx):
 
     log("\n  [CLEANUP]")
 
-    # 1a. Delete single Airtable record (legacy format)
-    record_id = resolved.get("airtable_record_id")
-    if record_id and AIRTABLE_API_KEY:
-        _delete_airtable_record(AT_BASE, AT_APPLICANTS, record_id)
-
-    # 1b. Delete multiple Airtable records (pipeline format)
-    airtable_records = resolved.get("airtable_records", [])
-    for rec in airtable_records:
-        if isinstance(rec, dict):
-            tid = rec.get("table_id", "")
-            rid = rec.get("record_id", "")
-            if tid and rid and isinstance(rid, str) and rid.startswith("rec"):
-                _delete_airtable_record(AT_BASE, tid, rid)
-
-    # 2. Delete Shopify customer
+    # 1. Delete Shopify customer (also cancels associated draft orders)
     customer_id = resolved.get("shopify_customer_id")
     if customer_id and SHOPIFY_STORE and SHOPIFY_TOKEN:
         url = f"https://{SHOPIFY_STORE}/admin/api/2024-01/customers/{customer_id}.json"
@@ -3304,9 +3055,31 @@ def run_cleanup(cleanup_spec, ctx):
     else:
         info("  No Shopify customer to clean up")
 
-    # 3. PostgreSQL - log warning (no DELETE endpoint)
-    if test_email:
-        warn(f"PostgreSQL: manual cleanup needed for email '{test_email}' (no DELETE endpoint)")
+    # 2. PostgreSQL creator record — try DELETE via orbitools API
+    pg_creator_id = resolved.get("pg_creator_id")
+    if pg_creator_id and ORBITOOLS_URL and ORBITOOLS_USER:
+        url = f"{ORBITOOLS_URL}/api/onzenna/pipeline/creators/{pg_creator_id}/"
+        auth = (ORBITOOLS_USER, ORBITOOLS_PASS)
+        req = urllib.request.Request(url, method="DELETE")
+        import base64
+        creds = base64.b64encode(f"{ORBITOOLS_USER}:{ORBITOOLS_PASS}".encode()).decode()
+        req.add_header("Authorization", f"Basic {creds}")
+        try:
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                ok(f"PG creator {pg_creator_id} deleted")
+        except urllib.error.HTTPError as e:
+            if e.code in (200, 204):
+                ok(f"PG creator {pg_creator_id} deleted")
+            elif e.code == 404:
+                info(f"PG creator {pg_creator_id} already gone")
+            elif e.code == 405:
+                warn(f"PG: DELETE not allowed for creator {pg_creator_id} — manual cleanup needed")
+            else:
+                warn(f"PG cleanup failed (HTTP {e.code})")
+        except Exception as e:
+            warn(f"PG cleanup error: {e}")
+    elif test_email:
+        warn(f"PostgreSQL: manual cleanup may be needed for email '{test_email}'")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -3515,7 +3288,7 @@ def cmd_status():
 
 
 def cmd_run(flow_names, dry_run=False, no_cleanup=False, wait_multiplier=1.0,
-            verbose=False, email=None, step_num=None):
+            verbose=False, email=None, step_num=None, brand="naeiae"):
     """Run specified flows."""
     all_contexts = []
 
@@ -3531,7 +3304,14 @@ def cmd_run(flow_names, dry_run=False, no_cleanup=False, wait_multiplier=1.0,
             warn(f"Unknown flow: {name}. Available: {', '.join(FLOW_REGISTRY.keys())}")
             continue
 
-        flow_spec = builder(email=email)
+        # Pass brand parameter to gifting flow; other flows ignore unknown kwargs via signature
+        import inspect
+        sig = inspect.signature(builder)
+        kwargs = {"email": email}
+        if "brand" in sig.parameters:
+            kwargs["brand"] = brand
+
+        flow_spec = builder(**kwargs)
         ctx = run_flow(flow_spec, dry_run=dry_run, wait_multiplier=wait_multiplier, step_num=step_num)
         all_contexts.append(ctx)
 
@@ -3621,6 +3401,8 @@ if __name__ == "__main__":
 
     parser.add_argument("--flow", type=str, default="all",
                         help="Flow to run: gifting|creator|sample|all (default: all)")
+    parser.add_argument("--brand", type=str, default="naeiae",
+                        help="Brand for gifting flow: grosmimi|chamom|naeiae|ht|all (default: naeiae)")
     parser.add_argument("--no-cleanup", action="store_true", dest="no_cleanup",
                         help="Skip cleanup (keep test data)")
     parser.add_argument("--wait-multiplier", type=float, default=1.0, dest="wait_multiplier",
@@ -3647,4 +3429,4 @@ if __name__ == "__main__":
         is_dry = args.dry_run_cmd
         cmd_run(flow_names, dry_run=is_dry, no_cleanup=args.no_cleanup,
                 wait_multiplier=args.wait_multiplier, verbose=args.verbose,
-                email=args.email, step_num=args.step)
+                email=args.email, step_num=args.step, brand=args.brand)

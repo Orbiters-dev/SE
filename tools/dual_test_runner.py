@@ -8,14 +8,23 @@ Architecture (Airtable 제거 후):
   n8n → PostgreSQL (orbitools Django API) + Shopify
   대시보드 → orbitools.orbiters.co.kr/api/onzenna 직접 읽기
 
-Stages:
-  seed        : PG pipeline_creators 시드 레코드 생성
-  gifting     : 인플루언서 기프팅 폼 → n8n → PG gifting_applications + Shopify Draft Order
-               (제품 선택 포함 — gifting2 단계 없음, gifting 한 번에 끝)
-  sample_sent : PG pipeline_creators 상태 변경 → n8n 폴링 → Draft Order 완료
+Stages (Stage 0-7):
+  syncly_check      : Stage 0  — n8n Syncly + Content WF active check
+  seed              : Stage 0b — PG pipeline_creators 시드 레코드 생성
+  email_draft       : Stage 1a — AI 이메일 드래프트 (AT Conversations 유지)
+  email_approve     : Stage 1b — 아웃리치 이메일 발송 승인
+  email_reply       : Stage 1c — 인플루언서 회신 시뮬
+  email_confirm     : Stage 1d — 기프팅폼 링크 확인 이메일
+  gifting           : Stage 2  — 기프팅 폼 → n8n → PG gifting_applications + Shopify Draft Order
+  sample_sent       : Stage 5  — PG pipeline_creators 상태 변경 → n8n 폴링
+  fulfillment_check : Stage 6  — n8n Fulfillment + SampleComplete WF active check
+  content_check     : Stage 7  — n8n Content/Syncly Metrics WF active check
+
+QUICK_STAGES (default): syncly_check → seed → gifting → sample_sent
 
 Usage:
-    python tools/dual_test_runner.py --dual                          # 이중테스트 (seed→gifting→sample_sent)
+    python tools/dual_test_runner.py --dual                                          # Quick (4 stages)
+    python tools/dual_test_runner.py --dual --stages syncly_check,seed,gifting,sample_sent,fulfillment_check,content_check  # 0-7 핵심
     python tools/dual_test_runner.py --dual --stages seed,gifting    # 특정 스테이지
     python tools/dual_test_runner.py --dual --dry-run                # 프리뷰
     python tools/dual_test_runner.py --executor-only                # Executor만
@@ -58,7 +67,7 @@ from test_influencer_flow import (
     N8N_BASE_URL, N8N_API_KEY,
     TEST_EMAIL_DOMAIN,
     _make_test_email, _make_test_phone,
-    link_airtable, link_shopify, link_n8n_wf,
+    link_shopify, link_n8n_wf,
 )
 
 # ─── Airtable (email/outreach 스테이지에서만 사용 — gifting/seed/sample은 PG 사용) ──
@@ -77,6 +86,11 @@ AIRTABLE_API_KEY = (
 ORBITOOLS_USER = os.getenv("ORBITOOLS_USER") or "admin"
 ORBITOOLS_PASS = os.getenv("ORBITOOLS_PASS") or "admin"
 
+# ─── Test outreach recipient (receives actual emails during test runs) ────────
+# test_email (random) is used for PG/Shopify isolation.
+# OUTREACH_TEST_RECIPIENT is the real inbox that receives outreach emails in test mode.
+OUTREACH_TEST_RECIPIENT = os.getenv("OUTREACH_TEST_RECIPIENT", "wj.choi@orbiters.co.kr")
+
 # ─── Email content templates ─────────────────────────────────────────
 def _email_templates(test_name, test_ig, test_email):
     outreach_subject = f"Grosmimi x {test_ig} - Baby Product Collaboration"
@@ -92,10 +106,20 @@ def fail(msg): print(f"  [FAIL] {msg}")
 def warn(msg): print(f"  [WARN] {msg}")
 def info(msg): print(f"  [INFO] {msg}")
 
-ALL_STAGES = ["seed", "email_draft", "email_approve", "email_reply", "email_confirm",
-              "gifting", "sample_sent"]
-# Quick preset: skip email stages (gifting2 removed — product selection now in main gifting form)
-QUICK_STAGES = ["seed", "gifting", "sample_sent"]
+ALL_STAGES = [
+    "syncly_check",       # Stage 0: Syncly/Content WF active check (before seed)
+    "seed",               # Stage 0b: PG pipeline_creators 시드
+    "email_draft",        # Stage 1a: AI 이메일 드래프트 (AT Conversations 유지)
+    "email_approve",      # Stage 1b: 아웃리치 이메일 발송 승인
+    "email_reply",        # Stage 1c: 인플루언서 회신 시뮬
+    "email_confirm",      # Stage 1d: 기프팅폼 링크 확인 이메일
+    "gifting",            # Stage 2: 기프팅 폼 → n8n → PG + Shopify
+    "sample_sent",        # Stage 5: Sample Sent PG 상태 변경
+    "fulfillment_check",  # Stage 6: Fulfillment WF 구조 확인
+    "content_check",      # Stage 7: Content/Syncly Metrics WF 구조 확인
+]
+# Quick preset: core stages only (no email, no structural checks)
+QUICK_STAGES = ["syncly_check", "seed", "gifting", "sample_sent"]
 
 # ═══════════════════════════════════════════════════════════════════════════
 # DualTestConfig
@@ -107,7 +131,7 @@ class DualTestConfig:
         self.label = label or ""
         self.run_id = f"dual_{label}_{ts}" if label else f"dual_{ts}"
         self.run_dir = os.path.join(DUAL_DIR, self.run_id)
-        self.test_email = email or _make_test_email()
+        self.test_email = email or OUTREACH_TEST_RECIPIENT  # default → wj.choi@orbiters.co.kr
         self.test_phone = _make_test_phone()
         rand = "".join(random.choices(string.ascii_lowercase, k=4))
         self.test_ig = f"@dualtest_{ts[:8]}_{rand}"
@@ -429,7 +453,7 @@ class ExecutorAgent:
                 "id": creator_record_id,
                 "fields": {
                     "Username": test_ig,
-                    "Email": self.config.test_email,
+                    "Email": OUTREACH_TEST_RECIPIENT,  # real inbox — receives actual outreach email in test
                     "Platform": "Instagram",
                     "Outreach Type": "Low Touch",
                     "Outreach Status": "Not Started",
@@ -440,7 +464,7 @@ class ExecutorAgent:
             }]
         }
 
-        info(f"  [1a.1] POST draft_gen webhook")
+        info(f"  [1a.1] POST draft_gen webhook (To: {OUTREACH_TEST_RECIPIENT})")
         status, resp = http_request("POST", webhook_url, payload=payload)
         if status == 200:
             ok(f"[1a.2] Draft gen triggered: HTTP {status}")
@@ -490,7 +514,7 @@ class ExecutorAgent:
             "Channel": "Email",
             "Direction": "Outbound",
             "Message Content": body,
-            "Conversation Context": f"AI-generated outreach to @{test_ig}. Brand: Grosmimi. Type: Low Touch.",
+            "Conversation Context": f"AI-generated outreach to @{test_ig} ({OUTREACH_TEST_RECIPIENT}). Brand: Grosmimi. Type: Low Touch.",
             "Status": "Sent",
         }
         if creator_record_id:
@@ -547,7 +571,7 @@ class ExecutorAgent:
             "Channel": "Email",
             "Direction": "Inbound",
             "Message Content": reply_body,
-            "Conversation Context": f"Influencer @{test_ig} expressed interest in Grosmimi collab. Positive response.",
+            "Conversation Context": f"Influencer @{test_ig} replied to outreach ({OUTREACH_TEST_RECIPIENT}). Positive response.",
             "Status": "Sent",
         }
         if creator_record_id:
@@ -826,6 +850,135 @@ class ExecutorAgent:
         info(f"        -> n8n detects 'Sample Sent' -> completes Draft Order -> updates to 'Sample Shipped'")
         time.sleep(wait_sec)
         checks.append(Check(f"[5] Wait {wait_sec}s for n8n polling", True))
+
+        return checks, ctx
+
+    # ── Stage 0: Syncly/Content WF structural check ───────────────────────
+    def _stage_syncly_check(self):
+        """Stage 0: n8n Syncly + Content WF active + structural check (runs before seed)."""
+        checks = []
+        ctx = {}
+
+        if self.dry_run:
+            checks.append(Check("[0] DRY-RUN: Would check Syncly/Content WFs", True))
+            return checks, ctx
+
+        wf_targets = {
+            "syncly":  WJ_WORKFLOWS.get("syncly", ""),   # l86XnrL1JPFOMSA4GOoYy
+            "content": WJ_WORKFLOWS.get("content", ""),  # isOQGE4ynRubL8We
+        }
+        if not N8N_API_KEY:
+            info("[0] No N8N_API_KEY — skipping WF checks")
+            checks.append(Check("[0] n8n API key present", None, detail="N8N_API_KEY not set"))
+            return checks, ctx
+
+        for wf_key, wf_id in wf_targets.items():
+            if not wf_id:
+                checks.append(Check(f"[0] n8n WF {wf_key}: skip (no ID)", None))
+                continue
+            url = f"{N8N_BASE_URL}/api/v1/workflows/{wf_id}"
+            headers = {"X-N8N-API-KEY": N8N_API_KEY}
+            status, body = http_request("GET", url, headers=headers)
+            if status == 200 and isinstance(body, dict):
+                active = body.get("active", False)
+                name = body.get("name", "")
+                nodes = body.get("nodes", [])
+                node_count = len(nodes)
+                info(f"  [0] {wf_key} | name={name} | active={active} | nodes={node_count}")
+                if active:
+                    ok(f"[0] {wf_key} WF active: {name} ({node_count} nodes)")
+                    checks.append(Check(f"[0] n8n WF {wf_key}: active", True, detail=name))
+                else:
+                    warn(f"[0] {wf_key} WF INACTIVE: {name}")
+                    checks.append(Check(f"[0] n8n WF {wf_key}: active", None, detail="Inactive"))
+            else:
+                warn(f"[0] {wf_key} WF check failed: HTTP {status}")
+                checks.append(Check(f"[0] n8n WF {wf_key}: reachable", None, actual=str(status)))
+
+        return checks, ctx
+
+    # ── Stage 6: Fulfillment WF structural check ──────────────────────────
+    def _stage_fulfillment_check(self):
+        """Stage 6: Fulfillment + Sample Complete WF active check."""
+        checks = []
+        ctx = {}
+
+        if self.dry_run:
+            checks.append(Check("[6] DRY-RUN: Would check Fulfillment WFs", True))
+            return checks, ctx
+
+        wf_targets = {
+            "fulfillment":    WJ_WORKFLOWS.get("fulfillment", ""),     # ufMPgU6cjwuzLM0y
+            "sample_complete": WJ_WORKFLOWS.get("sample_complete", ""), # m89xU9RUbPgnkBy8
+        }
+        if not N8N_API_KEY:
+            checks.append(Check("[6] n8n API key present", None, detail="N8N_API_KEY not set"))
+            return checks, ctx
+
+        for wf_key, wf_id in wf_targets.items():
+            if not wf_id:
+                checks.append(Check(f"[6] n8n WF {wf_key}: skip (no ID)", None))
+                continue
+            url = f"{N8N_BASE_URL}/api/v1/workflows/{wf_id}"
+            headers = {"X-N8N-API-KEY": N8N_API_KEY}
+            status, body = http_request("GET", url, headers=headers)
+            if status == 200 and isinstance(body, dict):
+                active = body.get("active", False)
+                name = body.get("name", "")
+                node_count = len(body.get("nodes", []))
+                info(f"  [6] {wf_key} | name={name} | active={active} | nodes={node_count}")
+                if active:
+                    ok(f"[6] {wf_key} WF active: {name} ({node_count} nodes)")
+                    checks.append(Check(f"[6] n8n WF {wf_key}: active", True, detail=name))
+                else:
+                    warn(f"[6] {wf_key} WF INACTIVE: {name}")
+                    checks.append(Check(f"[6] n8n WF {wf_key}: active", None, detail="Inactive"))
+            else:
+                warn(f"[6] {wf_key} WF check failed: HTTP {status}")
+                checks.append(Check(f"[6] n8n WF {wf_key}: reachable", None, actual=str(status)))
+
+        return checks, ctx
+
+    # ── Stage 7: Content/Syncly Metrics WF structural check ──────────────
+    def _stage_content_check(self):
+        """Stage 7: Content detection + Shipped→Delivered + Delivered→Posted WF check."""
+        checks = []
+        ctx = {}
+
+        if self.dry_run:
+            checks.append(Check("[7] DRY-RUN: Would check Content/Syncly WFs", True))
+            return checks, ctx
+
+        wf_targets = {
+            "syncly_metrics":  WJ_WORKFLOWS.get("syncly_metrics", ""),   # FzBJVEOTvr6qJPAL
+            "shipped_delivered": WJ_WORKFLOWS.get("shipped_delivered", ""), # k61gzrshITfju33V
+            "delivered_posted":  WJ_WORKFLOWS.get("delivered_posted", ""),  # tvmHITPHpWFtcmh0
+        }
+        if not N8N_API_KEY:
+            checks.append(Check("[7] n8n API key present", None, detail="N8N_API_KEY not set"))
+            return checks, ctx
+
+        for wf_key, wf_id in wf_targets.items():
+            if not wf_id:
+                checks.append(Check(f"[7] n8n WF {wf_key}: skip (no ID)", None))
+                continue
+            url = f"{N8N_BASE_URL}/api/v1/workflows/{wf_id}"
+            headers = {"X-N8N-API-KEY": N8N_API_KEY}
+            status, body = http_request("GET", url, headers=headers)
+            if status == 200 and isinstance(body, dict):
+                active = body.get("active", False)
+                name = body.get("name", "")
+                node_count = len(body.get("nodes", []))
+                info(f"  [7] {wf_key} | name={name} | active={active} | nodes={node_count}")
+                if active:
+                    ok(f"[7] {wf_key} WF active: {name} ({node_count} nodes)")
+                    checks.append(Check(f"[7] n8n WF {wf_key}: active", True, detail=name))
+                else:
+                    warn(f"[7] {wf_key} WF INACTIVE: {name}")
+                    checks.append(Check(f"[7] n8n WF {wf_key}: active", None, detail="Inactive"))
+            else:
+                warn(f"[7] {wf_key} WF check failed: HTTP {status}")
+                checks.append(Check(f"[7] n8n WF {wf_key}: reachable", None, actual=str(status)))
 
         return checks, ctx
 
@@ -1299,6 +1452,121 @@ class VerifierAgent:
 
         return checks
 
+    # ── Verify Stage 0: Syncly/Content WF check ──────────────────────────
+    def _verify_syncly_check(self, ctx):
+        checks = []
+        info("[V-0] Verifying Stage 0: Syncly + Content WF active (independent re-check)")
+
+        if self.dry_run:
+            checks.append(Check("DRY-RUN: Would verify syncly_check", True))
+            return checks
+
+        if not N8N_API_KEY:
+            checks.append(Check("[V-0] n8n API key present", None, detail="N8N_API_KEY not set"))
+            return checks
+
+        wf_targets = {
+            "syncly":  WJ_WORKFLOWS.get("syncly", ""),
+            "content": WJ_WORKFLOWS.get("content", ""),
+        }
+        for wf_key, wf_id in wf_targets.items():
+            if not wf_id:
+                checks.append(Check(f"[V-0] n8n WF {wf_key}: skip (no ID)", None))
+                continue
+            url = f"{N8N_BASE_URL}/api/v1/workflows/{wf_id}"
+            headers = {"X-N8N-API-KEY": N8N_API_KEY}
+            status, body = http_request("GET", url, headers=headers)
+            if status == 200 and isinstance(body, dict):
+                active = body.get("active", False)
+                name = body.get("name", "")
+                node_count = len(body.get("nodes", []))
+                if active:
+                    ok(f"[V-0] {wf_key} WF active: {name} ({node_count} nodes)")
+                    checks.append(Check(f"[V-0] n8n WF {wf_key}: active", True, detail=name))
+                else:
+                    warn(f"[V-0] {wf_key} WF INACTIVE: {name}")
+                    checks.append(Check(f"[V-0] n8n WF {wf_key}: active", None, detail="Inactive"))
+            else:
+                checks.append(Check(f"[V-0] n8n WF {wf_key}: reachable", None, actual=str(status)))
+        return checks
+
+    # ── Verify Stage 6: Fulfillment WF check ─────────────────────────────
+    def _verify_fulfillment_check(self, ctx):
+        checks = []
+        info("[V-6] Verifying Stage 6: Fulfillment + Sample Complete WF active")
+
+        if self.dry_run:
+            checks.append(Check("DRY-RUN: Would verify fulfillment_check", True))
+            return checks
+
+        if not N8N_API_KEY:
+            checks.append(Check("[V-6] n8n API key present", None, detail="N8N_API_KEY not set"))
+            return checks
+
+        wf_targets = {
+            "fulfillment":    WJ_WORKFLOWS.get("fulfillment", ""),
+            "sample_complete": WJ_WORKFLOWS.get("sample_complete", ""),
+        }
+        for wf_key, wf_id in wf_targets.items():
+            if not wf_id:
+                checks.append(Check(f"[V-6] n8n WF {wf_key}: skip (no ID)", None))
+                continue
+            url = f"{N8N_BASE_URL}/api/v1/workflows/{wf_id}"
+            headers = {"X-N8N-API-KEY": N8N_API_KEY}
+            status, body = http_request("GET", url, headers=headers)
+            if status == 200 and isinstance(body, dict):
+                active = body.get("active", False)
+                name = body.get("name", "")
+                node_count = len(body.get("nodes", []))
+                if active:
+                    ok(f"[V-6] {wf_key} WF active: {name} ({node_count} nodes)")
+                    checks.append(Check(f"[V-6] n8n WF {wf_key}: active", True, detail=name))
+                else:
+                    warn(f"[V-6] {wf_key} WF INACTIVE: {name}")
+                    checks.append(Check(f"[V-6] n8n WF {wf_key}: active", None, detail="Inactive"))
+            else:
+                checks.append(Check(f"[V-6] n8n WF {wf_key}: reachable", None, actual=str(status)))
+        return checks
+
+    # ── Verify Stage 7: Content/Syncly Metrics WF check ──────────────────
+    def _verify_content_check(self, ctx):
+        checks = []
+        info("[V-7] Verifying Stage 7: Content/Syncly Metrics + Shipped/Delivered WFs active")
+
+        if self.dry_run:
+            checks.append(Check("DRY-RUN: Would verify content_check", True))
+            return checks
+
+        if not N8N_API_KEY:
+            checks.append(Check("[V-7] n8n API key present", None, detail="N8N_API_KEY not set"))
+            return checks
+
+        wf_targets = {
+            "syncly_metrics":   WJ_WORKFLOWS.get("syncly_metrics", ""),
+            "shipped_delivered": WJ_WORKFLOWS.get("shipped_delivered", ""),
+            "delivered_posted":  WJ_WORKFLOWS.get("delivered_posted", ""),
+        }
+        for wf_key, wf_id in wf_targets.items():
+            if not wf_id:
+                checks.append(Check(f"[V-7] n8n WF {wf_key}: skip (no ID)", None))
+                continue
+            url = f"{N8N_BASE_URL}/api/v1/workflows/{wf_id}"
+            headers = {"X-N8N-API-KEY": N8N_API_KEY}
+            status, body = http_request("GET", url, headers=headers)
+            if status == 200 and isinstance(body, dict):
+                active = body.get("active", False)
+                name = body.get("name", "")
+                node_count = len(body.get("nodes", []))
+                if active:
+                    ok(f"[V-7] {wf_key} WF active: {name} ({node_count} nodes)")
+                    checks.append(Check(f"[V-7] n8n WF {wf_key}: active", True, detail=name))
+                else:
+                    warn(f"[V-7] {wf_key} WF INACTIVE: {name}")
+                    checks.append(Check(f"[V-7] n8n WF {wf_key}: active", None, detail="Inactive"))
+            else:
+                checks.append(Check(f"[V-7] n8n WF {wf_key}: reachable", None, actual=str(status)))
+        return checks
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Cleanup
@@ -1307,7 +1575,8 @@ class VerifierAgent:
 def run_cleanup(config, signal_data):
     log(f"\n--- CLEANUP ---")
     email = config.test_email
-    if TEST_EMAIL_DOMAIN not in email:
+    allowed = TEST_EMAIL_DOMAIN in email or email == OUTREACH_TEST_RECIPIENT
+    if not allowed:
         warn(f"SAFETY: Refusing cleanup for non-test email: {email}")
         return
 
