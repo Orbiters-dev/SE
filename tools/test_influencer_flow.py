@@ -26,20 +26,17 @@ Usage:
 # ─── Public API (for dual_test_runner.py import) ─────────────────────────────
 __all__ = [
     "FlowContext", "http_request", "extract_value",
-    "AT_BASE", "AT_CREATORS", "AT_CONTENT", "AT_ORDERS", "AT_CONVERSATIONS", "AT_APPLICANTS",
     "WJ_WORKFLOWS", "WJ_WEBHOOKS", "WJ_WEBHOOK_BASE",
-    "AIRTABLE_API_KEY", "AIRTABLE_BASE_ID", "AIRTABLE_TABLE_ID",
     "SHOPIFY_STORE", "SHOPIFY_TOKEN",
     "ORBITOOLS_URL", "ORBITOOLS_USER", "ORBITOOLS_PASS",
     "N8N_BASE_URL", "N8N_API_KEY",
     "TEST_EMAIL_DOMAIN", "STEP_RUNNERS",
     "_make_test_email", "_make_test_phone",
-    "run_verify_airtable", "run_verify_shopify", "run_verify_postgres",
-    "run_http_post", "run_http_get", "run_wait",
-    "run_airtable_create", "run_airtable_update",
+    "run_verify_shopify", "run_verify_postgres",
+    "run_http_post", "run_http_put", "run_http_get", "run_wait",
     "run_n8n_execute", "run_verify_n8n_workflow",
     "generate_html_report", "run_flow",
-    "link_airtable", "link_shopify", "link_n8n_wf",
+    "link_shopify", "link_n8n_wf",
 ]
 
 import os
