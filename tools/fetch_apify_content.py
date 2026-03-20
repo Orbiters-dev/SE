@@ -1223,9 +1223,20 @@ def run_daily(region="all", dry_run=False, send_mail=True):
             ig_raw = json.load(open(ig_path, encoding="utf-8")) if ig_path else []
             print(f"[DRY] Loaded {len(ig_raw)} from {ig_path}")
         elif use_graph:
+            # Graph API for accounts with Business User ID configured
             us_accounts = {k: v for k, v in IG_GRAPH_ACCOUNTS.items()
-                           if k in ("onzenna.official", "grosmimi_usa")}
+                           if k in ("onzenna.official", "grosmimi_usa") and v}
             ig_raw = fetch_ig_tagged_graph(us_accounts, graph_token)
+            # Apify fallback for accounts missing Business User ID
+            missing_graph = [k for k in ("onzenna.official", "grosmimi_usa")
+                             if not IG_GRAPH_ACCOUNTS.get(k)]
+            if missing_graph:
+                fallback_urls = [u for u in US_TAGGED_URLS
+                                 if any(m in u for m in missing_graph)]
+                if fallback_urls:
+                    print(f"[HYBRID] Apify fallback for: {missing_graph}")
+                    apify_raw = fetch_ig_tagged(client, fallback_urls, limit=500)
+                    ig_raw.extend(apify_raw)
             save_json(ig_raw, "us_tagged_raw")
         else:
             ig_raw = fetch_ig_tagged(client, US_TAGGED_URLS, limit=2000)
