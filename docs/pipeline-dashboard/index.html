@@ -336,10 +336,18 @@ Shopify                         Apify / Syncly                   Gmail RAG
       <div class="card">
         <h3>&#x1F4E6; Batch Control</h3>
         <div class="desc">Control which creators get contacted and how many per batch</div>
-        <div class="form-row"><label>최초발견일자</label><input type="date" id="f-update-date">
-          <label class="toggle" style="min-width:auto" title="All dates (oldest first)"><input type="checkbox" id="f-start-beginning" onchange="toggleAllDates(this.checked)"><span class="slider"></span></label>
+        <div class="form-row">
+          <label>최초발견일자</label>
+          <div style="display:flex;gap:4px;flex:1;align-items:center">
+            <select id="f-update-date" onchange="onDiscoveryDateSelect(this.value)" style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--card)">
+              <option value="">-- 날짜 선택 --</option>
+            </select>
+            <button onclick="pullDiscoveryDates()" id="btn-pull-dates" class="btn btn-secondary btn-sm" title="Syncly에서 발견일자 목록 가져오기" style="white-space:nowrap">&#x21BB; Pull</button>
+          </div>
+          <label class="toggle" style="min-width:auto;margin-left:4px" title="All dates (oldest first)"><input type="checkbox" id="f-start-beginning" onchange="toggleAllDates(this.checked)"><span class="slider"></span></label>
           <span style="font-size:10px;color:var(--dim)">All dates</span>
         </div>
+        <div id="date-count-hint" style="font-size:10px;color:var(--g);padding:2px 0 4px 145px;display:none"></div>
         <div class="form-row"><label>Batch Size</label><input type="number" id="f-creators-contacted" min="1" max="500" step="1" oninput="var l=document.getElementById('alloc-batch-label');if(l)l.textContent=this.value;updateAllocation()"></div>
         <div class="form-row"><label>HT Threshold (R30D)</label><input type="number" id="f-ht-threshold" min="0" step="10000"></div>
       </div>
@@ -714,14 +722,24 @@ var DEMO_FORM_QUESTIONS={
 };
 var DEMO_RESOURCES_DEFAULT=[
   {brand:'All',type:'DOC',title:'Outreach Email Template',url:'https://docs.google.com/document/d/1vAvPdheHFz4xIraa3NODUuFG7RagylHEYOvv6BjtxLg/edit'},
-  {brand:'Grosmimi',type:'PDF',product:'PPSU',title:'PPSU Content Guidelines v2',url:''},
-  {brand:'Grosmimi',type:'PDF',product:'Stainless',title:'Stainless Content Guidelines v1',url:''},
-  {brand:'CHA&MOM',type:'PDF',product:'PS Cream',title:'PS Cream Content Guidelines v2',url:''},
-  {brand:'Naeiae',type:'PDF',product:'Pop Rice',title:'Pop Rice Snack Content Guidelines v2',url:''},
+  {brand:'Grosmimi',type:'SHEET',product:'PPSU',title:'PPSU Content Guidelines v2',url:'https://docs.google.com/spreadsheets/d/1AdQZwi-yN_CKAVhRuM3AF5G3VSf3YKxNnf_MqNG0_JY/edit?gid=1542751841#gid=1542751841'},
+  {brand:'Grosmimi',type:'SHEET',product:'Stainless',title:'Stainless Content Guidelines v1',url:'https://docs.google.com/spreadsheets/d/1rdNdR8whZt9pV9wJSn1oDOuv0MTuL_XxPcPB7PzmHh0/edit?gid=1217108442#gid=1217108442'},
+  {brand:'CHA&MOM',type:'SHEET',product:'PS Cream',title:'CHA&MOM Lotion Content Guidelines v2',url:'https://docs.google.com/spreadsheets/d/172ni5qDdw-o5gY061Wko0fTCkmGAIDxIH9_7rnLbcSw/edit?gid=1125235123#gid=1125235123'},
+  {brand:'Naeiae',type:'SHEET',product:'Pop Rice',title:'Pop Rice Snack Content Guidelines v2',url:'https://docs.google.com/spreadsheets/d/1Oremww1RcEKWdmPQdmrTOeL1OhWnIlY6TuOBcVOCiuM/edit?gid=274700946#gid=274700946'},
   {brand:'HT',type:'CONTRACT',title:'HT Contract Template',url:'https://docuseal.orbiters.co.kr'}
 ];
 // Load from localStorage, fall back to defaults
-var DEMO_RESOURCES=(function(){try{var s=localStorage.getItem('pipeline_resources');return s?JSON.parse(s):DEMO_RESOURCES_DEFAULT}catch(e){return DEMO_RESOURCES_DEFAULT}})();
+// v2: force refresh if any resource still has NAS path
+var DEMO_RESOURCES=(function(){
+  try{
+    var s=localStorage.getItem('pipeline_resources');
+    if(!s)return DEMO_RESOURCES_DEFAULT;
+    var saved=JSON.parse(s);
+    var hasNas=saved.some(function(r){return r.url&&r.url.indexOf('NAS:')===0});
+    if(hasNas){localStorage.removeItem('pipeline_resources');return DEMO_RESOURCES_DEFAULT}
+    return saved;
+  }catch(e){return DEMO_RESOURCES_DEFAULT}
+})();
 // Load saved form URLs from localStorage
 var _savedFormUrls=(function(){try{var s=localStorage.getItem('pipeline_form_urls');return s?JSON.parse(s):{}}catch(e){return{}}})();
 var _reviewedIds={};// track locally reviewed items
@@ -852,7 +870,7 @@ async function loadConfig(){
   }
 }
 function populateConfigForm(c){
-  document.getElementById('f-update-date').value=c.update_date||'';
+  populateDiscoveryDates(c.update_date||'');
   document.getElementById('f-start-beginning').checked=c.start_from_beginning;
   toggleAllDates(!!c.start_from_beginning);
   document.getElementById('f-creators-contacted').value=c.creators_contacted;
@@ -1514,11 +1532,90 @@ function updateAllocation(){
 }
 
 // ========== ALL DATES TOGGLE + VINTAGE ==========
+// ========== DISCOVERY DATE DROPDOWN ==========
+var _discoveryDates=(function(){try{var s=localStorage.getItem('pipeline_discovery_dates');return s?JSON.parse(s):[]}catch(e){return[]}})();
+
+function populateDiscoveryDates(selectedVal){
+  var sel=document.getElementById('f-update-date');
+  if(!sel)return;
+  // Merge saved dates with any new dates, dedupe, sort descending (newest first)
+  var all=_discoveryDates.slice();
+  // Also extract dates from DEMO_CREATORS for demo mode
+  if(DEMO_MODE){
+    DEMO_CREATORS.forEach(function(c){if(c.initial_discovery_date&&all.indexOf(c.initial_discovery_date)<0)all.push(c.initial_discovery_date)});
+  }
+  all=all.filter(function(d){return d&&d.match(/^\d{4}-\d{2}-\d{2}$/)});
+  all.sort().reverse();// newest first
+  var html='<option value="">-- 날짜 선택 --</option>';
+  all.forEach(function(d){
+    html+='<option value="'+d+'"'+(d===selectedVal?' selected':'')+'>'+d+'</option>';
+  });
+  if(all.length===0)html+='<option disabled value="">↻ Pull 버튼으로 날짜 로드</option>';
+  sel.innerHTML=html;
+}
+
+async function pullDiscoveryDates(){
+  var btn=document.getElementById('btn-pull-dates');
+  btn.disabled=true;btn.textContent='Loading...';
+  try{
+    // Fetch all Not Started creators and extract unique discovery dates
+    var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=500');
+    var items=data.results||[];
+    var dateMap={};
+    items.forEach(function(c){
+      var d=c.initial_discovery_date||(c.created_at||'').slice(0,10);
+      if(d)dateMap[d]=(dateMap[d]||0)+1;
+    });
+    var dates=Object.keys(dateMap).filter(function(d){return d.match(/^\d{4}-\d{2}-\d{2}$/)});
+    // Merge with existing saved dates
+    dates.forEach(function(d){if(_discoveryDates.indexOf(d)<0)_discoveryDates.push(d)});
+    try{localStorage.setItem('pipeline_discovery_dates',JSON.stringify(_discoveryDates))}catch(e){}
+    // Store counts
+    _dateCountMap=dateMap;
+    populateDiscoveryDates(document.getElementById('f-update-date').value);
+    showToast('날짜 '+dates.length+'개 로드됨','ok');
+  }catch(e){showToast('Pull 실패: '+e.message,'err')}
+  finally{btn.disabled=false;btn.textContent='↻ Pull'}
+}
+
+var _dateCountMap={};
+async function onDiscoveryDateSelect(date){
+  var hintEl=document.getElementById('date-count-hint');
+  if(!date){if(hintEl)hintEl.style.display='none';return}
+  // Check local cache first
+  if(_dateCountMap[date]!==undefined){
+    var cnt=_dateCountMap[date];
+    document.getElementById('f-creators-contacted').value=cnt;
+    var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
+    updateAllocation();
+    if(hintEl){hintEl.textContent='✓ '+date+' — Not Started '+cnt+'명 → Batch Size 자동 설정';hintEl.style.display='block'}
+    return;
+  }
+  // Fetch count from API
+  if(hintEl){hintEl.textContent='조회 중...';hintEl.style.display='block';hintEl.style.color='var(--muted)'}
+  try{
+    var data=await apiFetch('/pipeline/creators/?status=Not+Started&discovery_date='+date+'&limit=1');
+    var cnt=data.total||data.count||0;
+    _dateCountMap[date]=cnt;
+    document.getElementById('f-creators-contacted').value=cnt;
+    var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
+    updateAllocation();
+    if(hintEl){hintEl.textContent='✓ '+date+' — Not Started '+cnt+'명 → Batch Size 자동 설정';hintEl.style.color='var(--g)';hintEl.style.display='block'}
+  }catch(e){if(hintEl){hintEl.textContent='조회 실패';hintEl.style.color='var(--r)'}}
+}
+
 function toggleAllDates(on){
   var di=document.getElementById('f-update-date');
   di.disabled=on;
-  if(on){di.style.opacity='0.4';di.style.pointerEvents='none'}
-  else{di.style.opacity='1';di.style.pointerEvents='auto'}
+  var hint=document.getElementById('date-count-hint');
+  if(on){
+    di.style.opacity='0.4';di.style.pointerEvents='none';
+    if(hint)hint.style.display='none';
+    document.getElementById('btn-pull-dates').disabled=true;
+  } else {
+    di.style.opacity='1';di.style.pointerEvents='auto';
+    document.getElementById('btn-pull-dates').disabled=false;
+  }
   // Show/hide vintage when toggled
   var vb=document.getElementById('vintage-breakdown');
   if(on){renderVintageBreakdown();vb.style.display=''}
