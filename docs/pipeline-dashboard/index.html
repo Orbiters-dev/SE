@@ -724,13 +724,56 @@ var DEMO_FORM_QUESTIONS_DEFAULT={
 var DEMO_FORM_QUESTIONS=(function(){try{var s=localStorage.getItem('pipeline_form_questions');return s?JSON.parse(s):DEMO_FORM_QUESTIONS_DEFAULT}catch(e){return DEMO_FORM_QUESTIONS_DEFAULT}})();
 
 // Product options per brand (shown in form dropdown)
+// Product objects: {name, required, ages:[]}
+// required=true → influencer MUST choose this (age-filtered primary selection)
+// required=false → optional add-on
+// ages=[] → no age filter; else subset of AGE_OPTS
+var AGE_OPTS=['0-6m','6-12m','12-18m','18m+'];
 var DEMO_FORM_PRODUCTS_DEFAULT={
-  grosmimi:['PPSU Straw Cup Latte','PPSU Straw Cup Stone','PPSU Tumbler Pink','PPSU Tumbler Beige','PPSU Baby Bottle 150ml','PPSU Baby Bottle 240ml','Stainless Straw Cup','Stainless Tumbler'],
-  chaenmom:['PS Cream (Phyto Séline) 50ml','PS Cream (Phyto Séline) 100ml'],
-  naeiae:['Pop Rice Snack Original','Pop Rice Snack Sweet Potato','Pop Rice Snack Blueberry'],
-  ht:['PPSU Straw Cup Latte','PPSU Tumbler Pink','PS Cream 100ml','Pop Rice Snack Original']
+  grosmimi:[
+    {name:'PPSU Baby Bottle 150ml',required:true,ages:['0-6m','6-12m']},
+    {name:'PPSU Baby Bottle 240ml',required:true,ages:['6-12m','12-18m']},
+    {name:'PPSU Straw Cup Latte',required:true,ages:['6-12m','12-18m','18m+']},
+    {name:'PPSU Straw Cup Stone',required:true,ages:['6-12m','12-18m','18m+']},
+    {name:'PPSU Tumbler Pink',required:true,ages:['18m+']},
+    {name:'PPSU Tumbler Beige',required:true,ages:['18m+']},
+    {name:'Stainless Straw Cup',required:false,ages:['12-18m','18m+']},
+    {name:'Stainless Tumbler',required:false,ages:['18m+']}
+  ],
+  chaenmom:[
+    {name:'PS Cream (Phyto Séline) 50ml',required:true,ages:[]},
+    {name:'PS Cream (Phyto Séline) 100ml',required:false,ages:[]}
+  ],
+  naeiae:[
+    {name:'Pop Rice Snack Original',required:true,ages:[]},
+    {name:'Pop Rice Snack Sweet Potato',required:false,ages:[]},
+    {name:'Pop Rice Snack Blueberry',required:false,ages:[]}
+  ],
+  ht:[
+    {name:'PPSU Straw Cup Latte',required:true,ages:[]},
+    {name:'PPSU Tumbler Pink',required:true,ages:[]},
+    {name:'PS Cream 100ml',required:false,ages:[]},
+    {name:'Pop Rice Snack Original',required:false,ages:[]}
+  ]
 };
-var DEMO_FORM_PRODUCTS=(function(){try{var s=localStorage.getItem('pipeline_form_products');return s?JSON.parse(s):DEMO_FORM_PRODUCTS_DEFAULT}catch(e){return DEMO_FORM_PRODUCTS_DEFAULT}})();
+// Migrate old flat-string format → object format
+function _migrateProdBrand(arr){
+  if(!arr||!arr.length)return arr;
+  if(typeof arr[0]==='string')return arr.map(function(n){return{name:n,required:true,ages:[]}});
+  return arr;
+}
+var DEMO_FORM_PRODUCTS=(function(){
+  try{
+    var s=localStorage.getItem('pipeline_form_products');
+    if(!s)return DEMO_FORM_PRODUCTS_DEFAULT;
+    var saved=JSON.parse(s);
+    // check if any brand still uses old string[] format → reset to defaults
+    var needsMigration=false;
+    Object.keys(saved).forEach(function(k){if(saved[k]&&typeof saved[k][0]==='string')needsMigration=true});
+    if(needsMigration){localStorage.removeItem('pipeline_form_products');return DEMO_FORM_PRODUCTS_DEFAULT}
+    return saved;
+  }catch(e){return DEMO_FORM_PRODUCTS_DEFAULT}
+})();
 
 // Terms & Conditions per brand
 var DEMO_FORM_TNC_DEFAULT={
@@ -1438,19 +1481,43 @@ function renderBrandForms(config){
     html+='<button class="btn btn-sm btn-primary" onclick="updateForm(\''+bf.key+'\')" style="font-size:10px">Save Questions</button>';
     html+='</div></div>';
 
-    // === Sample Products ===
-    html+='<div style="margin-top:4px"><span style="font-size:10px;font-weight:700;color:var(--g);cursor:pointer;user-select:none" onclick="toggleSection(\'fp-'+bf.key+'\',this)">&#x25B6; Sample Products ('+prods.length+')</span></div>';
+    // === Sample Products (required/optional + age tags) ===
+    var reqProds=prods.filter(function(p){return p.required!==false});
+    var optProds=prods.filter(function(p){return p.required===false});
+    var hasAge=prods.some(function(p){return p.ages&&p.ages.length>0});
+    html+='<div style="margin-top:4px"><span style="font-size:10px;font-weight:700;color:var(--g);cursor:pointer;user-select:none" onclick="toggleSection(\'fp-'+bf.key+'\',this)">&#x25B6; Sample Products ('+reqProds.length+' req / '+optProds.length+' opt)</span></div>';
     html+='<div id="fp-'+bf.key+'" style="display:none;margin-top:4px;padding:8px;background:#f0fdf4;border-radius:6px">';
-    html+='<div style="font-size:9px;color:var(--dim);margin-bottom:5px">인플루언서가 선택 가능한 샘플 제품 목록 (Form 드롭다운)</div>';
-    for(var p=0;p<prods.length;p++){
-      html+='<div style="display:flex;gap:4px;align-items:center;margin-bottom:3px">';
-      html+='<input type="text" class="fp-input" data-brand="'+bf.key+'" data-idx="'+p+'" value="'+esc(prods[p])+'" style="flex:1;padding:3px 7px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit">';
-      html+='<button style="background:none;border:none;color:var(--r);cursor:pointer;font-size:11px;padding:0 2px" onclick="removeProd(\''+bf.key+'\','+p+')">&times;</button>';
-      html+='</div>';
+    html+='<div style="font-size:9px;color:var(--dim);margin-bottom:6px">인플루언서가 선택 가능한 샘플 제품 — <b>REQ</b>=필수선택, <b>OPT</b>=선택추가'+(hasAge?' &nbsp;|&nbsp; 나이 뱃지 클릭해서 on/off':'')+'</div>';
+    // helper to render one product row
+    function _prodRow(p,idx,brand){
+      var isReq=p.required!==false;
+      var ageHtml='';
+      AGE_OPTS.forEach(function(a){
+        var on=(p.ages||[]).indexOf(a)>=0;
+        ageHtml+='<span onclick="toggleProdAge(\''+brand+'\','+idx+',\''+a+'\')" style="cursor:pointer;display:inline-block;padding:1px 5px;border-radius:10px;font-size:9px;font-weight:600;margin:1px;'+(on?'background:#dbeafe;color:#1d4ed8;border:1px solid #93c5fd':'background:#f1f5f9;color:#94a3b8;border:1px solid #e2e8f0')+'" title="'+(on?'Remove':'Add')+' '+a+'">'+a+'</span>';
+      });
+      var row='<div style="margin-bottom:4px;padding:4px 6px;border:1px solid #d1fae5;border-radius:5px;background:#fff">';
+      row+='<div style="display:flex;gap:4px;align-items:center">';
+      row+='<span onclick="toggleProdReq(\''+brand+'\','+idx+')" title="Click to toggle" style="cursor:pointer;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:800;min-width:28px;text-align:center;'+(isReq?'background:#fef9c3;color:#92400e':'background:#e0e7ff;color:#3730a3')+'">'+( isReq?'REQ':'OPT')+'</span>';
+      row+='<input type="text" class="fp-input" data-brand="'+brand+'" data-idx="'+idx+'" value="'+esc(p.name||'')+'" style="flex:1;padding:2px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit">';
+      row+='<button style="background:none;border:none;color:var(--r);cursor:pointer;font-size:11px;padding:0 2px" onclick="removeProd(\''+brand+'\','+idx+')">&times;</button>';
+      row+='</div>';
+      if(hasAge)row+='<div style="margin-top:3px;margin-left:34px">'+ageHtml+'</div>';
+      row+='</div>';
+      return row;
     }
-    html+='<div style="display:flex;gap:4px;margin-top:5px">';
-    html+='<button class="btn btn-sm btn-secondary" onclick="addProd(\''+bf.key+'\')" style="font-size:10px;background:var(--gbg);color:var(--g);border-color:var(--g)">+ Add Product</button>';
-    html+='<button class="btn btn-sm btn-primary" onclick="saveProd(\''+bf.key+'\')" style="font-size:10px;background:var(--g)">Save Products</button>';
+    if(reqProds.length){
+      html+='<div style="font-size:9px;font-weight:700;color:#92400e;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">&#9679; Required (필수)</div>';
+      prods.forEach(function(p,idx){if(p.required!==false)html+=_prodRow(p,idx,bf.key)});
+    }
+    if(optProds.length){
+      html+='<div style="font-size:9px;font-weight:700;color:#3730a3;margin-top:6px;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">&#9679; Optional (선택추가)</div>';
+      prods.forEach(function(p,idx){if(p.required===false)html+=_prodRow(p,idx,bf.key)});
+    }
+    html+='<div style="display:flex;gap:4px;margin-top:6px">';
+    html+='<button class="btn btn-sm btn-secondary" onclick="addProd(\''+bf.key+'\',true)" style="font-size:10px;background:var(--gbg);color:var(--g);border-color:var(--g)">+ Required</button>';
+    html+='<button class="btn btn-sm btn-secondary" onclick="addProd(\''+bf.key+'\',false)" style="font-size:10px">+ Optional</button>';
+    html+='<button class="btn btn-sm btn-primary" onclick="saveProd(\''+bf.key+'\')" style="font-size:10px;background:var(--g);margin-left:auto">Save Products</button>';
     html+='</div></div>';
 
     // === Terms & Conditions ===
@@ -1494,9 +1561,9 @@ function updateForm(brand){
   document.getElementById('fq-'+brand).style.display='block';
 }
 // Products
-function addProd(brand){
+function addProd(brand,isRequired){
   if(!DEMO_FORM_PRODUCTS[brand])DEMO_FORM_PRODUCTS[brand]=[];
-  DEMO_FORM_PRODUCTS[brand].push('');
+  DEMO_FORM_PRODUCTS[brand].push({name:'',required:isRequired!==false,ages:[]});
   renderBrandForms(_config||DEMO_CONFIG);
   document.getElementById('fp-'+brand).style.display='block';
   var inputs=document.querySelectorAll('.fp-input[data-brand="'+brand+'"]');
@@ -1505,13 +1572,41 @@ function addProd(brand){
 function removeProd(brand,idx){
   if(!DEMO_FORM_PRODUCTS[brand])return;
   DEMO_FORM_PRODUCTS[brand].splice(idx,1);
+  _syncProdInputs(brand);
   renderBrandForms(_config||DEMO_CONFIG);
   document.getElementById('fp-'+brand).style.display='block';
 }
-function saveProd(brand){
+function toggleProdReq(brand,idx){
+  _syncProdInputs(brand);
+  if(!DEMO_FORM_PRODUCTS[brand]||!DEMO_FORM_PRODUCTS[brand][idx])return;
+  var p=DEMO_FORM_PRODUCTS[brand][idx];
+  p.required=!p.required;
+  renderBrandForms(_config||DEMO_CONFIG);
+  document.getElementById('fp-'+brand).style.display='block';
+}
+function toggleProdAge(brand,idx,age){
+  _syncProdInputs(brand);
+  if(!DEMO_FORM_PRODUCTS[brand]||!DEMO_FORM_PRODUCTS[brand][idx])return;
+  var p=DEMO_FORM_PRODUCTS[brand][idx];
+  if(!p.ages)p.ages=[];
+  var i=p.ages.indexOf(age);
+  if(i>=0)p.ages.splice(i,1);else p.ages.push(age);
+  renderBrandForms(_config||DEMO_CONFIG);
+  document.getElementById('fp-'+brand).style.display='block';
+}
+function _syncProdInputs(brand){
+  // Flush input values back into DEMO_FORM_PRODUCTS before re-render
   var inputs=document.querySelectorAll('.fp-input[data-brand="'+brand+'"]');
-  var ps=[];
-  inputs.forEach(function(inp){if(inp.value.trim())ps.push(inp.value.trim())});
+  inputs.forEach(function(inp){
+    var idx=parseInt(inp.dataset.idx);
+    if(DEMO_FORM_PRODUCTS[brand]&&DEMO_FORM_PRODUCTS[brand][idx])
+      DEMO_FORM_PRODUCTS[brand][idx].name=inp.value;
+  });
+}
+function saveProd(brand){
+  _syncProdInputs(brand);
+  var ps=DEMO_FORM_PRODUCTS[brand].filter(function(p){return p.name&&p.name.trim()});
+  ps.forEach(function(p){p.name=p.name.trim()});
   DEMO_FORM_PRODUCTS[brand]=ps;
   try{localStorage.setItem('pipeline_form_products',JSON.stringify(DEMO_FORM_PRODUCTS))}catch(e){}
   showToast(brand+' products saved ('+ps.length+'개)','ok');
