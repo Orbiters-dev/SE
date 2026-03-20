@@ -902,6 +902,48 @@ ppc시뮬이, ppc시뮬레이터, PPC 시뮬, 백테스팅, 낭비절감 시뮬,
 
 ---
 
+## 분석이 (Content Impact Modeler)
+
+"분석이", "컨텐츠 임팩트", "상관관계 분석", "view delta", "조회수 매출", "Granger", "TLCC", "Impact Score", "컨텐츠 효과", "인플루언서 ROI", "데이터 모델링" 명령이 오면 즉시 아래를 실행한다:
+
+나는 **분석이** — 인플루언서 컨텐츠 조회수 변화(view delta)와 매출/검색량 간 상관관계를 분석하고, 포스트별 Impact Score를 산출하는 데이터 모델링 에이전트다.
+
+### 동작 방식
+
+1. `.claude/skills/data-modeler/SKILL.md` 를 읽는다
+2. 유저 요청에 따라 적절한 모듈을 실행한다:
+   - **전체 분석**: `python tools/run_content_impact.py`
+   - **브랜드별**: `python tools/run_content_impact.py --brand grosmimi`
+   - **TLCC만**: `python tools/run_content_impact.py --module tlcc`
+   - **스코어링만**: `python tools/run_content_impact.py --module score`
+   - **Granger만**: `python tools/run_content_impact.py --module granger`
+   - **데이터 확인**: `python tools/run_content_impact.py --dry-run`
+
+### 분석 모듈
+
+| 모듈 | 설명 |
+|------|------|
+| **TLCC** | 시간 지연 교차상관 — 조회수→매출 최적 lag 탐색 (0~14일) |
+| **Impact Score** | 포스트별 `view_velocity × engagement × brand_fit × decay` |
+| **Granger** | Granger 인과성 검정 + OLS 회귀 (광고비 통제) |
+
+### 노이즈 제거
+
+7일 Rolling Average + IQR 이상치 제거 + 프로모 기간 마스킹 + 광고비 통제변수
+
+### 산출물
+
+- HTML 리포트: `.tmp/content_impact/impact_report_{date}.html`
+- JSON 요약: `.tmp/content_impact/impact_summary_{date}.json`
+
+### 트리거 키워드
+
+분석이, 컨텐츠 임팩트, content impact, 상관관계 분석, correlation, view delta, 조회수 매출 상관, Granger, TLCC, Impact Score, 컨텐츠 효과, 인플루언서 ROI, 검색량 상관, 브랜드 검색, data modeling, 데이터 모델링
+
+Python 경로: `/c/Users/wjcho/AppData/Local/Programs/Python/Python312/python.exe`
+
+---
+
 ## 서버매니저 (Server Manager)
 
 "서버매니저", "인프라 상태", "서버 상태", "심링크", "symlink", "NAS 동기화", "EC2 상태", "GitHub Actions 스케줄" 명령이 오면 즉시 아래를 실행한다:

@@ -209,7 +209,6 @@ function detectBrand(p){
   if(/grosmimi|growmimi|grosmimi_usa|grosmimi_japan/.test(text)) return 'Grosmimi';
   if(/cha\s*&\s*mom|cha_mom|chaandmom|chamom/.test(text)) return 'CHA&MOM';
   if(/naeiae|naeia/.test(text)) return 'Naeiae';
-  if(/onzenna/.test(text)) return 'Onzenna';
   if(/goongbe/.test(text)) return 'Goongbe';
   if(/babyrabbit/.test(text)) return 'Babyrabbit';
   if(/commemoi/.test(text)) return 'Commemoi';
@@ -222,6 +221,36 @@ function setBrand(b){
   if(_loaded) renderTab(_currentTab);
 }
 function filterByBrand(p){ return _brand==='all' || (p._brand||'N/A')===_brand; }
+
+// ══════════ IMPACT SCORE ══════════
+// Score = view_velocity × engagement_rate × brand_fit × decay × 1000
+// Predicts relative sales contribution per post
+function computeImpactScore(p){
+  var now=new Date();
+  var postDate=new Date(p.post_date||'2026-01-01');
+  var daysOld=Math.max(1, Math.round((now-postDate)/(86400000)));
+  if(daysOld<20) return -1; // n.m. - not enough data yet
+  var views=+(p.views||0);
+  var likes=+(p.likes||0);
+  var comments=+(p.comments||0);
+
+  // View velocity: views per day (speed of virality)
+  var viewVelocity=views/daysOld;
+
+  // Engagement rate: interactions per view
+  var engRate=(likes+comments)/Math.max(views,1);
+
+  // Brand fit: explicit brand mention in caption = 1.5x
+  var text=((p.caption||'')+' '+(p.hashtags||'')).toLowerCase();
+  var brand=(p.brand||p._brand||'').toLowerCase();
+  var brandFit=(brand && brand!=='n/a' && text.indexOf(brand)>=0)?1.5:1.0;
+
+  // Decay: newer posts matter more (D+0=1.0, D+60=0.1)
+  var decay=Math.max(0.1, 1.0-(daysOld/60));
+
+  return Math.round(viewVelocity * engRate * brandFit * decay * 1000 * 100)/100;
+}
+var _alltimeSortBy = 'views'; // 'views' or 'impact'
 function brandBadge(b){
   var colors={'Grosmimi':'background:#ecfdf5;color:#059669','CHA&MOM':'background:#fef2f2;color:#e11d48','Naeiae':'background:#fff7ed;color:#ea580c',
     'Onzenna':'background:#eef2ff;color:#6366f1','Goongbe':'background:#f0f9ff;color:#0ea5e9','Babyrabbit':'background:#fdf4ff;color:#c026d3','Commemoi':'background:#fffbeb;color:#d97706','N/A':'background:#f1f5f9;color:#94a3b8'};
@@ -538,10 +567,16 @@ function renderAllTimeTop(){
   var windowLabel = _alltimeWindow===0?'All-Time':(_alltimeWindow===7?'Last 7 Days':'Last 30 Days');
   var toggleHtml='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">'
     +'<div style="font-size:14px;font-weight:800">Content Leaderboard &mdash; '+windowLabel+'</div>'
+    +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
     +'<div class="content-toggle">'
     +'<div '+(_alltimeWindow===7?'class="on"':'')+' onclick="setAlltimeWindow(7)">Last 7d</div>'
     +'<div '+(_alltimeWindow===30?'class="on"':'')+' onclick="setAlltimeWindow(30)">Last 30d</div>'
     +'<div '+(_alltimeWindow===0?'class="on"':'')+' onclick="setAlltimeWindow(0)">All-Time</div>'
+    +'</div>'
+    +'<div class="content-toggle">'
+    +'<div '+(_alltimeSortBy==='views'?'class="on"':'')+' onclick="setAlltimeSort(\'views\')">By Views</div>'
+    +'<div '+(_alltimeSortBy==='impact'?'class="on"':'')+' onclick="setAlltimeSort(\'impact\')">By Impact</div>'
+    +'</div>'
     +'</div></div>';
 
   // Get max metrics per post
@@ -567,7 +602,18 @@ function renderAllTimeTop(){
   });
 
   var allPosts=Object.values(postMax);
-  allPosts.sort(function(a,b){ return b.views-a.views; });
+  // compute impact score for each post
+  allPosts.forEach(function(p){
+    var postObj=_posts.find(function(pp){return pp.post_id===p.post_id;});
+    p.caption=postObj?postObj.caption:'';
+    p.hashtags=postObj?postObj.hashtags:'';
+    p.impactScore=computeImpactScore(p);
+  });
+  if(_alltimeSortBy==='impact'){
+    allPosts.sort(function(a,b){ return b.impactScore-a.impactScore; });
+  } else {
+    allPosts.sort(function(a,b){ return b.views-a.views; });
+  }
 
   // Stats
   var totalV=0,totalL=0,totalC=0;
@@ -642,6 +688,7 @@ function renderAllTimeTop(){
         +'<div style="text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px">Likes</div><div style="font-weight:700;font-size:12px;font-family:var(--mono)">'+formatViewsShort(p.likes)+'</div></div>'
         +'<div style="text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px">Comments</div><div style="font-weight:700;font-size:12px;font-family:var(--mono)">'+formatViewsShort(p.comments)+'</div></div>'
         +'<div style="text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px">Eng %</div><div style="font-weight:700;font-size:12px;font-family:var(--mono);color:'+(parseFloat(engRate)>=5?'var(--g)':parseFloat(engRate)>=2?'var(--am)':'var(--dim)')+'">'+engRate+'%</div></div>'
+        +'<div style="text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px">Impact</div><div style="font-weight:700;font-size:12px;font-family:var(--mono);color:'+(p.impactScore>=1000?'var(--g)':p.impactScore>=100?'var(--a)':'var(--dim)')+'">'+formatImpact(p.impactScore)+'</div></div>'
         +'<div style="color:var(--muted);font-size:14px;margin-left:4px">&#x203A;</div>'
       +'</div>'
     +'</div>';
@@ -655,6 +702,8 @@ function renderAllTimeTop(){
   el.innerHTML=toggleHtml+statsHtml+tb;
 }
 function setAlltimeWindow(d){ _alltimeWindow=d; renderAllTimeTop(); }
+function setAlltimeSort(s){ _alltimeSortBy=s; renderAllTimeTop(); }
+function formatImpact(n){ if(n<0) return 'n.m.'; if(n>=10000) return (n/1000).toFixed(0)+'K'; if(n>=1000) return (n/1000).toFixed(1)+'K'; if(n>=1) return n.toFixed(0); return n.toFixed(1); }
 
 // ══════════ TAB 3: PIPELINE KPI ══════════
 // Shared: compute order→post matching data
