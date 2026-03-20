@@ -714,12 +714,32 @@ var DEMO_EXEC_LOG=[
   {action_type:'review_decline',triggered_by:'WJ',target_count:1,status:'success',started_at:'2026-03-18T14:00:00Z',details:'{"note":"Too few followers"}'},
   {action_type:'draft_gen',triggered_by:'WJ',target_count:15,status:'failed',started_at:'2026-03-18T11:00:00Z',details:'{"error":"Template not found"}'}
 ];
-var DEMO_FORM_QUESTIONS={
-  grosmimi:['Full Name','Email Address','Instagram Handle','Child\'s Birthday (MM/YYYY)','Which Grosmimi product are you interested in?','Shipping Address','Why do you love Grosmimi?'],
-  chaenmom:['Full Name','Email Address','Instagram Handle','Child\'s Age','Skin concerns for your baby?','Shipping Address'],
-  naeiae:['Full Name','Email Address','Instagram Handle','Child\'s Birthday (MM/YYYY)','Any food allergies?','Shipping Address'],
-  ht:['Full Name','Email Address','Instagram Handle','TikTok Handle','Content portfolio link','Preferred product category','Expected deliverables','Rate/Fee expectations','Shipping Address']
+// Real form questions matching actual Shopify pages
+var DEMO_FORM_QUESTIONS_DEFAULT={
+  grosmimi:['Full Name','Email Address','Instagram Handle','TikTok Handle (optional)','Child\'s Birthday (MM/YYYY)','Which Grosmimi product are you interested in?','Street Address','Apt / Suite / Unit','City','State','ZIP','Country'],
+  chaenmom:['Full Name','Email Address','Instagram Handle','TikTok Handle (optional)','Child\'s Age','What skin concern are you hoping to address?','Street Address','Apt / Suite / Unit','City','State','ZIP','Country'],
+  naeiae:['Full Name','Email Address','Instagram Handle','TikTok Handle (optional)','Child\'s Birthday (MM/YYYY)','Any food allergies?','Street Address','Apt / Suite / Unit','City','State','ZIP','Country'],
+  ht:['Full Name','Email Address','Instagram Handle','TikTok Handle','Content portfolio link','Preferred product category','Expected deliverables','Rate/Fee expectations','Street Address','Apt / Suite / Unit','City','State','ZIP','Country']
 };
+var DEMO_FORM_QUESTIONS=(function(){try{var s=localStorage.getItem('pipeline_form_questions');return s?JSON.parse(s):DEMO_FORM_QUESTIONS_DEFAULT}catch(e){return DEMO_FORM_QUESTIONS_DEFAULT}})();
+
+// Product options per brand (shown in form dropdown)
+var DEMO_FORM_PRODUCTS_DEFAULT={
+  grosmimi:['PPSU Straw Cup Latte','PPSU Straw Cup Stone','PPSU Tumbler Pink','PPSU Tumbler Beige','PPSU Baby Bottle 150ml','PPSU Baby Bottle 240ml','Stainless Straw Cup','Stainless Tumbler'],
+  chaenmom:['PS Cream (Phyto Séline) 50ml','PS Cream (Phyto Séline) 100ml'],
+  naeiae:['Pop Rice Snack Original','Pop Rice Snack Sweet Potato','Pop Rice Snack Blueberry'],
+  ht:['PPSU Straw Cup Latte','PPSU Tumbler Pink','PS Cream 100ml','Pop Rice Snack Original']
+};
+var DEMO_FORM_PRODUCTS=(function(){try{var s=localStorage.getItem('pipeline_form_products');return s?JSON.parse(s):DEMO_FORM_PRODUCTS_DEFAULT}catch(e){return DEMO_FORM_PRODUCTS_DEFAULT}})();
+
+// Terms & Conditions per brand
+var DEMO_FORM_TNC_DEFAULT={
+  grosmimi:'• Total video length: 30 secs.\n• Uploaded content should include voiceover + subtitles.\n• Must use royalty-free music if you plan to use music.\n• Add us as a Brand Partner (collaborator) on IG or TikTok.\n• Must tag IG: @onzenna_official, @grosmimi_usa / TikTok: @onzenna.official\n• Add hashtags as suggested in the content guidelines (you\'ll receive them after your sample is delivered!).\n• We might request Meta whitelisting / Spark Ads code.\n• Reach out if you have any question!',
+  chaenmom:'• Total video length: 30 secs.\n• Uploaded content should include voiceover + subtitles.\n• Must use royalty-free music if you plan to use music.\n• Add us as a Brand Partner (collaborator) on IG or TikTok.\n• Must tag IG: @onzenna_official, @chaenmom_usa / TikTok: @onzenna.official\n• Add hashtags as suggested in the content guidelines.\n• We might request Meta whitelisting / Spark Ads code.\n• Reach out if you have any question!',
+  naeiae:'• Total video length: 30 secs.\n• Uploaded content should include voiceover + subtitles.\n• Must use royalty-free music if you plan to use music.\n• Add us as a Brand Partner (collaborator) on IG or TikTok.\n• Must tag IG: @onzenna_official, @naeiae_usa / TikTok: @onzenna.official\n• Add hashtags as suggested in the content guidelines.\n• We might request Meta whitelisting / Spark Ads code.\n• Reach out if you have any question!',
+  ht:'• Dedicated collaboration — contract required.\n• Deliverables and timeline to be agreed upon in contract.\n• Must tag IG: @onzenna_official / TikTok: @onzenna.official\n• Content rights granted to Onzenna for 12 months.\n• We might request Meta whitelisting / Spark Ads code.\n• Reach out if you have any question!'
+};
+var DEMO_FORM_TNC=(function(){try{var s=localStorage.getItem('pipeline_form_tnc');return s?JSON.parse(s):DEMO_FORM_TNC_DEFAULT}catch(e){return DEMO_FORM_TNC_DEFAULT}})();
 var DEMO_RESOURCES_DEFAULT=[
   {brand:'All',type:'DOC',title:'Outreach Email Template',url:'https://docs.google.com/document/d/1vAvPdheHFz4xIraa3NODUuFG7RagylHEYOvv6BjtxLg/edit'},
   {brand:'Grosmimi',type:'SHEET',product:'PPSU',title:'PPSU Content Guidelines v2',url:'https://docs.google.com/spreadsheets/d/1AdQZwi-yN_CKAVhRuM3AF5G3VSf3YKxNnf_MqNG0_JY/edit?gid=1542751841#gid=1542751841'},
@@ -1396,29 +1416,58 @@ function renderBrandForms(config){
     var bf=BRAND_FORMS[i];
     var url=config[bf.key+'_form_url']||_savedFormUrls[bf.key+'_form_url']||DEMO_CONFIG[bf.key+'_form_url']||'';
     var qs=DEMO_FORM_QUESTIONS[bf.key]||[];
+    var prods=DEMO_FORM_PRODUCTS[bf.key]||[];
+    var tnc=DEMO_FORM_TNC[bf.key]||'';
     html+='<div style="border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px">';
-    html+='<div class="form-row"><label>'+esc(bf.label)+' Form</label><input type="url" id="'+bf.inputId+'" value="'+esc(url)+'" placeholder="https://..." style="flex:1"></div>';
-    html+='<div style="margin-top:4px"><span style="font-size:10px;font-weight:600;color:var(--a);cursor:pointer" onclick="toggleFormQ(\''+bf.key+'\')">&#x25B6; View Questions ('+qs.length+')</span></div>';
-    html+='<div id="fq-'+bf.key+'" style="display:none;margin-top:6px;padding:8px;background:#fafbff;border-radius:6px">';
+    html+='<div class="form-row"><label style="font-weight:700">'+esc(bf.label)+'</label>';
+    if(url)html+='<a href="'+esc(url)+'" target="_blank" style="font-size:10px;color:var(--a);text-decoration:none">&#x1F517; Open Form</a>';
+    html+='<input type="url" id="'+bf.inputId+'" value="'+esc(url)+'" placeholder="https://..." style="flex:1;font-size:11px"></div>';
+
+    // === Questions ===
+    html+='<div style="margin-top:6px"><span style="font-size:10px;font-weight:700;color:var(--a);cursor:pointer;user-select:none" onclick="toggleSection(\'fq-'+bf.key+'\',this)">&#x25B6; Form Questions ('+qs.length+')</span></div>';
+    html+='<div id="fq-'+bf.key+'" style="display:none;margin-top:4px;padding:8px;background:#fafbff;border-radius:6px">';
     for(var j=0;j<qs.length;j++){
-      html+='<div style="display:flex;gap:4px;align-items:center;margin-bottom:4px">';
-      html+='<input type="text" class="fq-input" data-brand="'+bf.key+'" data-idx="'+j+'" value="'+esc(qs[j])+'" style="flex:1;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit">';
-      html+='<button class="btn btn-sm" style="background:var(--rbg);color:var(--r);border:none;padding:2px 6px;font-size:10px;cursor:pointer" onclick="removeFormQ(\''+bf.key+'\','+j+')">&times;</button>';
+      html+='<div style="display:flex;gap:4px;align-items:center;margin-bottom:3px">';
+      html+='<span style="color:var(--muted);font-size:9px;min-width:16px;text-align:right">'+(j+1)+'.</span>';
+      html+='<input type="text" class="fq-input" data-brand="'+bf.key+'" data-idx="'+j+'" value="'+esc(qs[j])+'" style="flex:1;padding:3px 7px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit">';
+      html+='<button style="background:none;border:none;color:var(--r);cursor:pointer;font-size:11px;padding:0 2px" onclick="removeFormQ(\''+bf.key+'\','+j+')">&times;</button>';
       html+='</div>';
     }
-    html+='<button class="btn btn-sm btn-secondary" onclick="addFormQ(\''+bf.key+'\')" style="margin-top:4px;font-size:10px">+ Add Question</button>';
-    html+='<button class="btn btn-sm btn-primary" onclick="updateForm(\''+bf.key+'\')" style="margin-top:4px;margin-left:4px;font-size:10px">Update Form</button>';
+    html+='<div style="display:flex;gap:4px;margin-top:5px">';
+    html+='<button class="btn btn-sm btn-secondary" onclick="addFormQ(\''+bf.key+'\')" style="font-size:10px">+ Add</button>';
+    html+='<button class="btn btn-sm btn-primary" onclick="updateForm(\''+bf.key+'\')" style="font-size:10px">Save Questions</button>';
+    html+='</div></div>';
+
+    // === Sample Products ===
+    html+='<div style="margin-top:4px"><span style="font-size:10px;font-weight:700;color:var(--g);cursor:pointer;user-select:none" onclick="toggleSection(\'fp-'+bf.key+'\',this)">&#x25B6; Sample Products ('+prods.length+')</span></div>';
+    html+='<div id="fp-'+bf.key+'" style="display:none;margin-top:4px;padding:8px;background:#f0fdf4;border-radius:6px">';
+    html+='<div style="font-size:9px;color:var(--dim);margin-bottom:5px">인플루언서가 선택 가능한 샘플 제품 목록 (Form 드롭다운)</div>';
+    for(var p=0;p<prods.length;p++){
+      html+='<div style="display:flex;gap:4px;align-items:center;margin-bottom:3px">';
+      html+='<input type="text" class="fp-input" data-brand="'+bf.key+'" data-idx="'+p+'" value="'+esc(prods[p])+'" style="flex:1;padding:3px 7px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit">';
+      html+='<button style="background:none;border:none;color:var(--r);cursor:pointer;font-size:11px;padding:0 2px" onclick="removeProd(\''+bf.key+'\','+p+')">&times;</button>';
+      html+='</div>';
+    }
+    html+='<div style="display:flex;gap:4px;margin-top:5px">';
+    html+='<button class="btn btn-sm btn-secondary" onclick="addProd(\''+bf.key+'\')" style="font-size:10px;background:var(--gbg);color:var(--g);border-color:var(--g)">+ Add Product</button>';
+    html+='<button class="btn btn-sm btn-primary" onclick="saveProd(\''+bf.key+'\')" style="font-size:10px;background:var(--g)">Save Products</button>';
+    html+='</div></div>';
+
+    // === Terms & Conditions ===
+    html+='<div style="margin-top:4px"><span style="font-size:10px;font-weight:700;color:var(--am);cursor:pointer;user-select:none" onclick="toggleSection(\'ft-'+bf.key+'\',this)">&#x25B6; Terms & Conditions</span></div>';
+    html+='<div id="ft-'+bf.key+'" style="display:none;margin-top:4px;padding:8px;background:#fffbeb;border-radius:6px">';
+    html+='<div style="font-size:9px;color:var(--dim);margin-bottom:5px">Form 마지막 페이지에 표시되는 협업 조건 (한 줄 = 한 항목)</div>';
+    html+='<textarea id="tnc-'+bf.key+'" style="width:100%;min-height:120px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit;resize:vertical;line-height:1.6">'+esc(tnc)+'</textarea>';
+    html+='<div style="margin-top:5px"><button class="btn btn-sm btn-primary" onclick="saveTnc(\''+bf.key+'\')" style="font-size:10px;background:var(--am)">Save T&amp;C</button></div>';
     html+='</div></div>';
   }
   el.innerHTML=html;
 }
-function toggleFormQ(brand){
-  var el=document.getElementById('fq-'+brand);
-  if(!el)return;
+function toggleSection(id,trigger){
+  var el=document.getElementById(id);if(!el)return;
   var open=el.style.display!=='none';
   el.style.display=open?'none':'block';
-  var trigger=el.previousElementSibling.querySelector('span');
-  if(trigger)trigger.innerHTML=(open?'&#x25B6;':'&#x25BC;')+' '+(open?'View':'Hide')+' Questions ('+(DEMO_FORM_QUESTIONS[brand]||[]).length+')';
+  if(trigger)trigger.innerHTML=trigger.innerHTML.replace(open?'▼':'▶',open?'▶':'▼');
 }
 function addFormQ(brand){
   if(!DEMO_FORM_QUESTIONS[brand])DEMO_FORM_QUESTIONS[brand]=[];
@@ -1435,14 +1484,47 @@ function removeFormQ(brand,idx){
   document.getElementById('fq-'+brand).style.display='block';
 }
 function updateForm(brand){
-  // Collect current inputs
   var inputs=document.querySelectorAll('.fq-input[data-brand="'+brand+'"]');
   var qs=[];
   inputs.forEach(function(inp){if(inp.value.trim())qs.push(inp.value.trim())});
   DEMO_FORM_QUESTIONS[brand]=qs;
-  showToast(brand+' form updated ('+qs.length+' questions)','ok');
+  try{localStorage.setItem('pipeline_form_questions',JSON.stringify(DEMO_FORM_QUESTIONS))}catch(e){}
+  showToast(brand+' questions saved ('+qs.length+'개)','ok');
   renderBrandForms(_config||DEMO_CONFIG);
   document.getElementById('fq-'+brand).style.display='block';
+}
+// Products
+function addProd(brand){
+  if(!DEMO_FORM_PRODUCTS[brand])DEMO_FORM_PRODUCTS[brand]=[];
+  DEMO_FORM_PRODUCTS[brand].push('');
+  renderBrandForms(_config||DEMO_CONFIG);
+  document.getElementById('fp-'+brand).style.display='block';
+  var inputs=document.querySelectorAll('.fp-input[data-brand="'+brand+'"]');
+  if(inputs.length)inputs[inputs.length-1].focus();
+}
+function removeProd(brand,idx){
+  if(!DEMO_FORM_PRODUCTS[brand])return;
+  DEMO_FORM_PRODUCTS[brand].splice(idx,1);
+  renderBrandForms(_config||DEMO_CONFIG);
+  document.getElementById('fp-'+brand).style.display='block';
+}
+function saveProd(brand){
+  var inputs=document.querySelectorAll('.fp-input[data-brand="'+brand+'"]');
+  var ps=[];
+  inputs.forEach(function(inp){if(inp.value.trim())ps.push(inp.value.trim())});
+  DEMO_FORM_PRODUCTS[brand]=ps;
+  try{localStorage.setItem('pipeline_form_products',JSON.stringify(DEMO_FORM_PRODUCTS))}catch(e){}
+  showToast(brand+' products saved ('+ps.length+'개)','ok');
+  renderBrandForms(_config||DEMO_CONFIG);
+  document.getElementById('fp-'+brand).style.display='block';
+}
+// T&C
+function saveTnc(brand){
+  var ta=document.getElementById('tnc-'+brand);
+  if(!ta)return;
+  DEMO_FORM_TNC[brand]=ta.value;
+  try{localStorage.setItem('pipeline_form_tnc',JSON.stringify(DEMO_FORM_TNC))}catch(e){}
+  showToast(brand+' T&C saved','ok');
 }
 
 // ========== RESOURCES ==========
