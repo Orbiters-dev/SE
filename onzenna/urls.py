@@ -46,6 +46,15 @@ urlpatterns = [
     path("pipeline/config/history/", views.pipeline_config_history, name="pipeline_config_history"),
     path("pipeline/config/<str:config_date>/", views.get_or_save_pipeline_config, name="pipeline_config_date"),
 
+    # Pipeline Creators (CRM Dashboard)
+    path("pipeline/creators/stats/", views.pipeline_creators_stats, name="pipeline_creators_stats"),
+    path("pipeline/creators/bulk-status/", views.pipeline_creators_bulk_status, name="pipeline_creators_bulk_status"),
+    path("pipeline/creators/<uuid:creator_id>/", views.pipeline_creator_detail, name="pipeline_creator_detail"),
+    path("pipeline/creators/", views.pipeline_creators_list, name="pipeline_creators_list"),
+
+    # Pipeline Execution Log
+    path("pipeline/execution/log/", views.pipeline_execution_log, name="pipeline_execution_log"),
+
     # Monitoring
     path("tables/", views.list_tables, name="list_tables"),
 ]

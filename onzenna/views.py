@@ -18,7 +18,7 @@ def _cors_headers(request, response):
     origin = request.META.get('HTTP_ORIGIN', '')
     if origin in _CORS_ORIGINS:
         response['Access-Control-Allow-Origin'] = origin
-        response['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+        response['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
         response['Access-Control-Allow-Headers'] = 'Content-Type'
         response['Access-Control-Max-Age'] = '86400'
     return response
@@ -34,6 +34,9 @@ from .models import (
     OnzInfluencerOutreach,
     GmailContact,
     PipelineConfig,
+    PipelineCreator,
+    PipelineExecutionLog,
+    PipelineStatusChange,
 )
 
 
@@ -670,6 +673,9 @@ def list_tables(request):
         "onz_influencer_outreach": OnzInfluencerOutreach.objects.count(),
         "gk_gmail_contacts": GmailContact.objects.count(),
         "onz_pipeline_config": PipelineConfig.objects.count(),
+        "onz_pipeline_creators": PipelineCreator.objects.count(),
+        "onz_pipeline_execution_log": PipelineExecutionLog.objects.count(),
+        "onz_pipeline_status_changes": PipelineStatusChange.objects.count(),
     }
     return JsonResponse({"tables": tables})
 
@@ -769,3 +775,310 @@ def sync_gmail_contacts(request):
             updated += 1
 
     return JsonResponse({"created": created, "updated": updated, "total": len(contacts)})
+
+
+# --- Pipeline Creators (CRM Dashboard) ---
+
+
+def _serialize_creator(obj):
+    """Serialize PipelineCreator / PipelineExecutionLog to dict."""
+    data = {}
+    for field in obj._meta.fields:
+        val = getattr(obj, field.name)
+        if isinstance(val, datetime):
+            val = val.isoformat()
+        elif isinstance(val, uuid.UUID):
+            val = str(val)
+        elif hasattr(val, 'isoformat'):
+            val = val.isoformat() if val else None
+        data[field.name] = val
+    return data
+
+
+@csrf_exempt
+def pipeline_creators_list(request):
+    """GET: list creators with filters. POST: upsert creator."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method == 'POST':
+        body = _json_body(request)
+        email = body.get("email", "").strip().lower()
+        if not email:
+            return _cors_headers(request, JsonResponse({"error": "email is required"}, status=400))
+
+        defaults = {
+            "ig_handle": body.get("ig_handle", ""),
+            "tiktok_handle": body.get("tiktok_handle", ""),
+            "full_name": body.get("full_name", ""),
+            "platform": body.get("platform", ""),
+            "pipeline_status": body.get("pipeline_status", "Not Started"),
+            "brand": body.get("brand", ""),
+            "outreach_type": body.get("outreach_type", ""),
+            "source": body.get("source", "outbound"),
+            "notes": body.get("notes", ""),
+        }
+        if body.get("followers") is not None:
+            defaults["followers"] = int(body["followers"]) if body["followers"] else None
+        if body.get("avg_views") is not None:
+            defaults["avg_views"] = int(body["avg_views"]) if body["avg_views"] else None
+        if body.get("initial_discovery_date"):
+            defaults["initial_discovery_date"] = _parse_date(body["initial_discovery_date"])
+        for f in ("shopify_customer_id", "shopify_draft_order_id",
+                   "shopify_draft_order_name", "airtable_record_id"):
+            if body.get(f):
+                defaults[f] = str(body[f])
+
+        creator, created = PipelineCreator.objects.update_or_create(
+            email=email, defaults=defaults
+        )
+
+        # Record status change if status explicitly set and not default
+        if body.get("pipeline_status") and body["pipeline_status"] != "Not Started":
+            PipelineStatusChange.objects.create(
+                creator_email=email,
+                from_status="Not Started",
+                to_status=body["pipeline_status"],
+                changed_by=body.get("changed_by", "api"),
+            )
+
+        return _cors_headers(request, JsonResponse(_serialize_creator(creator), status=201 if created else 200))
+
+    # GET — list with filters
+    qs = PipelineCreator.objects.all()
+
+    search = request.GET.get("search", "").strip()
+    if search:
+        from django.db.models import Q
+        qs = qs.filter(
+            Q(email__icontains=search) |
+            Q(ig_handle__icontains=search) |
+            Q(tiktok_handle__icontains=search) |
+            Q(full_name__icontains=search)
+        )
+
+    status = request.GET.get("status")
+    if status:
+        qs = qs.filter(pipeline_status=status)
+
+    brand = request.GET.get("brand")
+    if brand:
+        qs = qs.filter(brand=brand)
+
+    source = request.GET.get("source")
+    if source:
+        qs = qs.filter(source=source)
+
+    outreach_type = request.GET.get("type")
+    if outreach_type:
+        qs = qs.filter(outreach_type=outreach_type)
+
+    # Ordering
+    order = request.GET.get("order", "-created_at")
+    qs = qs.order_by(order)
+
+    # Pagination
+    page = int(request.GET.get("page", 1))
+    limit = int(request.GET.get("limit", 50))
+    total = qs.count()
+    offset = (page - 1) * limit
+    creators = qs[offset:offset + limit]
+
+    return _cors_headers(request, JsonResponse({
+        "results": [_serialize_creator(c) for c in creators],
+        "total": total,
+        "page": page,
+        "limit": limit,
+        "pages": (total + limit - 1) // limit,
+    }))
+
+
+@csrf_exempt
+def pipeline_creator_detail(request, creator_id):
+    """GET: creator detail. PUT: update creator (with status audit)."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    try:
+        creator = PipelineCreator.objects.get(id=creator_id)
+    except PipelineCreator.DoesNotExist:
+        return _cors_headers(request, JsonResponse({"error": "Creator not found"}, status=404))
+
+    if request.method == 'PUT':
+        body = _json_body(request)
+        old_status = creator.pipeline_status
+
+        for field in ("ig_handle", "tiktok_handle", "full_name", "platform",
+                      "pipeline_status", "brand", "outreach_type", "source", "notes",
+                      "shopify_customer_id", "shopify_draft_order_id",
+                      "shopify_draft_order_name", "airtable_record_id"):
+            if field in body:
+                setattr(creator, field, body[field])
+
+        if "followers" in body:
+            creator.followers = int(body["followers"]) if body["followers"] else None
+        if "avg_views" in body:
+            creator.avg_views = int(body["avg_views"]) if body["avg_views"] else None
+        if "initial_discovery_date" in body:
+            creator.initial_discovery_date = _parse_date(body["initial_discovery_date"])
+
+        creator.save()
+
+        # Audit status change
+        new_status = creator.pipeline_status
+        if new_status != old_status:
+            PipelineStatusChange.objects.create(
+                creator_email=creator.email,
+                from_status=old_status,
+                to_status=new_status,
+                changed_by=body.get("changed_by", "dashboard"),
+            )
+
+        return _cors_headers(request, JsonResponse(_serialize_creator(creator)))
+
+    # GET
+    return _cors_headers(request, JsonResponse(_serialize_creator(creator)))
+
+
+@csrf_exempt
+def pipeline_creators_stats(request):
+    """Aggregate stats: by status, by brand, recent activity."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    from django.db.models import Count, Q
+    from datetime import timedelta
+    from datetime import date as date_cls
+
+    total = PipelineCreator.objects.count()
+
+    # Status breakdown
+    status_counts = dict(
+        PipelineCreator.objects.values_list('pipeline_status')
+        .annotate(c=Count('id'))
+        .values_list('pipeline_status', 'c')
+    )
+
+    # Brand breakdown
+    brand_counts = dict(
+        PipelineCreator.objects.values_list('brand')
+        .annotate(c=Count('id'))
+        .values_list('brand', 'c')
+    )
+
+    # This week's new creators
+    week_ago = date_cls.today() - timedelta(days=7)
+    new_this_week = PipelineCreator.objects.filter(created_at__date__gte=week_ago).count()
+
+    # Type breakdown
+    type_counts = dict(
+        PipelineCreator.objects.values_list('outreach_type')
+        .annotate(c=Count('id'))
+        .values_list('outreach_type', 'c')
+    )
+
+    return _cors_headers(request, JsonResponse({
+        "total": total,
+        "by_status": status_counts,
+        "by_brand": brand_counts,
+        "by_type": type_counts,
+        "new_this_week": new_this_week,
+    }))
+
+
+@csrf_exempt
+def pipeline_creators_bulk_status(request):
+    """Bulk update status for multiple creators."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method != 'POST':
+        return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
+
+    body = _json_body(request)
+    creator_ids = body.get("ids", [])
+    new_status = body.get("status", "")
+    changed_by = body.get("changed_by", "dashboard")
+
+    if not creator_ids or not new_status:
+        return _cors_headers(request, JsonResponse({"error": "ids and status required"}, status=400))
+
+    updated = 0
+    for cid in creator_ids:
+        try:
+            creator = PipelineCreator.objects.get(id=cid)
+            old_status = creator.pipeline_status
+            if old_status != new_status:
+                creator.pipeline_status = new_status
+                creator.save()
+                PipelineStatusChange.objects.create(
+                    creator_email=creator.email,
+                    from_status=old_status,
+                    to_status=new_status,
+                    changed_by=changed_by,
+                )
+                updated += 1
+        except PipelineCreator.DoesNotExist:
+            continue
+
+    return _cors_headers(request, JsonResponse({"updated": updated, "total": len(creator_ids)}))
+
+
+# --- Pipeline Execution Log ---
+
+
+@csrf_exempt
+def pipeline_execution_log(request):
+    """GET: list execution logs. POST: add new log entry."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method == 'POST':
+        body = _json_body(request)
+        action_type = body.get("action_type", "")
+        if not action_type:
+            return _cors_headers(request, JsonResponse({"error": "action_type required"}, status=400))
+
+        log = PipelineExecutionLog.objects.create(
+            action_type=action_type,
+            triggered_by=body.get("triggered_by", ""),
+            target_count=int(body.get("target_count", 0)),
+            status=body.get("status", "pending"),
+            details=json.dumps(body.get("details", {})) if isinstance(body.get("details"), dict) else body.get("details", "{}"),
+        )
+        if body.get("completed_at"):
+            try:
+                log.completed_at = datetime.fromisoformat(body["completed_at"].replace("Z", "+00:00"))
+                log.save()
+            except (ValueError, AttributeError):
+                pass
+
+        return _cors_headers(request, JsonResponse(_serialize_creator(log), status=201))
+
+    # GET — list
+    limit = int(request.GET.get("limit", 50))
+    action_type = request.GET.get("action_type")
+    qs = PipelineExecutionLog.objects.all()
+    if action_type:
+        qs = qs.filter(action_type=action_type)
+
+    logs = qs[:limit]
+    results = []
+    for log in logs:
+        d = {}
+        for field in log._meta.fields:
+            val = getattr(log, field.name)
+            if isinstance(val, datetime):
+                val = val.isoformat()
+            elif isinstance(val, uuid.UUID):
+                val = str(val)
+            d[field.name] = val
+        # Parse details JSON
+        if isinstance(d.get("details"), str):
+            try:
+                d["details"] = json.loads(d["details"])
+            except (json.JSONDecodeError, TypeError):
+                pass
+        results.append(d)
+
+    return _cors_headers(request, JsonResponse({"results": results, "total": qs.count()}, safe=False))

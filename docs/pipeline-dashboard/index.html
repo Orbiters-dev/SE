@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pipeline CRM Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f8fafc;--card:#fff;--border:#e2e8f0;--text:#1e293b;--dim:#64748b;--muted:#94a3b8;--a:#8b5cf6;--abg:#f5f3ff;--g:#10b981;--gbg:#ecfdf5;--am:#f59e0b;--ambg:#fffbeb;--r:#ef4444;--rbg:#fef2f2;--c:#0ea5e9;--cbg:#f0f9ff;--p:#ec4899;--mono:'SF Mono','Fira Code',Consolas,monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:13px}
+.ctr{max-width:1100px;margin:0 auto;padding:28px 20px 80px}
+.hero{text-align:center;margin-bottom:20px}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-.5px}.hero h1 span{background:linear-gradient(135deg,#8b5cf6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero .sub{color:var(--dim);font-size:12px;margin-top:2px}
+.hero .meta{display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+.pill{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2px 10px;font-size:10px;color:var(--dim);display:inline-flex;align-items:center;gap:4px}
+.pill .dot{width:5px;height:5px;border-radius:50%;background:var(--g);box-shadow:0 0 3px var(--g)}
+/* Nav bar */
+.nav-bar{display:flex;justify-content:center;gap:0;margin-bottom:20px}
+.nav-bar>div{display:inline-flex;border:2px solid var(--border);border-radius:10px;overflow:hidden;font-size:12px;font-weight:700}
+.nav-bar a{padding:8px 16px;color:var(--dim);text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center}
+.nav-bar a:hover{background:var(--abg);color:var(--a)}
+.nav-bar .active{background:var(--a);color:#fff;cursor:default}
+/* Main tabs */
+.mt{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:0}
+.mt>div{padding:10px 20px;font-size:12px;font-weight:700;cursor:pointer;color:var(--dim);border-bottom:3px solid transparent;margin-bottom:-2px;transition:.12s;white-space:nowrap}
+.mt>div:hover{color:var(--text)}.mt>div.on{color:var(--a);border-bottom-color:var(--a)}
+.mp{display:none;padding-top:20px}.mp.on{display:block}
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px}
+.card h3{font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.card .desc{font-size:10px;color:var(--dim);margin-bottom:8px}
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px;margin:10px 0}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center}
+.stat .sl{font-size:8px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:600}
+.stat .sv{font-size:20px;font-weight:800;letter-spacing:-.5px;font-family:var(--mono)}
+.stat.green .sv{color:var(--g)}.stat.accent .sv{color:var(--a)}.stat.amber .sv{color:var(--am)}.stat.cyan .sv{color:var(--c)}.stat.red .sv{color:var(--r)}
+/* Form rows */
+.form-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.form-row label{font-size:11px;font-weight:600;color:var(--dim);min-width:140px}
+.form-row input[type="text"],.form-row input[type="number"],.form-row input[type="date"],.form-row input[type="url"],.form-row input[type="email"],.form-row select{
+  flex:1;min-width:160px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--card)}
+.form-row input:focus,.form-row select:focus{outline:none;border-color:var(--a);box-shadow:0 0 0 2px rgba(139,92,246,.15)}
+/* Toggle */
+.toggle{position:relative;display:inline-block;width:36px;height:20px}
+.toggle input{opacity:0;width:0;height:0}
+.toggle .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#cbd5e1;border-radius:20px;transition:.2s}
+.toggle .slider:before{content:'';position:absolute;height:16px;width:16px;left:2px;bottom:2px;background:#fff;border-radius:50%;transition:.2s}
+.toggle input:checked+.slider{background:var(--g)}
+.toggle input:checked+.slider:before{transform:translateX(16px)}
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 20px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+.btn-primary{background:var(--a);color:#fff}.btn-primary:hover{opacity:.9}
+.btn-secondary{background:var(--abg);color:var(--a);border:1px solid var(--border)}.btn-secondary:hover{background:#ede9fe}
+.btn-sm{padding:4px 10px;font-size:10px;border-radius:5px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{background:#f8fafc;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.3px;font-size:9px;padding:6px 7px;text-align:left;border-bottom:2px solid var(--border);position:sticky;top:0;z-index:1}
+td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbff}
+.b{display:inline-block;padding:1px 6px;border-radius:3px;font-size:8px;font-weight:600}
+.b.g{background:var(--gbg);color:var(--g)}.b.r{background:var(--rbg);color:var(--r)}.b.am{background:var(--ambg);color:var(--am)}
+.b.c{background:var(--cbg);color:var(--c)}.b.a{background:var(--abg);color:var(--a)}.b.p{background:#fdf2f8;color:var(--p)}
+/* Search + filter bar */
+.filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.filter-bar input[type="text"]{flex:1;min-width:180px;padding:7px 12px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit}
+.filter-bar input:focus{outline:none;border-color:var(--a);box-shadow:0 0 0 2px rgba(139,92,246,.15)}
+.filter-bar select{padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;background:var(--card);color:var(--text)}
+/* Pipeline funnel */
+.funnel{display:flex;align-items:center;gap:0;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:16px;overflow-x:auto}
+.fn{flex:1;min-width:80px;text-align:center;padding:8px 4px;border-radius:8px;cursor:pointer;transition:.12s;border:2px solid transparent}
+.fn:hover{background:var(--abg)}.fn.on{background:var(--abg);border-color:var(--a)}
+.fn .fi{font-size:18px;font-weight:800;font-family:var(--mono)}.fn .ft{font-size:9px;font-weight:700;color:var(--dim)}.fn .fs{font-size:8px;color:var(--muted)}
+.fa{color:var(--muted);font-size:10px;flex-shrink:0;padding:0 1px}
+/* Pagination */
+.pager{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:12px}
+.pager button{padding:4px 10px;border:1px solid var(--border);border-radius:4px;background:var(--card);cursor:pointer;font-size:11px;font-family:inherit}
+.pager button.on{background:var(--a);color:#fff;border-color:var(--a)}
+.pager button:disabled{opacity:.4;cursor:not-allowed}
+.pager span{font-size:11px;color:var(--dim)}
+/* Log entry */
+.log-entry{padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:11px;display:flex;gap:8px}
+.log-entry .ts{color:var(--muted);font-size:10px;font-family:var(--mono);min-width:100px}
+.log-entry .msg{color:var(--text)}
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;padding:10px 18px;border-radius:8px;font-size:12px;font-weight:600;color:#fff;z-index:999;transform:translateY(100px);opacity:0;transition:.3s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{background:var(--g)}.toast.err{background:var(--r)}
+/* Status dropdown */
+.status-dd{position:relative;display:inline-block}
+.status-dd select{padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:10px;font-weight:600;font-family:inherit;background:var(--card);cursor:pointer}
+.status-dd select:focus{border-color:var(--a);outline:none}
+/* Responsive */
+@media(max-width:700px){
+  .ctr{padding:12px 8px 60px}.hero h1{font-size:18px}
+  .form-row{flex-direction:column;align-items:flex-start}.form-row label{min-width:auto;margin-bottom:2px}
+  .form-row input,.form-row select{width:100%}
+  .mt>div{padding:8px 12px;font-size:11px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .funnel{flex-wrap:wrap}.fn{min-width:60px}
+  .filter-bar{flex-direction:column}.filter-bar input,.filter-bar select{width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN GATE -->
+<div id="login-gate" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)">
+  <div style="background:var(--card);border-radius:16px;padding:48px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.06);border:1px solid var(--border);text-align:center">
+    <div style="font-size:32px;margin-bottom:8px">&#x1F4CB;</div>
+    <h2 style="font-size:18px;font-weight:800;margin-bottom:4px">Pipeline CRM</h2>
+    <p style="font-size:11px;color:var(--dim);margin-bottom:24px">Creator Collab Pipeline Management</p>
+    <input type="text" id="login-uid" placeholder="User ID" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:8px;font-family:inherit">
+    <input type="password" id="login-pw" placeholder="Password" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:16px;font-family:inherit" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()" style="width:100%;background:var(--a);color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">Sign In</button>
+    <div id="login-err" style="color:var(--r);font-size:11px;margin-top:10px;display:none"></div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main-content" style="display:none">
+<div class="ctr">
+  <div class="nav-bar"><div>
+    <a href="../ppc-dashboard/index.html">Amazon PPC</a>
+    <a href="../content-dashboard/index.html">Content</a>
+    <a href="../financial-dashboard/index.html">Financial</a>
+    <div class="active">Pipeline CRM</div>
+  </div></div>
+
+  <div class="hero">
+    <h1>&#x1F4CB; Pipeline <span>CRM</span></h1>
+    <div class="sub">Creator Collab Pipeline &#8212; Full Management Dashboard</div>
+    <div class="meta" id="hero-meta">
+      <span class="pill"><span class="dot"></span>EC2 API</span>
+      <span class="pill" id="pill-date">Loading...</span>
+      <span class="pill" id="pill-total">-</span>
+    </div>
+  </div>
+
+  <!-- MAIN TABS -->
+  <div class="mt" id="main-tabs">
+    <div class="on" data-p="config">Config</div>
+    <div data-p="creators">Creators</div>
+    <div data-p="execution">Execution</div>
+    <div data-p="content">Content</div>
+    <div data-p="comms">Comms</div>
+  </div>
+
+  <!-- ===== TAB 1: CONFIG ===== -->
+  <div class="mp on" id="p-config">
+    <div id="config-loading" style="text-align:center;padding:30px;color:var(--dim)">Loading config...</div>
+    <div id="config-dash" style="display:none">
+      <div class="card">
+        <h3>&#x1F4E6; Batch Control</h3>
+        <div class="desc">Control which creators get contacted and how many per batch</div>
+        <div class="form-row"><label>Update Date</label><input type="date" id="f-update-date">
+          <label class="toggle" style="min-width:auto" title="Start From Beginning"><input type="checkbox" id="f-start-beginning"><span class="slider"></span></label>
+          <span style="font-size:10px;color:var(--dim)">All dates</span>
+        </div>
+        <div class="form-row"><label>Batch Size</label><input type="number" id="f-creators-contacted" min="1" max="500" step="1"></div>
+        <div class="form-row"><label>HT Threshold (R30D)</label><input type="number" id="f-ht-threshold" min="0" step="10000"></div>
+      </div>
+      <div class="card">
+        <h3>&#x1F527; Feature Toggles</h3>
+        <div class="form-row"><label>RAG Email Dedup</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-rag-dedup"><span class="slider"></span></label></div>
+        <div class="form-row"><label>Apify Autofill</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-autofill"><span class="slider"></span></label></div>
+        <div class="form-row"><label>Human-in-Loop</label><select id="f-human-in-loop"><option value="on">ON</option><option value="off">OFF</option><option value="auto">AUTO</option></select></div>
+        <div class="form-row"><label>Sender Email</label><input type="email" id="f-sender-email"></div>
+      </div>
+      <div class="card">
+        <h3>&#x1F517; Brand Forms &amp; Templates</h3>
+        <div class="form-row"><label>Template Doc ID</label><input type="text" id="f-template-id"></div>
+        <div class="form-row"><label>Grosmimi Form</label><input type="url" id="f-grosmimi-url" placeholder="https://..."></div>
+        <div class="form-row"><label>CHA&amp;MOM Form</label><input type="url" id="f-chaenmom-url" placeholder="https://..."></div>
+        <div class="form-row"><label>Naeiae Form</label><input type="url" id="f-naeiae-url" placeholder="https://..."></div>
+        <div class="form-row"><label>High Touch Form</label><input type="url" id="f-ht-url" placeholder="https://..."></div>
+      </div>
+      <div class="card">
+        <h3>&#x1F4CA; Eligible Preview</h3>
+        <div class="desc">Auto-calculated eligible creator counts (read-only)</div>
+        <div class="stats">
+          <div class="stat accent"><div class="sl">Total</div><div class="sv" id="s-total">-</div></div>
+          <div class="stat green"><div class="sl">Grosmimi</div><div class="sv" id="s-gros">-</div></div>
+          <div class="stat cyan"><div class="sl">CHA&amp;MOM</div><div class="sv" id="s-cham">-</div></div>
+          <div class="stat amber"><div class="sl">Naeiae</div><div class="sv" id="s-nae">-</div></div>
+          <div class="stat"><div class="sl">Unknown</div><div class="sv" id="s-unk">-</div></div>
+          <div class="stat"><div class="sl">HT / LT</div><div class="sv" id="s-htlt">-</div></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;margin:16px 0;flex-wrap:wrap">
+        <button class="btn btn-primary" id="btn-apply" onclick="applyConfig()">&#x2705; Apply Config</button>
+      </div>
+      <div class="card">
+        <h3>&#x1F4DD; Change Log</h3>
+        <div class="desc">Recent config changes (last 10 days)</div>
+        <div id="change-log" style="max-height:200px;overflow-y:auto"><div style="color:var(--muted);font-size:11px;padding:8px 0">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB 2: CREATORS ===== -->
+  <div class="mp" id="p-creators">
+    <!-- Stats bar -->
+    <div class="stats" id="creator-stats">
+      <div class="stat accent"><div class="sl">Total</div><div class="sv" id="cs-total">-</div></div>
+      <div class="stat green"><div class="sl">Accepted</div><div class="sv" id="cs-accepted">-</div></div>
+      <div class="stat cyan"><div class="sl">Sent</div><div class="sv" id="cs-sent">-</div></div>
+      <div class="stat amber"><div class="sl">Posted</div><div class="sv" id="cs-posted">-</div></div>
+      <div class="stat"><div class="sl">This Week</div><div class="sv" id="cs-week">-</div></div>
+    </div>
+    <!-- Filters -->
+    <div class="filter-bar">
+      <input type="text" id="cr-search" placeholder="Search handle, email, name..." onkeydown="if(event.key==='Enter')loadCreators()">
+      <select id="cr-status" onchange="loadCreators()">
+        <option value="">All Status</option>
+        <option value="Not Started">Not Started</option>
+        <option value="Draft Ready">Draft Ready</option>
+        <option value="Sent">Sent</option>
+        <option value="Replied">Replied</option>
+        <option value="Needs Review">Needs Review</option>
+        <option value="Accepted">Accepted</option>
+        <option value="Declined">Declined</option>
+        <option value="Sample Sent">Sample Sent</option>
+        <option value="Sample Shipped">Sample Shipped</option>
+        <option value="Sample Delivered">Sample Delivered</option>
+        <option value="Posted">Posted</option>
+      </select>
+      <select id="cr-brand" onchange="loadCreators()">
+        <option value="">All Brands</option>
+        <option value="Grosmimi">Grosmimi</option>
+        <option value="CHA&MOM">CHA&amp;MOM</option>
+        <option value="Naeiae">Naeiae</option>
+        <option value="Unknown">Unknown</option>
+      </select>
+      <select id="cr-source" onchange="loadCreators()">
+        <option value="">All Sources</option>
+        <option value="outbound">Outbound</option>
+        <option value="inbound">Inbound</option>
+      </select>
+      <button class="btn btn-sm btn-secondary" onclick="loadCreators()">&#x1F50D;</button>
+    </div>
+    <!-- Table -->
+    <div style="overflow-x:auto;max-height:500px;overflow-y:auto;border:1px solid var(--border);border-radius:8px">
+      <table id="creators-table">
+        <thead><tr>
+          <th>Handle</th><th>Email</th><th>Brand</th><th>Status</th><th>Type</th><th>Followers</th><th>Date</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="creators-body">
+          <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">Select filters and search to load creators</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- Pagination -->
+    <div class="pager" id="cr-pager"></div>
+  </div>
+
+  <!-- ===== TAB 3: EXECUTION ===== -->
+  <div class="mp" id="p-execution">
+    <!-- Pipeline funnel -->
+    <div class="card">
+      <h3>&#x1F3AF; Pipeline Funnel</h3>
+      <div class="funnel" id="exec-funnel"></div>
+    </div>
+    <!-- Action buttons -->
+    <div style="display:flex;gap:8px;justify-content:center;margin:16px 0;flex-wrap:wrap">
+      <button class="btn btn-secondary" onclick="refreshFunnel()">&#x1F504; Refresh Funnel</button>
+    </div>
+    <!-- Execution log -->
+    <div class="card">
+      <h3>&#x1F4DC; Execution Log</h3>
+      <div class="desc">Pipeline actions triggered from dashboard or automation</div>
+      <div id="exec-log" style="max-height:400px;overflow-y:auto">
+        <div style="color:var(--muted);font-size:11px;padding:8px 0">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB 4: CONTENT ===== -->
+  <div class="mp" id="p-content">
+    <div class="card" style="text-align:center;padding:40px">
+      <div style="font-size:32px;margin-bottom:10px">&#x1F4F8;</div>
+      <h3 style="justify-content:center">Content Tracking</h3>
+      <div class="desc">Influencer post tracking + D+60 metrics<br>Phase 2 &#8212; connects to DataKeeper content_posts + content_metrics_daily</div>
+      <p style="font-size:11px;color:var(--muted);margin-top:12px">Coming soon: Post links, view/like/comment metrics, Syncly integration</p>
+    </div>
+  </div>
+
+  <!-- ===== TAB 5: COMMS ===== -->
+  <div class="mp" id="p-comms">
+    <div class="card" style="text-align:center;padding:40px">
+      <div style="font-size:32px;margin-bottom:10px">&#x1F4E7;</div>
+      <h3 style="justify-content:center">Communications</h3>
+      <div class="desc">Email history + Gmail RAG search + Status timeline<br>Phase 2 &#8212; connects to GmailContact data + PipelineStatusChange audit trail</div>
+      <p style="font-size:11px;color:var(--muted);margin-top:12px">Coming soon: Email thread viewer, contact lookup, conversation timeline</p>
+    </div>
+  </div>
+
+</div><!-- /ctr -->
+</div><!-- /main-content -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== AUTH ==========
+var AUTH_USERS={
+  'WJ':'a619397d21c5fd5daa1d55bbdef5e99383dadb69f602a0110a9d56cb7b776fbd',
+  'CAL':'a1a137c402f2a79391d3ecd012536dc6a2dc6e4e3ee32c2880d01afa04f7402c',
+  'MJ':'c8fe37479a933b489c5d4a1ff509cbe60095246f1e42f383bc017cb77b3efcbb',
+  'HJ':'75c2e5a66c6bcc985f42b6d402dbb10050a09c9f0371ed735e1983c145da3ffe',
+  'JS':'89d0eb2d586787c34782b6fa71300419edb51538e74596a8c7948c0abca66e6d',
+  'HC':'357fca21bafbd5f23f141ff9433fe47422f58e9b0521c04e5735ae727313aef5',
+  'JHG':'62c979e61e48b16dd0ed1eff3ba009c8283d59b9be2f86a45ae0d6c2ae22e5af'
+};
+var _currentUser='';
+var API_BASE='https://orbitools.orbiters.co.kr/api/onzenna';
+
+async function sha256(s){var e=new TextEncoder().encode(s);var h=await crypto.subtle.digest('SHA-256',e);return Array.from(new Uint8Array(h)).map(function(b){return b.toString(16).padStart(2,'0')}).join('')}
+async function doLogin(){
+  var uid=document.getElementById('login-uid').value.trim().toUpperCase();
+  var pw=document.getElementById('login-pw').value;
+  if(!uid||!pw){document.getElementById('login-err').textContent='Enter ID and password';document.getElementById('login-err').style.display='block';return}
+  var hash=await sha256(pw+uid.toLowerCase());
+  if(AUTH_USERS[uid]&&AUTH_USERS[uid]===hash){
+    _currentUser=uid;
+    localStorage.setItem('pipeline_crm_auth',JSON.stringify({uid:uid,ts:Date.now()}));
+    showDashboard();
+  }else{document.getElementById('login-err').textContent='Invalid credentials';document.getElementById('login-err').style.display='block'}
+}
+function checkAuth(){
+  var s=localStorage.getItem('pipeline_crm_auth');
+  if(!s)return null;
+  try{var d=JSON.parse(s);if(Date.now()-d.ts<30*86400000)return d.uid}catch(e){}
+  return null;
+}
+function showDashboard(){
+  document.getElementById('login-gate').style.display='none';
+  document.getElementById('main-content').style.display='block';
+  initTabs();
+  var hash=location.hash.replace('#','');
+  if(hash&&document.getElementById('p-'+hash)){
+    switchTab(hash);
+  }else{
+    switchTab('config');
+  }
+}
+
+// ========== API FETCH ==========
+async function apiFetch(path,opts){
+  opts=opts||{};opts.mode='cors';opts.credentials='omit';
+  if(opts.body){opts.headers=opts.headers||{};opts.headers['Content-Type']='application/json'}
+  var sep=path.indexOf('?')>=0?'&':'?';
+  var url=API_BASE+path+sep+'_t='+Date.now();
+  var r;
+  try{r=await fetch(url,opts)}catch(err){throw new Error('Network error: '+err.message)}
+  if(!r.ok){var body='';try{body=await r.text()}catch(e){}throw new Error('API error: '+r.status+' '+body.slice(0,100))}
+  return r.json();
+}
+
+// ========== TABS ==========
+var _tabLoaded={};
+function initTabs(){
+  var tabs=document.querySelectorAll('#main-tabs > div');
+  tabs.forEach(function(t){
+    t.addEventListener('click',function(){switchTab(t.getAttribute('data-p'))});
+  });
+}
+function switchTab(name){
+  document.querySelectorAll('#main-tabs > div').forEach(function(t){t.classList.toggle('on',t.getAttribute('data-p')===name)});
+  document.querySelectorAll('.mp').forEach(function(p){p.classList.toggle('on',p.id==='p-'+name)});
+  location.hash=name;
+  // Lazy load
+  if(!_tabLoaded[name]){
+    _tabLoaded[name]=true;
+    if(name==='config')loadConfig();
+    else if(name==='creators'){loadCreatorStats();loadCreators()}
+    else if(name==='execution'){loadCreatorStats();loadExecLog()}
+  }
+}
+
+// ========== CONFIG TAB ==========
+var _config=null;
+async function loadConfig(){
+  try{
+    _config=await apiFetch('/pipeline/config/today/');
+    populateConfigForm(_config);
+    document.getElementById('config-loading').style.display='none';
+    document.getElementById('config-dash').style.display='block';
+    document.getElementById('pill-date').textContent=_config.date;
+    loadConfigHistory();
+  }catch(e){
+    document.getElementById('config-loading').innerHTML='<span style="color:var(--r)">Failed to load: '+e.message+'</span>';
+  }
+}
+function populateConfigForm(c){
+  document.getElementById('f-update-date').value=c.update_date||'';
+  document.getElementById('f-start-beginning').checked=c.start_from_beginning;
+  document.getElementById('f-creators-contacted').value=c.creators_contacted;
+  document.getElementById('f-ht-threshold').value=c.ht_threshold;
+  document.getElementById('f-rag-dedup').checked=c.rag_email_dedup;
+  document.getElementById('f-apify-autofill').checked=c.apify_autofill;
+  document.getElementById('f-human-in-loop').value=c.human_in_loop;
+  document.getElementById('f-sender-email').value=c.sender_email;
+  document.getElementById('f-template-id').value=c.outreach_template_id;
+  document.getElementById('f-grosmimi-url').value=c.grosmimi_form_url||'';
+  document.getElementById('f-chaenmom-url').value=c.chaenmom_form_url||'';
+  document.getElementById('f-naeiae-url').value=c.naeiae_form_url||'';
+  document.getElementById('f-ht-url').value=c.ht_form_url||'';
+  document.getElementById('s-total').textContent=c.eligible_total||0;
+  document.getElementById('s-gros').textContent=c.eligible_grosmimi||0;
+  document.getElementById('s-cham').textContent=c.eligible_chaenmom||0;
+  document.getElementById('s-nae').textContent=c.eligible_naeiae||0;
+  document.getElementById('s-unk').textContent=c.eligible_unknown||0;
+  document.getElementById('s-htlt').textContent=(c.ht_count||0)+' / '+(c.lt_count||0);
+}
+function collectConfigForm(){
+  return{
+    update_date:document.getElementById('f-update-date').value||null,
+    start_from_beginning:document.getElementById('f-start-beginning').checked,
+    creators_contacted:parseInt(document.getElementById('f-creators-contacted').value)||10,
+    ht_threshold:parseInt(document.getElementById('f-ht-threshold').value)||100000,
+    rag_email_dedup:document.getElementById('f-rag-dedup').checked,
+    apify_autofill:document.getElementById('f-apify-autofill').checked,
+    human_in_loop:document.getElementById('f-human-in-loop').value,
+    sender_email:document.getElementById('f-sender-email').value,
+    outreach_template_id:document.getElementById('f-template-id').value,
+    grosmimi_form_url:document.getElementById('f-grosmimi-url').value,
+    chaenmom_form_url:document.getElementById('f-chaenmom-url').value,
+    naeiae_form_url:document.getElementById('f-naeiae-url').value,
+    ht_form_url:document.getElementById('f-ht-url').value,
+    updated_by:_currentUser
+  };
+}
+async function applyConfig(){
+  var btn=document.getElementById('btn-apply');btn.disabled=true;btn.textContent='Saving...';
+  try{
+    var data=collectConfigForm();
+    var date=_config?_config.date:new Date().toISOString().slice(0,10);
+    _config=await apiFetch('/pipeline/config/'+date+'/',{method:'POST',body:JSON.stringify(data)});
+    populateConfigForm(_config);showToast('Config saved!','ok');loadConfigHistory();
+  }catch(e){showToast('Save failed: '+e.message,'err')}
+  finally{btn.disabled=false;btn.textContent='\u2705 Apply Config'}
+}
+async function loadConfigHistory(){
+  try{
+    var history=await apiFetch('/pipeline/config/history/?limit=10');
+    var el=document.getElementById('change-log');
+    if(!history||history.length===0){el.innerHTML='<div style="color:var(--muted);font-size:11px;padding:8px 0">No history yet</div>';return}
+    var html='';
+    for(var i=0;i<history.length;i++){
+      var h=history[i];
+      var ts=h.updated_at?new Date(h.updated_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'?';
+      var who=h.updated_by||'system';
+      var details='batch='+h.creators_contacted+' ht='+h.ht_threshold+' dedup='+(h.rag_email_dedup?'on':'off');
+      html+='<div class="log-entry"><span class="ts">'+ts+'</span><span class="msg">'+who+' &mdash; '+details+'</span></div>';
+    }
+    el.innerHTML=html;
+  }catch(e){document.getElementById('change-log').innerHTML='<div style="color:var(--r);font-size:11px">Failed to load history</div>'}
+}
+
+// ========== CREATORS TAB ==========
+var _crPage=1;
+var _crLimit=50;
+var STATUS_COLORS={
+  'Not Started':'','Draft Ready':'a','Sent':'c','Replied':'am',
+  'Needs Review':'p','Accepted':'g','Declined':'r',
+  'Sample Sent':'c','Sample Shipped':'c','Sample Delivered':'g','Posted':'g'
+};
+var PIPELINE_STAGES=['Not Started','Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
+
+async function loadCreatorStats(){
+  try{
+    var st=await apiFetch('/pipeline/creators/stats/');
+    document.getElementById('cs-total').textContent=st.total||0;
+    document.getElementById('cs-accepted').textContent=st.by_status['Accepted']||0;
+    document.getElementById('cs-sent').textContent=st.by_status['Sent']||0;
+    document.getElementById('cs-posted').textContent=st.by_status['Posted']||0;
+    document.getElementById('cs-week').textContent='+'+st.new_this_week;
+    document.getElementById('pill-total').textContent=st.total+' creators';
+    // Build funnel
+    buildFunnel(st.by_status);
+  }catch(e){console.error('Stats error:',e)}
+}
+
+function buildFunnel(statusCounts){
+  var el=document.getElementById('exec-funnel');
+  var stages=['Not Started','Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
+  var html='';
+  for(var i=0;i<stages.length;i++){
+    if(i>0)html+='<span class="fa">&#x25B6;</span>';
+    var count=statusCounts[stages[i]]||0;
+    html+='<div class="fn" onclick="filterByStatus(\''+stages[i]+'\')" title="Click to filter"><div class="fi">'+count+'</div><div class="ft">'+stages[i]+'</div></div>';
+  }
+  el.innerHTML=html;
+}
+
+async function loadCreators(){
+  var search=document.getElementById('cr-search').value.trim();
+  var status=document.getElementById('cr-status').value;
+  var brand=document.getElementById('cr-brand').value;
+  var source=document.getElementById('cr-source').value;
+  var params='?page='+_crPage+'&limit='+_crLimit;
+  if(search)params+='&search='+encodeURIComponent(search);
+  if(status)params+='&status='+encodeURIComponent(status);
+  if(brand)params+='&brand='+encodeURIComponent(brand);
+  if(source)params+='&source='+encodeURIComponent(source);
+  var body=document.getElementById('creators-body');
+  body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr>';
+  try{
+    var data=await apiFetch('/pipeline/creators/'+params);
+    renderCreatorsTable(data);
+    renderPager(data);
+  }catch(e){
+    body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--r);padding:20px">Error: '+e.message+'</td></tr>';
+  }
+}
+
+function renderCreatorsTable(data){
+  var body=document.getElementById('creators-body');
+  if(!data.results||data.results.length===0){
+    body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">No creators found</td></tr>';
+    return;
+  }
+  var html='';
+  for(var i=0;i<data.results.length;i++){
+    var c=data.results[i];
+    var handle=c.ig_handle||c.tiktok_handle||'-';
+    var badgeClass=STATUS_COLORS[c.pipeline_status]||'';
+    var date=c.initial_discovery_date||c.created_at;
+    if(date&&date.length>10)date=date.slice(0,10);
+    var followers=c.followers?formatNum(c.followers):'-';
+    html+='<tr>';
+    html+='<td style="font-weight:600;font-family:var(--mono);font-size:10px">'+esc(handle)+'</td>';
+    html+='<td style="font-size:10px">'+esc(c.email)+'</td>';
+    html+='<td><span class="b '+(c.brand==='Grosmimi'?'g':c.brand==='CHA&MOM'?'c':c.brand==='Naeiae'?'am':'')+'">'+esc(c.brand||'?')+'</span></td>';
+    html+='<td><span class="b '+badgeClass+'">'+esc(c.pipeline_status)+'</span></td>';
+    html+='<td style="font-size:10px">'+esc(c.outreach_type||'-')+'</td>';
+    html+='<td style="font-size:10px;font-family:var(--mono)">'+followers+'</td>';
+    html+='<td style="font-size:10px;color:var(--dim)">'+esc(date||'-')+'</td>';
+    html+='<td><select class="status-change-dd" data-id="'+c.id+'" data-email="'+esc(c.email)+'" onchange="changeCreatorStatus(this)" style="padding:2px 4px;border:1px solid var(--border);border-radius:3px;font-size:9px;font-family:inherit;background:var(--card)">';
+    for(var j=0;j<PIPELINE_STAGES.length;j++){
+      html+='<option value="'+PIPELINE_STAGES[j]+'"'+(PIPELINE_STAGES[j]===c.pipeline_status?' selected':'')+'>'+PIPELINE_STAGES[j]+'</option>';
+    }
+    html+='</select></td>';
+    html+='</tr>';
+  }
+  body.innerHTML=html;
+}
+
+function renderPager(data){
+  var el=document.getElementById('cr-pager');
+  if(data.pages<=1){el.innerHTML='';return}
+  var html='<button '+(data.page<=1?'disabled':'')+' onclick="_crPage='+(data.page-1)+';loadCreators()">&#x25C0;</button>';
+  html+='<span>Page '+data.page+' of '+data.pages+' ('+data.total+' total)</span>';
+  html+='<button '+(data.page>=data.pages?'disabled':'')+' onclick="_crPage='+(data.page+1)+';loadCreators()">&#x25B6;</button>';
+  el.innerHTML=html;
+}
+
+async function changeCreatorStatus(sel){
+  var id=sel.getAttribute('data-id');
+  var newStatus=sel.value;
+  try{
+    await apiFetch('/pipeline/creators/'+id+'/',{
+      method:'PUT',
+      body:JSON.stringify({pipeline_status:newStatus,changed_by:_currentUser})
+    });
+    showToast('Status updated','ok');
+    // Refresh stats
+    loadCreatorStats();
+  }catch(e){
+    showToast('Update failed: '+e.message,'err');
+    loadCreators();// revert
+  }
+}
+
+function filterByStatus(status){
+  document.getElementById('cr-status').value=status;
+  switchTab('creators');
+  _crPage=1;
+  loadCreators();
+}
+
+async function refreshFunnel(){
+  await loadCreatorStats();
+  showToast('Funnel refreshed','ok');
+}
+
+// ========== EXECUTION LOG ==========
+async function loadExecLog(){
+  try{
+    var data=await apiFetch('/pipeline/execution/log/?limit=50');
+    var el=document.getElementById('exec-log');
+    var logs=data.results||data;
+    if(!logs||logs.length===0){
+      el.innerHTML='<div style="color:var(--muted);font-size:11px;padding:8px 0">No execution logs yet</div>';
+      return;
+    }
+    var html='';
+    for(var i=0;i<logs.length;i++){
+      var log=logs[i];
+      var ts=log.started_at?new Date(log.started_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'?';
+      var who=log.triggered_by||'system';
+      var statusBadge=log.status==='success'?'g':log.status==='failed'?'r':'am';
+      html+='<div class="log-entry">';
+      html+='<span class="ts">'+ts+'</span>';
+      html+='<span class="msg">'+esc(who)+' &mdash; <b>'+esc(log.action_type)+'</b> &mdash; '+log.target_count+' creators &mdash; <span class="b '+statusBadge+'">'+esc(log.status)+'</span></span>';
+      html+='</div>';
+    }
+    el.innerHTML=html;
+  }catch(e){
+    document.getElementById('exec-log').innerHTML='<div style="color:var(--r);font-size:11px">Failed to load: '+e.message+'</div>';
+  }
+}
+
+// ========== HELPERS ==========
+function showToast(msg,type){var t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'ok')+' show';setTimeout(function(){t.className='toast'},3000)}
+function esc(s){if(!s)return'';var d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function formatNum(n){if(n>=1000000)return(n/1000000).toFixed(1)+'M';if(n>=1000)return(n/1000).toFixed(1)+'K';return n}
+
+// ========== INIT ==========
+var u=checkAuth();
+if(u){_currentUser=u;showDashboard()}
+</script>
+</body>
+</html>

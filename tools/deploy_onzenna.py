@@ -152,6 +152,11 @@ else:
     print("# Test pipeline config:")
     print("curl -u admin:PASSWORD https://orbitools.orbiters.co.kr/api/onzenna/pipeline/config/today/")
     print()
+    print("# Test pipeline creators API:")
+    print("curl -u admin:PASSWORD https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/stats/")
+    print("curl -u admin:PASSWORD 'https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/?limit=5'")
+    print("curl -u admin:PASSWORD https://orbitools.orbiters.co.kr/api/onzenna/pipeline/execution/log/")
+    print()
 
     print("=" * 70)
     print("  DONE - After running all steps above, the API should be live.")

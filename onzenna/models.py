@@ -233,6 +233,92 @@ class PipelineConfig(models.Model):
         return f"Config {self.date} (batch={self.creators_contacted})"
 
 
+class PipelineCreator(models.Model):
+    """Unified creator identity for CRM dashboard.
+    Replaces Airtable Creators table. Used by n8n workflows + dashboard.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    email = models.EmailField(unique=True, db_index=True)
+    ig_handle = models.CharField(max_length=200, blank=True, default="")
+    tiktok_handle = models.CharField(max_length=200, blank=True, default="")
+    full_name = models.CharField(max_length=200, blank=True, default="")
+    platform = models.CharField(max_length=30, blank=True, default="")
+
+    # Pipeline status (single source of truth)
+    pipeline_status = models.CharField(max_length=30, default="Not Started")
+    # Not Started / Draft Ready / Sent / Replied / Needs Review /
+    # Accepted / Declined / Sample Sent / Sample Shipped / Sample Delivered / Posted
+
+    # Classification
+    brand = models.CharField(max_length=30, blank=True, default="")
+    outreach_type = models.CharField(max_length=10, blank=True, default="")  # HT, LT
+    source = models.CharField(max_length=30, default="outbound")  # outbound, inbound
+
+    # Metrics
+    followers = models.IntegerField(null=True, blank=True)
+    avg_views = models.IntegerField(null=True, blank=True)
+
+    # Discovery
+    initial_discovery_date = models.DateField(null=True, blank=True)
+
+    # Shopify refs
+    shopify_customer_id = models.CharField(max_length=50, blank=True, default="")
+    shopify_draft_order_id = models.CharField(max_length=50, blank=True, default="")
+    shopify_draft_order_name = models.CharField(max_length=50, blank=True, default="")
+
+    # Legacy Airtable ref
+    airtable_record_id = models.CharField(max_length=50, blank=True, default="", db_index=True)
+
+    # Notes
+    notes = models.TextField(blank=True, default="")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "onz_pipeline_creators"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.ig_handle or self.email} [{self.pipeline_status}]"
+
+
+class PipelineExecutionLog(models.Model):
+    """Audit trail for pipeline actions triggered from dashboard or scripts."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    action_type = models.CharField(max_length=30)  # preview, draft_gen, send, status_change
+    triggered_by = models.CharField(max_length=50, blank=True, default="")
+    target_count = models.IntegerField(default=0)
+    status = models.CharField(max_length=20, default="pending")  # pending, running, success, failed
+    details = models.TextField(blank=True, default="{}")  # JSON
+    started_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = "onz_pipeline_execution_log"
+        ordering = ["-started_at"]
+
+    def __str__(self):
+        return f"{self.action_type} by {self.triggered_by} [{self.status}]"
+
+
+class PipelineStatusChange(models.Model):
+    """Records every creator status change for audit trail."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    creator_email = models.EmailField(db_index=True)
+    from_status = models.CharField(max_length=30)
+    to_status = models.CharField(max_length=30)
+    changed_by = models.CharField(max_length=50, blank=True, default="")
+    changed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "onz_pipeline_status_changes"
+        ordering = ["-changed_at"]
+
+    def __str__(self):
+        return f"{self.creator_email}: {self.from_status} -> {self.to_status}"
+
+
 class GmailContact(models.Model):
     """Gmail RAG contact index — tracks who we've emailed."""
     email = models.EmailField(unique=True, db_index=True)
