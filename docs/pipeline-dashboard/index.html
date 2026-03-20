@@ -1183,6 +1183,16 @@ var ACTION_META={
   sns_sync:{title:'Sync SNS Tab',desc:'Match influencer posts to Shopify orders and update SNS tracking sheets.',btnId:'btn-sns',icon:'\uD83D\uDCCA'},
   gmail_sync:{title:'Sync Gmail RAG',desc:'Sync Gmail contact index for duplicate checking. Updates email history cache.',btnId:'btn-gmail-sync',icon:'\uD83D\uDCE7'}
 };
+var WEBHOOK_MAP={
+  draft_gen:'https://n8n.orbiters.co.kr/webhook/draft-gen',
+  send:'https://n8n.orbiters.co.kr/webhook/approval-send',
+  syncly_discovery:null,
+  apify_crawl:null,
+  syncly_sync:null,
+  sns_sync:null,
+  gmail_sync:null,
+  preview:null
+};
 var _pendingAction=null;
 
 function execAction(actionType){
@@ -1207,13 +1217,53 @@ async function confirmExec(){
   var meta=ACTION_META[action];
   var btn=document.getElementById(meta.btnId);
   if(btn){btn.disabled=true;btn.textContent='Running...'}
+
+  // Preview: count Not Started creators and show toast, no logging
+  if(action==='preview'){
+    try{
+      var data=await apiFetch('/pipeline/creators/?status=Not Started&limit=1');
+      var count=(data&&data.count)?data.count:0;
+      showToast('Preview: '+count+' Not Started creators eligible','ok');
+    }catch(e){
+      showToast('Preview failed: '+e.message,'err');
+    }
+    setTimeout(function(){
+      if(btn){btn.disabled=false;btn.textContent=meta.icon+' '+meta.title}
+    },2000);
+    return;
+  }
+
+  // Log to execution log
   try{
     await apiFetch('/pipeline/execution/log/',{
       method:'POST',
       body:JSON.stringify({action_type:action,triggered_by:_currentUser,target_count:0,status:'running',details:{source:'dashboard',timestamp:new Date().toISOString()}})
     });
   }catch(e){console.error('Log error:',e)}
-  showToast(meta.title+' triggered by '+_currentUser,'ok');
+
+  // Syncly Discovery: call import-discovery endpoint instead of webhook
+  if(action==='syncly_discovery'){
+    apiFetch('/pipeline/creators/import-discovery/',{
+      method:'POST',
+      body:JSON.stringify({triggered_by:_currentUser,timestamp:new Date().toISOString()})
+    }).then(function(){
+      showToast('Syncly Discovery import triggered','ok');
+    }).catch(function(e){
+      showToast('Syncly Discovery import failed: '+e.message,'err');
+    });
+  }
+  // Trigger n8n webhook if mapped
+  else if(WEBHOOK_MAP[action]){
+    fetch(WEBHOOK_MAP[action],{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:action,config:_config,timestamp:new Date().toISOString()})
+    }).catch(function(e){console.warn('Webhook error for '+action+':',e)});
+    showToast('Webhook triggered: '+action,'ok');
+  }else{
+    showToast(meta.title+' triggered (no webhook)','ok');
+  }
+
   _tabLoaded['execution']=false;
   loadExecLog();
   setTimeout(function(){

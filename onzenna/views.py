@@ -1082,3 +1082,134 @@ def pipeline_execution_log(request):
         results.append(d)
 
     return _cors_headers(request, JsonResponse({"results": results, "total": qs.count()}, safe=False))
+
+
+# --- Syncly Discovery Import ---
+
+
+@csrf_exempt
+def import_syncly_discovery(request):
+    """POST: Import creators from gk_content_posts into pipeline_creators.
+
+    Finds creators in content_posts that don't exist in pipeline_creators yet.
+    Creates them with status='Not Started', source='syncly'.
+
+    Body (optional):
+      brand: filter by brand (default: all)
+      limit: max creators to import (default: 50)
+      days: look back N days (default: 30)
+    """
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method != 'POST':
+        return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
+
+    body = _json_body(request)
+    brand_filter = body.get("brand", "")
+    limit = int(body.get("limit", 50))
+    days = int(body.get("days", 30))
+
+    from django.db import connection
+    from datetime import timedelta
+    from datetime import date as date_cls
+
+    cutoff = date_cls.today() - timedelta(days=days)
+
+    # Query gk_content_posts for unique creators not already in pipeline
+    sql = """
+        SELECT DISTINCT ON (cp.username)
+            cp.username, cp.nickname, cp.followers, cp.platform,
+            cp.brand, cp.caption, cp.url, cp.post_date
+        FROM gk_content_posts cp
+        LEFT JOIN onz_pipeline_creators pc
+            ON LOWER(cp.username) = LOWER(pc.ig_handle)
+            OR LOWER(cp.username) = LOWER(pc.tiktok_handle)
+        WHERE pc.id IS NULL
+          AND cp.post_date >= %s
+          AND cp.username IS NOT NULL
+          AND cp.username != ''
+    """
+    params = [cutoff]
+
+    if brand_filter:
+        sql += " AND LOWER(cp.brand) = LOWER(%s)"
+        params.append(brand_filter)
+
+    sql += " ORDER BY cp.username, cp.followers DESC NULLS LAST LIMIT %s"
+    params.append(limit)
+
+    created = 0
+    skipped = 0
+    imported = []
+
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(sql, params)
+            rows = cursor.fetchall()
+
+        for row in rows:
+            username, nickname, followers, platform, brand, caption, url, post_date = row
+
+            # Clean handle (remove @)
+            handle = (username or "").lstrip("@").strip()
+            if not handle:
+                skipped += 1
+                continue
+
+            # Determine platform
+            plat = (platform or "").lower()
+            ig_handle = handle if "tiktok" not in plat else ""
+            tiktok_handle = handle if "tiktok" in plat else ""
+
+            # Generate placeholder email
+            email = f"{handle.replace('.', '_')}@discovered.syncly"
+
+            # Check if already exists by handle
+            exists = PipelineCreator.objects.filter(
+                ig_handle__iexact=handle
+            ).exists() or PipelineCreator.objects.filter(
+                tiktok_handle__iexact=handle
+            ).exists() or PipelineCreator.objects.filter(
+                email=email
+            ).exists()
+
+            if exists:
+                skipped += 1
+                continue
+
+            creator = PipelineCreator.objects.create(
+                email=email,
+                ig_handle=ig_handle,
+                tiktok_handle=tiktok_handle,
+                full_name=nickname or handle,
+                platform="TikTok" if "tiktok" in plat else "Instagram",
+                pipeline_status="Not Started",
+                brand=brand or "",
+                outreach_type="LT" if (followers or 0) < 100000 else "HT",
+                source="syncly",
+                followers=followers,
+                avg_views=int((followers or 0) * (0.15 if "tiktok" in plat else 0.08)),
+                initial_discovery_date=post_date or date_cls.today(),
+                notes=f"Syncly discovery. Post: {url or 'N/A'}",
+            )
+            created += 1
+            imported.append({
+                "id": str(creator.id),
+                "handle": handle,
+                "brand": brand,
+                "followers": followers,
+            })
+
+    except Exception as e:
+        return _cors_headers(request, JsonResponse({
+            "error": str(e),
+            "created": created,
+            "skipped": skipped,
+        }, status=500))
+
+    return _cors_headers(request, JsonResponse({
+        "created": created,
+        "skipped": skipped,
+        "imported": imported,
+    }, status=201))

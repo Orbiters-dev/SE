@@ -55,6 +55,9 @@ urlpatterns = [
     # Pipeline Execution Log
     path("pipeline/execution/log/", views.pipeline_execution_log, name="pipeline_execution_log"),
 
+    # Pipeline Syncly Discovery Import
+    path("pipeline/creators/import-discovery/", views.import_syncly_discovery, name="import_syncly_discovery"),
+
     # Monitoring
     path("tables/", views.list_tables, name="list_tables"),
 ]
