@@ -126,12 +126,6 @@ Python path: `/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe`
    NOTE: run_amazon_ppc_daily.py uses DataKeeper as PRIMARY source (not API).
          Field mapping: DK.spend -> cost, DK.sales -> sales14d, DK.campaign_id -> campaignId
 
-   ⏰ 자동화 스케줄 (KST):
-   - KST 22:00: Data Keeper 수집 1회차 (T-1 전채널 데이터 확정)
-   - KST 11:00: Data Keeper 수집 2회차
-   - KST 08:00: amazon_ppc_daily.yml 자동 분석 (22:00 수집 데이터 기반)
-   → PPC 분석은 항상 가장 최근 Data Keeper 데이터(KST 22:00 수집분) 사용
-
 2. Proposal & Execution (per brand):
    DataKeeper -> .tmp/ppc_proposal_{brand}_YYYYMMDD.json -> Human approval
      -> API execution -> .tmp/ppc_executed_YYYYMMDD.json -> Google Sheets changelog
@@ -166,80 +160,21 @@ sales = float(row.get('sales', 0))
 
 ### Cross-Platform Data Sources (MUST leverage)
 
-| Source | DataKeeper Table | Key Fields | How to Use |
-|--------|-----------------|------------|------------|
-| Amazon Ads | `amazon_ads_daily` | `spend`, `sales`, `clicks`, `impressions` | Primary PPC data |
-| Amazon Sales | `amazon_sales_daily` | `ordered_product_sales`, `units_ordered` | Total revenue, organic vs ad ratio |
-| Google Ads | `google_ads_daily` | `spend`, `conversions_value`, `clicks`, `impressions` | CPC benchmark, ROAS comparison, budget allocation |
-| Meta Ads | `meta_ads_daily` | `spend`, `purchase_value`, `purchases` | Awareness -> demand lag, multi-channel ROAS |
-| Shopify DTC | `shopify_orders_daily` | `total_price`, orders | Cross-channel conversion, AOV trends |
-| GA4 | `ga4_daily` | `sessions`, `conversions` | Landing page quality signal |
-| Keyword Volume | `dataforseo_keywords` | `keyword`, `avg_monthly_searches`, `low_top_of_page_bid_micros`, `high_top_of_page_bid_micros` | Google market CPC vs Amazon bid comparison |
-| GSC | `gsc_daily` | `query`, `clicks`, `impressions`, `position` | Organic search demand signals |
-| Syncly D+60 | External sheet | Views, likes, comments | Content-driven demand correlation |
+| Source | Data | How to Use |
+|--------|------|------------|
+| `amazon_ads_daily` (DataKeeper) | Daily ad metrics by brand/campaign | Primary PPC data |
+| `amazon_sales_daily` (DataKeeper) | Marketplace organic + ad sales | Total revenue context |
+| `shopify_orders_daily` (DataKeeper) | DTC orders (includes FBA MCF) | Cross-channel comparison |
+| `meta_ads_daily` (DataKeeper) | Meta Ads spend/ROAS | Multi-channel budget allocation |
+| `google_ads_daily` (DataKeeper) | Google Ads metrics | Multi-channel context |
+| `ga4_daily` (DataKeeper) | Website traffic/conversion | Landing page quality signal |
+| `Syncly D+60 Tracker` | Influencer content metrics | Content-driven demand correlation |
 
-**dataforseo_keywords 활용 패턴:**
-- `fetch_dataforseo_keywords(brand_key)` — 브랜드별 키워드 볼륨 + Google CPC 조회 (Data Keeper → PG)
-- Amazon bid vs Google `high_top_of_page_bid_micros/1e6` 비교 → bid ceiling 판단
-- 소스는 **Google Ads Keyword Planner** (DataForSEO 아님) — Data Keeper `--channel dataforseo`로 수집
-
-### Cross-Platform Decision Rules (Automated in Executor)
-
-Every proposal email now includes a **Cross-Platform Context** section with Google Ads, Meta, Shopify, and Amazon Sales data. This is fetched via `fetch_cross_platform_context()`.
-
-**Rule 1: Multi-Channel ROAS Comparison**
-- Amazon ROAS drops, Google/Meta stable -> Amazon-specific issue (listing, competitor)
-- All channels drop -> market/seasonal (reduce proportionally)
-- Amazon stable, Google drops -> potential budget reallocation opportunity
-
-**Rule 2: Google Ads CPC as Bid Ceiling Signal**
-- Google Search CPC for same keywords = market price signal
-- If Google CPC > Amazon CPC -> room to increase Amazon bids
-- If Google CPC dropping -> market cooling, hold Amazon bids
-
-**Rule 3: Meta Awareness -> Amazon Demand Lag (7-14 days)**
-- Meta spend increase -> 7-14 day lag -> Amazon organic search increase
-- Track: meta_spend_7d vs amazon_organic_sales_next_7d
-- If meta spend UP and Amazon branded search UP -> increase Amazon brand defense
-
-**Rule 4: Organic vs Ad Sales Ratio**
-- < 20% ad ratio: Under-invested in ads
-- 20-40%: Balanced
-- 40-60%: Ad-dependent, watch diminishing returns
-- > 60%: Over-reliance, focus organic growth
-
-**Rule 5: Budget Allocation Across Platforms**
-- Optimal split (baby products): Amazon 50-60%, Google 20-30%, Meta 15-20%
-- Reallocation: channel ROAS > 1.5x avg for 14d -> increase 20%
-- Never reallocate > 30% of any channel in single move
-
-**Full reference:** `references/cross-platform-analysis.md`
-
-### DataKeeper Keyword Channels (NEW)
-
-| Table | Content | Collection |
-|-------|---------|------------|
-| `amazon_ads_search_terms` | Search term level: term, spend, sales, clicks, campaign, ad group | Daily (GitHub Actions) |
-| `amazon_ads_keywords` | Keyword level: keyword text, match type, bid, spend, sales | Daily (GitHub Actions) |
-
-**Data flow:**
-```
-data_keeper.py --channel amazon_ads_search_terms  ->  .tmp/datakeeper/amazon_ads_search_terms.json
-data_keeper.py --channel amazon_ads_keywords      ->  .tmp/datakeeper/amazon_ads_keywords.json
-                                                       |
-executor: fetch_search_terms_from_datakeeper()  <------+
-executor: fetch_keywords_from_datakeeper()      <------+
-                                                       |
-                              analyze_search_terms() -> harvest + negate proposals
-                              analyze_keyword_bids() -> bid adjustment proposals
-```
-
-**Important:**
-- `--channel all` does NOT include keyword channels (slow, timeout risk)
-- GitHub Actions runs them as separate step: `is_daily == 'true'` only (1x/day)
-- 14-day lookback default (shorter than campaign data's 35d)
-- `limit=50000` required — default 10k truncates Grosmimi's 13k+ search terms
-- CHA&MOM keyword report often timeouts (few campaigns = slow API response)
+**Cross-platform analysis examples:**
+- If Amazon ROAS drops but Shopify ROAS is stable -> Amazon-specific issue (listing, competition)
+- If both drop simultaneously -> market/seasonal issue or brand-level problem
+- High Meta spend + low Amazon organic -> check if Meta is cannibalizing Amazon search
+- Influencer content posted (Syncly) + Amazon sales spike -> attribute and increase budget
 
 ### Known Issues & Fixes
 
@@ -552,8 +487,7 @@ See `references/` directory for:
 - `amazon-execution-rules.md` - Bid presets, search term rules, API execution details
 - `amazon-query-patterns.md` - Natural language query examples and scoping guide
 - `benchmarks.md` - Industry benchmarks and scoring
-- `bidding-strategies.md` - Multi-platform bid optimization (Google, Meta, LinkedIn, TikTok, Microsoft)
+- `bidding-strategies.md` - Bid optimization strategies (cross-platform)
 - `budget-allocation.md` - Budget distribution best practices
 - `conversion-tracking.md` - Attribution and tracking setup
 - `scoring-system.md` - Performance scoring methodology
-- `cross-platform-analysis.md` - **Google Ads + Meta + Shopify cross-platform decision rules, seasonal patterns, budget allocation formulas**

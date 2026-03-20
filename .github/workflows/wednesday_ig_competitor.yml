@@ -1,17 +1,15 @@
-name: ORBI Communicator (12h Status Email)
+name: Wednesday IG Competitor Scrape + Analysis
 
 on:
   schedule:
-    # PST 0:00 (= UTC 08:00)
-    - cron: "0 8 * * *"
-    # PST 12:00 (= UTC 20:00)
-    - cron: "0 20 * * *"
+    # Every Wednesday 10:00 KST (= 01:00 UTC)
+    - cron: "0 1 * * 3"
   workflow_dispatch:  # manual trigger from GitHub UI
 
 jobs:
-  send-status-email:
+  competitor-analysis:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repo
@@ -26,18 +24,26 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Install Firecrawl CLI
+        run: npm install -g firecrawl-cli
+
       - name: Set up Gmail credentials
         run: |
           mkdir -p credentials
           echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
           echo '${{ secrets.GMAIL_TOKEN_JSON }}' > credentials/gmail_token.json
 
-      - name: Run communicator
+      - name: Scrape competitor IG profiles
         env:
-          ORBITOOLS_USER: ${{ secrets.ORBITOOLS_USER }}
-          ORBITOOLS_PASS: ${{ secrets.ORBITOOLS_PASS }}
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+        run: |
+          python tools/scrape_ig_competitor.py
+
+      - name: Run competitor IG analysis (Excel + email)
+        env:
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
           GMAIL_OAUTH_CREDENTIALS_PATH: credentials/gmail_oauth_credentials.json
           GMAIL_TOKEN_PATH: credentials/gmail_token.json
           GMAIL_SENDER: orbiters11@gmail.com
         run: |
-          python tools/run_communicator.py
+          python tools/weekly_ig_competitor_analysis.py

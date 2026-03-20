@@ -1,0 +1,88 @@
+name: Weekly IG Content Planner + Competitor Analysis
+
+on:
+  schedule:
+    # Every Friday 14:00 KST (= 05:00 UTC)
+    - cron: "0 5 * * 5"
+  workflow_dispatch:  # manual trigger from GitHub UI
+
+jobs:
+  generate-content:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Firecrawl CLI
+        run: npm install -g firecrawl-cli
+
+      - name: Set up Gmail credentials
+        run: |
+          mkdir -p credentials
+          echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
+          echo '${{ secrets.GMAIL_TOKEN_JSON }}' > credentials/gmail_token.json
+
+      # ── Email 1: Competitor Analysis ──────────────────────────────────
+      - name: Run competitor IG analysis (scrape + Excel + email)
+        env:
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          GMAIL_OAUTH_CREDENTIALS_PATH: credentials/gmail_oauth_credentials.json
+          GMAIL_TOKEN_PATH: credentials/gmail_token.json
+          GMAIL_SENDER: orbiters11@gmail.com
+        run: |
+          python tools/weekly_ig_competitor_analysis.py
+
+      # ── Email 2: Content Plan (meme:10 + brand:10, informed by competitor data) ──
+      - name: Generate content plans (meme:10, brand:10)
+        env:
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python tools/plan_weekly_content.py \
+            --distribution "meme:10,brand:10" \
+            --output .tmp/weekly_content_plan.xlsx
+
+      - name: Send content plan email & upload to Teams
+        env:
+          GMAIL_OAUTH_CREDENTIALS_PATH: credentials/gmail_oauth_credentials.json
+          GMAIL_TOKEN_PATH: credentials/gmail_token.json
+          GMAIL_SENDER: orbiters11@gmail.com
+          TEAMS_TENANT_ID: ${{ secrets.TEAMS_TENANT_ID }}
+          TEAMS_GRAPH_CLIENT_ID: ${{ secrets.TEAMS_GRAPH_CLIENT_ID }}
+          TEAMS_GRAPH_CLIENT_SECRET: ${{ secrets.TEAMS_GRAPH_CLIENT_SECRET }}
+          TEAMS_CONTENT_TEAM_ID: ${{ secrets.TEAMS_CONTENT_TEAM_ID }}
+          TEAMS_CONTENT_CHANNEL_ID: ${{ secrets.TEAMS_CONTENT_CHANNEL_ID }}
+          TEAMS_CONTENT_WEBHOOK_URL: ${{ secrets.TEAMS_CONTENT_WEBHOOK_URL }}
+          TEAMS_WEBHOOK_URL_SEEUN: ${{ secrets.TEAMS_WEBHOOK_URL_SEEUN }}
+        run: |
+          # Get week label (e.g. 3월_W2)
+          WEEK_LABEL=$(python -c "
+          from datetime import date
+          d = date.today()
+          print(f'{d.month}월_W{(d.day-1)//7+1}')
+          ")
+          echo "Week: $WEEK_LABEL"
+
+          # Rename file with date
+          DATE=$(date +%Y%m%d)
+          cp .tmp/weekly_content_plan.xlsx ".tmp/weekly_content_plan_${DATE}.xlsx"
+
+          # Run weekly_ig_planner (email + Teams)
+          python tools/weekly_ig_planner.py
+
+          # Also upload to Teams SharePoint
+          python tools/teams_content.py \
+            --upload ".tmp/weekly_content_plan_${DATE}.xlsx" \
+            --folder "인스타그램 포스팅 기획안/${WEEK_LABEL}" \
+            --notify
