@@ -16,83 +16,95 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .hero .meta{display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap}
 .pill{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2px 10px;font-size:10px;color:var(--dim);display:inline-flex;align-items:center;gap:4px}
 .pill .dot{width:5px;height:5px;border-radius:50%;background:var(--g);box-shadow:0 0 3px var(--g)}
-/* Nav bar */
 .nav-bar{display:flex;justify-content:center;gap:0;margin-bottom:20px}
 .nav-bar>div{display:inline-flex;border:2px solid var(--border);border-radius:10px;overflow:hidden;font-size:12px;font-weight:700}
 .nav-bar a{padding:8px 16px;color:var(--dim);text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center}
 .nav-bar a:hover{background:var(--abg);color:var(--a)}
 .nav-bar .active{background:var(--a);color:#fff;cursor:default}
-/* Main tabs */
-.mt{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:0}
+.mt{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:0;overflow-x:auto}
 .mt>div{padding:10px 20px;font-size:12px;font-weight:700;cursor:pointer;color:var(--dim);border-bottom:3px solid transparent;margin-bottom:-2px;transition:.12s;white-space:nowrap}
 .mt>div:hover{color:var(--text)}.mt>div.on{color:var(--a);border-bottom-color:var(--a)}
 .mp{display:none;padding-top:20px}.mp.on{display:block}
-/* Cards */
 .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px}
 .card h3{font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:5px}
 .card .desc{font-size:10px;color:var(--dim);margin-bottom:8px}
-/* Stats */
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px;margin:10px 0}
 .stat{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center}
 .stat .sl{font-size:8px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:600}
 .stat .sv{font-size:20px;font-weight:800;letter-spacing:-.5px;font-family:var(--mono)}
-.stat.green .sv{color:var(--g)}.stat.accent .sv{color:var(--a)}.stat.amber .sv{color:var(--am)}.stat.cyan .sv{color:var(--c)}.stat.red .sv{color:var(--r)}
-/* Form rows */
+.stat.green .sv{color:var(--g)}.stat.accent .sv{color:var(--a)}.stat.amber .sv{color:var(--am)}.stat.cyan .sv{color:var(--c)}.stat.red .sv{color:var(--r)}.stat.pink .sv{color:var(--p)}
 .form-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
 .form-row label{font-size:11px;font-weight:600;color:var(--dim);min-width:140px}
 .form-row input[type="text"],.form-row input[type="number"],.form-row input[type="date"],.form-row input[type="url"],.form-row input[type="email"],.form-row select{
   flex:1;min-width:160px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--card)}
 .form-row input:focus,.form-row select:focus{outline:none;border-color:var(--a);box-shadow:0 0 0 2px rgba(139,92,246,.15)}
-/* Toggle */
 .toggle{position:relative;display:inline-block;width:36px;height:20px}
 .toggle input{opacity:0;width:0;height:0}
 .toggle .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#cbd5e1;border-radius:20px;transition:.2s}
 .toggle .slider:before{content:'';position:absolute;height:16px;width:16px;left:2px;bottom:2px;background:#fff;border-radius:50%;transition:.2s}
 .toggle input:checked+.slider{background:var(--g)}
 .toggle input:checked+.slider:before{transform:translateX(16px)}
-/* Buttons */
 .btn{display:inline-flex;align-items:center;gap:5px;padding:8px 20px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
 .btn-primary{background:var(--a);color:#fff}.btn-primary:hover{opacity:.9}
 .btn-secondary{background:var(--abg);color:var(--a);border:1px solid var(--border)}.btn-secondary:hover{background:#ede9fe}
+.btn-danger{background:var(--r);color:#fff}.btn-danger:hover{opacity:.9}
+.btn-success{background:var(--g);color:#fff}.btn-success:hover{opacity:.9}
 .btn-sm{padding:4px 10px;font-size:10px;border-radius:5px}
 .btn:disabled{opacity:.5;cursor:not-allowed}
-/* Tables */
 table{width:100%;border-collapse:collapse;font-size:11px}
 th{background:#f8fafc;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.3px;font-size:9px;padding:6px 7px;text-align:left;border-bottom:2px solid var(--border);position:sticky;top:0;z-index:1}
 td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbff}
 .b{display:inline-block;padding:1px 6px;border-radius:3px;font-size:8px;font-weight:600}
 .b.g{background:var(--gbg);color:var(--g)}.b.r{background:var(--rbg);color:var(--r)}.b.am{background:var(--ambg);color:var(--am)}
 .b.c{background:var(--cbg);color:var(--c)}.b.a{background:var(--abg);color:var(--a)}.b.p{background:#fdf2f8;color:var(--p)}
-/* Search + filter bar */
 .filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
 .filter-bar input[type="text"]{flex:1;min-width:180px;padding:7px 12px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit}
 .filter-bar input:focus{outline:none;border-color:var(--a);box-shadow:0 0 0 2px rgba(139,92,246,.15)}
 .filter-bar select{padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;background:var(--card);color:var(--text)}
-/* Pipeline funnel */
 .funnel{display:flex;align-items:center;gap:0;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:16px;overflow-x:auto}
 .fn{flex:1;min-width:80px;text-align:center;padding:8px 4px;border-radius:8px;cursor:pointer;transition:.12s;border:2px solid transparent}
 .fn:hover{background:var(--abg)}.fn.on{background:var(--abg);border-color:var(--a)}
 .fn .fi{font-size:18px;font-weight:800;font-family:var(--mono)}.fn .ft{font-size:9px;font-weight:700;color:var(--dim)}.fn .fs{font-size:8px;color:var(--muted)}
 .fa{color:var(--muted);font-size:10px;flex-shrink:0;padding:0 1px}
-/* Pagination */
 .pager{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:12px}
 .pager button{padding:4px 10px;border:1px solid var(--border);border-radius:4px;background:var(--card);cursor:pointer;font-size:11px;font-family:inherit}
 .pager button.on{background:var(--a);color:#fff;border-color:var(--a)}
 .pager button:disabled{opacity:.4;cursor:not-allowed}
 .pager span{font-size:11px;color:var(--dim)}
-/* Log entry */
 .log-entry{padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:11px;display:flex;gap:8px}
 .log-entry .ts{color:var(--muted);font-size:10px;font-family:var(--mono);min-width:100px}
 .log-entry .msg{color:var(--text)}
-/* Toast */
 .toast{position:fixed;bottom:20px;right:20px;padding:10px 18px;border-radius:8px;font-size:12px;font-weight:600;color:#fff;z-index:999;transform:translateY(100px);opacity:0;transition:.3s}
 .toast.show{transform:translateY(0);opacity:1}
 .toast.ok{background:var(--g)}.toast.err{background:var(--r)}
-/* Status dropdown */
-.status-dd{position:relative;display:inline-block}
 .status-dd select{padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:10px;font-weight:600;font-family:inherit;background:var(--card);cursor:pointer}
 .status-dd select:focus{border-color:var(--a);outline:none}
-/* Responsive */
+/* Resource links */
+.res-list{list-style:none;padding:0;margin:0}
+.res-list li{padding:6px 8px;border-bottom:1px solid #f1f5f9;font-size:11px;display:flex;align-items:center;gap:8px}
+.res-list li:last-child{border-bottom:none}
+.res-list a{color:var(--a);text-decoration:none;font-weight:600}.res-list a:hover{text-decoration:underline}
+.res-list .res-tag{font-size:8px;padding:1px 5px;border-radius:3px;font-weight:600}
+/* Review queue */
+.rq-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:11px}
+.rq-row.reviewed{opacity:.55;background:#f0fdf4;border-radius:4px;padding:8px 6px}
+.rq-row.declined{opacity:.55;background:#fef2f2;border-radius:4px;padding:8px 6px}
+.rq-check{width:14px;height:14px;accent-color:var(--a);cursor:pointer;flex-shrink:0}
+.profile-link{color:var(--a);text-decoration:none;font-size:10px;font-weight:600}.profile-link:hover{text-decoration:underline}
+/* How It Works accordion */
+.hw-sec{cursor:default;transition:.15s}
+.hw-sec h3{cursor:pointer;user-select:none}
+.hw-sec h3::after{content:'\25B6';float:right;font-size:9px;color:var(--muted);transition:.2s}
+.hw-sec.open h3::after{content:'\25BC'}
+.hw-sec .hw-body{display:none;margin-top:10px}
+.hw-sec.open .hw-body{display:block}
+/* Mini funnel for dashboard */
+.mini-funnel{display:flex;align-items:center;gap:2px;padding:8px 0}
+.mini-fn{flex:1;text-align:center;padding:6px 2px}
+.mini-fn .mfi{font-size:14px;font-weight:800;font-family:var(--mono)}.mini-fn .mft{font-size:8px;font-weight:600;color:var(--dim)}
+/* Activity list */
+.activity-item{padding:5px 0;border-bottom:1px solid #f1f5f9;font-size:11px;display:flex;gap:6px;align-items:center}
+.activity-item:last-child{border-bottom:none}
 @media(max-width:700px){
   .ctr{padding:12px 8px 60px}.hero h1{font-size:18px}
   .form-row{flex-direction:column;align-items:flex-start}.form-row label{min-width:auto;margin-bottom:2px}
@@ -133,7 +145,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
     <h1>&#x1F4CB; Pipeline <span>CRM</span></h1>
     <div class="sub">Creator Collab Pipeline &#8212; Full Management Dashboard</div>
     <div class="meta" id="hero-meta">
-      <span class="pill"><span class="dot"></span>EC2 API</span>
+      <span class="pill" id="pill-api"><span class="dot"></span>EC2 API</span>
       <span class="pill" id="pill-date">Loading...</span>
       <span class="pill" id="pill-total">-</span>
     </div>
@@ -141,15 +153,183 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 
   <!-- MAIN TABS -->
   <div class="mt" id="main-tabs">
-    <div class="on" data-p="config">Config</div>
+    <div class="on" data-p="dashboard">Dashboard</div>
+    <div data-p="howto">How It Works</div>
+    <div data-p="config">Config</div>
     <div data-p="creators">Creators</div>
     <div data-p="execution">Execution</div>
     <div data-p="content">Content</div>
     <div data-p="comms">Comms</div>
   </div>
 
+  <!-- ===== HOW IT WORKS TAB ===== -->
+  <div class="mp" id="p-howto">
+    <!-- Flow Bar -->
+    <div class="funnel" style="margin-bottom:20px">
+      <div class="fn on" onclick="scrollToHwSec('hw-discover')"><div class="fi" style="font-size:16px">&#x1F50E;</div><div class="ft">Discover</div><div class="fs">Find creators</div></div><span class="fa">&#x25B6;</span>
+      <div class="fn" onclick="scrollToHwSec('hw-config')"><div class="fi" style="font-size:16px">&#x2699;&#xFE0F;</div><div class="ft">Config</div><div class="fs">Set batch params</div></div><span class="fa">&#x25B6;</span>
+      <div class="fn" onclick="scrollToHwSec('hw-preview')"><div class="fi" style="font-size:16px">&#x1F50D;</div><div class="ft">Preview</div><div class="fs">Count eligible</div></div><span class="fa">&#x25B6;</span>
+      <div class="fn" onclick="scrollToHwSec('hw-draft')"><div class="fi" style="font-size:16px">&#x1F4DD;</div><div class="ft">Draft</div><div class="fs">Generate emails</div></div><span class="fa">&#x25B6;</span>
+      <div class="fn" onclick="scrollToHwSec('hw-send')"><div class="fi" style="font-size:16px">&#x1F4E8;</div><div class="ft">Send</div><div class="fs">Outreach batch</div></div><span class="fa">&#x25B6;</span>
+      <div class="fn" onclick="scrollToHwSec('hw-review')"><div class="fi" style="font-size:16px">&#x1F50D;</div><div class="ft">Review</div><div class="fs">Accept/Decline</div></div><span class="fa">&#x25B6;</span>
+      <div class="fn" onclick="scrollToHwSec('hw-sample')"><div class="fi" style="font-size:16px">&#x1F4E6;</div><div class="ft">Sample</div><div class="fs">Ship products</div></div><span class="fa">&#x25B6;</span>
+      <div class="fn" onclick="scrollToHwSec('hw-track')"><div class="fi" style="font-size:16px">&#x1F4F8;</div><div class="ft">Track</div><div class="fs">Content D+60</div></div>
+    </div>
+
+    <!-- Accordion sections - all visible, click h3 to expand/collapse -->
+    <div class="card hw-sec open" id="hw-discover" style="border-left:3px solid var(--p)">
+      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F50E; Step 0: Discover &mdash; Find New Creators</h3>
+      <div class="hw-body">
+        <div class="desc" style="font-size:11px;line-height:1.7;margin-bottom:12px">Syncly Discovery&#xC5D0;&#xC11C; &#xBE0C;&#xB79C;&#xB4DC; &#xAD00;&#xB828; &#xCF58;&#xD150;&#xCE20; + <b>&#xB300;&#xC0AC;(&#xCE90;&#xD504;&#xC158;)</b>&#xC744; &#xD568;&#xAED8; &#xBC1C;&#xAD74;.<br>&#xB300;&#xC0AC;&#xB294; outreach &#xC774;&#xBA54;&#xC77C; &#xC791;&#xC131; &#xADFC;&#xAC70;&#xB85C; &#xD65C;&#xC6A9;&#xB428;. Execution &#xD0ED; > <b>Discovery &amp; Sourcing</b>&#xC5D0;&#xC11C; &#xC2E4;&#xD589;.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:#fdf2f8;border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--p)">Syncly Discovery (Outbound)</b><br>&#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130; &#xC815;&#xBCF4; (&#xD575;&#xB4E4;, &#xD314;&#xB85C;&#xC6CC;, &#xC778;&#xAC8C;&#xC774;&#xC9C0;&#xBA3C;&#xD2B8;) + &#xBC1C;&#xACAC; &#xCF58;&#xD150;&#xCE20; (&#xCE90;&#xD504;&#xC158;/&#xB300;&#xC0AC; &#xD3EC;&#xD568;) &#xC784;&#xD3EC;&#xD2B8;.<br><span class="b">Not Started</span>&#xB85C; &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778; &#xC9C4;&#xC785;. &#xC790;&#xB3D9; &#xB204;&#xC801;.</div>
+          <div style="background:var(--abg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--a)">Inbound (&#xC790;&#xB3D9;)</b><br>&#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130;&#xAC00; Gifting &#xD3FC; &#xC81C;&#xCD9C; &#x2192; <span class="b p">Needs Review</span> &#xC790;&#xB3D9; &#xB4F1;&#xB85D;.<br>Review Queue&#xC5D0;&#xC11C; &#xC2B9;&#xC778;/&#xAC70;&#xBD80;.</div>
+        </div>
+        <div style="margin-top:8px;font-size:10px;color:var(--dim)"><b>Note:</b> Apify Content Crawl = Track &#xB2E8;&#xACC4;(D+60 &#xBAA8;&#xB2C8;&#xD130;&#xB9C1;). Draft&#xC5D0;&#xC11C;&#xB3C4; Autofill(&#xD504;&#xB85C;&#xD544; &#xBCF4;&#xCDA9;)&#xC73C;&#xB85C; &#xD65C;&#xC6A9;.</div>
+      </div>
+    </div>
+
+    <div class="card hw-sec" id="hw-config" style="border-left:3px solid var(--a)">
+      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x2699;&#xFE0F; Step 1: Config &mdash; Set Batch Parameters</h3>
+      <div class="hw-body">
+        <div class="desc" style="font-size:11px;line-height:1.7">Batch Size, HT Threshold, Feature Toggles, Human-in-Loop &#xC124;&#xC815;. &#xB9E4;&#xC77C; &#xBC30;&#xCE58; &#xC804;&#xC5D0; &#xD655;&#xC778; &#x2192; Apply Config.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+          <div style="background:var(--abg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--a)">Batch Size</b><br>&#xD55C; &#xBC88;&#xC5D0; &#xBCF4;&#xB0BC; &#xC218;. &#xCD08;&#xAE30; 5-10, &#xC548;&#xC815;&#xD654; &#xD6C4; 20-30.</div>
+          <div style="background:var(--abg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--a)">HT Threshold</b><br>R30D 100K+ = High Touch (&#xACC4;&#xC57D;+&#xACB0;&#xC81C;), &#xBBF8;&#xB9CC; = Low Touch (&#xBB34;&#xB8CC;).</div>
+          <div style="background:var(--gbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--g)">RAG Email Dedup</b><br>&#xC774;&#xBBF8; &#xC5F0;&#xB77D;&#xD55C; &#xC0AC;&#xB78C; &#xC790;&#xB3D9; &#xC81C;&#xC678;.</div>
+          <div style="background:var(--gbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--g)">Apify Brand Filter</b><br>27&#xAC1C; &#xBE0C;&#xB79C;&#xB4DC;/&#xB9AC;&#xC140;&#xB7EC; &#xACC4;&#xC815; &#xC790;&#xB3D9; &#xC81C;&#xC678;.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card hw-sec" id="hw-preview" style="border-left:3px solid var(--c)">
+      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F50D; Step 2: Preview Counts</h3>
+      <div class="hw-body">
+        <div style="background:#f0f9ff;border-radius:8px;padding:12px;font-size:11px;font-family:var(--mono)"><b>&#xC870;&#xAC74;:</b> pipeline_status="Not Started" + update_date &#xC774;&#xC804; &#xBC1C;&#xACAC; + RAG dedup &#xD1B5;&#xACFC; + HT/LT &#xBD84;&#xB958;</div>
+      </div>
+    </div>
+
+    <div class="card hw-sec" id="hw-draft" style="border-left:3px solid var(--a)">
+      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4DD; Step 3: Generate Drafts <span class="b am" style="margin-left:6px">HIL</span></h3>
+      <div class="hw-body">
+        <div style="background:var(--abg);border-radius:8px;padding:12px;font-size:11px">
+          <b>n8n Draft Gen WF</b> (<code>fwwOeLiDLSnR77E1</code>)<br>
+          &#x2022; eligible &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130; &#xC870;&#xD68C; &#x2192; Apify &#xD504;&#xB85C;&#xD544; &#xC218;&#xC9D1; (Autofill ON) &#x2192; Google Doc &#xD15C;&#xD50C;&#xB9BF; &#xAE30;&#xBC18; &#xC774;&#xBA54;&#xC77C; &#xC0DD;&#xC131;<br>
+          &#x2022; <b>&#xB300;&#xC0AC; &#xAE30;&#xBC18;</b>: Syncly Discovery&#xC5D0;&#xC11C; &#xAC00;&#xC838;&#xC628; &#xCE90;&#xD504;&#xC158;&#xC744; &#xCC38;&#xACE0;&#xD574; &#xAC1C;&#xC778;&#xD654; &#xC774;&#xBA54;&#xC77C; &#xC791;&#xC131;<br>
+          &#x2022; Not Started &#x2192; <span class="b a">Draft Ready</span> | <span class="b am">Human-in-Loop: Draft Review</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card hw-sec" id="hw-send" style="border-left:3px solid var(--am)">
+      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E8; Step 4: Send Batch <span class="b am" style="margin-left:6px">HIL</span></h3>
+      <div class="hw-body">
+        <div style="background:var(--ambg);border-radius:8px;padding:12px;font-size:11px">
+          &#x2022; <code>affiliates@onzenna.com</code>&#xC5D0;&#xC11C; &#xBC1C;&#xC1A1; | &#xBE0C;&#xB79C;&#xB4DC;&#xBCC4; Gifting &#xD3FC; URL &#xD3EC;&#xD568;<br>
+          &#x2022; Draft Ready &#x2192; <span class="b c">Sent</span> | Reply Handler WF (<code>K99grtW9iWq8V79f</code>) &#xB2F5;&#xC7A5; &#xAC10;&#xC9C0; &#x2192; <span class="b am">Replied</span><br>
+          &#x2022; <span class="b am">Human-in-Loop: Send Approval</span> &#x2014; &#x26A0; &#xC2E4;&#xC81C; &#xC774;&#xBA54;&#xC77C; &#xBC1C;&#xC1A1;&#xB428;
+        </div>
+      </div>
+    </div>
+
+    <div class="card hw-sec" id="hw-review" style="border-left:3px solid var(--p)">
+      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F50D; Step 5: Review Queue <span class="b p" style="margin-left:6px">Always HIL</span></h3>
+      <div class="hw-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:var(--gbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--g)">Accept</b><br>&#x2192; <span class="b g">Accepted</span> &#x2192; &#xC0D8;&#xD50C; &#xC2E0;&#xCCAD; &#xC774;&#xBA54;&#xC77C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1; &#x2192; Gifting2 &#xD3FC; &#xC81C;&#xCD9C; &#xC2DC; Draft Order &#xC0DD;&#xC131;</div>
+          <div style="background:var(--rbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--r)">Decline</b><br>&#x2192; <span class="b r">Declined</span> | &#xD314;&#xB85C;&#xC6CC; &#xBD80;&#xC871;, &#xBE0C;&#xB79C;&#xB4DC; &#xBD88;&#xC77C;&#xCE58; &#xB4F1; | Note &#xAE30;&#xB85D;</div>
+        </div>
+        <div style="margin-top:8px;font-size:10px;color:var(--dim)"><b>&#xD310;&#xB2E8;:</b> Content &#xB9C1;&#xD06C;(IG/TT) &#x2192; &#xD314;&#xB85C;&#xC6CC;, &#xCF58;&#xD150;&#xCE20; &#xD488;&#xC9C8;, &#xBE0C;&#xB79C;&#xB4DC; &#xC801;&#xD569;&#xC131;, &#xC544;&#xC774; &#xB098;&#xC774;</div>
+      </div>
+    </div>
+
+    <div class="card hw-sec" id="hw-sample" style="border-left:3px solid var(--c)">
+      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E6; Step 6: Sample Fulfillment</h3>
+      <div class="hw-body">
+        <div style="background:var(--cbg);border-radius:8px;padding:12px;font-size:11px">
+          &#x2460; Gifting2 &#xD3FC; &#xC81C;&#xCD9C; &#x2192; &#x2461; n8n &#x2192; Shopify Draft Order (100% &#xD560;&#xC778;) &#x2192; &#x2462; <span class="b c">Sample Sent</span> &#x2192; &#x2463; &#xBC30;&#xC1A1; &#xCC98;&#xB9AC; <span class="b c">Sample Shipped</span> &#x2192; &#x2464; <span class="b g">Sample Delivered</span> + Content Guidelines &#xC774;&#xBA54;&#xC77C;
+        </div>
+      </div>
+    </div>
+
+    <div class="card hw-sec" id="hw-track" style="border-left:3px solid var(--g)">
+      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4F8; Step 7: Content Tracking (D+60) &mdash; CI Pipeline</h3>
+      <div class="hw-body">
+        <div class="desc" style="font-size:10px;color:var(--dim);margin-bottom:8px">Content Intelligence &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778;&#xACFC; &#xB3D9;&#xC77C; &#xC18C;&#xC2A4; (Apify &#xD06C;&#xB864;&#xB7EC; &#xAE30;&#xBC18;)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:var(--gbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--g)">Apify Crawl</b> (&#xD3C9;&#xC77C; KST 08:00)<br>IG Graph API + TikTok Actor &#x2192; &#xC870;&#xD68C;&#xC218;/&#xC88B;&#xC544;&#xC694;/&#xB313;&#xAE00;</div>
+          <div style="background:var(--gbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--g)">Syncly D+60</b> (&#xB9E4;&#xC77C;)<br>D+7/14/30/60 &#xBA54;&#xD2B8;&#xB9AD; &#xCD94;&#xC801; &#x2192; Google Sheets &#xB204;&#xC801;</div>
+          <div style="background:var(--abg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--a)">SNS Tab Sync</b><br>Shopify PR &#xC8FC;&#xBB38; + Syncly &#xD3EC;&#xC2A4;&#xD2B8; &#xB9E4;&#xCE6D;</div>
+          <div style="background:var(--abg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--a)">Posted &#xAC10;&#xC9C0;</b><br>&#xD3EC;&#xC2A4;&#xD2B8; &#xBC1C;&#xACAC; &#x2192; <span class="b g">Posted</span> + CI Daily &#xB9AC;&#xD3EC;&#xD2B8;</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Architecture -->
+    <div class="card" style="margin-top:16px">
+      <h3 style="font-size:14px">&#x1F3D7;&#xFE0F; Architecture</h3>
+      <div style="font-size:11px;line-height:1.8;font-family:var(--mono);background:#f8fafc;border-radius:8px;padding:14px;overflow-x:auto;white-space:pre">GitHub Pages SPA                EC2 Django REST API              n8n Workflows
+&#x250C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2510;     &#x250C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2510;     &#x250C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2510;
+&#x2502; pipeline-dashboard  &#x2502; &#x2500;&#x2192; &#x2502; /pipeline/creators/ &#x2502; &#x2500;&#x2192; &#x2502; Draft Gen WF       &#x2502;
+&#x2502; (this page)         &#x2502;     &#x2502; /pipeline/config/  &#x2502;     &#x2502; Reply Handler WF   &#x2502;
+&#x2502;                     &#x2502;     &#x2502; /pipeline/exec/    &#x2502;     &#x2502; Gifting Webhook WF &#x2502;
+&#x2502; HTML + JS           &#x2502;     &#x2502; PostgreSQL         &#x2502;     &#x2502; Fulfillment WF     &#x2502;
+&#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;     &#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;     &#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;
+
+Shopify                         Apify / Syncly                   Gmail RAG
+&#x250C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2510;     &#x250C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2510;     &#x250C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2510;
+&#x2502; Draft Orders         &#x2502;     &#x2502; IG Graph API       &#x2502;     &#x2502; Email Dedup        &#x2502;
+&#x2502; Customer Records     &#x2502;     &#x2502; TikTok Scraper     &#x2502;     &#x2502; Contact History    &#x2502;
+&#x2502; Fulfillment          &#x2502;     &#x2502; D+60 Metrics       &#x2502;     &#x2502; ChromaDB + SQLite  &#x2502;
+&#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;     &#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;     &#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;</div>
+    </div>
+
+    <!-- Status Legend -->
+    <div class="card">
+      <h3>&#x1F3F7;&#xFE0F; Pipeline Status Legend</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
+        <span class="b" style="font-size:9px">Not Started</span><span class="b a">Draft Ready</span><span class="b c">Sent</span><span class="b am">Replied</span><span class="b p">Needs Review</span><span class="b g">Accepted</span><span class="b r">Declined</span><span class="b c">Sample Sent</span><span class="b c">Sample Shipped</span><span class="b g">Sample Delivered</span><span class="b g">Posted</span>
+      </div>
+      <div style="margin-top:10px;font-size:10px;color:var(--dim);line-height:1.6">
+        <b>Outbound</b>: <u>Discover</u> &#x2192; Not Started &#x2192; Draft Ready &#x2192; Sent &#x2192; Replied &#x2192; Accepted &#x2192; Sample Sent &#x2192; Shipped &#x2192; Delivered &#x2192; Posted<br>
+        <b>Inbound</b>: (Gifting &#xD3FC; &#xC81C;&#xCD9C;) &#x2192; Needs Review &#x2192; Accepted/Declined &#x2192; Sample Sent &#x2192; ...
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB 0: DASHBOARD ===== -->
+  <div class="mp on" id="p-dashboard">
+    <div class="stats" id="dash-stats">
+      <div class="stat accent"><div class="sl">Total Creators</div><div class="sv" id="ds-total">-</div></div>
+      <div class="stat green"><div class="sl">Accepted</div><div class="sv" id="ds-accepted">-</div></div>
+      <div class="stat cyan"><div class="sl">Posted</div><div class="sv" id="ds-posted">-</div></div>
+      <div class="stat pink"><div class="sl">Needs Review</div><div class="sv" id="ds-review">-</div></div>
+      <div class="stat amber"><div class="sl">Conversion</div><div class="sv" id="ds-conversion">-</div></div>
+    </div>
+    <div class="card">
+      <h3>&#x1F3AF; Pipeline Overview</h3>
+      <div class="funnel" id="dash-funnel"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="card">
+        <h3>&#x26A1; Quick Actions</h3>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button class="btn btn-secondary" onclick="execAction('preview')" style="justify-content:center">&#x1F50D; Preview Counts</button>
+          <button class="btn btn-secondary" onclick="execAction('draft_gen')" style="justify-content:center">&#x1F4DD; Generate Drafts</button>
+          <button class="btn btn-secondary" onclick="execAction('send')" style="justify-content:center;border:1px solid var(--am)">&#x1F4E8; Send Batch</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>&#x1F4AC; Recent Activity</h3>
+        <div id="dash-activity" style="max-height:150px;overflow-y:auto">
+          <div style="color:var(--muted);font-size:11px">Loading...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== TAB 1: CONFIG ===== -->
-  <div class="mp on" id="p-config">
+  <div class="mp" id="p-config">
     <div id="config-loading" style="text-align:center;padding:30px;color:var(--dim)">Loading config...</div>
     <div id="config-dash" style="display:none">
       <div class="card">
@@ -159,34 +339,81 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
           <label class="toggle" style="min-width:auto" title="Start From Beginning"><input type="checkbox" id="f-start-beginning"><span class="slider"></span></label>
           <span style="font-size:10px;color:var(--dim)">All dates</span>
         </div>
-        <div class="form-row"><label>Batch Size</label><input type="number" id="f-creators-contacted" min="1" max="500" step="1"></div>
+        <div class="form-row"><label>Batch Size</label><input type="number" id="f-creators-contacted" min="1" max="500" step="1" oninput="var l=document.getElementById('alloc-batch-label');if(l)l.textContent=this.value;updateAllocation()"></div>
         <div class="form-row"><label>HT Threshold (R30D)</label><input type="number" id="f-ht-threshold" min="0" step="10000"></div>
       </div>
       <div class="card">
         <h3>&#x1F527; Feature Toggles</h3>
         <div class="form-row"><label>RAG Email Dedup</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-rag-dedup"><span class="slider"></span></label></div>
         <div class="form-row"><label>Apify Autofill</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-autofill"><span class="slider"></span></label></div>
-        <div class="form-row"><label>Human-in-Loop</label><select id="f-human-in-loop"><option value="on">ON</option><option value="off">OFF</option><option value="auto">AUTO</option></select></div>
+        <div class="form-row"><label>Apify Brand Filter</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-brand-filter" checked><span class="slider"></span></label>
+          <span style="font-size:9px;color:var(--dim)">Auto-exclude 27 brand/reseller accounts from crawl</span>
+        </div>
         <div class="form-row"><label>Sender Email</label><input type="email" id="f-sender-email"></div>
+      </div>
+      <div class="card">
+        <h3>&#x1F464; Human-in-Loop Controls</h3>
+        <div class="desc">Each step can require human approval independently. OFF = auto-proceed.</div>
+        <div class="form-row"><label>Draft Review</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-hil-draft"><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Review generated email drafts before queuing</span></div>
+        <div class="form-row"><label>Send Approval</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-hil-send"><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Confirm before sending real emails</span></div>
+        <div class="form-row"><label>Inbound Review</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-hil-review" checked disabled><span class="slider"></span></label><span style="font-size:10px;color:var(--muted)">Always ON &mdash; manual Accept/Decline</span></div>
+        <div class="form-row"><label>Sample Approval</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-hil-sample"><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Confirm before creating Shopify draft orders</span></div>
       </div>
       <div class="card">
         <h3>&#x1F517; Brand Forms &amp; Templates</h3>
         <div class="form-row"><label>Template Doc ID</label><input type="text" id="f-template-id"></div>
-        <div class="form-row"><label>Grosmimi Form</label><input type="url" id="f-grosmimi-url" placeholder="https://..."></div>
-        <div class="form-row"><label>CHA&amp;MOM Form</label><input type="url" id="f-chaenmom-url" placeholder="https://..."></div>
-        <div class="form-row"><label>Naeiae Form</label><input type="url" id="f-naeiae-url" placeholder="https://..."></div>
-        <div class="form-row"><label>High Touch Form</label><input type="url" id="f-ht-url" placeholder="https://..."></div>
+        <div id="brand-forms-list"></div>
+      </div>
+      <div class="card">
+        <h3>&#x1F4DA; Resources &amp; Templates</h3>
+        <div class="desc">Content guidelines, contracts, and outreach templates</div>
+        <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+          <select id="res-brand-filter" onchange="renderResources()" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:10px;font-family:inherit">
+            <option value="">All Brands</option><option value="Grosmimi">Grosmimi</option><option value="CHA&MOM">CHA&amp;MOM</option><option value="Naeiae">Naeiae</option><option value="HT">HT</option>
+          </select>
+          <select id="res-type-filter" onchange="renderResources()" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:10px;font-family:inherit">
+            <option value="">All Types</option><option value="DOC">DOC</option><option value="PDF">PDF</option><option value="CONTRACT">CONTRACT</option><option value="SHEET">SHEET</option>
+          </select>
+        </div>
+        <div id="resources-list"></div>
+        <div style="margin-top:8px;padding:8px;background:#fafbff;border:1px solid var(--border);border-radius:6px">
+          <div style="font-size:10px;font-weight:700;color:var(--dim);margin-bottom:4px">+ Add Resource</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
+            <select id="res-new-brand" style="padding:4px 6px;border:1px solid var(--border);border-radius:4px;font-size:10px;font-family:inherit">
+              <option value="All">All</option><option value="Grosmimi">Grosmimi</option><option value="CHA&MOM">CHA&amp;MOM</option><option value="Naeiae">Naeiae</option><option value="HT">HT</option>
+            </select>
+            <input type="text" id="res-new-title" placeholder="Title" style="flex:1;min-width:100px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:10px;font-family:inherit">
+            <input type="url" id="res-new-url" placeholder="URL or Sheet link" style="flex:2;min-width:150px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:10px;font-family:inherit">
+            <button class="btn btn-sm btn-primary" onclick="addResource()" style="font-size:10px">Add</button>
+          </div>
+        </div>
       </div>
       <div class="card">
         <h3>&#x1F4CA; Eligible Preview</h3>
-        <div class="desc">Auto-calculated eligible creator counts (read-only)</div>
+        <div class="desc">"Not Started" creators eligible for next batch</div>
         <div class="stats">
-          <div class="stat accent"><div class="sl">Total</div><div class="sv" id="s-total">-</div></div>
+          <div class="stat accent"><div class="sl">Total Eligible</div><div class="sv" id="s-total">-</div></div>
           <div class="stat green"><div class="sl">Grosmimi</div><div class="sv" id="s-gros">-</div></div>
           <div class="stat cyan"><div class="sl">CHA&amp;MOM</div><div class="sv" id="s-cham">-</div></div>
           <div class="stat amber"><div class="sl">Naeiae</div><div class="sv" id="s-nae">-</div></div>
-          <div class="stat"><div class="sl">Unknown</div><div class="sv" id="s-unk">-</div></div>
           <div class="stat"><div class="sl">HT / LT</div><div class="sv" id="s-htlt">-</div></div>
+        </div>
+        <div style="margin-top:12px;padding:10px;background:#fafbff;border:1px solid var(--border);border-radius:8px">
+          <div style="font-size:10px;font-weight:700;color:var(--dim);margin-bottom:8px">Brand Allocation (per batch of <span id="alloc-batch-label">10</span>)</div>
+          <div style="display:grid;grid-template-columns:90px 60px 1fr;gap:4px 8px;align-items:center;font-size:11px">
+            <label style="font-weight:600;color:var(--g)">Grosmimi</label>
+            <input type="number" id="alloc-grosmimi" value="5" min="0" max="999" style="width:50px;padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit;text-align:center" oninput="updateAllocation()">
+            <div style="background:var(--border);border-radius:3px;height:10px;overflow:hidden"><div id="bar-grosmimi" style="height:100%;background:var(--g);width:50%;transition:.2s"></div></div>
+            <label style="font-weight:600;color:var(--c)">CHA&amp;MOM</label>
+            <input type="number" id="alloc-chaenmom" value="3" min="0" max="999" style="width:50px;padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit;text-align:center" oninput="updateAllocation()">
+            <div style="background:var(--border);border-radius:3px;height:10px;overflow:hidden"><div id="bar-chaenmom" style="height:100%;background:var(--c);width:30%;transition:.2s"></div></div>
+            <label style="font-weight:600;color:var(--am)">Naeiae</label>
+            <input type="number" id="alloc-naeiae" value="2" min="0" max="999" style="width:50px;padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit;text-align:center" oninput="updateAllocation()">
+            <div style="background:var(--border);border-radius:3px;height:10px;overflow:hidden"><div id="bar-naeiae" style="height:100%;background:var(--am);width:20%;transition:.2s"></div></div>
+            <label style="font-weight:600;color:var(--muted)">Unallocated</label>
+            <span id="alloc-unallocated" style="text-align:center;font-weight:800;font-family:var(--mono)">0</span>
+            <span id="alloc-warn" style="font-size:10px;font-weight:600;display:none"></span>
+          </div>
         </div>
       </div>
       <div style="display:flex;gap:8px;justify-content:center;margin:16px 0;flex-wrap:wrap">
@@ -205,7 +432,6 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 
   <!-- ===== TAB 2: CREATORS ===== -->
   <div class="mp" id="p-creators">
-    <!-- Stats bar -->
     <div class="stats" id="creator-stats">
       <div class="stat accent"><div class="sl">Total</div><div class="sv" id="cs-total">-</div></div>
       <div class="stat green"><div class="sl">Accepted</div><div class="sv" id="cs-accepted">-</div></div>
@@ -213,49 +439,38 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
       <div class="stat amber"><div class="sl">Posted</div><div class="sv" id="cs-posted">-</div></div>
       <div class="stat"><div class="sl">This Week</div><div class="sv" id="cs-week">-</div></div>
     </div>
-    <!-- Filters -->
     <div class="filter-bar">
       <input type="text" id="cr-search" placeholder="Search handle, email, name..." onkeydown="if(event.key==='Enter')loadCreators()">
       <select id="cr-status" onchange="loadCreators()">
         <option value="">All Status</option>
-        <option value="Not Started">Not Started</option>
-        <option value="Draft Ready">Draft Ready</option>
-        <option value="Sent">Sent</option>
-        <option value="Replied">Replied</option>
-        <option value="Needs Review">Needs Review</option>
-        <option value="Accepted">Accepted</option>
-        <option value="Declined">Declined</option>
-        <option value="Sample Sent">Sample Sent</option>
-        <option value="Sample Shipped">Sample Shipped</option>
-        <option value="Sample Delivered">Sample Delivered</option>
+        <option value="Not Started">Not Started</option><option value="Draft Ready">Draft Ready</option>
+        <option value="Sent">Sent</option><option value="Replied">Replied</option>
+        <option value="Needs Review">Needs Review</option><option value="Accepted">Accepted</option>
+        <option value="Declined">Declined</option><option value="Sample Sent">Sample Sent</option>
+        <option value="Sample Shipped">Sample Shipped</option><option value="Sample Delivered">Sample Delivered</option>
         <option value="Posted">Posted</option>
       </select>
       <select id="cr-brand" onchange="loadCreators()">
         <option value="">All Brands</option>
-        <option value="Grosmimi">Grosmimi</option>
-        <option value="CHA&MOM">CHA&amp;MOM</option>
-        <option value="Naeiae">Naeiae</option>
-        <option value="Unknown">Unknown</option>
+        <option value="Grosmimi">Grosmimi</option><option value="CHA&MOM">CHA&amp;MOM</option>
+        <option value="Naeiae">Naeiae</option><option value="Unknown">Unknown</option>
       </select>
       <select id="cr-source" onchange="loadCreators()">
         <option value="">All Sources</option>
-        <option value="outbound">Outbound</option>
-        <option value="inbound">Inbound</option>
+        <option value="outbound">Outbound</option><option value="inbound">Inbound</option>
       </select>
       <button class="btn btn-sm btn-secondary" onclick="loadCreators()">&#x1F50D;</button>
     </div>
-    <!-- Table -->
     <div style="overflow-x:auto;max-height:500px;overflow-y:auto;border:1px solid var(--border);border-radius:8px">
       <table id="creators-table">
         <thead><tr>
-          <th>Handle</th><th>Email</th><th>Brand</th><th>Status</th><th>Type</th><th>Followers</th><th>Date</th><th>Actions</th>
+          <th>Handle</th><th>Email</th><th>Brand</th><th>Status</th><th>Type</th><th>Followers</th><th>Content</th><th>Date</th><th>Actions</th>
         </tr></thead>
         <tbody id="creators-body">
-          <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">Select filters and search to load creators</td></tr>
+          <tr><td colspan="9" style="text-align:center;color:var(--muted);padding:30px">Select filters and search to load creators</td></tr>
         </tbody>
       </table>
     </div>
-    <!-- Pagination -->
     <div class="pager" id="cr-pager"></div>
   </div>
 
@@ -266,42 +481,64 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
       <h3>&#x1F3AF; Pipeline Funnel</h3>
       <div class="funnel" id="exec-funnel"></div>
     </div>
-    <!-- Action buttons — Pipeline Operations -->
+    <!-- REVIEW QUEUE -->
+    <div class="card" id="review-queue-card">
+      <h3>&#x1F50D; Review Queue <span id="rq-count" style="background:var(--p);color:#fff;padding:1px 8px;border-radius:10px;font-size:10px;margin-left:4px">0</span></h3>
+      <div class="desc">Creators awaiting review. Check items to approve or decline. Like PPC harvest &#8212; auto-checked by default.</div>
+      <div id="rq-items" style="max-height:400px;overflow-y:auto">
+        <div style="color:var(--muted);font-size:11px;padding:8px 0">Loading...</div>
+      </div>
+      <div id="rq-toolbar" style="display:none;margin-top:12px;padding:12px;background:#fafbff;border:1px solid var(--border);border-radius:8px">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+          <span style="font-size:11px;color:var(--dim);white-space:nowrap">Note:</span>
+          <input type="text" id="rq-note" placeholder="Reason for this decision (optional)" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit">
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn btn-success" id="rq-accept-btn" onclick="bulkReview('Accepted')">&#x2705; Accept Selected (<span id="rq-accept-count">0</span>)</button>
+          <button class="btn btn-danger btn-sm" id="rq-decline-btn" onclick="bulkReview('Declined')">&#x274C; Decline Selected</button>
+        </div>
+      </div>
+      <div id="rq-history" style="margin-top:10px"></div>
+    </div>
+    <!-- Pipeline Operations -->
     <div class="card">
       <h3>&#x2699;&#xFE0F; Pipeline Operations</h3>
       <div class="desc">Run pipeline stages. Each action logs to execution history below.</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px">
-        <button class="btn btn-secondary" id="btn-preview" onclick="execAction('preview')">
-          &#x1F50D; Preview Counts
-        </button>
-        <button class="btn btn-secondary" id="btn-draft" onclick="execAction('draft_gen')" style="border-left:3px solid var(--a)">
-          &#x1F4DD; Generate Drafts
-        </button>
-        <button class="btn btn-secondary" id="btn-send" onclick="execAction('send')" style="border-left:3px solid var(--am)">
-          &#x1F4E8; Send Batch
-        </button>
-        <button class="btn btn-secondary" onclick="refreshFunnel()">
-          &#x1F504; Refresh Funnel
-        </button>
+        <button class="btn btn-secondary" id="btn-preview" onclick="execAction('preview')">&#x1F50D; Preview Counts</button>
+        <button class="btn btn-secondary" id="btn-draft" onclick="execAction('draft_gen')" style="border-left:3px solid var(--a)">&#x1F4DD; Generate Drafts</button>
+        <button class="btn btn-secondary" id="btn-send" onclick="execAction('send')" style="border-left:3px solid var(--am)">&#x1F4E8; Send Batch</button>
+        <button class="btn btn-secondary" onclick="refreshFunnel()">&#x1F504; Refresh Funnel</button>
       </div>
     </div>
-    <!-- Action buttons — Content & Sync -->
+    <!-- Discovery & Sourcing -->
+    <div class="card">
+      <h3>&#x1F50E; Discovery &amp; Sourcing</h3>
+      <div class="desc">Pull new creator candidates from Syncly into the pipeline as "Not Started".</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px">
+        <button class="btn btn-secondary" id="btn-syncly-discovery" onclick="execAction('syncly_discovery')" style="border-left:3px solid var(--p)">&#x1F50E; Pull Syncly Discovery</button>
+      </div>
+    </div>
+    <!-- Content & Sync -->
     <div class="card">
       <h3>&#x1F4F8; Content &amp; Sync</h3>
-      <div class="desc">Content tracking and data synchronization actions.</div>
+      <div class="desc">Content Intelligence &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778;&#xACFC; &#xB3D9;&#xC77C; &#xC18C;&#xC2A4; (Apify &#xD06C;&#xB864;&#xB7EC; &#xAE30;&#xBC18;). &#xC218;&#xB3D9; &#xD2B8;&#xB9AC;&#xAC70; &#xBC84;&#xD2BC; + &#xC790;&#xB3D9; &#xC2A4;&#xCF00;&#xC904;.</div>
+      <div style="font-size:9px;color:var(--muted);margin-bottom:6px">Schedule: Apify &#xD3C9;&#xC77C; KST 08:00 | Syncly D+60 &#xB9E4;&#xC77C; | SNS Tab &#xB9E4;&#xC77C; | Gmail &#xB9E4;&#xC77C;</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px">
-        <button class="btn btn-secondary" id="btn-syncly" onclick="execAction('syncly_sync')" style="border-left:3px solid var(--c)">
-          &#x1F504; Sync Syncly
-        </button>
-        <button class="btn btn-secondary" id="btn-apify" onclick="execAction('apify_crawl')" style="border-left:3px solid var(--g)">
-          &#x1F577;&#xFE0F; Pull Content (Apify)
-        </button>
-        <button class="btn btn-secondary" id="btn-sns" onclick="execAction('sns_sync')" style="border-left:3px solid var(--p)">
-          &#x1F4CA; Sync SNS Tab
-        </button>
-        <button class="btn btn-secondary" id="btn-gmail-sync" onclick="execAction('gmail_sync')" style="border-left:3px solid var(--am)">
-          &#x1F4E7; Sync Gmail RAG
-        </button>
+        <button class="btn btn-secondary" id="btn-apify" onclick="execAction('apify_crawl')" style="border-left:3px solid var(--g)">&#x1F577;&#xFE0F; Apify Content Crawl</button>
+        <button class="btn btn-secondary" id="btn-syncly" onclick="execAction('syncly_sync')" style="border-left:3px solid var(--c)">&#x1F504; Sync Syncly D+60</button>
+        <button class="btn btn-secondary" id="btn-sns" onclick="execAction('sns_sync')" style="border-left:3px solid var(--p)">&#x1F4CA; Sync SNS Tab</button>
+        <button class="btn btn-secondary" id="btn-gmail-sync" onclick="execAction('gmail_sync')" style="border-left:3px solid var(--am)">&#x1F4E7; Sync Gmail RAG</button>
+      </div>
+      <div id="crawl-timestamps" style="margin-top:10px;font-size:10px;color:var(--dim);border-top:1px solid var(--border);padding-top:8px">
+        <b>Last Crawl (PST)</b>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:4px;margin-top:4px">
+          <span>Syncly Discovery: <b id="ts-syncly-disc">--</b></span>
+          <span>Apify Content: <b id="ts-apify">--</b></span>
+          <span>Syncly D+60: <b id="ts-syncly">--</b></span>
+          <span>SNS Tab: <b id="ts-sns">--</b></span>
+          <span>Gmail RAG: <b id="ts-gmail">--</b></span>
+        </div>
       </div>
     </div>
     <!-- Execution log -->
@@ -346,8 +583,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
     </div>
   </div>
 
-</div><!-- /ctr -->
-</div><!-- /main-content -->
+</div></div>
 
 <div class="toast" id="toast"></div>
 
@@ -388,30 +624,136 @@ function showDashboard(){
   document.getElementById('main-content').style.display='block';
   initTabs();
   var hash=location.hash.replace('#','');
-  if(hash&&document.getElementById('p-'+hash)){
-    switchTab(hash);
-  }else{
-    switchTab('config');
+  if(hash&&document.getElementById('p-'+hash)){switchTab(hash)}
+  else{switchTab('dashboard')}
+}
+
+// ========== DEMO DATA ==========
+var DEMO_MODE=false;
+var DEMO_CREATORS=[
+  {id:'d1',email:'sarah.momlife@gmail.com',ig_handle:'sarah_momlife',tiktok_handle:'',full_name:'Sarah Johnson',platform:'Instagram',pipeline_status:'Accepted',brand:'Grosmimi',outreach_type:'HT',source:'outbound',followers:245000,avg_views:18500,initial_discovery_date:'2026-02-15',created_at:'2026-02-15T10:00:00Z',notes:''},
+  {id:'d2',email:'tiny.steps.tiktok@gmail.com',ig_handle:'',tiktok_handle:'tinysteps_mom',full_name:'Emily Chen',platform:'TikTok',pipeline_status:'Sample Sent',brand:'Grosmimi',outreach_type:'HT',source:'outbound',followers:520000,avg_views:85000,initial_discovery_date:'2026-02-20',created_at:'2026-02-20T10:00:00Z',notes:''},
+  {id:'d3',email:'jessica.b@outlook.com',ig_handle:'jess_babystyle',tiktok_handle:'',full_name:'Jessica Brown',platform:'Instagram',pipeline_status:'Posted',brand:'Grosmimi',outreach_type:'LT',source:'outbound',followers:32000,avg_views:4200,initial_discovery_date:'2026-01-10',created_at:'2026-01-10T10:00:00Z',notes:'Reel posted 3/15'},
+  {id:'d4',email:'maria.garcia.mama@gmail.com',ig_handle:'mariamamabear',tiktok_handle:'',full_name:'Maria Garcia',platform:'Instagram',pipeline_status:'Sent',brand:'CHA&MOM',outreach_type:'LT',source:'outbound',followers:18000,avg_views:2100,initial_discovery_date:'2026-03-01',created_at:'2026-03-01T10:00:00Z',notes:''},
+  {id:'d5',email:'ashley.k.parenting@gmail.com',ig_handle:'ashleykmom',tiktok_handle:'ashleykmom',full_name:'Ashley Kim',platform:'Instagram',pipeline_status:'Replied',brand:'CHA&MOM',outreach_type:'HT',source:'outbound',followers:175000,avg_views:22000,initial_discovery_date:'2026-03-05',created_at:'2026-03-05T10:00:00Z',notes:'Interested in chamomile line'},
+  {id:'d6',email:'olivia.newmom@gmail.com',ig_handle:'olivia_newmom',tiktok_handle:'',full_name:'Olivia Taylor',platform:'Instagram',pipeline_status:'Draft Ready',brand:'Grosmimi',outreach_type:'LT',source:'outbound',followers:28000,avg_views:3500,initial_discovery_date:'2026-03-12',created_at:'2026-03-12T10:00:00Z',notes:''},
+  {id:'d7',email:'rachel.w.baby@gmail.com',ig_handle:'rachelwbaby',tiktok_handle:'',full_name:'Rachel Wang',platform:'Instagram',pipeline_status:'Not Started',brand:'Naeiae',outreach_type:'LT',source:'outbound',followers:15000,avg_views:1800,initial_discovery_date:'2026-03-18',created_at:'2026-03-18T10:00:00Z',notes:''},
+  {id:'d8',email:'momof3.life@gmail.com',ig_handle:'momof3life',tiktok_handle:'momof3life',full_name:'Amanda Lee',platform:'TikTok',pipeline_status:'Not Started',brand:'Naeiae',outreach_type:'HT',source:'inbound',followers:310000,avg_views:45000,initial_discovery_date:'2026-03-19',created_at:'2026-03-19T10:00:00Z',notes:'Applied via gifting form'},
+  {id:'d9',email:'babyproduct.reviewer@gmail.com',ig_handle:'babyreviews_daily',tiktok_handle:'',full_name:'Megan Scott',platform:'Instagram',pipeline_status:'Declined',brand:'Grosmimi',outreach_type:'LT',source:'outbound',followers:42000,avg_views:5100,initial_discovery_date:'2026-02-28',created_at:'2026-02-28T10:00:00Z',notes:'Not interested at this time'},
+  {id:'d10',email:'kidsn.things@gmail.com',ig_handle:'kidsnthings',tiktok_handle:'',full_name:'Nicole Park',platform:'Instagram',pipeline_status:'Sample Shipped',brand:'CHA&MOM',outreach_type:'LT',source:'outbound',followers:55000,avg_views:7200,initial_discovery_date:'2026-02-25',created_at:'2026-02-25T10:00:00Z',notes:'Tracking: 1Z999AA10123456784'},
+  {id:'d11',email:'first.time.mommy@gmail.com',ig_handle:'firsttimemommy22',tiktok_handle:'',full_name:'Sophia Martinez',platform:'Instagram',pipeline_status:'Needs Review',brand:'Grosmimi',outreach_type:'LT',source:'inbound',followers:9500,avg_views:800,initial_discovery_date:'2026-03-17',created_at:'2026-03-17T10:00:00Z',notes:'Low followers but high engagement rate 8.4%'},
+  {id:'d12',email:'thetottribe@gmail.com',ig_handle:'thetottribe',tiktok_handle:'thetottribe',full_name:'Christina Hall',platform:'Instagram',pipeline_status:'Sample Delivered',brand:'Grosmimi',outreach_type:'HT',source:'outbound',followers:189000,avg_views:25000,initial_discovery_date:'2026-02-10',created_at:'2026-02-10T10:00:00Z',notes:'Delivered 3/18, expecting post by 3/25'},
+  {id:'d13',email:'happybabymama@gmail.com',ig_handle:'happybabymama_',tiktok_handle:'happybabymama',full_name:'Lauren White',platform:'Instagram',pipeline_status:'Needs Review',brand:'CHA&MOM',outreach_type:'LT',source:'inbound',followers:45000,avg_views:5800,initial_discovery_date:'2026-03-19',created_at:'2026-03-19T10:00:00Z',notes:'Applied via gifting form, skincare focus'},
+  {id:'d14',email:'tinyhumans.daily@gmail.com',ig_handle:'tinyhumans_daily',tiktok_handle:'',full_name:'Priya Patel',platform:'Instagram',pipeline_status:'Needs Review',brand:'Grosmimi',outreach_type:'HT',source:'inbound',followers:312000,avg_views:42000,initial_discovery_date:'2026-03-20',created_at:'2026-03-20T10:00:00Z',notes:'High follower count, baby product niche'},
+  {id:'d15',email:'momventures@gmail.com',ig_handle:'momventures',tiktok_handle:'momventures_',full_name:'Diana Ross',platform:'TikTok',pipeline_status:'Needs Review',brand:'Naeiae',outreach_type:'LT',source:'inbound',followers:8200,avg_views:1200,initial_discovery_date:'2026-03-20',created_at:'2026-03-20T10:00:00Z',notes:'Small account, snack content'}
+];
+var DEMO_CONFIG={
+  date:'2026-03-20',update_date:'2026-03-20',start_from_beginning:false,
+  creators_contacted:10,ht_threshold:100000,rag_email_dedup:true,apify_autofill:true,apify_brand_filter:true,
+  hil_draft_review:true,hil_send_approval:true,hil_inbound_review:true,hil_sample_approval:false,
+  sender_email:'affiliates@onzenna.com',
+  outreach_template_id:'1vAvPdheHFz4xIraa3NODUuFG7RagylHEYOvv6BjtxLg',
+  grosmimi_form_url:'https://onzenna.com/pages/influencer-gifting',
+  chaenmom_form_url:'https://onzenna.com/pages/influencer-gifting-chamom',
+  naeiae_form_url:'https://onzenna.com/pages/influencer-gifting-naeiae',
+  ht_form_url:'https://onzenna.com/pages/influencer-gifting-ht',
+  eligible_total:2,eligible_grosmimi:0,eligible_chaenmom:0,eligible_naeiae:2,
+  ht_count:1,lt_count:1,
+  alloc_grosmimi:5,alloc_chaenmom:3,alloc_naeiae:2,
+  updated_by:'WJ',updated_at:'2026-03-20T06:30:00Z'
+};
+var DEMO_EXEC_LOG=[
+  {action_type:'review_accept',triggered_by:'WJ',target_count:2,status:'success',started_at:'2026-03-20T15:00:00Z',details:'{"note":"Good engagement"}'},
+  {action_type:'preview',triggered_by:'WJ',target_count:234,status:'success',started_at:'2026-03-20T14:30:00Z',details:'{}'},
+  {action_type:'draft_gen',triggered_by:'WJ',target_count:10,status:'success',started_at:'2026-03-20T10:15:00Z',details:'{}'},
+  {action_type:'send',triggered_by:'WJ',target_count:8,status:'success',started_at:'2026-03-19T16:00:00Z',details:'{}'},
+  {action_type:'syncly_discovery',triggered_by:'WJ',target_count:12,status:'success',started_at:'2026-03-19T14:00:00Z',details:'{}'},
+  {action_type:'syncly_sync',triggered_by:'CAL',target_count:45,status:'success',started_at:'2026-03-19T09:00:00Z',details:'{}'},
+  {action_type:'sns_sync',triggered_by:'system',target_count:38,status:'success',started_at:'2026-03-19T08:30:00Z',details:'{}'},
+  {action_type:'apify_crawl',triggered_by:'system',target_count:128,status:'success',started_at:'2026-03-18T22:00:00Z',details:'{}'},
+  {action_type:'gmail_sync',triggered_by:'system',target_count:1235,status:'success',started_at:'2026-03-18T20:00:00Z',details:'{}'},
+  {action_type:'review_decline',triggered_by:'WJ',target_count:1,status:'success',started_at:'2026-03-18T14:00:00Z',details:'{"note":"Too few followers"}'},
+  {action_type:'draft_gen',triggered_by:'WJ',target_count:15,status:'failed',started_at:'2026-03-18T11:00:00Z',details:'{"error":"Template not found"}'}
+];
+var DEMO_FORM_QUESTIONS={
+  grosmimi:['Full Name','Email Address','Instagram Handle','Child\'s Birthday (MM/YYYY)','Which Grosmimi product are you interested in?','Shipping Address','Why do you love Grosmimi?'],
+  chaenmom:['Full Name','Email Address','Instagram Handle','Child\'s Age','Skin concerns for your baby?','Shipping Address'],
+  naeiae:['Full Name','Email Address','Instagram Handle','Child\'s Birthday (MM/YYYY)','Any food allergies?','Shipping Address'],
+  ht:['Full Name','Email Address','Instagram Handle','TikTok Handle','Content portfolio link','Preferred product category','Expected deliverables','Rate/Fee expectations','Shipping Address']
+};
+var DEMO_RESOURCES=[
+  {brand:'All',type:'DOC',title:'Outreach Email Template',url:'https://docs.google.com/document/d/1vAvPdheHFz4xIraa3NODUuFG7RagylHEYOvv6BjtxLg/edit'},
+  {brand:'Grosmimi',type:'PDF',product:'PPSU',title:'PPSU Content Guidelines v2',url:'NAS: Shared/ONZ Creator Collab/Content guideline/Grosmimi (PPSU) Content Guidelines v2.pdf'},
+  {brand:'Grosmimi',type:'PDF',product:'Stainless',title:'Stainless Content Guidelines v1',url:'NAS: Shared/ONZ Creator Collab/Content guideline/Grosmimi (Stainless) Content Guidelines v1.pdf'},
+  {brand:'CHA&MOM',type:'PDF',product:'PS Cream',title:'PS Cream Content Guidelines v2',url:'NAS: Shared/ONZ Creator Collab/Content guideline/CHA&MOM (PS Cream-Phyto Seline) Content Guidelines v2.pdf'},
+  {brand:'Naeiae',type:'PDF',product:'Pop Rice',title:'Pop Rice Snack Content Guidelines v2',url:'NAS: Shared/ONZ Creator Collab/Content guideline/Naeiae (Pop rice snck) Content Guidelines v2.pdf'},
+  {brand:'HT',type:'CONTRACT',title:'HT Contract Template',url:'https://docuseal.orbiters.co.kr'}
+];
+var _reviewedIds={};// track locally reviewed items
+
+function demoResponse(path){
+  if(path.indexOf('/pipeline/config/today/')>=0)return DEMO_CONFIG;
+  if(path.indexOf('/pipeline/config/history/')>=0)return[
+    {date:'2026-03-20',creators_contacted:10,ht_threshold:100000,rag_email_dedup:true,updated_by:'WJ',updated_at:'2026-03-20T06:30:00Z'},
+    {date:'2026-03-19',creators_contacted:8,ht_threshold:100000,rag_email_dedup:true,updated_by:'WJ',updated_at:'2026-03-19T09:00:00Z'},
+    {date:'2026-03-18',creators_contacted:15,ht_threshold:80000,rag_email_dedup:false,updated_by:'CAL',updated_at:'2026-03-18T14:00:00Z'}
+  ];
+  if(path.indexOf('/pipeline/creators/stats/')>=0){
+    var counts={};DEMO_CREATORS.forEach(function(c){
+      var st=_reviewedIds[c.id]||c.pipeline_status;
+      counts[st]=(counts[st]||0)+1;
+    });
+    return{total:DEMO_CREATORS.length,by_status:counts,by_brand:{Grosmimi:8,'CHA&MOM':3,Naeiae:3},new_this_week:5};
   }
+  if(path.indexOf('/pipeline/creators/')>=0&&path.indexOf('stats')<0&&path.indexOf('bulk')<0){
+    var u=new URL('http://x'+path);var p=u.searchParams;
+    var filtered=DEMO_CREATORS.map(function(c){
+      var copy=Object.assign({},c);
+      if(_reviewedIds[c.id])copy.pipeline_status=_reviewedIds[c.id];
+      return copy;
+    });
+    var qs=p.get('search');if(qs){qs=qs.toLowerCase();filtered=filtered.filter(function(c){return(c.email+c.ig_handle+c.full_name).toLowerCase().indexOf(qs)>=0})}
+    var qst=p.get('status');if(qst)filtered=filtered.filter(function(c){return c.pipeline_status===qst});
+    var qb=p.get('brand');if(qb)filtered=filtered.filter(function(c){return c.brand===qb});
+    var qsrc=p.get('source');if(qsrc)filtered=filtered.filter(function(c){return c.source===qsrc});
+    return{results:filtered,total:filtered.length,page:1,pages:1};
+  }
+  if(path.indexOf('/pipeline/execution/log/')>=0)return{results:DEMO_EXEC_LOG};
+  return{};
 }
 
 // ========== API FETCH ==========
 async function apiFetch(path,opts){
   opts=opts||{};opts.mode='cors';opts.credentials='omit';
   if(opts.body){opts.headers=opts.headers||{};opts.headers['Content-Type']='application/json'}
+  if(DEMO_MODE){
+    if(opts.method==='POST'||opts.method==='PUT'){showToast('Demo mode: action simulated','ok');return{ok:true}}
+    return demoResponse(path);
+  }
   var sep=path.indexOf('?')>=0?'&':'?';
   var url=API_BASE+path+sep+'_t='+Date.now();
   var r;
-  try{r=await fetch(url,opts)}catch(err){throw new Error('Network error: '+err.message)}
-  if(!r.ok){var body='';try{body=await r.text()}catch(e){}throw new Error('API error: '+r.status+' '+body.slice(0,100))}
+  try{r=await fetch(url,opts)}catch(err){
+    console.warn('API unreachable, switching to DEMO mode');
+    DEMO_MODE=true;
+    document.getElementById('pill-api').innerHTML='<span class="dot" style="background:var(--am)"></span>DEMO';
+    if(opts.method==='POST'||opts.method==='PUT')return{ok:true};
+    return demoResponse(path);
+  }
+  if(!r.ok){
+    console.warn('API error '+r.status+' on '+path+', switching to DEMO mode');
+    DEMO_MODE=true;
+    document.getElementById('pill-api').innerHTML='<span class="dot" style="background:var(--am)"></span>DEMO';
+    if(opts.method==='POST'||opts.method==='PUT')return{ok:true};
+    return demoResponse(path);
+  }
   return r.json();
 }
 
 // ========== TABS ==========
 var _tabLoaded={};
 function initTabs(){
-  var tabs=document.querySelectorAll('#main-tabs > div');
-  tabs.forEach(function(t){
+  document.querySelectorAll('#main-tabs > div').forEach(function(t){
     t.addEventListener('click',function(){switchTab(t.getAttribute('data-p'))});
   });
 }
@@ -419,13 +761,43 @@ function switchTab(name){
   document.querySelectorAll('#main-tabs > div').forEach(function(t){t.classList.toggle('on',t.getAttribute('data-p')===name)});
   document.querySelectorAll('.mp').forEach(function(p){p.classList.toggle('on',p.id==='p-'+name)});
   location.hash=name;
-  // Lazy load
   if(!_tabLoaded[name]){
     _tabLoaded[name]=true;
-    if(name==='config')loadConfig();
+    if(name==='dashboard')loadDashboard();
+    else if(name==='config')loadConfig();
     else if(name==='creators'){loadCreatorStats();loadCreators()}
-    else if(name==='execution'){loadCreatorStats();loadExecLog()}
+    else if(name==='execution'){loadCreatorStats();loadReviewQueue();loadExecLog()}
   }
+}
+
+// ========== DASHBOARD TAB ==========
+async function loadDashboard(){
+  try{
+    var st=await apiFetch('/pipeline/creators/stats/');
+    document.getElementById('ds-total').textContent=st.total||0;
+    document.getElementById('ds-accepted').textContent=st.by_status['Accepted']||0;
+    document.getElementById('ds-posted').textContent=st.by_status['Posted']||0;
+    document.getElementById('ds-review').textContent=st.by_status['Needs Review']||0;
+    var accepted=(st.by_status['Accepted']||0)+(st.by_status['Sample Sent']||0)+(st.by_status['Sample Shipped']||0)+(st.by_status['Sample Delivered']||0)+(st.by_status['Posted']||0);
+    var total=st.total||1;
+    document.getElementById('ds-conversion').textContent=Math.round(accepted/total*100)+'%';
+    document.getElementById('pill-total').textContent=st.total+' creators';
+    // Mini funnel
+    buildFunnel(st.by_status,'dash-funnel');
+    // Recent activity
+    var logs=await apiFetch('/pipeline/execution/log/?limit=5');
+    var items=logs.results||logs;
+    var el=document.getElementById('dash-activity');
+    if(!items||items.length===0){el.innerHTML='<div style="color:var(--muted);font-size:11px">No activity yet</div>';return}
+    var html='';
+    for(var i=0;i<items.length;i++){
+      var log=items[i];
+      var ts=log.started_at?new Date(log.started_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'?';
+      var sb=log.status==='success'?'g':log.status==='failed'?'r':'am';
+      html+='<div class="activity-item"><span class="b '+sb+'">'+esc(log.status)+'</span><span style="font-family:var(--mono);color:var(--muted);font-size:9px">'+ts+'</span><b>'+esc(log.action_type)+'</b><span style="color:var(--dim)">by '+esc(log.triggered_by||'system')+'</span></div>';
+    }
+    el.innerHTML=html;
+  }catch(e){console.error('Dashboard load error:',e)}
 }
 
 // ========== CONFIG TAB ==========
@@ -449,19 +821,28 @@ function populateConfigForm(c){
   document.getElementById('f-ht-threshold').value=c.ht_threshold;
   document.getElementById('f-rag-dedup').checked=c.rag_email_dedup;
   document.getElementById('f-apify-autofill').checked=c.apify_autofill;
-  document.getElementById('f-human-in-loop').value=c.human_in_loop;
+  document.getElementById('f-apify-brand-filter').checked=c.apify_brand_filter!==false;
+  document.getElementById('f-hil-draft').checked=c.hil_draft_review!==false;
+  document.getElementById('f-hil-send').checked=c.hil_send_approval!==false;
+  document.getElementById('f-hil-review').checked=true;
+  document.getElementById('f-hil-sample').checked=!!c.hil_sample_approval;
   document.getElementById('f-sender-email').value=c.sender_email;
   document.getElementById('f-template-id').value=c.outreach_template_id;
-  document.getElementById('f-grosmimi-url').value=c.grosmimi_form_url||'';
-  document.getElementById('f-chaenmom-url').value=c.chaenmom_form_url||'';
-  document.getElementById('f-naeiae-url').value=c.naeiae_form_url||'';
-  document.getElementById('f-ht-url').value=c.ht_form_url||'';
+  // Brand forms (creates f-grosmimi-url etc. dynamically)
+  renderBrandForms(c);
+  renderResources();
+  // Eligible stats
   document.getElementById('s-total').textContent=c.eligible_total||0;
   document.getElementById('s-gros').textContent=c.eligible_grosmimi||0;
   document.getElementById('s-cham').textContent=c.eligible_chaenmom||0;
   document.getElementById('s-nae').textContent=c.eligible_naeiae||0;
-  document.getElementById('s-unk').textContent=c.eligible_unknown||0;
   document.getElementById('s-htlt').textContent=(c.ht_count||0)+' / '+(c.lt_count||0);
+  // Allocation
+  document.getElementById('alloc-grosmimi').value=c.alloc_grosmimi||5;
+  document.getElementById('alloc-chaenmom').value=c.alloc_chaenmom||3;
+  document.getElementById('alloc-naeiae').value=c.alloc_naeiae||2;
+  document.getElementById('alloc-batch-label').textContent=c.creators_contacted||10;
+  updateAllocation();
 }
 function collectConfigForm(){
   return{
@@ -471,13 +852,20 @@ function collectConfigForm(){
     ht_threshold:parseInt(document.getElementById('f-ht-threshold').value)||100000,
     rag_email_dedup:document.getElementById('f-rag-dedup').checked,
     apify_autofill:document.getElementById('f-apify-autofill').checked,
-    human_in_loop:document.getElementById('f-human-in-loop').value,
+    apify_brand_filter:document.getElementById('f-apify-brand-filter').checked,
+    hil_draft_review:document.getElementById('f-hil-draft').checked,
+    hil_send_approval:document.getElementById('f-hil-send').checked,
+    hil_inbound_review:true,
+    hil_sample_approval:document.getElementById('f-hil-sample').checked,
     sender_email:document.getElementById('f-sender-email').value,
     outreach_template_id:document.getElementById('f-template-id').value,
-    grosmimi_form_url:document.getElementById('f-grosmimi-url').value,
-    chaenmom_form_url:document.getElementById('f-chaenmom-url').value,
-    naeiae_form_url:document.getElementById('f-naeiae-url').value,
-    ht_form_url:document.getElementById('f-ht-url').value,
+    grosmimi_form_url:(document.getElementById('f-grosmimi-url')||{}).value||'',
+    chaenmom_form_url:(document.getElementById('f-chaenmom-url')||{}).value||'',
+    naeiae_form_url:(document.getElementById('f-naeiae-url')||{}).value||'',
+    ht_form_url:(document.getElementById('f-ht-url')||{}).value||'',
+    alloc_grosmimi:parseInt(document.getElementById('alloc-grosmimi').value)||0,
+    alloc_chaenmom:parseInt(document.getElementById('alloc-chaenmom').value)||0,
+    alloc_naeiae:parseInt(document.getElementById('alloc-naeiae').value)||0,
     updated_by:_currentUser
   };
 }
@@ -509,8 +897,7 @@ async function loadConfigHistory(){
 }
 
 // ========== CREATORS TAB ==========
-var _crPage=1;
-var _crLimit=50;
+var _crPage=1,_crLimit=50;
 var STATUS_COLORS={
   'Not Started':'','Draft Ready':'a','Sent':'c','Replied':'am',
   'Needs Review':'p','Accepted':'g','Declined':'r',
@@ -521,19 +908,21 @@ var PIPELINE_STAGES=['Not Started','Draft Ready','Sent','Replied','Needs Review'
 async function loadCreatorStats(){
   try{
     var st=await apiFetch('/pipeline/creators/stats/');
-    document.getElementById('cs-total').textContent=st.total||0;
-    document.getElementById('cs-accepted').textContent=st.by_status['Accepted']||0;
-    document.getElementById('cs-sent').textContent=st.by_status['Sent']||0;
-    document.getElementById('cs-posted').textContent=st.by_status['Posted']||0;
-    document.getElementById('cs-week').textContent='+'+st.new_this_week;
+    if(document.getElementById('cs-total')){
+      document.getElementById('cs-total').textContent=st.total||0;
+      document.getElementById('cs-accepted').textContent=st.by_status['Accepted']||0;
+      document.getElementById('cs-sent').textContent=st.by_status['Sent']||0;
+      document.getElementById('cs-posted').textContent=st.by_status['Posted']||0;
+      document.getElementById('cs-week').textContent='+'+st.new_this_week;
+    }
     document.getElementById('pill-total').textContent=st.total+' creators';
-    // Build funnel
-    buildFunnel(st.by_status);
+    buildFunnel(st.by_status,'exec-funnel');
   }catch(e){console.error('Stats error:',e)}
 }
 
-function buildFunnel(statusCounts){
-  var el=document.getElementById('exec-funnel');
+function buildFunnel(statusCounts,targetId){
+  var el=document.getElementById(targetId);
+  if(!el)return;
   var stages=['Not Started','Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
   var html='';
   for(var i=0;i<stages.length;i++){
@@ -555,26 +944,40 @@ async function loadCreators(){
   if(brand)params+='&brand='+encodeURIComponent(brand);
   if(source)params+='&source='+encodeURIComponent(source);
   var body=document.getElementById('creators-body');
-  body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr>';
+  body.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr>';
   try{
     var data=await apiFetch('/pipeline/creators/'+params);
     renderCreatorsTable(data);
     renderPager(data);
   }catch(e){
-    body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--r);padding:20px">Error: '+e.message+'</td></tr>';
+    body.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--r);padding:20px">Error: '+e.message+'</td></tr>';
   }
+}
+
+function profileLinks(c){
+  var html='';
+  if(c.ig_handle){
+    var h=c.ig_handle.replace(/^@/,'');
+    html+='<a href="https://instagram.com/'+h+'" target="_blank" class="profile-link" title="IG: @'+h+'">IG</a> ';
+  }
+  if(c.tiktok_handle){
+    var t=c.tiktok_handle.replace(/^@/,'');
+    html+='<a href="https://tiktok.com/@'+t+'" target="_blank" class="profile-link" title="TT: @'+t+'">TT</a>';
+  }
+  if(!html)html='<span style="color:var(--muted);font-size:9px">-</span>';
+  return html;
 }
 
 function renderCreatorsTable(data){
   var body=document.getElementById('creators-body');
   if(!data.results||data.results.length===0){
-    body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">No creators found</td></tr>';
+    body.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:30px">No creators found</td></tr>';
     return;
   }
   var html='';
   for(var i=0;i<data.results.length;i++){
     var c=data.results[i];
-    var handle=c.ig_handle||c.tiktok_handle||'-';
+    var handle=c.ig_handle?'@'+c.ig_handle:c.tiktok_handle?'@'+c.tiktok_handle:'-';
     var badgeClass=STATUS_COLORS[c.pipeline_status]||'';
     var date=c.initial_discovery_date||c.created_at;
     if(date&&date.length>10)date=date.slice(0,10);
@@ -586,6 +989,7 @@ function renderCreatorsTable(data){
     html+='<td><span class="b '+badgeClass+'">'+esc(c.pipeline_status)+'</span></td>';
     html+='<td style="font-size:10px">'+esc(c.outreach_type||'-')+'</td>';
     html+='<td style="font-size:10px;font-family:var(--mono)">'+followers+'</td>';
+    html+='<td>'+profileLinks(c)+'</td>';
     html+='<td style="font-size:10px;color:var(--dim)">'+esc(date||'-')+'</td>';
     html+='<td><select class="status-change-dd" data-id="'+c.id+'" data-email="'+esc(c.email)+'" onchange="changeCreatorStatus(this)" style="padding:2px 4px;border:1px solid var(--border);border-radius:3px;font-size:9px;font-family:inherit;background:var(--card)">';
     for(var j=0;j<PIPELINE_STAGES.length;j++){
@@ -615,28 +1019,142 @@ async function changeCreatorStatus(sel){
       body:JSON.stringify({pipeline_status:newStatus,changed_by:_currentUser})
     });
     showToast('Status updated','ok');
-    // Refresh stats
     loadCreatorStats();
   }catch(e){
     showToast('Update failed: '+e.message,'err');
-    loadCreators();// revert
+    loadCreators();
   }
 }
 
 function filterByStatus(status){
   document.getElementById('cr-status').value=status;
+  _tabLoaded['creators']=false;
   switchTab('creators');
   _crPage=1;
   loadCreators();
 }
 
 async function refreshFunnel(){
+  _tabLoaded['execution']=false;
   await loadCreatorStats();
   showToast('Funnel refreshed','ok');
 }
 
+// ========== REVIEW QUEUE ==========
+async function loadReviewQueue(){
+  try{
+    var data=await apiFetch('/pipeline/creators/?status=Needs+Review&limit=100');
+    var items=data.results||[];
+    var el=document.getElementById('rq-items');
+    var countEl=document.getElementById('rq-count');
+    countEl.textContent=items.length;
+    if(items.length===0){
+      el.innerHTML='<div style="color:var(--g);font-size:12px;padding:16px 0;text-align:center;font-weight:700">&#x2705; Queue Clear &#8212; No pending reviews</div>';
+      document.getElementById('rq-toolbar').style.display='none';
+      return;
+    }
+    document.getElementById('rq-toolbar').style.display='block';
+    var html='<div style="padding:4px 0 8px;display:flex;align-items:center;gap:6px;border-bottom:2px solid var(--border)">';
+    html+='<input type="checkbox" id="rq-check-all" class="rq-check" checked onchange="toggleAllReview(this.checked)">';
+    html+='<span style="font-size:9px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.5px">Check All</span>';
+    html+='<span style="flex:1"></span>';
+    html+='<span style="font-size:9px;font-weight:600;color:var(--dim);width:60px">HANDLE</span>';
+    html+='<span style="font-size:9px;font-weight:600;color:var(--dim);width:70px">FOLLOWERS</span>';
+    html+='<span style="font-size:9px;font-weight:600;color:var(--dim);width:60px">BRAND</span>';
+    html+='<span style="font-size:9px;font-weight:600;color:var(--dim);width:60px">CONTENT</span>';
+    html+='<span style="font-size:9px;font-weight:600;color:var(--dim);flex:1">NOTES</span>';
+    html+='</div>';
+    for(var i=0;i<items.length;i++){
+      var c=items[i];
+      var reviewed=_reviewedIds[c.id];
+      var handle=c.ig_handle?'@'+c.ig_handle:c.tiktok_handle?'@'+c.tiktok_handle:'-';
+      var rowClass=reviewed==='Accepted'?'rq-row reviewed':reviewed==='Declined'?'rq-row declined':'rq-row';
+      html+='<div class="'+rowClass+'" data-id="'+c.id+'">';
+      if(reviewed){
+        html+='<span class="b '+(reviewed==='Accepted'?'g':'r')+'">'+reviewed.toUpperCase()+'</span>';
+      }else{
+        html+='<input type="checkbox" class="rq-check rq-item-check" data-id="'+c.id+'" checked onchange="updateReviewCount()">';
+      }
+      html+='<span style="flex:1"></span>';
+      html+='<span style="font-weight:600;font-family:var(--mono);font-size:10px;width:60px;overflow:hidden;text-overflow:ellipsis">'+esc(handle)+'</span>';
+      html+='<span style="font-family:var(--mono);font-size:10px;width:70px">'+formatNum(c.followers||0)+'</span>';
+      html+='<span style="width:60px"><span class="b '+(c.brand==='Grosmimi'?'g':c.brand==='CHA&MOM'?'c':'am')+'">'+esc(c.brand)+'</span></span>';
+      html+='<span style="width:60px">'+profileLinks(c)+'</span>';
+      html+='<span style="font-size:10px;color:var(--dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(c.notes)+'">'+esc(c.notes||'-')+'</span>';
+      html+='</div>';
+    }
+    el.innerHTML=html;
+    updateReviewCount();
+    loadReviewHistory();
+  }catch(e){
+    document.getElementById('rq-items').innerHTML='<div style="color:var(--r);font-size:11px">Failed to load: '+e.message+'</div>';
+  }
+}
+
+function toggleAllReview(checked){
+  document.querySelectorAll('.rq-item-check').forEach(function(cb){cb.checked=checked});
+  updateReviewCount();
+}
+
+function updateReviewCount(){
+  var count=document.querySelectorAll('.rq-item-check:checked').length;
+  document.getElementById('rq-accept-count').textContent=count;
+  document.getElementById('rq-accept-btn').disabled=count===0;
+  document.getElementById('rq-decline-btn').disabled=count===0;
+}
+
+async function bulkReview(newStatus){
+  var checked=document.querySelectorAll('.rq-item-check:checked');
+  if(checked.length===0)return;
+  var ids=[];
+  checked.forEach(function(cb){ids.push(cb.dataset.id)});
+  var note=document.getElementById('rq-note').value.trim();
+  // API call
+  try{
+    await apiFetch('/pipeline/creators/bulk-status/',{
+      method:'POST',
+      body:JSON.stringify({ids:ids,status:newStatus,changed_by:_currentUser,note:note})
+    });
+    // Update local tracking
+    ids.forEach(function(id){_reviewedIds[id]=newStatus});
+    // Log
+    await apiFetch('/pipeline/execution/log/',{
+      method:'POST',
+      body:JSON.stringify({
+        action_type:newStatus==='Accepted'?'review_accept':'review_decline',
+        triggered_by:_currentUser,
+        target_count:ids.length,
+        status:'success',
+        details:JSON.stringify({note:note,ids:ids})
+      })
+    });
+    showToast(ids.length+' creators '+newStatus.toLowerCase(),'ok');
+    document.getElementById('rq-note').value='';
+    // Re-render
+    loadReviewQueue();
+    _tabLoaded['dashboard']=false;
+  }catch(e){showToast('Review failed: '+e.message,'err')}
+}
+
+function loadReviewHistory(){
+  var histEl=document.getElementById('rq-history');
+  // Show review actions from exec log
+  var reviewLogs=DEMO_EXEC_LOG.filter(function(l){return l.action_type==='review_accept'||l.action_type==='review_decline'});
+  if(reviewLogs.length===0){histEl.innerHTML='';return}
+  var html='<div style="margin-top:6px;font-size:10px;font-weight:700;color:var(--dim)">Review History</div>';
+  for(var i=0;i<reviewLogs.length;i++){
+    var l=reviewLogs[i];
+    var ts=new Date(l.started_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    var isAccept=l.action_type==='review_accept';
+    var det;try{det=JSON.parse(l.details)}catch(e){det={}}
+    html+='<div class="log-entry"><span class="ts">'+ts+'</span><span class="msg"><span class="b '+(isAccept?'g':'r')+'">'+(isAccept?'ACCEPTED':'DECLINED')+'</span> '+l.target_count+' creators by <b>'+esc(l.triggered_by)+'</b>'+(det.note?' &mdash; "'+esc(det.note)+'"':'')+'</span></div>';
+  }
+  histEl.innerHTML=html;
+}
+
 // ========== ACTION BUTTONS ==========
 var ACTION_META={
+  syncly_discovery:{title:'Pull Syncly Discovery',desc:'Syncly\uC5D0\uC11C \uBE0C\uB79C\uB4DC \uAD00\uB828 \uCF58\uD150\uCE20\uB97C \uC62C\uB9B0 \uD06C\uB9AC\uC5D0\uC774\uD130 \uBC1C\uAD74.\n\uD06C\uB9AC\uC5D0\uC774\uD130 \uC815\uBCF4 (\uD575\uB4E4, \uD314\uB85C\uC6CC, \uC778\uAC8C\uC774\uC9C0\uBA3C\uD2B8) + \uBC1C\uACAC \uCF58\uD150\uCE20 (\uCE90\uD504\uC158/\uB300\uC0AC \uD3EC\uD568) \uC784\uD3EC\uD2B8.\n"Not Started"\uB85C Creators \uD0ED\uC5D0 \uCD94\uAC00\uB418\uBA70, \uB300\uC0AC\uB294 outreach \uC774\uBA54\uC77C \uC791\uC131 \uADFC\uAC70\uB85C \uD65C\uC6A9.',btnId:'btn-syncly-discovery',icon:'\uD83D\uDD0E'},
   preview:{title:'Preview Counts',desc:'Count eligible creators for today\'s batch based on current config. No emails will be sent.',btnId:'btn-preview',icon:'\uD83D\uDD0D'},
   draft_gen:{title:'Generate Drafts',desc:'Generate outreach email drafts for eligible creators. Drafts will be saved but NOT sent until you click Send Batch.',btnId:'btn-draft',icon:'\uD83D\uDCDD'},
   send:{title:'Send Batch',desc:'Send outreach emails to all Draft Ready creators. This will send real emails to real people. Are you sure?',btnId:'btn-send',icon:'\uD83D\uDCE8',danger:true},
@@ -652,7 +1170,7 @@ function execAction(actionType){
   if(!meta)return;
   _pendingAction=actionType;
   document.getElementById('confirm-title').textContent=meta.icon+' '+meta.title;
-  document.getElementById('confirm-desc').textContent=meta.desc;
+  document.getElementById('confirm-desc').innerHTML=esc(meta.desc).replace(/\n/g,'<br>');
   var btn=document.getElementById('confirm-btn');
   btn.textContent='Confirm '+meta.title;
   if(meta.danger){btn.style.background='var(--r)'}else{btn.style.background=''}
@@ -669,25 +1187,15 @@ async function confirmExec(){
   var meta=ACTION_META[action];
   var btn=document.getElementById(meta.btnId);
   if(btn){btn.disabled=true;btn.textContent='Running...'}
-  // Log to execution history
   try{
     await apiFetch('/pipeline/execution/log/',{
       method:'POST',
-      body:JSON.stringify({
-        action_type:action,
-        triggered_by:_currentUser,
-        target_count:0,
-        status:'running',
-        details:{source:'dashboard',timestamp:new Date().toISOString()}
-      })
+      body:JSON.stringify({action_type:action,triggered_by:_currentUser,target_count:0,status:'running',details:{source:'dashboard',timestamp:new Date().toISOString()}})
     });
   }catch(e){console.error('Log error:',e)}
-  // Show toast
   showToast(meta.title+' triggered by '+_currentUser,'ok');
-  // Refresh exec log
   _tabLoaded['execution']=false;
   loadExecLog();
-  // Re-enable button after delay
   setTimeout(function(){
     if(btn){btn.disabled=false;btn.textContent=meta.icon+' '+meta.title}
   },3000);
@@ -715,9 +1223,170 @@ async function loadExecLog(){
       html+='</div>';
     }
     el.innerHTML=html;
+    updateCrawlTimestamps(logs);
   }catch(e){
     document.getElementById('exec-log').innerHTML='<div style="color:var(--r);font-size:11px">Failed to load: '+e.message+'</div>';
   }
+}
+
+function updateCrawlTimestamps(logs){
+  var map={syncly_discovery:'ts-syncly-disc',apify_crawl:'ts-apify',syncly_sync:'ts-syncly',sns_sync:'ts-sns',gmail_sync:'ts-gmail'};
+  var latest={};
+  for(var i=0;i<logs.length;i++){
+    var l=logs[i];
+    if(l.status==='success'&&map[l.action_type]&&!latest[l.action_type]){
+      latest[l.action_type]=l.started_at;
+    }
+  }
+  for(var action in map){
+    var el=document.getElementById(map[action]);
+    if(!el)continue;
+    if(latest[action]){
+      var d=new Date(latest[action]);
+      el.textContent=d.toLocaleString('en-US',{timeZone:'America/Los_Angeles',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:true})+' PST';
+      // highlight if older than 26 hours
+      var age=(Date.now()-d.getTime())/3600000;
+      el.style.color=age>26?'var(--r)':age>13?'var(--am)':'var(--g)';
+    }else{
+      el.textContent='never';
+      el.style.color='var(--r)';
+    }
+  }
+}
+
+// ========== BRAND FORMS CRUD ==========
+var BRAND_FORMS=[
+  {key:'grosmimi',label:'Grosmimi',inputId:'f-grosmimi-url'},
+  {key:'chaenmom',label:'CHA&MOM',inputId:'f-chaenmom-url'},
+  {key:'naeiae',label:'Naeiae',inputId:'f-naeiae-url'},
+  {key:'ht',label:'High Touch',inputId:'f-ht-url'}
+];
+function renderBrandForms(config){
+  var el=document.getElementById('brand-forms-list');
+  var html='';
+  for(var i=0;i<BRAND_FORMS.length;i++){
+    var bf=BRAND_FORMS[i];
+    var url=config[bf.key+'_form_url']||'';
+    var qs=DEMO_FORM_QUESTIONS[bf.key]||[];
+    html+='<div style="border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px">';
+    html+='<div class="form-row"><label>'+esc(bf.label)+' Form</label><input type="url" id="'+bf.inputId+'" value="'+esc(url)+'" placeholder="https://..." style="flex:1"></div>';
+    html+='<div style="margin-top:4px"><span style="font-size:10px;font-weight:600;color:var(--a);cursor:pointer" onclick="toggleFormQ(\''+bf.key+'\')">&#x25B6; View Questions ('+qs.length+')</span></div>';
+    html+='<div id="fq-'+bf.key+'" style="display:none;margin-top:6px;padding:8px;background:#fafbff;border-radius:6px">';
+    for(var j=0;j<qs.length;j++){
+      html+='<div style="display:flex;gap:4px;align-items:center;margin-bottom:4px">';
+      html+='<input type="text" class="fq-input" data-brand="'+bf.key+'" data-idx="'+j+'" value="'+esc(qs[j])+'" style="flex:1;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit">';
+      html+='<button class="btn btn-sm" style="background:var(--rbg);color:var(--r);border:none;padding:2px 6px;font-size:10px;cursor:pointer" onclick="removeFormQ(\''+bf.key+'\','+j+')">&times;</button>';
+      html+='</div>';
+    }
+    html+='<button class="btn btn-sm btn-secondary" onclick="addFormQ(\''+bf.key+'\')" style="margin-top:4px;font-size:10px">+ Add Question</button>';
+    html+='<button class="btn btn-sm btn-primary" onclick="updateForm(\''+bf.key+'\')" style="margin-top:4px;margin-left:4px;font-size:10px">Update Form</button>';
+    html+='</div></div>';
+  }
+  el.innerHTML=html;
+}
+function toggleFormQ(brand){
+  var el=document.getElementById('fq-'+brand);
+  if(!el)return;
+  var open=el.style.display!=='none';
+  el.style.display=open?'none':'block';
+  var trigger=el.previousElementSibling.querySelector('span');
+  if(trigger)trigger.innerHTML=(open?'&#x25B6;':'&#x25BC;')+' '+(open?'View':'Hide')+' Questions ('+(DEMO_FORM_QUESTIONS[brand]||[]).length+')';
+}
+function addFormQ(brand){
+  if(!DEMO_FORM_QUESTIONS[brand])DEMO_FORM_QUESTIONS[brand]=[];
+  DEMO_FORM_QUESTIONS[brand].push('');
+  renderBrandForms(_config||DEMO_CONFIG);
+  document.getElementById('fq-'+brand).style.display='block';
+  var inputs=document.querySelectorAll('.fq-input[data-brand="'+brand+'"]');
+  if(inputs.length)inputs[inputs.length-1].focus();
+}
+function removeFormQ(brand,idx){
+  if(!DEMO_FORM_QUESTIONS[brand])return;
+  DEMO_FORM_QUESTIONS[brand].splice(idx,1);
+  renderBrandForms(_config||DEMO_CONFIG);
+  document.getElementById('fq-'+brand).style.display='block';
+}
+function updateForm(brand){
+  // Collect current inputs
+  var inputs=document.querySelectorAll('.fq-input[data-brand="'+brand+'"]');
+  var qs=[];
+  inputs.forEach(function(inp){if(inp.value.trim())qs.push(inp.value.trim())});
+  DEMO_FORM_QUESTIONS[brand]=qs;
+  showToast(brand+' form updated ('+qs.length+' questions)','ok');
+  renderBrandForms(_config||DEMO_CONFIG);
+  document.getElementById('fq-'+brand).style.display='block';
+}
+
+// ========== RESOURCES ==========
+function renderResources(){
+  var el=document.getElementById('resources-list');
+  var brandFilter=document.getElementById('res-brand-filter').value;
+  var typeFilter=document.getElementById('res-type-filter').value;
+  var filtered=DEMO_RESOURCES.filter(function(r){
+    if(brandFilter&&r.brand!==brandFilter&&r.brand!=='All')return false;
+    if(typeFilter&&r.type!==typeFilter)return false;
+    return true;
+  });
+  var html='<ul class="res-list">';
+  for(var i=0;i<filtered.length;i++){
+    var r=filtered[i];
+    var tagColor=r.type==='DOC'?'background:var(--abg);color:var(--a)':r.type==='PDF'?'background:var(--gbg);color:var(--g)':r.type==='CONTRACT'?'background:var(--rbg);color:var(--r)':'background:var(--cbg);color:var(--c)';
+    var isExternal=r.url.startsWith('http');
+    html+='<li><span class="res-tag" style="'+tagColor+'">'+esc(r.type)+'</span>';
+    if(r.brand!=='All')html+='<span style="font-size:8px;color:var(--muted)">'+esc(r.brand)+(r.product?' / '+esc(r.product):'')+'</span>';
+    if(isExternal)html+='<a href="'+esc(r.url)+'" target="_blank">'+esc(r.title)+'</a>';
+    else html+='<a href="#" onclick="alert(\''+esc(r.url).replace(/'/g,"\\'")+'\');return false">'+esc(r.title)+'</a>';
+    html+='<button style="margin-left:auto;background:none;border:none;color:var(--r);cursor:pointer;font-size:12px" onclick="removeResource('+i+')">&times;</button>';
+    html+='</li>';
+  }
+  html+='</ul>';
+  el.innerHTML=html;
+}
+function removeResource(idx){
+  DEMO_RESOURCES.splice(idx,1);
+  renderResources();
+  showToast('Resource removed','ok');
+}
+function addResource(){
+  var title=document.getElementById('res-new-title').value.trim();
+  var url=document.getElementById('res-new-url').value.trim();
+  var brand=document.getElementById('res-new-brand').value;
+  if(!title||!url){showToast('Enter title and URL','err');return}
+  var type=url.indexOf('docs.google.com')>=0||url.indexOf('sheets.google.com')>=0?'SHEET':url.indexOf('.pdf')>=0?'PDF':url.indexOf('docuseal')>=0?'CONTRACT':'DOC';
+  DEMO_RESOURCES.push({brand:brand,type:type,title:title,url:url});
+  document.getElementById('res-new-title').value='';
+  document.getElementById('res-new-url').value='';
+  renderResources();
+  showToast('Resource added','ok');
+}
+
+// ========== ELIGIBLE ALLOCATION ==========
+function updateAllocation(){
+  var batch=parseInt(document.getElementById('f-creators-contacted').value)||10;
+  var g=parseInt(document.getElementById('alloc-grosmimi').value)||0;
+  var c=parseInt(document.getElementById('alloc-chaenmom').value)||0;
+  var n=parseInt(document.getElementById('alloc-naeiae').value)||0;
+  var used=g+c+n;
+  var unalloc=batch-used;
+  document.getElementById('alloc-unallocated').textContent=unalloc;
+  var warn=document.getElementById('alloc-warn');
+  if(unalloc<0){warn.textContent='Over-allocated by '+Math.abs(unalloc);warn.style.color='var(--r)';warn.style.display='block'}
+  else if(unalloc>0){warn.textContent=unalloc+' unallocated';warn.style.color='var(--am)';warn.style.display='block'}
+  else{warn.style.display='none'}
+  // Visual bars
+  var total=Math.max(batch,1);
+  document.getElementById('bar-grosmimi').style.width=Math.min(g/total*100,100)+'%';
+  document.getElementById('bar-chaenmom').style.width=Math.min(c/total*100,100)+'%';
+  document.getElementById('bar-naeiae').style.width=Math.min(n/total*100,100)+'%';
+}
+
+// ========== HOW IT WORKS TAB ==========
+function toggleHwSec(el){el.classList.toggle('open')}
+function scrollToHwSec(id){
+  var el=document.getElementById(id);
+  if(!el)return;
+  if(!el.classList.contains('open'))el.classList.add('open');
+  el.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 // ========== HELPERS ==========
