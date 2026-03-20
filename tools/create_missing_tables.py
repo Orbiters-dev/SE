@@ -125,6 +125,70 @@ TABLES = [
         tags TEXT DEFAULT '',
         collected_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     )""",
+    # ===== Pipeline CRM tables =====
+    """CREATE TABLE IF NOT EXISTS onz_pipeline_creators (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        email VARCHAR(254) UNIQUE NOT NULL,
+        ig_handle VARCHAR(200) DEFAULT '',
+        tiktok_handle VARCHAR(200) DEFAULT '',
+        full_name VARCHAR(200) DEFAULT '',
+        platform VARCHAR(30) DEFAULT '',
+        pipeline_status VARCHAR(30) DEFAULT 'Not Started',
+        brand VARCHAR(30) DEFAULT '',
+        outreach_type VARCHAR(10) DEFAULT '',
+        source VARCHAR(30) DEFAULT 'outbound',
+        followers INTEGER,
+        avg_views INTEGER,
+        initial_discovery_date DATE,
+        shopify_customer_id VARCHAR(50) DEFAULT '',
+        shopify_draft_order_id VARCHAR(50) DEFAULT '',
+        shopify_draft_order_name VARCHAR(50) DEFAULT '',
+        airtable_record_id VARCHAR(50) DEFAULT '',
+        notes TEXT DEFAULT '',
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )""",
+    """CREATE TABLE IF NOT EXISTS onz_pipeline_execution_log (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        action_type VARCHAR(30) NOT NULL,
+        triggered_by VARCHAR(50) DEFAULT '',
+        target_count INTEGER DEFAULT 0,
+        status VARCHAR(20) DEFAULT 'pending',
+        details TEXT DEFAULT '{}',
+        started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        completed_at TIMESTAMP WITH TIME ZONE
+    )""",
+    """CREATE TABLE IF NOT EXISTS onz_pipeline_status_changes (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        creator_email VARCHAR(254) NOT NULL,
+        from_status VARCHAR(30) NOT NULL,
+        to_status VARCHAR(30) NOT NULL,
+        changed_by VARCHAR(50) DEFAULT '',
+        changed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )""",
+    """CREATE TABLE IF NOT EXISTS gk_gmail_contacts (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(254) UNIQUE NOT NULL,
+        name VARCHAR(255) DEFAULT '',
+        domain VARCHAR(255) DEFAULT '',
+        account VARCHAR(50) DEFAULT 'zezebaebae',
+        first_contact_date TIMESTAMP WITH TIME ZONE,
+        last_contact_date TIMESTAMP WITH TIME ZONE,
+        last_subject VARCHAR(500) DEFAULT '',
+        total_sent INTEGER DEFAULT 0,
+        total_received INTEGER DEFAULT 0,
+        synced_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )""",
+]
+
+INDEXES = [
+    "CREATE INDEX IF NOT EXISTS idx_pipeline_creators_email ON onz_pipeline_creators(email)",
+    "CREATE INDEX IF NOT EXISTS idx_pipeline_creators_status ON onz_pipeline_creators(pipeline_status)",
+    "CREATE INDEX IF NOT EXISTS idx_pipeline_creators_brand ON onz_pipeline_creators(brand)",
+    "CREATE INDEX IF NOT EXISTS idx_pipeline_creators_discovery ON onz_pipeline_creators(initial_discovery_date)",
+    "CREATE INDEX IF NOT EXISTS idx_pipeline_exec_action ON onz_pipeline_execution_log(action_type)",
+    "CREATE INDEX IF NOT EXISTS idx_pipeline_status_email ON onz_pipeline_status_changes(creator_email)",
+    "CREATE INDEX IF NOT EXISTS idx_gmail_contacts_domain ON gk_gmail_contacts(domain)",
 ]
 
 if __name__ == "__main__":
@@ -134,9 +198,19 @@ if __name__ == "__main__":
             cursor.execute(sql)
             print(f"OK: {table_name}")
 
+    with connection.cursor() as cursor:
+        for sql in INDEXES:
+            idx_name = sql.split("IF NOT EXISTS ")[1].split(" ON")[0]
+            cursor.execute(sql)
+            print(f"IDX: {idx_name}")
+
     # Clear stale migration history and re-fake
     with connection.cursor() as cursor:
-        cursor.execute("DELETE FROM django_migrations WHERE app='datakeeper'")
-        print(f"Cleared {cursor.rowcount} migration records")
+        for app in ['datakeeper', 'onzenna']:
+            cursor.execute(f"DELETE FROM django_migrations WHERE app='{app}'")
+            print(f"Cleared {cursor.rowcount} migration records for {app}")
 
-    print("Done! Now run: python3 manage.py makemigrations datakeeper && python3 manage.py migrate datakeeper --fake")
+    print("Done! Now run:")
+    print("  python3 manage.py makemigrations datakeeper onzenna")
+    print("  python3 manage.py migrate datakeeper --fake")
+    print("  python3 manage.py migrate onzenna --fake")
