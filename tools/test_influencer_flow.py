@@ -71,9 +71,6 @@ except ImportError:
     load_dotenv(os.path.join(ROOT, ".env"))
 
 # ─── Config ─────────────────────────────────────────────────────────────────
-AIRTABLE_API_KEY = os.getenv("AIRTABLE_API_KEY", "")
-AIRTABLE_BASE_ID = os.getenv("AIRTABLE_INBOUND_BASE_ID", "app3Vnmh7hLAVsevE")
-AIRTABLE_TABLE_ID = os.getenv("AIRTABLE_INBOUND_TABLE_ID", "tblQUz8zQRDdZvES3")
 SHOPIFY_STORE = os.getenv("SHOPIFY_SHOP", "")
 SHOPIFY_TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN", "")
 ORBITOOLS_URL = os.getenv("ORBITOOLS_URL", "https://orbitools.orbiters.co.kr")
@@ -81,14 +78,6 @@ ORBITOOLS_USER = os.getenv("ORBITOOLS_USER", "")
 ORBITOOLS_PASS = os.getenv("ORBITOOLS_PASS", "")
 N8N_BASE_URL = os.getenv("N8N_BASE_URL", "https://n8n.orbiters.co.kr")
 N8N_API_KEY = os.getenv("N8N_API_KEY", "")
-
-# ─── Airtable CRM Tables (PROD: app3Vnmh7hLAVsevE) ─────────────────────────
-AT_BASE = "app3Vnmh7hLAVsevE"
-AT_CREATORS = "tblv2Jw3ZAtAMhiYY"
-AT_CONTENT = "tble4cuyVnXP4OvZR"
-AT_ORDERS = "tblQUz8zQRDdZvES3"
-AT_CONVERSATIONS = "tblNeTyVwMomsfSk7"
-AT_APPLICANTS = "tblQUz8zQRDdZvES3"    # PROD: merged into Orders
 
 # ─── PROD Workflow IDs ────────────────────────────────────────────────────────
 WJ_WORKFLOWS = {
@@ -124,7 +113,6 @@ WJ_WEBHOOKS = {
 REQUIRED_ENVS = {
     "N8N_API_KEY": "n8n API (workflow execution)",
     "N8N_BASE_URL": "n8n base URL",
-    "AIRTABLE_API_KEY": "Airtable verification",
     "SHOPIFY_SHOP": "Shopify Admin API",
     "SHOPIFY_ACCESS_TOKEN": "Shopify Admin API",
 }
@@ -145,12 +133,6 @@ def sep2():    print("-" * 70)
 
 
 # ─── Link generators ──────────────────────────────────────────────────────
-def link_airtable(table_id, record_id=""):
-    url = f"https://airtable.com/{AT_BASE}/{table_id}"
-    if record_id and str(record_id).startswith("rec"):
-        url += f"/{record_id}"
-    return url
-
 def link_shopify(resource, resource_id):
     return f"https://{SHOPIFY_STORE}/admin/{resource}/{resource_id}"
 
