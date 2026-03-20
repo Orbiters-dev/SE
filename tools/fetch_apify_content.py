@@ -15,6 +15,9 @@ Usage:
 
   # Dry run (no API calls, use cached JSON)
   python tools/fetch_apify_content.py --daily --dry-run
+
+  # Cross-platform scan only (TT creators → check IG profiles)
+  python tools/fetch_apify_content.py --cross-platform
 """
 
 import argparse
@@ -1270,6 +1273,14 @@ def run_daily(region="all", dry_run=False, send_mail=True):
         ig_norm = normalize_ig(ig_raw, fmap)
         tt_norm = normalize_tt(tt_raw)
 
+        # Cross-platform: check if TT creators also post on IG
+        ig_usernames = set(d["username"] for d in ig_norm)
+        cross_posts = scan_cross_platform(
+            client, tt_norm, ig_usernames, dry_run=dry_run)
+        if cross_posts:
+            ig_norm.extend(cross_posts)
+            print(f"[US] +{len(cross_posts)} IG posts via cross-platform scan")
+
         us_data = ig_norm + tt_norm
         us_data.sort(key=lambda x: x["post_date"] or "", reverse=True)
         us_creators = set(d["username"] for d in us_data)
@@ -1437,6 +1448,108 @@ def run_daily(region="all", dry_run=False, send_mail=True):
 
 
 # ---------------------------------------------------------------------------
+# Cross-platform scan: TT creators → check IG profiles → catch IG posts
+# ---------------------------------------------------------------------------
+
+CROSS_PLATFORM_CACHE = OUTPUT_DIR / "cross_platform_map.json"
+
+
+def scan_cross_platform(client, tt_posts: list, known_ig_usernames: set,
+                         dry_run: bool = False) -> list:
+    """Check if TikTok creators also have Instagram accounts with brand content.
+
+    For each new TT creator username, attempt to find a matching IG profile.
+    If found and the profile has brand-relevant posts, return those posts.
+
+    Cost: ~$0.50/1000 profiles via Apify IG Profile Scraper (~$0.01/month).
+    """
+    # Load cache of already-checked TT usernames
+    if CROSS_PLATFORM_CACHE.exists():
+        cache = json.loads(CROSS_PLATFORM_CACHE.read_text(encoding="utf-8"))
+    else:
+        cache = {}  # {tt_username: {"ig_username": str|null, "checked": date}}
+
+    # Collect unique TT usernames
+    tt_usernames = set()
+    for p in tt_posts:
+        u = p.get("username", "").lower()
+        if u and u not in EXCLUDE:
+            tt_usernames.add(u)
+
+    # Filter: skip already checked + already known IG creators
+    new_tt = tt_usernames - set(cache.keys()) - known_ig_usernames
+    if not new_tt:
+        print(f"[CROSS] All {len(tt_usernames)} TT creators already checked - skipping")
+        return []
+
+    print(f"[CROSS] {len(new_tt)} new TT creators to check on IG "
+          f"(skip {len(tt_usernames) - len(new_tt)} cached/known)")
+
+    if dry_run:
+        print(f"[DRY] Would check {len(new_tt)} TT usernames on IG")
+        return []
+
+    # Batch check via IG Profile Scraper
+    found_posts = []
+    BATCH = 20
+    usernames_list = sorted(new_tt)
+    for i in range(0, len(usernames_list), BATCH):
+        batch = usernames_list[i:i + BATCH]
+        print(f"[CROSS] Checking IG profiles {i + 1}-{min(i + BATCH, len(usernames_list))}/"
+              f"{len(usernames_list)}...")
+        try:
+            run = client.actor(IG_PROFILE_SCRAPER).call(
+                run_input={"usernames": batch},
+                timeout_secs=300,
+            )
+            items = list(client.dataset(run["defaultDatasetId"]).iterate_items())
+
+            found_usernames = set()
+            for profile in items:
+                ig_user = (profile.get("username", "") or "").lower()
+                if not ig_user or ig_user in EXCLUDE:
+                    continue
+                found_usernames.add(ig_user)
+
+                # Check latestPosts for brand-relevant content
+                posts = normalize_ig_profile_posts([profile])
+                brand_posts = []
+                for p in posts:
+                    text = (p.get("caption", "") + " " + p.get("hashtags", "")).lower()
+                    if any(kw in text for kw in TT_KEYWORDS):
+                        brand_posts.append(p)
+
+                if brand_posts:
+                    print(f"[CROSS] {ig_user}: {len(brand_posts)} brand posts found on IG")
+                    found_posts.extend(brand_posts)
+                    cache[ig_user] = {"ig_username": ig_user, "checked": TODAY,
+                                      "brand_posts": len(brand_posts)}
+                else:
+                    cache[ig_user] = {"ig_username": ig_user, "checked": TODAY,
+                                      "brand_posts": 0}
+
+            # Mark not-found usernames
+            for u in batch:
+                if u not in found_usernames:
+                    cache[u] = {"ig_username": None, "checked": TODAY}
+
+            time.sleep(2)
+        except Exception as e:
+            print(f"[CROSS] Batch {i // BATCH + 1} failed: {e}")
+            for u in batch:
+                if u not in cache:
+                    cache[u] = {"ig_username": None, "checked": TODAY, "error": str(e)}
+
+    # Save cache
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    CROSS_PLATFORM_CACHE.write_text(
+        json.dumps(cache, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    print(f"[CROSS] Done: {len(found_posts)} IG posts from {len(new_tt)} TT creators")
+    return found_posts
+
+
+# ---------------------------------------------------------------------------
 # Influencer upload scanner (Airtable → Apify → Posts Master)
 # ---------------------------------------------------------------------------
 
@@ -1577,11 +1690,65 @@ def run_influencer_scan(dry_run: bool = False) -> dict:
     return {"handles": len(handles), "new_posts": new_count}
 
 
+def run_cross_platform_standalone(dry_run: bool = False) -> dict:
+    """Standalone cross-platform scan: load cached TT data, check IG profiles."""
+    print("\n===== Cross-Platform Scan (Standalone) =====")
+    load_env()
+
+    # Load latest TT data from cache
+    tt_path = max(OUTPUT_DIR.glob("*_us_tiktok*.json"), key=os.path.getmtime, default=None)
+    if not tt_path:
+        print("[CROSS] No cached TikTok data found - run --daily first")
+        return {"checked": 0, "found": 0}
+
+    tt_raw = json.load(open(tt_path, encoding="utf-8"))
+    tt_norm = normalize_tt(tt_raw)
+    print(f"[CROSS] Loaded {len(tt_norm)} TT posts from {tt_path.name}")
+
+    # Load known IG usernames from Posts Master
+    sh, _ = get_sheets()
+    try:
+        pm_ws = sh.worksheet("US Posts Master")
+        all_rows = pm_ws.get_all_values()
+        header = [h.lower() for h in (all_rows[0] if all_rows else [])]
+        platform_col = header.index("platform") if "platform" in header else -1
+        user_col = header.index("username") if "username" in header else -1
+        known_ig = set()
+        if platform_col >= 0 and user_col >= 0:
+            for row in all_rows[1:]:
+                if len(row) > max(platform_col, user_col):
+                    if row[platform_col].lower() == "instagram":
+                        known_ig.add(row[user_col].lower())
+        print(f"[CROSS] {len(known_ig)} known IG creators in Posts Master")
+    except Exception as e:
+        print(f"[CROSS] Could not read Posts Master: {e}")
+        known_ig = set()
+
+    client = None if dry_run else get_client()
+    cross_posts = scan_cross_platform(client, tt_norm, known_ig, dry_run=dry_run)
+
+    if cross_posts and not dry_run:
+        # Add discovered posts to US Posts Master
+        new_count = update_posts_master(sh, cross_posts, "US Posts Master")
+        time.sleep(1)
+        pm_ws = sh.worksheet("US Posts Master")
+        pm_pid_map = get_post_id_to_row(pm_ws)
+        update_d60_tracker(sh, cross_posts, "US D+60 Tracker",
+                           pm_tab_name="US Posts Master", pm_pid_to_row=pm_pid_map)
+        print(f"[CROSS] Added {new_count} new posts to US Posts Master")
+        return {"checked": len(set(p["username"] for p in tt_norm)), "found": len(cross_posts),
+                "new_posts": new_count}
+
+    return {"checked": len(set(p["username"] for p in tt_norm)), "found": len(cross_posts)}
+
+
 def main():
     parser = argparse.ArgumentParser(description="Apify Content Pipeline")
     parser.add_argument("--daily", action="store_true", help="Run daily pipeline")
     parser.add_argument("--influencer-scan", action="store_true",
                         help="Scan active Airtable influencers for new posts")
+    parser.add_argument("--cross-platform", action="store_true",
+                        help="Check TT creators for IG profiles (standalone)")
     parser.add_argument("--region", default="all", choices=["all", "us", "jp"])
     parser.add_argument("--dry-run", action="store_true", help="Use cached JSON, no API calls")
     parser.add_argument("--no-email", action="store_true", help="Skip email notification")
@@ -1591,6 +1758,8 @@ def main():
         run_daily(region=args.region, dry_run=args.dry_run, send_mail=not args.no_email)
     elif args.influencer_scan:
         run_influencer_scan(dry_run=args.dry_run)
+    elif args.cross_platform:
+        run_cross_platform_standalone(dry_run=args.dry_run)
     else:
         parser.print_help()
 
