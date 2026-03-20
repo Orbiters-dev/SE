@@ -46,6 +46,9 @@ jobs:
             echo "=== Deploying onzenna ==="
             scp -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no -r \
               onzenna/ ${EC2_USER}@${EC2_HOST}:${EC2_PATH}/onzenna/ 2>/dev/null || true
+            # Also copy the table creation helper (has pipeline tables)
+            scp -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no \
+              tools/create_missing_tables.py ${EC2_USER}@${EC2_HOST}:${EC2_PATH}/
           fi
 
       - name: Add app to settings & URLs (if needed)
