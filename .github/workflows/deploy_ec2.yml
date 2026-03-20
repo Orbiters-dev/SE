@@ -101,6 +101,14 @@ jobs:
             sudo systemctl restart export_calculator && \
             echo 'Deploy complete!'"
 
+          # Register CORS middleware in Django settings
+          scp -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no \
+            tools/register_cors_middleware.py ${EC2_USER}@${EC2_HOST}:${EC2_PATH}/
+          ${SSH_CMD} "cd ${EC2_PATH} && python3 register_cors_middleware.py" || echo "[WARN] CORS middleware registration skipped"
+
+          # Restart again after middleware registration
+          ${SSH_CMD} "sudo systemctl restart export_calculator" || true
+
           # Configure nginx: skip Basic Auth for OPTIONS (CORS preflight)
           scp -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no \
             tools/configure_nginx_cors.py ${EC2_USER}@${EC2_HOST}:${EC2_PATH}/
