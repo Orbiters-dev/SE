@@ -225,31 +225,10 @@ function filterByBrand(p){ return _brand==='all' || (p._brand||'N/A')===_brand; 
 // ══════════ IMPACT SCORE ══════════
 // Score = view_velocity × engagement_rate × brand_fit × decay × 1000
 // Predicts relative sales contribution per post
-function computeImpactScore(p){
-  var now=new Date();
-  var postDate=new Date(p.post_date||'2026-01-01');
-  var daysOld=Math.max(1, Math.round((now-postDate)/(86400000)));
-  if(daysOld<20) return -1; // n.m. - not enough data yet
-  var views=+(p.views||0);
-  var likes=+(p.likes||0);
-  var comments=+(p.comments||0);
-
-  // View velocity: views per day (speed of virality)
-  var viewVelocity=views/daysOld;
-
-  // Engagement rate: interactions per view
-  var engRate=(likes+comments)/Math.max(views,1);
-
-  // Brand fit: explicit brand mention in caption = 1.5x
-  var text=((p.caption||'')+' '+(p.hashtags||'')).toLowerCase();
-  var brand=(p.brand||p._brand||'').toLowerCase();
-  var brandFit=(brand && brand!=='n/a' && text.indexOf(brand)>=0)?1.5:1.0;
-
-  // Decay: newer posts matter more (D+0=1.0, D+60=0.1)
-  var decay=Math.max(0.1, 1.0-(daysOld/60));
-
-  return Math.round(viewVelocity * engRate * brandFit * decay * 1000 * 100)/100;
-}
+// Search Lift: estimated additional searches driven by this post
+// Requires regression β2 from run_content_impact.py (Module 3, needs 20+ days data)
+// Returns -1 (n.m.) until regression data is available
+function computeImpactScore(p){ return -1; }
 var _alltimeSortBy = 'views'; // 'views' or 'impact'
 function brandBadge(b){
   var colors={'Grosmimi':'background:#ecfdf5;color:#059669','CHA&MOM':'background:#fef2f2;color:#e11d48','Naeiae':'background:#fff7ed;color:#ea580c',
@@ -573,10 +552,6 @@ function renderAllTimeTop(){
     +'<div '+(_alltimeWindow===30?'class="on"':'')+' onclick="setAlltimeWindow(30)">Last 30d</div>'
     +'<div '+(_alltimeWindow===0?'class="on"':'')+' onclick="setAlltimeWindow(0)">All-Time</div>'
     +'</div>'
-    +'<div class="content-toggle">'
-    +'<div '+(_alltimeSortBy==='views'?'class="on"':'')+' onclick="setAlltimeSort(\'views\')">By Views</div>'
-    +'<div '+(_alltimeSortBy==='impact'?'class="on"':'')+' onclick="setAlltimeSort(\'impact\')">By Impact</div>'
-    +'</div>'
     +'</div></div>';
 
   // Get max metrics per post
@@ -688,7 +663,7 @@ function renderAllTimeTop(){
         +'<div style="text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px">Likes</div><div style="font-weight:700;font-size:12px;font-family:var(--mono)">'+formatViewsShort(p.likes)+'</div></div>'
         +'<div style="text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px">Comments</div><div style="font-weight:700;font-size:12px;font-family:var(--mono)">'+formatViewsShort(p.comments)+'</div></div>'
         +'<div style="text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px">Eng %</div><div style="font-weight:700;font-size:12px;font-family:var(--mono);color:'+(parseFloat(engRate)>=5?'var(--g)':parseFloat(engRate)>=2?'var(--am)':'var(--dim)')+'">'+engRate+'%</div></div>'
-        +'<div style="text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px">Impact</div><div style="font-weight:700;font-size:12px;font-family:var(--mono);color:'+(p.impactScore>=1000?'var(--g)':p.impactScore>=100?'var(--a)':'var(--dim)')+'">'+formatImpact(p.impactScore)+'</div></div>'
+        +'<div style="text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px">Search Lift</div><div style="font-weight:700;font-size:12px;font-family:var(--mono);color:'+(p.impactScore>=1000?'var(--g)':p.impactScore>=100?'var(--a)':'var(--dim)')+'">'+formatImpact(p.impactScore)+'</div></div>'
         +'<div style="color:var(--muted);font-size:14px;margin-left:4px">&#x203A;</div>'
       +'</div>'
     +'</div>';
