@@ -724,53 +724,64 @@ var DEMO_FORM_QUESTIONS_DEFAULT={
 var DEMO_FORM_QUESTIONS=(function(){try{var s=localStorage.getItem('pipeline_form_questions');return s?JSON.parse(s):DEMO_FORM_QUESTIONS_DEFAULT}catch(e){return DEMO_FORM_QUESTIONS_DEFAULT}})();
 
 // Product options per brand (shown in form dropdown)
-// Product objects: {name, required, ages:[]}
-// required=true → influencer MUST choose this (age-filtered primary selection)
+// Product objects: {title, required, ages[], bonusAges[], colors[]}
+// Source of truth: tools/deploy_influencer_page.py PRODUCTS + COLOR_HEX
+// required=true → shown as primary required selection (age-filtered)
 // required=false → optional add-on
-// ages=[] → no age filter; else subset of AGE_OPTS
+// ages=[] → no age filter; bonusAges=ages where shown as optional "grow-into"
+// colors=[] → actual Shopify variant color names
 var AGE_OPTS=['0-6m','6-12m','12-18m','18m+'];
+var COLOR_HEX={
+  "Creamy Blue":"#A4C8E1","Rose Coral":"#E88D8D","Olive White":"#C5C99A",
+  "Bear Pure Gold":"#D4A76A","Bear White":"#F5F0E8","Cherry Pure Gold":"#D4A76A",
+  "Cherry Rose Gold":"#E8B4B4","Peach":"#FFB899","Skyblue":"#87CEEB",
+  "White":"#F0F0F0","Aquagreen":"#7BC8A4","Pink":"#FFB6C1","Beige":"#D4C5A9",
+  "Charcoal":"#4A4A4A","Butter":"#F5E6B8","Flower Coral":"#FF8B7D",
+  "Air Balloon Blue":"#7EB5D6","Cherry Peach":"#FFB4A2","Olive Pistachio":"#A8BF8A",
+  "Bear Butter":"#F5E6B8"
+};
 var DEMO_FORM_PRODUCTS_DEFAULT={
   grosmimi:[
-    {name:'PPSU Baby Bottle 150ml',required:true,ages:['0-6m','6-12m']},
-    {name:'PPSU Baby Bottle 240ml',required:true,ages:['6-12m','12-18m']},
-    {name:'PPSU Straw Cup Latte',required:true,ages:['6-12m','12-18m','18m+']},
-    {name:'PPSU Straw Cup Stone',required:true,ages:['6-12m','12-18m','18m+']},
-    {name:'PPSU Tumbler Pink',required:true,ages:['18m+']},
-    {name:'PPSU Tumbler Beige',required:true,ages:['18m+']},
-    {name:'Stainless Straw Cup',required:false,ages:['12-18m','18m+']},
-    {name:'Stainless Tumbler',required:false,ages:['18m+']}
+    {title:'PPSU Baby Bottle 10oz',required:true,ages:['0-6m'],bonusAges:[],
+     colors:['Creamy Blue','Rose Coral','Olive White','Bear Pure Gold','Bear White','Cherry Pure Gold','Cherry Rose Gold','Cherry Peach','Bear Butter','Olive Pistachio']},
+    {title:'PPSU Straw Cup 10oz',required:true,ages:['6-12m','12-18m'],bonusAges:['0-6m'],
+     colors:['Peach','Skyblue','White','Aquagreen','Pink','Beige','Charcoal','Butter']},
+    {title:'Stainless Steel Straw Cup 10oz',required:true,ages:['6-12m','12-18m'],bonusAges:['0-6m'],
+     colors:['Flower Coral','Air Balloon Blue','Cherry Peach','Olive Pistachio','Bear Butter']},
+    {title:'Stainless Steel Tumbler 10oz',required:true,ages:['18m+'],bonusAges:['12-18m'],
+     colors:['Cherry Peach','Bear Butter','Olive Pistachio']}
   ],
   chaenmom:[
-    {name:'PS Cream (Phyto Séline) 50ml',required:true,ages:[]},
-    {name:'PS Cream (Phyto Séline) 100ml',required:false,ages:[]}
+    {title:'PS Cream (Phyto Séline) 50ml',required:true,ages:[],bonusAges:[],colors:[]},
+    {title:'PS Cream (Phyto Séline) 100ml',required:false,ages:[],bonusAges:[],colors:[]}
   ],
   naeiae:[
-    {name:'Pop Rice Snack Original',required:true,ages:[]},
-    {name:'Pop Rice Snack Sweet Potato',required:false,ages:[]},
-    {name:'Pop Rice Snack Blueberry',required:false,ages:[]}
+    {title:'Pop Rice Snack Original',required:true,ages:[],bonusAges:[],colors:[]},
+    {title:'Pop Rice Snack Sweet Potato',required:false,ages:[],bonusAges:[],colors:[]},
+    {title:'Pop Rice Snack Blueberry',required:false,ages:[],bonusAges:[],colors:[]}
   ],
   ht:[
-    {name:'PPSU Straw Cup Latte',required:true,ages:[]},
-    {name:'PPSU Tumbler Pink',required:true,ages:[]},
-    {name:'PS Cream 100ml',required:false,ages:[]},
-    {name:'Pop Rice Snack Original',required:false,ages:[]}
+    {title:'PPSU Straw Cup 10oz',required:true,ages:[],bonusAges:[],
+     colors:['Peach','Skyblue','White','Aquagreen','Pink','Beige','Charcoal','Butter']},
+    {title:'Stainless Steel Tumbler 10oz',required:true,ages:[],bonusAges:[],
+     colors:['Cherry Peach','Bear Butter','Olive Pistachio']},
+    {title:'PS Cream 100ml',required:false,ages:[],bonusAges:[],colors:[]},
+    {title:'Pop Rice Snack Original',required:false,ages:[],bonusAges:[],colors:[]}
   ]
 };
-// Migrate old flat-string format → object format
-function _migrateProdBrand(arr){
-  if(!arr||!arr.length)return arr;
-  if(typeof arr[0]==='string')return arr.map(function(n){return{name:n,required:true,ages:[]}});
-  return arr;
-}
 var DEMO_FORM_PRODUCTS=(function(){
   try{
     var s=localStorage.getItem('pipeline_form_products');
     if(!s)return DEMO_FORM_PRODUCTS_DEFAULT;
     var saved=JSON.parse(s);
-    // check if any brand still uses old string[] format → reset to defaults
-    var needsMigration=false;
-    Object.keys(saved).forEach(function(k){if(saved[k]&&typeof saved[k][0]==='string')needsMigration=true});
-    if(needsMigration){localStorage.removeItem('pipeline_form_products');return DEMO_FORM_PRODUCTS_DEFAULT}
+    // Reset if old format: string[] or missing colors/bonusAges fields
+    var needsReset=false;
+    Object.keys(saved).forEach(function(k){
+      var arr=saved[k];
+      if(!arr||!arr.length)return;
+      if(typeof arr[0]==='string'||!arr[0].hasOwnProperty('colors')||!arr[0].hasOwnProperty('bonusAges'))needsReset=true;
+    });
+    if(needsReset){localStorage.removeItem('pipeline_form_products');return DEMO_FORM_PRODUCTS_DEFAULT}
     return saved;
   }catch(e){return DEMO_FORM_PRODUCTS_DEFAULT}
 })();
@@ -1481,28 +1492,43 @@ function renderBrandForms(config){
     html+='<button class="btn btn-sm btn-primary" onclick="updateForm(\''+bf.key+'\')" style="font-size:10px">Save Questions</button>';
     html+='</div></div>';
 
-    // === Sample Products (required/optional + age tags) ===
+    // === Sample Products (required/optional + age tags + color swatches) ===
     var reqProds=prods.filter(function(p){return p.required!==false});
     var optProds=prods.filter(function(p){return p.required===false});
-    var hasAge=prods.some(function(p){return p.ages&&p.ages.length>0});
+    var hasAge=prods.some(function(p){return (p.ages&&p.ages.length)||(p.bonusAges&&p.bonusAges.length)});
     html+='<div style="margin-top:4px"><span style="font-size:10px;font-weight:700;color:var(--g);cursor:pointer;user-select:none" onclick="toggleSection(\'fp-'+bf.key+'\',this)">&#x25B6; Sample Products ('+reqProds.length+' req / '+optProds.length+' opt)</span></div>';
     html+='<div id="fp-'+bf.key+'" style="display:none;margin-top:4px;padding:8px;background:#f0fdf4;border-radius:6px">';
-    html+='<div style="font-size:9px;color:var(--dim);margin-bottom:6px">인플루언서가 선택 가능한 샘플 제품 — <b>REQ</b>=필수선택, <b>OPT</b>=선택추가'+(hasAge?' &nbsp;|&nbsp; 나이 뱃지 클릭해서 on/off':'')+'</div>';
-    // helper to render one product row
+    html+='<div style="font-size:9px;color:var(--dim);margin-bottom:6px">Source: deploy_influencer_page.py &nbsp;|&nbsp; <b>REQ</b>=필수, <b>OPT</b>=선택추가 &nbsp;|&nbsp; 나이뱃지=required age / 점선=bonus optional</div>';
+    // helper: render one product row
     function _prodRow(p,idx,brand){
       var isReq=p.required!==false;
       var ageHtml='';
       AGE_OPTS.forEach(function(a){
-        var on=(p.ages||[]).indexOf(a)>=0;
-        ageHtml+='<span onclick="toggleProdAge(\''+brand+'\','+idx+',\''+a+'\')" style="cursor:pointer;display:inline-block;padding:1px 5px;border-radius:10px;font-size:9px;font-weight:600;margin:1px;'+(on?'background:#dbeafe;color:#1d4ed8;border:1px solid #93c5fd':'background:#f1f5f9;color:#94a3b8;border:1px solid #e2e8f0')+'" title="'+(on?'Remove':'Add')+' '+a+'">'+a+'</span>';
+        var onReq=(p.ages||[]).indexOf(a)>=0;
+        var onBonus=(p.bonusAges||[]).indexOf(a)>=0;
+        if(onReq){
+          ageHtml+='<span onclick="toggleProdAge(\''+brand+'\','+idx+',\''+a+'\',false)" style="cursor:pointer;display:inline-block;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:700;margin:1px;background:#dbeafe;color:#1d4ed8;border:1px solid #93c5fd" title="Required age — click to remove">'+a+'</span>';
+        } else if(onBonus){
+          ageHtml+='<span onclick="toggleProdAge(\''+brand+'\','+idx+',\''+a+'\',true)" style="cursor:pointer;display:inline-block;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:600;margin:1px;background:#f3f0ff;color:#6d28d9;border:1px dashed #a78bfa" title="Bonus optional age — click to remove">+'+a+'</span>';
+        } else {
+          ageHtml+='<span onclick="toggleProdAge(\''+brand+'\','+idx+',\''+a+'\',false)" style="cursor:pointer;display:inline-block;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:500;margin:1px;background:#f1f5f9;color:#94a3b8;border:1px solid #e2e8f0" title="Click = add required; Shift+click = add bonus">'+a+'</span>';
+        }
       });
-      var row='<div style="margin-bottom:4px;padding:4px 6px;border:1px solid #d1fae5;border-radius:5px;background:#fff">';
+      // Color swatches
+      var swHtml='';
+      (p.colors||[]).forEach(function(c){
+        var hex=COLOR_HEX[c]||'#ccc';
+        swHtml+='<span title="'+c+'" style="display:inline-block;width:14px;height:14px;border-radius:50%;background:'+hex+';border:1px solid rgba(0,0,0,0.15);margin:1px;vertical-align:middle;cursor:default"></span>';
+      });
+      var colorLabel=(p.colors&&p.colors.length)?'<span style="font-size:9px;color:var(--dim);margin-left:2px">'+p.colors.join(', ')+'</span>':'';
+      var row='<div style="margin-bottom:5px;padding:5px 7px;border:1px solid #d1fae5;border-radius:6px;background:#fff">';
       row+='<div style="display:flex;gap:4px;align-items:center">';
-      row+='<span onclick="toggleProdReq(\''+brand+'\','+idx+')" title="Click to toggle" style="cursor:pointer;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:800;min-width:28px;text-align:center;'+(isReq?'background:#fef9c3;color:#92400e':'background:#e0e7ff;color:#3730a3')+'">'+( isReq?'REQ':'OPT')+'</span>';
-      row+='<input type="text" class="fp-input" data-brand="'+brand+'" data-idx="'+idx+'" value="'+esc(p.name||'')+'" style="flex:1;padding:2px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit">';
+      row+='<span onclick="toggleProdReq(\''+brand+'\','+idx+')" title="Click to toggle REQ/OPT" style="cursor:pointer;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:800;min-width:28px;text-align:center;flex-shrink:0;'+(isReq?'background:#fef9c3;color:#92400e':'background:#e0e7ff;color:#3730a3')+'">'+( isReq?'REQ':'OPT')+'</span>';
+      row+='<input type="text" class="fp-input" data-brand="'+brand+'" data-idx="'+idx+'" value="'+esc(p.title||p.name||'')+'" style="flex:1;padding:2px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit">';
       row+='<button style="background:none;border:none;color:var(--r);cursor:pointer;font-size:11px;padding:0 2px" onclick="removeProd(\''+brand+'\','+idx+')">&times;</button>';
       row+='</div>';
-      if(hasAge)row+='<div style="margin-top:3px;margin-left:34px">'+ageHtml+'</div>';
+      if(hasAge){row+='<div style="margin-top:3px;margin-left:34px">'+ageHtml+'</div>';}
+      if(swHtml){row+='<div style="margin-top:3px;margin-left:34px;display:flex;align-items:center;flex-wrap:wrap;gap:1px">'+swHtml+colorLabel+'</div>';}
       row+='</div>';
       return row;
     }
@@ -1563,7 +1589,7 @@ function updateForm(brand){
 // Products
 function addProd(brand,isRequired){
   if(!DEMO_FORM_PRODUCTS[brand])DEMO_FORM_PRODUCTS[brand]=[];
-  DEMO_FORM_PRODUCTS[brand].push({name:'',required:isRequired!==false,ages:[]});
+  DEMO_FORM_PRODUCTS[brand].push({title:'',required:isRequired!==false,ages:[],bonusAges:[],colors:[]});
   renderBrandForms(_config||DEMO_CONFIG);
   document.getElementById('fp-'+brand).style.display='block';
   var inputs=document.querySelectorAll('.fp-input[data-brand="'+brand+'"]');
@@ -1571,8 +1597,8 @@ function addProd(brand,isRequired){
 }
 function removeProd(brand,idx){
   if(!DEMO_FORM_PRODUCTS[brand])return;
-  DEMO_FORM_PRODUCTS[brand].splice(idx,1);
   _syncProdInputs(brand);
+  DEMO_FORM_PRODUCTS[brand].splice(idx,1);
   renderBrandForms(_config||DEMO_CONFIG);
   document.getElementById('fp-'+brand).style.display='block';
 }
@@ -1584,29 +1610,44 @@ function toggleProdReq(brand,idx){
   renderBrandForms(_config||DEMO_CONFIG);
   document.getElementById('fp-'+brand).style.display='block';
 }
-function toggleProdAge(brand,idx,age){
+// isBonus=true → toggle bonusAges[], false → toggle ages[]
+function toggleProdAge(brand,idx,age,isBonus){
   _syncProdInputs(brand);
   if(!DEMO_FORM_PRODUCTS[brand]||!DEMO_FORM_PRODUCTS[brand][idx])return;
   var p=DEMO_FORM_PRODUCTS[brand][idx];
   if(!p.ages)p.ages=[];
-  var i=p.ages.indexOf(age);
-  if(i>=0)p.ages.splice(i,1);else p.ages.push(age);
+  if(!p.bonusAges)p.bonusAges=[];
+  if(isBonus){
+    var ib=p.bonusAges.indexOf(age);
+    if(ib>=0)p.bonusAges.splice(ib,1);else{
+      // remove from required ages if present, add to bonus
+      var ir=p.ages.indexOf(age);if(ir>=0)p.ages.splice(ir,1);
+      p.bonusAges.push(age);
+    }
+  } else {
+    var ir=p.ages.indexOf(age);
+    if(ir>=0){p.ages.splice(ir,1);}
+    else {
+      // if was bonus, move to required; otherwise just add required
+      var ib=p.bonusAges.indexOf(age);if(ib>=0)p.bonusAges.splice(ib,1);
+      p.ages.push(age);
+    }
+  }
   renderBrandForms(_config||DEMO_CONFIG);
   document.getElementById('fp-'+brand).style.display='block';
 }
 function _syncProdInputs(brand){
-  // Flush input values back into DEMO_FORM_PRODUCTS before re-render
   var inputs=document.querySelectorAll('.fp-input[data-brand="'+brand+'"]');
   inputs.forEach(function(inp){
     var idx=parseInt(inp.dataset.idx);
     if(DEMO_FORM_PRODUCTS[brand]&&DEMO_FORM_PRODUCTS[brand][idx])
-      DEMO_FORM_PRODUCTS[brand][idx].name=inp.value;
+      DEMO_FORM_PRODUCTS[brand][idx].title=inp.value;
   });
 }
 function saveProd(brand){
   _syncProdInputs(brand);
-  var ps=DEMO_FORM_PRODUCTS[brand].filter(function(p){return p.name&&p.name.trim()});
-  ps.forEach(function(p){p.name=p.name.trim()});
+  var ps=DEMO_FORM_PRODUCTS[brand].filter(function(p){return (p.title||p.name||'').trim()});
+  ps.forEach(function(p){p.title=(p.title||p.name||'').trim();delete p.name;});
   DEMO_FORM_PRODUCTS[brand]=ps;
   try{localStorage.setItem('pipeline_form_products',JSON.stringify(DEMO_FORM_PRODUCTS))}catch(e){}
   showToast(brand+' products saved ('+ps.length+'개)','ok');
