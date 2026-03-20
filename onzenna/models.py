@@ -194,6 +194,45 @@ class OnzInfluencerOutreach(models.Model):
         return f"{self.ig_handle or self.email} [{self.outreach_status}]"
 
 
+class PipelineConfig(models.Model):
+    """Creator Collab Pipeline daily config — replaces Airtable Config table."""
+    date = models.DateField(unique=True)
+    # Batch control
+    update_date = models.DateField(null=True, blank=True)
+    start_from_beginning = models.BooleanField(default=False)
+    creators_contacted = models.IntegerField(default=10)
+    ht_threshold = models.IntegerField(default=100000)
+    # Feature toggles
+    rag_email_dedup = models.BooleanField(default=True)
+    apify_autofill = models.BooleanField(default=True)
+    human_in_loop = models.CharField(max_length=10, default="on")
+    sender_email = models.CharField(max_length=100, default="affiliates@onzenna.com")
+    # Templates & forms
+    outreach_template_id = models.CharField(max_length=100, default="1vAvPdheHFz4xIraa3NODUuFG7RagylHEYOvv6BjtxLg")
+    grosmimi_form_url = models.URLField(max_length=500, blank=True, default="")
+    chaenmom_form_url = models.URLField(max_length=500, blank=True, default="")
+    naeiae_form_url = models.URLField(max_length=500, blank=True, default="")
+    ht_form_url = models.URLField(max_length=500, blank=True, default="")
+    # Computed (written by preview tool)
+    eligible_total = models.IntegerField(default=0)
+    eligible_grosmimi = models.IntegerField(default=0)
+    eligible_chaenmom = models.IntegerField(default=0)
+    eligible_naeiae = models.IntegerField(default=0)
+    eligible_unknown = models.IntegerField(default=0)
+    ht_count = models.IntegerField(default=0)
+    lt_count = models.IntegerField(default=0)
+    # Meta
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.CharField(max_length=50, blank=True, default="")
+
+    class Meta:
+        db_table = "onz_pipeline_config"
+        ordering = ["-date"]
+
+    def __str__(self):
+        return f"Config {self.date} (batch={self.creators_contacted})"
+
+
 class GmailContact(models.Model):
     """Gmail RAG contact index — tracks who we've emailed."""
     email = models.EmailField(unique=True, db_index=True)

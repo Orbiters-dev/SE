@@ -109,6 +109,7 @@ if 'CORS_ALLOWED_ORIGIN_REGEXES' not in content:
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r'^https://.*\\\\.vercel\\\\.app$',
     r'^https://onzenna.*\\\\.vercel\\\\.app$',
+    r'^https://orbiters-dev\\\\.github\\\\.io$',
 ]
 CORS_ALLOW_HEADERS = ['content-type', 'authorization']
 '''
@@ -145,6 +146,9 @@ else:
     print('curl -X POST -u admin:PASSWORD -H "Content-Type: application/json" \\')
     print('  https://orbitools.orbiters.co.kr/api/onzenna/users/ \\')
     print('  -d \'{"id":"00000000-0000-0000-0000-000000000001","email":"test@onzenna.com","full_name":"Test User","auth_provider":"email"}\'')
+    print()
+    print("# Test pipeline config:")
+    print("curl -u admin:PASSWORD https://orbitools.orbiters.co.kr/api/onzenna/pipeline/config/today/")
     print()
 
     print("=" * 70)

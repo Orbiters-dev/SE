@@ -2,9 +2,9 @@
 """
 Preview Outreach Batch — Config-driven eligible creator counter.
 
-Reads Config table (Update Date, Batch Size, Start From Beginning),
-counts eligible creators by Initial Discovery Date, estimates brand split
-from Content keywords, and writes summary back to Config.
+Reads Config from EC2 API (PipelineConfig), counts eligible creators
+from Airtable by Initial Discovery Date, estimates brand split from
+Content keywords, and writes eligible counts back to EC2 API.
 
 Usage:
     python tools/preview_outreach_batch.py              # Count + update Config
@@ -16,6 +16,7 @@ sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 import json
 import os
+import ssl
 import urllib.request
 import urllib.parse
 import argparse
@@ -37,11 +38,32 @@ def load_secrets():
 load_secrets()
 AT_KEY = os.environ.get('AIRTABLE_API_KEY', '')
 
+# ── EC2 API ──────────────────────────────────────────────────────────────
+EC2_API_BASE = 'https://orbitools.orbiters.co.kr/api/onzenna'
+EC2_USER = os.environ.get('ORBITOOLS_USER', 'admin')
+EC2_PASS = os.environ.get('ORBITOOLS_PASS', 'admin')
+
+def ec2_request(path, method='GET', data=None):
+    """Make EC2 API request with basic auth."""
+    import base64
+    url = EC2_API_BASE + path
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Basic " + base64.b64encode(f"{EC2_USER}:{EC2_PASS}".encode()).decode(),
+    }
+    req = urllib.request.Request(url, headers=headers, method=method)
+    if data:
+        req.data = json.dumps(data).encode()
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    with urllib.request.urlopen(req, context=ctx) as resp:
+        return json.loads(resp.read())
+
 # ── Airtable IDs ─────────────────────────────────────────────────────────
 BASE_ID = 'app3Vnmh7hLAVsevE'
 TBL_CREATORS = 'tblv2Jw3ZAtAMhiYY'
 TBL_CONTENT = 'tble4cuyVnXP4OvZR'
-TBL_CONFIG = 'tbl6gGyLMvp57q1v7'
 
 # ── Brand keywords (same as n8n Draft Gen) ───────────────────────────────
 BRAND_KEYWORDS = {
@@ -107,13 +129,12 @@ def detect_brand(text):
 
 
 def get_today_config():
-    """Get today's Config row."""
-    today = datetime.now().strftime('%Y-%m-%d')
-    formula = f"DATESTR({{Date}})='{today}'"
-    records = at_paginate(TBL_CONFIG, formula=formula)
-    if records:
-        return records[0]
-    return None
+    """Get today's Config from EC2 API."""
+    try:
+        return ec2_request('/pipeline/config/today/')
+    except Exception as e:
+        print(f"  WARNING: EC2 API error: {e}")
+        return None
 
 
 def main():
@@ -127,26 +148,27 @@ def main():
     print("  OUTREACH BATCH PREVIEW")
     print("=" * 60)
 
-    # ── 1. Read Config ───────────────────────────────────────────────
-    print("\n[1/4] Reading Config...")
-    config_rec = get_today_config()
-    if not config_rec:
-        print("  WARNING: No Config row for today. Using defaults.")
+    # ── 1. Read Config from EC2 ──────────────────────────────────────
+    print("\n[1/4] Reading Config from EC2 API...")
+    config = get_today_config()
+    if not config:
+        print("  WARNING: No Config available. Using defaults.")
         update_date = None
         batch_size = 10
         start_from_beginning = False
+        config_date = datetime.now().strftime('%Y-%m-%d')
     else:
-        cf = config_rec['fields']
-        update_date = cf.get('Update Date')
-        batch_size = cf.get('Creators Contacted', 10)
-        start_from_beginning = cf.get('Start From Beginning', False)
+        update_date = config.get('update_date')
+        batch_size = config.get('creators_contacted', 10)
+        start_from_beginning = config.get('start_from_beginning', False)
+        config_date = config.get('date', datetime.now().strftime('%Y-%m-%d'))
         print(f"  Update Date: {update_date or '(not set)'}")
         print(f"  Batch Size (Creators Contacted): {batch_size}")
         print(f"  Start From Beginning: {start_from_beginning}")
 
     effective_date = None if start_from_beginning else update_date
 
-    # ── 2. Count eligible creators ───────────────────────────────────
+    # ── 2. Count eligible creators (Airtable) ────────────────────────
     print("\n[2/4] Counting eligible creators...")
     base_formula = "AND({Email}!=BLANK(),{Outreach Status}='Not Started',{Partnership Status}='New')"
     if effective_date:
@@ -246,48 +268,40 @@ def main():
                 est = int(count / sample_size * total_eligible)
                 print(f"    {brand}: ~{est}")
 
-    # ── 4. Update Config ─────────────────────────────────────────────
+    # ── 4. Update Config via EC2 API ─────────────────────────────────
     if args.dry_run:
-        print("\n[4/4] DRY RUN — skipping Config update.")
-    elif config_rec:
-        print("\n[4/4] Updating Config...")
-        update_fields = {
-            'Eligible Total': total_eligible,
+        print("\n[4/4] DRY RUN -- skipping Config update.")
+    elif config:
+        print("\n[4/4] Updating Config via EC2 API...")
+        update_data = {
+            'eligible_total': total_eligible,
+            'updated_by': 'preview_tool',
         }
-        # Add brand counts if we have them
-        for brand in ['Grosmimi', 'CHA&MOM', 'Naeiae']:
-            field_name = f"Eligible {brand}"
+        # Add brand counts
+        for brand, field in [('Grosmimi', 'eligible_grosmimi'),
+                             ('CHA&MOM', 'eligible_chaenmom'),
+                             ('Naeiae', 'eligible_naeiae')]:
             if args.full_scan:
-                update_fields[field_name] = brand_counts.get(brand, 0)
+                update_data[field] = brand_counts.get(brand, 0)
             else:
-                # Extrapolate from sample
                 sample_count = brand_counts.get(brand, 0)
                 est = int(sample_count / max(sample_size, 1) * total_eligible) if sample_size > 0 else 0
-                update_fields[field_name] = est
+                update_data[field] = est
 
-        update_fields['Eligible Unknown'] = (
+        update_data['eligible_unknown'] = (
             total_eligible
-            - update_fields.get('Eligible Grosmimi', 0)
-            - update_fields.get('Eligible CHA&MOM', 0)
-            - update_fields.get('Eligible Naeiae', 0)
+            - update_data.get('eligible_grosmimi', 0)
+            - update_data.get('eligible_chaenmom', 0)
+            - update_data.get('eligible_naeiae', 0)
         )
 
-        url = f"https://api.airtable.com/v0/{BASE_ID}/{TBL_CONFIG}/{config_rec['id']}"
         try:
-            at_request(url, method='PATCH', data={"fields": update_fields, "typecast": True})
-            print(f"  Updated Config with: {json.dumps(update_fields, indent=2)}")
+            ec2_request(f'/pipeline/config/{config_date}/', method='POST', data=update_data)
+            print(f"  Updated EC2 Config with: {json.dumps(update_data, indent=2)}")
         except Exception as e:
-            err = str(e)
-            if '422' in err or 'UNKNOWN_FIELD_NAME' in err:
-                print(f"  NOTE: Some fields don't exist yet in Config table.")
-                print(f"  Please create these fields manually in Airtable:")
-                for fn in update_fields:
-                    print(f"    - {fn} (Number)")
-                print(f"  Or run with --dry-run first.")
-            else:
-                print(f"  Error updating Config: {e}")
+            print(f"  Error updating Config: {e}")
     else:
-        print("\n[4/4] No Config row to update.")
+        print("\n[4/4] No Config to update.")
 
     # ── Summary ──────────────────────────────────────────────────────
     print("\n" + "=" * 60)

@@ -41,6 +41,11 @@ urlpatterns = [
     path("gmail-rag/bulk-check/", views.bulk_check_gmail_contacts, name="bulk_check_gmail_contacts"),
     path("gmail-rag/sync/", views.sync_gmail_contacts, name="sync_gmail_contacts"),
 
+    # Pipeline Config
+    path("pipeline/config/today/", views.get_pipeline_config_today, name="pipeline_config_today"),
+    path("pipeline/config/history/", views.pipeline_config_history, name="pipeline_config_history"),
+    path("pipeline/config/<str:config_date>/", views.get_or_save_pipeline_config, name="pipeline_config_date"),
+
     # Monitoring
     path("tables/", views.list_tables, name="list_tables"),
 ]

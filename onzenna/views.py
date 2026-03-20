@@ -17,6 +17,7 @@ from .models import (
     OnzGiftingApplication,
     OnzInfluencerOutreach,
     GmailContact,
+    PipelineConfig,
 )
 
 
@@ -540,6 +541,98 @@ def list_outreach(request):
     return JsonResponse([_serialize(o) for o in qs[:limit]], safe=False)
 
 
+# --- Pipeline Config ---
+
+
+def _serialize_config(obj):
+    """Serialize PipelineConfig to dict with proper date handling."""
+    data = {}
+    for field in obj._meta.fields:
+        val = getattr(obj, field.name)
+        if isinstance(val, datetime):
+            val = val.isoformat()
+        elif hasattr(val, 'isoformat'):  # date objects
+            val = val.isoformat() if val else None
+        data[field.name] = val
+    return data
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_pipeline_config_today(request):
+    """Get today's pipeline config. Creates default if none exists."""
+    from datetime import date as date_cls
+    today = date_cls.today()
+    config, created = PipelineConfig.objects.get_or_create(date=today)
+    return JsonResponse(_serialize_config(config))
+
+
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
+def get_or_save_pipeline_config(request, config_date):
+    """Get or update pipeline config for a specific date."""
+    from datetime import date as date_cls
+    try:
+        d = datetime.strptime(config_date, "%Y-%m-%d").date()
+    except ValueError:
+        return JsonResponse({"error": "Invalid date format. Use YYYY-MM-DD"}, status=400)
+
+    if request.method == "GET":
+        try:
+            config = PipelineConfig.objects.get(date=d)
+        except PipelineConfig.DoesNotExist:
+            return JsonResponse({"error": "Config not found for this date"}, status=404)
+        return JsonResponse(_serialize_config(config))
+
+    # POST — upsert
+    body = _json_body(request)
+    defaults = {}
+    # Batch control
+    if "update_date" in body:
+        defaults["update_date"] = _parse_date(body["update_date"])
+    if "start_from_beginning" in body:
+        defaults["start_from_beginning"] = bool(body["start_from_beginning"])
+    if "creators_contacted" in body:
+        defaults["creators_contacted"] = int(body["creators_contacted"])
+    if "ht_threshold" in body:
+        defaults["ht_threshold"] = int(body["ht_threshold"])
+    # Feature toggles
+    for field in ("rag_email_dedup", "apify_autofill"):
+        if field in body:
+            defaults[field] = bool(body[field])
+    if "human_in_loop" in body:
+        defaults["human_in_loop"] = body["human_in_loop"]
+    if "sender_email" in body:
+        defaults["sender_email"] = body["sender_email"]
+    # Templates & forms
+    for field in ("outreach_template_id", "grosmimi_form_url", "chaenmom_form_url",
+                  "naeiae_form_url", "ht_form_url"):
+        if field in body:
+            defaults[field] = body[field]
+    # Computed fields (from preview tool)
+    for field in ("eligible_total", "eligible_grosmimi", "eligible_chaenmom",
+                  "eligible_naeiae", "eligible_unknown", "ht_count", "lt_count"):
+        if field in body:
+            defaults[field] = int(body[field])
+    # Meta
+    if "updated_by" in body:
+        defaults["updated_by"] = body["updated_by"]
+
+    config, created = PipelineConfig.objects.update_or_create(
+        date=d, defaults=defaults
+    )
+    return JsonResponse(_serialize_config(config), status=201 if created else 200)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def pipeline_config_history(request):
+    """Get recent pipeline config history (last 30 days by default)."""
+    limit = int(request.GET.get("limit", 30))
+    configs = PipelineConfig.objects.all()[:limit]
+    return JsonResponse([_serialize_config(c) for c in configs], safe=False)
+
+
 # --- Tables (for monitoring) ---
 
 
@@ -557,6 +650,7 @@ def list_tables(request):
         "onz_gifting_applications": OnzGiftingApplication.objects.count(),
         "onz_influencer_outreach": OnzInfluencerOutreach.objects.count(),
         "gk_gmail_contacts": GmailContact.objects.count(),
+        "onz_pipeline_config": PipelineConfig.objects.count(),
     }
     return JsonResponse({"tables": tables})
 
