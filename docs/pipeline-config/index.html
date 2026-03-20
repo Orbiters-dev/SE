@@ -249,11 +249,11 @@ function showDashboard(){
   document.getElementById('main-content').style.display='block';
   loadConfig();
 }
-var u=checkAuth();
-if(u){_currentUser=u;showDashboard();}
-
 // ========== API ==========
 var API_BASE = 'https://orbitools.orbiters.co.kr/api/onzenna';
+
+var u=checkAuth();
+if(u){_currentUser=u;showDashboard();}
 var _config = null;
 
 async function apiFetch(path, opts){
