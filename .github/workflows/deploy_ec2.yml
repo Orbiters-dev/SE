@@ -101,25 +101,18 @@ jobs:
             sudo systemctl restart export_calculator && \
             echo 'Deploy complete!'"
 
-          # Remove ALL nginx CORS headers and add OPTIONS preflight for CORS + Basic Auth
-          ${SSH_CMD} "echo '=== Cleaning nginx CORS ===' && \
+          # Configure nginx: skip Basic Auth for OPTIONS (CORS preflight) using map
+          ${SSH_CMD} "echo '=== Configuring nginx CORS preflight ===' && \
             sudo find /etc/nginx -type f \( -name '*.conf' -o -name 'default' -o -name '*.cfg' \) -exec sudo sed -i '/[Aa]ccess-[Cc]ontrol/d' {} \; 2>/dev/null && \
             sudo find /etc/nginx/sites-available -type f -exec sudo sed -i '/[Aa]ccess-[Cc]ontrol/d' {} \; 2>/dev/null && \
             sudo find /etc/nginx/sites-enabled -type f -exec sudo sed -i '/[Aa]ccess-[Cc]ontrol/d' {} \; 2>/dev/null && \
-            echo '=== Adding OPTIONS preflight ===' && \
-            printf '%s\n' \
-              'if (\$request_method = OPTIONS) {' \
-              '    add_header Access-Control-Allow-Origin https://orbiters-dev.github.io always;' \
-              '    add_header Access-Control-Allow-Methods \"GET, POST, PUT, OPTIONS\" always;' \
-              '    add_header Access-Control-Allow-Headers \"Authorization, Content-Type\" always;' \
-              '    add_header Access-Control-Max-Age 86400 always;' \
-              '    return 204;' \
-              '}' | sudo tee /etc/nginx/snippets/cors-preflight.conf > /dev/null && \
-            NGINX_SITE=\$(sudo find /etc/nginx/sites-enabled -type f -o -type l | head -1) && \
-            if ! sudo grep -q 'cors-preflight' \$NGINX_SITE 2>/dev/null; then \
-              sudo sed -i '/location.*\\/.*{/a \\    include snippets/cors-preflight.conf;' \$NGINX_SITE 2>/dev/null || true; \
+            sudo rm -f /etc/nginx/snippets/cors-preflight.conf && \
+            if ! sudo grep -q 'map.*request_method.*auth_type' /etc/nginx/nginx.conf 2>/dev/null; then \
+              sudo sed -i '/http.*{/a \\n    # Skip auth for OPTIONS (CORS preflight)\n    map \$request_method \$auth_type {\n        OPTIONS \"off\";\n        default \"Restricted\";\n    }' /etc/nginx/nginx.conf; \
             fi && \
-            sudo nginx -t && sudo systemctl reload nginx && echo 'Nginx CORS configured'" || echo "[WARN] nginx fix skipped"
+            NGINX_SITE=\$(sudo find /etc/nginx/sites-enabled -type f -o -type l | head -1) && \
+            sudo sed -i 's/auth_basic .*/auth_basic \$auth_type;/' \$NGINX_SITE 2>/dev/null && \
+            sudo nginx -t && sudo systemctl reload nginx && echo 'Nginx auth+CORS configured'" || echo "[WARN] nginx fix skipped"
 
       - name: Verify deployment
         run: |
