@@ -27,7 +27,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: ppc-dashboard
+  # Execute runs get their own group so they're never cancelled by a concurrent propose
+  group: ppc-dashboard-${{ inputs.action || 'propose' }}
   cancel-in-progress: false
 
 jobs:

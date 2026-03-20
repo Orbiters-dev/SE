@@ -5639,6 +5639,8 @@ def _resolve_brands(args) -> List[str]:
             "grosmimi": "grosmimi", "gros": "grosmimi",
             "chaenmom": "chaenmom", "orbitool": "chaenmom", "cha&mom": "chaenmom", "chamom": "chaenmom",
         }
+        if brand == "all":
+            return ALL_BRAND_KEYS
         key = aliases.get(brand, brand)
         if key not in BRAND_CONFIGS:
             print(f"[ERROR] Unknown brand '{args.brand}'. Available: {', '.join(ALL_BRAND_KEYS)}")
