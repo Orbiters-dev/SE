@@ -160,6 +160,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
     <div data-p="execution">Execution</div>
     <div data-p="content">Content</div>
     <div data-p="comms">Comms</div>
+    <div data-p="tests">Tests</div>
   </div>
 
   <!-- ===== HOW IT WORKS TAB ===== -->
@@ -586,6 +587,21 @@ Shopify                         Apify / Syncly                   Gmail RAG
       <div class="desc">Email history + Gmail RAG search + Status timeline<br>Phase 2 &#8212; connects to GmailContact data + PipelineStatusChange audit trail</div>
       <p style="font-size:11px;color:var(--muted);margin-top:12px">Coming soon: Email thread viewer, contact lookup, conversation timeline</p>
     </div>
+  </div>
+
+  <!-- ===== TESTS TAB ===== -->
+  <div class="mp" id="p-tests">
+    <div class="card">
+      <h3>E2E Test Suite &mdash; Pipeline CRM API</h3>
+      <div class="desc">Live API endpoint verification against <code>orbitools.orbiters.co.kr</code>. Click "Run Tests" to execute all flows.</div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <button class="btn btn-primary" onclick="runE2ETests()" id="btn-run-tests">Run Tests</button>
+        <span id="test-status" style="font-size:11px;color:var(--dim);display:flex;align-items:center"></span>
+      </div>
+      <div id="test-summary" style="margin-bottom:14px"></div>
+    </div>
+
+    <div id="test-flows-container"></div>
   </div>
 
 </div></div>
@@ -1505,6 +1521,147 @@ function scrollToHwSec(id){
   if(!el)return;
   if(!el.classList.contains('open'))el.classList.add('open');
   el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ========== TESTS TAB ==========
+var E2E_FLOWS=[
+  {name:'CORS',icon:'\uD83D\uDD12',tests:[
+    {id:'cors-preflight',label:'OPTIONS preflight',method:'OPTIONS',path:'/tables/',headers:{'Origin':'https://orbiters-dev.github.io','Access-Control-Request-Method':'GET','Access-Control-Request-Headers':'Authorization'},
+     check:function(r,h){return r.status===204&&(h.get('access-control-allow-origin')||'').includes('orbiters-dev')},
+     detail:function(r,h){return 'status='+r.status+', origin='+(h.get('access-control-allow-origin')||'none')}}
+  ]},
+  {name:'Creators CRUD',icon:'\uD83D\uDC65',tests:[
+    {id:'stats',label:'GET /stats/',method:'GET',path:'/pipeline/creators/stats/',
+     check:function(r,h,d){return r.ok&&d.total!==undefined},
+     detail:function(r,h,d){return 'total='+d.total}},
+    {id:'list',label:'GET /creators/?limit=5',method:'GET',path:'/pipeline/creators/?limit=5',
+     check:function(r,h,d){return r.ok&&d.results},
+     detail:function(r,h,d){return (d.count||d.results.length)+' total'}},
+    {id:'detail',label:'GET /creators/<id>/',method:'GET',path:null,dynamic:true,
+     setup:async function(){var d=await apiFetchRaw('/pipeline/creators/?limit=1');return'/pipeline/creators/'+d.results[0].id+'/'},
+     check:function(r,h,d){return r.ok&&d.id},
+     detail:function(r,h,d){return 'handle='+(d.handle||d.ig_handle||'ok')}},
+    {id:'bulk-status',label:'POST /bulk-status/',method:'POST',path:null,dynamic:true,
+     setup:async function(){var d=await apiFetchRaw('/pipeline/creators/?limit=1');return{path:'/pipeline/creators/bulk-status/',body:{ids:[d.results[0].id],status:'Not Started'}}},
+     check:function(r,h,d){return r.ok},
+     detail:function(r,h,d){return 'updated='+(d.updated||0)}}
+  ]},
+  {name:'Config',icon:'\u2699\uFE0F',tests:[
+    {id:'config-today',label:'GET /config/today/',method:'GET',path:'/pipeline/config/today/',
+     check:function(r,h,d){return r.ok&&d.date},
+     detail:function(r,h,d){return 'date='+d.date}},
+    {id:'config-save',label:'POST /config/<date>/',method:'POST',path:'/pipeline/config/2026-03-20/',body:{creators_contacted:10,ht_threshold:100000,human_in_loop:'on'},
+     check:function(r,h,d){return r.ok},
+     detail:function(r,h,d){return 'status='+r.status}},
+    {id:'config-history',label:'GET /config/history/',method:'GET',path:'/pipeline/config/history/',
+     check:function(r,h,d){return r.ok&&Array.isArray(d)},
+     detail:function(r,h,d){return d.length+' entries'}}
+  ]},
+  {name:'Execution Log',icon:'\uD83D\uDCCB',tests:[
+    {id:'exec-post',label:'POST /execution/log/',method:'POST',path:'/pipeline/execution/log/',body:{action_type:'e2e_dashboard',triggered_by:'test_tab',target_count:0,status:'completed'},
+     check:function(r,h,d){return r.status===201&&d.id},
+     detail:function(r,h,d){return 'id='+d.id}},
+    {id:'exec-get',label:'GET /execution/log/',method:'GET',path:'/pipeline/execution/log/',
+     check:function(r,h,d){return r.ok&&d.total>=1},
+     detail:function(r,h,d){return d.total+' entries'}}
+  ]},
+  {name:'Syncly Discovery',icon:'\uD83D\uDD0E',tests:[
+    {id:'discovery',label:'POST /import-discovery/',method:'POST',path:'/pipeline/creators/import-discovery/',body:{min_followers:500,limit:5},
+     check:function(r,h,d){return r.ok&&d.created!==undefined},
+     detail:function(r,h,d){return 'created='+d.created+', skipped='+d.skipped}}
+  ]},
+  {name:'Gmail RAG',icon:'\uD83D\uDCE7',tests:[
+    {id:'gmail-check',label:'GET /check-contact/',method:'GET',path:'/gmail-rag/check-contact/?email=test@example.com',
+     check:function(r,h,d){return r.ok},
+     detail:function(r,h,d){return 'found='+d.found}}
+  ]},
+  {name:'Monitoring',icon:'\uD83D\uDCCA',tests:[
+    {id:'tables',label:'GET /tables/',method:'GET',path:'/tables/',
+     check:function(r,h,d){return r.ok&&d.tables},
+     detail:function(r,h,d){return Object.keys(d.tables).length+' tables'}}
+  ]}
+];
+
+async function apiFetchRaw(path){
+  var r=await fetch(API_BASE+path,{headers:{'Authorization':'Basic '+btoa('admin:admin'),'Content-Type':'application/json'}});
+  return r.json();
+}
+
+async function runSingleTest(t){
+  try{
+    var path=t.path;
+    var body=t.body;
+    if(t.dynamic&&t.setup){
+      var s=await t.setup();
+      if(typeof s==='string'){path=s}else{path=s.path;body=s.body}
+    }
+    var opts={method:t.method,headers:{'Authorization':'Basic '+btoa('admin:admin'),'Content-Type':'application/json'}};
+    if(t.headers)Object.assign(opts.headers,t.headers);
+    if(body)opts.body=JSON.stringify(body);
+    var r=await fetch(API_BASE+path,opts);
+    var h=r.headers;
+    var d=null;
+    try{d=await r.json()}catch(e){d={}}
+    var ok=t.check(r,h,d);
+    var detail=t.detail(r,h,d);
+    return{id:t.id,label:t.label,status:ok?'PASS':'FAIL',detail:detail};
+  }catch(e){
+    return{id:t.id,label:t.label,status:'FAIL',detail:e.message};
+  }
+}
+
+async function runE2ETests(){
+  var btn=document.getElementById('btn-run-tests');
+  btn.disabled=true;btn.textContent='Running...';
+  document.getElementById('test-status').textContent='';
+  var container=document.getElementById('test-flows-container');
+  container.innerHTML='';
+  var summaryEl=document.getElementById('test-summary');
+  var startTime=Date.now();
+  var allResults=[];
+  var totalPass=0;var totalFail=0;var totalTests=0;
+
+  for(var fi=0;fi<E2E_FLOWS.length;fi++){
+    var flow=E2E_FLOWS[fi];
+    var card=document.createElement('div');
+    card.className='card';
+    card.innerHTML='<h3>'+flow.icon+' Flow '+(fi+1)+': '+esc(flow.name)+'</h3><div id="flow-tests-'+fi+'" style="margin-top:8px"></div>';
+    container.appendChild(card);
+    var testsDiv=card.querySelector('#flow-tests-'+fi);
+    var flowPass=0;var flowFail=0;
+
+    for(var ti=0;ti<flow.tests.length;ti++){
+      totalTests++;
+      var row=document.createElement('div');
+      row.style.cssText='display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:12px';
+      row.innerHTML='<span style="width:50px;text-align:center;font-size:10px;color:var(--muted)">...</span><code style="flex:1;font-size:11px">'+esc(flow.tests[ti].label)+'</code><span style="color:var(--muted);font-size:10px">running</span>';
+      testsDiv.appendChild(row);
+
+      var result=await runSingleTest(flow.tests[ti]);
+      allResults.push({flow:flow.name,test:result.label,status:result.status,detail:result.detail});
+      var isPass=result.status==='PASS';
+      if(isPass){flowPass++;totalPass++}else{flowFail++;totalFail++}
+      row.innerHTML='<span class="b '+(isPass?'g':'r')+'" style="width:50px;text-align:center">'+result.status+'</span>'
+        +'<code style="flex:1;font-size:11px">'+esc(result.label)+'</code>'
+        +'<span style="color:var(--dim);font-size:10px;font-family:var(--mono)">'+esc(result.detail)+'</span>';
+    }
+
+    var flowBadge=isPass?'<span class="b g" style="margin-left:auto">'+flowPass+'/'+flow.tests.length+'</span>':'<span class="b '+(flowFail>0?'r':'g')+'" style="margin-left:auto">'+flowPass+'/'+flow.tests.length+'</span>';
+    card.querySelector('h3').innerHTML+=flowBadge;
+  }
+
+  var elapsed=((Date.now()-startTime)/1000).toFixed(1);
+  var allOk=totalFail===0;
+  summaryEl.innerHTML='<div class="stats" style="grid-template-columns:repeat(4,1fr)">'
+    +'<div class="stat '+(allOk?'green':'red')+'"><div class="sl">Result</div><div class="sv">'+(allOk?'ALL PASS':'FAIL')+'</div></div>'
+    +'<div class="stat green"><div class="sl">Passed</div><div class="sv">'+totalPass+'</div></div>'
+    +'<div class="stat '+(totalFail>0?'red':'green')+'"><div class="sl">Failed</div><div class="sv">'+totalFail+'</div></div>'
+    +'<div class="stat cyan"><div class="sl">Duration</div><div class="sv">'+elapsed+'s</div></div>'
+    +'</div>';
+
+  document.getElementById('test-status').innerHTML='<span class="b '+(allOk?'g':'r')+'">'+totalPass+'/'+totalTests+'</span> &mdash; '+new Date().toLocaleTimeString();
+  btn.disabled=false;btn.textContent='Run Tests';
+  showToast(totalPass+'/'+totalTests+' tests passed ('+elapsed+'s)',allOk?'ok':'err');
 }
 
 // ========== HELPERS ==========
