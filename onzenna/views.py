@@ -3,9 +3,25 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+
+# CORS origins allowed for GH Pages dashboards
+_CORS_ORIGINS = (
+    'https://orbiters-dev.github.io',
+)
+
+
+def _cors_headers(request, response):
+    """Add CORS headers if origin matches allowed list."""
+    origin = request.META.get('HTTP_ORIGIN', '')
+    if origin in _CORS_ORIGINS:
+        response['Access-Control-Allow-Origin'] = origin
+        response['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+        response['Access-Control-Allow-Headers'] = 'Content-Type'
+        response['Access-Control-Max-Age'] = '86400'
+    return response
 
 from .models import (
     OnzUser,
@@ -558,31 +574,33 @@ def _serialize_config(obj):
 
 
 @csrf_exempt
-@require_http_methods(["GET"])
 def get_pipeline_config_today(request):
     """Get today's pipeline config. Creates default if none exists."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
     from datetime import date as date_cls
     today = date_cls.today()
     config, created = PipelineConfig.objects.get_or_create(date=today)
-    return JsonResponse(_serialize_config(config))
+    return _cors_headers(request, JsonResponse(_serialize_config(config)))
 
 
 @csrf_exempt
-@require_http_methods(["GET", "POST"])
 def get_or_save_pipeline_config(request, config_date):
     """Get or update pipeline config for a specific date."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
     from datetime import date as date_cls
     try:
         d = datetime.strptime(config_date, "%Y-%m-%d").date()
     except ValueError:
-        return JsonResponse({"error": "Invalid date format. Use YYYY-MM-DD"}, status=400)
+        return _cors_headers(request, JsonResponse({"error": "Invalid date format. Use YYYY-MM-DD"}, status=400))
 
     if request.method == "GET":
         try:
             config = PipelineConfig.objects.get(date=d)
         except PipelineConfig.DoesNotExist:
-            return JsonResponse({"error": "Config not found for this date"}, status=404)
-        return JsonResponse(_serialize_config(config))
+            return _cors_headers(request, JsonResponse({"error": "Config not found for this date"}, status=404))
+        return _cors_headers(request, JsonResponse(_serialize_config(config)))
 
     # POST — upsert
     body = _json_body(request)
@@ -621,16 +639,17 @@ def get_or_save_pipeline_config(request, config_date):
     config, created = PipelineConfig.objects.update_or_create(
         date=d, defaults=defaults
     )
-    return JsonResponse(_serialize_config(config), status=201 if created else 200)
+    return _cors_headers(request, JsonResponse(_serialize_config(config), status=201 if created else 200))
 
 
 @csrf_exempt
-@require_http_methods(["GET"])
 def pipeline_config_history(request):
     """Get recent pipeline config history (last 30 days by default)."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
     limit = int(request.GET.get("limit", 30))
     configs = PipelineConfig.objects.all()[:limit]
-    return JsonResponse([_serialize_config(c) for c in configs], safe=False)
+    return _cors_headers(request, JsonResponse([_serialize_config(c) for c in configs], safe=False))
 
 
 # --- Tables (for monitoring) ---

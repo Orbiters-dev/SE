@@ -6,6 +6,8 @@ Copy-paste the output into the EC2 terminal.
 Usage:
     python tools/deploy_onzenna.py
 """
+import sys
+sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 import os
 
