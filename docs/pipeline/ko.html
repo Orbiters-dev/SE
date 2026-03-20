@@ -172,7 +172,7 @@
   <div class="hero">
     <h1><span>Creator Collab</span> Pipeline</h1>
     <p class="subtitle">End-to-end influencer gifting automation &mdash; from discovery to content tracking + reminder in 9 stages</p>
-    <div class="test-time">Last updated: March 19, 2026 &middot; PROD Environment</div>
+    <div class="test-time">Last updated: March 20, 2026 &middot; PROD Environment</div>
   </div>
 
   <!-- ==================== QUICK LINKS ==================== -->
@@ -184,12 +184,20 @@
       <div class="ref-cat">Airtable (PROD)</div>
       <div style="display:flex; gap:6px; flex-wrap:wrap;">
         <a href="https://airtable.com/app3Vnmh7hLAVsevE/tblv2Jw3ZAtAMhiYY" target="_blank" class="ref-pill" style="background:#fee2e2; color:#991b1b;">Creators</a>
-        <a href="https://airtable.com/app3Vnmh7hLAVsevE/tblQUz8zQRDdZvES3" target="_blank" class="ref-pill" style="background:#fee2e2; color:#991b1b;">Orders</a>
-        <a href="https://airtable.com/app3Vnmh7hLAVsevE/tblNeTyVwMomsfSk7" target="_blank" class="ref-pill" style="background:#fee2e2; color:#991b1b;">Conversations</a>
         <a href="https://airtable.com/app3Vnmh7hLAVsevE/tble4cuyVnXP4OvZR" target="_blank" class="ref-pill" style="background:#fee2e2; color:#991b1b;">Content</a>
+        <a href="https://airtable.com/app3Vnmh7hLAVsevE/tblNeTyVwMomsfSk7" target="_blank" class="ref-pill" style="background:#fee2e2; color:#991b1b;">Conversation</a>
+        <a href="https://airtable.com/app3Vnmh7hLAVsevE/tblQUz8zQRDdZvES3" target="_blank" class="ref-pill" style="background:#fee2e2; color:#991b1b;">Orders</a>
+        <a href="https://airtable.com/app3Vnmh7hLAVsevE/tblqzlSlueDpQt11b" target="_blank" class="ref-pill" style="background:#fee2e2; color:#991b1b;">Deals</a>
         <a href="https://airtable.com/app3Vnmh7hLAVsevE/tblS7V4M9sqWuJPok" target="_blank" class="ref-pill" style="background:#fee2e2; color:#991b1b;">Dashboard</a>
-        <a href="https://airtable.com/app3Vnmh7hLAVsevE/tblG3DoBW4Khz1ceU" target="_blank" class="ref-pill" style="background:#fee2e2; color:#991b1b;">Templates</a>
         <a href="https://airtable.com/app3Vnmh7hLAVsevE/tbl6gGyLMvp57q1v7" target="_blank" class="ref-pill" style="background:#fee2e2; color:#991b1b;">Config</a>
+        <a href="https://airtable.com/app3Vnmh7hLAVsevE/tblG3DoBW4Khz1ceU" target="_blank" class="ref-pill" style="background:#fee2e2; color:#991b1b;">Templates</a>
+      </div>
+      <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">
+        <a href="https://airtable.com/app3Vnmh7hLAVsevE/tblMd3du2H64Mb4o3" target="_blank" class="ref-pill" style="background:#fef3c7; color:#92400e;">Dashboard Ref</a>
+        <a href="https://airtable.com/app3Vnmh7hLAVsevE/tblzNoDRwoQbfub4k" target="_blank" class="ref-pill" style="background:#fef3c7; color:#92400e;">Partnership Status Ref</a>
+        <a href="https://airtable.com/app3Vnmh7hLAVsevE/tblScBpPRVRFxtCXg" target="_blank" class="ref-pill" style="background:#fef3c7; color:#92400e;">Outreach Status Ref</a>
+        <a href="https://airtable.com/app3Vnmh7hLAVsevE/tbllzK47eU8Rs9DBs" target="_blank" class="ref-pill" style="background:#fef3c7; color:#92400e;">Prod Defaults</a>
+        <a href="https://airtable.com/app3Vnmh7hLAVsevE/tblTIsbLUVHOXoPxH" target="_blank" class="ref-pill" style="background:#fef3c7; color:#92400e;">Test Defaults</a>
       </div>
     </div>
 
@@ -454,7 +462,17 @@
             </div>
           </div>
         </div>
+        <!-- Row 2: Batch Control + HT Threshold -->
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+          <div style="flex:1; min-width:200px; background:#fff; border:1px solid #86efac; border-radius:8px; padding:10px; font-size:11px;">
+            <div style="font-weight:600; color:#15803d; margin-bottom:4px;">Batch Control <span style="font-size:9px; color:#9e9e9e; font-weight:400;">(Daily Config table)</span> <span style="background:#dcfce7; padding:1px 6px; border-radius:3px; font-size:9px; font-weight:600; color:#15803d;">NEW &mdash; Mar 20</span></div>
+            <div style="color:var(--text-dim);">
+              <code style="font-size:10px; background:#dcfce7; padding:1px 4px; border-radius:3px;">Update Date</code> = <b>2026-03-11</b> &rarr; Initial Discovery Date &ge; this date<br>
+              <code style="font-size:10px; background:#dcfce7; padding:1px 4px; border-radius:3px;">Creators Contacted</code> = <b>10</b> &rarr; batch size per cycle<br>
+              <code style="font-size:10px; background:#dcfce7; padding:1px 4px; border-radius:3px;">Start From Beginning</code> = <b>false</b> &rarr; true = ignore Update Date, process all<br>
+              <span style="font-size:9px; color:#d97706; font-style:italic;">Note: n8n Poll node wiring pending &mdash; currently no date filter or maxRecords applied</span>
+            </div>
+          </div>
           <div style="flex:1; min-width:200px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
             <div style="font-weight:600; color:#b45309; margin-bottom:4px;">HT Threshold <span style="font-size:9px; color:#9e9e9e; font-weight:400;">(Daily Config table)</span></div>
             <div style="color:var(--text-dim);">
@@ -463,12 +481,24 @@
               <span style="font-size:9px; color:#d97706; font-style:italic;">Note: Syncly workflow still uses hardcoded 50K &mdash; Config field not yet wired</span>
             </div>
           </div>
-          <div style="flex:1; min-width:200px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
-            <div style="font-weight:600; color:#15803d; margin-bottom:4px;">Brand Keywords <span style="font-size:9px; color:#9e9e9e; font-weight:400;">(Airtable Templates table)</span></div>
+        </div>
+        <!-- Row 3: Eligible Preview + Brand Keywords -->
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+          <div style="flex:1; min-width:200px; background:#fff; border:1px solid #86efac; border-radius:8px; padding:10px; font-size:11px;">
+            <div style="font-weight:600; color:#0369a1; margin-bottom:4px;">Eligible Preview <span style="font-size:9px; color:#9e9e9e; font-weight:400;">(auto-calculated)</span> <span style="background:#dcfce7; padding:1px 6px; border-radius:3px; font-size:9px; font-weight:600; color:#15803d;">NEW &mdash; Mar 20</span></div>
             <div style="color:var(--text-dim);">
-              Content transcript keyword matching &rarr; auto-detect brand<br>
-              <span style="font-size:10px; color:#9e9e9e;">e.g. Grosmimi: 450 | CHA&amp;MOM: 230 | Naeiae: 190</span><br>
-              <span style="font-size:9px; color:#9e9e9e;">ppsu, straw cup, bottle &rarr; Grosmimi | cream, skincare &rarr; CHA&amp;MOM | rice puff, snack &rarr; Naeiae</span>
+              <b>Current filter (Update Date &ge; 3/11):</b> <span style="font-weight:700; color:#0369a1;">294</span> eligible &rarr; 30 batches<br>
+              <b>Start From Beginning (all):</b> <span style="font-weight:700; color:#0369a1;">1,473</span> eligible &rarr; 148 batches<br>
+              <span style="font-size:10px; color:#9e9e9e;">By discovery date: 1/21: 21 | 2/11: 536 | 2/20: 90 | 2/25: 301 | 3/4: 226 | 3/11: 294</span><br>
+              <span style="font-size:9px; color:#9e9e9e;">Tool: <code style="font-size:9px; background:#e8eaed; padding:1px 3px; border-radius:3px;">python tools/preview_outreach_batch.py</code> &rarr; counts + writes to Config</span>
+            </div>
+          </div>
+          <div style="flex:1; min-width:200px; background:#fff; border-radius:8px; padding:10px; font-size:11px;">
+            <div style="font-weight:600; color:#15803d; margin-bottom:4px;">Brand Detection <span style="font-size:9px; color:#9e9e9e; font-weight:400;">(Claude AI in Draft Gen)</span></div>
+            <div style="color:var(--text-dim);">
+              Content transcript &rarr; Claude AI semantic analysis &rarr; brand assignment<br>
+              <span style="font-size:10px; color:#9e9e9e;">Keyword estimate: ~3% Grosmimi | ~6% CHA&amp;MOM | ~1% Naeiae | ~90% AI-determined</span><br>
+              <span style="font-size:9px; color:#9e9e9e;">ppsu, straw cup &rarr; Grosmimi | cream, skincare &rarr; CHA&amp;MOM | rice puff, snack &rarr; Naeiae</span>
             </div>
           </div>
         </div>
@@ -482,7 +512,8 @@
       <!-- Arrow: Trigger -->
       <div style="font-size:24px; color:var(--poll); padding:4px 0; display:flex; flex-direction:column; align-items:center;">
         <span>&#8595;</span>
-        <span style="font-size:10px; color:var(--text-dim); font-weight:600;">10-min polling: <code style="font-size:9px;">AND({Email}!=BLANK(), {Outreach Status}='Not Started', {Partnership Status}='New')</code></span>
+        <span style="font-size:10px; color:var(--text-dim); font-weight:600;">10-min polling: <code style="font-size:9px;">AND({Email}!=BLANK(), {Outreach Status}='Not Started', {Partnership Status}='New', {Initial Discovery Date}&gt;=Config.UpdateDate)</code></span>
+        <span style="font-size:9px; color:#d97706; margin-top:2px;">maxRecords = Config.Creators Contacted (batch size) | sort: Initial Discovery Date ASC</span>
       </div>
 
       <!-- Row 5: Draft Generation -->
@@ -1829,7 +1860,7 @@
   </div>
 
   <div class="footer">
-    Creator Collab Pipeline &middot; Onzenna &middot; PROD &middot; Updated March 19, 2026
+    Creator Collab Pipeline &middot; Onzenna &middot; PROD &middot; Updated March 20, 2026
   </div>
 
 </div>
