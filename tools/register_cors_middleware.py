@@ -2,11 +2,17 @@
 
 Run on EC2: python3 register_cors_middleware.py
 Idempotent: safe to run multiple times.
+Handles both cases: MIDDLEWARE defined locally or inherited from base.
 """
 import sys
 
 SETTINGS_PATH = "export_calculator/settings/production.py"
 MIDDLEWARE_CLASS = "onzenna.middleware.CorsMiddleware"
+
+APPEND_SNIPPET = f"""
+# CORS middleware for GH Pages dashboard API access
+MIDDLEWARE.insert(0, '{MIDDLEWARE_CLASS}')
+"""
 
 
 def main():
@@ -17,15 +23,15 @@ def main():
         print(f"SKIP: {MIDDLEWARE_CLASS} already in settings")
         return
 
-    if "MIDDLEWARE" not in content:
-        print(f"ERROR: MIDDLEWARE not found in {SETTINGS_PATH}")
-        sys.exit(1)
-
-    # Insert at the TOP of MIDDLEWARE list (before other middleware)
-    content = content.replace(
-        "MIDDLEWARE = [",
-        f"MIDDLEWARE = [\n    '{MIDDLEWARE_CLASS}',",
-    )
+    if "MIDDLEWARE = [" in content:
+        # MIDDLEWARE defined locally: insert at top of list
+        content = content.replace(
+            "MIDDLEWARE = [",
+            f"MIDDLEWARE = [\n    '{MIDDLEWARE_CLASS}',",
+        )
+    else:
+        # MIDDLEWARE inherited from base: append insert statement
+        content += APPEND_SNIPPET
 
     with open(SETTINGS_PATH, "w") as f:
         f.write(content)
