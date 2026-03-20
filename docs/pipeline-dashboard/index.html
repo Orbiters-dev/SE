@@ -447,7 +447,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
     </div>
     <div class="filter-bar">
       <input type="text" id="cr-search" placeholder="Search handle, email, name..." onkeydown="if(event.key==='Enter')loadCreators()">
-      <select id="cr-status" onchange="loadCreators()">
+      <select id="cr-status" onchange="_crStatusFilter=this.value;if(_lastStats){buildFunnel(_lastStats.by_status,'exec-funnel',this.value);buildFunnel(_lastStats.by_status,'dash-funnel',this.value);}if(this.value)location.hash='creators/'+encodeURIComponent(this.value);else location.hash='creators';loadCreators()">
         <option value="">All Status</option>
         <option value="Not Started">Not Started</option><option value="Draft Ready">Draft Ready</option>
         <option value="Sent">Sent</option><option value="Replied">Replied</option>
@@ -793,7 +793,7 @@ function initTabs(){
 function switchTab(name){
   document.querySelectorAll('#main-tabs > div').forEach(function(t){t.classList.toggle('on',t.getAttribute('data-p')===name)});
   document.querySelectorAll('.mp').forEach(function(p){p.classList.toggle('on',p.id==='p-'+name)});
-  location.hash=name;
+  if(!_crStatusFilter)location.hash=name;
   if(!_tabLoaded[name]){
     _tabLoaded[name]=true;
     if(name==='dashboard')loadDashboard();
@@ -816,7 +816,7 @@ async function loadDashboard(){
     document.getElementById('ds-conversion').textContent=Math.round(accepted/total*100)+'%';
     document.getElementById('pill-total').textContent=st.total+' creators';
     // Mini funnel
-    buildFunnel(st.by_status,'dash-funnel');
+    buildFunnel(st.by_status,'dash-funnel',_crStatusFilter);
     // Recent activity
     var logs=await apiFetch('/pipeline/execution/log/?limit=5');
     var items=logs.results||logs;
@@ -941,9 +941,11 @@ var STATUS_COLORS={
 };
 var PIPELINE_STAGES=['Not Started','Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
 
+var _lastStats=null;
 async function loadCreatorStats(){
   try{
     var st=await apiFetch('/pipeline/creators/stats/');
+    _lastStats=st;
     if(document.getElementById('cs-total')){
       document.getElementById('cs-total').textContent=st.total||0;
       document.getElementById('cs-accepted').textContent=st.by_status['Accepted']||0;
@@ -952,11 +954,11 @@ async function loadCreatorStats(){
       document.getElementById('cs-week').textContent='+'+st.new_this_week;
     }
     document.getElementById('pill-total').textContent=st.total+' creators';
-    buildFunnel(st.by_status,'exec-funnel');
+    buildFunnel(st.by_status,'exec-funnel',_crStatusFilter);
   }catch(e){console.error('Stats error:',e)}
 }
 
-function buildFunnel(statusCounts,targetId){
+function buildFunnel(statusCounts,targetId,activeStatus){
   var el=document.getElementById(targetId);
   if(!el)return;
   var stages=['Not Started','Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
@@ -964,7 +966,9 @@ function buildFunnel(statusCounts,targetId){
   for(var i=0;i<stages.length;i++){
     if(i>0)html+='<span class="fa">&#x25B6;</span>';
     var count=statusCounts[stages[i]]||0;
-    html+='<div class="fn" onclick="filterByStatus(\''+stages[i]+'\')" title="Click to filter"><div class="fi">'+count+'</div><div class="ft">'+stages[i]+'</div></div>';
+    var isActive=(stages[i]===activeStatus)?' on':'';
+    html+='<div class="fn'+isActive+'" onclick="filterByStatus(\''+stages[i]+'\')" title="Click to filter creators: '+stages[i]+'">';
+    html+='<div class="fi">'+count+'</div><div class="ft">'+stages[i]+'</div></div>';
   }
   el.innerHTML=html;
 }
@@ -1062,12 +1066,21 @@ async function changeCreatorStatus(sel){
   }
 }
 
+var _crStatusFilter='';
 function filterByStatus(status){
+  _crStatusFilter=status;
   document.getElementById('cr-status').value=status;
   _tabLoaded['creators']=false;
-  switchTab('creators');
   _crPage=1;
+  switchTab('creators');
   loadCreators();
+  // Update URL hash to make state bookmarkable
+  location.hash='creators/'+encodeURIComponent(status);
+  // Re-render both funnels with active state
+  if(_lastStats){
+    buildFunnel(_lastStats.by_status,'exec-funnel',status);
+    buildFunnel(_lastStats.by_status,'dash-funnel',status);
+  }
 }
 
 async function refreshFunnel(){
@@ -1656,7 +1669,24 @@ function formatNum(n){if(n>=1000000)return(n/1000000).toFixed(1)+'M';if(n>=1000)
 
 // ========== INIT ==========
 var u=checkAuth();
-if(u){_currentUser=u;showDashboard()}
+if(u){
+  _currentUser=u;
+  showDashboard();
+  // Restore status filter from URL hash on load (e.g. #creators/Accepted)
+  var _initHash=decodeURIComponent(location.hash.replace('#',''));
+  if(_initHash.indexOf('/')>-1){
+    var _parts=_initHash.split('/');
+    var _tabName=_parts[0];var _statusVal=_parts.slice(1).join('/');
+    if(_statusVal){
+      _crStatusFilter=_statusVal;
+      setTimeout(function(){
+        var sel=document.getElementById('cr-status');
+        if(sel)sel.value=_statusVal;
+        switchTab(_tabName||'creators');
+      },100);
+    }
+  }
+}
 </script>
 </body>
 </html>
