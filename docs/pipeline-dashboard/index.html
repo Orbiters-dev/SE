@@ -609,6 +609,17 @@ Shopify                         Apify / Syncly                   Gmail RAG
       <h3>&#x1F3AF; Pipeline Funnel</h3>
       <div class="funnel" id="exec-funnel"></div>
     </div>
+    <!-- PROPOSE & EXECUTE -->
+    <div class="card" id="propose-execute-card">
+      <h3>&#x26A1; Pending Actions <span id="pe-total" style="background:var(--am);color:#fff;padding:1px 8px;border-radius:10px;font-size:10px;margin-left:4px">0</span>
+        <button class="btn btn-primary" id="pe-execute-btn" onclick="executeAllPending()" style="margin-left:auto;font-size:11px;padding:5px 16px">&#x1F680; Execute All</button>
+      </h3>
+      <div class="desc">PPC Propose &amp; Execute &#xD328;&#xD134;. &#xCCB4;&#xD06C;&#xB41C; &#xD56D;&#xBAA9;&#xB9CC; &#xC2E4;&#xD589;&#xB429;&#xB2C8;&#xB2E4;. &#xAE30;&#xBCF8; &#xC804;&#xCCB4; &#xCCB4;&#xD06C;.</div>
+      <div id="pe-actions" style="margin-top:10px">
+        <div style="color:var(--muted);font-size:11px;padding:8px 0">Loading pending actions...</div>
+      </div>
+    </div>
+
     <!-- REVIEW QUEUE -->
     <div class="card" id="review-queue-card">
       <h3>&#x1F50D; Review Queue <span id="rq-count" style="background:var(--p);color:#fff;padding:1px 8px;border-radius:10px;font-size:10px;margin-left:4px">0</span></h3>
@@ -1114,7 +1125,7 @@ function switchTab(name){
     if(name==='dashboard')loadDashboard();
     else if(name==='config')loadConfig();
     else if(name==='creators'){loadCreatorStats();loadCreators()}
-    else if(name==='execution'){loadCreatorStats();loadReviewQueue();loadExecLog()}
+    else if(name==='execution'){loadCreatorStats();loadPendingActions();loadReviewQueue();loadExecLog()}
     else if(name==='emailcfg'){loadEmailConfigs();loadFAQEntries();loadReplyLogs()}
   }
 }
@@ -1463,6 +1474,130 @@ function filterByStatus(status){
     buildFunnel(_lastStats.by_status,'exec-funnel',status);
     buildFunnel(_lastStats.by_status,'dash-funnel',status);
   }
+}
+
+// ========== PROPOSE & EXECUTE ==========
+var _pendingActions=[];
+async function loadPendingActions(){
+  try{
+    var actions=[];
+    var stats=_lastStats||{};
+    var ltS=stats.by_status_lt||{};
+    var htS=stats.by_status_ht||{};
+
+    // Define actionable stages
+    var stages=[
+      {status:'Draft Ready',action:'Approve & Send',icon:'📨',color:'var(--a)',api_action:'approve_send'},
+      {status:'Needs Review',action:'Accept / Decline',icon:'🔍',color:'var(--p)',api_action:'review'},
+      {status:'Accepted',action:'Complete Order',icon:'✅',color:'var(--g)',api_action:'complete_order'},
+      {status:'Sample Sent',action:'Confirm Shipped',icon:'📦',color:'var(--c)',api_action:'confirm_shipped'},
+      {status:'Sample Delivered',action:'Send Reminder',icon:'💌',color:'var(--am)',api_action:'send_reminder'},
+      {status:'Send Contract',action:'Send DocuSeal',icon:'📝',color:'var(--p)',api_action:'send_contract'},
+      {status:'Payment Sent',action:'Confirm Payment',icon:'💰',color:'var(--g)',api_action:'confirm_payment'}
+    ];
+
+    var html='';
+    var total=0;
+
+    for(var s=0;s<stages.length;s++){
+      var stg=stages[s];
+      var count=(ltS[stg.status]||0)+(htS[stg.status]||0);
+      if(count===0)continue;
+
+      // Fetch creators for this status
+      var data=await apiFetch('/pipeline/creators/?status='+encodeURIComponent(stg.status)+'&limit=50');
+      var creators=data.results||[];
+      if(!creators.length)continue;
+
+      total+=creators.length;
+      html+='<div style="border:1px solid var(--border);border-radius:8px;margin-bottom:10px;border-left:3px solid '+stg.color+'">';
+      html+='<div style="padding:10px 12px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px">';
+      html+='<input type="checkbox" checked onchange="toggleStageGroup(this,\'pe-grp-'+s+'\')" style="width:16px;height:16px">';
+      html+='<span style="font-size:14px">'+stg.icon+'</span>';
+      html+='<b style="font-size:12px">'+stg.status+' &rarr; '+stg.action+'</b>';
+      html+='<span class="b" style="background:'+stg.color+';color:#fff;margin-left:4px">'+creators.length+'</span>';
+      html+='</div>';
+      html+='<div id="pe-grp-'+s+'" style="padding:6px">';
+
+      for(var c=0;c<creators.length;c++){
+        var cr=creators[c];
+        var handle=cr.ig_handle||cr.tiktok_handle||'';
+        var followers=cr.followers?formatNum(cr.followers):'?';
+        var views=cr.avg_views?formatNum(cr.avg_views):'?';
+        var type=cr.outreach_type||'LT';
+        var typeBadge=type==='HT'?'<span class="b p" style="font-size:8px">HT</span>':'<span class="b a" style="font-size:8px">LT</span>';
+
+        actions.push({id:cr.id,status:stg.status,action:stg.api_action,email:cr.email,name:cr.full_name});
+
+        html+='<div style="display:flex;align-items:center;gap:8px;padding:5px 6px;border-bottom:1px solid var(--bg)">';
+        html+='<input type="checkbox" checked class="pe-item" data-id="'+cr.id+'" data-action="'+stg.api_action+'" data-status="'+stg.status+'" style="width:14px;height:14px">';
+        html+='<div style="flex:1;min-width:0">';
+        html+='<div style="display:flex;align-items:center;gap:4px">';
+        html+='<b style="font-size:11px">'+esc(cr.full_name||handle)+'</b> ';
+        html+=typeBadge;
+        html+='<span style="font-size:10px;color:var(--dim)">'+esc(handle)+'</span>';
+        html+='</div>';
+        html+='<div style="font-size:9px;color:var(--dim)">';
+        html+=esc(cr.email||'')+' &bull; '+followers+' followers &bull; '+views+' avg views';
+        if(cr.brand)html+=' &bull; <span class="b a" style="font-size:8px">'+esc(cr.brand)+'</span>';
+        html+='</div>';
+        html+='</div>';
+        html+='</div>';
+      }
+      html+='</div></div>';
+    }
+
+    if(!html)html='<div style="color:var(--muted);font-size:11px;padding:20px;text-align:center">No pending actions. All clear!</div>';
+    document.getElementById('pe-actions').innerHTML=html;
+    document.getElementById('pe-total').textContent=total;
+    document.getElementById('pe-execute-btn').style.display=total>0?'inline-block':'none';
+    _pendingActions=actions;
+  }catch(e){
+    document.getElementById('pe-actions').innerHTML='<div style="color:var(--r);font-size:11px">Error: '+e.message+'</div>';
+  }
+}
+
+function toggleStageGroup(checkbox,groupId){
+  var items=document.querySelectorAll('#'+groupId+' .pe-item');
+  for(var i=0;i<items.length;i++)items[i].checked=checkbox.checked;
+}
+
+async function executeAllPending(){
+  var items=document.querySelectorAll('.pe-item:checked');
+  if(!items.length){showToast('No items selected','err');return}
+  if(!confirm('Execute '+items.length+' actions?'))return;
+
+  var btn=document.getElementById('pe-execute-btn');
+  btn.disabled=true;btn.textContent='Executing...';
+  var ok=0,fail=0;
+
+  for(var i=0;i<items.length;i++){
+    var id=items[i].dataset.id;
+    var action=items[i].dataset.action;
+    var newStatus='';
+
+    if(action==='approve_send')newStatus='Sent';
+    else if(action==='review')newStatus='Accepted';
+    else if(action==='complete_order')newStatus='Order Placed';
+    else if(action==='confirm_shipped')newStatus='Sample Shipped';
+    else if(action==='send_reminder')newStatus='Reminder Sent';
+    else if(action==='send_contract')newStatus='Send Contract';
+    else if(action==='confirm_payment')newStatus='Payment Sent';
+
+    try{
+      await apiFetch('/pipeline/creators/'+id+'/',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pipeline_status:newStatus})});
+      ok++;
+    }catch(e){fail++}
+  }
+
+  btn.disabled=false;btn.textContent='Execute All';
+  showToast(ok+' executed, '+fail+' failed','ok');
+
+  // Log execution
+  await apiFetch('/pipeline/execution/log/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action_type:'bulk_execute',triggered_by:_currentUser,target_count:ok,status:'completed',details:JSON.stringify({ok:ok,fail:fail})})});
+
+  loadPendingActions();
+  loadCreatorStats();
 }
 
 async function refreshFunnel(){
