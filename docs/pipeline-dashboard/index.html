@@ -165,6 +165,18 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 
   <!-- ===== HOW IT WORKS TAB ===== -->
   <div class="mp" id="p-howto">
+    <!-- HT/LT Sub-tabs -->
+    <div style="display:flex;gap:0;margin-bottom:16px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+      <button class="btn" id="hw-btn-lt" onclick="switchHwMode('lt')" style="flex:1;border-radius:0;border:none;padding:12px;font-size:12px;font-weight:700;background:var(--a);color:#fff">
+        <div style="font-size:16px;margin-bottom:2px">&#x26A1;</div>
+        LOW TOUCH<br><span style="font-weight:400;font-size:10px">&lt; 100K followers | Auto-send | Gifting only</span>
+      </button>
+      <button class="btn" id="hw-btn-ht" onclick="switchHwMode('ht')" style="flex:1;border-radius:0;border:none;border-left:1px solid var(--border);padding:12px;font-size:12px;font-weight:700;background:var(--bg);color:var(--dim)">
+        <div style="font-size:16px;margin-bottom:2px">&#x1F451;</div>
+        HIGH TOUCH<br><span style="font-weight:400;font-size:10px">&ge; 100K followers | Manual review | Contract + Payment</span>
+      </button>
+    </div>
+
     <!-- Flow Bar -->
     <div class="funnel" style="margin-bottom:20px">
       <div class="fn on" onclick="scrollToHwSec('hw-discover')"><div class="fi" style="font-size:16px">&#x1F50E;</div><div class="ft">Discover</div><div class="fs">Find creators</div></div><span class="fa">&#x25B6;</span>
@@ -211,13 +223,18 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
     </div>
 
     <div class="card hw-sec" id="hw-draft" style="border-left:3px solid var(--a)">
-      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4DD; Step 3: Generate Drafts <span class="b am" style="margin-left:6px">HIL</span></h3>
+      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4DD; Step 3: Generate Drafts</h3>
       <div class="hw-body">
-        <div style="background:var(--abg);border-radius:8px;padding:12px;font-size:11px">
+        <div style="background:var(--abg);border-radius:8px;padding:12px;font-size:11px;margin-bottom:8px">
           <b>n8n Draft Gen WF</b> (<code>fwwOeLiDLSnR77E1</code>)<br>
-          &#x2022; eligible &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130; &#xC870;&#xD68C; &#x2192; Apify &#xD504;&#xB85C;&#xD544; &#xC218;&#xC9D1; (Autofill ON) &#x2192; Google Doc &#xD15C;&#xD50C;&#xB9BF; &#xAE30;&#xBC18; &#xC774;&#xBA54;&#xC77C; &#xC0DD;&#xC131;<br>
-          &#x2022; <b>&#xB300;&#xC0AC; &#xAE30;&#xBC18;</b>: Syncly Discovery&#xC5D0;&#xC11C; &#xAC00;&#xC838;&#xC628; &#xCE90;&#xD504;&#xC158;&#xC744; &#xCC38;&#xACE0;&#xD574; &#xAC1C;&#xC778;&#xD654; &#xC774;&#xBA54;&#xC77C; &#xC791;&#xC131;<br>
-          &#x2022; Not Started &#x2192; <span class="b a">Draft Ready</span> | <span class="b am">Human-in-Loop: Draft Review</span>
+          &#x2022; eligible &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130; &#xC870;&#xD68C; &#x2192; Apify &#xD504;&#xB85C;&#xD544; &#xC218;&#xC9D1; &#x2192; Claude AI &#xAC1C;&#xC778;&#xD654; &#xC774;&#xBA54;&#xC77C; &#xC0DD;&#xC131;<br>
+          &#x2022; Not Started &#x2192; <span class="b a">Draft Ready</span>
+        </div>
+        <div class="hw-lt" style="background:#eff6ff;border-radius:6px;padding:8px;font-size:10px;border-left:3px solid var(--a)">
+          <b>&#x26A1; LT:</b> &#xC790;&#xB3D9; &#xC2B9;&#xC778; &#x2192; &#xBC14;&#xB85C; Send &#xB2E8;&#xACC4;&#xB85C;. Draft Review &#xC5C6;&#xC74C;.
+        </div>
+        <div class="hw-ht" style="display:none;background:#fdf2f8;border-radius:6px;padding:8px;font-size:10px;border-left:3px solid var(--p)">
+          <b>&#x1F451; HT:</b> <span class="b am">Draft Review &#xD544;&#xC218;</span> &#x2014; &#xB9C8;&#xCF00;&#xD130;&#xAC00; &#xC774;&#xBA54;&#xC77C; &#xB0B4;&#xC6A9; &#xD655;&#xC778; &#xD6C4; &#xC2B9;&#xC778;. &#xACC4;&#xC57D; &#xC870;&#xAC74;/&#xBCF4;&#xC0C1; &#xBA58;&#xC158; &#xD3EC;&#xD568; &#xC5EC;&#xBD80; &#xCCB4;&#xD06C;.
         </div>
       </div>
     </div>
@@ -238,7 +255,13 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
             <div style="background:var(--cbg);border-radius:4px;padding:6px;font-size:10px"><span class="b c">FAQ_Gap</span><br>&#xC9C8;&#xBB38; (&#xBC30;&#xC1A1;/&#xC0C1;&#xD488;/&#xBCF4;&#xC0C1;) &#x2192; FAQ DB&#xC5D0;&#xC11C; &#xC790;&#xB3D9; &#xC751;&#xB2F5;</div>
             <div style="background:var(--ambg);border-radius:4px;padding:6px;font-size:10px"><span class="b am">Normal</span><br>&#xC77C;&#xBC18; &#xB300;&#xD654; &#x2192; &#xAC10;&#xC0AC; &#xC751;&#xB2F5; &#xC790;&#xB3D9;</div>
           </div>
-          <div style="margin-top:6px;font-size:10px;color:var(--dim)">LT: &#xC790;&#xB3D9; &#xBC1C;&#xC1A1; | HT: Needs Review (&#xC218;&#xB3D9; &#xC2B9;&#xC778; &#xD6C4; &#xBC1C;&#xC1A1;)<br>Config: <b>Email Config &#xD0ED;</b>&#xC5D0;&#xC11C; &#xBD84;&#xB958; &#xD504;&#xB86C;&#xD504;&#xD2B8;, &#xD15C;&#xD50C;&#xB9BF;, FAQ &#xC218;&#xC815; &#xAC00;&#xB2A5; (PG API)</div>
+          <div style="margin-top:6px;font-size:10px;color:var(--dim)">Config: <b>Email Config &#xD0ED;</b>&#xC5D0;&#xC11C; &#xBD84;&#xB958; &#xD504;&#xB86C;&#xD504;&#xD2B8;, &#xD15C;&#xD50C;&#xB9BF;, FAQ &#xC218;&#xC815; &#xAC00;&#xB2A5; (PG API)</div>
+          <div class="hw-lt" style="margin-top:6px;background:#eff6ff;border-radius:6px;padding:8px;font-size:10px;border-left:3px solid var(--a)">
+            <b>&#x26A1; LT:</b> Reply &#xBD84;&#xB958; &#xD6C4; <b>&#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</b>. Accept &#x2192; Gifting &#xD3FC; &#xB9C1;&#xD06C; &#xC790;&#xB3D9; | FAQ &#x2192; &#xC790;&#xB3D9; &#xC751;&#xB2F5;. &#xC0AC;&#xB78C; &#xAC1C;&#xC785; &#xC5C6;&#xC74C;.
+          </div>
+          <div class="hw-ht" style="display:none;margin-top:6px;background:#fdf2f8;border-radius:6px;padding:8px;font-size:10px;border-left:3px solid var(--p)">
+            <b>&#x1F451; HT:</b> Reply &#xBD84;&#xB958; &#xD6C4; <span class="b p">Needs Review</span>. &#xB9C8;&#xCF00;&#xD130;&#xAC00; &#xB2F5;&#xC7A5; &#xB0B4;&#xC6A9; &#xD655;&#xC778; &#xD6C4; &#xC218;&#xB3D9; &#xBC1C;&#xC1A1;. &#xBCF4;&#xC0C1;/&#xACC4;&#xC57D; &#xB17C;&#xC758; &#xD3EC;&#xD568; &#xAC00;&#xB2A5;.
+          </div>
         </div>
         <div style="background:var(--gbg);border-radius:8px;padding:12px;font-size:11px">
           <b>&#x2462; Gifting &#xD3FC; &#xC81C;&#xCD9C; (1&#xD68C;)</b><br>
@@ -256,6 +279,12 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
           <div style="background:var(--rbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--r)">Decline</b><br>&#x2192; <span class="b r">Declined</span> | &#xD314;&#xB85C;&#xC6CC; &#xBD80;&#xC871;, &#xBE0C;&#xB79C;&#xB4DC; &#xBD88;&#xC77C;&#xCE58; &#xB4F1; | Note &#xAE30;&#xB85D;</div>
         </div>
         <div style="margin-top:8px;padding:8px;background:#fffbeb;border-radius:6px;font-size:10px;color:#92400e"><b>1-&#xD3FC; &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778;:</b> Creator&#xAC00; Gifting &#xD3FC;&#xC5D0;&#xC11C; &#xC0D8;&#xD50C;&#xAE4C;&#xC9C0; &#xC120;&#xD0DD; &#xC644;&#xB8CC; &#x2192; Draft Order &#xC774;&#xBBF8; &#xC0DD;&#xC131;&#xB428; &#x2192; Accept &#xC2DC; &#xBC14;&#xB85C; &#xC624;&#xB354; &#xB098;&#xAC10;. Gifting2 &#xD3FC; &#xC5C6;&#xC74C;.</div>
+        <div class="hw-lt" style="margin-top:8px;background:#eff6ff;border-radius:6px;padding:8px;font-size:10px;border-left:3px solid var(--a)">
+          <b>&#x26A1; LT:</b> Accept &#xD074;&#xB9AD;&#xB9CC;&#xC73C;&#xB85C; &#xC644;&#xB8CC;. &#xACC4;&#xC57D;/&#xBCF4;&#xC0C1; &#xC5C6;&#xC74C;. &#xBB34;&#xB8CC; &#xC0D8;&#xD50C; &#xC81C;&#xACF5;.
+        </div>
+        <div class="hw-ht" style="display:none;margin-top:8px;background:#fdf2f8;border-radius:6px;padding:8px;font-size:10px;border-left:3px solid var(--p)">
+          <b>&#x1F451; HT:</b> Accept &#xC804;&#xC5D0; <b>&#xACC4;&#xC57D;&#xC11C; &#xBC1C;&#xC1A1; + &#xC11C;&#xBA85; &#xD655;&#xC778;</b> &#xD544;&#xC694;. &#xBCF4;&#xC0C1; &#xC870;&#xAC74; &#xD569;&#xC758; &#xD6C4; Accept. &#xACB0;&#xC81C;&#xB294; &#xCF58;&#xD150;&#xCE20; &#xD655;&#xC778; &#xD6C4; &#xCC98;&#xB9AC;.
+        </div>
         <div style="margin-top:8px;font-size:10px;color:var(--dim)"><b>&#xD310;&#xB2E8;:</b> Content &#xB9C1;&#xD06C;(IG/TT) &#x2192; &#xD314;&#xB85C;&#xC6CC;, &#xCF58;&#xD150;&#xCE20; &#xD488;&#xC9C8;, &#xBE0C;&#xB79C;&#xB4DC; &#xC801;&#xD569;&#xC131;, &#xC544;&#xC774; &#xB098;&#xC774;</div>
       </div>
     </div>
@@ -385,6 +414,34 @@ Shopify                         Apify / Syncly                   Gmail RAG
 
   <!-- ===== TAB 1: CONFIG ===== -->
   <div class="mp" id="p-config">
+    <!-- LT/HT Sub-tabs for Config -->
+    <div style="display:flex;gap:0;margin-bottom:14px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+      <button class="btn" id="cfg-btn-lt" onclick="switchCfgMode('lt')" style="flex:1;border-radius:0;border:none;padding:10px;font-size:11px;font-weight:700;background:var(--a);color:#fff">
+        &#x26A1; LT Config<br><span style="font-weight:400;font-size:9px">Auto-send, auto-reply, no contract</span>
+      </button>
+      <button class="btn" id="cfg-btn-ht" onclick="switchCfgMode('ht')" style="flex:1;border-radius:0;border:none;border-left:1px solid var(--border);padding:10px;font-size:11px;font-weight:700;background:var(--bg);color:var(--dim)">
+        &#x1F451; HT Config<br><span style="font-weight:400;font-size:9px">Manual review, contract, payment</span>
+      </button>
+    </div>
+    <!-- LT Config Summary -->
+    <div id="cfg-lt-summary" class="card" style="border-left:3px solid var(--a);margin-bottom:12px">
+      <div style="font-size:11px;line-height:1.7">
+        <b>&#x26A1; Low Touch &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778;</b> &mdash; &lt; 100K followers<br>
+        &#x2022; &#xC774;&#xBA54;&#xC77C; &#xCD08;&#xC548;: <b>&#xC790;&#xB3D9; &#xC2B9;&#xC778;</b> (Draft Review OFF)<br>
+        &#x2022; Reply Handler: <b>&#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</b> (Accept/FAQ/Normal &#xBAA8;&#xB450;)<br>
+        &#x2022; &#xBCF4;&#xC0C1;: <b>&#xBB34;&#xB8CC; &#xC0D8;&#xD50C;</b> (&#xACC4;&#xC57D;/&#xACB0;&#xC81C; &#xC5C6;&#xC74C;)<br>
+        &#x2022; Accept &#x2192; Draft Order &#xC790;&#xB3D9; &#xC644;&#xB8CC;
+      </div>
+    </div>
+    <div id="cfg-ht-summary" class="card" style="display:none;border-left:3px solid var(--p);margin-bottom:12px">
+      <div style="font-size:11px;line-height:1.7">
+        <b>&#x1F451; High Touch &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778;</b> &mdash; &ge; 100K followers<br>
+        &#x2022; &#xC774;&#xBA54;&#xC77C; &#xCD08;&#xC548;: <span class="b am">Draft Review &#xD544;&#xC218;</span><br>
+        &#x2022; Reply Handler: <span class="b p">Needs Review</span> (&#xC218;&#xB3D9; &#xC2B9;&#xC778;)<br>
+        &#x2022; &#xBCF4;&#xC0C1;: <b>&#xACC4;&#xC57D;&#xC11C; + &#xACB0;&#xC81C;</b> (&#xCF58;&#xD150;&#xCE20; &#xD655;&#xC778; &#xD6C4;)<br>
+        &#x2022; Accept &#xC804;&#xC5D0; &#xACC4;&#xC57D; &#xC11C;&#xBA85; &#xD544;&#xC694;
+      </div>
+    </div>
     <div id="config-loading" style="text-align:center;padding:30px;color:var(--dim)">Loading config...</div>
     <div id="config-dash" style="display:none">
       <div class="card">
@@ -2049,6 +2106,26 @@ function renderVintageBreakdown(){
 }
 
 // ========== HOW IT WORKS TAB ==========
+var _hwMode='lt';
+function switchHwMode(mode){
+  _hwMode=mode;
+  document.getElementById('hw-btn-lt').style.background=mode==='lt'?'var(--a)':'var(--bg)';
+  document.getElementById('hw-btn-lt').style.color=mode==='lt'?'#fff':'var(--dim)';
+  document.getElementById('hw-btn-ht').style.background=mode==='ht'?'var(--p)':'var(--bg)';
+  document.getElementById('hw-btn-ht').style.color=mode==='ht'?'#fff':'var(--dim)';
+  var lts=document.querySelectorAll('.hw-lt');
+  var hts=document.querySelectorAll('.hw-ht');
+  for(var i=0;i<lts.length;i++)lts[i].style.display=mode==='lt'?'block':'none';
+  for(var i=0;i<hts.length;i++)hts[i].style.display=mode==='ht'?'block':'none';
+}
+function switchCfgMode(mode){
+  document.getElementById('cfg-btn-lt').style.background=mode==='lt'?'var(--a)':'var(--bg)';
+  document.getElementById('cfg-btn-lt').style.color=mode==='lt'?'#fff':'var(--dim)';
+  document.getElementById('cfg-btn-ht').style.background=mode==='ht'?'var(--p)':'var(--bg)';
+  document.getElementById('cfg-btn-ht').style.color=mode==='ht'?'#fff':'var(--dim)';
+  document.getElementById('cfg-lt-summary').style.display=mode==='lt'?'block':'none';
+  document.getElementById('cfg-ht-summary').style.display=mode==='ht'?'block':'none';
+}
 function toggleHwSec(el){el.classList.toggle('open')}
 function scrollToHwSec(id){
   var el=document.getElementById(id);
