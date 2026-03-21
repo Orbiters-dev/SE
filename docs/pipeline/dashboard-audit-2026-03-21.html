@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Pipeline Dashboard Audit — Before/After — 2026-03-21</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f6f8fa;color:#1f2328;font-family:-apple-system,'Segoe UI',sans-serif;font-size:13px;padding:24px;max-width:1600px;margin:0 auto}
+header{background:#fff;border:1px solid #d0d7de;border-radius:10px;padding:18px 22px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between}
+header h1{font-size:16px;font-weight:700}
+code{background:#f0f2f4;padding:1px 6px;border-radius:5px;font-family:monospace;color:#cf222e;font-size:11px}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.scard{background:#fff;border:1px solid #d0d7de;border-radius:8px;padding:14px 16px}
+.scard .lbl{font-size:11px;color:#57606a;margin-bottom:4px}
+.scard .val{font-size:24px;font-weight:700}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.col{background:#fff;border:1px solid #d0d7de;border-radius:10px;overflow:hidden}
+.col-h{padding:12px 16px;border-bottom:1px solid #d0d7de;display:flex;align-items:center;gap:8px;background:#f6f8fa}
+.col-h h2{font-size:12px;font-weight:600}
+.badge{padding:3px 9px;border-radius:12px;font-size:10px;font-weight:700}
+.b-before{background:#ffebe9;color:#b91c1c;border:1px solid #ffb8b0}
+.b-after{background:#dcfce7;color:#166534;border:1px solid #86efac}
+.col-body{padding:14px}
+.bug{border:1px solid #e8ecf0;border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.bug.critical{border-left:3px solid #cf222e;background:#fff8f8}
+.bug.major{border-left:3px solid #9a6700;background:#fffbec}
+.bug.missing{border-left:3px solid #8250df;background:#faf5ff}
+.bug .tag{display:inline-block;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:700;margin-right:4px}
+.tag-c{background:#ffebe9;color:#b91c1c}
+.tag-m{background:#fff8dc;color:#9a6700}
+.tag-p{background:#f3e8ff;color:#6b21a8}
+.tag-g{background:#dcfce7;color:#166534}
+.bug h4{font-size:12px;font-weight:600;margin-bottom:3px}
+.bug p{font-size:11px;color:#57606a;line-height:1.5}
+.chart-wrap{background:#fafbfc;border:1px solid #e8ecf0;border-radius:8px;padding:12px;margin-bottom:14px;overflow:auto;min-height:120px}
+.spec{background:#fff;border:1px solid #d0d7de;border-radius:10px;padding:18px 20px;margin-bottom:18px}
+.spec h3{font-size:13px;font-weight:700;margin-bottom:14px}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Pipeline Dashboard Audit — Before / After</h1>
+    <p style="font-size:11px;color:#57606a;margin-top:3px">2026-03-21 | CRITICAL 4 + MAJOR 10 + MISSING 5 | 총 19개 이슈</p>
+  </div>
+  <div style="font-size:11px;color:#57606a;text-align:right">
+    <b style="color:#cf222e">CRITICAL 4</b> · <b style="color:#9a6700">MAJOR 10</b> · <b style="color:#8250df">MISSING 5</b>
+  </div>
+</header>
+
+<div class="summary">
+  <div class="scard"><div class="lbl">CRITICAL</div><div class="val" style="color:#cf222e">4</div></div>
+  <div class="scard"><div class="lbl">MAJOR</div><div class="val" style="color:#9a6700">10</div></div>
+  <div class="scard"><div class="lbl">MISSING</div><div class="val" style="color:#8250df">5</div></div>
+  <div class="scard"><div class="lbl">수정 파일</div><div class="val" style="color:#0550ae">3</div></div>
+</div>
+
+<!-- FUNNEL Before/After -->
+<div class="spec">
+  <h3>Pipeline Funnel — Before vs After</h3>
+  <div class="cols" style="margin-bottom:0">
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#b91c1c;margin-bottom:8px">BEFORE (현재)</div>
+      <div class="chart-wrap" id="chart-before"></div>
+      <div style="font-size:10px;color:#57606a;line-height:1.6">
+        • LT/HT 같은 스테이지 (계약/결제 없음)<br>
+        • HIL 표시: Sample Sent만 (LT), Draft Ready+Replied+Needs Review+Sample Sent (HT)<br>
+        • Reminder Sent: Legend에만 존재, funnel 미포함<br>
+        • <b style="color:#cf222e">HT 계약서/결제 스테이지 완전 누락</b>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#166534;margin-bottom:8px">AFTER (수정 후)</div>
+      <div class="chart-wrap" id="chart-after"></div>
+      <div style="font-size:10px;color:#57606a;line-height:1.6">
+        • <b>LT:</b> Draft Ready → ... → Delivered → <span style="border:1px dashed #9a6700;padding:0 3px;border-radius:3px;font-size:9px">Reminder</span> → Posted<br>
+        • <b>HT:</b> Draft Ready → ... → <span style="background:#f3e8ff;padding:0 3px;border-radius:3px;font-size:9px">Send Contract</span> → <span style="background:#f3e8ff;padding:0 3px;border-radius:3px;font-size:9px">Contract Signed</span> → Accept → ... → <span style="background:#f3e8ff;padding:0 3px;border-radius:3px;font-size:9px">Payment Sent</span> → Posted<br>
+        • HIL 정확하게 표시 (마케터 액션 필요한 곳만)
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bug List -->
+<div class="spec">
+  <h3>발견된 이슈 — CRITICAL (4)</h3>
+
+  <div class="bug critical">
+    <span class="tag tag-c">C-1</span>
+    <h4><code>toast()</code> → <code>showToast()</code> 오타</h4>
+    <p><b>영향:</b> Email Config Save, FAQ 추가/삭제, Reply Log 버튼 전부 실패 (ReferenceError)<br>
+    <b>수정:</b> replace_all <code>toast(</code> → <code>showToast(</code></p>
+  </div>
+
+  <div class="bug critical">
+    <span class="tag tag-c">C-2</span>
+    <h4>Execution Log "running" 상태 영구 잔류</h4>
+    <p><b>영향:</b> Dashboard에 "running" 표시 영원히 안 바뀜 (5:25 PM부터)<br>
+    <b>수정:</b> webhook .then()/.catch() + 1시간 stale 자동 timeout</p>
+  </div>
+
+  <div class="bug critical">
+    <span class="tag tag-c">C-3</span>
+    <h4>Preview 기능 항상 0 반환</h4>
+    <p><b>영향:</b> "Preview Counts" 클릭 → "0 Not Started creators" (실제 40명)<br>
+    <b>수정:</b> limit=1 → limit=500, data.count → data.total</p>
+  </div>
+
+  <div class="bug critical">
+    <span class="tag tag-c">C-4</span>
+    <h4>Email Config Save시 기존 데이터 초기화</h4>
+    <p><b>영향:</b> Edit → Save시 미입력 필드가 빈값으로 덮어씀 → 다음 로딩시 "Not set" 표시<br>
+    <b>수정:</b> 현재 config GET → merge → POST</p>
+  </div>
+</div>
+
+<div class="spec">
+  <h3>발견된 이슈 — MAJOR (10)</h3>
+
+  <div class="bug major">
+    <span class="tag tag-m">M-1</span>
+    <h4>DEMO 모드 POST/PUT 가짜 성공</h4>
+    <p>API 에러시 DEMO 전환 → POST/PUT <code>{ok:true}</code> 반환 → 유저가 저장된 줄 알지만 실제 미저장</p>
+  </div>
+
+  <div class="bug major">
+    <span class="tag tag-m">M-2</span>
+    <h4>Email Dedup 프론트엔드 미구현</h4>
+    <p>RAG Dedup 체크박스는 있지만 Send Batch 전 gmail-rag check 호출 없음 → 같은 사람에게 중복 발송 가능</p>
+  </div>
+
+  <div class="bug major">
+    <span class="tag tag-m">M-3</span>
+    <h4>Webhook 응답 미검증</h4>
+    <p>confirmExec()에서 .catch()만 → HTTP 4xx/5xx 무시 → 성공 toast 즉시 표시</p>
+  </div>
+
+  <div class="bug major">
+    <span class="tag tag-m">M-4</span>
+    <h4>Bulk Review 부분 실패 처리 없음</h4>
+    <p>bulk-status API + exec log 두 번 호출 → 첫 번째 성공+두 번째 실패 → DB 불일치</p>
+  </div>
+
+  <div class="bug major">
+    <span class="tag tag-m">M-5</span>
+    <h4>Timeout/Retry 메커니즘 없음</h4>
+    <p>모든 fetch() 호출에 timeout 없음 → API 느리면 무한 대기</p>
+  </div>
+
+  <div class="bug major">
+    <span class="tag tag-m">M-6</span>
+    <h4>Email Config Save 필드 검증 없음</h4>
+    <p>brand만 체크 → classification_prompt, templates 빈값 저장 가능 → loadEmailConfigs 크래시</p>
+  </div>
+
+  <div class="bug major">
+    <span class="tag tag-m">M-7</span>
+    <h4>Syncly Discovery Import 중복 방지 없음</h4>
+    <p>같은 Creator 반복 import 가능 → PG에 중복 레코드</p>
+  </div>
+
+  <div class="bug major">
+    <span class="tag tag-m">M-8</span>
+    <h4>Form Questions localStorage만 → 기기간 동기화 불가</h4>
+    <p>브랜드별 폼 질문 수정 → localStorage에만 저장 → 캐시 클리어시 손실</p>
+  </div>
+
+  <div class="bug major">
+    <span class="tag tag-m">M-9</span>
+    <h4>admin:admin 하드코딩</h4>
+    <p>apiFetch + apiFetchRaw에 admin:admin 하드코딩 → 보안 위험</p>
+  </div>
+
+  <div class="bug major">
+    <span class="tag tag-m">M-10</span>
+    <h4>Config History 로드만 하고 표시 안 함</h4>
+    <p>loadConfigHistory() 호출은 되지만 UI 렌더링 없음 → 고아 코드</p>
+  </div>
+</div>
+
+<div class="spec">
+  <h3>누락 기능 — MISSING (5)</h3>
+
+  <div class="bug missing">
+    <span class="tag tag-p">P-1</span>
+    <h4>HT 계약서/결제 스테이지 완전 누락</h4>
+    <p>AT Deals 테이블에 Contract Status, Payment Amount, DocuSeal ID 있음 → Dashboard funnel에 없음<br>
+    <b>추가:</b> Send Contract → Contract Signed → Payment Sent 스테이지 + Deals API</p>
+  </div>
+
+  <div class="bug missing">
+    <span class="tag tag-p">P-2</span>
+    <h4>Reminder Sent funnel 미포함</h4>
+    <p>Status Legend에만 존재 → 실제 funnel 스테이지에 없음 → 점선으로 추가</p>
+  </div>
+
+  <div class="bug missing">
+    <span class="tag tag-p">P-3</span>
+    <h4>Posted 감지 WF inactive</h4>
+    <p>Content Tracking v2 + Delivered→Posted WF 모두 inactive → 자동 Posted 전환 안 됨</p>
+  </div>
+
+  <div class="bug missing">
+    <span class="tag tag-p">P-4</span>
+    <h4>tables/ 엔드포인트에 새 테이블 3개 누락</h4>
+    <p>onz_email_reply_config, onz_faq_entries, onz_email_reply_log</p>
+  </div>
+
+  <div class="bug missing">
+    <span class="tag tag-p">P-5</span>
+    <h4>Accept→Complete WF 테스트 미등록</h4>
+    <p>Ow5bD5keNf2HFo83 생성됐지만 WJ_WORKFLOWS dict에 없음 → E2E 검증 불가</p>
+  </div>
+</div>
+
+<!-- Mermaid diagrams -->
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+mermaid.initialize({startOnLoad:false,theme:'default',flowchart:{curve:'basis',useMaxWidth:true}});
+
+const diagrams = {
+  'chart-before': `flowchart LR
+  NS["40 Not Started"]
+  subgraph LT["⚡ LT Route"]
+    DR1["1 Draft Ready"]-->S1["1 Sent"]-->R1["0 Replied"]-->NR1["1 Needs Review"]-->A1["1 Accepted"]-->SS1["5 Sample Sent<br/>HIL"]-->SH1["1 Shipped"]-->SD1["0 Delivered"]-->P1["1 Posted"]
+  end
+  subgraph HT["👑 HT Route"]
+    DR2["0 Draft Ready<br/>HIL"]-->S2["0 Sent"]-->R2["1 Replied<br/>HIL"]-->NR2["0 Needs Review<br/>HIL"]-->A2["0 Accepted"]-->SS2["1 Sample Sent<br/>HIL"]-->SH2["0 Shipped"]-->SD2["1 Delivered"]-->P2["0 Posted"]
+  end
+  NS-->LT
+  NS-->HT
+  style NS fill:#f0f0f0
+  style SS1 fill:#fffbeb,stroke:#f59e0b
+  style DR2 fill:#fffbeb,stroke:#f59e0b
+  style R2 fill:#fffbeb,stroke:#f59e0b
+  style NR2 fill:#fffbeb,stroke:#f59e0b
+  style SS2 fill:#fffbeb,stroke:#f59e0b`,
+
+  'chart-after': `flowchart LR
+  NS["40 Not Started"]
+  subgraph LT["⚡ LT Route"]
+    DR1["Draft Ready"]-->S1["Sent"]-->R1["Replied"]-->NR1["Needs Review"]-->A1["Accepted"]-->SS1["Sample Sent<br/>🖐 HIL"]-->SH1["Shipped"]-->SD1["Delivered"]-->RM1["Reminder<br/>선택"]-->P1["Posted"]
+  end
+  subgraph HT["👑 HT Route"]
+    DR2["Draft Ready<br/>🖐 HIL"]-->S2["Sent<br/>🖐 HIL"]-->R2["Replied<br/>🖐 HIL"]-->NR2["Needs Review<br/>🖐 HIL"]-->SC["Send Contract<br/>🖐 HIL"]-->CS["Contract Signed"]-->A2["Accepted"]-->SS2["Sample Sent<br/>🖐 HIL"]-->SH2["Shipped"]-->SD2["Delivered"]-->RM2["Reminder<br/>선택"]-->PS["Payment Sent<br/>🖐 HIL"]-->P2["Posted"]
+  end
+  NS-->LT
+  NS-->HT
+  style NS fill:#f0f0f0
+  style SS1 fill:#fffbeb,stroke:#f59e0b
+  style RM1 fill:#fff,stroke:#f59e0b,stroke-dasharray:5 5
+  style DR2 fill:#fffbeb,stroke:#f59e0b
+  style S2 fill:#fffbeb,stroke:#f59e0b
+  style R2 fill:#fffbeb,stroke:#f59e0b
+  style NR2 fill:#fffbeb,stroke:#f59e0b
+  style SC fill:#f3e8ff,stroke:#8250df
+  style CS fill:#f3e8ff,stroke:#8250df
+  style SS2 fill:#fffbeb,stroke:#f59e0b
+  style RM2 fill:#fff,stroke:#f59e0b,stroke-dasharray:5 5
+  style PS fill:#f3e8ff,stroke:#8250df`
+};
+
+for(const[id,code]of Object.entries(diagrams)){
+  const el=document.getElementById(id);
+  if(el){const{svg}=await mermaid.render('m_'+id,code);el.innerHTML=svg}
+}
+</script>
+
+</body>
+</html>
