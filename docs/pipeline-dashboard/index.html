@@ -1387,6 +1387,29 @@ async function loadCreators(){
   }
 }
 
+async function loadContentForCreator(creatorId, handle){
+  if(!handle)return;
+  var h=handle.replace(/^@/,'');
+  var el=document.getElementById('content-'+creatorId);
+  if(!el)return;
+  try{
+    var posts=await apiFetch('/datakeeper/query/?table=content_posts&username='+encodeURIComponent(h)+'&limit=3');
+    var rows=Array.isArray(posts)?posts:(posts.results||posts.rows||[]);
+    if(!rows.length){el.innerHTML=profileLinks({ig_handle:handle.includes('tiktok')?'':handle,tiktok_handle:handle.includes('tiktok')?handle:''});return}
+    var html='';
+    for(var i=0;i<Math.min(rows.length,2);i++){
+      var p=rows[i];
+      var platform=p.platform==='tiktok'?'TT':'IG';
+      var url=p.url||'#';
+      var date=(p.post_date||'').slice(5,10);
+      html+='<a href="'+esc(url)+'" target="_blank" class="profile-link" title="'+esc(p.post_date||'')+'" style="font-size:9px">'+platform+' '+date+'</a> ';
+    }
+    el.innerHTML=html||profileLinks({ig_handle:h});
+  }catch(e){
+    // Fallback to profile links
+  }
+}
+
 function profileLinks(c){
   var html='';
   if(c.ig_handle){
@@ -1422,7 +1445,9 @@ function renderCreatorsTable(data){
     html+='<td><span class="b '+badgeClass+'">'+esc(c.pipeline_status)+'</span></td>';
     html+='<td style="font-size:10px">'+esc(c.outreach_type||'-')+'</td>';
     html+='<td style="font-size:10px;font-family:var(--mono)">'+followers+'</td>';
-    html+='<td>'+profileLinks(c)+'</td>';
+    html+='<td id="content-'+c.id+'">'+profileLinks(c)+'</td>';
+    // Async load content metrics from DataKeeper
+    loadContentForCreator(c.id, c.ig_handle||c.tiktok_handle||'');
     html+='<td style="font-size:10px;color:var(--dim)">'+esc(date||'-')+'</td>';
     html+='<td><select class="status-change-dd" data-id="'+c.id+'" data-email="'+esc(c.email)+'" onchange="changeCreatorStatus(this)" style="padding:2px 4px;border:1px solid var(--border);border-radius:3px;font-size:9px;font-family:inherit;background:var(--card)">';
     for(var j=0;j<PIPELINE_STAGES.length;j++){
