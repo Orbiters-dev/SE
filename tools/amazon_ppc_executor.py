@@ -5610,6 +5610,30 @@ def run_propose_single(args, brand_key: str):
     else:
         print(f"\n[9/9] Email skipped (use --send-email to send). Proposal saved to {filepath}")
 
+    # --- Auto-Execute: immediately execute auto-approved proposals ---
+    if getattr(args, "auto_execute", False):
+        approved_camps = [p for p in proposals if p.get("auto_approved")]
+        approved_kws = [k for k in kw_proposals if k.get("auto_approved")]
+        total_auto = len(approved_camps) + len(approved_kws)
+        if total_auto > 0:
+            print(f"\n[AUTO-EXECUTE] {brand_display}: {total_auto} auto-approved items → executing now...")
+            data = load_latest_proposal(brand_key=brand_key)
+            if data:
+                executed = execute_approved(data)
+                if executed:
+                    data["executed"] = True
+                    data["executed_at"] = datetime.now().isoformat()
+                    latest_path = sorted(TMP_DIR.glob(f"ppc_proposal_{brand_key}_*.json"), reverse=True)
+                    if latest_path:
+                        latest_path[0].write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+                    log_to_sheets(executed, brand_key=brand_key)
+                    _update_persistent_exec_log(executed)
+                    print(f"[AUTO-EXECUTE] {brand_display}: {len(executed)} changes executed and logged.")
+                else:
+                    print(f"[AUTO-EXECUTE] {brand_display}: No changes executed (all skipped by safety checks).")
+        else:
+            print(f"\n[AUTO-EXECUTE] {brand_display}: No auto-approved items to execute.")
+
 
 def run_propose(args):
     """Run propose for all requested brands (default: all 3)."""
@@ -5665,6 +5689,8 @@ def main():
     parser.add_argument("--days", type=int, default=14, help="Days of data to analyze (default: 14, max 60)")
     parser.add_argument("--to", type=str, default=DEFAULT_TO, help="Email recipient")
     parser.add_argument("--cc", type=str, default=DEFAULT_CC, help="CC email recipient")
+    parser.add_argument("--auto-execute", action="store_true",
+                        help="Auto-execute proposals that match autopilot tier settings (no email needed)")
     parser.add_argument("--skip-keywords", action="store_true",
                         help="Skip search term & keyword analysis (faster, campaign-level only)")
     args = parser.parse_args()

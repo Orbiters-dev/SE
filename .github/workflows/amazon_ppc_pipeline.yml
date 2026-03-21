@@ -2,14 +2,8 @@ name: Amazon PPC Pipeline
 
 on:
   schedule:
-    - cron: '30 14 * * *'   # KST 23:30 (= UTC 14:30) - daily report + propose
-    - cron: '30 22 * * *'   # KST 07:30 (= UTC 22:30) - send proposal email
+    - cron: '30 22 * * *'   # KST 07:30 (= UTC 22:30) - propose + auto-execute tier 1-2
   workflow_dispatch:
-    inputs:
-      mode:
-        description: 'Mode: propose / send-email / both'
-        required: false
-        default: 'both'
 
 jobs:
   ppc-pipeline:
@@ -44,68 +38,49 @@ jobs:
           AMZ_ADS_REFRESH_TOKEN=${{ secrets.AMZ_ADS_REFRESH_TOKEN }}
           ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
           ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
-          GMAIL_OAUTH_CREDENTIALS_PATH=credentials/gmail_oauth_credentials.json
-          GMAIL_TOKEN_PATH=credentials/gmail_token.json
-          GMAIL_SENDER=orbiters11@gmail.com
-          PPC_REPORT_RECIPIENT=${{ secrets.PPC_REPORT_RECIPIENT }}
+          GOOGLE_SERVICE_ACCOUNT_JSON_PATH=credentials/google_sa.json
           ENVEOF
           sed -i 's/^[[:space:]]*//' .env
 
-      - name: Write Gmail credentials
+      - name: Write Google SA credentials
         run: |
           mkdir -p credentials
-          echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
-          echo '${{ secrets.GMAIL_TOKEN_JSON }}'             > credentials/gmail_token.json
+          echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > credentials/google_sa.json
 
-      - name: Determine mode
-        id: mode
+      - name: Write autopilot config
         run: |
-          HOUR=$(date -u +%H)
-          INPUT_MODE="${{ github.event.inputs.mode }}"
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "mode=${INPUT_MODE:-both}" >> $GITHUB_OUTPUT
-          elif [ "$HOUR" = "14" ]; then
-            echo "mode=propose" >> $GITHUB_OUTPUT
-          elif [ "$HOUR" = "22" ]; then
-            echo "mode=send-email" >> $GITHUB_OUTPUT
-          else
-            echo "mode=both" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Restore proposal cache
-        if: steps.mode.outputs.mode == 'send-email'
-        uses: actions/cache/restore@v4
-        with:
-          path: .tmp/
-          key: ppc-proposal-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: ppc-proposal-${{ runner.os }}-
+          mkdir -p .tmp
+          cat > .tmp/dashboard_config_override.json << 'CFGEOF'
+          {
+            "naeiae": {"daily_budget":180,"target_roas":2.5,"manual_acos":25,"auto_acos":35,"max_bid":3,"max_campaign":50},
+            "grosmimi": {"daily_budget":3000,"target_roas":2.5,"manual_acos":20,"auto_acos":30,"max_bid":3,"max_campaign":50},
+            "chaenmom": {"daily_budget":150,"target_roas":2.5,"manual_acos":30,"auto_acos":40,"max_bid":3,"max_campaign":50},
+            "_autopilot": {
+              "naeiae":    {"tier1":"auto","tier2":"auto","tier3":"approve","tier4":"off"},
+              "grosmimi":  {"tier1":"approve","tier2":"approve","tier3":"approve","tier4":"off"},
+              "chaenmom":  {"tier1":"auto","tier2":"auto","tier3":"approve","tier4":"off"}
+            }
+          }
+          CFGEOF
+          sed -i 's/^[[:space:]]*//' .tmp/dashboard_config_override.json
 
       - name: Run Daily Report
-        if: steps.mode.outputs.mode == 'propose' || steps.mode.outputs.mode == 'both'
         run: python -u tools/run_amazon_ppc_daily.py
         continue-on-error: true
 
-      - name: Run Propose (no email)
-        if: steps.mode.outputs.mode == 'propose' || steps.mode.outputs.mode == 'both'
+      - name: Run Propose + Auto-Execute (tier 1-2)
         run: |
-          mkdir -p .tmp
           python -u tools/amazon_ppc_executor.py \
             --propose \
-            --no-email \
-            --to "${{ secrets.PPC_REPORT_RECIPIENT }}" \
-            --cc "mj.lee@orbiters.co.kr"
+            --auto-execute \
+            --no-email
 
-      - name: Save proposal cache
-        if: (steps.mode.outputs.mode == 'propose' || steps.mode.outputs.mode == 'both') && always()
-        uses: actions/cache/save@v4
+      - name: Upload proposal artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
+          name: ppc-proposal-latest
           path: .tmp/
-          key: ppc-proposal-${{ runner.os }}-${{ github.run_id }}
-
-      - name: Send Proposal Email (KST 07:30)
-        if: steps.mode.outputs.mode == 'send-email' || steps.mode.outputs.mode == 'both'
-        run: |
-          python -u tools/amazon_ppc_executor.py \
-            --send-email \
-            --to "${{ secrets.PPC_REPORT_RECIPIENT }}" \
-            --cc "mj.lee@orbiters.co.kr"
+          retention-days: 3
+          overwrite: true
+          include-hidden-files: true
