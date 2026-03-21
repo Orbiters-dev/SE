@@ -486,10 +486,13 @@ def main():
     mid = get_next_id(content)
     record_mistake(mid, error_title, agent, situation, error_msg, fix_hint, is_known)
 
-    # Auto git commit + push (실패해도 메인 흐름 영향 없음)
+    # Auto pull → commit → push (실패해도 메인 흐름 영향 없음)
     try:
         import subprocess
         project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        # pull 먼저 — union merge로 기존 내용 보존
+        subprocess.run(['git', 'pull', '--rebase', 'origin', 'main'],
+                       cwd=project_root, capture_output=True, timeout=20)
         subprocess.run(['git', 'add', 'memory/mistakes.md'],
                        cwd=project_root, capture_output=True, timeout=10)
         subprocess.run(['git', 'commit', '-m', f'auto: mistakes [{mid}] {error_title[:50]}'],
