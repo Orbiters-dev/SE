@@ -1279,6 +1279,8 @@ async function loadCreatorStats(){
   }catch(e){console.error('Stats error:',e)}
 }
 
+var HIL_STAGES={'Needs Review':1,'Sample Sent':1,'Draft Ready':2};
+// HIL: 1=always HIL, 2=HT only
 function buildFunnel(statusCounts,targetId,activeStatus){
   var el=document.getElementById(targetId);
   if(!el)return;
@@ -1288,8 +1290,11 @@ function buildFunnel(statusCounts,targetId,activeStatus){
     if(i>0)html+='<span class="fa">&#x25B6;</span>';
     var count=statusCounts[stages[i]]||0;
     var isActive=(stages[i]===activeStatus)?' on':'';
-    html+='<div class="fn'+isActive+'" onclick="filterByStatus(\''+stages[i]+'\')" title="Click to filter creators: '+stages[i]+'">';
-    html+='<div class="fi">'+count+'</div><div class="ft">'+stages[i]+'</div></div>';
+    var hil=HIL_STAGES[stages[i]];
+    var hilStyle=hil===1?'border:2px solid var(--am);background:#fffbeb;':hil===2?'border:2px dashed var(--am);background:#fffdf5;':'';
+    var hilLabel=hil===1?'<div style="font-size:7px;color:var(--am);font-weight:700;margin-top:1px">&#x1F590; HIL</div>':hil===2?'<div style="font-size:7px;color:var(--am);font-weight:700;margin-top:1px">&#x1F451; HT only</div>':'';
+    html+='<div class="fn'+isActive+'" onclick="filterByStatus(\''+stages[i]+'\')" title="'+stages[i]+(hil?' (Human-in-Loop)':'')+'" style="'+hilStyle+'">';
+    html+='<div class="fi">'+count+'</div><div class="ft">'+stages[i]+'</div>'+hilLabel+'</div>';
   }
   el.innerHTML=html;
 }
