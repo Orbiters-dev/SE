@@ -1,5 +1,5 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-21 16:09 PST",
+ "generated_pst": "2026-03-21 16:28 PST",
  "brands": {
   "grosmimi": {
    "dates": {
@@ -5700,7 +5700,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-21": {
-     "generated": "2026-03-21T16:09",
+     "generated": "2026-03-21T16:28",
      "executed": true,
      "executed_at": "2026-03-21",
      "summary_7d": {
@@ -8369,7 +8369,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-21": {
-     "generated": "2026-03-21T16:09",
+     "generated": "2026-03-21T16:28",
      "executed": true,
      "executed_at": "2026-03-21",
      "summary_7d": {
@@ -8412,7 +8412,7 @@ const PPC_DATA = {
        "bud_before": 100.0,
        "bud_after": null,
        "tier": "7 Strong",
-       "reason": "[AUTO] 7d ROAS 3.72x (ACOS 26.9%) | 30d ROAS 2.86x | target ACOS 40.0% | 7d vs 30d: +30.1%\nBudget already at cap ($100/campaign)",
+       "reason": "[AUTO] 7d ROAS 3.72x (ACOS 26.9%) | 30d ROAS 2.86x | target ACOS 35.0% | 7d vs 30d: +30.1%\nBudget already at cap ($86/campaign)",
        "approved": true
       },
       {
@@ -8430,7 +8430,7 @@ const PPC_DATA = {
        "bud_before": 100.0,
        "bud_after": null,
        "tier": "7 Strong",
-       "reason": "[MANUAL] 7d ROAS 4.66x (ACOS 21.5%) | 30d ROAS 3.42x | target ACOS 30.0% | 7d vs 30d: +36.3%\nBudget already at cap ($100/campaign)",
+       "reason": "[MANUAL] 7d ROAS 4.66x (ACOS 21.5%) | 30d ROAS 3.42x | target ACOS 25.0% | 7d vs 30d: +36.3%\nBudget already at cap ($100/campaign)",
        "approved": true
       }
      ],
@@ -9379,7 +9379,7 @@ const PPC_DATA = {
      "sales_7d": 0.0,
      "result_status": "OK",
      "exec_date": "2026-03-21",
-     "exec_time": "2026-03-21 23:09:56"
+     "exec_time": "2026-03-21 16:28:11 PST"
     },
     {
      "brand_key": "naeiae",
@@ -10216,7 +10216,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-21": {
-     "generated": "2026-03-21T16:09",
+     "generated": "2026-03-21T16:28",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -10259,7 +10259,7 @@ const PPC_DATA = {
        "bud_before": 75.0,
        "bud_after": null,
        "tier": "8 Strong",
-       "reason": "[AUTO] 7d ROAS 20.48x (ACOS 4.9%) | 30d ROAS 15.24x | target ACOS 40.0% | 7d vs 30d: +34.4%\nBudget already at cap ($75/campaign)",
+       "reason": "[AUTO] 7d ROAS 20.48x (ACOS 4.9%) | 30d ROAS 15.24x | target ACOS 40.0% | 7d vs 30d: +34.4%\nBudget already at cap ($60/campaign)",
        "approved": false
       },
       {
