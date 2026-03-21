@@ -1304,48 +1304,45 @@ function buildFunnel(statusCounts,targetId,activeStatus){
     return;
   }
 
-  // Split funnel: common → LT line / HT line
-  var common=['Not Started'];
-  var ltStages=['Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
-  var htStages=['Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
-
-  var html='';
-  // Common row
-  html+='<div style="display:flex;align-items:center;gap:4px;margin-bottom:6px">';
-  html+='<span style="font-size:9px;color:var(--dim);min-width:30px">ALL</span>';
-  for(var i=0;i<common.length;i++){
-    var s=common[i];var count=statusCounts[s]||0;
-    var isActive=(s===activeStatus)?' on':'';
-    html+='<div class="fn'+isActive+'" onclick="filterByStatus(\''+s+'\')" style="min-width:60px"><div class="fi">'+count+'</div><div class="ft">'+s+'</div></div>';
+  // Y-fork: Not Started (left center) → LT (top row) / HT (bottom row)
+  var pipeStages=['Draft Ready','Sent','Replied','Needs Review','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
+  function _row(counts,hilMap){
+    var r='';
+    for(var i=0;i<pipeStages.length;i++){
+      if(i>0)r+='<span class="fa" style="font-size:7px;color:#ccc">&#x25B6;</span>';
+      var s=pipeStages[i];var count=counts[s]||0;
+      var isActive=(s===activeStatus)?' on':'';
+      var hil=hilMap[s];
+      var hb=hil?'border:2px solid var(--am);background:#fffbeb;':'';
+      var ht=hil?'<div style="font-size:6px;color:var(--am);font-weight:700;letter-spacing:.5px">HIL</div>':'';
+      r+='<div class="fn'+isActive+'" onclick="filterByStatus(\''+s+'\')" style="min-width:48px;padding:4px 3px;'+hb+'">';
+      r+='<div class="fi" style="font-size:15px">'+count+'</div><div class="ft" style="font-size:7px;line-height:1.2">'+s+'</div>'+ht+'</div>';
+    }
+    return r;
   }
+  var totalNS=statusCounts['Not Started']||0;
+  var isNSActive=('Not Started'===activeStatus)?' on':'';
+
+  var html='<div style="display:grid;grid-template-columns:auto 24px 1fr;grid-template-rows:1fr 1fr;gap:0;align-items:center">';
+  // Not Started (left, spans 2 rows)
+  html+='<div style="grid-row:1/3;grid-column:1;display:flex;align-items:center;justify-content:center;padding-right:2px">';
+  html+='<div class="fn'+isNSActive+'" onclick="filterByStatus(\'Not Started\')" style="min-width:68px;padding:10px 6px"><div class="fi" style="font-size:22px">'+totalNS+'</div><div class="ft">Not Started</div></div>';
   html+='</div>';
-
-  // LT row
-  html+='<div style="display:flex;align-items:center;gap:3px;margin-bottom:4px;padding:4px 0;border-left:3px solid var(--a);padding-left:6px">';
-  html+='<span style="font-size:9px;font-weight:700;color:var(--a);min-width:27px">LT</span>';
-  for(var i=0;i<ltStages.length;i++){
-    if(i>0)html+='<span class="fa" style="font-size:8px">&#x25B6;</span>';
-    var s=ltStages[i];var count=ltCounts[s]||0;
-    var isActive=(s===activeStatus)?' on':'';
-    var hil=HIL_LT[s];
-    var hilStyle=hil?'border:2px solid var(--am);background:#fffbeb;':'';
-    var hilLabel=hil?'<div style="font-size:6px;color:var(--am);font-weight:700">HIL</div>':'';
-    html+='<div class="fn'+isActive+'" onclick="filterByStatus(\''+s+'\')" style="min-width:50px;'+hilStyle+'"><div class="fi" style="font-size:16px">'+count+'</div><div class="ft" style="font-size:8px">'+s+'</div>'+hilLabel+'</div>';
-  }
+  // Fork lines
+  html+='<div style="grid-row:1;grid-column:2;border-bottom:2px solid var(--a);border-left:2px solid var(--a);border-bottom-left-radius:10px;height:50%;align-self:end"></div>';
+  html+='<div style="grid-row:2;grid-column:2;border-top:2px solid var(--p);border-left:2px solid var(--p);border-top-left-radius:10px;height:50%;align-self:start"></div>';
+  // LT row (top)
+  html+='<div style="grid-row:1;grid-column:3;display:flex;align-items:center;gap:2px;padding:5px 6px;background:linear-gradient(90deg,rgba(99,102,241,.05),transparent);border-radius:8px;margin-bottom:1px">';
+  html+='<span style="font-size:10px;font-weight:800;color:var(--a);min-width:22px" title="Low Touch">&#x26A1;LT</span>';
+  html+='<span class="fa" style="font-size:7px;color:var(--a)">&#x25B6;</span>';
+  html+=_row(ltCounts,HIL_LT);
   html+='</div>';
-
-  // HT row
-  html+='<div style="display:flex;align-items:center;gap:3px;padding:4px 0;border-left:3px solid var(--p);padding-left:6px">';
-  html+='<span style="font-size:9px;font-weight:700;color:var(--p);min-width:27px">HT</span>';
-  for(var i=0;i<htStages.length;i++){
-    if(i>0)html+='<span class="fa" style="font-size:8px">&#x25B6;</span>';
-    var s=htStages[i];var count=htCounts[s]||0;
-    var isActive=(s===activeStatus)?' on':'';
-    var hil=HIL_HT[s];
-    var hilStyle=hil?'border:2px solid var(--am);background:#fffbeb;':'';
-    var hilLabel=hil?'<div style="font-size:6px;color:var(--am);font-weight:700">HIL</div>':'';
-    html+='<div class="fn'+isActive+'" onclick="filterByStatus(\''+s+'\')" style="min-width:50px;'+hilStyle+'"><div class="fi" style="font-size:16px">'+count+'</div><div class="ft" style="font-size:8px">'+s+'</div>'+hilLabel+'</div>';
-  }
+  // HT row (bottom)
+  html+='<div style="grid-row:2;grid-column:3;display:flex;align-items:center;gap:2px;padding:5px 6px;background:linear-gradient(90deg,rgba(168,85,247,.05),transparent);border-radius:8px;margin-top:1px">';
+  html+='<span style="font-size:10px;font-weight:800;color:var(--p);min-width:22px" title="High Touch">&#x1F451;HT</span>';
+  html+='<span class="fa" style="font-size:7px;color:var(--p)">&#x25B6;</span>';
+  html+=_row(htCounts,HIL_HT);
+  html+='</div>';
   html+='</div>';
 
   el.innerHTML=html;
