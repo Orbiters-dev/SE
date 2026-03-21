@@ -2365,19 +2365,28 @@ async function loadReplyLogs(){
     var logs=await apiFetch('/pipeline/reply-log/?days=7');
     if(!Array.isArray(logs))logs=[];
     document.getElementById('ec-log-count').textContent=logs.length;
-    var html='<table><thead><tr><th>Time</th><th>Creator</th><th>Brand</th><th>Intent</th><th>Auto</th><th>Template</th><th>Subject</th></tr></thead><tbody>';
+    _replyLogCache=logs;
+    var html='<table><thead><tr><th>Time</th><th>Creator</th><th>Brand</th><th>Intent</th><th>Auto</th><th>Subject</th><th style="min-width:100px">Actions</th></tr></thead><tbody>';
     if(!logs.length){html+='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No reply logs yet</td></tr>'}
-    logs.forEach(function(r){
+    logs.forEach(function(r,i){
       var intentBadge='<span class="b '+(r.intent==='Accept'?'g':r.intent==='FAQ_Gap'?'c':'am')+'">'+r.intent+'</span>';
       html+='<tr>';
       html+='<td style="font-family:var(--mono);font-size:9px">'+new Date(r.processed_at).toLocaleString()+'</td>';
-      html+='<td>'+r.creator_email+'</td>';
-      html+='<td><span class="b a">'+r.brand+'</span></td>';
+      html+='<td style="font-size:10px">'+esc(r.creator_email)+'</td>';
+      html+='<td><span class="b a">'+esc(r.brand)+'</span></td>';
       html+='<td>'+intentBadge+'</td>';
-      html+='<td>'+(r.auto_sent?'<span class="b g">Yes</span>':'<span class="b am">No</span>')+'</td>';
-      html+='<td>'+r.template_used+'</td>';
-      html+='<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dim)">'+r.incoming_subject+'</td>';
+      html+='<td>'+(r.auto_sent?'<span class="b g">Y</span>':'<span class="b am">N</span>')+'</td>';
+      html+='<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:var(--dim)">'+esc(r.incoming_subject)+'</td>';
+      html+='<td style="white-space:nowrap">';
+      html+='<button class="btn btn-sm" style="font-size:9px;padding:2px 6px;background:var(--cbg);color:var(--c);border:1px solid var(--c)" onclick="replyLogToFAQ('+i+')" title="FAQ Knowledge Base\uc5d0 \ucd94\uac00">+FAQ</button> ';
+      html+='<button class="btn btn-sm" style="font-size:9px;padding:2px 6px;background:var(--rbg);color:var(--r);border:1px solid var(--r)" onclick="deleteReplyLog(\''+r.id+'\')" title="\ub85c\uadf8 \uc0ad\uc81c">Del</button>';
+      html+='</td>';
       html+='</tr>';
+      if(r.incoming_snippet){
+        html+='<tr><td colspan="7" style="padding:2px 8px 6px 30px;font-size:10px;color:var(--dim);background:var(--bg);border-top:none">';
+        html+='<b>Snippet:</b> '+esc(r.incoming_snippet).substring(0,200);
+        html+='</td></tr>';
+      }
     });
     html+='</tbody></table>';
     document.getElementById('reply-log-container').innerHTML=html;
@@ -2406,6 +2415,39 @@ async function saveFAQEntry(){
     document.getElementById('new-faq-form').style.display='none';
     ['faq-new-category','faq-new-question','faq-new-answer','faq-new-keywords'].forEach(function(id){document.getElementById(id).value=''});
     loadFAQEntries();
+  }catch(e){toast('Error: '+e.message,'err')}
+}
+
+var _replyLogCache=[];
+
+async function replyLogToFAQ(idx){
+  var r=_replyLogCache[idx];
+  if(!r){toast('Log not found','err');return}
+  var question=prompt('FAQ Question (from reply):', r.incoming_subject||r.incoming_snippet||'');
+  if(!question)return;
+  var answer=prompt('FAQ Answer:', '');
+  if(!answer)return;
+  var category=prompt('Category (Shipping/Products/Compensation/Timeline/General):', 'General');
+  try{
+    await apiFetch('/pipeline/faq/',{method:'POST',body:JSON.stringify({
+      brand:r.brand||'all',
+      question:question,
+      answer:answer,
+      keywords:question.toLowerCase().split(/\s+/).filter(function(w){return w.length>3}),
+      category:category||'General',
+      priority:5
+    })});
+    toast('Added to FAQ: '+question.substring(0,40)+'...','ok');
+    loadFAQEntries();
+  }catch(e){toast('Error: '+e.message,'err')}
+}
+
+async function deleteReplyLog(id){
+  if(!confirm('Delete this reply log entry?'))return;
+  try{
+    await apiFetch('/pipeline/reply-log/'+id+'/',{method:'DELETE'});
+    toast('Reply log deleted','ok');
+    loadReplyLogs();
   }catch(e){toast('Error: '+e.message,'err')}
 }
 
