@@ -2586,6 +2586,45 @@ async function editEmailConfig(brand){
     document.getElementById('new-config-form').scrollIntoView({behavior:'smooth'});
   }catch(e){showToast('Error loading config: '+e.message,'err')}
 }
+
+// ========== REMOTE CONTROL (Claude Agent → This Browser) ==========
+var _remoteEnabled=true;
+var _remoteInterval=null;
+function startRemoteControl(){
+  if(_remoteInterval)return;
+  _remoteInterval=setInterval(async function(){
+    try{
+      var r=await fetch(API_BASE+'/remote/poll/',{headers:{'Authorization':'Basic '+btoa('admin:admin')}});
+      var d=await r.json();
+      if(d.commands&&d.commands.length>0){
+        for(var i=0;i<d.commands.length;i++){
+          executeRemoteCommand(d.commands[i]);
+        }
+      }
+    }catch(e){}
+  },1000);
+  console.log('[Remote] Listening for Claude commands...');
+}
+function executeRemoteCommand(cmd){
+  console.log('[Remote] Executing:',JSON.stringify(cmd));
+  var a=cmd.action;
+  if(a==='reload'){location.reload()}
+  else if(a==='switchTab'){switchTab(cmd.tab)}
+  else if(a==='toast'){showToast(cmd.message||'Remote command',cmd.type||'ok')}
+  else if(a==='click'){var el=document.querySelector(cmd.selector);if(el)el.click()}
+  else if(a==='scroll'){var el=document.querySelector(cmd.selector);if(el)el.scrollIntoView({behavior:'smooth'})}
+  else if(a==='fill'){var el=document.querySelector(cmd.selector);if(el){el.value=cmd.value;el.dispatchEvent(new Event('input'))}}
+  else if(a==='highlight'){
+    var el=document.querySelector(cmd.selector);
+    if(el){el.style.outline='3px solid #f59e0b';el.style.outlineOffset='2px';
+      setTimeout(function(){el.style.outline='';el.style.outlineOffset=''},3000)}
+  }
+  else if(a==='runTests'){document.getElementById('btn-run-tests')&&document.getElementById('btn-run-tests').click()}
+  else if(a==='navigate'){location.href=cmd.url}
+  else{console.log('[Remote] Unknown action:',a)}
+}
+// Auto-start remote control
+startRemoteControl();
 </script>
 </body>
 </html>
