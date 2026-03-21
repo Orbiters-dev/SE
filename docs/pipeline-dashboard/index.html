@@ -1279,23 +1279,75 @@ async function loadCreatorStats(){
   }catch(e){console.error('Stats error:',e)}
 }
 
-var HIL_STAGES={'Needs Review':1,'Sample Sent':1,'Draft Ready':2};
-// HIL: 1=always HIL, 2=HT only
+var HIL_LT={'Needs Review':1,'Sample Sent':1};
+var HIL_HT={'Draft Ready':1,'Needs Review':1,'Sample Sent':1,'Replied':1};
+
 function buildFunnel(statusCounts,targetId,activeStatus){
   var el=document.getElementById(targetId);
   if(!el)return;
-  var stages=['Not Started','Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
-  var html='';
-  for(var i=0;i<stages.length;i++){
-    if(i>0)html+='<span class="fa">&#x25B6;</span>';
-    var count=statusCounts[stages[i]]||0;
-    var isActive=(stages[i]===activeStatus)?' on':'';
-    var hil=HIL_STAGES[stages[i]];
-    var hilStyle=hil===1?'border:2px solid var(--am);background:#fffbeb;':hil===2?'border:2px dashed var(--am);background:#fffdf5;':'';
-    var hilLabel=hil===1?'<div style="font-size:7px;color:var(--am);font-weight:700;margin-top:1px">&#x1F590; HIL</div>':hil===2?'<div style="font-size:7px;color:var(--am);font-weight:700;margin-top:1px">&#x1F451; HT only</div>':'';
-    html+='<div class="fn'+isActive+'" onclick="filterByStatus(\''+stages[i]+'\')" title="'+stages[i]+(hil?' (Human-in-Loop)':'')+'" style="'+hilStyle+'">';
-    html+='<div class="fi">'+count+'</div><div class="ft">'+stages[i]+'</div>'+hilLabel+'</div>';
+  // Use LT/HT split if available
+  var ltCounts=_lastStats&&_lastStats.by_status_lt?_lastStats.by_status_lt:{};
+  var htCounts=_lastStats&&_lastStats.by_status_ht?_lastStats.by_status_ht:{};
+  var hasLtHt=Object.keys(ltCounts).length>0||Object.keys(htCounts).length>0;
+
+  if(!hasLtHt){
+    // Fallback: single row
+    var stages=['Not Started','Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
+    var html='';
+    for(var i=0;i<stages.length;i++){
+      if(i>0)html+='<span class="fa">&#x25B6;</span>';
+      var count=statusCounts[stages[i]]||0;
+      var isActive=(stages[i]===activeStatus)?' on':'';
+      html+='<div class="fn'+isActive+'" onclick="filterByStatus(\''+stages[i]+'\')"><div class="fi">'+count+'</div><div class="ft">'+stages[i]+'</div></div>';
+    }
+    el.innerHTML=html;
+    return;
   }
+
+  // Split funnel: common → LT line / HT line
+  var common=['Not Started'];
+  var ltStages=['Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
+  var htStages=['Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
+
+  var html='';
+  // Common row
+  html+='<div style="display:flex;align-items:center;gap:4px;margin-bottom:6px">';
+  html+='<span style="font-size:9px;color:var(--dim);min-width:30px">ALL</span>';
+  for(var i=0;i<common.length;i++){
+    var s=common[i];var count=statusCounts[s]||0;
+    var isActive=(s===activeStatus)?' on':'';
+    html+='<div class="fn'+isActive+'" onclick="filterByStatus(\''+s+'\')" style="min-width:60px"><div class="fi">'+count+'</div><div class="ft">'+s+'</div></div>';
+  }
+  html+='</div>';
+
+  // LT row
+  html+='<div style="display:flex;align-items:center;gap:3px;margin-bottom:4px;padding:4px 0;border-left:3px solid var(--a);padding-left:6px">';
+  html+='<span style="font-size:9px;font-weight:700;color:var(--a);min-width:27px">LT</span>';
+  for(var i=0;i<ltStages.length;i++){
+    if(i>0)html+='<span class="fa" style="font-size:8px">&#x25B6;</span>';
+    var s=ltStages[i];var count=ltCounts[s]||0;
+    var isActive=(s===activeStatus)?' on':'';
+    var hil=HIL_LT[s];
+    var hilStyle=hil?'border:2px solid var(--am);background:#fffbeb;':'';
+    var hilLabel=hil?'<div style="font-size:6px;color:var(--am);font-weight:700">HIL</div>':'';
+    html+='<div class="fn'+isActive+'" onclick="filterByStatus(\''+s+'\')" style="min-width:50px;'+hilStyle+'"><div class="fi" style="font-size:16px">'+count+'</div><div class="ft" style="font-size:8px">'+s+'</div>'+hilLabel+'</div>';
+  }
+  html+='</div>';
+
+  // HT row
+  html+='<div style="display:flex;align-items:center;gap:3px;padding:4px 0;border-left:3px solid var(--p);padding-left:6px">';
+  html+='<span style="font-size:9px;font-weight:700;color:var(--p);min-width:27px">HT</span>';
+  for(var i=0;i<htStages.length;i++){
+    if(i>0)html+='<span class="fa" style="font-size:8px">&#x25B6;</span>';
+    var s=htStages[i];var count=htCounts[s]||0;
+    var isActive=(s===activeStatus)?' on':'';
+    var hil=HIL_HT[s];
+    var hilStyle=hil?'border:2px solid var(--am);background:#fffbeb;':'';
+    var hilLabel=hil?'<div style="font-size:6px;color:var(--am);font-weight:700">HIL</div>':'';
+    html+='<div class="fn'+isActive+'" onclick="filterByStatus(\''+s+'\')" style="min-width:50px;'+hilStyle+'"><div class="fi" style="font-size:16px">'+count+'</div><div class="ft" style="font-size:8px">'+s+'</div>'+hilLabel+'</div>';
+  }
+  html+='</div>';
+
   el.innerHTML=html;
 }
 
