@@ -1,5 +1,5 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-21 15:13 PST",
+ "generated_pst": "2026-03-21 16:09 PST",
  "brands": {
   "grosmimi": {
    "dates": {
@@ -5700,7 +5700,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-21": {
-     "generated": "2026-03-21T15:13",
+     "generated": "2026-03-21T16:09",
      "executed": true,
      "executed_at": "2026-03-21",
      "summary_7d": {
@@ -5726,7 +5726,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "9 No-Brainer",
        "reason": "[SB] 7d ROAS 1.34x (ACOS 74.6%) | 30d ROAS 1.34x | target ACOS 30.0% | 7d vs 30d: +0.0%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "SD_stage2cup",
@@ -7616,16 +7616,32 @@ const PPC_DATA = {
     },
     {
      "brand_key": "grosmimi",
+     "campaignId": "214628738155250",
+     "campaignName": "SBV_brand",
+     "action": "reduce_bid",
+     "priority": "urgent",
+     "reason": "[SB] 7d ROAS 1.34x (ACOS 74.6%) | 30d ROAS 1.34x | target ACOS 30.0% | 7d vs 30d: +0.0%",
+     "old_budget": 0.0,
+     "new_budget": null,
+     "bid_change_pct": -30,
+     "roas_7d": 1.34,
+     "spend_7d": 119.03,
+     "sales_7d": 159.49,
+     "result_status": "OK",
+     "exec_date": "2026-03-21"
+    },
+    {
+     "brand_key": "grosmimi",
      "campaignId": "438350302164737",
      "campaignName": "SD_stage2cup",
      "action": "pause",
      "priority": "urgent",
-     "reason": "[SD] 7d ROAS 0.88x (ACOS 114.2%) | 30d ROAS 1.08x | target ACOS 35.0% | 7d vs 30d: -18.5%",
+     "reason": "[SD] 7d ROAS 0.81x (ACOS 123.3%) | 30d ROAS 1.04x | target ACOS 35.0% | 7d vs 30d: -22.1%",
      "old_budget": 300.0,
      "new_budget": null,
      "bid_change_pct": null,
-     "roas_7d": 0.88,
-     "spend_7d": 35.28,
+     "roas_7d": 0.81,
+     "spend_7d": 38.09,
      "sales_7d": 30.9,
      "result_status": "OK",
      "exec_date": "2026-03-21"
@@ -8353,7 +8369,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-21": {
-     "generated": "2026-03-21T15:13",
+     "generated": "2026-03-21T16:09",
      "executed": true,
      "executed_at": "2026-03-21",
      "summary_7d": {
@@ -8379,7 +8395,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "10 No-Brainer",
        "reason": "[SB] 7d ROAS 0.0x (ACOS None%) | 30d ROAS 0.0x | target ACOS 30.0% | ",
-       "approved": false
+       "approved": true
       },
       {
        "name": "Naeiae Rice Pop - SP - Auto",
@@ -8396,7 +8412,7 @@ const PPC_DATA = {
        "bud_before": 100.0,
        "bud_after": null,
        "tier": "7 Strong",
-       "reason": "[AUTO] 7d ROAS 3.72x (ACOS 26.9%) | 30d ROAS 2.86x | target ACOS 35.0% | 7d vs 30d: +30.1%\nBudget already at cap ($100/campaign)",
+       "reason": "[AUTO] 7d ROAS 3.72x (ACOS 26.9%) | 30d ROAS 2.86x | target ACOS 40.0% | 7d vs 30d: +30.1%\nBudget already at cap ($100/campaign)",
        "approved": true
       },
       {
@@ -8414,7 +8430,7 @@ const PPC_DATA = {
        "bud_before": 100.0,
        "bud_after": null,
        "tier": "7 Strong",
-       "reason": "[MANUAL] 7d ROAS 4.66x (ACOS 21.5%) | 30d ROAS 3.42x | target ACOS 25.0% | 7d vs 30d: +36.3%\nBudget already at cap ($100/campaign)",
+       "reason": "[MANUAL] 7d ROAS 4.66x (ACOS 21.5%) | 30d ROAS 3.42x | target ACOS 30.0% | 7d vs 30d: +36.3%\nBudget already at cap ($100/campaign)",
        "approved": true
       }
      ],
@@ -9350,6 +9366,23 @@ const PPC_DATA = {
     },
     {
      "brand_key": "naeiae",
+     "campaignId": "279433915130435",
+     "campaignName": "Naeiae Rice Pop - SB - Manual",
+     "action": "pause",
+     "priority": "urgent",
+     "reason": "[SB] 7d ROAS 0.0x (ACOS None%) | 30d ROAS 0.0x | target ACOS 30.0% | ",
+     "old_budget": 0.0,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "roas_7d": 0.0,
+     "spend_7d": 1.15,
+     "sales_7d": 0.0,
+     "result_status": "OK",
+     "exec_date": "2026-03-21",
+     "exec_time": "2026-03-21 23:09:56"
+    },
+    {
+     "brand_key": "naeiae",
      "campaignId": "444108265805305",
      "campaignName": "Naeiae Rice Pop - SP - Manual",
      "action": "increase_budget",
@@ -10183,7 +10216,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-21": {
-     "generated": "2026-03-21T15:13",
+     "generated": "2026-03-21T16:09",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -10226,7 +10259,7 @@ const PPC_DATA = {
        "bud_before": 75.0,
        "bud_after": null,
        "tier": "8 Strong",
-       "reason": "[AUTO] 7d ROAS 20.48x (ACOS 4.9%) | 30d ROAS 15.24x | target ACOS 40.0% | 7d vs 30d: +34.4%\nBudget already at cap ($60/campaign)",
+       "reason": "[AUTO] 7d ROAS 20.48x (ACOS 4.9%) | 30d ROAS 15.24x | target ACOS 40.0% | 7d vs 30d: +34.4%\nBudget already at cap ($75/campaign)",
        "approved": false
       },
       {
