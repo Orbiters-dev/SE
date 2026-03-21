@@ -2798,7 +2798,7 @@ def print_keyword_summary(kw_proposals: List[Dict]):
 # Execute Approved Changes
 # ===========================================================================
 
-def execute_approved(proposal_data: Dict) -> List[Dict]:
+def execute_approved(proposal_data: Dict, user: str = "CLI", source: str = "manual-cli") -> List[Dict]:
     profile_id = proposal_data["profile_id"]
     proposals = proposal_data.get("proposals", [])
     keyword_proposals = proposal_data.get("keyword_proposals", [])
@@ -2949,16 +2949,21 @@ def execute_approved(proposal_data: Dict) -> List[Dict]:
     print(f"\n[LOG] Execution log saved: {log_path}")
 
     # Also update persistent exec_log.json directly (don't depend on generate_dashboard_data.py)
-    _update_persistent_exec_log(executed)
+    _update_persistent_exec_log(executed, user=user, source=source)
 
     return executed
 
 
-def _update_persistent_exec_log(executed: list):
+def _update_persistent_exec_log(executed: list, user: str = "CLI", source: str = "manual-cli"):
     """Directly update docs/ppc-dashboard/exec_log.json with execution results.
 
     This ensures execution results are persisted even if generate_dashboard_data.py
     doesn't run (e.g. when proposal files are missing in GitHub Actions).
+
+    Args:
+        executed: list of executed change dicts
+        user: who triggered it (e.g. "PIPELINE", "DASHBOARD", "EMAIL", "CLI")
+        source: how it was triggered — "auto-execute", "dashboard", "email-reply", "manual-cli"
     """
     exec_log_path = Path(__file__).resolve().parent.parent / "docs" / "ppc-dashboard" / "exec_log.json"
     now = datetime.now(ZoneInfo("America/Los_Angeles"))
@@ -2988,6 +2993,8 @@ def _update_persistent_exec_log(executed: list):
         item_copy = dict(item)
         item_copy["exec_date"] = dt
         item_copy["exec_time"] = exec_time
+        item_copy["user"] = user
+        item_copy["source"] = source
         new_by_brand.setdefault(bk, []).append(item_copy)
 
     # Merge new entries for same brand+date (append without duplicates)
@@ -5039,7 +5046,7 @@ def _check_execute_for_brand(args, brand_key: str):
     latest_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
 
     # Execute
-    executed = execute_approved(data)
+    executed = execute_approved(data, user="EMAIL", source="email-reply")
     if executed:
         # Mark as executed
         data["executed"] = True
@@ -5571,6 +5578,11 @@ def run_propose_single(args, brand_key: str):
         autopilot = raw_autopilot[brand_key]
     else:
         autopilot = raw_autopilot  # flat format fallback
+    # SAFEGUARD: Grosmimi must never auto-execute
+    if brand_key == "grosmimi":
+        autopilot = {"tier1": "approve", "tier2": "approve", "tier3": "approve", "tier4": "off"}
+        print(f"  [SAFEGUARD] Grosmimi autopilot forced to all-approve (no auto-execute allowed)")
+
     if autopilot:
         print(f"\n[AUTO] Autopilot config for {brand_key}: {autopilot}")
         auto_approved_count = 0
@@ -5613,27 +5625,30 @@ def run_propose_single(args, brand_key: str):
 
     # --- Auto-Execute: immediately execute auto-approved proposals ---
     if getattr(args, "auto_execute", False):
-        approved_camps = [p for p in proposals if p.get("auto_approved")]
-        approved_kws = [k for k in kw_proposals if k.get("auto_approved")]
-        total_auto = len(approved_camps) + len(approved_kws)
-        if total_auto > 0:
-            print(f"\n[AUTO-EXECUTE] {brand_display}: {total_auto} auto-approved items → executing now...")
-            data = load_latest_proposal(brand_key=brand_key)
-            if data:
-                executed = execute_approved(data)
-                if executed:
-                    data["executed"] = True
-                    data["executed_at"] = datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y-%m-%d %H:%M:%S PST")
-                    latest_path = sorted(TMP_DIR.glob(f"ppc_proposal_{brand_key}_*.json"), reverse=True)
-                    if latest_path:
-                        latest_path[0].write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-                    log_to_sheets(executed, brand_key=brand_key)
-                    _update_persistent_exec_log(executed)
-                    print(f"[AUTO-EXECUTE] {brand_display}: {len(executed)} changes executed and logged.")
-                else:
-                    print(f"[AUTO-EXECUTE] {brand_display}: No changes executed (all skipped by safety checks).")
+        # SAFEGUARD: Grosmimi auto-execute is permanently disabled
+        if brand_key == "grosmimi":
+            print(f"\n[AUTO-EXECUTE] Grosmimi: BLOCKED — Grosmimi auto-execute is permanently disabled (safeguard)")
         else:
-            print(f"\n[AUTO-EXECUTE] {brand_display}: No auto-approved items to execute.")
+            approved_camps = [p for p in proposals if p.get("auto_approved")]
+            approved_kws = [k for k in kw_proposals if k.get("auto_approved")]
+            total_auto = len(approved_camps) + len(approved_kws)
+            if total_auto > 0:
+                print(f"\n[AUTO-EXECUTE] {brand_display}: {total_auto} auto-approved items → executing now...")
+                data = load_latest_proposal(brand_key=brand_key)
+                if data:
+                    executed = execute_approved(data, user="PIPELINE", source="auto-execute")
+                    if executed:
+                        data["executed"] = True
+                        data["executed_at"] = datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y-%m-%d %H:%M:%S PST")
+                        latest_path = sorted(TMP_DIR.glob(f"ppc_proposal_{brand_key}_*.json"), reverse=True)
+                        if latest_path:
+                            latest_path[0].write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+                        log_to_sheets(executed, brand_key=brand_key)
+                        print(f"[AUTO-EXECUTE] {brand_display}: {len(executed)} changes executed and logged.")
+                    else:
+                        print(f"[AUTO-EXECUTE] {brand_display}: No changes executed (all skipped by safety checks).")
+            else:
+                print(f"\n[AUTO-EXECUTE] {brand_display}: No auto-approved items to execute.")
 
 
 def run_propose(args):
@@ -5722,7 +5737,7 @@ def main():
             if not data:
                 print(f"[ERROR] No proposal found for {BRAND_CONFIGS[bk]['brand_display']}. Run --propose first.")
                 continue
-            executed = execute_approved(data)
+            executed = execute_approved(data, user="DASHBOARD", source="dashboard")
             if executed:
                 latest_path = sorted(TMP_DIR.glob(f"ppc_proposal_{bk}_*.json"), reverse=True)
                 if latest_path:
@@ -5798,7 +5813,7 @@ def main():
 
         print(f"\n[Dashboard Execute] {bk}: {len(selected_camp_dicts)} camps, "
               f"{len(sel.get('harvest',[]))}H, {len(sel.get('negate',[]))}N")
-        executed = execute_approved(data)
+        executed = execute_approved(data, user="DASHBOARD", source="dashboard")
         if executed:
             data["executed"] = True
             data["executed_at"] = datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y-%m-%d %H:%M:%S PST")
