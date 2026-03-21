@@ -285,15 +285,56 @@ Shopify                         Apify / Syncly                   Gmail RAG
 &#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;     &#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;     &#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;</div>
     </div>
 
+    <!-- Recent Test Results -->
+    <div class="card" id="hw-tests" style="border-left:3px solid var(--g)">
+      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F9EA; Recent E2E Test Results</h3>
+      <div class="hw-body">
+        <div style="font-size:10px;color:var(--dim);margin-bottom:10px">Dual Test (Maker-Checker) &mdash; PROD &mdash; 2026-03-21 17:06 KST</div>
+        <table style="font-size:10px;width:100%"><thead><tr><th>Stage</th><th>Pipeline</th><th>Executor</th><th>Verifier</th><th>Data Created</th><th>Notes</th></tr></thead><tbody>
+          <tr><td><b>syncly_check</b></td><td>Stage 0</td><td><span class="b am">1/2</span></td><td><span class="b am">1/2</span></td><td>None (read-only)</td><td>Syncly Data Processing WF was OFF &rarr; now ON</td></tr>
+          <tr><td><b>seed</b></td><td>Stage 0</td><td><span class="b g">1/1</span></td><td><span class="b am">3/4</span></td><td>PG pipeline_creators: 71391a91</td><td>Shopify had existing customer (WARN)</td></tr>
+          <tr><td><b>gifting</b></td><td>Stage 2</td><td><span class="b g">2/2</span></td><td><span class="b g">5/5</span></td><td>PG gifting: a1fc1f27<br>Shopify customer: 7905834107202<br>Draft Order: 1516974342514</td><td>Webhook 200 OK, 14s processing</td></tr>
+          <tr><td><b>sample_sent</b></td><td>Stage 5</td><td><span class="b g">2/2</span></td><td><span class="b g">2/2</span></td><td>PG status &rarr; Sample Sent</td><td>n8n WF active confirmed</td></tr>
+        </tbody></table>
+        <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div style="background:var(--gbg);border-radius:6px;padding:8px;font-size:10px"><b style="color:var(--g)">Test Email</b><br>hello@zezebaebae.com</div>
+          <div style="background:var(--gbg);border-radius:6px;padding:8px;font-size:10px"><b style="color:var(--g)">Test IG</b><br>@dualtest_20260321_ylqy</div>
+          <div style="background:var(--abg);border-radius:6px;padding:8px;font-size:10px"><b style="color:var(--a)">Cleanup</b><br>--no-cleanup (data preserved)</div>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:var(--dim)">
+          <b>Data flow:</b> PG pipeline_creators &rarr; n8n webhook POST &rarr; Shopify customer + Draft Order &rarr; PG gifting_applications &rarr; PG status update<br>
+          <b>Systems touched:</b> PostgreSQL (orbitools), Shopify (mytoddie), n8n (PROD webhooks), Airtable (read-only check)
+        </div>
+      </div>
+    </div>
+
+    <!-- Email Config Migration Status -->
+    <div class="card" id="hw-emailcfg" style="border-left:3px solid #8250df">
+      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E7; Email Config PG Migration &mdash; 2026-03-21</h3>
+      <div class="hw-body">
+        <div style="font-size:10px;color:var(--dim);margin-bottom:10px">Reply Handler config n8n &rarr; PG API</div>
+        <table style="font-size:10px;width:100%"><thead><tr><th>Table</th><th>Rows</th><th>API Endpoint</th><th>Status</th></tr></thead><tbody>
+          <tr><td><code>onz_email_reply_config</code></td><td>3 (grosmimi, chaenmom, naeiae)</td><td>GET/POST /pipeline/email-config/</td><td><span class="b g">Live</span></td></tr>
+          <tr><td><code>onz_faq_entries</code></td><td>5 (4 grosmimi + 1 all)</td><td>GET/POST /pipeline/faq/</td><td><span class="b g">Live</span></td></tr>
+          <tr><td><code>onz_email_reply_log</code></td><td>0 (n8n writes)</td><td>GET/POST /pipeline/reply-log/</td><td><span class="b g">Live</span></td></tr>
+        </tbody></table>
+        <div style="margin-top:8px;font-size:10px;color:var(--dim)">
+          <b>Next:</b> n8n Reply Handler (K99grtW9iWq8V79f) Code &rarr; HTTP GET /email-config/brand/ <br>
+          <b>Dashboard:</b> Email Config tab &rarr; brand config CRUD + FAQ management + reply audit log
+        </div>
+      </div>
+    </div>
+
     <!-- Status Legend -->
     <div class="card">
       <h3>&#x1F3F7;&#xFE0F; Pipeline Status Legend</h3>
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
-        <span class="b" style="font-size:9px">Not Started</span><span class="b a">Draft Ready</span><span class="b c">Sent</span><span class="b am">Replied</span><span class="b p">Needs Review</span><span class="b g">Accepted</span><span class="b r">Declined</span><span class="b c">Sample Sent</span><span class="b c">Sample Shipped</span><span class="b g">Sample Delivered</span><span class="b g">Posted</span>
+        <span class="b" style="font-size:9px">Not Started</span><span class="b a">Draft Ready</span><span class="b c">Sent</span><span class="b am">Replied</span><span class="b p">Needs Review</span><span class="b g">Accepted</span><span class="b r">Declined</span><span class="b c">Sample Sent</span><span class="b c">Sample Shipped</span><span class="b g">Sample Delivered</span><span class="b" style="font-size:9px;border-style:dashed;color:var(--am);border-color:var(--am)">Reminder Sent</span><span class="b g">Posted</span>
       </div>
       <div style="margin-top:10px;font-size:10px;color:var(--dim);line-height:1.6">
-        <b>Outbound</b>: <u>Discover</u> &#x2192; Not Started &#x2192; Draft Ready &#x2192; Sent &#x2192; Replied &#x2192; Accepted &#x2192; Sample Sent &#x2192; Shipped &#x2192; Delivered &#x2192; Posted<br>
-        <b>Inbound</b>: (Gifting &#xD3FC; &#xC81C;&#xCD9C;) &#x2192; Needs Review &#x2192; Accepted/Declined &#x2192; Sample Sent &#x2192; ...
+        <b>Outbound</b>: <u>Discover</u> &#x2192; Not Started &#x2192; Draft Ready &#x2192; Sent &#x2192; Replied &#x2192; Accepted &#x2192; Sample Sent &#x2192; Shipped &#x2192; Delivered &#x2192; <span style="border:1px dashed var(--am);padding:1px 5px;border-radius:4px;font-size:9px;color:var(--am)">Reminder Sent</span> &#x2192; Posted<br>
+        <b>Inbound</b>: (Gifting &#xD3FC; &#xC81C;&#xCD9C;) &#x2192; Needs Review &#x2192; Accepted/Declined &#x2192; Sample Sent &#x2192; ...<br>
+        <span style="font-size:9px;color:var(--am)">* Reminder Sent: Delivered &#xD6C4; &#xD3EC;&#xC2A4;&#xD305; &#xC548; &#xD55C; &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130;&#xC5D0;&#xAC8C;&#xB9CC; &#xBC1C;&#xC1A1; (&#xC120;&#xD0DD;&#xC801;)</span>
       </div>
     </div>
   </div>
@@ -942,6 +983,9 @@ function demoResponse(path){
     return{results:filtered,total:filtered.length,page:1,pages:1};
   }
   if(path.indexOf('/pipeline/execution/log/')>=0)return{results:DEMO_EXEC_LOG};
+  if(path.indexOf('/pipeline/email-config/')>=0)return[];
+  if(path.indexOf('/pipeline/faq/')>=0)return[];
+  if(path.indexOf('/pipeline/reply-log/')>=0)return[];
   return{};
 }
 
@@ -2033,6 +2077,20 @@ var E2E_FLOWS=[
      check:function(r,h,d){return r.ok&&d.found!==undefined},
      detail:function(r,h,d){return 'found='+d.found}}
   ]},
+  {name:'Email Config API',icon:'\uD83D\uDCE7',tests:[
+    {id:'email-cfg-list',label:'GET /pipeline/email-config/',method:'GET',path:'/pipeline/email-config/',
+     check:function(r,h,d){return r.ok&&Array.isArray(d)&&d.length>=1},
+     detail:function(r,h,d){return d.length+' configs: '+d.map(function(c){return c.brand+'(v'+c.version+')'}).join(', ')}},
+    {id:'email-cfg-brand',label:'GET /pipeline/email-config/grosmimi/',method:'GET',path:'/pipeline/email-config/grosmimi/',
+     check:function(r,h,d){return r.ok&&d.brand==='grosmimi'&&d.classification&&d.templates&&d.faq_entries},
+     detail:function(r,h,d){return 'brand='+d.brand+', faq='+((d.faq_entries||[]).length)+', model='+((d.classification||{}).model||'?')}},
+    {id:'faq-list',label:'GET /pipeline/faq/',method:'GET',path:'/pipeline/faq/',
+     check:function(r,h,d){return r.ok&&Array.isArray(d)},
+     detail:function(r,h,d){return d.length+' FAQ entries'}},
+    {id:'reply-log',label:'GET /pipeline/reply-log/?days=7',method:'GET',path:'/pipeline/reply-log/?days=7',
+     check:function(r,h,d){return r.ok&&Array.isArray(d)},
+     detail:function(r,h,d){return d.length+' reply logs (7d)'}}
+  ]},
   {name:'DB Health',icon:'\uD83D\uDCCA',tests:[
     {id:'tables',label:'GET /tables/',method:'GET',path:'/tables/',
      check:function(r,h,d){return r.ok&&d.tables&&Object.keys(d.tables).length>=10},
@@ -2152,6 +2210,7 @@ if(u){
 async function loadEmailConfigs(){
   try{
     var configs=await apiFetch('/pipeline/email-config/');
+    if(!Array.isArray(configs))configs=[];
     document.getElementById('ec-count').textContent=configs.length;
     var html='';
     if(!configs.length){html='<div style="color:var(--muted);font-size:11px;padding:20px;text-align:center">No configs yet. Click "+ New Brand" to create one.</div>'}
@@ -2184,6 +2243,7 @@ async function loadFAQEntries(){
     var brand=document.getElementById('faq-brand-filter').value;
     var url='/pipeline/faq/'+(brand?'?brand='+brand:'');
     var faqs=await apiFetch(url);
+    if(!Array.isArray(faqs))faqs=[];
     document.getElementById('ec-faq-count').textContent=faqs.length;
     var html='<table><thead><tr><th>Brand</th><th>Category</th><th>Question</th><th>Answer</th><th>Priority</th><th></th></tr></thead><tbody>';
     if(!faqs.length){html+='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">No FAQ entries</td></tr>'}
@@ -2207,6 +2267,7 @@ async function loadFAQEntries(){
 async function loadReplyLogs(){
   try{
     var logs=await apiFetch('/pipeline/reply-log/?days=7');
+    if(!Array.isArray(logs))logs=[];
     document.getElementById('ec-log-count').textContent=logs.length;
     var html='<table><thead><tr><th>Time</th><th>Creator</th><th>Brand</th><th>Intent</th><th>Auto</th><th>Template</th><th>Subject</th></tr></thead><tbody>';
     if(!logs.length){html+='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No reply logs yet</td></tr>'}
