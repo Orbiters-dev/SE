@@ -171,8 +171,8 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
       <div class="fn" onclick="scrollToHwSec('hw-config')"><div class="fi" style="font-size:16px">&#x2699;&#xFE0F;</div><div class="ft">Config</div><div class="fs">Set batch params</div></div><span class="fa">&#x25B6;</span>
       <div class="fn" onclick="scrollToHwSec('hw-preview')"><div class="fi" style="font-size:16px">&#x1F50D;</div><div class="ft">Preview</div><div class="fs">Count eligible</div></div><span class="fa">&#x25B6;</span>
       <div class="fn" onclick="scrollToHwSec('hw-draft')"><div class="fi" style="font-size:16px">&#x1F4DD;</div><div class="ft">Draft</div><div class="fs">Generate emails</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" onclick="scrollToHwSec('hw-send')"><div class="fi" style="font-size:16px">&#x1F4E8;</div><div class="ft">Send</div><div class="fs">Outreach batch</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" onclick="scrollToHwSec('hw-review')"><div class="fi" style="font-size:16px">&#x1F50D;</div><div class="ft">Review</div><div class="fs">Accept/Decline</div></div><span class="fa">&#x25B6;</span>
+      <div class="fn" onclick="scrollToHwSec('hw-send')"><div class="fi" style="font-size:16px">&#x1F4E8;</div><div class="ft">Send+QnA</div><div class="fs">Outreach + Reply</div></div><span class="fa">&#x25B6;</span>
+      <div class="fn" onclick="scrollToHwSec('hw-review')"><div class="fi" style="font-size:16px">&#x2705;</div><div class="ft">Accept</div><div class="fs">Order auto-complete</div></div><span class="fa">&#x25B6;</span>
       <div class="fn" onclick="scrollToHwSec('hw-sample')"><div class="fi" style="font-size:16px">&#x1F4E6;</div><div class="ft">Sample</div><div class="fs">Ship products</div></div><span class="fa">&#x25B6;</span>
       <div class="fn" onclick="scrollToHwSec('hw-track')"><div class="fi" style="font-size:16px">&#x1F4F8;</div><div class="ft">Track</div><div class="fs">Content D+60</div></div>
     </div>
@@ -223,23 +223,39 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
     </div>
 
     <div class="card hw-sec" id="hw-send" style="border-left:3px solid var(--am)">
-      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E8; Step 4: Send Batch <span class="b am" style="margin-left:6px">HIL</span></h3>
+      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E8; Step 4: Send + Email QnA <span class="b am" style="margin-left:6px">HIL</span></h3>
       <div class="hw-body">
-        <div style="background:var(--ambg);border-radius:8px;padding:12px;font-size:11px">
+        <div style="background:var(--ambg);border-radius:8px;padding:12px;font-size:11px;margin-bottom:10px">
+          <b>&#x2460; Outreach &#xBC1C;&#xC1A1;</b><br>
           &#x2022; <code>affiliates@onzenna.com</code>&#xC5D0;&#xC11C; &#xBC1C;&#xC1A1; | &#xBE0C;&#xB79C;&#xB4DC;&#xBCC4; Gifting &#xD3FC; URL &#xD3EC;&#xD568;<br>
-          &#x2022; Draft Ready &#x2192; <span class="b c">Sent</span> | Reply Handler WF (<code>K99grtW9iWq8V79f</code>) &#xB2F5;&#xC7A5; &#xAC10;&#xC9C0; &#x2192; <span class="b am">Replied</span><br>
-          &#x2022; <span class="b am">Human-in-Loop: Send Approval</span> &#x2014; &#x26A0; &#xC2E4;&#xC81C; &#xC774;&#xBA54;&#xC77C; &#xBC1C;&#xC1A1;&#xB428;
+          &#x2022; Draft Ready &#x2192; <span class="b c">Sent</span> | <span class="b am">Human-in-Loop: Send Approval</span>
+        </div>
+        <div style="background:#fdf2f8;border-radius:8px;padding:12px;font-size:11px;margin-bottom:10px">
+          <b>&#x2461; Reply Handler &#x2014; &#xC774;&#xBA54;&#xC77C; QnA &#xC790;&#xB3D9;&#xD654;</b> (WF: <code>K99grtW9iWq8V79f</code>)<br>
+          Creator &#xB2F5;&#xC7A5; &#xAC10;&#xC9C0; &#x2192; <span class="b am">Replied</span> &#x2192; Claude AI &#xBD84;&#xB958;:<br>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:6px">
+            <div style="background:var(--gbg);border-radius:4px;padding:6px;font-size:10px"><span class="b g">Accept</span><br>&#xD611;&#xC5C5; &#xC218;&#xB77D; &#x2192; Gifting &#xD3FC; &#xB9C1;&#xD06C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</div>
+            <div style="background:var(--cbg);border-radius:4px;padding:6px;font-size:10px"><span class="b c">FAQ_Gap</span><br>&#xC9C8;&#xBB38; (&#xBC30;&#xC1A1;/&#xC0C1;&#xD488;/&#xBCF4;&#xC0C1;) &#x2192; FAQ DB&#xC5D0;&#xC11C; &#xC790;&#xB3D9; &#xC751;&#xB2F5;</div>
+            <div style="background:var(--ambg);border-radius:4px;padding:6px;font-size:10px"><span class="b am">Normal</span><br>&#xC77C;&#xBC18; &#xB300;&#xD654; &#x2192; &#xAC10;&#xC0AC; &#xC751;&#xB2F5; &#xC790;&#xB3D9;</div>
+          </div>
+          <div style="margin-top:6px;font-size:10px;color:var(--dim)">LT: &#xC790;&#xB3D9; &#xBC1C;&#xC1A1; | HT: Needs Review (&#xC218;&#xB3D9; &#xC2B9;&#xC778; &#xD6C4; &#xBC1C;&#xC1A1;)<br>Config: <b>Email Config &#xD0ED;</b>&#xC5D0;&#xC11C; &#xBD84;&#xB958; &#xD504;&#xB86C;&#xD504;&#xD2B8;, &#xD15C;&#xD50C;&#xB9BF;, FAQ &#xC218;&#xC815; &#xAC00;&#xB2A5; (PG API)</div>
+        </div>
+        <div style="background:var(--gbg);border-radius:8px;padding:12px;font-size:11px">
+          <b>&#x2462; Gifting &#xD3FC; &#xC81C;&#xCD9C; (1&#xD68C;)</b><br>
+          Creator&#xAC00; &#xD3FC; &#xC791;&#xC131; &#x2192; &#xC0D8;&#xD50C; &#xC120;&#xD0DD; + &#xC8FC;&#xC18C; &#xC785;&#xB825; &#x2192; n8n Webhook &#x2192; <b>Shopify &#xACE0;&#xAC1D; + Draft Order &#xC790;&#xB3D9; &#xC0DD;&#xC131;</b><br>
+          &#x2022; WF: <code>F0sv8RsCS1v56Gkw</code> | 1&#xD3FC;&#xC73C;&#xB85C; &#xC0D8;&#xD50C; &#xC120;&#xD0DD;&#xAE4C;&#xC9C0; &#xC644;&#xACB0;
         </div>
       </div>
     </div>
 
     <div class="card hw-sec" id="hw-review" style="border-left:3px solid var(--p)">
-      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F50D; Step 5: Review Queue <span class="b p" style="margin-left:6px">Always HIL</span></h3>
+      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F50D; Step 5: Review &amp; Accept <span class="b p" style="margin-left:6px">Always HIL</span></h3>
       <div class="hw-body">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div style="background:var(--gbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--g)">Accept</b><br>&#x2192; <span class="b g">Accepted</span> &#x2192; &#xC0D8;&#xD50C; &#xC2E0;&#xCCAD; &#xC774;&#xBA54;&#xC77C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1; &#x2192; Gifting2 &#xD3FC; &#xC81C;&#xCD9C; &#xC2DC; Draft Order &#xC0DD;&#xC131;</div>
+          <div style="background:var(--gbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--g)">Accept</b><br>&#xB9C8;&#xCF00;&#xD130; Accept &#xD074;&#xB9AD; &#x2192; <span class="b g">Accepted</span><br>&#x2192; n8n&#xC774; 5&#xBD84; poll&#xB85C; &#xAC10;&#xC9C0;<br>&#x2192; PG&#xC5D0;&#xC11C; Draft Order ID &#xC870;&#xD68C;<br>&#x2192; <b>Shopify Draft Order &#xC790;&#xB3D9; &#xC644;&#xB8CC;</b><br><span style="font-size:9px;color:var(--dim)">WF: <code>Ow5bD5keNf2HFo83</code> (&#xD06C;&#xB9AC;&#xB374;&#xC15C; &#xC5F0;&#xACB0; &#xD6C4; ON)</span></div>
           <div style="background:var(--rbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--r)">Decline</b><br>&#x2192; <span class="b r">Declined</span> | &#xD314;&#xB85C;&#xC6CC; &#xBD80;&#xC871;, &#xBE0C;&#xB79C;&#xB4DC; &#xBD88;&#xC77C;&#xCE58; &#xB4F1; | Note &#xAE30;&#xB85D;</div>
         </div>
+        <div style="margin-top:8px;padding:8px;background:#fffbeb;border-radius:6px;font-size:10px;color:#92400e"><b>1-&#xD3FC; &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778;:</b> Creator&#xAC00; Gifting &#xD3FC;&#xC5D0;&#xC11C; &#xC0D8;&#xD50C;&#xAE4C;&#xC9C0; &#xC120;&#xD0DD; &#xC644;&#xB8CC; &#x2192; Draft Order &#xC774;&#xBBF8; &#xC0DD;&#xC131;&#xB428; &#x2192; Accept &#xC2DC; &#xBC14;&#xB85C; &#xC624;&#xB354; &#xB098;&#xAC10;. Gifting2 &#xD3FC; &#xC5C6;&#xC74C;.</div>
         <div style="margin-top:8px;font-size:10px;color:var(--dim)"><b>&#xD310;&#xB2E8;:</b> Content &#xB9C1;&#xD06C;(IG/TT) &#x2192; &#xD314;&#xB85C;&#xC6CC;, &#xCF58;&#xD150;&#xCE20; &#xD488;&#xC9C8;, &#xBE0C;&#xB79C;&#xB4DC; &#xC801;&#xD569;&#xC131;, &#xC544;&#xC774; &#xB098;&#xC774;</div>
       </div>
     </div>
@@ -248,7 +264,8 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
       <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E6; Step 6: Sample Fulfillment</h3>
       <div class="hw-body">
         <div style="background:var(--cbg);border-radius:8px;padding:12px;font-size:11px">
-          &#x2460; Gifting2 &#xD3FC; &#xC81C;&#xCD9C; &#x2192; &#x2461; n8n &#x2192; Shopify Draft Order (100% &#xD560;&#xC778;) &#x2192; &#x2462; <span class="b c">Sample Sent</span> &#x2192; &#x2463; &#xBC30;&#xC1A1; &#xCC98;&#xB9AC; <span class="b c">Sample Shipped</span> &#x2192; &#x2464; <span class="b g">Sample Delivered</span> + Content Guidelines &#xC774;&#xBA54;&#xC77C;
+          &#x2460; Accept &#x2192; Draft Order &#xC790;&#xB3D9; &#xC644;&#xB8CC; &#x2192; &#x2461; <span class="b c">Sample Sent</span> (&#xB9C8;&#xCF00;&#xD130; &#xD074;&#xB9AD;) &#x2192; &#x2462; n8n poll &#x2192; Shopify Order &#xC0C1;&#xD0DC; &#xC5C5;&#xB370;&#xC774;&#xD2B8; &#x2192; &#x2463; &#xBC30;&#xC1A1; &#xCC98;&#xB9AC; <span class="b c">Sample Shipped</span> &#x2192; &#x2464; <span class="b g">Sample Delivered</span> + Content Guidelines &#xC774;&#xBA54;&#xC77C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1;<br>
+          <span style="font-size:10px;color:var(--dim)">&#x2465; &#xD3EC;&#xC2A4;&#xD305; &#xC548; &#xD55C; &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130;&#xC5D0;&#xAC8C;&#xB9CC; <span style="border:1px dashed var(--am);padding:1px 4px;border-radius:3px;color:var(--am)">Reminder Sent</span> (&#xC120;&#xD0DD;&#xC801;)</span>
         </div>
       </div>
     </div>
