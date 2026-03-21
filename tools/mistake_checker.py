@@ -10,8 +10,9 @@ import os
 
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
-MISTAKES_PATH = os.path.expanduser(
-    '~/.claude/projects/c--SynologyDrive-ORBI-CLAUDE-0223-ORBITERS-CLAUDE-ORBITERS-CLAUDE-WJ-Test1/memory/mistakes.md'
+MISTAKES_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    'memory', 'mistakes.md'
 )
 
 # Bash command patterns → mistake IDs to warn about

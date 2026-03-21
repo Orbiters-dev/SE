@@ -11,8 +11,9 @@ from datetime import datetime
 
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
-MISTAKES_PATH = os.path.expanduser(
-    '~/.claude/projects/c--SynologyDrive-ORBI-CLAUDE-0223-ORBITERS-CLAUDE-ORBITERS-CLAUDE-WJ-Test1/memory/mistakes.md'
+MISTAKES_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    'memory', 'mistakes.md'
 )
 
 # ─────────────────────────────────────────────────
@@ -484,6 +485,19 @@ def main():
     error_msg = extract_error_message(result_str)
     mid = get_next_id(content)
     record_mistake(mid, error_title, agent, situation, error_msg, fix_hint, is_known)
+
+    # Auto git commit + push (실패해도 메인 흐름 영향 없음)
+    try:
+        import subprocess
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        subprocess.run(['git', 'add', 'memory/mistakes.md'],
+                       cwd=project_root, capture_output=True, timeout=10)
+        subprocess.run(['git', 'commit', '-m', f'auto: mistakes [{mid}] {error_title[:50]}'],
+                       cwd=project_root, capture_output=True, timeout=10)
+        subprocess.run(['git', 'push', 'origin', 'main'],
+                       cwd=project_root, capture_output=True, timeout=20)
+    except Exception:
+        pass
 
     msg = f"MISTAKE RECORDED [{mid}] {error_title} → {agent}"
     if fix_hint:
