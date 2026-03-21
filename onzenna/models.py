@@ -319,6 +319,93 @@ class PipelineStatusChange(models.Model):
         return f"{self.creator_email}: {self.from_status} -> {self.to_status}"
 
 
+class EmailReplyConfig(models.Model):
+    """Per-brand email reply handling config — consumed by n8n Reply Handler via HTTP GET."""
+    brand = models.CharField(max_length=30, unique=True)  # grosmimi, chaenmom, naeiae
+    is_active = models.BooleanField(default=True)
+
+    # Reply classification (Claude AI)
+    classification_prompt = models.TextField(blank=True, default="")
+    classification_model = models.CharField(max_length=50, default="claude-sonnet-4-20250514")
+
+    # Auto-send rules
+    lt_auto_send = models.BooleanField(default=True)
+    ht_auto_send = models.BooleanField(default=False)
+
+    # Reply templates (supports {{name}}, {{form_url}} variables)
+    accept_template = models.TextField(blank=True, default="")
+    faq_gap_template = models.TextField(blank=True, default="")
+    normal_template = models.TextField(blank=True, default="")
+    decline_template = models.TextField(blank=True, default="")
+
+    # Outreach draft prompt (replaces Google Sheets)
+    outreach_lt_prompt = models.TextField(blank=True, default="")
+    outreach_ht_prompt = models.TextField(blank=True, default="")
+
+    # Content guidelines
+    hashtags = models.TextField(blank=True, default="[]")  # JSON array
+    product_mentions = models.TextField(blank=True, default="[]")  # JSON array
+    deadline_days = models.IntegerField(default=30)
+    gifting_form_url = models.URLField(max_length=500, blank=True, default="")
+
+    # Version for cache-busting
+    version = models.IntegerField(default=1)
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.CharField(max_length=50, blank=True, default="")
+
+    class Meta:
+        db_table = "onz_email_reply_config"
+
+    def __str__(self):
+        return f"{self.brand} v{self.version} (active={self.is_active})"
+
+
+class FAQEntry(models.Model):
+    """FAQ knowledge base for auto-replying to FAQ_Gap classified emails."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    brand = models.CharField(max_length=30, db_index=True)  # grosmimi, chaenmom, naeiae, or "all"
+    question = models.TextField()
+    answer = models.TextField()
+    keywords = models.TextField(blank=True, default="[]")  # JSON array
+    category = models.CharField(max_length=50, blank=True, default="")
+    is_active = models.BooleanField(default=True)
+    priority = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "onz_faq_entries"
+        ordering = ["-priority", "category"]
+
+    def __str__(self):
+        return f"[{self.brand}] {self.question[:60]}"
+
+
+class EmailReplyLog(models.Model):
+    """Audit log for every reply processed by the Reply Handler workflow."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    creator_email = models.EmailField(db_index=True)
+    brand = models.CharField(max_length=30)
+    outreach_type = models.CharField(max_length=10)  # LT, HT
+    intent = models.CharField(max_length=20)  # Accept, FAQ_Gap, Normal, Unknown
+    confidence = models.FloatField(null=True, blank=True)
+    auto_sent = models.BooleanField(default=False)
+    template_used = models.CharField(max_length=20, blank=True, default="")
+    faq_entry_id = models.UUIDField(null=True, blank=True)
+    incoming_subject = models.CharField(max_length=500, blank=True, default="")
+    incoming_snippet = models.TextField(blank=True, default="")
+    outgoing_body = models.TextField(blank=True, default="")
+    config_version = models.IntegerField(default=1)
+    processed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "onz_email_reply_log"
+        ordering = ["-processed_at"]
+
+    def __str__(self):
+        return f"{self.creator_email} [{self.intent}] auto={self.auto_sent}"
+
+
 class GmailContact(models.Model):
     """Gmail RAG contact index — tracks who we've emailed."""
     email = models.EmailField(unique=True, db_index=True)

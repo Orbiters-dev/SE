@@ -159,6 +159,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
     <div data-p="execution">Execution</div>
     <div data-p="content">Content</div>
     <div data-p="comms">Comms</div>
+    <div data-p="emailcfg">Email Config</div>
     <div data-p="tests">Tests</div>
   </div>
 
@@ -592,6 +593,92 @@ Shopify                         Apify / Syncly                   Gmail RAG
     </div>
   </div>
 
+  <!-- ===== EMAIL CONFIG TAB ===== -->
+  <div class="mp" id="p-emailcfg">
+    <div class="stats">
+      <div class="stat accent"><div class="sl">Brand Configs</div><div class="sv" id="ec-count">-</div></div>
+      <div class="stat green"><div class="sl">FAQ Entries</div><div class="sv" id="ec-faq-count">-</div></div>
+      <div class="stat cyan"><div class="sl">Reply Logs (7d)</div><div class="sv" id="ec-log-count">-</div></div>
+    </div>
+
+    <!-- Brand Config Cards -->
+    <div class="card">
+      <h3>&#x1F4E7; Email Reply Config by Brand</h3>
+      <div class="desc">n8n Reply Handler가 HTTP GET으로 읽는 설정. 분류 프롬프트, 응답 템플릿, Auto-send 룰.</div>
+      <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-secondary" onclick="loadEmailConfigs()">&#x21BB; Reload</button>
+        <button class="btn btn-sm btn-primary" onclick="showNewConfigForm()">+ New Brand</button>
+      </div>
+      <div id="ec-configs-list">
+        <div style="color:var(--muted);font-size:11px;padding:20px;text-align:center">Loading...</div>
+      </div>
+    </div>
+
+    <!-- FAQ Management -->
+    <div class="card">
+      <h3>&#x2753; FAQ Knowledge Base</h3>
+      <div class="desc">Reply Handler가 FAQ_Gap으로 분류된 리플라이에 자동 응답할 때 참조하는 Q&A 데이터</div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center">
+        <select id="faq-brand-filter" onchange="loadFAQEntries()" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:10px;font-family:inherit">
+          <option value="">All Brands</option><option value="grosmimi">Grosmimi</option><option value="chaenmom">CHA&MOM</option><option value="naeiae">Naeiae</option><option value="all">Global (all)</option>
+        </select>
+        <button class="btn btn-sm btn-primary" onclick="showNewFAQForm()">+ New FAQ</button>
+        <button class="btn btn-sm btn-secondary" onclick="loadFAQEntries()">&#x21BB; Reload</button>
+      </div>
+      <div id="faq-list-container" style="max-height:400px;overflow-y:auto">
+        <div style="color:var(--muted);font-size:11px;padding:20px;text-align:center">Loading...</div>
+      </div>
+    </div>
+
+    <!-- New FAQ Form (hidden by default) -->
+    <div id="new-faq-form" class="card" style="display:none;border-color:var(--a)">
+      <h3>+ New FAQ Entry</h3>
+      <div class="form-row"><label>Brand</label>
+        <select id="faq-new-brand" style="flex:1"><option value="all">Global (all)</option><option value="grosmimi">Grosmimi</option><option value="chaenmom">CHA&MOM</option><option value="naeiae">Naeiae</option></select>
+      </div>
+      <div class="form-row"><label>Category</label><input type="text" id="faq-new-category" placeholder="shipping, product, timeline, payment..."></div>
+      <div class="form-row"><label>Question</label><input type="text" id="faq-new-question" placeholder="How long does shipping take?"></div>
+      <div class="form-row" style="align-items:flex-start"><label>Answer</label><textarea id="faq-new-answer" rows="3" placeholder="Answer text..." style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;resize:vertical"></textarea></div>
+      <div class="form-row"><label>Keywords (comma-sep)</label><input type="text" id="faq-new-keywords" placeholder="shipping, delivery, how long"></div>
+      <div class="form-row"><label>Priority</label><input type="number" id="faq-new-priority" value="0" min="0" max="100" style="width:80px"></div>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <button class="btn btn-primary" onclick="saveFAQEntry()">Save</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('new-faq-form').style.display='none'">Cancel</button>
+      </div>
+    </div>
+
+    <!-- New Config Form (hidden by default) -->
+    <div id="new-config-form" class="card" style="display:none;border-color:var(--a)">
+      <h3>+ New Brand Email Config</h3>
+      <div class="form-row"><label>Brand</label><input type="text" id="cfg-new-brand" placeholder="grosmimi, chaenmom, naeiae"></div>
+      <div class="form-row"><label>Gifting Form URL</label><input type="url" id="cfg-new-form-url" placeholder="https://onzenna.com/pages/..."></div>
+      <div class="form-row"><label>Deadline (days)</label><input type="number" id="cfg-new-deadline" value="30" min="1" max="180"></div>
+      <div class="form-row"><label>LT Auto-send</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="cfg-new-lt-auto" checked><span class="slider"></span></label></div>
+      <div class="form-row"><label>HT Auto-send</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="cfg-new-ht-auto"><span class="slider"></span></label></div>
+      <div class="form-row" style="align-items:flex-start"><label>Classification Prompt</label><textarea id="cfg-new-class-prompt" rows="4" placeholder="You are an email classifier..." style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;resize:vertical"></textarea></div>
+      <div class="form-row" style="align-items:flex-start"><label>Accept Template</label><textarea id="cfg-new-accept-tpl" rows="3" placeholder="Hi {{name}},\n\nThank you..." style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;resize:vertical"></textarea></div>
+      <div class="form-row" style="align-items:flex-start"><label>FAQ Gap Template</label><textarea id="cfg-new-faq-tpl" rows="3" placeholder="Hi {{name}},\n\n{{faq_answer}}..." style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;resize:vertical"></textarea></div>
+      <div class="form-row" style="align-items:flex-start"><label>Normal Template</label><textarea id="cfg-new-normal-tpl" rows="3" placeholder="Hi {{name}},\n\nThank you for reaching out..." style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;resize:vertical"></textarea></div>
+      <div class="form-row" style="align-items:flex-start"><label>Outreach LT Prompt</label><textarea id="cfg-new-lt-prompt" rows="4" placeholder="System prompt for LT outreach draft generation..." style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;resize:vertical"></textarea></div>
+      <div class="form-row" style="align-items:flex-start"><label>Outreach HT Prompt</label><textarea id="cfg-new-ht-prompt" rows="4" placeholder="System prompt for HT outreach draft generation..." style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;resize:vertical"></textarea></div>
+      <div class="form-row"><label>Hashtags (comma-sep)</label><input type="text" id="cfg-new-hashtags" placeholder="#grosmimi, #grosmimibaby"></div>
+      <div class="form-row"><label>Product Mentions (comma-sep)</label><input type="text" id="cfg-new-products" placeholder="PPSU Straw Cup, PPSU Baby Bottle"></div>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <button class="btn btn-primary" onclick="saveEmailConfig()">Save</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('new-config-form').style.display='none'">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Reply Log -->
+    <div class="card">
+      <h3>&#x1F4DC; Reply Processing Log (Last 7 Days)</h3>
+      <div class="desc">n8n Reply Handler가 처리한 리플라이 감사 로그</div>
+      <div id="reply-log-container" style="max-height:300px;overflow-y:auto">
+        <div style="color:var(--muted);font-size:11px;padding:20px;text-align:center">Loading...</div>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== TESTS TAB ===== -->
   <div class="mp" id="p-tests">
     <div class="card">
@@ -905,6 +992,7 @@ function switchTab(name){
     else if(name==='config')loadConfig();
     else if(name==='creators'){loadCreatorStats();loadCreators()}
     else if(name==='execution'){loadCreatorStats();loadReviewQueue();loadExecLog()}
+    else if(name==='emailcfg'){loadEmailConfigs();loadFAQEntries();loadReplyLogs()}
   }
 }
 
@@ -2058,6 +2146,169 @@ if(u){
       },100);
     }
   }
+}
+
+// ========== EMAIL CONFIG TAB ==========
+async function loadEmailConfigs(){
+  try{
+    var configs=await apiFetch('/pipeline/email-config/');
+    document.getElementById('ec-count').textContent=configs.length;
+    var html='';
+    if(!configs.length){html='<div style="color:var(--muted);font-size:11px;padding:20px;text-align:center">No configs yet. Click "+ New Brand" to create one.</div>'}
+    configs.forEach(function(c){
+      var ltBadge=c.auto_send.lt?'<span class="b g">LT Auto</span>':'<span class="b am">LT Manual</span>';
+      var htBadge=c.auto_send.ht?'<span class="b g">HT Auto</span>':'<span class="b am">HT Manual</span>';
+      html+='<div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;border-left:3px solid var(--a)">';
+      html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">';
+      html+='<span style="font-weight:700;font-size:13px;text-transform:uppercase">'+c.brand+'</span>';
+      html+='<span class="b '+(c.is_active?'g':'r')+'">'+(c.is_active?'Active':'Inactive')+'</span>';
+      html+=ltBadge+' '+htBadge;
+      html+='<span style="margin-left:auto;font-size:9px;color:var(--muted)">v'+c.version+' | '+new Date(c.updated_at).toLocaleDateString()+'</span>';
+      html+='<button class="btn btn-sm btn-secondary" onclick="editEmailConfig(\''+c.brand+'\')">Edit</button>';
+      html+='</div>';
+      html+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:10px">';
+      html+='<div><b>Classification Prompt</b><div style="color:var(--dim);max-height:60px;overflow:hidden;margin-top:2px">'+(c.classification.prompt?c.classification.prompt.substring(0,150)+'...':'<em>Not set</em>')+'</div></div>';
+      html+='<div><b>Accept Template</b><div style="color:var(--dim);max-height:60px;overflow:hidden;margin-top:2px">'+(c.templates.accept?c.templates.accept.substring(0,150)+'...':'<em>Not set</em>')+'</div></div>';
+      html+='<div><b>Content Guidelines</b><div style="color:var(--dim);margin-top:2px">Hashtags: '+(c.content_guidelines.hashtags||[]).join(', ')+'<br>Deadline: '+c.content_guidelines.deadline_days+' days</div></div>';
+      html+='</div>';
+      html+='</div>';
+    });
+    document.getElementById('ec-configs-list').innerHTML=html;
+  }catch(e){
+    document.getElementById('ec-configs-list').innerHTML='<div style="color:var(--r);font-size:11px;padding:12px">Error: '+e.message+'</div>';
+  }
+}
+
+async function loadFAQEntries(){
+  try{
+    var brand=document.getElementById('faq-brand-filter').value;
+    var url='/pipeline/faq/'+(brand?'?brand='+brand:'');
+    var faqs=await apiFetch(url);
+    document.getElementById('ec-faq-count').textContent=faqs.length;
+    var html='<table><thead><tr><th>Brand</th><th>Category</th><th>Question</th><th>Answer</th><th>Priority</th><th></th></tr></thead><tbody>';
+    if(!faqs.length){html+='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">No FAQ entries</td></tr>'}
+    faqs.forEach(function(f){
+      html+='<tr>';
+      html+='<td><span class="b a">'+f.brand+'</span></td>';
+      html+='<td>'+f.category+'</td>';
+      html+='<td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+f.question+'</td>';
+      html+='<td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dim)">'+f.answer+'</td>';
+      html+='<td style="text-align:center">'+f.priority+'</td>';
+      html+='<td><button class="btn btn-sm btn-secondary" onclick="deleteFAQ(\''+f.id+'\')">Del</button></td>';
+      html+='</tr>';
+    });
+    html+='</tbody></table>';
+    document.getElementById('faq-list-container').innerHTML=html;
+  }catch(e){
+    document.getElementById('faq-list-container').innerHTML='<div style="color:var(--r);font-size:11px">Error: '+e.message+'</div>';
+  }
+}
+
+async function loadReplyLogs(){
+  try{
+    var logs=await apiFetch('/pipeline/reply-log/?days=7');
+    document.getElementById('ec-log-count').textContent=logs.length;
+    var html='<table><thead><tr><th>Time</th><th>Creator</th><th>Brand</th><th>Intent</th><th>Auto</th><th>Template</th><th>Subject</th></tr></thead><tbody>';
+    if(!logs.length){html+='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No reply logs yet</td></tr>'}
+    logs.forEach(function(r){
+      var intentBadge='<span class="b '+(r.intent==='Accept'?'g':r.intent==='FAQ_Gap'?'c':'am')+'">'+r.intent+'</span>';
+      html+='<tr>';
+      html+='<td style="font-family:var(--mono);font-size:9px">'+new Date(r.processed_at).toLocaleString()+'</td>';
+      html+='<td>'+r.creator_email+'</td>';
+      html+='<td><span class="b a">'+r.brand+'</span></td>';
+      html+='<td>'+intentBadge+'</td>';
+      html+='<td>'+(r.auto_sent?'<span class="b g">Yes</span>':'<span class="b am">No</span>')+'</td>';
+      html+='<td>'+r.template_used+'</td>';
+      html+='<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dim)">'+r.incoming_subject+'</td>';
+      html+='</tr>';
+    });
+    html+='</tbody></table>';
+    document.getElementById('reply-log-container').innerHTML=html;
+  }catch(e){
+    document.getElementById('reply-log-container').innerHTML='<div style="color:var(--r);font-size:11px">Error: '+e.message+'</div>';
+  }
+}
+
+function showNewFAQForm(){document.getElementById('new-faq-form').style.display='block';document.getElementById('new-faq-form').scrollIntoView({behavior:'smooth'})}
+function showNewConfigForm(){document.getElementById('new-config-form').style.display='block';document.getElementById('new-config-form').scrollIntoView({behavior:'smooth'})}
+
+async function saveFAQEntry(){
+  var kw=document.getElementById('faq-new-keywords').value;
+  var keywords=kw?kw.split(',').map(function(s){return s.trim()}).filter(Boolean):[];
+  var body={
+    brand:document.getElementById('faq-new-brand').value,
+    category:document.getElementById('faq-new-category').value,
+    question:document.getElementById('faq-new-question').value,
+    answer:document.getElementById('faq-new-answer').value,
+    keywords:keywords,
+    priority:parseInt(document.getElementById('faq-new-priority').value)||0
+  };
+  try{
+    await apiFetch('/pipeline/faq/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    toast('FAQ entry created','ok');
+    document.getElementById('new-faq-form').style.display='none';
+    ['faq-new-category','faq-new-question','faq-new-answer','faq-new-keywords'].forEach(function(id){document.getElementById(id).value=''});
+    loadFAQEntries();
+  }catch(e){toast('Error: '+e.message,'err')}
+}
+
+async function deleteFAQ(id){
+  if(!confirm('Delete this FAQ entry?'))return;
+  try{
+    await apiFetch('/pipeline/faq/'+id+'/',{method:'DELETE'});
+    toast('FAQ deleted','ok');
+    loadFAQEntries();
+  }catch(e){toast('Error: '+e.message,'err')}
+}
+
+async function saveEmailConfig(){
+  var brand=document.getElementById('cfg-new-brand').value.trim().toLowerCase();
+  if(!brand){toast('Brand is required','err');return}
+  var hashtagsRaw=document.getElementById('cfg-new-hashtags').value;
+  var productsRaw=document.getElementById('cfg-new-products').value;
+  var body={
+    is_active:true,
+    classification_prompt:document.getElementById('cfg-new-class-prompt').value,
+    lt_auto_send:document.getElementById('cfg-new-lt-auto').checked,
+    ht_auto_send:document.getElementById('cfg-new-ht-auto').checked,
+    accept_template:document.getElementById('cfg-new-accept-tpl').value,
+    faq_gap_template:document.getElementById('cfg-new-faq-tpl').value,
+    normal_template:document.getElementById('cfg-new-normal-tpl').value,
+    outreach_lt_prompt:document.getElementById('cfg-new-lt-prompt').value,
+    outreach_ht_prompt:document.getElementById('cfg-new-ht-prompt').value,
+    gifting_form_url:document.getElementById('cfg-new-form-url').value,
+    deadline_days:parseInt(document.getElementById('cfg-new-deadline').value)||30,
+    hashtags:hashtagsRaw?hashtagsRaw.split(',').map(function(s){return s.trim()}).filter(Boolean):[],
+    product_mentions:productsRaw?productsRaw.split(',').map(function(s){return s.trim()}).filter(Boolean):[],
+    updated_by:_currentUser
+  };
+  try{
+    await apiFetch('/pipeline/email-config/'+brand+'/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    toast(brand+' config saved','ok');
+    document.getElementById('new-config-form').style.display='none';
+    loadEmailConfigs();
+  }catch(e){toast('Error: '+e.message,'err')}
+}
+
+async function editEmailConfig(brand){
+  try{
+    var c=await apiFetch('/pipeline/email-config/'+brand+'/');
+    document.getElementById('cfg-new-brand').value=c.brand;
+    document.getElementById('cfg-new-form-url').value=c.gifting_form_url||'';
+    document.getElementById('cfg-new-deadline').value=c.content_guidelines.deadline_days;
+    document.getElementById('cfg-new-lt-auto').checked=c.auto_send.lt;
+    document.getElementById('cfg-new-ht-auto').checked=c.auto_send.ht;
+    document.getElementById('cfg-new-class-prompt').value=c.classification.prompt||'';
+    document.getElementById('cfg-new-accept-tpl').value=c.templates.accept||'';
+    document.getElementById('cfg-new-faq-tpl').value=c.templates.faq_gap||'';
+    document.getElementById('cfg-new-normal-tpl').value=c.templates.normal||'';
+    document.getElementById('cfg-new-lt-prompt').value=c.outreach_prompts.lt||'';
+    document.getElementById('cfg-new-ht-prompt').value=c.outreach_prompts.ht||'';
+    document.getElementById('cfg-new-hashtags').value=(c.content_guidelines.hashtags||[]).join(', ');
+    document.getElementById('cfg-new-products').value=(c.content_guidelines.product_mentions||[]).join(', ');
+    document.getElementById('new-config-form').style.display='block';
+    document.getElementById('new-config-form').scrollIntoView({behavior:'smooth'});
+  }catch(e){toast('Error loading config: '+e.message,'err')}
 }
 </script>
 </body>

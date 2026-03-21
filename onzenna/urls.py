@@ -58,6 +58,13 @@ urlpatterns = [
     # Pipeline Syncly Discovery Import
     path("pipeline/creators/import-discovery/", views.import_syncly_discovery, name="import_syncly_discovery"),
 
+    # Email Reply Config (n8n + dashboard)
+    path("pipeline/email-config/", views.email_config_list, name="email_config_list"),
+    path("pipeline/email-config/<str:brand>/", views.email_config_detail, name="email_config_detail"),
+    path("pipeline/faq/", views.faq_list, name="faq_list"),
+    path("pipeline/faq/<uuid:faq_id>/", views.faq_detail, name="faq_detail"),
+    path("pipeline/reply-log/", views.reply_log_create, name="reply_log"),
+
     # Monitoring
     path("tables/", views.list_tables, name="list_tables"),
 ]

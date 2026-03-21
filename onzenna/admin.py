@@ -9,6 +9,9 @@ from .models import (
     OnzCreatorProfile,
     OnzGiftingApplication,
     GmailContact,
+    EmailReplyConfig,
+    FAQEntry,
+    EmailReplyLog,
 )
 
 
@@ -68,3 +71,26 @@ class GmailContactAdmin(admin.ModelAdmin):
     search_fields = ("email", "name", "domain")
     list_filter = ("account",)
     readonly_fields = ("synced_at",)
+
+
+@admin.register(EmailReplyConfig)
+class EmailReplyConfigAdmin(admin.ModelAdmin):
+    list_display = ("brand", "is_active", "version", "lt_auto_send", "ht_auto_send", "deadline_days", "updated_at")
+    list_filter = ("is_active", "brand")
+    readonly_fields = ("version", "updated_at")
+
+
+@admin.register(FAQEntry)
+class FAQEntryAdmin(admin.ModelAdmin):
+    list_display = ("brand", "category", "question", "priority", "is_active", "updated_at")
+    search_fields = ("question", "answer", "category")
+    list_filter = ("brand", "category", "is_active")
+    readonly_fields = ("id", "created_at", "updated_at")
+
+
+@admin.register(EmailReplyLog)
+class EmailReplyLogAdmin(admin.ModelAdmin):
+    list_display = ("creator_email", "brand", "intent", "auto_sent", "template_used", "config_version", "processed_at")
+    search_fields = ("creator_email", "incoming_subject")
+    list_filter = ("brand", "intent", "auto_sent")
+    readonly_fields = ("id", "processed_at")

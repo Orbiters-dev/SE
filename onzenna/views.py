@@ -37,6 +37,9 @@ from .models import (
     PipelineCreator,
     PipelineExecutionLog,
     PipelineStatusChange,
+    EmailReplyConfig,
+    FAQEntry,
+    EmailReplyLog,
 )
 
 
@@ -1213,3 +1216,240 @@ def import_syncly_discovery(request):
         "skipped": skipped,
         "imported": imported,
     }, status=201))
+
+
+# ========== EMAIL REPLY CONFIG ==========
+
+def _serialize_email_config(cfg, include_faq=False):
+    """Serialize EmailReplyConfig to dict, optionally including FAQ entries."""
+    data = {
+        "brand": cfg.brand,
+        "is_active": cfg.is_active,
+        "version": cfg.version,
+        "classification": {
+            "prompt": cfg.classification_prompt,
+            "model": cfg.classification_model,
+        },
+        "auto_send": {
+            "lt": cfg.lt_auto_send,
+            "ht": cfg.ht_auto_send,
+        },
+        "templates": {
+            "accept": cfg.accept_template,
+            "faq_gap": cfg.faq_gap_template,
+            "normal": cfg.normal_template,
+            "decline": cfg.decline_template,
+        },
+        "outreach_prompts": {
+            "lt": cfg.outreach_lt_prompt,
+            "ht": cfg.outreach_ht_prompt,
+        },
+        "content_guidelines": {
+            "hashtags": json.loads(cfg.hashtags) if cfg.hashtags else [],
+            "product_mentions": json.loads(cfg.product_mentions) if cfg.product_mentions else [],
+            "deadline_days": cfg.deadline_days,
+        },
+        "gifting_form_url": cfg.gifting_form_url,
+        "updated_at": cfg.updated_at.isoformat() if cfg.updated_at else None,
+        "updated_by": cfg.updated_by,
+    }
+    if include_faq:
+        faqs = FAQEntry.objects.filter(
+            brand__in=[cfg.brand, "all"], is_active=True
+        ).order_by("-priority", "category")
+        data["faq_entries"] = [
+            {
+                "id": str(f.id),
+                "brand": f.brand,
+                "question": f.question,
+                "answer": f.answer,
+                "keywords": json.loads(f.keywords) if f.keywords else [],
+                "category": f.category,
+                "priority": f.priority,
+            }
+            for f in faqs
+        ]
+    return data
+
+
+@csrf_exempt
+def email_config_list(request):
+    """GET: list all brand configs. POST not used here."""
+    if request.method == "OPTIONS":
+        return _cors_headers(request, HttpResponse(status=204))
+    configs = EmailReplyConfig.objects.all()
+    data = [_serialize_email_config(c) for c in configs]
+    return _cors_headers(request, JsonResponse(data, safe=False))
+
+
+@csrf_exempt
+def email_config_detail(request, brand):
+    """GET: n8n fetches full config + FAQ for a brand. POST: create/update."""
+    if request.method == "OPTIONS":
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method == "GET":
+        try:
+            cfg = EmailReplyConfig.objects.get(brand=brand)
+        except EmailReplyConfig.DoesNotExist:
+            return _cors_headers(request, JsonResponse({"error": f"No config for brand '{brand}'"}, status=404))
+        return _cors_headers(request, JsonResponse(_serialize_email_config(cfg, include_faq=True)))
+
+    if request.method == "POST":
+        body = _json_body(request)
+        cfg, created = EmailReplyConfig.objects.update_or_create(
+            brand=brand,
+            defaults={
+                "is_active": body.get("is_active", True),
+                "classification_prompt": body.get("classification_prompt", ""),
+                "classification_model": body.get("classification_model", "claude-sonnet-4-20250514"),
+                "lt_auto_send": body.get("lt_auto_send", True),
+                "ht_auto_send": body.get("ht_auto_send", False),
+                "accept_template": body.get("accept_template", ""),
+                "faq_gap_template": body.get("faq_gap_template", ""),
+                "normal_template": body.get("normal_template", ""),
+                "decline_template": body.get("decline_template", ""),
+                "outreach_lt_prompt": body.get("outreach_lt_prompt", ""),
+                "outreach_ht_prompt": body.get("outreach_ht_prompt", ""),
+                "hashtags": json.dumps(body.get("hashtags", [])),
+                "product_mentions": json.dumps(body.get("product_mentions", [])),
+                "deadline_days": body.get("deadline_days", 30),
+                "gifting_form_url": body.get("gifting_form_url", ""),
+                "updated_by": body.get("updated_by", ""),
+            },
+        )
+        if not created:
+            cfg.version += 1
+            cfg.save(update_fields=["version"])
+        return _cors_headers(request, JsonResponse(
+            _serialize_email_config(cfg), status=201 if created else 200
+        ))
+
+    return _cors_headers(request, JsonResponse({"error": "Method not allowed"}, status=405))
+
+
+@csrf_exempt
+def faq_list(request):
+    """GET: list FAQ entries (optional ?brand=X). POST: create new."""
+    if request.method == "OPTIONS":
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method == "GET":
+        qs = FAQEntry.objects.filter(is_active=True)
+        brand = request.GET.get("brand")
+        if brand:
+            qs = qs.filter(brand__in=[brand, "all"])
+        data = [
+            {
+                "id": str(f.id),
+                "brand": f.brand,
+                "question": f.question,
+                "answer": f.answer,
+                "keywords": json.loads(f.keywords) if f.keywords else [],
+                "category": f.category,
+                "priority": f.priority,
+                "created_at": f.created_at.isoformat() if f.created_at else None,
+                "updated_at": f.updated_at.isoformat() if f.updated_at else None,
+            }
+            for f in qs
+        ]
+        return _cors_headers(request, JsonResponse(data, safe=False))
+
+    if request.method == "POST":
+        body = _json_body(request)
+        f = FAQEntry.objects.create(
+            brand=body.get("brand", "all"),
+            question=body.get("question", ""),
+            answer=body.get("answer", ""),
+            keywords=json.dumps(body.get("keywords", [])),
+            category=body.get("category", ""),
+            priority=body.get("priority", 0),
+        )
+        return _cors_headers(request, JsonResponse({"id": str(f.id), "created": True}, status=201))
+
+    return _cors_headers(request, JsonResponse({"error": "Method not allowed"}, status=405))
+
+
+@csrf_exempt
+def faq_detail(request, faq_id):
+    """PUT: update. DELETE: soft-delete."""
+    if request.method == "OPTIONS":
+        return _cors_headers(request, HttpResponse(status=204))
+
+    try:
+        f = FAQEntry.objects.get(id=faq_id)
+    except FAQEntry.DoesNotExist:
+        return _cors_headers(request, JsonResponse({"error": "FAQ not found"}, status=404))
+
+    if request.method == "PUT":
+        body = _json_body(request)
+        for field in ("brand", "question", "answer", "category"):
+            if field in body:
+                setattr(f, field, body[field])
+        if "keywords" in body:
+            f.keywords = json.dumps(body["keywords"])
+        if "priority" in body:
+            f.priority = body["priority"]
+        if "is_active" in body:
+            f.is_active = body["is_active"]
+        f.save()
+        return _cors_headers(request, JsonResponse({"updated": True}))
+
+    if request.method == "DELETE":
+        f.is_active = False
+        f.save(update_fields=["is_active"])
+        return _cors_headers(request, JsonResponse({"deleted": True}))
+
+    return _cors_headers(request, JsonResponse({"error": "Method not allowed"}, status=405))
+
+
+@csrf_exempt
+def reply_log_create(request):
+    """POST: n8n writes audit log. GET: dashboard reads recent logs."""
+    if request.method == "OPTIONS":
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method == "GET":
+        days = int(request.GET.get("days", 7))
+        cutoff = datetime.now() - __import__("datetime").timedelta(days=days)
+        qs = EmailReplyLog.objects.filter(processed_at__gte=cutoff)
+        brand = request.GET.get("brand")
+        if brand:
+            qs = qs.filter(brand=brand)
+        data = [
+            {
+                "id": str(r.id),
+                "creator_email": r.creator_email,
+                "brand": r.brand,
+                "outreach_type": r.outreach_type,
+                "intent": r.intent,
+                "confidence": r.confidence,
+                "auto_sent": r.auto_sent,
+                "template_used": r.template_used,
+                "incoming_subject": r.incoming_subject,
+                "config_version": r.config_version,
+                "processed_at": r.processed_at.isoformat() if r.processed_at else None,
+            }
+            for r in qs[:100]
+        ]
+        return _cors_headers(request, JsonResponse(data, safe=False))
+
+    if request.method == "POST":
+        body = _json_body(request)
+        r = EmailReplyLog.objects.create(
+            creator_email=body.get("creator_email", ""),
+            brand=body.get("brand", ""),
+            outreach_type=body.get("outreach_type", ""),
+            intent=body.get("intent", "Unknown"),
+            confidence=body.get("confidence"),
+            auto_sent=body.get("auto_sent", False),
+            template_used=body.get("template_used", ""),
+            faq_entry_id=body.get("faq_entry_id"),
+            incoming_subject=body.get("incoming_subject", ""),
+            incoming_snippet=body.get("incoming_snippet", ""),
+            outgoing_body=body.get("outgoing_body", ""),
+            config_version=body.get("config_version", 1),
+        )
+        return _cors_headers(request, JsonResponse({"id": str(r.id), "created": True}, status=201))
+
+    return _cors_headers(request, JsonResponse({"error": "Method not allowed"}, status=405))
