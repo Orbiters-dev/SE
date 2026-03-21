@@ -1279,8 +1279,9 @@ async function loadCreatorStats(){
   }catch(e){console.error('Stats error:',e)}
 }
 
-var HIL_LT={'Needs Review':1,'Sample Sent':1};
-var HIL_HT={'Draft Ready':1,'Needs Review':1,'Sample Sent':1,'Replied':1};
+// HIL = stages where marketer must take action for pipeline to proceed
+var HIL_LT={'Sample Sent':1};  // LT: only manual "sample shipped" click
+var HIL_HT={'Draft Ready':1,'Replied':1,'Needs Review':1,'Sample Sent':1};  // HT: review draft, review reply, accept/decline, sample shipped
 
 function buildFunnel(statusCounts,targetId,activeStatus){
   var el=document.getElementById(targetId);
