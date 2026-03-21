@@ -95,7 +95,7 @@ code{background:#f0f2f4;padding:1px 6px;border-radius:5px;font-family:monospace;
 flowchart TD
   S0["Syncly 신규 인플루언서 발견<br/>→ AT CRM Creator 레코드 생성"]
   S1["AI 이메일 초안 작성<br/>→ Gmail 첫 연락 발송"]
-  S2["Creator 기프팅 신청폼 제출<br/>샘플 종류 이 폼에서 선택<br/>→ Shopify Draft Order 자동 생성"]
+  S2["Creator 기프팅 신청폼 제출<br/>샘플 종류 이 폼에서 선택<br/>→ Shopify 고객 + Draft Order 생성"]
   S3["마케터 Airtable에서<br/>Accept or Decline 수동 클릭"]
   D["종료 Declined"]
   A["Accepted"]
@@ -130,7 +130,7 @@ flowchart TD
         <div class="wf-card on">
           <div class="wf-top"><span class="wf-id">F0sv8RsCS1v56Gkw</span><span class="badge-on">ON</span></div>
           <div class="wf-name">Gifting Form → Draft Order</div>
-          <div class="wf-desc">Creator 신청폼 Webhook 수신 → <b>Shopify Draft Order 자동 생성</b>. 샘플 variant_id도 이 폼에서 받음.</div>
+          <div class="wf-desc">Creator 신청폼 Webhook 수신 → <b>Shopify 고객 생성 + Draft Order 자동 생성</b>. 샘플 variant_id도 이 폼에서 받음.</div>
         </div>
         <div class="wf-card on" style="border-left-color:#9a6700;background:#fffbec">
           <div class="wf-top"><span class="wf-id">onIxBINIcTX1LxMH</span><span class="badge-on" style="background:#fff8dc;color:#9a6700;border-color:#f5c842">ON ⚠</span></div>
@@ -162,7 +162,7 @@ flowchart TD
 flowchart TD
   S0["Syncly 신규 인플루언서 발견<br/>→ AT CRM Creator 레코드 생성"]
   S1["AI 이메일 초안<br/>→ Gmail 첫 연락"]
-  S2["Creator 기프팅 신청폼 1회 제출<br/>샘플 선택 포함<br/>→ Shopify Draft Order 생성"]
+  S2["Creator 기프팅 신청폼 1회 제출<br/>샘플 선택 포함<br/>→ Shopify 고객 + Draft Order 생성"]
   S3["마케터 Airtable<br/>Accept or Decline"]
   D["종료"]
   A["Accepted"]
@@ -222,7 +222,7 @@ flowchart TD
 flowchart TD
   S0["Stage 0: Syncly 자동 발견<br/>→ AT Creator 레코드 생성<br/>WF: FzBJVEOTvr6qJPAL"]
   S1["Stage 1: AI 이메일 초안<br/>→ Gmail 발송<br/>WF: fwwOeLiDLSnR77E1"]
-  S2["Stage 2: Creator 폼 1회 제출<br/>샘플 종류 선택 포함<br/>→ AT Applicants 생성<br/>→ Shopify Draft Order 생성<br/>WF: F0sv8RsCS1v56Gkw"]
+  S2["Stage 2: Creator 폼 1회 제출<br/>샘플 종류 선택 포함<br/>→ Shopify 고객 + Draft Order 생성<br/>WF: F0sv8RsCS1v56Gkw"]
   S3["Stage 3: 마케터 Airtable<br/>Accept or Decline 클릭<br/>Human Action"]
   D["종료 Declined"]
   A["Accepted"]
@@ -263,7 +263,7 @@ flowchart TD
         <div class="wf-card on">
           <div class="wf-top"><span class="wf-id">F0sv8RsCS1v56Gkw</span><span class="badge-on">ON</span></div>
           <div class="wf-name">Gifting Form → Draft Order</div>
-          <div class="wf-desc">Webhook 수신 → AT Applicants 생성 + <b>Shopify Draft Order 자동 생성</b>. 샘플 선택까지 1개 폼에서 완결.</div>
+          <div class="wf-desc">Webhook 수신 → <b>Shopify 고객 + Draft Order 자동 생성</b>. 샘플 선택까지 1개 폼에서 완결.</div>
         </div>
         <div class="wf-card new-wf">
           <div class="wf-top"><span class="wf-id">Ow5bD5keNf2HFo83</span><span class="badge-new">신규 — ON 전환 필요</span></div>
