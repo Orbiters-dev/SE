@@ -31,6 +31,7 @@ import time
 from collections import defaultdict
 from datetime import date, datetime, timedelta
 from pathlib import Path
+from zoneinfo import ZoneInfo
 from typing import Dict, List, Optional
 
 import requests
@@ -2960,9 +2961,9 @@ def _update_persistent_exec_log(executed: list):
     doesn't run (e.g. when proposal files are missing in GitHub Actions).
     """
     exec_log_path = Path(__file__).resolve().parent.parent / "docs" / "ppc-dashboard" / "exec_log.json"
-    now = datetime.now()
+    now = datetime.now(ZoneInfo("America/Los_Angeles"))
     dt = now.strftime("%Y-%m-%d")
-    exec_time = now.strftime("%Y-%m-%d %H:%M:%S")
+    exec_time = now.strftime("%Y-%m-%d %H:%M:%S") + " PST"
 
     # Load existing
     persistent = {}
@@ -5042,7 +5043,7 @@ def _check_execute_for_brand(args, brand_key: str):
     if executed:
         # Mark as executed
         data["executed"] = True
-        data["executed_at"] = datetime.now().isoformat()
+        data["executed_at"] = datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y-%m-%d %H:%M:%S PST")
         latest_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
 
         log_to_sheets(executed, brand_key=brand_key)
@@ -5622,7 +5623,7 @@ def run_propose_single(args, brand_key: str):
                 executed = execute_approved(data)
                 if executed:
                     data["executed"] = True
-                    data["executed_at"] = datetime.now().isoformat()
+                    data["executed_at"] = datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y-%m-%d %H:%M:%S PST")
                     latest_path = sorted(TMP_DIR.glob(f"ppc_proposal_{brand_key}_*.json"), reverse=True)
                     if latest_path:
                         latest_path[0].write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -5726,7 +5727,7 @@ def main():
                 latest_path = sorted(TMP_DIR.glob(f"ppc_proposal_{bk}_*.json"), reverse=True)
                 if latest_path:
                     data["executed"] = True
-                    data["executed_at"] = datetime.now().isoformat()
+                    data["executed_at"] = datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y-%m-%d %H:%M:%S PST")
                     latest_path[0].write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
                 log_to_sheets(executed, brand_key=bk)
                 send_execution_email(executed, args.to, cc=args.cc, brand_key=bk)
@@ -5800,7 +5801,7 @@ def main():
         executed = execute_approved(data)
         if executed:
             data["executed"] = True
-            data["executed_at"] = datetime.now().isoformat()
+            data["executed_at"] = datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y-%m-%d %H:%M:%S PST")
             latest_path = sorted(TMP_DIR.glob(f"ppc_proposal_{bk}_*.json"), reverse=True)
             if latest_path:
                 latest_path[0].write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")

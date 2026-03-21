@@ -238,6 +238,14 @@
 
 새 실수 추가 시 아래 형식 사용:
 
+### M-025: PPC 대시보드 — GitHub Pages 정적 파일 캐시로 인한 데이터 미갱신 착각
+- **에이전트**: 아마존퍼포마
+- **날짜**: 2026-03-22
+- **상황**: KST 08:00에 대시보드 확인했는데 07:30 Pipeline 결과가 안 보임. Pipeline + Dashboard Action 둘 다 success였음
+- **에러**: 브라우저 캐시로 인해 이전 data.js가 표시됨. 실제로는 정상 업데이트 완료 상태
+- **수정**: Ctrl+Shift+R (하드 리프레시)로 해결
+- **예방**: GitHub Pages는 정적 파일 → 브라우저 캐시 이슈 불가피. PG+웹서버(orbitools) 기반으로 전환하면 항상 최신 데이터 제공 가능. 단기: data.js에 `?v=timestamp` 캐시 버스터 추가 검토. 장기: orbitools Django에 PPC dashboard API endpoint 추가하여 실시간 데이터 제공
+
 ### M-XXX: 에러 제목
 - **에이전트**: 에이전트명
 - **날짜**: YYYY-MM-DD
