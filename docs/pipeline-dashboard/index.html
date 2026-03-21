@@ -647,9 +647,21 @@ function showDashboard(){
   document.getElementById('login-gate').style.display='none';
   document.getElementById('main-content').style.display='block';
   initTabs();
+  loadOverviewFunnel();
   var hash=location.hash.replace('#','');
   if(hash&&document.getElementById('p-'+hash)){switchTab(hash)}
   else{switchTab('dashboard')}
+}
+
+async function loadOverviewFunnel(){
+  try{
+    var st=await apiFetch('/pipeline/creators/stats/');
+    _lastStats=st;
+    buildFunnel(st.by_status,'dash-funnel',_crStatusFilter);
+    document.getElementById('pill-total').textContent=st.total+' creators';
+  }catch(e){
+    document.getElementById('dash-funnel').innerHTML='<span style="color:var(--muted);font-size:11px">—</span>';
+  }
 }
 
 // ========== DEMO DATA ==========
@@ -1055,6 +1067,7 @@ async function loadCreatorStats(){
     }
     document.getElementById('pill-total').textContent=st.total+' creators';
     buildFunnel(st.by_status,'exec-funnel',_crStatusFilter);
+    buildFunnel(st.by_status,'dash-funnel',_crStatusFilter);
   }catch(e){console.error('Stats error:',e)}
 }
 

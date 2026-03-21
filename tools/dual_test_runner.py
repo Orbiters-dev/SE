@@ -508,14 +508,12 @@ class ExecutorAgent:
             records = at_find(AT_CREATORS, "Email", self.config.test_email)
             creator_record_id = records[0]["id"] if records else ""
 
-        # Log outreach email in Conversations (PROD fields only)
+        # Log outreach email in Conversations (fields: Subject, Channel, Direction, Message Content, Creator)
         conv_fields = {
             "Subject": subj,
             "Channel": "Email",
             "Direction": "Outbound",
             "Message Content": body,
-            "Conversation Context": f"AI-generated outreach to @{test_ig} ({OUTREACH_TEST_RECIPIENT}). Brand: Grosmimi. Type: Low Touch.",
-            "Status": "Sent",
         }
         if creator_record_id:
             conv_fields["Creator"] = [creator_record_id]
@@ -571,8 +569,6 @@ class ExecutorAgent:
             "Channel": "Email",
             "Direction": "Inbound",
             "Message Content": reply_body,
-            "Conversation Context": f"Influencer @{test_ig} replied to outreach ({OUTREACH_TEST_RECIPIENT}). Positive response.",
-            "Status": "Sent",
         }
         if creator_record_id:
             conv_fields["Creator"] = [creator_record_id]
@@ -626,8 +622,6 @@ class ExecutorAgent:
             "Channel": "Email",
             "Direction": "Outbound",
             "Message Content": confirm_body,
-            "Conversation Context": "Sent gifting form link and content guidelines.",
-            "Status": "Sent",
         }
         if creator_record_id:
             conv_fields["Creator"] = [creator_record_id]
@@ -1430,9 +1424,9 @@ class VerifierAgent:
             fail("[V-5.1] PG pipeline_creators: record NOT found")
             checks.append(Check("[V-5] PG pipeline_creators: record exists", False))
 
-        # 2) n8n gifting workflow active check (handles gifting submissions + draft order)
-        info(f"  [V-5.2] Checking n8n gifting workflow is active")
-        wf_id = WJ_WORKFLOWS.get("gifting", "")
+        # 2) n8n sample_complete workflow active check (5min poller: Sample Sent -> Draft Complete)
+        info(f"  [V-5.2] Checking n8n sample_complete workflow is active")
+        wf_id = WJ_WORKFLOWS.get("sample_complete", "")
         if wf_id and N8N_API_KEY:
             url = f"{N8N_BASE_URL}/api/v1/workflows/{wf_id}"
             headers = {"X-N8N-API-KEY": N8N_API_KEY}
