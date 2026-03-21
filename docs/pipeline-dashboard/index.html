@@ -571,8 +571,11 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <option value="Not Started">Not Started</option><option value="Draft Ready">Draft Ready</option>
         <option value="Sent">Sent</option><option value="Replied">Replied</option>
         <option value="Needs Review">Needs Review</option><option value="Accepted">Accepted</option>
-        <option value="Declined">Declined</option><option value="Sample Sent">Sample Sent</option>
+        <option value="Declined">Declined</option>
+        <option value="Send Contract">Send Contract (HT)</option><option value="Contract Signed">Contract Signed (HT)</option>
+        <option value="Sample Sent">Sample Sent</option>
         <option value="Sample Shipped">Sample Shipped</option><option value="Sample Delivered">Sample Delivered</option>
+        <option value="Reminder Sent">Reminder Sent</option><option value="Payment Sent">Payment Sent (HT)</option>
         <option value="Posted">Posted</option>
       </select>
       <select id="cr-brand" onchange="loadCreators()">
@@ -1281,7 +1284,7 @@ async function loadCreatorStats(){
 
 // HIL = stages where marketer must take action for pipeline to proceed
 var HIL_LT={'Sample Sent':1};  // LT: only manual "sample shipped" click
-var HIL_HT={'Draft Ready':1,'Replied':1,'Needs Review':1,'Sample Sent':1};  // HT: review draft, review reply, accept/decline, sample shipped
+var HIL_HT={'Draft Ready':1,'Sent':1,'Replied':1,'Needs Review':1,'Send Contract':1,'Sample Sent':1,'Payment Sent':1};  // HT: full manual control
 
 function buildFunnel(statusCounts,targetId,activeStatus){
   var el=document.getElementById(targetId);
@@ -1306,18 +1309,21 @@ function buildFunnel(statusCounts,targetId,activeStatus){
   }
 
   // Y-fork: Not Started (left center) → LT (top row) / HT (bottom row)
-  var pipeStages=['Draft Ready','Sent','Replied','Needs Review','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
-  function _row(counts,hilMap){
+  var LT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Reminder Sent','Posted'];
+  var HT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Send Contract','Contract Signed','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Reminder Sent','Payment Sent','Posted'];
+  function _row(stages,counts,hilMap){
     var r='';
-    for(var i=0;i<pipeStages.length;i++){
+    for(var i=0;i<stages.length;i++){
       if(i>0)r+='<span class="fa" style="font-size:7px;color:#ccc">&#x25B6;</span>';
-      var s=pipeStages[i];var count=counts[s]||0;
+      var s=stages[i];var count=counts[s]||0;
       var isActive=(s===activeStatus)?' on':'';
       var hil=hilMap[s];
-      var hb=hil?'border:2px solid var(--am);background:#fffbeb;':'';
-      var ht=hil?'<div style="font-size:6px;color:var(--am);font-weight:700;letter-spacing:.5px">HIL</div>':'';
-      r+='<div class="fn'+isActive+'" onclick="filterByStatus(\''+s+'\')" style="min-width:48px;padding:4px 3px;'+hb+'">';
-      r+='<div class="fi" style="font-size:15px">'+count+'</div><div class="ft" style="font-size:7px;line-height:1.2">'+s+'</div>'+ht+'</div>';
+      var isReminder=s==='Reminder Sent';
+      var isContract=s==='Send Contract'||s==='Contract Signed'||s==='Payment Sent';
+      var hb=hil?'border:2px solid var(--am);background:#fffbeb;':isReminder?'border:1px dashed var(--am);opacity:.7;':isContract?'border:1px solid var(--p);background:#faf5ff;':'';
+      var ht=hil?'<div style="font-size:6px;color:var(--am);font-weight:700;letter-spacing:.5px">HIL</div>':isContract?'<div style="font-size:6px;color:var(--p);font-weight:700">'+( s==='Contract Signed'?'auto':'')+'</div>':'';
+      r+='<div class="fn'+isActive+'" onclick="filterByStatus(\''+s+'\')" style="min-width:44px;padding:4px 2px;'+hb+'">';
+      r+='<div class="fi" style="font-size:14px">'+count+'</div><div class="ft" style="font-size:6px;line-height:1.2">'+s+'</div>'+ht+'</div>';
     }
     return r;
   }
@@ -1336,13 +1342,13 @@ function buildFunnel(statusCounts,targetId,activeStatus){
   html+='<div style="grid-row:1;grid-column:3;display:flex;align-items:center;gap:2px;padding:5px 6px;background:linear-gradient(90deg,rgba(99,102,241,.05),transparent);border-radius:8px;margin-bottom:1px">';
   html+='<span style="font-size:10px;font-weight:800;color:var(--a);min-width:22px" title="Low Touch">&#x26A1;LT</span>';
   html+='<span class="fa" style="font-size:7px;color:var(--a)">&#x25B6;</span>';
-  html+=_row(ltCounts,HIL_LT);
+  html+=_row(LT_STAGES,ltCounts,HIL_LT);
   html+='</div>';
   // HT row (bottom)
   html+='<div style="grid-row:2;grid-column:3;display:flex;align-items:center;gap:2px;padding:5px 6px;background:linear-gradient(90deg,rgba(168,85,247,.05),transparent);border-radius:8px;margin-top:1px">';
   html+='<span style="font-size:10px;font-weight:800;color:var(--p);min-width:22px" title="High Touch">&#x1F451;HT</span>';
   html+='<span class="fa" style="font-size:7px;color:var(--p)">&#x25B6;</span>';
-  html+=_row(htCounts,HIL_HT);
+  html+=_row(HT_STAGES,htCounts,HIL_HT);
   html+='</div>';
   html+='</div>';
 
@@ -1626,8 +1632,8 @@ async function confirmExec(){
   // Preview: count Not Started creators and show toast, no logging
   if(action==='preview'){
     try{
-      var data=await apiFetch('/pipeline/creators/?status=Not Started&limit=1');
-      var count=(data&&data.count)?data.count:0;
+      var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=500');
+      var count=(data&&data.total)?data.total:(data&&data.results)?data.results.length:0;
       showToast('Preview: '+count+' Not Started creators eligible','ok');
     }catch(e){
       showToast('Preview failed: '+e.message,'err');
@@ -1663,8 +1669,20 @@ async function confirmExec(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({action:action,config:_config,timestamp:new Date().toISOString()})
-    }).catch(function(e){console.warn('Webhook error for '+action+':',e)});
-    showToast('Webhook triggered: '+action,'ok');
+    }).then(function(r){
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      return r.text();
+    }).then(function(){
+      showToast(meta.title+' completed','ok');
+      // Update exec log from running to success
+      apiFetch('/pipeline/execution/log/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action_type:action,triggered_by:_currentUser,status:'completed',target_count:0,details:JSON.stringify({source:'dashboard-webhook-callback'})})});
+      loadExecLog();
+    }).catch(function(e){
+      showToast('Webhook failed: '+e.message,'err');
+      apiFetch('/pipeline/execution/log/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action_type:action,triggered_by:_currentUser,status:'failed',target_count:0,details:JSON.stringify({error:e.message})})});
+      loadExecLog();
+    });
+    showToast('Webhook triggered: '+action+' (waiting...)','ok');
   }else{
     showToast(meta.title+' triggered (no webhook)','ok');
   }
@@ -2466,18 +2484,18 @@ async function saveFAQEntry(){
   };
   try{
     await apiFetch('/pipeline/faq/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    toast('FAQ entry created','ok');
+    showToast('FAQ entry created','ok');
     document.getElementById('new-faq-form').style.display='none';
     ['faq-new-category','faq-new-question','faq-new-answer','faq-new-keywords'].forEach(function(id){document.getElementById(id).value=''});
     loadFAQEntries();
-  }catch(e){toast('Error: '+e.message,'err')}
+  }catch(e){showToast('Error: '+e.message,'err')}
 }
 
 var _replyLogCache=[];
 
 async function replyLogToFAQ(idx){
   var r=_replyLogCache[idx];
-  if(!r){toast('Log not found','err');return}
+  if(!r){showToast('Log not found','err');return}
   var question=prompt('FAQ Question (from reply):', r.incoming_subject||r.incoming_snippet||'');
   if(!question)return;
   var answer=prompt('FAQ Answer:', '');
@@ -2492,48 +2510,52 @@ async function replyLogToFAQ(idx){
       category:category||'General',
       priority:5
     })});
-    toast('Added to FAQ: '+question.substring(0,40)+'...','ok');
+    showToast('Added to FAQ: '+question.substring(0,40)+'...','ok');
     loadFAQEntries();
-  }catch(e){toast('Error: '+e.message,'err')}
+  }catch(e){showToast('Error: '+e.message,'err')}
 }
 
 async function deleteReplyLog(id){
   if(!confirm('Delete this reply log entry?'))return;
   try{
     await apiFetch('/pipeline/reply-log/'+id+'/',{method:'DELETE'});
-    toast('Reply log deleted','ok');
+    showToast('Reply log deleted','ok');
     loadReplyLogs();
-  }catch(e){toast('Error: '+e.message,'err')}
+  }catch(e){showToast('Error: '+e.message,'err')}
 }
 
 async function deleteFAQ(id){
   if(!confirm('Delete this FAQ entry?'))return;
   try{
     await apiFetch('/pipeline/faq/'+id+'/',{method:'DELETE'});
-    toast('FAQ deleted','ok');
+    showToast('FAQ deleted','ok');
     loadFAQEntries();
-  }catch(e){toast('Error: '+e.message,'err')}
+  }catch(e){showToast('Error: '+e.message,'err')}
 }
 
 async function saveEmailConfig(){
   var brand=document.getElementById('cfg-new-brand').value.trim().toLowerCase();
-  if(!brand){toast('Brand is required','err');return}
+  if(!brand){showToast('Brand is required','err');return}
+  // Fetch existing config to merge (prevent field wipe)
+  var existing={};
+  try{existing=await apiFetch('/pipeline/email-config/'+brand+'/')}catch(e){}
   var hashtagsRaw=document.getElementById('cfg-new-hashtags').value;
   var productsRaw=document.getElementById('cfg-new-products').value;
+  var getVal=function(id,fallback){var v=document.getElementById(id);return(v&&v.value!==undefined)?v.value:(fallback||'')};
   var body={
     is_active:true,
-    classification_prompt:document.getElementById('cfg-new-class-prompt').value,
+    classification_prompt:getVal('cfg-new-class-prompt',(existing.classification||{}).prompt||''),
     lt_auto_send:document.getElementById('cfg-new-lt-auto').checked,
     ht_auto_send:document.getElementById('cfg-new-ht-auto').checked,
-    accept_template:document.getElementById('cfg-new-accept-tpl').value,
-    faq_gap_template:document.getElementById('cfg-new-faq-tpl').value,
-    normal_template:document.getElementById('cfg-new-normal-tpl').value,
-    outreach_lt_prompt:document.getElementById('cfg-new-lt-prompt').value,
-    outreach_ht_prompt:document.getElementById('cfg-new-ht-prompt').value,
-    gifting_form_url:document.getElementById('cfg-new-form-url').value,
-    deadline_days:parseInt(document.getElementById('cfg-new-deadline').value)||30,
-    hashtags:hashtagsRaw?hashtagsRaw.split(',').map(function(s){return s.trim()}).filter(Boolean):[],
-    product_mentions:productsRaw?productsRaw.split(',').map(function(s){return s.trim()}).filter(Boolean):[],
+    accept_template:getVal('cfg-new-accept-tpl',(existing.templates||{}).accept||''),
+    faq_gap_template:getVal('cfg-new-faq-tpl',(existing.templates||{}).faq_gap||''),
+    normal_template:getVal('cfg-new-normal-tpl',(existing.templates||{}).normal||''),
+    outreach_lt_prompt:getVal('cfg-new-lt-prompt',(existing.outreach_prompts||{}).lt||''),
+    outreach_ht_prompt:getVal('cfg-new-ht-prompt',(existing.outreach_prompts||{}).ht||''),
+    gifting_form_url:getVal('cfg-new-form-url',existing.gifting_form_url||''),
+    deadline_days:parseInt(document.getElementById('cfg-new-deadline').value)||(existing.content_guidelines||{}).deadline_days||30,
+    hashtags:hashtagsRaw?hashtagsRaw.split(',').map(function(s){return s.trim()}).filter(Boolean):(existing.content_guidelines||{}).hashtags||[],
+    product_mentions:productsRaw?productsRaw.split(',').map(function(s){return s.trim()}).filter(Boolean):(existing.content_guidelines||{}).product_mentions||[],
     updated_by:_currentUser
   };
   try{
@@ -2541,7 +2563,7 @@ async function saveEmailConfig(){
     toast(brand+' config saved','ok');
     document.getElementById('new-config-form').style.display='none';
     loadEmailConfigs();
-  }catch(e){toast('Error: '+e.message,'err')}
+  }catch(e){showToast('Error: '+e.message,'err')}
 }
 
 async function editEmailConfig(brand){
@@ -2562,7 +2584,7 @@ async function editEmailConfig(brand){
     document.getElementById('cfg-new-products').value=(c.content_guidelines.product_mentions||[]).join(', ');
     document.getElementById('new-config-form').style.display='block';
     document.getElementById('new-config-form').scrollIntoView({behavior:'smooth'});
-  }catch(e){toast('Error loading config: '+e.message,'err')}
+  }catch(e){showToast('Error loading config: '+e.message,'err')}
 }
 </script>
 </body>
