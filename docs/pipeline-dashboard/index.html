@@ -2560,7 +2560,7 @@ async function saveEmailConfig(){
   };
   try{
     await apiFetch('/pipeline/email-config/'+brand+'/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    toast(brand+' config saved','ok');
+    showToast(brand+' config saved','ok');
     document.getElementById('new-config-form').style.display='none';
     loadEmailConfigs();
   }catch(e){showToast('Error: '+e.message,'err')}
