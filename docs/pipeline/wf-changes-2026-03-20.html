@@ -2,72 +2,85 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>Pipeline WF 변경 비교 — KST 2026-03-20 18:44</title>
+<title>Pipeline WF 변경 비교 — 2026-03-20</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
-:root{--bg:#0d1117;--surface:#161b22;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--green:#3fb950;--red:#f85149;--yellow:#d29922;--blue:#58a6ff;--orange:#ffa657}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI',sans-serif;font-size:13px;padding:20px}
-header{border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:20px}
-header h1{font-size:18px;font-weight:600;margin-bottom:5px}
-header p{color:var(--muted);font-size:12px}
-code{background:#2d3440;padding:1px 6px;border-radius:4px;font-family:monospace;color:var(--orange)}
-.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
-.scard{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px}
-.scard .lbl{font-size:11px;color:var(--muted);margin-bottom:5px}
-.scard .val{font-size:22px;font-weight:700}
-.cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px}
-.col{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden}
-.col-h{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
-.col-h h2{font-size:12px;font-weight:600}
-.badge{padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700}
-.b-before{background:#1c2a3a;color:var(--blue);border:1px solid #2a4a6a}
-.b-after{background:#2a1c1c;color:var(--red);border:1px solid #5a2a2a}
-.b-intent{background:#1c2a1c;color:var(--green);border:1px solid #2a5a2a}
+body{background:#f6f8fa;color:#1f2328;font-family:-apple-system,'Segoe UI',sans-serif;font-size:13px;padding:24px;max-width:1600px;margin:0 auto}
+header{background:#fff;border:1px solid #d0d7de;border-radius:10px;padding:18px 22px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between}
+header h1{font-size:16px;font-weight:700;color:#1f2328}
+header p{font-size:11px;color:#57606a;margin-top:3px}
+code{background:#f0f2f4;padding:1px 6px;border-radius:5px;font-family:monospace;color:#cf222e;font-size:11px}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.scard{background:#fff;border:1px solid #d0d7de;border-radius:8px;padding:14px 16px}
+.scard .lbl{font-size:11px;color:#57606a;margin-bottom:4px}
+.scard .val{font-size:24px;font-weight:700}
+.cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px}
+.col{background:#fff;border:1px solid #d0d7de;border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.col-h{padding:12px 16px;border-bottom:1px solid #d0d7de;display:flex;align-items:center;gap:8px;background:#f6f8fa}
+.col-h h2{font-size:12px;font-weight:600;color:#1f2328}
+.badge{padding:3px 9px;border-radius:12px;font-size:10px;font-weight:700;white-space:nowrap}
+.b-before{background:#ddf4ff;color:#0550ae;border:1px solid #a8d4f8}
+.b-after{background:#ffebe9;color:#b91c1c;border:1px solid #ffb8b0}
+.b-intent{background:#dcfce7;color:#166534;border:1px solid #86efac}
 .col-body{padding:14px}
-.chart-wrap{background:var(--bg);border-radius:6px;padding:10px;margin-bottom:12px;min-height:180px}
-.wt{width:100%;border-collapse:collapse;font-size:11px;margin-top:10px}
-.wt th{color:var(--muted);text-align:left;padding:4px 5px;border-bottom:1px solid var(--border);font-weight:500}
-.wt td{padding:4px 5px;border-bottom:1px solid #1e2530;vertical-align:top}
-.wt tr:last-child td{border-bottom:none}
-.on{color:var(--green);font-weight:600}
-.off{color:var(--red);font-weight:600}
-.new{color:var(--yellow);font-weight:600}
-.del{color:var(--muted);text-decoration:line-through}
-.wid{font-family:monospace;font-size:10px;color:var(--orange);background:#1e1a14;padding:1px 4px;border-radius:3px}
-.gap-warn{background:#2a1c00;border:1px solid #5a3c00;border-radius:6px;padding:9px 12px;margin-bottom:10px}
-.gap-warn .t{color:var(--yellow);font-weight:600;font-size:12px;margin-bottom:3px}
-.gap-warn p{color:#c9a94a;font-size:11px;line-height:1.5}
-.changes{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:20px}
-.changes h3{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px}
-.cr{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.chart-wrap{background:#fafbfc;border:1px solid #e8ecf0;border-radius:8px;padding:10px;margin-bottom:14px;overflow:auto}
+/* WF detail cards */
+.wf-list{display:flex;flex-direction:column;gap:8px}
+.wf-card{border:1px solid #e8ecf0;border-radius:8px;padding:10px 12px;background:#fff}
+.wf-card.on{border-left:3px solid #1a7f37}
+.wf-card.off{border-left:3px solid #cf222e;opacity:.7}
+.wf-card.new-wf{border-left:3px solid #9a6700;background:#fffbec}
+.wf-card.removed{border-left:3px solid #cf222e;background:#fff8f8;opacity:.6}
+.wf-top{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.wf-id{font-family:monospace;font-size:10px;color:#57606a;background:#f0f2f4;padding:1px 5px;border-radius:4px}
+.wf-name{font-size:12px;font-weight:600;color:#1f2328}
+.wf-desc{font-size:11px;color:#57606a;line-height:1.55}
+.wf-desc b{color:#1f2328}
+.badge-on{background:#dcfce7;color:#166534;border:1px solid #86efac;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600}
+.badge-off{background:#ffebe9;color:#b91c1c;border:1px solid #ffb8b0;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600}
+.badge-new{background:#fff8dc;color:#9a6700;border:1px solid #f5c842;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600}
+.badge-chg{background:#fff3cd;color:#664d00;border:1px solid #ffc107;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600}
+.gap-box{background:#fffbec;border:1px solid #f5c842;border-radius:8px;padding:10px 13px;margin-bottom:12px}
+.gap-box .gt{font-weight:700;color:#9a6700;font-size:12px;margin-bottom:4px}
+.gap-box p{font-size:11px;color:#855800;line-height:1.5}
+.changes{background:#fff;border:1px solid #d0d7de;border-radius:10px;padding:18px 20px;margin-bottom:18px}
+.changes h3{font-size:11px;font-weight:600;color:#57606a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px}
+.cr{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #f0f2f4}
 .cr:last-child{border-bottom:none}
-.ci{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px}
-.ci-r{background:#2a1c1c;color:var(--red)}
-.ci-a{background:#1c2a1c;color:var(--green)}
-.ci-f{background:#1c2028;color:var(--blue)}
-.ci-p{background:#2a2000;color:var(--yellow)}
-.cinfo h4{font-size:12px;font-weight:600;margin-bottom:3px}
-.cinfo p{font-size:11px;color:var(--muted);line-height:1.5}
-.spec{background:var(--surface);border:1px solid #3a4a1a;border-radius:8px;padding:18px}
-.spec h3{font-size:13px;font-weight:600;margin-bottom:14px;color:var(--green)}
+.ci{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+.ci-r{background:#ffebe9;color:#b91c1c}
+.ci-a{background:#dcfce7;color:#1a7f37}
+.ci-f{background:#ddf4ff;color:#0550ae}
+.cinfo h4{font-size:12px;font-weight:600;color:#1f2328;margin-bottom:3px}
+.cinfo p{font-size:11px;color:#57606a;line-height:1.55}
+.spec{background:#fff;border:1px solid #d0d7de;border-radius:10px;padding:18px 20px}
+.spec h3{font-size:13px;font-weight:700;color:#1f2328;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.spec-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
-.spec p{font-size:12px;line-height:1.8}
+.spec-lbl{font-size:10px;font-weight:600;color:#57606a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;margin-top:12px}
+.spec-lbl:first-child{margin-top:0}
+.spec p{font-size:12px;color:#1f2328;line-height:1.8}
+.step{display:flex;gap:8px;margin-bottom:5px;font-size:12px}
+.step-num{width:20px;height:20px;background:#0550ae;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.step-txt{color:#1f2328;line-height:1.4;padding-top:2px}
+.step-txt small{color:#57606a;display:block;font-size:10px}
 </style>
 </head>
 <body>
 
 <header>
-  <h1>Pipeline n8n 워크플로우 — 변경 비교 리포트</h1>
-  <p>기준 커밋: <code>2cbfa1d</code> &nbsp;|&nbsp; KST 2026-03-20 18:44 &nbsp;|&nbsp; 생성: KST 2026-03-21</p>
+  <div>
+    <h1>Pipeline n8n 워크플로우 — 변경 비교 리포트</h1>
+    <p>기준 커밋: <code>2cbfa1d</code> &nbsp;|&nbsp; KST 2026-03-20 18:44 &nbsp;|&nbsp; 생성: KST 2026-03-21</p>
+  </div>
+  <div style="font-size:11px;color:#57606a;text-align:right">1-폼 파이프라인 전환<br><b style="color:#1a7f37">핵심: Gifting2 폼 제거</b></div>
 </header>
 
 <div class="summary">
-  <div class="scard"><div class="lbl">비활성화 WF</div><div class="val" style="color:var(--red)">1</div></div>
-  <div class="scard"><div class="lbl">신규 생성 WF</div><div class="val" style="color:var(--yellow)">1</div></div>
-  <div class="scard"><div class="lbl">변경 없는 WF</div><div class="val" style="color:var(--green)">5</div></div>
-  <div class="scard"><div class="lbl">폼 수 변화</div><div class="val" style="color:var(--blue)">2→1</div></div>
+  <div class="scard"><div class="lbl">비활성화 WF</div><div class="val" style="color:#cf222e">1</div></div>
+  <div class="scard"><div class="lbl">신규 생성 WF</div><div class="val" style="color:#9a6700">1</div></div>
+  <div class="scard"><div class="lbl">유지 WF</div><div class="val" style="color:#1a7f37">5</div></div>
+  <div class="scard"><div class="lbl">폼 제출 횟수</div><div class="val" style="color:#0550ae">2→1</div></div>
 </div>
 
 <div class="cols">
@@ -76,24 +89,23 @@ code{background:#2d3440;padding:1px 6px;border-radius:4px;font-family:monospace;
   <div class="col">
     <div class="col-h">
       <span class="badge b-before">BEFORE</span>
-      <h2>2cbfa1d — 2026-03-20 18:44</h2>
+      <h2>커밋 2cbfa1d — 2026-03-20 18:44</h2>
     </div>
     <div class="col-body">
       <div class="chart-wrap">
         <pre class="mermaid">
 flowchart TD
-  S0["Stage 0: Syncly Discovery\nFzBJVEOTvr6qJPAL ON"]
-  S1["Stage 1: AI Email Draft\nfwwOeLiDLSnR77E1 ON"]
-  S2["Stage 2: Gifting Form\nF0sv8RsCS1v56Gkw ON"]
-  S3["Stage 3: Marketer Review\nHuman / Airtable"]
-  D["Declined"]
-  A["Accepted"]
-  S35["Stage 3.5: Sample Form Email\nonIxBINIcTX1LxMH ON"]
-  S4["Stage 4: Gifting2 Form\nKqICsN9F1mPwnAQ9 OFF"]
-  S5["Stage 5: Sample Sent\nm89xU9RUbPgnkBy8 ON"]
-  S6["Stage 6: Fulfillment\nufMPgU6cjwuzLM0y ON"]
-  S7["Stage 7: Content\nFzBJVEOTvr6qJPAL ON"]
-  WARN["⚠ Stage 4 OFF인데\nStage 3.5가 계속 이메일 발송"]
+  S0["Syncly 신규 인플루언서 발견\n→ Airtable CRM에 Creator 레코드 자동 생성"]
+  S1["AI가 이메일 초안 작성\n→ Gmail로 첫 연락 발송"]
+  S2["Creator가 기프팅 신청폼 제출\n샘플 종류도 이 폼에서 선택\n→ Shopify Draft Order 자동 생성"]
+  S3["마케터가 Airtable에서\nAccept or Decline 수동 클릭"]
+  D["종료 (Declined)"]
+  A["✓ Accepted"]
+  S35["⚠ 이메일 자동 발송\nGifting2 폼 링크 포함\nCreator에게 또 다시 폼 작성 요청"]
+  S4["Creator가 Gifting2 폼 제출\nDraft Order 완료 처리\n→ 그런데 이 WF가 OFF 상태\n→ 폼 제출해도 아무것도 안됨"]
+  S5["마케터가 Airtable에서\nSample Sent로 상태 변경\n→ Shopify Draft Order 최종 완료"]
+  S6["배송 추적 자동화\nShopify Tracking → Airtable 업데이트"]
+  S7["Apify로 인스타/틱톡 크롤링\n콘텐츠 포스팅 감지 → Airtable 기록"]
 
   S0-->S1-->S2-->S3
   S3-->D
@@ -101,88 +113,102 @@ flowchart TD
   A-->S35
   S35-->S4
   S4-->S5-->S6-->S7
-  S4-.->WARN
 
-  classDef active fill:#1a3a1a,stroke:#3fb950,color:#e6edf3
-  classDef inactive fill:#3a1a1a,stroke:#f85149,color:#8b949e,stroke-dasharray:4
-  classDef human fill:#1a2a3a,stroke:#58a6ff,color:#e6edf3
-  classDef warn fill:#3a2800,stroke:#d29922,color:#ffa657
+  classDef normal fill:#f0fdf4,stroke:#86efac,color:#1f2328
+  classDef problem fill:#fef9c3,stroke:#fde047,color:#1f2328
+  classDef broken fill:#fef2f2,stroke:#fca5a5,color:#57606a,stroke-dasharray:5
+  classDef human fill:#eff6ff,stroke:#93c5fd,color:#1f2328
+  classDef end fill:#f9fafb,stroke:#d1d5db,color:#57606a
 
-  class S0,S1,S2,S5,S6,S7,A active
-  class S35 active
-  class S4 inactive
+  class S0,S1,S2,S5,S6,S7,A normal
+  class S35 problem
+  class S4 broken
   class S3 human
-  class D inactive
-  class WARN warn
+  class D end
         </pre>
       </div>
-      <table class="wt">
-        <tr><th>WF ID</th><th>이름</th><th>상태</th></tr>
-        <tr><td class="wid">FzBJVEOTvr6qJPAL</td><td>Syncly Metrics</td><td class="on">ON</td></tr>
-        <tr><td class="wid">fwwOeLiDLSnR77E1</td><td>AI Email Draft</td><td class="on">ON</td></tr>
-        <tr><td class="wid">F0sv8RsCS1v56Gkw</td><td>Gifting → Draft Order</td><td class="on">ON</td></tr>
-        <tr><td class="wid" style="color:var(--yellow)">onIxBINIcTX1LxMH</td><td>Accepted → Email Sample Form</td><td class="on">ON ⚠</td></tr>
-        <tr><td class="wid" style="color:var(--red)">KqICsN9F1mPwnAQ9</td><td>Gifting2 → Draft Order</td><td class="off">OFF ⚠</td></tr>
-        <tr><td class="wid">m89xU9RUbPgnkBy8</td><td>Sample Sent → Complete</td><td class="on">ON</td></tr>
-        <tr><td class="wid">ufMPgU6cjwuzLM0y</td><td>Fulfillment → Delivery</td><td class="on">ON</td></tr>
-      </table>
+
+      <div class="wf-list">
+        <div class="wf-card on">
+          <div class="wf-top"><span class="wf-id">F0sv8RsCS1v56Gkw</span><span class="badge-on">ON</span></div>
+          <div class="wf-name">Gifting Form → Draft Order</div>
+          <div class="wf-desc">Creator가 신청폼 제출 시 <b>Shopify Draft Order 자동 생성</b>. 샘플 종류(variant_id)도 이 폼에서 받음.</div>
+        </div>
+        <div class="wf-card on" style="border-left-color:#9a6700;background:#fffbec">
+          <div class="wf-top"><span class="wf-id">onIxBINIcTX1LxMH</span><span class="badge-on" style="background:#fff8dc;color:#9a6700;border-color:#f5c842">ON ⚠</span></div>
+          <div class="wf-name">Accepted → Email Sample Form</div>
+          <div class="wf-desc">마케터가 Accept 클릭 → <b>Creator에게 Gifting2 폼 링크 이메일 자동 발송</b>. 그런데 받는 폼을 처리하는 WF가 OFF라 무용지물.</div>
+        </div>
+        <div class="wf-card removed">
+          <div class="wf-top"><span class="wf-id">KqICsN9F1mPwnAQ9</span><span class="badge-off">OFF ⚠</span></div>
+          <div class="wf-name">Gifting2 Form → Draft Order</div>
+          <div class="wf-desc">Creator가 Gifting2 폼 제출 시 Draft Order 완료 + AT 업데이트. <b>꺼져 있어서 폼 제출해도 아무것도 안 됨.</b></div>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- AFTER -->
   <div class="col">
     <div class="col-h">
-      <span class="badge b-after">AFTER (현재)</span>
+      <span class="badge b-after">AFTER (현재 상태)</span>
       <h2>세션 변경 적용 후</h2>
     </div>
     <div class="col-body">
-      <div class="gap-warn">
-        <div class="t">⚡ Accept 이후 GAP 존재</div>
-        <p>onIxBINIcTX1LxMH OFF → 이메일 안감<br>KqICsN9F1mPwnAQ9 OFF → 폼도 없음<br>신규 WF 미활성화 → Accept 후 아무것도 안 일어남</p>
+      <div class="gap-box">
+        <div class="gt">⚡ Accept 이후 GAP 존재</div>
+        <p>이메일 발송 WF OFF → 이메일 안 감.<br>Gifting2 WF OFF → 폼도 없음.<br>신규 WF 아직 크리덴셜 미설정 → <b>Accept 후 자동화 없음.</b></p>
       </div>
       <div class="chart-wrap">
         <pre class="mermaid">
 flowchart TD
-  S0["Stage 0: Syncly Discovery\nFzBJVEOTvr6qJPAL ON"]
-  S1["Stage 1: AI Email Draft\nfwwOeLiDLSnR77E1 ON"]
-  S2["Stage 2: Gifting Form\nF0sv8RsCS1v56Gkw ON"]
-  S3["Stage 3: Marketer Review\nHuman / Airtable"]
-  D["Declined"]
-  A["Accepted"]
-  GAP["GAP: 아무것도 안 일어남\nonIxBINIcTX1LxMH OFF\nKqICsN9F1mPwnAQ9 OFF\nOw5bD5keNf2HFo83 OFF"]
-  S5["Stage 5: Sample Sent\nm89xU9RUbPgnkBy8 ON"]
-  S6["Stage 6: Fulfillment\nufMPgU6cjwuzLM0y ON"]
-  S7["Stage 7: Content\nFzBJVEOTvr6qJPAL ON"]
+  S0["Syncly 신규 인플루언서 발견\n→ Airtable CRM Creator 레코드 생성"]
+  S1["AI 이메일 초안\n→ Gmail 첫 연락"]
+  S2["Creator 기프팅 신청폼 1회 제출\n샘플 선택 포함\n→ Shopify Draft Order 생성"]
+  S3["마케터 Airtable\nAccept or Decline"]
+  D["종료"]
+  A["✓ Accepted"]
+  GAP["GAP\n이메일 WF OFF\nGifting2 WF OFF\n신규 WF OFF\n→ 아무것도 자동으로 안 됨"]
+  S5["마케터가 Sample Sent 클릭\n→ Draft Order 완료"]
+  S6["배송 자동 추적"]
+  S7["콘텐츠 포스팅 자동 감지"]
 
   S0-->S1-->S2-->S3
   S3-->D
   S3-->A
   A-->GAP
-  GAP-.->|도달 불가|S5
+  GAP-.->|수동 처리 필요|S5
   S5-->S6-->S7
 
-  classDef active fill:#1a3a1a,stroke:#3fb950,color:#e6edf3
-  classDef inactive fill:#3a1a1a,stroke:#f85149,color:#8b949e,stroke-dasharray:4
-  classDef human fill:#1a2a3a,stroke:#58a6ff,color:#e6edf3
-  classDef gap fill:#2a1800,stroke:#d29922,color:#ffa657,stroke-dasharray:6
+  classDef normal fill:#f0fdf4,stroke:#86efac,color:#1f2328
+  classDef gap fill:#fef9c3,stroke:#fbbf24,color:#1f2328,stroke-dasharray:6
+  classDef human fill:#eff6ff,stroke:#93c5fd,color:#1f2328
+  classDef end fill:#f9fafb,stroke:#d1d5db,color:#57606a
 
-  class S0,S1,S2,S5,S6,S7,A active
-  class D inactive
-  class S3 human
+  class S0,S1,S2,S5,S6,S7,A normal
   class GAP gap
+  class S3 human
+  class D end
         </pre>
       </div>
-      <table class="wt">
-        <tr><th>WF</th><th>Before→After</th></tr>
-        <tr><td>FzBJVEOTvr6qJPAL</td><td><span class="on">ON→ON</span></td></tr>
-        <tr><td>fwwOeLiDLSnR77E1</td><td><span class="on">ON→ON</span></td></tr>
-        <tr><td>F0sv8RsCS1v56Gkw</td><td><span class="on">ON→ON</span></td></tr>
-        <tr><td class="del">onIxBINIcTX1LxMH</td><td><span class="on">ON</span> → <span class="off">OFF ✓</span></td></tr>
-        <tr><td class="del">KqICsN9F1mPwnAQ9</td><td><span class="off">OFF→OFF</span></td></tr>
-        <tr><td style="color:var(--yellow)">Ow5bD5keNf2HFo83</td><td><span class="new">신규 생성 (OFF)</span></td></tr>
-        <tr><td>m89xU9RUbPgnkBy8</td><td><span class="on">ON→ON</span></td></tr>
-        <tr><td>ufMPgU6cjwuzLM0y</td><td><span class="on">ON→ON</span></td></tr>
-      </table>
+
+      <div class="wf-list">
+        <div class="wf-card removed">
+          <div class="wf-top"><span class="wf-id">onIxBINIcTX1LxMH</span><span class="badge-off">OFF ✓ 비활성화</span></div>
+          <div class="wf-name" style="text-decoration:line-through">Accepted → Email Sample Form</div>
+          <div class="wf-desc">이번 세션에서 비활성화. <b>Gifting2 폼 이메일 발송 역할 제거됨.</b></div>
+        </div>
+        <div class="wf-card removed">
+          <div class="wf-top"><span class="wf-id">KqICsN9F1mPwnAQ9</span><span class="badge-off">OFF (폐기)</span></div>
+          <div class="wf-name" style="text-decoration:line-through">Gifting2 Form → Draft Order</div>
+          <div class="wf-desc">역할 폐기. Stage 2에서 이미 샘플 선택 + Draft Order 처리. 중복 단계 제거.</div>
+        </div>
+        <div class="wf-card new-wf">
+          <div class="wf-top"><span class="wf-id">Ow5bD5keNf2HFo83</span><span class="badge-new">신규 생성 (OFF)</span></div>
+          <div class="wf-name">Accept → Complete Draft Order</div>
+          <div class="wf-desc">신규 생성됨. <b>크리덴셜 3개 연결 후 ON 전환 필요.</b> Accept → PG 조회 → Shopify 완료 → AT 업데이트 자동화.</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -190,22 +216,22 @@ flowchart TD
   <div class="col">
     <div class="col-h">
       <span class="badge b-intent">INTENDED (목표)</span>
-      <h2>1-폼 파이프라인 완성</h2>
+      <h2>1-폼 파이프라인 — 완성 상태</h2>
     </div>
     <div class="col-body">
       <div class="chart-wrap">
         <pre class="mermaid">
 flowchart TD
-  S0["Stage 0: Syncly Discovery\nFzBJVEOTvr6qJPAL ON"]
-  S1["Stage 1: AI Email Draft\nfwwOeLiDLSnR77E1 ON"]
-  S2["Stage 2: Gifting Form 1회\nF0sv8RsCS1v56Gkw ON\n샘플 선택 포함"]
-  S3["Stage 3: Marketer Review\nHuman / Airtable"]
-  D["Declined"]
-  A["Accepted"]
-  NEW["NEW WF: Accept→Complete\nOw5bD5keNf2HFo83\nAT poll→PG→Shopify complete\n→ Partnership Status: Order Placed"]
-  S5["Stage 5: Sample Sent\nm89xU9RUbPgnkBy8 ON"]
-  S6["Stage 6: Fulfillment\nufMPgU6cjwuzLM0y ON"]
-  S7["Stage 7: Content\nFzBJVEOTvr6qJPAL ON"]
+  S0["Syncly 자동 발견\n→ AT Creator 레코드 생성\nWF: FzBJVEOTvr6qJPAL"]
+  S1["AI 이메일 초안 작성\n→ Gmail 발송\nWF: fwwOeLiDLSnR77E1"]
+  S2["Creator 1회 폼 제출\n샘플 종류 선택 포함\n→ AT Applicants 생성\n→ Shopify Draft Order 생성\nWF: F0sv8RsCS1v56Gkw"]
+  S3["마케터 Airtable에서\nAccept or Decline 클릭\n(Human Action)"]
+  D["종료 (Declined)"]
+  A["✓ Accepted"]
+  NEW["자동: Draft Order 완료 처리\nAT poll 5분 → Accepted 감지\n→ PG에서 Draft Order ID 조회\n→ Shopify complete.json 호출\n→ AT Partnership Status: Order Placed\nWF: Ow5bD5keNf2HFo83 (신규)"]
+  S5["마케터 Sample Sent 클릭\n→ Draft Order 최종 완료\nWF: m89xU9RUbPgnkBy8"]
+  S6["배송 자동 추적\nWF: ufMPgU6cjwuzLM0y"]
+  S7["Apify 콘텐츠 감지\nWF: FzBJVEOTvr6qJPAL"]
 
   S0-->S1-->S2-->S3
   S3-->D
@@ -213,74 +239,105 @@ flowchart TD
   A-->NEW
   NEW-->S5-->S6-->S7
 
-  classDef active fill:#1a3a1a,stroke:#3fb950,color:#e6edf3
-  classDef inactive fill:#3a1a1a,stroke:#f85149,color:#8b949e,stroke-dasharray:4
-  classDef human fill:#1a2a3a,stroke:#58a6ff,color:#e6edf3
-  classDef newwf fill:#1a2800,stroke:#d29922,color:#ffa657
+  classDef normal fill:#f0fdf4,stroke:#86efac,color:#1f2328
+  classDef newwf fill:#fefce8,stroke:#fbbf24,color:#1f2328
+  classDef human fill:#eff6ff,stroke:#93c5fd,color:#1f2328
+  classDef end fill:#f9fafb,stroke:#d1d5db,color:#57606a
 
-  class S0,S1,S2,S5,S6,S7,A active
-  class D inactive
-  class S3 human
+  class S0,S1,S2,S5,S6,S7,A normal
   class NEW newwf
+  class S3 human
+  class D end
         </pre>
       </div>
-      <table class="wt">
-        <tr><th>WF</th><th>역할</th><th>상태</th></tr>
-        <tr><td>FzBJVEOTvr6qJPAL</td><td>Syncly</td><td class="on">ON</td></tr>
-        <tr><td>fwwOeLiDLSnR77E1</td><td>AI Email</td><td class="on">ON</td></tr>
-        <tr><td>F0sv8RsCS1v56Gkw</td><td>Gifting Form</td><td class="on">ON</td></tr>
-        <tr><td class="del">onIxBINIcTX1LxMH</td><td class="del">Sample Email</td><td class="off">OFF</td></tr>
-        <tr><td class="del">KqICsN9F1mPwnAQ9</td><td class="del">Gifting2</td><td class="off">OFF</td></tr>
-        <tr><td style="color:var(--yellow)">Ow5bD5keNf2HFo83</td><td><b>Accept→Complete</b></td><td class="new">OFF → ON 필요</td></tr>
-        <tr><td>m89xU9RUbPgnkBy8</td><td>Sample Sent</td><td class="on">ON</td></tr>
-        <tr><td>ufMPgU6cjwuzLM0y</td><td>Fulfillment</td><td class="on">ON</td></tr>
-      </table>
+
+      <div class="wf-list">
+        <div class="wf-card on">
+          <div class="wf-top"><span class="wf-id">FzBJVEOTvr6qJPAL</span><span class="badge-on">ON</span></div>
+          <div class="wf-name">Syncly Daily Metrics Sync</div>
+          <div class="wf-desc">Syncly에서 콘텐츠 메트릭 자동 수집. 동시에 <b>신규 Creator 발견</b> 역할도 겸함.</div>
+        </div>
+        <div class="wf-card on">
+          <div class="wf-top"><span class="wf-id">fwwOeLiDLSnR77E1</span><span class="badge-on">ON</span></div>
+          <div class="wf-name">Outreach — AI Email Draft</div>
+          <div class="wf-desc">Claude AI가 Creator 프로필 기반으로 <b>개인화 이메일 초안 자동 작성</b> → Gmail 발송.</div>
+        </div>
+        <div class="wf-card on">
+          <div class="wf-top"><span class="wf-id">F0sv8RsCS1v56Gkw</span><span class="badge-on">ON</span></div>
+          <div class="wf-name">Gifting Form → Draft Order</div>
+          <div class="wf-desc">Webhook 수신 → AT Applicants 레코드 생성 + <b>Shopify Draft Order 자동 생성</b>. 샘플 선택까지 이 1개 폼에서 완결.</div>
+        </div>
+        <div class="wf-card new-wf">
+          <div class="wf-top"><span class="wf-id">Ow5bD5keNf2HFo83</span><span class="badge-new">신규 — ON 전환 필요</span></div>
+          <div class="wf-name">Accept → Complete Draft Order</div>
+          <div class="wf-desc">마케터 Accept 감지 → <b>자동으로 Draft Order 완료 처리</b>. Creator가 추가 액션 불필요.</div>
+        </div>
+        <div class="wf-card on">
+          <div class="wf-top"><span class="wf-id">m89xU9RUbPgnkBy8</span><span class="badge-on">ON</span></div>
+          <div class="wf-name">Sample Sent → Complete</div>
+          <div class="wf-desc">마케터가 "Sample Sent" 상태로 변경 시 <b>Shopify Order 상태 업데이트</b> + AT 동기화.</div>
+        </div>
+        <div class="wf-card on">
+          <div class="wf-top"><span class="wf-id">ufMPgU6cjwuzLM0y</span><span class="badge-on">ON</span></div>
+          <div class="wf-name">Shopify Fulfillment → Airtable</div>
+          <div class="wf-desc">Shopify 배송 이벤트 → <b>AT Creator 상태 자동 업데이트</b> (Sample Shipped → Delivered).</div>
+        </div>
+      </div>
     </div>
   </div>
 
 </div>
 
-<!-- Changes detail -->
+<!-- Changes -->
 <div class="changes">
-  <h3>이번 세션 변경사항 상세</h3>
+  <h3>이번 세션 변경사항</h3>
 
   <div class="cr">
     <div class="ci ci-r">✕</div>
     <div class="cinfo">
-      <h4>onIxBINIcTX1LxMH 비활성화 — <code>Accepted Creator → Email Sample Form</code></h4>
-      <p>마케터 Accept 시 "Gifting2 폼 작성 요청" 이메일 자동 발송 WF.<br>1-폼 설계로 변경되면서 완전 불필요 → <b style="color:var(--red)">OFF</b>. (Before: ON)</p>
+      <h4>onIxBINIcTX1LxMH 비활성화 — "Accepted Creator → Email Sample Form"</h4>
+      <p>마케터가 Accept 클릭 시 Creator에게 <b>Gifting2 폼 작성 요청 이메일을 자동 발송</b>하던 WF.<br>
+      1-폼 설계로 전환 → Creator는 처음 신청폼 1번만 제출. 2차 폼 이메일 불필요 → <b style="color:#cf222e">비활성화</b>.</p>
     </div>
   </div>
 
   <div class="cr">
     <div class="ci ci-r">✕</div>
     <div class="cinfo">
-      <h4>KqICsN9F1mPwnAQ9 역할 제거 — <code>Gifting2 → Draft Order + Airtable</code></h4>
-      <p>Stage 2 Gifting Form에서 이미 sample selection + draft order 처리. 중복 Stage 제거.<br>이미 OFF 상태 (변경 없음이나 역할 명시적 폐기)</p>
+      <h4>KqICsN9F1mPwnAQ9 역할 폐기 — "Gifting2 → Draft Order + Airtable"</h4>
+      <p>Creator가 Gifting2 폼 제출 시 Draft Order를 완료하던 WF.<br>
+      Stage 2 (Gifting Form)에서 이미 <b>샘플 선택 + Draft Order 생성을 처리</b>하므로 완전 중복 → 역할 제거.<br>
+      이미 OFF 상태였음 (변경 없음, 명시적 폐기).</p>
     </div>
   </div>
 
   <div class="cr">
     <div class="ci ci-a">+</div>
     <div class="cinfo">
-      <h4>Ow5bD5keNf2HFo83 생성 — <code>Accept → Complete Draft Order</code></h4>
-      <p>Accepted AT poll → PG <code>onz_gifting_applications</code>에서 <code>shopify_draft_order_id</code> 조회<br>→ Shopify <code>complete.json</code> → AT <code>Partnership Status = "Order Placed"</code><br><b style="color:var(--yellow)">현재 OFF — 크리덴셜 설정 후 ON 전환 필요</b></p>
+      <h4>Ow5bD5keNf2HFo83 신규 생성 — "Accept → Complete Draft Order"</h4>
+      <p>5분 간격 AT poll → <code>Outreach Status="Accepted"</code> + <code>Partnership Status≠"Order Placed"</code> 탐지<br>
+      → PG <code>onz_gifting_applications</code>에서 <code>shopify_draft_order_id</code> 조회<br>
+      → Shopify <code>POST /draft_orders/{id}/complete.json</code> 호출<br>
+      → AT <code>Partnership Status = "Order Placed"</code> PATCH<br>
+      <b style="color:#9a6700">현재 OFF — n8n에서 크리덴셜 3개 연결 후 ON 전환 필요</b></p>
     </div>
   </div>
 
   <div class="cr">
     <div class="ci ci-f">✎</div>
     <div class="cinfo">
-      <h4>dual_test_runner.py — AT Conversations 422 수정</h4>
-      <p>AT <code>tblNeTyVwMomsfSk7</code>에 없는 필드 <code>Conversation Context</code>, <code>Status</code> 제거.<br>실제 필드: Message ID, Channel, Creator, Message Content, Direction, Created Date, Subject</p>
+      <h4>dual_test_runner.py — AT Conversations 422 오류 수정</h4>
+      <p>AT Conversations 테이블(<code>tblNeTyVwMomsfSk7</code>)에 없는 필드 <code>Conversation Context</code>, <code>Status</code> 사용 → 422 에러.<br>
+      실제 필드 7개: Message ID, Channel, Creator, Message Content, Direction, Created Date, Subject → 수정 완료.</p>
     </div>
   </div>
 
   <div class="cr">
     <div class="ci ci-f">✎</div>
     <div class="cinfo">
-      <h4>dual_test_runner.py — V-5 WF ID 수정</h4>
-      <p><code>_verify_sample_sent()</code>의 WF active 체크가 <code>gifting</code>(F0sv8RsCS1v56Gkw)를 참조.<br>→ <code>sample_complete</code>(m89xU9RUbPgnkBy8)로 수정.</p>
+      <h4>dual_test_runner.py — V-5 체크 WF ID 수정</h4>
+      <p><code>_verify_sample_sent()</code>에서 "Sample Complete WF active?" 체크가 Gifting WF ID(<code>F0sv8RsCS1v56Gkw</code>)를 참조하던 버그.<br>
+      올바른 WF ID <code>m89xU9RUbPgnkBy8</code>로 수정. (해당 WF는 정상 ON 상태)</p>
     </div>
   </div>
 
@@ -288,32 +345,38 @@ flowchart TD
     <div class="ci ci-f">✎</div>
     <div class="cinfo">
       <h4>Pipeline Dashboard — Overview Funnel 항상 표시</h4>
-      <p><code>dash-funnel</code>이 Dashboard 탭 진입 시에만 데이터 로드 → #config, #creators 진입 시 빈 상태.<br>→ <code>loadOverviewFunnel()</code> 독립 함수로 분리, <code>showDashboard()</code>에서 탭 무관하게 항상 실행.</p>
+      <p><code>dash-funnel</code> div가 Dashboard 탭 클릭 시에만 데이터 로드 → URL에 <code>#config</code>, <code>#creators</code> 해시가 붙으면 상단 펀넬이 빈 상태.<br>
+      <code>loadOverviewFunnel()</code> 독립 함수로 분리 → <code>showDashboard()</code> 진입 시 탭과 무관하게 항상 즉시 실행.</p>
     </div>
   </div>
 </div>
 
-<!-- Spec -->
+<!-- New WF Spec -->
 <div class="spec">
-  <h3>신규 WF 스펙 — Ow5bD5keNf2HFo83 Accept → Complete Draft Order</h3>
+  <h3>
+    <span style="background:#fefce8;border:1px solid #fbbf24;padding:2px 8px;border-radius:6px;font-size:11px;color:#9a6700">신규 WF</span>
+    Ow5bD5keNf2HFo83 — Accept → Complete Draft Order 상세 스펙
+  </h3>
   <div class="spec-grid">
     <div>
+      <div class="spec-lbl">목적</div>
+      <p>마케터가 Accept 클릭 후 <b>추가 액션 없이 자동으로 Shopify Draft Order가 완료</b>되도록. Creator도 추가 폼 제출 불필요.</p>
       <div class="spec-lbl">트리거</div>
-      <p>5분 간격 Schedule Trigger</p>
-      <div class="spec-lbl" style="margin-top:14px">조건</div>
-      <p>AT Creators where<br>
-        &nbsp;• Outreach Status = "Accepted"<br>
-        &nbsp;• Partnership Status ≠ "Order Placed"</p>
+      <p>5분 간격 Schedule Trigger (n8n cron)</p>
+      <div class="spec-lbl">감지 조건</div>
+      <p>AT Creators (app3Vnmh7hLAVsevE / tblv2Jw3ZAtAMhiYY)<br>
+      <code>Outreach Status = "Accepted"</code><br>
+      <code>Partnership Status ≠ "Order Placed"</code></p>
     </div>
     <div>
       <div class="spec-lbl">실행 단계</div>
-      <p>1. AT Creators 조회<br>
-         2. 이메일로 PG onz_gifting_applications 조회<br>
-         3. shopify_draft_order_id 확인<br>
-         4. POST /draft_orders/{id}/complete.json<br>
-         5. AT Partnership Status = "Order Placed" PATCH</p>
-      <div class="spec-lbl" style="margin-top:14px">활성화 전 필요</div>
-      <p>Airtable Pathlight + Orbitools Basic + Shopify Token 크리덴셜 연결</p>
+      <div class="step"><div class="step-num">1</div><div class="step-txt">AT Creators 조회 (HTTP GET)<br><small>filterByFormula로 조건 필터링</small></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-txt">Creator 이메일로 PG 조회<br><small>GET /api/onzenna/gifting/list/?email=X → shopify_draft_order_id 추출</small></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-txt">Draft Order ID 확인<br><small>없으면 Skip (No Draft Order 노드)</small></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-txt">Shopify Draft Order 완료<br><small>POST /admin/api/2023-10/draft_orders/{id}/complete.json</small></div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-txt">AT Partnership Status 업데이트<br><small>PATCH Creators → "Order Placed"</small></div></div>
+      <div class="spec-lbl">활성화 전 필요 작업</div>
+      <p>① Airtable Pathlight (HTTP Header: Authorization Bearer)<br>② Orbitools Basic Auth (admin/admin)<br>③ Shopify Admin API Token (X-Shopify-Access-Token)</p>
     </div>
   </div>
 </div>
@@ -321,16 +384,15 @@ flowchart TD
 <script>
 mermaid.initialize({
   startOnLoad: true,
-  theme: 'dark',
-  flowchart: { curve: 'basis', nodeSpacing: 28, rankSpacing: 36, useMaxWidth: true },
+  theme: 'default',
+  flowchart: { curve: 'basis', nodeSpacing: 30, rankSpacing: 40, useMaxWidth: true, htmlLabels: false },
   themeVariables: {
-    background: '#0d1117',
-    primaryColor: '#1a3a1a',
-    primaryTextColor: '#e6edf3',
-    primaryBorderColor: '#3fb950',
-    lineColor: '#8b949e',
-    secondaryColor: '#1a2a3a',
-    tertiaryColor: '#2a1c1c',
+    primaryColor: '#f0fdf4',
+    primaryTextColor: '#1f2328',
+    primaryBorderColor: '#86efac',
+    lineColor: '#94a3b8',
+    secondaryColor: '#eff6ff',
+    tertiaryColor: '#fef9c3',
     fontSize: '11px'
   }
 });
