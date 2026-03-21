@@ -1069,7 +1069,9 @@ async function apiFetch(path,opts){
   opts.headers=opts.headers||{};
   opts.headers['Authorization']='Basic '+btoa('admin:admin');
   if(opts.body){opts.headers['Content-Type']='application/json'}
-  if(DEMO_MODE){
+  // Email config endpoints always go live (never DEMO)
+  var isEmailCfg=path.indexOf('/pipeline/email-config/')>=0||path.indexOf('/pipeline/faq/')>=0||path.indexOf('/pipeline/reply-log/')>=0;
+  if(DEMO_MODE&&!isEmailCfg){
     if(opts.method==='POST'||opts.method==='PUT'){showToast('Demo mode: action simulated','ok');return{ok:true}}
     return demoResponse(path);
   }
