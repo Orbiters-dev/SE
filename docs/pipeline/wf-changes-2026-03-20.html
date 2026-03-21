@@ -10,7 +10,7 @@ header{background:#fff;border:1px solid #d0d7de;border-radius:10px;padding:18px 
 header h1{font-size:16px;font-weight:700}
 header p{font-size:11px;color:#57606a;margin-top:3px}
 code{background:#f0f2f4;padding:1px 6px;border-radius:5px;font-family:monospace;color:#cf222e;font-size:11px}
-.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
 .scard{background:#fff;border:1px solid #d0d7de;border-radius:8px;padding:14px 16px}
 .scard .lbl{font-size:11px;color:#57606a;margin-bottom:4px}
 .scard .val{font-size:24px;font-weight:700}
@@ -30,6 +30,7 @@ code{background:#f0f2f4;padding:1px 6px;border-radius:5px;font-family:monospace;
 .wf-card.wf-warn{border-left:3px solid #9a6700;background:#fffbec}
 .wf-card.wf-off{border-left:3px solid #cf222e;background:#fff8f8;opacity:.7}
 .wf-card.wf-new{border-left:3px solid #9a6700;background:#fffbec}
+.wf-card.wf-plan{border-left:3px solid #8250df;background:#faf5ff}
 .wf-top{display:flex;align-items:center;gap:6px;margin-bottom:4px}
 .wf-id{font-family:monospace;font-size:10px;color:#57606a;background:#f0f2f4;padding:1px 5px;border-radius:4px}
 .wf-name{font-size:12px;font-weight:600;margin-bottom:3px}
@@ -38,6 +39,7 @@ code{background:#f0f2f4;padding:1px 6px;border-radius:5px;font-family:monospace;
 .bon{background:#dcfce7;color:#166534;border:1px solid #86efac;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600}
 .boff{background:#ffebe9;color:#b91c1c;border:1px solid #ffb8b0;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600}
 .bnew{background:#fff8dc;color:#9a6700;border:1px solid #f5c842;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600}
+.bplan{background:#f3e8ff;color:#6b21a8;border:1px solid #c4b5fd;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600}
 .gap-box{background:#fffbec;border:1px solid #f5c842;border-radius:8px;padding:10px 13px;margin-bottom:12px}
 .gap-box .gt{font-weight:700;color:#9a6700;font-size:12px;margin-bottom:4px}
 .gap-box p{font-size:11px;color:#855800;line-height:1.5}
@@ -49,9 +51,10 @@ code{background:#f0f2f4;padding:1px 6px;border-radius:5px;font-family:monospace;
 .ci-r{background:#ffebe9;color:#b91c1c}
 .ci-a{background:#dcfce7;color:#1a7f37}
 .ci-f{background:#ddf4ff;color:#0550ae}
+.ci-p{background:#f3e8ff;color:#6b21a8}
 .cinfo h4{font-size:12px;font-weight:600;margin-bottom:3px}
 .cinfo p{font-size:11px;color:#57606a;line-height:1.55}
-.spec{background:#fff;border:1px solid #d0d7de;border-radius:10px;padding:18px 20px}
+.spec{background:#fff;border:1px solid #d0d7de;border-radius:10px;padding:18px 20px;margin-bottom:18px}
 .spec h3{font-size:13px;font-weight:700;margin-bottom:14px}
 .spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .spec-lbl{font-size:10px;font-weight:600;color:#57606a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;margin-top:12px}
@@ -59,8 +62,10 @@ code{background:#f0f2f4;padding:1px 6px;border-radius:5px;font-family:monospace;
 .spec p{font-size:12px;line-height:1.8}
 .step{display:flex;gap:8px;margin-bottom:5px;font-size:12px}
 .step-num{width:20px;height:20px;background:#0550ae;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.step-num.purple{background:#8250df}
 .step-txt{line-height:1.4;padding-top:2px}
 .step-txt small{color:#57606a;display:block;font-size:10px}
+.divider{border:none;border-top:1px solid #e8ecf0;margin:16px 0}
 </style>
 </head>
 <body>
@@ -68,16 +73,17 @@ code{background:#f0f2f4;padding:1px 6px;border-radius:5px;font-family:monospace;
 <header>
   <div>
     <h1>Pipeline n8n 워크플로우 — 변경 비교 리포트</h1>
-    <p>기준 커밋: <code>2cbfa1d</code> &nbsp;|&nbsp; KST 2026-03-20 18:44 &nbsp;|&nbsp; 생성: KST 2026-03-21</p>
+    <p>기준 커밋: <code>2cbfa1d</code> &nbsp;|&nbsp; KST 2026-03-20 18:44 &nbsp;|&nbsp; 최종 업데이트: KST 2026-03-21</p>
   </div>
-  <div style="font-size:11px;color:#57606a;text-align:right">1-폼 파이프라인 전환<br><b style="color:#1a7f37">핵심: Gifting2 폼 제거</b></div>
+  <div style="font-size:11px;color:#57606a;text-align:right">1-폼 파이프라인 전환 + Email Config PG 마이그레이션<br><b style="color:#1a7f37">Gifting2 폼 제거</b> &nbsp; <b style="color:#8250df">Reply Config to PG</b></div>
 </header>
 
 <div class="summary">
   <div class="scard"><div class="lbl">비활성화 WF</div><div class="val" style="color:#cf222e">1</div></div>
   <div class="scard"><div class="lbl">신규 생성 WF</div><div class="val" style="color:#9a6700">1</div></div>
-  <div class="scard"><div class="lbl">유지 WF</div><div class="val" style="color:#1a7f37">5</div></div>
+  <div class="scard"><div class="lbl">유지 WF</div><div class="val" style="color:#1a7f37">8</div></div>
   <div class="scard"><div class="lbl">폼 제출 횟수</div><div class="val" style="color:#0550ae">2 to 1</div></div>
+  <div class="scard"><div class="lbl">Config PG 이전</div><div class="val" style="color:#8250df">3 모델</div></div>
 </div>
 
 <div class="cols">
@@ -91,6 +97,27 @@ code{background:#f0f2f4;padding:1px 6px;border-radius:5px;font-family:monospace;
     <div class="col-body">
       <div class="chart-wrap" id="chart-before"></div>
       <div class="wf-list">
+        <div class="wf-card wf-on">
+          <div class="wf-top"><span class="wf-id">FzBJVEOTvr6qJPAL</span><span class="bon">ON</span></div>
+          <div class="wf-name">Syncly Daily Metrics Sync</div>
+          <div class="wf-desc">Syncly 콘텐츠 메트릭 수집. <b>신규 Creator 발견시 AT CRM 레코드 자동 생성.</b></div>
+        </div>
+        <div class="wf-card wf-on">
+          <div class="wf-top"><span class="wf-id">fwwOeLiDLSnR77E1</span><span class="bon">ON</span></div>
+          <div class="wf-name">Outreach AI Email Draft</div>
+          <div class="wf-desc">30분 poll. Claude AI가 Creator 프로필 기반 <b>개인화 이메일 초안 작성</b>. LT=자동승인, HT=수동승인.</div>
+        </div>
+        <div class="wf-card wf-on">
+          <div class="wf-top"><span class="wf-id">jf9uxkPww2xeCr82</span><span class="bon">ON</span></div>
+          <div class="wf-name">Outreach Approval Send</div>
+          <div class="wf-desc">1분 poll. Draft Ready + Approved 이메일을 <b>affiliates@onzenna.com에서 Gmail 발송</b>.</div>
+        </div>
+        <div class="wf-card wf-on">
+          <div class="wf-top"><span class="wf-id">K99grtW9iWq8V79f</span><span class="bon">ON</span></div>
+          <div class="wf-name">Reply Handler (Auto-Reply)</div>
+          <div class="wf-desc">1분 poll. Gmail 리플라이 감지. <b>Claude AI가 Accept/FAQ/Normal 분류</b>. LT=자동응답, HT=수동리뷰.
+          <br><span style="color:#cf222e;font-weight:600">문제: 분류 프롬프트, 템플릿, FAQ 전부 n8n 하드코딩</span></div>
+        </div>
         <div class="wf-card wf-on">
           <div class="wf-top"><span class="wf-id">F0sv8RsCS1v56Gkw</span><span class="bon">ON</span></div>
           <div class="wf-name">Gifting Form to Draft Order</div>
@@ -106,6 +133,16 @@ code{background:#f0f2f4;padding:1px 6px;border-radius:5px;font-family:monospace;
           <div class="wf-name">Gifting2 Form to Draft Order</div>
           <div class="wf-desc">Creator Gifting2 폼 제출시 Draft Order 완료 + AT 업데이트. <b>꺼져 있어서 이메일 받아도 폼 처리 안됨.</b></div>
         </div>
+        <div class="wf-card wf-on">
+          <div class="wf-top"><span class="wf-id">m89xU9RUbPgnkBy8</span><span class="bon">ON</span></div>
+          <div class="wf-name">Sample Sent to Complete</div>
+          <div class="wf-desc">5분 poll. 마케터 Sample Sent 클릭시 <b>Shopify Draft Order 자동 완료</b>. 완전 자동 (Human-in-Loop 아님).</div>
+        </div>
+        <div class="wf-card wf-on">
+          <div class="wf-top"><span class="wf-id">ufMPgU6cjwuzLM0y</span><span class="bon">ON</span></div>
+          <div class="wf-name">Shopify Fulfillment to Airtable</div>
+          <div class="wf-desc">Shopify 배송 이벤트 감지 - <b>AT 상태 자동 업데이트</b> (Shipped to Delivered) + 가이드라인 이메일 발송.</div>
+        </div>
       </div>
     </div>
   </div>
@@ -118,11 +155,16 @@ code{background:#f0f2f4;padding:1px 6px;border-radius:5px;font-family:monospace;
     </div>
     <div class="col-body">
       <div class="gap-box">
-        <div class="gt">Accept 이후 GAP 존재</div>
-        <p>이메일 WF OFF - 이메일 안감.<br>Gifting2 WF OFF - 폼도 없음.<br>신규 WF OFF - Accept 후 자동화 없음.</p>
+        <div class="gt">Accept 이후 GAP + Reply Config 하드코딩</div>
+        <p>이메일 WF OFF - 이메일 안감.<br>Gifting2 WF OFF - 폼도 없음.<br>신규 WF OFF - Accept 후 자동화 없음.<br>Reply Handler config - n8n 하드코딩 (웹 수정 불가).</p>
       </div>
       <div class="chart-wrap" id="chart-after"></div>
       <div class="wf-list">
+        <div class="wf-card wf-on">
+          <div class="wf-top"><span class="wf-id">K99grtW9iWq8V79f</span><span class="bon">ON</span></div>
+          <div class="wf-name">Reply Handler (Auto-Reply)</div>
+          <div class="wf-desc">동작 중이나 <b style="color:#cf222e">분류 프롬프트, 응답 템플릿, FAQ 전부 n8n Code 노드 하드코딩</b>. 웹에서 수정 불가.</div>
+        </div>
         <div class="wf-card wf-off">
           <div class="wf-top"><span class="wf-id">onIxBINIcTX1LxMH</span><span class="boff">OFF 비활성화</span></div>
           <div class="wf-name" style="text-decoration:line-through">Accepted to Email Sample Form</div>
@@ -146,40 +188,55 @@ code{background:#f0f2f4;padding:1px 6px;border-radius:5px;font-family:monospace;
   <div class="col">
     <div class="col-h">
       <span class="badge b-intent">INTENDED (목표)</span>
-      <h2>1-폼 파이프라인 완성</h2>
+      <h2>1-폼 파이프라인 + Config PG 이전</h2>
     </div>
     <div class="col-body">
       <div class="chart-wrap" id="chart-intent"></div>
       <div class="wf-list">
         <div class="wf-card wf-on">
           <div class="wf-top"><span class="wf-id">FzBJVEOTvr6qJPAL</span><span class="bon">ON</span></div>
-          <div class="wf-name">Syncly Daily Metrics Sync</div>
-          <div class="wf-desc">Syncly 콘텐츠 메트릭 자동 수집. <b>신규 Creator 발견</b> - AT CRM 레코드 자동 생성.</div>
+          <div class="wf-name">Stage 0: Syncly Daily Metrics</div>
+          <div class="wf-desc">Syncly 콘텐츠 메트릭 자동 수집. <b>신규 Creator 발견시 AT CRM 레코드 자동 생성.</b></div>
         </div>
         <div class="wf-card wf-on">
           <div class="wf-top"><span class="wf-id">fwwOeLiDLSnR77E1</span><span class="bon">ON</span></div>
-          <div class="wf-name">Outreach AI Email Draft</div>
-          <div class="wf-desc">Claude AI가 Creator 프로필 기반 <b>개인화 이메일 초안</b> 자동 작성 - Gmail 발송.</div>
+          <div class="wf-name">Stage 1a: AI Email Draft Generation</div>
+          <div class="wf-desc">30분 poll. Claude AI가 Creator 프로필 기반 <b>개인화 이메일 초안 작성</b>. LT=자동승인, HT=수동승인. Config Dashboard에서 모드 전환.</div>
+        </div>
+        <div class="wf-card wf-on">
+          <div class="wf-top"><span class="wf-id">jf9uxkPww2xeCr82</span><span class="bon">ON</span></div>
+          <div class="wf-name">Stage 1b: Approval Send</div>
+          <div class="wf-desc">1분 poll. Draft Ready + Approved 이메일을 <b>affiliates@onzenna.com에서 Gmail 발송</b>.</div>
+        </div>
+        <div class="wf-card wf-plan">
+          <div class="wf-top"><span class="wf-id">K99grtW9iWq8V79f</span><span class="bplan">CONFIG 이전 예정</span></div>
+          <div class="wf-name">Stage 1c: Reply Handler (Auto-Reply)</div>
+          <div class="wf-desc">1분 poll. Gmail 리플라이 분류 (Accept/FAQ/Normal).
+          <br><b style="color:#8250df">PLAN: n8n 하드코딩 to PG API</b>
+          <br>- 분류 프롬프트: <code>GET /email-config/brand/</code>
+          <br>- 응답 템플릿: PG <code>onz_email_reply_config</code>
+          <br>- FAQ 지식베이스: PG <code>onz_faq_entries</code>
+          <br>- 감사 로그: PG <code>onz_email_reply_log</code></div>
         </div>
         <div class="wf-card wf-on">
           <div class="wf-top"><span class="wf-id">F0sv8RsCS1v56Gkw</span><span class="bon">ON</span></div>
-          <div class="wf-name">Gifting Form to Draft Order</div>
+          <div class="wf-name">Stage 2: Gifting Form to Draft Order</div>
           <div class="wf-desc">Webhook 수신 - <b>Shopify 고객 생성 + Draft Order 자동 생성</b>. 샘플 선택까지 1개 폼에서 완결.</div>
         </div>
         <div class="wf-card wf-new">
           <div class="wf-top"><span class="wf-id">Ow5bD5keNf2HFo83</span><span class="bnew">신규 ON 전환 필요</span></div>
-          <div class="wf-name">Accept to Complete Draft Order</div>
-          <div class="wf-desc">마케터 Accept 감지 - <b>Draft Order 자동 완료 처리</b>. Creator 추가 액션 불필요.</div>
+          <div class="wf-name">Stage 4: Accept to Complete Draft Order</div>
+          <div class="wf-desc">5분 poll. 마케터 Accept 감지 - <b>PG에서 Draft Order ID 조회 - Shopify complete.json 호출</b>. Creator 추가 액션 불필요.</div>
         </div>
         <div class="wf-card wf-on">
           <div class="wf-top"><span class="wf-id">m89xU9RUbPgnkBy8</span><span class="bon">ON</span></div>
-          <div class="wf-name">Sample Sent to Complete</div>
-          <div class="wf-desc">마케터 Sample Sent 클릭 - <b>Shopify Order 상태 업데이트</b> + AT 동기화.</div>
+          <div class="wf-name">Stage 5: Sample Sent (자동)</div>
+          <div class="wf-desc">5분 poll. 마케터 Sample Sent 클릭 - <b>Shopify Order 상태 자동 업데이트</b>. 완전 자동화 (Human-in-Loop 아님), 웹에 즉시 반영.</div>
         </div>
         <div class="wf-card wf-on">
           <div class="wf-top"><span class="wf-id">ufMPgU6cjwuzLM0y</span><span class="bon">ON</span></div>
-          <div class="wf-name">Shopify Fulfillment to Airtable</div>
-          <div class="wf-desc">Shopify 배송 이벤트 - <b>AT 상태 자동 업데이트</b> (Shipped to Delivered).</div>
+          <div class="wf-name">Stage 6: Fulfillment to Delivered</div>
+          <div class="wf-desc">Shopify 배송 이벤트 감지 - <b>AT 상태 자동 업데이트</b> (Shipped to Delivered) + 가이드라인 이메일.</div>
         </div>
       </div>
     </div>
@@ -189,7 +246,7 @@ code{background:#f0f2f4;padding:1px 6px;border-radius:5px;font-family:monospace;
 
 <!-- Changes -->
 <div class="changes">
-  <h3>이번 세션 변경사항</h3>
+  <h3>변경사항 (완료 + 계획)</h3>
   <div class="cr">
     <div class="ci ci-r">X</div>
     <div class="cinfo">
@@ -215,6 +272,20 @@ code{background:#f0f2f4;padding:1px 6px;border-radius:5px;font-family:monospace;
       <b style="color:#9a6700">현재 OFF - 크리덴셜 3개 연결 후 ON 전환 필요</b></p>
     </div>
   </div>
+  <hr class="divider">
+  <div class="cr">
+    <div class="ci ci-p">P</div>
+    <div class="cinfo">
+      <h4>EmailReplyConfig PG 마이그레이션 (계획)</h4>
+      <p>Reply Handler <code>K99grtW9iWq8V79f</code>의 하드코딩 config를 Django PG로 이전:<br>
+      - <b>분류 프롬프트</b>: Claude system prompt (Accept/FAQ/Normal 판단)<br>
+      - <b>응답 템플릿</b>: intent별 응답 내용 (gifting form 링크, FAQ 답변 등)<br>
+      - <b>Auto-send 룰</b>: LT 자동발송 / HT 승인대기<br>
+      - <b>FAQ 지식베이스</b>: Q&A 데이터<br>
+      n8n이 <code>GET /api/onzenna/pipeline/email-config/brand/</code> 1회 호출로 전부 가져감.
+      <br><b style="color:#8250df">새 테이블 3개: onz_email_reply_config, onz_faq_entries, onz_email_reply_log</b></p>
+    </div>
+  </div>
   <div class="cr">
     <div class="ci ci-f">!</div>
     <div class="cinfo">
@@ -238,7 +309,7 @@ code{background:#f0f2f4;padding:1px 6px;border-radius:5px;font-family:monospace;
   </div>
 </div>
 
-<!-- Spec -->
+<!-- Spec: Accept WF -->
 <div class="spec">
   <h3>신규 WF Ow5bD5keNf2HFo83 - Accept to Complete Draft Order 스펙</h3>
   <div class="spec-grid">
@@ -265,6 +336,69 @@ code{background:#f0f2f4;padding:1px 6px;border-radius:5px;font-family:monospace;
   </div>
 </div>
 
+<!-- Spec: Email Config Migration -->
+<div class="spec" style="border-color:#c4b5fd">
+  <h3 style="color:#6b21a8">Email Reply Config PG 마이그레이션 스펙 (계획)</h3>
+  <div class="spec-grid">
+    <div>
+      <div class="spec-lbl">현재 문제</div>
+      <p>Reply Handler <code>K99grtW9iWq8V79f</code>의 분류 프롬프트, 응답 템플릿, FAQ가 전부 <b>n8n Code 노드에 하드코딩</b>.<br>웹 대시보드에서 수정 불가. 브랜드별 커스터마이징 어려움.</p>
+      <div class="spec-lbl">해결 방안</div>
+      <p>Django PG 모델 + REST API 생성.<br>n8n이 HTTP GET 1회로 config 전부 가져감.<br>웹 대시보드/Django Admin에서 실시간 수정 가능.</p>
+      <div class="spec-lbl">새 Django 모델</div>
+      <p><code>onz_email_reply_config</code> — 브랜드별 분류 프롬프트, 템플릿, auto-send 룰<br>
+      <code>onz_faq_entries</code> — FAQ 지식베이스 (질문, 답변, 키워드, 카테고리)<br>
+      <code>onz_email_reply_log</code> — 감사 로그 (intent, 자동발송 여부, config 버전)</p>
+    </div>
+    <div>
+      <div class="spec-lbl">n8n 변경 단계</div>
+      <div class="step"><div class="step-num purple">1</div><div class="step-txt">HTTP GET 노드 추가<br><small>GET /api/onzenna/pipeline/email-config/brand/</small></div></div>
+      <div class="step"><div class="step-num purple">2</div><div class="step-txt">Claude AI 노드 수정<br><small>하드코딩 프롬프트 to config.classification.prompt</small></div></div>
+      <div class="step"><div class="step-num purple">3</div><div class="step-txt">Switch 노드 수정<br><small>하드코딩 LT/HT to config.auto_send</small></div></div>
+      <div class="step"><div class="step-num purple">4</div><div class="step-txt">템플릿 노드 수정<br><small>하드코딩 to config.templates[intent]</small></div></div>
+      <div class="step"><div class="step-num purple">5</div><div class="step-txt">POST reply-log 추가<br><small>감사 로그 기록</small></div></div>
+      <div class="spec-lbl">API 응답 예시</div>
+      <p style="font-family:monospace;font-size:10px;background:#f6f8fa;padding:8px;border-radius:6px;line-height:1.6">
+      GET /email-config/grosmimi/<br>
+      { classification: { prompt, model },<br>
+      &nbsp; auto_send: { lt: true, ht: false },<br>
+      &nbsp; templates: { accept, faq_gap, normal },<br>
+      &nbsp; faq_entries: [...], version: 3 }</p>
+    </div>
+  </div>
+</div>
+
+<!-- Email Pipeline Detail -->
+<div class="spec">
+  <h3>Email Outreach 파이프라인 전체 구조 (Stage 1a/1b/1c)</h3>
+  <div class="spec-grid">
+    <div>
+      <div class="spec-lbl">Stage 1a: Draft Generation</div>
+      <p><code>fwwOeLiDLSnR77E1</code> — 42 nodes, 30분 poll<br>
+      AT Creators (Status=Not Started, Partnership=New) 조회<br>
+      Claude AI 개인화 이메일 초안 작성<br>
+      <b>LT 모드</b>: 자동 승인 to Draft Ready<br>
+      <b>HT 모드</b>: 수동 승인 대기</p>
+      <div class="spec-lbl">Stage 1b: Approval Send</div>
+      <p><code>jf9uxkPww2xeCr82</code> — 17 nodes, 1분 poll<br>
+      Draft Ready + Approved 이메일 Gmail 발송<br>
+      sender: <code>affiliates@onzenna.com</code></p>
+    </div>
+    <div>
+      <div class="spec-lbl">Stage 1c: Reply Handler</div>
+      <p><code>K99grtW9iWq8V79f</code> — 48 nodes, 1분 poll<br>
+      Gmail 쓰레드 새 리플라이 감지<br>
+      Claude AI 분류: Accept / FAQ_Gap / Normal<br>
+      <b>LT</b>: 자동응답 (gifting form 링크, FAQ 답변)<br>
+      <b>HT</b>: Needs Review (수동 승인 후 발송)</p>
+      <div class="spec-lbl">Config 저장 위치 (현재 vs 목표)</div>
+      <p>현재: n8n Code 노드 하드코딩<br>
+      <b style="color:#8250df">목표: PG onz_email_reply_config + onz_faq_entries</b><br>
+      n8n HTTP GET 1회로 전체 config 로딩</p>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
 
@@ -276,74 +410,87 @@ mermaid.initialize({
 
 const diagrams = {
   'chart-before': `flowchart TD
-  S0["Syncly 신규 인플루언서 발견
-  AT CRM Creator 레코드 자동 생성"]
-  S1["AI 이메일 초안 작성
-  Gmail 첫 연락 발송"]
-  S2["Creator 기프팅 신청폼 제출
+  S0["Stage 0: Syncly 신규 인플루언서 발견
+  AT CRM Creator 레코드 자동 생성
+  WF: FzBJVEOTvr6qJPAL"]
+  S1a["Stage 1a: AI 이메일 초안 작성
+  Claude 개인화 이메일 생성
+  LT=자동승인 HT=수동승인
+  WF: fwwOeLiDLSnR77E1"]
+  S1b["Stage 1b: 승인 이메일 발송
+  affiliates@onzenna.com
+  WF: jf9uxkPww2xeCr82"]
+  S1c["Stage 1c: Reply Handler
+  Gmail 리플라이 분류
+  Accept / FAQ / Normal
+  n8n 하드코딩 config
+  WF: K99grtW9iWq8V79f"]
+  S2["Stage 2: 기프팅 신청폼 1회 제출
   샘플 종류 이 폼에서 선택
   Shopify 고객 + Draft Order 생성
   WF: F0sv8RsCS1v56Gkw"]
-  S3["마케터 Airtable에서
+  S3["Stage 3: 마케터 AT에서
   Accept or Decline 수동 클릭"]
   D(["종료 Declined"])
   A(["Accepted"])
-  S35["이메일 자동 발송
+  S35["Stage 3.5: 이메일 자동 발송
   Gifting2 폼 링크 포함
   WF: onIxBINIcTX1LxMH ON"]
-  S4["Creator Gifting2 폼 제출
+  S4["Stage 4: Creator Gifting2 폼 제출
   Draft Order 완료 처리
-  WF: KqICsN9F1mPwnAQ9 OFF
-  폼 제출해도 아무것도 안됨"]
-  S5["마케터 Sample Sent 클릭
-  Shopify Draft Order 완료
+  WF: KqICsN9F1mPwnAQ9 OFF"]
+  S5["Stage 5: 마케터 Sample Sent
+  Shopify Draft Order 자동 완료
+  5분 poll 완전 자동
   WF: m89xU9RUbPgnkBy8"]
-  S6["배송 추적 자동화
+  S6["Stage 6: 배송 추적 자동화
   WF: ufMPgU6cjwuzLM0y"]
-  S7["Apify 콘텐츠 포스팅 감지
-  WF: FzBJVEOTvr6qJPAL"]
 
-  S0 --> S1 --> S2 --> S3
+  S0 --> S1a --> S1b --> S1c
+  S1c --> S2 --> S3
   S3 --> D
   S3 --> A
   A --> S35
   S35 --> S4
-  S4 --> S5 --> S6 --> S7
+  S4 --> S5 --> S6
 
   style S35 fill:#fef9c3,stroke:#fbbf24
   style S4 fill:#fef2f2,stroke:#fca5a5,stroke-dasharray:5 5
+  style S1c fill:#fef2f2,stroke:#fca5a5
   style S3 fill:#eff6ff,stroke:#93c5fd
   style D fill:#f9fafb,stroke:#d1d5db`,
 
   'chart-after': `flowchart TD
-  S0["Syncly 신규 인플루언서 발견
-  AT CRM Creator 레코드 생성"]
-  S1["AI 이메일 초안
-  Gmail 첫 연락"]
-  S2["Creator 기프팅 신청폼 1회 제출
+  S0["Syncly 발견
+  AT Creator 생성"]
+  S1a["AI 이메일 초안"]
+  S1b["승인 발송"]
+  S1c["Reply Handler
+  n8n 하드코딩 config"]
+  S2["기프팅 폼 1회
   샘플 선택 포함
-  Shopify 고객 + Draft Order 생성"]
-  S3["마케터 Airtable
-  Accept or Decline"]
+  Shopify Draft Order"]
+  S3["마케터 Accept/Decline"]
   D(["종료"])
   A(["Accepted"])
   GAP["GAP: 아무것도 자동으로 안됨
   이메일 WF OFF
   Gifting2 WF OFF
-  신규 WF OFF"]
-  S5["마케터 Sample Sent 클릭
-  Draft Order 완료"]
+  신규 WF OFF 크리덴셜 미연결"]
+  S5["마케터 Sample Sent
+  Draft Order 자동 완료"]
   S6["배송 자동 추적"]
-  S7["콘텐츠 포스팅 자동 감지"]
 
-  S0 --> S1 --> S2 --> S3
+  S0 --> S1a --> S1b --> S1c
+  S1c --> S2 --> S3
   S3 --> D
   S3 --> A
   A --> GAP
   GAP -.-> |수동 처리 필요| S5
-  S5 --> S6 --> S7
+  S5 --> S6
 
   style GAP fill:#fef9c3,stroke:#fbbf24,stroke-dasharray:6 3
+  style S1c fill:#fef2f2,stroke:#fca5a5
   style S3 fill:#eff6ff,stroke:#93c5fd
   style D fill:#f9fafb,stroke:#d1d5db`,
 
@@ -351,38 +498,53 @@ const diagrams = {
   S0["Stage 0: Syncly 자동 발견
   AT Creator 레코드 생성
   WF: FzBJVEOTvr6qJPAL"]
-  S1["Stage 1: AI 이메일 초안
-  Gmail 발송
+  S1a["Stage 1a: AI 이메일 초안
+  Claude 개인화 이메일
   WF: fwwOeLiDLSnR77E1"]
-  S2["Stage 2: Creator 폼 1회 제출
-  샘플 종류 선택 포함
-  Shopify 고객 + Draft Order 생성
+  S1b["Stage 1b: 승인 이메일 발송
+  affiliates@onzenna.com
+  WF: jf9uxkPww2xeCr82"]
+  S1c["Stage 1c: Reply Handler
+  Gmail 리플라이 분류
+  Config: PG API에서 로딩
+  WF: K99grtW9iWq8V79f"]
+  PG[("PG: onz_email_reply_config
+  분류 프롬프트 + 템플릿
+  FAQ + Auto-send 룰
+  웹에서 수정 가능")]
+  S2["Stage 2: 기프팅 폼 1회
+  샘플 선택 포함
+  Shopify Draft Order 생성
   WF: F0sv8RsCS1v56Gkw"]
-  S3["Stage 3: 마케터 Airtable
-  Accept or Decline 클릭
+  S3["Stage 3: 마케터 AT
+  Accept / Decline
   Human Action"]
   D(["종료 Declined"])
   A(["Accepted"])
-  NEW["NEW: Accept 감지 5분 poll
+  NEW["Stage 4: Accept 감지 5분 poll
   PG Draft Order ID 조회
-  Shopify complete.json 호출
+  Shopify complete.json
   AT Partnership Status 업데이트
   WF: Ow5bD5keNf2HFo83"]
   S5["Stage 5: 마케터 Sample Sent
-  Order 상태 업데이트
+  Order 상태 자동 업데이트
+  5분 poll 완전 자동
   WF: m89xU9RUbPgnkBy8"]
   S6["Stage 6: 배송 자동 추적
+  가이드라인 이메일 발송
   WF: ufMPgU6cjwuzLM0y"]
-  S7["Stage 7: Apify 콘텐츠 감지
-  WF: FzBJVEOTvr6qJPAL"]
 
-  S0 --> S1 --> S2 --> S3
+  S0 --> S1a --> S1b --> S1c
+  PG -.-> |HTTP GET 1회| S1c
+  S1c --> S2 --> S3
   S3 --> D
   S3 --> A
   A --> NEW
-  NEW --> S5 --> S6 --> S7
+  NEW --> S5 --> S6
 
   style NEW fill:#fefce8,stroke:#fbbf24
+  style S1c fill:#f3e8ff,stroke:#c4b5fd
+  style PG fill:#f3e8ff,stroke:#8250df,stroke-dasharray:4 2
   style S3 fill:#eff6ff,stroke:#93c5fd
   style D fill:#f9fafb,stroke:#d1d5db`
 };
