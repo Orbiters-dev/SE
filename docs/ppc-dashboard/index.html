@@ -902,17 +902,25 @@ function renderCfgBrandPanel(bk) {
       +'</div>';
   }).join('');
 
+  // SAFEGUARD: Grosmimi can never be set to auto-execute
+  var isGrosmimi = (bk === 'grosmimi');
   var autopilotHtml = TIER_DEFS.map(function(t){
     var saved = getCfgVal(bk, 'autopilot_'+t.key, t.def);
-    return '<div style="background:'+t.bg+';border:1px solid '+t.color+';border-radius:8px;padding:10px;text-align:center">'
+    if (isGrosmimi && saved === 'auto') { saved = 'approve'; setCfgVal(bk, 'autopilot_'+t.key, 'approve'); }
+    var locked = isGrosmimi;
+    return '<div style="background:'+t.bg+';border:1px solid '+t.color+';border-radius:8px;padding:10px;text-align:center'+(locked?';opacity:0.7':'')+'">'
       +'<div style="font-size:9px;font-weight:700;text-transform:uppercase;color:'+t.color+';margin-bottom:3px">'+t.label+'</div>'
       +'<div style="font-size:9px;color:var(--dim);margin-bottom:5px">'+t.desc+'</div>'
-      +'<select id="ap-'+bk+'-'+t.key+'" onchange="setCfgVal(\''+bk+'\',\'autopilot_'+t.key+'\',this.value)"'
-      +' style="width:100%;padding:4px;border:1px solid '+t.color+';border-radius:4px;font-size:10px;font-weight:700;color:'+t.color+';background:'+t.bg+'">'
-      +'<option value="auto"'+(saved==='auto'?' selected':'')+'>🟢 AUTO-EXECUTE</option>'
-      +'<option value="approve"'+(saved==='approve'?' selected':'')+'>🟡 Require Approval</option>'
-      +'<option value="off"'+(saved==='off'?' selected':'')+'>🔴 Disabled</option>'
-      +'</select></div>';
+      +(locked
+        ? '<div style="width:100%;padding:4px;border:1px solid '+t.color+';border-radius:4px;font-size:10px;font-weight:700;color:'+t.color+';background:'+t.bg+';text-align:center">'
+          +'🔒 '+(saved==='approve'?'🟡 Require Approval':'🔴 Disabled')+'</div>'
+        : '<select id="ap-'+bk+'-'+t.key+'" onchange="setCfgVal(\''+bk+'\',\'autopilot_'+t.key+'\',this.value)"'
+          +' style="width:100%;padding:4px;border:1px solid '+t.color+';border-radius:4px;font-size:10px;font-weight:700;color:'+t.color+';background:'+t.bg+'">'
+          +'<option value="auto"'+(saved==='auto'?' selected':'')+'>🟢 AUTO-EXECUTE</option>'
+          +'<option value="approve"'+(saved==='approve'?' selected':'')+'>🟡 Require Approval</option>'
+          +'<option value="off"'+(saved==='off'?' selected':'')+'>🔴 Disabled</option>'
+          +'</select>')
+      +'</div>';
   }).join('');
 
   var savedDp = getCfgVal(bk, 'daypart', 'auto');
@@ -974,6 +982,7 @@ function renderCfgBrandPanel(bk) {
     +'</div>'
     +'<div style="margin-bottom:14px">'
     +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--dim);margin-bottom:8px;letter-spacing:.4px">🤖 Autopilot — Auto-Execute by Tier</div>'
+    +(isGrosmimi?'<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:6px 10px;margin-bottom:8px;font-size:10px;color:#dc2626;font-weight:600">🔒 Grosmimi auto-execute is permanently disabled. All tiers require manual approval.</div>':'')
     +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">'+autopilotHtml+'</div>'
     +'<div style="margin-top:8px;font-size:10px;color:var(--dim)"><b>Safety:</b> Max budget change $50 · Max 10 auto-executions/day</div>'
     +'</div>'
@@ -1021,7 +1030,10 @@ async function saveConfig() {
     Object.keys(BRAND_DEFAULTS).forEach(function(bk){
       config._autopilot[bk] = {};
       TIER_DEFS.forEach(function(t){
-        config._autopilot[bk][t.key] = getCfgVal(bk, 'autopilot_'+t.key, t.def);
+        var val = getCfgVal(bk, 'autopilot_'+t.key, t.def);
+        // SAFEGUARD: Grosmimi can never be auto
+        if (bk === 'grosmimi' && val === 'auto') val = 'approve';
+        config._autopilot[bk][t.key] = val;
       });
       config._autopilot[bk].daypart = getCfgVal(bk, 'daypart', 'auto');
     });
