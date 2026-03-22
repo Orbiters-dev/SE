@@ -853,6 +853,29 @@ def _load_executed_history(brand_key: str, lookback_days: int = 30) -> Dict[str,
                 elif "negate" in action_type:
                     negated.add(kw)
 
+    # Also read from persistent exec_log.json (survives GitHub Actions fresh checkout)
+    exec_log_path = ROOT / "docs" / "ppc-dashboard" / "exec_log.json"
+    if exec_log_path.exists():
+        try:
+            elog = json.loads(exec_log_path.read_text(encoding="utf-8"))
+            entries = elog.get(brand_key, []) if isinstance(elog, dict) else []
+            for entry in entries:
+                if not isinstance(entry, dict):
+                    continue
+                exec_dt = (entry.get("exec_date") or "")[:10]
+                if exec_dt < cutoff:
+                    continue
+                kw = (entry.get("keyword") or entry.get("term") or "").lower().strip()
+                if not kw:
+                    continue
+                action_type = entry.get("action", "")
+                if action_type in ("harvest", "add_keyword"):
+                    harvested.add(kw)
+                elif "negate" in action_type:
+                    negated.add(kw)
+        except Exception:
+            pass
+
     return {"harvested_terms": harvested, "negated_terms": negated, "campaign_actions": camp_actions}
 
 
@@ -2467,7 +2490,19 @@ def add_keyword(profile_id: int, campaign_id, ad_group_id, keyword_text: str,
         timeout=30,
     )
     resp.raise_for_status()
-    return resp.json()
+    result = resp.json()
+
+    # Validate individual keyword-level success in response body
+    kw_results = result.get("keywords", [])
+    if kw_results:
+        code = kw_results[0].get("code", "")
+        if code and code != "SUCCESS":
+            desc = kw_results[0].get("description", kw_results[0].get("details", ""))
+            raise RuntimeError(
+                f"Keyword '{keyword_text}' rejected by Amazon: {code} — {desc}"
+            )
+
+    return result
 
 
 def add_negative_keyword(profile_id: int, campaign_id, ad_group_id,
@@ -2492,7 +2527,19 @@ def add_negative_keyword(profile_id: int, campaign_id, ad_group_id,
         timeout=30,
     )
     resp.raise_for_status()
-    return resp.json()
+    result = resp.json()
+
+    # Validate individual keyword-level success
+    nk_results = result.get("negativeKeywords", [])
+    if nk_results:
+        code = nk_results[0].get("code", "")
+        if code and code != "SUCCESS":
+            desc = nk_results[0].get("description", nk_results[0].get("details", ""))
+            raise RuntimeError(
+                f"Negative keyword '{keyword_text}' rejected by Amazon: {code} — {desc}"
+            )
+
+    return result
 
 
 def update_keyword_bid(profile_id: int, keyword_id, new_bid: float) -> Dict:

@@ -246,6 +246,30 @@
 - **수정**: Ctrl+Shift+R (하드 리프레시)로 해결
 - **예방**: GitHub Pages는 정적 파일 → 브라우저 캐시 이슈 불가피. PG+웹서버(orbitools) 기반으로 전환하면 항상 최신 데이터 제공 가능. 단기: data.js에 `?v=timestamp` 캐시 버스터 추가 검토. 장기: orbitools Django에 PPC dashboard API endpoint 추가하여 실시간 데이터 제공
 
+### M-026: Anthropic API 키 비활성화 시 n8n 하드코딩 키 미교체
+- **에이전트**: Core (모든 에이전트 공통)
+- **날짜**: 2026-03-22
+- **상황**: Anthropic Console에서 `rogh` + `WJ_CLAUDE_NEW` 키 비활성화 시도. n8n 워크플로우 5개에 API 키가 credential이 아닌 httpRequest 헤더/코드에 직접 하드코딩되어 있었음. credential(`Orbiters Anthropic`) 교체만으로는 이 워크플로우들이 깨짐
+- **에러**: `Couldn't connect with these settings` (n8n credential) + DM Auto Reply 워크플로우 Claude API 호출 실패
+- **수정**: n8n API로 88개 전체 워크플로우 스캔 → 삭제된 키(`NiyjTsV...WITwAA`) 사용처 3개 + code 노드 1개 발견 → `WJ_CLAUDE_NEW`로 전수 교체
+- **예방**: (1) API 키 비활성화 전 반드시 n8n 전체 워크플로우 스캔 실행 (2) httpRequest 노드에 키 하드코딩 금지 → credential 참조로 통일 (3) 키 교체 체크리스트: GitHub Secrets + n8n credentials + n8n httpRequest headers + n8n code nodes
+
+### M-027: Amazon Ads API — add_keyword HTTP 200이지만 개별 keyword 거부 (팬텀 실행)
+- **에이전트**: 아마존 퍼포마
+- **날짜**: 2026-03-22
+- **상황**: 떡뻥(한국어) 키워드를 US 마켓에 harvest 실행. API HTTP 200 반환. exec_log에 "OK" 기록. 하지만 실제 Amazon에 키워드 미등록
+- **에러**: API는 HTTP 200 반환하지만 response body 내 개별 keyword `code` 필드가 `SUCCESS`가 아님 (자동 거부). `add_keyword()`가 `resp.raise_for_status()`만 체크하고 body 미검증
+- **수정**: `add_keyword()`, `add_negative_keyword()`에 응답 body의 개별 keyword `code` 필드 검증 추가. `SUCCESS` 아니면 RuntimeError raise
+- **예방**: Amazon Ads API bulk 요청은 HTTP status와 개별 item status가 별개. 항상 response body의 각 item `code` 필드를 검증할 것
+
+### M-028: PPC executor — GitHub Actions에서 harvest dedup 무효화 (반복 제안)
+- **에이전트**: 아마존 퍼포마
+- **날짜**: 2026-03-22
+- **상황**: 떡뻥 키워드가 execute됐는데도 매일 다시 proposal에 등장. exec_log에 5건이나 "OK" 기록
+- **에러**: `_load_executed_history()`가 `.tmp/ppc_proposal_*.json`만 스캔. GitHub Actions는 매번 fresh checkout → `.tmp/` 비어있음 → dedup 히스토리 0 → 이미 실행된 키워드 재제안
+- **수정**: `exec_log.json` (git에 커밋된 persistent log)도 dedup 소스로 추가
+- **예방**: Actions에서 돌아가는 로직은 로컬 파일(.tmp/) 의존 금지. git-committed 파일 또는 API/DB에서 히스토리 로드
+
 ### M-XXX: 에러 제목
 - **에이전트**: 에이전트명
 - **날짜**: YYYY-MM-DD
