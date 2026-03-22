@@ -1070,6 +1070,22 @@
    "sales_7d": 0,
    "result_status": "OK",
    "exec_date": "2026-03-21"
+  },
+  {
+   "brand_key": "naeiae",
+   "campaignId": "279433915130435",
+   "campaignName": "Naeiae Rice Pop - SB - Manual",
+   "action": "pause",
+   "priority": "urgent",
+   "reason": "[SB] 7d ROAS 0.0x (ACOS None%) | 30d ROAS 0.0x | target ACOS 30.0% | ",
+   "old_budget": 0.0,
+   "new_budget": null,
+   "bid_change_pct": null,
+   "roas_7d": 0.0,
+   "spend_7d": 1.15,
+   "sales_7d": 0.0,
+   "result_status": "OK",
+   "exec_date": "2026-03-22"
   }
  ],
  "chaenmom": [
