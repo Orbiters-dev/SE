@@ -1,6 +1,6 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-22 04:03 PST",
- "through_date": "2026-03-20",
+ "generated_pst": "2026-03-22 14:15 PST",
+ "through_date": "2026-03-21",
  "months": [
   "2025-06",
   "2025-07",
@@ -33,9 +33,9 @@ const FIN_DATA = {
   {
    "name": "amazon_ads_daily",
    "label": "Amazon Ads",
-   "rows": 2011,
+   "rows": 2033,
    "min_date": "2025-12-10",
-   "max_date": "2026-03-20",
+   "max_date": "2026-03-21",
    "refresh": "2x daily"
   },
   {
@@ -73,7 +73,7 @@ const FIN_DATA = {
   {
    "name": "gsc_daily",
    "label": "Google Search Console",
-   "rows": 5591,
+   "rows": 5592,
    "min_date": "2026-02-20",
    "max_date": "2026-03-21",
    "refresh": "2x daily"
@@ -81,59 +81,59 @@ const FIN_DATA = {
  ],
  "partial_month": {
   "month": "2026-03",
-  "days_elapsed": 20,
+  "days_elapsed": 21,
   "days_in_month": 31,
   "is_partial": true,
-  "multiplier": 1.55
+  "multiplier": 1.4762
  },
  "summary": {
   "7d": {
-   "total_revenue": 146298,
-   "shopify_revenue": 16267,
-   "amazon_revenue": 130031,
-   "total_orders": 5925,
-   "total_ad_spend": 25376,
-   "ad_attributed_sales": 82467,
-   "organic_revenue": 63831,
-   "gross_margin": 92520,
+   "total_revenue": 167404,
+   "shopify_revenue": 19181,
+   "amazon_revenue": 148224,
+   "total_orders": 6791,
+   "total_ad_spend": 29719,
+   "ad_attributed_sales": 98111,
+   "organic_revenue": 69293,
+   "gross_margin": 105760,
    "gm_pct": 63.2,
-   "contribution_margin": 66498,
-   "cm_pct": 45.5,
-   "mer": 5.77,
-   "roas": 3.25,
-   "discount_rate": 3.8
+   "contribution_margin": 74915,
+   "cm_pct": 44.8,
+   "mer": 5.63,
+   "roas": 3.3,
+   "discount_rate": 5.5
   },
   "30d": {
-   "total_revenue": 657864,
-   "shopify_revenue": 77064,
-   "amazon_revenue": 580800,
-   "total_orders": 26474,
-   "total_ad_spend": 125418,
-   "ad_attributed_sales": 437201,
-   "organic_revenue": 220663,
-   "gross_margin": 418108,
-   "gm_pct": 63.6,
-   "contribution_margin": 287644,
-   "cm_pct": 43.7,
-   "mer": 5.25,
-   "roas": 3.49,
-   "discount_rate": 6.1
+   "total_revenue": 678970,
+   "shopify_revenue": 79978,
+   "amazon_revenue": 598992,
+   "total_orders": 27340,
+   "total_ad_spend": 129751,
+   "ad_attributed_sales": 454124,
+   "organic_revenue": 224846,
+   "gross_margin": 431348,
+   "gm_pct": 63.5,
+   "contribution_margin": 296071,
+   "cm_pct": 43.6,
+   "mer": 5.23,
+   "roas": 3.5,
+   "discount_rate": 6.5
   },
   "mtd": {
-   "total_revenue": 466946,
-   "shopify_revenue": 53828,
-   "amazon_revenue": 413117,
-   "total_orders": 18798,
-   "total_ad_spend": 87271,
-   "ad_attributed_sales": 304919,
-   "organic_revenue": 162027,
-   "gross_margin": 295854,
-   "gm_pct": 63.4,
-   "contribution_margin": 204736,
-   "cm_pct": 43.8,
-   "mer": 5.35,
-   "roas": 3.49,
-   "discount_rate": 6.7
+   "total_revenue": 488052,
+   "shopify_revenue": 56742,
+   "amazon_revenue": 431310,
+   "total_orders": 19664,
+   "total_ad_spend": 91604,
+   "ad_attributed_sales": 321842,
+   "organic_revenue": 166210,
+   "gross_margin": 309094,
+   "gm_pct": 63.3,
+   "contribution_margin": 213163,
+   "cm_pct": 43.7,
+   "mer": 5.33,
+   "roas": 3.51,
+   "discount_rate": 7.1
   }
  },
  "brand_revenue": {
@@ -148,7 +148,7 @@ const FIN_DATA = {
     557654,
     624480,
     554741,
-    444936
+    465010
    ],
    "monthly_proj": [
     540650,
@@ -160,7 +160,7 @@ const FIN_DATA = {
     557654,
     624480,
     554741,
-    689651
+    686448
    ],
    "color": "#8b5cf6"
   },
@@ -175,7 +175,7 @@ const FIN_DATA = {
     29155,
     12259,
     12271,
-    11672
+    12241
    ],
    "monthly_proj": [
     17503,
@@ -187,7 +187,7 @@ const FIN_DATA = {
     29155,
     12259,
     12271,
-    18092
+    18070
    ],
    "color": "#eab308"
   },
@@ -202,7 +202,7 @@ const FIN_DATA = {
     7647,
     8431,
     6797,
-    3256
+    3280
    ],
    "monthly_proj": [
     1798,
@@ -214,7 +214,7 @@ const FIN_DATA = {
     7647,
     8431,
     6797,
-    5047
+    4842
    ],
    "color": "#0ea5e9"
   },
@@ -229,7 +229,7 @@ const FIN_DATA = {
     5146,
     6391,
     7786,
-    5008
+    5388
    ],
    "monthly_proj": [
     1762,
@@ -241,7 +241,7 @@ const FIN_DATA = {
     5146,
     6391,
     7786,
-    7762
+    7954
    ],
    "color": "#f97316"
   },
@@ -256,7 +256,7 @@ const FIN_DATA = {
     1165,
     2373,
     11759,
-    2074
+    2132
    ],
    "monthly_proj": [
     5863,
@@ -268,7 +268,7 @@ const FIN_DATA = {
     1165,
     2373,
     11759,
-    3215
+    3147
    ],
    "color": "#94a3b8"
   }
@@ -285,7 +285,7 @@ const FIN_DATA = {
     72542,
     95418,
     72668,
-    38732
+    40463
    ],
    "monthly_proj": [
     81841,
@@ -297,7 +297,7 @@ const FIN_DATA = {
     72542,
     95418,
     72668,
-    60035
+    59731
    ],
    "color": "#6366f1"
   },
@@ -312,7 +312,7 @@ const FIN_DATA = {
     511846,
     533042,
     498734,
-    413117
+    431310
    ],
    "monthly_proj": [
     463835,
@@ -324,7 +324,7 @@ const FIN_DATA = {
     511846,
     533042,
     498734,
-    640331
+    636700
    ],
    "color": "#f59e0b"
   },
@@ -351,7 +351,7 @@ const FIN_DATA = {
     137,
     0,
     150,
-    195
+    186
    ],
    "color": "#ec4899"
   },
@@ -366,7 +366,7 @@ const FIN_DATA = {
     9566,
     9495,
     11945,
-    11961
+    12588
    ],
    "monthly_proj": [
     91,
@@ -378,7 +378,7 @@ const FIN_DATA = {
     9566,
     9495,
     11945,
-    18540
+    18582
    ],
    "color": "#ef4444"
   },
@@ -393,7 +393,7 @@ const FIN_DATA = {
     6675,
     15979,
     9857,
-    3009
+    3565
    ],
    "monthly_proj": [
     21809,
@@ -405,7 +405,7 @@ const FIN_DATA = {
     6675,
     15979,
     9857,
-    4664
+    5263
    ],
    "color": "#10b981"
   }
@@ -422,7 +422,7 @@ const FIN_DATA = {
     34382,
     79637,
     80371,
-    64970
+    68314
    ],
    "spend_proj": [
     0,
@@ -434,7 +434,7 @@ const FIN_DATA = {
     34382,
     79637,
     80371,
-    100704
+    100845
    ],
    "sales": [
     0,
@@ -446,7 +446,7 @@ const FIN_DATA = {
     224013,
     387330,
     360432,
-    282386
+    298090
    ],
    "sales_proj": [
     0,
@@ -458,7 +458,7 @@ const FIN_DATA = {
     224013,
     387330,
     360432,
-    437698
+    440040
    ],
    "impressions": [
     0,
@@ -469,8 +469,8 @@ const FIN_DATA = {
     0,
     7547539,
     15751413,
-    17256485,
-    12163947
+    17256461,
+    12763521
    ],
    "clicks": [
     0,
@@ -482,7 +482,7 @@ const FIN_DATA = {
     41325,
     88386,
     84643,
-    67073
+    70302
    ],
    "color": "#f59e0b"
   },
@@ -497,7 +497,7 @@ const FIN_DATA = {
     15207,
     15871,
     17112,
-    7854
+    8286
    ],
    "spend_proj": [
     4565,
@@ -509,7 +509,7 @@ const FIN_DATA = {
     15207,
     15871,
     17112,
-    12174
+    12232
    ],
    "sales": [
     18541,
@@ -521,7 +521,7 @@ const FIN_DATA = {
     29513,
     37226,
     32394,
-    11078
+    11595
    ],
    "sales_proj": [
     18541,
@@ -533,7 +533,7 @@ const FIN_DATA = {
     29513,
     37226,
     32394,
-    17171
+    17117
    ],
    "impressions": [
     220256,
@@ -545,7 +545,7 @@ const FIN_DATA = {
     568714,
     807660,
     990018,
-    521288
+    549610
    ],
    "clicks": [
     5411,
@@ -557,7 +557,7 @@ const FIN_DATA = {
     14389,
     24287,
     39496,
-    20642
+    21594
    ],
    "color": "#3b82f6"
   },
@@ -572,7 +572,7 @@ const FIN_DATA = {
     9086,
     11530,
     9647,
-    7013
+    7355
    ],
    "spend_proj": [
     2250,
@@ -584,7 +584,7 @@ const FIN_DATA = {
     9086,
     11530,
     9647,
-    10870
+    10857
    ],
    "sales": [
     167,
@@ -596,7 +596,7 @@ const FIN_DATA = {
     0,
     0,
     59,
-    0
+    95
    ],
    "sales_proj": [
     167,
@@ -608,7 +608,7 @@ const FIN_DATA = {
     0,
     0,
     59,
-    0
+    140
    ],
    "impressions": [
     261562,
@@ -620,7 +620,7 @@ const FIN_DATA = {
     1056655,
     1757662,
     1209196,
-    821445
+    864620
    ],
    "clicks": [
     24443,
@@ -632,7 +632,7 @@ const FIN_DATA = {
     78127,
     129046,
     102683,
-    71663
+    75010
    ],
    "color": "#93c5fd"
   },
@@ -647,7 +647,7 @@ const FIN_DATA = {
     12712,
     11117,
     12652,
-    7433
+    7648
    ],
    "spend_proj": [
     9635,
@@ -659,7 +659,7 @@ const FIN_DATA = {
     12712,
     11117,
     12652,
-    11521
+    11290
    ],
    "sales": [
     24251,
@@ -671,7 +671,7 @@ const FIN_DATA = {
     28010,
     21556,
     19707,
-    11455
+    12062
    ],
    "sales_proj": [
     24251,
@@ -683,7 +683,7 @@ const FIN_DATA = {
     28010,
     21556,
     19707,
-    17755
+    17806
    ],
    "impressions": [
     906416,
@@ -695,7 +695,7 @@ const FIN_DATA = {
     722451,
     782256,
     794105,
-    663266
+    688536
    ],
    "clicks": [
     8009,
@@ -707,7 +707,7 @@ const FIN_DATA = {
     6644,
     8476,
     9426,
-    6618
+    6823
    ],
    "color": "#10b981"
   }
@@ -724,7 +724,7 @@ const FIN_DATA = {
     27919,
     26988,
     29764,
-    15288
+    15934
    ],
    "spend_proj": [
     14201,
@@ -736,7 +736,7 @@ const FIN_DATA = {
     27919,
     26988,
     29764,
-    23696
+    23522
    ],
    "revenue": [
     81841,
@@ -748,7 +748,7 @@ const FIN_DATA = {
     72542,
     95418,
     72668,
-    38732
+    40463
    ],
    "revenue_proj": [
     81841,
@@ -760,7 +760,7 @@ const FIN_DATA = {
     72542,
     95418,
     72668,
-    60035
+    59731
    ],
    "platforms": "Google Ads + Meta CVR",
    "color": "#6366f1"
@@ -776,7 +776,7 @@ const FIN_DATA = {
     43467,
     91168,
     90019,
-    71983
+    75670
    ],
    "spend_proj": [
     2250,
@@ -788,7 +788,7 @@ const FIN_DATA = {
     43467,
     91168,
     90019,
-    111574
+    111704
    ],
    "revenue": [
     463835,
@@ -800,7 +800,7 @@ const FIN_DATA = {
     511846,
     533042,
     498734,
-    413117
+    431310
    ],
    "revenue_proj": [
     463835,
@@ -812,7 +812,7 @@ const FIN_DATA = {
     511846,
     533042,
     498734,
-    640331
+    636700
    ],
    "platforms": "Amazon Ads + Meta Traffic",
    "color": "#f59e0b"
@@ -824,42 +824,42 @@ const FIN_DATA = {
    "total_sales": [
     624480,
     554741,
-    444936
+    465010
    ],
    "total_sales_proj": [
     624480,
     554741,
-    689651
+    686448
    ],
    "ad_spend": [
     92352,
     92614,
-    73192
+    76888
    ],
    "ad_spend_proj": [
     92352,
     92614,
-    113448
+    113502
    ],
    "ad_sales": [
     406758,
     375257,
-    292458
+    308783
    ],
    "ad_sales_proj": [
     406758,
     375257,
-    453310
+    455825
    ],
    "organic": [
     217722,
     179484,
-    152478
+    156227
    ],
    "organic_proj": [
     217722,
     179484,
-    236341
+    230622
    ],
    "color": "#8b5cf6"
   },
@@ -867,42 +867,42 @@ const FIN_DATA = {
    "total_sales": [
     12259,
     12271,
-    11672
+    12241
    ],
    "total_sales_proj": [
     12259,
     12271,
-    18092
+    18070
    ],
    "ad_spend": [
     2744,
     2276,
-    1606
+    1676
    ],
    "ad_spend_proj": [
     2744,
     2276,
-    2489
+    2474
    ],
    "ad_sales": [
     5929,
     6347,
-    5264
+    5520
    ],
    "ad_sales_proj": [
     5929,
     6347,
-    8159
+    8149
    ],
    "organic": [
     6330,
     5924,
-    6408
+    6721
    ],
    "organic_proj": [
     6330,
     5924,
-    9932
+    9922
    ],
    "color": "#eab308"
   },
@@ -910,42 +910,42 @@ const FIN_DATA = {
    "total_sales": [
     8431,
     6797,
-    3256
+    3280
    ],
    "total_sales_proj": [
     8431,
     6797,
-    5047
+    4842
    ],
    "ad_spend": [
     1636,
     2200,
-    1824
+    1947
    ],
    "ad_spend_proj": [
     1636,
     2200,
-    2827
+    2874
    ],
    "ad_sales": [
     4508,
     2868,
-    858
+    930
    ],
    "ad_sales_proj": [
     4508,
     2868,
-    1330
+    1373
    ],
    "organic": [
     3923,
     3929,
-    2398
+    2350
    ],
    "organic_proj": [
     3923,
     3929,
-    3717
+    3469
    ],
    "color": "#0ea5e9"
   },
@@ -953,42 +953,42 @@ const FIN_DATA = {
    "total_sales": [
     6391,
     7786,
-    5008
+    5388
    ],
    "total_sales_proj": [
     6391,
     7786,
-    7762
+    7954
    ],
    "ad_spend": [
     619,
     2692,
-    1492
+    1547
    ],
    "ad_spend_proj": [
     619,
     2692,
-    2313
+    2284
    ],
    "ad_sales": [
     500,
     2271,
-    1318
+    1471
    ],
    "ad_sales_proj": [
     500,
     2271,
-    2043
+    2171
    ],
    "organic": [
     5891,
     5515,
-    3690
+    3917
    ],
    "organic_proj": [
     5891,
     5515,
-    5720
+    5782
    ],
    "color": "#f97316"
   },
@@ -996,32 +996,32 @@ const FIN_DATA = {
    "total_sales": [
     2373,
     11759,
-    2074
+    2132
    ],
    "total_sales_proj": [
     2373,
     11759,
-    3215
+    3147
    ],
    "ad_spend": [
     20805,
     20001,
-    9157
+    9546
    ],
    "ad_spend_proj": [
     20805,
     20001,
-    14193
+    14092
    ],
    "ad_sales": [
     28417,
     25849,
-    5021
+    5138
    ],
    "ad_sales_proj": [
     28417,
     25849,
-    7783
+    7585
    ],
    "organic": [
     0,
@@ -1047,7 +1047,7 @@ const FIN_DATA = {
    281536,
    446112,
    412592,
-   304919
+   321842
   ],
   "paid_proj": [
    42958,
@@ -1059,7 +1059,7 @@ const FIN_DATA = {
    281536,
    446112,
    412592,
-   472624
+   475103
   ],
   "organic": [
    530481,
@@ -1071,7 +1071,7 @@ const FIN_DATA = {
    320395,
    210196,
    192521,
-   164100
+   168341
   ],
   "organic_proj": [
    530481,
@@ -1083,7 +1083,7 @@ const FIN_DATA = {
    320395,
    210196,
    192521,
-   254355
+   248505
   ]
  },
  "waterfall": {
@@ -1097,7 +1097,7 @@ const FIN_DATA = {
    601931,
    656308,
    605113,
-   469019
+   490183
   ],
   "revenue_proj": [
    573439,
@@ -1109,7 +1109,7 @@ const FIN_DATA = {
    601931,
    656308,
    605113,
-   726979
+   723608
   ],
   "cogs": [
    237213,
@@ -1121,7 +1121,7 @@ const FIN_DATA = {
    227237,
    243697,
    211802,
-   171092
+   178958
   ],
   "cogs_proj": [
    237213,
@@ -1133,7 +1133,7 @@ const FIN_DATA = {
    227237,
    243697,
    211802,
-   265193
+   264178
   ],
   "gross_margin": [
    336226,
@@ -1145,7 +1145,7 @@ const FIN_DATA = {
    374694,
    412612,
    393311,
-   297928
+   311226
   ],
   "gross_margin_proj": [
    336226,
@@ -1157,7 +1157,7 @@ const FIN_DATA = {
    374694,
    412612,
    393311,
-   461788
+   459432
   ],
   "ad_spend": [
    16451,
@@ -1169,7 +1169,7 @@ const FIN_DATA = {
    71387,
    118156,
    119783,
-   87271
+   91604
   ],
   "ad_spend_proj": [
    16451,
@@ -1181,7 +1181,7 @@ const FIN_DATA = {
    71387,
    118156,
    119783,
-   135270
+   135226
   ],
   "discounts": [
    22945,
@@ -1193,7 +1193,7 @@ const FIN_DATA = {
    9079,
    16081,
    6326,
-   3877
+   4357
   ],
   "discounts_proj": [
    22945,
@@ -1205,7 +1205,7 @@ const FIN_DATA = {
    9079,
    16081,
    6326,
-   6009
+   6432
   ],
   "seeding": [
    0,
@@ -1241,7 +1241,7 @@ const FIN_DATA = {
    80465,
    134237,
    126108,
-   91148
+   95961
   ],
   "mkt_total_proj": [
    39396,
@@ -1253,7 +1253,7 @@ const FIN_DATA = {
    80465,
    134237,
    126108,
-   141279
+   141658
   ],
   "contribution_margin": [
    296830,
@@ -1265,7 +1265,7 @@ const FIN_DATA = {
    294229,
    278375,
    267202,
-   206780
+   215265
   ],
   "contribution_margin_proj": [
    296830,
@@ -1277,7 +1277,7 @@ const FIN_DATA = {
    294229,
    278375,
    267202,
-   320509
+   317774
   ]
  },
  "search_queries": [
@@ -2353,13 +2353,6 @@ const FIN_DATA = {
    "position": 5.7
   },
   {
-   "query": "zezebebe",
-   "impressions": 54,
-   "clicks": 7,
-   "ctr": 12.96,
-   "position": 3.5
-  },
-  {
    "query": "grosmimi stainless steel",
    "impressions": 372,
    "clicks": 7,
@@ -2367,25 +2360,32 @@ const FIN_DATA = {
    "position": 7.0
   },
   {
-   "query": "beemymagic stainless steel",
-   "impressions": 111,
+   "query": "zezebebe",
+   "impressions": 54,
+   "clicks": 7,
+   "ctr": 12.96,
+   "position": 3.5
+  },
+  {
+   "query": "bamboo bebe gauze",
+   "impressions": 33,
    "clicks": 6,
-   "ctr": 5.41,
-   "position": 4.8
+   "ctr": 18.18,
+   "position": 6.5
   },
   {
    "query": "grosmimi straw cup",
-   "impressions": 2374,
+   "impressions": 2376,
    "clicks": 6,
    "ctr": 0.25,
    "position": 9.7
   },
   {
-   "query": "bamboo bebe gauze",
-   "impressions": 32,
+   "query": "beemymagic stainless steel",
+   "impressions": 111,
    "clicks": 6,
-   "ctr": 18.75,
-   "position": 6.4
+   "ctr": 5.41,
+   "position": 4.8
   },
   {
    "query": "beemymagic",
@@ -2410,9 +2410,9 @@ const FIN_DATA = {
   },
   {
    "query": "cha and mom",
-   "impressions": 20,
+   "impressions": 21,
    "clicks": 4,
-   "ctr": 20.0,
+   "ctr": 19.05,
    "position": 2.0
   },
   {
@@ -2437,13 +2437,6 @@ const FIN_DATA = {
    "position": 4.1
   },
   {
-   "query": "zezebaebae reviews",
-   "impressions": 97,
-   "clicks": 3,
-   "ctr": 3.09,
-   "position": 4.5
-  },
-  {
    "query": "grosmimi cup",
    "impressions": 537,
    "clicks": 3,
@@ -2458,11 +2451,18 @@ const FIN_DATA = {
    "position": 8.2
   },
   {
-   "query": "grosmimi straw replacement",
-   "impressions": 153,
+   "query": "zezebaebae reviews",
+   "impressions": 97,
    "clicks": 3,
-   "ctr": 1.96,
-   "position": 7.7
+   "ctr": 3.09,
+   "position": 4.5
+  },
+  {
+   "query": "hattung",
+   "impressions": 18,
+   "clicks": 3,
+   "ctr": 16.67,
+   "position": 2.4
   }
  ],
  "keyword_rankings": {
@@ -2498,16 +2498,6 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "bamboo bebe gauze",
-    "clicks": 4,
-    "impressions": 19,
-    "avg_position": 6.6,
-    "ctr": 21.05,
-    "weekly_positions": [
-     6.6
-    ]
-   },
-   {
     "query": "zezebebe",
     "clicks": 4,
     "impressions": 13,
@@ -2515,6 +2505,16 @@ const FIN_DATA = {
     "ctr": 30.77,
     "weekly_positions": [
      3.1
+    ]
+   },
+   {
+    "query": "bamboo bebe gauze",
+    "clicks": 4,
+    "impressions": 20,
+    "avg_position": 6.7,
+    "ctr": 20.0,
+    "weekly_positions": [
+     6.7
     ]
    },
    {
@@ -2538,43 +2538,43 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "alpremio nursing seat",
-    "clicks": 2,
-    "impressions": 14,
-    "avg_position": 3.0,
-    "ctr": 14.29,
-    "weekly_positions": [
-     3.0
-    ]
-   },
-   {
     "query": "grosmimi straw cup",
     "clicks": 2,
-    "impressions": 726,
+    "impressions": 728,
     "avg_position": 10.4,
-    "ctr": 0.28,
+    "ctr": 0.27,
     "weekly_positions": [
      10.4
     ]
    },
    {
+    "query": "alpremio nursing seat",
+    "clicks": 2,
+    "impressions": 16,
+    "avg_position": 2.7,
+    "ctr": 12.5,
+    "weekly_positions": [
+     2.7
+    ]
+   },
+   {
     "query": "cha and mom",
     "clicks": 2,
-    "impressions": 5,
+    "impressions": 6,
     "avg_position": 1.0,
-    "ctr": 40.0,
+    "ctr": 33.33,
     "weekly_positions": [
      1.0
     ]
    },
    {
-    "query": "alpremio",
+    "query": "grosmimi cup",
     "clicks": 1,
-    "impressions": 15,
-    "avg_position": 3.2,
-    "ctr": 6.67,
+    "impressions": 198,
+    "avg_position": 10.5,
+    "ctr": 0.51,
     "weekly_positions": [
-     3.2
+     10.6
     ]
    },
    {
@@ -2588,23 +2588,23 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "grosmimi cup",
+    "query": "alpremio",
     "clicks": 1,
-    "impressions": 198,
-    "avg_position": 10.6,
-    "ctr": 0.51,
+    "impressions": 15,
+    "avg_position": 3.2,
+    "ctr": 6.67,
     "weekly_positions": [
-     10.6
+     3.2
     ]
    },
    {
-    "query": "bamboo bebe",
+    "query": "grosmimi stainless steel straw cup",
     "clicks": 1,
-    "impressions": 18,
-    "avg_position": 10.0,
-    "ctr": 5.56,
+    "impressions": 44,
+    "avg_position": 9.7,
+    "ctr": 2.27,
     "weekly_positions": [
-     10.0
+     9.7
     ]
    },
    {
@@ -2618,13 +2618,13 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "grosmimi stainless steel straw cup",
+    "query": "bamboo bebe",
     "clicks": 1,
-    "impressions": 44,
-    "avg_position": 9.7,
-    "ctr": 2.27,
+    "impressions": 18,
+    "avg_position": 10.0,
+    "ctr": 5.56,
     "weekly_positions": [
-     9.7
+     10.0
     ]
    },
    {
@@ -2708,13 +2708,13 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "baby book stand for reading",
+    "query": "korean toddler snacks",
     "clicks": 1,
-    "impressions": 4,
-    "avg_position": 4.2,
-    "ctr": 25.0,
+    "impressions": 3,
+    "avg_position": 2.7,
+    "ctr": 33.33,
     "weekly_positions": [
-     4.2
+     2.7
     ]
    }
   ],
@@ -2806,15 +2806,15 @@ const FIN_DATA = {
    {
     "query": "bamboo bebe gauze",
     "clicks": 6,
-    "impressions": 32,
-    "avg_position": 6.4,
-    "ctr": 18.75,
+    "impressions": 33,
+    "avg_position": 6.5,
+    "ctr": 18.18,
     "weekly_positions": [
      8.8,
      5.0,
      4.0,
      6.9,
-     6.0
+     7.0
     ]
    },
    {
@@ -2834,7 +2834,7 @@ const FIN_DATA = {
    {
     "query": "grosmimi straw cup",
     "clicks": 6,
-    "impressions": 2374,
+    "impressions": 2376,
     "avg_position": 9.7,
     "ctr": 0.25,
     "weekly_positions": [
@@ -2888,6 +2888,20 @@ const FIN_DATA = {
     ]
    },
    {
+    "query": "cha and mom",
+    "clicks": 4,
+    "impressions": 21,
+    "avg_position": 2.0,
+    "ctr": 19.05,
+    "weekly_positions": [
+     3.0,
+     null,
+     2.3,
+     1.0,
+     1.0
+    ]
+   },
+   {
     "query": "grosmimi tumbler cap",
     "clicks": 4,
     "impressions": 42,
@@ -2898,20 +2912,6 @@ const FIN_DATA = {
      2.9,
      1.2,
      3.6,
-     1.0
-    ]
-   },
-   {
-    "query": "cha and mom",
-    "clicks": 4,
-    "impressions": 20,
-    "avg_position": 2.0,
-    "ctr": 20.0,
-    "weekly_positions": [
-     3.0,
-     null,
-     2.3,
-     1.0,
      1.0
     ]
    },
@@ -2958,20 +2958,6 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "zezebaebae reviews",
-    "clicks": 3,
-    "impressions": 97,
-    "avg_position": 4.5,
-    "ctr": 3.09,
-    "weekly_positions": [
-     5.2,
-     3.9,
-     3.1,
-     6.0,
-     5.5
-    ]
-   },
-   {
     "query": "grosmimi stainless steel straw cup",
     "clicks": 3,
     "impressions": 230,
@@ -2983,6 +2969,20 @@ const FIN_DATA = {
      8.0,
      8.9,
      12.2
+    ]
+   },
+   {
+    "query": "zezebaebae reviews",
+    "clicks": 3,
+    "impressions": 97,
+    "avg_position": 4.5,
+    "ctr": 3.09,
+    "weekly_positions": [
+     5.2,
+     3.9,
+     3.1,
+     6.0,
+     5.5
     ]
    },
    {
@@ -3042,20 +3042,6 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "alpremio nursing seat",
-    "clicks": 2,
-    "impressions": 78,
-    "avg_position": 3.4,
-    "ctr": 2.56,
-    "weekly_positions": [
-     2.5,
-     4.7,
-     2.9,
-     2.6,
-     4.2
-    ]
-   },
-   {
     "query": "alpremio feeding seat",
     "clicks": 2,
     "impressions": 153,
@@ -3067,6 +3053,20 @@ const FIN_DATA = {
      6.3,
      3.8,
      3.8
+    ]
+   },
+   {
+    "query": "alpremio nursing seat",
+    "clicks": 2,
+    "impressions": 80,
+    "avg_position": 3.3,
+    "ctr": 2.5,
+    "weekly_positions": [
+     2.5,
+     4.7,
+     2.9,
+     2.6,
+     3.2
     ]
    }
   ],
@@ -3122,7 +3122,7 @@ const FIN_DATA = {
    {
     "query": "grosmimi straw cup",
     "clicks": 44,
-    "impressions": 3027,
+    "impressions": 3029,
     "avg_position": 9.3,
     "ctr": 1.45,
     "weekly_positions": [
@@ -3218,9 +3218,9 @@ const FIN_DATA = {
    {
     "query": "bamboo bebe gauze",
     "clicks": 7,
-    "impressions": 41,
+    "impressions": 42,
     "avg_position": 6.2,
-    "ctr": 17.07,
+    "ctr": 16.67,
     "weekly_positions": [
      5.1,
      8.0,
@@ -3228,7 +3228,7 @@ const FIN_DATA = {
      6.5,
      null,
      5.0,
-     6.6
+     6.7
     ]
    },
    {
@@ -3264,22 +3264,6 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "alpremio",
-    "clicks": 6,
-    "impressions": 227,
-    "avg_position": 5.1,
-    "ctr": 2.64,
-    "weekly_positions": [
-     4.3,
-     4.4,
-     5.6,
-     6.3,
-     5.6,
-     4.3,
-     3.2
-    ]
-   },
-   {
     "query": "beemymagic stainless steel",
     "clicks": 6,
     "impressions": 156,
@@ -3293,6 +3277,22 @@ const FIN_DATA = {
      3.7,
      4.6,
      6.5
+    ]
+   },
+   {
+    "query": "alpremio",
+    "clicks": 6,
+    "impressions": 227,
+    "avg_position": 5.1,
+    "ctr": 2.64,
+    "weekly_positions": [
+     4.3,
+     4.4,
+     5.6,
+     6.3,
+     5.6,
+     4.3,
+     3.2
     ]
    },
    {
@@ -3328,22 +3328,6 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "grosmimi stainless steel food tray with 5 compartment",
-    "clicks": 5,
-    "impressions": 26,
-    "avg_position": 5.9,
-    "ctr": 19.23,
-    "weekly_positions": [
-     null,
-     null,
-     7.3,
-     7.3,
-     7.0,
-     2.0,
-     5.5
-    ]
-   },
-   {
     "query": "grosmimi tumbler cap",
     "clicks": 5,
     "impressions": 59,
@@ -3360,6 +3344,22 @@ const FIN_DATA = {
     ]
    },
    {
+    "query": "grosmimi stainless steel food tray with 5 compartment",
+    "clicks": 5,
+    "impressions": 26,
+    "avg_position": 5.9,
+    "ctr": 19.23,
+    "weekly_positions": [
+     null,
+     null,
+     7.3,
+     7.3,
+     7.0,
+     2.0,
+     5.5
+    ]
+   },
+   {
     "query": "grosmimi bottle",
     "clicks": 4,
     "impressions": 186,
@@ -3373,6 +3373,22 @@ const FIN_DATA = {
      7.6,
      7.8,
      8.0
+    ]
+   },
+   {
+    "query": "cha and mom",
+    "clicks": 4,
+    "impressions": 24,
+    "avg_position": 1.9,
+    "ctr": 16.67,
+    "weekly_positions": [
+     1.3,
+     null,
+     2.0,
+     3.4,
+     1.0,
+     2.3,
+     1.0
     ]
    },
    {
@@ -3408,22 +3424,6 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "cha and mom",
-    "clicks": 4,
-    "impressions": 23,
-    "avg_position": 2.0,
-    "ctr": 17.39,
-    "weekly_positions": [
-     1.3,
-     null,
-     2.0,
-     3.4,
-     1.0,
-     2.3,
-     1.0
-    ]
-   },
-   {
     "query": "best korean baby products",
     "clicks": 4,
     "impressions": 31,
@@ -3456,19 +3456,19 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "alpremio nursing seat",
+    "query": "bamboobebe",
     "clicks": 3,
-    "impressions": 103,
-    "avg_position": 4.3,
-    "ctr": 2.91,
+    "impressions": 97,
+    "avg_position": 8.5,
+    "ctr": 3.09,
     "weekly_positions": [
-     5.8,
-     7.3,
-     5.6,
-     3.0,
-     5.2,
-     2.2,
-     3.0
+     5.7,
+     6.0,
+     5.5,
+     15.1,
+     7.6,
+     6.8,
+     8.7
     ]
    }
   ]
@@ -3514,13 +3514,13 @@ const FIN_DATA = {
    "query": "grosmimi straw cup",
    "pos_7d": 10.4,
    "clicks_7d": 2,
-   "impressions_7d": 726,
+   "impressions_7d": 728,
    "pos_30d": 9.7,
    "clicks_30d": 6,
-   "impressions_30d": 2374,
+   "impressions_30d": 2376,
    "pos_90d": 9.3,
    "clicks_90d": 44,
-   "impressions_90d": 3027
+   "impressions_90d": 3029
   },
   {
    "query": "grosmimi stainless steel",
@@ -3548,7 +3548,7 @@ const FIN_DATA = {
   },
   {
    "query": "grosmimi cup",
-   "pos_7d": 10.6,
+   "pos_7d": 10.5,
    "clicks_7d": 1,
    "impressions_7d": 198,
    "pos_30d": 10.9,
@@ -3584,15 +3584,15 @@ const FIN_DATA = {
   },
   {
    "query": "bamboo bebe gauze",
-   "pos_7d": 6.6,
+   "pos_7d": 6.7,
    "clicks_7d": 4,
-   "impressions_7d": 19,
-   "pos_30d": 6.4,
+   "impressions_7d": 20,
+   "pos_30d": 6.5,
    "clicks_30d": 6,
-   "impressions_30d": 32,
+   "impressions_30d": 33,
    "pos_90d": 6.2,
    "clicks_90d": 7,
-   "impressions_90d": 41
+   "impressions_90d": 42
   },
   {
    "query": "beemymagic",
@@ -3706,13 +3706,13 @@ const FIN_DATA = {
    "query": "cha and mom",
    "pos_7d": 1.0,
    "clicks_7d": 2,
-   "impressions_7d": 5,
+   "impressions_7d": 6,
    "pos_30d": 2.0,
    "clicks_30d": 4,
-   "impressions_30d": 20,
-   "pos_90d": 2.0,
+   "impressions_30d": 21,
+   "pos_90d": 1.9,
    "clicks_90d": 4,
-   "impressions_90d": 23
+   "impressions_90d": 24
   },
   {
    "query": "grosmimi bottle",
@@ -3763,25 +3763,25 @@ const FIN_DATA = {
    "impressions_90d": 6
   },
   {
-   "query": "alpremio nursing seat",
-   "pos_7d": 3.0,
-   "clicks_7d": 2,
-   "impressions_7d": 14,
-   "pos_30d": 3.4,
-   "clicks_30d": 2,
-   "impressions_30d": 78,
-   "pos_90d": 4.3,
-   "clicks_90d": 3,
-   "impressions_90d": 103
-  },
-  {
-   "query": "baby book stand for reading",
-   "pos_7d": 4.2,
-   "clicks_7d": 1,
-   "impressions_7d": 4,
+   "query": "bamboobebe",
+   "pos_7d": null,
+   "clicks_7d": 0,
+   "impressions_7d": 0,
    "pos_30d": null,
    "clicks_30d": 0,
    "impressions_30d": 0,
+   "pos_90d": 8.5,
+   "clicks_90d": 3,
+   "impressions_90d": 97
+  },
+  {
+   "query": "alpremio nursing seat",
+   "pos_7d": 2.7,
+   "clicks_7d": 2,
+   "impressions_7d": 16,
+   "pos_30d": 3.3,
+   "clicks_30d": 2,
+   "impressions_30d": 80,
    "pos_90d": null,
    "clicks_90d": 0,
    "impressions_90d": 0
@@ -3887,6 +3887,18 @@ const FIN_DATA = {
    "pos_7d": 3.8,
    "clicks_7d": 1,
    "impressions_7d": 5,
+   "pos_30d": null,
+   "clicks_30d": 0,
+   "impressions_30d": 0,
+   "pos_90d": null,
+   "clicks_90d": 0,
+   "impressions_90d": 0
+  },
+  {
+   "query": "korean toddler snacks",
+   "pos_7d": 2.7,
+   "clicks_7d": 1,
+   "impressions_7d": 3,
    "pos_30d": null,
    "clicks_30d": 0,
    "impressions_30d": 0,
@@ -4193,11 +4205,38 @@ const FIN_DATA = {
   "Grosmimi": [
    {
     "term": "grosmimi straw cup",
+    "rank": 23326,
+    "asin_rank": 1,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 15.52,
+    "conv_share": 3.14,
+    "is_ours": true
+   },
+   {
+    "term": "grosmimi straw cup",
+    "rank": 28204,
+    "asin_rank": 3,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 8.68,
+    "conv_share": 1.84,
+    "is_ours": true
+   },
+   {
+    "term": "grosmimi straw cup",
     "rank": 28204,
     "asin_rank": 2,
     "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
     "click_share": 10.39,
     "conv_share": 6.35,
+    "is_ours": true
+   },
+   {
+    "term": "biberones para bebes de 12 a 24 meses",
+    "rank": 116615,
+    "asin_rank": 3,
+    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
+    "click_share": 5.18,
+    "conv_share": 0.0,
     "is_ours": true
    },
    {
@@ -4228,12 +4267,12 @@ const FIN_DATA = {
     "is_ours": true
    },
    {
-    "term": "grosmimi",
-    "rank": 201149,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 11.18,
-    "conv_share": 1.59,
+    "term": "grossini straw cup",
+    "rank": 192475,
+    "asin_rank": 1,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 18.44,
+    "conv_share": 11.76,
     "is_ours": true
    },
    {
@@ -4246,12 +4285,57 @@ const FIN_DATA = {
     "is_ours": true
    },
    {
-    "term": "grosmimi stainless steel straw cup",
-    "rank": 261534,
+    "term": "grosmimi",
+    "rank": 201149,
     "asin_rank": 2,
+    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
+    "click_share": 11.18,
+    "conv_share": 1.59,
+    "is_ours": true
+   },
+   {
+    "term": "grosmimi",
+    "rank": 201149,
+    "asin_rank": 1,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 13.9,
+    "conv_share": 1.59,
+    "is_ours": true
+   },
+   {
+    "term": "grossini straw cup",
+    "rank": 209087,
+    "asin_rank": 3,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 9.66,
+    "conv_share": 2.08,
+    "is_ours": true
+   },
+   {
+    "term": "milk bottle for toddlers 1-3 years",
+    "rank": 220514,
+    "asin_rank": 2,
+    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
+    "click_share": 7.21,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
+    "term": "grossini straw cup",
+    "rank": 230641,
+    "asin_rank": 2,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 10.69,
+    "conv_share": 6.25,
+    "is_ours": true
+   },
+   {
+    "term": "grosmimi stainless steel straw cup",
+    "rank": 234057,
+    "asin_rank": 1,
     "asin_name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with ",
-    "click_share": 20.93,
-    "conv_share": 4.35,
+    "click_share": 34.03,
+    "conv_share": 16.0,
     "is_ours": true
    },
    {
@@ -4265,11 +4349,11 @@ const FIN_DATA = {
    },
    {
     "term": "grosmimi stainless steel straw cup",
-    "rank": 302673,
-    "asin_rank": 1,
+    "rank": 261534,
+    "asin_rank": 2,
     "asin_name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with ",
-    "click_share": 28.25,
-    "conv_share": 2.5,
+    "click_share": 20.93,
+    "conv_share": 4.35,
     "is_ours": true
    },
    {
@@ -4291,169 +4375,16 @@ const FIN_DATA = {
     "is_ours": true
    },
    {
-    "term": "grosmimi sippy cup",
-    "rank": 608273,
-    "asin_rank": 1,
-    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 16.81,
-    "conv_share": 15.0,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi sippy cup",
-    "rank": 608273,
+    "term": "infant straw cup",
+    "rank": 509267,
     "asin_rank": 3,
-    "asin_name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel",
-    "click_share": 8.85,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "vaso entrenador para bebe de 1 año",
-    "rank": 640583,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 8.41,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "vasos para niños de 2 años",
-    "rank": 782755,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 5.68,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "vasos para bebes 1 año",
-    "rank": 818519,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 8.33,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "toddler milk bottle 2 year old",
-    "rank": 820209,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 7.14,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "vasos para niños de 2 años",
-    "rank": 849064,
-    "asin_rank": 1,
-    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 7.41,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "vasos para niños de 2 años",
-    "rank": 849064,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 6.17,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "vasos para bebes 1 año",
-    "rank": 931443,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 6.76,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 5.93,
     "conv_share": 0.0,
     "is_ours": true
    }
   ],
   "Naeiae": [
-   {
-    "term": "grosmimi straw cup",
-    "rank": 23326,
-    "asin_rank": 1,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 15.52,
-    "conv_share": 3.14,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi straw cup",
-    "rank": 28204,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 8.68,
-    "conv_share": 1.84,
-    "is_ours": true
-   },
-   {
-    "term": "grossini straw cup",
-    "rank": 192475,
-    "asin_rank": 1,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 18.44,
-    "conv_share": 11.76,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi",
-    "rank": 201149,
-    "asin_rank": 1,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 13.9,
-    "conv_share": 1.59,
-    "is_ours": true
-   },
-   {
-    "term": "grossini straw cup",
-    "rank": 230641,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 10.69,
-    "conv_share": 6.25,
-    "is_ours": true
-   },
-   {
-    "term": "grossini straw cup",
-    "rank": 230641,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 8.97,
-    "conv_share": 2.5,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi sippy cup",
-    "rank": 526120,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 10.77,
-    "conv_share": 10.0,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi sippy cup",
-    "rank": 608273,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 13.27,
-    "conv_share": 5.0,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi cup",
-    "rank": 969585,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 18.31,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
    {
     "term": "yugwa korean rice puff snack",
     "rank": 997786,
@@ -4461,51 +4392,6 @@ const FIN_DATA = {
     "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
     "click_share": 20.29,
     "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "straw cup for milk",
-    "rank": 1014108,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 8.82,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi weighted straw",
-    "rank": 1278446,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 3.7,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi cup",
-    "rank": 1302817,
-    "asin_rank": 1,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 15.09,
-    "conv_share": 14.29,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi cup",
-    "rank": 1302817,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 11.32,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "grossmimi",
-    "rank": 1437839,
-    "asin_rank": 1,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 18.75,
-    "conv_share": 11.11,
     "is_ours": true
    },
    {
@@ -4518,53 +4404,44 @@ const FIN_DATA = {
     "is_ours": true
    },
    {
-    "term": "glass straw cup toddler",
-    "rank": 1533188,
-    "asin_rank": 1,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 11.11,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "glass sippy cups for babies",
-    "rank": 1680673,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 7.32,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "grossmimi",
-    "rank": 1716977,
+    "term": "baby rice crackers",
+    "rank": 1782418,
     "asin_rank": 3,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 7.5,
+    "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
+    "click_share": 17.95,
+    "conv_share": 10.0,
+    "is_ours": true
+   },
+   {
+    "term": "pop rice snack baby",
+    "rank": 2490142,
+    "asin_rank": 1,
+    "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
+    "click_share": 70.37,
+    "conv_share": 50.0,
+    "is_ours": true
+   },
+   {
+    "term": "korean rice snacks",
+    "rank": 2501083,
+    "asin_rank": 1,
+    "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
+    "click_share": 14.81,
     "conv_share": 0.0,
     "is_ours": true
    },
    {
-    "term": "spill-proof straw cups for toddlers",
-    "rank": 1804297,
+    "term": "pop rice snack",
+    "rank": 2577486,
     "asin_rank": 1,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 7.89,
-    "conv_share": 0.0,
+    "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
+    "click_share": 88.46,
+    "conv_share": 100.0,
     "is_ours": true
    }
   ]
  },
  "brand_analytics_category": [
-  {
-   "term": "baby wipes",
-   "rank": 137,
-   "asin_rank": 1,
-   "asin_name": "Amazon Elements Baby Wipes, Sensitive, Unscented, Cleans Gently, 810 Count, Flip",
-   "click_share": 7.98,
-   "conv_share": 7.03,
-   "is_ours": false
-  },
   {
    "term": "baby wipes",
    "rank": 137,
@@ -4577,19 +4454,19 @@ const FIN_DATA = {
   {
    "term": "baby wipes",
    "rank": 137,
-   "asin_rank": 3,
-   "asin_name": "Huggies Natural Care Sensitive Baby Wipes, Unscented, Hypoallergenic, 99% Purifi",
-   "click_share": 6.56,
-   "conv_share": 3.26,
+   "asin_rank": 1,
+   "asin_name": "Amazon Elements Baby Wipes, Sensitive, Unscented, Cleans Gently, 810 Count, Flip",
+   "click_share": 7.98,
+   "conv_share": 7.03,
    "is_ours": false
   },
   {
-   "term": "water wipes",
-   "rank": 1981,
-   "asin_rank": 2,
-   "asin_name": "WaterWipes Sensitive+ Newborn & Baby Wipes, 3-In-1 Cleans, Cares, Protects, 99.9",
-   "click_share": 16.27,
-   "conv_share": 10.02,
+   "term": "baby wipes",
+   "rank": 144,
+   "asin_rank": 3,
+   "asin_name": "Huggies Natural Care Sensitive Baby Wipes, Unscented, Hypoallergenic, 99% Purifi",
+   "click_share": 6.56,
+   "conv_share": 4.83,
    "is_ours": false
   },
   {
@@ -4603,11 +4480,20 @@ const FIN_DATA = {
   },
   {
    "term": "water wipes",
-   "rank": 2050,
+   "rank": 1981,
+   "asin_rank": 2,
+   "asin_name": "WaterWipes Sensitive+ Newborn & Baby Wipes, 3-In-1 Cleans, Cares, Protects, 99.9",
+   "click_share": 16.27,
+   "conv_share": 10.02,
+   "is_ours": false
+  },
+  {
+   "term": "water wipes",
+   "rank": 2042,
    "asin_rank": 1,
    "asin_name": "WaterWipes Sensitive+ Newborn & Baby Wipes, 3-In-1 Cleans, Cares, Protects, 99.9",
-   "click_share": 32.08,
-   "conv_share": 23.31,
+   "click_share": 43.25,
+   "conv_share": 34.44,
    "is_ours": false
   },
   {
@@ -4621,20 +4507,20 @@ const FIN_DATA = {
   },
   {
    "term": "toddler cups",
-   "rank": 6085,
-   "asin_rank": 1,
-   "asin_name": "Zak Designs Kelso Toddler Cups For Travel or At Home, 15oz 2-Pack Durable Plasti",
-   "click_share": 12.32,
-   "conv_share": 3.16,
+   "rank": 6056,
+   "asin_rank": 3,
+   "asin_name": "Dr. Brown's Milestones Baby's First Straw Cup, Training Cup with Weighted Straw,",
+   "click_share": 3.93,
+   "conv_share": 1.65,
    "is_ours": false
   },
   {
    "term": "toddler cups",
    "rank": 6085,
-   "asin_rank": 3,
-   "asin_name": "Munchkin Sippy Cups for Toddlers 1-3, Spill Proof Miracle 360 Cup, 10 Ounce, 2 P",
-   "click_share": 3.1,
-   "conv_share": 3.43,
+   "asin_rank": 1,
+   "asin_name": "Zak Designs Kelso Toddler Cups For Travel or At Home, 15oz 2-Pack Durable Plasti",
+   "click_share": 12.32,
+   "conv_share": 3.16,
    "is_ours": false
   },
   {
@@ -4648,29 +4534,20 @@ const FIN_DATA = {
   },
   {
    "term": "sippy cup",
-   "rank": 15868,
+   "rank": 16788,
    "asin_rank": 3,
-   "asin_name": "Tommee Tippee Insulated 9oz Sporty Spout Toddler Water Bottle, No Spill, Sippy C",
-   "click_share": 4.23,
-   "conv_share": 2.27,
+   "asin_name": "NUK Active Sippy Cup, 10 oz, 2 Pack, Disney's Cars, Lightning McQueen, BPA-Free,",
+   "click_share": 4.74,
+   "conv_share": 2.47,
    "is_ours": false
   },
   {
    "term": "sippy cup",
-   "rank": 16609,
+   "rank": 16788,
    "asin_rank": 1,
    "asin_name": "Munchkin Sippy Cup for 6 Month Old and Up, Spill Proof Miracle 360 Toddler Cups ",
-   "click_share": 7.97,
-   "conv_share": 6.52,
-   "is_ours": false
-  },
-  {
-   "term": "baby bottle",
-   "rank": 22401,
-   "asin_rank": 1,
-   "asin_name": "Dr. Brown's Natural Flow Anti-Colic Options+ Narrow Baby Bottle, 8 oz/250 mL, wi",
-   "click_share": 7.48,
-   "conv_share": 6.29,
+   "click_share": 9.04,
+   "conv_share": 5.06,
    "is_ours": false
   },
   {
@@ -4684,22 +4561,31 @@ const FIN_DATA = {
   },
   {
    "term": "baby bottle",
-   "rank": 23252,
+   "rank": 22401,
+   "asin_rank": 1,
+   "asin_name": "Dr. Brown's Natural Flow Anti-Colic Options+ Narrow Baby Bottle, 8 oz/250 mL, wi",
+   "click_share": 7.48,
+   "conv_share": 6.29,
+   "is_ours": false
+  },
+  {
+   "term": "baby bottle",
+   "rank": 23711,
    "asin_rank": 3,
-   "asin_name": "Dr. Brown's Anti-Colic Options+ Narrow Sippy Bottle Starter Kit, 8oz/250mL, with",
-   "click_share": 4.27,
-   "conv_share": 6.2,
+   "asin_name": "Philips Avent Anti-Colic Baby Bottle with AirFree Vent, 9oz, with Flow 2 Nipples",
+   "click_share": 4.3,
+   "conv_share": 1.0,
    "is_ours": false
   }
  ],
  "traffic_sources": [
   {
    "source": "direct / none",
-   "sessions": 20195,
+   "sessions": 20778,
    "users": 0,
    "revenue": 0.0,
-   "conversions": 458,
-   "conv_rate": 2.27
+   "conversions": 475,
+   "conv_rate": 2.29
   }
  ],
  "pnl_polar": {
@@ -4730,7 +4616,7 @@ const FIN_DATA = {
      4226491,
      624480,
      554741,
-     444936
+     465010
     ],
     "color": "#8b5cf6"
    },
@@ -4746,7 +4632,7 @@ const FIN_DATA = {
      123215,
      12259,
      12271,
-     11672
+     12241
     ],
     "color": "#eab308"
    },
@@ -4762,7 +4648,7 @@ const FIN_DATA = {
      47257,
      8431,
      6797,
-     3256
+     3280
     ],
     "color": "#0ea5e9"
    },
@@ -4778,7 +4664,7 @@ const FIN_DATA = {
      29055,
      6391,
      7786,
-     5008
+     5388
     ],
     "color": "#f97316"
    },
@@ -4794,7 +4680,7 @@ const FIN_DATA = {
      47660,
      2373,
      11759,
-     2074
+     2132
     ],
     "color": "#94a3b8"
    }
@@ -4810,7 +4696,7 @@ const FIN_DATA = {
    4521334,
    656308,
    605113,
-   469019
+   490183
   ],
   "cogs": [
    237213,
@@ -4823,7 +4709,7 @@ const FIN_DATA = {
    1782431,
    243697,
    211802,
-   171092
+   178958
   ],
   "gross_margin": [
    336226,
@@ -4836,7 +4722,7 @@ const FIN_DATA = {
    2738903,
    412612,
    393311,
-   297928
+   311226
   ],
   "ad_spend": {
    "onzenna": [
@@ -4850,7 +4736,7 @@ const FIN_DATA = {
     198965,
     38519,
     39411,
-    22301
+    23289
    ],
    "amazon": [
     0,
@@ -4863,7 +4749,7 @@ const FIN_DATA = {
     34382,
     79637,
     80371,
-    64970
+    68314
    ],
    "total": [
     16451,
@@ -4876,7 +4762,7 @@ const FIN_DATA = {
     233347,
     118156,
     119783,
-    87271
+    91604
    ]
   },
   "ad_spend_detail": {
@@ -4891,7 +4777,7 @@ const FIN_DATA = {
     89465,
     11117,
     12652,
-    7433
+    7648
    ],
    "amz_grosmimi": [
     0,
@@ -4945,7 +4831,7 @@ const FIN_DATA = {
     558538,
     58782,
     52161,
-    22532
+    23752
    ],
    "amazon": [
     0,
@@ -4958,7 +4844,7 @@ const FIN_DATA = {
     224013,
     387330,
     360432,
-    282386
+    298090
    ],
    "total": [
     42958,
@@ -4971,7 +4857,7 @@ const FIN_DATA = {
     782551,
     446112,
     412592,
-    304919
+    321842
    ]
   },
   "organic": {
@@ -5012,7 +4898,7 @@ const FIN_DATA = {
     3738783,
     210196,
     192521,
-    164100
+    168341
    ]
   },
   "influencer_spend": [
@@ -5039,7 +4925,7 @@ const FIN_DATA = {
    2505556,
    294456,
    273528,
-   210657
+   219622
   ],
   "cm_final": [
    319775,
@@ -5052,7 +4938,7 @@ const FIN_DATA = {
    2505556,
    294456,
    273528,
-   210657
+   219622
   ]
  }
 };

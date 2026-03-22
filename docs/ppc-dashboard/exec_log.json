@@ -448,9 +448,9 @@
    "roas_7d": null,
    "spend_7d": 40.72,
    "sales_7d": 295.2,
-   "result_status": "OK",
+   "result_status": "PHANTOM",
    "exec_date": "2026-03-20",
-   "verify_note": "Re-verified: keyword exists in Manual campaign (fixed 2026-03-22)"
+   "verify_note": "Keyword not found in any Manual campaign (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -527,9 +527,9 @@
    "roas_7d": null,
    "spend_7d": 8.84,
    "sales_7d": 98.4,
-   "result_status": "OK",
+   "result_status": "PHANTOM",
    "exec_date": "2026-03-20",
-   "verify_note": "Re-verified: keyword exists in Manual campaign (fixed 2026-03-22)"
+   "verify_note": "Keyword not found in any Manual campaign (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -756,9 +756,9 @@
    "roas_7d": null,
    "spend_7d": 40.72,
    "sales_7d": 295.2,
-   "result_status": "OK",
+   "result_status": "PHANTOM",
    "exec_date": "2026-03-21",
-   "verify_note": "Re-verified: keyword exists in Manual campaign (fixed 2026-03-22)"
+   "verify_note": "Keyword not found in any Manual campaign (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -835,9 +835,9 @@
    "roas_7d": null,
    "spend_7d": 8.84,
    "sales_7d": 98.4,
-   "result_status": "OK",
+   "result_status": "PHANTOM",
    "exec_date": "2026-03-21",
-   "verify_note": "Re-verified: keyword exists in Manual campaign (fixed 2026-03-22)"
+   "verify_note": "Keyword not found in any Manual campaign (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -1047,9 +1047,9 @@
    "roas_7d": null,
    "spend_7d": 36.01,
    "sales_7d": 246.0,
-   "result_status": "OK",
+   "result_status": "PHANTOM",
    "exec_date": "2026-03-22",
-   "verify_note": "Re-verified: keyword exists in Manual campaign (fixed 2026-03-22)"
+   "verify_note": "Keyword not found in any Manual campaign (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -1126,9 +1126,9 @@
    "roas_7d": null,
    "spend_7d": 8.2,
    "sales_7d": 98.4,
-   "result_status": "OK",
+   "result_status": "PHANTOM",
    "exec_date": "2026-03-22",
-   "verify_note": "Re-verified: keyword exists in Manual campaign (fixed 2026-03-22)"
+   "verify_note": "Keyword not found in any Manual campaign (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
