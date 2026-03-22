@@ -270,6 +270,14 @@
 - **수정**: `exec_log.json` (git에 커밋된 persistent log)도 dedup 소스로 추가
 - **예방**: Actions에서 돌아가는 로직은 로컬 파일(.tmp/) 의존 금지. git-committed 파일 또는 API/DB에서 히스토리 로드
 
+### M-029: 존재하지 않는 함수 호출 — 배포 전 테스트 미실행
+- **에이전트**: Core (모든 에이전트 공통)
+- **날짜**: 2026-03-22
+- **상황**: `--verify` CLI 옵션 추가 후 `_ensure_auth()` 호출했으나 해당 함수가 존재하지 않음
+- **에러**: `NameError: name '_ensure_auth' is not defined`
+- **수정**: `_ensure_auth()` 호출 제거 (인증은 API 호출 시 `get_access_token()`이 자동 처리)
+- **예방**: 새 코드 추가 후 반드시 로컬에서 1회 실행 테스트. 존재하지 않는 함수 참조 금지. push 전 `python -c "import tools.amazon_ppc_executor"` 최소 import 테스트
+
 ### M-XXX: 에러 제목
 - **에이전트**: 에이전트명
 - **날짜**: YYYY-MM-DD

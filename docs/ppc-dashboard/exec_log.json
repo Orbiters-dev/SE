@@ -448,8 +448,9 @@
    "roas_7d": null,
    "spend_7d": 40.72,
    "sales_7d": 295.2,
-   "result_status": "OK",
-   "exec_date": "2026-03-20"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-20",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -467,8 +468,9 @@
    "roas_7d": null,
    "spend_7d": 12.29,
    "sales_7d": 246.0,
-   "result_status": "OK",
-   "exec_date": "2026-03-20"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-20",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -486,8 +488,9 @@
    "roas_7d": null,
    "spend_7d": 15.25,
    "sales_7d": 123.0,
-   "result_status": "OK",
-   "exec_date": "2026-03-20"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-20",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -524,8 +527,9 @@
    "roas_7d": null,
    "spend_7d": 8.84,
    "sales_7d": 98.4,
-   "result_status": "OK",
-   "exec_date": "2026-03-20"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-20",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -543,8 +547,9 @@
    "roas_7d": null,
    "spend_7d": 14.65,
    "sales_7d": 73.8,
-   "result_status": "OK",
-   "exec_date": "2026-03-20"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-20",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -562,8 +567,9 @@
    "roas_7d": null,
    "spend_7d": 8.92,
    "sales_7d": 49.2,
-   "result_status": "OK",
-   "exec_date": "2026-03-20"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-20",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -581,8 +587,9 @@
    "roas_7d": null,
    "spend_7d": 12.37,
    "sales_7d": 49.2,
-   "result_status": "OK",
-   "exec_date": "2026-03-20"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-20",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -600,8 +607,9 @@
    "roas_7d": null,
    "spend_7d": 10.44,
    "sales_7d": 49.2,
-   "result_status": "OK",
-   "exec_date": "2026-03-20"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-20",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -619,8 +627,9 @@
    "roas_7d": null,
    "spend_7d": 9.47,
    "sales_7d": 49.2,
-   "result_status": "OK",
-   "exec_date": "2026-03-20"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-20",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -747,8 +756,9 @@
    "roas_7d": null,
    "spend_7d": 40.72,
    "sales_7d": 295.2,
-   "result_status": "OK",
-   "exec_date": "2026-03-21"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-21",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -766,8 +776,9 @@
    "roas_7d": null,
    "spend_7d": 12.29,
    "sales_7d": 246.0,
-   "result_status": "OK",
-   "exec_date": "2026-03-21"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-21",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -785,8 +796,9 @@
    "roas_7d": null,
    "spend_7d": 15.25,
    "sales_7d": 123.0,
-   "result_status": "OK",
-   "exec_date": "2026-03-21"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-21",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -823,8 +835,9 @@
    "roas_7d": null,
    "spend_7d": 8.84,
    "sales_7d": 98.4,
-   "result_status": "OK",
-   "exec_date": "2026-03-21"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-21",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -842,8 +855,9 @@
    "roas_7d": null,
    "spend_7d": 14.65,
    "sales_7d": 73.8,
-   "result_status": "OK",
-   "exec_date": "2026-03-21"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-21",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -861,8 +875,9 @@
    "roas_7d": null,
    "spend_7d": 8.92,
    "sales_7d": 49.2,
-   "result_status": "OK",
-   "exec_date": "2026-03-21"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-21",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -880,8 +895,9 @@
    "roas_7d": null,
    "spend_7d": 12.37,
    "sales_7d": 49.2,
-   "result_status": "OK",
-   "exec_date": "2026-03-21"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-21",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -899,8 +915,9 @@
    "roas_7d": null,
    "spend_7d": 10.44,
    "sales_7d": 49.2,
-   "result_status": "OK",
-   "exec_date": "2026-03-21"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-21",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -918,8 +935,9 @@
    "roas_7d": null,
    "spend_7d": 9.47,
    "sales_7d": 49.2,
-   "result_status": "OK",
-   "exec_date": "2026-03-21"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-21",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -1029,8 +1047,9 @@
    "roas_7d": null,
    "spend_7d": 36.01,
    "sales_7d": 246.0,
-   "result_status": "OK",
-   "exec_date": "2026-03-22"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-22",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -1048,8 +1067,9 @@
    "roas_7d": null,
    "spend_7d": 10.49,
    "sales_7d": 147.6,
-   "result_status": "OK",
-   "exec_date": "2026-03-22"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-22",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -1067,8 +1087,9 @@
    "roas_7d": null,
    "spend_7d": 14.22,
    "sales_7d": 123.0,
-   "result_status": "OK",
-   "exec_date": "2026-03-22"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-22",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -1105,8 +1126,9 @@
    "roas_7d": null,
    "spend_7d": 8.2,
    "sales_7d": 98.4,
-   "result_status": "OK",
-   "exec_date": "2026-03-22"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-22",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -1124,8 +1146,9 @@
    "roas_7d": null,
    "spend_7d": 14.65,
    "sales_7d": 73.8,
-   "result_status": "OK",
-   "exec_date": "2026-03-22"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-22",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",
@@ -1143,8 +1166,9 @@
    "roas_7d": null,
    "spend_7d": 9.21,
    "sales_7d": 49.2,
-   "result_status": "OK",
-   "exec_date": "2026-03-22"
+   "result_status": "PHANTOM",
+   "exec_date": "2026-03-22",
+   "verify_note": "Keyword not found on Amazon (verified 2026-03-22)"
   },
   {
    "brand_key": "naeiae",

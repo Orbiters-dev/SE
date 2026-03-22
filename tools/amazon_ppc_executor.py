@@ -5941,7 +5941,6 @@ def main():
         print("=" * 60)
         print("  EXECUTION VERIFICATION (last 3 days)")
         print("=" * 60)
-        _ensure_auth()
         result = verify_recent_executions(lookback_days=3)
         if result.get("warnings"):
             print(f"\n  WARNING: {result['phantom']} phantom executions detected!")
