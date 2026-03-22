@@ -2680,8 +2680,9 @@ def verify_recent_executions(lookback_days: int = 3) -> Dict:
     profiles = get_all_us_profiles()
 
     # Cache: (profile_id, campaign_id) -> set of keyword texts
-    kw_cache = {}
-    neg_cache = {}
+    kw_cache = {}        # per-campaign keyword cache
+    neg_cache = {}       # per-campaign negative keyword cache
+    brand_kw_cache = {}  # per-brand ALL keywords across all campaigns
     phantom_count = 0
     verified_count = 0
     warnings = []
@@ -2691,6 +2692,26 @@ def verify_recent_executions(lookback_days: int = 3) -> Dict:
         if not profile:
             continue
         pid = profile["profile_id"]
+
+        # Build brand-wide keyword set (harvest goes to Manual, not source Auto)
+        if brand_key not in brand_kw_cache:
+            all_kws = set()
+            try:
+                camps = fetch_campaigns(pid)
+                for c in camps:
+                    cid_c = str(c.get("campaignId", ""))
+                    if c.get("targetingType") == "MANUAL":
+                        try:
+                            live = list_keywords(pid, cid_c)
+                            for k in live:
+                                all_kws.add(k.get("keywordText", "").lower().strip())
+                        except Exception:
+                            pass
+                brand_kw_cache[brand_key] = all_kws
+                print(f"  [{brand_key}] {len(all_kws)} keywords across all Manual campaigns")
+            except Exception as e:
+                print(f"  [{brand_key}] Failed to fetch campaigns: {e}")
+                brand_kw_cache[brand_key] = set()
 
         for entry in entries:
             if not isinstance(entry, dict):
@@ -2707,23 +2728,11 @@ def verify_recent_executions(lookback_days: int = 3) -> Dict:
             if not kw or not cid:
                 continue
 
-            # Fetch live keywords once per campaign
-            cache_key = (pid, cid)
             if action in ("harvest", "add_keyword"):
-                if cache_key not in kw_cache:
-                    try:
-                        live = list_keywords(pid, cid)
-                        kw_cache[cache_key] = {
-                            (k.get("keywordText", "").lower().strip())
-                            for k in live
-                        }
-                    except Exception as e:
-                        print(f"  [verify] Failed to list keywords for {cid}: {e}")
-                        kw_cache[cache_key] = set()
-
-                if kw.lower().strip() not in kw_cache[cache_key]:
+                # Harvest: check ALL Manual campaigns (keyword may be in different campaign than source)
+                if kw.lower().strip() not in brand_kw_cache.get(brand_key, set()):
                     entry["result_status"] = "PHANTOM"
-                    entry["verify_note"] = f"Keyword not found on Amazon (verified {date.today().isoformat()})"
+                    entry["verify_note"] = f"Keyword not found in any Manual campaign (verified {date.today().isoformat()})"
                     phantom_count += 1
                     warnings.append({
                         "brand": brand_key,
@@ -2737,6 +2746,8 @@ def verify_recent_executions(lookback_days: int = 3) -> Dict:
                     verified_count += 1
 
             elif "negate" in action:
+                # Negate: check specific campaign (negative stays in source campaign)
+                cache_key = (pid, cid)
                 if cache_key not in neg_cache:
                     try:
                         live = list_negative_keywords(pid, cid)
