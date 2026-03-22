@@ -356,11 +356,19 @@ class ContentPosts(models.Model):
     username = models.CharField(max_length=200)
     nickname = models.CharField(max_length=200, blank=True, default="")
     followers = models.IntegerField(default=0)
-    caption = models.TextField(blank=True, default="")
+    caption = models.TextField(blank=True, default="")  # U열 Caption
+    transcript = models.TextField(blank=True, default="")  # T열 Transcript (full 대사)
+    text = models.TextField(blank=True, default="")  # S열 Text
+    bio_text = models.TextField(blank=True, default="")  # W열 Bio text
     hashtags = models.TextField(blank=True, default="")
     tagged_account = models.CharField(max_length=200, blank=True, default="")
     post_date = models.DateField()
     brand = models.CharField(max_length=100, blank=True, default="")
+    # 30-day aggregate metrics (AM~AP열)
+    videos_30d = models.IntegerField(default=0)  # AM열 최근 30일 Video 수
+    views_30d = models.BigIntegerField(default=0)  # AN열 최근 30일 조회 수 총합
+    likes_30d = models.BigIntegerField(default=0)  # AO열 최근 30일 좋아요 수 총합
+    comments_30d = models.BigIntegerField(default=0)  # AP열 최근 30일 댓글 수 총합
     product_types = models.CharField(max_length=500, blank=True, default="")  # comma-separated: "PPSU Straw Cup,Stainless Tumbler"
     region = models.CharField(max_length=10, default="us")  # us, jp
     source = models.CharField(max_length=20, default="syncly")  # syncly, apify
