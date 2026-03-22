@@ -707,12 +707,30 @@ Shopify                         Apify / Syncly                   Gmail RAG
     <div class="card">
       <h3>&#x1F4F8; Content Tracking — Syncly Posts + D+60 Metrics</h3>
       <div class="desc">DataKeeper PG gk_content_posts + gk_content_metrics_daily. Creator별 최근 포스트, 조회수, 좋아요, 댓글.</div>
-      <div style="display:flex;gap:8px;margin:10px 0">
-        <input type="text" id="content-search" placeholder="Search by handle..." style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px">
+      <div style="display:flex;gap:8px;margin:10px 0;flex-wrap:wrap">
+        <input type="text" id="content-search" placeholder="Search by handle..." style="flex:1;min-width:150px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px">
+        <select id="content-period" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;background:var(--card)">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="60">Last 60 days</option>
+          <option value="90">Last 90 days</option>
+          <option value="">All time</option>
+        </select>
+        <select id="content-brand" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;background:var(--card)">
+          <option value="">All Brands</option>
+          <option value="Grosmimi">Grosmimi</option>
+          <option value="CHA%26MOM">CHA&amp;MOM</option>
+          <option value="Naeiae">Naeiae</option>
+        </select>
+        <select id="content-platform" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;background:var(--card)">
+          <option value="">All Platforms</option>
+          <option value="instagram">Instagram</option>
+          <option value="tiktok">TikTok</option>
+        </select>
         <button class="btn btn-primary" onclick="loadContentTab()" style="font-size:11px">Search</button>
-        <button class="btn btn-secondary" onclick="loadContentTab('all')" style="font-size:11px">Load All</button>
       </div>
-      <div id="content-results" style="font-size:11px;color:var(--dim)">Enter a handle or click "Load All" to view content posts.</div>
+      <div id="content-stats" style="display:flex;gap:12px;margin-bottom:8px;font-size:10px;color:var(--dim)"></div>
+      <div id="content-results" style="font-size:11px;color:var(--dim)">Select filters and click Search to load content posts.</div>
     </div>
   </div>
 
@@ -1416,36 +1434,50 @@ async function loadContentForCreator(creatorId, handle){
   }
 }
 
-async function loadContentTab(mode){
+async function loadContentTab(){
   var el=document.getElementById('content-results');
+  var statsEl=document.getElementById('content-stats');
   var search=document.getElementById('content-search').value.trim().replace(/^@/,'');
+  var days=document.getElementById('content-period').value;
+  var brand=document.getElementById('content-brand').value;
+  var platform=document.getElementById('content-platform').value;
   el.innerHTML='<div style="color:var(--dim);padding:10px">Loading...</div>';
   try{
     var dkBase=API_BASE.replace('/api/onzenna','/api/datakeeper');
-    var url=dkBase+'/query/?table=content_posts&limit=30';
+    var url=dkBase+'/query/?table=content_posts&limit=100';
     if(search)url+='&username='+encodeURIComponent(search);
+    if(days)url+='&days='+days;
+    if(brand)url+='&brand='+brand;
+    if(platform)url+='&platform='+platform;
     var r=await fetch(url,{headers:{'Authorization':'Basic '+btoa('admin:admin')}});
     var posts=await r.json();
     var rows=Array.isArray(posts)?posts:(posts.results||posts.rows||[]);
+    // Stats
+    var igCount=rows.filter(function(p){return p.platform==='instagram'}).length;
+    var ttCount=rows.filter(function(p){return p.platform==='tiktok'}).length;
+    var handles=new Set(rows.map(function(p){return p.username}));
+    statsEl.innerHTML='<span><b>'+rows.length+'</b> posts</span><span><b>'+handles.size+'</b> creators</span><span>IG: <b>'+igCount+'</b></span><span>TT: <b>'+ttCount+'</b></span>'+(days?'<span>Period: <b>'+days+' days</b></span>':'');
     if(!rows.length){el.innerHTML='<div style="padding:10px;color:var(--muted)">No content posts found'+(search?' for @'+esc(search):'')+'</div>';return}
     var h='<table style="width:100%;font-size:10px;border-collapse:collapse;margin-top:8px">';
-    h+='<tr style="background:var(--border);font-weight:700"><th style="padding:6px 8px;text-align:left">Handle</th><th style="padding:6px 8px;text-align:left">Platform</th><th style="padding:6px 8px;text-align:left">Post Link</th><th style="padding:6px 8px;text-align:left">Brand</th><th style="padding:6px 8px;text-align:left">Date</th><th style="padding:6px 8px;text-align:left">Caption</th></tr>';
+    h+='<tr style="background:var(--border);font-weight:700"><th style="padding:6px 8px;text-align:left">Handle</th><th style="padding:6px 8px;text-align:left">Platform</th><th style="padding:6px 8px;text-align:left">Post</th><th style="padding:6px 8px;text-align:left">Brand</th><th style="padding:6px 8px;text-align:left">Date</th><th style="padding:6px 8px;text-align:left">Caption / Transcript</th></tr>';
     for(var i=0;i<rows.length;i++){
       var p=rows[i];
-      var platform=p.platform==='tiktok'?'TikTok':'Instagram';
-      var link=p.url?'<a href="'+esc(p.url)+'" target="_blank" style="color:var(--a)">View Post</a>':'—';
-      var caption=(p.caption||'').substring(0,80);
+      var plat=p.platform==='tiktok'?'TT':'IG';
+      var link=p.url?'<a href="'+esc(p.url)+'" target="_blank" style="color:var(--a);text-decoration:none">&#x1F517; '+plat+'</a>':'—';
+      var caption=(p.caption||'').substring(0,120);
+      var daysAgo=p.post_date?Math.floor((Date.now()-new Date(p.post_date).getTime())/(86400000)):0;
+      var dateLabel=esc((p.post_date||'').slice(0,10))+(daysAgo>0?' <span style="color:var(--muted)">('+daysAgo+'d ago)</span>':'');
       h+='<tr style="border-bottom:1px solid var(--border)">';
-      h+='<td style="padding:5px 8px;font-family:var(--mono);font-weight:600">@'+esc(p.username||'')+'</td>';
-      h+='<td style="padding:5px 8px"><span class="b '+(p.platform==='tiktok'?'am':'a')+'">'+platform+'</span></td>';
+      h+='<td style="padding:5px 8px;font-family:var(--mono);font-weight:600;white-space:nowrap"><a href="https://instagram.com/'+esc(p.username||'')+'" target="_blank" style="color:var(--fg);text-decoration:none">@'+esc(p.username||'')+'</a></td>';
+      h+='<td style="padding:5px 8px"><span class="b '+(p.platform==='tiktok'?'am':'a')+'">'+plat+'</span></td>';
       h+='<td style="padding:5px 8px">'+link+'</td>';
-      h+='<td style="padding:5px 8px">'+esc(p.brand||'')+'</td>';
-      h+='<td style="padding:5px 8px;color:var(--dim)">'+esc((p.post_date||'').slice(0,10))+'</td>';
-      h+='<td style="padding:5px 8px;color:var(--dim);font-size:9px">'+esc(caption)+(caption.length>=80?'...':'')+'</td>';
+      h+='<td style="padding:5px 8px"><span class="b '+(p.brand==='Grosmimi'?'g':p.brand==='CHA&MOM'?'c':'am')+'">'+esc(p.brand||'')+'</span></td>';
+      h+='<td style="padding:5px 8px;font-size:9px">'+dateLabel+'</td>';
+      h+='<td style="padding:5px 8px;color:var(--dim);font-size:9px;max-width:300px;overflow:hidden;text-overflow:ellipsis">'+esc(caption)+(caption.length>=120?'...':'')+'</td>';
       h+='</tr>';
     }
     h+='</table>';
-    h+='<div style="margin-top:6px;font-size:9px;color:var(--dim)">Source: DataKeeper PG gk_content_posts | '+rows.length+' posts shown</div>';
+    h+='<div style="margin-top:6px;font-size:9px;color:var(--dim)">Source: DataKeeper PG gk_content_posts | '+rows.length+' posts</div>';
     el.innerHTML=h;
   }catch(e){
     el.innerHTML='<div style="color:var(--r);padding:10px">Error: '+e.message+'</div>';
