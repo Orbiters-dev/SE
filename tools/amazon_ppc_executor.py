@@ -2626,6 +2626,150 @@ def list_asin_targets(profile_id: int, ad_group_id) -> list:
     return data.get("targetingClauses", data) if isinstance(data, dict) else data
 
 
+def list_keywords(profile_id: int, campaign_id, states=None) -> list:
+    """List keywords for a campaign across all states."""
+    headers = _headers(profile_id)
+    headers["Accept"] = "application/vnd.spKeyword.v3+json"
+    headers["Content-Type"] = "application/vnd.spKeyword.v3+json"
+    if states is None:
+        states = ["ENABLED", "PAUSED", "ARCHIVED"]
+    body = {
+        "campaignIdFilter": {"include": [str(campaign_id)]},
+        "stateFilter": {"include": states},
+        "maxResults": 1000,
+    }
+    resp = requests.post(f"{API_BASE}/sp/keywords/list", headers=headers,
+                         json=body, timeout=30)
+    resp.raise_for_status()
+    data = resp.json()
+    return data.get("keywords", data) if isinstance(data, dict) else data
+
+
+def list_negative_keywords(profile_id: int, campaign_id, states=None) -> list:
+    """List negative keywords for a campaign."""
+    headers = _headers(profile_id)
+    headers["Accept"] = "application/vnd.spNegativeKeyword.v3+json"
+    headers["Content-Type"] = "application/vnd.spNegativeKeyword.v3+json"
+    if states is None:
+        states = ["ENABLED"]
+    body = {
+        "campaignIdFilter": {"include": [str(campaign_id)]},
+        "stateFilter": {"include": states},
+        "maxResults": 1000,
+    }
+    resp = requests.post(f"{API_BASE}/sp/negativeKeywords/list", headers=headers,
+                         json=body, timeout=30)
+    resp.raise_for_status()
+    data = resp.json()
+    return data.get("negativeKeywords", data) if isinstance(data, dict) else data
+
+
+def verify_recent_executions(lookback_days: int = 3) -> Dict:
+    """Verify exec_log entries from last N days against live Amazon Ads data.
+
+    Returns dict: {brand: [{entry, verified, live_status}, ...]}
+    Updates exec_log.json in-place: marks phantom entries as 'PHANTOM'.
+    """
+    exec_log_path = ROOT / "docs" / "ppc-dashboard" / "exec_log.json"
+    if not exec_log_path.exists():
+        print("[verify] exec_log.json not found")
+        return {}
+
+    elog = json.loads(exec_log_path.read_text(encoding="utf-8"))
+    cutoff = (date.today() - timedelta(days=lookback_days)).isoformat()
+    profiles = get_all_us_profiles()
+
+    # Cache: (profile_id, campaign_id) -> set of keyword texts
+    kw_cache = {}
+    neg_cache = {}
+    phantom_count = 0
+    verified_count = 0
+    warnings = []
+
+    for brand_key, entries in elog.items():
+        profile = profiles.get(brand_key)
+        if not profile:
+            continue
+        pid = profile["profile_id"]
+
+        for entry in entries:
+            if not isinstance(entry, dict):
+                continue
+            exec_dt = (entry.get("exec_date") or "")[:10]
+            if exec_dt < cutoff:
+                continue
+            if entry.get("result_status") != "OK":
+                continue
+
+            action = entry.get("action", "")
+            kw = entry.get("keyword", "")
+            cid = entry.get("campaignId", "")
+            if not kw or not cid:
+                continue
+
+            # Fetch live keywords once per campaign
+            cache_key = (pid, cid)
+            if action in ("harvest", "add_keyword"):
+                if cache_key not in kw_cache:
+                    try:
+                        live = list_keywords(pid, cid)
+                        kw_cache[cache_key] = {
+                            (k.get("keywordText", "").lower().strip())
+                            for k in live
+                        }
+                    except Exception as e:
+                        print(f"  [verify] Failed to list keywords for {cid}: {e}")
+                        kw_cache[cache_key] = set()
+
+                if kw.lower().strip() not in kw_cache[cache_key]:
+                    entry["result_status"] = "PHANTOM"
+                    entry["verify_note"] = f"Keyword not found on Amazon (verified {date.today().isoformat()})"
+                    phantom_count += 1
+                    warnings.append({
+                        "brand": brand_key,
+                        "keyword": kw,
+                        "action": action,
+                        "exec_date": exec_dt,
+                        "campaign": entry.get("campaignName", "")[:30],
+                    })
+                    print(f"  [PHANTOM] {brand_key} | {action} | '{kw}' | {exec_dt} | NOT on Amazon")
+                else:
+                    verified_count += 1
+
+            elif "negate" in action:
+                if cache_key not in neg_cache:
+                    try:
+                        live = list_negative_keywords(pid, cid)
+                        neg_cache[cache_key] = {
+                            (k.get("keywordText", "").lower().strip())
+                            for k in live
+                        }
+                    except Exception as e:
+                        print(f"  [verify] Failed to list neg keywords for {cid}: {e}")
+                        neg_cache[cache_key] = set()
+
+                if kw.lower().strip() not in neg_cache[cache_key]:
+                    entry["result_status"] = "PHANTOM"
+                    entry["verify_note"] = f"Neg keyword not found on Amazon (verified {date.today().isoformat()})"
+                    phantom_count += 1
+                    warnings.append({
+                        "brand": brand_key,
+                        "keyword": kw,
+                        "action": action,
+                        "exec_date": exec_dt,
+                        "campaign": entry.get("campaignName", "")[:30],
+                    })
+                    print(f"  [PHANTOM] {brand_key} | {action} | '{kw}' | {exec_dt} | NOT on Amazon")
+                else:
+                    verified_count += 1
+
+    # Save updated exec_log
+    exec_log_path.write_text(json.dumps(elog, indent=1, ensure_ascii=False), encoding="utf-8")
+    print(f"\n[verify] Done: {verified_count} verified OK, {phantom_count} PHANTOM detected")
+
+    return {"verified": verified_count, "phantom": phantom_count, "warnings": warnings}
+
+
 def pause_keyword(profile_id: int, keyword_id) -> Dict:
     """Pause a keyword."""
     headers = _headers(profile_id)
@@ -5789,7 +5933,21 @@ def main():
                         help="Auto-execute proposals that match autopilot tier settings (no email needed)")
     parser.add_argument("--skip-keywords", action="store_true",
                         help="Skip search term & keyword analysis (faster, campaign-level only)")
+    parser.add_argument("--verify", action="store_true",
+                        help="Verify recent exec_log entries against live Amazon Ads data (last 3 days)")
     args = parser.parse_args()
+
+    if args.verify:
+        print("=" * 60)
+        print("  EXECUTION VERIFICATION (last 3 days)")
+        print("=" * 60)
+        _ensure_auth()
+        result = verify_recent_executions(lookback_days=3)
+        if result.get("warnings"):
+            print(f"\n  WARNING: {result['phantom']} phantom executions detected!")
+            print("  These were marked 'OK' but keywords don't exist on Amazon.")
+            print("  exec_log.json has been updated with PHANTOM status.")
+        sys.exit(0)
 
     if args.status:
         brands = _resolve_brands(args)

@@ -115,6 +115,11 @@ jobs:
         env:
           PPC_REPORT_RECIPIENT: ${{ secrets.PPC_REPORT_RECIPIENT }}
 
+      - name: Verify recent executions against live Amazon data
+        run: |
+          echo "=== Verifying exec_log entries (last 3 days) ==="
+          python -u tools/amazon_ppc_executor.py --verify 2>&1 || echo "[WARN] Verification had issues"
+
       - name: Update dashboard data.js
         run: |
           # Regenerate if proposal JSONs or execution logs exist

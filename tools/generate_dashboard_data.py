@@ -356,7 +356,32 @@ def main():
 
     # Build PPC_DATA
     now_pst = datetime.now(PDT).strftime("%Y-%m-%d %H:%M PST")
-    ppc = {"generated_pst": now_pst, "brands": {}}
+
+    # Scan exec_log for PHANTOM entries (last 7 days) → dashboard warnings
+    phantom_warnings = []
+    if EXEC_LOG.exists():
+        try:
+            _elog = json.loads(EXEC_LOG.read_text(encoding="utf-8"))
+            _cutoff = (datetime.now(PDT) - timedelta(days=7)).strftime("%Y-%m-%d")
+            for _bk, _entries in _elog.items():
+                for _e in _entries:
+                    if not isinstance(_e, dict):
+                        continue
+                    if _e.get("result_status") == "PHANTOM":
+                        _dt = (_e.get("exec_date") or "")[:10]
+                        if _dt >= _cutoff:
+                            phantom_warnings.append({
+                                "brand": _bk,
+                                "keyword": _e.get("keyword", ""),
+                                "action": _e.get("action", ""),
+                                "exec_date": _dt,
+                                "campaign": (_e.get("campaignName") or "")[:30],
+                                "note": _e.get("verify_note", ""),
+                            })
+        except Exception:
+            pass
+
+    ppc = {"generated_pst": now_pst, "phantom_warnings": phantom_warnings, "brands": {}}
     for bk in ["grosmimi", "naeiae", "chaenmom"]:
         bd = brands_data.get(bk, {})
         exec_log = bd.pop("execution_log", [])

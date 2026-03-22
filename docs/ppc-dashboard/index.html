@@ -1194,6 +1194,19 @@ document.addEventListener('input', function(e) {
 // Hero meta
 document.getElementById('hero-meta').innerHTML = '<span class="pill"><span class="dot"></span> DataKeeper: ' + D.generated_pst + '</span><span class="pill">3 Brands</span><span class="pill" id="live-status">Connecting to API...</span>';
 
+// Phantom execution warnings
+if (D.phantom_warnings && D.phantom_warnings.length > 0) {
+  var warnHtml = '<div style="background:#dc3545;color:#fff;padding:12px 20px;border-radius:8px;margin:12px 24px 0;font-size:14px;">';
+  warnHtml += '<b>\u26A0 PHANTOM EXECUTIONS DETECTED (' + D.phantom_warnings.length + ')</b> — These were marked "OK" but keywords don\'t exist on Amazon:<br>';
+  warnHtml += '<table style="width:100%;margin-top:8px;font-size:13px;color:#fff;border-collapse:collapse;">';
+  warnHtml += '<tr style="opacity:0.8"><th style="text-align:left;padding:2px 8px">Brand</th><th style="text-align:left;padding:2px 8px">Keyword</th><th style="text-align:left;padding:2px 8px">Action</th><th style="text-align:left;padding:2px 8px">Date</th><th style="text-align:left;padding:2px 8px">Campaign</th></tr>';
+  D.phantom_warnings.forEach(function(w) {
+    warnHtml += '<tr><td style="padding:2px 8px">' + w.brand + '</td><td style="padding:2px 8px"><b>' + w.keyword + '</b></td><td style="padding:2px 8px">' + w.action + '</td><td style="padding:2px 8px">' + w.exec_date + '</td><td style="padding:2px 8px">' + w.campaign + '</td></tr>';
+  });
+  warnHtml += '</table></div>';
+  document.getElementById('hero-meta').insertAdjacentHTML('afterend', warnHtml);
+}
+
 // ── Live API Fetch ──
 var API_BASE = 'https://orbitools.orbiters.co.kr/api/datakeeper';
 var API_AUTH = ''; // Set via PAT modal or hardcoded basic auth
