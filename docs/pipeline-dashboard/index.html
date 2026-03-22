@@ -134,6 +134,15 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 <!-- MAIN CONTENT -->
 <div id="main-content" style="display:none">
 <div class="ctr">
+  <!-- Top-level navigation — switches between dashboards -->
+  <div class="nav-bar" style="margin-bottom:16px">
+    <div>
+      <a href="../ppc-dashboard/" title="Amazon PPC Intelligence">Amazon PPC</a>
+      <a href="../content-dashboard/" title="Content Intelligence — Full Leaderboard + Metrics">Content Intelligence</a>
+      <a class="active">Pipeline CRM</a>
+      <a href="../fin-dashboard/" title="Financial KPIs">Financial KPIs</a>
+    </div>
+  </div>
   <div class="hero">
     <h1>&#x1F4CB; Pipeline <span>CRM</span></h1>
     <div class="sub">Creator Collab Pipeline &#8212; Full Management Dashboard</div>
@@ -705,7 +714,9 @@ Shopify                         Apify / Syncly                   Gmail RAG
   <!-- ===== TAB 4: CONTENT ===== -->
   <div class="mp" id="p-content">
     <div class="card">
-      <h3>&#x1F4F8; Content Tracking — Syncly Posts + D+60 Metrics</h3>
+      <h3 style="display:flex;align-items:center;gap:8px">&#x1F4F8; Content Tracking — Syncly Posts + D+60 Metrics
+        <a href="../content-dashboard/" style="margin-left:auto;font-size:10px;padding:4px 12px;background:var(--a);color:#fff;border-radius:6px;text-decoration:none;font-weight:600">&#x1F4CA; Full Content Intelligence →</a>
+      </h3>
       <div class="desc">DataKeeper PG gk_content_posts + gk_content_metrics_daily. Creator별 최근 포스트, 조회수, 좋아요, 댓글.</div>
       <div style="display:flex;gap:8px;margin:10px 0;flex-wrap:wrap">
         <input type="text" id="content-search" placeholder="Search by handle..." style="flex:1;min-width:150px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px">
