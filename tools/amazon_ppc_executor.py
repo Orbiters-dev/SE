@@ -2505,6 +2505,34 @@ def add_keyword(profile_id: int, campaign_id, ad_group_id, keyword_text: str,
     return result
 
 
+def _verify_keyword_added(profile_id: int, campaign_id, ad_group_id,
+                           keyword_text: str, add_result: Dict):
+    """Post-execution verify: confirm keyword actually exists on Amazon.
+
+    Checks the add_keyword API response for a valid keywordId.
+    If missing, raises RuntimeError so exec_log records FAIL, not phantom OK.
+    """
+    kw_list = add_result.get("keywords", [])
+    if not kw_list:
+        raise RuntimeError(
+            f"VERIFY FAIL: '{keyword_text}' -- API returned empty keywords list"
+        )
+    kw_entry = kw_list[0]
+    kw_id = kw_entry.get("keywordId")
+    code = kw_entry.get("code", "")
+
+    if code and code != "SUCCESS":
+        raise RuntimeError(
+            f"VERIFY FAIL: '{keyword_text}' -- code={code}, "
+            f"desc={kw_entry.get('description', kw_entry.get('details', 'unknown'))}"
+        )
+    if not kw_id:
+        raise RuntimeError(
+            f"VERIFY FAIL: '{keyword_text}' -- no keywordId in response"
+        )
+    print(f"    -> VERIFIED: keywordId={kw_id}")
+
+
 def add_negative_keyword(profile_id: int, campaign_id, ad_group_id,
                          keyword_text: str, match_type: str = "NEGATIVE_EXACT") -> Dict:
     """Add a negative keyword to block unprofitable search terms."""
@@ -2937,6 +2965,11 @@ def execute_approved(proposal_data: Dict, user: str = "CLI", source: str = "manu
                 result = add_keyword(
                     profile_id, kp["sourceCampaignId"], kp["sourceAdGroupId"],
                     term, "EXACT", kp["proposed_bid"],
+                )
+                # Verify keyword actually exists after add
+                _verify_keyword_added(
+                    profile_id, kp["sourceCampaignId"], kp["sourceAdGroupId"],
+                    term, result,
                 )
                 # Add as negative in source campaign to prevent cannibalization
                 add_negative_keyword(
