@@ -704,11 +704,15 @@ Shopify                         Apify / Syncly                   Gmail RAG
 
   <!-- ===== TAB 4: CONTENT ===== -->
   <div class="mp" id="p-content">
-    <div class="card" style="text-align:center;padding:40px">
-      <div style="font-size:32px;margin-bottom:10px">&#x1F4F8;</div>
-      <h3 style="justify-content:center">Content Tracking</h3>
-      <div class="desc">Influencer post tracking + D+60 metrics<br>Phase 2 &#8212; connects to DataKeeper content_posts + content_metrics_daily</div>
-      <p style="font-size:11px;color:var(--muted);margin-top:12px">Coming soon: Post links, view/like/comment metrics, Syncly integration</p>
+    <div class="card">
+      <h3>&#x1F4F8; Content Tracking — Syncly Posts + D+60 Metrics</h3>
+      <div class="desc">DataKeeper PG gk_content_posts + gk_content_metrics_daily. Creator별 최근 포스트, 조회수, 좋아요, 댓글.</div>
+      <div style="display:flex;gap:8px;margin:10px 0">
+        <input type="text" id="content-search" placeholder="Search by handle..." style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px">
+        <button class="btn btn-primary" onclick="loadContentTab()" style="font-size:11px">Search</button>
+        <button class="btn btn-secondary" onclick="loadContentTab('all')" style="font-size:11px">Load All</button>
+      </div>
+      <div id="content-results" style="font-size:11px;color:var(--dim)">Enter a handle or click "Load All" to view content posts.</div>
     </div>
   </div>
 
@@ -1410,6 +1414,40 @@ async function loadContentForCreator(creatorId, handle){
   }
 }
 
+async function loadContentTab(mode){
+  var el=document.getElementById('content-results');
+  var search=document.getElementById('content-search').value.trim().replace(/^@/,'');
+  el.innerHTML='<div style="color:var(--dim);padding:10px">Loading...</div>';
+  try{
+    var url='/datakeeper/query/?table=content_posts&limit=30';
+    if(search)url+='&username='+encodeURIComponent(search);
+    var posts=await apiFetch(url);
+    var rows=Array.isArray(posts)?posts:(posts.results||posts.rows||[]);
+    if(!rows.length){el.innerHTML='<div style="padding:10px;color:var(--muted)">No content posts found'+(search?' for @'+esc(search):'')+'</div>';return}
+    var h='<table style="width:100%;font-size:10px;border-collapse:collapse;margin-top:8px">';
+    h+='<tr style="background:var(--border);font-weight:700"><th style="padding:6px 8px;text-align:left">Handle</th><th style="padding:6px 8px;text-align:left">Platform</th><th style="padding:6px 8px;text-align:left">Post Link</th><th style="padding:6px 8px;text-align:left">Brand</th><th style="padding:6px 8px;text-align:left">Date</th><th style="padding:6px 8px;text-align:left">Caption</th></tr>';
+    for(var i=0;i<rows.length;i++){
+      var p=rows[i];
+      var platform=p.platform==='tiktok'?'TikTok':'Instagram';
+      var link=p.url?'<a href="'+esc(p.url)+'" target="_blank" style="color:var(--a)">View Post</a>':'—';
+      var caption=(p.caption||'').substring(0,80);
+      h+='<tr style="border-bottom:1px solid var(--border)">';
+      h+='<td style="padding:5px 8px;font-family:var(--mono);font-weight:600">@'+esc(p.username||'')+'</td>';
+      h+='<td style="padding:5px 8px"><span class="b '+(p.platform==='tiktok'?'am':'a')+'">'+platform+'</span></td>';
+      h+='<td style="padding:5px 8px">'+link+'</td>';
+      h+='<td style="padding:5px 8px">'+esc(p.brand||'')+'</td>';
+      h+='<td style="padding:5px 8px;color:var(--dim)">'+esc((p.post_date||'').slice(0,10))+'</td>';
+      h+='<td style="padding:5px 8px;color:var(--dim);font-size:9px">'+esc(caption)+(caption.length>=80?'...':'')+'</td>';
+      h+='</tr>';
+    }
+    h+='</table>';
+    h+='<div style="margin-top:6px;font-size:9px;color:var(--dim)">Source: DataKeeper PG gk_content_posts | '+rows.length+' posts shown</div>';
+    el.innerHTML=h;
+  }catch(e){
+    el.innerHTML='<div style="color:var(--r);padding:10px">Error: '+e.message+'</div>';
+  }
+}
+
 function profileLinks(c){
   var html='';
   if(c.ig_handle){
@@ -1453,10 +1491,65 @@ function renderCreatorsTable(data){
     for(var j=0;j<PIPELINE_STAGES.length;j++){
       html+='<option value="'+PIPELINE_STAGES[j]+'"'+(PIPELINE_STAGES[j]===c.pipeline_status?' selected':'')+'>'+PIPELINE_STAGES[j]+'</option>';
     }
-    html+='</select></td>';
+    html+='</select>';
+    html+=' <button onclick="toggleEmailHistory(\''+c.id+'\',\''+esc(c.email)+'\')" style="background:none;border:1px solid var(--border);border-radius:3px;cursor:pointer;font-size:8px;padding:1px 4px;color:var(--a)" title="Email history">&#x1F4E7;</button>';
+    html+='</td>';
     html+='</tr>';
+    // Hidden email history row (accordion)
+    html+='<tr id="email-hist-'+c.id+'" style="display:none"><td colspan="9" style="padding:0">';
+    html+='<div style="background:#f8fafc;border:1px solid var(--border);border-radius:6px;margin:4px 8px 8px;padding:10px;font-size:10px">';
+    html+='<div id="email-hist-content-'+c.id+'" style="color:var(--dim)">Loading email history...</div>';
+    html+='</div></td></tr>';
   }
   body.innerHTML=html;
+}
+
+async function toggleEmailHistory(creatorId, email){
+  var row=document.getElementById('email-hist-'+creatorId);
+  if(row.style.display==='none'){
+    row.style.display='table-row';
+    // Load conversations from PG
+    try{
+      var convs=await apiFetch('/pipeline/conversations/?email='+encodeURIComponent(email)+'&limit=20');
+      var logs=await apiFetch('/pipeline/reply-log/?days=30');
+      var el=document.getElementById('email-hist-content-'+creatorId);
+      var items=(Array.isArray(convs)?convs:convs.results||[]).filter(function(c){return c.creator_email===email});
+      var relatedLogs=(Array.isArray(logs)?logs:[]).filter(function(l){return l.creator_email===email});
+      if(items.length===0&&relatedLogs.length===0){
+        el.innerHTML='<span style="color:var(--muted)">No email history yet</span>';
+        return;
+      }
+      var h='<div style="font-weight:700;margin-bottom:6px;color:var(--fg)">Email History ('+email+')</div>';
+      h+='<table style="width:100%;font-size:9px;border-collapse:collapse">';
+      h+='<tr style="background:var(--border)"><th style="padding:3px 6px;text-align:left">Time</th><th style="padding:3px 6px;text-align:left">Direction</th><th style="padding:3px 6px;text-align:left">Subject</th><th style="padding:3px 6px;text-align:left">Intent</th><th style="padding:3px 6px;text-align:left">Auto</th></tr>';
+      // Merge conversations + reply logs by time
+      var all=[];
+      items.forEach(function(c){all.push({time:c.created_at,dir:c.direction,subject:c.subject||'',intent:'',auto:'',snippet:c.message_content||''})});
+      relatedLogs.forEach(function(l){all.push({time:l.processed_at,dir:'Inbound',subject:l.incoming_subject||'',intent:l.intent||'',auto:l.auto_sent?'Auto':'Manual',snippet:l.incoming_snippet||''})});
+      all.sort(function(a,b){return (b.time||'').localeCompare(a.time||'')});
+      all.forEach(function(r){
+        var dirColor=r.dir==='Outbound'?'var(--a)':'var(--g)';
+        var autoColor=r.auto==='Auto'?'var(--dim)':'var(--am)';
+        var timeStr=r.time?new Date(r.time).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+        h+='<tr style="border-bottom:1px solid var(--border)">';
+        h+='<td style="padding:3px 6px;color:var(--dim)">'+timeStr+'</td>';
+        h+='<td style="padding:3px 6px;color:'+dirColor+';font-weight:600">'+r.dir+'</td>';
+        h+='<td style="padding:3px 6px">'+esc((r.subject||'').substring(0,50))+'</td>';
+        h+='<td style="padding:3px 6px"><span class="b '+(r.intent==='Accept'?'g':r.intent==='FAQ_Gap'?'a':'')+'">'+esc(r.intent||'-')+'</span></td>';
+        h+='<td style="padding:3px 6px;color:'+autoColor+'">'+esc(r.auto||'-')+'</td>';
+        h+='</tr>';
+        if(r.snippet){
+          h+='<tr><td colspan="5" style="padding:2px 6px 6px 30px;color:var(--dim);font-style:italic;font-size:9px">'+esc(r.snippet.substring(0,150))+'</td></tr>';
+        }
+      });
+      h+='</table>';
+      el.innerHTML=h;
+    }catch(e){
+      document.getElementById('email-hist-content-'+creatorId).innerHTML='<span style="color:var(--r)">Error: '+e.message+'</span>';
+    }
+  }else{
+    row.style.display='none';
+  }
 }
 
 function renderPager(data){
