@@ -1,5 +1,5 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-22 15:15 PST",
+ "generated_pst": "2026-03-22 16:59 PST",
  "phantom_warnings": [
   {
    "brand": "naeiae",
@@ -7142,7 +7142,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-22": {
-     "generated": "2026-03-22T15:15",
+     "generated": "2026-03-22T16:59",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -10030,7 +10030,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-22": {
-     "generated": "2026-03-22T15:15",
+     "generated": "2026-03-22T16:59",
      "executed": true,
      "executed_at": "2026-03-22",
      "summary_7d": {
@@ -10055,7 +10055,7 @@ const PPC_DATA = {
        "bud_before": 100.0,
        "bud_after": null,
        "tier": "8 Strong",
-       "reason": "[MANUAL] 7d ROAS 5.31x (ACOS 18.8%) | 30d ROAS 3.55x | target ACOS 25.0% | 7d vs 30d: +49.6%\nBudget already at cap ($100/campaign)",
+       "reason": "[MANUAL] 7d ROAS 5.31x (ACOS 18.8%) | 30d ROAS 3.55x | target ACOS 30.0% | 7d vs 30d: +49.6%\nBudget already at cap ($100/campaign)",
        "approved": true
       },
       {
@@ -11157,19 +11157,41 @@ const PPC_DATA = {
     },
     {
      "brand_key": "naeiae",
+     "campaignId": "444108265805305",
+     "campaignName": "Naeiae Rice Pop - SP - Manual",
+     "action": "increase_budget",
+     "priority": "high",
+     "reason": "[MANUAL] 7d ROAS 5.31x (ACOS 18.8%) | 30d ROAS 3.55x | target ACOS 30.0% | 7d vs 30d: +49.6%\nBudget already at cap ($100/campaign)",
+     "old_budget": 100.0,
+     "new_budget": null,
+     "bid_change_pct": 10,
+     "roas_7d": 5.31,
+     "spend_7d": 185.15,
+     "sales_7d": 984.0,
+     "result_status": "OK",
+     "exec_date": "2026-03-22",
+     "exec_time": "2026-03-22 16:59:10 PST",
+     "user": "DASHBOARD",
+     "source": "dashboard"
+    },
+    {
+     "brand_key": "naeiae",
      "campaignId": "365330679770972",
      "campaignName": "Naeiae Rice Pop - SP - Auto",
      "action": "increase_budget",
      "priority": "medium",
-     "reason": "[AUTO] 7d ROAS 3.72x (ACOS 26.9%) | 30d ROAS 2.86x | target ACOS 35.0% | 7d vs 30d: +30.1%\nBudget already at cap ($100/campaign)",
+     "reason": "[AUTO] 7d ROAS 4.02x (ACOS 24.9%) | 30d ROAS 2.9x | target ACOS 35.0% | 7d vs 30d: +38.6%\nBudget already at cap ($100/campaign)",
      "old_budget": 100.0,
-     "new_budget": 100,
+     "new_budget": null,
      "bid_change_pct": -20,
-     "roas_7d": 3.72,
-     "spend_7d": 185.01,
+     "roas_7d": 4.02,
+     "spend_7d": 171.47,
      "sales_7d": 688.8,
      "result_status": "OK",
-     "exec_date": "2026-03-22"
+     "exec_date": "2026-03-22",
+     "exec_time": "2026-03-22 16:59:10 PST",
+     "user": "DASHBOARD",
+     "source": "dashboard"
     },
     {
      "brand_key": "naeiae",
@@ -12045,34 +12067,16 @@ const PPC_DATA = {
      }
     },
     "2026-03-22": {
-     "generated": "2026-03-22T15:15",
-     "executed": false,
-     "executed_at": "",
+     "generated": "2026-03-22T16:59",
+     "executed": true,
+     "executed_at": "2026-03-22",
      "summary_7d": {
-      "spend": 154,
-      "sales": 392,
-      "roas": 2.55,
-      "acos": "39.3%"
+      "spend": 47,
+      "sales": 286,
+      "roas": 6.09,
+      "acos": "16.4%"
      },
      "campaigns": [
-      {
-       "name": "CHA&MOM _Competitor Targeting_SP_Manual",
-       "type": "MANUAL",
-       "ad_type": "SP",
-       "roas7d": 0.99,
-       "acos7d": 101.0,
-       "spend7d": 107,
-       "sales7d": 106,
-       "cpc": 2.23,
-       "ctr": 0.14,
-       "action": "pause",
-       "bid_pct": null,
-       "bud_before": 50.0,
-       "bud_after": null,
-       "tier": "10 No-Brainer",
-       "reason": "[MANUAL] 7d ROAS 0.99x (ACOS 100.8%) | 30d ROAS 1.96x | target ACOS 30.0% | 7d vs 30d: -49.5%",
-       "approved": false
-      },
       {
        "name": "CHA&MOM_Cream_SP_Auto",
        "type": "AUTO",
@@ -12088,8 +12092,8 @@ const PPC_DATA = {
        "bud_before": 75.0,
        "bud_after": null,
        "tier": "8 Strong",
-       "reason": "[AUTO] 7d ROAS 17.75x (ACOS 5.6%) | 30d ROAS 14.93x | target ACOS 40.0% | 7d vs 30d: +18.9%\nBudget already at cap ($60/campaign)",
-       "approved": false
+       "reason": "[AUTO] 7d ROAS 17.75x (ACOS 5.6%) | 30d ROAS 14.93x | target ACOS 40.0% | 7d vs 30d: +18.9%\nBudget already at cap ($75/campaign)",
+       "approved": true
       },
       {
        "name": "CHA&MOM_Wash_SP_Auto",
@@ -12120,12 +12124,12 @@ const PPC_DATA = {
        "clicks": 16,
        "type": "negate_high_acos",
        "reason": "ACOS 149.5% > 50.0% threshold",
-       "campaign": "CHA&MOM _Competitor Targeting_",
+       "campaign": "",
        "sim_save": 0
       }
      ],
      "counts": {
-      "campaigns": 3,
+      "campaigns": 2,
       "harvest": 0,
       "negate": 1
      }
@@ -12252,6 +12256,22 @@ const PPC_DATA = {
      "sales_7d": 0.0,
      "result_status": "OK",
      "exec_date": "2026-03-20"
+    },
+    {
+     "brand_key": "chaenmom",
+     "campaignId": "283428786376604",
+     "campaignName": "CHA&MOM_Cream_SP_Auto",
+     "action": "increase_budget",
+     "priority": "high",
+     "reason": "[AUTO] 7d ROAS 17.75x (ACOS 5.6%) | 30d ROAS 14.93x | target ACOS 40.0% | 7d vs 30d: +18.9%\nBudget already at cap ($75/campaign)",
+     "old_budget": 75.0,
+     "new_budget": null,
+     "bid_change_pct": 10,
+     "roas_7d": 17.75,
+     "spend_7d": 10.04,
+     "sales_7d": 178.2,
+     "result_status": "OK",
+     "exec_date": "2026-03-22"
     }
    ]
   }
