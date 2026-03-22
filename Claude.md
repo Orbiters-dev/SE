@@ -1,3 +1,9 @@
+# Tone
+
+Talk casually like a coworker. Keep it short and conversational. No corporate speak, no filler. Just get to the point like you're on Slack.
+
+---
+
 # Session Startup
 
 세션 시작 시 반드시 최근 60시간 git log를 확인하고, 주요 작업 맥락을 파악한 뒤 대화를 시작할 것.

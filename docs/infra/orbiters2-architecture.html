@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORBI EC2 orbiters_2 — Infrastructure Map</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --card: #12121a;
+    --border: #1e1e2e;
+    --accent: #6366f1;
+    --accent2: #8b5cf6;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --cyan: #06b6d4;
+    --pink: #ec4899;
+    --orange: #f97316;
+    --text: #e2e8f0;
+    --muted: #64748b;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter','Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+  .header {
+    text-align:center; padding:40px 20px 20px;
+    background:linear-gradient(180deg, rgba(99,102,241,0.08) 0%, transparent 100%);
+    border-bottom:1px solid var(--border);
+  }
+  .header h1 { font-size:28px; font-weight:700; letter-spacing:-0.5px; }
+  .header h1 span { color:var(--accent); }
+  .header p { color:var(--muted); margin-top:8px; font-size:14px; }
+  .header .badge { display:inline-block; background:rgba(34,197,94,0.15); color:var(--green); padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600; margin-top:12px; }
+
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; max-width:1400px; margin:30px auto; padding:0 20px; }
+  .full { grid-column:1/-1; }
+
+  .card {
+    background:var(--card); border:1px solid var(--border); border-radius:12px;
+    overflow:hidden; transition:border-color 0.2s;
+  }
+  .card:hover { border-color:rgba(99,102,241,0.3); }
+  .card-header {
+    padding:16px 20px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:10px;
+  }
+  .card-header .icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .card-header h2 { font-size:16px; font-weight:600; }
+  .card-header .tag { margin-left:auto; font-size:11px; padding:3px 8px; border-radius:6px; font-weight:600; }
+  .card-body { padding:16px 20px; }
+
+  .icon-purple { background:rgba(99,102,241,0.15); }
+  .icon-green { background:rgba(34,197,94,0.15); }
+  .icon-blue { background:rgba(59,130,246,0.15); }
+  .icon-cyan { background:rgba(6,182,212,0.15); }
+  .icon-pink { background:rgba(236,72,153,0.15); }
+  .icon-orange { background:rgba(249,115,22,0.15); }
+  .icon-yellow { background:rgba(234,179,8,0.15); }
+
+  .tag-live { background:rgba(34,197,94,0.15); color:var(--green); }
+  .tag-docker { background:rgba(59,130,246,0.15); color:var(--blue); }
+  .tag-db { background:rgba(139,92,246,0.15); color:var(--accent2); }
+
+  .service-row {
+    display:flex; align-items:center; padding:10px 0;
+    border-bottom:1px solid rgba(30,30,46,0.6);
+  }
+  .service-row:last-child { border-bottom:none; }
+  .service-dot { width:8px; height:8px; border-radius:50%; margin-right:12px; flex-shrink:0; }
+  .dot-green { background:var(--green); box-shadow:0 0 6px rgba(34,197,94,0.4); }
+  .dot-yellow { background:var(--yellow); box-shadow:0 0 6px rgba(234,179,8,0.4); }
+  .dot-red { background:var(--red); box-shadow:0 0 6px rgba(239,68,68,0.4); }
+  .dot-blue { background:var(--blue); box-shadow:0 0 6px rgba(59,130,246,0.4); }
+  .service-name { font-weight:500; font-size:14px; min-width:180px; }
+  .service-detail { color:var(--muted); font-size:12px; flex:1; }
+  .service-port { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--cyan); background:rgba(6,182,212,0.1); padding:2px 8px; border-radius:4px; margin-left:8px; }
+
+  .db-table {
+    width:100%; border-collapse:collapse; font-size:13px;
+  }
+  .db-table th {
+    text-align:left; padding:8px 12px; color:var(--muted); font-weight:500;
+    border-bottom:1px solid var(--border); font-size:11px; text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .db-table td { padding:8px 12px; border-bottom:1px solid rgba(30,30,46,0.4); }
+  .db-table tr:last-child td { border-bottom:none; }
+  .db-table .num { font-family:'JetBrains Mono',monospace; color:var(--cyan); text-align:right; }
+  .db-table .date { font-family:'JetBrains Mono',monospace; color:var(--muted); font-size:12px; }
+
+  .flow-diagram {
+    display:flex; align-items:center; justify-content:center; flex-wrap:wrap;
+    gap:8px; padding:16px 0;
+  }
+  .flow-node {
+    padding:8px 16px; border-radius:8px; font-size:13px; font-weight:500;
+    border:1px solid var(--border);
+  }
+  .flow-arrow { color:var(--muted); font-size:18px; }
+  .fn-purple { background:rgba(99,102,241,0.1); border-color:rgba(99,102,241,0.3); color:var(--accent); }
+  .fn-green { background:rgba(34,197,94,0.1); border-color:rgba(34,197,94,0.3); color:var(--green); }
+  .fn-blue { background:rgba(59,130,246,0.1); border-color:rgba(59,130,246,0.3); color:var(--blue); }
+  .fn-cyan { background:rgba(6,182,212,0.1); border-color:rgba(6,182,212,0.3); color:var(--cyan); }
+  .fn-pink { background:rgba(236,72,153,0.1); border-color:rgba(236,72,153,0.3); color:var(--pink); }
+  .fn-orange { background:rgba(249,115,22,0.1); border-color:rgba(249,115,22,0.3); color:var(--orange); }
+
+  .stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .stat-box {
+    background:rgba(99,102,241,0.05); border:1px solid var(--border); border-radius:8px;
+    padding:12px; text-align:center;
+  }
+  .stat-box .val { font-size:22px; font-weight:700; color:var(--accent); font-family:'JetBrains Mono',monospace; }
+  .stat-box .label { font-size:11px; color:var(--muted); margin-top:4px; text-transform:uppercase; letter-spacing:0.5px; }
+
+  .section-title { font-size:20px; font-weight:600; padding:30px 20px 10px; max-width:1400px; margin:0 auto; color:var(--muted); }
+
+  .port-map { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; }
+  .port-item {
+    display:flex; align-items:center; gap:8px; padding:10px 14px;
+    background:rgba(99,102,241,0.04); border:1px solid var(--border); border-radius:8px;
+  }
+  .port-num { font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:600; color:var(--cyan); min-width:50px; }
+  .port-svc { font-size:13px; }
+
+  @media (max-width:768px) {
+    .grid { grid-template-columns:1fr; }
+    .stat-grid { grid-template-columns:repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span>orbiters_2</span> — EC2 Infrastructure Map</h1>
+  <p>AWS ap-northeast-2 &nbsp;|&nbsp; IP: 13.124.157.191 &nbsp;|&nbsp; Ubuntu 22.04</p>
+  <div class="badge">All Services Operational</div>
+</div>
+
+<!-- Stats -->
+<div class="grid" style="margin-top:30px">
+  <div class="card full">
+    <div class="card-body">
+      <div class="stat-grid">
+        <div class="stat-box"><div class="val">5</div><div class="label">Web Services</div></div>
+        <div class="stat-box"><div class="val">20</div><div class="label">DB Tables (gk_*)</div></div>
+        <div class="stat-box"><div class="val">124K+</div><div class="label">Total Data Rows</div></div>
+        <div class="stat-box"><div class="val">3</div><div class="label">Docker Containers</div></div>
+        <div class="stat-box"><div class="val">7</div><div class="label">Domains / Subdomains</div></div>
+        <div class="stat-box"><div class="val">2x/day</div><div class="label">Data Collection</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Services -->
+<div class="section-title">Services & Applications</div>
+<div class="grid">
+  <div class="card">
+    <div class="card-header">
+      <div class="icon icon-purple">🌐</div>
+      <h2>Nginx (Reverse Proxy)</h2>
+      <span class="tag tag-live">LIVE</span>
+    </div>
+    <div class="card-body">
+      <div class="service-row">
+        <div class="service-dot dot-green"></div>
+        <div class="service-name">SSL Termination</div>
+        <div class="service-detail">Certbot / Let's Encrypt</div>
+        <span class="service-port">:80 :443</span>
+      </div>
+      <div class="service-row">
+        <div class="service-dot dot-green"></div>
+        <div class="service-name">orbitools.orbiters.co.kr</div>
+        <div class="service-detail">→ Gunicorn :8000</div>
+      </div>
+      <div class="service-row">
+        <div class="service-dot dot-green"></div>
+        <div class="service-name">n8n.orbiters.co.kr</div>
+        <div class="service-detail">→ Docker :5678</div>
+      </div>
+      <div class="service-row">
+        <div class="service-dot dot-green"></div>
+        <div class="service-name">docuseal.orbiters.co.kr</div>
+        <div class="service-detail">→ Docker :3004</div>
+      </div>
+      <div class="service-row">
+        <div class="service-dot dot-green"></div>
+        <div class="service-name">ONZ APP (Next.js)</div>
+        <div class="service-detail">→ :3001</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="icon icon-green">🐍</div>
+      <h2>Django (export_calculator)</h2>
+      <span class="tag tag-live">LIVE</span>
+    </div>
+    <div class="card-body">
+      <div class="service-row">
+        <div class="service-dot dot-green"></div>
+        <div class="service-name">OrbiTools API</div>
+        <div class="service-detail">/api/datakeeper/, /api/export/</div>
+        <span class="service-port">:8000</span>
+      </div>
+      <div class="service-row">
+        <div class="service-dot dot-green"></div>
+        <div class="service-name">DataKeeper App</div>
+        <div class="service-detail">20 gk_* tables, REST API</div>
+      </div>
+      <div class="service-row">
+        <div class="service-dot dot-green"></div>
+        <div class="service-name">Export Calculator</div>
+        <div class="service-detail">CI/PL/BL document generation</div>
+      </div>
+      <div class="service-row">
+        <div class="service-dot dot-green"></div>
+        <div class="service-name">Admin Panel</div>
+        <div class="service-detail">/admin/ (Django Admin)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="icon icon-blue">🔄</div>
+      <h2>n8n (Workflow Automation)</h2>
+      <span class="tag tag-docker">DOCKER</span>
+    </div>
+    <div class="card-body">
+      <div class="service-row">
+        <div class="service-dot dot-green"></div>
+        <div class="service-name">PROD Workflows</div>
+        <div class="service-detail">80+ workflows, ~30 active</div>
+        <span class="service-port">:5678</span>
+      </div>
+      <div class="service-row">
+        <div class="service-dot dot-green"></div>
+        <div class="service-name">Pathlight Pipeline</div>
+        <div class="service-detail">Gifting, Outreach, Fulfillment</div>
+      </div>
+      <div class="service-row">
+        <div class="service-dot dot-green"></div>
+        <div class="service-name">ManyChat Automation</div>
+        <div class="service-detail">IG DM Auto-Reply (Claude AI)</div>
+      </div>
+      <div class="service-row">
+        <div class="service-dot dot-green"></div>
+        <div class="service-name">Content Tracking</div>
+        <div class="service-detail">Syncly + Content Metrics</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="icon icon-pink">📝</div>
+      <h2>DocuSeal (e-Signing)</h2>
+      <span class="tag tag-docker">DOCKER</span>
+    </div>
+    <div class="card-body">
+      <div class="service-row">
+        <div class="service-dot dot-green"></div>
+        <div class="service-name">Contract Signing</div>
+        <div class="service-detail">Influencer agreements</div>
+        <span class="service-port">:3004</span>
+      </div>
+      <div class="service-row">
+        <div class="service-dot dot-green"></div>
+        <div class="service-name">API Integration</div>
+        <div class="service-detail">n8n → DocuSeal templates</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Data -->
+<div class="section-title">PostgreSQL — DataKeeper Tables (gk_*)</div>
+<div class="grid">
+  <div class="card full">
+    <div class="card-body" style="overflow-x:auto">
+      <table class="db-table">
+        <thead>
+          <tr><th>Table</th><th>Content</th><th style="text-align:right">Rows</th><th>Latest Date</th><th>Source</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>shopify_orders_daily</td><td>Shopify Orders (all brands)</td><td class="num">4,577</td><td class="date">2026-03-19</td><td>Shopify Admin API</td></tr>
+          <tr><td>shopify_orders_sku_daily</td><td>SKU-level order detail</td><td class="num">16,514</td><td class="date">-</td><td>Shopify Admin API</td></tr>
+          <tr><td>amazon_sales_daily</td><td>Amazon Sales (3 sellers)</td><td class="num">1,616</td><td class="date">2026-03-20</td><td>SP-API</td></tr>
+          <tr><td>amazon_sales_sku_daily</td><td>Amazon SKU-level sales</td><td class="num">31,763</td><td class="date">2026-03-19</td><td>SP-API</td></tr>
+          <tr><td>amazon_ads_daily</td><td>Amazon Ads (3 brands)</td><td class="num">1,978</td><td class="date">2026-03-19</td><td>Ads API</td></tr>
+          <tr><td>amazon_ads_search_terms</td><td>Search Term Reports</td><td class="num">34,316</td><td class="date">2026-03-13</td><td>Ads API</td></tr>
+          <tr><td>amazon_ads_keywords</td><td>Keyword Reports</td><td class="num">911</td><td class="date">2026-03-13</td><td>Ads API</td></tr>
+          <tr><td>amazon_campaigns</td><td>Campaign Metadata</td><td class="num">1,131</td><td class="date">-</td><td>Ads API</td></tr>
+          <tr><td>amazon_brand_analytics</td><td>Brand Analytics</td><td class="num">634</td><td class="date">2026-03-01</td><td>SP-API</td></tr>
+          <tr><td>meta_ads_daily</td><td>Meta Ads</td><td class="num">11,170</td><td class="date">2026-03-19</td><td>Graph API</td></tr>
+          <tr><td>meta_campaigns</td><td>Meta Campaign Metadata</td><td class="num">167</td><td class="date">-</td><td>Graph API</td></tr>
+          <tr><td>google_ads_daily</td><td>Google Ads</td><td class="num">2,122</td><td class="date">2026-03-19</td><td>Google Ads API</td></tr>
+          <tr><td>google_ads_search_terms</td><td>Google Search Terms</td><td class="num">2,805</td><td class="date">2026-03-19</td><td>Google Ads API</td></tr>
+          <tr><td>ga4_daily</td><td>GA4 Analytics</td><td class="num">8,088</td><td class="date">2026-03-19</td><td>GA4 Data API</td></tr>
+          <tr><td>klaviyo_daily</td><td>Klaviyo Email Metrics</td><td class="num">160</td><td class="date">2026-03-19</td><td>Klaviyo API</td></tr>
+          <tr><td>gsc_daily</td><td>Google Search Console</td><td class="num">6,789</td><td class="date">2026-03-19</td><td>GSC API</td></tr>
+          <tr><td>dataforseo_keywords</td><td>Keyword Rankings</td><td class="num">312</td><td class="date">2026-03-19</td><td>DataForSEO</td></tr>
+          <tr><td>content_posts</td><td>Influencer Posts</td><td class="num">683</td><td class="date">-</td><td>Apify / Syncly</td></tr>
+          <tr><td>content_metrics_daily</td><td>Content D+60 Metrics</td><td class="num">1,661</td><td class="date">2026-03-19</td><td>Apify</td></tr>
+          <tr><td>influencer_orders</td><td>Influencer Sample Orders</td><td class="num">426</td><td class="date">-</td><td>Shopify</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Port Map -->
+<div class="section-title">Port Allocation</div>
+<div class="grid">
+  <div class="card full">
+    <div class="card-body">
+      <div class="port-map">
+        <div class="port-item"><span class="port-num">:80</span><span class="port-svc">Nginx HTTP → 443 redirect</span></div>
+        <div class="port-item"><span class="port-num">:443</span><span class="port-svc">Nginx HTTPS (SSL)</span></div>
+        <div class="port-item"><span class="port-num">:3000</span><span class="port-svc">Gotenberg (PDF render)</span></div>
+        <div class="port-item"><span class="port-num">:3001</span><span class="port-svc">ONZ APP (Next.js)</span></div>
+        <div class="port-item"><span class="port-num">:3004</span><span class="port-svc">DocuSeal (Docker)</span></div>
+        <div class="port-item"><span class="port-num">:5432</span><span class="port-svc">PostgreSQL</span></div>
+        <div class="port-item"><span class="port-num">:5678</span><span class="port-svc">n8n (Docker)</span></div>
+        <div class="port-item"><span class="port-num">:8000</span><span class="port-svc">Gunicorn (Django)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Data Flow -->
+<div class="section-title">Data Flow Architecture</div>
+<div class="grid">
+  <div class="card full">
+    <div class="card-body">
+      <div class="flow-diagram">
+        <div class="flow-node fn-orange">GitHub Actions</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node fn-green">data_keeper.py</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node fn-purple">OrbiTools API</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node fn-cyan">PostgreSQL (gk_*)</div>
+      </div>
+      <div class="flow-diagram" style="margin-top:12px">
+        <div class="flow-node fn-pink">Shopify Form</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node fn-blue">n8n Webhook</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node fn-purple">Airtable</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node fn-green">Shopify Draft Order</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node fn-cyan">PostgreSQL (onz_*)</div>
+      </div>
+      <div class="flow-diagram" style="margin-top:12px">
+        <div class="flow-node fn-blue">NAS Synology</div>
+        <span class="flow-arrow">←</span>
+        <div class="flow-node fn-green">export_to_shared.py</div>
+        <span class="flow-arrow">←</span>
+        <div class="flow-node fn-cyan">PostgreSQL (gk_*)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Connected Services -->
+<div class="section-title">Connected External Services</div>
+<div class="grid">
+  <div class="card">
+    <div class="card-header">
+      <div class="icon icon-orange">🔗</div>
+      <h2>API Integrations</h2>
+    </div>
+    <div class="card-body">
+      <div class="service-row"><div class="service-dot dot-green"></div><div class="service-name">Shopify Admin API</div><div class="service-detail">mytoddie.myshopify.com</div></div>
+      <div class="service-row"><div class="service-dot dot-green"></div><div class="service-name">Amazon SP-API</div><div class="service-detail">3 sellers (Fleeters, Grosmimi, Orbitool)</div></div>
+      <div class="service-row"><div class="service-dot dot-green"></div><div class="service-name">Amazon Ads API</div><div class="service-detail">3 brand profiles</div></div>
+      <div class="service-row"><div class="service-dot dot-green"></div><div class="service-name">Meta Graph API</div><div class="service-detail">Ads + IG Business</div></div>
+      <div class="service-row"><div class="service-dot dot-green"></div><div class="service-name">Google Ads API</div><div class="service-detail">via developer token</div></div>
+      <div class="service-row"><div class="service-dot dot-green"></div><div class="service-name">GA4 Data API</div><div class="service-detail">Property 397533207</div></div>
+      <div class="service-row"><div class="service-dot dot-green"></div><div class="service-name">Airtable API</div><div class="service-detail">PROD base appNPVxj4gUJl9v15</div></div>
+      <div class="service-row"><div class="service-dot dot-green"></div><div class="service-name">Klaviyo API</div><div class="service-detail">Email marketing metrics</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="icon icon-yellow">📊</div>
+      <h2>Google Sheets (PROD)</h2>
+    </div>
+    <div class="card-body">
+      <div class="service-row"><div class="service-dot dot-green"></div><div class="service-name">Config Sheet</div><div class="service-detail" style="font-size:11px">1ODO...FTp0 (Guidelines, FAQ, Prompts)</div></div>
+      <div class="service-row"><div class="service-dot dot-green"></div><div class="service-name">Content Tracking</div><div class="service-detail" style="font-size:11px">1mYo...AkY</div></div>
+      <div class="service-row"><div class="service-dot dot-green"></div><div class="service-name">Syncly Status</div><div class="service-detail" style="font-size:11px">1dIA...F0o</div></div>
+      <div class="service-row"><div class="service-dot dot-green"></div><div class="service-name">D+60 Tracker</div><div class="service-detail" style="font-size:11px">1bOX..._Tc</div></div>
+      <div class="service-row"><div class="service-dot dot-green"></div><div class="service-name">ONZENNA SNS</div><div class="service-detail" style="font-size:11px">1SwO...yeA</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Domain Map -->
+<div class="section-title">Domain Routing</div>
+<div class="grid">
+  <div class="card full">
+    <div class="card-body">
+      <div class="port-map">
+        <div class="port-item" style="border-color:rgba(34,197,94,0.3)"><span class="port-num" style="color:var(--green)">orbitools</span><span class="port-svc">.orbiters.co.kr → Django :8000</span></div>
+        <div class="port-item" style="border-color:rgba(59,130,246,0.3)"><span class="port-num" style="color:var(--blue)">n8n</span><span class="port-svc">.orbiters.co.kr → Docker :5678</span></div>
+        <div class="port-item" style="border-color:rgba(236,72,153,0.3)"><span class="port-num" style="color:var(--pink)">docuseal</span><span class="port-svc">.orbiters.co.kr → Docker :3004</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="text-align:center; padding:40px; color:var(--muted); font-size:12px">
+  Generated 2026-03-21 &nbsp;|&nbsp; ORBI Infrastructure Map &nbsp;|&nbsp; EC2 ap-northeast-2
+</div>
+
+</body>
+</html>
