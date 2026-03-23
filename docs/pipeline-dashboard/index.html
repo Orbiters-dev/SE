@@ -453,6 +453,8 @@ Shopify                         Apify / Syncly                   Gmail RAG
     </div>
     <div id="config-loading" style="text-align:center;padding:30px;color:var(--dim)">Loading config...</div>
     <div id="config-dash" style="display:none">
+      <!-- ===== LT CONFIG BODY ===== -->
+      <div id="cfg-lt-body">
       <div class="card">
         <h3>&#x1F4E6; Batch Control</h3>
         <div class="desc">Control which creators get contacted and how many per batch</div>
@@ -682,6 +684,84 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <div class="desc">Recent config changes (last 10 days)</div>
         <div id="change-log" style="max-height:200px;overflow-y:auto"><div style="color:var(--muted);font-size:11px;padding:8px 0">Loading...</div></div>
       </div>
+      </div><!-- /cfg-lt-body -->
+
+      <!-- ===== HT CONFIG BODY ===== -->
+      <div id="cfg-ht-body" style="display:none">
+        <div class="card" style="border-left:3px solid var(--p)">
+          <h3>&#x1F451; HT Batch Control</h3>
+          <div class="desc">High Touch creators (&ge; 100K followers). Manual review, contract, payment flow.</div>
+          <div class="form-row"><label>HT Threshold (R30D)</label><input type="number" id="ht-f-threshold" min="0" step="10000" value="100000" onchange="loadHtPreview()"></div>
+          <div class="form-row"><label>Batch Size</label><input type="number" id="ht-f-batch-size" min="1" max="100" step="1" value="5"></div>
+          <div class="form-row"><label>Sender Email</label><input type="email" id="ht-f-sender-email" value="affiliates@onzenna.com"></div>
+          <div class="form-row"><label>Template Doc ID</label><input type="text" id="ht-f-template-id" placeholder="HT-specific template"></div>
+        </div>
+
+        <div class="card" style="border-left:3px solid var(--p)">
+          <h3>&#x1F464; HT Human-in-Loop Controls</h3>
+          <div class="desc">HT requires manual approval at every step. Toggle OFF only if you want to auto-proceed.</div>
+          <div class="form-row"><label>Draft Review</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="ht-f-hil-draft" checked><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Review email drafts before sending</span></div>
+          <div class="form-row"><label>Send Approval</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="ht-f-hil-send" checked><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Confirm before sending emails</span></div>
+          <div class="form-row"><label>Contract Review</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="ht-f-hil-contract" checked><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Review and send contract before proceeding</span></div>
+          <div class="form-row"><label>Sample Approval</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="ht-f-hil-sample" checked><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Approve sample after contract is signed</span></div>
+          <div class="form-row"><label>Payment Approval</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="ht-f-hil-payment" checked><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Approve payment after content is posted</span></div>
+        </div>
+
+        <div class="card" style="border-left:3px solid var(--p)">
+          <h3>&#x1F4CA; HT Eligible Preview</h3>
+          <div class="desc">High Touch creators (&ge; threshold followers) eligible for next batch</div>
+          <div class="stats">
+            <div class="stat pink"><div class="sl">HT Eligible</div><div class="sv" id="ht-s-total">-</div></div>
+            <div class="stat green"><div class="sl">Grosmimi</div><div class="sv" id="ht-s-gros">-</div></div>
+            <div class="stat cyan"><div class="sl">CHA&amp;MOM</div><div class="sv" id="ht-s-cham">-</div></div>
+            <div class="stat amber"><div class="sl">Naeiae</div><div class="sv" id="ht-s-nae">-</div></div>
+          </div>
+        </div>
+
+        <!-- HT Batch Pipeline -->
+        <div class="card" style="border-left:3px solid var(--p)">
+          <h3>&#x1F680; HT Batch Pipeline</h3>
+          <div class="desc">HT pipeline: Draft Review &rarr; Send &rarr; Contract &rarr; Sample &rarr; Payment. Each step requires approval.</div>
+
+          <!-- HT Step 1: Apply Config -->
+          <div class="bp-step" id="ht-bp-step-1" style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f1f5f9">
+            <input type="checkbox" checked class="rq-check" id="ht-bp-check-1" style="flex-shrink:0">
+            <span style="font-size:11px;font-weight:800;color:var(--p);font-family:var(--mono);min-width:20px">&#x2460;</span>
+            <span style="font-weight:700;flex:1">Apply HT Config</span>
+            <span id="ht-bp-result-1" style="font-size:10px"></span>
+            <button class="btn btn-sm" onclick="execHtBatchStep(1)" id="ht-bp-btn-1" style="background:var(--p);color:#fff">&#x25B6; Execute</button>
+          </div>
+
+          <!-- HT Step 2: Generate Drafts -->
+          <div class="bp-step" id="ht-bp-step-2" style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f1f5f9;opacity:.5">
+            <input type="checkbox" checked class="rq-check" id="ht-bp-check-2" style="flex-shrink:0">
+            <span style="font-size:11px;font-weight:800;color:var(--p);font-family:var(--mono);min-width:20px">&#x2461;</span>
+            <span style="font-weight:700;flex:1">Generate HT Drafts</span>
+            <span id="ht-bp-result-2" style="font-size:10px"></span>
+            <button class="btn btn-sm" onclick="execHtBatchStep(2)" id="ht-bp-btn-2" disabled style="background:var(--p);color:#fff">&#x25B6; Execute</button>
+          </div>
+
+          <!-- HT Step 3: Review & Send -->
+          <div class="bp-step" id="ht-bp-step-3" style="display:flex;align-items:center;gap:8px;padding:10px 0;opacity:.5">
+            <input type="checkbox" checked class="rq-check" id="ht-bp-check-3" style="flex-shrink:0">
+            <span style="font-size:11px;font-weight:800;color:var(--am);font-family:var(--mono);min-width:20px">&#x2462;</span>
+            <span style="font-weight:700;flex:1">Review &amp; Send</span>
+            <span id="ht-bp-result-3" style="font-size:10px"></span>
+            <button class="btn btn-sm btn-success" onclick="execHtBatchStep(3)" id="ht-bp-btn-3" disabled>&#x25B6; Execute</button>
+          </div>
+
+          <div style="display:flex;gap:6px;margin-top:12px;justify-content:center">
+            <button class="btn" onclick="execAllHtBatchSteps()" style="background:var(--p);color:#fff">&#x1F680; Execute All Checked</button>
+            <button class="btn btn-secondary" onclick="resetHtBatchPipeline()">&#x21BB; Reset</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>&#x1F4DD; HT Change Log</h3>
+          <div class="desc">Recent HT config changes</div>
+          <div id="ht-change-log" style="max-height:200px;overflow-y:auto"><div style="color:var(--muted);font-size:11px;padding:8px 0">No history yet</div></div>
+        </div>
+      </div><!-- /cfg-ht-body -->
     </div>
   </div>
 
@@ -990,7 +1070,8 @@ var AUTH_USERS={
   'HJ':'75c2e5a66c6bcc985f42b6d402dbb10050a09c9f0371ed735e1983c145da3ffe',
   'JS':'89d0eb2d586787c34782b6fa71300419edb51538e74596a8c7948c0abca66e6d',
   'HC':'357fca21bafbd5f23f141ff9433fe47422f58e9b0521c04e5735ae727313aef5',
-  'JHG':'62c979e61e48b16dd0ed1eff3ba009c8283d59b9be2f86a45ae0d6c2ae22e5af'
+  'JHG':'0ef332778b21dff8648db320fa9fe790a5ed7508f53318233311876985c733a3',
+  'SY':'7b3b4e5fed79d4b93089785bd5654a021da6426cd154e1b98a630be06a50f281'
 };
 var _currentUser='';
 var API_BASE='https://orbitools.orbiters.co.kr/api/onzenna';
@@ -1339,7 +1420,6 @@ function populateConfigForm(c){
   document.getElementById('f-apify-brand-filter').checked=c.apify_brand_filter!==false;
   document.getElementById('f-hil-draft').checked=c.hil_draft_review!==false;
   document.getElementById('f-hil-send').checked=c.hil_send_approval!==false;
-  document.getElementById('f-hil-review').checked=true;
   document.getElementById('f-hil-sample').checked=!!c.hil_sample_approval;
   document.getElementById('f-sender-email').value=c.sender_email;
   document.getElementById('f-template-id').value=c.outreach_template_id;
@@ -2806,6 +2886,9 @@ function switchCfgMode(mode){
   document.getElementById('cfg-btn-ht').style.color=mode==='ht'?'#fff':'var(--dim)';
   document.getElementById('cfg-lt-summary').style.display=mode==='lt'?'block':'none';
   document.getElementById('cfg-ht-summary').style.display=mode==='ht'?'block':'none';
+  document.getElementById('cfg-lt-body').style.display=mode==='lt'?'block':'none';
+  document.getElementById('cfg-ht-body').style.display=mode==='ht'?'block':'none';
+  if(mode==='ht')loadHtPreview();
 }
 function toggleHwSec(el){el.classList.toggle('open')}
 function scrollToHwSec(id){
@@ -3545,6 +3628,89 @@ function resetBatchPipeline(){
   document.getElementById('ft-pipeline-summary').style.display='none';
   document.getElementById('update-preview').style.display='none';
   showToast('Pipeline reset','ok');
+}
+
+// ========== HT CONFIG FUNCTIONS ==========
+async function loadHtPreview(){
+  try{
+    var threshold=parseInt(document.getElementById('ht-f-threshold').value)||100000;
+    var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=5000');
+    var creators=data.results||[];
+    var ht=creators.filter(function(c){return c.followers>=threshold});
+    var gros=ht.filter(function(c){return c.brand==='Grosmimi'}).length;
+    var cham=ht.filter(function(c){return c.brand==='CHA&MOM'}).length;
+    var nae=ht.filter(function(c){return c.brand==='Naeiae'}).length;
+    document.getElementById('ht-s-total').textContent=ht.length;
+    document.getElementById('ht-s-gros').textContent=gros;
+    document.getElementById('ht-s-cham').textContent=cham;
+    document.getElementById('ht-s-nae').textContent=nae;
+  }catch(e){console.error('HT preview error:',e)}
+}
+
+var _htBpCompleted={};
+async function execHtBatchStep(step){
+  var btn=document.getElementById('ht-bp-btn-'+step);
+  var result=document.getElementById('ht-bp-result-'+step);
+  var check=document.getElementById('ht-bp-check-'+step);
+  if(!check.checked){result.innerHTML='<span class="b am">Skipped</span>';enableNextHtStep(step);return}
+  btn.disabled=true;btn.textContent='...';
+  try{
+    if(step===1){
+      var htCfg={
+        ht_threshold:parseInt(document.getElementById('ht-f-threshold').value)||100000,
+        ht_batch_size:parseInt(document.getElementById('ht-f-batch-size').value)||5,
+        sender_email:document.getElementById('ht-f-sender-email').value,
+        template_id:document.getElementById('ht-f-template-id').value,
+        hil_draft_review:document.getElementById('ht-f-hil-draft').checked,
+        hil_send_approval:document.getElementById('ht-f-hil-send').checked,
+        hil_contract_review:document.getElementById('ht-f-hil-contract').checked,
+        hil_sample_approval:document.getElementById('ht-f-hil-sample').checked,
+        hil_payment_approval:document.getElementById('ht-f-hil-payment').checked,
+        config_type:'ht',updated_by:_currentUser
+      };
+      await apiFetch('/pipeline/config/ht/',{method:'POST',body:JSON.stringify(htCfg)});
+      result.innerHTML='<span class="b g">Config saved</span>';
+      await loadHtPreview();
+    }else if(step===2){
+      await apiFetch('/pipeline/actions/draft_gen/',{method:'POST',body:JSON.stringify({config_type:'ht'})});
+      result.innerHTML='<span class="b g">Drafts generated</span>';
+    }else if(step===3){
+      await apiFetch('/pipeline/actions/send/',{method:'POST',body:JSON.stringify({config_type:'ht'})});
+      result.innerHTML='<span class="b g">Sent</span>';
+    }
+    _htBpCompleted[step]=true;
+    enableNextHtStep(step);
+    showToast('HT Step '+step+' done','ok');
+  }catch(e){result.innerHTML='<span class="b r">Error</span>';showToast('HT Step '+step+' failed: '+e.message,'err')}
+  finally{btn.disabled=false;btn.textContent='\u25B6 Execute'}
+}
+function enableNextHtStep(current){
+  var next=current+1;
+  if(next>3)return;
+  var stepEl=document.getElementById('ht-bp-step-'+next);
+  var btnEl=document.getElementById('ht-bp-btn-'+next);
+  if(stepEl)stepEl.style.opacity='1';
+  if(btnEl)btnEl.disabled=false;
+}
+async function execAllHtBatchSteps(){
+  for(var i=1;i<=3;i++){
+    var check=document.getElementById('ht-bp-check-'+i);
+    if(check&&check.checked)await execHtBatchStep(i);
+  }
+}
+function resetHtBatchPipeline(){
+  _htBpCompleted={};
+  for(var i=1;i<=3;i++){
+    var stepEl=document.getElementById('ht-bp-step-'+i);
+    var btnEl=document.getElementById('ht-bp-btn-'+i);
+    var resultEl=document.getElementById('ht-bp-result-'+i);
+    var checkEl=document.getElementById('ht-bp-check-'+i);
+    if(resultEl)resultEl.innerHTML='';
+    if(checkEl)checkEl.checked=true;
+    if(i===1){if(stepEl)stepEl.style.opacity='1';if(btnEl)btnEl.disabled=false}
+    else{if(stepEl)stepEl.style.opacity='.5';if(btnEl)btnEl.disabled=true}
+  }
+  showToast('HT Pipeline reset','ok');
 }
 
 // Auto-start remote control
