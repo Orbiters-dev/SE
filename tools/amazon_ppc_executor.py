@@ -1010,6 +1010,11 @@ def analyze_search_terms(
     negate = []
 
     for term, m in agg.items():
+        # Skip ASIN search terms — these are product targets, not harvestable keywords
+        # ASIN pattern: 10 chars starting with B0 (e.g. b0bmh153y7)
+        if len(term) == 10 and term[:2].lower() == "b0" and term.isalnum():
+            continue
+
         cost = m["cost"]
         sales = m["sales"]
         clicks = m["clicks"]
