@@ -475,18 +475,18 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <h3>&#x1F527; Feature Toggles</h3>
         <div class="desc">Each filter adjusts the eligible pool. Click <b>Check</b> to see impact before executing.</div>
 
-        <!-- Step 1: RAG Email Dedup -->
-        <div class="ft-step" id="fts-rag" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
+        <!-- Step 1: Brand Filter -->
+        <div class="ft-step" id="fts-brand" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <input type="checkbox" checked class="rq-check" id="ft-check-rag" style="flex-shrink:0" onchange="updateFtSummary()">
+            <input type="checkbox" checked class="rq-check" id="ft-check-brand" style="flex-shrink:0" onchange="updateFtSummary()">
             <span style="font-size:11px;font-weight:800;color:var(--a);font-family:var(--mono);min-width:16px">&#x2460;</span>
-            <span style="font-weight:700;min-width:120px">RAG Email Dedup</span>
-            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-rag-dedup"><span class="slider"></span></label>
-            <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('rag')" id="ft-btn-rag" style="font-size:10px">&#x1F50D; Check</button>
-            <span id="ft-badge-rag"></span>
+            <span style="font-weight:700;min-width:120px">Apify Brand Filter</span>
+            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-brand-filter" checked><span class="slider"></span></label>
+            <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('brand')" id="ft-btn-brand" style="font-size:10px">&#x1F50D; Check</button>
+            <span id="ft-badge-brand"></span>
           </div>
-          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Strongest filter &#x2014; already-contacted creators removed even if Apify fills their email</div>
-          <div id="ft-expand-rag" style="display:none;margin:4px 0 0 28px"></div>
+          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Auto-exclude 27 brand/reseller accounts from crawl</div>
+          <div id="ft-expand-brand" style="display:none;margin:4px 0 0 28px"></div>
         </div>
 
         <!-- Step 2: Apify Autofill -->
@@ -499,22 +499,22 @@ Shopify                         Apify / Syncly                   Gmail RAG
             <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('apify')" id="ft-btn-apify" style="font-size:10px">&#x1F50D; Check</button>
             <span id="ft-badge-apify"></span>
           </div>
-          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Fill missing emails via Apify crawler during draft generation</div>
+          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Crawl IG/TT profiles to find emails for creators missing contact info</div>
           <div id="ft-expand-apify" style="display:none;margin:4px 0 0 28px"></div>
         </div>
 
-        <!-- Step 3: Brand Filter -->
-        <div class="ft-step" id="fts-brand" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
+        <!-- Step 3: RAG Email Dedup (strongest, runs last) -->
+        <div class="ft-step" id="fts-rag" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <input type="checkbox" checked class="rq-check" id="ft-check-brand" style="flex-shrink:0" onchange="updateFtSummary()">
-            <span style="font-size:11px;font-weight:800;color:var(--a);font-family:var(--mono);min-width:16px">&#x2462;</span>
-            <span style="font-weight:700;min-width:120px">Apify Brand Filter</span>
-            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-brand-filter" checked><span class="slider"></span></label>
-            <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('brand')" id="ft-btn-brand" style="font-size:10px">&#x1F50D; Check</button>
-            <span id="ft-badge-brand"></span>
+            <input type="checkbox" checked class="rq-check" id="ft-check-rag" style="flex-shrink:0" onchange="updateFtSummary()">
+            <span style="font-size:11px;font-weight:800;color:var(--r);font-family:var(--mono);min-width:16px">&#x2462;</span>
+            <span style="font-weight:700;min-width:120px">RAG Email Dedup</span>
+            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-rag-dedup"><span class="slider"></span></label>
+            <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('rag')" id="ft-btn-rag" style="font-size:10px">&#x1F50D; Check</button>
+            <span id="ft-badge-rag"></span>
           </div>
-          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Auto-exclude 27 brand/reseller accounts from crawl</div>
-          <div id="ft-expand-brand" style="display:none;margin:4px 0 0 28px"></div>
+          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Final gate &#x2014; removes anyone already contacted, even if Apify just found their email</div>
+          <div id="ft-expand-rag" style="display:none;margin:4px 0 0 28px"></div>
         </div>
 
         <!-- Filter Pipeline Summary -->
@@ -3335,12 +3335,17 @@ async function checkFeatureImpact(feature){
       }else{expand.innerHTML='';expand.style.display='none'}
 
     }else if(feature==='apify'){
-      // Apify Autofill: how many creators have no email (can be filled)
-      _ftResults.apify={count:noEmail.length,list:noEmail};
-      badge.innerHTML='<span class="b g" style="font-size:10px;padding:2px 8px">+'+noEmail.length+' fillable</span>';
-      if(noEmail.length>0){
+      // Apify Autofill: show found vs missing ratio out of total pool
+      var total=creators.length;
+      var foundCount=withEmail.length;
+      var missingCount=noEmail.length;
+      var fillRate=total>0?Math.round(foundCount/total*100):0;
+      _ftResults.apify={count:missingCount,found:foundCount,total:total,list:noEmail};
+      badge.innerHTML='<span class="b c" style="font-size:10px;padding:2px 8px">'+foundCount+' / '+total+' found ('+fillRate+'%)</span>'+
+        '<span class="b am" style="font-size:10px;padding:2px 8px;margin-left:4px">'+missingCount+' missing</span>';
+      if(missingCount>0){
         var h='<div style="font-size:9px;max-height:160px;overflow-y:auto;background:var(--gbg);padding:6px;border-radius:4px;cursor:pointer" onclick="this.parentElement.style.display=\'none\'">';
-        h+='<div style="font-weight:700;margin-bottom:3px;color:var(--g)">Missing email ('+noEmail.length+'):</div>';
+        h+='<div style="font-weight:700;margin-bottom:3px;color:var(--am)">Missing email &mdash; Apify will crawl profiles ('+missingCount+' / '+total+'):</div>';
         noEmail.slice(0,40).forEach(function(c){h+='<div style="padding:1px 0;border-bottom:1px solid #d1fae5">@'+esc(c.ig_handle||c.tiktok_handle||'?')+' <span style="color:var(--dim)">'+esc(c.brand||'')+'</span></div>'});
         if(noEmail.length>40)h+='<div style="color:var(--dim);padding:4px">...+'+(noEmail.length-40)+' more</div>';
         h+='</div>';
@@ -3376,9 +3381,9 @@ async function checkFeatureImpact(feature){
 
 async function checkAllFeatures(){
   _ftCache=null; // force fresh fetch
-  await checkFeatureImpact('rag');
-  await checkFeatureImpact('apify');
   await checkFeatureImpact('brand');
+  await checkFeatureImpact('apify');
+  await checkFeatureImpact('rag');
 }
 
 function updateFtSummary(){
@@ -3391,20 +3396,33 @@ function updateFtSummary(){
   var apifyCheck=document.getElementById('ft-check-apify').checked;
   var brandCheck=document.getElementById('ft-check-brand').checked;
 
-  var ragCount=ragCheck&&_ftResults.rag?_ftResults.rag.count:0;
   var brandCount=brandCheck&&_ftResults.brand?_ftResults.brand.count:0;
-  var apifyCount=apifyCheck&&_ftResults.apify?_ftResults.apify.count:0;
+  var ragCount=ragCheck&&_ftResults.rag?_ftResults.rag.count:0;
+  // Apify: estimate how many more emails could be found from missing pool
+  // Use current fill rate as predictor
+  var apifyEstimate=0;
+  if(apifyCheck&&_ftResults.apify&&_ftResults.apify.total>0){
+    var fillRate=_ftResults.apify.found/_ftResults.apify.total;
+    apifyEstimate=Math.round(_ftResults.apify.count*fillRate);
+  }
 
-  // Pipeline: total withEmail -> minus RAG dedup -> minus brand filter = eligible
-  var eligible=withEmail-ragCount-brandCount;
+  // Pipeline: total → −brand → withEmail (base) → +apify estimate → −RAG dedup → eligible
+  var afterBrand=total-brandCount;
+  var baseEligible=withEmail-brandCount; // with email minus brand accounts
+  if(baseEligible<0)baseEligible=0;
+  var afterApify=baseEligible+apifyEstimate;
+  var eligible=afterApify-ragCount;
   if(eligible<0)eligible=0;
 
-  // Build flow display
+  // Build flow display (order: brand → apify → rag)
   var flow='<span style="color:var(--text);font-weight:700">'+total+'</span> total';
-  flow+=' &rarr; <span style="color:var(--g)">'+withEmail+'</span> with email';
-  if(ragCheck&&_ftResults.rag)flow+=' &rarr; <span style="color:var(--r)">&minus;'+ragCount+'</span> dedup';
   if(brandCheck&&_ftResults.brand)flow+=' &rarr; <span style="color:var(--r)">&minus;'+brandCount+'</span> brand';
-  if(apifyCheck&&_ftResults.apify)flow+=' <span style="color:var(--dim)">| +'+apifyCount+' fillable</span>';
+  flow+=' &rarr; <span style="color:var(--c)">'+baseEligible+'</span> with email';
+  if(apifyCheck&&_ftResults.apify){
+    flow+=' &rarr; <span style="color:var(--g)">+'+apifyEstimate+'</span> Apify est.';
+    flow+=' <span style="color:var(--dim);font-size:9px">('+noEmail+' missing &times; '+Math.round(withEmail/total*100)+'% fill rate)</span>';
+  }
+  if(ragCheck&&_ftResults.rag)flow+=' &rarr; <span style="color:var(--r)">&minus;'+ragCount+'</span> dedup';
   flow+=' &rarr; <span style="color:var(--g);font-weight:800">'+eligible+'</span>';
 
   document.getElementById('ft-pipeline-flow').innerHTML=flow;
