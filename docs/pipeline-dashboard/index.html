@@ -540,7 +540,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <div class="desc">Each step can require human approval independently. OFF = auto-proceed.</div>
         <div class="form-row"><label>Draft Review</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-hil-draft"><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Review generated email drafts before queuing</span></div>
         <div class="form-row"><label>Send Approval</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-hil-send"><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Confirm before sending real emails</span></div>
-        <div class="form-row"><label>Inbound Review</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-hil-review" checked disabled><span class="slider"></span></label><span style="font-size:10px;color:var(--muted)">Always ON &mdash; manual Accept/Decline</span></div>
+
         <div class="form-row"><label>Sample Approval</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-hil-sample"><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Confirm before creating Shopify draft orders</span></div>
       </div>
       <div class="card">
@@ -1066,7 +1066,7 @@ var DEMO_CREATORS=[
 var DEMO_CONFIG={
   date:'2026-03-20',update_date:'2026-03-20',start_from_beginning:false,
   creators_contacted:10,ht_threshold:100000,rag_email_dedup:true,apify_autofill:true,apify_brand_filter:true,
-  hil_draft_review:true,hil_send_approval:true,hil_inbound_review:true,hil_sample_approval:false,
+  hil_draft_review:true,hil_send_approval:true,hil_sample_approval:false,
   sender_email:'affiliates@onzenna.com',
   outreach_template_id:'1vAvPdheHFz4xIraa3NODUuFG7RagylHEYOvv6BjtxLg',
   grosmimi_form_url:'https://onzenna.com/pages/influencer-gifting',
@@ -1370,7 +1370,6 @@ function collectConfigForm(){
     apify_brand_filter:document.getElementById('f-apify-brand-filter').checked,
     hil_draft_review:document.getElementById('f-hil-draft').checked,
     hil_send_approval:document.getElementById('f-hil-send').checked,
-    hil_inbound_review:true,
     hil_sample_approval:document.getElementById('f-hil-sample').checked,
     sender_email:document.getElementById('f-sender-email').value,
     outreach_template_id:document.getElementById('f-template-id').value,
