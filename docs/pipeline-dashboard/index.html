@@ -582,8 +582,28 @@ Shopify                         Apify / Syncly                   Gmail RAG
           <div class="stat amber"><div class="sl">Naeiae</div><div class="sv" id="s-nae">-</div></div>
           <div class="stat"><div class="sl">HT / LT</div><div class="sv" id="s-htlt">-</div></div>
         </div>
+
+        <!-- Brand Classification Rules -->
         <div style="margin-top:12px;padding:10px;background:#fafbff;border:1px solid var(--border);border-radius:8px">
-          <div style="font-size:10px;font-weight:700;color:var(--dim);margin-bottom:8px">Brand Allocation (per batch of <span id="alloc-batch-label">10</span>)</div>
+          <div style="font-size:10px;font-weight:700;color:var(--dim);margin-bottom:6px">&#x1F3F7; Brand Classification Rules</div>
+          <div style="font-size:9px;color:var(--dim);margin-bottom:8px">Content hashtag/keyword &#x2192; brand assignment. Grosmimi = default (&#xB098;&#xBA38;&#xC9C0; &#xC804;&#xBD80;).</div>
+          <div style="display:grid;grid-template-columns:80px 1fr;gap:4px 8px;font-size:10px">
+            <span style="font-weight:700;color:var(--am)">Naeiae</span>
+            <input type="text" id="brand-kw-naeiae" value="naeiae, rice puff, baby snack, organic snack, puff snack, teething wafer, baby food, rice cracker" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:9px;font-family:var(--mono);color:var(--text)">
+            <span style="font-weight:700;color:var(--c)">CHA&amp;MOM</span>
+            <input type="text" id="brand-kw-chaenmom" value="cha&amp;mom, chamom, chaenmom, ps cream, skincare, lotion, moisturizer, baby cream, eczema, sensitive skin, diaper cream" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:9px;font-family:var(--mono);color:var(--text)">
+            <span style="font-weight:700;color:var(--g)">Grosmimi</span>
+            <span style="font-size:9px;color:var(--dim);padding:3px 0">&#x2190; default (&#xC704; &#xB450; &#xBE0C;&#xB79C;&#xB4DC;&#xC5D0; &#xD574;&#xB2F9; &#xC548; &#xB418;&#xBA74; &#xC804;&#xBD80; Grosmimi)</span>
+          </div>
+        </div>
+
+        <!-- Brand Allocation -->
+        <div style="margin-top:10px;padding:10px;background:#fafbff;border:1px solid var(--border);border-radius:8px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <div style="font-size:10px;font-weight:700;color:var(--dim);flex:1">Brand Allocation (per batch of <span id="alloc-batch-label">10</span>)</div>
+            <button class="btn btn-sm btn-secondary" onclick="autoFillAllocation()" style="font-size:9px;padding:2px 8px">&#x1F504; Auto-fill from pool</button>
+          </div>
+          <div id="alloc-auto-info" style="display:none;font-size:9px;color:var(--dim);margin-bottom:6px;padding:4px 6px;background:var(--abg);border-radius:4px"></div>
           <div style="display:grid;grid-template-columns:90px 60px 1fr;gap:4px 8px;align-items:center;font-size:11px">
             <label style="font-weight:600;color:var(--g)">Grosmimi</label>
             <input type="number" id="alloc-grosmimi" value="5" min="0" max="999" style="width:50px;padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit;text-align:center" oninput="updateAllocation()">
@@ -3210,6 +3230,66 @@ function executeRemoteCommand(cmd){
   else if(a==='navigate'){location.href=cmd.url}
   else{console.log('[Remote] Unknown action:',a)}
 }
+// ========== BRAND AUTO-ALLOCATION ==========
+async function autoFillAllocation(){
+  var creators=_ftCache;
+  if(!creators){
+    try{
+      var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=5000');
+      creators=data.results||[];
+      _ftCache=creators;
+    }catch(e){showToast('Failed to load creators: '+e.message,'err');return}
+  }
+
+  // Read keyword rules from inputs
+  var naeKw=(document.getElementById('brand-kw-naeiae').value||'').toLowerCase().split(',').map(function(s){return s.trim()}).filter(Boolean);
+  var chamKw=(document.getElementById('brand-kw-chaenmom').value||'').toLowerCase().split(',').map(function(s){return s.trim()}).filter(Boolean);
+
+  // Classify each creator by content/hashtag keywords
+  var counts={Grosmimi:0,'CHA&MOM':0,Naeiae:0};
+  creators.forEach(function(c){
+    var brand=c.brand||'';
+    // If already classified by the API, use that
+    if(brand==='Naeiae'){counts.Naeiae++;return}
+    if(brand==='CHA&MOM'||brand==='cha&mom'){counts['CHA&MOM']++;return}
+    if(brand==='Grosmimi'){counts.Grosmimi++;return}
+    // Fallback: check content text for keyword classification
+    var text=((c.ig_handle||'')+(c.tiktok_handle||'')+(c.notes||'')).toLowerCase();
+    var isNae=naeKw.some(function(kw){return text.includes(kw)});
+    if(isNae){counts.Naeiae++;return}
+    var isCham=chamKw.some(function(kw){return text.includes(kw)});
+    if(isCham){counts['CHA&MOM']++;return}
+    // Default: Grosmimi
+    counts.Grosmimi++;
+  });
+
+  var total=counts.Grosmimi+counts['CHA&MOM']+counts.Naeiae;
+  if(total===0){showToast('No creators to allocate','err');return}
+
+  var batch=parseInt(document.getElementById('f-creators-contacted').value)||10;
+
+  // Proportional allocation (round, ensure sum <= batch)
+  var naeRatio=counts.Naeiae/total;
+  var chamRatio=counts['CHA&MOM']/total;
+  var naeAlloc=Math.round(batch*naeRatio);
+  var chamAlloc=Math.round(batch*chamRatio);
+  var grosAlloc=batch-naeAlloc-chamAlloc;
+  if(grosAlloc<0){grosAlloc=0}
+
+  document.getElementById('alloc-grosmimi').value=grosAlloc;
+  document.getElementById('alloc-chaenmom').value=chamAlloc;
+  document.getElementById('alloc-naeiae').value=naeAlloc;
+  updateAllocation();
+
+  // Show info
+  var info=document.getElementById('alloc-auto-info');
+  info.innerHTML='Pool: <b style="color:var(--g)">Grosmimi '+counts.Grosmimi+'</b> ('+Math.round(counts.Grosmimi/total*100)+'%) | '+
+    '<b style="color:var(--c)">CHA&amp;MOM '+counts['CHA&MOM']+'</b> ('+Math.round(counts['CHA&MOM']/total*100)+'%) | '+
+    '<b style="color:var(--am)">Naeiae '+counts.Naeiae+'</b> ('+Math.round(counts.Naeiae/total*100)+'%) &rarr; batch '+batch;
+  info.style.display='block';
+  showToast('Allocation auto-filled from pool distribution','ok');
+}
+
 // ========== FEATURE TOGGLE IMPACT CHECK ==========
 var _ftCache=null; // cached Not Started creators
 var _ftResults={}; // cached per-feature results {rag:{count,list}, apify:{count,list}, brand:{count,list}}
