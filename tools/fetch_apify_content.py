@@ -596,17 +596,36 @@ def _detect_brand_from_text(text):
     """Detect brand from caption/hashtag text. Returns brand name or ''.
 
     Priority:
-    1. Explicit brand name (Grosmimi, CHA&MOM, Naeiae, etc.)
-    2. Product keyword fallback (straw cup → Grosmimi, lotion → CHA&MOM, etc.)
+    1. Hashtag/caption explicit brand names — collect ALL matches
+    2. If any non-Grosmimi brand is found, return that (even if Grosmimi also present)
+    3. If only Grosmimi found, return Grosmimi
+    4. Product keyword fallback (straw cup → Grosmimi, lotion → CHA&MOM, etc.)
+
+    Rule: non-Grosmimi brand takes priority.  If #chaandmom appears anywhere
+    in the text, the post is NOT Grosmimi even if #grosmimi is also tagged.
     """
     text = (text or "").lower()
+    # Step 1: collect ALL explicit brand matches
+    found = set()
     for brand_name, pattern in _BRAND_REGEX:
         if pattern.search(text):
-            return brand_name
-    # No explicit brand — try product keywords
+            found.add(brand_name)
+    # Step 2: non-Grosmimi brand wins
+    non_gros = found - {"Grosmimi"}
+    if non_gros:
+        return sorted(non_gros)[0]
+    if "Grosmimi" in found:
+        return "Grosmimi"
+    # Step 3: product keyword fallback — same rule: non-Grosmimi wins
+    fallback = set()
     for brand_name, pattern in _PRODUCT_BRAND_REGEX:
         if pattern.search(text):
-            return brand_name
+            fallback.add(brand_name)
+    non_gros_fb = fallback - {"Grosmimi"}
+    if non_gros_fb:
+        return sorted(non_gros_fb)[0]
+    if "Grosmimi" in fallback:
+        return "Grosmimi"
     return ""
 
 

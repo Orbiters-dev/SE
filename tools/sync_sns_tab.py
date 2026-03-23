@@ -98,7 +98,9 @@ NON_GROS_BRANDS = ("cha & mom", "cha and mom", "naeiae", "naeia",
 # Keywords in Syncly post content/caption that indicate non-Grosmimi content
 # Even if Grosmimi is also tagged, these keywords mean the post is not Grosmimi-focused
 NON_GROS_CONTENT_KW = ("naeiae", "naeia", "cha & mom", "cha and mom", "chaenmom",
-                        "chamom", "lotion", "body wash", "rice puff", "rice snack")
+                        "chamom", "chaandmom", "cha_mom", "phytoseline", "phyto seline",
+                        "goongbe", "babyrabbit", "baby rabbit", "commemoi",
+                        "lotion", "body wash", "rice puff", "rice snack")
 # Promo/event keywords in Syncly post content
 PROMO_CONTENT_KW = ("giveaway", "valentine", "promo", "sweepstake", "contest",
                      "bfcm", "black friday")
@@ -436,11 +438,10 @@ def _is_excluded_syncly_post(post_master_entry):
         if kw in text:
             return True, f"promo content: {kw}"
 
-    # Check brand: non-Grosmimi only
+    # Check brand: any non-Grosmimi brand present → exclude (even if Grosmimi also tagged)
     if brand:
-        has_gros = "grosmimi" in brand or "growmimi" in brand
         has_nongros = any(b in brand for b in NON_GROS_BRANDS)
-        if has_nongros and not has_gros:
+        if has_nongros:
             return True, f"non-Gros brand: {brand}"
 
     return False, ""
