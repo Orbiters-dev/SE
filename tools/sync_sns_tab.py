@@ -419,14 +419,25 @@ def build_paid_set(orders, paypal_txns):
 
 # ── Syncly matching ────────────────────────────────────────────────────────
 
+GROSMIMI_HASHTAG_RE = re.compile(r"grosmimi|grossmimi|grosmimi_usa", re.IGNORECASE)
+
+
 def _is_excluded_syncly_post(post_master_entry):
     """Check if a Syncly post should be excluded (non-Grosmimi or promo content).
+
+    Inclusion rule: post MUST have #grosmimi (or variant) in hashtags.
+    Exclusion rule: non-Grosmimi brand/keywords or promo content.
 
     Returns (should_exclude, reason) tuple.
     """
     brand = post_master_entry.get("brand", "").lower()
-    text = (post_master_entry.get("content", "") + " " +
-            post_master_entry.get("hashtags", "")).lower()
+    hashtags = post_master_entry.get("hashtags", "").lower()
+    content = post_master_entry.get("content", "").lower()
+    text = content + " " + hashtags
+
+    # POST-LEVEL CHECK: must have #grosmimi hashtag to be included
+    if not GROSMIMI_HASHTAG_RE.search(hashtags):
+        return True, "no #grosmimi hashtag"
 
     # Check non-Grosmimi content keywords (even if Grosmimi is also tagged)
     for kw in NON_GROS_CONTENT_KW:
