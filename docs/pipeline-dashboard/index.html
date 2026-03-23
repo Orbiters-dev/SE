@@ -1682,6 +1682,7 @@ var _pendingActions=[];
 async function loadPendingActions(){
   try{
     var actions=[];
+    if(!_lastStats){try{_lastStats=await apiFetch('/pipeline/creators/stats/')}catch(e){}}
     var stats=_lastStats||{};
     var ltS=stats.by_status_lt||{};
     var htS=stats.by_status_ht||{};
