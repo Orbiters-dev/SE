@@ -1750,7 +1750,9 @@ async function loadPendingActions(){
         if(cr.brand)html+=' &bull; <span class="b a" style="font-size:8px">'+esc(cr.brand)+'</span>';
         html+='</div>';
         html+='</div>';
+        html+='<button onclick="toggleEmailHistory(\''+cr.id+'\',\''+esc(cr.email||'')+'\')" style="background:none;border:1px solid var(--border);border-radius:3px;cursor:pointer;font-size:8px;padding:1px 4px;color:var(--a);flex-shrink:0" title="Email history">&#x1F4E7;</button>';
         html+='</div>';
+        html+='<div id="email-hist-'+cr.id+'" style="display:none;margin:0 6px 6px 30px;padding:8px;background:#f8fafc;border-radius:4px;font-size:9px"><div id="email-hist-content-'+cr.id+'">Loading...</div></div>';
       }
       html+='</div></div>';
     }
