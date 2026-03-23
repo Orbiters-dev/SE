@@ -1438,6 +1438,11 @@ function populateConfigForm(c){
   document.getElementById('alloc-naeiae').value=c.alloc_naeiae||2;
   document.getElementById('alloc-batch-label').textContent=c.creators_contacted||10;
   updateAllocation();
+  // HT config fields
+  var htThEl=document.getElementById('ht-f-threshold');
+  if(htThEl)htThEl.value=c.ht_threshold||100000;
+  var htSenderEl=document.getElementById('ht-f-sender-email');
+  if(htSenderEl)htSenderEl.value=c.sender_email||'affiliates@onzenna.com';
 }
 function collectConfigForm(){
   return{
