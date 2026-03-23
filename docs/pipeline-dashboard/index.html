@@ -553,8 +553,14 @@ Shopify                         Apify / Syncly                   Gmail RAG
       <div style="display:flex;gap:8px;justify-content:center;margin:16px 0;flex-wrap:wrap">
         <button class="btn btn-secondary" id="btn-cfg-preview" onclick="execAction('preview')">&#x1F50D; Preview Counts</button>
         <button class="btn btn-primary" id="btn-apply" onclick="applyConfig()">&#x2705; Apply Config</button>
+        <button class="btn btn-secondary" onclick="updatePreview()" style="border:1px solid var(--g)">&#x1F4CA; Update Preview</button>
         <button class="btn btn-secondary" id="btn-cfg-draft" onclick="execAction('draft_gen')">&#x1F4DD; Generate Drafts</button>
         <button class="btn btn-secondary" id="btn-cfg-send" onclick="execAction('send')" style="border:1px solid var(--am)">&#x1F4E8; Send Batch</button>
+      </div>
+      <!-- Update Preview results -->
+      <div id="update-preview" class="card" style="display:none;border-left:3px solid var(--g)">
+        <h3>&#x1F4CA; Batch Preview</h3>
+        <div id="update-preview-content"></div>
       </div>
       <div class="card">
         <h3>&#x1F4DD; Change Log</h3>
@@ -1800,6 +1806,79 @@ async function executeAllPending(){
 
   loadPendingActions();
   loadCreatorStats();
+}
+
+async function updatePreview(){
+  var card=document.getElementById('update-preview');
+  var el=document.getElementById('update-preview-content');
+  card.style.display='block';
+  el.innerHTML='<div style="color:var(--dim);padding:10px">Loading preview...</div>';
+  try{
+    // 1. Total Not Started
+    var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=1');
+    var total=data.total||0;
+
+    // 2. With email vs without
+    var allNS=await apiFetch('/pipeline/creators/?status=Not+Started&limit=2000');
+    var creators=allNS.results||[];
+    var withEmail=creators.filter(function(c){return c.email&&!c.email.includes('@discovered.')});
+    var noEmail=creators.filter(function(c){return !c.email||c.email.includes('@discovered.')});
+
+    // 3. RAG Email Dedup
+    var dedupCount=0;
+    try{
+      var emails=withEmail.map(function(c){return c.email}).filter(Boolean);
+      if(emails.length>0){
+        var dedupResult=await apiFetch('/gmail-rag/bulk-check/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({emails:emails})});
+        dedupCount=(dedupResult.contacted||[]).length;
+      }
+    }catch(e){}
+
+    // 4. Brand breakdown
+    var brands={};
+    creators.forEach(function(c){var b=c.brand||'Unknown';brands[b]=(brands[b]||0)+1});
+
+    // 5. LT vs HT
+    var lt=creators.filter(function(c){return c.outreach_type!=='HT'}).length;
+    var ht=creators.filter(function(c){return c.outreach_type==='HT'}).length;
+
+    var eligible=withEmail.length-dedupCount;
+
+    var h='<div style="font-size:11px;line-height:2">';
+    h+='<div style="display:flex;align-items:center;gap:6px"><span style="width:20px">&#x1F4E5;</span><b>Total Not Started:</b> <span style="font-family:var(--mono)">'+total+'</span></div>';
+    h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px"><span style="color:var(--g)">&#x2705;</span> Email found: <b>'+withEmail.length+'</b> <span style="color:var(--dim)">('+noEmail.length+' missing email)</span></div>';
+    if(dedupCount>0)h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px"><span style="color:var(--am)">&#x1F50D;</span> RAG Email Dedup: <b style="color:var(--r)">-'+dedupCount+'</b> already contacted</div>';
+    h+='<hr style="border:none;border-top:1px solid var(--border);margin:6px 0">';
+    h+='<div style="display:flex;align-items:center;gap:6px"><span style="width:20px">&#x2709;&#xFE0F;</span><b>Eligible to send:</b> <span style="font-family:var(--mono);font-size:14px;color:var(--g)">'+eligible+'</span></div>';
+    h+='<div style="margin-left:26px;font-size:10px;color:var(--dim)">';
+    h+='LT: <b>'+lt+'</b> | HT: <b>'+ht+'</b>';
+    h+='</div>';
+
+    // Brand breakdown
+    h+='<div style="margin-top:8px"><b>By Brand:</b></div>';
+    h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">';
+    for(var b in brands){
+      var color=b==='Grosmimi'?'var(--g)':b==='CHA&MOM'?'var(--c)':b==='Naeiae'?'var(--am)':'var(--dim)';
+      h+='<span style="padding:2px 8px;border-radius:4px;font-size:10px;background:'+color+'22;color:'+color+';font-weight:600">'+esc(b)+': '+brands[b]+'</span>';
+    }
+    h+='</div>';
+
+    // No email list (expandable)
+    if(noEmail.length>0){
+      h+='<div style="margin-top:10px"><span style="cursor:pointer;color:var(--am);font-size:10px;font-weight:600" onclick="var d=document.getElementById(\'up-no-email\');d.style.display=d.style.display===\'none\'?\'block\':\'none\'">&#x25B6; '+noEmail.length+' creators missing email (click to expand)</span>';
+      h+='<div id="up-no-email" style="display:none;margin-top:4px;max-height:200px;overflow-y:auto;font-size:9px">';
+      noEmail.slice(0,50).forEach(function(c){
+        h+='<div style="padding:2px 0;border-bottom:1px solid var(--bg)">@'+esc(c.ig_handle||c.tiktok_handle||'')+' | '+esc(c.brand||'')+'</div>';
+      });
+      if(noEmail.length>50)h+='<div style="color:var(--dim);padding:4px">...and '+(noEmail.length-50)+' more</div>';
+      h+='</div></div>';
+    }
+
+    h+='</div>';
+    el.innerHTML=h;
+  }catch(e){
+    el.innerHTML='<div style="color:var(--r);font-size:11px">Error: '+e.message+'</div>';
+  }
 }
 
 async function refreshFunnel(){
