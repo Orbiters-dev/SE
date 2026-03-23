@@ -1842,37 +1842,105 @@ async function updatePreview(){
     var lt=creators.filter(function(c){return c.outreach_type!=='HT'}).length;
     var ht=creators.filter(function(c){return c.outreach_type==='HT'}).length;
 
-    var eligible=withEmail.length-dedupCount;
+    // 4. Read feature toggles
+    var ragEnabled=document.getElementById('f-rag-dedup')?document.getElementById('f-rag-dedup').checked:true;
+    var apifyEnabled=document.getElementById('f-apify-autofill')?document.getElementById('f-apify-autofill').checked:true;
+    var brandFilterEnabled=document.getElementById('f-apify-brand-filter')?document.getElementById('f-apify-brand-filter').checked:true;
 
-    var h='<div style="font-size:11px;line-height:2">';
-    h+='<div style="display:flex;align-items:center;gap:6px"><span style="width:20px">&#x1F4E5;</span><b>Total Not Started:</b> <span style="font-family:var(--mono)">'+total+'</span></div>';
-    h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px"><span style="color:var(--g)">&#x2705;</span> Email found: <b>'+withEmail.length+'</b> <span style="color:var(--dim)">('+noEmail.length+' missing email)</span></div>';
-    if(dedupCount>0)h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px"><span style="color:var(--am)">&#x1F50D;</span> RAG Email Dedup: <b style="color:var(--r)">-'+dedupCount+'</b> already contacted</div>';
-    h+='<hr style="border:none;border-top:1px solid var(--border);margin:6px 0">';
-    h+='<div style="display:flex;align-items:center;gap:6px"><span style="width:20px">&#x2709;&#xFE0F;</span><b>Eligible to send:</b> <span style="font-family:var(--mono);font-size:14px;color:var(--g)">'+eligible+'</span></div>';
+    // 5. Brand filter — exclude known brand/reseller accounts
+    var brandFiltered=[];
+    var brandFilterList=['onzenna.official','grosmimi_usa','grosmimi_japan','onzenna','chaenmom_official','naeiae_official'];
+    if(brandFilterEnabled){
+      brandFiltered=creators.filter(function(c){
+        var h=(c.ig_handle||c.tiktok_handle||'').toLowerCase().lstrip('@');
+        return brandFilterList.some(function(b){return h.includes(b)});
+      });
+    }
+
+    // 6. Dedup list
+    var dedupList=[];
+    if(ragEnabled&&dedupCount>0){
+      try{dedupList=dedupResult.contacted||[]}catch(e){}
+    }
+
+    // 7. Brand breakdown
+    var brands={};
+    creators.forEach(function(c){var b=c.brand||'Unknown';brands[b]=(brands[b]||0)+1});
+
+    // 8. LT vs HT
+    var lt=creators.filter(function(c){return c.outreach_type!=='HT'}).length;
+    var ht=creators.filter(function(c){return c.outreach_type==='HT'}).length;
+
+    var eligible=withEmail.length-(ragEnabled?dedupCount:0)-brandFiltered.length;
+
+    function expandList(id,items,max){
+      max=max||50;
+      var s='<div id="'+id+'" style="display:none;margin-top:4px;max-height:200px;overflow-y:auto;font-size:9px;background:#f8fafc;padding:6px;border-radius:4px">';
+      items.slice(0,max).forEach(function(c){
+        var handle=typeof c==='string'?c:'@'+(c.ig_handle||c.tiktok_handle||'');
+        var brand=typeof c==='string'?'':' | '+(c.brand||'');
+        s+='<div style="padding:2px 0;border-bottom:1px solid var(--bg)">'+esc(handle)+brand+'</div>';
+      });
+      if(items.length>max)s+='<div style="color:var(--dim);padding:4px">...and '+(items.length-max)+' more</div>';
+      s+='</div>';
+      return s;
+    }
+    function toggleBlock(id){return "var d=document.getElementById('"+id+"');d.style.display=d.style.display==='none'?'block':'none'";}
+
+    var h='<div style="font-size:11px;line-height:2.2">';
+
+    // Total
+    h+='<div style="display:flex;align-items:center;gap:6px"><span style="width:20px">&#x1F4E5;</span><b>Total Not Started:</b> <span style="font-family:var(--mono);font-size:14px">'+total+'</span></div>';
+
+    // Email
+    h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-with-email')+'">';
+    h+='<span style="color:var(--g)">&#x2705;</span> Email found: <b>'+withEmail.length+'</b>';
+    h+='</div>';
+
+    // No email
+    h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-no-email')+'">';
+    h+='<span style="color:var(--am)">&#x26A0;&#xFE0F;</span> Missing email: <b style="color:var(--am)">'+noEmail.length+'</b>';
+    if(apifyEnabled)h+=' <span style="font-size:9px;color:var(--dim)">(Apify Autofill ON)</span>';
+    h+='</div>';
+    h+=expandList('up-no-email',noEmail);
+
+    // RAG Dedup
+    if(ragEnabled){
+      h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-dedup')+'">';
+      h+='<span style="color:var(--p)">&#x1F50D;</span> RAG Email Dedup: <b style="color:var(--r)">-'+dedupCount+'</b> already contacted';
+      h+='</div>';
+      h+=expandList('up-dedup',dedupList);
+    }else{
+      h+='<div style="margin-left:20px;color:var(--muted);font-size:10px">&#x1F50D; RAG Dedup: OFF</div>';
+    }
+
+    // Brand Filter
+    if(brandFilterEnabled){
+      h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-brand-filter')+'">';
+      h+='<span style="color:var(--r)">&#x1F6AB;</span> Brand Filter: <b style="color:var(--r)">-'+brandFiltered.length+'</b> brand/reseller accounts';
+      h+='</div>';
+      h+=expandList('up-brand-filter',brandFiltered);
+    }else{
+      h+='<div style="margin-left:20px;color:var(--muted);font-size:10px">&#x1F6AB; Brand Filter: OFF</div>';
+    }
+
+    // Divider
+    h+='<hr style="border:none;border-top:2px solid var(--g);margin:8px 0">';
+
+    // Eligible
+    h+='<div style="display:flex;align-items:center;gap:6px"><span style="width:20px">&#x2709;&#xFE0F;</span><b>Eligible to send:</b> <span style="font-family:var(--mono);font-size:18px;color:var(--g);font-weight:800">'+eligible+'</span></div>';
     h+='<div style="margin-left:26px;font-size:10px;color:var(--dim)">';
-    h+='LT: <b>'+lt+'</b> | HT: <b>'+ht+'</b>';
+    h+='LT (&lt;100K): <b>'+lt+'</b> | HT (&ge;100K): <b>'+ht+'</b>';
     h+='</div>';
 
     // Brand breakdown
     h+='<div style="margin-top:8px"><b>By Brand:</b></div>';
     h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">';
     for(var b in brands){
-      var color=b==='Grosmimi'?'var(--g)':b==='CHA&MOM'?'var(--c)':b==='Naeiae'?'var(--am)':'var(--dim)';
+      var color=b==='Grosmimi'?'var(--g)':b==='CHA&MOM'||b==='cha&mom'?'var(--c)':b==='Naeiae'?'var(--am)':'var(--dim)';
       h+='<span style="padding:2px 8px;border-radius:4px;font-size:10px;background:'+color+'22;color:'+color+';font-weight:600">'+esc(b)+': '+brands[b]+'</span>';
     }
     h+='</div>';
-
-    // No email list (expandable)
-    if(noEmail.length>0){
-      h+='<div style="margin-top:10px"><span style="cursor:pointer;color:var(--am);font-size:10px;font-weight:600" onclick="var d=document.getElementById(\'up-no-email\');d.style.display=d.style.display===\'none\'?\'block\':\'none\'">&#x25B6; '+noEmail.length+' creators missing email (click to expand)</span>';
-      h+='<div id="up-no-email" style="display:none;margin-top:4px;max-height:200px;overflow-y:auto;font-size:9px">';
-      noEmail.slice(0,50).forEach(function(c){
-        h+='<div style="padding:2px 0;border-bottom:1px solid var(--bg)">@'+esc(c.ig_handle||c.tiktok_handle||'')+' | '+esc(c.brand||'')+'</div>';
-      });
-      if(noEmail.length>50)h+='<div style="color:var(--dim);padding:4px">...and '+(noEmail.length-50)+' more</div>';
-      h+='</div></div>';
-    }
 
     h+='</div>';
     el.innerHTML=h;
