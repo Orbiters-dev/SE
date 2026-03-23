@@ -1494,16 +1494,21 @@ async function loadContentTab(){
       var p=rows[i];
       var plat=p.platform==='tiktok'?'TT':'IG';
       var link=p.url?'<a href="'+esc(p.url)+'" target="_blank" style="color:var(--a);text-decoration:none">&#x1F517; '+plat+'</a>':'—';
-      var caption=(p.caption||'').substring(0,120);
+      var fullCaption=p.caption||'';
+      var transcript=p.transcript||'';
+      var text=p.text||'';
       var daysAgo=p.post_date?Math.floor((Date.now()-new Date(p.post_date).getTime())/(86400000)):0;
       var dateLabel=esc((p.post_date||'').slice(0,10))+(daysAgo>0?' <span style="color:var(--muted)">('+daysAgo+'d ago)</span>':'');
+      // Priority label
+      var contentLabel=transcript?'<span style="color:var(--a);font-size:7px;font-weight:700">T</span> ':'';
+      contentLabel+=text?'<span style="color:var(--g);font-size:7px;font-weight:700">S</span> ':'';
+      contentLabel+=fullCaption?'<span style="color:var(--p);font-size:7px;font-weight:700">C</span>':'';
       h+='<tr style="border-bottom:1px solid var(--border)">';
       h+='<td style="padding:5px 8px;font-family:var(--mono);font-weight:600;white-space:nowrap"><a href="https://instagram.com/'+esc(p.username||'')+'" target="_blank" style="color:var(--fg);text-decoration:none">@'+esc(p.username||'')+'</a></td>';
       h+='<td style="padding:5px 8px"><span class="b '+(p.platform==='tiktok'?'am':'a')+'">'+plat+'</span></td>';
       h+='<td style="padding:5px 8px">'+link+'</td>';
       h+='<td style="padding:5px 8px"><span class="b '+(p.brand==='Grosmimi'?'g':p.brand==='CHA&MOM'?'c':'am')+'">'+esc(p.brand||'')+'</span></td>';
       h+='<td style="padding:5px 8px;font-size:9px">'+dateLabel+'</td>';
-      // Metrics from post_id
       var postId=p.post_id||((p.url||'').match(/\/(\d{15,})/) ||[])[1]||'';
       var met=metricsMap[postId]||{};
       var views=met.views!=null?formatNum(met.views):'—';
@@ -1512,20 +1517,20 @@ async function loadContentTab(){
       h+='<td style="padding:5px 8px;text-align:right;font-family:var(--mono);font-size:10px;color:var(--a)">'+views+'</td>';
       h+='<td style="padding:5px 8px;text-align:right;font-family:var(--mono);font-size:10px;color:var(--p)">'+likes+'</td>';
       h+='<td style="padding:5px 8px;text-align:right;font-family:var(--mono);font-size:10px;color:var(--g)">'+comments+'</td>';
-      // Content: Transcript + Caption + Text (expandable)
-      var transcript=p.transcript||'';
-      var text=p.text||'';
+      // Content: full Transcript + Caption + Text — always show all, expandable
       var contentId='ct-'+i;
-      var preview=transcript?transcript.substring(0,80):caption.substring(0,80);
-      h+='<td style="padding:5px 8px;font-size:9px;max-width:300px">';
+      var bestContent=transcript||text||fullCaption||'';
+      var preview=bestContent.substring(0,150);
+      h+='<td style="padding:5px 8px;font-size:9px;max-width:400px">';
+      h+='<div>'+contentLabel+'</div>';
       h+='<div style="cursor:pointer;color:var(--dim)" onclick="var d=document.getElementById(\''+contentId+'\');d.style.display=d.style.display===\'none\'?\'block\':\'none\'">';
-      h+=esc(preview)+(preview.length>=80?'... <span style="color:var(--a);font-weight:600">more</span>':'');
+      h+=esc(preview)+(bestContent.length>150?'... <span style="color:var(--a);font-weight:600">more</span>':'');
       h+='</div>';
-      h+='<div id="'+contentId+'" style="display:none;margin-top:4px;padding:6px;background:#f8fafc;border-radius:4px;max-height:300px;overflow-y:auto">';
-      if(transcript){h+='<div style="margin-bottom:6px"><span style="font-weight:700;color:var(--a);font-size:8px">TRANSCRIPT</span><div style="white-space:pre-wrap;color:var(--fg);margin-top:2px">'+esc(transcript)+'</div></div>';}
-      if(caption){h+='<div style="margin-bottom:6px"><span style="font-weight:700;color:var(--p);font-size:8px">CAPTION</span><div style="white-space:pre-wrap;color:var(--fg);margin-top:2px">'+esc(p.caption||'')+'</div></div>';}
-      if(text){h+='<div><span style="font-weight:700;color:var(--g);font-size:8px">TEXT</span><div style="white-space:pre-wrap;color:var(--fg);margin-top:2px">'+esc(text)+'</div></div>';}
-      if(!transcript&&!text&&!caption){h+='<span style="color:var(--muted)">No content data</span>';}
+      h+='<div id="'+contentId+'" style="display:none;margin-top:4px;padding:8px;background:#f8fafc;border-radius:6px;max-height:500px;overflow-y:auto">';
+      if(transcript){h+='<div style="margin-bottom:8px"><div style="font-weight:700;color:var(--a);font-size:9px;margin-bottom:3px;border-bottom:1px solid var(--a)">TRANSCRIPT (T)</div><div style="white-space:pre-wrap;color:var(--fg);font-size:10px;line-height:1.5">'+esc(transcript)+'</div></div>';}
+      if(fullCaption){h+='<div style="margin-bottom:8px"><div style="font-weight:700;color:var(--p);font-size:9px;margin-bottom:3px;border-bottom:1px solid var(--p)">CAPTION (U)</div><div style="white-space:pre-wrap;color:var(--fg);font-size:10px;line-height:1.5">'+esc(fullCaption)+'</div></div>';}
+      if(text){h+='<div style="margin-bottom:8px"><div style="font-weight:700;color:var(--g);font-size:9px;margin-bottom:3px;border-bottom:1px solid var(--g)">TEXT (S)</div><div style="white-space:pre-wrap;color:var(--fg);font-size:10px;line-height:1.5">'+esc(text)+'</div></div>';}
+      if(!transcript&&!text&&!fullCaption){h+='<span style="color:var(--muted)">No content data</span>';}
       h+='</div></td>';
       h+='</tr>';
     }
