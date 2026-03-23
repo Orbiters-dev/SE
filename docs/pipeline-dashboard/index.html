@@ -473,12 +473,67 @@ Shopify                         Apify / Syncly                   Gmail RAG
       </div>
       <div class="card">
         <h3>&#x1F527; Feature Toggles</h3>
-        <div class="form-row"><label>RAG Email Dedup</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-rag-dedup"><span class="slider"></span></label></div>
-        <div class="form-row"><label>Apify Autofill</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-autofill"><span class="slider"></span></label></div>
-        <div class="form-row"><label>Apify Brand Filter</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-brand-filter" checked><span class="slider"></span></label>
-          <span style="font-size:9px;color:var(--dim)">Auto-exclude 27 brand/reseller accounts from crawl</span>
+        <div class="desc">Each filter adjusts the eligible pool. Click <b>Check</b> to see impact before executing.</div>
+
+        <!-- Step 1: RAG Email Dedup -->
+        <div class="ft-step" id="fts-rag" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <input type="checkbox" checked class="rq-check" id="ft-check-rag" style="flex-shrink:0" onchange="updateFtSummary()">
+            <span style="font-size:11px;font-weight:800;color:var(--a);font-family:var(--mono);min-width:16px">&#x2460;</span>
+            <span style="font-weight:700;min-width:120px">RAG Email Dedup</span>
+            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-rag-dedup"><span class="slider"></span></label>
+            <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('rag')" id="ft-btn-rag" style="font-size:10px">&#x1F50D; Check</button>
+            <span id="ft-badge-rag"></span>
+          </div>
+          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Strongest filter &#x2014; already-contacted creators removed even if Apify fills their email</div>
+          <div id="ft-expand-rag" style="display:none;margin:4px 0 0 28px"></div>
         </div>
-        <div class="form-row"><label>Sender Email</label><input type="email" id="f-sender-email"></div>
+
+        <!-- Step 2: Apify Autofill -->
+        <div class="ft-step" id="fts-apify" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <input type="checkbox" checked class="rq-check" id="ft-check-apify" style="flex-shrink:0" onchange="updateFtSummary()">
+            <span style="font-size:11px;font-weight:800;color:var(--a);font-family:var(--mono);min-width:16px">&#x2461;</span>
+            <span style="font-weight:700;min-width:120px">Apify Autofill</span>
+            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-autofill"><span class="slider"></span></label>
+            <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('apify')" id="ft-btn-apify" style="font-size:10px">&#x1F50D; Check</button>
+            <span id="ft-badge-apify"></span>
+          </div>
+          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Fill missing emails via Apify crawler during draft generation</div>
+          <div id="ft-expand-apify" style="display:none;margin:4px 0 0 28px"></div>
+        </div>
+
+        <!-- Step 3: Brand Filter -->
+        <div class="ft-step" id="fts-brand" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <input type="checkbox" checked class="rq-check" id="ft-check-brand" style="flex-shrink:0" onchange="updateFtSummary()">
+            <span style="font-size:11px;font-weight:800;color:var(--a);font-family:var(--mono);min-width:16px">&#x2462;</span>
+            <span style="font-weight:700;min-width:120px">Apify Brand Filter</span>
+            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-brand-filter" checked><span class="slider"></span></label>
+            <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('brand')" id="ft-btn-brand" style="font-size:10px">&#x1F50D; Check</button>
+            <span id="ft-badge-brand"></span>
+          </div>
+          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Auto-exclude 27 brand/reseller accounts from crawl</div>
+          <div id="ft-expand-brand" style="display:none;margin:4px 0 0 28px"></div>
+        </div>
+
+        <!-- Filter Pipeline Summary -->
+        <div id="ft-pipeline-summary" style="display:none;margin-top:12px;padding:12px;background:linear-gradient(135deg,#ecfdf5,#f0f9ff);border:1px solid var(--g);border-radius:8px">
+          <div style="font-size:10px;font-weight:600;color:var(--dim);margin-bottom:4px">Filter Pipeline</div>
+          <div id="ft-pipeline-flow" style="font-family:var(--mono);font-size:10px;line-height:1.8;margin-bottom:6px"></div>
+          <div style="display:flex;align-items:baseline;gap:6px">
+            <span style="font-size:20px;font-weight:800;color:var(--g);font-family:var(--mono)" id="ft-eligible-count">-</span>
+            <span style="font-size:11px;color:var(--dim)">eligible <span style="font-size:9px">(from <span id="ft-total-count" style="font-weight:700">-</span> total Not Started)</span></span>
+          </div>
+        </div>
+
+        <div class="form-row" style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border)">
+          <label>Sender Email</label><input type="email" id="f-sender-email">
+        </div>
+
+        <div style="display:flex;gap:6px;margin-top:10px">
+          <button class="btn btn-sm btn-secondary" onclick="checkAllFeatures()" style="border:1px solid var(--a)">&#x1F50D; Check All Filters</button>
+        </div>
       </div>
       <div class="card">
         <h3>&#x1F464; Human-in-Loop Controls</h3>
@@ -550,14 +605,54 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <div class="desc">최초발견일자별 크리에이터 분포 (oldest first)</div>
         <div id="vintage-list" style="max-height:240px;overflow-y:auto"></div>
       </div>
-      <div style="display:flex;gap:8px;justify-content:center;margin:16px 0;flex-wrap:wrap">
-        <button class="btn btn-secondary" id="btn-cfg-preview" onclick="execAction('preview')">&#x1F50D; Preview Counts</button>
-        <button class="btn btn-primary" id="btn-apply" onclick="applyConfig()">&#x2705; Apply Config</button>
-        <button class="btn btn-secondary" onclick="updatePreview()" style="border:1px solid var(--g)">&#x1F4CA; Update Preview</button>
-        <button class="btn btn-secondary" id="btn-cfg-draft" onclick="execAction('draft_gen')">&#x1F4DD; Generate Drafts</button>
-        <button class="btn btn-secondary" id="btn-cfg-send" onclick="execAction('send')" style="border:1px solid var(--am)">&#x1F4E8; Send Batch</button>
+      <!-- ===== BATCH PIPELINE ===== -->
+      <div class="card" style="border-left:3px solid var(--a)">
+        <h3>&#x1F680; Batch Pipeline</h3>
+        <div class="desc">Execute steps sequentially. Each step enables the next.</div>
+
+        <!-- Step 1: Apply Config -->
+        <div class="bp-step" id="bp-step-1" style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f1f5f9">
+          <input type="checkbox" checked class="rq-check" id="bp-check-1" style="flex-shrink:0">
+          <span style="font-size:11px;font-weight:800;color:var(--a);font-family:var(--mono);min-width:20px">&#x2460;</span>
+          <span style="font-weight:700;flex:1">Apply Config</span>
+          <span id="bp-result-1" style="font-size:10px"></span>
+          <button class="btn btn-sm btn-primary" onclick="execBatchStep(1)" id="bp-btn-1">&#x25B6; Execute</button>
+        </div>
+
+        <!-- Step 2: Update Preview -->
+        <div class="bp-step" id="bp-step-2" style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f1f5f9;opacity:.5">
+          <input type="checkbox" checked class="rq-check" id="bp-check-2" style="flex-shrink:0">
+          <span style="font-size:11px;font-weight:800;color:var(--a);font-family:var(--mono);min-width:20px">&#x2461;</span>
+          <span style="font-weight:700;flex:1">Update Preview</span>
+          <span id="bp-result-2" style="font-size:10px"></span>
+          <button class="btn btn-sm btn-primary" onclick="execBatchStep(2)" id="bp-btn-2" disabled>&#x25B6; Execute</button>
+        </div>
+
+        <!-- Step 3: Generate Drafts -->
+        <div class="bp-step" id="bp-step-3" style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f1f5f9;opacity:.5">
+          <input type="checkbox" checked class="rq-check" id="bp-check-3" style="flex-shrink:0">
+          <span style="font-size:11px;font-weight:800;color:var(--a);font-family:var(--mono);min-width:20px">&#x2462;</span>
+          <span style="font-weight:700;flex:1">Generate Drafts</span>
+          <span id="bp-result-3" style="font-size:10px"></span>
+          <button class="btn btn-sm btn-primary" onclick="execBatchStep(3)" id="bp-btn-3" disabled>&#x25B6; Execute</button>
+        </div>
+
+        <!-- Step 4: Send Batch -->
+        <div class="bp-step" id="bp-step-4" style="display:flex;align-items:center;gap:8px;padding:10px 0;opacity:.5">
+          <input type="checkbox" checked class="rq-check" id="bp-check-4" style="flex-shrink:0">
+          <span style="font-size:11px;font-weight:800;color:var(--am);font-family:var(--mono);min-width:20px">&#x2463;</span>
+          <span style="font-weight:700;flex:1">Send Batch</span>
+          <span id="bp-result-4" style="font-size:10px"></span>
+          <button class="btn btn-sm btn-success" onclick="execBatchStep(4)" id="bp-btn-4" disabled>&#x25B6; Execute</button>
+        </div>
+
+        <div style="display:flex;gap:6px;margin-top:12px;justify-content:center">
+          <button class="btn btn-primary" onclick="execAllBatchSteps()">&#x1F680; Execute All Checked</button>
+          <button class="btn btn-secondary" onclick="resetBatchPipeline()">&#x21BB; Reset</button>
+        </div>
       </div>
-      <!-- Update Preview results -->
+
+      <!-- Update Preview results (shown by batch step 2) -->
       <div id="update-preview" class="card" style="display:none;border-left:3px solid var(--g)">
         <h3>&#x1F4CA; Batch Preview</h3>
         <div id="update-preview-content"></div>
@@ -1270,7 +1365,8 @@ function collectConfigForm(){
   };
 }
 async function applyConfig(){
-  var btn=document.getElementById('btn-apply');btn.disabled=true;btn.textContent='Saving...';
+  var btn=document.getElementById('btn-apply')||document.getElementById('bp-btn-1');
+  if(btn){btn.disabled=true;btn.textContent='Saving...'}
   try{
     var data=collectConfigForm();
     // Save form URLs to localStorage (persists even if API doesn't store them)
@@ -1286,7 +1382,7 @@ async function applyConfig(){
     // Show vintage breakdown if All dates mode
     if(data.start_from_beginning){renderVintageBreakdown();document.getElementById('vintage-breakdown').style.display=''}
   }catch(e){showToast('Save failed: '+e.message,'err')}
-  finally{btn.disabled=false;btn.textContent='\u2705 Apply Config'}
+  finally{if(btn){btn.disabled=false;btn.textContent='\u25B6 Execute'}}
 }
 async function loadConfigHistory(){
   try{
@@ -3114,6 +3210,232 @@ function executeRemoteCommand(cmd){
   else if(a==='navigate'){location.href=cmd.url}
   else{console.log('[Remote] Unknown action:',a)}
 }
+// ========== FEATURE TOGGLE IMPACT CHECK ==========
+var _ftCache=null; // cached Not Started creators
+var _ftResults={}; // cached per-feature results {rag:{count,list}, apify:{count,list}, brand:{count,list}}
+
+async function ensureFtCache(){
+  if(_ftCache)return _ftCache;
+  var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=5000');
+  _ftCache=data.results||[];
+  return _ftCache;
+}
+
+async function checkFeatureImpact(feature){
+  var btn=document.getElementById('ft-btn-'+feature);
+  var badge=document.getElementById('ft-badge-'+feature);
+  var expand=document.getElementById('ft-expand-'+feature);
+  btn.disabled=true;btn.textContent='...';
+  badge.innerHTML='<span style="color:var(--dim);font-size:9px">checking...</span>';
+
+  try{
+    var creators=await ensureFtCache();
+    var withEmail=creators.filter(function(c){return c.email&&!c.email.includes('@discovered.')});
+    var noEmail=creators.filter(function(c){return !c.email||c.email.includes('@discovered.')});
+
+    if(feature==='rag'){
+      // RAG Email Dedup: check which emails were already contacted
+      var emails=withEmail.map(function(c){return c.email}).filter(Boolean);
+      var contacted=[];
+      if(emails.length>0){
+        try{
+          var result=await apiFetch('/gmail-rag/bulk-check/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({emails:emails})});
+          contacted=result.contacted||[];
+        }catch(e){contacted=[]}
+      }
+      _ftResults.rag={count:contacted.length,list:contacted};
+      badge.innerHTML='<span class="b r" style="font-size:10px;padding:2px 8px">&minus;'+contacted.length+' removed</span>';
+      if(contacted.length>0){
+        var h='<div style="font-size:9px;max-height:160px;overflow-y:auto;background:#fef2f2;padding:6px;border-radius:4px;cursor:pointer" onclick="this.parentElement.style.display=\'none\'">';
+        h+='<div style="font-weight:700;margin-bottom:3px;color:var(--r)">Already contacted ('+contacted.length+'):</div>';
+        contacted.slice(0,40).forEach(function(e){h+='<div style="padding:1px 0;border-bottom:1px solid #fde8e8">'+esc(e)+'</div>'});
+        if(contacted.length>40)h+='<div style="color:var(--dim);padding:4px">...+'+(contacted.length-40)+' more</div>';
+        h+='</div>';
+        expand.innerHTML=h;expand.style.display='block';
+      }else{expand.innerHTML='';expand.style.display='none'}
+
+    }else if(feature==='apify'){
+      // Apify Autofill: how many creators have no email (can be filled)
+      _ftResults.apify={count:noEmail.length,list:noEmail};
+      badge.innerHTML='<span class="b g" style="font-size:10px;padding:2px 8px">+'+noEmail.length+' fillable</span>';
+      if(noEmail.length>0){
+        var h='<div style="font-size:9px;max-height:160px;overflow-y:auto;background:var(--gbg);padding:6px;border-radius:4px;cursor:pointer" onclick="this.parentElement.style.display=\'none\'">';
+        h+='<div style="font-weight:700;margin-bottom:3px;color:var(--g)">Missing email ('+noEmail.length+'):</div>';
+        noEmail.slice(0,40).forEach(function(c){h+='<div style="padding:1px 0;border-bottom:1px solid #d1fae5">@'+esc(c.ig_handle||c.tiktok_handle||'?')+' <span style="color:var(--dim)">'+esc(c.brand||'')+'</span></div>'});
+        if(noEmail.length>40)h+='<div style="color:var(--dim);padding:4px">...+'+(noEmail.length-40)+' more</div>';
+        h+='</div>';
+        expand.innerHTML=h;expand.style.display='block';
+      }else{expand.innerHTML='';expand.style.display='none'}
+
+    }else if(feature==='brand'){
+      // Brand Filter: check against known brand/reseller accounts
+      var brandFilterList=['onzenna.official','grosmimi_usa','grosmimi_japan','onzenna','chaenmom_official','naeiae_official',
+        'grosmimi','chaandmom','naeiae','zezebaebae','orbitool','toddie','fleeters'];
+      var filtered=creators.filter(function(c){
+        var h=(c.ig_handle||c.tiktok_handle||'').toLowerCase().replace(/^@/,'');
+        return brandFilterList.some(function(b){return h===b||h.includes(b+'_')});
+      });
+      _ftResults.brand={count:filtered.length,list:filtered};
+      badge.innerHTML='<span class="b r" style="font-size:10px;padding:2px 8px">&minus;'+filtered.length+' removed</span>';
+      if(filtered.length>0){
+        var h='<div style="font-size:9px;max-height:160px;overflow-y:auto;background:#fef2f2;padding:6px;border-radius:4px;cursor:pointer" onclick="this.parentElement.style.display=\'none\'">';
+        h+='<div style="font-weight:700;margin-bottom:3px;color:var(--r)">Brand/reseller accounts ('+filtered.length+'):</div>';
+        filtered.forEach(function(c){h+='<div style="padding:1px 0;border-bottom:1px solid #fde8e8">@'+esc(c.ig_handle||c.tiktok_handle||'?')+' <span style="color:var(--dim)">| '+esc(c.brand||'')+'</span></div>'});
+        h+='</div>';
+        expand.innerHTML=h;expand.style.display='block';
+      }else{expand.innerHTML='';expand.style.display='none'}
+    }
+
+    updateFtSummary();
+  }catch(e){
+    badge.innerHTML='<span class="b am">Error: '+esc(e.message)+'</span>';
+  }finally{
+    btn.disabled=false;btn.textContent='\uD83D\uDD0D Check';
+  }
+}
+
+async function checkAllFeatures(){
+  _ftCache=null; // force fresh fetch
+  await checkFeatureImpact('rag');
+  await checkFeatureImpact('apify');
+  await checkFeatureImpact('brand');
+}
+
+function updateFtSummary(){
+  if(!_ftCache)return;
+  var total=_ftCache.length;
+  var withEmail=_ftCache.filter(function(c){return c.email&&!c.email.includes('@discovered.')}).length;
+  var noEmail=total-withEmail;
+
+  var ragCheck=document.getElementById('ft-check-rag').checked;
+  var apifyCheck=document.getElementById('ft-check-apify').checked;
+  var brandCheck=document.getElementById('ft-check-brand').checked;
+
+  var ragCount=ragCheck&&_ftResults.rag?_ftResults.rag.count:0;
+  var brandCount=brandCheck&&_ftResults.brand?_ftResults.brand.count:0;
+  var apifyCount=apifyCheck&&_ftResults.apify?_ftResults.apify.count:0;
+
+  // Pipeline: total withEmail -> minus RAG dedup -> minus brand filter = eligible
+  var eligible=withEmail-ragCount-brandCount;
+  if(eligible<0)eligible=0;
+
+  // Build flow display
+  var flow='<span style="color:var(--text);font-weight:700">'+total+'</span> total';
+  flow+=' &rarr; <span style="color:var(--g)">'+withEmail+'</span> with email';
+  if(ragCheck&&_ftResults.rag)flow+=' &rarr; <span style="color:var(--r)">&minus;'+ragCount+'</span> dedup';
+  if(brandCheck&&_ftResults.brand)flow+=' &rarr; <span style="color:var(--r)">&minus;'+brandCount+'</span> brand';
+  if(apifyCheck&&_ftResults.apify)flow+=' <span style="color:var(--dim)">| +'+apifyCount+' fillable</span>';
+  flow+=' &rarr; <span style="color:var(--g);font-weight:800">'+eligible+'</span>';
+
+  document.getElementById('ft-pipeline-flow').innerHTML=flow;
+  document.getElementById('ft-eligible-count').textContent=eligible;
+  document.getElementById('ft-total-count').textContent=total;
+  document.getElementById('ft-pipeline-summary').style.display='';
+}
+
+// ========== BATCH PIPELINE ==========
+var _bpCompleted={};
+
+async function execBatchStep(step){
+  var btn=document.getElementById('bp-btn-'+step);
+  var result=document.getElementById('bp-result-'+step);
+  var check=document.getElementById('bp-check-'+step);
+  if(!check.checked){showToast('Step '+step+' is unchecked, skipping','ok');enableNextStep(step);return}
+  btn.disabled=true;btn.textContent='Running...';
+  result.innerHTML='<span style="color:var(--am)">&#x23F3;</span>';
+
+  try{
+    if(step===1){
+      // Apply Config
+      var data=collectConfigForm();
+      var formUrls={};
+      ['grosmimi','chaenmom','naeiae','ht'].forEach(function(k){formUrls[k+'_form_url']=data[k+'_form_url']||''});
+      _savedFormUrls=formUrls;
+      try{localStorage.setItem('pipeline_form_urls',JSON.stringify(formUrls))}catch(e){}
+      var date=_config?_config.date:new Date().toISOString().slice(0,10);
+      _config=await apiFetch('/pipeline/config/'+date+'/',{method:'POST',body:JSON.stringify(data)});
+      populateConfigForm(_config);loadConfigHistory();
+      if(data.start_from_beginning){renderVintageBreakdown();document.getElementById('vintage-breakdown').style.display=''}
+      result.innerHTML='<span class="b g">&#x2705; Saved</span>';
+
+    }else if(step===2){
+      // Update Preview (reuses existing updatePreview logic)
+      await updatePreview();
+      result.innerHTML='<span class="b g">&#x2705; Done</span>';
+
+    }else if(step===3){
+      // Generate Drafts via webhook
+      execAction('draft_gen');
+      result.innerHTML='<span class="b c">&#x1F4DD; Triggered</span>';
+
+    }else if(step===4){
+      // Send Batch via webhook
+      execAction('send');
+      result.innerHTML='<span class="b am">&#x1F4E8; Triggered</span>';
+    }
+
+    _bpCompleted[step]=true;
+    enableNextStep(step);
+    showToast('Step '+step+' completed','ok');
+  }catch(e){
+    result.innerHTML='<span class="b r">&#x274C; '+esc(e.message)+'</span>';
+    showToast('Step '+step+' failed: '+e.message,'err');
+  }finally{
+    btn.disabled=false;btn.textContent='\u25B6 Execute';
+  }
+}
+
+function enableNextStep(currentStep){
+  var next=currentStep+1;
+  if(next>4)return;
+  var stepEl=document.getElementById('bp-step-'+next);
+  var btnEl=document.getElementById('bp-btn-'+next);
+  if(stepEl)stepEl.style.opacity='1';
+  if(btnEl)btnEl.disabled=false;
+}
+
+async function execAllBatchSteps(){
+  for(var i=1;i<=4;i++){
+    var check=document.getElementById('bp-check-'+i);
+    if(!check||!check.checked)continue;
+    await execBatchStep(i);
+    // Wait a bit between steps for UI feedback
+    await new Promise(function(r){setTimeout(r,500)});
+  }
+  showToast('All batch steps completed','ok');
+}
+
+function resetBatchPipeline(){
+  _bpCompleted={};
+  _ftCache=null;
+  _ftResults={};
+  for(var i=1;i<=4;i++){
+    var stepEl=document.getElementById('bp-step-'+i);
+    var btnEl=document.getElementById('bp-btn-'+i);
+    var resultEl=document.getElementById('bp-result-'+i);
+    var checkEl=document.getElementById('bp-check-'+i);
+    if(resultEl)resultEl.innerHTML='';
+    if(checkEl)checkEl.checked=true;
+    if(i===1){
+      if(stepEl)stepEl.style.opacity='1';
+      if(btnEl)btnEl.disabled=false;
+    }else{
+      if(stepEl)stepEl.style.opacity='.5';
+      if(btnEl)btnEl.disabled=true;
+    }
+  }
+  // Reset feature toggle badges
+  ['rag','apify','brand'].forEach(function(f){
+    var badge=document.getElementById('ft-badge-'+f);
+    var expand=document.getElementById('ft-expand-'+f);
+    if(badge)badge.innerHTML='';
+    if(expand){expand.innerHTML='';expand.style.display='none'}
+  });
+  document.getElementById('ft-pipeline-summary').style.display='none';
+  document.getElementById('update-preview').style.display='none';
+  showToast('Pipeline reset','ok');
+}
+
 // Auto-start remote control
 startRemoteControl();
 </script>
