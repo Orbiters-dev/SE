@@ -374,7 +374,43 @@
 - **수정**: n8n API로 전체 워크플로우 검색 → v1/v2 두 개 발견
 - **예방**: "없다"고 답하기 전에 반드시 확인: n8n API 검색, SKILL.md 재확인. 확인 없이 "없음" 단언 금지
 
-### M-044: 서버 연결 거부
+### M-044: Syncly transcript → Apify post 매칭 안 됨 (post_id 다름)
+- **에이전트**: 파이프라이너 / CI팀장
+- **날짜**: 2026-03-23
+- **상황**: Syncly 트랜스크립트를 Apify 크롤 데이터와 매칭하려 했으나 post_id 체계가 다름
+- **에러**: 매칭 실패 — Syncly는 자체 ID, Apify는 IG shortCode / TT video ID 사용
+- **수정**: URL 기반 매칭 또는 username + post_date 복합 키로 매칭
+- **예방**: 외부 시스템 간 데이터 조인 시 ID 체계부터 확인. post_id가 다르면 URL/핸들+날짜 폴백
+
+### M-045: Discovery date는 Creators 시트 G열 기준 (7일 간격)
+- **에이전트**: 파이프라이너
+- **날짜**: 2026-03-23
+- **상황**: Discovery date 계산 시 잘못된 컬럼 참조
+- **수정**: Creators 시트 G열 (최초발견일자) 기준으로 7일 간격 vintage breakdown
+- **예방**: Discovery date 관련 로직은 항상 Creators 시트 G열 기준
+
+### M-046: API limit에 걸려 일부만 처리
+- **에이전트**: 파이프라이너 / 데이터 키퍼
+- **날짜**: 2026-03-23
+- **상황**: API 호출 시 rate limit 또는 pagination limit으로 일부 데이터만 반환
+- **수정**: 페이지네이션 구현 또는 batch 처리
+- **예방**: API 호출 결과의 total count vs 반환 count 항상 비교. 불일치 시 추가 페이지 요청
+
+### M-047: Content 내용 절대 자르지 않기
+- **에이전트**: 파이프라이너
+- **날짜**: 2026-03-23
+- **상황**: Content 탭에서 Transcript/Caption/Text를 truncate해서 표시 → 유저가 전문 필요
+- **수정**: no truncation — 전체 내용 표시 (expandable)
+- **예방**: 컨텐츠 텍스트는 절대 잘라내지 않기. 긴 내용은 expandable UI로 처리
+
+### M-048: Transcript > Text > Caption 우선순위
+- **에이전트**: 파이프라이너 / CI팀장
+- **날짜**: 2026-03-23
+- **상황**: Content 탭에서 어떤 텍스트 필드를 우선 표시할지 혼동
+- **수정**: Transcript (영상 자막) > Text (포스트 본문) > Caption (짧은 설명) 순서로 우선 표시
+- **예방**: 컨텐츠 표시 우선순위: Transcript > Text > Caption. 세 개 다 있으면 모두 표시하되 순서 유지
+
+### M-049: 서버 연결 거부
 - **에이전트**: 파이프라이너
 - **날짜**: 2026-03-20
 - **상황**: `python tools/dual_test_runner.py --dual` 실행 중
@@ -386,7 +422,7 @@
 
 ## CI 팀장 (크롤러 포함)
 
-### M-045: 브랜드 분류 — 주문 기반이 캡션 무시하고 강제 적용
+### M-050: 브랜드 분류 — 주문 기반이 캡션 무시하고 강제 적용
 - **에이전트**: CI 팀장
 - **날짜**: 2026-03-19
 - **상황**: `enrich_posts_from_orders()`에서 알파벳순 첫 브랜드를 모든 포스트에 강제 적용
@@ -394,14 +430,14 @@
 - **수정**: 캡션/해시태그 브랜드 감지를 우선 적용, 캡션에 없을 때만 주문 폴백
 - **예방**: 포스트별 컨텐츠(캡션/해시태그)가 항상 주문 데이터보다 우선
 
-### M-046: Onzenna를 브랜드로 분류 — umbrella storefront ≠ brand
+### M-051: Onzenna를 브랜드로 분류 — umbrella storefront ≠ brand
 - **에이전트**: CI 팀장
 - **날짜**: 2026-03-19
 - **상황**: `_BRAND_REGEX`에 "Onzenna"가 브랜드로 등록 → 174건이 "Onzenna"로 잘못 분류
 - **수정**: Onzenna 제거. `_PRODUCT_BRAND_REGEX` 2단계 폴백 추가 (straw cup→Grosmimi 등). 174건 재분류
 - **예방**: Onzenna = 스토어프론트, NOT a brand. 브랜드 regex 추가 시 실제 제품 브랜드인지 확인
 
-### M-047: PG 행 수 표시 — API limit=1이 total count로 오인
+### M-052: PG 행 수 표시 — API limit=1이 total count로 오인
 - **에이전트**: CI 팀장
 - **날짜**: 2026-03-19
 - **상황**: `pg_table_count()`가 `limit=1`로 API 호출 → `count` 필드를 전체 행 수로 표시
@@ -413,7 +449,7 @@
 
 ## 앱스터
 
-### M-048: nginx CORS — if + add_header 조합 브레이크
+### M-053: nginx CORS — if + add_header 조합 브레이크
 - **에이전트**: 앱스터
 - **날짜**: 2026-03-20
 - **상황**: nginx config에서 if 블록 안에 add_header → CORS 헤더 간헐적 누락
@@ -421,14 +457,14 @@
 - **수정**: `@cors_preflight` named location 사용으로 교체
 - **예방**: nginx에서 if + add_header 조합 사용 금지. named location 패턴 사용
 
-### M-049: Django CORS — Base settings에 MIDDLEWARE 추가해야 함
+### M-054: Django CORS — Base settings에 MIDDLEWARE 추가해야 함
 - **에이전트**: 앱스터
 - **날짜**: 2026-03-20
 - **상황**: production.py에만 CORS 미들웨어 추가 → base settings에서 MIDDLEWARE 상속 충돌
 - **수정**: `base.py`의 MIDDLEWARE에 corsheaders 추가 (production.py 아님)
 - **예방**: Django settings 상속 구조 확인. 공통 설정은 반드시 base.py에
 
-### M-050: EC2 배포 — onzenna 디렉토리 클린 없이 배포 시 캐시 충돌
+### M-055: EC2 배포 — onzenna 디렉토리 클린 없이 배포 시 캐시 충돌
 - **에이전트**: 앱스터
 - **날짜**: 2026-03-20
 - **상황**: 재배포 시 __pycache__ 남아있으면 모듈 임포트 충돌
