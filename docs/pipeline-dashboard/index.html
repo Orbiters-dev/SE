@@ -1819,7 +1819,7 @@ async function updatePreview(){
     var total=data.total||0;
 
     // 2. With email vs without
-    var allNS=await apiFetch('/pipeline/creators/?status=Not+Started&limit=2000');
+    var allNS=await apiFetch('/pipeline/creators/?status=Not+Started&limit=5000');
     var creators=allNS.results||[];
     var withEmail=creators.filter(function(c){return c.email&&!c.email.includes('@discovered.')});
     var noEmail=creators.filter(function(c){return !c.email||c.email.includes('@discovered.')});
@@ -2497,7 +2497,7 @@ async function pullDiscoveryDates(){
   btn.disabled=true;btn.textContent='Loading...';
   try{
     // Fetch all Not Started creators and extract unique discovery dates
-    var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=500');
+    var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=5000');
     var items=data.results||[];
     var dateMap={};
     items.forEach(function(c){
