@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-23 14:21 PST",
+ "generated_pst": "2026-03-23 23:52 PST",
  "through_date": "2026-03-22",
  "months": [
   "2025-06",
@@ -75,6 +75,14 @@ const FIN_DATA = {
    "label": "Google Search Console",
    "rows": 5508,
    "min_date": "2026-02-21",
+   "max_date": "2026-03-22",
+   "refresh": "2x daily"
+  },
+  {
+   "name": "klaviyo_daily",
+   "label": "Klaviyo Email",
+   "rows": 118,
+   "min_date": "2025-05-23",
    "max_date": "2026-03-22",
    "refresh": "2x daily"
   }
@@ -3220,7 +3228,7 @@ const FIN_DATA = {
      11.9,
      10.8,
      11.0,
-     10.6,
+     10.5,
      null
     ]
    },
@@ -4752,27 +4760,27 @@ const FIN_DATA = {
     24485
    ],
    "amazon": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
+    56294,
+    82121,
+    67267,
+    55637,
+    59565,
+    65391,
     34382,
-    34382,
+    420657,
     79637,
     80371,
     71869
    ],
    "total": [
-    16451,
-    21579,
-    24911,
-    27700,
-    31719,
-    39600,
+    72745,
+    103700,
+    92178,
+    83337,
+    91284,
+    104991,
     71387,
-    233347,
+    619622,
     118156,
     119783,
     96354
@@ -4928,30 +4936,291 @@ const FIN_DATA = {
    0
   ],
   "cm_after_ads": [
-   319775,
-   417023,
-   390124,
-   334334,
-   361285,
-   379708,
+   263481,
+   334902,
+   322857,
+   278697,
+   301720,
+   314317,
    303307,
-   2505556,
+   2119281,
    294456,
    273528,
    233326
   ],
   "cm_final": [
-   319775,
-   417023,
-   390124,
-   334334,
-   361285,
-   379708,
+   263481,
+   334902,
+   322857,
+   278697,
+   301720,
+   314317,
    303307,
-   2505556,
+   2119281,
    294456,
    273528,
    233326
+  ]
+ },
+ "klaviyo": {
+  "campaign_monthly": {
+   "sends": [
+    22465,
+    19458,
+    46691,
+    32862,
+    69543,
+    170342,
+    90007,
+    153595,
+    69021,
+    0
+   ],
+   "opens": [
+    13757,
+    12039,
+    28670,
+    20363,
+    41445,
+    111876,
+    63532,
+    77225,
+    8071,
+    0
+   ],
+   "clicks": [
+    171,
+    262,
+    493,
+    435,
+    616,
+    1175,
+    496,
+    608,
+    163,
+    0
+   ],
+   "conversions": [
+    18,
+    25,
+    54,
+    53,
+    94,
+    211,
+    112,
+    130,
+    27,
+    0
+   ],
+   "revenue": [
+    1970,
+    2005,
+    4987,
+    4124,
+    10990,
+    19296,
+    8971,
+    8389,
+    2083,
+    0
+   ],
+   "revenue_proj": [
+    1970,
+    2005,
+    4987,
+    4124,
+    10990,
+    19296,
+    8971,
+    8389,
+    2083,
+    0
+   ]
+  },
+  "flow_monthly": {
+   "sends": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    5368
+   ],
+   "opens": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    950
+   ],
+   "clicks": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    289
+   ],
+   "conversions": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    34
+   ],
+   "revenue": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    17340
+   ],
+   "revenue_proj": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    24434
+   ]
+  },
+  "summary_30d": {
+   "sends": 5474,
+   "opens": 984,
+   "clicks": 290,
+   "conversions": 35,
+   "revenue": 17379.31,
+   "open_rate": 18.0,
+   "click_rate": 5.3,
+   "cvr": 0.64,
+   "rev_per_send": 3.175,
+   "campaign_revenue": 39.81,
+   "flow_revenue": 17339.5
+  },
+  "top_campaigns": [
+   {
+    "name": "022726 - Naeiae(between 120-150)",
+    "date": "2026-02-27",
+    "sends": 106,
+    "open_rate": 32.1,
+    "click_rate": 0.94,
+    "cvr": 0.94,
+    "revenue": 39.81
+   },
+   {
+    "name": "03.16.26 - Onzenna Newsletter",
+    "date": "2026-03-21",
+    "sends": 0,
+    "open_rate": 0,
+    "click_rate": 0,
+    "cvr": 0,
+    "revenue": 0.0
+   },
+   {
+    "name": "031326 - More Light, More You",
+    "date": "2026-03-13",
+    "sends": 0,
+    "open_rate": 0,
+    "click_rate": 0,
+    "cvr": 0,
+    "revenue": 0.0
+   },
+   {
+    "name": "022726 - Naeiae(between 30-60)",
+    "date": "2026-03-05",
+    "sends": 0,
+    "open_rate": 0,
+    "click_rate": 0,
+    "cvr": 0,
+    "revenue": 0.0
+   },
+   {
+    "name": "022726 - Naeiae(between 60-90)",
+    "date": "2026-03-03",
+    "sends": 0,
+    "open_rate": 0,
+    "click_rate": 0,
+    "cvr": 0,
+    "revenue": 0.0
+   },
+   {
+    "name": "022726 - Naeiae(between 90-120)",
+    "date": "2026-03-01",
+    "sends": 0,
+    "open_rate": 0,
+    "click_rate": 0,
+    "cvr": 0,
+    "revenue": 0.0
+   }
+  ],
+  "top_flows": [
+   {
+    "name": "[Onzenna]Abandoned Cart",
+    "sends": 831,
+    "open_rate": 9.6,
+    "click_rate": 8.9,
+    "cvr": 1.32,
+    "revenue": 15084.4
+   },
+   {
+    "name": "[Onzenna] Back In Stock Flow - Standard",
+    "sends": 419,
+    "open_rate": 41.1,
+    "click_rate": 19.09,
+    "cvr": 2.39,
+    "revenue": 946.2
+   },
+   {
+    "name": "[Onzenna][Retentics] Browse Abandonment",
+    "sends": 1378,
+    "open_rate": 24.3,
+    "click_rate": 7.76,
+    "cvr": 0.8,
+    "revenue": 898.26
+   },
+   {
+    "name": "[Onzenna][Retentics] Welcome From (Pop-up) product form a/b_241119",
+    "sends": 2639,
+    "open_rate": 13.4,
+    "click_rate": 1.06,
+    "cvr": 0.08,
+    "revenue": 410.64
+   },
+   {
+    "name": "[Onzenna] Welcome Series - Standard",
+    "sends": 101,
+    "open_rate": 9.9,
+    "click_rate": 0.0,
+    "cvr": 0.0,
+    "revenue": 0.0
+   }
   ]
  }
 };
