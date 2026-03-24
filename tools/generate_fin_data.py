@@ -1359,30 +1359,43 @@ def generate():
         print(f"  Amazon Ads backfilled from Excel: {amz_backfilled} months")
 
     # ── Klaviyo email marketing ──────────────────────────────────────────────
+    # Flow data = cumulative snapshots (same stats repeated daily per flow).
+    # Fix: per flow per month, keep only the latest-date row (best snapshot).
+    # Campaign data = one row per campaign (no dedup needed).
     print("\n[7/7] Building Klaviyo email metrics...")
-    klaviyo_campaign_monthly = {}  # month -> {sends, opens, clicks, conversions, revenue}
-    klaviyo_flow_monthly = {}
-    for r in klaviyo:
-        d = r.get("date", "")
-        if not d or d > through:
-            continue
-        m = d[:7]
-        stype = r.get("source_type", "campaign")
-        target = klaviyo_campaign_monthly if stype == "campaign" else klaviyo_flow_monthly
-        if m not in target:
-            target[m] = {"sends": 0, "opens": 0, "clicks": 0, "conversions": 0, "revenue": 0.0}
-        target[m]["sends"] += int(r.get("sends") or 0)
-        target[m]["opens"] += int(r.get("opens") or 0)
-        target[m]["clicks"] += int(r.get("clicks") or 0)
-        target[m]["conversions"] += int(r.get("conversions") or 0)
-        target[m]["revenue"] += float(r.get("revenue") or 0)
+
+    klav_campaigns = [r for r in klaviyo if r.get("source_type") == "campaign"
+                      and r.get("date", "") <= through]
+    klav_flows_raw = [r for r in klaviyo if r.get("source_type") == "flow"
+                      and r.get("date", "") <= through]
+
+    # Dedup flows: latest date per (source_name, month)
+    flow_latest = {}  # (name, month) -> row with max date
+    for r in klav_flows_raw:
+        key = (r.get("source_name", ""), r["date"][:7])
+        if key not in flow_latest or r["date"] > flow_latest[key]["date"]:
+            flow_latest[key] = r
+    klav_flows = list(flow_latest.values())
+
+    def _agg_rows(rows):
+        """Aggregate a list of Klaviyo rows into totals."""
+        s = sum(int(r.get("sends") or 0) for r in rows)
+        o = sum(int(r.get("opens") or 0) for r in rows)
+        c = sum(int(r.get("clicks") or 0) for r in rows)
+        cv = sum(int(r.get("conversions") or 0) for r in rows)
+        rv = sum(float(r.get("revenue") or 0) for r in rows)
+        return {"sends": s, "opens": o, "clicks": c, "conversions": cv, "revenue": rv}
 
     # Monthly arrays aligned to months[]
-    def _klav_monthly(src):
-        return [src.get(m, {"sends": 0, "opens": 0, "clicks": 0, "conversions": 0, "revenue": 0.0}) for m in months]
+    def _klav_monthly_arr(rows, months_list):
+        out = []
+        for m in months_list:
+            m_rows = [r for r in rows if r.get("date", "")[:7] == m]
+            out.append(_agg_rows(m_rows))
+        return out
 
-    camp_arr = _klav_monthly(klaviyo_campaign_monthly)
-    flow_arr = _klav_monthly(klaviyo_flow_monthly)
+    camp_arr = _klav_monthly_arr(klav_campaigns, months)
+    flow_arr = _klav_monthly_arr(klav_flows, months)
 
     klaviyo_data = {
         "campaign_monthly": {
@@ -1403,78 +1416,80 @@ def generate():
         },
     }
 
-    # 30D summary
-    klav_30d = [r for r in klaviyo if r.get("date", "") >= d30 and r.get("date", "") <= through]
-    klav_sends = sum(int(r.get("sends") or 0) for r in klav_30d)
-    klav_opens = sum(int(r.get("opens") or 0) for r in klav_30d)
-    klav_clicks = sum(int(r.get("clicks") or 0) for r in klav_30d)
-    klav_convs = sum(int(r.get("conversions") or 0) for r in klav_30d)
-    klav_rev = sum(float(r.get("revenue") or 0) for r in klav_30d)
-    camp_rev_30d = sum(float(r.get("revenue") or 0) for r in klav_30d if r.get("source_type") == "campaign")
-    flow_rev_30d = sum(float(r.get("revenue") or 0) for r in klav_30d if r.get("source_type") == "flow")
-    klaviyo_data["summary_30d"] = {
-        "sends": klav_sends,
-        "opens": klav_opens,
-        "clicks": klav_clicks,
-        "conversions": klav_convs,
-        "revenue": round(klav_rev, 2),
-        "open_rate": round(klav_opens / klav_sends * 100, 1) if klav_sends else 0,
-        "click_rate": round(klav_clicks / klav_sends * 100, 2) if klav_sends else 0,
-        "cvr": round(klav_convs / klav_sends * 100, 2) if klav_sends else 0,
-        "rev_per_send": round(klav_rev / klav_sends, 3) if klav_sends else 0,
-        "campaign_revenue": round(camp_rev_30d, 2),
-        "flow_revenue": round(flow_rev_30d, 2),
-    }
+    # Period summaries (7D, 30D) — dedup flows per period too
+    def _klav_period_summary(date_from_str):
+        p_camps = [r for r in klav_campaigns if r.get("date", "") >= date_from_str]
+        p_flows_raw = [r for r in klav_flows_raw if r.get("date", "") >= date_from_str]
+        # Dedup flows: latest date per source_name in this period
+        fl = {}
+        for r in p_flows_raw:
+            name = r.get("source_name", "")
+            if name not in fl or r["date"] > fl[name]["date"]:
+                fl[name] = r
+        p_flows = list(fl.values())
+        all_rows = p_camps + p_flows
+        agg = _agg_rows(all_rows)
+        s = agg["sends"]
+        camp_r = sum(float(r.get("revenue") or 0) for r in p_camps)
+        flow_r = sum(float(r.get("revenue") or 0) for r in p_flows)
+        return {
+            **agg,
+            "revenue": round(agg["revenue"], 2),
+            "open_rate": round(agg["opens"] / s * 100, 1) if s else 0,
+            "click_rate": round(agg["clicks"] / s * 100, 2) if s else 0,
+            "cvr": round(agg["conversions"] / s * 100, 2) if s else 0,
+            "rev_per_send": round(agg["revenue"] / s, 3) if s else 0,
+            "campaign_revenue": round(camp_r, 2),
+            "flow_revenue": round(flow_r, 2),
+        }
 
-    # Top campaigns (30D)
-    camp_30d = defaultdict(lambda: {"sends": 0, "opens": 0, "clicks": 0, "conversions": 0, "revenue": 0.0, "date": ""})
-    for r in klav_30d:
-        if r.get("source_type") != "campaign":
-            continue
-        name = r.get("source_name", "Unknown")
-        camp_30d[name]["sends"] += int(r.get("sends") or 0)
-        camp_30d[name]["opens"] += int(r.get("opens") or 0)
-        camp_30d[name]["clicks"] += int(r.get("clicks") or 0)
-        camp_30d[name]["conversions"] += int(r.get("conversions") or 0)
-        camp_30d[name]["revenue"] += float(r.get("revenue") or 0)
-        camp_30d[name]["date"] = max(camp_30d[name]["date"], r.get("date", ""))
-    top_campaigns = sorted(camp_30d.items(), key=lambda x: x[1]["revenue"], reverse=True)[:15]
-    klaviyo_data["top_campaigns"] = []
-    for name, v in top_campaigns:
-        s = v["sends"]
-        klaviyo_data["top_campaigns"].append({
-            "name": name, "date": v["date"], "sends": s,
-            "open_rate": round(v["opens"] / s * 100, 1) if s else 0,
-            "click_rate": round(v["clicks"] / s * 100, 2) if s else 0,
-            "cvr": round(v["conversions"] / s * 100, 2) if s else 0,
-            "revenue": round(v["revenue"], 2),
-        })
+    def _klav_top_items(date_from_str, source_type, limit=15):
+        if source_type == "campaign":
+            p_rows = [r for r in klav_campaigns if r.get("date", "") >= date_from_str]
+        else:
+            p_raw = [r for r in klav_flows_raw if r.get("date", "") >= date_from_str]
+            fl = {}
+            for r in p_raw:
+                name = r.get("source_name", "")
+                if name not in fl or r["date"] > fl[name]["date"]:
+                    fl[name] = r
+            p_rows = list(fl.values())
+        # Group by name
+        grouped = defaultdict(lambda: {"sends": 0, "opens": 0, "clicks": 0, "conversions": 0, "revenue": 0.0, "date": ""})
+        for r in p_rows:
+            name = r.get("source_name", "Unknown")
+            grouped[name]["sends"] += int(r.get("sends") or 0)
+            grouped[name]["opens"] += int(r.get("opens") or 0)
+            grouped[name]["clicks"] += int(r.get("clicks") or 0)
+            grouped[name]["conversions"] += int(r.get("conversions") or 0)
+            grouped[name]["revenue"] += float(r.get("revenue") or 0)
+            grouped[name]["date"] = max(grouped[name]["date"], r.get("date", ""))
+        top = sorted(grouped.items(), key=lambda x: x[1]["revenue"], reverse=True)[:limit]
+        out = []
+        for name, v in top:
+            s = v["sends"]
+            entry = {
+                "name": name, "sends": s,
+                "open_rate": round(v["opens"] / s * 100, 1) if s else 0,
+                "click_rate": round(v["clicks"] / s * 100, 2) if s else 0,
+                "cvr": round(v["conversions"] / s * 100, 2) if s else 0,
+                "revenue": round(v["revenue"], 2),
+            }
+            if source_type == "campaign":
+                entry["date"] = v["date"]
+            out.append(entry)
+        return out
 
-    # Top flows (30D)
-    flow_30d = defaultdict(lambda: {"sends": 0, "opens": 0, "clicks": 0, "conversions": 0, "revenue": 0.0})
-    for r in klav_30d:
-        if r.get("source_type") != "flow":
-            continue
-        name = r.get("source_name", "Unknown")
-        flow_30d[name]["sends"] += int(r.get("sends") or 0)
-        flow_30d[name]["opens"] += int(r.get("opens") or 0)
-        flow_30d[name]["clicks"] += int(r.get("clicks") or 0)
-        flow_30d[name]["conversions"] += int(r.get("conversions") or 0)
-        flow_30d[name]["revenue"] += float(r.get("revenue") or 0)
-    top_flows = sorted(flow_30d.items(), key=lambda x: x[1]["revenue"], reverse=True)[:15]
-    klaviyo_data["top_flows"] = []
-    for name, v in top_flows:
-        s = v["sends"]
-        klaviyo_data["top_flows"].append({
-            "name": name, "sends": s,
-            "open_rate": round(v["opens"] / s * 100, 1) if s else 0,
-            "click_rate": round(v["clicks"] / s * 100, 2) if s else 0,
-            "cvr": round(v["conversions"] / s * 100, 2) if s else 0,
-            "revenue": round(v["revenue"], 2),
-        })
+    klaviyo_data["summary_7d"] = _klav_period_summary(d7)
+    klaviyo_data["summary_30d"] = _klav_period_summary(d30)
+    klaviyo_data["top_campaigns_7d"] = _klav_top_items(d7, "campaign")
+    klaviyo_data["top_campaigns_30d"] = _klav_top_items(d30, "campaign")
+    klaviyo_data["top_flows_7d"] = _klav_top_items(d7, "flow")
+    klaviyo_data["top_flows_30d"] = _klav_top_items(d30, "flow")
 
-    total_klav_rev = sum(round(c["revenue"]) for c in camp_arr) + sum(round(f["revenue"]) for f in flow_arr)
-    print(f"  Klaviyo: {len(klaviyo)} rows, 30D rev=${klav_rev:,.0f}, campaigns={len(top_campaigns)}, flows={len(top_flows)}")
+    s30 = klaviyo_data["summary_30d"]
+    print(f"  Klaviyo: {len(klaviyo)} raw rows -> {len(klav_campaigns)} campaigns + {len(klav_flows)} flows (deduped)")
+    print(f"  30D: sends={s30['sends']:,} rev=${s30['revenue']:,.0f} | 7D: sends={klaviyo_data['summary_7d']['sends']:,} rev=${klaviyo_data['summary_7d']['revenue']:,.0f}")
 
     # ── Assemble final data ───────────────────────────────────────────────────
     fin_data = {

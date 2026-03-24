@@ -594,31 +594,21 @@ function renderFinancial(){
   traf+='</tbody></table></div></div>';
 
   // ══════════════════════════════════════════════════════════════════════════
-  // TAB 6: EMAIL MARKETING (Klaviyo)
+  // TAB 6: EMAIL MARKETING (Klaviyo) — with 7D / 30D period switcher
   // ══════════════════════════════════════════════════════════════════════════
   var klav='';
   var K=F.klaviyo||{};
-  var ks=K.summary_30d||{};
-  klav+='<div class="sec"><div class="sec-title"><div class="num">6</div> Email Marketing &mdash; Klaviyo (30D)</div>';
-  klav+='<div class="stats">';
-  klav+='<div class="stat accent"><div class="sl">Total Sends</div><div class="sv">'+num(ks.sends||0)+'</div></div>';
-  klav+='<div class="stat green"><div class="sl">Open Rate</div><div class="sv">'+(ks.open_rate||0).toFixed(1)+'%</div></div>';
-  klav+='<div class="stat cyan"><div class="sl">Click Rate</div><div class="sv">'+(ks.click_rate||0).toFixed(2)+'%</div></div>';
-  klav+='<div class="stat purple"><div class="sl">Conv Rate</div><div class="sv">'+(ks.cvr||0).toFixed(2)+'%</div></div>';
-  klav+='<div class="stat green"><div class="sl">Revenue</div><div class="sv">'+$(Math.round(ks.revenue||0))+'</div></div>';
-  klav+='<div class="stat"><div class="sl">Rev / Send</div><div class="sv">$'+(ks.rev_per_send||0).toFixed(3)+'</div></div>';
-  klav+='</div>';
-  // Campaign vs Flow revenue split
-  var campRev=ks.campaign_revenue||0, flowRev=ks.flow_revenue||0, totalKlav=campRev+flowRev;
-  if(totalKlav>0){
-    var campPct=Math.round(campRev/totalKlav*100), flowPct=100-campPct;
-    klav+='<div style="margin:8px 0 4px;font-size:10px;font-weight:600;color:var(--dim)">Revenue Split: <span style="color:#8b5cf6">Campaign '+$(Math.round(campRev))+' ('+campPct+'%)</span> &middot; <span style="color:#0ea5e9">Flow '+$(Math.round(flowRev))+' ('+flowPct+'%)</span></div>';
-    klav+='<div style="display:flex;height:6px;border-radius:3px;overflow:hidden;margin-bottom:8px">';
-    klav+='<div style="width:'+campPct+'%;background:#8b5cf6"></div>';
-    klav+='<div style="width:'+flowPct+'%;background:#0ea5e9"></div>';
-    klav+='</div>';
-  }
-  klav+='</div>';
+
+  // Period tabs
+  klav+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">';
+  klav+='<div class="sec-title" style="border:none;margin:0;padding:0"><div class="num">6</div> Email Marketing &mdash; Klaviyo</div>';
+  klav+='<div class="period-tabs" id="klav-period-tabs">';
+  klav+='<div class="on" data-kp="7d" onclick="switchKlavPeriod(\'7d\',this)">7D</div>';
+  klav+='<div data-kp="30d" onclick="switchKlavPeriod(\'30d\',this)">30D</div>';
+  klav+='</div></div>';
+
+  // KPI cards container (swapped by switchKlavPeriod)
+  klav+='<div id="klav-kpi-cards">'+buildKlavKpi(K.summary_7d||{})+'</div>';
 
   // Monthly Revenue Chart (Campaign vs Flow stacked)
   var cm=K.campaign_monthly||{}, fm=K.flow_monthly||{};
@@ -631,7 +621,7 @@ function renderFinancial(){
     ], mLabels, {w:940,h:190,barW:18,stacked:true});
 
     // Monthly metrics table
-    klav+='<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Month</th><th style="text-align:right">Sends</th><th style="text-align:right">Opens</th><th style="text-align:right">Open %</th><th style="text-align:right">Clicks</th><th style="text-align:right">Click %</th><th style="text-align:right">Conv</th><th style="text-align:right">CVR %</th><th style="text-align:right">Campaign $</th><th style="text-align:right">Flow $</th><th style="text-align:right;background:#f0fdf4">Total $</th></tr></thead><tbody>';
+    klav+='<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Month</th><th style="text-align:right">Sends</th><th style="text-align:right">Opens</th><th style="text-align:right">Open %</th><th style="text-align:right">Clicks</th><th style="text-align:right">Click %</th><th style="text-align:right">Conv</th><th style="text-align:right">CVR %</th><th style="text-align:right;color:#8b5cf6">Camp $</th><th style="text-align:right;color:#0ea5e9">Flow $</th><th style="text-align:right;background:#f0fdf4">Total $</th></tr></thead><tbody>';
     for(var mi=0;mi<months.length;mi++){
       var cSends=(cm.sends||[])[mi]||0, fSends=(fm.sends||[])[mi]||0, tSends=cSends+fSends;
       var cOpens=(cm.opens||[])[mi]||0, fOpens=(fm.opens||[])[mi]||0, tOpens=cOpens+fOpens;
@@ -657,45 +647,11 @@ function renderFinancial(){
     klav+='</tbody></table></div></div></div>';
   }
 
-  // Top Campaigns (30D)
-  var topCamp=K.top_campaigns||[];
-  if(topCamp.length){
-    klav+='<div class="sec"><div class="sec-title"><div class="num">6B</div> Top Campaigns (30D)</div>';
-    klav+='<div class="card"><div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Campaign</th><th>Date</th><th style="text-align:right">Sends</th><th style="text-align:right">Open %</th><th style="text-align:right">Click %</th><th style="text-align:right">CVR %</th><th style="text-align:right">Revenue</th></tr></thead><tbody>';
-    topCamp.forEach(function(c,i){
-      klav+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
-      klav+='<td style="font-size:10px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c.name+'">'+c.name+'</td>';
-      klav+='<td style="font-size:10px;color:var(--dim)">'+c.date+'</td>';
-      klav+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(c.sends)+'</td>';
-      klav+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+c.open_rate.toFixed(1)+'%</td>';
-      klav+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+c.click_rate.toFixed(2)+'%</td>';
-      klav+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+c.cvr.toFixed(2)+'%</td>';
-      klav+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--g)">'+$(Math.round(c.revenue))+'</td>';
-      klav+='</tr>';
-    });
-    klav+='</tbody></table></div></div></div>';
-  }
-
-  // Top Flows (30D)
-  var topFlow=K.top_flows||[];
-  if(topFlow.length){
-    klav+='<div class="sec"><div class="sec-title"><div class="num">6C</div> Top Flows (30D)</div>';
-    klav+='<div class="card"><div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Flow</th><th style="text-align:right">Sends</th><th style="text-align:right">Open %</th><th style="text-align:right">Click %</th><th style="text-align:right">CVR %</th><th style="text-align:right">Revenue</th></tr></thead><tbody>';
-    topFlow.forEach(function(f,i){
-      klav+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
-      klav+='<td style="font-size:10px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+f.name+'">'+f.name+'</td>';
-      klav+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(f.sends)+'</td>';
-      klav+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+f.open_rate.toFixed(1)+'%</td>';
-      klav+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+f.click_rate.toFixed(2)+'%</td>';
-      klav+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+f.cvr.toFixed(2)+'%</td>';
-      klav+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--g)">'+$(Math.round(f.revenue))+'</td>';
-      klav+='</tr>';
-    });
-    klav+='</tbody></table></div></div></div>';
-  }
+  // Top tables container (swapped by period)
+  klav+='<div id="klav-top-tables">'+buildKlavTopTables(K,'7d')+'</div>';
 
   // Empty state
-  if(!topCamp.length && !topFlow.length){
+  if(!(K.top_campaigns_30d||[]).length && !(K.top_flows_30d||[]).length && !(cm.revenue||[]).some(function(v){return v>0;})){
     klav+='<div class="sec"><div class="card"><div class="desc" style="color:var(--muted);text-align:center;padding:24px">No Klaviyo data available. Run DataKeeper collection first.</div></div></div>';
   }
 
@@ -1250,6 +1206,74 @@ function switchPeriod(period, el){
   document.querySelectorAll('.period-tabs>div').forEach(function(t){ t.classList.remove('on'); });
   if(el) el.classList.add('on');
   document.getElementById('fin-kpi-cards').innerHTML=buildKpiCards(F.summary[period]||{});
+}
+
+// ── Klaviyo helpers ────────────────────────────────────────────────────────
+function buildKlavKpi(ks){
+  var h='<div class="stats">';
+  h+='<div class="stat accent"><div class="sl">Total Sends</div><div class="sv">'+num(ks.sends||0)+'</div></div>';
+  h+='<div class="stat green"><div class="sl">Open Rate</div><div class="sv">'+(ks.open_rate||0).toFixed(1)+'%</div></div>';
+  h+='<div class="stat cyan"><div class="sl">Click Rate</div><div class="sv">'+(ks.click_rate||0).toFixed(2)+'%</div></div>';
+  h+='<div class="stat purple"><div class="sl">Conv Rate</div><div class="sv">'+(ks.cvr||0).toFixed(2)+'%</div></div>';
+  h+='<div class="stat green"><div class="sl">Revenue</div><div class="sv">'+$(Math.round(ks.revenue||0))+'</div></div>';
+  h+='<div class="stat"><div class="sl">Rev / Send</div><div class="sv">$'+(ks.rev_per_send||0).toFixed(3)+'</div></div>';
+  h+='</div>';
+  var cR=ks.campaign_revenue||0, fR=ks.flow_revenue||0, tot=cR+fR;
+  if(tot>0){
+    var cp=Math.round(cR/tot*100), fp=100-cp;
+    h+='<div style="margin:8px 0 4px;font-size:10px;font-weight:600;color:var(--dim)">Revenue Split: <span style="color:#8b5cf6">Campaign '+$(Math.round(cR))+' ('+cp+'%)</span> &middot; <span style="color:#0ea5e9">Flow '+$(Math.round(fR))+' ('+fp+'%)</span></div>';
+    h+='<div style="display:flex;height:6px;border-radius:3px;overflow:hidden;margin-bottom:8px">';
+    h+='<div style="width:'+cp+'%;background:#8b5cf6"></div>';
+    h+='<div style="width:'+fp+'%;background:#0ea5e9"></div></div>';
+  }
+  return h;
+}
+
+function buildKlavTopTables(K, period){
+  var h='';
+  var camps=K['top_campaigns_'+period]||[];
+  if(camps.length){
+    h+='<div class="sec"><div class="sec-title"><div class="num">6B</div> Top Campaigns ('+period.toUpperCase()+')</div>';
+    h+='<div class="card"><div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Campaign</th><th>Date</th><th style="text-align:right">Sends</th><th style="text-align:right">Open %</th><th style="text-align:right">Click %</th><th style="text-align:right">CVR %</th><th style="text-align:right">Revenue</th></tr></thead><tbody>';
+    camps.forEach(function(c,i){
+      h+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+      h+='<td style="font-size:10px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c.name+'">'+c.name+'</td>';
+      h+='<td style="font-size:10px;color:var(--dim)">'+(c.date||'')+'</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(c.sends)+'</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+c.open_rate.toFixed(1)+'%</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+c.click_rate.toFixed(2)+'%</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+c.cvr.toFixed(2)+'%</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--g)">'+$(Math.round(c.revenue))+'</td></tr>';
+    });
+    h+='</tbody></table></div></div></div>';
+  }
+  var flows=K['top_flows_'+period]||[];
+  if(flows.length){
+    h+='<div class="sec"><div class="sec-title"><div class="num">6C</div> Top Flows ('+period.toUpperCase()+')</div>';
+    h+='<div class="card"><div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Flow</th><th style="text-align:right">Sends</th><th style="text-align:right">Open %</th><th style="text-align:right">Click %</th><th style="text-align:right">CVR %</th><th style="text-align:right">Revenue</th></tr></thead><tbody>';
+    flows.forEach(function(f,i){
+      h+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+      h+='<td style="font-size:10px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+f.name+'">'+f.name+'</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(f.sends)+'</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+f.open_rate.toFixed(1)+'%</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+f.click_rate.toFixed(2)+'%</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+f.cvr.toFixed(2)+'%</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--g)">'+$(Math.round(f.revenue))+'</td></tr>';
+    });
+    h+='</tbody></table></div></div></div>';
+  }
+  if(!camps.length && !flows.length) h+='<div class="card"><div class="desc" style="color:var(--muted);text-align:center;padding:16px">No data for this period</div></div>';
+  return h;
+}
+
+function switchKlavPeriod(period, el){
+  var F=(typeof FIN_DATA!=='undefined')?FIN_DATA:null;
+  if(!F)return;
+  var K=F.klaviyo||{};
+  document.querySelectorAll('#klav-period-tabs>div').forEach(function(t){ t.classList.remove('on'); });
+  if(el) el.classList.add('on');
+  document.getElementById('klav-kpi-cards').innerHTML=buildKlavKpi(K['summary_'+period]||{});
+  document.getElementById('klav-top-tables').innerHTML=buildKlavTopTables(K, period);
 }
 </script>
 </body>

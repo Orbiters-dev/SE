@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-23 23:52 PST",
+ "generated_pst": "2026-03-24 00:20 PST",
  "through_date": "2026-03-22",
  "months": [
   "2025-06",
@@ -17,16 +17,16 @@ const FIN_DATA = {
   {
    "name": "shopify_orders_daily",
    "label": "Shopify Orders",
-   "rows": 2470,
-   "min_date": "2025-05-18",
+   "rows": 2464,
+   "min_date": "2025-05-19",
    "max_date": "2026-03-22",
    "refresh": "2x daily"
   },
   {
    "name": "amazon_sales_daily",
    "label": "Amazon Sales (SP-API)",
-   "rows": 869,
-   "min_date": "2025-05-18",
+   "rows": 867,
+   "min_date": "2025-05-19",
    "max_date": "2026-03-22",
    "refresh": "2x daily"
   },
@@ -41,24 +41,24 @@ const FIN_DATA = {
   {
    "name": "meta_ads_daily",
    "label": "Meta Ads",
-   "rows": 6394,
-   "min_date": "2025-05-18",
+   "rows": 6375,
+   "min_date": "2025-05-19",
    "max_date": "2026-03-22",
    "refresh": "2x daily"
   },
   {
    "name": "google_ads_daily",
    "label": "Google Ads",
-   "rows": 733,
-   "min_date": "2025-05-18",
+   "rows": 726,
+   "min_date": "2025-05-19",
    "max_date": "2026-03-22",
    "refresh": "2x daily"
   },
   {
    "name": "ga4_daily",
    "label": "GA4 Analytics",
-   "rows": 3310,
-   "min_date": "2025-05-18",
+   "rows": 3300,
+   "min_date": "2025-05-19",
    "max_date": "2026-03-22",
    "refresh": "2x daily"
   },
@@ -73,8 +73,8 @@ const FIN_DATA = {
   {
    "name": "gsc_daily",
    "label": "Google Search Console",
-   "rows": 5508,
-   "min_date": "2026-02-21",
+   "rows": 5385,
+   "min_date": "2026-02-22",
    "max_date": "2026-03-22",
    "refresh": "2x daily"
   },
@@ -96,34 +96,34 @@ const FIN_DATA = {
  },
  "summary": {
   "7d": {
-   "total_revenue": 167042,
-   "shopify_revenue": 20102,
-   "amazon_revenue": 146939,
-   "total_orders": 6686,
-   "total_ad_spend": 29571,
-   "ad_attributed_sales": 98204,
-   "organic_revenue": 68837,
-   "gross_margin": 106164,
-   "gm_pct": 63.6,
-   "contribution_margin": 75535,
-   "cm_pct": 45.2,
-   "mer": 5.65,
-   "roas": 3.32,
-   "discount_rate": 5.0
+   "total_revenue": 141891,
+   "shopify_revenue": 17539,
+   "amazon_revenue": 124352,
+   "total_orders": 5626,
+   "total_ad_spend": 24990,
+   "ad_attributed_sales": 81062,
+   "organic_revenue": 60829,
+   "gross_margin": 90350,
+   "gm_pct": 63.7,
+   "contribution_margin": 64363,
+   "cm_pct": 45.4,
+   "mer": 5.68,
+   "roas": 3.24,
+   "discount_rate": 5.4
   },
   "30d": {
-   "total_revenue": 686085,
-   "shopify_revenue": 81760,
-   "amazon_revenue": 604325,
-   "total_orders": 27573,
-   "total_ad_spend": 130593,
-   "ad_attributed_sales": 460143,
-   "organic_revenue": 225942,
-   "gross_margin": 436168,
+   "total_revenue": 666138,
+   "shopify_revenue": 79727,
+   "amazon_revenue": 586411,
+   "total_orders": 26748,
+   "total_ad_spend": 126361,
+   "ad_attributed_sales": 445206,
+   "organic_revenue": 220933,
+   "gross_margin": 423713,
    "gm_pct": 63.6,
-   "contribution_margin": 300084,
-   "cm_pct": 43.7,
-   "mer": 5.25,
+   "contribution_margin": 291965,
+   "cm_pct": 43.8,
+   "mer": 5.27,
    "roas": 3.52,
    "discount_rate": 6.3
   },
@@ -1290,98 +1290,74 @@ const FIN_DATA = {
  },
  "search_queries": [
   {
+   "query": "sippy cups for toddlers 1-3",
+   "impressions": 296518,
+   "clicks": 1282,
+   "ctr": 0.43,
+   "spend": 1017.12,
+   "sales": 4062.2,
+   "orders": 0,
+   "acos": 25.0,
+   "cvr": 0.0,
+   "brand": "Grosmimi"
+  },
+  {
    "query": "grosmimi straw cup",
-   "impressions": 52983,
-   "clicks": 2425,
-   "ctr": 4.58,
-   "spend": 1156.46,
-   "sales": 20321.83,
+   "impressions": 27175,
+   "clicks": 1199,
+   "ctr": 4.41,
+   "spend": 582.98,
+   "sales": 9360.18,
+   "orders": 0,
+   "acos": 6.2,
+   "cvr": 0.0,
+   "brand": "Grosmimi"
+  },
+  {
+   "query": "sippy cup for 6 month old",
+   "impressions": 65882,
+   "clicks": 262,
+   "ctr": 0.4,
+   "spend": 352.32,
+   "sales": 281.8,
+   "orders": 0,
+   "acos": 125.0,
+   "cvr": 0.0,
+   "brand": "Grosmimi"
+  },
+  {
+   "query": "straw cups for toddlers 1-3",
+   "impressions": 49814,
+   "clicks": 361,
+   "ctr": 0.72,
+   "spend": 351.86,
+   "sales": 1089.4,
+   "orders": 0,
+   "acos": 32.3,
+   "cvr": 0.0,
+   "brand": "Grosmimi"
+  },
+  {
+   "query": "grossini straw cup",
+   "impressions": 34993,
+   "clicks": 491,
+   "ctr": 1.4,
+   "spend": 273.21,
+   "sales": 4777.0,
    "orders": 0,
    "acos": 5.7,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
-   "query": "sippy cups for toddlers 1-3",
-   "impressions": 313215,
-   "clicks": 1363,
-   "ctr": 0.44,
-   "spend": 1066.69,
-   "sales": 4952.9,
-   "orders": 0,
-   "acos": 21.5,
-   "cvr": 0.0,
-   "brand": "Grosmimi"
-  },
-  {
-   "query": "sippy cup for 6 month old",
-   "impressions": 68746,
-   "clicks": 284,
-   "ctr": 0.41,
-   "spend": 366.44,
-   "sales": 517.6,
-   "orders": 0,
-   "acos": 70.8,
-   "cvr": 0.0,
-   "brand": "Grosmimi"
-  },
-  {
-   "query": "b0bmjcwyb6",
-   "impressions": 38156,
-   "clicks": 331,
-   "ctr": 0.87,
-   "spend": 364.51,
-   "sales": 1353.0,
-   "orders": 0,
-   "acos": 26.9,
-   "cvr": 0.0,
-   "brand": "Naeiae"
-  },
-  {
-   "query": "straw cups for toddlers 1-3",
-   "impressions": 49868,
-   "clicks": 363,
-   "ctr": 0.73,
-   "spend": 353.18,
-   "sales": 1089.4,
-   "orders": 0,
-   "acos": 32.4,
-   "cvr": 0.0,
-   "brand": "Grosmimi"
-  },
-  {
-   "query": "grosmimi",
-   "impressions": 46632,
-   "clicks": 776,
-   "ctr": 1.66,
-   "spend": 307.25,
-   "sales": 8025.38,
-   "orders": 0,
-   "acos": 3.8,
-   "cvr": 0.0,
-   "brand": "Grosmimi"
-  },
-  {
    "query": "sippy cup with straw",
-   "impressions": 44368,
-   "clicks": 183,
-   "ctr": 0.41,
-   "spend": 257.06,
-   "sales": 566.1,
+   "impressions": 39040,
+   "clicks": 157,
+   "ctr": 0.4,
+   "spend": 240.09,
+   "sales": 511.5,
    "orders": 0,
-   "acos": 45.4,
-   "cvr": 0.0,
-   "brand": "Grosmimi"
-  },
-  {
-   "query": "grosmimi straw replacement",
-   "impressions": 9736,
-   "clicks": 629,
-   "ctr": 6.46,
-   "spend": 256.08,
-   "sales": 8016.07,
-   "orders": 0,
-   "acos": 3.2,
+   "acos": 46.9,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
@@ -1398,52 +1374,64 @@ const FIN_DATA = {
    "brand": "Grosmimi"
   },
   {
-   "query": "grossini straw cup",
-   "impressions": 25272,
-   "clicks": 366,
-   "ctr": 1.45,
-   "spend": 212.29,
-   "sales": 3486.8,
+   "query": "baby sippy cup",
+   "impressions": 40937,
+   "clicks": 153,
+   "ctr": 0.37,
+   "spend": 195.15,
+   "sales": 738.8,
    "orders": 0,
-   "acos": 6.1,
+   "acos": 26.4,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
-   "query": "baby sippy cup",
-   "impressions": 44938,
-   "clicks": 172,
-   "ctr": 0.38,
-   "spend": 206.41,
-   "sales": 877.0,
+   "query": "grosmimi",
+   "impressions": 27143,
+   "clicks": 426,
+   "ctr": 1.57,
+   "spend": 170.26,
+   "sales": 4715.55,
    "orders": 0,
-   "acos": 23.5,
+   "acos": 3.6,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
    "query": "sippy cup for 6+ month old",
-   "impressions": 32029,
-   "clicks": 116,
+   "impressions": 29929,
+   "clicks": 107,
    "ctr": 0.36,
-   "spend": 157.17,
-   "sales": 473.7,
+   "spend": 151.17,
+   "sales": 337.3,
    "orders": 0,
-   "acos": 33.2,
+   "acos": 44.8,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
-   "query": "gross mimi straw cup",
-   "impressions": 29030,
-   "clicks": 224,
-   "ctr": 0.77,
-   "spend": 141.02,
-   "sales": 1725.5,
+   "query": "toddler straw cup",
+   "impressions": 21982,
+   "clicks": 149,
+   "ctr": 0.68,
+   "spend": 140.95,
+   "sales": 644.86,
    "orders": 0,
-   "acos": 8.2,
+   "acos": 21.9,
    "cvr": 0.0,
    "brand": "Grosmimi"
+  },
+  {
+   "query": "b0bmjcwyb6",
+   "impressions": 18026,
+   "clicks": 142,
+   "ctr": 0.79,
+   "spend": 140.11,
+   "sales": 713.4,
+   "orders": 0,
+   "acos": 19.6,
+   "cvr": 0.0,
+   "brand": "Naeiae"
   },
   {
    "query": "baby straw cups 6-12 months",
@@ -1458,86 +1446,98 @@ const FIN_DATA = {
    "brand": "Grosmimi"
   },
   {
-   "query": "straw cup",
-   "impressions": 17160,
-   "clicks": 129,
-   "ctr": 0.75,
-   "spend": 131.66,
-   "sales": 481.2,
+   "query": "gross mimi straw cup",
+   "impressions": 27237,
+   "clicks": 208,
+   "ctr": 0.76,
+   "spend": 132.6,
+   "sales": 1649.1,
    "orders": 0,
-   "acos": 27.4,
+   "acos": 8.0,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
    "query": "toddler straw cups",
-   "impressions": 18786,
-   "clicks": 111,
-   "ctr": 0.59,
-   "spend": 130.56,
+   "impressions": 18787,
+   "clicks": 112,
+   "ctr": 0.6,
+   "spend": 131.49,
    "sales": 617.4,
    "orders": 0,
-   "acos": 21.1,
+   "acos": 21.3,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
-   "query": "baby straw cup",
-   "impressions": 23037,
-   "clicks": 189,
-   "ctr": 0.82,
-   "spend": 121.03,
-   "sales": 734.5,
+   "query": "straw cup",
+   "impressions": 16348,
+   "clicks": 123,
+   "ctr": 0.75,
+   "spend": 128.65,
+   "sales": 401.7,
    "orders": 0,
-   "acos": 16.5,
+   "acos": 32.0,
+   "cvr": 0.0,
+   "brand": "Grosmimi"
+  },
+  {
+   "query": "grosmimi straw replacement",
+   "impressions": 4902,
+   "clicks": 301,
+   "ctr": 6.14,
+   "spend": 125.32,
+   "sales": 3712.99,
+   "orders": 0,
+   "acos": 3.4,
+   "cvr": 0.0,
+   "brand": "Grosmimi"
+  },
+  {
+   "query": "nuk sippy cups for toddlers 1-3",
+   "impressions": 33285,
+   "clicks": 131,
+   "ctr": 0.39,
+   "spend": 114.65,
+   "sales": 57.4,
+   "orders": 0,
+   "acos": 199.7,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
    "query": "nuk sippy cup",
-   "impressions": 58923,
-   "clicks": 162,
-   "ctr": 0.27,
-   "spend": 110.08,
+   "impressions": 59405,
+   "clicks": 165,
+   "ctr": 0.28,
+   "spend": 112.78,
    "sales": 369.4,
    "orders": 0,
-   "acos": 29.8,
+   "acos": 30.5,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
-   "query": "grosmimi stainless steel straw cup",
-   "impressions": 15221,
-   "clicks": 177,
-   "ctr": 1.16,
-   "spend": 102.77,
-   "sales": 1457.46,
+   "query": "baby straw cup",
+   "impressions": 19732,
+   "clicks": 172,
+   "ctr": 0.87,
+   "spend": 110.38,
+   "sales": 684.8,
    "orders": 0,
-   "acos": 7.1,
+   "acos": 16.1,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
-   "query": "straw sippy cup",
-   "impressions": 19202,
-   "clicks": 120,
-   "ctr": 0.62,
-   "spend": 101.6,
-   "sales": 410.4,
+   "query": "nuk straw cup",
+   "impressions": 19997,
+   "clicks": 89,
+   "ctr": 0.45,
+   "spend": 92.1,
+   "sales": 164.8,
    "orders": 0,
-   "acos": 24.8,
-   "cvr": 0.0,
-   "brand": "Grosmimi"
-  },
-  {
-   "query": "toddler straw cup",
-   "impressions": 16753,
-   "clicks": 115,
-   "ctr": 0.69,
-   "spend": 98.17,
-   "sales": 465.06,
-   "orders": 0,
-   "acos": 21.1,
+   "acos": 55.9,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
@@ -1566,6 +1566,18 @@ const FIN_DATA = {
    "brand": "Grosmimi"
   },
   {
+   "query": "straw sippy cup",
+   "impressions": 12339,
+   "clicks": 84,
+   "ctr": 0.68,
+   "spend": 79.26,
+   "sales": 155.7,
+   "orders": 0,
+   "acos": 50.9,
+   "cvr": 0.0,
+   "brand": "Grosmimi"
+  },
+  {
    "query": "weighted straw cup",
    "impressions": 15457,
    "clicks": 125,
@@ -1574,30 +1586,6 @@ const FIN_DATA = {
    "sales": 343.0,
    "orders": 0,
    "acos": 23.0,
-   "cvr": 0.0,
-   "brand": "Grosmimi"
-  },
-  {
-   "query": "sippy cups for toddlers",
-   "impressions": 18240,
-   "clicks": 60,
-   "ctr": 0.33,
-   "spend": 76.62,
-   "sales": 45.6,
-   "orders": 0,
-   "acos": 168.0,
-   "cvr": 0.0,
-   "brand": "Grosmimi"
-  },
-  {
-   "query": "baby cup with straw",
-   "impressions": 8494,
-   "clicks": 38,
-   "ctr": 0.45,
-   "spend": 75.95,
-   "sales": 122.0,
-   "orders": 0,
-   "acos": 62.3,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
@@ -1614,86 +1602,520 @@ const FIN_DATA = {
    "brand": "Grosmimi"
   },
   {
-   "query": "nuk sippy cups for toddlers 1-3",
-   "impressions": 20054,
-   "clicks": 82,
-   "ctr": 0.41,
-   "spend": 71.52,
-   "sales": 57.4,
+   "query": "sippy cups for toddlers",
+   "impressions": 18210,
+   "clicks": 57,
+   "ctr": 0.31,
+   "spend": 74.78,
+   "sales": 45.6,
    "orders": 0,
-   "acos": 124.6,
+   "acos": 164.0,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
-   "query": "grosmimi replacement",
-   "impressions": 9307,
-   "clicks": 234,
-   "ctr": 2.51,
-   "spend": 65.92,
-   "sales": 2280.19,
+   "query": "baby cup with straw",
+   "impressions": 8466,
+   "clicks": 36,
+   "ctr": 0.43,
+   "spend": 74.57,
+   "sales": 93.3,
    "orders": 0,
-   "acos": 2.9,
+   "acos": 79.9,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
-   "query": "sippy cups",
-   "impressions": 17291,
-   "clicks": 76,
-   "ctr": 0.44,
-   "spend": 65.15,
-   "sales": 391.0,
+   "query": "grosmimi stainless steel straw cup",
+   "impressions": 13102,
+   "clicks": 122,
+   "ctr": 0.93,
+   "spend": 74.1,
+   "sales": 862.89,
    "orders": 0,
-   "acos": 16.7,
+   "acos": 8.6,
+   "cvr": 0.0,
+   "brand": "Grosmimi"
+  },
+  {
+   "query": "baby straw sippy cup",
+   "impressions": 10794,
+   "clicks": 34,
+   "ctr": 0.31,
+   "spend": 62.19,
+   "sales": 70.4,
+   "orders": 0,
+   "acos": 88.3,
    "cvr": 0.0,
    "brand": "Grosmimi"
   }
  ],
  "search_by_brand": {
-  "CHA&MOM": [
+  "Grosmimi": [
    {
-    "query": "b0b3fvl358",
-    "impressions": 3745,
-    "clicks": 10,
-    "ctr": 0.27,
-    "spend": 25.5,
-    "sales": 26.5,
+    "query": "sippy cups for toddlers 1-3",
+    "impressions": 296518,
+    "clicks": 1282,
+    "ctr": 0.43,
+    "spend": 1017.12,
+    "sales": 4062.2,
     "orders": 0,
-    "acos": 96.2,
+    "acos": 25.0,
     "cvr": 0.0
    },
    {
-    "query": "b0b3fvq6l6",
-    "impressions": 682,
-    "clicks": 3,
-    "ctr": 0.44,
-    "spend": 11.34,
-    "sales": 26.5,
+    "query": "grosmimi straw cup",
+    "impressions": 27175,
+    "clicks": 1199,
+    "ctr": 4.41,
+    "spend": 582.98,
+    "sales": 9360.18,
     "orders": 0,
-    "acos": 42.8,
+    "acos": 6.2,
     "cvr": 0.0
    },
    {
-    "query": "b00jf3s29y",
-    "impressions": 791,
-    "clicks": 4,
-    "ctr": 0.51,
-    "spend": 7.8,
-    "sales": 26.5,
+    "query": "sippy cup for 6 month old",
+    "impressions": 65882,
+    "clicks": 262,
+    "ctr": 0.4,
+    "spend": 352.32,
+    "sales": 281.8,
     "orders": 0,
-    "acos": 29.4,
+    "acos": 125.0,
     "cvr": 0.0
    },
    {
-    "query": "b00ehd9872",
-    "impressions": 185,
-    "clicks": 3,
-    "ctr": 1.62,
-    "spend": 5.48,
+    "query": "straw cups for toddlers 1-3",
+    "impressions": 49814,
+    "clicks": 361,
+    "ctr": 0.72,
+    "spend": 351.86,
+    "sales": 1089.4,
+    "orders": 0,
+    "acos": 32.3,
+    "cvr": 0.0
+   },
+   {
+    "query": "grossini straw cup",
+    "impressions": 34993,
+    "clicks": 491,
+    "ctr": 1.4,
+    "spend": 273.21,
+    "sales": 4777.0,
+    "orders": 0,
+    "acos": 5.7,
+    "cvr": 0.0
+   },
+   {
+    "query": "sippy cup with straw",
+    "impressions": 39040,
+    "clicks": 157,
+    "ctr": 0.4,
+    "spend": 240.09,
+    "sales": 511.5,
+    "orders": 0,
+    "acos": 46.9,
+    "cvr": 0.0
+   },
+   {
+    "query": "baby sippy cup with straw",
+    "impressions": 31833,
+    "clicks": 115,
+    "ctr": 0.36,
+    "spend": 237.8,
+    "sales": 188.5,
+    "orders": 0,
+    "acos": 126.2,
+    "cvr": 0.0
+   },
+   {
+    "query": "baby sippy cup",
+    "impressions": 40937,
+    "clicks": 153,
+    "ctr": 0.37,
+    "spend": 195.15,
+    "sales": 738.8,
+    "orders": 0,
+    "acos": 26.4,
+    "cvr": 0.0
+   },
+   {
+    "query": "grosmimi",
+    "impressions": 27143,
+    "clicks": 426,
+    "ctr": 1.57,
+    "spend": 170.26,
+    "sales": 4715.55,
+    "orders": 0,
+    "acos": 3.6,
+    "cvr": 0.0
+   },
+   {
+    "query": "sippy cup for 6+ month old",
+    "impressions": 29929,
+    "clicks": 107,
+    "ctr": 0.36,
+    "spend": 151.17,
+    "sales": 337.3,
+    "orders": 0,
+    "acos": 44.8,
+    "cvr": 0.0
+   },
+   {
+    "query": "toddler straw cup",
+    "impressions": 21982,
+    "clicks": 149,
+    "ctr": 0.68,
+    "spend": 140.95,
+    "sales": 644.86,
+    "orders": 0,
+    "acos": 21.9,
+    "cvr": 0.0
+   },
+   {
+    "query": "baby straw cups 6-12 months",
+    "impressions": 24381,
+    "clicks": 71,
+    "ctr": 0.29,
+    "spend": 136.15,
+    "sales": 153.2,
+    "orders": 0,
+    "acos": 88.9,
+    "cvr": 0.0
+   },
+   {
+    "query": "gross mimi straw cup",
+    "impressions": 27237,
+    "clicks": 208,
+    "ctr": 0.76,
+    "spend": 132.6,
+    "sales": 1649.1,
+    "orders": 0,
+    "acos": 8.0,
+    "cvr": 0.0
+   },
+   {
+    "query": "toddler straw cups",
+    "impressions": 18787,
+    "clicks": 112,
+    "ctr": 0.6,
+    "spend": 131.49,
+    "sales": 617.4,
+    "orders": 0,
+    "acos": 21.3,
+    "cvr": 0.0
+   },
+   {
+    "query": "straw cup",
+    "impressions": 16348,
+    "clicks": 123,
+    "ctr": 0.75,
+    "spend": 128.65,
+    "sales": 401.7,
+    "orders": 0,
+    "acos": 32.0,
+    "cvr": 0.0
+   },
+   {
+    "query": "grosmimi straw replacement",
+    "impressions": 4902,
+    "clicks": 301,
+    "ctr": 6.14,
+    "spend": 125.32,
+    "sales": 3712.99,
+    "orders": 0,
+    "acos": 3.4,
+    "cvr": 0.0
+   },
+   {
+    "query": "nuk sippy cups for toddlers 1-3",
+    "impressions": 33285,
+    "clicks": 131,
+    "ctr": 0.39,
+    "spend": 114.65,
+    "sales": 57.4,
+    "orders": 0,
+    "acos": 199.7,
+    "cvr": 0.0
+   },
+   {
+    "query": "nuk sippy cup",
+    "impressions": 59405,
+    "clicks": 165,
+    "ctr": 0.28,
+    "spend": 112.78,
+    "sales": 369.4,
+    "orders": 0,
+    "acos": 30.5,
+    "cvr": 0.0
+   },
+   {
+    "query": "baby straw cup",
+    "impressions": 19732,
+    "clicks": 172,
+    "ctr": 0.87,
+    "spend": 110.38,
+    "sales": 684.8,
+    "orders": 0,
+    "acos": 16.1,
+    "cvr": 0.0
+   },
+   {
+    "query": "nuk straw cup",
+    "impressions": 19997,
+    "clicks": 89,
+    "ctr": 0.45,
+    "spend": 92.1,
+    "sales": 164.8,
+    "orders": 0,
+    "acos": 55.9,
+    "cvr": 0.0
+   }
+  ],
+  "Naeiae": [
+   {
+    "query": "b0bmjcwyb6",
+    "impressions": 18026,
+    "clicks": 142,
+    "ctr": 0.79,
+    "spend": 140.11,
+    "sales": 713.4,
+    "orders": 0,
+    "acos": 19.6,
+    "cvr": 0.0
+   },
+   {
+    "query": "b0bmh153y7",
+    "impressions": 3469,
+    "clicks": 28,
+    "ctr": 0.81,
+    "spend": 23.87,
+    "sales": 123.0,
+    "orders": 0,
+    "acos": 19.4,
+    "cvr": 0.0
+   },
+   {
+    "query": "baby snacks",
+    "impressions": 2291,
+    "clicks": 19,
+    "ctr": 0.83,
+    "spend": 20.12,
     "sales": 0.0,
     "orders": 0,
     "acos": 0,
+    "cvr": 0.0
+   },
+   {
+    "query": "baby rice crackers",
+    "impressions": 158,
+    "clicks": 7,
+    "ctr": 4.43,
+    "spend": 10.44,
+    "sales": 24.6,
+    "orders": 0,
+    "acos": 42.4,
+    "cvr": 0.0
+   },
+   {
+    "query": "떡뻥",
+    "impressions": 46,
+    "clicks": 11,
+    "ctr": 23.91,
+    "spend": 8.36,
+    "sales": 98.4,
+    "orders": 0,
+    "acos": 8.5,
+    "cvr": 0.0
+   },
+   {
+    "query": "dried sweet potatoes for humans",
+    "impressions": 289,
+    "clicks": 9,
+    "ctr": 3.11,
+    "spend": 7.92,
+    "sales": 0.0,
+    "orders": 0,
+    "acos": 0,
+    "cvr": 0.0
+   },
+   {
+    "query": "baby puffs snacks",
+    "impressions": 118,
+    "clicks": 6,
+    "ctr": 5.08,
+    "spend": 6.29,
+    "sales": 49.2,
+    "orders": 0,
+    "acos": 12.8,
+    "cvr": 0.0
+   },
+   {
+    "query": "baby snack",
+    "impressions": 221,
+    "clicks": 5,
+    "ctr": 2.26,
+    "spend": 5.43,
+    "sales": 0.0,
+    "orders": 0,
+    "acos": 0,
+    "cvr": 0.0
+   },
+   {
+    "query": "low calorie snacks",
+    "impressions": 437,
+    "clicks": 6,
+    "ctr": 1.37,
+    "spend": 5.28,
+    "sales": 0.0,
+    "orders": 0,
+    "acos": 0,
+    "cvr": 0.0
+   },
+   {
+    "query": "puffed rice",
+    "impressions": 527,
+    "clicks": 6,
+    "ctr": 1.14,
+    "spend": 5.12,
+    "sales": 0.0,
+    "orders": 0,
+    "acos": 0,
+    "cvr": 0.0
+   },
+   {
+    "query": "puff rice",
+    "impressions": 54,
+    "clicks": 5,
+    "ctr": 9.26,
+    "spend": 4.72,
+    "sales": 0.0,
+    "orders": 0,
+    "acos": 0,
+    "cvr": 0.0
+   },
+   {
+    "query": "baby pasta",
+    "impressions": 29,
+    "clicks": 5,
+    "ctr": 17.24,
+    "spend": 4.04,
+    "sales": 24.6,
+    "orders": 0,
+    "acos": 16.4,
+    "cvr": 0.0
+   },
+   {
+    "query": "baby food",
+    "impressions": 364,
+    "clicks": 4,
+    "ctr": 1.1,
+    "spend": 3.4,
+    "sales": 0.0,
+    "orders": 0,
+    "acos": 0,
+    "cvr": 0.0
+   },
+   {
+    "query": "teething biscuits",
+    "impressions": 79,
+    "clicks": 4,
+    "ctr": 5.06,
+    "spend": 3.38,
+    "sales": 24.6,
+    "orders": 0,
+    "acos": 13.7,
+    "cvr": 0.0
+   },
+   {
+    "query": "rice puffs",
+    "impressions": 164,
+    "clicks": 4,
+    "ctr": 2.44,
+    "spend": 3.31,
+    "sales": 0.0,
+    "orders": 0,
+    "acos": 0,
+    "cvr": 0.0
+   },
+   {
+    "query": "baby teething snacks",
+    "impressions": 271,
+    "clicks": 3,
+    "ctr": 1.11,
+    "spend": 3.21,
+    "sales": 24.6,
+    "orders": 0,
+    "acos": 13.0,
+    "cvr": 0.0
+   },
+   {
+    "query": "rice snacks",
+    "impressions": 125,
+    "clicks": 2,
+    "ctr": 1.6,
+    "spend": 2.93,
+    "sales": 0.0,
+    "orders": 0,
+    "acos": 0,
+    "cvr": 0.0
+   },
+   {
+    "query": "korean baby food",
+    "impressions": 80,
+    "clicks": 3,
+    "ctr": 3.75,
+    "spend": 2.83,
+    "sales": 24.6,
+    "orders": 0,
+    "acos": 11.5,
+    "cvr": 0.0
+   },
+   {
+    "query": "toddler snacks",
+    "impressions": 189,
+    "clicks": 3,
+    "ctr": 1.59,
+    "spend": 2.63,
+    "sales": 0.0,
+    "orders": 0,
+    "acos": 0,
+    "cvr": 0.0
+   },
+   {
+    "query": "sweet potato sticks",
+    "impressions": 65,
+    "clicks": 3,
+    "ctr": 4.62,
+    "spend": 2.58,
+    "sales": 0.0,
+    "orders": 0,
+    "acos": 0,
+    "cvr": 0.0
+   }
+  ],
+  "CHA&MOM": [
+   {
+    "query": "b0b3fvq6l6",
+    "impressions": 116,
+    "clicks": 2,
+    "ctr": 1.72,
+    "spend": 7.58,
+    "sales": 26.5,
+    "orders": 0,
+    "acos": 28.6,
+    "cvr": 0.0
+   },
+   {
+    "query": "b0b3fvl358",
+    "impressions": 449,
+    "clicks": 2,
+    "ctr": 0.45,
+    "spend": 5.93,
+    "sales": 26.5,
+    "orders": 0,
+    "acos": 22.4,
     "cvr": 0.0
    },
    {
@@ -1719,44 +2141,11 @@ const FIN_DATA = {
     "cvr": 0.0
    },
    {
-    "query": "b09mvmnw5m",
-    "impressions": 646,
-    "clicks": 2,
-    "ctr": 0.31,
-    "spend": 3.87,
-    "sales": 0.0,
-    "orders": 0,
-    "acos": 0,
-    "cvr": 0.0
-   },
-   {
     "query": "b0cbnch27v",
     "impressions": 90,
     "clicks": 2,
     "ctr": 2.22,
     "spend": 3.77,
-    "sales": 0.0,
-    "orders": 0,
-    "acos": 0,
-    "cvr": 0.0
-   },
-   {
-    "query": "b09jl8d41t",
-    "impressions": 1454,
-    "clicks": 2,
-    "ctr": 0.14,
-    "spend": 3.66,
-    "sales": 0.0,
-    "orders": 0,
-    "acos": 0,
-    "cvr": 0.0
-   },
-   {
-    "query": "b0fxkbpxtb",
-    "impressions": 21,
-    "clicks": 4,
-    "ctr": 19.05,
-    "spend": 3.22,
     "sales": 0.0,
     "orders": 0,
     "acos": 0,
@@ -1796,33 +2185,11 @@ const FIN_DATA = {
     "cvr": 0.0
    },
    {
-    "query": "b07c66wvdj",
-    "impressions": 85,
-    "clicks": 1,
-    "ctr": 1.18,
-    "spend": 2.88,
-    "sales": 0.0,
-    "orders": 0,
-    "acos": 0,
-    "cvr": 0.0
-   },
-   {
     "query": "b0dsvnld2d",
     "impressions": 6,
     "clicks": 1,
     "ctr": 16.67,
     "spend": 2.76,
-    "sales": 0.0,
-    "orders": 0,
-    "acos": 0,
-    "cvr": 0.0
-   },
-   {
-    "query": "b00idsjx7m",
-    "impressions": 258,
-    "clicks": 3,
-    "ctr": 1.16,
-    "spend": 2.59,
     "sales": 0.0,
     "orders": 0,
     "acos": 0,
@@ -1851,469 +2218,102 @@ const FIN_DATA = {
     "cvr": 0.0
    },
    {
-    "query": "cha and mom",
-    "impressions": 10,
-    "clicks": 4,
-    "ctr": 40.0,
-    "spend": 2.34,
-    "sales": 81.7,
+    "query": "b0fxkbpxtb",
+    "impressions": 6,
+    "clicks": 2,
+    "ctr": 33.33,
+    "spend": 2.32,
+    "sales": 0.0,
     "orders": 0,
-    "acos": 2.9,
+    "acos": 0,
     "cvr": 0.0
    },
    {
-    "query": "baby lotion",
-    "impressions": 177,
+    "query": "b0crz2mzhf",
+    "impressions": 1,
     "clicks": 1,
-    "ctr": 0.56,
-    "spend": 2.34,
-    "sales": 0.0,
-    "orders": 0,
-    "acos": 0,
-    "cvr": 0.0
-   }
-  ],
-  "Naeiae": [
-   {
-    "query": "b0bmjcwyb6",
-    "impressions": 38156,
-    "clicks": 331,
-    "ctr": 0.87,
-    "spend": 364.51,
-    "sales": 1353.0,
-    "orders": 0,
-    "acos": 26.9,
-    "cvr": 0.0
-   },
-   {
-    "query": "b0bmh153y7",
-    "impressions": 4834,
-    "clicks": 37,
-    "ctr": 0.77,
-    "spend": 30.93,
-    "sales": 221.4,
-    "orders": 0,
-    "acos": 14.0,
-    "cvr": 0.0
-   },
-   {
-    "query": "baby snacks",
-    "impressions": 3141,
-    "clicks": 28,
-    "ctr": 0.89,
-    "spend": 27.83,
+    "ctr": 100.0,
+    "spend": 2.03,
     "sales": 0.0,
     "orders": 0,
     "acos": 0,
     "cvr": 0.0
    },
    {
-    "query": "puffed rice",
-    "impressions": 2145,
-    "clicks": 30,
-    "ctr": 1.4,
-    "spend": 25.43,
-    "sales": 24.6,
-    "orders": 0,
-    "acos": 103.4,
-    "cvr": 0.0
-   },
-   {
-    "query": "toddler snacks",
-    "impressions": 1090,
-    "clicks": 17,
-    "ctr": 1.56,
-    "spend": 17.74,
+    "query": "b07dgphz6f",
+    "impressions": 12,
+    "clicks": 1,
+    "ctr": 8.33,
+    "spend": 2.03,
     "sales": 0.0,
     "orders": 0,
     "acos": 0,
     "cvr": 0.0
    },
    {
-    "query": "떡뻥",
-    "impressions": 78,
-    "clicks": 19,
-    "ctr": 24.36,
-    "spend": 13.19,
-    "sales": 196.8,
-    "orders": 0,
-    "acos": 6.7,
-    "cvr": 0.0
-   },
-   {
-    "query": "baby rice crackers",
-    "impressions": 174,
-    "clicks": 9,
-    "ctr": 5.17,
-    "spend": 12.58,
-    "sales": 24.6,
-    "orders": 0,
-    "acos": 51.1,
-    "cvr": 0.0
-   },
-   {
-    "query": "dried sweet potatoes for humans",
-    "impressions": 449,
-    "clicks": 13,
-    "ctr": 2.9,
-    "spend": 11.44,
+    "query": "korean baby lotion",
+    "impressions": 22,
+    "clicks": 1,
+    "ctr": 4.55,
+    "spend": 1.97,
     "sales": 0.0,
     "orders": 0,
     "acos": 0,
     "cvr": 0.0
    },
    {
-    "query": "rice puffs",
-    "impressions": 417,
-    "clicks": 11,
-    "ctr": 2.64,
-    "spend": 9.4,
+    "query": "b0dr9fvrjm",
+    "impressions": 34,
+    "clicks": 1,
+    "ctr": 2.94,
+    "spend": 1.95,
     "sales": 0.0,
     "orders": 0,
     "acos": 0,
     "cvr": 0.0
    },
    {
-    "query": "low calorie snacks",
-    "impressions": 565,
-    "clicks": 10,
-    "ctr": 1.77,
-    "spend": 8.8,
+    "query": "b01m4qmq4b",
+    "impressions": 605,
+    "clicks": 1,
+    "ctr": 0.17,
+    "spend": 1.8,
     "sales": 0.0,
     "orders": 0,
     "acos": 0,
     "cvr": 0.0
    },
    {
-    "query": "baby snack",
-    "impressions": 266,
-    "clicks": 8,
-    "ctr": 3.01,
-    "spend": 7.77,
-    "sales": 24.6,
-    "orders": 0,
-    "acos": 31.6,
-    "cvr": 0.0
-   },
-   {
-    "query": "korean snacks",
-    "impressions": 834,
-    "clicks": 9,
-    "ctr": 1.08,
-    "spend": 7.63,
-    "sales": 49.2,
-    "orders": 0,
-    "acos": 15.5,
-    "cvr": 0.0
-   },
-   {
-    "query": "baby teething snacks",
-    "impressions": 524,
-    "clicks": 6,
-    "ctr": 1.15,
-    "spend": 6.42,
-    "sales": 24.6,
-    "orders": 0,
-    "acos": 26.1,
-    "cvr": 0.0
-   },
-   {
-    "query": "baby puffs snacks",
-    "impressions": 118,
-    "clicks": 6,
-    "ctr": 5.08,
-    "spend": 6.29,
-    "sales": 49.2,
-    "orders": 0,
-    "acos": 12.8,
-    "cvr": 0.0
-   },
-   {
-    "query": "sweet potato sticks",
-    "impressions": 113,
-    "clicks": 7,
-    "ctr": 6.19,
-    "spend": 6.1,
+    "query": "b00idsjx7m",
+    "impressions": 179,
+    "clicks": 2,
+    "ctr": 1.12,
+    "spend": 1.77,
     "sales": 0.0,
     "orders": 0,
     "acos": 0,
     "cvr": 0.0
    },
    {
-    "query": "korean baby food",
-    "impressions": 138,
-    "clicks": 6,
-    "ctr": 4.35,
-    "spend": 5.85,
-    "sales": 49.2,
-    "orders": 0,
-    "acos": 11.9,
-    "cvr": 0.0
-   },
-   {
-    "query": "b08tqn3h7t",
-    "impressions": 1589,
-    "clicks": 15,
-    "ctr": 0.94,
-    "spend": 5.8,
-    "sales": 73.8,
-    "orders": 0,
-    "acos": 7.9,
-    "cvr": 0.0
-   },
-   {
-    "query": "rice snacks",
-    "impressions": 188,
-    "clicks": 5,
-    "ctr": 2.66,
-    "spend": 5.07,
-    "sales": 24.6,
-    "orders": 0,
-    "acos": 20.6,
-    "cvr": 0.0
-   },
-   {
-    "query": "rice cakes",
-    "impressions": 540,
-    "clicks": 6,
-    "ctr": 1.11,
-    "spend": 4.74,
+    "query": "b07pxt5t64",
+    "impressions": 38,
+    "clicks": 1,
+    "ctr": 2.63,
+    "spend": 1.53,
     "sales": 0.0,
     "orders": 0,
     "acos": 0,
     "cvr": 0.0
    },
    {
-    "query": "puff rice",
-    "impressions": 54,
-    "clicks": 5,
-    "ctr": 9.26,
-    "spend": 4.72,
+    "query": "b07nt7rvjf",
+    "impressions": 20,
+    "clicks": 1,
+    "ctr": 5.0,
+    "spend": 1.51,
     "sales": 0.0,
     "orders": 0,
     "acos": 0,
-    "cvr": 0.0
-   }
-  ],
-  "Grosmimi": [
-   {
-    "query": "grosmimi straw cup",
-    "impressions": 52983,
-    "clicks": 2425,
-    "ctr": 4.58,
-    "spend": 1156.46,
-    "sales": 20321.83,
-    "orders": 0,
-    "acos": 5.7,
-    "cvr": 0.0
-   },
-   {
-    "query": "sippy cups for toddlers 1-3",
-    "impressions": 313215,
-    "clicks": 1363,
-    "ctr": 0.44,
-    "spend": 1066.69,
-    "sales": 4952.9,
-    "orders": 0,
-    "acos": 21.5,
-    "cvr": 0.0
-   },
-   {
-    "query": "sippy cup for 6 month old",
-    "impressions": 68746,
-    "clicks": 284,
-    "ctr": 0.41,
-    "spend": 366.44,
-    "sales": 517.6,
-    "orders": 0,
-    "acos": 70.8,
-    "cvr": 0.0
-   },
-   {
-    "query": "straw cups for toddlers 1-3",
-    "impressions": 49868,
-    "clicks": 363,
-    "ctr": 0.73,
-    "spend": 353.18,
-    "sales": 1089.4,
-    "orders": 0,
-    "acos": 32.4,
-    "cvr": 0.0
-   },
-   {
-    "query": "grosmimi",
-    "impressions": 46632,
-    "clicks": 776,
-    "ctr": 1.66,
-    "spend": 307.25,
-    "sales": 8025.38,
-    "orders": 0,
-    "acos": 3.8,
-    "cvr": 0.0
-   },
-   {
-    "query": "sippy cup with straw",
-    "impressions": 44368,
-    "clicks": 183,
-    "ctr": 0.41,
-    "spend": 257.06,
-    "sales": 566.1,
-    "orders": 0,
-    "acos": 45.4,
-    "cvr": 0.0
-   },
-   {
-    "query": "grosmimi straw replacement",
-    "impressions": 9736,
-    "clicks": 629,
-    "ctr": 6.46,
-    "spend": 256.08,
-    "sales": 8016.07,
-    "orders": 0,
-    "acos": 3.2,
-    "cvr": 0.0
-   },
-   {
-    "query": "baby sippy cup with straw",
-    "impressions": 31833,
-    "clicks": 115,
-    "ctr": 0.36,
-    "spend": 237.8,
-    "sales": 188.5,
-    "orders": 0,
-    "acos": 126.2,
-    "cvr": 0.0
-   },
-   {
-    "query": "grossini straw cup",
-    "impressions": 25272,
-    "clicks": 366,
-    "ctr": 1.45,
-    "spend": 212.29,
-    "sales": 3486.8,
-    "orders": 0,
-    "acos": 6.1,
-    "cvr": 0.0
-   },
-   {
-    "query": "baby sippy cup",
-    "impressions": 44938,
-    "clicks": 172,
-    "ctr": 0.38,
-    "spend": 206.41,
-    "sales": 877.0,
-    "orders": 0,
-    "acos": 23.5,
-    "cvr": 0.0
-   },
-   {
-    "query": "sippy cup for 6+ month old",
-    "impressions": 32029,
-    "clicks": 116,
-    "ctr": 0.36,
-    "spend": 157.17,
-    "sales": 473.7,
-    "orders": 0,
-    "acos": 33.2,
-    "cvr": 0.0
-   },
-   {
-    "query": "gross mimi straw cup",
-    "impressions": 29030,
-    "clicks": 224,
-    "ctr": 0.77,
-    "spend": 141.02,
-    "sales": 1725.5,
-    "orders": 0,
-    "acos": 8.2,
-    "cvr": 0.0
-   },
-   {
-    "query": "baby straw cups 6-12 months",
-    "impressions": 24381,
-    "clicks": 71,
-    "ctr": 0.29,
-    "spend": 136.15,
-    "sales": 153.2,
-    "orders": 0,
-    "acos": 88.9,
-    "cvr": 0.0
-   },
-   {
-    "query": "straw cup",
-    "impressions": 17160,
-    "clicks": 129,
-    "ctr": 0.75,
-    "spend": 131.66,
-    "sales": 481.2,
-    "orders": 0,
-    "acos": 27.4,
-    "cvr": 0.0
-   },
-   {
-    "query": "toddler straw cups",
-    "impressions": 18786,
-    "clicks": 111,
-    "ctr": 0.59,
-    "spend": 130.56,
-    "sales": 617.4,
-    "orders": 0,
-    "acos": 21.1,
-    "cvr": 0.0
-   },
-   {
-    "query": "baby straw cup",
-    "impressions": 23037,
-    "clicks": 189,
-    "ctr": 0.82,
-    "spend": 121.03,
-    "sales": 734.5,
-    "orders": 0,
-    "acos": 16.5,
-    "cvr": 0.0
-   },
-   {
-    "query": "nuk sippy cup",
-    "impressions": 58923,
-    "clicks": 162,
-    "ctr": 0.27,
-    "spend": 110.08,
-    "sales": 369.4,
-    "orders": 0,
-    "acos": 29.8,
-    "cvr": 0.0
-   },
-   {
-    "query": "grosmimi stainless steel straw cup",
-    "impressions": 15221,
-    "clicks": 177,
-    "ctr": 1.16,
-    "spend": 102.77,
-    "sales": 1457.46,
-    "orders": 0,
-    "acos": 7.1,
-    "cvr": 0.0
-   },
-   {
-    "query": "straw sippy cup",
-    "impressions": 19202,
-    "clicks": 120,
-    "ctr": 0.62,
-    "spend": 101.6,
-    "sales": 410.4,
-    "orders": 0,
-    "acos": 24.8,
-    "cvr": 0.0
-   },
-   {
-    "query": "toddler straw cup",
-    "impressions": 16753,
-    "clicks": 115,
-    "ctr": 0.69,
-    "spend": 98.17,
-    "sales": 465.06,
-    "orders": 0,
-    "acos": 21.1,
     "cvr": 0.0
    }
   ],
@@ -2334,80 +2334,73 @@ const FIN_DATA = {
  "gsc_queries": [
   {
    "query": "onzenna",
-   "impressions": 390,
-   "clicks": 81,
-   "ctr": 20.77,
-   "position": 4.0
+   "impressions": 385,
+   "clicks": 79,
+   "ctr": 20.52,
+   "position": 4.1
   },
   {
    "query": "zezebaebae",
-   "impressions": 269,
-   "clicks": 64,
-   "ctr": 23.79,
+   "impressions": 259,
+   "clicks": 62,
+   "ctr": 23.94,
    "position": 4.1
   },
   {
    "query": "grosmimi",
-   "impressions": 1571,
+   "impressions": 1513,
    "clicks": 32,
-   "ctr": 2.04,
+   "ctr": 2.12,
    "position": 8.3
   },
   {
    "query": "grosmimi stainless steel plate",
-   "impressions": 92,
+   "impressions": 90,
    "clicks": 9,
-   "ctr": 9.78,
-   "position": 5.5
+   "ctr": 10.0,
+   "position": 5.3
   },
   {
    "query": "grosmimi straw cup",
-   "impressions": 2387,
+   "impressions": 2334,
    "clicks": 7,
-   "ctr": 0.29,
+   "ctr": 0.3,
    "position": 9.8
   },
   {
-   "query": "grosmimi stainless steel",
-   "impressions": 363,
-   "clicks": 7,
-   "ctr": 1.93,
-   "position": 7.1
-  },
-  {
    "query": "grosmimi stainless steel food tray with 5 compartment",
-   "impressions": 24,
+   "impressions": 21,
    "clicks": 6,
-   "ctr": 25.0,
-   "position": 5.5
+   "ctr": 28.57,
+   "position": 5.4
   },
   {
    "query": "zezebebe",
-   "impressions": 51,
+   "impressions": 47,
    "clicks": 6,
-   "ctr": 11.76,
-   "position": 3.6
+   "ctr": 12.77,
+   "position": 3.5
   },
   {
    "query": "beemymagic stainless steel",
-   "impressions": 109,
+   "impressions": 106,
    "clicks": 6,
-   "ctr": 5.5,
+   "ctr": 5.66,
    "position": 4.7
   },
   {
-   "query": "bamboo bebe gauze",
-   "impressions": 33,
+   "query": "grosmimi stainless steel",
+   "impressions": 345,
    "clicks": 6,
-   "ctr": 18.18,
-   "position": 6.5
+   "ctr": 1.74,
+   "position": 7.2
   },
   {
    "query": "beemymagic",
-   "impressions": 88,
+   "impressions": 86,
    "clicks": 6,
-   "ctr": 6.82,
-   "position": 4.9
+   "ctr": 6.98,
+   "position": 5.0
   },
   {
    "query": "grosmimi tumbler cap",
@@ -2417,17 +2410,24 @@ const FIN_DATA = {
    "position": 2.6
   },
   {
+   "query": "bamboo bebe gauze",
+   "impressions": 31,
+   "clicks": 5,
+   "ctr": 16.13,
+   "position": 6.2
+  },
+  {
    "query": "alpremio",
-   "impressions": 172,
+   "impressions": 165,
    "clicks": 4,
-   "ctr": 2.33,
+   "ctr": 2.42,
    "position": 5.2
   },
   {
    "query": "cha and mom",
-   "impressions": 21,
+   "impressions": 20,
    "clicks": 4,
-   "ctr": 19.05,
+   "ctr": 20.0,
    "position": 2.0
   },
   {
@@ -2438,69 +2438,69 @@ const FIN_DATA = {
    "position": 3.8
   },
   {
-   "query": "grosmimi stainless steel straw cup",
-   "impressions": 222,
+   "query": "grossmimi",
+   "impressions": 153,
    "clicks": 3,
-   "ctr": 1.35,
-   "position": 8.2
+   "ctr": 1.96,
+   "position": 5.1
   },
   {
    "query": "zezebaebae reviews",
-   "impressions": 94,
+   "impressions": 87,
    "clicks": 3,
-   "ctr": 3.19,
-   "position": 4.5
+   "ctr": 3.45,
+   "position": 4.4
   },
   {
-   "query": "grossmimi",
-   "impressions": 155,
+   "query": "grosmimi stainless steel straw cup",
+   "impressions": 215,
    "clicks": 3,
-   "ctr": 1.94,
-   "position": 5.0
+   "ctr": 1.4,
+   "position": 8.3
   },
   {
    "query": "grosmimi cup",
-   "impressions": 530,
+   "impressions": 510,
    "clicks": 3,
-   "ctr": 0.57,
-   "position": 11.0
+   "ctr": 0.59,
+   "position": 11.1
   },
   {
    "query": "grosmimi straw replacement",
-   "impressions": 145,
+   "impressions": 143,
    "clicks": 3,
-   "ctr": 2.07,
-   "position": 7.6
+   "ctr": 2.1,
+   "position": 7.7
   }
  ],
  "keyword_rankings": {
   "7d": [
    {
-    "query": "onzenna",
-    "clicks": 24,
-    "impressions": 121,
-    "avg_position": 3.1,
-    "ctr": 19.83,
+    "query": "zezebaebae",
+    "clicks": 22,
+    "impressions": 57,
+    "avg_position": 3.4,
+    "ctr": 38.6,
     "weekly_positions": [
-     3.1
+     3.4
     ]
    },
    {
-    "query": "zezebaebae",
+    "query": "onzenna",
     "clicks": 22,
-    "impressions": 59,
-    "avg_position": 3.5,
-    "ctr": 37.29,
+    "impressions": 111,
+    "avg_position": 3.0,
+    "ctr": 19.82,
     "weekly_positions": [
-     3.5
+     3.0
     ]
    },
    {
     "query": "grosmimi",
-    "clicks": 8,
-    "impressions": 292,
+    "clicks": 7,
+    "impressions": 240,
     "avg_position": 7.3,
-    "ctr": 2.74,
+    "ctr": 2.92,
     "weekly_positions": [
      7.3
     ]
@@ -2516,16 +2516,6 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "bamboo bebe gauze",
-    "clicks": 4,
-    "impressions": 16,
-    "avg_position": 6.7,
-    "ctr": 25.0,
-    "weekly_positions": [
-     6.7
-    ]
-   },
-   {
     "query": "zezebebe",
     "clicks": 4,
     "impressions": 12,
@@ -2538,21 +2528,21 @@ const FIN_DATA = {
    {
     "query": "grosmimi straw cup",
     "clicks": 3,
-    "impressions": 632,
-    "avg_position": 10.7,
-    "ctr": 0.47,
+    "impressions": 435,
+    "avg_position": 10.8,
+    "ctr": 0.69,
     "weekly_positions": [
-     10.7
+     10.8
     ]
    },
    {
-    "query": "grosmimi stainless steel",
+    "query": "bamboo bebe gauze",
     "clicks": 3,
-    "impressions": 73,
-    "avg_position": 8.7,
-    "ctr": 4.11,
+    "impressions": 13,
+    "avg_position": 6.5,
+    "ctr": 23.08,
     "weekly_positions": [
-     8.7
+     6.5
     ]
    },
    {
@@ -2576,11 +2566,21 @@ const FIN_DATA = {
     ]
    },
    {
+    "query": "grosmimi stainless steel",
+    "clicks": 2,
+    "impressions": 63,
+    "avg_position": 8.6,
+    "ctr": 3.17,
+    "weekly_positions": [
+     8.6
+    ]
+   },
+   {
     "query": "cha and mom",
     "clicks": 2,
-    "impressions": 6,
+    "impressions": 5,
     "avg_position": 1.0,
-    "ctr": 33.33,
+    "ctr": 40.0,
     "weekly_positions": [
      1.0
     ]
@@ -2598,11 +2598,11 @@ const FIN_DATA = {
    {
     "query": "grosmimi stainless steel food tray with 5 compartment",
     "clicks": 1,
-    "impressions": 5,
-    "avg_position": 4.6,
-    "ctr": 20.0,
+    "impressions": 4,
+    "avg_position": 5.5,
+    "ctr": 25.0,
     "weekly_positions": [
-     4.6
+     5.5
     ]
    },
    {
@@ -2618,9 +2618,9 @@ const FIN_DATA = {
    {
     "query": "grossmimi",
     "clicks": 1,
-    "impressions": 37,
+    "impressions": 33,
     "avg_position": 5.5,
-    "ctr": 2.7,
+    "ctr": 3.03,
     "weekly_positions": [
      5.5
     ]
@@ -2636,16 +2636,6 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "zezebaebae reviews",
-    "clicks": 1,
-    "impressions": 14,
-    "avg_position": 3.1,
-    "ctr": 7.14,
-    "weekly_positions": [
-     3.1
-    ]
-   },
-   {
     "query": "bamboo bebe",
     "clicks": 1,
     "impressions": 18,
@@ -2658,29 +2648,29 @@ const FIN_DATA = {
    {
     "query": "grosmimi cup",
     "clicks": 1,
-    "impressions": 177,
-    "avg_position": 10.5,
-    "ctr": 0.56,
+    "impressions": 160,
+    "avg_position": 10.6,
+    "ctr": 0.62,
     "weekly_positions": [
-     10.5
+     10.6
     ]
    },
    {
     "query": "alpremio",
     "clicks": 1,
-    "impressions": 15,
-    "avg_position": 3.2,
-    "ctr": 6.67,
+    "impressions": 13,
+    "avg_position": 3.3,
+    "ctr": 7.69,
     "weekly_positions": [
-     3.2
+     3.3
     ]
    },
    {
     "query": "alpremio feeding seat",
     "clicks": 1,
-    "impressions": 37,
+    "impressions": 27,
     "avg_position": 4.1,
-    "ctr": 2.7,
+    "ctr": 3.7,
     "weekly_positions": [
      4.1
     ]
@@ -2688,31 +2678,31 @@ const FIN_DATA = {
    {
     "query": "grosmimi straw replacement",
     "clicks": 1,
-    "impressions": 18,
-    "avg_position": 6.3,
-    "ctr": 5.56,
+    "impressions": 16,
+    "avg_position": 6.2,
+    "ctr": 6.25,
     "weekly_positions": [
-     6.3
+     6.2
     ]
    },
    {
     "query": "grosmimi straw cup review",
     "clicks": 1,
-    "impressions": 12,
-    "avg_position": 2.3,
-    "ctr": 8.33,
+    "impressions": 9,
+    "avg_position": 1.8,
+    "ctr": 11.11,
     "weekly_positions": [
-     2.3
+     1.8
     ]
    },
    {
     "query": "korean baby bottle",
     "clicks": 1,
-    "impressions": 5,
-    "avg_position": 3.8,
-    "ctr": 20.0,
+    "impressions": 4,
+    "avg_position": 3.1,
+    "ctr": 25.0,
     "weekly_positions": [
-     3.8
+     3.1
     ]
    },
    {
@@ -2724,101 +2714,97 @@ const FIN_DATA = {
     "weekly_positions": [
      1.0
     ]
+   },
+   {
+    "query": "grosmimi stage 3",
+    "clicks": 1,
+    "impressions": 5,
+    "avg_position": 6.0,
+    "ctr": 20.0,
+    "weekly_positions": [
+     6.0
+    ]
    }
   ],
   "30d": [
    {
     "query": "onzenna",
-    "clicks": 81,
-    "impressions": 390,
-    "avg_position": 4.0,
-    "ctr": 20.77,
+    "clicks": 79,
+    "impressions": 385,
+    "avg_position": 4.1,
+    "ctr": 20.52,
     "weekly_positions": [
-     4.3,
-     4.3,
-     4.9,
-     3.1,
-     2.4
+     4.4,
+     4.6,
+     4.4,
+     3.2,
+     2.5
     ]
    },
    {
     "query": "zezebaebae",
-    "clicks": 64,
-    "impressions": 269,
+    "clicks": 62,
+    "impressions": 259,
     "avg_position": 4.1,
-    "ctr": 23.79,
+    "ctr": 23.94,
     "weekly_positions": [
+     4.0,
+     5.1,
      4.1,
-     4.8,
-     4.5,
      3.3,
-     2.9
+     4.2
     ]
    },
    {
     "query": "grosmimi",
     "clicks": 32,
-    "impressions": 1571,
+    "impressions": 1513,
     "avg_position": 8.3,
-    "ctr": 2.04,
+    "ctr": 2.12,
     "weekly_positions": [
-     9.0,
-     6.8,
+     8.8,
+     6.9,
      10.3,
-     7.7,
+     7.6,
      6.1
     ]
    },
    {
     "query": "grosmimi stainless steel plate",
     "clicks": 9,
-    "impressions": 92,
-    "avg_position": 5.5,
-    "ctr": 9.78,
+    "impressions": 90,
+    "avg_position": 5.3,
+    "ctr": 10.0,
     "weekly_positions": [
-     9.1,
-     6.6,
-     4.6,
-     2.9,
-     3.1
+     7.7,
+     8.0,
+     4.1,
+     2.4,
+     2.7
     ]
    },
    {
     "query": "grosmimi straw cup",
     "clicks": 7,
-    "impressions": 2387,
+    "impressions": 2334,
     "avg_position": 9.8,
-    "ctr": 0.29,
+    "ctr": 0.3,
     "weekly_positions": [
-     9.2,
-     9.5,
+     9.6,
+     9.3,
      9.8,
-     10.3,
-     10.8
-    ]
-   },
-   {
-    "query": "grosmimi stainless steel",
-    "clicks": 7,
-    "impressions": 363,
-    "avg_position": 7.1,
-    "ctr": 1.93,
-    "weekly_positions": [
-     6.7,
-     7.3,
-     6.7,
-     8.2,
-     4.0
+     10.4,
+     10.9
     ]
    },
    {
     "query": "grosmimi stainless steel food tray with 5 compartment",
     "clicks": 6,
-    "impressions": 24,
-    "avg_position": 5.5,
-    "ctr": 25.0,
+    "impressions": 21,
+    "avg_position": 5.4,
+    "ctr": 28.57,
     "weekly_positions": [
-     7.2,
+     7.3,
      7.0,
      2.0,
      5.5,
@@ -2826,58 +2812,58 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "beemymagic stainless steel",
+    "query": "grosmimi stainless steel",
     "clicks": 6,
-    "impressions": 109,
-    "avg_position": 4.7,
-    "ctr": 5.5,
+    "impressions": 345,
+    "avg_position": 7.2,
+    "ctr": 1.74,
     "weekly_positions": [
-     4.5,
-     3.4,
-     4.5,
-     6.0,
-     9.0
+     7.3,
+     7.1,
+     7.1,
+     7.5,
+     null
     ]
    },
    {
-    "query": "bamboo bebe gauze",
+    "query": "beemymagic stainless steel",
     "clicks": 6,
-    "impressions": 33,
-    "avg_position": 6.5,
-    "ctr": 18.18,
+    "impressions": 106,
+    "avg_position": 4.7,
+    "ctr": 5.66,
     "weekly_positions": [
-     8.6,
-     2.0,
      4.0,
-     6.9,
-     7.0
+     3.7,
+     4.6,
+     6.5,
+     null
     ]
    },
    {
     "query": "zezebebe",
     "clicks": 6,
-    "impressions": 51,
-    "avg_position": 3.6,
-    "ctr": 11.76,
+    "impressions": 47,
+    "avg_position": 3.5,
+    "ctr": 12.77,
     "weekly_positions": [
-     3.4,
-     5.1,
-     3.3,
-     3.4,
-     1.0
+     3.0,
+     5.3,
+     2.7,
+     3.1,
+     null
     ]
    },
    {
     "query": "beemymagic",
     "clicks": 6,
-    "impressions": 88,
-    "avg_position": 4.9,
-    "ctr": 6.82,
+    "impressions": 86,
+    "avg_position": 5.0,
+    "ctr": 6.98,
     "weekly_positions": [
-     3.7,
-     4.9,
-     4.2,
-     6.9,
+     3.9,
+     5.1,
+     4.0,
+     7.5,
      null
     ]
    },
@@ -2889,38 +2875,52 @@ const FIN_DATA = {
     "ctr": 13.89,
     "weekly_positions": [
      2.8,
-     2.9,
-     1.2,
-     3.6,
+     2.7,
+     1.9,
+     3.7,
      1.0
+    ]
+   },
+   {
+    "query": "bamboo bebe gauze",
+    "clicks": 5,
+    "impressions": 31,
+    "avg_position": 6.2,
+    "ctr": 16.13,
+    "weekly_positions": [
+     6.5,
+     null,
+     5.0,
+     6.7,
+     null
     ]
    },
    {
     "query": "cha and mom",
     "clicks": 4,
-    "impressions": 21,
+    "impressions": 20,
     "avg_position": 2.0,
-    "ctr": 19.05,
+    "ctr": 20.0,
     "weekly_positions": [
-     3.0,
-     null,
-     2.1,
+     3.4,
      1.0,
-     1.0
+     2.3,
+     1.0,
+     null
     ]
    },
    {
     "query": "alpremio",
     "clicks": 4,
-    "impressions": 172,
+    "impressions": 165,
     "avg_position": 5.2,
-    "ctr": 2.33,
+    "ctr": 2.42,
     "weekly_positions": [
-     5.4,
-     6.6,
+     6.3,
+     5.6,
      4.3,
-     3.6,
-     2.0
+     3.2,
+     null
     ]
    },
    {
@@ -2932,91 +2932,91 @@ const FIN_DATA = {
     "weekly_positions": [
      5.8,
      2.3,
-     3.0,
-     4.5,
+     4.3,
+     2.0,
      null
     ]
    },
    {
     "query": "grossmimi",
     "clicks": 3,
-    "impressions": 155,
-    "avg_position": 5.0,
-    "ctr": 1.94,
+    "impressions": 153,
+    "avg_position": 5.1,
+    "ctr": 1.96,
     "weekly_positions": [
      5.4,
-     5.3,
-     4.7,
-     4.6,
+     5.4,
+     4.3,
+     5.1,
      6.4
     ]
    },
    {
     "query": "grosmimi stainless steel straw cup",
     "clicks": 3,
-    "impressions": 222,
-    "avg_position": 8.2,
-    "ctr": 1.35,
+    "impressions": 215,
+    "avg_position": 8.3,
+    "ctr": 1.4,
     "weekly_positions": [
-     7.4,
-     7.9,
-     7.7,
+     7.2,
+     8.6,
+     7.5,
      9.7,
-     9.0
+     11.0
     ]
    },
    {
     "query": "zezebaebae reviews",
     "clicks": 3,
-    "impressions": 94,
-    "avg_position": 4.5,
-    "ctr": 3.19,
+    "impressions": 87,
+    "avg_position": 4.4,
+    "ctr": 3.45,
     "weekly_positions": [
-     5.1,
-     3.8,
+     5.9,
      3.1,
-     6.3,
-     2.6
+     2.8,
+     6.4,
+     4.3
     ]
    },
    {
     "query": "grosmimi cup",
     "clicks": 3,
-    "impressions": 530,
-    "avg_position": 11.0,
-    "ctr": 0.57,
+    "impressions": 510,
+    "avg_position": 11.1,
+    "ctr": 0.59,
     "weekly_positions": [
      11.9,
      10.8,
-     10.8,
-     10.8,
-     9.7
+     11.0,
+     10.5,
+     null
     ]
    },
    {
     "query": "grosmimi straw replacement",
     "clicks": 3,
-    "impressions": 145,
-    "avg_position": 7.6,
-    "ctr": 2.07,
+    "impressions": 143,
+    "avg_position": 7.7,
+    "ctr": 2.1,
     "weekly_positions": [
-     8.3,
-     7.0,
-     8.4,
-     5.9,
+     8.6,
+     7.2,
+     8.1,
+     6.1,
      null
     ]
    },
    {
     "query": "hattung",
     "clicks": 3,
-    "impressions": 17,
+    "impressions": 16,
     "avg_position": 2.3,
-    "ctr": 17.65,
+    "ctr": 18.75,
     "weekly_positions": [
-     1.3,
-     2.0,
-     2.4,
+     1.0,
+     1.8,
+     2.9,
      3.0,
      null
     ]
@@ -3030,21 +3030,21 @@ const FIN_DATA = {
     "weekly_positions": [
      5.1,
      2.8,
-     3.7,
-     2.5,
+     3.3,
+     3.0,
      null
     ]
    },
    {
     "query": "hattung say house",
     "clicks": 3,
-    "impressions": 16,
+    "impressions": 13,
     "avg_position": 3.8,
-    "ctr": 18.75,
+    "ctr": 23.08,
     "weekly_positions": [
-     3.1,
-     4.0,
-     6.5,
+     2.9,
+     4.4,
+     null,
      null,
      null
     ]
@@ -3066,12 +3066,12 @@ const FIN_DATA = {
    {
     "query": "grosmimi replacement cap",
     "clicks": 2,
-    "impressions": 40,
+    "impressions": 34,
     "avg_position": 3.3,
-    "ctr": 5.0,
+    "ctr": 5.88,
     "weekly_positions": [
-     2.6,
-     4.0,
+     2.5,
+     4.8,
      2.2,
      2.0,
      12.0
@@ -3509,24 +3509,24 @@ const FIN_DATA = {
  "kw_positions_summary": [
   {
    "query": "zezebaebae",
-   "pos_7d": 3.5,
+   "pos_7d": 3.4,
    "clicks_7d": 22,
-   "impressions_7d": 59,
+   "impressions_7d": 57,
    "pos_30d": 4.1,
-   "clicks_30d": 64,
-   "impressions_30d": 269,
+   "clicks_30d": 62,
+   "impressions_30d": 259,
    "pos_90d": 3.7,
    "clicks_90d": 101,
    "impressions_90d": 369
   },
   {
    "query": "onzenna",
-   "pos_7d": 3.1,
-   "clicks_7d": 24,
-   "impressions_7d": 121,
-   "pos_30d": 4.0,
-   "clicks_30d": 81,
-   "impressions_30d": 390,
+   "pos_7d": 3.0,
+   "clicks_7d": 22,
+   "impressions_7d": 111,
+   "pos_30d": 4.1,
+   "clicks_30d": 79,
+   "impressions_30d": 385,
    "pos_90d": 4.2,
    "clicks_90d": 86,
    "impressions_90d": 539
@@ -3534,35 +3534,35 @@ const FIN_DATA = {
   {
    "query": "grosmimi",
    "pos_7d": 7.3,
-   "clicks_7d": 8,
-   "impressions_7d": 292,
+   "clicks_7d": 7,
+   "impressions_7d": 240,
    "pos_30d": 8.3,
    "clicks_30d": 32,
-   "impressions_30d": 1571,
+   "impressions_30d": 1513,
    "pos_90d": 8.2,
    "clicks_90d": 63,
    "impressions_90d": 2272
   },
   {
    "query": "grosmimi straw cup",
-   "pos_7d": 10.7,
+   "pos_7d": 10.8,
    "clicks_7d": 3,
-   "impressions_7d": 632,
+   "impressions_7d": 435,
    "pos_30d": 9.8,
    "clicks_30d": 7,
-   "impressions_30d": 2387,
+   "impressions_30d": 2334,
    "pos_90d": 9.3,
    "clicks_90d": 45,
    "impressions_90d": 3090
   },
   {
    "query": "grosmimi stainless steel",
-   "pos_7d": 8.7,
-   "clicks_7d": 3,
-   "impressions_7d": 73,
-   "pos_30d": 7.1,
-   "clicks_30d": 7,
-   "impressions_30d": 363,
+   "pos_7d": 8.6,
+   "clicks_7d": 2,
+   "impressions_7d": 63,
+   "pos_30d": 7.2,
+   "clicks_30d": 6,
+   "impressions_30d": 345,
    "pos_90d": 6.1,
    "clicks_90d": 15,
    "impressions_90d": 497
@@ -3572,21 +3572,21 @@ const FIN_DATA = {
    "pos_7d": 2.2,
    "clicks_7d": 4,
    "impressions_7d": 12,
-   "pos_30d": 3.6,
+   "pos_30d": 3.5,
    "clicks_30d": 6,
-   "impressions_30d": 51,
+   "impressions_30d": 47,
    "pos_90d": 2.9,
    "clicks_90d": 13,
    "impressions_90d": 77
   },
   {
    "query": "grosmimi cup",
-   "pos_7d": 10.5,
+   "pos_7d": 10.6,
    "clicks_7d": 1,
-   "impressions_7d": 177,
-   "pos_30d": 11.0,
+   "impressions_7d": 160,
+   "pos_30d": 11.1,
    "clicks_30d": 3,
-   "impressions_30d": 530,
+   "impressions_30d": 510,
    "pos_90d": 10.7,
    "clicks_90d": 10,
    "impressions_90d": 771
@@ -3596,33 +3596,33 @@ const FIN_DATA = {
    "pos_7d": 2.5,
    "clicks_7d": 4,
    "impressions_7d": 29,
-   "pos_30d": 5.5,
+   "pos_30d": 5.3,
    "clicks_30d": 9,
-   "impressions_30d": 92,
+   "impressions_30d": 90,
    "pos_90d": 5.1,
    "clicks_90d": 10,
    "impressions_90d": 116
   },
   {
    "query": "zezebaebae reviews",
-   "pos_7d": 3.1,
-   "clicks_7d": 1,
-   "impressions_7d": 14,
-   "pos_30d": 4.5,
+   "pos_7d": null,
+   "clicks_7d": 0,
+   "impressions_7d": 0,
+   "pos_30d": 4.4,
    "clicks_30d": 3,
-   "impressions_30d": 94,
+   "impressions_30d": 87,
    "pos_90d": 3.8,
    "clicks_90d": 10,
    "impressions_90d": 132
   },
   {
    "query": "bamboo bebe gauze",
-   "pos_7d": 6.7,
-   "clicks_7d": 4,
-   "impressions_7d": 16,
-   "pos_30d": 6.5,
-   "clicks_30d": 6,
-   "impressions_30d": 33,
+   "pos_7d": 6.5,
+   "clicks_7d": 3,
+   "impressions_7d": 13,
+   "pos_30d": 6.2,
+   "clicks_30d": 5,
+   "impressions_30d": 31,
    "pos_90d": 6.2,
    "clicks_90d": 7,
    "impressions_90d": 42
@@ -3632,9 +3632,9 @@ const FIN_DATA = {
    "pos_7d": null,
    "clicks_7d": 0,
    "impressions_7d": 0,
-   "pos_30d": 4.9,
+   "pos_30d": 5.0,
    "clicks_30d": 6,
-   "impressions_30d": 88,
+   "impressions_30d": 86,
    "pos_90d": 5.2,
    "clicks_90d": 7,
    "impressions_90d": 111
@@ -3653,12 +3653,12 @@ const FIN_DATA = {
   },
   {
    "query": "alpremio",
-   "pos_7d": 3.2,
+   "pos_7d": 3.3,
    "clicks_7d": 1,
-   "impressions_7d": 15,
+   "impressions_7d": 13,
    "pos_30d": 5.2,
    "clicks_30d": 4,
-   "impressions_30d": 172,
+   "impressions_30d": 165,
    "pos_90d": 5.1,
    "clicks_90d": 6,
    "impressions_90d": 227
@@ -3670,19 +3670,19 @@ const FIN_DATA = {
    "impressions_7d": 0,
    "pos_30d": 4.7,
    "clicks_30d": 6,
-   "impressions_30d": 109,
+   "impressions_30d": 106,
    "pos_90d": 4.9,
    "clicks_90d": 6,
    "impressions_90d": 156
   },
   {
    "query": "grosmimi stainless steel food tray with 5 compartment",
-   "pos_7d": 4.6,
+   "pos_7d": 5.5,
    "clicks_7d": 1,
-   "impressions_7d": 5,
-   "pos_30d": 5.5,
+   "impressions_7d": 4,
+   "pos_30d": 5.4,
    "clicks_30d": 6,
-   "impressions_30d": 24,
+   "impressions_30d": 21,
    "pos_90d": 5.7,
    "clicks_90d": 6,
    "impressions_90d": 27
@@ -3692,9 +3692,9 @@ const FIN_DATA = {
    "pos_7d": null,
    "clicks_7d": 0,
    "impressions_7d": 0,
-   "pos_30d": 8.2,
+   "pos_30d": 8.3,
    "clicks_30d": 3,
-   "impressions_30d": 222,
+   "impressions_30d": 215,
    "pos_90d": 7.6,
    "clicks_90d": 6,
    "impressions_90d": 320
@@ -3715,7 +3715,7 @@ const FIN_DATA = {
    "query": "alpremio feeding seat",
    "pos_7d": 4.1,
    "clicks_7d": 1,
-   "impressions_7d": 37,
+   "impressions_7d": 27,
    "pos_30d": null,
    "clicks_30d": 0,
    "impressions_30d": 0,
@@ -3739,10 +3739,10 @@ const FIN_DATA = {
    "query": "cha and mom",
    "pos_7d": 1.0,
    "clicks_7d": 2,
-   "impressions_7d": 6,
+   "impressions_7d": 5,
    "pos_30d": 2.0,
    "clicks_30d": 4,
-   "impressions_30d": 21,
+   "impressions_30d": 20,
    "pos_90d": 1.9,
    "clicks_90d": 4,
    "impressions_90d": 24
@@ -3766,7 +3766,7 @@ const FIN_DATA = {
    "impressions_7d": 3,
    "pos_30d": 3.3,
    "clicks_30d": 2,
-   "impressions_30d": 40,
+   "impressions_30d": 34,
    "pos_90d": 3.2,
    "clicks_90d": 4,
    "impressions_90d": 53
@@ -3787,10 +3787,10 @@ const FIN_DATA = {
    "query": "grossmimi",
    "pos_7d": 5.5,
    "clicks_7d": 1,
-   "impressions_7d": 37,
-   "pos_30d": 5.0,
+   "impressions_7d": 33,
+   "pos_30d": 5.1,
    "clicks_30d": 3,
-   "impressions_30d": 155,
+   "impressions_30d": 153,
    "pos_90d": 4.9,
    "clicks_90d": 4,
    "impressions_90d": 213
@@ -3856,10 +3856,22 @@ const FIN_DATA = {
    "impressions_90d": 0
   },
   {
-   "query": "grosmimi straw cup review",
-   "pos_7d": 2.3,
+   "query": "grosmimi stage 3",
+   "pos_7d": 6.0,
    "clicks_7d": 1,
-   "impressions_7d": 12,
+   "impressions_7d": 5,
+   "pos_30d": null,
+   "clicks_30d": 0,
+   "impressions_30d": 0,
+   "pos_90d": null,
+   "clicks_90d": 0,
+   "impressions_90d": 0
+  },
+  {
+   "query": "grosmimi straw cup review",
+   "pos_7d": 1.8,
+   "clicks_7d": 1,
+   "impressions_7d": 9,
    "pos_30d": null,
    "clicks_30d": 0,
    "impressions_30d": 0,
@@ -3869,12 +3881,12 @@ const FIN_DATA = {
   },
   {
    "query": "grosmimi straw replacement",
-   "pos_7d": 6.3,
+   "pos_7d": 6.2,
    "clicks_7d": 1,
-   "impressions_7d": 18,
-   "pos_30d": 7.6,
+   "impressions_7d": 16,
+   "pos_30d": 7.7,
    "clicks_30d": 3,
-   "impressions_30d": 145,
+   "impressions_30d": 143,
    "pos_90d": null,
    "clicks_90d": 0,
    "impressions_90d": 0
@@ -3886,7 +3898,7 @@ const FIN_DATA = {
    "impressions_7d": 0,
    "pos_30d": 2.3,
    "clicks_30d": 3,
-   "impressions_30d": 17,
+   "impressions_30d": 16,
    "pos_90d": null,
    "clicks_90d": 0,
    "impressions_90d": 0
@@ -3898,16 +3910,16 @@ const FIN_DATA = {
    "impressions_7d": 0,
    "pos_30d": 3.8,
    "clicks_30d": 3,
-   "impressions_30d": 16,
+   "impressions_30d": 13,
    "pos_90d": null,
    "clicks_90d": 0,
    "impressions_90d": 0
   },
   {
    "query": "korean baby bottle",
-   "pos_7d": 3.8,
+   "pos_7d": 3.1,
    "clicks_7d": 1,
-   "impressions_7d": 5,
+   "impressions_7d": 4,
    "pos_30d": null,
    "clicks_30d": 0,
    "impressions_30d": 0,
@@ -4110,86 +4122,6 @@ const FIN_DATA = {
    ]
   },
   {
-   "keyword": "chamom",
-   "brand": "CHA&MOM",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "korean infant snack",
-   "brand": "CHA&MOM",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "korean baby food",
-   "brand": "CHA&MOM",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "baby chew toy",
-   "brand": "Grosmimi",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "grosmimi teether",
-   "brand": "Grosmimi",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "baby teething toy",
-   "brand": "Grosmimi",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "silicone baby teether",
-   "brand": "Grosmimi",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "baby teether",
-   "brand": "Grosmimi",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "baby teething snacks",
-   "brand": "Naeiae",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "rice snack baby",
-   "brand": "Naeiae",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
    "keyword": "korean baby snack",
    "brand": "Naeiae",
    "search_volume": 0,
@@ -4216,6 +4148,86 @@ const FIN_DATA = {
   {
    "keyword": "onzenna sunscreen",
    "brand": "Onzenna",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "baby teething snacks",
+   "brand": "Naeiae",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "baby teether",
+   "brand": "Grosmimi",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "silicone baby teether",
+   "brand": "Grosmimi",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "baby teething toy",
+   "brand": "Grosmimi",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "grosmimi teether",
+   "brand": "Grosmimi",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "baby chew toy",
+   "brand": "Grosmimi",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "korean baby food",
+   "brand": "CHA&MOM",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "korean infant snack",
+   "brand": "CHA&MOM",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "chamom",
+   "brand": "CHA&MOM",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "rice snack baby",
+   "brand": "Naeiae",
    "search_volume": 0,
    "cpc": 0.0,
    "competition_index": 0,
@@ -4602,11 +4614,11 @@ const FIN_DATA = {
  "traffic_sources": [
   {
    "source": "direct / none",
-   "sessions": 20678,
+   "sessions": 20048,
    "users": 0,
    "revenue": 0.0,
-   "conversions": 482,
-   "conv_rate": 2.33
+   "conversions": 466,
+   "conv_rate": 2.32
   }
  ],
  "pnl_polar": {
@@ -5048,7 +5060,7 @@ const FIN_DATA = {
     0,
     0,
     0,
-    5368
+    584
    ],
    "opens": [
     0,
@@ -5060,7 +5072,7 @@ const FIN_DATA = {
     0,
     0,
     0,
-    950
+    107
    ],
    "clicks": [
     0,
@@ -5072,7 +5084,7 @@ const FIN_DATA = {
     0,
     0,
     0,
-    289
+    24
    ],
    "conversions": [
     0,
@@ -5084,7 +5096,7 @@ const FIN_DATA = {
     0,
     0,
     0,
-    34
+    4
    ],
    "revenue": [
     0,
@@ -5096,7 +5108,7 @@ const FIN_DATA = {
     0,
     0,
     0,
-    17340
+    14080
    ],
    "revenue_proj": [
     0,
@@ -5108,116 +5120,182 @@ const FIN_DATA = {
     0,
     0,
     0,
-    24434
+    19840
    ]
   },
-  "summary_30d": {
-   "sends": 5474,
-   "opens": 984,
-   "clicks": 290,
-   "conversions": 35,
-   "revenue": 17379.31,
-   "open_rate": 18.0,
-   "click_rate": 5.3,
-   "cvr": 0.64,
-   "rev_per_send": 3.175,
-   "campaign_revenue": 39.81,
-   "flow_revenue": 17339.5
+  "summary_7d": {
+   "sends": 584,
+   "opens": 107,
+   "clicks": 24,
+   "conversions": 4,
+   "revenue": 14079.84,
+   "open_rate": 18.3,
+   "click_rate": 4.11,
+   "cvr": 0.68,
+   "rev_per_send": 24.109,
+   "campaign_revenue": 0.0,
+   "flow_revenue": 14079.84
   },
-  "top_campaigns": [
+  "summary_30d": {
+   "sends": 690,
+   "opens": 141,
+   "clicks": 25,
+   "conversions": 5,
+   "revenue": 14119.65,
+   "open_rate": 20.4,
+   "click_rate": 3.62,
+   "cvr": 0.72,
+   "rev_per_send": 20.463,
+   "campaign_revenue": 39.81,
+   "flow_revenue": 14079.84
+  },
+  "top_campaigns_7d": [
+   {
+    "name": "03.16.26 - Onzenna Newsletter",
+    "sends": 0,
+    "open_rate": 0,
+    "click_rate": 0,
+    "cvr": 0,
+    "revenue": 0.0,
+    "date": "2026-03-21"
+   }
+  ],
+  "top_campaigns_30d": [
    {
     "name": "022726 - Naeiae(between 120-150)",
-    "date": "2026-02-27",
     "sends": 106,
     "open_rate": 32.1,
     "click_rate": 0.94,
     "cvr": 0.94,
-    "revenue": 39.81
+    "revenue": 39.81,
+    "date": "2026-02-27"
    },
    {
     "name": "03.16.26 - Onzenna Newsletter",
-    "date": "2026-03-21",
     "sends": 0,
     "open_rate": 0,
     "click_rate": 0,
     "cvr": 0,
-    "revenue": 0.0
+    "revenue": 0.0,
+    "date": "2026-03-21"
    },
    {
     "name": "031326 - More Light, More You",
-    "date": "2026-03-13",
     "sends": 0,
     "open_rate": 0,
     "click_rate": 0,
     "cvr": 0,
-    "revenue": 0.0
+    "revenue": 0.0,
+    "date": "2026-03-13"
    },
    {
     "name": "022726 - Naeiae(between 30-60)",
-    "date": "2026-03-05",
     "sends": 0,
     "open_rate": 0,
     "click_rate": 0,
     "cvr": 0,
-    "revenue": 0.0
+    "revenue": 0.0,
+    "date": "2026-03-05"
    },
    {
     "name": "022726 - Naeiae(between 60-90)",
-    "date": "2026-03-03",
     "sends": 0,
     "open_rate": 0,
     "click_rate": 0,
     "cvr": 0,
-    "revenue": 0.0
+    "revenue": 0.0,
+    "date": "2026-03-03"
    },
    {
     "name": "022726 - Naeiae(between 90-120)",
-    "date": "2026-03-01",
     "sends": 0,
     "open_rate": 0,
     "click_rate": 0,
     "cvr": 0,
-    "revenue": 0.0
+    "revenue": 0.0,
+    "date": "2026-03-01"
    }
   ],
-  "top_flows": [
+  "top_flows_7d": [
    {
     "name": "[Onzenna]Abandoned Cart",
-    "sends": 831,
-    "open_rate": 9.6,
-    "click_rate": 8.9,
-    "cvr": 1.32,
-    "revenue": 15084.4
+    "sends": 147,
+    "open_rate": 12.9,
+    "click_rate": 2.04,
+    "cvr": 1.36,
+    "revenue": 13903.56
    },
    {
     "name": "[Onzenna] Back In Stock Flow - Standard",
-    "sends": 419,
-    "open_rate": 41.1,
-    "click_rate": 19.09,
-    "cvr": 2.39,
-    "revenue": 946.2
+    "sends": 41,
+    "open_rate": 41.5,
+    "click_rate": 19.51,
+    "cvr": 2.44,
+    "revenue": 94.62
    },
    {
     "name": "[Onzenna][Retentics] Browse Abandonment",
-    "sends": 1378,
-    "open_rate": 24.3,
-    "click_rate": 7.76,
-    "cvr": 0.8,
-    "revenue": 898.26
-   },
-   {
-    "name": "[Onzenna][Retentics] Welcome From (Pop-up) product form a/b_241119",
-    "sends": 2639,
-    "open_rate": 13.4,
-    "click_rate": 1.06,
-    "cvr": 0.08,
-    "revenue": 410.64
+    "sends": 137,
+    "open_rate": 29.2,
+    "click_rate": 8.76,
+    "cvr": 0.73,
+    "revenue": 81.66
    },
    {
     "name": "[Onzenna] Welcome Series - Standard",
-    "sends": 101,
-    "open_rate": 9.9,
+    "sends": 11,
+    "open_rate": 9.1,
     "click_rate": 0.0,
+    "cvr": 0.0,
+    "revenue": 0.0
+   },
+   {
+    "name": "[Onzenna][Retentics] Welcome From (Pop-up) product form a/b_241119",
+    "sends": 248,
+    "open_rate": 12.1,
+    "click_rate": 0.4,
+    "cvr": 0.0,
+    "revenue": 0.0
+   }
+  ],
+  "top_flows_30d": [
+   {
+    "name": "[Onzenna]Abandoned Cart",
+    "sends": 147,
+    "open_rate": 12.9,
+    "click_rate": 2.04,
+    "cvr": 1.36,
+    "revenue": 13903.56
+   },
+   {
+    "name": "[Onzenna] Back In Stock Flow - Standard",
+    "sends": 41,
+    "open_rate": 41.5,
+    "click_rate": 19.51,
+    "cvr": 2.44,
+    "revenue": 94.62
+   },
+   {
+    "name": "[Onzenna][Retentics] Browse Abandonment",
+    "sends": 137,
+    "open_rate": 29.2,
+    "click_rate": 8.76,
+    "cvr": 0.73,
+    "revenue": 81.66
+   },
+   {
+    "name": "[Onzenna] Welcome Series - Standard",
+    "sends": 11,
+    "open_rate": 9.1,
+    "click_rate": 0.0,
+    "cvr": 0.0,
+    "revenue": 0.0
+   },
+   {
+    "name": "[Onzenna][Retentics] Welcome From (Pop-up) product form a/b_241119",
+    "sends": 248,
+    "open_rate": 12.1,
+    "click_rate": 0.4,
     "cvr": 0.0,
     "revenue": 0.0
    }
