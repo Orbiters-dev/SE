@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-24 00:20 PST",
+ "generated_pst": "2026-03-24 01:24 PST",
  "through_date": "2026-03-22",
  "months": [
   "2025-06",
@@ -25,9 +25,9 @@ const FIN_DATA = {
   {
    "name": "amazon_sales_daily",
    "label": "Amazon Sales (SP-API)",
-   "rows": 867,
+   "rows": 869,
    "min_date": "2025-05-19",
-   "max_date": "2026-03-22",
+   "max_date": "2026-03-23",
    "refresh": "2x daily"
   },
   {
@@ -81,9 +81,9 @@ const FIN_DATA = {
   {
    "name": "klaviyo_daily",
    "label": "Klaviyo Email",
-   "rows": 118,
+   "rows": 123,
    "min_date": "2025-05-23",
-   "max_date": "2026-03-22",
+   "max_date": "2026-03-23",
    "refresh": "2x daily"
   }
  ],
@@ -96,49 +96,49 @@ const FIN_DATA = {
  },
  "summary": {
   "7d": {
-   "total_revenue": 141891,
+   "total_revenue": 141848,
    "shopify_revenue": 17539,
-   "amazon_revenue": 124352,
-   "total_orders": 5626,
+   "amazon_revenue": 124309,
+   "total_orders": 5837,
    "total_ad_spend": 24990,
    "ad_attributed_sales": 81062,
-   "organic_revenue": 60829,
-   "gross_margin": 90350,
-   "gm_pct": 63.7,
-   "contribution_margin": 64363,
-   "cm_pct": 45.4,
+   "organic_revenue": 60786,
+   "gross_margin": 88462,
+   "gm_pct": 62.4,
+   "contribution_margin": 62475,
+   "cm_pct": 44.0,
    "mer": 5.68,
    "roas": 3.24,
    "discount_rate": 5.4
   },
   "30d": {
-   "total_revenue": 666138,
+   "total_revenue": 666096,
    "shopify_revenue": 79727,
-   "amazon_revenue": 586411,
-   "total_orders": 26748,
+   "amazon_revenue": 586368,
+   "total_orders": 27847,
    "total_ad_spend": 126361,
    "ad_attributed_sales": 445206,
-   "organic_revenue": 220933,
-   "gross_margin": 423713,
-   "gm_pct": 63.6,
-   "contribution_margin": 291965,
-   "cm_pct": 43.8,
+   "organic_revenue": 220890,
+   "gross_margin": 413530,
+   "gm_pct": 62.1,
+   "contribution_margin": 281783,
+   "cm_pct": 42.3,
    "mer": 5.27,
    "roas": 3.52,
    "discount_rate": 6.3
   },
   "mtd": {
-   "total_revenue": 516098,
+   "total_revenue": 516055,
    "shopify_revenue": 60686,
-   "amazon_revenue": 455412,
-   "total_orders": 20729,
+   "amazon_revenue": 455369,
+   "total_orders": 21592,
    "total_ad_spend": 96354,
    "ad_attributed_sales": 341282,
-   "organic_revenue": 174816,
-   "gross_margin": 327462,
-   "gm_pct": 63.4,
-   "contribution_margin": 226680,
-   "cm_pct": 43.9,
+   "organic_revenue": 174773,
+   "gross_margin": 319449,
+   "gm_pct": 61.9,
+   "contribution_margin": 218668,
+   "cm_pct": 42.4,
    "mer": 5.36,
    "roas": 3.54,
    "discount_rate": 6.8
@@ -156,7 +156,7 @@ const FIN_DATA = {
     557654,
     624480,
     554741,
-    492224
+    492202
    ],
    "monthly_proj": [
     540650,
@@ -168,7 +168,7 @@ const FIN_DATA = {
     557654,
     624480,
     554741,
-    693593
+    693562
    ],
    "color": "#8b5cf6"
   },
@@ -183,7 +183,7 @@ const FIN_DATA = {
     29155,
     12259,
     12271,
-    12576
+    12555
    ],
    "monthly_proj": [
     17503,
@@ -195,7 +195,7 @@ const FIN_DATA = {
     29155,
     12259,
     12271,
-    17721
+    17691
    ],
    "color": "#eab308"
   },
@@ -320,7 +320,7 @@ const FIN_DATA = {
     511846,
     533042,
     498734,
-    455412
+    455369
    ],
    "monthly_proj": [
     463835,
@@ -332,7 +332,7 @@ const FIN_DATA = {
     511846,
     533042,
     498734,
-    641721
+    641660
    ],
    "color": "#f59e0b"
   },
@@ -808,7 +808,7 @@ const FIN_DATA = {
     511846,
     533042,
     498734,
-    455412
+    455369
    ],
    "revenue_proj": [
     463835,
@@ -820,7 +820,7 @@ const FIN_DATA = {
     511846,
     533042,
     498734,
-    641721
+    641660
    ],
    "platforms": "Amazon Ads + Meta Traffic",
    "color": "#f59e0b"
@@ -832,12 +832,12 @@ const FIN_DATA = {
    "total_sales": [
     624480,
     554741,
-    492224
+    492202
    ],
    "total_sales_proj": [
     624480,
     554741,
-    693593
+    693562
    ],
    "ad_spend": [
     92352,
@@ -862,12 +862,12 @@ const FIN_DATA = {
    "organic": [
     217722,
     179484,
-    165005
+    164983
    ],
    "organic_proj": [
     217722,
     179484,
-    232509
+    232478
    ],
    "color": "#8b5cf6"
   },
@@ -875,12 +875,12 @@ const FIN_DATA = {
    "total_sales": [
     12259,
     12271,
-    12576
+    12555
    ],
    "total_sales_proj": [
     12259,
     12271,
-    17721
+    17691
    ],
    "ad_spend": [
     2744,
@@ -905,12 +905,12 @@ const FIN_DATA = {
    "organic": [
     6330,
     5924,
-    6761
+    6740
    ],
    "organic_proj": [
     6330,
     5924,
-    9527
+    9497
    ],
    "color": "#eab308"
   },
@@ -1079,7 +1079,7 @@ const FIN_DATA = {
    320395,
    210196,
    192521,
-   177034
+   176991
   ],
   "organic_proj": [
    530481,
@@ -1091,7 +1091,7 @@ const FIN_DATA = {
    320395,
    210196,
    192521,
-   249459
+   249398
   ]
  },
  "waterfall": {
@@ -1105,7 +1105,7 @@ const FIN_DATA = {
    601931,
    656308,
    605113,
-   518316
+   518273
   ],
   "revenue_proj": [
    573439,
@@ -1117,7 +1117,7 @@ const FIN_DATA = {
    601931,
    656308,
    605113,
-   730359
+   730298
   ],
   "cogs": [
    237213,
@@ -1128,8 +1128,8 @@ const FIN_DATA = {
    280762,
    227237,
    243697,
-   211802,
-   188636
+   215614,
+   196606
   ],
   "cogs_proj": [
    237213,
@@ -1140,8 +1140,8 @@ const FIN_DATA = {
    280762,
    227237,
    243697,
-   211802,
-   265807
+   215614,
+   277038
   ],
   "gross_margin": [
    336226,
@@ -1152,8 +1152,8 @@ const FIN_DATA = {
    419308,
    374694,
    412612,
-   393311,
-   329680
+   389499,
+   321667
   ],
   "gross_margin_proj": [
    336226,
@@ -1164,8 +1164,8 @@ const FIN_DATA = {
    419308,
    374694,
    412612,
-   393311,
-   464552
+   389499,
+   453261
   ],
   "ad_spend": [
    16451,
@@ -1272,8 +1272,8 @@ const FIN_DATA = {
    360035,
    294229,
    278375,
-   267202,
-   228868
+   263390,
+   220855
   ],
   "contribution_margin_proj": [
    296830,
@@ -1284,8 +1284,8 @@ const FIN_DATA = {
    360035,
    294229,
    278375,
-   267202,
-   322498
+   263390,
+   311207
   ]
  },
  "search_queries": [
@@ -4649,7 +4649,7 @@ const FIN_DATA = {
      4226491,
      624480,
      554741,
-     492224
+     492202
     ],
     "color": "#8b5cf6"
    },
@@ -4665,7 +4665,7 @@ const FIN_DATA = {
      123215,
      12259,
      12271,
-     12576
+     12555
     ],
     "color": "#eab308"
    },
@@ -4729,7 +4729,7 @@ const FIN_DATA = {
    4521334,
    656308,
    605113,
-   518316
+   518273
   ],
   "cogs": [
    237213,
@@ -4741,8 +4741,8 @@ const FIN_DATA = {
    227237,
    1782431,
    243697,
-   211802,
-   188636
+   215614,
+   196606
   ],
   "gross_margin": [
    336226,
@@ -4754,8 +4754,8 @@ const FIN_DATA = {
    374694,
    2738903,
    412612,
-   393311,
-   329680
+   389499,
+   321667
   ],
   "ad_spend": {
    "onzenna": [
@@ -4931,7 +4931,7 @@ const FIN_DATA = {
     3738783,
     210196,
     192521,
-    177034
+    176991
    ]
   },
   "influencer_spend": [
@@ -4957,8 +4957,8 @@ const FIN_DATA = {
    303307,
    2119281,
    294456,
-   273528,
-   233326
+   269716,
+   225313
   ],
   "cm_final": [
    263481,
@@ -4970,8 +4970,8 @@ const FIN_DATA = {
    303307,
    2119281,
    294456,
-   273528,
-   233326
+   269716,
+   225313
   ]
  },
  "klaviyo": {
@@ -4986,7 +4986,7 @@ const FIN_DATA = {
     90007,
     153595,
     69021,
-    0
+    1756
    ],
    "opens": [
     13757,
@@ -4998,7 +4998,7 @@ const FIN_DATA = {
     63532,
     77225,
     8071,
-    0
+    1118
    ],
    "clicks": [
     171,
@@ -5010,7 +5010,7 @@ const FIN_DATA = {
     496,
     608,
     163,
-    0
+    22
    ],
    "conversions": [
     18,
@@ -5022,7 +5022,7 @@ const FIN_DATA = {
     112,
     130,
     27,
-    0
+    12
    ],
    "revenue": [
     1970,
@@ -5034,7 +5034,7 @@ const FIN_DATA = {
     8971,
     8389,
     2083,
-    0
+    727
    ],
    "revenue_proj": [
     1970,
@@ -5046,7 +5046,7 @@ const FIN_DATA = {
     8971,
     8389,
     2083,
-    0
+    1024
    ]
   },
   "flow_monthly": {
@@ -5124,43 +5124,70 @@ const FIN_DATA = {
    ]
   },
   "summary_7d": {
-   "sends": 584,
-   "opens": 107,
-   "clicks": 24,
-   "conversions": 4,
-   "revenue": 14079.84,
-   "open_rate": 18.3,
-   "click_rate": 4.11,
-   "cvr": 0.68,
-   "rev_per_send": 24.109,
-   "campaign_revenue": 0.0,
+   "sends": 1489,
+   "opens": 742,
+   "clicks": 33,
+   "conversions": 11,
+   "revenue": 14587.84,
+   "open_rate": 49.8,
+   "click_rate": 2.22,
+   "cvr": 0.74,
+   "rev_per_send": 9.797,
+   "campaign_revenue": 508.0,
    "flow_revenue": 14079.84
   },
   "summary_30d": {
-   "sends": 690,
-   "opens": 141,
-   "clicks": 25,
-   "conversions": 5,
-   "revenue": 14119.65,
-   "open_rate": 20.4,
-   "click_rate": 3.62,
-   "cvr": 0.72,
-   "rev_per_send": 20.463,
-   "campaign_revenue": 39.81,
+   "sends": 2446,
+   "opens": 1259,
+   "clicks": 47,
+   "conversions": 17,
+   "revenue": 14846.91,
+   "open_rate": 51.5,
+   "click_rate": 1.92,
+   "cvr": 0.7,
+   "rev_per_send": 6.07,
+   "campaign_revenue": 767.07,
    "flow_revenue": 14079.84
   },
   "top_campaigns_7d": [
    {
     "name": "03.16.26 - Onzenna Newsletter",
-    "sends": 0,
-    "open_rate": 0,
-    "click_rate": 0,
-    "cvr": 0,
-    "revenue": 0.0,
+    "sends": 905,
+    "open_rate": 70.2,
+    "click_rate": 0.99,
+    "cvr": 0.77,
+    "revenue": 508.0,
     "date": "2026-03-21"
    }
   ],
   "top_campaigns_30d": [
+   {
+    "name": "03.16.26 - Onzenna Newsletter",
+    "sends": 905,
+    "open_rate": 70.2,
+    "click_rate": 0.99,
+    "cvr": 0.77,
+    "revenue": 508.0,
+    "date": "2026-03-21"
+   },
+   {
+    "name": "031326 - More Light, More You",
+    "sends": 410,
+    "open_rate": 76.3,
+    "click_rate": 0.98,
+    "cvr": 0.73,
+    "revenue": 141.77,
+    "date": "2026-03-13"
+   },
+   {
+    "name": "022726 - Naeiae(between 30-60)",
+    "sends": 203,
+    "open_rate": 41.9,
+    "click_rate": 2.96,
+    "cvr": 0.99,
+    "revenue": 77.49,
+    "date": "2026-03-05"
+   },
    {
     "name": "022726 - Naeiae(between 120-150)",
     "sends": 106,
@@ -5171,47 +5198,20 @@ const FIN_DATA = {
     "date": "2026-02-27"
    },
    {
-    "name": "03.16.26 - Onzenna Newsletter",
-    "sends": 0,
-    "open_rate": 0,
-    "click_rate": 0,
-    "cvr": 0,
-    "revenue": 0.0,
-    "date": "2026-03-21"
-   },
-   {
-    "name": "031326 - More Light, More You",
-    "sends": 0,
-    "open_rate": 0,
-    "click_rate": 0,
-    "cvr": 0,
-    "revenue": 0.0,
-    "date": "2026-03-13"
-   },
-   {
-    "name": "022726 - Naeiae(between 30-60)",
-    "sends": 0,
-    "open_rate": 0,
-    "click_rate": 0,
-    "cvr": 0,
-    "revenue": 0.0,
-    "date": "2026-03-05"
-   },
-   {
     "name": "022726 - Naeiae(between 60-90)",
-    "sends": 0,
-    "open_rate": 0,
-    "click_rate": 0,
-    "cvr": 0,
+    "sends": 118,
+    "open_rate": 37.3,
+    "click_rate": 1.69,
+    "cvr": 0.0,
     "revenue": 0.0,
     "date": "2026-03-03"
    },
    {
     "name": "022726 - Naeiae(between 90-120)",
-    "sends": 0,
-    "open_rate": 0,
-    "click_rate": 0,
-    "cvr": 0,
+    "sends": 120,
+    "open_rate": 34.2,
+    "click_rate": 0.83,
+    "cvr": 0.0,
     "revenue": 0.0,
     "date": "2026-03-01"
    }
@@ -5242,18 +5242,18 @@ const FIN_DATA = {
     "revenue": 81.66
    },
    {
-    "name": "[Onzenna] Welcome Series - Standard",
-    "sends": 11,
-    "open_rate": 9.1,
-    "click_rate": 0.0,
-    "cvr": 0.0,
-    "revenue": 0.0
-   },
-   {
     "name": "[Onzenna][Retentics] Welcome From (Pop-up) product form a/b_241119",
     "sends": 248,
     "open_rate": 12.1,
     "click_rate": 0.4,
+    "cvr": 0.0,
+    "revenue": 0.0
+   },
+   {
+    "name": "[Onzenna] Welcome Series - Standard",
+    "sends": 11,
+    "open_rate": 9.1,
+    "click_rate": 0.0,
     "cvr": 0.0,
     "revenue": 0.0
    }
@@ -5284,18 +5284,18 @@ const FIN_DATA = {
     "revenue": 81.66
    },
    {
-    "name": "[Onzenna] Welcome Series - Standard",
-    "sends": 11,
-    "open_rate": 9.1,
-    "click_rate": 0.0,
-    "cvr": 0.0,
-    "revenue": 0.0
-   },
-   {
     "name": "[Onzenna][Retentics] Welcome From (Pop-up) product form a/b_241119",
     "sends": 248,
     "open_rate": 12.1,
     "click_rate": 0.4,
+    "cvr": 0.0,
+    "revenue": 0.0
+   },
+   {
+    "name": "[Onzenna] Welcome Series - Standard",
+    "sends": 11,
+    "open_rate": 9.1,
+    "click_rate": 0.0,
     "cvr": 0.0,
     "revenue": 0.0
    }

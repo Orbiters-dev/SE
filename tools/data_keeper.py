@@ -1949,7 +1949,7 @@ def collect_klaviyo(date_from: str, date_to: str) -> list[dict]:
             "data": {
                 "type": "campaign-values-report",
                 "attributes": {
-                    "timeframe": {"key": "last_12_months"},
+                    "timeframe": {"start": f"{date_from}T00:00:00+00:00", "end": f"{date_to}T23:59:59+00:00"},
                     "conversion_metric_id": "SnXiMV",  # Placed Order
                     "statistics": ["delivered", "opens", "clicks", "conversions", "conversion_value"],
                 }
