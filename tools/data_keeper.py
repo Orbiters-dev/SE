@@ -2517,6 +2517,26 @@ def _get_collection_summary():
         except Exception:
             pass
 
+    # Metadata tables (no date field) — fetch max(updated_at) as latest_collected
+    METADATA_TABLES = ("amazon_campaigns", "meta_campaigns")
+    for mt in METADATA_TABLES:
+        if mt in pg_status and not pg_status[mt].get("latest_date"):
+            try:
+                r = requests.get(
+                    f"{ORBITOOLS_BASE}/query/",
+                    params={"table": mt, "limit": 500},
+                    auth=(ORBITOOLS_USER, ORBITOOLS_PASS), timeout=15)
+                if r.status_code == 200:
+                    rows = r.json().get("rows", [])
+                    if rows:
+                        max_updated = max(
+                            (row.get("updated_at", "") for row in rows),
+                            default=""
+                        )
+                        pg_status[mt]["latest_collected"] = max_updated
+            except Exception:
+                pass
+
     # Identify stale channels (latest_date < yesterday)
     stale = []
     for table, info in pg_status.items():
@@ -2556,7 +2576,7 @@ def show_status():
     if summary["pg"]:
         print("\n=== PostgreSQL Status ===\n")
         for table, info in summary["pg"].items():
-            latest_val = info.get('latest_date') or 'metadata (no date field)'
+            latest_val = info.get('latest_date') or info.get('latest_collected', '')[:19] or 'metadata (no date field)'
             print(f"  {table:30s} | {info.get('count', 0):>6,} rows | "
                   f"latest: {latest_val}")
     else:
@@ -2624,9 +2644,13 @@ def _send_collection_email(results=None, elapsed_total=0, recipient=None):
     for table, info in summary["pg"].items():
         latest_raw = info.get("latest_date")
         count = info.get("count", 0)
-        # Metadata tables (campaigns) have no date field — show note instead of ?
+        # Metadata tables (campaigns) have no date field — show updated_at instead
         if latest_raw is None:
-            latest = '<span style="color:#888;font-style:italic">metadata (updated_at only)</span>'
+            collected = info.get("latest_collected", "")
+            if collected:
+                latest = f'{collected[:19]} <span style="color:#888;font-style:italic">(updated_at)</span>'
+            else:
+                latest = '<span style="color:#888;font-style:italic">metadata (no date)</span>'
         else:
             latest = latest_raw
         is_stale = any(s["table"] == table for s in summary["stale"])
