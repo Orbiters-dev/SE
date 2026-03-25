@@ -935,7 +935,7 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
                 qty = int(row.get("quantity", 1) or 1)
             except (ValueError, TypeError):
                 amt, qty = 0, 1
-            fee_rate = 0.08 if channel == "Target+" else 0.15
+            fee_rate = 0.15  # 15% selling fee for both Amazon and Target+
 
             # Daily aggregation (date × channel)
             key = (date_str, channel)

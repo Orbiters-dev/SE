@@ -411,26 +411,46 @@ function renderFinancial(){
   });
   sum+='</tbody></table></div></div>';
 
+  // ── Time grain toggle builder ──
+  function grainToggle(id){
+    return '<div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:12px">'
+      +'<div class="period-tabs" id="'+id+'-grain">'
+      +'<div class="on" data-gr="monthly" onclick="switchTimeGrain(\'monthly\',\''+id+'\',this)">Monthly</div>'
+      +'<div data-gr="weekly" onclick="switchTimeGrain(\'weekly\',\''+id+'\',this)">Weekly</div>'
+      +'</div></div>';
+  }
+
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 1: REVENUE DETAIL
   // ══════════════════════════════════════════════════════════════════════════
   var rev='';
+  rev+=grainToggle('rev');
+  rev+='<div id="rev-content">';
   rev+=buildBrandTable(F, months, mLabels, lastIdx, isPartialLast, false);
   rev+=buildChannelTable(F, months, mLabels, lastIdx, isPartialLast, false);
+  rev+='</div>';
 
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 2: AD PERFORMANCE DETAIL
   // ══════════════════════════════════════════════════════════════════════════
   var ads='';
+  ads+=grainToggle('ads');
+  ads+='<div id="ads-content">';
   ads+=buildAdTable(F, months, mLabels, lastIdx, isPartialLast, false);
   ads+=buildBrandPerfTable(F, months, mLabels, lastIdx, isPartialLast, false);
+  ads+=buildCampaignDetail(F, 'monthly');
+  ads+='</div>';
 
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 3: MARGINS & P&L DETAIL
   // ══════════════════════════════════════════════════════════════════════════
   var mrg='';
+  mrg+=grainToggle('mrg');
+  mrg+='<div id="mrg-content">';
   if(F.pnl_polar) mrg+=buildPolarPnL(F.pnl_polar);
   else mrg+=buildWaterfall(F, months, mLabels, lastIdx, isPartialLast);
+  if(F.pnl_polar && F.pnl_polar.channel_pnl) mrg+=buildChannelPnL(F.pnl_polar);
+  mrg+='</div>';
 
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 4: SEARCH & SEO — with brand sub-tabs
@@ -935,7 +955,7 @@ function buildPolarPnL(P){
   var html='';
 
   // ── Section 1: Monthly Brand Sales ──
-  html+='<div class="sec"><div class="sec-title"><div class="num">3A</div> Monthly Sales by Brand (Source: Polar)</div>';
+  html+='<div class="sec"><div class="sec-title"><div class="num">3A</div> Monthly Sales by Brand</div>';
   html+='<div class="card"><div class="desc">All brands, LFU+FLT combined (DTC + Amazon). FY2025 = Jan-Dec annual total.</div>';
   html+='<div style="overflow-x:auto"><table><thead><tr><th>Brand</th>';
   ms.forEach(function(m,i){
@@ -971,7 +991,7 @@ function buildPolarPnL(P){
 
   // ── Section 2: P&L Waterfall ──
   html+='<div class="sec"><div class="sec-title"><div class="num">3B</div> P&amp;L Waterfall: Revenue &rarr; GM &rarr; CM</div>';
-  html+='<div class="card"><div class="desc">GM = Revenue - COGS. CM = GM - Ads - Influencer. Source: Polar Analytics export.</div>';
+  html+='<div class="card"><div class="desc">GM = Revenue - COGS. CM = GM - Ads - Influencer. Source: DataKeeper.</div>';
 
   // Bar chart
   html+=barChart([
@@ -1094,6 +1114,144 @@ function buildPolarPnL(P){
   pctRow('Organic %', P.organic.total, P.total_revenue);
   html+='</tbody></table></div></div>';
 
+  html+='</div></div>';
+  return html;
+}
+
+// ── Channel P&L (Monthly) ─────────────────────────────────────────────────
+function buildChannelPnL(P){
+  var cp=P.channel_pnl;
+  if(!cp) return '';
+  var ms=P.months;
+  var fyIdx=P.fy2025_idx;
+  var channels=Object.keys(cp);
+  var html='<div class="sec"><div class="sec-title"><div class="num">3C</div> P&amp;L by Channel</div>';
+  html+='<div class="card"><div class="desc">Revenue, COGS, Selling Fees (15% for Amazon &amp; Target+), Fulfillment, Ad Spend per channel. GM = Rev - COGS - Fees - Fulfillment. CM = GM - Ads.</div>';
+  // Stacked bar chart - revenue by channel
+  var stackDs=[];
+  channels.forEach(function(ch){
+    var total=(cp[ch].revenue||[]).reduce(function(a,c){return a+c;},0);
+    stackDs.push({label:ch, data:(cp[ch].revenue||[]).slice(0,fyIdx), color:cp[ch].color||'#94a3b8', total:total});
+  });
+  stackDs.sort(function(a,b){return b.total-a.total;});
+  html+=barChart(stackDs, ms.slice(0,fyIdx), {w:940,h:170,barW:12,stacked:true});
+  // Per-channel mini P&L tables
+  channels.forEach(function(ch){
+    var d=cp[ch];
+    html+='<div style="margin-top:12px"><div style="font-size:11px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px">'
+      +'<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:'+(d.color||'#94a3b8')+'"></span>'+ch+'</div>';
+    html+='<div style="overflow-x:auto"><table><thead><tr><th></th>';
+    ms.forEach(function(m,i){
+      var sty='text-align:right;font-size:8px';
+      if(i===fyIdx) sty+=';background:#e0e7ff;font-weight:800';
+      html+='<th style="'+sty+'">'+m+'</th>';
+    });
+    html+='</tr></thead><tbody>';
+    function chRow(label,arr,opts){
+      opts=opts||{};
+      html+='<tr style="'+(opts.topBorder?'border-top:2px solid var(--border);':'')+(opts.bold?'font-weight:700;':'')+'"><td style="font-size:10px;color:'+(opts.color||'var(--text)')+'">'+label+'</td>';
+      (arr||[]).forEach(function(v,i){
+        var cs='text-align:right;font-family:var(--mono);font-size:9px;color:'+(opts.color||'var(--text)');
+        if(i===fyIdx) cs+=';background:#eef2ff';
+        if(opts.bold) cs+=';font-weight:700';
+        var prefix=opts.neg&&v>0?'-':'';
+        html+='<td style="'+cs+'">'+prefix+'$'+Math.abs(Math.round(v)).toLocaleString()+'</td>';
+      });
+      html+='</tr>';
+    }
+    function chPctRow(label,numer,denom){
+      html+='<tr><td style="padding-left:12px;font-size:9px;color:var(--dim)">'+label+'</td>';
+      (numer||[]).forEach(function(v,i){
+        var den=(denom||[])[i]||1;
+        var cs='text-align:right;font-family:var(--mono);font-size:9px;color:var(--dim)';
+        if(i===fyIdx) cs+=';background:#eef2ff';
+        html+='<td style="'+cs+'">'+(den>0?(v/den*100).toFixed(1):'0')+'%</td>';
+      });
+      html+='</tr>';
+    }
+    chRow('Revenue', d.revenue, {bold:true});
+    chRow('(-) COGS', d.cogs, {color:'var(--r)',neg:true});
+    var sf=d.selling_fees||d.fees||[];
+    if(sf.some(function(v){return v>0;})){
+      chRow('(-) Selling Fees (15%)', sf, {color:'var(--r)',neg:true});
+    } else if(ch!=='B2B'){
+      chRow('(-) Selling Fees', sf, {color:'var(--dim)',neg:true});
+    }
+    if(d.fulfillment_nm){
+      html+='<tr><td style="font-size:10px;color:var(--dim)">(-) Fulfillment</td>';
+      (d.revenue||[]).forEach(function(_,i){
+        var cs='text-align:right;font-family:var(--mono);font-size:9px;color:#9ca3af';
+        if(i===fyIdx) cs+=';background:#eef2ff';
+        html+='<td style="'+cs+'">n.m.</td>';
+      });
+      html+='</tr>';
+    } else {
+      var fl=d.fulfillment||[];
+      if(fl.some(function(v){return v>0;})) chRow('(-) Fulfillment', fl, {color:'var(--r)',neg:true});
+    }
+    chRow('Gross Margin', d.gross_margin, {bold:true,topBorder:true,color:'var(--g)'});
+    chPctRow('GM %', d.gross_margin, d.revenue);
+    chRow('(-) Ad Spend', d.ad_spend, {color:'var(--r)',neg:true});
+    chRow('Contribution Margin', d.contribution_margin, {bold:true,topBorder:true,color:'#6366f1'});
+    chPctRow('CM %', d.contribution_margin, d.revenue);
+    html+='</tbody></table></div></div>';
+  });
+  html+='</div></div>';
+  return html;
+}
+
+// ── Channel P&L (Weekly) ──────────────────────────────────────────────────
+function buildWeeklyChannelPnL(W, wLabels){
+  var cp=W.channel_pnl;
+  if(!cp) return '';
+  var channels=Object.keys(cp);
+  var html='<div class="sec"><div class="sec-title"><div class="num">6B</div> P&amp;L by Channel (Weekly)</div>';
+  html+='<div class="card"><div class="desc">Revenue, COGS, Selling Fees (15% for Amazon &amp; Target+), Fulfillment, Ad Spend per channel. GM = Rev - COGS - Fees - Fulfillment. CM = GM - Ads.</div>';
+  channels.forEach(function(ch){
+    var d=cp[ch];
+    html+='<div style="margin-top:12px"><div style="font-size:11px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px">'
+      +'<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:'+(d.color||'#94a3b8')+'"></span>'+ch+'</div>';
+    html+='<div style="overflow-x:auto"><table><thead><tr><th></th>';
+    wLabels.forEach(function(w){ html+='<th style="text-align:right;font-size:9px">'+w+'</th>'; });
+    html+='</tr></thead><tbody>';
+    function wChRow(label,arr,opts){
+      opts=opts||{};
+      html+='<tr style="'+(opts.topBorder?'border-top:2px solid var(--border);':'')+(opts.bold?'font-weight:700;':'')+'"><td style="font-size:10px;color:'+(opts.color||'var(--text)')+'">'+label+'</td>';
+      (arr||[]).forEach(function(v){
+        html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:'+(opts.color||'var(--text)')+';'+(opts.bold?'font-weight:700;':'')+'">'+(opts.neg&&v>0?'-':'')+'$'+Math.abs(Math.round(v)).toLocaleString()+'</td>';
+      });
+      html+='</tr>';
+    }
+    function wChPct(label,numer,denom){
+      html+='<tr><td style="padding-left:12px;font-size:9px;color:var(--dim)">'+label+'</td>';
+      (numer||[]).forEach(function(v,i){
+        var den=(denom||[])[i]||1;
+        html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--dim)">'+(den>0?(v/den*100).toFixed(1):'0')+'%</td>';
+      });
+      html+='</tr>';
+    }
+    wChRow('Revenue', d.revenue, {bold:true});
+    wChRow('(-) COGS', d.cogs, {color:'var(--r)',neg:true});
+    var wsf=d.selling_fees||d.fees||[];
+    if(wsf.some(function(v){return v>0;})){
+      wChRow('(-) Selling Fees (15%)', wsf, {color:'var(--r)',neg:true});
+    } else if(ch!=='B2B'){
+      wChRow('(-) Selling Fees', wsf, {color:'var(--dim)',neg:true});
+    }
+    if(d.fulfillment_nm){
+      html+='<tr><td style="font-size:10px;color:var(--dim)">(-) Fulfillment</td>';
+      wLabels.forEach(function(){
+        html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:#9ca3af">n.m.</td>';
+      });
+      html+='</tr>';
+    }
+    wChRow('Gross Margin', d.gross_margin, {bold:true,topBorder:true,color:'var(--g)'});
+    wChPct('GM %', d.gross_margin, d.revenue);
+    wChRow('(-) Ad Spend', d.ad_spend, {color:'var(--r)',neg:true});
+    wChRow('Contribution Margin', d.contribution_margin, {bold:true,topBorder:true,color:'#6366f1'});
+    wChPct('CM %', d.contribution_margin, d.revenue);
+    html+='</tbody></table></div></div>';
+  });
   html+='</div></div>';
   return html;
 }
@@ -1274,6 +1432,341 @@ function switchKlavPeriod(period, el){
   if(el) el.classList.add('on');
   document.getElementById('klav-kpi-cards').innerHTML=buildKlavKpi(K['summary_'+period]||{});
   document.getElementById('klav-top-tables').innerHTML=buildKlavTopTables(K, period);
+}
+
+// ── Time Grain Toggle (Weekly / Monthly) ────────────────────────────────────
+function switchTimeGrain(grain, tabId, el){
+  var F=(typeof FIN_DATA!=='undefined')?FIN_DATA:null;
+  if(!F)return;
+  document.querySelectorAll('#'+tabId+'-grain>div').forEach(function(t){ t.classList.remove('on'); });
+  if(el) el.classList.add('on');
+  var container=document.getElementById(tabId+'-content');
+  if(!container) return;
+
+  var W=F.weekly||{};
+  var months=F.months||[];
+  var pm=F.partial_month||{};
+  var lastIdx=months.length-1;
+  var isPartialLast=pm.is_partial && months[lastIdx]===pm.month;
+  var mLabels=months.map(function(m,i){
+    var parts=m.split('-');
+    var label=parts[1]+'/'+parts[0].substring(2);
+    if(i===lastIdx && isPartialLast) label+=' ('+pm.days_elapsed+'d)';
+    return label;
+  });
+
+  if(grain==='weekly'){
+    var wLabels=W.week_labels||[];
+    var html='';
+    if(tabId==='rev'){
+      html+=buildWeeklyTable(W.brand_revenue||{}, wLabels, 'Revenue by Brand', '2');
+      html+=buildWeeklyTable(W.channel_revenue||{}, wLabels, 'Revenue by Channel', '3');
+    } else if(tabId==='ads'){
+      html+=buildWeeklyAdTable(F, wLabels);
+      html+=buildWeeklyBrandPerfTable(F, wLabels);
+      html+=buildCampaignDetail(F, 'weekly');
+    } else if(tabId==='mrg'){
+      html+=buildWeeklyWaterfall(F, wLabels);
+      if(W.channel_pnl) html+=buildWeeklyChannelPnL(W, wLabels);
+    }
+    container.innerHTML=html;
+  } else {
+    // Monthly — rebuild original
+    var html='';
+    if(tabId==='rev'){
+      html+=buildBrandTable(F, months, mLabels, lastIdx, isPartialLast, false);
+      html+=buildChannelTable(F, months, mLabels, lastIdx, isPartialLast, false);
+    } else if(tabId==='ads'){
+      html+=buildAdTable(F, months, mLabels, lastIdx, isPartialLast, false);
+      html+=buildBrandPerfTable(F, months, mLabels, lastIdx, isPartialLast, false);
+      html+=buildCampaignDetail(F, 'monthly');
+    } else if(tabId==='mrg'){
+      if(F.pnl_polar) html+=buildPolarPnL(F.pnl_polar);
+      else html+=buildWaterfall(F, months, mLabels, lastIdx, isPartialLast);
+      if(F.pnl_polar && F.pnl_polar.channel_pnl) html+=buildChannelPnL(F.pnl_polar);
+    }
+    container.innerHTML=html;
+  }
+}
+
+// ── Weekly generic table (brand/channel revenue) ────────────────────────────
+function buildWeeklyTable(data, wLabels, title, num_label){
+  var html='<div class="sec"><div class="sec-title"><div class="num">'+num_label+'</div> '+title+' (Weekly)</div>';
+  html+='<div class="card">';
+  var ds=[];
+  Object.keys(data).forEach(function(k){
+    var total=(data[k].weekly||[]).reduce(function(a,c){return a+c;},0);
+    ds.push({label:k, data:data[k].weekly||[], color:data[k].color||'#94a3b8', total:total});
+  });
+  ds.sort(function(a,b){return b.total-a.total;});
+  html+=barChart(ds, wLabels, {w:940,h:210,barW:16,stacked:true});
+  html+='<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>'+title.split(' by ')[1]||'Name'+'</th>';
+  wLabels.forEach(function(w){ html+='<th style="text-align:right;font-size:9px">'+w+'</th>'; });
+  html+='<th style="text-align:right;background:#f0fdf4">Total</th></tr></thead><tbody>';
+  Object.keys(data).forEach(function(k){
+    var d=data[k], vals=d.weekly||[], total=vals.reduce(function(a,c){return a+c;},0);
+    html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+(d.color||'#94a3b8')+';margin-right:6px"></span><b>'+k+'</b></td>';
+    vals.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+$(v)+'</td>'; });
+    html+='<td style="text-align:right;font-weight:700;font-family:var(--mono);font-size:9px;background:#f0fdf4">'+$(total)+'</td></tr>';
+  });
+  // TOTAL row
+  var totals=wLabels.map(function(_,wi){ var t=0; Object.keys(data).forEach(function(k){ t+=(data[k].weekly||[])[wi]||0; }); return t; });
+  html+='<tr style="border-top:2px solid var(--border);font-weight:800"><td>TOTAL</td>';
+  totals.forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700">'+$(v)+'</td>'; });
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;background:#f0fdf4;font-weight:800">'+$(totals.reduce(function(a,c){return a+c;},0))+'</td></tr>';
+  html+='</tbody></table></div></div></div>';
+  return html;
+}
+
+// ── Weekly Ad Performance ───────────────────────────────────────────────────
+function buildWeeklyAdTable(F, wLabels){
+  var W=F.weekly||{};
+  var adData=W.ad_performance||{};
+  var html='<div class="sec"><div class="sec-title"><div class="num">4</div> Ad Platform Performance (Weekly)</div>';
+  html+='<div class="card">';
+  var adDs=[];
+  var adOrder=["Amazon Ads","Meta CVR","Meta Traffic","Google Ads"];
+  var adKeys=adOrder.filter(function(p){return adData[p];});
+  adKeys.forEach(function(p){ adDs.push({label:p, data:adData[p].spend, color:adData[p].color}); });
+  html+=barChart(adDs, wLabels, {w:940,h:190,barW:16,stacked:true});
+  html+='<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Platform</th>';
+  wLabels.forEach(function(w){ html+='<th style="text-align:right" colspan="3"><span style="font-size:9px">'+w+'</span></th>'; });
+  html+='</tr><tr><th></th>';
+  wLabels.forEach(function(){
+    html+='<th style="text-align:right;font-size:7px;color:var(--muted)">Spend</th><th style="text-align:right;font-size:7px;color:var(--muted)">Sales</th><th style="text-align:right;font-size:7px;color:var(--muted)">ROAS</th>';
+  });
+  html+='</tr></thead><tbody>';
+  adKeys.forEach(function(p){
+    var ap=adData[p];
+    html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+ap.color+';margin-right:6px"></span><b>'+p+'</b></td>';
+    for(var i=0;i<wLabels.length;i++){
+      var sp=ap.spend[i]||0, sl=ap.sales[i]||0;
+      var roas=sp>0?(sl/sp):0;
+      var rc=roas>=3?'var(--g)':roas>=1.5?'var(--am)':'var(--r)';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+$(sp)+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+$(sl)+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+rc+'">'+roas.toFixed(1)+'x</td>';
+    }
+    html+='</tr>';
+  });
+  // TOTAL
+  html+='<tr style="border-top:2px solid var(--border);font-weight:700"><td>TOTAL</td>';
+  for(var i=0;i<wLabels.length;i++){
+    var ts=0,tl=0;
+    adKeys.forEach(function(p){ ts+=(adData[p].spend[i]||0); tl+=(adData[p].sales[i]||0); });
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700">'+$(ts)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700">'+$(tl)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+(ts>0?(tl/ts).toFixed(1):'0')+'x</td>';
+  }
+  html+='</tr></tbody></table></div></div>';
+
+  // Ads Landing TROAS (weekly)
+  var ld=W.ads_landing||{};
+  if(ld.Onzenna||ld.Amazon){
+    html+='<div class="card" style="margin-top:12px">';
+    html+='<div style="font-size:13px;font-weight:700;margin-bottom:4px">Ads Landing &mdash; Channel Revenue &amp; TROAS (Weekly)</div>';
+    html+='<div style="overflow-x:auto"><table><thead><tr><th>Channel</th><th style="font-size:8px;color:var(--muted)">Platforms</th>';
+    wLabels.forEach(function(w){ html+='<th style="text-align:right" colspan="3"><span style="font-size:9px">'+w+'</span></th>'; });
+    html+='</tr><tr><th></th><th></th>';
+    wLabels.forEach(function(){
+      html+='<th style="text-align:right;font-size:7px;color:var(--muted)">Spend</th><th style="text-align:right;font-size:7px;color:var(--muted)">Revenue</th><th style="text-align:right;font-size:7px;color:var(--muted)">TROAS</th>';
+    });
+    html+='</tr></thead><tbody>';
+    ["Onzenna","Amazon"].forEach(function(ch){
+      var d=ld[ch]; if(!d) return;
+      var clr=ch==='Onzenna'?'#6366f1':'#f59e0b';
+      html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+clr+';margin-right:6px"></span><b>'+ch+'</b></td>';
+      html+='<td style="font-size:8px;color:var(--muted)">'+d.platforms+'</td>';
+      for(var i=0;i<wLabels.length;i++){
+        var sp=d.spend[i]||0, rv=d.revenue[i]||0;
+        var troas=sp>0?(rv/sp):0;
+        var tc=troas>=5?'var(--g)':troas>=2?'var(--am)':'var(--r)';
+        html+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+$(sp)+'</td>';
+        html+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+$(rv)+'</td>';
+        html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+tc+'">'+troas.toFixed(1)+'x</td>';
+      }
+      html+='</tr>';
+    });
+    html+='</tbody></table></div></div>';
+  }
+  html+='</div>';
+  return html;
+}
+
+// ── Weekly Brand Performance ────────────────────────────────────────────────
+function buildWeeklyBrandPerfTable(F, wLabels){
+  var W=F.weekly||{};
+  var bp=W.brand_performance||{};
+  if(!Object.keys(bp).length) return '';
+  var html='<div class="sec"><div class="sec-title">Brand Performance &mdash; Total / Paid / Organic + Ad Spend (Weekly)</div>';
+  html+='<div class="card">';
+  html+='<div class="desc">Total = Shopify + Amazon. Paid = Ad-attributed. ROAS = Ad Sales / Ad$. TROAS = Total / Ad$.</div>';
+  html+='<div style="overflow-x:auto;margin-top:8px"><table><thead><tr><th>Brand</th>';
+  wLabels.forEach(function(w){
+    html+='<th style="text-align:right" colspan="6"><span style="font-size:9px">'+w+'</span></th>';
+  });
+  html+='</tr><tr><th></th>';
+  wLabels.forEach(function(){
+    html+='<th style="text-align:right;font-size:7px;color:var(--muted)">Total</th>';
+    html+='<th style="text-align:right;font-size:7px;color:#6366f1">Paid</th>';
+    html+='<th style="text-align:right;font-size:7px;color:#10b981">Organic</th>';
+    html+='<th style="text-align:right;font-size:7px;color:var(--r)">Ad $</th>';
+    html+='<th style="text-align:right;font-size:7px;color:var(--muted)">ROAS</th>';
+    html+='<th style="text-align:right;font-size:7px;color:#7c3aed">TROAS</th>';
+  });
+  html+='</tr></thead><tbody>';
+  Object.keys(bp).forEach(function(b){
+    var bd=bp[b];
+    html+='<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+bd.color+';margin-right:6px"></span><b>'+b+'</b></td>';
+    for(var i=0;i<wLabels.length;i++){
+      var sales=bd.total_sales[i]||0, paid=bd.ad_sales[i]||0, org=(bd.organic||[])[i]||0, spend=bd.ad_spend[i]||0;
+      var roas=spend>0?paid/spend:0, troas=spend>0?sales/spend:0;
+      var rc=roas>=3?'var(--g)':roas>=1.5?'var(--am)':spend>0?'var(--r)':'var(--muted)';
+      var tc=troas>=5?'var(--g)':troas>=2?'#7c3aed':spend>0?'var(--am)':'var(--muted)';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+$(sales)+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:#6366f1">'+$(paid)+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--g)">'+$(org)+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--r)">'+$(spend)+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+rc+'">'+(spend>0?roas.toFixed(1)+'x':'-')+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+tc+'">'+(spend>0?troas.toFixed(1)+'x':'-')+'</td>';
+    }
+    html+='</tr>';
+  });
+  html+='</tbody></table></div></div></div>';
+  return html;
+}
+
+// ── Weekly Waterfall ────────────────────────────────────────────────────────
+function buildWeeklyWaterfall(F, wLabels){
+  var wf=(F.weekly||{}).waterfall||{};
+  var html='<div class="sec"><div class="sec-title"><div class="num">6</div> P&amp;L Waterfall (Weekly)</div>';
+  html+='<div class="card">';
+  html+='<div class="desc">GM = Revenue - COGS. CM = GM - MKT (Ads + Discounts).</div>';
+  html+=barChart([
+    {label:'Gross Margin', data:wf.gross_margin||[], color:'#10b981'},
+    {label:'MKT Total', data:wf.mkt_total||[], color:'#ef4444'},
+    {label:'Contribution', data:(wf.contribution_margin||[]).map(function(v){return Math.max(v,0);}), color:'#6366f1'}
+  ], wLabels, {w:940,h:190,barW:12});
+  html+='<div style="overflow-x:auto;margin-top:8px"><table><thead><tr><th></th>';
+  wLabels.forEach(function(w){ html+='<th style="text-align:right;font-size:9px">'+w+'</th>'; });
+  html+='</tr></thead><tbody>';
+  html+='<tr><td>Revenue</td>';
+  (wf.revenue||[]).forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(v)+'</td>'; });
+  html+='</tr><tr><td style="color:var(--r)">(-) COGS</td>';
+  (wf.cogs||[]).forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--r)">-'+$(v)+'</td>'; });
+  html+='</tr><tr style="border-top:2px solid var(--border);font-weight:700"><td style="color:var(--g)">Gross Margin</td>';
+  (wf.gross_margin||[]).forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--g);font-weight:700">'+$(v)+'</td>'; });
+  html+='</tr><tr><td style="padding-left:16px;color:var(--dim)">GM %</td>';
+  (wf.gross_margin||[]).forEach(function(v,i){ var r=(wf.revenue||[])[i]||0; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--dim)">'+(r>0?(v/r*100).toFixed(1):'0')+'%</td>'; });
+  html+='</tr><tr><td colspan="'+(wLabels.length+1)+'" style="padding:4px 0;border:none"><div style="border-top:1px dashed var(--border)"></div></td></tr>';
+  html+='<tr><td style="padding-left:8px;color:var(--r)">(-) Ad Spend</td>';
+  (wf.ad_spend||[]).forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--r)">'+$(v)+'</td>'; });
+  html+='</tr><tr><td style="padding-left:8px;color:var(--r)">(-) Discounts</td>';
+  (wf.discounts||[]).forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--r)">'+$(v)+'</td>'; });
+  html+='</tr><tr style="border-top:1px solid var(--border)"><td style="color:var(--r);font-weight:700">(-) MKT Total</td>';
+  (wf.mkt_total||[]).forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--r);font-weight:700">'+$(v)+'</td>'; });
+  html+='</tr><tr style="border-top:2px solid var(--border);font-weight:800"><td style="color:'+(((wf.contribution_margin||[])[wLabels.length-1]||0)>=0?'#6366f1':'var(--r)')+'">Contribution Margin</td>';
+  (wf.contribution_margin||[]).forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:800;color:'+(v>=0?'#6366f1':'var(--r)')+'">'+$(v)+'</td>'; });
+  html+='</tr><tr><td style="padding-left:16px;color:var(--dim)">CM %</td>';
+  (wf.contribution_margin||[]).forEach(function(v,i){ var r=(wf.revenue||[])[i]||0; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--dim)">'+(r>0?(v/r*100).toFixed(1):'0')+'%</td>'; });
+  html+='</tr></tbody></table></div></div></div>';
+  return html;
+}
+
+// ── Campaign Detail (Top/Bottom/New) ────────────────────────────────────────
+function buildCampaignDetail(F, grain){
+  var cd=F.campaign_detail||{};
+  var isWeekly=grain==='weekly';
+  var entries=isWeekly?(cd.weekly_all||[]):(cd.monthly_all||[]);
+  var top=isWeekly?(cd.weekly_top||[]):(cd.monthly_top||[]);
+  var bottom=isWeekly?(cd.weekly_bottom||[]):(cd.monthly_bottom||[]);
+  var newCamps=cd.new_campaigns||[];
+  var labels=isWeekly?(cd.week_labels||[]):[];
+  if(!isWeekly && cd.month_keys){
+    labels=cd.month_keys.map(function(m){var p=m.split('-');return p[1]+'/'+p[0].substring(2);});
+  }
+
+  var html='';
+
+  // ── Top Performers
+  if(top.length){
+    html+='<div class="sec"><div class="sec-title" style="color:var(--g)">Top Performing Campaigns (by ROAS)</div>';
+    html+='<div class="card"><div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Campaign</th><th style="font-size:8px;color:var(--muted)">Platform</th><th style="font-size:8px;color:var(--muted)">Brand</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">ROAS</th></tr></thead><tbody>';
+    top.forEach(function(c,i){
+      var rc=c.roas>=3?'var(--g)':c.roas>=1.5?'var(--am)':'var(--r)';
+      html+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+      html+='<td style="font-size:10px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c.name+'">'+c.name+'</td>';
+      html+='<td style="font-size:9px;color:var(--dim)">'+c.platform+'</td>';
+      html+='<td style="font-size:9px;color:var(--dim)">'+c.brand+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(c.total_spend)+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(c.total_sales)+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+rc+'">'+c.roas.toFixed(1)+'x</td></tr>';
+    });
+    html+='</tbody></table></div></div></div>';
+  }
+
+  // ── Bottom Performers
+  if(bottom.length){
+    html+='<div class="sec"><div class="sec-title" style="color:var(--r)">Underperforming Campaigns (by ROAS)</div>';
+    html+='<div class="card"><div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Campaign</th><th style="font-size:8px;color:var(--muted)">Platform</th><th style="font-size:8px;color:var(--muted)">Brand</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">ROAS</th></tr></thead><tbody>';
+    bottom.forEach(function(c,i){
+      var rc=c.roas>=3?'var(--g)':c.roas>=1.5?'var(--am)':'var(--r)';
+      html+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+      html+='<td style="font-size:10px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c.name+'">'+c.name+'</td>';
+      html+='<td style="font-size:9px;color:var(--dim)">'+c.platform+'</td>';
+      html+='<td style="font-size:9px;color:var(--dim)">'+c.brand+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(c.total_spend)+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(c.total_sales)+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+rc+'">'+c.roas.toFixed(1)+'x</td></tr>';
+    });
+    html+='</tbody></table></div></div></div>';
+  }
+
+  // ── New Campaigns This Month
+  if(newCamps.length && !isWeekly){
+    html+='<div class="sec"><div class="sec-title" style="color:#6366f1">New Campaigns This Month ('+(cd.current_month||'')+')</div>';
+    html+='<div class="card"><div class="desc">Campaigns with spend this month that had no spend in previous months.</div>';
+    html+='<div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Campaign</th><th style="font-size:8px;color:var(--muted)">Platform</th><th style="font-size:8px;color:var(--muted)">Brand</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">ROAS</th></tr></thead><tbody>';
+    newCamps.forEach(function(c,i){
+      var roas=c.total_spend>0?(c.total_sales/c.total_spend):0;
+      var rc=roas>=3?'var(--g)':roas>=1.5?'var(--am)':'var(--r)';
+      html+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+      html+='<td style="font-size:10px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c.name+'">'+c.name+'</td>';
+      html+='<td style="font-size:9px;color:var(--dim)">'+c.platform+'</td>';
+      html+='<td style="font-size:9px;color:var(--dim)">'+c.brand+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(c.total_spend)+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(c.total_sales)+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+rc+'">'+roas.toFixed(1)+'x</td></tr>';
+    });
+    html+='</tbody></table></div></div></div>';
+  }
+
+  // ── All Campaigns (collapsible)
+  if(entries.length){
+    html+='<div class="sec"><div class="sec-title" style="cursor:pointer" onclick="var el=document.getElementById(\'camp-all-table\');el.style.display=el.style.display===\'none\'?\'block\':\'none\'">All Campaigns (Top 50 by Spend) &mdash; click to expand</div>';
+    html+='<div id="camp-all-table" style="display:none"><div class="card"><div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Campaign</th><th style="font-size:8px;color:var(--muted)">Platform</th><th style="font-size:8px;color:var(--muted)">Brand</th>';
+    labels.forEach(function(l){ html+='<th style="text-align:right;font-size:8px" colspan="2">'+l+'</th>'; });
+    html+='<th style="text-align:right;background:#f0fdf4">Total $</th><th style="text-align:right">ROAS</th></tr>';
+    html+='<tr><th colspan="4"></th>';
+    labels.forEach(function(){ html+='<th style="text-align:right;font-size:7px;color:var(--muted)">Spend</th><th style="text-align:right;font-size:7px;color:var(--muted)">Sales</th>'; });
+    html+='<th></th><th></th></tr></thead><tbody>';
+    entries.forEach(function(c,i){
+      var rc=c.roas>=3?'var(--g)':c.roas>=1.5?'var(--am)':c.roas>0?'var(--r)':'var(--muted)';
+      html+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+      html+='<td style="font-size:9px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c.name+'">'+c.name+'</td>';
+      html+='<td style="font-size:8px;color:var(--dim)">'+c.platform+'</td>';
+      html+='<td style="font-size:8px;color:var(--dim)">'+c.brand+'</td>';
+      for(var j=0;j<labels.length;j++){
+        html+='<td style="text-align:right;font-family:var(--mono);font-size:8px">'+$(c.spend[j]||0)+'</td>';
+        html+='<td style="text-align:right;font-family:var(--mono);font-size:8px">'+$(c.sales[j]||0)+'</td>';
+      }
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;background:#f0fdf4">'+$(c.total_spend)+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+rc+'">'+c.roas.toFixed(1)+'x</td></tr>';
+    });
+    html+='</tbody></table></div></div></div>';
+  }
+
+  return html;
 }
 </script>
 </body>

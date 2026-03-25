@@ -59,334 +59,14 @@ AVG_PRICE = {
 }
 
 
-# ── Polar Excel parser ─────────────────────────────────────────────────────
-POLAR_XLSX = ROOT / "Data Storage" / "_archive" / "Monthly Sales by brands_raw.xlsx"
-POLAR_SHEET = "IR 매출분석"
-
-# Map CSV brand names to our standard names
-POLAR_BRAND_MAP = {
-    "Grosmimi": "Grosmimi",
-    "Alpremio": "Alpremio",
-    "Naeiae": "Naeiae",
-    "CHA&MOM": "CHA&MOM",
-    "Comme Moi": "Comme Moi",
-    "BabyRabbit": "BabyRabbit",
-    "BambooBebe": "BambooBebe",
-    "Hattung": "Hattung",
-    "beemymagic": "beemymagic",
-    "Easy Shower": "Easy Shower",
-    "Nature Love Mere": "Nature Love Mere",
+CHANNEL_PNL_COLORS = {
+    "Amazon MP": "#f59e0b",
+    "Onzenna D2C": "#6366f1",
+    "Target+": "#ef4444",
+    "B2B": "#10b981",
+    "Other": "#94a3b8",
 }
 
-POLAR_BRAND_COLORS = {
-    "Grosmimi": "#8b5cf6", "Alpremio": "#f97316", "Naeiae": "#eab308",
-    "CHA&MOM": "#0ea5e9", "Comme Moi": "#14b8a6", "BabyRabbit": "#f472b6",
-    "BambooBebe": "#a3e635", "Hattung": "#fb923c", "beemymagic": "#c084fc",
-    "Easy Shower": "#94a3b8", "Nature Love Mere": "#6b7280",
-}
-
-
-def parse_polar_excel():
-    """Parse the Polar Excel file (폴라 희망 sheet) and return P&L data from Jan-25 onwards.
-
-    Reads directly from Data Storage/_archive/Monthly Sales by brands_raw.xlsx
-    instead of CSV export. Amazon Ads costs for 2025 come from this file.
-    """
-    if not POLAR_XLSX.exists():
-        print(f"  [WARN] Polar Excel not found: {POLAR_XLSX}")
-        return None
-
-    import openpyxl
-    wb = openpyxl.load_workbook(str(POLAR_XLSX), data_only=True)
-    ws = wb[POLAR_SHEET]
-
-    # Build month column mapping from row 3 (datetime objects)
-    month_cols = {}  # "2025-01" -> col_idx
-    for c in range(6, min(ws.max_column + 1, 60)):
-        v = ws.cell(3, c).value
-        if v and hasattr(v, "strftime"):
-            month_cols[v.strftime("%Y-%m")] = c
-
-    # Target months: Jan-25 through latest available
-    target_months = []
-    for yr in [2025, 2026]:
-        for mi in range(1, 13):
-            key = f"{yr}-{mi:02d}"
-            if key in month_cols:
-                target_months.append(key)
-            if yr == 2026 and mi >= 3:
-                break
-
-    if not target_months:
-        print("  [WARN] No target months found in Polar Excel")
-        wb.close()
-        return None
-
-    n = len(target_months)
-    zeros = [0.0] * n
-
-    def _val(row, col):
-        v = ws.cell(row, col).value
-        if v is None or v == "" or v == "-":
-            return 0.0
-        try:
-            return float(v)
-        except (ValueError, TypeError):
-            return 0.0
-
-    def _get_vals(row):
-        return [_val(row, month_cols[m]) for m in target_months]
-
-    def _find_row(keyword, start=1, col=2):
-        """Find row where cell in col matches keyword exactly."""
-        for r in range(start, ws.max_row + 1):
-            v = ws.cell(r, col).value
-            if v and isinstance(v, str) and v.strip() == keyword:
-                return r
-        return None
-
-    def _find_row_contains(keyword, start=1, col=2):
-        """Find row where cell in col contains keyword."""
-        for r in range(start, ws.max_row + 1):
-            v = ws.cell(r, col).value
-            if v and isinstance(v, str) and keyword in v:
-                return r
-        return None
-
-    def _find_in(section_start, name, max_rows=20, col=3):
-        """Find a row within a section where col matches name."""
-        for r in range(section_start + 1, min(section_start + max_rows, ws.max_row + 1)):
-            v = ws.cell(r, col).value
-            if v and isinstance(v, str) and v.strip() == name:
-                return r
-        return None
-
-    def _find_in_contains(section_start, keyword, max_rows=20, col=3):
-        for r in range(section_start + 1, min(section_start + max_rows, ws.max_row + 1)):
-            v = ws.cell(r, col).value
-            if v and isinstance(v, str) and keyword in v:
-                return r
-        return None
-
-    # ── Section 1: Sales By Brands (LFU+FLT) ──
-    sec_sales = _find_row("Sales By Brands (USD)")
-    brand_sales = {}
-    total_sales = list(zeros)
-    if sec_sales:
-        for brand in POLAR_BRAND_MAP:
-            br = _find_in(sec_sales, brand, 20)
-            if br:
-                brand_sales[brand] = _get_vals(br)
-        # Total row: "LFU+FLT 매출"
-        tr = _find_in_contains(sec_sales, "LFU+FLT", 20)
-        if tr:
-            total_sales = _get_vals(tr)
-
-    # ── ADS by Channel ──
-    sec_ads = _find_row("ADS by Channel") or _find_row("Ads Spent")
-    ad_spend_onzenna = list(zeros)
-    ad_spend_amazon = list(zeros)
-    ad_spend_total = list(zeros)
-    ad_spend_google = list(zeros)
-    ad_spend_amz_grosmimi = list(zeros)
-    ad_spend_amz_chaenmom = list(zeros)
-    ad_spend_amz_naeiae = list(zeros)
-
-    if sec_ads:
-        for r in range(sec_ads + 1, min(sec_ads + 30, ws.max_row + 1)):
-            c3 = str(ws.cell(r, 3).value or "").strip()
-            c4 = str(ws.cell(r, 4).value or "").strip()
-            if c3 == "ONZENNA":
-                ad_spend_onzenna = _get_vals(r)
-            elif c3 == "Amazon":
-                ad_spend_amazon = _get_vals(r)
-            elif c3 == "Total Ads Spent":
-                ad_spend_total = _get_vals(r)
-                break
-            # Sub-breakdowns (column D)
-            if c4.lower() in ("google ads",):
-                ad_spend_google = _get_vals(r)
-            elif c4 == "Grosmimi" and r > sec_ads + 8:
-                ad_spend_amz_grosmimi = _get_vals(r)
-            elif "Cha" in c4 and "mom" in c4.lower():
-                ad_spend_amz_chaenmom = _get_vals(r)
-            elif "Naeiae" in c4 or "Others" in c4:
-                ad_spend_amz_naeiae = _get_vals(r)
-
-    # ── Sales from Ads ──
-    sec_sales_ads = _find_row("Sales from Ads")
-    sales_from_ads_total = list(zeros)
-    sales_from_ads_onz = list(zeros)
-    sales_from_ads_amz = list(zeros)
-
-    if sec_sales_ads:
-        for r in range(sec_sales_ads + 1, min(sec_sales_ads + 20, ws.max_row + 1)):
-            c3 = str(ws.cell(r, 3).value or "").strip()
-            if c3 == "ONZENNA":
-                sales_from_ads_onz = _get_vals(r)
-            elif c3 == "Amazon":
-                sales_from_ads_amz = _get_vals(r)
-            elif c3 == "Total Sales from Ads":
-                sales_from_ads_total = _get_vals(r)
-                break
-
-    # ── Organic Sales ──
-    sec_organic = _find_row("Organic Sales")
-    organic_total = list(zeros)
-    organic_onz = list(zeros)
-    organic_amz = list(zeros)
-
-    if sec_organic:
-        for r in range(sec_organic + 1, min(sec_organic + 15, ws.max_row + 1)):
-            c3 = str(ws.cell(r, 3).value or "").strip()
-            if c3 == "ONZENNA":
-                organic_onz = _get_vals(r)
-            elif c3 == "AMZ":
-                organic_amz = _get_vals(r)
-            elif c3 == "Total Organic Sales":
-                organic_total = _get_vals(r)
-                break
-        # Fallback: compute from ONZENNA + AMZ if no total row
-        if all(v == 0 for v in organic_total) and any(v > 0 for v in organic_onz):
-            organic_total = [a + b for a, b in zip(organic_onz, organic_amz)]
-
-    # ── CM before/after Ads ──
-    sec_cm_before = _find_row("CM before Ads")
-    cm_before_total = list(zeros)
-    cm_before_onz = list(zeros)
-    cm_before_amz = list(zeros)
-
-    if sec_cm_before:
-        for r in range(sec_cm_before + 1, min(sec_cm_before + 15, ws.max_row + 1)):
-            c3 = str(ws.cell(r, 3).value or "").strip()
-            if c3 == "ONZENNA":
-                cm_before_onz = _get_vals(r)
-            elif c3 == "AMZ":
-                cm_before_amz = _get_vals(r)
-            elif "Total CM before Ads" in c3:
-                cm_before_total = _get_vals(r)
-                break
-        if all(v == 0 for v in cm_before_total) and any(v > 0 for v in cm_before_onz):
-            cm_before_total = [a + b for a, b in zip(cm_before_onz, cm_before_amz)]
-
-    sec_cm_after = _find_row("CM After Ads")
-    cm_after_total = list(zeros)
-    cm_after_onz = list(zeros)
-    cm_after_amz = list(zeros)
-
-    if sec_cm_after:
-        for r in range(sec_cm_after + 1, min(sec_cm_after + 15, ws.max_row + 1)):
-            c3 = str(ws.cell(r, 3).value or "").strip()
-            if c3 == "ONZENNA":
-                cm_after_onz = _get_vals(r)
-            elif c3 == "AMZ":
-                cm_after_amz = _get_vals(r)
-            elif "total cm after ads" in c3.lower():
-                cm_after_total = _get_vals(r)
-                break
-        if all(v == 0 for v in cm_after_total) and any(v > 0 for v in cm_after_onz):
-            cm_after_total = [a + b for a, b in zip(cm_after_onz, cm_after_amz)]
-
-    # ── Influencer Spend ──
-    sec_influencer = _find_row("Paid influencer collabs")
-    influencer_total = list(zeros)
-    if sec_influencer:
-        # "Monthly Total" is in column B (2)
-        for r in range(sec_influencer + 2, min(sec_influencer + 60, ws.max_row + 1)):
-            v = ws.cell(r, 2).value
-            if v and isinstance(v, str) and v.strip() == "Monthly Total":
-                influencer_total = _get_vals(r)
-                break
-
-    # ── Final CM (after ads + influencer) ──
-    sec_final_cm = _find_row_contains("Total CM After ads & influencer")
-    cm_final = list(zeros)
-    if sec_final_cm:
-        cm_final = _get_vals(sec_final_cm)
-
-    # COGS = units * AVG_COGS per brand (product cost only, NOT fees/shipping)
-    # "CM before Ads" in this Excel = contribution margin (after all variable costs),
-    # so Revenue - CM would overstate COGS by including fees, shipping, etc.
-    cogs = list(zeros)
-    for i in range(n):
-        month_cogs = 0
-        for brand in POLAR_BRAND_MAP:
-            brand_rev = brand_sales.get(brand, zeros)[i] if brand in brand_sales else 0
-            if brand_rev > 0:
-                avg_price = AVG_PRICE.get(brand, 25.0)
-                avg_cogs = AVG_COGS.get(brand, 8.0)
-                units = brand_rev / avg_price
-                month_cogs += units * avg_cogs
-        cogs[i] = round(month_cogs)
-
-    # ── Build FY2025 annual total ──
-    num_2025 = min(12, len(target_months))
-
-    def _annual(arr):
-        return round(sum(arr[:num_2025]))
-
-    MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    month_labels = []
-    for m in target_months[:num_2025]:
-        mi = int(m[5:7])
-        yr = m[2:4]
-        month_labels.append(f"{MONTH_NAMES[mi - 1]} {yr}")
-    month_labels.append("FY2025")
-    for m in target_months[num_2025:]:
-        mi = int(m[5:7])
-        yr = m[2:4]
-        month_labels.append(f"{MONTH_NAMES[mi - 1]} {yr}")
-
-    def _with_annual(arr):
-        """Insert FY2025 total after the first 12 months."""
-        out = [round(v) for v in arr[:num_2025]]
-        out.append(_annual(arr))
-        out.extend([round(v) for v in arr[num_2025:]])
-        return out
-
-    result = {
-        "months": month_labels,
-        "fy2025_idx": num_2025,
-        "brand_sales": {},
-        "total_revenue": _with_annual(total_sales),
-        "cogs": _with_annual(cogs),
-        "gross_margin": _with_annual(cm_before_total),
-        "ad_spend": {
-            "onzenna": _with_annual(ad_spend_onzenna),
-            "amazon": _with_annual(ad_spend_amazon),
-            "total": _with_annual(ad_spend_total),
-        },
-        "ad_spend_detail": {
-            "google": _with_annual(ad_spend_google),
-            "amz_grosmimi": _with_annual(ad_spend_amz_grosmimi),
-            "amz_chaenmom": _with_annual(ad_spend_amz_chaenmom),
-            "amz_naeiae": _with_annual(ad_spend_amz_naeiae),
-        },
-        "sales_from_ads": {
-            "onzenna": _with_annual(sales_from_ads_onz),
-            "amazon": _with_annual(sales_from_ads_amz),
-            "total": _with_annual(sales_from_ads_total),
-        },
-        "organic": {
-            "onzenna": _with_annual(organic_onz),
-            "amazon": _with_annual(organic_amz),
-            "total": _with_annual(organic_total),
-        },
-        "influencer_spend": _with_annual(influencer_total),
-        "cm_after_ads": _with_annual(cm_after_total),
-        "cm_final": _with_annual(cm_final),
-    }
-
-    for brand, vals in brand_sales.items():
-        result["brand_sales"][brand] = {
-            "values": _with_annual(vals),
-            "color": POLAR_BRAND_COLORS.get(brand, "#94a3b8"),
-        }
-
-    wb.close()
-    print(f"  Polar Excel parsed: {len(target_months)} months, {len(brand_sales)} brands")
-    return result
 
 
 def generate():
@@ -482,6 +162,12 @@ def generate():
         "multiplier": fm_multiplier,
     }
 
+    # ── Helper: date -> ISO week key ────────────────────────────────────────
+    def _week_key(date_str):
+        dt = datetime.strptime(date_str, "%Y-%m-%d").date()
+        iy, iw, _ = dt.isocalendar()
+        return f"{iy}-W{iw:02d}"
+
     # ── 2. Revenue by Brand (Shopify only, PR/Amazon excluded) ─────────────────
     # Amazon channel = stale FBA MCF rows in PG (now reclassified as D2C in current code)
     # True Amazon Marketplace sales come from amazon_sales_daily (SP-API)
@@ -490,6 +176,18 @@ def generate():
     brand_monthly = defaultdict(lambda: defaultdict(lambda: {
         "gross": 0, "net": 0, "disc": 0, "orders": 0, "units": 0
     }))
+    # Weekly mirrors
+    brand_weekly = defaultdict(lambda: defaultdict(lambda: {
+        "gross": 0, "net": 0, "disc": 0, "orders": 0, "units": 0
+    }))
+    amz_brand_weekly = defaultdict(lambda: defaultdict(lambda: {
+        "net": 0, "orders": 0, "units": 0
+    }))
+    channel_weekly = defaultdict(lambda: defaultdict(lambda: {"net": 0, "orders": 0}))
+    ad_weekly = defaultdict(lambda: defaultdict(lambda: {
+        "spend": 0, "sales": 0, "impressions": 0, "clicks": 0
+    }))
+    brand_ad_weekly = defaultdict(lambda: defaultdict(lambda: {"spend": 0, "sales": 0}))
 
     for r in shopify:
         d = r.get("date", "")
@@ -506,6 +204,12 @@ def generate():
         brand_monthly[brand][month]["disc"] += float(r.get("discounts") or 0)
         brand_monthly[brand][month]["orders"] += int(r.get("orders") or 0)
         brand_monthly[brand][month]["units"] += int(r.get("units") or 0)
+        wk = _week_key(d)
+        brand_weekly[brand][wk]["gross"] += float(r.get("gross_sales") or 0)
+        brand_weekly[brand][wk]["net"] += float(r.get("net_sales") or 0)
+        brand_weekly[brand][wk]["disc"] += float(r.get("discounts") or 0)
+        brand_weekly[brand][wk]["orders"] += int(r.get("orders") or 0)
+        brand_weekly[brand][wk]["units"] += int(r.get("units") or 0)
 
     # Amazon SP-API revenue by brand
     amz_brand_monthly = defaultdict(lambda: defaultdict(lambda: {
@@ -522,6 +226,10 @@ def generate():
         amz_brand_monthly[brand][month]["net"] += float(r.get("net_sales") or 0)
         amz_brand_monthly[brand][month]["orders"] += int(r.get("orders") or 0)
         amz_brand_monthly[brand][month]["units"] += int(r.get("units") or 0)
+        wk = _week_key(d)
+        amz_brand_weekly[brand][wk]["net"] += float(r.get("net_sales") or 0)
+        amz_brand_weekly[brand][wk]["orders"] += int(r.get("orders") or 0)
+        amz_brand_weekly[brand][wk]["units"] += int(r.get("units") or 0)
 
     # ── 3. Revenue by Channel (Shopify channels + Amazon MP) ──────────────────
     print("\n[3/7] Computing revenue by channel...")
@@ -546,6 +254,9 @@ def generate():
         ch = CHANNEL_MAP.get(raw_ch, "Other")
         channel_monthly[ch][month]["net"] += float(r.get("net_sales") or 0)
         channel_monthly[ch][month]["orders"] += int(r.get("orders") or 0)
+        wk = _week_key(d)
+        channel_weekly[ch][wk]["net"] += float(r.get("net_sales") or 0)
+        channel_weekly[ch][wk]["orders"] += int(r.get("orders") or 0)
 
     # Amazon Marketplace (SP-API)
     for r in amazon_sales:
@@ -555,6 +266,9 @@ def generate():
         month = d[:7]
         channel_monthly["Amazon MP"][month]["net"] += float(r.get("net_sales") or 0)
         channel_monthly["Amazon MP"][month]["orders"] += int(r.get("orders") or 0)
+        wk = _week_key(d)
+        channel_weekly["Amazon MP"][wk]["net"] += float(r.get("net_sales") or 0)
+        channel_weekly["Amazon MP"][wk]["orders"] += int(r.get("orders") or 0)
 
     # ── 4. Ad Spend by Platform ───────────────────────────────────────────────
     print("\n[4/7] Computing ad spend by platform...")
@@ -571,6 +285,11 @@ def generate():
         ad_monthly["Amazon Ads"][month]["sales"] += float(r.get("sales") or 0)
         ad_monthly["Amazon Ads"][month]["impressions"] += int(r.get("impressions") or 0)
         ad_monthly["Amazon Ads"][month]["clicks"] += int(r.get("clicks") or 0)
+        wk = _week_key(d)
+        ad_weekly["Amazon Ads"][wk]["spend"] += float(r.get("spend") or 0)
+        ad_weekly["Amazon Ads"][wk]["sales"] += float(r.get("sales") or 0)
+        ad_weekly["Amazon Ads"][wk]["impressions"] += int(r.get("impressions") or 0)
+        ad_weekly["Amazon Ads"][wk]["clicks"] += int(r.get("clicks") or 0)
 
     for r in meta_ads:
         d = r.get("date", "")
@@ -586,6 +305,11 @@ def generate():
         ad_monthly[label][month]["sales"] += float(r.get("purchase_value") or 0)
         ad_monthly[label][month]["impressions"] += int(r.get("impressions") or 0)
         ad_monthly[label][month]["clicks"] += int(r.get("clicks") or 0)
+        wk = _week_key(d)
+        ad_weekly[label][wk]["spend"] += float(r.get("spend") or 0)
+        ad_weekly[label][wk]["sales"] += float(r.get("purchase_value") or 0)
+        ad_weekly[label][wk]["impressions"] += int(r.get("impressions") or 0)
+        ad_weekly[label][wk]["clicks"] += int(r.get("clicks") or 0)
 
     for r in google_ads:
         d = r.get("date", "")
@@ -596,6 +320,11 @@ def generate():
         ad_monthly["Google Ads"][month]["sales"] += float(r.get("conversion_value") or 0)
         ad_monthly["Google Ads"][month]["impressions"] += int(r.get("impressions") or 0)
         ad_monthly["Google Ads"][month]["clicks"] += int(r.get("clicks") or 0)
+        wk = _week_key(d)
+        ad_weekly["Google Ads"][wk]["spend"] += float(r.get("spend") or 0)
+        ad_weekly["Google Ads"][wk]["sales"] += float(r.get("conversion_value") or 0)
+        ad_weekly["Google Ads"][wk]["impressions"] += int(r.get("impressions") or 0)
+        ad_weekly["Google Ads"][wk]["clicks"] += int(r.get("clicks") or 0)
 
     # ── Brand-level ad performance ────────────────────────────────────────────
     brand_ad_monthly = defaultdict(lambda: defaultdict(lambda: {"spend": 0, "sales": 0}))
@@ -610,6 +339,9 @@ def generate():
             brand = "Other"
         brand_ad_monthly[brand][month]["spend"] += float(r.get("spend") or 0)
         brand_ad_monthly[brand][month]["sales"] += float(r.get("sales") or 0)
+        wk = _week_key(d)
+        brand_ad_weekly[brand][wk]["spend"] += float(r.get("spend") or 0)
+        brand_ad_weekly[brand][wk]["sales"] += float(r.get("sales") or 0)
 
     for r in meta_ads:
         d = r.get("date", "")
@@ -621,6 +353,9 @@ def generate():
             brand = "Other"
         brand_ad_monthly[brand][month]["spend"] += float(r.get("spend") or 0)
         brand_ad_monthly[brand][month]["sales"] += float(r.get("purchase_value") or 0)
+        wk = _week_key(d)
+        brand_ad_weekly[brand][wk]["spend"] += float(r.get("spend") or 0)
+        brand_ad_weekly[brand][wk]["sales"] += float(r.get("purchase_value") or 0)
 
     for r in google_ads:
         d = r.get("date", "")
@@ -630,6 +365,9 @@ def generate():
         # All Google Ads campaigns are Grosmimi (Mint | prefix)
         brand_ad_monthly["Grosmimi"][month]["spend"] += float(r.get("spend") or 0)
         brand_ad_monthly["Grosmimi"][month]["sales"] += float(r.get("conversion_value") or 0)
+        wk = _week_key(d)
+        brand_ad_weekly["Grosmimi"][wk]["spend"] += float(r.get("spend") or 0)
+        brand_ad_weekly["Grosmimi"][wk]["sales"] += float(r.get("conversion_value") or 0)
 
     # ── Build month list ──────────────────────────────────────────────────────
     all_months_set = set()
@@ -1236,22 +974,9 @@ def generate():
 
     organic_monthly = [max(0, rev - paid) for rev, paid in zip(total_rev_monthly, paid_monthly)]
 
-    # ── Build P&L: DataKeeper + Excel Amazon Ads backfill ───────────────────
-    print("[7.5/8] Building P&L (DataKeeper + Excel Amazon Ads backfill)...")
+    # ── Build P&L from DataKeeper ────────────────────────────────────────────
+    print("[7.5/8] Building P&L...")
     MONTH_NAMES_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
-
-    # Parse Excel for Amazon Ads historical spend (DK only has Dec 2025+)
-    polar = parse_polar_excel()
-    polar_idx = {}
-    if polar:
-        for i, lbl in enumerate(polar["months"]):
-            if lbl.startswith("FY"):
-                continue
-            parts = lbl.split()
-            if len(parts) == 2:
-                mi = MONTH_NAMES_SHORT.index(parts[0]) + 1
-                yr = 2000 + int(parts[1])
-                polar_idx[f"{yr}-{mi:02d}"] = i
 
     all_pnl_months = sorted(months)  # DataKeeper months only
 
@@ -1285,19 +1010,13 @@ def generate():
                 "color": BRAND_COLORS.get(brand, "#94a3b8"),
             }
 
-    # ── Ad spend: DataKeeper + Excel backfill for Amazon Ads ──
+    # ── Ad spend from DataKeeper ──
     onz_spend_arr, amz_spend_arr, google_spend_arr, total_ad_arr = [], [], [], []
     for m in all_pnl_months:
         onz = sum(ad_monthly.get(p, {}).get(m, {}).get("spend", 0)
                   for p in ["Meta CVR", "Meta Traffic", "Google Ads"])
         amz = ad_monthly.get("Amazon Ads", {}).get(m, {}).get("spend", 0)
         ggl = ad_monthly.get("Google Ads", {}).get(m, {}).get("spend", 0)
-        # Backfill Amazon Ads from Excel when DK has no data
-        if amz == 0 and polar and m in polar_idx:
-            p_idx = polar_idx[m]
-            amz_vals = polar["ad_spend"]["amazon"]
-            if p_idx < len(amz_vals):
-                amz = amz_vals[p_idx]
         onz_spend_arr.append(round(onz))
         amz_spend_arr.append(round(amz))
         google_spend_arr.append(round(ggl))
@@ -1352,11 +1071,117 @@ def generate():
         "cm_final": _pnl_with_annual(cm_after_arr, fy2025_idx),
     }
     print(f"  P&L built: {len(all_pnl_months)} months, {len(brand_rev_pnl)} brands")
-    amz_backfilled = sum(1 for m in all_pnl_months
-                         if ad_monthly.get("Amazon Ads", {}).get(m, {}).get("spend", 0) == 0
-                         and m in polar_idx)
-    if amz_backfilled:
-        print(f"  Amazon Ads backfilled from Excel: {amz_backfilled} months")
+
+    # ── Channel P&L ──────────────────────────────────────────────────────────
+    # Amazon: revenue from amazon_sales_daily (has fees), COGS from units * AVG_COGS
+    # Shopify D2C (excl Target+): Shopify orders, COGS from units * AVG_COGS
+    # Target+: Shopify target+ channel, COGS, fulfillment = N/A
+    print("  Building Channel P&L...")
+
+    # Build monthly Amazon fees from amazon_sales
+    amz_fees_monthly = defaultdict(float)
+    amz_fees_weekly = defaultdict(float)
+    for r in amazon_sales:
+        d = r.get("date", "")
+        if not d or d > through:
+            continue
+        month = d[:7]
+        amz_fees_monthly[month] += float(r.get("fees") or 0)
+        wk = _week_key(d)
+        amz_fees_weekly[wk] += float(r.get("fees") or 0)
+
+    # Channel P&L structure: revenue/cogs/selling_fees/fulfillment/ad_spend/gm/cm per month
+    # Selling fees: Amazon 15%, Target+ 15%, Shopify 0%, B2B 0%
+    # Fulfillment: n.m. for now (FBA costs need Financial Events API)
+    CHANNEL_PNL_ORDER = ["Amazon MP", "Onzenna D2C", "Target+", "B2B"]
+
+    # Build monthly Target+ fees from amazon_sales (channel=Target+)
+    tp_fees_monthly = defaultdict(float)
+    for r in amazon_sales:
+        d = r.get("date", "")
+        ch = r.get("channel", "")
+        if not d or d > through or ch != "Target+":
+            continue
+        tp_fees_monthly[d[:7]] += float(r.get("fees") or 0)
+
+    def _channel_pnl_monthly(ch, months_list):
+        rev_arr, cogs_arr, sell_arr, fulfill_arr, ad_arr = [], [], [], [], []
+        for m in months_list:
+            rev = 0
+            cogs = 0
+            sell_fee = 0
+            fulfill = 0
+            ad_sp = 0
+
+            if ch == "Amazon MP":
+                for b in BRAND_ORDER + ["Other"]:
+                    net = amz_brand_monthly.get(b, {}).get(m, {}).get("net", 0)
+                    units = amz_brand_monthly.get(b, {}).get(m, {}).get("units", 0)
+                    if units == 0 and net > 0:
+                        units = int(net / AVG_PRICE.get(b, 25))
+                    rev += net
+                    cogs += units * AVG_COGS.get(b, 8)
+                sell_fee = amz_fees_monthly.get(m, 0)
+                fulfill = 0  # n.m. — need Financial Events API
+                ad_sp = (ad_monthly.get("Amazon Ads", {}).get(m, {}).get("spend", 0)
+                         + ad_monthly.get("Meta Traffic", {}).get(m, {}).get("spend", 0))
+            elif ch == "Onzenna D2C":
+                rev = channel_monthly.get("Onzenna D2C", {}).get(m, {}).get("net", 0)
+                for b in BRAND_ORDER + ["Other"]:
+                    bm = brand_monthly.get(b, {}).get(m, {})
+                    b_units = bm.get("units", 0)
+                    if b_units == 0 and bm.get("net", 0) > 0:
+                        b_units = int(bm["net"] / AVG_PRICE.get(b, 25))
+                    cogs += b_units * AVG_COGS.get(b, 8)
+                sell_fee = 0
+                fulfill = 0  # n.m.
+                ad_sp = (ad_monthly.get("Meta CVR", {}).get(m, {}).get("spend", 0)
+                         + ad_monthly.get("Google Ads", {}).get(m, {}).get("spend", 0))
+            elif ch == "Target+":
+                rev = channel_monthly.get("Target+", {}).get(m, {}).get("net", 0)
+                orders = channel_monthly.get("Target+", {}).get(m, {}).get("orders", 0)
+                cogs = orders * 10
+                sell_fee = tp_fees_monthly.get(m, 0) or round(rev * 0.15)  # from data or 15%
+                fulfill = 0  # n.m.
+                ad_sp = 0
+            elif ch == "B2B":
+                rev = channel_monthly.get("B2B", {}).get(m, {}).get("net", 0)
+                orders = channel_monthly.get("B2B", {}).get(m, {}).get("orders", 0)
+                cogs = orders * 12
+                sell_fee = 0
+                fulfill = 0
+                ad_sp = 0
+
+            rev_arr.append(round(rev))
+            cogs_arr.append(round(cogs))
+            sell_arr.append(round(sell_fee))
+            fulfill_arr.append(round(fulfill))
+            ad_arr.append(round(ad_sp))
+
+        gm_arr = [r - c - s - f for r, c, s, f in zip(rev_arr, cogs_arr, sell_arr, fulfill_arr)]
+        cm_arr = [g - a for g, a in zip(gm_arr, ad_arr)]
+        # n.m. flags: fulfillment not yet measured for Amazon/D2C/Target+
+        fulfill_nm = ch in ("Amazon MP", "Onzenna D2C", "Target+")
+        return {
+            "revenue": rev_arr,
+            "cogs": cogs_arr,
+            "selling_fees": sell_arr,
+            "fulfillment": fulfill_arr,
+            "fulfillment_nm": fulfill_nm,
+            "ad_spend": ad_arr,
+            "gross_margin": gm_arr,
+            "contribution_margin": cm_arr,
+            "color": CHANNEL_PNL_COLORS.get(ch, "#94a3b8"),
+        }
+
+    channel_pnl = {}
+    for ch in CHANNEL_PNL_ORDER:
+        data = _channel_pnl_monthly(ch, months)
+        if any(v > 0 for v in data["revenue"]):
+            channel_pnl[ch] = data
+
+    pnl_polar["channel_pnl"] = channel_pnl
+    print(f"  Channel P&L: {list(channel_pnl.keys())}")
 
     # ── Klaviyo email marketing ──────────────────────────────────────────────
     # Flow data = cumulative snapshots (same stats repeated daily per flow).
@@ -1491,6 +1316,412 @@ def generate():
     print(f"  Klaviyo: {len(klaviyo)} raw rows -> {len(klav_campaigns)} campaigns + {len(klav_flows)} flows (deduped)")
     print(f"  30D: sends={s30['sends']:,} rev=${s30['revenue']:,.0f} | 7D: sends={klaviyo_data['summary_7d']['sends']:,} rev=${klaviyo_data['summary_7d']['revenue']:,.0f}")
 
+    # ── Weekly data for all tabs ─────────────────────────────────────────────
+    print("\n[7.8/8] Building weekly aggregations...")
+
+    # Build week list (last 12 weeks)
+    all_week_keys = set()
+    for entity in list(brand_weekly.values()) + list(amz_brand_weekly.values()) + list(channel_weekly.values()):
+        all_week_keys |= set(entity.keys())
+    for platform in ad_weekly.values():
+        all_week_keys |= set(platform.keys())
+
+    # Last 12 weeks
+    _wk_list_12 = []
+    for w_offset in range(11, -1, -1):
+        dt_w = today - timedelta(weeks=w_offset)
+        iy, iw, _ = dt_w.isocalendar()
+        wk = f"{iy}-W{iw:02d}"
+        if wk not in _wk_list_12:
+            _wk_list_12.append(wk)
+    weeks = _wk_list_12
+
+    from datetime import date as _date_cls
+    def _wk_label(wk_str):
+        parts = wk_str.split("-W")
+        try:
+            d = _date_cls.fromisocalendar(int(parts[0]), int(parts[1]), 1)
+            return f"W{int(parts[1])} ({d.strftime('%b %d')})"
+        except Exception:
+            return wk_str
+
+    week_labels_all = [_wk_label(w) for w in weeks]
+
+    # Weekly brand revenue
+    wk_brand_rev = {}
+    for brand in BRAND_ORDER:
+        vals = [round(brand_weekly.get(brand, {}).get(w, {}).get("net", 0)
+                      + amz_brand_weekly.get(brand, {}).get(w, {}).get("net", 0)) for w in weeks]
+        if any(v > 0 for v in vals):
+            wk_brand_rev[brand] = {
+                "weekly": vals,
+                "color": BRAND_COLORS.get(brand, "#94a3b8"),
+            }
+
+    # Weekly channel revenue
+    wk_channel_rev = {}
+    for ch in ["Onzenna D2C", "Amazon MP", "Amazon FBA MCF", "TikTok Shop", "Target+", "B2B"]:
+        vals = [round(channel_weekly.get(ch, {}).get(w, {}).get("net", 0)) for w in weeks]
+        if any(v > 0 for v in vals):
+            wk_channel_rev[ch] = {
+                "weekly": vals,
+                "color": CHANNEL_COLORS.get(ch, "#94a3b8"),
+            }
+
+    # Weekly ad performance
+    wk_ad_perf = {}
+    for platform in ["Amazon Ads", "Meta CVR", "Meta Traffic", "Google Ads"]:
+        spend_vals = [round(ad_weekly.get(platform, {}).get(w, {}).get("spend", 0)) for w in weeks]
+        sales_vals = [round(ad_weekly.get(platform, {}).get(w, {}).get("sales", 0)) for w in weeks]
+        impr_vals = [ad_weekly.get(platform, {}).get(w, {}).get("impressions", 0) for w in weeks]
+        click_vals = [ad_weekly.get(platform, {}).get(w, {}).get("clicks", 0) for w in weeks]
+        if any(v > 0 for v in spend_vals):
+            wk_ad_perf[platform] = {
+                "spend": spend_vals,
+                "sales": sales_vals,
+                "impressions": impr_vals,
+                "clicks": click_vals,
+                "color": AD_COLORS.get(platform, "#94a3b8"),
+            }
+
+    # Weekly ads landing TROAS
+    wk_onz_spend = [0] * len(weeks)
+    wk_amz_spend = [0] * len(weeks)
+    for i, w in enumerate(weeks):
+        for p in ["Google Ads", "Meta CVR"]:
+            wk_onz_spend[i] += ad_weekly.get(p, {}).get(w, {}).get("spend", 0)
+        for p in ["Amazon Ads", "Meta Traffic"]:
+            wk_amz_spend[i] += ad_weekly.get(p, {}).get(w, {}).get("spend", 0)
+    wk_onz_rev = [round(channel_weekly.get("Onzenna D2C", {}).get(w, {}).get("net", 0)) for w in weeks]
+    wk_amz_rev = [round(channel_weekly.get("Amazon MP", {}).get(w, {}).get("net", 0)) for w in weeks]
+    wk_ads_landing = {
+        "Onzenna": {
+            "spend": [round(v) for v in wk_onz_spend],
+            "revenue": wk_onz_rev,
+            "platforms": "Google Ads + Meta CVR",
+            "color": "#6366f1",
+        },
+        "Amazon": {
+            "spend": [round(v) for v in wk_amz_spend],
+            "revenue": wk_amz_rev,
+            "platforms": "Amazon Ads + Meta Traffic",
+            "color": "#f59e0b",
+        },
+    }
+
+    # Weekly brand performance (ad + total sales)
+    wk_brand_perf = {}
+    for brand in BRAND_ORDER:
+        total_vals = [round(brand_weekly.get(brand, {}).get(w, {}).get("net", 0)
+                           + amz_brand_weekly.get(brand, {}).get(w, {}).get("net", 0)) for w in weeks]
+        ad_spend_vals = [round(brand_ad_weekly.get(brand, {}).get(w, {}).get("spend", 0)) for w in weeks]
+        ad_sales_vals = [round(brand_ad_weekly.get(brand, {}).get(w, {}).get("sales", 0)) for w in weeks]
+        organic_vals = [max(0, t - a) for t, a in zip(total_vals, ad_sales_vals)]
+        if any(v > 0 for v in total_vals) or any(v > 0 for v in ad_spend_vals):
+            wk_brand_perf[brand] = {
+                "total_sales": total_vals,
+                "ad_spend": ad_spend_vals,
+                "ad_sales": ad_sales_vals,
+                "organic": organic_vals,
+                "color": BRAND_COLORS.get(brand, "#94a3b8"),
+            }
+
+    # Weekly waterfall (GM, CM)
+    wk_rev_arr = []
+    wk_cogs_arr = []
+    wk_gm_arr = []
+    wk_ad_spend_arr = []
+    wk_disc_arr = []
+    wk_mkt_arr = []
+    wk_cm_arr = []
+    for w in weeks:
+        shopify_net = sum(brand_weekly.get(b, {}).get(w, {}).get("net", 0) for b in BRAND_ORDER + ["Other"])
+        amz_net = sum(amz_brand_weekly.get(b, {}).get(w, {}).get("net", 0) for b in BRAND_ORDER + ["Other"])
+        rev = shopify_net + amz_net
+        cogs = 0
+        for b in BRAND_ORDER:
+            units = brand_weekly.get(b, {}).get(w, {}).get("units", 0)
+            if units == 0 and brand_weekly.get(b, {}).get(w, {}).get("gross", 0) > 0:
+                units = int(brand_weekly[b][w]["gross"] / AVG_PRICE.get(b, 25))
+            cogs += units * AVG_COGS.get(b, 8)
+            amz_units = amz_brand_weekly.get(b, {}).get(w, {}).get("units", 0)
+            if amz_units == 0 and amz_brand_weekly.get(b, {}).get(w, {}).get("net", 0) > 0:
+                amz_units = int(amz_brand_weekly[b][w]["net"] / AVG_PRICE.get(b, 25))
+            cogs += amz_units * AVG_COGS.get(b, 8)
+        gm = rev - cogs
+        ad_sp = sum(ad_weekly.get(p, {}).get(w, {}).get("spend", 0) for p in ["Amazon Ads", "Meta CVR", "Meta Traffic", "Google Ads"])
+        disc = sum(brand_weekly.get(b, {}).get(w, {}).get("disc", 0) for b in BRAND_ORDER + ["Other"])
+        mkt = ad_sp + abs(disc)
+        cm = gm - mkt
+        wk_rev_arr.append(round(rev))
+        wk_cogs_arr.append(round(cogs))
+        wk_gm_arr.append(round(gm))
+        wk_ad_spend_arr.append(round(ad_sp))
+        wk_disc_arr.append(round(abs(disc)))
+        wk_mkt_arr.append(round(mkt))
+        wk_cm_arr.append(round(cm))
+
+    weekly_data = {
+        "weeks": weeks,
+        "week_labels": week_labels_all,
+        "brand_revenue": wk_brand_rev,
+        "channel_revenue": wk_channel_rev,
+        "ad_performance": wk_ad_perf,
+        "ads_landing": wk_ads_landing,
+        "brand_performance": wk_brand_perf,
+        "waterfall": {
+            "revenue": wk_rev_arr,
+            "cogs": wk_cogs_arr,
+            "gross_margin": wk_gm_arr,
+            "ad_spend": wk_ad_spend_arr,
+            "discounts": wk_disc_arr,
+            "mkt_total": wk_mkt_arr,
+            "contribution_margin": wk_cm_arr,
+        },
+        "channel_pnl": {},
+    }
+
+    # Build weekly channel P&L
+    def _ch_pnl_wk(ch, wlist):
+        rev_a, cogs_a, fees_a, ad_a = [], [], [], []
+        for w in wlist:
+            rev = cogs = fees = ad_sp = 0
+            if ch == "Amazon MP":
+                for b in BRAND_ORDER + ["Other"]:
+                    net = amz_brand_weekly.get(b, {}).get(w, {}).get("net", 0)
+                    units = amz_brand_weekly.get(b, {}).get(w, {}).get("units", 0)
+                    if units == 0 and net > 0:
+                        units = int(net / AVG_PRICE.get(b, 25))
+                    rev += net
+                    cogs += units * AVG_COGS.get(b, 8)
+                fees = amz_fees_weekly.get(w, 0)
+                ad_sp = (ad_weekly.get("Amazon Ads", {}).get(w, {}).get("spend", 0)
+                         + ad_weekly.get("Meta Traffic", {}).get(w, {}).get("spend", 0))
+            elif ch == "Onzenna D2C":
+                rev = channel_weekly.get("Onzenna D2C", {}).get(w, {}).get("net", 0)
+                for b in BRAND_ORDER + ["Other"]:
+                    bw = brand_weekly.get(b, {}).get(w, {})
+                    b_units = bw.get("units", 0)
+                    if b_units == 0 and bw.get("net", 0) > 0:
+                        b_units = int(bw["net"] / AVG_PRICE.get(b, 25))
+                    cogs += b_units * AVG_COGS.get(b, 8)
+                ad_sp = (ad_weekly.get("Meta CVR", {}).get(w, {}).get("spend", 0)
+                         + ad_weekly.get("Google Ads", {}).get(w, {}).get("spend", 0))
+            elif ch == "Target+":
+                rev = channel_weekly.get("Target+", {}).get(w, {}).get("net", 0)
+                cogs = channel_weekly.get("Target+", {}).get(w, {}).get("orders", 0) * 10
+            elif ch == "B2B":
+                rev = channel_weekly.get("B2B", {}).get(w, {}).get("net", 0)
+                cogs = channel_weekly.get("B2B", {}).get(w, {}).get("orders", 0) * 12
+            rev_a.append(round(rev)); cogs_a.append(round(cogs)); fees_a.append(round(fees)); ad_a.append(round(ad_sp))
+        gm_a = [r-c-f for r,c,f in zip(rev_a, cogs_a, fees_a)]
+        cm_a = [g-a for g,a in zip(gm_a, ad_a)]
+        return {"revenue":rev_a,"cogs":cogs_a,"fees":fees_a,"ad_spend":ad_a,"gross_margin":gm_a,"contribution_margin":cm_a,"color":CHANNEL_PNL_COLORS.get(ch,"#94a3b8")}
+
+    for ch in ["Amazon MP", "Onzenna D2C", "Target+", "B2B"]:
+        d = _ch_pnl_wk(ch, weeks)
+        if any(v > 0 for v in d["revenue"]):
+            weekly_data["channel_pnl"][ch] = d
+
+    print(f"  Weekly: {len(weeks)} weeks ({weeks[0]} -> {weeks[-1]})")
+
+    # ── Campaign-level detail (weekly + monthly) ────────────────────────────
+    print("\n[8/8] Building campaign-level detail...")
+
+    from datetime import date as _date_type
+
+    # Helper: ISO week label "W12 (Mar 17)"
+    def _week_label(iso_yr, iso_wk):
+        try:
+            d = _date_type.fromisocalendar(iso_yr, iso_wk, 1)
+            return f"W{iso_wk} ({d.strftime('%b %d')})"
+        except Exception:
+            return f"W{iso_wk}"
+
+    # Collect campaign-level daily rows (all platforms)
+    campaign_daily = []  # list of dicts with normalized fields
+
+    for r in amazon_ads:
+        d = r.get("date", "")
+        if not d or d > through:
+            continue
+        campaign_daily.append({
+            "date": d,
+            "platform": "Amazon Ads",
+            "campaign_id": r.get("campaign_id", ""),
+            "campaign_name": r.get("campaign_name", ""),
+            "brand": r.get("brand") or "Other",
+            "spend": float(r.get("spend") or 0),
+            "sales": float(r.get("sales") or 0),
+            "impressions": int(r.get("impressions") or 0),
+            "clicks": int(r.get("clicks") or 0),
+        })
+
+    for r in meta_ads:
+        d = r.get("date", "")
+        if not d or d > through:
+            continue
+        cname = (r.get("campaign_name") or "").lower()
+        landing = (r.get("landing_url") or "").lower()
+        is_amz = "amazon" in cname or "amz" in cname or "amazon" in landing
+        platform = "Meta Traffic" if is_amz else "Meta CVR"
+        campaign_daily.append({
+            "date": d,
+            "platform": platform,
+            "campaign_id": r.get("campaign_id", ""),
+            "campaign_name": r.get("campaign_name", ""),
+            "brand": r.get("brand") or "Other",
+            "spend": float(r.get("spend") or 0),
+            "sales": float(r.get("purchase_value") or 0),
+            "impressions": int(r.get("impressions") or 0),
+            "clicks": int(r.get("clicks") or 0),
+        })
+
+    for r in google_ads:
+        d = r.get("date", "")
+        if not d or d > through:
+            continue
+        campaign_daily.append({
+            "date": d,
+            "platform": "Google Ads",
+            "campaign_id": r.get("campaign_id", ""),
+            "campaign_name": r.get("campaign_name", ""),
+            "brand": "Grosmimi",
+            "spend": float(r.get("spend") or 0),
+            "sales": float(r.get("conversion_value") or 0),
+            "impressions": int(r.get("impressions") or 0),
+            "clicks": int(r.get("clicks") or 0),
+        })
+
+    # Aggregate by campaign x week and campaign x month
+    camp_weekly = defaultdict(lambda: defaultdict(lambda: {
+        "spend": 0, "sales": 0, "impressions": 0, "clicks": 0
+    }))
+    camp_monthly_agg = defaultdict(lambda: defaultdict(lambda: {
+        "spend": 0, "sales": 0, "impressions": 0, "clicks": 0
+    }))
+    camp_meta = {}  # campaign_id -> {name, platform, brand}
+
+    for row in campaign_daily:
+        cid = row["campaign_id"]
+        d = row["date"]
+        month = d[:7]
+        dt = datetime.strptime(d, "%Y-%m-%d").date()
+        iso_yr, iso_wk, _ = dt.isocalendar()
+        wk_key = f"{iso_yr}-W{iso_wk:02d}"
+
+        camp_weekly[cid][wk_key]["spend"] += row["spend"]
+        camp_weekly[cid][wk_key]["sales"] += row["sales"]
+        camp_weekly[cid][wk_key]["impressions"] += row["impressions"]
+        camp_weekly[cid][wk_key]["clicks"] += row["clicks"]
+
+        camp_monthly_agg[cid][month]["spend"] += row["spend"]
+        camp_monthly_agg[cid][month]["sales"] += row["sales"]
+        camp_monthly_agg[cid][month]["impressions"] += row["impressions"]
+        camp_monthly_agg[cid][month]["clicks"] += row["clicks"]
+
+        if cid not in camp_meta:
+            camp_meta[cid] = {
+                "name": row["campaign_name"],
+                "platform": row["platform"],
+                "brand": row["brand"],
+            }
+
+    # Build week labels (last 12 weeks)
+    today_iso = today.isocalendar()
+    week_keys = []
+    for w_offset in range(11, -1, -1):
+        dt_w = today - timedelta(weeks=w_offset)
+        iy, iw, _ = dt_w.isocalendar()
+        wk = f"{iy}-W{iw:02d}"
+        if wk not in week_keys:
+            week_keys.append(wk)
+
+    week_labels = []
+    for wk in week_keys:
+        parts = wk.split("-W")
+        week_labels.append(_week_label(int(parts[0]), int(parts[1])))
+
+    # Build campaign detail entries
+    def _camp_entry(cid, agg_dict, period_keys):
+        m = camp_meta.get(cid, {})
+        spend_arr = [round(agg_dict[cid].get(pk, {}).get("spend", 0), 2) for pk in period_keys]
+        sales_arr = [round(agg_dict[cid].get(pk, {}).get("sales", 0), 2) for pk in period_keys]
+        impr_arr = [agg_dict[cid].get(pk, {}).get("impressions", 0) for pk in period_keys]
+        click_arr = [agg_dict[cid].get(pk, {}).get("clicks", 0) for pk in period_keys]
+        total_spend = sum(spend_arr)
+        total_sales = sum(sales_arr)
+        return {
+            "id": cid,
+            "name": m.get("name", ""),
+            "platform": m.get("platform", ""),
+            "brand": m.get("brand", "Other"),
+            "spend": spend_arr,
+            "sales": sales_arr,
+            "impressions": impr_arr,
+            "clicks": click_arr,
+            "total_spend": round(total_spend, 2),
+            "total_sales": round(total_sales, 2),
+            "roas": round(total_sales / total_spend, 2) if total_spend > 0 else 0,
+        }
+
+    # Weekly entries (last 12 weeks, only campaigns with spend)
+    weekly_entries = []
+    for cid in camp_weekly:
+        e = _camp_entry(cid, camp_weekly, week_keys)
+        if e["total_spend"] > 0:
+            weekly_entries.append(e)
+    weekly_entries.sort(key=lambda x: x["total_spend"], reverse=True)
+
+    # Monthly entries (ad_months only)
+    monthly_entries = []
+    for cid in camp_monthly_agg:
+        e = _camp_entry(cid, camp_monthly_agg, ad_months)
+        if e["total_spend"] > 0:
+            monthly_entries.append(e)
+    monthly_entries.sort(key=lambda x: x["total_spend"], reverse=True)
+
+    # Top / Bottom performers (by ROAS, min spend threshold)
+    def _top_bottom(entries, min_spend=50):
+        qualified = [e for e in entries if e["total_spend"] >= min_spend]
+        top = sorted(qualified, key=lambda x: x["roas"], reverse=True)[:10]
+        bottom = sorted(qualified, key=lambda x: x["roas"])[:10]
+        return top, bottom
+
+    weekly_top, weekly_bottom = _top_bottom(weekly_entries, min_spend=20)
+    monthly_top, monthly_bottom = _top_bottom(monthly_entries, min_spend=50)
+
+    # New campaigns: appeared this month but not in previous months
+    current_month = ad_months[-1] if ad_months else ""
+    prev_months = set(ad_months[:-1]) if len(ad_months) > 1 else set()
+    new_campaigns = []
+    for cid in camp_monthly_agg:
+        has_current = camp_monthly_agg[cid].get(current_month, {}).get("spend", 0) > 0
+        has_prev = any(camp_monthly_agg[cid].get(pm, {}).get("spend", 0) > 0 for pm in prev_months)
+        if has_current and not has_prev:
+            e = _camp_entry(cid, camp_monthly_agg, [current_month])
+            if e["total_spend"] > 0:
+                new_campaigns.append(e)
+    new_campaigns.sort(key=lambda x: x["total_spend"], reverse=True)
+
+    campaign_detail = {
+        "week_keys": week_keys,
+        "week_labels": week_labels,
+        "month_keys": ad_months,
+        "weekly_all": weekly_entries[:50],  # top 50 by spend
+        "weekly_top": weekly_top,
+        "weekly_bottom": weekly_bottom,
+        "monthly_all": monthly_entries[:50],
+        "monthly_top": monthly_top,
+        "monthly_bottom": monthly_bottom,
+        "new_campaigns": new_campaigns,
+        "current_month": current_month,
+    }
+
+    print(f"  Campaigns: {len(camp_meta)} total, weekly={len(weekly_entries)}, monthly={len(monthly_entries)}")
+    print(f"  New this month ({current_month}): {len(new_campaigns)}")
+    print(f"  Top/Bottom weekly: {len(weekly_top)}/{len(weekly_bottom)}, monthly: {len(monthly_top)}/{len(monthly_bottom)}")
+
     # ── Assemble final data ───────────────────────────────────────────────────
     fin_data = {
         "generated_pst": now_pst.strftime("%Y-%m-%d %H:%M PST"),
@@ -1540,6 +1771,8 @@ def generate():
         "traffic_sources": traffic_data,
         "pnl_polar": pnl_polar,
         "klaviyo": klaviyo_data,
+        "campaign_detail": campaign_detail,
+        "weekly": weekly_data,
     }
 
     # ── Write output ──────────────────────────────────────────────────────────

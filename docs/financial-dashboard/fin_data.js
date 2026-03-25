@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-24 17:01 PST",
+ "generated_pst": "2026-03-25 00:18 PST",
  "through_date": "2026-03-23",
  "months": [
   "2025-06",
@@ -17,16 +17,16 @@ const FIN_DATA = {
   {
    "name": "shopify_orders_daily",
    "label": "Shopify Orders",
-   "rows": 2469,
-   "min_date": "2025-05-19",
+   "rows": 2465,
+   "min_date": "2025-05-20",
    "max_date": "2026-03-24",
    "refresh": "2x daily"
   },
   {
    "name": "amazon_sales_daily",
    "label": "Amazon Sales (SP-API)",
-   "rows": 869,
-   "min_date": "2025-05-19",
+   "rows": 867,
+   "min_date": "2025-05-20",
    "max_date": "2026-03-23",
    "refresh": "2x daily"
   },
@@ -41,24 +41,24 @@ const FIN_DATA = {
   {
    "name": "meta_ads_daily",
    "label": "Meta Ads",
-   "rows": 6411,
-   "min_date": "2025-05-19",
+   "rows": 6394,
+   "min_date": "2025-05-20",
    "max_date": "2026-03-23",
    "refresh": "2x daily"
   },
   {
    "name": "google_ads_daily",
    "label": "Google Ads",
-   "rows": 729,
-   "min_date": "2025-05-19",
+   "rows": 723,
+   "min_date": "2025-05-20",
    "max_date": "2026-03-23",
    "refresh": "2x daily"
   },
   {
    "name": "ga4_daily",
    "label": "GA4 Analytics",
-   "rows": 3309,
-   "min_date": "2025-05-19",
+   "rows": 3299,
+   "min_date": "2025-05-20",
    "max_date": "2026-03-23",
    "refresh": "2x daily"
   },
@@ -73,8 +73,8 @@ const FIN_DATA = {
   {
    "name": "gsc_daily",
    "label": "Google Search Console",
-   "rows": 5408,
-   "min_date": "2026-02-22",
+   "rows": 5279,
+   "min_date": "2026-02-23",
    "max_date": "2026-03-23",
    "refresh": "2x daily"
   },
@@ -96,36 +96,36 @@ const FIN_DATA = {
  },
  "summary": {
   "7d": {
-   "total_revenue": 181794,
-   "shopify_revenue": 34640,
-   "amazon_revenue": 147153,
-   "total_orders": 6693,
-   "total_ad_spend": 29507,
-   "ad_attributed_sales": 97318,
-   "organic_revenue": 84475,
-   "gross_margin": 112279,
-   "gm_pct": 61.8,
-   "contribution_margin": 81663,
-   "cm_pct": 44.9,
+   "total_revenue": 157413,
+   "shopify_revenue": 31519,
+   "amazon_revenue": 125894,
+   "total_orders": 5711,
+   "total_ad_spend": 25555,
+   "ad_attributed_sales": 83116,
+   "organic_revenue": 74297,
+   "gross_margin": 96973,
+   "gm_pct": 61.6,
+   "contribution_margin": 70522,
+   "cm_pct": 44.8,
    "mer": 6.16,
-   "roas": 3.3,
-   "discount_rate": 3.1
+   "roas": 3.25,
+   "discount_rate": 2.8
   },
   "30d": {
-   "total_revenue": 706022,
-   "shopify_revenue": 96828,
-   "amazon_revenue": 609193,
-   "total_orders": 27815,
-   "total_ad_spend": 130865,
-   "ad_attributed_sales": 462843,
-   "organic_revenue": 243179,
-   "gross_margin": 445630,
+   "total_revenue": 685306,
+   "shopify_revenue": 93723,
+   "amazon_revenue": 591583,
+   "total_orders": 26990,
+   "total_ad_spend": 126299,
+   "ad_attributed_sales": 447012,
+   "organic_revenue": 238294,
+   "gross_margin": 432283,
    "gm_pct": 63.1,
-   "contribution_margin": 309268,
-   "cm_pct": 43.8,
-   "mer": 5.4,
+   "contribution_margin": 300832,
+   "cm_pct": 43.9,
+   "mer": 5.43,
    "roas": 3.54,
-   "discount_rate": 5.4
+   "discount_rate": 5.2
   },
   "mtd": {
    "total_revenue": 556000,
@@ -2334,45 +2334,45 @@ const FIN_DATA = {
  "gsc_queries": [
   {
    "query": "onzenna",
-   "impressions": 408,
-   "clicks": 89,
-   "ctr": 21.81,
+   "impressions": 395,
+   "clicks": 86,
+   "ctr": 21.77,
    "position": 4.1
   },
   {
    "query": "zezebaebae",
-   "impressions": 259,
-   "clicks": 62,
-   "ctr": 23.94,
+   "impressions": 243,
+   "clicks": 60,
+   "ctr": 24.69,
    "position": 4.1
   },
   {
    "query": "grosmimi",
-   "impressions": 1559,
-   "clicks": 33,
+   "impressions": 1507,
+   "clicks": 32,
    "ctr": 2.12,
-   "position": 8.2
+   "position": 8.1
   },
   {
    "query": "grosmimi stainless steel plate",
-   "impressions": 90,
+   "impressions": 87,
    "clicks": 9,
-   "ctr": 10.0,
-   "position": 5.3
-  },
-  {
-   "query": "grosmimi straw cup",
-   "impressions": 2336,
-   "clicks": 7,
-   "ctr": 0.3,
-   "position": 9.7
+   "ctr": 10.34,
+   "position": 5.1
   },
   {
    "query": "zezebebe",
-   "impressions": 49,
+   "impressions": 48,
    "clicks": 7,
-   "ctr": 14.29,
-   "position": 3.4
+   "ctr": 14.58,
+   "position": 3.5
+  },
+  {
+   "query": "grosmimi straw cup",
+   "impressions": 2267,
+   "clicks": 7,
+   "ctr": 0.31,
+   "position": 9.7
   },
   {
    "query": "grosmimi stainless steel food tray with 5 compartment",
@@ -2382,53 +2382,46 @@ const FIN_DATA = {
    "position": 5.4
   },
   {
-   "query": "beemymagic stainless steel",
-   "impressions": 106,
-   "clicks": 6,
-   "ctr": 5.66,
-   "position": 4.7
-  },
-  {
    "query": "grosmimi stainless steel",
-   "impressions": 345,
+   "impressions": 337,
    "clicks": 6,
-   "ctr": 1.74,
-   "position": 7.2
+   "ctr": 1.78,
+   "position": 7.3
   },
   {
    "query": "beemymagic",
-   "impressions": 86,
+   "impressions": 85,
    "clicks": 6,
-   "ctr": 6.98,
-   "position": 5.0
+   "ctr": 7.06,
+   "position": 5.2
   },
   {
    "query": "grosmimi tumbler cap",
-   "impressions": 36,
+   "impressions": 34,
    "clicks": 5,
-   "ctr": 13.89,
+   "ctr": 14.71,
    "position": 2.6
   },
   {
    "query": "bamboo bebe gauze",
-   "impressions": 31,
+   "impressions": 30,
    "clicks": 5,
-   "ctr": 16.13,
-   "position": 6.2
+   "ctr": 16.67,
+   "position": 6.0
+  },
+  {
+   "query": "beemymagic stainless steel",
+   "impressions": 99,
+   "clicks": 5,
+   "ctr": 5.05,
+   "position": 4.7
   },
   {
    "query": "cha&mom",
-   "impressions": 43,
+   "impressions": 42,
    "clicks": 4,
-   "ctr": 9.3,
-   "position": 3.5
-  },
-  {
-   "query": "alpremio",
-   "impressions": 165,
-   "clicks": 4,
-   "ctr": 2.42,
-   "position": 5.2
+   "ctr": 9.52,
+   "position": 2.9
   },
   {
    "query": "cha and mom",
@@ -2438,38 +2431,45 @@ const FIN_DATA = {
    "position": 2.0
   },
   {
-   "query": "best korean baby products",
-   "impressions": 22,
+   "query": "alpremio",
+   "impressions": 161,
    "clicks": 4,
-   "ctr": 18.18,
+   "ctr": 2.48,
+   "position": 5.2
+  },
+  {
+   "query": "best korean baby products",
+   "impressions": 21,
+   "clicks": 4,
+   "ctr": 19.05,
    "position": 3.8
   },
   {
-   "query": "zezebaebae reviews",
-   "impressions": 88,
-   "clicks": 3,
-   "ctr": 3.41,
-   "position": 4.3
-  },
-  {
-   "query": "commemoi",
-   "impressions": 24,
-   "clicks": 3,
-   "ctr": 12.5,
-   "position": 3.9
-  },
-  {
    "query": "grosmimi stainless steel straw cup",
-   "impressions": 216,
+   "impressions": 208,
    "clicks": 3,
-   "ctr": 1.39,
+   "ctr": 1.44,
    "position": 8.4
   },
   {
-   "query": "grossmimi",
-   "impressions": 153,
+   "query": "zezebaebae reviews",
+   "impressions": 87,
    "clicks": 3,
-   "ctr": 1.96,
+   "ctr": 3.45,
+   "position": 4.4
+  },
+  {
+   "query": "commemoi",
+   "impressions": 23,
+   "clicks": 3,
+   "ctr": 13.04,
+   "position": 3.6
+  },
+  {
+   "query": "grossmimi",
+   "impressions": 146,
+   "clicks": 3,
+   "ctr": 2.05,
    "position": 5.1
   }
  ],
@@ -2477,50 +2477,50 @@ const FIN_DATA = {
   "7d": [
    {
     "query": "onzenna",
-    "clicks": 32,
-    "impressions": 134,
-    "avg_position": 3.1,
-    "ctr": 23.88,
+    "clicks": 23,
+    "impressions": 107,
+    "avg_position": 3.0,
+    "ctr": 21.5,
     "weekly_positions": [
-     3.1
+     3.0
     ]
    },
    {
     "query": "zezebaebae",
-    "clicks": 22,
-    "impressions": 57,
+    "clicks": 19,
+    "impressions": 50,
     "avg_position": 3.5,
-    "ctr": 38.6,
+    "ctr": 38.0,
     "weekly_positions": [
-     3.4
+     3.5
     ]
    },
    {
     "query": "grosmimi",
-    "clicks": 8,
-    "impressions": 286,
-    "avg_position": 7.1,
-    "ctr": 2.8,
+    "clicks": 6,
+    "impressions": 240,
+    "avg_position": 7.2,
+    "ctr": 2.5,
     "weekly_positions": [
-     7.1
+     7.2
     ]
    },
    {
     "query": "zezebebe",
     "clicks": 5,
-    "impressions": 14,
-    "avg_position": 2.1,
-    "ctr": 35.71,
+    "impressions": 11,
+    "avg_position": 1.6,
+    "ctr": 45.45,
     "weekly_positions": [
-     2.1
+     1.6
     ]
    },
    {
     "query": "grosmimi stainless steel plate",
     "clicks": 4,
-    "impressions": 29,
+    "impressions": 27,
     "avg_position": 2.5,
-    "ctr": 13.79,
+    "ctr": 14.81,
     "weekly_positions": [
      2.5
     ]
@@ -2528,31 +2528,11 @@ const FIN_DATA = {
    {
     "query": "grosmimi straw cup",
     "clicks": 3,
-    "impressions": 437,
+    "impressions": 385,
     "avg_position": 10.3,
-    "ctr": 0.69,
+    "ctr": 0.78,
     "weekly_positions": [
      10.3
-    ]
-   },
-   {
-    "query": "bamboo bebe gauze",
-    "clicks": 3,
-    "impressions": 13,
-    "avg_position": 6.5,
-    "ctr": 23.08,
-    "weekly_positions": [
-     6.5
-    ]
-   },
-   {
-    "query": "cha&mom",
-    "clicks": 2,
-    "impressions": 6,
-    "avg_position": 2.0,
-    "ctr": 33.33,
-    "weekly_positions": [
-     2.0
     ]
    },
    {
@@ -2568,31 +2548,31 @@ const FIN_DATA = {
    {
     "query": "grosmimi stainless steel",
     "clicks": 2,
-    "impressions": 63,
-    "avg_position": 8.6,
-    "ctr": 3.17,
+    "impressions": 50,
+    "avg_position": 8.8,
+    "ctr": 4.0,
     "weekly_positions": [
-     8.6
+     8.8
     ]
    },
    {
     "query": "alpremio nursing seat",
     "clicks": 2,
-    "impressions": 13,
-    "avg_position": 2.7,
-    "ctr": 15.38,
+    "impressions": 10,
+    "avg_position": 2.4,
+    "ctr": 20.0,
     "weekly_positions": [
-     2.7
+     2.4
     ]
    },
    {
-    "query": "cha and mom",
+    "query": "bamboo bebe gauze",
     "clicks": 2,
-    "impressions": 5,
-    "avg_position": 1.0,
-    "ctr": 40.0,
+    "impressions": 10,
+    "avg_position": 6.1,
+    "ctr": 20.0,
     "weekly_positions": [
-     1.0
+     6.1
     ]
    },
    {
@@ -2608,11 +2588,21 @@ const FIN_DATA = {
    {
     "query": "commemoi",
     "clicks": 1,
-    "impressions": 4,
-    "avg_position": 3.8,
-    "ctr": 25.0,
+    "impressions": 3,
+    "avg_position": 4.7,
+    "ctr": 33.33,
     "weekly_positions": [
-     3.8
+     4.7
+    ]
+   },
+   {
+    "query": "cha&mom",
+    "clicks": 1,
+    "impressions": 5,
+    "avg_position": 2.5,
+    "ctr": 20.0,
+    "weekly_positions": [
+     2.5
     ]
    },
    {
@@ -2638,11 +2628,11 @@ const FIN_DATA = {
    {
     "query": "grosmimi tumbler cap",
     "clicks": 1,
-    "impressions": 6,
-    "avg_position": 1.4,
-    "ctr": 16.67,
+    "impressions": 5,
+    "avg_position": 1.5,
+    "ctr": 20.0,
     "weekly_positions": [
-     1.4
+     1.5
     ]
    },
    {
@@ -2658,9 +2648,9 @@ const FIN_DATA = {
    {
     "query": "grossmimi",
     "clicks": 1,
-    "impressions": 33,
+    "impressions": 26,
     "avg_position": 5.5,
-    "ctr": 3.03,
+    "ctr": 3.85,
     "weekly_positions": [
      5.5
     ]
@@ -2668,11 +2658,11 @@ const FIN_DATA = {
    {
     "query": "grosmimi replacement parts",
     "clicks": 1,
-    "impressions": 10,
-    "avg_position": 2.3,
-    "ctr": 10.0,
+    "impressions": 7,
+    "avg_position": 2.9,
+    "ctr": 14.29,
     "weekly_positions": [
-     2.3
+     2.9
     ]
    },
    {
@@ -2686,21 +2676,11 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "bamboo bebe",
-    "clicks": 1,
-    "impressions": 18,
-    "avg_position": 10.0,
-    "ctr": 5.56,
-    "weekly_positions": [
-     10.0
-    ]
-   },
-   {
     "query": "grosmimi cup",
     "clicks": 1,
-    "impressions": 160,
+    "impressions": 115,
     "avg_position": 10.6,
-    "ctr": 0.62,
+    "ctr": 0.87,
     "weekly_positions": [
      10.6
     ]
@@ -2708,11 +2688,11 @@ const FIN_DATA = {
    {
     "query": "alpremio feeding seat",
     "clicks": 1,
-    "impressions": 27,
-    "avg_position": 4.1,
-    "ctr": 3.7,
+    "impressions": 20,
+    "avg_position": 4.0,
+    "ctr": 5.0,
     "weekly_positions": [
-     4.1
+     4.0
     ]
    },
    {
@@ -2724,91 +2704,111 @@ const FIN_DATA = {
     "weekly_positions": [
      3.3
     ]
+   },
+   {
+    "query": "cha and mom",
+    "clicks": 1,
+    "impressions": 4,
+    "avg_position": 1.0,
+    "ctr": 25.0,
+    "weekly_positions": [
+     1.0
+    ]
+   },
+   {
+    "query": "korean baby bottle",
+    "clicks": 1,
+    "impressions": 4,
+    "avg_position": 3.1,
+    "ctr": 25.0,
+    "weekly_positions": [
+     3.1
+    ]
    }
   ],
   "30d": [
    {
     "query": "onzenna",
-    "clicks": 89,
-    "impressions": 408,
+    "clicks": 86,
+    "impressions": 395,
     "avg_position": 4.1,
-    "ctr": 21.81,
+    "ctr": 21.77,
     "weekly_positions": [
      4.4,
-     4.6,
-     4.4,
-     3.2,
-     3.2
+     4.9,
+     4.0,
+     3.1,
+     4.0
     ]
    },
    {
     "query": "zezebaebae",
-    "clicks": 62,
-    "impressions": 259,
+    "clicks": 60,
+    "impressions": 243,
     "avg_position": 4.1,
-    "ctr": 23.94,
+    "ctr": 24.69,
     "weekly_positions": [
      4.0,
-     5.1,
-     4.1,
-     3.3,
-     4.2
+     5.4,
+     3.8,
+     3.5,
+     null
     ]
    },
    {
     "query": "grosmimi",
-    "clicks": 33,
-    "impressions": 1559,
-    "avg_position": 8.2,
+    "clicks": 32,
+    "impressions": 1507,
+    "avg_position": 8.1,
     "ctr": 2.12,
     "weekly_positions": [
-     8.8,
-     6.9,
-     10.3,
-     7.6,
-     6.2
+     8.4,
+     6.8,
+     10.5,
+     7.3,
+     6.4
     ]
    },
    {
     "query": "grosmimi stainless steel plate",
     "clicks": 9,
-    "impressions": 90,
-    "avg_position": 5.3,
-    "ctr": 10.0,
+    "impressions": 87,
+    "avg_position": 5.1,
+    "ctr": 10.34,
     "weekly_positions": [
-     7.7,
-     8.0,
-     4.1,
-     2.4,
-     2.7
+     6.5,
+     7.8,
+     4.2,
+     2.5,
+     null
     ]
    },
    {
     "query": "zezebebe",
     "clicks": 7,
-    "impressions": 49,
-    "avg_position": 3.4,
-    "ctr": 14.29,
+    "impressions": 48,
+    "avg_position": 3.5,
+    "ctr": 14.58,
     "weekly_positions": [
      3.0,
-     5.3,
-     2.7,
-     3.1,
+     6.1,
+     3.5,
+     2.2,
      1.5
     ]
    },
    {
     "query": "grosmimi straw cup",
     "clicks": 7,
-    "impressions": 2336,
+    "impressions": 2267,
     "avg_position": 9.7,
-    "ctr": 0.3,
+    "ctr": 0.31,
     "weekly_positions": [
-     9.6,
-     9.3,
-     9.8,
-     10.4,
-     8.8
+     9.4,
+     9.5,
+     9.7,
+     10.6,
+     5.0
     ]
    },
    {
@@ -2818,106 +2818,106 @@ const FIN_DATA = {
     "avg_position": 5.4,
     "ctr": 28.57,
     "weekly_positions": [
-     7.3,
+     7.2,
      7.0,
      2.0,
-     5.5,
-     2.0
+     4.6,
+     null
     ]
    },
    {
     "query": "grosmimi stainless steel",
     "clicks": 6,
-    "impressions": 345,
-    "avg_position": 7.2,
-    "ctr": 1.74,
+    "impressions": 337,
+    "avg_position": 7.3,
+    "ctr": 1.78,
     "weekly_positions": [
-     7.3,
+     7.2,
      7.1,
-     7.1,
-     7.5,
-     null
-    ]
-   },
-   {
-    "query": "beemymagic stainless steel",
-    "clicks": 6,
-    "impressions": 106,
-    "avg_position": 4.7,
-    "ctr": 5.66,
-    "weekly_positions": [
-     4.0,
-     3.7,
-     4.6,
-     6.5,
+     6.7,
+     8.7,
      null
     ]
    },
    {
     "query": "beemymagic",
     "clicks": 6,
-    "impressions": 86,
-    "avg_position": 5.0,
-    "ctr": 6.98,
+    "impressions": 85,
+    "avg_position": 5.2,
+    "ctr": 7.06,
     "weekly_positions": [
-     3.9,
-     5.1,
-     4.0,
-     7.5,
+     4.2,
+     4.9,
+     6.6,
+     4.9,
      null
     ]
    },
    {
     "query": "grosmimi tumbler cap",
     "clicks": 5,
-    "impressions": 36,
+    "impressions": 34,
     "avg_position": 2.6,
-    "ctr": 13.89,
+    "ctr": 14.71,
     "weekly_positions": [
-     2.8,
-     2.7,
-     1.9,
-     3.7,
-     1.0
+     3.0,
+     1.8,
+     3.2,
+     1.4,
+     null
     ]
    },
    {
     "query": "bamboo bebe gauze",
     "clicks": 5,
-    "impressions": 31,
-    "avg_position": 6.2,
-    "ctr": 16.13,
+    "impressions": 30,
+    "avg_position": 6.0,
+    "ctr": 16.67,
     "weekly_positions": [
-     6.5,
+     6.0,
      null,
-     5.0,
+     5.4,
      6.7,
+     null
+    ]
+   },
+   {
+    "query": "beemymagic stainless steel",
+    "clicks": 5,
+    "impressions": 99,
+    "avg_position": 4.7,
+    "ctr": 5.05,
+    "weekly_positions": [
+     3.6,
+     3.8,
+     4.8,
+     6.6,
      null
     ]
    },
    {
     "query": "cha&mom",
     "clicks": 4,
-    "impressions": 43,
-    "avg_position": 3.5,
-    "ctr": 9.3,
+    "impressions": 42,
+    "avg_position": 2.9,
+    "ctr": 9.52,
     "weekly_positions": [
-     5.1,
-     2.8,
-     3.3,
+     2.4,
      3.0,
+     3.5,
+     2.0,
      2.0
     ]
    },
    {
     "query": "alpremio",
     "clicks": 4,
-    "impressions": 165,
+    "impressions": 161,
     "avg_position": 5.2,
-    "ctr": 2.42,
+    "ctr": 2.48,
     "weekly_positions": [
-     6.3,
-     5.6,
+     6.5,
+     5.4,
      4.3,
      3.2,
      null
@@ -2931,8 +2931,8 @@ const FIN_DATA = {
     "ctr": 20.0,
     "weekly_positions": [
      3.4,
+     3.6,
      1.0,
-     2.3,
      1.0,
      null
     ]
@@ -2940,13 +2940,13 @@ const FIN_DATA = {
    {
     "query": "best korean baby products",
     "clicks": 4,
-    "impressions": 22,
+    "impressions": 21,
     "avg_position": 3.8,
-    "ctr": 18.18,
+    "ctr": 19.05,
     "weekly_positions": [
-     5.8,
-     2.3,
-     4.3,
+     6.7,
+     2.7,
+     4.5,
      2.0,
      null
     ]
@@ -2954,110 +2954,96 @@ const FIN_DATA = {
    {
     "query": "zezebaebae reviews",
     "clicks": 3,
-    "impressions": 88,
-    "avg_position": 4.3,
-    "ctr": 3.41,
+    "impressions": 87,
+    "avg_position": 4.4,
+    "ctr": 3.45,
     "weekly_positions": [
-     5.9,
-     3.1,
+     5.6,
      2.8,
-     6.4,
-     2.6
+     6.6,
+     3.1,
+     1.0
     ]
    },
    {
     "query": "commemoi",
     "clicks": 3,
-    "impressions": 24,
-    "avg_position": 3.9,
-    "ctr": 12.5,
+    "impressions": 23,
+    "avg_position": 3.6,
+    "ctr": 13.04,
     "weekly_positions": [
-     3.9,
-     4.7,
-     4.3,
-     3.0,
+     2.9,
+     4.2,
+     4.0,
+     3.5,
      3.0
     ]
    },
    {
     "query": "grosmimi stainless steel straw cup",
     "clicks": 3,
-    "impressions": 216,
+    "impressions": 208,
     "avg_position": 8.4,
-    "ctr": 1.39,
+    "ctr": 1.44,
     "weekly_positions": [
      7.2,
      8.6,
-     7.5,
-     9.7,
-     11.5
+     7.8,
+     9.9,
+     12.0
     ]
    },
    {
     "query": "grossmimi",
     "clicks": 3,
-    "impressions": 153,
+    "impressions": 146,
     "avg_position": 5.1,
-    "ctr": 1.96,
+    "ctr": 2.05,
     "weekly_positions": [
+     5.5,
      5.4,
-     5.4,
-     4.3,
-     5.1,
-     6.4
-    ]
-   },
-   {
-    "query": "grosmimi cup",
-    "clicks": 3,
-    "impressions": 510,
-    "avg_position": 11.1,
-    "ctr": 0.59,
-    "weekly_positions": [
-     11.9,
-     10.8,
-     11.0,
-     10.6,
+     4.0,
+     5.5,
      null
     ]
    },
    {
     "query": "grosmimi straw replacement",
     "clicks": 3,
-    "impressions": 143,
-    "avg_position": 7.7,
-    "ctr": 2.1,
+    "impressions": 135,
+    "avg_position": 7.6,
+    "ctr": 2.22,
     "weekly_positions": [
-     8.6,
-     7.2,
-     8.1,
-     6.1,
+     8.2,
+     7.7,
+     7.3,
+     6.3,
      null
     ]
    },
    {
     "query": "hattung",
     "clicks": 3,
-    "impressions": 16,
-    "avg_position": 2.3,
-    "ctr": 18.75,
+    "impressions": 15,
+    "avg_position": 2.4,
+    "ctr": 20.0,
     "weekly_positions": [
      1.0,
-     1.8,
-     2.9,
-     3.0,
+     1.9,
+     3.3,
+     2.7,
      null
     ]
    },
    {
     "query": "hattung say house",
     "clicks": 3,
-    "impressions": 13,
-    "avg_position": 3.8,
-    "ctr": 23.08,
+    "impressions": 11,
+    "avg_position": 4.0,
+    "ctr": 27.27,
     "weekly_positions": [
-     2.9,
-     4.4,
+     3.1,
+     4.7,
      null,
      null,
      null
@@ -3071,10 +3057,24 @@ const FIN_DATA = {
     "ctr": 20.0,
     "weekly_positions": [
      null,
-     1.0,
-     2.9,
-     2.7,
+     2.2,
+     1.6,
+     3.5,
      1.0
+    ]
+   },
+   {
+    "query": "korean the bottle",
+    "clicks": 2,
+    "impressions": 12,
+    "avg_position": 5.2,
+    "ctr": 16.67,
+    "weekly_positions": [
+     null,
+     null,
+     8.0,
+     4.5,
+     null
     ]
    }
   ],
@@ -3228,7 +3228,7 @@ const FIN_DATA = {
      11.9,
      10.8,
      11.0,
-     10.6,
+     10.5,
      null
     ]
    },
@@ -3510,35 +3510,35 @@ const FIN_DATA = {
   {
    "query": "zezebaebae",
    "pos_7d": 3.5,
-   "clicks_7d": 22,
-   "impressions_7d": 57,
+   "clicks_7d": 19,
+   "impressions_7d": 50,
    "pos_30d": 4.1,
-   "clicks_30d": 62,
-   "impressions_30d": 259,
+   "clicks_30d": 60,
+   "impressions_30d": 243,
    "pos_90d": 3.7,
    "clicks_90d": 101,
    "impressions_90d": 369
   },
   {
    "query": "onzenna",
-   "pos_7d": 3.1,
-   "clicks_7d": 32,
-   "impressions_7d": 134,
+   "pos_7d": 3.0,
+   "clicks_7d": 23,
+   "impressions_7d": 107,
    "pos_30d": 4.1,
-   "clicks_30d": 89,
-   "impressions_30d": 408,
+   "clicks_30d": 86,
+   "impressions_30d": 395,
    "pos_90d": 4.2,
    "clicks_90d": 96,
    "impressions_90d": 562
   },
   {
    "query": "grosmimi",
-   "pos_7d": 7.1,
-   "clicks_7d": 8,
-   "impressions_7d": 286,
-   "pos_30d": 8.2,
-   "clicks_30d": 33,
-   "impressions_30d": 1559,
+   "pos_7d": 7.2,
+   "clicks_7d": 6,
+   "impressions_7d": 240,
+   "pos_30d": 8.1,
+   "clicks_30d": 32,
+   "impressions_30d": 1507,
    "pos_90d": 8.2,
    "clicks_90d": 64,
    "impressions_90d": 2318
@@ -3547,34 +3547,34 @@ const FIN_DATA = {
    "query": "grosmimi straw cup",
    "pos_7d": 10.3,
    "clicks_7d": 3,
-   "impressions_7d": 437,
+   "impressions_7d": 385,
    "pos_30d": 9.7,
    "clicks_30d": 7,
-   "impressions_30d": 2336,
+   "impressions_30d": 2267,
    "pos_90d": 9.3,
    "clicks_90d": 45,
    "impressions_90d": 3092
   },
   {
    "query": "grosmimi stainless steel",
-   "pos_7d": 8.6,
+   "pos_7d": 8.8,
    "clicks_7d": 2,
-   "impressions_7d": 63,
-   "pos_30d": 7.2,
+   "impressions_7d": 50,
+   "pos_30d": 7.3,
    "clicks_30d": 6,
-   "impressions_30d": 345,
+   "impressions_30d": 337,
    "pos_90d": 6.1,
    "clicks_90d": 15,
    "impressions_90d": 497
   },
   {
    "query": "zezebebe",
-   "pos_7d": 2.1,
+   "pos_7d": 1.6,
    "clicks_7d": 5,
-   "impressions_7d": 14,
-   "pos_30d": 3.4,
+   "impressions_7d": 11,
+   "pos_30d": 3.5,
    "clicks_30d": 7,
-   "impressions_30d": 49,
+   "impressions_30d": 48,
    "pos_90d": 2.8,
    "clicks_90d": 14,
    "impressions_90d": 79
@@ -3583,10 +3583,10 @@ const FIN_DATA = {
    "query": "grosmimi cup",
    "pos_7d": 10.6,
    "clicks_7d": 1,
-   "impressions_7d": 160,
-   "pos_30d": 11.1,
-   "clicks_30d": 3,
-   "impressions_30d": 510,
+   "impressions_7d": 115,
+   "pos_30d": null,
+   "clicks_30d": 0,
+   "impressions_30d": 0,
    "pos_90d": 10.7,
    "clicks_90d": 10,
    "impressions_90d": 771
@@ -3595,10 +3595,10 @@ const FIN_DATA = {
    "query": "grosmimi stainless steel plate",
    "pos_7d": 2.5,
    "clicks_7d": 4,
-   "impressions_7d": 29,
-   "pos_30d": 5.3,
+   "impressions_7d": 27,
+   "pos_30d": 5.1,
    "clicks_30d": 9,
-   "impressions_30d": 90,
+   "impressions_30d": 87,
    "pos_90d": 5.1,
    "clicks_90d": 10,
    "impressions_90d": 116
@@ -3608,33 +3608,33 @@ const FIN_DATA = {
    "pos_7d": null,
    "clicks_7d": 0,
    "impressions_7d": 0,
-   "pos_30d": 4.3,
+   "pos_30d": 4.4,
    "clicks_30d": 3,
-   "impressions_30d": 88,
+   "impressions_30d": 87,
    "pos_90d": 3.7,
    "clicks_90d": 10,
    "impressions_90d": 133
   },
   {
    "query": "cha&mom",
-   "pos_7d": 2.0,
-   "clicks_7d": 2,
-   "impressions_7d": 6,
-   "pos_30d": 3.5,
+   "pos_7d": 2.5,
+   "clicks_7d": 1,
+   "impressions_7d": 5,
+   "pos_30d": 2.9,
    "clicks_30d": 4,
-   "impressions_30d": 43,
+   "impressions_30d": 42,
    "pos_90d": 3.6,
    "clicks_90d": 8,
    "impressions_90d": 73
   },
   {
    "query": "bamboo bebe gauze",
-   "pos_7d": 6.5,
-   "clicks_7d": 3,
-   "impressions_7d": 13,
-   "pos_30d": 6.2,
+   "pos_7d": 6.1,
+   "clicks_7d": 2,
+   "impressions_7d": 10,
+   "pos_30d": 6.0,
    "clicks_30d": 5,
-   "impressions_30d": 31,
+   "impressions_30d": 30,
    "pos_90d": 6.2,
    "clicks_90d": 7,
    "impressions_90d": 42
@@ -3644,9 +3644,9 @@ const FIN_DATA = {
    "pos_7d": null,
    "clicks_7d": 0,
    "impressions_7d": 0,
-   "pos_30d": 5.0,
+   "pos_30d": 5.2,
    "clicks_30d": 6,
-   "impressions_30d": 86,
+   "impressions_30d": 85,
    "pos_90d": 5.2,
    "clicks_90d": 7,
    "impressions_90d": 111
@@ -3658,7 +3658,7 @@ const FIN_DATA = {
    "impressions_7d": 13,
    "pos_30d": 5.2,
    "clicks_30d": 4,
-   "impressions_30d": 165,
+   "impressions_30d": 161,
    "pos_90d": 5.1,
    "clicks_90d": 6,
    "impressions_90d": 227
@@ -3669,8 +3669,8 @@ const FIN_DATA = {
    "clicks_7d": 0,
    "impressions_7d": 0,
    "pos_30d": 4.7,
-   "clicks_30d": 6,
-   "impressions_30d": 106,
+   "clicks_30d": 5,
+   "impressions_30d": 99,
    "pos_90d": 4.9,
    "clicks_90d": 6,
    "impressions_90d": 156
@@ -3694,28 +3694,28 @@ const FIN_DATA = {
    "impressions_7d": 0,
    "pos_30d": 8.4,
    "clicks_30d": 3,
-   "impressions_30d": 216,
+   "impressions_30d": 208,
    "pos_90d": 7.7,
    "clicks_90d": 6,
    "impressions_90d": 321
   },
   {
    "query": "grosmimi tumbler cap",
-   "pos_7d": 1.4,
+   "pos_7d": 1.5,
    "clicks_7d": 1,
-   "impressions_7d": 6,
+   "impressions_7d": 5,
    "pos_30d": 2.6,
    "clicks_30d": 5,
-   "impressions_30d": 36,
+   "impressions_30d": 34,
    "pos_90d": 2.9,
    "clicks_90d": 6,
    "impressions_90d": 60
   },
   {
    "query": "alpremio feeding seat",
-   "pos_7d": 4.1,
+   "pos_7d": 4.0,
    "clicks_7d": 1,
-   "impressions_7d": 27,
+   "impressions_7d": 20,
    "pos_30d": null,
    "clicks_30d": 0,
    "impressions_30d": 0,
@@ -3730,7 +3730,7 @@ const FIN_DATA = {
    "impressions_7d": 0,
    "pos_30d": 3.8,
    "clicks_30d": 4,
-   "impressions_30d": 22,
+   "impressions_30d": 21,
    "pos_90d": 3.3,
    "clicks_90d": 4,
    "impressions_90d": 31
@@ -3738,8 +3738,8 @@ const FIN_DATA = {
   {
    "query": "cha and mom",
    "pos_7d": 1.0,
-   "clicks_7d": 2,
-   "impressions_7d": 5,
+   "clicks_7d": 1,
+   "impressions_7d": 4,
    "pos_30d": 2.0,
    "clicks_30d": 4,
    "impressions_30d": 20,
@@ -3749,12 +3749,12 @@ const FIN_DATA = {
   },
   {
    "query": "commemoi",
-   "pos_7d": 3.8,
+   "pos_7d": 4.7,
    "clicks_7d": 1,
-   "impressions_7d": 4,
-   "pos_30d": 3.9,
+   "impressions_7d": 3,
+   "pos_30d": 3.6,
    "clicks_30d": 3,
-   "impressions_30d": 24,
+   "impressions_30d": 23,
    "pos_90d": 3.9,
    "clicks_90d": 4,
    "impressions_90d": 32
@@ -3799,31 +3799,19 @@ const FIN_DATA = {
    "query": "grossmimi",
    "pos_7d": 5.5,
    "clicks_7d": 1,
-   "impressions_7d": 33,
+   "impressions_7d": 26,
    "pos_30d": 5.1,
    "clicks_30d": 3,
-   "impressions_30d": 153,
+   "impressions_30d": 146,
    "pos_90d": 4.9,
    "clicks_90d": 4,
    "impressions_90d": 213
   },
   {
    "query": "alpremio nursing seat",
-   "pos_7d": 2.7,
+   "pos_7d": 2.4,
    "clicks_7d": 2,
-   "impressions_7d": 13,
-   "pos_30d": null,
-   "clicks_30d": 0,
-   "impressions_30d": 0,
-   "pos_90d": null,
-   "clicks_90d": 0,
-   "impressions_90d": 0
-  },
-  {
-   "query": "bamboo bebe",
-   "pos_7d": 10.0,
-   "clicks_7d": 1,
-   "impressions_7d": 18,
+   "impressions_7d": 10,
    "pos_30d": null,
    "clicks_30d": 0,
    "impressions_30d": 0,
@@ -3845,9 +3833,9 @@ const FIN_DATA = {
   },
   {
    "query": "grosmimi replacement parts",
-   "pos_7d": 2.3,
+   "pos_7d": 2.9,
    "clicks_7d": 1,
-   "impressions_7d": 10,
+   "impressions_7d": 7,
    "pos_30d": null,
    "clicks_30d": 0,
    "impressions_30d": 0,
@@ -3860,9 +3848,9 @@ const FIN_DATA = {
    "pos_7d": null,
    "clicks_7d": 0,
    "impressions_7d": 0,
-   "pos_30d": 7.7,
+   "pos_30d": 7.6,
    "clicks_30d": 3,
-   "impressions_30d": 143,
+   "impressions_30d": 135,
    "pos_90d": null,
    "clicks_90d": 0,
    "impressions_90d": 0
@@ -3872,9 +3860,9 @@ const FIN_DATA = {
    "pos_7d": null,
    "clicks_7d": 0,
    "impressions_7d": 0,
-   "pos_30d": 2.3,
+   "pos_30d": 2.4,
    "clicks_30d": 3,
-   "impressions_30d": 16,
+   "impressions_30d": 15,
    "pos_90d": null,
    "clicks_90d": 0,
    "impressions_90d": 0
@@ -3884,9 +3872,21 @@ const FIN_DATA = {
    "pos_7d": null,
    "clicks_7d": 0,
    "impressions_7d": 0,
-   "pos_30d": 3.8,
+   "pos_30d": 4.0,
    "clicks_30d": 3,
-   "impressions_30d": 13,
+   "impressions_30d": 11,
+   "pos_90d": null,
+   "clicks_90d": 0,
+   "impressions_90d": 0
+  },
+  {
+   "query": "korean baby bottle",
+   "pos_7d": 3.1,
+   "clicks_7d": 1,
+   "impressions_7d": 4,
+   "pos_30d": null,
+   "clicks_30d": 0,
+   "impressions_30d": 0,
    "pos_90d": null,
    "clicks_90d": 0,
    "impressions_90d": 0
@@ -3908,9 +3908,9 @@ const FIN_DATA = {
    "pos_7d": 4.5,
    "clicks_7d": 2,
    "impressions_7d": 10,
-   "pos_30d": null,
-   "clicks_30d": 0,
-   "impressions_30d": 0,
+   "pos_30d": 5.2,
+   "clicks_30d": 2,
+   "impressions_30d": 12,
    "pos_90d": null,
    "clicks_90d": 0,
    "impressions_90d": 0
@@ -4110,94 +4110,6 @@ const FIN_DATA = {
    ]
   },
   {
-   "keyword": "chamom",
-   "brand": "CHA&MOM",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "korean infant snack",
-   "brand": "CHA&MOM",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "korean baby food",
-   "brand": "CHA&MOM",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "baby chew toy",
-   "brand": "Grosmimi",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "grosmimi teether",
-   "brand": "Grosmimi",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "baby teething toy",
-   "brand": "Grosmimi",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "silicone baby teether",
-   "brand": "Grosmimi",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "baby teether",
-   "brand": "Grosmimi",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "baby teething snacks",
-   "brand": "Naeiae",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "rice snack baby",
-   "brand": "Naeiae",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "korean baby snack",
-   "brand": "Naeiae",
-   "search_volume": 0,
-   "cpc": 0.0,
-   "competition_index": 0,
-   "monthly_trend": []
-  },
-  {
    "keyword": "baby rice crackers",
    "brand": "Naeiae",
    "search_volume": 0,
@@ -4220,6 +4132,94 @@ const FIN_DATA = {
    "cpc": 0.0,
    "competition_index": 0,
    "monthly_trend": []
+  },
+  {
+   "keyword": "korean baby snack",
+   "brand": "Naeiae",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "rice snack baby",
+   "brand": "Naeiae",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "baby teething snacks",
+   "brand": "Naeiae",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "baby teether",
+   "brand": "Grosmimi",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "silicone baby teether",
+   "brand": "Grosmimi",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "baby teething toy",
+   "brand": "Grosmimi",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "grosmimi teether",
+   "brand": "Grosmimi",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "baby chew toy",
+   "brand": "Grosmimi",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "korean baby food",
+   "brand": "CHA&MOM",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "korean infant snack",
+   "brand": "CHA&MOM",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "chamom",
+   "brand": "CHA&MOM",
+   "search_volume": 0,
+   "cpc": 0.0,
+   "competition_index": 0,
+   "monthly_trend": []
   }
  ],
  "brand_analytics": {
@@ -4235,20 +4235,20 @@ const FIN_DATA = {
    },
    {
     "term": "grosmimi straw cup",
-    "rank": 28204,
+    "rank": 23326,
     "asin_rank": 3,
     "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 8.68,
-    "conv_share": 1.84,
+    "click_share": 8.32,
+    "conv_share": 2.96,
     "is_ours": true
    },
    {
     "term": "grosmimi straw cup",
-    "rank": 28204,
+    "rank": 23805,
     "asin_rank": 2,
     "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 10.39,
-    "conv_share": 6.35,
+    "click_share": 10.05,
+    "conv_share": 4.31,
     "is_ours": true
    },
    {
@@ -4263,28 +4263,19 @@ const FIN_DATA = {
    {
     "term": "grosmimi straw replacement",
     "rank": 143204,
+    "asin_rank": 1,
+    "asin_name": "Grosmimi Replacements (Straw kit 2-Counts, Stage 2)",
+    "click_share": 44.13,
+    "conv_share": 43.06,
+    "is_ours": true
+   },
+   {
+    "term": "grosmimi straw replacement",
+    "rank": 143204,
     "asin_rank": 2,
     "asin_name": "Grosmimi Replacements (Straw only 4-counts, Stage 2)",
     "click_share": 26.96,
     "conv_share": 22.22,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi straw replacement",
-    "rank": 149314,
-    "asin_rank": 1,
-    "asin_name": "Grosmimi Replacements (Straw kit 2-Counts, Stage 2)",
-    "click_share": 45.91,
-    "conv_share": 43.38,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi straw replacement",
-    "rank": 149314,
-    "asin_rank": 3,
-    "asin_name": "Grosmimi Replacements (Straw kit 4-counts, Stage2)",
-    "click_share": 7.73,
-    "conv_share": 4.11,
     "is_ours": true
    },
    {
@@ -4297,30 +4288,30 @@ const FIN_DATA = {
     "is_ours": true
    },
    {
+    "term": "grossini straw cup",
+    "rank": 192475,
+    "asin_rank": 2,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 10.37,
+    "conv_share": 3.53,
+    "is_ours": true
+   },
+   {
     "term": "grosmimi",
-    "rank": 201149,
+    "rank": 201907,
+    "asin_rank": 1,
+    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
+    "click_share": 12.35,
+    "conv_share": 6.45,
+    "is_ours": true
+   },
+   {
+    "term": "grosmimi",
+    "rank": 201907,
     "asin_rank": 3,
     "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 6.65,
-    "conv_share": 1.59,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi",
-    "rank": 201149,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 11.18,
-    "conv_share": 1.59,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi",
-    "rank": 201149,
-    "asin_rank": 1,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 13.9,
-    "conv_share": 1.59,
+    "click_share": 6.63,
+    "conv_share": 0.0,
     "is_ours": true
    },
    {
@@ -4333,21 +4324,21 @@ const FIN_DATA = {
     "is_ours": true
    },
    {
+    "term": "grosmimi",
+    "rank": 212812,
+    "asin_rank": 2,
+    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
+    "click_share": 9.21,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
     "term": "milk bottle for toddlers 1-3 years",
     "rank": 220514,
     "asin_rank": 2,
     "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
     "click_share": 7.21,
     "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "grossini straw cup",
-    "rank": 230641,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 10.69,
-    "conv_share": 6.25,
     "is_ours": true
    },
    {
@@ -4362,19 +4353,19 @@ const FIN_DATA = {
    {
     "term": "grosmimi stainless steel straw cup",
     "rank": 261534,
-    "asin_rank": 3,
+    "asin_rank": 2,
     "asin_name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with ",
-    "click_share": 9.3,
-    "conv_share": 6.52,
+    "click_share": 20.93,
+    "conv_share": 4.35,
     "is_ours": true
    },
    {
     "term": "grosmimi stainless steel straw cup",
     "rank": 261534,
-    "asin_rank": 2,
+    "asin_rank": 3,
     "asin_name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with ",
-    "click_share": 20.93,
-    "conv_share": 4.35,
+    "click_share": 9.3,
+    "conv_share": 6.52,
     "is_ours": true
    },
    {
@@ -4403,18 +4394,18 @@ const FIN_DATA = {
     "click_share": 5.93,
     "conv_share": 0.0,
     "is_ours": true
+   },
+   {
+    "term": "milk bottle for toddlers 3-5",
+    "rank": 564070,
+    "asin_rank": 2,
+    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
+    "click_share": 6.56,
+    "conv_share": 0.0,
+    "is_ours": true
    }
   ],
   "Naeiae": [
-   {
-    "term": "yugwa korean rice puff snack",
-    "rank": 997786,
-    "asin_rank": 2,
-    "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
-    "click_share": 20.29,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
    {
     "term": "rice snack",
     "rank": 1500176,
@@ -4434,15 +4425,6 @@ const FIN_DATA = {
     "is_ours": true
    },
    {
-    "term": "pop rice snack baby",
-    "rank": 2490142,
-    "asin_rank": 1,
-    "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
-    "click_share": 70.37,
-    "conv_share": 50.0,
-    "is_ours": true
-   },
-   {
     "term": "korean rice snacks",
     "rank": 2501083,
     "asin_rank": 1,
@@ -4450,35 +4432,26 @@ const FIN_DATA = {
     "click_share": 14.81,
     "conv_share": 0.0,
     "is_ours": true
-   },
-   {
-    "term": "pop rice snack",
-    "rank": 2577486,
-    "asin_rank": 1,
-    "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
-    "click_share": 88.46,
-    "conv_share": 100.0,
-    "is_ours": true
    }
   ]
  },
  "brand_analytics_category": [
   {
    "term": "baby wipes",
-   "rank": 137,
-   "asin_rank": 2,
+   "rank": 144,
+   "asin_rank": 1,
    "asin_name": "Huggies Natural Care Sensitive Baby Wipes, Unscented, Hypoallergenic, 6 Flip-Top",
-   "click_share": 7.43,
-   "conv_share": 6.82,
+   "click_share": 7.71,
+   "conv_share": 6.54,
    "is_ours": false
   },
   {
    "term": "baby wipes",
-   "rank": 137,
-   "asin_rank": 1,
-   "asin_name": "Amazon Elements Baby Wipes, Sensitive, Unscented, Cleans Gently, 810 Count, Flip",
-   "click_share": 7.98,
-   "conv_share": 7.03,
+   "rank": 144,
+   "asin_rank": 2,
+   "asin_name": "Huggies Natural Care Sensitive Baby Wipes, Unscented, Hypoallergenic, 99% Purifi",
+   "click_share": 6.97,
+   "conv_share": 3.5,
    "is_ours": false
   },
   {
@@ -4492,24 +4465,6 @@ const FIN_DATA = {
   },
   {
    "term": "water wipes",
-   "rank": 1981,
-   "asin_rank": 3,
-   "asin_name": "WaterWipes Sensitive+ Newborn & Baby Wipes, 3-In-1 Cleans, Cares, Protects, 99.9",
-   "click_share": 13.84,
-   "conv_share": 12.32,
-   "is_ours": false
-  },
-  {
-   "term": "water wipes",
-   "rank": 1981,
-   "asin_rank": 2,
-   "asin_name": "WaterWipes Sensitive+ Newborn & Baby Wipes, 3-In-1 Cleans, Cares, Protects, 99.9",
-   "click_share": 16.27,
-   "conv_share": 10.02,
-   "is_ours": false
-  },
-  {
-   "term": "water wipes",
    "rank": 2042,
    "asin_rank": 1,
    "asin_name": "WaterWipes Sensitive+ Newborn & Baby Wipes, 3-In-1 Cleans, Cares, Protects, 99.9",
@@ -4518,12 +4473,30 @@ const FIN_DATA = {
    "is_ours": false
   },
   {
-   "term": "toddler cups",
-   "rank": 5924,
+   "term": "water wipes",
+   "rank": 2050,
    "asin_rank": 2,
-   "asin_name": "Dr. Brown's Milestones Baby's First Straw Cup, Training Cup with Weighted Straw,",
-   "click_share": 8.41,
-   "conv_share": 2.46,
+   "asin_name": "WaterWipes Sensitive+ Newborn & Baby Wipes, 3-In-1 Cleans, Cares, Protects, 99.9",
+   "click_share": 15.51,
+   "conv_share": 13.65,
+   "is_ours": false
+  },
+  {
+   "term": "water wipes",
+   "rank": 2050,
+   "asin_rank": 3,
+   "asin_name": "WaterWipes Sensitive+ Newborn & Baby Wipes, 3-In-1 Cleans, Cares, Protects, 99.9",
+   "click_share": 13.26,
+   "conv_share": 8.37,
+   "is_ours": false
+  },
+  {
+   "term": "toddler cups",
+   "rank": 6056,
+   "asin_rank": 2,
+   "asin_name": "Zak Designs Kelso Toddler Cups For Travel or At Home, 15oz 2-Pack Durable Plasti",
+   "click_share": 5.17,
+   "conv_share": 2.83,
    "is_ours": false
   },
   {
@@ -4546,20 +4519,11 @@ const FIN_DATA = {
   },
   {
    "term": "sippy cup",
-   "rank": 15868,
+   "rank": 16609,
    "asin_rank": 2,
    "asin_name": "NUK Fun Grips Hard Spout Sippy Cup, 10 oz. | Easy to Hold, BPA Free, Spill Proof",
-   "click_share": 5.13,
-   "conv_share": 3.91,
-   "is_ours": false
-  },
-  {
-   "term": "sippy cup",
-   "rank": 16788,
-   "asin_rank": 3,
-   "asin_name": "NUK Active Sippy Cup, 10 oz, 2 Pack, Disney's Cars, Lightning McQueen, BPA-Free,",
-   "click_share": 4.74,
-   "conv_share": 2.47,
+   "click_share": 4.91,
+   "conv_share": 5.52,
    "is_ours": false
   },
   {
@@ -4572,21 +4536,30 @@ const FIN_DATA = {
    "is_ours": false
   },
   {
-   "term": "baby bottle",
-   "rank": 22401,
-   "asin_rank": 2,
-   "asin_name": "NUK Smooth Flow Anti Colic Baby Bottle, 5 oz, Elephant",
-   "click_share": 4.68,
-   "conv_share": 5.63,
+   "term": "sippy cup",
+   "rank": 16788,
+   "asin_rank": 3,
+   "asin_name": "NUK Active Sippy Cup, 10 oz, 2 Pack, Disney's Cars, Lightning McQueen, BPA-Free,",
+   "click_share": 4.74,
+   "conv_share": 2.47,
    "is_ours": false
   },
   {
    "term": "baby bottle",
-   "rank": 22401,
+   "rank": 23252,
+   "asin_rank": 2,
+   "asin_name": "Evenflo Feeding Classic Tinted Plastic Standard Neck Bottles for Baby, Infant an",
+   "click_share": 4.64,
+   "conv_share": 6.57,
+   "is_ours": false
+  },
+  {
+   "term": "baby bottle",
+   "rank": 23711,
    "asin_rank": 1,
    "asin_name": "Dr. Brown's Natural Flow Anti-Colic Options+ Narrow Baby Bottle, 8 oz/250 mL, wi",
-   "click_share": 7.48,
-   "conv_share": 6.29,
+   "click_share": 6.99,
+   "conv_share": 3.67,
    "is_ours": false
   },
   {
@@ -4602,11 +4575,11 @@ const FIN_DATA = {
  "traffic_sources": [
   {
    "source": "direct / none",
-   "sessions": 20644,
+   "sessions": 19965,
    "users": 0,
    "revenue": 0.0,
-   "conversions": 486,
-   "conv_rate": 2.35
+   "conversions": 461,
+   "conv_rate": 2.31
   }
  ],
  "pnl_polar": {
@@ -4960,7 +4933,361 @@ const FIN_DATA = {
    294456,
    273517,
    264650
-  ]
+  ],
+  "channel_pnl": {
+   "Amazon MP": {
+    "revenue": [
+     463835,
+     638488,
+     531452,
+     448886,
+     529292,
+     586032,
+     511846,
+     533042,
+     498715,
+     478214
+    ],
+    "cogs": [
+     192966,
+     288684,
+     214958,
+     179121,
+     216314,
+     245408,
+     199645,
+     201770,
+     185732,
+     178891
+    ],
+    "selling_fees": [
+     81853,
+     112674,
+     93786,
+     79215,
+     93404,
+     103417,
+     90326,
+     94066,
+     88008,
+     84391
+    ],
+    "fulfillment": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "fulfillment_nm": true,
+    "ad_spend": [
+     2250,
+     2321,
+     2273,
+     2934,
+     4728,
+     11380,
+     43467,
+     91168,
+     90019,
+     83391
+    ],
+    "gross_margin": [
+     189016,
+     237130,
+     222708,
+     190550,
+     219574,
+     237207,
+     221875,
+     237206,
+     224975,
+     214932
+    ],
+    "contribution_margin": [
+     186766,
+     234809,
+     220435,
+     187616,
+     214846,
+     225827,
+     178408,
+     146038,
+     134956,
+     131541
+    ],
+    "color": "#f59e0b"
+   },
+   "Onzenna D2C": {
+    "revenue": [
+     81841,
+     103139,
+     115369,
+     118461,
+     99750,
+     100215,
+     72542,
+     95418,
+     72668,
+     59958
+    ],
+    "cogs": [
+     44599,
+     31619,
+     36532,
+     38186,
+     34662,
+     35922,
+     27832,
+     42343,
+     26637,
+     36384
+    ],
+    "selling_fees": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "fulfillment": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "fulfillment_nm": true,
+    "ad_spend": [
+     14201,
+     19258,
+     22638,
+     24766,
+     26991,
+     28220,
+     27919,
+     26988,
+     29764,
+     17466
+    ],
+    "gross_margin": [
+     37242,
+     71520,
+     78837,
+     80275,
+     65088,
+     64293,
+     44710,
+     53075,
+     46031,
+     23574
+    ],
+    "contribution_margin": [
+     23041,
+     52262,
+     56199,
+     55509,
+     38097,
+     36073,
+     16791,
+     26087,
+     16267,
+     6108
+    ],
+    "color": "#6366f1"
+   },
+   "Target+": {
+    "revenue": [
+     91,
+     302,
+     912,
+     270,
+     343,
+     292,
+     9566,
+     9495,
+     11945,
+     14138
+    ],
+    "cogs": [
+     10,
+     20,
+     300,
+     20,
+     40,
+     20,
+     2410,
+     2490,
+     2940,
+     3540
+    ],
+    "selling_fees": [
+     14,
+     45,
+     137,
+     40,
+     51,
+     44,
+     1435,
+     1424,
+     1792,
+     2121
+    ],
+    "fulfillment": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "fulfillment_nm": true,
+    "ad_spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "gross_margin": [
+     67,
+     237,
+     475,
+     210,
+     252,
+     228,
+     5721,
+     5581,
+     7213,
+     8477
+    ],
+    "contribution_margin": [
+     67,
+     237,
+     475,
+     210,
+     252,
+     228,
+     5721,
+     5581,
+     7213,
+     8477
+    ],
+    "color": "#ef4444"
+   },
+   "B2B": {
+    "revenue": [
+     21809,
+     3839,
+     5362,
+     5245,
+     8911,
+     8658,
+     6675,
+     15979,
+     9857,
+     3565
+    ],
+    "cogs": [
+     156,
+     84,
+     120,
+     108,
+     144,
+     180,
+     108,
+     144,
+     60,
+     96
+    ],
+    "selling_fees": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "fulfillment": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "fulfillment_nm": false,
+    "ad_spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "gross_margin": [
+     21653,
+     3755,
+     5242,
+     5137,
+     8767,
+     8478,
+     6567,
+     15835,
+     9797,
+     3469
+    ],
+    "contribution_margin": [
+     21653,
+     3755,
+     5242,
+     5137,
+     8767,
+     8478,
+     6567,
+     15835,
+     9797,
+     3469
+    ],
+    "color": "#10b981"
+   }
+  }
  },
  "klaviyo": {
   "campaign_monthly": {
@@ -5288,5 +5615,8121 @@ const FIN_DATA = {
     "revenue": 0.0
    }
   ]
+ },
+ "campaign_detail": {
+  "week_keys": [
+   "2026-W02",
+   "2026-W03",
+   "2026-W04",
+   "2026-W05",
+   "2026-W06",
+   "2026-W07",
+   "2026-W08",
+   "2026-W09",
+   "2026-W10",
+   "2026-W11",
+   "2026-W12",
+   "2026-W13"
+  ],
+  "week_labels": [
+   "W2 (Jan 05)",
+   "W3 (Jan 12)",
+   "W4 (Jan 19)",
+   "W5 (Jan 26)",
+   "W6 (Feb 02)",
+   "W7 (Feb 09)",
+   "W8 (Feb 16)",
+   "W9 (Feb 23)",
+   "W10 (Mar 02)",
+   "W11 (Mar 09)",
+   "W12 (Mar 16)",
+   "W13 (Mar 23)"
+  ],
+  "month_keys": [
+   "2026-01",
+   "2026-02",
+   "2026-03"
+  ],
+  "weekly_all": [
+   {
+    "id": "263965495217853",
+    "name": "SP_ppsu_manual",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     9299.93,
+     12010.78,
+     11738.64,
+     12632.22,
+     12106.21,
+     11584.03,
+     12836.19,
+     12867.7,
+     13932.72,
+     15750.32,
+     14065.61,
+     2328.42
+    ],
+    "sales": [
+     27172.81,
+     28478.28,
+     22839.91,
+     26180.5,
+     28788.62,
+     25026.35,
+     32073.09,
+     32369.28,
+     34613.76,
+     37352.16,
+     31125.25,
+     3697.16
+    ],
+    "impressions": [
+     1983011,
+     2133836,
+     2015324,
+     2272584,
+     2287233,
+     2116641,
+     2302012,
+     2356657,
+     2045286,
+     2483435,
+     2228222,
+     377085
+    ],
+    "clicks": [
+     7961,
+     8732,
+     8427,
+     9092,
+     8411,
+     8038,
+     9046,
+     9128,
+     9496,
+     10801,
+     9491,
+     1491
+    ],
+    "total_spend": 141152.77,
+    "total_sales": 329717.17,
+    "roas": 2.34
+   },
+   {
+    "id": "289220267376704",
+    "name": "SP_flip top_manual",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     3398.29,
+     3398.21,
+     3339.75,
+     3772.84,
+     3650.13,
+     3362.78,
+     3536.11,
+     3437.68,
+     3861.49,
+     3964.37,
+     4334.39,
+     609.99
+    ],
+    "sales": [
+     20438.07,
+     21282.64,
+     16595.97,
+     20775.66,
+     21950.37,
+     18983.48,
+     20757.67,
+     20214.97,
+     21015.22,
+     25812.26,
+     26935.71,
+     3591.83
+    ],
+    "impressions": [
+     747055,
+     709304,
+     660397,
+     841486,
+     837077,
+     801155,
+     848672,
+     871296,
+     816608,
+     823814,
+     826737,
+     130721
+    ],
+    "clicks": [
+     5242,
+     5226,
+     5085,
+     5790,
+     5508,
+     5023,
+     5308,
+     5171,
+     5853,
+     5922,
+     6675,
+     960
+    ],
+    "total_spend": 40666.03,
+    "total_sales": 238353.85,
+    "roas": 5.86
+   },
+   {
+    "id": "22471712625",
+    "name": "Mint | PMax | Core | Main",
+    "platform": "Google Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     2130.13,
+     2133.85,
+     2045.07,
+     1960.35,
+     1612.56,
+     2476.36,
+     2104.45,
+     1992.72,
+     2116.19,
+     1665.02,
+     1262.59,
+     182.73
+    ],
+    "sales": [
+     3632.28,
+     4053.42,
+     4422.18,
+     3571.8,
+     3251.84,
+     4441.95,
+     4530.66,
+     4638.74,
+     2938.48,
+     3985.26,
+     2205.35,
+     211.82
+    ],
+    "impressions": [
+     171077,
+     164708,
+     155453,
+     166511,
+     170495,
+     201533,
+     184497,
+     237803,
+     278090,
+     183370,
+     197876,
+     29617
+    ],
+    "clicks": [
+     1609,
+     1784,
+     1856,
+     1386,
+     1524,
+     2324,
+     2037,
+     2120,
+     2204,
+     1656,
+     1352,
+     199
+    ],
+    "total_spend": 21682.02,
+    "total_sales": 41883.78,
+    "roas": 1.93
+   },
+   {
+    "id": "353731957105709",
+    "name": "SP_Fliptop_auto",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     1383.58,
+     939.85,
+     1221.26,
+     1130.59,
+     1092.19,
+     1167.25,
+     1360.4,
+     1377.26,
+     1269.16,
+     1415.68,
+     1224.02,
+     165.13
+    ],
+    "sales": [
+     1488.2,
+     1922.18,
+     3158.8,
+     2156.6,
+     2158.69,
+     2816.2,
+     2261.0,
+     3468.5,
+     3334.79,
+     3719.0,
+     2554.29,
+     418.9
+    ],
+    "impressions": [
+     26453,
+     194815,
+     291953,
+     319925,
+     321302,
+     385837,
+     442390,
+     479657,
+     453708,
+     482164,
+     600483,
+     98417
+    ],
+    "clicks": [
+     811,
+     1479,
+     2187,
+     2072,
+     1963,
+     2090,
+     2442,
+     2462,
+     2268,
+     2525,
+     2201,
+     293
+    ],
+    "total_spend": 13746.37,
+    "total_sales": 29457.15,
+    "roas": 2.14
+   },
+   {
+    "id": "120232746327610508",
+    "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     1042.37,
+     1049.78,
+     1050.59,
+     1046.6,
+     1053.06,
+     1052.28,
+     1041.09,
+     1054.05,
+     1041.12,
+     1053.64,
+     1050.29,
+     152.48
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     113151,
+     108419,
+     115496,
+     117918,
+     103110,
+     100743,
+     103659,
+     110767,
+     85081,
+     92428,
+     107886,
+     14860
+    ],
+    "clicks": [
+     16359,
+     14374,
+     14492,
+     14189,
+     13662,
+     14142,
+     14899,
+     13476,
+     13564,
+     12972,
+     11642,
+     1575
+    ],
+    "total_spend": 11687.35,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120232464266510508",
+    "name": "Shopify | CVR | Grosmimi | Tumbler",
+    "platform": "Meta CVR",
+    "brand": "Grosmimi",
+    "spend": [
+     689.91,
+     705.81,
+     698.52,
+     695.09,
+     696.4,
+     691.95,
+     694.48,
+     702.91,
+     588.36,
+     498.6,
+     485.77,
+     74.83
+    ],
+    "sales": [
+     1168.56,
+     2491.92,
+     1675.37,
+     1690.23,
+     1346.6,
+     1081.8,
+     984.96,
+     1128.76,
+     1336.27,
+     890.1,
+     594.71,
+     213.4
+    ],
+    "impressions": [
+     30460,
+     36493,
+     37810,
+     36587,
+     35230,
+     32601,
+     34815,
+     35647,
+     30171,
+     24943,
+     24199,
+     3647
+    ],
+    "clicks": [
+     513,
+     615,
+     680,
+     657,
+     625,
+     490,
+     544,
+     586,
+     501,
+     410,
+     433,
+     71
+    ],
+    "total_spend": 7222.63,
+    "total_sales": 14602.68,
+    "roas": 2.02
+   },
+   {
+    "id": "22913712693",
+    "name": "Mint | PMax | Core | Tumblers",
+    "platform": "Google Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     562.06,
+     307.48,
+     282.99,
+     515.33,
+     788.81,
+     1410.46,
+     1142.02,
+     1012.62,
+     963.34,
+     148.16,
+     0,
+     0
+    ],
+    "sales": [
+     889.05,
+     732.08,
+     766.35,
+     532.87,
+     387.7,
+     1430.98,
+     877.24,
+     838.96,
+     1280.95,
+     174.0,
+     0,
+     0
+    ],
+    "impressions": [
+     13063,
+     5989,
+     4586,
+     4829,
+     10329,
+     5747,
+     3693,
+     4360,
+     5976,
+     1224,
+     0,
+     0
+    ],
+    "clicks": [
+     336,
+     223,
+     177,
+     251,
+     624,
+     282,
+     316,
+     318,
+     397,
+     79,
+     0,
+     0
+    ],
+    "total_spend": 7133.27,
+    "total_sales": 7910.18,
+    "roas": 1.11
+   },
+   {
+    "id": "120238108466330508",
+    "name": "Shopify | CVR | WL | Livfuselli (New)",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     838.63,
+     840.58,
+     840.05,
+     839.02,
+     840.61,
+     838.45,
+     839.43,
+     838.97,
+     357.02,
+     0,
+     0,
+     0
+    ],
+    "sales": [
+     2218.97,
+     2299.52,
+     1493.19,
+     1567.33,
+     866.03,
+     723.32,
+     496.62,
+     962.73,
+     482.08,
+     0,
+     0,
+     0
+    ],
+    "impressions": [
+     30928,
+     28534,
+     29037,
+     26384,
+     23858,
+     21448,
+     21163,
+     20311,
+     8192,
+     0,
+     0,
+     0
+    ],
+    "clicks": [
+     1637,
+     1630,
+     1549,
+     1413,
+     1353,
+     1174,
+     1085,
+     963,
+     400,
+     0,
+     0,
+     0
+    ],
+    "total_spend": 7072.76,
+    "total_sales": 11109.79,
+    "roas": 1.57
+   },
+   {
+    "id": "120240644685950508",
+    "name": "AMZ | Traffic | WL | Dentalmom | 202601",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     443.1,
+     561.27,
+     559.4,
+     557.11,
+     561.46,
+     560.72,
+     556.52,
+     559.32,
+     558.57,
+     559.53,
+     560.55,
+     74.25
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     61438,
+     69691,
+     75174,
+     75802,
+     69415,
+     66841,
+     65130,
+     66961,
+     66847,
+     72581,
+     70019,
+     10315
+    ],
+    "clicks": [
+     6290,
+     6006,
+     6045,
+     5866,
+     5674,
+     5226,
+     5456,
+     5024,
+     4734,
+     4991,
+     4843,
+     637
+    ],
+    "total_spend": 6111.8,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120240689933170508",
+    "name": "AMZ | Traffic | WL_Dental Mom | Stainless_StrawCup | 20260107",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     375.91,
+     562.9,
+     556.89,
+     557.88,
+     562.35,
+     559.93,
+     560.9,
+     556.19,
+     559.18,
+     559.8,
+     560.13,
+     82.7
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     58.77,
+     0.0,
+     0.0,
+     0.0,
+     94.62,
+     115.95
+    ],
+    "impressions": [
+     66509,
+     82673,
+     86232,
+     99350,
+     76144,
+     76031,
+     80343,
+     67116,
+     62088,
+     74542,
+     85151,
+     12348
+    ],
+    "clicks": [
+     4262,
+     5642,
+     5457,
+     5178,
+     4752,
+     4363,
+     5239,
+     4520,
+     4226,
+     4402,
+     4288,
+     581
+    ],
+    "total_spend": 6054.76,
+    "total_sales": 269.34,
+    "roas": 0.04
+   },
+   {
+    "id": "412813716858145",
+    "name": "SP_stage1_keyword",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     435.83,
+     390.67,
+     366.39,
+     390.54,
+     347.53,
+     399.72,
+     324.14,
+     368.13,
+     331.86,
+     368.08,
+     462.58,
+     77.56
+    ],
+    "sales": [
+     4305.24,
+     4735.34,
+     3004.29,
+     4575.09,
+     2908.42,
+     4019.08,
+     3132.6,
+     3249.98,
+     3830.2,
+     3930.08,
+     3728.2,
+     1019.6
+    ],
+    "impressions": [
+     166170,
+     154773,
+     151330,
+     165776,
+     156245,
+     179532,
+     179499,
+     186042,
+     128892,
+     136086,
+     132208,
+     25383
+    ],
+    "clicks": [
+     729,
+     664,
+     625,
+     656,
+     567,
+     589,
+     516,
+     580,
+     558,
+     595,
+     710,
+     116
+    ],
+    "total_spend": 4263.03,
+    "total_sales": 42438.12,
+    "roas": 9.95
+   },
+   {
+    "id": "340267150899607",
+    "name": "SP_knotted_manual",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     327.23,
+     384.82,
+     363.06,
+     350.37,
+     350.1,
+     369.07,
+     336.61,
+     336.08,
+     330.83,
+     355.29,
+     320.64,
+     38.4
+    ],
+    "sales": [
+     4084.5,
+     3503.3,
+     4192.24,
+     3575.78,
+     3241.18,
+     3521.83,
+     3560.19,
+     2441.04,
+     2795.56,
+     3337.7,
+     3240.4,
+     262.4
+    ],
+    "impressions": [
+     94177,
+     106363,
+     101421,
+     123809,
+     109684,
+     127255,
+     130917,
+     143107,
+     94044,
+     117314,
+     99723,
+     14941
+    ],
+    "clicks": [
+     540,
+     634,
+     581,
+     552,
+     542,
+     570,
+     524,
+     516,
+     514,
+     549,
+     492,
+     60
+    ],
+    "total_spend": 3862.5,
+    "total_sales": 37756.12,
+    "roas": 9.78
+   },
+   {
+    "id": "481285651003605",
+    "name": "SP_Fliptop_defensive",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     332.06,
+     371.88,
+     384.1,
+     373.71,
+     291.45,
+     308.73,
+     292.55,
+     396.56,
+     367.17,
+     396.27,
+     141.79,
+     20.93
+    ],
+    "sales": [
+     4631.29,
+     7032.64,
+     5747.89,
+     5698.0,
+     4697.69,
+     6107.25,
+     5881.1,
+     6642.45,
+     7350.56,
+     7516.29,
+     2720.0,
+     324.1
+    ],
+    "impressions": [
+     20062,
+     11440,
+     9846,
+     10710,
+     7955,
+     9102,
+     9184,
+     11161,
+     11112,
+     11144,
+     7519,
+     1108
+    ],
+    "clicks": [
+     671,
+     707,
+     704,
+     732,
+     575,
+     611,
+     572,
+     757,
+     725,
+     746,
+     277,
+     41
+    ],
+    "total_spend": 3677.2,
+    "total_sales": 64349.26,
+    "roas": 17.5
+   },
+   {
+    "id": "120240736243650508",
+    "name": "Shopify | CVR | GM | Tumbler | WL - Dental Mom",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     204.99,
+     411.49,
+     490.08,
+     481.14,
+     488.48,
+     486.57,
+     485.87,
+     496.23,
+     118.82,
+     0,
+     0,
+     0
+    ],
+    "sales": [
+     552.29,
+     1415.14,
+     645.42,
+     1174.65,
+     1052.13,
+     565.07,
+     635.03,
+     432.33,
+     266.4,
+     0,
+     0,
+     0
+    ],
+    "impressions": [
+     6190,
+     12908,
+     16595,
+     16879,
+     15715,
+     14406,
+     14583,
+     16114,
+     4263,
+     0,
+     0,
+     0
+    ],
+    "clicks": [
+     133,
+     312,
+     398,
+     489,
+     449,
+     342,
+     339,
+     316,
+     71,
+     0,
+     0,
+     0
+    ],
+    "total_spend": 3663.67,
+    "total_sales": 6738.46,
+    "roas": 1.84
+   },
+   {
+    "id": "120227412781090508",
+    "name": "Shopify | CVR | WL | Laurence (Legacy)",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     273.38,
+     277.22,
+     280.79,
+     278.1,
+     277.12,
+     277.46,
+     278.72,
+     279.83,
+     277.38,
+     279.06,
+     284.89,
+     43.45
+    ],
+    "sales": [
+     578.54,
+     838.63,
+     470.48,
+     872.95,
+     1386.45,
+     491.11,
+     985.95,
+     1022.46,
+     658.04,
+     484.02,
+     1052.55,
+     92.7
+    ],
+    "impressions": [
+     12193,
+     12081,
+     12523,
+     12213,
+     12540,
+     12468,
+     12048,
+     11387,
+     11629,
+     10158,
+     11730,
+     1814
+    ],
+    "clicks": [
+     594,
+     468,
+     417,
+     467,
+     366,
+     268,
+     281,
+     266,
+     273,
+     202,
+     319,
+     41
+    ],
+    "total_spend": 3107.4,
+    "total_sales": 8933.88,
+    "roas": 2.88
+   },
+   {
+    "id": "380111568693446",
+    "name": "SP_Replacements_defensive",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     255.7,
+     262.57,
+     237.95,
+     293.76,
+     299.6,
+     275.01,
+     297.47,
+     290.83,
+     306.67,
+     276.1,
+     147.59,
+     24.15
+    ],
+    "sales": [
+     9413.31,
+     8628.46,
+     8432.29,
+     9714.05,
+     9493.77,
+     9837.58,
+     10112.54,
+     10531.96,
+     8755.97,
+     9654.89,
+     4850.45,
+     730.86
+    ],
+    "impressions": [
+     44128,
+     21837,
+     23265,
+     31600,
+     37017,
+     29232,
+     35347,
+     36379,
+     33771,
+     34511,
+     29358,
+     4335
+    ],
+    "clicks": [
+     764,
+     780,
+     725,
+     853,
+     861,
+     775,
+     853,
+     824,
+     851,
+     760,
+     451,
+     71
+    ],
+    "total_spend": 2967.4,
+    "total_sales": 100156.13,
+    "roas": 33.75
+   },
+   {
+    "id": "120224832628890508",
+    "name": "Shopify | CVR | ASC Campaign (Legacy)",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     208.2,
+     211.15,
+     210.97,
+     245.08,
+     264.57,
+     265.0,
+     262.93,
+     272.56,
+     265.05,
+     263.75,
+     267.68,
+     43.32
+    ],
+    "sales": [
+     225.85,
+     891.34,
+     827.19,
+     820.63,
+     8371.59,
+     565.71,
+     476.45,
+     377.49,
+     512.55,
+     433.92,
+     766.97,
+     82.8
+    ],
+    "impressions": [
+     13917,
+     15760,
+     18375,
+     21419,
+     21399,
+     19969,
+     19228,
+     16945,
+     18461,
+     18930,
+     20007,
+     3341
+    ],
+    "clicks": [
+     268,
+     295,
+     403,
+     592,
+     531,
+     469,
+     483,
+     402,
+     412,
+     464,
+     494,
+     80
+    ],
+    "total_spend": 2780.26,
+    "total_sales": 14352.49,
+    "roas": 5.16
+   },
+   {
+    "id": "365330679770972",
+    "name": "365330679770972",
+    "platform": "Amazon Ads",
+    "brand": "Naeiae",
+    "spend": [
+     214.86,
+     237.44,
+     213.75,
+     253.31,
+     227.54,
+     243.7,
+     242.12,
+     314.74,
+     365.27,
+     265.52,
+     170.91,
+     22.88
+    ],
+    "sales": [
+     738.0,
+     688.8,
+     738.0,
+     664.2,
+     861.0,
+     836.4,
+     664.2,
+     1033.2,
+     811.8,
+     861.0,
+     688.8,
+     49.2
+    ],
+    "impressions": [
+     50658,
+     48302,
+     53954,
+     66723,
+     50449,
+     76466,
+     61350,
+     94040,
+     109696,
+     96496,
+     46569,
+     5070
+    ],
+    "clicks": [
+     290,
+     312,
+     292,
+     335,
+     291,
+     313,
+     309,
+     416,
+     461,
+     332,
+     217,
+     25
+    ],
+    "total_spend": 2772.04,
+    "total_sales": 8634.6,
+    "roas": 3.11
+   },
+   {
+    "id": "400445967965503",
+    "name": "SP_stage1_6_defensive",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     238.35,
+     223.87,
+     209.28,
+     257.46,
+     185.56,
+     194.87,
+     231.86,
+     242.28,
+     310.73,
+     299.43,
+     294.02,
+     47.1
+    ],
+    "sales": [
+     5259.89,
+     4683.64,
+     4314.55,
+     4757.99,
+     4139.3,
+     4293.29,
+     5334.89,
+     5659.7,
+     6412.49,
+     6268.98,
+     5555.5,
+     1128.8
+    ],
+    "impressions": [
+     11088,
+     9210,
+     8570,
+     8391,
+     7900,
+     10546,
+     9621,
+     10981,
+     12236,
+     12708,
+     10555,
+     1878
+    ],
+    "clicks": [
+     575,
+     523,
+     492,
+     598,
+     449,
+     479,
+     551,
+     564,
+     721,
+     694,
+     684,
+     108
+    ],
+    "total_spend": 2734.81,
+    "total_sales": 57809.02,
+    "roas": 21.14
+   },
+   {
+    "id": "444108265805305",
+    "name": "444108265805305",
+    "platform": "Amazon Ads",
+    "brand": "Naeiae",
+    "spend": [
+     148.69,
+     160.01,
+     155.04,
+     267.89,
+     261.85,
+     335.5,
+     303.24,
+     358.69,
+     314.1,
+     218.83,
+     179.38,
+     24.05
+    ],
+    "sales": [
+     541.2,
+     664.2,
+     467.4,
+     836.4,
+     836.4,
+     713.4,
+     467.4,
+     934.8,
+     1131.6,
+     1082.4,
+     1057.8,
+     98.4
+    ],
+    "impressions": [
+     12738,
+     15445,
+     13637,
+     20753,
+     20927,
+     23231,
+     22111,
+     24906,
+     29808,
+     29031,
+     26361,
+     6425
+    ],
+    "clicks": [
+     150,
+     160,
+     149,
+     222,
+     205,
+     265,
+     241,
+     300,
+     286,
+     227,
+     163,
+     20
+    ],
+    "total_spend": 2727.27,
+    "total_sales": 8831.4,
+    "roas": 3.24
+   },
+   {
+    "id": "495635583330161",
+    "name": "SP_stage1_10_defensive",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     292.57,
+     276.37,
+     255.54,
+     270.54,
+     180.31,
+     240.31,
+     202.17,
+     216.88,
+     198.4,
+     209.43,
+     252.92,
+     36.55
+    ],
+    "sales": [
+     7358.86,
+     6436.76,
+     5867.43,
+     6796.67,
+     3637.08,
+     5957.58,
+     5138.37,
+     5001.6,
+     4476.58,
+     5062.89,
+     5634.0,
+     460.1
+    ],
+    "impressions": [
+     15413,
+     14346,
+     10766,
+     12061,
+     10293,
+     12159,
+     10697,
+     10940,
+     9285,
+     10057,
+     9295,
+     1423
+    ],
+    "clicks": [
+     717,
+     669,
+     611,
+     630,
+     435,
+     570,
+     468,
+     504,
+     453,
+     483,
+     573,
+     83
+    ],
+    "total_spend": 2631.99,
+    "total_sales": 61827.92,
+    "roas": 23.49
+   },
+   {
+    "id": "120240336678510508",
+    "name": "Shopify | CVR | GM | SLS Cup | WL - Dental Mom",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     338.78,
+     310.6,
+     210.44,
+     208.3,
+     208.32,
+     210.62,
+     204.57,
+     214.42,
+     207.06,
+     208.26,
+     178.56,
+     26.79
+    ],
+    "sales": [
+     793.33,
+     539.71,
+     439.66,
+     279.71,
+     492.06,
+     380.47,
+     471.44,
+     632.29,
+     128.98,
+     346.48,
+     43.89,
+     146.5
+    ],
+    "impressions": [
+     10184,
+     8371,
+     5982,
+     6198,
+     6089,
+     6051,
+     6072,
+     7098,
+     7305,
+     6981,
+     6600,
+     913
+    ],
+    "clicks": [
+     276,
+     261,
+     176,
+     231,
+     217,
+     175,
+     154,
+     182,
+     192,
+     181,
+     159,
+     31
+    ],
+    "total_spend": 2526.72,
+    "total_sales": 4694.52,
+    "roas": 1.86
+   },
+   {
+    "id": "120241255476490508",
+    "name": "AMZ | Traffic | CHA&MOM",
+    "platform": "Meta Traffic",
+    "brand": "CHA&MOM",
+    "spend": [
+     0,
+     0,
+     115.2,
+     216.83,
+     237.58,
+     249.76,
+     253.41,
+     234.1,
+     242.64,
+     309.87,
+     312.66,
+     48.73
+    ],
+    "sales": [
+     0,
+     0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     86009,
+     64619,
+     52826,
+     57302,
+     54647,
+     44536,
+     45833,
+     53262,
+     56550,
+     10524
+    ],
+    "clicks": [
+     0,
+     0,
+     803,
+     964,
+     973,
+     1046,
+     1327,
+     2964,
+     2897,
+     3036,
+     2926,
+     494
+    ],
+    "total_spend": 2220.78,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120241214197260508",
+    "name": "Target | Traffic | Alpremio",
+    "platform": "Meta CVR",
+    "brand": "Alpremio",
+    "spend": [
+     0,
+     0,
+     87.7,
+     245.91,
+     245.84,
+     246.64,
+     242.15,
+     243.9,
+     243.73,
+     246.62,
+     243.29,
+     36.51
+    ],
+    "sales": [
+     0,
+     0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     10851,
+     28639,
+     28558,
+     34881,
+     36297,
+     42448,
+     36755,
+     38671,
+     42455,
+     6075
+    ],
+    "clicks": [
+     0,
+     0,
+     1625,
+     4247,
+     3963,
+     3983,
+     4879,
+     4369,
+     4139,
+     3839,
+     3802,
+     578
+    ],
+    "total_spend": 2082.29,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "176516762220129",
+    "name": "176516762220129",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     175.91,
+     405.64,
+     406.74,
+     229.75,
+     120.11,
+     153.47,
+     0
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     2960.5,
+     3303.9,
+     2763.6,
+     2953.24,
+     2899.58,
+     3081.6,
+     0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     26787,
+     35667,
+     53274,
+     43588,
+     30379,
+     35800,
+     0
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     221,
+     326,
+     284,
+     322,
+     262,
+     303,
+     0
+    ],
+    "total_spend": 1491.62,
+    "total_sales": 17962.42,
+    "roas": 12.04
+   },
+   {
+    "id": "231178373083287",
+    "name": "SP_ppsu_auto",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     174.54,
+     102.1,
+     91.86,
+     93.26,
+     95.84,
+     97.89,
+     111.24,
+     230.93,
+     91.41,
+     101.29,
+     119.32,
+     22.95
+    ],
+    "sales": [
+     2195.67,
+     1137.89,
+     874.6,
+     1104.48,
+     1114.78,
+     1016.1,
+     863.69,
+     1199.48,
+     1046.19,
+     1050.6,
+     1108.3,
+     333.2
+    ],
+    "impressions": [
+     154323,
+     117048,
+     107019,
+     167333,
+     186322,
+     167978,
+     179207,
+     239510,
+     158845,
+     155936,
+     140489,
+     23505
+    ],
+    "clicks": [
+     449,
+     261,
+     229,
+     241,
+     245,
+     256,
+     304,
+     557,
+     253,
+     266,
+     302,
+     58
+    ],
+    "total_spend": 1332.63,
+    "total_sales": 13044.98,
+    "roas": 9.79
+   },
+   {
+    "id": "544958892271499",
+    "name": "CHA&MOM _Competitor Targeting_SP_Manual",
+    "platform": "Amazon Ads",
+    "brand": "CHA&MOM",
+    "spend": [
+     204.24,
+     232.42,
+     12.8,
+     200.68,
+     119.63,
+     79.21,
+     114.5,
+     133.28,
+     62.12,
+     73.32,
+     79.09,
+     0
+    ],
+    "sales": [
+     485.6,
+     608.0,
+     28.7,
+     519.9,
+     192.1,
+     136.9,
+     216.4,
+     295.9,
+     109.2,
+     185.5,
+     79.5,
+     0
+    ],
+    "impressions": [
+     30241,
+     70720,
+     7224,
+     50909,
+     29348,
+     32731,
+     28299,
+     43367,
+     19583,
+     29484,
+     25898,
+     0
+    ],
+    "clicks": [
+     108,
+     152,
+     10,
+     113,
+     65,
+     47,
+     69,
+     65,
+     29,
+     34,
+     36,
+     0
+    ],
+    "total_spend": 1311.29,
+    "total_sales": 2857.7,
+    "roas": 2.18
+   },
+   {
+    "id": "120243162990550508",
+    "name": "Shopify | CVR | Grosmimi | Straw Cups",
+    "platform": "Meta CVR",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     562.21,
+     620.36,
+     97.1
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     943.97,
+     993.15,
+     311.12
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     16811,
+     16847,
+     2663
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     376,
+     444,
+     80
+    ],
+    "total_spend": 1279.67,
+    "total_sales": 2248.24,
+    "roas": 1.76
+   },
+   {
+    "id": "120241103075230508",
+    "name": "Shopify | CVR | GM | Stainless",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     0,
+     0,
+     262.7,
+     280.43,
+     280.32,
+     280.15,
+     118.39,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "sales": [
+     0,
+     0,
+     833.98,
+     704.83,
+     590.65,
+     509.6,
+     156.26,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "impressions": [
+     0,
+     0,
+     12090,
+     11254,
+     10015,
+     9502,
+     3380,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "clicks": [
+     0,
+     0,
+     240,
+     252,
+     197,
+     218,
+     63,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "total_spend": 1221.99,
+    "total_sales": 2795.32,
+    "roas": 2.29
+   },
+   {
+    "id": "120238800333050508",
+    "name": "AMZ_Traffic_Grosmimi_20251204",
+    "platform": "Meta Traffic",
+    "brand": "Grosmimi",
+    "spend": [
+     834.44,
+     360.79,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "impressions": [
+     122349,
+     56404,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "clicks": [
+     5529,
+     2384,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "total_spend": 1195.23,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120242000172120508",
+    "name": "Shopify | CVR | Alpremio_2",
+    "platform": "Meta CVR",
+    "brand": "Alpremio",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     126.5,
+     210.26,
+     209.85,
+     208.53,
+     210.11,
+     31.42,
+     0
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     305.27,
+     475.97,
+     358.51,
+     663.8,
+     148.2,
+     52.81,
+     0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     2877,
+     5491,
+     5652,
+     5736,
+     6731,
+     915,
+     0
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     70,
+     196,
+     160,
+     180,
+     247,
+     19,
+     0
+    ],
+    "total_spend": 996.67,
+    "total_sales": 2004.56,
+    "roas": 2.01
+   },
+   {
+    "id": "120242264069810508",
+    "name": "Target_Traffic_CHA&MOM_20260219",
+    "platform": "Meta CVR",
+    "brand": "CHA&MOM",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     122.41,
+     205.73,
+     212.09,
+     212.16,
+     207.63,
+     26.2
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     27934,
+     47313,
+     48660,
+     47656,
+     48660,
+     6874
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     468,
+     959,
+     1166,
+     1016,
+     1012,
+     138
+    ],
+    "total_spend": 986.22,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120241971933490508",
+    "name": "Gerneral | Shopify | CVR | Love&Care",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     476.17,
+     299.79,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     436.28,
+     544.66,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     21237,
+     12997,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     434,
+     192,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "total_spend": 775.96,
+    "total_sales": 980.94,
+    "roas": 1.26
+   },
+   {
+    "id": "120241333416140508",
+    "name": "Shopify | CVR | Alpremio",
+    "platform": "Meta CVR",
+    "brand": "Alpremio",
+    "spend": [
+     0,
+     0,
+     1.72,
+     322.7,
+     313.07,
+     129.19,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "sales": [
+     0,
+     0,
+     0.0,
+     499.7,
+     877.45,
+     119.32,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "impressions": [
+     0,
+     0,
+     59,
+     9675,
+     9686,
+     4306,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "clicks": [
+     0,
+     0,
+     2,
+     468,
+     348,
+     142,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "total_spend": 766.68,
+    "total_sales": 1496.47,
+    "roas": 1.95
+   },
+   {
+    "id": "120241501265700508",
+    "name": "Target | Traffic | Alpremio_image",
+    "platform": "Meta CVR",
+    "brand": "Alpremio",
+    "spend": [
+     0,
+     0,
+     0,
+     82.91,
+     207.55,
+     213.66,
+     207.99,
+     45.57,
+     0,
+     0,
+     0,
+     0
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0.0,
+     0.0,
+     49.9,
+     84.8,
+     0.0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     25566,
+     56834,
+     61632,
+     59770,
+     12468,
+     0,
+     0,
+     0,
+     0
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     466,
+     1498,
+     1596,
+     2072,
+     400,
+     0,
+     0,
+     0,
+     0
+    ],
+    "total_spend": 757.68,
+    "total_sales": 134.7,
+    "roas": 0.18
+   },
+   {
+    "id": "120240090794830508",
+    "name": "AMZ_Traffic_Naeiae_20251223",
+    "platform": "Meta Traffic",
+    "brand": "Naeiae",
+    "spend": [
+     488.31,
+     200.83,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "impressions": [
+     128630,
+     47954,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "clicks": [
+     2615,
+     1023,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "total_spend": 689.14,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "23642987933",
+    "name": "Mint | Search | Product | High Intent",
+    "platform": "Google Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     468.4,
+     145.6,
+     23.89
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     313.02,
+     93.3,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     10705,
+     1332,
+     191
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     285,
+     109,
+     15
+    ],
+    "total_spend": 637.89,
+    "total_sales": 406.32,
+    "roas": 0.64
+   },
+   {
+    "id": "120242058768040508",
+    "name": "General | CVR| Love&Care | Bundles",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     305.41,
+     299.12,
+     0.0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     299.25,
+     562.73,
+     0.0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     14329,
+     13777,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     278,
+     174,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "total_spend": 604.53,
+    "total_sales": 861.98,
+    "roas": 1.43
+   },
+   {
+    "id": "120237963694920508",
+    "name": "⭐️ Shopify | Conversion | 2025",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     415.79,
+     130.89,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "sales": [
+     820.19,
+     379.98,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "impressions": [
+     19368,
+     6529,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "clicks": [
+     205,
+     74,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "total_spend": 546.68,
+    "total_sales": 1200.17,
+    "roas": 2.2
+   },
+   {
+    "id": "120241527859600508",
+    "name": "pavbgk_kasdgf_Roi_PL_lol1_pro93_GH2R52zG",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     0,
+     0,
+     0,
+     526.29,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     60.0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     72071,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     313,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "total_spend": 526.29,
+    "total_sales": 60.0,
+    "roas": 0.11
+   },
+   {
+    "id": "23642984297",
+    "name": "Mint | Search | Brand | All",
+    "platform": "Google Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     301.42,
+     126.65,
+     22.33
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     536.13,
+     714.93,
+     232.48
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     4592,
+     1180,
+     87
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     224,
+     179,
+     20
+    ],
+    "total_spend": 450.4,
+    "total_sales": 1483.54,
+    "roas": 3.29
+   },
+   {
+    "id": "214628738155250",
+    "name": "214628738155250",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     441.37,
+     0
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     770.29,
+     0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     28938,
+     0
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     326,
+     0
+    ],
+    "total_spend": 441.37,
+    "total_sales": 770.29,
+    "roas": 1.75
+   },
+   {
+    "id": "120242055518600508",
+    "name": "General | CVR | Love&care | WLs",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     215.2,
+     210.73,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     203.51,
+     0.0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     8089,
+     7941,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     144,
+     119,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "total_spend": 425.93,
+    "total_sales": 203.51,
+    "roas": 0.48
+   },
+   {
+    "id": "120241107023380508",
+    "name": "Shopify | CVR | CM | lotion",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     0,
+     0,
+     163.94,
+     176.13,
+     75.9,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "sales": [
+     0,
+     0,
+     172.6,
+     514.48,
+     269.07,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "impressions": [
+     0,
+     0,
+     10576,
+     10835,
+     4390,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "clicks": [
+     0,
+     0,
+     72,
+     83,
+     50,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "total_spend": 415.97,
+    "total_sales": 956.15,
+    "roas": 2.3
+   },
+   {
+    "id": "120240644957010508",
+    "name": "Shopify_Chealsea_WL_CM_202601",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     413.42,
+     0.0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "sales": [
+     208.14,
+     0.0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "impressions": [
+     22141,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "clicks": [
+     244,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "total_spend": 413.42,
+    "total_sales": 208.14,
+    "roas": 0.5
+   },
+   {
+    "id": "120243275409090508",
+    "name": "Mint | Meta | Conversions | Alpremio Test",
+    "platform": "Meta CVR",
+    "brand": "Alpremio",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     158.33,
+     208.93,
+     28.87
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     173.65,
+     536.58,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     4781,
+     9609,
+     1586
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     118,
+     236,
+     38
+    ],
+    "total_spend": 396.13,
+    "total_sales": 710.23,
+    "roas": 1.79
+   },
+   {
+    "id": "496578934015367",
+    "name": "CHA&MOM_Lotion_SP_Auto",
+    "platform": "Amazon Ads",
+    "brand": "CHA&MOM",
+    "spend": [
+     34.37,
+     37.62,
+     17.11,
+     69.68,
+     83.58,
+     37.57,
+     43.04,
+     10.31,
+     0.0,
+     0.06,
+     2.88,
+     0
+    ],
+    "sales": [
+     114.8,
+     401.2,
+     28.7,
+     430.3,
+     198.7,
+     112.6,
+     112.6,
+     28.7,
+     0.0,
+     0.0,
+     0.0,
+     0
+    ],
+    "impressions": [
+     15983,
+     19770,
+     8153,
+     24450,
+     28121,
+     24005,
+     10990,
+     4640,
+     370,
+     454,
+     1219,
+     0
+    ],
+    "clicks": [
+     45,
+     49,
+     19,
+     78,
+     84,
+     40,
+     42,
+     13,
+     0,
+     1,
+     3,
+     0
+    ],
+    "total_spend": 336.22,
+    "total_sales": 1427.6,
+    "roas": 4.25
+   },
+   {
+    "id": "306557038962339",
+    "name": "CHA&MOM_Keyword_Lotion_SP_Manual",
+    "platform": "Amazon Ads",
+    "brand": "CHA&MOM",
+    "spend": [
+     36.38,
+     27.85,
+     6.24,
+     70.3,
+     59.8,
+     44.92,
+     27.04,
+     25.89,
+     2.34,
+     4.36,
+     0,
+     0
+    ],
+    "sales": [
+     57.4,
+     141.3,
+     0.0,
+     200.9,
+     172.2,
+     86.1,
+     252.7,
+     197.5,
+     0.0,
+     0.0,
+     0,
+     0
+    ],
+    "impressions": [
+     11598,
+     13088,
+     5736,
+     17107,
+     16646,
+     22019,
+     7339,
+     9315,
+     1203,
+     679,
+     0,
+     0
+    ],
+    "clicks": [
+     20,
+     14,
+     5,
+     31,
+     29,
+     25,
+     17,
+     14,
+     1,
+     2,
+     0,
+     0
+    ],
+    "total_spend": 305.12,
+    "total_sales": 1108.1,
+    "roas": 3.63
+   },
+   {
+    "id": "23637555501",
+    "name": "Mint | Search | Category | Discovery",
+    "platform": "Google Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     298.88,
+     0.0,
+     0
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     2.71,
+     0.0,
+     0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     5484,
+     17,
+     0
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     242,
+     0,
+     0
+    ],
+    "total_spend": 298.88,
+    "total_sales": 2.71,
+    "roas": 0.01
+   },
+   {
+    "id": "310329880624911",
+    "name": "CHA&MOM_Wash_SP_Auto",
+    "platform": "Amazon Ads",
+    "brand": "CHA&MOM",
+    "spend": [
+     64.59,
+     49.64,
+     11.64,
+     25.71,
+     21.01,
+     16.89,
+     14.4,
+     16.68,
+     9.72,
+     16.1,
+     35.89,
+     2.22
+    ],
+    "sales": [
+     218.4,
+     214.2,
+     0.0,
+     166.6,
+     26.5,
+     108.2,
+     55.2,
+     136.9,
+     26.5,
+     28.7,
+     108.2,
+     0.0
+    ],
+    "impressions": [
+     20191,
+     13941,
+     4738,
+     9188,
+     8068,
+     4090,
+     5614,
+     9495,
+     4339,
+     5096,
+     7946,
+     1660
+    ],
+    "clicks": [
+     81,
+     68,
+     15,
+     34,
+     28,
+     21,
+     19,
+     23,
+     14,
+     18,
+     38,
+     4
+    ],
+    "total_spend": 284.49,
+    "total_sales": 1089.4,
+    "roas": 3.83
+   }
+  ],
+  "weekly_top": [
+   {
+    "id": "67304323730994",
+    "name": "SP_all_auto",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     9.49,
+     8.86,
+     5.9,
+     4.51,
+     3.18,
+     3.69,
+     4.09,
+     4.75,
+     5.38,
+     5.03,
+     6.05,
+     0.87
+    ],
+    "sales": [
+     421.89,
+     372.49,
+     209.5,
+     149.3,
+     151.98,
+     84.0,
+     123.69,
+     190.59,
+     418.89,
+     271.5,
+     257.1,
+     15.5
+    ],
+    "impressions": [
+     4981,
+     3080,
+     3172,
+     6499,
+     2833,
+     3148,
+     5077,
+     5289,
+     5929,
+     6294,
+     6989,
+     1055
+    ],
+    "clicks": [
+     79,
+     71,
+     48,
+     37,
+     34,
+     38,
+     39,
+     40,
+     42,
+     53,
+     57,
+     8
+    ],
+    "total_spend": 61.8,
+    "total_sales": 2666.43,
+    "roas": 43.15
+   },
+   {
+    "id": "380111568693446",
+    "name": "SP_Replacements_defensive",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     255.7,
+     262.57,
+     237.95,
+     293.76,
+     299.6,
+     275.01,
+     297.47,
+     290.83,
+     306.67,
+     276.1,
+     147.59,
+     24.15
+    ],
+    "sales": [
+     9413.31,
+     8628.46,
+     8432.29,
+     9714.05,
+     9493.77,
+     9837.58,
+     10112.54,
+     10531.96,
+     8755.97,
+     9654.89,
+     4850.45,
+     730.86
+    ],
+    "impressions": [
+     44128,
+     21837,
+     23265,
+     31600,
+     37017,
+     29232,
+     35347,
+     36379,
+     33771,
+     34511,
+     29358,
+     4335
+    ],
+    "clicks": [
+     764,
+     780,
+     725,
+     853,
+     861,
+     775,
+     853,
+     824,
+     851,
+     760,
+     451,
+     71
+    ],
+    "total_spend": 2967.4,
+    "total_sales": 100156.13,
+    "roas": 33.75
+   },
+   {
+    "id": "495635583330161",
+    "name": "SP_stage1_10_defensive",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     292.57,
+     276.37,
+     255.54,
+     270.54,
+     180.31,
+     240.31,
+     202.17,
+     216.88,
+     198.4,
+     209.43,
+     252.92,
+     36.55
+    ],
+    "sales": [
+     7358.86,
+     6436.76,
+     5867.43,
+     6796.67,
+     3637.08,
+     5957.58,
+     5138.37,
+     5001.6,
+     4476.58,
+     5062.89,
+     5634.0,
+     460.1
+    ],
+    "impressions": [
+     15413,
+     14346,
+     10766,
+     12061,
+     10293,
+     12159,
+     10697,
+     10940,
+     9285,
+     10057,
+     9295,
+     1423
+    ],
+    "clicks": [
+     717,
+     669,
+     611,
+     630,
+     435,
+     570,
+     468,
+     504,
+     453,
+     483,
+     573,
+     83
+    ],
+    "total_spend": 2631.99,
+    "total_sales": 61827.92,
+    "roas": 23.49
+   },
+   {
+    "id": "400445967965503",
+    "name": "SP_stage1_6_defensive",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     238.35,
+     223.87,
+     209.28,
+     257.46,
+     185.56,
+     194.87,
+     231.86,
+     242.28,
+     310.73,
+     299.43,
+     294.02,
+     47.1
+    ],
+    "sales": [
+     5259.89,
+     4683.64,
+     4314.55,
+     4757.99,
+     4139.3,
+     4293.29,
+     5334.89,
+     5659.7,
+     6412.49,
+     6268.98,
+     5555.5,
+     1128.8
+    ],
+    "impressions": [
+     11088,
+     9210,
+     8570,
+     8391,
+     7900,
+     10546,
+     9621,
+     10981,
+     12236,
+     12708,
+     10555,
+     1878
+    ],
+    "clicks": [
+     575,
+     523,
+     492,
+     598,
+     449,
+     479,
+     551,
+     564,
+     721,
+     694,
+     684,
+     108
+    ],
+    "total_spend": 2734.81,
+    "total_sales": 57809.02,
+    "roas": 21.14
+   },
+   {
+    "id": "481285651003605",
+    "name": "SP_Fliptop_defensive",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     332.06,
+     371.88,
+     384.1,
+     373.71,
+     291.45,
+     308.73,
+     292.55,
+     396.56,
+     367.17,
+     396.27,
+     141.79,
+     20.93
+    ],
+    "sales": [
+     4631.29,
+     7032.64,
+     5747.89,
+     5698.0,
+     4697.69,
+     6107.25,
+     5881.1,
+     6642.45,
+     7350.56,
+     7516.29,
+     2720.0,
+     324.1
+    ],
+    "impressions": [
+     20062,
+     11440,
+     9846,
+     10710,
+     7955,
+     9102,
+     9184,
+     11161,
+     11112,
+     11144,
+     7519,
+     1108
+    ],
+    "clicks": [
+     671,
+     707,
+     704,
+     732,
+     575,
+     611,
+     572,
+     757,
+     725,
+     746,
+     277,
+     41
+    ],
+    "total_spend": 3677.2,
+    "total_sales": 64349.26,
+    "roas": 17.5
+   },
+   {
+    "id": "176516762220129",
+    "name": "176516762220129",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     175.91,
+     405.64,
+     406.74,
+     229.75,
+     120.11,
+     153.47,
+     0
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     2960.5,
+     3303.9,
+     2763.6,
+     2953.24,
+     2899.58,
+     3081.6,
+     0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     26787,
+     35667,
+     53274,
+     43588,
+     30379,
+     35800,
+     0
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     221,
+     326,
+     284,
+     322,
+     262,
+     303,
+     0
+    ],
+    "total_spend": 1491.62,
+    "total_sales": 17962.42,
+    "roas": 12.04
+   },
+   {
+    "id": "412813716858145",
+    "name": "SP_stage1_keyword",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     435.83,
+     390.67,
+     366.39,
+     390.54,
+     347.53,
+     399.72,
+     324.14,
+     368.13,
+     331.86,
+     368.08,
+     462.58,
+     77.56
+    ],
+    "sales": [
+     4305.24,
+     4735.34,
+     3004.29,
+     4575.09,
+     2908.42,
+     4019.08,
+     3132.6,
+     3249.98,
+     3830.2,
+     3930.08,
+     3728.2,
+     1019.6
+    ],
+    "impressions": [
+     166170,
+     154773,
+     151330,
+     165776,
+     156245,
+     179532,
+     179499,
+     186042,
+     128892,
+     136086,
+     132208,
+     25383
+    ],
+    "clicks": [
+     729,
+     664,
+     625,
+     656,
+     567,
+     589,
+     516,
+     580,
+     558,
+     595,
+     710,
+     116
+    ],
+    "total_spend": 4263.03,
+    "total_sales": 42438.12,
+    "roas": 9.95
+   },
+   {
+    "id": "231178373083287",
+    "name": "SP_ppsu_auto",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     174.54,
+     102.1,
+     91.86,
+     93.26,
+     95.84,
+     97.89,
+     111.24,
+     230.93,
+     91.41,
+     101.29,
+     119.32,
+     22.95
+    ],
+    "sales": [
+     2195.67,
+     1137.89,
+     874.6,
+     1104.48,
+     1114.78,
+     1016.1,
+     863.69,
+     1199.48,
+     1046.19,
+     1050.6,
+     1108.3,
+     333.2
+    ],
+    "impressions": [
+     154323,
+     117048,
+     107019,
+     167333,
+     186322,
+     167978,
+     179207,
+     239510,
+     158845,
+     155936,
+     140489,
+     23505
+    ],
+    "clicks": [
+     449,
+     261,
+     229,
+     241,
+     245,
+     256,
+     304,
+     557,
+     253,
+     266,
+     302,
+     58
+    ],
+    "total_spend": 1332.63,
+    "total_sales": 13044.98,
+    "roas": 9.79
+   },
+   {
+    "id": "340267150899607",
+    "name": "SP_knotted_manual",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     327.23,
+     384.82,
+     363.06,
+     350.37,
+     350.1,
+     369.07,
+     336.61,
+     336.08,
+     330.83,
+     355.29,
+     320.64,
+     38.4
+    ],
+    "sales": [
+     4084.5,
+     3503.3,
+     4192.24,
+     3575.78,
+     3241.18,
+     3521.83,
+     3560.19,
+     2441.04,
+     2795.56,
+     3337.7,
+     3240.4,
+     262.4
+    ],
+    "impressions": [
+     94177,
+     106363,
+     101421,
+     123809,
+     109684,
+     127255,
+     130917,
+     143107,
+     94044,
+     117314,
+     99723,
+     14941
+    ],
+    "clicks": [
+     540,
+     634,
+     581,
+     552,
+     542,
+     570,
+     524,
+     516,
+     514,
+     549,
+     492,
+     60
+    ],
+    "total_spend": 3862.5,
+    "total_sales": 37756.12,
+    "roas": 9.78
+   },
+   {
+    "id": "283428786376604",
+    "name": "CHA&MOM_Cream_SP_Auto",
+    "platform": "Amazon Ads",
+    "brand": "CHA&MOM",
+    "spend": [
+     13.51,
+     30.89,
+     9.46,
+     14.84,
+     15.25,
+     15.67,
+     6.77,
+     6.9,
+     5.01,
+     4.35,
+     13.18,
+     5.51
+    ],
+    "sales": [
+     114.6,
+     87.1,
+     88.1,
+     28.7,
+     170.8,
+     29.7,
+     0.0,
+     56.2,
+     84.9,
+     57.4,
+     204.7,
+     55.2
+    ],
+    "impressions": [
+     1874,
+     27960,
+     2561,
+     6053,
+     4777,
+     3731,
+     1845,
+     1987,
+     1243,
+     2025,
+     3652,
+     2467
+    ],
+    "clicks": [
+     18,
+     41,
+     13,
+     20,
+     19,
+     19,
+     9,
+     10,
+     6,
+     5,
+     10,
+     3
+    ],
+    "total_spend": 141.34,
+    "total_sales": 977.4,
+    "roas": 6.92
+   }
+  ],
+  "weekly_bottom": [
+   {
+    "id": "120232746327610508",
+    "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     1042.37,
+     1049.78,
+     1050.59,
+     1046.6,
+     1053.06,
+     1052.28,
+     1041.09,
+     1054.05,
+     1041.12,
+     1053.64,
+     1050.29,
+     152.48
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     113151,
+     108419,
+     115496,
+     117918,
+     103110,
+     100743,
+     103659,
+     110767,
+     85081,
+     92428,
+     107886,
+     14860
+    ],
+    "clicks": [
+     16359,
+     14374,
+     14492,
+     14189,
+     13662,
+     14142,
+     14899,
+     13476,
+     13564,
+     12972,
+     11642,
+     1575
+    ],
+    "total_spend": 11687.35,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120240644685950508",
+    "name": "AMZ | Traffic | WL | Dentalmom | 202601",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     443.1,
+     561.27,
+     559.4,
+     557.11,
+     561.46,
+     560.72,
+     556.52,
+     559.32,
+     558.57,
+     559.53,
+     560.55,
+     74.25
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     61438,
+     69691,
+     75174,
+     75802,
+     69415,
+     66841,
+     65130,
+     66961,
+     66847,
+     72581,
+     70019,
+     10315
+    ],
+    "clicks": [
+     6290,
+     6006,
+     6045,
+     5866,
+     5674,
+     5226,
+     5456,
+     5024,
+     4734,
+     4991,
+     4843,
+     637
+    ],
+    "total_spend": 6111.8,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120241255476490508",
+    "name": "AMZ | Traffic | CHA&MOM",
+    "platform": "Meta Traffic",
+    "brand": "CHA&MOM",
+    "spend": [
+     0,
+     0,
+     115.2,
+     216.83,
+     237.58,
+     249.76,
+     253.41,
+     234.1,
+     242.64,
+     309.87,
+     312.66,
+     48.73
+    ],
+    "sales": [
+     0,
+     0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     86009,
+     64619,
+     52826,
+     57302,
+     54647,
+     44536,
+     45833,
+     53262,
+     56550,
+     10524
+    ],
+    "clicks": [
+     0,
+     0,
+     803,
+     964,
+     973,
+     1046,
+     1327,
+     2964,
+     2897,
+     3036,
+     2926,
+     494
+    ],
+    "total_spend": 2220.78,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120241214197260508",
+    "name": "Target | Traffic | Alpremio",
+    "platform": "Meta CVR",
+    "brand": "Alpremio",
+    "spend": [
+     0,
+     0,
+     87.7,
+     245.91,
+     245.84,
+     246.64,
+     242.15,
+     243.9,
+     243.73,
+     246.62,
+     243.29,
+     36.51
+    ],
+    "sales": [
+     0,
+     0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     10851,
+     28639,
+     28558,
+     34881,
+     36297,
+     42448,
+     36755,
+     38671,
+     42455,
+     6075
+    ],
+    "clicks": [
+     0,
+     0,
+     1625,
+     4247,
+     3963,
+     3983,
+     4879,
+     4369,
+     4139,
+     3839,
+     3802,
+     578
+    ],
+    "total_spend": 2082.29,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120238800333050508",
+    "name": "AMZ_Traffic_Grosmimi_20251204",
+    "platform": "Meta Traffic",
+    "brand": "Grosmimi",
+    "spend": [
+     834.44,
+     360.79,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "impressions": [
+     122349,
+     56404,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "clicks": [
+     5529,
+     2384,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "total_spend": 1195.23,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120242264069810508",
+    "name": "Target_Traffic_CHA&MOM_20260219",
+    "platform": "Meta CVR",
+    "brand": "CHA&MOM",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     122.41,
+     205.73,
+     212.09,
+     212.16,
+     207.63,
+     26.2
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     27934,
+     47313,
+     48660,
+     47656,
+     48660,
+     6874
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     468,
+     959,
+     1166,
+     1016,
+     1012,
+     138
+    ],
+    "total_spend": 986.22,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120240090794830508",
+    "name": "AMZ_Traffic_Naeiae_20251223",
+    "platform": "Meta Traffic",
+    "brand": "Naeiae",
+    "spend": [
+     488.31,
+     200.83,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "impressions": [
+     128630,
+     47954,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "clicks": [
+     2615,
+     1023,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "total_spend": 689.14,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "23661261736",
+    "name": "Mint | Search | Competitor | Conquest",
+    "platform": "Google Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     16.15,
+     33.87,
+     0
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.0,
+     0.0,
+     0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     174,
+     623,
+     0
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     11,
+     23,
+     0
+    ],
+    "total_spend": 50.02,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "23637555501",
+    "name": "Mint | Search | Category | Discovery",
+    "platform": "Google Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     298.88,
+     0.0,
+     0
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     2.71,
+     0.0,
+     0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     5484,
+     17,
+     0
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     242,
+     0,
+     0
+    ],
+    "total_spend": 298.88,
+    "total_sales": 2.71,
+    "roas": 0.01
+   },
+   {
+    "id": "120240689933170508",
+    "name": "AMZ | Traffic | WL_Dental Mom | Stainless_StrawCup | 20260107",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     375.91,
+     562.9,
+     556.89,
+     557.88,
+     562.35,
+     559.93,
+     560.9,
+     556.19,
+     559.18,
+     559.8,
+     560.13,
+     82.7
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     58.77,
+     0.0,
+     0.0,
+     0.0,
+     94.62,
+     115.95
+    ],
+    "impressions": [
+     66509,
+     82673,
+     86232,
+     99350,
+     76144,
+     76031,
+     80343,
+     67116,
+     62088,
+     74542,
+     85151,
+     12348
+    ],
+    "clicks": [
+     4262,
+     5642,
+     5457,
+     5178,
+     4752,
+     4363,
+     5239,
+     4520,
+     4226,
+     4402,
+     4288,
+     581
+    ],
+    "total_spend": 6054.76,
+    "total_sales": 269.34,
+    "roas": 0.04
+   }
+  ],
+  "monthly_all": [
+   {
+    "id": "263965495217853",
+    "name": "SP_ppsu_manual",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     47548.46,
+     49509.71,
+     48110.21
+    ],
+    "sales": [
+     114631.85,
+     118207.34,
+     112095.13
+    ],
+    "impressions": [
+     9020797,
+     9139381,
+     7471258
+    ],
+    "clicks": [
+     36575,
+     34773,
+     32674
+    ],
+    "total_spend": 145168.38,
+    "total_sales": 344934.32,
+    "roas": 2.38
+   },
+   {
+    "id": "289220267376704",
+    "name": "SP_flip top_manual",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     14691.05,
+     14028.14,
+     13395.28
+    ],
+    "sales": [
+     88209.24,
+     80952.67,
+     81425.4
+    ],
+    "impressions": [
+     3112877,
+     3394713,
+     2736761
+    ],
+    "clicks": [
+     22723,
+     21066,
+     20346
+    ],
+    "total_spend": 42114.47,
+    "total_sales": 250587.31,
+    "roas": 5.95
+   },
+   {
+    "id": "22471712625",
+    "name": "Mint | PMax | Core | Main",
+    "platform": "Google Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     9121.09,
+     8226.51,
+     5502.95
+    ],
+    "sales": [
+     17549.26,
+     16171.61,
+     10296.28
+    ],
+    "impressions": [
+     741356,
+     769788,
+     724329
+    ],
+    "clicks": [
+     7281,
+     7866,
+     5719
+    ],
+    "total_spend": 22850.55,
+    "total_sales": 44017.15,
+    "roas": 1.93
+   },
+   {
+    "id": "353731957105709",
+    "name": "SP_Fliptop_auto",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     5278.27,
+     4996.56,
+     4273.48
+    ],
+    "sales": [
+     9575.87,
+     10473.09,
+     10684.98
+    ],
+    "impressions": [
+     792936,
+     1611836,
+     1714265
+    ],
+    "clicks": [
+     6658,
+     8967,
+     7638
+    ],
+    "total_spend": 14548.31,
+    "total_sales": 30733.94,
+    "roas": 2.11
+   },
+   {
+    "id": "120232746327610508",
+    "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     4615.07,
+     4195.53,
+     3460.42
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     512079,
+     422085,
+     315368
+    ],
+    "clicks": [
+     67407,
+     56248,
+     41863
+    ],
+    "total_spend": 12271.02,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "22913712693",
+    "name": "Mint | PMax | Core | Tumblers",
+    "platform": "Google Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     1996.13,
+     4425.57,
+     1220.51
+    ],
+    "sales": [
+     4007.13,
+     3535.88,
+     1456.95
+    ],
+    "impressions": [
+     40900,
+     24317,
+     7768
+    ],
+    "clicks": [
+     1195,
+     1560,
+     510
+    ],
+    "total_spend": 7642.21,
+    "total_sales": 8999.96,
+    "roas": 1.18
+   },
+   {
+    "id": "120232464266510508",
+    "name": "Shopify | CVR | Grosmimi | Tumbler",
+    "platform": "Meta CVR",
+    "brand": "Grosmimi",
+    "spend": [
+     3069.47,
+     2789.95,
+     1751.79
+    ],
+    "sales": [
+     8308.89,
+     4333.47,
+     3557.08
+    ],
+    "impressions": [
+     156691,
+     137840,
+     88093
+    ],
+    "clicks": [
+     2672,
+     2253,
+     1497
+    ],
+    "total_spend": 7611.21,
+    "total_sales": 16199.44,
+    "roas": 2.13
+   },
+   {
+    "id": "120238108466330508",
+    "name": "Shopify | CVR | WL | Livfuselli (New)",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     3715.96,
+     3356.01,
+     485.33
+    ],
+    "sales": [
+     8622.46,
+     3408.07,
+     518.19
+    ],
+    "impressions": [
+     133217,
+     86473,
+     11240
+    ],
+    "clicks": [
+     7098,
+     4569,
+     553
+    ],
+    "total_spend": 7557.3,
+    "total_sales": 12548.72,
+    "roas": 1.66
+   },
+   {
+    "id": "120240644685950508",
+    "name": "AMZ | Traffic | WL | Dentalmom | 202601",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     2038.31,
+     2237.63,
+     1835.86
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     270054,
+     270277,
+     229883
+    ],
+    "clicks": [
+     23314,
+     21512,
+     15966
+    ],
+    "total_spend": 6111.8,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120240689933170508",
+    "name": "AMZ | Traffic | WL_Dental Mom | Stainless_StrawCup | 20260107",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     1969.18,
+     2237.12,
+     1848.46
+    ],
+    "sales": [
+     0.0,
+     58.77,
+     210.57
+    ],
+    "impressions": [
+     321804,
+     301523,
+     245200
+    ],
+    "clicks": [
+     19725,
+     18968,
+     14217
+    ],
+    "total_spend": 6054.76,
+    "total_sales": 269.34,
+    "roas": 0.04
+   },
+   {
+    "id": "412813716858145",
+    "name": "SP_stage1_keyword",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     1756.63,
+     1453.5,
+     1304.68
+    ],
+    "sales": [
+     17928.76,
+     13466.08,
+     13318.48
+    ],
+    "impressions": [
+     704873,
+     711439,
+     443078
+    ],
+    "clicks": [
+     2956,
+     2288,
+     2082
+    ],
+    "total_spend": 4514.81,
+    "total_sales": 44713.32,
+    "roas": 9.9
+   },
+   {
+    "id": "340267150899607",
+    "name": "SP_knotted_manual",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     1502.06,
+     1394.59,
+     1094.08
+    ],
+    "sales": [
+     16975.32,
+     12761.14,
+     10061.26
+    ],
+    "impressions": [
+     449975,
+     513477,
+     345309
+    ],
+    "clicks": [
+     2449,
+     2159,
+     1692
+    ],
+    "total_spend": 3990.73,
+    "total_sales": 39797.72,
+    "roas": 9.97
+   },
+   {
+    "id": "481285651003605",
+    "name": "SP_Fliptop_defensive",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     1626.28,
+     1277.33,
+     993.04
+    ],
+    "sales": [
+     26535.58,
+     22717.4,
+     19270.04
+    ],
+    "impressions": [
+     62659,
+     37070,
+     32693
+    ],
+    "clicks": [
+     3122,
+     2496,
+     1911
+    ],
+    "total_spend": 3896.65,
+    "total_sales": 68523.02,
+    "roas": 17.59
+   },
+   {
+    "id": "120240736243650508",
+    "name": "Shopify | CVR | GM | Tumbler | WL - Dental Mom",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     1510.25,
+     1953.68,
+     199.74
+    ],
+    "sales": [
+     3574.14,
+     2797.41,
+     366.91
+    ],
+    "impressions": [
+     50200,
+     60267,
+     7186
+    ],
+    "clicks": [
+     1265,
+     1437,
+     147
+    ],
+    "total_spend": 3663.67,
+    "total_sales": 6738.46,
+    "roas": 1.84
+   },
+   {
+    "id": "120227412781090508",
+    "name": "Shopify | CVR | WL | Laurence (Legacy)",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     1228.29,
+     1114.11,
+     928.12
+    ],
+    "sales": [
+     3124.56,
+     3802.82,
+     2420.25
+    ],
+    "impressions": [
+     55948,
+     48756,
+     36901
+    ],
+    "clicks": [
+     2217,
+     1245,
+     877
+    ],
+    "total_spend": 3270.52,
+    "total_sales": 9347.63,
+    "roas": 2.86
+   },
+   {
+    "id": "380111568693446",
+    "name": "SP_Replacements_defensive",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     1168.65,
+     1163.55,
+     810.05
+    ],
+    "sales": [
+     41295.7,
+     39508.3,
+     26262.89
+    ],
+    "impressions": [
+     166093,
+     139077,
+     107636
+    ],
+    "clicks": [
+     3486,
+     3324,
+     2286
+    ],
+    "total_spend": 3142.25,
+    "total_sales": 107066.89,
+    "roas": 34.07
+   },
+   {
+    "id": "365330679770972",
+    "name": "365330679770972",
+    "platform": "Amazon Ads",
+    "brand": "Naeiae",
+    "spend": [
+     1018.34,
+     1017.0,
+     881.4
+    ],
+    "sales": [
+     3321.0,
+     3370.2,
+     2533.8
+    ],
+    "impressions": [
+     234664,
+     274295,
+     278184
+    ],
+    "clicks": [
+     1367,
+     1314,
+     1108
+    ],
+    "total_spend": 2916.74,
+    "total_sales": 9225.0,
+    "roas": 3.16
+   },
+   {
+    "id": "400445967965503",
+    "name": "SP_stage1_6_defensive",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     1065.74,
+     864.0,
+     975.44
+    ],
+    "sales": [
+     22532.68,
+     19752.07,
+     19630.77
+    ],
+    "impressions": [
+     42726,
+     38643,
+     38992
+    ],
+    "clicks": [
+     2509,
+     2063,
+     2265
+    ],
+    "total_spend": 2905.18,
+    "total_sales": 61915.52,
+    "roas": 21.31
+   },
+   {
+    "id": "120224832628890508",
+    "name": "Shopify | CVR | ASC Campaign (Legacy)",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     948.9,
+     1062.61,
+     887.09
+    ],
+    "sales": [
+     3097.77,
+     9736.71,
+     1930.22
+    ],
+    "impressions": [
+     74253,
+     78507,
+     63512
+    ],
+    "clicks": [
+     1604,
+     1910,
+     1531
+    ],
+    "total_spend": 2898.6,
+    "total_sales": 14764.7,
+    "roas": 5.09
+   },
+   {
+    "id": "495635583330161",
+    "name": "SP_stage1_10_defensive",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     1244.37,
+     850.18,
+     729.87
+    ],
+    "sales": [
+     31055.2,
+     19881.83,
+     16384.07
+    ],
+    "impressions": [
+     61373,
+     44201,
+     31730
+    ],
+    "clicks": [
+     2995,
+     2000,
+     1667
+    ],
+    "total_spend": 2824.42,
+    "total_sales": 67321.1,
+    "roas": 23.84
+   },
+   {
+    "id": "444108265805305",
+    "name": "444108265805305",
+    "platform": "Amazon Ads",
+    "brand": "Naeiae",
+    "spend": [
+     762.32,
+     1259.01,
+     782.47
+    ],
+    "sales": [
+     2607.6,
+     2976.6,
+     3517.8
+    ],
+    "impressions": [
+     68331,
+     90962,
+     95646
+    ],
+    "clicks": [
+     711,
+     1010,
+     737
+    ],
+    "total_spend": 2803.8,
+    "total_sales": 9102.0,
+    "roas": 3.25
+   },
+   {
+    "id": "120240336678510508",
+    "name": "Shopify | CVR | GM | SLS Cup | WL - Dental Mom",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     1236.31,
+     836.47,
+     657.52
+    ],
+    "sales": [
+     2690.27,
+     1975.96,
+     712.74
+    ],
+    "impressions": [
+     37711,
+     24884,
+     23167
+    ],
+    "clicks": [
+     1117,
+     724,
+     595
+    ],
+    "total_spend": 2730.3,
+    "total_sales": 5378.97,
+    "roas": 1.97
+   },
+   {
+    "id": "120241255476490508",
+    "name": "AMZ | Traffic | CHA&MOM",
+    "platform": "Meta Traffic",
+    "brand": "CHA&MOM",
+    "spend": [
+     290.05,
+     977.16,
+     953.57
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     137315,
+     215311,
+     173482
+    ],
+    "clicks": [
+     1590,
+     5955,
+     9885
+    ],
+    "total_spend": 2220.78,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120241214197260508",
+    "name": "Target | Traffic | Alpremio",
+    "platform": "Meta CVR",
+    "brand": "Alpremio",
+    "spend": [
+     295.84,
+     977.92,
+     808.53
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     35437,
+     140154,
+     130039
+    ],
+    "clicks": [
+     5181,
+     17150,
+     13093
+    ],
+    "total_spend": 2082.29,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120238800333050508",
+    "name": "AMZ_Traffic_Grosmimi_20251204",
+    "platform": "Meta Traffic",
+    "brand": "Grosmimi",
+    "spend": [
+     1654.19,
+     0,
+     0
+    ],
+    "sales": [
+     0.0,
+     0,
+     0
+    ],
+    "impressions": [
+     259204,
+     0,
+     0
+    ],
+    "clicks": [
+     11643,
+     0,
+     0
+    ],
+    "total_spend": 1654.19,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "176516762220129",
+    "name": "176516762220129",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     917.39,
+     574.23
+    ],
+    "sales": [
+     0,
+     8570.3,
+     9392.12
+    ],
+    "impressions": [
+     0,
+     102771,
+     122724
+    ],
+    "clicks": [
+     0,
+     778,
+     940
+    ],
+    "total_spend": 1491.62,
+    "total_sales": 17962.42,
+    "roas": 12.04
+   },
+   {
+    "id": "231178373083287",
+    "name": "SP_ppsu_auto",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     596.35,
+     540.27,
+     345.87
+    ],
+    "sales": [
+     6766.17,
+     4157.95,
+     3767.79
+    ],
+    "impressions": [
+     612270,
+     771607,
+     510297
+    ],
+    "clicks": [
+     1515,
+     1368,
+     915
+    ],
+    "total_spend": 1482.49,
+    "total_sales": 14691.91,
+    "roas": 9.91
+   },
+   {
+    "id": "544958892271499",
+    "name": "CHA&MOM _Competitor Targeting_SP_Manual",
+    "platform": "Amazon Ads",
+    "brand": "CHA&MOM",
+    "spend": [
+     782.5,
+     450.34,
+     245.61
+    ],
+    "sales": [
+     1964.6,
+     923.0,
+     374.2
+    ],
+    "impressions": [
+     184675,
+     132962,
+     86512
+    ],
+    "clicks": [
+     454,
+     250,
+     113
+    ],
+    "total_spend": 1478.45,
+    "total_sales": 3261.8,
+    "roas": 2.21
+   },
+   {
+    "id": "120243162990550508",
+    "name": "Shopify | CVR | Grosmimi | Straw Cups",
+    "platform": "Meta CVR",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     1279.67
+    ],
+    "sales": [
+     0,
+     0,
+     2248.24
+    ],
+    "impressions": [
+     0,
+     0,
+     36321
+    ],
+    "clicks": [
+     0,
+     0,
+     900
+    ],
+    "total_spend": 1279.67,
+    "total_sales": 2248.24,
+    "roas": 1.76
+   },
+   {
+    "id": "120241103075230508",
+    "name": "Shopify | CVR | GM | Stainless",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     499.85,
+     722.14,
+     0
+    ],
+    "sales": [
+     1486.17,
+     1309.15,
+     0
+    ],
+    "impressions": [
+     22065,
+     24176,
+     0
+    ],
+    "clicks": [
+     455,
+     515,
+     0
+    ],
+    "total_spend": 1221.99,
+    "total_sales": 2795.32,
+    "roas": 2.29
+   },
+   {
+    "id": "120242000172120508",
+    "name": "Shopify | CVR | Alpremio_2",
+    "platform": "Meta CVR",
+    "brand": "Alpremio",
+    "spend": [
+     0,
+     513.62,
+     483.05
+    ],
+    "sales": [
+     0,
+     1139.75,
+     864.81
+    ],
+    "impressions": [
+     0,
+     13099,
+     14303
+    ],
+    "clicks": [
+     0,
+     403,
+     469
+    ],
+    "total_spend": 996.67,
+    "total_sales": 2004.56,
+    "roas": 2.01
+   },
+   {
+    "id": "120242264069810508",
+    "name": "Target_Traffic_CHA&MOM_20260219",
+    "platform": "Meta CVR",
+    "brand": "CHA&MOM",
+    "spend": [
+     0,
+     299.02,
+     687.2
+    ],
+    "sales": [
+     0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     0,
+     66694,
+     160403
+    ],
+    "clicks": [
+     0,
+     1321,
+     3438
+    ],
+    "total_spend": 986.22,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120240090794830508",
+    "name": "AMZ_Traffic_Naeiae_20251223",
+    "platform": "Meta Traffic",
+    "brand": "Naeiae",
+    "spend": [
+     963.59,
+     0,
+     0
+    ],
+    "sales": [
+     0.0,
+     0,
+     0
+    ],
+    "impressions": [
+     257206,
+     0,
+     0
+    ],
+    "clicks": [
+     5367,
+     0,
+     0
+    ],
+    "total_spend": 963.59,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120237963694920508",
+    "name": "⭐️ Shopify | Conversion | 2025",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     786.0,
+     0,
+     0
+    ],
+    "sales": [
+     1732.66,
+     0,
+     0
+    ],
+    "impressions": [
+     38857,
+     0,
+     0
+    ],
+    "clicks": [
+     403,
+     0,
+     0
+    ],
+    "total_spend": 786.0,
+    "total_sales": 1732.66,
+    "roas": 2.2
+   },
+   {
+    "id": "120241971933490508",
+    "name": "Gerneral | Shopify | CVR | Love&Care",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     0,
+     775.96,
+     0
+    ],
+    "sales": [
+     0,
+     980.94,
+     0
+    ],
+    "impressions": [
+     0,
+     34234,
+     0
+    ],
+    "clicks": [
+     0,
+     626,
+     0
+    ],
+    "total_spend": 775.96,
+    "total_sales": 980.94,
+    "roas": 1.26
+   },
+   {
+    "id": "120241333416140508",
+    "name": "Shopify | CVR | Alpremio",
+    "platform": "Meta CVR",
+    "brand": "Alpremio",
+    "spend": [
+     275.07,
+     491.61,
+     0
+    ],
+    "sales": [
+     499.7,
+     996.77,
+     0
+    ],
+    "impressions": [
+     8573,
+     15153,
+     0
+    ],
+    "clicks": [
+     425,
+     535,
+     0
+    ],
+    "total_spend": 766.68,
+    "total_sales": 1496.47,
+    "roas": 1.95
+   },
+   {
+    "id": "120241501265700508",
+    "name": "Target | Traffic | Alpremio_image",
+    "platform": "Meta CVR",
+    "brand": "Alpremio",
+    "spend": [
+     48.5,
+     709.18,
+     0
+    ],
+    "sales": [
+     0.0,
+     134.7,
+     0
+    ],
+    "impressions": [
+     19482,
+     196788,
+     0
+    ],
+    "clicks": [
+     265,
+     5767,
+     0
+    ],
+    "total_spend": 757.68,
+    "total_sales": 134.7,
+    "roas": 0.18
+   },
+   {
+    "id": "23642987933",
+    "name": "Mint | Search | Product | High Intent",
+    "platform": "Google Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     637.89
+    ],
+    "sales": [
+     0,
+     0,
+     406.32
+    ],
+    "impressions": [
+     0,
+     0,
+     12228
+    ],
+    "clicks": [
+     0,
+     0,
+     409
+    ],
+    "total_spend": 637.89,
+    "total_sales": 406.32,
+    "roas": 0.64
+   },
+   {
+    "id": "120242058768040508",
+    "name": "General | CVR| Love&Care | Bundles",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     0,
+     604.53,
+     0
+    ],
+    "sales": [
+     0,
+     861.98,
+     0
+    ],
+    "impressions": [
+     0,
+     28106,
+     0
+    ],
+    "clicks": [
+     0,
+     452,
+     0
+    ],
+    "total_spend": 604.53,
+    "total_sales": 861.98,
+    "roas": 1.43
+   },
+   {
+    "id": "120241527859600508",
+    "name": "pavbgk_kasdgf_Roi_PL_lol1_pro93_GH2R52zG",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     526.29,
+     0,
+     0
+    ],
+    "sales": [
+     60.0,
+     0,
+     0
+    ],
+    "impressions": [
+     72071,
+     0,
+     0
+    ],
+    "clicks": [
+     313,
+     0,
+     0
+    ],
+    "total_spend": 526.29,
+    "total_sales": 60.0,
+    "roas": 0.11
+   },
+   {
+    "id": "23642984297",
+    "name": "Mint | Search | Brand | All",
+    "platform": "Google Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     450.4
+    ],
+    "sales": [
+     0,
+     0,
+     1483.54
+    ],
+    "impressions": [
+     0,
+     0,
+     5859
+    ],
+    "clicks": [
+     0,
+     0,
+     423
+    ],
+    "total_spend": 450.4,
+    "total_sales": 1483.54,
+    "roas": 3.29
+   },
+   {
+    "id": "214628738155250",
+    "name": "214628738155250",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     441.37
+    ],
+    "sales": [
+     0,
+     0,
+     770.29
+    ],
+    "impressions": [
+     0,
+     0,
+     28938
+    ],
+    "clicks": [
+     0,
+     0,
+     326
+    ],
+    "total_spend": 441.37,
+    "total_sales": 770.29,
+    "roas": 1.75
+   },
+   {
+    "id": "120242055518600508",
+    "name": "General | CVR | Love&care | WLs",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     0,
+     425.93,
+     0
+    ],
+    "sales": [
+     0,
+     203.51,
+     0
+    ],
+    "impressions": [
+     0,
+     16030,
+     0
+    ],
+    "clicks": [
+     0,
+     263,
+     0
+    ],
+    "total_spend": 425.93,
+    "total_sales": 203.51,
+    "roas": 0.48
+   },
+   {
+    "id": "120241107023380508",
+    "name": "Shopify | CVR | CM | lotion",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     312.19,
+     103.78,
+     0
+    ],
+    "sales": [
+     687.08,
+     269.07,
+     0
+    ],
+    "impressions": [
+     20126,
+     5675,
+     0
+    ],
+    "clicks": [
+     144,
+     61,
+     0
+    ],
+    "total_spend": 415.97,
+    "total_sales": 956.15,
+    "roas": 2.3
+   },
+   {
+    "id": "120240644957010508",
+    "name": "Shopify_Chealsea_WL_CM_202601",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     413.42,
+     0,
+     0
+    ],
+    "sales": [
+     208.14,
+     0,
+     0
+    ],
+    "impressions": [
+     22141,
+     0,
+     0
+    ],
+    "clicks": [
+     244,
+     0,
+     0
+    ],
+    "total_spend": 413.42,
+    "total_sales": 208.14,
+    "roas": 0.5
+   },
+   {
+    "id": "120243275409090508",
+    "name": "Mint | Meta | Conversions | Alpremio Test",
+    "platform": "Meta CVR",
+    "brand": "Alpremio",
+    "spend": [
+     0,
+     0,
+     396.13
+    ],
+    "sales": [
+     0,
+     0,
+     710.23
+    ],
+    "impressions": [
+     0,
+     0,
+     15976
+    ],
+    "clicks": [
+     0,
+     0,
+     392
+    ],
+    "total_spend": 396.13,
+    "total_sales": 710.23,
+    "roas": 1.79
+   },
+   {
+    "id": "496578934015367",
+    "name": "CHA&MOM_Lotion_SP_Auto",
+    "platform": "Amazon Ads",
+    "brand": "CHA&MOM",
+    "spend": [
+     160.33,
+     189.35,
+     2.94
+    ],
+    "sales": [
+     946.3,
+     596.1,
+     0.0
+    ],
+    "impressions": [
+     72771,
+     72262,
+     2046
+    ],
+    "clicks": [
+     201,
+     193,
+     4
+    ],
+    "total_spend": 352.62,
+    "total_sales": 1542.4,
+    "roas": 4.37
+   },
+   {
+    "id": "306557038962339",
+    "name": "CHA&MOM_Keyword_Lotion_SP_Manual",
+    "platform": "Amazon Ads",
+    "brand": "CHA&MOM",
+    "spend": [
+     164.58,
+     162.66,
+     6.7
+    ],
+    "sales": [
+     485.7,
+     737.2,
+     0.0
+    ],
+    "impressions": [
+     50848,
+     56856,
+     1892
+    ],
+    "clicks": [
+     80,
+     89,
+     3
+    ],
+    "total_spend": 333.94,
+    "total_sales": 1222.9,
+    "roas": 3.66
+   },
+   {
+    "id": "120240424664030508",
+    "name": "Shopify_CVR_NewYear_20260101",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     325.91,
+     0,
+     0
+    ],
+    "sales": [
+     1202.71,
+     0,
+     0
+    ],
+    "impressions": [
+     22253,
+     0,
+     0
+    ],
+    "clicks": [
+     378,
+     0,
+     0
+    ],
+    "total_spend": 325.91,
+    "total_sales": 1202.71,
+    "roas": 3.69
+   },
+   {
+    "id": "120238668918590508",
+    "name": "Shopify_CVR_CM_20251202",
+    "platform": "Meta CVR",
+    "brand": "Unknown",
+    "spend": [
+     322.15,
+     0,
+     0
+    ],
+    "sales": [
+     583.16,
+     0,
+     0
+    ],
+    "impressions": [
+     23852,
+     0,
+     0
+    ],
+    "clicks": [
+     185,
+     0,
+     0
+    ],
+    "total_spend": 322.15,
+    "total_sales": 583.16,
+    "roas": 1.81
+   }
+  ],
+  "monthly_top": [
+   {
+    "id": "67304323730994",
+    "name": "SP_all_auto",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     33.18,
+     15.49,
+     18.16
+    ],
+    "sales": [
+     1386.58,
+     518.76,
+     1009.99
+    ],
+    "impressions": [
+     20552,
+     15906,
+     21252
+    ],
+    "clicks": [
+     266,
+     149,
+     167
+    ],
+    "total_spend": 66.83,
+    "total_sales": 2915.33,
+    "roas": 43.62
+   },
+   {
+    "id": "380111568693446",
+    "name": "SP_Replacements_defensive",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     1168.65,
+     1163.55,
+     810.05
+    ],
+    "sales": [
+     41295.7,
+     39508.3,
+     26262.89
+    ],
+    "impressions": [
+     166093,
+     139077,
+     107636
+    ],
+    "clicks": [
+     3486,
+     3324,
+     2286
+    ],
+    "total_spend": 3142.25,
+    "total_sales": 107066.89,
+    "roas": 34.07
+   },
+   {
+    "id": "495635583330161",
+    "name": "SP_stage1_10_defensive",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     1244.37,
+     850.18,
+     729.87
+    ],
+    "sales": [
+     31055.2,
+     19881.83,
+     16384.07
+    ],
+    "impressions": [
+     61373,
+     44201,
+     31730
+    ],
+    "clicks": [
+     2995,
+     2000,
+     1667
+    ],
+    "total_spend": 2824.42,
+    "total_sales": 67321.1,
+    "roas": 23.84
+   },
+   {
+    "id": "400445967965503",
+    "name": "SP_stage1_6_defensive",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     1065.74,
+     864.0,
+     975.44
+    ],
+    "sales": [
+     22532.68,
+     19752.07,
+     19630.77
+    ],
+    "impressions": [
+     42726,
+     38643,
+     38992
+    ],
+    "clicks": [
+     2509,
+     2063,
+     2265
+    ],
+    "total_spend": 2905.18,
+    "total_sales": 61915.52,
+    "roas": 21.31
+   },
+   {
+    "id": "481285651003605",
+    "name": "SP_Fliptop_defensive",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     1626.28,
+     1277.33,
+     993.04
+    ],
+    "sales": [
+     26535.58,
+     22717.4,
+     19270.04
+    ],
+    "impressions": [
+     62659,
+     37070,
+     32693
+    ],
+    "clicks": [
+     3122,
+     2496,
+     1911
+    ],
+    "total_spend": 3896.65,
+    "total_sales": 68523.02,
+    "roas": 17.59
+   },
+   {
+    "id": "176516762220129",
+    "name": "176516762220129",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     917.39,
+     574.23
+    ],
+    "sales": [
+     0,
+     8570.3,
+     9392.12
+    ],
+    "impressions": [
+     0,
+     102771,
+     122724
+    ],
+    "clicks": [
+     0,
+     778,
+     940
+    ],
+    "total_spend": 1491.62,
+    "total_sales": 17962.42,
+    "roas": 12.04
+   },
+   {
+    "id": "340267150899607",
+    "name": "SP_knotted_manual",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     1502.06,
+     1394.59,
+     1094.08
+    ],
+    "sales": [
+     16975.32,
+     12761.14,
+     10061.26
+    ],
+    "impressions": [
+     449975,
+     513477,
+     345309
+    ],
+    "clicks": [
+     2449,
+     2159,
+     1692
+    ],
+    "total_spend": 3990.73,
+    "total_sales": 39797.72,
+    "roas": 9.97
+   },
+   {
+    "id": "231178373083287",
+    "name": "SP_ppsu_auto",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     596.35,
+     540.27,
+     345.87
+    ],
+    "sales": [
+     6766.17,
+     4157.95,
+     3767.79
+    ],
+    "impressions": [
+     612270,
+     771607,
+     510297
+    ],
+    "clicks": [
+     1515,
+     1368,
+     915
+    ],
+    "total_spend": 1482.49,
+    "total_sales": 14691.91,
+    "roas": 9.91
+   },
+   {
+    "id": "412813716858145",
+    "name": "SP_stage1_keyword",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     1756.63,
+     1453.5,
+     1304.68
+    ],
+    "sales": [
+     17928.76,
+     13466.08,
+     13318.48
+    ],
+    "impressions": [
+     704873,
+     711439,
+     443078
+    ],
+    "clicks": [
+     2956,
+     2288,
+     2082
+    ],
+    "total_spend": 4514.81,
+    "total_sales": 44713.32,
+    "roas": 9.9
+   },
+   {
+    "id": "283428786376604",
+    "name": "CHA&MOM_Cream_SP_Auto",
+    "platform": "Amazon Ads",
+    "brand": "CHA&MOM",
+    "spend": [
+     74.0,
+     46.9,
+     28.49
+    ],
+    "sales": [
+     289.8,
+     285.4,
+     402.2
+    ],
+    "impressions": [
+     41697,
+     12506,
+     9729
+    ],
+    "clicks": [
+     99,
+     60,
+     25
+    ],
+    "total_spend": 149.39,
+    "total_sales": 977.4,
+    "roas": 6.54
+   }
+  ],
+  "monthly_bottom": [
+   {
+    "id": "120232746327610508",
+    "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     4615.07,
+     4195.53,
+     3460.42
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     512079,
+     422085,
+     315368
+    ],
+    "clicks": [
+     67407,
+     56248,
+     41863
+    ],
+    "total_spend": 12271.02,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120240644685950508",
+    "name": "AMZ | Traffic | WL | Dentalmom | 202601",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     2038.31,
+     2237.63,
+     1835.86
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     270054,
+     270277,
+     229883
+    ],
+    "clicks": [
+     23314,
+     21512,
+     15966
+    ],
+    "total_spend": 6111.8,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120241255476490508",
+    "name": "AMZ | Traffic | CHA&MOM",
+    "platform": "Meta Traffic",
+    "brand": "CHA&MOM",
+    "spend": [
+     290.05,
+     977.16,
+     953.57
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     137315,
+     215311,
+     173482
+    ],
+    "clicks": [
+     1590,
+     5955,
+     9885
+    ],
+    "total_spend": 2220.78,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120241214197260508",
+    "name": "Target | Traffic | Alpremio",
+    "platform": "Meta CVR",
+    "brand": "Alpremio",
+    "spend": [
+     295.84,
+     977.92,
+     808.53
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     35437,
+     140154,
+     130039
+    ],
+    "clicks": [
+     5181,
+     17150,
+     13093
+    ],
+    "total_spend": 2082.29,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120238800333050508",
+    "name": "AMZ_Traffic_Grosmimi_20251204",
+    "platform": "Meta Traffic",
+    "brand": "Grosmimi",
+    "spend": [
+     1654.19,
+     0,
+     0
+    ],
+    "sales": [
+     0.0,
+     0,
+     0
+    ],
+    "impressions": [
+     259204,
+     0,
+     0
+    ],
+    "clicks": [
+     11643,
+     0,
+     0
+    ],
+    "total_spend": 1654.19,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120242264069810508",
+    "name": "Target_Traffic_CHA&MOM_20260219",
+    "platform": "Meta CVR",
+    "brand": "CHA&MOM",
+    "spend": [
+     0,
+     299.02,
+     687.2
+    ],
+    "sales": [
+     0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     0,
+     66694,
+     160403
+    ],
+    "clicks": [
+     0,
+     1321,
+     3438
+    ],
+    "total_spend": 986.22,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "120240090794830508",
+    "name": "AMZ_Traffic_Naeiae_20251223",
+    "platform": "Meta Traffic",
+    "brand": "Naeiae",
+    "spend": [
+     963.59,
+     0,
+     0
+    ],
+    "sales": [
+     0.0,
+     0,
+     0
+    ],
+    "impressions": [
+     257206,
+     0,
+     0
+    ],
+    "clicks": [
+     5367,
+     0,
+     0
+    ],
+    "total_spend": 963.59,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "23661261736",
+    "name": "Mint | Search | Competitor | Conquest",
+    "platform": "Google Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     50.02
+    ],
+    "sales": [
+     0,
+     0,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     797
+    ],
+    "clicks": [
+     0,
+     0,
+     34
+    ],
+    "total_spend": 50.02,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "23637555501",
+    "name": "Mint | Search | Category | Discovery",
+    "platform": "Google Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     298.88
+    ],
+    "sales": [
+     0,
+     0,
+     2.71
+    ],
+    "impressions": [
+     0,
+     0,
+     5501
+    ],
+    "clicks": [
+     0,
+     0,
+     242
+    ],
+    "total_spend": 298.88,
+    "total_sales": 2.71,
+    "roas": 0.01
+   },
+   {
+    "id": "120240689933170508",
+    "name": "AMZ | Traffic | WL_Dental Mom | Stainless_StrawCup | 20260107",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     1969.18,
+     2237.12,
+     1848.46
+    ],
+    "sales": [
+     0.0,
+     58.77,
+     210.57
+    ],
+    "impressions": [
+     321804,
+     301523,
+     245200
+    ],
+    "clicks": [
+     19725,
+     18968,
+     14217
+    ],
+    "total_spend": 6054.76,
+    "total_sales": 269.34,
+    "roas": 0.04
+   }
+  ],
+  "new_campaigns": [
+   {
+    "id": "120243162990550508",
+    "name": "Shopify | CVR | Grosmimi | Straw Cups",
+    "platform": "Meta CVR",
+    "brand": "Grosmimi",
+    "spend": [
+     1279.67
+    ],
+    "sales": [
+     2248.24
+    ],
+    "impressions": [
+     36321
+    ],
+    "clicks": [
+     900
+    ],
+    "total_spend": 1279.67,
+    "total_sales": 2248.24,
+    "roas": 1.76
+   },
+   {
+    "id": "23642987933",
+    "name": "Mint | Search | Product | High Intent",
+    "platform": "Google Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     637.89
+    ],
+    "sales": [
+     406.32
+    ],
+    "impressions": [
+     12228
+    ],
+    "clicks": [
+     409
+    ],
+    "total_spend": 637.89,
+    "total_sales": 406.32,
+    "roas": 0.64
+   },
+   {
+    "id": "23642984297",
+    "name": "Mint | Search | Brand | All",
+    "platform": "Google Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     450.4
+    ],
+    "sales": [
+     1483.54
+    ],
+    "impressions": [
+     5859
+    ],
+    "clicks": [
+     423
+    ],
+    "total_spend": 450.4,
+    "total_sales": 1483.54,
+    "roas": 3.29
+   },
+   {
+    "id": "214628738155250",
+    "name": "214628738155250",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     441.37
+    ],
+    "sales": [
+     770.29
+    ],
+    "impressions": [
+     28938
+    ],
+    "clicks": [
+     326
+    ],
+    "total_spend": 441.37,
+    "total_sales": 770.29,
+    "roas": 1.75
+   },
+   {
+    "id": "120243275409090508",
+    "name": "Mint | Meta | Conversions | Alpremio Test",
+    "platform": "Meta CVR",
+    "brand": "Alpremio",
+    "spend": [
+     396.13
+    ],
+    "sales": [
+     710.23
+    ],
+    "impressions": [
+     15976
+    ],
+    "clicks": [
+     392
+    ],
+    "total_spend": 396.13,
+    "total_sales": 710.23,
+    "roas": 1.79
+   },
+   {
+    "id": "23637555501",
+    "name": "Mint | Search | Category | Discovery",
+    "platform": "Google Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     298.88
+    ],
+    "sales": [
+     2.71
+    ],
+    "impressions": [
+     5501
+    ],
+    "clicks": [
+     242
+    ],
+    "total_spend": 298.88,
+    "total_sales": 2.71,
+    "roas": 0.01
+   },
+   {
+    "id": "120243656988220508",
+    "name": "Shopify | CVR | CHA&MOM",
+    "platform": "Meta CVR",
+    "brand": "CHA&MOM",
+    "spend": [
+     226.64
+    ],
+    "sales": [
+     71.95
+    ],
+    "impressions": [
+     11273
+    ],
+    "clicks": [
+     86
+    ],
+    "total_spend": 226.64,
+    "total_sales": 71.95,
+    "roas": 0.32
+   },
+   {
+    "id": "120243575391600508",
+    "name": "Shopify | CVR | Grosmimi | WL | deanna.hauk | I | 20260317",
+    "platform": "Meta CVR",
+    "brand": "Grosmimi",
+    "spend": [
+     210.16
+    ],
+    "sales": [
+     60.45
+    ],
+    "impressions": [
+     4521
+    ],
+    "clicks": [
+     158
+    ],
+    "total_spend": 210.16,
+    "total_sales": 60.45,
+    "roas": 0.29
+   },
+   {
+    "id": "120243658719440508",
+    "name": "Shopify | CVR | Naeiae",
+    "platform": "Meta CVR",
+    "brand": "Naeiae",
+    "spend": [
+     177.53
+    ],
+    "sales": [
+     117.97
+    ],
+    "impressions": [
+     4390
+    ],
+    "clicks": [
+     72
+    ],
+    "total_spend": 177.53,
+    "total_sales": 117.97,
+    "roas": 0.66
+   },
+   {
+    "id": "23661261736",
+    "name": "Mint | Search | Competitor | Conquest",
+    "platform": "Google Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     50.02
+    ],
+    "sales": [
+     0.0
+    ],
+    "impressions": [
+     797
+    ],
+    "clicks": [
+     34
+    ],
+    "total_spend": 50.02,
+    "total_sales": 0.0,
+    "roas": 0.0
+   },
+   {
+    "id": "279433915130435",
+    "name": "279433915130435",
+    "platform": "Amazon Ads",
+    "brand": "Naeiae",
+    "spend": [
+     1.15
+    ],
+    "sales": [
+     0.0
+    ],
+    "impressions": [
+     128
+    ],
+    "clicks": [
+     1
+    ],
+    "total_spend": 1.15,
+    "total_sales": 0.0,
+    "roas": 0.0
+   }
+  ],
+  "current_month": "2026-03"
+ },
+ "weekly": {
+  "weeks": [
+   "2026-W02",
+   "2026-W03",
+   "2026-W04",
+   "2026-W05",
+   "2026-W06",
+   "2026-W07",
+   "2026-W08",
+   "2026-W09",
+   "2026-W10",
+   "2026-W11",
+   "2026-W12",
+   "2026-W13"
+  ],
+  "week_labels": [
+   "W2 (Jan 05)",
+   "W3 (Jan 12)",
+   "W4 (Jan 19)",
+   "W5 (Jan 26)",
+   "W6 (Feb 02)",
+   "W7 (Feb 09)",
+   "W8 (Feb 16)",
+   "W9 (Feb 23)",
+   "W10 (Mar 02)",
+   "W11 (Mar 09)",
+   "W12 (Mar 16)",
+   "W13 (Mar 23)"
+  ],
+  "brand_revenue": {
+   "Grosmimi": {
+    "weekly": [
+     141107,
+     139712,
+     136850,
+     135320,
+     140053,
+     133259,
+     138506,
+     145290,
+     146831,
+     161717,
+     160075,
+     25384
+    ],
+    "color": "#8b5cf6"
+   },
+   "Naeiae": {
+    "weekly": [
+     2764,
+     3550,
+     2284,
+     2563,
+     2563,
+     3204,
+     2727,
+     3808,
+     3685,
+     4708,
+     3670,
+     397
+    ],
+    "color": "#eab308"
+   },
+   "CHA&MOM": {
+    "weekly": [
+     1591,
+     2577,
+     1038,
+     1209,
+     1657,
+     1441,
+     1480,
+     1771,
+     1414,
+     967,
+     809,
+     0
+    ],
+    "color": "#0ea5e9"
+   },
+   "Alpremio": {
+    "weekly": [
+     1273,
+     1324,
+     1910,
+     1493,
+     2312,
+     1692,
+     2005,
+     1733,
+     2063,
+     1476,
+     2038,
+     244
+    ],
+    "color": "#f97316"
+   },
+   "Other": {
+    "weekly": [
+     229,
+     934,
+     694,
+     84,
+     7984,
+     1321,
+     1346,
+     1108,
+     708,
+     1081,
+     428,
+     13899
+    ],
+    "color": "#94a3b8"
+   }
+  },
+  "channel_revenue": {
+   "Onzenna D2C": {
+    "weekly": [
+     20200,
+     20354,
+     22246,
+     21386,
+     22333,
+     17769,
+     16372,
+     15121,
+     12512,
+     14894,
+     13916,
+     16352
+    ],
+    "color": "#6366f1"
+   },
+   "Amazon MP": {
+    "weekly": [
+     124761,
+     126317,
+     110728,
+     116750,
+     120554,
+     119464,
+     126539,
+     135052,
+     136799,
+     149991,
+     146917,
+     22824
+    ],
+    "color": "#f59e0b"
+   },
+   "TikTok Shop": {
+    "weekly": [
+     0,
+     0,
+     0,
+     0,
+     50,
+     0,
+     76,
+     25,
+     126,
+     0,
+     0,
+     0
+    ],
+    "color": "#ec4899"
+   },
+   "Target+": {
+    "weekly": [
+     2002,
+     1425,
+     1973,
+     2533,
+     2835,
+     2944,
+     2757,
+     3512,
+     4211,
+     4234,
+     4505,
+     749
+    ],
+    "color": "#ef4444"
+   },
+   "B2B": {
+    "weekly": [
+     0,
+     0,
+     7830,
+     0,
+     8796,
+     741,
+     320,
+     0,
+     1052,
+     831,
+     1681,
+     0
+    ],
+    "color": "#10b981"
+   }
+  },
+  "ad_performance": {
+   "Amazon Ads": {
+    "spend": [
+     16864,
+     19146,
+     18640,
+     20472,
+     19391,
+     19000,
+     20755,
+     21094,
+     22055,
+     23940,
+     22488,
+     3439
+    ],
+    "sales": [
+     89040,
+     91018,
+     76588,
+     88331,
+     84740,
+     86647,
+     94426,
+     96688,
+     99236,
+     109220,
+     93762,
+     12185
+    ],
+    "impressions": [
+     3410144,
+     3685278,
+     3479066,
+     4155357,
+     4122197,
+     4074622,
+     4351955,
+     4620332,
+     4007345,
+     4494577,
+     4283468,
+     699143
+    ],
+    "clicks": [
+     19250,
+     20542,
+     20217,
+     22086,
+     20311,
+     20054,
+     21729,
+     22295,
+     22929,
+     24359,
+     23071,
+     3353
+    ],
+    "color": "#f59e0b"
+   },
+   "Meta CVR": {
+    "spend": [
+     3934,
+     2888,
+     3247,
+     4381,
+     3898,
+     4918,
+     4598,
+     3636,
+     2577,
+     2639,
+     3028,
+     492
+    ],
+    "sales": [
+     8103,
+     9032,
+     6558,
+     8185,
+     15252,
+     5937,
+     6113,
+     4915,
+     4071,
+     3420,
+     4207,
+     931
+    ],
+    "impressions": [
+     174255,
+     120676,
+     153898,
+     277720,
+     224314,
+     268696,
+     278333,
+     222263,
+     176677,
+     175662,
+     195788,
+     32331
+    ],
+    "clicks": [
+     4281,
+     3655,
+     5562,
+     9678,
+     9597,
+     9889,
+     11129,
+     8703,
+     7380,
+     6853,
+     7176,
+     1115
+    ],
+    "color": "#3b82f6"
+   },
+   "Meta Traffic": {
+    "spend": [
+     3184,
+     2736,
+     2282,
+     2378,
+     2414,
+     2423,
+     2412,
+     2404,
+     2402,
+     2483,
+     2484,
+     358
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     59,
+     0,
+     0,
+     0,
+     95,
+     116
+    ],
+    "impressions": [
+     492077,
+     365141,
+     362911,
+     357689,
+     301495,
+     300917,
+     303779,
+     289380,
+     259849,
+     292813,
+     319606,
+     48047
+    ],
+    "clicks": [
+     35055,
+     29429,
+     26797,
+     26197,
+     25061,
+     24777,
+     26921,
+     25984,
+     25421,
+     25401,
+     23699,
+     3287
+    ],
+    "color": "#93c5fd"
+   },
+   "Google Ads": {
+    "spend": [
+     2692,
+     2441,
+     2328,
+     2476,
+     2401,
+     3887,
+     3246,
+     3005,
+     3080,
+     2898,
+     1569,
+     229
+    ],
+    "sales": [
+     4521,
+     4786,
+     5189,
+     4105,
+     3640,
+     5873,
+     5408,
+     5478,
+     4219,
+     5011,
+     3014,
+     444
+    ],
+    "impressions": [
+     184140,
+     170697,
+     160039,
+     171340,
+     180824,
+     207280,
+     188190,
+     242163,
+     284066,
+     205549,
+     201028,
+     29895
+    ],
+    "clicks": [
+     1945,
+     2007,
+     2033,
+     1637,
+     2148,
+     2606,
+     2353,
+     2438,
+     2601,
+     2497,
+     1663,
+     234
+    ],
+    "color": "#10b981"
+   }
+  },
+  "ads_landing": {
+   "Onzenna": {
+    "spend": [
+     6626,
+     5329,
+     5575,
+     6857,
+     6300,
+     8805,
+     7844,
+     6642,
+     5657,
+     5537,
+     4597,
+     721
+    ],
+    "revenue": [
+     20200,
+     20354,
+     22246,
+     21386,
+     22333,
+     17769,
+     16372,
+     15121,
+     12512,
+     14894,
+     13916,
+     16352
+    ],
+    "platforms": "Google Ads + Meta CVR",
+    "color": "#6366f1"
+   },
+   "Amazon": {
+    "spend": [
+     20048,
+     21881,
+     20922,
+     22851,
+     21805,
+     21422,
+     23167,
+     23498,
+     24456,
+     26423,
+     24971,
+     3797
+    ],
+    "revenue": [
+     124761,
+     126317,
+     110728,
+     116750,
+     120554,
+     119464,
+     126539,
+     135052,
+     136799,
+     149991,
+     146917,
+     22824
+    ],
+    "platforms": "Amazon Ads + Meta Traffic",
+    "color": "#f59e0b"
+   }
+  },
+  "brand_performance": {
+   "Grosmimi": {
+    "total_sales": [
+     141107,
+     139712,
+     136850,
+     135320,
+     140053,
+     133259,
+     138506,
+     145290,
+     146831,
+     161717,
+     160075,
+     25384
+    ],
+    "ad_spend": [
+     20364,
+     21878,
+     21240,
+     22741,
+     21700,
+     22805,
+     23945,
+     23936,
+     24964,
+     27315,
+     24860,
+     3817
+    ],
+    "ad_sales": [
+     92460,
+     95491,
+     82101,
+     91279,
+     87268,
+     91578,
+     99050,
+     100611,
+     102628,
+     113850,
+     96285,
+     12951
+    ],
+    "organic": [
+     48647,
+     44221,
+     54749,
+     44041,
+     52785,
+     41681,
+     39456,
+     44679,
+     44203,
+     47867,
+     63790,
+     12433
+    ],
+    "color": "#8b5cf6"
+   },
+   "Naeiae": {
+    "total_sales": [
+     2764,
+     3550,
+     2284,
+     2563,
+     2563,
+     3204,
+     2727,
+     3808,
+     3685,
+     4708,
+     3670,
+     397
+    ],
+    "ad_spend": [
+     852,
+     598,
+     369,
+     521,
+     489,
+     579,
+     545,
+     673,
+     679,
+     486,
+     490,
+     84
+    ],
+    "ad_sales": [
+     1279,
+     1353,
+     1205,
+     1501,
+     1697,
+     1550,
+     1132,
+     1968,
+     1943,
+     1943,
+     1780,
+     232
+    ],
+    "organic": [
+     1485,
+     2197,
+     1079,
+     1062,
+     866,
+     1654,
+     1595,
+     1840,
+     1742,
+     2765,
+     1890,
+     165
+    ],
+    "color": "#eab308"
+   },
+   "CHA&MOM": {
+    "total_sales": [
+     1591,
+     2577,
+     1038,
+     1209,
+     1657,
+     1441,
+     1480,
+     1771,
+     1414,
+     967,
+     809,
+     0
+    ],
+    "ad_spend": [
+     353,
+     378,
+     172,
+     598,
+     537,
+     444,
+     582,
+     633,
+     534,
+     620,
+     832,
+     128
+    ],
+    "ad_sales": [
+     991,
+     1452,
+     146,
+     1346,
+     760,
+     473,
+     637,
+     715,
+     221,
+     272,
+     464,
+     55
+    ],
+    "organic": [
+     600,
+     1125,
+     892,
+     0,
+     897,
+     968,
+     843,
+     1056,
+     1193,
+     695,
+     345,
+     0
+    ],
+    "color": "#0ea5e9"
+   },
+   "Alpremio": {
+    "total_sales": [
+     1273,
+     1324,
+     1910,
+     1493,
+     2312,
+     1692,
+     2005,
+     1733,
+     2063,
+     1476,
+     2038,
+     244
+    ],
+    "ad_spend": [
+     0,
+     0,
+     89,
+     652,
+     766,
+     716,
+     660,
+     499,
+     452,
+     615,
+     484,
+     65
+    ],
+    "ad_sales": [
+     0,
+     0,
+     0,
+     500,
+     877,
+     474,
+     561,
+     359,
+     664,
+     322,
+     589,
+     0
+    ],
+    "organic": [
+     1273,
+     1324,
+     1910,
+     993,
+     1435,
+     1218,
+     1444,
+     1374,
+     1399,
+     1154,
+     1449,
+     244
+    ],
+    "color": "#f97316"
+   },
+   "Other": {
+    "total_sales": [
+     229,
+     934,
+     694,
+     84,
+     7984,
+     1321,
+     1346,
+     1108,
+     708,
+     1081,
+     428,
+     13899
+    ],
+    "ad_spend": [
+     5106,
+     4356,
+     4626,
+     5196,
+     4612,
+     5683,
+     5279,
+     4398,
+     3483,
+     2924,
+     2902,
+     423
+    ],
+    "ad_sales": [
+     6935,
+     6540,
+     4883,
+     5995,
+     13028,
+     4381,
+     4626,
+     3427,
+     2071,
+     1264,
+     1958,
+     438
+    ],
+    "organic": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     13461
+    ],
+    "color": "#94a3b8"
+   }
+  },
+  "waterfall": {
+   "revenue": [
+    147193,
+    149031,
+    143471,
+    140753,
+    162552,
+    142239,
+    147410,
+    154818,
+    155409,
+    171032,
+    167448,
+    53824
+   ],
+   "cogs": [
+    54534,
+    53293,
+    53291,
+    51174,
+    53287,
+    50710,
+    53282,
+    55367,
+    57294,
+    61510,
+    60869,
+    17982
+   ],
+   "gross_margin": [
+    92660,
+    95738,
+    90181,
+    89579,
+    109265,
+    91529,
+    94129,
+    99451,
+    98115,
+    109521,
+    106579,
+    35841
+   ],
+   "ad_spend": [
+    26675,
+    27210,
+    26497,
+    29707,
+    28105,
+    30227,
+    31011,
+    30140,
+    30113,
+    31960,
+    29568,
+    4518
+   ],
+   "discounts": [
+    705,
+    993,
+    6588,
+    1200,
+    2367,
+    1801,
+    1299,
+    685,
+    1373,
+    1957,
+    1064,
+    114
+   ],
+   "mkt_total": [
+    27380,
+    28203,
+    33085,
+    30908,
+    30472,
+    32028,
+    32311,
+    30825,
+    31486,
+    33918,
+    30632,
+    4632
+   ],
+   "contribution_margin": [
+    65280,
+    67535,
+    57096,
+    58672,
+    78793,
+    59501,
+    61818,
+    68626,
+    66629,
+    75604,
+    75946,
+    31209
+   ]
+  },
+  "channel_pnl": {
+   "Amazon MP": {
+    "revenue": [
+     124761,
+     126317,
+     110728,
+     116750,
+     120554,
+     119464,
+     126540,
+     135052,
+     136799,
+     149991,
+     146917,
+     22824
+    ],
+    "cogs": [
+     47674,
+     47021,
+     41245,
+     44324,
+     45083,
+     44182,
+     47465,
+     49998,
+     51843,
+     55383,
+     54888,
+     8680
+    ],
+    "fees": [
+     22017,
+     22291,
+     19540,
+     20603,
+     21274,
+     21082,
+     22331,
+     23833,
+     24141,
+     26469,
+     25927,
+     4028
+    ],
+    "ad_spend": [
+     20048,
+     21881,
+     20922,
+     22851,
+     21805,
+     21422,
+     23167,
+     23498,
+     24456,
+     26423,
+     24971,
+     3797
+    ],
+    "gross_margin": [
+     55070,
+     57005,
+     49943,
+     51823,
+     54197,
+     54200,
+     56744,
+     61221,
+     60815,
+     68139,
+     66102,
+     10116
+    ],
+    "contribution_margin": [
+     35022,
+     35124,
+     29021,
+     28972,
+     32392,
+     32778,
+     33577,
+     37723,
+     36359,
+     41716,
+     41131,
+     6319
+    ],
+    "color": "#f59e0b"
+   },
+   "Onzenna D2C": {
+    "revenue": [
+     20200,
+     20354,
+     22246,
+     21386,
+     22333,
+     17769,
+     16372,
+     15121,
+     12512,
+     14894,
+     13916,
+     16352
+    ],
+    "cogs": [
+     6940,
+     6400,
+     12102,
+     6873,
+     8316,
+     6665,
+     6001,
+     5513,
+     5499,
+     6208,
+     6093,
+     17727
+    ],
+    "fees": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "ad_spend": [
+     6626,
+     5329,
+     5575,
+     6857,
+     6300,
+     8805,
+     7844,
+     6642,
+     5657,
+     5537,
+     4597,
+     721
+    ],
+    "gross_margin": [
+     13260,
+     13954,
+     10144,
+     14513,
+     14017,
+     11104,
+     10371,
+     9608,
+     7013,
+     8686,
+     7823,
+     -1375
+    ],
+    "contribution_margin": [
+     6634,
+     8625,
+     4569,
+     7656,
+     7717,
+     2299,
+     2527,
+     2966,
+     1356,
+     3149,
+     3226,
+     -2096
+    ],
+    "color": "#6366f1"
+   },
+   "Target+": {
+    "revenue": [
+     2002,
+     1425,
+     1973,
+     2533,
+     2835,
+     2944,
+     2757,
+     3512,
+     4211,
+     4234,
+     4505,
+     749
+    ],
+    "cogs": [
+     490,
+     440,
+     560,
+     660,
+     680,
+     650,
+     790,
+     860,
+     1040,
+     1030,
+     1170,
+     170
+    ],
+    "fees": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "ad_spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "gross_margin": [
+     1512,
+     985,
+     1413,
+     1873,
+     2155,
+     2294,
+     1967,
+     2652,
+     3171,
+     3204,
+     3335,
+     579
+    ],
+    "contribution_margin": [
+     1512,
+     985,
+     1413,
+     1873,
+     2155,
+     2294,
+     1967,
+     2652,
+     3171,
+     3204,
+     3335,
+     579
+    ],
+    "color": "#ef4444"
+   },
+   "B2B": {
+    "revenue": [
+     0,
+     0,
+     7830,
+     0,
+     8796,
+     741,
+     320,
+     0,
+     1052,
+     831,
+     1681,
+     0
+    ],
+    "cogs": [
+     0,
+     0,
+     120,
+     0,
+     36,
+     12,
+     12,
+     0,
+     24,
+     36,
+     36,
+     0
+    ],
+    "fees": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "ad_spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "gross_margin": [
+     0,
+     0,
+     7710,
+     0,
+     8760,
+     729,
+     308,
+     0,
+     1028,
+     795,
+     1645,
+     0
+    ],
+    "contribution_margin": [
+     0,
+     0,
+     7710,
+     0,
+     8760,
+     729,
+     308,
+     0,
+     1028,
+     795,
+     1645,
+     0
+    ],
+    "color": "#10b981"
+   }
+  }
  }
 };
