@@ -1501,6 +1501,41 @@
    "sales_7d": 28.7,
    "result_status": "OK",
    "exec_date": "2026-03-15"
+  },
+  {
+   "brand_key": "chaenmom",
+   "campaignId": "283428786376604",
+   "campaignName": "CHA&MOM_Cream_SP_Auto",
+   "action": "increase_budget",
+   "priority": "high",
+   "reason": "[AUTO] 7d ROAS 17.28x (ACOS 5.8%) | 30d ROAS 12.53x | target ACOS 40.0% | 7d vs 30d: +37.9%\nBudget already at cap ($75/campaign)",
+   "old_budget": 75.0,
+   "new_budget": null,
+   "bid_change_pct": -10,
+   "roas_7d": 17.28,
+   "spend_7d": 15.04,
+   "sales_7d": 259.9,
+   "result_status": "OK",
+   "exec_date": "2026-03-24",
+   "exec_time": "2026-03-24 18:01:09 PST",
+   "user": "DASHBOARD",
+   "source": "dashboard"
+  },
+  {
+   "brand_key": "chaenmom",
+   "campaignId": "283428786376604",
+   "campaignName": "CHA&MOM_Cream_SP_Auto",
+   "action": "increase_budget",
+   "priority": "high",
+   "reason": "[AUTO] 7d ROAS 17.28x (ACOS 5.8%) | 30d ROAS 12.53x | target ACOS 40.0% | 7d vs 30d: +37.9%\nBudget already at cap ($75/campaign)",
+   "old_budget": 75.0,
+   "new_budget": null,
+   "bid_change_pct": -10,
+   "roas_7d": 17.28,
+   "spend_7d": 15.04,
+   "sales_7d": 259.9,
+   "result_status": "OK",
+   "exec_date": "2026-03-25"
   }
  ],
  "grosmimi": [
