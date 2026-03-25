@@ -803,6 +803,7 @@ def collect_amazon_sales(date_from: str, date_to: str) -> list[dict]:
     print("[Amazon Sales] Collecting...")
     all_rows = []
     all_sku_rows = []
+    all_fba_fees = {}  # ASIN -> fee info across all sellers
 
     for seller in SELLER_CONFIGS:
         if not seller["refresh_token"]:
@@ -843,9 +844,41 @@ def collect_amazon_sales(date_from: str, date_to: str) -> list[dict]:
             seller_sku_rows.extend(sku_rows)
             cur = chunk_end + timedelta(days=1)
 
+        # Refresh token before FBA fee request (orders report can take minutes)
+        try:
+            r = requests.post("https://api.amazon.com/auth/o2/token", data={
+                "grant_type": "refresh_token",
+                "client_id": seller["client_id"],
+                "client_secret": seller["client_secret"],
+                "refresh_token": seller["refresh_token"],
+            }, timeout=30)
+            r.raise_for_status()
+            sp_headers["x-amz-access-token"] = r.json()["access_token"]
+        except Exception:
+            pass  # Use existing token if refresh fails
+
+        # Fetch FBA fee estimates (ASIN -> per-unit fulfillment cost)
+        print(f"  [{seller['name']}] Fetching FBA fee estimates...")
+        fba_fees = _fetch_fba_fees(sp_headers, seller, AMZ_SP_MARKETPLACE_ID)
+
+        # Inject FBA fees into SKU rows
+        for sku_row in seller_sku_rows:
+            asin = sku_row.get("asin", "")
+            fee_info = fba_fees.get(asin, {})
+            per_unit = fee_info.get("fba_fee", 0)
+            sku_row["fba_fee_per_unit"] = per_unit
+            sku_row["fba_fee_total"] = round(per_unit * sku_row.get("units", 0), 2)
+
         all_rows.extend(seller_rows)
         all_sku_rows.extend(seller_sku_rows)
-        print(f"  {seller['name']} ({seller['brand']}): {len(seller_rows)} daily rows, {len(seller_sku_rows)} SKU rows")
+        all_fba_fees.update(fba_fees)
+        print(f"  {seller['name']} ({seller['brand']}): {len(seller_rows)} daily rows, {len(seller_sku_rows)} SKU rows, {len(fba_fees)} FBA ASINs")
+
+    # Save FBA fee snapshot
+    if all_fba_fees:
+        fba_list = list(all_fba_fees.values())
+        _save_cache("amazon_fba_fees", fba_list)
+        print(f"  FBA fee snapshot: {len(fba_list)} total ASINs")
 
     # Push SKU-level data as side effect (same API call, no extra cost)
     if all_sku_rows:
@@ -983,6 +1016,94 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
     except Exception as e:
         print(f"    [ERROR] SP report {start}~{end}: {e}")
         return [], []
+
+
+def _fetch_fba_fees(headers, seller, marketplace_id) -> dict:
+    """Fetch ASIN -> FBA fulfillment fee per unit from SP-API estimated fees report."""
+    try:
+        body = {
+            "reportType": "GET_FBA_ESTIMATED_FBA_FEES_TXT_DATA",
+            "marketplaceIds": [marketplace_id],
+        }
+        r = requests.post(
+            "https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/reports",
+            headers=headers, json=body, timeout=30,
+        )
+        if r.status_code >= 400:
+            print(f"    [WARN] FBA fees report: {r.status_code} {r.text[:200]}")
+            return {}
+        r.raise_for_status()
+        report_id = r.json().get("reportId")
+
+        for _ in range(60):
+            time.sleep(10)
+            r2 = requests.get(
+                f"https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/reports/{report_id}",
+                headers=headers, timeout=30,
+            )
+            r2.raise_for_status()
+            status = r2.json().get("processingStatus")
+            if status == "DONE":
+                doc_id = r2.json().get("reportDocumentId")
+                break
+            elif status in ("CANCELLED", "FATAL"):
+                print(f"    [WARN] FBA fees report {status}")
+                return {}
+        else:
+            print("    [WARN] FBA fees report timeout")
+            return {}
+
+        r3 = requests.get(
+            f"https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/documents/{doc_id}",
+            headers=headers, timeout=30,
+        )
+        r3.raise_for_status()
+        doc = r3.json()
+        dl_url = doc.get("url")
+        r4 = requests.get(dl_url, timeout=60)
+        r4.raise_for_status()
+
+        content = r4.content
+        if doc.get("compressionAlgorithm") == "GZIP":
+            content = gzip.decompress(content)
+
+        lines = content.decode("utf-8", errors="replace").strip().split("\n")
+        if len(lines) < 2:
+            return {}
+
+        hdr = [h.strip() for h in lines[0].split("\t")]
+        fee_map = {}
+        for line in lines[1:]:
+            cols = line.split("\t")
+            row = dict(zip(hdr, cols))
+            asin = row.get("asin", "").strip()
+            if not asin:
+                continue
+            try:
+                # Try multiple column names for FBA fulfillment fee
+                fba_fee = (float(row.get("expected-fulfillment-fee-per-unit", 0) or 0)
+                           or float(row.get("estimated-pick-pack-fee-per-unit", 0) or 0)
+                           + float(row.get("estimated-weight-handling-fee-per-unit", 0) or 0))
+                ref_fee = float(row.get("estimated-referral-fee-per-unit", 0) or 0)
+                total = float(row.get("estimated-fee-total", 0) or 0)
+                price = float(row.get("your-price", 0) or 0)
+            except (ValueError, TypeError):
+                fba_fee, ref_fee, total, price = 0, 0, 0, 0
+            fee_map[asin] = {
+                "asin": asin,
+                "seller_id": seller["seller_id"],
+                "brand": seller["brand"],
+                "fba_fee": fba_fee,
+                "referral_fee": ref_fee,
+                "total_fee": total,
+                "price": price,
+            }
+        print(f"    FBA fees: {len(fee_map)} ASINs")
+        return fee_map
+
+    except Exception as e:
+        print(f"    [ERROR] FBA fees: {e}")
+        return {}
 
 
 def _get_our_asins() -> tuple[set, dict]:

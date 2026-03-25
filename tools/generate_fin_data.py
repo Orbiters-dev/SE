@@ -1090,9 +1090,27 @@ def generate():
         wk = _week_key(d)
         amz_fees_weekly[wk] += float(r.get("fees") or 0)
 
+    # Build monthly FBA fulfillment costs from amazon_sales_sku_daily
+    amz_fulfill_monthly = defaultdict(float)
+    amz_fulfill_weekly = defaultdict(float)
+    has_fba_fees = False
+    for r in amazon_sku:
+        d = r.get("date", "")
+        if not d or d > through:
+            continue
+        fba_total = float(r.get("fba_fee_total", 0) or 0)
+        if fba_total > 0:
+            has_fba_fees = True
+            amz_fulfill_monthly[d[:7]] += fba_total
+            amz_fulfill_weekly[_week_key(d)] += fba_total
+    if has_fba_fees:
+        print(f"  FBA fulfillment: {sum(amz_fulfill_monthly.values()):,.0f} total across {len(amz_fulfill_monthly)} months")
+    else:
+        print("  FBA fulfillment: no data (run amazon_sales collection to fetch FBA fees)")
+
     # Channel P&L structure: revenue/cogs/selling_fees/fulfillment/ad_spend/gm/cm per month
     # Selling fees: Amazon 15%, Target+ 15%, Shopify 0%, B2B 0%
-    # Fulfillment: n.m. for now (FBA costs need Financial Events API)
+    # Fulfillment: Amazon FBA from estimated fees report, others n.m.
     CHANNEL_PNL_ORDER = ["Amazon MP", "Onzenna D2C", "Target+", "B2B"]
 
     # Build monthly Target+ fees from amazon_sales (channel=Target+)
@@ -1122,7 +1140,7 @@ def generate():
                     rev += net
                     cogs += units * AVG_COGS.get(b, 8)
                 sell_fee = amz_fees_monthly.get(m, 0)
-                fulfill = 0  # n.m. — need Financial Events API
+                fulfill = amz_fulfill_monthly.get(m, 0)
                 ad_sp = (ad_monthly.get("Amazon Ads", {}).get(m, {}).get("spend", 0)
                          + ad_monthly.get("Meta Traffic", {}).get(m, {}).get("spend", 0))
             elif ch == "Onzenna D2C":
@@ -1160,8 +1178,12 @@ def generate():
 
         gm_arr = [r - c - s - f for r, c, s, f in zip(rev_arr, cogs_arr, sell_arr, fulfill_arr)]
         cm_arr = [g - a for g, a in zip(gm_arr, ad_arr)]
-        # n.m. flags: fulfillment not yet measured for Amazon/D2C/Target+
-        fulfill_nm = ch in ("Amazon MP", "Onzenna D2C", "Target+")
+        # n.m. flags: fulfillment not yet measured for D2C/Target+
+        # Amazon MP: has_fba_fees=True means actual data available
+        if ch == "Amazon MP":
+            fulfill_nm = not has_fba_fees
+        else:
+            fulfill_nm = ch in ("Onzenna D2C", "Target+")
         return {
             "revenue": rev_arr,
             "cogs": cogs_arr,
