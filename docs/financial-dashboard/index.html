@@ -437,6 +437,7 @@ function renderFinancial(){
   ads+=grainToggle('ads');
   ads+='<div id="ads-content">';
   ads+=buildAdTable(F, months, mLabels, lastIdx, isPartialLast, false);
+  ads+=buildPlatformAdSections(F, 'monthly');
   ads+=buildBrandPerfTable(F, months, mLabels, lastIdx, isPartialLast, false);
   ads+=buildCampaignDetail(F, 'monthly');
   ads+='</div>';
@@ -1463,6 +1464,7 @@ function switchTimeGrain(grain, tabId, el){
       html+=buildWeeklyTable(W.channel_revenue||{}, wLabels, 'Revenue by Channel', '3');
     } else if(tabId==='ads'){
       html+=buildWeeklyAdTable(F, wLabels);
+      html+=buildPlatformAdSections(F, 'weekly');
       html+=buildWeeklyBrandPerfTable(F, wLabels);
       html+=buildCampaignDetail(F, 'weekly');
     } else if(tabId==='mrg'){
@@ -1478,6 +1480,7 @@ function switchTimeGrain(grain, tabId, el){
       html+=buildChannelTable(F, months, mLabels, lastIdx, isPartialLast, false);
     } else if(tabId==='ads'){
       html+=buildAdTable(F, months, mLabels, lastIdx, isPartialLast, false);
+      html+=buildPlatformAdSections(F, 'monthly');
       html+=buildBrandPerfTable(F, months, mLabels, lastIdx, isPartialLast, false);
       html+=buildCampaignDetail(F, 'monthly');
     } else if(tabId==='mrg'){
@@ -1674,6 +1677,156 @@ function buildWeeklyWaterfall(F, wLabels){
 }
 
 // ── Campaign Detail (Top/Bottom/New) ────────────────────────────────────────
+// ── Platform Ad Sections (brand breakdown per platform) ─────────────────────
+function getLandingChannel(campaignName, platform) {
+  var n = (campaignName || '').toUpperCase();
+  if (platform === 'Amazon Ads') return 'Amazon';
+  if (platform === 'Google Ads') return 'Shopify';
+  if (platform === 'Meta Traffic') return 'Amazon';
+  if (platform === 'Meta CVR') {
+    if (n.indexOf('AMZ') >= 0 || n.indexOf('AMAZON') >= 0) return 'Amazon';
+    if (n.indexOf('TARGET') >= 0 || n.indexOf('TGT') >= 0) return 'Target+';
+    return 'Shopify';
+  }
+  return 'Shopify';
+}
+
+function filterPlatformBrand(platformId, brand, btn) {
+  document.querySelectorAll('#'+platformId+'-pills .pill-btn').forEach(function(b){
+    var c = b.dataset.color || '#94a3b8';
+    b.style.background = 'transparent';
+    b.style.color = c;
+  });
+  var ac = btn.dataset.color || '#94a3b8';
+  btn.style.background = ac;
+  btn.style.color = '#fff';
+  document.querySelectorAll('#'+platformId+'-rows tr[data-brand]').forEach(function(row){
+    row.style.display = (brand === 'All' || row.dataset.brand === brand) ? '' : 'none';
+  });
+}
+
+function buildPlatformAdSections(F, grain) {
+  var isWeekly = grain === 'weekly';
+  var W = F.weekly || {};
+  var bp = isWeekly ? (W.brand_ad_by_platform || {}) : (F.brand_ad_by_platform || {});
+  var adMonths = isWeekly ? (W.weeks || []) : (F.months || []).slice(F.ad_start_idx || 0);
+  var labels = isWeekly
+    ? (W.week_labels || [])
+    : adMonths.map(function(m){ var p=m.split('-'); return p[1]+'/'+p[0].substring(2); });
+
+  var PLATFORMS = [
+    {key:'Amazon Ads',   color:'#f59e0b', toggle:true,  landing:'Amazon'},
+    {key:'Meta CVR',     color:'#3b82f6', toggle:true,  landing:'Shopify'},
+    {key:'Meta Traffic', color:'#93c5fd', toggle:true,  landing:'Amazon'},
+    {key:'Google Ads',   color:'#22c55e', toggle:false, landing:'Shopify'},
+  ];
+
+  var html = '<div class="sec"><div class="sec-title"><div class="num">2B</div> Ad Performance by Platform &amp; Brand</div></div>';
+
+  PLATFORMS.forEach(function(p) {
+    var platData = bp[p.key] || {};
+    var brands = Object.keys(platData);
+    if (!brands.length) return;
+
+    var pid = p.key.replace(/\s+/g,'').replace(/[^a-zA-Z0-9]/g,'').toLowerCase();
+    html += '<div class="sec">';
+    html += '<div class="sec-title" style="color:'+p.color+'">'+p.key+'</div>';
+    html += '<div class="card">';
+
+    // Brand toggle pills
+    if (p.toggle && brands.length > 1) {
+      html += '<div id="'+pid+'-pills" style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">';
+      html += '<span class="pill-btn" data-color="'+p.color+'" onclick="filterPlatformBrand(\''+pid+'\',\'All\',this)" style="cursor:pointer;padding:3px 10px;border-radius:12px;font-size:10px;border:1px solid '+p.color+';background:'+p.color+';color:#fff">All</span>';
+      brands.forEach(function(b){
+        var bc = (platData[b]||{}).color || '#94a3b8';
+        html += '<span class="pill-btn" data-color="'+bc+'" onclick="filterPlatformBrand(\''+pid+'\',\''+b+'\',this)" style="cursor:pointer;padding:3px 10px;border-radius:12px;font-size:10px;border:1px solid '+bc+';color:'+bc+';background:transparent">'+b+'</span>';
+      });
+      html += '</div>';
+    }
+
+    // Table
+    html += '<div style="overflow-x:auto"><table><thead><tr>';
+    html += '<th>Brand</th>';
+    labels.forEach(function(l, i){
+      html += '<th style="text-align:right;font-size:8px" colspan="2">'+l+'</th>';
+    });
+    html += '<th style="text-align:right;background:#f0fdf4">Total Spend</th>';
+    html += '<th style="text-align:right">ROAS</th></tr>';
+    html += '<tr><th></th>';
+    labels.forEach(function(){ html += '<th style="text-align:right;font-size:7px;color:var(--muted)">Spend</th><th style="text-align:right;font-size:7px;color:var(--muted)">Sales</th>'; });
+    html += '<th></th><th></th></tr></thead>';
+    html += '<tbody id="'+pid+'-rows">';
+
+    // Sort brands by total spend descending
+    var sortedBrands = brands.slice().sort(function(a, b){
+      var sa = (platData[a]||{}).spend || [];
+      var sb = (platData[b]||{}).spend || [];
+      return sa.reduce(function(s,v){return s+v;},0) < sb.reduce(function(s,v){return s+v;},0) ? 1 : -1;
+    });
+
+    sortedBrands.forEach(function(brand) {
+      var bd = platData[brand] || {};
+      var spend = bd.spend || [];
+      var sales = bd.sales || [];
+      var totalSpend = spend.reduce(function(s,v){return s+v;},0);
+      var totalSales = sales.reduce(function(s,v){return s+v;},0);
+      var roas = totalSpend > 0 ? totalSales / totalSpend : 0;
+      var rc = roas >= 3 ? 'var(--g)' : roas >= 1.5 ? 'var(--am)' : roas > 0 ? 'var(--r)' : 'var(--muted)';
+      var bc = bd.color || '#94a3b8';
+      html += '<tr data-brand="'+brand+'">';
+      html += '<td style="font-weight:600;font-size:10px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+bc+';margin-right:4px"></span>'+brand+'</td>';
+      for (var j = 0; j < labels.length; j++) {
+        var sp = spend[j] || 0;
+        var sa = sales[j] || 0;
+        var pr = sp > 0 ? (sa/sp).toFixed(1)+'x' : '—';
+        html += '<td style="text-align:right;font-family:var(--mono);font-size:8px">'+$(sp)+'</td>';
+        html += '<td style="text-align:right;font-family:var(--mono);font-size:8px">'+$(sa)+'<br><small style="color:var(--muted);font-size:7px">'+pr+'</small></td>';
+      }
+      html += '<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;background:#f0fdf4">'+$(Math.round(totalSpend))+'</td>';
+      html += '<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+rc+'">'+roas.toFixed(1)+'x</td>';
+      html += '</tr>';
+    });
+
+    html += '</tbody></table></div></div></div>';
+  });
+
+  // Target+ placeholder
+  html += '<div class="sec"><div class="sec-title" style="color:#ef4444">Target+ (Roundel)</div>';
+  html += '<div class="card"><div class="desc" style="color:var(--muted)">Roundel Media Studio — data collection pending. n.a.</div></div></div>';
+
+  return html;
+}
+
+// ── Campaign sort ────────────────────────────────────────────────────────────
+function sortCampaignTable(col) {
+  var tbody = document.getElementById('camp-all-tbody');
+  if (!tbody) return;
+  var state = window._campSortState || {col:'total_spend', dir:'desc'};
+  if (state.col === col) { state.dir = state.dir === 'desc' ? 'asc' : 'desc'; }
+  else { state.col = col; state.dir = 'desc'; }
+  window._campSortState = state;
+
+  // Update header icons
+  document.querySelectorAll('#camp-all-table th[data-sort]').forEach(function(th){
+    var icon = th.querySelector('.sort-icon');
+    if (icon) {
+      if (th.dataset.sort === col) icon.textContent = state.dir === 'desc' ? ' ▼' : ' ▲';
+      else icon.textContent = ' ⇅';
+    }
+  });
+
+  var rows = Array.from(tbody.querySelectorAll('tr[data-spend]'));
+  rows.sort(function(a, b){
+    var av = parseFloat(a.dataset[col] || 0);
+    var bv = parseFloat(b.dataset[col] || 0);
+    return state.dir === 'desc' ? bv - av : av - bv;
+  });
+  rows.forEach(function(r){ tbody.appendChild(r); });
+
+  // Re-number rows
+  rows.forEach(function(r, i){ var nc = r.querySelector('.row-num'); if(nc) nc.textContent = i+1; });
+}
+
 function buildCampaignDetail(F, grain){
   var cd=F.campaign_detail||{};
   var isWeekly=grain==='weekly';
@@ -1741,27 +1894,50 @@ function buildCampaignDetail(F, grain){
     html+='</tbody></table></div></div></div>';
   }
 
-  // ── All Campaigns (collapsible)
+  // ── All Campaigns (collapsible, sortable)
   if(entries.length){
-    html+='<div class="sec"><div class="sec-title" style="cursor:pointer" onclick="var el=document.getElementById(\'camp-all-table\');el.style.display=el.style.display===\'none\'?\'block\':\'none\'">All Campaigns (Top 50 by Spend) &mdash; click to expand</div>';
-    html+='<div id="camp-all-table" style="display:none"><div class="card"><div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Campaign</th><th style="font-size:8px;color:var(--muted)">Platform</th><th style="font-size:8px;color:var(--muted)">Brand</th>';
+    window._campSortState = {col:'spend', dir:'desc'};
+    html+='<div class="sec"><div class="sec-title" style="cursor:pointer" onclick="var el=document.getElementById(\'camp-all-table\');el.style.display=el.style.display===\'none\'?\'block\':\'none\'">All Campaigns ('+entries.length+') &mdash; click to expand</div>';
+    html+='<div id="camp-all-table" style="display:none"><div class="card"><div style="overflow-x:auto"><table id="camp-all-tbl"><thead><tr>';
+    html+='<th>#</th><th>Campaign</th>';
+    html+='<th style="font-size:8px;color:var(--muted)">Platform</th>';
+    html+='<th style="font-size:8px;color:var(--muted)">Brand</th>';
+    html+='<th style="font-size:8px;color:var(--muted)">Landing</th>';
     labels.forEach(function(l){ html+='<th style="text-align:right;font-size:8px" colspan="2">'+l+'</th>'; });
-    html+='<th style="text-align:right;background:#f0fdf4">Total $</th><th style="text-align:right">ROAS</th></tr>';
-    html+='<tr><th colspan="4"></th>';
-    labels.forEach(function(){ html+='<th style="text-align:right;font-size:7px;color:var(--muted)">Spend</th><th style="text-align:right;font-size:7px;color:var(--muted)">Sales</th>'; });
-    html+='<th></th><th></th></tr></thead><tbody>';
+    html+='<th data-sort="spend" style="text-align:right;background:#f0fdf4;cursor:pointer" onclick="sortCampaignTable(\'spend\')">Total Spend<span class="sort-icon"> ▼</span></th>';
+    html+='<th data-sort="sales" style="text-align:right;cursor:pointer" onclick="sortCampaignTable(\'sales\')">Total Sales<span class="sort-icon"> ⇅</span></th>';
+    html+='<th data-sort="roas" style="text-align:right;cursor:pointer" onclick="sortCampaignTable(\'roas\')">ROAS<span class="sort-icon"> ⇅</span></th>';
+    html+='<th data-sort="clicks" style="text-align:right;cursor:pointer" onclick="sortCampaignTable(\'clicks\')">Clicks<span class="sort-icon"> ⇅</span></th>';
+    html+='</tr>';
+    html+='<tr><th colspan="5"></th>';
+    labels.forEach(function(){ html+='<th style="text-align:right;font-size:7px;color:var(--muted)">Spend</th><th style="text-align:right;font-size:7px;color:var(--muted)">Sales/ROAS</th>'; });
+    html+='<th></th><th></th><th></th><th></th></tr></thead>';
+    html+='<tbody id="camp-all-tbody">';
     entries.forEach(function(c,i){
       var rc=c.roas>=3?'var(--g)':c.roas>=1.5?'var(--am)':c.roas>0?'var(--r)':'var(--muted)';
-      html+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+      var lch=getLandingChannel(c.name,c.platform);
+      var lbadge=lch==='Amazon'?'<span style="font-size:7px;padding:1px 4px;border-radius:3px;background:#fef3c7;color:#b45309;border:1px solid #f59e0b">AMZ</span>'
+        :lch==='Target+'?'<span style="font-size:7px;padding:1px 4px;border-radius:3px;background:#fee2e2;color:#b91c1c;border:1px solid #ef4444">TGT+</span>'
+        :'<span style="font-size:7px;padding:1px 4px;border-radius:3px;background:#dcfce7;color:#15803d;border:1px solid #22c55e">SHP</span>';
+      var totalClicks=(c.clicks||[]).reduce(function(s,v){return s+(v||0);},0);
+      var totalImpr=(c.impressions||[]).reduce(function(s,v){return s+(v||0);},0);
+      html+='<tr data-spend="'+c.total_spend+'" data-sales="'+c.total_sales+'" data-roas="'+c.roas+'" data-clicks="'+totalClicks+'" data-impressions="'+totalImpr+'">';
+      html+='<td class="row-num" style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
       html+='<td style="font-size:9px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c.name+'">'+c.name+'</td>';
       html+='<td style="font-size:8px;color:var(--dim)">'+c.platform+'</td>';
       html+='<td style="font-size:8px;color:var(--dim)">'+c.brand+'</td>';
+      html+='<td style="font-size:8px">'+lbadge+'</td>';
       for(var j=0;j<labels.length;j++){
-        html+='<td style="text-align:right;font-family:var(--mono);font-size:8px">'+$(c.spend[j]||0)+'</td>';
-        html+='<td style="text-align:right;font-family:var(--mono);font-size:8px">'+$(c.sales[j]||0)+'</td>';
+        var sp=c.spend[j]||0; var sa=c.sales[j]||0;
+        var pr=sp>0?(sa/sp).toFixed(1)+'x':'—';
+        html+='<td style="text-align:right;font-family:var(--mono);font-size:8px">'+$(sp)+'</td>';
+        html+='<td style="text-align:right;font-family:var(--mono);font-size:8px">'+$(sa)+'<br><small style="color:var(--muted);font-size:7px">'+pr+'</small></td>';
       }
       html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;background:#f0fdf4">'+$(c.total_spend)+'</td>';
-      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+rc+'">'+c.roas.toFixed(1)+'x</td></tr>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+$(c.total_sales)+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+rc+'">'+c.roas.toFixed(1)+'x</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:var(--muted)">'+totalClicks.toLocaleString()+'</td>';
+      html+='</tr>';
     });
     html+='</tbody></table></div></div></div>';
   }

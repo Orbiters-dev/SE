@@ -369,6 +369,72 @@ def generate():
         brand_ad_weekly["Grosmimi"][wk]["spend"] += float(r.get("spend") or 0)
         brand_ad_weekly["Grosmimi"][wk]["sales"] += float(r.get("conversion_value") or 0)
 
+    # ── Brand × Platform ad breakdown ─────────────────────────────────────────
+    brand_ad_by_platform = defaultdict(lambda: defaultdict(lambda: defaultdict(
+        lambda: {"spend": 0, "sales": 0, "impressions": 0, "clicks": 0}
+    )))
+    brand_ad_by_platform_wk = defaultdict(lambda: defaultdict(lambda: defaultdict(
+        lambda: {"spend": 0, "sales": 0, "impressions": 0, "clicks": 0}
+    )))
+
+    for r in amazon_ads:
+        d = r.get("date", "")
+        if not d or d > through:
+            continue
+        brand = r.get("brand") or "Other"
+        if brand not in BRAND_ORDER:
+            brand = "Other"
+        month = d[:7]
+        wk = _week_key(d)
+        brand_ad_by_platform["Amazon Ads"][brand][month]["spend"] += float(r.get("spend") or 0)
+        brand_ad_by_platform["Amazon Ads"][brand][month]["sales"] += float(r.get("sales") or 0)
+        brand_ad_by_platform["Amazon Ads"][brand][month]["impressions"] += int(r.get("impressions") or 0)
+        brand_ad_by_platform["Amazon Ads"][brand][month]["clicks"] += int(r.get("clicks") or 0)
+        brand_ad_by_platform_wk["Amazon Ads"][brand][wk]["spend"] += float(r.get("spend") or 0)
+        brand_ad_by_platform_wk["Amazon Ads"][brand][wk]["sales"] += float(r.get("sales") or 0)
+        brand_ad_by_platform_wk["Amazon Ads"][brand][wk]["impressions"] += int(r.get("impressions") or 0)
+        brand_ad_by_platform_wk["Amazon Ads"][brand][wk]["clicks"] += int(r.get("clicks") or 0)
+
+    for r in meta_ads:
+        d = r.get("date", "")
+        if not d or d > through:
+            continue
+        brand = r.get("brand") or "Other"
+        if brand not in BRAND_ORDER:
+            brand = "Other"
+        cname = (r.get("campaign_name") or "").lower()
+        landing = (r.get("landing_url") or "").lower()
+        is_amz = "amazon" in cname or "amz" in cname or "amazon" in landing
+        label = "Meta Traffic" if is_amz else "Meta CVR"
+        month = d[:7]
+        wk = _week_key(d)
+        brand_ad_by_platform[label][brand][month]["spend"] += float(r.get("spend") or 0)
+        brand_ad_by_platform[label][brand][month]["sales"] += float(r.get("purchase_value") or 0)
+        brand_ad_by_platform[label][brand][month]["impressions"] += int(r.get("impressions") or 0)
+        brand_ad_by_platform[label][brand][month]["clicks"] += int(r.get("clicks") or 0)
+        brand_ad_by_platform_wk[label][brand][wk]["spend"] += float(r.get("spend") or 0)
+        brand_ad_by_platform_wk[label][brand][wk]["sales"] += float(r.get("purchase_value") or 0)
+        brand_ad_by_platform_wk[label][brand][wk]["impressions"] += int(r.get("impressions") or 0)
+        brand_ad_by_platform_wk[label][brand][wk]["clicks"] += int(r.get("clicks") or 0)
+
+    for r in google_ads:
+        d = r.get("date", "")
+        if not d or d > through:
+            continue
+        brand = r.get("brand") or "Grosmimi"
+        if brand not in BRAND_ORDER:
+            brand = "Grosmimi"
+        month = d[:7]
+        wk = _week_key(d)
+        brand_ad_by_platform["Google Ads"][brand][month]["spend"] += float(r.get("spend") or 0)
+        brand_ad_by_platform["Google Ads"][brand][month]["sales"] += float(r.get("conversion_value") or 0)
+        brand_ad_by_platform["Google Ads"][brand][month]["impressions"] += int(r.get("impressions") or 0)
+        brand_ad_by_platform["Google Ads"][brand][month]["clicks"] += int(r.get("clicks") or 0)
+        brand_ad_by_platform_wk["Google Ads"][brand][wk]["spend"] += float(r.get("spend") or 0)
+        brand_ad_by_platform_wk["Google Ads"][brand][wk]["sales"] += float(r.get("conversion_value") or 0)
+        brand_ad_by_platform_wk["Google Ads"][brand][wk]["impressions"] += int(r.get("impressions") or 0)
+        brand_ad_by_platform_wk["Google Ads"][brand][wk]["clicks"] += int(r.get("clicks") or 0)
+
     # ── Build month list ──────────────────────────────────────────────────────
     all_months_set = set()
     for d in [brand_monthly, amz_brand_monthly, channel_monthly]:
@@ -1730,10 +1796,10 @@ def generate():
         "week_keys": week_keys,
         "week_labels": week_labels,
         "month_keys": ad_months,
-        "weekly_all": weekly_entries[:50],  # top 50 by spend
+        "weekly_all": weekly_entries,
         "weekly_top": weekly_top,
         "weekly_bottom": weekly_bottom,
-        "monthly_all": monthly_entries[:50],
+        "monthly_all": monthly_entries,
         "monthly_top": monthly_top,
         "monthly_bottom": monthly_bottom,
         "new_campaigns": new_campaigns,
@@ -1743,6 +1809,33 @@ def generate():
     print(f"  Campaigns: {len(camp_meta)} total, weekly={len(weekly_entries)}, monthly={len(monthly_entries)}")
     print(f"  New this month ({current_month}): {len(new_campaigns)}")
     print(f"  Top/Bottom weekly: {len(weekly_top)}/{len(weekly_bottom)}, monthly: {len(monthly_top)}/{len(monthly_bottom)}")
+
+    # ── Serialize brand_ad_by_platform ───────────────────────────────────────
+    def _bap_serialize(raw_dict, period_keys):
+        out = {}
+        for platform in ["Amazon Ads", "Meta CVR", "Meta Traffic", "Google Ads"]:
+            brands = dict(raw_dict.get(platform, {}))
+            plat_out = {}
+            for brand in sorted(brands.keys()):
+                spend = [round(brands[brand].get(pk, {}).get("spend", 0), 2) for pk in period_keys]
+                if not any(s > 0 for s in spend):
+                    continue
+                sales = [round(brands[brand].get(pk, {}).get("sales", 0), 2) for pk in period_keys]
+                impr = [brands[brand].get(pk, {}).get("impressions", 0) for pk in period_keys]
+                clicks = [brands[brand].get(pk, {}).get("clicks", 0) for pk in period_keys]
+                plat_out[brand] = {
+                    "spend": spend,
+                    "sales": sales,
+                    "impressions": impr,
+                    "clicks": clicks,
+                    "color": BRAND_COLORS.get(brand, "#94a3b8"),
+                }
+            out[platform] = plat_out
+        return out
+
+    bap_monthly_out = _bap_serialize(brand_ad_by_platform, ad_months)
+    bap_weekly_out = _bap_serialize(brand_ad_by_platform_wk, weeks)
+    weekly_data["brand_ad_by_platform"] = bap_weekly_out
 
     # ── Assemble final data ───────────────────────────────────────────────────
     fin_data = {
@@ -1794,6 +1887,7 @@ def generate():
         "pnl_polar": pnl_polar,
         "klaviyo": klaviyo_data,
         "campaign_detail": campaign_detail,
+        "brand_ad_by_platform": bap_monthly_out,
         "weekly": weekly_data,
     }
 
