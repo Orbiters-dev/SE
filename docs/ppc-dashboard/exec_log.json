@@ -1542,6 +1542,22 @@
   },
   {
    "brand_key": "chaenmom",
+   "campaignId": "310329880624911",
+   "campaignName": "CHA&MOM_Wash_SP_Auto",
+   "action": "reduce_bid",
+   "priority": "high",
+   "reason": "[AUTO] 7d ROAS 1.51x (ACOS 66.2%) | 30d ROAS 3.68x | target ACOS 40.0% | 7d vs 30d: -59.0%",
+   "old_budget": 75.0,
+   "new_budget": null,
+   "bid_change_pct": -15,
+   "roas_7d": 1.51,
+   "spend_7d": 35.09,
+   "sales_7d": 53.0,
+   "result_status": "OK",
+   "exec_date": "2026-03-26"
+  },
+  {
+   "brand_key": "chaenmom",
    "campaignId": "283428786376604",
    "campaignName": "CHA&MOM_Cream_SP_Auto",
    "action": "increase_budget",
