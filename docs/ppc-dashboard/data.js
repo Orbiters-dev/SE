@@ -1,5 +1,5 @@
 const PPC_DATA = {
- "generated_pst": "2026-03-26 02:22 PST",
+ "generated_pst": "2026-03-26 07:17 PST",
  "phantom_warnings": [],
  "brands": {
   "grosmimi": {
@@ -12441,7 +12441,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-26": {
-     "generated": "2026-03-26T02:22",
+     "generated": "2026-03-26T07:17",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -15685,7 +15685,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-26": {
-     "generated": "2026-03-26T02:22",
+     "generated": "2026-03-26T07:17",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -15728,7 +15728,7 @@ const PPC_DATA = {
        "bud_before": 100.0,
        "bud_after": null,
        "tier": "7 Strong",
-       "reason": "[AUTO] 7d ROAS 3.1x (ACOS 32.2%) | 30d ROAS 3.0x | target ACOS 35.0% | 7d vs 30d: +3.3%\nBudget already at cap ($100/campaign)",
+       "reason": "[AUTO] 7d ROAS 3.1x (ACOS 32.2%) | 30d ROAS 3.0x | target ACOS 40.0% | 7d vs 30d: +3.3%\nBudget already at cap ($100/campaign)",
        "approved": false
       },
       {
@@ -18006,7 +18006,7 @@ const PPC_DATA = {
      }
     },
     "2026-03-26": {
-     "generated": "2026-03-26T02:22",
+     "generated": "2026-03-26T07:17",
      "executed": true,
      "executed_at": "2026-03-26",
      "summary_7d": {
