@@ -699,8 +699,11 @@ function renderFinancial(){
   panelsHtml+='<div class="tab-panel" id="panel-traffic">'+traf+'</div>';
   panelsHtml+='<div class="tab-panel" id="panel-klaviyo">'+klav+'</div>';
   document.getElementById('fin-panels').innerHTML=panelsHtml;
-  // DEBUG: show tab html lengths in hero
-  document.getElementById('hero-meta').innerHTML+='<span class="pill" style="border-color:red;color:red;font-size:9px">DBG sum:'+sum.length+' rev:'+rev.length+' ads:'+ads.length+' mrg:'+mrg.length+' srch:'+srch.length+'</span>';
+  // DEBUG: force active panel visible + report lengths
+  var dbgPs=document.getElementById('panel-summary');
+  var dbgClasses=dbgPs?dbgPs.className:'MISSING';
+  if(dbgPs) dbgPs.style.setProperty('display','block','important');
+  document.getElementById('hero-meta').innerHTML+='<span class="pill" style="border-color:red;color:red;font-size:9px">DBG sum:'+sum.length+' cls:'+dbgClasses+'</span>';
 
   // Check URL hash for tab
   var hash=window.location.hash.replace('#','');
