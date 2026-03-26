@@ -183,32 +183,89 @@ def cmd_init():
         print(f"     첫 번째 발송 예정: [{videos[0]['published_at'][:10]}] {videos[0]['title']}")
 
 
+def sync_claude_videos(queue: dict) -> int:
+    """
+    채널에서 'Claude' 제목 신규 영상을 찾아 큐에 추가한다.
+    추가된 영상 수를 반환한다.
+    """
+    try:
+        import yt_dlp
+    except ImportError:
+        print("[WARN] yt-dlp 없음, sync 스킵")
+        return 0
+
+    existing_ids = {v["video_id"] for v in queue["videos"]}
+
+    # Step 1: extract_flat으로 전체 목록 (빠름) → 제목에 Claude 포함된 것만 추출
+    opts = {"extract_flat": True, "quiet": True, "no_warnings": True, "ignoreerrors": True}
+    with yt_dlp.YoutubeDL(opts) as ydl:
+        info = ydl.extract_info(CHANNEL_URL, download=False)
+
+    if not info or "entries" not in info:
+        print("[WARN] 채널 영상 목록 수집 실패")
+        return 0
+
+    candidates = [
+        e for e in info["entries"]
+        if e and "Claude" in e.get("title", "") and e.get("id") not in existing_ids
+    ]
+
+    if not candidates:
+        print("    신규 Claude 영상 없음.")
+        queue["last_fetched"] = datetime.now(timezone.utc).strftime("%Y%m%d")
+        save_queue(queue)
+        return 0
+
+    print(f"    신규 Claude 영상 후보 {len(candidates)}개 — 날짜 확인 중...")
+
+    # Step 2: 후보만 개별 fetch로 upload_date 획득 — last_fetched 이후만 추가
+    last_fetched = queue.get("last_fetched", "")
+    added = []
+    opts2 = {"quiet": True, "no_warnings": True, "ignoreerrors": True}
+    with yt_dlp.YoutubeDL(opts2) as ydl:
+        for e in candidates:
+            detail = ydl.extract_info(f"https://www.youtube.com/watch?v={e['id']}", download=False)
+            if not detail:
+                continue
+            upload_date = detail.get("upload_date", "")
+            # last_fetched 이전 영상은 스킵 (이미 큐 초기화 시점에 처리됨)
+            if last_fetched and upload_date and upload_date <= last_fetched:
+                continue
+            published_at = (
+                f"{upload_date[:4]}-{upload_date[4:6]}-{upload_date[6:8]}T00:00:00Z"
+                if upload_date else "unknown"
+            )
+            added.append({
+                "video_id": e["id"],
+                "title": detail.get("title", e.get("title")),
+                "published_at": published_at,
+                "upload_date": upload_date,
+                "url": f"https://www.youtube.com/watch?v={e['id']}",
+                "sent": False,
+                "sent_at": None,
+            })
+
+    # 오래된 순 정렬 후 큐 끝에 추가
+    added.sort(key=lambda v: v["upload_date"] or "99999999")
+    queue["videos"].extend(added)
+    queue["last_fetched"] = datetime.now(timezone.utc).strftime("%Y%m%d")
+    save_queue(queue)
+
+    for v in added:
+        print(f"     + [{v['upload_date']}] {v['title']}")
+    return len(added)
+
+
 def cmd_sync():
-    """신규 영상만 큐에 추가한다."""
+    """신규 Claude 영상만 큐에 추가한다."""
     queue = load_queue()
     if not queue:
         print("[ERROR] 큐가 없습니다. 먼저 --init을 실행하세요.")
         sys.exit(1)
 
-    last_fetched = queue.get("last_fetched", "")
-    print(f"[1] 마지막 수집({last_fetched}) 이후 신규 영상 확인 중...")
-
-    new_videos = fetch_all_videos(after_date=last_fetched)
-
-    if not new_videos:
-        print("    신규 영상 없음.")
-        return
-
-    existing_ids = {v["video_id"] for v in queue["videos"]}
-    added = [v for v in new_videos if v["video_id"] not in existing_ids]
-
-    queue["videos"].extend(added)
-    queue["last_fetched"] = datetime.now(timezone.utc).strftime("%Y%m%d")
-    save_queue(queue)
-
-    print(f"[OK] {len(added)}개 영상 추가됨.")
-    for v in added:
-        print(f"     - [{v['published_at'][:10]}] {v['title']}")
+    print(f"[1] 신규 Claude 영상 확인 중...")
+    added = sync_claude_videos(queue)
+    print(f"[OK] {added}개 영상 추가됨.")
 
 
 def cmd_status():
@@ -273,12 +330,15 @@ def cmd_run(dry_run: bool = False):
         cmd_init()
         queue = load_queue()
 
+    # 신규 Claude 영상 자동 sync
+    print("[SYNC] 신규 Claude 영상 확인 중...")
+    sync_claude_videos(queue)
+    queue = load_queue()  # sync 후 갱신된 큐 재로드
+
     # 미발송 중 가장 오래된 영상 선택
     pending = [v for v in queue["videos"] if not v["sent"]]
     if not pending:
-        msg = "큐에 발송할 영상이 없습니다. --sync 또는 --init으로 갱신하세요."
-        print(f"[WARN] {msg}")
-        send_error_to_teams(msg)
+        print("[SKIP] 발송할 Claude 영상이 없습니다. 새 영상 업로드 시 자동으로 추가됩니다.")
         sys.exit(0)
 
     video = pending[0]
