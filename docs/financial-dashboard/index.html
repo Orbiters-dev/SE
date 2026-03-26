@@ -447,9 +447,13 @@ function renderFinancial(){
   var mrg='';
   mrg+=grainToggle('mrg');
   mrg+='<div id="mrg-content">';
-  if(F.pnl_polar) mrg+=buildPolarPnL(F.pnl_polar);
-  else mrg+=buildWaterfall(F, months, mLabels, lastIdx, isPartialLast);
-  if(F.pnl_polar && F.pnl_polar.channel_pnl) mrg+=buildChannelPnL(F.pnl_polar);
+  try{
+    if(F.pnl_polar) mrg+=buildPolarPnL(F.pnl_polar);
+    else mrg+=buildWaterfall(F, months, mLabels, lastIdx, isPartialLast);
+    if(F.pnl_polar && F.pnl_polar.channel_pnl) mrg+=buildChannelPnL(F.pnl_polar);
+  }catch(e){
+    mrg+='<div class="card" style="border:2px solid red;padding:20px"><b style="color:red">Margins Error:</b> '+e.message+'<br><code style="font-size:10px">'+e.stack.split('\n').slice(0,3).join('<br>')+'</code></div>';
+  }
   mrg+='</div>';
 
   // ══════════════════════════════════════════════════════════════════════════
