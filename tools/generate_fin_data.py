@@ -6,7 +6,7 @@ Pulls data from DataKeeper (Shopify, Amazon, Meta, Google, GA4) and computes:
   - Ad-attributed vs organic revenue
   - Top search queries
   - GA4 traffic sources
-  - Marketing spend waterfall → Contribution Margin
+  - Marketing spend waterfall -> Contribution Margin
 
 Usage:
     python tools/generate_fin_data.py
@@ -57,6 +57,118 @@ AVG_PRICE = {
     "Grosmimi": 28.0, "Naeiae": 18.0, "CHA&MOM": 32.0,
     "Onzenna": 22.0, "Alpremio": 38.0,
 }
+
+# NAS paths for SKU-level COGS (Option B from run_kpi_monthly.py)
+_NAS_COGS_DIR = Path(r"Z:\Orbiters\ORBI CLAUDE_0223\ORBITERS CLAUDE\ORBITERS CLAUDE\Shared\NoPolar KPIs\Data config sheet")
+
+
+def load_sku_cogs_map():
+    """Load SKU -> COGS from NAS Excel. Returns {sku_lower: cost}."""
+    try:
+        import openpyxl
+        p = _NAS_COGS_DIR / "COGS by SKU.xlsx"
+        if not p.exists():
+            return {}
+        wb = openpyxl.load_workbook(str(p), read_only=True, data_only=True)
+        rows = list(wb.active.iter_rows(values_only=True))
+        headers = [str(h).strip().lower() if h else "" for h in rows[0]]
+        sku_col = next((i for i, h in enumerate(headers) if "sku" in h), None)
+        cost_col = next((i for i, h in enumerate(headers) if "cost" in h and "type" not in h), None)
+        if sku_col is None or cost_col is None:
+            wb.close()
+            return {}
+        out = {}
+        for row in rows[1:]:
+            sku = str(row[sku_col] or "").strip().lower()
+            try:
+                cost = float(row[cost_col] or 0)
+            except (TypeError, ValueError):
+                continue
+            if sku and cost > 0:
+                out[sku] = cost
+        wb.close()
+        return out
+    except Exception as e:
+        print(f"  [WARN] SKU COGS load failed: {e}")
+        return {}
+
+
+def build_sku_cogs_monthly(amazon_sku_rows, shopify_sku_rows, cogs_map, through, brand_order):
+    """Compute per-brand per-month COGS from SKU-level data.
+
+    Returns:
+        amz_cogs[brand][month] = total COGS (float)
+        shop_cogs[brand][month] = total COGS (float)  -- Shopify D2C only (excl PR/Amazon)
+        shop_cogs_by_channel[channel][brand][month] = total COGS (float)
+    """
+    SKIP_CH = {"PR", "Amazon"}
+    amz_cogs = defaultdict(lambda: defaultdict(float))
+    shop_cogs = defaultdict(lambda: defaultdict(float))
+    shop_cogs_by_channel = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))
+
+    # Volume-weighted avg COGS per brand (for unmatched SKUs)
+    _brand_vw = defaultdict(lambda: {"cost_sum": 0.0, "units": 0})
+
+    # Pass 1: compute brand vw avg from matched amazon SKUs
+    for r in amazon_sku_rows:
+        sku = str(r.get("sku", "")).strip().lower()
+        cost = cogs_map.get(sku)
+        if cost:
+            b = r.get("brand", "Other")
+            u = int(r.get("units", 0) or 0)
+            _brand_vw[b]["cost_sum"] += cost * u
+            _brand_vw[b]["units"] += u
+    for r in shopify_sku_rows:
+        sku = str(r.get("sku", "")).strip().lower()
+        cost = cogs_map.get(sku)
+        if cost:
+            b = r.get("brand", "Other")
+            u = int(r.get("units", 0) or 0)
+            _brand_vw[b]["cost_sum"] += cost * u
+            _brand_vw[b]["units"] += u
+
+    brand_vw_avg = {}
+    for b, v in _brand_vw.items():
+        brand_vw_avg[b] = v["cost_sum"] / v["units"] if v["units"] else AVG_COGS.get(b, 8)
+
+    # Pass 2: compute monthly COGS
+    for r in amazon_sku_rows:
+        d = r.get("date", "")
+        if not d or d > through:
+            continue
+        m = d[:7]
+        b = r.get("brand", "Other")
+        if b not in brand_order and b != "Other":
+            b = "Other"
+        u = int(r.get("units", 0) or 0)
+        sku = str(r.get("sku", "")).strip().lower()
+        cost = cogs_map.get(sku, brand_vw_avg.get(b, AVG_COGS.get(b, 8)))
+        amz_cogs[b][m] += u * cost
+
+    for r in shopify_sku_rows:
+        d = r.get("date", "")
+        if not d or d > through:
+            continue
+        ch = r.get("channel", "")
+        if ch in SKIP_CH:
+            continue
+        m = d[:7]
+        b = r.get("brand", "Other")
+        if b not in brand_order and b != "Other":
+            b = "Other"
+        u = int(r.get("units", 0) or 0)
+        sku = str(r.get("sku", "")).strip().lower()
+        cost = cogs_map.get(sku, brand_vw_avg.get(b, AVG_COGS.get(b, 8)))
+        shop_cogs[b][m] += u * cost
+        # Map channel for channel P&L
+        ch_mapped = "Onzenna D2C"
+        if ch == "B2B" or ch == "Wholesale":
+            ch_mapped = "B2B"
+        elif ch == "TikTok":
+            ch_mapped = "TikTok"
+        shop_cogs_by_channel[ch_mapped][b][m] += u * cost
+
+    return amz_cogs, shop_cogs, shop_cogs_by_channel, brand_vw_avg
 
 
 CHANNEL_PNL_COLORS = {
@@ -113,6 +225,10 @@ def generate():
     print(f"  Brand Analytics: {len(brand_analytics)}, Shopify SKU: {len(shopify_sku)}, Amazon SKU: {len(amazon_sku)}")
     print(f"  Klaviyo: {len(klaviyo)}")
 
+    # ── Load SKU-level COGS map ──────────────────────────────────────────────
+    sku_cogs_map = load_sku_cogs_map()
+    print(f"  SKU COGS map: {len(sku_cogs_map)} SKUs {'(NAS)' if sku_cogs_map else '(fallback to AVG_COGS)'}")
+
     # ── Compute through-date ─────────────────────────────────────────────────
     def max_date(rows):
         dates = [r.get("date", "") for r in rows if r.get("date")]
@@ -152,7 +268,7 @@ def generate():
     days_in_month = calendar.monthrange(through_date_obj.year, through_date_obj.month)[1]
     is_partial = days_elapsed < days_in_month
     fm_multiplier = round(days_in_month / days_elapsed, 4) if days_elapsed > 0 else 1
-    print(f"  Partial month: {current_month} ({days_elapsed}/{days_in_month}d) → multiplier {fm_multiplier}x")
+    print(f"  Partial month: {current_month} ({days_elapsed}/{days_in_month}d) -> multiplier {fm_multiplier}x")
 
     partial_month_info = {
         "month": current_month,
@@ -448,8 +564,17 @@ def generate():
     months = sorted(m for m in all_months_set if m >= cutoff_month)
     ad_start_idx = next((i for i, m in enumerate(months) if m >= "2026-01"), 0)
     ad_months = months[ad_start_idx:]
-    print(f"  Months: {months[0]} → {months[-1]} ({len(months)} months)")
-    print(f"  Ad months: {ad_months[0] if ad_months else 'none'} → {ad_months[-1] if ad_months else 'none'} (from idx {ad_start_idx})")
+    print(f"  Months: {months[0]} -> {months[-1]} ({len(months)} months)")
+    print(f"  Ad months: {ad_months[0] if ad_months else 'none'} -> {ad_months[-1] if ad_months else 'none'} (from idx {ad_start_idx})")
+
+    # ── 4b. SKU-level COGS by brand/month ────────────────────────────────────
+    amz_sku_cogs, shop_sku_cogs, shop_cogs_by_channel, brand_vw_cogs = build_sku_cogs_monthly(
+        amazon_sku, shopify_sku, sku_cogs_map, through, BRAND_ORDER
+    )
+    if sku_cogs_map:
+        print(f"  SKU COGS built - VW avg: {', '.join(f'{b}=${v:.2f}' for b, v in sorted(brand_vw_cogs.items()) if b in BRAND_ORDER[:4])}")
+    else:
+        print(f"  SKU COGS: using flat AVG_COGS (NAS unavailable)")
 
     # ── 5. Compute summary KPIs (7d, 30d, MTD) ───────────────────────────────
     print("\n[5/7] Computing KPI summaries...")
@@ -912,8 +1037,8 @@ def generate():
             }
 
     # ── Ads Landing Channel TROAS ─────────────────────────────────────────
-    # Onzenna channel: Google Ads + Meta CVR → Shopify D2C revenue
-    # Amazon channel: Amazon Ads + Meta Traffic → Amazon MP revenue
+    # Onzenna channel: Google Ads + Meta CVR -> Shopify D2C revenue
+    # Amazon channel: Amazon Ads + Meta Traffic -> Amazon MP revenue
     ads_landing = {}
     onz_spend = [0] * len(months)
     amz_spend = [0] * len(months)
@@ -984,21 +1109,24 @@ def generate():
         amz_net = sum(amz_brand_monthly.get(b, {}).get(m, {}).get("net", 0) for b in BRAND_ORDER + ["Other"])
         rev = shopify_net + amz_net
 
-        # COGS from Shopify + Amazon (brand-level avg)
+        # COGS from SKU-level data (or fallback to brand avg)
         cogs = 0
-        for b in BRAND_ORDER:
-            # Shopify COGS
-            v = brand_monthly.get(b, {}).get(m, {})
-            units = v.get("units", 0)
-            if units == 0 and v.get("gross", 0) > 0:
-                units = int(v["gross"] / AVG_PRICE.get(b, 25))
-            cogs += units * AVG_COGS.get(b, 8)
-            # Amazon COGS
-            amz_v = amz_brand_monthly.get(b, {}).get(m, {})
-            amz_units = amz_v.get("units", 0)
-            if amz_units == 0 and amz_v.get("net", 0) > 0:
-                amz_units = int(amz_v["net"] / AVG_PRICE.get(b, 25))
-            cogs += amz_units * AVG_COGS.get(b, 8)
+        for b in BRAND_ORDER + ["Other"]:
+            cogs += shop_sku_cogs.get(b, {}).get(m, 0)
+            cogs += amz_sku_cogs.get(b, {}).get(m, 0)
+        # Fallback: if SKU data missing for this month, use brand avg
+        if cogs == 0 and rev > 0:
+            for b in BRAND_ORDER:
+                v = brand_monthly.get(b, {}).get(m, {})
+                units = v.get("units", 0)
+                if units == 0 and v.get("gross", 0) > 0:
+                    units = int(v["gross"] / AVG_PRICE.get(b, 25))
+                cogs += units * AVG_COGS.get(b, 8)
+                amz_v = amz_brand_monthly.get(b, {}).get(m, {})
+                amz_units = amz_v.get("units", 0)
+                if amz_units == 0 and amz_v.get("net", 0) > 0:
+                    amz_units = int(amz_v["net"] / AVG_PRICE.get(b, 25))
+                cogs += amz_units * AVG_COGS.get(b, 8)
 
         gm = rev - cogs  # GM = Total Revenue - Total COGS
 
@@ -1199,39 +1327,59 @@ def generate():
 
             if ch == "Amazon MP":
                 for b in BRAND_ORDER + ["Other"]:
-                    net = amz_brand_monthly.get(b, {}).get(m, {}).get("net", 0)
-                    units = amz_brand_monthly.get(b, {}).get(m, {}).get("units", 0)
-                    if units == 0 and net > 0:
-                        units = int(net / AVG_PRICE.get(b, 25))
-                    rev += net
-                    cogs += units * AVG_COGS.get(b, 8)
+                    rev += amz_brand_monthly.get(b, {}).get(m, {}).get("net", 0)
+                # SKU-level COGS for Amazon
+                for b in BRAND_ORDER + ["Other"]:
+                    cogs += amz_sku_cogs.get(b, {}).get(m, 0)
+                # Fallback if SKU COGS is 0 but revenue exists
+                if cogs == 0 and rev > 0:
+                    for b in BRAND_ORDER + ["Other"]:
+                        u = amz_brand_monthly.get(b, {}).get(m, {}).get("units", 0)
+                        n = amz_brand_monthly.get(b, {}).get(m, {}).get("net", 0)
+                        if u == 0 and n > 0:
+                            u = int(n / AVG_PRICE.get(b, 25))
+                        cogs += u * AVG_COGS.get(b, 8)
                 sell_fee = amz_fees_monthly.get(m, 0)
                 fulfill = amz_fulfill_monthly.get(m, 0)
                 ad_sp = (ad_monthly.get("Amazon Ads", {}).get(m, {}).get("spend", 0)
                          + ad_monthly.get("Meta Traffic", {}).get(m, {}).get("spend", 0))
             elif ch == "Onzenna D2C":
                 rev = channel_monthly.get("Onzenna D2C", {}).get(m, {}).get("net", 0)
+                # SKU-level COGS — D2C channel only (fixes double-counting bug)
                 for b in BRAND_ORDER + ["Other"]:
-                    bm = brand_monthly.get(b, {}).get(m, {})
-                    b_units = bm.get("units", 0)
-                    if b_units == 0 and bm.get("net", 0) > 0:
-                        b_units = int(bm["net"] / AVG_PRICE.get(b, 25))
-                    cogs += b_units * AVG_COGS.get(b, 8)
+                    cogs += shop_cogs_by_channel.get("Onzenna D2C", {}).get(b, {}).get(m, 0)
+                # Fallback if SKU COGS is 0 but revenue exists
+                if cogs == 0 and rev > 0:
+                    # Use ratio from total shop_sku_cogs as estimate
+                    total_shop = sum(shop_sku_cogs.get(b, {}).get(m, 0) for b in BRAND_ORDER + ["Other"])
+                    total_shop_rev = sum(brand_monthly.get(b, {}).get(m, {}).get("net", 0) for b in BRAND_ORDER + ["Other"])
+                    cogs_rate = total_shop / total_shop_rev if total_shop_rev else 0.30
+                    cogs = round(rev * cogs_rate)
                 sell_fee = 0
                 fulfill = 0  # n.m.
                 ad_sp = (ad_monthly.get("Meta CVR", {}).get(m, {}).get("spend", 0)
                          + ad_monthly.get("Google Ads", {}).get(m, {}).get("spend", 0))
             elif ch == "Target+":
                 rev = channel_monthly.get("Target+", {}).get(m, {}).get("net", 0)
-                orders = channel_monthly.get("Target+", {}).get(m, {}).get("orders", 0)
-                cogs = orders * 10
+                # Target+ COGS from SKU data if available
+                tp_sku_cogs = sum(shop_cogs_by_channel.get("Target+", {}).get(b, {}).get(m, 0) for b in BRAND_ORDER + ["Other"])
+                if tp_sku_cogs > 0:
+                    cogs = tp_sku_cogs
+                else:
+                    orders = channel_monthly.get("Target+", {}).get(m, {}).get("orders", 0)
+                    cogs = orders * 10
                 sell_fee = tp_fees_monthly.get(m, 0) or round(rev * 0.15)  # from data or 15%
                 fulfill = 0  # n.m.
                 ad_sp = 0
             elif ch == "B2B":
                 rev = channel_monthly.get("B2B", {}).get(m, {}).get("net", 0)
-                orders = channel_monthly.get("B2B", {}).get(m, {}).get("orders", 0)
-                cogs = orders * 12
+                # B2B COGS from SKU data if available
+                b2b_sku_cogs = sum(shop_cogs_by_channel.get("B2B", {}).get(b, {}).get(m, 0) for b in BRAND_ORDER + ["Other"])
+                if b2b_sku_cogs > 0:
+                    cogs = b2b_sku_cogs
+                else:
+                    orders = channel_monthly.get("B2B", {}).get(m, {}).get("orders", 0)
+                    cogs = orders * 12
                 sell_fee = 0
                 fulfill = 0
                 ad_sp = 0
