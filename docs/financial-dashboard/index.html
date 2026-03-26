@@ -437,9 +437,9 @@ function renderFinancial(){
   ads+=grainToggle('ads');
   ads+='<div id="ads-content">';
   ads+=buildAdTable(F, months, mLabels, lastIdx, isPartialLast, false);
-  ads+=buildPlatformAdSections(F, 'monthly');
+  try{ ads+=buildPlatformAdSections(F, 'monthly'); }catch(e){ console.error('buildPlatformAdSections error:',e); }
   ads+=buildBrandPerfTable(F, months, mLabels, lastIdx, isPartialLast, false);
-  ads+=buildCampaignDetail(F, 'monthly');
+  try{ ads+=buildCampaignDetail(F, 'monthly'); }catch(e){ console.error('buildCampaignDetail error:',e); ads+='<div class="card" style="color:red">Campaign detail error: '+e.message+'</div>'; }
   ads+='</div>';
 
   // ══════════════════════════════════════════════════════════════════════════
