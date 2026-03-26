@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-25 18:15 PST",
+ "generated_pst": "2026-03-25 18:59 PST",
  "through_date": "2026-03-23",
  "months": [
   "2025-06",
@@ -3228,7 +3228,7 @@ const FIN_DATA = {
      11.9,
      10.8,
      11.0,
-     10.5,
+     10.6,
      null
     ]
    },
