@@ -132,6 +132,12 @@ td{padding:6px 8px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#f8fff
 </div>
 
 <script>
+// ── Global error catcher ──────────────────────────────────────────────────────
+window.onerror = function(msg, src, line, col, err) {
+  var el = document.getElementById('fin-panels');
+  if (el) el.innerHTML = '<div class="card" style="border:2px solid red;margin:20px;padding:20px"><b style="color:red">JS Error:</b> ' + msg + '<br><small style="color:#666">Line ' + line + ' col ' + col + '</small><br><code style="font-size:10px;white-space:pre-wrap">' + (err && err.stack ? err.stack.split('\n').slice(0,5).join('\n') : '') + '</code></div>';
+  return false;
+};
 // ── Auth ─────────────────────────────────────────────────────────────────────
 var AUTH_USERS = {
   'WJ':  'a619397d21c5fd5daa1d55bbdef5e99383dadb69f602a0110a9d56cb7b776fbd',
