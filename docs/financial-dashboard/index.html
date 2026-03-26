@@ -132,12 +132,6 @@ td{padding:6px 8px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#f8fff
 </div>
 
 <script>
-// ── Global error catcher ──────────────────────────────────────────────────────
-window.onerror = function(msg, src, line, col, err) {
-  var el = document.getElementById('fin-panels');
-  if (el) el.innerHTML = '<div class="card" style="border:2px solid red;margin:20px;padding:20px"><b style="color:red">JS Error:</b> ' + msg + '<br><small style="color:#666">Line ' + line + ' col ' + col + '</small><br><code style="font-size:10px;white-space:pre-wrap">' + (err && err.stack ? err.stack.split('\n').slice(0,5).join('\n') : '') + '</code></div>';
-  return false;
-};
 // ── Auth ─────────────────────────────────────────────────────────────────────
 var AUTH_USERS = {
   'WJ':  'a619397d21c5fd5daa1d55bbdef5e99383dadb69f602a0110a9d56cb7b776fbd',
@@ -273,12 +267,11 @@ function barChart(datasets, labels, opts){
 // ── Tab switching ────────────────────────────────────────────────────────────
 function switchFinTab(tabId){
   document.querySelectorAll('[data-tab].sub-tab').forEach(function(t){t.classList.remove('active')});
-  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');p.style.display='none';});
   var tab=document.querySelector('[data-tab="'+tabId+'"]');
   var panel=document.getElementById('panel-'+tabId);
   if(tab) tab.classList.add('active');
-  if(panel) panel.classList.add('active');
-  // Save to hash
+  if(panel){panel.classList.add('active');panel.style.display='block';}
   if(history.replaceState) history.replaceState(null,null,'#'+tabId);
 }
 
@@ -341,7 +334,6 @@ function renderFinancial(){
   // ══════════════════════════════════════════════════════════════════════════
   // TAB: SUMMARY
   // ══════════════════════════════════════════════════════════════════════════
-  console.log('[fin] building sum');
   var sum='';
 
   // Data Sources
@@ -430,7 +422,6 @@ function renderFinancial(){
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 1: REVENUE DETAIL
   // ══════════════════════════════════════════════════════════════════════════
-  console.log('[fin] building rev');
   var rev='';
   rev+=grainToggle('rev');
   rev+='<div id="rev-content">';
@@ -441,7 +432,6 @@ function renderFinancial(){
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 2: AD PERFORMANCE DETAIL
   // ══════════════════════════════════════════════════════════════════════════
-  console.log('[fin] building ads');
   var ads='';
   ads+=grainToggle('ads');
   ads+='<div id="ads-content">';
@@ -454,7 +444,6 @@ function renderFinancial(){
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 3: MARGINS & P&L DETAIL
   // ══════════════════════════════════════════════════════════════════════════
-  console.log('[fin] building mrg');
   var mrg='';
   mrg+=grainToggle('mrg');
   mrg+='<div id="mrg-content">';
@@ -466,7 +455,6 @@ function renderFinancial(){
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 4: SEARCH & SEO — with brand sub-tabs
   // ══════════════════════════════════════════════════════════════════════════
-  console.log('[fin] building srch');
   var srch='';
   var brandColors={'Grosmimi':'#8b5cf6','Naeiae':'#eab308','CHA&MOM':'#0ea5e9','Onzenna':'#ec4899','Alpremio':'#f97316'};
   var seoFilterBrands=['All','Grosmimi','Naeiae','CHA&MOM','Onzenna','Alpremio'];
@@ -611,7 +599,6 @@ function renderFinancial(){
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 5: TRAFFIC
   // ══════════════════════════════════════════════════════════════════════════
-  console.log('[fin] building traf');
   var traf='';
   traf+='<div class="sec"><div class="sec-title"><div class="num">5</div> Traffic Sources &mdash; GA4 (30D)</div>';
   traf+='<div class="card"><table><thead><tr><th>#</th><th>Source / Medium</th><th style="text-align:right">Sessions</th><th style="text-align:right">Users</th><th style="text-align:right">Revenue</th><th style="text-align:right">Conversions</th><th style="text-align:right">Conv %</th></tr></thead><tbody>';
@@ -688,7 +675,6 @@ function renderFinancial(){
     klav+='<div class="sec"><div class="card"><div class="desc" style="color:var(--muted);text-align:center;padding:24px">No Klaviyo data available. Run DataKeeper collection first.</div></div></div>';
   }
 
-  console.log('[fin] assembling panels');
   // ── Assemble panels ────────────────────────────────────────────────────────
   var panelsHtml='';
   panelsHtml+='<div class="tab-panel active" id="panel-summary">'+sum+'</div>';
@@ -699,11 +685,10 @@ function renderFinancial(){
   panelsHtml+='<div class="tab-panel" id="panel-traffic">'+traf+'</div>';
   panelsHtml+='<div class="tab-panel" id="panel-klaviyo">'+klav+'</div>';
   document.getElementById('fin-panels').innerHTML=panelsHtml;
-  // DEBUG: force active panel visible + report lengths
-  var dbgPs=document.getElementById('panel-summary');
-  var dbgClasses=dbgPs?dbgPs.className:'MISSING';
-  if(dbgPs) dbgPs.style.setProperty('display','block','important');
-  document.getElementById('hero-meta').innerHTML+='<span class="pill" style="border-color:red;color:red;font-size:9px">DBG sum:'+sum.length+' cls:'+dbgClasses+'</span>';
+  // Set initial panel display explicitly
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.style.display='none';});
+  var initialPanel=document.getElementById('panel-summary');
+  if(initialPanel){initialPanel.style.display='block';}
 
   // Check URL hash for tab
   var hash=window.location.hash.replace('#','');
