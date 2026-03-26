@@ -271,19 +271,7 @@ function switchFinTab(tabId){
   var tab=document.querySelector('[data-tab="'+tabId+'"]');
   var panel=document.getElementById('panel-'+tabId);
   if(tab) tab.classList.add('active');
-  if(panel){
-    panel.classList.add('active');
-    panel.style.display='block';
-    // DIAG: force test content on margins to verify panel visibility
-    if(tabId==='margins'){
-      var origLen=panel.innerHTML.length;
-      panel.insertAdjacentHTML('afterbegin','<div style="background:red;color:white;padding:20px;font-size:18px;font-weight:bold;margin-bottom:12px">MARGINS VISIBLE TEST (origLen='+origLen+', display='+panel.style.display+', computed='+getComputedStyle(panel).display+')</div>');
-    }
-  }
-  else{
-    var ids=[];document.querySelectorAll('.tab-panel').forEach(function(p){ids.push(p.id);});
-    alert('panel-'+tabId+' NOT FOUND!\nAvailable: '+ids.join(', '));
-  }
+  if(panel){panel.classList.add('active');panel.style.display='block';}
   if(history.replaceState) history.replaceState(null,null,'#'+tabId);
 }
 
@@ -705,19 +693,6 @@ function renderFinancial(){
   panelsHtml+='<div class="tab-panel" id="panel-traffic">'+traf+'</div>';
   panelsHtml+='<div class="tab-panel" id="panel-klaviyo">'+klav+'</div>';
   document.getElementById('fin-panels').innerHTML=panelsHtml;
-  // DIAG: show panel build status
-  var diagHtml='<div style="background:#fef3c7;border:2px solid #f59e0b;padding:8px 12px;margin:8px 0;font-size:11px;font-family:monospace;border-radius:6px">';
-  diagHtml+='<b>DIAG v3</b> | ';
-  ['summary','revenue','ads','margins','search','traffic','klaviyo'].forEach(function(id){
-    var el=document.getElementById('panel-'+id);
-    diagHtml+='<span style="margin:0 4px">'+id+':'+(el?el.innerHTML.length:'NULL')+'</span>';
-  });
-  diagHtml+='</div>';
-  document.getElementById('fin-panels').insertAdjacentHTML('afterbegin',diagHtml);
-  // Set initial panel display explicitly
-  document.querySelectorAll('.tab-panel').forEach(function(p){p.style.display='none';});
-  var initialPanel=document.getElementById('panel-summary');
-  if(initialPanel){initialPanel.style.display='block';}
 
   // Check URL hash for tab
   var hash=window.location.hash.replace('#','');
@@ -1971,7 +1946,7 @@ function buildCampaignDetail(F, grain){
       html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:var(--muted)">'+totalClicks.toLocaleString()+'</td>';
       html+='</tr>';
     });
-    html+='</tbody></table></div></div></div>';
+    html+='</tbody></table></div></div></div></div>';
   }
 
   return html;
