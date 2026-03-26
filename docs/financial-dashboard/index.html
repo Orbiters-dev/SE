@@ -335,6 +335,7 @@ function renderFinancial(){
   // ══════════════════════════════════════════════════════════════════════════
   // TAB: SUMMARY
   // ══════════════════════════════════════════════════════════════════════════
+  console.log('[fin] building sum');
   var sum='';
 
   // Data Sources
@@ -423,6 +424,7 @@ function renderFinancial(){
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 1: REVENUE DETAIL
   // ══════════════════════════════════════════════════════════════════════════
+  console.log('[fin] building rev');
   var rev='';
   rev+=grainToggle('rev');
   rev+='<div id="rev-content">';
@@ -433,6 +435,7 @@ function renderFinancial(){
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 2: AD PERFORMANCE DETAIL
   // ══════════════════════════════════════════════════════════════════════════
+  console.log('[fin] building ads');
   var ads='';
   ads+=grainToggle('ads');
   ads+='<div id="ads-content">';
@@ -445,6 +448,7 @@ function renderFinancial(){
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 3: MARGINS & P&L DETAIL
   // ══════════════════════════════════════════════════════════════════════════
+  console.log('[fin] building mrg');
   var mrg='';
   mrg+=grainToggle('mrg');
   mrg+='<div id="mrg-content">';
@@ -456,6 +460,7 @@ function renderFinancial(){
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 4: SEARCH & SEO — with brand sub-tabs
   // ══════════════════════════════════════════════════════════════════════════
+  console.log('[fin] building srch');
   var srch='';
   var brandColors={'Grosmimi':'#8b5cf6','Naeiae':'#eab308','CHA&MOM':'#0ea5e9','Onzenna':'#ec4899','Alpremio':'#f97316'};
   var seoFilterBrands=['All','Grosmimi','Naeiae','CHA&MOM','Onzenna','Alpremio'];
@@ -600,6 +605,7 @@ function renderFinancial(){
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 5: TRAFFIC
   // ══════════════════════════════════════════════════════════════════════════
+  console.log('[fin] building traf');
   var traf='';
   traf+='<div class="sec"><div class="sec-title"><div class="num">5</div> Traffic Sources &mdash; GA4 (30D)</div>';
   traf+='<div class="card"><table><thead><tr><th>#</th><th>Source / Medium</th><th style="text-align:right">Sessions</th><th style="text-align:right">Users</th><th style="text-align:right">Revenue</th><th style="text-align:right">Conversions</th><th style="text-align:right">Conv %</th></tr></thead><tbody>';
@@ -676,6 +682,7 @@ function renderFinancial(){
     klav+='<div class="sec"><div class="card"><div class="desc" style="color:var(--muted);text-align:center;padding:24px">No Klaviyo data available. Run DataKeeper collection first.</div></div></div>';
   }
 
+  console.log('[fin] assembling panels');
   // ── Assemble panels ────────────────────────────────────────────────────────
   var panelsHtml='';
   panelsHtml+='<div class="tab-panel active" id="panel-summary">'+sum+'</div>';
