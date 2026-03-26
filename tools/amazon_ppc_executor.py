@@ -1144,7 +1144,8 @@ def analyze_search_terms(
         # --- Negative: extremely high ACOS ---
         elif (acos is not None
                 and acos > presets["desired_acos"] * NEGATIVE_HIGH_ACOS_MULT
-                and clicks >= presets["click_limit"]):
+                and clicks >= presets["click_limit"]
+                and term not in already_negated):
             negate.append({
                 "type": "negate_high_acos",
                 "searchTerm": term,
@@ -2563,8 +2564,26 @@ def add_negative_keyword(profile_id: int, campaign_id, ad_group_id,
     result = resp.json()
 
     # Validate individual keyword-level success
-    nk_results = result.get("negativeKeywords", [])
-    if nk_results:
+    # SP v3 API returns: {"negativeKeywords": {"success": [...], "error": [...]}}
+    # Older format returned: {"negativeKeywords": [{...}]}
+    nk_results = result.get("negativeKeywords", {})
+
+    if isinstance(nk_results, dict):
+        # v3 dict format: {"success": [...], "error": [...]}
+        errors = nk_results.get("error", [])
+        if errors:
+            err = errors[0]
+            err_msgs = err.get("errors", [])
+            err_type = err_msgs[0].get("errorType", "UNKNOWN") if err_msgs else "UNKNOWN"
+            err_detail = err_msgs[0].get("message", "") if err_msgs else str(err)
+            if err_type == "DUPLICATE_VALUE":
+                print(f"    [SKIP] '{keyword_text}' already negated (DUPLICATE_VALUE)")
+                return result  # Not an error — already exists
+            raise RuntimeError(
+                f"Negative keyword '{keyword_text}' rejected: {err_type} — {err_detail}"
+            )
+    elif isinstance(nk_results, list) and nk_results:
+        # Legacy list format
         code = nk_results[0].get("code", "")
         if code and code != "SUCCESS":
             desc = nk_results[0].get("description", nk_results[0].get("details", ""))
