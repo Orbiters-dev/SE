@@ -1,0 +1,142 @@
+{
+  "channel_url": "https://www.youtube.com/@nateherk/videos",
+  "filter": "Claude in title, uploaded >= 2026-03-03",
+  "last_fetched": "20260326",
+  "videos": [
+    {
+      "video_id": "q0TgUtj6vIs",
+      "title": "The NEW Nano Banana 2 + Claude Code = $10k Websites",
+      "published_at": "2026-03-03T00:00:00Z",
+      "upload_date": "20260303",
+      "url": "https://www.youtube.com/watch?v=q0TgUtj6vIs",
+      "sent": false,
+      "sent_at": null
+    },
+    {
+      "video_id": "RAZVk5NPNtE",
+      "title": "Claude Code Skills Just Got Even Better",
+      "published_at": "2026-03-05T00:00:00Z",
+      "upload_date": "20260305",
+      "url": "https://www.youtube.com/watch?v=RAZVk5NPNtE",
+      "sent": false,
+      "sent_at": null
+    },
+    {
+      "video_id": "mi4hcipESKQ",
+      "title": "Turn Claude Code Into Your Executive Assistant in 27 Mins",
+      "published_at": "2026-03-05T00:00:00Z",
+      "upload_date": "20260305",
+      "url": "https://www.youtube.com/watch?v=mi4hcipESKQ",
+      "sent": false,
+      "sent_at": null
+    },
+    {
+      "video_id": "OUyfxhFtGCo",
+      "title": "This New Claude Code Feature is a Game Changer",
+      "published_at": "2026-03-07T00:00:00Z",
+      "upload_date": "20260307",
+      "url": "https://www.youtube.com/watch?v=OUyfxhFtGCo",
+      "sent": false,
+      "sent_at": null
+    },
+    {
+      "video_id": "BlNJFa3Btm8",
+      "title": "Claude Code 2.0 Is Finally Here",
+      "published_at": "2026-03-07T00:00:00Z",
+      "upload_date": "20260307",
+      "url": "https://www.youtube.com/watch?v=BlNJFa3Btm8",
+      "sent": false,
+      "sent_at": null
+    },
+    {
+      "video_id": "vFepZE_wrfg",
+      "title": "How to Build $10,000 Agentic Workflows (Claude Code Tutorial)",
+      "published_at": "2026-03-08T00:00:00Z",
+      "upload_date": "20260308",
+      "url": "https://www.youtube.com/watch?v=vFepZE_wrfg",
+      "sent": false,
+      "sent_at": null
+    },
+    {
+      "video_id": "Wu67lLD8bB0",
+      "title": "Google's New Tool Just 10x'd Claude Code",
+      "published_at": "2026-03-10T00:00:00Z",
+      "upload_date": "20260310",
+      "url": "https://www.youtube.com/watch?v=Wu67lLD8bB0",
+      "sent": false,
+      "sent_at": null
+    },
+    {
+      "video_id": "hem5D1uvy-w",
+      "title": "Google's New Model + Claude Code Just Changed RAG Forever",
+      "published_at": "2026-03-11T00:00:00Z",
+      "upload_date": "20260311",
+      "url": "https://www.youtube.com/watch?v=hem5D1uvy-w",
+      "sent": false,
+      "sent_at": null
+    },
+    {
+      "video_id": "l1jnOXc52NY",
+      "title": "I Taught Claude Code to Play Tetris... It Broke the World Record",
+      "published_at": "2026-03-11T00:00:00Z",
+      "upload_date": "20260311",
+      "url": "https://www.youtube.com/watch?v=l1jnOXc52NY",
+      "sent": false,
+      "sent_at": null
+    },
+    {
+      "video_id": "mpALXah_PBg",
+      "title": "Build & Sell with Claude Code (10+ Hour Course)",
+      "published_at": "2026-03-12T00:00:00Z",
+      "upload_date": "20260312",
+      "url": "https://www.youtube.com/watch?v=mpALXah_PBg",
+      "sent": false,
+      "sent_at": null
+    },
+    {
+      "video_id": "4Zaoo0YbYaw",
+      "title": "Generate Content for 9 Socials on Autopilot with Claude Code",
+      "published_at": "2026-03-17T00:00:00Z",
+      "upload_date": "20260317",
+      "url": "https://www.youtube.com/watch?v=4Zaoo0YbYaw",
+      "sent": false,
+      "sent_at": null
+    },
+    {
+      "video_id": "vDVSGVpB2vc",
+      "title": "How to Build Claude Agent Teams Better Than 99% of People",
+      "published_at": "2026-03-23T00:00:00Z",
+      "upload_date": "20260323",
+      "url": "https://www.youtube.com/watch?v=vDVSGVpB2vc",
+      "sent": false,
+      "sent_at": null
+    },
+    {
+      "video_id": "LrgfmZkl3nc",
+      "title": "Claude Code Just Dropped Memory 2.0",
+      "published_at": "2026-03-24T00:00:00Z",
+      "upload_date": "20260324",
+      "url": "https://www.youtube.com/watch?v=LrgfmZkl3nc",
+      "sent": false,
+      "sent_at": null
+    },
+    {
+      "video_id": "X6EGzi9qm3E",
+      "title": "Claude Code Just Got Another Huge Upgrade",
+      "published_at": "2026-03-24T00:00:00Z",
+      "upload_date": "20260324",
+      "url": "https://www.youtube.com/watch?v=X6EGzi9qm3E",
+      "sent": false,
+      "sent_at": null
+    },
+    {
+      "video_id": "hHlpVeooPrI",
+      "title": "Claude Code + iMessage is Finally Here.",
+      "published_at": "2026-03-26T00:00:00Z",
+      "upload_date": "20260326",
+      "url": "https://www.youtube.com/watch?v=hHlpVeooPrI",
+      "sent": false,
+      "sent_at": null
+    }
+  ]
+}
