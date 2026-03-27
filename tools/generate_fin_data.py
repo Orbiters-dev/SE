@@ -1362,9 +1362,17 @@ def generate():
     final_labels = list(pnl_month_labels)
     final_labels.insert(fy2025_idx, "FY2025")
 
+    # Mark last month as partial if applicable
+    if partial_month_info["is_partial"] and final_labels:
+        last_label = final_labels[-1]
+        thru_day = int(through.split("-")[2])
+        thru_m = int(through.split("-")[1])
+        final_labels[-1] = f"{last_label}\n(thru {thru_m}/{thru_day})"
+
     pnl_polar = {
         "months": final_labels,
         "fy2025_idx": fy2025_idx,
+        "partial_month": partial_month_info,
         "brand_sales": brand_rev_pnl,
         "total_revenue": _pnl_with_annual(total_rev_monthly, fy2025_idx),
         "cogs": _pnl_with_annual(total_cogs_monthly, fy2025_idx),

@@ -974,6 +974,10 @@ function buildWaterfall(F, months, mLabels, lastIdx, isPartialLast){
 function buildPolarPnL(P){
   var ms=P.months;
   var fyIdx=P.fy2025_idx;
+  var pm=P.partial_month||{};
+  var lastMIdx=ms.length-1;
+  var isPartial=pm.is_partial;
+  var fmMult=pm.multiplier||1;
   var html='';
 
   // ── Section 1: Monthly Brand Sales ──
@@ -1025,8 +1029,9 @@ function buildPolarPnL(P){
   // Table
   html+='<div style="overflow-x:auto;margin-top:8px"><table><thead><tr><th></th>';
   ms.forEach(function(m,i){
-    var sty='text-align:right;font-size:8px';
+    var sty='text-align:right;font-size:8px;white-space:pre-line';
     if(i===fyIdx) sty+=';background:#e0e7ff;font-weight:800';
+    if(i===lastMIdx&&isPartial) sty+=';background:#f5f3ff;color:#8b5cf6';
     html+='<th style="'+sty+'">'+m+'</th>';
   });
   html+='</tr></thead><tbody>';
@@ -1040,8 +1045,15 @@ function buildPolarPnL(P){
       var cs='text-align:right;font-family:var(--mono);font-size:'+(opts.fs||'10')+'px;color:'+(opts.color||'var(--text)');
       if(i===fyIdx) cs+=';background:#eef2ff;font-weight:700';
       if(opts.bold) cs+=';font-weight:700';
+      if(i===lastMIdx&&isPartial) cs+=';background:#f5f3ff';
       var prefix=opts.neg&&v>0?'-':'';
-      html+='<td style="'+cs+'">'+prefix+'$'+Math.abs(Math.round(v)).toLocaleString()+'</td>';
+      var val=prefix+'$'+Math.abs(Math.round(v)).toLocaleString();
+      // Partial month: show FM projection in smaller text
+      if(i===lastMIdx&&isPartial&&fmMult>1&&!opts.noproj){
+        var proj=Math.round(Math.abs(v)*fmMult);
+        val+='<div style="font-size:7px;color:#8b5cf6">('+prefix+'$'+proj.toLocaleString()+')</div>';
+      }
+      html+='<td style="'+cs+'">'+val+'</td>';
     });
     html+='</tr>';
   }
