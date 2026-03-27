@@ -278,6 +278,10 @@ def query_rows(request):
     if source_type and "source_type" in field_names:
         qs = qs.filter(source_type=source_type)
 
+    source = request.GET.get("source")
+    if source and "source" in field_names:
+        qs = qs.filter(source=source)
+
     username = request.GET.get("username")
     if username and "username" in field_names:
         qs = qs.filter(username__iexact=username)

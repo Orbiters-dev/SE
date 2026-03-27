@@ -299,7 +299,7 @@ async function initContentDashboard(){
   try{
     var _cb = '&_t='+Date.now();
     var [postsRes, metricsRes, ordersRes, amzRes, shopRes] = await Promise.all([
-      fetch(API_BASE+'/query/?table=content_posts&limit=10000'+_cb),
+      fetch(API_BASE+'/query/?table=content_posts&limit=10000&source=apify'+_cb),
       fetch(API_BASE+'/query/?table=content_metrics_daily&limit=50000'+_cb),
       fetch(API_BASE+'/query/?table=influencer_orders&limit=10000'+_cb),
       fetch(API_BASE+'/query/?table=amazon_sales_daily&limit=50000&date_from=2025-01-01'+_cb),
