@@ -29,24 +29,45 @@ Revenue (Gross Sales)
 = Net Income
 ```
 
+### CRITICAL: P&L Revenue = GROSS (정가 기준)
+
+P&L은 반드시 **Gross Revenue (정가 × 수량)** 에서 시작한다. 할인은 별도 MKT 비용 라인으로 차감.
+이유: 정가 대비 실제 할인 규모를 파악하고, COGS%가 정확히 계산되려면 분모가 gross여야 함.
+Net revenue를 분모로 쓰면 COGS%가 뻥튀기됨 (예: gross 기준 34% → net 기준 40%).
+
+```
+Revenue = Shopify gross_sales + Amazon gross_sales (ordered_product_sales)
+  NOT net_sales. net_sales는 참고용.
+```
+
 ### ORBI P&L Line-Item Mapping
 
-| Line Item | DataKeeper Source | Notes |
-|-----------|------------------|-------|
-| Gross Revenue (D2C) | `shopify_orders_daily` SUM(line_price * qty) | Filtered: channel = D2C |
-| Gross Revenue (Amazon) | `amazon_sales_daily` SUM(ordered_product_sales) | 3 seller accounts combined |
-| Gross Revenue (B2B) | `shopify_orders_daily` WHERE channel = B2B | Faire wholesale |
-| Discounts (D2C) | `shopify_orders_daily` SUM(discount_amount) | Promo codes, Kaching bundles |
-| Returns | Not in DataKeeper | Manual input or Shopify refunds API |
-| COGS | `run_kpi_monthly.py` (685 SKU map) | SKU-level for Shopify; ~15% flat for Amazon |
-| Amazon Ads | `amazon_ads_daily` SUM(cost) | Naeiae from Dec 2025; others backfilled |
-| Meta Ads | `meta_ads_daily` SUM(spend) | From Aug 2024 |
-| Google Ads | `google_ads_daily` SUM(cost_micros/1e6) | From Jan 2024 |
-| TikTok Ads | Not in DataKeeper | Manual input; paused 2025 |
-| Seeding Cost | `run_kpi_monthly.py` (PayPal + COGS + shipping) | PR/influencer gifting |
-| Platform Fees | Calculated: ~3% Shopify, ~15% Amazon | Not stored directly |
-| Fulfillment | Not in DataKeeper | WBF invoices, manual input |
-| Payroll & G&A | Not in DataKeeper | Manual input from accounting |
+| Line Item | DataKeeper Source | Field | Notes |
+|-----------|------------------|-------|-------|
+| Gross Revenue (D2C) | `shopify_orders_daily` | `gross_sales` | channel != PR, != Amazon |
+| Gross Revenue (Amazon) | `amazon_sales_daily` | `gross_sales` | 3 seller accounts. `net_sales`는 할인 후 |
+| Gross Revenue (B2B) | `shopify_orders_daily` | `gross_sales` | channel = B2B (Faire) |
+| Discounts (D2C) | `shopify_orders_daily` | `discounts` | Promo codes, Kaching bundles |
+| Discounts (Amazon) | `amazon_sales_daily` | `gross_sales - net_sales` | 쿠폰/프로모 ~15% |
+| Returns | Not in DataKeeper | | Manual input or Shopify refunds API |
+| COGS | 685-SKU NAS map | `COGS by SKU.xlsx` | Landed cost = FOB × 1.15 |
+| Amazon Ads | `amazon_ads_daily` | `spend` | DK Dec 2025+; Jan-Nov backfill from Polar Excel |
+| Meta Ads | `meta_ads_daily` | `spend` | From Aug 2024 |
+| Google Ads | `google_ads_daily` | `spend` | From Jan 2024 |
+| TikTok Ads | Not in DataKeeper | | Manual input; paused 2025 |
+| Influencer (PAID) | `q11_paypal_transactions.json` | outbound (amt < 0) | PayPal payments to creators |
+| Influencer (NON-PAID) | `q10_influencer_orders.json` | COGS + $10/unit ship | PR tagged Shopify orders |
+| Platform Fees | Calculated | ~3% Shopify, ~15% Amazon | Not stored directly |
+| Fulfillment | `amazon_sales_sku_daily` | `fba_fee_total` | FBA fee from SP-API report |
+| Payroll & G&A | Not in DataKeeper | | Manual input from accounting |
+
+### Consistency Rule: Financial Dashboard ↔ KPI Report
+
+`generate_fin_data.py` 수정 시 반드시 `run_kpi_monthly.py`와 일관성 확인:
+- `analyze_discounts()` — 할인 계산 로직
+- `analyze_seeding_cost()` — 인플루언서 비용 (PayPal + COGS + Shipping)
+- Amazon Ads backfill — Polar Excel "IR 매출분석" row 119
+- FY 합계 — 반드시 1월부터 12월 전체 포함 (--months 파라미터 확인)
 
 ### Revenue Build-Up (Bottom-Up)
 
@@ -278,23 +299,46 @@ For ORBI → FLT flow:
 
 ### COGS Data Sources
 
-| Source | Coverage | File |
-|--------|----------|------|
-| SKU COGS map | 685 Shopify SKUs | `tools/no_polar/` JSON files |
-| Ex Price file | Grosmimi FOB prices | `REFERENCE/2025_Ex Price_Grosmimi_*.xlsx` |
-| Amazon COGS | Flat ~15% estimate | Manual assumption |
-| Shipping per unit | ~$2-5 depending on weight | WBF rate card |
+| Source | Coverage | File | Notes |
+|--------|----------|------|-------|
+| **NAS SKU COGS map** | 685 SKUs (all brands) | `Z:\...\COGS by SKU.xlsx` | **Landed cost = FOB × 1.15** |
+| Ex Price file | Grosmimi FOB prices | `REFERENCE/2025_Ex Price_Grosmimi_*.xlsx` | Barcode col 23 for 1:1 매칭 |
+| Product Variant map | SKU → Brand mapping | `Z:\...\Product Variant by SKU.xlsx` | 694 SKUs |
+| DataKeeper SKU | Amazon SKU daily | `amazon_sales_sku_daily` | units, gross, fees, fba_fee |
 
-### Margin Analysis by Brand
+### CRITICAL: COGS 비교 시 SKU/바코드 1:1 매칭 필수
 
-| Brand | GM% | Key Driver |
-|-------|-----|-----------|
-| Grosmimi | ~70% | High ASP cups, low unit COGS |
-| Naeiae | ~70% | Food products, small packaging |
-| CHA&MOM | ~76% | Skincare, high markup |
-| Alpremio | ~67% | Nursing accessories |
-| Comme Moi | ~55% | Carriers, higher material cost |
-| Bamboobebe | ~47% | Bamboo tableware, heavier |
+COGS 정확도 검증 시 카테고리 평균 비교 금지. 반드시 바코드(88코드) 단위로 1:1 매칭.
+
+```
+NAS SKU: MB8809466582561 → barcode 8809466582561
+Ex Price: barcode column (col 23) = 8809466582561 → FOB $6.60
+NAS COGS $7.59 = FOB $6.60 × 1.15 ✓ (정확히 일치)
+```
+
+카테고리 평균으로 비교하면 Cup 종류별 가격차이 ($6.20~$8.90)가 뭉개져서 오판함.
+Amazon SKU 중 `2c-`, `ic-`, `3o-` 등 FBA 자체코드는 바코드 없음 → ASIN으로 매칭.
+
+### Volume-Weighted COGS (2026-03 기준)
+
+| Brand | VW Avg COGS | SKU Count | Match Rate |
+|-------|-------------|-----------|------------|
+| Grosmimi | $8.50 | 422 | 99.9% |
+| Naeiae | $9.69 | 5 | 100% |
+| CHA&MOM | $7.65 | 11 | 100% |
+| Alpremio | $11.79 | 6 | 100% |
+
+### Margin Analysis by Brand (Gross Revenue 기준)
+
+| Brand | COGS/Gross | GM% | Key Driver |
+|-------|-----------|-----|-----------|
+| Grosmimi | 34-36% | 64-66% | PPSU cups $7-10, Stainless $10-15 |
+| Naeiae | 37-38% | 62-63% | Snack products, higher per-unit cost |
+| CHA&MOM | 33-34% | 66-67% | Skincare $6-8/unit |
+| Alpremio | 31% | 69% | Higher ASP offsets COGS |
+
+NOTE: Amazon channel COGS% appears higher (~40%) when calculated against net_sales.
+This is because Amazon discounts ~15% reduce the denominator. Against gross_sales, COGS% is 34%.
 
 ---
 

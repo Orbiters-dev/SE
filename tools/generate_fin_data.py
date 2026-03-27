@@ -2100,6 +2100,43 @@ def generate():
           f"GM {summary['30d']['gm_pct']}% | "
           f"MER {summary['30d']['mer']}")
 
+    # ── L7: Sanity Check (from 검증이 M-066~M-069) ────────────────────────
+    print("\n[SANITY] P&L output validation...")
+    warnings = []
+    pnl = fin_data["pnl_polar"]
+    fy_idx = pnl["fy2025_idx"]
+    for i, m in enumerate(pnl["months"]):
+        if m == "FY2025":
+            continue
+        r = pnl["total_revenue"][i]
+        c = pnl["cogs"][i]
+        ad = pnl["ad_spend"]["total"][i]
+        disc = pnl.get("discounts", [0]*len(pnl["months"]))[i]
+        inf = pnl.get("influencer_spend", [0]*len(pnl["months"]))[i]
+        if r > 0:
+            cogs_pct = c / r * 100
+            if cogs_pct < 25:
+                warnings.append(f"  [WARN] {m}: COGS% {cogs_pct:.0f}% < 25% (partial month data?)")
+            elif cogs_pct > 45:
+                warnings.append(f"  [WARN] {m}: COGS% {cogs_pct:.0f}% > 45% (revenue using net instead of gross?)")
+            disc_pct = disc / r * 100
+            if disc_pct < 3 and i >= 5:  # skip early months with sparse data
+                warnings.append(f"  [WARN] {m}: Disc% {disc_pct:.0f}% < 3% (discounts missing?)")
+        if ad == 0 and m not in ("Jan 25", "Feb 25", "Mar 25", "Apr 25", "May 25"):
+            warnings.append(f"  [WARN] {m}: Ad Spend $0 (backfill missing?)")
+        if inf == 0:
+            warnings.append(f"  [WARN] {m}: Influencer $0 (PR orders not reflected?)")
+    # FY month count check
+    fy_month_count = fy_idx
+    if fy_month_count < 12 and fy_month_count > 0:
+        warnings.append(f"  [WARN] FY2025 has only {fy_month_count} months (expected 12, Jan-May missing?)")
+    if warnings:
+        for w in warnings:
+            print(w)
+        print(f"  {len(warnings)} warnings found")
+    else:
+        print("  All checks PASS")
+
     if args.push:
         import subprocess
         os.chdir(str(ROOT))
