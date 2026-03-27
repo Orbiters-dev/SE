@@ -1073,11 +1073,22 @@ function buildPolarPnL(P){
   pnlRow('ONZENNA (Meta+Google+TT+T+)', P.ad_spend.onzenna, {indent:2,color:'var(--r)',fs:'9',neg:true});
   pnlRow('Amazon Ads', P.ad_spend.amazon, {indent:2,color:'var(--r)',fs:'9',neg:true});
 
+  // Discounts
+  pnlRow('(-) Discounts', P.discounts, {color:'var(--r)',neg:true});
+  if(P.discounts_detail){
+    pnlRow('Shopify Discounts', P.discounts_detail.shopify, {indent:2,color:'var(--muted)',fs:'8',neg:true});
+    pnlRow('Amazon Discounts', P.discounts_detail.amazon, {indent:2,color:'var(--muted)',fs:'8',neg:true});
+  }
+
   // Influencer
   pnlRow('(-) Influencer / Collab', P.influencer_spend, {color:'var(--r)',fs:'9',neg:true});
+  if(P.influencer_detail){
+    pnlRow('Paid (PayPal)', P.influencer_detail.paid, {indent:2,color:'var(--muted)',fs:'8',neg:true});
+    pnlRow('Non-Paid (COGS+Ship)', P.influencer_detail.nonpaid, {indent:2,color:'var(--muted)',fs:'8',neg:true});
+  }
 
   // MKT Total
-  var mkt_total=P.ad_spend.total.map(function(v,i){ return v+(P.influencer_spend[i]||0); });
+  var mkt_total=P.ad_spend.total.map(function(v,i){ return v+(P.discounts[i]||0)+(P.influencer_spend[i]||0); });
   pnlRow('(-) MKT Total', mkt_total, {bold:true,topBorder:true,color:'var(--r)',neg:true});
   pctRow('MKT %', mkt_total, P.total_revenue);
 
