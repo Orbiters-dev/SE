@@ -914,12 +914,26 @@ function buildWaterfall(F, months, mLabels, lastIdx, isPartialLast){
   // Discounts
   html+='</tr><tr><td style="padding-left:8px;color:var(--r)">(-) Discounts</td>';
   (wf.discounts||[]).forEach(function(v,i){ html+=fmCell(v, (wf.discounts_proj||[])[i], i===lastIdx&&isPartialLast, {color:'var(--r)',fs:'9px'}); });
+  // Discount sub-breakdown
+  if(wf.discounts_detail){
+    html+='</tr><tr><td style="padding-left:24px;color:var(--muted);font-size:9px">Shopify Disc</td>';
+    (wf.discounts_detail.shopify||[]).forEach(function(v,i){ html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:var(--muted)">'+$(v)+'</td>'; });
+    html+='</tr><tr><td style="padding-left:24px;color:var(--muted);font-size:9px">Amazon Disc</td>';
+    (wf.discounts_detail.amazon||[]).forEach(function(v,i){ html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:var(--muted)">'+$(v)+'</td>'; });
+  }
   // Seeding
-  html+='</tr><tr><td style="padding-left:8px;color:var(--r)">(-) Seeding / Collab</td>';
+  html+='</tr><tr><td style="padding-left:8px;color:var(--r)">(-) Influencer / Collab</td>';
   (wf.seeding||[]).forEach(function(v,i){
     if(v===0) html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--muted)">n/a</td>';
     else html+=fmCell(v, (wf.seeding_proj||[])[i], i===lastIdx&&isPartialLast, {color:'var(--r)',fs:'9px'});
   });
+  // Influencer sub-breakdown
+  if(wf.influencer_detail){
+    html+='</tr><tr><td style="padding-left:24px;color:var(--muted);font-size:9px">Paid (PayPal)</td>';
+    (wf.influencer_detail.paid||[]).forEach(function(v,i){ html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:var(--muted)">'+$(v)+'</td>'; });
+    html+='</tr><tr><td style="padding-left:24px;color:var(--muted);font-size:9px">Non-Paid (COGS+Ship)</td>';
+    (wf.influencer_detail.nonpaid||[]).forEach(function(v,i){ html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:var(--muted)">'+$(v)+'</td>'; });
+  }
   // MKT Total
   html+='</tr><tr style="border-top:1px solid var(--border)"><td style="color:var(--r);font-weight:700">(-) MKT Total</td>';
   (wf.mkt_total||wf.ad_spend).forEach(function(v,i){ html+=fmCell(v, (wf.mkt_total_proj||wf.ad_spend_proj||[])[i], i===lastIdx&&isPartialLast, {color:'var(--r)',bold:true}); });
@@ -947,8 +961,8 @@ function buildWaterfall(F, months, mLabels, lastIdx, isPartialLast){
   html+='<tr><td colspan="'+(mLabels.length+1)+'" style="padding:2px 0;border:none"><div style="border-top:1px dashed var(--border)"></div></td></tr>';
   pctRow('<span style="padding-left:8px;color:var(--r)">(-) Ad Spend</span>', wf.ad_spend);
   pctRow('<span style="padding-left:8px;color:var(--r)">(-) Discounts</span>', wf.discounts||[]);
-  // Seeding row: show n/a if value is 0
-  html+='<tr><td><span style="padding-left:8px;color:var(--r)">(-) Seeding / Collab</span></td>';
+  // Influencer / Collab row: show n/a if value is 0
+  html+='<tr><td><span style="padding-left:8px;color:var(--r)">(-) Influencer / Collab</span></td>';
   (wf.seeding||[]).forEach(function(v,i){ var r=wf.revenue[i]; if(v===0) html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--muted)">n/a</td>'; else { var p=r>0?(v/r*100).toFixed(1):'—'; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+p+'%</td>'; } });
   html+='</tr>';
   pctRow('<span style="color:var(--r);font-weight:700">(-) MKT Total</span>', wf.mkt_total||wf.ad_spend, 'border-top:1px solid var(--border);font-weight:700');

@@ -2162,8 +2162,16 @@ def generate():
             "ad_spend_proj": proj_array(total_ad_spend_monthly),
             "discounts": total_disc_monthly,
             "discounts_proj": proj_array(total_disc_monthly),
+            "discounts_detail": {
+                "shopify": _shop_disc_arr,
+                "amazon": _amz_disc_arr,
+            },
             "seeding": total_seeding_monthly,
             "seeding_proj": proj_array(total_seeding_monthly),
+            "influencer_detail": {
+                "paid": _inf_paid_arr,
+                "nonpaid": _inf_nonpaid_arr,
+            },
             "mkt_total": total_mkt_monthly,
             "mkt_total_proj": proj_array(total_mkt_monthly),
             "contribution_margin": total_cm_monthly,
