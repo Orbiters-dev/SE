@@ -1204,6 +1204,11 @@ function buildChannelPnL(P){
     }
     chRow('Revenue', d.revenue, {bold:true});
     chRow('(-) COGS', d.cogs, {color:'var(--r)',neg:true});
+    // Gross Margin = Revenue - COGS only
+    var gm_pure=d.revenue.map(function(r,i){ return r-(d.cogs[i]||0); });
+    chRow('Gross Margin', gm_pure, {bold:true,topBorder:true,color:'var(--g)'});
+    chPctRow('GM %', gm_pure, d.revenue);
+    // Selling fees & fulfillment below GM
     var sf=d.selling_fees||d.fees||[];
     if(sf.some(function(v){return v>0;})){
       chRow('(-) Selling Fees (15%)', sf, {color:'var(--r)',neg:true});
@@ -1222,9 +1227,8 @@ function buildChannelPnL(P){
       var fl=d.fulfillment||[];
       if(fl.some(function(v){return v>0;})) chRow('(-) Fulfillment', fl, {color:'var(--r)',neg:true});
     }
-    chRow('Gross Margin', d.gross_margin, {bold:true,topBorder:true,color:'var(--g)'});
-    chPctRow('GM %', d.gross_margin, d.revenue);
     chRow('(-) Ad Spend', d.ad_spend, {color:'var(--r)',neg:true});
+    // Contribution Margin = GM - Fees - Fulfillment - Ads (same as d.contribution_margin)
     chRow('Contribution Margin', d.contribution_margin, {bold:true,topBorder:true,color:'#6366f1'});
     chPctRow('CM %', d.contribution_margin, d.revenue);
     html+='</tbody></table></div></div>';
@@ -1265,6 +1269,10 @@ function buildWeeklyChannelPnL(W, wLabels){
     }
     wChRow('Revenue', d.revenue, {bold:true});
     wChRow('(-) COGS', d.cogs, {color:'var(--r)',neg:true});
+    // Gross Margin = Revenue - COGS only
+    var wgm=d.revenue.map(function(r,i){ return r-(d.cogs[i]||0); });
+    wChRow('Gross Margin', wgm, {bold:true,topBorder:true,color:'var(--g)'});
+    wChPct('GM %', wgm, d.revenue);
     var wsf=d.selling_fees||d.fees||[];
     if(wsf.some(function(v){return v>0;})){
       wChRow('(-) Selling Fees (15%)', wsf, {color:'var(--r)',neg:true});
@@ -1278,8 +1286,6 @@ function buildWeeklyChannelPnL(W, wLabels){
       });
       html+='</tr>';
     }
-    wChRow('Gross Margin', d.gross_margin, {bold:true,topBorder:true,color:'var(--g)'});
-    wChPct('GM %', d.gross_margin, d.revenue);
     wChRow('(-) Ad Spend', d.ad_spend, {color:'var(--r)',neg:true});
     wChRow('Contribution Margin', d.contribution_margin, {bold:true,topBorder:true,color:'#6366f1'});
     wChPct('CM %', d.contribution_margin, d.revenue);
