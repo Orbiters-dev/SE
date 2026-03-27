@@ -915,12 +915,7 @@ function buildWaterfall(F, months, mLabels, lastIdx, isPartialLast){
   html+='</tr><tr><td style="padding-left:8px;color:var(--r)">(-) Discounts</td>';
   (wf.discounts||[]).forEach(function(v,i){ html+=fmCell(v, (wf.discounts_proj||[])[i], i===lastIdx&&isPartialLast, {color:'var(--r)',fs:'9px'}); });
   // Discount sub-breakdown
-  if(wf.discounts_detail){
-    html+='</tr><tr><td style="padding-left:24px;color:var(--muted);font-size:9px">Shopify Disc</td>';
-    (wf.discounts_detail.shopify||[]).forEach(function(v,i){ html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:var(--muted)">'+$(v)+'</td>'; });
-    html+='</tr><tr><td style="padding-left:24px;color:var(--muted);font-size:9px">Amazon Disc</td>';
-    (wf.discounts_detail.amazon||[]).forEach(function(v,i){ html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:var(--muted)">'+$(v)+'</td>'; });
-  }
+  // Discount is Shopify only. Amazon gross-net = referral fee (in Channel P&L Selling Fees).
   // Seeding
   html+='</tr><tr><td style="padding-left:8px;color:var(--r)">(-) Influencer / Collab</td>';
   (wf.seeding||[]).forEach(function(v,i){
@@ -1087,10 +1082,7 @@ function buildPolarPnL(P){
 
   // Discounts
   pnlRow('(-) Discounts', P.discounts, {color:'var(--r)',neg:true});
-  if(P.discounts_detail){
-    pnlRow('Shopify Discounts', P.discounts_detail.shopify, {indent:2,color:'var(--muted)',fs:'8',neg:true});
-    pnlRow('Amazon Discounts', P.discounts_detail.amazon, {indent:2,color:'var(--muted)',fs:'8',neg:true});
-  }
+  // Discounts = Shopify only. Amazon gross-net is referral fee (in Channel P&L).
 
   // Influencer
   pnlRow('(-) Influencer / Collab', P.influencer_spend, {color:'var(--r)',fs:'9',neg:true});

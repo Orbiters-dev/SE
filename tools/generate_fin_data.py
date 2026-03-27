@@ -1199,7 +1199,6 @@ def generate():
     total_ad_spend_monthly = []
     total_disc_monthly = []
     _shop_disc_arr = []   # Shopify discounts breakdown
-    _amz_disc_arr = []    # Amazon discounts breakdown
     _inf_paid_arr = []    # Influencer PAID (PayPal)
     _inf_nonpaid_arr = [] # Influencer NON-PAID (COGS + shipping)
     total_seeding_monthly = []
@@ -1207,14 +1206,13 @@ def generate():
     total_cm_monthly = []
 
     for m in months:
-        # Total revenue = Shopify GROSS + Amazon GROSS
-        # P&L starts from gross (list price basis); discounts shown separately
+        # Total revenue = Shopify GROSS + Amazon NET
+        # Shopify: gross_sales (before discount), Amazon: net_sales (after referral fee)
+        # Amazon gross - net = referral fee (15%), NOT customer discount. Already in Channel P&L Selling Fees.
         shopify_gross = sum(brand_monthly.get(b, {}).get(m, {}).get("gross", 0) for b in BRAND_ORDER + ["Other"])
         shopify_disc = sum(abs(brand_monthly.get(b, {}).get(m, {}).get("disc", 0)) for b in BRAND_ORDER + ["Other"])
-        amz_gross = sum(amz_brand_monthly.get(b, {}).get(m, {}).get("gross", 0) for b in BRAND_ORDER + ["Other"])
         amz_net = sum(amz_brand_monthly.get(b, {}).get(m, {}).get("net", 0) for b in BRAND_ORDER + ["Other"])
-        amz_disc = amz_gross - amz_net  # Amazon discounts/coupons (~15%)
-        rev = shopify_gross + amz_gross
+        rev = shopify_gross + amz_net
 
         # COGS from SKU-level data (or fallback to brand avg)
         cogs = 0
@@ -1260,8 +1258,8 @@ def generate():
         )
         ad_total = amz_ad + onz_ad
 
-        # MKT Cost 2: Discounts (Shopify disc field + Amazon gross-net gap)
-        disc_total = shopify_disc + amz_disc
+        # MKT Cost 2: Discounts (Shopify only — Amazon gross-net is referral fee, not discount)
+        disc_total = shopify_disc
 
         # MKT Cost 3: Influencer / Collab
         inf_paid = inf_paid_m.get(m, 0)
@@ -1281,7 +1279,6 @@ def generate():
         total_cm_monthly.append(round(cm))
         # Breakdown arrays for detail display
         _shop_disc_arr.append(round(shopify_disc))
-        _amz_disc_arr.append(round(amz_disc))
         _inf_paid_arr.append(round(inf_paid))
         _inf_nonpaid_arr.append(round(inf_nonpaid))
 
@@ -1324,7 +1321,7 @@ def generate():
         vals = []
         for m in all_pnl_months:
             shopify_v = brand_monthly.get(brand, {}).get(m, {}).get("net", 0)
-            amz_v = amz_brand_monthly.get(brand, {}).get(m, {}).get("gross", 0)
+            amz_v = amz_brand_monthly.get(brand, {}).get(m, {}).get("net", 0)
             vals.append(round(shopify_v + amz_v))
         if any(v > 0 for v in vals):
             brand_rev_pnl[brand] = {
@@ -1401,7 +1398,6 @@ def generate():
         "discounts": _pnl_with_annual(total_disc_monthly, fy2025_idx),
         "discounts_detail": {
             "shopify": _pnl_with_annual(_shop_disc_arr, fy2025_idx),
-            "amazon": _pnl_with_annual(_amz_disc_arr, fy2025_idx),
         },
         "influencer_spend": _pnl_with_annual(total_seeding_monthly, fy2025_idx),
         "influencer_detail": {
@@ -1477,7 +1473,7 @@ def generate():
 
             if ch == "Amazon MP":
                 for b in BRAND_ORDER + ["Other"]:
-                    rev += amz_brand_monthly.get(b, {}).get(m, {}).get("gross", 0)
+                    rev += amz_brand_monthly.get(b, {}).get(m, {}).get("net", 0)
                 # SKU-level COGS for Amazon
                 for b in BRAND_ORDER + ["Other"]:
                     cogs += amz_sku_cogs.get(b, {}).get(m, 0)
@@ -2195,7 +2191,6 @@ def generate():
             "discounts_proj": proj_array(total_disc_monthly),
             "discounts_detail": {
                 "shopify": _shop_disc_arr,
-                "amazon": _amz_disc_arr,
             },
             "seeding": total_seeding_monthly,
             "seeding_proj": proj_array(total_seeding_monthly),
@@ -2253,9 +2248,8 @@ def generate():
                 warnings.append(f"  [WARN] {m}: COGS% {cogs_pct:.0f}% < 25% (partial month data?)")
             elif cogs_pct > 45:
                 warnings.append(f"  [WARN] {m}: COGS% {cogs_pct:.0f}% > 45% (revenue using net instead of gross?)")
+            # Disc is Shopify only (typically 1-5% of total rev since Amazon is ~80% of rev)
             disc_pct = disc / r * 100
-            if disc_pct < 3 and i >= 5:  # skip early months with sparse data
-                warnings.append(f"  [WARN] {m}: Disc% {disc_pct:.0f}% < 3% (discounts missing?)")
         if ad == 0 and m not in ("Jan 25", "Feb 25", "Mar 25", "Apr 25", "May 25"):
             warnings.append(f"  [WARN] {m}: Ad Spend $0 (backfill missing?)")
         if inf == 0:
