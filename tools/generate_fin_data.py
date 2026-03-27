@@ -70,27 +70,81 @@ _NM_RULES = {
 # NAS paths for SKU-level COGS (Option B from run_kpi_monthly.py)
 _NAS_COGS_DIR = Path(r"Z:\Orbiters\ORBI CLAUDE_0223\ORBITERS CLAUDE\ORBITERS CLAUDE\Shared\NoPolar KPIs\Data config sheet")
 
-# Amazon Ads backfill: Polar Excel "IR 매출분석" row 119 (Jan-Nov 2025, DK starts Dec 2025)
-_AMZ_ADS_BACKFILL = {
-    "2025-01": 47847, "2025-02": 38004, "2025-03": 40882, "2025-04": 46141,
-    "2025-05": 45848, "2025-06": 56294, "2025-07": 82121, "2025-08": 67267,
-    "2025-09": 55637, "2025-10": 59565, "2025-11": 65391,
-}
+_POLAR_EXCEL = Path("Data Storage/_archive/Monthly Sales by brands_raw.xlsx")
+_SEEDING_DIR = Path(".tmp/polar_data")
 
-# Influencer costs: PAID (PayPal) + NON-PAID (Sample COGS + Shipping $10/unit)
-# Source: q11_paypal_transactions.json + q10_influencer_orders.json + COGS by SKU.xlsx
-_INFLUENCER_PAID = {
-    "2025-01": 1100, "2025-02": 2900, "2025-03": 0, "2025-04": 1532,
-    "2025-05": 2107, "2025-06": 2020, "2025-07": 3467, "2025-08": 18004,
-    "2025-09": 7437, "2025-10": 22277, "2025-11": 1318, "2025-12": 814,
-    "2026-01": 450, "2026-02": 5878, "2026-03": 4550,
-}
-_INFLUENCER_NONPAID = {  # Sample COGS + Shipping $10/unit
-    "2025-01": 2211, "2025-02": 2382, "2025-03": 2811, "2025-04": 1693,
-    "2025-05": 1077, "2025-06": 855, "2025-07": 1577, "2025-08": 1117,
-    "2025-09": 2833, "2025-10": 956, "2025-11": 3102, "2025-12": 1341,
-    "2026-01": 7785, "2026-02": 6033, "2026-03": 2740,
-}
+
+def load_amz_ads_backfill():
+    """Load Amazon Ads monthly spend from Polar Excel 'IR 매출분석' row 119.
+    Used for months before DataKeeper amazon_ads_daily (Dec 2025+)."""
+    try:
+        import openpyxl
+        if not _POLAR_EXCEL.exists():
+            print("  [WARN] Polar Excel not found, no Amazon Ads backfill")
+            return {}
+        wb = openpyxl.load_workbook(str(_POLAR_EXCEL), read_only=True, data_only=True)
+        ws = wb["IR 매출분석"]
+        rows = list(ws.iter_rows(values_only=True))
+        wb.close()
+        # Row 2 has dates, Row 119 has Amazon Ads total
+        date_row = rows[2]
+        amz_row = rows[119]
+        out = {}
+        for i, d in enumerate(date_row):
+            if d and hasattr(d, "year") and d.year >= 2025:
+                m = f"{d.year}-{d.month:02d}"
+                val = amz_row[i] if i < len(amz_row) else 0
+                if val and float(val) > 0:
+                    out[m] = round(float(val))
+        return out
+    except Exception as e:
+        print(f"  [WARN] Amazon Ads backfill load failed: {e}")
+        return {}
+
+
+def load_influencer_costs():
+    """Load influencer costs from PayPal + Shopify PR JSON files.
+    Returns (paid_monthly, nonpaid_monthly) dicts {month: amount}."""
+    cogs_map = load_sku_cogs_map()
+    paid = defaultdict(float)
+    nonpaid = defaultdict(float)
+
+    # PAID: PayPal outbound payments
+    pp_path = _SEEDING_DIR / "q11_paypal_transactions.json"
+    if pp_path.exists():
+        try:
+            import json as _json
+            data = _json.loads(pp_path.read_text(encoding="utf-8"))
+            txns = data.get("transactions", data if isinstance(data, list) else [])
+            for t in txns:
+                amt = float(t.get("amount", 0) or 0)
+                if amt < 0:
+                    m = (t.get("date", "") or "")[:7]
+                    if m:
+                        paid[m] += abs(amt)
+        except Exception as e:
+            print(f"  [WARN] PayPal load failed: {e}")
+
+    # NON-PAID: Shopify PR orders (Sample COGS + $10 shipping per unit)
+    inf_path = _SEEDING_DIR / "q10_influencer_orders.json"
+    if inf_path.exists():
+        try:
+            import json as _json
+            data = _json.loads(inf_path.read_text(encoding="utf-8"))
+            orders = data if isinstance(data, list) else data.get("orders", [])
+            for order in orders:
+                m = (order.get("created_at", "") or "")[:7]
+                if not m:
+                    continue
+                for li in order.get("line_items", []):
+                    sku = (li.get("sku") or "").strip().lower()
+                    qty = int(li.get("quantity", 1) or 1)
+                    cost = cogs_map.get(sku, 0)
+                    nonpaid[m] += cost * qty + 10.0 * qty  # COGS + $10 shipping
+        except Exception as e:
+            print(f"  [WARN] PR orders load failed: {e}")
+
+    return dict(paid), dict(nonpaid)
 
 
 def load_sku_cogs_map():
@@ -265,6 +319,12 @@ def generate():
     # ── Load SKU-level COGS map ──────────────────────────────────────────────
     sku_cogs_map = load_sku_cogs_map()
     print(f"  SKU COGS map: {len(sku_cogs_map)} SKUs {'(NAS)' if sku_cogs_map else '(fallback to AVG_COGS)'}")
+
+    # ── Load Amazon Ads backfill + Influencer costs ─────────────────────────
+    amz_ads_backfill = load_amz_ads_backfill()
+    print(f"  Amazon Ads backfill: {len(amz_ads_backfill)} months {'(Polar Excel)' if amz_ads_backfill else '(none)'}")
+    inf_paid_m, inf_nonpaid_m = load_influencer_costs()
+    print(f"  Influencer: PAID {len(inf_paid_m)}m, NON-PAID {len(inf_nonpaid_m)}m")
 
     # ── Compute through-date ─────────────────────────────────────────────────
     def max_date(rows):
@@ -1192,8 +1252,8 @@ def generate():
 
         # MKT Cost 1: Ad Spend (with Amazon Ads backfill for pre-Dec 2025)
         amz_ad = ad_monthly.get("Amazon Ads", {}).get(m, {}).get("spend", 0)
-        if amz_ad == 0 and m in _AMZ_ADS_BACKFILL:
-            amz_ad = _AMZ_ADS_BACKFILL[m]
+        if amz_ad == 0 and m in amz_ads_backfill:
+            amz_ad = amz_ads_backfill[m]
         onz_ad = sum(
             ad_monthly.get(p, {}).get(m, {}).get("spend", 0)
             for p in ["Meta CVR", "Meta Traffic", "Google Ads"]
@@ -1204,8 +1264,8 @@ def generate():
         disc_total = shopify_disc + amz_disc
 
         # MKT Cost 3: Influencer / Collab
-        inf_paid = _INFLUENCER_PAID.get(m, 0)
-        inf_nonpaid = _INFLUENCER_NONPAID.get(m, 0)
+        inf_paid = inf_paid_m.get(m, 0)
+        inf_nonpaid = inf_nonpaid_m.get(m, 0)
         seeding_total = inf_paid + inf_nonpaid
 
         mkt_total = ad_total + disc_total + seeding_total
@@ -1278,8 +1338,8 @@ def generate():
         onz = sum(ad_monthly.get(p, {}).get(m, {}).get("spend", 0)
                   for p in ["Meta CVR", "Meta Traffic", "Google Ads"])
         amz = ad_monthly.get("Amazon Ads", {}).get(m, {}).get("spend", 0)
-        if amz == 0 and m in _AMZ_ADS_BACKFILL:
-            amz = _AMZ_ADS_BACKFILL[m]
+        if amz == 0 and m in amz_ads_backfill:
+            amz = amz_ads_backfill[m]
         ggl = ad_monthly.get("Google Ads", {}).get(m, {}).get("spend", 0)
         onz_spend_arr.append(round(onz))
         amz_spend_arr.append(round(amz))
