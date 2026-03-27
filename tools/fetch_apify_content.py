@@ -593,16 +593,11 @@ def _classify_product_types(line_items):
 
 
 def _detect_brand_from_text(text):
-    """Detect brand from caption/hashtag text. Returns brand name or ''.
+    """Detect brand from caption/hashtag text. Returns comma-separated brands or ''.
 
-    Priority:
-    1. Hashtag/caption explicit brand names — collect ALL matches
-    2. If any non-Grosmimi brand is found, return that (even if Grosmimi also present)
-    3. If only Grosmimi found, return Grosmimi
-    4. Product keyword fallback (straw cup → Grosmimi, lotion → CHA&MOM, etc.)
-
-    Rule: non-Grosmimi brand takes priority.  If #chaandmom appears anywhere
-    in the text, the post is NOT Grosmimi even if #grosmimi is also tagged.
+    Strategy:
+    1. Hashtag/caption explicit brand names — collect ALL matches, return ALL
+    2. Product keyword fallback if no explicit brand found
     """
     text = (text or "").lower()
     # Step 1: collect ALL explicit brand matches
@@ -610,22 +605,15 @@ def _detect_brand_from_text(text):
     for brand_name, pattern in _BRAND_REGEX:
         if pattern.search(text):
             found.add(brand_name)
-    # Step 2: non-Grosmimi brand wins
-    non_gros = found - {"Grosmimi"}
-    if non_gros:
-        return sorted(non_gros)[0]
-    if "Grosmimi" in found:
-        return "Grosmimi"
-    # Step 3: product keyword fallback — same rule: non-Grosmimi wins
+    if found:
+        return ", ".join(sorted(found))
+    # Step 2: product keyword fallback
     fallback = set()
     for brand_name, pattern in _PRODUCT_BRAND_REGEX:
         if pattern.search(text):
             fallback.add(brand_name)
-    non_gros_fb = fallback - {"Grosmimi"}
-    if non_gros_fb:
-        return sorted(non_gros_fb)[0]
-    if "Grosmimi" in fallback:
-        return "Grosmimi"
+    if fallback:
+        return ", ".join(sorted(fallback))
     return ""
 
 
@@ -697,7 +685,7 @@ def enrich_posts_from_orders(posts):
                     p["brand"] = caption_brand
                 else:
                     # No brand in caption — fall back to order
-                    p["brand"] = sorted(info["brands"])[0] if info["brands"] else ""
+                    p["brand"] = ", ".join(sorted(info["brands"])) if info["brands"] else ""
             if not p.get("product_types"):
                 p["product_types"] = ",".join(sorted(info["product_types"]))
             matched += 1

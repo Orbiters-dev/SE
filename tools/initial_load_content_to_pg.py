@@ -31,23 +31,26 @@ from push_content_to_pg import push_posts, push_metrics
 
 
 def detect_brand_from_text(hashtags, content, tagged_account):
-    """Detect brand from hashtags + content + tagged account text."""
+    """Detect brand from hashtags + content + tagged account text.
+    Returns comma-separated brands (all matches, not just first).
+    """
     text = f"{hashtags} {content} {tagged_account}".lower()
+    found = []
     if re.search(r'grosmimi|gros.?mimi|ppsu|straw.?cup|baby.?bottle|sippy|tumbler', text):
-        return 'Grosmimi'
+        found.append('Grosmimi')
     if re.search(r'cha.?&.?mom|chaandmom|cha_mom|chamom|phytoseline|ps.?cream|baby.?lotion|baby.?cream|baby.?wash', text):
-        return 'CHA&MOM'
+        found.append('CHA&MOM')
     if re.search(r'naeiae|rice.?puff|rice.?snack|pop.?rice|baby.?snack', text):
-        return 'Naeiae'
+        found.append('Naeiae')
     if re.search(r'babyrabbit|baby.?rabbit', text):
-        return 'Babyrabbit'
+        found.append('Babyrabbit')
     if re.search(r'commemoi|book.?stand', text):
-        return 'Commemoi'
+        found.append('Commemoi')
     if re.search(r'goongbe', text):
-        return 'Goongbe'
-    if re.search(r'onzenna|zezebaebae', text):
-        return 'Grosmimi'
-    return ''
+        found.append('Goongbe')
+    if not found and re.search(r'onzenna|zezebaebae', text):
+        found.append('Grosmimi')
+    return ', '.join(found)
 
 PROJECT_ROOT = os.path.dirname(DIR)
 APIFY_SHEET_ID = "1mYofqMBYqIHS3XNQ29vDA__SzYBfkkGCPn3Jb8OxAkY"

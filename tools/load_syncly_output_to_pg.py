@@ -81,15 +81,22 @@ def safe_int(val, default=0):
 
 
 def detect_brand(text, username=""):
-    """Detect brand from content text."""
+    """Detect brand from content text. Returns comma-separated brands (all matches)."""
     combined = (text or "").lower()
+    found = []
     if any(k in combined for k in ["grosmimi", "ppsu", "straw cup", "baby bottle", "그로미미"]):
-        return "Grosmimi"
+        found.append("Grosmimi")
     if any(k in combined for k in ["cha&mom", "chaenmom", "차앤맘", "baby wash", "baby lotion"]):
-        return "CHA&MOM"
+        found.append("CHA&MOM")
     if any(k in combined for k in ["naeiae", "나이애", "rice puff", "baby snack", "pop rice"]):
-        return "Naeiae"
-    return ""
+        found.append("Naeiae")
+    if any(k in combined for k in ["goongbe"]):
+        found.append("Goongbe")
+    if any(k in combined for k in ["babyrabbit", "baby rabbit"]):
+        found.append("Babyrabbit")
+    if any(k in combined for k in ["commemoi"]):
+        found.append("Commemoi")
+    return ", ".join(found)
 
 
 def extract_post_id(url):

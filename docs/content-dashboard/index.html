@@ -206,13 +206,14 @@ function escQ(s){ return String(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;'
 function normHandle(s){ return (s||'').replace(/[_.\-@]/g,'').toLowerCase(); }
 function detectBrand(p){
   var text = ((p.caption||'')+ ' ' +(p.hashtags||'')+ ' ' +(p.tagged_account||'')).toLowerCase();
-  if(/grosmimi|growmimi|grosmimi_usa|grosmimi_japan/.test(text)) return 'Grosmimi';
-  if(/cha\s*&\s*mom|cha_mom|chaandmom|chamom/.test(text)) return 'CHA&MOM';
-  if(/naeiae|naeia/.test(text)) return 'Naeiae';
-  if(/goongbe/.test(text)) return 'Goongbe';
-  if(/babyrabbit/.test(text)) return 'Babyrabbit';
-  if(/commemoi/.test(text)) return 'Commemoi';
-  return 'N/A';
+  var found = [];
+  if(/grosmimi|growmimi|grosmimi_usa|grosmimi_japan/.test(text)) found.push('Grosmimi');
+  if(/cha\s*&\s*mom|cha_mom|chaandmom|chamom/.test(text)) found.push('CHA&MOM');
+  if(/naeiae|naeia/.test(text)) found.push('Naeiae');
+  if(/goongbe/.test(text)) found.push('Goongbe');
+  if(/babyrabbit/.test(text)) found.push('Babyrabbit');
+  if(/commemoi/.test(text)) found.push('Commemoi');
+  return found.length ? found.join(', ') : 'N/A';
 }
 function setBrand(b){
   _brand = b;
@@ -220,7 +221,7 @@ function setBrand(b){
   document.querySelector('#brandToggle .content-toggle>div[data-brand="'+b+'"]').classList.add('on');
   if(_loaded) renderTab(_currentTab);
 }
-function filterByBrand(p){ return _brand==='all' || (p._brand||'N/A')===_brand; }
+function filterByBrand(p){ return _brand==='all' || (p._brand||'N/A').split(', ').indexOf(_brand)!==-1; }
 
 // ══════════ IMPACT SCORE ══════════
 // Score = view_velocity × engagement_rate × brand_fit × decay × 1000
@@ -233,7 +234,7 @@ var _alltimeSortBy = 'views'; // 'views' or 'impact'
 function brandBadge(b){
   var colors={'Grosmimi':'background:#ecfdf5;color:#059669','CHA&MOM':'background:#fef2f2;color:#e11d48','Naeiae':'background:#fff7ed;color:#ea580c',
     'Onzenna':'background:#eef2ff;color:#6366f1','Goongbe':'background:#f0f9ff;color:#0ea5e9','Babyrabbit':'background:#fdf4ff;color:#c026d3','Commemoi':'background:#fffbeb;color:#d97706','N/A':'background:#f1f5f9;color:#94a3b8'};
-  return '<span class="b" style="'+(colors[b]||colors['N/A'])+';font-size:9px">'+b+'</span>';
+  return (b||'N/A').split(', ').map(function(x){ return '<span class="b" style="'+(colors[x]||colors['N/A'])+';font-size:9px">'+x+'</span>'; }).join(' ');
 }
 function formatViewsShort(v){
   if(v>=1000000) return (v/1000000).toFixed(1)+'M';
@@ -815,9 +816,13 @@ function _renderPipelineByGroup(data, mode){
   data.forEach(function(d){
     var o=d.order;
     if(mode==='brand'){
-      var g=o.brand||'Unknown';
-      if(!groups[g]) groups[g]={shipped:0,posted:0};
-      groups[g].shipped++; if(d.posted) groups[g].posted++;
+      var brands=(o.brand||'Unknown').split(', ');
+      var seenB={};
+      brands.forEach(function(g){
+        g=g.trim(); if(!g||seenB[g]) return; seenB[g]=1;
+        if(!groups[g]) groups[g]={shipped:0,posted:0};
+        groups[g].shipped++; if(d.posted) groups[g].posted++;
+      });
     } else {
       var types=(o.product_types||'').split(',');
       var seen={};
