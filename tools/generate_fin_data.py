@@ -49,10 +49,8 @@ AD_COLORS = {
     "Amazon Ads": "#f59e0b", "Meta CVR": "#3b82f6", "Meta Traffic": "#93c5fd",
     "Google Ads": "#10b981",
 }
-AVG_COGS = {
-    "Grosmimi": 8.41, "Naeiae": 5.35, "CHA&MOM": 7.53,
-    "Onzenna": 5.35, "Alpremio": 12.57,
-}
+# REMOVED: flat AVG_COGS — always use SKU-level or brand VW avg from NAS.
+# If NAS unavailable, COGS = null (n.m.), never a guess.
 AVG_PRICE = {
     "Grosmimi": 28.0, "Naeiae": 18.0, "CHA&MOM": 32.0,
     "Onzenna": 22.0, "Alpremio": 38.0,
@@ -214,7 +212,7 @@ def build_sku_cogs_monthly(amazon_sku_rows, shopify_sku_rows, cogs_map, through,
 
     brand_vw_avg = {}
     for b, v in _brand_vw.items():
-        brand_vw_avg[b] = v["cost_sum"] / v["units"] if v["units"] else AVG_COGS.get(b, 8)
+        brand_vw_avg[b] = v["cost_sum"] / v["units"] if v["units"] else 0
 
     # Track SKU units per month (for partial-month detection)
     amz_sku_units = defaultdict(int)  # month -> total units from SKU data
@@ -230,7 +228,7 @@ def build_sku_cogs_monthly(amazon_sku_rows, shopify_sku_rows, cogs_map, through,
             b = "Other"
         u = int(r.get("units", 0) or 0)
         sku = str(r.get("sku", "")).strip().lower()
-        cost = cogs_map.get(sku, brand_vw_avg.get(b, AVG_COGS.get(b, 8)))
+        cost = cogs_map.get(sku, brand_vw_avg.get(b, 0))
         amz_cogs[b][m] += u * cost
         amz_sku_units[m] += u
 
@@ -248,7 +246,7 @@ def build_sku_cogs_monthly(amazon_sku_rows, shopify_sku_rows, cogs_map, through,
             b = "Other"
         u = int(r.get("units", 0) or 0)
         sku = str(r.get("sku", "")).strip().lower()
-        cost = cogs_map.get(sku, brand_vw_avg.get(b, AVG_COGS.get(b, 8)))
+        cost = cogs_map.get(sku, brand_vw_avg.get(b, 0))
         shop_cogs[b][m] += u * cost
         shop_sku_units[m] += u
         # Map channel for channel P&L
@@ -318,7 +316,7 @@ def generate():
 
     # ── Load SKU-level COGS map ──────────────────────────────────────────────
     sku_cogs_map = load_sku_cogs_map()
-    print(f"  SKU COGS map: {len(sku_cogs_map)} SKUs {'(NAS)' if sku_cogs_map else '(fallback to AVG_COGS)'}")
+    print(f"  SKU COGS map: {len(sku_cogs_map)} SKUs {'(NAS)' if sku_cogs_map else '(MISSING - COGS will be n.m.)'}")
 
     # ── Load Amazon Ads backfill + Influencer costs ─────────────────────────
     amz_ads_backfill = load_amz_ads_backfill()
@@ -673,7 +671,7 @@ def generate():
     if sku_cogs_map:
         print(f"  SKU COGS built - VW avg: {', '.join(f'{b}=${v:.2f}' for b, v in sorted(brand_vw_cogs.items()) if b in BRAND_ORDER[:4])}")
     else:
-        print(f"  SKU COGS: using flat AVG_COGS (NAS unavailable)")
+        print(f"  SKU COGS: NAS unavailable, using brand VW avg from matched SKUs")
 
     # ── 5. Compute summary KPIs (7d, 30d, MTD) ───────────────────────────────
     print("\n[5/7] Computing KPI summaries...")
@@ -696,7 +694,7 @@ def generate():
             disc = float(r.get("discounts") or 0)
             units = int(r.get("units") or 0)
             brand = r.get("brand") or "Other"
-            cogs_rate = AVG_COGS.get(brand, 8.0)
+            cogs_rate = brand_vw_cogs.get(brand, 0)
             price_rate = AVG_PRICE.get(brand, 25.0)
             if units == 0 and gross > 0:
                 units = int(gross / price_rate)
@@ -750,7 +748,7 @@ def generate():
                 net = float(r.get("net_sales") or 0)
                 if net > 0:
                     units = int(net / AVG_PRICE.get(brand, 25))
-            amz_cogs += units * AVG_COGS.get(brand, 8)
+            amz_cogs += units * brand_vw_cogs.get(brand, 0)
 
         total_cogs = shopify_cogs + amz_cogs
         gm = total_rev - total_cogs  # GM = Total Revenue - Total COGS
@@ -1199,6 +1197,7 @@ def generate():
     total_ad_spend_monthly = []
     total_disc_monthly = []
     _shop_disc_arr = []   # Shopify discounts breakdown
+    _amz_fee_arr = []     # Amazon referral fee (15%)
     _inf_paid_arr = []    # Influencer PAID (PayPal)
     _inf_nonpaid_arr = [] # Influencer NON-PAID (COGS + shipping)
     total_seeding_monthly = []
@@ -1206,13 +1205,13 @@ def generate():
     total_cm_monthly = []
 
     for m in months:
-        # Total revenue = Shopify GROSS + Amazon NET
-        # Shopify: gross_sales (before discount), Amazon: net_sales (after referral fee)
-        # Amazon gross - net = referral fee (15%), NOT customer discount. Already in Channel P&L Selling Fees.
+        # Total revenue = Shopify GROSS + Amazon GROSS
+        # Both = customer-facing price (what buyers paid).
+        # Shopify disc = promo codes. Amazon gross-net = referral fee (shown as Selling Fee in Channel P&L).
         shopify_gross = sum(brand_monthly.get(b, {}).get(m, {}).get("gross", 0) for b in BRAND_ORDER + ["Other"])
         shopify_disc = sum(abs(brand_monthly.get(b, {}).get(m, {}).get("disc", 0)) for b in BRAND_ORDER + ["Other"])
-        amz_net = sum(amz_brand_monthly.get(b, {}).get(m, {}).get("net", 0) for b in BRAND_ORDER + ["Other"])
-        rev = shopify_gross + amz_net
+        amz_gross = sum(amz_brand_monthly.get(b, {}).get(m, {}).get("gross", 0) for b in BRAND_ORDER + ["Other"])
+        rev = shopify_gross + amz_gross
 
         # COGS from SKU-level data (or fallback to brand avg)
         cogs = 0
@@ -1226,12 +1225,12 @@ def generate():
                 units = v.get("units", 0)
                 if units == 0 and v.get("gross", 0) > 0:
                     units = int(v["gross"] / AVG_PRICE.get(b, 25))
-                cogs += units * brand_vw_cogs.get(b, AVG_COGS.get(b, 8))
+                cogs += units * brand_vw_cogs.get(b, brand_vw_cogs.get(b, 0))
                 amz_v = amz_brand_monthly.get(b, {}).get(m, {})
                 amz_units = amz_v.get("units", 0)
                 if amz_units == 0 and amz_v.get("net", 0) > 0:
                     amz_units = int(amz_v["net"] / AVG_PRICE.get(b, 25))
-                cogs += amz_units * brand_vw_cogs.get(b, AVG_COGS.get(b, 8))
+                cogs += amz_units * brand_vw_cogs.get(b, brand_vw_cogs.get(b, 0))
         elif cogs > 0 and rev > 0:
             # Partial SKU data fix (e.g., Oct 2025 SKU starts mid-month):
             # Scale COGS up by daily_units / sku_units ratio
@@ -1258,8 +1257,12 @@ def generate():
         )
         ad_total = amz_ad + onz_ad
 
-        # MKT Cost 2: Discounts (Shopify only — Amazon gross-net is referral fee, not discount)
-        disc_total = shopify_disc
+        # MKT Cost 2: Selling costs
+        # Shopify discounts (promo codes) + Amazon referral fee (gross - net = 15%)
+        amz_net = sum(amz_brand_monthly.get(b, {}).get(m, {}).get("net", 0) for b in BRAND_ORDER + ["Other"])
+        amz_ref_fee = amz_gross - amz_net
+        disc_total = shopify_disc + amz_ref_fee
+        _amz_fee_arr.append(round(amz_ref_fee))
 
         # MKT Cost 3: Influencer / Collab
         inf_paid = inf_paid_m.get(m, 0)
@@ -1320,8 +1323,8 @@ def generate():
     for brand in BRAND_ORDER:
         vals = []
         for m in all_pnl_months:
-            shopify_v = brand_monthly.get(brand, {}).get(m, {}).get("net", 0)
-            amz_v = amz_brand_monthly.get(brand, {}).get(m, {}).get("net", 0)
+            shopify_v = brand_monthly.get(brand, {}).get(m, {}).get("gross", 0)
+            amz_v = amz_brand_monthly.get(brand, {}).get(m, {}).get("gross", 0)
             vals.append(round(shopify_v + amz_v))
         if any(v > 0 for v in vals):
             brand_rev_pnl[brand] = {
@@ -1397,7 +1400,8 @@ def generate():
         },
         "discounts": _pnl_with_annual(total_disc_monthly, fy2025_idx),
         "discounts_detail": {
-            "shopify": _pnl_with_annual(_shop_disc_arr, fy2025_idx),
+            "shopify_disc": _pnl_with_annual(_shop_disc_arr, fy2025_idx),
+            "amz_ref_fee": _pnl_with_annual(_amz_fee_arr, fy2025_idx),
         },
         "influencer_spend": _pnl_with_annual(total_seeding_monthly, fy2025_idx),
         "influencer_detail": {
@@ -1413,8 +1417,8 @@ def generate():
     print(f"  P&L built: {len(all_pnl_months)} months, {len(brand_rev_pnl)} brands")
 
     # ── Channel P&L ──────────────────────────────────────────────────────────
-    # Amazon: revenue from amazon_sales_daily (has fees), COGS from units * AVG_COGS
-    # Shopify D2C (excl Target+): Shopify orders, COGS from units * AVG_COGS
+    # Amazon: revenue from amazon_sales_daily, COGS from SKU-level NAS map
+    # Shopify D2C (excl Target+): Shopify orders, COGS from SKU-level NAS map
     # Target+: Shopify target+ channel, COGS, fulfillment = N/A
     print("  Building Channel P&L...")
 
@@ -1473,7 +1477,7 @@ def generate():
 
             if ch == "Amazon MP":
                 for b in BRAND_ORDER + ["Other"]:
-                    rev += amz_brand_monthly.get(b, {}).get(m, {}).get("net", 0)
+                    rev += amz_brand_monthly.get(b, {}).get(m, {}).get("gross", 0)
                 # SKU-level COGS for Amazon
                 for b in BRAND_ORDER + ["Other"]:
                     cogs += amz_sku_cogs.get(b, {}).get(m, 0)
@@ -1486,7 +1490,7 @@ def generate():
                 elif cogs == 0 and rev > 0:
                     for b in BRAND_ORDER + ["Other"]:
                         u = amz_brand_monthly.get(b, {}).get(m, {}).get("units", 0)
-                        cogs += u * brand_vw_cogs.get(b, AVG_COGS.get(b, 8))
+                        cogs += u * brand_vw_cogs.get(b, brand_vw_cogs.get(b, 0))
                 # Amazon selling fees (referral) + discounts shown in waterfall
                 sell_fee = amz_fees_monthly.get(m, 0)
                 fulfill = amz_fulfill_monthly.get(m, 0)
@@ -1829,11 +1833,11 @@ def generate():
             units = brand_weekly.get(b, {}).get(w, {}).get("units", 0)
             if units == 0 and brand_weekly.get(b, {}).get(w, {}).get("gross", 0) > 0:
                 units = int(brand_weekly[b][w]["gross"] / AVG_PRICE.get(b, 25))
-            cogs += units * AVG_COGS.get(b, 8)
+            cogs += units * brand_vw_cogs.get(b, 0)
             amz_units = amz_brand_weekly.get(b, {}).get(w, {}).get("units", 0)
             if amz_units == 0 and amz_brand_weekly.get(b, {}).get(w, {}).get("net", 0) > 0:
                 amz_units = int(amz_brand_weekly[b][w]["net"] / AVG_PRICE.get(b, 25))
-            cogs += amz_units * AVG_COGS.get(b, 8)
+            cogs += amz_units * brand_vw_cogs.get(b, 0)
         gm = rev - cogs
         ad_sp = sum(ad_weekly.get(p, {}).get(w, {}).get("spend", 0) for p in ["Amazon Ads", "Meta CVR", "Meta Traffic", "Google Ads"])
         disc = sum(brand_weekly.get(b, {}).get(w, {}).get("disc", 0) for b in BRAND_ORDER + ["Other"])
@@ -1879,7 +1883,7 @@ def generate():
                     if units == 0 and net > 0:
                         units = int(net / AVG_PRICE.get(b, 25))
                     rev += net
-                    cogs += units * AVG_COGS.get(b, 8)
+                    cogs += units * brand_vw_cogs.get(b, 0)
                 fees = amz_fees_weekly.get(w, 0)
                 ad_sp = (ad_weekly.get("Amazon Ads", {}).get(w, {}).get("spend", 0)
                          + ad_weekly.get("Meta Traffic", {}).get(w, {}).get("spend", 0))
@@ -1890,7 +1894,7 @@ def generate():
                     b_units = bw.get("units", 0)
                     if b_units == 0 and bw.get("net", 0) > 0:
                         b_units = int(bw["net"] / AVG_PRICE.get(b, 25))
-                    cogs += b_units * AVG_COGS.get(b, 8)
+                    cogs += b_units * brand_vw_cogs.get(b, 0)
                 ad_sp = (ad_weekly.get("Meta CVR", {}).get(w, {}).get("spend", 0)
                          + ad_weekly.get("Google Ads", {}).get(w, {}).get("spend", 0))
             elif ch == "Target+":
@@ -2190,7 +2194,8 @@ def generate():
             "discounts": total_disc_monthly,
             "discounts_proj": proj_array(total_disc_monthly),
             "discounts_detail": {
-                "shopify": _shop_disc_arr,
+                "shopify_disc": _shop_disc_arr,
+                "amz_ref_fee": _amz_fee_arr,
             },
             "seeding": total_seeding_monthly,
             "seeding_proj": proj_array(total_seeding_monthly),
