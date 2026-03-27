@@ -11,6 +11,7 @@ Usage:
 
 import os
 import sys
+import re
 import argparse
 from datetime import datetime, timedelta
 
@@ -27,6 +28,26 @@ import gspread
 from google.oauth2.service_account import Credentials
 
 from push_content_to_pg import push_posts, push_metrics
+
+
+def detect_brand_from_text(hashtags, content, tagged_account):
+    """Detect brand from hashtags + content + tagged account text."""
+    text = f"{hashtags} {content} {tagged_account}".lower()
+    if re.search(r'grosmimi|gros.?mimi|ppsu|straw.?cup|baby.?bottle|sippy|tumbler', text):
+        return 'Grosmimi'
+    if re.search(r'cha.?&.?mom|chaandmom|cha_mom|chamom|phytoseline|ps.?cream|baby.?lotion|baby.?cream|baby.?wash', text):
+        return 'CHA&MOM'
+    if re.search(r'naeiae|rice.?puff|rice.?snack|pop.?rice|baby.?snack', text):
+        return 'Naeiae'
+    if re.search(r'babyrabbit|baby.?rabbit', text):
+        return 'Babyrabbit'
+    if re.search(r'commemoi|book.?stand', text):
+        return 'Commemoi'
+    if re.search(r'goongbe', text):
+        return 'Goongbe'
+    if re.search(r'onzenna|zezebaebae', text):
+        return 'Grosmimi'
+    return ''
 
 PROJECT_ROOT = os.path.dirname(DIR)
 APIFY_SHEET_ID = "1mYofqMBYqIHS3XNQ29vDA__SzYBfkkGCPn3Jb8OxAkY"
@@ -100,7 +121,7 @@ def load_posts_master(sh, tab_name, region):
             "hashtags": hashtags,
             "tagged_account": tagged_account,
             "post_date": post_date,
-            "brand": row[13].strip() if len(row) > 13 and row[13].strip() else "",
+            "brand": row[13].strip() if len(row) > 13 and row[13].strip() else detect_brand_from_text(hashtags, caption, tagged_account),
             "region": region,
             "source": "apify",
         })
