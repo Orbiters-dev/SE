@@ -79,11 +79,17 @@ _AMZ_ADS_BACKFILL = {
 
 # Influencer costs: PAID (PayPal) + NON-PAID (Sample COGS + Shipping $10/unit)
 # Source: q11_paypal_transactions.json + q10_influencer_orders.json + COGS by SKU.xlsx
-_INFLUENCER_COST = {
-    "2025-01": 3311, "2025-02": 5282, "2025-03": 2811, "2025-04": 3225,
-    "2025-05": 3184, "2025-06": 2875, "2025-07": 5045, "2025-08": 19121,
-    "2025-09": 10271, "2025-10": 23233, "2025-11": 4420, "2025-12": 2156,
-    "2026-01": 8235, "2026-02": 11911, "2026-03": 7290,
+_INFLUENCER_PAID = {
+    "2025-01": 1100, "2025-02": 2900, "2025-03": 0, "2025-04": 1532,
+    "2025-05": 2107, "2025-06": 2020, "2025-07": 3467, "2025-08": 18004,
+    "2025-09": 7437, "2025-10": 22277, "2025-11": 1318, "2025-12": 814,
+    "2026-01": 450, "2026-02": 5878, "2026-03": 4550,
+}
+_INFLUENCER_NONPAID = {  # Sample COGS + Shipping $10/unit
+    "2025-01": 2211, "2025-02": 2382, "2025-03": 2811, "2025-04": 1693,
+    "2025-05": 1077, "2025-06": 855, "2025-07": 1577, "2025-08": 1117,
+    "2025-09": 2833, "2025-10": 956, "2025-11": 3102, "2025-12": 1341,
+    "2026-01": 7785, "2026-02": 6033, "2026-03": 2740,
 }
 
 
@@ -1132,6 +1138,10 @@ def generate():
     total_gm_monthly = []
     total_ad_spend_monthly = []
     total_disc_monthly = []
+    _shop_disc_arr = []   # Shopify discounts breakdown
+    _amz_disc_arr = []    # Amazon discounts breakdown
+    _inf_paid_arr = []    # Influencer PAID (PayPal)
+    _inf_nonpaid_arr = [] # Influencer NON-PAID (COGS + shipping)
     total_seeding_monthly = []
     total_mkt_monthly = []
     total_cm_monthly = []
@@ -1193,8 +1203,10 @@ def generate():
         # MKT Cost 2: Discounts (Shopify disc field + Amazon gross-net gap)
         disc_total = shopify_disc + amz_disc
 
-        # MKT Cost 3: Influencer / Collab (PayPal + shipping $10/unit)
-        seeding_total = _INFLUENCER_COST.get(m, 0)
+        # MKT Cost 3: Influencer / Collab
+        inf_paid = _INFLUENCER_PAID.get(m, 0)
+        inf_nonpaid = _INFLUENCER_NONPAID.get(m, 0)
+        seeding_total = inf_paid + inf_nonpaid
 
         mkt_total = ad_total + disc_total + seeding_total
         cm = gm - mkt_total  # CM = GM - Total MKT
@@ -1207,6 +1219,11 @@ def generate():
         total_seeding_monthly.append(round(seeding_total))
         total_mkt_monthly.append(round(mkt_total))
         total_cm_monthly.append(round(cm))
+        # Breakdown arrays for detail display
+        _shop_disc_arr.append(round(shopify_disc))
+        _amz_disc_arr.append(round(amz_disc))
+        _inf_paid_arr.append(round(inf_paid))
+        _inf_nonpaid_arr.append(round(inf_nonpaid))
 
     # Paid vs Organic (monthly)
     paid_monthly = []
@@ -1314,7 +1331,15 @@ def generate():
             "total": _pnl_with_annual(organic_arr, fy2025_idx),
         },
         "discounts": _pnl_with_annual(total_disc_monthly, fy2025_idx),
+        "discounts_detail": {
+            "shopify": _pnl_with_annual(_shop_disc_arr, fy2025_idx),
+            "amazon": _pnl_with_annual(_amz_disc_arr, fy2025_idx),
+        },
         "influencer_spend": _pnl_with_annual(total_seeding_monthly, fy2025_idx),
+        "influencer_detail": {
+            "paid": _pnl_with_annual(_inf_paid_arr, fy2025_idx),
+            "nonpaid": _pnl_with_annual(_inf_nonpaid_arr, fy2025_idx),
+        },
         "cm_after_ads": _pnl_with_annual(cm_after_arr, fy2025_idx),
         "cm_final": _pnl_with_annual(
             [g - a - s for g, a, s in zip(total_gm_monthly, total_ad_arr, total_seeding_monthly)],
