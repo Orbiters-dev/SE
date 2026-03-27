@@ -423,7 +423,7 @@ function renderContentRace(){
   // Posts uploaded within last 90 days
   var cutoff90=new Date(now); cutoff90.setDate(cutoff90.getDate()-90);
   var cutoff90Str=cutoff90.toISOString().slice(0,10);
-  var eligible=_posts.filter(function(p){ return p.post_date>=cutoff90Str && (p.region||'us')===_region && filterByBrand(p); });
+  var eligible=_posts.filter(function(p){ return p.post_date>=cutoff90Str && (p.region||'us')===_region && !(p.source==='syncly_sheets'&&!p.brand&&(!p._brand||p._brand==='N/A')) && filterByBrand(p); });
 
   var racers=eligible.map(function(p){
     var snaps=(_metricsByPost[p.post_id]||[]).slice();
@@ -563,6 +563,7 @@ function renderAllTimeTop(){
   }
   _posts.forEach(function(p){
     if((p.region||'us')!==_region) return;
+    if(p.source==='syncly_sheets'&&!p.brand&&(!p._brand||p._brand==='N/A')) return;
     if(!filterByBrand(p)) return;
     if(cutoffStr && p.post_date<cutoffStr) return;
     postMax[p.post_id]={views:0,likes:0,comments:0,platform:p.platform,post_date:p.post_date,
@@ -895,7 +896,7 @@ function renderAggregatePerformance(){
 
   // Build post aggregates (region-filtered)
   var postAgg={};
-  _posts.forEach(function(p){ if((p.region||'us')!==_region) return; if(!filterByBrand(p)) return; postAgg[p.post_id]={views:0,likes:0,comments:0,platform:p.platform,post_date:p.post_date}; });
+  _posts.forEach(function(p){ if((p.region||'us')!==_region) return; if(p.source==='syncly_sheets'&&!p.brand&&(!p._brand||p._brand==='N/A')) return; if(!filterByBrand(p)) return; postAgg[p.post_id]={views:0,likes:0,comments:0,platform:p.platform,post_date:p.post_date}; });
   _metrics.forEach(function(m){
     if(!postAgg[m.post_id]) return;
     var pa=postAgg[m.post_id];

@@ -72,7 +72,7 @@ def load_posts_master(sh, tab_name, region):
             continue
 
         # Posts Master columns: PostID, URL, Platform, Username, Nickname, Followers,
-        # Content, Hashtags, TaggedAccount, PostDate, Comments, Likes, Views
+        # Content, Hashtags, TaggedAccount, PostDate, Comments, Likes, Views, Brand(13)
         post_id = row[0].strip()
 
         # URL might be =HYPERLINK("url", "display") — extract actual URL
@@ -100,7 +100,7 @@ def load_posts_master(sh, tab_name, region):
             "hashtags": hashtags,
             "tagged_account": tagged_account,
             "post_date": post_date,
-            "brand": "",
+            "brand": row[13].strip() if len(row) > 13 and row[13].strip() else "",
             "region": region,
             "source": "apify",
         })
