@@ -1879,37 +1879,69 @@ function buildCampaignDetail(F, grain){
 
   var html='';
 
-  // ── Top Performers
+  // Helper: campaign edit link
+  function campLink(c){
+    var cid=c.campaign_id||c.id||'';
+    if(!cid) return '';
+    var p=c.platform||'';
+    var url='';
+    if(p==='Amazon Ads') url='https://advertising.amazon.com/cm/campaigns/'+cid;
+    else if(p.indexOf('Meta')>=0) url='https://business.facebook.com/adsmanager/manage/campaigns?act=697498009390362&selected_campaign_ids='+cid;
+    else if(p==='Google Ads') url='https://ads.google.com/aw/campaigns?campaignId='+cid;
+    if(!url) return '';
+    return ' <a href="'+url+'" target="_blank" style="font-size:8px;color:var(--a);text-decoration:none" title="Edit in '+p+'">&#9998;</a>';
+  }
+
+  // Helper: campaign row with CPC/CTR
+  function campRow(c,i,showRoas){
+    var rc=c.roas>=3?'var(--g)':c.roas>=1.5?'var(--am)':'var(--r)';
+    var cpcC=c.cpc<=0.5?'var(--g)':c.cpc<=1.5?'var(--am)':'var(--r)';
+    var ctrC=c.ctr>=2?'var(--g)':c.ctr>=0.5?'var(--am)':'var(--r)';
+    var h='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+    h+='<td style="font-size:10px;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c.name+'">'+c.name+campLink(c)+'</td>';
+    h+='<td style="font-size:9px;color:var(--dim)">'+c.platform+'</td>';
+    h+='<td style="font-size:9px;color:var(--dim)">'+c.brand+'</td>';
+    h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(c.total_spend)+'</td>';
+    h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(c.total_sales)+'</td>';
+    h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:'+cpcC+'">$'+c.cpc.toFixed(2)+'</td>';
+    h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:'+ctrC+'">'+c.ctr.toFixed(1)+'%</td>';
+    if(showRoas) h+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+rc+'">'+c.roas.toFixed(1)+'x</td>';
+    h+='</tr>';
+    return h;
+  }
+
+  var campHdr='<th>#</th><th>Campaign</th><th style="font-size:8px;color:var(--muted)">Platform</th><th style="font-size:8px;color:var(--muted)">Brand</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">CPC</th><th style="text-align:right">CTR</th>';
+
+  // ── Top CVR Performers (by ROAS)
   if(top.length){
-    html+='<div class="sec"><div class="sec-title" style="color:var(--g)">Top Performing Campaigns (by ROAS)</div>';
-    html+='<div class="card"><div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Campaign</th><th style="font-size:8px;color:var(--muted)">Platform</th><th style="font-size:8px;color:var(--muted)">Brand</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">ROAS</th></tr></thead><tbody>';
-    top.forEach(function(c,i){
-      var rc=c.roas>=3?'var(--g)':c.roas>=1.5?'var(--am)':'var(--r)';
-      html+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
-      html+='<td style="font-size:10px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c.name+'">'+c.name+'</td>';
-      html+='<td style="font-size:9px;color:var(--dim)">'+c.platform+'</td>';
-      html+='<td style="font-size:9px;color:var(--dim)">'+c.brand+'</td>';
-      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(c.total_spend)+'</td>';
-      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(c.total_sales)+'</td>';
-      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+rc+'">'+c.roas.toFixed(1)+'x</td></tr>';
-    });
+    html+='<div class="sec"><div class="sec-title" style="color:var(--g)">Top CVR Campaigns (by ROAS)</div>';
+    html+='<div class="card"><div style="overflow-x:auto"><table><thead><tr>'+campHdr+'<th style="text-align:right">ROAS</th></tr></thead><tbody>';
+    top.forEach(function(c,i){ html+=campRow(c,i,true); });
     html+='</tbody></table></div></div></div>';
   }
 
-  // ── Bottom Performers
+  // ── Bottom CVR Performers (by ROAS)
   if(bottom.length){
-    html+='<div class="sec"><div class="sec-title" style="color:var(--r)">Underperforming Campaigns (by ROAS)</div>';
-    html+='<div class="card"><div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Campaign</th><th style="font-size:8px;color:var(--muted)">Platform</th><th style="font-size:8px;color:var(--muted)">Brand</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">ROAS</th></tr></thead><tbody>';
-    bottom.forEach(function(c,i){
-      var rc=c.roas>=3?'var(--g)':c.roas>=1.5?'var(--am)':'var(--r)';
-      html+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
-      html+='<td style="font-size:10px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c.name+'">'+c.name+'</td>';
-      html+='<td style="font-size:9px;color:var(--dim)">'+c.platform+'</td>';
-      html+='<td style="font-size:9px;color:var(--dim)">'+c.brand+'</td>';
-      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(c.total_spend)+'</td>';
-      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(c.total_sales)+'</td>';
-      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+rc+'">'+c.roas.toFixed(1)+'x</td></tr>';
-    });
+    html+='<div class="sec"><div class="sec-title" style="color:var(--r)">Underperforming CVR Campaigns (by ROAS)</div>';
+    html+='<div class="card"><div style="overflow-x:auto"><table><thead><tr>'+campHdr+'<th style="text-align:right">ROAS</th></tr></thead><tbody>';
+    bottom.forEach(function(c,i){ html+=campRow(c,i,true); });
+    html+='</tbody></table></div></div></div>';
+  }
+
+  // ── Top Traffic Campaigns (by CPC — lower is better)
+  var topTraffic=isWeekly?(cd.weekly_top_traffic||[]):(cd.monthly_top_traffic||[]);
+  var bottomTraffic=isWeekly?(cd.weekly_bottom_traffic||[]):(cd.monthly_bottom_traffic||[]);
+  if(topTraffic.length){
+    html+='<div class="sec"><div class="sec-title" style="color:var(--g)">Top Traffic Campaigns (lowest CPC)</div>';
+    html+='<div class="card"><div class="desc">Traffic campaigns have ROAS=0 by design. Ranked by CPC efficiency.</div>';
+    html+='<div style="overflow-x:auto"><table><thead><tr>'+campHdr+'</tr></thead><tbody>';
+    topTraffic.forEach(function(c,i){ html+=campRow(c,i,false); });
+    html+='</tbody></table></div></div></div>';
+  }
+  if(bottomTraffic.length){
+    html+='<div class="sec"><div class="sec-title" style="color:var(--r)">Expensive Traffic Campaigns (highest CPC)</div>';
+    html+='<div class="card"><div style="overflow-x:auto"><table><thead><tr>'+campHdr+'</tr></thead><tbody>';
+    bottomTraffic.forEach(function(c,i){ html+=campRow(c,i,false); });
     html+='</tbody></table></div></div></div>';
   }
 

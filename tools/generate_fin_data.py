@@ -2007,6 +2007,7 @@ def generate():
                 "name": row["campaign_name"],
                 "platform": row["platform"],
                 "brand": row["brand"],
+                "campaign_id": cid,
             }
 
     # Build week labels (last 12 weeks)
@@ -2033,8 +2034,14 @@ def generate():
         click_arr = [agg_dict[cid].get(pk, {}).get("clicks", 0) for pk in period_keys]
         total_spend = sum(spend_arr)
         total_sales = sum(sales_arr)
+        total_clicks = sum(click_arr)
+        total_impr = sum(impr_arr)
+        cpc = round(total_spend / total_clicks, 2) if total_clicks > 0 else 0
+        ctr = round(total_clicks / total_impr * 100, 2) if total_impr > 0 else 0
+        is_traffic = "traffic" in m.get("name", "").lower()
         return {
             "id": cid,
+            "campaign_id": m.get("campaign_id", cid),
             "name": m.get("name", ""),
             "platform": m.get("platform", ""),
             "brand": m.get("brand", "Other"),
@@ -2044,7 +2051,12 @@ def generate():
             "clicks": click_arr,
             "total_spend": round(total_spend, 2),
             "total_sales": round(total_sales, 2),
+            "total_clicks": total_clicks,
+            "total_impressions": total_impr,
             "roas": round(total_sales / total_spend, 2) if total_spend > 0 else 0,
+            "cpc": cpc,
+            "ctr": ctr,
+            "is_traffic": is_traffic,
         }
 
     # Weekly entries (last 12 weeks, only campaigns with spend)
@@ -2063,15 +2075,22 @@ def generate():
             monthly_entries.append(e)
     monthly_entries.sort(key=lambda x: x["total_spend"], reverse=True)
 
-    # Top / Bottom performers (by ROAS, min spend threshold)
+    # Top / Bottom performers
+    # CVR campaigns: sort by ROAS. Traffic campaigns (ROAS=0): sort by CPC (lower=better).
     def _top_bottom(entries, min_spend=50):
         qualified = [e for e in entries if e["total_spend"] >= min_spend]
-        top = sorted(qualified, key=lambda x: x["roas"], reverse=True)[:10]
-        bottom = sorted(qualified, key=lambda x: x["roas"])[:10]
-        return top, bottom
+        cvr = [e for e in qualified if not e.get("is_traffic")]
+        traffic = [e for e in qualified if e.get("is_traffic") and e["cpc"] > 0]
+        # CVR: top = high ROAS, bottom = low ROAS
+        top_cvr = sorted(cvr, key=lambda x: x["roas"], reverse=True)[:8]
+        bottom_cvr = sorted(cvr, key=lambda x: x["roas"])[:8]
+        # Traffic: top = low CPC (efficient), bottom = high CPC (expensive)
+        top_traffic = sorted(traffic, key=lambda x: x["cpc"])[:5]
+        bottom_traffic = sorted(traffic, key=lambda x: x["cpc"], reverse=True)[:5]
+        return top_cvr, bottom_cvr, top_traffic, bottom_traffic
 
-    weekly_top, weekly_bottom = _top_bottom(weekly_entries, min_spend=20)
-    monthly_top, monthly_bottom = _top_bottom(monthly_entries, min_spend=50)
+    weekly_top_cvr, weekly_bottom_cvr, weekly_top_traffic, weekly_bottom_traffic = _top_bottom(weekly_entries, min_spend=20)
+    monthly_top_cvr, monthly_bottom_cvr, monthly_top_traffic, monthly_bottom_traffic = _top_bottom(monthly_entries, min_spend=50)
 
     # New campaigns: appeared this month but not in previous months
     current_month = ad_months[-1] if ad_months else ""
@@ -2091,18 +2110,22 @@ def generate():
         "week_labels": week_labels,
         "month_keys": ad_months,
         "weekly_all": weekly_entries,
-        "weekly_top": weekly_top,
-        "weekly_bottom": weekly_bottom,
+        "weekly_top": weekly_top_cvr,
+        "weekly_bottom": weekly_bottom_cvr,
+        "weekly_top_traffic": weekly_top_traffic,
+        "weekly_bottom_traffic": weekly_bottom_traffic,
         "monthly_all": monthly_entries,
-        "monthly_top": monthly_top,
-        "monthly_bottom": monthly_bottom,
+        "monthly_top": monthly_top_cvr,
+        "monthly_bottom": monthly_bottom_cvr,
+        "monthly_top_traffic": monthly_top_traffic,
+        "monthly_bottom_traffic": monthly_bottom_traffic,
         "new_campaigns": new_campaigns,
         "current_month": current_month,
     }
 
     print(f"  Campaigns: {len(camp_meta)} total, weekly={len(weekly_entries)}, monthly={len(monthly_entries)}")
     print(f"  New this month ({current_month}): {len(new_campaigns)}")
-    print(f"  Top/Bottom weekly: {len(weekly_top)}/{len(weekly_bottom)}, monthly: {len(monthly_top)}/{len(monthly_bottom)}")
+    print(f"  Top/Bottom weekly: {len(weekly_top_cvr)}+{len(weekly_top_traffic)}/{len(weekly_bottom_cvr)}+{len(weekly_bottom_traffic)}, monthly: {len(monthly_top_cvr)}+{len(monthly_top_traffic)}/{len(monthly_bottom_cvr)}+{len(monthly_bottom_traffic)}")
 
     # ── Serialize brand_ad_by_platform ───────────────────────────────────────
     def _bap_serialize(raw_dict, period_keys):
