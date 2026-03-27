@@ -58,6 +58,15 @@ AVG_PRICE = {
     "Onzenna": 22.0, "Alpremio": 38.0,
 }
 
+# n.m. (not measured) — data not yet collected for these periods.
+# Use None in JSON arrays; HTML renders as "n.m." in dark grey.
+# Rule: 0 means genuinely zero activity; None means no data source.
+_NM_RULES = {
+    "amazon_ads":   lambda m: False,  # backfill covers all months now
+    "fba_fulfill":  lambda m: True,   # FBA fee report not yet running
+    "sku_cogs":     lambda m: m < "2025-10",  # SKU daily starts Oct 2025
+}
+
 # NAS paths for SKU-level COGS (Option B from run_kpi_monthly.py)
 _NAS_COGS_DIR = Path(r"Z:\Orbiters\ORBI CLAUDE_0223\ORBITERS CLAUDE\ORBITERS CLAUDE\Shared\NoPolar KPIs\Data config sheet")
 
@@ -1438,17 +1447,18 @@ def generate():
             rev_arr.append(round(rev))
             cogs_arr.append(round(cogs))
             sell_arr.append(round(sell_fee))
-            fulfill_arr.append(round(fulfill))
+            # Fulfillment: None = n.m. (data not collected)
+            if ch == "Amazon MP" and not has_fba_fees:
+                fulfill_arr.append(None)
+            elif ch in ("Onzenna D2C", "Target+"):
+                fulfill_arr.append(None)
+            else:
+                fulfill_arr.append(round(fulfill))
             ad_arr.append(round(ad_sp))
 
-        gm_arr = [r - c - s - f for r, c, s, f in zip(rev_arr, cogs_arr, sell_arr, fulfill_arr)]
+        gm_arr = [r - c - s - (f or 0) for r, c, s, f in zip(rev_arr, cogs_arr, sell_arr, fulfill_arr)]
         cm_arr = [g - a for g, a in zip(gm_arr, ad_arr)]
-        # n.m. flags: fulfillment not yet measured for D2C/Target+
-        # Amazon MP: has_fba_fees=True means actual data available
-        if ch == "Amazon MP":
-            fulfill_nm = not has_fba_fees
-        else:
-            fulfill_nm = ch in ("Onzenna D2C", "Target+")
+        fulfill_nm = any(f is None for f in fulfill_arr)
         return {
             "revenue": rev_arr,
             "cogs": cogs_arr,
