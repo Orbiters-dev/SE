@@ -68,19 +68,13 @@ _AMZ_ADS_BACKFILL = {
     "2025-09": 55637, "2025-10": 59565, "2025-11": 65391,
 }
 
-# Influencer costs: PayPal payments + Shopify PR shipping ($10/unit)
-# Source: q11_paypal_transactions.json + q10_influencer_orders.json
-_INFLUENCER_COST_PAYPAL = {
-    "2025-01": 1100, "2025-02": 2900, "2025-04": 1532, "2025-05": 2107,
-    "2025-06": 2020, "2025-07": 3467, "2025-08": 18004, "2025-09": 7437,
-    "2025-10": 22277, "2025-11": 1318, "2025-12": 814,
-    "2026-01": 450, "2026-02": 5878, "2026-03": 4550,
-}
-_INFLUENCER_COST_SHIPPING = {
-    "2025-01": 810, "2025-02": 1100, "2025-03": 1390, "2025-04": 800,
-    "2025-05": 540, "2025-06": 420, "2025-07": 760, "2025-08": 480,
-    "2025-09": 1420, "2025-10": 460, "2025-11": 1250, "2025-12": 610,
-    "2026-01": 3930, "2026-02": 2840, "2026-03": 1330,
+# Influencer costs: PAID (PayPal) + NON-PAID (Sample COGS + Shipping $10/unit)
+# Source: q11_paypal_transactions.json + q10_influencer_orders.json + COGS by SKU.xlsx
+_INFLUENCER_COST = {
+    "2025-01": 3311, "2025-02": 5282, "2025-03": 2811, "2025-04": 3225,
+    "2025-05": 3184, "2025-06": 2875, "2025-07": 5045, "2025-08": 19121,
+    "2025-09": 10271, "2025-10": 23233, "2025-11": 4420, "2025-12": 2156,
+    "2026-01": 8235, "2026-02": 11911, "2026-03": 7290,
 }
 
 
@@ -212,7 +206,7 @@ CHANNEL_PNL_COLORS = {
 def generate():
     import argparse
     parser = argparse.ArgumentParser(description="Generate Financial KPIs data")
-    parser.add_argument("--months", type=int, default=9)
+    parser.add_argument("--months", type=int, default=14)
     parser.add_argument("--push", action="store_true")
     args = parser.parse_args()
 
@@ -1134,13 +1128,14 @@ def generate():
     total_cm_monthly = []
 
     for m in months:
-        # Total revenue = shopify net + amazon GROSS
-        # P&L starts from gross revenue; Amazon discounts shown separately
-        shopify_net = sum(brand_monthly.get(b, {}).get(m, {}).get("net", 0) for b in BRAND_ORDER + ["Other"])
+        # Total revenue = Shopify GROSS + Amazon GROSS
+        # P&L starts from gross (list price basis); discounts shown separately
+        shopify_gross = sum(brand_monthly.get(b, {}).get(m, {}).get("gross", 0) for b in BRAND_ORDER + ["Other"])
+        shopify_disc = sum(abs(brand_monthly.get(b, {}).get(m, {}).get("disc", 0)) for b in BRAND_ORDER + ["Other"])
         amz_gross = sum(amz_brand_monthly.get(b, {}).get(m, {}).get("gross", 0) for b in BRAND_ORDER + ["Other"])
         amz_net = sum(amz_brand_monthly.get(b, {}).get(m, {}).get("net", 0) for b in BRAND_ORDER + ["Other"])
         amz_disc = amz_gross - amz_net  # Amazon discounts/coupons (~15%)
-        rev = shopify_net + amz_gross
+        rev = shopify_gross + amz_gross
 
         # COGS from SKU-level data (or fallback to brand avg)
         cogs = 0
@@ -1186,15 +1181,11 @@ def generate():
         )
         ad_total = amz_ad + onz_ad
 
-        # MKT Cost 2: Discounts (Shopify + Amazon)
-        shopify_disc = sum(
-            abs(brand_monthly.get(b, {}).get(m, {}).get("disc", 0))
-            for b in BRAND_ORDER + ["Other"]
-        )
+        # MKT Cost 2: Discounts (Shopify disc field + Amazon gross-net gap)
         disc_total = shopify_disc + amz_disc
 
         # MKT Cost 3: Influencer / Collab (PayPal + shipping $10/unit)
-        seeding_total = _INFLUENCER_COST_PAYPAL.get(m, 0) + _INFLUENCER_COST_SHIPPING.get(m, 0)
+        seeding_total = _INFLUENCER_COST.get(m, 0)
 
         mkt_total = ad_total + disc_total + seeding_total
         cm = gm - mkt_total  # CM = GM - Total MKT
