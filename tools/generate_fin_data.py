@@ -896,15 +896,46 @@ def generate():
         return out
 
     # 3 periods: latest week, latest 2 weeks, all (~30d)
-    kw_all = _kw_top_list(_kw_agg_by_brand_period(search_terms))
-    kw_latest = _kw_top_list(_kw_agg_by_brand_period(
+    def _kw_top_worst(brand_kw_agg, top_n=50, worst_n=50):
+        """Split into top (by spend, for overview) and worst (by ROAS, min spend $5)."""
+        out = {}
+        for brand, kws in brand_kw_agg.items():
+            items = []
+            for kw, v in kws.items():
+                roas = round(v["sales"] / v["spend"], 2) if v["spend"] > 0 else 0
+                cpc = round(v["spend"] / v["clicks"], 2) if v["clicks"] > 0 else 0
+                ctr = round(v["clicks"] / v["impressions"] * 100, 2) if v["impressions"] > 0 else 0
+                items.append({
+                    "keyword": kw,
+                    "spend": round(v["spend"], 2),
+                    "sales": round(v["sales"], 2),
+                    "clicks": v["clicks"],
+                    "impressions": v["impressions"],
+                    "purchases": v["purchases"],
+                    "roas": roas, "cpc": cpc, "ctr": ctr,
+                })
+            top = sorted(items, key=lambda x: x["roas"], reverse=True)[:top_n]
+            worst = sorted([i for i in items if i["spend"] >= 5], key=lambda x: x["roas"])[:worst_n]
+            out[brand] = {"top": top, "worst": worst}
+        return out
+
+    kw_all = _kw_top_worst(_kw_agg_by_brand_period(search_terms))
+    kw_latest = _kw_top_worst(_kw_agg_by_brand_period(
         search_terms,
         date_filter=lambda d: d == st_dates[-1] if st_dates else True
     ))
-    kw_2w = _kw_top_list(_kw_agg_by_brand_period(
+    kw_2w = _kw_top_worst(_kw_agg_by_brand_period(
         search_terms,
         date_filter=lambda d: d in st_dates[-2:] if len(st_dates) >= 2 else True
     ))
+
+    # Brands: Grosmimi always first
+    kw_brands = sorted(set(
+        r.get("brand", "") for r in search_terms if r.get("brand") and r.get("brand") != "test"
+    ))
+    if "Grosmimi" in kw_brands:
+        kw_brands.remove("Grosmimi")
+        kw_brands.insert(0, "Grosmimi")
 
     keyword_performance = {
         "periods": {
@@ -912,9 +943,7 @@ def generate():
             "14d": {"label": "Latest 14D", "data": kw_2w},
             "30d": {"label": "All (~30D)", "data": kw_all},
         },
-        "brands": sorted(set(
-            r.get("brand", "") for r in search_terms if r.get("brand") and r.get("brand") != "test"
-        )),
+        "brands": kw_brands,
         "date_range": f"{st_dates[0] if st_dates else '?'} to {st_dates[-1] if st_dates else '?'}",
     }
     print(f"  Keyword performance: {sum(len(v) for v in kw_all.values())} keywords, {len(kw_all)} brands")
@@ -1239,15 +1268,24 @@ def generate():
         # Meta: split traffic vs CVR
         meta_traffic = {"clicks": 0, "spend": 0.0, "purchases": 0, "purchase_value": 0.0}
         meta_cvr = {"clicks": 0, "spend": 0.0, "purchases": 0, "purchase_value": 0.0}
+        meta_traffic_by_camp = defaultdict(lambda: {"clicks": 0, "spend": 0.0})
         for r in meta_rows:
             if r.get("date", "") < cutoff:
                 continue
-            cn = (r.get("campaign_name", "") or "").lower()
-            target = meta_traffic if ("traffic" in cn or "amz" in cn) else meta_cvr
-            target["clicks"] += int(r.get("clicks", 0) or 0)
-            target["spend"] += float(r.get("spend", 0) or 0)
-            target["purchases"] += int(r.get("purchases", 0) or 0)
-            target["purchase_value"] += float(r.get("purchase_value", 0) or 0)
+            cn = (r.get("campaign_name", "") or "")
+            cl = cn.lower()
+            if "traffic" in cl or "amz" in cl:
+                meta_traffic["clicks"] += int(r.get("clicks", 0) or 0)
+                meta_traffic["spend"] += float(r.get("spend", 0) or 0)
+                meta_traffic["purchases"] += int(r.get("purchases", 0) or 0)
+                meta_traffic["purchase_value"] += float(r.get("purchase_value", 0) or 0)
+                meta_traffic_by_camp[cn]["clicks"] += int(r.get("clicks", 0) or 0)
+                meta_traffic_by_camp[cn]["spend"] += float(r.get("spend", 0) or 0)
+            else:
+                meta_cvr["clicks"] += int(r.get("clicks", 0) or 0)
+                meta_cvr["spend"] += float(r.get("spend", 0) or 0)
+                meta_cvr["purchases"] += int(r.get("purchases", 0) or 0)
+                meta_cvr["purchase_value"] += float(r.get("purchase_value", 0) or 0)
 
         # Google Ads
         gads = {"clicks": 0, "spend": 0.0, "conversions": 0.0, "conversion_value": 0.0}
@@ -1279,6 +1317,54 @@ def generate():
         onz_purchases = sum(v["purchases"] for v in onz.values())
         amz_total_clicks = amz_ad["clicks"] + meta_traffic["clicks"]
 
+        def _build_attr_campaigns(attr_data, meta_spend_by_camp):
+            """Build attribution campaign list with matched Meta spend."""
+            camps = []
+            for attr_name, v in sorted(attr_data.items(), key=lambda x: -x[1]["sales"]):
+                if v["sales"] == 0 and v["clicks"] < 100:
+                    continue
+                # Find matching Meta campaign spend
+                matched_spend = 0
+                best_meta = _match_attribution_reverse(attr_name, meta_spend_by_camp)
+                if best_meta:
+                    matched_spend = best_meta["spend"]
+                camp_roas = round(v["sales"] / matched_spend, 1) if matched_spend > 0 else 0
+                camp_roas_adj = round((v["sales"] + v["brb"]) / matched_spend, 1) if matched_spend > 0 else 0
+                camps.append({
+                    "name": attr_name[:60],
+                    "sales": round(v["sales"]),
+                    "purchases": v["purchases"],
+                    "clicks": v["clicks"],
+                    "brb": round(v["brb"], 2),
+                    "spend": round(matched_spend),
+                    "roas": camp_roas,
+                    "roas_adj": camp_roas_adj,
+                })
+            return camps
+
+        def _match_attribution_reverse(attr_name, meta_camps):
+            """Match Attribution campaign name to Meta campaign spend."""
+            def _norm(s): return s.lower().replace("|"," ").replace("_"," ").replace("-"," ").replace("\t"," ").strip()
+            an = _norm(attr_name)
+            STOP = {"amz", "traffic", "wl", "meta", "target", "the", ""}
+            attr_tokens = set(an.split()) - STOP
+            best = None
+            best_score = 0
+            for meta_name, meta_data in meta_camps.items():
+                mn = _norm(meta_name)
+                meta_tokens = set(mn.split()) - STOP
+                overlap = attr_tokens & meta_tokens
+                score = len(overlap)
+                if any(t for t in overlap if t[:4].isdigit() and len(t) >= 6):
+                    score += 3
+                if any(t for t in overlap if t in ("dental", "dentalmom", "stainless", "strawcup",
+                                                     "spring", "sale", "livfuselli")):
+                    score += 2
+                if score > best_score:
+                    best_score = score
+                    best = meta_data
+            return best if best_score >= 3 else None
+
         # Attribution data (all-time from API, not date-filtered — snapshot)
         attr_total_sales = sum(v["sales"] for v in attribution.values())
         attr_total_purchases = sum(v["purchases"] for v in attribution.values())
@@ -1292,12 +1378,7 @@ def generate():
             "brb": round(attr_total_brb),
             "roas": attr_roas,
             "roas_with_brb": attr_roas_adj,
-            "campaigns": [
-                {"name": cid[:50], "sales": round(v["sales"]), "purchases": v["purchases"],
-                 "clicks": v["clicks"], "brb": round(v["brb"], 2)}
-                for cid, v in sorted(attribution.items(), key=lambda x: -x[1]["sales"])
-                if v["sales"] > 0 or v["clicks"] > 100
-            ],
+            "campaigns": _build_attr_campaigns(attribution, meta_traffic_by_camp),
         }
 
         def _src(name, clicks, spend, sales, purchases, pct):

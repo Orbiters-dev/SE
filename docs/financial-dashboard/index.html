@@ -702,13 +702,18 @@ function renderFinancial(){
       h+='<div><div style="font-size:8px;color:var(--dim)">ROAS+BRB</div><div style="font-size:16px;font-weight:700;color:'+rc2+'">'+attr.roas_with_brb.toFixed(1)+'x</div><div style="font-size:7px;color:var(--muted)">Sales/(Spend-BRB)</div></div>';
       h+='</div>';
       if(attr.campaigns&&attr.campaigns.length){
-        h+='<table><thead><tr><th style="font-size:8px">Campaign</th><th style="text-align:right;font-size:8px">Clicks</th><th style="text-align:right;font-size:8px">Sales</th><th style="text-align:right;font-size:8px">Orders</th><th style="text-align:right;font-size:8px">BRB</th></tr></thead><tbody>';
+        h+='<table><thead><tr><th style="font-size:8px">Campaign</th><th style="text-align:right;font-size:8px">Meta Spend</th><th style="text-align:right;font-size:8px">Clicks</th><th style="text-align:right;font-size:8px">Attr. Sales</th><th style="text-align:right;font-size:8px">ROAS</th><th style="text-align:right;font-size:8px">ROAS+BRB</th><th style="text-align:right;font-size:8px">Orders</th><th style="text-align:right;font-size:8px">BRB</th></tr></thead><tbody>';
         attr.campaigns.forEach(function(c){
+          var rc=c.roas>=2?'var(--g)':c.roas>=0.5?'var(--am)':'var(--r)';
+          var rc2=(c.roas_adj||0)>=2?'var(--g)':(c.roas_adj||0)>=0.5?'var(--am)':'var(--r)';
           h+='<tr><td style="font-size:9px;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c.name+'">'+c.name+'</td>';
+          h+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+(c.spend>0?'$'+c.spend.toLocaleString():'<span style="color:var(--muted)">—</span>')+'</td>';
           h+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+c.clicks.toLocaleString()+'</td>';
-          h+='<td style="text-align:right;font-family:var(--mono);font-size:9px">$'+c.sales.toLocaleString()+'</td>';
+          h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--g)">$'+c.sales.toLocaleString()+'</td>';
+          h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+rc+'">'+(c.roas>0?c.roas.toFixed(1)+'x':'—')+'</td>';
+          h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+rc2+'">'+(c.roas_adj>0?c.roas_adj.toFixed(1)+'x':'—')+'</td>';
           h+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+c.purchases+'</td>';
-          h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:#8b5cf6">$'+c.brb.toFixed(2)+'</td></tr>';
+          h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:#8b5cf6">$'+c.brb.toFixed(0)+'</td></tr>';
         });
         h+='</tbody></table>';
       }
@@ -1314,6 +1319,12 @@ function buildKeywordPerformance(F){
   });
   html+='</div>';
 
+  // View toggle (Top ROAS / Worst ROAS)
+  html+='<div style="display:flex;gap:4px;margin-bottom:12px">';
+  html+='<div class="kp-view-btn" data-view="top" style="padding:3px 10px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;background:var(--a);color:#fff" onclick="switchKwView(\'top\')">Top 50 (Best ROAS)</div>';
+  html+='<div class="kp-view-btn" data-view="worst" style="padding:3px 10px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;background:var(--bg2);color:var(--dim)" onclick="switchKwView(\'worst\')">Worst 50 (Lowest ROAS)</div>';
+  html+='</div>';
+
   // Table container
   html+='<div id="kp-table"></div>';
   html+='</div></div>';
@@ -1324,9 +1335,12 @@ function buildKeywordPerformance(F){
   window.KP_PERIOD=periodKeys[0]||'7d';
   window.switchKwBrand=function(b){window.KP_BRAND=b;window.renderKwTable();document.querySelectorAll(".kp-brand-btn").forEach(function(el){el.style.background=el.dataset.brand===b?"var(--a)":"var(--bg2)";el.style.color=el.dataset.brand===b?"#fff":"var(--dim)";});};
   window.switchKwPeriod=function(p){window.KP_PERIOD=p;window.renderKwTable();document.querySelectorAll(".kp-period-btn").forEach(function(el){el.style.background=el.dataset.period===p?"var(--a)":"var(--bg2)";el.style.color=el.dataset.period===p?"#fff":"var(--dim)";});};
+  window.KP_VIEW="top";
+  window.switchKwView=function(v){window.KP_VIEW=v;window.renderKwTable();document.querySelectorAll(".kp-view-btn").forEach(function(el){el.style.background=el.dataset.view===v?"var(--a)":"var(--bg2)";el.style.color=el.dataset.view===v?"#fff":"var(--dim)";});};
   window.renderKwTable=function(){
-    var data=(window.KP_DATA[window.KP_PERIOD]||{}).data||{};
-    var kws=data[window.KP_BRAND]||[];
+    var brandData=(window.KP_DATA[window.KP_PERIOD]||{}).data||{};
+    var bd=brandData[window.KP_BRAND]||{};
+    var kws=bd[window.KP_VIEW]||bd.top||[];
     var h='<div style="overflow-x:auto"><table><thead><tr>';
     h+='<th>#</th><th>Keyword</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th>';
     h+='<th style="text-align:right">ROAS</th><th style="text-align:right">CPC</th><th style="text-align:right">CTR</th>';

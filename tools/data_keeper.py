@@ -1594,19 +1594,32 @@ def collect_meta_ads(date_from: str, date_to: str) -> list[dict]:
 
 
 def _detect_meta_brand(campaign_name: str, landing_url: str) -> str:
-    """Detect brand from campaign name or landing URL."""
+    """Detect brand from campaign name or landing URL.
+    Grosmimi products: straw cup, sippy cup, ppsu, fliptop, stainless, dental mom, livfuselli, knotted.
+    If campaign is AMZ Traffic (amazon landing) without brand keyword, default to Grosmimi
+    (Amazon storefront is almost entirely Grosmimi).
+    """
     cn = campaign_name.lower()
     lu = landing_url.lower()
     if any(k in cn or k in lu for k in ["grosmimi", "grosm"]):
         return "Grosmimi"
     if any(k in cn or k in lu for k in ["cha&mom", "chaandmom", "chamom", "cha_mom", "orbitool"]):
         return "CHA&MOM"
-    if any(k in cn or k in lu for k in ["naeiae", "fleeters"]):
+    if any(k in cn or k in lu for k in ["naeiae", "fleeters", "pop_rice", "pop rice"]):
         return "Naeiae"
     if any(k in cn or k in lu for k in ["onzenna", "zezebaebae"]):
         return "Onzenna"
     if any(k in cn or k in lu for k in ["alpremio"]):
         return "Alpremio"
+    # Grosmimi product keywords (campaigns without explicit brand name)
+    if any(k in cn for k in ["straw cup", "strawcup", "straw_cup", "sippy", "ppsu",
+                               "fliptop", "flip top", "stainless", "dental mom", "dentalmom",
+                               "dental_mom", "livfuselli", "knotted", "baby bottle",
+                               "spring sale", "sls "]):
+        return "Grosmimi"
+    # AMZ Traffic without brand = default Grosmimi (Amazon storefront is 95% Grosmimi)
+    if ("amz" in cn or "amazon" in cn) and "traffic" in cn:
+        return "Grosmimi"
     return "Unknown"
 
 
