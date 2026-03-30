@@ -69,6 +69,24 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 .copy-btn{background:#f1f5f9;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s}
 .copy-btn:hover{background:#e2e8f0}
 .copy-btn.copied{background:var(--gbg);color:var(--g);border-color:var(--g)}
+/* DM Thread */
+.dm-thread-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100;display:flex;align-items:center;justify-content:center}
+.dm-thread-panel{background:var(--card);border-radius:16px;width:90%;max-width:520px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.15)}
+.dm-thread-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.dm-thread-header h3{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
+.dm-thread-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--dim);padding:4px 8px;border-radius:6px}.dm-thread-close:hover{background:#f1f5f9}
+.dm-thread-body{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:8px}
+.dm-bubble{max-width:80%;padding:10px 14px;border-radius:16px;font-size:12px;line-height:1.6;word-break:break-word}
+.dm-bubble.out{align-self:flex-end;background:var(--a);color:#fff;border-bottom-right-radius:4px}
+.dm-bubble.in{align-self:flex-start;background:#f1f5f9;color:var(--text);border-bottom-left-radius:4px}
+.dm-bubble .dm-time{font-size:9px;opacity:.6;margin-top:4px;display:block}
+.dm-thread-input{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px}
+.dm-thread-input input{flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:24px;font-size:12px;font-family:inherit}
+.dm-thread-input input:focus{outline:none;border-color:var(--a);box-shadow:0 0 0 2px rgba(239,68,68,.15)}
+.dm-thread-input button{padding:8px 16px;border-radius:24px;border:none;background:var(--a);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.dm-thread-input button:disabled{opacity:.4;cursor:not-allowed}
+.dm-empty{text-align:center;padding:40px;color:var(--dim);font-size:11px}
+.dm-limit-banner{background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:10px 16px;text-align:center;font-size:12px;font-weight:600;color:#92400e;margin-bottom:12px}
 @media(max-width:700px){
   .ctr{padding:12px 8px 60px}.hero h1{font-size:18px}
   .mt>div{padding:8px 12px;font-size:11px}
@@ -300,6 +318,26 @@ GROSMIMI JAPAN</div>
 </div><!-- .ctr -->
 </div><!-- main-content -->
 
+<!-- DM Thread Modal -->
+<div class="dm-thread-overlay" id="dm-thread" style="display:none" onclick="if(event.target===this)closeDmThread()">
+  <div class="dm-thread-panel">
+    <div class="dm-thread-header">
+      <h3><span id="thread-handle">@handle</span> <span id="thread-badge"></span></h3>
+      <div style="display:flex;gap:6px;align-items:center">
+        <a id="thread-ig-link" href="#" target="_blank" class="btn btn-sm btn-secondary" style="font-size:9px">&#x1F4AC; Open IG</a>
+        <button class="dm-thread-close" onclick="closeDmThread()">&times;</button>
+      </div>
+    </div>
+    <div class="dm-thread-body" id="thread-body">
+      <div class="dm-empty">No messages yet</div>
+    </div>
+    <div class="dm-thread-input">
+      <input type="text" id="thread-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendThreadDm()">
+      <button onclick="sendThreadDm()" id="thread-send-btn">Send</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -356,11 +394,39 @@ document.querySelectorAll('.mt>div').forEach(function(t){
   });
 });
 
+// ─── ManyChat API ───
+var MC_TOKEN='4482793:2ba0a3106d83a934db5214f5c1cb2f49';
+var MC_API='https://api.manychat.com/fb/sending/sendContent';
+
+// ─── DM Log (localStorage-backed, will migrate to PG) ───
+var _dmLogs={};
+function loadDmLogs(){try{_dmLogs=JSON.parse(localStorage.getItem('jp_dm_logs')||'{}');}catch(e){_dmLogs={}}}
+function saveDmLogs(){localStorage.setItem('jp_dm_logs',JSON.stringify(_dmLogs))}
+function addDmLog(handle,dir,text){
+  if(!_dmLogs[handle])_dmLogs[handle]=[];
+  _dmLogs[handle].push({dir:dir,text:text,ts:new Date().toISOString()});
+  saveDmLogs();
+}
+function getDmCount(){
+  var today=new Date().toISOString().slice(0,10);
+  var saved=JSON.parse(localStorage.getItem('jp_dm_sent_'+today)||'0');
+  return saved;
+}
+function incDmCount(){
+  var today=new Date().toISOString().slice(0,10);
+  var c=getDmCount()+1;
+  localStorage.setItem('jp_dm_sent_'+today,JSON.stringify(c));
+  _dmSentToday=c;
+  return c;
+}
+function isOverLimit(){return _dmSentToday>=_dailyLimit}
+
 // ─── Data ───
 var _creators=[];
 var _page=0, _perPage=25;
 var _dmSentToday=0;
 var _dailyLimit=30;
+var _threadHandle='';
 
 // Demo data — will be replaced by actual data source
 var DEMO_CREATORS=[
@@ -376,10 +442,20 @@ function init(){
   document.getElementById('pill-date').textContent=new Date().toISOString().slice(0,10);
   _creators=DEMO_CREATORS;
   _dailyLimit=parseInt(document.getElementById('cfg-daily-limit').value)||30;
+  loadDmLogs();
+  _dmSentToday=getDmCount();
+  // Inject demo DM logs for replied creator
+  if(!_dmLogs['nagoya_ikuji']||!_dmLogs['nagoya_ikuji'].length){
+    _dmLogs['nagoya_ikuji']=[
+      {dir:'out',text:'\u3048\u308A\u69D8\u3001\u7A81\u7136\u306E\u3054\u9023\u7D61\u5931\u793C\u3044\u305F\u3057\u307E\u3059\u3002\nGROSMIMI JAPAN\u3068\u7533\u3057\u307E\u3059\u3002\n\n\u4FDD\u6D3B\u30DE\u30DE\u3068\u3057\u3066\u306E\u65E5\u5E38\u3092\u767A\u4FE1\u3055\u308C\u3066\u3044\u308B\u6295\u7A3F\u3092\u62DD\u898B\u3057\u3001\u3068\u3066\u3082\u7D20\u6575\u3060\u3068\u611F\u3058\u3054\u9023\u7D61\u3044\u305F\u3057\u307E\u3057\u305F\u3002\n\n\u5F0A\u793E\u306EPPSU\u30B9\u30C8\u30ED\u30FC\u30AB\u30C3\u30D7\u3092\u305C\u3072\u304A\u8A66\u3057\u3044\u305F\u3060\u3051\u306A\u3044\u304B\u3068\u601D\u3063\u3066\u304A\u308A\u307E\u3059\u3002\n\n\u3054\u8208\u5473\u304C\u3054\u3056\u3044\u307E\u3057\u305F\u3089\u3001\u304A\u6C17\u8EFD\u306B\u3054\u8FD4\u4FE1\u304F\u3060\u3055\u3044\uD83D\uDE0A\n\nGROSMIMI JAPAN',ts:'2026-03-27T10:30:00Z'},
+      {dir:'in',text:'\u3054\u9023\u7D61\u3042\u308A\u304C\u3068\u3046\u3054\u3056\u3044\u307E\u3059\uFF01\u8208\u5473\u304C\u3042\u308A\u307E\u3059\u3002\u3069\u306E\u3088\u3046\u306A\u5546\u54C1\u3067\u3057\u3087\u3046\u304B\uFF1F',ts:'2026-03-27T14:15:00Z'},
+      {dir:'out',text:'\u3048\u308A\u69D8\u3001\u3054\u8FD4\u4FE1\u3042\u308A\u304C\u3068\u3046\u3054\u3056\u3044\u307E\u3059\u3002\n\n1\u6B73\u306E\u304A\u5B50\u69D8\u3067\u3057\u305F\u3089\u3001PPSU\u30EF\u30F3\u30BF\u30C3\u30C1\u5F0F\u30B9\u30C8\u30ED\u30FC\u30AB\u30C3\u30D7(300ml)\u304C\u304A\u3059\u3059\u3081\u3067\u3059\u3002\u304A\u5B50\u69D8\u304C\u81EA\u5206\u3067\u958B\u9589\u3067\u304D\u308B\u30EF\u30F3\u30BF\u30C3\u30C1\u5F0F\u3067\u3059\u3002\n\n\u304A\u8272\u306F\u30D4\u30F3\u30AF\u30E6\u30CB\u30B3\u30FC\u30F3\u3068\u30B0\u30EA\u30FC\u30F3\u30C0\u30A4\u30CA\u30BD\u30FC\u304C\u3054\u3056\u3044\u307E\u3059\u3002\u3054\u5E0C\u671B\u306E\u304A\u8272\u3092\u304A\u77E5\u3089\u305B\u304F\u3060\u3055\u3044\uD83D\uDE0A\n\nGROSMIMI JAPAN',ts:'2026-03-27T15:00:00Z'}
+    ];
+    saveDmLogs();
+  }
   updateStats();
   renderCreators();
   renderDmQueue();
-  // Handle hash
   var h=location.hash.replace('#','');
   if(h){
     var tab=document.querySelector('.mt>div[data-p="'+h+'"]');
@@ -407,7 +483,11 @@ function updateStats(){
   // DM budget
   var pct=Math.min(100,(_dmSentToday/_dailyLimit)*100);
   document.getElementById('dm-budget-bar').style.width=pct+'%';
+  document.getElementById('dm-budget-bar').style.background=isOverLimit()?'var(--r)':'linear-gradient(90deg,var(--g),var(--am))';
   document.getElementById('dm-budget-text').textContent=_dmSentToday+' / '+_dailyLimit;
+  // Limit banner
+  var banner=document.getElementById('dm-limit-banner');
+  if(banner){if(isOverLimit())banner.style.display='block';else banner.style.display='none'}
 }
 
 function statusBadge(s){
@@ -430,15 +510,19 @@ function renderCreators(){
   var html='';
   page.forEach(function(c){
     var dmLink='https://ig.me/m/'+c.username;
-    html+='<tr>';
-    html+='<td><a href="https://instagram.com/'+c.username+'" target="_blank" style="color:var(--a);font-weight:600;text-decoration:none">@'+c.username+'</a></td>';
+    var logs=_dmLogs[c.username]||[];
+    var logCount=logs.length;
+    html+='<tr style="cursor:pointer" onclick="openDmThread(\''+c.username+'\')">';
+    html+='<td><span style="color:var(--a);font-weight:600">@'+c.username+'</span></td>';
     html+='<td>'+((c.name)||'')+'</td>';
     html+='<td style="font-family:var(--mono);font-size:10px">'+(c.followers?c.followers.toLocaleString():'—')+'</td>';
     html+='<td>'+statusBadge(c.status)+'</td>';
     html+='<td style="font-size:10px;color:var(--dim)">'+(c.last_dm||'—')+'</td>';
-    html+='<td><a href="'+dmLink+'" target="_blank" class="btn btn-sm btn-secondary" title="Open IG DM">&#x1F4AC; DM</a></td>';
-    html+='<td>';
-    if(c.status==='draft_ready')html+='<button class="btn btn-sm btn-success" onclick="markSent(\''+c.username+'\')">&#x2705; Mark Sent</button>';
+    html+='<td onclick="event.stopPropagation()"><a href="'+dmLink+'" target="_blank" class="btn btn-sm btn-secondary" title="Open IG DM">&#x1F4AC; DM</a>'
+      +(logCount?' <span class="b c">'+logCount+'</span>':'')+'</td>';
+    html+='<td onclick="event.stopPropagation()">';
+    if(c.status==='draft_ready'&&!isOverLimit())html+='<button class="btn btn-sm btn-success" onclick="markSent(\''+c.username+'\')">&#x2705; Sent</button>';
+    else if(c.status==='draft_ready'&&isOverLimit())html+='<span class="b r">Limit</span>';
     else if(c.status==='sent')html+='<button class="btn btn-sm btn-secondary" onclick="markReplied(\''+c.username+'\')">&#x1F4E9; Replied</button>';
     html+='</td>';
     html+='</tr>';
@@ -448,8 +532,16 @@ function renderCreators(){
 function filterCreators(){_page=0;renderCreators()}
 
 function markSent(handle){
+  if(isOverLimit()){showToast('Daily limit reached! ('+_dailyLimit+'/day)','err');return}
   var c=_creators.find(function(x){return x.username===handle});
-  if(c){c.status='sent';c.last_dm=new Date().toISOString().slice(0,10);_dmSentToday++;updateStats();renderCreators();renderDmQueue();showToast('DM marked as sent: @'+handle)}
+  if(c){
+    // Log the draft as outbound DM
+    if(c.dm_draft)addDmLog(handle,'out',c.dm_draft);
+    c.status='sent';c.last_dm=new Date().toISOString().slice(0,10);
+    incDmCount();
+    updateStats();renderCreators();renderDmQueue();
+    showToast('DM sent: @'+handle+' ('+_dmSentToday+'/'+_dailyLimit+')');
+  }
 }
 function markReplied(handle){
   var c=_creators.find(function(x){return x.username===handle});
@@ -458,20 +550,25 @@ function markReplied(handle){
 
 function renderDmQueue(){
   var drafts=_creators.filter(function(c){return c.status==='draft_ready'&&c.dm_draft});
-  if(!drafts.length){document.getElementById('dm-queue').innerHTML='<div style="text-align:center;padding:40px;color:var(--dim)">No drafts pending.</div>';return}
   var html='';
+  if(isOverLimit())html+='<div class="dm-limit-banner" id="dm-limit-banner">\u26A0\uFE0F Daily DM limit reached ('+_dmSentToday+'/'+_dailyLimit+'). Come back tomorrow!</div>';
+  if(!drafts.length){html+='<div style="text-align:center;padding:40px;color:var(--dim)">No drafts pending.</div>';document.getElementById('dm-queue').innerHTML=html;return}
   drafts.forEach(function(c){
     var dmLink='https://ig.me/m/'+c.username;
+    var logs=_dmLogs[c.username]||[];
     html+='<div class="dm-card">';
     html+='<div style="display:flex;justify-content:space-between;align-items:center">';
-    html+='<div><span class="dm-handle">@'+c.username+'</span></div>';
-    html+='<a href="'+dmLink+'" target="_blank" class="btn btn-sm btn-primary">&#x1F4AC; Open DM</a>';
+    html+='<div><span class="dm-handle" style="cursor:pointer" onclick="openDmThread(\''+c.username+'\')">@'+c.username+'</span>'
+      +(logs.length?' <span class="b c" style="cursor:pointer" onclick="openDmThread(\''+c.username+'\')">'+logs.length+' msgs</span>':'')+'</div>';
+    html+='<a href="'+dmLink+'" target="_blank" class="btn btn-sm btn-primary"'+(isOverLimit()?' style="opacity:.4;pointer-events:none"':'')+'>&#x1F4AC; Open DM</a>';
     html+='</div>';
-    html+='<div class="dm-meta">'+(c.name||'')+' &#xB7; '+(c.followers?c.followers.toLocaleString():'-')+' followers &#xB7; '+statusBadge(c.status)+'</div>';
+    html+='<div class="dm-meta">'+(c.name||'')+' \xB7 '+(c.followers?c.followers.toLocaleString():'-')+' followers</div>';
     html+='<div class="dm-body" id="dm-body-'+c.username+'">'+c.dm_draft+'</div>';
     html+='<div class="dm-actions">';
-    html+='<button class="copy-btn" onclick="copyDraft(\''+c.username+'\',this)">&#x1F4CB; Copy Draft</button>';
-    html+='<button class="btn btn-sm btn-success" onclick="markSent(\''+c.username+'\')">&#x2705; Mark Sent</button>';
+    html+='<button class="copy-btn" onclick="copyDraft(\''+c.username+'\',this)">&#x1F4CB; Copy</button>';
+    if(!isOverLimit())html+='<button class="btn btn-sm btn-success" onclick="markSent(\''+c.username+'\')">&#x2705; Mark Sent</button>';
+    else html+='<span class="b r" style="padding:4px 8px">Limit reached</span>';
+    html+='<button class="btn btn-sm btn-secondary" onclick="openDmThread(\''+c.username+'\')" style="margin-left:auto">&#x1F4AC; Thread</button>';
     html+='</div>';
     html+='</div>';
   });
@@ -547,6 +644,109 @@ function renderDraftsList(){
     html+='</div>';
   });
   document.getElementById('drafts-list').innerHTML=html;
+}
+
+// ─── DM Thread Modal ───
+function openDmThread(handle){
+  _threadHandle=handle;
+  var c=_creators.find(function(x){return x.username===handle});
+  document.getElementById('thread-handle').textContent='@'+handle;
+  document.getElementById('thread-badge').innerHTML=c?statusBadge(c.status):'';
+  document.getElementById('thread-ig-link').href='https://ig.me/m/'+handle;
+  // Can send via API only if subscriber (replied+)
+  var canSendApi=c&&['replied','accepted','sample_sent','posted'].indexOf(c.status)!==-1&&c.manychat_id;
+  var inp=document.getElementById('thread-input');
+  var btn=document.getElementById('thread-send-btn');
+  if(canSendApi){
+    inp.placeholder='Type a message (sends via ManyChat)...';
+    btn.disabled=false;
+    btn.textContent='Send';
+  }else{
+    inp.placeholder='Manual send only \u2014 use "Open IG" button + copy-paste';
+    btn.disabled=false;
+    btn.textContent='Log';
+  }
+  renderThreadBody(handle);
+  document.getElementById('dm-thread').style.display='flex';
+  setTimeout(function(){
+    var body=document.getElementById('thread-body');
+    body.scrollTop=body.scrollHeight;
+    inp.focus();
+  },100);
+}
+function closeDmThread(){
+  document.getElementById('dm-thread').style.display='none';
+  _threadHandle='';
+}
+function renderThreadBody(handle){
+  var logs=_dmLogs[handle]||[];
+  var body=document.getElementById('thread-body');
+  if(!logs.length){body.innerHTML='<div class="dm-empty">No messages yet. Send the first DM via IG deeplink.</div>';return}
+  var html='';
+  logs.forEach(function(m){
+    var cls=m.dir==='out'?'out':'in';
+    var time=new Date(m.ts);
+    var timeStr=time.toLocaleDateString('ja-JP',{month:'short',day:'numeric'})+' '+time.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+    html+='<div class="dm-bubble '+cls+'">';
+    html+=m.text.replace(/\n/g,'<br>');
+    html+='<span class="dm-time">'+(m.dir==='out'?'\u2192 Sent':'\\u2190 Received')+' '+timeStr+'</span>';
+    html+='</div>';
+  });
+  body.innerHTML=html;
+}
+function sendThreadDm(){
+  var input=document.getElementById('thread-input');
+  var text=input.value.trim();
+  if(!text||!_threadHandle)return;
+  var c=_creators.find(function(x){return x.username===_threadHandle});
+  var canSendApi=c&&['replied','accepted','sample_sent','posted'].indexOf(c.status)!==-1&&c.manychat_id;
+
+  if(canSendApi){
+    // Send via ManyChat API
+    var sendBtn=document.getElementById('thread-send-btn');
+    sendBtn.disabled=true;sendBtn.textContent='Sending...';
+    fetch(MC_API,{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+MC_TOKEN,'Content-Type':'application/json'},
+      body:JSON.stringify({
+        subscriber_id:c.manychat_id,
+        data:{version:'v2',content:{messages:[{type:'text',text:text}]}}
+      })
+    }).then(function(r){return r.json()}).then(function(d){
+      if(d.status==='success'){
+        addDmLog(_threadHandle,'out',text);
+        incDmCount();
+        input.value='';
+        renderThreadBody(_threadHandle);
+        updateStats();renderCreators();
+        var body=document.getElementById('thread-body');
+        body.scrollTop=body.scrollHeight;
+        showToast('DM sent via ManyChat: @'+_threadHandle);
+      }else{
+        showToast('ManyChat error: '+(d.message||'unknown'),'err');
+      }
+      sendBtn.disabled=false;sendBtn.textContent='Send';
+    }).catch(function(e){
+      showToast('Send failed: '+e.message,'err');
+      sendBtn.disabled=false;sendBtn.textContent='Send';
+    });
+  }else{
+    // Just log manually (marketer copy-pasted and sent via IG)
+    addDmLog(_threadHandle,'out',text);
+    input.value='';
+    renderThreadBody(_threadHandle);
+    renderCreators();
+    var body=document.getElementById('thread-body');
+    body.scrollTop=body.scrollHeight;
+    showToast('DM logged for @'+_threadHandle);
+  }
+}
+// Log incoming DM (called from webhook or manual)
+function logIncomingDm(handle,text){
+  addDmLog(handle,'in',text);
+  var c=_creators.find(function(x){return x.username===handle});
+  if(c&&c.status==='sent'){c.status='replied';updateStats();renderCreators()}
+  if(_threadHandle===handle)renderThreadBody(handle);
 }
 
 function showToast(msg,type){
