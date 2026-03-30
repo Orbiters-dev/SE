@@ -616,8 +616,9 @@ function renderFinancial(){
   traf+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">';
   traf+='<div class="sec-title" style="border:none;margin:0;padding:0"><div class="num">5</div> Traffic by Channel</div>';
   traf+='<div class="period-tabs" id="ct-period-tabs">';
-  traf+='<div class="on" data-ctp="30d" onclick="switchCtPeriod(\'30d\',this)">30D</div>';
+  traf+='<div data-ctp="1d" onclick="switchCtPeriod(\'1d\',this)">1D</div>';
   traf+='<div data-ctp="7d" onclick="switchCtPeriod(\'7d\',this)">7D</div>';
+  traf+='<div class="on" data-ctp="30d" onclick="switchCtPeriod(\'30d\',this)">30D</div>';
   traf+='</div></div>';
 
   traf+='<div id="ct-content"></div>';
@@ -640,20 +641,49 @@ function renderFinancial(){
       h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--dim)">'+s.pct+'%</td>';
       h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+(s.purchases||0)+'</td></tr>';
     });
-    h+='</tbody></table></div>';
+    h+='</tbody></table>';
+    // Onzenna ad detail
+    if(onz.ad_detail&&onz.ad_detail.length){
+      h+='<div style="margin-top:10px;padding-top:8px;border-top:1px dashed var(--border)">';
+      h+='<div style="font-size:10px;font-weight:700;color:var(--dim);margin-bottom:4px">Paid Ad Performance (Onzenna landing)</div>';
+      h+='<table><thead><tr><th>Platform</th><th style="text-align:right">Clicks</th><th style="text-align:right">Spend</th><th style="text-align:right">CPC</th><th style="text-align:right">Sales</th><th style="text-align:right">ROAS</th><th style="text-align:right">Conv</th></tr></thead><tbody>';
+      onz.ad_detail.forEach(function(a){
+        var rc=a.roas>=3?'var(--g)':a.roas>=1.5?'var(--am)':'var(--r)';
+        h+='<tr><td style="font-size:10px">'+a.source+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+a.clicks.toLocaleString()+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">$'+a.spend.toLocaleString()+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:9px">$'+a.cpc.toFixed(2)+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">$'+a.sales.toLocaleString()+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+rc+'">'+a.roas.toFixed(1)+'x</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+a.purchases+'</td></tr>';
+      });
+      h+='</tbody></table></div>';
+    }
+    h+='</div>';
     // Amazon
     h+='<div class="card"><h3 style="color:#f59e0b;margin-bottom:8px">Amazon MP (Ad Clicks + Traffic)</h3>';
-    h+='<div style="font-size:24px;font-weight:800;color:#f59e0b;margin-bottom:12px">'+(amz.total_clicks||0).toLocaleString()+' paid clicks</div>';
-    h+='<div style="font-size:9px;color:var(--dim);margin-bottom:8px">Amazon does not share session data. Showing paid clicks only.</div>';
-    h+='<table><thead><tr><th>Source</th><th style="text-align:right">Clicks</th><th style="text-align:right">%</th></tr></thead><tbody>';
+    h+='<div style="display:flex;gap:16px;margin-bottom:12px">';
+    h+='<div><div style="font-size:9px;color:var(--dim)">Paid Clicks</div><div style="font-size:20px;font-weight:800;color:#f59e0b">'+(amz.total_clicks||0).toLocaleString()+'</div></div>';
+    h+='<div><div style="font-size:9px;color:var(--dim)">Ad Spend</div><div style="font-size:20px;font-weight:800;color:var(--r)">$'+(amz.total_spend||0).toLocaleString()+'</div></div>';
+    h+='<div><div style="font-size:9px;color:var(--dim)">Ad Sales</div><div style="font-size:20px;font-weight:800;color:var(--g)">$'+(amz.total_sales||0).toLocaleString()+'</div></div>';
+    h+='<div><div style="font-size:9px;color:var(--dim)">Orders</div><div style="font-size:20px;font-weight:800">'+(amz.total_purchases||0).toLocaleString()+'</div></div>';
+    h+='</div>';
+    h+='<table><thead><tr><th>Source</th><th style="text-align:right">Clicks</th><th style="text-align:right">Spend</th><th style="text-align:right">CPC</th><th style="text-align:right">Sales</th><th style="text-align:right">ROAS</th><th style="text-align:right">Conv</th><th style="text-align:right">%</th></tr></thead><tbody>';
     (amz.sources||[]).forEach(function(s){
-      if(s.sessions>0){
-        h+='<tr><td style="font-size:10px">'+s.source+'</td>';
-        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+s.sessions.toLocaleString()+'</td>';
-        h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--dim)">'+s.pct+'%</td></tr>';
-      }else{
+      if(s.note){
         h+='<tr><td style="font-size:10px;color:var(--muted)">'+s.source+'</td>';
-        h+='<td style="text-align:right;font-size:9px;color:#9ca3af">n.m.</td><td></td></tr>';
+        h+='<td colspan=7 style="text-align:right;font-size:9px;color:#9ca3af">n.m. — no Amazon session API</td></tr>';
+      }else{
+        var rc=s.roas>=3?'var(--g)':s.roas>=1.5?'var(--am)':'var(--r)';
+        var cc=s.cpc>0&&s.cpc<=0.5?'var(--g)':s.cpc<=1.5?'var(--am)':'var(--r)';
+        h+='<tr><td style="font-size:10px">'+s.source+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+s.clicks.toLocaleString()+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">$'+s.spend.toLocaleString()+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:'+cc+'">$'+s.cpc.toFixed(2)+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+(s.sales>0?'$'+s.sales.toLocaleString():'<span style=color:var(--muted)>n.m.</span>')+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+rc+'">'+(s.roas>0?s.roas.toFixed(1)+'x':'<span style=color:var(--muted)>—</span>')+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+(s.purchases>0?s.purchases:'<span style=color:var(--muted)>n.m.</span>')+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--dim)">'+s.pct+'%</td></tr>';
       }
     });
     h+='</tbody></table></div></div>';

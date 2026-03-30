@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-29 20:15 PST",
+ "generated_pst": "2026-03-29 20:38 PST",
  "through_date": "2026-03-28",
  "months": [
   "2025-01",
@@ -9456,9 +9456,147 @@ const FIN_DATA = {
   }
  ],
  "channel_traffic": {
+  "1d": {
+   "onzenna": {
+    "total_sessions": 576,
+    "total_purchases": 5,
+    "total_ad_spend": 612,
+    "sources": [
+     {
+      "source": "Meta + Google (Cross-network)",
+      "sessions": 151,
+      "purchases": 0,
+      "pct": 26.2
+     },
+     {
+      "source": "Direct",
+      "sessions": 116,
+      "purchases": 0,
+      "pct": 20.1
+     },
+     {
+      "source": "Organic Social (IG/TikTok/etc)",
+      "sessions": 96,
+      "purchases": 0,
+      "pct": 16.7
+     },
+     {
+      "source": "Meta Ads (Paid Social)",
+      "sessions": 75,
+      "purchases": 0,
+      "pct": 13.0
+     },
+     {
+      "source": "Unassigned",
+      "sessions": 70,
+      "purchases": 4,
+      "pct": 12.2
+     },
+     {
+      "source": "Google Ads (Paid Search)",
+      "sessions": 32,
+      "purchases": 1,
+      "pct": 5.6
+     },
+     {
+      "source": "Organic Search (SEO)",
+      "sessions": 28,
+      "purchases": 0,
+      "pct": 4.9
+     },
+     {
+      "source": "Referral",
+      "sessions": 5,
+      "purchases": 0,
+      "pct": 0.9
+     },
+     {
+      "source": "Paid Other",
+      "sessions": 2,
+      "purchases": 0,
+      "pct": 0.3
+     },
+     {
+      "source": "Email (Klaviyo)",
+      "sessions": 1,
+      "purchases": 0,
+      "pct": 0.2
+     }
+    ],
+    "ad_detail": [
+     {
+      "source": "Meta CVR",
+      "clicks": 291,
+      "spend": 328,
+      "sales": 62,
+      "purchases": 1,
+      "cpc": 1.13,
+      "roas": 0.2,
+      "pct": 51.6
+     },
+     {
+      "source": "Google Ads",
+      "clicks": 273,
+      "spend": 283,
+      "sales": 323,
+      "purchases": 5,
+      "cpc": 1.04,
+      "roas": 1.1,
+      "pct": 48.4
+     }
+    ]
+   },
+   "amazon": {
+    "total_clicks": 12516,
+    "total_spend": 5631,
+    "total_sales": 16810,
+    "total_purchases": 703,
+    "sources": [
+     {
+      "source": "Amazon Ads (Sponsored)",
+      "clicks": 4592,
+      "spend": 4803,
+      "sales": 16810,
+      "purchases": 703,
+      "cpc": 1.05,
+      "roas": 3.5,
+      "pct": 36.7
+     },
+     {
+      "source": "Meta Traffic (AMZ landing)",
+      "clicks": 7924,
+      "spend": 828,
+      "sales": 0,
+      "purchases": 0,
+      "cpc": 0.1,
+      "roas": 0.0,
+      "pct": 63.3
+     },
+     {
+      "source": "Organic (Amazon search)",
+      "clicks": 0,
+      "spend": 0,
+      "sales": 0,
+      "purchases": 0,
+      "cpc": 0,
+      "roas": 0,
+      "pct": 0,
+      "note": "n.m."
+     }
+    ]
+   },
+   "meta_detail": {
+    "cvr_clicks": 291,
+    "traffic_clicks": 7924,
+    "total": 8215
+   },
+   "google_clicks": 273
+  },
   "7d": {
    "onzenna": {
     "total_sessions": 4400,
+    "total_purchases": 103,
+    "total_ad_spend": 4464,
     "sources": [
      {
       "source": "Meta + Google (Cross-network)",
@@ -9526,25 +9664,66 @@ const FIN_DATA = {
       "purchases": 0,
       "pct": 0.1
      }
+    ],
+    "ad_detail": [
+     {
+      "source": "Meta CVR",
+      "clicks": 2495,
+      "spend": 2695,
+      "sales": 3930,
+      "purchases": 60,
+      "cpc": 1.08,
+      "roas": 1.5,
+      "pct": 58.0
+     },
+     {
+      "source": "Google Ads",
+      "clicks": 1806,
+      "spend": 1769,
+      "sales": 3352,
+      "purchases": 46,
+      "cpc": 0.98,
+      "roas": 1.9,
+      "pct": 42.0
+     }
     ]
    },
    "amazon": {
     "total_clicks": 79835,
+    "total_spend": 37521,
+    "total_sales": 129820,
+    "total_purchases": 5243,
     "sources": [
      {
       "source": "Amazon Ads (Sponsored)",
-      "sessions": 31754,
+      "clicks": 31754,
+      "spend": 32489,
+      "sales": 129820,
+      "purchases": 5243,
+      "cpc": 1.02,
+      "roas": 4.0,
       "pct": 39.8
      },
      {
       "source": "Meta Traffic (AMZ landing)",
-      "sessions": 48081,
+      "clicks": 48081,
+      "spend": 5032,
+      "sales": 0,
+      "purchases": 0,
+      "cpc": 0.1,
+      "roas": 0.0,
       "pct": 60.2
      },
      {
-      "source": "Organic (est.)",
-      "sessions": 0,
-      "note": "n.m. — no Amazon session API"
+      "source": "Organic (Amazon search)",
+      "clicks": 0,
+      "spend": 0,
+      "sales": 0,
+      "purchases": 0,
+      "cpc": 0,
+      "roas": 0,
+      "pct": 0,
+      "note": "n.m."
      }
     ]
    },
@@ -9558,6 +9737,8 @@ const FIN_DATA = {
   "30d": {
    "onzenna": {
     "total_sessions": 20047,
+    "total_purchases": 452,
+    "total_ad_spend": 20744,
     "sources": [
      {
       "source": "Meta + Google (Cross-network)",
@@ -9637,25 +9818,66 @@ const FIN_DATA = {
       "purchases": 0,
       "pct": 0.0
      }
+    ],
+    "ad_detail": [
+     {
+      "source": "Meta CVR",
+      "clicks": 9837,
+      "spend": 10473,
+      "sales": 16808,
+      "purchases": 264,
+      "cpc": 1.06,
+      "roas": 1.6,
+      "pct": 51.4
+     },
+     {
+      "source": "Google Ads",
+      "clicks": 9310,
+      "spend": 10271,
+      "sales": 18265,
+      "purchases": 351,
+      "cpc": 1.1,
+      "roas": 1.8,
+      "pct": 48.6
+     }
     ]
    },
    "amazon": {
     "total_clicks": 254777,
+    "total_spend": 120867,
+    "total_sales": 468752,
+    "total_purchases": 17892,
     "sources": [
      {
       "source": "Amazon Ads (Sponsored)",
-      "sessions": 107807,
+      "clicks": 107807,
+      "spend": 106281,
+      "sales": 468752,
+      "purchases": 17892,
+      "cpc": 0.99,
+      "roas": 4.4,
       "pct": 42.3
      },
      {
       "source": "Meta Traffic (AMZ landing)",
-      "sessions": 146970,
+      "clicks": 146970,
+      "spend": 14586,
+      "sales": 0,
+      "purchases": 0,
+      "cpc": 0.1,
+      "roas": 0.0,
       "pct": 57.7
      },
      {
-      "source": "Organic (est.)",
-      "sessions": 0,
-      "note": "n.m. — no Amazon session API"
+      "source": "Organic (Amazon search)",
+      "clicks": 0,
+      "spend": 0,
+      "sales": 0,
+      "purchases": 0,
+      "cpc": 0,
+      "roas": 0,
+      "pct": 0,
+      "note": "n.m."
      }
     ]
    },

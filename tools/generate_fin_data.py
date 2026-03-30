@@ -1164,31 +1164,40 @@ def generate():
             onz[ch]["sessions"] += int(r.get("sessions", 0) or 0)
             onz[ch]["purchases"] += int(r.get("purchases", 0) or 0)
 
-        # Amazon: Ads clicks + Meta Traffic clicks
-        amz_ad_clicks = 0
-        amz_ad_impr = 0
+        # Amazon Ads: clicks, spend, sales, purchases
+        amz_ad = {"clicks": 0, "spend": 0.0, "sales": 0.0, "purchases": 0, "impressions": 0}
         for r in amz_ads_rows:
             if r.get("date", "") < cutoff:
                 continue
-            amz_ad_clicks += int(r.get("clicks", 0) or 0)
-            amz_ad_impr += int(r.get("impressions", 0) or 0)
+            amz_ad["clicks"] += int(r.get("clicks", 0) or 0)
+            amz_ad["spend"] += float(r.get("spend", 0) or 0)
+            amz_ad["sales"] += float(r.get("sales", 0) or 0)
+            amz_ad["purchases"] += int(r.get("purchases", 0) or 0)
+            amz_ad["impressions"] += int(r.get("impressions", 0) or 0)
 
-        meta_traffic_clicks = 0
-        meta_cvr_clicks = 0
+        # Meta: split traffic vs CVR
+        meta_traffic = {"clicks": 0, "spend": 0.0, "purchases": 0, "purchase_value": 0.0}
+        meta_cvr = {"clicks": 0, "spend": 0.0, "purchases": 0, "purchase_value": 0.0}
         for r in meta_rows:
             if r.get("date", "") < cutoff:
                 continue
             cn = (r.get("campaign_name", "") or "").lower()
-            clicks = int(r.get("clicks", 0) or 0)
-            if "traffic" in cn or "amz" in cn:
-                meta_traffic_clicks += clicks
-            else:
-                meta_cvr_clicks += clicks
+            target = meta_traffic if ("traffic" in cn or "amz" in cn) else meta_cvr
+            target["clicks"] += int(r.get("clicks", 0) or 0)
+            target["spend"] += float(r.get("spend", 0) or 0)
+            target["purchases"] += int(r.get("purchases", 0) or 0)
+            target["purchase_value"] += float(r.get("purchase_value", 0) or 0)
 
-        google_clicks = sum(int(r.get("clicks", 0) or 0) for r in google_rows if r.get("date", "") >= cutoff)
+        # Google Ads
+        gads = {"clicks": 0, "spend": 0.0, "conversions": 0.0, "conversion_value": 0.0}
+        for r in google_rows:
+            if r.get("date", "") < cutoff:
+                continue
+            gads["clicks"] += int(r.get("clicks", 0) or 0)
+            gads["spend"] += float(r.get("spend", 0) or 0)
+            gads["conversions"] += float(r.get("conversions", 0) or 0)
+            gads["conversion_value"] += float(r.get("conversion_value", 0) or 0)
 
-        # Onzenna sources (map GA4 channels to cleaner labels)
-        onz_mapped = {}
         GA4_MAP = {
             "Cross-network": "Meta + Google (Cross-network)",
             "Paid Social": "Meta Ads (Paid Social)",
@@ -1201,45 +1210,67 @@ def generate():
             "Unassigned": "Unassigned",
             "Display": "Display Ads",
         }
+        onz_mapped = {}
         for ch, v in onz.items():
-            label = GA4_MAP.get(ch, ch)
-            onz_mapped[label] = v
+            onz_mapped[GA4_MAP.get(ch, ch)] = v
 
         onz_total = sum(v["sessions"] for v in onz.values())
+        onz_purchases = sum(v["purchases"] for v in onz.values())
+        amz_total_clicks = amz_ad["clicks"] + meta_traffic["clicks"]
 
-        # Amazon total sessions estimate: Amazon Brand Analytics or ads clicks
-        # We don't have Amazon session data directly. Use ad clicks as lower bound.
-        amz_total_est = amz_ad_clicks + meta_traffic_clicks  # paid only (organic unknown)
+        def _src(name, clicks, spend, sales, purchases, pct):
+            cpc = round(spend / clicks, 2) if clicks else 0
+            roas = round(sales / spend, 1) if spend else 0
+            return {"source": name, "clicks": clicks, "spend": round(spend),
+                    "sales": round(sales), "purchases": purchases,
+                    "cpc": cpc, "roas": roas, "pct": pct}
 
         return {
             "onzenna": {
                 "total_sessions": onz_total,
+                "total_purchases": onz_purchases,
+                "total_ad_spend": round(meta_cvr["spend"] + gads["spend"]),
                 "sources": sorted(
                     [{"source": k, "sessions": v["sessions"], "purchases": v["purchases"],
                       "pct": round(v["sessions"] / onz_total * 100, 1) if onz_total else 0}
                      for k, v in onz_mapped.items() if v["sessions"] > 0],
                     key=lambda x: -x["sessions"]
                 ),
+                "ad_detail": [
+                    _src("Meta CVR", meta_cvr["clicks"], meta_cvr["spend"],
+                         meta_cvr["purchase_value"], meta_cvr["purchases"],
+                         round(meta_cvr["clicks"] / (meta_cvr["clicks"] + gads["clicks"]) * 100, 1) if (meta_cvr["clicks"] + gads["clicks"]) else 0),
+                    _src("Google Ads", gads["clicks"], gads["spend"],
+                         gads["conversion_value"], int(gads["conversions"]),
+                         round(gads["clicks"] / (meta_cvr["clicks"] + gads["clicks"]) * 100, 1) if (meta_cvr["clicks"] + gads["clicks"]) else 0),
+                ],
             },
             "amazon": {
-                "total_clicks": amz_total_est,
+                "total_clicks": amz_total_clicks,
+                "total_spend": round(amz_ad["spend"] + meta_traffic["spend"]),
+                "total_sales": round(amz_ad["sales"]),
+                "total_purchases": amz_ad["purchases"],
                 "sources": [
-                    {"source": "Amazon Ads (Sponsored)", "sessions": amz_ad_clicks,
-                     "pct": round(amz_ad_clicks / amz_total_est * 100, 1) if amz_total_est else 0},
-                    {"source": "Meta Traffic (AMZ landing)", "sessions": meta_traffic_clicks,
-                     "pct": round(meta_traffic_clicks / amz_total_est * 100, 1) if amz_total_est else 0},
-                    {"source": "Organic (est.)", "sessions": 0, "note": "n.m. — no Amazon session API"},
+                    _src("Amazon Ads (Sponsored)", amz_ad["clicks"], amz_ad["spend"],
+                         amz_ad["sales"], amz_ad["purchases"],
+                         round(amz_ad["clicks"] / amz_total_clicks * 100, 1) if amz_total_clicks else 0),
+                    _src("Meta Traffic (AMZ landing)", meta_traffic["clicks"], meta_traffic["spend"],
+                         0, 0,  # Meta can't track Amazon conversions without Attribution
+                         round(meta_traffic["clicks"] / amz_total_clicks * 100, 1) if amz_total_clicks else 0),
+                    {"source": "Organic (Amazon search)", "clicks": 0, "spend": 0, "sales": 0,
+                     "purchases": 0, "cpc": 0, "roas": 0, "pct": 0, "note": "n.m."},
                 ],
             },
             "meta_detail": {
-                "cvr_clicks": meta_cvr_clicks,
-                "traffic_clicks": meta_traffic_clicks,
-                "total": meta_cvr_clicks + meta_traffic_clicks,
+                "cvr_clicks": meta_cvr["clicks"],
+                "traffic_clicks": meta_traffic["clicks"],
+                "total": meta_cvr["clicks"] + meta_traffic["clicks"],
             },
-            "google_clicks": google_clicks,
+            "google_clicks": gads["clicks"],
         }
 
     channel_traffic = {
+        "1d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 1),
         "7d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 7),
         "30d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 30),
     }
