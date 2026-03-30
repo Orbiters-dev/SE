@@ -73,6 +73,8 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 .copy-btn{background:#f1f5f9;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s}
 .copy-btn:hover{background:#e2e8f0}
 .copy-btn.copied{background:var(--gbg);color:var(--g);border-color:var(--g)}
+.dm-edit{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;line-height:1.7;resize:vertical;background:#fafbff;margin-top:8px;color:var(--text)}
+.dm-edit:focus{outline:none;border-color:var(--a);box-shadow:0 0 0 2px rgba(239,68,68,.1)}
 /* DM Thread */
 .dm-thread-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100;display:flex;align-items:center;justify-content:center}
 .dm-thread-panel{background:var(--card);border-radius:16px;width:90%;max-width:520px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.15)}
@@ -732,19 +734,20 @@ function renderDmQueue() {
     var dmLink = 'https://ig.me/m/' + c.username;
     html += '<div class="dm-card">';
     html += '<div style="display:flex;justify-content:space-between;align-items:center">';
-    html += '<div><span class="dm-handle" style="cursor:pointer" onclick="openDmThread(\'' + c.username + '\')">@' + c.username + '</span>';
-    if (c.dm_count > 0) html += ' <span class="b c" style="cursor:pointer" onclick="openDmThread(\'' + c.username + '\')">' + c.dm_count + ' msgs</span>';
+    html += '<div><span class="dm-handle">@' + c.username + '</span> <span style="font-size:10px;color:var(--dim)">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + '</span>';
+    if (c.dm_count > 0) html += ' <span class="b c">' + c.dm_count + ' msgs</span>';
     html += '</div>';
-    html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary"' + (isOverLimit() ? ' style="opacity:.4;pointer-events:none"' : '') + '>&#x1F4AC; Open DM</a>';
+    html += '<div style="display:flex;gap:4px">';
+    html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')">&#x1F4AC; History</button>';
+    html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary"' + (isOverLimit() ? ' style="opacity:.4;pointer-events:none"' : '') + '>&#x2197; Open IG</a>';
     html += '</div>';
-    html += '<div class="dm-meta">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + ' followers</div>';
+    html += '</div>';
     if (c.dm_draft) {
-      html += '<div class="dm-body" id="dm-body-' + c.username + '">' + escapeHtml(c.dm_draft) + '</div>';
+      html += '<textarea class="dm-edit" id="dmq-body-' + c.username + '" rows="5" oninput="saveDraftEdit(\'' + c.username + '\',this.value)">' + escapeHtml(c.dm_draft) + '</textarea>';
       html += '<div class="dm-actions">';
       html += '<button class="copy-btn" onclick="copyDraft(\'' + c.username + '\',this)">&#x1F4CB; Copy</button>';
       if (!isOverLimit()) html += '<button class="btn btn-sm btn-success" onclick="markSent(\'' + c.username + '\')">&#x2705; Mark Sent</button>';
       else html += '<span class="b r" style="padding:4px 8px">Limit reached</span>';
-      html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')" style="margin-left:auto">&#x1F4AC; Thread</button>';
       html += '</div>';
     }
     html += '</div>';
@@ -882,15 +885,18 @@ function renderDraftsList() {
     var dmLink = 'https://ig.me/m/' + c.username;
     html += '<div class="dm-card" id="draft-card-' + c.username + '">';
     html += '<div style="display:flex;justify-content:space-between;align-items:center">';
-    html += '<div>';
-    html += '<input type="checkbox" class="draft-cb draft-select" data-username="' + c.username + '" checked onchange="updateSelectedCount()">';
+    html += '<div style="display:flex;align-items:center;gap:8px">';
+    html += '<input type="checkbox" class="draft-cb draft-select" data-username="' + c.username + '" checked onchange="updateSelectedCount()" style="width:16px;height:16px;accent-color:var(--a)">';
     html += '<span class="dm-handle">@' + c.username + '</span> <span style="font-size:10px;color:var(--dim)">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + '</span>';
     html += '</div>';
-    html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary">&#x1F4AC; Open DM</a>';
+    html += '<div style="display:flex;gap:4px">';
+    html += '<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();openDmThread(\'' + c.username + '\')" title="View history">&#x1F4AC; History</button>';
+    html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary">&#x2197; Open IG</a>';
     html += '</div>';
-    html += '<div class="dm-body" id="dm-body-' + c.username + '">' + escapeHtml(c.dm_draft) + '</div>';
+    html += '</div>';
+    html += '<textarea class="dm-edit" id="dm-body-' + c.username + '" rows="6" oninput="saveDraftEdit(\'' + c.username + '\',this.value)">' + escapeHtml(c.dm_draft) + '</textarea>';
     html += '<div class="dm-actions">';
-    html += '<button class="copy-btn" onclick="copyDraft(\'' + c.username + '\',this)">&#x1F4CB; Copy Draft</button>';
+    html += '<button class="copy-btn" onclick="copyDraft(\'' + c.username + '\',this)">&#x1F4CB; Copy</button>';
     html += '<button class="btn btn-sm btn-success" onclick="markSent(\'' + c.username + '\')">&#x2705; Mark Sent</button>';
     html += '</div>';
     html += '</div>';
@@ -967,13 +973,24 @@ function executeDrafts() {
   processNext();
 }
 
+function saveDraftEdit(handle, newText) {
+  var c = _creators.find(function(x) { return x.username === handle; });
+  if (c) c.dm_draft = newText;
+  // Sync the other textarea if exists (dm-body vs dmq-body)
+  var other = document.getElementById('dmq-body-' + handle);
+  var main = document.getElementById('dm-body-' + handle);
+  if (other && other !== document.activeElement) other.value = newText;
+  if (main && main !== document.activeElement) main.value = newText;
+}
+
 function copyDraft(handle, btn) {
-  var el = document.getElementById('dm-body-' + handle);
-  if (el) {
-    navigator.clipboard.writeText(el.textContent).then(function() {
+  var el = document.getElementById('dm-body-' + handle) || document.getElementById('dmq-body-' + handle);
+  var text = el ? (el.value || el.textContent) : '';
+  if (text) {
+    navigator.clipboard.writeText(text).then(function() {
       btn.textContent = '\u2705 Copied!';
       btn.classList.add('copied');
-      setTimeout(function() { btn.textContent = '\uD83D\uDCCB Copy Draft'; btn.classList.remove('copied'); }, 2000);
+      setTimeout(function() { btn.textContent = '\uD83D\uDCCB Copy'; btn.classList.remove('copied'); }, 2000);
     });
   }
 }
