@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-29 20:50 PST",
+ "generated_pst": "2026-03-29 20:57 PST",
  "through_date": "2026-03-28",
  "months": [
   "2025-01",
@@ -11894,7 +11894,12 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 0.08,
     "ctr": 13.18,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 5156.84,
+    "attr_purchases": 204,
+    "attr_brb": 543.44,
+    "attr_roas": 0.42,
+    "attr_roas_adj": 0.46
    },
    {
     "id": "120232464266510508",
@@ -12178,7 +12183,12 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 0.1,
     "ctr": 7.85,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 99.6,
+    "attr_purchases": 2,
+    "attr_brb": 74.08,
+    "attr_roas": 0.02,
+    "attr_roas_adj": 0.03
    },
    {
     "id": "120240689933170508",
@@ -12249,7 +12259,12 @@ const FIN_DATA = {
     "roas": 0.05,
     "cpc": 0.12,
     "ctr": 6.07,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 982.8,
+    "attr_purchases": 21,
+    "attr_brb": 906.08,
+    "attr_roas": 0.15,
+    "attr_roas_adj": 0.29
    },
    {
     "id": "412813716858145",
@@ -13172,7 +13187,12 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 0.12,
     "ctr": 3.48,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 1.74,
+    "attr_roas_adj": 1.91
    },
    {
     "id": "120241214197260508",
@@ -13243,7 +13263,12 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 0.06,
     "ctr": 11.45,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "176516762220129",
@@ -13456,7 +13481,12 @@ const FIN_DATA = {
     "roas": 0.01,
     "cpc": 0.11,
     "ctr": 6.56,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 2.07,
+    "attr_roas_adj": 2.28
    },
    {
     "id": "120243162990550508",
@@ -13811,7 +13841,12 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 0.15,
     "ctr": 4.43,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 3.54,
+    "attr_roas_adj": 3.89
    },
    {
     "id": "120242264069810508",
@@ -13882,7 +13917,12 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 0.21,
     "ctr": 2.08,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120242000172120508",
@@ -14237,7 +14277,12 @@ const FIN_DATA = {
     "roas": 0.18,
     "cpc": 0.13,
     "ctr": 2.79,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120240090794830508",
@@ -14308,7 +14353,12 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 0.19,
     "ctr": 2.06,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 6.14,
+    "attr_roas_adj": 6.75
    },
    {
     "id": "120242058768040508",
@@ -17370,434 +17420,6 @@ const FIN_DATA = {
   ],
   "weekly_top_traffic": [
    {
-    "id": "120241214197260508",
-    "campaign_id": "120241214197260508",
-    "name": "Target | Traffic | Alpremio",
-    "platform": "Meta CVR",
-    "brand": "Alpremio",
-    "spend": [
-     0,
-     0,
-     87.7,
-     245.91,
-     245.84,
-     246.64,
-     242.15,
-     243.9,
-     243.73,
-     246.62,
-     243.29,
-     261.02
-    ],
-    "sales": [
-     0,
-     0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0
-    ],
-    "impressions": [
-     0,
-     0,
-     10851,
-     28639,
-     28558,
-     34881,
-     36297,
-     42448,
-     36755,
-     38671,
-     42455,
-     40452
-    ],
-    "clicks": [
-     0,
-     0,
-     1625,
-     4247,
-     3963,
-     3983,
-     4879,
-     4369,
-     4139,
-     3839,
-     3802,
-     4083
-    ],
-    "total_spend": 2306.8,
-    "total_sales": 0.0,
-    "total_clicks": 38929,
-    "total_impressions": 340007,
-    "roas": 0.0,
-    "cpc": 0.06,
-    "ctr": 11.45,
-    "is_traffic": true
-   },
-   {
-    "id": "120232746327610508",
-    "campaign_id": "120232746327610508",
-    "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
-    "platform": "Meta Traffic",
-    "brand": "Unknown",
-    "spend": [
-     1042.37,
-     1049.78,
-     1050.59,
-     1046.6,
-     1053.06,
-     1052.28,
-     1041.09,
-     1054.05,
-     1041.12,
-     1053.64,
-     1050.29,
-     884.37
-    ],
-    "sales": [
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0
-    ],
-    "impressions": [
-     113151,
-     108419,
-     115496,
-     117918,
-     103110,
-     100743,
-     103659,
-     110767,
-     85081,
-     92428,
-     107886,
-     80379
-    ],
-    "clicks": [
-     16359,
-     14374,
-     14492,
-     14189,
-     13662,
-     14142,
-     14899,
-     13476,
-     13564,
-     12972,
-     11642,
-     9483
-    ],
-    "total_spend": 12419.24,
-    "total_sales": 0.0,
-    "total_clicks": 163254,
-    "total_impressions": 1239037,
-    "roas": 0.0,
-    "cpc": 0.08,
-    "ctr": 13.18,
-    "is_traffic": true
-   },
-   {
-    "id": "120240644685950508",
-    "campaign_id": "120240644685950508",
-    "name": "AMZ | Traffic | WL | Dentalmom | 202601",
-    "platform": "Meta Traffic",
-    "brand": "Unknown",
-    "spend": [
-     443.1,
-     561.27,
-     559.4,
-     557.11,
-     561.46,
-     560.72,
-     556.52,
-     559.32,
-     558.57,
-     559.53,
-     560.55,
-     473.84
-    ],
-    "sales": [
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0
-    ],
-    "impressions": [
-     61438,
-     69691,
-     75174,
-     75802,
-     69415,
-     66841,
-     65130,
-     66961,
-     66847,
-     72581,
-     70019,
-     58562
-    ],
-    "clicks": [
-     6290,
-     6006,
-     6045,
-     5866,
-     5674,
-     5226,
-     5456,
-     5024,
-     4734,
-     4991,
-     4843,
-     4089
-    ],
-    "total_spend": 6511.39,
-    "total_sales": 0.0,
-    "total_clicks": 64244,
-    "total_impressions": 818461,
-    "roas": 0.0,
-    "cpc": 0.1,
-    "ctr": 7.85,
-    "is_traffic": true
-   },
-   {
-    "id": "120243909567080508",
-    "campaign_id": "120243909567080508",
-    "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331",
-    "platform": "Meta Traffic",
-    "brand": "Unknown",
-    "spend": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     2042.54
-    ],
-    "sales": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     23.11
-    ],
-    "impressions": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     290888
-    ],
-    "clicks": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     19081
-    ],
-    "total_spend": 2042.54,
-    "total_sales": 23.11,
-    "total_clicks": 19081,
-    "total_impressions": 290888,
-    "roas": 0.01,
-    "cpc": 0.11,
-    "ctr": 6.56,
-    "is_traffic": true
-   },
-   {
-    "id": "120240689933170508",
-    "campaign_id": "120240689933170508",
-    "name": "AMZ | Traffic | WL_Dental Mom | Stainless_StrawCup | 20260107",
-    "platform": "Meta Traffic",
-    "brand": "Unknown",
-    "spend": [
-     375.91,
-     562.9,
-     556.89,
-     557.88,
-     562.35,
-     559.93,
-     560.9,
-     556.19,
-     559.18,
-     559.8,
-     560.13,
-     470.24
-    ],
-    "sales": [
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     58.77,
-     0.0,
-     0.0,
-     0.0,
-     94.62,
-     199.87
-    ],
-    "impressions": [
-     66509,
-     82673,
-     86232,
-     99350,
-     76144,
-     76031,
-     80343,
-     67116,
-     62088,
-     74542,
-     85151,
-     61900
-    ],
-    "clicks": [
-     4262,
-     5642,
-     5457,
-     5178,
-     4752,
-     4363,
-     5239,
-     4520,
-     4226,
-     4402,
-     4288,
-     3420
-    ],
-    "total_spend": 6442.3,
-    "total_sales": 353.26,
-    "total_clicks": 55749,
-    "total_impressions": 918079,
-    "roas": 0.05,
-    "cpc": 0.12,
-    "ctr": 6.07,
-    "is_traffic": true
-   }
-  ],
-  "weekly_bottom_traffic": [
-   {
-    "id": "120242264069810508",
-    "campaign_id": "120242264069810508",
-    "name": "Target_Traffic_CHA&MOM_20260219",
-    "platform": "Meta CVR",
-    "brand": "CHA&MOM",
-    "spend": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     122.41,
-     205.73,
-     212.09,
-     212.16,
-     207.63,
-     178.2
-    ],
-    "sales": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0
-    ],
-    "impressions": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     27934,
-     47313,
-     48660,
-     47656,
-     48660,
-     40360
-    ],
-    "clicks": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     468,
-     959,
-     1166,
-     1016,
-     1012,
-     807
-    ],
-    "total_spend": 1138.22,
-    "total_sales": 0.0,
-    "total_clicks": 5428,
-    "total_impressions": 260583,
-    "roas": 0.0,
-    "cpc": 0.21,
-    "ctr": 2.08,
-    "is_traffic": true
-   },
-   {
     "id": "120240090794830508",
     "campaign_id": "120240090794830508",
     "name": "AMZ_Traffic_Naeiae_20251223",
@@ -17866,7 +17488,12 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 0.19,
     "ctr": 2.06,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 6.14,
+    "attr_roas_adj": 6.75
    },
    {
     "id": "120238800333050508",
@@ -17937,78 +17564,318 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 0.15,
     "ctr": 4.43,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 3.54,
+    "attr_roas_adj": 3.89
    },
    {
-    "id": "120241501265700508",
-    "campaign_id": "120241501265700508",
-    "name": "Target | Traffic | Alpremio_image",
-    "platform": "Meta CVR",
-    "brand": "Alpremio",
+    "id": "120243909567080508",
+    "campaign_id": "120243909567080508",
+    "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
     "spend": [
      0,
      0,
      0,
-     82.91,
-     207.55,
-     213.66,
-     207.99,
-     45.57,
      0,
      0,
      0,
-     0
+     0,
+     0,
+     0,
+     0,
+     0,
+     2042.54
     ],
     "sales": [
      0,
      0,
      0,
-     0.0,
-     0.0,
-     49.9,
-     84.8,
-     0.0,
      0,
      0,
      0,
-     0
+     0,
+     0,
+     0,
+     0,
+     0,
+     23.11
     ],
     "impressions": [
      0,
      0,
      0,
-     25566,
-     56834,
-     61632,
-     59770,
-     12468,
      0,
      0,
      0,
-     0
+     0,
+     0,
+     0,
+     0,
+     0,
+     290888
     ],
     "clicks": [
      0,
      0,
      0,
-     466,
-     1498,
-     1596,
-     2072,
-     400,
      0,
      0,
      0,
-     0
+     0,
+     0,
+     0,
+     0,
+     0,
+     19081
     ],
-    "total_spend": 757.68,
-    "total_sales": 134.7,
-    "total_clicks": 6032,
-    "total_impressions": 216270,
-    "roas": 0.18,
-    "cpc": 0.13,
-    "ctr": 2.79,
-    "is_traffic": true
+    "total_spend": 2042.54,
+    "total_sales": 23.11,
+    "total_clicks": 19081,
+    "total_impressions": 290888,
+    "roas": 0.01,
+    "cpc": 0.11,
+    "ctr": 6.56,
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 2.07,
+    "attr_roas_adj": 2.28
+   },
+   {
+    "id": "120241255476490508",
+    "campaign_id": "120241255476490508",
+    "name": "AMZ | Traffic | CHA&MOM",
+    "platform": "Meta Traffic",
+    "brand": "CHA&MOM",
+    "spend": [
+     0,
+     0,
+     115.2,
+     216.83,
+     237.58,
+     249.76,
+     253.41,
+     234.1,
+     242.64,
+     309.87,
+     312.66,
+     267.44
+    ],
+    "sales": [
+     0,
+     0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     86009,
+     64619,
+     52826,
+     57302,
+     54647,
+     44536,
+     45833,
+     53262,
+     56550,
+     50230
+    ],
+    "clicks": [
+     0,
+     0,
+     803,
+     964,
+     973,
+     1046,
+     1327,
+     2964,
+     2897,
+     3036,
+     2926,
+     2730
+    ],
+    "total_spend": 2439.49,
+    "total_sales": 0.0,
+    "total_clicks": 19666,
+    "total_impressions": 565814,
+    "roas": 0.0,
+    "cpc": 0.12,
+    "ctr": 3.48,
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 1.74,
+    "attr_roas_adj": 1.91
+   },
+   {
+    "id": "120232746327610508",
+    "campaign_id": "120232746327610508",
+    "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     1042.37,
+     1049.78,
+     1050.59,
+     1046.6,
+     1053.06,
+     1052.28,
+     1041.09,
+     1054.05,
+     1041.12,
+     1053.64,
+     1050.29,
+     884.37
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     113151,
+     108419,
+     115496,
+     117918,
+     103110,
+     100743,
+     103659,
+     110767,
+     85081,
+     92428,
+     107886,
+     80379
+    ],
+    "clicks": [
+     16359,
+     14374,
+     14492,
+     14189,
+     13662,
+     14142,
+     14899,
+     13476,
+     13564,
+     12972,
+     11642,
+     9483
+    ],
+    "total_spend": 12419.24,
+    "total_sales": 0.0,
+    "total_clicks": 163254,
+    "total_impressions": 1239037,
+    "roas": 0.0,
+    "cpc": 0.08,
+    "ctr": 13.18,
+    "is_traffic": true,
+    "attr_sales": 5156.84,
+    "attr_purchases": 204,
+    "attr_brb": 543.44,
+    "attr_roas": 0.42,
+    "attr_roas_adj": 0.46
+   }
+  ],
+  "weekly_bottom_traffic": [
+   {
+    "id": "120240644685950508",
+    "campaign_id": "120240644685950508",
+    "name": "AMZ | Traffic | WL | Dentalmom | 202601",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     443.1,
+     561.27,
+     559.4,
+     557.11,
+     561.46,
+     560.72,
+     556.52,
+     559.32,
+     558.57,
+     559.53,
+     560.55,
+     473.84
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     61438,
+     69691,
+     75174,
+     75802,
+     69415,
+     66841,
+     65130,
+     66961,
+     66847,
+     72581,
+     70019,
+     58562
+    ],
+    "clicks": [
+     6290,
+     6006,
+     6045,
+     5866,
+     5674,
+     5226,
+     5456,
+     5024,
+     4734,
+     4991,
+     4843,
+     4089
+    ],
+    "total_spend": 6511.39,
+    "total_sales": 0.0,
+    "total_clicks": 64244,
+    "total_impressions": 818461,
+    "roas": 0.0,
+    "cpc": 0.1,
+    "ctr": 7.85,
+    "is_traffic": true,
+    "attr_sales": 99.6,
+    "attr_purchases": 2,
+    "attr_brb": 74.08,
+    "attr_roas": 0.02,
+    "attr_roas_adj": 0.03
    },
    {
     "id": "120240689933170508",
@@ -18079,7 +17946,240 @@ const FIN_DATA = {
     "roas": 0.05,
     "cpc": 0.12,
     "ctr": 6.07,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 982.8,
+    "attr_purchases": 21,
+    "attr_brb": 906.08,
+    "attr_roas": 0.15,
+    "attr_roas_adj": 0.29
+   },
+   {
+    "id": "120232746327610508",
+    "campaign_id": "120232746327610508",
+    "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     1042.37,
+     1049.78,
+     1050.59,
+     1046.6,
+     1053.06,
+     1052.28,
+     1041.09,
+     1054.05,
+     1041.12,
+     1053.64,
+     1050.29,
+     884.37
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     113151,
+     108419,
+     115496,
+     117918,
+     103110,
+     100743,
+     103659,
+     110767,
+     85081,
+     92428,
+     107886,
+     80379
+    ],
+    "clicks": [
+     16359,
+     14374,
+     14492,
+     14189,
+     13662,
+     14142,
+     14899,
+     13476,
+     13564,
+     12972,
+     11642,
+     9483
+    ],
+    "total_spend": 12419.24,
+    "total_sales": 0.0,
+    "total_clicks": 163254,
+    "total_impressions": 1239037,
+    "roas": 0.0,
+    "cpc": 0.08,
+    "ctr": 13.18,
+    "is_traffic": true,
+    "attr_sales": 5156.84,
+    "attr_purchases": 204,
+    "attr_brb": 543.44,
+    "attr_roas": 0.42,
+    "attr_roas_adj": 0.46
+   },
+   {
+    "id": "120241255476490508",
+    "campaign_id": "120241255476490508",
+    "name": "AMZ | Traffic | CHA&MOM",
+    "platform": "Meta Traffic",
+    "brand": "CHA&MOM",
+    "spend": [
+     0,
+     0,
+     115.2,
+     216.83,
+     237.58,
+     249.76,
+     253.41,
+     234.1,
+     242.64,
+     309.87,
+     312.66,
+     267.44
+    ],
+    "sales": [
+     0,
+     0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     86009,
+     64619,
+     52826,
+     57302,
+     54647,
+     44536,
+     45833,
+     53262,
+     56550,
+     50230
+    ],
+    "clicks": [
+     0,
+     0,
+     803,
+     964,
+     973,
+     1046,
+     1327,
+     2964,
+     2897,
+     3036,
+     2926,
+     2730
+    ],
+    "total_spend": 2439.49,
+    "total_sales": 0.0,
+    "total_clicks": 19666,
+    "total_impressions": 565814,
+    "roas": 0.0,
+    "cpc": 0.12,
+    "ctr": 3.48,
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 1.74,
+    "attr_roas_adj": 1.91
+   },
+   {
+    "id": "120243909567080508",
+    "campaign_id": "120243909567080508",
+    "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     2042.54
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     23.11
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     290888
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     19081
+    ],
+    "total_spend": 2042.54,
+    "total_sales": 23.11,
+    "total_clicks": 19081,
+    "total_impressions": 290888,
+    "roas": 0.01,
+    "cpc": 0.11,
+    "ctr": 6.56,
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 2.07,
+    "attr_roas_adj": 2.28
    }
   ],
   "monthly_all": [
@@ -18256,7 +18356,12 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 0.07,
     "ctr": 13.19,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 5156.84,
+    "attr_purchases": 204,
+    "attr_brb": 543.44,
+    "attr_roas": 0.4,
+    "attr_roas_adj": 0.44
    },
    {
     "id": "120232464266510508",
@@ -18396,7 +18501,12 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 0.1,
     "ctr": 7.85,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 99.6,
+    "attr_purchases": 2,
+    "attr_brb": 74.08,
+    "attr_roas": 0.02,
+    "attr_roas_adj": 0.03
    },
    {
     "id": "120240689933170508",
@@ -18431,7 +18541,12 @@ const FIN_DATA = {
     "roas": 0.05,
     "cpc": 0.12,
     "ctr": 6.07,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 982.8,
+    "attr_purchases": 21,
+    "attr_brb": 906.08,
+    "attr_roas": 0.15,
+    "attr_roas_adj": 0.29
    },
    {
     "id": "412813716858145",
@@ -18886,7 +19001,12 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 0.12,
     "ctr": 3.48,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 1.74,
+    "attr_roas_adj": 1.91
    },
    {
     "id": "120241214197260508",
@@ -18921,7 +19041,12 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 0.06,
     "ctr": 11.45,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "176516762220129",
@@ -19026,7 +19151,12 @@ const FIN_DATA = {
     "roas": 0.01,
     "cpc": 0.11,
     "ctr": 6.56,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 2.07,
+    "attr_roas_adj": 2.28
    },
    {
     "id": "120243162990550508",
@@ -19131,7 +19261,12 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 0.14,
     "ctr": 4.49,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 2.56,
+    "attr_roas_adj": 2.81
    },
    {
     "id": "544958892271499",
@@ -19236,7 +19371,12 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 0.21,
     "ctr": 2.08,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120242000172120508",
@@ -19306,7 +19446,12 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 0.18,
     "ctr": 2.09,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 4.39,
+    "attr_roas_adj": 4.83
    },
    {
     "id": "120237963694920508",
@@ -19481,7 +19626,12 @@ const FIN_DATA = {
     "roas": 0.18,
     "cpc": 0.13,
     "ctr": 2.79,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120242058768040508",
@@ -20960,218 +21110,6 @@ const FIN_DATA = {
   ],
   "monthly_top_traffic": [
    {
-    "id": "120241214197260508",
-    "campaign_id": "120241214197260508",
-    "name": "Target | Traffic | Alpremio",
-    "platform": "Meta CVR",
-    "brand": "Alpremio",
-    "spend": [
-     295.84,
-     977.92,
-     1033.04
-    ],
-    "sales": [
-     0.0,
-     0.0,
-     0.0
-    ],
-    "impressions": [
-     35437,
-     140154,
-     164416
-    ],
-    "clicks": [
-     5181,
-     17150,
-     16598
-    ],
-    "total_spend": 2306.8,
-    "total_sales": 0.0,
-    "total_clicks": 38929,
-    "total_impressions": 340007,
-    "roas": 0.0,
-    "cpc": 0.06,
-    "ctr": 11.45,
-    "is_traffic": true
-   },
-   {
-    "id": "120232746327610508",
-    "campaign_id": "120232746327610508",
-    "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
-    "platform": "Meta Traffic",
-    "brand": "Unknown",
-    "spend": [
-     4615.07,
-     4195.53,
-     4192.31
-    ],
-    "sales": [
-     0.0,
-     0.0,
-     0.0
-    ],
-    "impressions": [
-     512079,
-     422085,
-     380887
-    ],
-    "clicks": [
-     67407,
-     56248,
-     49771
-    ],
-    "total_spend": 13002.91,
-    "total_sales": 0.0,
-    "total_clicks": 173426,
-    "total_impressions": 1315051,
-    "roas": 0.0,
-    "cpc": 0.07,
-    "ctr": 13.19,
-    "is_traffic": true
-   },
-   {
-    "id": "120240644685950508",
-    "campaign_id": "120240644685950508",
-    "name": "AMZ | Traffic | WL | Dentalmom | 202601",
-    "platform": "Meta Traffic",
-    "brand": "Unknown",
-    "spend": [
-     2038.31,
-     2237.63,
-     2235.45
-    ],
-    "sales": [
-     0.0,
-     0.0,
-     0.0
-    ],
-    "impressions": [
-     270054,
-     270277,
-     278130
-    ],
-    "clicks": [
-     23314,
-     21512,
-     19418
-    ],
-    "total_spend": 6511.39,
-    "total_sales": 0.0,
-    "total_clicks": 64244,
-    "total_impressions": 818461,
-    "roas": 0.0,
-    "cpc": 0.1,
-    "ctr": 7.85,
-    "is_traffic": true
-   },
-   {
-    "id": "120243909567080508",
-    "campaign_id": "120243909567080508",
-    "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331",
-    "platform": "Meta Traffic",
-    "brand": "Unknown",
-    "spend": [
-     0,
-     0,
-     2042.54
-    ],
-    "sales": [
-     0,
-     0,
-     23.11
-    ],
-    "impressions": [
-     0,
-     0,
-     290888
-    ],
-    "clicks": [
-     0,
-     0,
-     19081
-    ],
-    "total_spend": 2042.54,
-    "total_sales": 23.11,
-    "total_clicks": 19081,
-    "total_impressions": 290888,
-    "roas": 0.01,
-    "cpc": 0.11,
-    "ctr": 6.56,
-    "is_traffic": true
-   },
-   {
-    "id": "120240689933170508",
-    "campaign_id": "120240689933170508",
-    "name": "AMZ | Traffic | WL_Dental Mom | Stainless_StrawCup | 20260107",
-    "platform": "Meta Traffic",
-    "brand": "Unknown",
-    "spend": [
-     1969.18,
-     2237.12,
-     2236.0
-    ],
-    "sales": [
-     0.0,
-     58.77,
-     294.49
-    ],
-    "impressions": [
-     321804,
-     301523,
-     294752
-    ],
-    "clicks": [
-     19725,
-     18968,
-     17056
-    ],
-    "total_spend": 6442.3,
-    "total_sales": 353.26,
-    "total_clicks": 55749,
-    "total_impressions": 918079,
-    "roas": 0.05,
-    "cpc": 0.12,
-    "ctr": 6.07,
-    "is_traffic": true
-   }
-  ],
-  "monthly_bottom_traffic": [
-   {
-    "id": "120242264069810508",
-    "campaign_id": "120242264069810508",
-    "name": "Target_Traffic_CHA&MOM_20260219",
-    "platform": "Meta CVR",
-    "brand": "CHA&MOM",
-    "spend": [
-     0,
-     299.02,
-     839.2
-    ],
-    "sales": [
-     0,
-     0.0,
-     0.0
-    ],
-    "impressions": [
-     0,
-     66694,
-     193889
-    ],
-    "clicks": [
-     0,
-     1321,
-     4107
-    ],
-    "total_spend": 1138.22,
-    "total_sales": 0.0,
-    "total_clicks": 5428,
-    "total_impressions": 260583,
-    "roas": 0.0,
-    "cpc": 0.21,
-    "ctr": 2.08,
-    "is_traffic": true
-   },
-   {
     "id": "120240090794830508",
     "campaign_id": "120240090794830508",
     "name": "AMZ_Traffic_Naeiae_20251223",
@@ -21204,7 +21142,12 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 0.18,
     "ctr": 2.09,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 4.39,
+    "attr_roas_adj": 4.83
    },
    {
     "id": "120238800333050508",
@@ -21239,42 +21182,174 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 0.14,
     "ctr": 4.49,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 2.56,
+    "attr_roas_adj": 2.81
    },
    {
-    "id": "120241501265700508",
-    "campaign_id": "120241501265700508",
-    "name": "Target | Traffic | Alpremio_image",
-    "platform": "Meta CVR",
-    "brand": "Alpremio",
+    "id": "120243909567080508",
+    "campaign_id": "120243909567080508",
+    "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
     "spend": [
-     48.5,
-     709.18,
-     0
+     0,
+     0,
+     2042.54
+    ],
+    "sales": [
+     0,
+     0,
+     23.11
+    ],
+    "impressions": [
+     0,
+     0,
+     290888
+    ],
+    "clicks": [
+     0,
+     0,
+     19081
+    ],
+    "total_spend": 2042.54,
+    "total_sales": 23.11,
+    "total_clicks": 19081,
+    "total_impressions": 290888,
+    "roas": 0.01,
+    "cpc": 0.11,
+    "ctr": 6.56,
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 2.07,
+    "attr_roas_adj": 2.28
+   },
+   {
+    "id": "120241255476490508",
+    "campaign_id": "120241255476490508",
+    "name": "AMZ | Traffic | CHA&MOM",
+    "platform": "Meta Traffic",
+    "brand": "CHA&MOM",
+    "spend": [
+     290.05,
+     977.16,
+     1172.28
     ],
     "sales": [
      0.0,
-     134.7,
-     0
+     0.0,
+     0.0
     ],
     "impressions": [
-     19482,
-     196788,
-     0
+     137315,
+     215311,
+     213188
     ],
     "clicks": [
-     265,
-     5767,
-     0
+     1590,
+     5955,
+     12121
     ],
-    "total_spend": 757.68,
-    "total_sales": 134.7,
-    "total_clicks": 6032,
-    "total_impressions": 216270,
-    "roas": 0.18,
-    "cpc": 0.13,
-    "ctr": 2.79,
-    "is_traffic": true
+    "total_spend": 2439.49,
+    "total_sales": 0.0,
+    "total_clicks": 19666,
+    "total_impressions": 565814,
+    "roas": 0.0,
+    "cpc": 0.12,
+    "ctr": 3.48,
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 1.74,
+    "attr_roas_adj": 1.91
+   },
+   {
+    "id": "120232746327610508",
+    "campaign_id": "120232746327610508",
+    "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     4615.07,
+     4195.53,
+     4192.31
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     512079,
+     422085,
+     380887
+    ],
+    "clicks": [
+     67407,
+     56248,
+     49771
+    ],
+    "total_spend": 13002.91,
+    "total_sales": 0.0,
+    "total_clicks": 173426,
+    "total_impressions": 1315051,
+    "roas": 0.0,
+    "cpc": 0.07,
+    "ctr": 13.19,
+    "is_traffic": true,
+    "attr_sales": 5156.84,
+    "attr_purchases": 204,
+    "attr_brb": 543.44,
+    "attr_roas": 0.4,
+    "attr_roas_adj": 0.44
+   }
+  ],
+  "monthly_bottom_traffic": [
+   {
+    "id": "120240644685950508",
+    "campaign_id": "120240644685950508",
+    "name": "AMZ | Traffic | WL | Dentalmom | 202601",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     2038.31,
+     2237.63,
+     2235.45
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     270054,
+     270277,
+     278130
+    ],
+    "clicks": [
+     23314,
+     21512,
+     19418
+    ],
+    "total_spend": 6511.39,
+    "total_sales": 0.0,
+    "total_clicks": 64244,
+    "total_impressions": 818461,
+    "roas": 0.0,
+    "cpc": 0.1,
+    "ctr": 7.85,
+    "is_traffic": true,
+    "attr_sales": 99.6,
+    "attr_purchases": 2,
+    "attr_brb": 74.08,
+    "attr_roas": 0.02,
+    "attr_roas_adj": 0.03
    },
    {
     "id": "120240689933170508",
@@ -21309,7 +21384,132 @@ const FIN_DATA = {
     "roas": 0.05,
     "cpc": 0.12,
     "ctr": 6.07,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 982.8,
+    "attr_purchases": 21,
+    "attr_brb": 906.08,
+    "attr_roas": 0.15,
+    "attr_roas_adj": 0.29
+   },
+   {
+    "id": "120232746327610508",
+    "campaign_id": "120232746327610508",
+    "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     4615.07,
+     4195.53,
+     4192.31
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     512079,
+     422085,
+     380887
+    ],
+    "clicks": [
+     67407,
+     56248,
+     49771
+    ],
+    "total_spend": 13002.91,
+    "total_sales": 0.0,
+    "total_clicks": 173426,
+    "total_impressions": 1315051,
+    "roas": 0.0,
+    "cpc": 0.07,
+    "ctr": 13.19,
+    "is_traffic": true,
+    "attr_sales": 5156.84,
+    "attr_purchases": 204,
+    "attr_brb": 543.44,
+    "attr_roas": 0.4,
+    "attr_roas_adj": 0.44
+   },
+   {
+    "id": "120241255476490508",
+    "campaign_id": "120241255476490508",
+    "name": "AMZ | Traffic | CHA&MOM",
+    "platform": "Meta Traffic",
+    "brand": "CHA&MOM",
+    "spend": [
+     290.05,
+     977.16,
+     1172.28
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     137315,
+     215311,
+     213188
+    ],
+    "clicks": [
+     1590,
+     5955,
+     12121
+    ],
+    "total_spend": 2439.49,
+    "total_sales": 0.0,
+    "total_clicks": 19666,
+    "total_impressions": 565814,
+    "roas": 0.0,
+    "cpc": 0.12,
+    "ctr": 3.48,
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 1.74,
+    "attr_roas_adj": 1.91
+   },
+   {
+    "id": "120243909567080508",
+    "campaign_id": "120243909567080508",
+    "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331",
+    "platform": "Meta Traffic",
+    "brand": "Unknown",
+    "spend": [
+     0,
+     0,
+     2042.54
+    ],
+    "sales": [
+     0,
+     0,
+     23.11
+    ],
+    "impressions": [
+     0,
+     0,
+     290888
+    ],
+    "clicks": [
+     0,
+     0,
+     19081
+    ],
+    "total_spend": 2042.54,
+    "total_sales": 23.11,
+    "total_clicks": 19081,
+    "total_impressions": 290888,
+    "roas": 0.01,
+    "cpc": 0.11,
+    "ctr": 6.56,
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 2.07,
+    "attr_roas_adj": 2.28
    }
   ],
   "new_campaigns": [
@@ -21365,7 +21565,12 @@ const FIN_DATA = {
     "roas": 0.01,
     "cpc": 0.11,
     "ctr": 6.56,
-    "is_traffic": true
+    "is_traffic": true,
+    "attr_sales": 4232.98,
+    "attr_purchases": 182,
+    "attr_brb": 417.44,
+    "attr_roas": 2.07,
+    "attr_roas_adj": 2.28
    },
    {
     "id": "120243162990550508",

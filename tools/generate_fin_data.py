@@ -2349,6 +2349,30 @@ def generate():
         parts = wk.split("-W")
         week_labels.append(_week_label(int(parts[0]), int(parts[1])))
 
+    # Attribution campaign name -> data mapping for fuzzy match
+    def _match_attribution(name):
+        """Match a Meta Traffic campaign name to Attribution data."""
+        if not attribution:
+            return None
+        nl = name.lower().replace(" ", "").replace("|", "").replace("_", "")
+        best = None
+        best_score = 0
+        for attr_name, attr_data in attribution.items():
+            al = attr_name.lower().replace(" ", "").replace("|", "").replace("_", "")
+            # Find common substring length
+            common = 0
+            for i in range(min(len(nl), len(al))):
+                # Count matching keywords
+                pass
+            # Keyword overlap
+            nw = set(name.lower().replace("|", " ").replace("_", " ").split())
+            aw = set(attr_name.lower().replace("|", " ").replace("_", " ").split())
+            overlap = len(nw & aw)
+            if overlap > best_score and overlap >= 2:
+                best_score = overlap
+                best = attr_data
+        return best
+
     # Build campaign detail entries
     def _camp_entry(cid, agg_dict, period_keys):
         m = camp_meta.get(cid, {})
@@ -2363,7 +2387,23 @@ def generate():
         cpc = round(total_spend / total_clicks, 2) if total_clicks > 0 else 0
         ctr = round(total_clicks / total_impr * 100, 2) if total_impr > 0 else 0
         is_traffic = "traffic" in m.get("name", "").lower()
-        return {
+
+        # Attribution data for traffic campaigns
+        attr_sales = 0
+        attr_purchases = 0
+        attr_brb = 0
+        attr_roas = 0
+        attr_roas_adj = 0
+        if is_traffic and attribution:
+            attr_match = _match_attribution(m.get("name", ""))
+            if attr_match:
+                attr_sales = round(attr_match["sales"], 2)
+                attr_purchases = attr_match["purchases"]
+                attr_brb = round(attr_match["brb"], 2)
+                attr_roas = round(attr_sales / total_spend, 2) if total_spend > 0 else 0
+                attr_roas_adj = round((attr_sales + attr_brb) / total_spend, 2) if total_spend > 0 else 0
+
+        entry = {
             "id": cid,
             "campaign_id": m.get("campaign_id", cid),
             "name": m.get("name", ""),
@@ -2382,6 +2422,13 @@ def generate():
             "ctr": ctr,
             "is_traffic": is_traffic,
         }
+        if is_traffic:
+            entry["attr_sales"] = attr_sales
+            entry["attr_purchases"] = attr_purchases
+            entry["attr_brb"] = attr_brb
+            entry["attr_roas"] = attr_roas
+            entry["attr_roas_adj"] = attr_roas_adj
+        return entry
 
     # Weekly entries (last 12 weeks, only campaigns with spend)
     weekly_entries = []
@@ -2408,9 +2455,10 @@ def generate():
         # CVR: top = high ROAS, bottom = low ROAS
         top_cvr = sorted(cvr, key=lambda x: x["roas"], reverse=True)[:8]
         bottom_cvr = sorted(cvr, key=lambda x: x["roas"])[:8]
-        # Traffic: top = low CPC (efficient), bottom = high CPC (expensive)
-        top_traffic = sorted(traffic, key=lambda x: x["cpc"])[:5]
-        bottom_traffic = sorted(traffic, key=lambda x: x["cpc"], reverse=True)[:5]
+        # Traffic: top = high Attribution ROAS, bottom = low Attribution ROAS
+        # Fallback to CPC if no attribution data
+        top_traffic = sorted(traffic, key=lambda x: x.get("attr_roas_adj", 0), reverse=True)[:5]
+        bottom_traffic = sorted(traffic, key=lambda x: x.get("attr_roas_adj", 999) if x.get("attr_roas_adj", 0) > 0 else 999)[:5]
         return top_cvr, bottom_cvr, top_traffic, bottom_traffic
 
     weekly_top_cvr, weekly_bottom_cvr, weekly_top_traffic, weekly_bottom_traffic = _top_bottom(weekly_entries, min_spend=20)

@@ -2134,17 +2134,40 @@ function buildCampaignDetail(F, grain){
   // ── Top Traffic Campaigns (by CPC — lower is better)
   var topTraffic=isWeekly?(cd.weekly_top_traffic||[]):(cd.monthly_top_traffic||[]);
   var bottomTraffic=isWeekly?(cd.weekly_bottom_traffic||[]):(cd.monthly_bottom_traffic||[]);
+  // Traffic campaigns with Attribution data
+  var trafficHdr='<th>#</th><th>Campaign</th><th style="font-size:8px;color:var(--muted)">Platform</th><th style="font-size:8px;color:var(--muted)">Brand</th><th style="text-align:right">Spend</th><th style="text-align:right">CPC</th><th style="text-align:right">CTR</th><th style="text-align:right;color:#f59e0b">Attr. Sales</th><th style="text-align:right;color:#f59e0b">Attr. ROAS</th><th style="text-align:right;color:#8b5cf6">ROAS+BRB</th><th style="text-align:right">Orders</th>';
+
+  function trafficRow(c,i){
+    var cc=c.cpc<=0.5?'var(--g)':c.cpc<=1.5?'var(--am)':'var(--r)';
+    var ar=c.attr_roas||0;
+    var arb=c.attr_roas_adj||0;
+    var rc=ar>=2?'var(--g)':ar>=0.5?'var(--am)':'var(--r)';
+    var rc2=arb>=2?'var(--g)':arb>=0.5?'var(--am)':'var(--r)';
+    var h='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+    h+='<td style="font-size:10px;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c.name+'">'+c.name+campLink(c)+'</td>';
+    h+='<td style="font-size:9px;color:var(--dim)">'+c.platform+'</td>';
+    h+='<td style="font-size:9px;color:var(--dim)">'+c.brand+'</td>';
+    h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(c.total_spend)+'</td>';
+    h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:'+cc+'">$'+c.cpc.toFixed(2)+'</td>';
+    h+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+c.ctr.toFixed(1)+'%</td>';
+    h+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:#f59e0b">'+(c.attr_sales>0?'$'+c.attr_sales.toLocaleString():'<span style="color:var(--muted)">—</span>')+'</td>';
+    h+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+rc+'">'+(ar>0?ar.toFixed(1)+'x':'<span style="color:var(--muted)">—</span>')+'</td>';
+    h+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+rc2+'">'+(arb>0?arb.toFixed(1)+'x':'<span style="color:var(--muted)">—</span>')+'</td>';
+    h+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+(c.attr_purchases||0)+'</td></tr>';
+    return h;
+  }
+
   if(topTraffic.length){
-    html+='<div class="sec"><div class="sec-title" style="color:var(--g)">Top Traffic Campaigns (lowest CPC)</div>';
-    html+='<div class="card"><div class="desc">Traffic campaigns have ROAS=0 by design. Ranked by CPC efficiency.</div>';
-    html+='<div style="overflow-x:auto"><table><thead><tr>'+campHdr+'</tr></thead><tbody>';
-    topTraffic.forEach(function(c,i){ html+=campRow(c,i,false); });
+    html+='<div class="sec"><div class="sec-title" style="color:#f59e0b">Traffic Campaigns (Amazon Attribution ROAS)</div>';
+    html+='<div class="card"><div class="desc">Meta Traffic -> Amazon landing. ROAS from Amazon Attribution API. ROAS+BRB includes Brand Referral Bonus (~10%).</div>';
+    html+='<div style="overflow-x:auto"><table><thead><tr>'+trafficHdr+'</tr></thead><tbody>';
+    topTraffic.forEach(function(c,i){ html+=trafficRow(c,i); });
     html+='</tbody></table></div></div></div>';
   }
-  if(bottomTraffic.length){
-    html+='<div class="sec"><div class="sec-title" style="color:var(--r)">Expensive Traffic Campaigns (highest CPC)</div>';
-    html+='<div class="card"><div style="overflow-x:auto"><table><thead><tr>'+campHdr+'</tr></thead><tbody>';
-    bottomTraffic.forEach(function(c,i){ html+=campRow(c,i,false); });
+  if(bottomTraffic.length&&bottomTraffic[0]!==topTraffic[0]){
+    html+='<div class="sec"><div class="sec-title" style="color:var(--r)">Low-Performing Traffic Campaigns</div>';
+    html+='<div class="card"><div style="overflow-x:auto"><table><thead><tr>'+trafficHdr+'</tr></thead><tbody>';
+    bottomTraffic.forEach(function(c,i){ html+=trafficRow(c,i); });
     html+='</tbody></table></div></div></div>';
   }
 
