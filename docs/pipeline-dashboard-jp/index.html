@@ -165,18 +165,18 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
     <div class="funnel" id="dash-funnel">
       <div class="funnel-row">
         <div class="funnel-label">Outbound</div>
-        <div class="fn on" data-stage="not_started"><div class="fi" id="f-not-started">0</div><div class="ft">Not Started</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="draft_ready"><div class="fi" id="f-draft-ready">0</div><div class="ft">Draft Ready</div><div class="fs">AI初案</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="sent"><div class="fi" id="f-sent">0</div><div class="ft">DM Sent</div><div class="fs">発送済</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="replied"><div class="fi" id="f-replied">0</div><div class="ft">Replied</div><div class="fs">返信あり</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="accepted"><div class="fi" id="f-accepted">0</div><div class="ft">Accepted</div><div class="fs">承諾</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="sample_sent"><div class="fi" id="f-sample-sent">0</div><div class="ft">Sample Sent</div><div class="fs">発送</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="posted"><div class="fi" id="f-posted">0</div><div class="ft">Posted</div><div class="fs">投稿済</div></div>
+        <div class="fn on" data-stage="not_started" onclick="goToStage('not_started')"><div class="fi" id="f-not-started">0</div><div class="ft">Not Started</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="draft_ready" onclick="goToStage('draft_ready')"><div class="fi" id="f-draft-ready">0</div><div class="ft">Draft Ready</div><div class="fs">AI初案</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="sent" onclick="goToStage('sent')"><div class="fi" id="f-sent">0</div><div class="ft">DM Sent</div><div class="fs">発送済</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="replied" onclick="goToStage('replied')"><div class="fi" id="f-replied">0</div><div class="ft">Replied</div><div class="fs">返信あり</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="accepted" onclick="goToStage('accepted')"><div class="fi" id="f-accepted">0</div><div class="ft">Accepted</div><div class="fs">承諾</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="sample_sent" onclick="goToStage('sample_sent')"><div class="fi" id="f-sample-sent">0</div><div class="ft">Sample Sent</div><div class="fs">発送</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="posted" onclick="goToStage('posted')"><div class="fi" id="f-posted">0</div><div class="ft">Posted</div><div class="fs">投稿済</div></div>
       </div>
       <div class="funnel-row" style="margin-top:6px">
         <div class="funnel-label">Inbound</div>
-        <div class="fn" data-stage="inbound"><div class="fi" id="f-inbound">0</div><div class="ft">Inbound</div><div class="fs">自然流入</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="needs_review"><div class="fi" id="f-needs-review">0</div><div class="ft">Needs Review</div><div class="fs">要確認</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="inbound" onclick="goToStage('inbound')"><div class="fi" id="f-inbound">0</div><div class="ft">Inbound</div><div class="fs">自然流入</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="needs_review" onclick="goToStage('needs_review')"><div class="fi" id="f-needs-review">0</div><div class="ft">Needs Review</div><div class="fs">要確認</div></div><span class="fa">&#x25B6;</span>
         <div class="fn" data-stage="accepted" style="visibility:hidden"><div class="fi">-</div><div class="ft">Accepted</div></div><span class="fa" style="visibility:hidden">&#x25B6;</span>
         <div class="fn" data-stage="" style="visibility:hidden"><div class="fi">-</div><div class="ft"></div></div><span class="fa" style="visibility:hidden">&#x25B6;</span>
         <div class="fn" data-stage="" style="visibility:hidden"><div class="fi">-</div><div class="ft"></div></div><span class="fa" style="visibility:hidden">&#x25B6;</span>
@@ -205,22 +205,23 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
       <div class="stat" style="border-left:2px solid var(--c)"><div class="sl">Inbound</div><div class="sv" id="s-inbound" style="color:var(--c)">0</div></div>
     </div>
 
+    <!-- Daily KPI Table -->
     <div class="card" style="margin-top:12px">
-      <h3>&#x1F4E8; DM Queue <span style="font-size:9px;color:var(--muted);font-weight:400">(Draft Ready only)</span></h3>
-      <div class="desc">Draft Readyのクリエイター — DMリンクをクリックして初案をコピペ</div>
-      <div id="dm-queue">
-        <div class="loading-overlay"><span class="loading-spinner"></span> Loading...</div>
+      <h3>&#x1F4CA; Daily Activity</h3>
+      <div class="desc">日別 DM アウトリーチ状況</div>
+      <div style="overflow-x:auto">
+        <table id="daily-kpi-table">
+          <thead>
+            <tr><th>Date</th><th>Outreach</th><th>Reply</th><th>Accepted</th><th>Posted</th><th>Inbound</th><th>Reply Rate</th></tr>
+          </thead>
+          <tbody id="daily-kpi-tbody">
+            <tr><td colspan="7" style="text-align:center;padding:20px;color:var(--dim)">Loading...</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <div class="card">
-      <h3>&#x1F4E5; Inbound Queue</h3>
-      <div class="desc">自然流入 (オーガニックDM / コメント経由) のクリエイター</div>
-      <div id="inbound-queue">
-        <div class="loading-overlay"><span class="loading-spinner"></span> Loading...</div>
-      </div>
-    </div>
-
+    <!-- DM Budget -->
     <div class="card">
       <h3>&#x1F4CA; Daily DM Budget</h3>
       <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
@@ -232,6 +233,16 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
       <div style="font-size:10px;color:var(--dim);margin-top:6px">Hard cap: 30 DMs/day. Execution stops at limit.</div>
     </div>
 
+    <!-- Inbound Queue -->
+    <div class="card">
+      <h3>&#x1F4E5; Inbound Queue</h3>
+      <div class="desc">自然流入 (オーガニックDM / コメント経由) のクリエイター</div>
+      <div id="inbound-queue">
+        <div style="text-align:center;padding:20px;color:var(--dim);font-size:11px">No inbound creators detected.</div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
     <div class="card">
       <h3>&#x23F0; Recent Activity</h3>
       <div id="activity-log" style="max-height:250px;overflow-y:auto">
@@ -567,7 +578,7 @@ function loadCreators() {
       setPillStatus('ready');
       updateStats();
       renderCreators();
-      renderDmQueue();
+      renderDailyKpi();
       renderInboundQueue();
       loadRecentActivity();
     })
@@ -720,7 +731,58 @@ function markAccepted(handle) {
   });
 }
 
-// ─── Dashboard: DM Queue ───
+// ─── Dashboard: Daily KPI ───
+function renderDailyKpi() {
+  // Build daily stats from creator data + DM logs
+  var today = new Date();
+  var days = [];
+  for (var i = 0; i < 14; i++) {
+    var d = new Date(today);
+    d.setDate(d.getDate() - i);
+    days.push(d.toISOString().slice(0, 10));
+  }
+
+  // Count by status change dates (approximate from last_dm and added_at)
+  var dailyStats = {};
+  days.forEach(function(day) { dailyStats[day] = { outreach: 0, reply: 0, accepted: 0, posted: 0, inbound: 0 }; });
+
+  _creators.forEach(function(c) {
+    var dm = c.last_dm || '';
+    if (dm && dailyStats[dm]) {
+      if (c.status === 'sent' || c.status === 'replied' || c.status === 'accepted' || c.status === 'sample_sent' || c.status === 'posted') {
+        dailyStats[dm].outreach++;
+      }
+      if (c.status === 'replied') dailyStats[dm].reply++;
+      if (c.status === 'accepted' || c.status === 'sample_sent' || c.status === 'posted') dailyStats[dm].accepted++;
+      if (c.status === 'posted') dailyStats[dm].posted++;
+      if (c.status === 'inbound' || c.status === 'needs_review') dailyStats[dm].inbound++;
+    }
+  });
+
+  // Also count today's DM budget
+  dailyStats[days[0]] = dailyStats[days[0]] || { outreach: 0, reply: 0, accepted: 0, posted: 0, inbound: 0 };
+  dailyStats[days[0]].outreach = Math.max(dailyStats[days[0]].outreach, _dmSentToday);
+
+  var html = '';
+  days.forEach(function(day) {
+    var s = dailyStats[day];
+    var total = s.outreach + s.inbound;
+    var replyRate = total > 0 ? Math.round((s.reply / total) * 100) + '%' : '-';
+    var isToday = day === days[0];
+    html += '<tr' + (isToday ? ' style="background:#fff5f5;font-weight:600"' : '') + '>';
+    html += '<td>' + day + (isToday ? ' <span class="b a">Today</span>' : '') + '</td>';
+    html += '<td style="font-family:var(--mono)">' + s.outreach + '</td>';
+    html += '<td style="font-family:var(--mono)">' + s.reply + '</td>';
+    html += '<td style="font-family:var(--mono)">' + s.accepted + '</td>';
+    html += '<td style="font-family:var(--mono)">' + s.posted + '</td>';
+    html += '<td style="font-family:var(--mono)">' + s.inbound + '</td>';
+    html += '<td>' + replyRate + '</td>';
+    html += '</tr>';
+  });
+  document.getElementById('daily-kpi-tbody').innerHTML = html || '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--dim)">No data yet</td></tr>';
+}
+
+// ─── Dashboard: DM Queue (now only used internally) ───
 function renderDmQueue() {
   var drafts = _creators.filter(function(c) { return c.status === 'draft_ready'; });
   var html = '';
@@ -1203,6 +1265,15 @@ function escapeHtml(str) {
   var div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+function goToStage(status) {
+  // Switch to Creators tab with status filter
+  var tab = document.querySelector('.mt>div[data-p="creators"]');
+  if (tab) tab.click();
+  // Set filter
+  var sel = document.getElementById('creator-status-filter');
+  if (sel) { sel.value = status; filterCreators(); }
 }
 
 function showToast(msg, type) {
