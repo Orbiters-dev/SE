@@ -193,6 +193,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
     <div class="on" data-p="dashboard">Dashboard</div>
     <div data-p="creators">Creators</div>
     <div data-p="drafts">DM Drafts</div>
+    <div data-p="contracts">Contracts</div>
     <div data-p="config">Config</div>
     <div data-p="samples">Samples</div>
   </div>
@@ -367,6 +368,35 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 
     <div id="drafts-list" style="margin-top:12px">
       <div style="text-align:center;padding:40px;color:var(--dim)">Click "Generate Drafts" to create AI-powered DM drafts based on creator content.</div>
+    </div>
+  </div>
+
+  <!-- ===== CONTRACTS TAB ===== -->
+  <div class="mp" id="p-contracts">
+    <div class="card" style="border-left:3px solid var(--c)">
+      <h3>&#x1F4CB; Contract Queue</h3>
+      <div class="desc">フォーム提出済みクリエイター — AI が対話内容から有償/無償を推薦</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="btn btn-primary" onclick="classifyContracts()">&#x1F916; AI 分類実行</button>
+        <button class="btn btn-success" id="btn-exec-contracts" onclick="executeContracts()">&#x1F680; Execute</button>
+        <span id="contract-status" style="font-size:11px;color:var(--dim)"></span>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+      <!-- Gifting (unpaid) column -->
+      <div class="card" style="border-top:3px solid var(--g)">
+        <h3 style="color:var(--g)">&#x1F381; 無償 (Gifting)</h3>
+        <div class="desc">商品提供のみ — Template ID: 4</div>
+        <div id="contract-gifting-list"></div>
+      </div>
+
+      <!-- Paid column -->
+      <div class="card" style="border-top:3px solid var(--am)">
+        <h3 style="color:var(--am)">&#x1F4B0; 有償 (Paid)</h3>
+        <div class="desc">報酬あり — Template ID: 5</div>
+        <div id="contract-paid-list"></div>
+      </div>
     </div>
   </div>
 
@@ -664,6 +694,7 @@ function loadCreators() {
       renderDailyKpi();
       renderInboundQueue();
       renderSamples();
+      renderContracts();
       loadRecentActivity();
       loadConfig();
     })
@@ -1428,16 +1459,9 @@ function sendFormLink(handle) {
 }
 
 function sendContract(handle) {
-  n8nPost({ action: 'create_contract', username: handle }).then(function(res) {
-    if (res.status === 'ok') {
-      showToast('Contract sent to @' + handle);
-      loadCreators();
-    } else {
-      showToast('Error: ' + (res.message || 'unknown'), 'err');
-    }
-  }).catch(function() {
-    showToast('Contract send failed', 'err');
-  });
+  // Switch to contracts tab
+  var tab = document.querySelector('.mt>div[data-p="contracts"]');
+  if (tab) tab.click();
 }
 
 function sendGuidelines(handle) {
@@ -1577,6 +1601,148 @@ function markSamplesSent() {
     showToast(checked.length + ' samples marked as sent');
     loadCreators();
   });
+}
+
+// ─── Contracts Tab ───
+var _contractClassification = {};
+
+function contractCard(c, type) {
+  var checked = ' checked';
+  var html = '<div class="dm-card" style="padding:10px;margin-bottom:6px" data-username="' + c.username + '" data-type="' + type + '">';
+  html += '<div style="display:flex;align-items:center;gap:8px">';
+  html += '<input type="checkbox" class="contract-cb" data-username="' + c.username + '"' + checked + ' style="accent-color:var(--a)">';
+  html += '<span style="font-weight:700;color:var(--a)">@' + c.username + '</span>';
+  html += '<span style="font-size:10px;color:var(--dim)">' + (c.name || '') + '</span>';
+  if (c.followers) html += '<span style="font-size:9px;color:var(--muted)">' + c.followers.toLocaleString() + '</span>';
+  html += '</div>';
+  html += '<div style="display:flex;gap:4px;margin-top:6px">';
+  html += '<button class="btn btn-sm btn-secondary" onclick="moveContract(\'' + c.username + '\')" title="Move to ' + (type === 'gifting' ? 'Paid' : 'Gifting') + '">\u2195 Move</button>';
+  html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')" title="View DM history">\uD83D\uDCAC</button>';
+  html += '</div>';
+  html += '</div>';
+  return html;
+}
+
+function renderContracts() {
+  var eligible = _creators.filter(function(c) { return c.status === 'form_submitted'; });
+  // Initialize classification for new creators
+  eligible.forEach(function(c) {
+    if (!_contractClassification[c.username]) {
+      _contractClassification[c.username] = 'gifting'; // default
+    }
+  });
+  var giftingHtml = '';
+  var paidHtml = '';
+  var giftingCount = 0;
+  var paidCount = 0;
+  eligible.forEach(function(c) {
+    var type = _contractClassification[c.username] || 'gifting';
+    if (type === 'paid') {
+      paidHtml += contractCard(c, 'paid');
+      paidCount++;
+    } else {
+      giftingHtml += contractCard(c, 'gifting');
+      giftingCount++;
+    }
+  });
+  document.getElementById('contract-gifting-list').innerHTML = giftingHtml || '<div style="text-align:center;padding:20px;color:var(--dim);font-size:11px">No creators in gifting queue.</div>';
+  document.getElementById('contract-paid-list').innerHTML = paidHtml || '<div style="text-align:center;padding:20px;color:var(--dim);font-size:11px">No creators in paid queue.</div>';
+  document.getElementById('btn-exec-contracts').disabled = eligible.length === 0;
+  document.getElementById('contract-status').textContent = eligible.length ? (giftingCount + ' gifting, ' + paidCount + ' paid') : 'No form_submitted creators';
+}
+
+function classifyContracts() {
+  var eligible = _creators.filter(function(c) { return c.status === 'form_submitted'; });
+  if (!eligible.length) {
+    showToast('No form_submitted creators to classify', 'err');
+    return;
+  }
+  var statusEl = document.getElementById('contract-status');
+  statusEl.innerHTML = '<span class="loading-spinner"></span> Classifying...';
+  var paidKeywords = ['\u5831\u916C', '\u6709\u511F', '\u652F\u6255', 'payment', '\u30AE\u30E3\u30E9'];
+
+  // Check DM cache for keywords
+  var promises = eligible.map(function(c) {
+    if (_dmCache[c.username] && _dmCache[c.username].length) {
+      return Promise.resolve({ username: c.username, logs: _dmCache[c.username] });
+    }
+    return n8nPost({ action: 'dm_log', username: c.username }).then(function(res) {
+      var logs = Array.isArray(res) ? res : (res.logs || []);
+      _dmCache[c.username] = logs;
+      return { username: c.username, logs: logs };
+    }).catch(function() {
+      return { username: c.username, logs: [] };
+    });
+  });
+
+  Promise.all(promises).then(function(results) {
+    results.forEach(function(r) {
+      var isPaid = false;
+      r.logs.forEach(function(m) {
+        var text = (m.text || '').toLowerCase();
+        paidKeywords.forEach(function(kw) {
+          if (text.indexOf(kw.toLowerCase()) !== -1) isPaid = true;
+        });
+      });
+      _contractClassification[r.username] = isPaid ? 'paid' : 'gifting';
+    });
+    renderContracts();
+    showToast('Classification complete');
+  }).catch(function() {
+    statusEl.textContent = 'Classification failed';
+    showToast('Classification failed', 'err');
+  });
+}
+
+function moveContract(handle) {
+  var current = _contractClassification[handle] || 'gifting';
+  _contractClassification[handle] = current === 'gifting' ? 'paid' : 'gifting';
+  renderContracts();
+}
+
+function executeContracts() {
+  var eligible = _creators.filter(function(c) { return c.status === 'form_submitted'; });
+  // Get only checked ones
+  var toSend = [];
+  eligible.forEach(function(c) {
+    var cb = document.querySelector('.contract-cb[data-username="' + c.username + '"]');
+    if (cb && cb.checked) {
+      toSend.push({ username: c.username, type: _contractClassification[c.username] || 'gifting' });
+    }
+  });
+  if (!toSend.length) {
+    showToast('No creators selected', 'err');
+    return;
+  }
+  var btn = document.getElementById('btn-exec-contracts');
+  btn.disabled = true;
+  var statusEl = document.getElementById('contract-status');
+  statusEl.innerHTML = '<span class="loading-spinner"></span> Sending contracts...';
+
+  var idx = 0;
+  var ok = 0;
+  var fail = 0;
+  function processNext() {
+    if (idx >= toSend.length) {
+      btn.disabled = false;
+      statusEl.textContent = 'Done! ' + ok + ' sent, ' + fail + ' failed.';
+      showToast('Contracts: ' + ok + ' sent, ' + fail + ' failed');
+      loadCreators();
+      return;
+    }
+    var item = toSend[idx];
+    statusEl.textContent = 'Sending ' + (idx + 1) + '/' + toSend.length + ' (@' + item.username + ')...';
+    n8nPost({ action: 'create_contract', username: item.username, contract_type: item.type })
+      .then(function(res) {
+        if (res.status === 'ok' || res.ok) { ok++; } else { fail++; }
+      })
+      .catch(function() { fail++; })
+      .then(function() { // finally
+        idx++;
+        setTimeout(processNext, 500);
+      });
+  }
+  processNext();
 }
 
 function exportSamples() {
