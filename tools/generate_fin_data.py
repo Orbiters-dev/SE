@@ -1150,6 +1150,103 @@ def generate():
             "conv_rate": conv_rate,
         })
 
+    # ── Channel Traffic Breakdown (Amazon vs Onzenna) ────────────────────────
+    # GA4 = Onzenna D2C traffic. Amazon = Ads clicks + Meta Traffic clicks + organic (estimated).
+    def _build_channel_traffic(ga4_rows, amz_ads_rows, meta_rows, google_rows, days):
+        cutoff = (today - timedelta(days=days)).isoformat()
+
+        # Onzenna (GA4 channel groupings)
+        onz = defaultdict(lambda: {"sessions": 0, "purchases": 0})
+        for r in ga4_rows:
+            if r.get("date", "") < cutoff:
+                continue
+            ch = r.get("channel_grouping", "Other")
+            onz[ch]["sessions"] += int(r.get("sessions", 0) or 0)
+            onz[ch]["purchases"] += int(r.get("purchases", 0) or 0)
+
+        # Amazon: Ads clicks + Meta Traffic clicks
+        amz_ad_clicks = 0
+        amz_ad_impr = 0
+        for r in amz_ads_rows:
+            if r.get("date", "") < cutoff:
+                continue
+            amz_ad_clicks += int(r.get("clicks", 0) or 0)
+            amz_ad_impr += int(r.get("impressions", 0) or 0)
+
+        meta_traffic_clicks = 0
+        meta_cvr_clicks = 0
+        for r in meta_rows:
+            if r.get("date", "") < cutoff:
+                continue
+            cn = (r.get("campaign_name", "") or "").lower()
+            clicks = int(r.get("clicks", 0) or 0)
+            if "traffic" in cn or "amz" in cn:
+                meta_traffic_clicks += clicks
+            else:
+                meta_cvr_clicks += clicks
+
+        google_clicks = sum(int(r.get("clicks", 0) or 0) for r in google_rows if r.get("date", "") >= cutoff)
+
+        # Onzenna sources (map GA4 channels to cleaner labels)
+        onz_mapped = {}
+        GA4_MAP = {
+            "Cross-network": "Meta + Google (Cross-network)",
+            "Paid Social": "Meta Ads (Paid Social)",
+            "Paid Search": "Google Ads (Paid Search)",
+            "Direct": "Direct",
+            "Organic Search": "Organic Search (SEO)",
+            "Organic Social": "Organic Social (IG/TikTok/etc)",
+            "Referral": "Referral",
+            "Email": "Email (Klaviyo)",
+            "Unassigned": "Unassigned",
+            "Display": "Display Ads",
+        }
+        for ch, v in onz.items():
+            label = GA4_MAP.get(ch, ch)
+            onz_mapped[label] = v
+
+        onz_total = sum(v["sessions"] for v in onz.values())
+
+        # Amazon total sessions estimate: Amazon Brand Analytics or ads clicks
+        # We don't have Amazon session data directly. Use ad clicks as lower bound.
+        amz_total_est = amz_ad_clicks + meta_traffic_clicks  # paid only (organic unknown)
+
+        return {
+            "onzenna": {
+                "total_sessions": onz_total,
+                "sources": sorted(
+                    [{"source": k, "sessions": v["sessions"], "purchases": v["purchases"],
+                      "pct": round(v["sessions"] / onz_total * 100, 1) if onz_total else 0}
+                     for k, v in onz_mapped.items() if v["sessions"] > 0],
+                    key=lambda x: -x["sessions"]
+                ),
+            },
+            "amazon": {
+                "total_clicks": amz_total_est,
+                "sources": [
+                    {"source": "Amazon Ads (Sponsored)", "sessions": amz_ad_clicks,
+                     "pct": round(amz_ad_clicks / amz_total_est * 100, 1) if amz_total_est else 0},
+                    {"source": "Meta Traffic (AMZ landing)", "sessions": meta_traffic_clicks,
+                     "pct": round(meta_traffic_clicks / amz_total_est * 100, 1) if amz_total_est else 0},
+                    {"source": "Organic (est.)", "sessions": 0, "note": "n.m. — no Amazon session API"},
+                ],
+            },
+            "meta_detail": {
+                "cvr_clicks": meta_cvr_clicks,
+                "traffic_clicks": meta_traffic_clicks,
+                "total": meta_cvr_clicks + meta_traffic_clicks,
+            },
+            "google_clicks": google_clicks,
+        }
+
+    channel_traffic = {
+        "7d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 7),
+        "30d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 30),
+    }
+    onz_30 = channel_traffic["30d"]["onzenna"]["total_sessions"]
+    amz_30 = channel_traffic["30d"]["amazon"]["total_clicks"]
+    print(f"  Channel traffic (30d): Onzenna {onz_30:,} sessions, Amazon {amz_30:,} clicks")
+
     # ── 7. Build monthly waterfall data ───────────────────────────────────────
     print("\n[7/7] Building monthly waterfall...")
 
@@ -2323,6 +2420,7 @@ def generate():
         "brand_analytics": ba_data,
         "brand_analytics_category": ba_category_top,
         "traffic_sources": traffic_data,
+        "channel_traffic": channel_traffic,
         "pnl_polar": pnl_polar,
         "klaviyo": klaviyo_data,
         "campaign_detail": campaign_detail,

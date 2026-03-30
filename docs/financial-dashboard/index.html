@@ -610,8 +610,74 @@ function renderFinancial(){
   // TAB 5: TRAFFIC
   // ══════════════════════════════════════════════════════════════════════════
   var traf='';
-  traf+='<div class="sec"><div class="sec-title"><div class="num">5</div> Traffic Sources &mdash; GA4 (30D)</div>';
-  traf+='<div class="card"><table><thead><tr><th>#</th><th>Source / Medium</th><th style="text-align:right">Sessions</th><th style="text-align:right">Users</th><th style="text-align:right">Revenue</th><th style="text-align:right">Conversions</th><th style="text-align:right">Conv %</th></tr></thead><tbody>';
+  var CT=F.channel_traffic||{};
+
+  // Period toggle for channel traffic
+  traf+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">';
+  traf+='<div class="sec-title" style="border:none;margin:0;padding:0"><div class="num">5</div> Traffic by Channel</div>';
+  traf+='<div class="period-tabs" id="ct-period-tabs">';
+  traf+='<div class="on" data-ctp="30d" onclick="switchCtPeriod(\'30d\',this)">30D</div>';
+  traf+='<div data-ctp="7d" onclick="switchCtPeriod(\'7d\',this)">7D</div>';
+  traf+='</div></div>';
+
+  traf+='<div id="ct-content"></div>';
+  traf+='<script>';
+  traf+='var CT_DATA='+JSON.stringify(CT)+';';
+  traf+='var CT_PERIOD="30d";';
+  traf+='function switchCtPeriod(p,el){CT_PERIOD=p;renderCt();document.querySelectorAll("#ct-period-tabs>div").forEach(function(d){d.className=d.dataset.ctp===p?"on":"";});}';
+  traf+='function renderCt(){';
+  traf+='var d=CT_DATA[CT_PERIOD]||{};';
+  traf+='var onz=d.onzenna||{};var amz=d.amazon||{};var meta=d.meta_detail||{};';
+  traf+='var h="";';
+
+  // Two-column layout: Onzenna vs Amazon
+  traf+='h+="<div style=\\"display:grid;grid-template-columns:1fr 1fr;gap:12px\\">";';
+
+  // Onzenna column
+  traf+='h+="<div class=\\"card\\"><h3 style=\\"color:#6366f1;margin-bottom:8px\\">Onzenna D2C (GA4 Sessions)</h3>";';
+  traf+='h+="<div style=\\"font-size:24px;font-weight:800;color:#6366f1;margin-bottom:12px\\">"+(onz.total_sessions||0).toLocaleString()+" sessions</div>";';
+  traf+='h+="<table><thead><tr><th>Source</th><th style=\\"text-align:right\\">Sessions</th><th style=\\"text-align:right\\">%</th><th style=\\"text-align:right\\">Purchases</th></tr></thead><tbody>";';
+  traf+='(onz.sources||[]).forEach(function(s){';
+  traf+='h+="<tr><td style=\\"font-size:10px\\">"+s.source+"</td>";';
+  traf+='h+="<td style=\\"text-align:right;font-family:var(--mono);font-size:10px\\">"+s.sessions.toLocaleString()+"</td>";';
+  traf+='h+="<td style=\\"text-align:right;font-family:var(--mono);font-size:9px;color:var(--dim)\\">"+s.pct+"%</td>";';
+  traf+='h+="<td style=\\"text-align:right;font-family:var(--mono);font-size:10px\\">"+(s.purchases||0)+"</td></tr>";';
+  traf+='});';
+  traf+='h+="</tbody></table></div>";';
+
+  // Amazon column
+  traf+='h+="<div class=\\"card\\"><h3 style=\\"color:#f59e0b;margin-bottom:8px\\">Amazon MP (Ad Clicks + Traffic)</h3>";';
+  traf+='h+="<div style=\\"font-size:24px;font-weight:800;color:#f59e0b;margin-bottom:12px\\">"+(amz.total_clicks||0).toLocaleString()+" paid clicks</div>";';
+  traf+='h+="<div style=\\"font-size:9px;color:var(--dim);margin-bottom:8px\\">Amazon does not share session data. Showing paid clicks only. Organic search traffic is not measurable.</div>";';
+  traf+='h+="<table><thead><tr><th>Source</th><th style=\\"text-align:right\\">Clicks</th><th style=\\"text-align:right\\">%</th></tr></thead><tbody>";';
+  traf+='(amz.sources||[]).forEach(function(s){';
+  traf+='if(s.sessions>0){';
+  traf+='h+="<tr><td style=\\"font-size:10px\\">"+s.source+"</td>";';
+  traf+='h+="<td style=\\"text-align:right;font-family:var(--mono);font-size:10px\\">"+s.sessions.toLocaleString()+"</td>";';
+  traf+='h+="<td style=\\"text-align:right;font-family:var(--mono);font-size:9px;color:var(--dim)\\">"+s.pct+"%</td></tr>";';
+  traf+='}else{';
+  traf+='h+="<tr><td style=\\"font-size:10px;color:var(--muted)\\">"+s.source+"</td>";';
+  traf+='h+="<td style=\\"text-align:right;font-size:9px;color:#9ca3af\\">n.m.</td><td></td></tr>";';
+  traf+='}});';
+  traf+='h+="</tbody></table></div>";';
+  traf+='h+="</div>";';
+
+  // Meta breakdown summary
+  traf+='h+="<div class=\\"card\\" style=\\"margin-top:8px\\"><h3 style=\\"color:#3b82f6;margin-bottom:6px\\">Meta Ads Click Distribution</h3>";';
+  traf+='h+="<div style=\\"display:flex;gap:20px\\">";';
+  traf+='h+="<div><div style=\\"font-size:9px;color:var(--dim)\\">CVR (Onzenna landing)</div><div style=\\"font-size:18px;font-weight:700;color:#6366f1\\">"+(meta.cvr_clicks||0).toLocaleString()+" clicks</div></div>";';
+  traf+='h+="<div><div style=\\"font-size:9px;color:var(--dim)\\">Traffic (AMZ landing)</div><div style=\\"font-size:18px;font-weight:700;color:#f59e0b\\">"+(meta.traffic_clicks||0).toLocaleString()+" clicks</div></div>";';
+  traf+='h+="<div><div style=\\"font-size:9px;color:var(--dim)\\">Google Ads</div><div style=\\"font-size:18px;font-weight:700;color:#10b981\\">"+(d.google_clicks||0).toLocaleString()+" clicks</div></div>";';
+  traf+='h+="</div></div>";';
+
+  traf+='document.getElementById("ct-content").innerHTML=h;';
+  traf+='}';
+  traf+='setTimeout(renderCt,100);';
+  traf+='<\/script>';
+
+  // Original GA4 source/medium detail (collapsed)
+  traf+='<div class="sec" style="margin-top:16px"><div class="sec-title" style="cursor:pointer" onclick="var el=document.getElementById(\'ga4-detail\');el.style.display=el.style.display===\'none\'?\'block\':\'none\'"><div class="num">5A</div> GA4 Source/Medium Detail (click to expand)</div>';
+  traf+='<div id="ga4-detail" style="display:none"><div class="card"><table><thead><tr><th>#</th><th>Source / Medium</th><th style="text-align:right">Sessions</th><th style="text-align:right">Users</th><th style="text-align:right">Revenue</th><th style="text-align:right">Conversions</th><th style="text-align:right">Conv %</th></tr></thead><tbody>';
   (F.traffic_sources||[]).forEach(function(t,i){
     traf+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
     traf+='<td style="font-weight:600">'+t.source+'</td>';
@@ -621,7 +687,7 @@ function renderFinancial(){
     traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(t.conversions)+'</td>';
     traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+t.conv_rate.toFixed(2)+'%</td></tr>';
   });
-  traf+='</tbody></table></div></div>';
+  traf+='</tbody></table></div></div></div>';
 
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 6: EMAIL MARKETING (Klaviyo) — with 7D / 30D period switcher

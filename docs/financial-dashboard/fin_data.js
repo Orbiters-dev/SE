@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-29 20:06 PST",
+ "generated_pst": "2026-03-29 20:15 PST",
  "through_date": "2026-03-28",
  "months": [
   "2025-01",
@@ -9455,6 +9455,218 @@ const FIN_DATA = {
    "conv_rate": 2.25
   }
  ],
+ "channel_traffic": {
+  "7d": {
+   "onzenna": {
+    "total_sessions": 4400,
+    "sources": [
+     {
+      "source": "Meta + Google (Cross-network)",
+      "sessions": 1023,
+      "purchases": 15,
+      "pct": 23.2
+     },
+     {
+      "source": "Direct",
+      "sessions": 876,
+      "purchases": 15,
+      "pct": 19.9
+     },
+     {
+      "source": "Organic Social (IG/TikTok/etc)",
+      "sessions": 852,
+      "purchases": 13,
+      "pct": 19.4
+     },
+     {
+      "source": "Unassigned",
+      "sessions": 593,
+      "purchases": 42,
+      "pct": 13.5
+     },
+     {
+      "source": "Meta Ads (Paid Social)",
+      "sessions": 545,
+      "purchases": 4,
+      "pct": 12.4
+     },
+     {
+      "source": "Google Ads (Paid Search)",
+      "sessions": 203,
+      "purchases": 9,
+      "pct": 4.6
+     },
+     {
+      "source": "Organic Search (SEO)",
+      "sessions": 200,
+      "purchases": 2,
+      "pct": 4.5
+     },
+     {
+      "source": "Referral",
+      "sessions": 84,
+      "purchases": 2,
+      "pct": 1.9
+     },
+     {
+      "source": "Email (Klaviyo)",
+      "sessions": 14,
+      "purchases": 1,
+      "pct": 0.3
+     },
+     {
+      "source": "Organic Shopping",
+      "sessions": 7,
+      "purchases": 0,
+      "pct": 0.2
+     },
+     {
+      "source": "Paid Other",
+      "sessions": 3,
+      "purchases": 0,
+      "pct": 0.1
+     }
+    ]
+   },
+   "amazon": {
+    "total_clicks": 79835,
+    "sources": [
+     {
+      "source": "Amazon Ads (Sponsored)",
+      "sessions": 31754,
+      "pct": 39.8
+     },
+     {
+      "source": "Meta Traffic (AMZ landing)",
+      "sessions": 48081,
+      "pct": 60.2
+     },
+     {
+      "source": "Organic (est.)",
+      "sessions": 0,
+      "note": "n.m. — no Amazon session API"
+     }
+    ]
+   },
+   "meta_detail": {
+    "cvr_clicks": 2495,
+    "traffic_clicks": 48081,
+    "total": 50576
+   },
+   "google_clicks": 1806
+  },
+  "30d": {
+   "onzenna": {
+    "total_sessions": 20047,
+    "sources": [
+     {
+      "source": "Meta + Google (Cross-network)",
+      "sessions": 6188,
+      "purchases": 102,
+      "pct": 30.9
+     },
+     {
+      "source": "Direct",
+      "sessions": 3639,
+      "purchases": 62,
+      "pct": 18.2
+     },
+     {
+      "source": "Meta Ads (Paid Social)",
+      "sessions": 2867,
+      "purchases": 29,
+      "pct": 14.3
+     },
+     {
+      "source": "Unassigned",
+      "sessions": 2705,
+      "purchases": 171,
+      "pct": 13.5
+     },
+     {
+      "source": "Organic Social (IG/TikTok/etc)",
+      "sessions": 2463,
+      "purchases": 39,
+      "pct": 12.3
+     },
+     {
+      "source": "Organic Search (SEO)",
+      "sessions": 828,
+      "purchases": 17,
+      "pct": 4.1
+     },
+     {
+      "source": "Google Ads (Paid Search)",
+      "sessions": 623,
+      "purchases": 18,
+      "pct": 3.1
+     },
+     {
+      "source": "Referral",
+      "sessions": 397,
+      "purchases": 11,
+      "pct": 2.0
+     },
+     {
+      "source": "Display Ads",
+      "sessions": 247,
+      "purchases": 0,
+      "pct": 1.2
+     },
+     {
+      "source": "Organic Shopping",
+      "sessions": 45,
+      "purchases": 1,
+      "pct": 0.2
+     },
+     {
+      "source": "Email (Klaviyo)",
+      "sessions": 39,
+      "purchases": 2,
+      "pct": 0.2
+     },
+     {
+      "source": "Paid Other",
+      "sessions": 5,
+      "purchases": 0,
+      "pct": 0.0
+     },
+     {
+      "source": "Paid Shopping",
+      "sessions": 1,
+      "purchases": 0,
+      "pct": 0.0
+     }
+    ]
+   },
+   "amazon": {
+    "total_clicks": 254777,
+    "sources": [
+     {
+      "source": "Amazon Ads (Sponsored)",
+      "sessions": 107807,
+      "pct": 42.3
+     },
+     {
+      "source": "Meta Traffic (AMZ landing)",
+      "sessions": 146970,
+      "pct": 57.7
+     },
+     {
+      "source": "Organic (est.)",
+      "sessions": 0,
+      "note": "n.m. — no Amazon session API"
+     }
+    ]
+   },
+   "meta_detail": {
+    "cvr_clicks": 9837,
+    "traffic_clicks": 146970,
+    "total": 156807
+   },
+   "google_clicks": 9310
+  }
+ },
  "pnl_polar": {
   "months": [
    "Jan 25",
