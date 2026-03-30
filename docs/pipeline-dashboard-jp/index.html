@@ -734,12 +734,12 @@ function renderDmQueue() {
     var dmLink = 'https://ig.me/m/' + c.username;
     html += '<div class="dm-card">';
     html += '<div style="display:flex;justify-content:space-between;align-items:center">';
-    html += '<div><span class="dm-handle">@' + c.username + '</span> <span style="font-size:10px;color:var(--dim)">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + '</span>';
+    html += '<div style="cursor:pointer" onclick="openDmThread(\'' + c.username + '\')"><span class="dm-handle">@' + c.username + '</span> <span style="font-size:10px;color:var(--dim)">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + '</span>';
     if (c.dm_count > 0) html += ' <span class="b c">' + c.dm_count + ' msgs</span>';
     html += '</div>';
     html += '<div style="display:flex;gap:4px">';
-    html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')">&#x1F4AC; History</button>';
-    html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary"' + (isOverLimit() ? ' style="opacity:.4;pointer-events:none"' : '') + '>&#x2197; Open IG</a>';
+    html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')">&#x1F4AC;</button>';
+    html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary"' + (isOverLimit() ? ' style="opacity:.4;pointer-events:none"' : '') + '>&#x2197; IG</a>';
     html += '</div>';
     html += '</div>';
     if (c.dm_draft) {
