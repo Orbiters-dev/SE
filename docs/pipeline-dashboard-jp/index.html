@@ -45,12 +45,16 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 .b{display:inline-block;padding:1px 6px;border-radius:3px;font-size:8px;font-weight:600}
 .b.g{background:var(--gbg);color:var(--g)}.b.r{background:var(--rbg);color:var(--r)}.b.am{background:var(--ambg);color:var(--am)}
 .b.c{background:var(--cbg);color:var(--c)}.b.a{background:var(--abg);color:var(--a)}.b.p{background:#fdf2f8;color:var(--p)}
+.b.past{background:#e0e7ff;color:#4338ca;font-size:8px}
 .filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
 .filter-bar input[type="text"]{flex:1;min-width:180px;padding:7px 12px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit}
 .filter-bar input:focus{outline:none;border-color:var(--a);box-shadow:0 0 0 2px rgba(239,68,68,.15)}
 .filter-bar select{padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;background:var(--card);color:var(--text)}
-.funnel{display:flex;align-items:center;gap:0;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:16px;overflow-x:auto}
-.fn{flex:1;min-width:80px;text-align:center;padding:8px 4px;border-radius:8px;cursor:pointer;transition:.12s;border:2px solid transparent}
+.funnel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:16px;overflow-x:auto}
+.funnel-row{display:flex;align-items:center;gap:0;margin-bottom:4px}
+.funnel-row:last-child{margin-bottom:0}
+.funnel-label{font-size:9px;font-weight:700;color:var(--dim);min-width:65px;text-transform:uppercase;letter-spacing:.5px}
+.fn{flex:1;min-width:70px;text-align:center;padding:6px 4px;border-radius:8px;cursor:pointer;transition:.12s;border:2px solid transparent}
 .fn:hover{background:var(--abg)}.fn.on{background:var(--abg);border-color:var(--a)}
 .fn .fi{font-size:18px;font-weight:800;font-family:var(--mono)}.fn .ft{font-size:9px;font-weight:700;color:var(--dim)}.fn .fs{font-size:8px;color:var(--muted)}
 .fa{color:var(--muted);font-size:10px;flex-shrink:0;padding:0 1px}
@@ -75,7 +79,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 .dm-thread-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .dm-thread-header h3{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
 .dm-thread-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--dim);padding:4px 8px;border-radius:6px}.dm-thread-close:hover{background:#f1f5f9}
-.dm-thread-body{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:8px}
+.dm-thread-body{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:8px;min-height:200px}
 .dm-bubble{max-width:80%;padding:10px 14px;border-radius:16px;font-size:12px;line-height:1.6;word-break:break-word}
 .dm-bubble.out{align-self:flex-end;background:var(--a);color:#fff;border-bottom-right-radius:4px}
 .dm-bubble.in{align-self:flex-start;background:#f1f5f9;color:var(--text);border-bottom-left-radius:4px}
@@ -87,11 +91,26 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 .dm-thread-input button:disabled{opacity:.4;cursor:not-allowed}
 .dm-empty{text-align:center;padding:40px;color:var(--dim);font-size:11px}
 .dm-limit-banner{background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:10px 16px;text-align:center;font-size:12px;font-weight:600;color:#92400e;margin-bottom:12px}
+/* Execute progress */
+.exec-progress{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px}
+.exec-progress .exec-bar{height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;margin-top:8px}
+.exec-progress .exec-fill{height:100%;background:linear-gradient(90deg,var(--a),var(--am));transition:.3s;border-radius:3px}
+/* Checkbox */
+.draft-cb{width:16px;height:16px;accent-color:var(--a);cursor:pointer;vertical-align:middle;margin-right:6px}
+/* Activity */
+.activity-item{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:11px;align-items:flex-start}
+.activity-item:last-child{border-bottom:none}
+.activity-time{font-size:9px;color:var(--muted);min-width:70px;font-family:var(--mono)}
+.activity-text{flex:1;color:var(--text)}
+/* Loading */
+.loading-spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--a);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--dim);gap:8px;font-size:12px}
 @media(max-width:700px){
   .ctr{padding:12px 8px 60px}.hero h1{font-size:18px}
   .mt>div{padding:8px 12px;font-size:11px}
   .stats{grid-template-columns:repeat(2,1fr)}
-  .funnel{flex-wrap:wrap}.fn{min-width:60px}
+  .funnel-row{flex-wrap:wrap}.fn{min-width:60px}
   .filter-bar{flex-direction:column}.filter-bar input,.filter-bar select{width:100%}
 }
 </style>
@@ -130,7 +149,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         <div style="padding:4px 14px;background:#ef4444;color:#fff;cursor:default;line-height:1.4">JP</div>
       </div>
     </h1>
-    <div class="sub">Grosmimi Japan &#8212; Influencer DM Outreach Pipeline</div>
+    <div class="sub">Grosmimi Japan — Influencer DM Outreach Pipeline</div>
     <div class="meta" id="hero-meta">
       <span class="pill" id="pill-status"><span class="dot"></span>Ready</span>
       <span class="pill" id="pill-date"></span>
@@ -142,13 +161,26 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
   <div class="card" style="margin-bottom:12px">
     <h3>&#x1F3AF; Pipeline Overview</h3>
     <div class="funnel" id="dash-funnel">
-      <div class="fn on" data-stage="not_started"><div class="fi" id="f-not-started">0</div><div class="ft">Not Started</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" data-stage="draft_ready"><div class="fi" id="f-draft-ready">0</div><div class="ft">Draft Ready</div><div class="fs">AI&#x521D;&#x6848;</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" data-stage="sent"><div class="fi" id="f-sent">0</div><div class="ft">DM Sent</div><div class="fs">&#x767A;&#x9001;&#x6E08;</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" data-stage="replied"><div class="fi" id="f-replied">0</div><div class="ft">Replied</div><div class="fs">&#x8FD4;&#x4FE1;&#x3042;&#x308A;</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" data-stage="accepted"><div class="fi" id="f-accepted">0</div><div class="ft">Accepted</div><div class="fs">&#x627F;&#x8AFE;</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" data-stage="sample_sent"><div class="fi" id="f-sample-sent">0</div><div class="ft">Sample Sent</div><div class="fs">&#x767A;&#x9001;</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" data-stage="posted"><div class="fi" id="f-posted">0</div><div class="ft">Posted</div><div class="fs">&#x6295;&#x7A3F;&#x6E08;</div></div>
+      <div class="funnel-row">
+        <div class="funnel-label">Outbound</div>
+        <div class="fn on" data-stage="not_started"><div class="fi" id="f-not-started">0</div><div class="ft">Not Started</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="draft_ready"><div class="fi" id="f-draft-ready">0</div><div class="ft">Draft Ready</div><div class="fs">AI初案</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="sent"><div class="fi" id="f-sent">0</div><div class="ft">DM Sent</div><div class="fs">発送済</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="replied"><div class="fi" id="f-replied">0</div><div class="ft">Replied</div><div class="fs">返信あり</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="accepted"><div class="fi" id="f-accepted">0</div><div class="ft">Accepted</div><div class="fs">承諾</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="sample_sent"><div class="fi" id="f-sample-sent">0</div><div class="ft">Sample Sent</div><div class="fs">発送</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="posted"><div class="fi" id="f-posted">0</div><div class="ft">Posted</div><div class="fs">投稿済</div></div>
+      </div>
+      <div class="funnel-row" style="margin-top:6px">
+        <div class="funnel-label">Inbound</div>
+        <div class="fn" data-stage="inbound"><div class="fi" id="f-inbound">0</div><div class="ft">Inbound</div><div class="fs">自然流入</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="needs_review"><div class="fi" id="f-needs-review">0</div><div class="ft">Needs Review</div><div class="fs">要確認</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="accepted" style="visibility:hidden"><div class="fi">-</div><div class="ft">Accepted</div></div><span class="fa" style="visibility:hidden">&#x25B6;</span>
+        <div class="fn" data-stage="" style="visibility:hidden"><div class="fi">-</div><div class="ft"></div></div><span class="fa" style="visibility:hidden">&#x25B6;</span>
+        <div class="fn" data-stage="" style="visibility:hidden"><div class="fi">-</div><div class="ft"></div></div><span class="fa" style="visibility:hidden">&#x25B6;</span>
+        <div class="fn" data-stage="" style="visibility:hidden"><div class="fi">-</div><div class="ft"></div></div><span class="fa" style="visibility:hidden">&#x25B6;</span>
+        <div class="fn" data-stage="" style="visibility:hidden"><div class="fi">-</div><div class="ft"></div></div>
+      </div>
     </div>
   </div>
 
@@ -168,13 +200,22 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
       <div class="stat cyan"><div class="sl">DM Sent</div><div class="sv" id="s-sent">0</div></div>
       <div class="stat green"><div class="sl">Accepted</div><div class="sv" id="s-accepted">0</div></div>
       <div class="stat pink"><div class="sl">Posted</div><div class="sv" id="s-posted">0</div></div>
+      <div class="stat" style="border-left:2px solid var(--c)"><div class="sl">Inbound</div><div class="sv" id="s-inbound" style="color:var(--c)">0</div></div>
     </div>
 
     <div class="card" style="margin-top:12px">
-      <h3>&#x1F4E8; Today's DM Queue</h3>
-      <div class="desc">Draft Ready &#x306E;&#x30AF;&#x30EA;&#x30A8;&#x30A4;&#x30BF;&#x30FC; &#x2014; DM&#x30EA;&#x30F3;&#x30AF;&#x3092;&#x30AF;&#x30EA;&#x30C3;&#x30AF;&#x3057;&#x3066;&#x521D;&#x6848;&#x3092;&#x30B3;&#x30D4;&#x30DA;</div>
+      <h3>&#x1F4E8; DM Queue <span style="font-size:9px;color:var(--muted);font-weight:400">(Draft Ready only)</span></h3>
+      <div class="desc">Draft Readyのクリエイター — DMリンクをクリックして初案をコピペ</div>
       <div id="dm-queue">
-        <div style="text-align:center;padding:40px;color:var(--dim)">No drafts pending. Generate drafts from the DM Drafts tab.</div>
+        <div class="loading-overlay"><span class="loading-spinner"></span> Loading...</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>&#x1F4E5; Inbound Queue</h3>
+      <div class="desc">自然流入 (オーガニックDM / コメント経由) のクリエイター</div>
+      <div id="inbound-queue">
+        <div class="loading-overlay"><span class="loading-spinner"></span> Loading...</div>
       </div>
     </div>
 
@@ -186,13 +227,13 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         </div>
         <span id="dm-budget-text" style="font-size:12px;font-weight:700;font-family:var(--mono);min-width:60px">0 / 30</span>
       </div>
-      <div style="font-size:10px;color:var(--dim);margin-top:6px">Recommended: 20-30 DMs/day to start. Increase weekly if no restrictions.</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:6px">Hard cap: 30 DMs/day. Execution stops at limit.</div>
     </div>
 
     <div class="card">
       <h3>&#x23F0; Recent Activity</h3>
-      <div id="activity-log" style="max-height:200px;overflow-y:auto">
-        <div style="text-align:center;padding:20px;color:var(--dim);font-size:11px">No activity yet</div>
+      <div id="activity-log" style="max-height:250px;overflow-y:auto">
+        <div class="loading-overlay"><span class="loading-spinner"></span> Loading...</div>
       </div>
     </div>
   </div>
@@ -210,7 +251,10 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         <option value="accepted">Accepted</option>
         <option value="sample_sent">Sample Sent</option>
         <option value="posted">Posted</option>
+        <option value="inbound">Inbound</option>
+        <option value="needs_review">Needs Review</option>
       </select>
+      <button class="btn btn-sm btn-secondary" onclick="showImportModal()">&#x1F4E5; Import</button>
       <span id="creator-count" style="font-size:11px;color:var(--dim)">0 creators</span>
     </div>
     <div style="overflow-x:auto">
@@ -226,7 +270,9 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody id="creators-tbody"></tbody>
+        <tbody id="creators-tbody">
+          <tr><td colspan="7"><div class="loading-overlay"><span class="loading-spinner"></span> Loading...</div></td></tr>
+        </tbody>
       </table>
     </div>
     <div class="pager" id="creators-pager"></div>
@@ -236,7 +282,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
   <div class="mp" id="p-drafts">
     <div class="card" style="border-left:3px solid var(--a)">
       <h3>&#x1F916; Generate DM Drafts</h3>
-      <div class="desc">Not Started &#x306E;&#x30AF;&#x30EA;&#x30A8;&#x30A4;&#x30BF;&#x30FC;&#x306B;AI&#x521D;&#x6848;&#x3092;&#x751F;&#x6210;</div>
+      <div class="desc">Not Startedのクリエイター (過去DM履歴なし) にAI初案を生成</div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <div style="font-size:11px">
           <label style="font-weight:600;color:var(--dim)">Batch Size:</label>
@@ -249,6 +295,37 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
       </div>
     </div>
 
+    <!-- Execute bar -->
+    <div id="exec-bar-container" style="display:none;margin-top:12px">
+      <div class="card" style="border-left:3px solid var(--g)">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--dim)">
+              <input type="checkbox" id="select-all-drafts" class="draft-cb" onchange="toggleAllDrafts(this.checked)" checked>
+              Select All
+            </label>
+            <span id="selected-count" style="font-size:11px;color:var(--dim);margin-left:8px">0 selected</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span id="exec-budget-info" style="font-size:10px;color:var(--dim)"></span>
+            <button class="btn btn-success" id="btn-execute" onclick="executeDrafts()">&#x1F680; Execute</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Execute progress -->
+    <div id="exec-progress" style="display:none;margin-top:12px">
+      <div class="exec-progress">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;font-weight:700" id="exec-progress-text">Executing...</span>
+          <span style="font-size:11px;color:var(--dim)" id="exec-progress-count">0/0</span>
+        </div>
+        <div class="exec-bar"><div class="exec-fill" id="exec-fill" style="width:0%"></div></div>
+        <div id="exec-current" style="font-size:10px;color:var(--dim);margin-top:4px"></div>
+      </div>
+    </div>
+
     <div id="drafts-list" style="margin-top:12px">
       <div style="text-align:center;padding:40px;color:var(--dim)">Click "Generate Drafts" to create AI-powered DM drafts based on creator content.</div>
     </div>
@@ -258,7 +335,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
   <div class="mp" id="p-config">
     <div class="card" style="border-left:3px solid var(--am)">
       <h3>&#x2699;&#xFE0F; JP Pipeline Config</h3>
-      <div class="desc">DM Config Sheet &#x3068; &#x30C7;&#x30FC;&#x30BF;&#x30BD;&#x30FC;&#x30B9;&#x306E;&#x8A2D;&#x5B9A;</div>
+      <div class="desc">DM Config Sheet とデータソースの設定</div>
       <div style="display:grid;gap:10px;margin-top:12px">
         <div style="display:flex;align-items:center;gap:10px">
           <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:140px">Daily DM Limit</label>
@@ -266,10 +343,8 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         </div>
         <div style="display:flex;align-items:center;gap:10px">
           <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:140px">Data Source</label>
-          <select id="cfg-data-source" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit">
-            <option value="spreadsheet">Google Sheets</option>
-            <option value="datakeeper">DataKeeper (PG)</option>
-          </select>
+          <span class="b g">n8n Webhooks</span>
+          <span style="font-size:10px;color:var(--dim)">n8n.orbiters.co.kr</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
           <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:140px">ManyChat API</label>
@@ -278,24 +353,24 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         </div>
         <div style="display:flex;align-items:center;gap:10px">
           <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:140px">n8n Workflow</label>
-          <a href="https://n8n.orbiters.co.kr/workflow/CdQq7Oea8Q3yAeigOHP5_" target="_blank" style="font-size:11px;color:var(--a);font-weight:600">SE (DM Auto Reply) &#x2197;</a>
-          <span class="b am">Inactive</span>
+          <a href="https://n8n.orbiters.co.kr" target="_blank" style="font-size:11px;color:var(--a);font-weight:600">JP Pipeline Webhooks &#x2197;</a>
+          <span class="b g">Active</span>
         </div>
       </div>
     </div>
 
     <div class="card">
       <h3>&#x1F4DD; DM Template Preview</h3>
-      <div class="desc">Claude&#x304C;&#x4F7F;&#x3046;&#x521D;&#x56DE;DM&#x30C6;&#x30F3;&#x30D7;&#x30EC;&#x30FC;&#x30C8;</div>
-      <div class="dm-preview">&#x25CB;&#x25CB;&#x69D8;&#x3001;&#x7A81;&#x7136;&#x306E;&#x3054;&#x9023;&#x7D61;&#x5931;&#x793C;&#x3044;&#x305F;&#x3057;&#x307E;&#x3059;&#x3002;
-GROSMIMI JAPAN&#x3068;&#x7533;&#x3057;&#x307E;&#x3059;&#x3002;
+      <div class="desc">ClaudeがAI初案生成に使うベーステンプレート</div>
+      <div class="dm-preview">○○様、突然のご連絡失礼いたします。
+GROSMIMI JAPANと申します。
 
-&#x25CB;&#x25CB;&#x306E;&#x304A;&#x5B50;&#x69D8;&#x3068;&#x306E;&#x65E5;&#x5E38;&#x3092;&#x767A;&#x4FE1;&#x3055;&#x308C;&#x3066;&#x3044;&#x308B;&#x6295;&#x7A3F;&#x3092;&#x62DD;&#x898B;&#x3057;&#x3001;&#x3068;&#x3066;&#x3082;&#x7D20;&#x6575;&#x3060;&#x3068;&#x611F;&#x3058;&#x3054;&#x9023;&#x7D61;&#x3044;&#x305F;&#x3057;&#x307E;&#x3057;&#x305F;&#x3002;
+○○のお子様との日常を発信されている投稿を拝見し、とても素敵だと感じご連絡いたしました。
 
-&#x5F0A;&#x793E;&#x306EPPSU&#x30B9;&#x30C8;&#x30ED;&#x30FC;&#x30AB;&#x30C3;&#x30D7;&#x3092;&#x305C;&#x3072;&#x304A;&#x8A66;&#x3057;&#x3044;&#x305F;&#x3060;&#x3051;&#x306A;&#x3044;&#x304B;&#x3068;&#x601D;&#x3063;&#x3066;&#x304A;&#x308A;&#x307E;&#x3059;&#x3002;
-&#x97D3;&#x56FD;&#x3067;&#x7D2F;&#x8A08;500&#x4E07;&#x672C;&#x4EE5;&#x4E0A;&#x8CA9;&#x58F2;&#x3055;&#x308C;&#x305F;&#x30D9;&#x30D3;&#x30FC;&#x30B9;&#x30C8;&#x30ED;&#x30FC;&#x30AB;&#x30C3;&#x30D7;&#x3067;&#x3059;&#x3002;
+弊社のPPSUストローカップをぜひお試しいただけないかと思っております。
+韓国で累計500万本以上販売されたベビーストローカップです。
 
-&#x3054;&#x8208;&#x5473;&#x304C;&#x3054;&#x3056;&#x3044;&#x307E;&#x3057;&#x305F;&#x3089;&#x3001;&#x304A;&#x6C17;&#x8EFD;&#x306B;&#x3054;&#x8FD4;&#x4FE1;&#x304F;&#x3060;&#x3055;&#x3044;&#x1F60A;
+ご興味がございましたら、お気軽にご返信ください&#x1F60A;
 
 GROSMIMI JAPAN</div>
     </div>
@@ -305,11 +380,11 @@ GROSMIMI JAPAN</div>
       <table>
         <thead><tr><th>Product</th><th>Size</th><th>Price</th><th>Age</th></tr></thead>
         <tbody>
-          <tr><td>PPSU&#x30B9;&#x30C8;&#x30ED;&#x30FC;&#x30AB;&#x30C3;&#x30D7;</td><td>200ml</td><td>&#xA5;3,190</td><td>6&#x30F6;&#x6708;&#x301C;</td></tr>
-          <tr><td>PPSU&#x30B9;&#x30C8;&#x30ED;&#x30FC;&#x30AB;&#x30C3;&#x30D7;</td><td>300ml</td><td>&#xA5;3,600</td><td>6&#x30F6;&#x6708;&#x301C;</td></tr>
-          <tr><td>PPSU&#x30EF;&#x30F3;&#x30BF;&#x30C3;&#x30C1;&#x5F0F;</td><td>300ml</td><td>&#xA5;4,200</td><td>12&#x30F6;&#x6708;&#x301C;</td></tr>
-          <tr><td>&#x30B9;&#x30C6;&#x30F3;&#x30EC;&#x30B9;&#x30B9;&#x30C8;&#x30ED;&#x30FC;&#x30AB;&#x30C3;&#x30D7;</td><td>200ml</td><td>&#xA5;5,800</td><td>12&#x30F6;&#x6708;&#x301C;</td></tr>
-          <tr><td>&#x30B9;&#x30C6;&#x30F3;&#x30EC;&#x30B9;&#x30B9;&#x30C8;&#x30ED;&#x30FC;&#x30AB;&#x30C3;&#x30D7;</td><td>300ml</td><td>&#xA5;6,200</td><td>12&#x30F6;&#x6708;&#x301C;</td></tr>
+          <tr><td>PPSUストローカップ</td><td>200ml</td><td>&#xA5;3,190</td><td>6ヶ月〜</td></tr>
+          <tr><td>PPSUストローカップ</td><td>300ml</td><td>&#xA5;3,600</td><td>6ヶ月〜</td></tr>
+          <tr><td>PPSUワンタッチ式</td><td>300ml</td><td>&#xA5;4,200</td><td>12ヶ月〜</td></tr>
+          <tr><td>ステンレスストローカップ</td><td>200ml</td><td>&#xA5;5,800</td><td>12ヶ月〜</td></tr>
+          <tr><td>ステンレスストローカップ</td><td>300ml</td><td>&#xA5;6,200</td><td>12ヶ月〜</td></tr>
         </tbody>
       </table>
     </div>
@@ -318,12 +393,35 @@ GROSMIMI JAPAN</div>
 </div><!-- .ctr -->
 </div><!-- main-content -->
 
+<!-- Import Modal -->
+<div id="import-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100;display:none;align-items:center;justify-content:center">
+  <div style="background:var(--card);border-radius:16px;width:90%;max-width:500px;padding:24px;box-shadow:0 16px 48px rgba(0,0,0,.15)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="font-size:14px;font-weight:700">&#x1F4E5; Import Creators</h3>
+      <button onclick="document.getElementById('import-modal').style.display='none'" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--dim)">&times;</button>
+    </div>
+    <div class="desc" style="margin-bottom:12px">Paste CSV or JSON. Format: username, name, followers (one per line or JSON array)</div>
+    <textarea id="import-data" rows="8" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:11px;font-family:var(--mono);resize:vertical" placeholder="momlife_tokyo, ゆき, 28400
+baby_and_cafe, あいり, 15200
+
+or JSON:
+[{&quot;username&quot;:&quot;momlife_tokyo&quot;,&quot;name&quot;:&quot;ゆき&quot;,&quot;followers&quot;:28400}]"></textarea>
+    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+      <button class="btn btn-secondary" onclick="document.getElementById('import-modal').style.display='none'">Cancel</button>
+      <button class="btn btn-primary" id="btn-import" onclick="importCreators()">&#x1F4E5; Import</button>
+    </div>
+    <div id="import-status" style="font-size:11px;color:var(--dim);margin-top:8px"></div>
+  </div>
+</div>
+
 <!-- DM Thread Modal -->
 <div class="dm-thread-overlay" id="dm-thread" style="display:none" onclick="if(event.target===this)closeDmThread()">
   <div class="dm-thread-panel">
     <div class="dm-thread-header">
       <h3><span id="thread-handle">@handle</span> <span id="thread-badge"></span></h3>
       <div style="display:flex;gap:6px;align-items:center">
+        <button id="thread-accept-btn" class="btn btn-sm btn-success" style="display:none;font-size:9px" onclick="markAcceptedFromThread()">&#x2705; Mark Accepted</button>
+        <button id="thread-decline-btn" class="btn btn-sm btn-secondary" style="display:none;font-size:9px;color:var(--r)" onclick="markDeclinedFromThread()">&#x274C; Decline</button>
         <a id="thread-ig-link" href="#" target="_blank" class="btn btn-sm btn-secondary" style="font-size:9px">&#x1F4AC; Open IG</a>
         <button class="dm-thread-close" onclick="closeDmThread()">&times;</button>
       </div>
@@ -332,8 +430,12 @@ GROSMIMI JAPAN</div>
       <div class="dm-empty">No messages yet</div>
     </div>
     <div class="dm-thread-input">
+      <select id="thread-dir" style="padding:8px;border:1px solid var(--border);border-radius:24px;font-size:11px;font-family:inherit;background:var(--card)">
+        <option value="out">Sent &#x2192;</option>
+        <option value="in">&#x2190; Received</option>
+      </select>
       <input type="text" id="thread-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendThreadDm()">
-      <button onclick="sendThreadDm()" id="thread-send-btn">Send</button>
+      <button onclick="sendThreadDm()" id="thread-send-btn">Log</button>
     </div>
   </div>
 </div>
@@ -341,419 +443,742 @@ GROSMIMI JAPAN</div>
 <div class="toast" id="toast"></div>
 
 <script>
+// ─── Constants ───
+var N8N_LIST = 'https://n8n.orbiters.co.kr/webhook/jp-pipeline-list';
+var N8N_API  = 'https://n8n.orbiters.co.kr/webhook/jp-pipeline-api';
+var _dkBase  = 'https://orbitools.orbiters.co.kr/api/datakeeper';
+
 // ─── Auth ───
-var _dkBase='https://orbitools.orbiters.co.kr/api/datakeeper';
-var _currentUser='';
-function doLogin(){
-  var u=document.getElementById('login-uid').value.trim();
-  var p=document.getElementById('login-pw').value;
-  if(!u||!p){showErr('Enter user and password');return}
-  fetch(_dkBase+'/status/',{headers:{'Authorization':'Basic '+btoa(u+':'+p)}})
-    .then(r=>{if(!r.ok)throw new Error('auth');return r.json()})
-    .then(()=>{
-      _currentUser=u;
-      localStorage.setItem('jp_pipe_user',u);
-      localStorage.setItem('jp_pipe_pass',p);
-      document.getElementById('login-gate').style.display='none';
-      document.getElementById('main-content').style.display='block';
+var _currentUser = '';
+
+function doLogin() {
+  var u = document.getElementById('login-uid').value.trim();
+  var p = document.getElementById('login-pw').value;
+  if (!u || !p) { showErr('Enter user and password'); return; }
+  fetch(_dkBase + '/status/', { headers: { 'Authorization': 'Basic ' + btoa(u + ':' + p) } })
+    .then(function(r) { if (!r.ok) throw new Error('auth'); return r.json(); })
+    .then(function() {
+      _currentUser = u;
+      localStorage.setItem('jp_pipe_user', u);
+      localStorage.setItem('jp_pipe_pass', p);
+      document.getElementById('login-gate').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
       init();
     })
-    .catch(()=>showErr('Invalid credentials'));
+    .catch(function() { showErr('Invalid credentials'); });
 }
-function showErr(m){var e=document.getElementById('login-err');e.textContent=m;e.style.display='block'}
-function getAuth(){return 'Basic '+btoa(localStorage.getItem('jp_pipe_user')+':'+localStorage.getItem('jp_pipe_pass'))}
+function showErr(m) { var e = document.getElementById('login-err'); e.textContent = m; e.style.display = 'block'; }
+function getAuth() { return 'Basic ' + btoa(localStorage.getItem('jp_pipe_user') + ':' + localStorage.getItem('jp_pipe_pass')); }
 
 // Auto-login
-(function(){
-  var u=localStorage.getItem('jp_pipe_user'),p=localStorage.getItem('jp_pipe_pass');
-  if(u&&p){
-    fetch(_dkBase+'/status/',{headers:{'Authorization':'Basic '+btoa(u+':'+p)}})
-      .then(r=>{if(!r.ok)throw new Error();return r.json()})
-      .then(()=>{
-        _currentUser=u;
-        document.getElementById('login-gate').style.display='none';
-        document.getElementById('main-content').style.display='block';
+(function() {
+  var u = localStorage.getItem('jp_pipe_user'), p = localStorage.getItem('jp_pipe_pass');
+  if (u && p) {
+    fetch(_dkBase + '/status/', { headers: { 'Authorization': 'Basic ' + btoa(u + ':' + p) } })
+      .then(function(r) { if (!r.ok) throw new Error(); return r.json(); })
+      .then(function() {
+        _currentUser = u;
+        document.getElementById('login-gate').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
         init();
-      }).catch(()=>{});
+      }).catch(function() {});
   }
 })();
 
 // ─── Tab switching ───
-document.querySelectorAll('.mt>div').forEach(function(t){
-  t.addEventListener('click',function(){
-    var p=this.dataset.p;
-    this.parentElement.querySelectorAll('div').forEach(function(d){d.classList.remove('on')});
+document.querySelectorAll('.mt>div').forEach(function(t) {
+  t.addEventListener('click', function() {
+    var p = this.dataset.p;
+    this.parentElement.querySelectorAll('div').forEach(function(d) { d.classList.remove('on'); });
     this.classList.add('on');
-    document.querySelectorAll('.mp').forEach(function(d){d.classList.remove('on')});
-    var el=document.getElementById('p-'+p);
-    if(el)el.classList.add('on');
-    if(p==='dashboard')location.hash='#dashboard';
-    else if(p==='creators')location.hash='#creators';
-    else if(p==='drafts')location.hash='#drafts';
-    else if(p==='config')location.hash='#config';
+    document.querySelectorAll('.mp').forEach(function(d) { d.classList.remove('on'); });
+    var el = document.getElementById('p-' + p);
+    if (el) el.classList.add('on');
+    location.hash = '#' + p;
   });
 });
 
-// ─── ManyChat API ───
-var MC_TOKEN='4482793:2ba0a3106d83a934db5214f5c1cb2f49';
-var MC_API='https://api.manychat.com/fb/sending/sendContent';
+// ─── n8n API helpers ───
+function n8nGet() {
+  return fetch(N8N_LIST).then(function(r) { return r.json(); });
+}
 
-// ─── DM Log (localStorage-backed, will migrate to PG) ───
-var _dmLogs={};
-function loadDmLogs(){try{_dmLogs=JSON.parse(localStorage.getItem('jp_dm_logs')||'{}');}catch(e){_dmLogs={}}}
-function saveDmLogs(){localStorage.setItem('jp_dm_logs',JSON.stringify(_dmLogs))}
-function addDmLog(handle,dir,text){
-  if(!_dmLogs[handle])_dmLogs[handle]=[];
-  _dmLogs[handle].push({dir:dir,text:text,ts:new Date().toISOString()});
-  saveDmLogs();
+function n8nPost(body) {
+  return fetch(N8N_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  }).then(function(r) { return r.json(); });
 }
-function getDmCount(){
-  var today=new Date().toISOString().slice(0,10);
-  var saved=JSON.parse(localStorage.getItem('jp_dm_sent_'+today)||'0');
-  return saved;
-}
-function incDmCount(){
-  var today=new Date().toISOString().slice(0,10);
-  var c=getDmCount()+1;
-  localStorage.setItem('jp_dm_sent_'+today,JSON.stringify(c));
-  _dmSentToday=c;
-  return c;
-}
-function isOverLimit(){return _dmSentToday>=_dailyLimit}
 
 // ─── Data ───
-var _creators=[];
-var _page=0, _perPage=25;
-var _dmSentToday=0;
-var _dailyLimit=30;
-var _threadHandle='';
+var _creators = [];
+var _page = 0, _perPage = 25;
+var _dmSentToday = 0;
+var _dailyLimit = 30;
+var _threadHandle = '';
+var _dmCache = {}; // Cache DM logs per handle
+var _executing = false;
 
-// Demo data — will be replaced by actual data source
-var DEMO_CREATORS=[
-  {username:'momlife_tokyo',name:'&#x3086;&#x304D;',followers:28400,status:'not_started',content_script:'&#x96E2;&#x4E73;&#x98DF;&#x306E;&#x6295;&#x7A3F;&#x304C;&#x591A;&#x304F;&#x3001;6&#x30F6;&#x6708;&#x306E;&#x304A;&#x5B50;&#x69D8;&#x3068;&#x306E;&#x65E5;&#x5E38;&#x3092;&#x767A;&#x4FE1;',dm_draft:'',last_dm:''},
-  {username:'baby_and_cafe',name:'&#x3042;&#x3044;&#x308A;',followers:15200,status:'not_started',content_script:'&#x30AB;&#x30D5;&#x30A7;&#x5DE1;&#x308A;+&#x80B2;&#x5150;&#x65E5;&#x8A18;&#x3002;1&#x6B73;&#x534A;&#x306E;&#x5973;&#x306E;&#x5B50;',dm_draft:'',last_dm:''},
-  {username:'okinawa_mama_life',name:'&#x307E;&#x3044;',followers:42100,status:'not_started',content_script:'&#x6C96;&#x7E04;&#x5728;&#x4F4F;&#x3001;&#x81EA;&#x7136;&#x6D3E;&#x80B2;&#x5150;&#x3002;8&#x30F6;&#x6708;&#x306E;&#x7537;&#x306E;&#x5B50;',dm_draft:'',last_dm:''},
-  {username:'twins_diary_jp',name:'&#x3055;&#x304F;&#x3089;',followers:67800,status:'draft_ready',content_script:'&#x53CC;&#x5B50;&#x80B2;&#x5150;&#x30EA;&#x30FC;&#x30EB;&#x304C;&#x4EBA;&#x6C17;&#x3002;10&#x30F6;&#x6708;&#x306E;&#x53CC;&#x5B50;',dm_draft:'&#x3055;&#x304F;&#x3089;&#x69D8;&#x3001;&#x7A81;&#x7136;&#x306E;&#x3054;&#x9023;&#x7D61;&#x5931;&#x793C;&#x3044;&#x305F;&#x3057;&#x307E;&#x3059;&#x3002;\nGROSMIMI JAPAN&#x3068;&#x7533;&#x3057;&#x307E;&#x3059;&#x3002;\n\n&#x53CC;&#x5B50;&#x3061;&#x3083;&#x3093;&#x3068;&#x306E;&#x65E5;&#x5E38;&#x3092;&#x767A;&#x4FE1;&#x3055;&#x308C;&#x3066;&#x3044;&#x308B;&#x30EA;&#x30FC;&#x30EB;&#x3092;&#x62DD;&#x898B;&#x3057;&#x3001;&#x3068;&#x3066;&#x3082;&#x7D20;&#x6575;&#x3060;&#x3068;&#x611F;&#x3058;&#x3054;&#x9023;&#x7D61;&#x3044;&#x305F;&#x3057;&#x307E;&#x3057;&#x305F;&#x3002;\n\n&#x5F0A;&#x793E;&#x306EPPSU&#x30B9;&#x30C8;&#x30ED;&#x30FC;&#x30AB;&#x30C3;&#x30D7;&#x3092;&#x305C;&#x3072;&#x304A;&#x8A66;&#x3057;&#x3044;&#x305F;&#x3060;&#x3051;&#x306A;&#x3044;&#x304B;&#x3068;&#x601D;&#x3063;&#x3066;&#x304A;&#x308A;&#x307E;&#x3059;&#x3002;\n\n&#x3054;&#x8208;&#x5473;&#x304C;&#x3054;&#x3056;&#x3044;&#x307E;&#x3057;&#x305F;&#x3089;&#x3001;&#x304A;&#x6C17;&#x8EFD;&#x306B;&#x3054;&#x8FD4;&#x4FE1;&#x304F;&#x3060;&#x3055;&#x3044;\uD83D\uDE0A;\n\nGROSMIMI JAPAN',last_dm:''},
-  {username:'sapporo_mamalog',name:'&#x306F;&#x308B;&#x304B;',followers:19500,status:'sent',content_script:'&#x672D;&#x5E4C;&#x5728;&#x4F4F;&#x3001;&#x51AC;&#x306E;&#x80B2;&#x5150;&#x30B3;&#x30F3;&#x30C6;&#x30F3;&#x30C4;',dm_draft:'',last_dm:'2026-03-28'},
-  {username:'nagoya_ikuji',name:'&#x3048;&#x308A;',followers:31200,status:'replied',content_script:'&#x540D;&#x53E4;&#x5C4B;&#x5728;&#x4F4F;&#x3001;&#x4FDD;&#x6D3B;&#x30DE;&#x30DE;&#x3002;1&#x6B73;2&#x30F6;&#x6708;',dm_draft:'',last_dm:'2026-03-27'},
-];
+function getDmCount() {
+  var today = new Date().toISOString().slice(0, 10);
+  return parseInt(localStorage.getItem('jp_dm_sent_' + today) || '0');
+}
+function incDmCount() {
+  var today = new Date().toISOString().slice(0, 10);
+  var c = getDmCount() + 1;
+  localStorage.setItem('jp_dm_sent_' + today, JSON.stringify(c));
+  _dmSentToday = c;
+  return c;
+}
+function isOverLimit() { return _dmSentToday >= _dailyLimit; }
 
-function init(){
-  document.getElementById('pill-date').textContent=new Date().toISOString().slice(0,10);
-  _creators=DEMO_CREATORS;
-  _dailyLimit=parseInt(document.getElementById('cfg-daily-limit').value)||30;
-  loadDmLogs();
-  _dmSentToday=getDmCount();
-  // Inject demo DM logs for replied creator
-  if(!_dmLogs['nagoya_ikuji']||!_dmLogs['nagoya_ikuji'].length){
-    _dmLogs['nagoya_ikuji']=[
-      {dir:'out',text:'\u3048\u308A\u69D8\u3001\u7A81\u7136\u306E\u3054\u9023\u7D61\u5931\u793C\u3044\u305F\u3057\u307E\u3059\u3002\nGROSMIMI JAPAN\u3068\u7533\u3057\u307E\u3059\u3002\n\n\u4FDD\u6D3B\u30DE\u30DE\u3068\u3057\u3066\u306E\u65E5\u5E38\u3092\u767A\u4FE1\u3055\u308C\u3066\u3044\u308B\u6295\u7A3F\u3092\u62DD\u898B\u3057\u3001\u3068\u3066\u3082\u7D20\u6575\u3060\u3068\u611F\u3058\u3054\u9023\u7D61\u3044\u305F\u3057\u307E\u3057\u305F\u3002\n\n\u5F0A\u793E\u306EPPSU\u30B9\u30C8\u30ED\u30FC\u30AB\u30C3\u30D7\u3092\u305C\u3072\u304A\u8A66\u3057\u3044\u305F\u3060\u3051\u306A\u3044\u304B\u3068\u601D\u3063\u3066\u304A\u308A\u307E\u3059\u3002\n\n\u3054\u8208\u5473\u304C\u3054\u3056\u3044\u307E\u3057\u305F\u3089\u3001\u304A\u6C17\u8EFD\u306B\u3054\u8FD4\u4FE1\u304F\u3060\u3055\u3044\uD83D\uDE0A\n\nGROSMIMI JAPAN',ts:'2026-03-27T10:30:00Z'},
-      {dir:'in',text:'\u3054\u9023\u7D61\u3042\u308A\u304C\u3068\u3046\u3054\u3056\u3044\u307E\u3059\uFF01\u8208\u5473\u304C\u3042\u308A\u307E\u3059\u3002\u3069\u306E\u3088\u3046\u306A\u5546\u54C1\u3067\u3057\u3087\u3046\u304B\uFF1F',ts:'2026-03-27T14:15:00Z'},
-      {dir:'out',text:'\u3048\u308A\u69D8\u3001\u3054\u8FD4\u4FE1\u3042\u308A\u304C\u3068\u3046\u3054\u3056\u3044\u307E\u3059\u3002\n\n1\u6B73\u306E\u304A\u5B50\u69D8\u3067\u3057\u305F\u3089\u3001PPSU\u30EF\u30F3\u30BF\u30C3\u30C1\u5F0F\u30B9\u30C8\u30ED\u30FC\u30AB\u30C3\u30D7(300ml)\u304C\u304A\u3059\u3059\u3081\u3067\u3059\u3002\u304A\u5B50\u69D8\u304C\u81EA\u5206\u3067\u958B\u9589\u3067\u304D\u308B\u30EF\u30F3\u30BF\u30C3\u30C1\u5F0F\u3067\u3059\u3002\n\n\u304A\u8272\u306F\u30D4\u30F3\u30AF\u30E6\u30CB\u30B3\u30FC\u30F3\u3068\u30B0\u30EA\u30FC\u30F3\u30C0\u30A4\u30CA\u30BD\u30FC\u304C\u3054\u3056\u3044\u307E\u3059\u3002\u3054\u5E0C\u671B\u306E\u304A\u8272\u3092\u304A\u77E5\u3089\u305B\u304F\u3060\u3055\u3044\uD83D\uDE0A\n\nGROSMIMI JAPAN',ts:'2026-03-27T15:00:00Z'}
-    ];
-    saveDmLogs();
-  }
-  updateStats();
-  renderCreators();
-  renderDmQueue();
-  var h=location.hash.replace('#','');
-  if(h){
-    var tab=document.querySelector('.mt>div[data-p="'+h+'"]');
-    if(tab)tab.click();
+// ─── Init ───
+function init() {
+  document.getElementById('pill-date').textContent = new Date().toISOString().slice(0, 10);
+  _dailyLimit = parseInt(document.getElementById('cfg-daily-limit').value) || 30;
+  _dmSentToday = getDmCount();
+  loadCreators();
+  var h = location.hash.replace('#', '');
+  if (h) {
+    var tab = document.querySelector('.mt>div[data-p="' + h + '"]');
+    if (tab) tab.click();
   }
 }
 
-function updateStats(){
-  var counts={not_started:0,draft_ready:0,sent:0,replied:0,accepted:0,sample_sent:0,posted:0};
-  _creators.forEach(function(c){counts[c.status]=(counts[c.status]||0)+1});
-  document.getElementById('pill-total').textContent=_creators.length+' creators';
-  document.getElementById('s-total').textContent=_creators.length;
-  document.getElementById('s-draft').textContent=counts.draft_ready;
-  document.getElementById('s-sent').textContent=counts.sent;
-  document.getElementById('s-accepted').textContent=counts.accepted;
-  document.getElementById('s-posted').textContent=counts.posted;
+function loadCreators() {
+  setPillStatus('loading');
+  n8nGet()
+    .then(function(data) {
+      _creators = Array.isArray(data) ? data : (data.creators || []);
+      // Normalize fields
+      _creators.forEach(function(c) {
+        c.status = c.status || 'not_started';
+        c.dm_count = c.dm_count || 0;
+        c.followers = c.followers || 0;
+      });
+      setPillStatus('ready');
+      updateStats();
+      renderCreators();
+      renderDmQueue();
+      renderInboundQueue();
+      loadRecentActivity();
+    })
+    .catch(function(err) {
+      console.error('Failed to load creators:', err);
+      setPillStatus('error');
+      showToast('Failed to load creators from n8n', 'err');
+      // Show empty state
+      updateStats();
+      renderCreators();
+    });
+}
+
+function setPillStatus(s) {
+  var pill = document.getElementById('pill-status');
+  if (s === 'loading') {
+    pill.innerHTML = '<span class="loading-spinner" style="width:5px;height:5px"></span> Loading';
+  } else if (s === 'error') {
+    pill.innerHTML = '<span class="dot" style="background:var(--r);box-shadow:0 0 3px var(--r)"></span> Error';
+  } else {
+    pill.innerHTML = '<span class="dot"></span> Ready';
+  }
+}
+
+function updateStats() {
+  var counts = { not_started: 0, draft_ready: 0, sent: 0, replied: 0, accepted: 0, sample_sent: 0, posted: 0, inbound: 0, needs_review: 0 };
+  _creators.forEach(function(c) { counts[c.status] = (counts[c.status] || 0) + 1; });
+  document.getElementById('pill-total').textContent = _creators.length + ' creators';
+  document.getElementById('s-total').textContent = _creators.length;
+  document.getElementById('s-draft').textContent = counts.draft_ready;
+  document.getElementById('s-sent').textContent = counts.sent;
+  document.getElementById('s-accepted').textContent = counts.accepted;
+  document.getElementById('s-posted').textContent = counts.posted;
+  document.getElementById('s-inbound').textContent = counts.inbound + counts.needs_review;
   // Funnel
-  document.getElementById('f-not-started').textContent=counts.not_started;
-  document.getElementById('f-draft-ready').textContent=counts.draft_ready;
-  document.getElementById('f-sent').textContent=counts.sent;
-  document.getElementById('f-replied').textContent=counts.replied;
-  document.getElementById('f-accepted').textContent=counts.accepted;
-  document.getElementById('f-sample-sent').textContent=counts.sample_sent;
-  document.getElementById('f-posted').textContent=counts.posted;
+  document.getElementById('f-not-started').textContent = counts.not_started;
+  document.getElementById('f-draft-ready').textContent = counts.draft_ready;
+  document.getElementById('f-sent').textContent = counts.sent;
+  document.getElementById('f-replied').textContent = counts.replied;
+  document.getElementById('f-accepted').textContent = counts.accepted;
+  document.getElementById('f-sample-sent').textContent = counts.sample_sent;
+  document.getElementById('f-posted').textContent = counts.posted;
+  document.getElementById('f-inbound').textContent = counts.inbound;
+  document.getElementById('f-needs-review').textContent = counts.needs_review;
   // DM budget
-  var pct=Math.min(100,(_dmSentToday/_dailyLimit)*100);
-  document.getElementById('dm-budget-bar').style.width=pct+'%';
-  document.getElementById('dm-budget-bar').style.background=isOverLimit()?'var(--r)':'linear-gradient(90deg,var(--g),var(--am))';
-  document.getElementById('dm-budget-text').textContent=_dmSentToday+' / '+_dailyLimit;
-  // Limit banner
-  var banner=document.getElementById('dm-limit-banner');
-  if(banner){if(isOverLimit())banner.style.display='block';else banner.style.display='none'}
+  var pct = Math.min(100, (_dmSentToday / _dailyLimit) * 100);
+  document.getElementById('dm-budget-bar').style.width = pct + '%';
+  document.getElementById('dm-budget-bar').style.background = isOverLimit() ? 'var(--r)' : 'linear-gradient(90deg,var(--g),var(--am))';
+  document.getElementById('dm-budget-text').textContent = _dmSentToday + ' / ' + _dailyLimit;
 }
 
-function statusBadge(s){
-  var map={not_started:'',draft_ready:'am',sent:'c',replied:'a',accepted:'g',sample_sent:'p',posted:'g'};
-  var label={not_started:'Not Started',draft_ready:'Draft Ready',sent:'DM Sent',replied:'Replied',accepted:'Accepted',sample_sent:'Sample Sent',posted:'Posted'};
-  return '<span class="b '+(map[s]||'')+'">'+(label[s]||s)+'</span>';
+function statusBadge(s) {
+  var map = { not_started: '', draft_ready: 'am', sent: 'c', replied: 'a', accepted: 'g', sample_sent: 'p', posted: 'g', inbound: 'c', needs_review: 'am', declined: 'r' };
+  var label = { not_started: 'Not Started', draft_ready: 'Draft Ready', sent: 'DM Sent', replied: 'Replied', accepted: 'Accepted', sample_sent: 'Sample Sent', posted: 'Posted', inbound: 'Inbound', needs_review: 'Needs Review', declined: 'Declined' };
+  return '<span class="b ' + (map[s] || '') + '">' + (label[s] || s) + '</span>';
 }
 
-function renderCreators(){
-  var q=(document.getElementById('creator-search').value||'').toLowerCase();
-  var sf=document.getElementById('creator-status-filter').value;
-  var filtered=_creators.filter(function(c){
-    if(sf&&c.status!==sf)return false;
-    if(q&&c.username.indexOf(q)===-1&&(c.name||'').toLowerCase().indexOf(q)===-1)return false;
+function hasPastContact(c) {
+  return c.dm_count > 0 || (c.status !== 'not_started' && c.status !== 'inbound');
+}
+
+// ─── Creators Tab ───
+function renderCreators() {
+  var q = (document.getElementById('creator-search').value || '').toLowerCase();
+  var sf = document.getElementById('creator-status-filter').value;
+  var filtered = _creators.filter(function(c) {
+    if (sf && c.status !== sf) return false;
+    if (q && c.username.toLowerCase().indexOf(q) === -1 && (c.name || '').toLowerCase().indexOf(q) === -1) return false;
     return true;
   });
-  document.getElementById('creator-count').textContent=filtered.length+' creators';
-  var start=_page*_perPage;
-  var page=filtered.slice(start,start+_perPage);
-  var html='';
-  page.forEach(function(c){
-    var dmLink='https://ig.me/m/'+c.username;
-    var logs=_dmLogs[c.username]||[];
-    var logCount=logs.length;
-    html+='<tr style="cursor:pointer" onclick="openDmThread(\''+c.username+'\')">';
-    html+='<td><span style="color:var(--a);font-weight:600">@'+c.username+'</span></td>';
-    html+='<td>'+((c.name)||'')+'</td>';
-    html+='<td style="font-family:var(--mono);font-size:10px">'+(c.followers?c.followers.toLocaleString():'—')+'</td>';
-    html+='<td>'+statusBadge(c.status)+'</td>';
-    html+='<td style="font-size:10px;color:var(--dim)">'+(c.last_dm||'—')+'</td>';
-    html+='<td onclick="event.stopPropagation()"><a href="'+dmLink+'" target="_blank" class="btn btn-sm btn-secondary" title="Open IG DM">&#x1F4AC; DM</a>'
-      +(logCount?' <span class="b c">'+logCount+'</span>':'')+'</td>';
-    html+='<td onclick="event.stopPropagation()">';
-    if(c.status==='draft_ready'&&!isOverLimit())html+='<button class="btn btn-sm btn-success" onclick="markSent(\''+c.username+'\')">&#x2705; Sent</button>';
-    else if(c.status==='draft_ready'&&isOverLimit())html+='<span class="b r">Limit</span>';
-    else if(c.status==='sent')html+='<button class="btn btn-sm btn-secondary" onclick="markReplied(\''+c.username+'\')">&#x1F4E9; Replied</button>';
-    html+='</td>';
-    html+='</tr>';
+  document.getElementById('creator-count').textContent = filtered.length + ' creators';
+  var start = _page * _perPage;
+  var page = filtered.slice(start, start + _perPage);
+  var html = '';
+  page.forEach(function(c) {
+    var dmLink = 'https://ig.me/m/' + c.username;
+    html += '<tr style="cursor:pointer" onclick="openDmThread(\'' + c.username + '\')">';
+    html += '<td><span style="color:var(--a);font-weight:600">@' + c.username + '</span>';
+    if (hasPastContact(c)) html += ' <span class="b past">過去進行</span>';
+    html += '</td>';
+    html += '<td>' + (c.name || '') + '</td>';
+    html += '<td style="font-family:var(--mono);font-size:10px">' + (c.followers ? c.followers.toLocaleString() : '\u2014') + '</td>';
+    html += '<td>' + statusBadge(c.status) + '</td>';
+    html += '<td style="font-size:10px;color:var(--dim)">' + (c.last_dm || '\u2014') + '</td>';
+    html += '<td onclick="event.stopPropagation()"><a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-secondary" title="Open IG DM">&#x1F4AC; DM</a>';
+    if (c.dm_count > 0) html += ' <span class="b c">' + c.dm_count + '</span>';
+    html += '</td>';
+    html += '<td onclick="event.stopPropagation()">';
+    if (c.status === 'draft_ready' && !isOverLimit()) html += '<button class="btn btn-sm btn-success" onclick="markSent(\'' + c.username + '\')">&#x2705; Sent</button>';
+    else if (c.status === 'draft_ready' && isOverLimit()) html += '<span class="b r">Limit</span>';
+    else if (c.status === 'sent') html += '<button class="btn btn-sm btn-secondary" onclick="markReplied(\'' + c.username + '\')">&#x1F4E9; Replied</button>';
+    else if (c.status === 'inbound' || c.status === 'needs_review') html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')">&#x1F50D; Review</button>';
+    html += '</td>';
+    html += '</tr>';
   });
-  document.getElementById('creators-tbody').innerHTML=html||'<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--dim)">No creators found</td></tr>';
-}
-function filterCreators(){_page=0;renderCreators()}
-
-function markSent(handle){
-  if(isOverLimit()){showToast('Daily limit reached! ('+_dailyLimit+'/day)','err');return}
-  var c=_creators.find(function(x){return x.username===handle});
-  if(c){
-    // Log the draft as outbound DM
-    if(c.dm_draft)addDmLog(handle,'out',c.dm_draft);
-    c.status='sent';c.last_dm=new Date().toISOString().slice(0,10);
-    incDmCount();
-    updateStats();renderCreators();renderDmQueue();
-    showToast('DM sent: @'+handle+' ('+_dmSentToday+'/'+_dailyLimit+')');
+  document.getElementById('creators-tbody').innerHTML = html || '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--dim)">No creators found</td></tr>';
+  // Pager
+  var totalPages = Math.ceil(filtered.length / _perPage);
+  var pagerHtml = '';
+  if (totalPages > 1) {
+    for (var i = 0; i < totalPages; i++) {
+      pagerHtml += '<button class="' + (i === _page ? 'on' : '') + '" onclick="_page=' + i + ';renderCreators()">' + (i + 1) + '</button>';
+    }
   }
+  document.getElementById('creators-pager').innerHTML = pagerHtml;
 }
-function markReplied(handle){
-  var c=_creators.find(function(x){return x.username===handle});
-  if(c){c.status='replied';updateStats();renderCreators();showToast('Replied: @'+handle)}
-}
+function filterCreators() { _page = 0; renderCreators(); }
 
-function renderDmQueue(){
-  var drafts=_creators.filter(function(c){return c.status==='draft_ready'&&c.dm_draft});
-  var html='';
-  if(isOverLimit())html+='<div class="dm-limit-banner" id="dm-limit-banner">\u26A0\uFE0F Daily DM limit reached ('+_dmSentToday+'/'+_dailyLimit+'). Come back tomorrow!</div>';
-  if(!drafts.length){html+='<div style="text-align:center;padding:40px;color:var(--dim)">No drafts pending.</div>';document.getElementById('dm-queue').innerHTML=html;return}
-  drafts.forEach(function(c){
-    var dmLink='https://ig.me/m/'+c.username;
-    var logs=_dmLogs[c.username]||[];
-    html+='<div class="dm-card">';
-    html+='<div style="display:flex;justify-content:space-between;align-items:center">';
-    html+='<div><span class="dm-handle" style="cursor:pointer" onclick="openDmThread(\''+c.username+'\')">@'+c.username+'</span>'
-      +(logs.length?' <span class="b c" style="cursor:pointer" onclick="openDmThread(\''+c.username+'\')">'+logs.length+' msgs</span>':'')+'</div>';
-    html+='<a href="'+dmLink+'" target="_blank" class="btn btn-sm btn-primary"'+(isOverLimit()?' style="opacity:.4;pointer-events:none"':'')+'>&#x1F4AC; Open DM</a>';
-    html+='</div>';
-    html+='<div class="dm-meta">'+(c.name||'')+' \xB7 '+(c.followers?c.followers.toLocaleString():'-')+' followers</div>';
-    html+='<div class="dm-body" id="dm-body-'+c.username+'">'+c.dm_draft+'</div>';
-    html+='<div class="dm-actions">';
-    html+='<button class="copy-btn" onclick="copyDraft(\''+c.username+'\',this)">&#x1F4CB; Copy</button>';
-    if(!isOverLimit())html+='<button class="btn btn-sm btn-success" onclick="markSent(\''+c.username+'\')">&#x2705; Mark Sent</button>';
-    else html+='<span class="b r" style="padding:4px 8px">Limit reached</span>';
-    html+='<button class="btn btn-sm btn-secondary" onclick="openDmThread(\''+c.username+'\')" style="margin-left:auto">&#x1F4AC; Thread</button>';
-    html+='</div>';
-    html+='</div>';
-  });
-  document.getElementById('dm-queue').innerHTML=html;
-}
-
-function copyDraft(handle,btn){
-  var el=document.getElementById('dm-body-'+handle);
-  if(el){
-    navigator.clipboard.writeText(el.textContent).then(function(){
-      btn.textContent='\u2705 Copied!';
-      btn.classList.add('copied');
-      setTimeout(function(){btn.textContent='\uD83D\uDCCB Copy Draft';btn.classList.remove('copied')},2000);
+// ─── Status changes via n8n ───
+function updateStatus(handle, newStatus) {
+  return n8nPost({ action: 'update_status', username: handle, status: newStatus })
+    .then(function(res) {
+      var c = _creators.find(function(x) { return x.username === handle; });
+      if (c) {
+        c.status = newStatus;
+        if (newStatus === 'sent') c.last_dm = new Date().toISOString().slice(0, 10);
+      }
+      return res;
     });
-  }
 }
 
-function generateDrafts(){
-  var btn=document.getElementById('btn-generate');
-  var statusEl=document.getElementById('draft-status');
-  btn.disabled=true;
-  statusEl.textContent='Generating...';
+function markSent(handle) {
+  if (isOverLimit()) { showToast('Daily limit reached! (' + _dailyLimit + '/day)', 'err'); return; }
+  var c = _creators.find(function(x) { return x.username === handle; });
+  if (!c) return;
+  // Log the draft as outbound DM
+  if (c.dm_draft) {
+    n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' });
+  }
+  updateStatus(handle, 'sent').then(function() {
+    incDmCount();
+    updateStats(); renderCreators(); renderDmQueue();
+    showToast('DM sent: @' + handle + ' (' + _dmSentToday + '/' + _dailyLimit + ')');
+  }).catch(function() {
+    showToast('Failed to update status', 'err');
+  });
+}
 
-  // Simulate draft generation (will be replaced by n8n webhook call)
-  var notStarted=_creators.filter(function(c){return c.status==='not_started'});
-  var batch=parseInt(document.getElementById('draft-batch-size').value)||10;
-  var toGenerate=notStarted.slice(0,batch);
+function markReplied(handle) {
+  updateStatus(handle, 'replied').then(function() {
+    updateStats(); renderCreators();
+    showToast('Replied: @' + handle);
+  });
+}
 
-  if(!toGenerate.length){
-    statusEl.textContent='No creators to generate drafts for.';
-    btn.disabled=false;
+function markAccepted(handle) {
+  updateStatus(handle, 'accepted').then(function() {
+    updateStats(); renderCreators(); renderInboundQueue();
+    showToast('Accepted: @' + handle);
+  });
+}
+
+// ─── Dashboard: DM Queue ───
+function renderDmQueue() {
+  var drafts = _creators.filter(function(c) { return c.status === 'draft_ready'; });
+  var html = '';
+  if (isOverLimit()) html += '<div class="dm-limit-banner">&#x26A0;&#xFE0F; Daily DM limit reached (' + _dmSentToday + '/' + _dailyLimit + '). Come back tomorrow!</div>';
+  if (!drafts.length) {
+    html += '<div style="text-align:center;padding:40px;color:var(--dim)">No drafts pending. Generate drafts from the DM Drafts tab.</div>';
+    document.getElementById('dm-queue').innerHTML = html;
+    return;
+  }
+  drafts.forEach(function(c) {
+    var dmLink = 'https://ig.me/m/' + c.username;
+    html += '<div class="dm-card">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center">';
+    html += '<div><span class="dm-handle" style="cursor:pointer" onclick="openDmThread(\'' + c.username + '\')">@' + c.username + '</span>';
+    if (c.dm_count > 0) html += ' <span class="b c" style="cursor:pointer" onclick="openDmThread(\'' + c.username + '\')">' + c.dm_count + ' msgs</span>';
+    html += '</div>';
+    html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary"' + (isOverLimit() ? ' style="opacity:.4;pointer-events:none"' : '') + '>&#x1F4AC; Open DM</a>';
+    html += '</div>';
+    html += '<div class="dm-meta">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + ' followers</div>';
+    if (c.dm_draft) {
+      html += '<div class="dm-body" id="dm-body-' + c.username + '">' + escapeHtml(c.dm_draft) + '</div>';
+      html += '<div class="dm-actions">';
+      html += '<button class="copy-btn" onclick="copyDraft(\'' + c.username + '\',this)">&#x1F4CB; Copy</button>';
+      if (!isOverLimit()) html += '<button class="btn btn-sm btn-success" onclick="markSent(\'' + c.username + '\')">&#x2705; Mark Sent</button>';
+      else html += '<span class="b r" style="padding:4px 8px">Limit reached</span>';
+      html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')" style="margin-left:auto">&#x1F4AC; Thread</button>';
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+  document.getElementById('dm-queue').innerHTML = html;
+}
+
+// ─── Dashboard: Inbound Queue ───
+function renderInboundQueue() {
+  var inbound = _creators.filter(function(c) { return c.status === 'inbound' || c.status === 'needs_review'; });
+  var html = '';
+  if (!inbound.length) {
+    html = '<div style="text-align:center;padding:30px;color:var(--dim);font-size:11px">No inbound creators detected.</div>';
+    document.getElementById('inbound-queue').innerHTML = html;
+    return;
+  }
+  inbound.forEach(function(c) {
+    html += '<div class="dm-card">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center">';
+    html += '<div><span class="dm-handle" style="cursor:pointer" onclick="openDmThread(\'' + c.username + '\')">@' + c.username + '</span> ';
+    html += statusBadge(c.status) + '</div>';
+    html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')">&#x1F50D; Review</button>';
+    html += '</div>';
+    html += '<div class="dm-meta">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + ' followers</div>';
+    html += '</div>';
+  });
+  document.getElementById('inbound-queue').innerHTML = html;
+}
+
+// ─── Dashboard: Recent Activity ───
+function loadRecentActivity() {
+  // Pull recent DM logs across all creators
+  var el = document.getElementById('activity-log');
+  el.innerHTML = '<div class="loading-overlay"><span class="loading-spinner"></span> Loading...</div>';
+  // Get recent logs from the last few creators who have activity
+  var active = _creators.filter(function(c) { return c.dm_count > 0 || c.status !== 'not_started'; }).slice(0, 10);
+  if (!active.length) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--dim);font-size:11px">No activity yet</div>';
+    return;
+  }
+  var promises = active.map(function(c) {
+    return n8nPost({ action: 'dm_log', username: c.username }).then(function(logs) {
+      return (Array.isArray(logs) ? logs : []).map(function(l) { l._username = c.username; return l; });
+    }).catch(function() { return []; });
+  });
+  Promise.all(promises).then(function(results) {
+    var all = [];
+    results.forEach(function(logs) { all = all.concat(logs); });
+    all.sort(function(a, b) { return (b.ts || '').localeCompare(a.ts || ''); });
+    all = all.slice(0, 20);
+    if (!all.length) {
+      el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--dim);font-size:11px">No activity yet</div>';
+      return;
+    }
+    var html = '';
+    all.forEach(function(l) {
+      var time = l.ts ? new Date(l.ts) : new Date();
+      var timeStr = time.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' }) + ' ' + time.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+      var dir = l.dir === 'out' ? '\u2192' : '\u2190';
+      var preview = (l.text || '').substring(0, 60).replace(/\n/g, ' ');
+      if ((l.text || '').length > 60) preview += '...';
+      html += '<div class="activity-item">';
+      html += '<div class="activity-time">' + timeStr + '</div>';
+      html += '<div class="activity-text">' + dir + ' <strong>@' + (l._username || l.username || '?') + '</strong>: ' + escapeHtml(preview) + '</div>';
+      html += '</div>';
+    });
+    el.innerHTML = html;
+  }).catch(function() {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--dim);font-size:11px">Failed to load activity</div>';
+  });
+}
+
+// ─── DM Drafts Tab ───
+function generateDrafts() {
+  var btn = document.getElementById('btn-generate');
+  var statusEl = document.getElementById('draft-status');
+  btn.disabled = true;
+  statusEl.innerHTML = '<span class="loading-spinner"></span> Generating via n8n...';
+
+  // Filter: only not_started AND no DM history
+  var eligible = _creators.filter(function(c) {
+    return c.status === 'not_started' && c.dm_count === 0;
+  });
+  var batch = parseInt(document.getElementById('draft-batch-size').value) || 10;
+  var toGenerate = eligible.slice(0, batch);
+
+  if (!toGenerate.length) {
+    statusEl.textContent = 'No eligible creators (all have past contact or drafts).';
+    btn.disabled = false;
     return;
   }
 
-  // Simulate async generation
-  var i=0;
-  function genNext(){
-    if(i>=toGenerate.length){
-      statusEl.textContent='Done! '+toGenerate.length+' drafts generated.';
-      btn.disabled=false;
+  var payload = toGenerate.map(function(c) {
+    return { username: c.username, name: c.name, followers: c.followers, content_script: c.content_script || '' };
+  });
+
+  n8nPost({ action: 'generate_draft', creators: payload })
+    .then(function(res) {
+      var drafts = Array.isArray(res) ? res : (res.drafts || []);
+      drafts.forEach(function(d) {
+        var c = _creators.find(function(x) { return x.username === d.username; });
+        if (c) {
+          c.status = 'draft_ready';
+          c.dm_draft = d.dm_draft || d.draft || '';
+        }
+      });
+      statusEl.textContent = 'Done! ' + drafts.length + ' drafts generated.';
+      btn.disabled = false;
       updateStats();
       renderCreators();
       renderDmQueue();
       renderDraftsList();
-      return;
-    }
-    var c=toGenerate[i];
-    c.status='draft_ready';
-    c.dm_draft=c.name+'&#x69D8;&#x3001;&#x7A81;&#x7136;&#x306E;&#x3054;&#x9023;&#x7D61;&#x5931;&#x793C;&#x3044;&#x305F;&#x3057;&#x307E;&#x3059;&#x3002;\nGROSMIMI JAPAN&#x3068;&#x7533;&#x3057;&#x307E;&#x3059;&#x3002;\n\n'+c.content_script+'&#x306E;&#x6295;&#x7A3F;&#x3092;&#x62DD;&#x898B;&#x3057;&#x3001;&#x3068;&#x3066;&#x3082;&#x7D20;&#x6575;&#x3060;&#x3068;&#x611F;&#x3058;&#x3054;&#x9023;&#x7D61;&#x3044;&#x305F;&#x3057;&#x307E;&#x3057;&#x305F;&#x3002;\n\n&#x5F0A;&#x793E;&#x306EPPSU&#x30B9;&#x30C8;&#x30ED;&#x30FC;&#x30AB;&#x30C3;&#x30D7;&#x3092;&#x305C;&#x3072;&#x304A;&#x8A66;&#x3057;&#x3044;&#x305F;&#x3060;&#x3051;&#x306A;&#x3044;&#x304B;&#x3068;&#x601D;&#x3063;&#x3066;&#x304A;&#x308A;&#x307E;&#x3059;&#x3002;\n\n&#x3054;&#x8208;&#x5473;&#x304C;&#x3054;&#x3056;&#x3044;&#x307E;&#x3057;&#x305F;&#x3089;&#x3001;&#x304A;&#x6C17;&#x8EFD;&#x306B;&#x3054;&#x8FD4;&#x4FE1;&#x304F;&#x3060;&#x3055;&#x3044;\uD83D\uDE0A;\n\nGROSMIMI JAPAN';
-    statusEl.textContent='Generating... '+(i+1)+'/'+toGenerate.length;
-    i++;
-    setTimeout(genNext,300);
-  }
-  genNext();
+    })
+    .catch(function(err) {
+      statusEl.textContent = 'Error: ' + err.message;
+      btn.disabled = false;
+      showToast('Draft generation failed', 'err');
+    });
 }
 
-function renderDraftsList(){
-  var drafts=_creators.filter(function(c){return c.status==='draft_ready'&&c.dm_draft});
-  if(!drafts.length){document.getElementById('drafts-list').innerHTML='<div style="text-align:center;padding:40px;color:var(--dim)">No drafts available.</div>';return}
-  var html='';
-  drafts.forEach(function(c){
-    var dmLink='https://ig.me/m/'+c.username;
-    html+='<div class="dm-card">';
-    html+='<div style="display:flex;justify-content:space-between;align-items:center">';
-    html+='<div><span class="dm-handle">@'+c.username+'</span> <span style="font-size:10px;color:var(--dim)">'+(c.name||'')+' &#xB7; '+(c.followers?c.followers.toLocaleString():'-')+'</span></div>';
-    html+='<a href="'+dmLink+'" target="_blank" class="btn btn-sm btn-primary">&#x1F4AC; Open DM</a>';
-    html+='</div>';
-    html+='<div class="dm-body" id="dm-body-'+c.username+'">'+c.dm_draft+'</div>';
-    html+='<div class="dm-actions">';
-    html+='<button class="copy-btn" onclick="copyDraft(\''+c.username+'\',this)">&#x1F4CB; Copy Draft</button>';
-    html+='<button class="btn btn-sm btn-success" onclick="markSent(\''+c.username+'\')">&#x2705; Mark Sent</button>';
-    html+='</div>';
-    html+='</div>';
+function renderDraftsList() {
+  var drafts = _creators.filter(function(c) { return c.status === 'draft_ready' && c.dm_draft; });
+  if (!drafts.length) {
+    document.getElementById('drafts-list').innerHTML = '<div style="text-align:center;padding:40px;color:var(--dim)">No drafts available.</div>';
+    document.getElementById('exec-bar-container').style.display = 'none';
+    return;
+  }
+  // Show execute bar
+  document.getElementById('exec-bar-container').style.display = 'block';
+  updateSelectedCount();
+
+  var html = '';
+  drafts.forEach(function(c, idx) {
+    var dmLink = 'https://ig.me/m/' + c.username;
+    html += '<div class="dm-card" id="draft-card-' + c.username + '">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center">';
+    html += '<div>';
+    html += '<input type="checkbox" class="draft-cb draft-select" data-username="' + c.username + '" checked onchange="updateSelectedCount()">';
+    html += '<span class="dm-handle">@' + c.username + '</span> <span style="font-size:10px;color:var(--dim)">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + '</span>';
+    html += '</div>';
+    html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary">&#x1F4AC; Open DM</a>';
+    html += '</div>';
+    html += '<div class="dm-body" id="dm-body-' + c.username + '">' + escapeHtml(c.dm_draft) + '</div>';
+    html += '<div class="dm-actions">';
+    html += '<button class="copy-btn" onclick="copyDraft(\'' + c.username + '\',this)">&#x1F4CB; Copy Draft</button>';
+    html += '<button class="btn btn-sm btn-success" onclick="markSent(\'' + c.username + '\')">&#x2705; Mark Sent</button>';
+    html += '</div>';
+    html += '</div>';
   });
-  document.getElementById('drafts-list').innerHTML=html;
+  document.getElementById('drafts-list').innerHTML = html;
+}
+
+function toggleAllDrafts(checked) {
+  document.querySelectorAll('.draft-select').forEach(function(cb) { cb.checked = checked; });
+  updateSelectedCount();
+}
+
+function updateSelectedCount() {
+  var checked = document.querySelectorAll('.draft-select:checked');
+  var count = checked.length;
+  document.getElementById('selected-count').textContent = count + ' selected';
+  var remaining = _dailyLimit - _dmSentToday;
+  var willSend = Math.min(count, remaining);
+  document.getElementById('exec-budget-info').textContent = 'Budget: ' + remaining + ' remaining (' + willSend + ' will send)';
+  document.getElementById('btn-execute').disabled = count === 0 || isOverLimit() || _executing;
+}
+
+// ─── Execute: Open IG links in sequence, copy draft, mark sent ───
+function executeDrafts() {
+  if (_executing) return;
+  var checked = document.querySelectorAll('.draft-select:checked');
+  var handles = [];
+  checked.forEach(function(cb) { handles.push(cb.dataset.username); });
+  if (!handles.length) { showToast('No drafts selected', 'err'); return; }
+
+  var remaining = _dailyLimit - _dmSentToday;
+  if (remaining <= 0) { showToast('Daily limit reached!', 'err'); return; }
+  handles = handles.slice(0, remaining); // Enforce limit
+
+  _executing = true;
+  document.getElementById('btn-execute').disabled = true;
+  document.getElementById('exec-progress').style.display = 'block';
+  document.getElementById('exec-progress-text').textContent = 'Executing...';
+
+  var idx = 0;
+  function processNext() {
+    if (idx >= handles.length || isOverLimit()) {
+      _executing = false;
+      document.getElementById('exec-progress-text').textContent = 'Done! ' + idx + ' DMs processed.';
+      document.getElementById('btn-execute').disabled = false;
+      updateStats(); renderCreators(); renderDmQueue(); renderDraftsList();
+      return;
+    }
+    var handle = handles[idx];
+    var c = _creators.find(function(x) { return x.username === handle; });
+    document.getElementById('exec-progress-count').textContent = (idx + 1) + '/' + handles.length;
+    document.getElementById('exec-fill').style.width = (((idx + 1) / handles.length) * 100) + '%';
+    document.getElementById('exec-current').textContent = 'Opening @' + handle + '...';
+
+    // Copy draft to clipboard
+    if (c && c.dm_draft) {
+      navigator.clipboard.writeText(c.dm_draft).catch(function() {});
+    }
+
+    // Open IG DM link
+    window.open('https://ig.me/m/' + handle, '_blank');
+
+    // Mark as sent via n8n
+    if (c && c.dm_draft) {
+      n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' });
+    }
+    updateStatus(handle, 'sent').then(function() {
+      incDmCount();
+    }).catch(function() {});
+
+    idx++;
+    setTimeout(processNext, 1200); // 1.2s delay between opens
+  }
+  processNext();
+}
+
+function copyDraft(handle, btn) {
+  var el = document.getElementById('dm-body-' + handle);
+  if (el) {
+    navigator.clipboard.writeText(el.textContent).then(function() {
+      btn.textContent = '\u2705 Copied!';
+      btn.classList.add('copied');
+      setTimeout(function() { btn.textContent = '\uD83D\uDCCB Copy Draft'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
 }
 
 // ─── DM Thread Modal ───
-function openDmThread(handle){
-  _threadHandle=handle;
-  var c=_creators.find(function(x){return x.username===handle});
-  document.getElementById('thread-handle').textContent='@'+handle;
-  document.getElementById('thread-badge').innerHTML=c?statusBadge(c.status):'';
-  document.getElementById('thread-ig-link').href='https://ig.me/m/'+handle;
-  // Can send via API only if subscriber (replied+)
-  var canSendApi=c&&['replied','accepted','sample_sent','posted'].indexOf(c.status)!==-1&&c.manychat_id;
-  var inp=document.getElementById('thread-input');
-  var btn=document.getElementById('thread-send-btn');
-  if(canSendApi){
-    inp.placeholder='Type a message (sends via ManyChat)...';
-    btn.disabled=false;
-    btn.textContent='Send';
-  }else{
-    inp.placeholder='Manual send only \u2014 use "Open IG" button + copy-paste';
-    btn.disabled=false;
-    btn.textContent='Log';
-  }
-  renderThreadBody(handle);
-  document.getElementById('dm-thread').style.display='flex';
-  setTimeout(function(){
-    var body=document.getElementById('thread-body');
-    body.scrollTop=body.scrollHeight;
-    inp.focus();
-  },100);
-}
-function closeDmThread(){
-  document.getElementById('dm-thread').style.display='none';
-  _threadHandle='';
-}
-function renderThreadBody(handle){
-  var logs=_dmLogs[handle]||[];
-  var body=document.getElementById('thread-body');
-  if(!logs.length){body.innerHTML='<div class="dm-empty">No messages yet. Send the first DM via IG deeplink.</div>';return}
-  var html='';
-  logs.forEach(function(m){
-    var cls=m.dir==='out'?'out':'in';
-    var time=new Date(m.ts);
-    var timeStr=time.toLocaleDateString('ja-JP',{month:'short',day:'numeric'})+' '+time.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
-    html+='<div class="dm-bubble '+cls+'">';
-    html+=m.text.replace(/\n/g,'<br>');
-    html+='<span class="dm-time">'+(m.dir==='out'?'\u2192 Sent':'\\u2190 Received')+' '+timeStr+'</span>';
-    html+='</div>';
-  });
-  body.innerHTML=html;
-}
-function sendThreadDm(){
-  var input=document.getElementById('thread-input');
-  var text=input.value.trim();
-  if(!text||!_threadHandle)return;
-  var c=_creators.find(function(x){return x.username===_threadHandle});
-  var canSendApi=c&&['replied','accepted','sample_sent','posted'].indexOf(c.status)!==-1&&c.manychat_id;
+function openDmThread(handle) {
+  _threadHandle = handle;
+  var c = _creators.find(function(x) { return x.username === handle; });
+  document.getElementById('thread-handle').textContent = '@' + handle;
+  document.getElementById('thread-badge').innerHTML = c ? statusBadge(c.status) : '';
+  document.getElementById('thread-ig-link').href = 'https://ig.me/m/' + handle;
 
-  if(canSendApi){
-    // Send via ManyChat API
-    var sendBtn=document.getElementById('thread-send-btn');
-    sendBtn.disabled=true;sendBtn.textContent='Sending...';
-    fetch(MC_API,{
-      method:'POST',
-      headers:{'Authorization':'Bearer '+MC_TOKEN,'Content-Type':'application/json'},
-      body:JSON.stringify({
-        subscriber_id:c.manychat_id,
-        data:{version:'v2',content:{messages:[{type:'text',text:text}]}}
-      })
-    }).then(function(r){return r.json()}).then(function(d){
-      if(d.status==='success'){
-        addDmLog(_threadHandle,'out',text);
-        incDmCount();
-        input.value='';
-        renderThreadBody(_threadHandle);
-        updateStats();renderCreators();
-        var body=document.getElementById('thread-body');
-        body.scrollTop=body.scrollHeight;
-        showToast('DM sent via ManyChat: @'+_threadHandle);
-      }else{
-        showToast('ManyChat error: '+(d.message||'unknown'),'err');
-      }
-      sendBtn.disabled=false;sendBtn.textContent='Send';
-    }).catch(function(e){
-      showToast('Send failed: '+e.message,'err');
-      sendBtn.disabled=false;sendBtn.textContent='Send';
+  // Show "Mark Accepted" for replied / inbound / needs_review
+  var acceptBtn = document.getElementById('thread-accept-btn');
+  var declineBtn = document.getElementById('thread-decline-btn');
+  if (c && (c.status === 'replied' || c.status === 'inbound' || c.status === 'needs_review')) {
+    acceptBtn.style.display = 'inline-flex';
+    declineBtn.style.display = 'inline-flex';
+  } else {
+    acceptBtn.style.display = 'none';
+    declineBtn.style.display = 'none';
+  }
+
+  // Load thread from n8n
+  var body = document.getElementById('thread-body');
+  body.innerHTML = '<div class="loading-overlay"><span class="loading-spinner"></span> Loading messages...</div>';
+  document.getElementById('dm-thread').style.display = 'flex';
+
+  n8nPost({ action: 'dm_log', username: handle })
+    .then(function(logs) {
+      _dmCache[handle] = Array.isArray(logs) ? logs : [];
+      renderThreadBody(handle);
+      setTimeout(function() {
+        body.scrollTop = body.scrollHeight;
+        document.getElementById('thread-input').focus();
+      }, 100);
+    })
+    .catch(function() {
+      _dmCache[handle] = [];
+      renderThreadBody(handle);
     });
-  }else{
-    // Just log manually (marketer copy-pasted and sent via IG)
-    addDmLog(_threadHandle,'out',text);
-    input.value='';
-    renderThreadBody(_threadHandle);
-    renderCreators();
-    var body=document.getElementById('thread-body');
-    body.scrollTop=body.scrollHeight;
-    showToast('DM logged for @'+_threadHandle);
-  }
-}
-// Log incoming DM (called from webhook or manual)
-function logIncomingDm(handle,text){
-  addDmLog(handle,'in',text);
-  var c=_creators.find(function(x){return x.username===handle});
-  if(c&&c.status==='sent'){c.status='replied';updateStats();renderCreators()}
-  if(_threadHandle===handle)renderThreadBody(handle);
 }
 
-function showToast(msg,type){
-  var t=document.getElementById('toast');
-  t.textContent=msg;
-  t.className='toast '+(type||'ok')+' show';
-  setTimeout(function(){t.classList.remove('show')},3000);
+function closeDmThread() {
+  document.getElementById('dm-thread').style.display = 'none';
+  _threadHandle = '';
+}
+
+function renderThreadBody(handle) {
+  var logs = _dmCache[handle] || [];
+  var body = document.getElementById('thread-body');
+  if (!logs.length) {
+    body.innerHTML = '<div class="dm-empty">No messages yet. Send the first DM via IG deeplink.</div>';
+    return;
+  }
+  var html = '';
+  logs.forEach(function(m) {
+    var cls = m.dir === 'out' ? 'out' : 'in';
+    var time = m.ts ? new Date(m.ts) : new Date();
+    var timeStr = time.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' }) + ' ' + time.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+    var sender = m.dir === 'out' ? ('\u2192 Sent' + (m.sent_by ? ' by ' + m.sent_by : '')) : '\u2190 Received';
+    html += '<div class="dm-bubble ' + cls + '">';
+    html += escapeHtml(m.text || '').replace(/\n/g, '<br>');
+    html += '<span class="dm-time">' + sender + ' ' + timeStr + '</span>';
+    html += '</div>';
+  });
+  body.innerHTML = html;
+}
+
+function sendThreadDm() {
+  var input = document.getElementById('thread-input');
+  var text = input.value.trim();
+  if (!text || !_threadHandle) return;
+
+  var dir = document.getElementById('thread-dir').value;
+  var sendBtn = document.getElementById('thread-send-btn');
+  sendBtn.disabled = true;
+  sendBtn.textContent = 'Saving...';
+
+  n8nPost({
+    action: 'dm_log',
+    sub_action: 'add',
+    username: _threadHandle,
+    dir: dir,
+    text: text,
+    sent_by: dir === 'out' ? (_currentUser || 'dashboard') : _threadHandle
+  }).then(function() {
+    // Add to local cache
+    if (!_dmCache[_threadHandle]) _dmCache[_threadHandle] = [];
+    _dmCache[_threadHandle].push({ dir: dir, text: text, ts: new Date().toISOString(), sent_by: dir === 'out' ? _currentUser : _threadHandle });
+    input.value = '';
+    renderThreadBody(_threadHandle);
+    var body = document.getElementById('thread-body');
+    body.scrollTop = body.scrollHeight;
+
+    // Update dm_count
+    var c = _creators.find(function(x) { return x.username === _threadHandle; });
+    if (c) c.dm_count = _dmCache[_threadHandle].length;
+
+    // Auto-mark as replied if incoming DM on a 'sent' creator
+    if (dir === 'in' && c && c.status === 'sent') {
+      updateStatus(_threadHandle, 'replied').then(function() {
+        document.getElementById('thread-badge').innerHTML = statusBadge('replied');
+        document.getElementById('thread-accept-btn').style.display = 'inline-flex';
+        document.getElementById('thread-decline-btn').style.display = 'inline-flex';
+        updateStats(); renderCreators();
+      });
+    }
+
+    if (dir === 'out') incDmCount();
+    updateStats();
+    renderCreators();
+    showToast('DM logged for @' + _threadHandle);
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Log';
+  }).catch(function(err) {
+    showToast('Failed to log DM: ' + err.message, 'err');
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Log';
+  });
+}
+
+function markAcceptedFromThread() {
+  if (!_threadHandle) return;
+  markAccepted(_threadHandle);
+  document.getElementById('thread-badge').innerHTML = statusBadge('accepted');
+  document.getElementById('thread-accept-btn').style.display = 'none';
+  document.getElementById('thread-decline-btn').style.display = 'none';
+  closeDmThread();
+}
+
+function markDeclinedFromThread() {
+  if (!_threadHandle) return;
+  updateStatus(_threadHandle, 'declined').then(function() {
+    updateStats(); renderCreators(); renderInboundQueue();
+    showToast('Declined: @' + _threadHandle);
+    closeDmThread();
+  });
+}
+
+// ─── Import Modal ───
+function showImportModal() {
+  document.getElementById('import-modal').style.display = 'flex';
+  document.getElementById('import-data').value = '';
+  document.getElementById('import-status').textContent = '';
+}
+
+function importCreators() {
+  var raw = document.getElementById('import-data').value.trim();
+  if (!raw) { document.getElementById('import-status').textContent = 'Paste data first.'; return; }
+
+  var btn = document.getElementById('btn-import');
+  btn.disabled = true;
+  document.getElementById('import-status').innerHTML = '<span class="loading-spinner"></span> Importing via n8n...';
+
+  var creators = [];
+  // Try JSON first
+  try {
+    var parsed = JSON.parse(raw);
+    creators = Array.isArray(parsed) ? parsed : [parsed];
+  } catch (e) {
+    // CSV parse
+    raw.split('\n').forEach(function(line) {
+      line = line.trim();
+      if (!line) return;
+      var parts = line.split(',').map(function(s) { return s.trim(); });
+      if (parts[0]) {
+        creators.push({
+          username: parts[0].replace('@', ''),
+          name: parts[1] || '',
+          followers: parseInt(parts[2]) || 0
+        });
+      }
+    });
+  }
+
+  if (!creators.length) {
+    document.getElementById('import-status').textContent = 'No valid creators found.';
+    btn.disabled = false;
+    return;
+  }
+
+  n8nPost({ action: 'import_creators', creators: creators })
+    .then(function(res) {
+      var count = res.imported || res.count || creators.length;
+      document.getElementById('import-status').textContent = 'Imported ' + count + ' creators.';
+      btn.disabled = false;
+      showToast('Imported ' + count + ' creators');
+      // Reload
+      loadCreators();
+      setTimeout(function() { document.getElementById('import-modal').style.display = 'none'; }, 1500);
+    })
+    .catch(function(err) {
+      document.getElementById('import-status').textContent = 'Error: ' + err.message;
+      btn.disabled = false;
+      showToast('Import failed', 'err');
+    });
+}
+
+// ─── Utils ───
+function escapeHtml(str) {
+  var div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type || 'ok') + ' show';
+  setTimeout(function() { t.classList.remove('show'); }, 3000);
 }
 </script>
 </body>
