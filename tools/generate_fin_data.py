@@ -630,6 +630,8 @@ def generate():
         brand_ad_by_platform_wk[label][brand][wk]["impressions"] += int(r.get("impressions") or 0)
         brand_ad_by_platform_wk[label][brand][wk]["clicks"] += int(r.get("clicks") or 0)
 
+    # NOTE: Attribution sales injection happens after attribution data loaded (see below)
+
     for r in google_ads:
         d = r.get("date", "")
         if not d or d > through:
@@ -1365,12 +1367,21 @@ def generate():
     if attribution:
         attr_total = {k: sum(v[k] for v in attribution.values()) for k in ["clicks", "purchases", "sales", "brb"]}
         print(f"  Attribution: {len(attribution)} campaigns, {attr_total['clicks']:,} clicks, ${attr_total['sales']:,.0f} sales, ${attr_total['brb']:,.0f} BRB")
+
+        # Inject Attribution sales into Meta Traffic platform breakdown (Grosmimi)
+        mt_gros = brand_ad_by_platform.get("Meta Traffic", {}).get("Grosmimi", {})
+        total_mt_spend = sum(v.get("spend", 0) for v in mt_gros.values())
+        if total_mt_spend > 0 and attr_total["sales"] > 0:
+            for m, v in mt_gros.items():
+                ratio = v.get("spend", 0) / total_mt_spend
+                v["sales"] = round(attr_total["sales"] * ratio, 2)
+            print(f"  Attribution -> Meta Traffic Grosmimi: ${attr_total['sales']:,.0f} distributed across {len(mt_gros)} months")
     else:
         print("  Attribution: no data")
 
     # ── Channel Traffic Breakdown (Amazon vs Onzenna) ────────────────────────
     # GA4 = Onzenna D2C traffic. Amazon = Ads clicks + Meta Traffic clicks + organic (estimated).
-    def _build_channel_traffic(ga4_rows, amz_ads_rows, meta_rows, google_rows, days, amz_sessions_data=None):
+    def _build_channel_traffic(ga4_rows, amz_ads_rows, meta_rows, google_rows, days, amz_sessions_data=None, amz_sales_rows=None):
         cutoff = (today - timedelta(days=days)).isoformat()
 
         # Onzenna (GA4 channel groupings)
@@ -1444,6 +1455,15 @@ def generate():
         onz_total = sum(v["sessions"] for v in onz.values())
         onz_purchases = sum(v["purchases"] for v in onz.values())
         amz_total_clicks = amz_ad["clicks"] + meta_traffic["clicks"]
+
+        # Total Amazon orders/sales for organic estimation
+        _amz_total_orders = 0
+        _amz_total_sales = 0.0
+        if amz_sales_rows:
+            for r in amz_sales_rows:
+                if r.get("date", "") >= cutoff:
+                    _amz_total_orders += int(r.get("orders", 0) or 0)
+                    _amz_total_sales += float(r.get("gross_sales", 0) or r.get("net_sales", 0) or 0)
 
         def _build_attr_campaigns(attr_data, meta_spend_by_camp):
             """Build attribution campaign list with matched Meta spend."""
@@ -1550,12 +1570,16 @@ def generate():
                     _src("Meta Traffic (AMZ landing)", meta_traffic["clicks"], meta_traffic["spend"],
                          attr_total_sales, attr_total_purchases,
                          round(meta_traffic["clicks"] / amz_total_clicks * 100, 1) if amz_total_clicks else 0),
-                    (lambda organic_sess: _src(
-                        "Organic (Amazon search + Direct)",
-                        organic_sess, 0, 0, 0,
-                        round(organic_sess / (amz_sessions_data or {}).get("sessions", 1) * 100, 1) if organic_sess > 0 else 0
-                    ))(max(0, (amz_sessions_data or {}).get("sessions", 0) - meta_traffic["clicks"]))
-                    if (amz_sessions_data or {}).get("sessions", 0) > 0 else
+                    (lambda organic_sess, organic_orders, organic_sales: {
+                        "source": "Organic (Amazon search + Direct)",
+                        "clicks": organic_sess, "spend": 0, "sales": round(organic_sales),
+                        "purchases": organic_orders, "cpc": 0, "roas": 0,
+                        "pct": round(organic_sess / (amz_sessions_data or {}).get("sessions", 1) * 100, 1) if organic_sess > 0 else 0,
+                    })(
+                        max(0, (amz_sessions_data or {}).get("sessions", 0) - meta_traffic["clicks"]),
+                        max(0, _amz_total_orders - amz_ad["purchases"] - attr_total_purchases),
+                        max(0, _amz_total_sales - amz_ad["sales"] - attr_total_sales),
+                    ) if (amz_sessions_data or {}).get("sessions", 0) > 0 else
                     {"source": "Organic (Amazon search)", "clicks": 0, "spend": 0, "sales": 0,
                      "purchases": 0, "cpc": 0, "roas": 0, "pct": 0, "note": "n.m."},
                 ],
@@ -1570,9 +1594,9 @@ def generate():
         }
 
     channel_traffic = {
-        "1d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 1, {}),
-        "7d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 7, amz_sessions_7d),
-        "30d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 30, amz_sessions_30d),
+        "1d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 1, {}, amazon_sales),
+        "7d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 7, amz_sessions_7d, amazon_sales),
+        "30d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 30, amz_sessions_30d, amazon_sales),
     }
     onz_30 = channel_traffic["30d"]["onzenna"]["total_sessions"]
     amz_30 = channel_traffic["30d"]["amazon"]["total_clicks"]

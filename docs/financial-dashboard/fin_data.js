@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-29 22:06 PST",
+ "generated_pst": "2026-03-29 23:59 PST",
  "through_date": "2026-03-28",
  "months": [
   "2025-01",
@@ -11689,10 +11689,10 @@ const FIN_DATA = {
       "source": "Meta Traffic (AMZ landing)",
       "clicks": 7925,
       "spend": 828,
-      "sales": 11795,
-      "purchases": 463,
+      "sales": 11877,
+      "purchases": 466,
       "cpc": 0.1,
-      "roas": 14.2,
+      "roas": 14.3,
       "pct": 63.3
      },
      {
@@ -11708,37 +11708,37 @@ const FIN_DATA = {
      }
     ],
     "attribution": {
-     "sales": 11795,
-     "purchases": 463,
-     "brb": 2114,
-     "roas": 14.2,
-     "roas_with_brb": 16.8,
+     "sales": 11877,
+     "purchases": 466,
+     "brb": 2116,
+     "roas": 14.3,
+     "roas_with_brb": 16.9,
      "campaigns": [
       {
-       "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_20251120-01",
-       "sales": 5202,
-       "purchases": 206,
-       "clicks": 74220,
-       "brb": 543.44,
-       "spend": 154,
-       "roas": 33.8,
-       "roas_adj": 37.3
+       "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
+       "sales": 5285,
+       "purchases": 228,
+       "clicks": 29067,
+       "brb": 420.0,
+       "spend": 392,
+       "roas": 13.5,
+       "roas_adj": 14.5
       },
       {
-       "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
+       "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_20251120-01",
        "sales": 5124,
-       "purchases": 221,
-       "clicks": 28382,
-       "brb": 417.44,
-       "spend": 392,
-       "roas": 13.1,
-       "roas_adj": 14.1
+       "purchases": 202,
+       "clicks": 74349,
+       "brb": 543.46,
+       "spend": 154,
+       "roas": 33.3,
+       "roas_adj": 36.8
       },
       {
        "name": "AMZ_Traffic_Dental Mom_Stainless_StrawCup_20260107",
        "sales": 1030,
        "purchases": 22,
-       "clicks": 45548,
+       "clicks": 45664,
        "brb": 906.08,
        "spend": 79,
        "roas": 13.0,
@@ -11748,7 +11748,7 @@ const FIN_DATA = {
        "name": "aa_2fb5a17db7d14eee6e5a81db265da037",
        "sales": 339,
        "purchases": 12,
-       "clicks": 614,
+       "clicks": 617,
        "brb": 172.77,
        "spend": 0,
        "roas": 0,
@@ -11758,7 +11758,7 @@ const FIN_DATA = {
        "name": "AMZ_Traffic_Dentalmom_WL_202601",
        "sales": 100,
        "purchases": 2,
-       "clicks": 36238,
+       "clicks": 36329,
        "brb": 74.08,
        "spend": 85,
        "roas": 1.2,
@@ -11892,55 +11892,55 @@ const FIN_DATA = {
       "source": "Meta Traffic (AMZ landing)",
       "clicks": 48082,
       "spend": 5032,
-      "sales": 11795,
-      "purchases": 463,
+      "sales": 11877,
+      "purchases": 466,
       "cpc": 0.1,
-      "roas": 2.3,
+      "roas": 2.4,
       "pct": 60.2
      },
      {
       "source": "Organic (Amazon search + Direct)",
       "clicks": 71590,
       "spend": 0,
-      "sales": 0,
-      "purchases": 0,
-      "cpc": 0.0,
+      "sales": 90282,
+      "purchases": 3308,
+      "cpc": 0,
       "roas": 0,
       "pct": 59.8
      }
     ],
     "attribution": {
-     "sales": 11795,
-     "purchases": 463,
-     "brb": 2114,
-     "roas": 2.3,
+     "sales": 11877,
+     "purchases": 466,
+     "brb": 2116,
+     "roas": 2.4,
      "roas_with_brb": 2.8,
      "campaigns": [
       {
-       "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_20251120-01",
-       "sales": 5202,
-       "purchases": 206,
-       "clicks": 74220,
-       "brb": 543.44,
-       "spend": 1048,
-       "roas": 5.0,
-       "roas_adj": 5.5
+       "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
+       "sales": 5285,
+       "purchases": 228,
+       "clicks": 29067,
+       "brb": 420.0,
+       "spend": 2043,
+       "roas": 2.6,
+       "roas_adj": 2.8
       },
       {
-       "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
+       "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_20251120-01",
        "sales": 5124,
-       "purchases": 221,
-       "clicks": 28382,
-       "brb": 417.44,
-       "spend": 2043,
-       "roas": 2.5,
-       "roas_adj": 2.7
+       "purchases": 202,
+       "clicks": 74349,
+       "brb": 543.46,
+       "spend": 1048,
+       "roas": 4.9,
+       "roas_adj": 5.4
       },
       {
        "name": "AMZ_Traffic_Dental Mom_Stainless_StrawCup_20260107",
        "sales": 1030,
        "purchases": 22,
-       "clicks": 45548,
+       "clicks": 45664,
        "brb": 906.08,
        "spend": 559,
        "roas": 1.8,
@@ -11950,7 +11950,7 @@ const FIN_DATA = {
        "name": "aa_2fb5a17db7d14eee6e5a81db265da037",
        "sales": 339,
        "purchases": 12,
-       "clicks": 614,
+       "clicks": 617,
        "brb": 172.77,
        "spend": 0,
        "roas": 0,
@@ -11960,7 +11960,7 @@ const FIN_DATA = {
        "name": "AMZ_Traffic_Dentalmom_WL_202601",
        "sales": 100,
        "purchases": 2,
-       "clicks": 36238,
+       "clicks": 36329,
        "brb": 74.08,
        "spend": 559,
        "roas": 0.2,
@@ -12106,8 +12106,8 @@ const FIN_DATA = {
       "source": "Meta Traffic (AMZ landing)",
       "clicks": 146971,
       "spend": 14586,
-      "sales": 11795,
-      "purchases": 463,
+      "sales": 11877,
+      "purchases": 466,
       "cpc": 0.1,
       "roas": 0.8,
       "pct": 57.7
@@ -12116,45 +12116,45 @@ const FIN_DATA = {
       "source": "Organic (Amazon search + Direct)",
       "clicks": 206719,
       "spend": 0,
-      "sales": 0,
-      "purchases": 0,
-      "cpc": 0.0,
+      "sales": 303992,
+      "purchases": 10957,
+      "cpc": 0,
       "roas": 0,
       "pct": 58.4
      }
     ],
     "attribution": {
-     "sales": 11795,
-     "purchases": 463,
-     "brb": 2114,
+     "sales": 11877,
+     "purchases": 466,
+     "brb": 2116,
      "roas": 0.8,
      "roas_with_brb": 1.0,
      "campaigns": [
       {
-       "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_20251120-01",
-       "sales": 5202,
-       "purchases": 206,
-       "clicks": 74220,
-       "brb": 543.44,
-       "spend": 4497,
-       "roas": 1.2,
-       "roas_adj": 1.3
+       "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
+       "sales": 5285,
+       "purchases": 228,
+       "clicks": 29067,
+       "brb": 420.0,
+       "spend": 2043,
+       "roas": 2.6,
+       "roas_adj": 2.8
       },
       {
-       "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
+       "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_20251120-01",
        "sales": 5124,
-       "purchases": 221,
-       "clicks": 28382,
-       "brb": 417.44,
-       "spend": 2043,
-       "roas": 2.5,
-       "roas_adj": 2.7
+       "purchases": 202,
+       "clicks": 74349,
+       "brb": 543.46,
+       "spend": 4497,
+       "roas": 1.1,
+       "roas_adj": 1.3
       },
       {
        "name": "AMZ_Traffic_Dental Mom_Stainless_StrawCup_20260107",
        "sales": 1030,
        "purchases": 22,
-       "clicks": 45548,
+       "clicks": 45664,
        "brb": 906.08,
        "spend": 2405,
        "roas": 0.4,
@@ -12164,7 +12164,7 @@ const FIN_DATA = {
        "name": "aa_2fb5a17db7d14eee6e5a81db265da037",
        "sales": 339,
        "purchases": 12,
-       "clicks": 614,
+       "clicks": 617,
        "brb": 172.77,
        "spend": 0,
        "roas": 0,
@@ -12174,7 +12174,7 @@ const FIN_DATA = {
        "name": "AMZ_Traffic_Dentalmom_WL_202601",
        "sales": 100,
        "purchases": 2,
-       "clicks": 36238,
+       "clicks": 36329,
        "brb": 74.08,
        "spend": 2406,
        "roas": 0.0,
@@ -13576,12 +13576,12 @@ const FIN_DATA = {
      0,
      0,
      0,
-     32733,
-     113230,
-     88939,
-     93995,
-     85117,
-     112614
+     33296,
+     116251,
+     91810,
+     97801,
+     88971,
+     116999
     ],
     "fulfillment_nm": false,
     "ad_spend": [
@@ -13611,12 +13611,12 @@ const FIN_DATA = {
      345683,
      313317,
      267349,
-     287362,
-     235991,
-     222796,
-     216455,
-     216000,
-     269929
+     286799,
+     232970,
+     219925,
+     212649,
+     212146,
+     265544
     ],
     "contribution_margin": [
      185681,
@@ -13628,12 +13628,12 @@ const FIN_DATA = {
      343362,
      311044,
      264415,
-     282634,
-     224611,
-     179329,
-     125287,
-     125981,
-     157385
+     282071,
+     221590,
+     176458,
+     121481,
+     122127,
+     153000
     ],
     "color": "#f59e0b"
    },
@@ -14809,10 +14809,10 @@ const FIN_DATA = {
     "cpc": 0.08,
     "ctr": 13.18,
     "is_traffic": true,
-    "attr_sales": 5202.4,
-    "attr_purchases": 206,
-    "attr_brb": 543.44,
-    "attr_roas": 0.42,
+    "attr_sales": 5124.03,
+    "attr_purchases": 202,
+    "attr_brb": 543.46,
+    "attr_roas": 0.41,
     "attr_roas_adj": 0.46
    },
    {
@@ -16396,11 +16396,11 @@ const FIN_DATA = {
     "cpc": 0.11,
     "ctr": 6.56,
     "is_traffic": true,
-    "attr_sales": 5123.75,
-    "attr_purchases": 221,
-    "attr_brb": 417.44,
-    "attr_roas": 2.51,
-    "attr_roas_adj": 2.71
+    "attr_sales": 5284.66,
+    "attr_purchases": 228,
+    "attr_brb": 420.0,
+    "attr_roas": 2.59,
+    "attr_roas_adj": 2.79
    },
    {
     "id": "120243162990550508",
@@ -20403,11 +20403,11 @@ const FIN_DATA = {
     "cpc": 0.11,
     "ctr": 6.56,
     "is_traffic": true,
-    "attr_sales": 5123.75,
-    "attr_purchases": 221,
-    "attr_brb": 417.44,
-    "attr_roas": 2.51,
-    "attr_roas_adj": 2.71
+    "attr_sales": 5284.66,
+    "attr_purchases": 228,
+    "attr_brb": 420.0,
+    "attr_roas": 2.59,
+    "attr_roas_adj": 2.79
    },
    {
     "id": "120232746327610508",
@@ -20479,10 +20479,10 @@ const FIN_DATA = {
     "cpc": 0.08,
     "ctr": 13.18,
     "is_traffic": true,
-    "attr_sales": 5202.4,
-    "attr_purchases": 206,
-    "attr_brb": 543.44,
-    "attr_roas": 0.42,
+    "attr_sales": 5124.03,
+    "attr_purchases": 202,
+    "attr_brb": 543.46,
+    "attr_roas": 0.41,
     "attr_roas_adj": 0.46
    },
    {
@@ -20937,10 +20937,10 @@ const FIN_DATA = {
     "cpc": 0.08,
     "ctr": 13.18,
     "is_traffic": true,
-    "attr_sales": 5202.4,
-    "attr_purchases": 206,
-    "attr_brb": 543.44,
-    "attr_roas": 0.42,
+    "attr_sales": 5124.03,
+    "attr_purchases": 202,
+    "attr_brb": 543.46,
+    "attr_roas": 0.41,
     "attr_roas_adj": 0.46
    },
    {
@@ -21013,11 +21013,11 @@ const FIN_DATA = {
     "cpc": 0.11,
     "ctr": 6.56,
     "is_traffic": true,
-    "attr_sales": 5123.75,
-    "attr_purchases": 221,
-    "attr_brb": 417.44,
-    "attr_roas": 2.51,
-    "attr_roas_adj": 2.71
+    "attr_sales": 5284.66,
+    "attr_purchases": 228,
+    "attr_brb": 420.0,
+    "attr_roas": 2.59,
+    "attr_roas_adj": 2.79
    },
    {
     "id": "120241255476490508",
@@ -21271,10 +21271,10 @@ const FIN_DATA = {
     "cpc": 0.07,
     "ctr": 13.19,
     "is_traffic": true,
-    "attr_sales": 5202.4,
-    "attr_purchases": 206,
-    "attr_brb": 543.44,
-    "attr_roas": 0.4,
+    "attr_sales": 5124.03,
+    "attr_purchases": 202,
+    "attr_brb": 543.46,
+    "attr_roas": 0.39,
     "attr_roas_adj": 0.44
    },
    {
@@ -22066,11 +22066,11 @@ const FIN_DATA = {
     "cpc": 0.11,
     "ctr": 6.56,
     "is_traffic": true,
-    "attr_sales": 5123.75,
-    "attr_purchases": 221,
-    "attr_brb": 417.44,
-    "attr_roas": 2.51,
-    "attr_roas_adj": 2.71
+    "attr_sales": 5284.66,
+    "attr_purchases": 228,
+    "attr_brb": 420.0,
+    "attr_roas": 2.59,
+    "attr_roas_adj": 2.79
    },
    {
     "id": "120243162990550508",
@@ -24057,11 +24057,11 @@ const FIN_DATA = {
     "cpc": 0.11,
     "ctr": 6.56,
     "is_traffic": true,
-    "attr_sales": 5123.75,
-    "attr_purchases": 221,
-    "attr_brb": 417.44,
-    "attr_roas": 2.51,
-    "attr_roas_adj": 2.71
+    "attr_sales": 5284.66,
+    "attr_purchases": 228,
+    "attr_brb": 420.0,
+    "attr_roas": 2.59,
+    "attr_roas_adj": 2.79
    },
    {
     "id": "120232746327610508",
@@ -24097,10 +24097,10 @@ const FIN_DATA = {
     "cpc": 0.07,
     "ctr": 13.19,
     "is_traffic": true,
-    "attr_sales": 5202.4,
-    "attr_purchases": 206,
-    "attr_brb": 543.44,
-    "attr_roas": 0.4,
+    "attr_sales": 5124.03,
+    "attr_purchases": 202,
+    "attr_brb": 543.46,
+    "attr_roas": 0.39,
     "attr_roas_adj": 0.44
    },
    {
@@ -24339,10 +24339,10 @@ const FIN_DATA = {
     "cpc": 0.07,
     "ctr": 13.19,
     "is_traffic": true,
-    "attr_sales": 5202.4,
-    "attr_purchases": 206,
-    "attr_brb": 543.44,
-    "attr_roas": 0.4,
+    "attr_sales": 5124.03,
+    "attr_purchases": 202,
+    "attr_brb": 543.46,
+    "attr_roas": 0.39,
     "attr_roas_adj": 0.44
    },
    {
@@ -24379,11 +24379,11 @@ const FIN_DATA = {
     "cpc": 0.11,
     "ctr": 6.56,
     "is_traffic": true,
-    "attr_sales": 5123.75,
-    "attr_purchases": 221,
-    "attr_brb": 417.44,
-    "attr_roas": 2.51,
-    "attr_roas_adj": 2.71
+    "attr_sales": 5284.66,
+    "attr_purchases": 228,
+    "attr_brb": 420.0,
+    "attr_roas": 2.59,
+    "attr_roas_adj": 2.79
    },
    {
     "id": "120241255476490508",
@@ -24480,11 +24480,11 @@ const FIN_DATA = {
     "cpc": 0.11,
     "ctr": 6.56,
     "is_traffic": true,
-    "attr_sales": 5123.75,
-    "attr_purchases": 221,
-    "attr_brb": 417.44,
-    "attr_roas": 2.51,
-    "attr_roas_adj": 2.71
+    "attr_sales": 5284.66,
+    "attr_purchases": 228,
+    "attr_brb": 420.0,
+    "attr_roas": 2.59,
+    "attr_roas_adj": 2.79
    },
    {
     "id": "120243162990550508",
@@ -24979,9 +24979,9 @@ const FIN_DATA = {
      10706.32
     ],
     "sales": [
-     0.0,
-     58.77,
-     317.6
+     3658.61,
+     3086.69,
+     3811.54
     ],
     "impressions": [
      1363141,
