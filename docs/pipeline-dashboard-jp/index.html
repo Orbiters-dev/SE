@@ -270,7 +270,24 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
       <button class="btn btn-sm btn-secondary" onclick="showImportModal()">&#x1F4E5; Import</button>
       <span id="creator-count" style="font-size:11px;color:var(--dim)">0 creators</span>
     </div>
-    <div style="overflow-x:auto">
+    <!-- Execute bar for creators tab -->
+    <div id="creators-exec-bar" style="display:none;margin-bottom:12px">
+      <div class="card" style="border-left:3px solid var(--g);padding:10px 16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--dim)">
+              <input type="checkbox" id="creators-select-all" onchange="toggleAllCreatorCb(this.checked)" checked style="accent-color:var(--a)">
+              Select All
+            </label>
+            <span id="creators-selected-count" style="font-size:11px;color:var(--dim);margin-left:8px">0 selected</span>
+          </div>
+          <button class="btn btn-success" id="btn-creators-execute" onclick="executeCreatorsDrafts()">&#x1F680; Execute Selected</button>
+        </div>
+      </div>
+    </div>
+    <div id="creators-cards"></div>
+    <!-- Keep table hidden for backwards compat -->
+    <div style="display:none;overflow-x:auto">
       <table id="creators-table">
         <thead>
           <tr>
@@ -650,31 +667,51 @@ function renderCreators() {
     return true;
   });
   document.getElementById('creator-count').textContent = filtered.length + ' creators';
-  var start = _page * _perPage;
-  var page = filtered.slice(start, start + _perPage);
+
+  // Show execute bar if any draft_ready in filtered
+  var hasDrafts = filtered.some(function(c) { return c.status === 'draft_ready' && c.dm_draft; });
+  document.getElementById('creators-exec-bar').style.display = hasDrafts ? 'block' : 'none';
+
   var html = '';
-  page.forEach(function(c) {
+  filtered.forEach(function(c) {
     var dmLink = 'https://ig.me/m/' + c.username;
-    html += '<tr style="cursor:pointer" onclick="openDmThread(\'' + c.username + '\')">';
-    html += '<td><span style="color:var(--a);font-weight:600">@' + c.username + '</span>';
+    var isDraft = c.status === 'draft_ready' && c.dm_draft;
+
+    html += '<div class="dm-card" style="border-left:3px solid ' + getStatusColor(c.status) + '">';
+    // Header row
+    html += '<div style="display:flex;justify-content:space-between;align-items:center">';
+    html += '<div style="display:flex;align-items:center;gap:8px">';
+    if (isDraft) html += '<input type="checkbox" class="creator-cb" data-username="' + c.username + '" checked onchange="updateCreatorSelectedCount()" style="width:16px;height:16px;accent-color:var(--a)">';
+    html += '<span class="dm-handle" style="cursor:pointer" onclick="openDmThread(\'' + c.username + '\')">@' + c.username + '</span>';
+    html += '<span style="font-size:10px;color:var(--dim)">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + '</span>';
+    html += statusBadge(c.status);
     if (hasPastContact(c)) html += ' <span class="b past">過去進行</span>';
-    html += '</td>';
-    html += '<td>' + (c.name || '') + '</td>';
-    html += '<td style="font-family:var(--mono);font-size:10px">' + (c.followers ? c.followers.toLocaleString() : '\u2014') + '</td>';
-    html += '<td>' + statusBadge(c.status) + '</td>';
-    html += '<td style="font-size:10px;color:var(--dim)">' + (c.last_dm || '\u2014') + '</td>';
-    html += '<td onclick="event.stopPropagation()"><a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-secondary" title="Open IG DM">&#x1F4AC; DM</a>';
-    if (c.dm_count > 0) html += ' <span class="b c">' + c.dm_count + '</span>';
-    html += '</td>';
-    html += '<td onclick="event.stopPropagation()">';
-    if (c.status === 'draft_ready' && !isOverLimit()) html += '<button class="btn btn-sm btn-success" onclick="markSent(\'' + c.username + '\')">&#x2705; Sent</button>';
-    else if (c.status === 'draft_ready' && isOverLimit()) html += '<span class="b r">Limit</span>';
-    else if (c.status === 'sent') html += '<button class="btn btn-sm btn-secondary" onclick="markReplied(\'' + c.username + '\')">&#x1F4E9; Replied</button>';
-    else if (c.status === 'inbound' || c.status === 'needs_review') html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')">&#x1F50D; Review</button>';
-    html += '</td>';
-    html += '</tr>';
+    if (c.dm_count > 0) html += ' <span class="b c">' + c.dm_count + ' msgs</span>';
+    html += '</div>';
+    // Action buttons
+    html += '<div style="display:flex;gap:4px">';
+    html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')" title="History">&#x1F4AC;</button>';
+    html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary" title="Open IG DM">&#x2197; IG</a>';
+    // Stage-specific actions
+    if (c.status === 'draft_ready' && !isOverLimit()) html += '<button class="btn btn-sm btn-success" onclick="event.stopPropagation();markSent(\'' + c.username + '\')">&#x2705; Sent</button>';
+    if (c.status === 'sent') html += '<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();markReplied(\'' + c.username + '\')">&#x1F4E9; Replied</button>';
+    if (c.status === 'replied') html += '<button class="btn btn-sm btn-success" onclick="event.stopPropagation();updateStatus(\'' + c.username + '\',\'accepted\').then(function(){loadCreators()})">&#x2705; Accept</button>';
+    if (c.status === 'accepted') html += '<button class="btn btn-sm" style="background:var(--p);color:#fff" onclick="event.stopPropagation();updateStatus(\'' + c.username + '\',\'sample_sent\').then(function(){loadCreators()})">&#x1F4E6; Sample</button>';
+    if (c.status === 'inbound' || c.status === 'needs_review') html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')">&#x1F50D; Review</button>';
+    html += '</div>';
+    html += '</div>';
+
+    // Draft content (editable)
+    if (isDraft) {
+      html += '<textarea class="dm-edit" id="cr-body-' + c.username + '" rows="5" oninput="saveDraftEdit(\'' + c.username + '\',this.value)">' + escapeHtml(c.dm_draft) + '</textarea>';
+    }
+    // Last DM info
+    if (c.last_dm) html += '<div style="font-size:10px;color:var(--dim);margin-top:4px">Last DM: ' + c.last_dm + '</div>';
+
+    html += '</div>';
   });
-  document.getElementById('creators-tbody').innerHTML = html || '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--dim)">No creators found</td></tr>';
+  document.getElementById('creators-cards').innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--dim)">No creators found</div>';
+  if (hasDrafts) updateCreatorSelectedCount();
   // Pager
   var totalPages = Math.ceil(filtered.length / _perPage);
   var pagerHtml = '';
@@ -1234,11 +1271,63 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+function getStatusColor(s) {
+  var m = {not_started:'#94a3b8',draft_ready:'#f59e0b',sent:'#0ea5e9',replied:'#8b5cf6',accepted:'#10b981',sample_sent:'#ec4899',posted:'#10b981',inbound:'#0ea5e9',needs_review:'#f59e0b',declined:'#ef4444'};
+  return m[s] || '#e2e8f0';
+}
+
+function toggleAllCreatorCb(checked) {
+  document.querySelectorAll('.creator-cb').forEach(function(cb) { cb.checked = checked; });
+  updateCreatorSelectedCount();
+}
+
+function updateCreatorSelectedCount() {
+  var checked = document.querySelectorAll('.creator-cb:checked');
+  document.getElementById('creators-selected-count').textContent = checked.length + ' selected';
+  document.getElementById('btn-creators-execute').disabled = checked.length === 0 || isOverLimit();
+}
+
+function executeCreatorsDrafts() {
+  var checked = document.querySelectorAll('.creator-cb:checked');
+  var handles = [];
+  checked.forEach(function(cb) { handles.push(cb.dataset.username); });
+  if (!handles.length) { showToast('No creators selected', 'err'); return; }
+  var remaining = _dailyLimit - _dmSentToday;
+  if (remaining <= 0) { showToast('Daily limit reached!', 'err'); return; }
+  handles = handles.slice(0, remaining);
+
+  var idx = 0;
+  showToast('Executing ' + handles.length + ' DMs...');
+  function processNext() {
+    if (idx >= handles.length) {
+      showToast('Done! ' + handles.length + ' DMs processed.');
+      loadCreators();
+      return;
+    }
+    var handle = handles[idx];
+    var c = _creators.find(function(x) { return x.username === handle; });
+    // Copy draft to clipboard
+    if (c && c.dm_draft) {
+      navigator.clipboard.writeText(c.dm_draft).catch(function(){});
+      n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' });
+    }
+    // Open IG DM
+    window.open('https://ig.me/m/' + handle, '_blank');
+    updateStatus(handle, 'sent').then(function() { incDmCount(); }).catch(function(){});
+    idx++;
+    setTimeout(processNext, 1200);
+  }
+  processNext();
+}
+
 function goToStage(status) {
+  // Highlight funnel node
+  document.querySelectorAll('.fn').forEach(function(fn) { fn.classList.remove('on'); });
+  var target = document.querySelector('.fn[data-stage="' + status + '"]');
+  if (target) target.classList.add('on');
   // Switch to Creators tab with status filter
   var tab = document.querySelector('.mt>div[data-p="creators"]');
   if (tab) tab.click();
-  // Set filter
   var sel = document.getElementById('creator-status-filter');
   if (sel) { sel.value = status; filterCreators(); }
 }
