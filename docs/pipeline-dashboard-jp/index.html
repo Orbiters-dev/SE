@@ -6,7 +6,7 @@
 <title>Pipeline CRM — Japan</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f8fafc;--card:#fff;--border:#e2e8f0;--text:#1e293b;--dim:#64748b;--a:#8b5cf6;--abg:#f5f3ff;--g:#10b981}
+:root{--bg:#f8fafc;--card:#fff;--border:#e2e8f0;--text:#1e293b;--dim:#64748b;--muted:#94a3b8;--a:#ef4444;--abg:#fef2f2;--g:#10b981;--gbg:#ecfdf5;--am:#f59e0b;--ambg:#fffbeb;--r:#ef4444;--rbg:#fef2f2;--c:#0ea5e9;--cbg:#f0f9ff;--p:#ec4899;--mono:'SF Mono','Fira Code',Consolas,monospace}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:13px}
 .ctr{max-width:1100px;margin:0 auto;padding:28px 20px 80px}
@@ -21,15 +21,80 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .nav-bar a{padding:8px 16px;color:var(--dim);text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center}
 .nav-bar a:hover{background:var(--abg);color:var(--a)}
 .nav-bar .active{background:var(--a);color:#fff;cursor:default}
+.mt{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:0;overflow-x:auto}
+.mt>div{padding:10px 20px;font-size:12px;font-weight:700;cursor:pointer;color:var(--dim);border-bottom:3px solid transparent;margin-bottom:-2px;transition:.12s;white-space:nowrap}
+.mt>div:hover{color:var(--text)}.mt>div.on{color:var(--a);border-bottom-color:var(--a)}
+.mp{display:none;padding-top:20px}.mp.on{display:block}
 .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px}
 .card h3{font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:5px}
-.coming-soon{text-align:center;padding:80px 20px}
-.coming-soon h2{font-size:20px;font-weight:700;margin-bottom:8px;color:var(--text)}
-.coming-soon p{color:var(--dim);font-size:13px;max-width:400px;margin:0 auto}
-.coming-soon .icon{font-size:48px;margin-bottom:16px}
+.card .desc{font-size:10px;color:var(--dim);margin-bottom:8px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px;margin:10px 0}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center}
+.stat .sl{font-size:8px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:600}
+.stat .sv{font-size:20px;font-weight:800;letter-spacing:-.5px;font-family:var(--mono)}
+.stat.green .sv{color:var(--g)}.stat.accent .sv{color:var(--a)}.stat.amber .sv{color:var(--am)}.stat.cyan .sv{color:var(--c)}.stat.red .sv{color:var(--r)}.stat.pink .sv{color:var(--p)}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 20px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+.btn-primary{background:var(--a);color:#fff}.btn-primary:hover{opacity:.9}
+.btn-secondary{background:var(--abg);color:var(--a);border:1px solid var(--border)}.btn-secondary:hover{background:#fee2e2}
+.btn-success{background:var(--g);color:#fff}.btn-success:hover{opacity:.9}
+.btn-sm{padding:4px 10px;font-size:10px;border-radius:5px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{background:#f8fafc;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.3px;font-size:9px;padding:6px 7px;text-align:left;border-bottom:2px solid var(--border);position:sticky;top:0;z-index:1}
+td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f5}
+.b{display:inline-block;padding:1px 6px;border-radius:3px;font-size:8px;font-weight:600}
+.b.g{background:var(--gbg);color:var(--g)}.b.r{background:var(--rbg);color:var(--r)}.b.am{background:var(--ambg);color:var(--am)}
+.b.c{background:var(--cbg);color:var(--c)}.b.a{background:var(--abg);color:var(--a)}.b.p{background:#fdf2f8;color:var(--p)}
+.filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.filter-bar input[type="text"]{flex:1;min-width:180px;padding:7px 12px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit}
+.filter-bar input:focus{outline:none;border-color:var(--a);box-shadow:0 0 0 2px rgba(239,68,68,.15)}
+.filter-bar select{padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;background:var(--card);color:var(--text)}
+.funnel{display:flex;align-items:center;gap:0;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:16px;overflow-x:auto}
+.fn{flex:1;min-width:80px;text-align:center;padding:8px 4px;border-radius:8px;cursor:pointer;transition:.12s;border:2px solid transparent}
+.fn:hover{background:var(--abg)}.fn.on{background:var(--abg);border-color:var(--a)}
+.fn .fi{font-size:18px;font-weight:800;font-family:var(--mono)}.fn .ft{font-size:9px;font-weight:700;color:var(--dim)}.fn .fs{font-size:8px;color:var(--muted)}
+.fa{color:var(--muted);font-size:10px;flex-shrink:0;padding:0 1px}
+.pager{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:12px}
+.pager button{padding:4px 10px;border:1px solid var(--border);border-radius:4px;background:var(--card);cursor:pointer;font-size:11px;font-family:inherit}
+.pager button.on{background:var(--a);color:#fff;border-color:var(--a)}
+.toast{position:fixed;bottom:20px;right:20px;padding:10px 18px;border-radius:8px;font-size:12px;font-weight:600;color:#fff;z-index:999;transform:translateY(100px);opacity:0;transition:.3s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{background:var(--g)}.toast.err{background:var(--r)}
+.dm-preview{background:#fafbff;border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:8px;font-size:11px;line-height:1.7;white-space:pre-wrap}
+.dm-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;position:relative}
+.dm-card .dm-handle{font-weight:700;color:var(--a);font-size:13px}
+.dm-card .dm-meta{font-size:10px;color:var(--dim);margin:4px 0 8px}
+.dm-card .dm-body{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;font-size:12px;line-height:1.8;white-space:pre-wrap}
+.dm-card .dm-actions{display:flex;gap:6px;margin-top:10px;align-items:center}
+.copy-btn{background:#f1f5f9;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s}
+.copy-btn:hover{background:#e2e8f0}
+.copy-btn.copied{background:var(--gbg);color:var(--g);border-color:var(--g)}
+@media(max-width:700px){
+  .ctr{padding:12px 8px 60px}.hero h1{font-size:18px}
+  .mt>div{padding:8px 12px;font-size:11px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .funnel{flex-wrap:wrap}.fn{min-width:60px}
+  .filter-bar{flex-direction:column}.filter-bar input,.filter-bar select{width:100%}
+}
 </style>
 </head>
 <body>
+
+<!-- LOGIN GATE -->
+<div id="login-gate" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)">
+  <div style="background:var(--card);border-radius:16px;padding:48px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.06);border:1px solid var(--border);text-align:center">
+    <div style="font-size:32px;margin-bottom:8px">&#x1F1EF;&#x1F1F5;</div>
+    <h2 style="font-size:18px;font-weight:800;margin-bottom:4px">Pipeline CRM <span style="color:var(--a)">Japan</span></h2>
+    <p style="font-size:11px;color:var(--dim);margin-bottom:24px">Grosmimi Japan Influencer Pipeline</p>
+    <input type="text" id="login-uid" placeholder="User ID" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:8px;font-family:inherit">
+    <input type="password" id="login-pw" placeholder="Password" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:16px;font-family:inherit" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()" style="width:100%;background:var(--a);color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">Sign In</button>
+    <div id="login-err" style="color:var(--r);font-size:11px;margin-top:10px;display:none"></div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main-content" style="display:none">
 <div class="ctr">
   <!-- Top-level navigation -->
   <div class="nav-bar" style="margin-bottom:16px">
@@ -47,18 +112,449 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
         <div style="padding:4px 14px;background:#ef4444;color:#fff;cursor:default;line-height:1.4">JP</div>
       </div>
     </h1>
-    <div class="sub">Grosmimi Japan &#8212; Influencer Pipeline (Japan Market)</div>
-    <div class="meta">
-      <span class="pill"><span class="dot" style="background:#f59e0b;box-shadow:0 0 3px #f59e0b"></span>Setting Up</span>
-      <span class="pill">n8n Workflow</span>
+    <div class="sub">Grosmimi Japan &#8212; Influencer DM Outreach Pipeline</div>
+    <div class="meta" id="hero-meta">
+      <span class="pill" id="pill-status"><span class="dot"></span>Ready</span>
+      <span class="pill" id="pill-date"></span>
+      <span class="pill" id="pill-total">0 creators</span>
     </div>
   </div>
 
-  <div class="coming-soon">
-    <div class="icon">&#x1F1EF;&#x1F1F5;</div>
-    <h2>Japan Pipeline — Coming Soon</h2>
-    <p>Grosmimi Japan 인플루언서 파이프라인 구축 중. n8n 워크플로우 연동 후 활성화 예정.</p>
+  <!-- PIPELINE OVERVIEW -->
+  <div class="card" style="margin-bottom:12px">
+    <h3>&#x1F3AF; Pipeline Overview</h3>
+    <div class="funnel" id="dash-funnel">
+      <div class="fn on" data-stage="not_started"><div class="fi" id="f-not-started">0</div><div class="ft">Not Started</div></div><span class="fa">&#x25B6;</span>
+      <div class="fn" data-stage="draft_ready"><div class="fi" id="f-draft-ready">0</div><div class="ft">Draft Ready</div><div class="fs">AI&#x521D;&#x6848;</div></div><span class="fa">&#x25B6;</span>
+      <div class="fn" data-stage="sent"><div class="fi" id="f-sent">0</div><div class="ft">DM Sent</div><div class="fs">&#x767A;&#x9001;&#x6E08;</div></div><span class="fa">&#x25B6;</span>
+      <div class="fn" data-stage="replied"><div class="fi" id="f-replied">0</div><div class="ft">Replied</div><div class="fs">&#x8FD4;&#x4FE1;&#x3042;&#x308A;</div></div><span class="fa">&#x25B6;</span>
+      <div class="fn" data-stage="accepted"><div class="fi" id="f-accepted">0</div><div class="ft">Accepted</div><div class="fs">&#x627F;&#x8AFE;</div></div><span class="fa">&#x25B6;</span>
+      <div class="fn" data-stage="sample_sent"><div class="fi" id="f-sample-sent">0</div><div class="ft">Sample Sent</div><div class="fs">&#x767A;&#x9001;</div></div><span class="fa">&#x25B6;</span>
+      <div class="fn" data-stage="posted"><div class="fi" id="f-posted">0</div><div class="ft">Posted</div><div class="fs">&#x6295;&#x7A3F;&#x6E08;</div></div>
+    </div>
   </div>
-</div>
+
+  <!-- MAIN TABS -->
+  <div class="mt" id="main-tabs">
+    <div class="on" data-p="dashboard">Dashboard</div>
+    <div data-p="creators">Creators</div>
+    <div data-p="drafts">DM Drafts</div>
+    <div data-p="config">Config</div>
+  </div>
+
+  <!-- ===== DASHBOARD TAB ===== -->
+  <div class="mp on" id="p-dashboard">
+    <div class="stats">
+      <div class="stat accent"><div class="sl">Total Creators</div><div class="sv" id="s-total">0</div></div>
+      <div class="stat amber"><div class="sl">Draft Ready</div><div class="sv" id="s-draft">0</div></div>
+      <div class="stat cyan"><div class="sl">DM Sent</div><div class="sv" id="s-sent">0</div></div>
+      <div class="stat green"><div class="sl">Accepted</div><div class="sv" id="s-accepted">0</div></div>
+      <div class="stat pink"><div class="sl">Posted</div><div class="sv" id="s-posted">0</div></div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <h3>&#x1F4E8; Today's DM Queue</h3>
+      <div class="desc">Draft Ready &#x306E;&#x30AF;&#x30EA;&#x30A8;&#x30A4;&#x30BF;&#x30FC; &#x2014; DM&#x30EA;&#x30F3;&#x30AF;&#x3092;&#x30AF;&#x30EA;&#x30C3;&#x30AF;&#x3057;&#x3066;&#x521D;&#x6848;&#x3092;&#x30B3;&#x30D4;&#x30DA;</div>
+      <div id="dm-queue">
+        <div style="text-align:center;padding:40px;color:var(--dim)">No drafts pending. Generate drafts from the DM Drafts tab.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>&#x1F4CA; Daily DM Budget</h3>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
+        <div style="flex:1;background:#f1f5f9;border-radius:8px;height:24px;overflow:hidden">
+          <div id="dm-budget-bar" style="height:100%;background:linear-gradient(90deg,var(--g),var(--am));border-radius:8px;width:0%;transition:.5s"></div>
+        </div>
+        <span id="dm-budget-text" style="font-size:12px;font-weight:700;font-family:var(--mono);min-width:60px">0 / 30</span>
+      </div>
+      <div style="font-size:10px;color:var(--dim);margin-top:6px">Recommended: 20-30 DMs/day to start. Increase weekly if no restrictions.</div>
+    </div>
+
+    <div class="card">
+      <h3>&#x23F0; Recent Activity</h3>
+      <div id="activity-log" style="max-height:200px;overflow-y:auto">
+        <div style="text-align:center;padding:20px;color:var(--dim);font-size:11px">No activity yet</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CREATORS TAB ===== -->
+  <div class="mp" id="p-creators">
+    <div class="filter-bar">
+      <input type="text" id="creator-search" placeholder="Search by handle, name..." oninput="filterCreators()">
+      <select id="creator-status-filter" onchange="filterCreators()">
+        <option value="">All Status</option>
+        <option value="not_started">Not Started</option>
+        <option value="draft_ready">Draft Ready</option>
+        <option value="sent">DM Sent</option>
+        <option value="replied">Replied</option>
+        <option value="accepted">Accepted</option>
+        <option value="sample_sent">Sample Sent</option>
+        <option value="posted">Posted</option>
+      </select>
+      <span id="creator-count" style="font-size:11px;color:var(--dim)">0 creators</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table id="creators-table">
+        <thead>
+          <tr>
+            <th>Handle</th>
+            <th>Name</th>
+            <th>Followers</th>
+            <th>Status</th>
+            <th>Last DM</th>
+            <th>DM Link</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="creators-tbody"></tbody>
+      </table>
+    </div>
+    <div class="pager" id="creators-pager"></div>
+  </div>
+
+  <!-- ===== DM DRAFTS TAB ===== -->
+  <div class="mp" id="p-drafts">
+    <div class="card" style="border-left:3px solid var(--a)">
+      <h3>&#x1F916; Generate DM Drafts</h3>
+      <div class="desc">Not Started &#x306E;&#x30AF;&#x30EA;&#x30A8;&#x30A4;&#x30BF;&#x30FC;&#x306B;AI&#x521D;&#x6848;&#x3092;&#x751F;&#x6210;</div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <div style="font-size:11px">
+          <label style="font-weight:600;color:var(--dim)">Batch Size:</label>
+          <input type="number" id="draft-batch-size" value="10" min="1" max="50" style="width:60px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit">
+        </div>
+        <button class="btn btn-primary" id="btn-generate" onclick="generateDrafts()">
+          &#x26A1; Generate Drafts
+        </button>
+        <span id="draft-status" style="font-size:11px;color:var(--dim)"></span>
+      </div>
+    </div>
+
+    <div id="drafts-list" style="margin-top:12px">
+      <div style="text-align:center;padding:40px;color:var(--dim)">Click "Generate Drafts" to create AI-powered DM drafts based on creator content.</div>
+    </div>
+  </div>
+
+  <!-- ===== CONFIG TAB ===== -->
+  <div class="mp" id="p-config">
+    <div class="card" style="border-left:3px solid var(--am)">
+      <h3>&#x2699;&#xFE0F; JP Pipeline Config</h3>
+      <div class="desc">DM Config Sheet &#x3068; &#x30C7;&#x30FC;&#x30BF;&#x30BD;&#x30FC;&#x30B9;&#x306E;&#x8A2D;&#x5B9A;</div>
+      <div style="display:grid;gap:10px;margin-top:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:140px">Daily DM Limit</label>
+          <input type="number" id="cfg-daily-limit" value="30" min="5" max="200" style="width:80px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit">
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:140px">Data Source</label>
+          <select id="cfg-data-source" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit">
+            <option value="spreadsheet">Google Sheets</option>
+            <option value="datakeeper">DataKeeper (PG)</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:140px">ManyChat API</label>
+          <span class="b g" id="cfg-manychat-status">Connected</span>
+          <span style="font-size:10px;color:var(--dim)">Token: 4482793:***</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:140px">n8n Workflow</label>
+          <a href="https://n8n.orbiters.co.kr/workflow/CdQq7Oea8Q3yAeigOHP5_" target="_blank" style="font-size:11px;color:var(--a);font-weight:600">SE (DM Auto Reply) &#x2197;</a>
+          <span class="b am">Inactive</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>&#x1F4DD; DM Template Preview</h3>
+      <div class="desc">Claude&#x304C;&#x4F7F;&#x3046;&#x521D;&#x56DE;DM&#x30C6;&#x30F3;&#x30D7;&#x30EC;&#x30FC;&#x30C8;</div>
+      <div class="dm-preview">&#x25CB;&#x25CB;&#x69D8;&#x3001;&#x7A81;&#x7136;&#x306E;&#x3054;&#x9023;&#x7D61;&#x5931;&#x793C;&#x3044;&#x305F;&#x3057;&#x307E;&#x3059;&#x3002;
+GROSMIMI JAPAN&#x3068;&#x7533;&#x3057;&#x307E;&#x3059;&#x3002;
+
+&#x25CB;&#x25CB;&#x306E;&#x304A;&#x5B50;&#x69D8;&#x3068;&#x306E;&#x65E5;&#x5E38;&#x3092;&#x767A;&#x4FE1;&#x3055;&#x308C;&#x3066;&#x3044;&#x308B;&#x6295;&#x7A3F;&#x3092;&#x62DD;&#x898B;&#x3057;&#x3001;&#x3068;&#x3066;&#x3082;&#x7D20;&#x6575;&#x3060;&#x3068;&#x611F;&#x3058;&#x3054;&#x9023;&#x7D61;&#x3044;&#x305F;&#x3057;&#x307E;&#x3057;&#x305F;&#x3002;
+
+&#x5F0A;&#x793E;&#x306EPPSU&#x30B9;&#x30C8;&#x30ED;&#x30FC;&#x30AB;&#x30C3;&#x30D7;&#x3092;&#x305C;&#x3072;&#x304A;&#x8A66;&#x3057;&#x3044;&#x305F;&#x3060;&#x3051;&#x306A;&#x3044;&#x304B;&#x3068;&#x601D;&#x3063;&#x3066;&#x304A;&#x308A;&#x307E;&#x3059;&#x3002;
+&#x97D3;&#x56FD;&#x3067;&#x7D2F;&#x8A08;500&#x4E07;&#x672C;&#x4EE5;&#x4E0A;&#x8CA9;&#x58F2;&#x3055;&#x308C;&#x305F;&#x30D9;&#x30D3;&#x30FC;&#x30B9;&#x30C8;&#x30ED;&#x30FC;&#x30AB;&#x30C3;&#x30D7;&#x3067;&#x3059;&#x3002;
+
+&#x3054;&#x8208;&#x5473;&#x304C;&#x3054;&#x3056;&#x3044;&#x307E;&#x3057;&#x305F;&#x3089;&#x3001;&#x304A;&#x6C17;&#x8EFD;&#x306B;&#x3054;&#x8FD4;&#x4FE1;&#x304F;&#x3060;&#x3055;&#x3044;&#x1F60A;
+
+GROSMIMI JAPAN</div>
+    </div>
+
+    <div class="card">
+      <h3>&#x1F4E6; Product Catalog</h3>
+      <table>
+        <thead><tr><th>Product</th><th>Size</th><th>Price</th><th>Age</th></tr></thead>
+        <tbody>
+          <tr><td>PPSU&#x30B9;&#x30C8;&#x30ED;&#x30FC;&#x30AB;&#x30C3;&#x30D7;</td><td>200ml</td><td>&#xA5;3,190</td><td>6&#x30F6;&#x6708;&#x301C;</td></tr>
+          <tr><td>PPSU&#x30B9;&#x30C8;&#x30ED;&#x30FC;&#x30AB;&#x30C3;&#x30D7;</td><td>300ml</td><td>&#xA5;3,600</td><td>6&#x30F6;&#x6708;&#x301C;</td></tr>
+          <tr><td>PPSU&#x30EF;&#x30F3;&#x30BF;&#x30C3;&#x30C1;&#x5F0F;</td><td>300ml</td><td>&#xA5;4,200</td><td>12&#x30F6;&#x6708;&#x301C;</td></tr>
+          <tr><td>&#x30B9;&#x30C6;&#x30F3;&#x30EC;&#x30B9;&#x30B9;&#x30C8;&#x30ED;&#x30FC;&#x30AB;&#x30C3;&#x30D7;</td><td>200ml</td><td>&#xA5;5,800</td><td>12&#x30F6;&#x6708;&#x301C;</td></tr>
+          <tr><td>&#x30B9;&#x30C6;&#x30F3;&#x30EC;&#x30B9;&#x30B9;&#x30C8;&#x30ED;&#x30FC;&#x30AB;&#x30C3;&#x30D7;</td><td>300ml</td><td>&#xA5;6,200</td><td>12&#x30F6;&#x6708;&#x301C;</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- .ctr -->
+</div><!-- main-content -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Auth ───
+var _dkBase='https://orbitools.orbiters.co.kr/api/datakeeper';
+var _currentUser='';
+function doLogin(){
+  var u=document.getElementById('login-uid').value.trim();
+  var p=document.getElementById('login-pw').value;
+  if(!u||!p){showErr('Enter user and password');return}
+  fetch(_dkBase+'/status/',{headers:{'Authorization':'Basic '+btoa(u+':'+p)}})
+    .then(r=>{if(!r.ok)throw new Error('auth');return r.json()})
+    .then(()=>{
+      _currentUser=u;
+      localStorage.setItem('jp_pipe_user',u);
+      localStorage.setItem('jp_pipe_pass',p);
+      document.getElementById('login-gate').style.display='none';
+      document.getElementById('main-content').style.display='block';
+      init();
+    })
+    .catch(()=>showErr('Invalid credentials'));
+}
+function showErr(m){var e=document.getElementById('login-err');e.textContent=m;e.style.display='block'}
+function getAuth(){return 'Basic '+btoa(localStorage.getItem('jp_pipe_user')+':'+localStorage.getItem('jp_pipe_pass'))}
+
+// Auto-login
+(function(){
+  var u=localStorage.getItem('jp_pipe_user'),p=localStorage.getItem('jp_pipe_pass');
+  if(u&&p){
+    fetch(_dkBase+'/status/',{headers:{'Authorization':'Basic '+btoa(u+':'+p)}})
+      .then(r=>{if(!r.ok)throw new Error();return r.json()})
+      .then(()=>{
+        _currentUser=u;
+        document.getElementById('login-gate').style.display='none';
+        document.getElementById('main-content').style.display='block';
+        init();
+      }).catch(()=>{});
+  }
+})();
+
+// ─── Tab switching ───
+document.querySelectorAll('.mt>div').forEach(function(t){
+  t.addEventListener('click',function(){
+    var p=this.dataset.p;
+    this.parentElement.querySelectorAll('div').forEach(function(d){d.classList.remove('on')});
+    this.classList.add('on');
+    document.querySelectorAll('.mp').forEach(function(d){d.classList.remove('on')});
+    var el=document.getElementById('p-'+p);
+    if(el)el.classList.add('on');
+    if(p==='dashboard')location.hash='#dashboard';
+    else if(p==='creators')location.hash='#creators';
+    else if(p==='drafts')location.hash='#drafts';
+    else if(p==='config')location.hash='#config';
+  });
+});
+
+// ─── Data ───
+var _creators=[];
+var _page=0, _perPage=25;
+var _dmSentToday=0;
+var _dailyLimit=30;
+
+// Demo data — will be replaced by actual data source
+var DEMO_CREATORS=[
+  {username:'momlife_tokyo',name:'&#x3086;&#x304D;',followers:28400,status:'not_started',content_script:'&#x96E2;&#x4E73;&#x98DF;&#x306E;&#x6295;&#x7A3F;&#x304C;&#x591A;&#x304F;&#x3001;6&#x30F6;&#x6708;&#x306E;&#x304A;&#x5B50;&#x69D8;&#x3068;&#x306E;&#x65E5;&#x5E38;&#x3092;&#x767A;&#x4FE1;',dm_draft:'',last_dm:''},
+  {username:'baby_and_cafe',name:'&#x3042;&#x3044;&#x308A;',followers:15200,status:'not_started',content_script:'&#x30AB;&#x30D5;&#x30A7;&#x5DE1;&#x308A;+&#x80B2;&#x5150;&#x65E5;&#x8A18;&#x3002;1&#x6B73;&#x534A;&#x306E;&#x5973;&#x306E;&#x5B50;',dm_draft:'',last_dm:''},
+  {username:'okinawa_mama_life',name:'&#x307E;&#x3044;',followers:42100,status:'not_started',content_script:'&#x6C96;&#x7E04;&#x5728;&#x4F4F;&#x3001;&#x81EA;&#x7136;&#x6D3E;&#x80B2;&#x5150;&#x3002;8&#x30F6;&#x6708;&#x306E;&#x7537;&#x306E;&#x5B50;',dm_draft:'',last_dm:''},
+  {username:'twins_diary_jp',name:'&#x3055;&#x304F;&#x3089;',followers:67800,status:'draft_ready',content_script:'&#x53CC;&#x5B50;&#x80B2;&#x5150;&#x30EA;&#x30FC;&#x30EB;&#x304C;&#x4EBA;&#x6C17;&#x3002;10&#x30F6;&#x6708;&#x306E;&#x53CC;&#x5B50;',dm_draft:'&#x3055;&#x304F;&#x3089;&#x69D8;&#x3001;&#x7A81;&#x7136;&#x306E;&#x3054;&#x9023;&#x7D61;&#x5931;&#x793C;&#x3044;&#x305F;&#x3057;&#x307E;&#x3059;&#x3002;\nGROSMIMI JAPAN&#x3068;&#x7533;&#x3057;&#x307E;&#x3059;&#x3002;\n\n&#x53CC;&#x5B50;&#x3061;&#x3083;&#x3093;&#x3068;&#x306E;&#x65E5;&#x5E38;&#x3092;&#x767A;&#x4FE1;&#x3055;&#x308C;&#x3066;&#x3044;&#x308B;&#x30EA;&#x30FC;&#x30EB;&#x3092;&#x62DD;&#x898B;&#x3057;&#x3001;&#x3068;&#x3066;&#x3082;&#x7D20;&#x6575;&#x3060;&#x3068;&#x611F;&#x3058;&#x3054;&#x9023;&#x7D61;&#x3044;&#x305F;&#x3057;&#x307E;&#x3057;&#x305F;&#x3002;\n\n&#x5F0A;&#x793E;&#x306EPPSU&#x30B9;&#x30C8;&#x30ED;&#x30FC;&#x30AB;&#x30C3;&#x30D7;&#x3092;&#x305C;&#x3072;&#x304A;&#x8A66;&#x3057;&#x3044;&#x305F;&#x3060;&#x3051;&#x306A;&#x3044;&#x304B;&#x3068;&#x601D;&#x3063;&#x3066;&#x304A;&#x308A;&#x307E;&#x3059;&#x3002;\n\n&#x3054;&#x8208;&#x5473;&#x304C;&#x3054;&#x3056;&#x3044;&#x307E;&#x3057;&#x305F;&#x3089;&#x3001;&#x304A;&#x6C17;&#x8EFD;&#x306B;&#x3054;&#x8FD4;&#x4FE1;&#x304F;&#x3060;&#x3055;&#x3044;\uD83D\uDE0A;\n\nGROSMIMI JAPAN',last_dm:''},
+  {username:'sapporo_mamalog',name:'&#x306F;&#x308B;&#x304B;',followers:19500,status:'sent',content_script:'&#x672D;&#x5E4C;&#x5728;&#x4F4F;&#x3001;&#x51AC;&#x306E;&#x80B2;&#x5150;&#x30B3;&#x30F3;&#x30C6;&#x30F3;&#x30C4;',dm_draft:'',last_dm:'2026-03-28'},
+  {username:'nagoya_ikuji',name:'&#x3048;&#x308A;',followers:31200,status:'replied',content_script:'&#x540D;&#x53E4;&#x5C4B;&#x5728;&#x4F4F;&#x3001;&#x4FDD;&#x6D3B;&#x30DE;&#x30DE;&#x3002;1&#x6B73;2&#x30F6;&#x6708;',dm_draft:'',last_dm:'2026-03-27'},
+];
+
+function init(){
+  document.getElementById('pill-date').textContent=new Date().toISOString().slice(0,10);
+  _creators=DEMO_CREATORS;
+  _dailyLimit=parseInt(document.getElementById('cfg-daily-limit').value)||30;
+  updateStats();
+  renderCreators();
+  renderDmQueue();
+  // Handle hash
+  var h=location.hash.replace('#','');
+  if(h){
+    var tab=document.querySelector('.mt>div[data-p="'+h+'"]');
+    if(tab)tab.click();
+  }
+}
+
+function updateStats(){
+  var counts={not_started:0,draft_ready:0,sent:0,replied:0,accepted:0,sample_sent:0,posted:0};
+  _creators.forEach(function(c){counts[c.status]=(counts[c.status]||0)+1});
+  document.getElementById('pill-total').textContent=_creators.length+' creators';
+  document.getElementById('s-total').textContent=_creators.length;
+  document.getElementById('s-draft').textContent=counts.draft_ready;
+  document.getElementById('s-sent').textContent=counts.sent;
+  document.getElementById('s-accepted').textContent=counts.accepted;
+  document.getElementById('s-posted').textContent=counts.posted;
+  // Funnel
+  document.getElementById('f-not-started').textContent=counts.not_started;
+  document.getElementById('f-draft-ready').textContent=counts.draft_ready;
+  document.getElementById('f-sent').textContent=counts.sent;
+  document.getElementById('f-replied').textContent=counts.replied;
+  document.getElementById('f-accepted').textContent=counts.accepted;
+  document.getElementById('f-sample-sent').textContent=counts.sample_sent;
+  document.getElementById('f-posted').textContent=counts.posted;
+  // DM budget
+  var pct=Math.min(100,(_dmSentToday/_dailyLimit)*100);
+  document.getElementById('dm-budget-bar').style.width=pct+'%';
+  document.getElementById('dm-budget-text').textContent=_dmSentToday+' / '+_dailyLimit;
+}
+
+function statusBadge(s){
+  var map={not_started:'',draft_ready:'am',sent:'c',replied:'a',accepted:'g',sample_sent:'p',posted:'g'};
+  var label={not_started:'Not Started',draft_ready:'Draft Ready',sent:'DM Sent',replied:'Replied',accepted:'Accepted',sample_sent:'Sample Sent',posted:'Posted'};
+  return '<span class="b '+(map[s]||'')+'">'+(label[s]||s)+'</span>';
+}
+
+function renderCreators(){
+  var q=(document.getElementById('creator-search').value||'').toLowerCase();
+  var sf=document.getElementById('creator-status-filter').value;
+  var filtered=_creators.filter(function(c){
+    if(sf&&c.status!==sf)return false;
+    if(q&&c.username.indexOf(q)===-1&&(c.name||'').toLowerCase().indexOf(q)===-1)return false;
+    return true;
+  });
+  document.getElementById('creator-count').textContent=filtered.length+' creators';
+  var start=_page*_perPage;
+  var page=filtered.slice(start,start+_perPage);
+  var html='';
+  page.forEach(function(c){
+    var dmLink='https://ig.me/m/'+c.username;
+    html+='<tr>';
+    html+='<td><a href="https://instagram.com/'+c.username+'" target="_blank" style="color:var(--a);font-weight:600;text-decoration:none">@'+c.username+'</a></td>';
+    html+='<td>'+((c.name)||'')+'</td>';
+    html+='<td style="font-family:var(--mono);font-size:10px">'+(c.followers?c.followers.toLocaleString():'—')+'</td>';
+    html+='<td>'+statusBadge(c.status)+'</td>';
+    html+='<td style="font-size:10px;color:var(--dim)">'+(c.last_dm||'—')+'</td>';
+    html+='<td><a href="'+dmLink+'" target="_blank" class="btn btn-sm btn-secondary" title="Open IG DM">&#x1F4AC; DM</a></td>';
+    html+='<td>';
+    if(c.status==='draft_ready')html+='<button class="btn btn-sm btn-success" onclick="markSent(\''+c.username+'\')">&#x2705; Mark Sent</button>';
+    else if(c.status==='sent')html+='<button class="btn btn-sm btn-secondary" onclick="markReplied(\''+c.username+'\')">&#x1F4E9; Replied</button>';
+    html+='</td>';
+    html+='</tr>';
+  });
+  document.getElementById('creators-tbody').innerHTML=html||'<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--dim)">No creators found</td></tr>';
+}
+function filterCreators(){_page=0;renderCreators()}
+
+function markSent(handle){
+  var c=_creators.find(function(x){return x.username===handle});
+  if(c){c.status='sent';c.last_dm=new Date().toISOString().slice(0,10);_dmSentToday++;updateStats();renderCreators();renderDmQueue();showToast('DM marked as sent: @'+handle)}
+}
+function markReplied(handle){
+  var c=_creators.find(function(x){return x.username===handle});
+  if(c){c.status='replied';updateStats();renderCreators();showToast('Replied: @'+handle)}
+}
+
+function renderDmQueue(){
+  var drafts=_creators.filter(function(c){return c.status==='draft_ready'&&c.dm_draft});
+  if(!drafts.length){document.getElementById('dm-queue').innerHTML='<div style="text-align:center;padding:40px;color:var(--dim)">No drafts pending.</div>';return}
+  var html='';
+  drafts.forEach(function(c){
+    var dmLink='https://ig.me/m/'+c.username;
+    html+='<div class="dm-card">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center">';
+    html+='<div><span class="dm-handle">@'+c.username+'</span></div>';
+    html+='<a href="'+dmLink+'" target="_blank" class="btn btn-sm btn-primary">&#x1F4AC; Open DM</a>';
+    html+='</div>';
+    html+='<div class="dm-meta">'+(c.name||'')+' &#xB7; '+(c.followers?c.followers.toLocaleString():'-')+' followers &#xB7; '+statusBadge(c.status)+'</div>';
+    html+='<div class="dm-body" id="dm-body-'+c.username+'">'+c.dm_draft+'</div>';
+    html+='<div class="dm-actions">';
+    html+='<button class="copy-btn" onclick="copyDraft(\''+c.username+'\',this)">&#x1F4CB; Copy Draft</button>';
+    html+='<button class="btn btn-sm btn-success" onclick="markSent(\''+c.username+'\')">&#x2705; Mark Sent</button>';
+    html+='</div>';
+    html+='</div>';
+  });
+  document.getElementById('dm-queue').innerHTML=html;
+}
+
+function copyDraft(handle,btn){
+  var el=document.getElementById('dm-body-'+handle);
+  if(el){
+    navigator.clipboard.writeText(el.textContent).then(function(){
+      btn.textContent='\u2705 Copied!';
+      btn.classList.add('copied');
+      setTimeout(function(){btn.textContent='\uD83D\uDCCB Copy Draft';btn.classList.remove('copied')},2000);
+    });
+  }
+}
+
+function generateDrafts(){
+  var btn=document.getElementById('btn-generate');
+  var statusEl=document.getElementById('draft-status');
+  btn.disabled=true;
+  statusEl.textContent='Generating...';
+
+  // Simulate draft generation (will be replaced by n8n webhook call)
+  var notStarted=_creators.filter(function(c){return c.status==='not_started'});
+  var batch=parseInt(document.getElementById('draft-batch-size').value)||10;
+  var toGenerate=notStarted.slice(0,batch);
+
+  if(!toGenerate.length){
+    statusEl.textContent='No creators to generate drafts for.';
+    btn.disabled=false;
+    return;
+  }
+
+  // Simulate async generation
+  var i=0;
+  function genNext(){
+    if(i>=toGenerate.length){
+      statusEl.textContent='Done! '+toGenerate.length+' drafts generated.';
+      btn.disabled=false;
+      updateStats();
+      renderCreators();
+      renderDmQueue();
+      renderDraftsList();
+      return;
+    }
+    var c=toGenerate[i];
+    c.status='draft_ready';
+    c.dm_draft=c.name+'&#x69D8;&#x3001;&#x7A81;&#x7136;&#x306E;&#x3054;&#x9023;&#x7D61;&#x5931;&#x793C;&#x3044;&#x305F;&#x3057;&#x307E;&#x3059;&#x3002;\nGROSMIMI JAPAN&#x3068;&#x7533;&#x3057;&#x307E;&#x3059;&#x3002;\n\n'+c.content_script+'&#x306E;&#x6295;&#x7A3F;&#x3092;&#x62DD;&#x898B;&#x3057;&#x3001;&#x3068;&#x3066;&#x3082;&#x7D20;&#x6575;&#x3060;&#x3068;&#x611F;&#x3058;&#x3054;&#x9023;&#x7D61;&#x3044;&#x305F;&#x3057;&#x307E;&#x3057;&#x305F;&#x3002;\n\n&#x5F0A;&#x793E;&#x306EPPSU&#x30B9;&#x30C8;&#x30ED;&#x30FC;&#x30AB;&#x30C3;&#x30D7;&#x3092;&#x305C;&#x3072;&#x304A;&#x8A66;&#x3057;&#x3044;&#x305F;&#x3060;&#x3051;&#x306A;&#x3044;&#x304B;&#x3068;&#x601D;&#x3063;&#x3066;&#x304A;&#x308A;&#x307E;&#x3059;&#x3002;\n\n&#x3054;&#x8208;&#x5473;&#x304C;&#x3054;&#x3056;&#x3044;&#x307E;&#x3057;&#x305F;&#x3089;&#x3001;&#x304A;&#x6C17;&#x8EFD;&#x306B;&#x3054;&#x8FD4;&#x4FE1;&#x304F;&#x3060;&#x3055;&#x3044;\uD83D\uDE0A;\n\nGROSMIMI JAPAN';
+    statusEl.textContent='Generating... '+(i+1)+'/'+toGenerate.length;
+    i++;
+    setTimeout(genNext,300);
+  }
+  genNext();
+}
+
+function renderDraftsList(){
+  var drafts=_creators.filter(function(c){return c.status==='draft_ready'&&c.dm_draft});
+  if(!drafts.length){document.getElementById('drafts-list').innerHTML='<div style="text-align:center;padding:40px;color:var(--dim)">No drafts available.</div>';return}
+  var html='';
+  drafts.forEach(function(c){
+    var dmLink='https://ig.me/m/'+c.username;
+    html+='<div class="dm-card">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center">';
+    html+='<div><span class="dm-handle">@'+c.username+'</span> <span style="font-size:10px;color:var(--dim)">'+(c.name||'')+' &#xB7; '+(c.followers?c.followers.toLocaleString():'-')+'</span></div>';
+    html+='<a href="'+dmLink+'" target="_blank" class="btn btn-sm btn-primary">&#x1F4AC; Open DM</a>';
+    html+='</div>';
+    html+='<div class="dm-body" id="dm-body-'+c.username+'">'+c.dm_draft+'</div>';
+    html+='<div class="dm-actions">';
+    html+='<button class="copy-btn" onclick="copyDraft(\''+c.username+'\',this)">&#x1F4CB; Copy Draft</button>';
+    html+='<button class="btn btn-sm btn-success" onclick="markSent(\''+c.username+'\')">&#x2705; Mark Sent</button>';
+    html+='</div>';
+    html+='</div>';
+  });
+  document.getElementById('drafts-list').innerHTML=html;
+}
+
+function showToast(msg,type){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast '+(type||'ok')+' show';
+  setTimeout(function(){t.classList.remove('show')},3000);
+}
+</script>
 </body>
 </html>
