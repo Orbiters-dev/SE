@@ -2349,29 +2349,47 @@ def generate():
         parts = wk.split("-W")
         week_labels.append(_week_label(int(parts[0]), int(parts[1])))
 
-    # Attribution campaign name -> data mapping for fuzzy match
-    def _match_attribution(name):
-        """Match a Meta Traffic campaign name to Attribution data."""
+    # Attribution campaign name -> data mapping (precise matching)
+    def _normalize(s):
+        """Normalize campaign name for matching: lowercase, strip separators."""
+        return s.lower().replace("|", " ").replace("_", " ").replace("-", " ").replace("\t", " ").strip()
+
+    # Pre-build attribution lookup: normalized name -> data
+    _attr_norm = {}
+    for attr_name, attr_data in attribution.items():
+        _attr_norm[_normalize(attr_name)] = (attr_name, attr_data)
+
+    def _match_attribution(meta_name):
+        """Match Meta Traffic campaign name to Attribution campaign.
+        Uses token overlap with stop-word filtering. Score >= 3 required."""
         if not attribution:
             return None
-        nl = name.lower().replace(" ", "").replace("|", "").replace("_", "")
+        mn = _normalize(meta_name)
+
+        # Exact match first
+        if mn in _attr_norm:
+            return _attr_norm[mn][1]
+
+        STOP = {"amz", "traffic", "wl", "meta", "target", "the", ""}
+        meta_tokens = set(mn.split()) - STOP
+
         best = None
         best_score = 0
-        for attr_name, attr_data in attribution.items():
-            al = attr_name.lower().replace(" ", "").replace("|", "").replace("_", "")
-            # Find common substring length
-            common = 0
-            for i in range(min(len(nl), len(al))):
-                # Count matching keywords
-                pass
-            # Keyword overlap
-            nw = set(name.lower().replace("|", " ").replace("_", " ").split())
-            aw = set(attr_name.lower().replace("|", " ").replace("_", " ").split())
-            overlap = len(nw & aw)
-            if overlap > best_score and overlap >= 2:
-                best_score = overlap
+        for an, (_, attr_data) in _attr_norm.items():
+            attr_tokens = set(an.split()) - STOP
+            overlap = meta_tokens & attr_tokens
+            score = len(overlap)
+            if any(t for t in overlap if t[:4].isdigit() and len(t) >= 6):
+                score += 3
+            if any(t for t in overlap if t in ("dental", "dentalmom", "stainless", "strawcup",
+                                                 "spring", "sale", "bfcm", "naeiae", "grosmimi",
+                                                 "chamom", "alpremio", "livfuselli", "knotted")):
+                score += 2
+            if score > best_score:
+                best_score = score
                 best = attr_data
-        return best
+
+        return best if best_score >= 3 else None
 
     # Build campaign detail entries
     def _camp_entry(cid, agg_dict, period_keys):
