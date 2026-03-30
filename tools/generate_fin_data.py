@@ -1150,6 +1150,67 @@ def generate():
             "conv_rate": conv_rate,
         })
 
+    # ── Amazon Attribution Data ────────────────────────────────────────────
+    # Fetch Attribution report: Meta Traffic -> Amazon conversion tracking
+    def _load_attribution():
+        try:
+            import requests as _req
+            tok = _req.post("https://api.amazon.com/auth/o2/token", data={
+                "grant_type": "refresh_token",
+                "client_id": os.getenv("AMZ_ADS_CLIENT_ID", ""),
+                "client_secret": os.getenv("AMZ_ADS_CLIENT_SECRET", ""),
+                "refresh_token": os.getenv("AMZ_ADS_REFRESH_TOKEN", ""),
+            }, timeout=15).json().get("access_token")
+            if not tok:
+                return {}
+            hdrs = {
+                "Authorization": f"Bearer {tok}",
+                "Amazon-Advertising-API-ClientId": os.getenv("AMZ_ADS_CLIENT_ID", ""),
+                "Amazon-Advertising-API-Scope": "1094731557245186",  # Grosmimi Attribution
+                "Content-Type": "application/json",
+            }
+            all_rpts = []
+            cursor = ""
+            for _ in range(10):
+                r = _req.post("https://advertising-api.amazon.com/attribution/report",
+                    headers=hdrs, json={
+                        "reportType": "PERFORMANCE", "count": 300,
+                        "startDate": (today - timedelta(days=60)).strftime("%Y%m%d"),
+                        "endDate": today.strftime("%Y%m%d"),
+                        "groupBy": "CAMPAIGN", "cursorId": cursor,
+                    }, timeout=30)
+                if r.status_code != 200:
+                    break
+                data = r.json()
+                rpts = data.get("reports", [])
+                all_rpts.extend(rpts)
+                cursor = data.get("cursorId", "")
+                if not cursor or not rpts:
+                    break
+
+            # Aggregate by campaign
+            camp = defaultdict(lambda: {"clicks": 0, "dpv": 0, "atc": 0,
+                                         "purchases": 0, "sales": 0.0, "brb": 0.0})
+            for rr in all_rpts:
+                cid = rr.get("campaignId", "")
+                camp[cid]["clicks"] += int(rr.get("Click-throughs", 0) or 0)
+                camp[cid]["dpv"] += int(rr.get("attributedDetailPageViewsClicks14d", 0) or 0)
+                camp[cid]["atc"] += int(rr.get("attributedAddToCartClicks14d", 0) or 0)
+                camp[cid]["purchases"] += int(rr.get("attributedPurchases14d", 0) or 0)
+                camp[cid]["sales"] += float(rr.get("attributedSales14d", 0) or 0)
+                camp[cid]["brb"] += float(rr.get("brb_bonus_amount", 0) or 0)
+            return dict(camp)
+        except Exception as e:
+            print(f"  [WARN] Attribution load failed: {e}")
+            return {}
+
+    attribution = _load_attribution()
+    if attribution:
+        attr_total = {k: sum(v[k] for v in attribution.values()) for k in ["clicks", "purchases", "sales", "brb"]}
+        print(f"  Attribution: {len(attribution)} campaigns, {attr_total['clicks']:,} clicks, ${attr_total['sales']:,.0f} sales, ${attr_total['brb']:,.0f} BRB")
+    else:
+        print("  Attribution: no data")
+
     # ── Channel Traffic Breakdown (Amazon vs Onzenna) ────────────────────────
     # GA4 = Onzenna D2C traffic. Amazon = Ads clicks + Meta Traffic clicks + organic (estimated).
     def _build_channel_traffic(ga4_rows, amz_ads_rows, meta_rows, google_rows, days):
@@ -1218,6 +1279,27 @@ def generate():
         onz_purchases = sum(v["purchases"] for v in onz.values())
         amz_total_clicks = amz_ad["clicks"] + meta_traffic["clicks"]
 
+        # Attribution data (all-time from API, not date-filtered — snapshot)
+        attr_total_sales = sum(v["sales"] for v in attribution.values())
+        attr_total_purchases = sum(v["purchases"] for v in attribution.values())
+        attr_total_brb = sum(v["brb"] for v in attribution.values())
+        meta_spend_for_attr = meta_traffic["spend"]
+        attr_roas = round(attr_total_sales / meta_spend_for_attr, 1) if meta_spend_for_attr else 0
+        attr_roas_adj = round((attr_total_sales + attr_total_brb) / meta_spend_for_attr, 1) if meta_spend_for_attr else 0
+        attr_summary = {
+            "sales": round(attr_total_sales),
+            "purchases": attr_total_purchases,
+            "brb": round(attr_total_brb),
+            "roas": attr_roas,
+            "roas_with_brb": attr_roas_adj,
+            "campaigns": [
+                {"name": cid[:50], "sales": round(v["sales"]), "purchases": v["purchases"],
+                 "clicks": v["clicks"], "brb": round(v["brb"], 2)}
+                for cid, v in sorted(attribution.items(), key=lambda x: -x[1]["sales"])
+                if v["sales"] > 0 or v["clicks"] > 100
+            ],
+        }
+
         def _src(name, clicks, spend, sales, purchases, pct):
             cpc = round(spend / clicks, 2) if clicks else 0
             roas = round(sales / spend, 1) if spend else 0
@@ -1255,11 +1337,12 @@ def generate():
                          amz_ad["sales"], amz_ad["purchases"],
                          round(amz_ad["clicks"] / amz_total_clicks * 100, 1) if amz_total_clicks else 0),
                     _src("Meta Traffic (AMZ landing)", meta_traffic["clicks"], meta_traffic["spend"],
-                         0, 0,  # Meta can't track Amazon conversions without Attribution
+                         attr_total_sales, attr_total_purchases,
                          round(meta_traffic["clicks"] / amz_total_clicks * 100, 1) if amz_total_clicks else 0),
                     {"source": "Organic (Amazon search)", "clicks": 0, "spend": 0, "sales": 0,
                      "purchases": 0, "cpc": 0, "roas": 0, "pct": 0, "note": "n.m."},
                 ],
+                "attribution": attr_summary,
             },
             "meta_detail": {
                 "cvr_clicks": meta_cvr["clicks"],

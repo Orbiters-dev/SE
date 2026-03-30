@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-29 20:38 PST",
+ "generated_pst": "2026-03-29 20:50 PST",
  "through_date": "2026-03-28",
  "months": [
   "2025-01",
@@ -9566,10 +9566,10 @@ const FIN_DATA = {
       "source": "Meta Traffic (AMZ landing)",
       "clicks": 7924,
       "spend": 828,
-      "sales": 0,
-      "purchases": 0,
+      "sales": 10812,
+      "purchases": 421,
       "cpc": 0.1,
-      "roas": 0.0,
+      "roas": 13.1,
       "pct": 63.3
      },
      {
@@ -9583,7 +9583,51 @@ const FIN_DATA = {
       "pct": 0,
       "note": "n.m."
      }
-    ]
+    ],
+    "attribution": {
+     "sales": 10812,
+     "purchases": 421,
+     "brb": 2114,
+     "roas": 13.1,
+     "roas_with_brb": 15.6,
+     "campaigns": [
+      {
+       "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_202",
+       "sales": 5157,
+       "purchases": 204,
+       "clicks": 73529,
+       "brb": 543.44
+      },
+      {
+       "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
+       "sales": 4233,
+       "purchases": 182,
+       "clicks": 24410,
+       "brb": 417.44
+      },
+      {
+       "name": "AMZ_Traffic_Dental Mom_Stainless_StrawCup_20260107",
+       "sales": 983,
+       "purchases": 21,
+       "clicks": 44989,
+       "brb": 906.08
+      },
+      {
+       "name": "aa_2fb5a17db7d14eee6e5a81db265da037",
+       "sales": 339,
+       "purchases": 12,
+       "clicks": 604,
+       "brb": 172.77
+      },
+      {
+       "name": "AMZ_Traffic_Dentalmom_WL_202601",
+       "sales": 100,
+       "purchases": 2,
+       "clicks": 35828,
+       "brb": 74.08
+      }
+     ]
+    }
    },
    "meta_detail": {
     "cvr_clicks": 291,
@@ -9708,10 +9752,10 @@ const FIN_DATA = {
       "source": "Meta Traffic (AMZ landing)",
       "clicks": 48081,
       "spend": 5032,
-      "sales": 0,
-      "purchases": 0,
+      "sales": 10812,
+      "purchases": 421,
       "cpc": 0.1,
-      "roas": 0.0,
+      "roas": 2.1,
       "pct": 60.2
      },
      {
@@ -9725,7 +9769,51 @@ const FIN_DATA = {
       "pct": 0,
       "note": "n.m."
      }
-    ]
+    ],
+    "attribution": {
+     "sales": 10812,
+     "purchases": 421,
+     "brb": 2114,
+     "roas": 2.1,
+     "roas_with_brb": 2.6,
+     "campaigns": [
+      {
+       "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_202",
+       "sales": 5157,
+       "purchases": 204,
+       "clicks": 73529,
+       "brb": 543.44
+      },
+      {
+       "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
+       "sales": 4233,
+       "purchases": 182,
+       "clicks": 24410,
+       "brb": 417.44
+      },
+      {
+       "name": "AMZ_Traffic_Dental Mom_Stainless_StrawCup_20260107",
+       "sales": 983,
+       "purchases": 21,
+       "clicks": 44989,
+       "brb": 906.08
+      },
+      {
+       "name": "aa_2fb5a17db7d14eee6e5a81db265da037",
+       "sales": 339,
+       "purchases": 12,
+       "clicks": 604,
+       "brb": 172.77
+      },
+      {
+       "name": "AMZ_Traffic_Dentalmom_WL_202601",
+       "sales": 100,
+       "purchases": 2,
+       "clicks": 35828,
+       "brb": 74.08
+      }
+     ]
+    }
    },
    "meta_detail": {
     "cvr_clicks": 2495,
@@ -9862,10 +9950,10 @@ const FIN_DATA = {
       "source": "Meta Traffic (AMZ landing)",
       "clicks": 146970,
       "spend": 14586,
-      "sales": 0,
-      "purchases": 0,
+      "sales": 10812,
+      "purchases": 421,
       "cpc": 0.1,
-      "roas": 0.0,
+      "roas": 0.7,
       "pct": 57.7
      },
      {
@@ -9879,7 +9967,51 @@ const FIN_DATA = {
       "pct": 0,
       "note": "n.m."
      }
-    ]
+    ],
+    "attribution": {
+     "sales": 10812,
+     "purchases": 421,
+     "brb": 2114,
+     "roas": 0.7,
+     "roas_with_brb": 0.9,
+     "campaigns": [
+      {
+       "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_202",
+       "sales": 5157,
+       "purchases": 204,
+       "clicks": 73529,
+       "brb": 543.44
+      },
+      {
+       "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
+       "sales": 4233,
+       "purchases": 182,
+       "clicks": 24410,
+       "brb": 417.44
+      },
+      {
+       "name": "AMZ_Traffic_Dental Mom_Stainless_StrawCup_20260107",
+       "sales": 983,
+       "purchases": 21,
+       "clicks": 44989,
+       "brb": 906.08
+      },
+      {
+       "name": "aa_2fb5a17db7d14eee6e5a81db265da037",
+       "sales": 339,
+       "purchases": 12,
+       "clicks": 604,
+       "brb": 172.77
+      },
+      {
+       "name": "AMZ_Traffic_Dentalmom_WL_202601",
+       "sales": 100,
+       "purchases": 2,
+       "clicks": 35828,
+       "brb": 74.08
+      }
+     ]
+    }
    },
    "meta_detail": {
     "cvr_clicks": 9837,

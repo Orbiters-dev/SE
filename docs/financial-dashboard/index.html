@@ -686,7 +686,35 @@ function renderFinancial(){
         h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--dim)">'+s.pct+'%</td></tr>';
       }
     });
-    h+='</tbody></table></div></div>';
+    h+='</tbody></table>';
+    // Attribution: Meta Traffic -> Amazon conversions
+    var attr=amz.attribution;
+    if(attr&&attr.sales>0){
+      h+='<div style="margin-top:10px;padding-top:8px;border-top:1px dashed var(--border)">';
+      h+='<div style="font-size:10px;font-weight:700;color:#f59e0b;margin-bottom:6px">Amazon Attribution (Meta Traffic -> AMZ Conversions)</div>';
+      h+='<div style="display:flex;gap:16px;margin-bottom:8px;flex-wrap:wrap">';
+      h+='<div><div style="font-size:8px;color:var(--dim)">Attr. Sales</div><div style="font-size:16px;font-weight:700;color:var(--g)">$'+attr.sales.toLocaleString()+'</div></div>';
+      h+='<div><div style="font-size:8px;color:var(--dim)">Attr. Orders</div><div style="font-size:16px;font-weight:700">'+attr.purchases+'</div></div>';
+      h+='<div><div style="font-size:8px;color:var(--dim)">BRB Bonus</div><div style="font-size:16px;font-weight:700;color:#8b5cf6">$'+attr.brb.toLocaleString()+'</div></div>';
+      var rc1=attr.roas>=2?'var(--g)':attr.roas>=1?'var(--am)':'var(--r)';
+      var rc2=attr.roas_with_brb>=2?'var(--g)':attr.roas_with_brb>=1?'var(--am)':'var(--r)';
+      h+='<div><div style="font-size:8px;color:var(--dim)">Attr. ROAS</div><div style="font-size:16px;font-weight:700;color:'+rc1+'">'+attr.roas.toFixed(1)+'x</div></div>';
+      h+='<div><div style="font-size:8px;color:var(--dim)">ROAS+BRB</div><div style="font-size:16px;font-weight:700;color:'+rc2+'">'+attr.roas_with_brb.toFixed(1)+'x</div><div style="font-size:7px;color:var(--muted)">Sales/(Spend-BRB)</div></div>';
+      h+='</div>';
+      if(attr.campaigns&&attr.campaigns.length){
+        h+='<table><thead><tr><th style="font-size:8px">Campaign</th><th style="text-align:right;font-size:8px">Clicks</th><th style="text-align:right;font-size:8px">Sales</th><th style="text-align:right;font-size:8px">Orders</th><th style="text-align:right;font-size:8px">BRB</th></tr></thead><tbody>';
+        attr.campaigns.forEach(function(c){
+          h+='<tr><td style="font-size:9px;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c.name+'">'+c.name+'</td>';
+          h+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+c.clicks.toLocaleString()+'</td>';
+          h+='<td style="text-align:right;font-family:var(--mono);font-size:9px">$'+c.sales.toLocaleString()+'</td>';
+          h+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+c.purchases+'</td>';
+          h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:#8b5cf6">$'+c.brb.toFixed(2)+'</td></tr>';
+        });
+        h+='</tbody></table>';
+      }
+      h+='</div>';
+    }
+    h+='</div></div>';
     // Meta breakdown
     h+='<div class="card" style="margin-top:8px"><h3 style="color:#3b82f6;margin-bottom:6px">Meta Ads Click Distribution</h3>';
     h+='<div style="display:flex;gap:20px">';
