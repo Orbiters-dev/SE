@@ -430,11 +430,20 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 
     <div class="card">
       <h3>&#x1F4CB; DocuSeal Contract</h3>
-      <div class="desc">契約書テンプレート設定</div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:140px">Template ID</label>
-        <input type="text" id="cfg-docuseal-template" style="flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit">
-        <button class="btn btn-sm btn-primary" onclick="saveConfig('docuseal_template_id', document.getElementById('cfg-docuseal-template').value)">&#x1F4BE;</button>
+      <div class="desc">契約書テンプレート設定 — 無償(Gifting)と有償(Paid)の2種類</div>
+      <div style="display:grid;gap:8px;margin-top:8px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:180px">無償 (Gifting) Template ID</label>
+          <input type="text" id="cfg-docuseal-gifting" value="4" style="width:80px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit">
+          <button class="btn btn-sm btn-primary" onclick="saveConfig('docuseal_template_id_gifting', document.getElementById('cfg-docuseal-gifting').value)">&#x1F4BE;</button>
+          <a href="https://docuseal.orbiters.co.kr/templates/4" target="_blank" style="font-size:10px;color:var(--a)">Edit &#x2197;</a>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:180px">有償 (Paid) Template ID</label>
+          <input type="text" id="cfg-docuseal-paid" value="5" style="width:80px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit">
+          <button class="btn btn-sm btn-primary" onclick="saveConfig('docuseal_template_id_paid', document.getElementById('cfg-docuseal-paid').value)">&#x1F4BE;</button>
+          <a href="https://docuseal.orbiters.co.kr/templates/5" target="_blank" style="font-size:10px;color:var(--a)">Edit &#x2197;</a>
+        </div>
       </div>
     </div>
 
