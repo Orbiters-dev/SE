@@ -781,8 +781,9 @@ function loadRecentActivity() {
     return;
   }
   var promises = active.map(function(c) {
-    return n8nPost({ action: 'dm_log', username: c.username }).then(function(logs) {
-      return (Array.isArray(logs) ? logs : []).map(function(l) { l._username = c.username; return l; });
+    return n8nPost({ action: 'dm_log', username: c.username }).then(function(res) {
+      var logs = Array.isArray(res) ? res : (res.logs || []);
+      return logs.map(function(l) { l._username = c.username; return l; });
     }).catch(function() { return []; });
   });
   Promise.all(promises).then(function(results) {
@@ -997,8 +998,8 @@ function openDmThread(handle) {
   document.getElementById('dm-thread').style.display = 'flex';
 
   n8nPost({ action: 'dm_log', username: handle })
-    .then(function(logs) {
-      _dmCache[handle] = Array.isArray(logs) ? logs : [];
+    .then(function(res) {
+      _dmCache[handle] = Array.isArray(res) ? res : (res.logs || []);
       renderThreadBody(handle);
       setTimeout(function() {
         body.scrollTop = body.scrollHeight;
@@ -1018,9 +1019,17 @@ function closeDmThread() {
 
 function renderThreadBody(handle) {
   var logs = _dmCache[handle] || [];
+  var c = _creators.find(function(x) { return x.username === handle; });
   var body = document.getElementById('thread-body');
-  if (!logs.length) {
+  if (!logs.length && !(c && c.dm_draft)) {
     body.innerHTML = '<div class="dm-empty">No messages yet. Send the first DM via IG deeplink.</div>';
+    return;
+  }
+  // Show draft as pending message if no logs yet
+  if (!logs.length && c && c.dm_draft) {
+    body.innerHTML = '<div style="margin-bottom:8px;font-size:10px;color:var(--am);font-weight:600">📝 Draft (not sent yet)</div>'
+      + '<div class="dm-bubble out" style="background:var(--am);opacity:.8">' + escapeHtml(c.dm_draft).replace(/\n/g,'<br>') + '<span class="dm-time">Draft</span></div>'
+      + '<div style="text-align:center;margin-top:12px"><button class="btn btn-sm btn-success" onclick="markSent(\'' + handle + '\');closeDmThread()">✅ Mark as Sent</button></div>';
     return;
   }
   var html = '';
