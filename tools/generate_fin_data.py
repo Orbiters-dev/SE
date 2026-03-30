@@ -837,6 +837,88 @@ def generate():
     for brand, agg in st_brand_agg.items():
         search_by_brand[brand] = build_search_data(agg, 20)
 
+    # ── Keyword Performance (brand × period) for Ads tab ──────────────────
+    # search_terms date format: "2026-03-07~2026-03-13" (weekly chunks)
+    # Period: latest 1 week, latest 2 weeks, all available (~30d)
+    def _parse_st_end_date(date_str):
+        """Extract end date from weekly range like '2026-03-07~2026-03-13'."""
+        if "~" in date_str:
+            return date_str.split("~")[1].strip()
+        return date_str
+
+    # Sort date ranges to identify latest
+    st_dates = sorted(set(r.get("date", "") for r in search_terms if r.get("date")))
+    st_end_dates = [_parse_st_end_date(d) for d in st_dates]
+    latest_end = max(st_end_dates) if st_end_dates else through
+
+    def _kw_agg_by_brand_period(rows, date_filter=None):
+        """Aggregate search terms by brand -> keyword, optionally filtering dates."""
+        brand_kw = defaultdict(lambda: defaultdict(lambda: {
+            "spend": 0.0, "sales": 0.0, "clicks": 0, "impressions": 0, "purchases": 0
+        }))
+        for r in rows:
+            d = r.get("date", "")
+            if date_filter and not date_filter(d):
+                continue
+            brand = r.get("brand", "Other")
+            kw = (r.get("search_term") or r.get("query") or "").strip().lower()
+            if not kw:
+                continue
+            brand_kw[brand][kw]["spend"] += float(r.get("spend", 0) or 0)
+            brand_kw[brand][kw]["sales"] += float(r.get("sales", 0) or 0)
+            brand_kw[brand][kw]["clicks"] += int(r.get("clicks", 0) or 0)
+            brand_kw[brand][kw]["impressions"] += int(r.get("impressions", 0) or 0)
+            brand_kw[brand][kw]["purchases"] += int(r.get("purchases", 0) or 0)
+        return brand_kw
+
+    def _kw_top_list(brand_kw_agg, limit=50):
+        """Convert brand -> kw agg into sorted list per brand."""
+        out = {}
+        for brand, kws in brand_kw_agg.items():
+            items = []
+            for kw, v in kws.items():
+                roas = round(v["sales"] / v["spend"], 2) if v["spend"] > 0 else 0
+                cpc = round(v["spend"] / v["clicks"], 2) if v["clicks"] > 0 else 0
+                ctr = round(v["clicks"] / v["impressions"] * 100, 2) if v["impressions"] > 0 else 0
+                items.append({
+                    "keyword": kw,
+                    "spend": round(v["spend"], 2),
+                    "sales": round(v["sales"], 2),
+                    "clicks": v["clicks"],
+                    "impressions": v["impressions"],
+                    "purchases": v["purchases"],
+                    "roas": roas,
+                    "cpc": cpc,
+                    "ctr": ctr,
+                })
+            items.sort(key=lambda x: x["spend"], reverse=True)
+            out[brand] = items[:limit]
+        return out
+
+    # 3 periods: latest week, latest 2 weeks, all (~30d)
+    kw_all = _kw_top_list(_kw_agg_by_brand_period(search_terms))
+    kw_latest = _kw_top_list(_kw_agg_by_brand_period(
+        search_terms,
+        date_filter=lambda d: d == st_dates[-1] if st_dates else True
+    ))
+    kw_2w = _kw_top_list(_kw_agg_by_brand_period(
+        search_terms,
+        date_filter=lambda d: d in st_dates[-2:] if len(st_dates) >= 2 else True
+    ))
+
+    keyword_performance = {
+        "periods": {
+            "7d": {"label": "Latest 7D", "data": kw_latest},
+            "14d": {"label": "Latest 14D", "data": kw_2w},
+            "30d": {"label": "All (~30D)", "data": kw_all},
+        },
+        "brands": sorted(set(
+            r.get("brand", "") for r in search_terms if r.get("brand") and r.get("brand") != "test"
+        )),
+        "date_range": f"{st_dates[0] if st_dates else '?'} to {st_dates[-1] if st_dates else '?'}",
+    }
+    print(f"  Keyword performance: {sum(len(v) for v in kw_all.values())} keywords, {len(kw_all)} brands")
+
     # GSC queries (top 20 by clicks)
     gsc_agg = defaultdict(lambda: {"impressions": 0, "clicks": 0, "position": []})
     for r in gsc:
@@ -2233,6 +2315,7 @@ def generate():
         },
         "search_queries": search_data,
         "search_by_brand": search_by_brand,
+        "keyword_performance": keyword_performance,
         "gsc_queries": gsc_data,
         "keyword_rankings": keyword_rankings,
         "kw_positions_summary": kw_positions_summary,
