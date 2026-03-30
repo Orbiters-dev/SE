@@ -704,11 +704,15 @@ function renderFinancial(){
       h+='<div><div style="font-size:8px;color:var(--dim)">ROAS+BRB</div><div style="font-size:16px;font-weight:700;color:'+rc2+'">'+attr.roas_with_brb.toFixed(1)+'x</div><div style="font-size:7px;color:var(--muted)">Sales/(Spend-BRB)</div></div>';
       h+='</div>';
       if(attr.campaigns&&attr.campaigns.length){
-        h+='<table><thead><tr><th style="font-size:8px">Campaign</th><th style="text-align:right;font-size:8px">Meta Spend</th><th style="text-align:right;font-size:8px">Clicks</th><th style="text-align:right;font-size:8px">Attr. Sales</th><th style="text-align:right;font-size:8px">ROAS</th><th style="text-align:right;font-size:8px">ROAS+BRB</th><th style="text-align:right;font-size:8px">Orders</th><th style="text-align:right;font-size:8px">BRB</th></tr></thead><tbody>';
-        attr.campaigns.forEach(function(c){
+        h+='<table><thead><tr><th style="font-size:8px"></th><th style="font-size:8px">Campaign</th><th style="text-align:right;font-size:8px">Meta Spend</th><th style="text-align:right;font-size:8px">Clicks</th><th style="text-align:right;font-size:8px">Attr. Sales</th><th style="text-align:right;font-size:8px">ROAS</th><th style="text-align:right;font-size:8px">ROAS+BRB</th><th style="text-align:right;font-size:8px">Orders</th><th style="text-align:right;font-size:8px">BRB</th></tr></thead><tbody>';
+        attr.campaigns.forEach(function(c,ci){
           var rc=c.roas>=2?'var(--g)':c.roas>=0.5?'var(--am)':'var(--r)';
           var rc2=(c.roas_adj||0)>=2?'var(--g)':(c.roas_adj||0)>=0.5?'var(--am)':'var(--r)';
-          h+='<tr><td style="font-size:9px;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c.name+'">'+c.name+'</td>';
+          var hasAssets=c.assets&&c.assets.length>0;
+          var toggleId='attr-assets-'+ci;
+          h+='<tr>';
+          h+='<td style="width:20px;cursor:pointer;font-size:12px;color:var(--a)" onclick="var el=document.getElementById(\''+toggleId+'\');el.style.display=el.style.display===\'none\'?\'table-row\':\'none\'">'+(hasAssets?'+':'')+'</td>';
+          h+='<td style="font-size:9px;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c.name+'">'+c.name+'</td>';
           h+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+(c.spend>0?'$'+c.spend.toLocaleString():'<span style="color:var(--muted)">—</span>')+'</td>';
           h+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+c.clicks.toLocaleString()+'</td>';
           h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--g)">$'+c.sales.toLocaleString()+'</td>';
@@ -716,6 +720,24 @@ function renderFinancial(){
           h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+rc2+'">'+(c.roas_adj>0?c.roas_adj.toFixed(1)+'x':'—')+'</td>';
           h+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+c.purchases+'</td>';
           h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:#8b5cf6">$'+c.brb.toFixed(0)+'</td></tr>';
+          // Asset breakdown (hidden by default)
+          if(hasAssets){
+            h+='<tr id="'+toggleId+'" style="display:none"><td></td><td colspan=8 style="padding:6px 8px;background:#f8fafc">';
+            h+='<div style="font-size:9px;font-weight:700;color:var(--dim);margin-bottom:4px">Ad Assets (WL / Image / Video)</div>';
+            h+='<table style="font-size:8px;width:100%"><thead><tr><th>Type</th><th style="text-align:right">Spend</th><th style="text-align:right">Clicks</th><th style="text-align:right">CPC</th><th>Ads</th></tr></thead><tbody>';
+            c.assets.forEach(function(a){
+              var cc=a.cpc<=0.15?'var(--g)':a.cpc<=0.5?'var(--am)':'var(--r)';
+              var adLinks=a.ads.map(function(ad){
+                return ad.id?'<a href="https://business.facebook.com/adsmanager/manage/ads?act=697498009390362&selected_ad_ids='+ad.id+'" target="_blank" style="color:var(--a);text-decoration:none;font-size:8px" title="Edit in Meta">'+ad.name+'</a>':'<span style="font-size:8px">'+ad.name+'</span>';
+              }).join('<br>');
+              h+='<tr><td style="font-weight:600">'+a.type+'</td>';
+              h+='<td style="text-align:right;font-family:var(--mono)">$'+a.spend.toLocaleString()+'</td>';
+              h+='<td style="text-align:right;font-family:var(--mono)">'+a.clicks.toLocaleString()+'</td>';
+              h+='<td style="text-align:right;font-family:var(--mono);color:'+cc+'">$'+a.cpc.toFixed(2)+'</td>';
+              h+='<td style="line-height:1.8">'+adLinks+'</td></tr>';
+            });
+            h+='</tbody></table></td></tr>';
+          }
         });
         h+='</tbody></table>';
       }
@@ -733,34 +755,7 @@ function renderFinancial(){
     if(el) el.innerHTML=h;
   };
 
-  // Ad Creative Breakdown (WL / Image / Video)
-  var acb=F.ad_creative_breakdown||[];
-  if(acb.length){
-    traf+='<div class="sec"><div class="sec-title"><div class="num" style="background:#3b82f6;color:#fff">5B</div> Meta Ad Creative Breakdown (WL / Image / Video)</div>';
-    traf+='<div class="card"><div class="desc">Top 20 campaigns by spend. Creative type from ad name. Click ad link to edit in Meta Ads Manager.</div>';
-    acb.forEach(function(camp){
-      var cLink=camp.campaign_id?'<a href="https://business.facebook.com/adsmanager/manage/campaigns?act=697498009390362&selected_campaign_ids='+camp.campaign_id+'" target="_blank" style="font-size:8px;color:var(--a);text-decoration:none"> &#9998;</a>':'';
-      traf+='<div style="margin-bottom:12px;padding:8px;border:1px solid var(--border);border-radius:6px">';
-      traf+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
-      traf+='<div style="font-size:11px;font-weight:700">'+camp.campaign+cLink+'</div>';
-      traf+='<div style="font-size:10px;color:var(--dim)">'+camp.brand+' | $'+camp.total_spend.toLocaleString()+'</div></div>';
-      traf+='<table style="font-size:9px"><thead><tr><th>Type</th><th style="text-align:right">Spend</th><th style="text-align:right">Clicks</th><th style="text-align:right">CPC</th><th>Top Ads</th></tr></thead><tbody>';
-      camp.types.forEach(function(t){
-        var cc=t.cpc<=0.2?'var(--g)':t.cpc<=1?'var(--am)':'var(--r)';
-        var adLinks=t.ads.map(function(a){
-          var link=a.id?'<a href="https://business.facebook.com/adsmanager/manage/ads?act=697498009390362&selected_ad_ids='+a.id+'" target="_blank" style="color:var(--a);text-decoration:none" title="Edit in Meta">'+a.name+'</a>':a.name;
-          return link;
-        }).join('<br>');
-        traf+='<tr><td style="font-weight:600">'+t.type+'</td>';
-        traf+='<td style="text-align:right;font-family:var(--mono)">$'+t.spend.toLocaleString()+'</td>';
-        traf+='<td style="text-align:right;font-family:var(--mono)">'+t.clicks.toLocaleString()+'</td>';
-        traf+='<td style="text-align:right;font-family:var(--mono);color:'+cc+'">$'+t.cpc.toFixed(2)+'</td>';
-        traf+='<td style="font-size:8px;max-width:350px;line-height:1.6">'+adLinks+'</td></tr>';
-      });
-      traf+='</tbody></table></div>';
-    });
-    traf+='</div></div>';
-  }
+  // 5B removed — asset breakdown now inline in Attribution table (+ button)
 
   // Original GA4 source/medium detail (collapsed)
   traf+='<div class="sec" style="margin-top:16px"><div class="sec-title" style="cursor:pointer" onclick="var el=document.getElementById(\'ga4-detail\');el.style.display=el.style.display===\'none\'?\'block\':\'none\'"><div class="num">5A</div> GA4 Source/Medium Detail (click to expand)</div>';

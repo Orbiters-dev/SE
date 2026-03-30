@@ -1407,7 +1407,7 @@ def generate():
         # Meta: split traffic vs CVR
         meta_traffic = {"clicks": 0, "spend": 0.0, "purchases": 0, "purchase_value": 0.0}
         meta_cvr = {"clicks": 0, "spend": 0.0, "purchases": 0, "purchase_value": 0.0}
-        meta_traffic_by_camp = defaultdict(lambda: {"clicks": 0, "spend": 0.0})
+        meta_traffic_by_camp = defaultdict(lambda: {"clicks": 0, "spend": 0.0, "ads": defaultdict(lambda: {"spend": 0.0, "clicks": 0, "id": "", "name": ""})})
         for r in meta_rows:
             if r.get("date", "") < cutoff:
                 continue
@@ -1420,6 +1420,14 @@ def generate():
                 meta_traffic["purchase_value"] += float(r.get("purchase_value", 0) or 0)
                 meta_traffic_by_camp[cn]["clicks"] += int(r.get("clicks", 0) or 0)
                 meta_traffic_by_camp[cn]["spend"] += float(r.get("spend", 0) or 0)
+                # Ad-level for asset breakdown
+                aid = r.get("ad_id", "")
+                an = r.get("ad_name", "")
+                if aid:
+                    meta_traffic_by_camp[cn]["ads"][aid]["spend"] += float(r.get("spend", 0) or 0)
+                    meta_traffic_by_camp[cn]["ads"][aid]["clicks"] += int(r.get("clicks", 0) or 0)
+                    meta_traffic_by_camp[cn]["ads"][aid]["id"] = aid
+                    meta_traffic_by_camp[cn]["ads"][aid]["name"] = an
             else:
                 meta_cvr["clicks"] += int(r.get("clicks", 0) or 0)
                 meta_cvr["spend"] += float(r.get("spend", 0) or 0)
@@ -1478,6 +1486,28 @@ def generate():
                     matched_spend = best_meta["spend"]
                 camp_roas = round(v["sales"] / matched_spend, 1) if matched_spend > 0 else 0
                 camp_roas_adj = round((v["sales"] + v["brb"]) / matched_spend, 1) if matched_spend > 0 else 0
+                # Ad asset breakdown from matched Meta campaign
+                assets = []
+                if best_meta and best_meta.get("ads"):
+                    type_agg = defaultdict(lambda: {"spend": 0.0, "clicks": 0, "ads": []})
+                    for aid, ad in best_meta["ads"].items():
+                        atype = _classify_creative(ad.get("name", ""))
+                        type_agg[atype]["spend"] += ad["spend"]
+                        type_agg[atype]["clicks"] += ad["clicks"]
+                        type_agg[atype]["ads"].append({
+                            "id": ad["id"],
+                            "name": ad["name"][:70],
+                        })
+                    for atype, ta in sorted(type_agg.items(), key=lambda x: -x[1]["spend"]):
+                        cpc = round(ta["spend"] / ta["clicks"], 2) if ta["clicks"] else 0
+                        assets.append({
+                            "type": atype,
+                            "spend": round(ta["spend"]),
+                            "clicks": ta["clicks"],
+                            "cpc": cpc,
+                            "ads": ta["ads"][:5],
+                        })
+
                 camps.append({
                     "name": attr_name[:60],
                     "sales": round(v["sales"]),
@@ -1487,6 +1517,7 @@ def generate():
                     "spend": round(matched_spend),
                     "roas": camp_roas,
                     "roas_adj": camp_roas_adj,
+                    "assets": assets,
                 })
             return camps
 
