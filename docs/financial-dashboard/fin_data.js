@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-30 00:03 PST",
+ "generated_pst": "2026-03-30 00:15 PST",
  "through_date": "2026-03-28",
  "months": [
   "2025-01",
@@ -11635,7 +11635,7 @@ const FIN_DATA = {
       "pct": 0
      },
      {
-      "source": "Organic (Amazon search)",
+      "source": "Amazon Internal (Organic)",
       "clicks": 0,
       "spend": 0,
       "sales": 0,
@@ -11843,14 +11843,15 @@ const FIN_DATA = {
       "pct": 60.9
      },
      {
-      "source": "Organic (Amazon search + Direct)",
+      "source": "Amazon Internal (Organic + Ads)",
       "clicks": 64678,
       "spend": 0,
       "sales": 78886,
       "purchases": 2946,
       "cpc": 0,
       "roas": 0,
-      "pct": 59.7
+      "pct": 59.7,
+      "note_text": "Sessions from Amazon search + direct. Ads clicks happen within these sessions."
      }
     ],
     "attribution": {
@@ -12190,14 +12191,15 @@ const FIN_DATA = {
       "pct": 57.7
      },
      {
-      "source": "Organic (Amazon search + Direct)",
+      "source": "Amazon Internal (Organic + Ads)",
       "clicks": 201516,
       "spend": 0,
       "sales": 294096,
       "purchases": 10594,
       "cpc": 0,
       "roas": 0,
-      "pct": 58.6
+      "pct": 58.6,
+      "note_text": "Sessions from Amazon search + direct. Ads clicks happen within these sessions."
      }
     ],
     "attribution": {

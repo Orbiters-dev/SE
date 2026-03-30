@@ -1601,17 +1601,19 @@ def generate():
                     _src("Meta Traffic (AMZ landing)", meta_traffic["clicks"], meta_traffic["spend"],
                          attr_total_sales, attr_total_purchases,
                          round(meta_traffic["clicks"] / amz_total_clicks * 100, 1) if amz_total_clicks else 0),
-                    (lambda organic_sess, organic_orders, organic_sales: {
-                        "source": "Organic (Amazon search + Direct)",
-                        "clicks": organic_sess, "spend": 0, "sales": round(organic_sales),
+                    (lambda internal_sess, organic_orders, organic_sales: {
+                        "source": "Amazon Internal (Organic + Ads)",
+                        "clicks": internal_sess, "spend": 0,
+                        "sales": round(organic_sales),
                         "purchases": organic_orders, "cpc": 0, "roas": 0,
-                        "pct": round(organic_sess / (amz_sessions_data or {}).get("sessions", 1) * 100, 1) if organic_sess > 0 else 0,
+                        "pct": round(internal_sess / (amz_sessions_data or {}).get("sessions", 1) * 100, 1) if internal_sess > 0 else 0,
+                        "note_text": "Sessions from Amazon search + direct. Ads clicks happen within these sessions.",
                     })(
                         max(0, (amz_sessions_data or {}).get("sessions", 0) - meta_traffic["clicks"]),
                         max(0, _amz_total_orders - amz_ad["purchases"] - attr_total_purchases),
                         max(0, _amz_total_sales - amz_ad["sales"] - attr_total_sales),
                     ) if (amz_sessions_data or {}).get("sessions", 0) > 0 else
-                    {"source": "Organic (Amazon search)", "clicks": 0, "spend": 0, "sales": 0,
+                    {"source": "Amazon Internal (Organic)", "clicks": 0, "spend": 0, "sales": 0,
                      "purchases": 0, "cpc": 0, "roas": 0, "pct": 0, "note": "n.m."},
                 ],
                 "attribution": attr_summary,

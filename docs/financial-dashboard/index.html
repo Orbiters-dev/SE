@@ -672,19 +672,20 @@ function renderFinancial(){
     h+='</div>';
     h+='<table><thead><tr><th>Source</th><th style="text-align:right">Clicks</th><th style="text-align:right">Spend</th><th style="text-align:right">CPC</th><th style="text-align:right">Sales</th><th style="text-align:right">ROAS</th><th style="text-align:right">Conv</th><th style="text-align:right">%</th></tr></thead><tbody>';
     (amz.sources||[]).forEach(function(s){
-      if(s.note){
+      if(s.note==='n.m.'){
         h+='<tr><td style="font-size:10px;color:var(--muted)">'+s.source+'</td>';
-        h+='<td colspan=7 style="text-align:right;font-size:9px;color:#9ca3af">n.m. — no Amazon session API</td></tr>';
+        h+='<td colspan=7 style="text-align:right;font-size:9px;color:#9ca3af">n.m.</td></tr>';
       }else{
+        var isInternal=s.source.indexOf('Internal')>=0;
         var rc=s.roas>=3?'var(--g)':s.roas>=1.5?'var(--am)':'var(--r)';
         var cc=s.cpc>0&&s.cpc<=0.5?'var(--g)':s.cpc<=1.5?'var(--am)':'var(--r)';
-        h+='<tr><td style="font-size:10px">'+s.source+'</td>';
-        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+s.clicks.toLocaleString()+'</td>';
-        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">$'+s.spend.toLocaleString()+'</td>';
-        h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:'+cc+'">$'+s.cpc.toFixed(2)+'</td>';
-        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+(s.sales>0?'$'+s.sales.toLocaleString():'<span style=color:var(--muted)>n.m.</span>')+'</td>';
-        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+rc+'">'+(s.roas>0?s.roas.toFixed(1)+'x':'<span style=color:var(--muted)>—</span>')+'</td>';
-        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+(s.purchases>0?s.purchases:'<span style=color:var(--muted)>n.m.</span>')+'</td>';
+        h+='<tr><td style="font-size:10px">'+s.source+(s.note_text?'<div style="font-size:7px;color:var(--muted)">'+s.note_text+'</div>':'')+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+s.clicks.toLocaleString()+(isInternal?' <span style="font-size:7px;color:var(--muted)">sessions</span>':'')+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+(s.spend>0?'$'+s.spend.toLocaleString():'$0')+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:'+(s.cpc>0?cc:'var(--muted)')+'">$'+s.cpc.toFixed(2)+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+(s.sales>0?'$'+s.sales.toLocaleString():'<span style=color:var(--muted)>—</span>')+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+(s.roas>0?rc:'var(--muted)')+'">'+(s.roas>0?s.roas.toFixed(1)+'x':'—')+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+(s.purchases>0?s.purchases.toLocaleString():'—')+'</td>';
         h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--dim)">'+s.pct+'%</td></tr>';
       }
     });
