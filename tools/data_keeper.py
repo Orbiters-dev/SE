@@ -1603,7 +1603,7 @@ def _detect_meta_brand(campaign_name: str, landing_url: str) -> str:
     lu = landing_url.lower()
     if any(k in cn or k in lu for k in ["grosmimi", "grosm"]):
         return "Grosmimi"
-    if any(k in cn or k in lu for k in ["cha&mom", "chaandmom", "chamom", "cha_mom", "orbitool"]):
+    if any(k in cn or k in lu for k in ["cha&mom", "chaandmom", "chamom", "cha_mom", "orbitool", "_cm_", "| cm |", "| cm|", "|cm "]):
         return "CHA&MOM"
     if any(k in cn or k in lu for k in ["naeiae", "fleeters", "pop_rice", "pop rice"]):
         return "Naeiae"
@@ -1612,13 +1612,25 @@ def _detect_meta_brand(campaign_name: str, landing_url: str) -> str:
     if any(k in cn or k in lu for k in ["alpremio"]):
         return "Alpremio"
     # Grosmimi product keywords (campaigns without explicit brand name)
-    if any(k in cn for k in ["straw cup", "strawcup", "straw_cup", "sippy", "ppsu",
-                               "fliptop", "flip top", "stainless", "dental mom", "dentalmom",
-                               "dental_mom", "livfuselli", "knotted", "baby bottle",
-                               "spring sale", "sls "]):
+    GROSMIMI_KW = [
+        "straw cup", "strawcup", "straw_cup", "sippy", "ppsu",
+        "fliptop", "flip top", "stainless", "dental mom", "dentalmom",
+        "dental_mom", "livfuselli", "knotted", "baby bottle",
+        "spring sale", "sls cup", "sls ", "tumbler",
+        "laurence", "love&care", "love_care", "lovecare",
+        "| gm |", "| gm|", "|gm |", "| cvr | gm",
+        "asc campaign", "conversion | 2025",
+    ]
+    if any(k in cn for k in GROSMIMI_KW):
         return "Grosmimi"
-    # AMZ Traffic without brand = default Grosmimi (Amazon storefront is 95% Grosmimi)
-    if ("amz" in cn or "amazon" in cn) and "traffic" in cn:
+    # AMZ/Amazon landing = Grosmimi (storefront is 95% Grosmimi)
+    if ("amz" in cn or "amazon" in cn) and ("traffic" in cn or "landing" in cn):
+        return "Grosmimi"
+    # Shopify CVR without specific brand = Grosmimi (default D2C brand)
+    if "shopify" in cn and "cvr" in cn:
+        return "Grosmimi"
+    # General campaigns without brand = Grosmimi
+    if "general" in cn and ("cvr" in cn or "conversion" in cn):
         return "Grosmimi"
     return "Unknown"
 
