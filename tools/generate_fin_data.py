@@ -1375,7 +1375,16 @@ def generate():
             for m, v in mt_gros.items():
                 ratio = v.get("spend", 0) / total_mt_spend
                 v["sales"] = round(attr_total["sales"] * ratio, 2)
-            print(f"  Attribution -> Meta Traffic Grosmimi: ${attr_total['sales']:,.0f} distributed across {len(mt_gros)} months")
+            print(f"  Attribution -> Meta Traffic Grosmimi (monthly): ${attr_total['sales']:,.0f} across {len(mt_gros)} months")
+
+        # Weekly too
+        mt_gros_wk = brand_ad_by_platform_wk.get("Meta Traffic", {}).get("Grosmimi", {})
+        total_mt_wk_spend = sum(v.get("spend", 0) for v in mt_gros_wk.values())
+        if total_mt_wk_spend > 0 and attr_total["sales"] > 0:
+            for w, v in mt_gros_wk.items():
+                ratio = v.get("spend", 0) / total_mt_wk_spend
+                v["sales"] = round(attr_total["sales"] * ratio, 2)
+            print(f"  Attribution -> Meta Traffic Grosmimi (weekly): across {len(mt_gros_wk)} weeks")
     else:
         print("  Attribution: no data")
 
