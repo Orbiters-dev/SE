@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-29 21:37 PST",
+ "generated_pst": "2026-03-29 21:47 PST",
  "through_date": "2026-03-28",
  "months": [
   "2025-01",
@@ -11899,15 +11899,14 @@ const FIN_DATA = {
       "pct": 60.2
      },
      {
-      "source": "Organic (Amazon search)",
-      "clicks": 0,
+      "source": "Organic (Amazon search + Direct)",
+      "clicks": 71591,
       "spend": 0,
       "sales": 0,
       "purchases": 0,
-      "cpc": 0,
+      "cpc": 0.0,
       "roas": 0,
-      "pct": 0,
-      "note": "n.m."
+      "pct": 59.8
      }
     ],
     "attribution": {
@@ -12114,15 +12113,14 @@ const FIN_DATA = {
       "pct": 57.7
      },
      {
-      "source": "Organic (Amazon search)",
-      "clicks": 0,
+      "source": "Organic (Amazon search + Direct)",
+      "clicks": 206720,
       "spend": 0,
       "sales": 0,
       "purchases": 0,
-      "cpc": 0,
+      "cpc": 0.0,
       "roas": 0,
-      "pct": 0,
-      "note": "n.m."
+      "pct": 58.4
      }
     ],
     "attribution": {

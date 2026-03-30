@@ -1370,7 +1370,7 @@ def generate():
 
     # ── Channel Traffic Breakdown (Amazon vs Onzenna) ────────────────────────
     # GA4 = Onzenna D2C traffic. Amazon = Ads clicks + Meta Traffic clicks + organic (estimated).
-    def _build_channel_traffic(ga4_rows, amz_ads_rows, meta_rows, google_rows, days):
+    def _build_channel_traffic(ga4_rows, amz_ads_rows, meta_rows, google_rows, days, amz_sessions_data=None):
         cutoff = (today - timedelta(days=days)).isoformat()
 
         # Onzenna (GA4 channel groupings)
@@ -1550,6 +1550,12 @@ def generate():
                     _src("Meta Traffic (AMZ landing)", meta_traffic["clicks"], meta_traffic["spend"],
                          attr_total_sales, attr_total_purchases,
                          round(meta_traffic["clicks"] / amz_total_clicks * 100, 1) if amz_total_clicks else 0),
+                    (lambda organic_sess: _src(
+                        "Organic (Amazon search + Direct)",
+                        organic_sess, 0, 0, 0,
+                        round(organic_sess / (amz_sessions_data or {}).get("sessions", 1) * 100, 1) if organic_sess > 0 else 0
+                    ))(max(0, (amz_sessions_data or {}).get("sessions", 0) - meta_traffic["clicks"]))
+                    if (amz_sessions_data or {}).get("sessions", 0) > 0 else
                     {"source": "Organic (Amazon search)", "clicks": 0, "spend": 0, "sales": 0,
                      "purchases": 0, "cpc": 0, "roas": 0, "pct": 0, "note": "n.m."},
                 ],
@@ -1564,9 +1570,9 @@ def generate():
         }
 
     channel_traffic = {
-        "1d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 1),
-        "7d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 7),
-        "30d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 30),
+        "1d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 1, {}),
+        "7d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 7, amz_sessions_7d),
+        "30d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 30, amz_sessions_30d),
     }
     onz_30 = channel_traffic["30d"]["onzenna"]["total_sessions"]
     amz_30 = channel_traffic["30d"]["amazon"]["total_clicks"]
