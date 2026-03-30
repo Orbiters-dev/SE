@@ -6,9 +6,7 @@ REM  Works on both Desktop (wjcho) and Laptop (user)
 REM ============================================
 
 REM Auto-detect Python path
-if exist "C:\Users\user\AppData\Local\Programs\Python\Python314\python.exe" (
-    set PYTHON=C:\Users\user\AppData\Local\Programs\Python\Python314\python.exe
-) else if exist "C:\Users\wjcho\AppData\Local\Programs\Python\Python312\python.exe" (
+if exist "C:\Users\wjcho\AppData\Local\Programs\Python\Python312\python.exe" (
     set PYTHON=C:\Users\wjcho\AppData\Local\Programs\Python\Python312\python.exe
 ) else (
     echo [ERROR] Python not found on this machine

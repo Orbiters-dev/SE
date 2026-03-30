@@ -1,7 +1,7 @@
 @echo off
 echo Registering WAT scheduled tasks...
 
-set "BASE=c:\SynologyDrive\ORBI CLAUDE_0223\ORBITERS CLAUDE\ORBITERS CLAUDE\WJ Test1\scheduler"
+set "BASE=c:\Users\wjcho\Desktop\WJ Test1\scheduler"
 
 schtasks /create /tn "WAT\AmazonPPC_Daily" /tr "\"%BASE%\task_amazon_ppc.bat\"" /sc daily /st 09:03 /f
 schtasks /create /tn "WAT\MetaAds_Daily" /tr "\"%BASE%\task_meta_ads.bat\"" /sc daily /st 09:07 /f

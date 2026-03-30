@@ -62,7 +62,14 @@ Step 6: 컨텐츠 인텔리전스 (update_usa_llm.py)
   └── New Content Detected: 24h / 7d / 30d 통계
       ↓ .tmp/usa_llm_highlights.json
 
-Step 7: 일일 보고 (run_ci_daily.py)
+Step 7: 데이터 감사 (Data Auditor — 필수)
+  ├── Audit 1: post_id 조인율 ≥ 50% 검증
+  ├── Audit 2: Apify brand 커버리지 ≥ 90% 검증
+  ├── Audit 3: 시트 ↔ PG 행 수 delta ≤ 20% 검증
+  └── Audit 4: Discovery 데이터 오염 없음 검증
+      ↓ PASS/FAIL (FAIL 시 이메일에 경고 포함)
+
+Step 8: 일일 보고 (run_ci_daily.py)
   ├── HTML 이메일 (파이프라인 상태 + 데이터 + 랭킹 + 버전 로그)
   └── .tmp/ci_daily_manifest.json (버전 추적 메타)
       ↓ Email → wj.choi@orbiters.co.kr
@@ -231,6 +238,78 @@ Step 7: 일일 보고 (run_ci_daily.py)
 
 ---
 
+## Data Auditor (필수 검증 단계)
+
+파이프라인 실행 후, 데이터를 수정한 후, 또는 대시보드 이상 보고 시 **반드시** 아래 검증을 수행한다.
+이 검증을 건너뛰면 M-066/M-067/M-068 같은 사고가 반복된다.
+
+### Audit 1: Post ID 조인 검증
+
+content_posts와 content_metrics_daily의 post_id가 겹치는지 확인.
+겹침률 50% 미만이면 파이프라인에 심각한 문제가 있다.
+
+```python
+import sys; sys.path.insert(0,'tools')
+from data_keeper_client import DataKeeper
+dk = DataKeeper()
+posts = dk.get('content_posts', limit=15000)
+metrics = dk.get('content_metrics_daily', limit=60000)
+post_ids = set(r.get('post_id','') for r in posts)
+metric_ids = set(r.get('post_id','') for r in metrics)
+overlap = post_ids & metric_ids
+rate = len(overlap) / max(len(metric_ids), 1) * 100
+print(f"Posts: {len(post_ids)}, Metrics: {len(metric_ids)}, Overlap: {len(overlap)} ({rate:.0f}%)")
+assert rate > 50, f"CRITICAL: post_id overlap {rate:.0f}% < 50%. Metrics exist without matching posts!"
+```
+
+### Audit 2: 브랜드 커버리지 검증
+
+Apify 소스 포스트 중 brand가 비어있는 비율 확인.
+10% 초과이면 브랜드 감지 로직에 문제가 있다.
+
+```python
+apify = [p for p in posts if p.get('source') == 'apify']
+empty = sum(1 for p in apify if not p.get('brand'))
+rate = empty / max(len(apify), 1) * 100
+print(f"Apify posts: {len(apify)}, Empty brand: {empty} ({rate:.0f}%)")
+assert rate < 10, f"WARNING: {rate:.0f}% Apify posts have no brand. Check hashtag detection."
+```
+
+### Audit 3: 시트 ↔ PG 행 수 비교
+
+마스터시트 행 수와 PG 테이블 행 수가 크게 차이나면 동기화 문제.
+
+```python
+# Sheet row count (from last manifest or live query)
+# vs PG content_posts where source='apify'
+apify_count = len([p for p in posts if p.get('source') == 'apify'])
+print(f"PG apify posts: {apify_count}")
+# Compare with sheet: US Posts Master ~775 + JP ~38 = ~813
+# Delta > 20% = alert
+```
+
+### Audit 4: Discovery 데이터 오염 검증
+
+content_posts에 syncly_sheets 소스가 brand 없이 대량 존재하면 오염.
+
+```python
+discovery = [p for p in posts if p.get('source') == 'syncly_sheets' and not p.get('brand')]
+print(f"Unbranded discovery posts in content_posts: {len(discovery)}")
+if len(discovery) > 100:
+    print("WARNING: Discovery data polluting content_posts. These should NOT be here.")
+    print("content_posts = brand content ONLY. Discovery data goes to separate pipeline.")
+```
+
+### 교훈 (M-066/M-067/M-068에서 학습)
+
+- **content_posts = 브랜드 컨텐츠만.** Syncly Discovery(인플루언서 후보 탐색) 데이터는 절대 넣지 않는다.
+- **Brand 분류는 시트 컬럼 → 해시태그 fallback → 캡션 fallback 3단계.** 어느 하나만 쓰면 97% 미분류.
+- **initial_load_content_to_pg.py 실행 후 반드시 Audit 1~4 수행.**
+- **대시보드 숫자가 이상하면** 먼저 post_id 조인율부터 확인. Views가 비정상적으로 낮으면 조인 실패 가능성 높음.
+- **두 테이블을 독립적으로 push하면 반드시 조인 검증.** "각각 성공"이 "전체 성공"을 의미하지 않는다.
+
+---
+
 ## Cross-Reference
 
 | 관련 시스템 | 연결 방식 |
@@ -253,3 +332,7 @@ Step 7: 일일 보고 (run_ci_daily.py)
 | SNS 탭 매칭 0건 | q10 JSON 없음 | fetch_influencer_orders.py 먼저 실행 |
 | PG push 실패 | orbitools API 다운 | `curl -sk -u admin:PASS https://orbitools.orbiters.co.kr/api/datakeeper/status/` |
 | 이메일 미발송 | Gmail OAuth 토큰 만료 | credentials/gmail_token.json 재인증 |
+| 대시보드 Views=0 | post_id 조인 실패 (M-067) | Audit 1 실행. initial_load로 D+60 포스트 PG 적재 |
+| 대시보드 N/A 97% | Discovery 데이터 오염 (M-066) | Audit 4 실행. syncly_sheets 데이터 필터링/제거 |
+| Brand 비어있음 | 해시태그 감지 누락 (M-068) | Audit 2 실행. detect_brand_from_text() fallback 확인 |
+| 시트 Brand 있는데 PG 비어있음 | initial_load가 Brand 컬럼 무시 | row[13] 읽기 + hashtag fallback 확인 |
