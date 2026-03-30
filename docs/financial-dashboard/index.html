@@ -1061,22 +1061,32 @@ function buildWaterfall(F, months, mLabels, lastIdx, isPartialLast){
   wf.gross_margin.forEach(function(v,i){ html+=fmCell(v, (wf.gross_margin_proj||[])[i], i===lastIdx&&isPartialLast, {color:'var(--g)',bold:true}); });
   html+='</tr><tr><td style="padding-left:16px;color:var(--dim)">GM %</td>';
   wf.gross_margin.forEach(function(v,i){ var r=wf.revenue[i]; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--dim)">'+(r>0?(v/r*100).toFixed(1):'0')+'%</td>'; });
-  // MKT breakdown
+  // Variable Costs (Ref Fee + FBA)
+  html+='</tr><tr><td colspan="'+(mLabels.length+1)+'" style="padding:4px 0;border:none"><div style="border-top:1px dashed var(--border)"></div></td></tr>';
+  html+='<tr><td style="color:var(--r)">(-) Variable Costs</td>';
+  (wf.variable_costs||[]).forEach(function(v,i){ html+=fmCell(v, null, false, {color:'var(--r)',fs:'9px'}); });
+  if(wf.variable_detail){
+    html+='</tr><tr><td style="padding-left:16px;color:var(--muted);font-size:9px">Amazon Ref Fee (15%)</td>';
+    (wf.variable_detail.amz_ref_fee||[]).forEach(function(v,i){ html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:var(--muted)">'+$(v)+'</td>'; });
+    html+='</tr><tr><td style="padding-left:16px;color:var(--muted);font-size:9px">FBA Fulfillment</td>';
+    (wf.variable_detail.fba_fulfillment||[]).forEach(function(v,i){
+      var val=v>0?$(v):(i<9?'<span style="color:#9ca3af">n.m.</span>':'$0');
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:var(--muted)">'+val+'</td>';
+    });
+  }
+  // CM before MKT
+  html+='</tr><tr style="border-top:2px solid var(--border);font-weight:700"><td style="color:#6366f1">CM before MKT</td>';
+  (wf.cm_before_mkt||[]).forEach(function(v,i){ html+=fmCell(v, (wf.cm_before_mkt_proj||[])[i], i===lastIdx&&isPartialLast, {color:'#6366f1',bold:true}); });
+  html+='</tr><tr><td style="padding-left:16px;color:var(--dim)">CM% (before MKT)</td>';
+  (wf.cm_before_mkt||[]).forEach(function(v,i){ var r=wf.revenue[i]; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--dim)">'+(r>0?(v/r*100).toFixed(1):'0')+'%</td>'; });
+  // MKT Costs
   html+='</tr><tr><td colspan="'+(mLabels.length+1)+'" style="padding:4px 0;border:none"><div style="border-top:1px dashed var(--border)"></div></td></tr>';
   // Ad Spend
   html+='<tr><td style="padding-left:8px;color:var(--r)">(-) Ad Spend</td>';
   wf.ad_spend.forEach(function(v,i){ html+=fmCell(v, (wf.ad_spend_proj||[])[i], i===lastIdx&&isPartialLast, {color:'var(--r)',fs:'9px'}); });
-  // Discounts
-  html+='</tr><tr><td style="padding-left:8px;color:var(--r)">(-) Discounts</td>';
+  // Discounts (Shopify promo only — ref fee moved to variable costs)
+  html+='</tr><tr><td style="padding-left:8px;color:var(--r)">(-) Shopify Discounts</td>';
   (wf.discounts||[]).forEach(function(v,i){ html+=fmCell(v, (wf.discounts_proj||[])[i], i===lastIdx&&isPartialLast, {color:'var(--r)',fs:'9px'}); });
-  // Discount sub-breakdown
-  // Discount sub-breakdown
-  if(wf.discounts_detail){
-    html+='</tr><tr><td style="padding-left:24px;color:var(--muted);font-size:9px">Shopify Promo Disc</td>';
-    (wf.discounts_detail.shopify_disc||[]).forEach(function(v,i){ html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:var(--muted)">'+$(v)+'</td>'; });
-    html+='</tr><tr><td style="padding-left:24px;color:var(--muted);font-size:9px">Amazon Ref Fee (15%)</td>';
-    (wf.discounts_detail.amz_ref_fee||[]).forEach(function(v,i){ html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:var(--muted)">'+$(v)+'</td>'; });
-  }
   // Seeding
   html+='</tr><tr><td style="padding-left:8px;color:var(--r)">(-) Influencer / Collab</td>';
   (wf.seeding||[]).forEach(function(v,i){
@@ -1348,8 +1358,8 @@ function buildKeywordPerformance(F){
 
   // View toggle (Top ROAS / Worst ROAS)
   html+='<div style="display:flex;gap:4px;margin-bottom:12px">';
-  html+='<div class="kp-view-btn" data-view="top" style="padding:3px 10px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;background:var(--a);color:#fff" onclick="switchKwView(\'top\')">Top 50 (Best ROAS)</div>';
-  html+='<div class="kp-view-btn" data-view="worst" style="padding:3px 10px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;background:var(--bg2);color:var(--dim)" onclick="switchKwView(\'worst\')">Worst 50 (Lowest ROAS)</div>';
+  html+='<div class="kp-view-btn" data-view="top" style="padding:3px 10px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;background:var(--a);color:#fff" onclick="switchKwView(\'top\')">Top 100 (Best ROAS)</div>';
+  html+='<div class="kp-view-btn" data-view="worst" style="padding:3px 10px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;background:var(--bg2);color:var(--dim)" onclick="switchKwView(\'worst\')">Worst 100 (Lowest ROAS)</div>';
   html+='</div>';
 
   // Table container

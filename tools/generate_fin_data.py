@@ -898,7 +898,7 @@ def generate():
         return out
 
     # 3 periods: latest week, latest 2 weeks, all (~30d)
-    def _kw_top_worst(brand_kw_agg, top_n=50, worst_n=50):
+    def _kw_top_worst(brand_kw_agg, top_n=100, worst_n=100):
         """Split into top (by spend, for overview) and worst (by ROAS, min spend $5)."""
         out = {}
         for brand, kws in brand_kw_agg.items():
@@ -1774,11 +1774,38 @@ def generate():
     total_disc_monthly = []
     _shop_disc_arr = []   # Shopify discounts breakdown
     _amz_fee_arr = []     # Amazon referral fee (15%)
+    _fba_arr = []         # FBA fulfillment (None = n.m. pre-Oct)
+    _variable_costs_arr = []  # Ref fee + FBA
+    _cm_before_mkt_arr = []   # CM before marketing
     _inf_paid_arr = []    # Influencer PAID (PayPal)
     _inf_nonpaid_arr = [] # Influencer NON-PAID (COGS + shipping)
     total_seeding_monthly = []
     total_mkt_monthly = []
     total_cm_monthly = []
+
+    # Pre-build FBA monthly cache (FBA section builds later, but P&L needs it now)
+    _fba_monthly_cache = defaultdict(float)
+    _fba_snapshot_path = Path(".tmp/datakeeper/amazon_fba_fees.json")
+    _asin_fba = {}
+    if _fba_snapshot_path.exists():
+        try:
+            _fba_list = json.loads(_fba_snapshot_path.read_text(encoding="utf-8"))
+            for item in _fba_list:
+                a = item.get("asin", "")
+                f = float(item.get("fba_fee", 0) or 0)
+                if a and f > 0:
+                    _asin_fba[a] = f
+        except Exception:
+            pass
+    if _asin_fba:
+        for r in amazon_sku:
+            d = r.get("date", "")
+            if not d or d > through:
+                continue
+            asin = r.get("asin", "")
+            fee = _asin_fba.get(asin, 0)
+            if fee > 0:
+                _fba_monthly_cache[d[:7]] += fee * int(r.get("units", 0) or 0)
 
     for m in months:
         # Total revenue = Shopify GROSS + Amazon GROSS
@@ -1823,6 +1850,16 @@ def generate():
 
         gm = rev - cogs  # GM = Total Revenue (gross) - Total COGS
 
+        # Variable Costs (not marketing — cost of doing business on each platform)
+        amz_net = sum(amz_brand_monthly.get(b, {}).get(m, {}).get("net", 0) for b in BRAND_ORDER + ["Other"])
+        amz_ref_fee = amz_gross - amz_net  # Amazon Referral Fee (~15%)
+        fba_fulfill = _fba_monthly_cache.get(m, 0)  # FBA Fulfillment
+        variable_costs = amz_ref_fee + fba_fulfill
+        _amz_fee_arr.append(round(amz_ref_fee))
+        _fba_arr.append(round(fba_fulfill) if fba_fulfill > 0 or m >= "2025-10" else None)
+
+        cm_before_mkt = gm - variable_costs  # CM before MKT = GM - Variable Costs
+
         # MKT Cost 1: Ad Spend (with Amazon Ads backfill for pre-Dec 2025)
         amz_ad = ad_monthly.get("Amazon Ads", {}).get(m, {}).get("spend", 0)
         if amz_ad == 0 and m in amz_ads_backfill:
@@ -1833,12 +1870,8 @@ def generate():
         )
         ad_total = amz_ad + onz_ad
 
-        # MKT Cost 2: Selling costs
-        # Shopify discounts (promo codes) + Amazon referral fee (gross - net = 15%)
-        amz_net = sum(amz_brand_monthly.get(b, {}).get(m, {}).get("net", 0) for b in BRAND_ORDER + ["Other"])
-        amz_ref_fee = amz_gross - amz_net
-        disc_total = shopify_disc + amz_ref_fee
-        _amz_fee_arr.append(round(amz_ref_fee))
+        # MKT Cost 2: Discounts (Shopify promo codes only — ref fee moved to variable)
+        disc_total = shopify_disc
 
         # MKT Cost 3: Influencer / Collab
         inf_paid = inf_paid_m.get(m, 0)
@@ -1846,17 +1879,19 @@ def generate():
         seeding_total = inf_paid + inf_nonpaid
 
         mkt_total = ad_total + disc_total + seeding_total
-        cm = gm - mkt_total  # CM = GM - Total MKT
+        cm = cm_before_mkt - mkt_total  # CM after MKT
 
         total_rev_monthly.append(round(rev))
         total_cogs_monthly.append(round(cogs))
         total_gm_monthly.append(round(gm))
+        _variable_costs_arr.append(round(variable_costs))
+        _cm_before_mkt_arr.append(round(cm_before_mkt))
         total_ad_spend_monthly.append(round(ad_total))
         total_disc_monthly.append(round(disc_total))
         total_seeding_monthly.append(round(seeding_total))
         total_mkt_monthly.append(round(mkt_total))
         total_cm_monthly.append(round(cm))
-        # Breakdown arrays for detail display
+        # Breakdown arrays
         _shop_disc_arr.append(round(shopify_disc))
         _inf_paid_arr.append(round(inf_paid))
         _inf_nonpaid_arr.append(round(inf_nonpaid))
@@ -1953,6 +1988,13 @@ def generate():
         "total_revenue": _pnl_with_annual(total_rev_monthly, fy2025_idx),
         "cogs": _pnl_with_annual(total_cogs_monthly, fy2025_idx),
         "gross_margin": _pnl_with_annual(total_gm_monthly, fy2025_idx),
+        "variable_costs": _pnl_with_annual(_variable_costs_arr, fy2025_idx),
+        "variable_detail": {
+            "amz_ref_fee": _pnl_with_annual(_amz_fee_arr, fy2025_idx),
+            "fba_fulfillment": _pnl_with_annual([v if v is not None else 0 for v in _fba_arr], fy2025_idx),
+            "fba_nm_months": [i for i, v in enumerate(_fba_arr) if v is None],
+        },
+        "cm_before_mkt": _pnl_with_annual(_cm_before_mkt_arr, fy2025_idx),
         "ad_spend": {
             "onzenna": _pnl_with_annual(onz_spend_arr, fy2025_idx),
             "amazon": _pnl_with_annual(amz_spend_arr, fy2025_idx),
@@ -2139,9 +2181,14 @@ def generate():
             rev_arr.append(round(rev))
             cogs_arr.append(round(cogs))
             sell_arr.append(round(sell_fee))
-            # Fulfillment: None = n.m. (data not collected)
-            if ch == "Amazon MP" and not has_fba_fees:
-                fulfill_arr.append(None)
+            # Fulfillment: None = n.m. for months without FBA data
+            if ch == "Amazon MP":
+                if fulfill > 0:
+                    fulfill_arr.append(round(fulfill))
+                elif m >= "2025-10" and has_fba_fees:
+                    fulfill_arr.append(0)  # genuinely $0 (unlikely but possible)
+                else:
+                    fulfill_arr.append(None)  # n.m. — no FBA data
             elif ch in ("Onzenna D2C", "Target+"):
                 fulfill_arr.append(None)
             else:
@@ -2854,13 +2901,19 @@ def generate():
             "cogs_proj": proj_array(total_cogs_monthly),
             "gross_margin": total_gm_monthly,
             "gross_margin_proj": proj_array(total_gm_monthly),
+            "variable_costs": _variable_costs_arr,
+            "variable_detail": {
+                "amz_ref_fee": _amz_fee_arr,
+                "fba_fulfillment": [v if v is not None else 0 for v in _fba_arr],
+            },
+            "cm_before_mkt": _cm_before_mkt_arr,
+            "cm_before_mkt_proj": proj_array(_cm_before_mkt_arr),
             "ad_spend": total_ad_spend_monthly,
             "ad_spend_proj": proj_array(total_ad_spend_monthly),
             "discounts": total_disc_monthly,
             "discounts_proj": proj_array(total_disc_monthly),
             "discounts_detail": {
                 "shopify_disc": _shop_disc_arr,
-                "amz_ref_fee": _amz_fee_arr,
             },
             "seeding": total_seeding_monthly,
             "seeding_proj": proj_array(total_seeding_monthly),
