@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GROSMIMI JAPAN - Gifting Form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #ef4444;
+    --accent-hover: #dc2626;
+    --accent-soft: #fef2f2;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-muted: #94a3b8;
+    --text-secondary: #64748b;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-lg: 0 4px 16px rgba(0,0,0,0.08);
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ───────────────────────────────────────── */
+  .gf-header {
+    text-align: center;
+    padding: 32px 20px 24px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+  }
+  .gf-brand {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+  .gf-brand-sub {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 3px;
+    margin-top: 2px;
+  }
+  .gf-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-top: 8px;
+  }
+
+  /* ── Progress ─────────────────────────────────────── */
+  .gf-progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 16px 20px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+  }
+  .gf-progress-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.3s ease;
+  }
+  .gf-progress-dot.active {
+    background: var(--accent);
+    width: 24px;
+    border-radius: 4px;
+  }
+  .gf-progress-dot.done {
+    background: var(--accent);
+  }
+  .gf-progress-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-left: 10px;
+    font-weight: 500;
+  }
+
+  /* ── Container ────────────────────────────────────── */
+  .gf-container {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 20px 16px 100px;
+  }
+
+  /* ── Answered Summary ─────────────────────────────── */
+  .gf-answered {
+    margin-bottom: 16px;
+  }
+  .gf-answered-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .gf-answered-item:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow);
+  }
+  .gf-answered-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .gf-answered-value {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-top: 2px;
+  }
+  .gf-answered-edit {
+    font-size: 0.72rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ── Step Card ────────────────────────────────────── */
+  .gf-step {
+    display: none;
+    animation: gfSlideIn 0.35s ease;
+  }
+  .gf-step.active { display: block; }
+
+  @keyframes gfSlideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .gf-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    box-shadow: var(--shadow);
+  }
+  .gf-step-number {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .gf-step-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .gf-step-desc {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  /* ── Inputs ───────────────────────────────────────── */
+  .gf-input-group { margin-bottom: 16px; }
+  .gf-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+  .gf-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--card);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .gf-input:focus { border-color: var(--accent); }
+  .gf-input::placeholder { color: #cbd5e1; }
+  .gf-input.error { border-color: var(--accent); }
+  .gf-error-msg {
+    font-size: 0.75rem;
+    color: var(--accent);
+    margin-top: 4px;
+    display: none;
+  }
+
+  select.gf-input {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+
+  /* ── Date Selectors ───────────────────────────────── */
+  .gf-date-row {
+    display: flex;
+    gap: 10px;
+  }
+  .gf-date-row .gf-input-group { flex: 1; }
+
+  /* ── Toggle ───────────────────────────────────────── */
+  .gf-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    margin-top: 12px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.88rem;
+    transition: background 0.2s;
+    user-select: none;
+  }
+  .gf-toggle:hover { background: #e2e8f0; }
+  .gf-toggle input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .gf-age-badge {
+    display: inline-block;
+    padding: 5px 14px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 12px;
+  }
+  .gf-age-badge.expecting {
+    background: #fef3c7;
+    color: #d97706;
+  }
+
+  /* ── Product Grid ─────────────────────────────────── */
+  .gf-product-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  @media (min-width: 480px) {
+    .gf-product-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .gf-pcard {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  .gf-pcard:hover {
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+  .gf-pcard.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .gf-pcard-check {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 22px;
+    height: 22px;
+    background: var(--accent);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 12px;
+    line-height: 22px;
+    text-align: center;
+  }
+  .gf-pcard.selected .gf-pcard-check { display: block; }
+  .gf-pcard-name {
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: var(--text);
+    margin-bottom: 2px;
+    line-height: 1.3;
+  }
+  .gf-pcard-size {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .gf-pcard-price {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  /* ── Color Swatches ───────────────────────────────── */
+  .gf-swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+  }
+  .gf-swatch {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .gf-swatch:hover { border-color: #cbd5e1; }
+  .gf-swatch.selected {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .gf-swatch-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.1);
+    flex-shrink: 0;
+  }
+
+  /* ── Buttons ──────────────────────────────────────── */
+  .gf-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 28px;
+  }
+  .gf-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 28px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+  }
+  .gf-btn-next {
+    background: var(--accent);
+    color: #fff;
+  }
+  .gf-btn-next:hover { background: var(--accent-hover); transform: translateY(-1px); }
+  .gf-btn-next:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; }
+  .gf-btn-back {
+    background: none;
+    color: var(--text-muted);
+    padding: 13px 14px;
+    font-weight: 500;
+  }
+  .gf-btn-back:hover { color: var(--text); }
+
+  .gf-enter-hint {
+    font-size: 0.7rem;
+    color: #cbd5e1;
+    margin-left: auto;
+  }
+  .gf-enter-hint kbd {
+    display: inline-block;
+    padding: 2px 6px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.66rem;
+    margin-right: 3px;
+  }
+
+  /* ── Address Grid ─────────────────────────────────── */
+  .gf-addr-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+  .gf-addr-row .gf-input-group { flex: 1; }
+
+  /* ── Review ───────────────────────────────────────── */
+  .gf-review-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .gf-review-table tr {
+    border-bottom: 1px solid var(--border);
+  }
+  .gf-review-table tr:last-child { border-bottom: none; }
+  .gf-review-table th {
+    text-align: left;
+    padding: 10px 12px 10px 0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+    vertical-align: top;
+    width: 100px;
+  }
+  .gf-review-table td {
+    padding: 10px 0;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* ── Thank You ────────────────────────────────────── */
+  .gf-thankyou {
+    display: none;
+    text-align: center;
+    padding: 60px 24px;
+  }
+  .gf-thankyou.active { display: block; }
+  .gf-thankyou-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+  }
+  .gf-thankyou h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .gf-thankyou p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  /* ── Error screen ─────────────────────────────────── */
+  .gf-submit-error {
+    display: none;
+    text-align: center;
+    padding: 24px;
+    background: var(--accent-soft);
+    border-radius: 12px;
+    margin-top: 16px;
+  }
+  .gf-submit-error.active { display: block; }
+  .gf-submit-error p {
+    font-size: 0.85rem;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  /* ── Spinner ──────────────────────────────────────── */
+  .gf-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: gfSpin 0.6s linear infinite;
+  }
+  @keyframes gfSpin { to { transform: rotate(360deg); } }
+
+  /* ── Product Section Labels ───────────────────────── */
+  .gf-section-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Responsive ───────────────────────────────────── */
+  @media (max-width: 480px) {
+    .gf-card { padding: 22px 18px; }
+    .gf-step-title { font-size: 1.05rem; }
+    .gf-date-row { flex-direction: column; gap: 0; }
+    .gf-addr-row { flex-direction: column; gap: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="gf-header">
+  <div class="gf-brand">GROSMIMI</div>
+  <div class="gf-brand-sub">JAPAN</div>
+  <div class="gf-title">Gifting Form</div>
+</div>
+
+<!-- Progress -->
+<div class="gf-progress" id="progress">
+  <div class="gf-progress-dot active" data-step="1"></div>
+  <div class="gf-progress-dot" data-step="2"></div>
+  <div class="gf-progress-dot" data-step="3"></div>
+  <div class="gf-progress-dot" data-step="4"></div>
+  <div class="gf-progress-dot" data-step="5"></div>
+  <div class="gf-progress-dot" data-step="6"></div>
+  <div class="gf-progress-dot" data-step="7"></div>
+  <span class="gf-progress-label" id="progressLabel">1 / 7</span>
+</div>
+
+<div class="gf-container">
+  <!-- Answered summary area -->
+  <div class="gf-answered" id="answeredSummary"></div>
+
+  <!-- Step 1: Name -->
+  <div class="gf-step active" id="step1">
+    <div class="gf-card">
+      <div class="gf-step-number">STEP 1</div>
+      <div class="gf-step-title">お名前</div>
+      <div class="gf-step-desc">フルネームをご記入ください</div>
+      <div class="gf-input-group">
+        <input type="text" class="gf-input" id="inputName" placeholder="例: 山田 ゆき" autocomplete="name">
+        <div class="gf-error-msg" id="errorName">お名前を2文字以上でご記入ください</div>
+      </div>
+      <div class="gf-actions">
+        <button class="gf-btn gf-btn-next" onclick="nextStep(1)">次へ <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 2l5 5-5 5"/></svg></button>
+        <span class="gf-enter-hint"><kbd>Enter</kbd> でも次へ</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Email -->
+  <div class="gf-step" id="step2">
+    <div class="gf-card">
+      <div class="gf-step-number">STEP 2</div>
+      <div class="gf-step-title">メールアドレス</div>
+      <div class="gf-step-desc">確認メールを送信いたします</div>
+      <div class="gf-input-group">
+        <input type="email" class="gf-input" id="inputEmail" placeholder="例: yuki@example.com" autocomplete="email">
+        <div class="gf-error-msg" id="errorEmail">有効なメールアドレスをご入力ください</div>
+      </div>
+      <div class="gf-actions">
+        <button class="gf-btn gf-btn-back" onclick="goBack(2)">&larr; 戻る</button>
+        <button class="gf-btn gf-btn-next" onclick="nextStep(2)">次へ <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 2l5 5-5 5"/></svg></button>
+        <span class="gf-enter-hint"><kbd>Enter</kbd></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: Phone -->
+  <div class="gf-step" id="step3">
+    <div class="gf-card">
+      <div class="gf-step-number">STEP 3</div>
+      <div class="gf-step-title">電話番号</div>
+      <div class="gf-step-desc">配送に関するご連絡に使用いたします</div>
+      <div class="gf-input-group">
+        <input type="tel" class="gf-input" id="inputPhone" placeholder="090-1234-5678" autocomplete="tel">
+        <div class="gf-error-msg" id="errorPhone">電話番号をご入力ください</div>
+      </div>
+      <div class="gf-actions">
+        <button class="gf-btn gf-btn-back" onclick="goBack(3)">&larr; 戻る</button>
+        <button class="gf-btn gf-btn-next" onclick="nextStep(3)">次へ <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 2l5 5-5 5"/></svg></button>
+        <span class="gf-enter-hint"><kbd>Enter</kbd></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4: Baby Birthday -->
+  <div class="gf-step" id="step4">
+    <div class="gf-card">
+      <div class="gf-step-number">STEP 4</div>
+      <div class="gf-step-title">お子様の生年月日</div>
+      <div class="gf-step-desc">月齢に合った商品をご提案します</div>
+      <div class="gf-date-row">
+        <div class="gf-input-group">
+          <label class="gf-label">年</label>
+          <select class="gf-input" id="inputYear"><option value="">選択</option></select>
+        </div>
+        <div class="gf-input-group">
+          <label class="gf-label">月</label>
+          <select class="gf-input" id="inputMonth"><option value="">選択</option></select>
+        </div>
+      </div>
+      <label class="gf-toggle" id="togglePrebirth">
+        <input type="checkbox" id="checkPrebirth" onchange="handlePrebirth()">
+        出産前です
+      </label>
+      <div id="ageBadge"></div>
+      <div class="gf-error-msg" id="errorBirthday">生年月日を選択してください</div>
+      <div class="gf-actions">
+        <button class="gf-btn gf-btn-back" onclick="goBack(4)">&larr; 戻る</button>
+        <button class="gf-btn gf-btn-next" onclick="nextStep(4)">次へ <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 2l5 5-5 5"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 5: Product Selection -->
+  <div class="gf-step" id="step5">
+    <div class="gf-card">
+      <div class="gf-step-number">STEP 5</div>
+      <div class="gf-step-title">商品選択</div>
+      <div class="gf-step-desc">ご希望の商品と色をお選びください</div>
+      <div id="productArea"></div>
+      <div class="gf-error-msg" id="errorProduct" style="display:none">商品と色をお選びください</div>
+      <div class="gf-actions">
+        <button class="gf-btn gf-btn-back" onclick="goBack(5)">&larr; 戻る</button>
+        <button class="gf-btn gf-btn-next" onclick="nextStep(5)">次へ <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 2l5 5-5 5"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 6: Address -->
+  <div class="gf-step" id="step6">
+    <div class="gf-card">
+      <div class="gf-step-number">STEP 6</div>
+      <div class="gf-step-title">お届け先住所</div>
+      <div class="gf-step-desc">ギフティング商品の配送先をご記入ください</div>
+      <div class="gf-input-group">
+        <label class="gf-label">〒 郵便番号</label>
+        <input type="text" class="gf-input" id="inputPostal" placeholder="123-4567" maxlength="8" autocomplete="postal-code">
+        <div class="gf-error-msg" id="errorPostal">7桁の郵便番号をご入力ください</div>
+      </div>
+      <div class="gf-input-group">
+        <label class="gf-label">都道府県</label>
+        <select class="gf-input" id="inputPrefecture"><option value="">選択してください</option></select>
+      </div>
+      <div class="gf-input-group">
+        <label class="gf-label">市区町村</label>
+        <input type="text" class="gf-input" id="inputCity" placeholder="例: 渋谷区" autocomplete="address-level2">
+      </div>
+      <div class="gf-input-group">
+        <label class="gf-label">番地・建物名</label>
+        <input type="text" class="gf-input" id="inputAddress" placeholder="例: 神宮前1-2-3 ABCマンション 301" autocomplete="street-address">
+      </div>
+      <div class="gf-error-msg" id="errorAddress">住所をすべてご入力ください</div>
+      <div class="gf-actions">
+        <button class="gf-btn gf-btn-back" onclick="goBack(6)">&larr; 戻る</button>
+        <button class="gf-btn gf-btn-next" onclick="nextStep(6)">確認画面へ <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 2l5 5-5 5"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 7: Review + Submit -->
+  <div class="gf-step" id="step7">
+    <div class="gf-card">
+      <div class="gf-step-number">CONFIRM</div>
+      <div class="gf-step-title">入力内容の確認</div>
+      <div class="gf-step-desc">以下の内容で送信します。修正が必要な場合は各項目をタップしてください。</div>
+      <table class="gf-review-table" id="reviewTable"></table>
+      <div class="gf-submit-error" id="submitError">
+        <p>送信に失敗しました。もう一度お試しください。</p>
+        <button class="gf-btn gf-btn-next" onclick="submitForm()" style="font-size:0.82rem;padding:10px 22px;">再送信</button>
+      </div>
+      <div class="gf-actions">
+        <button class="gf-btn gf-btn-back" onclick="goBack(7)">&larr; 戻る</button>
+        <button class="gf-btn gf-btn-next" id="btnSubmit" onclick="submitForm()">送信する <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 2l5 5-5 5"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Thank You -->
+  <div class="gf-thankyou" id="thankYou">
+    <div class="gf-card">
+      <div class="gf-thankyou-icon">&#10003;</div>
+      <h2>ありがとうございます!</h2>
+      <p>ギフティングのお申し込みを受け付けました。<br>確認メールをお送りしますので、しばらくお待ちください。</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── URL Params ──────────────────────────────────────
+const urlParams = new URLSearchParams(window.location.search);
+const paramHandle = urlParams.get('handle') || '';
+const paramName = urlParams.get('name') || '';
+
+// ── State ───────────────────────────────────────────
+let currentStep = 1;
+const totalSteps = 7;
+let formData = { name: '', email: '', phone: '', year: '', month: '', prebirth: false, product: null, color: '', postal: '', prefecture: '', city: '', addressLine: '' };
+let calculatedAge = null;
+
+// ── Products DB ─────────────────────────────────────
+const COLOR_MAP = {
+  'White': '#f5f5f0', 'Charcoal': '#4a4a4a', 'Pink': '#f5a0b8',
+  'Sky Blue': '#87ceeb', 'Bear Butter': '#f0d58c', 'Olive Pistachio': '#a8c68f',
+  'Cherry Peach': '#f5b0a0', 'Pink Unicorn': '#f0a0c0', 'Green Dinosaur': '#7bc47f'
+};
+
+const PRODUCTS = [
+  { id: 'ppsu_bottle_150', name: 'PPSU 哺乳瓶', size: '150ml', price: 2990, ageMin: -1, ageMax: 6, colors: ['White','Charcoal','Pink','Sky Blue'] },
+  { id: 'ppsu_bottle_250', name: 'PPSU 哺乳瓶', size: '250ml', price: 3390, ageMin: -1, ageMax: 6, colors: ['White','Charcoal','Pink','Sky Blue'] },
+  { id: 'ppsu_straw_200', name: 'PPSU ストローカップ', size: '200ml', price: 3190, ageMin: 6, ageMax: 18, colors: ['White','Charcoal','Pink','Sky Blue'] },
+  { id: 'ppsu_straw_300', name: 'PPSU ストローカップ', size: '300ml', price: 3600, ageMin: 6, ageMax: 18, colors: ['White','Charcoal','Pink','Sky Blue'] },
+  { id: 'ss_straw_200', name: 'ステンレス ストローカップ', size: '200ml', price: 5800, ageMin: 6, ageMax: 36, colors: ['Bear Butter','Olive Pistachio','Cherry Peach'] },
+  { id: 'ss_straw_300', name: 'ステンレス ストローカップ', size: '300ml', price: 6200, ageMin: 6, ageMax: 36, colors: ['Bear Butter','Olive Pistachio','Cherry Peach'] },
+  { id: 'ppsu_onetouch_300', name: 'PPSU ワンタッチ', size: '300ml', price: 4200, ageMin: 18, ageMax: 36, colors: ['Pink Unicorn','Green Dinosaur'] },
+];
+
+// ── Prefectures ─────────────────────────────────────
+const PREFECTURES = [
+  '北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県',
+  '茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県',
+  '新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県',
+  '三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県',
+  '鳥取県','島根県','岡山県','広島県','山口県',
+  '徳島県','香川県','愛媛県','高知県',
+  '福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'
+];
+
+// ── Init ────────────────────────────────────────────
+function init() {
+  // Pre-fill name
+  if (paramName) {
+    document.getElementById('inputName').value = paramName;
+    formData.name = paramName;
+  }
+
+  // Populate year dropdown (current year down to 5 years ago + next year for prebirth)
+  const yearSel = document.getElementById('inputYear');
+  const now = new Date();
+  const curYear = now.getFullYear();
+  for (let y = curYear + 1; y >= curYear - 5; y--) {
+    const opt = document.createElement('option');
+    opt.value = y; opt.textContent = y + '年';
+    yearSel.appendChild(opt);
+  }
+
+  // Populate month dropdown
+  const monthSel = document.getElementById('inputMonth');
+  for (let m = 1; m <= 12; m++) {
+    const opt = document.createElement('option');
+    opt.value = m; opt.textContent = m + '月';
+    monthSel.appendChild(opt);
+  }
+
+  // Populate prefectures
+  const prefSel = document.getElementById('inputPrefecture');
+  PREFECTURES.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p; opt.textContent = p;
+    prefSel.appendChild(opt);
+  });
+
+  // Year/Month change -> recalc age
+  yearSel.addEventListener('change', recalcAge);
+  monthSel.addEventListener('change', recalcAge);
+
+  // Postal code auto-format
+  document.getElementById('inputPostal').addEventListener('input', function(e) {
+    let v = e.target.value.replace(/[^0-9]/g, '');
+    if (v.length > 3) v = v.slice(0, 3) + '-' + v.slice(3, 7);
+    e.target.value = v;
+  });
+
+  // Enter key navigation
+  document.querySelectorAll('.gf-input').forEach(input => {
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const step = this.closest('.gf-step');
+        if (step) {
+          const stepNum = parseInt(step.id.replace('step', ''));
+          nextStep(stepNum);
+        }
+      }
+    });
+  });
+}
+
+// ── Age Calculation ─────────────────────────────────
+function recalcAge() {
+  const y = parseInt(document.getElementById('inputYear').value);
+  const m = parseInt(document.getElementById('inputMonth').value);
+  const badge = document.getElementById('ageBadge');
+
+  if (!y || !m) { badge.innerHTML = ''; calculatedAge = null; return; }
+
+  const now = new Date();
+  const bd = new Date(y, m - 1, 15);
+  const months = (now.getFullYear() - bd.getFullYear()) * 12 + (now.getMonth() - bd.getMonth());
+
+  if (months < 0) {
+    calculatedAge = -1;
+    badge.innerHTML = '<span class="gf-age-badge expecting">出産予定</span>';
+  } else {
+    calculatedAge = months;
+    if (months < 12) {
+      badge.innerHTML = `<span class="gf-age-badge">現在 ${months}ヶ月</span>`;
+    } else {
+      const yrs = Math.floor(months / 12);
+      const rem = months % 12;
+      badge.innerHTML = `<span class="gf-age-badge">現在 ${yrs}歳${rem > 0 ? rem + 'ヶ月' : ''}</span>`;
+    }
+  }
+}
+
+function handlePrebirth() {
+  const checked = document.getElementById('checkPrebirth').checked;
+  const yearSel = document.getElementById('inputYear');
+  const monthSel = document.getElementById('inputMonth');
+  const badge = document.getElementById('ageBadge');
+
+  if (checked) {
+    yearSel.disabled = true;
+    monthSel.disabled = true;
+    yearSel.value = '';
+    monthSel.value = '';
+    calculatedAge = -1;
+    formData.prebirth = true;
+    badge.innerHTML = '<span class="gf-age-badge expecting">出産前</span>';
+  } else {
+    yearSel.disabled = false;
+    monthSel.disabled = false;
+    formData.prebirth = false;
+    badge.innerHTML = '';
+    calculatedAge = null;
+  }
+}
+
+// ── Product Rendering ───────────────────────────────
+function renderProducts() {
+  const area = document.getElementById('productArea');
+  const age = calculatedAge;
+  if (age === null) { area.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">先にお子様の生年月日を入力してください</p>'; return; }
+
+  let eligible;
+  if (age < 0) {
+    eligible = PRODUCTS.filter(p => p.ageMin <= 0);
+  } else {
+    eligible = PRODUCTS.filter(p => age >= p.ageMin && age < p.ageMax);
+  }
+
+  if (eligible.length === 0) {
+    area.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">該当する商品がありません。お子様の月齢をご確認ください。</p>';
+    return;
+  }
+
+  let html = '<div class="gf-product-grid">';
+  eligible.forEach(p => {
+    const sel = formData.product && formData.product.id === p.id ? 'selected' : '';
+    html += `
+      <div class="gf-pcard ${sel}" onclick="selectProduct('${p.id}')" data-pid="${p.id}">
+        <div class="gf-pcard-check">&#10003;</div>
+        <div class="gf-pcard-name">${p.name}</div>
+        <div class="gf-pcard-size">${p.size}</div>
+        <div class="gf-pcard-price">&yen;${p.price.toLocaleString()}</div>
+        <div class="gf-swatches" id="swatches-${p.id}">
+          ${p.colors.map(c => {
+            const dotColor = COLOR_MAP[c] || '#ccc';
+            const selC = formData.product && formData.product.id === p.id && formData.color === c ? 'selected' : '';
+            return `<span class="gf-swatch ${selC}" onclick="event.stopPropagation();selectColor('${p.id}','${c}')" data-color="${c}">
+              <span class="gf-swatch-dot" style="background:${dotColor}"></span>${c}
+            </span>`;
+          }).join('')}
+        </div>
+      </div>`;
+  });
+  html += '</div>';
+  area.innerHTML = html;
+}
+
+function selectProduct(pid) {
+  const p = PRODUCTS.find(x => x.id === pid);
+  if (!p) return;
+  formData.product = p;
+  formData.color = '';
+  // Re-render to update selection
+  renderProducts();
+}
+
+function selectColor(pid, color) {
+  const p = PRODUCTS.find(x => x.id === pid);
+  if (!p) return;
+  formData.product = p;
+  formData.color = color;
+  renderProducts();
+}
+
+// ── Step Navigation ─────────────────────────────────
+function nextStep(from) {
+  if (!validateStep(from)) return;
+  saveStepData(from);
+
+  if (from === 4) renderProducts();
+  if (from === 6) buildReview();
+
+  currentStep = from + 1;
+  showStep(currentStep);
+}
+
+function goBack(to) {
+  currentStep = to - 1;
+  showStep(currentStep);
+}
+
+function goToStep(step) {
+  currentStep = step;
+  showStep(step);
+}
+
+function showStep(step) {
+  // Hide all steps
+  document.querySelectorAll('.gf-step').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('step' + step);
+  if (el) el.classList.add('active');
+
+  // Update progress
+  document.querySelectorAll('.gf-progress-dot').forEach(d => {
+    const ds = parseInt(d.dataset.step);
+    d.classList.remove('active', 'done');
+    if (ds === step) d.classList.add('active');
+    else if (ds < step) d.classList.add('done');
+  });
+  document.getElementById('progressLabel').textContent = step + ' / ' + totalSteps;
+
+  // Build answered summary
+  buildAnsweredSummary(step);
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Answered Summary ────────────────────────────────
+const STEP_LABELS = {
+  1: { label: 'お名前', getter: () => formData.name },
+  2: { label: 'メール', getter: () => formData.email },
+  3: { label: '電話番号', getter: () => formData.phone },
+  4: { label: '生年月日', getter: () => {
+    if (formData.prebirth) return '出産前';
+    if (formData.year && formData.month) return formData.year + '年' + formData.month + '月';
+    return '';
+  }},
+  5: { label: '商品', getter: () => {
+    if (!formData.product) return '';
+    return formData.product.name + ' ' + formData.product.size + (formData.color ? ' / ' + formData.color : '');
+  }},
+  6: { label: '住所', getter: () => {
+    if (!formData.prefecture) return '';
+    return formData.prefecture + formData.city;
+  }},
+};
+
+function buildAnsweredSummary(currentStep) {
+  const container = document.getElementById('answeredSummary');
+  let html = '';
+  for (let i = 1; i < currentStep; i++) {
+    const info = STEP_LABELS[i];
+    if (!info) continue;
+    const val = info.getter();
+    if (!val) continue;
+    html += `
+      <div class="gf-answered-item" onclick="goToStep(${i})">
+        <div>
+          <div class="gf-answered-label">${info.label}</div>
+          <div class="gf-answered-value">${val}</div>
+        </div>
+        <div class="gf-answered-edit">変更</div>
+      </div>`;
+  }
+  container.innerHTML = html;
+}
+
+// ── Validation ──────────────────────────────────────
+function validateStep(step) {
+  clearErrors();
+  switch (step) {
+    case 1: {
+      const v = document.getElementById('inputName').value.trim();
+      if (v.length < 2) { showError('inputName', 'errorName'); return false; }
+      return true;
+    }
+    case 2: {
+      const v = document.getElementById('inputEmail').value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { showError('inputEmail', 'errorEmail'); return false; }
+      return true;
+    }
+    case 3: {
+      const v = document.getElementById('inputPhone').value.trim().replace(/[-\s]/g, '');
+      if (v.length < 10) { showError('inputPhone', 'errorPhone'); return false; }
+      return true;
+    }
+    case 4: {
+      const pb = document.getElementById('checkPrebirth').checked;
+      if (!pb) {
+        const y = document.getElementById('inputYear').value;
+        const m = document.getElementById('inputMonth').value;
+        if (!y || !m) {
+          document.getElementById('errorBirthday').style.display = 'block';
+          return false;
+        }
+      }
+      return true;
+    }
+    case 5: {
+      if (!formData.product || !formData.color) {
+        document.getElementById('errorProduct').style.display = 'block';
+        return false;
+      }
+      return true;
+    }
+    case 6: {
+      const postal = document.getElementById('inputPostal').value.replace(/[-\s]/g, '');
+      const pref = document.getElementById('inputPrefecture').value;
+      const city = document.getElementById('inputCity').value.trim();
+      const addr = document.getElementById('inputAddress').value.trim();
+      if (postal.length !== 7) { showError('inputPostal', 'errorPostal'); return false; }
+      if (!pref || !city || !addr) {
+        document.getElementById('errorAddress').style.display = 'block';
+        return false;
+      }
+      return true;
+    }
+  }
+  return true;
+}
+
+function showError(inputId, errorId) {
+  document.getElementById(inputId).classList.add('error');
+  document.getElementById(errorId).style.display = 'block';
+}
+
+function clearErrors() {
+  document.querySelectorAll('.gf-input.error').forEach(e => e.classList.remove('error'));
+  document.querySelectorAll('.gf-error-msg').forEach(e => e.style.display = 'none');
+}
+
+// ── Save Step Data ──────────────────────────────────
+function saveStepData(step) {
+  switch (step) {
+    case 1: formData.name = document.getElementById('inputName').value.trim(); break;
+    case 2: formData.email = document.getElementById('inputEmail').value.trim(); break;
+    case 3: formData.phone = document.getElementById('inputPhone').value.trim(); break;
+    case 4:
+      formData.prebirth = document.getElementById('checkPrebirth').checked;
+      formData.year = document.getElementById('inputYear').value;
+      formData.month = document.getElementById('inputMonth').value;
+      break;
+    case 6:
+      formData.postal = document.getElementById('inputPostal').value.trim();
+      formData.prefecture = document.getElementById('inputPrefecture').value;
+      formData.city = document.getElementById('inputCity').value.trim();
+      formData.addressLine = document.getElementById('inputAddress').value.trim();
+      break;
+  }
+}
+
+// ── Review ──────────────────────────────────────────
+function buildReview() {
+  const birthday = formData.prebirth ? '出産前' : (formData.year + '年' + formData.month + '月');
+  let ageLabel = '';
+  if (calculatedAge !== null) {
+    if (calculatedAge < 0) ageLabel = '出産前';
+    else if (calculatedAge < 12) ageLabel = calculatedAge + 'ヶ月';
+    else {
+      const y = Math.floor(calculatedAge / 12);
+      const r = calculatedAge % 12;
+      ageLabel = y + '歳' + (r > 0 ? r + 'ヶ月' : '');
+    }
+  }
+  const productLabel = formData.product ? (formData.product.name + ' ' + formData.product.size) : '';
+  const addrLabel = '〒' + formData.postal + ' ' + formData.prefecture + formData.city + ' ' + formData.addressLine;
+
+  const rows = [
+    ['お名前', formData.name],
+    ['メール', formData.email],
+    ['電話番号', formData.phone],
+    ['生年月日', birthday + (ageLabel ? ' (' + ageLabel + ')' : '')],
+    ['商品', productLabel],
+    ['カラー', formData.color],
+    ['価格', formData.product ? ('&yen;' + formData.product.price.toLocaleString()) : ''],
+    ['お届け先', addrLabel],
+  ];
+
+  let html = '';
+  rows.forEach(([th, td]) => {
+    html += `<tr><th>${th}</th><td>${td}</td></tr>`;
+  });
+  document.getElementById('reviewTable').innerHTML = html;
+}
+
+// ── Submit ──────────────────────────────────────────
+async function submitForm() {
+  const btn = document.getElementById('btnSubmit');
+  const errDiv = document.getElementById('submitError');
+  errDiv.classList.remove('active');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="gf-spinner"></span> 送信中...';
+
+  const birthday = formData.prebirth ? 'prebirth' : (formData.year + '-' + String(formData.month).padStart(2, '0'));
+
+  const payload = {
+    action: 'submit_form',
+    handle: paramHandle,
+    name: formData.name,
+    email: formData.email,
+    phone: formData.phone,
+    child_birthday: birthday,
+    child_age_months: calculatedAge,
+    product: formData.product ? formData.product.name : '',
+    product_size: formData.product ? formData.product.size : '',
+    color: formData.color,
+    address: {
+      postal: formData.postal,
+      prefecture: formData.prefecture,
+      city: formData.city,
+      line: formData.addressLine
+    }
+  };
+
+  try {
+    const resp = await fetch('https://n8n.orbiters.co.kr/webhook/jp-pipeline-api', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+
+    // Success
+    document.querySelectorAll('.gf-step').forEach(s => s.classList.remove('active'));
+    document.getElementById('answeredSummary').innerHTML = '';
+    document.getElementById('thankYou').classList.add('active');
+    document.querySelector('.gf-progress').style.display = 'none';
+  } catch (err) {
+    console.error('Submit error:', err);
+    btn.disabled = false;
+    btn.innerHTML = '送信する <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 2l5 5-5 5"/></svg>';
+    errDiv.classList.add('active');
+  }
+}
+
+// ── Boot ────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
