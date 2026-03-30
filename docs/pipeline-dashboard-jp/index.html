@@ -500,7 +500,12 @@ document.querySelectorAll('.mt>div').forEach(function(t) {
 
 // ─── n8n API helpers ───
 function n8nGet() {
-  return fetch(N8N_LIST).then(function(r) { return r.json(); });
+  // Use POST with list action instead of GET (CORS issue with GET respond headers)
+  return fetch(N8N_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'list_creators' })
+  }).then(function(r) { return r.json(); });
 }
 
 function n8nPost(body) {
