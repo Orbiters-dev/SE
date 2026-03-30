@@ -854,8 +854,9 @@ def collect_amazon_sales(date_from: str, date_to: str) -> list[dict]:
             }, timeout=30)
             r.raise_for_status()
             sp_headers["x-amz-access-token"] = r.json()["access_token"]
-        except Exception:
-            pass  # Use existing token if refresh fails
+            print(f"  [{seller['name']}] Token refreshed for FBA fees")
+        except Exception as e:
+            print(f"  [{seller['name']}] Token refresh failed: {e} — using existing token")
 
         # Fetch FBA fee estimates (ASIN -> per-unit fulfillment cost)
         print(f"  [{seller['name']}] Fetching FBA fee estimates...")
@@ -1069,6 +1070,7 @@ def _fetch_fba_fees(headers, seller, marketplace_id) -> dict:
 
         lines = content.decode("utf-8", errors="replace").strip().split("\n")
         if len(lines) < 2:
+            print(f"    [WARN] FBA fees report: empty ({len(lines)} lines)")
             return {}
 
         hdr = [h.strip() for h in lines[0].split("\t")]

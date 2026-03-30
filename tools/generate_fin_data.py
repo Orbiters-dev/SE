@@ -273,7 +273,7 @@ CHANNEL_PNL_COLORS = {
 def generate():
     import argparse
     parser = argparse.ArgumentParser(description="Generate Financial KPIs data")
-    parser.add_argument("--months", type=int, default=14)
+    parser.add_argument("--months", type=int, default=15)
     parser.add_argument("--push", action="store_true")
     args = parser.parse_args()
 
@@ -1434,23 +1434,46 @@ def generate():
         wk = _week_key(d)
         amz_fees_weekly[wk] += float(r.get("fees") or 0)
 
-    # Build monthly FBA fulfillment costs from amazon_sales_sku_daily
+    # Build monthly FBA fulfillment costs
+    # Strategy: load FBA fee snapshot (ASIN -> per-unit fee), apply to SKU daily units
     amz_fulfill_monthly = defaultdict(float)
     amz_fulfill_weekly = defaultdict(float)
     has_fba_fees = False
-    for r in amazon_sku:
-        d = r.get("date", "")
-        if not d or d > through:
-            continue
-        fba_total = float(r.get("fba_fee_total", 0) or 0)
-        if fba_total > 0:
-            has_fba_fees = True
-            amz_fulfill_monthly[d[:7]] += fba_total
-            amz_fulfill_weekly[_week_key(d)] += fba_total
+
+    # Load FBA fee snapshot from local cache (written by data_keeper.py)
+    fba_snapshot_path = Path(".tmp/datakeeper/amazon_fba_fees.json")
+    asin_fba_fee = {}  # asin -> per-unit FBA fee
+    if fba_snapshot_path.exists():
+        try:
+            import json as _json
+            fba_list = _json.loads(fba_snapshot_path.read_text(encoding="utf-8"))
+            for item in fba_list:
+                asin = item.get("asin", "")
+                fee = float(item.get("fba_fee", 0) or 0)
+                if asin and fee > 0:
+                    asin_fba_fee[asin] = fee
+        except Exception as e:
+            print(f"  [WARN] FBA snapshot load failed: {e}")
+
+    if asin_fba_fee:
+        # Apply FBA fee to each SKU row by ASIN matching
+        for r in amazon_sku:
+            d = r.get("date", "")
+            if not d or d > through:
+                continue
+            asin = r.get("asin", "")
+            fee = asin_fba_fee.get(asin, 0)
+            if fee > 0:
+                units = int(r.get("units", 0) or 0)
+                fba_total = fee * units
+                has_fba_fees = True
+                amz_fulfill_monthly[d[:7]] += fba_total
+                amz_fulfill_weekly[_week_key(d)] += fba_total
+
     if has_fba_fees:
-        print(f"  FBA fulfillment: {sum(amz_fulfill_monthly.values()):,.0f} total across {len(amz_fulfill_monthly)} months")
+        print(f"  FBA fulfillment: ${sum(amz_fulfill_monthly.values()):,.0f} total across {len(amz_fulfill_monthly)} months ({len(asin_fba_fee)} ASINs matched)")
     else:
-        print("  FBA fulfillment: no data (run amazon_sales collection to fetch FBA fees)")
+        print("  FBA fulfillment: no data (run: python tools/data_keeper.py --channel amazon_sales)")
 
     # Channel P&L structure: revenue/cogs/selling_fees/fulfillment/ad_spend/gm/cm per month
     # Selling fees: Amazon 15%, Target+ 15%, Shopify 0%, B2B 0%
