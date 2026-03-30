@@ -845,6 +845,9 @@ def cancel_person_entries(ws, date_ranges: list, kr_holidays: set) -> int:
 
 def rebuild_summary(wb, year: int):
     ws = wb["Summary"]
+    # 병합셀 해제 후 초기화
+    for merge in list(ws.merged_cells.ranges):
+        ws.unmerge_cells(str(merge))
     for row in ws.iter_rows(min_row=2, max_row=ws.max_row):
         for cell in row:
             cell.value = None; cell.fill = NO_FILL

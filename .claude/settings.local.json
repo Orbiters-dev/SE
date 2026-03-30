@@ -15,7 +15,18 @@
       "Bash(node -e \"const {execSync} = require\\(''child_process''\\); try { const files = execSync\\(''dir \"\"C:\\\\\\\\Users\\\\\\\\wjcho\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Microsoft\\\\\\\\WindowsApps\"\" /b''\\).toString\\(\\); console.log\\(files.split\\(''\\\\r\\\\n''\\).filter\\(f => f.toLowerCase\\(\\).includes\\(''python''\\)\\).join\\(''\\\\n''\\) || ''no python files''\\); } catch\\(e\\) { console.log\\(''error: '' + e.message\\); }\")",
       "Bash(python:*)",
       "Bash(curl:*)"
+    ],
+    "additionalDirectories": [
+      "\\\\orbiters\\Orbiters\\ORBI CLAUDE_0223\\ORBITERS CLAUDE\\ORBITERS CLAUDE\\ORBITERS CLAUDE\\동균 테스트\\.tmp"
     ]
+  },
+  "sandbox": {
+    "network": {
+      "allowedDomains": [
+        "login.microsoftonline.com",
+        "graph.microsoft.com"
+      ]
+    }
   },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
