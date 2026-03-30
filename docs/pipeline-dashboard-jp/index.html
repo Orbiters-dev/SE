@@ -782,40 +782,7 @@ function renderDailyKpi() {
   document.getElementById('daily-kpi-tbody').innerHTML = html || '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--dim)">No data yet</td></tr>';
 }
 
-// ─── Dashboard: DM Queue (now only used internally) ───
-function renderDmQueue() {
-  var drafts = _creators.filter(function(c) { return c.status === 'draft_ready'; });
-  var html = '';
-  if (isOverLimit()) html += '<div class="dm-limit-banner">&#x26A0;&#xFE0F; Daily DM limit reached (' + _dmSentToday + '/' + _dailyLimit + '). Come back tomorrow!</div>';
-  if (!drafts.length) {
-    html += '<div style="text-align:center;padding:40px;color:var(--dim)">No drafts pending. Generate drafts from the DM Drafts tab.</div>';
-    document.getElementById('dm-queue').innerHTML = html;
-    return;
-  }
-  drafts.forEach(function(c) {
-    var dmLink = 'https://ig.me/m/' + c.username;
-    html += '<div class="dm-card">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:center">';
-    html += '<div style="cursor:pointer" onclick="openDmThread(\'' + c.username + '\')"><span class="dm-handle">@' + c.username + '</span> <span style="font-size:10px;color:var(--dim)">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + '</span>';
-    if (c.dm_count > 0) html += ' <span class="b c">' + c.dm_count + ' msgs</span>';
-    html += '</div>';
-    html += '<div style="display:flex;gap:4px">';
-    html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')">&#x1F4AC;</button>';
-    html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary"' + (isOverLimit() ? ' style="opacity:.4;pointer-events:none"' : '') + '>&#x2197; IG</a>';
-    html += '</div>';
-    html += '</div>';
-    if (c.dm_draft) {
-      html += '<textarea class="dm-edit" id="dmq-body-' + c.username + '" rows="5" oninput="saveDraftEdit(\'' + c.username + '\',this.value)">' + escapeHtml(c.dm_draft) + '</textarea>';
-      html += '<div class="dm-actions">';
-      html += '<button class="copy-btn" onclick="copyDraft(\'' + c.username + '\',this)">&#x1F4CB; Copy</button>';
-      if (!isOverLimit()) html += '<button class="btn btn-sm btn-success" onclick="markSent(\'' + c.username + '\')">&#x2705; Mark Sent</button>';
-      else html += '<span class="b r" style="padding:4px 8px">Limit reached</span>';
-      html += '</div>';
-    }
-    html += '</div>';
-  });
-  document.getElementById('dm-queue').innerHTML = html;
-}
+function renderDmQueue() { /* removed — DM Drafts tab handles this now */ }
 
 // ─── Dashboard: Inbound Queue ───
 function renderInboundQueue() {
