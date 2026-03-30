@@ -621,59 +621,52 @@ function renderFinancial(){
   traf+='</div></div>';
 
   traf+='<div id="ct-content"></div>';
-  traf+='<script>';
-  traf+='var CT_DATA='+JSON.stringify(CT)+';';
-  traf+='var CT_PERIOD="30d";';
-  traf+='function switchCtPeriod(p,el){CT_PERIOD=p;renderCt();document.querySelectorAll("#ct-period-tabs>div").forEach(function(d){d.className=d.dataset.ctp===p?"on":"";});}';
-  traf+='function renderCt(){';
-  traf+='var d=CT_DATA[CT_PERIOD]||{};';
-  traf+='var onz=d.onzenna||{};var amz=d.amazon||{};var meta=d.meta_detail||{};';
-  traf+='var h="";';
 
-  // Two-column layout: Onzenna vs Amazon
-  traf+='h+="<div style=\\"display:grid;grid-template-columns:1fr 1fr;gap:12px\\">";';
-
-  // Onzenna column
-  traf+='h+="<div class=\\"card\\"><h3 style=\\"color:#6366f1;margin-bottom:8px\\">Onzenna D2C (GA4 Sessions)</h3>";';
-  traf+='h+="<div style=\\"font-size:24px;font-weight:800;color:#6366f1;margin-bottom:12px\\">"+(onz.total_sessions||0).toLocaleString()+" sessions</div>";';
-  traf+='h+="<table><thead><tr><th>Source</th><th style=\\"text-align:right\\">Sessions</th><th style=\\"text-align:right\\">%</th><th style=\\"text-align:right\\">Purchases</th></tr></thead><tbody>";';
-  traf+='(onz.sources||[]).forEach(function(s){';
-  traf+='h+="<tr><td style=\\"font-size:10px\\">"+s.source+"</td>";';
-  traf+='h+="<td style=\\"text-align:right;font-family:var(--mono);font-size:10px\\">"+s.sessions.toLocaleString()+"</td>";';
-  traf+='h+="<td style=\\"text-align:right;font-family:var(--mono);font-size:9px;color:var(--dim)\\">"+s.pct+"%</td>";';
-  traf+='h+="<td style=\\"text-align:right;font-family:var(--mono);font-size:10px\\">"+(s.purchases||0)+"</td></tr>";';
-  traf+='});';
-  traf+='h+="</tbody></table></div>";';
-
-  // Amazon column
-  traf+='h+="<div class=\\"card\\"><h3 style=\\"color:#f59e0b;margin-bottom:8px\\">Amazon MP (Ad Clicks + Traffic)</h3>";';
-  traf+='h+="<div style=\\"font-size:24px;font-weight:800;color:#f59e0b;margin-bottom:12px\\">"+(amz.total_clicks||0).toLocaleString()+" paid clicks</div>";';
-  traf+='h+="<div style=\\"font-size:9px;color:var(--dim);margin-bottom:8px\\">Amazon does not share session data. Showing paid clicks only. Organic search traffic is not measurable.</div>";';
-  traf+='h+="<table><thead><tr><th>Source</th><th style=\\"text-align:right\\">Clicks</th><th style=\\"text-align:right\\">%</th></tr></thead><tbody>";';
-  traf+='(amz.sources||[]).forEach(function(s){';
-  traf+='if(s.sessions>0){';
-  traf+='h+="<tr><td style=\\"font-size:10px\\">"+s.source+"</td>";';
-  traf+='h+="<td style=\\"text-align:right;font-family:var(--mono);font-size:10px\\">"+s.sessions.toLocaleString()+"</td>";';
-  traf+='h+="<td style=\\"text-align:right;font-family:var(--mono);font-size:9px;color:var(--dim)\\">"+s.pct+"%</td></tr>";';
-  traf+='}else{';
-  traf+='h+="<tr><td style=\\"font-size:10px;color:var(--muted)\\">"+s.source+"</td>";';
-  traf+='h+="<td style=\\"text-align:right;font-size:9px;color:#9ca3af\\">n.m.</td><td></td></tr>";';
-  traf+='}});';
-  traf+='h+="</tbody></table></div>";';
-  traf+='h+="</div>";';
-
-  // Meta breakdown summary
-  traf+='h+="<div class=\\"card\\" style=\\"margin-top:8px\\"><h3 style=\\"color:#3b82f6;margin-bottom:6px\\">Meta Ads Click Distribution</h3>";';
-  traf+='h+="<div style=\\"display:flex;gap:20px\\">";';
-  traf+='h+="<div><div style=\\"font-size:9px;color:var(--dim)\\">CVR (Onzenna landing)</div><div style=\\"font-size:18px;font-weight:700;color:#6366f1\\">"+(meta.cvr_clicks||0).toLocaleString()+" clicks</div></div>";';
-  traf+='h+="<div><div style=\\"font-size:9px;color:var(--dim)\\">Traffic (AMZ landing)</div><div style=\\"font-size:18px;font-weight:700;color:#f59e0b\\">"+(meta.traffic_clicks||0).toLocaleString()+" clicks</div></div>";';
-  traf+='h+="<div><div style=\\"font-size:9px;color:var(--dim)\\">Google Ads</div><div style=\\"font-size:18px;font-weight:700;color:#10b981\\">"+(d.google_clicks||0).toLocaleString()+" clicks</div></div>";';
-  traf+='h+="</div></div>";';
-
-  traf+='document.getElementById("ct-content").innerHTML=h;';
-  traf+='}';
-  traf+='setTimeout(renderCt,100);';
-  traf+='<\/script>';
+  // Store CT data and define render function globally
+  window.CT_DATA=CT;
+  window.CT_PERIOD="30d";
+  window.switchCtPeriod=function(p){window.CT_PERIOD=p;window.renderCt();document.querySelectorAll("#ct-period-tabs>div").forEach(function(d){d.className=d.dataset.ctp===p?"on":"";});};
+  window.renderCt=function(){
+    var d=window.CT_DATA[window.CT_PERIOD]||{};
+    var onz=d.onzenna||{};var amz=d.amazon||{};var meta=d.meta_detail||{};
+    var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
+    // Onzenna
+    h+='<div class="card"><h3 style="color:#6366f1;margin-bottom:8px">Onzenna D2C (GA4 Sessions)</h3>';
+    h+='<div style="font-size:24px;font-weight:800;color:#6366f1;margin-bottom:12px">'+(onz.total_sessions||0).toLocaleString()+' sessions</div>';
+    h+='<table><thead><tr><th>Source</th><th style="text-align:right">Sessions</th><th style="text-align:right">%</th><th style="text-align:right">Purchases</th></tr></thead><tbody>';
+    (onz.sources||[]).forEach(function(s){
+      h+='<tr><td style="font-size:10px">'+s.source+'</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+s.sessions.toLocaleString()+'</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--dim)">'+s.pct+'%</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+(s.purchases||0)+'</td></tr>';
+    });
+    h+='</tbody></table></div>';
+    // Amazon
+    h+='<div class="card"><h3 style="color:#f59e0b;margin-bottom:8px">Amazon MP (Ad Clicks + Traffic)</h3>';
+    h+='<div style="font-size:24px;font-weight:800;color:#f59e0b;margin-bottom:12px">'+(amz.total_clicks||0).toLocaleString()+' paid clicks</div>';
+    h+='<div style="font-size:9px;color:var(--dim);margin-bottom:8px">Amazon does not share session data. Showing paid clicks only.</div>';
+    h+='<table><thead><tr><th>Source</th><th style="text-align:right">Clicks</th><th style="text-align:right">%</th></tr></thead><tbody>';
+    (amz.sources||[]).forEach(function(s){
+      if(s.sessions>0){
+        h+='<tr><td style="font-size:10px">'+s.source+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+s.sessions.toLocaleString()+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--dim)">'+s.pct+'%</td></tr>';
+      }else{
+        h+='<tr><td style="font-size:10px;color:var(--muted)">'+s.source+'</td>';
+        h+='<td style="text-align:right;font-size:9px;color:#9ca3af">n.m.</td><td></td></tr>';
+      }
+    });
+    h+='</tbody></table></div></div>';
+    // Meta breakdown
+    h+='<div class="card" style="margin-top:8px"><h3 style="color:#3b82f6;margin-bottom:6px">Meta Ads Click Distribution</h3>';
+    h+='<div style="display:flex;gap:20px">';
+    h+='<div><div style="font-size:9px;color:var(--dim)">CVR (Onzenna landing)</div><div style="font-size:18px;font-weight:700;color:#6366f1">'+(meta.cvr_clicks||0).toLocaleString()+' clicks</div></div>';
+    h+='<div><div style="font-size:9px;color:var(--dim)">Traffic (AMZ landing)</div><div style="font-size:18px;font-weight:700;color:#f59e0b">'+(meta.traffic_clicks||0).toLocaleString()+' clicks</div></div>';
+    h+='<div><div style="font-size:9px;color:var(--dim)">Google Ads</div><div style="font-size:18px;font-weight:700;color:#10b981">'+(d.google_clicks||0).toLocaleString()+' clicks</div></div>';
+    h+='</div></div>';
+    var el=document.getElementById("ct-content");
+    if(el) el.innerHTML=h;
+  };
 
   // Original GA4 source/medium detail (collapsed)
   traf+='<div class="sec" style="margin-top:16px"><div class="sec-title" style="cursor:pointer" onclick="var el=document.getElementById(\'ga4-detail\');el.style.display=el.style.display===\'none\'?\'block\':\'none\'"><div class="num">5A</div> GA4 Source/Medium Detail (click to expand)</div>';
@@ -761,6 +754,10 @@ function renderFinancial(){
   panelsHtml+='<div class="tab-panel" id="panel-traffic">'+traf+'</div>';
   panelsHtml+='<div class="tab-panel" id="panel-klaviyo">'+klav+'</div>';
   document.getElementById('fin-panels').innerHTML=panelsHtml;
+
+  // Init dynamic sections after DOM is ready
+  if(window.renderCt) try{ window.renderCt(); }catch(e){}
+  if(window.renderKwTable) try{ window.renderKwTable(); }catch(e){}
 
   // Check URL hash for tab
   var hash=window.location.hash.replace('#','');
@@ -1263,41 +1260,39 @@ function buildKeywordPerformance(F){
   html+='<div id="kp-table"></div>';
   html+='</div></div>';
 
-  // Store data globally for toggle
-  html+='<script>';
-  html+='var KP_DATA='+JSON.stringify(periods)+';';
-  html+='var KP_BRAND="'+(brands[0]||'')+'";';
-  html+='var KP_PERIOD="'+(periodKeys[0]||'7d')+'";';
-  html+='function switchKwBrand(b){KP_BRAND=b;renderKwTable();document.querySelectorAll(".kp-brand-btn").forEach(function(el){el.style.background=el.dataset.brand===b?"var(--a)":"var(--bg2)";el.style.color=el.dataset.brand===b?"#fff":"var(--dim)";});}';
-  html+='function switchKwPeriod(p){KP_PERIOD=p;renderKwTable();document.querySelectorAll(".kp-period-btn").forEach(function(el){el.style.background=el.dataset.period===p?"var(--a)":"var(--bg2)";el.style.color=el.dataset.period===p?"#fff":"var(--dim)";});}';
-  html+='function renderKwTable(){';
-  html+='var data=(KP_DATA[KP_PERIOD]||{}).data||{};';
-  html+='var kws=data[KP_BRAND]||[];';
-  html+='var h="<div style=\\"overflow-x:auto\\"><table><thead><tr>';
-  html+='<th>#</th><th>Keyword</th><th style=\\"text-align:right\\">Spend</th><th style=\\"text-align:right\\">Sales</th>';
-  html+='<th style=\\"text-align:right\\">ROAS</th><th style=\\"text-align:right\\">CPC</th><th style=\\"text-align:right\\">CTR</th>';
-  html+='<th style=\\"text-align:right\\">Clicks</th><th style=\\"text-align:right\\">Impr</th><th style=\\"text-align:right\\">Orders</th>';
-  html+='</tr></thead><tbody>";';
-  html+='kws.forEach(function(k,i){';
-  html+='var rc=k.roas>=3?"var(--g)":k.roas>=1.5?"var(--am)":"var(--r)";';
-  html+='var cc=k.cpc<=0.5?"var(--g)":k.cpc<=1.5?"var(--am)":"var(--r)";';
-  html+='h+="<tr><td style=\\"font-family:var(--mono);font-size:9px;color:var(--muted)\\">"+(i+1)+"</td>";';
-  html+='h+="<td style=\\"font-size:10px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap\\" title=\\""+k.keyword+"\\">"+k.keyword+"</td>";';
-  html+='h+="<td style=\\"text-align:right;font-family:var(--mono);font-size:10px\\">$"+k.spend.toLocaleString()+"</td>";';
-  html+='h+="<td style=\\"text-align:right;font-family:var(--mono);font-size:10px\\">$"+k.sales.toLocaleString()+"</td>";';
-  html+='h+="<td style=\\"text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:"+rc+"\\">"+k.roas.toFixed(1)+"x</td>";';
-  html+='h+="<td style=\\"text-align:right;font-family:var(--mono);font-size:9px;color:"+cc+"\\">$"+k.cpc.toFixed(2)+"</td>";';
-  html+='h+="<td style=\\"text-align:right;font-family:var(--mono);font-size:9px\\">"+k.ctr.toFixed(1)+"%</td>";';
-  html+='h+="<td style=\\"text-align:right;font-family:var(--mono);font-size:9px\\">"+k.clicks.toLocaleString()+"</td>";';
-  html+='h+="<td style=\\"text-align:right;font-family:var(--mono);font-size:9px;color:var(--muted)\\">"+k.impressions.toLocaleString()+"</td>";';
-  html+='h+="<td style=\\"text-align:right;font-family:var(--mono);font-size:9px\\">"+k.purchases+"</td></tr>";';
-  html+='});';
-  html+='if(!kws.length) h+="<tr><td colspan=10 style=\\"text-align:center;color:var(--muted);padding:20px\\">No keyword data for this brand/period</td></tr>";';
-  html+='h+="</tbody></table></div>";';
-  html+='document.getElementById("kp-table").innerHTML=h;';
-  html+='}';
-  html+='setTimeout(renderKwTable, 100);';
-  html+='<\/script>';
+  // Store data globally (rendered via window.renderKwTable after DOM insertion)
+  window.KP_DATA=periods;
+  window.KP_BRAND=brands[0]||'';
+  window.KP_PERIOD=periodKeys[0]||'7d';
+  window.switchKwBrand=function(b){window.KP_BRAND=b;window.renderKwTable();document.querySelectorAll(".kp-brand-btn").forEach(function(el){el.style.background=el.dataset.brand===b?"var(--a)":"var(--bg2)";el.style.color=el.dataset.brand===b?"#fff":"var(--dim)";});};
+  window.switchKwPeriod=function(p){window.KP_PERIOD=p;window.renderKwTable();document.querySelectorAll(".kp-period-btn").forEach(function(el){el.style.background=el.dataset.period===p?"var(--a)":"var(--bg2)";el.style.color=el.dataset.period===p?"#fff":"var(--dim)";});};
+  window.renderKwTable=function(){
+    var data=(window.KP_DATA[window.KP_PERIOD]||{}).data||{};
+    var kws=data[window.KP_BRAND]||[];
+    var h='<div style="overflow-x:auto"><table><thead><tr>';
+    h+='<th>#</th><th>Keyword</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th>';
+    h+='<th style="text-align:right">ROAS</th><th style="text-align:right">CPC</th><th style="text-align:right">CTR</th>';
+    h+='<th style="text-align:right">Clicks</th><th style="text-align:right">Impr</th><th style="text-align:right">Orders</th>';
+    h+='</tr></thead><tbody>';
+    kws.forEach(function(k,i){
+      var rc=k.roas>=3?'var(--g)':k.roas>=1.5?'var(--am)':'var(--r)';
+      var cc=k.cpc<=0.5?'var(--g)':k.cpc<=1.5?'var(--am)':'var(--r)';
+      h+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+      h+='<td style="font-size:10px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+k.keyword+'">'+k.keyword+'</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">$'+k.spend.toLocaleString()+'</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px">$'+k.sales.toLocaleString()+'</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+rc+'">'+k.roas.toFixed(1)+'x</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:'+cc+'">$'+k.cpc.toFixed(2)+'</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+k.ctr.toFixed(1)+'%</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+k.clicks.toLocaleString()+'</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--muted)">'+k.impressions.toLocaleString()+'</td>';
+      h+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+k.purchases+'</td></tr>';
+    });
+    if(!kws.length) h+='<tr><td colspan=10 style="text-align:center;color:var(--muted);padding:20px">No keyword data for this brand/period</td></tr>';
+    h+='</tbody></table></div>';
+    var el=document.getElementById("kp-table");
+    if(el) el.innerHTML=h;
+  };
   return html;
 }
 
