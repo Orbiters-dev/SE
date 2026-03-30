@@ -663,6 +663,8 @@ function renderFinancial(){
     // Amazon
     h+='<div class="card"><h3 style="color:#f59e0b;margin-bottom:8px">Amazon MP (Ad Clicks + Traffic)</h3>';
     h+='<div style="display:flex;gap:16px;margin-bottom:12px">';
+    if(amz.total_sessions) h+='<div><div style="font-size:9px;color:var(--dim)">Sessions</div><div style="font-size:20px;font-weight:800;color:#f59e0b">'+(amz.total_sessions||0).toLocaleString()+'</div></div>';
+    if(amz.total_pageviews) h+='<div><div style="font-size:9px;color:var(--dim)">Page Views</div><div style="font-size:20px;font-weight:800;color:var(--dim)">'+(amz.total_pageviews||0).toLocaleString()+'</div></div>';
     h+='<div><div style="font-size:9px;color:var(--dim)">Paid Clicks</div><div style="font-size:20px;font-weight:800;color:#f59e0b">'+(amz.total_clicks||0).toLocaleString()+'</div></div>';
     h+='<div><div style="font-size:9px;color:var(--dim)">Ad Spend</div><div style="font-size:20px;font-weight:800;color:var(--r)">$'+(amz.total_spend||0).toLocaleString()+'</div></div>';
     h+='<div><div style="font-size:9px;color:var(--dim)">Ad Sales</div><div style="font-size:20px;font-weight:800;color:var(--g)">$'+(amz.total_sales||0).toLocaleString()+'</div></div>';
@@ -730,6 +732,35 @@ function renderFinancial(){
     var el=document.getElementById("ct-content");
     if(el) el.innerHTML=h;
   };
+
+  // Ad Creative Breakdown (WL / Image / Video)
+  var acb=F.ad_creative_breakdown||[];
+  if(acb.length){
+    traf+='<div class="sec"><div class="sec-title"><div class="num" style="background:#3b82f6;color:#fff">5B</div> Meta Ad Creative Breakdown (WL / Image / Video)</div>';
+    traf+='<div class="card"><div class="desc">Top 20 campaigns by spend. Creative type from ad name. Click ad link to edit in Meta Ads Manager.</div>';
+    acb.forEach(function(camp){
+      var cLink=camp.campaign_id?'<a href="https://business.facebook.com/adsmanager/manage/campaigns?act=697498009390362&selected_campaign_ids='+camp.campaign_id+'" target="_blank" style="font-size:8px;color:var(--a);text-decoration:none"> &#9998;</a>':'';
+      traf+='<div style="margin-bottom:12px;padding:8px;border:1px solid var(--border);border-radius:6px">';
+      traf+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+      traf+='<div style="font-size:11px;font-weight:700">'+camp.campaign+cLink+'</div>';
+      traf+='<div style="font-size:10px;color:var(--dim)">'+camp.brand+' | $'+camp.total_spend.toLocaleString()+'</div></div>';
+      traf+='<table style="font-size:9px"><thead><tr><th>Type</th><th style="text-align:right">Spend</th><th style="text-align:right">Clicks</th><th style="text-align:right">CPC</th><th>Top Ads</th></tr></thead><tbody>';
+      camp.types.forEach(function(t){
+        var cc=t.cpc<=0.2?'var(--g)':t.cpc<=1?'var(--am)':'var(--r)';
+        var adLinks=t.ads.map(function(a){
+          var link=a.id?'<a href="https://business.facebook.com/adsmanager/manage/ads?act=697498009390362&selected_ad_ids='+a.id+'" target="_blank" style="color:var(--a);text-decoration:none" title="Edit in Meta">'+a.name+'</a>':a.name;
+          return link;
+        }).join('<br>');
+        traf+='<tr><td style="font-weight:600">'+t.type+'</td>';
+        traf+='<td style="text-align:right;font-family:var(--mono)">$'+t.spend.toLocaleString()+'</td>';
+        traf+='<td style="text-align:right;font-family:var(--mono)">'+t.clicks.toLocaleString()+'</td>';
+        traf+='<td style="text-align:right;font-family:var(--mono);color:'+cc+'">$'+t.cpc.toFixed(2)+'</td>';
+        traf+='<td style="font-size:8px;max-width:350px;line-height:1.6">'+adLinks+'</td></tr>';
+      });
+      traf+='</tbody></table></div>';
+    });
+    traf+='</div></div>';
+  }
 
   // Original GA4 source/medium detail (collapsed)
   traf+='<div class="sec" style="margin-top:16px"><div class="sec-title" style="cursor:pointer" onclick="var el=document.getElementById(\'ga4-detail\');el.style.display=el.style.display===\'none\'?\'block\':\'none\'"><div class="num">5A</div> GA4 Source/Medium Detail (click to expand)</div>';

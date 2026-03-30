@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-29 21:33 PST",
+ "generated_pst": "2026-03-29 21:37 PST",
  "through_date": "2026-03-28",
  "months": [
   "2025-01",
@@ -11669,6 +11669,8 @@ const FIN_DATA = {
    },
    "amazon": {
     "total_clicks": 12516,
+    "total_sessions": 119672,
+    "total_pageviews": 147028,
     "total_spend": 5631,
     "total_sales": 16810,
     "total_purchases": 703,
@@ -11870,6 +11872,8 @@ const FIN_DATA = {
    },
    "amazon": {
     "total_clicks": 79835,
+    "total_sessions": 119672,
+    "total_pageviews": 147028,
     "total_spend": 37521,
     "total_sales": 129820,
     "total_purchases": 5243,
@@ -12083,6 +12087,8 @@ const FIN_DATA = {
    },
    "amazon": {
     "total_clicks": 254777,
+    "total_sessions": 353690,
+    "total_pageviews": 436251,
     "total_spend": 120867,
     "total_sales": 468752,
     "total_purchases": 17892,
@@ -12185,6 +12191,750 @@ const FIN_DATA = {
     "total": 156807
    },
    "google_clicks": 9310
+  }
+ },
+ "ad_creative_breakdown": [
+  {
+   "campaign": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251",
+   "campaign_id": "120232746327610508",
+   "brand": "Unknown",
+   "total_spend": 28759,
+   "types": [
+    {
+     "type": "Whitelabel",
+     "spend": 22485,
+     "clicks": 267089,
+     "cpc": 0.08,
+     "purchases": 2,
+     "ads": [
+      {
+       "id": "120237969781310508",
+       "name": "WL_Livfuselli_AUG25_Grosmimi_BASIC PPSU200_20251120-01"
+      },
+      {
+       "id": "120237969827610508",
+       "name": "WL_Livfuselli_MAY25_Grosmimi_BASIC PPSU300_20251120-01"
+      },
+      {
+       "id": "120237969778820508",
+       "name": "WL_Dentalmom_AUG25_Grosmimi_BASIC PPSU300_20251120-01"
+      },
+      {
+       "id": "120237969827620508",
+       "name": "WL_Dentalmom_MAY25_Grosmimi_BASIC PPSU300_20251120-01"
+      }
+     ]
+    },
+    {
+     "type": "Other",
+     "spend": 6274,
+     "clicks": 53652,
+     "cpc": 0.12,
+     "purchases": 5,
+     "ads": [
+      {
+       "id": "120235813086090508",
+       "name": "Test B - Dental mom"
+      },
+      {
+       "id": "120232746327640508",
+       "name": "Test A - Livfuselli"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "campaign": "Shopify | CVR | Grosmimi | Tumbler",
+   "campaign_id": "120232464266510508",
+   "brand": "Grosmimi",
+   "total_spend": 21399,
+   "types": [
+    {
+     "type": "Whitelabel",
+     "spend": 15790,
+     "clicks": 16648,
+     "cpc": 0.95,
+     "purchases": 704,
+     "ads": [
+      {
+       "id": "120243384339810508",
+       "name": "Stainless Steel Tumbler | WL | lqah | 20260313"
+      },
+      {
+       "id": "120242998706080508",
+       "name": "Stainless Steel Tumbler | WL | lqah | 20260305"
+      },
+      {
+       "id": "120232464266500508",
+       "name": "Stainless Steel Tumbler | WL | Dabin Lee (Lookalike) | AD C"
+      },
+      {
+       "id": "120243948199970508",
+       "name": "Stainless Steel Tumbler | WL | zellyandb | 20260326"
+      },
+      {
+       "id": "120242998207440508",
+       "name": "Stainless Steel Tumbler | WL | lifebykaitlin | 20260305"
+      }
+     ]
+    },
+    {
+     "type": "Other",
+     "spend": 4011,
+     "clicks": 4293,
+     "cpc": 0.93,
+     "purchases": 135,
+     "ads": [
+      {
+       "id": "120239152579910508",
+       "name": "Stainless Steel Tumbler | AD B"
+      }
+     ]
+    },
+    {
+     "type": "Image",
+     "spend": 1208,
+     "clicks": 2011,
+     "cpc": 0.6,
+     "purchases": 61,
+     "ads": [
+      {
+       "id": "120232914758460508",
+       "name": "Ad B | Tumbler |  Image"
+      }
+     ]
+    },
+    {
+     "type": "Video",
+     "spend": 389,
+     "clicks": 332,
+     "cpc": 1.17,
+     "purchases": 16,
+     "ads": [
+      {
+       "id": "120233268069770508",
+       "name": "Ad D | Tumbler | Video B"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "campaign": "Shopify | CVR | WL | Livfuselli (New)",
+   "campaign_id": "120238108466330508",
+   "brand": "Unknown",
+   "total_spend": 12523,
+   "types": [
+    {
+     "type": "Whitelabel",
+     "spend": 12523,
+     "clicks": 20705,
+     "cpc": 0.6,
+     "purchases": 422,
+     "ads": [
+      {
+       "id": "120238108466410508",
+       "name": "WL_Livfuselli_MAY25_Grosmimi_BASIC PPSU300_20251128-01"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "campaign": "BOF Grosmimi | Stainless | Manual - phase 3",
+   "campaign_id": "120227910070690508",
+   "brand": "Grosmimi",
+   "total_spend": 12417,
+   "types": [
+    {
+     "type": "Other",
+     "spend": 9644,
+     "clicks": 9670,
+     "cpc": 1.0,
+     "purchases": 411,
+     "ads": [
+      {
+       "id": "120227910677720508",
+       "name": "02 Creative Test - Run Cherry"
+      },
+      {
+       "id": "120227911868750508",
+       "name": "04 Creative Test - Cooper Olive"
+      },
+      {
+       "id": "120227910097820508",
+       "name": "01 Creative Test - Pool Cherry"
+      },
+      {
+       "id": "120227910711560508",
+       "name": "03 Creative Test - Alysha Peach"
+      }
+     ]
+    },
+    {
+     "type": "Carousel",
+     "spend": 2774,
+     "clicks": 3321,
+     "cpc": 0.84,
+     "purchases": 123,
+     "ads": [
+      {
+       "id": "120227910329400508",
+       "name": "01 Creative Test - Carousel 10oz"
+      },
+      {
+       "id": "120227912119280508",
+       "name": "02 Creative Test - Carousel 6oz"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "campaign": "Shopify | CVR | WL | Laurence (Legacy)",
+   "campaign_id": "120227412781090508",
+   "brand": "Unknown",
+   "total_spend": 10330,
+   "types": [
+    {
+     "type": "Other",
+     "spend": 10263,
+     "clicks": 19221,
+     "cpc": 0.53,
+     "purchases": 401,
+     "ads": [
+      {
+       "id": "120227412828010508",
+       "name": "02 Creative Test - whitelist 2"
+      },
+      {
+       "id": "120241593715390508",
+       "name": "05 Creative Test - whitelist 5 - Stainless - 20260202"
+      },
+      {
+       "id": "120240877093590508",
+       "name": "04 Creative Test - whitelist 4 - Stainless - 20260112"
+      },
+      {
+       "id": "120227412781080508",
+       "name": "01 Creative Test - whitelist 1"
+      },
+      {
+       "id": "120227412914730508",
+       "name": "03 Creative Test - whitelist 3"
+      }
+     ]
+    },
+    {
+     "type": "Whitelabel",
+     "spend": 67,
+     "clicks": 35,
+     "cpc": 1.91,
+     "purchases": 3,
+     "ads": [
+      {
+       "id": "120243644918910508",
+       "name": "Tumbler 10oz Stainless Steel | WL | Lauren | 07 | 20260319"
+      },
+      {
+       "id": "120243644889420508",
+       "name": "Tumbler 10oz Stainless Steel | WL | Lauren | 06 | 20260319"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "campaign": "Shopify | CVR | ASC Campaign (Legacy)",
+   "campaign_id": "120224832628890508",
+   "brand": "Unknown",
+   "total_spend": 9959,
+   "types": [
+    {
+     "type": "Other",
+     "spend": 9959,
+     "clicks": 17761,
+     "cpc": 0.56,
+     "purchases": 502,
+     "ads": [
+      {
+       "id": "120224832628900508",
+       "name": "Advantage+ shopping campaign 05/12/2025 Ad"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "campaign": "ASC | AMZ | Traffic | Whitelisting - Livfuseli, Dental",
+   "campaign_id": "120226075782250508",
+   "brand": "Unknown",
+   "total_spend": 9246,
+   "types": [
+    {
+     "type": "Other",
+     "spend": 9246,
+     "clicks": 107220,
+     "cpc": 0.09,
+     "purchases": 4,
+     "ads": [
+      {
+       "id": "120226076525270508",
+       "name": "Test A - Whitelisting Only"
+      },
+      {
+       "id": "120226076525250508",
+       "name": "Test B - Whitelisting +ZZBB"
+      },
+      {
+       "id": "120226076378230508",
+       "name": "Test B - Whitelisting +ZZBB"
+      },
+      {
+       "id": "120226075782230508",
+       "name": "Test A - Whitelisting Only"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "campaign": "TOF Grosmimi | Hydration | ASC Campaign - Copy",
+   "campaign_id": "120227412718110508",
+   "brand": "Grosmimi",
+   "total_spend": 6604,
+   "types": [
+    {
+     "type": "Video",
+     "spend": 6604,
+     "clicks": 4746,
+     "cpc": 1.39,
+     "purchases": 227,
+     "ads": [
+      {
+       "id": "120227412718080508",
+       "name": "01 Creative Test - video 2"
+      },
+      {
+       "id": "120227412718100508",
+       "name": "01 Creative Test - video 1"
+      },
+      {
+       "id": "120227412718090508",
+       "name": "01 Creative Test - video 3"
+      },
+      {
+       "id": "120227412718070508",
+       "name": "01 Creative Test - video 4"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "campaign": "AMZ | Traffic | WL | Dentalmom | 202601",
+   "campaign_id": "120240644685950508",
+   "brand": "Unknown",
+   "total_spend": 6511,
+   "types": [
+    {
+     "type": "Whitelabel",
+     "spend": 6511,
+     "clicks": 64244,
+     "cpc": 0.1,
+     "purchases": 0,
+     "ads": [
+      {
+       "id": "120240644685990508",
+       "name": "WL_Dentalmom_Stainless_20260106"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "campaign": "AMZ | Traffic | WL_Dental Mom | Stainless_StrawCup | 2026010",
+   "campaign_id": "120240689933170508",
+   "brand": "Unknown",
+   "total_spend": 6442,
+   "types": [
+    {
+     "type": "Whitelabel",
+     "spend": 6442,
+     "clicks": 55749,
+     "cpc": 0.12,
+     "purchases": 4,
+     "ads": [
+      {
+       "id": "120240689933180508",
+       "name": "Stainless_StrawCup | WL | Dentalmom | 20260107"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "campaign": "⭐️ Shopify | Conversion | 2025",
+   "campaign_id": "120237963694920508",
+   "brand": "Unknown",
+   "total_spend": 5384,
+   "types": [
+    {
+     "type": "Other",
+     "spend": 4939,
+     "clicks": 2964,
+     "cpc": 1.67,
+     "purchases": 182,
+     "ads": [
+      {
+       "id": "120238668813310508",
+       "name": "ORBI_DH_DEC02_Grosmimi_Tumbler_20251202"
+      },
+      {
+       "id": "120238666920160508",
+       "name": "ORBI_DH_DEC02_Grosmimi_Strawcups_Stainless_20251202"
+      },
+      {
+       "id": "120238667922900508",
+       "name": "ORBI_DH_DEC02_Grosmimi_PPSU_20251202"
+      },
+      {
+       "id": "120237963805510508",
+       "name": "Ad B"
+      },
+      {
+       "id": "120238332524920508",
+       "name": "Ad C - dev5"
+      }
+     ]
+    },
+    {
+     "type": "Whitelabel",
+     "spend": 445,
+     "clicks": 496,
+     "cpc": 0.9,
+     "purchases": 23,
+     "ads": [
+      {
+       "id": "120238093213330508",
+       "name": "Ad G - WL - Kryskhloe (11/22~)"
+      },
+      {
+       "id": "120238093164930508",
+       "name": "Ad F - WL - Chelsea (11/22~)"
+      },
+      {
+       "id": "120237964272650508",
+       "name": "Ad E - WL"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "campaign": "AMZ_Traffic_Grosmimi_20251204",
+   "campaign_id": "120238800333050508",
+   "brand": "Grosmimi",
+   "total_spend": 4816,
+   "types": [
+    {
+     "type": "Other",
+     "spend": 4816,
+     "clicks": 30145,
+     "cpc": 0.16,
+     "purchases": 0,
+     "ads": [
+      {
+       "id": "120238807516230508",
+       "name": "ORBI_DH_DEC04_Grosmimi_Strawcup_Stainless300_20251204"
+      },
+      {
+       "id": "120238804488430508",
+       "name": "ORBI_DH_DEC04_Grosmimi_PPSU300_20251204"
+      },
+      {
+       "id": "120238808067120508",
+       "name": "ORBI_DH_DEC04_Grosmimi_Transition_20251204"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "campaign": "AMZ | Traffic | BFCM 2025",
+   "campaign_id": "120237966499990508",
+   "brand": "Unknown",
+   "total_spend": 4078,
+   "types": [
+    {
+     "type": "Other",
+     "spend": 4078,
+     "clicks": 15233,
+     "cpc": 0.27,
+     "purchases": 0,
+     "ads": [
+      {
+       "id": "120238388353700508",
+       "name": "ORBI_DH_Nov25_naeiae_20251127-01"
+      },
+      {
+       "id": "120238340919690508",
+       "name": "Ad_112625_Dev5"
+      },
+      {
+       "id": "120237966754350508",
+       "name": "Ad C"
+      },
+      {
+       "id": "120237966537780508",
+       "name": "Ad A"
+      },
+      {
+       "id": "120238388448800508",
+       "name": "ORBI_DH_Nov25_naeiae_20251127-02"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "campaign": "Shopify | Conversion | CHA&MOM",
+   "campaign_id": "120231361505190508",
+   "brand": "CHA&MOM",
+   "total_spend": 4065,
+   "types": [
+    {
+     "type": "Video",
+     "spend": 4065,
+     "clicks": 2069,
+     "cpc": 1.96,
+     "purchases": 156,
+     "ads": [
+      {
+       "id": "120233708255400508",
+       "name": "Ad D | Shopify | Conversion | CHA&MOM | Video"
+      },
+      {
+       "id": "120231812445760508",
+       "name": "Ad A | Shopify | Conversion | CHA&MOM | Video"
+      },
+      {
+       "id": "120231810544750508",
+       "name": "Ad  C | Shopify | Conversion | CHA&MOM | Video"
+      },
+      {
+       "id": "120231810519460508",
+       "name": "Ad  B | Shopify | Conversion | CHA&MOM | Video"
+      },
+      {
+       "id": "120231361505200508",
+       "name": "Ad | Shopify | Conversion | CHA&MOM | lifestyl-america-video-edits"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "campaign": "RBD | ASC | WC",
+   "campaign_id": "120215037514370508",
+   "brand": "Unknown",
+   "total_spend": 3968,
+   "types": [
+    {
+     "type": "Other",
+     "spend": 3593,
+     "clicks": 4093,
+     "cpc": 0.88,
+     "purchases": 173,
+     "ads": [
+      {
+       "id": "120215556258530508",
+       "name": "Grosmimi PPSU Straw Cup | 1.24"
+      },
+      {
+       "id": "120219429220320508",
+       "name": "0325 hattung-say house - Copy"
+      },
+      {
+       "id": "120215037514360508",
+       "name": "Winning Ads Flex"
+      },
+      {
+       "id": "120219429071030508",
+       "name": "0320 광고소재 beemymagic"
+      },
+      {
+       "id": "120219427480730508",
+       "name": "STATIC | Grosmimi Stainless Steel"
+      }
+     ]
+    },
+    {
+     "type": "Image",
+     "spend": 375,
+     "clicks": 568,
+     "cpc": 0.66,
+     "purchases": 8,
+     "ads": [
+      {
+       "id": "120215763656110508",
+       "name": "Flex Image"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "campaign": "Shopify | CVR | GM | Tumbler | WL - Dental Mom",
+   "campaign_id": "120240736243650508",
+   "brand": "Unknown",
+   "total_spend": 3862,
+   "types": [
+    {
+     "type": "Whitelabel",
+     "spend": 3862,
+     "clicks": 3086,
+     "cpc": 1.25,
+     "purchases": 118,
+     "ads": [
+      {
+       "id": "120240736243660508",
+       "name": "Shopify | WL - Dental Mom 010826"
+      },
+      {
+       "id": "120240565431020508",
+       "name": "Shopify | WL - Tumbler - Dental Mom 010326"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "campaign": "Creative Testing",
+   "campaign_id": "120218353968980508",
+   "brand": "Unknown",
+   "total_spend": 3791,
+   "types": [
+    {
+     "type": "Other",
+     "spend": 3791,
+     "clicks": 2323,
+     "cpc": 1.63,
+     "purchases": 92,
+     "ads": [
+      {
+       "id": "120218874121890508",
+       "name": "0320 광고소재 beemymagic"
+      },
+      {
+       "id": "120218920629470508",
+       "name": "0325 hattung-say house"
+      },
+      {
+       "id": "120218656960320508",
+       "name": "0313 광고가이드 grosmimi-2"
+      },
+      {
+       "id": "120219152638790508",
+       "name": "Commemoi board 0306"
+      },
+      {
+       "id": "120218656953170508",
+       "name": "0313 광고가이드 grosmimi-3"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "campaign": "Shopify | CVR | GM - SLS CUP / Holiday Gift Theme",
+   "campaign_id": "120236787733840508",
+   "brand": "Unknown",
+   "total_spend": 3501,
+   "types": [
+    {
+     "type": "Other",
+     "spend": 3501,
+     "clicks": 2199,
+     "cpc": 1.59,
+     "purchases": 98,
+     "ads": [
+      {
+       "id": "120237383933840508",
+       "name": "Ad C"
+      },
+      {
+       "id": "120236787733900508",
+       "name": "Ad A"
+      },
+      {
+       "id": "120237383969140508",
+       "name": "Ad D"
+      },
+      {
+       "id": "120236788334860508",
+       "name": "Ad B"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "campaign": "Shopify | CVR | GM | SLS Cup | WL - Dental Mom",
+   "campaign_id": "120240336678510508",
+   "brand": "Unknown",
+   "total_spend": 3015,
+   "types": [
+    {
+     "type": "Whitelabel",
+     "spend": 3015,
+     "clicks": 2690,
+     "cpc": 1.12,
+     "purchases": 77,
+     "ads": [
+      {
+       "id": "120240336678530508",
+       "name": "Shopify | WL - Dental Mom 122825"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "campaign": "ASC I AMZ I Traffic I Whitelisting - Retel",
+   "campaign_id": "120221206718720508",
+   "brand": "Unknown",
+   "total_spend": 2792,
+   "types": [
+    {
+     "type": "Other",
+     "spend": 2792,
+     "clicks": 30101,
+     "cpc": 0.09,
+     "purchases": 0,
+     "ads": [
+      {
+       "id": "120221206718710508",
+       "name": "추천 설정이 적용된 새로운 트래픽 광고"
+      },
+      {
+       "id": "120225242946320508",
+       "name": "New Traffic Ad with recommended settings"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "amz_sessions": {
+  "7d": {
+   "sessions": 119672,
+   "pageViews": 147028
+  },
+  "30d": {
+   "sessions": 353690,
+   "pageViews": 436251
   }
  },
  "pnl_polar": {

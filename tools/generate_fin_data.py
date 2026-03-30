@@ -1179,6 +1179,134 @@ def generate():
             "conv_rate": conv_rate,
         })
 
+    # ── Amazon Sessions (SP-API Sales & Traffic Report) ──────────────────
+    def _fetch_amz_sessions(days=30):
+        """Fetch Amazon sessions/pageViews from GET_SALES_AND_TRAFFIC_REPORT."""
+        try:
+            import requests as _req, gzip as _gz, time as _tm
+            seller_cfg = {
+                "refresh_token": os.getenv("AMZ_SP_REFRESH_TOKEN_GROSMIMI", ""),
+                "client_id": os.getenv("AMZ_SP_GROSMIMI_CLIENT_ID") or os.getenv("AMZ_SP_CLIENT_ID", ""),
+                "client_secret": os.getenv("AMZ_SP_GROSMIMI_CLIENT_SECRET") or os.getenv("AMZ_SP_CLIENT_SECRET", ""),
+            }
+            tok = _req.post("https://api.amazon.com/auth/o2/token", data={
+                "grant_type": "refresh_token", **seller_cfg,
+            }, timeout=15).json().get("access_token")
+            if not tok:
+                return {}
+            hdrs = {"x-amz-access-token": tok, "Content-Type": "application/json"}
+            start = (today - timedelta(days=days)).strftime("%Y-%m-%dT00:00:00Z")
+            end = today.strftime("%Y-%m-%dT00:00:00Z")
+            r = _req.post("https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/reports",
+                headers=hdrs, json={
+                    "reportType": "GET_SALES_AND_TRAFFIC_REPORT",
+                    "marketplaceIds": ["ATVPDKIKX0DER"],
+                    "reportOptions": {"dateGranularity": "DAY", "asinGranularity": "SKU"},
+                    "dataStartTime": start, "dataEndTime": end,
+                }, timeout=30)
+            if r.status_code >= 300:
+                return {}
+            rid = r.json().get("reportId")
+            doc_id = None
+            for _ in range(30):
+                _tm.sleep(10)
+                r2 = _req.get(f"https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/reports/{rid}",
+                    headers=hdrs, timeout=30)
+                st = r2.json().get("processingStatus")
+                if st == "DONE":
+                    doc_id = r2.json().get("reportDocumentId")
+                    break
+                elif st in ("CANCELLED", "FATAL"):
+                    return {}
+            if not doc_id:
+                return {}
+            r3 = _req.get(f"https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/documents/{doc_id}",
+                headers=hdrs, timeout=30)
+            doc = r3.json()
+            r4 = _req.get(doc["url"], timeout=60)
+            content = r4.content
+            if doc.get("compressionAlgorithm") == "GZIP":
+                content = _gz.decompress(content)
+            data = json.loads(content.decode("utf-8"))
+            # Aggregate daily
+            result = {"sessions": 0, "pageViews": 0, "days": {}}
+            for e in data.get("salesAndTrafficByDate", []):
+                d = e.get("date", "")
+                t = e.get("trafficByDate", {})
+                sess = t.get("sessions", 0)
+                pv = t.get("pageViews", 0)
+                result["sessions"] += sess
+                result["pageViews"] += pv
+                result["days"][d] = {"sessions": sess, "pageViews": pv}
+            return result
+        except Exception as ex:
+            print(f"  [WARN] Amazon sessions fetch failed: {ex}")
+            return {}
+
+    print("  Fetching Amazon sessions...")
+    amz_sessions_30d = _fetch_amz_sessions(30)
+    amz_sessions_7d = _fetch_amz_sessions(7)
+    if amz_sessions_30d:
+        print(f"  Amazon sessions (30d): {amz_sessions_30d['sessions']:,} sessions, {amz_sessions_30d['pageViews']:,} pageViews")
+
+    # ── Ad Creative Breakdown (WL/Image/Video) ─────────────────────────────
+    def _classify_creative(ad_name):
+        al = (ad_name or "").lower()
+        if "video" in al: return "Video"
+        if "image" in al or "img" in al: return "Image"
+        if "wl" in al or "whitelabel" in al or "white label" in al: return "Whitelabel"
+        if "carousel" in al: return "Carousel"
+        return "Other"
+
+    # Build per-campaign creative breakdown
+    camp_creative_agg = defaultdict(lambda: defaultdict(lambda: {
+        "spend": 0.0, "clicks": 0, "impressions": 0, "purchases": 0,
+        "ads": []  # list of {ad_id, ad_name}
+    }))
+    seen_ads = set()
+    for r in meta_ads:
+        cn = r.get("campaign_name", "")
+        an = r.get("ad_name", "")
+        aid = r.get("ad_id", "")
+        ctype = _classify_creative(an)
+        agg = camp_creative_agg[cn][ctype]
+        agg["spend"] += float(r.get("spend", 0) or 0)
+        agg["clicks"] += int(r.get("clicks", 0) or 0)
+        agg["impressions"] += int(r.get("impressions", 0) or 0)
+        agg["purchases"] += int(r.get("purchases", 0) or 0)
+        ad_key = f"{cn}|{aid}"
+        if ad_key not in seen_ads and an:
+            seen_ads.add(ad_key)
+            agg["ads"].append({"id": aid, "name": an[:80]})
+
+    # Build output: top campaigns with creative breakdown
+    ad_creative_data = []
+    for cn in sorted(camp_creative_agg, key=lambda x: -sum(v["spend"] for v in camp_creative_agg[x].values()))[:20]:
+        types = []
+        for ctype, v in sorted(camp_creative_agg[cn].items(), key=lambda x: -x[1]["spend"]):
+            cpc = round(v["spend"] / v["clicks"], 2) if v["clicks"] else 0
+            types.append({
+                "type": ctype,
+                "spend": round(v["spend"]),
+                "clicks": v["clicks"],
+                "cpc": cpc,
+                "purchases": v["purchases"],
+                "ads": v["ads"][:5],  # top 5 ads per type
+            })
+        total_spend = sum(v["spend"] for v in camp_creative_agg[cn].values())
+        brand = "Unknown"
+        for r in meta_ads:
+            if r.get("campaign_name") == cn:
+                brand = r.get("brand", "Unknown")
+                break
+        ad_creative_data.append({
+            "campaign": cn[:60],
+            "campaign_id": next((r.get("campaign_id","") for r in meta_ads if r.get("campaign_name")==cn), ""),
+            "brand": brand,
+            "total_spend": round(total_spend),
+            "types": types,
+        })
+
     # ── Amazon Attribution Data ────────────────────────────────────────────
     # Fetch Attribution report: Meta Traffic -> Amazon conversion tracking
     def _load_attribution():
@@ -1410,6 +1538,8 @@ def generate():
             },
             "amazon": {
                 "total_clicks": amz_total_clicks,
+                "total_sessions": (amz_sessions_30d if days >= 30 else amz_sessions_7d).get("sessions", 0),
+                "total_pageviews": (amz_sessions_30d if days >= 30 else amz_sessions_7d).get("pageViews", 0),
                 "total_spend": round(amz_ad["spend"] + meta_traffic["spend"]),
                 "total_sales": round(amz_ad["sales"]),
                 "total_purchases": amz_ad["purchases"],
@@ -2682,6 +2812,11 @@ def generate():
         "brand_analytics_category": ba_category_top,
         "traffic_sources": traffic_data,
         "channel_traffic": channel_traffic,
+        "ad_creative_breakdown": ad_creative_data,
+        "amz_sessions": {
+            "7d": {"sessions": amz_sessions_7d.get("sessions", 0), "pageViews": amz_sessions_7d.get("pageViews", 0)},
+            "30d": {"sessions": amz_sessions_30d.get("sessions", 0), "pageViews": amz_sessions_30d.get("pageViews", 0)},
+        },
         "pnl_polar": pnl_polar,
         "klaviyo": klaviyo_data,
         "campaign_detail": campaign_detail,
