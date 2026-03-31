@@ -2001,7 +2001,7 @@ async function loadContentTab(){
       h+='<td style="padding:5px 8px;font-family:var(--mono);font-weight:600;white-space:nowrap"><a href="https://instagram.com/'+esc(p.username||'')+'" target="_blank" style="color:var(--fg);text-decoration:none">@'+esc(p.username||'')+'</a></td>';
       h+='<td style="padding:5px 8px"><span class="b '+(p.platform==='tiktok'?'am':'a')+'">'+plat+'</span></td>';
       h+='<td style="padding:5px 8px">'+link+'</td>';
-      h+='<td style="padding:5px 8px"><span class="b '+(p.brand==='Grosmimi'?'g':p.brand==='CHA&MOM'?'c':'am')+'">'+esc(p.brand||'')+'</span></td>';
+      h+='<td style="padding:5px 8px"><span class="b '+(p.brand==='Grosmimi'?'g':p.brand==='CHA&MOM'?'c':'am')+'">'+esc(p.brand||'')+'</span>'+ownerTag(p)+'</td>';
       h+='<td style="padding:5px 8px;font-size:9px">'+dateLabel+'</td>';
       var postId=p.post_id||((p.url||'').match(/\/(\d{15,})/) ||[])[1]||'';
       var met=metricsMap[postId]||{};
@@ -2036,6 +2036,15 @@ async function loadContentTab(){
   }
 }
 
+var _BRAND_OWNERS={"Grosmimi":"Jeehoo","CHA&MOM":"Laeeka","Naeiae":"Soyeon"};
+var _OWNER_COLORS={"Jeehoo":"var(--g)","Laeeka":"var(--c)","Soyeon":"var(--am)"};
+function ownerTag(c){
+  var name=c.assigned_to||_BRAND_OWNERS[c.brand]||'';
+  if(!name)return'';
+  var col=_OWNER_COLORS[name]||'var(--dim)';
+  return' <span style="font-size:7px;background:'+col+';color:#fff;padding:1px 4px;border-radius:6px;font-weight:700;vertical-align:middle">'+name+'</span>';
+}
+
 function profileLinks(c){
   var html='';
   if(c.ig_handle){
@@ -2067,7 +2076,7 @@ function renderCreatorsTable(data){
     html+='<tr>';
     html+='<td style="font-weight:600;font-family:var(--mono);font-size:10px">'+esc(handle)+'</td>';
     html+='<td style="font-size:10px">'+esc(c.email)+'</td>';
-    html+='<td><span class="b '+(c.brand==='Grosmimi'?'g':c.brand==='CHA&MOM'?'c':c.brand==='Naeiae'?'am':'')+'">'+esc(c.brand||'?')+'</span></td>';
+    html+='<td><span class="b '+(c.brand==='Grosmimi'?'g':c.brand==='CHA&MOM'?'c':c.brand==='Naeiae'?'am':'')+'">'+esc(c.brand||'?')+'</span>'+ownerTag(c)+'</td>';
     html+='<td><span class="b '+badgeClass+'">'+esc(c.pipeline_status)+'</span></td>';
     html+='<td style="font-size:10px">'+esc(c.outreach_type||'-')+'</td>';
     html+='<td style="font-size:10px;font-family:var(--mono)">'+followers+'</td>';
@@ -2246,7 +2255,7 @@ async function loadPendingActions(){
         html+='</div>';
         html+='<div style="font-size:9px;color:var(--dim)">';
         html+=esc(cr.email||'')+' &bull; '+followers+' followers &bull; '+views+' avg views';
-        if(cr.brand)html+=' &bull; <span class="b a" style="font-size:8px">'+esc(cr.brand)+'</span>';
+        if(cr.brand)html+=' &bull; <span class="b '+(cr.brand==='Grosmimi'?'g':cr.brand==='CHA&MOM'?'c':'am')+'" style="font-size:8px">'+esc(cr.brand)+'</span>'+ownerTag(cr);
         html+='</div>';
         html+='</div>';
         html+='<button onclick="toggleEmailHistory(\''+cr.id+'\',\''+esc(cr.email||'')+'\')" style="background:none;border:1px solid var(--border);border-radius:3px;cursor:pointer;font-size:8px;padding:1px 4px;color:var(--a);flex-shrink:0" title="Email history">&#x1F4E7;</button>';
@@ -2494,7 +2503,7 @@ async function loadReviewQueue(){
       html+='<span style="flex:1"></span>';
       html+='<span style="font-weight:600;font-family:var(--mono);font-size:10px;width:60px;overflow:hidden;text-overflow:ellipsis">'+esc(handle)+'</span>';
       html+='<span style="font-family:var(--mono);font-size:10px;width:70px">'+formatNum(c.followers||0)+'</span>';
-      html+='<span style="width:60px"><span class="b '+(c.brand==='Grosmimi'?'g':c.brand==='CHA&MOM'?'c':'am')+'">'+esc(c.brand)+'</span></span>';
+      html+='<span style="width:80px"><span class="b '+(c.brand==='Grosmimi'?'g':c.brand==='CHA&MOM'?'c':'am')+'">'+esc(c.brand)+'</span>'+ownerTag(c)+'</span>';
       html+='<span style="width:60px">'+profileLinks(c)+'</span>';
       html+='<span style="font-size:10px;color:var(--dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(c.notes)+'">'+esc(c.notes||'-')+'</span>';
       html+='</div>';
