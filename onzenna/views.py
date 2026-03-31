@@ -961,7 +961,7 @@ def pipeline_creators_list(request):
     us_only = request.GET.get("us_only")
     if us_only and us_only.lower() in ("true", "1"):
         from django.db.models import Q
-        qs = qs.filter(Q(country__icontains="United States") | Q(country="US"))
+        qs = qs.filter(Q(country__icontains="United States") | Q(country="US") | Q(country="USA"))
 
     is_business = request.GET.get("is_business")
     if is_business is not None and is_business.lower() in ("true", "false", "1", "0"):
@@ -1108,9 +1108,25 @@ def pipeline_creators_stats(request):
         .values_list('outreach_type', 'c')
     )
 
+    # LT/HT status breakdown for Y-fork funnel
+    by_status_lt = dict(
+        PipelineCreator.objects.filter(outreach_type='LT')
+        .values_list('pipeline_status')
+        .annotate(c=Count('id'))
+        .values_list('pipeline_status', 'c')
+    )
+    by_status_ht = dict(
+        PipelineCreator.objects.filter(outreach_type='HT')
+        .values_list('pipeline_status')
+        .annotate(c=Count('id'))
+        .values_list('pipeline_status', 'c')
+    )
+
     return _cors_headers(request, JsonResponse({
         "total": total,
         "by_status": status_counts,
+        "by_status_lt": by_status_lt,
+        "by_status_ht": by_status_ht,
         "by_brand": brand_counts,
         "by_type": type_counts,
         "new_this_week": new_this_week,
