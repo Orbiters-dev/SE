@@ -1007,7 +1007,7 @@ function renderCreators() {
 
   var html = '';
   filtered.forEach(function(c) {
-    var dmLink = 'https://ig.me/m/' + c.username;
+    var dmLink = 'https://www.instagram.com/' + c.username;
     var isDraft = c.status === 'draft_ready' && c.dm_draft;
 
     html += '<div class="dm-card" style="border-left:3px solid ' + getStatusColor(c.status) + '">';
@@ -1252,7 +1252,7 @@ function executeHilGroup(status) {
       var c = _creators.find(function(x) { return x.username === h; });
       var draft = (c && c.dm_draft) ? c.dm_draft : '';
       if (draft) navigator.clipboard.writeText(draft).catch(function(){});
-      window.open('https://ig.me/m/' + h, '_blank');
+      window.open('https://www.instagram.com/' + h, '_blank');
       // Show confirm dialog — user must paste+send in IG tab, then come back and confirm
       var ok = confirm('(' + (idx+1) + '/' + handles.length + ') @' + h + '\n\nIG 탭에서 붙여넣기(Ctrl+V) → 전송 완료 후\n\n✅ OK = 보냈음 (sent 처리)\n❌ Cancel = 안 보냄 (skip)');
       if (ok) {
@@ -1362,18 +1362,18 @@ function sendReplyDm(handle) {
         } else {
           showToast('ManyChat failed — opening IG DM', 'err');
           navigator.clipboard.writeText(text).catch(function(){});
-          window.open('https://ig.me/m/' + handle, '_blank');
+          window.open('https://www.instagram.com/' + handle, '_blank');
           n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
         }
       }).catch(function() {
         navigator.clipboard.writeText(text).catch(function(){});
-        window.open('https://ig.me/m/' + handle, '_blank');
+        window.open('https://www.instagram.com/' + handle, '_blank');
         n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
       });
   } else {
     // No ManyChat subscriber → manual IG DM
     navigator.clipboard.writeText(text).catch(function(){});
-    window.open('https://ig.me/m/' + handle, '_blank');
+    window.open('https://www.instagram.com/' + handle, '_blank');
     showToast('Draft copied — paste in IG DM for @' + handle);
     n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
   }
@@ -1516,7 +1516,7 @@ function renderDraftsList() {
 
   var html = '';
   drafts.forEach(function(c, idx) {
-    var dmLink = 'https://ig.me/m/' + c.username;
+    var dmLink = 'https://www.instagram.com/' + c.username;
     html += '<div class="dm-card" id="draft-card-' + c.username + '">';
     html += '<div style="display:flex;justify-content:space-between;align-items:center">';
     html += '<div style="display:flex;align-items:center;gap:8px">';
@@ -1590,7 +1590,7 @@ function executeDrafts() {
     // 1st outreach = IG manual. Copy draft + open IG DM link.
     navigator.clipboard.writeText(text).catch(function(){});
     n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
-    window.open('https://ig.me/m/' + handle, '_blank');
+    window.open('https://www.instagram.com/' + handle, '_blank');
     updateStatus(handle, 'sent').then(function() { incDmCount(); }).catch(function(){});
 
     idx++;
@@ -1627,7 +1627,7 @@ function openDmThread(handle) {
   var c = _creators.find(function(x) { return x.username === handle; });
   document.getElementById('thread-handle').textContent = '@' + handle;
   document.getElementById('thread-badge').innerHTML = c ? statusBadge(c.status) : '';
-  document.getElementById('thread-ig-link').href = 'https://ig.me/m/' + handle;
+  document.getElementById('thread-ig-link').href = 'https://www.instagram.com/' + handle;
 
   // Show "Mark Accepted" for replied / inbound / needs_review
   var acceptBtn = document.getElementById('thread-accept-btn');
@@ -1871,7 +1871,7 @@ function executeCreatorsDrafts() {
     // 1st outreach = IG manual
     navigator.clipboard.writeText(text).catch(function(){});
     n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
-    window.open('https://ig.me/m/' + handle, '_blank');
+    window.open('https://www.instagram.com/' + handle, '_blank');
     updateStatus(handle, 'sent').then(function() { incDmCount(); }).catch(function(){});
     idx++;
     setTimeout(processNext, 1200);
