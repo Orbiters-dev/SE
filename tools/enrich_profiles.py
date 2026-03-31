@@ -111,8 +111,10 @@ class ApifyClient:
 
     def run_actor(self, actor_id, run_input, timeout_secs=300):
         """Run actor and wait for completion, return dataset items."""
+        import urllib.parse
+        encoded_id = urllib.parse.quote(actor_id, safe='')
         # Start the run
-        result = self._req("POST", f"/acts/{actor_id}/runs", run_input)
+        result = self._req("POST", f"/acts/{encoded_id}/runs", run_input)
         run_id = result["data"]["id"]
         dataset_id = result["data"]["defaultDatasetId"]
 

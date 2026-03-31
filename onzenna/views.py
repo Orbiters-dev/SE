@@ -942,7 +942,8 @@ def pipeline_creator_detail(request, creator_id):
         for field in ("ig_handle", "tiktok_handle", "full_name", "platform",
                       "pipeline_status", "brand", "outreach_type", "source", "notes",
                       "shopify_customer_id", "shopify_draft_order_id",
-                      "shopify_draft_order_name", "airtable_record_id"):
+                      "shopify_draft_order_name", "airtable_record_id",
+                      "country", "business_category", "biography"):
             if field in body:
                 setattr(creator, field, body[field])
 
@@ -952,6 +953,12 @@ def pipeline_creator_detail(request, creator_id):
             creator.avg_views = int(body["avg_views"]) if body["avg_views"] else None
         if "initial_discovery_date" in body:
             creator.initial_discovery_date = _parse_date(body["initial_discovery_date"])
+        if "is_business_account" in body:
+            creator.is_business_account = bool(body["is_business_account"]) if body["is_business_account"] is not None else None
+        if "is_verified" in body:
+            creator.is_verified = bool(body["is_verified"]) if body["is_verified"] is not None else None
+        if "enriched_at" in body:
+            creator.enriched_at = body["enriched_at"]
 
         creator.save()
 
