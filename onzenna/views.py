@@ -1290,6 +1290,16 @@ def import_syncly_discovery(request):
     skipped = 0
     imported = []
 
+    # Read HT threshold from config (R30D views)
+    ht_threshold = 100000
+    try:
+        from datetime import date as _date
+        latest_cfg = PipelineConfig.objects.order_by('-date').first()
+        if latest_cfg and latest_cfg.ht_threshold:
+            ht_threshold = latest_cfg.ht_threshold
+    except Exception:
+        pass
+
     try:
         with connection.cursor() as cursor:
             cursor.execute(sql, params)
@@ -1331,6 +1341,12 @@ def import_syncly_discovery(request):
                 skipped += 1
                 continue
 
+            # Estimate R30D views from followers if not available
+            est_r30d = int((followers or 0) * (0.15 if "tiktok" in plat else 0.08))
+
+            # HT = followers >= 50K AND R30D views >= ht_threshold (100K)
+            is_ht = (followers or 0) >= 50000 and est_r30d >= ht_threshold
+
             creator = PipelineCreator.objects.create(
                 email=email,
                 ig_handle=ig_handle,
@@ -1339,10 +1355,10 @@ def import_syncly_discovery(request):
                 platform="TikTok" if "tiktok" in plat else "Instagram",
                 pipeline_status="Not Started",
                 brand=brand or "",
-                outreach_type="LT" if (followers or 0) < 100000 else "HT",
+                outreach_type="HT" if is_ht else "LT",
                 source="syncly",
                 followers=followers,
-                avg_views=int((followers or 0) * (0.15 if "tiktok" in plat else 0.08)),
+                avg_views=est_r30d,
                 initial_discovery_date=post_date or date_cls.today(),
                 notes=f"Syncly discovery. Post: {url or 'N/A'}",
             )

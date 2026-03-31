@@ -222,7 +222,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
         <div class="desc" style="font-size:11px;line-height:1.7">Batch Size, HT Threshold, Feature Toggles, Human-in-Loop &#xC124;&#xC815;. &#xB9E4;&#xC77C; &#xBC30;&#xCE58; &#xC804;&#xC5D0; &#xD655;&#xC778; &#x2192; Apply Config.</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
           <div style="background:var(--abg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--a)">Batch Size</b><br>&#xD55C; &#xBC88;&#xC5D0; &#xBCF4;&#xB0BC; &#xC218;. &#xCD08;&#xAE30; 5-10, &#xC548;&#xC815;&#xD654; &#xD6C4; 20-30.</div>
-          <div style="background:var(--abg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--a)">HT Threshold</b><br>R30D 100K+ = High Touch (&#xACC4;&#xC57D;+&#xACB0;&#xC81C;), &#xBBF8;&#xB9CC; = Low Touch (&#xBB34;&#xB8CC;).</div>
+          <div style="background:var(--abg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--a)">HT Threshold</b><br>&#xD314;&#xB85C;&#xC6CC; &#x2265;50K AND R30D &#xC870;&#xD68C;&#xC218; &#x2265;100K = HT (&#xACC4;&#xC57D;+&#xACB0;&#xC81C;), &#xBBF8;&#xB2EC; = LT (&#xBB34;&#xB8CC;).</div>
           <div style="background:var(--gbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--g)">RAG Email Dedup</b><br>&#xC774;&#xBBF8; &#xC5F0;&#xB77D;&#xD55C; &#xC0AC;&#xB78C; &#xC790;&#xB3D9; &#xC81C;&#xC678;.</div>
           <div style="background:var(--gbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--g)">Apify Brand Filter</b><br>27&#xAC1C; &#xBE0C;&#xB79C;&#xB4DC;/&#xB9AC;&#xC140;&#xB7EC; &#xACC4;&#xC815; &#xC790;&#xB3D9; &#xC81C;&#xC678;.</div>
         </div>
@@ -443,7 +443,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
     <!-- LT Config Summary -->
     <div id="cfg-lt-summary" class="card" style="border-left:3px solid var(--a);margin-bottom:12px">
       <div style="font-size:11px;line-height:1.7">
-        <b>&#x26A1; Low Touch &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778;</b> &mdash; &lt; 100K followers<br>
+        <b>&#x26A1; Low Touch &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778;</b> &mdash; &#xD314;&#xB85C;&#xC6CC; &lt; 50K &#xB610;&#xB294; R30D &#xC870;&#xD68C;&#xC218; &lt; 100K<br>
         &#x2022; &#xC774;&#xBA54;&#xC77C; &#xCD08;&#xC548;: <b>&#xC790;&#xB3D9; &#xC2B9;&#xC778;</b> (Draft Review OFF)<br>
         &#x2022; Reply Handler: <b>&#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</b> (Accept/FAQ/Normal &#xBAA8;&#xB450;)<br>
         &#x2022; &#xBCF4;&#xC0C1;: <b>&#xBB34;&#xB8CC; &#xC0D8;&#xD50C;</b> (&#xACC4;&#xC57D;/&#xACB0;&#xC81C; &#xC5C6;&#xC74C;)<br>
@@ -722,7 +722,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
       <div id="cfg-ht-body" style="display:none">
         <div class="card" style="border-left:3px solid var(--p)">
           <h3>&#x1F451; HT Batch Control</h3>
-          <div class="desc">High Touch creators (&ge; 100K followers). Manual review, contract, payment flow.</div>
+          <div class="desc">High Touch creators (&#xD314;&#xB85C;&#xC6CC; &ge;50K AND R30D &ge;100K). Manual review, contract, payment flow.</div>
           <div class="form-row"><label>HT Threshold (R30D)</label><input type="number" id="ht-f-threshold" min="0" step="10000" value="100000" onchange="loadHtPreview()"></div>
           <div class="form-row"><label>Batch Size</label><input type="number" id="ht-f-batch-size" min="1" max="100" step="1" value="5"></div>
           <div class="form-row"><label>Sender Email</label><input type="email" id="ht-f-sender-email" value="affiliates@onzenna.com"></div>
