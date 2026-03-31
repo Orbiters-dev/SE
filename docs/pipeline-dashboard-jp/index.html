@@ -1241,28 +1241,48 @@ function executeHilGroup(status) {
 
   // Special actions for certain stages
   if (stage.actionFn === 'hilSendDm') {
-    // Hybrid: 1st outreach = IG manual. One at a time with confirm.
+    // Hybrid: 1st outreach = IG manual. 5s intervals, confirm after all done.
     var remaining = _dailyLimit - _dmSentToday;
     if (remaining <= 0) { showToast('Daily DM limit reached!', 'err'); return; }
     handles = handles.slice(0, remaining);
     var idx = 0;
+    var sent = [];
+    showToast('Opening ' + handles.length + ' profiles — 5s intervals. Paste+send each one.');
     (function next() {
-      if (idx >= handles.length) { showToast('Done! ' + idx + ' DMs confirmed sent.'); loadCreators(); return; }
+      if (idx >= handles.length) {
+        // After all tabs opened, ask which ones were actually sent
+        setTimeout(function() {
+          var msg = '아래 크리에이터에게 DM을 실제로 보냈나요?\n\n';
+          handles.forEach(function(h, i) { msg += (i+1) + '. @' + h + '\n'; });
+          msg += '\nOK = 전부 보냄\nCancel = 하나씩 확인';
+          if (confirm(msg)) {
+            handles.forEach(function(h) {
+              var c = _creators.find(function(x) { return x.username === h; });
+              n8nPost({ action: 'dm_log', sub_action: 'add', username: h, dir: 'out', text: (c && c.dm_draft) || '', sent_by: _currentUser || 'dashboard' });
+              updateStatus(h, 'sent').then(function() { incDmCount(); });
+            });
+            showToast('✅ ' + handles.length + ' DMs marked as sent');
+          } else {
+            handles.forEach(function(h) {
+              var ok = confirm('@' + h + ' — 보냈음? OK=sent / Cancel=skip');
+              if (ok) {
+                var c = _creators.find(function(x) { return x.username === h; });
+                n8nPost({ action: 'dm_log', sub_action: 'add', username: h, dir: 'out', text: (c && c.dm_draft) || '', sent_by: _currentUser || 'dashboard' });
+                updateStatus(h, 'sent').then(function() { incDmCount(); });
+              }
+            });
+            showToast('Done — confirmed individually');
+          }
+          loadCreators();
+        }, 3000);
+        return;
+      }
       var h = handles[idx];
       var c = _creators.find(function(x) { return x.username === h; });
-      var draft = (c && c.dm_draft) ? c.dm_draft : '';
-      if (draft) navigator.clipboard.writeText(draft).catch(function(){});
+      if (c && c.dm_draft) navigator.clipboard.writeText(c.dm_draft).catch(function(){});
       window.open('https://www.instagram.com/' + h, '_blank');
-      // Show confirm dialog — user must paste+send in IG tab, then come back and confirm
-      var ok = confirm('(' + (idx+1) + '/' + handles.length + ') @' + h + '\n\nIG 탭에서 붙여넣기(Ctrl+V) → 전송 완료 후\n\n✅ OK = 보냈음 (sent 처리)\n❌ Cancel = 안 보냄 (skip)');
-      if (ok) {
-        n8nPost({ action: 'dm_log', sub_action: 'add', username: h, dir: 'out', text: draft, sent_by: _currentUser || 'dashboard' });
-        updateStatus(h, 'sent').then(function() { incDmCount(); });
-        showToast('✅ @' + h + ' → sent');
-      } else {
-        showToast('⏭ @' + h + ' skipped');
-      }
-      idx++; setTimeout(next, 300);
+      showToast('(' + (idx+1) + '/' + handles.length + ') @' + h + ' — paste now! Next in 5s');
+      idx++; setTimeout(next, 5000);
     })();
     return;
   }
