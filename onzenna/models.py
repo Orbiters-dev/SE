@@ -414,6 +414,63 @@ class EmailReplyLog(models.Model):
         return f"{self.creator_email} [{self.intent}] auto={self.auto_sent}"
 
 
+class DiscoveryPost(models.Model):
+    """Discovery pipeline posts — JP (and later US) content discovered via Apify.
+    Separate from PipelineCreator (outreach CRM) and content_posts (Syncly).
+    One row = one social media post discovered by hashtag/keyword search.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+
+    # Post identity
+    handle = models.CharField(max_length=200, db_index=True)
+    full_name = models.CharField(max_length=200, blank=True, default="")
+    platform = models.CharField(max_length=30, db_index=True)  # instagram, tiktok
+    url = models.URLField(max_length=500, unique=True, db_index=True)
+    post_date = models.DateField(null=True, blank=True)
+
+    # Content
+    content_type = models.CharField(max_length=30, blank=True, default="")  # Video, Image, Sidecar
+    caption = models.TextField(blank=True, default="")
+    hashtags = models.TextField(blank=True, default="")
+    mentions = models.CharField(max_length=500, blank=True, default="")
+    transcript = models.TextField(blank=True, default="")
+
+    # Metrics
+    followers = models.IntegerField(null=True, blank=True)
+    views = models.IntegerField(null=True, blank=True)
+    likes = models.IntegerField(null=True, blank=True)
+    comments_count = models.IntegerField(null=True, blank=True)
+
+    # Discovery metadata
+    source = models.CharField(max_length=100, blank=True, default="")  # apify/#育児, apify/tt:育児
+    region = models.CharField(max_length=10, db_index=True, default="jp")  # jp, us
+    discovery_batch = models.CharField(max_length=50, blank=True, default="")  # e.g. "Mar24-Mar31"
+
+    # Outreach tracking
+    outreach_status = models.CharField(max_length=30, default="discovered")
+    # discovered / shortlisted / contacted / replied / declined / posted
+    outreach_email = models.EmailField(blank=True, default="")
+    outreach_date = models.DateField(null=True, blank=True)
+    outreach_notes = models.TextField(blank=True, default="")
+
+    # Link to PipelineCreator (after outreach begins)
+    pipeline_creator_id = models.UUIDField(null=True, blank=True, db_index=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "onz_discovery_posts"
+        ordering = ["-post_date", "-followers"]
+        indexes = [
+            models.Index(fields=["region", "outreach_status"]),
+            models.Index(fields=["handle", "platform"]),
+        ]
+
+    def __str__(self):
+        return f"@{self.handle} [{self.platform}] {self.post_date} ({self.outreach_status})"
+
+
 class GmailContact(models.Model):
     """Gmail RAG contact index — tracks who we've emailed."""
     email = models.EmailField(unique=True, db_index=True)

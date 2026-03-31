@@ -65,6 +65,11 @@ urlpatterns = [
     path("pipeline/faq/<uuid:faq_id>/", views.faq_detail, name="faq_detail"),
     path("pipeline/reply-log/", views.reply_log_create, name="reply_log"),
 
+    # Discovery Posts (JP/US content discovery pipeline)
+    path("discovery/posts/stats/", views.discovery_posts_stats, name="discovery_posts_stats"),
+    path("discovery/posts/<uuid:post_id>/", views.discovery_post_detail, name="discovery_post_detail"),
+    path("discovery/posts/", views.discovery_posts_list, name="discovery_posts_list"),
+
     # Monitoring
     path("tables/", views.list_tables, name="list_tables"),
 ]

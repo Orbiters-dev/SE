@@ -40,6 +40,7 @@ from .models import (
     EmailReplyConfig,
     FAQEntry,
     EmailReplyLog,
+    DiscoveryPost,
 )
 
 
@@ -1488,3 +1489,164 @@ def reply_log_create(request):
         return _cors_headers(request, JsonResponse({"id": str(r.id), "created": True}, status=201))
 
     return _cors_headers(request, JsonResponse({"error": "Method not allowed"}, status=405))
+
+
+# ========== DISCOVERY POSTS ==========
+
+@csrf_exempt
+def discovery_posts_list(request):
+    """GET: List/filter discovery posts. POST: Bulk upsert (by URL)."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method == 'GET':
+        qs = DiscoveryPost.objects.all()
+        region = request.GET.get("region")
+        platform = request.GET.get("platform")
+        status = request.GET.get("status")
+        handle = request.GET.get("handle")
+        batch = request.GET.get("batch")
+        min_followers = request.GET.get("min_followers")
+
+        if region:
+            qs = qs.filter(region=region)
+        if platform:
+            qs = qs.filter(platform__iexact=platform)
+        if status:
+            qs = qs.filter(outreach_status=status)
+        if handle:
+            qs = qs.filter(handle__icontains=handle)
+        if batch:
+            qs = qs.filter(discovery_batch=batch)
+        if min_followers:
+            qs = qs.filter(followers__gte=int(min_followers))
+
+        page = int(request.GET.get("page", 1))
+        limit = min(int(request.GET.get("limit", 50)), 500)
+        offset = (page - 1) * limit
+        total = qs.count()
+
+        items = list(qs[offset:offset + limit].values())
+        for item in items:
+            item["id"] = str(item["id"])
+            if item.get("pipeline_creator_id"):
+                item["pipeline_creator_id"] = str(item["pipeline_creator_id"])
+            for k in ("created_at", "updated_at", "post_date", "outreach_date"):
+                if item.get(k):
+                    item[k] = item[k].isoformat() if hasattr(item[k], "isoformat") else str(item[k])
+
+        return _cors_headers(request, JsonResponse({
+            "results": items,
+            "total": total,
+            "page": page,
+            "limit": limit,
+        }))
+
+    if request.method == 'POST':
+        body = _json_body(request)
+        posts = body.get("posts", [])
+        if not posts:
+            return _cors_headers(request, JsonResponse({"error": "posts array required"}, status=400))
+
+        created = 0
+        updated = 0
+        skipped = 0
+
+        for p in posts:
+            url = p.get("url", "").strip()
+            if not url:
+                skipped += 1
+                continue
+
+            defaults = {
+                "handle": p.get("handle", ""),
+                "full_name": p.get("full_name", ""),
+                "platform": p.get("platform", ""),
+                "post_date": p.get("post_date") or None,
+                "content_type": p.get("content_type", ""),
+                "caption": p.get("caption", ""),
+                "hashtags": p.get("hashtags", ""),
+                "mentions": p.get("mentions", ""),
+                "followers": p.get("followers"),
+                "views": p.get("views"),
+                "likes": p.get("likes"),
+                "comments_count": p.get("comments_count"),
+                "source": p.get("source", ""),
+                "region": p.get("region", "jp"),
+                "discovery_batch": p.get("discovery_batch", ""),
+            }
+
+            obj, is_new = DiscoveryPost.objects.update_or_create(
+                url=url,
+                defaults=defaults,
+            )
+            if is_new:
+                created += 1
+            else:
+                updated += 1
+
+        return _cors_headers(request, JsonResponse({
+            "created": created,
+            "updated": updated,
+            "skipped": skipped,
+            "total": created + updated,
+        }, status=201))
+
+    return _cors_headers(request, JsonResponse({"error": "GET or POST required"}, status=405))
+
+
+@csrf_exempt
+def discovery_post_detail(request, post_id):
+    """GET/PUT single discovery post."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    try:
+        post = DiscoveryPost.objects.get(id=post_id)
+    except DiscoveryPost.DoesNotExist:
+        return _cors_headers(request, JsonResponse({"error": "Not found"}, status=404))
+
+    if request.method == 'GET':
+        data = _serialize(post)
+        return _cors_headers(request, JsonResponse(data))
+
+    if request.method == 'PUT':
+        body = _json_body(request)
+        for field in ("outreach_status", "outreach_email", "outreach_date",
+                      "outreach_notes", "pipeline_creator_id", "transcript"):
+            if field in body:
+                setattr(post, field, body[field] if body[field] else (None if "id" in field or "date" in field else ""))
+        post.save()
+        return _cors_headers(request, JsonResponse(_serialize(post)))
+
+    return _cors_headers(request, JsonResponse({"error": "GET or PUT required"}, status=405))
+
+
+@csrf_exempt
+def discovery_posts_stats(request):
+    """GET: Aggregate stats for discovery posts."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    region = request.GET.get("region")
+    qs = DiscoveryPost.objects.all()
+    if region:
+        qs = qs.filter(region=region)
+
+    from django.db.models import Count, Avg
+
+    total = qs.count()
+    by_status = dict(qs.values_list("outreach_status").annotate(c=Count("id")).values_list("outreach_status", "c"))
+    by_platform = dict(qs.values_list("platform").annotate(c=Count("id")).values_list("platform", "c"))
+    by_batch = dict(qs.values_list("discovery_batch").annotate(c=Count("id")).values_list("discovery_batch", "c"))
+    unique_handles = qs.values("handle").distinct().count()
+    avg_followers = qs.aggregate(avg=Avg("followers"))["avg"]
+
+    return _cors_headers(request, JsonResponse({
+        "total": total,
+        "unique_handles": unique_handles,
+        "avg_followers": round(avg_followers or 0),
+        "by_status": by_status,
+        "by_platform": by_platform,
+        "by_batch": by_batch,
+    }))

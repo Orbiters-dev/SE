@@ -308,11 +308,13 @@ def generate():
     shopify_sku = dk.get("shopify_orders_sku_daily", date_from="2025-06-01")
     amazon_sku = dk.get("amazon_sales_sku_daily", days=days_back)
     klaviyo = dk.get("klaviyo_daily", days=days_back)
+    content_posts = dk.get("content_posts", days=90)
+    content_metrics = dk.get("content_metrics_daily", days=90)
     print(f"  Shopify: {len(shopify)} rows, Amazon Sales: {len(amazon_sales)}")
     print(f"  Amazon Ads: {len(amazon_ads)}, Meta: {len(meta_ads)}, Google: {len(google_ads)}")
     print(f"  GA4: {len(ga4)}, Search Terms: {len(search_terms)}, GSC: {len(gsc)}")
     print(f"  Brand Analytics: {len(brand_analytics)}, Shopify SKU: {len(shopify_sku)}, Amazon SKU: {len(amazon_sku)}")
-    print(f"  Klaviyo: {len(klaviyo)}")
+    print(f"  Klaviyo: {len(klaviyo)}, Content Posts: {len(content_posts)}, Content Metrics: {len(content_metrics)}")
 
     # ── Load SKU-level COGS map ──────────────────────────────────────────────
     sku_cogs_map = load_sku_cogs_map()
@@ -2874,6 +2876,255 @@ def generate():
     bap_weekly_out = _bap_serialize(brand_ad_by_platform_wk, weeks)
     weekly_data["brand_ad_by_platform"] = bap_weekly_out
 
+    # ── Hero Products ─────────────────────────────────────────────────────────
+    print("\n[HERO] Building Hero Products tab...")
+
+    def _build_hero_products():
+        """Build hero products data: ASIN-level sales + keyword mapping + content lift."""
+        cutoff_7d = (today - timedelta(days=7)).isoformat()
+        cutoff_30d = (today - timedelta(days=30)).isoformat()
+
+        # 1. ASIN-level sales aggregation (Amazon)
+        asin_sales = defaultdict(lambda: {
+            "name": "", "brand": "", "sku": "",
+            "sales_7d": 0.0, "units_7d": 0, "sales_30d": 0.0, "units_30d": 0,
+            "weekly": defaultdict(lambda: {"sales": 0.0, "units": 0}),
+        })
+        for r in amazon_sku:
+            asin = r.get("asin", "")
+            if not asin:
+                continue
+            d = r.get("date", "")
+            sales = float(r.get("ordered_product_sales") or r.get("net_sales") or 0)
+            units = int(r.get("units") or 0)
+            if not asin_sales[asin]["name"]:
+                asin_sales[asin]["name"] = (r.get("product_name") or "")[:80]
+                asin_sales[asin]["brand"] = r.get("brand", "")
+                asin_sales[asin]["sku"] = r.get("sku", "")
+            if d >= cutoff_7d:
+                asin_sales[asin]["sales_7d"] += sales
+                asin_sales[asin]["units_7d"] += units
+            if d >= cutoff_30d:
+                asin_sales[asin]["sales_30d"] += sales
+                asin_sales[asin]["units_30d"] += units
+            # Weekly bucket
+            from datetime import date as _date
+            try:
+                dt = _date.fromisoformat(d)
+                wk = dt.isocalendar()[1]
+                yr = dt.isocalendar()[0]
+                wk_key = f"{yr}-W{wk:02d}"
+                asin_sales[asin]["weekly"][wk_key]["sales"] += sales
+                asin_sales[asin]["weekly"][wk_key]["units"] += units
+            except Exception:
+                pass
+
+        # Top 20 ASINs by 30d sales
+        top_asins = sorted(asin_sales.items(), key=lambda x: -x[1]["sales_30d"])[:20]
+        top_asin_set = {a[0] for a in top_asins}
+
+        # 2. BA keyword mapping: asin -> top keywords
+        asin_keywords = defaultdict(list)
+        for r in brand_analytics:
+            asin = r.get("asin", "")
+            if asin not in top_asin_set or not r.get("is_ours"):
+                continue
+            term = (r.get("search_term") or "").strip().lower()
+            if not term:
+                continue
+            click_share = round(float(r.get("click_share") or 0) * 100, 2)
+            conv_share = round(float(r.get("conversion_share") or 0) * 100, 2)
+            rank = int(r.get("search_frequency_rank") or 0)
+            week_date = r.get("date", "")
+            asin_keywords[asin].append({
+                "keyword": term,
+                "search_freq_rank": rank,
+                "click_share": click_share,
+                "conv_share": conv_share,
+                "week": week_date,
+            })
+
+        # Deduplicate: per asin, keep top 5 keywords by click_share (latest week)
+        asin_top_kw = {}
+        for asin, entries in asin_keywords.items():
+            by_kw = defaultdict(list)
+            for e in entries:
+                by_kw[e["keyword"]].append(e)
+            best = []
+            for kw, weeks_data in by_kw.items():
+                latest = max(weeks_data, key=lambda x: x["week"])
+                rank_history = sorted(weeks_data, key=lambda x: x["week"])
+                rank_weekly = [w["search_freq_rank"] for w in rank_history[-12:]]
+                best.append({
+                    "keyword": kw,
+                    "search_freq_rank": latest["search_freq_rank"],
+                    "rank_weekly": rank_weekly,
+                    "click_share": latest["click_share"],
+                    "conv_share": latest["conv_share"],
+                })
+            asin_top_kw[asin] = sorted(best, key=lambda x: -x["click_share"])[:5]
+
+        # 3. Enrich keywords with ads spend + dataforseo volume
+        # Build search term spend lookup
+        st_spend = defaultdict(lambda: {"spend": 0.0, "clicks": 0, "sales": 0.0, "impressions": 0})
+        for r in search_terms:
+            term = (r.get("search_term") or "").strip().lower()
+            if term:
+                st_spend[term]["spend"] += float(r.get("spend") or 0)
+                st_spend[term]["clicks"] += int(r.get("clicks") or 0)
+                st_spend[term]["sales"] += float(r.get("sales") or 0)
+                st_spend[term]["impressions"] += int(r.get("impressions") or 0)
+
+        # DataForSEO volume lookup
+        dfseo_lookup = {}
+        dfseo = dk.get("dataforseo_keywords", days=7)
+        for r in dfseo:
+            kw = (r.get("keyword") or "").strip().lower()
+            if kw:
+                dfseo_lookup[kw] = {
+                    "volume": int(r.get("search_volume") or 0),
+                    "cpc": round(float(r.get("cpc") or 0), 2),
+                }
+
+        # Enrich each keyword
+        for asin, kws in asin_top_kw.items():
+            for kw in kws:
+                st = st_spend.get(kw["keyword"], {})
+                kw["ads_spend_30d"] = round(st.get("spend", 0))
+                kw["ads_clicks_30d"] = st.get("clicks", 0)
+                kw["ads_sales_30d"] = round(st.get("sales", 0))
+                ads_spend = st.get("spend", 0)
+                ads_sales = st.get("sales", 0)
+                kw["ads_acos"] = round(ads_spend / ads_sales, 2) if ads_sales > 0 else 0
+                dfs = dfseo_lookup.get(kw["keyword"], {})
+                kw["google_volume"] = dfs.get("volume", 0)
+
+        # 4. Build product list
+        # Get sorted week keys for sparklines
+        all_weeks = set()
+        for _, data in top_asins:
+            all_weeks.update(data["weekly"].keys())
+        week_keys = sorted(all_weeks)[-12:]
+
+        products = []
+        for asin, data in top_asins:
+            sales_weekly = [round(data["weekly"].get(wk, {}).get("sales", 0)) for wk in week_keys]
+            products.append({
+                "asin": asin,
+                "sku": data["sku"],
+                "name": data["name"],
+                "brand": data["brand"],
+                "sales_7d": round(data["sales_7d"]),
+                "units_7d": data["units_7d"],
+                "sales_30d": round(data["sales_30d"]),
+                "units_30d": data["units_30d"],
+                "sales_weekly": sales_weekly,
+                "top_keywords": asin_top_kw.get(asin, []),
+            })
+
+        # 5. Keyword flat table (all keywords across hero products)
+        keyword_table = []
+        seen_kw = set()
+        for p in products:
+            for kw in p.get("top_keywords", []):
+                key = (kw["keyword"], p["asin"])
+                if key in seen_kw:
+                    continue
+                seen_kw.add(key)
+                keyword_table.append({
+                    "keyword": kw["keyword"],
+                    "asin": p["asin"],
+                    "product": p["name"][:50],
+                    "brand": p["brand"],
+                    "search_freq_rank": kw["search_freq_rank"],
+                    "rank_weekly": kw.get("rank_weekly", []),
+                    "click_share": kw["click_share"],
+                    "conv_share": kw["conv_share"],
+                    "google_volume": kw.get("google_volume", 0),
+                    "ads_spend": kw.get("ads_spend_30d", 0),
+                    "ads_clicks": kw.get("ads_clicks_30d", 0),
+                    "ads_acos": kw.get("ads_acos", 0),
+                })
+        keyword_table.sort(key=lambda x: -x.get("google_volume", 0))
+
+        # 6. Content lift (brand-level: daily views vs sales)
+        content_lift = {}
+        # Aggregate content views by brand + date
+        post_brands = {}
+        for p in content_posts:
+            pid = p.get("post_id") or p.get("url", "")
+            brand = p.get("brand", "")
+            if pid and brand:
+                post_brands[pid] = brand
+
+        brand_views = defaultdict(lambda: defaultdict(int))
+        for m in content_metrics:
+            pid = m.get("post_id", "")
+            d = m.get("date", "")
+            views = int(m.get("views") or 0)
+            brand = post_brands.get(pid, "")
+            if brand and d >= cutoff_30d:
+                brand_views[brand][d] += views
+
+        # Aggregate sales by brand + date (from amazon_sales)
+        brand_sales_daily = defaultdict(lambda: defaultdict(float))
+        for r in amazon_sales:
+            d = r.get("date", "")
+            brand = r.get("brand", "")
+            if brand and d >= cutoff_30d:
+                brand_sales_daily[brand][d] += float(r.get("gross_sales") or r.get("net_sales") or 0)
+
+        dates_30d = sorted(set(
+            list(brand_views.get("Grosmimi", {}).keys()) +
+            list(brand_sales_daily.get("Grosmimi", {}).keys())
+        ))[-30:]
+
+        for brand in ["Grosmimi", "CHA&MOM", "Naeiae"]:
+            views_arr = [brand_views.get(brand, {}).get(d, 0) for d in dates_30d]
+            sales_arr = [round(brand_sales_daily.get(brand, {}).get(d, 0)) for d in dates_30d]
+            if sum(views_arr) > 0 or sum(sales_arr) > 0:
+                content_lift[brand] = {
+                    "dates": dates_30d,
+                    "views": views_arr,
+                    "sales": sales_arr,
+                }
+
+        # 7. Daily spend overlay
+        spend_dates = sorted(set(r.get("date", "") for r in amazon_ads if r.get("date", "") >= cutoff_30d))[-30:]
+        amz_spend_daily = defaultdict(float)
+        meta_spend_daily = defaultdict(float)
+        google_spend_daily = defaultdict(float)
+        for r in amazon_ads:
+            d = r.get("date", "")
+            if d in spend_dates:
+                amz_spend_daily[d] += float(r.get("spend") or 0)
+        for r in meta_ads:
+            d = r.get("date", "")
+            if d in spend_dates:
+                meta_spend_daily[d] += float(r.get("spend") or 0)
+        for r in google_ads:
+            d = r.get("date", "")
+            if d in spend_dates:
+                google_spend_daily[d] += float(r.get("spend") or 0)
+
+        spend_daily = {
+            "dates": spend_dates,
+            "amazon": [round(amz_spend_daily.get(d, 0)) for d in spend_dates],
+            "meta": [round(meta_spend_daily.get(d, 0)) for d in spend_dates],
+            "google": [round(google_spend_daily.get(d, 0)) for d in spend_dates],
+        }
+
+        print(f"  Hero products: {len(products)}, keywords: {len(keyword_table)}, content brands: {len(content_lift)}")
+        return {
+            "week_keys": week_keys,
+            "products": products,
+            "keyword_table": keyword_table,
+            "content_lift": content_lift,
+            "spend_daily": spend_daily,
+        }
+
+    hero_data = _build_hero_products()
+
     # ── Assemble final data ───────────────────────────────────────────────────
     fin_data = {
         "generated_pst": now_pst.strftime("%Y-%m-%d %H:%M PST"),
@@ -2947,6 +3198,7 @@ def generate():
         "campaign_detail": campaign_detail,
         "brand_ad_by_platform": bap_monthly_out,
         "weekly": weekly_data,
+        "hero_products": hero_data,
     }
 
     # ── Write output ──────────────────────────────────────────────────────────
