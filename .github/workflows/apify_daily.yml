@@ -13,6 +13,10 @@ on:
         description: 'Dry run - skip API calls (true/false)'
         required: false
         default: 'false'
+      backfill_enrich:
+        description: 'Run backfill enrichment on existing JP posts (true/false)'
+        required: false
+        default: 'false'
 
 jobs:
   apify-pipeline:
@@ -52,6 +56,8 @@ jobs:
           IG_BUSINESS_USER_ID_GROSMIMI_JP=${{ secrets.IG_BUSINESS_USER_ID_GROSMIMI_JP }}
           ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
           ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
+          RAPIDAPI_KEY=${{ secrets.RAPIDAPI_KEY }}
+          RAPIDAPI_IG_HOST=instagram-scraper-stable-api.p.rapidapi.com
           ENVEOF
           sed -i 's/^[[:space:]]*//' .env
 
@@ -93,6 +99,8 @@ jobs:
         id: jp_discovery
         env:
           APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
+          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
+          RAPIDAPI_IG_HOST: instagram-scraper-stable-api.p.rapidapi.com
           ORBITOOLS_USER: ${{ secrets.ORBITOOLS_USER }}
           ORBITOOLS_PASS: ${{ secrets.ORBITOOLS_PASS }}
         run: |
@@ -107,6 +115,20 @@ jobs:
               python -u tools/sync_discovery_to_pg.py --json "$f" --region jp
             fi
           done
+        continue-on-error: true
+
+      - name: Backfill Enrichment (RapidAPI + Apify views)
+        id: backfill_enrich
+        if: github.event.inputs.backfill_enrich == 'true'
+        env:
+          APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
+          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
+          RAPIDAPI_IG_HOST: instagram-scraper-stable-api.p.rapidapi.com
+          ORBITOOLS_USER: ${{ secrets.ORBITOOLS_USER }}
+          ORBITOOLS_PASS: ${{ secrets.ORBITOOLS_PASS }}
+        run: |
+          mkdir -p "Data Storage/discovery"
+          python -u tools/enrich_existing_discovery.py --region jp
         continue-on-error: true
 
       - name: Fetch Shopify influencer orders
