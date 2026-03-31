@@ -28,24 +28,31 @@ Trigger keywords: CFO야, cfo 검토, 재무검토, 숫자검토, 감사, 크로
 
 ---
 
-## Architecture
+## Architecture — Dual-AI Verification (Claude + Codex)
 
 ```
-CFO (Orchestrator)
+CFO (Orchestrator — Claude Code)
     │
-    ├─ directive.json ──────────────────────────────────────────────────────┐
-    │                                                                        │
-    ▼                                                                        ▼
-Golmani (Generator)                                                  Auditor (Evaluator)
-├─ DataKeeper 쿼리                                                   ├─ 독립 크로스체크
-├─ 재무 모델링                                                         ├─ AICPA/KICPA 기준
-└─ golmani_output.json ──────────────────────────────────────────────┘
-                                                                             │
-                                                                   audit_report.json
-                                                                             │
-                                                                       CFO Decision
-                                                                   APPROVE / REVISE (max 3x)
+    ├─ directive.json ─────────────────────────────────────────────┐
+    │                                                                │
+    ▼                                                                ▼
+Golmani (Generator)                                          ┌─────────────────────┐
+├─ DataKeeper 쿼리                                            │  DUAL VERIFICATION  │
+├─ 재무 모델링                                                  │                     │
+└─ golmani_output.json ──────────────────────────────────────→│  Claude 감사관 (1차)  │
+                                                               │  Codex Verifier (2차)│
+                                                               └──────────┬──────────┘
+                                                                          │
+                                                                 양쪽 verdict 비교
+                                                                          │
+                                                                    CFO Decision
+                                                               APPROVE / REVISE (max 3x)
 ```
+
+**Dual-AI 핵심:**
+- **Claude 감사관**: SKILL.md 기반 6-point checklist (AICPA/KICPA)
+- **Codex Verifier**: `codex_auditor.py --domain finance` — 독립적으로 같은 데이터를 다시 검증
+- **CFO**: 양쪽 결과를 비교하여 최종 결정
 
 Communication via `.tmp/cfo_sessions/{session_id}/`
 
@@ -69,19 +76,33 @@ Communication via `.tmp/cfo_sessions/{session_id}/`
 - 골만이가 방금 만든 숫자/Excel/JSON을 읽는다
 - 또는 유저가 지정한 파일 읽기
 
-### Step 2: 감사관 소환 (`/auditor`)
-- 산출물을 감사관에게 전달
-- 감사관이 독립적으로 6가지 체크리스트 수행
+### Step 2: Dual-AI 감사 (Claude 감사관 + Codex Verifier)
+- **Claude 감사관** (`/auditor`): 6가지 체크리스트 수행, `audit_report.json` 생성
+- **Codex Verifier**: `codex_auditor.py --domain finance --audit --file <output>` 독립 실행
+- 두 AI가 서로의 결과를 모른 채 독립적으로 검증
 
-### Step 3: CFO 결정
-- 감사 결과 검토
-- CRITICAL/MAJOR 발견 → 골만이에게 수정 지시 (특정 correction point 명시)
+### Step 3: CFO 결정 (Dual Verdict 비교)
+- Claude verdict + Codex verdict 비교
+- **양쪽 PASS** → Sign-off
+- **한쪽만 FAIL** → 불일치 항목 집중 재검토
+- **양쪽 FAIL** → CRITICAL, 골만이에게 즉시 수정 지시
 - MINOR/INFO만 → WARN과 함께 승인
-- Clean → Sign-off
 
 ### Step 4: 수정 루프 (max 3회)
-- 골만이 수정 → 감사관 재검토 → CFO 재결정
+- 골만이 수정 → Claude 감사관 재검토 + Codex 재검증 → CFO 재결정
 - 3회 후에도 FAIL → ESCALATE (CFO가 직접 문제 요약 + 사용 가능한 부분 명시)
+
+### Codex 감사 CLI
+```bash
+PYTHON="C:/Users/wjcho/AppData/Local/Programs/Python/Python312/python.exe"
+WJ="C:/Users/wjcho/Desktop/WJ Test1"
+
+# Round 1: Codex 독립 감사
+"$PYTHON" "$WJ/tools/codex_auditor.py" --domain finance --audit --file golmani_output.json --round 1
+
+# Round 2: 수정 후 재검증
+"$PYTHON" "$WJ/tools/codex_auditor.py" --domain finance --verify-round 2 --file golmani_output_v2.json
+```
 
 ---
 
@@ -136,6 +157,7 @@ Communication via `.tmp/cfo_sessions/{session_id}/`
 ## References
 
 - `tools/cfo_harness.py` — Python harness (API 기반 자동화)
+- `tools/codex_auditor.py` — Codex CLI 독립 검증 래퍼 (multi-domain)
 - `.claude/skills/auditor/SKILL.md` — 감사관 스킬
 - `.claude/skills/golmani/SKILL.md` — 골만이 스킬
 - `workflows/cfo_financial_review.md` — 전체 SOP

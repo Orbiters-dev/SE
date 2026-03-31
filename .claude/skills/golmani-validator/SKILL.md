@@ -21,22 +21,50 @@ Trigger keywords: 검증이, 데이터 검증, data validation, schema check, an
 
 ---
 
-## Architecture
+## Architecture — Dual-AI Verification (Claude + Codex)
 
 ```
 DataKeeper (PG API)
     │
     ▼
-kpi_validator.py (orchestrator)
-    ├── L1: kpi_schemas.py   (Pandera schema validation)
-    ├── L2: identity check   (gross - disc = net)
-    ├── L3: coverage check   (brand/channel completeness)
-    ├── L4: through-date     (cross-table date alignment)
-    ├── L5: cross-table      (Amazon reconciliation, discount sanity)
-    └── L6: kpi_anomaly.py   (MoM + IQR anomaly detection)
-    │
-    ▼
-.tmp/validation_report.json
+┌───────────────────────────────────────────┐
+│  Claude 검증이 (1차 — 6-layer validation)  │
+│  kpi_validator.py (orchestrator)           │
+│    ├── L1: kpi_schemas.py (Pandera)        │
+│    ├── L2: identity (gross - disc = net)   │
+│    ├── L3: coverage (brand/channel)        │
+│    ├── L4: through-date (alignment)        │
+│    ├── L5: cross-table (reconciliation)    │
+│    └── L6: kpi_anomaly.py (MoM + IQR)     │
+│    → .tmp/validation_report.json           │
+└────────────────┬──────────────────────────┘
+                 │
+                 ▼
+┌───────────────────────────────────────────┐
+│  Codex Verifier (2차 — 독립 재검증)         │
+│  codex_auditor.py --domain kpi             │
+│    ├── validation_report.json 읽기          │
+│    ├── DataKeeper에서 직접 데이터 확인        │
+│    ├── 6 layers 독립적으로 재검증             │
+│    └── JSON verdict 반환                    │
+└────────────────┬──────────────────────────┘
+                 │
+                 ▼
+           결과 비교 → 불일치 시 재검증 루프
+```
+
+**Dual-AI 핵심:** Claude가 검증한 결과를 Codex가 다시 독립적으로 확인.
+두 AI가 동의하면 PASS, 불일치하면 해당 항목 집중 재검토.
+
+### Codex 검증 CLI
+```bash
+PYTHON="C:/Users/wjcho/AppData/Local/Programs/Python/Python312/python.exe"
+WJ="C:/Users/wjcho/Desktop/WJ Test1"
+
+# Claude 검증 후 Codex 독립 재검증
+"$PYTHON" "$WJ/tools/codex_auditor.py" --domain kpi --audit
+"$PYTHON" "$WJ/tools/codex_auditor.py" --domain kpi --audit --table shopify_orders_daily
+"$PYTHON" "$WJ/tools/codex_auditor.py" --domain kpi --health
 ```
 
 ---
@@ -118,10 +146,27 @@ pandas>=2.0
 ## Integration
 
 Part of 골만이 Squad pipeline:
-1. **검증이** validates → 2. **골만이** computes → 3. **포맷이** formats
+1. **검증이** validates → 2. **Codex 독립 재검증** → 3. **골만이** computes → 4. **포맷이** formats
 
 GitHub Actions: `kpi_validator.yml` runs daily at PST 1:00 AM.
 `kpi_weekly.yml` runs validation before report generation.
+
+### Dual-AI Validation Protocol
+
+검증이 스킬 호출 시:
+1. Claude `kpi_validator.py` 실행 → `validation_report.json`
+2. Codex `codex_auditor.py --domain kpi --audit` 독립 실행
+3. 양쪽 결과 비교:
+   - 양쪽 PASS → 골만이에게 데이터 전달
+   - 한쪽 FAIL → 불일치 항목 재검증
+   - 양쪽 FAIL → CRITICAL, 데이터 소스 문제
+
+## References
+
+- `tools/kpi_validator.py` — Main orchestrator
+- `tools/kpi_schemas.py` — Pandera schema definitions
+- `tools/kpi_anomaly.py` — IQR + Z-score anomaly detection
+- `tools/codex_auditor.py` — Codex CLI 독립 검증 래퍼 (kpi domain)
 
 ---
 

@@ -28,25 +28,51 @@ Trigger keywords: 감사관, 감사해줘, 숫자확인, 크로스체크, 회계
 
 ---
 
-## Architecture
+## Architecture — Dual-AI Verification (Claude + Codex)
 
 ```
 골만이 산출물 (golmani_output.json / Excel / 마크다운)
     │
     ▼
-감사관 (독립 검토)
-    ├── A: Arithmetic         — 산술 검증 (소계 → 합계)
-    ├── B: Cross-Table        — 동일 지표 다중 출처 일치 여부
-    ├── C: Period Consistency — 전체 동일 기간 사용 여부
-    ├── D: Sign Conventions   — 비용/수익 부호 일관성
-    ├── E: Accounting Standards — GAAP/K-GAAP 준수 여부
-    └── F: Materiality & Sanity — 벤치마크 대비 이상치
-    │
-    ▼
-audit_report.json (PASS / WARN / FAIL + findings)
-    │
-    ▼
-CFO (최종 결정)
+┌─────────────────────────────────────────────┐
+│  감사관 (Claude Code — 1차 검토)              │
+│    ├── A: Arithmetic         — 산술 검증       │
+│    ├── B: Cross-Table        — 교차 검증       │
+│    ├── C: Period Consistency — 기간 일관성     │
+│    ├── D: Sign Conventions   — 부호 일관성     │
+│    ├── E: Accounting Standards — 회계 기준     │
+│    └── F: Materiality & Sanity — 이상치       │
+│    → audit_report.json                        │
+└──────────────────┬──────────────────────────┘
+                   │
+                   ▼
+┌─────────────────────────────────────────────┐
+│  Codex Verifier (OpenAI o4-mini — 독립 2차)  │
+│    ├── Claude 감사 결과를 신뢰하지 않고 재검증  │
+│    ├── DataKeeper에서 직접 데이터 확인          │
+│    ├── 산술 독립 검증                           │
+│    └── JSON verdict 반환                       │
+└──────────────────┬──────────────────────────┘
+                   │
+                   ▼
+            CFO (최종 결정)
+        Claude verdict vs Codex verdict 비교
+        불일치 시 → 재검토 루프
+```
+
+**핵심:** 두 개의 다른 AI (Claude + OpenAI Codex)가 독립적으로 숫자를 검증.
+서로의 결과를 모르는 상태에서 각자 검증하고, CFO가 양쪽을 비교한다.
+
+### Codex 감사 실행
+
+```bash
+PYTHON="C:/Users/wjcho/AppData/Local/Programs/Python/Python312/python.exe"
+WJ="C:/Users/wjcho/Desktop/WJ Test1"
+
+# Claude 감사 후 Codex 독립 재검증
+"$PYTHON" "$WJ/tools/codex_auditor.py" --domain finance --audit --file output.xlsx
+"$PYTHON" "$WJ/tools/codex_auditor.py" --domain finance --verify-round 1 --file output.xlsx
+"$PYTHON" "$WJ/tools/codex_auditor.py" --domain finance --audit --audit-report audit_report.json
 ```
 
 ---
@@ -158,9 +184,36 @@ CFO (최종 결정)
 
 ---
 
+## Dual-AI Audit Protocol
+
+감사관 스킬이 호출되면 아래 프로토콜 적용:
+
+1. **Claude 감사** — 6-point checklist 수행, `audit_report.json` 생성
+2. **Codex 독립 검증** — `codex_auditor.py --domain finance --audit` 실행
+3. **결과 비교** — Claude verdict vs Codex verdict
+4. **불일치 처리**:
+   - 양쪽 PASS → APPROVED
+   - 한쪽만 FAIL → 해당 항목 재검토
+   - 양쪽 FAIL → CRITICAL, 즉시 수정 지시
+
+### Codex Verdict Schema (finance domain)
+```json
+{
+  "verdict": "PASS|FAIL|DEGRADED",
+  "domain": "finance",
+  "round": 1,
+  "checks_passed": 5,
+  "checks_total": 6,
+  "failures": [{"check": "cross_table_revenue", "expected": "$312K", "actual": "$285K", "severity": "CRITICAL"}]
+}
+```
+
+---
+
 ## References
 
 - `tools/cfo_harness.py` — 자동화 하네스 (AUDITOR_SYSTEM 프롬프트 포함)
+- `tools/codex_auditor.py` — Codex CLI 독립 검증 래퍼 (multi-domain)
 - `.claude/skills/cfo/SKILL.md` — CFO 오케스트레이터
 - `.claude/skills/golmani/SKILL.md` — 골만이 (검토 대상)
 - `workflows/cfo_financial_review.md` — 전체 SOP

@@ -14,20 +14,43 @@ description: >
 
 Apify 콘텐츠 파이프라인(IG + TikTok → Google Sheets)이 정상 작동하는지 3개 레이어로 감사하는 에이전트.
 
-## Architecture (Harness Mode)
+## Architecture — Dual-AI Verification (Claude + Codex)
 
 ```
 [Orchestrator (Claude Code)]
          |
     ┌────┴────┐
-    │ Loop ×3 │
+    │ Loop ×3 │  ← Claude 직접 실행
     └────┬────┘
          │
   Iter 1: INFRA      → GitHub Actions, secrets, credentials
   Iter 2: DATA       → Data Storage files, Sheets row counts, freshness
   Iter 3: INTEGRITY  → D+60 columns, brand coverage, duplicate check
          │
-    .tmp/crawl_audit/audit_{ts}.json   ← accumulated report
+    .tmp/crawl_audit/audit_{ts}.json
+         │
+         ▼
+┌────────────────────────────────────────┐
+│  Codex Verifier (독립 2차 검증)          │
+│  codex_auditor.py --domain crawl        │
+│    ├── audit JSON 읽기                   │
+│    ├── 6 axes 독립 재검증                │
+│    └── JSON verdict 반환                 │
+└────────────────────────────────────────┘
+         │
+    Claude verdict vs Codex verdict 비교
+    불일치 시 → 해당 axis 재검토
+```
+
+### Codex 크롤링 감사 CLI
+```bash
+PYTHON="C:/Users/wjcho/AppData/Local/Programs/Python/Python312/python.exe"
+WJ="C:/Users/wjcho/Desktop/WJ Test1"
+
+# Claude 감사 후 Codex 독립 재검증
+"$PYTHON" "$WJ/tools/codex_auditor.py" --domain crawl --audit
+"$PYTHON" "$WJ/tools/codex_auditor.py" --domain crawl --audit --region us
+"$PYTHON" "$WJ/tools/codex_auditor.py" --domain crawl --health
 ```
 
 ## Audit Layers (6 Axes)
@@ -120,6 +143,14 @@ Report structure:
 - **Workflow**: `apify_daily.yml` (GitHub Actions 스케줄)
 - **Downstream**: `build_apify_report.py` (이메일 리포트)
 - **Cross-ref**: `sync_sns_tab.py` (SNS 탭 동기화)
+- **Codex Verifier**: `tools/codex_auditor.py --domain crawl` (독립 2차 검증)
+
+### Dual-AI Audit Protocol
+
+크롤링 감사 호출 시:
+1. Claude `apify_crawl_auditor.py --harness` 실행 → `audit_{ts}.json`
+2. Codex `codex_auditor.py --domain crawl --audit` 독립 실행
+3. 양쪽 결과 비교 → 불일치 시 해당 axis 집중 재검토
 
 ## Credentials
 
