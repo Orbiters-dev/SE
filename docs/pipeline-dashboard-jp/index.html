@@ -107,6 +107,9 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 /* Loading */
 .loading-spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--a);border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+/* DM cross-check badge */
+.dm-checked{display:inline-block;padding:1px 5px;border-radius:3px;font-size:7px;font-weight:700;letter-spacing:.3px;vertical-align:middle;margin-left:4px}
+.dm-checked.ok{background:#ecfdf5;color:#059669}.dm-checked.warn{background:#fef3c7;color:#b45309}
 .loading-overlay{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--dim);gap:8px;font-size:12px}
 /* HiL Queue */
 .hil-group{margin-bottom:10px;border:1px solid var(--border);border-radius:8px;padding:10px 12px}
@@ -812,6 +815,7 @@ function loadCreators() {
       loadRecentActivity();
       loadConfig();
       loadInfluencerSheet();
+      crossCheckDmLogs();
     })
     .catch(function(err) {
       console.error('Failed to load creators:', err);
@@ -948,6 +952,42 @@ function hasPastContact(c) {
   return c.dm_count > 0 || (c.status !== 'not_started' && c.status !== 'inbound');
 }
 
+// DM cross-check: shows whether outbound DM was verified in logs
+var _dmCheckedMap = {}; // { username: true/false }
+var _dmCheckDone = false;
+
+function dmCheckedBadge(c) {
+  // Only show for creators that should have sent a DM (sent or beyond, not draft/not_started/inbound)
+  var postSend = ['sent','replied','accepted','form_submitted','contract_sent','contract_signed','guidelines_sent','sample_sent','sample_shipped','sample_delivered','posted'];
+  if (postSend.indexOf(c.status) === -1) return '';
+  if (!_dmCheckDone) return ' <span class="dm-checked warn" title="Checking...">...</span>';
+  if (_dmCheckedMap[c.username]) return ' <span class="dm-checked ok" title="DM delivery verified via log">✓ checked</span>';
+  return ' <span class="dm-checked warn" title="No outbound DM log found">⚠ unverified</span>';
+}
+
+function crossCheckDmLogs() {
+  var postSend = ['sent','replied','accepted','form_submitted','contract_sent','contract_signed','guidelines_sent','sample_sent','sample_shipped','sample_delivered','posted'];
+  var toCheck = _creators.filter(function(c) { return postSend.indexOf(c.status) !== -1; });
+  if (!toCheck.length) { _dmCheckDone = true; return; }
+  _dmCheckedMap = {};
+  var done = 0;
+  toCheck.forEach(function(c) {
+    n8nPost({ action: 'dm_log', username: c.username }).then(function(logs) {
+      var arr = Array.isArray(logs) ? logs : (logs && logs.logs ? logs.logs : []);
+      _dmCheckedMap[c.username] = arr.some(function(l) { return l.dir === 'out'; });
+    }).catch(function() {
+      _dmCheckedMap[c.username] = false;
+    }).then(function() {
+      done++;
+      if (done >= toCheck.length) {
+        _dmCheckDone = true;
+        renderCreators();
+        renderHilQueue();
+      }
+    });
+  });
+}
+
 // ─── Creators Tab ───
 function renderCreators() {
   var q = (document.getElementById('creator-search').value || '').toLowerCase();
@@ -978,6 +1018,7 @@ function renderCreators() {
     html += '<span class="dm-handle" style="cursor:pointer" onclick="openDmThread(\'' + c.username + '\')">@' + c.username + '</span>';
     html += '<span style="font-size:10px;color:var(--dim)">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + '</span>';
     html += statusBadge(c.status);
+    html += dmCheckedBadge(c);
     if (isManualDm(c)) html += ' <span class="b" style="background:#fdf4ff;color:#9333ea">Manual DM</span>';
     if (c.status === 'inbound' || c.status === 'needs_review') html += ' <span class="b" style="background:#f0f9ff;color:#0284c7">Inbound</span>';
     if (hasPastContact(c) && !isManualDm(c) && c.status !== 'inbound') html += ' <span class="b past">\u904E\u53BB\u9032\u884C</span>';
@@ -1161,6 +1202,7 @@ function renderHilQueue() {
       html += '<div class="hil-item" style="' + (stage.actionFn === 'hilReplyDraft' ? 'flex-direction:column;align-items:stretch' : '') + '">';
       html += '<label style="display:flex;align-items:center;gap:8px"><input type="checkbox" class="hil-cb" data-hil="' + stage.status + '" data-username="' + c.username + '" checked>';
       html += '<strong style="color:var(--a)">@' + c.username + '</strong>';
+      html += dmCheckedBadge(c);
       html += '<span style="color:var(--dim)">' + (c.name || '') + '</span>' + by;
       html += '</label>';
       // Show reply draft area for replied creators
