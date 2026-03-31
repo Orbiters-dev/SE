@@ -484,6 +484,12 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
     </div>
 
     <div class="card">
+      <h3>&#x1F4D6; DM Guidelines (Rules)</h3>
+      <div class="desc">Low Touch ガイドライン — DM送信時にClaude AIが参照するルール</div>
+      <div id="guidelines-rules"><div style="color:var(--dim);font-size:11px;padding:8px">Loading...</div></div>
+    </div>
+
+    <div class="card">
       <h3>&#x1F4CB; DocuSeal Contract</h3>
       <div class="desc">契約書テンプレート設定 — 無償(Gifting)と有償(Paid)の2種類</div>
       <div style="display:grid;gap:8px;margin-top:8px">
@@ -1648,9 +1654,20 @@ function sendGuidelines(handle) {
 function loadConfig() {
   n8nPost({ action: 'get_config' }).then(function(cfg) {
     if (cfg.mistake_log) document.getElementById('cfg-mistake-log').value = cfg.mistake_log;
-    if (cfg.dm_template) document.getElementById('cfg-dm-template').value = cfg.dm_template;
+    // dm_template: may be string or object with sections
+    if (cfg.dm_template) {
+      var tmpl = cfg.dm_template;
+      if (typeof tmpl === 'object') {
+        var txt = '';
+        Object.keys(tmpl).forEach(function(k) { txt += '## ' + k + '\n' + tmpl[k] + '\n\n'; });
+        document.getElementById('cfg-dm-template').value = txt.trim();
+      } else {
+        document.getElementById('cfg-dm-template').value = tmpl;
+      }
+    }
     if (cfg.docuseal_template_id) document.getElementById('cfg-docuseal-template').value = cfg.docuseal_template_id;
     if (cfg.faq_entries) renderFaqList(cfg.faq_entries);
+    if (cfg.guidelines) renderGuidelinesRules(cfg.guidelines);
     if (cfg.content_guidelines) renderGuidelinesConfig(cfg.content_guidelines);
   }).catch(function(){});
 }
@@ -1664,12 +1681,26 @@ function saveConfig(key, value) {
 // ─── FAQ management ───
 var _faqEntries = [];
 function renderFaqList(entries) {
-  _faqEntries = entries || [];
+  _faqEntries = (entries || []).map(function(e) {
+    // Normalize: support both {q,a} and {id,category,type,questions,answer}
+    if (e.questions || e.answer) return { id: e.id||'', category: e.category||'', type: e.type||'', q: e.questions||e.q||'', a: e.answer||e.a||'' };
+    return e;
+  });
   var html = '';
+  // Group by category if rich format
+  var hasCategories = _faqEntries.some(function(e) { return e.category; });
+  var lastCat = '';
   _faqEntries.forEach(function(e, i) {
+    if (hasCategories && e.category && e.category !== lastCat) {
+      lastCat = e.category;
+      var typeTag = e.type ? ' <span style="display:inline-block;padding:1px 6px;border-radius:8px;font-size:9px;font-weight:600;background:' + (e.type==='High Touch'?'#fef3c7;color:#92400e':'#e0f2fe;color:#0369a1') + '">' + escapeHtml(e.type) + '</span>' : '';
+      html += '<div style="font-size:11px;font-weight:700;color:var(--txt);margin:12px 0 6px;border-bottom:1px solid var(--border);padding-bottom:4px">' + escapeHtml(e.category) + typeTag + '</div>';
+    }
     html += '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:start">';
-    html += '<div style="flex:1"><input type="text" class="faq-q" data-idx="' + i + '" value="' + escapeHtml(e.q || '') + '" placeholder="\u8CEA\u554F..." style="width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;margin-bottom:4px">';
-    html += '<textarea class="faq-a" data-idx="' + i + '" rows="2" placeholder="\u56DE\u7B54..." style="width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;resize:vertical">' + escapeHtml(e.a || '') + '</textarea></div>';
+    html += '<div style="flex:1">';
+    if (e.id) html += '<div style="font-size:9px;color:var(--dim);margin-bottom:2px">' + escapeHtml(e.id) + '</div>';
+    html += '<textarea class="faq-q" data-idx="' + i + '" rows="2" placeholder="\u8CEA\u554F..." style="width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;resize:vertical;margin-bottom:4px">' + escapeHtml(e.q || '') + '</textarea>';
+    html += '<textarea class="faq-a" data-idx="' + i + '" rows="3" placeholder="\u56DE\u7B54..." style="width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;resize:vertical">' + escapeHtml(e.a || '') + '</textarea></div>';
     html += '<button class="btn btn-sm" style="background:var(--rbg);color:var(--r);border:1px solid var(--r)" onclick="removeFaq(' + i + ')">\u2715</button>';
     html += '</div>';
   });
@@ -1684,6 +1715,22 @@ function addFaqEntry() {
 function removeFaq(idx) {
   _faqEntries.splice(idx, 1);
   renderFaqList(_faqEntries);
+}
+
+// ─── DM Guidelines (rules from Google Sheets) ───
+function renderGuidelinesRules(rules) {
+  if (!rules || !rules.length) return;
+  var el = document.getElementById('guidelines-rules');
+  if (!el) return;
+  var html = '<table style="width:100%;font-size:11px;border-collapse:collapse">';
+  html += '<tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:4px 8px;font-weight:700">Category</th><th style="text-align:left;padding:4px 8px;font-weight:700">Rule</th></tr>';
+  rules.forEach(function(r) {
+    html += '<tr style="border-bottom:1px solid var(--border)">';
+    html += '<td style="padding:4px 8px;white-space:nowrap;font-weight:600;color:var(--a)">' + escapeHtml(r.category) + '</td>';
+    html += '<td style="padding:4px 8px">' + escapeHtml(r.rule) + '</td></tr>';
+  });
+  html += '</table>';
+  el.innerHTML = html;
 }
 
 function saveFaq() {
