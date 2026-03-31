@@ -1241,24 +1241,28 @@ function executeHilGroup(status) {
 
   // Special actions for certain stages
   if (stage.actionFn === 'hilSendDm') {
-    // Hybrid: 1st outreach = IG manual (open link + clipboard). Replies = ManyChat auto.
+    // Hybrid: 1st outreach = IG manual. One at a time with confirm.
     var remaining = _dailyLimit - _dmSentToday;
     if (remaining <= 0) { showToast('Daily DM limit reached!', 'err'); return; }
     handles = handles.slice(0, remaining);
     var idx = 0;
-    showToast('Opening ' + handles.length + ' IG DMs — 5s intervals, paste in each tab');
     (function next() {
-      if (idx >= handles.length) { showToast('Done! ' + handles.length + ' DM tabs opened.'); loadCreators(); return; }
+      if (idx >= handles.length) { showToast('Done! ' + idx + ' DMs confirmed sent.'); loadCreators(); return; }
       var h = handles[idx];
       var c = _creators.find(function(x) { return x.username === h; });
-      if (c && c.dm_draft) {
-        navigator.clipboard.writeText(c.dm_draft).catch(function(){});
-        n8nPost({ action: 'dm_log', sub_action: 'add', username: h, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' });
-      }
+      var draft = (c && c.dm_draft) ? c.dm_draft : '';
+      if (draft) navigator.clipboard.writeText(draft).catch(function(){});
       window.open('https://ig.me/m/' + h, '_blank');
-      showToast('(' + (idx+1) + '/' + handles.length + ') @' + h + ' — paste now! Next in 5s');
-      updateStatus(h, 'sent').then(function() { incDmCount(); });
-      idx++; setTimeout(next, 5000);
+      // Show confirm dialog — user must paste+send in IG tab, then come back and confirm
+      var ok = confirm('(' + (idx+1) + '/' + handles.length + ') @' + h + '\n\nIG 탭에서 붙여넣기(Ctrl+V) → 전송 완료 후\n\n✅ OK = 보냈음 (sent 처리)\n❌ Cancel = 안 보냄 (skip)');
+      if (ok) {
+        n8nPost({ action: 'dm_log', sub_action: 'add', username: h, dir: 'out', text: draft, sent_by: _currentUser || 'dashboard' });
+        updateStatus(h, 'sent').then(function() { incDmCount(); });
+        showToast('✅ @' + h + ' → sent');
+      } else {
+        showToast('⏭ @' + h + ' skipped');
+      }
+      idx++; setTimeout(next, 300);
     })();
     return;
   }
