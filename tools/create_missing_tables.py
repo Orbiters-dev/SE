@@ -201,6 +201,7 @@ ALTER_COLUMNS = [
     "ALTER TABLE onz_pipeline_creators ADD COLUMN IF NOT EXISTS enriched_at TIMESTAMP WITH TIME ZONE NULL",
     "CREATE INDEX IF NOT EXISTS idx_pipeline_creators_country ON onz_pipeline_creators(country)",
     "CREATE INDEX IF NOT EXISTS idx_pipeline_creators_is_business ON onz_pipeline_creators(is_business_account)",
+    "ALTER TABLE onz_pipeline_creators ADD COLUMN IF NOT EXISTS assigned_to VARCHAR(30) DEFAULT ''",
 ]
 
 if __name__ == "__main__":

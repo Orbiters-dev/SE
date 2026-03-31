@@ -7,6 +7,27 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
+_DEFAULT_BRAND_ASSIGNEES = {"Grosmimi": "Jeehoo", "CHA&MOM": "Laeeka", "Naeiae": "Soyeon"}
+
+
+def _get_brand_assignees():
+    """Load brand→assignee mapping from latest config, fallback to defaults."""
+    try:
+        from .models import PipelineConfig
+        cfg = PipelineConfig.objects.order_by('-date').first()
+        if cfg and cfg.brand_assignees:
+            return json.loads(cfg.brand_assignees)
+    except Exception:
+        pass
+    return _DEFAULT_BRAND_ASSIGNEES
+
+
+def _assign_owner(brand):
+    """Return the assignee for a brand."""
+    mapping = _get_brand_assignees()
+    return mapping.get(brand, mapping.get("Grosmimi", ""))
+
+
 # CORS origins allowed for GH Pages dashboards
 _CORS_ORIGINS = (
     'https://orbiters-dev.github.io',
@@ -623,6 +644,8 @@ def get_or_save_pipeline_config(request, config_date):
         defaults["ht_threshold"] = int(body["ht_threshold"])
     if "ht_follower_min" in body:
         defaults["ht_follower_min"] = int(body["ht_follower_min"])
+    if "brand_assignees" in body:
+        defaults["brand_assignees"] = json.dumps(body["brand_assignees"]) if isinstance(body["brand_assignees"], dict) else body["brand_assignees"]
     # Feature toggles
     for field in ("rag_email_dedup", "apify_autofill"):
         if field in body:
@@ -892,6 +915,7 @@ def pipeline_creators_list(request):
             "platform": body.get("platform", ""),
             "pipeline_status": body.get("pipeline_status", "Not Started"),
             "brand": body.get("brand", ""),
+            "assigned_to": body.get("assigned_to") or _assign_owner(body.get("brand", "")),
             "outreach_type": body.get("outreach_type", ""),
             "source": body.get("source", "outbound"),
             "notes": body.get("notes", ""),
@@ -1035,12 +1059,17 @@ def pipeline_creator_detail(request, creator_id):
         old_status = creator.pipeline_status
 
         for field in ("ig_handle", "tiktok_handle", "full_name", "platform",
-                      "pipeline_status", "brand", "outreach_type", "source", "notes",
+                      "pipeline_status", "brand", "assigned_to", "outreach_type",
+                      "source", "notes",
                       "shopify_customer_id", "shopify_draft_order_id",
                       "shopify_draft_order_name", "airtable_record_id",
                       "country", "business_category", "biography"):
             if field in body:
                 setattr(creator, field, body[field])
+
+        # Auto-assign owner when brand changes
+        if "brand" in body and "assigned_to" not in body:
+            creator.assigned_to = _assign_owner(body["brand"])
 
         if "followers" in body:
             creator.followers = int(body["followers"]) if body["followers"] else None
@@ -1361,6 +1390,7 @@ def import_syncly_discovery(request):
                 platform="TikTok" if "tiktok" in plat else "Instagram",
                 pipeline_status="Not Started",
                 brand=brand or "",
+                assigned_to=_assign_owner(brand or ""),
                 outreach_type="HT" if is_ht else "LT",
                 source="syncly",
                 followers=followers,

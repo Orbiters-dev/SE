@@ -203,6 +203,8 @@ class PipelineConfig(models.Model):
     creators_contacted = models.IntegerField(default=10)
     ht_threshold = models.IntegerField(default=100000)       # R30D views
     ht_follower_min = models.IntegerField(default=50000)     # Minimum followers for HT
+    # Brand → assignee mapping (JSON: {"Grosmimi":"Jeehoo","CHA&MOM":"Laeeka","Naeiae":"Soyeon"})
+    brand_assignees = models.TextField(default='{"Grosmimi":"Jeehoo","CHA&MOM":"Laeeka","Naeiae":"Soyeon"}')
     # Feature toggles
     rag_email_dedup = models.BooleanField(default=True)
     apify_autofill = models.BooleanField(default=True)
@@ -252,6 +254,7 @@ class PipelineCreator(models.Model):
 
     # Classification
     brand = models.CharField(max_length=30, blank=True, default="")
+    assigned_to = models.CharField(max_length=30, blank=True, default="")  # Brand owner tag
     outreach_type = models.CharField(max_length=10, blank=True, default="")  # HT, LT
     source = models.CharField(max_length=30, default="outbound")  # outbound, inbound
 
