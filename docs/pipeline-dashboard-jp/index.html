@@ -162,27 +162,36 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
   <!-- PIPELINE OVERVIEW -->
   <div class="card" style="margin-bottom:12px">
     <h3>&#x1F3AF; Pipeline Overview</h3>
-    <div class="funnel" id="dash-funnel">
-      <div class="funnel-row">
-        <div class="funnel-label">Outbound</div>
+    <!-- Source indicators -->
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:6px;padding:4px 12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;cursor:pointer" onclick="goToStage('inbound')" title="Inbound creators">
+        <span style="font-size:12px">&#x1F4E5;</span>
+        <span style="font-size:10px;font-weight:700;color:#0284c7">INBOUND</span>
+        <span style="font-size:14px;font-weight:800;font-family:var(--mono);color:#0284c7" id="f-inbound">0</span>
+        <span style="font-size:9px;color:#0369a1">自然流入</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;padding:4px 12px;background:#fdf4ff;border:1px solid #e9d5ff;border-radius:8px;cursor:pointer" onclick="goToStage('manual_dm')" title="Manual DM (sent outside automation)">
+        <span style="font-size:12px">&#x270D;&#xFE0F;</span>
+        <span style="font-size:10px;font-weight:700;color:#9333ea">MANUAL DM</span>
+        <span style="font-size:14px;font-weight:800;font-family:var(--mono);color:#9333ea" id="f-manual-dm">0</span>
+        <span style="font-size:9px;color:#7e22ce">直接送信</span>
+      </div>
+    </div>
+    <!-- Single continuous funnel -->
+    <div class="funnel" id="dash-funnel" style="overflow-x:auto">
+      <div class="funnel-row" style="min-width:max-content">
         <div class="fn on" data-stage="not_started" onclick="goToStage('not_started')"><div class="fi" id="f-not-started">0</div><div class="ft">Not Started</div></div><span class="fa">&#x25B6;</span>
         <div class="fn" data-stage="draft_ready" onclick="goToStage('draft_ready')"><div class="fi" id="f-draft-ready">0</div><div class="ft">Draft Ready</div><div class="fs">AI初案</div></div><span class="fa">&#x25B6;</span>
         <div class="fn" data-stage="sent" onclick="goToStage('sent')"><div class="fi" id="f-sent">0</div><div class="ft">DM Sent</div><div class="fs">発送済</div></div><span class="fa">&#x25B6;</span>
         <div class="fn" data-stage="replied" onclick="goToStage('replied')"><div class="fi" id="f-replied">0</div><div class="ft">Replied</div><div class="fs">返信あり</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="accepted" onclick="goToStage('accepted')"><div class="fi" id="f-accepted">0</div><div class="ft">Accepted</div><div class="fs">承諾</div></div>
-      </div>
-      <div class="funnel-row" style="margin-top:6px">
-        <div class="funnel-label">Fulfillment</div>
-        <div class="fn" data-stage="form_submitted" onclick="goToStage('form_submitted')"><div class="fi" id="f-form-submitted">0</div><div class="ft">Form Submitted</div><div class="fs">フォーム提出</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="contract_sent" onclick="goToStage('contract_sent')"><div class="fi" id="f-contract-sent">0</div><div class="ft">Contract Sent</div><div class="fs">契約書送付</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="contract_signed" onclick="goToStage('contract_signed')"><div class="fi" id="f-contract-signed">0</div><div class="ft">Contract Signed</div><div class="fs">契約締結</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="guidelines_sent" onclick="goToStage('guidelines_sent')"><div class="fi" id="f-guidelines-sent">0</div><div class="ft">Guidelines Sent</div><div class="fs">ガイドライン送付</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="sample_sent" onclick="goToStage('sample_sent')"><div class="fi" id="f-sample-sent">0</div><div class="ft">Sample Sent</div><div class="fs">サンプル発送</div></div>
-      </div>
-      <div class="funnel-row" style="margin-top:6px">
-        <div class="funnel-label">Delivery</div>
-        <div class="fn" data-stage="sample_shipped" onclick="goToStage('sample_shipped')"><div class="fi" id="f-sample-shipped">0</div><div class="ft">Sample Shipped</div><div class="fs">配送中</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="sample_delivered" onclick="goToStage('sample_delivered')"><div class="fi" id="f-sample-delivered">0</div><div class="ft">Sample Delivered</div><div class="fs">配達完了</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="accepted" onclick="goToStage('accepted')"><div class="fi" id="f-accepted">0</div><div class="ft">Accepted</div><div class="fs">承諾</div></div><span class="fa" style="color:var(--g)">&#x25B6;</span>
+        <div class="fn" data-stage="form_submitted" onclick="goToStage('form_submitted')"><div class="fi" id="f-form-submitted">0</div><div class="ft">Form</div><div class="fs">フォーム提出</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="contract_sent" onclick="goToStage('contract_sent')"><div class="fi" id="f-contract-sent">0</div><div class="ft">Contract</div><div class="fs">契約書送付</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="contract_signed" onclick="goToStage('contract_signed')"><div class="fi" id="f-contract-signed">0</div><div class="ft">Signed</div><div class="fs">契約締結</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="guidelines_sent" onclick="goToStage('guidelines_sent')"><div class="fi" id="f-guidelines-sent">0</div><div class="ft">Guidelines</div><div class="fs">ガイドライン</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="sample_sent" onclick="goToStage('sample_sent')"><div class="fi" id="f-sample-sent">0</div><div class="ft">Sample Sent</div><div class="fs">サンプル発送</div></div><span class="fa" style="color:var(--p)">&#x25B6;</span>
+        <div class="fn" data-stage="sample_shipped" onclick="goToStage('sample_shipped')"><div class="fi" id="f-sample-shipped">0</div><div class="ft">Shipped</div><div class="fs">配送中</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="sample_delivered" onclick="goToStage('sample_delivered')"><div class="fi" id="f-sample-delivered">0</div><div class="ft">Delivered</div><div class="fs">配達完了</div></div><span class="fa">&#x25B6;</span>
         <div class="fn" data-stage="posted" onclick="goToStage('posted')"><div class="fi" id="f-posted">0</div><div class="ft">Posted</div><div class="fs">投稿済</div></div>
       </div>
     </div>
@@ -207,6 +216,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
       <div class="stat green"><div class="sl">Accepted</div><div class="sv" id="s-accepted">0</div></div>
       <div class="stat pink"><div class="sl">Posted</div><div class="sv" id="s-posted">0</div></div>
       <div class="stat" style="border-left:2px solid var(--c)"><div class="sl">Inbound</div><div class="sv" id="s-inbound" style="color:var(--c)">0</div></div>
+      <div class="stat" style="border-left:2px solid #9333ea"><div class="sl">Manual DM</div><div class="sv" id="s-manual-dm" style="color:#9333ea">0</div></div>
     </div>
 
     <!-- Daily KPI Table -->
@@ -216,7 +226,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
       <div style="overflow-x:auto">
         <table id="daily-kpi-table">
           <thead>
-            <tr><th>Date</th><th>Outreach</th><th>Reply</th><th>Accepted</th><th>Posted</th><th>Inbound</th><th>Reply Rate</th></tr>
+            <tr><th>Date</th><th>Outreach</th><th>Manual DM</th><th>Reply</th><th>Accepted</th><th>Posted</th><th>Inbound</th><th>Reply Rate</th></tr>
           </thead>
           <tbody id="daily-kpi-tbody">
             <tr><td colspan="7" style="text-align:center;padding:20px;color:var(--dim)">Loading...</td></tr>
@@ -276,6 +286,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         <option value="posted">Posted</option>
         <option value="inbound">Inbound</option>
         <option value="needs_review">Needs Review</option>
+        <option value="manual_dm">Manual DM</option>
       </select>
       <button class="btn btn-sm btn-secondary" onclick="showImportModal()">&#x1F4E5; Import</button>
       <span id="creator-count" style="font-size:11px;color:var(--dim)">0 creators</span>
@@ -719,9 +730,23 @@ function setPillStatus(s) {
   }
 }
 
+function isManualDm(c) {
+  // Manual DM = creator reached 'sent' or beyond without going through draft generation
+  // Detected by: source === 'manual_dm', OR has dm_count > 0 but never had dm_draft, OR source === 'manual'
+  if (c.source === 'manual_dm' || c.source === 'manual') return true;
+  // If status is sent or beyond but no dm_draft was ever set, it was manual
+  var postDraftStatuses = ['sent','replied','accepted','form_submitted','contract_sent','contract_signed','guidelines_sent','sample_sent','sample_shipped','sample_delivered','posted'];
+  if (postDraftStatuses.indexOf(c.status) !== -1 && !c.dm_draft && !c._had_draft) return true;
+  return false;
+}
+
 function updateStats() {
   var counts = { not_started: 0, draft_ready: 0, sent: 0, replied: 0, accepted: 0, form_submitted: 0, contract_sent: 0, contract_signed: 0, guidelines_sent: 0, sample_sent: 0, sample_shipped: 0, sample_delivered: 0, posted: 0, inbound: 0, needs_review: 0 };
-  _creators.forEach(function(c) { counts[c.status] = (counts[c.status] || 0) + 1; });
+  var manualDmCount = 0;
+  _creators.forEach(function(c) {
+    counts[c.status] = (counts[c.status] || 0) + 1;
+    if (isManualDm(c)) manualDmCount++;
+  });
   document.getElementById('pill-total').textContent = _creators.length + ' creators';
   document.getElementById('s-total').textContent = _creators.length;
   document.getElementById('s-draft').textContent = counts.draft_ready;
@@ -729,6 +754,7 @@ function updateStats() {
   document.getElementById('s-accepted').textContent = counts.accepted;
   document.getElementById('s-posted').textContent = counts.posted;
   document.getElementById('s-inbound').textContent = counts.inbound + counts.needs_review;
+  document.getElementById('s-manual-dm').textContent = manualDmCount;
   // Funnel
   document.getElementById('f-not-started').textContent = counts.not_started;
   document.getElementById('f-draft-ready').textContent = counts.draft_ready;
@@ -743,6 +769,8 @@ function updateStats() {
   document.getElementById('f-sample-shipped').textContent = counts.sample_shipped;
   document.getElementById('f-sample-delivered').textContent = counts.sample_delivered;
   document.getElementById('f-posted').textContent = counts.posted;
+  document.getElementById('f-inbound').textContent = counts.inbound + counts.needs_review;
+  document.getElementById('f-manual-dm').textContent = manualDmCount;
   // DM budget
   var pct = Math.min(100, (_dmSentToday / _dailyLimit) * 100);
   document.getElementById('dm-budget-bar').style.width = pct + '%';
@@ -751,8 +779,8 @@ function updateStats() {
 }
 
 function statusBadge(s) {
-  var map = { not_started: '', draft_ready: 'am', sent: 'c', replied: 'a', accepted: 'g', form_submitted: 'am', contract_sent: 'c', contract_signed: 'g', guidelines_sent: 'p', sample_sent: 'p', sample_shipped: 'c', sample_delivered: 'g', posted: 'g', inbound: 'c', needs_review: 'am', declined: 'r' };
-  var label = { not_started: 'Not Started', draft_ready: 'Draft Ready', sent: 'DM Sent', replied: 'Replied', accepted: 'Accepted', form_submitted: 'Form Submitted', contract_sent: 'Contract Sent', contract_signed: 'Contract Signed', guidelines_sent: 'Guidelines Sent', sample_sent: 'Sample Sent', sample_shipped: 'Sample Shipped', sample_delivered: 'Sample Delivered', posted: 'Posted', inbound: 'Inbound', needs_review: 'Needs Review', declined: 'Declined' };
+  var map = { not_started: '', draft_ready: 'am', sent: 'c', replied: 'a', accepted: 'g', form_submitted: 'am', contract_sent: 'c', contract_signed: 'g', guidelines_sent: 'p', sample_sent: 'p', sample_shipped: 'c', sample_delivered: 'g', posted: 'g', inbound: 'c', needs_review: 'am', declined: 'r', manual_dm: 'p' };
+  var label = { not_started: 'Not Started', draft_ready: 'Draft Ready', sent: 'DM Sent', replied: 'Replied', accepted: 'Accepted', form_submitted: 'Form Submitted', contract_sent: 'Contract Sent', contract_signed: 'Contract Signed', guidelines_sent: 'Guidelines Sent', sample_sent: 'Sample Sent', sample_shipped: 'Sample Shipped', sample_delivered: 'Sample Delivered', posted: 'Posted', inbound: 'Inbound', needs_review: 'Needs Review', declined: 'Declined', manual_dm: 'Manual DM' };
   return '<span class="b ' + (map[s] || '') + '">' + (label[s] || s) + '</span>';
 }
 
@@ -765,7 +793,9 @@ function renderCreators() {
   var q = (document.getElementById('creator-search').value || '').toLowerCase();
   var sf = document.getElementById('creator-status-filter').value;
   var filtered = _creators.filter(function(c) {
-    if (sf && c.status !== sf) return false;
+    if (sf === 'manual_dm') {
+      if (!isManualDm(c)) return false;
+    } else if (sf && c.status !== sf) return false;
     if (q && c.username.toLowerCase().indexOf(q) === -1 && (c.name || '').toLowerCase().indexOf(q) === -1) return false;
     return true;
   });
@@ -788,7 +818,9 @@ function renderCreators() {
     html += '<span class="dm-handle" style="cursor:pointer" onclick="openDmThread(\'' + c.username + '\')">@' + c.username + '</span>';
     html += '<span style="font-size:10px;color:var(--dim)">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + '</span>';
     html += statusBadge(c.status);
-    if (hasPastContact(c)) html += ' <span class="b past">過去進行</span>';
+    if (isManualDm(c)) html += ' <span class="b" style="background:#fdf4ff;color:#9333ea">Manual DM</span>';
+    if (c.status === 'inbound' || c.status === 'needs_review') html += ' <span class="b" style="background:#f0f9ff;color:#0284c7">Inbound</span>';
+    if (hasPastContact(c) && !isManualDm(c) && c.status !== 'inbound') html += ' <span class="b past">過去進行</span>';
     if (c.dm_count > 0) html += ' <span class="b c">' + c.dm_count + ' msgs</span>';
     html += '</div>';
     // Action buttons
@@ -889,13 +921,17 @@ function renderDailyKpi() {
 
   // Count by status change dates (approximate from last_dm and added_at)
   var dailyStats = {};
-  days.forEach(function(day) { dailyStats[day] = { outreach: 0, reply: 0, accepted: 0, posted: 0, inbound: 0 }; });
+  days.forEach(function(day) { dailyStats[day] = { outreach: 0, manual_dm: 0, reply: 0, accepted: 0, posted: 0, inbound: 0 }; });
 
   _creators.forEach(function(c) {
     var dm = c.last_dm || '';
     if (dm && dailyStats[dm]) {
       if (c.status === 'sent' || c.status === 'replied' || c.status === 'accepted' || c.status === 'sample_sent' || c.status === 'posted') {
-        dailyStats[dm].outreach++;
+        if (isManualDm(c)) {
+          dailyStats[dm].manual_dm++;
+        } else {
+          dailyStats[dm].outreach++;
+        }
       }
       if (c.status === 'replied') dailyStats[dm].reply++;
       if (c.status === 'accepted' || c.status === 'sample_sent' || c.status === 'posted') dailyStats[dm].accepted++;
@@ -905,18 +941,19 @@ function renderDailyKpi() {
   });
 
   // Also count today's DM budget
-  dailyStats[days[0]] = dailyStats[days[0]] || { outreach: 0, reply: 0, accepted: 0, posted: 0, inbound: 0 };
+  dailyStats[days[0]] = dailyStats[days[0]] || { outreach: 0, manual_dm: 0, reply: 0, accepted: 0, posted: 0, inbound: 0 };
   dailyStats[days[0]].outreach = Math.max(dailyStats[days[0]].outreach, _dmSentToday);
 
   var html = '';
   days.forEach(function(day) {
     var s = dailyStats[day];
-    var total = s.outreach + s.inbound;
+    var total = s.outreach + s.manual_dm + s.inbound;
     var replyRate = total > 0 ? Math.round((s.reply / total) * 100) + '%' : '-';
     var isToday = day === days[0];
     html += '<tr' + (isToday ? ' style="background:#fff5f5;font-weight:600"' : '') + '>';
     html += '<td>' + day + (isToday ? ' <span class="b a">Today</span>' : '') + '</td>';
     html += '<td style="font-family:var(--mono)">' + s.outreach + '</td>';
+    html += '<td style="font-family:var(--mono);color:#9333ea">' + s.manual_dm + '</td>';
     html += '<td style="font-family:var(--mono)">' + s.reply + '</td>';
     html += '<td style="font-family:var(--mono)">' + s.accepted + '</td>';
     html += '<td style="font-family:var(--mono)">' + s.posted + '</td>';
@@ -924,7 +961,7 @@ function renderDailyKpi() {
     html += '<td>' + replyRate + '</td>';
     html += '</tr>';
   });
-  document.getElementById('daily-kpi-tbody').innerHTML = html || '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--dim)">No data yet</td></tr>';
+  document.getElementById('daily-kpi-tbody').innerHTML = html || '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--dim)">No data yet</td></tr>';
 }
 
 function renderDmQueue() { /* removed — DM Drafts tab handles this now */ }
@@ -1437,7 +1474,14 @@ function goToStage(status) {
   var tab = document.querySelector('.mt>div[data-p="creators"]');
   if (tab) tab.click();
   var sel = document.getElementById('creator-status-filter');
-  if (sel) { sel.value = status; filterCreators(); }
+  if (sel) {
+    if (status === 'manual_dm') {
+      sel.value = 'manual_dm';
+    } else {
+      sel.value = status;
+    }
+    filterCreators();
+  }
 }
 
 function showToast(msg, type) {
