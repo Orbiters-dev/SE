@@ -3940,8 +3940,6 @@ function updateFtSummary(){
   if(apifyCheck)parts.push('+'+apifyEstimate+' Apify ('+pendingCrawl+'\u00d720%)');
   if(ragCheck&&_ftResults.rag)parts.push('\u2212'+ragCount+' dedup');
   flowEl.textContent=parts.join(' \u2192 ');
-
-  document.getElementById('ft-pipeline-flow').innerHTML=flow;
   document.getElementById('ft-eligible-count').textContent=eligible;
   document.getElementById('ft-total-count').textContent=total;
   document.getElementById('ft-pipeline-summary').style.display='';
