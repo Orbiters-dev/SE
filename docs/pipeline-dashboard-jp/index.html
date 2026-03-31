@@ -108,6 +108,15 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 .loading-spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--a);border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-overlay{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--dim);gap:8px;font-size:12px}
+/* HiL Queue */
+.hil-group{margin-bottom:10px;border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.hil-group-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.hil-group-title{font-size:11px;font-weight:700;display:flex;align-items:center;gap:6px}
+.hil-group-title .hil-count{background:var(--abg);color:var(--a);padding:1px 6px;border-radius:10px;font-size:9px;font-weight:700}
+.hil-item{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:11px}
+.hil-item label{display:flex;align-items:center;gap:6px;cursor:pointer;flex:1}
+.hil-item input[type="checkbox"]{width:14px;height:14px;accent-color:var(--a)}
+.hil-empty{text-align:center;padding:16px;color:var(--dim);font-size:11px}
 @media(max-width:700px){
   .ctr{padding:12px 8px 60px}.hero h1{font-size:18px}
   .mt>div{padding:8px 12px;font-size:11px}
@@ -162,39 +171,44 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
   <!-- PIPELINE OVERVIEW -->
   <div class="card" style="margin-bottom:12px">
     <h3>&#x1F3AF; Pipeline Overview</h3>
-    <!-- Source indicators -->
-    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;gap:6px;padding:4px 12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;cursor:pointer" onclick="goToStage('inbound')" title="Inbound creators">
-        <span style="font-size:12px">&#x1F4E5;</span>
-        <span style="font-size:10px;font-weight:700;color:#0284c7">INBOUND</span>
-        <span style="font-size:14px;font-weight:800;font-family:var(--mono);color:#0284c7" id="f-inbound">0</span>
-        <span style="font-size:9px;color:#0369a1">自然流入</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:6px;padding:4px 12px;background:#fdf4ff;border:1px solid #e9d5ff;border-radius:8px;cursor:pointer" onclick="goToStage('manual_dm')" title="Manual DM (sent outside automation)">
-        <span style="font-size:12px">&#x270D;&#xFE0F;</span>
-        <span style="font-size:10px;font-weight:700;color:#9333ea">MANUAL DM</span>
-        <span style="font-size:14px;font-weight:800;font-family:var(--mono);color:#9333ea" id="f-manual-dm">0</span>
-        <span style="font-size:9px;color:#7e22ce">直接送信</span>
-      </div>
-    </div>
-    <!-- Single continuous funnel -->
     <div class="funnel" id="dash-funnel" style="overflow-x:auto">
+      <!-- Row 1: Main Pipeline -->
       <div class="funnel-row" style="min-width:max-content">
+        <div class="funnel-label">PIPELINE</div>
         <div class="fn on" data-stage="not_started" onclick="goToStage('not_started')"><div class="fi" id="f-not-started">0</div><div class="ft">Not Started</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="draft_ready" onclick="goToStage('draft_ready')"><div class="fi" id="f-draft-ready">0</div><div class="ft">Draft Ready</div><div class="fs">AI初案</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="sent" onclick="goToStage('sent')"><div class="fi" id="f-sent">0</div><div class="ft">DM Sent</div><div class="fs">発送済</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="replied" onclick="goToStage('replied')"><div class="fi" id="f-replied">0</div><div class="ft">Replied</div><div class="fs">返信あり</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="accepted" onclick="goToStage('accepted')"><div class="fi" id="f-accepted">0</div><div class="ft">Accepted</div><div class="fs">承諾</div></div><span class="fa" style="color:var(--g)">&#x25B6;</span>
-        <div class="fn" data-stage="form_submitted" onclick="goToStage('form_submitted')"><div class="fi" id="f-form-submitted">0</div><div class="ft">Form</div><div class="fs">フォーム提出</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="contract_sent" onclick="goToStage('contract_sent')"><div class="fi" id="f-contract-sent">0</div><div class="ft">Contract</div><div class="fs">契約書送付</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="contract_signed" onclick="goToStage('contract_signed')"><div class="fi" id="f-contract-signed">0</div><div class="ft">Signed</div><div class="fs">契約締結</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="guidelines_sent" onclick="goToStage('guidelines_sent')"><div class="fi" id="f-guidelines-sent">0</div><div class="ft">Guidelines</div><div class="fs">ガイドライン</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="sample_sent" onclick="goToStage('sample_sent')"><div class="fi" id="f-sample-sent">0</div><div class="ft">Sample Sent</div><div class="fs">サンプル発送</div></div><span class="fa" style="color:var(--p)">&#x25B6;</span>
-        <div class="fn" data-stage="sample_shipped" onclick="goToStage('sample_shipped')"><div class="fi" id="f-sample-shipped">0</div><div class="ft">Shipped</div><div class="fs">配送中</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="sample_delivered" onclick="goToStage('sample_delivered')"><div class="fi" id="f-sample-delivered">0</div><div class="ft">Delivered</div><div class="fs">配達完了</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="posted" onclick="goToStage('posted')"><div class="fi" id="f-posted">0</div><div class="ft">Posted</div><div class="fs">投稿済</div></div>
+        <div class="fn" data-stage="draft_ready" onclick="goToStage('draft_ready')"><div class="fi" id="f-draft-ready">0</div><div class="ft">Draft Ready</div><div class="fs">AI&#x521D;&#x6848;</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="sent" onclick="goToStage('sent')"><div class="fi" id="f-sent">0</div><div class="ft">DM Sent</div><div class="fs">&#x767A;&#x9001;&#x6E08;</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="replied" onclick="goToStage('replied')"><div class="fi" id="f-replied">0</div><div class="ft">Replied</div><div class="fs">&#x8FD4;&#x4FE1;&#x3042;&#x308A;</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="accepted" onclick="goToStage('accepted')"><div class="fi" id="f-accepted">0</div><div class="ft">Accepted</div><div class="fs">&#x627F;&#x8AFE;</div></div><span class="fa" style="color:var(--g)">&#x25B6;</span>
+        <div class="fn" data-stage="form_submitted" onclick="goToStage('form_submitted')"><div class="fi" id="f-form-submitted">0</div><div class="ft">Form</div><div class="fs">&#x30D5;&#x30A9;&#x30FC;&#x30E0;</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="contract_sent" onclick="goToStage('contract_sent')"><div class="fi" id="f-contract-sent">0</div><div class="ft">Contract</div><div class="fs">&#x5951;&#x7D04;&#x66F8;</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="contract_signed" onclick="goToStage('contract_signed')"><div class="fi" id="f-contract-signed">0</div><div class="ft">Signed</div><div class="fs">&#x7DE0;&#x7D50;</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="guidelines_sent" onclick="goToStage('guidelines_sent')"><div class="fi" id="f-guidelines-sent">0</div><div class="ft">Guidelines</div><div class="fs">&#x30AC;&#x30A4;&#x30C9;</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="sample_sent" onclick="goToStage('sample_sent')"><div class="fi" id="f-sample-sent">0</div><div class="ft">Sample Sent</div><div class="fs">&#x30B5;&#x30F3;&#x30D7;&#x30EB;</div></div><span class="fa" style="color:var(--p)">&#x25B6;</span>
+        <div class="fn" data-stage="sample_shipped" onclick="goToStage('sample_shipped')"><div class="fi" id="f-sample-shipped">0</div><div class="ft">Shipped</div><div class="fs">&#x914D;&#x9001;&#x4E2D;</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="sample_delivered" onclick="goToStage('sample_delivered')"><div class="fi" id="f-sample-delivered">0</div><div class="ft">Delivered</div><div class="fs">&#x914D;&#x9054;&#x5B8C;&#x4E86;</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="posted" onclick="goToStage('posted')"><div class="fi" id="f-posted">0</div><div class="ft">Posted</div><div class="fs">&#x6295;&#x7A3F;&#x6E08;</div></div>
+      </div>
+      <!-- Row 2: Inbound -->
+      <div class="funnel-row" style="margin-top:6px;min-width:max-content">
+        <div class="funnel-label" style="color:#0284c7">INBOUND</div>
+        <div class="fn" data-stage="inbound" onclick="goToStage('inbound')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-inbound" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Inbound</div><div class="fs">&#x81EA;&#x7136;&#x6D41;&#x5165;</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="needs_review" onclick="goToStage('needs_review')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-needs-review" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Review</div><div class="fs">&#x78BA;&#x8A8D;&#x5F85;&#x3061;</div></div><span class="fa" style="color:#0284c7">&#x25B6;</span>
+        <span style="font-size:9px;color:#0284c7;padding:0 4px;font-style:italic">&#x2192; Accepted</span>
+      </div>
+      <!-- Row 3: Manual DM -->
+      <div class="funnel-row" style="margin-top:6px;min-width:max-content">
+        <div class="funnel-label" style="color:#9333ea">MANUAL DM</div>
+        <div class="fn" data-stage="manual_dm" onclick="goToStage('manual_dm')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-manual-dm" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">Manual DM</div><div class="fs">&#x76F4;&#x63A5;&#x9001;&#x4FE1;</div></div><span class="fa" style="color:#9333ea">&#x25B6;</span>
+        <span style="font-size:9px;color:#9333ea;padding:0 4px;font-style:italic">&#x2192; DM Sent &#x4EE5;&#x964D;</span>
       </div>
     </div>
+  </div>
+
+  <!-- HiL Action Queue -->
+  <div class="card" style="margin-bottom:12px">
+    <h3>&#x26A1; Action Queue <span style="font-size:10px;font-weight:500;color:var(--dim)">(Human-in-the-Loop)</span></h3>
+    <div id="hil-queue"></div>
   </div>
 
   <!-- MAIN TABS -->
@@ -704,6 +718,7 @@ function loadCreators() {
       renderCreators();
       renderDailyKpi();
       renderInboundQueue();
+      renderHilQueue();
       renderSamples();
       renderContracts();
       loadRecentActivity();
@@ -769,7 +784,8 @@ function updateStats() {
   document.getElementById('f-sample-shipped').textContent = counts.sample_shipped;
   document.getElementById('f-sample-delivered').textContent = counts.sample_delivered;
   document.getElementById('f-posted').textContent = counts.posted;
-  document.getElementById('f-inbound').textContent = counts.inbound + counts.needs_review;
+  document.getElementById('f-inbound').textContent = counts.inbound;
+  document.getElementById('f-needs-review').textContent = counts.needs_review;
   document.getElementById('f-manual-dm').textContent = manualDmCount;
   // DM budget
   var pct = Math.min(100, (_dmSentToday / _dailyLimit) * 100);
@@ -820,8 +836,9 @@ function renderCreators() {
     html += statusBadge(c.status);
     if (isManualDm(c)) html += ' <span class="b" style="background:#fdf4ff;color:#9333ea">Manual DM</span>';
     if (c.status === 'inbound' || c.status === 'needs_review') html += ' <span class="b" style="background:#f0f9ff;color:#0284c7">Inbound</span>';
-    if (hasPastContact(c) && !isManualDm(c) && c.status !== 'inbound') html += ' <span class="b past">過去進行</span>';
+    if (hasPastContact(c) && !isManualDm(c) && c.status !== 'inbound') html += ' <span class="b past">\u904E\u53BB\u9032\u884C</span>';
     if (c.dm_count > 0) html += ' <span class="b c">' + c.dm_count + ' msgs</span>';
+    if (c.triggered_by) html += ' <span style="font-size:9px;color:var(--muted)">by ' + escapeHtml(c.triggered_by) + '</span>';
     html += '</div>';
     // Action buttons
     html += '<div style="display:flex;gap:4px">';
@@ -866,11 +883,12 @@ function filterCreators() { _page = 0; renderCreators(); }
 
 // ─── Status changes via n8n ───
 function updateStatus(handle, newStatus) {
-  return n8nPost({ action: 'update_status', username: handle, status: newStatus })
+  return n8nPost({ action: 'update_status', username: handle, status: newStatus, triggered_by: _currentUser || 'system' })
     .then(function(res) {
       var c = _creators.find(function(x) { return x.username === handle; });
       if (c) {
         c.status = newStatus;
+        c.triggered_by = _currentUser || 'system';
         if (newStatus === 'sent') c.last_dm = new Date().toISOString().slice(0, 10);
       }
       return res;
@@ -965,6 +983,111 @@ function renderDailyKpi() {
 }
 
 function renderDmQueue() { /* removed — DM Drafts tab handles this now */ }
+
+// ─── HiL Action Queue ───
+var _hilStages = [
+  { status: 'draft_ready', label: 'Draft Ready \u2192 Send DM', nextStatus: 'sent', actionFn: 'hilSendDm', icon: '\uD83D\uDCE4', needsCopy: true },
+  { status: 'sent', label: 'DM Sent \u2192 Mark Replied', nextStatus: 'replied', icon: '\uD83D\uDCAC' },
+  { status: 'replied', label: 'Replied \u2192 Accept', nextStatus: 'accepted', icon: '\u2705' },
+  { status: 'accepted', label: 'Accepted \u2192 Send Form', actionFn: 'hilSendForm', icon: '\uD83D\uDCCB' },
+  { status: 'form_submitted', label: 'Form \u2192 Send Contract', actionFn: 'hilSendContract', icon: '\uD83D\uDCDD' },
+  { status: 'contract_signed', label: 'Signed \u2192 Send Guidelines', nextStatus: 'guidelines_sent', actionFn: 'hilSendGuidelines', icon: '\uD83D\uDCC4' },
+  { status: 'guidelines_sent', label: 'Guidelines \u2192 Sample Sent', nextStatus: 'sample_sent', icon: '\uD83D\uDCE6' },
+  { status: 'sample_sent', label: 'Sample Sent \u2192 Shipped', nextStatus: 'sample_shipped', icon: '\uD83D\uDE9A' },
+  { status: 'sample_shipped', label: 'Shipped \u2192 Delivered', nextStatus: 'sample_delivered', icon: '\u2705' }
+];
+
+function renderHilQueue() {
+  var el = document.getElementById('hil-queue');
+  var html = '';
+  var totalActions = 0;
+  _hilStages.forEach(function(stage) {
+    var creators = _creators.filter(function(c) { return c.status === stage.status; });
+    if (!creators.length) return;
+    totalActions += creators.length;
+    html += '<div class="hil-group" data-hil-status="' + stage.status + '">';
+    html += '<div class="hil-group-header">';
+    html += '<div class="hil-group-title">' + stage.icon + ' ' + stage.label + ' <span class="hil-count">' + creators.length + '</span></div>';
+    html += '<div style="display:flex;gap:4px;align-items:center">';
+    html += '<label style="font-size:9px;color:var(--dim);cursor:pointer"><input type="checkbox" checked onchange="toggleHilGroup(\'' + stage.status + '\',this.checked)" style="width:12px;height:12px;accent-color:var(--a)"> All</label>';
+    html += '<button class="btn btn-sm btn-success" onclick="executeHilGroup(\'' + stage.status + '\')">\uD83D\uDE80 Execute</button>';
+    html += '</div></div>';
+    creators.forEach(function(c) {
+      var by = c.triggered_by ? ' <span style="font-size:9px;color:var(--muted)">by ' + c.triggered_by + '</span>' : '';
+      html += '<div class="hil-item"><label><input type="checkbox" class="hil-cb" data-hil="' + stage.status + '" data-username="' + c.username + '" checked>';
+      html += '<strong style="color:var(--a)">@' + c.username + '</strong>';
+      html += '<span style="color:var(--dim)">' + (c.name || '') + '</span>' + by;
+      html += '</label></div>';
+    });
+    html += '</div>';
+  });
+  if (!totalActions) {
+    html = '<div class="hil-empty">No pending actions. All creators are progressing automatically.</div>';
+  }
+  el.innerHTML = html;
+}
+
+function toggleHilGroup(status, checked) {
+  document.querySelectorAll('.hil-cb[data-hil="' + status + '"]').forEach(function(cb) { cb.checked = checked; });
+}
+
+function executeHilGroup(status) {
+  var stage = _hilStages.find(function(s) { return s.status === status; });
+  if (!stage) return;
+  var checked = document.querySelectorAll('.hil-cb[data-hil="' + status + '"]:checked');
+  var handles = [];
+  checked.forEach(function(cb) { handles.push(cb.dataset.username); });
+  if (!handles.length) { showToast('No creators selected', 'err'); return; }
+
+  // Special actions for certain stages
+  if (stage.actionFn === 'hilSendDm') {
+    // Open IG + copy draft for each
+    var remaining = _dailyLimit - _dmSentToday;
+    if (remaining <= 0) { showToast('Daily DM limit reached!', 'err'); return; }
+    handles = handles.slice(0, remaining);
+    var idx = 0;
+    showToast('Sending ' + handles.length + ' DMs...');
+    (function next() {
+      if (idx >= handles.length) { showToast('Done! ' + handles.length + ' DMs sent'); loadCreators(); return; }
+      var h = handles[idx];
+      var c = _creators.find(function(x) { return x.username === h; });
+      if (c && c.dm_draft) { navigator.clipboard.writeText(c.dm_draft).catch(function(){}); n8nPost({ action: 'dm_log', sub_action: 'add', username: h, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' }); }
+      window.open('https://ig.me/m/' + h, '_blank');
+      updateStatus(h, 'sent').then(function() { incDmCount(); });
+      idx++; setTimeout(next, 1200);
+    })();
+    return;
+  }
+  if (stage.actionFn === 'hilSendForm') {
+    handles.forEach(function(h) { sendFormLink(h); });
+    showToast(handles.length + ' form links copied');
+    return;
+  }
+  if (stage.actionFn === 'hilSendContract') {
+    // Switch to contracts tab
+    var tab = document.querySelector('.mt>div[data-p="contracts"]');
+    if (tab) tab.click();
+    return;
+  }
+  if (stage.actionFn === 'hilSendGuidelines') {
+    var idx2 = 0;
+    showToast('Sending guidelines to ' + handles.length + ' creators...');
+    (function next2() {
+      if (idx2 >= handles.length) { showToast('Done! Guidelines sent'); loadCreators(); return; }
+      sendGuidelines(handles[idx2]);
+      idx2++; setTimeout(next2, 500);
+    })();
+    return;
+  }
+  // Default: just advance status
+  if (stage.nextStatus) {
+    var promises = handles.map(function(h) { return updateStatus(h, stage.nextStatus); });
+    Promise.all(promises).then(function() {
+      showToast(handles.length + ' creators advanced to ' + stage.nextStatus);
+      loadCreators();
+    }).catch(function() { showToast('Some updates failed', 'err'); });
+  }
+}
 
 // ─── Dashboard: Inbound Queue ───
 function renderInboundQueue() {
