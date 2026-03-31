@@ -3740,13 +3740,38 @@ async function autoFillAllocation(){
 }
 
 // ========== FEATURE TOGGLE IMPACT CHECK ==========
-var _ftCache=null; // cached Not Started creators
-var _ftResults={}; // cached per-feature results {rag:{count,list}, apify:{count,list}, brand:{count,list}}
+var _ftCache=null; // cached Not Started creators (filtered by selected week)
+var _ftCacheWeek=null; // which week key was cached
+var _ftResults={}; // cached per-feature results
 
 async function ensureFtCache(){
-  if(_ftCache)return _ftCache;
-  var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=5000');
-  _ftCache=data.results||[];
+  // Get selected week from dropdown
+  var selWeek=document.getElementById('f-update-date').value;
+  // Invalidate cache if week changed
+  if(_ftCache&&_ftCacheWeek===selWeek)return _ftCache;
+  _ftCache=null;_ftResults={};_ftCacheWeek=selWeek;
+
+  // Get dates for selected week
+  var dates=_weekDateMap[selWeek]||[];
+  if(dates.length===0&&selWeek){
+    // Fallback: single date value
+    dates=[selWeek];
+  }
+
+  if(dates.length>0){
+    // Fetch only creators matching the selected week's discovery dates
+    var all=[];
+    for(var i=0;i<dates.length;i++){
+      var data=await apiFetch('/pipeline/creators/?status=Not+Started&discovery_date='+dates[i]+'&limit=2000');
+      var items=data.results||[];
+      all=all.concat(items);
+    }
+    _ftCache=all;
+  }else{
+    // No week selected — fetch all (fallback)
+    var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=5000');
+    _ftCache=data.results||[];
+  }
   return _ftCache;
 }
 
@@ -3886,7 +3911,7 @@ async function checkFeatureImpact(feature){
 }
 
 async function checkAllFeatures(){
-  _ftCache=null; // force fresh fetch
+  _ftCache=null;_ftCacheWeek=null; // force fresh fetch for current week
   await checkFeatureImpact('us');
   await checkFeatureImpact('brand');
   await checkFeatureImpact('apify');
