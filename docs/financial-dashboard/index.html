@@ -987,30 +987,66 @@ function renderHeroTab(F){
     html+='</tbody></table></div></div>';
   }
 
-  // ── Section C: Content → Sales by Product Category ──
+  // ── Section C: 90-Day Trend — Sales + Content Views + Units ──
   if(H.content_lift&&Object.keys(H.content_lift).length){
-    html+='<div class="sec"><div class="sec-title"><div class="num">3</div> Content Views &rarr; Sales by Product Category (30D)</div>';
-    html+='<div class="card"><div class="desc">Content views (bars) vs category sales (line). Unclassified posts are duplicated across all categories within their brand.</div></div>';
+    html+='<div class="sec"><div class="sec-title"><div class="num">3</div> 90-Day Daily Trend: Sales &times; Content Views &times; Units</div>';
+    html+='<div class="card"><div class="desc">Green line = daily sales ($), purple bars = content views, orange dots = units sold. Unclassified influencer posts duplicated across all product categories within brand. Peak values labeled.</div></div>';
     Object.keys(H.content_lift).forEach(function(cat){
       var cl=H.content_lift[cat];
       if(!cl.dates||!cl.dates.length) return;
       var bc=CATCOLORS[cat]||'#94a3b8';
       var totalViews=cl.views.reduce(function(a,b){return a+b},0);
       var totalSales=cl.sales.reduce(function(a,b){return a+b},0);
-      if(totalViews===0&&totalSales===0) return;
+      var totalUnits=(cl.units||[]).reduce(function(a,b){return a+b},0);
       var maxV=Math.max.apply(null,cl.views)||1;
       var maxS=Math.max.apply(null,cl.sales)||1;
-      var w=Math.min(cl.dates.length*18,540);
-      html+='<div class="card"><h3 style="color:'+bc+';font-size:12px">'+cat+'</h3>';
-      html+='<div class="desc" style="font-size:9px">'+totalViews.toLocaleString()+' views | $'+totalSales.toLocaleString()+' sales</div>';
-      html+='<svg width="'+w+'" height="70" style="display:block;margin:6px auto">';
+      var maxU=Math.max.apply(null,cl.units||[0])||1;
+      var n=cl.dates.length;
+      var bw=Math.max(Math.floor(900/n)-1,4);
+      var gap=1;
+      var W=n*(bw+gap)+40;
+      var plotH=100,plotY0=plotH+10;
+      html+='<div class="card" style="overflow-x:auto"><h3 style="color:'+bc+';font-size:12px">'+cat+'</h3>';
+      html+='<div style="display:flex;gap:16px;font-size:9px;color:var(--muted);margin-bottom:4px">';
+      html+='<span>$'+totalSales.toLocaleString()+' sales</span>';
+      html+='<span>'+totalUnits.toLocaleString()+' units</span>';
+      html+='<span>'+totalViews.toLocaleString()+' views</span></div>';
+      html+='<svg width="'+W+'" height="145" style="display:block">';
+      // Views bars
       cl.views.forEach(function(v,i){
-        var x=i*18+2;var h=v/maxV*50;
-        html+='<rect x="'+x+'" y="'+(55-h)+'" width="14" height="'+h+'" fill="'+bc+'" opacity="0.25" rx="2"/>';
+        var x=i*(bw+gap)+30,h=v/maxV*plotH;
+        html+='<rect x="'+x+'" y="'+(plotY0-h)+'" width="'+bw+'" height="'+h+'" fill="'+bc+'" opacity="0.15" rx="1"/>';
       });
+      // Sales line
       var spts=[];
-      cl.sales.forEach(function(v,i){spts.push((i*18+9)+','+(55-v/maxS*50));});
-      html+='<polyline points="'+spts.join(' ')+'" fill="none" stroke="'+bc+'" stroke-width="2" stroke-linecap="round"/>';
+      cl.sales.forEach(function(v,i){
+        spts.push((i*(bw+gap)+30+bw/2)+','+(plotY0-v/maxS*plotH));
+      });
+      html+='<polyline points="'+spts.join(' ')+'" fill="none" stroke="var(--g)" stroke-width="1.5" stroke-linecap="round"/>';
+      // Units dots
+      if(cl.units){cl.units.forEach(function(v,i){
+        if(v>0){var x=i*(bw+gap)+30+bw/2,y=plotY0-v/maxU*plotH;
+        html+='<circle cx="'+x+'" cy="'+y+'" r="1.5" fill="#f59e0b" opacity="0.6"/>';}
+      });}
+      // Peak labels
+      var peakSi=0,peakVi=0;
+      cl.sales.forEach(function(v,i){if(v>cl.sales[peakSi])peakSi=i;});
+      cl.views.forEach(function(v,i){if(v>cl.views[peakVi])peakVi=i;});
+      var psx=peakSi*(bw+gap)+30+bw/2,psy=plotY0-cl.sales[peakSi]/maxS*plotH;
+      html+='<text x="'+psx+'" y="'+(psy-4)+'" fill="var(--g)" font-size="7" font-family="var(--mono)" text-anchor="middle">$'+cl.sales[peakSi].toLocaleString()+'</text>';
+      if(cl.views[peakVi]>0){var pvx=peakVi*(bw+gap)+30+bw/2,pvy=plotY0-cl.views[peakVi]/maxV*plotH;
+      html+='<text x="'+pvx+'" y="'+(pvy-4)+'" fill="'+bc+'" font-size="7" font-family="var(--mono)" text-anchor="middle">'+cl.views[peakVi].toLocaleString()+'</text>';}
+      // X-axis labels
+      var step=Math.max(Math.floor(n/6),1);
+      for(var i=0;i<n;i+=step){var x=i*(bw+gap)+30+bw/2;
+      html+='<text x="'+x+'" y="'+(plotY0+12)+'" fill="var(--muted)" font-size="7" font-family="var(--mono)" text-anchor="middle">'+cl.dates[i].substring(5)+'</text>';}
+      // Legend
+      html+='<line x1="30" y1="135" x2="45" y2="135" stroke="var(--g)" stroke-width="1.5"/>';
+      html+='<text x="48" y="138" fill="var(--dim)" font-size="7">Sales</text>';
+      html+='<rect x="80" y="132" width="10" height="6" fill="'+bc+'" opacity="0.2" rx="1"/>';
+      html+='<text x="93" y="138" fill="var(--dim)" font-size="7">Views</text>';
+      html+='<circle cx="130" cy="135" r="2" fill="#f59e0b"/>';
+      html+='<text x="135" y="138" fill="var(--dim)" font-size="7">Units</text>';
       html+='</svg></div>';
     });
     html+='</div>';
@@ -1028,29 +1064,42 @@ function renderHeroTab(F){
     html+='<div class="stat cyan"><div class="sl">Meta</div><div class="sv">$'+totalMeta.toLocaleString()+'</div></div>';
     html+='<div class="stat purple"><div class="sl">Google</div><div class="sv">$'+totalGoogle.toLocaleString()+'</div></div>';
     html+='<div class="stat"><div class="sl">Total</div><div class="sv">$'+(totalAmz+totalMeta+totalGoogle).toLocaleString()+'</div></div></div>';
-    // Stacked bar chart
     var maxDay=0;
-    sd.dates.forEach(function(_,i){
-      var t=(sd.amazon[i]||0)+(sd.meta[i]||0)+(sd.google[i]||0);
-      if(t>maxDay) maxDay=t;
-    });
+    sd.dates.forEach(function(_,i){var t=(sd.amazon[i]||0)+(sd.meta[i]||0)+(sd.google[i]||0);if(t>maxDay)maxDay=t;});
     maxDay=maxDay||1;
     var cw=Math.min(sd.dates.length*18,540);
     html+='<svg width="'+cw+'" height="80" style="display:block;margin:8px auto">';
-    sd.dates.forEach(function(d,i){
-      var x=i*18+2;
-      var hA=(sd.amazon[i]||0)/maxDay*60;
-      var hM=(sd.meta[i]||0)/maxDay*60;
-      var hG=(sd.google[i]||0)/maxDay*60;
-      var y0=65;
-      html+='<rect x="'+x+'" y="'+(y0-hA)+'" width="14" height="'+hA+'" fill="#f59e0b" rx="1"/>';
-      html+='<rect x="'+x+'" y="'+(y0-hA-hM)+'" width="14" height="'+hM+'" fill="#0ea5e9" rx="1"/>';
-      html+='<rect x="'+x+'" y="'+(y0-hA-hM-hG)+'" width="14" height="'+hG+'" fill="#6366f1" rx="1"/>';
-    });
-    html+='<rect x="2" y="72" width="8" height="5" fill="#f59e0b" rx="1"/><text x="13" y="77" fill="var(--dim)" font-size="8" font-family="Inter">AMZ</text>';
-    html+='<rect x="45" y="72" width="8" height="5" fill="#0ea5e9" rx="1"/><text x="56" y="77" fill="var(--dim)" font-size="8" font-family="Inter">Meta</text>';
-    html+='<rect x="85" y="72" width="8" height="5" fill="#6366f1" rx="1"/><text x="96" y="77" fill="var(--dim)" font-size="8" font-family="Inter">Google</text>';
+    sd.dates.forEach(function(d,i){var x=i*18+2;
+    var hA=(sd.amazon[i]||0)/maxDay*60,hM=(sd.meta[i]||0)/maxDay*60,hG=(sd.google[i]||0)/maxDay*60,y0=65;
+    html+='<rect x="'+x+'" y="'+(y0-hA)+'" width="14" height="'+hA+'" fill="#f59e0b" rx="1"/>';
+    html+='<rect x="'+x+'" y="'+(y0-hA-hM)+'" width="14" height="'+hM+'" fill="#0ea5e9" rx="1"/>';
+    html+='<rect x="'+x+'" y="'+(y0-hA-hM-hG)+'" width="14" height="'+hG+'" fill="#6366f1" rx="1"/>';});
+    html+='<rect x="2" y="72" width="8" height="5" fill="#f59e0b" rx="1"/><text x="13" y="77" fill="var(--dim)" font-size="8">AMZ</text>';
+    html+='<rect x="45" y="72" width="8" height="5" fill="#0ea5e9" rx="1"/><text x="56" y="77" fill="var(--dim)" font-size="8">Meta</text>';
+    html+='<rect x="85" y="72" width="8" height="5" fill="#6366f1" rx="1"/><text x="96" y="77" fill="var(--dim)" font-size="8">Google</text>';
     html+='</svg></div></div>';
+  }
+
+  // ── Section E: ASIN Reference ──
+  if(H.categories&&H.categories.length){
+    html+='<div class="sec"><div class="sec-title"><div class="num">5</div> ASIN &rarr; Category Reference</div>';
+    html+='<div class="card"><div class="desc">All ASINs and their assigned product category. Verify classification is correct.</div>';
+    html+='<table><thead><tr><th>Category</th><th>Brand</th><th>ASIN</th><th>Product Name</th></tr></thead><tbody>';
+    H.categories.forEach(function(c){
+      var bc=CATCOLORS[c.category]||'#94a3b8';
+      if(c.asins&&c.asins.length){
+        c.asins.forEach(function(a,ai){
+          html+='<tr>';
+          if(ai===0){
+            html+='<td rowspan="'+c.asins.length+'" style="vertical-align:top"><span style="font-size:9px;padding:2px 6px;border-radius:8px;background:'+bc+'22;color:'+bc+';font-weight:600">'+c.category+'</span></td>';
+            html+='<td rowspan="'+c.asins.length+'" style="vertical-align:top;font-size:9px;color:var(--dim)">'+c.brand+'</td>';
+          }
+          html+='<td style="font-family:var(--mono);font-size:9px">'+a.asin+'</td>';
+          html+='<td style="font-size:9px;color:var(--dim)">'+a.name+'</td></tr>';
+        });
+      }
+    });
+    html+='</tbody></table></div></div>';
   }
 
   document.getElementById('panel-hero').innerHTML=html;

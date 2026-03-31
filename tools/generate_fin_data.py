@@ -2909,13 +2909,17 @@ def generate():
             return "Other"
 
         # ── 1. Aggregate sales by product category ────────────────────────
-        GROSMIMI_CATEGORIES = ["PPSU Straw Cup", "Stainless Straw Cup", "PPSU Tumbler", "Stainless Tumbler", "PPSU Baby Bottle", "Accessories"]
+        EXCLUDE_CATS = {"Accessories", "Other"}  # Accessories = repeat purchases, not search/content driven
+        GROSMIMI_CATEGORIES = ["PPSU Straw Cup", "Stainless Straw Cup", "PPSU Tumbler", "Stainless Tumbler", "PPSU Baby Bottle"]
         CHAMOM_CATEGORIES = ["Moisturizer", "Body Wash", "Baby Cream"]
         ALL_CATEGORIES = GROSMIMI_CATEGORIES + CHAMOM_CATEGORIES + ["Rice Puff"]
+
+        cutoff_90d = (today - timedelta(days=90)).isoformat()
 
         cat_data = defaultdict(lambda: {
             "brand": "", "sales_7d": 0.0, "units_7d": 0, "sales_30d": 0.0, "units_30d": 0,
             "asins": set(),
+            "asin_names": {},  # asin → product_name for reference tab
             "daily": defaultdict(lambda: {"sales": 0.0, "units": 0}),
             "weekly": defaultdict(lambda: {"sales": 0.0, "units": 0}),
         })
@@ -2927,20 +2931,26 @@ def generate():
             d = r.get("date", "")
             name = r.get("product_name", "")
             brand = r.get("brand", "")
-            cat = _classify_asin(name, brand)
-            asin_to_cat[asin] = cat
+            # Classify each ASIN only once (first seen name wins)
+            if asin not in asin_to_cat:
+                asin_to_cat[asin] = _classify_asin(name, brand)
+            cat = asin_to_cat[asin]
             sales = float(r.get("ordered_product_sales") or r.get("net_sales") or 0)
             units = int(r.get("units") or 0)
             cd = cat_data[cat]
             if not cd["brand"]:
                 cd["brand"] = brand
             cd["asins"].add(asin)
+            if asin not in cd["asin_names"]:
+                cd["asin_names"][asin] = (name or "")[:80]
             if d >= cutoff_7d:
                 cd["sales_7d"] += sales
                 cd["units_7d"] += units
             if d >= cutoff_30d:
                 cd["sales_30d"] += sales
                 cd["units_30d"] += units
+            # Daily aggregation — 90 days for trend charts
+            if d >= cutoff_90d:
                 cd["daily"][d]["sales"] += sales
                 cd["daily"][d]["units"] += units
             try:
@@ -2951,9 +2961,9 @@ def generate():
             except Exception:
                 pass
 
-        # Sort categories by 30d sales
+        # Sort categories by 30d sales (exclude Accessories + Other)
         sorted_cats = sorted(
-            [(cat, cd) for cat, cd in cat_data.items() if cat != "Other" and cd["sales_30d"] > 0],
+            [(cat, cd) for cat, cd in cat_data.items() if cat not in EXCLUDE_CATS and cd["sales_30d"] > 0],
             key=lambda x: -x[1]["sales_30d"]
         )
         print(f"  Categories: {len(sorted_cats)} ({', '.join(c for c,_ in sorted_cats)})")
@@ -3046,10 +3056,10 @@ def generate():
             all_weeks.update(cd["weekly"].keys())
         week_keys = sorted(all_weeks)[-12:]
 
-        # Daily dates for detail table
+        # Daily dates — 90 days for trend charts
         daily_dates = sorted(set(
             d for _, cd in sorted_cats for d in cd["daily"].keys()
-        ))[-30:]
+        ))[-90:]
 
         categories = []
         for cat, cd in sorted_cats:
@@ -3057,6 +3067,11 @@ def generate():
             units_weekly = [cd["weekly"].get(wk, {}).get("units", 0) for wk in week_keys]
             daily_sales = [round(cd["daily"].get(d, {}).get("sales", 0)) for d in daily_dates]
             daily_units = [cd["daily"].get(d, {}).get("units", 0) for d in daily_dates]
+            # ASIN reference list
+            asin_ref = sorted(
+                [{"asin": a, "name": cd["asin_names"].get(a, "")} for a in cd["asins"]],
+                key=lambda x: x["name"]
+            )
             categories.append({
                 "category": cat,
                 "brand": cd["brand"],
@@ -3070,6 +3085,7 @@ def generate():
                 "daily_sales": daily_sales,
                 "daily_units": daily_units,
                 "top_keywords": cat_top_kw.get(cat, []),
+                "asins": asin_ref,
             })
 
         # ── 5. Keyword flat table ─────────────────────────────────────────
@@ -3109,58 +3125,46 @@ def generate():
             if pid and brand:
                 post_info[pid] = {"brand": brand, "product_types": ptypes}
 
-        # Aggregate views by product_type + date
+        # Aggregate views by product_type + date (90 days)
         ptype_views = defaultdict(lambda: defaultdict(int))
         for m in content_metrics:
             pid = m.get("post_id", "")
             d = m.get("date", "")
             views = int(m.get("views") or 0)
             info = post_info.get(pid)
-            if not info or d < cutoff_30d:
+            if not info or d < cutoff_90d:
                 continue
             brand = info["brand"]
             ptypes = info["product_types"]
             if ptypes:
-                # Classified → add to each matched product type
                 for pt in ptypes:
                     ptype_views[pt][d] += views
             else:
                 # Unclassified → duplicate into ALL categories for this brand
                 if brand == "Grosmimi":
                     for cat in GROSMIMI_CATEGORIES:
-                        if cat != "Accessories":
-                            ptype_views[cat][d] += views
+                        ptype_views[cat][d] += views
                 elif brand == "CHA&MOM":
                     for cat in CHAMOM_CATEGORIES:
                         ptype_views[cat][d] += views
                 elif brand == "Naeiae":
                     ptype_views["Rice Puff"][d] += views
 
-        # Aggregate sales by category + date
-        cat_sales_daily = defaultdict(lambda: defaultdict(float))
-        for r in amazon_sales:
-            d = r.get("date", "")
-            brand = r.get("brand", "")
-            if brand and d >= cutoff_30d:
-                # Distribute brand-level amazon_sales to each category proportionally
-                # (amazon_sales doesn't have ASIN-level, so use brand total)
-                cat_sales_daily[brand][d] += float(r.get("gross_sales") or r.get("net_sales") or 0)
-
-        dates_30d = sorted(set(d for d in daily_dates))[-30:]
+        # Content lift — 90 day daily trend per category
         content_lift = {}
         for cat, cd in sorted_cats:
-            brand = cd["brand"]
-            views_arr = [ptype_views.get(cat, {}).get(d, 0) for d in dates_30d]
-            # Use category-level daily sales from amazon_sku
-            sales_arr = [round(cd["daily"].get(d, {}).get("sales", 0)) for d in dates_30d]
+            views_arr = [ptype_views.get(cat, {}).get(d, 0) for d in daily_dates]
+            sales_arr = [round(cd["daily"].get(d, {}).get("sales", 0)) for d in daily_dates]
+            units_arr = [cd["daily"].get(d, {}).get("units", 0) for d in daily_dates]
             content_lift[cat] = {
-                "dates": dates_30d,
+                "dates": daily_dates,
                 "views": views_arr,
                 "sales": sales_arr,
+                "units": units_arr,
             }
 
         ct_with_views = sum(1 for c in content_lift.values() if sum(c["views"]) > 0)
-        print(f"  Content lift: {len(content_lift)} categories, {ct_with_views} with views")
+        print(f"  Content lift: {len(content_lift)} categories, {ct_with_views} with views (90d)")
 
         # ── 7. Daily spend overlay ────────────────────────────────────────
         spend_dates = sorted(set(r.get("date", "") for r in amazon_ads if r.get("date", "") >= cutoff_30d))[-30:]
