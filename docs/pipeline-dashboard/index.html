@@ -3027,73 +3027,143 @@ function updateAllocation(){
 // ========== DISCOVERY DATE DROPDOWN ==========
 var _discoveryDates=(function(){try{var s=localStorage.getItem('pipeline_discovery_dates');return s?JSON.parse(s):[]}catch(e){return[]}})();
 
+// ─── Weekly grouping helpers ───
+function _isoWeekKey(dateStr){
+  var d=new Date(dateStr+'T00:00:00');
+  d.setDate(d.getDate()+3-(d.getDay()+6)%7);
+  var w1=new Date(d.getFullYear(),0,4);
+  var wn=1+Math.round(((d-w1)/86400000-3+(w1.getDay()+6)%7)/7);
+  return d.getFullYear()+'-W'+String(wn).padStart(2,'0');
+}
+function _weekMonday(dateStr){
+  var d=new Date(dateStr+'T00:00:00');
+  var day=d.getDay();var diff=d.getDate()-day+(day===0?-6:1);
+  return new Date(d.setDate(diff)).toISOString().slice(0,10);
+}
+function _weekSunday(dateStr){
+  var mon=new Date(_weekMonday(dateStr)+'T00:00:00');
+  mon.setDate(mon.getDate()+6);
+  return mon.toISOString().slice(0,10);
+}
+
+var _weekGroups=[];
+var _dateCountMap={};
+var _weekDateMap={};
+
+function _buildWeekGroups(dateMap){
+  var wmap={};
+  Object.keys(dateMap).forEach(function(d){
+    var wk=_isoWeekKey(d);
+    if(!wmap[wk])wmap[wk]={count:0,dates:[],monday:_weekMonday(d),sunday:_weekSunday(d)};
+    wmap[wk].count+=dateMap[d];
+    wmap[wk].dates.push(d);
+  });
+  _weekDateMap={};
+  var groups=Object.keys(wmap).map(function(wk){
+    var g=wmap[wk];
+    g.dates.sort();
+    _weekDateMap[wk]=g.dates;
+    var monShort=g.monday.slice(5);var sunShort=g.sunday.slice(5);
+    return {key:wk, label:wk.split('-')[1]+' ('+monShort+'~'+sunShort+')', count:g.count, dates:g.dates};
+  });
+  groups.sort(function(a,b){return b.key<a.key?-1:b.key>a.key?1:0});
+  _weekGroups=groups;
+  return groups;
+}
+
 function populateDiscoveryDates(selectedVal){
   var sel=document.getElementById('f-update-date');
   if(!sel)return;
-  // Merge saved dates with any new dates, dedupe, sort descending (newest first)
-  var all=_discoveryDates.slice();
-  // Also extract dates from DEMO_CREATORS for demo mode
-  if(DEMO_MODE){
-    DEMO_CREATORS.forEach(function(c){if(c.initial_discovery_date&&all.indexOf(c.initial_discovery_date)<0)all.push(c.initial_discovery_date)});
+  // Clear existing options
+  while(sel.firstChild)sel.removeChild(sel.firstChild);
+  var defOpt=document.createElement('option');
+  defOpt.value='';defOpt.textContent='-- 주간 배치 선택 --';
+  sel.appendChild(defOpt);
+  if(_weekGroups.length>0){
+    _weekGroups.forEach(function(g){
+      var opt=document.createElement('option');
+      opt.value=g.key;
+      opt.textContent=g.label+' \u2014 '+g.count+'\uBA85';
+      if(g.key===selectedVal)opt.selected=true;
+      sel.appendChild(opt);
+    });
+  } else {
+    var all=_discoveryDates.slice();
+    if(DEMO_MODE){
+      DEMO_CREATORS.forEach(function(c){if(c.initial_discovery_date&&all.indexOf(c.initial_discovery_date)<0)all.push(c.initial_discovery_date)});
+    }
+    all=all.filter(function(d){return d&&d.match(/^\d{4}-\d{2}-\d{2}$/)});
+    all.sort().reverse();
+    all.forEach(function(d){
+      var opt=document.createElement('option');
+      opt.value=d;opt.textContent=d;
+      if(d===selectedVal)opt.selected=true;
+      sel.appendChild(opt);
+    });
+    if(all.length===0){
+      var ph=document.createElement('option');
+      ph.disabled=true;ph.value='';ph.textContent='\u21BB Pull \uBC84\uD2BC\uC73C\uB85C \uBC30\uCE58 \uB85C\uB4DC';
+      sel.appendChild(ph);
+    }
   }
-  all=all.filter(function(d){return d&&d.match(/^\d{4}-\d{2}-\d{2}$/)});
-  all.sort().reverse();// newest first
-  var html='<option value="">-- 날짜 선택 --</option>';
-  all.forEach(function(d){
-    html+='<option value="'+d+'"'+(d===selectedVal?' selected':'')+'>'+d+'</option>';
-  });
-  if(all.length===0)html+='<option disabled value="">↻ Pull 버튼으로 날짜 로드</option>';
-  sel.innerHTML=html;
 }
 
 async function pullDiscoveryDates(){
   var btn=document.getElementById('btn-pull-dates');
   btn.disabled=true;btn.textContent='Loading...';
   try{
-    // Fetch all Not Started creators and extract unique discovery dates
-    var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=5000');
+    var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=6500');
     var items=data.results||[];
     var dateMap={};
     items.forEach(function(c){
       var d=c.initial_discovery_date||(c.created_at||'').slice(0,10);
       if(d)dateMap[d]=(dateMap[d]||0)+1;
     });
-    var dates=Object.keys(dateMap).filter(function(d){return d.match(/^\d{4}-\d{2}-\d{2}$/)});
-    // Merge with existing saved dates
-    dates.forEach(function(d){if(_discoveryDates.indexOf(d)<0)_discoveryDates.push(d)});
-    try{localStorage.setItem('pipeline_discovery_dates',JSON.stringify(_discoveryDates))}catch(e){}
-    // Store counts
     _dateCountMap=dateMap;
+    var groups=_buildWeekGroups(dateMap);
+    var dates=Object.keys(dateMap).filter(function(d){return d.match(/^\d{4}-\d{2}-\d{2}$/)});
+    _discoveryDates=dates;
+    try{localStorage.setItem('pipeline_discovery_dates',JSON.stringify(dates))}catch(e){}
     populateDiscoveryDates(document.getElementById('f-update-date').value);
-    showToast('날짜 '+dates.length+'개 로드됨','ok');
-  }catch(e){showToast('Pull 실패: '+e.message,'err')}
-  finally{btn.disabled=false;btn.textContent='↻ Pull'}
+    showToast(groups.length+'\uAC1C \uC8FC\uAC04 \uBC30\uCE58 \uB85C\uB4DC ('+items.length+'\uBA85)','ok');
+  }catch(e){showToast('Pull \uC2E4\uD328: '+e.message,'err')}
+  finally{btn.disabled=false;btn.textContent='\u21BB Pull'}
 }
 
-var _dateCountMap={};
-async function onDiscoveryDateSelect(date){
+async function onDiscoveryDateSelect(val){
   var hintEl=document.getElementById('date-count-hint');
-  if(!date){if(hintEl)hintEl.style.display='none';return}
-  // Check local cache first
-  if(_dateCountMap[date]!==undefined){
-    var cnt=_dateCountMap[date];
+  if(!val){if(hintEl)hintEl.style.display='none';return}
+  var group=_weekGroups.find(function(g){return g.key===val});
+  if(group){
+    var cnt=group.count;
     document.getElementById('f-creators-contacted').value=cnt;
     var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
     updateAllocation();
-    if(hintEl){hintEl.textContent='✓ '+date+' — Not Started '+cnt+'명 → Batch Size 자동 설정';hintEl.style.display='block'}
+    if(hintEl){
+      hintEl.textContent='\u2713 '+group.label+' \u2014 '+cnt+'\uBA85 ('+group.dates.length+'\uC77C\uAC04 \uBC1C\uACAC) \u2192 Batch Size \uC790\uB3D9 \uC124\uC815';
+      hintEl.style.color='var(--g)';hintEl.style.display='block';
+    }
     return;
   }
-  // Fetch count from API
-  if(hintEl){hintEl.textContent='조회 중...';hintEl.style.display='block';hintEl.style.color='var(--muted)'}
-  try{
-    var data=await apiFetch('/pipeline/creators/?status=Not+Started&discovery_date='+date+'&limit=1');
-    var cnt=data.total||data.count||0;
-    _dateCountMap[date]=cnt;
+  // Fallback: raw date
+  if(_dateCountMap[val]!==undefined){
+    var cnt=_dateCountMap[val];
     document.getElementById('f-creators-contacted').value=cnt;
     var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
     updateAllocation();
-    if(hintEl){hintEl.textContent='✓ '+date+' — Not Started '+cnt+'명 → Batch Size 자동 설정';hintEl.style.color='var(--g)';hintEl.style.display='block'}
-  }catch(e){if(hintEl){hintEl.textContent='조회 실패';hintEl.style.color='var(--r)'}}
+    if(hintEl){hintEl.textContent='\u2713 '+val+' \u2014 Not Started '+cnt+'\uBA85';hintEl.style.display='block'}
+    return;
+  }
+  if(hintEl){hintEl.textContent='\uC870\uD68C \uC911...';hintEl.style.display='block';hintEl.style.color='var(--muted)'}
+  try{
+    var data=await apiFetch('/pipeline/creators/?status=Not+Started&discovery_date='+val+'&limit=1');
+    var cnt=data.total||data.count||0;
+    _dateCountMap[val]=cnt;
+    document.getElementById('f-creators-contacted').value=cnt;
+    var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
+    updateAllocation();
+    if(hintEl){hintEl.textContent='\u2713 '+val+' \u2014 Not Started '+cnt+'\uBA85';hintEl.style.color='var(--g)';hintEl.style.display='block'}
+  }catch(e){if(hintEl){hintEl.textContent='\uC870\uD68C \uC2E4\uD328';hintEl.style.color='var(--r)'}}
 }
 
 function toggleAllDates(on){
