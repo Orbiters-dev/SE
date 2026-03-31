@@ -13,6 +13,7 @@ Usage:
   python tools/apify_crawl_auditor.py --layer infra
   python tools/apify_crawl_auditor.py --layer data
   python tools/apify_crawl_auditor.py --layer integrity
+  python tools/apify_crawl_auditor.py --layer datakeeper
 
   # JSON output for harness consumption
   python tools/apify_crawl_auditor.py --json
@@ -24,6 +25,7 @@ Layers:
   1. infra     — GitHub Actions status, secrets reachability
   2. data      — Data Storage file freshness, Google Sheets row counts
   3. integrity — D+60 column structure, brand coverage, dedup check
+  4. datakeeper — Data Keeper table freshness, PG API reachability
 """
 
 import argparse
@@ -503,6 +505,100 @@ def build_report(as_json=False, iteration=None):
     return report
 
 
+# ── Layer 4: Data Keeper ─────────────────────────────────────────────────── #
+def audit_datakeeper():
+    """Check Data Keeper table freshness and PG API reachability."""
+    print("\n── Layer 4: Data Keeper ──")
+
+    try:
+        from data_keeper_client import DataKeeper
+    except ImportError:
+        add("CRITICAL", "DATAKEEPER", "Cannot import data_keeper_client")
+        print("  ✗ data_keeper_client import failed")
+        return
+
+    dk = DataKeeper()
+
+    # 4a. PG API reachability — try a small query
+    print("\n  [PG API Reachability]")
+    try:
+        import requests as _req
+        r = _req.get(
+            "https://orbitools.orbiters.co.kr/api/datakeeper/query/",
+            params={"table": "shopify_orders_daily", "limit": 1},
+            auth=(os.getenv("ORBITOOLS_USER", "admin"), os.getenv("ORBITOOLS_PASS", "")),
+            timeout=15,
+        )
+        if r.status_code == 200:
+            add("INFO", "DATAKEEPER", "PG API reachable (HTTP 200)")
+            print("  ✓ PG API reachable")
+        else:
+            add("MAJOR", "DATAKEEPER",
+                f"PG API returned HTTP {r.status_code}",
+                expected="200", actual=str(r.status_code))
+            print(f"  ⚠ PG API HTTP {r.status_code}")
+    except Exception as e:
+        add("CRITICAL", "DATAKEEPER", f"PG API unreachable: {e}")
+        print(f"  ✗ PG API unreachable: {e}")
+
+    # 4b. Table freshness check
+    print("\n  [Table Freshness]")
+    status = dk.status()
+    stale_tables = []
+    missing_tables = []
+    fresh_tables = []
+
+    for table in sorted(status.keys()):
+        info = status[table]
+        if info.get("rows", 0) == 0:
+            # Check if cache file exists (might have 0 parsed rows but file is there)
+            if not dk.is_fresh(table, max_age_hours=168):  # 7 days
+                missing_tables.append(table)
+            continue
+
+        is_fresh = dk.is_fresh(table, max_age_hours=14)
+        last = dk.last_updated(table)
+
+        if is_fresh:
+            fresh_tables.append(table)
+            print(f"    ✓ {table}: {info['rows']} rows | {info.get('date_range', '?')} | {info.get('source', '?')}")
+        else:
+            stale_tables.append((table, last))
+            print(f"    ⚠ {table}: STALE (last updated {last})")
+
+    # Core tables that MUST be fresh
+    core_tables = {
+        "amazon_ads_daily", "amazon_sales_daily", "meta_ads_daily",
+        "google_ads_daily", "ga4_daily", "klaviyo_daily", "shopify_orders_daily",
+    }
+
+    for table, last in stale_tables:
+        if table in core_tables:
+            add("CRITICAL", "DATAKEEPER",
+                f"Core table '{table}' is stale (last: {last})",
+                expected="<14h", actual=last or "unknown")
+        else:
+            add("MAJOR", "DATAKEEPER",
+                f"Table '{table}' is stale (last: {last})",
+                expected="<14h", actual=last or "unknown")
+
+    # Tables with no cache at all
+    expected_populated = {
+        "content_posts", "content_metrics_daily", "influencer_orders",
+    }
+    for table in missing_tables:
+        if table in expected_populated:
+            add("MINOR", "DATAKEEPER", f"Table '{table}' has never been populated")
+        else:
+            add("MAJOR", "DATAKEEPER", f"Table '{table}' has no cached data")
+
+    for table in fresh_tables:
+        add("INFO", "DATAKEEPER", f"'{table}' is fresh")
+
+    # Summary
+    print(f"\n  Summary: {len(fresh_tables)} fresh, {len(stale_tables)} stale, {len(missing_tables)} missing")
+
+
 # ── Harness Entry Point ──────────────────────────────────────────────────── #
 def run_audit(layer=None, region="all", iteration=None):
     """
@@ -516,6 +612,7 @@ def run_audit(layer=None, region="all", iteration=None):
         "infra": audit_infra,
         "data": lambda: audit_data(region),
         "integrity": lambda: audit_integrity(region),
+        "datakeeper": audit_datakeeper,
     }
 
     if layer and layer in layers:
@@ -527,34 +624,52 @@ def run_audit(layer=None, region="all", iteration=None):
     return build_report(as_json=True, iteration=iteration)
 
 
-def run_harness_loop(region="all", max_iter=3):
+def run_harness_loop(region="all", max_iter=3, max_retries=3):
     """
-    Harness mode: run 3 iterations, each checking a different layer.
-    Accumulate findings, produce final merged report.
+    Harness mode: run each layer, retry failed layers up to max_retries times.
+    A layer "fails" if it has any CRITICAL or MAJOR findings.
     """
-    layer_sequence = ["infra", "data", "integrity"]
+    layer_sequence = ["infra", "data", "integrity", "datakeeper"]
     all_reports = []
 
-    print("╔══════════════════════════════════════════╗")
-    print("║  Apify Crawl Auditor — Harness Mode      ║")
-    print(f"║  Iterations: {max_iter}  |  Region: {region.upper():>3}          ║")
-    print("╚══════════════════════════════════════════╝")
+    print("╔══════════════════════════════════════════════════╗")
+    print("║  Apify Crawl Auditor — Harness Mode (w/ retry)   ║")
+    print(f"║  Layers: {len(layer_sequence)}  |  Max retries: {max_retries}  |  Region: {region.upper():>3}     ║")
+    print("╚══════════════════════════════════════════════════╝")
 
-    for i in range(min(max_iter, len(layer_sequence))):
-        layer = layer_sequence[i]
-        print(f"\n{'━' * 60}")
-        print(f"  ITERATION {i + 1}/{max_iter} — Layer: {layer.upper()}")
-        print(f"{'━' * 60}")
+    step = 0
+    for layer in layer_sequence:
+        passed = False
+        for attempt in range(1, max_retries + 1):
+            step += 1
+            print(f"\n{'━' * 60}")
+            print(f"  Layer: {layer.upper()} — Attempt {attempt}/{max_retries}")
+            print(f"{'━' * 60}")
 
-        report = run_audit(layer=layer, region=region, iteration=i + 1)
-        all_reports.append(report)
+            report = run_audit(layer=layer, region=region, iteration=step)
 
-        # Print iteration summary
-        h = report["health"]
-        s = report["summary"]
-        icon = "✓" if h == "PASS" else ("⚠" if h == "WARN" else "✗")
-        print(f"\n  {icon} Iteration {i + 1} result: {h} "
-              f"(C:{s['critical']} M:{s['major']} m:{s['minor']} i:{s['info']})")
+            h = report["health"]
+            s = report["summary"]
+            icon = "✓" if h == "PASS" else ("⚠" if h == "WARN" else "✗")
+            print(f"\n  {icon} {layer.upper()} attempt {attempt}: {h} "
+                  f"(C:{s['critical']} M:{s['major']} m:{s['minor']} i:{s['info']})")
+
+            if h == "PASS":
+                # No CRITICAL or MAJOR — layer passed
+                all_reports.append(report)
+                passed = True
+                break
+            elif attempt < max_retries:
+                wait = attempt * 5
+                print(f"\n  ↻ Retrying {layer.upper()} in {wait}s...")
+                time.sleep(wait)
+            else:
+                # Final attempt — keep the findings regardless
+                all_reports.append(report)
+                print(f"\n  ✗ {layer.upper()} failed after {max_retries} attempts")
+
+        if passed:
+            print(f"  ✓ {layer.upper()} passed")
 
     # Merge all findings
     merged_findings = []
@@ -617,18 +732,20 @@ def run_harness_loop(region="all", max_iter=3):
 # ── CLI ───────────────────────────────────────────────────────────────────── #
 def main():
     parser = argparse.ArgumentParser(description="Apify Crawl Auditor")
-    parser.add_argument("--layer", choices=["infra", "data", "integrity"],
+    parser.add_argument("--layer", choices=["infra", "data", "integrity", "datakeeper"],
                         help="Audit specific layer only")
     parser.add_argument("--region", default="all", choices=["us", "jp", "all"])
     parser.add_argument("--json", action="store_true", help="JSON output")
     parser.add_argument("--harness", action="store_true",
-                        help="Harness mode: 3-iteration loop")
-    parser.add_argument("--max-iter", type=int, default=3,
-                        help="Max iterations in harness mode")
+                        help="Harness mode: all layers with retry on failure")
+    parser.add_argument("--max-iter", type=int, default=4,
+                        help="Max iterations in harness mode (legacy, unused with retry)")
+    parser.add_argument("--retries", type=int, default=3,
+                        help="Max retry attempts per failed layer (default: 3)")
     args = parser.parse_args()
 
     if args.harness:
-        report = run_harness_loop(region=args.region, max_iter=args.max_iter)
+        report = run_harness_loop(region=args.region, max_retries=args.retries)
     else:
         report = run_audit(layer=args.layer, region=args.region)
         build_report(as_json=False)

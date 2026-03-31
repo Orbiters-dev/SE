@@ -67,6 +67,7 @@ urlpatterns = [
 
     # Discovery Posts (JP/US content discovery pipeline)
     path("discovery/posts/stats/", views.discovery_posts_stats, name="discovery_posts_stats"),
+    path("discovery/posts/bulk-update/", views.discovery_posts_bulk_update, name="discovery_posts_bulk_update"),
     path("discovery/posts/<uuid:post_id>/", views.discovery_post_detail, name="discovery_post_detail"),
     path("discovery/posts/", views.discovery_posts_list, name="discovery_posts_list"),
 

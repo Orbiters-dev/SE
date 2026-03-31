@@ -1635,7 +1635,7 @@ def discovery_posts_list(request):
         # else: default ordering from model Meta (-post_date, -followers)
 
         page = int(request.GET.get("page", 1))
-        limit = min(int(request.GET.get("limit", 50)), 500)
+        limit = min(int(request.GET.get("limit", 50)), 5000)
         offset = (page - 1) * limit
         total = qs.count()
 
