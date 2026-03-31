@@ -515,7 +515,7 @@ def normalize_tt(items, skip_keyword_filter=False):
 # Brand/Product Enrichment — Shopify orders cross-match
 # ---------------------------------------------------------------------------
 
-# Product type classification rules (from sync_sns_tab.py)
+# Product type classification rules (from sync_sns_tab.py) — for Shopify product titles
 PRODUCT_TYPE_RULES = [
     ("PPSU Straw Cup",      lambda t: "ppsu" in t and "straw cup" in t),
     ("PPSU Straw Cup",      lambda t: "knotted" in t and "flip top" in t),
@@ -526,6 +526,59 @@ PRODUCT_TYPE_RULES = [
     ("Accessory",           lambda t: any(kw in t for kw in ("tray", "brush", "teether", "lunch bag"))),
     ("Replacement",         lambda t: any(kw in t for kw in ("strap", "accessory pack", "straw kit", "replacement", "silicone tip"))),
 ]
+
+
+def classify_product_from_hashtags(hashtags_str, caption="", brand=""):
+    """Classify product type from hashtags + caption text.
+
+    For Grosmimi: #ppsu, #stainless, #strawcup, #sippycup, #tumbler, #babybottle
+    For CHA&MOM: lotion, moisturizer, body wash, cream, phyto seline
+    For Naeiae: rice puff (single SKU)
+
+    Returns comma-separated product types string.
+    Hashtags are concatenated words (e.g., #PPSUstrawcup) so we match without spaces.
+    """
+    ht = (hashtags_str or "").lower().replace(",", " ").replace("#", " ")
+    cap = (caption or "").lower()
+    txt = f"{ht} {cap}"
+
+    types = set()
+    brand_upper = (brand or "").upper()
+
+    if "GROSMIMI" in brand_upper or "grosmimi" in txt:
+        has_ppsu = "ppsu" in txt
+        has_stainless = "stainless" in txt
+        has_straw = any(k in txt for k in ("strawcup", "straw cup", "sippycup", "sippy cup", "sippy"))
+        has_bottle = any(k in txt for k in ("babybottle", "baby bottle", "feedingbottle", "feeding bottle"))
+        has_tumbler = "tumbler" in txt
+
+        if has_ppsu and has_straw:      types.add("PPSU Straw Cup")
+        if has_ppsu and has_tumbler:    types.add("PPSU Tumbler")
+        if has_ppsu and has_bottle:     types.add("PPSU Baby Bottle")
+        if has_stainless and has_straw: types.add("Stainless Straw Cup")
+        if has_stainless and has_tumbler: types.add("Stainless Tumbler")
+        # Fallback: material without specific product
+        if has_ppsu and not types:      types.add("PPSU Straw Cup")  # PPSU default = straw cup
+        if has_stainless and not types: types.add("Stainless Straw Cup")
+        # Generic product without material
+        if not types and has_straw:     types.add("Straw Cup")
+        if not types and has_bottle:    types.add("Baby Bottle")
+        if not types and has_tumbler:   types.add("Tumbler")
+
+    elif "CHA" in brand_upper:
+        if any(k in txt for k in ("lotion", "moisturizer", "phytoseline", "phyto seline")):
+            types.add("Moisturizer")
+        if any(k in txt for k in ("bodywash", "body wash", "hairwash", "hair wash", "headtotoe", "head to toe")):
+            types.add("Body Wash")
+        if any(k in txt for k in ("babycream", "baby cream", "intense cream")):
+            types.add("Baby Cream")
+        if not types:
+            types.add("Skincare")  # generic CHA&MOM fallback
+
+    elif "NAEIAE" in brand_upper or "naeiae" in txt:
+        types.add("Rice Puff")
+
+    return ",".join(sorted(types))
 
 # Brand detection from product titles
 BRAND_PRODUCT_RULES = [
@@ -629,11 +682,18 @@ def enrich_posts_from_orders(posts):
     # 1. Load orders
     if not INFLUENCER_ORDERS_PATH.exists():
         print("[ENRICH] No orders file — using caption/hashtag fallback only")
+        ht_ct = 0
         for p in posts:
             if not p.get("brand"):
                 text = f"{p.get('caption', '')} {p.get('hashtags', '')} {p.get('tagged_account', '')}"
                 p["brand"] = _detect_brand_from_text(text)
-            p.setdefault("product_types", "")
+            pt = classify_product_from_hashtags(
+                p.get("hashtags", ""), p.get("caption", ""), p.get("brand", "")
+            )
+            p["product_types"] = pt
+            if pt:
+                ht_ct += 1
+        print(f"[ENRICH] Hashtag product classification: {ht_ct}/{len(posts)} posts classified")
         return
 
     raw = json.loads(INFLUENCER_ORDERS_PATH.read_text(encoding="utf-8"))
@@ -701,6 +761,18 @@ def enrich_posts_from_orders(posts):
                 unmatched += 1
 
     print(f"[ENRICH] Results: {matched} order-matched, {fallback} caption-detected, {unmatched} unmatched")
+
+    # Hashtag-based product_types classification (fills gaps from order-matching)
+    ht_classified = 0
+    for p in posts:
+        if not p.get("product_types") and p.get("brand"):
+            pt = classify_product_from_hashtags(
+                p.get("hashtags", ""), p.get("caption", ""), p.get("brand", "")
+            )
+            if pt:
+                p["product_types"] = pt
+                ht_classified += 1
+    print(f"[ENRICH] Hashtag product classification: {ht_classified} posts classified")
 
 
 # ---------------------------------------------------------------------------

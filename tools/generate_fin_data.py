@@ -310,11 +310,13 @@ def generate():
     klaviyo = dk.get("klaviyo_daily", days=days_back)
     content_posts = dk.get("content_posts", days=90)
     content_metrics = dk.get("content_metrics_daily", days=90)
+    google_search_terms = dk.get("google_ads_search_terms", days=30)
     print(f"  Shopify: {len(shopify)} rows, Amazon Sales: {len(amazon_sales)}")
     print(f"  Amazon Ads: {len(amazon_ads)}, Meta: {len(meta_ads)}, Google: {len(google_ads)}")
     print(f"  GA4: {len(ga4)}, Search Terms: {len(search_terms)}, GSC: {len(gsc)}")
     print(f"  Brand Analytics: {len(brand_analytics)}, Shopify SKU: {len(shopify_sku)}, Amazon SKU: {len(amazon_sku)}")
     print(f"  Klaviyo: {len(klaviyo)}, Content Posts: {len(content_posts)}, Content Metrics: {len(content_metrics)}")
+    print(f"  Google Search Terms: {len(google_search_terms)}")
 
     # ── Load SKU-level COGS map ──────────────────────────────────────────────
     sku_cogs_map = load_sku_cogs_map()
@@ -2880,73 +2882,108 @@ def generate():
     print("\n[HERO] Building Hero Products tab...")
 
     def _build_hero_products():
-        """Build hero products data: ASIN-level sales + keyword mapping + content lift."""
+        """Build hero products: product-category level sales + keywords + content lift."""
+        from datetime import date as _date
         cutoff_7d = (today - timedelta(days=7)).isoformat()
         cutoff_30d = (today - timedelta(days=30)).isoformat()
 
-        # 1. ASIN-level sales aggregation (Amazon)
-        asin_sales = defaultdict(lambda: {
-            "name": "", "brand": "", "sku": "",
-            "sales_7d": 0.0, "units_7d": 0, "sales_30d": 0.0, "units_30d": 0,
+        # ── ASIN → Product Category classification ────────────────────────
+        def _classify_asin(name, brand):
+            """Classify ASIN product_name into product category."""
+            t = (name or "").lower()
+            if brand == "Grosmimi" or "grosmimi" in t:
+                if "stainless" in t and "tumbler" in t:     return "Stainless Tumbler"
+                if "stainless" in t:                        return "Stainless Straw Cup"
+                if "tumbler" in t or "slow flow" in t:      return "PPSU Tumbler"
+                if "baby bottle" in t or "feeding bottle" in t or ("bottle" in t and "straw" not in t and "nipple" not in t):
+                    return "PPSU Baby Bottle"
+                if "replacement" in t or "accessory" in t or "nipple" in t or "weighted" in t or "strap" in t:
+                    return "Accessories"
+                return "PPSU Straw Cup"  # default Grosmimi = straw/sippy cup
+            if "cha&mom" in t or "cha & mom" in t or "phyto" in t or brand == "CHA&MOM":
+                if "wash" in t:             return "Body Wash"
+                if "cream" in t:            return "Baby Cream"
+                return "Moisturizer"  # default CHA&MOM
+            if "naeiae" in t or brand == "Naeiae":
+                return "Rice Puff"
+            return "Other"
+
+        # ── 1. Aggregate sales by product category ────────────────────────
+        GROSMIMI_CATEGORIES = ["PPSU Straw Cup", "Stainless Straw Cup", "PPSU Tumbler", "Stainless Tumbler", "PPSU Baby Bottle", "Accessories"]
+        CHAMOM_CATEGORIES = ["Moisturizer", "Body Wash", "Baby Cream"]
+        ALL_CATEGORIES = GROSMIMI_CATEGORIES + CHAMOM_CATEGORIES + ["Rice Puff"]
+
+        cat_data = defaultdict(lambda: {
+            "brand": "", "sales_7d": 0.0, "units_7d": 0, "sales_30d": 0.0, "units_30d": 0,
+            "asins": set(),
+            "daily": defaultdict(lambda: {"sales": 0.0, "units": 0}),
             "weekly": defaultdict(lambda: {"sales": 0.0, "units": 0}),
         })
+        asin_to_cat = {}
         for r in amazon_sku:
             asin = r.get("asin", "")
             if not asin:
                 continue
             d = r.get("date", "")
+            name = r.get("product_name", "")
+            brand = r.get("brand", "")
+            cat = _classify_asin(name, brand)
+            asin_to_cat[asin] = cat
             sales = float(r.get("ordered_product_sales") or r.get("net_sales") or 0)
             units = int(r.get("units") or 0)
-            if not asin_sales[asin]["name"]:
-                asin_sales[asin]["name"] = (r.get("product_name") or "")[:80]
-                asin_sales[asin]["brand"] = r.get("brand", "")
-                asin_sales[asin]["sku"] = r.get("sku", "")
+            cd = cat_data[cat]
+            if not cd["brand"]:
+                cd["brand"] = brand
+            cd["asins"].add(asin)
             if d >= cutoff_7d:
-                asin_sales[asin]["sales_7d"] += sales
-                asin_sales[asin]["units_7d"] += units
+                cd["sales_7d"] += sales
+                cd["units_7d"] += units
             if d >= cutoff_30d:
-                asin_sales[asin]["sales_30d"] += sales
-                asin_sales[asin]["units_30d"] += units
-            # Weekly bucket
-            from datetime import date as _date
+                cd["sales_30d"] += sales
+                cd["units_30d"] += units
+                cd["daily"][d]["sales"] += sales
+                cd["daily"][d]["units"] += units
             try:
                 dt = _date.fromisoformat(d)
-                wk = dt.isocalendar()[1]
-                yr = dt.isocalendar()[0]
-                wk_key = f"{yr}-W{wk:02d}"
-                asin_sales[asin]["weekly"][wk_key]["sales"] += sales
-                asin_sales[asin]["weekly"][wk_key]["units"] += units
+                wk_key = f"{dt.isocalendar()[0]}-W{dt.isocalendar()[1]:02d}"
+                cd["weekly"][wk_key]["sales"] += sales
+                cd["weekly"][wk_key]["units"] += units
             except Exception:
                 pass
 
-        # Top 20 ASINs by 30d sales
-        top_asins = sorted(asin_sales.items(), key=lambda x: -x[1]["sales_30d"])[:20]
-        top_asin_set = {a[0] for a in top_asins}
+        # Sort categories by 30d sales
+        sorted_cats = sorted(
+            [(cat, cd) for cat, cd in cat_data.items() if cat != "Other" and cd["sales_30d"] > 0],
+            key=lambda x: -x[1]["sales_30d"]
+        )
+        print(f"  Categories: {len(sorted_cats)} ({', '.join(c for c,_ in sorted_cats)})")
 
-        # 2. BA keyword mapping: asin -> top keywords
-        asin_keywords = defaultdict(list)
+        # ── 2. BA keyword mapping: category → keywords ────────────────────
+        # First, map all ASINs to categories
+        all_cat_asins = defaultdict(set)
+        for asin, cat in asin_to_cat.items():
+            all_cat_asins[cat].add(asin)
+
+        cat_keywords = defaultdict(list)
         for r in brand_analytics:
             asin = r.get("asin", "")
-            if asin not in top_asin_set or not r.get("is_ours"):
+            if not r.get("is_ours") or asin not in asin_to_cat:
                 continue
+            cat = asin_to_cat[asin]
             term = (r.get("search_term") or "").strip().lower()
             if not term:
                 continue
-            click_share = round(float(r.get("click_share") or 0) * 100, 2)
-            conv_share = round(float(r.get("conversion_share") or 0) * 100, 2)
-            rank = int(r.get("search_frequency_rank") or 0)
-            week_date = r.get("date", "")
-            asin_keywords[asin].append({
+            cat_keywords[cat].append({
                 "keyword": term,
-                "search_freq_rank": rank,
-                "click_share": click_share,
-                "conv_share": conv_share,
-                "week": week_date,
+                "search_freq_rank": int(r.get("search_frequency_rank") or 0),
+                "click_share": round(float(r.get("click_share") or 0) * 100, 2),
+                "conv_share": round(float(r.get("conversion_share") or 0) * 100, 2),
+                "week": r.get("date", ""),
             })
 
-        # Deduplicate: per asin, keep top 5 keywords by click_share (latest week)
-        asin_top_kw = {}
-        for asin, entries in asin_keywords.items():
+        # Deduplicate: per category, keep top 8 keywords by click_share
+        cat_top_kw = {}
+        for cat, entries in cat_keywords.items():
             by_kw = defaultdict(list)
             for e in entries:
                 by_kw[e["keyword"]].append(e)
@@ -2962,10 +2999,9 @@ def generate():
                     "click_share": latest["click_share"],
                     "conv_share": latest["conv_share"],
                 })
-            asin_top_kw[asin] = sorted(best, key=lambda x: -x["click_share"])[:5]
+            cat_top_kw[cat] = sorted(best, key=lambda x: -x["click_share"])[:8]
 
-        # 3. Enrich keywords with ads spend + dataforseo volume
-        # Build search term spend lookup
+        # ── 3. Enrich keywords with ads spend + search volume ─────────────
         st_spend = defaultdict(lambda: {"spend": 0.0, "clicks": 0, "sales": 0.0, "impressions": 0})
         for r in search_terms:
             term = (r.get("search_term") or "").strip().lower()
@@ -2975,19 +3011,22 @@ def generate():
                 st_spend[term]["sales"] += float(r.get("sales") or 0)
                 st_spend[term]["impressions"] += int(r.get("impressions") or 0)
 
-        # DataForSEO volume lookup
+        gads_lookup = defaultdict(lambda: {"impressions": 0, "clicks": 0, "spend": 0.0})
+        for r in google_search_terms:
+            term = (r.get("search_term") or "").strip().lower()
+            if term:
+                gads_lookup[term]["impressions"] += int(r.get("impressions") or 0)
+                gads_lookup[term]["clicks"] += int(r.get("clicks") or 0)
+                gads_lookup[term]["spend"] += float(r.get("cost") or r.get("spend") or 0)
+
         dfseo_lookup = {}
         dfseo = dk.get("dataforseo_keywords", days=7)
         for r in dfseo:
             kw = (r.get("keyword") or "").strip().lower()
             if kw:
-                dfseo_lookup[kw] = {
-                    "volume": int(r.get("search_volume") or 0),
-                    "cpc": round(float(r.get("cpc") or 0), 2),
-                }
+                dfseo_lookup[kw] = int(r.get("search_volume") or 0)
 
-        # Enrich each keyword
-        for asin, kws in asin_top_kw.items():
+        for cat, kws in cat_top_kw.items():
             for kw in kws:
                 st = st_spend.get(kw["keyword"], {})
                 kw["ads_spend_30d"] = round(st.get("spend", 0))
@@ -2996,100 +3035,134 @@ def generate():
                 ads_spend = st.get("spend", 0)
                 ads_sales = st.get("sales", 0)
                 kw["ads_acos"] = round(ads_spend / ads_sales, 2) if ads_sales > 0 else 0
-                dfs = dfseo_lookup.get(kw["keyword"], {})
-                kw["google_volume"] = dfs.get("volume", 0)
+                kw["google_volume"] = dfseo_lookup.get(kw["keyword"], 0)
+                gads = gads_lookup.get(kw["keyword"], {})
+                kw["google_ads_impressions"] = gads.get("impressions", 0)
+                kw["google_ads_clicks"] = gads.get("clicks", 0)
 
-        # 4. Build product list
-        # Get sorted week keys for sparklines
+        # ── 4. Build category output ──────────────────────────────────────
         all_weeks = set()
-        for _, data in top_asins:
-            all_weeks.update(data["weekly"].keys())
+        for _, cd in sorted_cats:
+            all_weeks.update(cd["weekly"].keys())
         week_keys = sorted(all_weeks)[-12:]
 
-        products = []
-        for asin, data in top_asins:
-            sales_weekly = [round(data["weekly"].get(wk, {}).get("sales", 0)) for wk in week_keys]
-            products.append({
-                "asin": asin,
-                "sku": data["sku"],
-                "name": data["name"],
-                "brand": data["brand"],
-                "sales_7d": round(data["sales_7d"]),
-                "units_7d": data["units_7d"],
-                "sales_30d": round(data["sales_30d"]),
-                "units_30d": data["units_30d"],
+        # Daily dates for detail table
+        daily_dates = sorted(set(
+            d for _, cd in sorted_cats for d in cd["daily"].keys()
+        ))[-30:]
+
+        categories = []
+        for cat, cd in sorted_cats:
+            sales_weekly = [round(cd["weekly"].get(wk, {}).get("sales", 0)) for wk in week_keys]
+            units_weekly = [cd["weekly"].get(wk, {}).get("units", 0) for wk in week_keys]
+            daily_sales = [round(cd["daily"].get(d, {}).get("sales", 0)) for d in daily_dates]
+            daily_units = [cd["daily"].get(d, {}).get("units", 0) for d in daily_dates]
+            categories.append({
+                "category": cat,
+                "brand": cd["brand"],
+                "asin_count": len(cd["asins"]),
+                "sales_7d": round(cd["sales_7d"]),
+                "units_7d": cd["units_7d"],
+                "sales_30d": round(cd["sales_30d"]),
+                "units_30d": cd["units_30d"],
                 "sales_weekly": sales_weekly,
-                "top_keywords": asin_top_kw.get(asin, []),
+                "units_weekly": units_weekly,
+                "daily_sales": daily_sales,
+                "daily_units": daily_units,
+                "top_keywords": cat_top_kw.get(cat, []),
             })
 
-        # 5. Keyword flat table (all keywords across hero products)
+        # ── 5. Keyword flat table ─────────────────────────────────────────
         keyword_table = []
         seen_kw = set()
-        for p in products:
-            for kw in p.get("top_keywords", []):
-                key = (kw["keyword"], p["asin"])
+        for c in categories:
+            for kw in c.get("top_keywords", []):
+                key = (kw["keyword"], c["category"])
                 if key in seen_kw:
                     continue
                 seen_kw.add(key)
                 keyword_table.append({
                     "keyword": kw["keyword"],
-                    "asin": p["asin"],
-                    "product": p["name"][:50],
-                    "brand": p["brand"],
+                    "category": c["category"],
+                    "brand": c["brand"],
                     "search_freq_rank": kw["search_freq_rank"],
                     "rank_weekly": kw.get("rank_weekly", []),
                     "click_share": kw["click_share"],
                     "conv_share": kw["conv_share"],
                     "google_volume": kw.get("google_volume", 0),
+                    "google_ads_impressions": kw.get("google_ads_impressions", 0),
+                    "google_ads_clicks": kw.get("google_ads_clicks", 0),
                     "ads_spend": kw.get("ads_spend_30d", 0),
                     "ads_clicks": kw.get("ads_clicks_30d", 0),
                     "ads_acos": kw.get("ads_acos", 0),
                 })
-        keyword_table.sort(key=lambda x: -x.get("google_volume", 0))
+        keyword_table.sort(key=lambda x: -(x.get("google_ads_impressions", 0) or x.get("google_volume", 0)))
 
-        # 6. Content lift (brand-level: daily views vs sales)
-        content_lift = {}
-        # Aggregate content views by brand + date
-        post_brands = {}
+        # ── 6. Content lift by product_types (with duplication) ───────────
+        # Map post_id → {brand, product_types list}
+        post_info = {}
         for p in content_posts:
             pid = p.get("post_id") or p.get("url", "")
             brand = p.get("brand", "")
+            pt_raw = p.get("product_types", "")
+            ptypes = [t.strip() for t in pt_raw.split(",") if t.strip()] if pt_raw else []
             if pid and brand:
-                post_brands[pid] = brand
+                post_info[pid] = {"brand": brand, "product_types": ptypes}
 
-        brand_views = defaultdict(lambda: defaultdict(int))
+        # Aggregate views by product_type + date
+        ptype_views = defaultdict(lambda: defaultdict(int))
         for m in content_metrics:
             pid = m.get("post_id", "")
             d = m.get("date", "")
             views = int(m.get("views") or 0)
-            brand = post_brands.get(pid, "")
-            if brand and d >= cutoff_30d:
-                brand_views[brand][d] += views
+            info = post_info.get(pid)
+            if not info or d < cutoff_30d:
+                continue
+            brand = info["brand"]
+            ptypes = info["product_types"]
+            if ptypes:
+                # Classified → add to each matched product type
+                for pt in ptypes:
+                    ptype_views[pt][d] += views
+            else:
+                # Unclassified → duplicate into ALL categories for this brand
+                if brand == "Grosmimi":
+                    for cat in GROSMIMI_CATEGORIES:
+                        if cat != "Accessories":
+                            ptype_views[cat][d] += views
+                elif brand == "CHA&MOM":
+                    for cat in CHAMOM_CATEGORIES:
+                        ptype_views[cat][d] += views
+                elif brand == "Naeiae":
+                    ptype_views["Rice Puff"][d] += views
 
-        # Aggregate sales by brand + date (from amazon_sales)
-        brand_sales_daily = defaultdict(lambda: defaultdict(float))
+        # Aggregate sales by category + date
+        cat_sales_daily = defaultdict(lambda: defaultdict(float))
         for r in amazon_sales:
             d = r.get("date", "")
             brand = r.get("brand", "")
             if brand and d >= cutoff_30d:
-                brand_sales_daily[brand][d] += float(r.get("gross_sales") or r.get("net_sales") or 0)
+                # Distribute brand-level amazon_sales to each category proportionally
+                # (amazon_sales doesn't have ASIN-level, so use brand total)
+                cat_sales_daily[brand][d] += float(r.get("gross_sales") or r.get("net_sales") or 0)
 
-        dates_30d = sorted(set(
-            list(brand_views.get("Grosmimi", {}).keys()) +
-            list(brand_sales_daily.get("Grosmimi", {}).keys())
-        ))[-30:]
+        dates_30d = sorted(set(d for d in daily_dates))[-30:]
+        content_lift = {}
+        for cat, cd in sorted_cats:
+            brand = cd["brand"]
+            views_arr = [ptype_views.get(cat, {}).get(d, 0) for d in dates_30d]
+            # Use category-level daily sales from amazon_sku
+            sales_arr = [round(cd["daily"].get(d, {}).get("sales", 0)) for d in dates_30d]
+            content_lift[cat] = {
+                "dates": dates_30d,
+                "views": views_arr,
+                "sales": sales_arr,
+            }
 
-        for brand in ["Grosmimi", "CHA&MOM", "Naeiae"]:
-            views_arr = [brand_views.get(brand, {}).get(d, 0) for d in dates_30d]
-            sales_arr = [round(brand_sales_daily.get(brand, {}).get(d, 0)) for d in dates_30d]
-            if sum(views_arr) > 0 or sum(sales_arr) > 0:
-                content_lift[brand] = {
-                    "dates": dates_30d,
-                    "views": views_arr,
-                    "sales": sales_arr,
-                }
+        ct_with_views = sum(1 for c in content_lift.values() if sum(c["views"]) > 0)
+        print(f"  Content lift: {len(content_lift)} categories, {ct_with_views} with views")
 
-        # 7. Daily spend overlay
+        # ── 7. Daily spend overlay ────────────────────────────────────────
         spend_dates = sorted(set(r.get("date", "") for r in amazon_ads if r.get("date", "") >= cutoff_30d))[-30:]
         amz_spend_daily = defaultdict(float)
         meta_spend_daily = defaultdict(float)
@@ -3114,10 +3187,11 @@ def generate():
             "google": [round(google_spend_daily.get(d, 0)) for d in spend_dates],
         }
 
-        print(f"  Hero products: {len(products)}, keywords: {len(keyword_table)}, content brands: {len(content_lift)}")
+        print(f"  Hero categories: {len(categories)}, keywords: {len(keyword_table)}")
         return {
             "week_keys": week_keys,
-            "products": products,
+            "daily_dates": daily_dates,
+            "categories": categories,
             "keyword_table": keyword_table,
             "content_lift": content_lift,
             "spend_daily": spend_daily,

@@ -860,67 +860,70 @@ function renderFinancial(){
 // ── Hero Products Tab ────────────────────────────────────────────────────────
 function renderHeroTab(F){
   var H=F.hero_products;
-  if(!H||!H.products||!H.products.length){
-    document.getElementById('panel-hero').innerHTML='<div class="card"><h3>No Hero Products Data</h3><div class="desc">Brand Analytics data required. Run generate_fin_data.py.</div></div>';
+  if(!H||!H.categories||!H.categories.length){
+    document.getElementById('panel-hero').innerHTML='<div class="card"><h3>No Hero Products Data</h3><div class="desc">Run generate_fin_data.py to build product category data.</div></div>';
     return;
   }
   var html='';
-  var BCOLORS={'Grosmimi':'#8b5cf6','CHA&MOM':'#0ea5e9','Naeiae':'#eab308','Onzenna':'#ec4899','Alpremio':'#f97316'};
+  var CATCOLORS={
+    'PPSU Straw Cup':'#8b5cf6','Stainless Straw Cup':'#a78bfa','PPSU Tumbler':'#6366f1',
+    'Stainless Tumbler':'#818cf8','PPSU Baby Bottle':'#c084fc','Accessories':'#d8b4fe',
+    'Moisturizer':'#0ea5e9','Body Wash':'#22d3ee','Baby Cream':'#06b6d4',
+    'Rice Puff':'#eab308'
+  };
+  var BCOLORS={'Grosmimi':'#8b5cf6','CHA&MOM':'#0ea5e9','Naeiae':'#eab308'};
 
-  // ── Section A: Hero Product Scorecard ──
-  html+='<div class="sec"><div class="sec-title"><div class="num">1</div> Hero Product Scorecard</div>';
-  html+='<div class="card"><div class="desc">Top '+H.products.length+' ASINs by 30D sales. Keywords from Amazon Brand Analytics (click share).</div>';
-  H.products.forEach(function(p,idx){
-    var bc=BCOLORS[p.brand]||'#94a3b8';
-    html+='<div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px'+(idx===0?'':'')+'">';
+  // ── Section A: Product Category Scorecard ──
+  html+='<div class="sec"><div class="sec-title"><div class="num">1</div> Product Category Scorecard</div>';
+  html+='<div class="card"><div class="desc">Sales rolled up by product category ('+H.categories.length+' categories). Keywords from Amazon Brand Analytics.</div>';
+  H.categories.forEach(function(c,idx){
+    var bc=CATCOLORS[c.category]||'#94a3b8';
+    var brandBg=BCOLORS[c.brand]||'#94a3b8';
+    html+='<div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px">';
     html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
-    html+='<div><span style="font-weight:700;font-size:12px">'+p.name.substring(0,55)+'</span>';
-    html+=' <span style="font-size:9px;padding:1px 6px;border-radius:10px;background:'+bc+'22;color:'+bc+';font-weight:600">'+p.brand+'</span>';
-    html+=' <span style="font-size:9px;color:var(--muted);font-family:var(--mono)">'+p.asin+'</span></div>';
+    html+='<div><span style="font-weight:700;font-size:13px;color:'+bc+'">'+c.category+'</span>';
+    html+=' <span style="font-size:9px;padding:1px 6px;border-radius:10px;background:'+brandBg+'22;color:'+brandBg+';font-weight:600">'+c.brand+'</span>';
+    html+=' <span style="font-size:9px;color:var(--muted);font-family:var(--mono)">'+c.asin_count+' ASINs</span></div>';
     html+='<div style="text-align:right">';
-    html+='<span style="font-family:var(--mono);font-weight:800;font-size:16px;color:var(--g)">$'+p.sales_30d.toLocaleString()+'</span>';
+    html+='<span style="font-family:var(--mono);font-weight:800;font-size:16px;color:var(--g)">$'+c.sales_30d.toLocaleString()+'</span>';
     html+=' <span style="font-size:9px;color:var(--dim)">30D</span>';
-    html+=' <span style="font-family:var(--mono);font-size:11px;color:var(--dim);margin-left:8px">'+p.units_30d.toLocaleString()+' units</span>';
+    html+=' <span style="font-family:var(--mono);font-size:11px;color:var(--dim);margin-left:8px">'+c.units_30d.toLocaleString()+' units</span>';
     html+='</div></div>';
-    // Weekly sparkline
-    if(p.sales_weekly&&p.sales_weekly.length>1){
-      var mx=Math.max.apply(null,p.sales_weekly)||1;
+    // Weekly sparkline (sales + units)
+    if(c.sales_weekly&&c.sales_weekly.length>1){
+      var mx=Math.max.apply(null,c.sales_weekly)||1;
       var spark='<svg width="120" height="24" style="vertical-align:middle">';
       var pts=[];
-      p.sales_weekly.forEach(function(v,i){
-        var x=i/(p.sales_weekly.length-1)*116+2;
+      c.sales_weekly.forEach(function(v,i){
+        var x=i/(c.sales_weekly.length-1)*116+2;
         var y=22-v/mx*20;
         pts.push(x+','+y);
       });
       spark+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+bc+'" stroke-width="1.5" stroke-linecap="round"/>';
       spark+='</svg>';
       html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="font-size:9px;color:var(--muted)">Weekly</span>'+spark;
-      html+='<span style="font-family:var(--mono);font-size:10px;color:var(--dim)">$'+p.sales_7d.toLocaleString()+' <span style="font-size:8px">7D</span></span></div>';
+      html+='<span style="font-family:var(--mono);font-size:10px;color:var(--dim)">$'+c.sales_7d.toLocaleString()+' <span style="font-size:8px">7D</span></span></div>';
     }
-    // Top keywords
-    if(p.top_keywords&&p.top_keywords.length){
+    // Top keywords for this category
+    if(c.top_keywords&&c.top_keywords.length){
       html+='<table style="margin-top:4px"><thead><tr>';
-      html+='<th>Keyword</th><th style="text-align:right">Search Rank</th><th style="text-align:right">Rank Trend</th>';
-      html+='<th style="text-align:right">Click %</th><th style="text-align:right">Conv %</th>';
-      html+='<th style="text-align:right">Google Vol</th><th style="text-align:right">Ad Spend</th><th style="text-align:right">ACOS</th>';
+      html+='<th>Keyword</th><th style="text-align:right">Search Rank</th><th style="text-align:right">Trend</th>';
+      html+='<th style="text-align:right">Click %</th><th style="text-align:right">G.Ads Impr</th><th style="text-align:right">Ad Spend</th><th style="text-align:right">ACOS</th>';
       html+='</tr></thead><tbody>';
-      p.top_keywords.forEach(function(kw){
+      c.top_keywords.forEach(function(kw){
         var rankCol=kw.search_freq_rank<500?'var(--g)':kw.search_freq_rank<2000?'var(--am)':'var(--r)';
-        // Rank trend sparkline
         var rkSpark='';
         if(kw.rank_weekly&&kw.rank_weekly.length>1){
-          var rmx=Math.max.apply(null,kw.rank_weekly)||1;
-          var rmn=Math.min.apply(null,kw.rank_weekly)||0;
+          var rmx=Math.max.apply(null,kw.rank_weekly)||1,rmn=Math.min.apply(null,kw.rank_weekly)||0;
           rkSpark='<svg width="60" height="16" style="vertical-align:middle">';
           var rpts=[];
           kw.rank_weekly.forEach(function(v,i){
             var x=i/(kw.rank_weekly.length-1)*56+2;
-            var y=rmx===rmn?8:14-(v-rmn)/(rmx-rmn)*12;  // lower rank = higher = inverted
+            var y=rmx===rmn?8:14-(v-rmn)/(rmx-rmn)*12;
             rpts.push(x+','+y);
           });
           rkSpark+='<polyline points="'+rpts.join(' ')+'" fill="none" stroke="var(--c)" stroke-width="1" stroke-linecap="round"/>';
           rkSpark+='</svg>';
-          // Arrow: compare last vs first
           var first=kw.rank_weekly[0],last=kw.rank_weekly[kw.rank_weekly.length-1];
           if(last<first) rkSpark+=' <span style="color:var(--g);font-size:9px">&#9650;</span>';
           else if(last>first) rkSpark+=' <span style="color:var(--r);font-size:9px">&#9660;</span>';
@@ -931,8 +934,7 @@ function renderHeroTab(F){
         html+='<td style="text-align:right;font-family:var(--mono);color:'+rankCol+'">'+kw.search_freq_rank.toLocaleString()+'</td>';
         html+='<td style="text-align:right">'+rkSpark+'</td>';
         html+='<td style="text-align:right;font-family:var(--mono)">'+kw.click_share.toFixed(1)+'%</td>';
-        html+='<td style="text-align:right;font-family:var(--mono)">'+kw.conv_share.toFixed(1)+'%</td>';
-        html+='<td style="text-align:right;font-family:var(--mono)">'+(kw.google_volume?kw.google_volume.toLocaleString():'—')+'</td>';
+        html+='<td style="text-align:right;font-family:var(--mono)">'+(kw.google_ads_impressions?kw.google_ads_impressions.toLocaleString():'—')+'</td>';
         html+='<td style="text-align:right;font-family:var(--mono)">'+(kw.ads_spend_30d?'$'+kw.ads_spend_30d.toLocaleString():'—')+'</td>';
         html+='<td style="text-align:right;font-family:var(--mono);color:'+acosCol+'">'+(kw.ads_acos>0?(kw.ads_acos*100).toFixed(0)+'%':'—')+'</td>';
         html+='</tr>';
@@ -946,21 +948,20 @@ function renderHeroTab(F){
   // ── Section B: Keyword Deep Dive ──
   if(H.keyword_table&&H.keyword_table.length){
     html+='<div class="sec"><div class="sec-title"><div class="num">2</div> Keyword Deep Dive</div>';
-    html+='<div class="card"><div class="desc">All tracked keywords across hero products. Sorted by Google search volume.</div>';
+    html+='<div class="card"><div class="desc">All keywords across product categories. Sorted by Google Ads impressions.</div>';
     html+='<table><thead><tr>';
-    html+='<th>Keyword</th><th>Product</th><th>Brand</th>';
-    html+='<th style="text-align:right">BA Rank</th><th style="text-align:right">Rank Trend</th>';
-    html+='<th style="text-align:right">Click %</th><th style="text-align:right">Google Vol</th>';
+    html+='<th>Keyword</th><th>Category</th><th>Brand</th>';
+    html+='<th style="text-align:right">BA Rank</th><th style="text-align:right">Trend</th>';
+    html+='<th style="text-align:right">Click %</th><th style="text-align:right">G.Ads Impr</th>';
     html+='<th style="text-align:right">Ad Spend</th><th style="text-align:right">ACOS</th>';
     html+='</tr></thead><tbody>';
     H.keyword_table.forEach(function(kw){
-      var bc=BCOLORS[kw.brand]||'#94a3b8';
+      var bc=CATCOLORS[kw.category]||BCOLORS[kw.brand]||'#94a3b8';
       var rankCol=kw.search_freq_rank<500?'var(--g)':kw.search_freq_rank<2000?'var(--am)':'var(--r)';
       var acosCol=kw.ads_acos>0?(kw.ads_acos<0.3?'var(--g)':kw.ads_acos<0.5?'var(--am)':'var(--r)'):'var(--muted)';
       var rkSpark='';
       if(kw.rank_weekly&&kw.rank_weekly.length>1){
-        var rmx=Math.max.apply(null,kw.rank_weekly)||1;
-        var rmn=Math.min.apply(null,kw.rank_weekly)||0;
+        var rmx=Math.max.apply(null,kw.rank_weekly)||1,rmn=Math.min.apply(null,kw.rank_weekly)||0;
         rkSpark='<svg width="50" height="14" style="vertical-align:middle">';
         var rpts=[];
         kw.rank_weekly.forEach(function(v,i){
@@ -973,12 +974,12 @@ function renderHeroTab(F){
       }
       html+='<tr>';
       html+='<td style="font-weight:500;font-size:10px">'+kw.keyword+'</td>';
-      html+='<td style="font-size:9px;color:var(--dim)">'+kw.product+'</td>';
-      html+='<td><span style="font-size:9px;padding:1px 5px;border-radius:8px;background:'+bc+'22;color:'+bc+'">'+kw.brand+'</span></td>';
+      html+='<td><span style="font-size:9px;padding:1px 5px;border-radius:8px;background:'+bc+'22;color:'+bc+'">'+kw.category+'</span></td>';
+      html+='<td style="font-size:9px;color:var(--dim)">'+kw.brand+'</td>';
       html+='<td style="text-align:right;font-family:var(--mono);color:'+rankCol+';font-size:10px">'+kw.search_freq_rank.toLocaleString()+'</td>';
       html+='<td style="text-align:right">'+rkSpark+'</td>';
       html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+kw.click_share.toFixed(1)+'%</td>';
-      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+(kw.google_volume?kw.google_volume.toLocaleString():'—')+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+(kw.google_ads_impressions?kw.google_ads_impressions.toLocaleString():'—')+'</td>';
       html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+(kw.ads_spend?'$'+kw.ads_spend.toLocaleString():'—')+'</td>';
       html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:'+acosCol+'">'+(kw.ads_acos>0?(kw.ads_acos*100).toFixed(0)+'%':'—')+'</td>';
       html+='</tr>';
@@ -986,38 +987,30 @@ function renderHeroTab(F){
     html+='</tbody></table></div></div>';
   }
 
-  // ── Section C: Content → Search Lift ──
+  // ── Section C: Content → Sales by Product Category ──
   if(H.content_lift&&Object.keys(H.content_lift).length){
-    html+='<div class="sec"><div class="sec-title"><div class="num">3</div> Content &rarr; Sales Correlation (30D)</div>';
-    Object.keys(H.content_lift).forEach(function(brand){
-      var cl=H.content_lift[brand];
+    html+='<div class="sec"><div class="sec-title"><div class="num">3</div> Content Views &rarr; Sales by Product Category (30D)</div>';
+    html+='<div class="card"><div class="desc">Content views (bars) vs category sales (line). Unclassified posts are duplicated across all categories within their brand.</div></div>';
+    Object.keys(H.content_lift).forEach(function(cat){
+      var cl=H.content_lift[cat];
       if(!cl.dates||!cl.dates.length) return;
-      var bc=BCOLORS[brand]||'#94a3b8';
+      var bc=CATCOLORS[cat]||'#94a3b8';
+      var totalViews=cl.views.reduce(function(a,b){return a+b},0);
+      var totalSales=cl.sales.reduce(function(a,b){return a+b},0);
+      if(totalViews===0&&totalSales===0) return;
       var maxV=Math.max.apply(null,cl.views)||1;
       var maxS=Math.max.apply(null,cl.sales)||1;
       var w=Math.min(cl.dates.length*18,540);
-      html+='<div class="card"><h3 style="color:'+bc+'">'+brand+'</h3>';
-      html+='<div class="desc">Daily content views (bars) vs Amazon sales (line). Look for view spikes followed by sales lift.</div>';
-      html+='<svg width="'+w+'" height="80" style="display:block;margin:8px auto">';
-      // Bars for views
+      html+='<div class="card"><h3 style="color:'+bc+';font-size:12px">'+cat+'</h3>';
+      html+='<div class="desc" style="font-size:9px">'+totalViews.toLocaleString()+' views | $'+totalSales.toLocaleString()+' sales</div>';
+      html+='<svg width="'+w+'" height="70" style="display:block;margin:6px auto">';
       cl.views.forEach(function(v,i){
-        var x=i*18+2;
-        var h=v/maxV*55;
-        html+='<rect x="'+x+'" y="'+(60-h)+'" width="14" height="'+h+'" fill="'+bc+'" opacity="0.25" rx="2"/>';
+        var x=i*18+2;var h=v/maxV*50;
+        html+='<rect x="'+x+'" y="'+(55-h)+'" width="14" height="'+h+'" fill="'+bc+'" opacity="0.25" rx="2"/>';
       });
-      // Line for sales
       var spts=[];
-      cl.sales.forEach(function(v,i){
-        var x=i*18+9;
-        var y=60-v/maxS*55;
-        spts.push(x+','+y);
-      });
+      cl.sales.forEach(function(v,i){spts.push((i*18+9)+','+(55-v/maxS*50));});
       html+='<polyline points="'+spts.join(' ')+'" fill="none" stroke="'+bc+'" stroke-width="2" stroke-linecap="round"/>';
-      // Legend
-      html+='<rect x="2" y="70" width="10" height="6" fill="'+bc+'" opacity="0.25" rx="1"/>';
-      html+='<text x="15" y="76" fill="var(--dim)" font-size="8" font-family="Inter">Views</text>';
-      html+='<line x1="50" y1="73" x2="65" y2="73" stroke="'+bc+'" stroke-width="2"/>';
-      html+='<text x="68" y="76" fill="var(--dim)" font-size="8" font-family="Inter">Sales</text>';
       html+='</svg></div>';
     });
     html+='</div>';
