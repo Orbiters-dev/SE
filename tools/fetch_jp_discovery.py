@@ -62,6 +62,7 @@ RAPIDAPI_HOST = os.getenv("RAPIDAPI_IG_HOST", "instagram-scraper-stable-api.p.ra
 
 # Apify actors
 IG_HASHTAG_SCRAPER = "apify/instagram-hashtag-scraper"
+IG_POST_SCRAPER = "apify/instagram-scraper"  # for individual post URL scraping (gets videoViewCount)
 TT_SCRAPER = "clockworks/free-tiktok-scraper"
 
 # JP parenting keywords (core 3 — covers 90%+ of relevant posts)
@@ -298,21 +299,26 @@ def _normalize_tt(item: dict, source_kw: str = "") -> dict:
 
 # ── RapidAPI Enrichment ──────────────────────────────────────────────────── #
 def enrich_ig_posts(posts: list[dict]) -> list[dict]:
-    """Enrich IG posts with full captions via RapidAPI (for posts missing caption)."""
+    """Enrich ALL IG posts with views/likes/comments via RapidAPI.
+
+    Apify hashtag scraper returns views=0 for IG posts. RapidAPI provides
+    video_view_count, like_count, comment_count that we use to fill gaps.
+    Also backfills captions/hashtags if missing.
+    """
     if not RAPIDAPI_KEY:
         print("[ENRICH] No RAPIDAPI_KEY, skipping enrichment")
         return posts
 
-    needs_enrich = [p for p in posts if not p.get("Caption") and p["Platform"] == "instagram"]
-    if not needs_enrich:
-        print("[ENRICH] All posts already have captions")
+    ig_posts = [p for p in posts if p["Platform"] == "instagram"]
+    if not ig_posts:
+        print("[ENRICH] No IG posts to enrich")
         return posts
 
-    print(f"\n[ENRICH] {len(needs_enrich)} posts need caption enrichment via RapidAPI")
+    print(f"\n[ENRICH] Enriching {len(ig_posts)} IG posts via RapidAPI (views/likes/comments)")
 
     # Group by handle
     by_handle = {}
-    for p in needs_enrich:
+    for p in ig_posts:
         h = p["Handle"]
         if h not in by_handle:
             by_handle[h] = []
@@ -320,6 +326,7 @@ def enrich_ig_posts(posts: list[dict]) -> list[dict]:
 
     cache = {}
     enriched = 0
+    api_calls = 0
     for handle, handle_posts in by_handle.items():
         if handle in cache:
             api_posts = cache[handle]
@@ -339,6 +346,7 @@ def enrich_ig_posts(posts: list[dict]) -> list[dict]:
                     result = json.loads(resp.read())
                 api_posts = [p.get("node", p) for p in result.get("posts", [])]
                 cache[handle] = api_posts
+                api_calls += 1
             except Exception as e:
                 print(f"  ⚠ @{handle}: {e}")
                 cache[handle] = []
@@ -348,15 +356,106 @@ def enrich_ig_posts(posts: list[dict]) -> list[dict]:
             sc = p["_post_id"]
             match = next((ap for ap in api_posts if ap.get("code") == sc), None)
             if match:
-                cap_obj = match.get("caption", {})
-                cap_text = cap_obj.get("text", "") if isinstance(cap_obj, dict) else str(cap_obj)
-                p["Caption"] = cap_text
-                p["Hashtags"] = " ".join(re.findall(
-                    r"#[\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+", cap_text
-                ))
+                # Views: video_view_count or view_count (Reels/Video only)
+                views = match.get("video_view_count", 0) or match.get("view_count", 0) or 0
+                if views > 0:
+                    p["Views"] = views
+
+                # Likes: edge_media_preview_like.count or like_count
+                likes_edge = match.get("edge_media_preview_like", {})
+                likes = likes_edge.get("count", 0) if isinstance(likes_edge, dict) else 0
+                if not likes:
+                    likes = match.get("like_count", 0) or 0
+                if likes > 0:
+                    p["Likes"] = likes
+
+                # Comments: edge_media_to_comment.count or comment_count
+                comments_edge = match.get("edge_media_to_comment", {})
+                comments = comments_edge.get("count", 0) if isinstance(comments_edge, dict) else 0
+                if not comments:
+                    comments = match.get("comment_count", 0) or 0
+                if comments > 0:
+                    p["Comments Count"] = comments
+
+                # Caption backfill (if Apify missed it)
+                if not p.get("Caption"):
+                    cap_obj = match.get("caption", {})
+                    cap_text = cap_obj.get("text", "") if isinstance(cap_obj, dict) else str(cap_obj)
+                    if cap_text:
+                        p["Caption"] = cap_text
+                        p["Hashtags"] = " ".join(re.findall(
+                            r"#[\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+", cap_text
+                        ))
+
                 enriched += 1
 
-    print(f"[ENRICH] Enriched {enriched}/{len(needs_enrich)} posts")
+    print(f"[ENRICH] Enriched {enriched}/{len(ig_posts)} posts ({api_calls} API calls to {len(by_handle)} handles)")
+    return posts
+
+
+# ── Apify View Enrichment ───────────────────────────────────────────────── #
+def enrich_ig_views(posts: list[dict]) -> list[dict]:
+    """Scrape individual IG post URLs via apify/instagram-scraper to get videoViewCount.
+
+    The hashtag scraper returns views=0 for IG. Individual post scraping gets real views.
+    """
+    if not APIFY_TOKEN:
+        print("[VIEWS] No APIFY_API_TOKEN, skipping view enrichment")
+        return posts
+
+    ig_posts = [p for p in posts if p["Platform"] == "instagram" and (p.get("Views") or 0) == 0]
+    if not ig_posts:
+        print("[VIEWS] All IG posts already have views")
+        return posts
+
+    urls = [p["URL"] for p in ig_posts if p.get("URL")]
+    if not urls:
+        return posts
+
+    print(f"\n[VIEWS] Scraping {len(urls)} IG post URLs for videoViewCount via Apify...")
+
+    try:
+        from apify_client import ApifyClient
+        client = ApifyClient(APIFY_TOKEN)
+        run = client.actor(IG_POST_SCRAPER).call(
+            run_input={
+                "directUrls": urls,
+                "resultsLimit": len(urls),
+                "resultsType": "posts",
+            },
+            timeout_secs=600,
+        )
+        items = list(client.dataset(run["defaultDatasetId"]).iterate_items())
+        print(f"[VIEWS] Got {len(items)} results from Apify")
+    except Exception as e:
+        print(f"[VIEWS] Apify scrape failed: {e}")
+        return posts
+
+    # Build shortCode → views map
+    views_map = {}
+    for item in items:
+        sc = item.get("shortCode", "")
+        views = item.get("videoViewCount", 0) or 0
+        likes = item.get("likesCount", 0) or 0
+        comments = item.get("commentsCount", 0) or 0
+        if sc:
+            views_map[sc] = {"views": views, "likes": likes, "comments": comments}
+
+    enriched = 0
+    for p in ig_posts:
+        sc = p.get("_post_id", "")
+        if sc in views_map:
+            v = views_map[sc]
+            if v["views"] > 0:
+                p["Views"] = v["views"]
+            if v["likes"] > 0 and (p.get("Likes") or 0) == 0:
+                p["Likes"] = v["likes"]
+            if v["comments"] > 0 and (p.get("Comments Count") or 0) == 0:
+                p["Comments Count"] = v["comments"]
+            enriched += 1
+
+    with_views = sum(1 for p in ig_posts if (p.get("Views") or 0) > 0)
+    print(f"[VIEWS] Matched {enriched}/{len(ig_posts)}, {with_views} now have views>0")
     return posts
 
 
@@ -471,7 +570,8 @@ def main():
         print(f"  INSTAGRAM — {len(hashtags)} hashtags")
         print(f"{'━'*50}")
         ig_posts = discover_ig_hashtags(hashtags, days=args.days)
-        ig_posts = enrich_ig_posts(ig_posts)
+        ig_posts = enrich_ig_posts(ig_posts)       # RapidAPI: likes + comments
+        ig_posts = enrich_ig_views(ig_posts)        # Apify: videoViewCount
         save_raw(ig_posts, "jp_ig_discovery")
         all_posts.extend(ig_posts)
 
@@ -496,7 +596,13 @@ def main():
     handles = set(p["Handle"] for p in all_posts)
     print(f"  Unique handles: {len(handles)}")
     with_caption = sum(1 for p in all_posts if p.get("Caption"))
+    with_views = sum(1 for p in all_posts if (p.get("Views") or 0) > 0)
+    with_likes = sum(1 for p in all_posts if (p.get("Likes") or 0) > 0)
+    with_comments = sum(1 for p in all_posts if (p.get("Comments Count") or 0) > 0)
     print(f"  With caption: {with_caption}/{len(all_posts)} ({with_caption/max(len(all_posts),1)*100:.0f}%)")
+    print(f"  With views:   {with_views}/{len(all_posts)} ({with_views/max(len(all_posts),1)*100:.0f}%)")
+    print(f"  With likes:   {with_likes}/{len(all_posts)} ({with_likes/max(len(all_posts),1)*100:.0f}%)")
+    print(f"  With comments:{with_comments}/{len(all_posts)} ({with_comments/max(len(all_posts),1)*100:.0f}%)")
 
     # Write to sheet
     if not args.no_sheet:
