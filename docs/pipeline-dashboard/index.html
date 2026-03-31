@@ -3959,9 +3959,35 @@ function updateFtSummary(){
   flowEl.textContent=parts.join(' \u2192 ');
   document.getElementById('ft-eligible-count').textContent=eligible;
   document.getElementById('ft-total-count').textContent=total;
-  document.getElementById('ft-pipeline-summary').style.display='';
 
-  // Display eligible pool count (do NOT overwrite batch size — it's user-controlled)
+  // HT/LT breakdown
+  var htCount=_ftCache.filter(function(c){return c.outreach_type==='HT'}).length;
+  var ltCount=_ftCache.filter(function(c){return c.outreach_type==='LT'}).length;
+  var igCount=_ftCache.filter(function(c){return (c.platform||'').toLowerCase()==='instagram'}).length;
+  var ttCount=_ftCache.filter(function(c){return (c.platform||'').toLowerCase()==='tiktok'}).length;
+  var breakdownEl=document.getElementById('ft-breakdown');
+  if(!breakdownEl){
+    breakdownEl=document.createElement('div');
+    breakdownEl.id='ft-breakdown';
+    breakdownEl.style.cssText='font-size:10px;margin-top:6px;display:flex;gap:12px;flex-wrap:wrap';
+    document.getElementById('ft-pipeline-summary').appendChild(breakdownEl);
+  }
+  breakdownEl.textContent='';
+  var items=[
+    {label:'HT (100K+)',val:htCount,color:'#ef4444'},
+    {label:'LT',val:ltCount,color:'#3b82f6'},
+    {label:'IG',val:igCount,color:'#e1306c'},
+    {label:'TT',val:ttCount,color:'#000'}
+  ];
+  items.forEach(function(it){
+    var sp=document.createElement('span');
+    sp.style.cssText='font-weight:600';
+    sp.textContent=it.label+': '+it.val;
+    sp.style.color=it.color;
+    breakdownEl.appendChild(sp);
+  });
+
+  document.getElementById('ft-pipeline-summary').style.display='';
 }
 
 // ========== BATCH PIPELINE ==========
