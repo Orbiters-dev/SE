@@ -1825,16 +1825,17 @@ function executeCreatorsDrafts() {
     }
     var handle = handles[idx];
     var c = _creators.find(function(x) { return x.username === handle; });
-    // Copy draft to clipboard
-    if (c && c.dm_draft) {
-      navigator.clipboard.writeText(c.dm_draft).catch(function(){});
-      n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' });
-    }
-    // Open IG DM
-    window.open('https://ig.me/m/' + handle, '_blank');
-    updateStatus(handle, 'sent').then(function() { incDmCount(); }).catch(function(){});
+    var text = c ? (c.dm_draft || '') : '';
+    if (!text) { idx++; setTimeout(processNext, 300); return; }
+    n8nPost({ action: 'send_dm', username: handle, message: text, sent_by: _currentUser || 'dashboard' })
+      .then(function(res) {
+        if (res.sent || res.status === 'ok') {
+          n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
+          updateStatus(handle, 'sent').then(function() { incDmCount(); });
+        }
+      }).catch(function(){});
     idx++;
-    setTimeout(processNext, 1200);
+    setTimeout(processNext, 1500);
   }
   processNext();
 }
