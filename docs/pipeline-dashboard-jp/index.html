@@ -679,21 +679,30 @@ var _dkBase  = 'https://orbitools.orbiters.co.kr/api/datakeeper';
 // ─── Auth ───
 var _currentUser = '';
 
+var _localUsers = { 'AJ': '1111', 'SE': '2222', 'KA': '3333' };
+
 function doLogin() {
-  var u = document.getElementById('login-uid').value.trim();
+  var u = document.getElementById('login-uid').value.trim().toUpperCase();
   var p = document.getElementById('login-pw').value;
   if (!u || !p) { showErr('Enter user and password'); return; }
+  // Try local users first, then fallback to server auth
+  if (_localUsers[u] && _localUsers[u] === p) {
+    _loginSuccess(u, p);
+    return;
+  }
   fetch(_dkBase + '/status/', { headers: { 'Authorization': 'Basic ' + btoa(u + ':' + p) } })
     .then(function(r) { if (!r.ok) throw new Error('auth'); return r.json(); })
-    .then(function() {
-      _currentUser = u;
-      localStorage.setItem('jp_pipe_user', u);
-      localStorage.setItem('jp_pipe_pass', p);
-      document.getElementById('login-gate').style.display = 'none';
-      document.getElementById('main-content').style.display = 'block';
-      init();
-    })
+    .then(function() { _loginSuccess(u, p); })
     .catch(function() { showErr('Invalid credentials'); });
+}
+
+function _loginSuccess(u, p) {
+  _currentUser = u;
+  localStorage.setItem('jp_pipe_user', u);
+  localStorage.setItem('jp_pipe_pass', p);
+  document.getElementById('login-gate').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+  init();
 }
 function showErr(m) { var e = document.getElementById('login-err'); e.textContent = m; e.style.display = 'block'; }
 function getAuth() { return 'Basic ' + btoa(localStorage.getItem('jp_pipe_user') + ':' + localStorage.getItem('jp_pipe_pass')); }
@@ -702,14 +711,15 @@ function getAuth() { return 'Basic ' + btoa(localStorage.getItem('jp_pipe_user')
 (function() {
   var u = localStorage.getItem('jp_pipe_user'), p = localStorage.getItem('jp_pipe_pass');
   if (u && p) {
+    var uUp = u.toUpperCase();
+    if (_localUsers[uUp] && _localUsers[uUp] === p) {
+      _loginSuccess(uUp, p);
+      return;
+    }
     fetch(_dkBase + '/status/', { headers: { 'Authorization': 'Basic ' + btoa(u + ':' + p) } })
       .then(function(r) { if (!r.ok) throw new Error(); return r.json(); })
-      .then(function() {
-        _currentUser = u;
-        document.getElementById('login-gate').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
-        init();
-      }).catch(function() {});
+      .then(function() { _loginSuccess(u, p); })
+      .catch(function() {});
   }
 })();
 
