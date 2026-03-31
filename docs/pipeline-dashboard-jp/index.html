@@ -401,10 +401,10 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
             <th style="cursor:pointer" onclick="sortSheet('_source')">Source &#x2195;</th>
             <th style="cursor:pointer" onclick="sortSheet('status')">Status &#x2195;</th>
             <th style="cursor:pointer" onclick="sortSheet('_postCount')">Posts &#x2195;</th>
-            <th style="cursor:pointer" onclick="sortSheet('_bestViews')">Best Views &#x2195;</th>
+            <th style="cursor:pointer" onclick="sortSheet('_bestViews')">Best Views/Likes &#x2195;</th>
+            <th style="cursor:pointer" onclick="sortSheet('_totalComments')">Comments &#x2195;</th>
             <th style="cursor:pointer" onclick="sortSheet('_latestPostDate')">Latest Post &#x2195;</th>
             <th>D+</th>
-            <th>Triggered By</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -1199,20 +1199,33 @@ function executeHilGroup(status) {
 
   // Special actions for certain stages
   if (stage.actionFn === 'hilSendDm') {
-    // Open IG + copy draft for each
+    // Send DMs via n8n → ManyChat API
     var remaining = _dailyLimit - _dmSentToday;
     if (remaining <= 0) { showToast('Daily DM limit reached!', 'err'); return; }
     handles = handles.slice(0, remaining);
-    var idx = 0;
-    showToast('Sending ' + handles.length + ' DMs...');
+    var idx = 0; var sent = 0; var failed = 0;
+    showToast('Sending ' + handles.length + ' DMs via ManyChat...');
     (function next() {
-      if (idx >= handles.length) { showToast('Done! ' + handles.length + ' DMs sent'); loadCreators(); return; }
+      if (idx >= handles.length) {
+        var msg = sent + '/' + (sent + failed) + ' DMs sent via ManyChat';
+        if (failed) msg += ' (' + failed + ' failed — check n8n logs)';
+        showToast(msg, failed ? 'err' : undefined);
+        loadCreators();
+        return;
+      }
       var h = handles[idx];
       var c = _creators.find(function(x) { return x.username === h; });
-      if (c && c.dm_draft) { navigator.clipboard.writeText(c.dm_draft).catch(function(){}); n8nPost({ action: 'dm_log', sub_action: 'add', username: h, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' }); }
-      window.open('https://ig.me/m/' + h, '_blank');
-      updateStatus(h, 'sent').then(function() { incDmCount(); });
-      idx++; setTimeout(next, 1200);
+      var text = c ? (c.dm_draft || '') : '';
+      if (!text) { idx++; failed++; next(); return; }
+      n8nPost({ action: 'send_dm', username: h, message: text, sent_by: _currentUser || 'dashboard' })
+        .then(function(res) {
+          if (res.sent || res.status === 'ok') {
+            sent++;
+            n8nPost({ action: 'dm_log', sub_action: 'add', username: h, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
+            updateStatus(h, 'sent').then(function() { incDmCount(); });
+          } else { failed++; }
+        }).catch(function() { failed++; });
+      idx++; setTimeout(next, 1500);
     })();
     return;
   }
@@ -1523,26 +1536,24 @@ function executeDrafts() {
     var c = _creators.find(function(x) { return x.username === handle; });
     document.getElementById('exec-progress-count').textContent = (idx + 1) + '/' + handles.length;
     document.getElementById('exec-fill').style.width = (((idx + 1) / handles.length) * 100) + '%';
-    document.getElementById('exec-current').textContent = 'Opening @' + handle + '...';
+    document.getElementById('exec-current').textContent = 'Sending to @' + handle + ' via ManyChat...';
 
-    // Copy draft to clipboard
-    if (c && c.dm_draft) {
-      navigator.clipboard.writeText(c.dm_draft).catch(function() {});
-    }
-
-    // Open IG DM link
-    window.open('https://ig.me/m/' + handle, '_blank');
-
-    // Mark as sent via n8n
-    if (c && c.dm_draft) {
-      n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' });
-    }
-    updateStatus(handle, 'sent').then(function() {
-      incDmCount();
-    }).catch(function() {});
+    var text = c ? (c.dm_draft || '') : '';
+    if (!text) { idx++; setTimeout(processNext, 300); return; }
+    n8nPost({ action: 'send_dm', username: handle, message: text, sent_by: _currentUser || 'dashboard' })
+      .then(function(res) {
+        if (res.sent || res.status === 'ok') {
+          n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
+          updateStatus(handle, 'sent').then(function() { incDmCount(); });
+        } else {
+          document.getElementById('exec-current').textContent = 'Failed: @' + handle;
+        }
+      }).catch(function() {
+        document.getElementById('exec-current').textContent = 'Error: @' + handle;
+      });
 
     idx++;
-    setTimeout(processNext, 1200); // 1.2s delay between opens
+    setTimeout(processNext, 1500);
   }
   processNext();
 }
@@ -2331,6 +2342,8 @@ function mergeSheetData(discoveryRows) {
       existing._postCount++;
       existing._posts.push(post);
       if (views > existing._bestViews) existing._bestViews = views;
+      if (likes > (existing._bestLikes || 0)) existing._bestLikes = likes;
+      existing._totalComments = (existing._totalComments || 0) + comments;
       if (followers > (existing.followers || 0)) existing.followers = followers;
       if (date > (existing._latestPostDate || '')) {
         existing._latestPostDate = date;
@@ -2348,6 +2361,8 @@ function mergeSheetData(discoveryRows) {
         _inPipeline: false,
         _postCount: 1,
         _bestViews: views,
+        _bestLikes: likes,
+        _totalComments: comments,
         _latestPostDate: date,
         _latestPostUrl: url,
         _posts: [post],
@@ -2425,17 +2440,24 @@ function renderSheet() {
       }
     }
 
+    // Best metric: views for TikTok, likes for IG (IG has no views from Apify)
     var bestViews = c._bestViews || c.post_views || 0;
+    var bestLikes = c._bestLikes || 0;
+    var bestMetric = bestViews || bestLikes;  // views first, likes as fallback
+    var metricLabel = bestViews ? 'views' : (bestLikes ? 'likes' : '');
     var postCount = c._postCount || 0;
+    var totalComments = c._totalComments || 0;
     var platformIcon = (c.platform || '').indexOf('tiktok') !== -1 ? '🎵' : '📷';
+    var latestPostUrl = c._latestPostUrl || '';
 
     html += '<tr style="' + (contacted ? 'background:#fef2f2' : '') + '">';
     // Contacted indicator
     html += '<td style="text-align:center">' + (contacted ? '<span title="Already contacted" style="color:var(--r);font-size:14px">🚫</span>' : '<span style="color:var(--g);font-size:12px">⭕</span>') + '</td>';
-    // Handle (click to expand posts detail)
+    // Handle — link to latest post URL (not profile)
     var detailId = 'detail-' + escapeHtml(c.username).replace(/[^a-zA-Z0-9]/g, '_');
-    html += '<td><a href="https://instagram.com/' + encodeURIComponent(c.username) + '" target="_blank" style="color:var(--a);font-weight:600;font-size:11px">@' + escapeHtml(c.username) + '</a>';
-    if (c._posts && c._posts.length > 0) html += ' <span onclick="togglePostDetail(\'' + detailId + '\')" style="cursor:pointer;font-size:9px;color:var(--dim)" title="View posts">▼</span>';
+    var handleLink = latestPostUrl || ('https://instagram.com/' + encodeURIComponent(c.username));
+    html += '<td><a href="' + escapeHtml(handleLink) + '" target="_blank" style="color:var(--a);font-weight:600;font-size:11px">@' + escapeHtml(c.username) + '</a>';
+    if (c._posts && c._posts.length > 0) html += ' <span onclick="togglePostDetail(\'' + detailId + '\')" style="cursor:pointer;font-size:9px;color:var(--dim)" title="View posts detail">▼</span>';
     if (c.name) html += '<div style="font-size:9px;color:var(--dim)">' + escapeHtml(c.name) + '</div>';
     if (c.email) html += '<div style="font-size:8px;color:var(--dim)">✉ ' + escapeHtml(c.email) + '</div>';
     html += '</td>';
@@ -2449,14 +2471,20 @@ function renderSheet() {
     html += '<td>' + statusBadge(c.status) + '</td>';
     // Post count
     html += '<td style="font-family:var(--mono);font-size:11px;text-align:center;font-weight:' + (postCount > 2 ? '700' : '400') + ';color:' + (postCount > 2 ? 'var(--a)' : 'var(--dim)') + '">' + (postCount || '-') + '</td>';
-    // Best views
-    html += '<td style="font-family:var(--mono);font-size:11px;font-weight:600;color:' + (bestViews > 10000 ? 'var(--g)' : bestViews > 1000 ? 'var(--am)' : 'var(--dim)') + '">' + (bestViews ? Number(bestViews).toLocaleString() : '-') + '</td>';
+    // Best views/likes (IG→likes, TikTok→views)
+    var metricColor = bestMetric > 10000 ? 'var(--g)' : bestMetric > 1000 ? 'var(--am)' : 'var(--dim)';
+    html += '<td style="font-family:var(--mono);font-size:11px;font-weight:600;color:' + metricColor + '">';
+    if (bestMetric) {
+      html += Number(bestMetric).toLocaleString();
+      html += '<div style="font-size:8px;font-weight:400;color:var(--dim)">' + metricLabel + '</div>';
+    } else { html += '-'; }
+    html += '</td>';
+    // Comments (total across all posts)
+    html += '<td style="font-family:var(--mono);font-size:11px;text-align:center;color:' + (totalComments > 10 ? 'var(--am)' : 'var(--dim)') + '">' + (totalComments || '-') + '</td>';
     // Latest post date
-    html += '<td style="font-size:10px;color:var(--dim)">' + (latestDate || '-') + '</td>';
+    html += '<td style="font-size:10px;color:var(--dim)">' + (latestDate ? '<a href="' + escapeHtml(latestPostUrl || handleLink) + '" target="_blank" style="color:var(--dim);text-decoration:underline">' + latestDate + '</a>' : '-') + '</td>';
     // D+
     html += '<td style="font-family:var(--mono);font-size:10px;font-weight:600;color:' + (dPlus ? 'var(--dim)' : '') + '">' + (dPlus || '-') + '</td>';
-    // Triggered by
-    html += '<td style="font-size:10px;color:var(--dim)">' + escapeHtml(c.triggered_by || '-') + '</td>';
     // Actions
     html += '<td>';
     if (c._inPipeline) {
@@ -2472,7 +2500,7 @@ function renderSheet() {
     // Expandable post details row (caption, hashtags, transcript, comments per post)
     if (c._posts && c._posts.length > 0) {
       var rowId = 'detail-' + escapeHtml(c.username).replace(/[^a-zA-Z0-9]/g, '_');
-      html += '<tr id="' + rowId + '" style="display:none"><td colspan="12" style="padding:4px 12px 12px;background:#f8fafc;border-left:3px solid var(--a)">';
+      html += '<tr id="' + rowId + '" style="display:none"><td colspan="11" style="padding:4px 12px 12px;background:#f8fafc;border-left:3px solid var(--a)">';
       c._posts.forEach(function(post, pi) {
         html += '<div style="margin-bottom:8px;padding:8px;background:#fff;border:1px solid var(--border);border-radius:6px">';
         html += '<div style="display:flex;gap:12px;align-items:center;margin-bottom:4px">';
