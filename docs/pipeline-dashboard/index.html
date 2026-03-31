@@ -3095,6 +3095,12 @@ function populateDiscoveryDates(selectedVal){
   var defOpt=document.createElement('option');
   defOpt.value='';defOpt.textContent='-- 주간 배치 선택 --';
   sel.appendChild(defOpt);
+  // If no week groups yet, build from cached dates
+  if(_weekGroups.length===0&&_discoveryDates.length>0){
+    var tmpMap={};
+    _discoveryDates.forEach(function(d){if(d&&d.match(/^\d{4}-\d{2}-\d{2}$/))tmpMap[d]=(tmpMap[d]||0)+1});
+    _buildWeekGroups(tmpMap);
+  }
   if(_weekGroups.length>0){
     _weekGroups.forEach(function(g){
       var opt=document.createElement('option');
@@ -3104,23 +3110,9 @@ function populateDiscoveryDates(selectedVal){
       sel.appendChild(opt);
     });
   } else {
-    var all=_discoveryDates.slice();
-    if(DEMO_MODE){
-      DEMO_CREATORS.forEach(function(c){if(c.initial_discovery_date&&all.indexOf(c.initial_discovery_date)<0)all.push(c.initial_discovery_date)});
-    }
-    all=all.filter(function(d){return d&&d.match(/^\d{4}-\d{2}-\d{2}$/)});
-    all.sort().reverse();
-    all.forEach(function(d){
-      var opt=document.createElement('option');
-      opt.value=d;opt.textContent=d;
-      if(d===selectedVal)opt.selected=true;
-      sel.appendChild(opt);
-    });
-    if(all.length===0){
-      var ph=document.createElement('option');
-      ph.disabled=true;ph.value='';ph.textContent='\u21BB Pull \uBC84\uD2BC\uC73C\uB85C \uBC30\uCE58 \uB85C\uB4DC';
-      sel.appendChild(ph);
-    }
+    var ph=document.createElement('option');
+    ph.disabled=true;ph.value='';ph.textContent='\u21BB Pull \uBC84\uD2BC\uC73C\uB85C \uBC30\uCE58 \uB85C\uB4DC';
+    sel.appendChild(ph);
   }
 }
 
