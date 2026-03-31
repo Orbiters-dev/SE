@@ -381,6 +381,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         </select>
         <select id="sheet-filter-source" onchange="filterSheet()" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">
           <option value="">All Sources</option>
+          <option value="discovery">Discovery (Sheet)</option>
           <option value="pipeline">Pipeline</option>
           <option value="inbound">Inbound</option>
           <option value="manual">Manual DM</option>
@@ -395,12 +396,14 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
           <tr>
             <th style="width:30px">&#x1F6AB;</th>
             <th style="cursor:pointer" onclick="sortSheet('username')">Handle &#x2195;</th>
-            <th>Followers</th>
-            <th style="cursor:pointer" onclick="sortSheet('source')">Source &#x2195;</th>
+            <th style="cursor:pointer" onclick="sortSheet('followers')">Followers &#x2195;</th>
+            <th>Platform</th>
+            <th style="cursor:pointer" onclick="sortSheet('_source')">Source &#x2195;</th>
             <th style="cursor:pointer" onclick="sortSheet('status')">Status &#x2195;</th>
-            <th>Outreach Date</th>
-            <th>D+ (Posted)</th>
-            <th>Views</th>
+            <th style="cursor:pointer" onclick="sortSheet('_postCount')">Posts &#x2195;</th>
+            <th style="cursor:pointer" onclick="sortSheet('_bestViews')">Best Views &#x2195;</th>
+            <th style="cursor:pointer" onclick="sortSheet('_latestPostDate')">Latest Post &#x2195;</th>
+            <th>D+</th>
             <th>Triggered By</th>
             <th>Actions</th>
           </tr>
@@ -2107,46 +2110,129 @@ function exportSamples() {
 }
 
 // ═══ INFLUENCER SHEET ═══
-var _sheetData = []; // combined: _creators + discovery
+var DISCOVERY_SHEET = 'https://docs.google.com/spreadsheets/d/1mYofqMBYqIHS3XNQ29vDA__SzYBfkkGCPn3Jb8OxAkY/export?format=csv&gid=274663555';
+var _sheetData = []; // combined: _creators + discovery (deduped by handle)
 var _sheetSort = { key: 'username', asc: true };
 var _sheetPage = 0;
 var _sheetPerPage = 50;
+var _sheetLoading = false;
 
 function loadInfluencerSheet() {
-  // Merge _creators with any discovery data
-  // Try to load full discovery list from n8n
-  n8nPost({ action: 'list_discovery' }).then(function(disc) {
-    var discoveryList = Array.isArray(disc) ? disc : (disc.creators || []);
-    mergeSheetData(discoveryList);
-  }).catch(function() {
-    // Fallback: just use existing _creators
+  if (_sheetLoading) return;
+  _sheetLoading = true;
+  var countEl = document.getElementById('sheet-count');
+  if (countEl) countEl.innerHTML = '<span class="loading-spinner" style="width:10px;height:10px"></span> Loading discovery sheet...';
+
+  fetch(DISCOVERY_SHEET).then(function(r) { return r.text(); }).then(function(csv) {
+    var rows = parseCSV(csv);
+    mergeSheetData(rows);
+    _sheetLoading = false;
+  }).catch(function(e) {
+    console.error('Discovery sheet fetch failed:', e);
+    if (countEl) countEl.textContent = 'Failed to load discovery sheet — showing pipeline only';
     mergeSheetData([]);
+    _sheetLoading = false;
   });
 }
 
-function mergeSheetData(discovery) {
+function parseCSV(text) {
+  var lines = text.split('\n');
+  if (lines.length < 2) return [];
+  var headers = parseCSVLine(lines[0]);
+  var rows = [];
+  for (var i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    var vals = parseCSVLine(lines[i]);
+    var obj = {};
+    headers.forEach(function(h, idx) { obj[h] = vals[idx] || ''; });
+    rows.push(obj);
+  }
+  return rows;
+}
+
+function parseCSVLine(line) {
+  var result = []; var current = ''; var inQuotes = false;
+  for (var i = 0; i < line.length; i++) {
+    var ch = line[i];
+    if (inQuotes) {
+      if (ch === '"' && line[i+1] === '"') { current += '"'; i++; }
+      else if (ch === '"') inQuotes = false;
+      else current += ch;
+    } else {
+      if (ch === '"') inQuotes = true;
+      else if (ch === ',') { result.push(current.trim()); current = ''; }
+      else current += ch;
+    }
+  }
+  result.push(current.trim());
+  return result;
+}
+
+function mergeSheetData(discoveryRows) {
   var map = {};
-  // Add all pipeline creators first
+
+  // 1. Pipeline creators first (they have definitive status)
   _creators.forEach(function(c) {
-    map[c.username] = Object.assign({}, c, { _source: getCreatorSource(c), _inPipeline: true });
+    map[c.username] = Object.assign({}, c, {
+      _source: getCreatorSource(c),
+      _inPipeline: true,
+      _postCount: 0,
+      _bestViews: c.post_views || 0,
+      _latestPostDate: c.posted_at || '',
+      _latestPostUrl: c.post_url || '',
+      _posts: []
+    });
   });
-  // Add discovery creators not yet in pipeline
-  discovery.forEach(function(d) {
-    var handle = d.username || d.handle || '';
+
+  // 2. Discovery rows — dedup by Handle, aggregate metrics
+  discoveryRows.forEach(function(row) {
+    var handle = (row['Handle'] || '').trim();
     if (!handle) return;
-    if (!map[handle]) {
+
+    var views = parseInt(row['Views']) || 0;
+    var likes = parseInt(row['Likes']) || 0;
+    var comments = parseInt(row['Comments Count']) || 0;
+    var followers = parseInt(row['Followers']) || 0;
+    var date = row['Date'] || '';
+    var url = row['URL'] || '';
+    var platform = (row['Platform'] || 'instagram').toLowerCase();
+
+    var post = { url: url, date: date, views: views, likes: likes, comments: comments, platform: platform, source: row['Source'] || '' };
+
+    if (map[handle]) {
+      // Existing — update aggregates
+      var existing = map[handle];
+      existing._postCount++;
+      existing._posts.push(post);
+      if (views > existing._bestViews) existing._bestViews = views;
+      if (followers > (existing.followers || 0)) existing.followers = followers;
+      if (date > (existing._latestPostDate || '')) {
+        existing._latestPostDate = date;
+        existing._latestPostUrl = url;
+      }
+    } else {
+      // New discovery creator — not yet in pipeline
       map[handle] = {
         username: handle,
-        name: d.name || d.full_name || '',
-        followers: d.followers || d.follower_count || 0,
+        name: row['Full Name'] || '',
+        followers: followers,
         status: 'not_started',
-        source: d.source || 'discovery',
+        source: 'discovery',
         _source: 'discovery',
         _inPipeline: false,
-        discovered_at: d.discovered_at || d.created_at || ''
+        _postCount: 1,
+        _bestViews: views,
+        _latestPostDate: date,
+        _latestPostUrl: url,
+        _posts: [post],
+        platform: platform,
+        email: row['Email'] || '',
+        is_parent: row['Is Parent'] || '',
+        syncly_kw: row['Syncly KW'] || ''
       };
     }
   });
+
   _sheetData = Object.values(map);
   _sheetPage = 0;
   renderSheet();
@@ -2172,9 +2258,10 @@ function getFilteredSheet() {
   return _sheetData.filter(function(c) {
     if (q && c.username.toLowerCase().indexOf(q) === -1 && (c.name || '').toLowerCase().indexOf(q) === -1) return false;
     if (sf && c.status !== sf) return false;
-    if (src === 'pipeline' && (isInbound(c) || isManualDm(c))) return false;
-    if (src === 'inbound' && !isInbound(c)) return false;
-    if (src === 'manual' && !isManualDm(c)) return false;
+    if (src === 'discovery' && c._source !== 'discovery') return false;
+    if (src === 'pipeline' && c._source !== 'pipeline') return false;
+    if (src === 'inbound' && c._source !== 'inbound') return false;
+    if (src === 'manual' && c._source !== 'manual') return false;
     if (hideContacted && hasPastContact(c)) return false;
     return true;
   }).sort(function(a, b) {
@@ -2201,41 +2288,53 @@ function renderSheet() {
     var srcColor = c._source === 'inbound' ? '#0284c7' : c._source === 'manual' ? '#9333ea' : c._source === 'discovery' ? '#6366f1' : 'var(--a)';
     var srcLabel = c._source === 'inbound' ? 'Inbound' : c._source === 'manual' ? 'Manual' : c._source === 'discovery' ? 'Discovery' : 'Pipeline';
 
-    // D+ days for posted creators
+    // D+ days from latest post
     var dPlus = '';
-    var views = '';
-    if (c.status === 'posted' && c.posted_at) {
-      var postedDate = new Date(c.posted_at);
-      var diffDays = Math.floor((today - postedDate) / 86400000);
-      dPlus = 'D+' + diffDays;
+    var latestDate = c._latestPostDate || c.posted_at || '';
+    if (latestDate) {
+      var pDate = new Date(latestDate);
+      if (!isNaN(pDate)) {
+        var diffDays = Math.floor((today - pDate) / 86400000);
+        dPlus = 'D+' + diffDays;
+      }
     }
-    if (c.post_views) views = Number(c.post_views).toLocaleString();
+
+    var bestViews = c._bestViews || c.post_views || 0;
+    var postCount = c._postCount || 0;
+    var platformIcon = (c.platform || '').indexOf('tiktok') !== -1 ? '🎵' : '📷';
 
     html += '<tr style="' + (contacted ? 'background:#fef2f2' : '') + '">';
     // Contacted indicator
-    html += '<td style="text-align:center">' + (contacted ? '<span title="Already contacted" style="color:var(--r);font-size:14px">&#x1F6AB;</span>' : '<span style="color:var(--g);font-size:12px">&#x2B55;</span>') + '</td>';
+    html += '<td style="text-align:center">' + (contacted ? '<span title="Already contacted" style="color:var(--r);font-size:14px">🚫</span>' : '<span style="color:var(--g);font-size:12px">⭕</span>') + '</td>';
     // Handle
     html += '<td><a href="https://instagram.com/' + encodeURIComponent(c.username) + '" target="_blank" style="color:var(--a);font-weight:600;font-size:11px">@' + escapeHtml(c.username) + '</a>';
     if (c.name) html += '<div style="font-size:9px;color:var(--dim)">' + escapeHtml(c.name) + '</div>';
+    if (c.email) html += '<div style="font-size:8px;color:var(--dim)">✉ ' + escapeHtml(c.email) + '</div>';
     html += '</td>';
     // Followers
     html += '<td style="font-family:var(--mono);font-size:11px">' + (c.followers ? Number(c.followers).toLocaleString() : '-') + '</td>';
+    // Platform
+    html += '<td style="font-size:11px;text-align:center">' + platformIcon + '</td>';
     // Source
     html += '<td><span style="display:inline-block;padding:1px 6px;border-radius:8px;font-size:9px;font-weight:600;background:' + srcColor + '22;color:' + srcColor + '">' + srcLabel + '</span></td>';
     // Status
     html += '<td>' + statusBadge(c.status) + '</td>';
-    // Outreach date
-    html += '<td style="font-size:10px;color:var(--dim)">' + (c.last_dm || c.first_contact || '-') + '</td>';
-    // D+ posted
-    html += '<td style="font-family:var(--mono);font-size:11px;font-weight:600;color:' + (dPlus ? 'var(--g)' : 'var(--dim)') + '">' + (dPlus || '-') + '</td>';
-    // Views
-    html += '<td style="font-family:var(--mono);font-size:11px">' + (views || '-') + '</td>';
+    // Post count
+    html += '<td style="font-family:var(--mono);font-size:11px;text-align:center;font-weight:' + (postCount > 2 ? '700' : '400') + ';color:' + (postCount > 2 ? 'var(--a)' : 'var(--dim)') + '">' + (postCount || '-') + '</td>';
+    // Best views
+    html += '<td style="font-family:var(--mono);font-size:11px;font-weight:600;color:' + (bestViews > 10000 ? 'var(--g)' : bestViews > 1000 ? 'var(--am)' : 'var(--dim)') + '">' + (bestViews ? Number(bestViews).toLocaleString() : '-') + '</td>';
+    // Latest post date
+    html += '<td style="font-size:10px;color:var(--dim)">' + (latestDate || '-') + '</td>';
+    // D+
+    html += '<td style="font-family:var(--mono);font-size:10px;font-weight:600;color:' + (dPlus ? 'var(--dim)' : '') + '">' + (dPlus || '-') + '</td>';
     // Triggered by
     html += '<td style="font-size:10px;color:var(--dim)">' + escapeHtml(c.triggered_by || '-') + '</td>';
     // Actions
     html += '<td>';
-    if (!contacted) {
-      html += '<button class="btn btn-sm btn-primary" onclick="goToCreator(\'' + escapeHtml(c.username) + '\')" style="font-size:9px">View</button>';
+    if (c._inPipeline) {
+      html += '<button class="btn btn-sm btn-secondary" onclick="goToCreator(\'' + escapeHtml(c.username) + '\')" style="font-size:9px">View</button>';
+    } else if (!contacted) {
+      html += '<button class="btn btn-sm btn-primary" onclick="addToPipeline(\'' + escapeHtml(c.username) + '\')" style="font-size:9px">+ Pipeline</button>';
     } else {
       html += '<span style="font-size:9px;color:var(--dim)">contacted</span>';
     }
@@ -2243,7 +2342,7 @@ function renderSheet() {
     html += '</tr>';
   });
 
-  document.getElementById('sheet-body').innerHTML = html || '<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--dim)">No influencers found.</td></tr>';
+  document.getElementById('sheet-body').innerHTML = html || '<tr><td colspan="12" style="text-align:center;padding:30px;color:var(--dim)">No influencers found.</td></tr>';
 
   // Pager
   var totalPages = Math.ceil(total / _sheetPerPage);
@@ -2265,8 +2364,34 @@ function goToCreator(handle) {
   renderCreators();
 }
 
-// Also update goToStage to support source filter
-var _origGoToStage = typeof goToStage === 'function' ? goToStage : null;
+function addToPipeline(handle) {
+  var c = _sheetData.find(function(x) { return x.username === handle; });
+  if (!c) return;
+  n8nPost({
+    action: 'add_creator',
+    username: handle,
+    name: c.name || '',
+    followers: c.followers || 0,
+    platform: c.platform || 'instagram',
+    email: c.email || '',
+    source: 'discovery'
+  }).then(function(res) {
+    if (res.status === 'ok' || res.success) {
+      c._inPipeline = true;
+      c.status = 'not_started';
+      c._source = 'pipeline';
+      // Also add to _creators
+      _creators.push({ username: handle, name: c.name, followers: c.followers, status: 'not_started', dm_count: 0, source: 'discovery', platform: c.platform });
+      showToast('@' + handle + ' added to pipeline');
+      renderSheet();
+      updateStats();
+    } else {
+      showToast('Failed to add: ' + (res.message || 'unknown'), 'err');
+    }
+  }).catch(function() {
+    showToast('Failed to add to pipeline', 'err');
+  });
+}
 </script>
 </body>
 </html>
