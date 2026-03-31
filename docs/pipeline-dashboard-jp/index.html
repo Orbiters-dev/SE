@@ -189,18 +189,31 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         <div class="fn" data-stage="sample_delivered" onclick="goToStage('sample_delivered')"><div class="fi" id="f-sample-delivered">0</div><div class="ft">Delivered</div><div class="fs">&#x914D;&#x9054;&#x5B8C;&#x4E86;</div></div><span class="fa">&#x25B6;</span>
         <div class="fn" data-stage="posted" onclick="goToStage('posted')"><div class="fi" id="f-posted">0</div><div class="ft">Posted</div><div class="fs">&#x6295;&#x7A3F;&#x6E08;</div></div>
       </div>
-      <!-- Row 2: Inbound -->
+      <!-- Row 2: Inbound (full flow after entry) -->
       <div class="funnel-row" style="margin-top:6px;min-width:max-content">
         <div class="funnel-label" style="color:#0284c7">INBOUND</div>
-        <div class="fn" data-stage="inbound" onclick="goToStage('inbound')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-inbound" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Inbound</div><div class="fs">&#x81EA;&#x7136;&#x6D41;&#x5165;</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="needs_review" onclick="goToStage('needs_review')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-needs-review" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Review</div><div class="fs">&#x78BA;&#x8A8D;&#x5F85;&#x3061;</div></div><span class="fa" style="color:#0284c7">&#x25B6;</span>
-        <span style="font-size:9px;color:#0284c7;padding:0 4px;font-style:italic">&#x2192; Accepted</span>
+        <div class="fn" data-stage="inbound" onclick="goToStage('inbound')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-inbound" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Inbound</div><div class="fs">自然流入</div></div><span class="fa" style="color:#0284c7">▶</span>
+        <div class="fn" data-stage="needs_review" onclick="goToStage('needs_review')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-needs-review" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Review</div><div class="fs">確認待ち</div></div><span class="fa" style="color:#0284c7">▶</span>
+        <div class="fn" data-stage="ib_accepted" onclick="goToStage('accepted','inbound')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-ib-accepted" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Accepted</div><div class="fs">承諾</div></div><span class="fa" style="color:#0284c7">▶</span>
+        <div class="fn" data-stage="ib_form" onclick="goToStage('form_submitted','inbound')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-ib-form" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Form</div><div class="fs">フォーム</div></div><span class="fa" style="color:#0284c7">▶</span>
+        <div class="fn" data-stage="ib_contract" onclick="goToStage('contract_signed','inbound')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-ib-contract" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Contract</div><div class="fs">契約</div></div><span class="fa" style="color:#0284c7">▶</span>
+        <div class="fn" data-stage="ib_guidelines" onclick="goToStage('guidelines_sent','inbound')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-ib-guidelines" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Guidelines</div><div class="fs">ガイド</div></div><span class="fa" style="color:#0284c7">▶</span>
+        <div class="fn" data-stage="ib_sample" onclick="goToStage('sample_sent','inbound')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-ib-sample" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Sample</div><div class="fs">サンプル</div></div><span class="fa" style="color:#0284c7">▶</span>
+        <div class="fn" data-stage="ib_delivered" onclick="goToStage('sample_delivered','inbound')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-ib-delivered" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Delivered</div><div class="fs">配達</div></div><span class="fa" style="color:#0284c7">▶</span>
+        <div class="fn" data-stage="ib_posted" onclick="goToStage('posted','inbound')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-ib-posted" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Posted</div><div class="fs">投稿済</div></div>
       </div>
-      <!-- Row 3: Manual DM -->
+      <!-- Row 3: Manual DM (full flow after DM) -->
       <div class="funnel-row" style="margin-top:6px;min-width:max-content">
         <div class="funnel-label" style="color:#9333ea">MANUAL DM</div>
-        <div class="fn" data-stage="manual_dm" onclick="goToStage('manual_dm')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-manual-dm" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">Manual DM</div><div class="fs">&#x76F4;&#x63A5;&#x9001;&#x4FE1;</div></div><span class="fa" style="color:#9333ea">&#x25B6;</span>
-        <span style="font-size:9px;color:#9333ea;padding:0 4px;font-style:italic">&#x2192; DM Sent &#x4EE5;&#x964D;</span>
+        <div class="fn" data-stage="manual_dm" onclick="goToStage('manual_dm')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-manual-dm" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">DM Sent</div><div class="fs">直接送信</div></div><span class="fa" style="color:#9333ea">▶</span>
+        <div class="fn" data-stage="md_replied" onclick="goToStage('replied','manual')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-md-replied" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">Replied</div><div class="fs">返信</div></div><span class="fa" style="color:#9333ea">▶</span>
+        <div class="fn" data-stage="md_accepted" onclick="goToStage('accepted','manual')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-md-accepted" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">Accepted</div><div class="fs">承諾</div></div><span class="fa" style="color:#9333ea">▶</span>
+        <div class="fn" data-stage="md_form" onclick="goToStage('form_submitted','manual')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-md-form" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">Form</div><div class="fs">フォーム</div></div><span class="fa" style="color:#9333ea">▶</span>
+        <div class="fn" data-stage="md_contract" onclick="goToStage('contract_signed','manual')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-md-contract" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">Contract</div><div class="fs">契約</div></div><span class="fa" style="color:#9333ea">▶</span>
+        <div class="fn" data-stage="md_guidelines" onclick="goToStage('guidelines_sent','manual')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-md-guidelines" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">Guidelines</div><div class="fs">ガイド</div></div><span class="fa" style="color:#9333ea">▶</span>
+        <div class="fn" data-stage="md_sample" onclick="goToStage('sample_sent','manual')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-md-sample" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">Sample</div><div class="fs">サンプル</div></div><span class="fa" style="color:#9333ea">▶</span>
+        <div class="fn" data-stage="md_delivered" onclick="goToStage('sample_delivered','manual')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-md-delivered" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">Delivered</div><div class="fs">配達</div></div><span class="fa" style="color:#9333ea">▶</span>
+        <div class="fn" data-stage="md_posted" onclick="goToStage('posted','manual')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-md-posted" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">Posted</div><div class="fs">投稿済</div></div>
       </div>
     </div>
   </div>
@@ -215,6 +228,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
   <div class="mt" id="main-tabs">
     <div class="on" data-p="dashboard">Dashboard</div>
     <div data-p="creators">Creators</div>
+    <div data-p="sheet">Influencer Sheet</div>
     <div data-p="drafts">DM Drafts</div>
     <div data-p="contracts">Contracts</div>
     <div data-p="config">Config</div>
@@ -341,6 +355,60 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
       </table>
     </div>
     <div class="pager" id="creators-pager"></div>
+  </div>
+
+  <!-- ===== INFLUENCER SHEET TAB ===== -->
+  <div class="mp" id="p-sheet">
+    <div class="card" style="border-left:3px solid #6366f1">
+      <h3>&#x1F4CB; Influencer Master Sheet</h3>
+      <div class="desc">全クリエイター一覧 — Discovery + Pipeline + Inbound + Manual DM</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <button class="btn btn-primary" onclick="loadInfluencerSheet()">&#x1F504; Refresh</button>
+        <input type="text" id="sheet-search" placeholder="Search @handle, name..." oninput="filterSheet()" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;width:200px">
+        <select id="sheet-filter-status" onchange="filterSheet()" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">
+          <option value="">All Statuses</option>
+          <option value="not_started">Not Started</option>
+          <option value="draft_ready">Draft Ready</option>
+          <option value="sent">DM Sent</option>
+          <option value="replied">Replied</option>
+          <option value="accepted">Accepted</option>
+          <option value="form_submitted">Form</option>
+          <option value="contract_signed">Contract</option>
+          <option value="guidelines_sent">Guidelines</option>
+          <option value="sample_sent">Sample Sent</option>
+          <option value="sample_delivered">Delivered</option>
+          <option value="posted">Posted</option>
+        </select>
+        <select id="sheet-filter-source" onchange="filterSheet()" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">
+          <option value="">All Sources</option>
+          <option value="pipeline">Pipeline</option>
+          <option value="inbound">Inbound</option>
+          <option value="manual">Manual DM</option>
+        </select>
+        <label style="font-size:10px;display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="sheet-hide-contacted" onchange="filterSheet()"> Hide Already Contacted</label>
+        <span id="sheet-count" style="font-size:10px;color:var(--dim);margin-left:auto"></span>
+      </div>
+    </div>
+    <div style="overflow-x:auto;margin-top:12px">
+      <table class="ct" id="sheet-table" style="width:100%">
+        <thead>
+          <tr>
+            <th style="width:30px">&#x1F6AB;</th>
+            <th style="cursor:pointer" onclick="sortSheet('username')">Handle &#x2195;</th>
+            <th>Followers</th>
+            <th style="cursor:pointer" onclick="sortSheet('source')">Source &#x2195;</th>
+            <th style="cursor:pointer" onclick="sortSheet('status')">Status &#x2195;</th>
+            <th>Outreach Date</th>
+            <th>D+ (Posted)</th>
+            <th>Views</th>
+            <th>Triggered By</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="sheet-body"></tbody>
+      </table>
+    </div>
+    <div class="pager" id="sheet-pager"></div>
   </div>
 
   <!-- ===== DM DRAFTS TAB ===== -->
@@ -729,6 +797,7 @@ function loadCreators() {
       renderContracts();
       loadRecentActivity();
       loadConfig();
+      loadInfluencerSheet();
     })
     .catch(function(err) {
       console.error('Failed to load creators:', err);
@@ -761,12 +830,50 @@ function isManualDm(c) {
   return false;
 }
 
+function isInbound(c) {
+  return c.source === 'inbound' || c.status === 'inbound' || c.status === 'needs_review';
+}
+
+function getCreatorSource(c) {
+  if (isManualDm(c)) return 'manual';
+  if (isInbound(c)) return 'inbound';
+  return 'pipeline';
+}
+
 function updateStats() {
   var counts = { not_started: 0, draft_ready: 0, sent: 0, replied: 0, accepted: 0, form_submitted: 0, contract_sent: 0, contract_signed: 0, guidelines_sent: 0, sample_sent: 0, sample_shipped: 0, sample_delivered: 0, posted: 0, inbound: 0, needs_review: 0 };
   var manualDmCount = 0;
+  // Sub-funnel counts for inbound and manual
+  var ib = { accepted:0, form:0, contract:0, guidelines:0, sample:0, delivered:0, posted:0 };
+  var md = { replied:0, accepted:0, form:0, contract:0, guidelines:0, sample:0, delivered:0, posted:0 };
+  var postAcceptStatuses = ['accepted','form_submitted','contract_sent','contract_signed','guidelines_sent','sample_sent','sample_shipped','sample_delivered','posted'];
+
   _creators.forEach(function(c) {
     counts[c.status] = (counts[c.status] || 0) + 1;
-    if (isManualDm(c)) manualDmCount++;
+    var manual = isManualDm(c);
+    if (manual) manualDmCount++;
+
+    // Count inbound creators in sub-stages
+    if (isInbound(c) && postAcceptStatuses.indexOf(c.status) !== -1) {
+      if (c.status === 'accepted') ib.accepted++;
+      else if (c.status === 'form_submitted') ib.form++;
+      else if (c.status === 'contract_sent' || c.status === 'contract_signed') ib.contract++;
+      else if (c.status === 'guidelines_sent') ib.guidelines++;
+      else if (c.status === 'sample_sent' || c.status === 'sample_shipped') ib.sample++;
+      else if (c.status === 'sample_delivered') ib.delivered++;
+      else if (c.status === 'posted') ib.posted++;
+    }
+    // Count manual DM creators in sub-stages
+    if (manual) {
+      if (c.status === 'replied') md.replied++;
+      else if (c.status === 'accepted') md.accepted++;
+      else if (c.status === 'form_submitted') md.form++;
+      else if (c.status === 'contract_sent' || c.status === 'contract_signed') md.contract++;
+      else if (c.status === 'guidelines_sent') md.guidelines++;
+      else if (c.status === 'sample_sent' || c.status === 'sample_shipped') md.sample++;
+      else if (c.status === 'sample_delivered') md.delivered++;
+      else if (c.status === 'posted') md.posted++;
+    }
   });
   document.getElementById('pill-total').textContent = _creators.length + ' creators';
   document.getElementById('s-total').textContent = _creators.length;
@@ -776,7 +883,7 @@ function updateStats() {
   document.getElementById('s-posted').textContent = counts.posted;
   document.getElementById('s-inbound').textContent = counts.inbound + counts.needs_review;
   document.getElementById('s-manual-dm').textContent = manualDmCount;
-  // Funnel
+  // Funnel Row 1: Pipeline
   document.getElementById('f-not-started').textContent = counts.not_started;
   document.getElementById('f-draft-ready').textContent = counts.draft_ready;
   document.getElementById('f-sent').textContent = counts.sent;
@@ -790,9 +897,26 @@ function updateStats() {
   document.getElementById('f-sample-shipped').textContent = counts.sample_shipped;
   document.getElementById('f-sample-delivered').textContent = counts.sample_delivered;
   document.getElementById('f-posted').textContent = counts.posted;
+  // Funnel Row 2: Inbound
   document.getElementById('f-inbound').textContent = counts.inbound;
   document.getElementById('f-needs-review').textContent = counts.needs_review;
+  document.getElementById('f-ib-accepted').textContent = ib.accepted;
+  document.getElementById('f-ib-form').textContent = ib.form;
+  document.getElementById('f-ib-contract').textContent = ib.contract;
+  document.getElementById('f-ib-guidelines').textContent = ib.guidelines;
+  document.getElementById('f-ib-sample').textContent = ib.sample;
+  document.getElementById('f-ib-delivered').textContent = ib.delivered;
+  document.getElementById('f-ib-posted').textContent = ib.posted;
+  // Funnel Row 3: Manual DM
   document.getElementById('f-manual-dm').textContent = manualDmCount;
+  document.getElementById('f-md-replied').textContent = md.replied;
+  document.getElementById('f-md-accepted').textContent = md.accepted;
+  document.getElementById('f-md-form').textContent = md.form;
+  document.getElementById('f-md-contract').textContent = md.contract;
+  document.getElementById('f-md-guidelines').textContent = md.guidelines;
+  document.getElementById('f-md-sample').textContent = md.sample;
+  document.getElementById('f-md-delivered').textContent = md.delivered;
+  document.getElementById('f-md-posted').textContent = md.posted;
   // DM budget
   var pct = Math.min(100, (_dmSentToday / _dailyLimit) * 100);
   document.getElementById('dm-budget-bar').style.width = pct + '%';
@@ -1168,10 +1292,12 @@ function generateDrafts() {
   btn.disabled = true;
   statusEl.innerHTML = '<span class="loading-spinner"></span> Generating via n8n...';
 
-  // Filter: only not_started AND no DM history
+  // Dedup: only not_started, no DM history, and not already in sheet as contacted
   var eligible = _creators.filter(function(c) {
-    return c.status === 'not_started' && c.dm_count === 0;
+    return c.status === 'not_started' && c.dm_count === 0 && !hasPastContact(c);
   });
+  var skippedCount = _creators.filter(function(c) { return c.status === 'not_started' && hasPastContact(c); }).length;
+  if (skippedCount > 0) statusEl.textContent = skippedCount + ' creators skipped (already contacted). ';
   var batch = parseInt(document.getElementById('draft-batch-size').value) || 10;
   var toGenerate = eligible.slice(0, batch);
 
@@ -1979,6 +2105,168 @@ function exportSamples() {
   URL.revokeObjectURL(url);
   showToast('CSV exported');
 }
+
+// ═══ INFLUENCER SHEET ═══
+var _sheetData = []; // combined: _creators + discovery
+var _sheetSort = { key: 'username', asc: true };
+var _sheetPage = 0;
+var _sheetPerPage = 50;
+
+function loadInfluencerSheet() {
+  // Merge _creators with any discovery data
+  // Try to load full discovery list from n8n
+  n8nPost({ action: 'list_discovery' }).then(function(disc) {
+    var discoveryList = Array.isArray(disc) ? disc : (disc.creators || []);
+    mergeSheetData(discoveryList);
+  }).catch(function() {
+    // Fallback: just use existing _creators
+    mergeSheetData([]);
+  });
+}
+
+function mergeSheetData(discovery) {
+  var map = {};
+  // Add all pipeline creators first
+  _creators.forEach(function(c) {
+    map[c.username] = Object.assign({}, c, { _source: getCreatorSource(c), _inPipeline: true });
+  });
+  // Add discovery creators not yet in pipeline
+  discovery.forEach(function(d) {
+    var handle = d.username || d.handle || '';
+    if (!handle) return;
+    if (!map[handle]) {
+      map[handle] = {
+        username: handle,
+        name: d.name || d.full_name || '',
+        followers: d.followers || d.follower_count || 0,
+        status: 'not_started',
+        source: d.source || 'discovery',
+        _source: 'discovery',
+        _inPipeline: false,
+        discovered_at: d.discovered_at || d.created_at || ''
+      };
+    }
+  });
+  _sheetData = Object.values(map);
+  _sheetPage = 0;
+  renderSheet();
+}
+
+function filterSheet() {
+  _sheetPage = 0;
+  renderSheet();
+}
+
+function sortSheet(key) {
+  if (_sheetSort.key === key) _sheetSort.asc = !_sheetSort.asc;
+  else { _sheetSort.key = key; _sheetSort.asc = true; }
+  renderSheet();
+}
+
+function getFilteredSheet() {
+  var q = (document.getElementById('sheet-search').value || '').toLowerCase();
+  var sf = document.getElementById('sheet-filter-status').value;
+  var src = document.getElementById('sheet-filter-source').value;
+  var hideContacted = document.getElementById('sheet-hide-contacted').checked;
+
+  return _sheetData.filter(function(c) {
+    if (q && c.username.toLowerCase().indexOf(q) === -1 && (c.name || '').toLowerCase().indexOf(q) === -1) return false;
+    if (sf && c.status !== sf) return false;
+    if (src === 'pipeline' && (isInbound(c) || isManualDm(c))) return false;
+    if (src === 'inbound' && !isInbound(c)) return false;
+    if (src === 'manual' && !isManualDm(c)) return false;
+    if (hideContacted && hasPastContact(c)) return false;
+    return true;
+  }).sort(function(a, b) {
+    var va = a[_sheetSort.key] || '';
+    var vb = b[_sheetSort.key] || '';
+    if (typeof va === 'number' && typeof vb === 'number') return _sheetSort.asc ? va - vb : vb - va;
+    va = String(va).toLowerCase(); vb = String(vb).toLowerCase();
+    return _sheetSort.asc ? va.localeCompare(vb) : vb.localeCompare(va);
+  });
+}
+
+function renderSheet() {
+  var filtered = getFilteredSheet();
+  var total = filtered.length;
+  var start = _sheetPage * _sheetPerPage;
+  var page = filtered.slice(start, start + _sheetPerPage);
+  var today = new Date();
+
+  document.getElementById('sheet-count').textContent = total + ' influencers' + (total !== _sheetData.length ? ' (filtered from ' + _sheetData.length + ')' : '');
+
+  var html = '';
+  page.forEach(function(c) {
+    var contacted = hasPastContact(c);
+    var srcColor = c._source === 'inbound' ? '#0284c7' : c._source === 'manual' ? '#9333ea' : c._source === 'discovery' ? '#6366f1' : 'var(--a)';
+    var srcLabel = c._source === 'inbound' ? 'Inbound' : c._source === 'manual' ? 'Manual' : c._source === 'discovery' ? 'Discovery' : 'Pipeline';
+
+    // D+ days for posted creators
+    var dPlus = '';
+    var views = '';
+    if (c.status === 'posted' && c.posted_at) {
+      var postedDate = new Date(c.posted_at);
+      var diffDays = Math.floor((today - postedDate) / 86400000);
+      dPlus = 'D+' + diffDays;
+    }
+    if (c.post_views) views = Number(c.post_views).toLocaleString();
+
+    html += '<tr style="' + (contacted ? 'background:#fef2f2' : '') + '">';
+    // Contacted indicator
+    html += '<td style="text-align:center">' + (contacted ? '<span title="Already contacted" style="color:var(--r);font-size:14px">&#x1F6AB;</span>' : '<span style="color:var(--g);font-size:12px">&#x2B55;</span>') + '</td>';
+    // Handle
+    html += '<td><a href="https://instagram.com/' + encodeURIComponent(c.username) + '" target="_blank" style="color:var(--a);font-weight:600;font-size:11px">@' + escapeHtml(c.username) + '</a>';
+    if (c.name) html += '<div style="font-size:9px;color:var(--dim)">' + escapeHtml(c.name) + '</div>';
+    html += '</td>';
+    // Followers
+    html += '<td style="font-family:var(--mono);font-size:11px">' + (c.followers ? Number(c.followers).toLocaleString() : '-') + '</td>';
+    // Source
+    html += '<td><span style="display:inline-block;padding:1px 6px;border-radius:8px;font-size:9px;font-weight:600;background:' + srcColor + '22;color:' + srcColor + '">' + srcLabel + '</span></td>';
+    // Status
+    html += '<td>' + statusBadge(c.status) + '</td>';
+    // Outreach date
+    html += '<td style="font-size:10px;color:var(--dim)">' + (c.last_dm || c.first_contact || '-') + '</td>';
+    // D+ posted
+    html += '<td style="font-family:var(--mono);font-size:11px;font-weight:600;color:' + (dPlus ? 'var(--g)' : 'var(--dim)') + '">' + (dPlus || '-') + '</td>';
+    // Views
+    html += '<td style="font-family:var(--mono);font-size:11px">' + (views || '-') + '</td>';
+    // Triggered by
+    html += '<td style="font-size:10px;color:var(--dim)">' + escapeHtml(c.triggered_by || '-') + '</td>';
+    // Actions
+    html += '<td>';
+    if (!contacted) {
+      html += '<button class="btn btn-sm btn-primary" onclick="goToCreator(\'' + escapeHtml(c.username) + '\')" style="font-size:9px">View</button>';
+    } else {
+      html += '<span style="font-size:9px;color:var(--dim)">contacted</span>';
+    }
+    html += '</td>';
+    html += '</tr>';
+  });
+
+  document.getElementById('sheet-body').innerHTML = html || '<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--dim)">No influencers found.</td></tr>';
+
+  // Pager
+  var totalPages = Math.ceil(total / _sheetPerPage);
+  var pagerHtml = '';
+  if (totalPages > 1) {
+    pagerHtml += '<div style="display:flex;gap:4px;justify-content:center;margin-top:12px">';
+    if (_sheetPage > 0) pagerHtml += '<button class="btn btn-sm btn-secondary" onclick="_sheetPage--;renderSheet()">← Prev</button>';
+    pagerHtml += '<span style="font-size:11px;padding:4px 8px;color:var(--dim)">' + (_sheetPage + 1) + ' / ' + totalPages + '</span>';
+    if (_sheetPage < totalPages - 1) pagerHtml += '<button class="btn btn-sm btn-secondary" onclick="_sheetPage++;renderSheet()">Next →</button>';
+    pagerHtml += '</div>';
+  }
+  document.getElementById('sheet-pager').innerHTML = pagerHtml;
+}
+
+function goToCreator(handle) {
+  document.getElementById('creator-search').value = handle;
+  var tab = document.querySelector('.mt>div[data-p="creators"]');
+  if (tab) tab.click();
+  renderCreators();
+}
+
+// Also update goToStage to support source filter
+var _origGoToStage = typeof goToStage === 'function' ? goToStage : null;
 </script>
 </body>
 </html>
