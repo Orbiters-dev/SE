@@ -3877,13 +3877,7 @@ function updateFtSummary(){
   document.getElementById('ft-total-count').textContent=total;
   document.getElementById('ft-pipeline-summary').style.display='';
 
-  // Auto-update batch size input to match eligible pool
-  var batchInput=document.getElementById('f-creators-contacted');
-  if(batchInput){
-    batchInput.value=eligible;
-    document.getElementById('alloc-batch-label').textContent=eligible;
-    updateAllocation();
-  }
+  // Display eligible pool count (do NOT overwrite batch size — it's user-controlled)
 }
 
 // ========== BATCH PIPELINE ==========
