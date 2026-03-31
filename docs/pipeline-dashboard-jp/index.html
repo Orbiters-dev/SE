@@ -1199,33 +1199,23 @@ function executeHilGroup(status) {
 
   // Special actions for certain stages
   if (stage.actionFn === 'hilSendDm') {
-    // Send DMs via n8n → ManyChat API
+    // Hybrid: 1st outreach = IG manual (open link + clipboard). Replies = ManyChat auto.
     var remaining = _dailyLimit - _dmSentToday;
     if (remaining <= 0) { showToast('Daily DM limit reached!', 'err'); return; }
     handles = handles.slice(0, remaining);
-    var idx = 0; var sent = 0; var failed = 0;
-    showToast('Sending ' + handles.length + ' DMs via ManyChat...');
+    var idx = 0;
+    showToast('Opening ' + handles.length + ' IG DMs — paste draft in each tab');
     (function next() {
-      if (idx >= handles.length) {
-        var msg = sent + '/' + (sent + failed) + ' DMs sent via ManyChat';
-        if (failed) msg += ' (' + failed + ' failed — check n8n logs)';
-        showToast(msg, failed ? 'err' : undefined);
-        loadCreators();
-        return;
-      }
+      if (idx >= handles.length) { showToast('Done! ' + handles.length + ' DM tabs opened. Paste & send each.'); loadCreators(); return; }
       var h = handles[idx];
       var c = _creators.find(function(x) { return x.username === h; });
-      var text = c ? (c.dm_draft || '') : '';
-      if (!text) { idx++; failed++; next(); return; }
-      n8nPost({ action: 'send_dm', username: h, message: text, sent_by: _currentUser || 'dashboard' })
-        .then(function(res) {
-          if (res.sent || res.status === 'ok') {
-            sent++;
-            n8nPost({ action: 'dm_log', sub_action: 'add', username: h, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
-            updateStatus(h, 'sent').then(function() { incDmCount(); });
-          } else { failed++; }
-        }).catch(function() { failed++; });
-      idx++; setTimeout(next, 1500);
+      if (c && c.dm_draft) {
+        navigator.clipboard.writeText(c.dm_draft).catch(function(){});
+        n8nPost({ action: 'dm_log', sub_action: 'add', username: h, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' });
+      }
+      window.open('https://ig.me/m/' + h, '_blank');
+      updateStatus(h, 'sent').then(function() { incDmCount(); });
+      idx++; setTimeout(next, 1200);
     })();
     return;
   }
@@ -1313,23 +1303,33 @@ function sendReplyDm(handle) {
   var el = document.getElementById('reply-draft-' + handle);
   var text = el ? el.value.trim() : '';
   if (!text) { showToast('No reply text for @' + handle, 'err'); return; }
+  var c = _creators.find(function(x) { return x.username === handle; });
 
-  n8nPost({
-    action: 'send_dm',
-    username: handle,
-    message: text,
-    sent_by: _currentUser || 'dashboard'
-  }).then(function(res) {
-    if (res.status === 'ok' || res.sent) {
-      showToast('Reply sent to @' + handle + ' via ManyChat');
-      // Log outgoing DM
-      n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
-    } else {
-      showToast('Send failed: ' + (res.message || 'unknown'), 'err');
-    }
-  }).catch(function() {
-    showToast('Failed to send DM to @' + handle, 'err');
-  });
+  // Hybrid: if manychat_id exists → API send. Otherwise → IG link + clipboard.
+  if (c && c.manychat_id) {
+    n8nPost({ action: 'send_dm', username: handle, message: text, sent_by: _currentUser || 'dashboard' })
+      .then(function(res) {
+        if (res.status === 'ok' || res.sent) {
+          showToast('Reply sent to @' + handle + ' via ManyChat');
+          n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
+        } else {
+          showToast('ManyChat failed — opening IG DM', 'err');
+          navigator.clipboard.writeText(text).catch(function(){});
+          window.open('https://ig.me/m/' + handle, '_blank');
+          n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
+        }
+      }).catch(function() {
+        navigator.clipboard.writeText(text).catch(function(){});
+        window.open('https://ig.me/m/' + handle, '_blank');
+        n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
+      });
+  } else {
+    // No ManyChat subscriber → manual IG DM
+    navigator.clipboard.writeText(text).catch(function(){});
+    window.open('https://ig.me/m/' + handle, '_blank');
+    showToast('Draft copied — paste in IG DM for @' + handle);
+    n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
+  }
 }
 
 // Auto-generate reply drafts when HiL renders
@@ -1536,24 +1536,18 @@ function executeDrafts() {
     var c = _creators.find(function(x) { return x.username === handle; });
     document.getElementById('exec-progress-count').textContent = (idx + 1) + '/' + handles.length;
     document.getElementById('exec-fill').style.width = (((idx + 1) / handles.length) * 100) + '%';
-    document.getElementById('exec-current').textContent = 'Sending to @' + handle + ' via ManyChat...';
+    document.getElementById('exec-current').textContent = 'Opening @' + handle + '...';
 
     var text = c ? (c.dm_draft || '') : '';
     if (!text) { idx++; setTimeout(processNext, 300); return; }
-    n8nPost({ action: 'send_dm', username: handle, message: text, sent_by: _currentUser || 'dashboard' })
-      .then(function(res) {
-        if (res.sent || res.status === 'ok') {
-          n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
-          updateStatus(handle, 'sent').then(function() { incDmCount(); });
-        } else {
-          document.getElementById('exec-current').textContent = 'Failed: @' + handle;
-        }
-      }).catch(function() {
-        document.getElementById('exec-current').textContent = 'Error: @' + handle;
-      });
+    // 1st outreach = IG manual. Copy draft + open IG DM link.
+    navigator.clipboard.writeText(text).catch(function(){});
+    n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
+    window.open('https://ig.me/m/' + handle, '_blank');
+    updateStatus(handle, 'sent').then(function() { incDmCount(); }).catch(function(){});
 
     idx++;
-    setTimeout(processNext, 1500);
+    setTimeout(processNext, 1200);
   }
   processNext();
 }
@@ -1827,15 +1821,13 @@ function executeCreatorsDrafts() {
     var c = _creators.find(function(x) { return x.username === handle; });
     var text = c ? (c.dm_draft || '') : '';
     if (!text) { idx++; setTimeout(processNext, 300); return; }
-    n8nPost({ action: 'send_dm', username: handle, message: text, sent_by: _currentUser || 'dashboard' })
-      .then(function(res) {
-        if (res.sent || res.status === 'ok') {
-          n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
-          updateStatus(handle, 'sent').then(function() { incDmCount(); });
-        }
-      }).catch(function(){});
+    // 1st outreach = IG manual
+    navigator.clipboard.writeText(text).catch(function(){});
+    n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
+    window.open('https://ig.me/m/' + handle, '_blank');
+    updateStatus(handle, 'sent').then(function() { incDmCount(); }).catch(function(){});
     idx++;
-    setTimeout(processNext, 1500);
+    setTimeout(processNext, 1200);
   }
   processNext();
 }
@@ -2458,7 +2450,7 @@ function renderSheet() {
     var detailId = 'detail-' + escapeHtml(c.username).replace(/[^a-zA-Z0-9]/g, '_');
     var handleLink = latestPostUrl || ('https://instagram.com/' + encodeURIComponent(c.username));
     html += '<td><a href="' + escapeHtml(handleLink) + '" target="_blank" style="color:var(--a);font-weight:600;font-size:11px">@' + escapeHtml(c.username) + '</a>';
-    if (c._posts && c._posts.length > 0) html += ' <span onclick="togglePostDetail(\'' + detailId + '\')" style="cursor:pointer;font-size:9px;color:var(--dim)" title="View posts detail">▼</span>';
+    if (c._posts && c._posts.length > 0) html += ' <span onclick="togglePostDetail(\'' + detailId + '\')" style="cursor:pointer;font-size:9px;color:var(--dim)" title="Toggle posts detail">▲</span>';
     if (c.name) html += '<div style="font-size:9px;color:var(--dim)">' + escapeHtml(c.name) + '</div>';
     if (c.email) html += '<div style="font-size:8px;color:var(--dim)">✉ ' + escapeHtml(c.email) + '</div>';
     html += '</td>';
@@ -2501,7 +2493,7 @@ function renderSheet() {
     // Expandable post details row (caption, hashtags, transcript, comments per post)
     if (c._posts && c._posts.length > 0) {
       var rowId = 'detail-' + escapeHtml(c.username).replace(/[^a-zA-Z0-9]/g, '_');
-      html += '<tr id="' + rowId + '" style="display:none"><td colspan="11" style="padding:4px 12px 12px;background:#f8fafc;border-left:3px solid var(--a)">';
+      html += '<tr id="' + rowId + '"><td colspan="11" style="padding:4px 12px 12px;background:#f8fafc;border-left:3px solid var(--a)">';
       c._posts.forEach(function(post, pi) {
         html += '<div style="margin-bottom:8px;padding:8px;background:#fff;border:1px solid var(--border);border-radius:6px">';
         html += '<div style="display:flex;gap:12px;align-items:center;margin-bottom:4px">';
@@ -2551,29 +2543,41 @@ function togglePostDetail(rowId) {
 function addToPipeline(handle) {
   var c = _sheetData.find(function(x) { return x.username === handle; });
   if (!c) return;
-  n8nPost({
-    action: 'add_creator',
-    username: handle,
-    name: c.name || '',
+  var u = localStorage.getItem('dk_user') || 'admin';
+  var p = localStorage.getItem('dk_pass') || '';
+  var plat = (c.platform || 'instagram').toLowerCase();
+  var email = c.email || (handle.replace(/\./g, '_') + '@discovered.apify');
+  var body = {
+    email: email,
+    ig_handle: plat.indexOf('tiktok') === -1 ? handle : '',
+    tiktok_handle: plat.indexOf('tiktok') !== -1 ? handle : '',
+    full_name: c.name || handle,
+    platform: plat.indexOf('tiktok') !== -1 ? 'TikTok' : 'Instagram',
+    pipeline_status: 'Not Started',
+    source: 'discovery',
     followers: c.followers || 0,
-    platform: c.platform || 'instagram',
-    email: c.email || '',
-    source: 'discovery'
-  }).then(function(res) {
-    if (res.status === 'ok' || res.success) {
+    avg_views: c._bestViews || c._bestLikes || 0,
+    notes: 'Added from JP Discovery dashboard'
+  };
+  fetch('https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa(u + ':' + p) },
+    body: JSON.stringify(body)
+  }).then(function(r) { return r.json(); })
+  .then(function(res) {
+    if (res.id) {
       c._inPipeline = true;
       c.status = 'not_started';
       c._source = 'pipeline';
-      // Also add to _creators
       _creators.push({ username: handle, name: c.name, followers: c.followers, status: 'not_started', dm_count: 0, source: 'discovery', platform: c.platform });
       showToast('@' + handle + ' added to pipeline');
       renderSheet();
       updateStats();
     } else {
-      showToast('Failed to add: ' + (res.message || 'unknown'), 'err');
+      showToast('Failed: ' + (res.error || JSON.stringify(res)), 'err');
     }
-  }).catch(function() {
-    showToast('Failed to add to pipeline', 'err');
+  }).catch(function(e) {
+    showToast('Failed: ' + e.message, 'err');
   });
 }
 </script>
