@@ -989,6 +989,10 @@ def pipeline_creators_list(request):
         from django.db.models import Q
         qs = qs.filter(Q(country__icontains="United States") | Q(country="US") | Q(country="USA"))
 
+    assigned_to = request.GET.get("assigned_to")
+    if assigned_to is not None:
+        qs = qs.filter(assigned_to=assigned_to)
+
     is_business = request.GET.get("is_business")
     if is_business is not None and is_business.lower() in ("true", "false", "1", "0"):
         qs = qs.filter(is_business_account=(is_business.lower() in ("true", "1")))

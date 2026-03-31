@@ -1010,6 +1010,11 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <option value="">All Sources</option>
         <option value="outbound">Outbound</option><option value="inbound">Inbound</option>
       </select>
+      <select id="cr-assigned" onchange="loadCreators()">
+        <option value="">All Owners</option>
+        <option value="Jeehoo">Jeehoo</option><option value="Laeeka">Laeeka</option>
+        <option value="Soyeon">Soyeon</option><option value="__none">Unassigned</option>
+      </select>
       <button class="btn btn-sm btn-secondary" onclick="loadCreators()">&#x1F50D;</button>
     </div>
     <div style="overflow-x:auto;max-height:500px;overflow-y:auto;border:1px solid var(--border);border-radius:8px">
@@ -1904,9 +1909,12 @@ async function loadCreators(){
   var status=document.getElementById('cr-status').value;
   var brand=document.getElementById('cr-brand').value;
   var source=document.getElementById('cr-source').value;
+  var assigned=document.getElementById('cr-assigned').value;
   var params='?page='+_crPage+'&limit='+_crLimit;
   if(search)params+='&search='+encodeURIComponent(search);
   if(status)params+='&status='+encodeURIComponent(status);
+  if(assigned==='__none')params+='&assigned_to=';
+  else if(assigned)params+='&assigned_to='+encodeURIComponent(assigned);
   if(brand)params+='&brand='+encodeURIComponent(brand);
   if(source)params+='&source='+encodeURIComponent(source);
   var body=document.getElementById('creators-body');
