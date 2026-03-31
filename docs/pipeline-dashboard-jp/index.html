@@ -1246,9 +1246,9 @@ function executeHilGroup(status) {
     if (remaining <= 0) { showToast('Daily DM limit reached!', 'err'); return; }
     handles = handles.slice(0, remaining);
     var idx = 0;
-    showToast('Opening ' + handles.length + ' IG DMs — paste draft in each tab');
+    showToast('Opening ' + handles.length + ' IG DMs — 5s intervals, paste in each tab');
     (function next() {
-      if (idx >= handles.length) { showToast('Done! ' + handles.length + ' DM tabs opened. Paste & send each.'); loadCreators(); return; }
+      if (idx >= handles.length) { showToast('Done! ' + handles.length + ' DM tabs opened.'); loadCreators(); return; }
       var h = handles[idx];
       var c = _creators.find(function(x) { return x.username === h; });
       if (c && c.dm_draft) {
@@ -1256,8 +1256,9 @@ function executeHilGroup(status) {
         n8nPost({ action: 'dm_log', sub_action: 'add', username: h, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' });
       }
       window.open('https://ig.me/m/' + h, '_blank');
+      showToast('(' + (idx+1) + '/' + handles.length + ') @' + h + ' — paste now! Next in 5s');
       updateStatus(h, 'sent').then(function() { incDmCount(); });
-      idx++; setTimeout(next, 1200);
+      idx++; setTimeout(next, 5000);
     })();
     return;
   }
