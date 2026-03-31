@@ -991,7 +991,19 @@ def pipeline_creators_list(request):
 
     assigned_to = request.GET.get("assigned_to")
     if assigned_to is not None:
-        qs = qs.filter(assigned_to=assigned_to)
+        if assigned_to == "":
+            # Unassigned: no assigned_to AND brand not in mapping
+            qs = qs.filter(assigned_to="").exclude(
+                brand__in=list(_DEFAULT_BRAND_ASSIGNEES.keys()))
+        else:
+            # Find by assigned_to OR by brand fallback
+            from django.db.models import Q
+            reverse_map = {v: k for k, v in _get_brand_assignees().items()}
+            brand_for_owner = reverse_map.get(assigned_to, "")
+            qs = qs.filter(
+                Q(assigned_to=assigned_to) |
+                Q(assigned_to="", brand=brand_for_owner)
+            )
 
     is_business = request.GET.get("is_business")
     if is_business is not None and is_business.lower() in ("true", "false", "1", "0"):
