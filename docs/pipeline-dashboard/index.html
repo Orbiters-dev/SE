@@ -495,17 +495,31 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <h3>&#x1F527; Feature Toggles</h3>
         <div class="desc">Each filter adjusts the eligible pool. Click <b>Check</b> to see impact before executing.</div>
 
+        <!-- Step 0: US Only Filter -->
+        <div class="ft-step" id="fts-us" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <input type="checkbox" checked class="rq-check" id="ft-check-us" style="flex-shrink:0" onchange="updateFtSummary()">
+            <span style="font-size:11px;font-weight:800;color:#ef4444;font-family:var(--mono);min-width:16px">&#x24EA;</span>
+            <span style="font-weight:700;min-width:120px">US Only</span>
+            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-us-only" checked><span class="slider"></span></label>
+            <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('us')" id="ft-btn-us" style="font-size:10px">&#x1F50D; Check</button>
+            <span id="ft-badge-us"></span>
+          </div>
+          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Only include US-based creators (from Apify profile enrichment: about.country / region)</div>
+          <div id="ft-expand-us" style="display:none;margin:4px 0 0 28px"></div>
+        </div>
+
         <!-- Step 1: Brand Filter -->
         <div class="ft-step" id="fts-brand" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <input type="checkbox" checked class="rq-check" id="ft-check-brand" style="flex-shrink:0" onchange="updateFtSummary()">
             <span style="font-size:11px;font-weight:800;color:var(--a);font-family:var(--mono);min-width:16px">&#x2460;</span>
-            <span style="font-weight:700;min-width:120px">Apify Brand Filter</span>
+            <span style="font-weight:700;min-width:120px">Business Account Filter</span>
             <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-brand-filter" checked><span class="slider"></span></label>
             <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('brand')" id="ft-btn-brand" style="font-size:10px">&#x1F50D; Check</button>
             <span id="ft-badge-brand"></span>
           </div>
-          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Auto-exclude 27 brand/reseller accounts from crawl</div>
+          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Exclude business/brand accounts (Apify isBusinessAccount + businessCategoryName)</div>
           <div id="ft-expand-brand" style="display:none;margin:4px 0 0 28px"></div>
         </div>
 
@@ -1421,7 +1435,7 @@ var DEMO_CREATORS=[
 ];
 var DEMO_CONFIG={
   date:'2026-03-20',update_date:'2026-03-20',start_from_beginning:false,
-  creators_contacted:10,ht_threshold:100000,rag_email_dedup:true,apify_autofill:true,apify_brand_filter:true,
+  creators_contacted:10,ht_threshold:100000,rag_email_dedup:true,apify_autofill:true,apify_brand_filter:true,us_only:true,
   hil_draft_review:true,hil_send_approval:true,hil_sample_approval:false,
   sender_email:'affiliates@onzenna.com',
   outreach_template_id:'1vAvPdheHFz4xIraa3NODUuFG7RagylHEYOvv6BjtxLg',
@@ -1693,6 +1707,7 @@ function populateConfigForm(c){
   document.getElementById('f-rag-dedup').checked=c.rag_email_dedup;
   document.getElementById('f-apify-autofill').checked=c.apify_autofill;
   document.getElementById('f-apify-brand-filter').checked=c.apify_brand_filter!==false;
+  document.getElementById('f-us-only').checked=c.us_only!==false;
   document.getElementById('f-hil-draft').checked=c.hil_draft_review!==false;
   document.getElementById('f-hil-send').checked=c.hil_send_approval!==false;
   document.getElementById('f-hil-sample').checked=!!c.hil_sample_approval;
@@ -1728,6 +1743,7 @@ function collectConfigForm(){
     rag_email_dedup:document.getElementById('f-rag-dedup').checked,
     apify_autofill:document.getElementById('f-apify-autofill').checked,
     apify_brand_filter:document.getElementById('f-apify-brand-filter').checked,
+    us_only:document.getElementById('f-us-only').checked,
     hil_draft_review:document.getElementById('f-hil-draft').checked,
     hil_send_approval:document.getElementById('f-hil-send').checked,
     hil_sample_approval:document.getElementById('f-hil-sample').checked,
@@ -3804,22 +3820,69 @@ async function checkFeatureImpact(feature){
       expand.innerHTML=h;expand.style.display='block';
 
     }else if(feature==='brand'){
-      // Brand Filter: check against known brand/reseller accounts
+      // Brand Filter: use Apify isBusinessAccount field (enriched data)
+      var filtered=creators.filter(function(c){return c.is_business_account===true});
+      // Also check handle-based fallback for unenriched creators
       var brandFilterList=['onzenna.official','grosmimi_usa','grosmimi_japan','onzenna','chaenmom_official','naeiae_official',
         'grosmimi','chaandmom','naeiae','zezebaebae','orbitool','toddie','fleeters'];
-      var filtered=creators.filter(function(c){
+      var handleFiltered=creators.filter(function(c){
+        if(c.is_business_account===true)return false;// already counted
         var h=(c.ig_handle||c.tiktok_handle||'').toLowerCase().replace(/^@/,'');
         return brandFilterList.some(function(b){return h===b||h.includes(b+'_')});
       });
-      _ftResults.brand={count:filtered.length,list:filtered};
-      badge.innerHTML='<span class="b r" style="font-size:10px;padding:2px 8px">&minus;'+filtered.length+' removed</span>';
-      if(filtered.length>0){
-        var h='<div style="font-size:9px;max-height:160px;overflow-y:auto;background:#fef2f2;padding:6px;border-radius:4px;cursor:pointer" onclick="this.parentElement.style.display=\'none\'">';
-        h+='<div style="font-weight:700;margin-bottom:3px;color:var(--r)">Brand/reseller accounts ('+filtered.length+'):</div>';
-        filtered.forEach(function(c){h+='<div style="padding:1px 0;border-bottom:1px solid #fde8e8">@'+esc(c.ig_handle||c.tiktok_handle||'?')+' <span style="color:var(--dim)">| '+esc(c.brand||'')+'</span></div>'});
-        h+='</div>';
-        expand.innerHTML=h;expand.style.display='block';
-      }else{expand.innerHTML='';expand.style.display='none'}
+      var allFiltered=filtered.concat(handleFiltered);
+      _ftResults.brand={count:allFiltered.length,list:allFiltered};
+      var apiBiz=filtered.length;var handleBiz=handleFiltered.length;
+      badge.textContent='\u2212'+allFiltered.length+' removed ('+apiBiz+' Apify + '+handleBiz+' handle)';
+      badge.className='b r';badge.style.cssText='font-size:10px;padding:2px 8px';
+      if(allFiltered.length>0){
+        var el=document.createElement('div');
+        el.style.cssText='font-size:9px;max-height:160px;overflow-y:auto;background:#fef2f2;padding:6px;border-radius:4px;cursor:pointer';
+        el.onclick=function(){expand.style.display='none'};
+        var header=document.createElement('div');
+        header.style.cssText='font-weight:700;margin-bottom:3px;color:var(--r)';
+        header.textContent='Business/brand accounts ('+allFiltered.length+'):';
+        el.appendChild(header);
+        allFiltered.slice(0,40).forEach(function(c){
+          var row=document.createElement('div');
+          row.style.cssText='padding:1px 0;border-bottom:1px solid #fde8e8';
+          row.textContent='@'+(c.ig_handle||c.tiktok_handle||'?')+' | '+(c.business_category||c.brand||'')+(c.is_business_account?' [Apify]':' [handle]');
+          el.appendChild(row);
+        });
+        expand.textContent='';expand.appendChild(el);expand.style.display='block';
+      }else{expand.textContent='';expand.style.display='none'}
+
+    }else if(feature==='us'){
+      // US Only: filter by country field from Apify enrichment
+      var enriched=creators.filter(function(c){return c.enriched_at});
+      var usCreators=creators.filter(function(c){
+        var country=(c.country||'').toLowerCase();
+        return country==='united states'||country==='us'||country==='usa';
+      });
+      var nonUs=enriched.filter(function(c){
+        var country=(c.country||'').toLowerCase();
+        return country&&country!=='united states'&&country!=='us'&&country!=='usa';
+      });
+      var unenriched=creators.filter(function(c){return !c.enriched_at});
+      _ftResults.us={count:nonUs.length,usCount:usCreators.length,unenriched:unenriched.length,list:nonUs};
+      badge.textContent=usCreators.length+' US | \u2212'+nonUs.length+' non-US | '+unenriched.length+' unknown';
+      badge.className='b g';badge.style.cssText='font-size:10px;padding:2px 8px';
+      if(nonUs.length>0){
+        var el=document.createElement('div');
+        el.style.cssText='font-size:9px;max-height:160px;overflow-y:auto;background:#fef2f2;padding:6px;border-radius:4px;cursor:pointer';
+        el.onclick=function(){expand.style.display='none'};
+        var header=document.createElement('div');
+        header.style.cssText='font-weight:700;margin-bottom:3px;color:var(--r)';
+        header.textContent='Non-US creators ('+nonUs.length+'):';
+        el.appendChild(header);
+        nonUs.slice(0,30).forEach(function(c){
+          var row=document.createElement('div');
+          row.style.cssText='padding:1px 0;border-bottom:1px solid #fde8e8';
+          row.textContent='@'+(c.ig_handle||c.tiktok_handle||'?')+' | '+(c.country||'?');
+          el.appendChild(row);
+        });
+        expand.textContent='';expand.appendChild(el);expand.style.display='block';
+      }else{expand.textContent='';expand.style.display='none'}
     }
 
     updateFtSummary();
@@ -3832,6 +3895,7 @@ async function checkFeatureImpact(feature){
 
 async function checkAllFeatures(){
   _ftCache=null; // force fresh fetch
+  await checkFeatureImpact('us');
   await checkFeatureImpact('brand');
   await checkFeatureImpact('apify');
   await checkFeatureImpact('rag');
@@ -3843,34 +3907,39 @@ function updateFtSummary(){
   var withEmail=_ftCache.filter(function(c){return c.email&&!c.email.includes('@discovered.')}).length;
   var pendingCrawl=total-withEmail;
 
+  var usCheck=document.getElementById('ft-check-us').checked;
   var ragCheck=document.getElementById('ft-check-rag').checked;
   var apifyCheck=document.getElementById('ft-check-apify').checked;
   var brandCheck=document.getElementById('ft-check-brand').checked;
 
+  var usNonCount=usCheck&&_ftResults.us?_ftResults.us.count:0;
   var brandCount=brandCheck&&_ftResults.brand?_ftResults.brand.count:0;
   var ragCount=ragCheck&&_ftResults.rag?_ftResults.rag.count:0;
-  // Apify: use stored estimate (20% of pending crawl) or calculated
   var apifyEstimate=0;
   if(apifyCheck&&_ftResults.apify){
     apifyEstimate=_ftResults.apify.estimated||Math.round(pendingCrawl*0.20);
   }
 
-  // Pipeline: total → −brand → withEmail (base) → +apify est. → −RAG dedup → eligible
-  var baseEligible=withEmail-brandCount;
-  if(baseEligible<0)baseEligible=0;
+  // Pipeline: total → −non-US → −brand → withEmail (base) → +apify est. → −RAG dedup → eligible
+  var afterUs=total-usNonCount;
+  var afterBrand=afterUs-brandCount;
+  if(afterBrand<0)afterBrand=0;
+  var baseEligible=Math.min(withEmail,afterBrand);
   var afterApify=baseEligible+apifyEstimate;
   var eligible=afterApify-ragCount;
   if(eligible<0)eligible=0;
 
-  // Build flow display (order: brand → apify → rag)
-  var flow='<span style="color:var(--text);font-weight:700">'+total+'</span> total';
-  if(brandCheck&&_ftResults.brand)flow+=' &rarr; <span style="color:var(--r)">&minus;'+brandCount+'</span> brand';
-  flow+=' &rarr; <span style="color:var(--c)">'+baseEligible+'</span> with email';
-  if(apifyCheck){
-    flow+=' &rarr; <span style="color:var(--g)">+'+apifyEstimate+'</span> Apify';
-    flow+=' <span style="color:var(--dim);font-size:9px">('+pendingCrawl+' &times; 20%)</span>';
-  }
-  if(ragCheck&&_ftResults.rag)flow+=' &rarr; <span style="color:var(--r)">&minus;'+ragCount+'</span> dedup';
+  // Build flow display
+  var flowEl=document.getElementById('ft-pipeline-flow');
+  flowEl.textContent='';
+  var parts=[];
+  parts.push(total+' total');
+  if(usCheck&&_ftResults.us)parts.push('\u2212'+usNonCount+' non-US');
+  if(brandCheck&&_ftResults.brand)parts.push('\u2212'+brandCount+' business');
+  parts.push(baseEligible+' with email');
+  if(apifyCheck)parts.push('+'+apifyEstimate+' Apify ('+pendingCrawl+'\u00d720%)');
+  if(ragCheck&&_ftResults.rag)parts.push('\u2212'+ragCount+' dedup');
+  flowEl.textContent=parts.join(' \u2192 ');
 
   document.getElementById('ft-pipeline-flow').innerHTML=flow;
   document.getElementById('ft-eligible-count').textContent=eligible;

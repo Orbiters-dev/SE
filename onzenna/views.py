@@ -828,9 +828,14 @@ def pipeline_creators_list(request):
         if body.get("initial_discovery_date"):
             defaults["initial_discovery_date"] = _parse_date(body["initial_discovery_date"])
         for f in ("shopify_customer_id", "shopify_draft_order_id",
-                   "shopify_draft_order_name", "airtable_record_id"):
+                   "shopify_draft_order_name", "airtable_record_id",
+                   "country", "business_category", "biography"):
             if body.get(f):
                 defaults[f] = str(body[f])
+        if body.get("is_business_account") is not None:
+            defaults["is_business_account"] = bool(body["is_business_account"])
+        if body.get("is_verified") is not None:
+            defaults["is_verified"] = bool(body["is_verified"])
 
         creator, created = PipelineCreator.objects.update_or_create(
             email=email, defaults=defaults
@@ -875,6 +880,29 @@ def pipeline_creators_list(request):
     outreach_type = request.GET.get("type")
     if outreach_type:
         qs = qs.filter(outreach_type=outreach_type)
+
+    country = request.GET.get("country")
+    if country:
+        qs = qs.filter(country__icontains=country)
+
+    us_only = request.GET.get("us_only")
+    if us_only and us_only.lower() in ("true", "1"):
+        from django.db.models import Q
+        qs = qs.filter(Q(country__icontains="United States") | Q(country="US"))
+
+    is_business = request.GET.get("is_business")
+    if is_business is not None and is_business.lower() in ("true", "false", "1", "0"):
+        qs = qs.filter(is_business_account=(is_business.lower() in ("true", "1")))
+
+    enriched = request.GET.get("enriched")
+    if enriched and enriched.lower() in ("true", "1"):
+        qs = qs.filter(enriched_at__isnull=False)
+    elif enriched and enriched.lower() in ("false", "0"):
+        qs = qs.filter(enriched_at__isnull=True)
+
+    discovery_date = request.GET.get("discovery_date")
+    if discovery_date:
+        qs = qs.filter(initial_discovery_date=discovery_date)
 
     # Ordering
     order = request.GET.get("order", "-created_at")

@@ -254,6 +254,14 @@ class PipelineCreator(models.Model):
     outreach_type = models.CharField(max_length=10, blank=True, default="")  # HT, LT
     source = models.CharField(max_length=30, default="outbound")  # outbound, inbound
 
+    # Profile enrichment (from Apify profile scrapers)
+    country = models.CharField(max_length=50, blank=True, default="")  # "United States", "US", etc.
+    is_business_account = models.BooleanField(null=True, blank=True)  # True = brand/business
+    business_category = models.CharField(max_length=100, blank=True, default="")  # e.g. "Beauty Store"
+    biography = models.TextField(blank=True, default="")
+    is_verified = models.BooleanField(null=True, blank=True)
+    enriched_at = models.DateTimeField(null=True, blank=True)  # when profile was last enriched
+
     # Metrics
     followers = models.IntegerField(null=True, blank=True)
     avg_views = models.IntegerField(null=True, blank=True)
