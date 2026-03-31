@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-30 21:47 PST",
+ "generated_pst": "2026-03-30 22:05 PST",
  "through_date": "2026-03-29",
  "months": [
   "2025-01",
@@ -16708,8 +16708,8 @@ const FIN_DATA = {
    },
    "amazon": {
     "total_clicks": 15140,
-    "total_sessions": 0,
-    "total_pageviews": 0,
+    "total_sessions": 128873,
+    "total_pageviews": 158171,
     "total_spend": 6198,
     "total_sales": 18037,
     "total_purchases": 750,
@@ -17050,8 +17050,8 @@ const FIN_DATA = {
    },
    "amazon": {
     "total_clicks": 86932,
-    "total_sessions": 0,
-    "total_pageviews": 0,
+    "total_sessions": 128873,
+    "total_pageviews": 158171,
     "total_spend": 39651,
     "total_sales": 135558,
     "total_purchases": 5548,
@@ -17077,15 +17077,15 @@ const FIN_DATA = {
       "pct": 61.8
      },
      {
-      "source": "Amazon Internal (Organic)",
-      "clicks": 0,
+      "source": "Amazon Internal (Organic + Ads)",
+      "clicks": 75142,
       "spend": 0,
-      "sales": 0,
-      "purchases": 0,
+      "sales": 90985,
+      "purchases": 3416,
       "cpc": 0,
       "roas": 0,
-      "pct": 0,
-      "note": "n.m."
+      "pct": 58.3,
+      "note_text": "Sessions from Amazon search + direct. Ads clicks happen within these sessions."
      }
     ],
     "attribution": {
@@ -17398,8 +17398,8 @@ const FIN_DATA = {
    },
    "amazon": {
     "total_clicks": 262406,
-    "total_sessions": 0,
-    "total_pageviews": 0,
+    "total_sessions": 364618,
+    "total_pageviews": 449504,
     "total_spend": 123753,
     "total_sales": 480353,
     "total_purchases": 18424,
@@ -17425,15 +17425,15 @@ const FIN_DATA = {
       "pct": 58.2
      },
      {
-      "source": "Amazon Internal (Organic)",
-      "clicks": 0,
+      "source": "Amazon Internal (Organic + Ads)",
+      "clicks": 211980,
       "spend": 0,
-      "sales": 0,
-      "purchases": 0,
+      "sales": 305038,
+      "purchases": 11024,
       "cpc": 0,
       "roas": 0,
-      "pct": 0,
-      "note": "n.m."
+      "pct": 58.1,
+      "note_text": "Sessions from Amazon search + direct. Ads clicks happen within these sessions."
      }
     ],
     "attribution": {
@@ -18373,12 +18373,12 @@ const FIN_DATA = {
  ],
  "amz_sessions": {
   "7d": {
-   "sessions": 0,
-   "pageViews": 0
+   "sessions": 128873,
+   "pageViews": 158171
   },
   "30d": {
-   "sessions": 0,
-   "pageViews": 0
+   "sessions": 364618,
+   "pageViews": 449504
   }
  },
  "pnl_polar": {
