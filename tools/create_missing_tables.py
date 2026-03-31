@@ -191,6 +191,18 @@ INDEXES = [
     "CREATE INDEX IF NOT EXISTS idx_gmail_contacts_domain ON gk_gmail_contacts(domain)",
 ]
 
+# Column additions (safe — IF NOT EXISTS)
+ALTER_COLUMNS = [
+    "ALTER TABLE onz_pipeline_creators ADD COLUMN IF NOT EXISTS country VARCHAR(50) DEFAULT ''",
+    "ALTER TABLE onz_pipeline_creators ADD COLUMN IF NOT EXISTS is_business_account BOOLEAN NULL",
+    "ALTER TABLE onz_pipeline_creators ADD COLUMN IF NOT EXISTS business_category VARCHAR(100) DEFAULT ''",
+    "ALTER TABLE onz_pipeline_creators ADD COLUMN IF NOT EXISTS biography TEXT DEFAULT ''",
+    "ALTER TABLE onz_pipeline_creators ADD COLUMN IF NOT EXISTS is_verified BOOLEAN NULL",
+    "ALTER TABLE onz_pipeline_creators ADD COLUMN IF NOT EXISTS enriched_at TIMESTAMP WITH TIME ZONE NULL",
+    "CREATE INDEX IF NOT EXISTS idx_pipeline_creators_country ON onz_pipeline_creators(country)",
+    "CREATE INDEX IF NOT EXISTS idx_pipeline_creators_is_business ON onz_pipeline_creators(is_business_account)",
+]
+
 if __name__ == "__main__":
     with connection.cursor() as cursor:
         for sql in TABLES:
@@ -203,6 +215,14 @@ if __name__ == "__main__":
             idx_name = sql.split("IF NOT EXISTS ")[1].split(" ON")[0]
             cursor.execute(sql)
             print(f"IDX: {idx_name}")
+
+    with connection.cursor() as cursor:
+        for sql in ALTER_COLUMNS:
+            try:
+                cursor.execute(sql)
+                print(f"COL: {sql.split('ADD COLUMN IF NOT EXISTS ')[-1].split(' ')[0] if 'ADD COLUMN' in sql else sql.split('IF NOT EXISTS ')[-1].split(' ON')[0]}")
+            except Exception as e:
+                print(f"COL-SKIP: {e}")
 
     # Clear stale migration history and re-fake
     with connection.cursor() as cursor:
