@@ -806,6 +806,7 @@ function loadCreators() {
       renderDailyKpi();
       renderInboundQueue();
       renderHilQueue();
+      autoLoadReplyDrafts();
       renderSamples();
       renderContracts();
       loadRecentActivity();
@@ -1131,7 +1132,7 @@ function renderDmQueue() { /* removed — DM Drafts tab handles this now */ }
 var _hilStages = [
   { status: 'draft_ready', label: 'Draft Ready \u2192 Send DM', nextStatus: 'sent', actionFn: 'hilSendDm', icon: '\uD83D\uDCE4', needsCopy: true },
   { status: 'sent', label: 'DM Sent \u2192 Mark Replied', nextStatus: 'replied', icon: '\uD83D\uDCAC' },
-  { status: 'replied', label: 'Replied \u2192 Accept', nextStatus: 'accepted', icon: '\u2705' },
+  { status: 'replied', label: 'Replied \u2014 Draft Reply & Send', actionFn: 'hilReplyDraft', icon: '\u2709\uFE0F' },
   { status: 'accepted', label: 'Accepted \u2192 Send Form', actionFn: 'hilSendForm', icon: '\uD83D\uDCCB' },
   { status: 'form_submitted', label: 'Form \u2192 Send Contract', actionFn: 'hilSendContract', icon: '\uD83D\uDCDD' },
   { status: 'contract_signed', label: 'Signed \u2192 Send Guidelines', nextStatus: 'guidelines_sent', actionFn: 'hilSendGuidelines', icon: '\uD83D\uDCC4' },
@@ -1157,10 +1158,24 @@ function renderHilQueue() {
     html += '</div></div>';
     creators.forEach(function(c) {
       var by = c.triggered_by ? ' <span style="font-size:9px;color:var(--muted)">by ' + c.triggered_by + '</span>' : '';
-      html += '<div class="hil-item"><label><input type="checkbox" class="hil-cb" data-hil="' + stage.status + '" data-username="' + c.username + '" checked>';
+      html += '<div class="hil-item" style="' + (stage.actionFn === 'hilReplyDraft' ? 'flex-direction:column;align-items:stretch' : '') + '">';
+      html += '<label style="display:flex;align-items:center;gap:8px"><input type="checkbox" class="hil-cb" data-hil="' + stage.status + '" data-username="' + c.username + '" checked>';
       html += '<strong style="color:var(--a)">@' + c.username + '</strong>';
       html += '<span style="color:var(--dim)">' + (c.name || '') + '</span>' + by;
-      html += '</label></div>';
+      html += '</label>';
+      // Show reply draft area for replied creators
+      if (stage.actionFn === 'hilReplyDraft') {
+        var lastMsg = c.last_incoming_msg || c.last_reply || '';
+        html += '<div style="margin:6px 0 0 24px;font-size:10px">';
+        if (lastMsg) html += '<div style="background:#f0f9ff;border-radius:6px;padding:6px 10px;margin-bottom:6px;color:#0369a1;border-left:3px solid #0284c7"><b>Incoming:</b> ' + escapeHtml(lastMsg) + '</div>';
+        html += '<textarea id="reply-draft-' + c.username + '" rows="3" placeholder="Loading AI draft..." style="width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;resize:vertical"></textarea>';
+        html += '<div style="display:flex;gap:4px;margin-top:4px">';
+        html += '<button class="btn btn-sm btn-secondary" onclick="generateReplyDraft(\'' + c.username + '\')" style="font-size:9px">🤖 AI Draft</button>';
+        html += '<button class="btn btn-sm btn-success" onclick="sendReplyDm(\'' + c.username + '\')" style="font-size:9px">📤 Send via ManyChat</button>';
+        html += '<button class="btn btn-sm" style="font-size:9px;background:#e0f2fe;color:#0284c7" onclick="updateStatus(\'' + c.username + '\',\'accepted\').then(function(){loadCreators();showToast(\'@' + c.username + ' → Accepted\')})">✅ Accept</button>';
+        html += '</div></div>';
+      }
+      html += '</div>';
     });
     html += '</div>';
   });
@@ -1206,6 +1221,17 @@ function executeHilGroup(status) {
     showToast(handles.length + ' form links copied');
     return;
   }
+  if (stage.actionFn === 'hilReplyDraft') {
+    // Batch: send all checked reply drafts via ManyChat
+    var idx3 = 0;
+    showToast('Sending replies to ' + handles.length + ' creators...');
+    (function nextReply() {
+      if (idx3 >= handles.length) { showToast('Done! ' + handles.length + ' replies sent'); loadCreators(); return; }
+      sendReplyDm(handles[idx3]);
+      idx3++; setTimeout(nextReply, 1000);
+    })();
+    return;
+  }
   if (stage.actionFn === 'hilSendContract') {
     // Switch to contracts tab
     var tab = document.querySelector('.mt>div[data-p="contracts"]');
@@ -1230,6 +1256,75 @@ function executeHilGroup(status) {
       loadCreators();
     }).catch(function() { showToast('Some updates failed', 'err'); });
   }
+}
+
+// ─── Reply Draft & Send ───
+function generateReplyDraft(handle) {
+  var el = document.getElementById('reply-draft-' + handle);
+  if (!el) return;
+  el.value = 'Generating AI draft...';
+  // Fetch DM history, then generate reply based on FAQ + SOP
+  n8nPost({ action: 'dm_log', username: handle }).then(function(logs) {
+    var history = Array.isArray(logs) ? logs : (logs.messages || logs.log || []);
+    var lastIn = '';
+    // Find last incoming message
+    for (var i = history.length - 1; i >= 0; i--) {
+      if (history[i].dir === 'in' || history[i].direction === 'in') {
+        lastIn = history[i].text || history[i].message || '';
+        break;
+      }
+    }
+    // Ask n8n to generate AI reply
+    return n8nPost({
+      action: 'generate_reply',
+      username: handle,
+      last_message: lastIn,
+      history: history.slice(-6)
+    });
+  }).then(function(res) {
+    var draft = res.reply || res.draft || res.dm_draft || '';
+    if (draft) {
+      el.value = draft;
+      showToast('AI draft ready for @' + handle);
+    } else {
+      el.value = '';
+      el.placeholder = 'AI draft failed — write manually';
+    }
+  }).catch(function() {
+    el.value = '';
+    el.placeholder = 'Error loading — write manually';
+  });
+}
+
+function sendReplyDm(handle) {
+  var el = document.getElementById('reply-draft-' + handle);
+  var text = el ? el.value.trim() : '';
+  if (!text) { showToast('No reply text for @' + handle, 'err'); return; }
+
+  n8nPost({
+    action: 'send_dm',
+    username: handle,
+    message: text,
+    sent_by: _currentUser || 'dashboard'
+  }).then(function(res) {
+    if (res.status === 'ok' || res.sent) {
+      showToast('Reply sent to @' + handle + ' via ManyChat');
+      // Log outgoing DM
+      n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
+    } else {
+      showToast('Send failed: ' + (res.message || 'unknown'), 'err');
+    }
+  }).catch(function() {
+    showToast('Failed to send DM to @' + handle, 'err');
+  });
+}
+
+// Auto-generate reply drafts when HiL renders
+function autoLoadReplyDrafts() {
+  var replied = _creators.filter(function(c) { return c.status === 'replied'; });
+  replied.forEach(function(c) {
+    setTimeout(function() { generateReplyDraft(c.username); }, 500);
+  });
 }
 
 // ─── Dashboard: Inbound Queue ───
