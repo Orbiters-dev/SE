@@ -21,7 +21,7 @@ on:
 jobs:
   apify-pipeline:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 120
 
     steps:
       - name: Checkout repo
@@ -83,6 +83,7 @@ jobs:
 
       - name: Run Apify pipeline
         id: pipeline
+        if: github.event.inputs.backfill_enrich != 'true'
         env:
           APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
         run: |
@@ -96,6 +97,7 @@ jobs:
           $CMD
 
       - name: JP Discovery Pipeline (Apify → PG)
+        if: github.event.inputs.backfill_enrich != 'true'
         id: jp_discovery
         env:
           APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
