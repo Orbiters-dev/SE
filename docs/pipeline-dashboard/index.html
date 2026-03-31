@@ -490,6 +490,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <div id="date-count-hint" style="font-size:10px;color:var(--g);padding:2px 0 4px 145px;display:none"></div>
         <div class="form-row"><label>Batch Size</label><input type="number" id="f-creators-contacted" min="1" max="500" step="1" oninput="var l=document.getElementById('alloc-batch-label');if(l)l.textContent=this.value;updateAllocation()"></div>
         <div class="form-row"><label>HT Threshold (R30D)</label><input type="number" id="f-ht-threshold" min="0" step="10000"></div>
+        <div class="form-row"><label>HT Min Followers</label><input type="number" id="f-ht-follower-min" min="0" step="5000"></div>
       </div>
       <div class="card">
         <h3>&#x1F527; Feature Toggles</h3>
@@ -1704,6 +1705,7 @@ function populateConfigForm(c){
   toggleAllDates(!!c.start_from_beginning);
   document.getElementById('f-creators-contacted').value=c.creators_contacted;
   document.getElementById('f-ht-threshold').value=c.ht_threshold;
+  document.getElementById('f-ht-follower-min').value=c.ht_follower_min||50000;
   document.getElementById('f-rag-dedup').checked=c.rag_email_dedup;
   document.getElementById('f-apify-autofill').checked=c.apify_autofill;
   document.getElementById('f-apify-brand-filter').checked=c.apify_brand_filter!==false;
@@ -1740,6 +1742,7 @@ function collectConfigForm(){
     start_from_beginning:document.getElementById('f-start-beginning').checked,
     creators_contacted:parseInt(document.getElementById('f-creators-contacted').value)||10,
     ht_threshold:parseInt(document.getElementById('f-ht-threshold').value)||100000,
+    ht_follower_min:parseInt(document.getElementById('f-ht-follower-min').value)||50000,
     rag_email_dedup:document.getElementById('f-rag-dedup').checked,
     apify_autofill:document.getElementById('f-apify-autofill').checked,
     apify_brand_filter:document.getElementById('f-apify-brand-filter').checked,

@@ -621,6 +621,8 @@ def get_or_save_pipeline_config(request, config_date):
         defaults["creators_contacted"] = int(body["creators_contacted"])
     if "ht_threshold" in body:
         defaults["ht_threshold"] = int(body["ht_threshold"])
+    if "ht_follower_min" in body:
+        defaults["ht_follower_min"] = int(body["ht_follower_min"])
     # Feature toggles
     for field in ("rag_email_dedup", "apify_autofill"):
         if field in body:
@@ -1290,13 +1292,17 @@ def import_syncly_discovery(request):
     skipped = 0
     imported = []
 
-    # Read HT threshold from config (R30D views)
-    ht_threshold = 100000
+    # Read HT thresholds from config
+    ht_threshold = 100000   # R30D views
+    ht_follower_min = 50000  # Minimum followers
     try:
         from datetime import date as _date
         latest_cfg = PipelineConfig.objects.order_by('-date').first()
-        if latest_cfg and latest_cfg.ht_threshold:
-            ht_threshold = latest_cfg.ht_threshold
+        if latest_cfg:
+            if latest_cfg.ht_threshold:
+                ht_threshold = latest_cfg.ht_threshold
+            if latest_cfg.ht_follower_min:
+                ht_follower_min = latest_cfg.ht_follower_min
     except Exception:
         pass
 
@@ -1344,8 +1350,8 @@ def import_syncly_discovery(request):
             # Estimate R30D views from followers if not available
             est_r30d = int((followers or 0) * (0.15 if "tiktok" in plat else 0.08))
 
-            # HT = followers >= 50K AND R30D views >= ht_threshold (100K)
-            is_ht = (followers or 0) >= 50000 and est_r30d >= ht_threshold
+            # HT = followers >= ht_follower_min AND R30D views >= ht_threshold
+            is_ht = (followers or 0) >= ht_follower_min and est_r30d >= ht_threshold
 
             creator = PipelineCreator.objects.create(
                 email=email,

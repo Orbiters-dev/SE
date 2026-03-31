@@ -201,7 +201,8 @@ class PipelineConfig(models.Model):
     update_date = models.DateField(null=True, blank=True)
     start_from_beginning = models.BooleanField(default=False)
     creators_contacted = models.IntegerField(default=10)
-    ht_threshold = models.IntegerField(default=100000)
+    ht_threshold = models.IntegerField(default=100000)       # R30D views
+    ht_follower_min = models.IntegerField(default=50000)     # Minimum followers for HT
     # Feature toggles
     rag_email_dedup = models.BooleanField(default=True)
     apify_autofill = models.BooleanField(default=True)
