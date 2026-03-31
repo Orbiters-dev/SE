@@ -89,6 +89,26 @@ jobs:
           echo "Running: $CMD"
           $CMD
 
+      - name: JP Discovery Pipeline (Apify → PG)
+        id: jp_discovery
+        env:
+          APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
+          ORBITOOLS_USER: ${{ secrets.ORBITOOLS_USER }}
+          ORBITOOLS_PASS: ${{ secrets.ORBITOOLS_PASS }}
+        run: |
+          mkdir -p "Data Storage/discovery"
+          # Fetch JP discovery posts (3 hashtags, 1 day lookback)
+          python -u tools/fetch_jp_discovery.py --days 1 --no-sheet
+          # Sync to PG via orbitools API
+          TODAY=$(date -u +%Y-%m-%d)
+          for f in "Data Storage/discovery/${TODAY}_jp_ig_discovery.json" "Data Storage/discovery/${TODAY}_jp_tt_discovery.json"; do
+            if [ -f "$f" ]; then
+              echo "Syncing $f to PG..."
+              python -u tools/sync_discovery_to_pg.py --json "$f" --region jp
+            fi
+          done
+        continue-on-error: true
+
       - name: Fetch Shopify influencer orders
         id: fetch_orders
         run: python -u tools/fetch_influencer_orders.py
@@ -123,6 +143,7 @@ jobs:
           ORDERS_OUTCOME:   ${{ steps.fetch_orders.outcome }}
           SNS_OUTCOME:      ${{ steps.sns_us.outcome }}
           USA_LLM_OUTCOME:  ${{ steps.usa_llm.outcome }}
+          JP_DISCOVERY_OUTCOME: ${{ steps.jp_discovery.outcome }}
         continue-on-error: true
 
       - name: Save .tmp state cache
@@ -140,4 +161,5 @@ jobs:
           name: apify-data-${{ github.run_id }}
           path: |
             Data Storage/apify/*.json
+            Data Storage/discovery/*.json
           retention-days: 7

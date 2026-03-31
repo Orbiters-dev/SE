@@ -64,15 +64,12 @@ RAPIDAPI_HOST = os.getenv("RAPIDAPI_IG_HOST", "instagram-scraper-stable-api.p.ra
 IG_HASHTAG_SCRAPER = "apify/instagram-hashtag-scraper"
 TT_SCRAPER = "clockworks/free-tiktok-scraper"
 
-# JP parenting keywords
+# JP parenting keywords (core 3 — covers 90%+ of relevant posts)
 JP_HASHTAGS_IG = [
-    "育児", "育児グッズ", "育児アイテム", "ベビー用品",
-    "お母さん", "子育て", "赤ちゃん", "赤ちゃんのいる生活",
-    "ストローマグ", "離乳食", "新米ママ",
+    "育児", "ベビー用品", "子育て",
 ]
 JP_KEYWORDS_TT = [
-    "育児", "育児グッズ", "ベビー用品", "子育て",
-    "赤ちゃん", "ストローマグ", "離乳食",
+    "育児", "ベビー用品", "子育て",
 ]
 
 # Exclude brand/store accounts
@@ -442,7 +439,7 @@ def main():
     parser.add_argument("--tt-only", action="store_true")
     parser.add_argument("--hashtags", help="Comma-separated IG hashtags")
     parser.add_argument("--tt-keywords", help="Comma-separated TikTok keywords")
-    parser.add_argument("--days", type=int, default=7, help="Days back to search")
+    parser.add_argument("--days", type=int, default=1, help="Days back to search (default: 1 for daily runs)")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--tab", help="Sheet tab name (default: auto-generated)")
     parser.add_argument("--no-sheet", action="store_true", help="Skip sheet writes")
