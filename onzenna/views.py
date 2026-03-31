@@ -784,8 +784,10 @@ def sync_gmail_contacts(request):
 # --- Pipeline Creators (CRM Dashboard) ---
 
 
-def _serialize_creator(obj):
-    """Serialize PipelineCreator / PipelineExecutionLog to dict."""
+def _serialize_creator(obj, discovery_data=None):
+    """Serialize PipelineCreator / PipelineExecutionLog to dict.
+    discovery_data: optional dict with posts_count, best_views, latest_post_date, d_plus from DiscoveryPost aggregates.
+    """
     data = {}
     for field in obj._meta.fields:
         val = getattr(obj, field.name)
@@ -796,7 +798,77 @@ def _serialize_creator(obj):
         elif hasattr(val, 'isoformat'):
             val = val.isoformat() if val else None
         data[field.name] = val
+    if discovery_data:
+        data.update(discovery_data)
     return data
+
+
+def _get_discovery_aggregates(handles, include_posts=False):
+    """Fetch DiscoveryPost aggregates for a list of handles.
+    Returns dict: {handle_lower: {posts_count, best_views, latest_post_date, d_plus, ...}}
+    If include_posts=True, also includes full post details (for detail view).
+    """
+    if not handles:
+        return {}
+    from django.db.models import Count, Max, Sum
+    from datetime import date as date_cls
+
+    agg = (
+        DiscoveryPost.objects
+        .filter(handle__in=handles)
+        .values("handle")
+        .annotate(
+            posts_count=Count("id"),
+            best_views=Max("views"),
+            total_views=Sum("views"),
+            total_likes=Sum("likes"),
+            total_comments=Sum("comments_count"),
+            latest_post_date=Max("post_date"),
+        )
+    )
+    result = {}
+    today = date_cls.today()
+    for row in agg:
+        h = (row["handle"] or "").lower()
+        d_plus = None
+        if row["latest_post_date"]:
+            d_plus = (today - row["latest_post_date"]).days
+        result[h] = {
+            "posts_count": row["posts_count"] or 0,
+            "best_views": row["best_views"],
+            "total_views": row["total_views"],
+            "total_likes": row["total_likes"],
+            "total_comments": row["total_comments"],
+            "latest_post_date": row["latest_post_date"].isoformat() if row["latest_post_date"] else None,
+            "d_plus": d_plus,
+        }
+
+    # Include full post details for detail/single-creator views
+    if include_posts:
+        posts_by_handle = {}
+        posts_qs = (
+            DiscoveryPost.objects
+            .filter(handle__in=handles)
+            .order_by("-views")
+            .values("id", "handle", "url", "platform", "post_date",
+                    "caption", "hashtags", "mentions", "transcript",
+                    "followers", "views", "likes", "comments_count",
+                    "content_type", "source", "outreach_status")
+        )
+        for p in posts_qs:
+            h = (p["handle"] or "").lower()
+            if h not in posts_by_handle:
+                posts_by_handle[h] = []
+            pd = dict(p)
+            pd["id"] = str(pd["id"])
+            if pd.get("post_date"):
+                pd["post_date"] = pd["post_date"].isoformat()
+            posts_by_handle[h].append(pd)
+
+        for h in result:
+            result[h]["discovery_posts"] = posts_by_handle.get(h, [])
+
+    return result
 
 
 @csrf_exempt
@@ -914,10 +986,25 @@ def pipeline_creators_list(request):
     limit = int(request.GET.get("limit", 50))
     total = qs.count()
     offset = (page - 1) * limit
-    creators = qs[offset:offset + limit]
+    creators = list(qs[offset:offset + limit])
+
+    # Annotate with DiscoveryPost aggregates (posts_count, best_views, latest_post, D+)
+    handles = []
+    for c in creators:
+        if c.ig_handle:
+            handles.append(c.ig_handle.lower())
+        if c.tiktok_handle:
+            handles.append(c.tiktok_handle.lower())
+    disc_agg = _get_discovery_aggregates(handles)
+
+    results = []
+    for c in creators:
+        h = (c.ig_handle or c.tiktok_handle or "").lower()
+        disc = disc_agg.get(h, {})
+        results.append(_serialize_creator(c, discovery_data=disc))
 
     return _cors_headers(request, JsonResponse({
-        "results": [_serialize_creator(c) for c in creators],
+        "results": results,
         "total": total,
         "page": page,
         "limit": limit,
@@ -935,6 +1022,11 @@ def pipeline_creator_detail(request, creator_id):
         creator = PipelineCreator.objects.get(id=creator_id)
     except PipelineCreator.DoesNotExist:
         return _cors_headers(request, JsonResponse({"error": "Creator not found"}, status=404))
+
+    # Get discovery aggregates for this creator (include full posts for detail view)
+    h = (creator.ig_handle or creator.tiktok_handle or "").lower()
+    disc_agg = _get_discovery_aggregates([h], include_posts=True) if h else {}
+    disc = disc_agg.get(h, {})
 
     if request.method == 'PUT':
         body = _json_body(request)
@@ -973,10 +1065,10 @@ def pipeline_creator_detail(request, creator_id):
                 changed_by=body.get("changed_by", "dashboard"),
             )
 
-        return _cors_headers(request, JsonResponse(_serialize_creator(creator)))
+        return _cors_headers(request, JsonResponse(_serialize_creator(creator, discovery_data=disc)))
 
     # GET
-    return _cors_headers(request, JsonResponse(_serialize_creator(creator)))
+    return _cors_headers(request, JsonResponse(_serialize_creator(creator, discovery_data=disc)))
 
 
 @csrf_exempt
@@ -1193,6 +1285,12 @@ def import_syncly_discovery(request):
             # Clean handle (remove @)
             handle = (username or "").lstrip("@").strip()
             if not handle:
+                skipped += 1
+                continue
+
+            # Validate handle — reject non-Latin characters (Japanese text, emoji, etc.)
+            import re
+            if not re.match(r'^[a-zA-Z0-9._]+$', handle):
                 skipped += 1
                 continue
 
@@ -1520,6 +1618,21 @@ def discovery_posts_list(request):
             qs = qs.filter(discovery_batch=batch)
         if min_followers:
             qs = qs.filter(followers__gte=int(min_followers))
+        min_views = request.GET.get("min_views")
+        if min_views:
+            qs = qs.filter(views__gte=int(min_views))
+
+        # Sorting: order_by = followers | views | likes | date (default: -post_date, -followers)
+        order_by = request.GET.get("order_by", "")
+        if order_by == "followers":
+            qs = qs.order_by("-followers")
+        elif order_by == "views":
+            qs = qs.order_by("-views")
+        elif order_by == "likes":
+            qs = qs.order_by("-likes")
+        elif order_by == "date":
+            qs = qs.order_by("-post_date")
+        # else: default ordering from model Meta (-post_date, -followers)
 
         page = int(request.GET.get("page", 1))
         limit = min(int(request.GET.get("limit", 50)), 500)
@@ -1613,9 +1726,17 @@ def discovery_post_detail(request, post_id):
     if request.method == 'PUT':
         body = _json_body(request)
         for field in ("outreach_status", "outreach_email", "outreach_date",
-                      "outreach_notes", "pipeline_creator_id", "transcript"):
+                      "outreach_notes", "pipeline_creator_id", "transcript",
+                      "followers", "views", "likes", "comments_count"):
             if field in body:
-                setattr(post, field, body[field] if body[field] else (None if "id" in field or "date" in field else ""))
+                val = body[field]
+                if field in ("pipeline_creator_id",) and not val:
+                    val = None
+                elif field in ("outreach_date",) and not val:
+                    val = None
+                elif field in ("followers", "views", "likes", "comments_count"):
+                    val = int(val) if val else None
+                setattr(post, field, val)
         post.save()
         return _cors_headers(request, JsonResponse(_serialize(post)))
 
@@ -1649,4 +1770,45 @@ def discovery_posts_stats(request):
         "by_status": by_status,
         "by_platform": by_platform,
         "by_batch": by_batch,
+    }))
+
+
+@csrf_exempt
+def discovery_posts_bulk_update(request):
+    """POST: Bulk update fields by handle (e.g., enrich followers for all posts by a creator).
+
+    Body: {"updates": [{"handle": "xxx", "platform": "instagram", "followers": 12345}, ...]}
+    """
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method != 'POST':
+        return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
+
+    body = _json_body(request)
+    updates = body.get("updates", [])
+    total_updated = 0
+
+    for u in updates:
+        handle = u.get("handle", "").strip()
+        if not handle:
+            continue
+
+        qs = DiscoveryPost.objects.filter(handle__iexact=handle)
+        platform = u.get("platform")
+        if platform:
+            qs = qs.filter(platform__iexact=platform)
+
+        update_fields = {}
+        for f in ("followers", "views", "likes", "comments_count"):
+            if f in u and u[f] is not None:
+                update_fields[f] = int(u[f])
+
+        if update_fields:
+            count = qs.update(**update_fields)
+            total_updated += count
+
+    return _cors_headers(request, JsonResponse({
+        "updated_posts": total_updated,
+        "handles_processed": len(updates),
     }))

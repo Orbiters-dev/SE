@@ -2215,7 +2215,7 @@ function exportSamples() {
 }
 
 // ═══ INFLUENCER SHEET ═══
-var DISCOVERY_SHEET = 'https://docs.google.com/spreadsheets/d/1mYofqMBYqIHS3XNQ29vDA__SzYBfkkGCPn3Jb8OxAkY/export?format=csv&gid=274663555';
+var DISCOVERY_API = 'https://orbitools.orbiters.co.kr/api/onzenna/discovery/posts/?region=jp&limit=5000';
 var _sheetData = []; // combined: _creators + discovery (deduped by handle)
 var _sheetSort = { key: 'username', asc: true };
 var _sheetPage = 0;
@@ -2226,18 +2226,39 @@ function loadInfluencerSheet() {
   if (_sheetLoading) return;
   _sheetLoading = true;
   var countEl = document.getElementById('sheet-count');
-  if (countEl) countEl.innerHTML = '<span class="loading-spinner" style="width:10px;height:10px"></span> Loading discovery sheet...';
+  if (countEl) countEl.innerHTML = '<span class="loading-spinner" style="width:10px;height:10px"></span> Loading discovery data...';
 
-  fetch(DISCOVERY_SHEET).then(function(r) { return r.text(); }).then(function(csv) {
-    var rows = parseCSV(csv);
-    mergeSheetData(rows);
-    _sheetLoading = false;
-  }).catch(function(e) {
-    console.error('Discovery sheet fetch failed:', e);
-    if (countEl) countEl.textContent = 'Failed to load discovery sheet — showing pipeline only';
-    mergeSheetData([]);
-    _sheetLoading = false;
-  });
+  var u = localStorage.getItem('dk_user') || 'admin';
+  var p = localStorage.getItem('dk_pass') || '';
+  fetch(DISCOVERY_API, { headers: { 'Authorization': 'Basic ' + btoa(u + ':' + p) } })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var rows = (data.results || []).map(function(p) {
+        return {
+          'Handle': p.handle || '',
+          'Full Name': p.full_name || '',
+          'Views': p.views || 0,
+          'Likes': p.likes || 0,
+          'Comments Count': p.comments_count || 0,
+          'Followers': p.followers || 0,
+          'Date': (p.post_date || '').slice(0, 10),
+          'URL': p.url || '',
+          'Platform': p.platform || 'instagram',
+          'Source': p.source || '',
+          'Email': p.outreach_email || '',
+          'Caption': p.caption || '',
+          'Hashtags': p.hashtags || '',
+          'Transcript': p.transcript || ''
+        };
+      });
+      mergeSheetData(rows);
+      _sheetLoading = false;
+    }).catch(function(e) {
+      console.error('Discovery API fetch failed:', e);
+      if (countEl) countEl.textContent = 'Failed to load discovery data — showing pipeline only';
+      mergeSheetData([]);
+      _sheetLoading = false;
+    });
 }
 
 function parseCSV(text) {
@@ -2302,7 +2323,7 @@ function mergeSheetData(discoveryRows) {
     var url = row['URL'] || '';
     var platform = (row['Platform'] || 'instagram').toLowerCase();
 
-    var post = { url: url, date: date, views: views, likes: likes, comments: comments, platform: platform, source: row['Source'] || '' };
+    var post = { url: url, date: date, views: views, likes: likes, comments: comments, platform: platform, source: row['Source'] || '', caption: row['Caption'] || '', hashtags: row['Hashtags'] || '', transcript: row['Transcript'] || '' };
 
     if (map[handle]) {
       // Existing — update aggregates
@@ -2411,8 +2432,10 @@ function renderSheet() {
     html += '<tr style="' + (contacted ? 'background:#fef2f2' : '') + '">';
     // Contacted indicator
     html += '<td style="text-align:center">' + (contacted ? '<span title="Already contacted" style="color:var(--r);font-size:14px">🚫</span>' : '<span style="color:var(--g);font-size:12px">⭕</span>') + '</td>';
-    // Handle
+    // Handle (click to expand posts detail)
+    var detailId = 'detail-' + escapeHtml(c.username).replace(/[^a-zA-Z0-9]/g, '_');
     html += '<td><a href="https://instagram.com/' + encodeURIComponent(c.username) + '" target="_blank" style="color:var(--a);font-weight:600;font-size:11px">@' + escapeHtml(c.username) + '</a>';
+    if (c._posts && c._posts.length > 0) html += ' <span onclick="togglePostDetail(\'' + detailId + '\')" style="cursor:pointer;font-size:9px;color:var(--dim)" title="View posts">▼</span>';
     if (c.name) html += '<div style="font-size:9px;color:var(--dim)">' + escapeHtml(c.name) + '</div>';
     if (c.email) html += '<div style="font-size:8px;color:var(--dim)">✉ ' + escapeHtml(c.email) + '</div>';
     html += '</td>';
@@ -2445,6 +2468,28 @@ function renderSheet() {
     }
     html += '</td>';
     html += '</tr>';
+
+    // Expandable post details row (caption, hashtags, transcript, comments per post)
+    if (c._posts && c._posts.length > 0) {
+      var rowId = 'detail-' + escapeHtml(c.username).replace(/[^a-zA-Z0-9]/g, '_');
+      html += '<tr id="' + rowId + '" style="display:none"><td colspan="12" style="padding:4px 12px 12px;background:#f8fafc;border-left:3px solid var(--a)">';
+      c._posts.forEach(function(post, pi) {
+        html += '<div style="margin-bottom:8px;padding:8px;background:#fff;border:1px solid var(--border);border-radius:6px">';
+        html += '<div style="display:flex;gap:12px;align-items:center;margin-bottom:4px">';
+        html += '<span style="font-weight:700;font-size:10px;color:var(--a)">Post ' + (pi+1) + '</span>';
+        html += '<span style="font-size:9px;color:var(--dim)">' + (post.date || '') + '</span>';
+        html += '<span style="font-family:var(--mono);font-size:9px">👁 ' + (post.views ? Number(post.views).toLocaleString() : '0') + '</span>';
+        html += '<span style="font-family:var(--mono);font-size:9px">❤ ' + (post.likes ? Number(post.likes).toLocaleString() : '0') + '</span>';
+        html += '<span style="font-family:var(--mono);font-size:9px">💬 ' + (post.comments ? Number(post.comments).toLocaleString() : '0') + '</span>';
+        if (post.url) html += '<a href="' + escapeHtml(post.url) + '" target="_blank" style="font-size:9px;color:var(--a)">🔗 Link</a>';
+        html += '</div>';
+        if (post.caption) html += '<div style="font-size:10px;margin:4px 0;line-height:1.4;max-height:60px;overflow:auto"><b>Caption:</b> ' + escapeHtml(post.caption.substring(0, 300)) + '</div>';
+        if (post.hashtags) html += '<div style="font-size:9px;color:var(--a);margin:2px 0"><b>Tags:</b> ' + escapeHtml(post.hashtags.substring(0, 200)) + '</div>';
+        if (post.transcript) html += '<div style="font-size:9px;color:var(--dim);margin:2px 0"><b>Transcript:</b> ' + escapeHtml(post.transcript.substring(0, 200)) + '</div>';
+        html += '</div>';
+      });
+      html += '</td></tr>';
+    }
   });
 
   document.getElementById('sheet-body').innerHTML = html || '<tr><td colspan="12" style="text-align:center;padding:30px;color:var(--dim)">No influencers found.</td></tr>';
@@ -2467,6 +2512,11 @@ function goToCreator(handle) {
   var tab = document.querySelector('.mt>div[data-p="creators"]');
   if (tab) tab.click();
   renderCreators();
+}
+
+function togglePostDetail(rowId) {
+  var row = document.getElementById(rowId);
+  if (row) row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
 }
 
 function addToPipeline(handle) {
