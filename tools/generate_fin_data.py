@@ -2924,9 +2924,21 @@ def generate():
         cutoff_30d = (today - timedelta(days=30)).isoformat()
 
         # ── ASIN → Product Category classification ────────────────────────
+        # Products to exclude from all categories (not meaningful for hero view)
+        EXCLUDE_NAMES = {
+            "grosmimi eco friendly 304 stainless steel toddler kid feeding divided plate",
+            "grosmimi spout",
+        }
+
         def _classify_asin(name, brand):
             """Classify ASIN product_name into product category."""
             t = (name or "").lower()
+            # Exclude specific products
+            if any(e in t for e in EXCLUDE_NAMES):
+                return "Other"
+            # Alpremio brand (separate brand, not Grosmimi)
+            if "alpremio" in t or brand == "Alpremio":
+                return "Alpremio"
             if brand == "Grosmimi" or "grosmimi" in t:
                 if "stainless" in t and "tumbler" in t:     return "Stainless Tumbler"
                 if "stainless" in t:                        return "Stainless Straw Cup"
@@ -2941,14 +2953,17 @@ def generate():
                 if "cream" in t:            return "Baby Cream"
                 return "Moisturizer"  # default CHA&MOM
             if "naeiae" in t or brand == "Naeiae":
-                return "Rice Puff"
+                # Keep only rice puff / pop rice snack; exclude anything else
+                if "pop rice" in t or "rice snack" in t or "rice puff" in t:
+                    return "Rice Puff"
+                return "Other"
             return "Other"
 
         # ── 1. Aggregate sales by product category ────────────────────────
         EXCLUDE_CATS = {"Accessories", "Other"}  # Accessories = repeat purchases, not search/content driven
         GROSMIMI_CATEGORIES = ["PPSU Straw Cup", "Stainless Straw Cup", "PPSU Tumbler", "Stainless Tumbler", "PPSU Baby Bottle"]
         CHAMOM_CATEGORIES = ["Moisturizer", "Body Wash", "Baby Cream"]
-        ALL_CATEGORIES = GROSMIMI_CATEGORIES + CHAMOM_CATEGORIES + ["Rice Puff"]
+        ALL_CATEGORIES = GROSMIMI_CATEGORIES + CHAMOM_CATEGORIES + ["Rice Puff", "Alpremio"]
 
         cutoff_90d = (today - timedelta(days=90)).isoformat()
 
@@ -3200,6 +3215,7 @@ def generate():
             "CHA&MOM": ["cha and mom", "chamom", "cha&mom"],
             "Naeiae": ["naeiae", "pop rice"],
             "Onzenna": ["onzenna"],
+            "Alpremio": ["alpremio"],
         }
         # Build brand → {date → total_impressions}
         brand_gsc_daily = defaultdict(lambda: defaultdict(int))
