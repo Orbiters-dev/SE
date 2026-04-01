@@ -3123,6 +3123,7 @@ function _weekSunday(dateStr){
 
 var _weekGroups=[];
 var _dateCountMap={};
+var _dateEmailMap={};
 var _weekDateMap={};
 
 function _buildWeekGroups(dateMap){
@@ -3208,6 +3209,7 @@ async function pullDiscoveryDates(){
     var stats=await apiFetch('/pipeline/creators/stats/');
     if(DEMO_MODE&&wasDemoMode){showToast('API \uC5F0\uACB0 \uC2E4\uD328 — DEMO \uB370\uC774\uD130 \uD45C\uC2DC \uC911','err');return}
     var dateMap=stats.by_discovery_date||{};
+    var emailMap=stats.by_discovery_date_with_email||{};
     // Fallback: if server doesn't have by_discovery_date yet, fetch page 1
     if(Object.keys(dateMap).length===0){
       try{
@@ -3215,12 +3217,14 @@ async function pullDiscoveryDates(){
         (fallback.results||[]).forEach(function(c){
           var dd=c.initial_discovery_date||(c.created_at||'').slice(0,10);
           if(dd)dateMap[dd]=(dateMap[dd]||0)+1;
+          if(dd&&c.email&&!c.email.includes('@discovered.'))emailMap[dd]=(emailMap[dd]||0)+1;
         });
       }catch(e2){}
     }
     var totalNotStarted=0;
     Object.keys(dateMap).forEach(function(k){totalNotStarted+=dateMap[k]});
     _dateCountMap=dateMap;
+    _dateEmailMap=emailMap;
     var groups=_buildWeekGroups(dateMap);
     var dates=Object.keys(dateMap).filter(function(d){return d.match(/^\d{4}-\d{2}-\d{2}$/)});
     _discoveryDates=dates;
@@ -3238,11 +3242,13 @@ async function onDiscoveryDateSelect(val){
   var group=_weekGroups.find(function(g){return g.key===val});
   if(group){
     var cnt=group.count;
+    var emailCnt=group.dates.reduce(function(s,d){return s+(_dateEmailMap[d]||0)},0);
     document.getElementById('f-creators-contacted').value=cnt;
     var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
     updateAllocation();
     if(hintEl){
-      hintEl.textContent='\u2713 '+group.label+' \u2014 '+cnt+'\uBA85 ('+group.dates.length+'\uC77C\uAC04 \uBC1C\uACAC) \u2192 Batch Size \uC790\uB3D9 \uC124\uC815';
+      var emailTxt=emailCnt>0?' | 이메일 보유 <b>'+emailCnt+'명</b>':'';
+      hintEl.innerHTML='\u2713 '+group.label+' \u2014 Not Started <b>'+cnt+'\uBA85</b> ('+group.dates.length+'\uC77C\uAC04)'+emailTxt+' \u2192 Batch Size \uC790\uB3D9 \uC124\uC815';
       hintEl.style.color='var(--g)';hintEl.style.display='block';
     }
     return;
@@ -3250,10 +3256,15 @@ async function onDiscoveryDateSelect(val){
   // Fallback: raw date
   if(_dateCountMap[val]!==undefined){
     var cnt=_dateCountMap[val];
+    var emailCnt=_dateEmailMap[val]||0;
     document.getElementById('f-creators-contacted').value=cnt;
     var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
     updateAllocation();
-    if(hintEl){hintEl.textContent='\u2713 '+val+' \u2014 Not Started '+cnt+'\uBA85';hintEl.style.display='block'}
+    if(hintEl){
+      var emailTxt=emailCnt>0?' | 이메일 보유 <b>'+emailCnt+'명</b>':'';
+      hintEl.innerHTML='\u2713 '+val+' \u2014 Not Started <b>'+cnt+'\uBA85</b>'+emailTxt;
+      hintEl.style.color='var(--g)';hintEl.style.display='block';
+    }
     return;
   }
   if(hintEl){hintEl.textContent='\uC870\uD68C \uC911...';hintEl.style.display='block';hintEl.style.color='var(--muted)'}
@@ -3264,7 +3275,7 @@ async function onDiscoveryDateSelect(val){
     document.getElementById('f-creators-contacted').value=cnt;
     var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
     updateAllocation();
-    if(hintEl){hintEl.textContent='\u2713 '+val+' \u2014 Not Started '+cnt+'\uBA85';hintEl.style.color='var(--g)';hintEl.style.display='block'}
+    if(hintEl){hintEl.innerHTML='\u2713 '+val+' \u2014 Not Started <b>'+cnt+'\uBA85</b>';hintEl.style.color='var(--g)';hintEl.style.display='block'}
   }catch(e){if(hintEl){hintEl.textContent='\uC870\uD68C \uC2E4\uD328';hintEl.style.color='var(--r)'}}
 }
 

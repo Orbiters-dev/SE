@@ -1188,6 +1188,16 @@ def pipeline_creators_stats(request):
     # Convert date keys to strings
     discovery_dates = {str(k): v for k, v in discovery_date_counts.items() if k}
 
+    # Discovery date breakdown for Not Started creators WITH real email
+    discovery_date_email_counts = dict(
+        PipelineCreator.objects.filter(pipeline_status='Not Started')
+        .exclude(Q(email__isnull=True) | Q(email='') | Q(email__endswith='@discovered.syncly'))
+        .values_list('initial_discovery_date')
+        .annotate(c=Count('id'))
+        .values_list('initial_discovery_date', 'c')
+    )
+    discovery_dates_with_email = {str(k): v for k, v in discovery_date_email_counts.items() if k}
+
     return _cors_headers(request, JsonResponse({
         "total": total,
         "by_status": status_counts,
@@ -1197,6 +1207,7 @@ def pipeline_creators_stats(request):
         "by_type": type_counts,
         "new_this_week": new_this_week,
         "by_discovery_date": discovery_dates,
+        "by_discovery_date_with_email": discovery_dates_with_email,
     }))
 
 
