@@ -69,6 +69,26 @@
             "timeout": 3
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/c/Users/wjcho/AppData/Local/Programs/Python/Python312/python.exe \"C:/Users/wjcho/Desktop/WJ Test1/tools/codex_error_debugger.py\"",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/c/Users/wjcho/AppData/Local/Programs/Python/Python312/python.exe \"C:/Users/wjcho/Desktop/WJ Test1/tools/codex_code_reviewer.py\"",
+            "timeout": 30
+          }
+        ]
       }
     ]
   }
