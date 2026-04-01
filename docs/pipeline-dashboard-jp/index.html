@@ -325,6 +325,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         <option value="manual_dm">Manual DM</option>
       </select>
       <button class="btn btn-sm btn-secondary" onclick="showImportModal()">&#x1F4E5; Import</button>
+      <button class="btn btn-sm" style="background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;font-weight:600" onclick="showSheetBatchModal()">&#x1F4CB; Sheet&#xC5D0;&#xC11C; &#xCD94;&#xAC00;</button>
       <span id="creator-count" style="font-size:11px;color:var(--dim)">0 creators</span>
     </div>
     <!-- Execute bar for creators tab -->
@@ -696,6 +697,25 @@ or JSON:
       <button class="btn btn-primary" id="btn-import" onclick="importCreators()">&#x1F4E5; Import</button>
     </div>
     <div id="import-status" style="font-size:11px;color:var(--dim);margin-top:8px"></div>
+  </div>
+</div>
+
+<!-- Sheet Batch Modal -->
+<div id="sheet-batch-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 0" onclick="if(event.target===this)closeSheetBatchModal()">
+  <div style="background:var(--card);border-radius:16px;width:92%;max-width:680px;padding:24px;box-shadow:0 16px 48px rgba(0,0,0,.15);margin:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <h3 style="font-size:14px;font-weight:700">&#x1F4CB; Sheet에서 Creators로 추가</h3>
+      <button onclick="closeSheetBatchModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--dim)">&times;</button>
+    </div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:16px">파이프라인에 없는 크리에이터를 포스트 주차별로 묶어 추가합니다.</div>
+    <div id="sheet-batch-body" style="max-height:60vh;overflow-y:auto"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px">
+      <span id="sheet-batch-status" style="font-size:11px;color:var(--dim)"></span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary" onclick="closeSheetBatchModal()">닫기</button>
+        <button class="btn btn-primary" id="btn-sheet-batch-add" onclick="confirmSheetBatchAdd()" style="background:#16a34a">&#x2705; 선택 추가</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2047,6 +2067,116 @@ function importCreators() {
       document.getElementById('import-status').textContent = 'Error: ' + err.message;
       btn.disabled = false;
       showToast('Import failed', 'err');
+    });
+}
+
+// ─── Sheet Batch Add ───
+function getISOWeek(dateStr) {
+  if (!dateStr) return 'Unknown';
+  var d = new Date(dateStr);
+  if (isNaN(d)) return 'Unknown';
+  var day = d.getDay() || 7;
+  d.setDate(d.getDate() + 4 - day);
+  var yearStart = new Date(d.getFullYear(), 0, 1);
+  var week = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  // Get Monday of that week for display
+  var monday = new Date(d.getFullYear(), 0, 1 + (week - 1) * 7);
+  var sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+  var fmt = function(dt) { return (dt.getMonth()+1) + '/' + dt.getDate(); };
+  return d.getFullYear() + ' W' + String(week).padStart(2,'0') + ' (' + fmt(monday) + '~' + fmt(sunday) + ')';
+}
+
+function showSheetBatchModal() {
+  var modal = document.getElementById('sheet-batch-modal');
+  modal.style.display = 'flex';
+  renderSheetBatchBody();
+}
+
+function closeSheetBatchModal() {
+  document.getElementById('sheet-batch-modal').style.display = 'none';
+}
+
+function renderSheetBatchBody() {
+  // Only show creators NOT in pipeline
+  var eligible = _sheetData.filter(function(c) { return !c._inPipeline; });
+  var body = document.getElementById('sheet-batch-body');
+  if (!eligible.length) {
+    body.innerHTML = '<div style="text-align:center;padding:32px;color:var(--dim)">추가할 크리에이터가 없습니다 (모두 파이프라인에 있음)</div>';
+    return;
+  }
+  // Group by week
+  var weeks = {};
+  eligible.forEach(function(c) {
+    var wk = getISOWeek(c._latestPostDate);
+    if (!weeks[wk]) weeks[wk] = [];
+    weeks[wk].push(c);
+  });
+  // Sort weeks descending (latest first)
+  var sortedWeeks = Object.keys(weeks).sort().reverse();
+  var html = '';
+  sortedWeeks.forEach(function(wk) {
+    var creators = weeks[wk];
+    // Sort by views desc within week
+    creators.sort(function(a,b) { return (b._bestViews||0) - (a._bestViews||0); });
+    var weekId = 'wk-' + wk.replace(/[^a-zA-Z0-9]/g,'_');
+    html += '<div style="margin-bottom:20px">';
+    html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">';
+    html += '<input type="checkbox" id="cb-' + weekId + '" checked onchange="toggleWeekBatch(this,\'' + weekId + '\')" style="width:14px;height:14px;accent-color:var(--g)">';
+    html += '<span style="font-size:12px;font-weight:700;color:var(--text)">' + escapeHtml(wk) + '</span>';
+    html += '<span style="font-size:10px;color:var(--dim)">' + creators.length + '명</span>';
+    html += '</div>';
+    creators.forEach(function(c) {
+      var cbId = 'cb-creator-' + c.username;
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9" data-week="' + weekId + '">';
+      html += '<input type="checkbox" id="' + cbId + '" data-username="' + escapeHtml(c.username) + '" data-week="' + weekId + '" checked class="batch-creator-cb" style="width:13px;height:13px;accent-color:var(--g)">';
+      html += '<span style="font-size:11px;font-weight:600;color:var(--a)">@' + escapeHtml(c.username) + '</span>';
+      html += '<span style="font-size:10px;color:var(--dim)">' + (c.name || '') + '</span>';
+      if (c.followers) html += '<span style="font-size:10px;color:var(--dim)">' + c.followers.toLocaleString() + ' followers</span>';
+      if (c._bestViews) html += '<span style="font-size:10px;background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:4px">' + (c._bestViews >= 1000 ? Math.round(c._bestViews/1000) + 'K' : c._bestViews) + ' views</span>';
+      if (c._latestPostDate) html += '<span style="font-size:9px;color:var(--muted)">' + c._latestPostDate + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  body.innerHTML = html;
+  updateSheetBatchCount();
+}
+
+function toggleWeekBatch(weekCb, weekId) {
+  var checked = weekCb.checked;
+  document.querySelectorAll('.batch-creator-cb[data-week="' + weekId + '"]').forEach(function(cb) {
+    cb.checked = checked;
+  });
+  updateSheetBatchCount();
+}
+
+function updateSheetBatchCount() {
+  var selected = document.querySelectorAll('.batch-creator-cb:checked').length;
+  document.getElementById('sheet-batch-status').textContent = selected + '명 선택됨';
+}
+
+function confirmSheetBatchAdd() {
+  var selected = [];
+  document.querySelectorAll('.batch-creator-cb:checked').forEach(function(cb) {
+    var username = cb.dataset.username;
+    var c = _sheetData.find(function(x) { return x.username === username; });
+    if (c) selected.push({ username: c.username, name: c.name || '', followers: c.followers || 0, platform: c.platform || 'instagram', source: 'sheet_batch' });
+  });
+  if (!selected.length) { showToast('선택된 크리에이터가 없습니다', 'err'); return; }
+  var btn = document.getElementById('btn-sheet-batch-add');
+  btn.disabled = true;
+  document.getElementById('sheet-batch-status').textContent = '추가 중...';
+  n8nPost({ action: 'import_creators', creators: selected })
+    .then(function(res) {
+      var count = res.imported || res.count || selected.length;
+      showToast(count + '명 파이프라인에 추가됨');
+      closeSheetBatchModal();
+      loadCreators();
+    })
+    .catch(function(err) {
+      document.getElementById('sheet-batch-status').textContent = '오류: ' + (err.message || err);
+      showToast('추가 실패', 'err');
+      btn.disabled = false;
     });
 }
 
