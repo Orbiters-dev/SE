@@ -1,0 +1,26 @@
+{
+  "hire_dates": {
+    "유희찬":  "2022-10-17",
+    "전지후":  "2025-11-17",
+    "현지선":  "2025-03-17",
+    "심원기":  "2025-12-01",
+    "김은빈":  "2025-09-22",
+    "카즈키":  "2025-09-22",
+    "Calvin":  "2026-02-02",
+    "서소연":  "2025-12-09",
+    "허세은":  "2026-02-26",
+    "신동균":  "2026-03-03"
+  },
+  "emails": {
+    "유희찬":  "hc.you@orbiters.co.kr",
+    "전지후":  "jh.jeon@orbiters.co.kr",
+    "현지선":  "js.hyun@orbiters.co.kr",
+    "심원기":  "wg.shim@orbiters.co.kr",
+    "김은빈":  "eb.kim@orbiters.co.kr",
+    "카즈키":  "k.yamaguchi@orbiters.co.kr",
+    "Calvin":  "calvin@orbiters.co.kr",
+    "서소연":  "sy.seo@orbiters.co.kr",
+    "허세은":  "se.heo@orbiters.co.kr",
+    "신동균":  "dk.shin@orbiters.co.kr"
+  }
+}
