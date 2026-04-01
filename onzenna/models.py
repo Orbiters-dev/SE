@@ -236,6 +236,31 @@ class PipelineConfig(models.Model):
     alloc_naeiae = models.IntegerField(default=2)
     # Account handles (JSON — per-brand sender accounts)
     account_handles = models.TextField(blank=True, default="{}")
+    # Pipeline operational config (migrated from n8n Airtable Config)
+    active = models.BooleanField(default=True)
+    mode = models.CharField(max_length=20, default="production")
+    notification_email = models.CharField(max_length=200, default="william@pathlightai.io")
+    only_pull_with_email = models.BooleanField(default=True)
+    test_email_override = models.CharField(max_length=200, blank=True, default="")
+    # Email template settings
+    tone = models.CharField(max_length=50, default="friendly")
+    sign_off = models.CharField(max_length=100, default="Best,\nOnzenna")
+    max_body_sentences = models.IntegerField(default=5)
+    assistant_name = models.CharField(max_length=50, default="William")
+    brand_name = models.CharField(max_length=100, default="Onzenna")
+    # Contract/agreement settings
+    company_signer_name = models.CharField(max_length=100, default="Jeehoo Jeon")
+    company_signer_title = models.CharField(max_length=100, default="CEO")
+    estimated_shipping_days = models.IntegerField(default=5)
+    # Content tracking requirements
+    ht_required_posts = models.IntegerField(default=2)
+    lt_required_posts = models.IntegerField(default=1)
+    ht_reminder_days = models.IntegerField(default=14)
+    lt_reminder_days = models.IntegerField(default=7)
+    # Additional HIL toggles
+    hil_draft_gen = models.BooleanField(default=True)
+    hil_manychat = models.BooleanField(default=False)
+    hil_reply_handler = models.BooleanField(default=True)
     # Meta
     updated_at = models.DateTimeField(auto_now=True)
     updated_by = models.CharField(max_length=50, blank=True, default="")
