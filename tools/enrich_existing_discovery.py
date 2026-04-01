@@ -90,7 +90,10 @@ def main():
     parser.add_argument("--region", default="jp")
     parser.add_argument("--dry-run", action="store_true", help="Enrich but don't sync to PG")
     parser.add_argument("--max-handles", type=int, default=0, help="Limit handles for testing (0=all)")
-    parser.add_argument("--skip-views", action="store_true", default=True, help="Skip Apify view enrichment (IG API doesn't return views)")
+    parser.add_argument("--skip-views", action="store_true", default=False, help="Skip Apify view enrichment")
+    parser.add_argument("--reels-only", action="store_true", help="Only enrich Reel posts for views (saves Apify credits)")
+    parser.add_argument("--only-missing", action="store_true", help="Only enrich posts with likes=0 (skip already enriched)")
+    parser.add_argument("--delay", type=float, default=0.5, help="Delay between RapidAPI calls (seconds)")
     args = parser.parse_args()
 
     # Import enrichment functions
@@ -112,6 +115,14 @@ def main():
     print(f"  IG with likes>0:    {sum(1 for p in ig_posts if (p['Likes'] or 0) > 0)}")
     print(f"  IG with comments>0: {sum(1 for p in ig_posts if (p['Comments Count'] or 0) > 0)}")
 
+    # Filter to only missing if requested
+    already_enriched = []
+    if args.only_missing:
+        needs_enrich = [p for p in ig_posts if (p["Likes"] or 0) == 0]
+        already_enriched = [p for p in ig_posts if (p["Likes"] or 0) > 0]
+        print(f"\n[FILTER] --only-missing: {len(needs_enrich)} posts need enrichment, {len(already_enriched)} already have likes")
+        ig_posts = needs_enrich
+
     # Limit handles for testing
     if args.max_handles > 0:
         handles = list(set(p["Handle"] for p in ig_posts))[:args.max_handles]
@@ -119,11 +130,19 @@ def main():
         print(f"\n[TEST] Limited to {args.max_handles} handles ({len(ig_posts)} posts)")
 
     # Step 3: RapidAPI enrichment (likes + comments)
-    ig_posts = enrich_ig_posts(ig_posts)
+    ig_posts = enrich_ig_posts(ig_posts, delay=args.delay)
 
     # Step 4: Apify view enrichment (videoViewCount)
     if not args.skip_views:
-        ig_posts = enrich_ig_views(ig_posts)
+        target_posts = ig_posts
+        if args.reels_only:
+            video_posts = [p for p in ig_posts if (p.get("Type") or "").lower() in ("video", "reel")]
+            non_video = [p for p in ig_posts if (p.get("Type") or "").lower() not in ("video", "reel")]
+            print(f"[VIEWS] --reels-only: {len(video_posts)} video/reel posts, {len(non_video)} image/sidecar skipped")
+            video_posts = enrich_ig_views(video_posts)
+            ig_posts = video_posts + non_video
+        else:
+            ig_posts = enrich_ig_views(ig_posts)
     else:
         print("[VIEWS] Skipped (--skip-views)")
 
@@ -132,6 +151,13 @@ def main():
     print(f"  views>0:    {sum(1 for p in ig_posts if (p['Views'] or 0) > 0)}/{len(ig_posts)}")
     print(f"  likes>0:    {sum(1 for p in ig_posts if (p['Likes'] or 0) > 0)}/{len(ig_posts)}")
     print(f"  comments>0: {sum(1 for p in ig_posts if (p['Comments Count'] or 0) > 0)}/{len(ig_posts)}")
+
+    # Merge back already-enriched posts (only sync newly enriched to PG)
+    if args.only_missing and already_enriched:
+        ig_posts_to_sync = ig_posts  # only newly enriched
+        ig_posts = ig_posts + already_enriched  # full set for JSON
+    else:
+        ig_posts_to_sync = ig_posts
 
     # Step 5: Save enriched JSON
     all_posts = ig_posts + tt_posts
@@ -146,7 +172,7 @@ def main():
     if not args.dry_run:
         print(f"\n[SYNC] Re-syncing enriched data to PG...")
         from sync_discovery_to_pg import sync_to_pg
-        sync_to_pg(all_posts, region=args.region, batch=f"backfill-{today}")
+        sync_to_pg(ig_posts_to_sync + tt_posts, region=args.region, batch=f"backfill-{today}")
         print("[SYNC] Done!")
     else:
         print("[DRY-RUN] Skipping PG sync")

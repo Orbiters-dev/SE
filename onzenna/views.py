@@ -61,7 +61,6 @@ from .models import (
     EmailReplyConfig,
     FAQEntry,
     EmailReplyLog,
-    PipelineConversation,
     DiscoveryPost,
 )
 
@@ -648,20 +647,13 @@ def get_or_save_pipeline_config(request, config_date):
     if "brand_assignees" in body:
         defaults["brand_assignees"] = json.dumps(body["brand_assignees"]) if isinstance(body["brand_assignees"], dict) else body["brand_assignees"]
     # Feature toggles
-    for field in ("rag_email_dedup", "apify_autofill", "apify_brand_filter",
-                  "us_only", "hil_draft_review", "hil_send_approval", "hil_sample_approval"):
+    for field in ("rag_email_dedup", "apify_autofill"):
         if field in body:
             defaults[field] = bool(body[field])
     if "human_in_loop" in body:
         defaults["human_in_loop"] = body["human_in_loop"]
     if "sender_email" in body:
         defaults["sender_email"] = body["sender_email"]
-    # Brand allocation
-    for field in ("alloc_grosmimi", "alloc_chaenmom", "alloc_naeiae"):
-        if field in body:
-            defaults[field] = int(body[field])
-    if "account_handles" in body:
-        defaults["account_handles"] = json.dumps(body["account_handles"]) if isinstance(body["account_handles"], dict) else body["account_handles"]
     # Templates & forms
     for field in ("outreach_template_id", "grosmimi_form_url", "chaenmom_form_url",
                   "naeiae_form_url", "ht_form_url"):
@@ -713,7 +705,6 @@ def list_tables(request):
         "onz_pipeline_creators": PipelineCreator.objects.count(),
         "onz_pipeline_execution_log": PipelineExecutionLog.objects.count(),
         "onz_pipeline_status_changes": PipelineStatusChange.objects.count(),
-        "onz_pipeline_conversations": PipelineConversation.objects.count(),
     }
     return JsonResponse({"tables": tables})
 
@@ -1178,16 +1169,6 @@ def pipeline_creators_stats(request):
         .values_list('pipeline_status', 'c')
     )
 
-    # Discovery date breakdown for Not Started creators (for batch dropdown)
-    discovery_date_counts = dict(
-        PipelineCreator.objects.filter(pipeline_status='Not Started')
-        .values_list('initial_discovery_date')
-        .annotate(c=Count('id'))
-        .values_list('initial_discovery_date', 'c')
-    )
-    # Convert date keys to strings
-    discovery_dates = {str(k): v for k, v in discovery_date_counts.items() if k}
-
     return _cors_headers(request, JsonResponse({
         "total": total,
         "by_status": status_counts,
@@ -1196,7 +1177,6 @@ def pipeline_creators_stats(request):
         "by_brand": brand_counts,
         "by_type": type_counts,
         "new_this_week": new_this_week,
-        "by_discovery_date": discovery_dates,
     }))
 
 
@@ -1693,62 +1673,6 @@ def reply_log_create(request):
     return _cors_headers(request, JsonResponse({"error": "Method not allowed"}, status=405))
 
 
-# ========== PIPELINE CONVERSATIONS ==========
-
-
-@csrf_exempt
-def pipeline_conversations(request):
-    """GET: List email conversations for a creator.  POST: Log a new conversation.
-
-    GET params: email (required), limit (default 50)
-    POST body: {creator_email, direction, subject, message_content, brand, outreach_type,
-                gmail_message_id, gmail_thread_id}
-    """
-    if request.method == "OPTIONS":
-        return _cors_headers(request, HttpResponse(status=204))
-
-    if request.method == "GET":
-        email = request.GET.get("email", "").strip()
-        limit = min(int(request.GET.get("limit", 50)), 200)
-
-        qs = PipelineConversation.objects.all()
-        if email:
-            qs = qs.filter(creator_email=email)
-
-        data = [
-            {
-                "id": str(c.id),
-                "creator_email": c.creator_email,
-                "direction": c.direction,
-                "subject": c.subject,
-                "message_content": c.message_content,
-                "brand": c.brand,
-                "outreach_type": c.outreach_type,
-                "gmail_message_id": c.gmail_message_id,
-                "gmail_thread_id": c.gmail_thread_id,
-                "created_at": c.created_at.isoformat() if c.created_at else None,
-            }
-            for c in qs[:limit]
-        ]
-        return _cors_headers(request, JsonResponse(data, safe=False))
-
-    if request.method == "POST":
-        body = _json_body(request)
-        c = PipelineConversation.objects.create(
-            creator_email=body.get("creator_email", ""),
-            direction=body.get("direction", "Outbound"),
-            subject=body.get("subject", ""),
-            message_content=body.get("message_content", ""),
-            brand=body.get("brand", ""),
-            outreach_type=body.get("outreach_type", ""),
-            gmail_message_id=body.get("gmail_message_id", ""),
-            gmail_thread_id=body.get("gmail_thread_id", ""),
-        )
-        return _cors_headers(request, JsonResponse({"id": str(c.id), "created": True}, status=201))
-
-    return _cors_headers(request, JsonResponse({"error": "Method not allowed"}, status=405))
-
-
 # ========== DISCOVERY POSTS ==========
 
 @csrf_exempt
@@ -1847,7 +1771,37 @@ def discovery_posts_list(request):
                 "source": p.get("source", ""),
                 "region": p.get("region", "jp"),
                 "discovery_batch": p.get("discovery_batch", ""),
+                "transcript": p.get("transcript", "") or "",
+                "scene_fit": p.get("scene_fit", "") or "",
+                "has_subtitles": p.get("has_subtitles"),
+                "brand_fit_score": p.get("brand_fit_score"),
+                "scene_tags": p.get("scene_tags", "") or "",
+                "product_mention": p.get("product_mention"),
+                "subject_age": p.get("subject_age", "") or "",
             }
+            # Don't overwrite existing data with empty/None (CI updates send only CI fields)
+            for field in ("handle", "full_name", "platform", "content_type", "source", "region", "discovery_batch"):
+                if not defaults.get(field):
+                    defaults.pop(field)
+            for field in ("followers", "views", "likes", "comments_count"):
+                if defaults.get(field) is None:
+                    defaults.pop(field)
+            if not defaults.get("post_date"):
+                defaults.pop("post_date")
+            for field in ("caption", "hashtags", "mentions"):
+                if not defaults.get(field):
+                    defaults.pop(field)
+            # CI fields
+            if defaults["scene_fit"] == "":
+                defaults.pop("scene_fit")
+            if defaults["has_subtitles"] is None:
+                defaults.pop("has_subtitles")
+            if defaults["brand_fit_score"] is None:
+                defaults.pop("brand_fit_score")
+            if defaults["product_mention"] is None:
+                defaults.pop("product_mention")
+            if defaults["subject_age"] == "":
+                defaults.pop("subject_age")
 
             obj, is_new = DiscoveryPost.objects.update_or_create(
                 url=url,

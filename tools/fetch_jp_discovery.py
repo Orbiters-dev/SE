@@ -298,7 +298,7 @@ def _normalize_tt(item: dict, source_kw: str = "") -> dict:
 
 
 # ── RapidAPI Enrichment ──────────────────────────────────────────────────── #
-def enrich_ig_posts(posts: list[dict]) -> list[dict]:
+def enrich_ig_posts(posts: list[dict], delay: float = 0.5) -> list[dict]:
     """Enrich ALL IG posts with views/likes/comments via RapidAPI.
 
     Apify hashtag scraper returns views=0 for IG posts. RapidAPI provides
@@ -314,7 +314,7 @@ def enrich_ig_posts(posts: list[dict]) -> list[dict]:
         print("[ENRICH] No IG posts to enrich")
         return posts
 
-    print(f"\n[ENRICH] Enriching {len(ig_posts)} IG posts via RapidAPI (views/likes/comments)")
+    print(f"\n[ENRICH] Enriching {len(ig_posts)} IG posts via RapidAPI (delay={delay}s)")
 
     # Group by handle
     by_handle = {}
@@ -332,7 +332,7 @@ def enrich_ig_posts(posts: list[dict]) -> list[dict]:
             api_posts = cache[handle]
         else:
             try:
-                time.sleep(0.5)
+                time.sleep(delay)
                 url = f"https://{RAPIDAPI_HOST}/get_ig_user_posts.php"
                 data = urllib.parse.urlencode({
                     "username_or_url": handle,

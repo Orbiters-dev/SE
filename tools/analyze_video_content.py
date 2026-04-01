@@ -68,7 +68,7 @@ def push_results(post_url: str, results: dict, dry_run: bool) -> bool:
         print(f"  [DRY-RUN] Would update: {json.dumps(results, ensure_ascii=False)[:100]}")
         return True
 
-    body = json.dumps({"posts": [{
+    post_payload = {
         "url": post_url,
         "transcript": results.get("transcript", ""),
         "scene_fit": results.get("scene_fit", ""),
@@ -77,7 +77,12 @@ def push_results(post_url: str, results: dict, dry_run: bool) -> bool:
         "scene_tags": ",".join(results.get("scene_tags", [])),
         "product_mention": results.get("product_mention", False),
         "subject_age": results.get("subject_age", ""),
-    }]}).encode()
+    }
+    if results.get("handle"):
+        post_payload["handle"] = results["handle"]
+    if results.get("views") is not None:
+        post_payload["views"] = results["views"]
+    body = json.dumps({"posts": [post_payload]}).encode()
 
     req = urllib.request.Request(
         f"{ORBITOOLS_URL}/api/onzenna/discovery/posts/",
@@ -134,7 +139,10 @@ def main():
             post_tmp.mkdir()
             audio, frames = extract_audio_and_frames(cdn_url, post_tmp)
 
-            results = {}
+            results = {
+                "handle": post.get("handle", ""),
+                "views": post.get("views"),
+            }
 
             # Step 3: Whisper
             if audio:

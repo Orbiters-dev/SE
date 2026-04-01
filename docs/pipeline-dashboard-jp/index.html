@@ -1211,7 +1211,7 @@ function renderCreators() {
 
   var html = '';
   filtered.forEach(function(c) {
-    var dmLink = 'https://www.instagram.com/' + c.username;
+    var dmLink = 'https://ig.me/m/' + c.username;
     var isDraft = c.status === 'draft_ready' && c.dm_draft;
 
     html += '<div class="dm-card" style="border-left:3px solid ' + getStatusColor(c.status) + '">';
@@ -1232,9 +1232,14 @@ function renderCreators() {
     // Action buttons
     html += '<div style="display:flex;gap:4px">';
     html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')" title="History">&#x1F4AC;</button>';
-    html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary" title="Open IG DM">&#x2197; IG</a>';
+    if (isDraft && !isOverLimit()) {
+      html += '<button class="btn btn-sm btn-success" onclick="event.stopPropagation();copyAndOpenDm(\'' + c.username + '\')" title="Draft 복사 + IG DM 바로 열기" style="font-weight:700">&#x1F4CB; DM&#x2197;</button>';
+      html += '<button class="btn btn-sm" style="background:#e0f2fe;color:#0284c7;border:1px solid #bae6fd" onclick="event.stopPropagation();markSent(\'' + c.username + '\')" title="보냈으면 체크">&#x2705; 보냄</button>';
+    } else {
+      html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary" title="Open IG DM">&#x2197; IG</a>';
+    }
     // Stage-specific actions
-    if (c.status === 'draft_ready' && !isOverLimit()) html += '<button class="btn btn-sm btn-success" onclick="event.stopPropagation();markSent(\'' + c.username + '\')">&#x2705; Sent</button>';
+    if (c.status === 'draft_ready' && !isDraft && !isOverLimit()) html += '<button class="btn btn-sm btn-success" onclick="event.stopPropagation();markSent(\'' + c.username + '\')">&#x2705; Sent</button>';
     if (c.status === 'sent') html += '<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();markReplied(\'' + c.username + '\')">&#x1F4E9; Replied</button>';
     if (c.status === 'replied') html += '<button class="btn btn-sm btn-success" onclick="event.stopPropagation();updateStatus(\'' + c.username + '\',\'accepted\').then(function(){loadCreators()})">&#x2705; Accept</button>';
     if (c.status === 'accepted') html += '<button class="btn btn-sm" style="background:var(--am);color:#fff" onclick="event.stopPropagation();sendFormLink(\'' + c.username + '\')">&#x1F4CB; Send Form</button>';
@@ -1816,7 +1821,6 @@ function renderDraftsList() {
 
   var html = '';
   drafts.forEach(function(c, idx) {
-    var dmLink = 'https://www.instagram.com/' + c.username;
     html += '<div class="dm-card" id="draft-card-' + c.username + '">';
     html += '<div style="display:flex;justify-content:space-between;align-items:center">';
     html += '<div style="display:flex;align-items:center;gap:8px">';
@@ -1824,14 +1828,14 @@ function renderDraftsList() {
     html += '<span class="dm-handle">@' + c.username + '</span> <span style="font-size:10px;color:var(--dim)">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + '</span>';
     html += '</div>';
     html += '<div style="display:flex;gap:4px">';
-    html += '<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();openDmThread(\'' + c.username + '\')" title="View history">&#x1F4AC; History</button>';
-    html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary">&#x2197; Open IG</a>';
+    html += '<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();openDmThread(\'' + c.username + '\')" title="View history">&#x1F4AC;</button>';
+    html += '<button class="btn btn-sm btn-success" onclick="copyAndOpenDm(\'' + c.username + '\')" style="font-weight:700" title="Draft 복사 + IG DM 바로 열기">&#x1F4CB; DM&#x2197;</button>';
+    html += '<button class="btn btn-sm" style="background:#e0f2fe;color:#0284c7;border:1px solid #bae6fd" onclick="markSent(\'' + c.username + '\')" title="보냈으면 체크">&#x2705; 보냄</button>';
     html += '</div>';
     html += '</div>';
     html += '<textarea class="dm-edit" id="dm-body-' + c.username + '" rows="6" oninput="saveDraftEdit(\'' + c.username + '\',this.value)">' + escapeHtml(c.dm_draft) + '</textarea>';
     html += '<div class="dm-actions">';
     html += '<button class="copy-btn" onclick="copyDraft(\'' + c.username + '\',this)">&#x1F4CB; Copy</button>';
-    html += '<button class="btn btn-sm btn-success" onclick="markSent(\'' + c.username + '\')">&#x2705; Mark Sent</button>';
     html += '</div>';
     html += '</div>';
   });
@@ -2123,6 +2127,20 @@ function importCreators() {
       btn.disabled = false;
       showToast('Import failed', 'err');
     });
+}
+
+// ─── Copy Draft + Open IG DM ───
+function copyAndOpenDm(handle) {
+  var c = _creators.find(function(x) { return x.username === handle; });
+  var text = (c && c.dm_draft) || (document.getElementById('dm-body-' + handle) && document.getElementById('dm-body-' + handle).value) || '';
+  if (text) {
+    navigator.clipboard.writeText(text).then(function() {
+      showToast('📋 복사됨 — IG DM에 붙여넣기', 'ok');
+    }).catch(function() {
+      showToast('복사 실패 — 수동으로 복사해주세요', 'err');
+    });
+  }
+  window.open('https://ig.me/m/' + handle, '_blank');
 }
 
 // ─── Sheet Batch Add ───
