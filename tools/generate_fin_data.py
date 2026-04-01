@@ -3109,57 +3109,48 @@ def generate():
                 })
             cat_sfr_branded[cat] = sorted(branded, key=lambda x: -x["click_share"])
 
-        # ── 2c. Merge SQP brand view volume data into sfr_branded ─────────
-        # sqp_brand: {week_end, brand, search_query, search_query_volume, ...}
-        # Build per-brand lookup: brand_slug → {query → {week_end → volume}}
+        # ── 2c. Build fixed top-10 SQP branded keywords per brand ───────────
+        # Step 1: brand_slug → {query → {week_end → volume}} from DK sqp_brand table
         sqp_by_brand = defaultdict(lambda: defaultdict(dict))
         for r in sqp_brand:
             b = _bslug(r.get("brand", ""))
             q = (r.get("search_query") or "").strip().lower()
-            w = r.get("week_end", "")
+            w = str(r.get("week_end", ""))
             v = int(r.get("search_query_volume") or 0)
             if b and q and w and v:
                 sqp_by_brand[b][q][w] = v
 
-        # Enrich existing sfr_branded with volume_weekly, or add new kws
-        for cat in list(cat_sfr_branded.keys()) + [c for c in cat_brand_map if c not in cat_sfr_branded]:
+        # Step 2: per brand, pick fixed top 10 by TOTAL volume across ALL weeks
+        # These 10 never change — consistent set regardless of which week is shown
+        brand_top10 = {}
+        for slug, kw_weeks in sqp_by_brand.items():
+            all_wks = sorted(set(w for wv in kw_weeks.values() for w in wv))
+            kw_totals = {q: sum(wv.values()) for q, wv in kw_weeks.items()}
+            top10_kws = sorted(kw_totals, key=lambda q: -kw_totals[q])[:10]
+            kw_list = []
+            for q in top10_kws:
+                wv = kw_weeks[q]
+                vol_weekly = [wv.get(w, 0) for w in all_wks]
+                kw_list.append({
+                    "keyword": q,
+                    "search_freq_rank": 0,
+                    "rank_weekly": [],
+                    "rank_week_labels": [],
+                    "volume_weekly": vol_weekly,
+                    "volume_week_labels": all_wks,
+                    "click_share": 0,
+                    "conv_share": 0,
+                })
+            brand_top10[slug] = kw_list
+
+        # Step 3: assign to each category (all categories of same brand share same top10)
+        all_cats = set(cat_sfr_branded.keys()) | set(cat_brand_map.keys())
+        for cat in all_cats:
             slug = _bslug(cat_brand_map.get(cat, ''))
-            if slug not in sqp_by_brand:
-                continue
-            sqp_kws = sqp_by_brand[slug]
-            existing = {kw["keyword"]: kw for kw in cat_sfr_branded.get(cat, [])}
-            for query, week_vols in sqp_kws.items():
-                vol_weeks = sorted(week_vols.keys())
-                vol_weekly = [week_vols[w] for w in vol_weeks]
-                if query in existing:
-                    existing[query]["volume_weekly"] = vol_weekly
-                    existing[query]["volume_week_labels"] = vol_weeks
-                else:
-                    # keyword not in SP-API data — add from SQP
-                    existing[query] = {
-                        "keyword": query,
-                        "search_freq_rank": 0,
-                        "rank_weekly": [],
-                        "rank_week_labels": [],
-                        "volume_weekly": vol_weekly,
-                        "volume_week_labels": vol_weeks,
-                        "click_share": 0,
-                        "conv_share": 0,
-                    }
-            if existing:
-                # Rank by avg volume (SQP) or click_share (SP-API fallback)
-                # Only keep keywords present in 3+ weeks (consistency filter)
-                def _kw_sort_key(kw):
-                    vols = kw.get("volume_weekly") or []
-                    return sum(vols) / len(vols) if vols else kw.get("click_share", 0)
-                def _kw_consistent(kw):
-                    vols = kw.get("volume_weekly") or []
-                    ranks = kw.get("rank_weekly") or []
-                    return len([v for v in vols if v > 0]) >= 3 or len([v for v in ranks if v > 0]) >= 3
-                consistent = [kw for kw in existing.values() if _kw_consistent(kw)]
-                if not consistent:
-                    consistent = list(existing.values())
-                cat_sfr_branded[cat] = sorted(consistent, key=_kw_sort_key, reverse=True)[:10]
+            if slug in brand_top10:
+                # SQP data available — use fixed top 10 (volume-based), drop SP-API rank data
+                cat_sfr_branded[cat] = brand_top10[slug]
+            # else: keep existing SP-API rank-based sfr_branded (no SQP for this brand)
 
         # ── 3. Enrich keywords with ads spend + search volume ─────────────
         st_spend = defaultdict(lambda: {"spend": 0.0, "clicks": 0, "sales": 0.0, "impressions": 0})
