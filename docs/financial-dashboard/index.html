@@ -979,7 +979,7 @@ function renderHeroTab(F){
       var sessD=_allSess.slice(-pDays);
       var pvD=_allPv.slice(-pDays);
       // Slice creator daily_views to match period
-      var slicedCreators=catCreators.slice(0,5).map(function(cr){
+      var slicedCreators=catCreators.slice(0,10).map(function(cr){
         return {username:cr.username,brand:cr.brand,platform:cr.platform,total_views:cr.total_views,
           daily_views:cr.daily_views.slice(-pDays)};
       });
@@ -987,23 +987,37 @@ function renderHeroTab(F){
       var hasContent=catCreators.length>0||(vw.length&&vw.reduce(function(a,b){return a+b},0)>0);
       var INF_COLORS=['#3b82f6','#ec4899','#f97316','#14b8a6','#6366f1','#ef4444','#a855f7','#eab308','#0ea5e9','#84cc16'];
       // Full-width chart dimensions
-      var padL=50,padR=140,padT=14,gap=6;
-      var midH=90,delH=70;
+      var padL=50,padR=150,padT=14,gap=6;
+      var midH=100,delH=80;
       var botH=hasContent?(midH+gap+delH):0;
       var topH=100;
-      var chartW=1020; // full container width
+      var chartW=1020;
       var bw=Math.max(Math.floor((chartW-padL-padR)/n)-1,3);
       var maxS=Math.max.apply(null,ds)||1;
-      var maxV=vw.length?Math.max.apply(null,vw)||1:1;
-      // Total new views = sum of valid per-creator deltas (skip 0-value days)
-      var totalNewViews=0;
-      slicedCreators.forEach(function(cr){for(var i=1;i<cr.daily_views.length;i++){var _p=cr.daily_views[i-1]||0,_c=cr.daily_views[i]||0;if(_p>0&&_c>0)totalNewViews+=Math.max(0,_c-_p);}});
+      // Pre-compute per-creator deltas and sort by total delta desc
+      var crDeltaArr=[];
+      slicedCreators.forEach(function(cr){
+        var d=[],tot=0;
+        for(var i=0;i<n;i++){
+          var _p=cr.daily_views[i-1]||0,_c=cr.daily_views[i]||0;
+          var dv=(i>0&&_p>0&&_c>0)?Math.max(0,_c-_p):0;
+          d.push(dv);tot+=dv;
+        }
+        crDeltaArr.push({cr:cr,deltas:d,total:tot});
+      });
+      crDeltaArr.sort(function(a,b){return b.total-a.total;});
+      // Stacked daily max for scale
+      var aggDeltas=new Array(n).fill(0);
+      crDeltaArr.forEach(function(x){x.deltas.forEach(function(v,i){aggDeltas[i]+=v;});});
+      var aggMax=Math.max.apply(null,aggDeltas)||1;
+      // Total new views (for legend)
+      var totalNewViews=aggDeltas.reduce(function(a,b){return a+b},0);
       // Legend
       html+='<div style="margin:8px 0 4px;display:flex;gap:10px;font-size:9px;color:var(--muted);flex-wrap:wrap">';
       html+='<span style="color:var(--g)">&#9644; Sales</span>';
       if(totalNewViews>0) html+='<span style="color:'+bc+'">&#9651; +'+totalNewViews.toLocaleString()+' new views</span>';
-      slicedCreators.forEach(function(cr,ci){
-        html+='<span style="color:'+INF_COLORS[ci%INF_COLORS.length]+'">&#9644; @'+cr.username+'</span>';
+      crDeltaArr.forEach(function(x,ci){
+        html+='<span style="color:'+INF_COLORS[ci%INF_COLORS.length]+'">&#9642; @'+x.cr.username+(x.total>0?' +'+x.total.toLocaleString():'')+' views</span>';
       });
       var gscTotalAll=gscD.reduce(function(a,b){return a+b},0);
       if(gscTotalAll>0) html+='<span style="color:#f59e0b">--- GSC Search ('+gscTotalAll.toLocaleString()+' impr)</span>';
@@ -1080,62 +1094,68 @@ function renderHeroTab(F){
       html+='<text x="'+(lsx+6)+'" y="'+(lsy+3)+'" fill="var(--g)" font-size="8" font-weight="700">Sales</text>';
       // Divider line between charts
       if(hasContent){
+        // ── MID CHART: Stacked delta bars (top 10 creators, sorted by total delta desc) ──
         var divY1=padT+topH+gap/2;
         html+='<line x1="'+padL+'" y1="'+divY1+'" x2="'+(chartW-padR)+'" y2="'+divY1+'" stroke="var(--border)" stroke-width="1"/>';
-        // ── Compute per-creator deltas (skip 0-value days to avoid no-crawl spikes) ──
-        var crDeltas=[],aggDeltas=new Array(n).fill(0),delMax=1;
-        slicedCreators.forEach(function(cr){
-          var d=[];
-          for(var i=0;i<n;i++){
-            var _p=cr.daily_views[i-1]||0,_c=cr.daily_views[i]||0;
-            var delta=(i>0&&_p>0&&_c>0)?Math.max(0,_c-_p):0;
-            d.push(delta);aggDeltas[i]+=delta;if(delta>delMax)delMax=delta;
-          }
-          crDeltas.push(d);
-        });
-        var aggMax=Math.max.apply(null,aggDeltas)||1;
-        // ── MID CHART (top): Aggregate Daily New Views bars ──
         var midTop=padT+topH+gap;
+        // Y-axis gridlines
         for(var g=0;g<=3;g++){
           var gy=midTop+midH-g/3*midH,gv=Math.round(aggMax*g/3);
           html+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(chartW-padR)+'" y2="'+gy+'" stroke="#f1f5f9" stroke-width="0.5"/>';
           if(gv>0)html+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" fill="'+bc+'" font-size="7" font-family="var(--mono)" text-anchor="end" opacity="0.7">'+gv.toLocaleString()+'</text>';
         }
-        html+='<text x="'+(padL+2)+'" y="'+(midTop+10)+'" fill="'+bc+'" font-size="8" font-weight="700" opacity="0.6">Daily New Views &#9651;</text>';
-        // Aggregate delta bars (all creators summed per day)
-        aggDeltas.forEach(function(v,i){
-          var bh=Math.max(1,v/aggMax*midH*0.9),x=padL+i*(bw+1),y=midTop+midH-bh;
-          html+='<rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+bh+'" fill="'+bc+'" opacity="0.55"/>';
-        });
-        // Per-creator delta lines overlaid
-        crDeltas.forEach(function(dd,ci){
-          var col=INF_COLORS[ci%INF_COLORS.length],pts=[];
-          dd.forEach(function(v,i){if(v>0){var x=padL+i*(bw+1)+bw/2,y=midTop+midH-v/aggMax*midH*0.9;pts.push(x+','+y);}});
-          if(pts.length>1)html+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+col+'" stroke-width="1" stroke-linecap="round" opacity="0.5"/>';
-        });
-        // ── BOTTOM CHART: Per-creator view snapshots (non-zero only) ──
+        html+='<text x="'+(padL+2)+'" y="'+(midTop+10)+'" fill="'+bc+'" font-size="8" font-weight="700" opacity="0.6">Daily New Views &#9651; — stacked by creator</text>';
+        // Draw stacked bars: biggest total delta at bottom
+        for(var i=0;i<n;i++){
+          var yStack=midTop+midH;
+          crDeltaArr.forEach(function(x,ci){
+            var v=x.deltas[i];
+            if(v>0){
+              var bh=v/aggMax*midH*0.92,col=INF_COLORS[ci%INF_COLORS.length];
+              html+='<rect x="'+(padL+i*(bw+1))+'" y="'+(yStack-bh)+'" width="'+bw+'" height="'+bh+'" fill="'+col+'" opacity="0.85"/>';
+              yStack-=bh;
+            }
+          });
+        }
+        // ── BOTTOM CHART: Cumulative view lines (forward-filled, one line per creator) ──
         var divY2=midTop+midH+gap/2;
         html+='<line x1="'+padL+'" y1="'+divY2+'" x2="'+(chartW-padR)+'" y2="'+divY2+'" stroke="var(--border)" stroke-width="1"/>';
         var delTop=midTop+midH+gap;
+        // Forward-fill snapshot: carry last non-zero value forward for continuous lines
+        var ffCreators=crDeltaArr.map(function(x){
+          var ff=[],last=0;
+          for(var i=0;i<n;i++){var v=x.cr.daily_views[i]||0;if(v>0)last=v;ff.push(last);}
+          return {cr:x.cr,ff:ff,ci:crDeltaArr.indexOf(x)};
+        });
         var crMaxV=1;
-        slicedCreators.forEach(function(cr){cr.daily_views.forEach(function(v){if(v>crMaxV)crMaxV=v;});});
+        ffCreators.forEach(function(x){x.ff.forEach(function(v){if(v>crMaxV)crMaxV=v;});});
+        // Y-axis
         for(var g=0;g<=2;g++){
           var gy=delTop+delH-g/2*delH,gv=Math.round(crMaxV*g/2);
           html+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(chartW-padR)+'" y2="'+gy+'" stroke="#f1f5f9" stroke-width="0.5"/>';
           if(gv>0)html+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" fill="'+bc+'" font-size="7" font-family="var(--mono)" text-anchor="end" opacity="0.5">'+gv.toLocaleString()+'</text>';
         }
-        html+='<text x="'+(padL+2)+'" y="'+(delTop+10)+'" fill="'+bc+'" font-size="8" font-weight="700" opacity="0.4">View Snapshot</text>';
-        slicedCreators.forEach(function(cr,ci){
-          var col=INF_COLORS[ci%INF_COLORS.length],pts=[];
-          cr.daily_views.forEach(function(v,i){if(i<n&&v>0){var x=padL+i*(bw+1)+bw/2,y=delTop+delH-v/crMaxV*delH*0.9;pts.push(x+','+y);}});
-          if(pts.length)html+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+col+'" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>';
-          // Label at last non-zero point
-          var lastV=0,lastI=0;for(var i=n-1;i>=0;i--){if(cr.daily_views[i]>0){lastV=cr.daily_views[i];lastI=i;break;}}
-          if(lastV>0){var lx=padL+lastI*(bw+1)+bw/2,ly=delTop+delH-lastV/crMaxV*delH*0.9;
-          html+='<circle cx="'+lx+'" cy="'+ly+'" r="3" fill="'+col+'"/>';
-          html+='<text x="'+(lx+6)+'" y="'+(ly+3)+'" fill="'+col+'" font-size="8" font-weight="600">@'+cr.username+'</text>';}
+        html+='<text x="'+(padL+2)+'" y="'+(delTop+10)+'" fill="'+bc+'" font-size="8" font-weight="700" opacity="0.4">Total Views (cumulative)</text>';
+        // Draw lines — only from first non-zero onwards
+        ffCreators.forEach(function(x,ci){
+          var col=INF_COLORS[ci%INF_COLORS.length];
+          var firstNZ=x.ff.findIndex(function(v){return v>0;});
+          if(firstNZ<0)return;
+          var pts=[];
+          for(var i=firstNZ;i<n;i++){
+            var px=padL+i*(bw+1)+bw/2,py=delTop+delH-x.ff[i]/crMaxV*delH*0.9;
+            pts.push(px+','+py);
+          }
+          if(pts.length)html+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+col+'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>';
+          // Label at end
+          var lastFF=x.ff[n-1]||0;
+          if(lastFF>0){
+            var lx=padL+(n-1)*(bw+1)+bw/2,ly=delTop+delH-lastFF/crMaxV*delH*0.9;
+            html+='<circle cx="'+lx+'" cy="'+ly+'" r="3" fill="'+col+'"/>';
+            html+='<text x="'+(lx+6)+'" y="'+(ly+3)+'" fill="'+col+'" font-size="8" font-weight="600">@'+x.cr.username+' '+lastFF.toLocaleString()+'</text>';
+          }
         });
-        // botH already = midH+gap+delH from initial calc
+        // botH already = midH+gap+delH
       }
       // X-axis date labels (shared)
       var xBase=padT+topH+gap+botH;
@@ -1161,12 +1181,11 @@ function renderHeroTab(F){
         if(ttSess>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#6366f1></span>Sessions: '+ttSess.toLocaleString()+'</div>';
         var ttPv=pvD[i]||0;
         if(ttPv>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#a78bfa></span>Page Views: '+ttPv.toLocaleString()+'</div>';
-        slicedCreators.forEach(function(cr,ci){
-          var cv=cr.daily_views[i]||0;
-          var _tp=cr.daily_views[i-1]||0,_tc=cv;
-          var delta=(i>0&&_tp>0&&_tc>0)?Math.max(0,_tc-_tp):0;
-          var deltaStr=delta>0?'+'+delta.toLocaleString():'—';
-          if(cv>0) ttH+='<div class=tt-row><span class=tt-dot style=background:'+INF_COLORS[ci%INF_COLORS.length]+'></span>@'+cr.username+': '+cv.toLocaleString()+' <span style=color:'+(delta>=0?'#10b981':'#ef4444')+'>'+deltaStr+'</span></div>';
+        crDeltaArr.forEach(function(x,ci){
+          var cv=x.cr.daily_views[i]||0;
+          var dv=x.deltas[i]||0;
+          var deltaStr=dv>0?'+'+dv.toLocaleString():'—';
+          if(cv>0||dv>0) ttH+='<div class=tt-row><span class=tt-dot style=background:'+INF_COLORS[ci%INF_COLORS.length]+'></span>@'+x.cr.username+': '+cv.toLocaleString()+' <span style=color:#10b981>'+deltaStr+'</span></div>';
         });
         html+='<rect x="'+hx+'" y="'+padT+'" width="'+hw+'" height="'+xBase+'" fill="transparent" style="cursor:crosshair"'
           +' onmousemove="showTT(event,\''+ttH.replace(/'/g,"\\'")+'\');var g=document.getElementById(\'hero-guide-'+idx+'\');if(g){g.setAttribute(\'x1\','+(hx+hw/2)+');g.setAttribute(\'x2\','+(hx+hw/2)+');g.setAttribute(\'opacity\',\'0.6\');}"'
@@ -1191,9 +1210,9 @@ function renderHeroTab(F){
           vw.forEach(function(v){html+='<td style="text-align:right;font-family:var(--mono)">'+(v>0?v.toLocaleString():'—')+'</td>';});
           html+='</tr>';
         }
-        slicedCreators.forEach(function(cr,ci){
-          html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'">@'+cr.username+'</td>';
-          cr.daily_views.forEach(function(v){html+='<td style="text-align:right;font-family:var(--mono)">'+(v>0?v.toLocaleString():'—')+'</td>';});
+        crDeltaArr.forEach(function(x,ci){
+          html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'">@'+x.cr.username+'</td>';
+          x.cr.daily_views.forEach(function(v){html+='<td style="text-align:right;font-family:var(--mono)">'+(v>0?v.toLocaleString():'—')+'</td>';});
           html+='</tr>';
         });
         var gscT=gscD.reduce(function(a,b){return a+b},0);
@@ -1227,9 +1246,9 @@ function renderHeroTab(F){
             });
             html+='</tr>';
           }
-          slicedCreators.forEach(function(cr,ci){
-            var allDv=catCreators[ci]?catCreators[ci].daily_views:cr.daily_views;
-            html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'">@'+cr.username+'</td>';
+          crDeltaArr.forEach(function(x,ci){
+            var allDv=x.cr.daily_views;
+            html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'">@'+x.cr.username+'</td>';
             wkSlice.forEach(function(wk,wi){
               var weekTotal=0;var wkIdx=wkOffset+wi;
               for(var d=wkIdx*7;d<Math.min((wkIdx+1)*7,allDv.length);d++){weekTotal+=(allDv[d]||0);}
@@ -1252,21 +1271,15 @@ function renderHeroTab(F){
         }
       }
       // ── Delta table: view changes per period ──
-        var hasDeltaData=false;
-        slicedCreators.forEach(function(cr){
-          for(var i=1;i<cr.daily_views.length;i++){if(cr.daily_views[i]!==cr.daily_views[i-1]){hasDeltaData=true;break;}}
-        });
+        var hasDeltaData=crDeltaArr.some(function(x){return x.total>0;});
         if(hasDeltaData){
           if(pDays<=7){
-            // Daily delta table for 7D
             html+='<table style="margin-top:8px;font-size:10px"><thead><tr><th style="min-width:90px">View Delta (daily)</th>';
             dates.forEach(function(d){html+='<th style="text-align:right;font-size:9px">'+d.substring(5)+'</th>';});
             html+='</tr></thead><tbody>';
-            slicedCreators.forEach(function(cr,ci){
-              html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'">@'+cr.username+'</td>';
-              cr.daily_views.forEach(function(v,i){
-                var _pv=cr.daily_views[i-1]||0;
-                var delta=(i>0&&_pv>0&&(v||0)>0)?Math.max(0,(v||0)-_pv):0;
+            crDeltaArr.forEach(function(x,ci){
+              html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'">@'+x.cr.username+'</td>';
+              x.deltas.forEach(function(delta){
                 var col=delta>0?'#10b981':'var(--muted)';
                 html+='<td style="text-align:right;font-family:var(--mono);color:'+col+';font-size:10px">'+(delta>0?'+':'')+delta.toLocaleString()+'</td>';
               });
@@ -1274,17 +1287,14 @@ function renderHeroTab(F){
             });
             html+='</tbody></table>';
           } else {
-            // Weekly delta table for 30D/90D
             html+='<table style="margin-top:8px;font-size:10px"><thead><tr><th style="min-width:90px">View Delta (weekly)</th>';
             wks.forEach(function(w){html+='<th style="text-align:right;font-size:9px">'+w+'</th>';});
             html+='</tr></thead><tbody>';
-            slicedCreators.forEach(function(cr,ci){
-              html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'">@'+cr.username+'</td>';
+            crDeltaArr.forEach(function(x,ci){
+              html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'">@'+x.cr.username+'</td>';
               var prevWeekEnd=0;
               wks.forEach(function(wk,wi){
-                var weekEnd=0;
-                var lastDay=Math.min((wi+1)*7-1,n-1);
-                weekEnd=cr.daily_views[lastDay]||0;
+                var lastDay=Math.min((wi+1)*7-1,n-1),weekEnd=x.cr.daily_views[lastDay]||0;
                 var delta=(wi>0&&prevWeekEnd>0&&weekEnd>0)?Math.max(0,weekEnd-prevWeekEnd):0;
                 prevWeekEnd=weekEnd;
                 var col=delta>0?'#10b981':'var(--muted)';
