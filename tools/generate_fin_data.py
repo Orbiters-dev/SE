@@ -304,7 +304,7 @@ def generate():
     ga4 = dk.get("ga4_daily", days=days_back)
     search_terms = dk.get("amazon_ads_search_terms", days=30)
     gsc = dk.get("gsc_daily", days=30)
-    brand_analytics = dk.get("amazon_brand_analytics", days=30)
+    brand_analytics = dk.get("amazon_brand_analytics", days=180)
     shopify_sku = dk.get("shopify_orders_sku_daily", date_from="2025-06-01")
     amazon_sku = dk.get("amazon_sales_sku_daily", days=days_back)
     klaviyo = dk.get("klaviyo_daily", days=days_back)
@@ -3057,10 +3057,12 @@ def generate():
                 latest = max(weeks_data, key=lambda x: x["week"])
                 rank_history = sorted(weeks_data, key=lambda x: x["week"])
                 rank_weekly = [w["search_freq_rank"] for w in rank_history[-12:]]
+                rank_week_labels = [w["week"] for w in rank_history[-12:]]
                 best.append({
                     "keyword": kw,
                     "search_freq_rank": latest["search_freq_rank"],
                     "rank_weekly": rank_weekly,
+                    "rank_week_labels": rank_week_labels,
                     "click_share": latest["click_share"],
                     "conv_share": latest["conv_share"],
                 })

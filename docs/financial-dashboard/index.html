@@ -1396,23 +1396,20 @@ function renderHeroTab(F){
 
   // ── Section SQ: Amazon Search Query (SFR) Weekly Trends ──
   (function(){
-    // Collect all keywords across categories, group by brand
-    var wks=H.week_keys||[];
+    // Collect all keywords across categories with their actual week labels
     var allKws=[];
     H.categories.forEach(function(c){
       if(!c.top_keywords)return;
       c.top_keywords.forEach(function(kw){
         if(!kw.rank_weekly||!kw.rank_weekly.length)return;
-        // Align rank_weekly to week_keys (trailing)
-        var aligned=new Array(wks.length).fill(null);
-        var offset=wks.length-kw.rank_weekly.length;
-        kw.rank_weekly.forEach(function(v,i){if(offset+i>=0)aligned[offset+i]=v;});
+        var labels=kw.rank_week_labels||[];
         allKws.push({keyword:kw.keyword,brand:c.brand,category:c.category,
           click_share:kw.click_share,conv_share:kw.conv_share||0,
-          aligned:aligned,latest:aligned[aligned.length-1]||0});
+          rank_weekly:kw.rank_weekly,rank_week_labels:labels,
+          latest:kw.rank_weekly[kw.rank_weekly.length-1]||0});
       });
     });
-    // Deduplicate by keyword+brand, keep entry with most data
+    // Deduplicate by keyword+brand
     var kwMap={};
     allKws.forEach(function(k){
       var key=k.brand+'|'+k.keyword;
@@ -1420,6 +1417,22 @@ function renderHeroTab(F){
     });
     var kwList=Object.values(kwMap).sort(function(a,b){return a.latest-b.latest;});
     if(!kwList.length)return;
+
+    // Build unified week axis from all labels
+    var wkSet={};
+    kwList.forEach(function(k){k.rank_week_labels.forEach(function(w){wkSet[w]=true;});});
+    var wks=Object.keys(wkSet).sort();
+
+    // Align each keyword to the unified week axis
+    kwList.forEach(function(k){
+      var aligned=new Array(wks.length).fill(null);
+      k.rank_week_labels.forEach(function(w,i){
+        var idx=wks.indexOf(w);
+        if(idx>=0)aligned[idx]=k.rank_weekly[i];
+      });
+      k.aligned=aligned;
+      k.latest=k.rank_weekly[k.rank_weekly.length-1]||0;
+    });
 
     // Group by brand
     var byBrand={};
