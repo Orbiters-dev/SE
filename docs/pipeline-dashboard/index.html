@@ -1738,7 +1738,9 @@ async function loadConfig(){
   }
 }
 function populateConfigForm(c){
-  populateDiscoveryDates(c.update_date||'');
+  // Auto-pull fresh data on first load (replaces stale cache)
+  if(_weekGroups.length===0){pullDiscoveryDates().then(function(){populateDiscoveryDates(c.update_date||'')})}
+  else populateDiscoveryDates(c.update_date||'');
   document.getElementById('f-start-beginning').checked=c.start_from_beginning;
   toggleAllDates(!!c.start_from_beginning);
   document.getElementById('f-creators-contacted').value=c.creators_contacted;
@@ -3094,8 +3096,8 @@ function updateAllocation(){
 
 // ========== ALL DATES TOGGLE + VINTAGE ==========
 // ========== DISCOVERY DATE DROPDOWN ==========
-var _discoveryDates=(function(){try{var s=localStorage.getItem('pipeline_discovery_dates');return s?JSON.parse(s):[]}catch(e){return[]}})();
-var _cachedDateCounts=(function(){try{var s=localStorage.getItem('pipeline_date_counts');return s?JSON.parse(s):{}}catch(e){return{}}})();
+var _discoveryDates=[];
+var _cachedDateCounts={};
 
 // ─── Weekly grouping helpers ───
 function _isoWeekKey(dateStr){
@@ -3149,17 +3151,15 @@ function populateDiscoveryDates(selectedVal){
   var defOpt=document.createElement('option');
   defOpt.value='';defOpt.textContent='-- 주간 배치 선택 --';
   sel.appendChild(defOpt);
-  // If no week groups yet, build from cached dates + counts
-  if(_weekGroups.length===0&&_discoveryDates.length>0){
+  // If no week groups, try cached counts from localStorage
+  if(_weekGroups.length===0){
     if(Object.keys(_dateCountMap).length>0){
       _buildWeekGroups(_dateCountMap);
-    } else if(Object.keys(_cachedDateCounts).length>0){
-      _dateCountMap=_cachedDateCounts;
-      _buildWeekGroups(_cachedDateCounts);
     } else {
-      var tmpMap={};
-      _discoveryDates.forEach(function(d){if(d&&d.match(/^\d{4}-\d{2}-\d{2}$/))tmpMap[d]=1});
-      _buildWeekGroups(tmpMap);
+      try{
+        var cached=localStorage.getItem('pipeline_date_counts');
+        if(cached){_dateCountMap=JSON.parse(cached);_buildWeekGroups(_dateCountMap)}
+      }catch(e){}
     }
   }
   if(_weekGroups.length>0){
