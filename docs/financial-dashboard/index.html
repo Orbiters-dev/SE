@@ -949,13 +949,15 @@ function renderHeroTab(F){
   var _brandGroups={};
   H.categories.forEach(function(c){
     var b=c.brand||'Other';
-    if(!_brandGroups[b])_brandGroups[b]={category:b,brand:b,_isBrand:true,asin_count:0,sales_7d:0,sales_30d:0,units_30d:0,units_7d:0,daily_sales:[],daily_units:[],top_keywords:[],_kwSeen:{},_crMap:{},_subCats:[]};
+    if(!_brandGroups[b])_brandGroups[b]={category:b,brand:b,_isBrand:true,asin_count:0,sales_7d:0,sales_30d:0,units_30d:0,units_7d:0,daily_sales:[],daily_units:[],_gsc:[],top_keywords:[],_kwSeen:{},_crMap:{},_subCats:[]};
     var bg=_brandGroups[b];
     bg._subCats.push(c.category);
     bg.asin_count+=c.asin_count;
     bg.sales_7d+=c.sales_7d;bg.sales_30d+=c.sales_30d;bg.units_30d+=c.units_30d;bg.units_7d+=(c.units_7d||0);
     if(c.daily_sales)c.daily_sales.forEach(function(v,i){bg.daily_sales[i]=(bg.daily_sales[i]||0)+v;});
     if(c.daily_units)c.daily_units.forEach(function(v,i){bg.daily_units[i]=(bg.daily_units[i]||0)+v;});
+    var _cl2=H.content_lift?H.content_lift[c.category]:null;
+    if(_cl2&&_cl2.gsc_daily)_cl2.gsc_daily.forEach(function(v,i){bg._gsc[i]=(bg._gsc[i]||0)+v;});
     if(c.top_keywords)c.top_keywords.forEach(function(kw){if(!bg._kwSeen[kw.keyword]){bg._kwSeen[kw.keyword]=true;bg.top_keywords.push(kw);}});
     var catCrs=(H.content_creators_by_cat||{})[c.category]||[];
     catCrs.forEach(function(cr){
@@ -988,7 +990,7 @@ function renderHeroTab(F){
     html+=' <span style="font-family:var(--mono);font-size:11px;color:var(--dim);margin-left:8px">'+c.units_30d.toLocaleString()+' units</span>';
     html+='</div></div>';
     // ═══ Dual Chart: Sales (top) + Content (bottom), full width ═══
-    var cl=H.content_lift?H.content_lift[c.category]:null;
+    var cl=c._isBrand?{gsc_daily:c._gsc||[],sessions_daily:[],pageviews_daily:[],views:[]}:(H.content_lift?H.content_lift[c.category]:null);
     var catCreators=c._creators||(H.content_creators_by_cat||{})[c.category]||[];
     // Get search volume for this brand from top-level keyword_volumes
     var catKwVols=[];
@@ -1081,11 +1083,18 @@ function renderHeroTab(F){
       });
       html+='<polygon points="'+padL+','+(padT+topH)+' '+spts.join(' ')+' '+(padL+(n-1)*(bw+1)+bw/2)+','+(padT+topH)+'" fill="var(--g)" opacity="0.08"/>';
       html+='<polyline points="'+spts.join(' ')+'" fill="none" stroke="var(--g)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
-      // Peak
+      // Peak dot
       var peakSi=0;ds.forEach(function(v,i){if(v>ds[peakSi])peakSi=i;});
       var psx=padL+peakSi*(bw+1)+bw/2,psy=padT+topH-ds[peakSi]/maxS*topH;
       html+='<circle cx="'+psx+'" cy="'+psy+'" r="3" fill="var(--g)"/>';
       html+='<text x="'+psx+'" y="'+(psy-6)+'" fill="var(--g)" font-size="8" font-weight="700" font-family="var(--mono)" text-anchor="middle">$'+ds[peakSi].toLocaleString()+'</text>';
+      // Value labels at every step (same step as x-axis)
+      for(var _vi=0;_vi<n;_vi+=step){
+        if(_vi===peakSi)continue; // already labelled
+        var _vx=padL+_vi*(bw+1)+bw/2,_vy=padT+topH-ds[_vi]/maxS*topH;
+        html+='<circle cx="'+_vx+'" cy="'+_vy+'" r="2" fill="var(--g)" opacity="0.6"/>';
+        html+='<text x="'+_vx+'" y="'+(_vy-5)+'" fill="var(--g)" font-size="7" font-family="var(--mono)" text-anchor="middle" opacity="0.75">$'+ds[_vi].toLocaleString()+'</text>';
+      }
       // GSC search impressions (yellow area on sales chart)
       var gscMax=Math.max.apply(null,gscD.length?gscD:[0])||1;
       var gscTotal=gscD.reduce(function(a,b){return a+b},0);
