@@ -1394,9 +1394,191 @@ function renderHeroTab(F){
   });
   html+='</div></div>';
 
+  // ── Section SQ: Amazon Search Query (SFR) Weekly Trends ──
+  (function(){
+    // Collect all keywords across categories, group by brand
+    var wks=H.week_keys||[];
+    var allKws=[];
+    H.categories.forEach(function(c){
+      if(!c.top_keywords)return;
+      c.top_keywords.forEach(function(kw){
+        if(!kw.rank_weekly||!kw.rank_weekly.length)return;
+        // Align rank_weekly to week_keys (trailing)
+        var aligned=new Array(wks.length).fill(null);
+        var offset=wks.length-kw.rank_weekly.length;
+        kw.rank_weekly.forEach(function(v,i){if(offset+i>=0)aligned[offset+i]=v;});
+        allKws.push({keyword:kw.keyword,brand:c.brand,category:c.category,
+          click_share:kw.click_share,conv_share:kw.conv_share||0,
+          aligned:aligned,latest:aligned[aligned.length-1]||0});
+      });
+    });
+    // Deduplicate by keyword+brand, keep entry with most data
+    var kwMap={};
+    allKws.forEach(function(k){
+      var key=k.brand+'|'+k.keyword;
+      if(!kwMap[key]||k.click_share>kwMap[key].click_share)kwMap[key]=k;
+    });
+    var kwList=Object.values(kwMap).sort(function(a,b){return a.latest-b.latest;});
+    if(!kwList.length)return;
+
+    // Group by brand
+    var byBrand={};
+    kwList.forEach(function(k){if(!byBrand[k.brand])byBrand[k.brand]=[];byBrand[k.brand].push(k);});
+    var brandOrderSQ=Object.keys(byBrand).sort(function(a,b){return byBrand[a][0].latest-byBrand[b][0].latest;});
+
+    // Week labels: "W03\n(Jan)" style
+    function wkLabel(wk){
+      var parts=wk.split('-W');if(parts.length<2)return wk;
+      var yr=parseInt(parts[0]),wn=parseInt(parts[1]);
+      // ISO week → approx month via Jan 4 rule
+      var jan4=new Date(yr,0,4);
+      var dayOfYear=(wn-1)*7-jan4.getDay()+1;
+      var d=new Date(yr,0,4+dayOfYear);
+      var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
+      return 'W'+parts[1]+'<tspan font-size="7" dy="8" x="0">'+mo+'</tspan>';
+    }
+    // Monthly grouping: week index → month label
+    function wkMonth(wk){
+      var parts=wk.split('-W');if(parts.length<2)return wk;
+      var yr=parseInt(parts[0]),wn=parseInt(parts[1]);
+      var jan4=new Date(yr,0,4);
+      var dayOfYear=(wn-1)*7-jan4.getDay()+1;
+      var d=new Date(yr,0,4+dayOfYear);
+      return (d.getMonth()+1<10?'0'+(d.getMonth()+1):''+(d.getMonth()+1));
+    }
+    // Group weeks into months
+    var moGroups={};
+    wks.forEach(function(wk,i){var m=wkMonth(wk);if(!moGroups[m])moGroups[m]={label:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(m)-1],indices:[]};moGroups[m].indices.push(i);});
+    var moList=Object.keys(moGroups).sort();
+
+    html+='<div class="sec"><div class="sec-title"><div class="num">2</div> Amazon Search Query Trends (SFR)';
+    html+=' <span style="font-size:10px;font-weight:400;color:var(--muted);margin-left:8px">Lower SFR = more searched. Source: Brand Analytics weekly.</span></div>';
+
+    brandOrderSQ.forEach(function(brand){
+      var rows=byBrand[brand];
+      var bCol=BCOLORS[brand]||'#94a3b8';
+
+      // ── SFR Chart: one line per keyword ──
+      var CW=900,CH=200,PL=60,PR=160,PT=20,PB=30;
+      var KW_COLORS=['#3b82f6','#10b981','#8b5cf6','#f59e0b','#ef4444','#ec4899','#14b8a6','#f97316','#6366f1','#a855f7','#84cc16','#0ea5e9'];
+      // Find max rank for y-scale (inverted)
+      var allRanks=[];
+      rows.forEach(function(k){k.aligned.forEach(function(v){if(v)allRanks.push(v);});});
+      if(!allRanks.length)return;
+      var maxRank=Math.max.apply(null,allRanks);
+      var minRank=Math.min.apply(null,allRanks);
+      // Add 10% headroom
+      var rangeTop=minRank*0.9,rangeBot=maxRank*1.05;
+      function rankY(r){return PT+(CH-PT-PB)*(r-rangeTop)/(rangeBot-rangeTop);}
+      var n=wks.length,colW=(CW-PL-PR)/n;
+
+      html+='<div class="card" style="margin-bottom:6px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">';
+      html+='<span style="font-size:12px;font-weight:800;color:'+bCol+'">'+brand+'</span>';
+      html+='<span style="font-size:9px;color:var(--muted)">'+rows.length+' keywords tracked</span>';
+      html+='</div>';
+
+      html+='<div style="overflow-x:auto"><svg width="'+CW+'" height="'+CH+'" style="display:block;min-width:'+CW+'px">';
+      // Y grid (inverted: lower rank = better = higher on chart)
+      var yTicks=[minRank,Math.round((minRank+maxRank)/2),maxRank];
+      yTicks.forEach(function(v){
+        var y=rankY(v);
+        html+='<line x1="'+PL+'" y1="'+y+'" x2="'+(CW-PR)+'" y2="'+y+'" stroke="#f1f5f9" stroke-width="0.5"/>';
+        html+='<text x="'+(PL-4)+'" y="'+(y+3)+'" fill="#94a3b8" font-size="7" text-anchor="end" font-family="var(--mono)">'+(v>=1000000?(v/1000000).toFixed(1)+'M':(v>=1000?(v/1000).toFixed(0)+'K':''+v))+'</text>';
+      });
+      // X-axis week labels
+      wks.forEach(function(wk,i){
+        var x=PL+(i+0.5)*colW;
+        var parts=wk.split('-W');
+        html+='<text x="'+x+'" y="'+(CH-PB+12)+'" fill="#94a3b8" font-size="7" text-anchor="middle" font-family="var(--mono)">W'+parts[1]+'</text>';
+      });
+      // Month dividers
+      var prevMo=null;
+      wks.forEach(function(wk,i){
+        var mo=wkMonth(wk);
+        if(mo!==prevMo&&i>0){
+          var x=PL+i*colW;
+          html+='<line x1="'+x+'" y1="'+PT+'" x2="'+x+'" y2="'+(CH-PB)+'" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2,2"/>';
+        }
+        if(mo!==prevMo){
+          var moLab=moGroups[mo]?moGroups[mo].label:mo;
+          var lx=PL+(i+0.5)*colW;
+          html+='<text x="'+lx+'" y="'+(PT-4)+'" fill="#94a3b8" font-size="8" text-anchor="middle" font-weight="600">'+moLab+'</text>';
+          prevMo=mo;
+        }
+      });
+      // Draw lines
+      rows.forEach(function(k,ki){
+        var col=KW_COLORS[ki%KW_COLORS.length];
+        var pts=[];
+        k.aligned.forEach(function(v,i){
+          if(v===null)return;
+          var x=PL+(i+0.5)*colW,y=rankY(v);
+          pts.push({x:x,y:y,v:v});
+        });
+        if(pts.length<1)return;
+        var d='M'+pts[0].x+','+pts[0].y;
+        for(var pi=1;pi<pts.length;pi++){d+=' L'+pts[pi].x+','+pts[pi].y;}
+        html+='<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>';
+        // Dots on data points
+        pts.forEach(function(p){html+='<circle cx="'+p.x+'" cy="'+p.y+'" r="2.5" fill="'+col+'"/>';});
+        // End label
+        var last=pts[pts.length-1];
+        var labelV=last.v>=1000000?(last.v/1000000).toFixed(1)+'M':(last.v>=1000?(last.v/1000).toFixed(0)+'K':''+last.v);
+        html+='<text x="'+(last.x+8)+'" y="'+(last.y+3)+'" fill="'+col+'" font-size="8" font-weight="600">'+k.keyword+'</text>';
+        html+='<text x="'+(last.x+8)+'" y="'+(last.y+12)+'" fill="'+col+'" font-size="7" opacity="0.8">SFR '+labelV+'</text>';
+      });
+      html+='</svg></div>';
+
+      // ── Weekly table ──
+      html+='<div style="overflow-x:auto;margin-top:8px"><table style="font-size:10px;min-width:600px"><thead><tr>';
+      html+='<th style="min-width:140px">Keyword</th><th style="text-align:right">Click%</th><th style="text-align:right">Conv%</th>';
+      wks.forEach(function(wk){html+='<th style="text-align:right;font-size:8px;font-family:var(--mono)">'+wk.split('-W')[1]+'</th>';});
+      html+='</tr></thead><tbody>';
+      rows.forEach(function(k,ki){
+        var col=KW_COLORS[ki%KW_COLORS.length];
+        html+='<tr>';
+        html+='<td style="font-weight:600;color:'+col+'">'+k.keyword+'</td>';
+        html+='<td style="text-align:right;font-family:var(--mono)">'+k.click_share.toFixed(1)+'%</td>';
+        html+='<td style="text-align:right;font-family:var(--mono)">'+(k.conv_share>0?k.conv_share.toFixed(1)+'%':'—')+'</td>';
+        k.aligned.forEach(function(v){
+          var rankStr=v===null?'—':(v>=1000000?(v/1000000).toFixed(1)+'M':(v>=1000?Math.round(v/1000)+'K':''+v));
+          var rankCol=v===null?'var(--muted)':v<50000?'var(--g)':v<200000?'var(--am)':'var(--r)';
+          html+='<td style="text-align:right;font-family:var(--mono);color:'+rankCol+';font-size:9px">'+rankStr+'</td>';
+        });
+        html+='</tr>';
+      });
+      html+='</tbody></table></div>';
+
+      // ── Monthly rollup ──
+      html+='<div style="margin-top:10px;font-size:10px;font-weight:700;color:var(--dim)">Monthly avg SFR</div>';
+      html+='<div style="overflow-x:auto"><table style="font-size:10px"><thead><tr>';
+      html+='<th style="min-width:140px">Keyword</th>';
+      moList.forEach(function(m){html+='<th style="text-align:right;font-size:9px">'+moGroups[m].label+'</th>';});
+      html+='</tr></thead><tbody>';
+      rows.forEach(function(k,ki){
+        var col=KW_COLORS[ki%KW_COLORS.length];
+        html+='<tr><td style="font-weight:600;color:'+col+'">'+k.keyword+'</td>';
+        moList.forEach(function(m){
+          var idxs=moGroups[m].indices;
+          var vals=idxs.map(function(i){return k.aligned[i];}).filter(function(v){return v!==null;});
+          if(!vals.length){html+='<td style="text-align:right;color:var(--muted)">—</td>';return;}
+          var avg=Math.round(vals.reduce(function(a,b){return a+b},0)/vals.length);
+          var bestWeek=Math.min.apply(null,vals);
+          var avgStr=avg>=1000000?(avg/1000000).toFixed(1)+'M':avg>=1000?Math.round(avg/1000)+'K':''+avg;
+          var rankCol=avg<50000?'var(--g)':avg<200000?'var(--am)':'var(--r)';
+          html+='<td style="text-align:right;font-family:var(--mono);color:'+rankCol+';font-size:9px">'+avgStr+'</td>';
+        });
+        html+='</tr>';
+      });
+      html+='</tbody></table></div>';
+      html+='</div>'; // card
+    });
+    html+='</div>'; // sec
+  })();
+
   // ── Section B: Keyword Deep Dive ──
   if(H.keyword_table&&H.keyword_table.length){
-    html+='<div class="sec"><div class="sec-title"><div class="num">2</div> Keyword Deep Dive</div>';
+    html+='<div class="sec"><div class="sec-title"><div class="num">3</div> Keyword Deep Dive</div>';
     html+='<div class="card"><div class="desc">All keywords across product categories. Sorted by Google Ads impressions.</div>';
     html+='<table><thead><tr>';
     html+='<th>Keyword</th><th>Category</th><th>Brand</th>';
