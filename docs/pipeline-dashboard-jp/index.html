@@ -2128,7 +2128,7 @@ function renderSheetBatchBody() {
     creators.forEach(function(c) {
       var cbId = 'cb-creator-' + c.username;
       html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9" data-week="' + weekId + '">';
-      html += '<input type="checkbox" id="' + cbId + '" data-username="' + escapeHtml(c.username) + '" data-week="' + weekId + '" checked class="batch-creator-cb" style="width:13px;height:13px;accent-color:var(--g)">';
+      html += '<input type="checkbox" id="' + cbId + '" data-username="' + escapeHtml(c.username) + '" data-week="' + weekId + '" checked class="batch-creator-cb" onchange="updateSheetBatchCount()" style="width:13px;height:13px;accent-color:var(--g)">';
       html += '<span style="font-size:11px;font-weight:600;color:var(--a)">@' + escapeHtml(c.username) + '</span>';
       html += '<span style="font-size:10px;color:var(--dim)">' + (c.name || '') + '</span>';
       if (c.followers) html += '<span style="font-size:10px;color:var(--dim)">' + c.followers.toLocaleString() + ' followers</span>';
