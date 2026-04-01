@@ -3614,6 +3614,7 @@ def generate():
         "weekly": weekly_data,
         "hero_products": hero_data,
         "jp": _build_jp_data(dk, months),
+        "autocomplete": _build_autocomplete_data(),
     }
 
     # ── Write output ──────────────────────────────────────────────────────────
@@ -3669,6 +3670,42 @@ def generate():
         subprocess.run(["git", "commit", "-m", "auto: update financial KPI data [skip ci]"], check=False)
         subprocess.run(["git", "push"], check=True)
         print("  Pushed to GitHub")
+
+
+def _build_autocomplete_data() -> dict:
+    """Load Amazon autocomplete rank data from local cache."""
+    cache_path = os.path.join(os.path.dirname(__file__), "..", ".tmp", "datakeeper", "amazon_autocomplete_daily.json")
+    if not os.path.exists(cache_path):
+        print("  [autocomplete] No cache file found, skipping")
+        return {}
+
+    with open(cache_path, "r", encoding="utf-8") as f:
+        rows = json.load(f)
+
+    if not rows:
+        return {}
+
+    # Group by brand → market → keyword scores
+    out = {}
+    for r in rows:
+        brand = r.get("brand", "")
+        market = r.get("market", "US")
+        kw = r.get("keyword", "")
+        score = r.get("rank_score", 0)
+        pos = r.get("position", -1)
+        date = r.get("date", "")
+
+        if brand not in out:
+            out[brand] = {"US": [], "JP": []}
+        out[brand][market].append({
+            "keyword": kw,
+            "score": score,
+            "position": pos,
+            "date": date,
+        })
+
+    print(f"  [autocomplete] {len(rows)} rows loaded for {len(out)} brands")
+    return out
 
 
 def _build_jp_data(dk: "DataKeeper", months: list) -> dict:

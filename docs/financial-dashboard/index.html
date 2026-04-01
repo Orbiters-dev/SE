@@ -472,6 +472,63 @@ function switchSeoBrand(brand){
   });
 }
 
+// ── Autocomplete Ranking Tab ─────────────────────────────────────────────────
+function renderAutocompleteTab(F){
+  var ac=F.autocomplete||{};
+  var el=document.getElementById('panel-autocomplete');
+  if(!el) return;
+  if(!Object.keys(ac).length){
+    el.innerHTML='<div class="card"><div class="desc" style="text-align:center;padding:24px;color:var(--muted)">No autocomplete data yet. Run: python tools/data_keeper.py --channel amazon_autocomplete</div></div>';
+    return;
+  }
+
+  var brandColors={'Grosmimi':'#8b5cf6','Naeiae':'#f59e0b','Onzenna':'#0ea5e9','CHA&MOM':'#ef4444'};
+  var h='<div class="sec"><div class="sec-title"><div class="num" style="background:#6366f1">8</div> Amazon Search Ranking &mdash; Autocomplete Scores</div>';
+  h+='<div class="desc">Amazon autocomplete에서 브랜드/키워드가 얼마나 빨리 나타나는지 측정 (0-100). 점수가 높을수록 검색 인기도 높음.</div>';
+
+  // Summary cards — average score per brand per market
+  h+='<div class="stats" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">';
+  Object.keys(ac).forEach(function(brand){
+    var usScores=(ac[brand].US||[]).map(function(k){return k.score;});
+    var jpScores=(ac[brand].JP||[]).map(function(k){return k.score;});
+    var usAvg=usScores.length ? Math.round(usScores.reduce(function(a,b){return a+b;},0)/usScores.length) : 0;
+    var jpAvg=jpScores.length ? Math.round(jpScores.reduce(function(a,b){return a+b;},0)/jpScores.length) : 0;
+    var color=brandColors[brand]||'#64748b';
+    h+='<div class="stat"><div class="sl" style="color:'+color+'">'+brand+'</div>';
+    h+='<div class="sv" style="color:'+color+'">'+usAvg+'</div>';
+    h+='<div class="ss">US avg &middot; JP avg: '+jpAvg+'</div></div>';
+  });
+  h+='</div>';
+
+  // Detailed table per market
+  ['US','JP'].forEach(function(mkt){
+    h+='<div class="card" style="margin-bottom:10px"><h3>'+(mkt==='US'?'🇺🇸':'🇯🇵')+' Amazon '+mkt+' — Keyword Scores</h3>';
+    h+='<table><tr><th>Brand</th><th>Keyword</th><th>Score</th><th>Position</th><th style="min-width:200px">Visual</th></tr>';
+    Object.keys(ac).forEach(function(brand){
+      var rows=ac[brand][mkt]||[];
+      rows.sort(function(a,b){return b.score-a.score;});
+      rows.forEach(function(r){
+        var color=brandColors[brand]||'#64748b';
+        var posLabel=r.position>=0 ? '#'+(r.position+1) : '—';
+        var posClass=r.position===0?'pos-top3':r.position<3?'pos-top3':r.position<5?'pos-top10':'pos-low';
+        if(r.position<0) posClass='';
+        h+='<tr>';
+        h+='<td style="font-weight:700;color:'+color+'">'+brand+'</td>';
+        h+='<td style="font-family:var(--mono);font-size:11px">'+r.keyword+'</td>';
+        h+='<td style="text-align:right;font-family:var(--mono);font-weight:700;font-size:14px;color:'+(r.score>=60?'var(--g)':r.score>=30?'var(--am)':'var(--r)')+'">'+r.score+'</td>';
+        h+='<td style="text-align:center">'+(posClass?'<span class="pos-badge '+posClass+'">'+posLabel+'</span>':'<span style="color:var(--muted)">'+posLabel+'</span>')+'</td>';
+        h+='<td><div class="vol-bar" style="min-width:160px"><div class="fill" style="width:'+r.score+'%;background:linear-gradient(90deg,'+color+','+color+'88)"></div></div></td>';
+        h+='</tr>';
+      });
+    });
+    h+='</table></div>';
+  });
+
+  h+='<div class="desc" style="margin-top:8px;color:var(--muted)">Score = prefix 길이 + autocomplete 내 위치 기반 추정. 매일 수집 시 트렌드 추적 가능. Date: '+(ac[Object.keys(ac)[0]]?.US?.[0]?.date||'—')+'</div>';
+  h+='</div>';
+  el.innerHTML=h;
+}
+
 // ── JP Render Helpers ────────────────────────────────────────────────────────
 function _jpNoData(icon, title, desc) {
   return '<div class="hero"><h1>'+title+'</h1></div>'
@@ -617,7 +674,8 @@ function renderFinancial(){
     {id:'search',label:'4. Search & SEO'},
     {id:'traffic',label:'5. Traffic'},
     {id:'klaviyo',label:'6. Email Marketing'},
-    {id:'hero',label:'7. Hero Products'}
+    {id:'hero',label:'7. Hero Products'},
+    {id:'autocomplete',label:'8. Search Ranking'}
   ];
   var tabHtml='';
   tabs.forEach(function(t,i){
@@ -1137,12 +1195,14 @@ function renderFinancial(){
   panelsHtml+='<div class="tab-panel" id="panel-traffic">'+traf+'</div>';
   panelsHtml+='<div class="tab-panel" id="panel-klaviyo">'+klav+'</div>';
   panelsHtml+='<div class="tab-panel" id="panel-hero"></div>';
+  panelsHtml+='<div class="tab-panel" id="panel-autocomplete"></div>';
   document.getElementById('fin-panels').innerHTML=panelsHtml;
 
   // Init dynamic sections after DOM is ready
   if(window.renderCt) try{ window.renderCt(); }catch(e){}
   if(window.renderKwTable) try{ window.renderKwTable(); }catch(e){}
   try{ renderHeroTab(F); }catch(e){ console.error('Hero tab error:', e); }
+  try{ renderAutocompleteTab(F); }catch(e){ console.error('Autocomplete tab error:', e); }
 
   // Check URL hash for tab
   var hash=window.location.hash.replace('#','');
