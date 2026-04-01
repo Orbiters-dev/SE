@@ -3143,7 +3143,8 @@ def generate():
             ptypes = [t.strip() for t in pt_raw.split(",") if t.strip()] if pt_raw else []
             uname = (p.get("username") or "").strip()
             platform = p.get("platform", "")
-            if pid:  # Include ALL posts, even without brand (syncly_sheets often lacks brand)
+            region = (p.get("region") or "us").lower()
+            if pid and region == "us":  # US only for this dashboard (JP dashboard separate)
                 post_info[pid] = {"brand": brand, "product_types": ptypes, "username": uname, "platform": platform}
 
         # Aggregate views by product_type + date (90 days)
