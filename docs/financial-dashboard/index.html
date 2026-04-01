@@ -1381,7 +1381,7 @@ function renderHeroTab(F){
             var wi=labels.indexOf(w);
             if(wi>=0&&values[wi])vals.push(values[wi]);
           });
-          if(vals.length) _sfrAvg.push({w:w,v:Math.round(vals.reduce(function(a,b){return a+b},0)/vals.length)});
+          if(vals.length) _sfrAvg.push({w:w,v:vals.reduce(function(a,b){return a+b},0)});
         });
         if(_sfrAvg.length){
           var _sfrVals=_sfrAvg.map(function(p){return p.v;});
@@ -1415,7 +1415,7 @@ function renderHeroTab(F){
           _sfrPts.forEach(function(p,pi){
             var vStr=p.v>=1000000?(p.v/1000000).toFixed(1)+'M':p.v>=1000?Math.round(p.v/1000)+'K':''+p.v;
             // Build tooltip: week date + each keyword's value that week
-            var _ttLabel=_useVolume?'Avg Vol':'Avg SFR';
+            var _ttLabel=_useVolume?'Total Vol':'Total SFR';
             var _sfrTt='<div class=tt-date>'+(_useVolume?'Search Vol':'SFR')+' week of '+p.w+'</div><div class=tt-row><span class=tt-dot style=background:#f59e0b></span>'+_ttLabel+': '+p.v.toLocaleString()+'</div>';
             _sfrOverlayKws.forEach(function(kw){
               var labels=kw[_wkField]||[],values=kw[_valField]||[];
@@ -1677,11 +1677,11 @@ function renderHeroTab(F){
         });
         // Avg row (matches the chart line)
         html+='<tr style="border-top:2px solid #f59e0b;background:#fef3c7">';
-        html+='<td style="padding:3px 8px;color:#92400e;font-weight:700">합산 평균 (차트)</td>';
+        html+='<td style="padding:3px 8px;color:#92400e;font-weight:700">합산 (차트)</td>';
         _sfrAllWksSorted.forEach(function(w){
           var vals=[];
           _sfrOverlayKws.forEach(function(kw){var labels=kw[_wkField]||[],values=kw[_valField]||[];var wi=labels.indexOf(w);if(wi>=0&&values[wi])vals.push(values[wi]);});
-          var avg=vals.length?Math.round(vals.reduce(function(a,b){return a+b},0)/vals.length):null;
+          var avg=vals.length?vals.reduce(function(a,b){return a+b},0):null;
           var vStr=avg==null?'—':(avg>=1000000?(avg/1000000).toFixed(1)+'M':avg>=1000?Math.round(avg/1000)+'K':''+avg);
           var col=avg==null?'#d97706':(_useVolume?(avg>=3000?'#10b981':avg>=500?'#f59e0b':'#ef4444'):(avg<50000?'#10b981':avg<300000?'#f59e0b':'#ef4444'));
           html+='<td style="text-align:right;padding:3px 8px;font-family:var(--mono);color:'+col+';font-weight:700">'+vStr+'</td>';
