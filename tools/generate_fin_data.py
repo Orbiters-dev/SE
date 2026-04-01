@@ -2964,6 +2964,10 @@ def generate():
         GROSMIMI_CATEGORIES = ["PPSU Straw Cup", "Stainless Straw Cup", "PPSU Tumbler", "Stainless Tumbler", "PPSU Baby Bottle"]
         CHAMOM_CATEGORIES = ["Moisturizer", "Body Wash", "Baby Cream"]
         ALL_CATEGORIES = GROSMIMI_CATEGORIES + CHAMOM_CATEGORIES + ["Rice Puff", "Alpremio"]
+        # Canonical brand per category (overrides Amazon brand field which can be wrong for multi-brand sellers)
+        CAT_BRAND = {cat: "Grosmimi" for cat in GROSMIMI_CATEGORIES}
+        CAT_BRAND.update({cat: "CHA&MOM" for cat in CHAMOM_CATEGORIES})
+        CAT_BRAND.update({"Rice Puff": "Naeiae", "Alpremio": "Alpremio"})
 
         cutoff_90d = (today - timedelta(days=90)).isoformat()
 
@@ -3129,7 +3133,7 @@ def generate():
             )
             categories.append({
                 "category": cat,
-                "brand": cd["brand"],
+                "brand": CAT_BRAND.get(cat, cd["brand"]),
                 "asin_count": len(cd["asins"]),
                 "sales_7d": round(cd["sales_7d"]),
                 "units_7d": cd["units_7d"],
