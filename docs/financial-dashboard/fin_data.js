@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-31 21:52 PST",
+ "generated_pst": "2026-03-31 21:57 PST",
  "through_date": "2026-03-30",
  "months": [
   "2025-01",
@@ -15977,16 +15977,6 @@ const FIN_DATA = {
    "monthly_trend": []
   },
   {
-   "keyword": "alpremio",
-   "brand": "",
-   "search_volume": 123,
-   "gsc_impressions": 107,
-   "gsc_clicks": 3,
-   "gads_impressions": 16,
-   "gads_clicks": 2,
-   "monthly_trend": []
-  },
-  {
    "keyword": "grosmimi ppsu straw cup with flip top",
    "brand": "",
    "search_volume": 123,
@@ -15994,6 +15984,16 @@ const FIN_DATA = {
    "gsc_clicks": 0,
    "gads_impressions": 0,
    "gads_clicks": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "alpremio",
+   "brand": "",
+   "search_volume": 123,
+   "gsc_impressions": 107,
+   "gsc_clicks": 3,
+   "gads_impressions": 16,
+   "gads_clicks": 2,
    "monthly_trend": []
   },
   {
@@ -16237,16 +16237,6 @@ const FIN_DATA = {
    "monthly_trend": []
   },
   {
-   "keyword": "grosmimi tumbler",
-   "brand": "",
-   "search_volume": 56,
-   "gsc_impressions": 41,
-   "gsc_clicks": 3,
-   "gads_impressions": 15,
-   "gads_clicks": 2,
-   "monthly_trend": []
-  },
-  {
    "keyword": "bamboo bebe",
    "brand": "",
    "search_volume": 56,
@@ -16254,6 +16244,16 @@ const FIN_DATA = {
    "gsc_clicks": 2,
    "gads_impressions": 0,
    "gads_clicks": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "grosmimi tumbler",
+   "brand": "",
+   "search_volume": 56,
+   "gsc_impressions": 41,
+   "gsc_clicks": 3,
+   "gads_impressions": 15,
+   "gads_clicks": 2,
    "monthly_trend": []
   },
   {
@@ -16307,13 +16307,13 @@ const FIN_DATA = {
    "monthly_trend": []
   },
   {
-   "keyword": "baby straw cup",
+   "keyword": "korean baby snacks",
    "brand": "",
    "search_volume": 46,
-   "gsc_impressions": 1,
+   "gsc_impressions": 46,
    "gsc_clicks": 0,
-   "gads_impressions": 45,
-   "gads_clicks": 4,
+   "gads_impressions": 0,
+   "gads_clicks": 0,
    "monthly_trend": []
   }
  ],
@@ -16834,7 +16834,7 @@ const FIN_DATA = {
        "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
        "sales": 7382,
        "purchases": 320,
-       "clicks": 40785,
+       "clicks": 40960,
        "brb": 684.28,
        "spend": 480,
        "roas": 15.4,
@@ -16930,7 +16930,7 @@ const FIN_DATA = {
        "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_20251120-01",
        "sales": 5271,
        "purchases": 209,
-       "clicks": 73533,
+       "clicks": 73589,
        "brb": 555.55,
        "spend": 148,
        "roas": 35.5,
@@ -16958,7 +16958,7 @@ const FIN_DATA = {
        "name": "AMZ_Traffic_Dental Mom_Stainless_StrawCup_20260107",
        "sales": 1170,
        "purchases": 25,
-       "clicks": 45303,
+       "clicks": 45343,
        "brb": 875.58,
        "spend": 77,
        "roas": 15.3,
@@ -16982,7 +16982,7 @@ const FIN_DATA = {
        "name": "aa_2fb5a17db7d14eee6e5a81db265da037",
        "sales": 378,
        "purchases": 14,
-       "clicks": 640,
+       "clicks": 643,
        "brb": 188.01,
        "spend": 0,
        "roas": 0,
@@ -16993,7 +16993,7 @@ const FIN_DATA = {
        "name": "AMZ_Traffic_Dentalmom_WL_202601",
        "sales": 100,
        "purchases": 2,
-       "clicks": 36201,
+       "clicks": 36230,
        "brb": 74.08,
        "spend": 78,
        "roas": 1.3,
@@ -17176,7 +17176,7 @@ const FIN_DATA = {
        "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
        "sales": 7382,
        "purchases": 320,
-       "clicks": 40785,
+       "clicks": 40960,
        "brb": 684.28,
        "spend": 3104,
        "roas": 2.4,
@@ -17272,7 +17272,7 @@ const FIN_DATA = {
        "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_20251120-01",
        "sales": 5271,
        "purchases": 209,
-       "clicks": 73533,
+       "clicks": 73589,
        "brb": 555.55,
        "spend": 1041,
        "roas": 5.1,
@@ -17300,7 +17300,7 @@ const FIN_DATA = {
        "name": "AMZ_Traffic_Dental Mom_Stainless_StrawCup_20260107",
        "sales": 1170,
        "purchases": 25,
-       "clicks": 45303,
+       "clicks": 45343,
        "brb": 875.58,
        "spend": 552,
        "roas": 2.1,
@@ -17324,7 +17324,7 @@ const FIN_DATA = {
        "name": "aa_2fb5a17db7d14eee6e5a81db265da037",
        "sales": 378,
        "purchases": 14,
-       "clicks": 640,
+       "clicks": 643,
        "brb": 188.01,
        "spend": 0,
        "roas": 0,
@@ -17335,7 +17335,7 @@ const FIN_DATA = {
        "name": "AMZ_Traffic_Dentalmom_WL_202601",
        "sales": 100,
        "purchases": 2,
-       "clicks": 36201,
+       "clicks": 36230,
        "brb": 74.08,
        "spend": 559,
        "roas": 0.2,
@@ -17524,7 +17524,7 @@ const FIN_DATA = {
        "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
        "sales": 7382,
        "purchases": 320,
-       "clicks": 40785,
+       "clicks": 40960,
        "brb": 684.28,
        "spend": 3104,
        "roas": 2.4,
@@ -17620,7 +17620,7 @@ const FIN_DATA = {
        "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_20251120-01",
        "sales": 5271,
        "purchases": 209,
-       "clicks": 73533,
+       "clicks": 73589,
        "brb": 555.55,
        "spend": 4501,
        "roas": 1.2,
@@ -17648,7 +17648,7 @@ const FIN_DATA = {
        "name": "AMZ_Traffic_Dental Mom_Stainless_StrawCup_20260107",
        "sales": 1170,
        "purchases": 25,
-       "clicks": 45303,
+       "clicks": 45343,
        "brb": 875.58,
        "spend": 2401,
        "roas": 0.5,
@@ -17672,7 +17672,7 @@ const FIN_DATA = {
        "name": "aa_2fb5a17db7d14eee6e5a81db265da037",
        "sales": 378,
        "purchases": 14,
-       "clicks": 640,
+       "clicks": 643,
        "brb": 188.01,
        "spend": 0,
        "roas": 0,
@@ -17683,7 +17683,7 @@ const FIN_DATA = {
        "name": "AMZ_Traffic_Dentalmom_WL_202601",
        "sales": 100,
        "purchases": 2,
-       "clicks": 36201,
+       "clicks": 36230,
        "brb": 74.08,
        "spend": 2395,
        "roas": 0.0,
@@ -33023,7 +33023,7 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0F6XNGT85",
+      "asin": "B0DCV7MTLS",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -33035,15 +33035,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0DB7V1BW3",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DY6SKQ2N",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DCV766MB",
+      "asin": "B0DB7SPP2P",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -33051,12 +33043,32 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0DCV7MTLS",
+      "asin": "B0DCV766MB",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0DB7SPP2P",
+      "asin": "B0F6XNGT85",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DY6SKQ2N",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DB7V1BW3",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0F4D28MC3",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
+     },
+     {
+      "asin": "B0F4D1V39Q",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
+     },
+     {
+      "asin": "B0F4D8L1HL",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
       "asin": "B0F4D3YZ8H",
@@ -33067,31 +33079,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0F4D28MC3",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
-     },
-     {
-      "asin": "B0F4D8L1HL",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
-     },
-     {
-      "asin": "B0F4D1V39Q",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
-     },
-     {
-      "asin": "B0F9PZPMH8",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
-     },
-     {
       "asin": "B0F9PVZMR1",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PX51FX",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
-     },
-     {
-      "asin": "B0F9PY2LBV",
+      "asin": "B0F9PZPMH8",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -33099,7 +33091,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B07YKKWFTN",
+      "asin": "B0F9PY2LBV",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
+     },
+     {
+      "asin": "B0F9PX51FX",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
+     },
+     {
+      "asin": "B0842D5Z17",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -33107,27 +33107,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0842D5Z17",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0C1N3VDL3",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B083986L91",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B083WJBR9B",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B08398KZ2B",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B07YL2FT96",
+      "asin": "B0BZYSL3BH",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -33135,15 +33115,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B083XT642K",
+      "asin": "B07YL2FT96",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0BZYSL3BH",
+      "asin": "B0C1N1PLYD",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B082SSPN4X",
+      "asin": "B083986L91",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -33155,7 +33135,23 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0C1N1PLYD",
+      "asin": "B0C1N3VDL3",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B083WJBR9B",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B07YKKWFTN",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B083XT642K",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B08398KZ2B",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -33163,7 +33159,23 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
+      "asin": "B082SSPN4X",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0F9NPRCTM",
+      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+     },
+     {
       "asin": "B0F8Q8RK18",
+      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+     },
+     {
+      "asin": "B0F8QH8T8X",
+      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+     },
+     {
+      "asin": "B0F8QHRGKW",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
@@ -33172,18 +33184,6 @@ const FIN_DATA = {
      },
      {
       "asin": "B0F8QHJN6G",
-      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
-     },
-     {
-      "asin": "B0F8QH8T8X",
-      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
-     },
-     {
-      "asin": "B0F9NPRCTM",
-      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
-     },
-     {
-      "asin": "B0F8QHRGKW",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      }
     ]
@@ -33552,35 +33552,7 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0FKFW6PND",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FHKBTY2S",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FKG6RCDC",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FHKFQPGR",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FHKC2DVV",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FKG59ZMN",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
       "asin": "B0FKFN91X9",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FHKG2SG5",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -33588,7 +33560,35 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
+      "asin": "B0FKG6RCDC",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FKFW6PND",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FHKFQPGR",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FHKG2SG5",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
       "asin": "B0FKGFN121",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FHKBTY2S",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FKG59ZMN",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FHKC2DVV",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      }
     ]
@@ -34135,11 +34135,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
-      "asin": "B0FR4Q6LXQ",
+      "asin": "B0FR4FGBPP",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
-      "asin": "B0FR4FGBPP",
+      "asin": "B0FR4Q6LXQ",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      }
     ]
@@ -35131,7 +35131,7 @@ const FIN_DATA = {
    },
    {
     "category": "Baby Cream",
-    "brand": "Naeiae",
+    "brand": "CHA&MOM",
     "asin_count": 1,
     "sales_7d": 208,
     "units_7d": 7,
@@ -35359,7 +35359,7 @@ const FIN_DATA = {
    },
    {
     "category": "Alpremio",
-    "brand": "Naeiae",
+    "brand": "Alpremio",
     "asin_count": 1,
     "sales_7d": 384,
     "units_7d": 7,
