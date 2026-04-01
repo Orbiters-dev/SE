@@ -398,6 +398,16 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         <label style="font-size:10px;display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="sheet-hide-contacted" onchange="filterSheet()"> Hide Already Contacted</label>
         <span id="sheet-count" style="font-size:10px;color:var(--dim);margin-left:auto"></span>
       </div>
+      <!-- CI Summary Stats -->
+      <div id="ci-stats-bar" style="display:none;margin-bottom:12px">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <div class="stat cyan" style="min-width:100px"><div class="sl">CI Analyzed</div><div class="sv" id="ci-stat-count">0</div></div>
+          <div class="stat green" style="min-width:100px"><div class="sl">Avg Delivery</div><div class="sv" id="ci-stat-dv">-</div></div>
+          <div class="stat amber" style="min-width:100px"><div class="sl">Avg Brand Fit</div><div class="sv" id="ci-stat-bf">-</div></div>
+          <div class="stat accent" style="min-width:100px"><div class="sl">With Transcript</div><div class="sv" id="ci-stat-tr">0</div></div>
+          <div class="stat" style="min-width:100px"><div class="sl">DV 7+ Creators</div><div class="sv" id="ci-stat-top" style="color:var(--g)">0</div></div>
+        </div>
+      </div>
       <!-- Content Type Sub-tabs -->
       <div id="sheet-subtabs" style="display:flex;gap:0;margin-bottom:12px;border:2px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content">
         <div class="sheet-subtab on" data-filter="all" onclick="setSheetSubtab('all')" style="padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">All</div>
@@ -420,6 +430,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
             <th style="cursor:pointer" onclick="sortSheet('_totalComments')">Comments &#x2195;</th>
             <th style="cursor:pointer" onclick="sortSheet('_latestPostDate')">Latest Post &#x2195;</th>
             <th>D+</th>
+            <th style="cursor:pointer" onclick="sortSheet('_ciScore')">CI &#x2195;</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -1773,7 +1784,14 @@ function generateDrafts() {
   }
 
   var payload = toGenerate.map(function(c) {
-    return { username: c.username, name: c.name, followers: c.followers, content_script: c.content_script || '' };
+    // Attach best transcript from CI data as content_script
+    var sd = _sheetData.find(function(s) { return s.username === c.username; });
+    var script = c.content_script || '';
+    if (!script && sd && sd._posts) {
+      var bestPost = sd._posts.find(function(p) { return p.transcript && p.transcript.trim(); });
+      if (bestPost) script = bestPost.transcript;
+    }
+    return { username: c.username, name: c.name, followers: c.followers, content_script: script };
   });
 
   n8nPost({ action: 'generate_draft', creators: payload })
@@ -1818,6 +1836,13 @@ function renderDraftsList() {
     html += '<div style="display:flex;align-items:center;gap:8px">';
     html += '<input type="checkbox" class="draft-cb draft-select" data-username="' + c.username + '" checked onchange="updateSelectedCount()" style="width:16px;height:16px;accent-color:var(--a)">';
     html += '<span class="dm-handle">@' + c.username + '</span> <span style="font-size:10px;color:var(--dim)">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + '</span>';
+    // CI summary badges
+    var sd = _sheetData.find(function(s) { return s.username === c.username; });
+    if (sd && sd._ciCount > 0) {
+      html += ' <span style="font-size:9px;padding:1px 6px;border-radius:3px;background:#f0f9ff;color:#0284c7;font-weight:600" title="CI analyzed: DV=' + (sd._ciDelivery||0) + ' BF=' + (sd._ciBrandFit||0) + '">CI';
+      if (sd._ciDelivery) html += ' ' + sd._ciDelivery;
+      html += '</span>';
+    }
     html += '</div>';
     html += '<div style="display:flex;gap:4px">';
     html += '<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();openDmThread(\'' + c.username + '\')" title="View history">&#x1F4AC;</button>';
@@ -1825,6 +1850,24 @@ function renderDraftsList() {
     html += '<button class="btn btn-sm" style="background:#e0f2fe;color:#0284c7;border:1px solid #bae6fd" onclick="markSent(\'' + c.username + '\')" title="보냈으면 체크">&#x2705; 보냄</button>';
     html += '</div>';
     html += '</div>';
+    // CI detail mini-card in draft
+    if (sd && sd._ciCount > 0 && sd._posts) {
+      var ciPost = sd._posts.find(function(p) { return p.ci || p.delivery_verbal_score; });
+      if (ciPost) {
+        html += '<div style="margin:4px 0;padding:6px 10px;background:#f8fafc;border:1px solid var(--border);border-radius:6px;font-size:9px;color:var(--dim)">';
+        var ciParts = [];
+        if (ciPost.delivery_verbal_score) ciParts.push('Delivery: <b style="color:#10b981">' + ciPost.delivery_verbal_score + '</b>/10');
+        if (ciPost.brand_fit_score) ciParts.push('Brand Fit: <b>' + ciPost.brand_fit_score + '</b>/10');
+        if (ciPost.scene_fit) ciParts.push('Scene: ' + ciPost.scene_fit);
+        if (ciPost.subject_age) ciParts.push('Age: ' + ciPost.subject_age);
+        var ci2 = ciPost.ci || {};
+        if (ci2.hook_type) ciParts.push('Hook: ' + ci2.hook_type);
+        if (ci2.emotional_tone) ciParts.push('Tone: ' + ci2.emotional_tone);
+        html += ciParts.join(' &middot; ');
+        if (ciPost.transcript) html += '<div style="margin-top:3px;font-style:italic;max-height:36px;overflow:hidden;color:#64748b">"' + escapeHtml(ciPost.transcript.substring(0, 150)) + '..."</div>';
+        html += '</div>';
+      }
+    }
     html += '<textarea class="dm-edit" id="dm-body-' + c.username + '" rows="6" oninput="saveDraftEdit(\'' + c.username + '\',this.value)">' + escapeHtml(c.dm_draft) + '</textarea>';
     html += '<div class="dm-actions">';
     html += '<button class="copy-btn" onclick="copyDraft(\'' + c.username + '\',this)">&#x1F4CB; Copy</button>';
@@ -2770,6 +2813,10 @@ function loadInfluencerSheet() {
           'Caption': p.caption || '',
           'Hashtags': p.hashtags || '',
           'Transcript': p.transcript || '',
+          'BrandFit': p.brand_fit_score || null,
+          'SceneFit': p.scene_fit || '',
+          'SubjectAge': p.subject_age || '',
+          'SceneTags': p.scene_tags || '',
           'CI': p.ci_analysis || null
         };
       });
@@ -2845,7 +2892,18 @@ function mergeSheetData(discoveryRows) {
     var url = row['URL'] || '';
     var platform = (row['Platform'] || 'instagram').toLowerCase();
 
-    var post = { url: url, date: date, views: views, likes: likes, comments: comments, platform: platform, source: row['Source'] || '', caption: row['Caption'] || '', hashtags: row['Hashtags'] || '', transcript: row['Transcript'] || '' };
+    var ci = row['CI'] || null;
+    var post = { url: url, date: date, views: views, likes: likes, comments: comments, platform: platform, source: row['Source'] || '', caption: row['Caption'] || '', hashtags: row['Hashtags'] || '', transcript: row['Transcript'] || '',
+      brand_fit_score: row['BrandFit'] || (ci && ci.brand_fit_score) || null,
+      delivery_verbal_score: ci && ci.delivery_verbal_score != null ? ci.delivery_verbal_score : null,
+      scene_fit: row['SceneFit'] || (ci && ci.scene_fit) || '',
+      subject_age: row['SubjectAge'] || (ci && ci.subject_age) || '',
+      hook_score: ci && ci.hook_score != null ? ci.hook_score : null,
+      storytelling_score: ci && ci.storytelling_score != null ? ci.storytelling_score : null,
+      authenticity_score: ci && ci.authenticity_score != null ? ci.authenticity_score : null,
+      scene_tags: row['SceneTags'] || (ci && ci.scene_tags) || '',
+      ci: ci
+    };
 
     if (map[handle]) {
       // Existing — update aggregates
@@ -2883,6 +2941,20 @@ function mergeSheetData(discoveryRows) {
         syncly_kw: row['Syncly KW'] || ''
       };
     }
+  });
+
+  // Compute per-creator CI summary scores
+  Object.values(map).forEach(function(c) {
+    var bestBF = 0, bestDV = 0, ciCount = 0;
+    (c._posts || []).forEach(function(p) {
+      if (p.brand_fit_score && p.brand_fit_score > bestBF) bestBF = p.brand_fit_score;
+      if (p.delivery_verbal_score && p.delivery_verbal_score > bestDV) bestDV = p.delivery_verbal_score;
+      if (p.ci || p.brand_fit_score || p.delivery_verbal_score) ciCount++;
+    });
+    c._ciBrandFit = bestBF;
+    c._ciDelivery = bestDV;
+    c._ciCount = ciCount;
+    c._ciScore = bestDV || bestBF; // primary sort key
   });
 
   _sheetData = Object.values(map);
@@ -2948,6 +3020,27 @@ function renderSheet() {
 
   document.getElementById('sheet-count').textContent = total + ' influencers' + (total !== _sheetData.length ? ' (filtered from ' + _sheetData.length + ')' : '');
 
+  // Update CI summary stats
+  var ciAnalyzed = _sheetData.filter(function(c) { return c._ciCount > 0; });
+  var ciBar = document.getElementById('ci-stats-bar');
+  if (ciAnalyzed.length > 0) {
+    ciBar.style.display = 'block';
+    document.getElementById('ci-stat-count').textContent = ciAnalyzed.length;
+    var dvSum = 0, dvCnt = 0, bfSum = 0, bfCnt = 0, trCnt = 0, topCnt = 0;
+    ciAnalyzed.forEach(function(c) {
+      if (c._ciDelivery > 0) { dvSum += c._ciDelivery; dvCnt++; }
+      if (c._ciBrandFit > 0) { bfSum += c._ciBrandFit; bfCnt++; }
+      if (c._ciDelivery >= 7) topCnt++;
+      (c._posts || []).forEach(function(p) { if (p.transcript && p.transcript.trim()) trCnt++; });
+    });
+    document.getElementById('ci-stat-dv').textContent = dvCnt ? (dvSum / dvCnt).toFixed(1) : '-';
+    document.getElementById('ci-stat-bf').textContent = bfCnt ? (bfSum / bfCnt).toFixed(1) : '-';
+    document.getElementById('ci-stat-tr').textContent = trCnt;
+    document.getElementById('ci-stat-top').textContent = topCnt;
+  } else {
+    ciBar.style.display = 'none';
+  }
+
   var html = '';
   page.forEach(function(c) {
     var contacted = hasPastContact(c);
@@ -3010,6 +3103,19 @@ function renderSheet() {
     html += '<td style="font-size:10px;color:var(--dim)">' + (latestDate ? '<a href="' + escapeHtml(latestPostUrl || handleLink) + '" target="_blank" style="color:var(--dim);text-decoration:underline">' + latestDate + '</a>' : '-') + '</td>';
     // D+
     html += '<td style="font-family:var(--mono);font-size:10px;font-weight:600;color:' + (dPlus ? 'var(--dim)' : '') + '">' + (dPlus || '-') + '</td>';
+    // CI Score badge
+    var ciHtml = '';
+    if (c._ciCount > 0) {
+      var dvScore = c._ciDelivery || 0;
+      var bfScore = c._ciBrandFit || 0;
+      var dvColor = dvScore >= 7 ? 'var(--g)' : dvScore >= 4 ? 'var(--am)' : 'var(--dim)';
+      ciHtml += '<div style="display:flex;flex-direction:column;gap:1px;align-items:center">';
+      if (dvScore) ciHtml += '<span style="font-family:var(--mono);font-size:11px;font-weight:700;color:' + dvColor + '" title="Delivery Verbal">' + dvScore + '</span>';
+      if (bfScore) ciHtml += '<span style="font-size:8px;color:var(--dim)" title="Brand Fit">BF ' + bfScore + '</span>';
+      if (!dvScore && !bfScore) ciHtml += '<span class="b c" title="CI analyzed but scores=0">CI</span>';
+      ciHtml += '</div>';
+    }
+    html += '<td style="text-align:center">' + (ciHtml || '<span style="color:var(--muted);font-size:9px">-</span>') + '</td>';
     // Actions
     html += '<td>';
     if (c._inPipeline) {
@@ -3025,7 +3131,7 @@ function renderSheet() {
     // Expandable post details row (caption, hashtags, transcript, comments per post)
     if (c._posts && c._posts.length > 0) {
       var rowId = 'detail-' + escapeHtml(c.username).replace(/[^a-zA-Z0-9]/g, '_');
-      html += '<tr id="' + rowId + '"><td colspan="11" style="padding:4px 12px 12px;background:#f8fafc;border-left:3px solid var(--a)">';
+      html += '<tr id="' + rowId + '"><td colspan="12" style="padding:4px 12px 12px;background:#f8fafc;border-left:3px solid var(--a)">';
       c._posts.forEach(function(post, pi) {
         html += '<div style="margin-bottom:8px;padding:8px;background:#fff;border:1px solid var(--border);border-radius:6px">';
         html += '<div style="display:flex;gap:12px;align-items:center;margin-bottom:4px">';
@@ -3038,7 +3144,48 @@ function renderSheet() {
         html += '</div>';
         if (post.caption) html += '<div style="font-size:10px;margin:4px 0;line-height:1.4;max-height:60px;overflow:auto"><b>Caption:</b> ' + escapeHtml(post.caption.substring(0, 300)) + '</div>';
         if (post.hashtags) html += '<div style="font-size:9px;color:var(--a);margin:2px 0"><b>Tags:</b> ' + escapeHtml(post.hashtags.substring(0, 200)) + '</div>';
-        if (post.transcript) html += '<div style="font-size:9px;color:var(--dim);margin:2px 0"><b>Transcript:</b> ' + escapeHtml(post.transcript.substring(0, 200)) + '</div>';
+        if (post.transcript) html += '<div style="font-size:9px;color:var(--dim);margin:2px 0"><b>Transcript:</b> ' + escapeHtml(post.transcript.substring(0, 300)) + (post.transcript.length > 300 ? '...' : '') + '</div>';
+        // CI Analysis card
+        if (post.ci || post.brand_fit_score || post.delivery_verbal_score) {
+          html += '<div style="margin-top:6px;padding:8px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px">';
+          html += '<div style="font-size:9px;font-weight:700;color:#0284c7;margin-bottom:4px">Content Intelligence</div>';
+          html += '<div style="display:flex;gap:10px;flex-wrap:wrap;font-size:9px">';
+          var scores = [
+            { label: 'Delivery', val: post.delivery_verbal_score, max: 10 },
+            { label: 'Brand Fit', val: post.brand_fit_score, max: 10 },
+            { label: 'Hook', val: post.hook_score, max: 10 },
+            { label: 'Story', val: post.storytelling_score, max: 10 },
+            { label: 'Auth', val: post.authenticity_score, max: 10 }
+          ];
+          scores.forEach(function(s) {
+            if (s.val == null) return;
+            var pct = Math.round((s.val / s.max) * 100);
+            var color = s.val >= 7 ? '#10b981' : s.val >= 4 ? '#f59e0b' : '#94a3b8';
+            html += '<div style="min-width:70px">';
+            html += '<div style="font-weight:600;color:var(--dim)">' + s.label + '</div>';
+            html += '<div style="display:flex;align-items:center;gap:4px">';
+            html += '<div style="flex:1;height:4px;background:#e2e8f0;border-radius:2px;overflow:hidden"><div style="width:' + pct + '%;height:100%;background:' + color + ';border-radius:2px"></div></div>';
+            html += '<span style="font-family:var(--mono);font-weight:700;color:' + color + '">' + s.val + '</span>';
+            html += '</div></div>';
+          });
+          html += '</div>';
+          // Scene tags + subject age
+          var tags = [];
+          if (post.scene_fit) tags.push('Scene: ' + post.scene_fit);
+          if (post.subject_age) tags.push('Age: ' + post.subject_age);
+          if (post.scene_tags) tags.push(typeof post.scene_tags === 'string' ? post.scene_tags : (post.scene_tags || []).join(', '));
+          if (tags.length) html += '<div style="margin-top:4px;font-size:8px;color:var(--dim)">' + escapeHtml(tags.join(' · ')) + '</div>';
+          // Extended CI fields
+          var ci = post.ci || {};
+          var extras = [];
+          if (ci.hook_type) extras.push('Hook: ' + ci.hook_type);
+          if (ci.emotional_tone) extras.push('Tone: ' + ci.emotional_tone);
+          if (ci.persuasion_type) extras.push('Persuasion: ' + ci.persuasion_type);
+          if (ci.demo_present) extras.push('Demo shown');
+          if (ci.cta_present) extras.push('Has CTA');
+          if (extras.length) html += '<div style="margin-top:2px;font-size:8px;color:#6366f1">' + escapeHtml(extras.join(' · ')) + '</div>';
+          html += '</div>';
+        }
         html += '</div>';
       });
       html += '</td></tr>';
