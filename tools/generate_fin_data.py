@@ -3542,6 +3542,7 @@ def generate():
         "brand_ad_by_platform": bap_monthly_out,
         "weekly": weekly_data,
         "hero_products": hero_data,
+        "jp": _build_jp_data(dk, months),
     }
 
     # ── Write output ──────────────────────────────────────────────────────────
@@ -3597,6 +3598,78 @@ def generate():
         subprocess.run(["git", "commit", "-m", "auto: update financial KPI data [skip ci]"], check=False)
         subprocess.run(["git", "push"], check=True)
         print("  Pushed to GitHub")
+
+
+def _build_jp_data(dk: "DataKeeper", months: list) -> dict:
+    """Build JP section for FIN_DATA — Amazon JP SP-API + Rakuten orders."""
+    jp: dict = {"amazon": {}, "rakuten": {}}
+
+    # ── Amazon JP ────────────────────────────────────────────────────────────
+    try:
+        amz_jp_rows = dk.get("amazon_sales_daily", days=365,
+                             extra_filter={"marketplace_id": "A1VC38T7YXB528"})
+    except Exception:
+        amz_jp_rows = []
+
+    # Fallback: seller_id match for Grosmimi JP
+    if not amz_jp_rows:
+        try:
+            all_amz = dk.get("amazon_sales_daily", days=365)
+            amz_jp_rows = [r for r in all_amz if r.get("seller_id") == "A1A01CME113JSP"]
+        except Exception:
+            amz_jp_rows = []
+
+    if amz_jp_rows:
+        monthly_rev: dict = defaultdict(float)
+        monthly_units: dict = defaultdict(int)
+        monthly_orders: dict = defaultdict(int)
+        for r in amz_jp_rows:
+            m = (r.get("date") or "")[:7]
+            if m not in months:
+                continue
+            monthly_rev[m] += float(r.get("revenue", 0) or 0)
+            monthly_units[m] += int(r.get("units", 0) or 0)
+            monthly_orders[m] += int(r.get("orders", 0) or 0)
+        jp["amazon"] = {
+            "months": months,
+            "revenue": [round(monthly_rev.get(m, 0), 2) for m in months],
+            "units": [monthly_units.get(m, 0) for m in months],
+            "orders": [monthly_orders.get(m, 0) for m in months],
+            "currency": "JPY",
+        }
+        print(f"  [JP Amazon] {len(amz_jp_rows)} rows → {len([v for v in monthly_rev.values() if v > 0])} active months")
+    else:
+        print("  [JP Amazon] No data yet")
+
+    # ── Rakuten ──────────────────────────────────────────────────────────────
+    try:
+        rakuten_rows = dk.get("rakuten_orders_daily", days=365)
+    except Exception:
+        rakuten_rows = []
+
+    if rakuten_rows:
+        monthly_rev_r: dict = defaultdict(float)
+        monthly_units_r: dict = defaultdict(int)
+        monthly_orders_r: dict = defaultdict(int)
+        for r in rakuten_rows:
+            m = (r.get("date") or "")[:7]
+            if m not in months:
+                continue
+            monthly_rev_r[m] += float(r.get("revenue", 0) or 0)
+            monthly_units_r[m] += int(r.get("units", 0) or 0)
+            monthly_orders_r[m] += int(r.get("orders", 0) or 0)
+        jp["rakuten"] = {
+            "months": months,
+            "revenue": [round(monthly_rev_r.get(m, 0), 2) for m in months],
+            "units": [monthly_units_r.get(m, 0) for m in months],
+            "orders": [monthly_orders_r.get(m, 0) for m in months],
+            "currency": "JPY",
+        }
+        print(f"  [Rakuten] {len(rakuten_rows)} rows → {len([v for v in monthly_rev_r.values() if v > 0])} active months")
+    else:
+        print("  [Rakuten] No data yet")
+
+    return jp
 
 
 if __name__ == "__main__":

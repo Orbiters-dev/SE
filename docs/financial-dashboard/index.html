@@ -147,44 +147,14 @@ td{padding:6px 8px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#f8fff
 </div>
 
 <!-- ── JP Sections ──────────────────────────────────────────────────────── -->
-<div id="sec-jp-amazon" style="display:none">
-  <div class="hero">
-    <h1>Amazon <span>JP</span> &amp; 라쿠텐</h1>
-    <div class="sub">Japan Marketplace — Amazon JP + Rakuten</div>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:8px">
-    <div class="card" style="text-align:center;padding:56px 24px">
-      <div style="font-size:44px;margin-bottom:12px">🛒</div>
-      <h3 style="margin:0 0 8px;font-size:18px">Amazon JP</h3>
-      <div class="desc" style="margin-bottom:16px">marketplace_id: A1VC38T7YXB528<br>SP-API 수집 설정 후 자동으로 채워집니다</div>
-      <div style="padding:8px 16px;background:#fef3c7;border-radius:8px;font-size:11px;color:#92400e;display:inline-block">⏳ 데이터 준비 중</div>
-    </div>
-    <div class="card" style="text-align:center;padding:56px 24px">
-      <div style="font-size:44px;margin-bottom:12px">🏪</div>
-      <h3 style="margin:0 0 8px;font-size:18px">라쿠텐</h3>
-      <div class="desc" style="margin-bottom:16px">rakuten_orders_daily<br>Rakuten API 연동 후 자동으로 채워집니다</div>
-      <div style="padding:8px 16px;background:#fef3c7;border-radius:8px;font-size:11px;color:#92400e;display:inline-block">⏳ 데이터 준비 중</div>
-    </div>
-  </div>
-</div>
+<div id="sec-jp-amazon" style="display:none"></div>
 <div id="sec-jp-content" style="display:none">
   <iframe id="ifr-jp-content" src="" style="width:100%;height:90vh;border:none;border-radius:12px;background:var(--bg)"></iframe>
 </div>
 <div id="sec-jp-pipeline" style="display:none">
   <iframe id="ifr-jp-pipeline" src="" style="width:100%;height:90vh;border:none;border-radius:12px;background:var(--bg)"></iframe>
 </div>
-<div id="sec-jp-fin" style="display:none">
-  <div class="hero">
-    <h1>Financial <span>KPIs</span> — JP</h1>
-    <div class="sub">Japan Revenue, Margins & Analytics</div>
-  </div>
-  <div class="card" style="text-align:center;padding:56px 24px;margin-top:8px">
-    <div style="font-size:44px;margin-bottom:12px">📊</div>
-    <h3 style="margin:0 0 8px;font-size:18px">JP Financial KPIs</h3>
-    <div class="desc" style="margin-bottom:16px">Amazon JP + 라쿠텐 매출 데이터 수집 후<br>자동으로 채워집니다</div>
-    <div style="padding:8px 16px;background:#fef3c7;border-radius:8px;font-size:11px;color:#92400e;display:inline-block">⏳ 데이터 준비 중</div>
-  </div>
-</div>
+<div id="sec-jp-fin" style="display:none"></div>
 
 </div>
 </div>
@@ -300,6 +270,9 @@ function switchSection(tabId, init) {
 
   // Financial KPIs inline render
   if(tab.id==='fin-kpis' && !window._finRendered){ renderFinancial(); window._finRendered=true; }
+  // JP inline renders
+  if(tab.id==='jp-amazon' && !window._jpAmazonRendered){ renderJpAmazon(); window._jpAmazonRendered=true; }
+  if(tab.id==='jp-fin' && !window._jpFinRendered){ renderJpFin(); window._jpFinRendered=true; }
 
   // update tab bar highlight
   var el=document.getElementById('section-tabs');
@@ -475,6 +448,116 @@ function switchSeoBrand(brand){
   document.querySelectorAll('.seo-brand-panel').forEach(function(p){
     p.style.display=p.getAttribute('data-seo-panel')===brand?'':'none';
   });
+}
+
+// ── JP Render Helpers ────────────────────────────────────────────────────────
+function _jpNoData(icon, title, desc) {
+  return '<div class="hero"><h1>'+title+'</h1></div>'
+    +'<div class="card" style="text-align:center;padding:56px 24px;margin-top:8px">'
+    +'<div style="font-size:44px;margin-bottom:12px">'+icon+'</div>'
+    +'<h3 style="margin:0 0 8px;font-size:18px">'+title+'</h3>'
+    +'<div class="desc" style="margin-bottom:16px">'+desc+'</div>'
+    +'<div style="padding:8px 16px;background:#fef3c7;border-radius:8px;font-size:11px;color:#92400e;display:inline-block">⏳ 데이터 준비 중</div>'
+    +'</div>';
+}
+
+function _jpRevenueChart(label, data) {
+  var months = data.months || [];
+  var rev = data.revenue || [];
+  var units = data.units || [];
+  var orders = data.orders || [];
+  var currency = data.currency || 'JPY';
+  var maxRev = Math.max.apply(null, rev.concat([1]));
+  var html = '<div class="sec"><div class="sec-title"><div class="num" style="background:#ef4444">1</div> Monthly Revenue — '+label+'</div>';
+  html += '<div style="overflow-x:auto"><table class="tbl"><thead><tr>'
+    +'<th>Month</th><th>Revenue ('+currency+')</th><th>Chart</th><th>Orders</th><th>Units</th></tr></thead><tbody>';
+  months.forEach(function(m, i) {
+    var r = rev[i] || 0;
+    var pct = maxRev > 0 ? (r / maxRev * 100).toFixed(1) : 0;
+    var mLabel = m.split('-')[1]+'/'+m.split('-')[0].substring(2);
+    html += '<tr>'
+      +'<td>'+mLabel+'</td>'
+      +'<td style="text-align:right;font-weight:700">'+(r > 0 ? '¥'+Math.round(r).toLocaleString() : '<span style="color:var(--dim)">—</span>')+'</td>'
+      +'<td style="min-width:120px">'+barChart(pct, '#ef4444')+'</td>'
+      +'<td style="text-align:right">'+(orders[i] || 0)+'</td>'
+      +'<td style="text-align:right">'+(units[i] || 0)+'</td>'
+      +'</tr>';
+  });
+  html += '</tbody></table></div></div>';
+  return html;
+}
+
+function renderJpAmazon() {
+  var jp = (typeof FIN_DATA !== 'undefined' && FIN_DATA.jp) ? FIN_DATA.jp : null;
+  var el = document.getElementById('sec-jp-amazon');
+  var html = '<div class="hero"><h1>Amazon <span>JP</span> &amp; 라쿠텐</h1>'
+    +'<div class="sub">Japan Marketplace — Amazon JP + Rakuten</div></div>';
+
+  var hasAmazon = jp && jp.amazon && jp.amazon.months && jp.amazon.revenue && jp.amazon.revenue.some(function(v){return v>0;});
+  var hasRakuten = jp && jp.rakuten && jp.rakuten.months && jp.rakuten.revenue && jp.rakuten.revenue.some(function(v){return v>0;});
+
+  if (!hasAmazon && !hasRakuten) {
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:8px">'
+      +'<div class="card" style="text-align:center;padding:56px 24px">'
+      +'<div style="font-size:44px;margin-bottom:12px">🛒</div>'
+      +'<h3 style="margin:0 0 8px;font-size:18px">Amazon JP</h3>'
+      +'<div class="desc" style="margin-bottom:16px">marketplace_id: A1VC38T7YXB528<br>SP-API 수집 설정 후 자동으로 채워집니다</div>'
+      +'<div style="padding:8px 16px;background:#fef3c7;border-radius:8px;font-size:11px;color:#92400e;display:inline-block">⏳ 데이터 준비 중</div>'
+      +'</div>'
+      +'<div class="card" style="text-align:center;padding:56px 24px">'
+      +'<div style="font-size:44px;margin-bottom:12px">🏪</div>'
+      +'<h3 style="margin:0 0 8px;font-size:18px">라쿠텐</h3>'
+      +'<div class="desc" style="margin-bottom:16px">rakuten_orders_daily<br>Rakuten API 연동 후 자동으로 채워집니다</div>'
+      +'<div style="padding:8px 16px;background:#fef3c7;border-radius:8px;font-size:11px;color:#92400e;display:inline-block">⏳ 데이터 준비 중</div>'
+      +'</div></div>';
+  } else {
+    if (hasAmazon) html += _jpRevenueChart('🛒 Amazon JP', jp.amazon);
+    else html += '<div class="card" style="text-align:center;padding:32px"><div style="font-size:32px">🛒</div><div class="desc">Amazon JP 데이터 준비 중</div></div>';
+    if (hasRakuten) html += _jpRevenueChart('🏪 라쿠텐', jp.rakuten);
+    else html += '<div class="card" style="text-align:center;padding:32px;margin-top:16px"><div style="font-size:32px">🏪</div><div class="desc">라쿠텐 데이터 준비 중</div></div>';
+  }
+  el.innerHTML = html;
+}
+
+function renderJpFin() {
+  var jp = (typeof FIN_DATA !== 'undefined' && FIN_DATA.jp) ? FIN_DATA.jp : null;
+  var el = document.getElementById('sec-jp-fin');
+  var html = '<div class="hero"><h1>Financial <span>KPIs</span> — JP</h1>'
+    +'<div class="sub">Japan Revenue Summary</div></div>';
+
+  var hasData = jp && ((jp.amazon && jp.amazon.revenue && jp.amazon.revenue.some(function(v){return v>0;}))
+                    || (jp.rakuten && jp.rakuten.revenue && jp.rakuten.revenue.some(function(v){return v>0;})));
+  if (!hasData) {
+    html += '<div class="card" style="text-align:center;padding:56px 24px;margin-top:8px">'
+      +'<div style="font-size:44px;margin-bottom:12px">📊</div>'
+      +'<h3 style="margin:0 0 8px;font-size:18px">JP Financial KPIs</h3>'
+      +'<div class="desc" style="margin-bottom:16px">Amazon JP + 라쿠텐 매출 데이터 수집 후<br>자동으로 채워집니다</div>'
+      +'<div style="padding:8px 16px;background:#fef3c7;border-radius:8px;font-size:11px;color:#92400e;display:inline-block">⏳ 데이터 준비 중</div>'
+      +'</div>';
+  } else {
+    // Combined JP revenue KPI cards
+    var amzRev = jp.amazon && jp.amazon.revenue ? jp.amazon.revenue : [];
+    var rakRev = jp.rakuten && jp.rakuten.revenue ? jp.rakuten.revenue : [];
+    var months = (jp.amazon && jp.amazon.months) || (jp.rakuten && jp.rakuten.months) || [];
+    var last3 = months.slice(-3);
+    html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px">';
+    last3.forEach(function(m, idx) {
+      var mi = months.indexOf(m);
+      var amz = amzRev[mi] || 0;
+      var rak = rakRev[mi] || 0;
+      var total = amz + rak;
+      var mLabel = m.split('-')[1]+'/'+m.split('-')[0].substring(2);
+      html += '<div class="card"><div class="kpi-label">'+mLabel+' Total JP</div>'
+        +'<div class="kpi-val">¥'+(total>0?Math.round(total).toLocaleString():'—')+'</div>'
+        +'<div class="desc" style="margin-top:4px">Amazon JP ¥'+(amz>0?Math.round(amz).toLocaleString():'—')
+        +' · 라쿠텐 ¥'+(rak>0?Math.round(rak).toLocaleString():'—')+'</div>'
+        +'</div>';
+    });
+    html += '</div>';
+    if (jp.amazon && jp.amazon.revenue) html += _jpRevenueChart('🛒 Amazon JP', jp.amazon);
+    if (jp.rakuten && jp.rakuten.revenue) html += _jpRevenueChart('🏪 라쿠텐', jp.rakuten);
+  }
+  el.innerHTML = html;
 }
 
 // ── Main Render ──────────────────────────────────────────────────────────────
