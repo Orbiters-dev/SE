@@ -3386,24 +3386,38 @@ def generate():
         _dbg_with_user = sum(1 for v in post_info.values() if v.get("username"))
         _dbg_with_brand = sum(1 for v in post_info.values() if v.get("brand"))
         print(f"  [6b] post_info: {len(post_info)} entries, {_dbg_with_user} with username, {_dbg_with_brand} with brand")
-        # Step 1: find max views per post + earliest post_date per user
+        # Step 1: per-post snapshots → compute day-over-day DELTA (not cumulative)
+        # views in metrics = cumulative snapshot, so delta = today - yesterday
+        post_snapshots = defaultdict(dict)  # pid → {date → views}
         post_max_views = defaultdict(int)
-        for m in content_metrics:
-            pid = m.get("post_id", "")
-            views = int(m.get("views") or 0)
-            if views > post_max_views[pid]:
-                post_max_views[pid] = views
-
-        # Step 2: build daily views from metric dates (actual measurement)
-        # Also track total_views (max across all snapshots) and upload_date per user
-        cat_creator_daily = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-        cat_creator_meta = {}  # (cat, username) → {brand, platform, upload_date, total_views}
         for m in content_metrics:
             pid = m.get("post_id", "")
             d = m.get("date", "")
             views = int(m.get("views") or 0)
-            if d < cutoff_90d or views <= 0:
+            if not pid or not d:
                 continue
+            # Keep highest snapshot per (post, date) in case of duplicates
+            if views > post_snapshots[pid].get(d, 0):
+                post_snapshots[pid][d] = views
+            if views > post_max_views[pid]:
+                post_max_views[pid] = views
+
+        # Step 2: compute daily new views per post (delta between consecutive snapshots)
+        post_daily_delta = defaultdict(dict)  # pid → {date → delta_views}
+        for pid, snaps in post_snapshots.items():
+            sorted_dates = sorted(snaps.keys())
+            prev_v = 0
+            for d in sorted_dates:
+                v = snaps[d]
+                delta = max(0, v - prev_v)  # new views since last snapshot
+                if delta > 0:
+                    post_daily_delta[pid][d] = delta
+                prev_v = v
+
+        # Step 3: aggregate deltas per category × creator × date
+        cat_creator_daily = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+        cat_creator_meta = {}
+        for pid, deltas in post_daily_delta.items():
             info = post_info.get(pid)
             if not info or not info.get("username"):
                 continue
@@ -3417,7 +3431,9 @@ def generate():
                 else []
             )
             for cat in cats:
-                cat_creator_daily[cat][uname][d] += views
+                for d, dv in deltas.items():
+                    if d >= cutoff_90d:
+                        cat_creator_daily[cat][uname][d] += dv
                 key = (cat, uname)
                 if key not in cat_creator_meta:
                     cat_creator_meta[key] = {
@@ -3426,12 +3442,11 @@ def generate():
                         "total_views": 0,
                     }
                 meta = cat_creator_meta[key]
-                # Track earliest upload_date
                 pd = info.get("post_date", "")
                 if pd and (not meta["upload_date"] or pd < meta["upload_date"]):
                     meta["upload_date"] = pd
-                # Track total_views = sum of max_views per post
-        # Compute total_views per (cat, user) = sum of each post's max views
+
+        # Step 4: total_views per (cat, user) = sum of each post's peak views
         cat_user_posts = defaultdict(lambda: defaultdict(set))
         for pid, info in post_info.items():
             if not info.get("username"):

@@ -1522,10 +1522,10 @@ function renderHeroTab(F){
         var divY2=midTop+midH+gap/2;
         html+='<line x1="'+padL+'" y1="'+divY2+'" x2="'+(chartW-padR)+'" y2="'+divY2+'" stroke="var(--border)" stroke-width="1"/>';
         var delTop=midTop+midH+gap;
-        // Forward-fill snapshot: carry last non-zero value forward for continuous lines
+        // Running sum of daily deltas → cumulative view growth lines
         var ffCreators=crDeltaArr.map(function(x){
-          var ff=[],last=0;
-          for(var i=0;i<n;i++){var v=x.cr.daily_views[i]||0;if(v>0)last=v;ff.push(last);}
+          var ff=[],cumSum=0;
+          for(var i=0;i<n;i++){cumSum+=x.cr.daily_views[i]||0;ff.push(cumSum);}
           return {cr:x.cr,ff:ff,ci:crDeltaArr.indexOf(x)};
         });
         var crMaxV=1;
