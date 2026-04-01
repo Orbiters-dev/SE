@@ -891,9 +891,15 @@ function renderFinancial(){
 
 // ── Hero Products Tab ────────────────────────────────────────────────────────
 var _heroPeriod=90;
+var _heroView='cat'; // 'cat' or 'brand'
 function setHeroPeriod(d){
   _heroPeriod=d;
   document.querySelectorAll('#hero-period-tabs>div').forEach(function(t){t.classList.toggle('on',parseInt(t.dataset.d)===d);});
+  if(window._heroF) renderHeroTab(window._heroF);
+}
+function setHeroView(v){
+  _heroView=v;
+  document.querySelectorAll('#hero-view-tabs>div').forEach(function(t){t.classList.toggle('on',t.dataset.v===v);});
   if(window._heroF) renderHeroTab(window._heroF);
 }
 function renderHeroTab(F){
@@ -917,7 +923,8 @@ function renderHeroTab(F){
   window._heroF=F;
   // Keep existing period if user already toggled
   html+='<div class="sec"><div class="sec-title"><div class="num">1</div> Product Category Scorecard';
-  html+=' <div class="period-tabs" id="hero-period-tabs" style="margin-left:auto"><div data-d="7" onclick="setHeroPeriod(7)" '+((_heroPeriod===7)?'class="on"':'')+'>7D</div><div data-d="30" onclick="setHeroPeriod(30)" '+((_heroPeriod===30)?'class="on"':'')+'>30D</div><div data-d="90" onclick="setHeroPeriod(90)" '+((_heroPeriod===90)?'class="on"':'')+'>90D</div></div>';
+  html+=' <div class="period-tabs" id="hero-view-tabs" style="margin-left:auto;margin-right:6px"><div data-v="cat" onclick="setHeroView(\'cat\')" '+(_heroView==='cat'?'class="on"':'')+'>Category</div><div data-v="brand" onclick="setHeroView(\'brand\')" '+(_heroView==='brand'?'class="on"':'')+'>Brand</div></div>';
+  html+=' <div class="period-tabs" id="hero-period-tabs"><div data-d="7" onclick="setHeroPeriod(7)" '+((_heroPeriod===7)?'class="on"':'')+'>7D</div><div data-d="30" onclick="setHeroPeriod(30)" '+((_heroPeriod===30)?'class="on"':'')+'>30D</div><div data-d="90" onclick="setHeroPeriod(90)" '+((_heroPeriod===90)?'class="on"':'')+'>90D</div></div>';
   html+='</div>';
   html+='<div class="card">';
   // Brand summary row
@@ -938,14 +945,42 @@ function renderHeroTab(F){
     html+='</div>';
   });
   html+='</div>';
-  html+='<div class="desc" style="margin-bottom:12px">Sales by product category ('+H.categories.length+' categories). Keywords from Amazon Brand Analytics.</div>';
-  H.categories.forEach(function(c,idx){
-    var bc=CATCOLORS[c.category]||'#94a3b8';
+  // ── Build brand-aggregated cards for brand view ──
+  var _brandGroups={};
+  H.categories.forEach(function(c){
+    var b=c.brand||'Other';
+    if(!_brandGroups[b])_brandGroups[b]={category:b,brand:b,_isBrand:true,asin_count:0,sales_7d:0,sales_30d:0,units_30d:0,units_7d:0,daily_sales:[],daily_units:[],top_keywords:[],_kwSeen:{},_crMap:{},_subCats:[]};
+    var bg=_brandGroups[b];
+    bg._subCats.push(c.category);
+    bg.asin_count+=c.asin_count;
+    bg.sales_7d+=c.sales_7d;bg.sales_30d+=c.sales_30d;bg.units_30d+=c.units_30d;bg.units_7d+=(c.units_7d||0);
+    if(c.daily_sales)c.daily_sales.forEach(function(v,i){bg.daily_sales[i]=(bg.daily_sales[i]||0)+v;});
+    if(c.daily_units)c.daily_units.forEach(function(v,i){bg.daily_units[i]=(bg.daily_units[i]||0)+v;});
+    if(c.top_keywords)c.top_keywords.forEach(function(kw){if(!bg._kwSeen[kw.keyword]){bg._kwSeen[kw.keyword]=true;bg.top_keywords.push(kw);}});
+    var catCrs=(H.content_creators_by_cat||{})[c.category]||[];
+    catCrs.forEach(function(cr){
+      if(!bg._crMap[cr.username])bg._crMap[cr.username]={username:cr.username,platform:cr.platform,brand:cr.brand,total_views:0,daily_views:[]};
+      var ex=bg._crMap[cr.username];
+      ex.total_views+=cr.total_views;
+      if(cr.daily_views)cr.daily_views.forEach(function(v,i){ex.daily_views[i]=(ex.daily_views[i]||0)+v;});
+    });
+  });
+  Object.values(_brandGroups).forEach(function(bg){
+    bg.top_keywords.sort(function(a,b2){return a.search_freq_rank-b2.search_freq_rank;});
+    bg._creators=Object.values(bg._crMap).sort(function(a,b2){return b2.total_views-a.total_views;});
+  });
+  var _brandOrder2=Object.keys(_brandGroups).sort(function(a,b){return _brandGroups[b].sales_30d-_brandGroups[a].sales_30d;});
+  // ── Select render list based on view ──
+  var _renderList=_heroView==='brand'?_brandOrder2.map(function(b){return _brandGroups[b];}):H.categories;
+  html+='<div class="desc" style="margin-bottom:12px">'+(_heroView==='brand'?'Sales by brand ('+_brandOrder2.length+' brands). All categories merged.':'Sales by product category ('+H.categories.length+' categories). Keywords from Amazon Brand Analytics.')+'</div>';
+  _renderList.forEach(function(c,idx){
+    var bc=CATCOLORS[c.category]||(BCOLORS[c.brand]||'#94a3b8');
     var brandBg=BCOLORS[c.brand]||'#94a3b8';
     html+='<div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px">';
     html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
     html+='<div><span style="font-weight:700;font-size:13px;color:'+bc+'">'+c.category+'</span>';
-    html+=' <span style="font-size:9px;padding:1px 6px;border-radius:10px;background:'+brandBg+'22;color:'+brandBg+';font-weight:600">'+c.brand+'</span>';
+    if(!c._isBrand)html+=' <span style="font-size:9px;padding:1px 6px;border-radius:10px;background:'+brandBg+'22;color:'+brandBg+';font-weight:600">'+c.brand+'</span>';
+    else if(c._subCats)html+=' <span style="font-size:9px;color:var(--muted)">'+c._subCats.join(' · ')+'</span>';
     html+=' <span style="font-size:9px;color:var(--muted);font-family:var(--mono)">'+c.asin_count+' ASINs</span></div>';
     html+='<div style="text-align:right">';
     html+='<span style="font-family:var(--mono);font-weight:800;font-size:16px;color:var(--g)">$'+c.sales_30d.toLocaleString()+'</span>';
@@ -954,7 +989,7 @@ function renderHeroTab(F){
     html+='</div></div>';
     // ═══ Dual Chart: Sales (top) + Content (bottom), full width ═══
     var cl=H.content_lift?H.content_lift[c.category]:null;
-    var catCreators=(H.content_creators_by_cat||{})[c.category]||[];
+    var catCreators=c._creators||(H.content_creators_by_cat||{})[c.category]||[];
     // Get search volume for this brand from top-level keyword_volumes
     var catKwVols=[];
     var _brandSlug=(c.brand||'').toLowerCase().replace(/[^a-z0-9]/g,'');
@@ -988,9 +1023,9 @@ function renderHeroTab(F){
       var INF_COLORS=['#3b82f6','#ec4899','#f97316','#14b8a6','#6366f1','#ef4444','#a855f7','#eab308','#0ea5e9','#84cc16'];
       // Full-width chart dimensions
       var padL=50,padR=150,padT=14,gap=6;
-      var midH=100,delH=80;
+      var midH=140,delH=120;
       var botH=hasContent?(midH+gap+delH):0;
-      var topH=100;
+      var topH=160;
       var chartW=1020;
       var bw=Math.max(Math.floor((chartW-padL-padR)/n)-1,3);
       var maxS=Math.max.apply(null,ds)||1;
@@ -1017,7 +1052,8 @@ function renderHeroTab(F){
       html+='<span style="color:var(--g)">&#9644; Sales</span>';
       if(totalNewViews>0) html+='<span style="color:'+bc+'">&#9651; +'+totalNewViews.toLocaleString()+' new views</span>';
       crDeltaArr.forEach(function(x,ci){
-        html+='<span style="color:'+INF_COLORS[ci%INF_COLORS.length]+'">&#9642; @'+x.cr.username+(x.total>0?' +'+x.total.toLocaleString():'')+' views</span>';
+        var _cu=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
+        html+='<a href="'+_cu+'" target="_blank" style="color:'+INF_COLORS[ci%INF_COLORS.length]+';text-decoration:none">&#9642; @'+x.cr.username+(x.total>0?' +'+x.total.toLocaleString():'')+' views</a>';
       });
       var gscTotalAll=gscD.reduce(function(a,b){return a+b},0);
       if(gscTotalAll>0) html+='<span style="color:#f59e0b">--- GSC Search ('+gscTotalAll.toLocaleString()+' impr)</span>';
@@ -1151,15 +1187,16 @@ function renderHeroTab(F){
           var lastFF=x.ff[n-1]||0;
           if(lastFF>0){
             var lx=padL+(n-1)*(bw+1)+bw/2,ly=delTop+delH-lastFF/crMaxV*delH*0.9;
+            var _lcu=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
             html+='<circle cx="'+lx+'" cy="'+ly+'" r="3" fill="'+col+'"/>';
-            html+='<text x="'+(lx+6)+'" y="'+(ly+3)+'" fill="'+col+'" font-size="8" font-weight="600">@'+x.cr.username+' '+lastFF.toLocaleString()+'</text>';
+            html+='<a href="'+_lcu+'" target="_blank"><text x="'+(lx+6)+'" y="'+(ly+3)+'" fill="'+col+'" font-size="8" font-weight="600" style="cursor:pointer;text-decoration:underline">@'+x.cr.username+' '+lastFF.toLocaleString()+'</text></a>';
           }
         });
         // botH already = midH+gap+delH
       }
       // X-axis date labels (shared)
       var xBase=padT+topH+gap+botH;
-      var step=Math.max(Math.floor(n/12),1);
+      var step=pDays<=7?1:7;
       for(var i=0;i<n;i+=step){var x=padL+i*(bw+1)+bw/2;
       html+='<text x="'+x+'" y="'+(xBase+14)+'" fill="#94a3b8" font-size="7" font-family="var(--mono)" text-anchor="middle" transform="rotate(-30,'+x+','+(xBase+14)+')">'+dates[i].substring(5)+'</text>';}
       // Shared vertical guide line
@@ -1211,7 +1248,8 @@ function renderHeroTab(F){
           html+='</tr>';
         }
         crDeltaArr.forEach(function(x,ci){
-          html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'">@'+x.cr.username+'</td>';
+          var _tu=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
+          html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_tu+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a></td>';
           x.cr.daily_views.forEach(function(v){html+='<td style="text-align:right;font-family:var(--mono)">'+(v>0?v.toLocaleString():'—')+'</td>';});
           html+='</tr>';
         });
@@ -1248,7 +1286,8 @@ function renderHeroTab(F){
           }
           crDeltaArr.forEach(function(x,ci){
             var allDv=x.cr.daily_views;
-            html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'">@'+x.cr.username+'</td>';
+            var _wu=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
+            html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_wu+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a></td>';
             wkSlice.forEach(function(wk,wi){
               var weekTotal=0;var wkIdx=wkOffset+wi;
               for(var d=wkIdx*7;d<Math.min((wkIdx+1)*7,allDv.length);d++){weekTotal+=(allDv[d]||0);}
@@ -1278,7 +1317,8 @@ function renderHeroTab(F){
             dates.forEach(function(d){html+='<th style="text-align:right;font-size:9px">'+d.substring(5)+'</th>';});
             html+='</tr></thead><tbody>';
             crDeltaArr.forEach(function(x,ci){
-              html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'">@'+x.cr.username+'</td>';
+              var _du=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
+              html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_du+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a></td>';
               x.deltas.forEach(function(delta){
                 var col=delta>0?'#10b981':'var(--muted)';
                 html+='<td style="text-align:right;font-family:var(--mono);color:'+col+';font-size:10px">'+(delta>0?'+':'')+delta.toLocaleString()+'</td>';
@@ -1291,7 +1331,8 @@ function renderHeroTab(F){
             wks.forEach(function(w){html+='<th style="text-align:right;font-size:9px">'+w+'</th>';});
             html+='</tr></thead><tbody>';
             crDeltaArr.forEach(function(x,ci){
-              html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'">@'+x.cr.username+'</td>';
+              var _duw=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
+              html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_duw+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a></td>';
               var prevWeekEnd=0;
               wks.forEach(function(wk,wi){
                 var lastDay=Math.min((wi+1)*7-1,n-1),weekEnd=x.cr.daily_views[lastDay]||0;
