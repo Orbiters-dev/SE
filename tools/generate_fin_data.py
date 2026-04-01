@@ -3147,7 +3147,19 @@ def generate():
                         "conv_share": 0,
                     }
             if existing:
-                cat_sfr_branded[cat] = sorted(existing.values(), key=lambda x: -x["click_share"])
+                # Rank by avg volume (SQP) or click_share (SP-API fallback)
+                # Only keep keywords present in 3+ weeks (consistency filter)
+                def _kw_sort_key(kw):
+                    vols = kw.get("volume_weekly") or []
+                    return sum(vols) / len(vols) if vols else kw.get("click_share", 0)
+                def _kw_consistent(kw):
+                    vols = kw.get("volume_weekly") or []
+                    ranks = kw.get("rank_weekly") or []
+                    return len([v for v in vols if v > 0]) >= 3 or len([v for v in ranks if v > 0]) >= 3
+                consistent = [kw for kw in existing.values() if _kw_consistent(kw)]
+                if not consistent:
+                    consistent = list(existing.values())
+                cat_sfr_branded[cat] = sorted(consistent, key=_kw_sort_key, reverse=True)[:10]
 
         # ── 3. Enrich keywords with ads spend + search volume ─────────────
         st_spend = defaultdict(lambda: {"spend": 0.0, "clicks": 0, "sales": 0.0, "impressions": 0})

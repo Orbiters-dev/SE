@@ -1647,40 +1647,44 @@ function renderHeroTab(F){
           html+='</tbody></table>';
         }
       }
-      // ── SFR breakdown box ──
+      // ── Search Volume breakdown box (top 10 consistent branded keywords) ──
       if(_sfrOverlayKws.length){
-        // Collect all unique weeks across all keywords
+        // Build unified week axis using whichever field is active (_wkField/_valField)
         var _sfrAllWks={};
-        _sfrOverlayKws.forEach(function(kw){kw.rank_week_labels.forEach(function(w){_sfrAllWks[w]=true;});});
+        _sfrOverlayKws.forEach(function(kw){(kw[_wkField]||[]).forEach(function(w){_sfrAllWks[w]=true;});});
         var _sfrAllWksSorted=Object.keys(_sfrAllWks).sort();
+        var _metricLabel=_useVolume?'검색량 (주간)':'SFR Rank';
+        var _metricNote=_useVolume?'(높을수록 더 많이 검색됨)':'(낮을수록 더 많이 검색됨)';
         html+='<div style="margin-top:6px;padding:8px 10px;background:#fffbeb;border:1px solid #f59e0b44;border-radius:6px;font-size:10px">';
-        html+='<div style="font-weight:700;color:#f59e0b;margin-bottom:6px">&#9679; SFR 집계 — '+_sfrOverlayKws.length+'개 브랜디드 키워드 평균 <span style="font-weight:400;color:#92400e;font-size:9px">(낮을수록 더 많이 검색됨)</span></div>';
+        html+='<div style="font-weight:700;color:#f59e0b;margin-bottom:6px">&#9679; '+_metricLabel+' — TOP '+_sfrOverlayKws.length+' 브랜디드 키워드 <span style="font-weight:400;color:#92400e;font-size:9px">'+_metricNote+'</span></div>';
         html+='<div style="overflow-x:auto"><table style="font-size:9px;border-collapse:collapse;width:auto"><thead><tr>';
         html+='<th style="text-align:left;padding:3px 8px;color:#92400e;font-weight:600;white-space:nowrap">키워드</th>';
-        _sfrAllWksSorted.forEach(function(w){html+='<th style="text-align:right;padding:3px 8px;color:#92400e;font-family:var(--mono);font-weight:600">'+w+'</th>';});
+        _sfrAllWksSorted.forEach(function(w){html+='<th style="text-align:right;padding:3px 8px;color:#92400e;font-family:var(--mono);font-weight:600">'+w.substring(5)+'</th>';});
         html+='</tr></thead><tbody>';
-        _sfrOverlayKws.forEach(function(kw,ki){
+        _sfrOverlayKws.forEach(function(kw){
           html+='<tr style="border-top:1px solid #fde68a">';
           html+='<td style="padding:3px 8px;color:#78350f;font-weight:600;white-space:nowrap">'+kw.keyword+'</td>';
+          var labels=kw[_wkField]||[],values=kw[_valField]||[];
           _sfrAllWksSorted.forEach(function(w){
-            var wi=kw.rank_week_labels.indexOf(w);
-            var v=wi>=0?kw.rank_weekly[wi]:null;
+            var wi=labels.indexOf(w);
+            var v=wi>=0&&values[wi]?values[wi]:null;
             var vStr=v==null?'—':(v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?Math.round(v/1000)+'K':''+v);
-            var rankCol=v==null?'#d97706':v<50000?'#10b981':v<300000?'#f59e0b':'#ef4444';
-            html+='<td style="text-align:right;padding:3px 8px;font-family:var(--mono);color:'+rankCol+';font-weight:600">'+vStr+'</td>';
+            // Volume: green=high, red=low. Rank: green=low(good), red=high(bad)
+            var col=v==null?'#d97706':(_useVolume?(v>=3000?'#10b981':v>=500?'#f59e0b':'#ef4444'):(v<50000?'#10b981':v<300000?'#f59e0b':'#ef4444'));
+            html+='<td style="text-align:right;padding:3px 8px;font-family:var(--mono);color:'+col+';font-weight:600">'+vStr+'</td>';
           });
           html+='</tr>';
         });
-        // Avg row
+        // Avg row (matches the chart line)
         html+='<tr style="border-top:2px solid #f59e0b;background:#fef3c7">';
-        html+='<td style="padding:3px 8px;color:#92400e;font-weight:700">평균 (차트선)</td>';
+        html+='<td style="padding:3px 8px;color:#92400e;font-weight:700">합산 평균 (차트)</td>';
         _sfrAllWksSorted.forEach(function(w){
           var vals=[];
-          _sfrOverlayKws.forEach(function(kw){var wi=kw.rank_week_labels.indexOf(w);if(wi>=0&&kw.rank_weekly[wi])vals.push(kw.rank_weekly[wi]);});
+          _sfrOverlayKws.forEach(function(kw){var labels=kw[_wkField]||[],values=kw[_valField]||[];var wi=labels.indexOf(w);if(wi>=0&&values[wi])vals.push(values[wi]);});
           var avg=vals.length?Math.round(vals.reduce(function(a,b){return a+b},0)/vals.length):null;
           var vStr=avg==null?'—':(avg>=1000000?(avg/1000000).toFixed(1)+'M':avg>=1000?Math.round(avg/1000)+'K':''+avg);
-          var rankCol=avg==null?'#d97706':avg<50000?'#10b981':avg<300000?'#f59e0b':'#ef4444';
-          html+='<td style="text-align:right;padding:3px 8px;font-family:var(--mono);color:'+rankCol+';font-weight:700">'+vStr+'</td>';
+          var col=avg==null?'#d97706':(_useVolume?(avg>=3000?'#10b981':avg>=500?'#f59e0b':'#ef4444'):(avg<50000?'#10b981':avg<300000?'#f59e0b':'#ef4444'));
+          html+='<td style="text-align:right;padding:3px 8px;font-family:var(--mono);color:'+col+';font-weight:700">'+vStr+'</td>';
         });
         html+='</tr>';
         html+='</tbody></table></div></div>';
