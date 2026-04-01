@@ -134,8 +134,8 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 <!-- MAIN CONTENT -->
 <div id="main-content" style="display:none">
 <div class="ctr">
-  <!-- Top-level navigation — switches between dashboards -->
-  <div class="nav-bar" style="margin-bottom:16px">
+  <!-- Top-level navigation (hidden in embed mode) -->
+  <div class="nav-bar" id="top-nav" style="margin-bottom:16px">
     <div>
       <a href="../ppc-dashboard/" title="Amazon PPC Intelligence">Amazon PPC</a>
       <a href="../content-dashboard/" title="Content Intelligence">Content Intelligence</a>
@@ -1387,6 +1387,12 @@ Shopify                         Apify / Syncly                   Gmail RAG
 <div class="toast" id="toast"></div>
 
 <script>
+// ─── Embed mode: hide nav when loaded in iframe ───
+if(new URLSearchParams(window.location.search).get('embed')==='1'){
+  document.addEventListener('DOMContentLoaded',function(){
+    var n=document.getElementById('top-nav'); if(n)n.style.display='none';
+  });
+}
 // ========== AUTH ==========
 var AUTH_USERS={
   'WJ':'a619397d21c5fd5daa1d55bbdef5e99383dadb69f602a0110a9d56cb7b776fbd',
