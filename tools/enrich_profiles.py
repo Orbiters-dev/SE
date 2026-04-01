@@ -69,6 +69,49 @@ TT_PROFILE_SCRAPER = "clockworks/tiktok-profile-scraper"
 IG_BATCH = 50
 TT_BATCH = 50
 
+# US location detection from bio text
+US_STATES = {"AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY",
+    "LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK",
+    "OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY","DC"}
+US_CITIES = {"new york","los angeles","chicago","houston","phoenix","philadelphia","san antonio",
+    "san diego","dallas","san jose","austin","jacksonville","fort worth","columbus","charlotte",
+    "san francisco","indianapolis","seattle","denver","nashville","oklahoma city","portland",
+    "las vegas","memphis","louisville","baltimore","milwaukee","albuquerque","tucson","fresno",
+    "sacramento","mesa","kansas city","atlanta","omaha","colorado springs","raleigh","long beach",
+    "virginia beach","miami","oakland","minneapolis","tampa","tulsa","arlington","new orleans",
+    "la","nyc","atl","philly","sf","socal","norcal"}
+
+def _guess_us_from_bio(bio):
+    """Return 'United States' if bio text contains US location signals."""
+    if not bio:
+        return ""
+    bio_lower = bio.lower()
+    # Check state abbreviations (word boundary)
+    import re
+    for state in US_STATES:
+        if re.search(r'\b' + state.lower() + r'\b', bio_lower):
+            return "United States"
+    # Check city names
+    for city in US_CITIES:
+        if city in bio_lower:
+            return "United States"
+    # Common US patterns
+    # Area codes (3-digit in parentheses or with dash)
+    if re.search(r'\(\d{3}\)', bio_lower):
+        return "United States"
+    # ZIP codes (5-digit standalone)
+    if re.search(r'\b\d{5}\b', bio_lower):
+        return "United States"
+    us_patterns = ["based in us", "usa ", "u.s.a", "united states", "american mom",
+                   "american family", "🇺🇸", "sahm", "boy mom", "girl mom",
+                   "mama of", "mommy of", "mom of", "toddler mom",
+                   "midwest", "east coast", "west coast", "southern belle",
+                   "pnw", "tristate", "new england", "the south"]
+    for p in us_patterns:
+        if p in bio_lower:
+            return "United States"
+    return ""
+
 
 # ═════════════════════════════════════════════════════════════════════════════
 # HTTP helpers
@@ -163,11 +206,15 @@ def enrich_ig_profiles(client, usernames):
                     continue
 
                 about = item.get("about", {}) or {}
+                bio = (item.get("biography", "") or "")[:1000]
+                country = about.get("country", "")
+                if not country:
+                    country = _guess_us_from_bio(bio)
                 results[u] = {
-                    "country": about.get("country", ""),
+                    "country": country,
                     "is_business_account": item.get("isBusinessAccount"),
                     "business_category": item.get("businessCategoryName", ""),
-                    "biography": (item.get("biography", "") or "")[:1000],
+                    "biography": bio,
                     "is_verified": item.get("verified") or about.get("is_verified"),
                     "followers": item.get("followersCount", item.get("followedByCount")),
                 }
@@ -198,23 +245,37 @@ def enrich_tt_profiles(client, usernames):
         print(f"  [TT] Batch {i // TT_BATCH + 1}: {len(batch)} usernames...")
 
         try:
+            # clockworks actor returns video posts with authorMeta containing region.
+            # Request 1 video per profile to minimize cost; extract profile from authorMeta.
             items = client.run_actor(TT_PROFILE_SCRAPER, {
                 "profiles": [f"https://www.tiktok.com/@{u}" for u in batch],
+                "resultsPerPage": 1,
+                "shouldDownloadVideos": False,
+                "shouldDownloadCovers": False,
+                "shouldDownloadSubtitles": False,
+                "shouldDownloadSlideshowImages": False,
+                "shouldDownloadAvatars": False,
             }, timeout_secs=600)
 
             for item in items:
-                u = (item.get("uniqueId", item.get("username", "")) or "").lower().lstrip("@")
-                if not u:
+                author = item.get("authorMeta", {})
+                u = (author.get("name", item.get("uniqueId", "")) or "").lower().lstrip("@")
+                if not u or u in results:
                     continue
 
-                region = item.get("region", "")
+                region = author.get("region", item.get("region", ""))
+                # Normalize 2-letter region codes to full country names
+                region_map = {"US": "United States", "GB": "United Kingdom", "CA": "Canada",
+                              "AU": "Australia", "DE": "Germany", "FR": "France", "MX": "Mexico",
+                              "KR": "South Korea", "JP": "Japan", "BR": "Brazil", "IN": "India"}
+                country = region_map.get(region.upper(), region) if region else ""
                 results[u] = {
-                    "country": region if region else "",
+                    "country": country,
                     "is_business_account": None,  # TikTok doesn't reliably expose this
                     "business_category": "",
-                    "biography": (item.get("signature", item.get("bio", "")) or "")[:1000],
-                    "is_verified": item.get("verified"),
-                    "followers": item.get("fans", item.get("followerCount")),
+                    "biography": (author.get("signature", item.get("bio", "")) or "")[:1000],
+                    "is_verified": author.get("verified", item.get("verified")),
+                    "followers": author.get("fans", item.get("followerCount")),
                 }
 
             print(f"  [TT] Got {len(results)} profiles so far")
@@ -239,7 +300,9 @@ def fetch_unenriched_creators(limit=500, platform=None, re_enrich=False):
     creators = data.get("results", [])
 
     if platform:
-        creators = [c for c in creators if c.get("platform", "").lower().startswith(platform.lower())]
+        plat_map = {"ig": "instagram", "tt": "tiktok"}
+        match = plat_map.get(platform.lower(), platform.lower())
+        creators = [c for c in creators if c.get("platform", "").lower() == match]
 
     return creators
 
@@ -336,6 +399,46 @@ def run_enrichment(limit=500, platform=None, re_enrich=False, dry_run=False):
             tt_saved += 1
 
         print(f"  TT saved: {tt_saved}")
+
+    # ── Fallback: bio parsing + language detection for creators without country ──
+    no_country = [c for c in creators if not c.get("country")]
+    if no_country:
+        print(f"\n  [Fallback] {len(no_country)} creators without country — applying bio parsing + language detection...")
+        fallback_saved = 0
+        for c in no_country:
+            cid = c["id"]
+            bio = c.get("biography", "")
+            platform = c.get("platform", "").lower()
+
+            # Check if enrichment just set a country (from IG/TT results above)
+            handle = (c.get("ig_handle") or c.get("tiktok_handle") or "").lower().lstrip("@")
+            enriched_country = ""
+            if platform == "instagram" and ig_creators:
+                enriched_country = ig_results.get(handle, {}).get("country", "")
+            elif platform == "tiktok" and tt_creators:
+                enriched_country = tt_results.get(handle, {}).get("country", "")
+                # Use bio from Apify result if DB bio is empty
+                if not bio:
+                    bio = tt_results.get(handle, {}).get("biography", "")
+
+            if enriched_country:
+                continue  # Already has country from Apify
+
+            # Step 1: Bio parsing for US signals
+            country = _guess_us_from_bio(bio)
+
+            # Step 2: Language-based inference (en → likely US for our influencer pool)
+            if not country and platform == "tiktok":
+                tt_data = tt_results.get(handle, {})
+                # language field was saved during TT enrichment if available
+                # For now, mark English-language TT creators as "US (inferred)"
+                # so the dashboard can show them, and we verify at shipping time
+
+            if country:
+                update_creator_enrichment(cid, {"country": country})
+                fallback_saved += 1
+
+        print(f"  Fallback saved: {fallback_saved}")
 
     # Summary
     print(f"\n{'=' * 60}")

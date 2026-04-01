@@ -3944,19 +3944,19 @@ async function checkFeatureImpact(feature){
       }else{expand.textContent='';expand.style.display='none'}
 
     }else if(feature==='us'){
-      // US Only: filter by country field from Apify enrichment
-      var enriched=creators.filter(function(c){return c.enriched_at});
+      // US Only: filter by country field from Apify enrichment + Syncly Location
       var usCreators=creators.filter(function(c){
         var country=(c.country||'').toLowerCase();
         return country==='united states'||country==='us'||country==='usa';
       });
-      var nonUs=enriched.filter(function(c){
+      var nonUs=creators.filter(function(c){
         var country=(c.country||'').toLowerCase();
         return country&&country!=='united states'&&country!=='us'&&country!=='usa';
       });
-      var unenriched=creators.filter(function(c){return !c.enriched_at});
-      _ftResults.us={count:nonUs.length,usCount:usCreators.length,unenriched:unenriched.length,list:nonUs};
-      badge.textContent=usCreators.length+' US | \u2212'+nonUs.length+' non-US | '+unenriched.length+' unknown';
+      // Unknown = no country data at all (neither enriched nor sheet Location)
+      var unknown=creators.filter(function(c){return !(c.country||'').trim()});
+      _ftResults.us={count:nonUs.length,usCount:usCreators.length,unenriched:unknown.length,list:nonUs};
+      badge.textContent=usCreators.length+' US | \u2212'+nonUs.length+' non-US | '+unknown.length+' unknown';
       badge.className='b g';badge.style.cssText='font-size:10px;padding:2px 8px';
       if(nonUs.length>0){
         var el=document.createElement('div');
