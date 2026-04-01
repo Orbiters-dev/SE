@@ -1,6 +1,6 @@
 const FIN_DATA = {
- "generated_pst": "2026-04-01 06:12 PST",
- "through_date": "2026-03-30",
+ "generated_pst": "2026-04-01 14:27 PST",
+ "through_date": "2026-03-31",
  "months": [
   "2025-01",
   "2025-02",
@@ -38,9 +38,9 @@ const FIN_DATA = {
   {
    "name": "amazon_ads_daily",
    "label": "Amazon Ads",
-   "rows": 2224,
+   "rows": 2241,
    "min_date": "2025-12-10",
-   "max_date": "2026-03-30",
+   "max_date": "2026-03-31",
    "refresh": "2x daily"
   },
   {
@@ -62,7 +62,7 @@ const FIN_DATA = {
   {
    "name": "ga4_daily",
    "label": "GA4 Analytics",
-   "rows": 5055,
+   "rows": 5056,
    "min_date": "2024-11-22",
    "max_date": "2026-03-31",
    "refresh": "2x daily"
@@ -94,41 +94,41 @@ const FIN_DATA = {
  ],
  "partial_month": {
   "month": "2026-03",
-  "days_elapsed": 30,
+  "days_elapsed": 31,
   "days_in_month": 31,
-  "is_partial": true,
-  "multiplier": 1.0333
+  "is_partial": false,
+  "multiplier": 1.0
  },
  "summary": {
   "7d": {
-   "total_revenue": 202799,
-   "shopify_revenue": 13260,
-   "amazon_revenue": 189539,
-   "total_orders": 9252,
-   "total_ad_spend": 40961,
-   "ad_attributed_sales": 132188,
-   "organic_revenue": 70611,
-   "gross_margin": 202799,
+   "total_revenue": 233454,
+   "shopify_revenue": 15483,
+   "amazon_revenue": 217971,
+   "total_orders": 10679,
+   "total_ad_spend": 46474,
+   "ad_attributed_sales": 151364,
+   "organic_revenue": 82090,
+   "gross_margin": 233454,
    "gm_pct": 100.0,
-   "contribution_margin": 160963,
-   "cm_pct": 79.4,
-   "mer": 4.95,
-   "roas": 3.23,
-   "discount_rate": 6.2
+   "contribution_margin": 186037,
+   "cm_pct": 79.7,
+   "mer": 5.02,
+   "roas": 3.26,
+   "discount_rate": 5.7
   },
   "30d": {
-   "total_revenue": 759704,
-   "shopify_revenue": 91431,
-   "amazon_revenue": 668274,
-   "total_orders": 31131,
-   "total_ad_spend": 142208,
-   "ad_attributed_sales": 507170,
-   "organic_revenue": 252535,
-   "gross_margin": 759704,
+   "total_revenue": 790359,
+   "shopify_revenue": 93654,
+   "amazon_revenue": 696706,
+   "total_orders": 32558,
+   "total_ad_spend": 147709,
+   "ad_attributed_sales": 527296,
+   "organic_revenue": 263064,
+   "gross_margin": 790359,
    "gm_pct": 100.0,
-   "contribution_margin": 612061,
+   "contribution_margin": 637147,
    "cm_pct": 80.6,
-   "mer": 5.34,
+   "mer": 5.35,
    "roas": 3.57,
    "discount_rate": 5.6
   },
@@ -166,7 +166,7 @@ const FIN_DATA = {
     557654,
     624480,
     554721,
-    738646
+    768281
    ],
    "monthly_proj": [
     418213,
@@ -183,7 +183,7 @@ const FIN_DATA = {
     557654,
     624480,
     554721,
-    763243
+    768281
    ],
    "color": "#8b5cf6"
   },
@@ -203,7 +203,7 @@ const FIN_DATA = {
     29155,
     12259,
     12271,
-    16456
+    17071
    ],
    "monthly_proj": [
     16594,
@@ -220,7 +220,7 @@ const FIN_DATA = {
     29155,
     12259,
     12271,
-    17004
+    17071
    ],
    "color": "#eab308"
   },
@@ -240,7 +240,7 @@ const FIN_DATA = {
     7647,
     8431,
     6797,
-    4408
+    4486
    ],
    "monthly_proj": [
     1867,
@@ -257,7 +257,7 @@ const FIN_DATA = {
     7647,
     8431,
     6797,
-    4555
+    4486
    ],
    "color": "#0ea5e9"
   },
@@ -277,7 +277,7 @@ const FIN_DATA = {
     5146,
     6391,
     7786,
-    7393
+    7644
    ],
    "monthly_proj": [
     4100,
@@ -294,7 +294,7 @@ const FIN_DATA = {
     5146,
     6391,
     7786,
-    7639
+    7644
    ],
    "color": "#f97316"
   },
@@ -314,7 +314,7 @@ const FIN_DATA = {
     1165,
     2373,
     11759,
-    17207
+    17282
    ],
    "monthly_proj": [
     6889,
@@ -331,7 +331,7 @@ const FIN_DATA = {
     1165,
     2373,
     11759,
-    17780
+    17282
    ],
    "color": "#94a3b8"
   }
@@ -353,7 +353,7 @@ const FIN_DATA = {
     72542,
     95418,
     72668,
-    72109
+    73780
    ],
    "monthly_proj": [
     87157,
@@ -370,7 +370,7 @@ const FIN_DATA = {
     72542,
     95418,
     72668,
-    74510
+    73780
    ],
    "color": "#6366f1"
   },
@@ -390,7 +390,7 @@ const FIN_DATA = {
     511846,
     533042,
     498715,
-    689956
+    718388
    ],
    "monthly_proj": [
     348959,
@@ -407,7 +407,7 @@ const FIN_DATA = {
     511846,
     533042,
     498715,
-    712932
+    718388
    ],
    "color": "#f59e0b"
   },
@@ -444,7 +444,7 @@ const FIN_DATA = {
     137,
     0,
     150,
-    130
+    126
    ],
    "color": "#ec4899"
   },
@@ -464,7 +464,7 @@ const FIN_DATA = {
     9566,
     9495,
     11945,
-    17796
+    18349
    ],
    "monthly_proj": [
     0,
@@ -481,7 +481,7 @@ const FIN_DATA = {
     9566,
     9495,
     11945,
-    18389
+    18349
    ],
    "color": "#ef4444"
   },
@@ -518,7 +518,7 @@ const FIN_DATA = {
     6675,
     15979,
     9857,
-    4258
+    4121
    ],
    "color": "#10b981"
   }
@@ -540,7 +540,7 @@ const FIN_DATA = {
     34382,
     79637,
     80371,
-    110826
+    114981
    ],
    "spend_proj": [
     0,
@@ -557,7 +557,7 @@ const FIN_DATA = {
     34382,
     79637,
     80371,
-    114517
+    114981
    ],
    "sales": [
     0,
@@ -574,7 +574,7 @@ const FIN_DATA = {
     224013,
     387330,
     360221,
-    492531
+    512026
    ],
    "sales_proj": [
     0,
@@ -591,7 +591,7 @@ const FIN_DATA = {
     224013,
     387330,
     360221,
-    508932
+    512026
    ],
    "impressions": [
     0,
@@ -608,7 +608,7 @@ const FIN_DATA = {
     7547539,
     15751413,
     17256328,
-    20802917
+    21845103
    ],
    "clicks": [
     0,
@@ -625,7 +625,7 @@ const FIN_DATA = {
     41325,
     88386,
     84643,
-    111789
+    115825
    ],
    "color": "#f59e0b"
   },
@@ -645,7 +645,7 @@ const FIN_DATA = {
     15207,
     15871,
     17112,
-    12457
+    12901
    ],
    "spend_proj": [
     6868,
@@ -662,7 +662,7 @@ const FIN_DATA = {
     15207,
     15871,
     17112,
-    12872
+    12901
    ],
    "sales": [
     27205,
@@ -679,7 +679,7 @@ const FIN_DATA = {
     29513,
     37226,
     32394,
-    16594
+    17006
    ],
    "sales_proj": [
     27205,
@@ -696,7 +696,7 @@ const FIN_DATA = {
     29513,
     37226,
     32394,
-    17147
+    17006
    ],
    "impressions": [
     433005,
@@ -713,7 +713,7 @@ const FIN_DATA = {
     568714,
     807660,
     990018,
-    830839
+    859175
    ],
    "clicks": [
     8807,
@@ -730,7 +730,7 @@ const FIN_DATA = {
     14389,
     24287,
     39496,
-    32254
+    33368
    ],
    "color": "#3b82f6"
   },
@@ -750,7 +750,7 @@ const FIN_DATA = {
     9086,
     11530,
     9647,
-    13673
+    14370
    ],
    "spend_proj": [
     0,
@@ -767,7 +767,7 @@ const FIN_DATA = {
     9086,
     11530,
     9647,
-    14128
+    14370
    ],
    "sales": [
     0,
@@ -801,7 +801,7 @@ const FIN_DATA = {
     0,
     0,
     59,
-    329
+    318
    ],
    "impressions": [
     0,
@@ -818,7 +818,7 @@ const FIN_DATA = {
     1056655,
     1757662,
     1209196,
-    1690575
+    1777638
    ],
    "clicks": [
     0,
@@ -835,7 +835,7 @@ const FIN_DATA = {
     78127,
     129046,
     102683,
-    134866
+    141362
    ],
    "color": "#93c5fd"
   },
@@ -855,7 +855,7 @@ const FIN_DATA = {
     12712,
     11117,
     12652,
-    9948
+    10155
    ],
    "spend_proj": [
     14129,
@@ -872,7 +872,7 @@ const FIN_DATA = {
     12712,
     11117,
     12652,
-    10279
+    10155
    ],
    "sales": [
     30077,
@@ -889,7 +889,7 @@ const FIN_DATA = {
     28010,
     21556,
     19709,
-    16717
+    16936
    ],
    "sales_proj": [
     30077,
@@ -906,7 +906,7 @@ const FIN_DATA = {
     28010,
     21556,
     19709,
-    17274
+    16936
    ],
    "impressions": [
     1210877,
@@ -923,7 +923,7 @@ const FIN_DATA = {
     722451,
     782256,
     794105,
-    967211
+    990529
    ],
    "clicks": [
     9984,
@@ -940,7 +940,7 @@ const FIN_DATA = {
     6644,
     8476,
     9426,
-    9176
+    9415
    ],
    "color": "#10b981"
   }
@@ -962,7 +962,7 @@ const FIN_DATA = {
     27919,
     26988,
     29764,
-    22405
+    23056
    ],
    "spend_proj": [
     20996,
@@ -979,7 +979,7 @@ const FIN_DATA = {
     27919,
     26988,
     29764,
-    23151
+    23056
    ],
    "revenue": [
     87157,
@@ -996,7 +996,7 @@ const FIN_DATA = {
     72542,
     95418,
     72668,
-    72109
+    73780
    ],
    "revenue_proj": [
     87157,
@@ -1013,7 +1013,7 @@ const FIN_DATA = {
     72542,
     95418,
     72668,
-    74510
+    73780
    ],
    "platforms": "Google Ads + Meta CVR",
    "color": "#6366f1"
@@ -1034,7 +1034,7 @@ const FIN_DATA = {
     43467,
     91168,
     90019,
-    124500
+    129350
    ],
    "spend_proj": [
     0,
@@ -1051,7 +1051,7 @@ const FIN_DATA = {
     43467,
     91168,
     90019,
-    128646
+    129350
    ],
    "revenue": [
     348959,
@@ -1068,7 +1068,7 @@ const FIN_DATA = {
     511846,
     533042,
     498715,
-    689956
+    718388
    ],
    "revenue_proj": [
     348959,
@@ -1085,7 +1085,7 @@ const FIN_DATA = {
     511846,
     533042,
     498715,
-    712932
+    718388
    ],
    "platforms": "Amazon Ads + Meta Traffic",
    "color": "#f59e0b"
@@ -1097,42 +1097,42 @@ const FIN_DATA = {
    "total_sales": [
     624480,
     554721,
-    738646
+    768281
    ],
    "total_sales_proj": [
     624480,
     554721,
-    763243
+    768281
    ],
    "ad_spend": [
     111424,
     112511,
-    139153
+    144338
    ],
    "ad_spend_proj": [
     111424,
     112511,
-    143787
+    144338
    ],
    "ad_sales": [
     433461,
     400628,
-    515059
+    534907
    ],
    "ad_sales_proj": [
     433461,
     400628,
-    532210
+    534907
    ],
    "organic": [
     191019,
     154093,
-    223587
+    233374
    ],
    "organic_proj": [
     191019,
     154093,
-    231032
+    233374
    ],
    "color": "#8b5cf6"
   },
@@ -1140,42 +1140,42 @@ const FIN_DATA = {
    "total_sales": [
     12259,
     12271,
-    16456
+    17071
    ],
    "total_sales_proj": [
     12259,
     12271,
-    17004
+    17071
    ],
    "ad_spend": [
     2744,
     2276,
-    2434
+    2520
    ],
    "ad_spend_proj": [
     2744,
     2276,
-    2515
+    2520
    ],
    "ad_sales": [
     5929,
     6347,
-    7719
+    7941
    ],
    "ad_sales_proj": [
     5929,
     6347,
-    7976
+    7941
    ],
    "organic": [
     6330,
     5924,
-    8737
+    9130
    ],
    "organic_proj": [
     6330,
     5924,
-    9028
+    9130
    ],
    "color": "#eab308"
   },
@@ -1183,22 +1183,22 @@ const FIN_DATA = {
    "total_sales": [
     8431,
     6797,
-    4408
+    4486
    ],
    "total_sales_proj": [
     8431,
     6797,
-    4555
+    4486
    ],
    "ad_spend": [
     2842,
     2303,
-    3103
+    3254
    ],
    "ad_spend_proj": [
     2842,
     2303,
-    3206
+    3254
    ],
    "ad_sales": [
     6163,
@@ -1208,17 +1208,17 @@ const FIN_DATA = {
    "ad_sales_proj": [
     6163,
     3138,
-    1578
+    1527
    ],
    "organic": [
     2268,
     3659,
-    2881
+    2959
    ],
    "organic_proj": [
     2268,
     3659,
-    2977
+    2959
    ],
    "color": "#0ea5e9"
   },
@@ -1226,42 +1226,42 @@ const FIN_DATA = {
    "total_sales": [
     6391,
     7786,
-    7393
+    7644
    ],
    "total_sales_proj": [
     6391,
     7786,
-    7639
+    7644
    ],
    "ad_spend": [
     619,
     2692,
-    2216
+    2295
    ],
    "ad_spend_proj": [
     619,
     2692,
-    2290
+    2295
    ],
    "ad_sales": [
     500,
     2271,
-    1855
+    1911
    ],
    "ad_sales_proj": [
     500,
     2271,
-    1917
+    1911
    ],
    "organic": [
     5891,
     5515,
-    5538
+    5733
    ],
    "organic_proj": [
     5891,
     5515,
-    5722
+    5733
    ],
    "color": "#f97316"
   },
@@ -1269,12 +1269,12 @@ const FIN_DATA = {
    "total_sales": [
     2373,
     11759,
-    17207
+    17282
    ],
    "total_sales_proj": [
     2373,
     11759,
-    17780
+    17282
    ],
    "ad_spend": [
     526,
@@ -1299,12 +1299,12 @@ const FIN_DATA = {
    "organic": [
     2313,
     11759,
-    17207
+    17282
    ],
    "organic_proj": [
     2313,
     11759,
-    17780
+    17282
    ],
    "color": "#94a3b8"
   }
@@ -1325,7 +1325,7 @@ const FIN_DATA = {
    281536,
    446112,
    412383,
-   526159
+   546285
   ],
   "paid_proj": [
    57282,
@@ -1342,7 +1342,7 @@ const FIN_DATA = {
    281536,
    446112,
    412383,
-   543680
+   546285
   ],
   "organic": [
    477039,
@@ -1359,7 +1359,7 @@ const FIN_DATA = {
    419800,
    320343,
    287044,
-   402459
+   418160
   ],
   "organic_proj": [
    477039,
@@ -1376,7 +1376,7 @@ const FIN_DATA = {
    419800,
    320343,
    287044,
-   415861
+   418160
   ]
  },
  "waterfall": {
@@ -1395,7 +1395,7 @@ const FIN_DATA = {
    701336,
    766455,
    699427,
-   928618
+   964445
   ],
   "revenue_proj": [
    534321,
@@ -1412,7 +1412,7 @@ const FIN_DATA = {
    701336,
    766455,
    699427,
-   959541
+   964445
   ],
   "cogs": [
    0,
@@ -1463,7 +1463,7 @@ const FIN_DATA = {
    701336,
    766455,
    699427,
-   928618
+   964445
   ],
   "gross_margin_proj": [
    534321,
@@ -1480,7 +1480,7 @@ const FIN_DATA = {
    701336,
    766455,
    699427,
-   959541
+   964445
   ],
   "variable_costs": [
    61581,
@@ -1497,7 +1497,7 @@ const FIN_DATA = {
    90326,
    94066,
    88008,
-   121757
+   126774
   ],
   "variable_detail": {
    "amz_ref_fee": [
@@ -1515,7 +1515,7 @@ const FIN_DATA = {
     90326,
     94066,
     88008,
-    121757
+    126774
    ],
    "fba_fulfillment": [
     0,
@@ -1550,7 +1550,7 @@ const FIN_DATA = {
    611010,
    672389,
    611419,
-   806861
+   837671
   ],
   "cm_before_mkt_proj": [
    472740,
@@ -1567,7 +1567,7 @@ const FIN_DATA = {
    611010,
    672389,
    611419,
-   833729
+   837671
   ],
   "ad_spend": [
    20996,
@@ -1584,7 +1584,7 @@ const FIN_DATA = {
    71387,
    118156,
    119783,
-   146905
+   152407
   ],
   "ad_spend_proj": [
    20996,
@@ -1601,7 +1601,7 @@ const FIN_DATA = {
    71387,
    118156,
    119783,
-   151797
+   152407
   ],
   "discounts": [
    18187,
@@ -1618,7 +1618,7 @@ const FIN_DATA = {
    9079,
    16081,
    6326,
-   5545
+   5625
   ],
   "discounts_proj": [
    18187,
@@ -1635,7 +1635,7 @@ const FIN_DATA = {
    9079,
    16081,
    6326,
-   5730
+   5625
   ],
   "discounts_detail": {
    "shopify_disc": [
@@ -1653,7 +1653,7 @@ const FIN_DATA = {
     9079,
     16081,
     6326,
-    5545
+    5625
    ]
   },
   "seeding": [
@@ -1741,7 +1741,7 @@ const FIN_DATA = {
    80465,
    134237,
    126108,
-   152450
+   158031
   ],
   "mkt_total_proj": [
    39184,
@@ -1758,7 +1758,7 @@ const FIN_DATA = {
    80465,
    134237,
    126108,
-   157527
+   158031
   ],
   "contribution_margin": [
    433556,
@@ -1775,7 +1775,7 @@ const FIN_DATA = {
    530545,
    538152,
    485311,
-   654411
+   679640
   ],
   "contribution_margin_proj": [
    433556,
@@ -1792,7 +1792,7 @@ const FIN_DATA = {
    530545,
    538152,
    485311,
-   676203
+   679640
   ]
  },
  "search_queries": [
@@ -14670,7 +14670,7 @@ const FIN_DATA = {
   },
   {
    "query": "grosmimi",
-   "impressions": 1271,
+   "impressions": 1272,
    "clicks": 31,
    "ctr": 2.44,
    "position": 8.0
@@ -14683,18 +14683,18 @@ const FIN_DATA = {
    "position": 4.0
   },
   {
-   "query": "grosmimi stainless steel",
-   "impressions": 282,
-   "clicks": 7,
-   "ctr": 2.48,
-   "position": 7.5
-  },
-  {
    "query": "best korean baby products",
    "impressions": 29,
    "clicks": 7,
    "ctr": 24.14,
    "position": 2.9
+  },
+  {
+   "query": "grosmimi stainless steel",
+   "impressions": 282,
+   "clicks": 7,
+   "ctr": 2.48,
+   "position": 7.5
   },
   {
    "query": "grosmimi straw cup",
@@ -14774,13 +14774,6 @@ const FIN_DATA = {
    "position": 5.0
   },
   {
-   "query": "grosmimi stainless steel straw cup",
-   "impressions": 188,
-   "clicks": 3,
-   "ctr": 1.6,
-   "position": 9.3
-  },
-  {
    "query": "alpremio",
    "impressions": 105,
    "clicks": 3,
@@ -14788,11 +14781,18 @@ const FIN_DATA = {
    "position": 5.3
   },
   {
-   "query": "grosmimi plate",
-   "impressions": 43,
+   "query": "grosmimi stainless steel straw cup",
+   "impressions": 188,
    "clicks": 3,
-   "ctr": 6.98,
-   "position": 5.1
+   "ctr": 1.6,
+   "position": 9.3
+  },
+  {
+   "query": "grosmimi replacement cap",
+   "impressions": 24,
+   "clicks": 3,
+   "ctr": 12.5,
+   "position": 5.2
   }
  ],
  "keyword_rankings": {
@@ -14830,9 +14830,9 @@ const FIN_DATA = {
    {
     "query": "grosmimi",
     "clicks": 5,
-    "impressions": 156,
+    "impressions": 157,
     "avg_position": 7.7,
-    "ctr": 3.21,
+    "ctr": 3.18,
     "weekly_positions": [
      7.7
     ]
@@ -14958,6 +14958,16 @@ const FIN_DATA = {
     ]
    },
    {
+    "query": "grosmimi stainless steel straw cup with flip top",
+    "clicks": 1,
+    "impressions": 203,
+    "avg_position": 1.0,
+    "ctr": 0.49,
+    "weekly_positions": [
+     1.0
+    ]
+   },
+   {
     "query": "grosmimi stainless steel straw cup",
     "clicks": 1,
     "impressions": 36,
@@ -15018,26 +15028,6 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "grosmimi stainless steel straw cup with flip top",
-    "clicks": 1,
-    "impressions": 203,
-    "avg_position": 1.0,
-    "ctr": 0.49,
-    "weekly_positions": [
-     1.0
-    ]
-   },
-   {
-    "query": "zezebebe",
-    "clicks": 1,
-    "impressions": 2,
-    "avg_position": 2.5,
-    "ctr": 50.0,
-    "weekly_positions": [
-     2.5
-    ]
-   },
-   {
     "query": "double sided drawing board",
     "clicks": 1,
     "impressions": 1,
@@ -15045,6 +15035,16 @@ const FIN_DATA = {
     "ctr": 100.0,
     "weekly_positions": [
      1.0
+    ]
+   },
+   {
+    "query": "grosmimi straw cup stainless steel",
+    "clicks": 1,
+    "impressions": 6,
+    "avg_position": 8.7,
+    "ctr": 16.67,
+    "weekly_positions": [
+     8.7
     ]
    }
   ],
@@ -15080,7 +15080,7 @@ const FIN_DATA = {
    {
     "query": "grosmimi",
     "clicks": 31,
-    "impressions": 1271,
+    "impressions": 1272,
     "avg_position": 8.0,
     "ctr": 2.44,
     "weekly_positions": [
@@ -15440,7 +15440,7 @@ const FIN_DATA = {
    {
     "query": "grosmimi",
     "clicks": 71,
-    "impressions": 2570,
+    "impressions": 2571,
     "avg_position": 8.2,
     "ctr": 2.76,
     "weekly_positions": [
@@ -15882,13 +15882,13 @@ const FIN_DATA = {
    "query": "grosmimi",
    "pos_7d": 7.7,
    "clicks_7d": 5,
-   "impressions_7d": 156,
+   "impressions_7d": 157,
    "pos_30d": 8.0,
    "clicks_30d": 31,
-   "impressions_30d": 1271,
+   "impressions_30d": 1272,
    "pos_90d": 8.2,
    "clicks_90d": 71,
-   "impressions_90d": 2570
+   "impressions_90d": 2571
   },
   {
    "query": "grosmimi straw cup",
@@ -15928,9 +15928,9 @@ const FIN_DATA = {
   },
   {
    "query": "zezebebe",
-   "pos_7d": 2.5,
-   "clicks_7d": 1,
-   "impressions_7d": 2,
+   "pos_7d": null,
+   "clicks_7d": 0,
+   "impressions_7d": 0,
    "pos_30d": 3.5,
    "clicks_30d": 7,
    "impressions_30d": 44,
@@ -16215,6 +16215,18 @@ const FIN_DATA = {
    "impressions_90d": 0
   },
   {
+   "query": "grosmimi straw cup stainless steel",
+   "pos_7d": 8.7,
+   "clicks_7d": 1,
+   "impressions_7d": 6,
+   "pos_30d": null,
+   "clicks_30d": 0,
+   "impressions_30d": 0,
+   "pos_90d": null,
+   "clicks_90d": 0,
+   "impressions_90d": 0
+  },
+  {
    "query": "grosmimi straw replacement",
    "pos_7d": null,
    "clicks_7d": 0,
@@ -16315,51 +16327,51 @@ const FIN_DATA = {
   {
    "keyword": "grosmimi straw cup",
    "brand": "",
-   "search_volume": 2728,
+   "search_volume": 2781,
    "gsc_impressions": 1941,
    "gsc_clicks": 7,
-   "gads_impressions": 787,
-   "gads_clicks": 93,
+   "gads_impressions": 840,
+   "gads_clicks": 95,
    "monthly_trend": []
   },
   {
    "keyword": "grosmimi",
    "brand": "",
-   "search_volume": 2032,
-   "gsc_impressions": 1271,
+   "search_volume": 2089,
+   "gsc_impressions": 1272,
    "gsc_clicks": 31,
-   "gads_impressions": 761,
-   "gads_clicks": 176,
+   "gads_impressions": 817,
+   "gads_clicks": 186,
    "monthly_trend": []
   },
   {
    "keyword": "grosmimi cup",
    "brand": "",
-   "search_volume": 791,
+   "search_volume": 814,
    "gsc_impressions": 406,
    "gsc_clicks": 2,
-   "gads_impressions": 385,
-   "gads_clicks": 47,
+   "gads_impressions": 408,
+   "gads_clicks": 50,
    "monthly_trend": []
   },
   {
    "keyword": "onzenna",
    "brand": "",
-   "search_volume": 530,
+   "search_volume": 535,
    "gsc_impressions": 417,
    "gsc_clicks": 91,
-   "gads_impressions": 113,
-   "gads_clicks": 58,
+   "gads_impressions": 118,
+   "gads_clicks": 61,
    "monthly_trend": []
   },
   {
    "keyword": "grosmimi stainless steel",
    "brand": "",
-   "search_volume": 462,
+   "search_volume": 477,
    "gsc_impressions": 282,
    "gsc_clicks": 7,
-   "gads_impressions": 180,
-   "gads_clicks": 25,
+   "gads_impressions": 195,
+   "gads_clicks": 29,
    "monthly_trend": []
   },
   {
@@ -16385,31 +16397,31 @@ const FIN_DATA = {
   {
    "keyword": "zezebaebae",
    "brand": "",
-   "search_volume": 267,
+   "search_volume": 274,
    "gsc_impressions": 217,
    "gsc_clicks": 65,
-   "gads_impressions": 50,
-   "gads_clicks": 7,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "grosmimi stainless steel straw cup",
-   "brand": "",
-   "search_volume": 216,
-   "gsc_impressions": 188,
-   "gsc_clicks": 3,
-   "gads_impressions": 28,
-   "gads_clicks": 4,
+   "gads_impressions": 57,
+   "gads_clicks": 10,
    "monthly_trend": []
   },
   {
    "keyword": "grossmimi",
    "brand": "",
-   "search_volume": 210,
+   "search_volume": 223,
    "gsc_impressions": 135,
    "gsc_clicks": 5,
-   "gads_impressions": 75,
-   "gads_clicks": 19,
+   "gads_impressions": 88,
+   "gads_clicks": 21,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "grosmimi stainless steel straw cup",
+   "brand": "",
+   "search_volume": 217,
+   "gsc_impressions": 188,
+   "gsc_clicks": 3,
+   "gads_impressions": 29,
+   "gads_clicks": 4,
    "monthly_trend": []
   },
   {
@@ -16445,11 +16457,11 @@ const FIN_DATA = {
   {
    "keyword": "grosmimi bottle",
    "brand": "",
-   "search_volume": 172,
+   "search_volume": 173,
    "gsc_impressions": 132,
    "gsc_clicks": 1,
-   "gads_impressions": 40,
-   "gads_clicks": 1,
+   "gads_impressions": 41,
+   "gads_clicks": 2,
    "monthly_trend": []
   },
   {
@@ -16505,10 +16517,10 @@ const FIN_DATA = {
   {
    "keyword": "grosmimi cups",
    "brand": "",
-   "search_volume": 115,
+   "search_volume": 119,
    "gsc_impressions": 50,
    "gsc_clicks": 2,
-   "gads_impressions": 65,
+   "gads_impressions": 69,
    "gads_clicks": 10,
    "monthly_trend": []
   },
@@ -16563,6 +16575,16 @@ const FIN_DATA = {
    "monthly_trend": []
   },
   {
+   "keyword": "zezebaebae reviews",
+   "brand": "",
+   "search_volume": 87,
+   "gsc_impressions": 79,
+   "gsc_clicks": 4,
+   "gads_impressions": 8,
+   "gads_clicks": 2,
+   "monthly_trend": []
+  },
+  {
    "keyword": "grosmini",
    "brand": "",
    "search_volume": 87,
@@ -16573,22 +16595,12 @@ const FIN_DATA = {
    "monthly_trend": []
   },
   {
-   "keyword": "zezebaebae reviews",
-   "brand": "",
-   "search_volume": 85,
-   "gsc_impressions": 79,
-   "gsc_clicks": 4,
-   "gads_impressions": 6,
-   "gads_clicks": 2,
-   "monthly_trend": []
-  },
-  {
    "keyword": "grosmimi sippy cup",
    "brand": "",
-   "search_volume": 83,
+   "search_volume": 85,
    "gsc_impressions": 53,
    "gsc_clicks": 0,
-   "gads_impressions": 30,
+   "gads_impressions": 32,
    "gads_clicks": 0,
    "monthly_trend": []
   },
@@ -16613,6 +16625,16 @@ const FIN_DATA = {
    "monthly_trend": []
   },
   {
+   "keyword": "grosmimi straw cup stainless steel",
+   "brand": "",
+   "search_volume": 77,
+   "gsc_impressions": 59,
+   "gsc_clicks": 1,
+   "gads_impressions": 18,
+   "gads_clicks": 2,
+   "monthly_trend": []
+  },
+  {
    "keyword": "olee sippy cup",
    "brand": "",
    "search_volume": 76,
@@ -16620,16 +16642,6 @@ const FIN_DATA = {
    "gsc_clicks": 0,
    "gads_impressions": 76,
    "gads_clicks": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "grosmimi straw cup stainless steel",
-   "brand": "",
-   "search_volume": 76,
-   "gsc_impressions": 59,
-   "gsc_clicks": 1,
-   "gads_impressions": 17,
-   "gads_clicks": 2,
    "monthly_trend": []
   },
   {
@@ -16693,6 +16705,16 @@ const FIN_DATA = {
    "monthly_trend": []
   },
   {
+   "keyword": "grosmimi replacement straw",
+   "brand": "",
+   "search_volume": 63,
+   "gsc_impressions": 45,
+   "gsc_clicks": 2,
+   "gads_impressions": 18,
+   "gads_clicks": 4,
+   "monthly_trend": []
+  },
+  {
    "keyword": "alpremio baby feeding seat",
    "brand": "",
    "search_volume": 62,
@@ -16700,16 +16722,6 @@ const FIN_DATA = {
    "gsc_clicks": 0,
    "gads_impressions": 3,
    "gads_clicks": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "grosmimi replacement straw",
-   "brand": "",
-   "search_volume": 61,
-   "gsc_impressions": 45,
-   "gsc_clicks": 2,
-   "gads_impressions": 16,
-   "gads_clicks": 4,
    "monthly_trend": []
   },
   {
@@ -16725,11 +16737,11 @@ const FIN_DATA = {
   {
    "keyword": "grosmimi stainless steel cup",
    "brand": "",
-   "search_volume": 58,
+   "search_volume": 59,
    "gsc_impressions": 40,
    "gsc_clicks": 0,
-   "gads_impressions": 18,
-   "gads_clicks": 2,
+   "gads_impressions": 19,
+   "gads_clicks": 3,
    "monthly_trend": []
   },
   {
@@ -16793,7 +16805,7 @@ const FIN_DATA = {
    "monthly_trend": []
   },
   {
-   "keyword": "sippy cup or straw cup first",
+   "keyword": "1 month wake windows",
    "brand": "",
    "search_volume": 49,
    "gsc_impressions": 49,
@@ -16803,7 +16815,7 @@ const FIN_DATA = {
    "monthly_trend": []
   },
   {
-   "keyword": "1 month wake windows",
+   "keyword": "sippy cup or straw cup first",
    "brand": "",
    "search_volume": 49,
    "gsc_impressions": 49,
@@ -17319,125 +17331,131 @@ const FIN_DATA = {
  "traffic_sources": [
   {
    "source": "direct / none",
-   "sessions": 19051,
+   "sessions": 19662,
    "users": 0,
    "revenue": 0.0,
-   "conversions": 420,
+   "conversions": 433,
    "conv_rate": 2.2
   }
  ],
  "channel_traffic": {
   "1d": {
    "onzenna": {
-    "total_sessions": 698,
-    "total_purchases": 10,
-    "total_ad_spend": 573,
+    "total_sessions": 611,
+    "total_purchases": 13,
+    "total_ad_spend": 574,
     "sources": [
      {
-      "source": "Unassigned",
-      "sessions": 211,
-      "purchases": 7,
-      "pct": 30.2
-     },
-     {
       "source": "Meta + Google (Cross-network)",
-      "sessions": 146,
-      "purchases": 1,
-      "pct": 20.9
+      "sessions": 151,
+      "purchases": 4,
+      "pct": 24.7
      },
      {
       "source": "Direct",
       "sessions": 125,
-      "purchases": 1,
-      "pct": 17.9
+      "purchases": 4,
+      "pct": 20.5
      },
      {
       "source": "Organic Social (IG/TikTok/etc)",
-      "sessions": 92,
-      "purchases": 0,
-      "pct": 13.2
+      "sessions": 97,
+      "purchases": 1,
+      "pct": 15.9
+     },
+     {
+      "source": "Unassigned",
+      "sessions": 84,
+      "purchases": 2,
+      "pct": 13.7
      },
      {
       "source": "Meta Ads (Paid Social)",
-      "sessions": 53,
-      "purchases": 1,
-      "pct": 7.6
+      "sessions": 61,
+      "purchases": 2,
+      "pct": 10.0
      },
      {
       "source": "Organic Search (SEO)",
-      "sessions": 32,
+      "sessions": 36,
       "purchases": 0,
-      "pct": 4.6
+      "pct": 5.9
      },
      {
       "source": "Email (Klaviyo)",
-      "sessions": 23,
+      "sessions": 26,
       "purchases": 0,
-      "pct": 3.3
+      "pct": 4.3
      },
      {
       "source": "Google Ads (Paid Search)",
-      "sessions": 12,
+      "sessions": 25,
       "purchases": 0,
-      "pct": 1.7
+      "pct": 4.1
      },
      {
       "source": "Referral",
-      "sessions": 4,
+      "sessions": 5,
       "purchases": 0,
-      "pct": 0.6
+      "pct": 0.8
+     },
+     {
+      "source": "Organic Shopping",
+      "sessions": 1,
+      "purchases": 0,
+      "pct": 0.2
      }
     ],
     "ad_detail": [
      {
       "source": "Meta CVR",
-      "clicks": 310,
+      "clicks": 313,
       "spend": 367,
       "sales": 413,
       "purchases": 7,
-      "cpc": 1.18,
+      "cpc": 1.17,
       "roas": 1.1,
-      "pct": 56.5
+      "pct": 56.7
      },
      {
       "source": "Google Ads",
       "clicks": 239,
       "spend": 207,
-      "sales": 192,
+      "sales": 218,
       "purchases": 3,
       "cpc": 0.86,
-      "roas": 0.9,
-      "pct": 43.5
+      "roas": 1.1,
+      "pct": 43.3
      }
     ]
    },
    "amazon": {
-    "total_clicks": 7274,
-    "total_sessions": 126667,
-    "total_pageviews": 154935,
-    "total_spend": 771,
-    "total_sales": 0,
-    "total_purchases": 0,
+    "total_clicks": 11349,
+    "total_sessions": 143122,
+    "total_pageviews": 175109,
+    "total_spend": 4939,
+    "total_sales": 14639,
+    "total_purchases": 618,
     "sources": [
      {
       "source": "Amazon Ads (Sponsored)",
-      "clicks": 0,
-      "spend": 0,
-      "sales": 0,
-      "purchases": 0,
-      "cpc": 0,
-      "roas": 0,
-      "pct": 0.0
+      "clicks": 4052,
+      "spend": 4165,
+      "sales": 14639,
+      "purchases": 618,
+      "cpc": 1.03,
+      "roas": 3.5,
+      "pct": 35.7
      },
      {
       "source": "Meta Traffic (AMZ landing)",
-      "clicks": 7274,
-      "spend": 771,
-      "sales": 14545,
-      "purchases": 581,
+      "clicks": 7297,
+      "spend": 773,
+      "sales": 14569,
+      "purchases": 582,
       "cpc": 0.11,
-      "roas": 18.9,
-      "pct": 100.0
+      "roas": 18.8,
+      "pct": 64.3
      },
      {
       "source": "Amazon Internal (Organic)",
@@ -17452,99 +17470,99 @@ const FIN_DATA = {
      }
     ],
     "attribution": {
-     "sales": 14545,
-     "purchases": 581,
-     "brb": 2343,
-     "roas": 18.9,
-     "roas_with_brb": 21.9,
+     "sales": 14569,
+     "purchases": 582,
+     "brb": 2482,
+     "roas": 18.8,
+     "roas_with_brb": 22.0,
      "campaigns": [
       {
        "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
-       "sales": 7651,
-       "purchases": 332,
+       "sales": 7676,
+       "purchases": 333,
        "clicks": 42009,
-       "brb": 689.98,
-       "spend": 340,
+       "brb": 807.26,
+       "spend": 341,
        "roas": 22.5,
-       "roas_adj": 24.6,
+       "roas_adj": 24.9,
        "assets": [
         {
          "type": "Other",
          "spend": 126,
-         "clicks": 1024,
+         "clicks": 1028,
          "cpc": 0.12,
          "ads": [
           {
-           "id": "120243909567070508",
-           "name": "The Viral Cup | AD A | 20260325"
-          },
-          {
-           "id": "120243916259860508",
-           "name": "Spring Deal Days(2) | AD E | 20260325"
-          },
-          {
-           "id": "120243916283180508",
-           "name": "Spring Deal Days(3)| Deanna | AD F | 20260325"
+           "id": "120243947805310508",
+           "name": "Spring's biggest deals(2) | AD I | 20260326"
           },
           {
            "id": "120243947414180508",
            "name": "The easiest | AD G | 20260326"
           },
           {
-           "id": "120243947805310508",
-           "name": "Spring's biggest deals(2) | AD I | 20260326"
+           "id": "120243916283180508",
+           "name": "Spring Deal Days(3)| Deanna | AD F | 20260325"
+          },
+          {
+           "id": "120243916259860508",
+           "name": "Spring Deal Days(2) | AD E | 20260325"
+          },
+          {
+           "id": "120243909567070508",
+           "name": "The Viral Cup | AD A | 20260325"
           }
          ]
         },
         {
          "type": "Whitelabel",
          "spend": 118,
-         "clicks": 1489,
+         "clicks": 1492,
          "cpc": 0.08,
          "ads": [
           {
-           "id": "120243917383280508",
-           "name": "WL | chatterwithsam | PPSU | AD A | 20260325"
-          },
-          {
-           "id": "120243917490040508",
-           "name": "WL | _from.mom.to.mom | knotted | AD B | 20260325"
-          },
-          {
-           "id": "120243917556170508",
-           "name": "WL | deanna.hauk | Fliptop | AD C | 20260325"
+           "id": "120243917640090508",
+           "name": "WL | _cola_henderson | Fliptop | E | 20260325"
           },
           {
            "id": "120243917601910508",
            "name": "WL | laurencee.slp | Fliptop | AD D | 20260325"
           },
           {
-           "id": "120243917640090508",
-           "name": "WL | _cola_henderson | Fliptop | E | 20260325"
+           "id": "120243917556170508",
+           "name": "WL | deanna.hauk | Fliptop | AD C | 20260325"
+          },
+          {
+           "id": "120243917490040508",
+           "name": "WL | _from.mom.to.mom | knotted | AD B | 20260325"
+          },
+          {
+           "id": "120243917383280508",
+           "name": "WL | chatterwithsam | PPSU | AD A | 20260325"
           }
          ]
         },
         {
          "type": "Image",
          "spend": 96,
-         "clicks": 602,
+         "clicks": 603,
          "cpc": 0.16,
          "ads": [
           {
-           "id": "120243916674190508",
-           "name": "Spring Biggest Deals | image | AD A | 20260325"
-          },
-          {
-           "id": "120243916922570508",
-           "name": "Big Spring Sale | image | AD B | 20260325"
+           "id": "120243947972970508",
+           "name": "Up to 15% off(2) | image | AD F | 20260326"
           },
           {
            "id": "120243917176150508",
            "name": "Spring Deal Days | image | AD D | 20260325"
           },
           {
-           "id": "120243947972970508",
-           "name": "Up to 15% off(2) | image | AD F | 20260326"
+           "id": "120243916922570508",
+           "name": "Big Spring Sale | image | AD B | 20260325"
+          },
+          {
+           "id": "120243916674190508",
+           "name": "Spring Biggest Deals | image | AD A | 20260325"
           }
          ]
         }
@@ -17555,15 +17573,15 @@ const FIN_DATA = {
        "sales": 5246,
        "purchases": 208,
        "clicks": 72590,
-       "brb": 555.58,
-       "spend": 156,
-       "roas": 33.6,
-       "roas_adj": 37.2,
+       "brb": 569.5,
+       "spend": 157,
+       "roas": 33.4,
+       "roas_adj": 37.0,
        "assets": [
         {
          "type": "Whitelabel",
-         "spend": 156,
-         "clicks": 1822,
+         "spend": 157,
+         "clicks": 1832,
          "cpc": 0.09,
          "ads": [
           {
@@ -17583,7 +17601,7 @@ const FIN_DATA = {
        "sales": 1170,
        "purchases": 25,
        "clicks": 44836,
-       "brb": 837.49,
+       "brb": 839.8,
        "spend": 75,
        "roas": 15.6,
        "roas_adj": 26.8,
@@ -17591,7 +17609,7 @@ const FIN_DATA = {
         {
          "type": "Whitelabel",
          "spend": 75,
-         "clicks": 510,
+         "clicks": 511,
          "cpc": 0.15,
          "ads": [
           {
@@ -17607,7 +17625,7 @@ const FIN_DATA = {
        "sales": 378,
        "purchases": 14,
        "clicks": 647,
-       "brb": 188.03,
+       "brb": 190.05,
        "spend": 0,
        "roas": 0,
        "roas_adj": 0,
@@ -17618,7 +17636,7 @@ const FIN_DATA = {
        "sales": 100,
        "purchases": 2,
        "clicks": 35919,
-       "brb": 71.66,
+       "brb": 75.74,
        "spend": 79,
        "roas": 1.3,
        "roas_adj": 2.2,
@@ -17626,7 +17644,7 @@ const FIN_DATA = {
         {
          "type": "Whitelabel",
          "spend": 79,
-         "clicks": 614,
+         "clicks": 615,
          "cpc": 0.13,
          "ads": [
           {
@@ -17641,83 +17659,83 @@ const FIN_DATA = {
     }
    },
    "meta_detail": {
-    "cvr_clicks": 310,
-    "traffic_clicks": 7274,
-    "total": 7584
+    "cvr_clicks": 313,
+    "traffic_clicks": 7297,
+    "total": 7610
    },
    "google_clicks": 239
   },
   "7d": {
    "onzenna": {
-    "total_sessions": 4454,
-    "total_purchases": 87,
+    "total_sessions": 4367,
+    "total_purchases": 90,
     "total_ad_spend": 4348,
     "sources": [
      {
       "source": "Meta + Google (Cross-network)",
-      "sessions": 984,
-      "purchases": 9,
-      "pct": 22.1
+      "sessions": 989,
+      "purchases": 12,
+      "pct": 22.6
      },
      {
       "source": "Direct",
       "sessions": 923,
-      "purchases": 14,
-      "pct": 20.7
+      "purchases": 17,
+      "pct": 21.1
      },
      {
       "source": "Organic Social (IG/TikTok/etc)",
-      "sessions": 781,
-      "purchases": 11,
-      "pct": 17.5
+      "sessions": 786,
+      "purchases": 12,
+      "pct": 18.0
      },
      {
       "source": "Unassigned",
-      "sessions": 712,
-      "purchases": 38,
-      "pct": 16.0
+      "sessions": 585,
+      "purchases": 33,
+      "pct": 13.4
      },
      {
       "source": "Meta Ads (Paid Social)",
-      "sessions": 512,
-      "purchases": 8,
-      "pct": 11.5
+      "sessions": 520,
+      "purchases": 9,
+      "pct": 11.9
      },
      {
       "source": "Organic Search (SEO)",
-      "sessions": 224,
+      "sessions": 228,
       "purchases": 1,
-      "pct": 5.0
+      "pct": 5.2
      },
      {
       "source": "Google Ads (Paid Search)",
-      "sessions": 205,
+      "sessions": 218,
       "purchases": 5,
-      "pct": 4.6
+      "pct": 5.0
      },
      {
       "source": "Referral",
-      "sessions": 62,
+      "sessions": 63,
       "purchases": 1,
       "pct": 1.4
      },
      {
       "source": "Email (Klaviyo)",
-      "sessions": 35,
+      "sessions": 38,
       "purchases": 0,
-      "pct": 0.8
+      "pct": 0.9
+     },
+     {
+      "source": "Organic Shopping",
+      "sessions": 7,
+      "purchases": 0,
+      "pct": 0.2
      },
      {
       "source": "Display Ads",
       "sessions": 7,
       "purchases": 0,
       "pct": 0.2
-     },
-     {
-      "source": "Organic Shopping",
-      "sessions": 6,
-      "purchases": 0,
-      "pct": 0.1
      },
      {
       "source": "Paid Other",
@@ -17729,164 +17747,164 @@ const FIN_DATA = {
     "ad_detail": [
      {
       "source": "Meta CVR",
-      "clicks": 2331,
-      "spend": 2585,
+      "clicks": 2334,
+      "spend": 2586,
       "sales": 2822,
       "purchases": 49,
       "cpc": 1.11,
       "roas": 1.1,
-      "pct": 56.0
+      "pct": 56.1
      },
      {
       "source": "Google Ads",
       "clicks": 1830,
       "spend": 1763,
-      "sales": 2018,
-      "purchases": 35,
+      "sales": 2044,
+      "purchases": 36,
       "cpc": 0.96,
-      "roas": 1.1,
-      "pct": 44.0
+      "roas": 1.2,
+      "pct": 43.9
      }
     ]
    },
    "amazon": {
-    "total_clicks": 92879,
-    "total_sessions": 126667,
-    "total_pageviews": 154935,
-    "total_spend": 37958,
-    "total_sales": 127844,
-    "total_purchases": 5308,
+    "total_clicks": 96951,
+    "total_sessions": 143122,
+    "total_pageviews": 175109,
+    "total_spend": 42126,
+    "total_sales": 146390,
+    "total_purchases": 6083,
     "sources": [
      {
       "source": "Amazon Ads (Sponsored)",
-      "clicks": 30922,
-      "spend": 31497,
-      "sales": 127844,
-      "purchases": 5308,
+      "clicks": 34971,
+      "spend": 35663,
+      "sales": 146390,
+      "purchases": 6083,
       "cpc": 1.02,
       "roas": 4.1,
-      "pct": 33.3
+      "pct": 36.1
      },
      {
       "source": "Meta Traffic (AMZ landing)",
-      "clicks": 61957,
-      "spend": 6460,
-      "sales": 14545,
-      "purchases": 581,
+      "clicks": 61980,
+      "spend": 6463,
+      "sales": 14569,
+      "purchases": 582,
       "cpc": 0.1,
       "roas": 2.3,
-      "pct": 66.7
+      "pct": 63.9
      },
      {
       "source": "Amazon Internal (Organic + Ads)",
-      "clicks": 64710,
+      "clicks": 81142,
       "spend": 0,
-      "sales": 114066,
-      "purchases": 4502,
+      "sales": 95477,
+      "purchases": 3726,
       "cpc": 0,
       "roas": 0,
-      "pct": 51.1,
+      "pct": 56.7,
       "note_text": "Sessions from Amazon search + direct. Ads clicks happen within these sessions."
      }
     ],
     "attribution": {
-     "sales": 14545,
-     "purchases": 581,
-     "brb": 2343,
+     "sales": 14569,
+     "purchases": 582,
+     "brb": 2482,
      "roas": 2.3,
      "roas_with_brb": 2.6,
      "campaigns": [
       {
        "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
-       "sales": 7651,
-       "purchases": 332,
+       "sales": 7676,
+       "purchases": 333,
        "clicks": 42009,
-       "brb": 689.98,
-       "spend": 3448,
+       "brb": 807.26,
+       "spend": 3449,
        "roas": 2.2,
-       "roas_adj": 2.4,
+       "roas_adj": 2.5,
        "assets": [
         {
          "type": "Other",
-         "spend": 1301,
-         "clicks": 9052,
+         "spend": 1302,
+         "clicks": 9056,
          "cpc": 0.14,
          "ads": [
           {
-           "id": "120243909567070508",
-           "name": "The Viral Cup | AD A | 20260325"
-          },
-          {
-           "id": "120243916259860508",
-           "name": "Spring Deal Days(2) | AD E | 20260325"
-          },
-          {
-           "id": "120243916283180508",
-           "name": "Spring Deal Days(3)| Deanna | AD F | 20260325"
+           "id": "120243947805310508",
+           "name": "Spring's biggest deals(2) | AD I | 20260326"
           },
           {
            "id": "120243947414180508",
            "name": "The easiest | AD G | 20260326"
           },
           {
-           "id": "120243947805310508",
-           "name": "Spring's biggest deals(2) | AD I | 20260326"
+           "id": "120243916283180508",
+           "name": "Spring Deal Days(3)| Deanna | AD F | 20260325"
+          },
+          {
+           "id": "120243916259860508",
+           "name": "Spring Deal Days(2) | AD E | 20260325"
+          },
+          {
+           "id": "120243909567070508",
+           "name": "The Viral Cup | AD A | 20260325"
           }
          ]
         },
         {
          "type": "Whitelabel",
          "spend": 1207,
-         "clicks": 17299,
+         "clicks": 17302,
          "cpc": 0.07,
          "ads": [
           {
-           "id": "120243917383280508",
-           "name": "WL | chatterwithsam | PPSU | AD A | 20260325"
-          },
-          {
-           "id": "120243917490040508",
-           "name": "WL | _from.mom.to.mom | knotted | AD B | 20260325"
-          },
-          {
-           "id": "120243917556170508",
-           "name": "WL | deanna.hauk | Fliptop | AD C | 20260325"
+           "id": "120243917640090508",
+           "name": "WL | _cola_henderson | Fliptop | E | 20260325"
           },
           {
            "id": "120243917601910508",
            "name": "WL | laurencee.slp | Fliptop | AD D | 20260325"
           },
           {
-           "id": "120243917640090508",
-           "name": "WL | _cola_henderson | Fliptop | E | 20260325"
+           "id": "120243917556170508",
+           "name": "WL | deanna.hauk | Fliptop | AD C | 20260325"
+          },
+          {
+           "id": "120243917490040508",
+           "name": "WL | _from.mom.to.mom | knotted | AD B | 20260325"
+          },
+          {
+           "id": "120243917383280508",
+           "name": "WL | chatterwithsam | PPSU | AD A | 20260325"
           }
          ]
         },
         {
          "type": "Image",
          "spend": 939,
-         "clicks": 6440,
+         "clicks": 6441,
          "cpc": 0.15,
          "ads": [
           {
-           "id": "120243916674190508",
-           "name": "Spring Biggest Deals | image | AD A | 20260325"
-          },
-          {
-           "id": "120243916922570508",
-           "name": "Big Spring Sale | image | AD B | 20260325"
+           "id": "120243947972970508",
+           "name": "Up to 15% off(2) | image | AD F | 20260326"
           },
           {
            "id": "120243917176150508",
            "name": "Spring Deal Days | image | AD D | 20260325"
           },
           {
-           "id": "120243947972970508",
-           "name": "Up to 15% off(2) | image | AD F | 20260326"
+           "id": "120243916922570508",
+           "name": "Big Spring Sale | image | AD B | 20260325"
           },
           {
-           "id": "120243917019060508",
-           "name": "Up to 15% off | image | AD C | 20260325"
+           "id": "120243916674190508",
+           "name": "Spring Biggest Deals | image | AD A | 20260325"
+          },
+          {
+           "id": "120243947908260508",
+           "name": "The easiest | image | AD E | 20260326"
           }
          ]
         }
@@ -17897,15 +17915,15 @@ const FIN_DATA = {
        "sales": 5246,
        "purchases": 208,
        "clicks": 72590,
-       "brb": 555.58,
-       "spend": 1049,
+       "brb": 569.5,
+       "spend": 1050,
        "roas": 5.0,
        "roas_adj": 5.5,
        "assets": [
         {
          "type": "Whitelabel",
-         "spend": 1049,
-         "clicks": 11463,
+         "spend": 1050,
+         "clicks": 11473,
          "cpc": 0.09,
          "ads": [
           {
@@ -17925,7 +17943,7 @@ const FIN_DATA = {
        "sales": 1170,
        "purchases": 25,
        "clicks": 44836,
-       "brb": 837.49,
+       "brb": 839.8,
        "spend": 548,
        "roas": 2.1,
        "roas_adj": 3.7,
@@ -17933,7 +17951,7 @@ const FIN_DATA = {
         {
          "type": "Whitelabel",
          "spend": 548,
-         "clicks": 3974,
+         "clicks": 3975,
          "cpc": 0.14,
          "ads": [
           {
@@ -17949,7 +17967,7 @@ const FIN_DATA = {
        "sales": 378,
        "purchases": 14,
        "clicks": 647,
-       "brb": 188.03,
+       "brb": 190.05,
        "spend": 0,
        "roas": 0,
        "roas_adj": 0,
@@ -17960,7 +17978,7 @@ const FIN_DATA = {
        "sales": 100,
        "purchases": 2,
        "clicks": 35919,
-       "brb": 71.66,
+       "brb": 75.74,
        "spend": 562,
        "roas": 0.2,
        "roas_adj": 0.3,
@@ -17968,7 +17986,7 @@ const FIN_DATA = {
         {
          "type": "Whitelabel",
          "spend": 562,
-         "clicks": 4687,
+         "clicks": 4688,
          "cpc": 0.12,
          "ads": [
           {
@@ -17983,63 +18001,63 @@ const FIN_DATA = {
     }
    },
    "meta_detail": {
-    "cvr_clicks": 2331,
-    "traffic_clicks": 61957,
-    "total": 64288
+    "cvr_clicks": 2334,
+    "traffic_clicks": 61980,
+    "total": 64314
    },
    "google_clicks": 1830
   },
   "30d": {
    "onzenna": {
-    "total_sessions": 19749,
-    "total_purchases": 430,
+    "total_sessions": 19662,
+    "total_purchases": 433,
     "total_ad_spend": 20057,
     "sources": [
      {
       "source": "Meta + Google (Cross-network)",
-      "sessions": 5857,
-      "purchases": 85,
-      "pct": 29.7
+      "sessions": 5862,
+      "purchases": 88,
+      "pct": 29.8
      },
      {
       "source": "Direct",
       "sessions": 3654,
-      "purchases": 63,
-      "pct": 18.5
+      "purchases": 66,
+      "pct": 18.6
      },
      {
       "source": "Unassigned",
-      "sessions": 2773,
-      "purchases": 169,
-      "pct": 14.0
+      "sessions": 2646,
+      "purchases": 164,
+      "pct": 13.5
      },
      {
       "source": "Organic Social (IG/TikTok/etc)",
-      "sessions": 2621,
-      "purchases": 39,
-      "pct": 13.3
+      "sessions": 2626,
+      "purchases": 40,
+      "pct": 13.4
      },
      {
       "source": "Meta Ads (Paid Social)",
-      "sessions": 2540,
-      "purchases": 31,
-      "pct": 12.9
+      "sessions": 2548,
+      "purchases": 32,
+      "pct": 13.0
      },
      {
       "source": "Organic Search (SEO)",
-      "sessions": 874,
+      "sessions": 878,
       "purchases": 15,
-      "pct": 4.4
+      "pct": 4.5
      },
      {
       "source": "Google Ads (Paid Search)",
-      "sessions": 695,
+      "sessions": 708,
       "purchases": 18,
-      "pct": 3.5
+      "pct": 3.6
      },
      {
       "source": "Referral",
-      "sessions": 378,
+      "sessions": 379,
       "purchases": 8,
       "pct": 1.9
      },
@@ -18051,13 +18069,13 @@ const FIN_DATA = {
      },
      {
       "source": "Email (Klaviyo)",
-      "sessions": 59,
+      "sessions": 62,
       "purchases": 1,
       "pct": 0.3
      },
      {
       "source": "Organic Shopping",
-      "sessions": 38,
+      "sessions": 39,
       "purchases": 1,
       "pct": 0.2
      },
@@ -18077,8 +18095,8 @@ const FIN_DATA = {
     "ad_detail": [
      {
       "source": "Meta CVR",
-      "clicks": 9529,
-      "spend": 10287,
+      "clicks": 9532,
+      "spend": 10288,
       "sales": 16033,
       "purchases": 259,
       "cpc": 1.08,
@@ -18089,8 +18107,8 @@ const FIN_DATA = {
       "source": "Google Ads",
       "clicks": 9073,
       "spend": 9770,
-      "sales": 15950,
-      "purchases": 315,
+      "sales": 15977,
+      "purchases": 316,
       "cpc": 1.08,
       "roas": 1.6,
       "pct": 48.8
@@ -18098,143 +18116,143 @@ const FIN_DATA = {
     ]
    },
    "amazon": {
-    "total_clicks": 267988,
-    "total_sessions": 364654,
-    "total_pageviews": 449069,
-    "total_spend": 123495,
-    "total_sales": 475473,
-    "total_purchases": 18340,
+    "total_clicks": 272047,
+    "total_sessions": 381109,
+    "total_pageviews": 469243,
+    "total_spend": 127652,
+    "total_sales": 494968,
+    "total_purchases": 19154,
     "sources": [
      {
       "source": "Amazon Ads (Sponsored)",
-      "clicks": 108287,
-      "spend": 107455,
-      "sales": 475473,
-      "purchases": 18340,
+      "clicks": 112323,
+      "spend": 111610,
+      "sales": 494968,
+      "purchases": 19154,
       "cpc": 0.99,
       "roas": 4.4,
-      "pct": 40.4
+      "pct": 41.3
      },
      {
       "source": "Meta Traffic (AMZ landing)",
-      "clicks": 159701,
-      "spend": 16039,
-      "sales": 14545,
-      "purchases": 581,
+      "clicks": 159724,
+      "spend": 16042,
+      "sales": 14569,
+      "purchases": 582,
       "cpc": 0.1,
       "roas": 0.9,
-      "pct": 59.6
+      "pct": 58.7
      },
      {
       "source": "Amazon Internal (Organic + Ads)",
-      "clicks": 204953,
+      "clicks": 221385,
       "spend": 0,
-      "sales": 329655,
-      "purchases": 12247,
+      "sales": 310116,
+      "purchases": 11432,
       "cpc": 0,
       "roas": 0,
-      "pct": 56.2,
+      "pct": 58.1,
       "note_text": "Sessions from Amazon search + direct. Ads clicks happen within these sessions."
      }
     ],
     "attribution": {
-     "sales": 14545,
-     "purchases": 581,
-     "brb": 2343,
+     "sales": 14569,
+     "purchases": 582,
+     "brb": 2482,
      "roas": 0.9,
      "roas_with_brb": 1.1,
      "campaigns": [
       {
        "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
-       "sales": 7651,
-       "purchases": 332,
+       "sales": 7676,
+       "purchases": 333,
        "clicks": 42009,
-       "brb": 689.98,
-       "spend": 3448,
+       "brb": 807.26,
+       "spend": 3449,
        "roas": 2.2,
-       "roas_adj": 2.4,
+       "roas_adj": 2.5,
        "assets": [
         {
          "type": "Other",
-         "spend": 1301,
-         "clicks": 9052,
+         "spend": 1302,
+         "clicks": 9056,
          "cpc": 0.14,
          "ads": [
           {
-           "id": "120243909567070508",
-           "name": "The Viral Cup | AD A | 20260325"
-          },
-          {
-           "id": "120243916259860508",
-           "name": "Spring Deal Days(2) | AD E | 20260325"
-          },
-          {
-           "id": "120243916283180508",
-           "name": "Spring Deal Days(3)| Deanna | AD F | 20260325"
+           "id": "120243947805310508",
+           "name": "Spring's biggest deals(2) | AD I | 20260326"
           },
           {
            "id": "120243947414180508",
            "name": "The easiest | AD G | 20260326"
           },
           {
-           "id": "120243947805310508",
-           "name": "Spring's biggest deals(2) | AD I | 20260326"
+           "id": "120243916283180508",
+           "name": "Spring Deal Days(3)| Deanna | AD F | 20260325"
+          },
+          {
+           "id": "120243916259860508",
+           "name": "Spring Deal Days(2) | AD E | 20260325"
+          },
+          {
+           "id": "120243909567070508",
+           "name": "The Viral Cup | AD A | 20260325"
           }
          ]
         },
         {
          "type": "Whitelabel",
          "spend": 1207,
-         "clicks": 17299,
+         "clicks": 17302,
          "cpc": 0.07,
          "ads": [
           {
-           "id": "120243917383280508",
-           "name": "WL | chatterwithsam | PPSU | AD A | 20260325"
-          },
-          {
-           "id": "120243917490040508",
-           "name": "WL | _from.mom.to.mom | knotted | AD B | 20260325"
-          },
-          {
-           "id": "120243917556170508",
-           "name": "WL | deanna.hauk | Fliptop | AD C | 20260325"
+           "id": "120243917640090508",
+           "name": "WL | _cola_henderson | Fliptop | E | 20260325"
           },
           {
            "id": "120243917601910508",
            "name": "WL | laurencee.slp | Fliptop | AD D | 20260325"
           },
           {
-           "id": "120243917640090508",
-           "name": "WL | _cola_henderson | Fliptop | E | 20260325"
+           "id": "120243917556170508",
+           "name": "WL | deanna.hauk | Fliptop | AD C | 20260325"
+          },
+          {
+           "id": "120243917490040508",
+           "name": "WL | _from.mom.to.mom | knotted | AD B | 20260325"
+          },
+          {
+           "id": "120243917383280508",
+           "name": "WL | chatterwithsam | PPSU | AD A | 20260325"
           }
          ]
         },
         {
          "type": "Image",
          "spend": 939,
-         "clicks": 6440,
+         "clicks": 6441,
          "cpc": 0.15,
          "ads": [
           {
-           "id": "120243916674190508",
-           "name": "Spring Biggest Deals | image | AD A | 20260325"
-          },
-          {
-           "id": "120243916922570508",
-           "name": "Big Spring Sale | image | AD B | 20260325"
+           "id": "120243947972970508",
+           "name": "Up to 15% off(2) | image | AD F | 20260326"
           },
           {
            "id": "120243917176150508",
            "name": "Spring Deal Days | image | AD D | 20260325"
           },
           {
-           "id": "120243947972970508",
-           "name": "Up to 15% off(2) | image | AD F | 20260326"
+           "id": "120243916922570508",
+           "name": "Big Spring Sale | image | AD B | 20260325"
           },
           {
-           "id": "120243917019060508",
-           "name": "Up to 15% off | image | AD C | 20260325"
+           "id": "120243916674190508",
+           "name": "Spring Biggest Deals | image | AD A | 20260325"
+          },
+          {
+           "id": "120243947908260508",
+           "name": "The easiest | image | AD E | 20260326"
           }
          ]
         }
@@ -18245,15 +18263,15 @@ const FIN_DATA = {
        "sales": 5246,
        "purchases": 208,
        "clicks": 72590,
-       "brb": 555.58,
-       "spend": 4496,
+       "brb": 569.5,
+       "spend": 4497,
        "roas": 1.2,
        "roas_adj": 1.3,
        "assets": [
         {
          "type": "Whitelabel",
-         "spend": 4496,
-         "clicks": 52838,
+         "spend": 4497,
+         "clicks": 52848,
          "cpc": 0.09,
          "ads": [
           {
@@ -18273,7 +18291,7 @@ const FIN_DATA = {
        "sales": 1170,
        "purchases": 25,
        "clicks": 44836,
-       "brb": 837.49,
+       "brb": 839.8,
        "spend": 2389,
        "roas": 0.5,
        "roas_adj": 0.8,
@@ -18281,7 +18299,7 @@ const FIN_DATA = {
         {
          "type": "Whitelabel",
          "spend": 2389,
-         "clicks": 18044,
+         "clicks": 18045,
          "cpc": 0.13,
          "ads": [
           {
@@ -18297,7 +18315,7 @@ const FIN_DATA = {
        "sales": 378,
        "purchases": 14,
        "clicks": 647,
-       "brb": 188.03,
+       "brb": 190.05,
        "spend": 0,
        "roas": 0,
        "roas_adj": 0,
@@ -18308,7 +18326,7 @@ const FIN_DATA = {
        "sales": 100,
        "purchases": 2,
        "clicks": 35919,
-       "brb": 71.66,
+       "brb": 75.74,
        "spend": 2392,
        "roas": 0.0,
        "roas_adj": 0.1,
@@ -18316,7 +18334,7 @@ const FIN_DATA = {
         {
          "type": "Whitelabel",
          "spend": 2392,
-         "clicks": 20596,
+         "clicks": 20597,
          "cpc": 0.12,
          "ads": [
           {
@@ -18331,9 +18349,9 @@ const FIN_DATA = {
     }
    },
    "meta_detail": {
-    "cvr_clicks": 9529,
-    "traffic_clicks": 159701,
-    "total": 169230
+    "cvr_clicks": 9532,
+    "traffic_clicks": 159724,
+    "total": 169256
    },
    "google_clicks": 9073
   }
@@ -18343,12 +18361,12 @@ const FIN_DATA = {
    "campaign": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251",
    "campaign_id": "120232746327610508",
    "brand": "Grosmimi",
-   "total_spend": 29225,
+   "total_spend": 29226,
    "types": [
     {
      "type": "Whitelabel",
-     "spend": 22951,
-     "clicks": 272266,
+     "spend": 22952,
+     "clicks": 272276,
      "cpc": 0.08,
      "purchases": 2,
      "ads": [
@@ -18361,12 +18379,12 @@ const FIN_DATA = {
        "name": "WL_Livfuselli_MAY25_Grosmimi_BASIC PPSU300_20251120-01"
       },
       {
-       "id": "120237969778820508",
-       "name": "WL_Dentalmom_AUG25_Grosmimi_BASIC PPSU300_20251120-01"
-      },
-      {
        "id": "120237969827620508",
        "name": "WL_Dentalmom_MAY25_Grosmimi_BASIC PPSU300_20251120-01"
+      },
+      {
+       "id": "120237969778820508",
+       "name": "WL_Dentalmom_AUG25_Grosmimi_BASIC PPSU300_20251120-01"
       }
      ]
     },
@@ -18403,20 +18421,20 @@ const FIN_DATA = {
      "purchases": 707,
      "ads": [
       {
-       "id": "120242998706080508",
-       "name": "Stainless Steel Tumbler | WL | lqah | 20260305"
+       "id": "120243948199970508",
+       "name": "Stainless Steel Tumbler | WL | zellyandb | 20260326"
       },
       {
        "id": "120243384339810508",
        "name": "Stainless Steel Tumbler | WL | lqah | 20260313"
       },
       {
-       "id": "120232464266500508",
-       "name": "Stainless Steel Tumbler | WL | Dabin Lee (Lookalike) | AD C"
+       "id": "120242998706080508",
+       "name": "Stainless Steel Tumbler | WL | lqah | 20260305"
       },
       {
-       "id": "120243948199970508",
-       "name": "Stainless Steel Tumbler | WL | zellyandb | 20260326"
+       "id": "120232464266500508",
+       "name": "Stainless Steel Tumbler | WL | Dabin Lee (Lookalike) | AD C"
       },
       {
        "id": "120242998207440508",
@@ -18545,7 +18563,7 @@ const FIN_DATA = {
     {
      "type": "Other",
      "spend": 10384,
-     "clicks": 19358,
+     "clicks": 19359,
      "cpc": 0.54,
      "purchases": 404,
      "ads": [
@@ -18653,7 +18671,7 @@ const FIN_DATA = {
     {
      "type": "Whitelabel",
      "spend": 6751,
-     "clicks": 66183,
+     "clicks": 66184,
      "cpc": 0.1,
      "purchases": 0,
      "ads": [
@@ -18674,7 +18692,7 @@ const FIN_DATA = {
     {
      "type": "Whitelabel",
      "spend": 6682,
-     "clicks": 57457,
+     "clicks": 57458,
      "cpc": 0.12,
      "purchases": 4,
      "ads": [
@@ -19029,92 +19047,92 @@ const FIN_DATA = {
    "campaign": "AMZ | Traffic | Amazon Spring Sale | 0325-0331",
    "campaign_id": "120243909567080508",
    "brand": "Grosmimi",
-   "total_spend": 3448,
+   "total_spend": 3449,
    "types": [
     {
      "type": "Other",
-     "spend": 1301,
-     "clicks": 9052,
+     "spend": 1302,
+     "clicks": 9056,
      "cpc": 0.14,
      "purchases": 1,
      "ads": [
       {
-       "id": "120243909567070508",
-       "name": "The Viral Cup | AD A | 20260325"
-      },
-      {
-       "id": "120243916259860508",
-       "name": "Spring Deal Days(2) | AD E | 20260325"
-      },
-      {
-       "id": "120243916283180508",
-       "name": "Spring Deal Days(3)| Deanna | AD F | 20260325"
+       "id": "120243947805310508",
+       "name": "Spring's biggest deals(2) | AD I | 20260326"
       },
       {
        "id": "120243947414180508",
        "name": "The easiest | AD G | 20260326"
       },
       {
-       "id": "120243947805310508",
-       "name": "Spring's biggest deals(2) | AD I | 20260326"
+       "id": "120243916283180508",
+       "name": "Spring Deal Days(3)| Deanna | AD F | 20260325"
+      },
+      {
+       "id": "120243916259860508",
+       "name": "Spring Deal Days(2) | AD E | 20260325"
+      },
+      {
+       "id": "120243909567070508",
+       "name": "The Viral Cup | AD A | 20260325"
       }
      ]
     },
     {
      "type": "Whitelabel",
      "spend": 1207,
-     "clicks": 17299,
+     "clicks": 17302,
      "cpc": 0.07,
      "purchases": 0,
      "ads": [
       {
-       "id": "120243917383280508",
-       "name": "WL | chatterwithsam | PPSU | AD A | 20260325"
-      },
-      {
-       "id": "120243917490040508",
-       "name": "WL | _from.mom.to.mom | knotted | AD B | 20260325"
-      },
-      {
-       "id": "120243917556170508",
-       "name": "WL | deanna.hauk | Fliptop | AD C | 20260325"
+       "id": "120243917640090508",
+       "name": "WL | _cola_henderson | Fliptop | E | 20260325"
       },
       {
        "id": "120243917601910508",
        "name": "WL | laurencee.slp | Fliptop | AD D | 20260325"
       },
       {
-       "id": "120243917640090508",
-       "name": "WL | _cola_henderson | Fliptop | E | 20260325"
+       "id": "120243917556170508",
+       "name": "WL | deanna.hauk | Fliptop | AD C | 20260325"
+      },
+      {
+       "id": "120243917490040508",
+       "name": "WL | _from.mom.to.mom | knotted | AD B | 20260325"
+      },
+      {
+       "id": "120243917383280508",
+       "name": "WL | chatterwithsam | PPSU | AD A | 20260325"
       }
      ]
     },
     {
      "type": "Image",
      "spend": 939,
-     "clicks": 6440,
+     "clicks": 6441,
      "cpc": 0.15,
      "purchases": 0,
      "ads": [
       {
-       "id": "120243916674190508",
-       "name": "Spring Biggest Deals | image | AD A | 20260325"
-      },
-      {
-       "id": "120243916922570508",
-       "name": "Big Spring Sale | image | AD B | 20260325"
+       "id": "120243947972970508",
+       "name": "Up to 15% off(2) | image | AD F | 20260326"
       },
       {
        "id": "120243917176150508",
        "name": "Spring Deal Days | image | AD D | 20260325"
       },
       {
-       "id": "120243947972970508",
-       "name": "Up to 15% off(2) | image | AD F | 20260326"
+       "id": "120243916922570508",
+       "name": "Big Spring Sale | image | AD B | 20260325"
       },
       {
-       "id": "120243917019060508",
-       "name": "Up to 15% off | image | AD C | 20260325"
+       "id": "120243916674190508",
+       "name": "Spring Biggest Deals | image | AD A | 20260325"
+      },
+      {
+       "id": "120243947908260508",
+       "name": "The easiest | image | AD E | 20260326"
       }
      ]
     }
@@ -19144,12 +19162,12 @@ const FIN_DATA = {
  ],
  "amz_sessions": {
   "7d": {
-   "sessions": 126667,
-   "pageViews": 154935
+   "sessions": 143122,
+   "pageViews": 175109
   },
   "30d": {
-   "sessions": 364654,
-   "pageViews": 449069
+   "sessions": 381109,
+   "pageViews": 469243
   }
  },
  "pnl_polar": {
@@ -19169,15 +19187,15 @@ const FIN_DATA = {
    "FY2025",
    "Jan 26",
    "Feb 26",
-   "Mar 26\n(thru 3/30)"
+   "Mar 26"
   ],
   "fy2025_idx": 12,
   "partial_month": {
    "month": "2026-03",
-   "days_elapsed": 30,
+   "days_elapsed": 31,
    "days_in_month": 31,
-   "is_partial": true,
-   "multiplier": 1.0333
+   "is_partial": false,
+   "multiplier": 1.0
   },
   "brand_sales": {
    "Grosmimi": {
@@ -19197,7 +19215,7 @@ const FIN_DATA = {
      7463415,
      730330,
      645536,
-     862076
+     896677
     ],
     "color": "#8b5cf6"
    },
@@ -19218,7 +19236,7 @@ const FIN_DATA = {
      212886,
      14270,
      14337,
-     19128
+     19847
     ],
     "color": "#eab308"
    },
@@ -19239,7 +19257,7 @@ const FIN_DATA = {
      60432,
      10424,
      8114,
-     5505
+     5588
     ],
     "color": "#0ea5e9"
    },
@@ -19260,7 +19278,7 @@ const FIN_DATA = {
      39638,
      6431,
      7811,
-     7403
+     7654
     ],
     "color": "#f97316"
    },
@@ -19281,7 +19299,7 @@ const FIN_DATA = {
      67910,
      2500,
      11814,
-     17253
+     17340
     ],
     "color": "#94a3b8"
    }
@@ -19302,7 +19320,7 @@ const FIN_DATA = {
    7912197,
    766455,
    699427,
-   928618
+   964445
   ],
   "cogs": [
    0,
@@ -19338,7 +19356,7 @@ const FIN_DATA = {
    7912197,
    766455,
    699427,
-   928618
+   964445
   ],
   "variable_costs": [
    61581,
@@ -19356,7 +19374,7 @@ const FIN_DATA = {
    1006241,
    94066,
    88008,
-   121757
+   126774
   ],
   "variable_detail": {
    "amz_ref_fee": [
@@ -19375,7 +19393,7 @@ const FIN_DATA = {
     1006241,
     94066,
     88008,
-    121757
+    126774
    ],
    "fba_fulfillment": [
     0,
@@ -19423,7 +19441,7 @@ const FIN_DATA = {
    6905957,
    672389,
    611419,
-   806861
+   837671
   ],
   "ad_spend": {
    "onzenna": [
@@ -19442,7 +19460,7 @@ const FIN_DATA = {
     288783,
     38519,
     39411,
-    36079
+    37426
    ],
    "amazon": [
     0,
@@ -19460,7 +19478,7 @@ const FIN_DATA = {
     34382,
     79637,
     80371,
-    110826
+    114981
    ],
    "total": [
     20996,
@@ -19478,7 +19496,7 @@ const FIN_DATA = {
     323165,
     118156,
     119783,
-    146905
+    152407
    ]
   },
   "ad_spend_detail": {
@@ -19498,7 +19516,7 @@ const FIN_DATA = {
     132635,
     11117,
     12652,
-    9948
+    10155
    ],
    "amz_grosmimi": [
     0,
@@ -19572,7 +19590,7 @@ const FIN_DATA = {
     798466,
     58782,
     52162,
-    33628
+    34260
    ],
    "amazon": [
     0,
@@ -19590,7 +19608,7 @@ const FIN_DATA = {
     224013,
     387330,
     360221,
-    492531
+    512026
    ],
    "total": [
     57282,
@@ -19608,7 +19626,7 @@ const FIN_DATA = {
     1022479,
     446112,
     412383,
-    526159
+    546285
    ]
   },
   "organic": {
@@ -19664,7 +19682,7 @@ const FIN_DATA = {
     6889718,
     320343,
     287044,
-    402459
+    418160
    ]
   },
   "discounts": [
@@ -19683,7 +19701,7 @@ const FIN_DATA = {
    120811,
    16081,
    6326,
-   5545
+   5625
   ],
   "discounts_detail": {
    "shopify_disc": [
@@ -19702,7 +19720,7 @@ const FIN_DATA = {
     120811,
     16081,
     6326,
-    5545
+    5625
    ],
    "amz_ref_fee": [
     61581,
@@ -19720,7 +19738,7 @@ const FIN_DATA = {
     1006241,
     94066,
     88008,
-    121757
+    126774
    ]
   },
   "influencer_spend": [
@@ -19795,7 +19813,7 @@ const FIN_DATA = {
    7589032,
    648299,
    579644,
-   781713
+   812038
   ],
   "cm_final": [
    513325,
@@ -19813,7 +19831,7 @@ const FIN_DATA = {
    7589032,
    648299,
    579644,
-   781713
+   812038
   ],
   "channel_pnl": {
    "Amazon MP": {
@@ -19832,7 +19850,7 @@ const FIN_DATA = {
      602171,
      627108,
      586723,
-     811713
+     845162
     ],
     "cogs": [
      0,
@@ -19866,7 +19884,7 @@ const FIN_DATA = {
      90326,
      94066,
      88008,
-     121757
+     126774
     ],
     "fulfillment": [
      null,
@@ -19901,7 +19919,7 @@ const FIN_DATA = {
      43467,
      91168,
      90019,
-     124500
+     129350
     ],
     "gross_margin": [
      348959,
@@ -19918,7 +19936,7 @@ const FIN_DATA = {
      511845,
      533042,
      498715,
-     689956
+     718388
     ],
     "contribution_margin": [
      348959,
@@ -19935,7 +19953,7 @@ const FIN_DATA = {
      468378,
      441874,
      408696,
-     565456
+     589038
     ],
     "color": "#f59e0b"
    },
@@ -19955,7 +19973,7 @@ const FIN_DATA = {
      72542,
      95418,
      72668,
-     72109
+     73780
     ],
     "cogs": [
      0,
@@ -20024,7 +20042,7 @@ const FIN_DATA = {
      27919,
      26988,
      29764,
-     22405
+     23056
     ],
     "gross_margin": [
      87157,
@@ -20041,7 +20059,7 @@ const FIN_DATA = {
      72542,
      95418,
      72668,
-     72109
+     73780
     ],
     "contribution_margin": [
      66161,
@@ -20058,7 +20076,7 @@ const FIN_DATA = {
      44623,
      68430,
      42904,
-     49704
+     50724
     ],
     "color": "#6366f1"
    },
@@ -20078,7 +20096,7 @@ const FIN_DATA = {
      9566,
      9495,
      11945,
-     17796
+     18349
     ],
     "cogs": [
      0,
@@ -20095,7 +20113,7 @@ const FIN_DATA = {
      2410,
      2490,
      2940,
-     4410
+     4540
     ],
     "selling_fees": [
      0,
@@ -20112,7 +20130,7 @@ const FIN_DATA = {
      1435,
      1424,
      1792,
-     2669
+     2752
     ],
     "fulfillment": [
      null,
@@ -20164,7 +20182,7 @@ const FIN_DATA = {
      5721,
      5581,
      7213,
-     10717
+     11057
     ],
     "contribution_margin": [
      0,
@@ -20181,7 +20199,7 @@ const FIN_DATA = {
      5721,
      5581,
      7213,
-     10717
+     11057
     ],
     "color": "#ef4444"
    },
@@ -20327,7 +20345,7 @@ const FIN_DATA = {
     90007,
     153595,
     46182,
-    2645
+    25480
    ],
    "opens": [
     0,
@@ -20344,7 +20362,7 @@ const FIN_DATA = {
     63532,
     77225,
     5461,
-    2041
+    6877
    ],
    "clicks": [
     0,
@@ -20361,7 +20379,7 @@ const FIN_DATA = {
     496,
     608,
     128,
-    37
+    152
    ],
    "conversions": [
     0,
@@ -20378,7 +20396,7 @@ const FIN_DATA = {
     112,
     130,
     13,
-    12
+    15
    ],
    "revenue": [
     0,
@@ -20395,7 +20413,7 @@ const FIN_DATA = {
     8971,
     8389,
     1077,
-    727
+    981
    ],
    "revenue_proj": [
     0,
@@ -20412,7 +20430,7 @@ const FIN_DATA = {
     8971,
     8389,
     1077,
-    751
+    981
    ]
   },
   "flow_monthly": {
@@ -20431,7 +20449,7 @@ const FIN_DATA = {
     0,
     0,
     0,
-    446
+    431
    ],
    "opens": [
     0,
@@ -20448,7 +20466,7 @@ const FIN_DATA = {
     0,
     0,
     0,
-    118
+    115
    ],
    "clicks": [
     0,
@@ -20465,7 +20483,7 @@ const FIN_DATA = {
     0,
     0,
     0,
-    21
+    18
    ],
    "conversions": [
     0,
@@ -20482,7 +20500,7 @@ const FIN_DATA = {
     0,
     0,
     0,
-    4
+    3
    ],
    "revenue": [
     0,
@@ -20499,7 +20517,7 @@ const FIN_DATA = {
     0,
     0,
     0,
-    385
+    290
    ],
    "revenue_proj": [
     0,
@@ -20516,40 +20534,58 @@ const FIN_DATA = {
     0,
     0,
     0,
-    398
+    290
    ]
   },
   "summary_7d": {
-   "sends": 1335,
-   "opens": 931,
-   "clicks": 36,
-   "conversions": 4,
-   "revenue": 384.6,
-   "open_rate": 69.7,
-   "click_rate": 2.7,
-   "cvr": 0.3,
-   "rev_per_send": 0.288,
-   "campaign_revenue": 0.0,
-   "flow_revenue": 384.6
+   "sends": 24155,
+   "opens": 5763,
+   "clicks": 148,
+   "conversions": 6,
+   "revenue": 544.09,
+   "open_rate": 23.9,
+   "click_rate": 0.61,
+   "cvr": 0.02,
+   "rev_per_send": 0.023,
+   "campaign_revenue": 254.11,
+   "flow_revenue": 289.98
   },
   "summary_30d": {
-   "sends": 2971,
-   "opens": 2115,
-   "clicks": 57,
-   "conversions": 16,
-   "revenue": 1111.86,
-   "open_rate": 71.2,
-   "click_rate": 1.92,
-   "cvr": 0.54,
-   "rev_per_send": 0.374,
-   "campaign_revenue": 727.26,
-   "flow_revenue": 384.6
+   "sends": 25791,
+   "opens": 6948,
+   "clicks": 169,
+   "conversions": 18,
+   "revenue": 1271.35,
+   "open_rate": 26.9,
+   "click_rate": 0.66,
+   "cvr": 0.07,
+   "rev_per_send": 0.049,
+   "campaign_revenue": 981.37,
+   "flow_revenue": 289.98
   },
   "top_campaigns_7d": [
    {
+    "name": "0326 - Easter(Last day) (clone)",
+    "sends": 22348,
+    "open_rate": 20.9,
+    "click_rate": 0.36,
+    "cvr": 0.01,
+    "revenue": 254.11,
+    "date": "2026-03-31"
+   },
+   {
+    "name": "0326 - Easter(Last day)",
+    "sends": 487,
+    "open_rate": 32.2,
+    "click_rate": 7.19,
+    "cvr": 0.0,
+    "revenue": 0.0,
+    "date": "2026-03-31"
+   },
+   {
     "name": "0326 - Easter",
     "sends": 889,
-    "open_rate": 91.5,
+    "open_rate": 92.1,
     "click_rate": 1.69,
     "cvr": 0.0,
     "revenue": 0.0,
@@ -20560,11 +20596,20 @@ const FIN_DATA = {
    {
     "name": "03.16.26 - Onzenna Newsletter",
     "sends": 905,
-    "open_rate": 80.2,
+    "open_rate": 80.3,
     "click_rate": 0.99,
     "cvr": 0.77,
     "revenue": 508.0,
     "date": "2026-03-21"
+   },
+   {
+    "name": "0326 - Easter(Last day) (clone)",
+    "sends": 22348,
+    "open_rate": 20.9,
+    "click_rate": 0.36,
+    "cvr": 0.01,
+    "revenue": 254.11,
+    "date": "2026-03-31"
    },
    {
     "name": "031326 - More Light, More You",
@@ -20585,9 +20630,18 @@ const FIN_DATA = {
     "date": "2026-03-05"
    },
    {
+    "name": "0326 - Easter(Last day)",
+    "sends": 487,
+    "open_rate": 32.2,
+    "click_rate": 7.19,
+    "cvr": 0.0,
+    "revenue": 0.0,
+    "date": "2026-03-31"
+   },
+   {
     "name": "0326 - Easter",
     "sends": 889,
-    "open_rate": 91.5,
+    "open_rate": 92.1,
     "click_rate": 1.69,
     "cvr": 0.0,
     "revenue": 0.0,
@@ -20606,35 +20660,35 @@ const FIN_DATA = {
   "top_flows_7d": [
    {
     "name": "[Onzenna]Abandoned Cart",
-    "sends": 20,
+    "sends": 19,
     "open_rate": 0.0,
-    "click_rate": 40.0,
-    "cvr": 5.0,
+    "click_rate": 31.58,
+    "cvr": 5.26,
     "revenue": 165.32
    },
    {
-    "name": "[Onzenna] Back In Stock Flow - Standard",
-    "sends": 17,
-    "open_rate": 35.3,
-    "click_rate": 5.88,
-    "cvr": 5.88,
-    "revenue": 94.62
-   },
-   {
     "name": "[Onzenna][Retentics] Browse Abandonment",
-    "sends": 136,
-    "open_rate": 37.5,
-    "click_rate": 8.82,
-    "cvr": 0.74,
+    "sends": 134,
+    "open_rate": 38.1,
+    "click_rate": 8.96,
+    "cvr": 0.75,
     "revenue": 81.66
    },
    {
     "name": "[Onzenna][Retentics] Welcome From (Pop-up) product form a/b_241119",
-    "sends": 252,
-    "open_rate": 21.0,
+    "sends": 242,
+    "open_rate": 21.1,
     "click_rate": 0.0,
-    "cvr": 0.4,
+    "cvr": 0.41,
     "revenue": 43.0
+   },
+   {
+    "name": "[Onzenna] Welcome Series - Standard",
+    "sends": 19,
+    "open_rate": 36.8,
+    "click_rate": 0.0,
+    "cvr": 0.0,
+    "revenue": 0.0
    },
    {
     "name": "[Onzenna] 90-Day No Purchase Customers",
@@ -20645,9 +20699,9 @@ const FIN_DATA = {
     "revenue": 0.0
    },
    {
-    "name": "[Onzenna] Welcome Series - Standard",
-    "sends": 19,
-    "open_rate": 36.8,
+    "name": "[Onzenna] Back In Stock Flow - Standard",
+    "sends": 15,
+    "open_rate": 33.3,
     "click_rate": 0.0,
     "cvr": 0.0,
     "revenue": 0.0
@@ -20656,35 +20710,35 @@ const FIN_DATA = {
   "top_flows_30d": [
    {
     "name": "[Onzenna]Abandoned Cart",
-    "sends": 20,
+    "sends": 19,
     "open_rate": 0.0,
-    "click_rate": 40.0,
-    "cvr": 5.0,
+    "click_rate": 31.58,
+    "cvr": 5.26,
     "revenue": 165.32
    },
    {
-    "name": "[Onzenna] Back In Stock Flow - Standard",
-    "sends": 17,
-    "open_rate": 35.3,
-    "click_rate": 5.88,
-    "cvr": 5.88,
-    "revenue": 94.62
-   },
-   {
     "name": "[Onzenna][Retentics] Browse Abandonment",
-    "sends": 136,
-    "open_rate": 37.5,
-    "click_rate": 8.82,
-    "cvr": 0.74,
+    "sends": 134,
+    "open_rate": 38.1,
+    "click_rate": 8.96,
+    "cvr": 0.75,
     "revenue": 81.66
    },
    {
     "name": "[Onzenna][Retentics] Welcome From (Pop-up) product form a/b_241119",
-    "sends": 252,
-    "open_rate": 21.0,
+    "sends": 242,
+    "open_rate": 21.1,
     "click_rate": 0.0,
-    "cvr": 0.4,
+    "cvr": 0.41,
     "revenue": 43.0
+   },
+   {
+    "name": "[Onzenna] Welcome Series - Standard",
+    "sends": 19,
+    "open_rate": 36.8,
+    "click_rate": 0.0,
+    "cvr": 0.0,
+    "revenue": 0.0
    },
    {
     "name": "[Onzenna] 90-Day No Purchase Customers",
@@ -20695,9 +20749,9 @@ const FIN_DATA = {
     "revenue": 0.0
    },
    {
-    "name": "[Onzenna] Welcome Series - Standard",
-    "sends": 19,
-    "open_rate": 36.8,
+    "name": "[Onzenna] Back In Stock Flow - Standard",
+    "sends": 15,
+    "open_rate": 33.3,
     "click_rate": 0.0,
     "cvr": 0.0,
     "revenue": 0.0
@@ -20755,9 +20809,9 @@ const FIN_DATA = {
      12867.7,
      13926.71,
      15720.44,
-     14048.98,
-     21682.49,
-     3431.92
+     14042.37,
+     21681.07,
+     6373.59
     ],
     "sales": [
      28478.28,
@@ -20768,10 +20822,10 @@ const FIN_DATA = {
      32048.19,
      32221.98,
      34588.86,
-     38532.67,
-     34806.12,
-     46545.56,
-     6126.27
+     38511.51,
+     35028.32,
+     47707.75,
+     11349.89
     ],
     "impressions": [
      2133836,
@@ -20781,11 +20835,11 @@ const FIN_DATA = {
      2116641,
      2302012,
      2356579,
-     2045134,
-     2483267,
-     2228010,
-     3507071,
-     661501
+     2045119,
+     2483259,
+     2227974,
+     3507036,
+     1310646
     ],
     "clicks": [
      8732,
@@ -20797,17 +20851,17 @@ const FIN_DATA = {
      9128,
      9493,
      10776,
-     9481,
-     14470,
-     2302
+     9477,
+     14469,
+     4266
     ],
-    "total_spend": 154586.31,
-    "total_sales": 356183.31,
-    "total_clicks": 107396,
-    "total_impressions": 26409192,
+    "total_spend": 157519.95,
+    "total_sales": 362770.16,
+    "total_clicks": 109355,
+    "total_impressions": 27058243,
     "roas": 2.3,
     "cpc": 1.44,
-    "ctr": 0.41,
+    "ctr": 0.4,
     "is_traffic": false
    },
    {
@@ -20826,9 +20880,9 @@ const FIN_DATA = {
      3437.68,
      3860.11,
      3958.75,
-     4327.29,
-     5505.37,
-     702.37
+     4323.02,
+     5504.68,
+     1380.83
     ],
     "sales": [
      21282.64,
@@ -20840,9 +20894,9 @@ const FIN_DATA = {
      20214.97,
      21015.22,
      26356.6,
-     30064.31,
-     41782.08,
-     5216.74
+     30160.17,
+     42919.88,
+     10600.5
     ],
     "impressions": [
      709304,
@@ -20852,11 +20906,11 @@ const FIN_DATA = {
      801155,
      848672,
      871260,
-     816506,
-     823693,
-     826608,
-     1201916,
-     233222
+     816496,
+     823686,
+     826586,
+     1201904,
+     421588
     ],
     "clicks": [
      5226,
@@ -20868,15 +20922,15 @@ const FIN_DATA = {
      5171,
      5851,
      5913,
-     6663,
-     8996,
-     1141
+     6656,
+     8995,
+     2221
     ],
-    "total_spend": 42851.39,
-    "total_sales": 264995.71,
-    "total_clicks": 65675,
-    "total_impressions": 9471296,
-    "roas": 6.18,
+    "total_spend": 43524.89,
+    "total_sales": 271613.13,
+    "total_clicks": 66747,
+    "total_impressions": 9659611,
+    "roas": 6.24,
     "cpc": 0.65,
     "ctr": 0.69,
     "is_traffic": false
@@ -20899,7 +20953,7 @@ const FIN_DATA = {
      1665.02,
      1262.59,
      1409.24,
-     201.57
+     390.37
     ],
     "sales": [
      4053.42,
@@ -20909,11 +20963,11 @@ const FIN_DATA = {
      4441.95,
      4530.66,
      4641.7,
-     2938.48,
+     2938.89,
      4018.05,
      2369.38,
      2052.08,
-     333.0
+     551.0
     ],
     "impressions": [
      164708,
@@ -20927,7 +20981,7 @@ const FIN_DATA = {
      183370,
      197867,
      210877,
-     24711
+     47820
     ],
     "clicks": [
      1784,
@@ -20941,13 +20995,13 @@ const FIN_DATA = {
      1656,
      1352,
      1487,
-     210
+     415
     ],
-    "total_spend": 20979.97,
-    "total_sales": 40624.54,
-    "total_clicks": 19940,
-    "total_impressions": 2175915,
-    "roas": 1.94,
+    "total_spend": 21168.77,
+    "total_sales": 40842.95,
+    "total_clicks": 20145,
+    "total_impressions": 2199024,
+    "roas": 1.93,
     "cpc": 1.05,
     "ctr": 0.92,
     "is_traffic": false
@@ -20969,8 +21023,8 @@ const FIN_DATA = {
      1269.16,
      1407.85,
      1217.91,
-     1103.05,
-     178.97
+     1101.33,
+     332.81
     ],
     "sales": [
      1922.18,
@@ -20982,9 +21036,9 @@ const FIN_DATA = {
      3468.5,
      3334.79,
      3776.4,
-     2877.97,
-     3607.74,
-     672.91
+     2902.37,
+     3632.14,
+     1152.82
     ],
     "impressions": [
      194815,
@@ -20994,11 +21048,11 @@ const FIN_DATA = {
      385837,
      442390,
      479637,
-     453663,
-     482089,
-     600410,
-     469900,
-     66370
+     453657,
+     482087,
+     600403,
+     469896,
+     116275
     ],
     "clicks": [
      1479,
@@ -21011,14 +21065,14 @@ const FIN_DATA = {
      2268,
      2510,
      2188,
-     1979,
-     325
+     1976,
+     597
     ],
-    "total_spend": 13465.74,
-    "total_sales": 32211.78,
-    "total_clicks": 23965,
-    "total_impressions": 4508291,
-    "roas": 2.39,
+    "total_spend": 13617.86,
+    "total_sales": 32740.49,
+    "total_clicks": 24234,
+    "total_impressions": 4558177,
+    "roas": 2.4,
     "cpc": 0.56,
     "ctr": 0.53,
     "is_traffic": false
@@ -21041,7 +21095,7 @@ const FIN_DATA = {
      1053.64,
      1050.29,
      1045.19,
-     149.4
+     306.46
     ],
     "sales": [
      0.0,
@@ -21069,7 +21123,7 @@ const FIN_DATA = {
      92428,
      107886,
      95501,
-     13579
+     27268
     ],
     "clicks": [
      14374,
@@ -21083,21 +21137,21 @@ const FIN_DATA = {
      12972,
      11642,
      11153,
-     1685
+     3517
     ],
-    "total_spend": 11687.09,
+    "total_spend": 11844.15,
     "total_sales": 0.0,
-    "total_clicks": 150250,
-    "total_impressions": 1154587,
+    "total_clicks": 152082,
+    "total_impressions": 1168276,
     "roas": 0.0,
     "cpc": 0.08,
-    "ctr": 13.01,
+    "ctr": 13.02,
     "is_traffic": true,
     "attr_sales": 5246.07,
     "attr_purchases": 208,
-    "attr_brb": 555.58,
-    "attr_roas": 0.45,
-    "attr_roas_adj": 0.5
+    "attr_brb": 569.5,
+    "attr_roas": 0.44,
+    "attr_roas_adj": 0.49
    },
    {
     "id": "120232464266510508",
@@ -21117,7 +21171,7 @@ const FIN_DATA = {
      498.6,
      485.77,
      481.15,
-     75.58
+     146.48
     ],
     "sales": [
      2491.92,
@@ -21131,7 +21185,7 @@ const FIN_DATA = {
      890.1,
      594.71,
      745.29,
-     50.29
+     330.86
     ],
     "impressions": [
      36493,
@@ -21145,7 +21199,7 @@ const FIN_DATA = {
      24943,
      24199,
      22745,
-     3215
+     6303
     ],
     "clicks": [
      615,
@@ -21159,15 +21213,15 @@ const FIN_DATA = {
      410,
      433,
      462,
-     69
+     131
     ],
-    "total_spend": 7014.62,
-    "total_sales": 14016.3,
-    "total_clicks": 6072,
-    "total_impressions": 354456,
-    "roas": 2.0,
+    "total_spend": 7085.52,
+    "total_sales": 14296.87,
+    "total_clicks": 6134,
+    "total_impressions": 357544,
+    "roas": 2.02,
     "cpc": 1.16,
-    "ctr": 1.71,
+    "ctr": 1.72,
     "is_traffic": false
    },
    {
@@ -21242,6 +21296,158 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
+    "id": "120240644685950508",
+    "campaign_id": "120240644685950508",
+    "name": "AMZ | Traffic | WL | Dentalmom | 202601",
+    "platform": "Meta Traffic",
+    "brand": "Grosmimi",
+    "spend": [
+     561.27,
+     559.4,
+     557.11,
+     561.46,
+     560.72,
+     556.52,
+     559.32,
+     558.57,
+     559.53,
+     560.55,
+     555.35,
+     157.71
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     69691,
+     75174,
+     75802,
+     69415,
+     66841,
+     65130,
+     66961,
+     66847,
+     72581,
+     70019,
+     68325,
+     21033
+    ],
+    "clicks": [
+     6006,
+     6045,
+     5866,
+     5674,
+     5226,
+     5456,
+     5024,
+     4734,
+     4991,
+     4843,
+     4778,
+     1251
+    ],
+    "total_spend": 6307.51,
+    "total_sales": 0.0,
+    "total_clicks": 59894,
+    "total_impressions": 787819,
+    "roas": 0.0,
+    "cpc": 0.11,
+    "ctr": 7.6,
+    "is_traffic": true,
+    "attr_sales": 99.6,
+    "attr_purchases": 2,
+    "attr_brb": 75.74,
+    "attr_roas": 0.02,
+    "attr_roas_adj": 0.03
+   },
+   {
+    "id": "120240689933170508",
+    "campaign_id": "120240689933170508",
+    "name": "AMZ | Traffic | WL_Dental Mom | Stainless_StrawCup | 20260107",
+    "platform": "Meta Traffic",
+    "brand": "Grosmimi",
+    "spend": [
+     562.9,
+     556.89,
+     557.88,
+     562.35,
+     559.93,
+     560.9,
+     556.19,
+     559.18,
+     559.8,
+     560.13,
+     558.1,
+     151.82
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     58.77,
+     0.0,
+     0.0,
+     0.0,
+     94.62,
+     199.87,
+     0.0
+    ],
+    "impressions": [
+     82673,
+     86232,
+     99350,
+     76144,
+     76031,
+     80343,
+     67116,
+     62088,
+     74542,
+     85151,
+     72024,
+     19330
+    ],
+    "clicks": [
+     5642,
+     5457,
+     5178,
+     4752,
+     4363,
+     5239,
+     4520,
+     4226,
+     4402,
+     4288,
+     4064,
+     1065
+    ],
+    "total_spend": 6306.07,
+    "total_sales": 353.26,
+    "total_clicks": 53196,
+    "total_impressions": 881024,
+    "roas": 0.06,
+    "cpc": 0.12,
+    "ctr": 6.04,
+    "is_traffic": true,
+    "attr_sales": 1170.0,
+    "attr_purchases": 25,
+    "attr_brb": 839.8,
+    "attr_roas": 0.19,
+    "attr_roas_adj": 0.32
+   },
+   {
     "id": "120238108466330508",
     "campaign_id": "120238108466330508",
     "name": "Shopify | CVR | WL | Livfuselli (New)",
@@ -21313,158 +21519,6 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
-    "id": "120240689933170508",
-    "campaign_id": "120240689933170508",
-    "name": "AMZ | Traffic | WL_Dental Mom | Stainless_StrawCup | 20260107",
-    "platform": "Meta Traffic",
-    "brand": "Grosmimi",
-    "spend": [
-     562.9,
-     556.89,
-     557.88,
-     562.35,
-     559.93,
-     560.9,
-     556.19,
-     559.18,
-     559.8,
-     560.13,
-     558.1,
-     76.83
-    ],
-    "sales": [
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     58.77,
-     0.0,
-     0.0,
-     0.0,
-     94.62,
-     199.87,
-     0.0
-    ],
-    "impressions": [
-     82673,
-     86232,
-     99350,
-     76144,
-     76031,
-     80343,
-     67116,
-     62088,
-     74542,
-     85151,
-     72024,
-     9906
-    ],
-    "clicks": [
-     5642,
-     5457,
-     5178,
-     4752,
-     4363,
-     5239,
-     4520,
-     4226,
-     4402,
-     4288,
-     4064,
-     554
-    ],
-    "total_spend": 6231.08,
-    "total_sales": 353.26,
-    "total_clicks": 52685,
-    "total_impressions": 871600,
-    "roas": 0.06,
-    "cpc": 0.12,
-    "ctr": 6.04,
-    "is_traffic": true,
-    "attr_sales": 1170.0,
-    "attr_purchases": 25,
-    "attr_brb": 837.49,
-    "attr_roas": 0.19,
-    "attr_roas_adj": 0.32
-   },
-   {
-    "id": "120240644685950508",
-    "campaign_id": "120240644685950508",
-    "name": "AMZ | Traffic | WL | Dentalmom | 202601",
-    "platform": "Meta Traffic",
-    "brand": "Grosmimi",
-    "spend": [
-     561.27,
-     559.4,
-     557.11,
-     561.46,
-     560.72,
-     556.52,
-     559.32,
-     558.57,
-     559.53,
-     560.55,
-     555.35,
-     78.28
-    ],
-    "sales": [
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0
-    ],
-    "impressions": [
-     69691,
-     75174,
-     75802,
-     69415,
-     66841,
-     65130,
-     66961,
-     66847,
-     72581,
-     70019,
-     68325,
-     9959
-    ],
-    "clicks": [
-     6006,
-     6045,
-     5866,
-     5674,
-     5226,
-     5456,
-     5024,
-     4734,
-     4991,
-     4843,
-     4778,
-     636
-    ],
-    "total_spend": 6228.08,
-    "total_sales": 0.0,
-    "total_clicks": 59279,
-    "total_impressions": 776745,
-    "roas": 0.0,
-    "cpc": 0.11,
-    "ctr": 7.63,
-    "is_traffic": true,
-    "attr_sales": 99.6,
-    "attr_purchases": 2,
-    "attr_brb": 71.66,
-    "attr_roas": 0.02,
-    "attr_roas_adj": 0.03
-   },
-   {
     "id": "412813716858145",
     "campaign_id": "412813716858145",
     "name": "SP_stage1_keyword",
@@ -21482,7 +21536,7 @@ const FIN_DATA = {
      366.9,
      462.58,
      579.36,
-     88.5
+     151.67
     ],
     "sales": [
      4735.34,
@@ -21495,8 +21549,8 @@ const FIN_DATA = {
      3830.2,
      3994.54,
      4230.12,
-     4805.18,
-     950.28
+     4874.04,
+     1539.59
     ],
     "impressions": [
      154773,
@@ -21507,10 +21561,10 @@ const FIN_DATA = {
      179499,
      186037,
      128873,
-     136043,
-     132158,
-     249508,
-     46432
+     136041,
+     132153,
+     249489,
+     84475
     ],
     "clicks": [
      664,
@@ -21524,12 +21578,12 @@ const FIN_DATA = {
      593,
      710,
      928,
-     137
+     236
     ],
-    "total_spend": 4416.32,
-    "total_sales": 43435.12,
-    "total_clicks": 7123,
-    "total_impressions": 1866206,
+    "total_spend": 4479.49,
+    "total_sales": 44093.29,
+    "total_clicks": 7222,
+    "total_impressions": 1904223,
     "roas": 9.84,
     "cpc": 0.62,
     "ctr": 0.38,
@@ -21553,7 +21607,7 @@ const FIN_DATA = {
      353.1,
      320.2,
      365.02,
-     47.86
+     108.54
     ],
     "sales": [
      3503.3,
@@ -21566,8 +21620,8 @@ const FIN_DATA = {
      2795.56,
      3411.03,
      3500.5,
-     3354.4,
-     265.83
+     3377.2,
+     768.01
     ],
     "impressions": [
      106363,
@@ -21578,10 +21632,10 @@ const FIN_DATA = {
      130917,
      143105,
      94038,
-     117287,
-     99706,
-     155171,
-     35981
+     117286,
+     99700,
+     155173,
+     64088
     ],
     "clicks": [
      634,
@@ -21595,13 +21649,13 @@ const FIN_DATA = {
      546,
      491,
      568,
-     75
+     167
     ],
-    "total_spend": 3906.42,
-    "total_sales": 37362.88,
-    "total_clicks": 6112,
-    "total_impressions": 1344737,
-    "roas": 9.56,
+    "total_spend": 3967.1,
+    "total_sales": 37887.86,
+    "total_clicks": 6204,
+    "total_impressions": 1372839,
+    "roas": 9.55,
     "cpc": 0.64,
     "ctr": 0.45,
     "is_traffic": false
@@ -21624,7 +21678,7 @@ const FIN_DATA = {
      396.15,
      141.79,
      209.4,
-     29.51
+     55.11
     ],
     "sales": [
      7032.64,
@@ -21637,8 +21691,8 @@ const FIN_DATA = {
      7350.56,
      7798.21,
      2998.7,
-     3473.41,
-     501.46
+     3536.71,
+     862.98
     ],
     "impressions": [
      11440,
@@ -21652,7 +21706,7 @@ const FIN_DATA = {
      11144,
      7519,
      9811,
-     1611
+     3106
     ],
     "clicks": [
      707,
@@ -21666,15 +21720,15 @@ const FIN_DATA = {
      745,
      277,
      415,
-     56
+     110
     ],
-    "total_spend": 3563.0,
-    "total_sales": 63929.36,
-    "total_clicks": 6876,
-    "total_impressions": 110594,
-    "roas": 17.94,
+    "total_spend": 3588.6,
+    "total_sales": 64354.18,
+    "total_clicks": 6930,
+    "total_impressions": 112089,
+    "roas": 17.93,
     "cpc": 0.52,
-    "ctr": 6.22,
+    "ctr": 6.18,
     "is_traffic": false
    },
    {
@@ -21749,77 +21803,6 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
-    "id": "120227412781090508",
-    "campaign_id": "120227412781090508",
-    "name": "Shopify | CVR | WL | Laurence (Legacy)",
-    "platform": "Meta CVR",
-    "brand": "Grosmimi",
-    "spend": [
-     277.22,
-     280.79,
-     278.1,
-     277.12,
-     277.46,
-     278.72,
-     279.83,
-     277.38,
-     279.06,
-     284.89,
-     273.44,
-     44.42
-    ],
-    "sales": [
-     838.63,
-     470.48,
-     872.95,
-     1386.45,
-     491.11,
-     985.95,
-     1022.46,
-     658.04,
-     484.02,
-     1052.55,
-     361.0,
-     119.32
-    ],
-    "impressions": [
-     12081,
-     12523,
-     12213,
-     12540,
-     12468,
-     12048,
-     11387,
-     11629,
-     10158,
-     11730,
-     10657,
-     1548
-    ],
-    "clicks": [
-     468,
-     417,
-     467,
-     366,
-     268,
-     281,
-     266,
-     273,
-     202,
-     319,
-     330,
-     43
-    ],
-    "total_spend": 3108.43,
-    "total_sales": 8742.96,
-    "total_clicks": 3700,
-    "total_impressions": 130982,
-    "roas": 2.81,
-    "cpc": 0.84,
-    "ctr": 2.82,
-    "is_traffic": false
-   },
-   {
     "id": "120243909567080508",
     "campaign_id": "120243909567080508",
     "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331",
@@ -21837,7 +21820,7 @@ const FIN_DATA = {
      0,
      0,
      2623.78,
-     484.13
+     824.76
     ],
     "sales": [
      0,
@@ -21865,7 +21848,7 @@ const FIN_DATA = {
      0,
      0,
      375226,
-     64675
+     110568
     ],
     "clicks": [
      0,
@@ -21879,21 +21862,92 @@ const FIN_DATA = {
      0,
      0,
      24759,
-     4917
+     8040
     ],
-    "total_spend": 3107.91,
+    "total_spend": 3448.54,
     "total_sales": 23.11,
-    "total_clicks": 29676,
-    "total_impressions": 439901,
+    "total_clicks": 32799,
+    "total_impressions": 485794,
     "roas": 0.01,
-    "cpc": 0.1,
+    "cpc": 0.11,
     "ctr": 6.75,
     "is_traffic": true,
-    "attr_sales": 7651.11,
-    "attr_purchases": 332,
-    "attr_brb": 689.98,
-    "attr_roas": 2.46,
-    "attr_roas_adj": 2.68
+    "attr_sales": 7675.51,
+    "attr_purchases": 333,
+    "attr_brb": 807.26,
+    "attr_roas": 2.23,
+    "attr_roas_adj": 2.46
+   },
+   {
+    "id": "120227412781090508",
+    "campaign_id": "120227412781090508",
+    "name": "Shopify | CVR | WL | Laurence (Legacy)",
+    "platform": "Meta CVR",
+    "brand": "Grosmimi",
+    "spend": [
+     277.22,
+     280.79,
+     278.1,
+     277.12,
+     277.46,
+     278.72,
+     279.83,
+     277.38,
+     279.06,
+     284.89,
+     273.44,
+     86.83
+    ],
+    "sales": [
+     838.63,
+     470.48,
+     872.95,
+     1386.45,
+     491.11,
+     985.95,
+     1022.46,
+     658.04,
+     484.02,
+     1052.55,
+     361.0,
+     119.32
+    ],
+    "impressions": [
+     12081,
+     12523,
+     12213,
+     12540,
+     12468,
+     12048,
+     11387,
+     11629,
+     10158,
+     11730,
+     10657,
+     2931
+    ],
+    "clicks": [
+     468,
+     417,
+     467,
+     366,
+     268,
+     281,
+     266,
+     273,
+     202,
+     319,
+     330,
+     86
+    ],
+    "total_spend": 3150.84,
+    "total_sales": 8742.96,
+    "total_clicks": 3743,
+    "total_impressions": 132365,
+    "roas": 2.77,
+    "cpc": 0.84,
+    "ctr": 2.83,
+    "is_traffic": false
    },
    {
     "id": "400445967965503",
@@ -21911,9 +21965,9 @@ const FIN_DATA = {
      242.28,
      310.73,
      299.37,
-     294.02,
+     293.99,
      488.55,
-     67.72
+     115.27
     ],
     "sales": [
      4683.64,
@@ -21925,9 +21979,9 @@ const FIN_DATA = {
      5659.7,
      6412.49,
      6346.43,
-     6087.8,
-     9625.5,
-     1134.13
+     6110.6,
+     9833.68,
+     1915.05
     ],
     "impressions": [
      9210,
@@ -21940,8 +21994,8 @@ const FIN_DATA = {
      12236,
      12708,
      10555,
-     24399,
-     3437
+     24401,
+     6411
     ],
     "clicks": [
      523,
@@ -21953,17 +22007,17 @@ const FIN_DATA = {
      564,
      721,
      692,
-     684,
+     683,
      1155,
-     162
+     272
     ],
-    "total_spend": 3005.57,
-    "total_sales": 62789.71,
-    "total_clicks": 7070,
-    "total_impressions": 128554,
-    "roas": 20.89,
+    "total_spend": 3053.09,
+    "total_sales": 63801.61,
+    "total_clicks": 7179,
+    "total_impressions": 131530,
+    "roas": 20.9,
     "cpc": 0.43,
-    "ctr": 5.5,
+    "ctr": 5.46,
     "is_traffic": false
    },
    {
@@ -21984,7 +22038,7 @@ const FIN_DATA = {
      276.1,
      147.59,
      187.93,
-     35.8
+     63.96
     ],
     "sales": [
      8628.46,
@@ -21996,9 +22050,9 @@ const FIN_DATA = {
      10516.46,
      8732.98,
      9746.66,
-     5381.33,
-     6252.16,
-     1618.58
+     5403.26,
+     6423.82,
+     2255.51
     ],
     "impressions": [
      21837,
@@ -22011,8 +22065,8 @@ const FIN_DATA = {
      33769,
      34511,
      29358,
-     39773,
-     7396
+     39775,
+     13407
     ],
     "clicks": [
      780,
@@ -22026,86 +22080,15 @@ const FIN_DATA = {
      760,
      451,
      594,
-     114
+     203
     ],
-    "total_spend": 2911.28,
-    "total_sales": 98466.86,
-    "total_clicks": 8441,
-    "total_impressions": 359484,
-    "roas": 33.82,
+    "total_spend": 2939.44,
+    "total_sales": 99297.38,
+    "total_clicks": 8530,
+    "total_impressions": 365497,
+    "roas": 33.78,
     "cpc": 0.34,
-    "ctr": 2.35,
-    "is_traffic": false
-   },
-   {
-    "id": "120224832628890508",
-    "campaign_id": "120224832628890508",
-    "name": "Shopify | CVR | ASC Campaign (Legacy)",
-    "platform": "Meta CVR",
-    "brand": "Grosmimi",
-    "spend": [
-     211.15,
-     210.97,
-     245.08,
-     264.57,
-     265.0,
-     262.93,
-     272.56,
-     265.05,
-     263.75,
-     267.68,
-     262.27,
-     40.86
-    ],
-    "sales": [
-     891.34,
-     827.19,
-     820.63,
-     8371.59,
-     565.71,
-     476.45,
-     377.49,
-     512.55,
-     433.92,
-     766.97,
-     582.96,
-     37.99
-    ],
-    "impressions": [
-     15760,
-     18375,
-     21419,
-     21399,
-     19969,
-     19228,
-     16945,
-     18461,
-     18930,
-     20007,
-     16914,
-     2439
-    ],
-    "clicks": [
-     295,
-     403,
-     592,
-     531,
-     469,
-     483,
-     402,
-     412,
-     464,
-     494,
-     431,
-     51
-    ],
-    "total_spend": 2831.87,
-    "total_sales": 14664.79,
-    "total_clicks": 5027,
-    "total_impressions": 209846,
-    "roas": 5.18,
-    "cpc": 0.56,
-    "ctr": 2.4,
+    "ctr": 2.33,
     "is_traffic": false
    },
    {
@@ -22126,7 +22109,7 @@ const FIN_DATA = {
      209.1,
      252.92,
      458.57,
-     65.63
+     116.45
     ],
     "sales": [
      6436.76,
@@ -22138,9 +22121,9 @@ const FIN_DATA = {
      5001.6,
      4476.58,
      5171.42,
-     6172.69,
-     9985.53,
-     1471.06
+     6262.74,
+     10296.01,
+     2686.96
     ],
     "impressions": [
      14346,
@@ -22153,8 +22136,8 @@ const FIN_DATA = {
      9285,
      10057,
      9295,
-     18272,
-     2809
+     18274,
+     5459
     ],
     "clicks": [
      669,
@@ -22168,15 +22151,86 @@ const FIN_DATA = {
      482,
      573,
      1068,
-     152
+     274
     ],
-    "total_spend": 2826.74,
-    "total_sales": 66112.77,
-    "total_clicks": 6615,
-    "total_impressions": 130980,
-    "roas": 23.39,
+    "total_spend": 2877.56,
+    "total_sales": 67729.2,
+    "total_clicks": 6737,
+    "total_impressions": 133632,
+    "roas": 23.54,
     "cpc": 0.43,
-    "ctr": 5.05,
+    "ctr": 5.04,
+    "is_traffic": false
+   },
+   {
+    "id": "120224832628890508",
+    "campaign_id": "120224832628890508",
+    "name": "Shopify | CVR | ASC Campaign (Legacy)",
+    "platform": "Meta CVR",
+    "brand": "Grosmimi",
+    "spend": [
+     211.15,
+     210.97,
+     245.08,
+     264.57,
+     265.0,
+     262.93,
+     272.56,
+     265.05,
+     263.75,
+     267.68,
+     262.27,
+     79.74
+    ],
+    "sales": [
+     891.34,
+     827.19,
+     820.63,
+     8371.59,
+     565.71,
+     476.45,
+     377.49,
+     512.55,
+     433.92,
+     766.97,
+     582.96,
+     113.84
+    ],
+    "impressions": [
+     15760,
+     18375,
+     21419,
+     21399,
+     19969,
+     19228,
+     16945,
+     18461,
+     18930,
+     20007,
+     16914,
+     4637
+    ],
+    "clicks": [
+     295,
+     403,
+     592,
+     531,
+     469,
+     483,
+     402,
+     412,
+     464,
+     494,
+     431,
+     118
+    ],
+    "total_spend": 2870.75,
+    "total_sales": 14740.64,
+    "total_clicks": 5094,
+    "total_impressions": 212044,
+    "roas": 5.13,
+    "cpc": 0.56,
+    "ctr": 2.4,
     "is_traffic": false
    },
    {
@@ -22197,7 +22251,7 @@ const FIN_DATA = {
      218.83,
      179.38,
      160.12,
-     29.05
+     52.52
     ],
     "sales": [
      664.2,
@@ -22209,9 +22263,9 @@ const FIN_DATA = {
      934.8,
      1131.6,
      1082.4,
-     1156.2,
-     1033.2,
-     172.2
+     1180.8,
+     1057.8,
+     246.0
     ],
     "impressions": [
      15445,
@@ -22225,7 +22279,7 @@ const FIN_DATA = {
      29029,
      26358,
      40688,
-     7125
+     14341
     ],
     "clicks": [
      160,
@@ -22239,15 +22293,15 @@ const FIN_DATA = {
      227,
      163,
      126,
-     25
+     41
     ],
-    "total_spend": 2743.7,
-    "total_sales": 9495.6,
-    "total_clicks": 2369,
-    "total_impressions": 274017,
-    "roas": 3.46,
+    "total_spend": 2767.17,
+    "total_sales": 9618.6,
+    "total_clicks": 2385,
+    "total_impressions": 281233,
+    "roas": 3.48,
     "cpc": 1.16,
-    "ctr": 0.86,
+    "ctr": 0.85,
     "is_traffic": false
    },
    {
@@ -22268,7 +22322,7 @@ const FIN_DATA = {
      264.47,
      170.91,
      172.39,
-     22.69
+     51.55
     ],
     "sales": [
      688.8,
@@ -22282,7 +22336,7 @@ const FIN_DATA = {
      885.6,
      836.4,
      172.2,
-     49.2
+     147.6
     ],
     "impressions": [
      48302,
@@ -22293,10 +22347,10 @@ const FIN_DATA = {
      61350,
      94038,
      109684,
-     96484,
+     96480,
      46555,
-     35717,
-     7192
+     35716,
+     13498
     ],
     "clicks": [
      312,
@@ -22310,12 +22364,12 @@ const FIN_DATA = {
      331,
      217,
      205,
-     28
+     62
     ],
-    "total_spend": 2728.33,
-    "total_sales": 8241.0,
-    "total_clicks": 3510,
-    "total_impressions": 746914,
+    "total_spend": 2757.19,
+    "total_sales": 8339.4,
+    "total_clicks": 3544,
+    "total_impressions": 753215,
     "roas": 3.02,
     "cpc": 0.78,
     "ctr": 0.47,
@@ -22410,7 +22464,7 @@ const FIN_DATA = {
      309.87,
      312.66,
      315.94,
-     46.21
+     90.6
     ],
     "sales": [
      0,
@@ -22438,7 +22492,7 @@ const FIN_DATA = {
      53262,
      56550,
      57842,
-     7652
+     14635
     ],
     "clicks": [
      0,
@@ -22452,15 +22506,15 @@ const FIN_DATA = {
      3036,
      2926,
      3212,
-     464
+     879
     ],
-    "total_spend": 2534.2,
+    "total_spend": 2578.59,
     "total_sales": 0.0,
-    "total_clicks": 20612,
-    "total_impressions": 581078,
+    "total_clicks": 21027,
+    "total_impressions": 588061,
     "roas": 0.0,
     "cpc": 0.12,
-    "ctr": 3.55,
+    "ctr": 3.58,
     "is_traffic": true,
     "attr_sales": 0,
     "attr_purchases": 0,
@@ -22486,7 +22540,7 @@ const FIN_DATA = {
      246.62,
      243.29,
      310.15,
-     47.94
+     93.21
     ],
     "sales": [
      0,
@@ -22514,7 +22568,7 @@ const FIN_DATA = {
      38671,
      42455,
      48182,
-     6526
+     13418
     ],
     "clicks": [
      0,
@@ -22528,21 +22582,92 @@ const FIN_DATA = {
      3839,
      3802,
      4822,
-     773
+     1482
     ],
-    "total_spend": 2403.87,
+    "total_spend": 2449.14,
     "total_sales": 0.0,
-    "total_clicks": 40441,
-    "total_impressions": 354263,
+    "total_clicks": 41150,
+    "total_impressions": 361155,
     "roas": 0.0,
     "cpc": 0.06,
-    "ctr": 11.42,
+    "ctr": 11.39,
     "is_traffic": true,
     "attr_sales": 0,
     "attr_purchases": 0,
     "attr_brb": 0,
     "attr_roas": 0,
     "attr_roas_adj": 0
+   },
+   {
+    "id": "120240336678510508",
+    "campaign_id": "120240336678510508",
+    "name": "Shopify | CVR | GM | SLS Cup | WL - Dental Mom",
+    "platform": "Meta CVR",
+    "brand": "Grosmimi",
+    "spend": [
+     310.6,
+     210.44,
+     208.3,
+     208.32,
+     210.62,
+     204.57,
+     214.42,
+     207.06,
+     208.26,
+     178.56,
+     165.15,
+     46.02
+    ],
+    "sales": [
+     539.71,
+     439.66,
+     279.71,
+     492.06,
+     380.47,
+     471.44,
+     632.29,
+     128.98,
+     346.48,
+     43.89,
+     270.86,
+     88.92
+    ],
+    "impressions": [
+     8371,
+     5982,
+     6198,
+     6089,
+     6051,
+     6072,
+     7098,
+     7305,
+     6981,
+     6600,
+     5419,
+     1359
+    ],
+    "clicks": [
+     261,
+     176,
+     231,
+     217,
+     175,
+     154,
+     182,
+     192,
+     181,
+     159,
+     157,
+     37
+    ],
+    "total_spend": 2372.32,
+    "total_sales": 4114.47,
+    "total_clicks": 2122,
+    "total_impressions": 73525,
+    "roas": 1.73,
+    "cpc": 1.12,
+    "ctr": 2.89,
+    "is_traffic": false
    },
    {
     "id": "176516762220129",
@@ -22616,77 +22741,6 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
-    "id": "120240336678510508",
-    "campaign_id": "120240336678510508",
-    "name": "Shopify | CVR | GM | SLS Cup | WL - Dental Mom",
-    "platform": "Meta CVR",
-    "brand": "Grosmimi",
-    "spend": [
-     310.6,
-     210.44,
-     208.3,
-     208.32,
-     210.62,
-     204.57,
-     214.42,
-     207.06,
-     208.26,
-     178.56,
-     165.15,
-     26.31
-    ],
-    "sales": [
-     539.71,
-     439.66,
-     279.71,
-     492.06,
-     380.47,
-     471.44,
-     632.29,
-     128.98,
-     346.48,
-     43.89,
-     270.86,
-     88.92
-    ],
-    "impressions": [
-     8371,
-     5982,
-     6198,
-     6089,
-     6051,
-     6072,
-     7098,
-     7305,
-     6981,
-     6600,
-     5419,
-     774
-    ],
-    "clicks": [
-     261,
-     176,
-     231,
-     217,
-     175,
-     154,
-     182,
-     192,
-     181,
-     159,
-     157,
-     25
-    ],
-    "total_spend": 2352.61,
-    "total_sales": 4114.47,
-    "total_clicks": 2110,
-    "total_impressions": 72940,
-    "roas": 1.75,
-    "cpc": 1.11,
-    "ctr": 2.89,
-    "is_traffic": false
-   },
-   {
     "id": "120243162990550508",
     "campaign_id": "120243162990550508",
     "name": "Shopify | CVR | Grosmimi | Straw Cups",
@@ -22704,7 +22758,7 @@ const FIN_DATA = {
      562.21,
      620.36,
      655.56,
-     96.6
+     179.17
     ],
     "sales": [
      0,
@@ -22732,7 +22786,7 @@ const FIN_DATA = {
      16811,
      16847,
      20236,
-     2563
+     4881
     ],
     "clicks": [
      0,
@@ -22746,15 +22800,15 @@ const FIN_DATA = {
      376,
      444,
      562,
-     76
+     123
     ],
-    "total_spend": 1934.73,
+    "total_spend": 2017.3,
     "total_sales": 3075.62,
-    "total_clicks": 1458,
-    "total_impressions": 56457,
-    "roas": 1.59,
-    "cpc": 1.33,
-    "ctr": 2.58,
+    "total_clicks": 1505,
+    "total_impressions": 58775,
+    "roas": 1.52,
+    "cpc": 1.34,
+    "ctr": 2.56,
     "is_traffic": false
    },
    {
@@ -22775,7 +22829,7 @@ const FIN_DATA = {
      101.01,
      119.02,
      233.31,
-     37.7
+     69.61
     ],
     "sales": [
      1137.89,
@@ -22787,9 +22841,9 @@ const FIN_DATA = {
      1176.68,
      1046.19,
      1050.6,
-     1370.02,
+     1394.42,
      2386.82,
-     155.58
+     543.37
     ],
     "impressions": [
      117048,
@@ -22799,11 +22853,11 @@ const FIN_DATA = {
      167978,
      179207,
      239506,
-     158840,
+     158836,
      155928,
      140474,
-     222153,
-     37965
+     222152,
+     72750
     ],
     "clicks": [
      261,
@@ -22817,16 +22871,92 @@ const FIN_DATA = {
      265,
      301,
      601,
-     98
+     180
     ],
-    "total_spend": 1405.57,
-    "total_sales": 13297.43,
-    "total_clicks": 3611,
-    "total_impressions": 1879773,
-    "roas": 9.46,
+    "total_spend": 1437.48,
+    "total_sales": 13709.62,
+    "total_clicks": 3693,
+    "total_impressions": 1914553,
+    "roas": 9.54,
     "cpc": 0.39,
     "ctr": 0.19,
     "is_traffic": false
+   },
+   {
+    "id": "120242264069810508",
+    "campaign_id": "120242264069810508",
+    "name": "Target_Traffic_CHA&MOM_20260219",
+    "platform": "Meta CVR",
+    "brand": "CHA&MOM",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     122.41,
+     205.73,
+     212.09,
+     212.16,
+     207.63,
+     210.71,
+     64.66
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     27934,
+     47313,
+     48660,
+     47656,
+     48660,
+     46678,
+     14342
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     468,
+     959,
+     1166,
+     1016,
+     1012,
+     953,
+     254
+    ],
+    "total_spend": 1235.39,
+    "total_sales": 0.0,
+    "total_clicks": 5828,
+    "total_impressions": 281243,
+    "roas": 0.0,
+    "cpc": 0.21,
+    "ctr": 2.07,
+    "is_traffic": true,
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120241103075230508",
@@ -22900,82 +23030,6 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
-    "id": "120242264069810508",
-    "campaign_id": "120242264069810508",
-    "name": "Target_Traffic_CHA&MOM_20260219",
-    "platform": "Meta CVR",
-    "brand": "CHA&MOM",
-    "spend": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     122.41,
-     205.73,
-     212.09,
-     212.16,
-     207.63,
-     210.71,
-     32.96
-    ],
-    "sales": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0
-    ],
-    "impressions": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     27934,
-     47313,
-     48660,
-     47656,
-     48660,
-     46678,
-     8841
-    ],
-    "clicks": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     468,
-     959,
-     1166,
-     1016,
-     1012,
-     953,
-     162
-    ],
-    "total_spend": 1203.69,
-    "total_sales": 0.0,
-    "total_clicks": 5736,
-    "total_impressions": 275742,
-    "roas": 0.0,
-    "cpc": 0.21,
-    "ctr": 2.08,
-    "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
-   },
-   {
     "id": "544958892271499",
     "campaign_id": "544958892271499",
     "name": "CHA&MOM _Competitor Targeting_SP_Manual",
@@ -23019,7 +23073,7 @@ const FIN_DATA = {
      43367,
      19583,
      29483,
-     25897,
+     25896,
      0,
      0
     ],
@@ -23040,7 +23094,7 @@ const FIN_DATA = {
     "total_spend": 1107.05,
     "total_sales": 2451.6,
     "total_clicks": 620,
-    "total_impressions": 337561,
+    "total_impressions": 337560,
     "roas": 2.21,
     "cpc": 1.79,
     "ctr": 0.18,
@@ -23424,7 +23478,7 @@ const FIN_DATA = {
      301.42,
      126.65,
      177.6,
-     25.11
+     42.98
     ],
     "sales": [
      0,
@@ -23452,7 +23506,7 @@ const FIN_DATA = {
      4589,
      1180,
      1138,
-     197
+     406
     ],
     "clicks": [
      0,
@@ -23466,15 +23520,86 @@ const FIN_DATA = {
      224,
      179,
      202,
-     42
+     76
     ],
-    "total_spend": 630.78,
+    "total_spend": 648.65,
     "total_sales": 2183.46,
-    "total_clicks": 647,
-    "total_impressions": 7104,
-    "roas": 3.46,
-    "cpc": 0.97,
-    "ctr": 9.11,
+    "total_clicks": 681,
+    "total_impressions": 7313,
+    "roas": 3.37,
+    "cpc": 0.95,
+    "ctr": 9.31,
+    "is_traffic": false
+   },
+   {
+    "id": "120243275409090508",
+    "campaign_id": "120243275409090508",
+    "name": "Mint | Meta | Conversions | Alpremio Test",
+    "platform": "Meta CVR",
+    "brand": "Alpremio",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     158.33,
+     208.93,
+     205.49,
+     63.42
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     173.65,
+     536.58,
+     279.5,
+     56.31
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     4781,
+     9609,
+     10356,
+     2804
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     118,
+     236,
+     256,
+     91
+    ],
+    "total_spend": 636.17,
+    "total_sales": 1046.04,
+    "total_clicks": 701,
+    "total_impressions": 27550,
+    "roas": 1.64,
+    "cpc": 0.91,
+    "ctr": 2.54,
     "is_traffic": false
    },
    {
@@ -23549,77 +23674,6 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
-    "id": "120243275409090508",
-    "campaign_id": "120243275409090508",
-    "name": "Mint | Meta | Conversions | Alpremio Test",
-    "platform": "Meta CVR",
-    "brand": "Alpremio",
-    "spend": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     158.33,
-     208.93,
-     205.49,
-     29.99
-    ],
-    "sales": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     173.65,
-     536.58,
-     279.5,
-     0.0
-    ],
-    "impressions": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     4781,
-     9609,
-     10356,
-     1402
-    ],
-    "clicks": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     118,
-     236,
-     256,
-     42
-    ],
-    "total_spend": 602.74,
-    "total_sales": 989.73,
-    "total_clicks": 652,
-    "total_impressions": 26148,
-    "roas": 1.64,
-    "cpc": 0.92,
-    "ctr": 2.49,
-    "is_traffic": false
-   },
-   {
     "id": "120243656988220508",
     "campaign_id": "120243656988220508",
     "name": "Shopify | CVR | CHA&MOM",
@@ -23637,7 +23691,7 @@ const FIN_DATA = {
      0,
      180.95,
      314.37,
-     47.08
+     92.2
     ],
     "sales": [
      0,
@@ -23665,7 +23719,7 @@ const FIN_DATA = {
      0,
      7530,
      28086,
-     4424
+     8451
     ],
     "clicks": [
      0,
@@ -23679,14 +23733,14 @@ const FIN_DATA = {
      0,
      77,
      98,
-     14
+     31
     ],
-    "total_spend": 542.4,
+    "total_spend": 587.52,
     "total_sales": 235.69,
-    "total_clicks": 189,
-    "total_impressions": 40040,
-    "roas": 0.43,
-    "cpc": 2.87,
+    "total_clicks": 206,
+    "total_impressions": 44067,
+    "roas": 0.4,
+    "cpc": 2.85,
     "ctr": 0.47,
     "is_traffic": false
    },
@@ -23779,7 +23833,7 @@ const FIN_DATA = {
      0,
      140.02,
      249.39,
-     42.89
+     77.03
     ],
     "sales": [
      0,
@@ -23807,7 +23861,7 @@ const FIN_DATA = {
      0,
      3527,
      6177,
-     911
+     1853
     ],
     "clicks": [
      0,
@@ -23821,15 +23875,15 @@ const FIN_DATA = {
      0,
      59,
      110,
-     22
+     38
     ],
-    "total_spend": 432.3,
+    "total_spend": 466.44,
     "total_sales": 117.97,
-    "total_clicks": 191,
-    "total_impressions": 10615,
-    "roas": 0.27,
-    "cpc": 2.26,
-    "ctr": 1.8,
+    "total_clicks": 207,
+    "total_impressions": 11557,
+    "roas": 0.25,
+    "cpc": 2.25,
+    "ctr": 1.79,
     "is_traffic": false
    },
    {
@@ -24051,6 +24105,77 @@ const FIN_DATA = {
     "attr_roas_adj": 0
    },
    {
+    "id": "334627488021466",
+    "campaign_id": "334627488021466",
+    "name": "334627488021466",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     35.36,
+     37.15,
+     39.98,
+     41.47,
+     47.05,
+     24.91,
+     70.84,
+     5.77
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0.0,
+     99.3,
+     186.4,
+     68.6,
+     98.29,
+     84.33,
+     39.61,
+     21.16
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     14141,
+     21138,
+     19902,
+     21597,
+     20389,
+     12811,
+     19254,
+     1858
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     56,
+     61,
+     57,
+     62,
+     64,
+     51,
+     109,
+     13
+    ],
+    "total_spend": 302.53,
+    "total_sales": 597.69,
+    "total_clicks": 473,
+    "total_impressions": 131090,
+    "roas": 1.98,
+    "cpc": 0.64,
+    "ctr": 0.36,
+    "is_traffic": false
+   },
+   {
     "id": "496578934015367",
     "campaign_id": "496578934015367",
     "name": "CHA&MOM_Lotion_SP_Auto",
@@ -24122,77 +24247,6 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
-    "id": "334627488021466",
-    "campaign_id": "334627488021466",
-    "name": "334627488021466",
-    "platform": "Amazon Ads",
-    "brand": "Grosmimi",
-    "spend": [
-     0,
-     0,
-     0,
-     0,
-     35.36,
-     37.15,
-     39.98,
-     41.47,
-     47.05,
-     24.91,
-     70.84,
-     5.07
-    ],
-    "sales": [
-     0,
-     0,
-     0,
-     0,
-     0.0,
-     99.3,
-     186.4,
-     68.6,
-     98.29,
-     84.33,
-     0.0,
-     21.16
-    ],
-    "impressions": [
-     0,
-     0,
-     0,
-     0,
-     14141,
-     21138,
-     19902,
-     21597,
-     20389,
-     12811,
-     19254,
-     1411
-    ],
-    "clicks": [
-     0,
-     0,
-     0,
-     0,
-     56,
-     61,
-     57,
-     62,
-     64,
-     51,
-     109,
-     5
-    ],
-    "total_spend": 301.83,
-    "total_sales": 558.08,
-    "total_clicks": 465,
-    "total_impressions": 130643,
-    "roas": 1.85,
-    "cpc": 0.65,
-    "ctr": 0.36,
-    "is_traffic": false
-   },
-   {
     "id": "23637555501",
     "campaign_id": "23637555501",
     "name": "Mint | Search | Category | Discovery",
@@ -24261,6 +24315,77 @@ const FIN_DATA = {
     "roas": 0.01,
     "cpc": 1.26,
     "ctr": 4.37,
+    "is_traffic": false
+   },
+   {
+    "id": "310329880624911",
+    "campaign_id": "310329880624911",
+    "name": "CHA&MOM_Wash_SP_Auto",
+    "platform": "Amazon Ads",
+    "brand": "CHA&MOM",
+    "spend": [
+     49.64,
+     11.64,
+     25.71,
+     21.01,
+     16.89,
+     14.4,
+     16.68,
+     9.72,
+     16.1,
+     35.89,
+     22.23,
+     44.95
+    ],
+    "sales": [
+     214.2,
+     0.0,
+     166.6,
+     26.5,
+     108.2,
+     55.2,
+     136.9,
+     26.5,
+     28.7,
+     134.7,
+     218.6,
+     0.0
+    ],
+    "impressions": [
+     13941,
+     4738,
+     9188,
+     8068,
+     4090,
+     5614,
+     9495,
+     4339,
+     5092,
+     7946,
+     9501,
+     40882
+    ],
+    "clicks": [
+     68,
+     15,
+     34,
+     28,
+     21,
+     19,
+     23,
+     14,
+     18,
+     38,
+     27,
+     34
+    ],
+    "total_spend": 284.86,
+    "total_sales": 1116.1,
+    "total_clicks": 339,
+    "total_impressions": 122894,
+    "roas": 3.92,
+    "cpc": 0.84,
+    "ctr": 0.28,
     "is_traffic": false
    },
    {
@@ -24403,77 +24528,6 @@ const FIN_DATA = {
     "roas": 3.91,
     "cpc": 1.95,
     "ctr": 0.15,
-    "is_traffic": false
-   },
-   {
-    "id": "310329880624911",
-    "campaign_id": "310329880624911",
-    "name": "CHA&MOM_Wash_SP_Auto",
-    "platform": "Amazon Ads",
-    "brand": "CHA&MOM",
-    "spend": [
-     49.64,
-     11.64,
-     25.71,
-     21.01,
-     16.89,
-     14.4,
-     16.68,
-     9.72,
-     16.1,
-     35.89,
-     22.23,
-     15.93
-    ],
-    "sales": [
-     214.2,
-     0.0,
-     166.6,
-     26.5,
-     108.2,
-     55.2,
-     136.9,
-     26.5,
-     28.7,
-     134.7,
-     218.6,
-     0.0
-    ],
-    "impressions": [
-     13941,
-     4738,
-     9188,
-     8068,
-     4090,
-     5614,
-     9495,
-     4339,
-     5092,
-     7946,
-     9505,
-     16482
-    ],
-    "clicks": [
-     68,
-     15,
-     34,
-     28,
-     21,
-     19,
-     23,
-     14,
-     18,
-     38,
-     27,
-     13
-    ],
-    "total_spend": 255.84,
-    "total_sales": 1116.1,
-    "total_clicks": 318,
-    "total_impressions": 98498,
-    "roas": 4.36,
-    "cpc": 0.8,
-    "ctr": 0.32,
     "is_traffic": false
    },
    {
@@ -24712,7 +24766,7 @@ const FIN_DATA = {
      48.2,
      17.81,
      8.38,
-     0.0
+     2.9
     ],
     "sales": [
      0,
@@ -24740,7 +24794,7 @@ const FIN_DATA = {
      7047,
      2671,
      3008,
-     735
+     1609
     ],
     "clicks": [
      0,
@@ -24754,14 +24808,14 @@ const FIN_DATA = {
      19,
      11,
      5,
-     0
+     2
     ],
-    "total_spend": 145.06,
+    "total_spend": 147.96,
     "total_sales": 147.0,
-    "total_clicks": 80,
-    "total_impressions": 37692,
-    "roas": 1.01,
-    "cpc": 1.81,
+    "total_clicks": 82,
+    "total_impressions": 38566,
+    "roas": 0.99,
+    "cpc": 1.8,
     "ctr": 0.21,
     "is_traffic": false
    },
@@ -24783,7 +24837,7 @@ const FIN_DATA = {
      4.35,
      13.18,
      9.67,
-     0.0
+     1.4
     ],
     "sales": [
      87.1,
@@ -24810,8 +24864,8 @@ const FIN_DATA = {
      1243,
      2020,
      3652,
-     5293,
-     162
+     5292,
+     810
     ],
     "clicks": [
      41,
@@ -24825,13 +24879,13 @@ const FIN_DATA = {
      5,
      10,
      6,
-     0
+     1
     ],
-    "total_spend": 131.99,
+    "total_spend": 133.39,
     "total_sales": 889.3,
-    "total_clicks": 158,
-    "total_impressions": 61284,
-    "roas": 6.74,
+    "total_clicks": 159,
+    "total_impressions": 61931,
+    "roas": 6.67,
     "cpc": 0.84,
     "ctr": 0.26,
     "is_traffic": false
@@ -24925,7 +24979,7 @@ const FIN_DATA = {
      5.03,
      6.05,
      6.0,
-     0.9
+     1.6
     ],
     "sales": [
      372.49,
@@ -24939,7 +24993,7 @@ const FIN_DATA = {
      316.49,
      272.6,
      124.5,
-     22.0
+     43.93
     ],
     "impressions": [
      3080,
@@ -24953,7 +25007,7 @@ const FIN_DATA = {
      6293,
      6989,
      7785,
-     1258
+     2277
     ],
     "clicks": [
      71,
@@ -24967,13 +25021,13 @@ const FIN_DATA = {
      53,
      57,
      55,
-     9
+     16
     ],
-    "total_spend": 58.34,
-    "total_sales": 2436.03,
-    "total_clicks": 523,
-    "total_impressions": 57350,
-    "roas": 41.76,
+    "total_spend": 59.04,
+    "total_sales": 2457.96,
+    "total_clicks": 530,
+    "total_impressions": 58369,
+    "roas": 41.63,
     "cpc": 0.11,
     "ctr": 0.91,
     "is_traffic": false
@@ -25211,7 +25265,7 @@ const FIN_DATA = {
      5.03,
      6.05,
      6.0,
-     0.9
+     1.6
     ],
     "sales": [
      372.49,
@@ -25225,7 +25279,7 @@ const FIN_DATA = {
      316.49,
      272.6,
      124.5,
-     22.0
+     43.93
     ],
     "impressions": [
      3080,
@@ -25239,7 +25293,7 @@ const FIN_DATA = {
      6293,
      6989,
      7785,
-     1258
+     2277
     ],
     "clicks": [
      71,
@@ -25253,13 +25307,13 @@ const FIN_DATA = {
      53,
      57,
      55,
-     9
+     16
     ],
-    "total_spend": 58.34,
-    "total_sales": 2436.03,
-    "total_clicks": 523,
-    "total_impressions": 57350,
-    "roas": 41.76,
+    "total_spend": 59.04,
+    "total_sales": 2457.96,
+    "total_clicks": 530,
+    "total_impressions": 58369,
+    "roas": 41.63,
     "cpc": 0.11,
     "ctr": 0.91,
     "is_traffic": false
@@ -25282,7 +25336,7 @@ const FIN_DATA = {
      276.1,
      147.59,
      187.93,
-     35.8
+     63.96
     ],
     "sales": [
      8628.46,
@@ -25294,9 +25348,9 @@ const FIN_DATA = {
      10516.46,
      8732.98,
      9746.66,
-     5381.33,
-     6252.16,
-     1618.58
+     5403.26,
+     6423.82,
+     2255.51
     ],
     "impressions": [
      21837,
@@ -25309,8 +25363,8 @@ const FIN_DATA = {
      33769,
      34511,
      29358,
-     39773,
-     7396
+     39775,
+     13407
     ],
     "clicks": [
      780,
@@ -25324,15 +25378,15 @@ const FIN_DATA = {
      760,
      451,
      594,
-     114
+     203
     ],
-    "total_spend": 2911.28,
-    "total_sales": 98466.86,
-    "total_clicks": 8441,
-    "total_impressions": 359484,
-    "roas": 33.82,
+    "total_spend": 2939.44,
+    "total_sales": 99297.38,
+    "total_clicks": 8530,
+    "total_impressions": 365497,
+    "roas": 33.78,
     "cpc": 0.34,
-    "ctr": 2.35,
+    "ctr": 2.33,
     "is_traffic": false
    },
    {
@@ -25353,7 +25407,7 @@ const FIN_DATA = {
      209.1,
      252.92,
      458.57,
-     65.63
+     116.45
     ],
     "sales": [
      6436.76,
@@ -25365,9 +25419,9 @@ const FIN_DATA = {
      5001.6,
      4476.58,
      5171.42,
-     6172.69,
-     9985.53,
-     1471.06
+     6262.74,
+     10296.01,
+     2686.96
     ],
     "impressions": [
      14346,
@@ -25380,8 +25434,8 @@ const FIN_DATA = {
      9285,
      10057,
      9295,
-     18272,
-     2809
+     18274,
+     5459
     ],
     "clicks": [
      669,
@@ -25395,15 +25449,15 @@ const FIN_DATA = {
      482,
      573,
      1068,
-     152
+     274
     ],
-    "total_spend": 2826.74,
-    "total_sales": 66112.77,
-    "total_clicks": 6615,
-    "total_impressions": 130980,
-    "roas": 23.39,
+    "total_spend": 2877.56,
+    "total_sales": 67729.2,
+    "total_clicks": 6737,
+    "total_impressions": 133632,
+    "roas": 23.54,
     "cpc": 0.43,
-    "ctr": 5.05,
+    "ctr": 5.04,
     "is_traffic": false
    },
    {
@@ -25422,9 +25476,9 @@ const FIN_DATA = {
      242.28,
      310.73,
      299.37,
-     294.02,
+     293.99,
      488.55,
-     67.72
+     115.27
     ],
     "sales": [
      4683.64,
@@ -25436,9 +25490,9 @@ const FIN_DATA = {
      5659.7,
      6412.49,
      6346.43,
-     6087.8,
-     9625.5,
-     1134.13
+     6110.6,
+     9833.68,
+     1915.05
     ],
     "impressions": [
      9210,
@@ -25451,8 +25505,8 @@ const FIN_DATA = {
      12236,
      12708,
      10555,
-     24399,
-     3437
+     24401,
+     6411
     ],
     "clicks": [
      523,
@@ -25464,17 +25518,17 @@ const FIN_DATA = {
      564,
      721,
      692,
-     684,
+     683,
      1155,
-     162
+     272
     ],
-    "total_spend": 3005.57,
-    "total_sales": 62789.71,
-    "total_clicks": 7070,
-    "total_impressions": 128554,
-    "roas": 20.89,
+    "total_spend": 3053.09,
+    "total_sales": 63801.61,
+    "total_clicks": 7179,
+    "total_impressions": 131530,
+    "roas": 20.9,
     "cpc": 0.43,
-    "ctr": 5.5,
+    "ctr": 5.46,
     "is_traffic": false
    },
    {
@@ -25495,7 +25549,7 @@ const FIN_DATA = {
      396.15,
      141.79,
      209.4,
-     29.51
+     55.11
     ],
     "sales": [
      7032.64,
@@ -25508,8 +25562,8 @@ const FIN_DATA = {
      7350.56,
      7798.21,
      2998.7,
-     3473.41,
-     501.46
+     3536.71,
+     862.98
     ],
     "impressions": [
      11440,
@@ -25523,7 +25577,7 @@ const FIN_DATA = {
      11144,
      7519,
      9811,
-     1611
+     3106
     ],
     "clicks": [
      707,
@@ -25537,15 +25591,15 @@ const FIN_DATA = {
      745,
      277,
      415,
-     56
+     110
     ],
-    "total_spend": 3563.0,
-    "total_sales": 63929.36,
-    "total_clicks": 6876,
-    "total_impressions": 110594,
-    "roas": 17.94,
+    "total_spend": 3588.6,
+    "total_sales": 64354.18,
+    "total_clicks": 6930,
+    "total_impressions": 112089,
+    "roas": 17.93,
     "cpc": 0.52,
-    "ctr": 6.22,
+    "ctr": 6.18,
     "is_traffic": false
    },
    {
@@ -25566,7 +25620,7 @@ const FIN_DATA = {
      366.9,
      462.58,
      579.36,
-     88.5
+     151.67
     ],
     "sales": [
      4735.34,
@@ -25579,8 +25633,8 @@ const FIN_DATA = {
      3830.2,
      3994.54,
      4230.12,
-     4805.18,
-     950.28
+     4874.04,
+     1539.59
     ],
     "impressions": [
      154773,
@@ -25591,10 +25645,10 @@ const FIN_DATA = {
      179499,
      186037,
      128873,
-     136043,
-     132158,
-     249508,
-     46432
+     136041,
+     132153,
+     249489,
+     84475
     ],
     "clicks": [
      664,
@@ -25608,12 +25662,12 @@ const FIN_DATA = {
      593,
      710,
      928,
-     137
+     236
     ],
-    "total_spend": 4416.32,
-    "total_sales": 43435.12,
-    "total_clicks": 7123,
-    "total_impressions": 1866206,
+    "total_spend": 4479.49,
+    "total_sales": 44093.29,
+    "total_clicks": 7222,
+    "total_impressions": 1904223,
     "roas": 9.84,
     "cpc": 0.62,
     "ctr": 0.38,
@@ -25708,7 +25762,7 @@ const FIN_DATA = {
      353.1,
      320.2,
      365.02,
-     47.86
+     108.54
     ],
     "sales": [
      3503.3,
@@ -25721,8 +25775,8 @@ const FIN_DATA = {
      2795.56,
      3411.03,
      3500.5,
-     3354.4,
-     265.83
+     3377.2,
+     768.01
     ],
     "impressions": [
      106363,
@@ -25733,10 +25787,10 @@ const FIN_DATA = {
      130917,
      143105,
      94038,
-     117287,
-     99706,
-     155171,
-     35981
+     117286,
+     99700,
+     155173,
+     64088
     ],
     "clicks": [
      634,
@@ -25750,13 +25804,13 @@ const FIN_DATA = {
      546,
      491,
      568,
-     75
+     167
     ],
-    "total_spend": 3906.42,
-    "total_sales": 37362.88,
-    "total_clicks": 6112,
-    "total_impressions": 1344737,
-    "roas": 9.56,
+    "total_spend": 3967.1,
+    "total_sales": 37887.86,
+    "total_clicks": 6204,
+    "total_impressions": 1372839,
+    "roas": 9.55,
     "cpc": 0.64,
     "ctr": 0.45,
     "is_traffic": false
@@ -26136,7 +26190,7 @@ const FIN_DATA = {
      0,
      140.02,
      249.39,
-     42.89
+     77.03
     ],
     "sales": [
      0,
@@ -26164,7 +26218,7 @@ const FIN_DATA = {
      0,
      3527,
      6177,
-     911
+     1853
     ],
     "clicks": [
      0,
@@ -26178,15 +26232,15 @@ const FIN_DATA = {
      0,
      59,
      110,
-     22
+     38
     ],
-    "total_spend": 432.3,
+    "total_spend": 466.44,
     "total_sales": 117.97,
-    "total_clicks": 191,
-    "total_impressions": 10615,
-    "roas": 0.27,
-    "cpc": 2.26,
-    "ctr": 1.8,
+    "total_clicks": 207,
+    "total_impressions": 11557,
+    "roas": 0.25,
+    "cpc": 2.25,
+    "ctr": 1.79,
     "is_traffic": false
    },
    {
@@ -26278,7 +26332,7 @@ const FIN_DATA = {
      0,
      180.95,
      314.37,
-     47.08
+     92.2
     ],
     "sales": [
      0,
@@ -26306,7 +26360,7 @@ const FIN_DATA = {
      0,
      7530,
      28086,
-     4424
+     8451
     ],
     "clicks": [
      0,
@@ -26320,14 +26374,14 @@ const FIN_DATA = {
      0,
      77,
      98,
-     14
+     31
     ],
-    "total_spend": 542.4,
+    "total_spend": 587.52,
     "total_sales": 235.69,
-    "total_clicks": 189,
-    "total_impressions": 40040,
-    "roas": 0.43,
-    "cpc": 2.87,
+    "total_clicks": 206,
+    "total_impressions": 44067,
+    "roas": 0.4,
+    "cpc": 2.85,
     "ctr": 0.47,
     "is_traffic": false
    }
@@ -26351,7 +26405,7 @@ const FIN_DATA = {
      0,
      0,
      2623.78,
-     484.13
+     824.76
     ],
     "sales": [
      0,
@@ -26379,7 +26433,7 @@ const FIN_DATA = {
      0,
      0,
      375226,
-     64675
+     110568
     ],
     "clicks": [
      0,
@@ -26393,21 +26447,21 @@ const FIN_DATA = {
      0,
      0,
      24759,
-     4917
+     8040
     ],
-    "total_spend": 3107.91,
+    "total_spend": 3448.54,
     "total_sales": 23.11,
-    "total_clicks": 29676,
-    "total_impressions": 439901,
+    "total_clicks": 32799,
+    "total_impressions": 485794,
     "roas": 0.01,
-    "cpc": 0.1,
+    "cpc": 0.11,
     "ctr": 6.75,
     "is_traffic": true,
-    "attr_sales": 7651.11,
-    "attr_purchases": 332,
-    "attr_brb": 689.98,
-    "attr_roas": 2.46,
-    "attr_roas_adj": 2.68
+    "attr_sales": 7675.51,
+    "attr_purchases": 333,
+    "attr_brb": 807.26,
+    "attr_roas": 2.23,
+    "attr_roas_adj": 2.46
    },
    {
     "id": "120232746327610508",
@@ -26427,7 +26481,7 @@ const FIN_DATA = {
      1053.64,
      1050.29,
      1045.19,
-     149.4
+     306.46
     ],
     "sales": [
      0.0,
@@ -26455,7 +26509,7 @@ const FIN_DATA = {
      92428,
      107886,
      95501,
-     13579
+     27268
     ],
     "clicks": [
      14374,
@@ -26469,21 +26523,21 @@ const FIN_DATA = {
      12972,
      11642,
      11153,
-     1685
+     3517
     ],
-    "total_spend": 11687.09,
+    "total_spend": 11844.15,
     "total_sales": 0.0,
-    "total_clicks": 150250,
-    "total_impressions": 1154587,
+    "total_clicks": 152082,
+    "total_impressions": 1168276,
     "roas": 0.0,
     "cpc": 0.08,
-    "ctr": 13.01,
+    "ctr": 13.02,
     "is_traffic": true,
     "attr_sales": 5246.07,
     "attr_purchases": 208,
-    "attr_brb": 555.58,
-    "attr_roas": 0.45,
-    "attr_roas_adj": 0.5
+    "attr_brb": 569.5,
+    "attr_roas": 0.44,
+    "attr_roas_adj": 0.49
    },
    {
     "id": "120240689933170508",
@@ -26503,7 +26557,7 @@ const FIN_DATA = {
      559.8,
      560.13,
      558.1,
-     76.83
+     151.82
     ],
     "sales": [
      0.0,
@@ -26531,7 +26585,7 @@ const FIN_DATA = {
      74542,
      85151,
      72024,
-     9906
+     19330
     ],
     "clicks": [
      5642,
@@ -26545,19 +26599,19 @@ const FIN_DATA = {
      4402,
      4288,
      4064,
-     554
+     1065
     ],
-    "total_spend": 6231.08,
+    "total_spend": 6306.07,
     "total_sales": 353.26,
-    "total_clicks": 52685,
-    "total_impressions": 871600,
+    "total_clicks": 53196,
+    "total_impressions": 881024,
     "roas": 0.06,
     "cpc": 0.12,
     "ctr": 6.04,
     "is_traffic": true,
     "attr_sales": 1170.0,
     "attr_purchases": 25,
-    "attr_brb": 837.49,
+    "attr_brb": 839.8,
     "attr_roas": 0.19,
     "attr_roas_adj": 0.32
    },
@@ -26579,7 +26633,7 @@ const FIN_DATA = {
      559.53,
      560.55,
      555.35,
-     78.28
+     157.71
     ],
     "sales": [
      0.0,
@@ -26607,7 +26661,7 @@ const FIN_DATA = {
      72581,
      70019,
      68325,
-     9959
+     21033
     ],
     "clicks": [
      6006,
@@ -26621,19 +26675,19 @@ const FIN_DATA = {
      4991,
      4843,
      4778,
-     636
+     1251
     ],
-    "total_spend": 6228.08,
+    "total_spend": 6307.51,
     "total_sales": 0.0,
-    "total_clicks": 59279,
-    "total_impressions": 776745,
+    "total_clicks": 59894,
+    "total_impressions": 787819,
     "roas": 0.0,
     "cpc": 0.11,
-    "ctr": 7.63,
+    "ctr": 7.6,
     "is_traffic": true,
     "attr_sales": 99.6,
     "attr_purchases": 2,
-    "attr_brb": 71.66,
+    "attr_brb": 75.74,
     "attr_roas": 0.02,
     "attr_roas_adj": 0.03
    },
@@ -26655,7 +26709,7 @@ const FIN_DATA = {
      309.87,
      312.66,
      315.94,
-     46.21
+     90.6
     ],
     "sales": [
      0,
@@ -26683,7 +26737,7 @@ const FIN_DATA = {
      53262,
      56550,
      57842,
-     7652
+     14635
     ],
     "clicks": [
      0,
@@ -26697,15 +26751,15 @@ const FIN_DATA = {
      3036,
      2926,
      3212,
-     464
+     879
     ],
-    "total_spend": 2534.2,
+    "total_spend": 2578.59,
     "total_sales": 0.0,
-    "total_clicks": 20612,
-    "total_impressions": 581078,
+    "total_clicks": 21027,
+    "total_impressions": 588061,
     "roas": 0.0,
     "cpc": 0.12,
-    "ctr": 3.55,
+    "ctr": 3.58,
     "is_traffic": true,
     "attr_sales": 0,
     "attr_purchases": 0,
@@ -26733,7 +26787,7 @@ const FIN_DATA = {
      559.53,
      560.55,
      555.35,
-     78.28
+     157.71
     ],
     "sales": [
      0.0,
@@ -26761,7 +26815,7 @@ const FIN_DATA = {
      72581,
      70019,
      68325,
-     9959
+     21033
     ],
     "clicks": [
      6006,
@@ -26775,19 +26829,19 @@ const FIN_DATA = {
      4991,
      4843,
      4778,
-     636
+     1251
     ],
-    "total_spend": 6228.08,
+    "total_spend": 6307.51,
     "total_sales": 0.0,
-    "total_clicks": 59279,
-    "total_impressions": 776745,
+    "total_clicks": 59894,
+    "total_impressions": 787819,
     "roas": 0.0,
     "cpc": 0.11,
-    "ctr": 7.63,
+    "ctr": 7.6,
     "is_traffic": true,
     "attr_sales": 99.6,
     "attr_purchases": 2,
-    "attr_brb": 71.66,
+    "attr_brb": 75.74,
     "attr_roas": 0.02,
     "attr_roas_adj": 0.03
    },
@@ -26809,7 +26863,7 @@ const FIN_DATA = {
      559.8,
      560.13,
      558.1,
-     76.83
+     151.82
     ],
     "sales": [
      0.0,
@@ -26837,7 +26891,7 @@ const FIN_DATA = {
      74542,
      85151,
      72024,
-     9906
+     19330
     ],
     "clicks": [
      5642,
@@ -26851,19 +26905,19 @@ const FIN_DATA = {
      4402,
      4288,
      4064,
-     554
+     1065
     ],
-    "total_spend": 6231.08,
+    "total_spend": 6306.07,
     "total_sales": 353.26,
-    "total_clicks": 52685,
-    "total_impressions": 871600,
+    "total_clicks": 53196,
+    "total_impressions": 881024,
     "roas": 0.06,
     "cpc": 0.12,
     "ctr": 6.04,
     "is_traffic": true,
     "attr_sales": 1170.0,
     "attr_purchases": 25,
-    "attr_brb": 837.49,
+    "attr_brb": 839.8,
     "attr_roas": 0.19,
     "attr_roas_adj": 0.32
    },
@@ -26885,7 +26939,7 @@ const FIN_DATA = {
      1053.64,
      1050.29,
      1045.19,
-     149.4
+     306.46
     ],
     "sales": [
      0.0,
@@ -26913,7 +26967,7 @@ const FIN_DATA = {
      92428,
      107886,
      95501,
-     13579
+     27268
     ],
     "clicks": [
      14374,
@@ -26927,21 +26981,21 @@ const FIN_DATA = {
      12972,
      11642,
      11153,
-     1685
+     3517
     ],
-    "total_spend": 11687.09,
+    "total_spend": 11844.15,
     "total_sales": 0.0,
-    "total_clicks": 150250,
-    "total_impressions": 1154587,
+    "total_clicks": 152082,
+    "total_impressions": 1168276,
     "roas": 0.0,
     "cpc": 0.08,
-    "ctr": 13.01,
+    "ctr": 13.02,
     "is_traffic": true,
     "attr_sales": 5246.07,
     "attr_purchases": 208,
-    "attr_brb": 555.58,
-    "attr_roas": 0.45,
-    "attr_roas_adj": 0.5
+    "attr_brb": 569.5,
+    "attr_roas": 0.44,
+    "attr_roas_adj": 0.49
    },
    {
     "id": "120243909567080508",
@@ -26961,7 +27015,7 @@ const FIN_DATA = {
      0,
      0,
      2623.78,
-     484.13
+     824.76
     ],
     "sales": [
      0,
@@ -26989,7 +27043,7 @@ const FIN_DATA = {
      0,
      0,
      375226,
-     64675
+     110568
     ],
     "clicks": [
      0,
@@ -27003,21 +27057,21 @@ const FIN_DATA = {
      0,
      0,
      24759,
-     4917
+     8040
     ],
-    "total_spend": 3107.91,
+    "total_spend": 3448.54,
     "total_sales": 23.11,
-    "total_clicks": 29676,
-    "total_impressions": 439901,
+    "total_clicks": 32799,
+    "total_impressions": 485794,
     "roas": 0.01,
-    "cpc": 0.1,
+    "cpc": 0.11,
     "ctr": 6.75,
     "is_traffic": true,
-    "attr_sales": 7651.11,
-    "attr_purchases": 332,
-    "attr_brb": 689.98,
-    "attr_roas": 2.46,
-    "attr_roas_adj": 2.68
+    "attr_sales": 7675.51,
+    "attr_purchases": 333,
+    "attr_brb": 807.26,
+    "attr_roas": 2.23,
+    "attr_roas_adj": 2.46
    },
    {
     "id": "120241255476490508",
@@ -27037,7 +27091,7 @@ const FIN_DATA = {
      309.87,
      312.66,
      315.94,
-     46.21
+     90.6
     ],
     "sales": [
      0,
@@ -27065,7 +27119,7 @@ const FIN_DATA = {
      53262,
      56550,
      57842,
-     7652
+     14635
     ],
     "clicks": [
      0,
@@ -27079,15 +27133,15 @@ const FIN_DATA = {
      3036,
      2926,
      3212,
-     464
+     879
     ],
-    "total_spend": 2534.2,
+    "total_spend": 2578.59,
     "total_sales": 0.0,
-    "total_clicks": 20612,
-    "total_impressions": 581078,
+    "total_clicks": 21027,
+    "total_impressions": 588061,
     "roas": 0.0,
     "cpc": 0.12,
-    "ctr": 3.55,
+    "ctr": 3.58,
     "is_traffic": true,
     "attr_sales": 0,
     "attr_purchases": 0,
@@ -27106,30 +27160,30 @@ const FIN_DATA = {
     "spend": [
      47548.46,
      49509.71,
-     70843.68
+     73777.32
     ],
     "sales": [
      114631.85,
      118035.14,
-     165906.28
+     172493.13
     ],
     "impressions": [
      9020797,
      9139334,
-     11262182
+     11911233
     ],
     "clicks": [
      36575,
      34773,
-     47917
+     49876
     ],
-    "total_spend": 167901.85,
-    "total_sales": 398573.27,
-    "total_clicks": 119265,
-    "total_impressions": 29422313,
+    "total_spend": 170835.49,
+    "total_sales": 405160.12,
+    "total_clicks": 121224,
+    "total_impressions": 30071364,
     "roas": 2.37,
     "cpc": 1.41,
-    "ctr": 0.41,
+    "ctr": 0.4,
     "is_traffic": false
    },
    {
@@ -27141,28 +27195,28 @@ const FIN_DATA = {
     "spend": [
      14691.05,
      14028.14,
-     18978.93
+     19652.43
     ],
     "sales": [
      88209.24,
      80952.67,
-     128505.33
+     135122.75
     ],
     "impressions": [
      3112877,
      3394696,
-     4040807
+     4229122
     ],
     "clicks": [
      22723,
      21066,
-     29500
+     30572
     ],
-    "total_spend": 47698.12,
-    "total_sales": 297667.24,
-    "total_clicks": 73289,
-    "total_impressions": 10548380,
-    "roas": 6.24,
+    "total_spend": 48371.62,
+    "total_sales": 304284.66,
+    "total_clicks": 74361,
+    "total_impressions": 10736695,
+    "roas": 6.29,
     "cpc": 0.65,
     "ctr": 0.69,
     "is_traffic": false
@@ -27176,29 +27230,29 @@ const FIN_DATA = {
     "spend": [
      9121.09,
      8226.51,
-     6931.03
+     7119.83
     ],
     "sales": [
      17549.26,
      16173.09,
-     12667.84
+     12886.25
     ],
     "impressions": [
      741356,
      769788,
-     930291
+     953400
     ],
     "clicks": [
      7281,
      7866,
-     7217
+     7422
     ],
-    "total_spend": 24278.63,
-    "total_sales": 46390.19,
-    "total_clicks": 22364,
-    "total_impressions": 2441435,
-    "roas": 1.91,
-    "cpc": 1.09,
+    "total_spend": 24467.43,
+    "total_sales": 46608.6,
+    "total_clicks": 22569,
+    "total_impressions": 2464544,
+    "roas": 1.9,
+    "cpc": 1.08,
     "ctr": 0.92,
     "is_traffic": false
    },
@@ -27211,28 +27265,28 @@ const FIN_DATA = {
     "spend": [
      5278.27,
      4996.56,
-     5376.43
+     5528.55
     ],
     "sales": [
      9575.87,
      10473.09,
-     14927.81
+     15456.52
     ],
     "impressions": [
      792936,
      1611817,
-     2151924
+     2201810
     ],
     "clicks": [
      6658,
      8967,
-     9621
+     9890
     ],
-    "total_spend": 15651.26,
-    "total_sales": 34976.77,
-    "total_clicks": 25246,
-    "total_impressions": 4556677,
-    "roas": 2.23,
+    "total_spend": 15803.38,
+    "total_sales": 35505.48,
+    "total_clicks": 25515,
+    "total_impressions": 4606563,
+    "roas": 2.25,
     "cpc": 0.62,
     "ctr": 0.55,
     "is_traffic": false
@@ -27246,7 +27300,7 @@ const FIN_DATA = {
     "spend": [
      4615.07,
      4195.53,
-     4502.53
+     4659.59
     ],
     "sales": [
      0.0,
@@ -27256,26 +27310,26 @@ const FIN_DATA = {
     "impressions": [
      512079,
      422085,
-     409588
+     423277
     ],
     "clicks": [
      67407,
      56248,
-     53126
+     54958
     ],
-    "total_spend": 13313.13,
+    "total_spend": 13470.19,
     "total_sales": 0.0,
-    "total_clicks": 176781,
-    "total_impressions": 1343752,
+    "total_clicks": 178613,
+    "total_impressions": 1357441,
     "roas": 0.0,
     "cpc": 0.08,
     "ctr": 13.16,
     "is_traffic": true,
     "attr_sales": 5246.07,
     "attr_purchases": 208,
-    "attr_brb": 555.58,
+    "attr_brb": 569.5,
     "attr_roas": 0.39,
-    "attr_roas_adj": 0.44
+    "attr_roas_adj": 0.43
    },
    {
     "id": "120232464266510508",
@@ -27286,28 +27340,28 @@ const FIN_DATA = {
     "spend": [
      3069.47,
      2789.95,
-     2233.69
+     2304.59
     ],
     "sales": [
      8308.89,
      4333.47,
-     4139.26
+     4419.83
     ],
     "impressions": [
      156691,
      137840,
-     110406
+     113494
     ],
     "clicks": [
      2672,
      2253,
-     1957
+     2019
     ],
-    "total_spend": 8093.11,
-    "total_sales": 16781.62,
-    "total_clicks": 6882,
-    "total_impressions": 404937,
-    "roas": 2.07,
+    "total_spend": 8164.01,
+    "total_sales": 17062.19,
+    "total_clicks": 6944,
+    "total_impressions": 408025,
+    "roas": 2.09,
     "cpc": 1.18,
     "ctr": 1.7,
     "is_traffic": false
@@ -27391,7 +27445,7 @@ const FIN_DATA = {
     "spend": [
      2038.31,
      2237.63,
-     2395.24
+     2474.67
     ],
     "sales": [
      0.0,
@@ -27401,24 +27455,24 @@ const FIN_DATA = {
     "impressions": [
      270054,
      270277,
-     297852
+     308926
     ],
     "clicks": [
      23314,
      21512,
-     20743
+     21358
     ],
-    "total_spend": 6671.18,
+    "total_spend": 6750.61,
     "total_sales": 0.0,
-    "total_clicks": 65569,
-    "total_impressions": 838183,
+    "total_clicks": 66184,
+    "total_impressions": 849257,
     "roas": 0.0,
     "cpc": 0.1,
-    "ctr": 7.82,
+    "ctr": 7.79,
     "is_traffic": true,
     "attr_sales": 99.6,
     "attr_purchases": 2,
-    "attr_brb": 71.66,
+    "attr_brb": 75.74,
     "attr_roas": 0.01,
     "attr_roas_adj": 0.03
    },
@@ -27431,7 +27485,7 @@ const FIN_DATA = {
     "spend": [
      1969.18,
      2237.12,
-     2400.69
+     2475.68
     ],
     "sales": [
      0.0,
@@ -27441,24 +27495,24 @@ const FIN_DATA = {
     "impressions": [
      321804,
      301523,
-     314782
+     324206
     ],
     "clicks": [
      19725,
      18968,
-     18254
+     18765
     ],
-    "total_spend": 6606.99,
+    "total_spend": 6681.98,
     "total_sales": 353.26,
-    "total_clicks": 56947,
-    "total_impressions": 938109,
+    "total_clicks": 57458,
+    "total_impressions": 947533,
     "roas": 0.05,
     "cpc": 0.12,
-    "ctr": 6.07,
+    "ctr": 6.06,
     "is_traffic": true,
     "attr_sales": 1170.0,
     "attr_purchases": 25,
-    "attr_brb": 837.49,
+    "attr_brb": 839.8,
     "attr_roas": 0.18,
     "attr_roas_adj": 0.3
    },
@@ -27471,28 +27525,28 @@ const FIN_DATA = {
     "spend": [
      1756.63,
      1453.5,
-     1893.8
+     1956.97
     ],
     "sales": [
      17928.76,
      13466.08,
-     18620.72
+     19278.89
     ],
     "impressions": [
      704873,
      711437,
-     713520
+     751537
     ],
     "clicks": [
      2956,
      2288,
-     3029
+     3128
     ],
-    "total_spend": 5103.93,
-    "total_sales": 50015.56,
-    "total_clicks": 8273,
-    "total_impressions": 2129830,
-    "roas": 9.8,
+    "total_spend": 5167.1,
+    "total_sales": 50673.73,
+    "total_clicks": 8372,
+    "total_impressions": 2167847,
+    "roas": 9.81,
     "cpc": 0.62,
     "ctr": 0.39,
     "is_traffic": false
@@ -27506,28 +27560,28 @@ const FIN_DATA = {
     "spend": [
      1502.06,
      1394.59,
-     1465.23
+     1525.91
     ],
     "sales": [
      16975.32,
      12761.14,
-     13752.52
+     14277.5
     ],
     "impressions": [
      449975,
      513476,
-     521469
+     549571
     ],
     "clicks": [
      2449,
      2159,
-     2270
+     2362
     ],
-    "total_spend": 4361.88,
-    "total_sales": 43488.98,
-    "total_clicks": 6878,
-    "total_impressions": 1484920,
-    "roas": 9.97,
+    "total_spend": 4422.56,
+    "total_sales": 44013.96,
+    "total_clicks": 6970,
+    "total_impressions": 1513022,
+    "roas": 9.95,
     "cpc": 0.63,
     "ctr": 0.46,
     "is_traffic": false
@@ -27541,30 +27595,30 @@ const FIN_DATA = {
     "spend": [
      1626.28,
      1277.33,
-     1210.9
+     1236.5
     ],
     "sales": [
      26535.58,
      22717.4,
-     23481.43
+     23906.25
     ],
     "impressions": [
      62659,
      37070,
-     43006
+     44501
     ],
     "clicks": [
      3122,
      2496,
-     2340
+     2394
     ],
-    "total_spend": 4114.51,
-    "total_sales": 72734.41,
-    "total_clicks": 7958,
-    "total_impressions": 142735,
-    "roas": 17.68,
+    "total_spend": 4140.11,
+    "total_sales": 73159.23,
+    "total_clicks": 8012,
+    "total_impressions": 144230,
+    "roas": 17.67,
     "cpc": 0.52,
-    "ctr": 5.58,
+    "ctr": 5.56,
     "is_traffic": false
    },
    {
@@ -27611,7 +27665,7 @@ const FIN_DATA = {
     "spend": [
      1228.29,
      1114.11,
-     1202.53
+     1244.94
     ],
     "sales": [
      3124.56,
@@ -27621,18 +27675,18 @@ const FIN_DATA = {
     "impressions": [
      55948,
      48756,
-     47292
+     48675
     ],
     "clicks": [
      2217,
      1245,
-     1209
+     1252
     ],
-    "total_spend": 3544.93,
+    "total_spend": 3587.34,
     "total_sales": 9735.25,
-    "total_clicks": 4671,
-    "total_impressions": 151996,
-    "roas": 2.75,
+    "total_clicks": 4714,
+    "total_impressions": 153379,
+    "roas": 2.71,
     "cpc": 0.76,
     "ctr": 3.07,
     "is_traffic": false
@@ -27646,135 +27700,30 @@ const FIN_DATA = {
     "spend": [
      1065.74,
      864.0,
-     1484.55
+     1532.07
     ],
     "sales": [
      22532.68,
      19752.07,
-     29871.35
+     30883.25
     ],
     "impressions": [
      42726,
      38643,
-     64950
+     67926
     ],
     "clicks": [
      2509,
      2063,
-     3472
+     3581
     ],
-    "total_spend": 3414.29,
-    "total_sales": 72156.1,
-    "total_clicks": 8044,
-    "total_impressions": 146319,
-    "roas": 21.13,
+    "total_spend": 3461.81,
+    "total_sales": 73168.0,
+    "total_clicks": 8153,
+    "total_impressions": 149295,
+    "roas": 21.14,
     "cpc": 0.42,
-    "ctr": 5.5,
-    "is_traffic": false
-   },
-   {
-    "id": "380111568693446",
-    "campaign_id": "380111568693446",
-    "name": "SP_Replacements_defensive",
-    "platform": "Amazon Ads",
-    "brand": "Grosmimi",
-    "spend": [
-     1168.65,
-     1163.55,
-     1009.63
-    ],
-    "sales": [
-     41295.7,
-     39492.8,
-     34002.43
-    ],
-    "impressions": [
-     166093,
-     139077,
-     150468
-    ],
-    "clicks": [
-     3486,
-     3324,
-     2923
-    ],
-    "total_spend": 3341.83,
-    "total_sales": 114790.93,
-    "total_clicks": 9733,
-    "total_impressions": 455638,
-    "roas": 34.35,
-    "cpc": 0.34,
-    "ctr": 2.14,
-    "is_traffic": false
-   },
-   {
-    "id": "495635583330161",
-    "campaign_id": "495635583330161",
-    "name": "SP_stage1_10_defensive",
-    "platform": "Amazon Ads",
-    "brand": "Grosmimi",
-    "spend": [
-     1244.37,
-     850.18,
-     1217.19
-    ],
-    "sales": [
-     31055.2,
-     19881.83,
-     28027.78
-    ],
-    "impressions": [
-     61373,
-     44201,
-     51388
-    ],
-    "clicks": [
-     2995,
-     2000,
-     2803
-    ],
-    "total_spend": 3311.74,
-    "total_sales": 78964.81,
-    "total_clicks": 7798,
-    "total_impressions": 156962,
-    "roas": 23.84,
-    "cpc": 0.42,
-    "ctr": 4.97,
-    "is_traffic": false
-   },
-   {
-    "id": "120224832628890508",
-    "campaign_id": "120224832628890508",
-    "name": "Shopify | CVR | ASC Campaign (Legacy)",
-    "platform": "Meta CVR",
-    "brand": "Grosmimi",
-    "spend": [
-     948.9,
-     1062.61,
-     1146.9
-    ],
-    "sales": [
-     3097.77,
-     9736.71,
-     2468.37
-    ],
-    "impressions": [
-     74253,
-     78507,
-     79524
-    ],
-    "clicks": [
-     1604,
-     1910,
-     1933
-    ],
-    "total_spend": 3158.41,
-    "total_sales": 15302.85,
-    "total_clicks": 5447,
-    "total_impressions": 232284,
-    "roas": 4.85,
-    "cpc": 0.58,
-    "ctr": 2.34,
+    "ctr": 5.46,
     "is_traffic": false
    },
    {
@@ -27786,7 +27735,7 @@ const FIN_DATA = {
     "spend": [
      0,
      0,
-     3107.91
+     3448.54
     ],
     "sales": [
      0,
@@ -27796,26 +27745,131 @@ const FIN_DATA = {
     "impressions": [
      0,
      0,
-     439901
+     485794
     ],
     "clicks": [
      0,
      0,
-     29676
+     32799
     ],
-    "total_spend": 3107.91,
+    "total_spend": 3448.54,
     "total_sales": 23.11,
-    "total_clicks": 29676,
-    "total_impressions": 439901,
+    "total_clicks": 32799,
+    "total_impressions": 485794,
     "roas": 0.01,
-    "cpc": 0.1,
+    "cpc": 0.11,
     "ctr": 6.75,
     "is_traffic": true,
-    "attr_sales": 7651.11,
-    "attr_purchases": 332,
-    "attr_brb": 689.98,
-    "attr_roas": 2.46,
-    "attr_roas_adj": 2.68
+    "attr_sales": 7675.51,
+    "attr_purchases": 333,
+    "attr_brb": 807.26,
+    "attr_roas": 2.23,
+    "attr_roas_adj": 2.46
+   },
+   {
+    "id": "380111568693446",
+    "campaign_id": "380111568693446",
+    "name": "SP_Replacements_defensive",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     1168.65,
+     1163.55,
+     1037.79
+    ],
+    "sales": [
+     41295.7,
+     39492.8,
+     34832.95
+    ],
+    "impressions": [
+     166093,
+     139077,
+     156481
+    ],
+    "clicks": [
+     3486,
+     3324,
+     3012
+    ],
+    "total_spend": 3369.99,
+    "total_sales": 115621.45,
+    "total_clicks": 9822,
+    "total_impressions": 461651,
+    "roas": 34.31,
+    "cpc": 0.34,
+    "ctr": 2.13,
+    "is_traffic": false
+   },
+   {
+    "id": "495635583330161",
+    "campaign_id": "495635583330161",
+    "name": "SP_stage1_10_defensive",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     1244.37,
+     850.18,
+     1268.01
+    ],
+    "sales": [
+     31055.2,
+     19881.83,
+     29644.21
+    ],
+    "impressions": [
+     61373,
+     44201,
+     54040
+    ],
+    "clicks": [
+     2995,
+     2000,
+     2925
+    ],
+    "total_spend": 3362.56,
+    "total_sales": 80581.24,
+    "total_clicks": 7920,
+    "total_impressions": 159614,
+    "roas": 23.96,
+    "cpc": 0.42,
+    "ctr": 4.96,
+    "is_traffic": false
+   },
+   {
+    "id": "120224832628890508",
+    "campaign_id": "120224832628890508",
+    "name": "Shopify | CVR | ASC Campaign (Legacy)",
+    "platform": "Meta CVR",
+    "brand": "Grosmimi",
+    "spend": [
+     948.9,
+     1062.61,
+     1185.78
+    ],
+    "sales": [
+     3097.77,
+     9736.71,
+     2544.22
+    ],
+    "impressions": [
+     74253,
+     78507,
+     81722
+    ],
+    "clicks": [
+     1604,
+     1910,
+     2000
+    ],
+    "total_spend": 3197.29,
+    "total_sales": 15378.7,
+    "total_clicks": 5514,
+    "total_impressions": 234482,
+    "roas": 4.81,
+    "cpc": 0.58,
+    "ctr": 2.35,
+    "is_traffic": false
    },
    {
     "id": "365330679770972",
@@ -27826,27 +27880,27 @@ const FIN_DATA = {
     "spend": [
      1018.34,
      1017.0,
-     1052.55
+     1081.41
     ],
     "sales": [
      3321.0,
      3370.2,
-     2878.2
+     2976.6
     ],
     "impressions": [
      234664,
      274293,
-     315985
+     322286
     ],
     "clicks": [
      1367,
      1314,
-     1315
+     1349
     ],
-    "total_spend": 3087.89,
-    "total_sales": 9569.4,
-    "total_clicks": 3996,
-    "total_impressions": 824942,
+    "total_spend": 3116.75,
+    "total_sales": 9667.8,
+    "total_clicks": 4030,
+    "total_impressions": 831243,
     "roas": 3.1,
     "cpc": 0.77,
     "ctr": 0.48,
@@ -27861,30 +27915,30 @@ const FIN_DATA = {
     "spend": [
      762.32,
      1259.01,
-     947.59
+     971.06
     ],
     "sales": [
      2607.6,
      2976.6,
-     4723.2
+     4846.2
     ],
     "impressions": [
      68331,
      90961,
-     137029
+     144245
     ],
     "clicks": [
      711,
      1010,
-     868
+     884
     ],
-    "total_spend": 2968.92,
-    "total_sales": 10307.4,
-    "total_clicks": 2589,
-    "total_impressions": 296321,
-    "roas": 3.47,
+    "total_spend": 2992.39,
+    "total_sales": 10430.4,
+    "total_clicks": 2605,
+    "total_impressions": 303537,
+    "roas": 3.49,
     "cpc": 1.15,
-    "ctr": 0.87,
+    "ctr": 0.86,
     "is_traffic": false
    },
    {
@@ -27896,7 +27950,7 @@ const FIN_DATA = {
     "spend": [
      1236.31,
      836.47,
-     822.19
+     841.9
     ],
     "sales": [
      2690.27,
@@ -27906,18 +27960,18 @@ const FIN_DATA = {
     "impressions": [
      37711,
      24884,
-     28447
+     29032
     ],
     "clicks": [
      1117,
      724,
-     746
+     758
     ],
-    "total_spend": 2894.97,
+    "total_spend": 2914.68,
     "total_sales": 5592.25,
-    "total_clicks": 2587,
-    "total_impressions": 91042,
-    "roas": 1.93,
+    "total_clicks": 2599,
+    "total_impressions": 91627,
+    "roas": 1.92,
     "cpc": 1.12,
     "ctr": 2.84,
     "is_traffic": false
@@ -27966,7 +28020,7 @@ const FIN_DATA = {
     "spend": [
      290.05,
      977.16,
-     1266.99
+     1311.38
     ],
     "sales": [
      0.0,
@@ -27976,20 +28030,20 @@ const FIN_DATA = {
     "impressions": [
      137315,
      215311,
-     228452
+     235435
     ],
     "clicks": [
      1590,
      5955,
-     13067
+     13482
     ],
-    "total_spend": 2534.2,
+    "total_spend": 2578.59,
     "total_sales": 0.0,
-    "total_clicks": 20612,
-    "total_impressions": 581078,
+    "total_clicks": 21027,
+    "total_impressions": 588061,
     "roas": 0.0,
     "cpc": 0.12,
-    "ctr": 3.55,
+    "ctr": 3.58,
     "is_traffic": true,
     "attr_sales": 0,
     "attr_purchases": 0,
@@ -28006,7 +28060,7 @@ const FIN_DATA = {
     "spend": [
      295.84,
      977.92,
-     1130.11
+     1175.38
     ],
     "sales": [
      0.0,
@@ -28016,20 +28070,20 @@ const FIN_DATA = {
     "impressions": [
      35437,
      140154,
-     178672
+     185564
     ],
     "clicks": [
      5181,
      17150,
-     18110
+     18819
     ],
-    "total_spend": 2403.87,
+    "total_spend": 2449.14,
     "total_sales": 0.0,
-    "total_clicks": 40441,
-    "total_impressions": 354263,
+    "total_clicks": 41150,
+    "total_impressions": 361155,
     "roas": 0.0,
     "cpc": 0.06,
-    "ctr": 11.42,
+    "ctr": 11.39,
     "is_traffic": true,
     "attr_sales": 0,
     "attr_purchases": 0,
@@ -28081,7 +28135,7 @@ const FIN_DATA = {
     "spend": [
      0,
      0,
-     1934.73
+     2017.3
     ],
     "sales": [
      0,
@@ -28091,20 +28145,20 @@ const FIN_DATA = {
     "impressions": [
      0,
      0,
-     56457
+     58775
     ],
     "clicks": [
      0,
      0,
-     1458
+     1505
     ],
-    "total_spend": 1934.73,
+    "total_spend": 2017.3,
     "total_sales": 3075.62,
-    "total_clicks": 1458,
-    "total_impressions": 56457,
-    "roas": 1.59,
-    "cpc": 1.33,
-    "ctr": 2.58,
+    "total_clicks": 1505,
+    "total_impressions": 58775,
+    "roas": 1.52,
+    "cpc": 1.34,
+    "ctr": 2.56,
     "is_traffic": false
    },
    {
@@ -28116,28 +28170,28 @@ const FIN_DATA = {
     "spend": [
      596.35,
      540.27,
-     593.35
+     625.26
     ],
     "sales": [
      6766.17,
      4135.15,
-     6238.71
+     6650.9
     ],
     "impressions": [
      612270,
      771605,
-     746880
+     781660
     ],
     "clicks": [
      1515,
      1368,
-     1554
+     1636
     ],
-    "total_spend": 1729.97,
-    "total_sales": 17140.03,
-    "total_clicks": 4437,
-    "total_impressions": 2130755,
-    "roas": 9.91,
+    "total_spend": 1761.88,
+    "total_sales": 17552.22,
+    "total_clicks": 4519,
+    "total_impressions": 2165535,
+    "roas": 9.96,
     "cpc": 0.39,
     "ctr": 0.21,
     "is_traffic": false
@@ -28201,7 +28255,7 @@ const FIN_DATA = {
     "impressions": [
      184675,
      132962,
-     86510
+     86509
     ],
     "clicks": [
      454,
@@ -28211,11 +28265,51 @@ const FIN_DATA = {
     "total_spend": 1478.45,
     "total_sales": 3341.3,
     "total_clicks": 817,
-    "total_impressions": 404147,
+    "total_impressions": 404146,
     "roas": 2.26,
     "cpc": 1.81,
     "ctr": 0.2,
     "is_traffic": false
+   },
+   {
+    "id": "120242264069810508",
+    "campaign_id": "120242264069810508",
+    "name": "Target_Traffic_CHA&MOM_20260219",
+    "platform": "Meta CVR",
+    "brand": "CHA&MOM",
+    "spend": [
+     0,
+     299.02,
+     936.37
+    ],
+    "sales": [
+     0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     0,
+     66694,
+     214549
+    ],
+    "clicks": [
+     0,
+     1321,
+     4507
+    ],
+    "total_spend": 1235.39,
+    "total_sales": 0.0,
+    "total_clicks": 5828,
+    "total_impressions": 281243,
+    "roas": 0.0,
+    "cpc": 0.21,
+    "ctr": 2.07,
+    "is_traffic": true,
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120241103075230508",
@@ -28251,46 +28345,6 @@ const FIN_DATA = {
     "cpc": 1.26,
     "ctr": 2.1,
     "is_traffic": false
-   },
-   {
-    "id": "120242264069810508",
-    "campaign_id": "120242264069810508",
-    "name": "Target_Traffic_CHA&MOM_20260219",
-    "platform": "Meta CVR",
-    "brand": "CHA&MOM",
-    "spend": [
-     0,
-     299.02,
-     904.67
-    ],
-    "sales": [
-     0,
-     0.0,
-     0.0
-    ],
-    "impressions": [
-     0,
-     66694,
-     209048
-    ],
-    "clicks": [
-     0,
-     1321,
-     4415
-    ],
-    "total_spend": 1203.69,
-    "total_sales": 0.0,
-    "total_clicks": 5736,
-    "total_impressions": 275742,
-    "roas": 0.0,
-    "cpc": 0.21,
-    "ctr": 2.08,
-    "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
    },
    {
     "id": "120242000172120508",
@@ -28556,7 +28610,7 @@ const FIN_DATA = {
     "spend": [
      0,
      0,
-     630.78
+     648.65
     ],
     "sales": [
      0,
@@ -28566,20 +28620,55 @@ const FIN_DATA = {
     "impressions": [
      0,
      0,
-     7104
+     7313
     ],
     "clicks": [
      0,
      0,
-     647
+     681
     ],
-    "total_spend": 630.78,
+    "total_spend": 648.65,
     "total_sales": 2183.46,
-    "total_clicks": 647,
-    "total_impressions": 7104,
-    "roas": 3.46,
-    "cpc": 0.97,
-    "ctr": 9.11,
+    "total_clicks": 681,
+    "total_impressions": 7313,
+    "roas": 3.37,
+    "cpc": 0.95,
+    "ctr": 9.31,
+    "is_traffic": false
+   },
+   {
+    "id": "120243275409090508",
+    "campaign_id": "120243275409090508",
+    "name": "Mint | Meta | Conversions | Alpremio Test",
+    "platform": "Meta CVR",
+    "brand": "Alpremio",
+    "spend": [
+     0,
+     0,
+     636.17
+    ],
+    "sales": [
+     0,
+     0,
+     1046.04
+    ],
+    "impressions": [
+     0,
+     0,
+     27550
+    ],
+    "clicks": [
+     0,
+     0,
+     701
+    ],
+    "total_spend": 636.17,
+    "total_sales": 1046.04,
+    "total_clicks": 701,
+    "total_impressions": 27550,
+    "roas": 1.64,
+    "cpc": 0.91,
+    "ctr": 2.54,
     "is_traffic": false
    },
    {
@@ -28618,41 +28707,6 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
-    "id": "120243275409090508",
-    "campaign_id": "120243275409090508",
-    "name": "Mint | Meta | Conversions | Alpremio Test",
-    "platform": "Meta CVR",
-    "brand": "Alpremio",
-    "spend": [
-     0,
-     0,
-     602.74
-    ],
-    "sales": [
-     0,
-     0,
-     989.73
-    ],
-    "impressions": [
-     0,
-     0,
-     26148
-    ],
-    "clicks": [
-     0,
-     0,
-     652
-    ],
-    "total_spend": 602.74,
-    "total_sales": 989.73,
-    "total_clicks": 652,
-    "total_impressions": 26148,
-    "roas": 1.64,
-    "cpc": 0.92,
-    "ctr": 2.49,
-    "is_traffic": false
-   },
-   {
     "id": "120243656988220508",
     "campaign_id": "120243656988220508",
     "name": "Shopify | CVR | CHA&MOM",
@@ -28661,7 +28715,7 @@ const FIN_DATA = {
     "spend": [
      0,
      0,
-     542.4
+     587.52
     ],
     "sales": [
      0,
@@ -28671,19 +28725,19 @@ const FIN_DATA = {
     "impressions": [
      0,
      0,
-     40040
+     44067
     ],
     "clicks": [
      0,
      0,
-     189
+     206
     ],
-    "total_spend": 542.4,
+    "total_spend": 587.52,
     "total_sales": 235.69,
-    "total_clicks": 189,
-    "total_impressions": 40040,
-    "roas": 0.43,
-    "cpc": 2.87,
+    "total_clicks": 206,
+    "total_impressions": 44067,
+    "roas": 0.4,
+    "cpc": 2.85,
     "ctr": 0.47,
     "is_traffic": false
    },
@@ -28731,7 +28785,7 @@ const FIN_DATA = {
     "spend": [
      0,
      0,
-     432.3
+     466.44
     ],
     "sales": [
      0,
@@ -28741,20 +28795,20 @@ const FIN_DATA = {
     "impressions": [
      0,
      0,
-     10615
+     11557
     ],
     "clicks": [
      0,
      0,
-     191
+     207
     ],
-    "total_spend": 432.3,
+    "total_spend": 466.44,
     "total_sales": 117.97,
-    "total_clicks": 191,
-    "total_impressions": 10615,
-    "roas": 0.27,
-    "cpc": 2.26,
-    "ctr": 1.8,
+    "total_clicks": 207,
+    "total_impressions": 11557,
+    "roas": 0.25,
+    "cpc": 2.25,
+    "ctr": 1.79,
     "is_traffic": false
    },
    {
@@ -28863,6 +28917,41 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
+    "id": "310329880624911",
+    "campaign_id": "310329880624911",
+    "name": "CHA&MOM_Wash_SP_Auto",
+    "platform": "Amazon Ads",
+    "brand": "CHA&MOM",
+    "spend": [
+     164.3,
+     74.16,
+     129.71
+    ],
+    "sales": [
+     822.0,
+     326.8,
+     408.5
+    ],
+    "impressions": [
+     51296,
+     28731,
+     68840
+    ],
+    "clicks": [
+     220,
+     97,
+     132
+    ],
+    "total_spend": 368.17,
+    "total_sales": 1557.3,
+    "total_clicks": 449,
+    "total_impressions": 148867,
+    "roas": 4.23,
+    "cpc": 0.82,
+    "ctr": 0.3,
+    "is_traffic": false
+   },
+   {
     "id": "496578934015367",
     "campaign_id": "496578934015367",
     "name": "CHA&MOM_Lotion_SP_Auto",
@@ -28895,41 +28984,6 @@ const FIN_DATA = {
     "roas": 4.37,
     "cpc": 0.89,
     "ctr": 0.27,
-    "is_traffic": false
-   },
-   {
-    "id": "310329880624911",
-    "campaign_id": "310329880624911",
-    "name": "CHA&MOM_Wash_SP_Auto",
-    "platform": "Amazon Ads",
-    "brand": "CHA&MOM",
-    "spend": [
-     164.3,
-     74.16,
-     100.69
-    ],
-    "sales": [
-     822.0,
-     326.8,
-     408.5
-    ],
-    "impressions": [
-     51296,
-     28731,
-     44444
-    ],
-    "clicks": [
-     220,
-     97,
-     111
-    ],
-    "total_spend": 339.15,
-    "total_sales": 1557.3,
-    "total_clicks": 428,
-    "total_impressions": 124471,
-    "roas": 4.59,
-    "cpc": 0.79,
-    "ctr": 0.34,
     "is_traffic": false
    },
    {
@@ -29046,29 +29100,29 @@ const FIN_DATA = {
     "spend": [
      0,
      110.05,
-     191.78
+     192.48
     ],
     "sales": [
      0,
      148.9,
-     409.18
+     448.79
     ],
     "impressions": [
      0,
      51145,
-     79498
+     79945
     ],
     "clicks": [
      0,
      171,
-     294
+     302
     ],
-    "total_spend": 301.83,
-    "total_sales": 558.08,
-    "total_clicks": 465,
-    "total_impressions": 130643,
-    "roas": 1.85,
-    "cpc": 0.65,
+    "total_spend": 302.53,
+    "total_sales": 597.69,
+    "total_clicks": 473,
+    "total_impressions": 131090,
+    "roas": 1.98,
+    "cpc": 0.64,
     "ctr": 0.36,
     "is_traffic": false
    },
@@ -29291,7 +29345,7 @@ const FIN_DATA = {
     "spend": [
      74.0,
      46.9,
-     32.65
+     34.05
     ],
     "sales": [
      289.8,
@@ -29301,18 +29355,18 @@ const FIN_DATA = {
     "impressions": [
      41697,
      12506,
-     12712
+     13359
     ],
     "clicks": [
      99,
      60,
-     28
+     29
     ],
-    "total_spend": 153.55,
+    "total_spend": 154.95,
     "total_sales": 1003.9,
-    "total_clicks": 187,
-    "total_impressions": 66915,
-    "roas": 6.54,
+    "total_clicks": 188,
+    "total_impressions": 67562,
+    "roas": 6.48,
     "cpc": 0.82,
     "ctr": 0.28,
     "is_traffic": false
@@ -29326,7 +29380,7 @@ const FIN_DATA = {
     "spend": [
      0,
      51.31,
-     93.75
+     96.65
     ],
     "sales": [
      0,
@@ -29336,19 +29390,19 @@ const FIN_DATA = {
     "impressions": [
      0,
      16474,
-     21218
+     22092
     ],
     "clicks": [
      0,
      28,
-     52
+     54
     ],
-    "total_spend": 145.06,
+    "total_spend": 147.96,
     "total_sales": 147.0,
-    "total_clicks": 80,
-    "total_impressions": 37692,
-    "roas": 1.01,
-    "cpc": 1.81,
+    "total_clicks": 82,
+    "total_impressions": 38566,
+    "roas": 0.99,
+    "cpc": 1.8,
     "ctr": 0.21,
     "is_traffic": false
    },
@@ -29361,28 +29415,28 @@ const FIN_DATA = {
     "spend": [
      33.18,
      15.49,
-     24.19
+     24.89
     ],
     "sales": [
      1386.58,
      518.76,
-     1201.48
+     1223.41
     ],
     "impressions": [
      20552,
      15906,
-     29237
+     30256
     ],
     "clicks": [
      266,
      149,
-     223
+     230
     ],
-    "total_spend": 72.86,
-    "total_sales": 3106.82,
-    "total_clicks": 638,
-    "total_impressions": 65695,
-    "roas": 42.64,
+    "total_spend": 73.56,
+    "total_sales": 3128.75,
+    "total_clicks": 645,
+    "total_impressions": 66714,
+    "roas": 42.53,
     "cpc": 0.11,
     "ctr": 0.97,
     "is_traffic": false
@@ -29503,28 +29557,28 @@ const FIN_DATA = {
     "spend": [
      33.18,
      15.49,
-     24.19
+     24.89
     ],
     "sales": [
      1386.58,
      518.76,
-     1201.48
+     1223.41
     ],
     "impressions": [
      20552,
      15906,
-     29237
+     30256
     ],
     "clicks": [
      266,
      149,
-     223
+     230
     ],
-    "total_spend": 72.86,
-    "total_sales": 3106.82,
-    "total_clicks": 638,
-    "total_impressions": 65695,
-    "roas": 42.64,
+    "total_spend": 73.56,
+    "total_sales": 3128.75,
+    "total_clicks": 645,
+    "total_impressions": 66714,
+    "roas": 42.53,
     "cpc": 0.11,
     "ctr": 0.97,
     "is_traffic": false
@@ -29538,30 +29592,30 @@ const FIN_DATA = {
     "spend": [
      1168.65,
      1163.55,
-     1009.63
+     1037.79
     ],
     "sales": [
      41295.7,
      39492.8,
-     34002.43
+     34832.95
     ],
     "impressions": [
      166093,
      139077,
-     150468
+     156481
     ],
     "clicks": [
      3486,
      3324,
-     2923
+     3012
     ],
-    "total_spend": 3341.83,
-    "total_sales": 114790.93,
-    "total_clicks": 9733,
-    "total_impressions": 455638,
-    "roas": 34.35,
+    "total_spend": 3369.99,
+    "total_sales": 115621.45,
+    "total_clicks": 9822,
+    "total_impressions": 461651,
+    "roas": 34.31,
     "cpc": 0.34,
-    "ctr": 2.14,
+    "ctr": 2.13,
     "is_traffic": false
    },
    {
@@ -29573,30 +29627,30 @@ const FIN_DATA = {
     "spend": [
      1244.37,
      850.18,
-     1217.19
+     1268.01
     ],
     "sales": [
      31055.2,
      19881.83,
-     28027.78
+     29644.21
     ],
     "impressions": [
      61373,
      44201,
-     51388
+     54040
     ],
     "clicks": [
      2995,
      2000,
-     2803
+     2925
     ],
-    "total_spend": 3311.74,
-    "total_sales": 78964.81,
-    "total_clicks": 7798,
-    "total_impressions": 156962,
-    "roas": 23.84,
+    "total_spend": 3362.56,
+    "total_sales": 80581.24,
+    "total_clicks": 7920,
+    "total_impressions": 159614,
+    "roas": 23.96,
     "cpc": 0.42,
-    "ctr": 4.97,
+    "ctr": 4.96,
     "is_traffic": false
    },
    {
@@ -29608,30 +29662,30 @@ const FIN_DATA = {
     "spend": [
      1065.74,
      864.0,
-     1484.55
+     1532.07
     ],
     "sales": [
      22532.68,
      19752.07,
-     29871.35
+     30883.25
     ],
     "impressions": [
      42726,
      38643,
-     64950
+     67926
     ],
     "clicks": [
      2509,
      2063,
-     3472
+     3581
     ],
-    "total_spend": 3414.29,
-    "total_sales": 72156.1,
-    "total_clicks": 8044,
-    "total_impressions": 146319,
-    "roas": 21.13,
+    "total_spend": 3461.81,
+    "total_sales": 73168.0,
+    "total_clicks": 8153,
+    "total_impressions": 149295,
+    "roas": 21.14,
     "cpc": 0.42,
-    "ctr": 5.5,
+    "ctr": 5.46,
     "is_traffic": false
    },
    {
@@ -29643,65 +29697,30 @@ const FIN_DATA = {
     "spend": [
      1626.28,
      1277.33,
-     1210.9
+     1236.5
     ],
     "sales": [
      26535.58,
      22717.4,
-     23481.43
+     23906.25
     ],
     "impressions": [
      62659,
      37070,
-     43006
+     44501
     ],
     "clicks": [
      3122,
      2496,
-     2340
+     2394
     ],
-    "total_spend": 4114.51,
-    "total_sales": 72734.41,
-    "total_clicks": 7958,
-    "total_impressions": 142735,
-    "roas": 17.68,
+    "total_spend": 4140.11,
+    "total_sales": 73159.23,
+    "total_clicks": 8012,
+    "total_impressions": 144230,
+    "roas": 17.67,
     "cpc": 0.52,
-    "ctr": 5.58,
-    "is_traffic": false
-   },
-   {
-    "id": "340267150899607",
-    "campaign_id": "340267150899607",
-    "name": "SP_knotted_manual",
-    "platform": "Amazon Ads",
-    "brand": "Grosmimi",
-    "spend": [
-     1502.06,
-     1394.59,
-     1465.23
-    ],
-    "sales": [
-     16975.32,
-     12761.14,
-     13752.52
-    ],
-    "impressions": [
-     449975,
-     513476,
-     521469
-    ],
-    "clicks": [
-     2449,
-     2159,
-     2270
-    ],
-    "total_spend": 4361.88,
-    "total_sales": 43488.98,
-    "total_clicks": 6878,
-    "total_impressions": 1484920,
-    "roas": 9.97,
-    "cpc": 0.63,
-    "ctr": 0.46,
+    "ctr": 5.56,
     "is_traffic": false
    },
    {
@@ -29713,30 +29732,65 @@ const FIN_DATA = {
     "spend": [
      596.35,
      540.27,
-     593.35
+     625.26
     ],
     "sales": [
      6766.17,
      4135.15,
-     6238.71
+     6650.9
     ],
     "impressions": [
      612270,
      771605,
-     746880
+     781660
     ],
     "clicks": [
      1515,
      1368,
-     1554
+     1636
     ],
-    "total_spend": 1729.97,
-    "total_sales": 17140.03,
-    "total_clicks": 4437,
-    "total_impressions": 2130755,
-    "roas": 9.91,
+    "total_spend": 1761.88,
+    "total_sales": 17552.22,
+    "total_clicks": 4519,
+    "total_impressions": 2165535,
+    "roas": 9.96,
     "cpc": 0.39,
     "ctr": 0.21,
+    "is_traffic": false
+   },
+   {
+    "id": "340267150899607",
+    "campaign_id": "340267150899607",
+    "name": "SP_knotted_manual",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     1502.06,
+     1394.59,
+     1525.91
+    ],
+    "sales": [
+     16975.32,
+     12761.14,
+     14277.5
+    ],
+    "impressions": [
+     449975,
+     513476,
+     549571
+    ],
+    "clicks": [
+     2449,
+     2159,
+     2362
+    ],
+    "total_spend": 4422.56,
+    "total_sales": 44013.96,
+    "total_clicks": 6970,
+    "total_impressions": 1513022,
+    "roas": 9.95,
+    "cpc": 0.63,
+    "ctr": 0.46,
     "is_traffic": false
    },
    {
@@ -29748,28 +29802,28 @@ const FIN_DATA = {
     "spend": [
      1756.63,
      1453.5,
-     1893.8
+     1956.97
     ],
     "sales": [
      17928.76,
      13466.08,
-     18620.72
+     19278.89
     ],
     "impressions": [
      704873,
      711437,
-     713520
+     751537
     ],
     "clicks": [
      2956,
      2288,
-     3029
+     3128
     ],
-    "total_spend": 5103.93,
-    "total_sales": 50015.56,
-    "total_clicks": 8273,
-    "total_impressions": 2129830,
-    "roas": 9.8,
+    "total_spend": 5167.1,
+    "total_sales": 50673.73,
+    "total_clicks": 8372,
+    "total_impressions": 2167847,
+    "roas": 9.81,
     "cpc": 0.62,
     "ctr": 0.39,
     "is_traffic": false
@@ -29925,7 +29979,7 @@ const FIN_DATA = {
     "spend": [
      0,
      0,
-     432.3
+     466.44
     ],
     "sales": [
      0,
@@ -29935,20 +29989,20 @@ const FIN_DATA = {
     "impressions": [
      0,
      0,
-     10615
+     11557
     ],
     "clicks": [
      0,
      0,
-     191
+     207
     ],
-    "total_spend": 432.3,
+    "total_spend": 466.44,
     "total_sales": 117.97,
-    "total_clicks": 191,
-    "total_impressions": 10615,
-    "roas": 0.27,
-    "cpc": 2.26,
-    "ctr": 1.8,
+    "total_clicks": 207,
+    "total_impressions": 11557,
+    "roas": 0.25,
+    "cpc": 2.25,
+    "ctr": 1.79,
     "is_traffic": false
    },
    {
@@ -29995,7 +30049,7 @@ const FIN_DATA = {
     "spend": [
      0,
      0,
-     542.4
+     587.52
     ],
     "sales": [
      0,
@@ -30005,19 +30059,19 @@ const FIN_DATA = {
     "impressions": [
      0,
      0,
-     40040
+     44067
     ],
     "clicks": [
      0,
      0,
-     189
+     206
     ],
-    "total_spend": 542.4,
+    "total_spend": 587.52,
     "total_sales": 235.69,
-    "total_clicks": 189,
-    "total_impressions": 40040,
-    "roas": 0.43,
-    "cpc": 2.87,
+    "total_clicks": 206,
+    "total_impressions": 44067,
+    "roas": 0.4,
+    "cpc": 2.85,
     "ctr": 0.47,
     "is_traffic": false
    },
@@ -30067,7 +30121,7 @@ const FIN_DATA = {
     "spend": [
      0,
      0,
-     3107.91
+     3448.54
     ],
     "sales": [
      0,
@@ -30077,26 +30131,26 @@ const FIN_DATA = {
     "impressions": [
      0,
      0,
-     439901
+     485794
     ],
     "clicks": [
      0,
      0,
-     29676
+     32799
     ],
-    "total_spend": 3107.91,
+    "total_spend": 3448.54,
     "total_sales": 23.11,
-    "total_clicks": 29676,
-    "total_impressions": 439901,
+    "total_clicks": 32799,
+    "total_impressions": 485794,
     "roas": 0.01,
-    "cpc": 0.1,
+    "cpc": 0.11,
     "ctr": 6.75,
     "is_traffic": true,
-    "attr_sales": 7651.11,
-    "attr_purchases": 332,
-    "attr_brb": 689.98,
-    "attr_roas": 2.46,
-    "attr_roas_adj": 2.68
+    "attr_sales": 7675.51,
+    "attr_purchases": 333,
+    "attr_brb": 807.26,
+    "attr_roas": 2.23,
+    "attr_roas_adj": 2.46
    },
    {
     "id": "120232746327610508",
@@ -30107,7 +30161,7 @@ const FIN_DATA = {
     "spend": [
      4615.07,
      4195.53,
-     4502.53
+     4659.59
     ],
     "sales": [
      0.0,
@@ -30117,26 +30171,26 @@ const FIN_DATA = {
     "impressions": [
      512079,
      422085,
-     409588
+     423277
     ],
     "clicks": [
      67407,
      56248,
-     53126
+     54958
     ],
-    "total_spend": 13313.13,
+    "total_spend": 13470.19,
     "total_sales": 0.0,
-    "total_clicks": 176781,
-    "total_impressions": 1343752,
+    "total_clicks": 178613,
+    "total_impressions": 1357441,
     "roas": 0.0,
     "cpc": 0.08,
     "ctr": 13.16,
     "is_traffic": true,
     "attr_sales": 5246.07,
     "attr_purchases": 208,
-    "attr_brb": 555.58,
+    "attr_brb": 569.5,
     "attr_roas": 0.39,
-    "attr_roas_adj": 0.44
+    "attr_roas_adj": 0.43
    },
    {
     "id": "120240689933170508",
@@ -30147,7 +30201,7 @@ const FIN_DATA = {
     "spend": [
      1969.18,
      2237.12,
-     2400.69
+     2475.68
     ],
     "sales": [
      0.0,
@@ -30157,24 +30211,24 @@ const FIN_DATA = {
     "impressions": [
      321804,
      301523,
-     314782
+     324206
     ],
     "clicks": [
      19725,
      18968,
-     18254
+     18765
     ],
-    "total_spend": 6606.99,
+    "total_spend": 6681.98,
     "total_sales": 353.26,
-    "total_clicks": 56947,
-    "total_impressions": 938109,
+    "total_clicks": 57458,
+    "total_impressions": 947533,
     "roas": 0.05,
     "cpc": 0.12,
-    "ctr": 6.07,
+    "ctr": 6.06,
     "is_traffic": true,
     "attr_sales": 1170.0,
     "attr_purchases": 25,
-    "attr_brb": 837.49,
+    "attr_brb": 839.8,
     "attr_roas": 0.18,
     "attr_roas_adj": 0.3
    },
@@ -30187,7 +30241,7 @@ const FIN_DATA = {
     "spend": [
      2038.31,
      2237.63,
-     2395.24
+     2474.67
     ],
     "sales": [
      0.0,
@@ -30197,24 +30251,24 @@ const FIN_DATA = {
     "impressions": [
      270054,
      270277,
-     297852
+     308926
     ],
     "clicks": [
      23314,
      21512,
-     20743
+     21358
     ],
-    "total_spend": 6671.18,
+    "total_spend": 6750.61,
     "total_sales": 0.0,
-    "total_clicks": 65569,
-    "total_impressions": 838183,
+    "total_clicks": 66184,
+    "total_impressions": 849257,
     "roas": 0.0,
     "cpc": 0.1,
-    "ctr": 7.82,
+    "ctr": 7.79,
     "is_traffic": true,
     "attr_sales": 99.6,
     "attr_purchases": 2,
-    "attr_brb": 71.66,
+    "attr_brb": 75.74,
     "attr_roas": 0.01,
     "attr_roas_adj": 0.03
    },
@@ -30227,7 +30281,7 @@ const FIN_DATA = {
     "spend": [
      290.05,
      977.16,
-     1266.99
+     1311.38
     ],
     "sales": [
      0.0,
@@ -30237,20 +30291,20 @@ const FIN_DATA = {
     "impressions": [
      137315,
      215311,
-     228452
+     235435
     ],
     "clicks": [
      1590,
      5955,
-     13067
+     13482
     ],
-    "total_spend": 2534.2,
+    "total_spend": 2578.59,
     "total_sales": 0.0,
-    "total_clicks": 20612,
-    "total_impressions": 581078,
+    "total_clicks": 21027,
+    "total_impressions": 588061,
     "roas": 0.0,
     "cpc": 0.12,
-    "ctr": 3.55,
+    "ctr": 3.58,
     "is_traffic": true,
     "attr_sales": 0,
     "attr_purchases": 0,
@@ -30269,7 +30323,7 @@ const FIN_DATA = {
     "spend": [
      2038.31,
      2237.63,
-     2395.24
+     2474.67
     ],
     "sales": [
      0.0,
@@ -30279,24 +30333,24 @@ const FIN_DATA = {
     "impressions": [
      270054,
      270277,
-     297852
+     308926
     ],
     "clicks": [
      23314,
      21512,
-     20743
+     21358
     ],
-    "total_spend": 6671.18,
+    "total_spend": 6750.61,
     "total_sales": 0.0,
-    "total_clicks": 65569,
-    "total_impressions": 838183,
+    "total_clicks": 66184,
+    "total_impressions": 849257,
     "roas": 0.0,
     "cpc": 0.1,
-    "ctr": 7.82,
+    "ctr": 7.79,
     "is_traffic": true,
     "attr_sales": 99.6,
     "attr_purchases": 2,
-    "attr_brb": 71.66,
+    "attr_brb": 75.74,
     "attr_roas": 0.01,
     "attr_roas_adj": 0.03
    },
@@ -30309,7 +30363,7 @@ const FIN_DATA = {
     "spend": [
      1969.18,
      2237.12,
-     2400.69
+     2475.68
     ],
     "sales": [
      0.0,
@@ -30319,24 +30373,24 @@ const FIN_DATA = {
     "impressions": [
      321804,
      301523,
-     314782
+     324206
     ],
     "clicks": [
      19725,
      18968,
-     18254
+     18765
     ],
-    "total_spend": 6606.99,
+    "total_spend": 6681.98,
     "total_sales": 353.26,
-    "total_clicks": 56947,
-    "total_impressions": 938109,
+    "total_clicks": 57458,
+    "total_impressions": 947533,
     "roas": 0.05,
     "cpc": 0.12,
-    "ctr": 6.07,
+    "ctr": 6.06,
     "is_traffic": true,
     "attr_sales": 1170.0,
     "attr_purchases": 25,
-    "attr_brb": 837.49,
+    "attr_brb": 839.8,
     "attr_roas": 0.18,
     "attr_roas_adj": 0.3
    },
@@ -30349,7 +30403,7 @@ const FIN_DATA = {
     "spend": [
      4615.07,
      4195.53,
-     4502.53
+     4659.59
     ],
     "sales": [
      0.0,
@@ -30359,26 +30413,26 @@ const FIN_DATA = {
     "impressions": [
      512079,
      422085,
-     409588
+     423277
     ],
     "clicks": [
      67407,
      56248,
-     53126
+     54958
     ],
-    "total_spend": 13313.13,
+    "total_spend": 13470.19,
     "total_sales": 0.0,
-    "total_clicks": 176781,
-    "total_impressions": 1343752,
+    "total_clicks": 178613,
+    "total_impressions": 1357441,
     "roas": 0.0,
     "cpc": 0.08,
     "ctr": 13.16,
     "is_traffic": true,
     "attr_sales": 5246.07,
     "attr_purchases": 208,
-    "attr_brb": 555.58,
+    "attr_brb": 569.5,
     "attr_roas": 0.39,
-    "attr_roas_adj": 0.44
+    "attr_roas_adj": 0.43
    },
    {
     "id": "120243909567080508",
@@ -30389,7 +30443,7 @@ const FIN_DATA = {
     "spend": [
      0,
      0,
-     3107.91
+     3448.54
     ],
     "sales": [
      0,
@@ -30399,26 +30453,26 @@ const FIN_DATA = {
     "impressions": [
      0,
      0,
-     439901
+     485794
     ],
     "clicks": [
      0,
      0,
-     29676
+     32799
     ],
-    "total_spend": 3107.91,
+    "total_spend": 3448.54,
     "total_sales": 23.11,
-    "total_clicks": 29676,
-    "total_impressions": 439901,
+    "total_clicks": 32799,
+    "total_impressions": 485794,
     "roas": 0.01,
-    "cpc": 0.1,
+    "cpc": 0.11,
     "ctr": 6.75,
     "is_traffic": true,
-    "attr_sales": 7651.11,
-    "attr_purchases": 332,
-    "attr_brb": 689.98,
-    "attr_roas": 2.46,
-    "attr_roas_adj": 2.68
+    "attr_sales": 7675.51,
+    "attr_purchases": 333,
+    "attr_brb": 807.26,
+    "attr_roas": 2.23,
+    "attr_roas_adj": 2.46
    },
    {
     "id": "120241255476490508",
@@ -30429,7 +30483,7 @@ const FIN_DATA = {
     "spend": [
      290.05,
      977.16,
-     1266.99
+     1311.38
     ],
     "sales": [
      0.0,
@@ -30439,20 +30493,20 @@ const FIN_DATA = {
     "impressions": [
      137315,
      215311,
-     228452
+     235435
     ],
     "clicks": [
      1590,
      5955,
-     13067
+     13482
     ],
-    "total_spend": 2534.2,
+    "total_spend": 2578.59,
     "total_sales": 0.0,
-    "total_clicks": 20612,
-    "total_impressions": 581078,
+    "total_clicks": 21027,
+    "total_impressions": 588061,
     "roas": 0.0,
     "cpc": 0.12,
-    "ctr": 3.55,
+    "ctr": 3.58,
     "is_traffic": true,
     "attr_sales": 0,
     "attr_purchases": 0,
@@ -30469,30 +30523,30 @@ const FIN_DATA = {
     "platform": "Meta Traffic",
     "brand": "Grosmimi",
     "spend": [
-     3107.91
+     3448.54
     ],
     "sales": [
      23.11
     ],
     "impressions": [
-     439901
+     485794
     ],
     "clicks": [
-     29676
+     32799
     ],
-    "total_spend": 3107.91,
+    "total_spend": 3448.54,
     "total_sales": 23.11,
-    "total_clicks": 29676,
-    "total_impressions": 439901,
+    "total_clicks": 32799,
+    "total_impressions": 485794,
     "roas": 0.01,
-    "cpc": 0.1,
+    "cpc": 0.11,
     "ctr": 6.75,
     "is_traffic": true,
-    "attr_sales": 7651.11,
-    "attr_purchases": 332,
-    "attr_brb": 689.98,
-    "attr_roas": 2.46,
-    "attr_roas_adj": 2.68
+    "attr_sales": 7675.51,
+    "attr_purchases": 333,
+    "attr_brb": 807.26,
+    "attr_roas": 2.23,
+    "attr_roas_adj": 2.46
    },
    {
     "id": "214628738155250",
@@ -30528,24 +30582,24 @@ const FIN_DATA = {
     "platform": "Meta CVR",
     "brand": "Grosmimi",
     "spend": [
-     1934.73
+     2017.3
     ],
     "sales": [
      3075.62
     ],
     "impressions": [
-     56457
+     58775
     ],
     "clicks": [
-     1458
+     1505
     ],
-    "total_spend": 1934.73,
+    "total_spend": 2017.3,
     "total_sales": 3075.62,
-    "total_clicks": 1458,
-    "total_impressions": 56457,
-    "roas": 1.59,
-    "cpc": 1.33,
-    "ctr": 2.58,
+    "total_clicks": 1505,
+    "total_impressions": 58775,
+    "roas": 1.52,
+    "cpc": 1.34,
+    "ctr": 2.56,
     "is_traffic": false
    },
    {
@@ -30582,24 +30636,24 @@ const FIN_DATA = {
     "platform": "Google Ads",
     "brand": "Grosmimi",
     "spend": [
-     630.78
+     648.65
     ],
     "sales": [
      2183.46
     ],
     "impressions": [
-     7104
+     7313
     ],
     "clicks": [
-     647
+     681
     ],
-    "total_spend": 630.78,
+    "total_spend": 648.65,
     "total_sales": 2183.46,
-    "total_clicks": 647,
-    "total_impressions": 7104,
-    "roas": 3.46,
-    "cpc": 0.97,
-    "ctr": 9.11,
+    "total_clicks": 681,
+    "total_impressions": 7313,
+    "roas": 3.37,
+    "cpc": 0.95,
+    "ctr": 9.31,
     "is_traffic": false
    },
    {
@@ -30609,24 +30663,24 @@ const FIN_DATA = {
     "platform": "Meta CVR",
     "brand": "Alpremio",
     "spend": [
-     602.74
+     636.17
     ],
     "sales": [
-     989.73
+     1046.04
     ],
     "impressions": [
-     26148
+     27550
     ],
     "clicks": [
-     652
+     701
     ],
-    "total_spend": 602.74,
-    "total_sales": 989.73,
-    "total_clicks": 652,
-    "total_impressions": 26148,
+    "total_spend": 636.17,
+    "total_sales": 1046.04,
+    "total_clicks": 701,
+    "total_impressions": 27550,
     "roas": 1.64,
-    "cpc": 0.92,
-    "ctr": 2.49,
+    "cpc": 0.91,
+    "ctr": 2.54,
     "is_traffic": false
    },
    {
@@ -30636,23 +30690,23 @@ const FIN_DATA = {
     "platform": "Meta CVR",
     "brand": "CHA&MOM",
     "spend": [
-     542.4
+     587.52
     ],
     "sales": [
      235.69
     ],
     "impressions": [
-     40040
+     44067
     ],
     "clicks": [
-     189
+     206
     ],
-    "total_spend": 542.4,
+    "total_spend": 587.52,
     "total_sales": 235.69,
-    "total_clicks": 189,
-    "total_impressions": 40040,
-    "roas": 0.43,
-    "cpc": 2.87,
+    "total_clicks": 206,
+    "total_impressions": 44067,
+    "roas": 0.4,
+    "cpc": 2.85,
     "ctr": 0.47,
     "is_traffic": false
    },
@@ -30663,24 +30717,24 @@ const FIN_DATA = {
     "platform": "Meta CVR",
     "brand": "Naeiae",
     "spend": [
-     432.3
+     466.44
     ],
     "sales": [
      117.97
     ],
     "impressions": [
-     10615
+     11557
     ],
     "clicks": [
-     191
+     207
     ],
-    "total_spend": 432.3,
+    "total_spend": 466.44,
     "total_sales": 117.97,
-    "total_clicks": 191,
-    "total_impressions": 10615,
-    "roas": 0.27,
-    "cpc": 2.26,
-    "ctr": 1.8,
+    "total_clicks": 207,
+    "total_impressions": 11557,
+    "roas": 0.25,
+    "cpc": 2.25,
+    "ctr": 1.79,
     "is_traffic": false
    },
    {
@@ -30827,7 +30881,7 @@ const FIN_DATA = {
     "spend": [
      1345.71,
      923.41,
-     388.59
+     419.01
     ],
     "sales": [
      4508.4,
@@ -30837,12 +30891,12 @@ const FIN_DATA = {
     "impressions": [
      401287,
      303317,
-     147604
+     172646
     ],
     "clicks": [
      1054,
      689,
-     259
+     281
     ],
     "color": "#0ea5e9"
    },
@@ -30850,22 +30904,22 @@ const FIN_DATA = {
     "spend": [
      76511.04,
      77172.07,
-     108436.52
+     112507.94
     ],
     "sales": [
      376892.95,
      351005.93,
-     483638.48
+     502912.01
     ],
     "impressions": [
      15047131,
      16587652,
-     20202149
+     21205776
     ],
     "clicks": [
      85254,
      81630,
-     109346
+     113310
     ],
     "color": "#8b5cf6"
    },
@@ -30873,22 +30927,22 @@ const FIN_DATA = {
     "spend": [
      1780.66,
      2276.01,
-     2001.29
+     2053.62
     ],
     "sales": [
      5928.6,
      6346.8,
-     7601.4
+     7822.8
     ],
     "impressions": [
      302995,
      365359,
-     453164
+     466681
     ],
     "clicks": [
      2078,
      2324,
-     2184
+     2234
     ],
     "color": "#eab308"
    }
@@ -30898,22 +30952,22 @@ const FIN_DATA = {
     "spend": [
      619.41,
      2692.33,
-     2215.9
+     2294.6
     ],
     "sales": [
      499.7,
      2271.22,
-     1854.54
+     1910.85
     ],
     "impressions": [
      63492,
      365194,
-     219123
+     227417
     ],
     "clicks": [
      5871,
      23855,
-     19231
+     19989
     ],
     "color": "#f97316"
    },
@@ -30921,7 +30975,7 @@ const FIN_DATA = {
     "spend": [
      1206.05,
      402.8,
-     1447.07
+     1523.89
     ],
     "sales": [
      1654.15,
@@ -30931,12 +30985,12 @@ const FIN_DATA = {
     "impressions": [
      71868,
      72369,
-     249088
+     258616
     ],
     "clicks": [
      657,
      1382,
-     4604
+     4713
     ],
     "color": "#0ea5e9"
    },
@@ -30944,22 +30998,22 @@ const FIN_DATA = {
     "spend": [
      13519.15,
      14016.55,
-     8361.92
+     8616.39
     ],
     "sales": [
      35011.84,
      29854.14,
-     14385.37
+     14741.79
     ],
     "impressions": [
      600229,
      552455,
-     352013
+     361585
     ],
     "clicks": [
      17446,
      14259,
-     8228
+     8459
     ],
     "color": "#8b5cf6"
    },
@@ -30967,7 +31021,7 @@ const FIN_DATA = {
     "spend": [
      0,
      0,
-     432.3
+     466.44
     ],
     "sales": [
      0,
@@ -30977,12 +31031,12 @@ const FIN_DATA = {
     "impressions": [
      0,
      0,
-     10615
+     11557
     ],
     "clicks": [
      0,
      0,
-     191
+     207
     ],
     "color": "#eab308"
    },
@@ -31015,7 +31069,7 @@ const FIN_DATA = {
     "spend": [
      290.05,
      977.16,
-     1266.99
+     1311.38
     ],
     "sales": [
      0.0,
@@ -31025,12 +31079,12 @@ const FIN_DATA = {
     "impressions": [
      137315,
      215311,
-     228452
+     235435
     ],
     "clicks": [
      1590,
      5955,
-     13067
+     13482
     ],
     "color": "#0ea5e9"
    },
@@ -31038,22 +31092,22 @@ const FIN_DATA = {
     "spend": [
      10276.75,
      8670.28,
-     12406.37
+     13058.48
     ],
     "sales": [
-     4263.1,
-     3596.69,
-     5146.53
+     4192.28,
+     3536.94,
+     5327.05
     ],
     "impressions": [
      1363141,
      993885,
-     1462123
+     1542203
     ],
     "clicks": [
      122089,
      96728,
-     121799
+     127880
     ],
     "color": "#8b5cf6"
    },
@@ -31109,22 +31163,22 @@ const FIN_DATA = {
     "spend": [
      11117.22,
      12652.08,
-     9916.62
+     10123.29
     ],
     "sales": [
      21556.39,
      19708.97,
-     16717.28
+     16935.69
     ],
     "impressions": [
      782256,
      794105,
-     965387
+     988705
     ],
     "clicks": [
      8476,
      9426,
-     9145
+     9384
     ],
     "color": "#8b5cf6"
    }
@@ -31173,7 +31227,7 @@ const FIN_DATA = {
      161717,
      159808,
      213902,
-     32809
+     62444
     ],
     "color": "#8b5cf6"
    },
@@ -31190,7 +31244,7 @@ const FIN_DATA = {
      4687,
      3628,
      3365,
-     578
+     1193
     ],
     "color": "#eab308"
    },
@@ -31207,7 +31261,7 @@ const FIN_DATA = {
      967,
      809,
      1103,
-     0
+     78
     ],
     "color": "#0ea5e9"
    },
@@ -31224,7 +31278,7 @@ const FIN_DATA = {
      1476,
      2038,
      1529,
-     89
+     340
     ],
     "color": "#f97316"
    },
@@ -31241,7 +31295,7 @@ const FIN_DATA = {
      1081,
      428,
      14959,
-     30
+     105
     ],
     "color": "#94a3b8"
    }
@@ -31260,7 +31314,7 @@ const FIN_DATA = {
      14894,
      13916,
      27056,
-     1448
+     3118
     ],
     "color": "#6366f1"
    },
@@ -31277,7 +31331,7 @@ const FIN_DATA = {
      149970,
      146608,
      203400,
-     31496
+     59928
     ],
     "color": "#f59e0b"
    },
@@ -31311,7 +31365,7 @@ const FIN_DATA = {
      4234,
      4505,
      3845,
-     562
+     1115
     ],
     "color": "#ef4444"
    },
@@ -31345,9 +31399,9 @@ const FIN_DATA = {
      21094,
      22047,
      23892,
-     22457,
-     34030,
-     5030
+     22446,
+     34026,
+     9198
     ],
     "sales": [
      91018,
@@ -31358,10 +31412,10 @@ const FIN_DATA = {
      94401,
      96502,
      99188,
-     111901,
-     104631,
-     140637,
-     19116
+     111880,
+     105157,
+     143871,
+     34872
     ],
     "impressions": [
      3685278,
@@ -31371,11 +31425,11 @@ const FIN_DATA = {
      4074622,
      4351955,
      4620182,
-     4006997,
-     4494084,
-     4282907,
-     6174187,
-     1150166
+     4006962,
+     4494060,
+     4282830,
+     6174118,
+     2192557
     ],
     "clicks": [
      20542,
@@ -31387,9 +31441,9 @@ const FIN_DATA = {
      22295,
      22923,
      24299,
-     23034,
-     33196,
-     4835
+     23022,
+     33191,
+     8888
     ],
     "color": "#f59e0b"
    },
@@ -31406,7 +31460,7 @@ const FIN_DATA = {
      2639,
      3028,
      3159,
-     485
+     929
     ],
     "sales": [
      9032,
@@ -31420,7 +31474,7 @@ const FIN_DATA = {
      3420,
      4207,
      3455,
-     467
+     880
     ],
     "impressions": [
      120676,
@@ -31434,7 +31488,7 @@ const FIN_DATA = {
      175662,
      195788,
      216262,
-     32643
+     60979
     ],
     "clicks": [
      3655,
@@ -31448,7 +31502,7 @@ const FIN_DATA = {
      6853,
      7176,
      8217,
-     1277
+     2391
     ],
     "color": "#3b82f6"
    },
@@ -31465,7 +31519,7 @@ const FIN_DATA = {
      2483,
      2484,
      5098,
-     835
+     1531
     ],
     "sales": [
      0,
@@ -31493,7 +31547,7 @@ const FIN_DATA = {
      292813,
      319606,
      668918,
-     105771
+     192834
     ],
     "clicks": [
      29429,
@@ -31507,7 +31561,7 @@ const FIN_DATA = {
      25401,
      23699,
      47966,
-     8256
+     14752
     ],
     "color": "#93c5fd"
    },
@@ -31524,7 +31578,7 @@ const FIN_DATA = {
      2897,
      1569,
      1776,
-     242
+     448
     ],
     "sales": [
      4786,
@@ -31534,11 +31588,11 @@ const FIN_DATA = {
      5873,
      5408,
      5481,
-     4219,
+     4220,
      5070,
      3265,
      2842,
-     362
+     580
     ],
     "impressions": [
      170697,
@@ -31552,7 +31606,7 @@ const FIN_DATA = {
      205466,
      201019,
      214623,
-     26093
+     49411
     ],
     "clicks": [
      2007,
@@ -31566,7 +31620,7 @@ const FIN_DATA = {
      2492,
      1663,
      1812,
-     266
+     505
     ],
     "color": "#10b981"
    }
@@ -31585,7 +31639,7 @@ const FIN_DATA = {
      5536,
      4597,
      4935,
-     726
+     1377
     ],
     "revenue": [
      20354,
@@ -31599,7 +31653,7 @@ const FIN_DATA = {
      14894,
      13916,
      27056,
-     1448
+     3118
     ],
     "platforms": "Google Ads + Meta CVR",
     "color": "#6366f1"
@@ -31615,9 +31669,9 @@ const FIN_DATA = {
      23498,
      24448,
      26375,
-     24941,
-     39129,
-     5864
+     24930,
+     39125,
+     10730
     ],
     "revenue": [
      126317,
@@ -31631,7 +31685,7 @@ const FIN_DATA = {
      149970,
      146608,
      203400,
-     31496
+     59928
     ],
     "platforms": "Amazon Ads + Meta Traffic",
     "color": "#f59e0b"
@@ -31651,7 +31705,7 @@ const FIN_DATA = {
      161717,
      159808,
      213902,
-     32809
+     62444
     ],
     "ad_spend": [
      26234,
@@ -31663,9 +31717,9 @@ const FIN_DATA = {
      28334,
      28439,
      30191,
-     27732,
-     42094,
-     6276
+     27721,
+     42090,
+     11475
     ],
     "ad_sales": [
      101855,
@@ -31676,10 +31730,10 @@ const FIN_DATA = {
      103651,
      103856,
      104651,
-     117777,
-     109065,
-     145140,
-     19708
+     117756,
+     109566,
+     148349,
+     35866
     ],
     "organic": [
      37857,
@@ -31690,10 +31744,10 @@ const FIN_DATA = {
      34855,
      41434,
      42180,
-     43940,
-     50743,
-     68762,
-     13101
+     43961,
+     50242,
+     65553,
+     26578
     ],
     "color": "#8b5cf6"
    },
@@ -31710,7 +31764,7 @@ const FIN_DATA = {
      4687,
      3628,
      3365,
-     578
+     1193
     ],
     "ad_spend": [
      598,
@@ -31724,7 +31778,7 @@ const FIN_DATA = {
      484,
      490,
      582,
-     95
+     181
     ],
     "ad_sales": [
      1353,
@@ -31736,9 +31790,9 @@ const FIN_DATA = {
      1968,
      1943,
      1968,
-     2026,
-     1290,
-     221
+     2051,
+     1314,
+     394
     ],
     "organic": [
      2197,
@@ -31750,9 +31804,9 @@ const FIN_DATA = {
      1840,
      1742,
      2719,
-     1602,
-     2075,
-     357
+     1577,
+     2051,
+     799
     ],
     "color": "#eab308"
    },
@@ -31769,7 +31823,7 @@ const FIN_DATA = {
      967,
      809,
      1103,
-     0
+     78
     ],
     "ad_spend": [
      378,
@@ -31783,7 +31837,7 @@ const FIN_DATA = {
      620,
      832,
      873,
-     142
+     294
     ],
     "ad_sales": [
      1628,
@@ -31811,7 +31865,7 @@ const FIN_DATA = {
      642,
      292,
      655,
-     0
+     62
     ],
     "color": "#0ea5e9"
    },
@@ -31828,7 +31882,7 @@ const FIN_DATA = {
      1476,
      2038,
      1529,
-     89
+     340
     ],
     "ad_spend": [
      0,
@@ -31842,7 +31896,7 @@ const FIN_DATA = {
      615,
      484,
      516,
-     78
+     157
     ],
     "ad_sales": [
      0,
@@ -31856,7 +31910,7 @@ const FIN_DATA = {
      322,
      589,
      280,
-     0
+     56
     ],
     "organic": [
      1324,
@@ -31870,7 +31924,7 @@ const FIN_DATA = {
      1154,
      1449,
      1249,
-     89
+     284
     ],
     "color": "#f97316"
    },
@@ -31887,7 +31941,7 @@ const FIN_DATA = {
      1081,
      428,
      14959,
-     30
+     105
     ],
     "ad_spend": [
      0,
@@ -31929,7 +31983,7 @@ const FIN_DATA = {
      1081,
      428,
      14959,
-     30
+     105
     ],
     "color": "#94a3b8"
    }
@@ -31947,7 +32001,7 @@ const FIN_DATA = {
     171011,
     167139,
     249817,
-    33536
+    64266
    ],
    "cogs": [
     0,
@@ -31975,7 +32029,7 @@ const FIN_DATA = {
     171011,
     167139,
     249817,
-    33536
+    64266
    ],
    "ad_spend": [
     27210,
@@ -31987,9 +32041,9 @@ const FIN_DATA = {
     30140,
     30105,
     31910,
-    29538,
-    44064,
-    6591
+    29527,
+    44060,
+    12107
    ],
    "discounts": [
     993,
@@ -32003,7 +32057,7 @@ const FIN_DATA = {
     1957,
     1064,
     1048,
-    39
+    119
    ],
    "mkt_total": [
     28203,
@@ -32015,9 +32069,9 @@ const FIN_DATA = {
     30825,
     31478,
     33868,
-    30602,
-    45112,
-    6630
+    30591,
+    45108,
+    12226
    ],
    "contribution_margin": [
     120828,
@@ -32029,9 +32083,9 @@ const FIN_DATA = {
     123994,
     123931,
     137143,
-    136537,
-    204705,
-    26906
+    136548,
+    204709,
+    52041
    ]
   },
   "channel_pnl": {
@@ -32048,7 +32102,7 @@ const FIN_DATA = {
      149970,
      146608,
      203400,
-     31496
+     59928
     ],
     "cogs": [
      0,
@@ -32076,7 +32130,7 @@ const FIN_DATA = {
      26465,
      25872,
      35894,
-     5558
+     10576
     ],
     "ad_spend": [
      21881,
@@ -32088,9 +32142,9 @@ const FIN_DATA = {
      23498,
      24448,
      26375,
-     24941,
-     39129,
-     5864
+     24930,
+     39125,
+     10730
     ],
     "gross_margin": [
      104026,
@@ -32104,7 +32158,7 @@ const FIN_DATA = {
      123505,
      120736,
      167506,
-     25938
+     49352
     ],
     "contribution_margin": [
      82145,
@@ -32116,9 +32170,9 @@ const FIN_DATA = {
      87721,
      88210,
      97130,
-     95795,
-     128377,
-     20074
+     95806,
+     128381,
+     38622
     ],
     "color": "#f59e0b"
    },
@@ -32135,7 +32189,7 @@ const FIN_DATA = {
      14894,
      13916,
      27056,
-     1448
+     3118
     ],
     "cogs": [
      0,
@@ -32177,7 +32231,7 @@ const FIN_DATA = {
      5536,
      4597,
      4935,
-     726
+     1377
     ],
     "gross_margin": [
      20354,
@@ -32191,7 +32245,7 @@ const FIN_DATA = {
      14894,
      13916,
      27056,
-     1448
+     3118
     ],
     "contribution_margin": [
      15025,
@@ -32205,7 +32259,7 @@ const FIN_DATA = {
      9358,
      9319,
      22121,
-     722
+     1741
     ],
     "color": "#6366f1"
    },
@@ -32222,7 +32276,7 @@ const FIN_DATA = {
      4234,
      4505,
      3845,
-     562
+     1115
     ],
     "cogs": [
      440,
@@ -32236,7 +32290,7 @@ const FIN_DATA = {
      1030,
      1170,
      910,
-     130
+     260
     ],
     "fees": [
      0,
@@ -32278,7 +32332,7 @@ const FIN_DATA = {
      3204,
      3335,
      2935,
-     432
+     855
     ],
     "contribution_margin": [
      985,
@@ -32292,7 +32346,7 @@ const FIN_DATA = {
      3204,
      3335,
      2935,
-     432
+     855
     ],
     "color": "#ef4444"
    },
@@ -32399,7 +32453,7 @@ const FIN_DATA = {
       98.19,
       131.04,
       31.9,
-      15.93
+      46.35
      ],
      "sales": [
       1451.8,
@@ -32425,9 +32479,9 @@ const FIN_DATA = {
       68804,
       26738,
       37728,
-      38714,
-      14798,
-      16644
+      38713,
+      14793,
+      41692
      ],
      "clicks": [
       324,
@@ -32441,7 +32495,7 @@ const FIN_DATA = {
       60,
       87,
       33,
-      13
+      35
      ],
      "color": "#0ea5e9"
     },
@@ -32456,9 +32510,9 @@ const FIN_DATA = {
       20227.71,
       21288.07,
       23309.16,
-      21975.91,
-      33665.85,
-      4961.88
+      21965.0,
+      33662.02,
+      9048.04
      ],
      "sales": [
       88213.62,
@@ -32469,10 +32523,10 @@ const FIN_DATA = {
       92632.63,
       93819.05,
       97024.16,
-      109608.55,
-      102193.13,
-      139131.17,
-      18894.38
+      109587.39,
+      102694.77,
+      142340.45,
+      34478.15
      ],
      "impressions": [
       3476052,
@@ -32482,11 +32536,11 @@ const FIN_DATA = {
       3888271,
       4214400,
       4432410,
-      3840704,
-      4330809,
-      4171255,
-      6082961,
-      1119205
+      3840669,
+      4330789,
+      4171179,
+      6082898,
+      2123026
      ],
      "clicks": [
       19746,
@@ -32498,9 +32552,9 @@ const FIN_DATA = {
       21454,
       22126,
       23680,
-      22567,
-      32832,
-      4769
+      22555,
+      32827,
+      8750
      ],
      "color": "#8b5cf6"
     },
@@ -32517,7 +32571,7 @@ const FIN_DATA = {
       484.45,
       350.29,
       332.51,
-      51.74
+      104.07
      ],
      "sales": [
       1353.0,
@@ -32529,9 +32583,9 @@ const FIN_DATA = {
       1968.0,
       1943.4,
       1968.0,
-      1992.6,
-      1205.4,
-      221.4
+      2017.2,
+      1230.0,
+      393.6
      ],
      "impressions": [
       63747,
@@ -32542,10 +32596,10 @@ const FIN_DATA = {
       83468,
       118968,
       139555,
-      125547,
+      125543,
       72938,
-      76428,
-      14317
+      76427,
+      27839
      ],
      "clicks": [
       472,
@@ -32559,7 +32613,7 @@ const FIN_DATA = {
       559,
       380,
       331,
-      53
+      103
      ],
      "color": "#eab308"
     }
@@ -32578,7 +32632,7 @@ const FIN_DATA = {
       615.06,
       483.64,
       515.64,
-      77.93
+      156.63
      ],
      "sales": [
       0,
@@ -32592,7 +32646,7 @@ const FIN_DATA = {
       321.85,
       589.39,
       279.5,
-      0.0
+      56.31
      ],
      "impressions": [
       0,
@@ -32606,7 +32660,7 @@ const FIN_DATA = {
       50183,
       52979,
       58538,
-      7928
+      16222
      ],
      "clicks": [
       0,
@@ -32620,7 +32674,7 @@ const FIN_DATA = {
       4204,
       4057,
       5078,
-      815
+      1573
      ],
      "color": "#f97316"
     },
@@ -32637,7 +32691,7 @@ const FIN_DATA = {
       212.16,
       388.58,
       525.08,
-      80.04
+      156.86
      ],
      "sales": [
       175.77,
@@ -32665,7 +32719,7 @@ const FIN_DATA = {
       47656,
       56190,
       74764,
-      13265
+      22793
      ],
      "clicks": [
       0,
@@ -32679,7 +32733,7 @@ const FIN_DATA = {
       1016,
       1089,
       1051,
-      176
+      285
      ],
      "color": "#0ea5e9"
     },
@@ -32696,7 +32750,7 @@ const FIN_DATA = {
       1811.88,
       2015.92,
       1869.07,
-      283.77
+      538.24
      ],
      "sales": [
       8856.24,
@@ -32710,7 +32764,7 @@ const FIN_DATA = {
       3098.49,
       3511.72,
       2943.54,
-      451.59
+      808.01
      ],
      "impressions": [
       120676,
@@ -32724,7 +32778,7 @@ const FIN_DATA = {
       77823,
       83092,
       76783,
-      10539
+      20111
      ],
      "clicks": [
       3655,
@@ -32738,7 +32792,7 @@ const FIN_DATA = {
       1633,
       1971,
       1978,
-      264
+      495
      ],
      "color": "#8b5cf6"
     },
@@ -32755,7 +32809,7 @@ const FIN_DATA = {
       0,
       140.02,
       249.39,
-      42.89
+      77.03
      ],
      "sales": [
       0,
@@ -32783,7 +32837,7 @@ const FIN_DATA = {
       0,
       3527,
       6177,
-      911
+      1853
      ],
      "clicks": [
       0,
@@ -32797,7 +32851,7 @@ const FIN_DATA = {
       0,
       59,
       110,
-      22
+      38
      ],
      "color": "#eab308"
     },
@@ -32875,7 +32929,7 @@ const FIN_DATA = {
       309.87,
       312.66,
       315.94,
-      46.21
+      90.6
      ],
      "sales": [
       0,
@@ -32903,7 +32957,7 @@ const FIN_DATA = {
       53262,
       56550,
       57842,
-      7652
+      14635
      ],
      "clicks": [
       0,
@@ -32917,7 +32971,7 @@ const FIN_DATA = {
       3036,
       2926,
       3212,
-      464
+      879
      ],
      "color": "#0ea5e9"
     },
@@ -32934,21 +32988,21 @@ const FIN_DATA = {
       2172.97,
       2170.97,
       4782.42,
-      788.64
+      1440.75
      ],
      "sales": [
-      1051.48,
-      898.89,
-      896.69,
-      903.03,
-      901.4,
-      895.41,
-      900.0,
-      895.56,
-      901.41,
-      900.58,
-      1983.89,
-      327.15
+      1034.02,
+      883.95,
+      881.8,
+      888.03,
+      886.42,
+      880.54,
+      885.05,
+      880.69,
+      886.44,
+      885.62,
+      1950.93,
+      587.74
      ],
      "impressions": [
       317187,
@@ -32962,7 +33016,7 @@ const FIN_DATA = {
       239551,
       263056,
       611076,
-      98119
+      178199
      ],
      "clicks": [
       28406,
@@ -32976,7 +33030,7 @@ const FIN_DATA = {
       22365,
       20773,
       44754,
-      7792
+      13873
      ],
      "color": "#8b5cf6"
     },
@@ -33113,7 +33167,7 @@ const FIN_DATA = {
       2896.62,
       1568.71,
       1759.65,
-      226.68
+      433.35
      ],
      "sales": [
       4785.5,
@@ -33123,11 +33177,11 @@ const FIN_DATA = {
       5872.93,
       5407.9,
       5480.66,
-      4219.43,
+      4219.84,
       5069.81,
       3265.12,
       2842.27,
-      361.8
+      579.8
      ],
      "impressions": [
       170697,
@@ -33141,7 +33195,7 @@ const FIN_DATA = {
       205466,
       201019,
       213984,
-      24908
+      48226
      ],
      "clicks": [
       2007,
@@ -33155,7 +33209,7 @@ const FIN_DATA = {
       2492,
       1663,
       1795,
-      252
+      491
      ],
      "color": "#8b5cf6"
     }
@@ -33274,10 +33328,10 @@ const FIN_DATA = {
     "category": "PPSU Straw Cup",
     "brand": "Grosmimi",
     "asin_count": 41,
-    "sales_7d": 197419,
-    "units_7d": 8830,
-    "sales_30d": 601702,
-    "units_30d": 24582,
+    "sales_7d": 197400,
+    "units_7d": 8829,
+    "sales_30d": 601682,
+    "units_30d": 24581,
     "sales_weekly": [
      106281,
      92619,
@@ -33290,7 +33344,7 @@ const FIN_DATA = {
      125118,
      124548,
      184045,
-     53467
+     53448
     ],
     "units_weekly": [
      4220,
@@ -33304,7 +33358,7 @@ const FIN_DATA = {
      4825,
      4869,
      7955,
-     2433
+     2432
     ],
     "daily_sales": [
      12127,
@@ -33396,7 +33450,7 @@ const FIN_DATA = {
      26715,
      27755,
      27796,
-     25671
+     25652
     ],
     "daily_units": [
      477,
@@ -33488,7 +33542,7 @@ const FIN_DATA = {
      1199,
      1237,
      1270,
-     1163
+     1162
     ],
     "top_keywords": [
      {
@@ -34076,7 +34130,11 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0DY6SKQ2N",
+      "asin": "B0F6XNGT85",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DB7V1BW3",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -34084,7 +34142,19 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0DB7V1BW3",
+      "asin": "B0DCV766MB",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DY6SKQ2N",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DB7SPP2P",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0F9Q2F89Y",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -34096,23 +34166,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0F9Q2F89Y",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DB7SPP2P",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0F6XNGT85",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DCV766MB",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
       "asin": "B0F4CRT6LV",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
+     },
+     {
+      "asin": "B0F4D28MC3",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
@@ -34128,23 +34186,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0F4D28MC3",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
-     },
-     {
-      "asin": "B0F9PZPMH8",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
-     },
-     {
-      "asin": "B0F9PZD6QM",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
-     },
-     {
       "asin": "B0F9PVZMR1",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
-     },
-     {
-      "asin": "B0F9PY2LBV",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -34152,63 +34194,19 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0842DMZ3H",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+      "asin": "B0F9PZD6QM",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0BZYSL3BH",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+      "asin": "B0F9PZPMH8",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B08398KZ2B",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B08398HJRD",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0C1N3QZ7K",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B07YL2FT96",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0C1N3VDL3",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B083986L91",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B083XT642K",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0C1N1PLYD",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+      "asin": "B0F9PY2LBV",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
       "asin": "B07YKKWFTN",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0842D5Z17",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B07YKH98WT",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B083WJBR9B",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B07YKJ18D5",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -34216,11 +34214,71 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
+      "asin": "B0C1N3VDL3",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B08398HJRD",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B07YL2FT96",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0BZYSL3BH",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0842DMZ3H",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B08398KZ2B",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0842D5Z17",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0C1N1PLYD",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B07YKJ18D5",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0C1N3QZ7K",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B07YKH98WT",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B083986L91",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B083WJBR9B",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B083XT642K",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0F8QHRGKW",
+      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+     },
+     {
       "asin": "B0F8Q8RK18",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
-      "asin": "B0F8QH8T8X",
+      "asin": "B0F9NPRCTM",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
@@ -34232,11 +34290,7 @@ const FIN_DATA = {
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
-      "asin": "B0F8QHRGKW",
-      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
-     },
-     {
-      "asin": "B0F9NPRCTM",
+      "asin": "B0F8QH8T8X",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      }
     ]
@@ -34483,9 +34537,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 9,
       "ads_sales_30d": 123,
       "ads_acos": 0.03,
-      "google_volume": 462,
-      "google_ads_impressions": 180,
-      "google_ads_clicks": 25
+      "google_volume": 477,
+      "google_ads_impressions": 195,
+      "google_ads_clicks": 29
      },
      {
       "keyword": "grosmimi stainless steel cup",
@@ -34518,9 +34572,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 8,
       "ads_sales_30d": 0,
       "ads_acos": 0,
-      "google_volume": 58,
-      "google_ads_impressions": 18,
-      "google_ads_clicks": 2
+      "google_volume": 59,
+      "google_ads_impressions": 19,
+      "google_ads_clicks": 3
      },
      {
       "keyword": "stainless steel toddler straw cup",
@@ -34556,9 +34610,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 0,
       "ads_sales_30d": 0,
       "ads_acos": 0,
-      "google_volume": 210,
-      "google_ads_impressions": 75,
-      "google_ads_clicks": 19
+      "google_volume": 223,
+      "google_ads_impressions": 88,
+      "google_ads_clicks": 21
      },
      {
       "keyword": "baby straw cup stainless steel",
@@ -35033,11 +35087,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FKFW6PND",
+      "asin": "B0FHKFQPGR",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FKFN91X9",
+      "asin": "B0FKG59ZMN",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FKFW6PND",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -35045,7 +35103,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FKGFN121",
+      "asin": "B0FKFN91X9",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -35053,19 +35111,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FKGCRG45",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
       "asin": "B0FHKBTY2S",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FHKFQPGR",
+      "asin": "B0FKGFN121",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FKG59ZMN",
+      "asin": "B0FKGCRG45",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      }
     ]
@@ -35703,8 +35757,8 @@ const FIN_DATA = {
       "ads_clicks_30d": 121,
       "ads_sales_30d": 1002,
       "ads_acos": 0.06,
-      "google_volume": 83,
-      "google_ads_impressions": 30,
+      "google_volume": 85,
+      "google_ads_impressions": 32,
       "google_ads_clicks": 0
      }
     ],
@@ -36092,7 +36146,7 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0FR4FGBPP",
+      "asin": "B0FR4RQRNR",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
@@ -36100,7 +36154,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
-      "asin": "B0FR4RQRNR",
+      "asin": "B0FR4FGBPP",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      }
     ]
@@ -38332,9 +38386,9 @@ const FIN_DATA = {
     ],
     "click_share": 34.62,
     "conv_share": 0.0,
-    "google_volume": 462,
-    "google_ads_impressions": 180,
-    "google_ads_clicks": 25,
+    "google_volume": 477,
+    "google_ads_impressions": 195,
+    "google_ads_clicks": 29,
     "ads_spend": 4,
     "ads_clicks": 9,
     "ads_acos": 0.03
@@ -38349,9 +38403,9 @@ const FIN_DATA = {
     ],
     "click_share": 12.5,
     "conv_share": 0.0,
-    "google_volume": 210,
-    "google_ads_impressions": 75,
-    "google_ads_clicks": 19,
+    "google_volume": 223,
+    "google_ads_impressions": 88,
+    "google_ads_clicks": 21,
     "ads_spend": 0,
     "ads_clicks": 0,
     "ads_acos": 0
@@ -38368,8 +38422,8 @@ const FIN_DATA = {
     ],
     "click_share": 8.85,
     "conv_share": 0.0,
-    "google_volume": 83,
-    "google_ads_impressions": 30,
+    "google_volume": 85,
+    "google_ads_impressions": 32,
     "google_ads_clicks": 0,
     "ads_spend": 60,
     "ads_clicks": 121,
@@ -38393,9 +38447,9 @@ const FIN_DATA = {
     ],
     "click_share": 21.43,
     "conv_share": 0.0,
-    "google_volume": 58,
-    "google_ads_impressions": 18,
-    "google_ads_clicks": 2,
+    "google_volume": 59,
+    "google_ads_impressions": 19,
+    "google_ads_clicks": 3,
     "ads_spend": 4,
     "ads_clicks": 8,
     "ads_acos": 0
@@ -39077,7 +39131,7 @@ const FIN_DATA = {
      26715,
      27755,
      27796,
-     25671
+     25652
     ],
     "units": [
      477,
@@ -39169,7 +39223,7 @@ const FIN_DATA = {
      1199,
      1237,
      1270,
-     1163
+     1162
     ],
     "gsc_daily": [
      0,
@@ -39261,7 +39315,7 @@ const FIN_DATA = {
      161,
      154,
      322,
-     449
+     450
     ],
     "sessions_daily": [
      0,
@@ -39907,7 +39961,7 @@ const FIN_DATA = {
      161,
      154,
      322,
-     449
+     450
     ],
     "sessions_daily": [
      0,
@@ -41199,7 +41253,7 @@ const FIN_DATA = {
      161,
      154,
      322,
-     449
+     450
     ],
     "sessions_daily": [
      0,
@@ -41845,7 +41899,7 @@ const FIN_DATA = {
      161,
      154,
      322,
-     449
+     450
     ],
     "sessions_daily": [
      0,
@@ -42491,7 +42545,7 @@ const FIN_DATA = {
      161,
      154,
      322,
-     449
+     450
     ],
     "sessions_daily": [
      0,
@@ -52937,7 +52991,8 @@ const FIN_DATA = {
     "2026-03-27",
     "2026-03-28",
     "2026-03-29",
-    "2026-03-30"
+    "2026-03-30",
+    "2026-03-31"
    ],
    "amazon": [
     3417,
@@ -52956,19 +53011,20 @@ const FIN_DATA = {
     3849,
     3600,
     2944,
-    3207,
-    2967,
+    3200,
+    2963,
     2763,
     3368,
     3609,
     3715,
     3847,
-    5948,
+    5945,
     5565,
     4994,
     4803,
     5158,
-    5030
+    5033,
+    4165
    ],
    "meta": [
     877,
@@ -52999,7 +53055,8 @@ const FIN_DATA = {
     1369,
     1157,
     1442,
-    1319
+    1319,
+    1141
    ],
    "google": [
     430,
@@ -53030,7 +53087,8 @@ const FIN_DATA = {
     255,
     283,
     287,
-    242
+    242,
+    207
    ]
   }
  },
