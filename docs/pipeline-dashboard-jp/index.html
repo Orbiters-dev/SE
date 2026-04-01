@@ -92,6 +92,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 .dm-thread-input button{padding:8px 16px;border-radius:24px;border:none;background:var(--a);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
 .dm-thread-input button:disabled{opacity:.4;cursor:not-allowed}
 .dm-empty{text-align:center;padding:40px;color:var(--dim);font-size:11px}
+.sheet-subtab.on{background:var(--a);color:#fff !important}.sheet-subtab:hover:not(.on){background:var(--abg);color:var(--a)}
 .dm-limit-banner{background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:10px 16px;text-align:center;font-size:12px;font-weight:600;color:#92400e;margin-bottom:12px}
 /* Execute progress */
 .exec-progress{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px}
@@ -392,6 +393,12 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         </select>
         <label style="font-size:10px;display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="sheet-hide-contacted" onchange="filterSheet()"> Hide Already Contacted</label>
         <span id="sheet-count" style="font-size:10px;color:var(--dim);margin-left:auto"></span>
+      </div>
+      <!-- Content Type Sub-tabs -->
+      <div id="sheet-subtabs" style="display:flex;gap:0;margin-bottom:12px;border:2px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content">
+        <div class="sheet-subtab on" data-filter="all" onclick="setSheetSubtab('all')" style="padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">All</div>
+        <div class="sheet-subtab" data-filter="has_video" onclick="setSheetSubtab('has_video')" style="padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">&#x1F3AC; Has Video</div>
+        <div class="sheet-subtab" data-filter="image_only" onclick="setSheetSubtab('image_only')" style="padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">&#x1F5BC; Image Only</div>
       </div>
     </div>
     <div style="overflow-x:auto;margin-top:12px">
@@ -2441,6 +2448,30 @@ var _sheetSort = { key: 'username', asc: true };
 var _sheetPage = 0;
 var _sheetPerPage = 50;
 var _sheetLoading = false;
+var _sheetSubtab = 'all'; // 'all' | 'has_video' | 'image_only'
+
+// Video detection: TikTok = always video; IG = views>0 OR /reel/ in URL OR transcript exists
+function isVideoPost(post) {
+  if ((post.platform || '').toLowerCase().indexOf('tiktok') !== -1) return true;
+  if (post.views && post.views > 0) return true;
+  if (post.url && post.url.indexOf('/reel/') !== -1) return true;
+  if (post.transcript && post.transcript.trim().length > 0) return true;
+  return false;
+}
+
+function creatorHasVideo(c) {
+  if (!c._posts || c._posts.length === 0) return false;
+  return c._posts.some(isVideoPost);
+}
+
+function setSheetSubtab(filter) {
+  _sheetSubtab = filter;
+  _sheetPage = 0;
+  document.querySelectorAll('.sheet-subtab').forEach(function(el) {
+    el.classList.toggle('on', el.getAttribute('data-filter') === filter);
+  });
+  renderSheet();
+}
 
 function loadInfluencerSheet() {
   if (_sheetLoading) return;
@@ -2613,6 +2644,9 @@ function getFilteredSheet() {
     if (src === 'inbound' && c._source !== 'inbound') return false;
     if (src === 'manual' && c._source !== 'manual') return false;
     if (hideContacted && hasPastContact(c)) return false;
+    // Sub-tab: video vs image filter
+    if (_sheetSubtab === 'has_video' && !creatorHasVideo(c)) return false;
+    if (_sheetSubtab === 'image_only' && (creatorHasVideo(c) || !c._posts || c._posts.length === 0)) return false;
     return true;
   }).sort(function(a, b) {
     var va = a[_sheetSort.key] || '';
@@ -2629,6 +2663,17 @@ function renderSheet() {
   var start = _sheetPage * _sheetPerPage;
   var page = filtered.slice(start, start + _sheetPerPage);
   var today = new Date();
+
+  // Update sub-tab counts
+  var allCount = _sheetData.length;
+  var videoCount = _sheetData.filter(creatorHasVideo).length;
+  var imageCount = _sheetData.filter(function(c) { return c._posts && c._posts.length > 0 && !creatorHasVideo(c); }).length;
+  var tabAll = document.querySelector('.sheet-subtab[data-filter="all"]');
+  var tabVideo = document.querySelector('.sheet-subtab[data-filter="has_video"]');
+  var tabImage = document.querySelector('.sheet-subtab[data-filter="image_only"]');
+  if (tabAll) tabAll.textContent = 'All (' + allCount + ')';
+  if (tabVideo) tabVideo.innerHTML = '&#x1F3AC; Has Video (' + videoCount + ')';
+  if (tabImage) tabImage.innerHTML = '&#x1F5BC; Image Only (' + imageCount + ')';
 
   document.getElementById('sheet-count').textContent = total + ' influencers' + (total !== _sheetData.length ? ' (filtered from ' + _sheetData.length + ')' : '');
 
