@@ -1,0 +1,39 @@
+name: Dream Consolidator
+
+on:
+  schedule:
+    - cron: '0 7 * * *'  # UTC 07:00 = PST 23:00
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (preview only)'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  dream:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run Dream Consolidator
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            python tools/dream_consolidator.py --dry-run
+          else
+            python tools/dream_consolidator.py --force
+          fi
+
+      - name: Commit changes
+        if: inputs.dry_run != 'true'
+        run: |
+          git config user.name "Dream Consolidator"
+          git config user.email "dream@orbiters.co.kr"
+          git add memory/
+          git diff --cached --quiet || git commit -m "auto: dream consolidation [skip ci]"
+          git push || true
