@@ -1484,15 +1484,19 @@ function renderHeroTab(F){
         html+='<text x="'+(padL+2)+'" y="'+(midTop+10)+'" fill="'+bc+'" font-size="8" font-weight="700" opacity="0.6">Daily New Views &#9651; — stacked by creator</text>';
         // Draw stacked bars: biggest total delta at bottom
         for(var i=0;i<n;i++){
-          var yStack=midTop+midH;
+          var yStack=midTop+midH,colTotal=0;
           crDeltaArr.forEach(function(x,ci){
             var v=x.deltas[i];
             if(v>0){
               var bh=v/aggMax*midH*0.92,col=INF_COLORS[ci%INF_COLORS.length];
               html+='<rect x="'+(padL+i*(bw+1))+'" y="'+(yStack-bh)+'" width="'+bw+'" height="'+bh+'" fill="'+col+'" opacity="0.85"/>';
-              yStack-=bh;
+              yStack-=bh;colTotal+=v;
             }
           });
+          if(colTotal>0&&i%step===0){
+            var lx=padL+i*(bw+1)+bw/2,ly=yStack-4;
+            html+='<text x="'+lx+'" y="'+ly+'" fill="'+bc+'" font-size="6" font-family="var(--mono)" text-anchor="middle" font-weight="600" opacity="0.8">'+(colTotal>=1000?Math.round(colTotal/1000)+'K':colTotal)+'</text>';
+          }
         }
         // ── BOTTOM CHART: Cumulative view lines (forward-filled, one line per creator) ──
         var divY2=midTop+midH+gap/2;
