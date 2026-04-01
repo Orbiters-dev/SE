@@ -920,7 +920,6 @@ function renderHeroTab(F){
   html+=' <div class="period-tabs" id="hero-period-tabs" style="margin-left:auto"><div data-d="7" onclick="setHeroPeriod(7)" '+((_heroPeriod===7)?'class="on"':'')+'>7D</div><div data-d="30" onclick="setHeroPeriod(30)" '+((_heroPeriod===30)?'class="on"':'')+'>30D</div><div data-d="90" onclick="setHeroPeriod(90)" '+((_heroPeriod===90)?'class="on"':'')+'>90D</div></div>';
   html+='</div>';
   html+='<div class="card"><div class="desc">Sales rolled up by product category ('+H.categories.length+' categories). Keywords from Amazon Brand Analytics.</div>';
-  html+='<div id="hero-charts-container"></div></div></div>';
   H.categories.forEach(function(c,idx){
     var bc=CATCOLORS[c.category]||'#94a3b8';
     var brandBg=BCOLORS[c.brand]||'#94a3b8';
@@ -954,7 +953,7 @@ function renderHeroTab(F){
       var vw=_allVw.slice(-pDays),dates=_allDates.slice(-pDays);
       var gscD=_allGsc.slice(-pDays);
       // Slice creator daily_views to match period
-      var slicedCreators=slicedCreators.map(function(cr){
+      var slicedCreators=catCreators.slice(0,5).map(function(cr){
         return {username:cr.username,brand:cr.brand,platform:cr.platform,total_views:cr.total_views,
           daily_views:cr.daily_views.slice(-pDays)};
       });
