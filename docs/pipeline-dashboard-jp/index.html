@@ -1257,6 +1257,9 @@ function markSent(handle) {
   if (isOverLimit()) { showToast('Daily limit reached! (' + _dailyLimit + '/day)', 'err'); return; }
   var c = _creators.find(function(x) { return x.username === handle; });
   if (!c) return;
+  // Prevent duplicate send
+  if (c.status === 'sent' || c._sending) { showToast('@' + handle + ' already sent', 'err'); return; }
+  c._sending = true;
   // Log the draft as outbound DM
   if (c.dm_draft) {
     n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' });
@@ -1805,7 +1808,8 @@ function executeDrafts() {
     document.getElementById('exec-current').textContent = 'Opening @' + handle + '...';
 
     var text = c ? (c.dm_draft || '') : '';
-    if (!text) { idx++; setTimeout(processNext, 300); return; }
+    // Skip already sent or no draft
+    if (!text || (c && c.status === 'sent')) { idx++; setTimeout(processNext, 300); return; }
     // 1st outreach = IG manual. Copy draft + open IG DM link.
     navigator.clipboard.writeText(text).catch(function(){});
     n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
@@ -2086,7 +2090,8 @@ function executeCreatorsDrafts() {
     var handle = handles[idx];
     var c = _creators.find(function(x) { return x.username === handle; });
     var text = c ? (c.dm_draft || '') : '';
-    if (!text) { idx++; setTimeout(processNext, 300); return; }
+    // Skip already sent or no draft
+    if (!text || (c && c.status === 'sent')) { idx++; setTimeout(processNext, 300); return; }
     // 1st outreach = IG manual
     navigator.clipboard.writeText(text).catch(function(){});
     n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
