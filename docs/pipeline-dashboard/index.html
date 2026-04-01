@@ -3151,7 +3151,13 @@ function populateDiscoveryDates(selectedVal){
     } else {
       try{
         var cached=localStorage.getItem('pipeline_date_counts');
-        if(cached){_dateCountMap=JSON.parse(cached);_buildWeekGroups(_dateCountMap)}
+        if(cached){
+          var parsed=JSON.parse(cached);
+          // Invalidate old weekly-grouped cache (keys like "2026-W12")
+          var keys=Object.keys(parsed);
+          if(keys.length>0&&keys[0].indexOf('-W')>=0){localStorage.removeItem('pipeline_date_counts');localStorage.removeItem('pipeline_discovery_dates')}
+          else{_dateCountMap=parsed;_buildWeekGroups(_dateCountMap)}
+        }
       }catch(e){}
     }
   }
