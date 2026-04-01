@@ -3190,6 +3190,16 @@ async function pullDiscoveryDates(){
     var stats=await apiFetch('/pipeline/creators/stats/');
     if(DEMO_MODE&&wasDemoMode){showToast('API \uC5F0\uACB0 \uC2E4\uD328 — DEMO \uB370\uC774\uD130 \uD45C\uC2DC \uC911','err');return}
     var dateMap=stats.by_discovery_date||{};
+    // Fallback: if server doesn't have by_discovery_date yet, fetch page 1
+    if(Object.keys(dateMap).length===0){
+      try{
+        var fallback=await apiFetch('/pipeline/creators/?status=Not+Started&limit=2000');
+        (fallback.results||[]).forEach(function(c){
+          var dd=c.initial_discovery_date||(c.created_at||'').slice(0,10);
+          if(dd)dateMap[dd]=(dateMap[dd]||0)+1;
+        });
+      }catch(e2){}
+    }
     var totalNotStarted=0;
     Object.keys(dateMap).forEach(function(k){totalNotStarted+=dateMap[k]});
     _dateCountMap=dateMap;
