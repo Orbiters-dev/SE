@@ -90,6 +90,9 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 .rq-row.reviewed{opacity:.55;background:#f0fdf4;border-radius:4px;padding:8px 6px}
 .rq-row.declined{opacity:.55;background:#fef2f2;border-radius:4px;padding:8px 6px}
 .rq-check{width:14px;height:14px;accent-color:var(--a);cursor:pointer;flex-shrink:0}
+.owner-tab{padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer;color:var(--dim);transition:.12s;display:flex;align-items:center}
+.owner-tab:hover{background:var(--abg);color:var(--text)}
+.owner-tab.on{background:var(--a);color:#fff}
 .profile-link{color:var(--a);text-decoration:none;font-size:10px;font-weight:600}.profile-link:hover{text-decoration:underline}
 /* How It Works accordion */
 .hw-sec{cursor:default;transition:.15s}
@@ -245,7 +248,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
       </div>
       <div class="card hw-sec" id="lt-s6" style="border-left:3px solid var(--c)">
         <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E6; Step 6: Sample Fulfillment</h3>
-        <div class="hw-body"><div style="font-size:11px">Accept &#x2192; Draft Order &#xC644;&#xB8CC; &#x2192; <span class="b c">Sample Sent</span> &#x2192; Shopify &#xBC30;&#xC1A1; &#x2192; <span class="b g">Delivered</span> + Content Guidelines &#xC774;&#xBA54;&#xC77C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</div></div>
+        <div class="hw-body"><div style="font-size:11px">Accept &#x2192; Order &#xC0DD;&#xC131; &#x2192; Shopify &#xBC30;&#xC1A1; &#x2192; <span class="b g">Delivered</span> + Content Guidelines &#xC774;&#xBA54;&#xC77C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</div></div>
       </div>
       <div class="card hw-sec" id="lt-s7" style="border-left:3px solid var(--g)">
         <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4F8; Step 7: Content Tracking (D+60)</h3>
@@ -325,7 +328,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
       </div>
       <div class="card hw-sec" id="ht-s7" style="border-left:3px solid var(--c)">
         <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E6; Step 7: Sample Fulfillment</h3>
-        <div class="hw-body"><div style="font-size:11px">Accept &#x2192; Draft Order &#xC644;&#xB8CC; &#x2192; <span class="b c">Sample Sent</span> &#x2192; Shopify &#xBC30;&#xC1A1; &#x2192; <span class="b g">Delivered</span> + Content Guidelines &#xC774;&#xBA54;&#xC77C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</div></div>
+        <div class="hw-body"><div style="font-size:11px">Accept &#x2192; Order &#xC0DD;&#xC131; &#x2192; Shopify &#xBC30;&#xC1A1; &#x2192; <span class="b g">Delivered</span> + Content Guidelines &#xC774;&#xBA54;&#xC77C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</div></div>
       </div>
       <div class="card hw-sec" id="ht-s8" style="border-left:3px solid #ea580c">
         <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4B3; Step 8: Payment &mdash; Creator Compensation</h3>
@@ -425,8 +428,8 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <span class="b" style="font-size:9px">Not Started</span><span class="b a">Draft Ready</span><span class="b c">Sent</span><span class="b am">Replied</span><span class="b p">Needs Review</span><span class="b g">Accepted</span><span class="b r">Declined</span><span class="b c">Sample Sent</span><span class="b c">Sample Shipped</span><span class="b g">Sample Delivered</span><span class="b" style="font-size:9px;border-style:dashed;color:var(--am);border-color:var(--am)">Reminder Sent</span><span class="b g">Posted</span>
       </div>
       <div style="margin-top:10px;font-size:10px;color:var(--dim);line-height:1.6">
-        <b>Outbound</b>: <u>Discover</u> &#x2192; Not Started &#x2192; Draft Ready &#x2192; Sent &#x2192; Replied &#x2192; Accepted &#x2192; Sample Sent &#x2192; Shipped &#x2192; Delivered &#x2192; <span style="border:1px dashed var(--am);padding:1px 5px;border-radius:4px;font-size:9px;color:var(--am)">Reminder Sent</span> &#x2192; Posted<br>
-        <b>Inbound</b>: (Gifting &#xD3FC; &#xC81C;&#xCD9C;) &#x2192; Needs Review &#x2192; Accepted/Declined &#x2192; Sample Sent &#x2192; ...<br>
+        <b>Outbound</b>: <u>Discover</u> &#x2192; Not Started &#x2192; Draft Ready &#x2192; Sent &#x2192; Replied &#x2192; Accepted &#x2192; Shipped &#x2192; Delivered &#x2192; <span style="border:1px dashed var(--am);padding:1px 5px;border-radius:4px;font-size:9px;color:var(--am)">Reminder Sent</span> &#x2192; Posted<br>
+        <b>Inbound</b>: (Gifting &#xD3FC; &#xC81C;&#xCD9C;) &#x2192; Needs Review &#x2192; Accepted/Declined &#x2192; Shipped &#x2192; ...<br>
         <span style="font-size:9px;color:var(--am)">* Reminder Sent: Delivered &#xD6C4; &#xD3EC;&#xC2A4;&#xD305; &#xC548; &#xD55C; &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130;&#xC5D0;&#xAC8C;&#xB9CC; &#xBC1C;&#xC1A1; (&#xC120;&#xD0DD;&#xC801;)</span>
       </div>
     </div>
@@ -1020,6 +1023,12 @@ Shopify                         Apify / Syncly                   Gmail RAG
       <div class="stat amber"><div class="sl">Posted</div><div class="sv" id="cs-posted">-</div></div>
       <div class="stat"><div class="sl">This Week</div><div class="sv" id="cs-week">-</div></div>
     </div>
+    <div style="display:flex;gap:0;margin-bottom:10px;border:2px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content">
+      <div class="owner-tab on" data-owner="" onclick="selectOwnerTab(this)">All</div>
+      <div class="owner-tab" data-owner="Jeehoo" onclick="selectOwnerTab(this)" style="border-left:1px solid var(--border)"><span style="background:#10b981;color:#fff;padding:1px 5px;border-radius:3px;font-size:8px;margin-right:3px">Jeehoo</span>Grosmimi</div>
+      <div class="owner-tab" data-owner="Laeeka" onclick="selectOwnerTab(this)" style="border-left:1px solid var(--border)"><span style="background:#64748b;color:#fff;padding:1px 5px;border-radius:3px;font-size:8px;margin-right:3px">Laeeka</span>CHA&amp;MOM</div>
+      <div class="owner-tab" data-owner="Soyeon" onclick="selectOwnerTab(this)" style="border-left:1px solid var(--border)"><span style="background:#f59e0b;color:#fff;padding:1px 5px;border-radius:3px;font-size:8px;margin-right:3px">Soyeon</span>Naeiae</div>
+    </div>
     <div class="filter-bar">
       <input type="text" id="cr-search" placeholder="Search handle, email, name..." onkeydown="if(event.key==='Enter')loadCreators()">
       <select id="cr-status" onchange="_crStatusFilter=this.value;if(_lastStats){buildFunnel(_lastStats.by_status,'exec-funnel',this.value);buildFunnel(_lastStats.by_status,'dash-funnel',this.value);}if(this.value)location.hash='creators/'+encodeURIComponent(this.value);else location.hash='creators';loadCreators()">
@@ -1029,7 +1038,6 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <option value="Needs Review">Needs Review</option><option value="Accepted">Accepted</option>
         <option value="Declined">Declined</option>
         <option value="Send Contract">Send Contract (HT)</option><option value="Contract Signed">Contract Signed (HT)</option>
-        <option value="Sample Sent">Sample Sent</option>
         <option value="Sample Shipped">Sample Shipped</option><option value="Sample Delivered">Sample Delivered</option>
         <option value="Reminder Sent">Reminder Sent</option><option value="Payment Sent">Payment Sent (HT)</option>
         <option value="Posted">Posted</option>
@@ -1453,7 +1461,7 @@ async function loadOverviewFunnel(){
 var DEMO_MODE=false;
 var DEMO_CREATORS=[
   {id:'d1',email:'sarah.momlife@gmail.com',ig_handle:'sarah_momlife',tiktok_handle:'',full_name:'Sarah Johnson',platform:'Instagram',pipeline_status:'Accepted',brand:'Grosmimi',outreach_type:'HT',source:'outbound',followers:245000,avg_views:18500,initial_discovery_date:'2026-02-15',created_at:'2026-02-15T10:00:00Z',notes:''},
-  {id:'d2',email:'tiny.steps.tiktok@gmail.com',ig_handle:'',tiktok_handle:'tinysteps_mom',full_name:'Emily Chen',platform:'TikTok',pipeline_status:'Sample Sent',brand:'Grosmimi',outreach_type:'HT',source:'outbound',followers:520000,avg_views:85000,initial_discovery_date:'2026-02-20',created_at:'2026-02-20T10:00:00Z',notes:''},
+  {id:'d2',email:'tiny.steps.tiktok@gmail.com',ig_handle:'',tiktok_handle:'tinysteps_mom',full_name:'Emily Chen',platform:'TikTok',pipeline_status:'Sample Shipped',brand:'Grosmimi',outreach_type:'HT',source:'outbound',followers:520000,avg_views:85000,initial_discovery_date:'2026-02-20',created_at:'2026-02-20T10:00:00Z',notes:''},
   {id:'d3',email:'jessica.b@outlook.com',ig_handle:'jess_babystyle',tiktok_handle:'',full_name:'Jessica Brown',platform:'Instagram',pipeline_status:'Posted',brand:'Grosmimi',outreach_type:'LT',source:'outbound',followers:32000,avg_views:4200,initial_discovery_date:'2026-01-10',created_at:'2026-01-10T10:00:00Z',notes:'Reel posted 3/15'},
   {id:'d4',email:'maria.garcia.mama@gmail.com',ig_handle:'mariamamabear',tiktok_handle:'',full_name:'Maria Garcia',platform:'Instagram',pipeline_status:'Sent',brand:'CHA&MOM',outreach_type:'LT',source:'outbound',followers:18000,avg_views:2100,initial_discovery_date:'2026-03-01',created_at:'2026-03-01T10:00:00Z',notes:''},
   {id:'d5',email:'ashley.k.parenting@gmail.com',ig_handle:'ashleykmom',tiktok_handle:'ashleykmom',full_name:'Ashley Kim',platform:'Instagram',pipeline_status:'Replied',brand:'CHA&MOM',outreach_type:'HT',source:'outbound',followers:175000,avg_views:22000,initial_discovery_date:'2026-03-05',created_at:'2026-03-05T10:00:00Z',notes:'Interested in chamomile line'},
@@ -1710,7 +1718,7 @@ async function loadDashboard(){
     document.getElementById('ds-accepted').textContent=st.by_status['Accepted']||0;
     document.getElementById('ds-posted').textContent=st.by_status['Posted']||0;
     document.getElementById('ds-review').textContent=st.by_status['Needs Review']||0;
-    var accepted=(st.by_status['Accepted']||0)+(st.by_status['Sample Sent']||0)+(st.by_status['Sample Shipped']||0)+(st.by_status['Sample Delivered']||0)+(st.by_status['Posted']||0);
+    var accepted=(st.by_status['Accepted']||0)+(st.by_status['Sample Shipped']||0)+(st.by_status['Sample Delivered']||0)+(st.by_status['Posted']||0);
     var total=st.total||1;
     document.getElementById('ds-conversion').textContent=Math.round(accepted/total*100)+'%';
     document.getElementById('pill-total').textContent=st.total+' creators';
@@ -1850,12 +1858,22 @@ async function loadConfigHistory(){
 
 // ========== CREATORS TAB ==========
 var _crPage=1,_crLimit=50;
+
+function selectOwnerTab(el){
+  document.querySelectorAll('.owner-tab').forEach(function(t){t.classList.remove('on')});
+  el.classList.add('on');
+  var owner=el.getAttribute('data-owner');
+  document.getElementById('cr-assigned').value=owner;
+  _crPage=1;
+  loadCreators();
+}
+
 var STATUS_COLORS={
   'Not Started':'','Draft Ready':'a','Sent':'c','Replied':'am',
   'Needs Review':'p','Accepted':'g','Declined':'r',
-  'Sample Sent':'c','Sample Shipped':'c','Sample Delivered':'g','Posted':'g'
+  'Sample Shipped':'c','Sample Delivered':'g','Posted':'g'
 };
-var PIPELINE_STAGES=['Not Started','Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
+var PIPELINE_STAGES=['Not Started','Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Shipped','Sample Delivered','Posted'];
 
 var _lastStats=null;
 async function loadCreatorStats(){
@@ -1876,8 +1894,8 @@ async function loadCreatorStats(){
 }
 
 // HIL = stages where marketer must take action for pipeline to proceed
-var HIL_LT={'Sample Sent':1};  // LT: only manual "sample shipped" click
-var HIL_HT={'Draft Ready':1,'Sent':1,'Replied':1,'Needs Review':1,'Send Contract':1,'Sample Sent':1,'Payment Sent':1};  // HT: full manual control
+var HIL_LT={};  // LT: fully automated after Accepted
+var HIL_HT={'Draft Ready':1,'Sent':1,'Replied':1,'Needs Review':1,'Send Contract':1,'Payment Sent':1};  // HT: full manual control
 
 function buildFunnel(statusCounts,targetId,activeStatus){
   var el=document.getElementById(targetId);
@@ -1889,7 +1907,7 @@ function buildFunnel(statusCounts,targetId,activeStatus){
 
   if(!hasLtHt){
     // Fallback: single row
-    var stages=['Not Started','Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
+    var stages=['Not Started','Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Shipped','Sample Delivered','Posted'];
     var html='';
     for(var i=0;i<stages.length;i++){
       if(i>0)html+='<span class="fa">&#x25B6;</span>';
@@ -1902,8 +1920,8 @@ function buildFunnel(statusCounts,targetId,activeStatus){
   }
 
   // Y-fork: Not Started (left center) → LT (top row) / HT (bottom row)
-  var LT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Reminder Sent','Posted'];
-  var HT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Send Contract','Contract Signed','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Reminder Sent','Payment Sent','Posted'];
+  var LT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Accepted','Sample Shipped','Sample Delivered','Reminder Sent','Posted'];
+  var HT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Send Contract','Contract Signed','Accepted','Sample Shipped','Sample Delivered','Reminder Sent','Payment Sent','Posted'];
   function _row(stages,counts,hilMap){
     var r='';
     for(var i=0;i<stages.length;i++){
@@ -2257,8 +2275,7 @@ async function loadPendingActions(){
     var stages=[
       {status:'Draft Ready',action:'Approve & Send',icon:'📨',color:'var(--a)',api_action:'approve_send'},
       {status:'Needs Review',action:'Accept / Decline',icon:'🔍',color:'var(--p)',api_action:'review'},
-      {status:'Accepted',action:'Complete Order',icon:'✅',color:'var(--g)',api_action:'complete_order'},
-      {status:'Sample Sent',action:'Confirm Shipped',icon:'📦',color:'var(--c)',api_action:'confirm_shipped'},
+      {status:'Accepted',action:'Create Order',icon:'✅',color:'var(--g)',api_action:'complete_order'},
       {status:'Sample Delivered',action:'Send Reminder',icon:'💌',color:'var(--am)',api_action:'send_reminder'},
       {status:'Send Contract',action:'Send DocuSeal',icon:'📝',color:'var(--p)',api_action:'send_contract'},
       {status:'Payment Sent',action:'Confirm Payment',icon:'💰',color:'var(--g)',api_action:'confirm_payment'}

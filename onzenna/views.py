@@ -671,6 +671,13 @@ def get_or_save_pipeline_config(request, config_date):
                   "naeiae_form_url", "ht_form_url"):
         if field in body:
             defaults[field] = body[field]
+    # Email content config
+    for field in ("assistant_name", "brand_name", "tone", "sign_off",
+                  "company_signer_name", "company_signer_title"):
+        if field in body:
+            defaults[field] = body[field]
+    if "max_body_sentences" in body:
+        defaults["max_body_sentences"] = int(body["max_body_sentences"])
     # Computed fields (from preview tool)
     for field in ("eligible_total", "eligible_grosmimi", "eligible_chaenmom",
                   "eligible_naeiae", "eligible_unknown", "ht_count", "lt_count"):
