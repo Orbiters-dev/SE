@@ -607,21 +607,10 @@ def get_pipeline_config_today(request):
     """Get today's pipeline config. Creates default if none exists."""
     if request.method == 'OPTIONS':
         return _cors_headers(request, HttpResponse(status=204))
-    # Debug: introspect DB schema if ?debug=schema
-    if request.GET.get("debug") == "schema":
-        from django.db import connection as db_conn
-        with db_conn.cursor() as c:
-            c.execute("SELECT column_name, data_type, is_nullable, column_default FROM information_schema.columns WHERE table_name='onz_pipeline_config' ORDER BY ordinal_position")
-            cols = [{"name": r[0], "type": r[1], "nullable": r[2], "default": str(r[3]) if r[3] else None} for r in c.fetchall()]
-        return _cors_headers(request, JsonResponse({"columns": cols, "count": len(cols)}, safe=False))
     from datetime import date as date_cls
     today = date_cls.today()
-    try:
-        config, created = PipelineConfig.objects.get_or_create(date=today)
-        return _cors_headers(request, JsonResponse(_serialize_config(config)))
-    except Exception as e:
-        import traceback
-        return _cors_headers(request, JsonResponse({"error": str(e), "traceback": traceback.format_exc()}, status=500))
+    config, created = PipelineConfig.objects.get_or_create(date=today)
+    return _cors_headers(request, JsonResponse(_serialize_config(config)))
 
 
 @csrf_exempt
