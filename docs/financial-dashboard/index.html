@@ -1222,9 +1222,10 @@ function renderHeroTab(F){
     if(c.sfr_branded)c.sfr_branded.forEach(function(kw){if(!bg._sfrSeen[kw.keyword]){bg._sfrSeen[kw.keyword]=true;bg.sfr_branded.push(kw);}});
     var catCrs=(H.content_creators_by_cat||{})[c.category]||[];
     catCrs.forEach(function(cr){
-      if(!bg._crMap[cr.username])bg._crMap[cr.username]={username:cr.username,platform:cr.platform,brand:cr.brand,total_views:0,daily_views:[]};
+      if(!bg._crMap[cr.username])bg._crMap[cr.username]={username:cr.username,platform:cr.platform,brand:cr.brand,total_views:0,upload_date:cr.upload_date||'',daily_views:[]};
       var ex=bg._crMap[cr.username];
       ex.total_views+=cr.total_views;
+      if(cr.upload_date&&(!ex.upload_date||cr.upload_date<ex.upload_date))ex.upload_date=cr.upload_date;
       if(cr.daily_views)cr.daily_views.forEach(function(v,i){ex.daily_views[i]=(ex.daily_views[i]||0)+v;});
     });
   });
@@ -1278,9 +1279,9 @@ function renderHeroTab(F){
       var sessD=_allSess.slice(-pDays);
       var pvD=_allPv.slice(-pDays);
       // Slice creator daily_views to match period
-      var slicedCreators=catCreators.slice(0,10).map(function(cr){
+      var slicedCreators=catCreators.map(function(cr){
         return {username:cr.username,brand:cr.brand,platform:cr.platform,total_views:cr.total_views,
-          daily_views:cr.daily_views.slice(-pDays)};
+          upload_date:cr.upload_date||'',daily_views:cr.daily_views.slice(-pDays)};
       });
       var n=ds.length;
       var hasContent=catCreators.length>0||(vw.length&&vw.reduce(function(a,b){return a+b},0)>0);
