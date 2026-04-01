@@ -605,14 +605,145 @@ Examples:
 
     prompt = build_prompt(args.domain, mode, **kw)
     verdict = run_codex(prompt, model=args.model, timeout=args.timeout)
-    _output(verdict, args.json_only)
+    _output(verdict, args.json_only, domain=args.domain, mode=mode)
 
 
-def _output(verdict, json_only):
+SCORES_FILE = ROOT / "memory" / "agent_scores.md"
+SCORE_COOLDOWN_HOURS = 1  # Min hours between scorings per domain
+SCORE_STATE_FILE = TMP / "score_state.json"
+
+
+def _should_score(domain, mode):
+    """Score after full audits (audit/verify-round), with cooldown."""
+    if mode not in ("audit", "verify-round"):
+        return False  # Skip health/diff — not significant enough
+    state = {}
+    if SCORE_STATE_FILE.exists():
+        try:
+            state = json.loads(SCORE_STATE_FILE.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    last_ts = state.get(domain, 0)
+    elapsed_hours = (datetime.now().timestamp() - last_ts) / 3600
+    return elapsed_hours >= SCORE_COOLDOWN_HOURS
+
+
+def _mark_scored(domain):
+    state = {}
+    if SCORE_STATE_FILE.exists():
+        try:
+            state = json.loads(SCORE_STATE_FILE.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    state[domain] = datetime.now().timestamp()
+    SCORE_STATE_FILE.write_text(json.dumps(state, indent=2), encoding="utf-8")
+
+
+def _load_recent_verdicts(domain, n=5):
+    """Load last N verdict JSON files for this domain."""
+    verdicts = []
+    for f in sorted(TMP.glob("verdict_*.json"), reverse=True):
+        try:
+            v = json.loads(f.read_text(encoding="utf-8"))
+            if v.get("domain") == domain:
+                verdicts.append(v)
+                if len(verdicts) >= n:
+                    break
+        except Exception:
+            continue
+    return list(reversed(verdicts))  # oldest first
+
+
+def _score_agent(domain):
+    """Run agent scoring: analyze last 5 verdicts, write grade to agent_scores.md."""
+    label = TOOLS.get(domain, {}).get("label", domain)
+    verdicts = _load_recent_verdicts(domain, n=5)
+    if not verdicts:
+        return
+
+    verdicts_text = json.dumps(verdicts, ensure_ascii=False, indent=2)[:3000]
+    prompt = f"""You are an independent scoring agent. Analyze the last {len(verdicts)} audit verdicts for this agent and assign a grade.
+
+Agent: {label}
+Domain: {domain}
+
+--- LAST {len(verdicts)} VERDICTS ---
+{verdicts_text}
+--- END ---
+
+Scoring criteria:
+- A: All PASS, no recurring issues, improving trend
+- B: Mostly PASS, minor issues, stable
+- C: Mix of PASS/DEGRADED, some recurring issues
+- D: Frequent FAIL or DEGRADED, critical recurring issues
+
+Output ONLY this JSON:
+{{"domain": "{domain}", "grade": "A|B|C|D", "trend": "improving|stable|declining", "pass_rate": "X/5", "top_issues": ["issue1", "issue2"], "notes": "1-sentence summary", "scored_at": "ISO8601"}}"""
+
+    output_file = TMP / f"score_{domain}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    cmd = [
+        CODEX_BIN, "exec",
+        "--model", CODEX_MODEL,
+        "--dangerously-bypass-approvals-and-sandbox",
+        "--skip-git-repo-check",
+        "--ephemeral",
+        "-o", str(output_file),
+        "-",
+    ]
+    try:
+        result = subprocess.run(cmd, input=prompt, capture_output=True, text=True,
+                                timeout=60, encoding="utf-8", errors="replace",
+                                env={**os.environ, "OPENAI_API_KEY": os.environ.get("OPENAI_API_KEY", "")})
+    except Exception:
+        return
+
+    if not output_file.exists():
+        return
+    raw = output_file.read_text(encoding="utf-8").strip()
+    score = _extract_json(raw)
+    if not score or "grade" not in score:
+        return
+
+    # Write to agent_scores.md
+    grade = score.get("grade", "?")
+    trend = score.get("trend", "?")
+    pass_rate = score.get("pass_rate", "?")
+    issues = ", ".join(score.get("top_issues", []))
+    notes = score.get("notes", "")
+    scored_at = score.get("scored_at", datetime.now().isoformat())[:10]
+
+    entry = f"\n### {label} — {scored_at}\n- **Grade**: {grade} | **Trend**: {trend} | **Pass Rate**: {pass_rate}\n- **Top Issues**: {issues or 'none'}\n- {notes}\n"
+
+    existing = ""
+    if SCORES_FILE.exists():
+        existing = SCORES_FILE.read_text(encoding="utf-8")
+    if not existing:
+        existing = "# Agent Scores\n\nPeriodic scoring by Codex Auditor (every 5 runs per domain).\n"
+
+    # Insert/update domain section
+    section_header = f"\n## {domain}\n"
+    if section_header in existing:
+        # Append entry under existing domain section
+        idx = existing.index(section_header) + len(section_header)
+        existing = existing[:idx] + entry + existing[idx:]
+    else:
+        existing = existing.rstrip() + f"\n{section_header}{entry}"
+
+    SCORES_FILE.write_text(existing, encoding="utf-8")
+    print(f"[codex-auditor] Agent scored: {label} → {grade} ({trend}, {pass_rate})")
+
+
+def _output(verdict, json_only, domain=None, mode=None):
     if json_only:
         print(json.dumps(verdict, indent=2, ensure_ascii=False))
     else:
         print_verdict(verdict)
+    # Score after significant audits (audit/verify-round), with 1h cooldown
+    if domain and mode and verdict.get("verdict") in ("PASS", "FAIL", "DEGRADED"):
+        if _should_score(domain, mode):
+            print(f"[codex-auditor] Significant audit complete — scoring agent...")
+            _score_agent(domain)
+            _mark_scored(domain)
     v = verdict.get("verdict", "ERROR")
     sys.exit(0 if v == "PASS" else 1 if v == "FAIL" else 2)
 
