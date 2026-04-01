@@ -539,7 +539,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
             <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('us')" id="ft-btn-us" style="font-size:10px">&#x1F50D; Check</button>
             <span id="ft-badge-us"></span>
           </div>
-          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Only include US-based creators (from Apify profile enrichment: about.country / region)</div>
+          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Syncly Language=en \u2192 US \ud1b5\uacfc. non-US \uc81c\uc678. \ubc30\uc1a1\uc9c0 \ud655\uc778\uc740 shipping address\uc5d0\uc11c \ucd94\uac00 \ud544\ud130\ub9c1</div>
           <div id="ft-expand-us" style="display:none;margin:4px 0 0 28px"></div>
         </div>
 
@@ -3944,7 +3944,8 @@ async function checkFeatureImpact(feature){
       }else{expand.textContent='';expand.style.display='none'}
 
     }else if(feature==='us'){
-      // US Only: filter by country field from Apify enrichment + Syncly Location
+      // US Only: country="United States" = pass (set by Syncly Language=en)
+      // Non-US = has country but not US. Unknown = no country data yet.
       var usCreators=creators.filter(function(c){
         var country=(c.country||'').toLowerCase();
         return country==='united states'||country==='us'||country==='usa';
@@ -3953,10 +3954,9 @@ async function checkFeatureImpact(feature){
         var country=(c.country||'').toLowerCase();
         return country&&country!=='united states'&&country!=='us'&&country!=='usa';
       });
-      // Unknown = no country data at all (neither enriched nor sheet Location)
       var unknown=creators.filter(function(c){return !(c.country||'').trim()});
       _ftResults.us={count:nonUs.length,usCount:usCreators.length,unenriched:unknown.length,list:nonUs};
-      badge.textContent=usCreators.length+' US | \u2212'+nonUs.length+' non-US | '+unknown.length+' unknown';
+      badge.textContent=usCreators.length+' US(en) | \u2212'+nonUs.length+' non-US | '+unknown.length+' pending';
       badge.className='b g';badge.style.cssText='font-size:10px;padding:2px 8px';
       if(nonUs.length>0){
         var el=document.createElement('div');
