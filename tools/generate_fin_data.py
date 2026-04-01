@@ -3403,13 +3403,17 @@ def generate():
                 post_max_views[pid] = views
 
         # Step 2: compute daily new views per post (delta between consecutive snapshots)
+        # SKIP first snapshot (we don't know when those views accumulated)
+        # Only count growth BETWEEN consecutive measurements
         post_daily_delta = defaultdict(dict)  # pid → {date → delta_views}
         for pid, snaps in post_snapshots.items():
             sorted_dates = sorted(snaps.keys())
-            prev_v = 0
-            for d in sorted_dates:
+            if len(sorted_dates) < 2:
+                continue  # need at least 2 snapshots to compute delta
+            prev_v = snaps[sorted_dates[0]]  # first snapshot = baseline
+            for d in sorted_dates[1:]:
                 v = snaps[d]
-                delta = max(0, v - prev_v)  # new views since last snapshot
+                delta = max(0, v - prev_v)
                 if delta > 0:
                     post_daily_delta[pid][d] = delta
                 prev_v = v
