@@ -62,6 +62,12 @@ description: >
 [User: "제갈량" / "전략분석"]
          │
          ▼
+[Phase 0-pre] Codex Auditor 브리핑 로드 (있으면)
+  Read: memory/galryang_audit_report.md
+  → 각 에이전트 최신 Grade/Trend/Top Issues 파악
+  → 낮은 등급(C/D) 에이전트는 해당 데이터 신뢰도 낮춰서 해석
+         │
+         ▼
 [Phase 0] Coordinator 시작
   python tools/coordinator.py start --workflow galryang_strategy
          │

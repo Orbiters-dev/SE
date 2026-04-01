@@ -175,18 +175,49 @@ def _load_mistakes(domain):
     return combined[:2000] if combined else ""
 
 
+def _load_recent_score(domain):
+    """Load the most recent score entry for this domain from agent_scores.md."""
+    scores_file = ROOT / "memory" / "agent_scores.md"
+    if not scores_file.exists():
+        return ""
+    try:
+        text = scores_file.read_text(encoding="utf-8", errors="replace")
+    except Exception:
+        return ""
+
+    # Find domain section
+    section_header = f"\n## {domain}\n"
+    if section_header not in text:
+        return ""
+    idx = text.index(section_header) + len(section_header)
+    section = text[idx:]
+    # Get first entry (most recent, since we prepend)
+    lines = section.splitlines()
+    entry_lines = []
+    for line in lines:
+        if line.startswith("## ") and entry_lines:
+            break  # next domain section
+        if line.startswith("### ") or entry_lines:
+            entry_lines.append(line)
+            if len(entry_lines) > 5:
+                break
+    return "\n".join(entry_lines).strip()
+
+
 def _analysis_prompt(domain, round_num, label, script_output, script_error, returncode, extra_context=""):
     """Build a Codex analysis prompt from pre-run script output."""
     schema = VERDICT_SCHEMA.format(domain=domain, round=round_num)
     status = "SUCCESS" if returncode == 0 else f"FAILED (exit={returncode})"
     mistakes = _load_mistakes(domain)
+    prior_score = _load_recent_score(domain)
     mistakes_section = f"\n--- PAST MISTAKES (check if recurring) ---\n{mistakes}\n--- END MISTAKES ---" if mistakes else ""
+    score_section = f"\n--- PRIOR AGENT SCORE (focus on flagged issues) ---\n{prior_score}\n--- END SCORE ---" if prior_score else ""
     return f"""You are an independent verification agent (Codex Verifier).
 Analyze the audit script output below and produce a JSON verdict.
 
 Domain: {label}
 Script run status: {status}
-{extra_context}{mistakes_section}
+{extra_context}{score_section}{mistakes_section}
 --- SCRIPT STDOUT ---
 {script_output or "(empty)"}
 
@@ -200,6 +231,7 @@ Rules:
 - FAIL: critical checks failed, system is broken
 - If script itself failed to run, set verdict=DEGRADED with check="script_execution"
 - If a past mistake is recurring, flag it in failures with severity=HIGH
+- If prior score flagged issues are resolved, note improvement in notes field
 - Be specific: include actual values in failures
 
 Output ONLY this JSON (no markdown, no extra text):
@@ -609,8 +641,10 @@ Examples:
 
 
 SCORES_FILE = ROOT / "memory" / "agent_scores.md"
+GALRYANG_REPORT = ROOT / "memory" / "galryang_audit_report.md"
 SCORE_COOLDOWN_HOURS = 1  # Min hours between scorings per domain
 SCORE_STATE_FILE = TMP / "score_state.json"
+GALRYANG_REPORT_EVERY = 5  # Generate Galryang briefing every N total scorings
 
 
 def _should_score(domain, mode):
@@ -636,7 +670,51 @@ def _mark_scored(domain):
         except Exception:
             pass
     state[domain] = datetime.now().timestamp()
+    state["_total_scorings"] = state.get("_total_scorings", 0) + 1
     SCORE_STATE_FILE.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    return state["_total_scorings"]
+
+
+def _generate_galryang_report():
+    """Generate a strategic briefing for 제갈량 based on all domain scores."""
+    if not SCORES_FILE.exists():
+        return
+
+    scores_text = SCORES_FILE.read_text(encoding="utf-8", errors="replace")[:3000]
+    today = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    report = f"""# 제갈량 감사 브리핑 — {today}
+
+> Codex Auditor 자동 생성 보고서 (매 {GALRYANG_REPORT_EVERY}회 스코어링마다 업데이트)
+> 다음 전략 세션에서 제갈량이 이 파일을 읽고 시스템 현황 파악
+
+---
+
+## 시스템 건강 종합
+
+"""
+    # Extract latest score per domain
+    all_domains = list(TOOLS.keys())
+    for d in all_domains:
+        score = _load_recent_score(d)
+        label = TOOLS[d].get("label", d)
+        if score:
+            report += f"### {label}\n{score}\n\n"
+        else:
+            report += f"### {label}\n- 스코어 데이터 없음 (아직 audit 미실행)\n\n"
+
+    report += f"""---
+
+## 전체 Agent Scores 히스토리
+
+{scores_text}
+
+---
+*자동 생성 by codex_auditor.py — {today}*
+"""
+
+    GALRYANG_REPORT.write_text(report, encoding="utf-8")
+    print(f"[codex-auditor] 제갈량 브리핑 업데이트 → {GALRYANG_REPORT}")
 
 
 def _load_recent_verdicts(domain, n=5):
@@ -743,7 +821,10 @@ def _output(verdict, json_only, domain=None, mode=None):
         if _should_score(domain, mode):
             print(f"[codex-auditor] Significant audit complete — scoring agent...")
             _score_agent(domain)
-            _mark_scored(domain)
+            total = _mark_scored(domain)
+            if total % GALRYANG_REPORT_EVERY == 0:
+                print(f"[codex-auditor] {total}회 스코어링 달성 — 제갈량 브리핑 생성 중...")
+                _generate_galryang_report()
     v = verdict.get("verdict", "ERROR")
     sys.exit(0 if v == "PASS" else 1 if v == "FAIL" else 2)
 
