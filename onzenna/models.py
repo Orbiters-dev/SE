@@ -457,6 +457,14 @@ class DiscoveryPost(models.Model):
     outreach_date = models.DateField(null=True, blank=True)
     outreach_notes = models.TextField(blank=True, default="")
 
+    # Content Intelligence (CI) fields — Whisper + GPT-4o Vision
+    scene_fit = models.CharField(max_length=10, blank=True, default="")  # HIGH, MED, LOW
+    has_subtitles = models.BooleanField(null=True, blank=True)
+    brand_fit_score = models.IntegerField(null=True, blank=True)  # 0-10
+    scene_tags = models.CharField(max_length=500, blank=True, default="")  # comma-separated
+    product_mention = models.BooleanField(null=True, blank=True)  # Whisper keyword detected
+    subject_age = models.CharField(max_length=20, blank=True, default="")  # infant(0-2y)/toddler(2-4y)/child(4y+)/none
+
     # Link to PipelineCreator (after outreach begins)
     pipeline_creator_id = models.UUIDField(null=True, blank=True, db_index=True)
 

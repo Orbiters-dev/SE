@@ -445,7 +445,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         <span id="draft-status" style="font-size:11px;color:var(--dim)"></span>
       </div>
       <!-- Priority toggles -->
-      <div style="display:flex;gap:16px;align-items:center;margin-top:8px">
+      <div style="display:flex;gap:16px;align-items:center;margin-top:8px;flex-wrap:wrap">
         <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
           <input type="checkbox" id="draft-video-priority" checked style="width:15px;height:15px;accent-color:var(--a)">
           &#x1F3AC; 영상 우선
@@ -453,6 +453,14 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
           <input type="checkbox" id="draft-view-priority" checked style="width:15px;height:15px;accent-color:var(--a)">
           &#x1F441; View 우선순위
+        </label>
+        <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
+          <input type="checkbox" id="draft-quality-priority" style="width:15px;height:15px;accent-color:var(--a)">
+          &#x2B50; Quality Score 우선
+        </label>
+        <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
+          <input type="checkbox" id="draft-baby-filter" style="width:15px;height:15px;accent-color:var(--a)">
+          &#x1F476; 신생아/영아(0-2y) 등장만
         </label>
         <span style="font-size:9px;color:var(--muted)">ON = 해당 조건의 크리에이터를 배치 상단에 배치</span>
       </div>
@@ -1691,18 +1699,43 @@ function generateDrafts() {
   // Priority toggles — sort eligible list before slicing
   var videoPriority = document.getElementById('draft-video-priority').checked;
   var viewPriority = document.getElementById('draft-view-priority').checked;
-  if (videoPriority || viewPriority) {
-    // Find matching sheet data for views/video info
+  var qualityPriority = document.getElementById('draft-quality-priority').checked;
+  var babyFilter = document.getElementById('draft-baby-filter').checked;
+
+  // Baby filter: only creators who have at least one infant post (subject_age=infant)
+  if (babyFilter) {
+    eligible = eligible.filter(function(c) {
+      var sd = _sheetData.find(function(s) { return s.username === c.username; });
+      if (!sd) return false;
+      var posts = sd.posts || [];
+      return posts.some(function(p) { return p.subject_age === 'infant'; });
+    });
+  }
+
+  if (videoPriority || viewPriority || qualityPriority) {
+    // Find matching sheet data for views/video/quality info
     eligible.forEach(function(c) {
       var sd = _sheetData.find(function(s) { return s.username === c.username; });
       c._hasVideo = sd ? creatorHasVideo(sd) : false;
       c._bestViews = sd ? (sd._bestViews || 0) : 0;
+      // Best brand_fit_score across all analyzed posts
+      if (sd && sd.posts) {
+        var scores = sd.posts.map(function(p) { return p.brand_fit_score || 0; });
+        c._bestQuality = scores.length ? Math.max.apply(null, scores) : 0;
+      } else {
+        c._bestQuality = 0;
+      }
     });
     eligible.sort(function(a, b) {
       // Video creators first (if toggle on)
       if (videoPriority) {
         if (a._hasVideo && !b._hasVideo) return -1;
         if (!a._hasVideo && b._hasVideo) return 1;
+      }
+      // Quality score first (if toggle on)
+      if (qualityPriority) {
+        var qDiff = (b._bestQuality || 0) - (a._bestQuality || 0);
+        if (qDiff !== 0) return qDiff;
       }
       // Higher views first (if toggle on)
       if (viewPriority) {

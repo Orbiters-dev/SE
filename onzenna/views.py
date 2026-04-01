@@ -1771,7 +1771,25 @@ def discovery_posts_list(request):
                 "source": p.get("source", ""),
                 "region": p.get("region", "jp"),
                 "discovery_batch": p.get("discovery_batch", ""),
+                "transcript": p.get("transcript", "") or "",
+                "scene_fit": p.get("scene_fit", "") or "",
+                "has_subtitles": p.get("has_subtitles"),
+                "brand_fit_score": p.get("brand_fit_score"),
+                "scene_tags": p.get("scene_tags", "") or "",
+                "product_mention": p.get("product_mention"),
+                "subject_age": p.get("subject_age", "") or "",
             }
+            # Only update non-None CI fields (don't overwrite existing with None)
+            if defaults["scene_fit"] == "":
+                defaults.pop("scene_fit")
+            if defaults["has_subtitles"] is None:
+                defaults.pop("has_subtitles")
+            if defaults["brand_fit_score"] is None:
+                defaults.pop("brand_fit_score")
+            if defaults["product_mention"] is None:
+                defaults.pop("product_mention")
+            if defaults["subject_age"] == "":
+                defaults.pop("subject_age")
 
             obj, is_new = DiscoveryPost.objects.update_or_create(
                 url=url,
