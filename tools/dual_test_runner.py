@@ -933,46 +933,132 @@ class ExecutorAgent:
 
         return checks, ctx
 
-    # ── Stage 7: Content/Syncly Metrics WF structural check ──────────────
+    # ── Stage 7: Content/Syncly Metrics WF + Crawler Data Quality ──────────
     def _stage_content_check(self):
-        """Stage 7: Content detection + Shipped→Delivered + Delivered→Posted WF check."""
+        """Stage 7: Content WF check + Apify crawler data freshness + quality."""
         checks = []
         ctx = {}
 
         if self.dry_run:
-            checks.append(Check("[7] DRY-RUN: Would check Content/Syncly WFs", True))
+            checks.append(Check("[7] DRY-RUN: Would check Content/Syncly WFs + crawler data", True))
             return checks, ctx
 
+        # ── Part A: n8n WF active checks (existing) ──────────────────────
         wf_targets = {
-            "syncly_metrics":  WJ_WORKFLOWS.get("syncly_metrics", ""),   # FzBJVEOTvr6qJPAL
-            "shipped_delivered": WJ_WORKFLOWS.get("shipped_delivered", ""), # k61gzrshITfju33V
-            "delivered_posted":  WJ_WORKFLOWS.get("delivered_posted", ""),  # tvmHITPHpWFtcmh0
+            "syncly_metrics":  WJ_WORKFLOWS.get("syncly_metrics", ""),
+            "shipped_delivered": WJ_WORKFLOWS.get("shipped_delivered", ""),
+            "delivered_posted":  WJ_WORKFLOWS.get("delivered_posted", ""),
         }
-        if not N8N_API_KEY:
-            checks.append(Check("[7] n8n API key present", None, detail="N8N_API_KEY not set"))
-            return checks, ctx
-
-        for wf_key, wf_id in wf_targets.items():
-            if not wf_id:
-                checks.append(Check(f"[7] n8n WF {wf_key}: skip (no ID)", None))
-                continue
-            url = f"{N8N_BASE_URL}/api/v1/workflows/{wf_id}"
-            headers = {"X-N8N-API-KEY": N8N_API_KEY}
-            status, body = http_request("GET", url, headers=headers)
-            if status == 200 and isinstance(body, dict):
-                active = body.get("active", False)
-                name = body.get("name", "")
-                node_count = len(body.get("nodes", []))
-                info(f"  [7] {wf_key} | name={name} | active={active} | nodes={node_count}")
-                if active:
-                    ok(f"[7] {wf_key} WF active: {name} ({node_count} nodes)")
-                    checks.append(Check(f"[7] n8n WF {wf_key}: active", True, detail=name))
+        if N8N_API_KEY:
+            for wf_key, wf_id in wf_targets.items():
+                if not wf_id:
+                    checks.append(Check(f"[7] n8n WF {wf_key}: skip (no ID)", None))
+                    continue
+                url = f"{N8N_BASE_URL}/api/v1/workflows/{wf_id}"
+                headers = {"X-N8N-API-KEY": N8N_API_KEY}
+                status, body = http_request("GET", url, headers=headers)
+                if status == 200 and isinstance(body, dict):
+                    active = body.get("active", False)
+                    name = body.get("name", "")
+                    node_count = len(body.get("nodes", []))
+                    info(f"  [7] {wf_key} | name={name} | active={active} | nodes={node_count}")
+                    if active:
+                        ok(f"[7] {wf_key} WF active: {name} ({node_count} nodes)")
+                        checks.append(Check(f"[7] n8n WF {wf_key}: active", True, detail=name))
+                    else:
+                        warn(f"[7] {wf_key} WF INACTIVE: {name}")
+                        checks.append(Check(f"[7] n8n WF {wf_key}: active", None, detail="Inactive"))
                 else:
-                    warn(f"[7] {wf_key} WF INACTIVE: {name}")
-                    checks.append(Check(f"[7] n8n WF {wf_key}: active", None, detail="Inactive"))
+                    warn(f"[7] {wf_key} WF check failed: HTTP {status}")
+                    checks.append(Check(f"[7] n8n WF {wf_key}: reachable", None, actual=str(status)))
+        else:
+            checks.append(Check("[7] n8n API key present", None, detail="N8N_API_KEY not set"))
+
+        # ── Part B: Crawler Data Freshness (Data Storage files) ──────────
+        info("[7] Checking Apify crawler data freshness...")
+        import glob as glob_mod
+        from datetime import datetime as dt, timedelta as td
+
+        data_storage = os.path.join(ROOT, "Data Storage", "apify")
+        today = dt.now().strftime("%Y-%m-%d")
+        yesterday = (dt.now() - td(days=1)).strftime("%Y-%m-%d")
+
+        if os.path.isdir(data_storage):
+            # Check for recent files (today or yesterday)
+            regions = ["us", "jp"]
+            file_types = ["tagged_raw", "tiktok_raw", "follower_map"]
+            fresh_count = 0
+            stale_files = []
+
+            for region in regions:
+                for ftype in file_types:
+                    today_file = os.path.join(data_storage, f"{today}_{region}_{ftype}.json")
+                    yesterday_file = os.path.join(data_storage, f"{yesterday}_{region}_{ftype}.json")
+
+                    if os.path.exists(today_file):
+                        fresh_count += 1
+                    elif os.path.exists(yesterday_file):
+                        fresh_count += 1
+                    else:
+                        stale_files.append(f"{region}_{ftype}")
+
+            total_expected = len(regions) * len(file_types)  # 6
+            if fresh_count == total_expected:
+                ok(f"[7] Crawler data: all {fresh_count}/{total_expected} files fresh (<48h)")
+                checks.append(Check("[7] Crawler data freshness", True,
+                                   detail=f"{fresh_count}/{total_expected} fresh"))
+            elif fresh_count > 0:
+                warn(f"[7] Crawler data: {fresh_count}/{total_expected} fresh, stale: {stale_files}")
+                checks.append(Check("[7] Crawler data freshness", None,
+                                   expected=str(total_expected), actual=str(fresh_count),
+                                   detail=f"Stale: {', '.join(stale_files)}"))
+                ctx["crawler_stale_files"] = stale_files
             else:
-                warn(f"[7] {wf_key} WF check failed: HTTP {status}")
-                checks.append(Check(f"[7] n8n WF {wf_key}: reachable", None, actual=str(status)))
+                fail(f"[7] Crawler data: NO recent files found in {data_storage}")
+                checks.append(Check("[7] Crawler data freshness", False,
+                                   expected=">0 fresh", actual="0",
+                                   detail="No files from today or yesterday"))
+                ctx["crawler_stale_files"] = stale_files
+        else:
+            info(f"[7] Data Storage/apify/ not found — skipping freshness check")
+            checks.append(Check("[7] Crawler data directory", None,
+                               detail="Data Storage/apify/ not found"))
+
+        # ── Part C: GitHub Actions apify_daily status ────────────────────
+        info("[7] Checking GitHub Actions apify_daily.yml status...")
+        try:
+            import subprocess
+            result = subprocess.run(
+                ["gh", "run", "list", "--workflow=apify_daily.yml", "--limit=1", "--json",
+                 "status,conclusion,createdAt,headBranch"],
+                capture_output=True, text=True, timeout=10,
+                cwd=ROOT
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                runs = json.loads(result.stdout)
+                if runs:
+                    run = runs[0]
+                    conclusion = run.get("conclusion", "unknown")
+                    created = run.get("createdAt", "?")[:16]
+                    info(f"  [7] apify_daily last run: {conclusion} at {created}")
+                    if conclusion == "success":
+                        ok(f"[7] apify_daily.yml: last run SUCCESS ({created})")
+                        checks.append(Check("[7] GH Actions apify_daily", True,
+                                           detail=f"success at {created}"))
+                    else:
+                        warn(f"[7] apify_daily.yml: last run {conclusion} ({created})")
+                        checks.append(Check("[7] GH Actions apify_daily", False,
+                                           expected="success", actual=conclusion,
+                                           detail=f"at {created}"))
+                        ctx["crawler_gh_action_failed"] = True
+                else:
+                    checks.append(Check("[7] GH Actions apify_daily", None,
+                                       detail="No runs found"))
+            else:
+                checks.append(Check("[7] GH Actions apify_daily", None,
+                                   detail="gh CLI not available or error"))
+        except Exception as e:
+            checks.append(Check("[7] GH Actions apify_daily", None, detail=str(e)[:100]))
 
         return checks, ctx
 
@@ -1522,43 +1608,102 @@ class VerifierAgent:
                 checks.append(Check(f"[V-6] n8n WF {wf_key}: reachable", None, actual=str(status)))
         return checks
 
-    # ── Verify Stage 7: Content/Syncly Metrics WF check ──────────────────
+    # ── Verify Stage 7: Content/Syncly + Crawler Data Quality ──────────────
     def _verify_content_check(self, ctx):
         checks = []
-        info("[V-7] Verifying Stage 7: Content/Syncly Metrics + Shipped/Delivered WFs active")
+        info("[V-7] Verifying Stage 7: Content WFs + Crawler data quality (independent)")
 
         if self.dry_run:
-            checks.append(Check("DRY-RUN: Would verify content_check", True))
+            checks.append(Check("DRY-RUN: Would verify content_check + crawler", True))
             return checks
 
-        if not N8N_API_KEY:
-            checks.append(Check("[V-7] n8n API key present", None, detail="N8N_API_KEY not set"))
-            return checks
-
-        wf_targets = {
-            "syncly_metrics":   WJ_WORKFLOWS.get("syncly_metrics", ""),
-            "shipped_delivered": WJ_WORKFLOWS.get("shipped_delivered", ""),
-            "delivered_posted":  WJ_WORKFLOWS.get("delivered_posted", ""),
-        }
-        for wf_key, wf_id in wf_targets.items():
-            if not wf_id:
-                checks.append(Check(f"[V-7] n8n WF {wf_key}: skip (no ID)", None))
-                continue
-            url = f"{N8N_BASE_URL}/api/v1/workflows/{wf_id}"
-            headers = {"X-N8N-API-KEY": N8N_API_KEY}
-            status, body = http_request("GET", url, headers=headers)
-            if status == 200 and isinstance(body, dict):
-                active = body.get("active", False)
-                name = body.get("name", "")
-                node_count = len(body.get("nodes", []))
-                if active:
-                    ok(f"[V-7] {wf_key} WF active: {name} ({node_count} nodes)")
-                    checks.append(Check(f"[V-7] n8n WF {wf_key}: active", True, detail=name))
+        # Part A: n8n WF verification
+        if N8N_API_KEY:
+            wf_targets = {
+                "syncly_metrics":   WJ_WORKFLOWS.get("syncly_metrics", ""),
+                "shipped_delivered": WJ_WORKFLOWS.get("shipped_delivered", ""),
+                "delivered_posted":  WJ_WORKFLOWS.get("delivered_posted", ""),
+            }
+            for wf_key, wf_id in wf_targets.items():
+                if not wf_id:
+                    checks.append(Check(f"[V-7] n8n WF {wf_key}: skip (no ID)", None))
+                    continue
+                url = f"{N8N_BASE_URL}/api/v1/workflows/{wf_id}"
+                headers = {"X-N8N-API-KEY": N8N_API_KEY}
+                status, body = http_request("GET", url, headers=headers)
+                if status == 200 and isinstance(body, dict):
+                    active = body.get("active", False)
+                    name = body.get("name", "")
+                    node_count = len(body.get("nodes", []))
+                    if active:
+                        ok(f"[V-7] {wf_key} WF active: {name} ({node_count} nodes)")
+                        checks.append(Check(f"[V-7] n8n WF {wf_key}: active", True, detail=name))
+                    else:
+                        warn(f"[V-7] {wf_key} WF INACTIVE: {name}")
+                        checks.append(Check(f"[V-7] n8n WF {wf_key}: active", None, detail="Inactive"))
                 else:
-                    warn(f"[V-7] {wf_key} WF INACTIVE: {name}")
-                    checks.append(Check(f"[V-7] n8n WF {wf_key}: active", None, detail="Inactive"))
+                    checks.append(Check(f"[V-7] n8n WF {wf_key}: reachable", None, actual=str(status)))
+        else:
+            checks.append(Check("[V-7] n8n API key present", None, detail="N8N_API_KEY not set"))
+
+        # Part B: Independent crawler data cross-check
+        info("[V-7] Cross-checking crawler data independently...")
+        executor_stale = ctx.get("crawler_stale_files", [])
+        executor_gh_failed = ctx.get("crawler_gh_action_failed", False)
+
+        # Verifier independently checks Data Storage
+        import glob as glob_mod
+        from datetime import datetime as dt, timedelta as td
+        data_storage = os.path.join(ROOT, "Data Storage", "apify")
+
+        if os.path.isdir(data_storage):
+            today = dt.now().strftime("%Y-%m-%d")
+            yesterday = (dt.now() - td(days=1)).strftime("%Y-%m-%d")
+
+            # Find the most recent file
+            all_files = sorted(glob_mod.glob(os.path.join(data_storage, "*.json")), reverse=True)
+            if all_files:
+                newest = os.path.basename(all_files[0])
+                newest_date = newest[:10]  # YYYY-MM-DD prefix
+                try:
+                    file_age = (dt.now() - dt.strptime(newest_date, "%Y-%m-%d")).days
+                except ValueError:
+                    file_age = 99
+
+                if file_age <= 1:
+                    ok(f"[V-7] Crawler newest file: {newest} (age: {file_age}d)")
+                    checks.append(Check("[V-7] Crawler data age", True,
+                                       detail=f"newest: {newest}, {file_age}d old"))
+                elif file_age <= 3:
+                    warn(f"[V-7] Crawler data aging: {newest} ({file_age}d old)")
+                    checks.append(Check("[V-7] Crawler data age", None,
+                                       expected="<2d", actual=f"{file_age}d",
+                                       detail=f"newest: {newest}"))
+                else:
+                    fail(f"[V-7] Crawler data STALE: {newest} ({file_age}d old)")
+                    checks.append(Check("[V-7] Crawler data age", False,
+                                       expected="<2d", actual=f"{file_age}d",
+                                       detail=f"newest: {newest}"))
+
+                # Cross-check with executor's findings
+                if executor_stale:
+                    info(f"[V-7] Executor reported stale: {executor_stale}")
+                    checks.append(Check("[V-7] Executor stale files confirmed", None,
+                                       detail=f"Stale: {', '.join(executor_stale)}"))
+
+                # File count sanity
+                recent_files = [f for f in all_files if os.path.basename(f)[:10] in (today, yesterday)]
+                checks.append(Check(f"[V-7] Recent crawler files count", len(recent_files) >= 3,
+                                   expected=">=3", actual=str(len(recent_files)),
+                                   detail=f"{len(recent_files)} files from today/yesterday"))
             else:
-                checks.append(Check(f"[V-7] n8n WF {wf_key}: reachable", None, actual=str(status)))
+                fail("[V-7] No crawler files found in Data Storage/apify/")
+                checks.append(Check("[V-7] Crawler files exist", False,
+                                   expected=">0", actual="0"))
+        else:
+            checks.append(Check("[V-7] Crawler data dir", None,
+                               detail="Data Storage/apify/ not found"))
+
         return checks
 
 
