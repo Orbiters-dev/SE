@@ -1110,51 +1110,69 @@ function renderHeroTab(F){
         var glx=padL+(n-1)*(bw+1)+bw/2,gly=padT+topH-gscD[n-1]/gscMax*topH*0.4;
         html+='<text x="'+(glx+6)+'" y="'+(gly+3)+'" fill="#f59e0b" font-size="7" font-weight="600" opacity="0.7">GSC</text>';
       }
-      // SFR dots overlay on sales chart (inverted: lower rank = higher on chart)
+      // SFR dots overlay — branded keywords only, consistent week dates
       if(c.top_keywords&&c.top_keywords.length){
-        // Pick top 3 keywords by click_share that have rank_weekly data
-        var sfrKws=c.top_keywords.filter(function(kw){return kw.rank_weekly&&kw.rank_weekly.length&&kw.rank_week_labels&&kw.rank_week_labels.length;}).slice(0,3);
+        // Only branded keywords: must contain brand slug or known variant
+        var _bSlug=(c.brand||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+        var _bVariants={'grosmimi':['grosmimi','grosmini','grossini','gros mimi'],'naeiae':['naeiae','nae iae'],'chanom':['cha&mom','chaenmom','commemoi'],'alpremio':['alpremio']};
+        var _bVarList=_bVariants[_bSlug]||[_bSlug];
+        var sfrKws=c.top_keywords.filter(function(kw){
+          if(!kw.rank_weekly||!kw.rank_weekly.length||!kw.rank_week_labels||!kw.rank_week_labels.length)return false;
+          var kl=kw.keyword.toLowerCase();
+          return _bVarList.some(function(v){return kl.indexOf(v)>=0;});
+        }).slice(0,4);
         if(sfrKws.length){
-          var SFR_COLORS=['#f59e0b','#f97316','#eab308'];
-          // Find overall SFR range for Y scale
+          var SFR_COLORS=['#f59e0b','#f97316','#a855f7','#eab308'];
+          // Collect ALL unique week dates across all SFR keywords → unified X positions
+          var sfrWkSet={};
+          sfrKws.forEach(function(kw){kw.rank_week_labels.forEach(function(w){sfrWkSet[w]=true;});});
+          var sfrWks=Object.keys(sfrWkSet).sort();
+          // Find overall SFR range
           var sfrAll=[];sfrKws.forEach(function(kw){kw.rank_weekly.forEach(function(v){if(v)sfrAll.push(v);});});
           var sfrMin=Math.min.apply(null,sfrAll)||1,sfrMax=Math.max.apply(null,sfrAll)||1;
           if(sfrMin===sfrMax){sfrMin=Math.round(sfrMin*0.8);sfrMax=Math.round(sfrMax*1.2);}
-          function sfrY(r){return padT+topH*(1-(sfrMax-r)/(sfrMax-sfrMin))*0.85+topH*0.05;}
+          // Inverted Y: lower SFR number = more searched = HIGHER on chart
+          function sfrY(r){return padT+topH*0.1+topH*0.8*(r-sfrMin)/(sfrMax-sfrMin);}
+          // Map each BA week date to nearest X position in daily axis
+          var wkX={};
+          sfrWks.forEach(function(wdate){
+            var bestDi=0,bestDiff=999999;
+            for(var di=0;di<n;di++){
+              var diff=Math.abs(new Date(dates[di])-new Date(wdate));
+              if(diff<bestDiff){bestDiff=diff;bestDi=di;}
+            }
+            wkX[wdate]=padL+bestDi*(bw+1)+bw/2;
+          });
+          // Y-axis ticks (SFR scale on right)
+          [sfrMin,Math.round((sfrMin+sfrMax)/2),sfrMax].forEach(function(v){
+            var y=sfrY(v);
+            var vStr=v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?Math.round(v/1000)+'K':''+v;
+            html+='<text x="'+(chartW-padR+4)+'" y="'+(y+3)+'" fill="#f59e0b" font-size="6" font-family="var(--mono)" opacity="0.55">'+vStr+'</text>';
+          });
+          html+='<text x="'+(chartW-padR+4)+'" y="'+(padT+8)+'" fill="#f59e0b" font-size="6" font-weight="700" opacity="0.7">SFR↓better</text>';
           sfrKws.forEach(function(kw,ki){
-            var col=SFR_COLORS[ki];
+            var col=SFR_COLORS[ki%SFR_COLORS.length];
+            var kwMap={};
+            kw.rank_week_labels.forEach(function(w,wi){kwMap[w]=kw.rank_weekly[wi];});
             var pts=[];
-            kw.rank_week_labels.forEach(function(wdate,wi){
-              // Find x position: match week date to daily dates array
-              var bestDi=-1,bestDiff=999999;
-              for(var di=0;di<n;di++){
-                var diff=Math.abs(new Date(dates[di])-new Date(wdate));
-                if(diff<bestDiff){bestDiff=diff;bestDi=di;}
-              }
-              if(bestDi>=0){
-                var x=padL+bestDi*(bw+1)+bw/2,y=sfrY(kw.rank_weekly[wi]);
-                pts.push({x:x,y:y,v:kw.rank_weekly[wi],date:wdate});
+            sfrWks.forEach(function(w){
+              if(kwMap[w]!=null){
+                pts.push({x:wkX[w],y:sfrY(kwMap[w]),v:kwMap[w]});
               }
             });
-            // Connect dots with dashed line
             if(pts.length>1){
-              var pstr=pts.map(function(p){return p.x+','+p.y;}).join(' ');
-              html+='<polyline points="'+pstr+'" fill="none" stroke="'+col+'" stroke-width="1" stroke-dasharray="3,2" opacity="0.6"/>';
+              html+='<polyline points="'+pts.map(function(p){return p.x+','+p.y;}).join(' ')+'" fill="none" stroke="'+col+'" stroke-width="1.5" stroke-dasharray="4,2" opacity="0.7"/>';
             }
             pts.forEach(function(p){
               var vStr=p.v>=1000000?(p.v/1000000).toFixed(1)+'M':p.v>=1000?Math.round(p.v/1000)+'K':''+p.v;
-              html+='<circle cx="'+p.x+'" cy="'+p.y+'" r="3.5" fill="'+col+'" opacity="0.85"/>';
-              html+='<text x="'+p.x+'" y="'+(p.y-6)+'" fill="'+col+'" font-size="7" font-family="var(--mono)" text-anchor="middle" opacity="0.9">'+vStr+'</text>';
+              html+='<circle cx="'+p.x+'" cy="'+p.y+'" r="4" fill="'+col+'" stroke="#fff" stroke-width="1" opacity="0.9"/>';
+              html+='<text x="'+p.x+'" y="'+(p.y-7)+'" fill="'+col+'" font-size="7" font-family="var(--mono)" text-anchor="middle" font-weight="700">'+vStr+'</text>';
             });
-            // End label (keyword name)
             if(pts.length){
               var lp=pts[pts.length-1];
-              html+='<text x="'+(lp.x+6)+'" y="'+(lp.y+3)+'" fill="'+col+'" font-size="7" font-weight="600" opacity="0.8">'+kw.keyword.substring(0,18)+'</text>';
+              html+='<text x="'+(lp.x+8)+'" y="'+(lp.y+3)+'" fill="'+col+'" font-size="7" font-weight="700">'+kw.keyword+'</text>';
             }
           });
-          // SFR Y-axis label on right
-          var sfrYmid=sfrY((sfrMin+sfrMax)/2);
-          html+='<text x="'+(chartW-padR+6)+'" y="'+(sfrYmid)+'" fill="#f59e0b" font-size="7" font-weight="600" opacity="0.6">SFR</text>';
         }
       }
       // Sessions line overlay on sales chart
