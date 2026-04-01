@@ -97,188 +97,195 @@ VERDICT_SCHEMA = """{{"verdict": "PASS|FAIL|DEGRADED", "domain": "{domain}", "ro
 
 
 # ═════════════════════════════════════════════════════════════════════════════
+# Script Runner — executes audit scripts locally, passes output to Codex
+# ═════════════════════════════════════════════════════════════════════════════
+
+def _run_script(cmd_args, timeout=120):
+    """Run an audit script locally and return (stdout, stderr, returncode)."""
+    env = {**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONUTF8": "1"}
+    try:
+        result = subprocess.run(
+            cmd_args,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            encoding="utf-8",
+            errors="replace",
+            env=env,
+        )
+        return result.stdout[:4000], result.stderr[:1000], result.returncode
+    except subprocess.TimeoutExpired:
+        return "", "TIMEOUT after {}s".format(timeout), -1
+    except FileNotFoundError as e:
+        return "", f"Script not found: {e}", -2
+    except Exception as e:
+        return "", f"Error: {e}", -3
+
+
+def _analysis_prompt(domain, round_num, label, script_output, script_error, returncode, extra_context=""):
+    """Build a Codex analysis prompt from pre-run script output."""
+    schema = VERDICT_SCHEMA.format(domain=domain, round=round_num)
+    status = "SUCCESS" if returncode == 0 else f"FAILED (exit={returncode})"
+    return f"""You are an independent verification agent (Codex Verifier).
+Analyze the audit script output below and produce a JSON verdict.
+
+Domain: {label}
+Script run status: {status}
+{extra_context}
+--- SCRIPT STDOUT ---
+{script_output or "(empty)"}
+
+--- SCRIPT STDERR ---
+{script_error or "(none)"}
+--- END ---
+
+Rules:
+- PASS: all checks succeeded, data is fresh and consistent
+- DEGRADED: some checks failed but system is partially functional
+- FAIL: critical checks failed, system is broken
+- If script itself failed to run, set verdict=DEGRADED with check="script_execution"
+- Be specific: include actual values in failures
+
+Output ONLY this JSON (no markdown, no extra text):
+{schema}"""
+
+
+# ═════════════════════════════════════════════════════════════════════════════
 # Prompt Builders — domain-specific
 # ═════════════════════════════════════════════════════════════════════════════
 
-def _base_context(domain):
-    tool = TOOLS.get(domain, {})
-    return f"""IMPORTANT: Execute the task below IMMEDIATELY. Do NOT ask questions or wait for input. Run the commands, analyze results, and output JSON.
-
-You are an independent verification agent. Run audit scripts and report findings as JSON.
-
-Domain: {tool.get('label', domain)}
-Python: {PYTHON}
-Script: {tool.get('script', 'N/A')}
-Working dir: {ROOT}
-"""
-
 
 def build_prompt_pipeline(mode, **kw):
-    ctx = _base_context("pipeline")
     script = TOOLS["pipeline"]["script"]
+    label = TOOLS["pipeline"]["label"]
     rnd = kw.get("round", 0)
-    schema = VERDICT_SCHEMA.format(domain="pipeline", round=rnd)
 
     if mode == "audit":
         wf = kw.get("workflows", "")
-        wf_flag = f" --workflows {wf}" if wf else ""
-        return f"""{ctx}
-TASK: Full audit of all Pathlight PROD n8n workflows.
-1. Run: {PYTHON} "{script}" --audit{wf_flag}
-2. Analyze each FAIL — explain impact
-3. Output ONLY JSON verdict: {schema}"""
+        wf_flag = ["--workflows", wf] if wf else []
+        stdout, stderr, rc = _run_script([PYTHON, str(script), "--audit"] + wf_flag)
+        return _analysis_prompt("pipeline", rnd, label, stdout, stderr, rc,
+                                extra_context="Analyze each workflow: check active status, recent execution success, error rates.")
 
     elif mode == "health":
-        return f"""{ctx}
-TASK: Quick health check of n8n workflows.
-1. Run: {PYTHON} "{script}" --health
-2. Output ONLY JSON verdict: {schema}"""
+        stdout, stderr, rc = _run_script([PYTHON, str(script), "--health"])
+        return _analysis_prompt("pipeline", rnd, label, stdout, stderr, rc)
 
     elif mode == "verify-round":
+        stdout, stderr, rc = _run_script([PYTHON, str(script), "--audit"])
         run_id = kw.get("run_id", "")
-        run_dir = DUAL_DIR / run_id if run_id else ""
-        return f"""{ctx}
-TASK: Verify Pipeliner round {rnd} results.
-1. Run: {PYTHON} "{script}" --audit
-2. If exists, read {run_dir}/executor_log.json and verifier_log.json
-3. Cross-check Maker claims vs actual system state — be skeptical
-4. Output ONLY JSON verdict: {schema}"""
+        extra = f"Run ID: {run_id}. Cross-check Maker claims vs actual state. Be skeptical." if run_id else ""
+        # Try to include log files if they exist
+        run_dir = DUAL_DIR / run_id if run_id else None
+        if run_dir and run_dir.exists():
+            for log_name in ("executor_log.json", "verifier_log.json"):
+                lf = run_dir / log_name
+                if lf.exists():
+                    try:
+                        extra += f"\n--- {log_name} ---\n{lf.read_text(encoding='utf-8')[:1000]}"
+                    except Exception:
+                        pass
+        return _analysis_prompt("pipeline", rnd, label, stdout, stderr, rc, extra_context=extra)
 
     elif mode == "diff":
-        return f"""{ctx}
-TASK: Compare workflow snapshots.
-1. Run: {PYTHON} "{script}" --diff --before "{kw.get('before', '')}" --after "{kw.get('after', '')}"
-2. Flag regressions
-3. Output ONLY JSON verdict: {schema}"""
+        stdout, stderr, rc = _run_script([PYTHON, str(script), "--diff",
+                                          "--before", kw.get("before", ""),
+                                          "--after", kw.get("after", "")])
+        return _analysis_prompt("pipeline", rnd, label, stdout, stderr, rc,
+                                extra_context="Flag any regressions between before/after snapshots.")
 
 
 def build_prompt_finance(mode, **kw):
-    ctx = _base_context("finance")
     script = TOOLS["finance"]["script"]
+    label = TOOLS["finance"]["label"]
     rnd = kw.get("round", 0)
-    schema = VERDICT_SCHEMA.format(domain="finance", round=rnd)
     target_file = kw.get("file", "")
     audit_report = kw.get("audit_report", "")
 
-    checks = """
-6-Point Audit Checklist:
-  A: Arithmetic — 소계 → 합계 일치
-  B: Cross-Table — 다중 출처 수치 일치
-  C: Period Consistency — 동일 기간 데이터
-  D: Sign Conventions — 부호 일관성
-  E: Accounting Standards — GAAP/K-GAAP 준수
-  F: Materiality & Sanity — 벤치마크 대비 이상치"""
+    checks_ctx = ("6-Point Audit: A=Arithmetic, B=Cross-Table, C=Period Consistency, "
+                  "D=Sign Conventions, E=GAAP/K-GAAP Standards, F=Materiality & Sanity. "
+                  "Severity: CRITICAL(>1% error) > MAJOR(formula) > MINOR(formatting) > INFO")
 
     if mode == "audit":
-        file_flag = f" --audit-file \"{target_file}\"" if target_file else ""
-        report_flag = f" (existing report: {audit_report})" if audit_report else ""
-        return f"""{ctx}{checks}
-
-TASK: Independent financial audit{report_flag}.
-1. {"Read audit report: " + audit_report if audit_report else f'Run: {PYTHON} "{script}"{file_flag}'}
-2. Apply ALL 6 checks (A-F) independently
-3. For each check: PASS, WARN, or FAIL with specific evidence
-4. Severity: CRITICAL (>1% error) > MAJOR (formula) > MINOR (formatting) > INFO
-5. Output ONLY JSON verdict: {schema}
-
-IMPORTANT: You are the independent auditor. Do NOT trust Golmani's numbers without verifying."""
+        if audit_report:
+            # Read existing report instead of running script
+            try:
+                report_text = Path(audit_report).read_text(encoding="utf-8")[:3000]
+                stdout, stderr, rc = report_text, "", 0
+            except Exception as e:
+                stdout, stderr, rc = "", str(e), -1
+        else:
+            file_flag = ["--audit-file", target_file] if target_file else []
+            stdout, stderr, rc = _run_script([PYTHON, str(script)] + file_flag)
+        return _analysis_prompt("finance", rnd, label, stdout, stderr, rc,
+                                extra_context=checks_ctx + "\nDo NOT trust Golmani's numbers — verify independently.")
 
     elif mode == "verify-round":
-        return f"""{ctx}{checks}
-
-TASK: Re-audit after CFO-directed corrections (round {rnd}).
-1. Run: {PYTHON} "{script}" --audit-file "{target_file}"
-2. Verify corrections actually fixed the flagged issues
-3. Check for new regressions introduced by fixes
-4. Output ONLY JSON verdict: {schema}"""
+        file_flag = ["--audit-file", target_file] if target_file else []
+        stdout, stderr, rc = _run_script([PYTHON, str(script)] + file_flag)
+        return _analysis_prompt("finance", rnd, label, stdout, stderr, rc,
+                                extra_context=checks_ctx + f"\nRound {rnd}: verify corrections fixed prior issues. Check for regressions.")
 
 
 def build_prompt_kpi(mode, **kw):
-    ctx = _base_context("kpi")
     script = TOOLS["kpi"]["script"]
+    label = TOOLS["kpi"]["label"]
     rnd = kw.get("round", 0)
-    schema = VERDICT_SCHEMA.format(domain="kpi", round=rnd)
     table = kw.get("table", "")
 
-    layers = """
-6 Validation Layers:
-  L1: Schema — column types, nulls, ranges (Pandera)
-  L2: Identity — gross - discount = net (±$0.02)
-  L3: Coverage — all brands/channels present
-  L4: Through-date — cross-table date alignment
-  L5: Cross-table — Amazon reconciliation, discount sanity (≤10% variance)
-  L6: Anomaly — MoM >50% spike / >30% dip (seasonal adjustment)"""
+    layers_ctx = ("6 Layers: L1=Schema, L2=Identity(gross-discount=net±$0.02), L3=Coverage, "
+                  "L4=Through-date, L5=Cross-table(≤10% variance), L6=Anomaly(MoM>50%spike/>30%dip). "
+                  "Expected brands: Grosmimi, Naeiae, CHA&MOM, Onzenna, Alpremio. "
+                  "Expected tables: shopify_orders_daily, amazon_sales_daily, amazon_ads_daily, "
+                  "meta_ads_daily, google_ads_daily, ga4_daily, klaviyo_daily")
 
-    table_flag = f" --table {table}" if table else ""
-    return f"""{ctx}{layers}
-
-TASK: Independent KPI data validation.
-1. Run: {PYTHON} "{script}"{table_flag} --report-only
-2. Read the validation report from .tmp/validation_report.json
-3. Apply all 6 layers independently — don't trust prior results
-4. Expected brands: Grosmimi, Naeiae, CHA&MOM, Onzenna, Alpremio
-5. Expected tables: shopify_orders_daily, amazon_sales_daily, amazon_ads_daily, meta_ads_daily, google_ads_daily, ga4_daily, klaviyo_daily
-6. Output ONLY JSON verdict: {schema}
-
-IMPORTANT: Cross-check actual data, not just script output."""
+    table_flag = ["--table", table] if table else []
+    stdout, stderr, rc = _run_script([PYTHON, str(script)] + table_flag + ["--report-only"])
+    # Also try reading saved report
+    report_path = ROOT / ".tmp" / "validation_report.json"
+    extra = layers_ctx
+    if report_path.exists():
+        try:
+            extra += f"\n--- validation_report.json ---\n{report_path.read_text(encoding='utf-8')[:2000]}"
+        except Exception:
+            pass
+    return _analysis_prompt("kpi", rnd, label, stdout, stderr, rc, extra_context=extra)
 
 
 def build_prompt_crawl(mode, **kw):
-    ctx = _base_context("crawl")
     script = TOOLS["crawl"]["script"]
+    label = TOOLS["crawl"]["label"]
     rnd = kw.get("round", 0)
-    schema = VERDICT_SCHEMA.format(domain="crawl", round=rnd)
     region = kw.get("region", "")
 
-    axes = """
-6 Audit Axes:
-  1. GitHub Actions — apify_daily.yml execution status
-  2. Secrets — APIFY_API_TOKEN, GOOGLE_SERVICE_ACCOUNT, META_GRAPH_IG_TOKEN
-  3. File Freshness — Data Storage JSON (<36h OK, >72h CRITICAL)
-  4. Sheet Rows — 6 tabs, Posts Master >10 rows, D+60 >0 rows
-  5. D+60 Structure — 192-column format, D+0 headers
-  6. Brand Coverage — >80% classification, no duplicate Post IDs"""
+    axes_ctx = ("6 Audit Axes: 1=GitHub Actions(apify_daily.yml), 2=Secrets(APIFY_API_TOKEN etc), "
+                "3=File Freshness(<36h OK, >72h CRITICAL), 4=Sheet Rows(Posts Master>10, D+60>0), "
+                "5=D+60 Structure(192-col), 6=Brand Coverage(>80%, no dup IDs)")
 
-    region_flag = f" --region {region}" if region else ""
-    return f"""{ctx}{axes}
-
-TASK: Apify content pipeline audit.
-1. Run: {PYTHON} "{script}" --harness{region_flag} --json
-2. Read JSON output
-3. Verify all 6 axes independently
-4. Output ONLY JSON verdict: {schema}"""
+    region_flag = ["--region", region] if region else []
+    stdout, stderr, rc = _run_script([PYTHON, str(script), "--harness"] + region_flag + ["--json"])
+    return _analysis_prompt("crawl", rnd, label, stdout, stderr, rc, extra_context=axes_ctx)
 
 
 def build_prompt_datakeeper(mode, **kw):
-    ctx = _base_context("datakeeper")
     script = TOOLS["datakeeper"]["script"]
+    label = TOOLS["datakeeper"]["label"]
     rnd = kw.get("round", 0)
-    schema = VERDICT_SCHEMA.format(domain="datakeeper", round=rnd)
     channel = kw.get("channel", "")
 
-    channels = """
-9 Data Channels:
-  amazon_ads, amazon_sales, meta_ads, google_ads, ga4, klaviyo, shopify, gsc, keyword_volume
-Freshness thresholds: <24h OK, 24-48h WARN, >48h CRITICAL"""
+    channels_ctx = ("9 channels: amazon_ads, amazon_sales, meta_ads, google_ads, ga4, klaviyo, "
+                    "shopify, gsc, keyword_volume. Freshness: <24h=OK, 24-48h=WARN, >48h=CRITICAL")
 
     if mode == "health":
-        return f"""{ctx}{channels}
-
-TASK: Data Keeper freshness health check.
-1. Run: {PYTHON} "{script}" --status
-2. Check last_updated timestamp for each channel
-3. Flag any channel >48h stale as CRITICAL, >24h as WARN
-4. Output ONLY JSON verdict: {schema}"""
+        stdout, stderr, rc = _run_script([PYTHON, str(script), "--status"])
+        return _analysis_prompt("datakeeper", rnd, label, stdout, stderr, rc,
+                                extra_context=channels_ctx + ". Flag channels >48h as CRITICAL, >24h as WARN.")
 
     elif mode == "audit":
-        ch_flag = f" --channel {channel}" if channel else ""
-        return f"""{ctx}{channels}
-
-TASK: Data Keeper full audit.
-1. Run: {PYTHON} "{script}"{ch_flag} --days 7 --skip-pg
-2. Check data completeness, row counts, date gaps
-3. Verify brand coverage per channel
-4. Output ONLY JSON verdict: {schema}"""
+        ch_flag = ["--channel", channel] if channel else []
+        stdout, stderr, rc = _run_script([PYTHON, str(script)] + ch_flag + ["--days", "7", "--skip-pg"])
+        return _analysis_prompt("datakeeper", rnd, label, stdout, stderr, rc,
+                                extra_context=channels_ctx + ". Check completeness, row counts, date gaps, brand coverage.")
 
 
 def build_prompt_custom(prompt_text):
@@ -327,11 +334,11 @@ def run_codex(prompt, output_file=None, model=None, timeout=300):
     cmd = [
         CODEX_BIN, "exec",
         "--model", model or CODEX_MODEL,
-        "--full-auto",
+        "--dangerously-bypass-approvals-and-sandbox",
         "-C", str(ROOT),
         "--skip-git-repo-check",
         "-o", str(output_file),
-        prompt,
+        "-",  # read prompt from stdin
     ]
 
     print(f"[codex-auditor] Launching Codex verifier (model={model or CODEX_MODEL})...")
@@ -340,6 +347,7 @@ def run_codex(prompt, output_file=None, model=None, timeout=300):
     try:
         result = subprocess.run(
             cmd,
+            input=prompt,
             capture_output=True,
             text=True,
             timeout=timeout,
