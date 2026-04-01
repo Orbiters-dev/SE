@@ -1278,11 +1278,16 @@ function renderHeroTab(F){
       var gscD=_allGsc.slice(-pDays);
       var sessD=_allSess.slice(-pDays);
       var pvD=_allPv.slice(-pDays);
-      // Slice creator daily_views to match period
-      var slicedCreators=catCreators.map(function(cr){
+      // Filter creators: only those uploaded within the period, slice daily_views
+      var periodStart=dates[0]||'';
+      var slicedCreators=catCreators.filter(function(cr){
+        // Keep creators with upload_date within chart period (or no date = keep)
+        if(!cr.upload_date)return true;
+        return cr.upload_date>=periodStart;
+      }).map(function(cr){
         return {username:cr.username,brand:cr.brand,platform:cr.platform,total_views:cr.total_views,
           upload_date:cr.upload_date||'',daily_views:cr.daily_views.slice(-pDays)};
-      });
+      }).slice(0,10);
       var n=ds.length;
       var hasContent=catCreators.length>0||(vw.length&&vw.reduce(function(a,b){return a+b},0)>0);
       var INF_COLORS=['#3b82f6','#ec4899','#f97316','#14b8a6','#6366f1','#ef4444','#a855f7','#eab308','#0ea5e9','#84cc16'];
@@ -1642,14 +1647,14 @@ function renderHeroTab(F){
         if(wkSlice.length){
           html+='<table style="margin-top:6px;font-size:10px"><thead><tr><th style="min-width:90px">Metric</th>';
           wkSlice.forEach(function(w){html+='<th style="text-align:right;font-size:9px">'+w+'</th>';});
-          html+='<th style="text-align:right;font-size:9px;color:var(--g)">Total</th>';
+          // Total column removed
           html+='</tr></thead><tbody>';
           html+='<tr><td style="font-weight:600;color:var(--g)">Sales ($)</td>';
           wkSlice.forEach(function(w,wi){var v=c.sales_weekly[wkOffset+wi]||0;html+='<td style="text-align:right;font-family:var(--mono)">$'+v.toLocaleString()+'</td>';});
-          html+='<td style="text-align:right;font-family:var(--mono);font-weight:700;color:var(--g)">$'+c.sales_30d.toLocaleString()+'</td></tr>';
+          html+='</tr>';
           html+='<tr><td style="font-weight:600;color:var(--dim)">Units</td>';
           wkSlice.forEach(function(w,wi){var v=c.units_weekly[wkOffset+wi]||0;html+='<td style="text-align:right;font-family:var(--mono)">'+v.toLocaleString()+'</td>';});
-          html+='<td style="text-align:right;font-family:var(--mono);font-weight:700">'+c.units_30d.toLocaleString()+'</td></tr>';
+          html+='</tr>';
           // Per-creator rows: weekly new views (sum of daily within week) + Total Views column
           crDeltaArr.forEach(function(x,ci){
             var allDv=x.cr.daily_views;
@@ -1664,9 +1669,6 @@ function renderHeroTab(F){
               for(var d=wkIdx*7;d<Math.min((wkIdx+1)*7,allDv.length);d++){weekTotal+=(allDv[d]||0);}
               html+='<td style="text-align:right;font-family:var(--mono)">'+(weekTotal>0?weekTotal.toLocaleString():'—')+'</td>';
             });
-            // Total Views column (all-time max)
-            var tv=x.cr.total_views||0;
-            html+='<td style="text-align:right;font-family:var(--mono);font-weight:700;color:'+_col+'">'+(tv>0?tv.toLocaleString():'—')+'</td>';
             html+='</tr>';
           });
           // GSC weekly

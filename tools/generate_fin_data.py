@@ -3492,23 +3492,7 @@ def generate():
                         "daily_views": [dv.get(d, 0) for d in daily_dates],
                     })
             totals.sort(key=lambda x: -x["total_views"])
-            top10 = totals[:10]
-            # "Others" row — aggregate remaining creators
-            if len(totals) > 10:
-                others_dv = [0] * len(daily_dates)
-                others_total = 0
-                for t in totals[10:]:
-                    others_total += t["total_views"]
-                    for i, v in enumerate(t["daily_views"]):
-                        others_dv[i] += v
-                top10.append({
-                    "username": "Others (" + str(len(totals) - 10) + ")",
-                    "brand": "", "platform": "",
-                    "total_views": others_total,
-                    "upload_date": "",
-                    "daily_views": others_dv,
-                })
-            content_creators_by_cat[cat] = top10
+            content_creators_by_cat[cat] = totals[:15]  # Top 15, frontend filters by period
 
         total_creators = sum(len(v) for v in content_creators_by_cat.values())
         print(f"  Content by creator: {total_creators} creator-category entries across {len(content_creators_by_cat)} categories")
