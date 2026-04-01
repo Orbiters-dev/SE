@@ -440,6 +440,18 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         </button>
         <span id="draft-status" style="font-size:11px;color:var(--dim)"></span>
       </div>
+      <!-- Priority toggles -->
+      <div style="display:flex;gap:16px;align-items:center;margin-top:8px">
+        <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
+          <input type="checkbox" id="draft-video-priority" checked style="width:15px;height:15px;accent-color:var(--a)">
+          &#x1F3AC; 영상 우선
+        </label>
+        <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
+          <input type="checkbox" id="draft-view-priority" checked style="width:15px;height:15px;accent-color:var(--a)">
+          &#x1F441; View 우선순위
+        </label>
+        <span style="font-size:9px;color:var(--muted)">ON = 해당 조건의 크리에이터를 배치 상단에 배치</span>
+      </div>
     </div>
 
     <!-- Execute bar -->
@@ -1642,6 +1654,29 @@ function generateDrafts() {
   });
   var skippedCount = _creators.filter(function(c) { return c.status === 'not_started' && hasPastContact(c); }).length;
   if (skippedCount > 0) statusEl.textContent = skippedCount + ' creators skipped (already contacted). ';
+  // Priority toggles — sort eligible list before slicing
+  var videoPriority = document.getElementById('draft-video-priority').checked;
+  var viewPriority = document.getElementById('draft-view-priority').checked;
+  if (videoPriority || viewPriority) {
+    // Find matching sheet data for views/video info
+    eligible.forEach(function(c) {
+      var sd = _sheetData.find(function(s) { return s.username === c.username; });
+      c._hasVideo = sd ? creatorHasVideo(sd) : false;
+      c._bestViews = sd ? (sd._bestViews || 0) : 0;
+    });
+    eligible.sort(function(a, b) {
+      // Video creators first (if toggle on)
+      if (videoPriority) {
+        if (a._hasVideo && !b._hasVideo) return -1;
+        if (!a._hasVideo && b._hasVideo) return 1;
+      }
+      // Higher views first (if toggle on)
+      if (viewPriority) {
+        return (b._bestViews || 0) - (a._bestViews || 0);
+      }
+      return 0;
+    });
+  }
   var batch = parseInt(document.getElementById('draft-batch-size').value) || 10;
   var toGenerate = eligible.slice(0, batch);
 
