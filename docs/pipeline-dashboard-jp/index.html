@@ -2115,6 +2115,11 @@ function goToStage(status) {
     }
     filterCreators();
   }
+  // Scroll to creators area so cards are visible
+  setTimeout(function() {
+    var cards = document.getElementById('creators-cards');
+    if (cards) cards.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
 }
 
 function showToast(msg, type) {
