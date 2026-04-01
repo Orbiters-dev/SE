@@ -122,16 +122,71 @@ def _run_script(cmd_args, timeout=120):
         return "", f"Error: {e}", -3
 
 
+# Domain → mistakes.md section heading keywords
+DOMAIN_MISTAKE_KEYWORDS = {
+    "pipeline": ["파이프라이너", "n8n"],
+    "finance": ["골만이", "Financial Dashboard", "CFO"],
+    "kpi": ["KPI 리포트"],
+    "crawl": ["CI 팀장", "크롤러"],
+    "datakeeper": ["데이터 키퍼"],
+}
+
+MISTAKES_PATH = ROOT / "memory" / "mistakes.md"
+
+
+def _load_mistakes(domain):
+    """Extract Core section + domain-specific section from mistakes.md."""
+    if not MISTAKES_PATH.exists():
+        return ""
+    try:
+        text = MISTAKES_PATH.read_text(encoding="utf-8", errors="replace")
+    except Exception:
+        return ""
+
+    keywords = DOMAIN_MISTAKE_KEYWORDS.get(domain, [])
+    sections = []
+    lines = text.splitlines()
+    capture = False
+    current_section = []
+
+    for line in lines:
+        if line.startswith("## "):
+            # Save previous section if it was being captured
+            if capture and current_section:
+                sections.append("\n".join(current_section))
+            # Check if this section is relevant
+            heading = line[3:]
+            is_core = "Core" in heading
+            is_domain = any(kw in heading for kw in keywords)
+            capture = is_core or is_domain
+            current_section = [line] if capture else []
+        elif capture:
+            current_section.append(line)
+
+    if capture and current_section:
+        sections.append("\n".join(current_section))
+
+    # Prioritize: domain section first (up to 1500), Core section (up to 500)
+    core_sections = [s for s in sections if s.startswith("## Core")]
+    domain_sections = [s for s in sections if not s.startswith("## Core")]
+    core_text = ("\n\n".join(core_sections))[:500]
+    domain_text = ("\n\n".join(domain_sections))[:1500]
+    combined = "\n\n".join(filter(None, [domain_text, core_text]))
+    return combined[:2000] if combined else ""
+
+
 def _analysis_prompt(domain, round_num, label, script_output, script_error, returncode, extra_context=""):
     """Build a Codex analysis prompt from pre-run script output."""
     schema = VERDICT_SCHEMA.format(domain=domain, round=round_num)
     status = "SUCCESS" if returncode == 0 else f"FAILED (exit={returncode})"
+    mistakes = _load_mistakes(domain)
+    mistakes_section = f"\n--- PAST MISTAKES (check if recurring) ---\n{mistakes}\n--- END MISTAKES ---" if mistakes else ""
     return f"""You are an independent verification agent (Codex Verifier).
 Analyze the audit script output below and produce a JSON verdict.
 
 Domain: {label}
 Script run status: {status}
-{extra_context}
+{extra_context}{mistakes_section}
 --- SCRIPT STDOUT ---
 {script_output or "(empty)"}
 
@@ -144,6 +199,7 @@ Rules:
 - DEGRADED: some checks failed but system is partially functional
 - FAIL: critical checks failed, system is broken
 - If script itself failed to run, set verdict=DEGRADED with check="script_execution"
+- If a past mistake is recurring, flag it in failures with severity=HIGH
 - Be specific: include actual values in failures
 
 Output ONLY this JSON (no markdown, no extra text):
