@@ -1171,6 +1171,16 @@ def pipeline_creators_stats(request):
         .values_list('pipeline_status', 'c')
     )
 
+    # Discovery date breakdown for Not Started creators (for batch dropdown)
+    discovery_date_counts = dict(
+        PipelineCreator.objects.filter(pipeline_status='Not Started')
+        .values_list('initial_discovery_date')
+        .annotate(c=Count('id'))
+        .values_list('initial_discovery_date', 'c')
+    )
+    # Convert date keys to strings
+    discovery_dates = {str(k): v for k, v in discovery_date_counts.items() if k}
+
     return _cors_headers(request, JsonResponse({
         "total": total,
         "by_status": status_counts,
@@ -1179,6 +1189,7 @@ def pipeline_creators_stats(request):
         "by_brand": brand_counts,
         "by_type": type_counts,
         "new_this_week": new_this_week,
+        "by_discovery_date": discovery_dates,
     }))
 
 
@@ -1829,25 +1840,7 @@ def discovery_posts_list(request):
                 "source": p.get("source", ""),
                 "region": p.get("region", "jp"),
                 "discovery_batch": p.get("discovery_batch", ""),
-                "transcript": p.get("transcript", "") or "",
-                "scene_fit": p.get("scene_fit", "") or "",
-                "has_subtitles": p.get("has_subtitles"),
-                "brand_fit_score": p.get("brand_fit_score"),
-                "scene_tags": p.get("scene_tags", "") or "",
-                "product_mention": p.get("product_mention"),
-                "subject_age": p.get("subject_age", "") or "",
             }
-            # Only update non-None CI fields (don't overwrite existing with None)
-            if defaults["scene_fit"] == "":
-                defaults.pop("scene_fit")
-            if defaults["has_subtitles"] is None:
-                defaults.pop("has_subtitles")
-            if defaults["brand_fit_score"] is None:
-                defaults.pop("brand_fit_score")
-            if defaults["product_mention"] is None:
-                defaults.pop("product_mention")
-            if defaults["subject_age"] == "":
-                defaults.pop("subject_age")
 
             obj, is_new = DiscoveryPost.objects.update_or_create(
                 url=url,

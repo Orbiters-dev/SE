@@ -1655,17 +1655,20 @@ async function apiFetch(path,opts){
   var sep=path.indexOf('?')>=0?'&':'?';
   var url=API_BASE+path+sep+'_t='+Date.now();
   var r;
-  try{r=await fetch(url,opts)}catch(err){
-    console.warn('API unreachable, switching to DEMO mode');
-    DEMO_MODE=true;
-    document.getElementById('pill-api').innerHTML='<span class="dot" style="background:var(--am)"></span>DEMO';
-    if(opts.method==='POST'||opts.method==='PUT')return{ok:true};
-    return demoResponse(path);
+  for(var _retry=0;_retry<2;_retry++){
+    try{r=await fetch(url,opts);break}catch(err){
+      if(_retry===0){await new Promise(function(ok){setTimeout(ok,1000)});continue}
+      console.warn('API unreachable after retry, switching to DEMO mode');
+      DEMO_MODE=true;
+      var pe=document.getElementById('pill-api');if(pe)pe.textContent='DEMO';
+      if(opts.method==='POST'||opts.method==='PUT')return{ok:true};
+      return demoResponse(path);
+    }
   }
   if(!r.ok){
     console.warn('API error '+r.status+' on '+path+', switching to DEMO mode');
     DEMO_MODE=true;
-    document.getElementById('pill-api').innerHTML='<span class="dot" style="background:var(--am)"></span>DEMO';
+    var pe2=document.getElementById('pill-api');if(pe2)pe2.textContent='DEMO';
     if(opts.method==='POST'||opts.method==='PUT')return{ok:true};
     return demoResponse(path);
   }
@@ -3181,21 +3184,21 @@ async function pullDiscoveryDates(){
   var btn=document.getElementById('btn-pull-dates');
   btn.disabled=true;btn.textContent='Loading...';
   try{
-    var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=6500');
-    var items=data.results||[];
-    var dateMap={};
-    items.forEach(function(c){
-      var d=c.initial_discovery_date||(c.created_at||'').slice(0,10);
-      if(d)dateMap[d]=(dateMap[d]||0)+1;
-    });
+    // Use lightweight stats endpoint instead of fetching all 6000+ creators
+    var wasDemoMode=DEMO_MODE;
+    DEMO_MODE=false;
+    var stats=await apiFetch('/pipeline/creators/stats/');
+    if(DEMO_MODE&&wasDemoMode){showToast('API \uC5F0\uACB0 \uC2E4\uD328 — DEMO \uB370\uC774\uD130 \uD45C\uC2DC \uC911','err');return}
+    var dateMap=stats.by_discovery_date||{};
+    var totalNotStarted=0;
+    Object.keys(dateMap).forEach(function(k){totalNotStarted+=dateMap[k]});
     _dateCountMap=dateMap;
     var groups=_buildWeekGroups(dateMap);
     var dates=Object.keys(dateMap).filter(function(d){return d.match(/^\d{4}-\d{2}-\d{2}$/)});
     _discoveryDates=dates;
     try{localStorage.setItem('pipeline_discovery_dates',JSON.stringify(dates));localStorage.setItem('pipeline_date_counts',JSON.stringify(dateMap))}catch(e){}
     populateDiscoveryDates(document.getElementById('f-update-date').value);
-    showToast(groups.length+'\uAC1C \uC8FC\uAC04 \uBC30\uCE58 \uB85C\uB4DC ('+items.length+'\uBA85)','ok');
-    // Auto-refresh: reload creators table + dashboard stats
+    showToast(groups.length+'\uAC1C \uC8FC\uAC04 \uBC30\uCE58 \uB85C\uB4DC ('+totalNotStarted+'\uBA85)','ok');
     try{loadCreators()}catch(e){}
   }catch(e){showToast('Pull \uC2E4\uD328: '+e.message,'err')}
   finally{btn.disabled=false;btn.textContent='\u21BB Pull'}
