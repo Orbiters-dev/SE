@@ -1197,7 +1197,7 @@ function renderHeroTab(F){
           html+='</tbody></table>';
         }
       }
-        // ── Delta table: view changes per period ──
+      // ── Delta table: view changes per period ──
         var hasDeltaData=false;
         slicedCreators.forEach(function(cr){
           for(var i=1;i<cr.daily_views.length;i++){if(cr.daily_views[i]!==cr.daily_views[i-1]){hasDeltaData=true;break;}}
