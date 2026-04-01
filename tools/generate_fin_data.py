@@ -1071,38 +1071,44 @@ def generate():
     for r in kw_positions_summary:
         del r["_sort"]
 
-    # ── DataForSEO keyword volumes ─────────────────────────────────────────────
-    dfseo = dk.get("dataforseo_keywords", days=7)
-    # Deduplicate: latest date per keyword
-    latest_dfseo = {}
-    for r in dfseo:
-        kw = r.get("keyword", "")
-        d = r.get("date", "")
-        if kw and (kw not in latest_dfseo or d > latest_dfseo[kw].get("date", "")):
-            latest_dfseo[kw] = r
-
+    # ── Keyword volumes from Google Ads + GSC (replaces DataForSEO) ────────────
+    # Build keyword_volumes from GSC impressions (proxy for search volume)
     keyword_volumes = []
-    for kw, r in sorted(latest_dfseo.items(), key=lambda x: int(x[1].get("search_volume") or 0), reverse=True):
-        vol = int(r.get("search_volume") or 0)
-        # Parse monthly_searches JSON
-        monthly_raw = r.get("monthly_searches", "[]")
-        if isinstance(monthly_raw, str):
-            try:
-                monthly_parsed = json.loads(monthly_raw)
-            except (json.JSONDecodeError, TypeError):
-                monthly_parsed = []
-        else:
-            monthly_parsed = monthly_raw or []
-        # Extract last 6 months of search volume
-        monthly_trend = [m.get("monthly_searches", 0) for m in monthly_parsed[-6:]] if monthly_parsed else []
+    gsc_kw_agg = defaultdict(lambda: {"impressions": 0, "clicks": 0, "brand": ""})
+    for r in gsc:
+        q = (r.get("query") or "").strip().lower()
+        if not q:
+            continue
+        gsc_kw_agg[q]["impressions"] += int(r.get("impressions") or 0)
+        gsc_kw_agg[q]["clicks"] += int(r.get("clicks") or 0)
+    # Also fold in Google Ads search terms
+    gads_kw_agg = defaultdict(lambda: {"impressions": 0, "clicks": 0, "spend": 0})
+    for r in google_search_terms:
+        q = (r.get("search_term") or r.get("query") or "").strip().lower()
+        if not q:
+            continue
+        gads_kw_agg[q]["impressions"] += int(r.get("impressions") or 0)
+        gads_kw_agg[q]["clicks"] += int(r.get("clicks") or 0)
+        gads_kw_agg[q]["spend"] += float(r.get("cost") or r.get("spend") or 0)
+    # Merge: use GSC impressions as primary volume proxy, enrich with Google Ads
+    all_kws = set(gsc_kw_agg.keys()) | set(gads_kw_agg.keys())
+    for q in sorted(all_kws, key=lambda x: -(gsc_kw_agg[x]["impressions"] + gads_kw_agg.get(x, {}).get("impressions", 0))):
+        gsc_d = gsc_kw_agg.get(q, {})
+        gads_d = gads_kw_agg.get(q, {})
+        total_impr = (gsc_d.get("impressions", 0) or 0) + (gads_d.get("impressions", 0) or 0)
+        if total_impr <= 0:
+            continue
         keyword_volumes.append({
-            "keyword": kw,
-            "brand": r.get("brand", ""),
-            "search_volume": vol,
-            "cpc": round(float(r.get("cpc") or 0), 2),
-            "competition_index": int(r.get("competition_index") or 0),
-            "monthly_trend": monthly_trend,
+            "keyword": q,
+            "brand": "",
+            "search_volume": total_impr,  # GSC+GAds impressions as volume proxy
+            "gsc_impressions": gsc_d.get("impressions", 0),
+            "gsc_clicks": gsc_d.get("clicks", 0),
+            "gads_impressions": gads_d.get("impressions", 0),
+            "gads_clicks": gads_d.get("clicks", 0),
+            "monthly_trend": [],
         })
+    keyword_volumes = keyword_volumes[:50]  # Top 50
 
     # ── Brand Analytics (Amazon) ──────────────────────────────────────────────
     # Group by brand, show top search terms with ranking + click/conversion share
@@ -3029,12 +3035,13 @@ def generate():
                 gads_lookup[term]["clicks"] += int(r.get("clicks") or 0)
                 gads_lookup[term]["spend"] += float(r.get("cost") or r.get("spend") or 0)
 
-        dfseo_lookup = {}
-        dfseo = dk.get("dataforseo_keywords", days=7)
-        for r in dfseo:
-            kw = (r.get("keyword") or "").strip().lower()
-            if kw:
-                dfseo_lookup[kw] = int(r.get("search_volume") or 0)
+        # Build GSC lookup for hero product keywords
+        gsc_kw_lookup = defaultdict(lambda: {"impressions": 0, "clicks": 0})
+        for r in gsc:
+            q = (r.get("query") or "").strip().lower()
+            if q:
+                gsc_kw_lookup[q]["impressions"] += int(r.get("impressions") or 0)
+                gsc_kw_lookup[q]["clicks"] += int(r.get("clicks") or 0)
 
         for cat, kws in cat_top_kw.items():
             for kw in kws:
@@ -3045,7 +3052,10 @@ def generate():
                 ads_spend = st.get("spend", 0)
                 ads_sales = st.get("sales", 0)
                 kw["ads_acos"] = round(ads_spend / ads_sales, 2) if ads_sales > 0 else 0
-                kw["google_volume"] = dfseo_lookup.get(kw["keyword"], 0)
+                # Google volume from GSC impressions + Google Ads impressions
+                gsc_d = gsc_kw_lookup.get(kw["keyword"].lower(), {})
+                gads_d = gads_lookup.get(kw["keyword"].lower(), {})
+                kw["google_volume"] = (gsc_d.get("impressions", 0) or 0) + (gads_d.get("impressions", 0) or 0)
                 gads = gads_lookup.get(kw["keyword"], {})
                 kw["google_ads_impressions"] = gads.get("impressions", 0)
                 kw["google_ads_clicks"] = gads.get("clicks", 0)

@@ -72,6 +72,9 @@ rows = dk.get("shopify_orders_daily", days=30)
 | ppc시뮬이, 백테스팅, PPC 시뮬, 낭비절감 시뮬 | — | `tools/amazon_ppc_simulator.py` |
 | 파이프라이너, 이중테스트, dual test, Maker-Checker | `.claude/skills/pipeliner/SKILL.md` | `tools/dual_test_runner.py` |
 | 크롤러, Apify, content pipeline | — | `tools/fetch_apify_content.py` |
+| 크롤링 검증, crawl verify, dual audit | — | `tools/crawl_verify_harness.py` |
 | 효율가 | — | `tools/run_skill_optimizer.py` |
+| 대시보드 테스터, JP 테스트, 자율주행 테스트, dashboard test, e2e test | `.claude/skills/dashboard-tester/SKILL.md` | `tools/autonomous_tester_jp.py` |
+| 제갈량, 갈량이, 전략분석, 시장분석, 경쟁사분석, SWOT, 큰그림, 참모 | `.claude/skills/galryang/SKILL.md` | `tools/codex_auditor.py` + MCP |
 
 Python 경로: `C:\Users\wjcho\AppData\Local\Programs\Python\Python312\python.exe`

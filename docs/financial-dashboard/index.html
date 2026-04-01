@@ -532,7 +532,7 @@ function renderFinancial(){
   // Helper: render keyword table for a brand filter
   function renderKwTable(items, secNum){
     var h='<div class="sec"><div class="sec-title"><div class="num">'+secNum+'</div> Keyword Rankings &mdash; GSC Position + Search Volume</div>';
-    h+='<div class="card"><div class="desc">Google position (GSC, 7/30/90D) + monthly search volume (DataForSEO).</div>';
+    h+='<div class="card"><div class="desc">Google position (GSC, 7/30/90D) + monthly search volume (GSC + Google Ads).</div>';
     h+='<div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Keyword</th><th>Brand</th>';
     h+='<th style="text-align:center;background:#ecfdf5">Pos 7D</th>';
     h+='<th style="text-align:center;background:#f0f9ff">Pos 30D</th>';
@@ -921,134 +921,144 @@ function renderHeroTab(F){
     html+=' <span style="font-size:9px;color:var(--dim)">30D</span>';
     html+=' <span style="font-family:var(--mono);font-size:11px;color:var(--dim);margin-left:8px">'+c.units_30d.toLocaleString()+' units</span>';
     html+='</div></div>';
-    // 90-Day Daily Chart — Sales line + Content Views bars + Influencer lines + Keyword Search Vol
+    // ═══ Dual Chart: Sales (top) + Content (bottom), full width ═══
     var cl=H.content_lift?H.content_lift[c.category]:null;
     var catCreators=(H.content_creators_by_cat||{})[c.category]||[];
-    // Get related keyword search volumes for this category
-    var catKwVols=[];
-    if(c.top_keywords){c.top_keywords.forEach(function(kw){
-      if(kw.google_volume>0) catKwVols.push({keyword:kw.keyword,volume:kw.google_volume});
-    });}
-    var totalKwVol=0;catKwVols.forEach(function(k){totalKwVol+=k.volume;});
+    // Get search volume for this brand from top-level keyword_volumes
+    var brandKwVols=[];
+    var kwVolData=F.keyword_volumes||[];
+    kwVolData.forEach(function(kv){
+      if(kv.brand===c.brand&&kv.search_volume>0) brandKwVols.push({keyword:kv.keyword,volume:kv.search_volume,trend:kv.monthly_trend||[]});
+    });
+    var totalKwVol=0;brandKwVols.forEach(function(k){totalKwVol+=k.volume;});
     if(c.daily_sales&&c.daily_sales.length>1){
       var ds=c.daily_sales,du=c.daily_units||[];
       var vw=cl?cl.views:[];
       var dates=H.daily_dates||[];
       var n=ds.length;
-      var hasCreators=catCreators.length>0;
-      var chartW=Math.max(n*10+80,700);
-      var padR=hasCreators?130:20;
-      var plotH=hasCreators?180:130,padL=50,padT=20,padB=30;
-      var svgH=plotH+padT+padB+20;
+      var hasContent=catCreators.length>0||(vw.length&&vw.reduce(function(a,b){return a+b},0)>0);
+      var INF_COLORS=['#3b82f6','#ec4899','#f97316','#14b8a6','#6366f1','#ef4444','#a855f7','#eab308','#0ea5e9','#84cc16'];
+      // Full-width chart dimensions
+      var padL=50,padR=140,padT=14,gap=4;
+      var topH=100,botH=hasContent?90:0;
+      var chartW=1020; // full container width
+      var bw=Math.max(Math.floor((chartW-padL-padR)/n)-1,3);
       var maxS=Math.max.apply(null,ds)||1;
       var maxV=vw.length?Math.max.apply(null,vw)||1:1;
-      var bw=Math.max(Math.floor((chartW-padL-padR)/n)-1,3);
       var totalViews=vw.length?vw.reduce(function(a,b){return a+b},0):0;
-      var INF_COLORS=['#3b82f6','#ec4899','#f97316','#14b8a6','#6366f1','#ef4444','#a855f7','#eab308','#0ea5e9','#84cc16'];
       // Legend
-      html+='<div style="margin:8px 0 4px;display:flex;gap:12px;font-size:9px;color:var(--muted);flex-wrap:wrap">';
-      html+='<span style="color:var(--g)">&#9644; Sales ($)</span>';
-      if(totalViews>0) html+='<span style="color:'+bc+'">&#9632; Content Views ('+totalViews.toLocaleString()+')</span>';
-      if(totalKwVol>0) html+='<span style="color:#f59e0b">&#9632; Search Vol ('+totalKwVol.toLocaleString()+'/mo)</span>';
+      html+='<div style="margin:8px 0 4px;display:flex;gap:10px;font-size:9px;color:var(--muted);flex-wrap:wrap">';
+      html+='<span style="color:var(--g)">&#9644; Sales</span>';
+      if(totalViews>0) html+='<span style="color:'+bc+'">&#9632; Views</span>';
       catCreators.slice(0,5).forEach(function(cr,ci){
         html+='<span style="color:'+INF_COLORS[ci%INF_COLORS.length]+'">&#9644; @'+cr.username+'</span>';
       });
-      html+='<span>$'+c.sales_7d.toLocaleString()+' 7D</span></div>';
+      if(totalKwVol>0) html+='<span style="color:#f59e0b">Search Vol: '+totalKwVol.toLocaleString()+'/mo</span>';
+      html+='<span style="margin-left:auto;font-weight:700">$'+c.sales_7d.toLocaleString()+' 7D</span></div>';
+      // ── TOP CHART: Sales ──
+      var svgTotalH=padT+topH+gap+botH+30;
       html+='<div style="overflow-x:auto">';
-      html+='<svg width="'+chartW+'" height="'+svgH+'" style="display:block">';
-      // Y-axis gridlines + labels (sales)
-      for(var g=0;g<=4;g++){
-        var gy=padT+plotH-g/4*plotH;
-        var gv=Math.round(maxS*g/4);
-        html+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(chartW-padR)+'" y2="'+gy+'" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="3,3"/>';
-        html+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" fill="var(--muted)" font-size="7" font-family="var(--mono)" text-anchor="end">$'+gv.toLocaleString()+'</text>';
+      html+='<svg width="'+chartW+'" height="'+svgTotalH+'" style="display:block;width:100%;min-width:'+chartW+'px">';
+      // Sales Y-axis
+      for(var g=0;g<=3;g++){
+        var gy=padT+topH-g/3*topH;
+        var gv=Math.round(maxS*g/3);
+        html+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(chartW-padR)+'" y2="'+gy+'" stroke="#f1f5f9" stroke-width="0.5"/>';
+        html+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" fill="#94a3b8" font-size="7" font-family="var(--mono)" text-anchor="end">$'+gv.toLocaleString()+'</text>';
       }
-      // Keyword search volume bars (yellow, background)
-      if(totalKwVol>0){
-        var kwMaxV=totalKwVol; // Use total monthly vol as scale reference
-        for(var i=0;i<n;i++){
-          var x=padL+i*(bw+1),bh=totalKwVol/kwMaxV*plotH*0.3; // Constant height since monthly
-          html+='<rect x="'+x+'" y="'+(padT+plotH-bh)+'" width="'+bw+'" height="'+bh+'" fill="#f59e0b" opacity="0.08" rx="1"/>';
-        }
-      }
-      // Content views bars (category color, background)
-      if(vw.length){vw.forEach(function(v,i){
-        if(v>0){var x=padL+i*(bw+1),h=v/maxV*plotH;
-        html+='<rect x="'+x+'" y="'+(padT+plotH-h)+'" width="'+bw+'" height="'+h+'" fill="'+bc+'" opacity="0.18" rx="1"/>';}
-      });}
-      // Sales area fill + line
+      // Sales area + line
       var spts=[];
       ds.forEach(function(v,i){
-        var x=padL+i*(bw+1)+bw/2,y=padT+plotH-v/maxS*plotH;
+        var x=padL+i*(bw+1)+bw/2,y=padT+topH-v/maxS*topH;
         spts.push(x+','+y);
       });
-      html+='<polygon points="'+padL+','+(padT+plotH)+' '+spts.join(' ')+' '+(padL+(n-1)*(bw+1)+bw/2)+','+(padT+plotH)+'" fill="var(--g)" opacity="0.06"/>';
+      html+='<polygon points="'+padL+','+(padT+topH)+' '+spts.join(' ')+' '+(padL+(n-1)*(bw+1)+bw/2)+','+(padT+topH)+'" fill="var(--g)" opacity="0.08"/>';
       html+='<polyline points="'+spts.join(' ')+'" fill="none" stroke="var(--g)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
-      // Influencer lines (per creator in this category)
-      var crMaxV=1;
-      catCreators.slice(0,5).forEach(function(cr){cr.daily_views.forEach(function(v){if(v>crMaxV)crMaxV=v;});});
-      catCreators.slice(0,5).forEach(function(cr,ci){
-        var col=INF_COLORS[ci%INF_COLORS.length];
-        var pts=[];
-        cr.daily_views.forEach(function(v,i){
-          if(i<n){var x=padL+i*(bw+1)+bw/2,y=padT+plotH-v/crMaxV*plotH*0.8;
-          pts.push(x+','+y);}
-        });
-        if(pts.length) html+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+col+'" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>';
-        // End label
-        var lastV=cr.daily_views[n-1]||0;
-        var lx=padL+(n-1)*(bw+1)+bw/2,ly=padT+plotH-lastV/crMaxV*plotH*0.8;
-        html+='<circle cx="'+lx+'" cy="'+ly+'" r="3" fill="'+col+'"/>';
-        html+='<text x="'+(lx+6)+'" y="'+(ly+3)+'" fill="'+col+'" font-size="8" font-weight="600">@'+cr.username+'</text>';
-      });
-      // Peak sales label
+      // Peak
       var peakSi=0;ds.forEach(function(v,i){if(v>ds[peakSi])peakSi=i;});
-      var psx=padL+peakSi*(bw+1)+bw/2,psy=padT+plotH-ds[peakSi]/maxS*plotH;
+      var psx=padL+peakSi*(bw+1)+bw/2,psy=padT+topH-ds[peakSi]/maxS*topH;
       html+='<circle cx="'+psx+'" cy="'+psy+'" r="3" fill="var(--g)"/>';
-      html+='<text x="'+psx+'" y="'+(psy-7)+'" fill="var(--g)" font-size="8" font-weight="700" font-family="var(--mono)" text-anchor="middle">$'+ds[peakSi].toLocaleString()+'</text>';
-      // X-axis date labels
-      var step=Math.max(Math.floor(n/10),1);
+      html+='<text x="'+psx+'" y="'+(psy-6)+'" fill="var(--g)" font-size="8" font-weight="700" font-family="var(--mono)" text-anchor="middle">$'+ds[peakSi].toLocaleString()+'</text>';
+      // Sales end label
+      var lsx=padL+(n-1)*(bw+1)+bw/2,lsy=padT+topH-ds[n-1]/maxS*topH;
+      html+='<text x="'+(lsx+6)+'" y="'+(lsy+3)+'" fill="var(--g)" font-size="8" font-weight="700">Sales</text>';
+      // Divider line between charts
+      if(hasContent){
+        var divY=padT+topH+gap/2;
+        html+='<line x1="'+padL+'" y1="'+divY+'" x2="'+(chartW-padR)+'" y2="'+divY+'" stroke="var(--border)" stroke-width="1"/>';
+        // ── BOTTOM CHART: Content Views + Influencer Lines ──
+        var botTop=padT+topH+gap;
+        // Content views bars
+        if(vw.length){vw.forEach(function(v,i){
+          if(v>0){var x=padL+i*(bw+1),h=v/maxV*botH;
+          html+='<rect x="'+x+'" y="'+(botTop+botH-h)+'" width="'+bw+'" height="'+h+'" fill="'+bc+'" opacity="0.22" rx="1"/>';}
+        });}
+        // Views Y-axis
+        for(var g=0;g<=2;g++){
+          var gy=botTop+botH-g/2*botH;
+          var gv=Math.round(maxV*g/2);
+          html+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(chartW-padR)+'" y2="'+gy+'" stroke="#f1f5f9" stroke-width="0.5"/>';
+          if(gv>0) html+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" fill="'+bc+'" font-size="7" font-family="var(--mono)" text-anchor="end" opacity="0.6">'+gv.toLocaleString()+'</text>';
+        }
+        // Influencer lines
+        var crMaxV=1;
+        catCreators.slice(0,5).forEach(function(cr){cr.daily_views.forEach(function(v){if(v>crMaxV)crMaxV=v;});});
+        catCreators.slice(0,5).forEach(function(cr,ci){
+          var col=INF_COLORS[ci%INF_COLORS.length];
+          var pts=[];
+          cr.daily_views.forEach(function(v,i){
+            if(i<n){var x=padL+i*(bw+1)+bw/2,y=botTop+botH-v/crMaxV*botH*0.9;
+            pts.push(x+','+y);}
+          });
+          if(pts.length) html+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+col+'" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>';
+          var lastV=cr.daily_views[n-1]||0;
+          var lx=padL+(n-1)*(bw+1)+bw/2,ly=botTop+botH-lastV/crMaxV*botH*0.9;
+          html+='<circle cx="'+lx+'" cy="'+ly+'" r="3" fill="'+col+'"/>';
+          html+='<text x="'+(lx+6)+'" y="'+(ly+3)+'" fill="'+col+'" font-size="8" font-weight="600">@'+cr.username+'</text>';
+        });
+      }
+      // X-axis date labels (shared)
+      var xBase=padT+topH+gap+botH;
+      var step=Math.max(Math.floor(n/12),1);
       for(var i=0;i<n;i+=step){var x=padL+i*(bw+1)+bw/2;
-      html+='<text x="'+x+'" y="'+(padT+plotH+14)+'" fill="var(--muted)" font-size="7" font-family="var(--mono)" text-anchor="middle" transform="rotate(-30,'+x+','+(padT+plotH+14)+')">'+dates[i].substring(5)+'</text>';}
-      // Vertical hover guide line
-      html+='<line id="hero-guide-'+idx+'" x1="0" y1="'+padT+'" x2="0" y2="'+(padT+plotH)+'" stroke="#94a3b8" stroke-width="0.5" stroke-dasharray="2,2" opacity="0" pointer-events="none"/>';
-      // Tooltip hit rectangles per day
+      html+='<text x="'+x+'" y="'+(xBase+14)+'" fill="#94a3b8" font-size="7" font-family="var(--mono)" text-anchor="middle" transform="rotate(-30,'+x+','+(xBase+14)+')">'+dates[i].substring(5)+'</text>';}
+      // Shared vertical guide line
+      html+='<line id="hero-guide-'+idx+'" x1="0" y1="'+padT+'" x2="0" y2="'+xBase+'" stroke="#94a3b8" stroke-width="0.5" stroke-dasharray="2,2" opacity="0" pointer-events="none"/>';
+      // Tooltip hit rectangles (cover both charts)
       for(var i=0;i<n;i++){
         var hx=padL+i*(bw+1), hw=bw+1;
         var ttDate=dates[i]||'';
         var ttSales=ds[i]||0;
+        var ttUnits=du[i]||0;
         var ttViews=vw[i]||0;
         var ttH='<div class=tt-date>'+ttDate+'</div>'
-          +'<div class=tt-row><span class=tt-dot style=background:#10b981></span>Sales: $'+ttSales.toLocaleString()+'</div>';
+          +'<div class=tt-row><span class=tt-dot style=background:#10b981></span>Sales: $'+ttSales.toLocaleString()+'</div>'
+          +'<div class=tt-row><span class=tt-dot style=background:var(--dim)></span>Units: '+ttUnits.toLocaleString()+'</div>';
         if(ttViews>0) ttH+='<div class=tt-row><span class=tt-dot style=background:'+bc+'></span>Views: '+ttViews.toLocaleString()+'</div>';
         catCreators.slice(0,5).forEach(function(cr,ci){
           var cv=cr.daily_views[i]||0;
           if(cv>0) ttH+='<div class=tt-row><span class=tt-dot style=background:'+INF_COLORS[ci%INF_COLORS.length]+'></span>@'+cr.username+': '+cv.toLocaleString()+'</div>';
         });
-        html+='<rect x="'+hx+'" y="'+padT+'" width="'+hw+'" height="'+plotH+'" fill="transparent" style="cursor:crosshair"'
+        html+='<rect x="'+hx+'" y="'+padT+'" width="'+hw+'" height="'+xBase+'" fill="transparent" style="cursor:crosshair"'
           +' onmousemove="showTT(event,\''+ttH.replace(/'/g,"\\'")+'\');var g=document.getElementById(\'hero-guide-'+idx+'\');if(g){g.setAttribute(\'x1\','+(hx+hw/2)+');g.setAttribute(\'x2\','+(hx+hw/2)+');g.setAttribute(\'opacity\',\'0.6\');}"'
           +' onmouseleave="hideTT();var g=document.getElementById(\'hero-guide-'+idx+'\');if(g)g.setAttribute(\'opacity\',\'0\');"'
           +'/>';
       }
       html+='</svg></div>';
-      // Weekly summary table
+      // ── Weekly summary table ──
       var wks=H.week_keys||[];
       if(wks.length&&c.sales_weekly&&c.sales_weekly.length){
-        html+='<table style="margin-top:6px;font-size:10px"><thead><tr><th>Week</th>';
+        html+='<table style="margin-top:6px;font-size:10px"><thead><tr><th style="min-width:90px">Metric</th>';
         wks.forEach(function(w){html+='<th style="text-align:right;font-size:9px">'+w+'</th>';});
         html+='</tr></thead><tbody>';
-        // Sales row
         html+='<tr><td style="font-weight:600;color:var(--g)">Sales ($)</td>';
         c.sales_weekly.forEach(function(v){html+='<td style="text-align:right;font-family:var(--mono)">$'+v.toLocaleString()+'</td>';});
         html+='</tr>';
-        // Units row
         html+='<tr><td style="font-weight:600;color:var(--dim)">Units</td>';
         c.units_weekly.forEach(function(v){html+='<td style="text-align:right;font-family:var(--mono)">'+v.toLocaleString()+'</td>';});
         html+='</tr>';
-        // Content views row (weekly sum from daily)
         if(totalViews>0){
           html+='<tr><td style="font-weight:600;color:'+bc+'">Content Views</td>';
-          // Sum daily views per week (7 days each)
           wks.forEach(function(wk,wi){
             var weekTotal=0;
             for(var d=wi*7;d<Math.min((wi+1)*7,n);d++){weekTotal+=(vw[d]||0);}
@@ -1056,18 +1066,28 @@ function renderHeroTab(F){
           });
           html+='</tr>';
         }
+        // Per-influencer weekly views
+        catCreators.slice(0,5).forEach(function(cr,ci){
+          html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'">@'+cr.username+'</td>';
+          wks.forEach(function(wk,wi){
+            var weekTotal=0;
+            for(var d=wi*7;d<Math.min((wi+1)*7,n);d++){weekTotal+=(cr.daily_views[d]||0);}
+            html+='<td style="text-align:right;font-family:var(--mono)">'+(weekTotal>0?weekTotal.toLocaleString():'—')+'</td>';
+          });
+          html+='</tr>';
+        });
         // Search volume row
         if(totalKwVol>0){
-          html+='<tr><td style="font-weight:600;color:#f59e0b">Search Vol (mo.)</td>';
+          html+='<tr style="border-top:2px solid var(--border)"><td style="font-weight:600;color:#f59e0b">Search Vol (mo.)</td>';
           wks.forEach(function(){html+='<td style="text-align:right;font-family:var(--mono);color:#f59e0b">'+totalKwVol.toLocaleString()+'</td>';});
           html+='</tr>';
         }
         html+='</tbody></table>';
       }
-      // Related keywords list
-      if(catKwVols.length){
-        html+='<div style="margin-top:4px;font-size:9px;color:var(--muted)">Related keywords: ';
-        html+=catKwVols.map(function(k){return '<span style="font-weight:600;color:#f59e0b">'+k.keyword+'</span> ('+k.volume.toLocaleString()+'/mo)';}).join(', ');
+      // Related keywords
+      if(brandKwVols.length){
+        html+='<div style="margin-top:4px;font-size:9px;color:var(--muted)">Search keywords ('+c.brand+'): ';
+        html+=brandKwVols.map(function(k){return '<span style="font-weight:600;color:#f59e0b">'+k.keyword+'</span> ('+k.volume.toLocaleString()+'/mo)';}).join(', ');
         html+='</div>';
       }
     }
@@ -1160,7 +1180,7 @@ function renderHeroTab(F){
   kwActive.sort(function(a,b){return b.search_volume-a.search_volume;});
   if(kwActive.length){
     html+='<div class="sec"><div class="sec-title"><div class="num">3</div> Search Volume Trends (6 Months)</div>';
-    html+='<div class="card"><div class="desc">Google monthly search volume for tracked keywords (DataForSEO). Hover for values.</div>';
+    html+='<div class="card"><div class="desc">Google monthly search volume for tracked keywords (GSC + Google Ads). Hover for values.</div>';
     var moLabels=['6mo ago','5mo','4mo','3mo','2mo','Latest'];
     var SVW=700,SVH=240,SVP={l:60,r:130,t:20,b:36};
     var svCW=SVW-SVP.l-SVP.r,svCH=SVH-SVP.t-SVP.b;
