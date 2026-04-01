@@ -1855,25 +1855,21 @@ function renderHeroTab(F){
     kwList.forEach(function(k){if(!byBrand[k.brand])byBrand[k.brand]=[];byBrand[k.brand].push(k);});
     var brandOrderSQ=Object.keys(byBrand).sort(function(a,b){return byBrand[a][0].latest-byBrand[b][0].latest;});
 
-    // Week labels: "W03\n(Jan)" style
+    // Week labels — handles both ISO week ("2026-W03") and date ("2026-02-08") formats
     function wkLabel(wk){
-      var parts=wk.split('-W');if(parts.length<2)return wk;
-      var yr=parseInt(parts[0]),wn=parseInt(parts[1]);
-      // ISO week → approx month via Jan 4 rule
-      var jan4=new Date(yr,0,4);
-      var dayOfYear=(wn-1)*7-jan4.getDay()+1;
-      var d=new Date(yr,0,4+dayOfYear);
-      var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
-      return 'W'+parts[1]+'<tspan font-size="7" dy="8" x="0">'+mo+'</tspan>';
+      if(wk.indexOf('-W')>0){var parts=wk.split('-W');return 'W'+parts[1];}
+      // Date format: show MM-DD
+      return wk.substring(5);
     }
-    // Monthly grouping: week index → month label
     function wkMonth(wk){
-      var parts=wk.split('-W');if(parts.length<2)return wk;
-      var yr=parseInt(parts[0]),wn=parseInt(parts[1]);
-      var jan4=new Date(yr,0,4);
-      var dayOfYear=(wn-1)*7-jan4.getDay()+1;
-      var d=new Date(yr,0,4+dayOfYear);
-      return (d.getMonth()+1<10?'0'+(d.getMonth()+1):''+(d.getMonth()+1));
+      if(wk.indexOf('-W')>0){
+        var parts=wk.split('-W');var yr=parseInt(parts[0]),wn=parseInt(parts[1]);
+        var jan4=new Date(yr,0,4);var dayOfYear=(wn-1)*7-jan4.getDay()+1;
+        var d=new Date(yr,0,4+dayOfYear);
+        return (d.getMonth()+1<10?'0'+(d.getMonth()+1):''+(d.getMonth()+1));
+      }
+      // Date format: extract month
+      return wk.substring(5,7);
     }
     // Group weeks into months
     var moGroups={};
@@ -1917,8 +1913,7 @@ function renderHeroTab(F){
       // X-axis week labels
       wks.forEach(function(wk,i){
         var x=PL+(i+0.5)*colW;
-        var parts=wk.split('-W');
-        html+='<text x="'+x+'" y="'+(CH-PB+12)+'" fill="#94a3b8" font-size="7" text-anchor="middle" font-family="var(--mono)">W'+parts[1]+'</text>';
+        html+='<text x="'+x+'" y="'+(CH-PB+12)+'" fill="#94a3b8" font-size="7" text-anchor="middle" font-family="var(--mono)">'+wkLabel(wk)+'</text>';
       });
       // Month dividers
       var prevMo=null;
@@ -1961,7 +1956,7 @@ function renderHeroTab(F){
       // ── Weekly table ──
       html+='<div style="overflow-x:auto;margin-top:8px"><table style="font-size:10px;min-width:600px"><thead><tr>';
       html+='<th style="min-width:140px">Keyword</th><th style="text-align:right">Click%</th><th style="text-align:right">Conv%</th>';
-      wks.forEach(function(wk){html+='<th style="text-align:right;font-size:8px;font-family:var(--mono)">'+wk.split('-W')[1]+'</th>';});
+      wks.forEach(function(wk){html+='<th style="text-align:right;font-size:8px;font-family:var(--mono)">'+wkLabel(wk)+'</th>';});
       html+='</tr></thead><tbody>';
       rows.forEach(function(k,ki){
         var col=KW_COLORS[ki%KW_COLORS.length];
