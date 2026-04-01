@@ -3068,6 +3068,46 @@ def generate():
                 })
             cat_top_kw[cat] = sorted(best, key=lambda x: -x["click_share"])[:8]
 
+        # ── 2b. SFR branded keywords (all, no click_share limit) ──────────
+        # Same brand variants as frontend _bVariants
+        _BRAND_VARIANTS_PY = {
+            'grosmimi': ['grosmimi', 'grosmini', 'grossini', 'gros mimi', 'grossmimi'],
+            'naeiae': ['naeiae', 'nae iae'],
+            'chaenmom': ['cha&mom', 'chaenmom', 'cha and mom', 'commemoi'],
+            'alpremio': ['alpremio'],
+        }
+        import re as _re2
+        def _bslug(b): return _re2.sub(r'[^a-z0-9]', '', (b or '').lower())
+        cat_brand_map = {cat: CAT_BRAND.get(cat, cd.get("brand", "")) for cat, cd in sorted_cats}
+
+        cat_sfr_branded = {}
+        for cat, entries in cat_keywords.items():
+            slug = _bslug(cat_brand_map.get(cat, ''))
+            bvars = _BRAND_VARIANTS_PY.get(slug, [slug] if slug else [])
+            by_kw = defaultdict(list)
+            for e in entries:
+                by_kw[e["keyword"]].append(e)
+            branded = []
+            for kw, weeks_data in by_kw.items():
+                kl = kw.lower()
+                if bvars and not any(v in kl for v in bvars):
+                    continue
+                rank_history = sorted(weeks_data, key=lambda x: x["week"])
+                rank_weekly = [w["search_freq_rank"] for w in rank_history[-12:]]
+                rank_week_labels = [w["week"] for w in rank_history[-12:]]
+                if not rank_weekly:
+                    continue
+                latest = max(weeks_data, key=lambda x: x["week"])
+                branded.append({
+                    "keyword": kw,
+                    "search_freq_rank": latest["search_freq_rank"],
+                    "rank_weekly": rank_weekly,
+                    "rank_week_labels": rank_week_labels,
+                    "click_share": latest["click_share"],
+                    "conv_share": latest["conv_share"],
+                })
+            cat_sfr_branded[cat] = sorted(branded, key=lambda x: -x["click_share"])
+
         # ── 3. Enrich keywords with ads spend + search volume ─────────────
         st_spend = defaultdict(lambda: {"spend": 0.0, "clicks": 0, "sales": 0.0, "impressions": 0})
         for r in search_terms:
@@ -3146,6 +3186,7 @@ def generate():
                 "daily_sales": daily_sales,
                 "daily_units": daily_units,
                 "top_keywords": cat_top_kw.get(cat, []),
+                "sfr_branded": cat_sfr_branded.get(cat, []),
                 "asins": asin_ref,
             })
 

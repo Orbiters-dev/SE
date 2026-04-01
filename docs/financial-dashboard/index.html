@@ -1104,7 +1104,7 @@ function renderHeroTab(F){
   var _brandGroups={};
   H.categories.forEach(function(c){
     var b=c.brand||'Other';
-    if(!_brandGroups[b])_brandGroups[b]={category:b,brand:b,_isBrand:true,asin_count:0,sales_7d:0,sales_30d:0,units_30d:0,units_7d:0,daily_sales:[],daily_units:[],_gsc:[],top_keywords:[],_kwSeen:{},_crMap:{},_subCats:[]};
+    if(!_brandGroups[b])_brandGroups[b]={category:b,brand:b,_isBrand:true,asin_count:0,sales_7d:0,sales_30d:0,units_30d:0,units_7d:0,daily_sales:[],daily_units:[],_gsc:[],top_keywords:[],_kwSeen:{},sfr_branded:[],_sfrSeen:{},_crMap:{},_subCats:[]};
     var bg=_brandGroups[b];
     bg._subCats.push(c.category);
     bg.asin_count+=c.asin_count;
@@ -1114,6 +1114,7 @@ function renderHeroTab(F){
     var _cl2=H.content_lift?H.content_lift[c.category]:null;
     if(_cl2&&_cl2.gsc_daily)_cl2.gsc_daily.forEach(function(v,i){bg._gsc[i]=(bg._gsc[i]||0)+v;});
     if(c.top_keywords)c.top_keywords.forEach(function(kw){if(!bg._kwSeen[kw.keyword]){bg._kwSeen[kw.keyword]=true;bg.top_keywords.push(kw);}});
+    if(c.sfr_branded)c.sfr_branded.forEach(function(kw){if(!bg._sfrSeen[kw.keyword]){bg._sfrSeen[kw.keyword]=true;bg.sfr_branded.push(kw);}});
     var catCrs=(H.content_creators_by_cat||{})[c.category]||[];
     catCrs.forEach(function(cr){
       if(!bg._crMap[cr.username])bg._crMap[cr.username]={username:cr.username,platform:cr.platform,brand:cr.brand,total_views:0,daily_views:[]};
@@ -1214,7 +1215,7 @@ function renderHeroTab(F){
       });
       var gscTotalAll=gscD.reduce(function(a,b){return a+b},0);
       if(gscTotalAll>0) html+='<span style="color:#f59e0b">--- GSC Search ('+gscTotalAll.toLocaleString()+' impr)</span>';
-      if(c.top_keywords){var _sfrLeg=c.top_keywords.filter(function(kw){return kw.rank_weekly&&kw.rank_weekly.length;}).slice(0,3);_sfrLeg.forEach(function(kw,ki){var _sc=['#f59e0b','#f97316','#eab308'][ki];html+='<span style="color:'+_sc+'">&#9679; SFR:'+kw.keyword.substring(0,15)+' ('+( kw.rank_weekly[kw.rank_weekly.length-1]>=1000?Math.round(kw.rank_weekly[kw.rank_weekly.length-1]/1000)+'K':kw.rank_weekly[kw.rank_weekly.length-1])+')</span>';});}
+      if(c.sfr_branded&&c.sfr_branded.length){var _sfrLeg=c.sfr_branded.filter(function(kw){return kw.rank_weekly&&kw.rank_weekly.length;}).slice(0,3);_sfrLeg.forEach(function(kw,ki){var _sc=['#f59e0b','#f97316','#eab308'][ki];html+='<span style="color:'+_sc+'">&#9679; SFR:'+kw.keyword.substring(0,15)+' ('+( kw.rank_weekly[kw.rank_weekly.length-1]>=1000?Math.round(kw.rank_weekly[kw.rank_weekly.length-1]/1000)+'K':kw.rank_weekly[kw.rank_weekly.length-1])+')</span>';});}
       var sessTotalAll=sessD.reduce(function(a,b){return a+b},0);
       if(sessTotalAll>0) html+='<span style="color:#6366f1">&#9644; Sessions ('+sessTotalAll.toLocaleString()+')</span>';
       var pvTotalAll=pvD.reduce(function(a,b){return a+b},0);
@@ -1265,23 +1266,11 @@ function renderHeroTab(F){
         var glx=padL+(n-1)*(bw+1)+bw/2,gly=padT+topH-gscD[n-1]/gscMax*topH*0.4;
         html+='<text x="'+(glx+6)+'" y="'+(gly+3)+'" fill="#f59e0b" font-size="7" font-weight="600" opacity="0.7">GSC</text>';
       }
-      // SFR overlay — branded keywords aggregated into one line (avg SFR per week)
+      // SFR overlay — branded keywords from pre-filtered sfr_branded field
       var _sfrOverlayKws=[];
-      if(c.top_keywords&&c.top_keywords.length){
-        var _bSlug=(c.brand||'').toLowerCase().replace(/[^a-z0-9]/g,'');
-        // Strict branded keyword filter — must contain exact brand name or known typo
-        var _bVariants={
-          'grosmimi':['grosmimi','grosmini','grossini','gros mimi','grossmimi'],
-          'naeiae':['naeiae','nae iae'],
-          'chaenmom':['cha&mom','chaenmom','cha and mom','commemoi'],
-          'alpremio':['alpremio']
-        };
-        var _bVarList=_bVariants[_bSlug]||[_bSlug];
-        _sfrOverlayKws=c.top_keywords.filter(function(kw){
-          if(!kw.rank_weekly||!kw.rank_weekly.length||!kw.rank_week_labels||!kw.rank_week_labels.length)return false;
-          var kl=kw.keyword.toLowerCase();
-          // must contain at least one brand variant as a substring
-          return _bVarList.some(function(v){return kl.indexOf(v)>=0;});
+      if(c.sfr_branded&&c.sfr_branded.length){
+        _sfrOverlayKws=c.sfr_branded.filter(function(kw){
+          return kw.rank_weekly&&kw.rank_weekly.length&&kw.rank_week_labels&&kw.rank_week_labels.length;
         });
       }
       if(_sfrOverlayKws.length){
