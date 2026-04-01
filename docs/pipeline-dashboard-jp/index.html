@@ -1213,14 +1213,14 @@ function renderCreators() {
   });
   document.getElementById('creator-count').textContent = filtered.length + ' creators';
 
-  // Show execute bar if any draft_ready in filtered
-  var hasDrafts = filtered.some(function(c) { return c.status === 'draft_ready' && c.dm_draft; });
+  // Show execute bar if any draft_ready in filtered (exclude already-DM'd)
+  var hasDrafts = filtered.some(function(c) { return c.status === 'draft_ready' && c.dm_draft && !c.dm_count; });
   document.getElementById('creators-exec-bar').style.display = hasDrafts ? 'block' : 'none';
 
   var html = '';
   filtered.forEach(function(c) {
     var dmLink = 'https://ig.me/m/' + c.username;
-    var isDraft = c.status === 'draft_ready' && c.dm_draft;
+    var isDraft = c.status === 'draft_ready' && c.dm_draft && !c.dm_count;
 
     html += '<div class="dm-card" style="border-left:3px solid ' + getStatusColor(c.status) + '">';
     // Header row
@@ -1792,7 +1792,7 @@ function generateDrafts() {
 }
 
 function renderDraftsList() {
-  var drafts = _creators.filter(function(c) { return c.status === 'draft_ready' && c.dm_draft; });
+  var drafts = _creators.filter(function(c) { return c.status === 'draft_ready' && c.dm_draft && !c.dm_count; });
   if (!drafts.length) {
     document.getElementById('drafts-list').innerHTML = '<div style="text-align:center;padding:40px;color:var(--dim)">No drafts available.</div>';
     document.getElementById('exec-bar-container').style.display = 'none';
