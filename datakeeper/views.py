@@ -77,6 +77,7 @@ TABLE_MAP = {
     "amazon_brand_analytics": models.AmazonBrandAnalytics,
     "amazon_sqp_brand": models.AmazonSQPBrand,
     "google_ads_search_terms": models.GoogleAdsSearchTerms,
+    "rakuten_orders_daily": models.RakutenOrdersDaily,
 }
 
 

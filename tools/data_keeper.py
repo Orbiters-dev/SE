@@ -2655,7 +2655,7 @@ def collect_rakuten_orders(date_from: str, date_to: str) -> list[dict]:
             cur = chunk_end + timedelta(days=1)
             continue
 
-        order_numbers = (data.get("PaginationResponseModel", {}) or {}).get("orderNumberList", []) or []
+        order_numbers = data.get("orderNumberList", []) or []
         if not order_numbers:
             cur = chunk_end + timedelta(days=1)
             continue
@@ -2666,10 +2666,10 @@ def collect_rakuten_orders(date_from: str, date_to: str) -> list[dict]:
             try:
                 detail_r = requests.post(
                     "https://api.rms.rakuten.co.jp/es/2.0/order/getOrder/",
-                    headers=headers, json={"orderNumberList": batch}, timeout=30
+                    headers=headers, json={"orderNumberList": batch, "version": 7}, timeout=30
                 )
                 detail_r.raise_for_status()
-                orders = detail_r.json().get("OrderModel", []) or []
+                orders = detail_r.json().get("OrderModelList", []) or []
             except Exception as e:
                 print(f"  [Rakuten] getOrder batch error: {e}")
                 continue
@@ -2684,7 +2684,8 @@ def collect_rakuten_orders(date_from: str, date_to: str) -> list[dict]:
                 if status in (900, 700):  # cancelled/returned
                     continue
                 price = float(o.get("goodsPrice", 0) or 0) + float(o.get("deliveryPrice", 0) or 0)
-                units = sum(int(i.get("units", 0) or 0) for i in (o.get("PackageModel", [{}])[0].get("ItemModel", []) or []))
+                pkgs = o.get("PackageModelList", []) or []
+                units = sum(int(i.get("units", 0) or 0) for i in (pkgs[0].get("ItemModelList", []) if pkgs else []))
                 if order_date not in daily:
                     daily[order_date] = {"date": order_date, "brand": "Grosmimi", "orders": 0, "units": 0, "revenue": 0.0}
                 daily[order_date]["orders"] += 1

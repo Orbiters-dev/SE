@@ -501,3 +501,21 @@ class GoogleAdsSearchTerms(models.Model):
 
     def __str__(self):
         return f"{self.date} {self.brand} {self.search_term}"
+
+
+class RakutenOrdersDaily(models.Model):
+    """Daily Rakuten orders aggregated from RMS API 2.0."""
+    date = models.DateField()
+    brand = models.CharField(max_length=100, default="Grosmimi")
+    channel = models.CharField(max_length=50, default="Rakuten")
+    orders = models.IntegerField(default=0)
+    units = models.IntegerField(default=0)
+    revenue = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    collected_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "gk_rakuten_orders_daily"
+        unique_together = ("date", "brand")
+
+    def __str__(self):
+        return f"{self.date} {self.brand} Rakuten"
