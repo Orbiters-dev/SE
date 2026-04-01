@@ -1253,6 +1253,7 @@ function renderHeroTab(F){
       var _allPv=cl?cl.pageviews_daily||[]:[];
       // Slice by period
       var pDays=_heroPeriod;
+      var step=pDays<=7?1:7;
       var ds=_allDs.slice(-pDays),du=_allDu.slice(-pDays);
       var vw=_allVw.slice(-pDays),dates=_allDates.slice(-pDays);
       var gscD=_allGsc.slice(-pDays);
@@ -1550,7 +1551,6 @@ function renderHeroTab(F){
       }
       // X-axis date labels (shared)
       var xBase=padT+topH+gap+botH;
-      var step=pDays<=7?1:7;
       for(var i=0;i<n;i+=step){var x=padL+i*(bw+1)+bw/2;
       html+='<text x="'+x+'" y="'+(xBase+14)+'" fill="#94a3b8" font-size="7" font-family="var(--mono)" text-anchor="middle" transform="rotate(-30,'+x+','+(xBase+14)+')">'+dates[i].substring(5)+'</text>';}
       // Shared vertical guide line
@@ -1641,12 +1641,16 @@ function renderHeroTab(F){
           }
           crDeltaArr.forEach(function(x,ci){
             var allDv=x.cr.daily_views;
+            // Forward-fill to get cumulative snapshot at each week end
+            var ffv=[],lastV=0;
+            for(var d2=0;d2<allDv.length;d2++){var v2=allDv[d2]||0;if(v2>0)lastV=v2;ffv.push(lastV);}
             var _wu=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
             html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_wu+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a></td>';
             wkSlice.forEach(function(wk,wi){
-              var weekTotal=0;var wkIdx=wkOffset+wi;
-              for(var d=wkIdx*7;d<Math.min((wkIdx+1)*7,allDv.length);d++){weekTotal+=(allDv[d]||0);}
-              html+='<td style="text-align:right;font-family:var(--mono)">'+(weekTotal>0?weekTotal.toLocaleString():'—')+'</td>';
+              var wkIdx=wkOffset+wi;
+              var lastDay=Math.min((wkIdx+1)*7-1,ffv.length-1);
+              var cumV=ffv[lastDay]||0;
+              html+='<td style="text-align:right;font-family:var(--mono)">'+(cumV>0?cumV.toLocaleString():'—')+'</td>';
             });
             html+='</tr>';
           });

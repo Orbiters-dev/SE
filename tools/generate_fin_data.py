@@ -3412,11 +3412,15 @@ def generate():
                     cat_creator_meta[(cat, uname)] = {"brand": brand, "platform": info.get("platform", "")}
 
         # Build per-category top creators
+        # Exclude creators whose content is not ours (false positives from crawler)
+        EXCLUDED_CREATORS = {"rosalieflorentin"}
         content_creators_by_cat = {}
         for cat in [c[0] for c in sorted_cats]:
             creators_in_cat = cat_creator_daily.get(cat, {})
             totals = []
             for uname, dv in creators_in_cat.items():
+                if uname.lower() in EXCLUDED_CREATORS:
+                    continue
                 total = sum(dv.values())
                 if total > 0:
                     meta = cat_creator_meta.get((cat, uname), {})
