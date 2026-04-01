@@ -1,0 +1,52 @@
+name: galryang_strategy
+description: 제갈량 전략 분석 — Agent Teams/Swarm + Codex 감사
+max_iterations: 2
+
+teams:
+  alpha:
+    name: Internal Data Team
+    agents:
+      - role: revenue_analyst
+        description: DataKeeper 매출/채널 트렌드 분석
+        tool: tools/data_keeper.py --status
+      - role: kpi_validator
+        description: KPI 데이터 품질 + 이상치 검증
+        tool: tools/kpi_validator.py --report-only
+      - role: rag_searcher
+        description: Gmail RAG 과거 의사결정 검색
+        tool: tools/gmail_rag.py --query
+
+  bravo:
+    name: External Research Team
+    agents:
+      - role: market_analyst
+        description: Firecrawl 경쟁사/시장 리서치
+        tool: firecrawl_search
+      - role: trend_analyst
+        description: Google News/Trends 트렌드 분석
+        tool: google_news_search
+
+  charlie:
+    name: Verification Team
+    agents:
+      - role: codex_auditor
+        description: Codex o4-mini 독립 전략 검증
+        tool: tools/codex_auditor.py --prompt
+
+phases:
+  - name: gather
+    teams: [alpha, bravo]
+    parallel: true
+    description: 내부 + 외부 데이터 동시 수집
+
+  - name: analyze
+    agent: galryang
+    description: Sequential Thinking으로 프레임워크 적용, 전략 옵션 도출
+
+  - name: verify
+    teams: [charlie]
+    description: Codex 독립 검증 (2-round)
+
+  - name: brief
+    agent: galryang
+    description: 최종 전략 브리핑 출력
