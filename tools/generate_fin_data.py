@@ -1201,8 +1201,9 @@ def generate():
         })
 
     # ── Amazon Sessions (SP-API Sales & Traffic Report) ──────────────────
-    def _fetch_amz_sessions(days=30):
-        """Fetch Amazon sessions/pageViews from GET_SALES_AND_TRAFFIC_REPORT."""
+    def _fetch_amz_sessions(days=90):
+        """Fetch Amazon sessions/pageViews from GET_SALES_AND_TRAFFIC_REPORT.
+        Returns daily totals + per-ASIN daily data for hero category sessions chart."""
         try:
             import requests as _req, gzip as _gz, time as _tm
             seller_cfg = {
@@ -1249,8 +1250,8 @@ def generate():
             if doc.get("compressionAlgorithm") == "GZIP":
                 content = _gz.decompress(content)
             data = json.loads(content.decode("utf-8"))
-            # Aggregate daily
-            result = {"sessions": 0, "pageViews": 0, "days": {}}
+            # Aggregate daily totals
+            result = {"sessions": 0, "pageViews": 0, "days": {}, "asin_days": defaultdict(dict)}
             for e in data.get("salesAndTrafficByDate", []):
                 d = e.get("date", "")
                 t = e.get("trafficByDate", {})
@@ -1259,14 +1260,34 @@ def generate():
                 result["sessions"] += sess
                 result["pageViews"] += pv
                 result["days"][d] = {"sessions": sess, "pageViews": pv}
+            # Per-ASIN daily sessions for hero category chart
+            for e in data.get("salesAndTrafficByAsin", []):
+                asin = e.get("parentAsin") or e.get("childAsin", "")
+                d = e.get("date", "")
+                t = e.get("trafficByAsin", {})
+                if asin and d:
+                    existing = result["asin_days"][asin].get(d, {"sessions": 0, "pageViews": 0})
+                    existing["sessions"] += t.get("sessions", 0)
+                    existing["pageViews"] += t.get("pageViews", 0)
+                    result["asin_days"][asin][d] = existing
             return result
         except Exception as ex:
             print(f"  [WARN] Amazon sessions fetch failed: {ex}")
             return {}
 
-    print("  Fetching Amazon sessions...")
-    amz_sessions_30d = _fetch_amz_sessions(30)
-    amz_sessions_7d = _fetch_amz_sessions(7)
+    print("  Fetching Amazon sessions (90d with ASIN detail)...")
+    amz_sessions_raw = _fetch_amz_sessions(90)
+    # Derive 30d/7d summaries from the 90d data
+    _cutoff_30 = (today - timedelta(days=30)).isoformat()
+    _cutoff_7  = (today - timedelta(days=7)).isoformat()
+    amz_sessions_30d = {
+        "sessions":  sum(v["sessions"]  for d, v in amz_sessions_raw.get("days", {}).items() if d >= _cutoff_30),
+        "pageViews": sum(v["pageViews"] for d, v in amz_sessions_raw.get("days", {}).items() if d >= _cutoff_30),
+    } if amz_sessions_raw else {}
+    amz_sessions_7d = {
+        "sessions":  sum(v["sessions"]  for d, v in amz_sessions_raw.get("days", {}).items() if d >= _cutoff_7),
+        "pageViews": sum(v["pageViews"] for d, v in amz_sessions_raw.get("days", {}).items() if d >= _cutoff_7),
+    } if amz_sessions_raw else {}
     if amz_sessions_30d:
         print(f"  Amazon sessions (30d): {amz_sessions_30d['sessions']:,} sessions, {amz_sessions_30d['pageViews']:,} pageViews")
 
@@ -3207,6 +3228,16 @@ def generate():
                     "rank": int(rank) if rank else None,
                 })
 
+        # Build per-category daily sessions from ASIN-level SP-API data
+        asin_days = amz_sessions_raw.get("asin_days", {}) if amz_sessions_raw else {}
+        cat_sessions_daily = defaultdict(lambda: defaultdict(int))
+        cat_pageviews_daily = defaultdict(lambda: defaultdict(int))
+        for cat, cd in sorted_cats:
+            for asin in cd.get("asins", set()):
+                for d, sv in asin_days.get(asin, {}).items():
+                    cat_sessions_daily[cat][d] += sv.get("sessions", 0)
+                    cat_pageviews_daily[cat][d] += sv.get("pageViews", 0)
+
         # Content lift — 90 day daily trend per category
         content_lift = {}
         for cat, cd in sorted_cats:
@@ -3216,12 +3247,16 @@ def generate():
             # GSC daily search impressions for this brand
             cat_brand = cd["brand"]
             gsc_daily_arr = [brand_gsc_daily.get(cat_brand, {}).get(d, 0) for d in daily_dates]
+            sessions_arr = [cat_sessions_daily[cat].get(d, 0) for d in daily_dates]
+            pageviews_arr = [cat_pageviews_daily[cat].get(d, 0) for d in daily_dates]
             content_lift[cat] = {
                 "dates": daily_dates,
                 "views": views_arr,
                 "sales": sales_arr,
                 "units": units_arr,
                 "gsc_daily": gsc_daily_arr,
+                "sessions_daily": sessions_arr,
+                "pageviews_daily": pageviews_arr,
             }
 
         ct_with_views = sum(1 for c in content_lift.values() if sum(c["views"]) > 0)

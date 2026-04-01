@@ -949,11 +949,15 @@ function renderHeroTab(F){
       var _allVw=cl?cl.views:[];
       var _allDates=H.daily_dates||[];
       var _allGsc=cl?cl.gsc_daily||[]:[];
+      var _allSess=cl?cl.sessions_daily||[]:[];
+      var _allPv=cl?cl.pageviews_daily||[]:[];
       // Slice by period
       var pDays=_heroPeriod;
       var ds=_allDs.slice(-pDays),du=_allDu.slice(-pDays);
       var vw=_allVw.slice(-pDays),dates=_allDates.slice(-pDays);
       var gscD=_allGsc.slice(-pDays);
+      var sessD=_allSess.slice(-pDays);
+      var pvD=_allPv.slice(-pDays);
       // Slice creator daily_views to match period
       var slicedCreators=catCreators.slice(0,5).map(function(cr){
         return {username:cr.username,brand:cr.brand,platform:cr.platform,total_views:cr.total_views,
@@ -981,6 +985,10 @@ function renderHeroTab(F){
       });
       var gscTotalAll=gscD.reduce(function(a,b){return a+b},0);
       if(gscTotalAll>0) html+='<span style="color:#f59e0b">--- GSC Search ('+gscTotalAll.toLocaleString()+' impr)</span>';
+      var sessTotalAll=sessD.reduce(function(a,b){return a+b},0);
+      if(sessTotalAll>0) html+='<span style="color:#6366f1">&#9644; Sessions ('+sessTotalAll.toLocaleString()+')</span>';
+      var pvTotalAll=pvD.reduce(function(a,b){return a+b},0);
+      if(pvTotalAll>0) html+='<span style="color:#a78bfa">&#x2508; Page Views ('+pvTotalAll.toLocaleString()+')</span>';
       html+='<span style="margin-left:auto;font-weight:700">$'+c.sales_7d.toLocaleString()+' 7D</span></div>';
       // ── TOP CHART: Sales ──
       var svgTotalH=padT+topH+gap+botH+30;
@@ -1019,6 +1027,31 @@ function renderHeroTab(F){
         html+='<polyline points="'+gPts.join(' ')+'" fill="none" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>';
         var glx=padL+(n-1)*(bw+1)+bw/2,gly=padT+topH-gscD[n-1]/gscMax*topH*0.4;
         html+='<text x="'+(glx+6)+'" y="'+(gly+3)+'" fill="#f59e0b" font-size="7" font-weight="600" opacity="0.7">GSC</text>';
+      }
+      // Sessions line overlay on sales chart
+      var sessTotal=sessD.reduce(function(a,b){return a+b},0);
+      if(sessTotal>0){
+        var sessMax=Math.max.apply(null,sessD)||1;
+        var sPts=[];
+        sessD.forEach(function(v,i){
+          var x=padL+i*(bw+1)+bw/2,y=padT+topH-v/sessMax*topH*0.5;
+          sPts.push(x+','+y);
+        });
+        html+='<polygon points="'+padL+','+(padT+topH)+' '+sPts.join(' ')+' '+(padL+(n-1)*(bw+1)+bw/2)+','+(padT+topH)+'" fill="#6366f1" opacity="0.06"/>';
+        html+='<polyline points="'+sPts.join(' ')+'" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>';
+        var slx=padL+(n-1)*(bw+1)+bw/2,sly=padT+topH-sessD[n-1]/sessMax*topH*0.5;
+        html+='<text x="'+(slx+6)+'" y="'+(sly+3)+'" fill="#6366f1" font-size="7" font-weight="600" opacity="0.8">Sess</text>';
+      }
+      // Page views line overlay
+      var pvTotal=pvD.reduce(function(a,b){return a+b},0);
+      if(pvTotal>0){
+        var pvMax=Math.max.apply(null,pvD)||1;
+        var pvPts=[];
+        pvD.forEach(function(v,i){
+          var x=padL+i*(bw+1)+bw/2,y=padT+topH-v/pvMax*topH*0.5;
+          pvPts.push(x+','+y);
+        });
+        html+='<polyline points="'+pvPts.join(' ')+'" fill="none" stroke="#a78bfa" stroke-width="1" stroke-dasharray="4,3" stroke-linecap="round" opacity="0.6"/>';
       }
       // Sales end label
       var lsx=padL+(n-1)*(bw+1)+bw/2,lsy=padT+topH-ds[n-1]/maxS*topH;
@@ -1110,6 +1143,10 @@ function renderHeroTab(F){
         if(ttViews>0) ttH+='<div class=tt-row><span class=tt-dot style=background:'+bc+'></span>Views: '+ttViews.toLocaleString()+'</div>';
         var ttGsc=gscD[i]||0;
         if(ttGsc>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#f59e0b></span>GSC: '+ttGsc.toLocaleString()+' impr</div>';
+        var ttSess=sessD[i]||0;
+        if(ttSess>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#6366f1></span>Sessions: '+ttSess.toLocaleString()+'</div>';
+        var ttPv=pvD[i]||0;
+        if(ttPv>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#a78bfa></span>Page Views: '+ttPv.toLocaleString()+'</div>';
         slicedCreators.forEach(function(cr,ci){
           var cv=cr.daily_views[i]||0;
           var delta=i>0?Math.max(0,(cr.daily_views[i]||0)-(cr.daily_views[i-1]||0)):0;
