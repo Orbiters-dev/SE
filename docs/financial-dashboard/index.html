@@ -938,8 +938,8 @@ function renderHeroTab(F){
       var hasContent=catCreators.length>0||(vw.length&&vw.reduce(function(a,b){return a+b},0)>0);
       var INF_COLORS=['#3b82f6','#ec4899','#f97316','#14b8a6','#6366f1','#ef4444','#a855f7','#eab308','#0ea5e9','#84cc16'];
       // Full-width chart dimensions
-      var padL=50,padR=140,padT=14,gap=4;
-      var topH=100,botH=hasContent?90:0;
+      var padL=50,padR=140,padT=14,gap=6;
+      var topH=100,botH=hasContent?164:0; // cumulative(90) + gap + delta(70)
       var chartW=1020; // full container width
       var bw=Math.max(Math.floor((chartW-padL-padR)/n)-1,3);
       var maxS=Math.max.apply(null,ds)||1;
@@ -983,38 +983,70 @@ function renderHeroTab(F){
       html+='<text x="'+(lsx+6)+'" y="'+(lsy+3)+'" fill="var(--g)" font-size="8" font-weight="700">Sales</text>';
       // Divider line between charts
       if(hasContent){
-        var divY=padT+topH+gap/2;
-        html+='<line x1="'+padL+'" y1="'+divY+'" x2="'+(chartW-padR)+'" y2="'+divY+'" stroke="var(--border)" stroke-width="1"/>';
-        // ── BOTTOM CHART: Content Views + Influencer Lines ──
-        var botTop=padT+topH+gap;
-        // Content views bars
-        if(vw.length){vw.forEach(function(v,i){
-          if(v>0){var x=padL+i*(bw+1),h=v/maxV*botH;
-          html+='<rect x="'+x+'" y="'+(botTop+botH-h)+'" width="'+bw+'" height="'+h+'" fill="'+bc+'" opacity="0.22" rx="1"/>';}
-        });}
-        // Views Y-axis
+        var divY1=padT+topH+gap/2;
+        html+='<line x1="'+padL+'" y1="'+divY1+'" x2="'+(chartW-padR)+'" y2="'+divY1+'" stroke="var(--border)" stroke-width="1"/>';
+        // ── MID CHART: Cumulative Views per Influencer ──
+        var midTop=padT+topH+gap;
+        var midH=botH; // same height as original botH
+        // Cumulative views Y-axis
+        var crMaxV=1;
+        catCreators.slice(0,5).forEach(function(cr){cr.daily_views.forEach(function(v){if(v>crMaxV)crMaxV=v;});});
         for(var g=0;g<=2;g++){
-          var gy=botTop+botH-g/2*botH;
-          var gv=Math.round(maxV*g/2);
+          var gy=midTop+midH-g/2*midH;
+          var gv=Math.round(crMaxV*g/2);
           html+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(chartW-padR)+'" y2="'+gy+'" stroke="#f1f5f9" stroke-width="0.5"/>';
           if(gv>0) html+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" fill="'+bc+'" font-size="7" font-family="var(--mono)" text-anchor="end" opacity="0.6">'+gv.toLocaleString()+'</text>';
         }
-        // Influencer lines
-        var crMaxV=1;
-        catCreators.slice(0,5).forEach(function(cr){cr.daily_views.forEach(function(v){if(v>crMaxV)crMaxV=v;});});
+        html+='<text x="'+(padL+2)+'" y="'+(midTop+10)+'" fill="'+bc+'" font-size="8" font-weight="700" opacity="0.5">Cumulative Views</text>';
+        // Influencer cumulative lines
         catCreators.slice(0,5).forEach(function(cr,ci){
           var col=INF_COLORS[ci%INF_COLORS.length];
           var pts=[];
           cr.daily_views.forEach(function(v,i){
-            if(i<n){var x=padL+i*(bw+1)+bw/2,y=botTop+botH-v/crMaxV*botH*0.9;
+            if(i<n){var x=padL+i*(bw+1)+bw/2,y=midTop+midH-v/crMaxV*midH*0.9;
             pts.push(x+','+y);}
           });
           if(pts.length) html+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+col+'" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>';
           var lastV=cr.daily_views[n-1]||0;
-          var lx=padL+(n-1)*(bw+1)+bw/2,ly=botTop+botH-lastV/crMaxV*botH*0.9;
+          var lx=padL+(n-1)*(bw+1)+bw/2,ly=midTop+midH-lastV/crMaxV*midH*0.9;
           html+='<circle cx="'+lx+'" cy="'+ly+'" r="3" fill="'+col+'"/>';
           html+='<text x="'+(lx+6)+'" y="'+(ly+3)+'" fill="'+col+'" font-size="8" font-weight="600">@'+cr.username+'</text>';
         });
+        // ── BOTTOM CHART: Daily Delta Views (day-over-day change) ──
+        var divY2=midTop+midH+gap/2;
+        html+='<line x1="'+padL+'" y1="'+divY2+'" x2="'+(chartW-padR)+'" y2="'+divY2+'" stroke="var(--border)" stroke-width="1"/>';
+        var delTop=midTop+midH+gap;
+        var delH=70;
+        // Compute deltas for each creator
+        var crDeltas=[];
+        var delMax=1;
+        catCreators.slice(0,5).forEach(function(cr){
+          var d=[];
+          for(var i=0;i<n;i++){
+            var delta=i>0?(cr.daily_views[i]-cr.daily_views[i-1]):0;
+            d.push(delta);
+            if(Math.abs(delta)>delMax) delMax=Math.abs(delta);
+          }
+          crDeltas.push(d);
+        });
+        // Delta Y-axis
+        var delMid=delTop+delH/2;
+        html+='<line x1="'+padL+'" y1="'+delMid+'" x2="'+(chartW-padR)+'" y2="'+delMid+'" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="2,2"/>';
+        html+='<text x="'+(padL-4)+'" y="'+(delTop+8)+'" fill="#94a3b8" font-size="6" font-family="var(--mono)" text-anchor="end">+'+delMax.toLocaleString()+'</text>';
+        html+='<text x="'+(padL-4)+'" y="'+(delTop+delH-2)+'" fill="#94a3b8" font-size="6" font-family="var(--mono)" text-anchor="end">-'+delMax.toLocaleString()+'</text>';
+        html+='<text x="'+(padL+2)+'" y="'+(delTop+10)+'" fill="#94a3b8" font-size="8" font-weight="700" opacity="0.5">Daily Delta</text>';
+        // Delta lines per creator
+        crDeltas.forEach(function(dd,ci){
+          var col=INF_COLORS[ci%INF_COLORS.length];
+          var pts=[];
+          dd.forEach(function(v,i){
+            var x=padL+i*(bw+1)+bw/2;
+            var y=delMid-v/delMax*(delH/2)*0.85;
+            pts.push(x+','+y);
+          });
+          html+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+col+'" stroke-width="1" stroke-linecap="round" opacity="0.7"/>';
+        });
+        botH=midH+gap+delH; // Update botH for xBase calc
       }
       // X-axis date labels (shared)
       var xBase=padT+topH+gap+botH;
@@ -1036,7 +1068,9 @@ function renderHeroTab(F){
         if(ttViews>0) ttH+='<div class=tt-row><span class=tt-dot style=background:'+bc+'></span>Views: '+ttViews.toLocaleString()+'</div>';
         catCreators.slice(0,5).forEach(function(cr,ci){
           var cv=cr.daily_views[i]||0;
-          if(cv>0) ttH+='<div class=tt-row><span class=tt-dot style=background:'+INF_COLORS[ci%INF_COLORS.length]+'></span>@'+cr.username+': '+cv.toLocaleString()+'</div>';
+          var delta=i>0?(cr.daily_views[i]-cr.daily_views[i-1]):0;
+          var deltaStr=delta>0?'+'+delta.toLocaleString():delta.toLocaleString();
+          if(cv>0) ttH+='<div class=tt-row><span class=tt-dot style=background:'+INF_COLORS[ci%INF_COLORS.length]+'></span>@'+cr.username+': '+cv.toLocaleString()+' <span style=color:'+(delta>=0?'#10b981':'#ef4444')+'>'+deltaStr+'</span></div>';
         });
         html+='<rect x="'+hx+'" y="'+padT+'" width="'+hw+'" height="'+xBase+'" fill="transparent" style="cursor:crosshair"'
           +' onmousemove="showTT(event,\''+ttH.replace(/'/g,"\\'")+'\');var g=document.getElementById(\'hero-guide-'+idx+'\');if(g){g.setAttribute(\'x1\','+(hx+hw/2)+');g.setAttribute(\'x2\','+(hx+hw/2)+');g.setAttribute(\'opacity\',\'0.6\');}"'

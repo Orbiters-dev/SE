@@ -308,7 +308,16 @@ def generate():
     shopify_sku = dk.get("shopify_orders_sku_daily", date_from="2025-06-01")
     amazon_sku = dk.get("amazon_sales_sku_daily", days=days_back)
     klaviyo = dk.get("klaviyo_daily", days=days_back)
-    content_posts = dk.get("content_posts", days=365, limit=50000)  # Wide window + high limit to match older posts tracked in metrics
+    # Fetch content_posts in multiple passes to ensure full coverage
+    # (DK returns non-deterministic 10K subsets without ORDER BY)
+    _cp_all = {}
+    for _brand in ["Grosmimi", "CHA&MOM", "Naeiae", "Onzenna", "Babyrabbit", "Commemoi", "Goongbe", ""]:
+        _cp = dk.get("content_posts", days=365, limit=50000, brand=_brand if _brand else None)
+        for p in _cp:
+            pid = p.get("post_id") or p.get("url", "")
+            if pid and pid not in _cp_all:
+                _cp_all[pid] = p
+    content_posts = list(_cp_all.values())
     content_metrics = dk.get("content_metrics_daily", days=90, limit=50000)
     google_search_terms = dk.get("google_ads_search_terms", days=30)
     print(f"  Shopify: {len(shopify)} rows, Amazon Sales: {len(amazon_sales)}")
@@ -3134,7 +3143,7 @@ def generate():
             ptypes = [t.strip() for t in pt_raw.split(",") if t.strip()] if pt_raw else []
             uname = (p.get("username") or "").strip()
             platform = p.get("platform", "")
-            if pid and brand:
+            if pid:  # Include ALL posts, even without brand (syncly_sheets often lacks brand)
                 post_info[pid] = {"brand": brand, "product_types": ptypes, "username": uname, "platform": platform}
 
         # Aggregate views by product_type + date (90 days)
@@ -3179,7 +3188,22 @@ def generate():
         print(f"  Content lift: {len(content_lift)} categories, {ct_with_views} with views (90d)")
 
         # ── 6b. Content by influencer per category (90d) ─────────────────
-        # Reuses post_info from section 6 (already built with username/platform)
+        # Build username → brand lookup from posts that have brand set
+        username_brand = {}
+        for pi in post_info.values():
+            u = pi.get("username", "")
+            b = pi.get("brand", "")
+            if u and b and u not in username_brand:
+                username_brand[u] = b
+
+        # Fill missing brands in post_info using username_brand lookup
+        for pi in post_info.values():
+            if not pi.get("brand") and pi.get("username"):
+                pi["brand"] = username_brand.get(pi["username"], "")
+
+        _dbg_with_user = sum(1 for v in post_info.values() if v.get("username"))
+        _dbg_with_brand = sum(1 for v in post_info.values() if v.get("brand"))
+        print(f"  [6b] post_info: {len(post_info)} entries, {_dbg_with_user} with username, {_dbg_with_brand} with brand")
         cat_creator_daily = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
         cat_creator_meta = {}  # (cat, username) → {brand, platform}
         for m in content_metrics:
