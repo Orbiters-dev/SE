@@ -1129,11 +1129,18 @@ function renderHeroTab(F){
       var _sfrOverlayKws=[];
       if(c.top_keywords&&c.top_keywords.length){
         var _bSlug=(c.brand||'').toLowerCase().replace(/[^a-z0-9]/g,'');
-        var _bVariants={'grosmimi':['grosmimi','grosmini','grossini','gros mimi'],'naeiae':['naeiae'],'chaenmom':['cha','mom','commemoi'],'alpremio':['alpremio']};
+        // Strict branded keyword filter — must contain exact brand name or known typo
+        var _bVariants={
+          'grosmimi':['grosmimi','grosmini','grossini','gros mimi','grossmimi'],
+          'naeiae':['naeiae','nae iae'],
+          'chaenmom':['cha&mom','chaenmom','cha and mom','commemoi'],
+          'alpremio':['alpremio']
+        };
         var _bVarList=_bVariants[_bSlug]||[_bSlug];
         _sfrOverlayKws=c.top_keywords.filter(function(kw){
           if(!kw.rank_weekly||!kw.rank_weekly.length||!kw.rank_week_labels||!kw.rank_week_labels.length)return false;
           var kl=kw.keyword.toLowerCase();
+          // must contain at least one brand variant as a substring
           return _bVarList.some(function(v){return kl.indexOf(v)>=0;});
         });
       }
@@ -1156,8 +1163,8 @@ function renderHeroTab(F){
           var _sfrVals=_sfrAvg.map(function(p){return p.v;});
           var _sfrMin=Math.min.apply(null,_sfrVals),_sfrMax=Math.max.apply(null,_sfrVals);
           if(_sfrMin===_sfrMax){_sfrMin=Math.round(_sfrMin*0.85);_sfrMax=Math.round(_sfrMax*1.15);}
-          // Inverted Y: lower SFR = more searched = higher on chart
-          function sfrY(r){return padT+topH*0.08+topH*0.82*(r-_sfrMin)/(_sfrMax-_sfrMin);}
+          // Normal Y: higher SFR number = higher on chart (낮을수록 더 많이 검색됨)
+          function sfrY(r){return padT+topH*0.9-topH*0.82*(r-_sfrMin)/(_sfrMax-_sfrMin);}
           // Map week dates to x
           var _sfrPts=[];
           _sfrAvg.forEach(function(p){
@@ -1168,12 +1175,14 @@ function renderHeroTab(F){
             }
             _sfrPts.push({x:padL+bestDi*(bw+1)+bw/2,y:sfrY(p.v),v:p.v,w:p.w});
           });
-          // Right Y-axis ticks
-          [_sfrMin,_sfrMax].forEach(function(v){
+          // Right Y-axis ticks (max at top, min at bottom)
+          [[_sfrMax,'↑많이검색'],[_sfrMin,'↓적게검색']].forEach(function(pair){
+            var v=pair[0],label=pair[1];
             var y=sfrY(v),vStr=v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?Math.round(v/1000)+'K':''+v;
-            html+='<text x="'+(chartW-padR+4)+'" y="'+(y+3)+'" fill="#f59e0b" font-size="6" font-family="var(--mono)" opacity="0.6">'+vStr+'</text>';
+            html+='<text x="'+(chartW-padR+4)+'" y="'+(y+3)+'" fill="#f59e0b" font-size="6" font-family="var(--mono)" opacity="0.7">'+vStr+'</text>';
+            html+='<text x="'+(chartW-padR+4)+'" y="'+(y+11)+'" fill="#f59e0b" font-size="6" opacity="0.5">'+label+'</text>';
           });
-          html+='<text x="'+(chartW-padR+4)+'" y="'+(padT+7)+'" fill="#f59e0b" font-size="6" font-weight="700" opacity="0.75">SFR↓</text>';
+          html+='<text x="'+(chartW-padR+4)+'" y="'+(padT+7)+'" fill="#f59e0b" font-size="6" font-weight="700" opacity="0.75">SFR</text>';
           // Dashed connecting line
           if(_sfrPts.length>1){
             html+='<polyline points="'+_sfrPts.map(function(p){return p.x+','+p.y;}).join(' ')+'" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>';
