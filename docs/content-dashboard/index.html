@@ -316,7 +316,8 @@ async function initContentDashboard(){
     if(!postsRes.ok) throw new Error('content_posts: '+postsRes.status);
     if(!metricsRes.ok) throw new Error('content_metrics_daily: '+metricsRes.status);
     if(!ordersRes.ok) throw new Error('influencer_orders: '+ordersRes.status);
-    _posts = (await postsRes.json()).rows||[];
+    var EXCLUDED_CREATORS=['rosalieflorentin'];
+    _posts = ((await postsRes.json()).rows||[]).filter(function(p){return EXCLUDED_CREATORS.indexOf((p.username||'').toLowerCase())<0;});
     _metrics = (await metricsRes.json()).rows||[];
     _orders = (await ordersRes.json()).rows||[];
     _amzSales = amzRes.ok ? ((await amzRes.json()).rows||[]) : [];
