@@ -1288,21 +1288,43 @@ function markSent(handle) {
   if (isOverLimit()) { showToast('Daily limit reached! (' + _dailyLimit + '/day)', 'err'); return; }
   var c = _creators.find(function(x) { return x.username === handle; });
   if (!c) return;
-  // Prevent duplicate send
   if (c.status === 'sent' || c._sending) { showToast('@' + handle + ' already sent', 'err'); return; }
   c._sending = true;
-  // Log the draft as outbound DM
-  if (c.dm_draft) {
-    n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' });
+
+  function _afterSend(viaManychat) {
+    if (c.dm_draft) {
+      n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' });
+    }
+    updateStatus(handle, 'sent').then(function() {
+      incDmCount();
+      updateStats(); renderCreators(); renderDmQueue();
+      showToast((viaManychat ? '✅ ManyChat DM sent: ' : '📋 Copied — paste in IG: ') + '@' + handle + ' (' + _dmSentToday + '/' + _dailyLimit + ')');
+      scheduleDmBackCheck(handle);
+    }).catch(function() { c._sending = false; showToast('Status update failed', 'err'); });
   }
-  updateStatus(handle, 'sent').then(function() {
-    incDmCount();
-    updateStats(); renderCreators(); renderDmQueue();
-    showToast('DM sent: @' + handle + ' (' + _dmSentToday + '/' + _dailyLimit + ') — 5분 후 자동 확인');
-    scheduleDmBackCheck(handle);
-  }).catch(function() {
-    showToast('Failed to update status', 'err');
-  });
+
+  if (c.manychat_id && c.dm_draft) {
+    n8nPost({ action: 'send_dm', username: handle, message: c.dm_draft, sent_by: _currentUser || 'dashboard' })
+      .then(function(res) {
+        if (res.status === 'ok' || res.sent) {
+          _afterSend(true);
+        } else {
+          navigator.clipboard.writeText(c.dm_draft).catch(function(){});
+          window.open('https://www.instagram.com/' + handle, '_blank');
+          _afterSend(false);
+        }
+      }).catch(function() {
+        navigator.clipboard.writeText(c.dm_draft || '').catch(function(){});
+        window.open('https://www.instagram.com/' + handle, '_blank');
+        _afterSend(false);
+      });
+  } else {
+    if (c.dm_draft) {
+      navigator.clipboard.writeText(c.dm_draft).catch(function(){});
+      window.open('https://www.instagram.com/' + handle, '_blank');
+    }
+    _afterSend(false);
+  }
 }
 
 function markReplied(handle) {
@@ -2266,15 +2288,33 @@ function executeCreatorsDrafts() {
     var handle = handles[idx];
     var c = _creators.find(function(x) { return x.username === handle; });
     var text = c ? (c.dm_draft || '') : '';
-    // Skip already sent or no draft
     if (!text || (c && c.status === 'sent')) { idx++; setTimeout(processNext, 300); return; }
-    // 1st outreach = IG manual
-    navigator.clipboard.writeText(text).catch(function(){});
-    n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
-    window.open('https://www.instagram.com/' + handle, '_blank');
-    updateStatus(handle, 'sent').then(function() { incDmCount(); }).catch(function(){});
-    idx++;
-    setTimeout(processNext, 1200);
+
+    function _done() {
+      n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
+      updateStatus(handle, 'sent').then(function() { incDmCount(); }).catch(function(){});
+      idx++;
+      setTimeout(processNext, 1200);
+    }
+
+    if (c && c.manychat_id) {
+      n8nPost({ action: 'send_dm', username: handle, message: text, sent_by: _currentUser || 'dashboard' })
+        .then(function(res) {
+          if (!(res.status === 'ok' || res.sent)) {
+            navigator.clipboard.writeText(text).catch(function(){});
+            window.open('https://www.instagram.com/' + handle, '_blank');
+          }
+          _done();
+        }).catch(function() {
+          navigator.clipboard.writeText(text).catch(function(){});
+          window.open('https://www.instagram.com/' + handle, '_blank');
+          _done();
+        });
+    } else {
+      navigator.clipboard.writeText(text).catch(function(){});
+      window.open('https://www.instagram.com/' + handle, '_blank');
+      _done();
+    }
   }
   processNext();
 }
