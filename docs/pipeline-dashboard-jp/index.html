@@ -969,18 +969,24 @@ function loadCreators() {
         c.followers = c.followers || 0;
       });
       setPillStatus('ready');
-      updateStats();
-      renderCreators();
-      renderDailyKpi();
-      renderInboundQueue();
-      renderHilQueue();
-      autoLoadReplyDrafts();
-      renderSamples();
-      renderContracts();
-      loadRecentActivity();
-      loadConfig();
-      loadInfluencerSheet();
-      crossCheckDmLogs();
+      // Run each render in isolation so one failure doesn't kill the rest
+      var steps = [
+        ['updateStats', updateStats],
+        ['renderCreators', renderCreators],
+        ['renderDailyKpi', renderDailyKpi],
+        ['renderInboundQueue', renderInboundQueue],
+        ['renderHilQueue', renderHilQueue],
+        ['autoLoadReplyDrafts', autoLoadReplyDrafts],
+        ['renderSamples', renderSamples],
+        ['renderContracts', renderContracts],
+        ['loadRecentActivity', loadRecentActivity],
+        ['loadConfig', loadConfig],
+        ['loadInfluencerSheet', loadInfluencerSheet],
+        ['crossCheckDmLogs', crossCheckDmLogs]
+      ];
+      steps.forEach(function(s) {
+        try { s[1](); } catch(e) { console.error('[loadCreators] ' + s[0] + ' failed:', e); }
+      });
     })
     .catch(function(err) {
       console.error('Failed to load creators:', err);
