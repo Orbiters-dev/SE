@@ -1389,12 +1389,16 @@ function renderHeroTab(F){
           if(_sfrMin===_sfrMax){_sfrMin=Math.round(_sfrMin*0.85);_sfrMax=Math.round(_sfrMax*1.15);}
           // Volume: higher=more searched, higher on chart. SFR rank: same direction (higher rank# = higher on chart)
           function sfrY(r){return padT+topH*0.9-topH*0.82*(r-_sfrMin)/(_sfrMax-_sfrMin);}
-          // Map week dates to x
+          // Map week dates to x — only include weeks within chart date range
+          var _chartStart=new Date(dates[0]),_chartEnd=new Date(dates[n-1]);
+          _chartStart.setDate(_chartStart.getDate()-4); // week can start a few days before first daily date
           var _sfrPts=[];
           _sfrAvg.forEach(function(p){
+            var pw=new Date(p.w);
+            if(pw<_chartStart||pw>_chartEnd)return; // skip weeks outside chart range
             var bestDi=0,bestDiff=999999;
             for(var di=0;di<n;di++){
-              var diff=Math.abs(new Date(dates[di])-new Date(p.w));
+              var diff=Math.abs(new Date(dates[di])-pw);
               if(diff<bestDiff){bestDiff=diff;bestDi=di;}
             }
             _sfrPts.push({x:padL+bestDi*(bw+1)+bw/2,y:sfrY(p.v),v:p.v,w:p.w});
