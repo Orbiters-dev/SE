@@ -191,129 +191,162 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
       </button>
     </div>
 
-    <!-- Flow Bar -->
-    <div class="funnel" style="margin-bottom:20px">
-      <div class="fn on" onclick="scrollToHwSec('hw-discover')"><div class="fi" style="font-size:16px">&#x1F50E;</div><div class="ft">Discover</div><div class="fs">Find creators</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" onclick="scrollToHwSec('hw-config')"><div class="fi" style="font-size:16px">&#x2699;&#xFE0F;</div><div class="ft">Config</div><div class="fs">Set batch params</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" onclick="scrollToHwSec('hw-preview')"><div class="fi" style="font-size:16px">&#x1F50D;</div><div class="ft">Preview</div><div class="fs">Count eligible</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" onclick="scrollToHwSec('hw-draft')"><div class="fi" style="font-size:16px">&#x1F4DD;</div><div class="ft">Draft</div><div class="fs">Generate emails</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" onclick="scrollToHwSec('hw-send')"><div class="fi" style="font-size:16px">&#x1F4E8;</div><div class="ft">Send+QnA</div><div class="fs">Outreach + Reply</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" onclick="scrollToHwSec('hw-review')"><div class="fi" style="font-size:16px">&#x2705;</div><div class="ft">Accept</div><div class="fs">Order auto-complete</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" onclick="scrollToHwSec('hw-sample')"><div class="fi" style="font-size:16px">&#x1F4E6;</div><div class="ft">Sample</div><div class="fs">Ship products</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" onclick="scrollToHwSec('hw-track')"><div class="fi" style="font-size:16px">&#x1F4F8;</div><div class="ft">Track</div><div class="fs">Content D+60</div></div>
-    </div>
-
-    <!-- Accordion sections - all visible, click h3 to expand/collapse -->
-    <div class="card hw-sec open" id="hw-discover" style="border-left:3px solid var(--p)">
-      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F50E; Step 0: Discover &mdash; Find New Creators</h3>
-      <div class="hw-body">
-        <div class="desc" style="font-size:11px;line-height:1.7;margin-bottom:12px">Syncly Discovery&#xC5D0;&#xC11C; &#xBE0C;&#xB79C;&#xB4DC; &#xAD00;&#xB828; &#xCF58;&#xD150;&#xCE20; + <b>&#xB300;&#xC0AC;(&#xCE90;&#xD504;&#xC158;)</b>&#xC744; &#xD568;&#xAED8; &#xBC1C;&#xAD74;.<br>&#xB300;&#xC0AC;&#xB294; outreach &#xC774;&#xBA54;&#xC77C; &#xC791;&#xC131; &#xADFC;&#xAC70;&#xB85C; &#xD65C;&#xC6A9;&#xB428;. Execution &#xD0ED; > <b>Discovery &amp; Sourcing</b>&#xC5D0;&#xC11C; &#xC2E4;&#xD589;.</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div style="background:#fdf2f8;border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--p)">Syncly Discovery (Outbound)</b><br>&#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130; &#xC815;&#xBCF4; (&#xD575;&#xB4E4;, &#xD314;&#xB85C;&#xC6CC;, &#xC778;&#xAC8C;&#xC774;&#xC9C0;&#xBA3C;&#xD2B8;) + &#xBC1C;&#xACAC; &#xCF58;&#xD150;&#xCE20; (&#xCE90;&#xD504;&#xC158;/&#xB300;&#xC0AC; &#xD3EC;&#xD568;) &#xC784;&#xD3EC;&#xD2B8;.<br><span class="b">Not Started</span>&#xB85C; &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778; &#xC9C4;&#xC785;. &#xC790;&#xB3D9; &#xB204;&#xC801;.</div>
-          <div style="background:var(--abg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--a)">Inbound (&#xC790;&#xB3D9;)</b><br>&#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130;&#xAC00; Gifting &#xD3FC; &#xC81C;&#xCD9C; &#x2192; <span class="b p">Needs Review</span> &#xC790;&#xB3D9; &#xB4F1;&#xB85D;.<br>Review Queue&#xC5D0;&#xC11C; &#xC2B9;&#xC778;/&#xAC70;&#xBD80;.</div>
-        </div>
-        <div style="margin-top:8px;font-size:10px;color:var(--dim)"><b>Note:</b> Apify Content Crawl = Track &#xB2E8;&#xACC4;(D+60 &#xBAA8;&#xB2C8;&#xD130;&#xB9C1;). Draft&#xC5D0;&#xC11C;&#xB3C4; Autofill(&#xD504;&#xB85C;&#xD544; &#xBCF4;&#xCDA9;)&#xC73C;&#xB85C; &#xD65C;&#xC6A9;.</div>
+    <!-- ==================== LOW TOUCH 전체 화면 ==================== -->
+    <div id="hw-panel-lt" class="hw-lt">
+      <div class="funnel" style="margin-bottom:20px">
+        <div class="fn on" onclick="scrollToHwSec('lt-s0')"><div class="fi" style="font-size:16px">&#x1F50E;</div><div class="ft">Discover</div><div class="fs">Find creators</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('lt-s1')"><div class="fi" style="font-size:16px">&#x2699;&#xFE0F;</div><div class="ft">Config</div><div class="fs">Batch params</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('lt-s2')"><div class="fi" style="font-size:16px">&#x1F50D;</div><div class="ft">Preview</div><div class="fs">Count eligible</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('lt-s3')"><div class="fi" style="font-size:16px">&#x1F4DD;</div><div class="ft">Draft</div><div class="fs">Auto-approve</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('lt-s4')"><div class="fi" style="font-size:16px">&#x1F4E8;</div><div class="ft">Send+QnA</div><div class="fs">Auto-send</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('lt-s5')"><div class="fi" style="font-size:16px">&#x2705;</div><div class="ft">Accept</div><div class="fs">Auto-complete</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('lt-s6')"><div class="fi" style="font-size:16px">&#x1F4E6;</div><div class="ft">Sample</div><div class="fs">Ship products</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('lt-s7')"><div class="fi" style="font-size:16px">&#x1F4F8;</div><div class="ft">Track</div><div class="fs">Content D+60</div></div>
       </div>
-    </div>
-
-    <div class="card hw-sec" id="hw-config" style="border-left:3px solid var(--a)">
-      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x2699;&#xFE0F; Step 1: Config &mdash; Set Batch Parameters</h3>
-      <div class="hw-body">
-        <div class="desc" style="font-size:11px;line-height:1.7">Batch Size, HT Threshold, Feature Toggles, Human-in-Loop &#xC124;&#xC815;. &#xB9E4;&#xC77C; &#xBC30;&#xCE58; &#xC804;&#xC5D0; &#xD655;&#xC778; &#x2192; Apply Config.</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
-          <div style="background:var(--abg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--a)">Batch Size</b><br>&#xD55C; &#xBC88;&#xC5D0; &#xBCF4;&#xB0BC; &#xC218;. &#xCD08;&#xAE30; 5-10, &#xC548;&#xC815;&#xD654; &#xD6C4; 20-30.</div>
-          <div style="background:var(--abg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--a)">HT Threshold</b><br>&#xD314;&#xB85C;&#xC6CC; &#x2265;50K AND R30D &#xC870;&#xD68C;&#xC218; &#x2265;100K = HT (&#xACC4;&#xC57D;+&#xACB0;&#xC81C;), &#xBBF8;&#xB2EC; = LT (&#xBB34;&#xB8CC;).</div>
-          <div style="background:var(--gbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--g)">RAG Email Dedup</b><br>&#xC774;&#xBBF8; &#xC5F0;&#xB77D;&#xD55C; &#xC0AC;&#xB78C; &#xC790;&#xB3D9; &#xC81C;&#xC678;.</div>
-          <div style="background:var(--gbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--g)">Apify Brand Filter</b><br>27&#xAC1C; &#xBE0C;&#xB79C;&#xB4DC;/&#xB9AC;&#xC140;&#xB7EC; &#xACC4;&#xC815; &#xC790;&#xB3D9; &#xC81C;&#xC678;.</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card hw-sec" id="hw-preview" style="border-left:3px solid var(--c)">
-      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F50D; Step 2: Preview Counts</h3>
-      <div class="hw-body">
-        <div style="background:#f0f9ff;border-radius:8px;padding:12px;font-size:11px;font-family:var(--mono)"><b>&#xC870;&#xAC74;:</b> pipeline_status="Not Started" + update_date &#xC774;&#xC804; &#xBC1C;&#xACAC; + RAG dedup &#xD1B5;&#xACFC; + HT/LT &#xBD84;&#xB958;</div>
-      </div>
-    </div>
-
-    <div class="card hw-sec" id="hw-draft" style="border-left:3px solid var(--a)">
-      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4DD; Step 3: Generate Drafts</h3>
-      <div class="hw-body">
-        <div style="background:var(--abg);border-radius:8px;padding:12px;font-size:11px;margin-bottom:8px">
-          <b>n8n Draft Gen WF</b> (<code>fwwOeLiDLSnR77E1</code>)<br>
-          &#x2022; eligible &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130; &#xC870;&#xD68C; &#x2192; Apify &#xD504;&#xB85C;&#xD544; &#xC218;&#xC9D1; &#x2192; Claude AI &#xAC1C;&#xC778;&#xD654; &#xC774;&#xBA54;&#xC77C; &#xC0DD;&#xC131;<br>
-          &#x2022; Not Started &#x2192; <span class="b a">Draft Ready</span>
-        </div>
-        <div class="hw-lt" style="background:#eff6ff;border-radius:6px;padding:8px;font-size:10px;border-left:3px solid var(--a)">
-          <b>&#x26A1; LT:</b> &#xC790;&#xB3D9; &#xC2B9;&#xC778; &#x2192; &#xBC14;&#xB85C; Send &#xB2E8;&#xACC4;&#xB85C;. Draft Review &#xC5C6;&#xC74C;.
-        </div>
-        <div class="hw-ht" style="display:none;background:#fdf2f8;border-radius:6px;padding:8px;font-size:10px;border-left:3px solid var(--p)">
-          <b>&#x1F451; HT:</b> <span class="b am">Draft Review &#xD544;&#xC218;</span> &#x2014; &#xB9C8;&#xCF00;&#xD130;&#xAC00; &#xC774;&#xBA54;&#xC77C; &#xB0B4;&#xC6A9; &#xD655;&#xC778; &#xD6C4; &#xC2B9;&#xC778;. &#xACC4;&#xC57D; &#xC870;&#xAC74;/&#xBCF4;&#xC0C1; &#xBA58;&#xC158; &#xD3EC;&#xD568; &#xC5EC;&#xBD80; &#xCCB4;&#xD06C;.
-        </div>
-      </div>
-    </div>
-
-    <div class="card hw-sec" id="hw-send" style="border-left:3px solid var(--am)">
-      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E8; Step 4: Send + Email QnA <span class="b am" style="margin-left:6px">HIL</span></h3>
-      <div class="hw-body">
-        <div style="background:var(--ambg);border-radius:8px;padding:12px;font-size:11px;margin-bottom:10px">
-          <b>&#x2460; Outreach &#xBC1C;&#xC1A1;</b><br>
-          &#x2022; <code>affiliates@onzenna.com</code>&#xC5D0;&#xC11C; &#xBC1C;&#xC1A1; | &#xBE0C;&#xB79C;&#xB4DC;&#xBCC4; Gifting &#xD3FC; URL &#xD3EC;&#xD568;<br>
-          &#x2022; Draft Ready &#x2192; <span class="b c">Sent</span> | <span class="b am">Human-in-Loop: Send Approval</span>
-        </div>
-        <div style="background:#fdf2f8;border-radius:8px;padding:12px;font-size:11px;margin-bottom:10px">
-          <b>&#x2461; Reply Handler &#x2014; &#xC774;&#xBA54;&#xC77C; QnA &#xC790;&#xB3D9;&#xD654;</b> (WF: <code>K99grtW9iWq8V79f</code>)<br>
-          Creator &#xB2F5;&#xC7A5; &#xAC10;&#xC9C0; &#x2192; <span class="b am">Replied</span> &#x2192; Claude AI &#xBD84;&#xB958;:<br>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:6px">
-            <div style="background:var(--gbg);border-radius:4px;padding:6px;font-size:10px"><span class="b g">Accept</span><br>&#xD611;&#xC5C5; &#xC218;&#xB77D; &#x2192; Gifting &#xD3FC; &#xB9C1;&#xD06C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</div>
-            <div style="background:var(--cbg);border-radius:4px;padding:6px;font-size:10px"><span class="b c">FAQ_Gap</span><br>&#xC9C8;&#xBB38; (&#xBC30;&#xC1A1;/&#xC0C1;&#xD488;/&#xBCF4;&#xC0C1;) &#x2192; FAQ DB&#xC5D0;&#xC11C; &#xC790;&#xB3D9; &#xC751;&#xB2F5;</div>
-            <div style="background:var(--ambg);border-radius:4px;padding:6px;font-size:10px"><span class="b am">Normal</span><br>&#xC77C;&#xBC18; &#xB300;&#xD654; &#x2192; &#xAC10;&#xC0AC; &#xC751;&#xB2F5; &#xC790;&#xB3D9;</div>
-          </div>
-          <div style="margin-top:6px;font-size:10px;color:var(--dim)">Config: <b>Email Config &#xD0ED;</b>&#xC5D0;&#xC11C; &#xBD84;&#xB958; &#xD504;&#xB86C;&#xD504;&#xD2B8;, &#xD15C;&#xD50C;&#xB9BF;, FAQ &#xC218;&#xC815; &#xAC00;&#xB2A5; (PG API)</div>
-          <div class="hw-lt" style="margin-top:6px;background:#eff6ff;border-radius:6px;padding:8px;font-size:10px;border-left:3px solid var(--a)">
-            <b>&#x26A1; LT:</b> Reply &#xBD84;&#xB958; &#xD6C4; <b>&#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</b>. Accept &#x2192; Gifting &#xD3FC; &#xB9C1;&#xD06C; &#xC790;&#xB3D9; | FAQ &#x2192; &#xC790;&#xB3D9; &#xC751;&#xB2F5;. &#xC0AC;&#xB78C; &#xAC1C;&#xC785; &#xC5C6;&#xC74C;.
-          </div>
-          <div class="hw-ht" style="display:none;margin-top:6px;background:#fdf2f8;border-radius:6px;padding:8px;font-size:10px;border-left:3px solid var(--p)">
-            <b>&#x1F451; HT:</b> Reply &#xBD84;&#xB958; &#xD6C4; <span class="b p">Needs Review</span>. &#xB9C8;&#xCF00;&#xD130;&#xAC00; &#xB2F5;&#xC7A5; &#xB0B4;&#xC6A9; &#xD655;&#xC778; &#xD6C4; &#xC218;&#xB3D9; &#xBC1C;&#xC1A1;. &#xBCF4;&#xC0C1;/&#xACC4;&#xC57D; &#xB17C;&#xC758; &#xD3EC;&#xD568; &#xAC00;&#xB2A5;.
+      <div style="background:#eff6ff;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:11px;border-left:3px solid var(--a)">&#x26A1; <b>LOW TOUCH</b> &mdash; &lt;100K followers. &#xC804; &#xACFC;&#xC815; &#xC790;&#xB3D9;&#xD654;. &#xACC4;&#xC57D;/&#xBCF4;&#xC0C1; &#xC5C6;&#xC74C;. &#xBB34;&#xB8CC; &#xC0D8;&#xD50C;&#xB9CC; &#xC81C;&#xACF5;. Human-in-Loop 3&#xAC1C; (Draft, Send, Sample).</div>
+      <div class="card hw-sec open" id="lt-s0" style="border-left:3px solid var(--a)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F50E; Step 0: Discover</h3>
+        <div class="hw-body">
+          <div class="desc" style="font-size:11px;line-height:1.7;margin-bottom:8px">Syncly Discovery&#xC5D0;&#xC11C; &#xBE0C;&#xB79C;&#xB4DC; &#xAD00;&#xB828; &#xCF58;&#xD150;&#xCE20; + &#xB300;&#xC0AC; &#xBC1C;&#xAD74;. Outbound + Inbound &#xC790;&#xB3D9; &#xB204;&#xC801;.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="background:var(--abg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--a)">Outbound</b><br>Syncly&#xC5D0;&#xC11C; &#xBC1C;&#xACAC; &#x2192; <span class="b">Not Started</span>&#xB85C; &#xC9C4;&#xC785;</div>
+            <div style="background:var(--abg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--a)">Inbound</b><br>Creator&#xAC00; Gifting &#xD3FC; &#xC81C;&#xCD9C; &#x2192; &#xC790;&#xB3D9; &#xB4F1;&#xB85D;</div>
           </div>
         </div>
-        <div style="background:var(--gbg);border-radius:8px;padding:12px;font-size:11px">
-          <b>&#x2462; Gifting &#xD3FC; &#xC81C;&#xCD9C; (1&#xD68C;)</b><br>
-          Creator&#xAC00; &#xD3FC; &#xC791;&#xC131; &#x2192; &#xC0D8;&#xD50C; &#xC120;&#xD0DD; + &#xC8FC;&#xC18C; &#xC785;&#xB825; &#x2192; n8n Webhook &#x2192; <b>Shopify &#xACE0;&#xAC1D; + Draft Order &#xC790;&#xB3D9; &#xC0DD;&#xC131;</b><br>
-          &#x2022; WF: <code>F0sv8RsCS1v56Gkw</code> | 1&#xD3FC;&#xC73C;&#xB85C; &#xC0D8;&#xD50C; &#xC120;&#xD0DD;&#xAE4C;&#xC9C0; &#xC644;&#xACB0;
+      </div>
+      <div class="card hw-sec" id="lt-s1" style="border-left:3px solid var(--a)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x2699;&#xFE0F; Step 1: Config</h3>
+        <div class="hw-body"><div style="font-size:11px">Batch Size, HT Threshold, Feature Toggles &#xC124;&#xC815;. HIL: Draft Review <b>OFF</b>, Send Approval, Sample Approval.</div></div>
+      </div>
+      <div class="card hw-sec" id="lt-s2" style="border-left:3px solid var(--a)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F50D; Step 2: Preview</h3>
+        <div class="hw-body"><div style="font-size:11px;font-family:var(--mono);background:#f0f9ff;border-radius:6px;padding:10px">pipeline_status="Not Started" + LT&#xBD84;&#xB958;(&lt;100K) + RAG dedup &#xD1B5;&#xACFC; &#x2192; eligible count &#xD655;&#xC778;</div></div>
+      </div>
+      <div class="card hw-sec" id="lt-s3" style="border-left:3px solid var(--a)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4DD; Step 3: Draft &mdash; <span style="color:var(--a)">Auto-approve</span></h3>
+        <div class="hw-body">
+          <div style="font-size:11px;margin-bottom:8px">n8n Draft Gen WF (<code>fwwOeLiDLSnR77E1</code>) &#x2192; Claude AI &#xAC1C;&#xC778;&#xD654; &#xC774;&#xBA54;&#xC77C; &#xC0DD;&#xC131;</div>
+          <div style="background:#eff6ff;border-radius:6px;padding:10px;font-size:11px;border-left:3px solid var(--a)"><b>&#xC790;&#xB3D9; &#xC2B9;&#xC778;</b> &#x2192; Draft Review &#xC5C6;&#xC774; &#xBC14;&#xB85C; Send &#xB2E8;&#xACC4;&#xB85C;. &#xC0AC;&#xB78C; &#xAC80;&#xD1A0; &#xBD88;&#xD544;&#xC694;.</div>
         </div>
+      </div>
+      <div class="card hw-sec" id="lt-s4" style="border-left:3px solid var(--a)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E8; Step 4: Send + QnA &mdash; <span style="color:var(--a)">Auto-send</span></h3>
+        <div class="hw-body">
+          <div style="font-size:11px;margin-bottom:8px">Outreach &#xBC1C;&#xC1A1; + Reply Handler (WF: <code>K99grtW9iWq8V79f</code>)</div>
+          <div style="background:#eff6ff;border-radius:6px;padding:10px;font-size:11px;border-left:3px solid var(--a)">Reply &#xBD84;&#xB958; &#xD6C4; <b>&#xC804;&#xBD80; &#xC790;&#xB3D9;</b>: Accept &#x2192; Gifting &#xD3FC; &#xB9C1;&#xD06C; | FAQ &#x2192; &#xC790;&#xB3D9; &#xC751;&#xB2F5; | Normal &#x2192; &#xAC10;&#xC0AC; &#xC751;&#xB2F5;. <b>&#xC0AC;&#xB78C; &#xAC1C;&#xC785; &#xC5C6;&#xC74C;.</b></div>
+          <div style="margin-top:8px;background:var(--gbg);border-radius:6px;padding:10px;font-size:10px">Creator&#xAC00; Gifting &#xD3FC; &#xC81C;&#xCD9C; &#x2192; &#xC0D8;&#xD50C; &#xC120;&#xD0DD; + &#xC8FC;&#xC18C; &#xC785;&#xB825; &#x2192; Shopify Draft Order &#xC790;&#xB3D9; &#xC0DD;&#xC131;</div>
+        </div>
+      </div>
+      <div class="card hw-sec" id="lt-s5" style="border-left:3px solid var(--a)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x2705; Step 5: Accept &mdash; <span style="color:var(--a)">Auto-complete</span></h3>
+        <div class="hw-body">
+          <div style="background:#eff6ff;border-radius:6px;padding:10px;font-size:11px;border-left:3px solid var(--a)">&#xB9C8;&#xCF00;&#xD130; Accept &#xD074;&#xB9AD; &#x2192; Shopify Draft Order &#xC790;&#xB3D9; &#xC644;&#xB8CC;. <b>&#xACC4;&#xC57D;&#xC11C; &#xC5C6;&#xC74C;. &#xBCF4;&#xC0C1; &#xC5C6;&#xC74C;. &#xBB34;&#xB8CC; &#xC0D8;&#xD50C;&#xB9CC; &#xC81C;&#xACF5;.</b></div>
+        </div>
+      </div>
+      <div class="card hw-sec" id="lt-s6" style="border-left:3px solid var(--c)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E6; Step 6: Sample Fulfillment</h3>
+        <div class="hw-body"><div style="font-size:11px">Accept &#x2192; Draft Order &#xC644;&#xB8CC; &#x2192; <span class="b c">Sample Sent</span> &#x2192; Shopify &#xBC30;&#xC1A1; &#x2192; <span class="b g">Delivered</span> + Content Guidelines &#xC774;&#xBA54;&#xC77C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</div></div>
+      </div>
+      <div class="card hw-sec" id="lt-s7" style="border-left:3px solid var(--g)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4F8; Step 7: Content Tracking (D+60)</h3>
+        <div class="hw-body"><div style="font-size:11px">Apify Crawl (IG+TikTok) &#x2192; D+7/14/30/60 &#xBA54;&#xD2B8;&#xB9AD; &#xCD94;&#xC801; &#x2192; <span class="b g">Posted</span> &#xAC10;&#xC9C0; &#x2192; &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778; &#xC885;&#xB8CC;</div></div>
       </div>
     </div>
 
-    <div class="card hw-sec" id="hw-review" style="border-left:3px solid var(--p)">
-      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F50D; Step 5: Review &amp; Accept <span class="b p" style="margin-left:6px">Always HIL</span></h3>
-      <div class="hw-body">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div style="background:var(--gbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--g)">Accept</b><br>&#xB9C8;&#xCF00;&#xD130; Accept &#xD074;&#xB9AD; &#x2192; <span class="b g">Accepted</span><br>&#x2192; n8n&#xC774; 5&#xBD84; poll&#xB85C; &#xAC10;&#xC9C0;<br>&#x2192; PG&#xC5D0;&#xC11C; Draft Order ID &#xC870;&#xD68C;<br>&#x2192; <b>Shopify Draft Order &#xC790;&#xB3D9; &#xC644;&#xB8CC;</b><br><span style="font-size:9px;color:var(--dim)">WF: <code>Ow5bD5keNf2HFo83</code> (&#xD06C;&#xB9AC;&#xB374;&#xC15C; &#xC5F0;&#xACB0; &#xD6C4; ON)</span></div>
-          <div style="background:var(--rbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--r)">Decline</b><br>&#x2192; <span class="b r">Declined</span> | &#xD314;&#xB85C;&#xC6CC; &#xBD80;&#xC871;, &#xBE0C;&#xB79C;&#xB4DC; &#xBD88;&#xC77C;&#xCE58; &#xB4F1; | Note &#xAE30;&#xB85D;</div>
+    <!-- ==================== HIGH TOUCH 전체 화면 ==================== -->
+    <div id="hw-panel-ht" class="hw-ht" style="display:none">
+      <div class="funnel" style="margin-bottom:20px">
+        <div class="fn on" onclick="scrollToHwSec('ht-s0')"><div class="fi" style="font-size:16px">&#x1F50E;</div><div class="ft">Discover</div><div class="fs">Find creators</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('ht-s1')"><div class="fi" style="font-size:16px">&#x2699;&#xFE0F;</div><div class="ft">Config</div><div class="fs">Batch params</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('ht-s2')"><div class="fi" style="font-size:16px">&#x1F50D;</div><div class="ft">Preview</div><div class="fs">Count eligible</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('ht-s3')"><div class="fi" style="font-size:16px">&#x1F4DD;</div><div class="ft">Draft</div><div class="fs">Manual review</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('ht-s4')"><div class="fi" style="font-size:16px">&#x1F4E8;</div><div class="ft">Send+QnA</div><div class="fs">Manual review</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('ht-s5')"><div class="fi" style="font-size:16px">&#x1F4DC;</div><div class="ft">Contract</div><div class="fs">DocuSeal</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('ht-s6')"><div class="fi" style="font-size:16px">&#x2705;</div><div class="ft">Accept</div><div class="fs">Manual approve</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('ht-s7')"><div class="fi" style="font-size:16px">&#x1F4E6;</div><div class="ft">Sample</div><div class="fs">Ship products</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('ht-s8')"><div class="fi" style="font-size:16px">&#x1F4B3;</div><div class="ft">Payment</div><div class="fs">Compensation</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('ht-s9')"><div class="fi" style="font-size:16px">&#x1F4F8;</div><div class="ft">Track</div><div class="fs">Content D+60</div></div>
+      </div>
+      <div style="background:#fdf2f8;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:11px;border-left:3px solid var(--p)">&#x1F451; <b>HIGH TOUCH</b> &mdash; &ge;100K followers. &#xB9E4; &#xB2E8;&#xACC4; &#xC0AC;&#xB78C; &#xAC80;&#xD1A0;. &#xACC4;&#xC57D;&#xC11C; &#xC11C;&#xBA85; + &#xBCF4;&#xC0C1;&#xAE08; &#xC9C0;&#xAE09;. Human-in-Loop 5&#xAC1C; (Draft, Send, Contract, Sample, Payment).</div>
+      <div class="card hw-sec open" id="ht-s0" style="border-left:3px solid var(--p)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F50E; Step 0: Discover</h3>
+        <div class="hw-body">
+          <div class="desc" style="font-size:11px;line-height:1.7;margin-bottom:8px">Syncly Discovery&#xC5D0;&#xC11C; &#xBE0C;&#xB79C;&#xB4DC; &#xAD00;&#xB828; &#xCF58;&#xD150;&#xCE20; + &#xB300;&#xC0AC; &#xBC1C;&#xAD74;. Outbound + Inbound &#xC790;&#xB3D9; &#xB204;&#xC801;.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="background:#fdf2f8;border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--p)">Outbound</b><br>Syncly&#xC5D0;&#xC11C; &#xBC1C;&#xACAC; &#x2192; <span class="b">Not Started</span>&#xB85C; &#xC9C4;&#xC785;</div>
+            <div style="background:#fdf2f8;border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--p)">Inbound</b><br>Creator&#xAC00; Gifting &#xD3FC; &#xC81C;&#xCD9C; &#x2192; <span class="b p">Needs Review</span></div>
+          </div>
         </div>
-        <div style="margin-top:8px;padding:8px;background:#fffbeb;border-radius:6px;font-size:10px;color:#92400e"><b>1-&#xD3FC; &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778;:</b> Creator&#xAC00; Gifting &#xD3FC;&#xC5D0;&#xC11C; &#xC0D8;&#xD50C;&#xAE4C;&#xC9C0; &#xC120;&#xD0DD; &#xC644;&#xB8CC; &#x2192; Draft Order &#xC774;&#xBBF8; &#xC0DD;&#xC131;&#xB428; &#x2192; Accept &#xC2DC; &#xBC14;&#xB85C; &#xC624;&#xB354; &#xB098;&#xAC10;. Gifting2 &#xD3FC; &#xC5C6;&#xC74C;.</div>
-        <div class="hw-lt" style="margin-top:8px;background:#eff6ff;border-radius:6px;padding:8px;font-size:10px;border-left:3px solid var(--a)">
-          <b>&#x26A1; LT:</b> Accept &#xD074;&#xB9AD;&#xB9CC;&#xC73C;&#xB85C; &#xC644;&#xB8CC;. &#xACC4;&#xC57D;/&#xBCF4;&#xC0C1; &#xC5C6;&#xC74C;. &#xBB34;&#xB8CC; &#xC0D8;&#xD50C; &#xC81C;&#xACF5;.
+      </div>
+      <div class="card hw-sec" id="ht-s1" style="border-left:3px solid var(--p)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x2699;&#xFE0F; Step 1: Config</h3>
+        <div class="hw-body"><div style="font-size:11px">HT Threshold, Batch Size, Template Doc ID &#xC124;&#xC815;. HIL: Draft Review <b>ON</b>, Send Approval, <b>Contract</b>, Sample Approval, <b>Payment</b>.</div></div>
+      </div>
+      <div class="card hw-sec" id="ht-s2" style="border-left:3px solid var(--p)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F50D; Step 2: Preview</h3>
+        <div class="hw-body"><div style="font-size:11px;font-family:var(--mono);background:#fdf2f8;border-radius:6px;padding:10px">pipeline_status="Not Started" + HT&#xBD84;&#xB958;(&ge;100K) + RAG dedup &#xD1B5;&#xACFC; &#x2192; eligible count &#xD655;&#xC778;</div></div>
+      </div>
+      <div class="card hw-sec" id="ht-s3" style="border-left:3px solid var(--p)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4DD; Step 3: Draft &mdash; <span style="color:var(--p)">Manual Review &#xD544;&#xC218;</span></h3>
+        <div class="hw-body">
+          <div style="font-size:11px;margin-bottom:8px">n8n Draft Gen WF (<code>fwwOeLiDLSnR77E1</code>) &#x2192; Claude AI &#xAC1C;&#xC778;&#xD654; &#xC774;&#xBA54;&#xC77C; &#xC0DD;&#xC131;</div>
+          <div style="background:#fdf2f8;border-radius:6px;padding:10px;font-size:11px;border-left:3px solid var(--p)"><span class="b am">Draft Review &#xD544;&#xC218;</span> &#x2014; &#xB9C8;&#xCF00;&#xD130;&#xAC00; &#xC774;&#xBA54;&#xC77C; &#xB0B4;&#xC6A9; &#xD655;&#xC778;. <b>&#xACC4;&#xC57D; &#xC870;&#xAC74;/&#xBCF4;&#xC0C1; &#xBA58;&#xC158;</b> &#xD3EC;&#xD568; &#xC5EC;&#xBD80; &#xCCB4;&#xD06C; &#xD6C4; &#xC2B9;&#xC778;.</div>
         </div>
-        <div class="hw-ht" style="display:none;margin-top:8px;background:#fdf2f8;border-radius:6px;padding:8px;font-size:10px;border-left:3px solid var(--p)">
-          <b>&#x1F451; HT:</b> Accept &#xC804;&#xC5D0; <b>&#xACC4;&#xC57D;&#xC11C; &#xBC1C;&#xC1A1; + &#xC11C;&#xBA85; &#xD655;&#xC778;</b> &#xD544;&#xC694;. &#xBCF4;&#xC0C1; &#xC870;&#xAC74; &#xD569;&#xC758; &#xD6C4; Accept. &#xACB0;&#xC81C;&#xB294; &#xCF58;&#xD150;&#xCE20; &#xD655;&#xC778; &#xD6C4; &#xCC98;&#xB9AC;.
+      </div>
+      <div class="card hw-sec" id="ht-s4" style="border-left:3px solid var(--p)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E8; Step 4: Send + QnA &mdash; <span style="color:var(--p)">Manual Review</span></h3>
+        <div class="hw-body">
+          <div style="font-size:11px;margin-bottom:8px">Outreach &#xBC1C;&#xC1A1; + Reply Handler (WF: <code>K99grtW9iWq8V79f</code>)</div>
+          <div style="background:#fdf2f8;border-radius:6px;padding:10px;font-size:11px;border-left:3px solid var(--p)">Reply &#xBD84;&#xB958; &#xD6C4; <span class="b p">Needs Review</span>. &#xB9C8;&#xCF00;&#xD130;&#xAC00; &#xB2F5;&#xC7A5; &#xB0B4;&#xC6A9; &#xD655;&#xC778; &#xD6C4; &#xC218;&#xB3D9; &#xBC1C;&#xC1A1;. <b>&#xBCF4;&#xC0C1;/&#xACC4;&#xC57D; &#xB17C;&#xC758; &#xD3EC;&#xD568; &#xAC00;&#xB2A5;.</b></div>
+          <div style="margin-top:8px;background:var(--gbg);border-radius:6px;padding:10px;font-size:10px">Creator&#xAC00; Gifting &#xD3FC; &#xC81C;&#xCD9C; &#x2192; &#xC0D8;&#xD50C; &#xC120;&#xD0DD; + &#xC8FC;&#xC18C; &#xC785;&#xB825; &#x2192; Shopify Draft Order &#xC0DD;&#xC131;</div>
         </div>
-        <div style="margin-top:8px;font-size:10px;color:var(--dim)"><b>&#xD310;&#xB2E8;:</b> Content &#xB9C1;&#xD06C;(IG/TT) &#x2192; &#xD314;&#xB85C;&#xC6CC;, &#xCF58;&#xD150;&#xCE20; &#xD488;&#xC9C8;, &#xBE0C;&#xB79C;&#xB4DC; &#xC801;&#xD569;&#xC131;, &#xC544;&#xC774; &#xB098;&#xC774;</div>
+      </div>
+      <div class="card hw-sec" id="ht-s5" style="border-left:3px solid #8250df">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4DC; Step 5: Contract &mdash; DocuSeal Signing</h3>
+        <div class="hw-body">
+          <div style="background:#f5f3ff;border-radius:8px;padding:12px;font-size:11px">
+            &#x2022; Creator &#xD611;&#xC5C5; &#xC218;&#xB77D; &#x2192; &#xBCF4;&#xC0C1; &#xC870;&#xAC74; &#xD569;&#xC758;<br>
+            &#x2022; DocuSeal &#xD15C;&#xD50C;&#xB9BF; &#xACC4;&#xC57D;&#xC11C; &#xC790;&#xB3D9; &#xC0DD;&#xC131; (&#xBB34;&#xB8CC;#4 / &#xC720;&#xB8CC;#5)<br>
+            &#x2022; Creator &#xC774;&#xBA54;&#xC77C;&#xB85C; &#xBC1C;&#xC1A1; &#x2192; &#xC804;&#xC790; &#xC11C;&#xBA85;<br>
+            &#x2022; &#xC11C;&#xBA85; &#xC644;&#xB8CC; &#x2192; <span class="b" style="background:#8250df;color:#fff">Contract Signed</span> &#x2192; Accept &#xB2E8;&#xACC4;&#xB85C;<br>
+            <span style="font-size:10px;color:var(--dim)">WF: <code>HeJtfn0m3PJoPzg0</code></span>
+          </div>
+        </div>
+      </div>
+      <div class="card hw-sec" id="ht-s6" style="border-left:3px solid var(--p)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x2705; Step 6: Accept &mdash; <span style="color:var(--p)">Manual Approve</span></h3>
+        <div class="hw-body">
+          <div style="background:#fdf2f8;border-radius:6px;padding:10px;font-size:11px;border-left:3px solid var(--p)">&#xACC4;&#xC57D; &#xC11C;&#xBA85; &#xC644;&#xB8CC; &#xD655;&#xC778; &#xD6C4; &#xB9C8;&#xCF00;&#xD130;&#xAC00; Accept. Shopify Draft Order &#xC644;&#xB8CC;. <b>&#xBCF4;&#xC0C1; &#xC870;&#xAC74; &#xD569;&#xC758; &#xD6C4; &#xC9C4;&#xD589;.</b></div>
+          <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="background:var(--gbg);border-radius:6px;padding:8px;font-size:10px"><b style="color:var(--g)">Accept</b> &#x2192; <span class="b g">Accepted</span> &#x2192; Sample &#xBC1C;&#xC1A1;</div>
+            <div style="background:var(--rbg);border-radius:6px;padding:8px;font-size:10px"><b style="color:var(--r)">Decline</b> &#x2192; <span class="b r">Declined</span> + Note</div>
+          </div>
+        </div>
+      </div>
+      <div class="card hw-sec" id="ht-s7" style="border-left:3px solid var(--c)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E6; Step 7: Sample Fulfillment</h3>
+        <div class="hw-body"><div style="font-size:11px">Accept &#x2192; Draft Order &#xC644;&#xB8CC; &#x2192; <span class="b c">Sample Sent</span> &#x2192; Shopify &#xBC30;&#xC1A1; &#x2192; <span class="b g">Delivered</span> + Content Guidelines &#xC774;&#xBA54;&#xC77C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</div></div>
+      </div>
+      <div class="card hw-sec" id="ht-s8" style="border-left:3px solid #ea580c">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4B3; Step 8: Payment &mdash; Creator Compensation</h3>
+        <div class="hw-body">
+          <div style="background:#fff7ed;border-radius:8px;padding:12px;font-size:11px">
+            &#x2022; &#xCF58;&#xD150;&#xCE20; &#xD3EC;&#xC2A4;&#xD305; &#xC644;&#xB8CC; (<span class="b g">Posted</span>) &#xD655;&#xC778;<br>
+            &#x2022; &#xACC4;&#xC57D;&#xC11C; &#xC870;&#xAC74;&#xB300;&#xB85C; &#xBCF4;&#xC0C1;&#xAE08; &#xCC98;&#xB9AC;<br>
+            &#x2022; PayPal / &#xC740;&#xD589; &#xC1A1;&#xAE08; &#x2192; <span class="b" style="background:#ea580c;color:#fff">Payment Sent</span><br>
+            <span style="font-size:10px;color:var(--dim)">WF: <code>FRNxtYh8SfMu9Q5E</code> (&#xD604;&#xC7AC; Inactive)</span>
+          </div>
+        </div>
+      </div>
+      <div class="card hw-sec" id="ht-s9" style="border-left:3px solid var(--g)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4F8; Step 9: Content Tracking (D+60)</h3>
+        <div class="hw-body"><div style="font-size:11px">Apify Crawl (IG+TikTok) &#x2192; D+7/14/30/60 &#xBA54;&#xD2B8;&#xB9AD; &#xCD94;&#xC801; &#x2192; <span class="b g">Posted</span> &#xAC10;&#xC9C0; &#x2192; Payment &#xD6C4; &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778; &#xC885;&#xB8CC;</div></div>
       </div>
     </div>
 
-    <div class="card hw-sec" id="hw-sample" style="border-left:3px solid var(--c)">
-      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E6; Step 6: Sample Fulfillment</h3>
-      <div class="hw-body">
-        <div style="background:var(--cbg);border-radius:8px;padding:12px;font-size:11px">
-          &#x2460; Accept &#x2192; Draft Order &#xC790;&#xB3D9; &#xC644;&#xB8CC; &#x2192; &#x2461; <span class="b c">Sample Sent</span> (&#xB9C8;&#xCF00;&#xD130; &#xD074;&#xB9AD;) &#x2192; &#x2462; n8n poll &#x2192; Shopify Order &#xC0C1;&#xD0DC; &#xC5C5;&#xB370;&#xC774;&#xD2B8; &#x2192; &#x2463; &#xBC30;&#xC1A1; &#xCC98;&#xB9AC; <span class="b c">Sample Shipped</span> &#x2192; &#x2464; <span class="b g">Sample Delivered</span> + Content Guidelines &#xC774;&#xBA54;&#xC77C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1;<br>
-          <span style="font-size:10px;color:var(--dim)">&#x2465; &#xD3EC;&#xC2A4;&#xD305; &#xC548; &#xD55C; &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130;&#xC5D0;&#xAC8C;&#xB9CC; <span style="border:1px dashed var(--am);padding:1px 4px;border-radius:3px;color:var(--am)">Reminder Sent</span> (&#xC120;&#xD0DD;&#xC801;)</span>
-        </div>
-      </div>
-    </div>
+    <!-- ==================== 공통 섹션 (Architecture, Tests 등) ==================== -->
 
-    <div class="card hw-sec" id="hw-track" style="border-left:3px solid var(--g)">
+    <div class="card hw-sec" id="hw-track" style="border-left:3px solid var(--g);display:none">
       <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4F8; Step 7: Content Tracking (D+60) &mdash; CI Pipeline</h3>
       <div class="hw-body">
         <div class="desc" style="font-size:10px;color:var(--dim);margin-bottom:8px">Content Intelligence &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778;&#xACFC; &#xB3D9;&#xC77C; &#xC18C;&#xC2A4; (Apify &#xD06C;&#xB864;&#xB7EC; &#xAE30;&#xBC18;)</div>
@@ -3062,6 +3095,7 @@ function updateAllocation(){
 // ========== ALL DATES TOGGLE + VINTAGE ==========
 // ========== DISCOVERY DATE DROPDOWN ==========
 var _discoveryDates=(function(){try{var s=localStorage.getItem('pipeline_discovery_dates');return s?JSON.parse(s):[]}catch(e){return[]}})();
+var _cachedDateCounts=(function(){try{var s=localStorage.getItem('pipeline_date_counts');return s?JSON.parse(s):{}}catch(e){return{}}})();
 
 // ─── Weekly grouping helpers ───
 function _isoWeekKey(dateStr){
@@ -3115,11 +3149,18 @@ function populateDiscoveryDates(selectedVal){
   var defOpt=document.createElement('option');
   defOpt.value='';defOpt.textContent='-- 주간 배치 선택 --';
   sel.appendChild(defOpt);
-  // If no week groups yet, build from cached dates
+  // If no week groups yet, build from cached dates + counts
   if(_weekGroups.length===0&&_discoveryDates.length>0){
-    var tmpMap={};
-    _discoveryDates.forEach(function(d){if(d&&d.match(/^\d{4}-\d{2}-\d{2}$/))tmpMap[d]=(tmpMap[d]||0)+1});
-    _buildWeekGroups(tmpMap);
+    if(Object.keys(_dateCountMap).length>0){
+      _buildWeekGroups(_dateCountMap);
+    } else if(Object.keys(_cachedDateCounts).length>0){
+      _dateCountMap=_cachedDateCounts;
+      _buildWeekGroups(_cachedDateCounts);
+    } else {
+      var tmpMap={};
+      _discoveryDates.forEach(function(d){if(d&&d.match(/^\d{4}-\d{2}-\d{2}$/))tmpMap[d]=1});
+      _buildWeekGroups(tmpMap);
+    }
   }
   if(_weekGroups.length>0){
     _weekGroups.forEach(function(g){
@@ -3151,9 +3192,11 @@ async function pullDiscoveryDates(){
     var groups=_buildWeekGroups(dateMap);
     var dates=Object.keys(dateMap).filter(function(d){return d.match(/^\d{4}-\d{2}-\d{2}$/)});
     _discoveryDates=dates;
-    try{localStorage.setItem('pipeline_discovery_dates',JSON.stringify(dates))}catch(e){}
+    try{localStorage.setItem('pipeline_discovery_dates',JSON.stringify(dates));localStorage.setItem('pipeline_date_counts',JSON.stringify(dateMap))}catch(e){}
     populateDiscoveryDates(document.getElementById('f-update-date').value);
     showToast(groups.length+'\uAC1C \uC8FC\uAC04 \uBC30\uCE58 \uB85C\uB4DC ('+items.length+'\uBA85)','ok');
+    // Auto-refresh: reload creators table + dashboard stats
+    try{loadCreators()}catch(e){}
   }catch(e){showToast('Pull \uC2E4\uD328: '+e.message,'err')}
   finally{btn.disabled=false;btn.textContent='\u21BB Pull'}
 }
@@ -3256,10 +3299,8 @@ function switchHwMode(mode){
   document.getElementById('hw-btn-lt').style.color=mode==='lt'?'#fff':'var(--dim)';
   document.getElementById('hw-btn-ht').style.background=mode==='ht'?'var(--p)':'var(--bg)';
   document.getElementById('hw-btn-ht').style.color=mode==='ht'?'#fff':'var(--dim)';
-  var lts=document.querySelectorAll('.hw-lt');
-  var hts=document.querySelectorAll('.hw-ht');
-  for(var i=0;i<lts.length;i++)lts[i].style.display=mode==='lt'?'block':'none';
-  for(var i=0;i<hts.length;i++)hts[i].style.display=mode==='ht'?'block':'none';
+  document.getElementById('hw-panel-lt').style.display=mode==='lt'?'block':'none';
+  document.getElementById('hw-panel-ht').style.display=mode==='ht'?'block':'none';
 }
 function switchCfgMode(mode){
   document.getElementById('cfg-btn-lt').style.background=mode==='lt'?'var(--a)':'var(--bg)';
