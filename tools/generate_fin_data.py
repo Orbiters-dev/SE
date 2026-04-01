@@ -3272,7 +3272,7 @@ def generate():
             platform = p.get("platform", "")
             region = (p.get("region") or "us").lower()
             if pid and region == "us":  # US only for this dashboard (JP dashboard separate)
-                post_info[pid] = {"brand": brand, "product_types": ptypes, "username": uname, "platform": platform}
+                post_info[pid] = {"brand": brand, "product_types": ptypes, "username": uname, "platform": platform, "post_date": p.get("post_date", "")}
 
         # Aggregate views by product_type + date (90 days)
         ptype_views = defaultdict(lambda: defaultdict(int))
@@ -3386,19 +3386,36 @@ def generate():
         _dbg_with_user = sum(1 for v in post_info.values() if v.get("username"))
         _dbg_with_brand = sum(1 for v in post_info.values() if v.get("brand"))
         print(f"  [6b] post_info: {len(post_info)} entries, {_dbg_with_user} with username, {_dbg_with_brand} with brand")
-        cat_creator_daily = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-        cat_creator_meta = {}  # (cat, username) → {brand, platform}
+        # Step 1: find max views per post (across all metric snapshots)
+        post_max_views = defaultdict(int)
         for m in content_metrics:
             pid = m.get("post_id", "")
-            d = m.get("date", "")
             views = int(m.get("views") or 0)
-            if d < cutoff_90d or views <= 0:
+            if views > post_max_views[pid]:
+                post_max_views[pid] = views
+
+        # Step 2: place each post's max views at its post_date (not metric date)
+        # This matches Content Intelligence dashboard logic
+        cat_creator_daily = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+        cat_creator_meta = {}  # (cat, username) → {brand, platform}
+        for pid, info in post_info.items():
+            if not info.get("username"):
                 continue
-            info = post_info.get(pid)
-            if not info or not info.get("username"):
+            views = post_max_views.get(pid, 0)
+            if views <= 0:
                 continue
             uname = info["username"]
             brand = info["brand"]
+            # Use post_date for placement; fall back to latest metric date
+            post_date = info.get("post_date", "")
+            if not post_date or post_date < "2020":
+                # Find latest metric date for this post
+                for m in content_metrics:
+                    if m.get("post_id") == pid and m.get("date", "") > post_date:
+                        post_date = m["date"]
+            if post_date < cutoff_90d:
+                # Post is older than 90d but still has views — place at cutoff
+                post_date = cutoff_90d
             ptypes = info["product_types"]
             cats = ptypes if ptypes else (
                 GROSMIMI_CATEGORIES if brand == "Grosmimi"
@@ -3407,7 +3424,7 @@ def generate():
                 else []
             )
             for cat in cats:
-                cat_creator_daily[cat][uname][d] += views
+                cat_creator_daily[cat][uname][post_date] += views
                 if (cat, uname) not in cat_creator_meta:
                     cat_creator_meta[(cat, uname)] = {"brand": brand, "platform": info.get("platform", "")}
 
