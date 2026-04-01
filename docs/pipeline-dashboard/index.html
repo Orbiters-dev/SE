@@ -3126,10 +3126,32 @@ var _dateCountMap={};
 var _weekDateMap={};
 
 function _buildWeekGroups(dateMap){
-  // Show each discovery date individually (matches Syncly sheet 최초 발견 일자)
-  var groups=Object.keys(dateMap).filter(function(d){return d.match(/^\d{4}-\d{2}-\d{2}$/)}).map(function(d){
-    _weekDateMap[d]=[d];
-    return {key:d, label:d.slice(2), count:dateMap[d], dates:[d]};
+  // Group by Syncly crawl date: big batches are anchors, small counts merge into nearest anchor
+  var dates=Object.keys(dateMap).filter(function(d){return d.match(/^\d{4}-\d{2}-\d{2}$/)}).sort();
+  if(dates.length===0){_weekGroups=[];return []}
+  // Find anchor dates (Syncly crawl days) — dates with 50+ creators
+  var anchors=dates.filter(function(d){return dateMap[d]>=50});
+  // If no anchors found, use all dates as-is
+  if(anchors.length===0)anchors=dates.slice();
+  // Merge each date into nearest anchor
+  var buckets={};
+  anchors.forEach(function(a){buckets[a]={count:0,dates:[]}});
+  dates.forEach(function(d){
+    var best=anchors[0];
+    var bestDist=Math.abs(new Date(d)-new Date(anchors[0]));
+    for(var i=1;i<anchors.length;i++){
+      var dist=Math.abs(new Date(d)-new Date(anchors[i]));
+      if(dist<bestDist){bestDist=dist;best=anchors[i]}
+    }
+    buckets[best].count+=dateMap[d];
+    buckets[best].dates.push(d);
+  });
+  _weekDateMap={};
+  var groups=anchors.map(function(a){
+    var b=buckets[a];
+    b.dates.sort();
+    _weekDateMap[a]=b.dates;
+    return {key:a, label:a.slice(2), count:b.count, dates:b.dates};
   });
   groups.sort(function(a,b){return b.key<a.key?-1:b.key>a.key?1:0});
   _weekGroups=groups;
