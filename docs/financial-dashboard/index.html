@@ -1623,31 +1623,31 @@ function renderHeroTab(F){
         if(wkSlice.length){
           html+='<table style="margin-top:6px;font-size:10px"><thead><tr><th style="min-width:90px">Metric</th>';
           wkSlice.forEach(function(w){html+='<th style="text-align:right;font-size:9px">'+w+'</th>';});
+          html+='<th style="text-align:right;font-size:9px;color:var(--g)">Total</th>';
           html+='</tr></thead><tbody>';
           html+='<tr><td style="font-weight:600;color:var(--g)">Sales ($)</td>';
           wkSlice.forEach(function(w,wi){var v=c.sales_weekly[wkOffset+wi]||0;html+='<td style="text-align:right;font-family:var(--mono)">$'+v.toLocaleString()+'</td>';});
-          html+='</tr>';
+          html+='<td style="text-align:right;font-family:var(--mono);font-weight:700;color:var(--g)">$'+c.sales_30d.toLocaleString()+'</td></tr>';
           html+='<tr><td style="font-weight:600;color:var(--dim)">Units</td>';
           wkSlice.forEach(function(w,wi){var v=c.units_weekly[wkOffset+wi]||0;html+='<td style="text-align:right;font-family:var(--mono)">'+v.toLocaleString()+'</td>';});
-          html+='</tr>';
-          // Content Views row removed — individual creator rows below show cumulative views
+          html+='<td style="text-align:right;font-family:var(--mono);font-weight:700">'+c.units_30d.toLocaleString()+'</td></tr>';
+          // Per-creator rows: weekly new views (sum of daily within week) + Total Views column
           crDeltaArr.forEach(function(x,ci){
             var allDv=x.cr.daily_views;
-            // Forward-fill + backward-fill to get cumulative snapshot at each week end
-            var ffv=[],lastV=0;
-            for(var d2=0;d2<allDv.length;d2++){var v2=allDv[d2]||0;if(v2>0)lastV=v2;ffv.push(lastV);}
-            // Backward-fill: carry earliest non-zero value back to the start
-            var firstNZ=-1;
-            for(var d3=0;d3<ffv.length;d3++){if(ffv[d3]>0){firstNZ=d3;break;}}
-            if(firstNZ>0){for(var d4=0;d4<firstNZ;d4++)ffv[d4]=ffv[firstNZ];}
             var _wu=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
-            html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_wu+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a></td>';
+            var _ud=x.cr.upload_date?x.cr.upload_date.substring(5):'';
+            var _col=INF_COLORS[ci%INF_COLORS.length];
+            html+='<tr><td style="font-weight:600;color:'+_col+'"><a href="'+_wu+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a>'
+              +(_ud?' <span style="font-size:8px;color:var(--muted);font-weight:400">'+_ud+'</span>':'')
+              +'</td>';
             wkSlice.forEach(function(wk,wi){
-              var wkIdx=wkOffset+wi;
-              var lastDay=Math.min((wkIdx+1)*7-1,ffv.length-1);
-              var cumV=ffv[lastDay]||0;
-              html+='<td style="text-align:right;font-family:var(--mono)">'+(cumV>0?cumV.toLocaleString():'—')+'</td>';
+              var weekTotal=0;var wkIdx=wkOffset+wi;
+              for(var d=wkIdx*7;d<Math.min((wkIdx+1)*7,allDv.length);d++){weekTotal+=(allDv[d]||0);}
+              html+='<td style="text-align:right;font-family:var(--mono)">'+(weekTotal>0?weekTotal.toLocaleString():'—')+'</td>';
             });
+            // Total Views column (all-time max)
+            var tv=x.cr.total_views||0;
+            html+='<td style="text-align:right;font-family:var(--mono);font-weight:700;color:'+_col+'">'+(tv>0?tv.toLocaleString():'—')+'</td>';
             html+='</tr>';
           });
           // GSC weekly

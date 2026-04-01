@@ -3386,7 +3386,7 @@ def generate():
         _dbg_with_user = sum(1 for v in post_info.values() if v.get("username"))
         _dbg_with_brand = sum(1 for v in post_info.values() if v.get("brand"))
         print(f"  [6b] post_info: {len(post_info)} entries, {_dbg_with_user} with username, {_dbg_with_brand} with brand")
-        # Step 1: find max views per post (across all metric snapshots)
+        # Step 1: find max views per post + earliest post_date per user
         post_max_views = defaultdict(int)
         for m in content_metrics:
             pid = m.get("post_id", "")
@@ -3394,28 +3394,21 @@ def generate():
             if views > post_max_views[pid]:
                 post_max_views[pid] = views
 
-        # Step 2: place each post's max views at its post_date (not metric date)
-        # This matches Content Intelligence dashboard logic
+        # Step 2: build daily views from metric dates (actual measurement)
+        # Also track total_views (max across all snapshots) and upload_date per user
         cat_creator_daily = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-        cat_creator_meta = {}  # (cat, username) → {brand, platform}
-        for pid, info in post_info.items():
-            if not info.get("username"):
+        cat_creator_meta = {}  # (cat, username) → {brand, platform, upload_date, total_views}
+        for m in content_metrics:
+            pid = m.get("post_id", "")
+            d = m.get("date", "")
+            views = int(m.get("views") or 0)
+            if d < cutoff_90d or views <= 0:
                 continue
-            views = post_max_views.get(pid, 0)
-            if views <= 0:
+            info = post_info.get(pid)
+            if not info or not info.get("username"):
                 continue
             uname = info["username"]
             brand = info["brand"]
-            # Use post_date for placement; fall back to latest metric date
-            post_date = info.get("post_date", "")
-            if not post_date or post_date < "2020":
-                # Find latest metric date for this post
-                for m in content_metrics:
-                    if m.get("post_id") == pid and m.get("date", "") > post_date:
-                        post_date = m["date"]
-            if post_date < cutoff_90d:
-                # Post is older than 90d but still has views — place at cutoff
-                post_date = cutoff_90d
             ptypes = info["product_types"]
             cats = ptypes if ptypes else (
                 GROSMIMI_CATEGORIES if brand == "Grosmimi"
@@ -3424,9 +3417,39 @@ def generate():
                 else []
             )
             for cat in cats:
-                cat_creator_daily[cat][uname][post_date] += views
-                if (cat, uname) not in cat_creator_meta:
-                    cat_creator_meta[(cat, uname)] = {"brand": brand, "platform": info.get("platform", "")}
+                cat_creator_daily[cat][uname][d] += views
+                key = (cat, uname)
+                if key not in cat_creator_meta:
+                    cat_creator_meta[key] = {
+                        "brand": brand, "platform": info.get("platform", ""),
+                        "upload_date": info.get("post_date", ""),
+                        "total_views": 0,
+                    }
+                meta = cat_creator_meta[key]
+                # Track earliest upload_date
+                pd = info.get("post_date", "")
+                if pd and (not meta["upload_date"] or pd < meta["upload_date"]):
+                    meta["upload_date"] = pd
+                # Track total_views = sum of max_views per post
+        # Compute total_views per (cat, user) = sum of each post's max views
+        cat_user_posts = defaultdict(lambda: defaultdict(set))
+        for pid, info in post_info.items():
+            if not info.get("username"):
+                continue
+            uname = info["username"]
+            brand = info["brand"]
+            ptypes = info["product_types"]
+            cats = ptypes if ptypes else (
+                GROSMIMI_CATEGORIES if brand == "Grosmimi"
+                else CHAMOM_CATEGORIES if brand == "CHA&MOM"
+                else ["Rice Puff"] if brand == "Naeiae"
+                else []
+            )
+            for cat in cats:
+                cat_user_posts[cat][uname].add(pid)
+        for (cat, uname), meta in cat_creator_meta.items():
+            pids = cat_user_posts.get(cat, {}).get(uname, set())
+            meta["total_views"] = sum(post_max_views.get(pid, 0) for pid in pids)
 
         # Build per-category top creators
         # Exclude creators whose content is not ours (false positives from crawler)
@@ -3445,11 +3468,28 @@ def generate():
                         "username": uname,
                         "brand": meta.get("brand", ""),
                         "platform": meta.get("platform", ""),
-                        "total_views": total,
+                        "total_views": meta.get("total_views", 0) or total,
+                        "upload_date": meta.get("upload_date", ""),
                         "daily_views": [dv.get(d, 0) for d in daily_dates],
                     })
             totals.sort(key=lambda x: -x["total_views"])
-            content_creators_by_cat[cat] = totals[:10]  # Top 10 per category
+            top10 = totals[:10]
+            # "Others" row — aggregate remaining creators
+            if len(totals) > 10:
+                others_dv = [0] * len(daily_dates)
+                others_total = 0
+                for t in totals[10:]:
+                    others_total += t["total_views"]
+                    for i, v in enumerate(t["daily_views"]):
+                        others_dv[i] += v
+                top10.append({
+                    "username": "Others (" + str(len(totals) - 10) + ")",
+                    "brand": "", "platform": "",
+                    "total_views": others_total,
+                    "upload_date": "",
+                    "daily_views": others_dv,
+                })
+            content_creators_by_cat[cat] = top10
 
         total_creators = sum(len(v) for v in content_creators_by_cat.values())
         print(f"  Content by creator: {total_creators} creator-category entries across {len(content_creators_by_cat)} categories")
