@@ -2704,12 +2704,22 @@ def collect_rakuten_orders(date_from: str, date_to: str) -> list[dict]:
 # AMAZON AUTOCOMPLETE RANK
 # ══════════════════════════════════════════════════════════════════════════
 
-# Brand keywords to track autocomplete rank
-AUTOCOMPLETE_BRANDS = {
-    "Grosmimi": ["grosmimi", "baby straw cup", "ppsu straw cup", "baby sippy cup"],
-    "Naeiae": ["naeiae", "pop rice snack", "baby rice crackers", "korean baby snack"],
-    "Onzenna": ["onzenna", "korean sunscreen", "tinted sunscreen", "mineral sunscreen"],
-    "CHA&MOM": ["cha and mom", "korean baby food", "baby food pouch"],
+# Brand keywords to track autocomplete rank — per market
+# US: English high-volume category keywords + brand
+# JP: Japanese high-volume category keywords + brand
+AUTOCOMPLETE_KEYWORDS = {
+    "US": {
+        "Grosmimi": ["grosmimi", "straw cup", "sippy cup", "toddler cup", "baby straw cup", "ppsu cup"],
+        "Naeiae": ["naeiae", "baby rice snack", "toddler snack", "rice puff baby", "pop rice snack"],
+        "Onzenna": ["onzenna", "tinted sunscreen", "mineral sunscreen", "korean sunscreen", "baby sunscreen"],
+        "CHA&MOM": ["cha and mom", "baby food pouch", "korean baby food", "toddler food"],
+    },
+    "JP": {
+        "Grosmimi": ["grosmimi", "ストローマグ", "ベビーマグ", "ppsu マグ", "こぼれないコップ", "ストローカップ ベビー"],
+        "Naeiae": ["naeiae", "ライスパフ ベビー", "赤ちゃん せんべい", "韓国 ベビーおやつ", "ポップライス"],
+        "Onzenna": ["onzenna", "韓国 日焼け止め", "ティンテッド 日焼け止め", "ミネラル日焼け止め"],
+        "CHA&MOM": ["cha and mom", "韓国 離乳食", "ベビーフード パウチ", "幼児食"],
+    },
 }
 
 # Amazon autocomplete endpoint per marketplace
@@ -2771,14 +2781,15 @@ def _autocomplete_rank(keyword, market="US"):
 
 
 def collect_amazon_autocomplete(date_from, date_to):
-    """Collect Amazon autocomplete rank scores for brand keywords."""
+    """Collect Amazon autocomplete rank scores for brand keywords per market."""
     print("[Amazon Autocomplete] Collecting rank scores...")
     today = _get_pst_today().isoformat()
     all_rows = []
 
-    for brand, keywords in AUTOCOMPLETE_BRANDS.items():
-        for kw in keywords:
-            for market_name in AUTOCOMPLETE_MARKETS:
+    for market_name in AUTOCOMPLETE_MARKETS:
+        brands = AUTOCOMPLETE_KEYWORDS.get(market_name, {})
+        for brand, keywords in brands.items():
+            for kw in keywords:
                 score, position, suggestions = _autocomplete_rank(kw, market=market_name)
                 all_rows.append({
                     "date": today,

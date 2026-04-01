@@ -3673,20 +3673,38 @@ def generate():
 
 
 def _build_autocomplete_data() -> dict:
-    """Load Amazon autocomplete rank data from local cache."""
-    cache_path = os.path.join(os.path.dirname(__file__), "..", ".tmp", "datakeeper", "amazon_autocomplete_daily.json")
-    if not os.path.exists(cache_path):
-        print("  [autocomplete] No cache file found, skipping")
-        return {}
+    """Load Amazon autocomplete rank data — PG first, fallback to local cache."""
+    rows = []
 
-    with open(cache_path, "r", encoding="utf-8") as f:
-        rows = json.load(f)
+    # Try PG (has all historical data)
+    try:
+        from data_keeper_client import DataKeeper
+        dk = DataKeeper()
+        rows = dk.get("amazon_autocomplete_daily", days=120) or []
+        if rows:
+            print(f"  [autocomplete] {len(rows)} rows from PG")
+    except Exception as e:
+        print(f"  [autocomplete] PG failed ({e}), trying cache")
+
+    # Fallback to local cache
+    if not rows:
+        cache_path = os.path.join(os.path.dirname(__file__), "..", ".tmp", "datakeeper", "amazon_autocomplete_daily.json")
+        if os.path.exists(cache_path):
+            with open(cache_path, "r", encoding="utf-8") as f:
+                rows = json.load(f)
 
     if not rows:
+        print("  [autocomplete] No data found")
         return {}
 
-    # Group by brand → market → keyword scores
-    out = {}
+    # Build two structures:
+    # 1. "latest" — most recent snapshot per brand/market (for summary cards)
+    # 2. "trends" — daily time series per brand/market/keyword (for trend chart)
+    latest_date = max(r.get("date", "") for r in rows)
+
+    latest = {}
+    trends = {}  # brand → market → keyword → [{date, score, position}, ...]
+
     for r in rows:
         brand = r.get("brand", "")
         market = r.get("market", "US")
@@ -3695,17 +3713,28 @@ def _build_autocomplete_data() -> dict:
         pos = r.get("position", -1)
         date = r.get("date", "")
 
-        if brand not in out:
-            out[brand] = {"US": [], "JP": []}
-        out[brand][market].append({
-            "keyword": kw,
-            "score": score,
-            "position": pos,
-            "date": date,
-        })
+        # Latest snapshot
+        if date == latest_date:
+            if brand not in latest:
+                latest[brand] = {"US": [], "JP": []}
+            latest[brand][market].append({"keyword": kw, "score": score, "position": pos, "date": date})
 
-    print(f"  [autocomplete] {len(rows)} rows loaded for {len(out)} brands")
-    return out
+        # Trends
+        if brand not in trends:
+            trends[brand] = {"US": {}, "JP": {}}
+        if kw not in trends[brand][market]:
+            trends[brand][market][kw] = []
+        trends[brand][market][kw].append({"date": date, "score": score, "position": pos})
+
+    # Sort trend entries by date
+    for brand in trends:
+        for mkt in trends[brand]:
+            for kw in trends[brand][mkt]:
+                trends[brand][mkt][kw].sort(key=lambda x: x["date"])
+
+    all_dates = sorted(set(r.get("date", "") for r in rows))
+    print(f"  [autocomplete] {len(rows)} rows, {len(all_dates)} dates, {len(latest)} brands")
+    return {"latest": latest, "trends": trends, "dates": all_dates}
 
 
 def _build_jp_data(dk: "DataKeeper", months: list) -> dict:
