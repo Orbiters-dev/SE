@@ -3171,17 +3171,56 @@ def generate():
                 elif brand == "Naeiae":
                     ptype_views["Rice Puff"][d] += views
 
+        # ── GSC daily search impressions by brand keyword ──────────────
+        # Map brand → list of GSC keywords that contain brand name
+        BRAND_KW_MAP = {
+            "Grosmimi": ["grosmimi"],
+            "CHA&MOM": ["cha and mom", "chamom", "cha&mom"],
+            "Naeiae": ["naeiae", "pop rice"],
+            "Onzenna": ["onzenna"],
+        }
+        # Build brand → {date → total_impressions}
+        brand_gsc_daily = defaultdict(lambda: defaultdict(int))
+        for r in gsc:
+            q = (r.get("query") or "").strip().lower()
+            d = r.get("date", "")
+            impr = int(r.get("impressions") or 0)
+            if not q or not d or impr <= 0:
+                continue
+            for brand_name, kw_list in BRAND_KW_MAP.items():
+                if any(k in q for k in kw_list):
+                    brand_gsc_daily[brand_name][d] += impr
+                    break
+
+        # ── BA weekly search frequency rank by brand ──────────────────
+        # Build brand → [{week_end, keyword, rank}]
+        brand_ba_weekly = defaultdict(list)
+        for r in brand_analytics:
+            term = (r.get("search_term") or "").strip()
+            week = r.get("week_end") or r.get("date", "")
+            rank = r.get("search_frequency_rank")
+            brand = r.get("brand", "")
+            if term and week and brand:
+                brand_ba_weekly[brand].append({
+                    "keyword": term, "week": week,
+                    "rank": int(rank) if rank else None,
+                })
+
         # Content lift — 90 day daily trend per category
         content_lift = {}
         for cat, cd in sorted_cats:
             views_arr = [ptype_views.get(cat, {}).get(d, 0) for d in daily_dates]
             sales_arr = [round(cd["daily"].get(d, {}).get("sales", 0)) for d in daily_dates]
             units_arr = [cd["daily"].get(d, {}).get("units", 0) for d in daily_dates]
+            # GSC daily search impressions for this brand
+            cat_brand = cd["brand"]
+            gsc_daily_arr = [brand_gsc_daily.get(cat_brand, {}).get(d, 0) for d in daily_dates]
             content_lift[cat] = {
                 "dates": daily_dates,
                 "views": views_arr,
                 "sales": sales_arr,
                 "units": units_arr,
+                "gsc_daily": gsc_daily_arr,
             }
 
         ct_with_views = sum(1 for c in content_lift.values() if sum(c["views"]) > 0)

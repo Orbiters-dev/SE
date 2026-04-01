@@ -286,9 +286,15 @@ def query_rows(request):
     if username and "username" in field_names:
         qs = qs.filter(username__iexact=username)
 
-    # Order by date desc if available
+    # Order by date desc if available (content_posts uses post_date, not date)
     if "date" in field_names:
         qs = qs.order_by("-date")
+    elif "post_date" in field_names:
+        qs = qs.order_by("-post_date")
+    elif "collected_at" in field_names:
+        qs = qs.order_by("-collected_at")
+    else:
+        qs = qs.order_by("-id")
 
     limit = min(int(request.GET.get("limit", 5000)), 10000)
     qs = qs[:limit]
