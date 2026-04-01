@@ -1633,9 +1633,13 @@ function renderHeroTab(F){
           // Content Views row removed — individual creator rows below show cumulative views
           crDeltaArr.forEach(function(x,ci){
             var allDv=x.cr.daily_views;
-            // Forward-fill to get cumulative snapshot at each week end
+            // Forward-fill + backward-fill to get cumulative snapshot at each week end
             var ffv=[],lastV=0;
             for(var d2=0;d2<allDv.length;d2++){var v2=allDv[d2]||0;if(v2>0)lastV=v2;ffv.push(lastV);}
+            // Backward-fill: carry earliest non-zero value back to the start
+            var firstNZ=-1;
+            for(var d3=0;d3<ffv.length;d3++){if(ffv[d3]>0){firstNZ=d3;break;}}
+            if(firstNZ>0){for(var d4=0;d4<firstNZ;d4++)ffv[d4]=ffv[firstNZ];}
             var _wu=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
             html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_wu+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a></td>';
             wkSlice.forEach(function(wk,wi){
