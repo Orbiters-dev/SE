@@ -190,7 +190,6 @@ function showDashboard(){
   document.getElementById('main-content').style.display='block';
   initDashboard();
 }
-if(checkAuth()) showDashboard();
 
 // ── Region / Section Navigation ──────────────────────────────────────────────
 var US_TABS = [
@@ -209,6 +208,8 @@ var _allSecs = ['sec-amazon-ppc','sec-content-intel','sec-pipeline-crm','sec-fin
                 'sec-jp-amazon','sec-jp-content','sec-jp-pipeline','sec-jp-fin'];
 var _curRegion = 'us';
 var _curSection = {};
+
+if(checkAuth()) showDashboard();
 
 function initDashboard() {
   var savedRgn = localStorage.getItem('fin_region') || 'us';
