@@ -3166,6 +3166,57 @@ def generate():
         ct_with_views = sum(1 for c in content_lift.values() if sum(c["views"]) > 0)
         print(f"  Content lift: {len(content_lift)} categories, {ct_with_views} with views (90d)")
 
+        # ── 6b. Content by influencer — daily views per creator (90d) ─────
+        # Build username → {brand, platform, url, product_types, post_ids}
+        creator_info = defaultdict(lambda: {"brand": "", "platform": "", "url": "", "product_types": set(), "post_ids": set()})
+        for p in content_posts:
+            pid = p.get("post_id") or p.get("url", "")
+            uname = (p.get("username") or "").strip()
+            if not pid or not uname:
+                continue
+            ci = creator_info[uname]
+            ci["brand"] = p.get("brand", "") or ci["brand"]
+            ci["platform"] = p.get("platform", "") or ci["platform"]
+            ci["url"] = p.get("url", "") or ci["url"]
+            ci["post_ids"].add(pid)
+            pt_raw = p.get("product_types", "")
+            if pt_raw:
+                for pt in pt_raw.split(","):
+                    if pt.strip():
+                        ci["product_types"].add(pt.strip())
+
+        # Aggregate daily views per creator
+        creator_daily = defaultdict(lambda: defaultdict(int))
+        for m in content_metrics:
+            pid = m.get("post_id", "")
+            d = m.get("date", "")
+            views = int(m.get("views") or 0)
+            if d < cutoff_90d or views <= 0:
+                continue
+            # Find which creator owns this post
+            for uname, ci in creator_info.items():
+                if pid in ci["post_ids"]:
+                    creator_daily[uname][d] += views
+                    break
+
+        # Build top 10 creators by total views
+        creator_totals = []
+        for uname, dv in creator_daily.items():
+            total = sum(dv.values())
+            if total > 0:
+                ci = creator_info[uname]
+                creator_totals.append({
+                    "username": uname,
+                    "brand": ci["brand"],
+                    "platform": ci["platform"],
+                    "product_types": sorted(ci["product_types"]),
+                    "total_views": total,
+                    "daily_views": [dv.get(d, 0) for d in daily_dates],
+                })
+        creator_totals.sort(key=lambda x: -x["total_views"])
+        content_by_creator = creator_totals[:15]  # Top 15
+        print(f"  Content by creator: {len(content_by_creator)} creators with views")
+
         # ── 7. Daily spend overlay ────────────────────────────────────────
         spend_dates = sorted(set(r.get("date", "") for r in amazon_ads if r.get("date", "") >= cutoff_30d))[-30:]
         amz_spend_daily = defaultdict(float)
@@ -3198,6 +3249,7 @@ def generate():
             "categories": categories,
             "keyword_table": keyword_table,
             "content_lift": content_lift,
+            "content_by_creator": content_by_creator,
             "spend_daily": spend_daily,
         }
 

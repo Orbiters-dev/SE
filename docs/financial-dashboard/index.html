@@ -57,6 +57,11 @@ td{padding:6px 8px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#f8fff
 /* Volume bar */
 .vol-bar{height:6px;border-radius:3px;background:#e2e8f0;position:relative;overflow:hidden;min-width:60px}
 .vol-bar .fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#10b981,#0ea5e9)}
+/* ── SVG Chart Tooltip ── */
+.fin-tooltip{position:fixed;pointer-events:none;background:#1e293b;color:#fff;padding:6px 10px;border-radius:6px;font-size:10px;font-family:var(--mono);line-height:1.5;z-index:9999;display:none;box-shadow:0 4px 12px rgba(0,0,0,.2);max-width:220px;white-space:nowrap}
+.fin-tooltip .tt-date{color:#94a3b8;font-size:9px;margin-bottom:2px}
+.fin-tooltip .tt-row{display:flex;align-items:center;gap:4px}
+.fin-tooltip .tt-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 /* ── Mobile Responsive ── */
 @media(max-width:700px){
   .ctr{padding:12px 8px 60px}
@@ -89,6 +94,7 @@ td{padding:6px 8px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#f8fff
 </style>
 </head>
 <body>
+<div class="fin-tooltip" id="fin-tt"></div>
 
 <!-- LOGIN GATE -->
 <div id="login-gate" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)">
@@ -165,6 +171,20 @@ function showDashboard(){
 }
 if(checkAuth()) showDashboard();
 
+// ── Tooltip ──────────────────────────────────────────────────────────────────
+function showTT(evt, html){
+  var tt=document.getElementById('fin-tt');
+  tt.innerHTML=html;
+  tt.style.display='block';
+  var r=tt.getBoundingClientRect();
+  var x=evt.clientX+12, y=evt.clientY-r.height-8;
+  if(x+r.width>window.innerWidth) x=evt.clientX-r.width-12;
+  if(y<4) y=evt.clientY+16;
+  tt.style.left=x+'px';
+  tt.style.top=y+'px';
+}
+function hideTT(){ var tt=document.getElementById('fin-tt'); tt.style.display='none'; }
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function $(v){ return typeof v==='number'?'$'+v.toLocaleString():v; }
 function num(v){ return typeof v==='number'?v.toLocaleString():v; }
@@ -214,6 +234,7 @@ function volBar(vol, maxVol){
 
 function barChart(datasets, labels, opts){
   var w=opts.w||900, h=opts.h||170, pad=44, barW=opts.barW||12;
+  var pfx=opts.prefix||'$';
   var n=labels.length, gapX=(w-pad*2)/n;
   var allVals=[]; datasets.forEach(function(ds){ ds.data.forEach(function(v){ allVals.push(Math.abs(v)); }); });
   var maxV=Math.max.apply(null, allVals)||1;
@@ -230,7 +251,7 @@ function barChart(datasets, labels, opts){
     var gy=h-pad-((h-pad-24)/3*g);
     var gv=Math.round(maxV/3*g);
     svg+='<line x1="'+pad+'" y1="'+gy+'" x2="'+(w-10)+'" y2="'+gy+'" stroke="#e2e8f0" stroke-width="0.5"/>';
-    svg+='<text x="'+(pad-4)+'" y="'+(gy+3)+'" text-anchor="end" fill="#94a3b8" font-size="8" font-family="var(--mono)">$'+(gv>=1000?Math.round(gv/1000)+'K':gv)+'</text>';
+    svg+='<text x="'+(pad-4)+'" y="'+(gy+3)+'" text-anchor="end" fill="#94a3b8" font-size="8" font-family="var(--mono)">'+pfx+(gv>=1000?Math.round(gv/1000)+'K':gv)+'</text>';
   }
   if(opts.stacked){
     for(var i=0;i<n;i++){
@@ -254,6 +275,17 @@ function barChart(datasets, labels, opts){
       });
       svg+='<text x="'+cx+'" y="'+(h-pad+14)+'" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="600">'+labels[i]+'</text>';
     }
+  }
+  // Tooltip hit areas per label group
+  for(var i=0;i<n;i++){
+    var hx=pad+gapX*i, hw=gapX;
+    var ttHtml='<div class=tt-date>'+labels[i].replace(/'/g,'\\&#39;')+'</div>';
+    datasets.forEach(function(ds){
+      var v=Math.abs(ds.data[i]||0);
+      ttHtml+='<div class=tt-row><span class=tt-dot style=background:'+ds.color+'></span>'+ds.label+': '+pfx+v.toLocaleString()+'</div>';
+    });
+    svg+='<rect x="'+hx+'" y="20" width="'+hw+'" height="'+(h-pad-20)+'" fill="transparent" style="cursor:crosshair"'
+      +' onmousemove="showTT(event,\''+ttHtml.replace(/'/g,"\\'")+'\')" onmouseleave="hideTT()"/>';
   }
   var lx=pad;
   datasets.forEach(function(ds){
@@ -949,6 +981,24 @@ function renderHeroTab(F){
       var step=Math.max(Math.floor(n/10),1);
       for(var i=0;i<n;i+=step){var x=padL+i*(bw+1)+bw/2;
       html+='<text x="'+x+'" y="'+(padT+plotH+14)+'" fill="var(--muted)" font-size="7" font-family="var(--mono)" text-anchor="middle" transform="rotate(-30,'+x+','+(padT+plotH+14)+')">'+dates[i].substring(5)+'</text>';}
+      // Vertical hover guide line (hidden by default)
+      html+='<line id="hero-guide-'+idx+'" x1="0" y1="'+padT+'" x2="0" y2="'+(padT+plotH)+'" stroke="#94a3b8" stroke-width="0.5" stroke-dasharray="2,2" opacity="0" pointer-events="none"/>';
+      // Invisible hit rectangles per day for tooltip
+      for(var i=0;i<n;i++){
+        var hx=padL+i*(bw+1), hw=bw+1;
+        var ttDate=dates[i]||'';
+        var ttSales=ds[i]||0;
+        var ttUnits=du[i]||0;
+        var ttViews=vw[i]||0;
+        html+='<rect x="'+hx+'" y="'+padT+'" width="'+hw+'" height="'+plotH+'" fill="transparent" style="cursor:crosshair"'
+          +' onmousemove="showTT(event,\'<div class=tt-date>'+ttDate+'</div>'
+          +'<div class=tt-row><span class=tt-dot style=background:#10b981></span>Sales: $'+ttSales.toLocaleString()+'</div>'
+          +'<div class=tt-row><span class=tt-dot style=background:#f59e0b></span>Units: '+ttUnits.toLocaleString()+'</div>'
+          +(ttViews>0?'<div class=tt-row><span class=tt-dot style=background:'+bc+'></span>Views: '+ttViews.toLocaleString()+'</div>':'')
+          +'\');var g=document.getElementById(\'hero-guide-'+idx+'\');if(g){g.setAttribute(\'x1\','+(hx+hw/2)+');g.setAttribute(\'x2\','+(hx+hw/2)+');g.setAttribute(\'opacity\',\'0.6\');}"'
+          +' onmouseleave="hideTT();var g=document.getElementById(\'hero-guide-'+idx+'\');if(g)g.setAttribute(\'opacity\',\'0\');"'
+          +'/>';
+      }
       html+='</svg></div>';
     }
     // Top keywords for this category
@@ -1034,10 +1084,150 @@ function renderHeroTab(F){
     html+='</tbody></table></div></div>';
   }
 
-  // ── Section C: Spend Overlay ──
+  // ── Section C2: Search Volume Trends ──
+  var kwVols=F.keyword_volumes||[];
+  var kwActive=kwVols.filter(function(k){return k.search_volume>0&&k.monthly_trend&&k.monthly_trend.length>1;});
+  kwActive.sort(function(a,b){return b.search_volume-a.search_volume;});
+  if(kwActive.length){
+    html+='<div class="sec"><div class="sec-title"><div class="num">3</div> Search Volume Trends (6 Months)</div>';
+    html+='<div class="card"><div class="desc">Google monthly search volume for tracked keywords (DataForSEO). Hover for values.</div>';
+    var moLabels=['6mo ago','5mo','4mo','3mo','2mo','Latest'];
+    var SVW=700,SVH=240,SVP={l:60,r:130,t:20,b:36};
+    var svCW=SVW-SVP.l-SVP.r,svCH=SVH-SVP.t-SVP.b;
+    var svMaxV=0;
+    kwActive.forEach(function(k){k.monthly_trend.forEach(function(v){if(v>svMaxV)svMaxV=v;});});
+    svMaxV=svMaxV||1;
+    var SV_COLORS=['#8b5cf6','#0ea5e9','#10b981','#f59e0b','#ec4899','#ef4444','#6366f1','#14b8a6','#f97316','#a855f7'];
+    function svX(i,len){return SVP.l+i/(len-1)*svCW;}
+    function svY(v){return SVP.t+svCH-v/svMaxV*svCH;}
+    var svGrid='';
+    for(var sg=0;sg<=4;sg++){
+      var sgv=svMaxV/4*sg,sgy=svY(sgv);
+      svGrid+='<line x1="'+SVP.l+'" y1="'+sgy+'" x2="'+(SVW-SVP.r)+'" y2="'+sgy+'" stroke="#f1f5f9"/>';
+      svGrid+='<text x="'+(SVP.l-6)+'" y="'+(sgy+3)+'" text-anchor="end" font-size="8" fill="#94a3b8">'+sgv.toLocaleString()+'</text>';
+    }
+    var svXL='';
+    moLabels.forEach(function(lbl,i){
+      svXL+='<text x="'+svX(i,moLabels.length)+'" y="'+(SVH-4)+'" text-anchor="middle" font-size="8" fill="#94a3b8">'+lbl+'</text>';
+    });
+    var svLines='',svEndLabels='';
+    kwActive.forEach(function(k,ki){
+      var col=SV_COLORS[ki%SV_COLORS.length];
+      var pts=k.monthly_trend.map(function(v,i){return svX(i,k.monthly_trend.length).toFixed(1)+','+svY(v).toFixed(1);}).join(' ');
+      var lastI=k.monthly_trend.length-1;
+      var lx=svX(lastI,k.monthly_trend.length),ly=svY(k.monthly_trend[lastI]);
+      svLines+='<polyline points="'+pts+'" fill="none" stroke="'+col+'" stroke-width="2" stroke-linecap="round" opacity="0.85"/>';
+      svLines+='<circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="4" fill="'+col+'"/>';
+      svEndLabels+='<text x="'+(lx+8).toFixed(1)+'" y="'+(ly+3).toFixed(1)+'" fill="'+col+'" font-size="9" font-weight="600" font-family="var(--mono)">'+k.keyword+'</text>';
+    });
+    // Tooltip hit columns
+    var svHits='';
+    for(var mi=0;mi<moLabels.length;mi++){
+      var hx=mi===0?SVP.l:svX(mi-0.5,moLabels.length);
+      var hw=mi===0||mi===moLabels.length-1?svCW/moLabels.length:svCW/moLabels.length;
+      var ttH='<div class=tt-date>'+moLabels[mi]+'</div>';
+      kwActive.forEach(function(k,ki){
+        var v=k.monthly_trend[mi]||0;
+        if(v>0) ttH+='<div class=tt-row><span class=tt-dot style=background:'+SV_COLORS[ki%SV_COLORS.length]+'></span>'+k.keyword+': '+v.toLocaleString()+'</div>';
+      });
+      var cx=svX(mi,moLabels.length);
+      svHits+='<rect x="'+(cx-svCW/moLabels.length/2)+'" y="'+SVP.t+'" width="'+(svCW/moLabels.length)+'" height="'+svCH+'" fill="transparent" style="cursor:crosshair"'
+        +' onmousemove="showTT(event,\''+ttH.replace(/'/g,"\\'")+'\')" onmouseleave="hideTT()"/>';
+    }
+    html+='<div style="overflow-x:auto"><svg viewBox="0 0 '+SVW+' '+SVH+'" style="width:100%;min-width:480px;height:auto;display:block">'+svGrid+svXL+svLines+svEndLabels+svHits+'</svg></div>';
+    html+='</div></div>';
+  }
+
+  // ── Section D: Content by Creator (Influencer Lines) ──
+  var cbc=H.content_by_creator||[];
+  if(cbc.length){
+    var cbcTop=cbc.slice(0,10);
+    html+='<div class="sec"><div class="sec-title"><div class="num">4</div> Content Views by Influencer (90D)</div>';
+    html+='<div class="card"><div class="desc">Daily cumulative views per creator over 90 days. Hover lines for details.</div>';
+    // Stats row
+    var cbcTotalV=0;cbcTop.forEach(function(cr){cbcTotalV+=cr.total_views;});
+    html+='<div class="stats" style="margin-bottom:12px">';
+    html+='<div class="stat accent"><div class="sl">TRACKED CREATORS</div><div class="sv">'+cbc.length+'</div></div>';
+    html+='<div class="stat cyan"><div class="sl">TOP 10 TOTAL VIEWS</div><div class="sv">'+cbcTotalV.toLocaleString()+'</div></div>';
+    html+='</div>';
+    // Build line chart
+    var crDates=H.daily_dates||[];
+    var crN=crDates.length;
+    var CRW=860,CRH=320,CRP={l:60,r:150,t:20,b:36};
+    var crCW=CRW-CRP.l-CRP.r,crCH=CRH-CRP.t-CRP.b;
+    var CR_COLORS=['#3b82f6','#10b981','#8b5cf6','#f59e0b','#ef4444','#ec4899','#14b8a6','#f97316','#6366f1','#a855f7'];
+    // Find max daily view across all creators
+    var crMax=1;
+    cbcTop.forEach(function(cr){cr.daily_views.forEach(function(v){if(v>crMax)crMax=v;});});
+    function crX(i){return CRP.l+i/(crN-1)*crCW;}
+    function crY(v){return CRP.t+crCH-v/crMax*crCH;}
+    var crGrid='';
+    for(var cg=0;cg<=4;cg++){
+      var cgv=crMax/4*cg,cgy=crY(cgv);
+      crGrid+='<line x1="'+CRP.l+'" y1="'+cgy+'" x2="'+(CRW-CRP.r)+'" y2="'+cgy+'" stroke="#f1f5f9"/>';
+      crGrid+='<text x="'+(CRP.l-6)+'" y="'+(cgy+3)+'" text-anchor="end" font-size="8" fill="#94a3b8">'+cgv.toLocaleString()+'</text>';
+    }
+    // X-axis labels
+    var crXL='';
+    var crStep=Math.max(Math.floor(crN/8),1);
+    for(var xi=0;xi<crN;xi+=crStep){
+      crXL+='<text x="'+crX(xi)+'" y="'+(CRH-4)+'" text-anchor="middle" font-size="8" fill="#94a3b8">'+crDates[xi].substring(5)+'</text>';
+    }
+    // Lines + end labels
+    var crLines='',crEnd='';
+    cbcTop.forEach(function(cr,ci){
+      var col=CR_COLORS[ci%CR_COLORS.length];
+      var pts=[];
+      cr.daily_views.forEach(function(v,i){
+        if(i<crN) pts.push(crX(i).toFixed(1)+','+crY(v).toFixed(1));
+      });
+      if(!pts.length) return;
+      crLines+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+col+'" stroke-width="2" stroke-linecap="round" opacity="0.8"/>';
+      var lastV=cr.daily_views[crN-1]||0;
+      var lx=crX(crN-1),ly=crY(lastV);
+      crLines+='<circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="4" fill="'+col+'"/>';
+      crEnd+='<text x="'+(lx+8).toFixed(1)+'" y="'+(ly+3).toFixed(1)+'" fill="'+col+'" font-size="9" font-weight="600">@'+cr.username+'</text>';
+    });
+    // Tooltip hit columns
+    var crHits='';
+    var crColW=crCW/crN;
+    for(var di=0;di<crN;di++){
+      var hx=crX(di)-crColW/2;
+      var ttH='<div class=tt-date>'+crDates[di]+'</div>';
+      cbcTop.forEach(function(cr,ci){
+        var v=cr.daily_views[di]||0;
+        if(v>0) ttH+='<div class=tt-row><span class=tt-dot style=background:'+CR_COLORS[ci%CR_COLORS.length]+'></span>@'+cr.username+': '+v.toLocaleString()+'</div>';
+      });
+      crHits+='<rect x="'+hx+'" y="'+CRP.t+'" width="'+crColW+'" height="'+crCH+'" fill="transparent" style="cursor:crosshair"'
+        +' onmousemove="showTT(event,\''+ttH.replace(/'/g,"\\'")+'\')" onmouseleave="hideTT()"/>';
+    }
+    html+='<div style="overflow-x:auto;cursor:crosshair">';
+    html+='<svg viewBox="0 0 '+CRW+' '+CRH+'" style="width:100%;min-width:480px;height:auto;display:block">'+crGrid+crXL+crLines+crEnd+crHits+'</svg>';
+    html+='</div>';
+    html+='<div style="font-size:9px;color:var(--muted);margin-top:6px">Daily views per influencer over last 90 days. Hover for breakdown.</div>';
+    // Leaderboard table
+    html+='<table style="margin-top:12px"><thead><tr><th>#</th><th>Username</th><th>Platform</th><th>Brand</th><th style="text-align:right">Total Views</th><th>Products</th></tr></thead><tbody>';
+    cbcTop.forEach(function(cr,ci){
+      var col=CR_COLORS[ci%CR_COLORS.length];
+      var prodHtml=cr.product_types&&cr.product_types.length?cr.product_types.map(function(t){return '<span style="display:inline-block;padding:1px 5px;border-radius:8px;background:#f3e8ff;color:#7c3aed;font-size:9px;margin:1px 2px">'+t+'</span>';}).join(''):'<span style="color:var(--muted);font-size:9px">-</span>';
+      var platBadge=cr.platform==='tiktok'||cr.platform==='TT'?'<span style="padding:1px 5px;border-radius:4px;background:#fce7f3;color:#ec4899;font-size:9px;font-weight:700">TT</span>':'<span style="padding:1px 5px;border-radius:4px;background:#fef3c7;color:#f59e0b;font-size:9px;font-weight:700">IG</span>';
+      html+='<tr>';
+      html+='<td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+col+';margin-right:4px"></span>'+(ci+1)+'</td>';
+      html+='<td style="font-weight:700">@'+cr.username+'</td>';
+      html+='<td>'+platBadge+'</td>';
+      html+='<td style="font-size:10px;color:var(--dim)">'+cr.brand+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-weight:700">'+cr.total_views.toLocaleString()+'</td>';
+      html+='<td>'+prodHtml+'</td>';
+      html+='</tr>';
+    });
+    html+='</tbody></table>';
+    html+='</div></div>';
+  }
+
+  // ── Section E: Spend Overlay ──
   if(H.spend_daily&&H.spend_daily.dates&&H.spend_daily.dates.length){
     var sd=H.spend_daily;
-    html+='<div class="sec"><div class="sec-title"><div class="num">3</div> Daily Ad Spend by Platform (30D)</div>';
+    html+='<div class="sec"><div class="sec-title"><div class="num">5</div> Daily Ad Spend by Platform (30D)</div>';
     html+='<div class="card">';
     var totalAmz=sd.amazon.reduce(function(a,b){return a+b},0);
     var totalMeta=sd.meta.reduce(function(a,b){return a+b},0);
@@ -1055,7 +1245,15 @@ function renderHeroTab(F){
     var hA=(sd.amazon[i]||0)/maxDay*60,hM=(sd.meta[i]||0)/maxDay*60,hG=(sd.google[i]||0)/maxDay*60,y0=65;
     html+='<rect x="'+x+'" y="'+(y0-hA)+'" width="14" height="'+hA+'" fill="#f59e0b" rx="1"/>';
     html+='<rect x="'+x+'" y="'+(y0-hA-hM)+'" width="14" height="'+hM+'" fill="#0ea5e9" rx="1"/>';
-    html+='<rect x="'+x+'" y="'+(y0-hA-hM-hG)+'" width="14" height="'+hG+'" fill="#6366f1" rx="1"/>';});
+    html+='<rect x="'+x+'" y="'+(y0-hA-hM-hG)+'" width="14" height="'+hG+'" fill="#6366f1" rx="1"/>';
+    // Tooltip hit area
+    var spTt='<div class=tt-date>'+d+'</div>'
+      +'<div class=tt-row><span class=tt-dot style=background:#f59e0b></span>AMZ: $'+(sd.amazon[i]||0).toLocaleString()+'</div>'
+      +'<div class=tt-row><span class=tt-dot style=background:#0ea5e9></span>Meta: $'+(sd.meta[i]||0).toLocaleString()+'</div>'
+      +'<div class=tt-row><span class=tt-dot style=background:#6366f1></span>Google: $'+(sd.google[i]||0).toLocaleString()+'</div>'
+      +'<div class=tt-row style=border-top:1px_solid_#475569;padding-top:2px;margin-top:2px>Total: $'+((sd.amazon[i]||0)+(sd.meta[i]||0)+(sd.google[i]||0)).toLocaleString()+'</div>';
+    html+='<rect x="'+x+'" y="2" width="16" height="68" fill="transparent" style="cursor:crosshair" onmousemove="showTT(event,\''+spTt.replace(/'/g,"\\'")+'\')" onmouseleave="hideTT()"/>';
+    });
     html+='<rect x="2" y="72" width="8" height="5" fill="#f59e0b" rx="1"/><text x="13" y="77" fill="var(--dim)" font-size="8">AMZ</text>';
     html+='<rect x="45" y="72" width="8" height="5" fill="#0ea5e9" rx="1"/><text x="56" y="77" fill="var(--dim)" font-size="8">Meta</text>';
     html+='<rect x="85" y="72" width="8" height="5" fill="#6366f1" rx="1"/><text x="96" y="77" fill="var(--dim)" font-size="8">Google</text>';
@@ -1064,7 +1262,7 @@ function renderHeroTab(F){
 
   // ── Section E: ASIN Reference ──
   if(H.categories&&H.categories.length){
-    html+='<div class="sec"><div class="sec-title"><div class="num">4</div> ASIN &rarr; Category Reference</div>';
+    html+='<div class="sec"><div class="sec-title"><div class="num">6</div> ASIN &rarr; Category Reference</div>';
     html+='<div class="card"><div class="desc">All ASINs and their assigned product category. Verify classification is correct.</div>';
     html+='<table><thead><tr><th>Category</th><th>Brand</th><th>ASIN</th><th>Product Name</th></tr></thead><tbody>';
     H.categories.forEach(function(c){
