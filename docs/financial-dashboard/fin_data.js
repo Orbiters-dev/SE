@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-03-31 18:17 PST",
+ "generated_pst": "2026-03-31 18:28 PST",
  "through_date": "2026-03-30",
  "months": [
   "2025-01",
@@ -108,10 +108,10 @@ const FIN_DATA = {
    "total_ad_spend": 45852,
    "ad_attributed_sales": 149303,
    "organic_revenue": 79419,
-   "gross_margin": 135300,
-   "gm_pct": 59.2,
-   "contribution_margin": 88487,
-   "cm_pct": 38.7,
+   "gross_margin": 228722,
+   "gm_pct": 100.0,
+   "contribution_margin": 181910,
+   "cm_pct": 79.5,
    "mer": 4.99,
    "roas": 3.26,
    "discount_rate": 5.5
@@ -124,10 +124,10 @@ const FIN_DATA = {
    "total_ad_spend": 146897,
    "ad_attributed_sales": 526058,
    "organic_revenue": 258235,
-   "gross_margin": 467615,
-   "gm_pct": 59.6,
-   "contribution_margin": 315219,
-   "cm_pct": 40.2,
+   "gross_margin": 784292,
+   "gm_pct": 100.0,
+   "contribution_margin": 631897,
+   "cm_pct": 80.6,
    "mer": 5.34,
    "roas": 3.58,
    "discount_rate": 5.5
@@ -140,10 +140,10 @@ const FIN_DATA = {
    "total_ad_spend": 146897,
    "ad_attributed_sales": 526058,
    "organic_revenue": 258235,
-   "gross_margin": 467615,
-   "gm_pct": 59.6,
-   "contribution_margin": 315219,
-   "cm_pct": 40.2,
+   "gross_margin": 784292,
+   "gm_pct": 100.0,
+   "contribution_margin": 631897,
+   "cm_pct": 80.6,
    "mer": 5.34,
    "roas": 3.58,
    "discount_rate": 5.5
@@ -1415,72 +1415,72 @@ const FIN_DATA = {
    959763
   ],
   "cogs": [
-   202109,
-   187725,
-   214637,
-   198264,
-   200808,
-   241154,
-   324175,
-   253897,
-   220537,
-   264311,
-   286631,
-   237195,
-   273937,
-   235844,
-   305734
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
   ],
   "cogs_proj": [
-   202109,
-   187725,
-   214637,
-   198264,
-   200808,
-   241154,
-   324175,
-   253897,
-   220537,
-   264311,
-   286631,
-   237195,
-   273937,
-   235844,
-   315915
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
   ],
   "gross_margin": [
-   332211,
-   294497,
-   329468,
-   333657,
-   358292,
-   437083,
-   556684,
-   517046,
-   445304,
-   475841,
-   536528,
-   464141,
-   492518,
-   463584,
-   623100
+   534321,
+   482222,
+   544105,
+   531922,
+   559100,
+   678237,
+   880859,
+   770943,
+   665841,
+   740152,
+   823159,
+   701336,
+   766455,
+   699427,
+   928833
   ],
   "gross_margin_proj": [
-   332211,
-   294497,
-   329468,
-   333657,
-   358292,
-   437083,
-   556684,
-   517046,
-   445304,
-   475841,
-   536528,
-   464141,
-   492518,
-   463584,
-   643849
+   534321,
+   482222,
+   544105,
+   531922,
+   559100,
+   678237,
+   880859,
+   770943,
+   665841,
+   740152,
+   823159,
+   701336,
+   766455,
+   699427,
+   959763
   ],
   "variable_costs": [
    61581,
@@ -1492,12 +1492,12 @@ const FIN_DATA = {
    112674,
    93786,
    79215,
-   124067,
-   219668,
-   182136,
-   191867,
-   176979,
-   252020
+   93404,
+   103417,
+   90326,
+   94066,
+   88008,
+   121789
   ],
   "variable_detail": {
    "amz_ref_fee": [
@@ -1527,77 +1527,77 @@ const FIN_DATA = {
     0,
     0,
     0,
-    30663,
-    116251,
-    91810,
-    97801,
-    88971,
-    130231
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
    ]
   },
   "cm_before_mkt": [
-   270630,
-   237928,
-   254617,
-   254138,
-   279247,
-   355230,
-   444010,
-   423260,
-   366089,
-   351773,
-   316860,
-   282005,
-   300650,
-   286605,
-   371080
+   472740,
+   425653,
+   469254,
+   452402,
+   480055,
+   596384,
+   768185,
+   677158,
+   586626,
+   646748,
+   719742,
+   611010,
+   672389,
+   611419,
+   807044
   ],
   "cm_before_mkt_proj": [
-   270630,
-   237928,
-   254617,
-   254138,
-   279247,
-   355230,
-   444010,
-   423260,
-   366089,
-   351773,
-   316860,
-   282005,
-   300650,
-   286605,
-   383437
+   472740,
+   425653,
+   469254,
+   452402,
+   480055,
+   596384,
+   768185,
+   677158,
+   586626,
+   646748,
+   719742,
+   611010,
+   672389,
+   611419,
+   833919
   ],
   "ad_spend": [
-   68843,
-   54550,
-   58745,
-   63551,
-   62851,
-   72745,
-   103700,
-   92178,
-   83337,
-   91284,
-   104991,
+   20996,
+   16546,
+   17863,
+   17410,
+   17003,
+   16451,
+   21579,
+   24911,
+   27700,
+   31719,
+   39600,
    71387,
    118156,
    119783,
    146897
   ],
   "ad_spend_proj": [
-   68843,
-   54550,
-   58745,
-   63551,
-   62851,
-   72745,
-   103700,
-   92178,
-   83337,
-   91284,
-   104991,
+   20996,
+   16546,
+   17863,
+   17410,
+   17003,
+   16451,
+   21579,
+   24911,
+   27700,
+   31719,
+   39600,
    71387,
    118156,
    119783,
@@ -1657,142 +1657,142 @@ const FIN_DATA = {
    ]
   },
   "seeding": [
-   3311,
-   5282,
-   2811,
-   3225,
-   3184,
-   2875,
-   5045,
-   19121,
-   10271,
-   23233,
-   4420,
-   2156,
-   8235,
-   11911,
-   7290
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
   ],
   "seeding_proj": [
-   3311,
-   5282,
-   2811,
-   3225,
-   3184,
-   2875,
-   5045,
-   19121,
-   10271,
-   23233,
-   4420,
-   2156,
-   8235,
-   11911,
-   7533
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
   ],
   "influencer_detail": {
    "paid": [
-    1100,
-    2900,
     0,
-    1532,
-    2107,
-    2020,
-    3467,
-    18004,
-    7437,
-    22277,
-    1318,
-    814,
-    450,
-    5878,
-    4550
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
    ],
    "nonpaid": [
-    2211,
-    2382,
-    2811,
-    1693,
-    1077,
-    855,
-    1577,
-    1117,
-    2833,
-    956,
-    3102,
-    1341,
-    7785,
-    6033,
-    2740
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
    ]
   },
   "mkt_total": [
-   90341,
-   71701,
-   65801,
-   66838,
-   67966,
-   98565,
-   118728,
-   122859,
-   101213,
-   118188,
-   129083,
-   82621,
-   142471,
-   138019,
-   159732
+   39184,
+   28416,
+   22108,
+   17472,
+   18934,
+   39396,
+   31562,
+   36471,
+   35305,
+   35390,
+   59273,
+   80465,
+   134237,
+   126108,
+   152442
   ],
   "mkt_total_proj": [
-   90341,
-   71701,
-   65801,
-   66838,
-   67966,
-   98565,
-   118728,
-   122859,
-   101213,
-   118188,
-   129083,
-   82621,
-   142471,
-   138019,
-   165051
+   39184,
+   28416,
+   22108,
+   17472,
+   18934,
+   39396,
+   31562,
+   36471,
+   35305,
+   35390,
+   59273,
+   80465,
+   134237,
+   126108,
+   157518
   ],
   "contribution_margin": [
-   180289,
-   166226,
-   188815,
-   187300,
-   211281,
-   256665,
-   325282,
-   300401,
-   264876,
-   233585,
-   187776,
-   199385,
-   158179,
-   148586,
-   211348
+   433556,
+   397237,
+   447146,
+   434930,
+   461121,
+   556988,
+   736623,
+   640687,
+   551321,
+   611357,
+   660469,
+   530545,
+   538152,
+   485311,
+   654602
   ],
   "contribution_margin_proj": [
-   180289,
-   166226,
-   188815,
-   187300,
-   211281,
-   256665,
-   325282,
-   300401,
-   264876,
-   233585,
-   187776,
-   199385,
-   158179,
-   148586,
-   218386
+   433556,
+   397237,
+   447146,
+   434930,
+   461121,
+   556988,
+   736623,
+   640687,
+   551321,
+   611357,
+   660469,
+   530545,
+   538152,
+   485311,
+   676400
   ]
  },
  "search_queries": [
@@ -15074,7 +15074,7 @@ const FIN_DATA = {
      11.9,
      10.8,
      11.0,
-     10.5,
+     10.6,
      9.1,
      null
     ]
@@ -15977,16 +15977,6 @@ const FIN_DATA = {
    "monthly_trend": []
   },
   {
-   "keyword": "alpremio",
-   "brand": "",
-   "search_volume": 123,
-   "gsc_impressions": 107,
-   "gsc_clicks": 3,
-   "gads_impressions": 16,
-   "gads_clicks": 2,
-   "monthly_trend": []
-  },
-  {
    "keyword": "grosmimi ppsu straw cup with flip top",
    "brand": "",
    "search_volume": 123,
@@ -15994,6 +15984,16 @@ const FIN_DATA = {
    "gsc_clicks": 0,
    "gads_impressions": 0,
    "gads_clicks": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "alpremio",
+   "brand": "",
+   "search_volume": 123,
+   "gsc_impressions": 107,
+   "gsc_clicks": 3,
+   "gads_impressions": 16,
+   "gads_clicks": 2,
    "monthly_trend": []
   },
   {
@@ -16087,22 +16087,22 @@ const FIN_DATA = {
    "monthly_trend": []
   },
   {
-   "keyword": "grosmimi sippy cup",
-   "brand": "",
-   "search_volume": 81,
-   "gsc_impressions": 51,
-   "gsc_clicks": 0,
-   "gads_impressions": 30,
-   "gads_clicks": 0,
-   "monthly_trend": []
-  },
-  {
    "keyword": "beemymagic stainless steel",
    "brand": "",
    "search_volume": 81,
    "gsc_impressions": 81,
    "gsc_clicks": 5,
    "gads_impressions": 0,
+   "gads_clicks": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "grosmimi sippy cup",
+   "brand": "",
+   "search_volume": 81,
+   "gsc_impressions": 51,
+   "gsc_clicks": 0,
+   "gads_impressions": 30,
    "gads_clicks": 0,
    "monthly_trend": []
   },
@@ -16137,22 +16137,22 @@ const FIN_DATA = {
    "monthly_trend": []
   },
   {
-   "keyword": "beemymagic",
-   "brand": "",
-   "search_volume": 74,
-   "gsc_impressions": 74,
-   "gsc_clicks": 6,
-   "gads_impressions": 0,
-   "gads_clicks": 0,
-   "monthly_trend": []
-  },
-  {
    "keyword": "alpremio baby feeding seat",
    "brand": "",
    "search_volume": 74,
    "gsc_impressions": 71,
    "gsc_clicks": 0,
    "gads_impressions": 3,
+   "gads_clicks": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "beemymagic",
+   "brand": "",
+   "search_volume": 74,
+   "gsc_impressions": 74,
+   "gsc_clicks": 6,
+   "gads_impressions": 0,
    "gads_clicks": 0,
    "monthly_trend": []
   },
@@ -16227,6 +16227,16 @@ const FIN_DATA = {
    "monthly_trend": []
   },
   {
+   "keyword": "grosmimi tumbler",
+   "brand": "",
+   "search_volume": 56,
+   "gsc_impressions": 41,
+   "gsc_clicks": 3,
+   "gads_impressions": 15,
+   "gads_clicks": 2,
+   "monthly_trend": []
+  },
+  {
    "keyword": "ppsu straw cup",
    "brand": "",
    "search_volume": 56,
@@ -16244,16 +16254,6 @@ const FIN_DATA = {
    "gsc_clicks": 2,
    "gads_impressions": 0,
    "gads_clicks": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "grosmimi tumbler",
-   "brand": "",
-   "search_volume": 56,
-   "gsc_impressions": 41,
-   "gsc_clicks": 3,
-   "gads_impressions": 15,
-   "gads_clicks": 2,
    "monthly_trend": []
   },
   {
@@ -16307,13 +16307,13 @@ const FIN_DATA = {
    "monthly_trend": []
   },
   {
-   "keyword": "korean baby snacks",
+   "keyword": "baby straw cup",
    "brand": "",
    "search_volume": 46,
-   "gsc_impressions": 46,
+   "gsc_impressions": 1,
    "gsc_clicks": 0,
-   "gads_impressions": 0,
-   "gads_clicks": 0,
+   "gads_impressions": 45,
+   "gads_clicks": 4,
    "monthly_trend": []
   }
  ],
@@ -18681,40 +18681,40 @@ const FIN_DATA = {
    928833
   ],
   "cogs": [
-   202109,
-   187725,
-   214637,
-   198264,
-   200808,
-   241154,
-   324175,
-   253897,
-   220537,
-   264311,
-   286631,
-   237195,
-   2831443,
-   273937,
-   235844,
-   305734
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
   ],
   "gross_margin": [
-   332211,
-   294497,
-   329468,
-   333657,
-   358292,
-   437083,
-   556684,
-   517046,
-   445304,
-   475841,
-   536528,
-   464141,
-   5080752,
-   492518,
-   463584,
-   623100
+   534321,
+   482222,
+   544105,
+   531922,
+   559100,
+   678237,
+   880859,
+   770943,
+   665841,
+   740152,
+   823159,
+   701336,
+   7912197,
+   766455,
+   699427,
+   928833
   ],
   "variable_costs": [
    61581,
@@ -18726,13 +18726,13 @@ const FIN_DATA = {
    112674,
    93786,
    79215,
-   124067,
-   219668,
-   182136,
-   1244965,
-   191867,
-   176979,
-   252020
+   93404,
+   103417,
+   90326,
+   1006241,
+   94066,
+   88008,
+   121789
   ],
   "variable_detail": {
    "amz_ref_fee": [
@@ -18763,13 +18763,13 @@ const FIN_DATA = {
     0,
     0,
     0,
-    30663,
-    116251,
-    91810,
-    238724,
-    97801,
-    88971,
-    130231
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
    ],
    "fba_nm_months": [
     0,
@@ -18784,22 +18784,22 @@ const FIN_DATA = {
    ]
   },
   "cm_before_mkt": [
-   270630,
-   237928,
-   254617,
-   254138,
-   279247,
-   355230,
-   444010,
-   423260,
-   366089,
-   351773,
-   316860,
-   282005,
-   3835787,
-   300650,
-   286605,
-   371080
+   472740,
+   425653,
+   469254,
+   452402,
+   480055,
+   596384,
+   768185,
+   677158,
+   586626,
+   646748,
+   719742,
+   611010,
+   6905957,
+   672389,
+   611419,
+   807044
   ],
   "ad_spend": {
    "onzenna": [
@@ -18821,37 +18821,37 @@ const FIN_DATA = {
     36071
    ],
    "amazon": [
-    47847,
-    38004,
-    40882,
-    46141,
-    45848,
-    56294,
-    82121,
-    67267,
-    55637,
-    59565,
-    65391,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
     34382,
-    639379,
+    34382,
     79637,
     80371,
     110826
    ],
    "total": [
-    68843,
-    54550,
-    58745,
-    63551,
-    62851,
-    72745,
-    103700,
-    92178,
-    83337,
-    91284,
-    104991,
+    20996,
+    16546,
+    17863,
+    17410,
+    17003,
+    16451,
+    21579,
+    24911,
+    27700,
+    31719,
+    39600,
     71387,
-    928162,
+    323165,
     118156,
     119783,
     146897
@@ -19100,96 +19100,96 @@ const FIN_DATA = {
    ]
   },
   "influencer_spend": [
-   3311,
-   5282,
-   2811,
-   3225,
-   3184,
-   2875,
-   5045,
-   19121,
-   10271,
-   23233,
-   4420,
-   2156,
-   84934,
-   8235,
-   11911,
-   7290
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
   ],
   "influencer_detail": {
    "paid": [
-    1100,
-    2900,
     0,
-    1532,
-    2107,
-    2020,
-    3467,
-    18004,
-    7437,
-    22277,
-    1318,
-    814,
-    62976,
-    450,
-    5878,
-    4550
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
    ],
    "nonpaid": [
-    2211,
-    2382,
-    2811,
-    1693,
-    1077,
-    855,
-    1577,
-    1117,
-    2833,
-    956,
-    3102,
-    1341,
-    21955,
-    7785,
-    6033,
-    2740
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
    ]
   },
   "cm_after_ads": [
-   263368,
-   239947,
-   270723,
-   270106,
-   295441,
-   364338,
-   452984,
-   424868,
-   361967,
-   384557,
-   431537,
-   392754,
-   4152590,
-   374362,
-   343801,
-   476203
+   513325,
+   465676,
+   526242,
+   514512,
+   542097,
+   661786,
+   859280,
+   746032,
+   638141,
+   708433,
+   783559,
+   629949,
+   7589032,
+   648299,
+   579644,
+   781936
   ],
   "cm_final": [
-   260057,
-   234665,
-   267912,
-   266881,
-   292257,
-   361463,
-   447939,
-   405747,
-   351696,
-   361324,
-   427117,
-   390598,
-   4067656,
-   366127,
-   331890,
-   468913
+   513325,
+   465676,
+   526242,
+   514512,
+   542097,
+   661786,
+   859280,
+   746032,
+   638141,
+   708433,
+   783559,
+   629949,
+   7589032,
+   648299,
+   579644,
+   781936
   ],
   "channel_pnl": {
    "Amazon MP": {
@@ -19211,21 +19211,21 @@ const FIN_DATA = {
      811928
     ],
     "cogs": [
-     163347,
-     147404,
-     199632,
-     197864,
-     192216,
-     196213,
-     292932,
-     218228,
-     181615,
-     209333,
-     236811,
-     200110,
-     222592,
-     197598,
-     272076
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
     ],
     "selling_fees": [
      61581,
@@ -19254,12 +19254,12 @@ const FIN_DATA = {
      null,
      null,
      null,
-     30663,
-     116251,
-     91810,
-     97801,
-     88971,
-     130231
+     null,
+     null,
+     null,
+     null,
+     null,
+     null
     ],
     "fulfillment_nm": true,
     "ad_spend": [
@@ -19280,38 +19280,38 @@ const FIN_DATA = {
      124493
     ],
     "gross_margin": [
-     185612,
-     173156,
-     224526,
-     252748,
-     255704,
-     267622,
-     345556,
-     313223,
-     267271,
-     289296,
-     232970,
-     219925,
-     212649,
-     212146,
-     287832
+     348959,
+     320560,
+     424158,
+     450612,
+     447920,
+     463835,
+     638488,
+     531451,
+     448886,
+     529292,
+     586032,
+     511845,
+     533042,
+     498715,
+     690139
     ],
     "contribution_margin": [
-     185612,
-     173156,
-     224526,
-     251608,
-     252641,
-     265372,
-     343235,
-     310950,
-     264337,
-     284568,
-     221590,
-     176458,
-     121481,
-     122127,
-     163339
+     348959,
+     320560,
+     424158,
+     449472,
+     444857,
+     461585,
+     636167,
+     529178,
+     445952,
+     524564,
+     574652,
+     468378,
+     441874,
+     408696,
+     565646
     ],
     "color": "#f59e0b"
    },
@@ -19343,12 +19343,12 @@ const FIN_DATA = {
      0,
      0,
      0,
-     27541,
-     44648,
-     33215,
-     41927,
-     36611,
-     31168
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
     ],
     "selling_fees": [
      0,
@@ -19412,12 +19412,12 @@ const FIN_DATA = {
      103139,
      115369,
      118461,
-     72209,
-     55567,
-     39327,
-     53491,
-     36057,
-     40941
+     99750,
+     100215,
+     72542,
+     95418,
+     72668,
+     72109
     ],
     "contribution_margin": [
      66161,
@@ -19429,12 +19429,12 @@ const FIN_DATA = {
      83881,
      92731,
      93695,
-     45218,
-     27347,
-     11408,
-     26503,
-     6293,
-     18537
+     72759,
+     71995,
+     44623,
+     68430,
+     42904,
+     49705
     ],
     "color": "#6366f1"
    },
@@ -19589,12 +19589,12 @@ const FIN_DATA = {
      84,
      120,
      108,
-     4473,
-     5141,
-     3828,
-     9419,
-     1585,
-     2450
+     144,
+     180,
+     108,
+     144,
+     60,
+     108
     ],
     "selling_fees": [
      0,
@@ -19658,12 +19658,12 @@ const FIN_DATA = {
      3755,
      5242,
      5137,
-     4438,
-     3517,
-     2847,
-     6560,
-     8272,
-     1671
+     8767,
+     8478,
+     6567,
+     15835,
+     9797,
+     4013
     ],
     "contribution_margin": [
      10097,
@@ -19675,12 +19675,12 @@ const FIN_DATA = {
      3755,
      5242,
      5137,
-     4438,
-     3517,
-     2847,
-     6560,
-     8272,
-     1671
+     8767,
+     8478,
+     6567,
+     15835,
+     9797,
+     4013
     ],
     "color": "#10b981"
    }
@@ -31335,32 +31335,32 @@ const FIN_DATA = {
     33616
    ],
    "cogs": [
-    54193,
-    54272,
-    52239,
-    54274,
-    51691,
-    54183,
-    56582,
-    58520,
-    62894,
-    62028,
-    88592,
-    14379
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
    ],
    "gross_margin": [
-    94838,
-    89200,
-    88514,
-    108278,
-    90548,
-    93228,
-    98236,
-    96889,
-    108117,
-    105111,
-    161327,
-    19238
+    149031,
+    143471,
+    140753,
+    162552,
+    142239,
+    147410,
+    154818,
+    155409,
+    171011,
+    167139,
+    249919,
+    33616
    ],
    "ad_spend": [
     27210,
@@ -31405,18 +31405,18 @@ const FIN_DATA = {
     6622
    ],
    "contribution_margin": [
-    66635,
-    56115,
-    57606,
-    77806,
-    58520,
-    60917,
-    67411,
-    65411,
-    74249,
-    74509,
-    116216,
-    12616
+    120828,
+    110387,
+    109845,
+    132080,
+    110211,
+    115100,
+    123994,
+    123931,
+    137143,
+    136537,
+    204808,
+    26995
    ]
   },
   "channel_pnl": {
@@ -31436,18 +31436,18 @@ const FIN_DATA = {
      31577
     ],
     "cogs": [
-     47951,
-     42150,
-     45342,
-     46118,
-     45185,
-     48487,
-     51253,
-     53070,
-     56700,
-     56101,
-     83441,
-     13840
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
     ],
     "fees": [
      22291,
@@ -31478,32 +31478,32 @@ const FIN_DATA = {
      5857
     ],
     "gross_margin": [
-     56075,
-     49038,
-     50805,
-     53162,
-     53197,
-     55722,
-     59966,
-     59588,
-     66805,
-     64635,
-     84150,
-     12165
+     104026,
+     91188,
+     96147,
+     99280,
+     98382,
+     104209,
+     111219,
+     112658,
+     123505,
+     120736,
+     167591,
+     26005
     ],
     "contribution_margin": [
-     34194,
-     28116,
-     27954,
-     31357,
-     31775,
-     32555,
-     36468,
-     35140,
-     40430,
-     39694,
-     45021,
-     6308
+     82145,
+     70266,
+     73296,
+     77475,
+     76960,
+     81042,
+     87721,
+     88210,
+     97130,
+     95795,
+     128462,
+     20148
     ],
     "color": "#f59e0b"
    },
@@ -31523,18 +31523,18 @@ const FIN_DATA = {
      1448
     ],
     "cogs": [
-     6242,
-     12121,
-     6897,
-     8156,
-     6506,
-     5696,
-     5329,
-     5450,
-     6194,
-     5927,
-     5152,
-     539
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
     ],
     "fees": [
      0,
@@ -31565,32 +31565,32 @@ const FIN_DATA = {
      725
     ],
     "gross_margin": [
-     14112,
-     10125,
-     14489,
-     14177,
-     11263,
-     10676,
-     9792,
-     7062,
-     8700,
-     7989,
-     21904,
-     909
+     20354,
+     22246,
+     21386,
+     22333,
+     17769,
+     16372,
+     15121,
+     12512,
+     14894,
+     13916,
+     27056,
+     1448
     ],
     "contribution_margin": [
-     8783,
-     4550,
-     7632,
-     7877,
-     2458,
-     2832,
-     3150,
-     1405,
-     3164,
-     3392,
-     16969,
-     184
+     15025,
+     16671,
+     14529,
+     16033,
+     8964,
+     8528,
+     8479,
+     6855,
+     9358,
+     9319,
+     22121,
+     723
     ],
     "color": "#6366f1"
    },
@@ -33023,7 +33023,11 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0F6XNGT85",
+      "asin": "B0DB7SPP2P",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DY6SKQ2N",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -33031,15 +33035,19 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0DY6SM9Y7",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DB7SPP2P",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
       "asin": "B0F9PZGGF2",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0F6XNGT85",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DB7V1BW3",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DY6SM9Y7",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -33051,23 +33059,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0DB7V1BW3",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DY6SKQ2N",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
       "asin": "B0F4CRT6LV",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
-     },
-     {
-      "asin": "B0F4D8L1HL",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
-     },
-     {
-      "asin": "B0F4D3YZ8H",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
@@ -33075,16 +33067,16 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
+      "asin": "B0F4D3YZ8H",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
+     },
+     {
       "asin": "B0F4D1V39Q",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0F9PZD6QM",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
-     },
-     {
-      "asin": "B0F9PVZMR1",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
+      "asin": "B0F4D8L1HL",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
       "asin": "B0F9PY2LBV",
@@ -33099,31 +33091,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0842DMZ3H",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+      "asin": "B0F9PZD6QM",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0BZYSL3BH",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+      "asin": "B0F9PVZMR1",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B082SSPN4X",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B083986L91",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B08398HJRD",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0C1N3QZ7K",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B07YKJ18D5",
+      "asin": "B0C1N3VDL3",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -33135,11 +33111,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0C1N3VDL3",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0C1N1PLYD",
+      "asin": "B0C1N3QZ7K",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -33147,15 +33119,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B07YKH98WT",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B07YKKWFTN",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
       "asin": "B07YL2FT96",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B083986L91",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0842DMZ3H",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -33163,7 +33135,39 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
+      "asin": "B082SSPN4X",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0BZYSL3BH",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0C1N1PLYD",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B07YKKWFTN",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B07YKH98WT",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B08398HJRD",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B07YKJ18D5",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
       "asin": "B0F9NPRCTM",
+      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+     },
+     {
+      "asin": "B0F8QH8T8X",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
@@ -33175,15 +33179,11 @@ const FIN_DATA = {
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
-      "asin": "B0F8Q8RK18",
-      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
-     },
-     {
       "asin": "B0F8QHRGKW",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
-      "asin": "B0F8QH8T8X",
+      "asin": "B0F8Q8RK18",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
@@ -33556,15 +33556,11 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0FKFN91X9",
+      "asin": "B0FKG6RCDC",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FKGCRG45",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FHKFQPGR",
+      "asin": "B0FKFW6PND",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -33576,11 +33572,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FKFW6PND",
+      "asin": "B0FKGCRG45",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FKG6RCDC",
+      "asin": "B0FKFN91X9",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -33593,6 +33589,10 @@ const FIN_DATA = {
      },
      {
       "asin": "B0FKG59ZMN",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FHKFQPGR",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -33890,11 +33890,11 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0DDKJ11VQ",
+      "asin": "B0D8VG5G8R",
       "name": "-"
      },
      {
-      "asin": "B0D8VG5G8R",
+      "asin": "B0DDKJ11VQ",
       "name": "-"
      },
      {
