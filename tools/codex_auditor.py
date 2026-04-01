@@ -53,6 +53,9 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
 # ─── Paths ───────────────────────────────────────────────────────────────────
 DIR = Path(__file__).resolve().parent
 ROOT = DIR.parent
@@ -87,7 +90,7 @@ TOOLS = {
 }
 
 # ─── Codex exec config ──────────────────────────────────────────────────────
-CODEX_BIN = "codex"
+CODEX_BIN = os.environ.get("CODEX_BIN", "C:/Users/wjcho/AppData/Roaming/npm/codex.cmd")
 CODEX_MODEL = "o4-mini"  # Verified working 2026-04-01
 
 VERDICT_SCHEMA = """{{"verdict": "PASS|FAIL|DEGRADED", "domain": "{domain}", "round": {round}, "timestamp": "ISO8601", "checks_passed": N, "checks_total": N, "failures": [{{"check": "name", "expected": "...", "actual": "...", "severity": "CRITICAL|HIGH|MEDIUM|LOW"}}], "warnings": [], "notes": "summary"}}"""
@@ -99,9 +102,9 @@ VERDICT_SCHEMA = """{{"verdict": "PASS|FAIL|DEGRADED", "domain": "{domain}", "ro
 
 def _base_context(domain):
     tool = TOOLS.get(domain, {})
-    return f"""You are an independent verification agent (Codex Verifier).
-Your job is to run audit scripts, analyze results, and report findings.
-You must be SKEPTICAL — assume nothing works until you prove it.
+    return f"""IMPORTANT: Execute the task below IMMEDIATELY. Do NOT ask questions or wait for input. Run the commands, analyze results, and output JSON.
+
+You are an independent verification agent. Run audit scripts and report findings as JSON.
 
 Domain: {tool.get('label', domain)}
 Python: {PYTHON}
@@ -324,7 +327,7 @@ def run_codex(prompt, output_file=None, model=None, timeout=300):
     cmd = [
         CODEX_BIN, "exec",
         "--model", model or CODEX_MODEL,
-        "--sandbox", "read-only",
+        "--full-auto",
         "-C", str(ROOT),
         "--skip-git-repo-check",
         "-o", str(output_file),
@@ -342,6 +345,8 @@ def run_codex(prompt, output_file=None, model=None, timeout=300):
             timeout=timeout,
             cwd=str(ROOT),
             env={**os.environ, "OPENAI_API_KEY": os.environ.get("OPENAI_API_KEY", "")},
+            encoding="utf-8",
+            errors="replace",
         )
 
         if result.returncode != 0:
