@@ -609,12 +609,8 @@ def get_pipeline_config_today(request):
         return _cors_headers(request, HttpResponse(status=204))
     from datetime import date as date_cls
     today = date_cls.today()
-    try:
-        config, created = PipelineConfig.objects.get_or_create(date=today)
-        return _cors_headers(request, JsonResponse(_serialize_config(config)))
-    except Exception as e:
-        import traceback
-        return _cors_headers(request, JsonResponse({"error": str(e), "traceback": traceback.format_exc()}, status=500))
+    config, created = PipelineConfig.objects.get_or_create(date=today)
+    return _cors_headers(request, JsonResponse(_serialize_config(config)))
 
 
 @csrf_exempt
@@ -652,13 +648,20 @@ def get_or_save_pipeline_config(request, config_date):
     if "brand_assignees" in body:
         defaults["brand_assignees"] = json.dumps(body["brand_assignees"]) if isinstance(body["brand_assignees"], dict) else body["brand_assignees"]
     # Feature toggles
-    for field in ("rag_email_dedup", "apify_autofill"):
+    for field in ("rag_email_dedup", "apify_autofill", "apify_brand_filter",
+                  "us_only", "hil_draft_review", "hil_send_approval", "hil_sample_approval"):
         if field in body:
             defaults[field] = bool(body[field])
     if "human_in_loop" in body:
         defaults["human_in_loop"] = body["human_in_loop"]
     if "sender_email" in body:
         defaults["sender_email"] = body["sender_email"]
+    # Brand allocation
+    for field in ("alloc_grosmimi", "alloc_chaenmom", "alloc_naeiae"):
+        if field in body:
+            defaults[field] = int(body[field])
+    if "account_handles" in body:
+        defaults["account_handles"] = json.dumps(body["account_handles"]) if isinstance(body["account_handles"], dict) else body["account_handles"]
     # Templates & forms
     for field in ("outreach_template_id", "grosmimi_form_url", "chaenmom_form_url",
                   "naeiae_form_url", "ht_form_url"):

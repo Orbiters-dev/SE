@@ -224,6 +224,18 @@ class PipelineConfig(models.Model):
     eligible_unknown = models.IntegerField(default=0)
     ht_count = models.IntegerField(default=0)
     lt_count = models.IntegerField(default=0)
+    # Feature toggles (granular)
+    apify_brand_filter = models.BooleanField(default=True)
+    us_only = models.BooleanField(default=True)
+    hil_draft_review = models.BooleanField(default=True)
+    hil_send_approval = models.BooleanField(default=True)
+    hil_sample_approval = models.BooleanField(default=False)
+    # Brand allocation
+    alloc_grosmimi = models.IntegerField(default=5)
+    alloc_chaenmom = models.IntegerField(default=3)
+    alloc_naeiae = models.IntegerField(default=2)
+    # Account handles (JSON — per-brand sender accounts)
+    account_handles = models.TextField(blank=True, default="{}")
     # Meta
     updated_at = models.DateTimeField(auto_now=True)
     updated_by = models.CharField(max_length=50, blank=True, default="")
@@ -480,14 +492,6 @@ class DiscoveryPost(models.Model):
     outreach_email = models.EmailField(blank=True, default="")
     outreach_date = models.DateField(null=True, blank=True)
     outreach_notes = models.TextField(blank=True, default="")
-
-    # Content Intelligence (CI) fields — Whisper + GPT-4o Vision
-    scene_fit = models.CharField(max_length=10, blank=True, default="")  # HIGH, MED, LOW
-    has_subtitles = models.BooleanField(null=True, blank=True)
-    brand_fit_score = models.IntegerField(null=True, blank=True)  # 0-10
-    scene_tags = models.CharField(max_length=500, blank=True, default="")  # comma-separated
-    product_mention = models.BooleanField(null=True, blank=True)  # Whisper keyword detected
-    subject_age = models.CharField(max_length=20, blank=True, default="")  # infant(0-2y)/toddler(2-4y)/child(4y+)/none
 
     # Link to PipelineCreator (after outreach begins)
     pipeline_creator_id = models.UUIDField(null=True, blank=True, db_index=True)

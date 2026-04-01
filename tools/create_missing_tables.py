@@ -219,6 +219,19 @@ ALTER_COLUMNS = [
     # PipelineConfig — columns added in commits 8dda2af, 2687dd1
     "ALTER TABLE onz_pipeline_config ADD COLUMN IF NOT EXISTS ht_follower_min INTEGER DEFAULT 50000",
     "ALTER TABLE onz_pipeline_config ADD COLUMN IF NOT EXISTS brand_assignees TEXT DEFAULT '{\"Grosmimi\":\"Jeehoo\",\"CHA&MOM\":\"Laeeka\",\"Naeiae\":\"Soyeon\"}'",
+    # PipelineConfig — dashboard feature toggles + allocation + account_handles
+    "ALTER TABLE onz_pipeline_config ADD COLUMN IF NOT EXISTS apify_brand_filter BOOLEAN DEFAULT TRUE",
+    "ALTER TABLE onz_pipeline_config ADD COLUMN IF NOT EXISTS us_only BOOLEAN DEFAULT TRUE",
+    "ALTER TABLE onz_pipeline_config ADD COLUMN IF NOT EXISTS hil_draft_review BOOLEAN DEFAULT TRUE",
+    "ALTER TABLE onz_pipeline_config ADD COLUMN IF NOT EXISTS hil_send_approval BOOLEAN DEFAULT TRUE",
+    "ALTER TABLE onz_pipeline_config ADD COLUMN IF NOT EXISTS hil_sample_approval BOOLEAN DEFAULT FALSE",
+    "ALTER TABLE onz_pipeline_config ADD COLUMN IF NOT EXISTS alloc_grosmimi INTEGER DEFAULT 5",
+    "ALTER TABLE onz_pipeline_config ADD COLUMN IF NOT EXISTS alloc_chaenmom INTEGER DEFAULT 3",
+    "ALTER TABLE onz_pipeline_config ADD COLUMN IF NOT EXISTS alloc_naeiae INTEGER DEFAULT 2",
+    "ALTER TABLE onz_pipeline_config ADD COLUMN IF NOT EXISTS account_handles TEXT DEFAULT '{}'",
+    # Fix: ensure any manually-added NOT NULL columns become nullable
+    "ALTER TABLE onz_pipeline_config ALTER COLUMN account_handles SET DEFAULT '{}'",
+    "ALTER TABLE onz_pipeline_config ALTER COLUMN account_handles DROP NOT NULL",
 ]
 
 if __name__ == "__main__":
