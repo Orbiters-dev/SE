@@ -798,7 +798,10 @@ function n8nGet() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action: 'list_creators' }),
     cache: 'no-store'
-  }).then(function(r) { return r.json(); });
+  }).then(function(r) {
+    if (!r.ok) throw new Error('n8n HTTP ' + r.status);
+    return r.json();
+  });
 }
 
 function n8nPost(body) {
@@ -991,8 +994,7 @@ function loadCreators() {
     .catch(function(err) {
       console.error('Failed to load creators:', err);
       setPillStatus('error');
-      showToast('Failed to load creators from n8n', 'err');
-      // Show empty state
+      showToast('n8n error: ' + (err.message || err), 'err');
       updateStats();
       renderCreators();
     });
