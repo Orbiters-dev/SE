@@ -197,7 +197,7 @@ var _shopSales = [];
 var _metricsByPost = {};
 var _ordersByHandle = {};
 var _currentTab = 'alltime';
-var _region = 'us';
+var _region = (new URLSearchParams(window.location.search)).get('region') || 'us';
 var _brand = 'all'; // all, Grosmimi, CHA&MOM, Naeiae, N/A
 var _pipelineView = 'overview'; // overview, brand, products
 
@@ -300,6 +300,11 @@ function updateFreshness(){
 // ══════════ DATA LOADING ══════════
 var _retryCount = 0;
 async function initContentDashboard(){
+  // Sync region toggle UI with _region (may be set from URL param)
+  if(_region==='jp'){
+    var btns=document.querySelectorAll('#regionToggle .content-toggle>div');
+    if(btns.length>=2){btns[0].classList.remove('on');btns[1].classList.add('on');}
+  }
   if(_loaded){ renderTab(_currentTab); return; }
   var loadEl = document.getElementById('loading');
   loadEl.style.display = 'block';
