@@ -1219,7 +1219,7 @@ function renderCreators() {
 
   var html = '';
   filtered.forEach(function(c) {
-    var dmLink = 'https://ig.me/m/' + c.username;
+    var dmLink = 'https://www.instagram.com/' + c.username + '/';
     var isDraft = c.status === 'draft_ready' && c.dm_draft && !c.dm_count;
 
     html += '<div class="dm-card" style="border-left:3px solid ' + getStatusColor(c.status) + '">';
@@ -2123,7 +2123,7 @@ function copyAndOpenDm(handle) {
       showToast('복사 실패 — 수동으로 복사해주세요', 'err');
     });
   }
-  window.open('https://ig.me/m/' + handle, '_blank');
+  window.open('https://www.instagram.com/' + handle + '/', '_blank');
 }
 
 // ─── Sheet Batch Add ───
@@ -2292,7 +2292,7 @@ function executeCreatorsDrafts() {
     if (!text || (c && c.status === 'sent')) { idx++; setTimeout(processNext, 300); return; }
 
     navigator.clipboard.writeText(text).catch(function(){});
-    window.open('https://ig.me/m/' + handle, '_blank');
+    window.open('https://www.instagram.com/' + handle + '/', '_blank');
     n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
     updateStatus(handle, 'sent').then(function() { incDmCount(); }).catch(function(){});
     idx++;
