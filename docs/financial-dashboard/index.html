@@ -1666,6 +1666,28 @@ function renderHeroTab(F){
             });
             html+='</tr>';
           });
+          // Views total delta row + cumulative row
+          if(crDeltaArr.length){
+            html+='<tr style="border-top:2px solid var(--border);background:#f0fdf4"><td style="font-weight:700;color:var(--g)">Views Delta (sum)</td>';
+            var cumViews=0;
+            var wkDeltas=[];
+            wkSlice.forEach(function(wk,wi){
+              var weekTotal=0;var wkIdx=wkOffset+wi;
+              crDeltaArr.forEach(function(x){
+                var allDv=x.cr.daily_views;
+                for(var d=wkIdx*7;d<Math.min((wkIdx+1)*7,allDv.length);d++){weekTotal+=(allDv[d]||0);}
+              });
+              wkDeltas.push(weekTotal);
+              html+='<td style="text-align:right;font-family:var(--mono);font-weight:700;color:var(--g)">'+(weekTotal>0?'+'+weekTotal.toLocaleString():'—')+'</td>';
+            });
+            html+='</tr>';
+            html+='<tr style="background:#f0fdf4"><td style="font-weight:700;color:#059669">Views Cumulative</td>';
+            wkDeltas.forEach(function(d){
+              cumViews+=d;
+              html+='<td style="text-align:right;font-family:var(--mono);font-weight:700;color:#059669">'+(cumViews>0?cumViews.toLocaleString():'—')+'</td>';
+            });
+            html+='</tr>';
+          }
           // GSC weekly
           var gscT=gscD.reduce(function(a,b){return a+b},0);
           if(gscT>0){
