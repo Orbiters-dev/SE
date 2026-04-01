@@ -3126,20 +3126,10 @@ var _dateCountMap={};
 var _weekDateMap={};
 
 function _buildWeekGroups(dateMap){
-  var wmap={};
-  Object.keys(dateMap).forEach(function(d){
-    var wk=_isoWeekKey(d);
-    if(!wmap[wk])wmap[wk]={count:0,dates:[],monday:_weekMonday(d),sunday:_weekSunday(d)};
-    wmap[wk].count+=dateMap[d];
-    wmap[wk].dates.push(d);
-  });
-  _weekDateMap={};
-  var groups=Object.keys(wmap).map(function(wk){
-    var g=wmap[wk];
-    g.dates.sort();
-    _weekDateMap[wk]=g.dates;
-    var monShort=g.monday.slice(5);var sunShort=g.sunday.slice(5);
-    return {key:wk, label:wk.split('-')[1]+' ('+monShort+'~'+sunShort+')', count:g.count, dates:g.dates};
+  // Show each discovery date individually (matches Syncly sheet 최초 발견 일자)
+  var groups=Object.keys(dateMap).filter(function(d){return d.match(/^\d{4}-\d{2}-\d{2}$/)}).map(function(d){
+    _weekDateMap[d]=[d];
+    return {key:d, label:d.slice(2), count:dateMap[d], dates:[d]};
   });
   groups.sort(function(a,b){return b.key<a.key?-1:b.key>a.key?1:0});
   _weekGroups=groups;
