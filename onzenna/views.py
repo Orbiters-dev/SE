@@ -609,8 +609,12 @@ def get_pipeline_config_today(request):
         return _cors_headers(request, HttpResponse(status=204))
     from datetime import date as date_cls
     today = date_cls.today()
-    config, created = PipelineConfig.objects.get_or_create(date=today)
-    return _cors_headers(request, JsonResponse(_serialize_config(config)))
+    try:
+        config, created = PipelineConfig.objects.get_or_create(date=today)
+        return _cors_headers(request, JsonResponse(_serialize_config(config)))
+    except Exception as e:
+        import traceback
+        return _cors_headers(request, JsonResponse({"error": str(e), "traceback": traceback.format_exc()}, status=500))
 
 
 @csrf_exempt
