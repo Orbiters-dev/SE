@@ -373,6 +373,8 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
       <div class="desc">全クリエイター一覧 — Discovery + Pipeline + Inbound + Manual DM</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
         <button class="btn btn-primary" onclick="loadInfluencerSheet()">&#x1F504; Refresh</button>
+        <button class="btn" style="background:#10b981;color:#fff" onclick="importFromDiscovery()" id="btn-import-discovery">&#x1F4E5; Import New to Pipeline</button>
+        <span id="import-discovery-status" style="font-size:10px;color:var(--dim)"></span>
         <input type="text" id="sheet-search" placeholder="Search @handle, name..." oninput="filterSheet()" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;width:200px">
         <select id="sheet-filter-status" onchange="filterSheet()" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">
           <option value="">All Statuses</option>
@@ -1021,42 +1023,78 @@ function init() {
 
 function loadCreators() {
   setPillStatus('loading');
-  n8nGet()
-    .then(function(data) {
-      _creators = Array.isArray(data) ? data : (data.creators || []);
-      // Normalize fields
-      _creators.forEach(function(c) {
-        c.status = c.status || 'not_started';
-        c.dm_count = c.dm_count || 0;
-        c.followers = c.followers || 0;
-      });
-      setPillStatus('ready');
-      // Run each render in isolation so one failure doesn't kill the rest
-      var steps = [
-        ['updateStats', updateStats],
-        ['renderCreators', renderCreators],
-        ['renderDailyKpi', renderDailyKpi],
-        ['renderInboundQueue', renderInboundQueue],
-        ['renderHilQueue', renderHilQueue],
-        ['autoLoadReplyDrafts', autoLoadReplyDrafts],
-        ['renderSamples', renderSamples],
-        ['renderContracts', renderContracts],
-        ['loadRecentActivity', loadRecentActivity],
-        ['loadConfig', loadConfig],
-        ['loadInfluencerSheet', loadInfluencerSheet],
-        ['crossCheckDmLogs', crossCheckDmLogs]
-      ];
-      steps.forEach(function(s) {
-        try { s[1](); } catch(e) { console.error('[loadCreators] ' + s[0] + ' failed:', e); }
-      });
-    })
-    .catch(function(err) {
-      console.error('Failed to load creators:', err);
-      setPillStatus('error');
-      showToast('n8n error: ' + (err.message || err), 'err');
-      updateStats();
-      renderCreators();
+  var u = localStorage.getItem('dk_user') || 'admin';
+  var p = localStorage.getItem('dk_pass') || 'orbit1234';
+
+  // Load from both n8n (active pipeline) and EC2 (Not Started discovery creators)
+  Promise.all([
+    n8nGet().catch(function() { return []; }),
+    fetch('https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/?status=Not+Started&source=apify_discovery&limit=500', {
+      headers: { 'Authorization': 'Basic ' + btoa(u + ':' + p) }
+    }).then(function(r) { return r.json(); }).catch(function() { return { results: [] }; })
+  ]).then(function(results) {
+    var n8nData = results[0];
+    var ec2Data = results[1];
+
+    _creators = Array.isArray(n8nData) ? n8nData : (n8nData.creators || []);
+    // Normalize n8n fields
+    _creators.forEach(function(c) {
+      c.status = c.status || 'not_started';
+      c.dm_count = c.dm_count || 0;
+      c.followers = c.followers || 0;
     });
+
+    // Merge EC2 Not Started creators (not already in n8n)
+    var existingHandles = {};
+    _creators.forEach(function(c) {
+      if (c.username) existingHandles[c.username.toLowerCase()] = true;
+    });
+
+    var ec2Creators = ec2Data.results || [];
+    ec2Creators.forEach(function(c) {
+      var handle = c.ig_handle || c.tiktok_handle || '';
+      if (!handle || existingHandles[handle.toLowerCase()]) return;
+      existingHandles[handle.toLowerCase()] = true;
+      _creators.push({
+        username: handle,
+        name: c.full_name || handle,
+        status: 'not_started',
+        dm_count: 0,
+        followers: c.followers || 0,
+        platform: c.platform || '',
+        outreach_type: c.outreach_type || 'LT',
+        source: c.source || 'apify_discovery',
+        content_script: '',
+        _ec2_id: c.id
+      });
+    });
+
+    setPillStatus('ready');
+    // Run each render in isolation so one failure doesn't kill the rest
+    var steps = [
+      ['updateStats', updateStats],
+      ['renderCreators', renderCreators],
+      ['renderDailyKpi', renderDailyKpi],
+      ['renderInboundQueue', renderInboundQueue],
+      ['renderHilQueue', renderHilQueue],
+      ['autoLoadReplyDrafts', autoLoadReplyDrafts],
+      ['renderSamples', renderSamples],
+      ['renderContracts', renderContracts],
+      ['loadRecentActivity', loadRecentActivity],
+      ['loadConfig', loadConfig],
+      ['loadInfluencerSheet', loadInfluencerSheet],
+      ['crossCheckDmLogs', crossCheckDmLogs]
+    ];
+    steps.forEach(function(s) {
+      try { s[1](); } catch(e) { console.error('[loadCreators] ' + s[0] + ' failed:', e); }
+    });
+  }).catch(function(err) {
+    console.error('Failed to load creators:', err);
+    setPillStatus('error');
+    showToast('Load error: ' + (err.message || err), 'err');
+    updateStats();
+    renderCreators();
+  });
 }
 
 function setPillStatus(s) {
@@ -2774,6 +2812,37 @@ function setSheetSubtab(filter) {
     el.classList.toggle('on', el.getAttribute('data-filter') === filter);
   });
   renderSheet();
+}
+
+function importFromDiscovery() {
+  var btn = document.getElementById('btn-import-discovery');
+  var statusEl = document.getElementById('import-discovery-status');
+  btn.disabled = true;
+  statusEl.innerHTML = '<span class="loading-spinner" style="width:10px;height:10px"></span> Importing...';
+
+  var u = localStorage.getItem('dk_user') || 'admin';
+  var p = localStorage.getItem('dk_pass') || 'orbit1234';
+  fetch('https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/import-from-discovery/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa(u + ':' + p) },
+    body: JSON.stringify({ region: 'jp', limit: 200, min_followers: 1000 })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    statusEl.textContent = data.created + ' imported, ' + data.skipped + ' skipped (of ' + data.total_discovery_handles + ' handles)';
+    btn.disabled = false;
+    if (data.created > 0) {
+      showToast(data.created + ' creators added to pipeline!', 'ok');
+      // Reload creators + sheet to reflect changes
+      loadCreators();
+      loadInfluencerSheet();
+    }
+  })
+  .catch(function(err) {
+    statusEl.textContent = 'Error: ' + err.message;
+    btn.disabled = false;
+    showToast('Import failed', 'err');
+  });
 }
 
 function loadInfluencerSheet() {

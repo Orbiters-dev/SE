@@ -42,8 +42,11 @@ def _auth():
     return "Basic " + base64.b64encode(f"{ORBITOOLS_USER}:{ORBITOOLS_PASS}".encode()).decode()
 
 
-def fetch_video_posts(region: str) -> list[dict]:
-    """PG에서 영상 포스트 가져오기 (content_type=Video, ci_processed_at IS NULL)."""
+def fetch_video_posts(region: str, vision_only: bool = False) -> list[dict]:
+    """PG에서 영상 포스트 가져오기.
+    vision_only=True: transcript 있고 brand_fit_score 없는 것 (Vision pass만 필요)
+    vision_only=False: transcript 없는 것 (전체 파이프라인 필요)
+    """
     url = f"{ORBITOOLS_URL}/api/onzenna/discovery/posts/?region={region}&limit=5000"
     req = urllib.request.Request(url)
     req.add_header("Authorization", _auth())
@@ -51,14 +54,22 @@ def fetch_video_posts(region: str) -> list[dict]:
         data = json.loads(r.read())
     posts = data.get("results", [])
 
-    video_posts = [
-        p for p in posts
-        if (p.get("content_type") or "").lower() in ("video", "reel")
-        and not p.get("transcript")  # 아직 처리 안 된 것만
-        and p.get("url")
-        and p.get("platform", "").lower() == "instagram"  # IG만 (TikTok CDN URL 없음)
-    ]
-    print(f"[FETCH] {len(posts)} total posts, {len(video_posts)} IG videos to analyze")
+    if vision_only:
+        video_posts = [
+            p for p in posts
+            if p.get("transcript")
+            and not p.get("brand_fit_score")
+            and p.get("url")
+        ]
+        print(f"[FETCH] {len(posts)} total, {len(video_posts)} with transcript but no brand_fit (Vision-only)")
+    else:
+        video_posts = [
+            p for p in posts
+            if (p.get("content_type") or "").lower() in ("video", "reel")
+            and not p.get("transcript")  # 아직 처리 안 된 것만
+            and p.get("url")
+        ]
+        print(f"[FETCH] {len(posts)} total posts, {len(video_posts)} videos to analyze (IG+TT)")
     return video_posts
 
 
@@ -117,10 +128,11 @@ def main():
     parser.add_argument("--max", type=int, default=0)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--min-views", type=int, default=0, help="Only process posts with views >= N (cost filter)")
+    parser.add_argument("--vision-only", action="store_true", help="Run Vision on posts that have transcript but no brand_fit_score")
     args = parser.parse_args()
 
     lang = "ja" if args.region == "jp" else "en"
-    posts = fetch_video_posts(args.region)
+    posts = fetch_video_posts(args.region, vision_only=args.vision_only)
     if args.min_views > 0:
         before = len(posts)
         posts = [p for p in posts if (p.get("views") or 0) >= args.min_views]
@@ -139,8 +151,9 @@ def main():
             handle = post.get("handle", "?")
             print(f"\n[{i}/{len(posts)}] @{handle} — {url[:55]}")
 
-            # Step 1: Apify CDN URL
-            cdn_url = get_cdn_url(url, "instagram")
+            # Step 1: CDN URL (Apify for IG, yt-dlp for TikTok)
+            platform = (post.get("platform") or "instagram").lower()
+            cdn_url = get_cdn_url(url, platform)
             if not cdn_url:
                 print("  SKIP: no CDN URL")
                 skip += 1
@@ -149,15 +162,19 @@ def main():
             # Step 2: 오디오 + 키프레임 추출
             post_tmp = tmp / f"post_{i}"
             post_tmp.mkdir()
-            audio, frames = extract_audio_and_frames(cdn_url, post_tmp)
+            audio, frames = extract_audio_and_frames(cdn_url, post_tmp, post_url=url, platform=platform)
 
             results = {
                 "handle": post.get("handle", ""),
                 "views": post.get("views"),
             }
 
-            # Step 3: Whisper
-            if audio:
+            # Step 3: Whisper (skip if vision-only — transcript already exists)
+            if args.vision_only:
+                results["transcript"] = post.get("transcript", "")
+                results["product_mention"] = detect_product_mention(results["transcript"], args.region)
+                print(f"  Whisper: SKIP (vision-only, existing {len(results['transcript'])} chars)")
+            elif audio:
                 transcript = transcribe(audio, language=lang)
                 results["transcript"] = transcript or ""
                 results["product_mention"] = detect_product_mention(transcript or "", args.region)

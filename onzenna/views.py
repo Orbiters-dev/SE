@@ -1482,6 +1482,154 @@ def import_syncly_discovery(request):
     }, status=201))
 
 
+# --- Apify Discovery Import ---
+
+
+@csrf_exempt
+def import_apify_discovery(request):
+    """POST: Import creators from onz_discovery_posts into pipeline_creators.
+
+    Finds Video-type creators in discovery_posts that don't exist in
+    pipeline_creators yet. Creates them with status='Not Started',
+    source='apify_discovery'. Also back-links discovery posts via
+    pipeline_creator_id.
+
+    Body (optional):
+      region: 'jp' (default) or 'us'
+      limit: max creators to import (default: 100)
+      min_followers: minimum followers to qualify (default: 1000)
+      platform: filter by platform — 'instagram', 'tiktok', or '' for all
+    """
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method != 'POST':
+        return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
+
+    import re
+    from datetime import date as date_cls
+
+    body = _json_body(request)
+    region = body.get("region", "jp")
+    limit = int(body.get("limit", 100))
+    min_followers = int(body.get("min_followers", 1000))
+    platform_filter = body.get("platform", "")
+
+    # Read HT thresholds from config
+    ht_threshold = 100000
+    ht_follower_min = 50000
+    try:
+        latest_cfg = PipelineConfig.objects.order_by('-date').first()
+        if latest_cfg:
+            if latest_cfg.ht_threshold:
+                ht_threshold = latest_cfg.ht_threshold
+            if latest_cfg.ht_follower_min:
+                ht_follower_min = latest_cfg.ht_follower_min
+    except Exception:
+        pass
+
+    # Get unique handles from discovery that are NOT in pipeline yet
+    posts_qs = DiscoveryPost.objects.filter(
+        region=region,
+        content_type="Video",
+    ).exclude(handle="").exclude(handle__isnull=True)
+
+    if min_followers:
+        posts_qs = posts_qs.filter(followers__gte=min_followers)
+    if platform_filter:
+        posts_qs = posts_qs.filter(platform__iexact=platform_filter)
+
+    # Group by handle, pick the best post per handle (most views)
+    handles_seen = set()
+    best_posts = []
+    for post in posts_qs.order_by("handle", "-views"):
+        h = post.handle.lower()
+        if h in handles_seen:
+            continue
+        handles_seen.add(h)
+        best_posts.append(post)
+
+    created = 0
+    skipped = 0
+    imported = []
+
+    for post in best_posts:
+        if created >= limit:
+            break
+
+        handle = post.handle.lstrip("@").strip()
+        if not handle or not re.match(r'^[a-zA-Z0-9._]+$', handle):
+            skipped += 1
+            continue
+
+        # Check if already in pipeline
+        exists = PipelineCreator.objects.filter(
+            ig_handle__iexact=handle
+        ).exists() or PipelineCreator.objects.filter(
+            tiktok_handle__iexact=handle
+        ).exists()
+
+        if exists:
+            skipped += 1
+            continue
+
+        plat = (post.platform or "").lower()
+        ig_handle = handle if "tiktok" not in plat else ""
+        tiktok_handle = handle if "tiktok" in plat else ""
+        email = f"{handle.replace('.', '_')}@discovered.apify"
+
+        # Check email uniqueness
+        if PipelineCreator.objects.filter(email=email).exists():
+            skipped += 1
+            continue
+
+        followers = post.followers or 0
+        est_r30d = int(followers * (0.15 if "tiktok" in plat else 0.08))
+        is_ht = followers >= ht_follower_min and est_r30d >= ht_threshold
+
+        try:
+            creator = PipelineCreator.objects.create(
+                email=email,
+                ig_handle=ig_handle,
+                tiktok_handle=tiktok_handle,
+                full_name=post.full_name or handle,
+                platform="TikTok" if "tiktok" in plat else "Instagram",
+                pipeline_status="Not Started",
+                brand="Grosmimi",
+                assigned_to=_assign_owner("Grosmimi"),
+                outreach_type="HT" if is_ht else "LT",
+                source="apify_discovery",
+                followers=followers,
+                avg_views=post.views or est_r30d,
+                initial_discovery_date=post.post_date or date_cls.today(),
+                notes=f"Apify discovery ({region}). Post: {post.url or 'N/A'}",
+            )
+
+            # Back-link all discovery posts by this handle
+            DiscoveryPost.objects.filter(
+                handle__iexact=handle, region=region
+            ).update(pipeline_creator_id=creator.id)
+
+            created += 1
+            imported.append({
+                "id": str(creator.id),
+                "handle": handle,
+                "platform": creator.platform,
+                "followers": followers,
+                "outreach_type": creator.outreach_type,
+            })
+        except Exception:
+            skipped += 1
+            continue
+
+    return _cors_headers(request, JsonResponse({
+        "created": created,
+        "skipped": skipped,
+        "total_discovery_handles": len(best_posts),
+        "imported": imported,
+    }, status=201))
+
+
 # ========== EMAIL REPLY CONFIG ==========
 
 def _serialize_email_config(cfg, include_faq=False):
