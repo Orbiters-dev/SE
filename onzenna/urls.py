@@ -52,6 +52,9 @@ urlpatterns = [
     path("pipeline/creators/<uuid:creator_id>/", views.pipeline_creator_detail, name="pipeline_creator_detail"),
     path("pipeline/creators/", views.pipeline_creators_list, name="pipeline_creators_list"),
 
+    # Pipeline Conversations (email thread tracking)
+    path("pipeline/conversations/", views.pipeline_conversations, name="pipeline_conversations"),
+
     # Pipeline Execution Log
     path("pipeline/execution/log/", views.pipeline_execution_log, name="pipeline_execution_log"),
 

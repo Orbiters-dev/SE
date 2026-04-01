@@ -418,6 +418,30 @@ class EmailReplyLog(models.Model):
         return f"{self.creator_email} [{self.intent}] auto={self.auto_sent}"
 
 
+class PipelineConversation(models.Model):
+    """Email conversation records for pipeline creators.
+    Tracks both outbound (we sent) and inbound (they replied) emails.
+    Consumed by dashboard Email History panel and n8n Reply Handler.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    creator_email = models.EmailField(db_index=True)
+    direction = models.CharField(max_length=10)  # Inbound, Outbound
+    subject = models.CharField(max_length=500, blank=True, default="")
+    message_content = models.TextField(blank=True, default="")
+    brand = models.CharField(max_length=30, blank=True, default="")
+    outreach_type = models.CharField(max_length=10, blank=True, default="")  # LT, HT
+    gmail_message_id = models.CharField(max_length=200, blank=True, default="")
+    gmail_thread_id = models.CharField(max_length=200, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "onz_pipeline_conversations"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.creator_email} [{self.direction}] {self.subject[:50]}"
+
+
 class DiscoveryPost(models.Model):
     """Discovery pipeline posts — JP (and later US) content discovered via Apify.
     Separate from PipelineCreator (outreach CRM) and content_posts (Syncly).

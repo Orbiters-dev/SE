@@ -166,6 +166,18 @@ TABLES = [
         changed_by VARCHAR(50) DEFAULT '',
         changed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     )""",
+    """CREATE TABLE IF NOT EXISTS onz_pipeline_conversations (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        creator_email VARCHAR(254) NOT NULL,
+        direction VARCHAR(10) NOT NULL,
+        subject VARCHAR(500) DEFAULT '',
+        message_content TEXT DEFAULT '',
+        brand VARCHAR(30) DEFAULT '',
+        outreach_type VARCHAR(10) DEFAULT '',
+        gmail_message_id VARCHAR(200) DEFAULT '',
+        gmail_thread_id VARCHAR(200) DEFAULT '',
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )""",
     """CREATE TABLE IF NOT EXISTS gk_gmail_contacts (
         id SERIAL PRIMARY KEY,
         email VARCHAR(254) UNIQUE NOT NULL,
@@ -189,6 +201,8 @@ INDEXES = [
     "CREATE INDEX IF NOT EXISTS idx_pipeline_exec_action ON onz_pipeline_execution_log(action_type)",
     "CREATE INDEX IF NOT EXISTS idx_pipeline_status_email ON onz_pipeline_status_changes(creator_email)",
     "CREATE INDEX IF NOT EXISTS idx_gmail_contacts_domain ON gk_gmail_contacts(domain)",
+    "CREATE INDEX IF NOT EXISTS idx_pipeline_convs_email ON onz_pipeline_conversations(creator_email)",
+    "CREATE INDEX IF NOT EXISTS idx_pipeline_convs_thread ON onz_pipeline_conversations(gmail_thread_id)",
 ]
 
 # Column additions (safe — IF NOT EXISTS)
@@ -202,6 +216,9 @@ ALTER_COLUMNS = [
     "CREATE INDEX IF NOT EXISTS idx_pipeline_creators_country ON onz_pipeline_creators(country)",
     "CREATE INDEX IF NOT EXISTS idx_pipeline_creators_is_business ON onz_pipeline_creators(is_business_account)",
     "ALTER TABLE onz_pipeline_creators ADD COLUMN IF NOT EXISTS assigned_to VARCHAR(30) DEFAULT ''",
+    # PipelineConfig — columns added in commits 8dda2af, 2687dd1
+    "ALTER TABLE onz_pipeline_config ADD COLUMN IF NOT EXISTS ht_follower_min INTEGER DEFAULT 50000",
+    "ALTER TABLE onz_pipeline_config ADD COLUMN IF NOT EXISTS brand_assignees TEXT DEFAULT '{\"Grosmimi\":\"Jeehoo\",\"CHA&MOM\":\"Laeeka\",\"Naeiae\":\"Soyeon\"}'",
 ]
 
 if __name__ == "__main__":

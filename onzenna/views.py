@@ -61,6 +61,7 @@ from .models import (
     EmailReplyConfig,
     FAQEntry,
     EmailReplyLog,
+    PipelineConversation,
     DiscoveryPost,
 )
 
@@ -705,6 +706,7 @@ def list_tables(request):
         "onz_pipeline_creators": PipelineCreator.objects.count(),
         "onz_pipeline_execution_log": PipelineExecutionLog.objects.count(),
         "onz_pipeline_status_changes": PipelineStatusChange.objects.count(),
+        "onz_pipeline_conversations": PipelineConversation.objects.count(),
     }
     return JsonResponse({"tables": tables})
 
@@ -1669,6 +1671,62 @@ def reply_log_create(request):
             config_version=body.get("config_version", 1),
         )
         return _cors_headers(request, JsonResponse({"id": str(r.id), "created": True}, status=201))
+
+    return _cors_headers(request, JsonResponse({"error": "Method not allowed"}, status=405))
+
+
+# ========== PIPELINE CONVERSATIONS ==========
+
+
+@csrf_exempt
+def pipeline_conversations(request):
+    """GET: List email conversations for a creator.  POST: Log a new conversation.
+
+    GET params: email (required), limit (default 50)
+    POST body: {creator_email, direction, subject, message_content, brand, outreach_type,
+                gmail_message_id, gmail_thread_id}
+    """
+    if request.method == "OPTIONS":
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method == "GET":
+        email = request.GET.get("email", "").strip()
+        limit = min(int(request.GET.get("limit", 50)), 200)
+
+        qs = PipelineConversation.objects.all()
+        if email:
+            qs = qs.filter(creator_email=email)
+
+        data = [
+            {
+                "id": str(c.id),
+                "creator_email": c.creator_email,
+                "direction": c.direction,
+                "subject": c.subject,
+                "message_content": c.message_content,
+                "brand": c.brand,
+                "outreach_type": c.outreach_type,
+                "gmail_message_id": c.gmail_message_id,
+                "gmail_thread_id": c.gmail_thread_id,
+                "created_at": c.created_at.isoformat() if c.created_at else None,
+            }
+            for c in qs[:limit]
+        ]
+        return _cors_headers(request, JsonResponse(data, safe=False))
+
+    if request.method == "POST":
+        body = _json_body(request)
+        c = PipelineConversation.objects.create(
+            creator_email=body.get("creator_email", ""),
+            direction=body.get("direction", "Outbound"),
+            subject=body.get("subject", ""),
+            message_content=body.get("message_content", ""),
+            brand=body.get("brand", ""),
+            outreach_type=body.get("outreach_type", ""),
+            gmail_message_id=body.get("gmail_message_id", ""),
+            gmail_thread_id=body.get("gmail_thread_id", ""),
+        )
+        return _cors_headers(request, JsonResponse({"id": str(c.id), "created": True}, status=201))
 
     return _cors_headers(request, JsonResponse({"error": "Method not allowed"}, status=405))
 
