@@ -1462,6 +1462,32 @@ function renderHilQueue() {
   el.innerHTML = html;
 }
 
+function _showHilConfirmBar(handles) {
+  // Non-blocking replacement for confirm() — renders inline bar in hil-queue
+  var bar = document.createElement('div');
+  bar.id = 'hil-confirm-bar';
+  bar.style.cssText = 'background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap';
+  var names = handles.map(function(h) { return '@' + h; }).join(', ');
+  bar.innerHTML = '<span style="font-size:12px;font-weight:600;color:#15803d;flex:1">DM 보냈나요? ' + names + '</span>'
+    + '<button class="btn btn-sm btn-success" onclick="_hilConfirmAll(' + JSON.stringify(handles) + ')">✅ 전부 보냄</button>'
+    + '<button class="btn btn-sm btn-secondary" onclick="this.closest(\'#hil-confirm-bar\').remove()">✗ 취소</button>';
+  var queue = document.getElementById('hil-queue');
+  if (queue) queue.insertBefore(bar, queue.firstChild);
+}
+
+function _hilConfirmAll(handles) {
+  var bar = document.getElementById('hil-confirm-bar');
+  if (bar) bar.remove();
+  handles.forEach(function(h) {
+    var c = _creators.find(function(x) { return x.username === h; });
+    n8nPost({ action: 'dm_log', sub_action: 'add', username: h, dir: 'out', text: (c && c.dm_draft) || '', sent_by: _currentUser || 'dashboard' });
+    updateStatus(h, 'sent').then(function() { incDmCount(); });
+    scheduleDmBackCheck(h);
+  });
+  showToast('✅ ' + handles.length + ' DMs marked as sent');
+  loadCreators();
+}
+
 function toggleHilGroup(status, checked) {
   document.querySelectorAll('.hil-cb[data-hil="' + status + '"]').forEach(function(cb) { cb.checked = checked; });
 }
@@ -1482,44 +1508,19 @@ function executeHilGroup(status) {
     handles = handles.slice(0, remaining);
     var idx = 0;
     var sent = [];
-    showToast('Opening ' + handles.length + ' profiles — 5s intervals. Paste+send each one.');
+    showToast('Opening ' + handles.length + ' DM window(s) — draft auto-copied');
     (function next() {
       if (idx >= handles.length) {
-        // After all tabs opened, ask which ones were actually sent
-        setTimeout(function() {
-          var msg = '아래 크리에이터에게 DM을 실제로 보냈나요?\n\n';
-          handles.forEach(function(h, i) { msg += (i+1) + '. @' + h + '\n'; });
-          msg += '\nOK = 전부 보냄\nCancel = 하나씩 확인';
-          if (confirm(msg)) {
-            handles.forEach(function(h) {
-              var c = _creators.find(function(x) { return x.username === h; });
-              n8nPost({ action: 'dm_log', sub_action: 'add', username: h, dir: 'out', text: (c && c.dm_draft) || '', sent_by: _currentUser || 'dashboard' });
-              updateStatus(h, 'sent').then(function() { incDmCount(); });
-              scheduleDmBackCheck(h);
-            });
-            showToast('✅ ' + handles.length + ' DMs marked as sent — 5분 후 자동 확인');
-          } else {
-            handles.forEach(function(h) {
-              var ok = confirm('@' + h + ' — 보냈음? OK=sent / Cancel=skip');
-              if (ok) {
-                var c = _creators.find(function(x) { return x.username === h; });
-                n8nPost({ action: 'dm_log', sub_action: 'add', username: h, dir: 'out', text: (c && c.dm_draft) || '', sent_by: _currentUser || 'dashboard' });
-                updateStatus(h, 'sent').then(function() { incDmCount(); });
-                scheduleDmBackCheck(h);
-              }
-            });
-            showToast('Done — confirmed individually');
-          }
-          loadCreators();
-        }, 3000);
+        // Non-blocking: show inline confirm bar instead of confirm()
+        _showHilConfirmBar(handles);
         return;
       }
       var h = handles[idx];
       var c = _creators.find(function(x) { return x.username === h; });
       if (c && c.dm_draft) navigator.clipboard.writeText(c.dm_draft).catch(function(){});
-      window.open('https://www.instagram.com/' + h, '_blank');
-      showToast('(' + (idx+1) + '/' + handles.length + ') @' + h + ' — paste now! Next in 5s');
-      idx++; setTimeout(next, 5000);
+      window.open('https://ig.me/m/' + h, '_blank');
+      showToast('(' + (idx+1) + '/' + handles.length + ') @' + h + ' — draft copied, paste in IG');
+      idx++; setTimeout(next, 2000);
     })();
     return;
   }
