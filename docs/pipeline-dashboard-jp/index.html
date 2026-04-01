@@ -236,6 +236,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
     <div data-p="contracts">Contracts</div>
     <div data-p="config">Config</div>
     <div data-p="samples">Samples</div>
+    <div data-p="failures" style="color:var(--r)">Failures</div>
   </div>
 
   <!-- ===== DASHBOARD TAB ===== -->
@@ -621,6 +622,37 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
     </div>
   </div>
 
+  <!-- ===== FAILURES TAB ===== -->
+  <div class="mp" id="p-failures">
+    <div class="card">
+      <h3 style="color:var(--r)">&#x26A0;&#xFE0F; DM Back-Check Failures</h3>
+      <div class="desc">DM 발송 후 5분 이내 확인 실패 → 자동 Draft Ready 롤백 기록. 실제 IG에서 붙여넣기+전송을 안 한 경우 여기 뜸.</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+        <span id="failure-count" style="font-family:var(--mono);font-size:20px;font-weight:800;color:var(--r)">0</span>
+        <span style="font-size:11px;color:var(--dim)">total failures</span>
+        <span id="pending-checks" style="font-size:11px;color:var(--am);margin-left:12px"></span>
+        <button class="btn btn-sm btn-secondary" style="margin-left:auto" onclick="clearFailureLog()">&#x1F5D1; Clear Log</button>
+      </div>
+      <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th><th>Handle</th><th>Reason</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="failure-log-body">
+          <tr><td colspan="4" style="text-align:center;padding:16px;color:var(--dim)">No failures recorded</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <h3>&#x1F50D; Pending Back-Checks</h3>
+      <div class="desc">현재 5분 대기 중인 DM 확인 건</div>
+      <div id="pending-checks-list" style="font-size:11px;color:var(--dim);padding:8px">No pending checks</div>
+    </div>
+  </div>
+
 </div><!-- .ctr -->
 </div><!-- main-content -->
 
@@ -779,12 +811,124 @@ function incDmCount() {
 }
 function isOverLimit() { return _dmSentToday >= _dailyLimit; }
 
+// ─── DM Back-Check System ───
+var _pendingBackChecks = JSON.parse(localStorage.getItem('jp_dm_pending_checks') || '{}');
+var _dmFailures = JSON.parse(localStorage.getItem('jp_dm_failures') || '[]');
+
+function scheduleDmBackCheck(handle) {
+  var ts = Date.now();
+  _pendingBackChecks[handle] = { scheduled: ts, checkAt: ts + 5 * 60 * 1000 };
+  localStorage.setItem('jp_dm_pending_checks', JSON.stringify(_pendingBackChecks));
+  setTimeout(function() { runDmBackCheck(handle); }, 5 * 60 * 1000);
+}
+
+function runDmBackCheck(handle) {
+  n8nPost({ action: 'dm_log', username: handle }).then(function(res) {
+    var logs = Array.isArray(res) ? res : (res.logs || []);
+    // Check if there's a real outbound DM within last 10 minutes
+    var now = Date.now();
+    var recentOut = logs.filter(function(l) {
+      var logTime = new Date(l.ts || l.created_at || l.date || 0).getTime();
+      return l.dir === 'out' && (now - logTime) < 10 * 60 * 1000;
+    });
+    if (recentOut.length === 0) {
+      // No confirmed send → rollback to draft_ready
+      updateStatus(handle, 'draft_ready').then(function() {
+        var c = _creators.find(function(x) { return x.username === handle; });
+        if (c) { c.status = 'draft_ready'; c.last_dm = null; }
+        // Decrement DM count
+        var today = new Date().toISOString().slice(0, 10);
+        var cnt = Math.max(0, parseInt(localStorage.getItem('jp_dm_sent_' + today) || '0') - 1);
+        localStorage.setItem('jp_dm_sent_' + today, JSON.stringify(cnt));
+        _dmSentToday = cnt;
+        // Log failure
+        var failure = { handle: handle, time: new Date().toISOString(), reason: 'Back-check failed: no outbound DM log found within 10min', rolledBack: true };
+        _dmFailures.push(failure);
+        localStorage.setItem('jp_dm_failures', JSON.stringify(_dmFailures));
+        showToast('⚠️ @' + handle + ' DM 미확인 → Draft Ready로 롤백됨', 'err');
+        renderCreators(); renderDmQueue(); renderFailureLog();
+      });
+    } else {
+      showToast('✅ @' + handle + ' DM 발송 확인 완료');
+    }
+    // Cleanup
+    delete _pendingBackChecks[handle];
+    localStorage.setItem('jp_dm_pending_checks', JSON.stringify(_pendingBackChecks));
+  }).catch(function() {
+    // API error → log as warning but don't rollback
+    var failure = { handle: handle, time: new Date().toISOString(), reason: 'Back-check API error (n8n unreachable)', rolledBack: false };
+    _dmFailures.push(failure);
+    localStorage.setItem('jp_dm_failures', JSON.stringify(_dmFailures));
+    delete _pendingBackChecks[handle];
+    localStorage.setItem('jp_dm_pending_checks', JSON.stringify(_pendingBackChecks));
+    renderFailureLog();
+  });
+}
+
+function renderFailureLog() {
+  var el = document.getElementById('failure-log-body');
+  if (!el) return;
+  if (!_dmFailures.length) {
+    el.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--dim)">No failures recorded</td></tr>';
+    return;
+  }
+  var html = '';
+  _dmFailures.slice().reverse().slice(0, 50).forEach(function(f) {
+    var date = f.time ? f.time.replace('T', ' ').slice(0, 19) : '-';
+    html += '<tr>';
+    html += '<td style="font-family:var(--mono);font-size:10px">' + date + '</td>';
+    html += '<td><a href="https://www.instagram.com/' + f.handle + '" target="_blank">@' + f.handle + '</a></td>';
+    html += '<td style="font-size:10px">' + f.reason + '</td>';
+    html += '<td>' + (f.rolledBack ? '<span class="b am">Rolled Back</span>' : '<span class="b c">Warning</span>') + '</td>';
+    html += '</tr>';
+  });
+  el.innerHTML = html;
+}
+
+function clearFailureLog() {
+  if (!confirm('실패 로그를 전부 삭제할까요?')) return;
+  _dmFailures = [];
+  localStorage.setItem('jp_dm_failures', JSON.stringify(_dmFailures));
+  renderFailureLog();
+  showToast('Failure log cleared');
+}
+
+// Resume any pending back-checks from previous session
+(function resumeBackChecks() {
+  var now = Date.now();
+  Object.keys(_pendingBackChecks).forEach(function(handle) {
+    var check = _pendingBackChecks[handle];
+    var remaining = check.checkAt - now;
+    if (remaining <= 0) {
+      // Overdue — run immediately
+      setTimeout(function() { runDmBackCheck(handle); }, 1000);
+    } else {
+      setTimeout(function() { runDmBackCheck(handle); }, remaining);
+    }
+  });
+})();
+
 // ─── Init ───
 function init() {
   document.getElementById('pill-date').textContent = new Date().toISOString().slice(0, 10);
   _dailyLimit = parseInt(document.getElementById('cfg-daily-limit').value) || 30;
   _dmSentToday = getDmCount();
   loadCreators();
+  renderFailureLog();
+  // Update failure count badge
+  var fcEl = document.getElementById('failure-count');
+  if (fcEl) fcEl.textContent = _dmFailures.length;
+  // Show pending checks
+  var pendingKeys = Object.keys(_pendingBackChecks);
+  var pendEl = document.getElementById('pending-checks');
+  if (pendEl && pendingKeys.length) pendEl.textContent = '⏳ ' + pendingKeys.length + ' pending checks';
+  var pendList = document.getElementById('pending-checks-list');
+  if (pendList && pendingKeys.length) {
+    pendList.innerHTML = pendingKeys.map(function(h) {
+      var remaining = Math.max(0, Math.round((_pendingBackChecks[h].checkAt - Date.now()) / 1000));
+      return '@' + h + ' — ' + remaining + 's remaining';
+    }).join('<br>');
+  }
   var h = location.hash.replace('#', '');
   if (h) {
     var tab = document.querySelector('.mt>div[data-p="' + h + '"]');
@@ -1091,7 +1235,8 @@ function markSent(handle) {
   updateStatus(handle, 'sent').then(function() {
     incDmCount();
     updateStats(); renderCreators(); renderDmQueue();
-    showToast('DM sent: @' + handle + ' (' + _dmSentToday + '/' + _dailyLimit + ')');
+    showToast('DM sent: @' + handle + ' (' + _dmSentToday + '/' + _dailyLimit + ') — 5분 후 자동 확인');
+    scheduleDmBackCheck(handle);
   }).catch(function() {
     showToast('Failed to update status', 'err');
   });
@@ -1260,8 +1405,9 @@ function executeHilGroup(status) {
               var c = _creators.find(function(x) { return x.username === h; });
               n8nPost({ action: 'dm_log', sub_action: 'add', username: h, dir: 'out', text: (c && c.dm_draft) || '', sent_by: _currentUser || 'dashboard' });
               updateStatus(h, 'sent').then(function() { incDmCount(); });
+              scheduleDmBackCheck(h);
             });
-            showToast('✅ ' + handles.length + ' DMs marked as sent');
+            showToast('✅ ' + handles.length + ' DMs marked as sent — 5분 후 자동 확인');
           } else {
             handles.forEach(function(h) {
               var ok = confirm('@' + h + ' — 보냈음? OK=sent / Cancel=skip');
@@ -1269,6 +1415,7 @@ function executeHilGroup(status) {
                 var c = _creators.find(function(x) { return x.username === h; });
                 n8nPost({ action: 'dm_log', sub_action: 'add', username: h, dir: 'out', text: (c && c.dm_draft) || '', sent_by: _currentUser || 'dashboard' });
                 updateStatus(h, 'sent').then(function() { incDmCount(); });
+                scheduleDmBackCheck(h);
               }
             });
             showToast('Done — confirmed individually');
