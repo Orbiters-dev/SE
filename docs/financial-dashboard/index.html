@@ -183,6 +183,21 @@ function showTT(evt, html){
   tt.style.left=x+'px';
   tt.style.top=y+'px';
 }
+// Pin tooltip to SVG element position (not mouse cursor)
+function showTTAt(svgEl, html){
+  var tt=document.getElementById('fin-tt');
+  tt.innerHTML=html;
+  tt.style.display='block';
+  var r=tt.getBoundingClientRect();
+  var er=svgEl.getBoundingClientRect();
+  var x=er.left+er.width/2-r.width/2;
+  var y=er.top-r.height-6;
+  if(x+r.width>window.innerWidth-8) x=window.innerWidth-r.width-8;
+  if(x<4) x=4;
+  if(y<4) y=er.bottom+6;
+  tt.style.left=x+'px';
+  tt.style.top=y+'px';
+}
 function hideTT(){ var tt=document.getElementById('fin-tt'); tt.style.display='none'; }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -1110,69 +1125,81 @@ function renderHeroTab(F){
         var glx=padL+(n-1)*(bw+1)+bw/2,gly=padT+topH-gscD[n-1]/gscMax*topH*0.4;
         html+='<text x="'+(glx+6)+'" y="'+(gly+3)+'" fill="#f59e0b" font-size="7" font-weight="600" opacity="0.7">GSC</text>';
       }
-      // SFR dots overlay — branded keywords only, consistent week dates
+      // SFR overlay — branded keywords aggregated into one line (avg SFR per week)
+      var _sfrOverlayKws=[];
       if(c.top_keywords&&c.top_keywords.length){
-        // Only branded keywords: must contain brand slug or known variant
         var _bSlug=(c.brand||'').toLowerCase().replace(/[^a-z0-9]/g,'');
-        var _bVariants={'grosmimi':['grosmimi','grosmini','grossini','gros mimi'],'naeiae':['naeiae','nae iae'],'chanom':['cha&mom','chaenmom','commemoi'],'alpremio':['alpremio']};
+        var _bVariants={'grosmimi':['grosmimi','grosmini','grossini','gros mimi'],'naeiae':['naeiae'],'chaenmom':['cha','mom','commemoi'],'alpremio':['alpremio']};
         var _bVarList=_bVariants[_bSlug]||[_bSlug];
-        var sfrKws=c.top_keywords.filter(function(kw){
+        _sfrOverlayKws=c.top_keywords.filter(function(kw){
           if(!kw.rank_weekly||!kw.rank_weekly.length||!kw.rank_week_labels||!kw.rank_week_labels.length)return false;
           var kl=kw.keyword.toLowerCase();
           return _bVarList.some(function(v){return kl.indexOf(v)>=0;});
-        }).slice(0,4);
-        if(sfrKws.length){
-          var SFR_COLORS=['#f59e0b','#f97316','#a855f7','#eab308'];
-          // Collect ALL unique week dates across all SFR keywords → unified X positions
-          var sfrWkSet={};
-          sfrKws.forEach(function(kw){kw.rank_week_labels.forEach(function(w){sfrWkSet[w]=true;});});
-          var sfrWks=Object.keys(sfrWkSet).sort();
-          // Find overall SFR range
-          var sfrAll=[];sfrKws.forEach(function(kw){kw.rank_weekly.forEach(function(v){if(v)sfrAll.push(v);});});
-          var sfrMin=Math.min.apply(null,sfrAll)||1,sfrMax=Math.max.apply(null,sfrAll)||1;
-          if(sfrMin===sfrMax){sfrMin=Math.round(sfrMin*0.8);sfrMax=Math.round(sfrMax*1.2);}
-          // Inverted Y: lower SFR number = more searched = HIGHER on chart
-          function sfrY(r){return padT+topH*0.1+topH*0.8*(r-sfrMin)/(sfrMax-sfrMin);}
-          // Map each BA week date to nearest X position in daily axis
-          var wkX={};
-          sfrWks.forEach(function(wdate){
+        });
+      }
+      if(_sfrOverlayKws.length){
+        // Build unified week axis
+        var _sfrWkSet={};
+        _sfrOverlayKws.forEach(function(kw){kw.rank_week_labels.forEach(function(w){_sfrWkSet[w]=true;});});
+        var _sfrWks=Object.keys(_sfrWkSet).sort();
+        // Per week: average SFR across all branded keywords that have data that week
+        var _sfrAvg=[];
+        _sfrWks.forEach(function(w){
+          var vals=[];
+          _sfrOverlayKws.forEach(function(kw){
+            var wi=kw.rank_week_labels.indexOf(w);
+            if(wi>=0&&kw.rank_weekly[wi])vals.push(kw.rank_weekly[wi]);
+          });
+          if(vals.length) _sfrAvg.push({w:w,v:Math.round(vals.reduce(function(a,b){return a+b},0)/vals.length)});
+        });
+        if(_sfrAvg.length){
+          var _sfrVals=_sfrAvg.map(function(p){return p.v;});
+          var _sfrMin=Math.min.apply(null,_sfrVals),_sfrMax=Math.max.apply(null,_sfrVals);
+          if(_sfrMin===_sfrMax){_sfrMin=Math.round(_sfrMin*0.85);_sfrMax=Math.round(_sfrMax*1.15);}
+          // Inverted Y: lower SFR = more searched = higher on chart
+          function sfrY(r){return padT+topH*0.08+topH*0.82*(r-_sfrMin)/(_sfrMax-_sfrMin);}
+          // Map week dates to x
+          var _sfrPts=[];
+          _sfrAvg.forEach(function(p){
             var bestDi=0,bestDiff=999999;
             for(var di=0;di<n;di++){
-              var diff=Math.abs(new Date(dates[di])-new Date(wdate));
+              var diff=Math.abs(new Date(dates[di])-new Date(p.w));
               if(diff<bestDiff){bestDiff=diff;bestDi=di;}
             }
-            wkX[wdate]=padL+bestDi*(bw+1)+bw/2;
+            _sfrPts.push({x:padL+bestDi*(bw+1)+bw/2,y:sfrY(p.v),v:p.v,w:p.w});
           });
-          // Y-axis ticks (SFR scale on right)
-          [sfrMin,Math.round((sfrMin+sfrMax)/2),sfrMax].forEach(function(v){
-            var y=sfrY(v);
-            var vStr=v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?Math.round(v/1000)+'K':''+v;
-            html+='<text x="'+(chartW-padR+4)+'" y="'+(y+3)+'" fill="#f59e0b" font-size="6" font-family="var(--mono)" opacity="0.55">'+vStr+'</text>';
+          // Right Y-axis ticks
+          [_sfrMin,_sfrMax].forEach(function(v){
+            var y=sfrY(v),vStr=v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?Math.round(v/1000)+'K':''+v;
+            html+='<text x="'+(chartW-padR+4)+'" y="'+(y+3)+'" fill="#f59e0b" font-size="6" font-family="var(--mono)" opacity="0.6">'+vStr+'</text>';
           });
-          html+='<text x="'+(chartW-padR+4)+'" y="'+(padT+8)+'" fill="#f59e0b" font-size="6" font-weight="700" opacity="0.7">SFR↓better</text>';
-          sfrKws.forEach(function(kw,ki){
-            var col=SFR_COLORS[ki%SFR_COLORS.length];
-            var kwMap={};
-            kw.rank_week_labels.forEach(function(w,wi){kwMap[w]=kw.rank_weekly[wi];});
-            var pts=[];
-            sfrWks.forEach(function(w){
-              if(kwMap[w]!=null){
-                pts.push({x:wkX[w],y:sfrY(kwMap[w]),v:kwMap[w]});
+          html+='<text x="'+(chartW-padR+4)+'" y="'+(padT+7)+'" fill="#f59e0b" font-size="6" font-weight="700" opacity="0.75">SFR↓</text>';
+          // Dashed connecting line
+          if(_sfrPts.length>1){
+            html+='<polyline points="'+_sfrPts.map(function(p){return p.x+','+p.y;}).join(' ')+'" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>';
+          }
+          // Dots with per-point tooltips (pinned to dot)
+          _sfrPts.forEach(function(p,pi){
+            var vStr=p.v>=1000000?(p.v/1000000).toFixed(1)+'M':p.v>=1000?Math.round(p.v/1000)+'K':''+p.v;
+            // Build tooltip: week date + each keyword's SFR that week
+            var _sfrTt='<div class=tt-date>SFR week of '+p.w+'</div><div class=tt-row><span class=tt-dot style=background:#f59e0b></span>Avg SFR: '+p.v.toLocaleString()+'</div>';
+            _sfrOverlayKws.forEach(function(kw){
+              var wi=kw.rank_week_labels.indexOf(p.w);
+              if(wi>=0&&kw.rank_weekly[wi]){
+                var kv=kw.rank_weekly[wi];
+                var kvStr=kv>=1000000?(kv/1000000).toFixed(1)+'M':kv>=1000?Math.round(kv/1000)+'K':''+kv;
+                _sfrTt+='<div class=tt-row><span class=tt-dot style=background:#fcd34d></span>'+kw.keyword+': '+kvStr+'</div>';
               }
             });
-            if(pts.length>1){
-              html+='<polyline points="'+pts.map(function(p){return p.x+','+p.y;}).join(' ')+'" fill="none" stroke="'+col+'" stroke-width="1.5" stroke-dasharray="4,2" opacity="0.7"/>';
-            }
-            pts.forEach(function(p){
-              var vStr=p.v>=1000000?(p.v/1000000).toFixed(1)+'M':p.v>=1000?Math.round(p.v/1000)+'K':''+p.v;
-              html+='<circle cx="'+p.x+'" cy="'+p.y+'" r="4" fill="'+col+'" stroke="#fff" stroke-width="1" opacity="0.9"/>';
-              html+='<text x="'+p.x+'" y="'+(p.y-7)+'" fill="'+col+'" font-size="7" font-family="var(--mono)" text-anchor="middle" font-weight="700">'+vStr+'</text>';
-            });
-            if(pts.length){
-              var lp=pts[pts.length-1];
-              html+='<text x="'+(lp.x+8)+'" y="'+(lp.y+3)+'" fill="'+col+'" font-size="7" font-weight="700">'+kw.keyword+'</text>';
-            }
+            var _dotId='sfr-dot-'+idx+'-'+pi;
+            html+='<circle cx="'+p.x+'" cy="'+p.y+'" r="5" fill="#f59e0b" stroke="#fff" stroke-width="1.5" opacity="0.9" id="'+_dotId+'" style="cursor:pointer"'
+              +' onmouseenter="showTTAt(document.getElementById(\''+_dotId+'\'),\''+_sfrTt.replace(/'/g,"\\'")+'\');"'
+              +' onmouseleave="hideTT()"/>';
+            html+='<text x="'+p.x+'" y="'+(p.y-9)+'" fill="#f59e0b" font-size="7" font-family="var(--mono)" text-anchor="middle" font-weight="700" pointer-events="none">'+vStr+'</text>';
           });
+          // End label showing which keywords are included
+          var _lastPt=_sfrPts[_sfrPts.length-1];
+          html+='<text x="'+(chartW-padR+4)+'" y="'+(padT+16)+'" fill="#f59e0b" font-size="6" opacity="0.65">avg '+_sfrOverlayKws.length+' kws</text>';
         }
       }
       // Sessions line overlay on sales chart
@@ -1299,8 +1326,9 @@ function renderHeroTab(F){
           var deltaStr=dv>0?'+'+dv.toLocaleString():'—';
           if(cv>0||dv>0) ttH+='<div class=tt-row><span class=tt-dot style=background:'+INF_COLORS[ci%INF_COLORS.length]+'></span>@'+x.cr.username+': '+cv.toLocaleString()+' <span style=color:#10b981>'+deltaStr+'</span></div>';
         });
-        html+='<rect x="'+hx+'" y="'+padT+'" width="'+hw+'" height="'+xBase+'" fill="transparent" style="cursor:crosshair"'
-          +' onmousemove="showTT(event,\''+ttH.replace(/'/g,"\\'")+'\');var g=document.getElementById(\'hero-guide-'+idx+'\');if(g){g.setAttribute(\'x1\','+(hx+hw/2)+');g.setAttribute(\'x2\','+(hx+hw/2)+');g.setAttribute(\'opacity\',\'0.6\');}"'
+        var _sy=padT+topH-ds[i]/maxS*topH; // sales point y for this col
+        html+='<rect x="'+hx+'" y="'+padT+'" width="'+hw+'" height="'+xBase+'" fill="transparent" style="cursor:crosshair" id="hero-hit-'+idx+'-'+i+'"'
+          +' onmouseenter="showTTAt(document.getElementById(\'hero-hit-'+idx+'-'+i+'\'),\''+ttH.replace(/'/g,"\\'")+'\');var g=document.getElementById(\'hero-guide-'+idx+'\');if(g){g.setAttribute(\'x1\','+(hx+hw/2)+');g.setAttribute(\'x2\','+(hx+hw/2)+');g.setAttribute(\'opacity\',\'0.6\');}"'
           +' onmouseleave="hideTT();var g=document.getElementById(\'hero-guide-'+idx+'\');if(g)g.setAttribute(\'opacity\',\'0\');"'
           +'/>';
       }
@@ -1333,6 +1361,26 @@ function renderHeroTab(F){
           html+='<tr style="border-top:2px solid var(--border)"><td style="font-weight:600;color:#f59e0b">GSC Search</td>';
           gscD.forEach(function(v){html+='<td style="text-align:right;font-family:var(--mono);color:#f59e0b">'+(v>0?v.toLocaleString():'—')+'</td>';});
           html+='</tr>';
+        }
+        // SFR rows (one per branded keyword, weekly data mapped to nearest daily date)
+        if(_sfrOverlayKws.length){
+          html+='<tr style="border-top:2px solid var(--border)"><td colspan="'+(dates.length+1)+'" style="font-size:9px;color:#f59e0b;font-weight:700;padding:4px 8px">SFR (Search Frequency Rank) — branded keywords · lower = more searched</td></tr>';
+          _sfrOverlayKws.forEach(function(kw){
+            html+='<tr><td style="font-weight:600;color:#f59e0b;font-size:10px">'+kw.keyword+'</td>';
+            dates.forEach(function(d){
+              // Find nearest week label
+              var bestWi=-1,bestDiff=999999;
+              kw.rank_week_labels.forEach(function(w,wi){
+                var diff=Math.abs(new Date(d)-new Date(w));
+                if(diff<bestDiff){bestDiff=diff;bestWi=wi;}
+              });
+              var v=bestWi>=0&&bestDiff<4*86400000?kw.rank_weekly[bestWi]:null;
+              var vStr=v==null?'—':(v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?Math.round(v/1000)+'K':''+v);
+              var rankCol=v==null?'var(--muted)':v<50000?'var(--g)':v<300000?'var(--am)':'var(--r)';
+              html+='<td style="text-align:right;font-family:var(--mono);color:'+rankCol+';font-size:9px">'+vStr+'</td>';
+            });
+            html+='</tr>';
+          });
         }
         html+='</tbody></table>';
       } else {
@@ -1380,6 +1428,26 @@ function renderHeroTab(F){
               html+='<td style="text-align:right;font-family:var(--mono);color:#f59e0b">'+(weekTotal>0?weekTotal.toLocaleString():'—')+'</td>';
             });
             html+='</tr>';
+          }
+          // SFR weekly rows
+          if(_sfrOverlayKws.length){
+            html+='<tr style="border-top:2px solid var(--border)"><td colspan="'+(wkSlice.length+1)+'" style="font-size:9px;color:#f59e0b;font-weight:700;padding:4px 8px">SFR — branded keywords · lower = more searched</td></tr>';
+            _sfrOverlayKws.forEach(function(kw){
+              html+='<tr><td style="font-weight:600;color:#f59e0b;font-size:10px">'+kw.keyword+'</td>';
+              wkSlice.forEach(function(wk){
+                // Match BA week label to sales week key (both YYYY-Www or date)
+                var bestWi=-1,bestDiff=999999;
+                kw.rank_week_labels.forEach(function(w,wi){
+                  var diff=Math.abs(new Date(wk.replace(/W(\d+)/,function(m,n){return (parseInt(n)-1)*7;})) - new Date(w));
+                  if(diff<bestDiff){bestDiff=diff;bestWi=wi;}
+                });
+                var v=bestWi>=0?kw.rank_weekly[bestWi]:null;
+                var vStr=v==null?'—':(v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?Math.round(v/1000)+'K':''+v);
+                var rankCol=v==null?'var(--muted)':v<50000?'var(--g)':v<300000?'var(--am)':'var(--r)';
+                html+='<td style="text-align:right;font-family:var(--mono);color:'+rankCol+';font-size:9px">'+vStr+'</td>';
+              });
+              html+='</tr>';
+            });
           }
           html+='</tbody></table>';
         }
