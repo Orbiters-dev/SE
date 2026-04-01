@@ -777,7 +777,8 @@ function n8nGet() {
   return fetch(N8N_API, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'list_creators' })
+    body: JSON.stringify({ action: 'list_creators' }),
+    cache: 'no-store'
   }).then(function(r) { return r.json(); });
 }
 
@@ -785,7 +786,8 @@ function n8nPost(body) {
   return fetch(N8N_API, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
+    cache: 'no-store'
   }).then(function(r) { return r.json(); });
 }
 
