@@ -3483,6 +3483,10 @@ def generate():
                 observed_growth = sum(dv.values())  # sum of day-over-day deltas
                 if observed_growth > 0:
                     meta = cat_creator_meta.get((cat, uname), {})
+                    # Only include creators who uploaded within last 90 days
+                    ud = meta.get("upload_date", "")
+                    if ud and ud < cutoff_90d:
+                        continue
                     totals.append({
                         "username": uname,
                         "brand": meta.get("brand", ""),
