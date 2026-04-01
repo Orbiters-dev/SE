@@ -332,7 +332,7 @@ def enrich_ig_posts(posts: list[dict]) -> list[dict]:
             api_posts = cache[handle]
         else:
             try:
-                time.sleep(1.5)
+                time.sleep(0.5)
                 url = f"https://{RAPIDAPI_HOST}/get_ig_user_posts.php"
                 data = urllib.parse.urlencode({
                     "username_or_url": handle,

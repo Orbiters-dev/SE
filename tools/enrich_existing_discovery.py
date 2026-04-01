@@ -90,7 +90,7 @@ def main():
     parser.add_argument("--region", default="jp")
     parser.add_argument("--dry-run", action="store_true", help="Enrich but don't sync to PG")
     parser.add_argument("--max-handles", type=int, default=0, help="Limit handles for testing (0=all)")
-    parser.add_argument("--skip-views", action="store_true", help="Skip Apify view enrichment (saves cost)")
+    parser.add_argument("--skip-views", action="store_true", default=True, help="Skip Apify view enrichment (IG API doesn't return views)")
     args = parser.parse_args()
 
     # Import enrichment functions
