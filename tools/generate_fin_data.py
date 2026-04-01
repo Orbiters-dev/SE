@@ -305,6 +305,7 @@ def generate():
     search_terms = dk.get("amazon_ads_search_terms", days=30)
     gsc = dk.get("gsc_daily", days=30)
     brand_analytics = dk.get("amazon_brand_analytics", days=180)
+    sqp_brand = dk.get("amazon_sqp_brand", days=365)
     shopify_sku = dk.get("shopify_orders_sku_daily", date_from="2025-06-01")
     amazon_sku = dk.get("amazon_sales_sku_daily", days=days_back)
     klaviyo = dk.get("klaviyo_daily", days=days_back)
@@ -3107,6 +3108,46 @@ def generate():
                     "conv_share": latest["conv_share"],
                 })
             cat_sfr_branded[cat] = sorted(branded, key=lambda x: -x["click_share"])
+
+        # ── 2c. Merge SQP brand view volume data into sfr_branded ─────────
+        # sqp_brand: {week_end, brand, search_query, search_query_volume, ...}
+        # Build per-brand lookup: brand_slug → {query → {week_end → volume}}
+        sqp_by_brand = defaultdict(lambda: defaultdict(dict))
+        for r in sqp_brand:
+            b = _bslug(r.get("brand", ""))
+            q = (r.get("search_query") or "").strip().lower()
+            w = r.get("week_end", "")
+            v = int(r.get("search_query_volume") or 0)
+            if b and q and w and v:
+                sqp_by_brand[b][q][w] = v
+
+        # Enrich existing sfr_branded with volume_weekly, or add new kws
+        for cat in list(cat_sfr_branded.keys()) + [c for c in cat_brand_map if c not in cat_sfr_branded]:
+            slug = _bslug(cat_brand_map.get(cat, ''))
+            if slug not in sqp_by_brand:
+                continue
+            sqp_kws = sqp_by_brand[slug]
+            existing = {kw["keyword"]: kw for kw in cat_sfr_branded.get(cat, [])}
+            for query, week_vols in sqp_kws.items():
+                vol_weeks = sorted(week_vols.keys())
+                vol_weekly = [week_vols[w] for w in vol_weeks]
+                if query in existing:
+                    existing[query]["volume_weekly"] = vol_weekly
+                    existing[query]["volume_week_labels"] = vol_weeks
+                else:
+                    # keyword not in SP-API data — add from SQP
+                    existing[query] = {
+                        "keyword": query,
+                        "search_freq_rank": 0,
+                        "rank_weekly": [],
+                        "rank_week_labels": [],
+                        "volume_weekly": vol_weekly,
+                        "volume_week_labels": vol_weeks,
+                        "click_share": 0,
+                        "conv_share": 0,
+                    }
+            if existing:
+                cat_sfr_branded[cat] = sorted(existing.values(), key=lambda x: -x["click_share"])
 
         # ── 3. Enrich keywords with ads spend + search volume ─────────────
         st_spend = defaultdict(lambda: {"spend": 0.0, "clicks": 0, "sales": 0.0, "impressions": 0})

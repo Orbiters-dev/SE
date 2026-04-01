@@ -1266,25 +1266,33 @@ function renderHeroTab(F){
         var glx=padL+(n-1)*(bw+1)+bw/2,gly=padT+topH-gscD[n-1]/gscMax*topH*0.4;
         html+='<text x="'+(glx+6)+'" y="'+(gly+3)+'" fill="#f59e0b" font-size="7" font-weight="600" opacity="0.7">GSC</text>';
       }
-      // SFR overlay — branded keywords from pre-filtered sfr_branded field
+      // SFR/Volume overlay — branded keywords from pre-filtered sfr_branded field
+      // Use volume_weekly (SQP brand view) if available, else rank_weekly (SP-API SFR)
       var _sfrOverlayKws=[];
+      var _useVolume=false;
       if(c.sfr_branded&&c.sfr_branded.length){
-        _sfrOverlayKws=c.sfr_branded.filter(function(kw){
-          return kw.rank_weekly&&kw.rank_weekly.length&&kw.rank_week_labels&&kw.rank_week_labels.length;
-        });
+        // Prefer volume_weekly (actual search count, from SQP brand view CSV upload)
+        var _volKws=c.sfr_branded.filter(function(kw){return kw.volume_weekly&&kw.volume_weekly.length&&kw.volume_week_labels&&kw.volume_week_labels.length;});
+        if(_volKws.length){_sfrOverlayKws=_volKws;_useVolume=true;}
+        else{
+          _sfrOverlayKws=c.sfr_branded.filter(function(kw){return kw.rank_weekly&&kw.rank_weekly.length&&kw.rank_week_labels&&kw.rank_week_labels.length;});
+        }
       }
       if(_sfrOverlayKws.length){
         // Build unified week axis
         var _sfrWkSet={};
-        _sfrOverlayKws.forEach(function(kw){kw.rank_week_labels.forEach(function(w){_sfrWkSet[w]=true;});});
+        var _wkField=_useVolume?'volume_week_labels':'rank_week_labels';
+        var _valField=_useVolume?'volume_weekly':'rank_weekly';
+        _sfrOverlayKws.forEach(function(kw){(kw[_wkField]||[]).forEach(function(w){_sfrWkSet[w]=true;});});
         var _sfrWks=Object.keys(_sfrWkSet).sort();
-        // Per week: average SFR across all branded keywords that have data that week
+        // Per week: average across all branded keywords that have data that week
         var _sfrAvg=[];
         _sfrWks.forEach(function(w){
           var vals=[];
           _sfrOverlayKws.forEach(function(kw){
-            var wi=kw.rank_week_labels.indexOf(w);
-            if(wi>=0&&kw.rank_weekly[wi])vals.push(kw.rank_weekly[wi]);
+            var labels=kw[_wkField]||[],values=kw[_valField]||[];
+            var wi=labels.indexOf(w);
+            if(wi>=0&&values[wi])vals.push(values[wi]);
           });
           if(vals.length) _sfrAvg.push({w:w,v:Math.round(vals.reduce(function(a,b){return a+b},0)/vals.length)});
         });
@@ -1292,7 +1300,7 @@ function renderHeroTab(F){
           var _sfrVals=_sfrAvg.map(function(p){return p.v;});
           var _sfrMin=Math.min.apply(null,_sfrVals),_sfrMax=Math.max.apply(null,_sfrVals);
           if(_sfrMin===_sfrMax){_sfrMin=Math.round(_sfrMin*0.85);_sfrMax=Math.round(_sfrMax*1.15);}
-          // Normal Y: higher SFR number = higher on chart (낮을수록 더 많이 검색됨)
+          // Volume: higher=more searched, higher on chart. SFR rank: same direction (higher rank# = higher on chart)
           function sfrY(r){return padT+topH*0.9-topH*0.82*(r-_sfrMin)/(_sfrMax-_sfrMin);}
           // Map week dates to x
           var _sfrPts=[];
@@ -1311,7 +1319,7 @@ function renderHeroTab(F){
             html+='<text x="'+(chartW-padR+4)+'" y="'+(y+3)+'" fill="#f59e0b" font-size="6" font-family="var(--mono)" opacity="0.7">'+vStr+'</text>';
             html+='<text x="'+(chartW-padR+4)+'" y="'+(y+11)+'" fill="#f59e0b" font-size="6" opacity="0.5">'+label+'</text>';
           });
-          html+='<text x="'+(chartW-padR+4)+'" y="'+(padT+7)+'" fill="#f59e0b" font-size="6" font-weight="700" opacity="0.75">SFR</text>';
+          html+='<text x="'+(chartW-padR+4)+'" y="'+(padT+7)+'" fill="#f59e0b" font-size="6" font-weight="700" opacity="0.75">'+(_useVolume?'Vol':'SFR')+'</text>';
           // Dashed connecting line
           if(_sfrPts.length>1){
             html+='<polyline points="'+_sfrPts.map(function(p){return p.x+','+p.y;}).join(' ')+'" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>';
@@ -1319,12 +1327,14 @@ function renderHeroTab(F){
           // Dots with per-point tooltips (pinned to dot)
           _sfrPts.forEach(function(p,pi){
             var vStr=p.v>=1000000?(p.v/1000000).toFixed(1)+'M':p.v>=1000?Math.round(p.v/1000)+'K':''+p.v;
-            // Build tooltip: week date + each keyword's SFR that week
-            var _sfrTt='<div class=tt-date>SFR week of '+p.w+'</div><div class=tt-row><span class=tt-dot style=background:#f59e0b></span>Avg SFR: '+p.v.toLocaleString()+'</div>';
+            // Build tooltip: week date + each keyword's value that week
+            var _ttLabel=_useVolume?'Avg Vol':'Avg SFR';
+            var _sfrTt='<div class=tt-date>'+(_useVolume?'Search Vol':'SFR')+' week of '+p.w+'</div><div class=tt-row><span class=tt-dot style=background:#f59e0b></span>'+_ttLabel+': '+p.v.toLocaleString()+'</div>';
             _sfrOverlayKws.forEach(function(kw){
-              var wi=kw.rank_week_labels.indexOf(p.w);
-              if(wi>=0&&kw.rank_weekly[wi]){
-                var kv=kw.rank_weekly[wi];
+              var labels=kw[_wkField]||[],values=kw[_valField]||[];
+              var wi=labels.indexOf(p.w);
+              if(wi>=0&&values[wi]){
+                var kv=values[wi];
                 var kvStr=kv>=1000000?(kv/1000000).toFixed(1)+'M':kv>=1000?Math.round(kv/1000)+'K':''+kv;
                 _sfrTt+='<div class=tt-row><span class=tt-dot style=background:#fcd34d></span>'+kw.keyword+': '+kvStr+'</div>';
               }

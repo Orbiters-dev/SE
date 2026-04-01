@@ -452,6 +452,32 @@ class AmazonBrandAnalytics(models.Model):
         return f"{self.date} {self.search_term} {self.asin}"
 
 
+class AmazonSQPBrand(models.Model):
+    """Amazon Search Query Performance - Brand View weekly data.
+
+    Downloaded manually from Seller Central (Search Query Performance → Brand View).
+    One row per (week_end, brand, search_query).
+    """
+    week_end = models.DateField()
+    brand = models.CharField(max_length=100)
+    search_query = models.CharField(max_length=500)
+    search_query_score = models.IntegerField(default=0)   # rank within brand (1=top)
+    search_query_volume = models.IntegerField(default=0)  # actual weekly search count
+    impressions_brand = models.IntegerField(default=0)
+    clicks_brand = models.IntegerField(default=0)
+    clicks_brand_share = models.DecimalField(max_digits=8, decimal_places=4, default=0)
+    purchases_brand = models.IntegerField(default=0)
+    purchases_brand_share = models.DecimalField(max_digits=8, decimal_places=4, default=0)
+    collected_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "gk_amazon_sqp_brand"
+        unique_together = ("week_end", "brand", "search_query")
+
+    def __str__(self):
+        return f"{self.week_end} {self.brand} {self.search_query}"
+
+
 class GoogleAdsSearchTerms(models.Model):
     """Google Ads search term view daily metrics."""
     date = models.DateField()
