@@ -3962,8 +3962,18 @@ async function checkFeatureImpact(feature){
       }else{expand.textContent='';expand.style.display='none'}
 
     }else if(feature==='us'){
-      // US Only: country="United States" = pass (set by Syncly Language=en)
-      // Non-US = has country but not US. Unknown = no country data yet.
+      // US Only: Check Syncly sheet Language for this batch, backfill country, then filter
+      var unknown=creators.filter(function(c){return !(c.country||'').trim()});
+      if(unknown.length>0){
+        var handles=unknown.map(function(c){return c.ig_handle||c.tiktok_handle||''}).filter(Boolean);
+        if(handles.length>0){
+          try{
+            badge.textContent='reading Syncly sheet ('+handles.length+')...';
+            var result=await apiFetch('/pipeline/creators/backfill-language/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usernames:handles})});
+            if(result.updated>0){_ftCache=null;_ftCacheWeek=null;creators=await ensureFtCache()}
+          }catch(e){console.warn('Backfill failed:',e)}
+        }
+      }
       var usCreators=creators.filter(function(c){
         var country=(c.country||'').toLowerCase();
         return country==='united states'||country==='us'||country==='usa';
@@ -3972,9 +3982,9 @@ async function checkFeatureImpact(feature){
         var country=(c.country||'').toLowerCase();
         return country&&country!=='united states'&&country!=='us'&&country!=='usa';
       });
-      var unknown=creators.filter(function(c){return !(c.country||'').trim()});
-      _ftResults.us={count:nonUs.length,usCount:usCreators.length,unenriched:unknown.length,list:nonUs};
-      badge.textContent=usCreators.length+' US(en) | \u2212'+nonUs.length+' non-US | '+unknown.length+' pending';
+      var stillUnknown=creators.filter(function(c){return !(c.country||'').trim()});
+      _ftResults.us={count:nonUs.length,usCount:usCreators.length,unenriched:stillUnknown.length,list:nonUs};
+      badge.textContent=usCreators.length+' US(en) | -'+nonUs.length+' non-US | '+stillUnknown.length+' pending';
       badge.className='b g';badge.style.cssText='font-size:10px;padding:2px 8px';
       if(nonUs.length>0){
         var el=document.createElement('div');

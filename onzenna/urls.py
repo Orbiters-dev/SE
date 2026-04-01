@@ -52,6 +52,9 @@ urlpatterns = [
     path("pipeline/creators/<uuid:creator_id>/", views.pipeline_creator_detail, name="pipeline_creator_detail"),
     path("pipeline/creators/", views.pipeline_creators_list, name="pipeline_creators_list"),
 
+    # Backfill Language → Country (batch-level, from Syncly sheet)
+    path("pipeline/creators/backfill-language/", views.backfill_language, name="backfill_language"),
+
     # Pipeline Conversations (email thread tracking)
     path("pipeline/conversations/", views.pipeline_conversations, name="pipeline_conversations"),
 
