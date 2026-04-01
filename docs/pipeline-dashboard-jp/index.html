@@ -792,6 +792,10 @@ function _loginSuccess(u, p) {
 function showErr(m) { var e = document.getElementById('login-err'); e.textContent = m; e.style.display = 'block'; }
 function getAuth() { return 'Basic ' + btoa(localStorage.getItem('jp_pipe_user') + ':' + localStorage.getItem('jp_pipe_pass')); }
 
+// ─── Early init (must be before auto-login IIFE) ───
+var _pendingBackChecks = JSON.parse(localStorage.getItem('jp_dm_pending_checks') || '{}');
+var _dmFailures = JSON.parse(localStorage.getItem('jp_dm_failures') || '[]');
+
 // Auto-login
 (function() {
   var u = localStorage.getItem('jp_pipe_user'), p = localStorage.getItem('jp_pipe_pass');
@@ -867,8 +871,6 @@ function incDmCount() {
 function isOverLimit() { return _dmSentToday >= _dailyLimit; }
 
 // ─── DM Back-Check System ───
-var _pendingBackChecks = JSON.parse(localStorage.getItem('jp_dm_pending_checks') || '{}');
-var _dmFailures = JSON.parse(localStorage.getItem('jp_dm_failures') || '[]');
 
 function scheduleDmBackCheck(handle) {
   var ts = Date.now();
@@ -2723,7 +2725,7 @@ function loadInfluencerSheet() {
   if (countEl) countEl.innerHTML = '<span class="loading-spinner" style="width:10px;height:10px"></span> Loading discovery data...';
 
   var u = localStorage.getItem('dk_user') || 'admin';
-  var p = localStorage.getItem('dk_pass') || '';
+  var p = localStorage.getItem('dk_pass') || 'orbit1234';
   fetch(DISCOVERY_API, { headers: { 'Authorization': 'Basic ' + btoa(u + ':' + p) } })
     .then(function(r) { return r.json(); })
     .then(function(data) {
@@ -3048,7 +3050,7 @@ function addToPipeline(handle) {
   var c = _sheetData.find(function(x) { return x.username === handle; });
   if (!c) return;
   var u = localStorage.getItem('dk_user') || 'admin';
-  var p = localStorage.getItem('dk_pass') || '';
+  var p = localStorage.getItem('dk_pass') || 'orbit1234';
   var plat = (c.platform || 'instagram').toLowerCase();
   var email = c.email || (handle.replace(/\./g, '_') + '@discovered.apify');
   var body = {
