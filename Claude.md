@@ -76,5 +76,6 @@ rows = dk.get("shopify_orders_daily", days=30)
 | 효율가 | — | `tools/run_skill_optimizer.py` |
 | 대시보드 테스터, JP 테스트, 자율주행 테스트, dashboard test, e2e test | `.claude/skills/dashboard-tester/SKILL.md` | `tools/autonomous_tester_jp.py` |
 | 제갈량, 갈량이, 전략분석, 시장분석, 경쟁사분석, SWOT, 큰그림, 참모 | `.claude/skills/galryang/SKILL.md` | `tools/codex_auditor.py` + MCP |
+| 연차트래커 소환, 연차트래커, 휴가 트래커 | `\\Orbiters\경영지원\연차관리\vacation noticing_tracker.md` | `tools/outlook_com_leave_tracker.py --sync` |
 
 Python 경로: `C:\Users\wjcho\AppData\Local\Programs\Python\Python312\python.exe`
