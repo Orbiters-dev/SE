@@ -1186,7 +1186,7 @@ function renderHeroTab(F){
         html+='<tr><td style="font-weight:600;color:var(--dim)">Units</td>';
         du.forEach(function(v){html+='<td style="text-align:right;font-family:var(--mono)">'+v.toLocaleString()+'</td>';});
         html+='</tr>';
-        if(totalViews>0){
+        if(totalNewViews>0){
           html+='<tr><td style="font-weight:600;color:'+bc+'">Content Views</td>';
           vw.forEach(function(v){html+='<td style="text-align:right;font-family:var(--mono)">'+(v>0?v.toLocaleString():'—')+'</td>';});
           html+='</tr>';
@@ -1218,7 +1218,7 @@ function renderHeroTab(F){
           html+='<tr><td style="font-weight:600;color:var(--dim)">Units</td>';
           wkSlice.forEach(function(w,wi){var v=c.units_weekly[wkOffset+wi]||0;html+='<td style="text-align:right;font-family:var(--mono)">'+v.toLocaleString()+'</td>';});
           html+='</tr>';
-          if(totalViews>0){
+          if(totalNewViews>0){
             html+='<tr><td style="font-weight:600;color:'+bc+'">Content Views</td>';
             wkSlice.forEach(function(wk,wi){
               var weekTotal=0;var wkIdx=wkOffset+wi;
