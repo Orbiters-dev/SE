@@ -1059,6 +1059,7 @@ function renderHeroTab(F){
       });
       var gscTotalAll=gscD.reduce(function(a,b){return a+b},0);
       if(gscTotalAll>0) html+='<span style="color:#f59e0b">--- GSC Search ('+gscTotalAll.toLocaleString()+' impr)</span>';
+      if(c.top_keywords){var _sfrLeg=c.top_keywords.filter(function(kw){return kw.rank_weekly&&kw.rank_weekly.length;}).slice(0,3);_sfrLeg.forEach(function(kw,ki){var _sc=['#f59e0b','#f97316','#eab308'][ki];html+='<span style="color:'+_sc+'">&#9679; SFR:'+kw.keyword.substring(0,15)+' ('+( kw.rank_weekly[kw.rank_weekly.length-1]>=1000?Math.round(kw.rank_weekly[kw.rank_weekly.length-1]/1000)+'K':kw.rank_weekly[kw.rank_weekly.length-1])+')</span>';});}
       var sessTotalAll=sessD.reduce(function(a,b){return a+b},0);
       if(sessTotalAll>0) html+='<span style="color:#6366f1">&#9644; Sessions ('+sessTotalAll.toLocaleString()+')</span>';
       var pvTotalAll=pvD.reduce(function(a,b){return a+b},0);
@@ -1108,6 +1109,53 @@ function renderHeroTab(F){
         html+='<polyline points="'+gPts.join(' ')+'" fill="none" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>';
         var glx=padL+(n-1)*(bw+1)+bw/2,gly=padT+topH-gscD[n-1]/gscMax*topH*0.4;
         html+='<text x="'+(glx+6)+'" y="'+(gly+3)+'" fill="#f59e0b" font-size="7" font-weight="600" opacity="0.7">GSC</text>';
+      }
+      // SFR dots overlay on sales chart (inverted: lower rank = higher on chart)
+      if(c.top_keywords&&c.top_keywords.length){
+        // Pick top 3 keywords by click_share that have rank_weekly data
+        var sfrKws=c.top_keywords.filter(function(kw){return kw.rank_weekly&&kw.rank_weekly.length&&kw.rank_week_labels&&kw.rank_week_labels.length;}).slice(0,3);
+        if(sfrKws.length){
+          var SFR_COLORS=['#f59e0b','#f97316','#eab308'];
+          // Find overall SFR range for Y scale
+          var sfrAll=[];sfrKws.forEach(function(kw){kw.rank_weekly.forEach(function(v){if(v)sfrAll.push(v);});});
+          var sfrMin=Math.min.apply(null,sfrAll)||1,sfrMax=Math.max.apply(null,sfrAll)||1;
+          if(sfrMin===sfrMax){sfrMin=Math.round(sfrMin*0.8);sfrMax=Math.round(sfrMax*1.2);}
+          function sfrY(r){return padT+topH*(1-(sfrMax-r)/(sfrMax-sfrMin))*0.85+topH*0.05;}
+          sfrKws.forEach(function(kw,ki){
+            var col=SFR_COLORS[ki];
+            var pts=[];
+            kw.rank_week_labels.forEach(function(wdate,wi){
+              // Find x position: match week date to daily dates array
+              var bestDi=-1,bestDiff=999999;
+              for(var di=0;di<n;di++){
+                var diff=Math.abs(new Date(dates[di])-new Date(wdate));
+                if(diff<bestDiff){bestDiff=diff;bestDi=di;}
+              }
+              if(bestDi>=0){
+                var x=padL+bestDi*(bw+1)+bw/2,y=sfrY(kw.rank_weekly[wi]);
+                pts.push({x:x,y:y,v:kw.rank_weekly[wi],date:wdate});
+              }
+            });
+            // Connect dots with dashed line
+            if(pts.length>1){
+              var pstr=pts.map(function(p){return p.x+','+p.y;}).join(' ');
+              html+='<polyline points="'+pstr+'" fill="none" stroke="'+col+'" stroke-width="1" stroke-dasharray="3,2" opacity="0.6"/>';
+            }
+            pts.forEach(function(p){
+              var vStr=p.v>=1000000?(p.v/1000000).toFixed(1)+'M':p.v>=1000?Math.round(p.v/1000)+'K':''+p.v;
+              html+='<circle cx="'+p.x+'" cy="'+p.y+'" r="3.5" fill="'+col+'" opacity="0.85"/>';
+              html+='<text x="'+p.x+'" y="'+(p.y-6)+'" fill="'+col+'" font-size="7" font-family="var(--mono)" text-anchor="middle" opacity="0.9">'+vStr+'</text>';
+            });
+            // End label (keyword name)
+            if(pts.length){
+              var lp=pts[pts.length-1];
+              html+='<text x="'+(lp.x+6)+'" y="'+(lp.y+3)+'" fill="'+col+'" font-size="7" font-weight="600" opacity="0.8">'+kw.keyword.substring(0,18)+'</text>';
+            }
+          });
+          // SFR Y-axis label on right
+          var sfrYmid=sfrY((sfrMin+sfrMax)/2);
+          html+='<text x="'+(chartW-padR+6)+'" y="'+(sfrYmid)+'" fill="#f59e0b" font-size="7" font-weight="600" opacity="0.6">SFR</text>';
+        }
       }
       // Sessions line overlay on sales chart
       var sessTotal=sessD.reduce(function(a,b){return a+b},0);
