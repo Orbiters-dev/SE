@@ -302,7 +302,7 @@ def generate():
     meta_ads = dk.get("meta_ads_daily", days=days_back)
     google_ads = dk.get("google_ads_daily", days=days_back)
     ga4 = dk.get("ga4_daily", days=days_back)
-    search_terms = dk.get("amazon_ads_search_terms", days=30)
+    search_terms = dk.get("amazon_ads_search_terms", days=90, limit=50000)
     gsc = dk.get("gsc_daily", days=30)
     brand_analytics = dk.get("amazon_brand_analytics", days=180)
     sqp_brand = dk.get("amazon_sqp_brand", days=365)
