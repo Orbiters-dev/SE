@@ -215,11 +215,27 @@ var _curSection = {};
 if(checkAuth()) showDashboard();
 
 function initDashboard() {
-  var savedRgn = localStorage.getItem('fin_region') || 'us';
+  // Hash takes priority → localStorage fallback
+  var hash = window.location.hash.replace('#','');
+  var parts = hash ? hash.split('/') : [];
+  var hashRgn = parts[0]; // 'us' or 'jp'
+  var hashSec = parts[1]; // tab id
+
   _curSection['us'] = localStorage.getItem('fin_sec_us') || 'fin-kpis';
   _curSection['jp'] = localStorage.getItem('fin_sec_jp') || 'jp-amazon';
-  switchRegion(savedRgn, true);
+
+  var rgn = (hashRgn==='us'||hashRgn==='jp') ? hashRgn : (localStorage.getItem('fin_region') || 'us');
+  if(hashSec) _curSection[rgn] = hashSec;
+  switchRegion(rgn, true);
 }
+window.addEventListener('hashchange', function(){
+  var hash = window.location.hash.replace('#','');
+  var parts = hash.split('/');
+  if(parts[0]==='us'||parts[0]==='jp'){
+    if(parts[0]!==_curRegion) switchRegion(parts[0]);
+    else if(parts[1]) switchSection(parts[1]);
+  }
+});
 
 function switchRegion(rgn, init) {
   _curRegion = rgn;
@@ -260,6 +276,8 @@ function switchSection(tabId, init) {
   var tab = tabs.find(function(t){return t.id===tabId;}) || tabs[tabs.length-1];
   _curSection[_curRegion] = tab.id;
   localStorage.setItem('fin_sec_'+_curRegion, tab.id);
+  // update URL hash
+  history.replaceState(null, '', '#'+_curRegion+'/'+tab.id);
 
   // hide all sections
   _allSecs.forEach(function(s){ document.getElementById(s).style.display='none'; });
