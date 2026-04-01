@@ -462,11 +462,14 @@ class PipelineConversation(models.Model):
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     creator_email = models.EmailField(db_index=True)
+    creator_handle = models.CharField(max_length=100, blank=True, default="")
     direction = models.CharField(max_length=10)  # Inbound, Outbound
+    channel = models.CharField(max_length=30, blank=True, default="")  # email, instagram, etc.
     subject = models.CharField(max_length=500, blank=True, default="")
     message_content = models.TextField(blank=True, default="")
     brand = models.CharField(max_length=30, blank=True, default="")
     outreach_type = models.CharField(max_length=10, blank=True, default="")  # LT, HT
+    status = models.CharField(max_length=30, blank=True, default="Draft")  # Draft, Sent, Replied
     gmail_message_id = models.CharField(max_length=200, blank=True, default="")
     gmail_thread_id = models.CharField(max_length=200, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -517,6 +520,15 @@ class DiscoveryPost(models.Model):
     outreach_email = models.EmailField(blank=True, default="")
     outreach_date = models.DateField(null=True, blank=True)
     outreach_notes = models.TextField(blank=True, default="")
+
+    # CI (Content Intelligence) analysis results
+    scene_fit = models.CharField(max_length=10, blank=True, default="")
+    has_subtitles = models.BooleanField(null=True, blank=True)
+    brand_fit_score = models.IntegerField(null=True, blank=True)
+    scene_tags = models.CharField(max_length=500, blank=True, default="")
+    product_mention = models.BooleanField(null=True, blank=True)
+    subject_age = models.CharField(max_length=20, blank=True, default="")
+    ci_analysis = models.JSONField(null=True, blank=True)  # extended HVA/script analysis
 
     # Link to PipelineCreator (after outreach begins)
     pipeline_creator_id = models.UUIDField(null=True, blank=True, db_index=True)

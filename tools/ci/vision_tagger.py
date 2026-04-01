@@ -12,14 +12,29 @@ from pathlib import Path
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 VISION_API = "https://api.openai.com/v1/chat/completions"
 
-SYSTEM_PROMPT = """You are an influencer content analyst for a baby/toddler product brand (Grosmimi / Onzenna).
-Analyze video keyframes and return a JSON object with these fields:
-- scene_fit: "HIGH" | "MED" | "LOW" (how well does the content match a baby/toddler product brand?)
-- has_subtitles: true | false (are there text overlays/subtitles in the video?)
-- brand_fit_score: integer 0-10 (overall brand fit; 10=perfect)
-- scene_tags: array of strings from ["baby", "toddler", "product_shown", "eating", "outdoor", "indoor", "face_closeup", "text_heavy", "lifestyle"]
-- subject_age: "infant" if a baby aged 0-24 months appears, "toddler" if 2-4 years old appears, "child" if 4+ years old appears, "none" if no baby/child visible
-- reasoning: one sentence explaining your score
+SYSTEM_PROMPT = """You are an expert influencer content analyst for a baby/toddler product brand (Grosmimi / Onzenna).
+Analyze video keyframes and return a JSON object with ALL these fields:
+
+BRAND FIT:
+- scene_fit: "HIGH" | "MED" | "LOW"
+- brand_fit_score: integer 0-10 (10=perfect match for baby product brand)
+- scene_tags: array from ["baby", "toddler", "product_shown", "eating", "outdoor", "indoor", "face_closeup", "text_heavy", "lifestyle", "tutorial", "before_after", "unboxing"]
+- subject_age: "infant" (0-24m) | "toddler" (2-4y) | "child" (4y+) | "none"
+
+CONTENT QUALITY (HVA Framework):
+- hook_score: integer 1-10 (how compelling is the opening frame? Would viewers stop scrolling?)
+- hook_type: "question" | "shocking" | "relatable" | "tutorial" | "before_after" | "aesthetic" | "text_hook" | "other"
+- storytelling_score: integer 1-10 (narrative arc, emotional journey, structure)
+- authenticity_score: integer 1-10 (natural/real-life feel vs over-produced/ad-like)
+- has_subtitles: true | false
+
+DELIVERY & PERSUASION:
+- delivery_score: integer 1-10 (vocal clarity, pacing, confidence, warmth — judge from visual cues like expressions, gestures, subtitle style)
+- emotional_tone: "warm" | "funny" | "educational" | "dramatic" | "aspirational" | "casual" | "emotional"
+- demo_present: true | false (product demonstration / usage scene visible?)
+- cta_present: true | false (call to action: follow, link, comment prompt)
+
+- reasoning: one sentence summarizing overall content quality
 
 Return ONLY valid JSON, no markdown."""
 
@@ -58,7 +73,7 @@ def analyze_frames(frame_paths: list[Path]) -> dict:
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": content},
         ],
-        "max_tokens": 300,
+        "max_tokens": 500,
         "response_format": {"type": "json_object"},
     }).encode()
 
@@ -77,6 +92,14 @@ def analyze_frames(frame_paths: list[Path]) -> dict:
             "brand_fit_score": int(result.get("brand_fit_score", 0)),
             "scene_tags": result.get("scene_tags", []),
             "subject_age": result.get("subject_age", "none"),
+            "hook_score": int(result.get("hook_score", 0)),
+            "hook_type": result.get("hook_type", "other"),
+            "storytelling_score": int(result.get("storytelling_score", 0)),
+            "authenticity_score": int(result.get("authenticity_score", 0)),
+            "delivery_score": int(result.get("delivery_score", 0)),
+            "emotional_tone": result.get("emotional_tone", "casual"),
+            "demo_present": bool(result.get("demo_present", False)),
+            "cta_present": bool(result.get("cta_present", False)),
             "reasoning": result.get("reasoning", ""),
         }
     except urllib.error.HTTPError as e:
@@ -95,5 +118,13 @@ def _default_result(reason: str) -> dict:
         "brand_fit_score": 0,
         "scene_tags": [],
         "subject_age": "none",
+        "hook_score": 0,
+        "hook_type": "other",
+        "storytelling_score": 0,
+        "authenticity_score": 0,
+        "delivery_score": 0,
+        "emotional_tone": "casual",
+        "demo_present": False,
+        "cta_present": False,
         "reasoning": reason,
     }

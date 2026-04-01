@@ -656,6 +656,10 @@ def get_or_save_pipeline_config(request, config_date):
         defaults["human_in_loop"] = body["human_in_loop"]
     if "sender_email" in body:
         defaults["sender_email"] = body["sender_email"]
+    if "test_email_override" in body:
+        defaults["test_email_override"] = body["test_email_override"]
+    if "notification_email" in body:
+        defaults["notification_email"] = body["notification_email"]
     # Brand allocation
     for field in ("alloc_grosmimi", "alloc_chaenmom", "alloc_naeiae"):
         if field in body:
@@ -1027,6 +1031,10 @@ def pipeline_creators_list(request):
     discovery_date = request.GET.get("discovery_date")
     if discovery_date:
         qs = qs.filter(initial_discovery_date=discovery_date)
+
+    has_email = request.GET.get("has_email")
+    if has_email and has_email.lower() in ("true", "1"):
+        qs = qs.exclude(email__isnull=True).exclude(email='').exclude(email__endswith='@discovered.syncly')
 
     # Ordering
     order = request.GET.get("order", "-created_at")
@@ -1828,11 +1836,14 @@ def pipeline_conversations(request):
         body = _json_body(request)
         c = PipelineConversation.objects.create(
             creator_email=body.get("creator_email", ""),
+            creator_handle=body.get("creator_handle", ""),
             direction=body.get("direction", "Outbound"),
+            channel=body.get("channel", ""),
             subject=body.get("subject", ""),
             message_content=body.get("message_content", ""),
             brand=body.get("brand", ""),
             outreach_type=body.get("outreach_type", ""),
+            status=body.get("status", "Draft"),
             gmail_message_id=body.get("gmail_message_id", ""),
             gmail_thread_id=body.get("gmail_thread_id", ""),
         )
@@ -1939,7 +1950,41 @@ def discovery_posts_list(request):
                 "source": p.get("source", ""),
                 "region": p.get("region", "jp"),
                 "discovery_batch": p.get("discovery_batch", ""),
+                # CI fields
+                "transcript": p.get("transcript", ""),
+                "scene_fit": p.get("scene_fit", ""),
+                "has_subtitles": p.get("has_subtitles"),
+                "brand_fit_score": p.get("brand_fit_score"),
+                "scene_tags": p.get("scene_tags", ""),
+                "product_mention": p.get("product_mention"),
+                "subject_age": p.get("subject_age", ""),
+                "ci_analysis": p.get("ci_analysis"),
             }
+            # Don't overwrite existing data with empty values
+            for field in ("handle", "full_name", "platform", "content_type", "source", "region", "discovery_batch"):
+                if not defaults.get(field):
+                    defaults.pop(field, None)
+            for field in ("followers", "views", "likes", "comments_count"):
+                if defaults.get(field) is None:
+                    defaults.pop(field, None)
+            if not defaults.get("post_date"):
+                defaults.pop("post_date", None)
+            for field in ("caption", "hashtags", "mentions", "transcript"):
+                if not defaults.get(field):
+                    defaults.pop(field, None)
+            # CI fields null safety
+            if not defaults.get("scene_fit"):
+                defaults.pop("scene_fit", None)
+            if defaults.get("has_subtitles") is None:
+                defaults.pop("has_subtitles", None)
+            if defaults.get("brand_fit_score") is None:
+                defaults.pop("brand_fit_score", None)
+            if defaults.get("product_mention") is None:
+                defaults.pop("product_mention", None)
+            if not defaults.get("subject_age"):
+                defaults.pop("subject_age", None)
+            if not defaults.get("ci_analysis"):
+                defaults.pop("ci_analysis", None)
 
             obj, is_new = DiscoveryPost.objects.update_or_create(
                 url=url,

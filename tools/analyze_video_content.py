@@ -30,7 +30,7 @@ from env_loader import load_env
 load_env()
 
 from ci.downloader import get_cdn_url, extract_audio_and_frames
-from ci.whisper_transcriber import transcribe, detect_product_mention
+from ci.whisper_transcriber import transcribe, detect_product_mention, analyze_script
 from ci.vision_tagger import analyze_frames
 
 ORBITOOLS_URL = os.getenv("ORBITOOLS_URL", "https://orbitools.orbiters.co.kr")
@@ -68,6 +68,7 @@ def push_results(post_url: str, results: dict, dry_run: bool) -> bool:
         print(f"  [DRY-RUN] Would update: {json.dumps(results, ensure_ascii=False)[:100]}")
         return True
 
+    # Core CI fields (individual columns)
     post_payload = {
         "url": post_url,
         "transcript": results.get("transcript", ""),
@@ -78,6 +79,17 @@ def push_results(post_url: str, results: dict, dry_run: bool) -> bool:
         "product_mention": results.get("product_mention", False),
         "subject_age": results.get("subject_age", ""),
     }
+    # Extended analysis → ci_analysis JSON
+    ci = {}
+    for k in ("hook_score", "hook_type", "storytelling_score", "authenticity_score",
+              "delivery_score", "emotional_tone", "demo_present", "cta_present",
+              "delivery_verbal_score", "hook_text", "persuasion_type",
+              "key_message", "script_structure", "vocabulary_level",
+              "repeat_watchability", "reasoning"):
+        if k in results:
+            ci[k] = results[k]
+    if ci:
+        post_payload["ci_analysis"] = ci
     if results.get("handle"):
         post_payload["handle"] = results["handle"]
     if results.get("views") is not None:
@@ -158,18 +170,27 @@ def main():
                 results["product_mention"] = False
                 print("  Whisper: skipped (no audio)")
 
-            # Step 4: GPT-4o Vision
+            # Step 4: GPT-4o Vision (expanded HVA analysis)
             if frames:
                 vision = analyze_frames(frames)
                 results.update(vision)
                 total_cost_est += len(frames) * 0.000085  # low-res per frame
-                print(f"  Vision: fit={vision['scene_fit']} score={vision['brand_fit_score']}/10 | {vision['reasoning'][:60]}")
+                print(f"  Vision: fit={vision['scene_fit']} score={vision['brand_fit_score']}/10 hook={vision.get('hook_score',0)}/10 | {vision['reasoning'][:60]}")
             else:
                 results.update({"scene_fit": "LOW", "has_subtitles": False,
                                  "brand_fit_score": 0, "scene_tags": []})
                 print("  Vision: skipped (no frames)")
 
-            # Step 5: PG upsert
+            # Step 5: Script analysis (transcript-based)
+            if results.get("transcript"):
+                script = analyze_script(results["transcript"], language=lang)
+                results.update(script)
+                total_cost_est += 0.0002  # gpt-4o-mini is cheap
+                print(f"  Script: delivery={script['delivery_verbal_score']}/10 persuasion={script['persuasion_type']} | {script.get('key_message','')[:60]}")
+            else:
+                print("  Script: skipped (no transcript)")
+
+            # Step 6: PG upsert
             if push_results(url, results, args.dry_run):
                 success += 1
             else:

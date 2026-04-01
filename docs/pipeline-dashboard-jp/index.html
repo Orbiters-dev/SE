@@ -2729,7 +2729,17 @@ function loadInfluencerSheet() {
   fetch(DISCOVERY_API, { headers: { 'Authorization': 'Basic ' + btoa(u + ':' + p) } })
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      var rows = (data.results || []).map(function(p) {
+      var BRAND_KEYWORDS = ['official', 'shop', 'store', 'honpo', '公式'];
+      var rows = (data.results || []).filter(function(p) {
+        // Video only
+        if ((p.content_type || '').toLowerCase() !== 'video') return false;
+        // Filter brand/official accounts
+        var h = (p.handle || '').toLowerCase();
+        for (var i = 0; i < BRAND_KEYWORDS.length; i++) {
+          if (h.indexOf(BRAND_KEYWORDS[i]) !== -1) return false;
+        }
+        return true;
+      }).map(function(p) {
         return {
           'Handle': p.handle || '',
           'Full Name': p.full_name || '',
@@ -2744,7 +2754,8 @@ function loadInfluencerSheet() {
           'Email': p.outreach_email || '',
           'Caption': p.caption || '',
           'Hashtags': p.hashtags || '',
-          'Transcript': p.transcript || ''
+          'Transcript': p.transcript || '',
+          'CI': p.ci_analysis || null
         };
       });
       mergeSheetData(rows);
