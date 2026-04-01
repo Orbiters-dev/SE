@@ -1494,7 +1494,7 @@ function renderHeroTab(F){
               yStack-=bh;colTotal+=v;
             }
           });
-          if(colTotal>0&&i%step===0){
+          if(colTotal>0){
             var lx=padL+i*(bw+1)+bw/2,ly=yStack-4;
             html+='<text x="'+lx+'" y="'+ly+'" fill="'+bc+'" font-size="6" font-family="var(--mono)" text-anchor="middle" font-weight="600" opacity="0.8">'+(colTotal>=1000?Math.round(colTotal/1000)+'K':colTotal)+'</text>';
           }
@@ -1630,15 +1630,7 @@ function renderHeroTab(F){
           html+='<tr><td style="font-weight:600;color:var(--dim)">Units</td>';
           wkSlice.forEach(function(w,wi){var v=c.units_weekly[wkOffset+wi]||0;html+='<td style="text-align:right;font-family:var(--mono)">'+v.toLocaleString()+'</td>';});
           html+='</tr>';
-          if(totalNewViews>0){
-            html+='<tr><td style="font-weight:600;color:'+bc+'">Content Views</td>';
-            wkSlice.forEach(function(wk,wi){
-              var weekTotal=0;var wkIdx=wkOffset+wi;
-              for(var d=wkIdx*7;d<Math.min((wkIdx+1)*7,_allVw.length);d++){weekTotal+=(_allVw[d]||0);}
-              html+='<td style="text-align:right;font-family:var(--mono)">'+(weekTotal>0?weekTotal.toLocaleString():'—')+'</td>';
-            });
-            html+='</tr>';
-          }
+          // Content Views row removed — individual creator rows below show cumulative views
           crDeltaArr.forEach(function(x,ci){
             var allDv=x.cr.daily_views;
             // Forward-fill to get cumulative snapshot at each week end
