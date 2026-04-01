@@ -269,7 +269,7 @@ function switchSection(tabId, init) {
   // lazy-load iframe
   if(tab.ifr && tab.src){
     var ifr=document.getElementById(tab.ifr);
-    if(!ifr.src || ifr.src===window.location.href) ifr.src=tab.src;
+    if(!ifr.getAttribute('src')) ifr.src=tab.src;
   }
 
   // Financial KPIs inline render
