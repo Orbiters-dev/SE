@@ -3480,19 +3480,19 @@ def generate():
             for uname, dv in creators_in_cat.items():
                 if uname.lower() in EXCLUDED_CREATORS:
                     continue
-                total = sum(dv.values())
-                if total > 0:
+                observed_growth = sum(dv.values())  # sum of day-over-day deltas
+                if observed_growth > 0:
                     meta = cat_creator_meta.get((cat, uname), {})
                     totals.append({
                         "username": uname,
                         "brand": meta.get("brand", ""),
                         "platform": meta.get("platform", ""),
-                        "total_views": meta.get("total_views", 0) or total,
+                        "total_views": observed_growth,  # = actual growth observed
                         "upload_date": meta.get("upload_date", ""),
                         "daily_views": [dv.get(d, 0) for d in daily_dates],
                     })
             totals.sort(key=lambda x: -x["total_views"])
-            content_creators_by_cat[cat] = totals[:15]  # Top 15, frontend filters by period
+            content_creators_by_cat[cat] = totals[:10]
 
         total_creators = sum(len(v) for v in content_creators_by_cat.values())
         print(f"  Content by creator: {total_creators} creator-category entries across {len(content_creators_by_cat)} categories")

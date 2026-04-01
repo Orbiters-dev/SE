@@ -1278,16 +1278,11 @@ function renderHeroTab(F){
       var gscD=_allGsc.slice(-pDays);
       var sessD=_allSess.slice(-pDays);
       var pvD=_allPv.slice(-pDays);
-      // Filter creators: only those uploaded within the period, slice daily_views
-      var periodStart=dates[0]||'';
-      var slicedCreators=catCreators.filter(function(cr){
-        // Keep creators with upload_date within chart period (or no date = keep)
-        if(!cr.upload_date)return true;
-        return cr.upload_date>=periodStart;
-      }).map(function(cr){
+      // Top 10 creators by observed growth (already sorted in generate_fin_data.py)
+      var slicedCreators=catCreators.slice(0,10).map(function(cr){
         return {username:cr.username,brand:cr.brand,platform:cr.platform,total_views:cr.total_views,
           upload_date:cr.upload_date||'',daily_views:cr.daily_views.slice(-pDays)};
-      }).slice(0,10);
+      });
       var n=ds.length;
       var hasContent=catCreators.length>0||(vw.length&&vw.reduce(function(a,b){return a+b},0)>0);
       var INF_COLORS=['#3b82f6','#ec4899','#f97316','#14b8a6','#6366f1','#ef4444','#a855f7','#eab308','#0ea5e9','#84cc16'];
