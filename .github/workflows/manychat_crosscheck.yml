@@ -1,0 +1,44 @@
+name: ManyChat ↔ Pipeline Cross-Check
+
+on:
+  schedule:
+    - cron: '0 0 * * *'    # KST 09:00 (= UTC 00:00)
+    - cron: '0 9 * * *'    # KST 18:00 (= UTC 09:00)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run - report only (true/false)'
+        required: false
+        default: 'false'
+      loops:
+        description: 'Number of check rounds'
+        required: false
+        default: '2'
+
+jobs:
+  crosscheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run ManyChat cross-check
+        env:
+          MANYCHAT_API_KEY_JP: ${{ secrets.MANYCHAT_API_KEY_JP }}
+          ORBITOOLS_URL: https://orbitools.orbiters.co.kr
+          ORBITOOLS_USER: admin
+          ORBITOOLS_PASS: ${{ secrets.ORBITOOLS_PASS }}
+        run: |
+          python tools/manychat_crosscheck.py \
+            --loop ${{ github.event.inputs.loops || '2' }} \
+            ${{ github.event.inputs.dry_run == 'true' && '--dry-run' || '' }}
