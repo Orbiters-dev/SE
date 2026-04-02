@@ -635,3 +635,88 @@ def compute_budget_recommendation(brand: str, campaigns: list, config: dict) -> 
             "current_budget": total_daily_budget,
         },
     }
+
+
+# ─── Social Trend Integration ──────────────────────────────────────────────
+
+def get_social_trend_keywords(brand: str, days: int = 30) -> dict:
+    """Extract trending keywords from content_posts transcripts/hashtags."""
+    dk = DataKeeper()
+    brand_map = {"naeiae": "Naeiae", "grosmimi": "Grosmimi", "chaenmom": "CHA&MOM"}
+    posts = dk.get("content_posts", days=days, brand=brand_map.get(brand, brand)) or []
+
+    hashtag_freq = Counter()
+    keyword_freq = Counter()
+    for p in posts:
+        for tag in (p.get("hashtags") or "").split(","):
+            tag = tag.strip().lower().lstrip("#")
+            if tag and len(tag) > 2:
+                hashtag_freq[tag] += 1
+        transcript = (p.get("transcript") or "").lower()
+        words = [w.strip(".,!?()\"'") for w in transcript.split() if len(w.strip(".,!?()\"'")) > 3]
+        for w in words:
+            if w.isalpha():
+                keyword_freq[w] += 1
+        for i in range(len(words) - 1):
+            if all(w.isalpha() for w in [words[i], words[i+1]]):
+                keyword_freq[f"{words[i]} {words[i+1]}"] += 1
+
+    return {
+        "top_hashtags": hashtag_freq.most_common(20),
+        "top_transcript_keywords": keyword_freq.most_common(30),
+        "post_count": len(posts),
+    }
+
+
+def find_untapped_social_keywords(social_keywords: list, ppc_search_terms: list) -> list:
+    """Find keywords trending on social but not yet targeted in PPC."""
+    ppc_terms = {t.lower().strip() for t in ppc_search_terms}
+    untapped = []
+    for keyword, freq in social_keywords:
+        matched = any(keyword in term for term in ppc_terms)
+        if not matched and freq >= 3:
+            untapped.append({
+                "keyword": keyword,
+                "social_frequency": freq,
+                "source": "transcript+hashtag",
+                "recommendation": "Consider adding as Manual exact-match keyword",
+            })
+    return untapped
+
+
+def detect_hashtag_surge(brand: str) -> list:
+    """Detect hashtags with week-over-week frequency surge (>2x)."""
+    dk = DataKeeper()
+    brand_map = {"naeiae": "Naeiae", "grosmimi": "Grosmimi", "chaenmom": "CHA&MOM"}
+    display = brand_map.get(brand, brand)
+    posts_7d = dk.get("content_posts", days=7, brand=display) or []
+    posts_30d = dk.get("content_posts", days=30, brand=display) or []
+
+    freq_7d = Counter()
+    freq_30d = Counter()
+    for p in posts_7d:
+        for tag in (p.get("hashtags") or "").split(","):
+            tag = tag.strip().lower().lstrip("#")
+            if tag:
+                freq_7d[tag] += 1
+    for p in posts_30d:
+        for tag in (p.get("hashtags") or "").split(","):
+            tag = tag.strip().lower().lstrip("#")
+            if tag:
+                freq_30d[tag] += 1
+
+    surges = []
+    for tag, count_7d in freq_7d.items():
+        count_30d = freq_30d.get(tag, 0)
+        rate_7d = count_7d / 7
+        rate_30d = count_30d / 30 if count_30d > 0 else 0.01
+        surge_ratio = rate_7d / rate_30d
+        if surge_ratio > 2.0 and count_7d >= 3:
+            surges.append({
+                "hashtag": tag,
+                "count_7d": count_7d,
+                "count_30d": count_30d,
+                "surge_ratio": round(surge_ratio, 1),
+                "recommendation": "Consider preemptive bid increase for related PPC keywords",
+            })
+    return sorted(surges, key=lambda x: x["surge_ratio"], reverse=True)[:10]

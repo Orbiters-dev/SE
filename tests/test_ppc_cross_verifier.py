@@ -234,3 +234,41 @@ class TestBudgetRecommendation:
         tier3 = [r for r in rec["recommendations"] if r["tier"] == 3 and r.get("type") == "increase_total_daily_budget"]
         assert len(tier1) == 0
         assert len(tier3) == 0
+
+
+class TestSocialTrends:
+    def test_extract_social_keywords(self):
+        from ppc_cross_verifier import get_social_trend_keywords
+        mock_posts = [
+            {"hashtags": "#babyfood,#organicsnack,#babyfood", "transcript": "this organic baby melt snack is great for toddlers"},
+            {"hashtags": "#babyfood,#ricepuff", "transcript": "baby loves this rice puff melt snack"},
+        ]
+        with patch("ppc_cross_verifier.DataKeeper") as mock_dk_cls:
+            mock_dk = MagicMock()
+            mock_dk.get.return_value = mock_posts
+            mock_dk_cls.return_value = mock_dk
+            result = get_social_trend_keywords("naeiae", days=30)
+            assert result["post_count"] == 2
+            top_tags = dict(result["top_hashtags"])
+            assert top_tags.get("babyfood", 0) >= 2
+
+    def test_find_untapped_keywords(self):
+        from ppc_cross_verifier import find_untapped_social_keywords
+        social = [("baby melt snack", 8), ("organic rice puff", 5), ("toddler food", 3)]
+        ppc_terms = ["rice puff baby", "naeiae rice pop", "baby snack organic"]
+        untapped = find_untapped_social_keywords(social, ppc_terms)
+        names = [u["keyword"] for u in untapped]
+        assert "baby melt snack" in names
+
+    def test_detect_hashtag_surge(self):
+        from ppc_cross_verifier import detect_hashtag_surge
+        posts_7d = [{"hashtags": "#babyledweaning"} for _ in range(7)]
+        posts_30d = posts_7d + [{"hashtags": "#babyledweaning"} for _ in range(3)]
+        with patch("ppc_cross_verifier.DataKeeper") as mock_dk_cls:
+            mock_dk = MagicMock()
+            mock_dk.get.side_effect = [posts_7d, posts_30d]
+            mock_dk_cls.return_value = mock_dk
+            surges = detect_hashtag_surge("naeiae")
+            assert len(surges) >= 1
+            assert surges[0]["hashtag"] == "babyledweaning"
+            assert surges[0]["surge_ratio"] > 2.0
