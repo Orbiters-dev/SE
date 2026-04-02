@@ -11,7 +11,7 @@ Architecture (Airtable 제거 후):
 Stages (Stage 0-7):
   syncly_check      : Stage 0  — n8n Syncly + Content WF active check
   seed              : Stage 0b — PG pipeline_creators 시드 레코드 생성
-  email_draft       : Stage 1a — AI 이메일 드래프트 (AT Conversations 유지)
+  email_draft       : Stage 1a — AI 이메일 드래프트 (PG Conversations)
   email_approve     : Stage 1b — 아웃리치 이메일 발송 승인
   email_reply       : Stage 1c — 인플루언서 회신 시뮬
   email_confirm     : Stage 1d — 기프팅폼 링크 확인 이메일
@@ -39,6 +39,7 @@ import time
 import random
 import string
 import argparse
+import base64
 import urllib.request
 import urllib.error
 import urllib.parse
@@ -70,18 +71,6 @@ from test_influencer_flow import (
     link_shopify, link_n8n_wf,
 )
 
-# ─── Airtable (email/outreach 스테이지에서만 사용 — gifting/seed/sample은 PG 사용) ──
-AT_BASE          = "app3Vnmh7hLAVsevE"
-AT_CREATORS      = "tblv2Jw3ZAtAMhiYY"
-AT_ORDERS        = "tblQUz8zQRDdZvES3"
-AT_APPLICANTS    = "tblQUz8zQRDdZvES3"
-AT_CONVERSATIONS = "tblNeTyVwMomsfSk7"
-
-AIRTABLE_API_KEY = (
-    os.getenv("AT_API_KEY_PATHLIGHT") or
-    os.getenv("AIRTABLE_API_KEY", "")
-)
-
 # ─── ORBITOOLS / PostgreSQL (primary backend for pipeline) ───────────────────
 ORBITOOLS_USER = os.getenv("ORBITOOLS_USER") or "admin"
 ORBITOOLS_PASS = os.getenv("ORBITOOLS_PASS") or "admin"
@@ -109,7 +98,7 @@ def info(msg): print(f"  [INFO] {msg}")
 ALL_STAGES = [
     "syncly_check",       # Stage 0: Syncly/Content WF active check (before seed)
     "seed",               # Stage 0b: PG pipeline_creators 시드
-    "email_draft",        # Stage 1a: AI 이메일 드래프트 (AT Conversations 유지)
+    "email_draft",        # Stage 1a: AI 이메일 드래프트 (PG Conversations)
     "email_approve",      # Stage 1b: 아웃리치 이메일 발송 승인
     "email_reply",        # Stage 1c: 인플루언서 회신 시뮬
     "email_confirm",      # Stage 1d: 기프팅폼 링크 확인 이메일
@@ -222,51 +211,52 @@ class SignalFile:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# Airtable / Shopify / PG helpers (thin wrappers for verification)
+# Django API / Shopify / PG helpers (thin wrappers for verification)
 # ═══════════════════════════════════════════════════════════════════════════
 
-def _at_headers():
-    return {"Authorization": f"Bearer {AIRTABLE_API_KEY}", "Content-Type": "application/json"}
+def _pg_headers():
+    credentials = base64.b64encode(f"{ORBITOOLS_USER}:{ORBITOOLS_PASS}".encode()).decode()
+    return {"Authorization": f"Basic {credentials}", "Content-Type": "application/json"}
 
-def at_find(table_id, field, value, max_records=5):
-    safe = value.replace("'", "\\'")
-    formula = urllib.parse.quote(f"{{{field}}}='{safe}'")
-    url = f"https://api.airtable.com/v0/{AT_BASE}/{table_id}?filterByFormula={formula}&maxRecords={max_records}"
-    status, body = http_request("GET", url, headers=_at_headers())
-    if status == 200 and isinstance(body, dict):
-        return body.get("records", [])
+def pg_find_resource(resource, field, value, max_records=5):
+    """Find records via Django API search. Returns flat list of dicts (no 'fields' wrapper)."""
+    url = f"{ORBITOOLS_URL}/api/onzenna/pipeline/{resource}/?search={urllib.parse.quote(str(value))}"
+    status, body = http_request("GET", url, headers=_pg_headers())
+    if status == 200:
+        if isinstance(body, dict):
+            results = body.get("results", [])
+        elif isinstance(body, list):
+            results = body
+        else:
+            results = []
+        return results[:max_records]
     return []
 
-def at_create(table_id, fields):
-    url = f"https://api.airtable.com/v0/{AT_BASE}/{table_id}"
-    payload = {"fields": fields, "typecast": True}
-    status, body = http_request("POST", url, payload=payload, headers=_at_headers())
+def pg_create_resource(resource, data):
+    """Create a record via Django API POST. Returns (status, body) with flat dict response."""
+    url = f"{ORBITOOLS_URL}/api/onzenna/pipeline/{resource}/"
+    status, body = http_request("POST", url, payload=data, headers=_pg_headers())
     return status, body
 
-def at_update(table_id, record_id, fields):
-    url = f"https://api.airtable.com/v0/{AT_BASE}/{table_id}/{record_id}"
-    payload = {"fields": fields, "typecast": True}
-    status, body = http_request("PATCH", url, payload=payload, headers=_at_headers())
+def pg_update_resource(resource, record_id, data):
+    """Update a record via Django API PUT. Returns (status, body)."""
+    url = f"{ORBITOOLS_URL}/api/onzenna/pipeline/{resource}/{record_id}/"
+    status, body = http_request("PUT", url, payload=data, headers=_pg_headers())
     return status, body
 
-def at_delete(table_id, record_id):
-    if not record_id or not str(record_id).startswith("rec"):
+def pg_delete_resource(resource, record_id):
+    """Delete a record via Django API DELETE. Returns (status, body)."""
+    if not record_id:
         return 0, "invalid record_id"
-    url = f"https://api.airtable.com/v0/{AT_BASE}/{table_id}/{record_id}"
-    status, body = http_request("DELETE", url, headers=_at_headers())
+    url = f"{ORBITOOLS_URL}/api/onzenna/pipeline/{resource}/{record_id}/"
+    status, body = http_request("DELETE", url, headers=_pg_headers())
     return status, body
 
-def find_orders_by_draft_id(draft_order_id, max_records=5):
-    """Find WJ TEST Orders by Shopify Draft Order ID."""
-    if not draft_order_id:
-        return []
-    safe = str(draft_order_id).replace("'", "\\'")
-    formula = urllib.parse.quote(f"{{Shopify Order ID}}='{safe}'")
-    url = f"https://api.airtable.com/v0/{AT_BASE}/{AT_ORDERS}?filterByFormula={formula}&maxRecords={max_records}"
-    status, body = http_request("GET", url, headers=_at_headers())
-    if status == 200 and isinstance(body, dict):
-        return body.get("records", [])
-    return []
+def pg_get_resource(resource, record_id):
+    """Get a single record by ID via Django API GET. Returns (status, body)."""
+    url = f"{ORBITOOLS_URL}/api/onzenna/pipeline/{resource}/{record_id}/"
+    status, body = http_request("GET", url, headers=_pg_headers())
+    return status, body
 
 def shopify_find_customer(email):
     if not SHOPIFY_STORE or not SHOPIFY_TOKEN:
@@ -444,21 +434,23 @@ class ExecutorAgent:
             return checks, ctx
 
         if not creator_record_id:
-            # email stages use AT — but seed now creates PG record, not AT
-            warn("[1a] No AT creator_record_id from seed (seed now creates PG records) — generating payload without AT link")
-            creator_record_id = ""
+            # Try to find existing PG creator by email
+            creators = pg_find_creators(self.config.test_email)
+            creator_record_id = creators[0]["id"] if creators else ""
+            if not creator_record_id:
+                warn("[1a] No creator_record_id from seed — generating payload without PG link")
 
         payload = {
             "records": [{
                 "id": creator_record_id,
                 "fields": {
-                    "Username": test_ig,
-                    "Email": OUTREACH_TEST_RECIPIENT,  # real inbox — receives actual outreach email in test
-                    "Platform": "Instagram",
-                    "Outreach Type": "Low Touch",
-                    "Outreach Status": "Not Started",
-                    "Name": "Sarah Kim",
-                    "Brand Classification": "Grosmimi",
+                    "creator_handle": test_ig,
+                    "email": OUTREACH_TEST_RECIPIENT,  # real inbox — receives actual outreach email in test
+                    "channel": "Instagram",
+                    "outreach_type": "Low Touch",
+                    "status": "Not Started",
+                    "full_name": "Sarah Kim",
+                    "brand": "Grosmimi",
                 },
                 "createdTime": datetime.now().isoformat(),
             }]
@@ -503,27 +495,27 @@ class ExecutorAgent:
             return checks, ctx
 
         seed_ctx = self.signal.get_stage_context("seed")
-        creator_record_id = seed_ctx.get("creator_record_id", "")
+        creator_record_id = seed_ctx.get("creator_pg_id", "") or seed_ctx.get("creator_record_id", "")
         if not creator_record_id:
-            records = at_find(AT_CREATORS, "Email", self.config.test_email)
-            creator_record_id = records[0]["id"] if records else ""
+            creators = pg_find_creators(self.config.test_email)
+            creator_record_id = creators[0]["id"] if creators else ""
 
-        # Log outreach email in Conversations (fields: Subject, Channel, Direction, Message Content, Creator)
-        conv_fields = {
-            "Subject": subj,
-            "Channel": "Email",
-            "Direction": "Outbound",
-            "Message Content": body,
+        # Log outreach email in Conversations
+        conv_data = {
+            "subject": subj,
+            "channel": "Email",
+            "direction": "Outbound",
+            "message_content": body,
         }
         if creator_record_id:
-            conv_fields["Creator"] = [creator_record_id]
+            conv_data["creator"] = creator_record_id
 
         info(f"  [1b.1] Creating Conversations record (outreach email)")
-        status, resp = at_create(AT_CONVERSATIONS, conv_fields)
+        status, resp = pg_create_resource("conversations", conv_data)
         if status in (200, 201) and isinstance(resp, dict) and resp.get("id"):
             conv_id = resp["id"]
             ok(f"[1b.1] Outreach email logged: {conv_id}")
-            checks.append(Check("[1b] Log outreach email", True, detail=conv_id))
+            checks.append(Check("[1b] Log outreach email", True, detail=str(conv_id)))
             ctx["outreach_conv_id"] = conv_id
         else:
             fail(f"[1b.1] Failed to log email: {status}")
@@ -532,10 +524,12 @@ class ExecutorAgent:
         # Update creator status -> Sent
         if creator_record_id:
             info(f"  [1b.2] Updating creator status -> Sent")
-            s, _ = at_update(AT_CREATORS, creator_record_id, {
-                "Outreach Status": "Sent",
-                "Outreach Sent At": datetime.now().strftime("%Y-%m-%d"),
-            })
+            # Get current record first for PUT
+            cur_s, cur_body = pg_get_resource("creators", creator_record_id)
+            update_data = dict(cur_body) if cur_s == 200 and isinstance(cur_body, dict) else {}
+            update_data["status"] = "Sent"
+            update_data["outreach_sent_at"] = datetime.now().strftime("%Y-%m-%d")
+            s, _ = pg_update_resource("creators", creator_record_id, update_data)
             if s == 200:
                 ok("[1b.2] Creator status -> Sent")
                 checks.append(Check("[1b] Update status -> Sent", True))
@@ -559,26 +553,26 @@ class ExecutorAgent:
             return checks, ctx
 
         seed_ctx = self.signal.get_stage_context("seed")
-        creator_record_id = seed_ctx.get("creator_record_id", "")
+        creator_record_id = seed_ctx.get("creator_pg_id", "") or seed_ctx.get("creator_record_id", "")
         if not creator_record_id:
-            records = at_find(AT_CREATORS, "Email", self.config.test_email)
-            creator_record_id = records[0]["id"] if records else ""
+            creators = pg_find_creators(self.config.test_email)
+            creator_record_id = creators[0]["id"] if creators else ""
 
-        conv_fields = {
-            "Subject": f"Re: {subj}",
-            "Channel": "Email",
-            "Direction": "Inbound",
-            "Message Content": reply_body,
+        conv_data = {
+            "subject": f"Re: {subj}",
+            "channel": "Email",
+            "direction": "Inbound",
+            "message_content": reply_body,
         }
         if creator_record_id:
-            conv_fields["Creator"] = [creator_record_id]
+            conv_data["creator"] = creator_record_id
 
         info(f"  [1c.1] Creating Conversations record (influencer reply)")
-        status, resp = at_create(AT_CONVERSATIONS, conv_fields)
+        status, resp = pg_create_resource("conversations", conv_data)
         if status in (200, 201) and isinstance(resp, dict) and resp.get("id"):
             conv_id = resp["id"]
             ok(f"[1c.1] Reply logged: {conv_id}")
-            checks.append(Check("[1c] Log influencer reply", True, detail=conv_id))
+            checks.append(Check("[1c] Log influencer reply", True, detail=str(conv_id)))
             ctx["reply_conv_id"] = conv_id
         else:
             fail(f"[1c.1] Failed: {status}")
@@ -586,10 +580,11 @@ class ExecutorAgent:
 
         if creator_record_id:
             info(f"  [1c.2] Updating creator status -> Replied")
-            s, _ = at_update(AT_CREATORS, creator_record_id, {
-                "Outreach Status": "Replied",
-                "Partnership Status": "In Progress",
-            })
+            cur_s, cur_body = pg_get_resource("creators", creator_record_id)
+            update_data = dict(cur_body) if cur_s == 200 and isinstance(cur_body, dict) else {}
+            update_data["status"] = "Replied"
+            update_data["partnership_status"] = "In Progress"
+            s, _ = pg_update_resource("creators", creator_record_id, update_data)
             if s == 200:
                 ok("[1c.2] Creator status -> Replied")
                 checks.append(Check("[1c] Update status -> Replied", True))
@@ -612,26 +607,26 @@ class ExecutorAgent:
             return checks, ctx
 
         seed_ctx = self.signal.get_stage_context("seed")
-        creator_record_id = seed_ctx.get("creator_record_id", "")
+        creator_record_id = seed_ctx.get("creator_pg_id", "") or seed_ctx.get("creator_record_id", "")
         if not creator_record_id:
-            records = at_find(AT_CREATORS, "Email", self.config.test_email)
-            creator_record_id = records[0]["id"] if records else ""
+            creators = pg_find_creators(self.config.test_email)
+            creator_record_id = creators[0]["id"] if creators else ""
 
-        conv_fields = {
-            "Subject": f"Re: {subj}",
-            "Channel": "Email",
-            "Direction": "Outbound",
-            "Message Content": confirm_body,
+        conv_data = {
+            "subject": f"Re: {subj}",
+            "channel": "Email",
+            "direction": "Outbound",
+            "message_content": confirm_body,
         }
         if creator_record_id:
-            conv_fields["Creator"] = [creator_record_id]
+            conv_data["creator"] = creator_record_id
 
         info(f"  [1d.1] Creating Conversations record (confirmation)")
-        status, resp = at_create(AT_CONVERSATIONS, conv_fields)
+        status, resp = pg_create_resource("conversations", conv_data)
         if status in (200, 201) and isinstance(resp, dict) and resp.get("id"):
             conv_id = resp["id"]
             ok(f"[1d.1] Confirmation logged: {conv_id}")
-            checks.append(Check("[1d] Log confirmation email", True, detail=conv_id))
+            checks.append(Check("[1d] Log confirmation email", True, detail=str(conv_id)))
             ctx["confirm_conv_id"] = conv_id
         else:
             fail(f"[1d.1] Failed: {status}")
@@ -639,7 +634,10 @@ class ExecutorAgent:
 
         if creator_record_id:
             info(f"  [1d.2] Updating creator status -> Confirmed")
-            s, _ = at_update(AT_CREATORS, creator_record_id, {"Outreach Status": "Confirmed"})
+            cur_s, cur_body = pg_get_resource("creators", creator_record_id)
+            update_data = dict(cur_body) if cur_s == 200 and isinstance(cur_body, dict) else {}
+            update_data["status"] = "Confirmed"
+            s, _ = pg_update_resource("creators", creator_record_id, update_data)
             if s == 200:
                 ok("[1d.2] Creator status -> Confirmed")
                 checks.append(Check("[1d] Update status -> Confirmed", True))
@@ -708,10 +706,10 @@ class ExecutorAgent:
 
         # Wait for n8n 5-way processing:
         # 1) Shopify customer lookup/create 2) Draft Order 3) Metafields
-        # 4) Airtable CRM 5) PostgreSQL
+        # 4) PostgreSQL pipeline_creators 5) PostgreSQL gifting_applications
         wait_sec = 14
         info(f"  [2.3] Waiting {wait_sec}s for n8n 5-way processing...")
-        info(f"        -> Shopify customer + Draft Order + Metafields + Airtable + PostgreSQL")
+        info(f"        -> Shopify customer + Draft Order + Metafields + PostgreSQL")
         time.sleep(wait_sec)
         checks.append(Check(f"[2] Wait {wait_sec}s for n8n", True))
 
@@ -784,7 +782,7 @@ class ExecutorAgent:
 
         wait_sec = 15
         info(f"  [4.3] Waiting {wait_sec}s for n8n Draft Order creation...")
-        info(f"        -> Shopify Draft Order (100% discount) + Airtable update + PG upsert")
+        info(f"        -> Shopify Draft Order (100% discount) + PG upsert")
         time.sleep(wait_sec)
         checks.append(Check(f"[4] Wait {wait_sec}s for Draft Order", True))
 
@@ -1181,23 +1179,20 @@ class VerifierAgent:
             return checks
 
         # Check Conversations for draft
-        info(f"  [V-1a.1] Checking AT Conversations for subject containing '{test_ig}'")
-        formula = urllib.parse.quote(f"FIND('{test_ig}', {{Subject}})")
-        url = f"https://api.airtable.com/v0/{AT_BASE}/{AT_CONVERSATIONS}?filterByFormula={formula}&maxRecords=5"
-        status, body = http_request("GET", url, headers=_at_headers())
-        records = body.get("records", []) if isinstance(body, dict) else []
+        info(f"  [V-1a.1] Checking PG Conversations for subject containing '{test_ig}'")
+        records = pg_find_resource("conversations", "subject", test_ig)
         if records:
             ok(f"[V-1a.1] Conversations draft found ({len(records)} records)")
-            checks.append(Check("[V-1a] AT Conversations: draft exists", True, detail=records[0]["id"]))
+            checks.append(Check("[V-1a] PG Conversations: draft exists", True, detail=str(records[0]["id"])))
         else:
             warn(f"[V-1a.1] No draft in Conversations (AI may have failed)")
-            checks.append(Check("[V-1a] AT Conversations: draft exists", None, detail="AI draft may take longer"))
+            checks.append(Check("[V-1a] PG Conversations: draft exists", None, detail="AI draft may take longer"))
 
         # Check Creator status changed from "Not Started"
         info(f"  [V-1a.2] Checking Creator status (expected: not 'Not Started')")
-        cr_records = at_find(AT_CREATORS, "Email", email)
+        cr_records = pg_find_creators(email)
         if cr_records:
-            cr_status = cr_records[0].get("fields", {}).get("Outreach Status", "")
+            cr_status = cr_records[0].get("status", "")
             info(f"         Current status: {cr_status}")
             checks.append(Check("[V-1a] Creator status changed", True, detail=cr_status))
         else:
@@ -1218,11 +1213,9 @@ class VerifierAgent:
         outreach_conv_id = ctx.get("outreach_conv_id", "")
         if outreach_conv_id:
             info(f"  [V-1b.1] Verifying outreach Conversations record {outreach_conv_id}")
-            url = f"https://api.airtable.com/v0/{AT_BASE}/{AT_CONVERSATIONS}/{outreach_conv_id}"
-            status, body = http_request("GET", url, headers=_at_headers())
+            status, body = pg_get_resource("conversations", outreach_conv_id)
             if status == 200 and isinstance(body, dict):
-                fields = body.get("fields", {})
-                direction = fields.get("Direction", "")
+                direction = body.get("direction", "")
                 ok(f"[V-1b.1] Outreach email exists (Direction: {direction})")
                 checks.append(Check("[V-1b] Outreach email in Conversations", True))
                 if direction == "Outbound":
@@ -1235,9 +1228,9 @@ class VerifierAgent:
             checks.append(Check("[V-1b] Outreach email in Conversations", None, detail="No conv_id in context"))
 
         # Check Creator status = Sent
-        cr_records = at_find(AT_CREATORS, "Email", self.config.test_email)
+        cr_records = pg_find_creators(self.config.test_email)
         if cr_records:
-            cr_status = cr_records[0].get("fields", {}).get("Outreach Status", "")
+            cr_status = cr_records[0].get("status", "")
             if cr_status == "Sent":
                 ok(f"[V-1b.2] Creator status = Sent")
                 checks.append(Check("[V-1b] Creator status = Sent", True))
@@ -1259,10 +1252,9 @@ class VerifierAgent:
 
         reply_conv_id = ctx.get("reply_conv_id", "")
         if reply_conv_id:
-            url = f"https://api.airtable.com/v0/{AT_BASE}/{AT_CONVERSATIONS}/{reply_conv_id}"
-            status, body = http_request("GET", url, headers=_at_headers())
+            status, body = pg_get_resource("conversations", reply_conv_id)
             if status == 200 and isinstance(body, dict):
-                direction = body.get("fields", {}).get("Direction", "")
+                direction = body.get("direction", "")
                 ok(f"[V-1c.1] Reply email exists (Direction: {direction})")
                 checks.append(Check("[V-1c] Reply in Conversations", True))
                 if direction == "Inbound":
@@ -1274,9 +1266,9 @@ class VerifierAgent:
         else:
             checks.append(Check("[V-1c] Reply in Conversations", None, detail="No conv_id in context"))
 
-        cr_records = at_find(AT_CREATORS, "Email", self.config.test_email)
+        cr_records = pg_find_creators(self.config.test_email)
         if cr_records:
-            cr_status = cr_records[0].get("fields", {}).get("Outreach Status", "")
+            cr_status = cr_records[0].get("status", "")
             if cr_status == "Replied":
                 ok("[V-1c.2] Creator status = Replied")
                 checks.append(Check("[V-1c] Creator status = Replied", True))
@@ -1297,8 +1289,7 @@ class VerifierAgent:
 
         confirm_conv_id = ctx.get("confirm_conv_id", "")
         if confirm_conv_id:
-            url = f"https://api.airtable.com/v0/{AT_BASE}/{AT_CONVERSATIONS}/{confirm_conv_id}"
-            status, body = http_request("GET", url, headers=_at_headers())
+            status, body = pg_get_resource("conversations", confirm_conv_id)
             if status == 200 and isinstance(body, dict):
                 ok(f"[V-1d.1] Confirmation email exists")
                 checks.append(Check("[V-1d] Confirmation in Conversations", True))
@@ -1307,9 +1298,9 @@ class VerifierAgent:
         else:
             checks.append(Check("[V-1d] Confirmation in Conversations", None, detail="No conv_id"))
 
-        cr_records = at_find(AT_CREATORS, "Email", self.config.test_email)
+        cr_records = pg_find_creators(self.config.test_email)
         if cr_records:
-            cr_status = cr_records[0].get("fields", {}).get("Outreach Status", "")
+            cr_status = cr_records[0].get("status", "")
             if cr_status == "Confirmed":
                 ok("[V-1d.2] Creator status = Confirmed")
                 checks.append(Check("[V-1d] Creator status = Confirmed", True))
@@ -1317,10 +1308,7 @@ class VerifierAgent:
                 checks.append(Check("[V-1d] Creator status = Confirmed", False, expected="Confirmed", actual=cr_status))
 
         # Cross-system: count total Conversations for this creator
-        formula = urllib.parse.quote(f"FIND('{test_ig}', {{Subject}})")
-        url = f"https://api.airtable.com/v0/{AT_BASE}/{AT_CONVERSATIONS}?filterByFormula={formula}&maxRecords=10"
-        status, body = http_request("GET", url, headers=_at_headers())
-        records = body.get("records", []) if isinstance(body, dict) else []
+        records = pg_find_resource("conversations", "subject", test_ig, max_records=10)
         conv_count = len(records)
         expected_min = 3  # outreach + reply + confirm
         info(f"  [V-1d.3] X-SYS: Total conversation records: {conv_count} (expected >= {expected_min})")
@@ -1856,7 +1844,7 @@ body {{ font-family: 'Noto Sans KR', -apple-system, sans-serif; background: #faf
             "email_approve": "Stage 1b: Marketer Approves Draft -> Outreach Sent",
             "email_reply": "Stage 1c: Influencer Reply -> Status Replied",
             "email_confirm": "Stage 1d: Confirmation Email + Gifting Form Link",
-            "gifting": "Stage 2: Gifting Application -> Shopify + Airtable + PG (5-way)",
+            "gifting": "Stage 2: Gifting Application -> Shopify + PG (5-way)",
             "gifting2": "Stage 4: Sample Request -> Draft Order (100% Discount)",
             "sample_sent": "Stage 5: Sample Sent -> n8n Poll -> Draft Order Complete",
         }.get(stage_name, stage_name)

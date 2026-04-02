@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Migrate Airtable Creators table -> PostgreSQL onz_pipeline_creators.
+"""DEPRECATED — Migrate Airtable Creators table -> PostgreSQL onz_pipeline_creators.
 
-One-time migration script. Reads all records from Airtable Creators table
-and upserts them into EC2 PG via the Django API.
+One-time migration script. Migration completed 2026-03-31.
+All pipeline data now lives in PostgreSQL via Django API (orbitools).
+Airtable is no longer used.
 
-Usage:
+Kept for reference only. Do not run.
+
+Usage (historical):
     python tools/migrate_airtable_to_pg.py              # dry-run (preview)
     python tools/migrate_airtable_to_pg.py --execute    # actually migrate
     python tools/migrate_airtable_to_pg.py --dump       # dump AT data to JSON
