@@ -160,8 +160,8 @@ SELLER_CONFIGS = [
     {
         "name": "Grosmimi JP", "brand": "Grosmimi",
         "refresh_token": os.getenv("AMZ_SP_REFRESH_TOKEN_GROSMIMI_JP", ""),
-        "client_id": os.getenv("AMZ_SP_GROSMIMI_CLIENT_ID") or AMZ_SP_CLIENT_ID,
-        "client_secret": os.getenv("AMZ_SP_GROSMIMI_CLIENT_SECRET") or AMZ_SP_CLIENT_SECRET,
+        "client_id": os.getenv("AMZ_SP_GROSMIMI_JP_CLIENT_ID") or os.getenv("AMZ_SP_GROSMIMI_CLIENT_ID") or AMZ_SP_CLIENT_ID,
+        "client_secret": os.getenv("AMZ_SP_GROSMIMI_JP_CLIENT_SECRET") or os.getenv("AMZ_SP_GROSMIMI_CLIENT_SECRET") or AMZ_SP_CLIENT_SECRET,
         "seller_id": os.getenv("AMZ_SP_GROSMIMI_JP_SELLER_ID", "A1A01CME113JSP"),
         "marketplace_id": "A1VC38T7YXB528",
         "region": "JP",
@@ -810,6 +810,16 @@ def collect_amazon_ads_keywords(date_from: str, date_to: str) -> list[dict]:
     return all_rows
 
 
+def _sp_api_base(seller):
+    """Return SP-API base URL for seller's region."""
+    region = seller.get("region", "US").upper()
+    if region == "JP":
+        return "https://sellingpartnerapi-fe.amazon.com"
+    elif region in ("EU", "UK", "DE", "FR", "IT", "ES"):
+        return "https://sellingpartnerapi-eu.amazon.com"
+    return "https://sellingpartnerapi-na.amazon.com"
+
+
 def collect_amazon_sales(date_from: str, date_to: str) -> list[dict]:
     """Collect Amazon SP-API sales (all sellers)."""
     print("[Amazon Sales] Collecting...")
@@ -903,6 +913,7 @@ def collect_amazon_sales(date_from: str, date_to: str) -> list[dict]:
 
 def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
     """Fetch SP-API flat-file orders report for a date range."""
+    base = _sp_api_base(seller)
     try:
         body = {
             "reportType": "GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL",
@@ -911,7 +922,7 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
             "marketplaceIds": [marketplace_id],
         }
         r = requests.post(
-            "https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/reports",
+            f"{base}/reports/2021-06-30/reports",
             headers=headers, json=body, timeout=30,
         )
         if r.status_code >= 400:
@@ -924,7 +935,7 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
         for _ in range(60):
             time.sleep(10)
             r2 = requests.get(
-                f"https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/reports/{report_id}",
+                f"{base}/reports/2021-06-30/reports/{report_id}",
                 headers=headers, timeout=30,
             )
             r2.raise_for_status()
@@ -939,7 +950,7 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
 
         # Download document
         r3 = requests.get(
-            f"https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/documents/{doc_id}",
+            f"{base}/reports/2021-06-30/documents/{doc_id}",
             headers=headers, timeout=30,
         )
         r3.raise_for_status()
@@ -1033,13 +1044,14 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
 
 def _fetch_fba_fees(headers, seller, marketplace_id) -> dict:
     """Fetch ASIN -> FBA fulfillment fee per unit from SP-API estimated fees report."""
+    base = _sp_api_base(seller)
     try:
         body = {
             "reportType": "GET_FBA_ESTIMATED_FBA_FEES_TXT_DATA",
             "marketplaceIds": [marketplace_id],
         }
         r = requests.post(
-            "https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/reports",
+            f"{base}/reports/2021-06-30/reports",
             headers=headers, json=body, timeout=30,
         )
         if r.status_code >= 400:
@@ -1051,7 +1063,7 @@ def _fetch_fba_fees(headers, seller, marketplace_id) -> dict:
         for _ in range(60):
             time.sleep(10)
             r2 = requests.get(
-                f"https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/reports/{report_id}",
+                f"{base}/reports/2021-06-30/reports/{report_id}",
                 headers=headers, timeout=30,
             )
             r2.raise_for_status()
@@ -1067,7 +1079,7 @@ def _fetch_fba_fees(headers, seller, marketplace_id) -> dict:
             return {}
 
         r3 = requests.get(
-            f"https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/documents/{doc_id}",
+            f"{base}/reports/2021-06-30/documents/{doc_id}",
             headers=headers, timeout=30,
         )
         r3.raise_for_status()
@@ -1238,6 +1250,7 @@ def _fetch_brand_analytics_report(headers, start, end, seller, marketplace_id, o
     """
     if asin_brand_map is None:
         asin_brand_map = {}
+    base = _sp_api_base(seller)
     try:
         body = {
             "reportType": "GET_BRAND_ANALYTICS_SEARCH_TERMS_REPORT",
@@ -1249,7 +1262,7 @@ def _fetch_brand_analytics_report(headers, start, end, seller, marketplace_id, o
             },
         }
         r = requests.post(
-            "https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/reports",
+            f"{base}/reports/2021-06-30/reports",
             headers=headers, json=body, timeout=30,
         )
         if r.status_code == 403:
@@ -1282,7 +1295,7 @@ def _fetch_brand_analytics_report(headers, start, end, seller, marketplace_id, o
                 pass  # use existing token
 
             r2 = requests.get(
-                f"https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/reports/{report_id}",
+                f"{base}/reports/2021-06-30/reports/{report_id}",
                 headers=headers, timeout=30,
             )
             r2.raise_for_status()
@@ -1301,7 +1314,7 @@ def _fetch_brand_analytics_report(headers, start, end, seller, marketplace_id, o
 
         # Download document — stream to temp file to avoid OOM on 3GB+ reports
         r3 = requests.get(
-            f"https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/documents/{doc_id}",
+            f"{base}/reports/2021-06-30/documents/{doc_id}",
             headers=headers, timeout=30,
         )
         r3.raise_for_status()
