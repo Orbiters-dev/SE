@@ -880,3 +880,61 @@ def run_gate3(brand: str = None, codex_analyze: bool = False) -> dict:
     out_path.write_text(json.dumps(result, indent=2, default=str), encoding="utf-8")
     print(f"\n  Gate 3 complete. {loop3['insights_count']} insights generated.")
     return result
+
+
+# ─── CLI Entry Point ───────────────────────────────────────────────────────
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="PPC Cross-Verifier — 3-Gate x 3-Loop data consistency checker",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  %(prog)s --gate 1 --loops 3 --fail-action block
+  %(prog)s --gate 2 --brand naeiae --proposal-path .tmp/ppc_proposal_naeiae_*.json
+  %(prog)s --gate 3 --loops 3 --codex-analyze
+  %(prog)s --gate 1 --brand naeiae
+""")
+
+    parser.add_argument("--gate", "-g", type=int, required=True, choices=[1, 2, 3],
+                        help="Gate number (1=pre-propose, 2=pre-execute, 3=post-execute)")
+    parser.add_argument("--loops", type=int, default=3, help="Number of verification loops (default: 3)")
+    parser.add_argument("--brand", "-b", type=str, default=None,
+                        help="Brand filter (naeiae/grosmimi/chaenmom, default: all)")
+    parser.add_argument("--fail-action", type=str, default="block", choices=["block", "warn"],
+                        help="Action on failure: block (exit 1) or warn (exit 0)")
+    parser.add_argument("--proposal-path", type=str, default=None,
+                        help="Path to proposal JSON (Gate 2)")
+    parser.add_argument("--codex-analyze", action="store_true",
+                        help="Enable Codex root cause analysis (Gate 3)")
+
+    args = parser.parse_args()
+    brands = [args.brand] if args.brand else BRAND_KEYS
+
+    if args.gate == 1:
+        results = []
+        for b in brands:
+            r = run_gate1(brand=b)
+            results.append(r)
+        all_pass = all(r.get("pass", False) for r in results)
+        if not all_pass and args.fail_action == "block":
+            print(f"\n  GATE 1 BLOCKED — data inconsistency detected")
+            sys.exit(1)
+    elif args.gate == 2:
+        results = []
+        for b in brands:
+            r = run_gate2(brand=b, proposal_path=args.proposal_path)
+            results.append(r)
+        all_pass = all(r.get("pass", False) for r in results)
+        if not all_pass and args.fail_action == "block":
+            print(f"\n  GATE 2 BLOCKED — safety check failed")
+            sys.exit(1)
+    elif args.gate == 3:
+        for b in brands:
+            run_gate3(brand=b, codex_analyze=args.codex_analyze)
+
+    print(f"\n  All gates complete.")
+
+
+if __name__ == "__main__":
+    main()

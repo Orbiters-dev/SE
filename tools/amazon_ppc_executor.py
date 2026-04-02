@@ -1006,6 +1006,20 @@ def analyze_search_terms(
             b["campaignId"] = r.get("campaignId") or r.get("campaign_id")
             b["adGroupId"] = r.get("adGroupId") or r.get("ad_group_id")
 
+    # Compute dynamic AOV from aggregated search term data (replaces hardcoded $20)
+    total_st_sales = sum(v["sales"] for v in agg.values())
+    total_st_purchases = sum(v["purchases"] for v in agg.values())
+    dynamic_aov = (total_st_sales / total_st_purchases) if total_st_purchases >= 3 else 20.0
+    # Safety bounds: never let AOV go below $2 (prevents absurd thresholds on data glitches)
+    dynamic_aov = max(2.0, min(dynamic_aov, 200.0))
+
+    # Adaptive harvest thresholds for low-AOV products
+    # Low-AOV items accumulate clicks slowly per term; relax minimums proportionally
+    if dynamic_aov < 10.0:
+        harvest_min_clicks = max(3, int(HARVEST_MIN_CLICKS * dynamic_aov / 10.0))
+    else:
+        harvest_min_clicks = HARVEST_MIN_CLICKS
+
     harvest = []
     negate = []
 
@@ -1040,7 +1054,7 @@ def analyze_search_terms(
         # --- Harvesting: profitable terms not yet in exact match ---
         if (acos is not None
                 and acos < presets["desired_acos"]
-                and clicks >= HARVEST_MIN_CLICKS
+                and clicks >= harvest_min_clicks
                 and m["purchases"] >= HARVEST_MIN_SALES
                 and term not in existing_exact):
             # Market-Weighted Harvest Score (BA enrichment)
@@ -1101,7 +1115,7 @@ def analyze_search_terms(
         # --- Negative: zero sales with high spend ---
         # Skip if already negated in a previous execution
         already_negated = executed_history.get("negated_terms", set()) if executed_history else set()
-        target_cpa = presets["desired_acos"] * 20  # rough estimate: $20 AOV * target ACOS
+        target_cpa = presets["desired_acos"] * dynamic_aov  # dynamic AOV from actual search term data
 
         # Dynamic negate threshold based on BA search frequency rank
         # High-volume keywords get more patience; low-volume get cut faster
@@ -5882,6 +5896,22 @@ def run_propose_single(args, brand_key: str):
     else:
         print(f"\n[9/9] Email skipped (use --send-email to send). Proposal saved to {filepath}")
 
+    # --- Gate 2: Pre-Execute Safety Check ---
+    if getattr(args, "auto_execute", False) or getattr(args, "pre_execute_gate", False):
+        try:
+            from ppc_cross_verifier import run_gate2
+            gate2_result = run_gate2(brand=brand_key)
+            if not gate2_result.get("pass", False):
+                print(f"\n  [GATE 2 BLOCKED] Pre-execute safety check failed for {brand_display}")
+                print(f"  Skipping auto-execute. Review .tmp/ppc_xv_gate2_result.json")
+                return
+            else:
+                print(f"  [GATE 2 PASS] Pre-execute safety check cleared for {brand_display}")
+        except ImportError:
+            print(f"  [WARN] ppc_cross_verifier not available — skipping Gate 2")
+        except Exception as e:
+            print(f"  [WARN] Gate 2 check failed: {e} — proceeding with caution")
+
     # --- Auto-Execute: immediately execute auto-approved proposals ---
     if getattr(args, "auto_execute", False):
         # SAFEGUARD: Grosmimi auto-execute is permanently disabled
@@ -5966,6 +5996,8 @@ def main():
     parser.add_argument("--cc", type=str, default=DEFAULT_CC, help="CC email recipient")
     parser.add_argument("--auto-execute", action="store_true",
                         help="Auto-execute proposals that match autopilot tier settings (no email needed)")
+    parser.add_argument("--pre-execute-gate", action="store_true",
+                        help="Run Gate 2 safety check before auto-execute")
     parser.add_argument("--skip-keywords", action="store_true",
                         help="Skip search term & keyword analysis (faster, campaign-level only)")
     parser.add_argument("--verify", action="store_true",
