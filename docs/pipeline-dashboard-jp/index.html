@@ -352,6 +352,26 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         </button>
         <span id="draft-status" style="font-size:11px;color:var(--dim)"></span>
       </div>
+      <!-- Priority toggles -->
+      <div style="display:flex;gap:16px;align-items:center;margin-top:8px;flex-wrap:wrap">
+        <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
+          <input type="checkbox" id="draft-video-priority" checked style="width:15px;height:15px;accent-color:var(--a)">
+          &#x1F3AC; 영상 우선
+        </label>
+        <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
+          <input type="checkbox" id="draft-view-priority" checked style="width:15px;height:15px;accent-color:var(--a)">
+          &#x1F441; View 우선순위
+        </label>
+        <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
+          <input type="checkbox" id="draft-quality-priority" style="width:15px;height:15px;accent-color:var(--a)">
+          &#x2B50; Quality Score 우선
+        </label>
+        <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
+          <input type="checkbox" id="draft-baby-filter" style="width:15px;height:15px;accent-color:var(--a)">
+          &#x1F476; 신생아/영아(0-2y) 등장만
+        </label>
+        <span style="font-size:9px;color:var(--muted)">ON = 해당 조건의 크리에이터를 배치 상단에 배치</span>
+      </div>
     </div>
 
     <!-- Execute bar -->
@@ -508,6 +528,59 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
           <tr><td>ステンレスストローカップ</td><td>300ml</td><td>&#xA5;6,200</td><td>12ヶ月〜</td></tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- ===== SCORING LAB ===== -->
+    <div class="card" style="border-left:3px solid #8b5cf6">
+      <h3>&#x1F9EA; Content Scoring Lab</h3>
+      <div class="desc">가중치 조정 → 실시간 크리에이터 스코어 재계산. 최적 배합 테스트용.</div>
+      <div style="display:grid;gap:12px;margin-top:12px">
+        <div style="display:flex;gap:20px;flex-wrap:wrap">
+          <div style="flex:1;min-width:180px">
+            <label style="font-size:10px;font-weight:700;color:var(--dim)">Delivery Verbal <span id="lab-w-dv-val" style="color:var(--a)">40</span>%</label>
+            <input type="range" id="lab-w-dv" min="0" max="100" value="40" oninput="recalcScoreLab()" style="width:100%">
+          </div>
+          <div style="flex:1;min-width:180px">
+            <label style="font-size:10px;font-weight:700;color:var(--dim)">Views <span id="lab-w-views-val" style="color:var(--a)">25</span>%</label>
+            <input type="range" id="lab-w-views" min="0" max="100" value="25" oninput="recalcScoreLab()" style="width:100%">
+          </div>
+          <div style="flex:1;min-width:180px">
+            <label style="font-size:10px;font-weight:700;color:var(--dim)">Followers <span id="lab-w-fol-val" style="color:var(--a)">15</span>%</label>
+            <input type="range" id="lab-w-fol" min="0" max="100" value="15" oninput="recalcScoreLab()" style="width:100%">
+          </div>
+          <div style="flex:1;min-width:180px">
+            <label style="font-size:10px;font-weight:700;color:var(--dim)">Hook Score <span id="lab-w-hook-val" style="color:var(--a)">10</span>%</label>
+            <input type="range" id="lab-w-hook" min="0" max="100" value="10" oninput="recalcScoreLab()" style="width:100%">
+          </div>
+          <div style="flex:1;min-width:180px">
+            <label style="font-size:10px;font-weight:700;color:var(--dim)">Engagement Rate <span id="lab-w-eng-val" style="color:var(--a)">10</span>%</label>
+            <input type="range" id="lab-w-eng" min="0" max="100" value="10" oninput="recalcScoreLab()" style="width:100%">
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-sm" style="background:#8b5cf6;color:#fff" onclick="recalcScoreLab()">&#x1F504; Recalculate</button>
+          <button class="btn btn-sm btn-secondary" onclick="applyScoreLabWeights()">&#x2705; Apply to DM Queue</button>
+          <span id="lab-total-pct" style="font-size:10px;color:var(--dim)">Total: 100%</span>
+        </div>
+        <div style="overflow-x:auto;max-height:400px;overflow-y:auto">
+          <table class="ct" id="lab-results-table" style="width:100%">
+            <thead>
+              <tr>
+                <th style="cursor:pointer" onclick="sortLabTable('rank')">Rank</th>
+                <th>Platform</th>
+                <th style="cursor:pointer" onclick="sortLabTable('handle')">Handle</th>
+                <th style="cursor:pointer" onclick="sortLabTable('score')">Score</th>
+                <th>DV</th>
+                <th>Views</th>
+                <th>Followers</th>
+                <th>Hook</th>
+                <th>Eng%</th>
+              </tr>
+            </thead>
+            <tbody id="lab-results-body"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1064,17 +1137,66 @@ function generateDrafts() {
   btn.disabled = true;
   statusEl.innerHTML = '<span class="loading-spinner"></span> Generating via n8n...';
 
-  // Filter: only not_started AND no DM history
+  // Filter: only not_started AND no DM history AND not past-contacted
   var eligible = _creators.filter(function(c) {
-    return c.status === 'not_started' && c.dm_count === 0;
+    return c.status === 'not_started' && c.dm_count === 0 && !hasPastContact(c);
   });
+
+  // Priority toggles
+  var videoPriority = document.getElementById('draft-video-priority').checked;
+  var viewPriority = document.getElementById('draft-view-priority').checked;
+  var qualityPriority = document.getElementById('draft-quality-priority').checked;
+  var babyFilter = document.getElementById('draft-baby-filter').checked;
+
+  // Baby filter: only creators who have at least one infant post (subject_age=infant)
+  if (babyFilter) {
+    eligible = eligible.filter(function(c) {
+      var sd = _sheetData.find(function(s) { return s.username === c.username; });
+      if (!sd) return false;
+      var posts = sd._posts || [];
+      return posts.some(function(p) { return p.subject_age === 'infant'; });
+    });
+  }
+
+  if (videoPriority || viewPriority || qualityPriority) {
+    eligible.forEach(function(c) {
+      var sd = _sheetData.find(function(s) { return s.username === c.username; });
+      c._hasVideo = sd ? creatorHasVideo(sd) : false;
+      c._bestViews = sd ? (sd._bestViews || 0) : 0;
+      if (sd && sd._posts) {
+        var scores = sd._posts.map(function(p) { return p.brand_fit_score || 0; });
+        c._bestQuality = scores.length ? Math.max.apply(null, scores) : 0;
+        // Also check delivery_verbal_score as proxy when brand_fit is 0
+        var dvScores = sd._posts.map(function(p) { return p.delivery_verbal_score || 0; });
+        c._bestDelivery = dvScores.length ? Math.max.apply(null, dvScores) : 0;
+      } else {
+        c._bestQuality = 0;
+        c._bestDelivery = 0;
+      }
+    });
+    eligible.sort(function(a, b) {
+      if (videoPriority) {
+        if (a._hasVideo && !b._hasVideo) return -1;
+        if (!a._hasVideo && b._hasVideo) return 1;
+      }
+      if (qualityPriority) {
+        // Use delivery_verbal_score as primary (brand_fit is mostly 0 for discovery)
+        var qDiff = (b._bestDelivery || 0) - (a._bestDelivery || 0);
+        if (qDiff !== 0) return qDiff;
+      }
+      if (viewPriority) {
+        return (b._bestViews || 0) - (a._bestViews || 0);
+      }
+      return 0;
+    });
+  }
+
   var batch = parseInt(document.getElementById('draft-batch-size').value) || 10;
   var igCount = document.getElementById('draft-ig-count').value ? parseInt(document.getElementById('draft-ig-count').value) : -1;
   var ttCount = document.getElementById('draft-tt-count').value ? parseInt(document.getElementById('draft-tt-count').value) : -1;
 
   var toGenerate;
   if (igCount >= 0 || ttCount >= 0) {
-    // Platform-specific batch: pick N from each platform
     var igPool = eligible.filter(function(c) { return (c.platform || '').toLowerCase() !== 'tiktok'; });
     var ttPool = eligible.filter(function(c) { return (c.platform || '').toLowerCase() === 'tiktok'; });
     var picked = [];
@@ -1574,6 +1696,81 @@ function sendGuidelines(handle) {
   }).catch(function() {
     showToast('Guidelines send failed', 'err');
   });
+}
+
+// ─── Scoring Lab ───
+var _labSortCol = 'score', _labSortAsc = false;
+function recalcScoreLab() {
+  var wDV = parseInt(document.getElementById('lab-w-dv').value) || 0;
+  var wViews = parseInt(document.getElementById('lab-w-views').value) || 0;
+  var wFol = parseInt(document.getElementById('lab-w-fol').value) || 0;
+  var wHook = parseInt(document.getElementById('lab-w-hook').value) || 0;
+  var wEng = parseInt(document.getElementById('lab-w-eng').value) || 0;
+  // Update display values
+  document.getElementById('lab-w-dv-val').textContent = wDV;
+  document.getElementById('lab-w-views-val').textContent = wViews;
+  document.getElementById('lab-w-fol-val').textContent = wFol;
+  document.getElementById('lab-w-hook-val').textContent = wHook;
+  document.getElementById('lab-w-eng-val').textContent = wEng;
+  var total = wDV + wViews + wFol + wHook + wEng;
+  document.getElementById('lab-total-pct').textContent = 'Total: ' + total + '%' + (total !== 100 ? ' ⚠️' : ' ✓');
+
+  // Gather creators with CI data
+  var scored = [];
+  _sheetData.forEach(function(c) {
+    if (!c._posts || c._posts.length === 0) return;
+    var bestDV = 0, bestHook = 0, bestViews = c._bestViews || 0;
+    c._posts.forEach(function(p) {
+      if ((p.delivery_verbal_score || 0) > bestDV) bestDV = p.delivery_verbal_score;
+      if ((p.hook_score || 0) > bestHook) bestHook = p.hook_score;
+    });
+    var fol = c.followers || 0;
+    var engRate = bestViews > 0 && fol > 0 ? Math.min(((c._bestLikes || 0) + (c._totalComments || 0)) / fol * 100, 100) : 0;
+    // Normalize: DV 0-10, Hook 0-10, Views log scale, Followers log scale, EngRate 0-100
+    var nDV = bestDV / 10;
+    var nHook = bestHook / 10;
+    var nViews = bestViews > 0 ? Math.min(Math.log10(bestViews) / 7, 1) : 0;
+    var nFol = fol > 0 ? Math.min(Math.log10(fol) / 7, 1) : 0;
+    var nEng = Math.min(engRate / 10, 1);
+    var score = (nDV * wDV + nViews * wViews + nFol * wFol + nHook * wHook + nEng * wEng) / (total || 1) * 100;
+    scored.push({
+      handle: c.username, platform: c._posts[0].platform || 'instagram',
+      score: Math.round(score * 10) / 10,
+      dv: bestDV, views: bestViews, fol: fol, hook: bestHook, eng: Math.round(engRate * 10) / 10
+    });
+  });
+  // Sort
+  scored.sort(function(a, b) {
+    var va = a[_labSortCol], vb = b[_labSortCol];
+    if (typeof va === 'string') return _labSortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    return _labSortAsc ? va - vb : vb - va;
+  });
+  // Render
+  var html = '';
+  scored.forEach(function(s, i) {
+    var platBadge = s.platform === 'tiktok' ? '<span style="font-size:9px;background:#000;color:#fff;padding:1px 5px;border-radius:3px">TT</span>' : '<span style="font-size:9px;background:linear-gradient(45deg,#f09433,#dc2743,#bc1888);color:#fff;padding:1px 5px;border-radius:3px">IG</span>';
+    var scoreColor = s.score >= 70 ? 'var(--g)' : s.score >= 40 ? 'var(--am)' : 'var(--dim)';
+    html += '<tr>';
+    html += '<td style="font-weight:700;color:' + scoreColor + '">#' + (i+1) + '</td>';
+    html += '<td>' + platBadge + '</td>';
+    html += '<td style="font-size:11px">@' + s.handle + '</td>';
+    html += '<td style="font-weight:700;color:' + scoreColor + '">' + s.score + '</td>';
+    html += '<td>' + s.dv + '</td>';
+    html += '<td>' + (s.views ? s.views.toLocaleString() : '-') + '</td>';
+    html += '<td>' + (s.fol ? s.fol.toLocaleString() : '-') + '</td>';
+    html += '<td>' + s.hook + '</td>';
+    html += '<td>' + s.eng + '%</td>';
+    html += '</tr>';
+  });
+  document.getElementById('lab-results-body').innerHTML = html || '<tr><td colspan="9" style="text-align:center;color:var(--dim)">Load Influencer Sheet first</td></tr>';
+}
+function sortLabTable(col) {
+  if (_labSortCol === col) _labSortAsc = !_labSortAsc;
+  else { _labSortCol = col; _labSortAsc = false; }
+  recalcScoreLab();
+}
+function applyScoreLabWeights() {
+  showToast('Score weights applied to DM queue sort', 'ok');
 }
 
 // ─── Config management ───
