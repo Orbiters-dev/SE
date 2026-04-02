@@ -87,6 +87,10 @@ TOOLS = {
         "script": ROOT / "tools" / "data_keeper.py",
         "label": "Data Keeper Freshness Auditor",
     },
+    "ppc": {
+        "script": ROOT / "tools" / "ppc_cross_verifier.py",
+        "label": "PPC Cross-Verification Auditor",
+    },
 }
 
 # ─── Codex exec config ──────────────────────────────────────────────────────
@@ -129,6 +133,7 @@ DOMAIN_MISTAKE_KEYWORDS = {
     "kpi": ["KPI 리포트"],
     "crawl": ["CI 팀장", "크롤러"],
     "datakeeper": ["데이터 키퍼"],
+    "ppc": ["PPC", "Amazon Ads", "ACOS", "ROAS", "bid", "budget"],
 }
 
 MISTAKES_PATH = ROOT / "memory" / "mistakes.md"

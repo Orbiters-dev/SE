@@ -720,3 +720,163 @@ def detect_hashtag_surge(brand: str) -> list:
                 "recommendation": "Consider preemptive bid increase for related PPC keywords",
             })
     return sorted(surges, key=lambda x: x["surge_ratio"], reverse=True)[:10]
+
+
+# ─── Gate 3: Post-Execute Analysis ─────────────────────────────────────────
+
+def gate3_loop1_execution_check(exec_log: list, proposals: list) -> dict:
+    """Loop 1: Compare execution results vs approved proposals."""
+    approved = [p for p in proposals if p.get("approved") or p.get("auto_approved")]
+    executed = [e for e in exec_log if e.get("status") == "success"]
+    failed = [e for e in exec_log if e.get("status") in ("throttled", "error", "failed")]
+    partial = len(failed) > 0
+    checks = [{
+        "check": "execution_completeness",
+        "pass": not partial,
+        "approved_count": len(approved),
+        "executed_count": len(executed),
+        "failed_count": len(failed),
+        "failed_items": [{"campaign": f.get("campaignName", "?"), "error": f.get("error", "?")} for f in failed],
+    }]
+    return {
+        "loop": 1, "name": "execution_check",
+        "pass": not partial,
+        "partial_execution": partial,
+        "checks": checks,
+        "failures": checks if partial else [],
+    }
+
+
+def gate3_loop3_generate_insights(gate1_result: dict, gate3_loop1: dict,
+                                   codex_analysis: dict = None,
+                                   budget_rec: dict = None,
+                                   social_trends: dict = None) -> dict:
+    """Loop 3: Generate accumulated insights for next day's Gate 1."""
+    insights = []
+    for f in gate1_result.get("loops", [{}])[0].get("failures", []):
+        insights.append({
+            "type": "data_inconsistency",
+            "detail": f.get("detail", str(f)),
+            "action": "Investigate source divergence before next proposal",
+        })
+    if gate3_loop1.get("partial_execution"):
+        insights.append({
+            "type": "partial_execution",
+            "detail": f"{gate3_loop1['checks'][0].get('failed_count', 0)} changes failed",
+            "action": "Retry failed changes or investigate API throttling",
+        })
+    if codex_analysis:
+        for rec in codex_analysis.get("recommendations", []):
+            insights.append({"type": "codex_recommendation", "detail": rec})
+    if budget_rec:
+        for r in budget_rec.get("recommendations", []):
+            insights.append({
+                "type": "budget_recommendation",
+                "tier": r["tier"],
+                "detail": r.get("reason", ""),
+                "action": r.get("type", ""),
+            })
+    if social_trends:
+        for u in social_trends.get("untapped_keywords", [])[:5]:
+            insights.append({
+                "type": "social_untapped_keyword",
+                "keyword": u["keyword"],
+                "social_frequency": u["social_frequency"],
+                "action": "Consider adding to PPC Manual campaign",
+            })
+    output = {
+        "generated_pst": datetime.now(PST).strftime("%Y-%m-%dT%H:%M:%S%z"),
+        "insights": insights,
+        "gate_failures_today": sum(1 for l in gate1_result.get("loops", []) if not l.get("pass")),
+    }
+    out_path = TMP / "ppc_xv_insights.json"
+    out_path.write_text(json.dumps(output, indent=2, default=str), encoding="utf-8")
+    print(f"  Insights saved: {len(insights)} items -> {out_path}")
+    return output
+
+
+def run_gate3(brand: str = None, codex_analyze: bool = False) -> dict:
+    """Run full Gate 3: Post-Execute Analysis (3 loops)."""
+    print(f"\n{'='*60}")
+    print(f"  GATE 3: Post-Execute Analysis")
+    print(f"{'='*60}")
+    result = {"gate": 3, "brand": brand, "loops": [], "pass": True}
+
+    # Load execution log
+    exec_log_path = ROOT / "docs" / "ppc-dashboard" / "exec_log.json"
+    exec_log = []
+    if exec_log_path.exists():
+        try:
+            data = json.loads(exec_log_path.read_text(encoding="utf-8"))
+            exec_log = data if isinstance(data, list) else data.get("entries", [])
+        except Exception:
+            pass
+
+    # Load latest proposal
+    proposals = []
+    if brand:
+        candidates = sorted(TMP.glob(f"ppc_proposal_{brand}_*.json"), reverse=True)
+        if candidates:
+            try:
+                data = json.loads(candidates[0].read_text(encoding="utf-8"))
+                proposals = data.get("proposals", [])
+            except Exception:
+                pass
+
+    # Loop 1: Execution completeness
+    loop1 = gate3_loop1_execution_check(exec_log, proposals)
+    result["loops"].append(loop1)
+    _print_loop(loop1)
+
+    # Loop 2: Codex root cause (optional)
+    codex_result = None
+    if codex_analyze:
+        print("  Loop 2: Codex analysis -- delegating to codex_auditor.py --domain ppc")
+        import subprocess
+        cmd = [PYTHON, str(ROOT / "tools" / "codex_auditor.py"),
+               "--domain", "ppc", "--audit", "--json-only"]
+        try:
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=300,
+                                  encoding="utf-8", errors="replace")
+            if proc.returncode == 0 and proc.stdout.strip():
+                codex_result = json.loads(proc.stdout.strip())
+        except Exception as e:
+            print(f"  [WARN] Codex analysis failed: {e}")
+        loop2 = {"loop": 2, "name": "codex_analysis", "pass": True,
+                 "codex_ran": codex_result is not None}
+    else:
+        loop2 = {"loop": 2, "name": "codex_analysis", "pass": True, "skipped": True}
+    result["loops"].append(loop2)
+    _print_loop(loop2)
+
+    # Load Gate 1 result
+    gate1_path = TMP / "ppc_xv_gate1_result.json"
+    gate1_result = {}
+    if gate1_path.exists():
+        try:
+            gate1_result = json.loads(gate1_path.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+
+    # Social trends
+    social_trends = None
+    try:
+        social = get_social_trend_keywords(brand or "naeiae", days=30)
+        surges = detect_hashtag_surge(brand or "naeiae")
+        social_trends = {"untapped_keywords": [], "surges": surges, **social}
+    except Exception as e:
+        print(f"  [WARN] Social trend extraction failed: {e}")
+
+    # Loop 3: Generate insights
+    loop3_output = gate3_loop3_generate_insights(
+        gate1_result, loop1, codex_result, None, social_trends
+    )
+    loop3 = {"loop": 3, "name": "insight_generation", "pass": True,
+             "insights_count": len(loop3_output.get("insights", []))}
+    result["loops"].append(loop3)
+    _print_loop(loop3)
+
+    out_path = TMP / "ppc_xv_gate3_result.json"
+    out_path.write_text(json.dumps(result, indent=2, default=str), encoding="utf-8")
+    print(f"\n  Gate 3 complete. {loop3['insights_count']} insights generated.")
+    return result
