@@ -61,6 +61,8 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 .pager{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:12px}
 .pager button{padding:4px 10px;border:1px solid var(--border);border-radius:4px;background:var(--card);cursor:pointer;font-size:11px;font-family:inherit}
 .pager button.on{background:var(--a);color:#fff;border-color:var(--a)}
+.owner-tab{border-right:1px solid var(--border)}.owner-tab:last-child{border-right:none}
+.owner-tab:hover{background:var(--abg);color:var(--a)}.owner-tab.on{background:var(--a);color:#fff}
 .toast{position:fixed;bottom:20px;right:20px;padding:10px 18px;border-radius:8px;font-size:12px;font-weight:600;color:#fff;z-index:999;transform:translateY(100px);opacity:0;transition:.3s}
 .toast.show{transform:translateY(0);opacity:1}
 .toast.ok{background:var(--g)}.toast.err{background:var(--r)}
@@ -257,6 +259,13 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 
   <!-- ===== CREATORS TAB ===== -->
   <div class="mp" id="p-creators">
+    <!-- Owner sub-tabs -->
+    <div style="display:flex;gap:0;margin-bottom:12px;border:2px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content">
+      <div class="owner-tab on" data-owner="" onclick="setOwnerFilter('')" style="padding:7px 18px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">All</div>
+      <div class="owner-tab" data-owner="SE" onclick="setOwnerFilter('SE')" style="padding:7px 18px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">&#x1F9D1; SE</div>
+      <div class="owner-tab" data-owner="KAZ" onclick="setOwnerFilter('KAZ')" style="padding:7px 18px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">&#x1F9D1; KAZ</div>
+      <div class="owner-tab" data-owner="_mine" onclick="setOwnerFilter('_mine')" style="padding:7px 18px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">&#x1F4CC; My</div>
+    </div>
     <div class="filter-bar">
       <input type="text" id="creator-search" placeholder="Search by handle, name..." oninput="filterCreators()">
       <select id="creator-status-filter" onchange="filterCreators()">
@@ -276,6 +285,11 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         <option value="posted">Posted</option>
         <option value="inbound">Inbound</option>
         <option value="needs_review">Needs Review</option>
+      </select>
+      <select id="creator-platform-filter" onchange="filterCreators()" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">
+        <option value="">All Platforms</option>
+        <option value="instagram">&#x1F4F7; Instagram</option>
+        <option value="tiktok">&#x1F3B5; TikTok</option>
       </select>
       <button class="btn btn-sm btn-secondary" onclick="showImportModal()">&#x1F4E5; Import</button>
       <span id="creator-count" style="font-size:11px;color:var(--dim)">0 creators</span>
@@ -765,13 +779,45 @@ function hasPastContact(c) {
   return c.dm_count > 0 || (c.status !== 'not_started' && c.status !== 'inbound');
 }
 
+// ─── Owner Filter ───
+var _ownerFilter = '';
+function setOwnerFilter(owner) {
+  _ownerFilter = owner;
+  document.querySelectorAll('.owner-tab').forEach(function(el) {
+    el.classList.toggle('on', el.getAttribute('data-owner') === owner);
+  });
+  _page = 0;
+  renderCreators();
+}
+
+function getCreatorOwner(c) {
+  // Owner = who drafted/sent this creator. Check assigned_to, then draft_by, then source
+  return c.assigned_to || c.draft_by || '';
+}
+
 // ─── Creators Tab ───
 function renderCreators() {
   var q = (document.getElementById('creator-search').value || '').toLowerCase();
   var sf = document.getElementById('creator-status-filter').value;
+  var pf = (document.getElementById('creator-platform-filter') || {}).value || '';
   var filtered = _creators.filter(function(c) {
     if (sf && c.status !== sf) return false;
     if (q && c.username.toLowerCase().indexOf(q) === -1 && (c.name || '').toLowerCase().indexOf(q) === -1) return false;
+    // Platform filter
+    if (pf) {
+      var cp = (c.platform || '').toLowerCase();
+      if (pf === 'tiktok' && cp !== 'tiktok') return false;
+      if (pf === 'instagram' && cp === 'tiktok') return false;
+    }
+    // Owner filter
+    if (_ownerFilter) {
+      var owner = getCreatorOwner(c);
+      if (_ownerFilter === '_mine') {
+        if (owner.toUpperCase() !== _currentUser.toUpperCase()) return false;
+      } else {
+        if (owner.toUpperCase() !== _ownerFilter.toUpperCase()) return false;
+      }
+    }
     return true;
   });
   document.getElementById('creator-count').textContent = filtered.length + ' creators';
@@ -791,7 +837,14 @@ function renderCreators() {
     html += '<div style="display:flex;align-items:center;gap:8px">';
     if (isDraft) html += '<input type="checkbox" class="creator-cb" data-username="' + c.username + '" checked onchange="updateCreatorSelectedCount()" style="width:16px;height:16px;accent-color:var(--a)">';
     html += '<span class="dm-handle" style="cursor:pointer" onclick="openDmThread(\'' + c.username + '\')">@' + c.username + '</span>';
+    // Platform badge
+    var plat = (c.platform || '').toLowerCase();
+    if (plat === 'tiktok') html += '<span style="font-size:9px;background:#000;color:#fff;padding:1px 6px;border-radius:4px;font-weight:700">TT</span>';
+    else html += '<span style="font-size:9px;background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;padding:1px 6px;border-radius:4px;font-weight:700">IG</span>';
     html += '<span style="font-size:10px;color:var(--dim)">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + '</span>';
+    // Owner badge
+    var owner = getCreatorOwner(c);
+    if (owner) html += '<span style="font-size:9px;background:var(--border);color:var(--t);padding:1px 6px;border-radius:4px">' + owner + '</span>';
     html += statusBadge(c.status);
     if (hasPastContact(c)) html += ' <span class="b past">過去進行</span>';
     if (c.dm_count > 0) html += ' <span class="b c">' + c.dm_count + ' msgs</span>';
@@ -799,7 +852,11 @@ function renderCreators() {
     // Action buttons
     html += '<div style="display:flex;gap:4px">';
     html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')" title="History">&#x1F4AC;</button>';
-    html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary" title="Open IG DM">&#x2197; IG</a>';
+    if (plat === 'tiktok') {
+      html += '<a href="https://www.tiktok.com/@' + c.username + '" target="_blank" class="btn btn-sm" style="background:#000;color:#fff" title="Open TikTok">&#x2197; TT</a>';
+    } else {
+      html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary" title="Open IG DM">&#x2197; IG</a>';
+    }
     // Stage-specific actions
     if (c.status === 'draft_ready' && !isOverLimit()) html += '<button class="btn btn-sm btn-success" onclick="event.stopPropagation();markSent(\'' + c.username + '\')">&#x2705; Sent</button>';
     if (c.status === 'sent') html += '<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();markReplied(\'' + c.username + '\')">&#x1F4E9; Replied</button>';
@@ -1067,6 +1124,8 @@ function generateDrafts() {
         if (c) {
           c.status = 'draft_ready';
           c.dm_draft = d.dm_draft || d.draft || '';
+          c.draft_by = _currentUser || '';
+          c.assigned_to = c.assigned_to || _currentUser || '';
         }
       });
       statusEl.textContent = 'Done! ' + drafts.length + ' drafts generated.';
