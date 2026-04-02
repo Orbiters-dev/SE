@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-04-02 14:58 PST",
+ "generated_pst": "2026-04-02 15:00 PST",
  "through_date": "2026-04-01",
  "months": [
   "2025-01",
@@ -16732,6 +16732,26 @@ const FIN_DATA = {
    "monthly_trend": []
   },
   {
+   "keyword": "alpremio nursing seat",
+   "brand": "",
+   "search_volume": 76,
+   "gsc_impressions": 68,
+   "gsc_clicks": 2,
+   "gads_impressions": 8,
+   "gads_clicks": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "olee sippy cup",
+   "brand": "",
+   "search_volume": 76,
+   "gsc_impressions": 0,
+   "gsc_clicks": 0,
+   "gads_impressions": 76,
+   "gads_clicks": 0,
+   "monthly_trend": []
+  },
+  {
    "keyword": "grosmimi stainless steel straw cup with flip top - 10oz (12 months+)",
    "brand": "",
    "search_volume": 76,
@@ -16749,26 +16769,6 @@ const FIN_DATA = {
    "gsc_clicks": 1,
    "gads_impressions": 18,
    "gads_clicks": 2,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "olee sippy cup",
-   "brand": "",
-   "search_volume": 76,
-   "gsc_impressions": 0,
-   "gsc_clicks": 0,
-   "gads_impressions": 76,
-   "gads_clicks": 0,
-   "monthly_trend": []
-  },
-  {
-   "keyword": "alpremio nursing seat",
-   "brand": "",
-   "search_volume": 76,
-   "gsc_impressions": 68,
-   "gsc_clicks": 2,
-   "gads_impressions": 8,
-   "gads_clicks": 0,
    "monthly_trend": []
   },
   {
@@ -34349,7 +34349,15 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0F6XNGT85",
+      "asin": "B0F9PZGGF2",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DCV7MTLS",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DY6SKQ2N",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -34361,19 +34369,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
+      "asin": "B0F6XNGT85",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
       "asin": "B0DB7V1BW3",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DCV766MB",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0F9PZGGF2",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DCV7MTLS",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -34381,19 +34381,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0DY6SKQ2N",
+      "asin": "B0DCV766MB",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0F4D28MC3",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
       "asin": "B0F4CRT6LV",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0F4D3YZ8H",
+      "asin": "B0F4D28MC3",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
@@ -34405,7 +34401,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0F9PZD6QM",
+      "asin": "B0F4D3YZ8H",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
+     },
+     {
+      "asin": "B0F9PY2LBV",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
+     },
+     {
+      "asin": "B0F9PX51FX",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -34417,15 +34421,19 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PY2LBV",
+      "asin": "B0F9PZD6QM",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PX51FX",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
+      "asin": "B083WJBR9B",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
       "asin": "B07YKJ18D5",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B08398KZ2B",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -34433,15 +34441,27 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B082SSPN4X",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0C1N3QZ7K",
+      "asin": "B0C1N3VDL3",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
       "asin": "B07YKKWFTN",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0842D5Z17",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B082SSPN4X",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B07YL2FT96",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0BZYSL3BH",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -34453,43 +34473,19 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0842D5Z17",
+      "asin": "B0C1N3QZ7K",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0C1N3VDL3",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B08398KZ2B",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B07YL2FT96",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B083WJBR9B",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0BZYSL3BH",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+      "asin": "B0F8QGZ7TH",
+      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
       "asin": "B0F8QHJN6G",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
-      "asin": "B0F8QHRGKW",
-      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
-     },
-     {
-      "asin": "B0F9NPRCTM",
-      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
-     },
-     {
-      "asin": "B0F8QGZ7TH",
+      "asin": "B0F8QH8T8X",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
@@ -34497,7 +34493,11 @@ const FIN_DATA = {
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
-      "asin": "B0F8QH8T8X",
+      "asin": "B0F9NPRCTM",
+      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+     },
+     {
+      "asin": "B0F8QHRGKW",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
@@ -35306,7 +35306,7 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0FKFN91X9",
+      "asin": "B0FKGCRG45",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -35314,7 +35314,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
+      "asin": "B0FHKC2DVV",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
       "asin": "B0FKFW6PND",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FKFN91X9",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -35322,19 +35330,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
+      "asin": "B0FKG6RCDC",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
       "asin": "B0FHKFQPGR",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FKGCRG45",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FKG59ZMN",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FHKC2DVV",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -35342,7 +35342,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FKG6RCDC",
+      "asin": "B0FKG59ZMN",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      }
     ]
@@ -36369,11 +36369,11 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0FR4FGBPP",
+      "asin": "B0FR4RQRNR",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
-      "asin": "B0FR4RQRNR",
+      "asin": "B0FR4FGBPP",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
@@ -53566,5 +53566,568 @@ const FIN_DATA = {
    "currency": "JPY"
   }
  },
- "autocomplete": {}
+ "autocomplete": {
+  "latest": {
+   "Grosmimi": {
+    "US": [
+     {
+      "keyword": "grosmimi",
+      "score": 0,
+      "position": -1,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "straw cup",
+      "score": 19,
+      "position": 5,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "sippy cup",
+      "score": 14,
+      "position": 3,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "toddler cup",
+      "score": 16,
+      "position": 2,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "baby straw cup",
+      "score": 52,
+      "position": 4,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "ppsu cup",
+      "score": 0,
+      "position": -1,
+      "date": "2026-04-02"
+     }
+    ],
+    "JP": [
+     {
+      "keyword": "grosmimi",
+      "score": 58,
+      "position": 1,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "ストローマグ",
+      "score": 54,
+      "position": 3,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "ベビーマグ",
+      "score": 34,
+      "position": 1,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "ppsu マグ",
+      "score": 0,
+      "position": -1,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "こぼれないコップ",
+      "score": 74,
+      "position": 3,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "ストローカップ ベビー",
+      "score": 35,
+      "position": 0,
+      "date": "2026-04-02"
+     }
+    ]
+   },
+   "Naeiae": {
+    "US": [
+     {
+      "keyword": "naeiae",
+      "score": 45,
+      "position": 1,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "baby rice snack",
+      "score": 18,
+      "position": 1,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "toddler snack",
+      "score": 12,
+      "position": 4,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "rice puff baby",
+      "score": 38,
+      "position": 0,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "pop rice snack",
+      "score": 60,
+      "position": 0,
+      "date": "2026-04-02"
+     }
+    ],
+    "JP": [
+     {
+      "keyword": "naeiae",
+      "score": 0,
+      "position": -1,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "ライスパフ ベビー",
+      "score": 0,
+      "position": -1,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "赤ちゃん せんべい",
+      "score": 43,
+      "position": 2,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "韓国 ベビーおやつ",
+      "score": 0,
+      "position": -1,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "ポップライス",
+      "score": 47,
+      "position": 0,
+      "date": "2026-04-02"
+     }
+    ]
+   },
+   "Onzenna": {
+    "US": [
+     {
+      "keyword": "onzenna",
+      "score": 53,
+      "position": 1,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "tinted sunscreen",
+      "score": 72,
+      "position": 9,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "mineral sunscreen",
+      "score": 80,
+      "position": 1,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "korean sunscreen",
+      "score": 86,
+      "position": 2,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "baby sunscreen",
+      "score": 64,
+      "position": 1,
+      "date": "2026-04-02"
+     }
+    ],
+    "JP": [
+     {
+      "keyword": "onzenna",
+      "score": 0,
+      "position": -1,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "韓国 日焼け止め",
+      "score": 50,
+      "position": 0,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "ティンテッド 日焼け止め",
+      "score": 0,
+      "position": -1,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "ミネラル日焼け止め",
+      "score": 0,
+      "position": -1,
+      "date": "2026-04-02"
+     }
+    ]
+   },
+   "CHA&MOM": {
+    "US": [
+     {
+      "keyword": "cha and mom",
+      "score": 64,
+      "position": 0,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "baby food pouch",
+      "score": 18,
+      "position": 1,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "korean baby food",
+      "score": 36,
+      "position": 7,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "toddler food",
+      "score": 32,
+      "position": 4,
+      "date": "2026-04-02"
+     }
+    ],
+    "JP": [
+     {
+      "keyword": "cha and mom",
+      "score": 0,
+      "position": -1,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "韓国 離乳食",
+      "score": 47,
+      "position": 0,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "ベビーフード パウチ",
+      "score": 36,
+      "position": 0,
+      "date": "2026-04-02"
+     },
+     {
+      "keyword": "幼児食",
+      "score": 72,
+      "position": 1,
+      "date": "2026-04-02"
+     }
+    ]
+   }
+  },
+  "trends": {
+   "Grosmimi": {
+    "US": {
+     "grosmimi": [
+      {
+       "date": "2026-04-02",
+       "score": 0,
+       "position": -1
+      }
+     ],
+     "straw cup": [
+      {
+       "date": "2026-04-02",
+       "score": 19,
+       "position": 5
+      }
+     ],
+     "sippy cup": [
+      {
+       "date": "2026-04-02",
+       "score": 14,
+       "position": 3
+      }
+     ],
+     "toddler cup": [
+      {
+       "date": "2026-04-02",
+       "score": 16,
+       "position": 2
+      }
+     ],
+     "baby straw cup": [
+      {
+       "date": "2026-04-02",
+       "score": 52,
+       "position": 4
+      }
+     ],
+     "ppsu cup": [
+      {
+       "date": "2026-04-02",
+       "score": 0,
+       "position": -1
+      }
+     ]
+    },
+    "JP": {
+     "grosmimi": [
+      {
+       "date": "2026-04-02",
+       "score": 58,
+       "position": 1
+      }
+     ],
+     "ストローマグ": [
+      {
+       "date": "2026-04-02",
+       "score": 54,
+       "position": 3
+      }
+     ],
+     "ベビーマグ": [
+      {
+       "date": "2026-04-02",
+       "score": 34,
+       "position": 1
+      }
+     ],
+     "ppsu マグ": [
+      {
+       "date": "2026-04-02",
+       "score": 0,
+       "position": -1
+      }
+     ],
+     "こぼれないコップ": [
+      {
+       "date": "2026-04-02",
+       "score": 74,
+       "position": 3
+      }
+     ],
+     "ストローカップ ベビー": [
+      {
+       "date": "2026-04-02",
+       "score": 35,
+       "position": 0
+      }
+     ]
+    }
+   },
+   "Naeiae": {
+    "US": {
+     "naeiae": [
+      {
+       "date": "2026-04-02",
+       "score": 45,
+       "position": 1
+      }
+     ],
+     "baby rice snack": [
+      {
+       "date": "2026-04-02",
+       "score": 18,
+       "position": 1
+      }
+     ],
+     "toddler snack": [
+      {
+       "date": "2026-04-02",
+       "score": 12,
+       "position": 4
+      }
+     ],
+     "rice puff baby": [
+      {
+       "date": "2026-04-02",
+       "score": 38,
+       "position": 0
+      }
+     ],
+     "pop rice snack": [
+      {
+       "date": "2026-04-02",
+       "score": 60,
+       "position": 0
+      }
+     ]
+    },
+    "JP": {
+     "naeiae": [
+      {
+       "date": "2026-04-02",
+       "score": 0,
+       "position": -1
+      }
+     ],
+     "ライスパフ ベビー": [
+      {
+       "date": "2026-04-02",
+       "score": 0,
+       "position": -1
+      }
+     ],
+     "赤ちゃん せんべい": [
+      {
+       "date": "2026-04-02",
+       "score": 43,
+       "position": 2
+      }
+     ],
+     "韓国 ベビーおやつ": [
+      {
+       "date": "2026-04-02",
+       "score": 0,
+       "position": -1
+      }
+     ],
+     "ポップライス": [
+      {
+       "date": "2026-04-02",
+       "score": 47,
+       "position": 0
+      }
+     ]
+    }
+   },
+   "Onzenna": {
+    "US": {
+     "onzenna": [
+      {
+       "date": "2026-04-02",
+       "score": 53,
+       "position": 1
+      }
+     ],
+     "tinted sunscreen": [
+      {
+       "date": "2026-04-02",
+       "score": 72,
+       "position": 9
+      }
+     ],
+     "mineral sunscreen": [
+      {
+       "date": "2026-04-02",
+       "score": 80,
+       "position": 1
+      }
+     ],
+     "korean sunscreen": [
+      {
+       "date": "2026-04-02",
+       "score": 86,
+       "position": 2
+      }
+     ],
+     "baby sunscreen": [
+      {
+       "date": "2026-04-02",
+       "score": 64,
+       "position": 1
+      }
+     ]
+    },
+    "JP": {
+     "onzenna": [
+      {
+       "date": "2026-04-02",
+       "score": 0,
+       "position": -1
+      }
+     ],
+     "韓国 日焼け止め": [
+      {
+       "date": "2026-04-02",
+       "score": 50,
+       "position": 0
+      }
+     ],
+     "ティンテッド 日焼け止め": [
+      {
+       "date": "2026-04-02",
+       "score": 0,
+       "position": -1
+      }
+     ],
+     "ミネラル日焼け止め": [
+      {
+       "date": "2026-04-02",
+       "score": 0,
+       "position": -1
+      }
+     ]
+    }
+   },
+   "CHA&MOM": {
+    "US": {
+     "cha and mom": [
+      {
+       "date": "2026-04-02",
+       "score": 64,
+       "position": 0
+      }
+     ],
+     "baby food pouch": [
+      {
+       "date": "2026-04-02",
+       "score": 18,
+       "position": 1
+      }
+     ],
+     "korean baby food": [
+      {
+       "date": "2026-04-02",
+       "score": 36,
+       "position": 7
+      }
+     ],
+     "toddler food": [
+      {
+       "date": "2026-04-02",
+       "score": 32,
+       "position": 4
+      }
+     ]
+    },
+    "JP": {
+     "cha and mom": [
+      {
+       "date": "2026-04-02",
+       "score": 0,
+       "position": -1
+      }
+     ],
+     "韓国 離乳食": [
+      {
+       "date": "2026-04-02",
+       "score": 47,
+       "position": 0
+      }
+     ],
+     "ベビーフード パウチ": [
+      {
+       "date": "2026-04-02",
+       "score": 36,
+       "position": 0
+      }
+     ],
+     "幼児食": [
+      {
+       "date": "2026-04-02",
+       "score": 72,
+       "position": 1
+      }
+     ]
+    }
+   }
+  },
+  "dates": [
+   "2026-04-02"
+  ]
+ }
 };
