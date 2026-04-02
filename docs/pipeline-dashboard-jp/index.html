@@ -110,6 +110,18 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 .loading-spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--a);border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-overlay{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--dim);gap:8px;font-size:12px}
+/* DM cross-check badge */
+.dm-checked{display:inline-block;padding:1px 5px;border-radius:3px;font-size:7px;font-weight:700;letter-spacing:.3px;vertical-align:middle;margin-left:4px}
+.dm-checked.ok{background:#ecfdf5;color:#059669}.dm-checked.warn{background:#fef3c7;color:#b45309}
+/* HiL Queue */
+.hil-group{margin-bottom:10px;border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.hil-group-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.hil-group-title{font-size:11px;font-weight:700;display:flex;align-items:center;gap:6px}
+.hil-group-title .hil-count{background:var(--abg);color:var(--a);padding:1px 6px;border-radius:10px;font-size:9px;font-weight:700}
+.hil-item{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:11px}
+.hil-item label{display:flex;align-items:center;gap:6px;cursor:pointer;flex:1}
+.hil-item input[type="checkbox"]{width:14px;height:14px;accent-color:var(--a)}
+.hil-empty{text-align:center;padding:16px;color:var(--dim);font-size:11px}
 @media(max-width:700px){
   .ctr{padding:12px 8px 60px}.hero h1{font-size:18px}
   .mt>div{padding:8px 12px;font-size:11px}
@@ -189,10 +201,12 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
   <div class="mt" id="main-tabs">
     <div class="on" data-p="dashboard">Dashboard</div>
     <div data-p="creators">Creators</div>
+    <div data-p="sheet">Influencer Sheet</div>
     <div data-p="drafts">DM Drafts</div>
     <div data-p="contracts">Contracts</div>
     <div data-p="config">Config</div>
     <div data-p="samples">Samples</div>
+    <div data-p="failures" style="color:var(--r)">Failures</div>
   </div>
 
   <!-- ===== DASHBOARD TAB ===== -->
@@ -325,6 +339,82 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
       </table>
     </div>
     <div class="pager" id="creators-pager"></div>
+  </div>
+
+  <!-- ===== INFLUENCER SHEET TAB ===== -->
+  <div class="mp" id="p-sheet">
+    <div class="card" style="border-left:3px solid #6366f1">
+      <h3>&#x1F4CB; Influencer Master Sheet</h3>
+      <div class="desc">全クリエイター一覧 — Discovery + Pipeline + Inbound + Manual DM</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <button class="btn btn-primary" onclick="loadInfluencerSheet()">&#x1F504; Refresh</button>
+        <button class="btn" style="background:#10b981;color:#fff" onclick="importFromDiscovery()" id="btn-import-discovery">&#x1F4E5; Import New to Pipeline</button>
+        <span id="import-discovery-status" style="font-size:10px;color:var(--dim)"></span>
+        <input type="text" id="sheet-search" placeholder="Search @handle, name..." oninput="filterSheet()" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;width:200px">
+        <select id="sheet-filter-status" onchange="filterSheet()" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">
+          <option value="">All Statuses</option>
+          <option value="not_started">Not Started</option>
+          <option value="draft_ready">Draft Ready</option>
+          <option value="sent">DM Sent</option>
+          <option value="replied">Replied</option>
+          <option value="accepted">Accepted</option>
+          <option value="form_submitted">Form</option>
+          <option value="contract_signed">Contract</option>
+          <option value="guidelines_sent">Guidelines</option>
+          <option value="sample_sent">Sample Sent</option>
+          <option value="sample_delivered">Delivered</option>
+          <option value="posted">Posted</option>
+        </select>
+        <select id="sheet-filter-source" onchange="filterSheet()" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">
+          <option value="">All Sources</option>
+          <option value="discovery">Discovery (Sheet)</option>
+          <option value="pipeline">Pipeline</option>
+          <option value="inbound">Inbound</option>
+          <option value="manual">Manual DM</option>
+        </select>
+        <label style="font-size:10px;display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="sheet-hide-contacted" onchange="filterSheet()"> Hide Already Contacted</label>
+        <span id="sheet-count" style="font-size:10px;color:var(--dim);margin-left:auto"></span>
+      </div>
+      <!-- CI Summary Stats -->
+      <div id="ci-stats-bar" style="display:none;margin-bottom:12px">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <div class="stat cyan" style="min-width:100px"><div class="sl">CI Analyzed</div><div class="sv" id="ci-stat-count">0</div></div>
+          <div class="stat green" style="min-width:100px"><div class="sl">Avg Delivery</div><div class="sv" id="ci-stat-dv">-</div></div>
+          <div class="stat amber" style="min-width:100px"><div class="sl">Avg Brand Fit</div><div class="sv" id="ci-stat-bf">-</div></div>
+          <div class="stat accent" style="min-width:100px"><div class="sl">With Transcript</div><div class="sv" id="ci-stat-tr">0</div></div>
+          <div class="stat" style="min-width:100px"><div class="sl">DV 7+ Creators</div><div class="sv" id="ci-stat-top" style="color:var(--g)">0</div></div>
+        </div>
+      </div>
+      <!-- Content Type Sub-tabs -->
+      <div id="sheet-subtabs" style="display:flex;gap:0;margin-bottom:12px;border:2px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content">
+        <div class="sheet-subtab on" data-filter="all" onclick="setSheetSubtab('all')" style="padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">All</div>
+        <div class="sheet-subtab" data-filter="has_video" onclick="setSheetSubtab('has_video')" style="padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">&#x1F3AC; Has Video</div>
+        <div class="sheet-subtab" data-filter="image_only" onclick="setSheetSubtab('image_only')" style="padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">&#x1F5BC; Image Only</div>
+      </div>
+    </div>
+    <div style="overflow-x:auto;margin-top:12px">
+      <table class="ct" id="sheet-table" style="width:100%">
+        <thead>
+          <tr>
+            <th style="width:30px">&#x1F6AB;</th>
+            <th style="cursor:pointer" onclick="sortSheet('username')">Handle &#x2195;</th>
+            <th style="cursor:pointer" onclick="sortSheet('followers')">Followers &#x2195;</th>
+            <th>Platform</th>
+            <th style="cursor:pointer" onclick="sortSheet('_source')">Source &#x2195;</th>
+            <th style="cursor:pointer" onclick="sortSheet('status')">Status &#x2195;</th>
+            <th style="cursor:pointer" onclick="sortSheet('_postCount')">Posts &#x2195;</th>
+            <th style="cursor:pointer" onclick="sortSheet('_bestViews')">Best Views/Likes &#x2195;</th>
+            <th style="cursor:pointer" onclick="sortSheet('_totalComments')">Comments &#x2195;</th>
+            <th style="cursor:pointer" onclick="sortSheet('_latestPostDate')">Latest Post &#x2195;</th>
+            <th>D+</th>
+            <th style="cursor:pointer" onclick="sortSheet('_ciScore')">CI &#x2195;</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="sheet-body"></tbody>
+      </table>
+    </div>
+    <div class="pager" id="sheet-pager"></div>
   </div>
 
   <!-- ===== DM DRAFTS TAB ===== -->
@@ -603,6 +693,37 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
     </div>
   </div>
 
+  <!-- ===== FAILURES TAB ===== -->
+  <div class="mp" id="p-failures">
+    <div class="card">
+      <h3 style="color:var(--r)">&#x26A0;&#xFE0F; DM Back-Check Failures</h3>
+      <div class="desc">DM 발송 후 5분 이내 확인 실패 → 자동 Draft Ready 롤백 기록. 실제 IG에서 붙여넣기+전송을 안 한 경우 여기 뜸.</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+        <span id="failure-count" style="font-family:var(--mono);font-size:20px;font-weight:800;color:var(--r)">0</span>
+        <span style="font-size:11px;color:var(--dim)">total failures</span>
+        <span id="pending-checks" style="font-size:11px;color:var(--am);margin-left:12px"></span>
+        <button class="btn btn-sm btn-secondary" style="margin-left:auto" onclick="clearFailureLog()">&#x1F5D1; Clear Log</button>
+      </div>
+      <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th><th>Handle</th><th>Reason</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="failure-log-body">
+          <tr><td colspan="4" style="text-align:center;padding:16px;color:var(--dim)">No failures recorded</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <h3>&#x1F50D; Pending Back-Checks</h3>
+      <div class="desc">현재 5분 대기 중인 DM 확인 건</div>
+      <div id="pending-checks-list" style="font-size:11px;color:var(--dim);padding:8px">No pending checks</div>
+    </div>
+  </div>
+
 </div><!-- .ctr -->
 </div><!-- main-content -->
 
@@ -624,6 +745,25 @@ or JSON:
       <button class="btn btn-primary" id="btn-import" onclick="importCreators()">&#x1F4E5; Import</button>
     </div>
     <div id="import-status" style="font-size:11px;color:var(--dim);margin-top:8px"></div>
+  </div>
+</div>
+
+<!-- Sheet Batch Modal -->
+<div id="sheet-batch-modal" style="display:none;pointer-events:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 0" onclick="if(event.target===this)closeSheetBatchModal()">
+  <div style="background:var(--card);border-radius:16px;width:92%;max-width:680px;padding:24px;box-shadow:0 16px 48px rgba(0,0,0,.15);margin:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <h3 style="font-size:14px;font-weight:700">&#x1F4CB; Sheet에서 Creators로 추가</h3>
+      <button onclick="closeSheetBatchModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--dim)">&times;</button>
+    </div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:16px">파이프라인에 없는 크리에이터를 포스트 주차별로 묶어 추가합니다.</div>
+    <div id="sheet-batch-body" style="max-height:60vh;overflow-y:auto"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px">
+      <span id="sheet-batch-status" style="font-size:11px;color:var(--dim)"></span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary" onclick="closeSheetBatchModal()">닫기</button>
+        <button class="btn btn-primary" id="btn-sheet-batch-add" onclick="confirmSheetBatchAdd()" style="background:#16a34a">&#x2705; 선택 추가</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -737,6 +877,8 @@ var _dailyLimit = 30;
 var _threadHandle = '';
 var _dmCache = {}; // Cache DM logs per handle
 var _executing = false;
+var _pendingBackChecks = JSON.parse(localStorage.getItem('jp_dm_pending_checks') || '{}');
+var _dmFailures = JSON.parse(localStorage.getItem('jp_dm_failures') || '[]');
 
 function getDmCount() {
   var today = new Date().toISOString().slice(0, 10);
@@ -752,11 +894,54 @@ function incDmCount() {
 function isOverLimit() { return _dmSentToday >= _dailyLimit; }
 
 // ─── Init ───
+function renderFailureLog() {
+  var el = document.getElementById('failure-log-body');
+  if (!el) return;
+  if (!_dmFailures.length) {
+    el.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--dim)">No failures recorded</td></tr>';
+    return;
+  }
+  var html = '';
+  _dmFailures.slice().reverse().slice(0, 50).forEach(function(f) {
+    var date = f.time ? f.time.replace('T', ' ').slice(0, 19) : '-';
+    html += '<tr>';
+    html += '<td style="font-family:var(--mono);font-size:10px">' + date + '</td>';
+    html += '<td><a href="https://www.instagram.com/' + f.handle + '" target="_blank">@' + f.handle + '</a></td>';
+    html += '<td style="font-size:10px">' + f.reason + '</td>';
+    html += '<td>' + (f.rolledBack ? '<span class="b am">Rolled Back</span>' : '<span class="b c">Warning</span>') + '</td>';
+    html += '</tr>';
+  });
+  el.innerHTML = html;
+}
+
+function clearFailureLog() {
+  if (!confirm('실패 로그를 전부 삭제할까요?')) return;
+  _dmFailures = [];
+  localStorage.setItem('jp_dm_failures', JSON.stringify(_dmFailures));
+  renderFailureLog();
+  showToast('Failure log cleared');
+}
+
 function init() {
   document.getElementById('pill-date').textContent = new Date().toISOString().slice(0, 10);
   _dailyLimit = parseInt(document.getElementById('cfg-daily-limit').value) || 30;
   _dmSentToday = getDmCount();
   loadCreators();
+  renderFailureLog();
+  // Update failure count badge
+  var fcEl = document.getElementById('failure-count');
+  if (fcEl) fcEl.textContent = _dmFailures.length;
+  // Show pending checks
+  var pendingKeys = Object.keys(_pendingBackChecks);
+  var pendEl = document.getElementById('pending-checks');
+  if (pendEl && pendingKeys.length) pendEl.textContent = '⏳ ' + pendingKeys.length + ' pending checks';
+  var pendList = document.getElementById('pending-checks-list');
+  if (pendList && pendingKeys.length) {
+    pendList.innerHTML = pendingKeys.map(function(h) {
+      var remaining = Math.max(0, Math.round((_pendingBackChecks[h].checkAt - Date.now()) / 1000));
+      return '@' + h + ' — ' + remaining + 's remaining';
+    }).join('<br>');
+  }
   var h = location.hash.replace('#', '');
   if (h) {
     var tab = document.querySelector('.mt>div[data-p="' + h + '"]');
@@ -766,33 +951,75 @@ function init() {
 
 function loadCreators() {
   setPillStatus('loading');
-  n8nGet()
-    .then(function(data) {
-      _creators = Array.isArray(data) ? data : (data.creators || []);
-      // Normalize fields
-      _creators.forEach(function(c) {
-        c.status = c.status || 'not_started';
-        c.dm_count = c.dm_count || 0;
-        c.followers = c.followers || 0;
-      });
-      setPillStatus('ready');
-      updateStats();
-      renderCreators();
-      renderDailyKpi();
-      renderInboundQueue();
-      renderSamples();
-      renderContracts();
-      loadRecentActivity();
-      loadConfig();
-    })
-    .catch(function(err) {
-      console.error('Failed to load creators:', err);
-      setPillStatus('error');
-      showToast('Failed to load creators from n8n', 'err');
-      // Show empty state
-      updateStats();
-      renderCreators();
+  var u = localStorage.getItem('dk_user') || 'admin';
+  var p = localStorage.getItem('dk_pass') || 'orbit1234';
+
+  // Load from both n8n (active pipeline) and EC2 (Not Started discovery creators)
+  Promise.all([
+    n8nGet().catch(function() { return []; }),
+    fetch('https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/?status=Not+Started&source=apify_discovery&limit=500', {
+      headers: { 'Authorization': 'Basic ' + btoa(u + ':' + p) }
+    }).then(function(r) { return r.json(); }).catch(function() { return { results: [] }; })
+  ]).then(function(results) {
+    var n8nData = results[0];
+    var ec2Data = results[1];
+
+    _creators = Array.isArray(n8nData) ? n8nData : (n8nData.creators || []);
+    // Normalize n8n fields
+    _creators.forEach(function(c) {
+      c.status = c.status || 'not_started';
+      c.dm_count = c.dm_count || 0;
+      c.followers = c.followers || 0;
     });
+
+    // Merge EC2 Not Started creators (not already in n8n)
+    var existingHandles = {};
+    _creators.forEach(function(c) {
+      if (c.username) existingHandles[c.username.toLowerCase()] = true;
+    });
+
+    var ec2Creators = ec2Data.results || [];
+    ec2Creators.forEach(function(c) {
+      var handle = c.ig_handle || c.tiktok_handle || '';
+      if (!handle || existingHandles[handle.toLowerCase()]) return;
+      existingHandles[handle.toLowerCase()] = true;
+      _creators.push({
+        username: handle,
+        name: c.full_name || handle,
+        status: 'not_started',
+        dm_count: 0,
+        followers: c.followers || 0,
+        platform: c.platform || '',
+        outreach_type: c.outreach_type || 'LT',
+        source: c.source || 'apify_discovery',
+        content_script: '',
+        _ec2_id: c.id
+      });
+    });
+
+    setPillStatus('ready');
+    // Run each render in isolation so one failure doesn't kill the rest
+    var steps = [
+      ['updateStats', updateStats],
+      ['renderCreators', renderCreators],
+      ['renderDailyKpi', renderDailyKpi],
+      ['renderInboundQueue', renderInboundQueue],
+      ['renderSamples', renderSamples],
+      ['renderContracts', renderContracts],
+      ['loadRecentActivity', loadRecentActivity],
+      ['loadConfig', loadConfig],
+      ['loadInfluencerSheet', loadInfluencerSheet]
+    ];
+    steps.forEach(function(s) {
+      try { s[1](); } catch(e) { console.error('[loadCreators] ' + s[0] + ' failed:', e); }
+    });
+  }).catch(function(err) {
+    console.error('Failed to load creators:', err);
+    setPillStatus('error');
+    showToast('Load error: ' + (err.message || err), 'err');
+    updateStats();
+    renderCreators();
+  });
 }
 
 function setPillStatus(s) {
@@ -804,6 +1031,23 @@ function setPillStatus(s) {
   } else {
     pill.innerHTML = '<span class="dot"></span> Ready';
   }
+}
+
+function isManualDm(c) {
+  if (c.source === 'manual_dm' || c.source === 'manual') return true;
+  var postDraftStatuses = ['sent','replied','accepted','form_submitted','contract_sent','contract_signed','guidelines_sent','sample_sent','sample_shipped','sample_delivered','posted'];
+  if (postDraftStatuses.indexOf(c.status) !== -1 && !c.dm_draft && !c._had_draft) return true;
+  return false;
+}
+
+function isInbound(c) {
+  return c.source === 'inbound' || c.status === 'inbound' || c.status === 'needs_review';
+}
+
+function getCreatorSource(c) {
+  if (isManualDm(c)) return 'manual';
+  if (isInbound(c)) return 'inbound';
+  return 'pipeline';
 }
 
 function updateStats() {
@@ -2100,6 +2344,609 @@ function exportSamples() {
   a.click();
   URL.revokeObjectURL(url);
   showToast('CSV exported');
+}
+
+// ═══ INFLUENCER SHEET ═══
+var DISCOVERY_API = 'https://orbitools.orbiters.co.kr/api/onzenna/discovery/posts/?region=jp&limit=5000';
+var _sheetData = []; // combined: _creators + discovery (deduped by handle)
+var _sheetSort = { key: 'username', asc: true };
+var _sheetPage = 0;
+var _sheetPerPage = 50;
+var _sheetLoading = false;
+var _sheetSubtab = 'all'; // 'all' | 'has_video' | 'image_only'
+
+// Video detection: TikTok = always video; IG = views>0 OR /reel/ in URL OR transcript exists
+function isVideoPost(post) {
+  if ((post.platform || '').toLowerCase().indexOf('tiktok') !== -1) return true;
+  if (post.views && post.views > 0) return true;
+  if (post.url && post.url.indexOf('/reel/') !== -1) return true;
+  if (post.transcript && post.transcript.trim().length > 0) return true;
+  return false;
+}
+
+function creatorHasVideo(c) {
+  if (!c._posts || c._posts.length === 0) return false;
+  return c._posts.some(isVideoPost);
+}
+
+function setSheetSubtab(filter) {
+  _sheetSubtab = filter;
+  _sheetPage = 0;
+  document.querySelectorAll('.sheet-subtab').forEach(function(el) {
+    el.classList.toggle('on', el.getAttribute('data-filter') === filter);
+  });
+  renderSheet();
+}
+
+function importFromDiscovery() {
+  var btn = document.getElementById('btn-import-discovery');
+  var statusEl = document.getElementById('import-discovery-status');
+  btn.disabled = true;
+  statusEl.innerHTML = '<span class="loading-spinner" style="width:10px;height:10px"></span> Importing...';
+
+  var u = localStorage.getItem('dk_user') || 'admin';
+  var p = localStorage.getItem('dk_pass') || 'orbit1234';
+  fetch('https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/import-from-discovery/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa(u + ':' + p) },
+    body: JSON.stringify({ region: 'jp', limit: 200, min_followers: 1000 })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    statusEl.textContent = data.created + ' imported, ' + data.skipped + ' skipped (of ' + data.total_discovery_handles + ' handles)';
+    btn.disabled = false;
+    if (data.created > 0) {
+      showToast(data.created + ' creators added to pipeline!', 'ok');
+      loadCreators();
+      loadInfluencerSheet();
+    }
+  })
+  .catch(function(err) {
+    statusEl.textContent = 'Error: ' + err.message;
+    btn.disabled = false;
+    showToast('Import failed', 'err');
+  });
+}
+
+function loadInfluencerSheet() {
+  if (_sheetLoading) return;
+  _sheetLoading = true;
+  var countEl = document.getElementById('sheet-count');
+  if (countEl) countEl.innerHTML = '<span class="loading-spinner" style="width:10px;height:10px"></span> Loading discovery data...';
+
+  var u = localStorage.getItem('dk_user') || 'admin';
+  var p = localStorage.getItem('dk_pass') || 'orbit1234';
+  fetch(DISCOVERY_API, { headers: { 'Authorization': 'Basic ' + btoa(u + ':' + p) } })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var BRAND_KEYWORDS = ['official', 'shop', 'store', 'honpo', '公式'];
+      var rows = (data.results || []).filter(function(p) {
+        // Video only
+        if ((p.content_type || '').toLowerCase() !== 'video') return false;
+        // Filter brand/official accounts
+        var h = (p.handle || '').toLowerCase();
+        for (var i = 0; i < BRAND_KEYWORDS.length; i++) {
+          if (h.indexOf(BRAND_KEYWORDS[i]) !== -1) return false;
+        }
+        return true;
+      }).map(function(p) {
+        return {
+          'Handle': p.handle || '',
+          'Full Name': p.full_name || '',
+          'Views': p.views || 0,
+          'Likes': p.likes || 0,
+          'Comments Count': p.comments_count || 0,
+          'Followers': p.followers || 0,
+          'Date': (p.post_date || '').slice(0, 10),
+          'URL': p.url || '',
+          'Platform': p.platform || 'instagram',
+          'Source': p.source || '',
+          'Email': p.outreach_email || '',
+          'Caption': p.caption || '',
+          'Hashtags': p.hashtags || '',
+          'Transcript': p.transcript || '',
+          'BrandFit': p.brand_fit_score || null,
+          'SceneFit': p.scene_fit || '',
+          'SubjectAge': p.subject_age || '',
+          'SceneTags': p.scene_tags || '',
+          'CI': p.ci_analysis || null
+        };
+      });
+      mergeSheetData(rows);
+      _sheetLoading = false;
+    }).catch(function(e) {
+      console.error('Discovery API fetch failed:', e);
+      if (countEl) countEl.textContent = 'Failed to load discovery data — showing pipeline only';
+      mergeSheetData([]);
+      _sheetLoading = false;
+    });
+}
+
+function mergeSheetData(discoveryRows) {
+  var map = {};
+
+  // 1. Pipeline creators first (they have definitive status)
+  _creators.forEach(function(c) {
+    map[c.username] = Object.assign({}, c, {
+      _source: getCreatorSource(c),
+      _inPipeline: true,
+      _postCount: 0,
+      _bestViews: c.post_views || 0,
+      _latestPostDate: c.posted_at || '',
+      _latestPostUrl: c.post_url || '',
+      _posts: []
+    });
+  });
+
+  // 2. Discovery rows — dedup by Handle, aggregate metrics
+  discoveryRows.forEach(function(row) {
+    var handle = (row['Handle'] || '').trim();
+    if (!handle) return;
+
+    var views = parseInt(row['Views']) || 0;
+    var likes = parseInt(row['Likes']) || 0;
+    var comments = parseInt(row['Comments Count']) || 0;
+    var followers = parseInt(row['Followers']) || 0;
+    var date = row['Date'] || '';
+    var url = row['URL'] || '';
+    var platform = (row['Platform'] || 'instagram').toLowerCase();
+
+    var ci = row['CI'] || null;
+    var post = { url: url, date: date, views: views, likes: likes, comments: comments, platform: platform, source: row['Source'] || '', caption: row['Caption'] || '', hashtags: row['Hashtags'] || '', transcript: row['Transcript'] || '',
+      brand_fit_score: row['BrandFit'] || (ci && ci.brand_fit_score) || null,
+      delivery_verbal_score: ci && ci.delivery_verbal_score != null ? ci.delivery_verbal_score : null,
+      scene_fit: row['SceneFit'] || (ci && ci.scene_fit) || '',
+      subject_age: row['SubjectAge'] || (ci && ci.subject_age) || '',
+      hook_score: ci && ci.hook_score != null ? ci.hook_score : null,
+      storytelling_score: ci && ci.storytelling_score != null ? ci.storytelling_score : null,
+      authenticity_score: ci && ci.authenticity_score != null ? ci.authenticity_score : null,
+      scene_tags: row['SceneTags'] || (ci && ci.scene_tags) || '',
+      ci: ci
+    };
+
+    if (map[handle]) {
+      // Existing — update aggregates
+      var existing = map[handle];
+      existing._postCount++;
+      existing._posts.push(post);
+      if (views > existing._bestViews) existing._bestViews = views;
+      if (likes > (existing._bestLikes || 0)) existing._bestLikes = likes;
+      existing._totalComments = (existing._totalComments || 0) + comments;
+      if (followers > (existing.followers || 0)) existing.followers = followers;
+      if (date > (existing._latestPostDate || '')) {
+        existing._latestPostDate = date;
+        existing._latestPostUrl = url;
+      }
+    } else {
+      // New discovery creator — not yet in pipeline
+      map[handle] = {
+        username: handle,
+        name: row['Full Name'] || '',
+        followers: followers,
+        status: 'not_started',
+        source: 'discovery',
+        _source: 'discovery',
+        _inPipeline: false,
+        _postCount: 1,
+        _bestViews: views,
+        _bestLikes: likes,
+        _totalComments: comments,
+        _latestPostDate: date,
+        _latestPostUrl: url,
+        _posts: [post],
+        platform: platform,
+        email: row['Email'] || '',
+        is_parent: row['Is Parent'] || '',
+        syncly_kw: row['Syncly KW'] || ''
+      };
+    }
+  });
+
+  // Compute per-creator CI summary scores
+  Object.values(map).forEach(function(c) {
+    var bestBF = 0, bestDV = 0, ciCount = 0;
+    (c._posts || []).forEach(function(p) {
+      if (p.brand_fit_score && p.brand_fit_score > bestBF) bestBF = p.brand_fit_score;
+      if (p.delivery_verbal_score && p.delivery_verbal_score > bestDV) bestDV = p.delivery_verbal_score;
+      if (p.ci || p.brand_fit_score || p.delivery_verbal_score) ciCount++;
+    });
+    c._ciBrandFit = bestBF;
+    c._ciDelivery = bestDV;
+    c._ciCount = ciCount;
+    c._ciScore = bestDV || bestBF; // primary sort key
+  });
+
+  _sheetData = Object.values(map);
+  _sheetPage = 0;
+  renderSheet();
+}
+
+function filterSheet() {
+  _sheetPage = 0;
+  renderSheet();
+}
+
+function sortSheet(key) {
+  if (_sheetSort.key === key) _sheetSort.asc = !_sheetSort.asc;
+  else { _sheetSort.key = key; _sheetSort.asc = true; }
+  renderSheet();
+}
+
+function getFilteredSheet() {
+  var q = (document.getElementById('sheet-search').value || '').toLowerCase();
+  var sf = document.getElementById('sheet-filter-status').value;
+  var src = document.getElementById('sheet-filter-source').value;
+  var hideContacted = document.getElementById('sheet-hide-contacted').checked;
+
+  return _sheetData.filter(function(c) {
+    if (q && c.username.toLowerCase().indexOf(q) === -1 && (c.name || '').toLowerCase().indexOf(q) === -1) return false;
+    if (sf && c.status !== sf) return false;
+    if (src === 'discovery' && c._source !== 'discovery') return false;
+    if (src === 'pipeline' && c._source !== 'pipeline') return false;
+    if (src === 'inbound' && c._source !== 'inbound') return false;
+    if (src === 'manual' && c._source !== 'manual') return false;
+    if (hideContacted && hasPastContact(c)) return false;
+    // Sub-tab: video vs image filter
+    if (_sheetSubtab === 'has_video' && !creatorHasVideo(c)) return false;
+    if (_sheetSubtab === 'image_only' && (creatorHasVideo(c) || !c._posts || c._posts.length === 0)) return false;
+    return true;
+  }).sort(function(a, b) {
+    var va = a[_sheetSort.key] || '';
+    var vb = b[_sheetSort.key] || '';
+    if (typeof va === 'number' && typeof vb === 'number') return _sheetSort.asc ? va - vb : vb - va;
+    va = String(va).toLowerCase(); vb = String(vb).toLowerCase();
+    return _sheetSort.asc ? va.localeCompare(vb) : vb.localeCompare(va);
+  });
+}
+
+function renderSheet() {
+  var filtered = getFilteredSheet();
+  var total = filtered.length;
+  var start = _sheetPage * _sheetPerPage;
+  var page = filtered.slice(start, start + _sheetPerPage);
+  var today = new Date();
+
+  // Update sub-tab counts
+  var allCount = _sheetData.length;
+  var videoCount = _sheetData.filter(creatorHasVideo).length;
+  var imageCount = _sheetData.filter(function(c) { return c._posts && c._posts.length > 0 && !creatorHasVideo(c); }).length;
+  var tabAll = document.querySelector('.sheet-subtab[data-filter="all"]');
+  var tabVideo = document.querySelector('.sheet-subtab[data-filter="has_video"]');
+  var tabImage = document.querySelector('.sheet-subtab[data-filter="image_only"]');
+  if (tabAll) tabAll.textContent = 'All (' + allCount + ')';
+  if (tabVideo) tabVideo.innerHTML = '&#x1F3AC; Has Video (' + videoCount + ')';
+  if (tabImage) tabImage.innerHTML = '&#x1F5BC; Image Only (' + imageCount + ')';
+
+  document.getElementById('sheet-count').textContent = total + ' influencers' + (total !== _sheetData.length ? ' (filtered from ' + _sheetData.length + ')' : '');
+
+  // Update CI summary stats
+  var ciAnalyzed = _sheetData.filter(function(c) { return c._ciCount > 0; });
+  var ciBar = document.getElementById('ci-stats-bar');
+  if (ciAnalyzed.length > 0) {
+    ciBar.style.display = 'block';
+    document.getElementById('ci-stat-count').textContent = ciAnalyzed.length;
+    var dvSum = 0, dvCnt = 0, bfSum = 0, bfCnt = 0, trCnt = 0, topCnt = 0;
+    ciAnalyzed.forEach(function(c) {
+      if (c._ciDelivery > 0) { dvSum += c._ciDelivery; dvCnt++; }
+      if (c._ciBrandFit > 0) { bfSum += c._ciBrandFit; bfCnt++; }
+      if (c._ciDelivery >= 7) topCnt++;
+      (c._posts || []).forEach(function(p) { if (p.transcript && p.transcript.trim()) trCnt++; });
+    });
+    document.getElementById('ci-stat-dv').textContent = dvCnt ? (dvSum / dvCnt).toFixed(1) : '-';
+    document.getElementById('ci-stat-bf').textContent = bfCnt ? (bfSum / bfCnt).toFixed(1) : '-';
+    document.getElementById('ci-stat-tr').textContent = trCnt;
+    document.getElementById('ci-stat-top').textContent = topCnt;
+  } else {
+    ciBar.style.display = 'none';
+  }
+
+  var html = '';
+  page.forEach(function(c) {
+    var contacted = hasPastContact(c);
+    var srcColor = c._source === 'inbound' ? '#0284c7' : c._source === 'manual' ? '#9333ea' : c._source === 'discovery' ? '#6366f1' : 'var(--a)';
+    var srcLabel = c._source === 'inbound' ? 'Inbound' : c._source === 'manual' ? 'Manual' : c._source === 'discovery' ? 'Discovery' : 'Pipeline';
+
+    // D+ days from latest post
+    var dPlus = '';
+    var latestDate = c._latestPostDate || c.posted_at || '';
+    if (latestDate) {
+      var pDate = new Date(latestDate);
+      if (!isNaN(pDate)) {
+        var diffDays = Math.floor((today - pDate) / 86400000);
+        dPlus = 'D+' + diffDays;
+      }
+    }
+
+    // Best metric: views for TikTok, likes for IG
+    var bestViews = c._bestViews || c.post_views || 0;
+    var bestLikes = c._bestLikes || 0;
+    var bestMetric = bestViews || bestLikes;
+    var metricLabel = bestViews ? 'views' : (bestLikes ? 'likes' : '');
+    var postCount = c._postCount || 0;
+    var totalComments = c._totalComments || 0;
+    var platformIcon = (c.platform || '').indexOf('tiktok') !== -1 ? '\uD83C\uDFB5' : '\uD83D\uDCF7';
+    var latestPostUrl = c._latestPostUrl || '';
+
+    html += '<tr style="' + (contacted ? 'background:#fef2f2' : '') + '">';
+    // Contacted indicator
+    html += '<td style="text-align:center">' + (contacted ? '<span title="Already contacted" style="color:var(--r);font-size:14px">\uD83D\uDEAB</span>' : '<span style="color:var(--g);font-size:12px">\u2B55</span>') + '</td>';
+    // Handle
+    var detailId = 'detail-' + escapeHtml(c.username).replace(/[^a-zA-Z0-9]/g, '_');
+    var handleLink = latestPostUrl || ('https://instagram.com/' + encodeURIComponent(c.username));
+    html += '<td><a href="' + escapeHtml(handleLink) + '" target="_blank" style="color:var(--a);font-weight:600;font-size:11px">@' + escapeHtml(c.username) + '</a>';
+    if (c._posts && c._posts.length > 0) html += ' <span onclick="togglePostDetail(\'' + detailId + '\')" style="cursor:pointer;font-size:9px;color:var(--dim)" title="Toggle posts detail">\u25B2</span>';
+    if (c.name) html += '<div style="font-size:9px;color:var(--dim)">' + escapeHtml(c.name) + '</div>';
+    if (c.email) html += '<div style="font-size:8px;color:var(--dim)">\u2709 ' + escapeHtml(c.email) + '</div>';
+    html += '</td>';
+    // Followers
+    html += '<td style="font-family:var(--mono);font-size:11px">' + (c.followers ? Number(c.followers).toLocaleString() : '-') + '</td>';
+    // Platform
+    html += '<td style="font-size:11px;text-align:center">' + platformIcon + '</td>';
+    // Source
+    html += '<td><span style="display:inline-block;padding:1px 6px;border-radius:8px;font-size:9px;font-weight:600;background:' + srcColor + '22;color:' + srcColor + '">' + srcLabel + '</span></td>';
+    // Status
+    html += '<td>' + statusBadge(c.status) + '</td>';
+    // Post count
+    html += '<td style="font-family:var(--mono);font-size:11px;text-align:center;font-weight:' + (postCount > 2 ? '700' : '400') + ';color:' + (postCount > 2 ? 'var(--a)' : 'var(--dim)') + '">' + (postCount || '-') + '</td>';
+    // Best views/likes
+    var metricColor = bestMetric > 10000 ? 'var(--g)' : bestMetric > 1000 ? 'var(--am)' : 'var(--dim)';
+    html += '<td style="font-family:var(--mono);font-size:11px;font-weight:600;color:' + metricColor + '">';
+    if (bestMetric) {
+      html += Number(bestMetric).toLocaleString();
+      html += '<div style="font-size:8px;font-weight:400;color:var(--dim)">' + metricLabel + '</div>';
+    } else { html += '-'; }
+    html += '</td>';
+    // Comments
+    html += '<td style="font-family:var(--mono);font-size:11px;text-align:center;color:' + (totalComments > 10 ? 'var(--am)' : 'var(--dim)') + '">' + (totalComments || '-') + '</td>';
+    // Latest post date
+    html += '<td style="font-size:10px;color:var(--dim)">' + (latestDate ? '<a href="' + escapeHtml(latestPostUrl || handleLink) + '" target="_blank" style="color:var(--dim);text-decoration:underline">' + latestDate + '</a>' : '-') + '</td>';
+    // D+
+    html += '<td style="font-family:var(--mono);font-size:10px;font-weight:600;color:' + (dPlus ? 'var(--dim)' : '') + '">' + (dPlus || '-') + '</td>';
+    // CI Score badge
+    var ciHtml = '';
+    if (c._ciCount > 0) {
+      var dvScore = c._ciDelivery || 0;
+      var bfScore = c._ciBrandFit || 0;
+      var dvColor = dvScore >= 7 ? 'var(--g)' : dvScore >= 4 ? 'var(--am)' : 'var(--dim)';
+      ciHtml += '<div style="display:flex;flex-direction:column;gap:1px;align-items:center">';
+      if (dvScore) ciHtml += '<span style="font-family:var(--mono);font-size:11px;font-weight:700;color:' + dvColor + '" title="Delivery Verbal">' + dvScore + '</span>';
+      if (bfScore) ciHtml += '<span style="font-size:8px;color:var(--dim)" title="Brand Fit">BF ' + bfScore + '</span>';
+      if (!dvScore && !bfScore) ciHtml += '<span class="b c" title="CI analyzed but scores=0">CI</span>';
+      ciHtml += '</div>';
+    }
+    html += '<td style="text-align:center">' + (ciHtml || '<span style="color:var(--muted);font-size:9px">-</span>') + '</td>';
+    // Actions
+    html += '<td>';
+    if (c._inPipeline) {
+      html += '<button class="btn btn-sm btn-secondary" onclick="goToCreator(\'' + escapeHtml(c.username) + '\')" style="font-size:9px">View</button>';
+    } else if (!contacted) {
+      html += '<button class="btn btn-sm btn-primary" onclick="addToPipeline(\'' + escapeHtml(c.username) + '\')" style="font-size:9px">+ Pipeline</button>';
+    } else {
+      html += '<span style="font-size:9px;color:var(--dim)">contacted</span>';
+    }
+    html += '</td>';
+    html += '</tr>';
+
+    // Expandable post details row
+    if (c._posts && c._posts.length > 0) {
+      var rowId = 'detail-' + escapeHtml(c.username).replace(/[^a-zA-Z0-9]/g, '_');
+      html += '<tr id="' + rowId + '"><td colspan="12" style="padding:4px 12px 12px;background:#f8fafc;border-left:3px solid var(--a)">';
+      c._posts.forEach(function(post, pi) {
+        html += '<div style="margin-bottom:8px;padding:8px;background:#fff;border:1px solid var(--border);border-radius:6px">';
+        html += '<div style="display:flex;gap:12px;align-items:center;margin-bottom:4px">';
+        html += '<span style="font-weight:700;font-size:10px;color:var(--a)">Post ' + (pi+1) + '</span>';
+        html += '<span style="font-size:9px;color:var(--dim)">' + (post.date || '') + '</span>';
+        html += '<span style="font-family:var(--mono);font-size:9px">\uD83D\uDC41 ' + (post.views ? Number(post.views).toLocaleString() : '0') + '</span>';
+        html += '<span style="font-family:var(--mono);font-size:9px">\u2764 ' + (post.likes ? Number(post.likes).toLocaleString() : '0') + '</span>';
+        html += '<span style="font-family:var(--mono);font-size:9px">\uD83D\uDCAC ' + (post.comments ? Number(post.comments).toLocaleString() : '0') + '</span>';
+        if (post.url) html += '<a href="' + escapeHtml(post.url) + '" target="_blank" style="font-size:9px;color:var(--a)">\uD83D\uDD17 Link</a>';
+        html += '</div>';
+        if (post.caption) html += '<div style="font-size:10px;margin:4px 0;line-height:1.4;max-height:60px;overflow:auto"><b>Caption:</b> ' + escapeHtml(post.caption.substring(0, 300)) + '</div>';
+        if (post.hashtags) html += '<div style="font-size:9px;color:var(--a);margin:2px 0"><b>Tags:</b> ' + escapeHtml(post.hashtags.substring(0, 200)) + '</div>';
+        if (post.transcript) html += '<div style="font-size:9px;color:var(--dim);margin:2px 0"><b>Transcript:</b> ' + escapeHtml(post.transcript.substring(0, 300)) + (post.transcript.length > 300 ? '...' : '') + '</div>';
+        // CI Analysis card
+        if (post.ci || post.brand_fit_score || post.delivery_verbal_score) {
+          html += '<div style="margin-top:6px;padding:8px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px">';
+          html += '<div style="font-size:9px;font-weight:700;color:#0284c7;margin-bottom:4px">Content Intelligence</div>';
+          html += '<div style="display:flex;gap:10px;flex-wrap:wrap;font-size:9px">';
+          var scores = [
+            { label: 'Delivery', val: post.delivery_verbal_score, max: 10 },
+            { label: 'Brand Fit', val: post.brand_fit_score, max: 10 },
+            { label: 'Hook', val: post.hook_score, max: 10 },
+            { label: 'Story', val: post.storytelling_score, max: 10 },
+            { label: 'Auth', val: post.authenticity_score, max: 10 }
+          ];
+          scores.forEach(function(s) {
+            if (s.val == null) return;
+            var pct = Math.round((s.val / s.max) * 100);
+            var color = s.val >= 7 ? '#10b981' : s.val >= 4 ? '#f59e0b' : '#94a3b8';
+            html += '<div style="min-width:70px">';
+            html += '<div style="font-weight:600;color:var(--dim)">' + s.label + '</div>';
+            html += '<div style="display:flex;align-items:center;gap:4px">';
+            html += '<div style="flex:1;height:4px;background:#e2e8f0;border-radius:2px;overflow:hidden"><div style="width:' + pct + '%;height:100%;background:' + color + ';border-radius:2px"></div></div>';
+            html += '<span style="font-family:var(--mono);font-weight:700;color:' + color + '">' + s.val + '</span>';
+            html += '</div></div>';
+          });
+          html += '</div>';
+          // Scene tags + subject age
+          var tags = [];
+          if (post.scene_fit) tags.push('Scene: ' + post.scene_fit);
+          if (post.subject_age) tags.push('Age: ' + post.subject_age);
+          if (post.scene_tags) tags.push(typeof post.scene_tags === 'string' ? post.scene_tags : (post.scene_tags || []).join(', '));
+          if (tags.length) html += '<div style="margin-top:4px;font-size:8px;color:var(--dim)">' + escapeHtml(tags.join(' \u00B7 ')) + '</div>';
+          // Extended CI fields
+          var ci = post.ci || {};
+          var extras = [];
+          if (ci.hook_type) extras.push('Hook: ' + ci.hook_type);
+          if (ci.emotional_tone) extras.push('Tone: ' + ci.emotional_tone);
+          if (ci.persuasion_type) extras.push('Persuasion: ' + ci.persuasion_type);
+          if (ci.demo_present) extras.push('Demo shown');
+          if (ci.cta_present) extras.push('Has CTA');
+          if (extras.length) html += '<div style="margin-top:2px;font-size:8px;color:#6366f1">' + escapeHtml(extras.join(' \u00B7 ')) + '</div>';
+          html += '</div>';
+        }
+        html += '</div>';
+      });
+      html += '</td></tr>';
+    }
+  });
+
+  document.getElementById('sheet-body').innerHTML = html || '<tr><td colspan="12" style="text-align:center;padding:30px;color:var(--dim)">No influencers found.</td></tr>';
+
+  // Pager
+  var totalPages = Math.ceil(total / _sheetPerPage);
+  var pagerHtml = '';
+  if (totalPages > 1) {
+    pagerHtml += '<div style="display:flex;gap:4px;justify-content:center;margin-top:12px">';
+    if (_sheetPage > 0) pagerHtml += '<button class="btn btn-sm btn-secondary" onclick="_sheetPage--;renderSheet()">\u2190 Prev</button>';
+    pagerHtml += '<span style="font-size:11px;padding:4px 8px;color:var(--dim)">' + (_sheetPage + 1) + ' / ' + totalPages + '</span>';
+    if (_sheetPage < totalPages - 1) pagerHtml += '<button class="btn btn-sm btn-secondary" onclick="_sheetPage++;renderSheet()">Next \u2192</button>';
+    pagerHtml += '</div>';
+  }
+  document.getElementById('sheet-pager').innerHTML = pagerHtml;
+}
+
+function goToCreator(handle) {
+  document.getElementById('creator-search').value = handle;
+  var tab = document.querySelector('.mt>div[data-p="creators"]');
+  if (tab) tab.click();
+  renderCreators();
+}
+
+function togglePostDetail(rowId) {
+  var row = document.getElementById(rowId);
+  if (row) row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+
+function getISOWeek(dateStr) {
+  if (!dateStr) return 'Unknown';
+  var d = new Date(dateStr);
+  if (isNaN(d)) return 'Unknown';
+  var day = d.getDay() || 7;
+  d.setDate(d.getDate() + 4 - day);
+  var yearStart = new Date(d.getFullYear(), 0, 1);
+  var week = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  var monday = new Date(d.getFullYear(), 0, 1 + (week - 1) * 7);
+  var sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+  var fmt = function(dt) { return (dt.getMonth()+1) + '/' + dt.getDate(); };
+  return d.getFullYear() + ' W' + String(week).padStart(2,'0') + ' (' + fmt(monday) + '~' + fmt(sunday) + ')';
+}
+
+function showSheetBatchModal() {
+  var modal = document.getElementById('sheet-batch-modal');
+  modal.style.pointerEvents = 'auto';
+  modal.style.display = 'flex';
+  renderSheetBatchBody();
+}
+
+function closeSheetBatchModal() {
+  var m = document.getElementById('sheet-batch-modal');
+  m.style.display = 'none';
+  m.style.pointerEvents = 'none';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    var m = document.getElementById('sheet-batch-modal');
+    if (m && m.style.display === 'flex') closeSheetBatchModal();
+  }
+});
+
+function renderSheetBatchBody() {
+  var eligible = _sheetData.filter(function(c) { return !c._inPipeline; });
+  var body = document.getElementById('sheet-batch-body');
+  if (!eligible.length) {
+    body.innerHTML = '<div style="text-align:center;padding:32px;color:var(--dim)">\uCD94\uAC00\uD560 \uD06C\uB9AC\uC5D0\uC774\uD130\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4 (\uBAA8\uB450 \uD30C\uC774\uD504\uB77C\uC778\uC5D0 \uC788\uC74C)</div>';
+    return;
+  }
+  var weeks = {};
+  eligible.forEach(function(c) {
+    var wk = getISOWeek(c._latestPostDate);
+    if (!weeks[wk]) weeks[wk] = [];
+    weeks[wk].push(c);
+  });
+  var sortedWeeks = Object.keys(weeks).sort().reverse();
+  var html = '';
+  sortedWeeks.forEach(function(wk) {
+    var creators = weeks[wk];
+    creators.sort(function(a,b) { return (b._bestViews||0) - (a._bestViews||0); });
+    var weekId = 'wk-' + wk.replace(/[^a-zA-Z0-9]/g,'_');
+    html += '<div style="margin-bottom:20px">';
+    html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">';
+    html += '<input type="checkbox" id="cb-' + weekId + '" checked onchange="toggleWeekBatch(this,\'' + weekId + '\')" style="width:14px;height:14px;accent-color:var(--g)">';
+    html += '<span style="font-size:12px;font-weight:700;color:var(--text)">' + escapeHtml(wk) + '</span>';
+    html += '<span style="font-size:10px;color:var(--dim)">' + creators.length + '\uBA85</span>';
+    html += '</div>';
+    creators.forEach(function(c) {
+      var cbId = 'cb-creator-' + c.username;
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9" data-week="' + weekId + '">';
+      html += '<input type="checkbox" id="' + cbId + '" data-username="' + escapeHtml(c.username) + '" data-week="' + weekId + '" checked class="batch-creator-cb" onchange="updateSheetBatchCount()" style="width:13px;height:13px;accent-color:var(--g)">';
+      html += '<span style="font-size:11px;font-weight:600;color:var(--a)">@' + escapeHtml(c.username) + '</span>';
+      html += '<span style="font-size:10px;color:var(--dim)">' + (c.name || '') + '</span>';
+      if (c.followers) html += '<span style="font-size:10px;color:var(--dim)">' + c.followers.toLocaleString() + ' followers</span>';
+      if (c._bestViews) html += '<span style="font-size:10px;background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:4px">' + (c._bestViews >= 1000 ? Math.round(c._bestViews/1000) + 'K' : c._bestViews) + ' views</span>';
+      if (c._latestPostDate) html += '<span style="font-size:9px;color:var(--muted)">' + c._latestPostDate + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  body.innerHTML = html;
+  updateSheetBatchCount();
+}
+
+function toggleWeekBatch(weekCb, weekId) {
+  var checked = weekCb.checked;
+  document.querySelectorAll('.batch-creator-cb[data-week="' + weekId + '"]').forEach(function(cb) {
+    cb.checked = checked;
+  });
+  updateSheetBatchCount();
+}
+
+function updateSheetBatchCount() {
+  var selected = document.querySelectorAll('.batch-creator-cb:checked').length;
+  document.getElementById('sheet-batch-status').textContent = selected + '\uBA85 \uC120\uD0DD\uB428';
+}
+
+function confirmSheetBatchAdd() {
+  var selected = [];
+  document.querySelectorAll('.batch-creator-cb:checked').forEach(function(cb) {
+    var username = cb.dataset.username;
+    var c = _sheetData.find(function(x) { return x.username === username; });
+    if (c) selected.push({ username: c.username, name: c.name || '', followers: c.followers || 0, platform: c.platform || 'instagram', source: 'sheet_batch' });
+  });
+  if (!selected.length) { showToast('\uC120\uD0DD\uB41C \uD06C\uB9AC\uC5D0\uC774\uD130\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4', 'err'); return; }
+  var btn = document.getElementById('btn-sheet-batch-add');
+  btn.disabled = true;
+  document.getElementById('sheet-batch-status').textContent = '\uCD94\uAC00 \uC911...';
+  n8nPost({ action: 'import_creators', creators: selected })
+    .then(function(res) {
+      var count = res.imported || res.count || selected.length;
+      showToast(count + '\uBA85 \uD30C\uC774\uD504\uB77C\uC778\uC5D0 \uCD94\uAC00\uB428');
+      closeSheetBatchModal();
+      loadCreators();
+    })
+    .catch(function(err) {
+      document.getElementById('sheet-batch-status').textContent = '\uC624\uB958: ' + (err.message || err);
+      showToast('\uCD94\uAC00 \uC2E4\uD328', 'err');
+      btn.disabled = false;
+    });
+}
+
+function addToPipeline(handle) {
+  var c = _sheetData.find(function(x) { return x.username === handle; });
+  if (!c) return;
+  n8nPost({ action: 'add_creator', username: c.username, name: c.name || '', followers: c.followers || 0, platform: c.platform || '', source: 'discovery' })
+    .then(function(res) {
+      if (res.status === 'ok' || res.ok) {
+        showToast('@' + handle + ' added to pipeline!', 'ok');
+        loadCreators();
+      } else {
+        showToast('Failed to add: ' + (res.error || 'unknown'), 'err');
+      }
+    })
+    .catch(function(err) {
+      showToast('Add failed: ' + err.message, 'err');
+    });
 }
 </script>
 </body>
