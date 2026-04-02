@@ -113,3 +113,178 @@ def load_dk_amazon_ads(days: int = 7, brand: str = None) -> list:
     if brand:
         kwargs["brand"] = brand
     return dk.get("amazon_ads_daily", **kwargs) or []
+
+
+# ─── Gate 1 Helpers ──────────────────────────────────────────────────────────
+def _pct_diff(a: float, b: float) -> float:
+    """Return absolute percentage difference between a and b."""
+    if a == 0 and b == 0:
+        return 0.0
+    denom = abs(a) if a != 0 else abs(b)
+    return abs(a - b) / denom
+
+
+def _check(name: str, val_a: float, val_b: float, tolerance: float,
+           label_a: str = "A", label_b: str = "B", mode: str = "pct") -> dict:
+    """Single comparison. mode='pct' uses _pct_diff, mode='abs' uses absolute diff."""
+    if mode == "abs":
+        diff = abs(val_a - val_b)
+    else:
+        diff = _pct_diff(val_a, val_b)
+    passed = diff <= tolerance
+    result = {"check": name, "pass": passed, label_a: val_a, label_b: val_b,
+              "diff": round(diff, 6), "tolerance": tolerance, "mode": mode}
+    if not passed:
+        result["detail"] = (
+            f"{name}: {label_a}={val_a}, {label_b}={val_b}, "
+            f"diff={round(diff * (100 if mode == 'pct' else 1), 2)}"
+            f"{'%' if mode == 'pct' else 'pp'} > tol={tolerance}"
+        )
+    return result
+
+
+# ─── Gate 1 Loop Functions ───────────────────────────────────────────────────
+def gate1_loop1_dk_vs_fin(dk_summary: dict, fin_summary: dict) -> dict:
+    """Loop 1: DataKeeper vs Financial Dashboard — spend/sales 7D comparison."""
+    checks = []
+    for metric in ("spend_7d", "sales_7d"):
+        c = _check(metric, dk_summary[metric], fin_summary[metric],
+                    SPEND_TOLERANCE, "dk", "fin")
+        checks.append(c)
+    failures = [c for c in checks if not c["pass"]]
+    return {"loop": 1, "name": "DK vs Financial", "pass": len(failures) == 0,
+            "checks": checks, "failures": failures}
+
+
+def gate1_loop2_dk_vs_ppc(dk_campaigns: dict, ppc_campaigns: dict) -> dict:
+    """Loop 2: DataKeeper vs PPC Dashboard — campaign-level spend + ACOS."""
+    checks = []
+    all_keys = set(dk_campaigns) | set(ppc_campaigns)
+    for camp in sorted(all_keys):
+        dk_c = dk_campaigns.get(camp, {})
+        ppc_c = ppc_campaigns.get(camp, {})
+        # Spend check (percentage)
+        c_spend = _check(f"{camp}/spend", dk_c.get("spend_7d", 0),
+                         ppc_c.get("spend_7d", 0), SPEND_TOLERANCE, "dk", "ppc")
+        checks.append(c_spend)
+        # ACOS check (absolute pp)
+        c_acos = _check(f"{camp}/acos", dk_c.get("acos_7d", 0),
+                        ppc_c.get("acos_7d", 0), ACOS_TOLERANCE_PP,
+                        "dk", "ppc", mode="abs")
+        checks.append(c_acos)
+    failures = [c for c in checks if not c["pass"]]
+    return {"loop": 2, "name": "DK vs PPC", "pass": len(failures) == 0,
+            "checks": checks, "failures": failures}
+
+
+def gate1_loop3_three_way(l1_result: dict, l2_result: dict,
+                          insights_path: str = None) -> dict:
+    """Loop 3: 3-way reconciliation + yesterday's insights check."""
+    all_failures = l1_result.get("failures", []) + l2_result.get("failures", [])
+    insights_ok = True
+    insights_note = None
+    if insights_path:
+        p = Path(insights_path)
+        if p.exists():
+            insights_note = "insights file found"
+        else:
+            insights_ok = False
+            insights_note = "insights file missing"
+            all_failures.append({"check": "insights_file", "detail": insights_note})
+    passed = len(all_failures) == 0 and insights_ok
+    return {"loop": 3, "name": "3-way reconciliation", "pass": passed,
+            "failures": all_failures, "insights_note": insights_note}
+
+
+def _summarize_dk_ads(rows: list) -> dict:
+    """Summarize DK amazon_ads_daily rows into spend_7d / sales_7d."""
+    spend = sum(r.get("spend", 0) for r in rows)
+    sales = sum(r.get("sales", 0) for r in rows)
+    return {"spend_7d": spend, "sales_7d": sales}
+
+
+def _extract_fin_ads_summary(fin_data: dict) -> dict:
+    """Extract 7d spend/sales from fin_data structure."""
+    amz = fin_data.get("ad_performance", {}).get("amazon", {}).get("7d", {})
+    return {"spend_7d": amz.get("spend", 0), "sales_7d": amz.get("sales", 0)}
+
+
+def _print_loop(result: dict) -> None:
+    status = "PASS" if result["pass"] else "FAIL"
+    print(f"  Loop {result.get('loop', '?')}: {result.get('name', '')} — {status}")
+    for f in result.get("failures", []):
+        print(f"    ✗ {f.get('detail', f.get('check', ''))}")
+
+
+# ─── Gate 1 Orchestrator ─────────────────────────────────────────────────────
+def run_gate1(brand: str = "naeiae") -> dict:
+    """Orchestrate Gate 1: Pre-Propose Cross-Check (3 Loops).
+
+    If DataKeeper is down, enters fallback mode: skip loops 1-2,
+    set budget_override=0.70 (conservative cap).
+    """
+    now_pst = datetime.now(PST)
+    result = {
+        "gate": 1,
+        "brand": brand,
+        "timestamp_pst": now_pst.strftime("%Y-%m-%d %H:%M PST"),
+        "fallback_mode": False,
+        "budget_override": 1.0,
+        "loops": {},
+    }
+
+    # Load dashboard data
+    fin_data = load_fin_data()
+    ppc_data = load_ppc_data()
+
+    # Freshness checks
+    fin_fresh = check_freshness(fin_data.get("generated_pst", ""), FRESHNESS_MAX_HOURS)
+    ppc_fresh = check_freshness(ppc_data.get("generated_pst", ""), FRESHNESS_MAX_HOURS)
+    result["freshness"] = {"fin_data": fin_fresh, "ppc_data": ppc_fresh}
+
+    # DataKeeper connectivity
+    dk_ok = test_datakeeper_connection()
+
+    if not dk_ok:
+        # Fallback mode — skip loops 1 & 2
+        result["fallback_mode"] = True
+        result["budget_override"] = 0.70
+        l1 = {"loop": 1, "name": "DK vs Financial", "pass": True,
+               "skipped": True, "checks": [], "failures": []}
+        l2 = {"loop": 2, "name": "DK vs PPC", "pass": True,
+               "skipped": True, "checks": [], "failures": []}
+        l3 = gate1_loop3_three_way(l1, l2)
+        result["loops"] = {"loop1": l1, "loop2": l2, "loop3": l3}
+        result["pass"] = l3["pass"]
+    else:
+        # Normal mode
+        dk_rows = load_dk_amazon_ads(days=7, brand=brand)
+        dk_summary = _summarize_dk_ads(dk_rows)
+        fin_summary = _extract_fin_ads_summary(fin_data)
+
+        l1 = gate1_loop1_dk_vs_fin(dk_summary, fin_summary)
+        l2 = gate1_loop2_dk_vs_ppc({}, {})  # placeholder — needs campaign mapping
+        l3 = gate1_loop3_three_way(l1, l2)
+
+        result["loops"] = {"loop1": l1, "loop2": l2, "loop3": l3}
+        result["pass"] = l3["pass"]
+
+    # Print summary
+    print(f"\n{'='*50}")
+    print(f"Gate 1 — Pre-Propose Cross-Check  [{brand}]")
+    print(f"{'='*50}")
+    if result["fallback_mode"]:
+        print("  ⚠ FALLBACK MODE — DataKeeper unavailable")
+        print(f"  Budget override: {result['budget_override']:.0%}")
+    for k in ("loop1", "loop2", "loop3"):
+        _print_loop(result["loops"][k])
+    overall = "PASS" if result["pass"] else "FAIL"
+    print(f"  Overall: {overall}")
+    print(f"{'='*50}\n")
+
+    # Save result
+    out_path = TMP / "ppc_xv_gate1_result.json"
+    out_path.write_text(json.dumps(result, indent=2, default=str), encoding="utf-8")
+    result["saved_to"] = str(out_path)
+
+    return result

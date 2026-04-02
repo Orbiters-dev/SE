@@ -77,3 +77,51 @@ class TestDataKeeperFallback:
         mock_dk.get.side_effect = Exception("Connection refused")
         mock_dk_cls.return_value = mock_dk
         assert test_datakeeper_connection() is False
+
+
+class TestGate1:
+    def test_loop1_dk_vs_fin_passes_within_tolerance(self):
+        from ppc_cross_verifier import gate1_loop1_dk_vs_fin
+        dk_summary = {"spend_7d": 500.0, "sales_7d": 2000.0}
+        fin_summary = {"spend_7d": 502.0, "sales_7d": 2010.0}
+        result = gate1_loop1_dk_vs_fin(dk_summary, fin_summary)
+        assert result["pass"] is True
+
+    def test_loop1_dk_vs_fin_fails_outside_tolerance(self):
+        from ppc_cross_verifier import gate1_loop1_dk_vs_fin
+        dk_summary = {"spend_7d": 500.0, "sales_7d": 2000.0}
+        fin_summary = {"spend_7d": 600.0, "sales_7d": 2000.0}
+        result = gate1_loop1_dk_vs_fin(dk_summary, fin_summary)
+        assert result["pass"] is False
+        assert any("spend" in f.get("check", "") for f in result["failures"])
+
+    def test_loop2_dk_vs_ppc_passes(self):
+        from ppc_cross_verifier import gate1_loop2_dk_vs_ppc
+        dk_campaigns = {"camp1": {"spend_7d": 100.0, "acos_7d": 25.0}}
+        ppc_campaigns = {"camp1": {"spend_7d": 100.5, "acos_7d": 25.3}}
+        result = gate1_loop2_dk_vs_ppc(dk_campaigns, ppc_campaigns)
+        assert result["pass"] is True
+
+    def test_loop3_three_way_passes_when_all_match(self):
+        from ppc_cross_verifier import gate1_loop3_three_way
+        l1 = {"pass": True, "failures": []}
+        l2 = {"pass": True, "failures": []}
+        result = gate1_loop3_three_way(l1, l2, insights_path=None)
+        assert result["pass"] is True
+
+    def test_loop3_three_way_fails_on_prior_failure(self):
+        from ppc_cross_verifier import gate1_loop3_three_way
+        l1 = {"pass": False, "failures": [{"check": "spend", "detail": "20% off"}]}
+        l2 = {"pass": True, "failures": []}
+        result = gate1_loop3_three_way(l1, l2, insights_path=None)
+        assert result["pass"] is False
+
+    def test_run_gate1_returns_result_in_fallback(self):
+        from ppc_cross_verifier import run_gate1
+        with patch("ppc_cross_verifier.test_datakeeper_connection", return_value=False):
+            with patch("ppc_cross_verifier.load_fin_data", return_value={"generated_pst": datetime.now().strftime("%Y-%m-%d %H:%M PST"), "ad_performance": {"amazon": {"7d": {"spend": 500, "sales": 2000}}}}):
+                with patch("ppc_cross_verifier.load_ppc_data", return_value={"generated_pst": datetime.now().strftime("%Y-%m-%d %H:%M PST")}):
+                    result = run_gate1(brand="naeiae")
+                    assert result["gate"] == 1
+                    assert result["fallback_mode"] is True
+                    assert result["budget_override"] == 0.70
