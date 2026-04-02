@@ -1,0 +1,67 @@
+name: Gmail RAG Contact Sync
+
+on:
+  schedule:
+    - cron: '0 7 * * *'    # Daily UTC 07:00 = KST 16:00 (before outreach window)
+  workflow_dispatch:        # manual trigger
+    inputs:
+      mode:
+        description: 'Sync mode (incremental or backfill)'
+        required: false
+        default: 'incremental'
+      account:
+        description: 'Account (onzenna, zezebaebae, or both)'
+        required: false
+        default: 'both'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --quiet \
+            python-dotenv \
+            google-auth \
+            google-auth-oauthlib \
+            google-api-python-client
+
+      - name: Write .env
+        run: |
+          cat > .env <<'ENVEOF'
+          ORBITOOLS_URL=https://orbitools.orbiters.co.kr
+          ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
+          ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
+          ENVEOF
+
+      - name: Write Gmail tokens
+        run: |
+          mkdir -p credentials
+          echo '${{ secrets.GMAIL_TOKEN_ONZENNA }}' > credentials/onzenna_gmail_token.json
+          echo '${{ secrets.GMAIL_TOKEN_ZEZEBAEBAE }}' > credentials/zezebaebae_gmail_token.json
+          echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS }}' > credentials/gmail_oauth_credentials.json
+
+      - name: Run Gmail Sent sync
+        env:
+          SYNC_MODE: ${{ github.event.inputs.mode || 'incremental' }}
+          SYNC_ACCOUNT: ${{ github.event.inputs.account || 'both' }}
+        run: |
+          ARGS=""
+          if [ "$SYNC_MODE" = "backfill" ]; then
+            ARGS="$ARGS --backfill"
+          fi
+          if [ "$SYNC_ACCOUNT" != "both" ]; then
+            ARGS="$ARGS --account $SYNC_ACCOUNT"
+          fi
+
+          python tools/sync_gmail_sent_to_pg.py $ARGS
