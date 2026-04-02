@@ -153,7 +153,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
     <div class="sub">Creator Collab Pipeline &#8212; Full Management Dashboard</div>
     <div class="meta" id="hero-meta">
       <span class="pill" id="pill-api"><span class="dot"></span>EC2 API</span>
-      <span class="pill" id="pill-date">Loading...</span>
+      <span class="pill" id="pill-date">—</span>
       <span class="pill" id="pill-total">-</span>
     </div>
   </div>
@@ -1735,10 +1735,12 @@ async function loadDashboard(){
     document.getElementById('ds-accepted').textContent=st.by_status['Accepted']||0;
     document.getElementById('ds-posted').textContent=st.by_status['Posted']||0;
     document.getElementById('ds-review').textContent=st.by_status['Needs Review']||0;
-    var accepted=(st.by_status['Accepted']||0)+(st.by_status['Sample Sent']||0)+(st.by_status['Sample Shipped']||0)+(st.by_status['Sample Delivered']||0)+(st.by_status['Posted']||0);
+    var progressed=(st.by_status['Sent']||0)+(st.by_status['Replied']||0)+(st.by_status['Needs Review']||0)+(st.by_status['Accepted']||0)+(st.by_status['Sample Sent']||0)+(st.by_status['Sample Shipped']||0)+(st.by_status['Sample Delivered']||0)+(st.by_status['Reminder Sent']||0)+(st.by_status['Posted']||0);
     var total=st.total||1;
-    document.getElementById('ds-conversion').textContent=Math.round(accepted/total*100)+'%';
+    document.getElementById('ds-conversion').textContent=Math.round(progressed/total*100)+'%';
     document.getElementById('pill-total').textContent=st.total+' creators';
+    // Set date pill from config or today
+    if(!_config){document.getElementById('pill-date').textContent=new Date().toISOString().slice(0,10)}
     // Mini funnel
     buildFunnel(st.by_status,'dash-funnel',_crStatusFilter);
     // Recent activity
@@ -1784,7 +1786,7 @@ function populateConfigForm(c){
   document.getElementById('f-apify-autofill').checked=c.apify_autofill;
   document.getElementById('f-apify-brand-filter').checked=c.apify_brand_filter!==false;
   document.getElementById('f-us-only').checked=c.us_only!==false;
-  document.getElementById('f-hil-draft').checked=c.hil_draft_review!==false;
+  document.getElementById('f-hil-draft').checked=!!c.hil_draft_review;
   document.getElementById('f-hil-send').checked=c.hil_send_approval!==false;
   document.getElementById('f-hil-sample').checked=!!c.hil_sample_approval;
   document.getElementById('f-sender-email').value=c.sender_email;
@@ -2764,9 +2766,10 @@ async function confirmExec(){
 
   _tabLoaded['execution']=false;
   loadExecLog();
+  var cooldown=(action==='send')?30000:3000;
   setTimeout(function(){
     if(btn){btn.disabled=false;btn.textContent=meta.icon+' '+meta.title}
-  },3000);
+  },cooldown);
 }
 
 // ========== EXECUTION LOG ==========
@@ -4578,8 +4581,8 @@ async function createReviewDraft(){
   }catch(e){showToast('Draft creation failed: '+e.message,'err')}
 }
 
-// Auto-start remote control
-startRemoteControl();
+// Remote control disabled — /remote/poll/ endpoint not yet implemented on backend
+// startRemoteControl();
 </script>
 </body>
 </html>
