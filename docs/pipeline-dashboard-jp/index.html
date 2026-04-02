@@ -324,9 +324,14 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
       <h3>&#x1F916; Generate DM Drafts</h3>
       <div class="desc">Not Startedのクリエイター (過去DM履歴なし) にAI初案を生成</div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <div style="font-size:11px">
+        <div style="font-size:11px;display:flex;gap:8px;align-items:center">
           <label style="font-weight:600;color:var(--dim)">Batch Size:</label>
-          <input type="number" id="draft-batch-size" value="10" min="1" max="50" style="width:60px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit">
+          <input type="number" id="draft-batch-size" value="29" min="1" max="100" style="width:60px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit">
+          <span style="color:var(--muted);font-size:9px;margin-left:4px">또는 플랫폼별:</span>
+          <label style="font-weight:500;color:#e1306c">IG</label>
+          <input type="number" id="draft-ig-count" value="" min="0" max="50" placeholder="all" style="width:50px;padding:5px 6px;border:1px solid var(--border);border-radius:6px;font-size:11px">
+          <label style="font-weight:500;color:#000">TT</label>
+          <input type="number" id="draft-tt-count" value="" min="0" max="50" placeholder="all" style="width:50px;padding:5px 6px;border:1px solid var(--border);border-radius:6px;font-size:11px">
         </div>
         <button class="btn btn-primary" id="btn-generate" onclick="generateDrafts()">
           &#x26A1; Generate Drafts
@@ -1007,7 +1012,23 @@ function generateDrafts() {
     return c.status === 'not_started' && c.dm_count === 0;
   });
   var batch = parseInt(document.getElementById('draft-batch-size').value) || 10;
-  var toGenerate = eligible.slice(0, batch);
+  var igCount = document.getElementById('draft-ig-count').value ? parseInt(document.getElementById('draft-ig-count').value) : -1;
+  var ttCount = document.getElementById('draft-tt-count').value ? parseInt(document.getElementById('draft-tt-count').value) : -1;
+
+  var toGenerate;
+  if (igCount >= 0 || ttCount >= 0) {
+    // Platform-specific batch: pick N from each platform
+    var igPool = eligible.filter(function(c) { return (c.platform || '').toLowerCase() !== 'tiktok'; });
+    var ttPool = eligible.filter(function(c) { return (c.platform || '').toLowerCase() === 'tiktok'; });
+    var picked = [];
+    if (igCount >= 0) picked = picked.concat(igPool.slice(0, igCount));
+    else picked = picked.concat(igPool);
+    if (ttCount >= 0) picked = picked.concat(ttPool.slice(0, ttCount));
+    else picked = picked.concat(ttPool);
+    toGenerate = picked.slice(0, batch);
+  } else {
+    toGenerate = eligible.slice(0, batch);
+  }
 
   if (!toGenerate.length) {
     statusEl.textContent = 'No eligible creators (all have past contact or drafts).';
@@ -1016,7 +1037,26 @@ function generateDrafts() {
   }
 
   var payload = toGenerate.map(function(c) {
-    return { username: c.username, name: c.name, followers: c.followers, content_script: c.content_script || '' };
+    // Attach best transcript + CI context for personalized DM opening
+    var sd = _sheetData.find(function(s) { return s.username === c.username; });
+    var script = c.content_script || '';
+    var ciContext = '';
+    if (sd && sd._posts) {
+      var bestPost = sd._posts.find(function(p) { return p.transcript && p.transcript.trim(); });
+      if (bestPost) {
+        if (!script) script = bestPost.transcript;
+        // Build CI context for DM personalization
+        var ci = bestPost.ci || {};
+        var parts = [];
+        if (ci.key_message) parts.push('content_theme: ' + ci.key_message);
+        if (ci.persuasion_type) parts.push('style: ' + ci.persuasion_type);
+        if (ci.emotional_tone) parts.push('tone: ' + ci.emotional_tone);
+        if (ci.delivery_verbal_score) parts.push('delivery_score: ' + ci.delivery_verbal_score + '/10');
+        if (bestPost.platform) parts.push('platform: ' + bestPost.platform);
+        if (parts.length) ciContext = parts.join(' | ');
+      }
+    }
+    return { username: c.username, name: c.name, followers: c.followers, content_script: script, ci_context: ciContext, platform: c.platform || '' };
   });
 
   n8nPost({ action: 'generate_draft', creators: payload })
