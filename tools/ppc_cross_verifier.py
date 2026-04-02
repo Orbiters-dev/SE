@@ -84,16 +84,19 @@ def load_ppc_data(path: str = None) -> dict:
 def check_freshness(generated_pst: str, max_hours: int = 24) -> dict:
     try:
         clean = generated_pst.replace(" PST", "").replace(" PDT", "").strip()
-        # Handle both "%Y-%m-%d %H:%M" and "%Y-%m-%d %H:%M:%S"
-        for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"):
+        # Handle multiple timestamp formats
+        ts = None
+        for fmt in ("%Y-%m-%dT%H:%M:%S.%f", "%Y-%m-%dT%H:%M:%S",
+                     "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"):
             try:
                 ts = datetime.strptime(clean, fmt)
                 break
             except ValueError:
                 continue
-        else:
+        if ts is None:
             raise ValueError(f"Cannot parse timestamp: {generated_pst}")
-        ts = ts.replace(tzinfo=PST)
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=PST)
         age = datetime.now(PST) - ts
         age_hours = age.total_seconds() / 3600
         return {
@@ -329,14 +332,15 @@ def gate2_loop2_ceilings(proposals: list, config: dict) -> dict:
 
     for p in proposals:
         cid = p.get("campaignId", "?")
-        new_budget = p.get("new_daily_budget", 0)
-        proposed_bid = p.get("proposed_bid", 0)
-        cur_budget = p.get("currentDailyBudget", 0)
-        cur_bid = p.get("current_bid", 0)
-        total_proposed += new_budget
+        raw_new_budget = p.get("new_daily_budget")
+        new_budget = raw_new_budget or 0
+        proposed_bid = p.get("proposed_bid") or 0
+        cur_budget = p.get("currentDailyBudget") or 0
+        cur_bid = p.get("current_bid") or 0
+        total_proposed += (new_budget if raw_new_budget else cur_budget)
 
-        # Ceiling checks
-        if new_budget > max_camp_budget:
+        # Ceiling checks — only when budget is actually changing
+        if raw_new_budget and new_budget > max_camp_budget:
             failures.append({
                 "check": "budget_ceiling",
                 "campaignId": cid,
@@ -349,8 +353,8 @@ def gate2_loop2_ceilings(proposals: list, config: dict) -> dict:
                 "detail": f"proposed_bid {proposed_bid} > max {max_bid}",
             })
 
-        # Rate-limit checks
-        if cur_budget > 0:
+        # Rate-limit checks — only when values are actually changing
+        if raw_new_budget and cur_budget > 0:
             budget_change = abs(new_budget - cur_budget) / cur_budget
             if budget_change > MAX_DAILY_BUDGET_CHANGE:
                 failures.append({
@@ -465,7 +469,8 @@ def run_gate2(brand: str, proposal_path: str = None) -> dict:
 
     # Loop 3: Financial
     spend_delta = sum(
-        c.get("new_daily_budget", 0) - c.get("currentDailyBudget", 0) for c in changes
+        (c.get("new_daily_budget") or c.get("currentDailyBudget") or 0) -
+        (c.get("currentDailyBudget") or 0) for c in changes
     )
     current_sales = brand_cfg.get("current_total_sales", 10000)
     current_tacos = brand_cfg.get("current_tacos", 0.10)
@@ -753,7 +758,15 @@ def gate3_loop3_generate_insights(gate1_result: dict, gate3_loop1: dict,
                                    social_trends: dict = None) -> dict:
     """Loop 3: Generate accumulated insights for next day's Gate 1."""
     insights = []
-    for f in gate1_result.get("loops", [{}])[0].get("failures", []):
+    # loops may be dict {"loop1": ...} or list [{...}]
+    loops = gate1_result.get("loops", {})
+    if isinstance(loops, dict):
+        first_loop = loops.get("loop1", {})
+    elif isinstance(loops, list) and loops:
+        first_loop = loops[0]
+    else:
+        first_loop = {}
+    for f in first_loop.get("failures", []):
         insights.append({
             "type": "data_inconsistency",
             "detail": f.get("detail", str(f)),
@@ -787,7 +800,12 @@ def gate3_loop3_generate_insights(gate1_result: dict, gate3_loop1: dict,
     output = {
         "generated_pst": datetime.now(PST).strftime("%Y-%m-%dT%H:%M:%S%z"),
         "insights": insights,
-        "gate_failures_today": sum(1 for l in gate1_result.get("loops", []) if not l.get("pass")),
+        "gate_failures_today": sum(
+            1 for l in (gate1_result.get("loops", {}).values()
+                        if isinstance(gate1_result.get("loops"), dict)
+                        else gate1_result.get("loops", []))
+            if isinstance(l, dict) and not l.get("pass")
+        ),
     }
     out_path = TMP / "ppc_xv_insights.json"
     out_path.write_text(json.dumps(output, indent=2, default=str), encoding="utf-8")
