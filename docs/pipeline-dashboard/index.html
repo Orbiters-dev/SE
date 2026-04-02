@@ -1065,50 +1065,81 @@ Shopify                         Apify / Syncly                   Gmail RAG
 
   <!-- ===== TAB 3: EXECUTION ===== -->
   <div class="mp" id="p-execution">
+    <!-- LT/HT Execution Sub-tabs -->
+    <div style="display:flex;gap:0;margin-bottom:16px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+      <button class="btn" id="ex-btn-lt" onclick="switchExecMode('lt')" style="flex:1;border-radius:0;border:none;padding:12px;font-size:12px;font-weight:700;background:var(--a);color:#fff">
+        &#x26A1; LOW TOUCH<br><span style="font-weight:400;font-size:10px">Auto-send | Gifting only</span>
+      </button>
+      <button class="btn" id="ex-btn-ht" onclick="switchExecMode('ht')" style="flex:1;border-radius:0;border:none;border-left:1px solid var(--border);padding:12px;font-size:12px;font-weight:700;background:var(--bg);color:var(--dim)">
+        &#x1F451; HIGH TOUCH<br><span style="font-weight:400;font-size:10px">Manual review | Contract + Payment</span>
+      </button>
+    </div>
+
     <!-- Pipeline funnel -->
     <div class="card">
       <h3>&#x1F3AF; Pipeline Funnel</h3>
       <div class="funnel" id="exec-funnel"></div>
     </div>
-    <!-- PROPOSE & EXECUTE -->
-    <div class="card" id="propose-execute-card">
-      <h3>&#x26A1; Pending Actions <span id="pe-total" style="background:var(--am);color:#fff;padding:1px 8px;border-radius:10px;font-size:10px;margin-left:4px">0</span>
-        <button class="btn btn-primary" id="pe-execute-btn" onclick="executeAllPending()" style="margin-left:auto;font-size:11px;padding:5px 16px">&#x1F680; Execute All</button>
-      </h3>
-      <div class="desc">PPC Propose &amp; Execute &#xD328;&#xD134;. &#xCCB4;&#xD06C;&#xB41C; &#xD56D;&#xBAA9;&#xB9CC; &#xC2E4;&#xD589;&#xB429;&#xB2C8;&#xB2E4;. &#xAE30;&#xBCF8; &#xC804;&#xCCB4; &#xCCB4;&#xD06C;.</div>
-      <div id="pe-actions" style="margin-top:10px">
-        <div style="color:var(--muted);font-size:11px;padding:8px 0">Loading pending actions...</div>
+
+    <!-- ===== LT Execution Panel ===== -->
+    <div id="exec-panel-lt">
+      <div class="card" id="propose-execute-card">
+        <h3>&#x26A1; Pending Actions <span id="pe-total" style="background:var(--am);color:#fff;padding:1px 8px;border-radius:10px;font-size:10px;margin-left:4px">0</span>
+          <button class="btn btn-primary" id="pe-execute-btn" onclick="executeAllPending()" style="margin-left:auto;font-size:11px;padding:5px 16px">&#x1F680; Execute All</button>
+        </h3>
+        <div class="desc">PPC Propose &amp; Execute &#xD328;&#xD134;. &#xCCB4;&#xD06C;&#xB41C; &#xD56D;&#xBAA9;&#xB9CC; &#xC2E4;&#xD589;&#xB429;&#xB2C8;&#xB2E4;. &#xAE30;&#xBCF8; &#xC804;&#xCCB4; &#xCCB4;&#xD06C;.</div>
+        <div id="pe-actions" style="margin-top:10px">
+          <div style="color:var(--muted);font-size:11px;padding:8px 0">Loading pending actions...</div>
+        </div>
+      </div>
+      <div style="background:#eff6ff;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:11px;border-left:3px solid var(--a)">&#x26A1; <b>LT Execution</b> &mdash; Draft <b>Auto-approve</b> &#x2192; Send <b>Auto-send</b> &#x2192; Accept <b>Auto-complete</b>. &#xC0AC;&#xB78C; &#xAC80;&#xD1A0; &#xCD5C;&#xC18C;&#xD654;.</div>
+      <!-- LT Pipeline Operations -->
+      <div class="card">
+        <h3>&#x2699;&#xFE0F; LT Pipeline Operations</h3>
+        <div class="desc">&#xC790;&#xB3D9;&#xD654; &#xC911;&#xC2EC;. Draft &#x2192; Send &#x2192; Accept &#xC790;&#xB3D9; &#xCC98;&#xB9AC;.</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px">
+          <button class="btn btn-secondary" id="btn-preview" onclick="execAction('preview')">&#x1F50D; Preview Counts</button>
+          <button class="btn btn-secondary" id="btn-draft" onclick="execAction('draft_gen')" style="border-left:3px solid var(--a)">&#x1F4DD; Generate Drafts</button>
+          <button class="btn btn-secondary" id="btn-send" onclick="execAction('send')" style="border-left:3px solid var(--am)">&#x1F4E8; Send Batch</button>
+          <button class="btn btn-secondary" onclick="refreshFunnel()">&#x1F504; Refresh Funnel</button>
+        </div>
       </div>
     </div>
 
-    <!-- REVIEW QUEUE -->
-    <div class="card" id="review-queue-card">
-      <h3>&#x1F50D; Review Queue <span id="rq-count" style="background:var(--p);color:#fff;padding:1px 8px;border-radius:10px;font-size:10px;margin-left:4px">0</span></h3>
-      <div class="desc">Creators awaiting review. Check items to approve or decline. Like PPC harvest &#8212; auto-checked by default.</div>
-      <div id="rq-items" style="max-height:400px;overflow-y:auto">
-        <div style="color:var(--muted);font-size:11px;padding:8px 0">Loading...</div>
-      </div>
-      <div id="rq-toolbar" style="display:none;margin-top:12px;padding:12px;background:#fafbff;border:1px solid var(--border);border-radius:8px">
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-          <span style="font-size:11px;color:var(--dim);white-space:nowrap">Note:</span>
-          <input type="text" id="rq-note" placeholder="Reason for this decision (optional)" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit">
+    <!-- ===== HT Execution Panel ===== -->
+    <div id="exec-panel-ht" style="display:none">
+      <div style="background:#fdf2f8;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:11px;border-left:3px solid var(--p)">&#x1F451; <b>HT Execution</b> &mdash; Draft <b>Manual Review</b> &#x2192; Send <b>Manual Review</b> &#x2192; <b>Contract &#xC11C;&#xBA85;</b> &#x2192; Accept &#x2192; Sample &#x2192; <b>Payment</b>. &#xB9E4; &#xB2E8;&#xACC4; &#xC0AC;&#xB78C; &#xAC80;&#xD1A0;.</div>
+      <!-- HT Review Queue -->
+      <div class="card" id="review-queue-card">
+        <h3>&#x1F50D; Review Queue <span id="rq-count" style="background:var(--p);color:#fff;padding:1px 8px;border-radius:10px;font-size:10px;margin-left:4px">0</span></h3>
+        <div class="desc">HT Creators &#xAC80;&#xD1A0; &#xB300;&#xAE30;. Draft Review, Reply Review, Contract, Payment &#xBAA8;&#xB450; &#xC5EC;&#xAE30;&#xC11C; &#xCC98;&#xB9AC;.</div>
+        <div id="rq-items" style="max-height:400px;overflow-y:auto">
+          <div style="color:var(--muted);font-size:11px;padding:8px 0">Loading...</div>
         </div>
-        <div style="display:flex;gap:8px;justify-content:flex-end">
-          <button class="btn btn-success" id="rq-accept-btn" onclick="bulkReview('Accepted')">&#x2705; Accept Selected (<span id="rq-accept-count">0</span>)</button>
-          <button class="btn btn-danger btn-sm" id="rq-decline-btn" onclick="bulkReview('Declined')">&#x274C; Decline Selected</button>
+        <div id="rq-toolbar" style="display:none;margin-top:12px;padding:12px;background:#fafbff;border:1px solid var(--border);border-radius:8px">
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+            <span style="font-size:11px;color:var(--dim);white-space:nowrap">Note:</span>
+            <input type="text" id="rq-note" placeholder="Reason for this decision (optional)" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit">
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button class="btn btn-success" id="rq-accept-btn" onclick="bulkReview('Accepted')">&#x2705; Accept Selected (<span id="rq-accept-count">0</span>)</button>
+            <button class="btn btn-danger btn-sm" id="rq-decline-btn" onclick="bulkReview('Declined')">&#x274C; Decline Selected</button>
+          </div>
         </div>
+        <div id="rq-history" style="margin-top:10px"></div>
       </div>
-      <div id="rq-history" style="margin-top:10px"></div>
-    </div>
-    <!-- Pipeline Operations -->
-    <div class="card">
-      <h3>&#x2699;&#xFE0F; Pipeline Operations</h3>
-      <div class="desc">Run pipeline stages. Each action logs to execution history below.</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px">
-        <button class="btn btn-secondary" id="btn-preview" onclick="execAction('preview')">&#x1F50D; Preview Counts</button>
-        <button class="btn btn-secondary" id="btn-draft" onclick="execAction('draft_gen')" style="border-left:3px solid var(--a)">&#x1F4DD; Generate Drafts</button>
-        <button class="btn btn-secondary" id="btn-send" onclick="execAction('send')" style="border-left:3px solid var(--am)">&#x1F4E8; Send Batch</button>
-        <button class="btn btn-secondary" onclick="refreshFunnel()">&#x1F504; Refresh Funnel</button>
+      <!-- HT Pipeline Operations -->
+      <div class="card">
+        <h3>&#x2699;&#xFE0F; HT Pipeline Operations</h3>
+        <div class="desc">&#xC218;&#xB3D9; &#xAC80;&#xD1A0; &#xC911;&#xC2EC;. Draft Review &#x2192; Send Review &#x2192; Contract &#x2192; Accept &#x2192; Payment.</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px">
+          <button class="btn btn-secondary" onclick="execAction('preview')">&#x1F50D; Preview Counts</button>
+          <button class="btn btn-secondary" onclick="execAction('draft_gen')" style="border-left:3px solid var(--p)">&#x1F4DD; Generate Drafts (Review)</button>
+          <button class="btn btn-secondary" onclick="execAction('send')" style="border-left:3px solid var(--p)">&#x1F4E8; Send Batch (Review)</button>
+          <button class="btn btn-secondary" onclick="execAction('contract')" style="border-left:3px solid #8250df">&#x1F4DC; Send Contracts</button>
+          <button class="btn btn-secondary" onclick="execAction('payment')" style="border-left:3px solid #ea580c">&#x1F4B3; Process Payments</button>
+          <button class="btn btn-secondary" onclick="refreshFunnel()">&#x1F504; Refresh Funnel</button>
+        </div>
       </div>
     </div>
     <!-- ICO Outreach Operations -->
@@ -3324,6 +3355,14 @@ function renderVintageBreakdown(){
 
 // ========== HOW IT WORKS TAB ==========
 var _hwMode='lt';
+function switchExecMode(mode){
+  document.getElementById('ex-btn-lt').style.background=mode==='lt'?'var(--a)':'var(--bg)';
+  document.getElementById('ex-btn-lt').style.color=mode==='lt'?'#fff':'var(--dim)';
+  document.getElementById('ex-btn-ht').style.background=mode==='ht'?'var(--p)':'var(--bg)';
+  document.getElementById('ex-btn-ht').style.color=mode==='ht'?'#fff':'var(--dim)';
+  document.getElementById('exec-panel-lt').style.display=mode==='lt'?'block':'none';
+  document.getElementById('exec-panel-ht').style.display=mode==='ht'?'block':'none';
+}
 function switchHwMode(mode){
   _hwMode=mode;
   document.getElementById('hw-btn-lt').style.background=mode==='lt'?'var(--a)':'var(--bg)';
