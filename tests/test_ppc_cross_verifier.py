@@ -272,3 +272,47 @@ class TestSocialTrends:
             assert len(surges) >= 1
             assert surges[0]["hashtag"] == "babyledweaning"
             assert surges[0]["surge_ratio"] > 2.0
+
+
+class TestEndToEnd:
+    """Smoke tests using mocked data sources."""
+
+    @patch("ppc_cross_verifier.test_datakeeper_connection", return_value=False)
+    @patch("ppc_cross_verifier.load_fin_data")
+    @patch("ppc_cross_verifier.load_ppc_data")
+    def test_gate1_fallback_mode(self, mock_ppc, mock_fin, mock_dk):
+        from ppc_cross_verifier import run_gate1
+        mock_fin.return_value = {
+            "generated_pst": datetime.now().strftime("%Y-%m-%d %H:%M PST"),
+            "ad_performance": {"amazon": {"7d": {"spend": 500, "sales": 2000}}},
+        }
+        mock_ppc.return_value = {
+            "generated_pst": datetime.now().strftime("%Y-%m-%d %H:%M PST"),
+        }
+        result = run_gate1(brand="naeiae")
+        assert result["fallback_mode"] is True
+        assert result["budget_override"] == 0.70
+        assert result["gate"] == 1
+
+    def test_full_budget_recommendation_naeiae_scenario(self):
+        """Real Naeiae scenario: Manual ROAS 7.38x at $100 ceiling, Auto ACOS 64.9%."""
+        from ppc_cross_verifier import compute_budget_recommendation
+        campaigns = [
+            {"name": "Naeiae Rice Pop - SP - Manual", "campaignId": "1",
+             "currentDailyBudget": 100, "roas_7d": 7.38, "acos_7d": 13.6,
+             "spend_7d": 163, "sales_7d": 1205, "targeting_type": "MANUAL"},
+            {"name": "Naeiae Rice Pop - SP - Auto", "campaignId": "2",
+             "currentDailyBudget": 100, "roas_7d": 1.54, "acos_7d": 64.9,
+             "spend_7d": 176, "sales_7d": 271, "targeting_type": "AUTO"},
+        ]
+        config = {
+            "total_daily_budget": 150,
+            "max_single_campaign_budget": 100,
+            "targeting": {"MANUAL": {"min_roas": 2.5}, "AUTO": {"min_roas": 1.5}},
+        }
+        rec = compute_budget_recommendation("naeiae", campaigns, config)
+        tiers = {r["tier"] for r in rec["recommendations"]}
+        assert 1 in tiers, "Should recommend lifting campaign ceiling"
+        assert 2 in tiers, "Should recommend rebalancing Manual/Auto"
+        assert rec["summary"]["manual_roas_7d"] == 7.38
+        assert rec["summary"]["auto_roas_7d"] == 1.54
