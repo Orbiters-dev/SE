@@ -488,7 +488,7 @@ function renderAutocompleteTab(F){
     return;
   }
 
-  var brandColors={'Grosmimi':'#8b5cf6','Naeiae':'#f59e0b','Onzenna':'#0ea5e9','CHA&MOM':'#ef4444'};
+  var brandColors={'Grosmimi':'#8b5cf6','Naeiae':'#f59e0b','CHA&MOM':'#ef4444'};
   var kwColors=['#6366f1','#ec4899','#f59e0b','#0ea5e9','#10b981','#ef4444','#8b5cf6','#64748b'];
 
   var h='<div class="sec"><div class="sec-title"><div class="num" style="background:#6366f1">8</div> Amazon Search Ranking &mdash; Daily Trend</div>';
@@ -540,71 +540,159 @@ function renderAcContent(){
 
   var h='';
 
+  // JP market: only Grosmimi
+  if(mkt==='JP' && brand!=='Grosmimi'){
+    h+='<div class="card" style="text-align:center;padding:32px"><div style="font-size:32px;margin-bottom:8px">🇯🇵</div>';
+    h+='<h3 style="margin:0 0 6px">JP 마켓은 Grosmimi만 판매 중</h3>';
+    h+='<div class="desc">'+brand+'는 US 마켓에서만 추적됩니다.</div></div>';
+    el.innerHTML=h; return;
+  }
+
   // Latest scores table
   var latestRows=(d.latest[brand]||{})[mkt]||[];
   if(latestRows.length){
     h+='<div class="card" style="margin-bottom:10px"><h3 style="color:'+color+'">'+brand+' — '+(mkt==='US'?'🇺🇸':'🇯🇵')+' Latest Scores</h3>';
-    h+='<table><tr><th>Keyword</th><th>Score</th><th>Position</th><th style="min-width:200px">Visual</th></tr>';
+    h+='<table><tr><th>Keyword</th><th>Score</th><th>Position</th><th>Δ Score</th><th style="min-width:180px">Visual</th></tr>';
     latestRows.sort(function(a,b){return b.score-a.score;});
+    // Compute deltas from trend data
+    var trendRef=(d.trends[brand]||{})[mkt]||{};
     latestRows.forEach(function(r){
       var posLabel=r.position>=0?'#'+(r.position+1):'—';
       var posClass=r.position>=0?(r.position<3?'pos-top3':r.position<5?'pos-top10':'pos-low'):'';
+      // Delta: compare latest score vs previous day
+      var delta='', deltaColor='var(--muted)';
+      var kwTrend=trendRef[r.keyword]||[];
+      if(kwTrend.length>=2){
+        var prev=kwTrend[kwTrend.length-2].score, cur=r.score;
+        var diff=cur-prev;
+        if(diff>0){delta='▲ +'+diff;deltaColor='var(--g)';}
+        else if(diff<0){delta='▼ '+diff;deltaColor='var(--r)';}
+        else{delta='— 0';deltaColor='var(--muted)';}
+      } else { delta='—'; }
       h+='<tr><td style="font-family:var(--mono);font-size:11px">'+r.keyword+'</td>';
       h+='<td style="text-align:right;font-family:var(--mono);font-weight:700;font-size:14px;color:'+(r.score>=60?'var(--g)':r.score>=30?'var(--am)':'var(--r)')+'">'+r.score+'</td>';
       h+='<td style="text-align:center">'+(posClass?'<span class="pos-badge '+posClass+'">'+posLabel+'</span>':'<span style="color:var(--muted)">'+posLabel+'</span>')+'</td>';
-      h+='<td><div class="vol-bar" style="min-width:160px"><div class="fill" style="width:'+r.score+'%;background:linear-gradient(90deg,'+color+','+color+'88)"></div></div></td></tr>';
+      h+='<td style="text-align:center;font-family:var(--mono);font-size:11px;font-weight:700;color:'+deltaColor+'">'+delta+'</td>';
+      h+='<td><div class="vol-bar" style="min-width:140px"><div class="fill" style="width:'+r.score+'%;background:linear-gradient(90deg,'+color+','+color+'88)"></div></div></td></tr>';
     });
     h+='</table></div>';
   }
 
-  // Trend chart (SVG line chart)
+  // ── Score Trend Chart (SVG) ──────────────────────────────────────────
   var trendData=(d.trends[brand]||{})[mkt]||{};
   var keywords=Object.keys(trendData);
   var dates=d.dates||[];
-  if(keywords.length && dates.length>1){
-    var W=900, H=300, padL=40, padR=120, padT=20, padB=30;
+  // Filter dates to only those relevant for this market
+  var mktDates=[];
+  dates.forEach(function(dt){
+    var found=false;
+    keywords.forEach(function(kw){
+      (trendData[kw]||[]).forEach(function(p){if(p.date===dt)found=true;});
+    });
+    if(found)mktDates.push(dt);
+  });
+
+  if(keywords.length && mktDates.length>=1){
+    var W=900, H=320, padL=40, padR=140, padT=24, padB=36;
     var cw=W-padL-padR, ch=H-padT-padB;
-    h+='<div class="card"><h3 style="color:'+color+'">'+brand+' — '+(mkt==='US'?'🇺🇸':'🇯🇵')+' Daily Trend</h3>';
-    h+='<div style="overflow-x:auto"><svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-height:320px;font-family:var(--mono)">';
-    // Grid
-    for(var g=0;g<=100;g+=25){
+    var nDates=Math.max(mktDates.length,2);
+
+    h+='<div class="card"><h3 style="color:'+color+'">'+brand+' — '+(mkt==='US'?'🇺🇸':'🇯🇵')+' Score Trend</h3>';
+    h+='<div class="desc" style="margin-bottom:8px">키워드별 인기도 점수 변화 (0–100). 높을수록 빠르게 자동완성에 노출됨.</div>';
+    h+='<div style="overflow-x:auto"><svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-height:340px;font-family:var(--mono)">';
+
+    // Grid lines
+    for(var g=0;g<=100;g+=20){
       var gy=padT+ch-(g/100*ch);
       h+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="#f1f5f9" stroke-width="1"/>';
       h+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" text-anchor="end" fill="#94a3b8" font-size="9">'+g+'</text>';
     }
-    // X axis labels
-    var step=Math.max(1,Math.floor(dates.length/8));
-    dates.forEach(function(dt,i){
-      if(i%step===0||i===dates.length-1){
-        var x=padL+(i/(dates.length-1))*cw;
-        h+='<text x="'+x+'" y="'+(H-4)+'" text-anchor="middle" fill="#94a3b8" font-size="8">'+dt.substring(5)+'</text>';
+
+    // X axis date labels
+    var step=Math.max(1,Math.floor(mktDates.length/10));
+    mktDates.forEach(function(dt,i){
+      if(i%step===0||i===mktDates.length-1){
+        var x=padL+(i/(nDates-1))*cw;
+        h+='<text x="'+x+'" y="'+(H-6)+'" text-anchor="middle" fill="#94a3b8" font-size="8">'+dt.substring(5)+'</text>';
       }
     });
-    // Lines
+
+    // Lines + dots + labels
     keywords.forEach(function(kw,ki){
       var pts=trendData[kw];
       var lineColor=kwColors[ki%kwColors.length];
       var pathD='';
+      // Plot each data point
       pts.forEach(function(p){
-        var di=dates.indexOf(p.date);
+        var di=mktDates.indexOf(p.date);
         if(di<0) return;
-        var x=padL+(di/(dates.length-1))*cw;
+        var x=padL+(di/(nDates-1))*cw;
         var y=padT+ch-(p.score/100*ch);
         pathD+=(pathD?'L':'M')+x.toFixed(1)+','+y.toFixed(1);
+        // Dot on each data point
+        h+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3" fill="'+lineColor+'" opacity="0.8"/>';
       });
       if(pathD){
-        h+='<path d="'+pathD+'" stroke="'+lineColor+'" fill="none" stroke-width="2" stroke-linecap="round"/>';
-        // Label at end
+        h+='<path d="'+pathD+'" stroke="'+lineColor+'" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+        // Label at rightmost point
         var lastP=pts[pts.length-1];
-        var lx=padL+((dates.indexOf(lastP.date))/(dates.length-1))*cw;
+        var lx=padL+((mktDates.indexOf(lastP.date))/(nDates-1))*cw;
         var ly=padT+ch-(lastP.score/100*ch);
-        h+='<circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="3" fill="'+lineColor+'"/>';
-        h+='<text x="'+(lx+6).toFixed(1)+'" y="'+(ly+3).toFixed(1)+'" fill="'+lineColor+'" font-size="8" font-weight="700">'+kw.substring(0,18)+(kw.length>18?'…':'')+' '+lastP.score+'</text>';
+        h+='<circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="4" fill="'+lineColor+'"/>';
+        h+='<text x="'+(lx+8).toFixed(1)+'" y="'+(ly+4).toFixed(1)+'" fill="'+lineColor+'" font-size="9" font-weight="700">'+kw.substring(0,20)+(kw.length>20?'…':'')+' <tspan font-size="11">'+lastP.score+'</tspan></text>';
       }
     });
     h+='</svg></div></div>';
-  } else if(keywords.length && dates.length===1){
-    h+='<div class="card"><div class="desc" style="text-align:center;padding:20px;color:var(--muted)">1일치 데이터만 있음 — 내일부터 트렌드 라인 표시됩니다. 매일 2회 자동 수집 중.</div></div>';
+
+    // ── Position Trend Chart ──────────────────────────────────────────
+    if(mktDates.length>=2){
+      var H2=260;
+      var ch2=H2-padT-padB;
+      h+='<div class="card"><h3 style="color:'+color+'">'+brand+' — '+(mkt==='US'?'🇺🇸':'🇯🇵')+' Position Trend</h3>';
+      h+='<div class="desc" style="margin-bottom:8px">자동완성 추천 위치 (#1이 최상위). 낮을수록 좋음.</div>';
+      h+='<div style="overflow-x:auto"><svg viewBox="0 0 '+W+' '+H2+'" style="width:100%;max-height:280px;font-family:var(--mono)">';
+      // Y axis: position 0(top) to 9(bottom), inverted
+      for(var p=0;p<=10;p+=2){
+        var py=padT+(p/10)*ch2;
+        h+='<line x1="'+padL+'" y1="'+py+'" x2="'+(W-padR)+'" y2="'+py+'" stroke="#f1f5f9" stroke-width="1"/>';
+        h+='<text x="'+(padL-4)+'" y="'+(py+3)+'" text-anchor="end" fill="#94a3b8" font-size="9">#'+(p+1)+'</text>';
+      }
+      // X axis
+      mktDates.forEach(function(dt,i){
+        if(i%step===0||i===mktDates.length-1){
+          var x=padL+(i/(nDates-1))*cw;
+          h+='<text x="'+x+'" y="'+(H2-6)+'" text-anchor="middle" fill="#94a3b8" font-size="8">'+dt.substring(5)+'</text>';
+        }
+      });
+      // Lines
+      keywords.forEach(function(kw,ki){
+        var pts=trendData[kw];
+        var lineColor=kwColors[ki%kwColors.length];
+        var pathD='';
+        pts.forEach(function(p){
+          if(p.position<0) return; // not found — skip
+          var di=mktDates.indexOf(p.date);
+          if(di<0) return;
+          var x=padL+(di/(nDates-1))*cw;
+          var y=padT+(p.position/10)*ch2;
+          pathD+=(pathD?'L':'M')+x.toFixed(1)+','+y.toFixed(1);
+          h+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3" fill="'+lineColor+'" opacity="0.8"/>';
+        });
+        if(pathD){
+          h+='<path d="'+pathD+'" stroke="'+lineColor+'" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6,3"/>';
+          var lastValid=null;
+          for(var lv=pts.length-1;lv>=0;lv--){if(pts[lv].position>=0){lastValid=pts[lv];break;}}
+          if(lastValid){
+            var lx2=padL+((mktDates.indexOf(lastValid.date))/(nDates-1))*cw;
+            var ly2=padT+(lastValid.position/10)*ch2;
+            h+='<text x="'+(lx2+8).toFixed(1)+'" y="'+(ly2+4).toFixed(1)+'" fill="'+lineColor+'" font-size="9" font-weight="700">'+kw.substring(0,16)+' #'+(lastValid.position+1)+'</text>';
+          }
+        }
+      });
+      h+='</svg></div></div>';
+    }
+  } else if(keywords.length===0 && latestRows.length===0){
+    h+='<div class="card"><div class="desc" style="text-align:center;padding:24px;color:var(--muted)">이 브랜드/마켓에 대한 데이터가 없습니다.</div></div>';
   }
 
   el.innerHTML=h;

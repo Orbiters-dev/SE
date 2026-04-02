@@ -2720,21 +2720,58 @@ def collect_rakuten_orders(date_from: str, date_to: str) -> list[dict]:
 
 # Brand keywords to track autocomplete rank — per market
 # US: English high-volume category keywords + brand
-# JP: Japanese high-volume category keywords + brand
+# JP: Japanese high-volume category keywords + brand (Grosmimi only — only brand sold in JP)
+# NOTE: Onzenna removed — it's our marketplace, not a product brand for autocomplete.
 AUTOCOMPLETE_KEYWORDS = {
     "US": {
         "Grosmimi": ["grosmimi", "straw cup", "sippy cup", "toddler cup", "baby straw cup", "ppsu cup"],
-        "Naeiae": ["naeiae", "baby rice snack", "toddler snack", "rice puff baby", "pop rice snack"],
-        "Onzenna": ["onzenna", "tinted sunscreen", "mineral sunscreen", "korean sunscreen", "baby sunscreen"],
-        "CHA&MOM": ["cha and mom", "baby food pouch", "korean baby food", "toddler food"],
+        "Naeiae": ["naeiae", "baby food pouch", "organic baby food", "korean baby food", "baby snack organic", "toddler food pouch"],
+        "CHA&MOM": ["cha and mom", "baby lotion", "baby body lotion", "baby cream", "baby moisturizer", "mom body cream"],
     },
     "JP": {
         "Grosmimi": ["grosmimi", "ストローマグ", "ベビーマグ", "ppsu マグ", "こぼれないコップ", "ストローカップ ベビー"],
-        "Naeiae": ["naeiae", "ライスパフ ベビー", "赤ちゃん せんべい", "韓国 ベビーおやつ", "ポップライス"],
-        "Onzenna": ["onzenna", "韓国 日焼け止め", "ティンテッド 日焼け止め", "ミネラル日焼け止め"],
-        "CHA&MOM": ["cha and mom", "韓国 離乳食", "ベビーフード パウチ", "幼児食"],
     },
 }
+
+# ── Brand → Category mapping for cross-check ───────────────────────────────
+# Used to validate that keywords match their brand's product category.
+# Prevents accidental brand-keyword mismatches (e.g., CHA&MOM + "baby food").
+BRAND_CATEGORY = {
+    "Grosmimi": {"category": "baby cups & bottles", "must_not_contain": ["food", "snack", "lotion", "cream", "sunscreen"]},
+    "Naeiae":   {"category": "baby food & snacks",  "must_not_contain": ["cup", "straw", "lotion", "cream", "sunscreen"]},
+    "CHA&MOM":  {"category": "baby & mom skincare", "must_not_contain": ["food", "snack", "cup", "straw", "sunscreen"]},
+}
+
+
+def _crosscheck_keywords():
+    """Validate AUTOCOMPLETE_KEYWORDS against BRAND_CATEGORY.
+
+    Raises ValueError on brand-keyword mismatch to prevent bad data collection.
+    Called at module load and before each collection run.
+    """
+    errors = []
+    for market, brands in AUTOCOMPLETE_KEYWORDS.items():
+        for brand, keywords in brands.items():
+            rule = BRAND_CATEGORY.get(brand)
+            if not rule:
+                continue
+            for kw in keywords:
+                if kw.lower() == brand.lower():
+                    continue  # brand name itself is always OK
+                for bad in rule["must_not_contain"]:
+                    if bad in kw.lower():
+                        errors.append(
+                            f"[CROSS-CHECK] {market}/{brand}: keyword '{kw}' contains "
+                            f"'{bad}' — mismatches category '{rule['category']}'"
+                        )
+    if errors:
+        raise ValueError(
+            "Brand-keyword cross-check failed!\n" + "\n".join(errors)
+        )
+
+
+# Run cross-check at module load to catch config errors early
+_crosscheck_keywords()
 
 # Amazon autocomplete endpoint per marketplace
 AUTOCOMPLETE_MARKETS = {
