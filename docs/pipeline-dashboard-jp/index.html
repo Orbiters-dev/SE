@@ -1608,19 +1608,64 @@ var _contractClassification = {};
 
 function contractCard(c, type) {
   var checked = ' checked';
-  var html = '<div class="dm-card" style="padding:10px;margin-bottom:6px" data-username="' + c.username + '" data-type="' + type + '">';
-  html += '<div style="display:flex;align-items:center;gap:8px">';
+  var fd = c.form_data || {};
+  var html = '<div class="dm-card" style="padding:10px;margin-bottom:8px;border-left:3px solid ' + (type === 'paid' ? 'var(--am)' : 'var(--g)') + '" data-username="' + c.username + '" data-type="' + type + '">';
+  // Header row
+  html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">';
   html += '<input type="checkbox" class="contract-cb" data-username="' + c.username + '"' + checked + ' style="accent-color:var(--a)">';
   html += '<span style="font-weight:700;color:var(--a)">@' + c.username + '</span>';
-  html += '<span style="font-size:10px;color:var(--dim)">' + (c.name || '') + '</span>';
-  if (c.followers) html += '<span style="font-size:9px;color:var(--muted)">' + c.followers.toLocaleString() + '</span>';
+  if (c.followers) html += '<span style="font-size:9px;color:var(--muted)">' + c.followers.toLocaleString() + ' followers</span>';
   html += '</div>';
-  html += '<div style="display:flex;gap:4px;margin-top:6px">';
-  html += '<button class="btn btn-sm btn-secondary" onclick="moveContract(\'' + c.username + '\')" title="Move to ' + (type === 'gifting' ? 'Paid' : 'Gifting') + '">\u2195 Move</button>';
+  // Contract info form (editable)
+  var uid = c.username.replace(/[^a-zA-Z0-9_]/g, '_');
+  html += '<div style="display:grid;grid-template-columns:90px 1fr;gap:4px 8px;font-size:11px;margin-bottom:8px">';
+  html += '<span style="color:var(--dim);font-weight:600">Name</span>';
+  html += '<input type="text" id="cf-name-' + uid + '" value="' + escapeHtml(fd.name || c.name || '') + '" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px">';
+  html += '<span style="color:var(--dim);font-weight:600">Email</span>';
+  html += '<input type="text" id="cf-email-' + uid + '" value="' + escapeHtml(fd.email || '') + '" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px">';
+  html += '<span style="color:var(--dim);font-weight:600">Product</span>';
+  html += '<input type="text" id="cf-product-' + uid + '" value="' + escapeHtml(fd.product || '') + '" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px">';
+  html += '<span style="color:var(--dim);font-weight:600">Color</span>';
+  html += '<input type="text" id="cf-color-' + uid + '" value="' + escapeHtml(fd.color || '') + '" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px">';
+  if (type === 'paid') {
+    html += '<span style="color:var(--dim);font-weight:600">Amount</span>';
+    html += '<input type="text" id="cf-amount-' + uid + '" value="' + escapeHtml(fd.payment_amount || '') + '" placeholder="e.g. 6000" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px">';
+  }
+  html += '</div>';
+  // Action buttons
+  html += '<div style="display:flex;gap:4px">';
+  html += '<button class="btn btn-sm" style="background:var(--c);color:#fff" onclick="saveContractForm(\'' + c.username + '\',\'' + type + '\')" title="Save form data">&#x1F4BE; Save</button>';
+  html += '<button class="btn btn-sm btn-secondary" onclick="moveContract(\'' + c.username + '\')" title="Move to ' + (type === 'gifting' ? 'Paid' : 'Gifting') + '">\u2195</button>';
   html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')" title="View DM history">\uD83D\uDCAC</button>';
   html += '</div>';
   html += '</div>';
   return html;
+}
+
+function saveContractForm(handle, type) {
+  var uid = handle.replace(/[^a-zA-Z0-9_]/g, '_');
+  var formData = {
+    name: document.getElementById('cf-name-' + uid).value.trim(),
+    email: document.getElementById('cf-email-' + uid).value.trim(),
+    product: document.getElementById('cf-product-' + uid).value.trim(),
+    color: document.getElementById('cf-color-' + uid).value.trim()
+  };
+  var amountEl = document.getElementById('cf-amount-' + uid);
+  if (amountEl) formData.payment_amount = amountEl.value.trim();
+  if (!formData.name || !formData.email) {
+    showToast('Name and Email are required', 'err');
+    return;
+  }
+  n8nPost({ action: 'submit_form', handle: handle, name: formData.name, email: formData.email, product: formData.product, color: formData.color, payment_amount: formData.payment_amount || '' })
+    .then(function(res) {
+      if (res.status === 'ok' || res.creator) {
+        showToast('Form data saved for @' + handle);
+        loadCreators();
+      } else {
+        showToast('Save failed: ' + (res.message || 'unknown'), 'err');
+      }
+    })
+    .catch(function() { showToast('Save failed', 'err'); });
 }
 
 function renderContracts() {
