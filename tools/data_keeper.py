@@ -160,8 +160,8 @@ SELLER_CONFIGS = [
     {
         "name": "Grosmimi JP", "brand": "Grosmimi",
         "refresh_token": os.getenv("AMZ_SP_REFRESH_TOKEN_GROSMIMI_JP", ""),
-        "client_id": AMZ_SP_CLIENT_ID,
-        "client_secret": AMZ_SP_CLIENT_SECRET,
+        "client_id": os.getenv("AMZ_SP_GROSMIMI_CLIENT_ID") or AMZ_SP_CLIENT_ID,
+        "client_secret": os.getenv("AMZ_SP_GROSMIMI_CLIENT_SECRET") or AMZ_SP_CLIENT_SECRET,
         "seller_id": os.getenv("AMZ_SP_GROSMIMI_JP_SELLER_ID", "A1A01CME113JSP"),
         "marketplace_id": "A1VC38T7YXB528",
         "region": "JP",

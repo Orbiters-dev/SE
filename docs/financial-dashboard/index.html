@@ -1440,8 +1440,7 @@ function renderHeroTab(F){
       slicedCreators.forEach(function(cr){
         var d=[],tot=0;
         for(var i=0;i<n;i++){
-          var _p=cr.daily_views[i-1]||0,_c=cr.daily_views[i]||0;
-          var dv=(i>0&&_p>0&&_c>0)?Math.max(0,_c-_p):0;
+          var dv=cr.daily_views[i]||0;
           d.push(dv);tot+=dv;
         }
         crDeltaArr.push({cr:cr,deltas:d,total:tot});
@@ -1764,7 +1763,8 @@ function renderHeroTab(F){
         }
         crDeltaArr.forEach(function(x,ci){
           var _tu=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
-          html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_tu+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a></td>';
+          var _ud7=x.cr.upload_date?x.cr.upload_date.substring(5):'';
+          html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_tu+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a>'+(_ud7?' <span style="font-size:8px;color:var(--muted);font-weight:400">&#x1F4C5;'+_ud7+'</span>':'')+'</td>';
           x.cr.daily_views.forEach(function(v){html+='<td style="text-align:right;font-family:var(--mono)">'+(v>0?v.toLocaleString():'—')+'</td>';});
           html+='</tr>';
         });
@@ -1894,7 +1894,8 @@ function renderHeroTab(F){
             html+='</tr></thead><tbody>';
             crDeltaArr.forEach(function(x,ci){
               var _du=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
-              html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_du+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a></td>';
+              var _udd=x.cr.upload_date?x.cr.upload_date.substring(5):'';
+              html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_du+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a>'+(_udd?' <span style="font-size:8px;color:var(--muted);font-weight:400">&#x1F4C5;'+_udd+'</span>':'')+'</td>';
               x.deltas.forEach(function(delta){
                 var col=delta>0?'#10b981':'var(--muted)';
                 html+='<td style="text-align:right;font-family:var(--mono);color:'+col+';font-size:10px">'+(delta>0?'+':'')+delta.toLocaleString()+'</td>';
@@ -1908,14 +1909,13 @@ function renderHeroTab(F){
             html+='</tr></thead><tbody>';
             crDeltaArr.forEach(function(x,ci){
               var _duw=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
-              html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_duw+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a></td>';
-              var prevWeekEnd=0;
+              var _udw=x.cr.upload_date?x.cr.upload_date.substring(5):'';
+              html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_duw+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a>'+(_udw?' <span style="font-size:8px;color:var(--muted);font-weight:400">'+_udw+'</span>':'')+'</td>';
               wks.forEach(function(wk,wi){
-                var lastDay=Math.min((wi+1)*7-1,n-1),weekEnd=x.cr.daily_views[lastDay]||0;
-                var delta=(wi>0&&prevWeekEnd>0&&weekEnd>0)?Math.max(0,weekEnd-prevWeekEnd):0;
-                prevWeekEnd=weekEnd;
-                var col=delta>0?'#10b981':'var(--muted)';
-                html+='<td style="text-align:right;font-family:var(--mono);color:'+col+';font-size:10px">'+(wi===0?'—':(delta>0?'+':'')+delta.toLocaleString())+'</td>';
+                var weekTotal=0;
+                for(var d2=wi*7;d2<Math.min((wi+1)*7,n);d2++){weekTotal+=(x.cr.daily_views[d2]||0);}
+                var col=weekTotal>0?'#10b981':'var(--muted)';
+                html+='<td style="text-align:right;font-family:var(--mono);color:'+col+';font-size:10px">'+(weekTotal>0?'+'+weekTotal.toLocaleString():'—')+'</td>';
               });
               html+='</tr>';
             });
