@@ -1632,7 +1632,12 @@ function demoResponse(path){
       var st=_reviewedIds[c.id]||c.pipeline_status;
       counts[st]=(counts[st]||0)+1;
     });
-    return{total:DEMO_CREATORS.length,by_status:counts,by_brand:{Grosmimi:8,'CHA&MOM':3,Naeiae:3},new_this_week:5};
+    var ltC={},htC={};DEMO_CREATORS.forEach(function(c){
+      var st=_reviewedIds[c.id]||c.pipeline_status;
+      if(c.outreach_type==='HT')htC[st]=(htC[st]||0)+1;
+      else ltC[st]=(ltC[st]||0)+1;
+    });
+    return{total:DEMO_CREATORS.length,by_status:counts,by_status_lt:ltC,by_status_ht:htC,by_brand:{Grosmimi:8,'CHA&MOM':3,Naeiae:3},by_type:{LT:Object.values(ltC).reduce(function(a,b){return a+b},0),HT:Object.values(htC).reduce(function(a,b){return a+b},0)},new_this_week:5};
   }
   if(path.indexOf('/pipeline/creators/')>=0&&path.indexOf('stats')<0&&path.indexOf('bulk')<0){
     var u=new URL('http://x'+path);var p=u.searchParams;
@@ -1645,6 +1650,7 @@ function demoResponse(path){
     var qst=p.get('status');if(qst)filtered=filtered.filter(function(c){return c.pipeline_status===qst});
     var qb=p.get('brand');if(qb)filtered=filtered.filter(function(c){return c.brand===qb});
     var qsrc=p.get('source');if(qsrc)filtered=filtered.filter(function(c){return c.source===qsrc});
+    var qassign=p.get('assigned_to');if(qassign){var abm={'Jeehoo':'Grosmimi','Laeeka':'CHA&MOM','Soyeon':'Naeiae'};var ab=abm[qassign];if(ab)filtered=filtered.filter(function(c){return c.brand===ab})}
     return{results:filtered,total:filtered.length,page:1,pages:1};
   }
   if(path.indexOf('/pipeline/execution/log/')>=0)return{results:DEMO_EXEC_LOG};
@@ -1859,11 +1865,15 @@ async function loadConfigHistory(){
 // ========== CREATORS TAB ==========
 var _crPage=1,_crLimit=50;
 
+var OWNER_BRAND_MAP={'Jeehoo':'Grosmimi','Laeeka':'CHA&MOM','Soyeon':'Naeiae'};
 function selectOwnerTab(el){
   document.querySelectorAll('.owner-tab').forEach(function(t){t.classList.remove('on')});
   el.classList.add('on');
   var owner=el.getAttribute('data-owner');
   document.getElementById('cr-assigned').value=owner;
+  // Sync brand filter with owner
+  var brand=OWNER_BRAND_MAP[owner]||'';
+  document.getElementById('cr-brand').value=brand;
   _crPage=1;
   loadCreators();
 }
