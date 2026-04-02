@@ -645,7 +645,7 @@ function renderAcContent(){
     h+='</svg></div></div>';
 
     // ── Position Trend Chart ──────────────────────────────────────────
-    if(mktDates.length>=2){
+    {
       var H2=260;
       var ch2=H2-padT-padB;
       h+='<div class="card"><h3 style="color:'+color+'">'+brand+' — '+(mkt==='US'?'🇺🇸':'🇯🇵')+' Position Trend</h3>';
@@ -1750,11 +1750,12 @@ function renderHeroTab(F){
         var divY2=midTop+midH+gap/2;
         html+='<line x1="'+padL+'" y1="'+divY2+'" x2="'+(chartW-padR)+'" y2="'+divY2+'" stroke="var(--border)" stroke-width="1"/>';
         var delTop=midTop+midH+gap;
-        // Running sum of daily deltas → cumulative view growth lines
+        // Running sum of daily deltas + base_views → true cumulative view lines
         var ffCreators=crDeltaArr.map(function(x){
-          var ff=[],cumSum=0;
+          var base=x.cr.base_views||0;
+          var ff=[],cumSum=base;
           for(var i=0;i<n;i++){cumSum+=x.cr.daily_views[i]||0;ff.push(cumSum);}
-          return {cr:x.cr,ff:ff,ci:crDeltaArr.indexOf(x)};
+          return {cr:x.cr,ff:ff,ci:crDeltaArr.indexOf(x),base:base};
         });
         var crMaxV=1;
         ffCreators.forEach(function(x){x.ff.forEach(function(v){if(v>crMaxV)crMaxV=v;});});
