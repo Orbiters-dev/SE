@@ -90,9 +90,6 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 .rq-row.reviewed{opacity:.55;background:#f0fdf4;border-radius:4px;padding:8px 6px}
 .rq-row.declined{opacity:.55;background:#fef2f2;border-radius:4px;padding:8px 6px}
 .rq-check{width:14px;height:14px;accent-color:var(--a);cursor:pointer;flex-shrink:0}
-.owner-tab{padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer;color:var(--dim);transition:.12s;display:flex;align-items:center}
-.owner-tab:hover{background:var(--abg);color:var(--text)}
-.owner-tab.on{background:var(--a);color:#fff}
 .profile-link{color:var(--a);text-decoration:none;font-size:10px;font-weight:600}.profile-link:hover{text-decoration:underline}
 /* How It Works accordion */
 .hw-sec{cursor:default;transition:.15s}
@@ -137,8 +134,8 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 <!-- MAIN CONTENT -->
 <div id="main-content" style="display:none">
 <div class="ctr">
-  <!-- Top-level navigation (hidden in embed mode) -->
-  <div class="nav-bar" id="top-nav" style="margin-bottom:16px">
+  <!-- Top-level navigation — switches between dashboards -->
+  <div class="nav-bar" style="margin-bottom:16px">
     <div>
       <a href="../ppc-dashboard/" title="Amazon PPC Intelligence">Amazon PPC</a>
       <a href="../content-dashboard/" title="Content Intelligence">Content Intelligence</a>
@@ -248,7 +245,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
       </div>
       <div class="card hw-sec" id="lt-s6" style="border-left:3px solid var(--c)">
         <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E6; Step 6: Sample Fulfillment</h3>
-        <div class="hw-body"><div style="font-size:11px">Accept &#x2192; Order &#xC0DD;&#xC131; &#x2192; Shopify &#xBC30;&#xC1A1; &#x2192; <span class="b g">Delivered</span> + Content Guidelines &#xC774;&#xBA54;&#xC77C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</div></div>
+        <div class="hw-body"><div style="font-size:11px">Accept &#x2192; Draft Order &#xC644;&#xB8CC; &#x2192; <span class="b c">Sample Sent</span> &#x2192; Shopify &#xBC30;&#xC1A1; &#x2192; <span class="b g">Delivered</span> + Content Guidelines &#xC774;&#xBA54;&#xC77C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</div></div>
       </div>
       <div class="card hw-sec" id="lt-s7" style="border-left:3px solid var(--g)">
         <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4F8; Step 7: Content Tracking (D+60)</h3>
@@ -328,7 +325,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
       </div>
       <div class="card hw-sec" id="ht-s7" style="border-left:3px solid var(--c)">
         <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E6; Step 7: Sample Fulfillment</h3>
-        <div class="hw-body"><div style="font-size:11px">Accept &#x2192; Order &#xC0DD;&#xC131; &#x2192; Shopify &#xBC30;&#xC1A1; &#x2192; <span class="b g">Delivered</span> + Content Guidelines &#xC774;&#xBA54;&#xC77C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</div></div>
+        <div class="hw-body"><div style="font-size:11px">Accept &#x2192; Draft Order &#xC644;&#xB8CC; &#x2192; <span class="b c">Sample Sent</span> &#x2192; Shopify &#xBC30;&#xC1A1; &#x2192; <span class="b g">Delivered</span> + Content Guidelines &#xC774;&#xBA54;&#xC77C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</div></div>
       </div>
       <div class="card hw-sec" id="ht-s8" style="border-left:3px solid #ea580c">
         <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4B3; Step 8: Payment &mdash; Creator Compensation</h3>
@@ -428,8 +425,8 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <span class="b" style="font-size:9px">Not Started</span><span class="b a">Draft Ready</span><span class="b c">Sent</span><span class="b am">Replied</span><span class="b p">Needs Review</span><span class="b g">Accepted</span><span class="b r">Declined</span><span class="b c">Sample Sent</span><span class="b c">Sample Shipped</span><span class="b g">Sample Delivered</span><span class="b" style="font-size:9px;border-style:dashed;color:var(--am);border-color:var(--am)">Reminder Sent</span><span class="b g">Posted</span>
       </div>
       <div style="margin-top:10px;font-size:10px;color:var(--dim);line-height:1.6">
-        <b>Outbound</b>: <u>Discover</u> &#x2192; Not Started &#x2192; Draft Ready &#x2192; Sent &#x2192; Replied &#x2192; Accepted &#x2192; Shipped &#x2192; Delivered &#x2192; <span style="border:1px dashed var(--am);padding:1px 5px;border-radius:4px;font-size:9px;color:var(--am)">Reminder Sent</span> &#x2192; Posted<br>
-        <b>Inbound</b>: (Gifting &#xD3FC; &#xC81C;&#xCD9C;) &#x2192; Needs Review &#x2192; Accepted/Declined &#x2192; Shipped &#x2192; ...<br>
+        <b>Outbound</b>: <u>Discover</u> &#x2192; Not Started &#x2192; Draft Ready &#x2192; Sent &#x2192; Replied &#x2192; Accepted &#x2192; Sample Sent &#x2192; Shipped &#x2192; Delivered &#x2192; <span style="border:1px dashed var(--am);padding:1px 5px;border-radius:4px;font-size:9px;color:var(--am)">Reminder Sent</span> &#x2192; Posted<br>
+        <b>Inbound</b>: (Gifting &#xD3FC; &#xC81C;&#xCD9C;) &#x2192; Needs Review &#x2192; Accepted/Declined &#x2192; Sample Sent &#x2192; ...<br>
         <span style="font-size:9px;color:var(--am)">* Reminder Sent: Delivered &#xD6C4; &#xD3EC;&#xC2A4;&#xD305; &#xC548; &#xD55C; &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130;&#xC5D0;&#xAC8C;&#xB9CC; &#xBC1C;&#xC1A1; (&#xC120;&#xD0DD;&#xC801;)</span>
       </div>
     </div>
@@ -660,9 +657,9 @@ Shopify                         Apify / Syncly                   Gmail RAG
           <div style="font-size:9px;color:var(--dim);margin-bottom:8px">Content hashtag/keyword &#x2192; brand assignment. Grosmimi = default (&#xB098;&#xBA38;&#xC9C0; &#xC804;&#xBD80;).</div>
           <div style="display:grid;grid-template-columns:80px 1fr;gap:4px 8px;font-size:10px">
             <span style="font-weight:700;color:var(--am)">Naeiae</span>
-            <input type="text" id="brand-kw-naeiae" value="naeiae, rice puff, baby snack, organic snack, puff snack, teething wafer, baby food, rice cracker" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:9px;font-family:var(--mono);color:var(--text)">
+            <input type="text" id="brand-kw-naeiae" value="snack, food, puffs, sticks, teething, healthy, organic, crackers, teether" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:9px;font-family:var(--mono);color:var(--text)">
             <span style="font-weight:700;color:var(--c)">CHA&amp;MOM</span>
-            <input type="text" id="brand-kw-chaenmom" value="cha&amp;mom, chamom, chaenmom, ps cream, skincare, lotion, moisturizer, baby cream, eczema, sensitive skin, diaper cream" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:9px;font-family:var(--mono);color:var(--text)">
+            <input type="text" id="brand-kw-chaenmom" value="baby lotion, baby cream, ointment, newborn, face, body, diaper, diaper cream, rash, eczema, dry skin, itch, sensitive" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:9px;font-family:var(--mono);color:var(--text)">
             <span style="font-weight:700;color:var(--g)">Grosmimi</span>
             <span style="font-size:9px;color:var(--dim);padding:3px 0">&#x2190; default (&#xC704; &#xB450; &#xBE0C;&#xB79C;&#xB4DC;&#xC5D0; &#xD574;&#xB2F9; &#xC548; &#xB418;&#xBA74; &#xC804;&#xBD80; Grosmimi)</span>
           </div>
@@ -1023,12 +1020,6 @@ Shopify                         Apify / Syncly                   Gmail RAG
       <div class="stat amber"><div class="sl">Posted</div><div class="sv" id="cs-posted">-</div></div>
       <div class="stat"><div class="sl">This Week</div><div class="sv" id="cs-week">-</div></div>
     </div>
-    <div style="display:flex;gap:0;margin-bottom:10px;border:2px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content">
-      <div class="owner-tab on" data-owner="" onclick="selectOwnerTab(this)">All</div>
-      <div class="owner-tab" data-owner="Jeehoo" onclick="selectOwnerTab(this)" style="border-left:1px solid var(--border)"><span style="background:#10b981;color:#fff;padding:1px 5px;border-radius:3px;font-size:8px;margin-right:3px">Jeehoo</span>Grosmimi</div>
-      <div class="owner-tab" data-owner="Laeeka" onclick="selectOwnerTab(this)" style="border-left:1px solid var(--border)"><span style="background:#64748b;color:#fff;padding:1px 5px;border-radius:3px;font-size:8px;margin-right:3px">Laeeka</span>CHA&amp;MOM</div>
-      <div class="owner-tab" data-owner="Soyeon" onclick="selectOwnerTab(this)" style="border-left:1px solid var(--border)"><span style="background:#f59e0b;color:#fff;padding:1px 5px;border-radius:3px;font-size:8px;margin-right:3px">Soyeon</span>Naeiae</div>
-    </div>
     <div class="filter-bar">
       <input type="text" id="cr-search" placeholder="Search handle, email, name..." onkeydown="if(event.key==='Enter')loadCreators()">
       <select id="cr-status" onchange="_crStatusFilter=this.value;if(_lastStats){buildFunnel(_lastStats.by_status,'exec-funnel',this.value);buildFunnel(_lastStats.by_status,'dash-funnel',this.value);}if(this.value)location.hash='creators/'+encodeURIComponent(this.value);else location.hash='creators';loadCreators()">
@@ -1038,6 +1029,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <option value="Needs Review">Needs Review</option><option value="Accepted">Accepted</option>
         <option value="Declined">Declined</option>
         <option value="Send Contract">Send Contract (HT)</option><option value="Contract Signed">Contract Signed (HT)</option>
+        <option value="Sample Sent">Sample Sent</option>
         <option value="Sample Shipped">Sample Shipped</option><option value="Sample Delivered">Sample Delivered</option>
         <option value="Reminder Sent">Reminder Sent</option><option value="Payment Sent">Payment Sent (HT)</option>
         <option value="Posted">Posted</option>
@@ -1395,12 +1387,6 @@ Shopify                         Apify / Syncly                   Gmail RAG
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── Embed mode: hide nav when loaded in iframe ───
-if(new URLSearchParams(window.location.search).get('embed')==='1'){
-  document.addEventListener('DOMContentLoaded',function(){
-    var n=document.getElementById('top-nav'); if(n)n.style.display='none';
-  });
-}
 // ========== AUTH ==========
 var AUTH_USERS={
   'WJ':'a619397d21c5fd5daa1d55bbdef5e99383dadb69f602a0110a9d56cb7b776fbd',
@@ -1461,7 +1447,7 @@ async function loadOverviewFunnel(){
 var DEMO_MODE=false;
 var DEMO_CREATORS=[
   {id:'d1',email:'sarah.momlife@gmail.com',ig_handle:'sarah_momlife',tiktok_handle:'',full_name:'Sarah Johnson',platform:'Instagram',pipeline_status:'Accepted',brand:'Grosmimi',outreach_type:'HT',source:'outbound',followers:245000,avg_views:18500,initial_discovery_date:'2026-02-15',created_at:'2026-02-15T10:00:00Z',notes:''},
-  {id:'d2',email:'tiny.steps.tiktok@gmail.com',ig_handle:'',tiktok_handle:'tinysteps_mom',full_name:'Emily Chen',platform:'TikTok',pipeline_status:'Sample Shipped',brand:'Grosmimi',outreach_type:'HT',source:'outbound',followers:520000,avg_views:85000,initial_discovery_date:'2026-02-20',created_at:'2026-02-20T10:00:00Z',notes:''},
+  {id:'d2',email:'tiny.steps.tiktok@gmail.com',ig_handle:'',tiktok_handle:'tinysteps_mom',full_name:'Emily Chen',platform:'TikTok',pipeline_status:'Sample Sent',brand:'Grosmimi',outreach_type:'HT',source:'outbound',followers:520000,avg_views:85000,initial_discovery_date:'2026-02-20',created_at:'2026-02-20T10:00:00Z',notes:''},
   {id:'d3',email:'jessica.b@outlook.com',ig_handle:'jess_babystyle',tiktok_handle:'',full_name:'Jessica Brown',platform:'Instagram',pipeline_status:'Posted',brand:'Grosmimi',outreach_type:'LT',source:'outbound',followers:32000,avg_views:4200,initial_discovery_date:'2026-01-10',created_at:'2026-01-10T10:00:00Z',notes:'Reel posted 3/15'},
   {id:'d4',email:'maria.garcia.mama@gmail.com',ig_handle:'mariamamabear',tiktok_handle:'',full_name:'Maria Garcia',platform:'Instagram',pipeline_status:'Sent',brand:'CHA&MOM',outreach_type:'LT',source:'outbound',followers:18000,avg_views:2100,initial_discovery_date:'2026-03-01',created_at:'2026-03-01T10:00:00Z',notes:''},
   {id:'d5',email:'ashley.k.parenting@gmail.com',ig_handle:'ashleykmom',tiktok_handle:'ashleykmom',full_name:'Ashley Kim',platform:'Instagram',pipeline_status:'Replied',brand:'CHA&MOM',outreach_type:'HT',source:'outbound',followers:175000,avg_views:22000,initial_discovery_date:'2026-03-05',created_at:'2026-03-05T10:00:00Z',notes:'Interested in chamomile line'},
@@ -1632,12 +1618,7 @@ function demoResponse(path){
       var st=_reviewedIds[c.id]||c.pipeline_status;
       counts[st]=(counts[st]||0)+1;
     });
-    var ltC={},htC={};DEMO_CREATORS.forEach(function(c){
-      var st=_reviewedIds[c.id]||c.pipeline_status;
-      if(c.outreach_type==='HT')htC[st]=(htC[st]||0)+1;
-      else ltC[st]=(ltC[st]||0)+1;
-    });
-    return{total:DEMO_CREATORS.length,by_status:counts,by_status_lt:ltC,by_status_ht:htC,by_brand:{Grosmimi:8,'CHA&MOM':3,Naeiae:3},by_type:{LT:Object.values(ltC).reduce(function(a,b){return a+b},0),HT:Object.values(htC).reduce(function(a,b){return a+b},0)},new_this_week:5};
+    return{total:DEMO_CREATORS.length,by_status:counts,by_brand:{Grosmimi:8,'CHA&MOM':3,Naeiae:3},new_this_week:5};
   }
   if(path.indexOf('/pipeline/creators/')>=0&&path.indexOf('stats')<0&&path.indexOf('bulk')<0){
     var u=new URL('http://x'+path);var p=u.searchParams;
@@ -1650,7 +1631,6 @@ function demoResponse(path){
     var qst=p.get('status');if(qst)filtered=filtered.filter(function(c){return c.pipeline_status===qst});
     var qb=p.get('brand');if(qb)filtered=filtered.filter(function(c){return c.brand===qb});
     var qsrc=p.get('source');if(qsrc)filtered=filtered.filter(function(c){return c.source===qsrc});
-    var qassign=p.get('assigned_to');if(qassign){var abm={'Jeehoo':'Grosmimi','Laeeka':'CHA&MOM','Soyeon':'Naeiae'};var ab=abm[qassign];if(ab)filtered=filtered.filter(function(c){return c.brand===ab})}
     return{results:filtered,total:filtered.length,page:1,pages:1};
   }
   if(path.indexOf('/pipeline/execution/log/')>=0)return{results:DEMO_EXEC_LOG};
@@ -1724,7 +1704,7 @@ async function loadDashboard(){
     document.getElementById('ds-accepted').textContent=st.by_status['Accepted']||0;
     document.getElementById('ds-posted').textContent=st.by_status['Posted']||0;
     document.getElementById('ds-review').textContent=st.by_status['Needs Review']||0;
-    var accepted=(st.by_status['Accepted']||0)+(st.by_status['Sample Shipped']||0)+(st.by_status['Sample Delivered']||0)+(st.by_status['Posted']||0);
+    var accepted=(st.by_status['Accepted']||0)+(st.by_status['Sample Sent']||0)+(st.by_status['Sample Shipped']||0)+(st.by_status['Sample Delivered']||0)+(st.by_status['Posted']||0);
     var total=st.total||1;
     document.getElementById('ds-conversion').textContent=Math.round(accepted/total*100)+'%';
     document.getElementById('pill-total').textContent=st.total+' creators';
@@ -1864,26 +1844,12 @@ async function loadConfigHistory(){
 
 // ========== CREATORS TAB ==========
 var _crPage=1,_crLimit=50;
-
-var OWNER_BRAND_MAP={'Jeehoo':'Grosmimi','Laeeka':'CHA&MOM','Soyeon':'Naeiae'};
-function selectOwnerTab(el){
-  document.querySelectorAll('.owner-tab').forEach(function(t){t.classList.remove('on')});
-  el.classList.add('on');
-  var owner=el.getAttribute('data-owner');
-  document.getElementById('cr-assigned').value=owner;
-  // Sync brand filter with owner
-  var brand=OWNER_BRAND_MAP[owner]||'';
-  document.getElementById('cr-brand').value=brand;
-  _crPage=1;
-  loadCreators();
-}
-
 var STATUS_COLORS={
   'Not Started':'','Draft Ready':'a','Sent':'c','Replied':'am',
   'Needs Review':'p','Accepted':'g','Declined':'r',
-  'Sample Shipped':'c','Sample Delivered':'g','Posted':'g'
+  'Sample Sent':'c','Sample Shipped':'c','Sample Delivered':'g','Posted':'g'
 };
-var PIPELINE_STAGES=['Not Started','Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Shipped','Sample Delivered','Posted'];
+var PIPELINE_STAGES=['Not Started','Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
 
 var _lastStats=null;
 async function loadCreatorStats(){
@@ -1904,8 +1870,8 @@ async function loadCreatorStats(){
 }
 
 // HIL = stages where marketer must take action for pipeline to proceed
-var HIL_LT={};  // LT: fully automated after Accepted
-var HIL_HT={'Draft Ready':1,'Sent':1,'Replied':1,'Needs Review':1,'Send Contract':1,'Payment Sent':1};  // HT: full manual control
+var HIL_LT={'Sample Sent':1};  // LT: only manual "sample shipped" click
+var HIL_HT={'Draft Ready':1,'Sent':1,'Replied':1,'Needs Review':1,'Send Contract':1,'Sample Sent':1,'Payment Sent':1};  // HT: full manual control
 
 function buildFunnel(statusCounts,targetId,activeStatus){
   var el=document.getElementById(targetId);
@@ -1917,7 +1883,7 @@ function buildFunnel(statusCounts,targetId,activeStatus){
 
   if(!hasLtHt){
     // Fallback: single row
-    var stages=['Not Started','Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Shipped','Sample Delivered','Posted'];
+    var stages=['Not Started','Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
     var html='';
     for(var i=0;i<stages.length;i++){
       if(i>0)html+='<span class="fa">&#x25B6;</span>';
@@ -1930,8 +1896,8 @@ function buildFunnel(statusCounts,targetId,activeStatus){
   }
 
   // Y-fork: Not Started (left center) → LT (top row) / HT (bottom row)
-  var LT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Accepted','Sample Shipped','Sample Delivered','Reminder Sent','Posted'];
-  var HT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Send Contract','Contract Signed','Accepted','Sample Shipped','Sample Delivered','Reminder Sent','Payment Sent','Posted'];
+  var LT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Reminder Sent','Posted'];
+  var HT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Send Contract','Contract Signed','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Reminder Sent','Payment Sent','Posted'];
   function _row(stages,counts,hilMap){
     var r='';
     for(var i=0;i<stages.length;i++){
@@ -2285,7 +2251,8 @@ async function loadPendingActions(){
     var stages=[
       {status:'Draft Ready',action:'Approve & Send',icon:'📨',color:'var(--a)',api_action:'approve_send'},
       {status:'Needs Review',action:'Accept / Decline',icon:'🔍',color:'var(--p)',api_action:'review'},
-      {status:'Accepted',action:'Create Order',icon:'✅',color:'var(--g)',api_action:'complete_order'},
+      {status:'Accepted',action:'Complete Order',icon:'✅',color:'var(--g)',api_action:'complete_order'},
+      {status:'Sample Sent',action:'Confirm Shipped',icon:'📦',color:'var(--c)',api_action:'confirm_shipped'},
       {status:'Sample Delivered',action:'Send Reminder',icon:'💌',color:'var(--am)',api_action:'send_reminder'},
       {status:'Send Contract',action:'Send DocuSeal',icon:'📝',color:'var(--p)',api_action:'send_contract'},
       {status:'Payment Sent',action:'Confirm Payment',icon:'💰',color:'var(--g)',api_action:'confirm_payment'}
@@ -3156,7 +3123,6 @@ function _weekSunday(dateStr){
 
 var _weekGroups=[];
 var _dateCountMap={};
-var _dateEmailMap={};
 var _weekDateMap={};
 
 function _buildWeekGroups(dateMap){
@@ -3242,7 +3208,6 @@ async function pullDiscoveryDates(){
     var stats=await apiFetch('/pipeline/creators/stats/');
     if(DEMO_MODE&&wasDemoMode){showToast('API \uC5F0\uACB0 \uC2E4\uD328 — DEMO \uB370\uC774\uD130 \uD45C\uC2DC \uC911','err');return}
     var dateMap=stats.by_discovery_date||{};
-    var emailMap=stats.by_discovery_date_with_email||{};
     // Fallback: if server doesn't have by_discovery_date yet, fetch page 1
     if(Object.keys(dateMap).length===0){
       try{
@@ -3250,14 +3215,12 @@ async function pullDiscoveryDates(){
         (fallback.results||[]).forEach(function(c){
           var dd=c.initial_discovery_date||(c.created_at||'').slice(0,10);
           if(dd)dateMap[dd]=(dateMap[dd]||0)+1;
-          if(dd&&c.email&&!c.email.includes('@discovered.'))emailMap[dd]=(emailMap[dd]||0)+1;
         });
       }catch(e2){}
     }
     var totalNotStarted=0;
     Object.keys(dateMap).forEach(function(k){totalNotStarted+=dateMap[k]});
     _dateCountMap=dateMap;
-    _dateEmailMap=emailMap;
     var groups=_buildWeekGroups(dateMap);
     var dates=Object.keys(dateMap).filter(function(d){return d.match(/^\d{4}-\d{2}-\d{2}$/)});
     _discoveryDates=dates;
@@ -3275,13 +3238,11 @@ async function onDiscoveryDateSelect(val){
   var group=_weekGroups.find(function(g){return g.key===val});
   if(group){
     var cnt=group.count;
-    var emailCnt=group.dates.reduce(function(s,d){return s+(_dateEmailMap[d]||0)},0);
     document.getElementById('f-creators-contacted').value=cnt;
     var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
     updateAllocation();
     if(hintEl){
-      var emailTxt=emailCnt>0?' | 이메일 보유 <b>'+emailCnt+'명</b>':'';
-      hintEl.innerHTML='\u2713 '+group.label+' \u2014 Not Started <b>'+cnt+'\uBA85</b> ('+group.dates.length+'\uC77C\uAC04)'+emailTxt+' \u2192 Batch Size \uC790\uB3D9 \uC124\uC815';
+      hintEl.textContent='\u2713 '+group.label+' \u2014 '+cnt+'\uBA85 ('+group.dates.length+'\uC77C\uAC04 \uBC1C\uACAC) \u2192 Batch Size \uC790\uB3D9 \uC124\uC815';
       hintEl.style.color='var(--g)';hintEl.style.display='block';
     }
     return;
@@ -3289,15 +3250,10 @@ async function onDiscoveryDateSelect(val){
   // Fallback: raw date
   if(_dateCountMap[val]!==undefined){
     var cnt=_dateCountMap[val];
-    var emailCnt=_dateEmailMap[val]||0;
     document.getElementById('f-creators-contacted').value=cnt;
     var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
     updateAllocation();
-    if(hintEl){
-      var emailTxt=emailCnt>0?' | 이메일 보유 <b>'+emailCnt+'명</b>':'';
-      hintEl.innerHTML='\u2713 '+val+' \u2014 Not Started <b>'+cnt+'\uBA85</b>'+emailTxt;
-      hintEl.style.color='var(--g)';hintEl.style.display='block';
-    }
+    if(hintEl){hintEl.textContent='\u2713 '+val+' \u2014 Not Started '+cnt+'\uBA85';hintEl.style.display='block'}
     return;
   }
   if(hintEl){hintEl.textContent='\uC870\uD68C \uC911...';hintEl.style.display='block';hintEl.style.color='var(--muted)'}
@@ -3308,7 +3264,7 @@ async function onDiscoveryDateSelect(val){
     document.getElementById('f-creators-contacted').value=cnt;
     var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
     updateAllocation();
-    if(hintEl){hintEl.innerHTML='\u2713 '+val+' \u2014 Not Started <b>'+cnt+'\uBA85</b>';hintEl.style.color='var(--g)';hintEl.style.display='block'}
+    if(hintEl){hintEl.textContent='\u2713 '+val+' \u2014 Not Started '+cnt+'\uBA85';hintEl.style.color='var(--g)';hintEl.style.display='block'}
   }catch(e){if(hintEl){hintEl.textContent='\uC870\uD68C \uC2E4\uD328';hintEl.style.color='var(--r)'}}
 }
 
