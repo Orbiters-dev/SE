@@ -84,7 +84,15 @@ def load_ppc_data(path: str = None) -> dict:
 def check_freshness(generated_pst: str, max_hours: int = 24) -> dict:
     try:
         clean = generated_pst.replace(" PST", "").replace(" PDT", "").strip()
-        ts = datetime.strptime(clean, "%Y-%m-%d %H:%M")
+        # Handle both "%Y-%m-%d %H:%M" and "%Y-%m-%d %H:%M:%S"
+        for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"):
+            try:
+                ts = datetime.strptime(clean, fmt)
+                break
+            except ValueError:
+                continue
+        else:
+            raise ValueError(f"Cannot parse timestamp: {generated_pst}")
         ts = ts.replace(tzinfo=PST)
         age = datetime.now(PST) - ts
         age_hours = age.total_seconds() / 3600
@@ -284,6 +292,207 @@ def run_gate1(brand: str = "naeiae") -> dict:
 
     # Save result
     out_path = TMP / "ppc_xv_gate1_result.json"
+    out_path.write_text(json.dumps(result, indent=2, default=str), encoding="utf-8")
+    result["saved_to"] = str(out_path)
+
+    return result
+
+
+# ─── Gate 2: Pre-Execute Safety Checks ────────────────────────────────────────
+
+def gate2_loop1_freshness(proposal_ts: str, daily_spend: float = 0) -> dict:
+    """Loop 1: Proposal freshness check.
+
+    High-spend brands (>=$1000/day) get a tighter 2h limit; others get 3h.
+    """
+    max_h = PROPOSAL_MAX_HOURS_HIGH if daily_spend >= HIGH_SPEND_THRESHOLD else PROPOSAL_MAX_HOURS_DEFAULT
+    return check_freshness(proposal_ts, max_hours=max_h)
+
+
+def gate2_loop2_ceilings(proposals: list, config: dict) -> dict:
+    """Loop 2: Budget/bid ceiling + daily change-rate limits.
+
+    Checks per proposal:
+      - new_daily_budget <= max_single_campaign_budget
+      - proposed_bid <= max_bid
+      - budget change rate <= MAX_DAILY_BUDGET_CHANGE (30%)
+      - bid change rate <= MAX_DAILY_BID_CHANGE (20%)
+    Checks across proposals:
+      - sum(new_daily_budget) <= total_daily_budget * 2.2
+    """
+    failures = []
+    max_camp_budget = config.get("max_single_campaign_budget", 999999)
+    max_bid = config.get("max_bid", 999)
+    total_ceiling = config.get("total_daily_budget", 999999) * 2.2
+
+    total_proposed = 0.0
+
+    for p in proposals:
+        cid = p.get("campaignId", "?")
+        new_budget = p.get("new_daily_budget", 0)
+        proposed_bid = p.get("proposed_bid", 0)
+        cur_budget = p.get("currentDailyBudget", 0)
+        cur_bid = p.get("current_bid", 0)
+        total_proposed += new_budget
+
+        # Ceiling checks
+        if new_budget > max_camp_budget:
+            failures.append({
+                "check": "budget_ceiling",
+                "campaignId": cid,
+                "detail": f"new_daily_budget {new_budget} > max {max_camp_budget}",
+            })
+        if proposed_bid > max_bid:
+            failures.append({
+                "check": "bid_ceiling",
+                "campaignId": cid,
+                "detail": f"proposed_bid {proposed_bid} > max {max_bid}",
+            })
+
+        # Rate-limit checks
+        if cur_budget > 0:
+            budget_change = abs(new_budget - cur_budget) / cur_budget
+            if budget_change > MAX_DAILY_BUDGET_CHANGE:
+                failures.append({
+                    "check": "budget_rate_limit",
+                    "campaignId": cid,
+                    "detail": f"budget change {budget_change:.1%} > {MAX_DAILY_BUDGET_CHANGE:.0%}",
+                })
+        if cur_bid > 0:
+            bid_change = abs(proposed_bid - cur_bid) / cur_bid
+            if bid_change > MAX_DAILY_BID_CHANGE:
+                failures.append({
+                    "check": "bid_rate_limit",
+                    "campaignId": cid,
+                    "detail": f"bid change {bid_change:.1%} > {MAX_DAILY_BID_CHANGE:.0%}",
+                })
+
+    # Total ceiling
+    if total_proposed > total_ceiling:
+        failures.append({
+            "check": "total_budget_ceiling",
+            "detail": f"total proposed {total_proposed} > ceiling {total_ceiling}",
+        })
+
+    return {
+        "loop": 2,
+        "name": "Ceilings & Rate Limits",
+        "pass": len(failures) == 0,
+        "failures": failures,
+        "total_proposed": total_proposed,
+        "total_ceiling": total_ceiling,
+    }
+
+
+def gate2_loop3_financial(proposed_spend_delta: float,
+                          current_total_sales: float,
+                          current_tacos: float) -> dict:
+    """Loop 3: TACOS impact prediction + financial cross-check.
+
+    Predicts new TACOS after spend change. Warns if projected > 15%.
+    Always passes (warnings don't block execution).
+    """
+    current_spend = current_tacos * current_total_sales if current_total_sales else 0
+    new_spend = current_spend + proposed_spend_delta
+    projected_tacos = new_spend / current_total_sales if current_total_sales else 0
+
+    warnings = []
+    if projected_tacos > 0.15:
+        warnings.append({
+            "check": "tacos_impact",
+            "detail": f"Projected TACOS {projected_tacos:.1%} > 15% threshold",
+            "current_tacos": round(current_tacos, 4),
+            "projected_tacos": round(projected_tacos, 4),
+        })
+
+    return {
+        "loop": 3,
+        "name": "Financial Impact",
+        "pass": True,
+        "warnings": warnings,
+        "projected_tacos": round(projected_tacos, 4),
+    }
+
+
+def run_gate2(brand: str, proposal_path: str = None) -> dict:
+    """Orchestrate Gate 2: Pre-Execute Safety Checks (3 Loops)."""
+    now_pst = datetime.now(PST)
+    result = {
+        "gate": 2,
+        "brand": brand,
+        "timestamp_pst": now_pst.strftime("%Y-%m-%d %H:%M PST"),
+        "loops": {},
+    }
+
+    # Load proposal from .tmp
+    if proposal_path:
+        p = Path(proposal_path)
+    else:
+        # Find latest proposal for brand
+        candidates = sorted(TMP.glob(f"ppc_proposal_{brand}_*.json"), reverse=True)
+        if not candidates:
+            result["pass"] = False
+            result["error"] = f"No proposal found for {brand}"
+            return result
+        p = candidates[0]
+
+    proposal = json.loads(p.read_text(encoding="utf-8"))
+
+    # Try to import brand config
+    try:
+        from amazon_ppc_executor import BRAND_CONFIGS
+        brand_cfg = BRAND_CONFIGS.get(brand, {})
+    except ImportError:
+        brand_cfg = {}
+
+    # Loop 1: Freshness
+    ts = proposal.get("generated_pst", proposal.get("timestamp", ""))
+    daily_spend = brand_cfg.get("daily_spend", 0)
+    l1 = gate2_loop1_freshness(ts, daily_spend=daily_spend)
+    l1["loop"] = 1
+    l1["name"] = "Proposal Freshness"
+    result["loops"]["loop1"] = l1
+
+    # Loop 2: Ceilings & Rate Limits
+    changes = proposal.get("changes", proposal.get("proposals", []))
+    config = {
+        "max_single_campaign_budget": brand_cfg.get("max_single_campaign_budget", 500),
+        "max_bid": brand_cfg.get("max_bid", 5.0),
+        "total_daily_budget": brand_cfg.get("total_daily_budget", COMPANY_DAILY_PPC_CAP),
+    }
+    l2 = gate2_loop2_ceilings(changes, config)
+    result["loops"]["loop2"] = l2
+
+    # Loop 3: Financial
+    spend_delta = sum(
+        c.get("new_daily_budget", 0) - c.get("currentDailyBudget", 0) for c in changes
+    )
+    current_sales = brand_cfg.get("current_total_sales", 10000)
+    current_tacos = brand_cfg.get("current_tacos", 0.10)
+    l3 = gate2_loop3_financial(spend_delta, current_sales, current_tacos)
+    result["loops"]["loop3"] = l3
+
+    # Overall: pass only if loops 1 & 2 pass (loop 3 always passes)
+    result["pass"] = l1.get("pass", False) and l2.get("pass", False)
+
+    # Print summary
+    print(f"\n{'='*50}")
+    print(f"Gate 2 — Pre-Execute Safety Checks  [{brand}]")
+    print(f"{'='*50}")
+    for k in ("loop1", "loop2", "loop3"):
+        lp = result["loops"][k]
+        status = "PASS" if lp.get("pass") else "FAIL"
+        print(f"  Loop {lp.get('loop', '?')}: {lp.get('name', '')} — {status}")
+        for f in lp.get("failures", []):
+            print(f"    ✗ {f.get('detail', f.get('check', ''))}")
+        for w in lp.get("warnings", []):
+            print(f"    ⚠ {w.get('detail', w.get('check', ''))}")
+    overall = "PASS" if result["pass"] else "FAIL"
+    print(f"  Overall: {overall}")
+    print(f"{'='*50}\n")
+
+    # Save result
+    out_path = TMP / "ppc_xv_gate2_result.json"
     out_path.write_text(json.dumps(result, indent=2, default=str), encoding="utf-8")
     result["saved_to"] = str(out_path)
 

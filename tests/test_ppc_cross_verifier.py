@@ -125,3 +125,64 @@ class TestGate1:
                     assert result["gate"] == 1
                     assert result["fallback_mode"] is True
                     assert result["budget_override"] == 0.70
+
+
+class TestGate2:
+    def test_loop1_freshness_passes_recent_proposal(self):
+        from ppc_cross_verifier import gate2_loop1_freshness
+        ts = datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y-%m-%d %H:%M:%S PST")
+        result = gate2_loop1_freshness(ts, daily_spend=100)
+        assert result["pass"] is True
+
+    def test_loop1_freshness_fails_old_proposal(self):
+        from ppc_cross_verifier import gate2_loop1_freshness
+        ts = "2025-01-01 00:00:00 PST"
+        result = gate2_loop1_freshness(ts, daily_spend=100)
+        assert result["pass"] is False
+
+    def test_loop1_high_spend_uses_tighter_limit(self):
+        from ppc_cross_verifier import gate2_loop1_freshness
+        past = datetime.now(ZoneInfo("America/Los_Angeles")) - timedelta(hours=2, minutes=30)
+        ts = past.strftime("%Y-%m-%d %H:%M:%S PST")
+        result_low = gate2_loop1_freshness(ts, daily_spend=100)
+        result_high = gate2_loop1_freshness(ts, daily_spend=1500)
+        assert result_low["pass"] is True   # 3h limit
+        assert result_high["pass"] is False  # 2h limit
+
+    def test_loop2_ceiling_passes_within_limits(self):
+        from ppc_cross_verifier import gate2_loop2_ceilings
+        proposals = [
+            {"campaignId": "1", "currentDailyBudget": 80, "new_daily_budget": 95,
+             "current_bid": 1.5, "proposed_bid": 1.7, "brand": "naeiae"},
+        ]
+        config = {"max_single_campaign_budget": 100, "max_bid": 3.0, "total_daily_budget": 150}
+        result = gate2_loop2_ceilings(proposals, config)
+        assert result["pass"] is True
+
+    def test_loop2_ceiling_blocks_over_max(self):
+        from ppc_cross_verifier import gate2_loop2_ceilings
+        proposals = [
+            {"campaignId": "1", "currentDailyBudget": 80, "new_daily_budget": 200,
+             "current_bid": 1.5, "proposed_bid": 1.7, "brand": "naeiae"},
+        ]
+        config = {"max_single_campaign_budget": 100, "max_bid": 3.0, "total_daily_budget": 150}
+        result = gate2_loop2_ceilings(proposals, config)
+        assert result["pass"] is False
+
+    def test_loop2_rate_limit_blocks_large_change(self):
+        from ppc_cross_verifier import gate2_loop2_ceilings
+        proposals = [
+            {"campaignId": "1", "currentDailyBudget": 50, "new_daily_budget": 80,
+             "current_bid": 1.5, "proposed_bid": 1.5, "brand": "naeiae"},
+        ]  # +60% budget change > 30% limit
+        config = {"max_single_campaign_budget": 100, "max_bid": 3.0, "total_daily_budget": 150}
+        result = gate2_loop2_ceilings(proposals, config)
+        assert result["pass"] is False
+        assert any("rate_limit" in f.get("check", "") for f in result["failures"])
+
+    def test_loop3_tacos_warns_high(self):
+        from ppc_cross_verifier import gate2_loop3_financial
+        result = gate2_loop3_financial(
+            proposed_spend_delta=500, current_total_sales=2000, current_tacos=0.10
+        )
+        assert any(w.get("check") == "tacos_impact" for w in result.get("warnings", []))
