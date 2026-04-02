@@ -425,7 +425,7 @@ class ExecutorAgent:
         info(f"  Webhook: {webhook_url}")
 
         seed_ctx = self.signal.get_stage_context("seed")
-        creator_record_id = seed_ctx.get("creator_record_id", "")
+        creator_record_id = seed_ctx.get("creator_pg_id", "") or seed_ctx.get("creator_record_id", "")
         test_ig = self.config.test_ig.lstrip("@")
         subj, body, _, _ = _email_templates("Sarah Kim", test_ig, self.config.test_email)
 
@@ -527,7 +527,7 @@ class ExecutorAgent:
             # Get current record first for PUT
             cur_s, cur_body = pg_get_resource("creators", creator_record_id)
             update_data = dict(cur_body) if cur_s == 200 and isinstance(cur_body, dict) else {}
-            update_data["status"] = "Sent"
+            update_data["pipeline_status"] = "Sent"
             update_data["outreach_sent_at"] = datetime.now().strftime("%Y-%m-%d")
             s, _ = pg_update_resource("creators", creator_record_id, update_data)
             if s == 200:
@@ -582,7 +582,7 @@ class ExecutorAgent:
             info(f"  [1c.2] Updating creator status -> Replied")
             cur_s, cur_body = pg_get_resource("creators", creator_record_id)
             update_data = dict(cur_body) if cur_s == 200 and isinstance(cur_body, dict) else {}
-            update_data["status"] = "Replied"
+            update_data["pipeline_status"] = "Replied"
             update_data["partnership_status"] = "In Progress"
             s, _ = pg_update_resource("creators", creator_record_id, update_data)
             if s == 200:
@@ -636,7 +636,7 @@ class ExecutorAgent:
             info(f"  [1d.2] Updating creator status -> Confirmed")
             cur_s, cur_body = pg_get_resource("creators", creator_record_id)
             update_data = dict(cur_body) if cur_s == 200 and isinstance(cur_body, dict) else {}
-            update_data["status"] = "Confirmed"
+            update_data["pipeline_status"] = "Confirmed"
             s, _ = pg_update_resource("creators", creator_record_id, update_data)
             if s == 200:
                 ok("[1d.2] Creator status -> Confirmed")
@@ -1192,7 +1192,7 @@ class VerifierAgent:
         info(f"  [V-1a.2] Checking Creator status (expected: not 'Not Started')")
         cr_records = pg_find_creators(email)
         if cr_records:
-            cr_status = cr_records[0].get("status", "")
+            cr_status = cr_records[0].get("pipeline_status", "")
             info(f"         Current status: {cr_status}")
             checks.append(Check("[V-1a] Creator status changed", True, detail=cr_status))
         else:
@@ -1230,7 +1230,7 @@ class VerifierAgent:
         # Check Creator status = Sent
         cr_records = pg_find_creators(self.config.test_email)
         if cr_records:
-            cr_status = cr_records[0].get("status", "")
+            cr_status = cr_records[0].get("pipeline_status", "")
             if cr_status == "Sent":
                 ok(f"[V-1b.2] Creator status = Sent")
                 checks.append(Check("[V-1b] Creator status = Sent", True))
@@ -1268,7 +1268,7 @@ class VerifierAgent:
 
         cr_records = pg_find_creators(self.config.test_email)
         if cr_records:
-            cr_status = cr_records[0].get("status", "")
+            cr_status = cr_records[0].get("pipeline_status", "")
             if cr_status == "Replied":
                 ok("[V-1c.2] Creator status = Replied")
                 checks.append(Check("[V-1c] Creator status = Replied", True))
@@ -1300,7 +1300,7 @@ class VerifierAgent:
 
         cr_records = pg_find_creators(self.config.test_email)
         if cr_records:
-            cr_status = cr_records[0].get("status", "")
+            cr_status = cr_records[0].get("pipeline_status", "")
             if cr_status == "Confirmed":
                 ok("[V-1d.2] Creator status = Confirmed")
                 checks.append(Check("[V-1d] Creator status = Confirmed", True))

@@ -138,7 +138,7 @@ def make_test_data():
                 "avg_views": 4800,
                 "recent_30d_views": 8200,
                 "partnership_status": "New",
-                "status": "not_started",
+                "pipeline_status": "Not Started",
                 "outreach_type": "Low Touch",
                 "source": "Autopilot Test",
                 "brand": "grosmimi",
@@ -166,7 +166,7 @@ def make_test_data():
                 "avg_views": 3200,
                 "recent_30d_views": 5100,
                 "partnership_status": "New",
-                "status": "not_started",
+                "pipeline_status": "Not Started",
                 "outreach_type": "Low Touch",
                 "source": "Autopilot Test",
                 "brand": "chamom",
@@ -194,7 +194,7 @@ def make_test_data():
                 "avg_views": 2100,
                 "recent_30d_views": 3400,
                 "partnership_status": "New",
-                "status": "not_started",
+                "pipeline_status": "Not Started",
                 "outreach_type": "Low Touch",
                 "source": "Autopilot Test",
                 "brand": "naeiae",
@@ -371,7 +371,7 @@ def watch_and_verify(created_ids, tab_at, tab_n8n, tab_gmail, step_mode=False):
             )
             if status == 200:
                 # Django returns flat JSON (no {fields: {...}} wrapper)
-                outreach_status = resp.get("status", "")
+                outreach_status = resp.get("pipeline_status", "")
                 if outreach_status == "draft_ready":
                     ready_count += 1
                     if not item.get("_notified"):
@@ -435,7 +435,7 @@ def verify_results(created_ids, tab_at, tab_n8n, tab_gmail):
         )
         if status == 200:
             # Django returns flat JSON
-            if resp.get("status") == "draft_ready":
+            if resp.get("pipeline_status") == "Draft Ready":
                 results["creators"] += 1
 
             # Get conversations for this creator
@@ -558,7 +558,7 @@ def main():
             if args.step:
                 log("Seed data prepared:")
                 for td in test_data:
-                    info(f"  {td['brand']}: {td['fields']['Username']}")
+                    info(f"  {td['brand']}: {td['fields']['creator_handle']}")
                 input("\n  [STEP] Press Enter to seed into Django API...")
             created_ids = seed_test_data(test_data)
         else:
