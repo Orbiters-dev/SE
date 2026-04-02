@@ -317,10 +317,7 @@
     margin-bottom: 4px;
   }
   .gf-pcard-price {
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: var(--accent);
-    margin-bottom: 10px;
+    display: none;
   }
 
   /* ── Color Swatches ───────────────────────────────── */
@@ -1093,7 +1090,6 @@ function buildReview() {
     ['生年月日', birthday + (ageLabel ? ' (' + ageLabel + ')' : '')],
     ['商品', productLabel],
     ['カラー', formData.color],
-    ['価格', formData.product ? ('&yen;' + formData.product.price.toLocaleString()) : ''],
     ['お届け先', addrLabel],
   ];
 
