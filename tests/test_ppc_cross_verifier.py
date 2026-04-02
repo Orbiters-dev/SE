@@ -186,3 +186,51 @@ class TestGate2:
             proposed_spend_delta=500, current_total_sales=2000, current_tacos=0.10
         )
         assert any(w.get("check") == "tacos_impact" for w in result.get("warnings", []))
+
+
+class TestBudgetRecommendation:
+    def test_tier1_ceiling_lift_when_at_max_and_high_roas(self):
+        from ppc_cross_verifier import compute_budget_recommendation
+        campaigns = [
+            {"name": "Naeiae Rice Pop - SP - Manual", "campaignId": "1",
+             "currentDailyBudget": 100, "roas_7d": 7.38, "acos_7d": 13.6,
+             "spend_7d": 163, "sales_7d": 1205, "targeting_type": "MANUAL"},
+        ]
+        config = {"total_daily_budget": 150, "max_single_campaign_budget": 100,
+                  "targeting": {"MANUAL": {"min_roas": 2.5}, "AUTO": {"min_roas": 1.5}}}
+        rec = compute_budget_recommendation("naeiae", campaigns, config)
+        tier1 = [r for r in rec["recommendations"] if r["tier"] == 1]
+        assert len(tier1) == 1
+        assert tier1[0]["recommended"] > 100
+
+    def test_tier2_rebalance_when_manual_much_better(self):
+        from ppc_cross_verifier import compute_budget_recommendation
+        campaigns = [
+            {"name": "SP-Manual", "campaignId": "1", "currentDailyBudget": 100,
+             "roas_7d": 7.38, "acos_7d": 13.6, "spend_7d": 163, "sales_7d": 1205,
+             "targeting_type": "MANUAL"},
+            {"name": "SP-Auto", "campaignId": "2", "currentDailyBudget": 100,
+             "roas_7d": 1.54, "acos_7d": 64.9, "spend_7d": 176, "sales_7d": 271,
+             "targeting_type": "AUTO"},
+        ]
+        config = {"total_daily_budget": 150, "max_single_campaign_budget": 100,
+                  "targeting": {"MANUAL": {"min_roas": 2.5}, "AUTO": {"min_roas": 1.5}}}
+        rec = compute_budget_recommendation("naeiae", campaigns, config)
+        tier2 = [r for r in rec["recommendations"] if r["tier"] == 2]
+        assert len(tier2) == 1
+        assert tier2[0]["manual_share"]["recommended"] > 0.60
+
+    def test_no_recommendation_when_roas_low(self):
+        from ppc_cross_verifier import compute_budget_recommendation
+        campaigns = [
+            {"name": "SP-Manual", "campaignId": "1", "currentDailyBudget": 50,
+             "roas_7d": 1.2, "acos_7d": 83.0, "spend_7d": 100, "sales_7d": 120,
+             "targeting_type": "MANUAL"},
+        ]
+        config = {"total_daily_budget": 150, "max_single_campaign_budget": 100,
+                  "targeting": {"MANUAL": {"min_roas": 2.5}, "AUTO": {"min_roas": 1.5}}}
+        rec = compute_budget_recommendation("naeiae", campaigns, config)
+        tier1 = [r for r in rec["recommendations"] if r["tier"] == 1]
+        tier3 = [r for r in rec["recommendations"] if r["tier"] == 3 and r.get("type") == "increase_total_daily_budget"]
+        assert len(tier1) == 0
+        assert len(tier3) == 0

@@ -497,3 +497,141 @@ def run_gate2(brand: str, proposal_path: str = None) -> dict:
     result["saved_to"] = str(out_path)
 
     return result
+
+
+# ─── Budget Scaling Recommendation Engine ─────────────────────────────────────
+
+def _classify_targeting(name: str) -> str:
+    """Classify campaign targeting type from name."""
+    name_upper = name.upper()
+    if "- AUTO" in name_upper or "AUTO" in name_upper.split("-")[-1].strip().split()[0:1]:
+        return "AUTO"
+    if "- SB " in name_upper or "- SB-" in name_upper:
+        return "SB"
+    if "- SD " in name_upper or "- SD-" in name_upper:
+        return "SD"
+    return "MANUAL"
+
+
+def _weighted_metric(campaigns: list, metric: str) -> float:
+    """Compute spend-weighted average of a metric across campaigns."""
+    total_spend = sum(c.get("spend_7d", 0) for c in campaigns)
+    if total_spend == 0:
+        return 0
+    return sum(c.get(metric, 0) * c.get("spend_7d", 0) for c in campaigns) / total_spend
+
+
+def compute_budget_recommendation(brand: str, campaigns: list, config: dict) -> dict:
+    """Recommend budget config changes based on campaign performance.
+
+    3 tiers:
+    - Tier 1: Campaign ceiling lift (best camp at ceiling with ROAS > 2x target)
+    - Tier 2: Budget share rebalancing (Manual >> Auto)
+    - Tier 3: Total budget scaling or structural fix
+    """
+    recommendations = []
+    total_daily_budget = config.get("total_daily_budget", 150)
+    max_single = config.get("max_single_campaign_budget", 100)
+    targeting_cfg = config.get("targeting", {})
+
+    # Classify campaigns
+    for c in campaigns:
+        if "targeting_type" not in c:
+            c["targeting_type"] = _classify_targeting(c.get("name", ""))
+
+    manual_camps = [c for c in campaigns if c["targeting_type"] == "MANUAL"]
+    auto_camps = [c for c in campaigns if c["targeting_type"] == "AUTO"]
+
+    manual_roas = _weighted_metric(manual_camps, "roas_7d") if manual_camps else 0
+    auto_roas = _weighted_metric(auto_camps, "roas_7d") if auto_camps else 0
+    auto_acos = _weighted_metric(auto_camps, "acos_7d") if auto_camps else 0
+
+    total_spend = sum(c.get("spend_7d", 0) for c in campaigns)
+    total_sales = sum(c.get("sales_7d", 0) for c in campaigns)
+    overall_roas = total_sales / total_spend if total_spend > 0 else 0
+
+    total_budget_capacity = sum(c.get("currentDailyBudget", 0) for c in campaigns)
+    # utilization = daily spend approximation / total budget capacity
+    daily_spend_approx = total_spend / 7 if total_spend > 0 else 0
+    utilization = daily_spend_approx / total_budget_capacity if total_budget_capacity > 0 else 0
+
+    # ── Tier 1: Campaign ceiling lift ──
+    for c in campaigns:
+        tgt_type = c["targeting_type"]
+        min_roas = targeting_cfg.get(tgt_type, {}).get("min_roas", 2.0)
+        camp_roas = c.get("roas_7d", 0)
+        camp_budget = c.get("currentDailyBudget", 0)
+
+        if camp_budget >= max_single and camp_roas > min_roas * 2:
+            new_max = min(camp_budget * 1.5, total_daily_budget * 0.8)
+            recommendations.append({
+                "tier": 1,
+                "type": "ceiling_lift",
+                "campaignId": c.get("campaignId"),
+                "campaign_name": c.get("name"),
+                "current_max": max_single,
+                "recommended": round(new_max, 2),
+                "reason": f"ROAS {camp_roas:.2f} > 2x target {min_roas}; at ceiling {max_single}",
+            })
+
+    # ── Tier 2: Budget share rebalancing ──
+    if manual_camps and auto_camps and auto_roas > 0:
+        ratio = manual_roas / auto_roas
+        current_manual_share = sum(c.get("currentDailyBudget", 0) for c in manual_camps) / total_budget_capacity if total_budget_capacity > 0 else 0.5
+
+        if ratio > 3.0:
+            rec_share = 0.75
+        elif ratio > 2.0:
+            rec_share = 0.70
+        else:
+            rec_share = None
+
+        if rec_share and rec_share > current_manual_share:
+            recommendations.append({
+                "tier": 2,
+                "type": "rebalance",
+                "manual_share": {
+                    "current": round(current_manual_share, 2),
+                    "recommended": rec_share,
+                },
+                "auto_share": {
+                    "current": round(1 - current_manual_share, 2),
+                    "recommended": round(1 - rec_share, 2),
+                },
+                "reason": f"Manual ROAS {manual_roas:.2f} vs Auto ROAS {auto_roas:.2f} (ratio {ratio:.1f}x)",
+            })
+
+    # ── Tier 3: Total daily budget scaling or structural fix ──
+    overall_min_roas = targeting_cfg.get("MANUAL", {}).get("min_roas", 2.0)
+    if overall_roas > overall_min_roas and utilization > 0.80:
+        roas_headroom = overall_roas / overall_min_roas
+        scale_factor = min(1.5, 1.0 + (roas_headroom - 1.0) * 0.3)
+        new_total = round(total_daily_budget * scale_factor, 2)
+        rec = {
+            "tier": 3,
+            "type": "increase_total_daily_budget",
+            "current_total": total_daily_budget,
+            "recommended_total": new_total,
+            "scale_factor": round(scale_factor, 3),
+            "reason": f"Overall ROAS {overall_roas:.2f} > target {overall_min_roas}, utilization {utilization:.0%}",
+        }
+        if auto_acos > 50:
+            rec["prerequisite"] = "Reduce Auto ACOS below 50% before scaling total budget"
+        recommendations.append(rec)
+    elif manual_roas > overall_min_roas * 2 and utilization < 0.60:
+        recommendations.append({
+            "tier": 3,
+            "type": "structural_fix",
+            "reason": f"Manual ROAS {manual_roas:.2f} strong but utilization only {utilization:.0%}; review Auto campaigns or budget allocation",
+        })
+
+    return {
+        "brand": brand,
+        "recommendations": recommendations,
+        "summary": {
+            "manual_roas_7d": round(manual_roas, 2),
+            "auto_roas_7d": round(auto_roas, 2),
+            "utilization_pct": round(utilization * 100, 1),
+            "current_budget": total_daily_budget,
+        },
+    }
