@@ -3,9 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <title>Pipeline CRM — Japan</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -95,7 +92,6 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 .dm-thread-input button{padding:8px 16px;border-radius:24px;border:none;background:var(--a);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
 .dm-thread-input button:disabled{opacity:.4;cursor:not-allowed}
 .dm-empty{text-align:center;padding:40px;color:var(--dim);font-size:11px}
-.sheet-subtab.on{background:var(--a);color:#fff !important}.sheet-subtab:hover:not(.on){background:var(--abg);color:var(--a)}
 .dm-limit-banner{background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:10px 16px;text-align:center;font-size:12px;font-weight:600;color:#92400e;margin-bottom:12px}
 /* Execute progress */
 .exec-progress{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px}
@@ -111,19 +107,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 /* Loading */
 .loading-spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--a);border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-/* DM cross-check badge */
-.dm-checked{display:inline-block;padding:1px 5px;border-radius:3px;font-size:7px;font-weight:700;letter-spacing:.3px;vertical-align:middle;margin-left:4px}
-.dm-checked.ok{background:#ecfdf5;color:#059669}.dm-checked.warn{background:#fef3c7;color:#b45309}
 .loading-overlay{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--dim);gap:8px;font-size:12px}
-/* HiL Queue */
-.hil-group{margin-bottom:10px;border:1px solid var(--border);border-radius:8px;padding:10px 12px}
-.hil-group-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.hil-group-title{font-size:11px;font-weight:700;display:flex;align-items:center;gap:6px}
-.hil-group-title .hil-count{background:var(--abg);color:var(--a);padding:1px 6px;border-radius:10px;font-size:9px;font-weight:700}
-.hil-item{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:11px}
-.hil-item label{display:flex;align-items:center;gap:6px;cursor:pointer;flex:1}
-.hil-item input[type="checkbox"]{width:14px;height:14px;accent-color:var(--a)}
-.hil-empty{text-align:center;padding:16px;color:var(--dim);font-size:11px}
 @media(max-width:700px){
   .ctr{padding:12px 8px 60px}.hero h1{font-size:18px}
   .mt>div{padding:8px 12px;font-size:11px}
@@ -151,11 +135,11 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 <!-- MAIN CONTENT -->
 <div id="main-content" style="display:none">
 <div class="ctr">
-  <!-- Top-level navigation (hidden in embed mode) -->
-  <div class="nav-bar" id="top-nav" style="margin-bottom:16px">
+  <!-- Top-level navigation -->
+  <div class="nav-bar" style="margin-bottom:16px">
     <div>
       <a href="../ppc-dashboard/" title="Amazon PPC Intelligence">Amazon PPC</a>
-      <a href="../content-dashboard/?region=jp" title="Content Intelligence">Content Intelligence</a>
+      <a href="../content-dashboard/" title="Content Intelligence">Content Intelligence</a>
       <a class="active">Pipeline CRM</a>
       <a href="../financial-dashboard/" title="Financial KPIs">Financial KPIs</a>
     </div>
@@ -178,69 +162,40 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
   <!-- PIPELINE OVERVIEW -->
   <div class="card" style="margin-bottom:12px">
     <h3>&#x1F3AF; Pipeline Overview</h3>
-    <div class="funnel" id="dash-funnel" style="overflow-x:auto">
-      <!-- Row 1: Main Pipeline -->
-      <div class="funnel-row" style="min-width:max-content">
-        <div class="funnel-label">PIPELINE</div>
+    <div class="funnel" id="dash-funnel">
+      <div class="funnel-row">
+        <div class="funnel-label">Outbound</div>
         <div class="fn on" data-stage="not_started" onclick="goToStage('not_started')"><div class="fi" id="f-not-started">0</div><div class="ft">Not Started</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="draft_ready" onclick="goToStage('draft_ready')"><div class="fi" id="f-draft-ready">0</div><div class="ft">Draft Ready</div><div class="fs">AI&#x521D;&#x6848;</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="sent" onclick="goToStage('sent')"><div class="fi" id="f-sent">0</div><div class="ft">DM Sent</div><div class="fs">&#x767A;&#x9001;&#x6E08;</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="replied" onclick="goToStage('replied')"><div class="fi" id="f-replied">0</div><div class="ft">Replied</div><div class="fs">&#x8FD4;&#x4FE1;&#x3042;&#x308A;</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="accepted" onclick="goToStage('accepted')"><div class="fi" id="f-accepted">0</div><div class="ft">Accepted</div><div class="fs">&#x627F;&#x8AFE;</div></div><span class="fa" style="color:var(--g)">&#x25B6;</span>
-        <div class="fn" data-stage="form_submitted" onclick="goToStage('form_submitted')"><div class="fi" id="f-form-submitted">0</div><div class="ft">Form</div><div class="fs">&#x30D5;&#x30A9;&#x30FC;&#x30E0;</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="contract_sent" onclick="goToStage('contract_sent')"><div class="fi" id="f-contract-sent">0</div><div class="ft">Contract</div><div class="fs">&#x5951;&#x7D04;&#x66F8;</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="contract_signed" onclick="goToStage('contract_signed')"><div class="fi" id="f-contract-signed">0</div><div class="ft">Signed</div><div class="fs">&#x7DE0;&#x7D50;</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="guidelines_sent" onclick="goToStage('guidelines_sent')"><div class="fi" id="f-guidelines-sent">0</div><div class="ft">Guidelines</div><div class="fs">&#x30AC;&#x30A4;&#x30C9;</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="sample_sent" onclick="goToStage('sample_sent')"><div class="fi" id="f-sample-sent">0</div><div class="ft">Sample Sent</div><div class="fs">&#x30B5;&#x30F3;&#x30D7;&#x30EB;</div></div><span class="fa" style="color:var(--p)">&#x25B6;</span>
-        <div class="fn" data-stage="sample_shipped" onclick="goToStage('sample_shipped')"><div class="fi" id="f-sample-shipped">0</div><div class="ft">Shipped</div><div class="fs">&#x914D;&#x9001;&#x4E2D;</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="sample_delivered" onclick="goToStage('sample_delivered')"><div class="fi" id="f-sample-delivered">0</div><div class="ft">Delivered</div><div class="fs">&#x914D;&#x9054;&#x5B8C;&#x4E86;</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="posted" onclick="goToStage('posted')"><div class="fi" id="f-posted">0</div><div class="ft">Posted</div><div class="fs">&#x6295;&#x7A3F;&#x6E08;</div></div>
+        <div class="fn" data-stage="draft_ready" onclick="goToStage('draft_ready')"><div class="fi" id="f-draft-ready">0</div><div class="ft">Draft Ready</div><div class="fs">AI初案</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="sent" onclick="goToStage('sent')"><div class="fi" id="f-sent">0</div><div class="ft">DM Sent</div><div class="fs">発送済</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="replied" onclick="goToStage('replied')"><div class="fi" id="f-replied">0</div><div class="ft">Replied</div><div class="fs">返信あり</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="accepted" onclick="goToStage('accepted')"><div class="fi" id="f-accepted">0</div><div class="ft">Accepted</div><div class="fs">承諾</div></div>
       </div>
-      <!-- Row 2: Inbound (full flow after entry) -->
-      <div class="funnel-row" style="margin-top:6px;min-width:max-content">
-        <div class="funnel-label" style="color:#0284c7">INBOUND</div>
-        <div class="fn" data-stage="inbound" onclick="goToStage('inbound')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-inbound" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Inbound</div><div class="fs">自然流入</div></div><span class="fa" style="color:#0284c7">▶</span>
-        <div class="fn" data-stage="needs_review" onclick="goToStage('needs_review')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-needs-review" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Review</div><div class="fs">確認待ち</div></div><span class="fa" style="color:#0284c7">▶</span>
-        <div class="fn" data-stage="ib_accepted" onclick="goToStage('accepted','inbound')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-ib-accepted" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Accepted</div><div class="fs">承諾</div></div><span class="fa" style="color:#0284c7">▶</span>
-        <div class="fn" data-stage="ib_form" onclick="goToStage('form_submitted','inbound')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-ib-form" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Form</div><div class="fs">フォーム</div></div><span class="fa" style="color:#0284c7">▶</span>
-        <div class="fn" data-stage="ib_contract" onclick="goToStage('contract_signed','inbound')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-ib-contract" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Contract</div><div class="fs">契約</div></div><span class="fa" style="color:#0284c7">▶</span>
-        <div class="fn" data-stage="ib_guidelines" onclick="goToStage('guidelines_sent','inbound')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-ib-guidelines" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Guidelines</div><div class="fs">ガイド</div></div><span class="fa" style="color:#0284c7">▶</span>
-        <div class="fn" data-stage="ib_sample" onclick="goToStage('sample_sent','inbound')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-ib-sample" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Sample</div><div class="fs">サンプル</div></div><span class="fa" style="color:#0284c7">▶</span>
-        <div class="fn" data-stage="ib_delivered" onclick="goToStage('sample_delivered','inbound')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-ib-delivered" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Delivered</div><div class="fs">配達</div></div><span class="fa" style="color:#0284c7">▶</span>
-        <div class="fn" data-stage="ib_posted" onclick="goToStage('posted','inbound')" style="border-color:#bae6fd;background:#f0f9ff"><div class="fi" id="f-ib-posted" style="color:#0284c7">0</div><div class="ft" style="color:#0284c7">Posted</div><div class="fs">投稿済</div></div>
+      <div class="funnel-row" style="margin-top:6px">
+        <div class="funnel-label">Fulfillment</div>
+        <div class="fn" data-stage="form_submitted" onclick="goToStage('form_submitted')"><div class="fi" id="f-form-submitted">0</div><div class="ft">Form Submitted</div><div class="fs">フォーム提出</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="contract_sent" onclick="goToStage('contract_sent')"><div class="fi" id="f-contract-sent">0</div><div class="ft">Contract Sent</div><div class="fs">契約書送付</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="contract_signed" onclick="goToStage('contract_signed')"><div class="fi" id="f-contract-signed">0</div><div class="ft">Contract Signed</div><div class="fs">契約締結</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="sample_sent" onclick="goToStage('sample_sent')"><div class="fi" id="f-sample-sent">0</div><div class="ft">Sample Sent</div><div class="fs">サンプル発送</div></div>
       </div>
-      <!-- Row 3: Manual DM (full flow after DM) -->
-      <div class="funnel-row" style="margin-top:6px;min-width:max-content">
-        <div class="funnel-label" style="color:#9333ea">MANUAL DM</div>
-        <div class="fn" data-stage="manual_dm" onclick="goToStage('manual_dm')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-manual-dm" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">DM Sent</div><div class="fs">直接送信</div></div><span class="fa" style="color:#9333ea">▶</span>
-        <div class="fn" data-stage="md_replied" onclick="goToStage('replied','manual')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-md-replied" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">Replied</div><div class="fs">返信</div></div><span class="fa" style="color:#9333ea">▶</span>
-        <div class="fn" data-stage="md_accepted" onclick="goToStage('accepted','manual')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-md-accepted" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">Accepted</div><div class="fs">承諾</div></div><span class="fa" style="color:#9333ea">▶</span>
-        <div class="fn" data-stage="md_form" onclick="goToStage('form_submitted','manual')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-md-form" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">Form</div><div class="fs">フォーム</div></div><span class="fa" style="color:#9333ea">▶</span>
-        <div class="fn" data-stage="md_contract" onclick="goToStage('contract_signed','manual')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-md-contract" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">Contract</div><div class="fs">契約</div></div><span class="fa" style="color:#9333ea">▶</span>
-        <div class="fn" data-stage="md_guidelines" onclick="goToStage('guidelines_sent','manual')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-md-guidelines" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">Guidelines</div><div class="fs">ガイド</div></div><span class="fa" style="color:#9333ea">▶</span>
-        <div class="fn" data-stage="md_sample" onclick="goToStage('sample_sent','manual')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-md-sample" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">Sample</div><div class="fs">サンプル</div></div><span class="fa" style="color:#9333ea">▶</span>
-        <div class="fn" data-stage="md_delivered" onclick="goToStage('sample_delivered','manual')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-md-delivered" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">Delivered</div><div class="fs">配達</div></div><span class="fa" style="color:#9333ea">▶</span>
-        <div class="fn" data-stage="md_posted" onclick="goToStage('posted','manual')" style="border-color:#e9d5ff;background:#fdf4ff"><div class="fi" id="f-md-posted" style="color:#9333ea">0</div><div class="ft" style="color:#9333ea">Posted</div><div class="fs">投稿済</div></div>
+      <div class="funnel-row" style="margin-top:6px">
+        <div class="funnel-label">Delivery</div>
+        <div class="fn" data-stage="sample_shipped" onclick="goToStage('sample_shipped')"><div class="fi" id="f-sample-shipped">0</div><div class="ft">Sample Shipped</div><div class="fs">配送中</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="sample_delivered" onclick="goToStage('sample_delivered')"><div class="fi" id="f-sample-delivered">0</div><div class="ft">Sample Delivered</div><div class="fs">配達完了</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="guidelines_sent" onclick="goToStage('guidelines_sent')"><div class="fi" id="f-guidelines-sent">0</div><div class="ft">Guidelines Sent</div><div class="fs">ガイドライン送付</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="posted" onclick="goToStage('posted')"><div class="fi" id="f-posted">0</div><div class="ft">Posted</div><div class="fs">投稿済</div></div>
       </div>
     </div>
-  </div>
-
-  <!-- HiL Action Queue -->
-  <div class="card" style="margin-bottom:12px">
-    <h3>&#x26A1; Action Queue <span style="font-size:10px;font-weight:500;color:var(--dim)">(Human-in-the-Loop)</span></h3>
-    <div id="hil-queue"></div>
   </div>
 
   <!-- MAIN TABS -->
   <div class="mt" id="main-tabs">
     <div class="on" data-p="dashboard">Dashboard</div>
     <div data-p="creators">Creators</div>
-    <div data-p="sheet">Influencer Sheet</div>
     <div data-p="drafts">DM Drafts</div>
     <div data-p="contracts">Contracts</div>
     <div data-p="config">Config</div>
     <div data-p="samples">Samples</div>
-    <div data-p="failures" style="color:var(--r)">Failures</div>
   </div>
 
   <!-- ===== DASHBOARD TAB ===== -->
@@ -252,7 +207,6 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
       <div class="stat green"><div class="sl">Accepted</div><div class="sv" id="s-accepted">0</div></div>
       <div class="stat pink"><div class="sl">Posted</div><div class="sv" id="s-posted">0</div></div>
       <div class="stat" style="border-left:2px solid var(--c)"><div class="sl">Inbound</div><div class="sv" id="s-inbound" style="color:var(--c)">0</div></div>
-      <div class="stat" style="border-left:2px solid #9333ea"><div class="sl">Manual DM</div><div class="sv" id="s-manual-dm" style="color:#9333ea">0</div></div>
     </div>
 
     <!-- Daily KPI Table -->
@@ -262,7 +216,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
       <div style="overflow-x:auto">
         <table id="daily-kpi-table">
           <thead>
-            <tr><th>Date</th><th>Outreach</th><th>Manual DM</th><th>Reply</th><th>Accepted</th><th>Posted</th><th>Inbound</th><th>Reply Rate</th></tr>
+            <tr><th>Date</th><th>Outreach</th><th>Reply</th><th>Accepted</th><th>Posted</th><th>Inbound</th><th>Reply Rate</th></tr>
           </thead>
           <tbody id="daily-kpi-tbody">
             <tr><td colspan="7" style="text-align:center;padding:20px;color:var(--dim)">Loading...</td></tr>
@@ -315,17 +269,15 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         <option value="form_submitted">Form Submitted</option>
         <option value="contract_sent">Contract Sent</option>
         <option value="contract_signed">Contract Signed</option>
-        <option value="guidelines_sent">Guidelines Sent</option>
         <option value="sample_sent">Sample Sent</option>
         <option value="sample_shipped">Sample Shipped</option>
         <option value="sample_delivered">Sample Delivered</option>
+        <option value="guidelines_sent">Guidelines Sent</option>
         <option value="posted">Posted</option>
         <option value="inbound">Inbound</option>
         <option value="needs_review">Needs Review</option>
-        <option value="manual_dm">Manual DM</option>
       </select>
       <button class="btn btn-sm btn-secondary" onclick="showImportModal()">&#x1F4E5; Import</button>
-      <button class="btn btn-sm" style="background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;font-weight:600" onclick="showSheetBatchModal()">&#x1F4CB; Sheet&#xC5D0;&#xC11C; &#xCD94;&#xAC00;</button>
       <span id="creator-count" style="font-size:11px;color:var(--dim)">0 creators</span>
     </div>
     <!-- Execute bar for creators tab -->
@@ -366,82 +318,6 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
     <div class="pager" id="creators-pager"></div>
   </div>
 
-  <!-- ===== INFLUENCER SHEET TAB ===== -->
-  <div class="mp" id="p-sheet">
-    <div class="card" style="border-left:3px solid #6366f1">
-      <h3>&#x1F4CB; Influencer Master Sheet</h3>
-      <div class="desc">全クリエイター一覧 — Discovery + Pipeline + Inbound + Manual DM</div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
-        <button class="btn btn-primary" onclick="loadInfluencerSheet()">&#x1F504; Refresh</button>
-        <button class="btn" style="background:#10b981;color:#fff" onclick="importFromDiscovery()" id="btn-import-discovery">&#x1F4E5; Import New to Pipeline</button>
-        <span id="import-discovery-status" style="font-size:10px;color:var(--dim)"></span>
-        <input type="text" id="sheet-search" placeholder="Search @handle, name..." oninput="filterSheet()" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;width:200px">
-        <select id="sheet-filter-status" onchange="filterSheet()" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">
-          <option value="">All Statuses</option>
-          <option value="not_started">Not Started</option>
-          <option value="draft_ready">Draft Ready</option>
-          <option value="sent">DM Sent</option>
-          <option value="replied">Replied</option>
-          <option value="accepted">Accepted</option>
-          <option value="form_submitted">Form</option>
-          <option value="contract_signed">Contract</option>
-          <option value="guidelines_sent">Guidelines</option>
-          <option value="sample_sent">Sample Sent</option>
-          <option value="sample_delivered">Delivered</option>
-          <option value="posted">Posted</option>
-        </select>
-        <select id="sheet-filter-source" onchange="filterSheet()" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">
-          <option value="">All Sources</option>
-          <option value="discovery">Discovery (Sheet)</option>
-          <option value="pipeline">Pipeline</option>
-          <option value="inbound">Inbound</option>
-          <option value="manual">Manual DM</option>
-        </select>
-        <label style="font-size:10px;display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="sheet-hide-contacted" onchange="filterSheet()"> Hide Already Contacted</label>
-        <span id="sheet-count" style="font-size:10px;color:var(--dim);margin-left:auto"></span>
-      </div>
-      <!-- CI Summary Stats -->
-      <div id="ci-stats-bar" style="display:none;margin-bottom:12px">
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <div class="stat cyan" style="min-width:100px"><div class="sl">CI Analyzed</div><div class="sv" id="ci-stat-count">0</div></div>
-          <div class="stat green" style="min-width:100px"><div class="sl">Avg Delivery</div><div class="sv" id="ci-stat-dv">-</div></div>
-          <div class="stat amber" style="min-width:100px"><div class="sl">Avg Brand Fit</div><div class="sv" id="ci-stat-bf">-</div></div>
-          <div class="stat accent" style="min-width:100px"><div class="sl">With Transcript</div><div class="sv" id="ci-stat-tr">0</div></div>
-          <div class="stat" style="min-width:100px"><div class="sl">DV 7+ Creators</div><div class="sv" id="ci-stat-top" style="color:var(--g)">0</div></div>
-        </div>
-      </div>
-      <!-- Content Type Sub-tabs -->
-      <div id="sheet-subtabs" style="display:flex;gap:0;margin-bottom:12px;border:2px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content">
-        <div class="sheet-subtab on" data-filter="all" onclick="setSheetSubtab('all')" style="padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">All</div>
-        <div class="sheet-subtab" data-filter="has_video" onclick="setSheetSubtab('has_video')" style="padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">&#x1F3AC; Has Video</div>
-        <div class="sheet-subtab" data-filter="image_only" onclick="setSheetSubtab('image_only')" style="padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">&#x1F5BC; Image Only</div>
-      </div>
-    </div>
-    <div style="overflow-x:auto;margin-top:12px">
-      <table class="ct" id="sheet-table" style="width:100%">
-        <thead>
-          <tr>
-            <th style="width:30px">&#x1F6AB;</th>
-            <th style="cursor:pointer" onclick="sortSheet('username')">Handle &#x2195;</th>
-            <th style="cursor:pointer" onclick="sortSheet('followers')">Followers &#x2195;</th>
-            <th>Platform</th>
-            <th style="cursor:pointer" onclick="sortSheet('_source')">Source &#x2195;</th>
-            <th style="cursor:pointer" onclick="sortSheet('status')">Status &#x2195;</th>
-            <th style="cursor:pointer" onclick="sortSheet('_postCount')">Posts &#x2195;</th>
-            <th style="cursor:pointer" onclick="sortSheet('_bestViews')">Best Views/Likes &#x2195;</th>
-            <th style="cursor:pointer" onclick="sortSheet('_totalComments')">Comments &#x2195;</th>
-            <th style="cursor:pointer" onclick="sortSheet('_latestPostDate')">Latest Post &#x2195;</th>
-            <th>D+</th>
-            <th style="cursor:pointer" onclick="sortSheet('_ciScore')">CI &#x2195;</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="sheet-body"></tbody>
-      </table>
-    </div>
-    <div class="pager" id="sheet-pager"></div>
-  </div>
-
   <!-- ===== DM DRAFTS TAB ===== -->
   <div class="mp" id="p-drafts">
     <div class="card" style="border-left:3px solid var(--a)">
@@ -456,26 +332,6 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
           &#x26A1; Generate Drafts
         </button>
         <span id="draft-status" style="font-size:11px;color:var(--dim)"></span>
-      </div>
-      <!-- Priority toggles -->
-      <div style="display:flex;gap:16px;align-items:center;margin-top:8px;flex-wrap:wrap">
-        <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
-          <input type="checkbox" id="draft-video-priority" checked style="width:15px;height:15px;accent-color:var(--a)">
-          &#x1F3AC; 영상 우선
-        </label>
-        <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
-          <input type="checkbox" id="draft-view-priority" checked style="width:15px;height:15px;accent-color:var(--a)">
-          &#x1F441; View 우선순위
-        </label>
-        <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
-          <input type="checkbox" id="draft-quality-priority" style="width:15px;height:15px;accent-color:var(--a)">
-          &#x2B50; Quality Score 우선
-        </label>
-        <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
-          <input type="checkbox" id="draft-baby-filter" style="width:15px;height:15px;accent-color:var(--a)">
-          &#x1F476; 신생아/영아(0-2y) 등장만
-        </label>
-        <span style="font-size:9px;color:var(--muted)">ON = 해당 조건의 크리에이터를 배치 상단에 배치</span>
       </div>
     </div>
 
@@ -603,12 +459,6 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
     </div>
 
     <div class="card">
-      <h3>&#x1F4D6; DM Guidelines (Rules)</h3>
-      <div class="desc">Low Touch ガイドライン — DM送信時にClaude AIが参照するルール</div>
-      <div id="guidelines-rules"><div style="color:var(--dim);font-size:11px;padding:8px">Loading...</div></div>
-    </div>
-
-    <div class="card">
       <h3>&#x1F4CB; DocuSeal Contract</h3>
       <div class="desc">契約書テンプレート設定 — 無償(Gifting)と有償(Paid)の2種類</div>
       <div style="display:grid;gap:8px;margin-top:8px">
@@ -666,37 +516,6 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
     </div>
   </div>
 
-  <!-- ===== FAILURES TAB ===== -->
-  <div class="mp" id="p-failures">
-    <div class="card">
-      <h3 style="color:var(--r)">&#x26A0;&#xFE0F; DM Back-Check Failures</h3>
-      <div class="desc">DM 발송 후 5분 이내 확인 실패 → 자동 Draft Ready 롤백 기록. 실제 IG에서 붙여넣기+전송을 안 한 경우 여기 뜸.</div>
-      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
-        <span id="failure-count" style="font-family:var(--mono);font-size:20px;font-weight:800;color:var(--r)">0</span>
-        <span style="font-size:11px;color:var(--dim)">total failures</span>
-        <span id="pending-checks" style="font-size:11px;color:var(--am);margin-left:12px"></span>
-        <button class="btn btn-sm btn-secondary" style="margin-left:auto" onclick="clearFailureLog()">&#x1F5D1; Clear Log</button>
-      </div>
-      <div style="overflow-x:auto">
-      <table>
-        <thead>
-          <tr>
-            <th>Time</th><th>Handle</th><th>Reason</th><th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="failure-log-body">
-          <tr><td colspan="4" style="text-align:center;padding:16px;color:var(--dim)">No failures recorded</td></tr>
-        </tbody>
-      </table>
-      </div>
-    </div>
-    <div class="card" style="margin-top:12px">
-      <h3>&#x1F50D; Pending Back-Checks</h3>
-      <div class="desc">현재 5분 대기 중인 DM 확인 건</div>
-      <div id="pending-checks-list" style="font-size:11px;color:var(--dim);padding:8px">No pending checks</div>
-    </div>
-  </div>
-
 </div><!-- .ctr -->
 </div><!-- main-content -->
 
@@ -718,25 +537,6 @@ or JSON:
       <button class="btn btn-primary" id="btn-import" onclick="importCreators()">&#x1F4E5; Import</button>
     </div>
     <div id="import-status" style="font-size:11px;color:var(--dim);margin-top:8px"></div>
-  </div>
-</div>
-
-<!-- Sheet Batch Modal -->
-<div id="sheet-batch-modal" style="display:none;pointer-events:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 0" onclick="if(event.target===this)closeSheetBatchModal()">
-  <div style="background:var(--card);border-radius:16px;width:92%;max-width:680px;padding:24px;box-shadow:0 16px 48px rgba(0,0,0,.15);margin:auto">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-      <h3 style="font-size:14px;font-weight:700">&#x1F4CB; Sheet에서 Creators로 추가</h3>
-      <button onclick="closeSheetBatchModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--dim)">&times;</button>
-    </div>
-    <div style="font-size:11px;color:var(--dim);margin-bottom:16px">파이프라인에 없는 크리에이터를 포스트 주차별로 묶어 추가합니다.</div>
-    <div id="sheet-batch-body" style="max-height:60vh;overflow-y:auto"></div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px">
-      <span id="sheet-batch-status" style="font-size:11px;color:var(--dim)"></span>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-secondary" onclick="closeSheetBatchModal()">닫기</button>
-        <button class="btn btn-primary" id="btn-sheet-batch-add" onclick="confirmSheetBatchAdd()" style="background:#16a34a">&#x2705; 선택 추가</button>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -769,12 +569,6 @@ or JSON:
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── Embed mode: hide nav when loaded in iframe ───
-if(new URLSearchParams(window.location.search).get('embed')==='1'){
-  document.addEventListener('DOMContentLoaded',function(){
-    var n=document.getElementById('top-nav'); if(n)n.style.display='none';
-  });
-}
 // ─── Constants ───
 var N8N_LIST = 'https://n8n.orbiters.co.kr/webhook/jp-pipeline-list';
 var N8N_API  = 'https://n8n.orbiters.co.kr/webhook/jp-pipeline-api';
@@ -783,51 +577,37 @@ var _dkBase  = 'https://orbitools.orbiters.co.kr/api/datakeeper';
 // ─── Auth ───
 var _currentUser = '';
 
-var _localUsers = { 'AJ': '1111', 'SE': '2222', 'KA': '3333', 'WJ': '3352' };
-
 function doLogin() {
-  var u = document.getElementById('login-uid').value.trim().toUpperCase();
+  var u = document.getElementById('login-uid').value.trim();
   var p = document.getElementById('login-pw').value;
   if (!u || !p) { showErr('Enter user and password'); return; }
-  // Try local users first, then fallback to server auth
-  if (_localUsers[u] && _localUsers[u] === p) {
-    _loginSuccess(u, p);
-    return;
-  }
   fetch(_dkBase + '/status/', { headers: { 'Authorization': 'Basic ' + btoa(u + ':' + p) } })
     .then(function(r) { if (!r.ok) throw new Error('auth'); return r.json(); })
-    .then(function() { _loginSuccess(u, p); })
+    .then(function() {
+      _currentUser = u;
+      localStorage.setItem('jp_pipe_user', u);
+      localStorage.setItem('jp_pipe_pass', p);
+      document.getElementById('login-gate').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+      init();
+    })
     .catch(function() { showErr('Invalid credentials'); });
-}
-
-function _loginSuccess(u, p) {
-  _currentUser = u;
-  localStorage.setItem('jp_pipe_user', u);
-  localStorage.setItem('jp_pipe_pass', p);
-  document.getElementById('login-gate').style.display = 'none';
-  document.getElementById('main-content').style.display = 'block';
-  init();
 }
 function showErr(m) { var e = document.getElementById('login-err'); e.textContent = m; e.style.display = 'block'; }
 function getAuth() { return 'Basic ' + btoa(localStorage.getItem('jp_pipe_user') + ':' + localStorage.getItem('jp_pipe_pass')); }
-
-// ─── Early init (must be before auto-login IIFE) ───
-var _pendingBackChecks = JSON.parse(localStorage.getItem('jp_dm_pending_checks') || '{}');
-var _dmFailures = JSON.parse(localStorage.getItem('jp_dm_failures') || '[]');
 
 // Auto-login
 (function() {
   var u = localStorage.getItem('jp_pipe_user'), p = localStorage.getItem('jp_pipe_pass');
   if (u && p) {
-    var uUp = u.toUpperCase();
-    if (_localUsers[uUp] && _localUsers[uUp] === p) {
-      _loginSuccess(uUp, p);
-      return;
-    }
     fetch(_dkBase + '/status/', { headers: { 'Authorization': 'Basic ' + btoa(u + ':' + p) } })
       .then(function(r) { if (!r.ok) throw new Error(); return r.json(); })
-      .then(function() { _loginSuccess(u, p); })
-      .catch(function() {});
+      .then(function() {
+        _currentUser = u;
+        document.getElementById('login-gate').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        init();
+      }).catch(function() {});
   }
 })();
 
@@ -845,34 +625,20 @@ document.querySelectorAll('.mt>div').forEach(function(t) {
 });
 
 // ─── n8n API helpers ───
-// Platform-aware profile URL
-function getProfileUrl(handle) {
-  var c = _creators.find(function(cr) { return cr.username === handle; });
-  var plat = (c && c.platform) || 'instagram';
-  if (plat === 'tiktok') return 'https://www.tiktok.com/@' + handle;
-  return 'https://www.instagram.com/' + handle + '/';
-}
-function openProfile(handle) { window.open(getProfileUrl(handle), '_blank'); }
-
 function n8nGet() {
   // Use POST with list action instead of GET (CORS issue with GET respond headers)
   return fetch(N8N_API, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'list_creators' }),
-    cache: 'no-store'
-  }).then(function(r) {
-    if (!r.ok) throw new Error('n8n HTTP ' + r.status);
-    return r.json();
-  });
+    body: JSON.stringify({ action: 'list_creators' })
+  }).then(function(r) { return r.json(); });
 }
 
 function n8nPost(body) {
   return fetch(N8N_API, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-    cache: 'no-store'
+    body: JSON.stringify(body)
   }).then(function(r) { return r.json(); });
 }
 
@@ -898,122 +664,12 @@ function incDmCount() {
 }
 function isOverLimit() { return _dmSentToday >= _dailyLimit; }
 
-// ─── DM Back-Check System ───
-
-function scheduleDmBackCheck(handle) {
-  var ts = Date.now();
-  _pendingBackChecks[handle] = { scheduled: ts, checkAt: ts + 5 * 60 * 1000 };
-  localStorage.setItem('jp_dm_pending_checks', JSON.stringify(_pendingBackChecks));
-  setTimeout(function() { runDmBackCheck(handle); }, 5 * 60 * 1000);
-}
-
-function runDmBackCheck(handle) {
-  n8nPost({ action: 'dm_log', username: handle }).then(function(res) {
-    var logs = Array.isArray(res) ? res : (res.logs || []);
-    // Check if there's a real outbound DM within last 10 minutes
-    var now = Date.now();
-    var recentOut = logs.filter(function(l) {
-      var logTime = new Date(l.ts || l.created_at || l.date || 0).getTime();
-      return l.dir === 'out' && (now - logTime) < 10 * 60 * 1000;
-    });
-    if (recentOut.length === 0) {
-      // No confirmed send → rollback to draft_ready
-      updateStatus(handle, 'draft_ready').then(function() {
-        var c = _creators.find(function(x) { return x.username === handle; });
-        if (c) { c.status = 'draft_ready'; c.last_dm = null; }
-        // Decrement DM count
-        var today = new Date().toISOString().slice(0, 10);
-        var cnt = Math.max(0, parseInt(localStorage.getItem('jp_dm_sent_' + today) || '0') - 1);
-        localStorage.setItem('jp_dm_sent_' + today, JSON.stringify(cnt));
-        _dmSentToday = cnt;
-        // Log failure
-        var failure = { handle: handle, time: new Date().toISOString(), reason: 'Back-check failed: no outbound DM log found within 10min', rolledBack: true };
-        _dmFailures.push(failure);
-        localStorage.setItem('jp_dm_failures', JSON.stringify(_dmFailures));
-        showToast('⚠️ @' + handle + ' DM 미확인 → Draft Ready로 롤백됨', 'err');
-        renderCreators(); renderDmQueue(); renderFailureLog();
-      });
-    } else {
-      showToast('✅ @' + handle + ' DM 발송 확인 완료');
-    }
-    // Cleanup
-    delete _pendingBackChecks[handle];
-    localStorage.setItem('jp_dm_pending_checks', JSON.stringify(_pendingBackChecks));
-  }).catch(function() {
-    // API error → log as warning but don't rollback
-    var failure = { handle: handle, time: new Date().toISOString(), reason: 'Back-check API error (n8n unreachable)', rolledBack: false };
-    _dmFailures.push(failure);
-    localStorage.setItem('jp_dm_failures', JSON.stringify(_dmFailures));
-    delete _pendingBackChecks[handle];
-    localStorage.setItem('jp_dm_pending_checks', JSON.stringify(_pendingBackChecks));
-    renderFailureLog();
-  });
-}
-
-function renderFailureLog() {
-  var el = document.getElementById('failure-log-body');
-  if (!el) return;
-  if (!_dmFailures.length) {
-    el.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--dim)">No failures recorded</td></tr>';
-    return;
-  }
-  var html = '';
-  _dmFailures.slice().reverse().slice(0, 50).forEach(function(f) {
-    var date = f.time ? f.time.replace('T', ' ').slice(0, 19) : '-';
-    html += '<tr>';
-    html += '<td style="font-family:var(--mono);font-size:10px">' + date + '</td>';
-    html += '<td><a href="https://www.instagram.com/' + f.handle + '" target="_blank">@' + f.handle + '</a></td>';
-    html += '<td style="font-size:10px">' + f.reason + '</td>';
-    html += '<td>' + (f.rolledBack ? '<span class="b am">Rolled Back</span>' : '<span class="b c">Warning</span>') + '</td>';
-    html += '</tr>';
-  });
-  el.innerHTML = html;
-}
-
-function clearFailureLog() {
-  if (!confirm('실패 로그를 전부 삭제할까요?')) return;
-  _dmFailures = [];
-  localStorage.setItem('jp_dm_failures', JSON.stringify(_dmFailures));
-  renderFailureLog();
-  showToast('Failure log cleared');
-}
-
-// Resume any pending back-checks from previous session
-(function resumeBackChecks() {
-  var now = Date.now();
-  Object.keys(_pendingBackChecks).forEach(function(handle) {
-    var check = _pendingBackChecks[handle];
-    var remaining = check.checkAt - now;
-    if (remaining <= 0) {
-      // Overdue — run immediately
-      setTimeout(function() { runDmBackCheck(handle); }, 1000);
-    } else {
-      setTimeout(function() { runDmBackCheck(handle); }, remaining);
-    }
-  });
-})();
-
 // ─── Init ───
 function init() {
   document.getElementById('pill-date').textContent = new Date().toISOString().slice(0, 10);
   _dailyLimit = parseInt(document.getElementById('cfg-daily-limit').value) || 30;
   _dmSentToday = getDmCount();
   loadCreators();
-  renderFailureLog();
-  // Update failure count badge
-  var fcEl = document.getElementById('failure-count');
-  if (fcEl) fcEl.textContent = _dmFailures.length;
-  // Show pending checks
-  var pendingKeys = Object.keys(_pendingBackChecks);
-  var pendEl = document.getElementById('pending-checks');
-  if (pendEl && pendingKeys.length) pendEl.textContent = '⏳ ' + pendingKeys.length + ' pending checks';
-  var pendList = document.getElementById('pending-checks-list');
-  if (pendList && pendingKeys.length) {
-    pendList.innerHTML = pendingKeys.map(function(h) {
-      var remaining = Math.max(0, Math.round((_pendingBackChecks[h].checkAt - Date.now()) / 1000));
-      return '@' + h + ' — ' + remaining + 's remaining';
-    }).join('<br>');
-  }
   var h = location.hash.replace('#', '');
   if (h) {
     var tab = document.querySelector('.mt>div[data-p="' + h + '"]');
@@ -1023,78 +679,33 @@ function init() {
 
 function loadCreators() {
   setPillStatus('loading');
-  var u = localStorage.getItem('dk_user') || 'admin';
-  var p = localStorage.getItem('dk_pass') || 'orbit1234';
-
-  // Load from both n8n (active pipeline) and EC2 (Not Started discovery creators)
-  Promise.all([
-    n8nGet().catch(function() { return []; }),
-    fetch('https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/?status=Not+Started&source=apify_discovery&limit=500', {
-      headers: { 'Authorization': 'Basic ' + btoa(u + ':' + p) }
-    }).then(function(r) { return r.json(); }).catch(function() { return { results: [] }; })
-  ]).then(function(results) {
-    var n8nData = results[0];
-    var ec2Data = results[1];
-
-    _creators = Array.isArray(n8nData) ? n8nData : (n8nData.creators || []);
-    // Normalize n8n fields
-    _creators.forEach(function(c) {
-      c.status = c.status || 'not_started';
-      c.dm_count = c.dm_count || 0;
-      c.followers = c.followers || 0;
-    });
-
-    // Merge EC2 Not Started creators (not already in n8n)
-    var existingHandles = {};
-    _creators.forEach(function(c) {
-      if (c.username) existingHandles[c.username.toLowerCase()] = true;
-    });
-
-    var ec2Creators = ec2Data.results || [];
-    ec2Creators.forEach(function(c) {
-      var handle = c.ig_handle || c.tiktok_handle || '';
-      if (!handle || existingHandles[handle.toLowerCase()]) return;
-      existingHandles[handle.toLowerCase()] = true;
-      _creators.push({
-        username: handle,
-        name: c.full_name || handle,
-        status: 'not_started',
-        dm_count: 0,
-        followers: c.followers || 0,
-        platform: c.platform || '',
-        outreach_type: c.outreach_type || 'LT',
-        source: c.source || 'apify_discovery',
-        content_script: '',
-        _ec2_id: c.id
+  n8nGet()
+    .then(function(data) {
+      _creators = Array.isArray(data) ? data : (data.creators || []);
+      // Normalize fields
+      _creators.forEach(function(c) {
+        c.status = c.status || 'not_started';
+        c.dm_count = c.dm_count || 0;
+        c.followers = c.followers || 0;
       });
+      setPillStatus('ready');
+      updateStats();
+      renderCreators();
+      renderDailyKpi();
+      renderInboundQueue();
+      renderSamples();
+      renderContracts();
+      loadRecentActivity();
+      loadConfig();
+    })
+    .catch(function(err) {
+      console.error('Failed to load creators:', err);
+      setPillStatus('error');
+      showToast('Failed to load creators from n8n', 'err');
+      // Show empty state
+      updateStats();
+      renderCreators();
     });
-
-    setPillStatus('ready');
-    // Run each render in isolation so one failure doesn't kill the rest
-    var steps = [
-      ['updateStats', updateStats],
-      ['renderCreators', renderCreators],
-      ['renderDailyKpi', renderDailyKpi],
-      ['renderInboundQueue', renderInboundQueue],
-      ['renderHilQueue', renderHilQueue],
-      ['autoLoadReplyDrafts', autoLoadReplyDrafts],
-      ['renderSamples', renderSamples],
-      ['renderContracts', renderContracts],
-      ['loadRecentActivity', loadRecentActivity],
-      ['loadConfig', loadConfig],
-      ['loadInfluencerSheet', loadInfluencerSheet],
-      ['crossCheckDmLogs', crossCheckDmLogs]
-    ];
-    steps.forEach(function(s) {
-      try { s[1](); } catch(e) { console.error('[loadCreators] ' + s[0] + ' failed:', e); }
-    });
-  }).catch(function(err) {
-    console.error('Failed to load creators:', err);
-    setPillStatus('error');
-    showToast('Load error: ' + (err.message || err), 'err');
-    updateStats();
-    renderCreators();
-  });
 }
 
 function setPillStatus(s) {
@@ -1108,61 +719,9 @@ function setPillStatus(s) {
   }
 }
 
-function isManualDm(c) {
-  // Manual DM = creator reached 'sent' or beyond without going through draft generation
-  // Detected by: source === 'manual_dm', OR has dm_count > 0 but never had dm_draft, OR source === 'manual'
-  if (c.source === 'manual_dm' || c.source === 'manual') return true;
-  // If status is sent or beyond but no dm_draft was ever set, it was manual
-  var postDraftStatuses = ['sent','replied','accepted','form_submitted','contract_sent','contract_signed','guidelines_sent','sample_sent','sample_shipped','sample_delivered','posted'];
-  if (postDraftStatuses.indexOf(c.status) !== -1 && !c.dm_draft && !c._had_draft) return true;
-  return false;
-}
-
-function isInbound(c) {
-  return c.source === 'inbound' || c.status === 'inbound' || c.status === 'needs_review';
-}
-
-function getCreatorSource(c) {
-  if (isManualDm(c)) return 'manual';
-  if (isInbound(c)) return 'inbound';
-  return 'pipeline';
-}
-
 function updateStats() {
   var counts = { not_started: 0, draft_ready: 0, sent: 0, replied: 0, accepted: 0, form_submitted: 0, contract_sent: 0, contract_signed: 0, guidelines_sent: 0, sample_sent: 0, sample_shipped: 0, sample_delivered: 0, posted: 0, inbound: 0, needs_review: 0 };
-  var manualDmCount = 0;
-  // Sub-funnel counts for inbound and manual
-  var ib = { accepted:0, form:0, contract:0, guidelines:0, sample:0, delivered:0, posted:0 };
-  var md = { replied:0, accepted:0, form:0, contract:0, guidelines:0, sample:0, delivered:0, posted:0 };
-  var postAcceptStatuses = ['accepted','form_submitted','contract_sent','contract_signed','guidelines_sent','sample_sent','sample_shipped','sample_delivered','posted'];
-
-  _creators.forEach(function(c) {
-    counts[c.status] = (counts[c.status] || 0) + 1;
-    var manual = isManualDm(c);
-    if (manual) manualDmCount++;
-
-    // Count inbound creators in sub-stages
-    if (isInbound(c) && postAcceptStatuses.indexOf(c.status) !== -1) {
-      if (c.status === 'accepted') ib.accepted++;
-      else if (c.status === 'form_submitted') ib.form++;
-      else if (c.status === 'contract_sent' || c.status === 'contract_signed') ib.contract++;
-      else if (c.status === 'guidelines_sent') ib.guidelines++;
-      else if (c.status === 'sample_sent' || c.status === 'sample_shipped') ib.sample++;
-      else if (c.status === 'sample_delivered') ib.delivered++;
-      else if (c.status === 'posted') ib.posted++;
-    }
-    // Count manual DM creators in sub-stages
-    if (manual) {
-      if (c.status === 'replied') md.replied++;
-      else if (c.status === 'accepted') md.accepted++;
-      else if (c.status === 'form_submitted') md.form++;
-      else if (c.status === 'contract_sent' || c.status === 'contract_signed') md.contract++;
-      else if (c.status === 'guidelines_sent') md.guidelines++;
-      else if (c.status === 'sample_sent' || c.status === 'sample_shipped') md.sample++;
-      else if (c.status === 'sample_delivered') md.delivered++;
-      else if (c.status === 'posted') md.posted++;
-    }
-  });
+  _creators.forEach(function(c) { counts[c.status] = (counts[c.status] || 0) + 1; });
   document.getElementById('pill-total').textContent = _creators.length + ' creators';
   document.getElementById('s-total').textContent = _creators.length;
   document.getElementById('s-draft').textContent = counts.draft_ready;
@@ -1170,8 +729,7 @@ function updateStats() {
   document.getElementById('s-accepted').textContent = counts.accepted;
   document.getElementById('s-posted').textContent = counts.posted;
   document.getElementById('s-inbound').textContent = counts.inbound + counts.needs_review;
-  document.getElementById('s-manual-dm').textContent = manualDmCount;
-  // Funnel Row 1: Pipeline
+  // Funnel
   document.getElementById('f-not-started').textContent = counts.not_started;
   document.getElementById('f-draft-ready').textContent = counts.draft_ready;
   document.getElementById('f-sent').textContent = counts.sent;
@@ -1185,26 +743,6 @@ function updateStats() {
   document.getElementById('f-sample-shipped').textContent = counts.sample_shipped;
   document.getElementById('f-sample-delivered').textContent = counts.sample_delivered;
   document.getElementById('f-posted').textContent = counts.posted;
-  // Funnel Row 2: Inbound
-  document.getElementById('f-inbound').textContent = counts.inbound;
-  document.getElementById('f-needs-review').textContent = counts.needs_review;
-  document.getElementById('f-ib-accepted').textContent = ib.accepted;
-  document.getElementById('f-ib-form').textContent = ib.form;
-  document.getElementById('f-ib-contract').textContent = ib.contract;
-  document.getElementById('f-ib-guidelines').textContent = ib.guidelines;
-  document.getElementById('f-ib-sample').textContent = ib.sample;
-  document.getElementById('f-ib-delivered').textContent = ib.delivered;
-  document.getElementById('f-ib-posted').textContent = ib.posted;
-  // Funnel Row 3: Manual DM
-  document.getElementById('f-manual-dm').textContent = manualDmCount;
-  document.getElementById('f-md-replied').textContent = md.replied;
-  document.getElementById('f-md-accepted').textContent = md.accepted;
-  document.getElementById('f-md-form').textContent = md.form;
-  document.getElementById('f-md-contract').textContent = md.contract;
-  document.getElementById('f-md-guidelines').textContent = md.guidelines;
-  document.getElementById('f-md-sample').textContent = md.sample;
-  document.getElementById('f-md-delivered').textContent = md.delivered;
-  document.getElementById('f-md-posted').textContent = md.posted;
   // DM budget
   var pct = Math.min(100, (_dmSentToday / _dailyLimit) * 100);
   document.getElementById('dm-budget-bar').style.width = pct + '%';
@@ -1213,8 +751,8 @@ function updateStats() {
 }
 
 function statusBadge(s) {
-  var map = { not_started: '', draft_ready: 'am', sent: 'c', replied: 'a', accepted: 'g', form_submitted: 'am', contract_sent: 'c', contract_signed: 'g', guidelines_sent: 'p', sample_sent: 'p', sample_shipped: 'c', sample_delivered: 'g', posted: 'g', inbound: 'c', needs_review: 'am', declined: 'r', manual_dm: 'p' };
-  var label = { not_started: 'Not Started', draft_ready: 'Draft Ready', sent: 'DM Sent', replied: 'Replied', accepted: 'Accepted', form_submitted: 'Form Submitted', contract_sent: 'Contract Sent', contract_signed: 'Contract Signed', guidelines_sent: 'Guidelines Sent', sample_sent: 'Sample Sent', sample_shipped: 'Sample Shipped', sample_delivered: 'Sample Delivered', posted: 'Posted', inbound: 'Inbound', needs_review: 'Needs Review', declined: 'Declined', manual_dm: 'Manual DM' };
+  var map = { not_started: '', draft_ready: 'am', sent: 'c', replied: 'a', accepted: 'g', form_submitted: 'am', contract_sent: 'c', contract_signed: 'g', guidelines_sent: 'p', sample_sent: 'p', sample_shipped: 'c', sample_delivered: 'g', posted: 'g', inbound: 'c', needs_review: 'am', declined: 'r' };
+  var label = { not_started: 'Not Started', draft_ready: 'Draft Ready', sent: 'DM Sent', replied: 'Replied', accepted: 'Accepted', form_submitted: 'Form Submitted', contract_sent: 'Contract Sent', contract_signed: 'Contract Signed', guidelines_sent: 'Guidelines Sent', sample_sent: 'Sample Sent', sample_shipped: 'Sample Shipped', sample_delivered: 'Sample Delivered', posted: 'Posted', inbound: 'Inbound', needs_review: 'Needs Review', declined: 'Declined' };
   return '<span class="b ' + (map[s] || '') + '">' + (label[s] || s) + '</span>';
 }
 
@@ -1222,63 +760,25 @@ function hasPastContact(c) {
   return c.dm_count > 0 || (c.status !== 'not_started' && c.status !== 'inbound');
 }
 
-// DM cross-check: shows whether outbound DM was verified in logs
-var _dmCheckedMap = {}; // { username: true/false }
-var _dmCheckDone = false;
-
-function dmCheckedBadge(c) {
-  // Only show for creators that should have sent a DM (sent or beyond, not draft/not_started/inbound)
-  var postSend = ['sent','replied','accepted','form_submitted','contract_sent','contract_signed','guidelines_sent','sample_sent','sample_shipped','sample_delivered','posted'];
-  if (postSend.indexOf(c.status) === -1) return '';
-  if (!_dmCheckDone) return ' <span class="dm-checked warn" title="Checking...">...</span>';
-  if (_dmCheckedMap[c.username]) return ' <span class="dm-checked ok" title="DM delivery verified via log">✓ checked</span>';
-  return ' <span class="dm-checked warn" title="No outbound DM log found">⚠ unverified</span>';
-}
-
-function crossCheckDmLogs() {
-  var postSend = ['sent','replied','accepted','form_submitted','contract_sent','contract_signed','guidelines_sent','sample_sent','sample_shipped','sample_delivered','posted'];
-  var toCheck = _creators.filter(function(c) { return postSend.indexOf(c.status) !== -1; });
-  if (!toCheck.length) { _dmCheckDone = true; return; }
-  _dmCheckedMap = {};
-  var done = 0;
-  toCheck.forEach(function(c) {
-    n8nPost({ action: 'dm_log', username: c.username }).then(function(logs) {
-      var arr = Array.isArray(logs) ? logs : (logs && logs.logs ? logs.logs : []);
-      _dmCheckedMap[c.username] = arr.some(function(l) { return l.dir === 'out'; });
-    }).catch(function() {
-      _dmCheckedMap[c.username] = false;
-    }).then(function() {
-      done++;
-      if (done >= toCheck.length) {
-        _dmCheckDone = true;
-        renderCreators();
-        renderHilQueue();
-      }
-    });
-  });
-}
-
 // ─── Creators Tab ───
 function renderCreators() {
   var q = (document.getElementById('creator-search').value || '').toLowerCase();
   var sf = document.getElementById('creator-status-filter').value;
   var filtered = _creators.filter(function(c) {
-    if (sf === 'manual_dm') {
-      if (!isManualDm(c)) return false;
-    } else if (sf && c.status !== sf) return false;
+    if (sf && c.status !== sf) return false;
     if (q && c.username.toLowerCase().indexOf(q) === -1 && (c.name || '').toLowerCase().indexOf(q) === -1) return false;
     return true;
   });
   document.getElementById('creator-count').textContent = filtered.length + ' creators';
 
-  // Show execute bar if any draft_ready in filtered (exclude already-DM'd)
-  var hasDrafts = filtered.some(function(c) { return c.status === 'draft_ready' && c.dm_draft && !c.dm_count; });
+  // Show execute bar if any draft_ready in filtered
+  var hasDrafts = filtered.some(function(c) { return c.status === 'draft_ready' && c.dm_draft; });
   document.getElementById('creators-exec-bar').style.display = hasDrafts ? 'block' : 'none';
 
   var html = '';
   filtered.forEach(function(c) {
-    var dmLink = (c.platform === 'tiktok') ? 'https://www.tiktok.com/@' + c.username : 'https://www.instagram.com/' + c.username + '/';
-    var isDraft = c.status === 'draft_ready' && c.dm_draft && !c.dm_count;
+    var dmLink = 'https://ig.me/m/' + c.username;
+    var isDraft = c.status === 'draft_ready' && c.dm_draft;
 
     html += '<div class="dm-card" style="border-left:3px solid ' + getStatusColor(c.status) + '">';
     // Header row
@@ -1288,32 +788,23 @@ function renderCreators() {
     html += '<span class="dm-handle" style="cursor:pointer" onclick="openDmThread(\'' + c.username + '\')">@' + c.username + '</span>';
     html += '<span style="font-size:10px;color:var(--dim)">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + '</span>';
     html += statusBadge(c.status);
-    html += dmCheckedBadge(c);
-    if (isManualDm(c)) html += ' <span class="b" style="background:#fdf4ff;color:#9333ea">Manual DM</span>';
-    if (c.status === 'inbound' || c.status === 'needs_review') html += ' <span class="b" style="background:#f0f9ff;color:#0284c7">Inbound</span>';
-    if (hasPastContact(c) && !isManualDm(c) && c.status !== 'inbound') html += ' <span class="b past">\u904E\u53BB\u9032\u884C</span>';
+    if (hasPastContact(c)) html += ' <span class="b past">過去進行</span>';
     if (c.dm_count > 0) html += ' <span class="b c">' + c.dm_count + ' msgs</span>';
-    if (c.triggered_by) html += ' <span style="font-size:9px;color:var(--muted)">by ' + escapeHtml(c.triggered_by) + '</span>';
     html += '</div>';
     // Action buttons
     html += '<div style="display:flex;gap:4px">';
     html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')" title="History">&#x1F4AC;</button>';
-    if (isDraft && !isOverLimit()) {
-      html += '<button class="btn btn-sm btn-success" onclick="event.stopPropagation();copyAndOpenDm(\'' + c.username + '\')" title="Draft 복사 + IG DM 바로 열기" style="font-weight:700">&#x1F4CB; DM&#x2197;</button>';
-      html += '<button class="btn btn-sm" style="background:#e0f2fe;color:#0284c7;border:1px solid #bae6fd" onclick="event.stopPropagation();markSent(\'' + c.username + '\')" title="보냈으면 체크">&#x2705; 보냄</button>';
-    } else {
-      html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary" title="Open IG DM">&#x2197; IG</a>';
-    }
+    html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary" title="Open IG DM">&#x2197; IG</a>';
     // Stage-specific actions
-    if (c.status === 'draft_ready' && !isDraft && !isOverLimit()) html += '<button class="btn btn-sm btn-success" onclick="event.stopPropagation();markSent(\'' + c.username + '\')">&#x2705; Sent</button>';
+    if (c.status === 'draft_ready' && !isOverLimit()) html += '<button class="btn btn-sm btn-success" onclick="event.stopPropagation();markSent(\'' + c.username + '\')">&#x2705; Sent</button>';
     if (c.status === 'sent') html += '<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();markReplied(\'' + c.username + '\')">&#x1F4E9; Replied</button>';
     if (c.status === 'replied') html += '<button class="btn btn-sm btn-success" onclick="event.stopPropagation();updateStatus(\'' + c.username + '\',\'accepted\').then(function(){loadCreators()})">&#x2705; Accept</button>';
     if (c.status === 'accepted') html += '<button class="btn btn-sm" style="background:var(--am);color:#fff" onclick="event.stopPropagation();sendFormLink(\'' + c.username + '\')">&#x1F4CB; Send Form</button>';
     if (c.status === 'form_submitted') html += '<button class="btn btn-sm" style="background:var(--c);color:#fff" onclick="event.stopPropagation();sendContract(\'' + c.username + '\')">&#x1F4DD; Send Contract</button>';
-    if (c.status === 'contract_signed') html += '<button class="btn btn-sm" style="background:var(--p);color:#fff" onclick="event.stopPropagation();sendGuidelines(\'' + c.username + '\')">&#x1F4C4; Send Guidelines</button>';
-    if (c.status === 'guidelines_sent') html += '<button class="btn btn-sm" style="background:var(--p);color:#fff" onclick="event.stopPropagation();updateStatus(\'' + c.username + '\',\'sample_sent\').then(function(){loadCreators()})">&#x1F4E6; Sample Sent</button>';
+    if (c.status === 'contract_signed') html += '<button class="btn btn-sm" style="background:var(--p);color:#fff" onclick="event.stopPropagation();updateStatus(\'' + c.username + '\',\'sample_sent\').then(function(){loadCreators()})">&#x1F4E6; Sample Sent</button>';
     if (c.status === 'sample_sent') html += '<button class="btn btn-sm" style="background:var(--c);color:#fff" onclick="event.stopPropagation();updateStatus(\'' + c.username + '\',\'sample_shipped\').then(function(){loadCreators()})">&#x1F69A; Shipped</button>';
     if (c.status === 'sample_shipped') html += '<button class="btn btn-sm btn-success" onclick="event.stopPropagation();updateStatus(\'' + c.username + '\',\'sample_delivered\').then(function(){loadCreators()})">&#x2705; Delivered</button>';
+    if (c.status === 'sample_delivered') html += '<button class="btn btn-sm" style="background:var(--p);color:#fff" onclick="event.stopPropagation();sendGuidelines(\'' + c.username + '\')">&#x1F4C4; Send Guidelines</button>';
     if (c.status === 'inbound' || c.status === 'needs_review') html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')">&#x1F50D; Review</button>';
     html += '</div>';
     html += '</div>';
@@ -1343,12 +834,11 @@ function filterCreators() { _page = 0; renderCreators(); }
 
 // ─── Status changes via n8n ───
 function updateStatus(handle, newStatus) {
-  return n8nPost({ action: 'update_status', username: handle, status: newStatus, triggered_by: _currentUser || 'system' })
+  return n8nPost({ action: 'update_status', username: handle, status: newStatus })
     .then(function(res) {
       var c = _creators.find(function(x) { return x.username === handle; });
       if (c) {
         c.status = newStatus;
-        c.triggered_by = _currentUser || 'system';
         if (newStatus === 'sent') c.last_dm = new Date().toISOString().slice(0, 10);
       }
       return res;
@@ -1359,17 +849,17 @@ function markSent(handle) {
   if (isOverLimit()) { showToast('Daily limit reached! (' + _dailyLimit + '/day)', 'err'); return; }
   var c = _creators.find(function(x) { return x.username === handle; });
   if (!c) return;
-  if (c.status === 'sent' || c._sending) { showToast('@' + handle + ' already sent', 'err'); return; }
-  c._sending = true;
+  // Log the draft as outbound DM
   if (c.dm_draft) {
     n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' });
   }
   updateStatus(handle, 'sent').then(function() {
     incDmCount();
     updateStats(); renderCreators(); renderDmQueue();
-    showToast('✅ DM Sent: @' + handle + ' (' + _dmSentToday + '/' + _dailyLimit + ') — 5분 후 자동 확인');
-    scheduleDmBackCheck(handle);
-  }).catch(function() { c._sending = false; showToast('Status update failed', 'err'); });
+    showToast('DM sent: @' + handle + ' (' + _dmSentToday + '/' + _dailyLimit + ')');
+  }).catch(function() {
+    showToast('Failed to update status', 'err');
+  });
 }
 
 function markReplied(handle) {
@@ -1399,17 +889,13 @@ function renderDailyKpi() {
 
   // Count by status change dates (approximate from last_dm and added_at)
   var dailyStats = {};
-  days.forEach(function(day) { dailyStats[day] = { outreach: 0, manual_dm: 0, reply: 0, accepted: 0, posted: 0, inbound: 0 }; });
+  days.forEach(function(day) { dailyStats[day] = { outreach: 0, reply: 0, accepted: 0, posted: 0, inbound: 0 }; });
 
   _creators.forEach(function(c) {
     var dm = c.last_dm || '';
     if (dm && dailyStats[dm]) {
       if (c.status === 'sent' || c.status === 'replied' || c.status === 'accepted' || c.status === 'sample_sent' || c.status === 'posted') {
-        if (isManualDm(c)) {
-          dailyStats[dm].manual_dm++;
-        } else {
-          dailyStats[dm].outreach++;
-        }
+        dailyStats[dm].outreach++;
       }
       if (c.status === 'replied') dailyStats[dm].reply++;
       if (c.status === 'accepted' || c.status === 'sample_sent' || c.status === 'posted') dailyStats[dm].accepted++;
@@ -1419,19 +905,18 @@ function renderDailyKpi() {
   });
 
   // Also count today's DM budget
-  dailyStats[days[0]] = dailyStats[days[0]] || { outreach: 0, manual_dm: 0, reply: 0, accepted: 0, posted: 0, inbound: 0 };
+  dailyStats[days[0]] = dailyStats[days[0]] || { outreach: 0, reply: 0, accepted: 0, posted: 0, inbound: 0 };
   dailyStats[days[0]].outreach = Math.max(dailyStats[days[0]].outreach, _dmSentToday);
 
   var html = '';
   days.forEach(function(day) {
     var s = dailyStats[day];
-    var total = s.outreach + s.manual_dm + s.inbound;
+    var total = s.outreach + s.inbound;
     var replyRate = total > 0 ? Math.round((s.reply / total) * 100) + '%' : '-';
     var isToday = day === days[0];
     html += '<tr' + (isToday ? ' style="background:#fff5f5;font-weight:600"' : '') + '>';
     html += '<td>' + day + (isToday ? ' <span class="b a">Today</span>' : '') + '</td>';
     html += '<td style="font-family:var(--mono)">' + s.outreach + '</td>';
-    html += '<td style="font-family:var(--mono);color:#9333ea">' + s.manual_dm + '</td>';
     html += '<td style="font-family:var(--mono)">' + s.reply + '</td>';
     html += '<td style="font-family:var(--mono)">' + s.accepted + '</td>';
     html += '<td style="font-family:var(--mono)">' + s.posted + '</td>';
@@ -1439,251 +924,10 @@ function renderDailyKpi() {
     html += '<td>' + replyRate + '</td>';
     html += '</tr>';
   });
-  document.getElementById('daily-kpi-tbody').innerHTML = html || '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--dim)">No data yet</td></tr>';
+  document.getElementById('daily-kpi-tbody').innerHTML = html || '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--dim)">No data yet</td></tr>';
 }
 
 function renderDmQueue() { /* removed — DM Drafts tab handles this now */ }
-
-// ─── HiL Action Queue ───
-var _hilStages = [
-  { status: 'draft_ready', label: 'Draft Ready \u2192 Send DM', nextStatus: 'sent', actionFn: 'hilSendDm', icon: '\uD83D\uDCE4', needsCopy: true },
-  { status: 'sent', label: 'DM Sent \u2192 Mark Replied', nextStatus: 'replied', icon: '\uD83D\uDCAC' },
-  { status: 'replied', label: 'Replied \u2014 Draft Reply & Send', actionFn: 'hilReplyDraft', icon: '\u2709\uFE0F' },
-  { status: 'accepted', label: 'Accepted \u2192 Send Form', actionFn: 'hilSendForm', icon: '\uD83D\uDCCB' },
-  { status: 'form_submitted', label: 'Form \u2192 Send Contract', actionFn: 'hilSendContract', icon: '\uD83D\uDCDD' },
-  { status: 'contract_signed', label: 'Signed \u2192 Send Guidelines', nextStatus: 'guidelines_sent', actionFn: 'hilSendGuidelines', icon: '\uD83D\uDCC4' },
-  { status: 'guidelines_sent', label: 'Guidelines \u2192 Sample Sent', nextStatus: 'sample_sent', icon: '\uD83D\uDCE6' },
-  { status: 'sample_sent', label: 'Sample Sent \u2192 Shipped', nextStatus: 'sample_shipped', icon: '\uD83D\uDE9A' },
-  { status: 'sample_shipped', label: 'Shipped \u2192 Delivered', nextStatus: 'sample_delivered', icon: '\u2705' }
-];
-
-function renderHilQueue() {
-  var el = document.getElementById('hil-queue');
-  var html = '';
-  var totalActions = 0;
-  _hilStages.forEach(function(stage) {
-    var creators = _creators.filter(function(c) { return c.status === stage.status; });
-    if (!creators.length) return;
-    totalActions += creators.length;
-    html += '<div class="hil-group" data-hil-status="' + stage.status + '">';
-    html += '<div class="hil-group-header">';
-    html += '<div class="hil-group-title">' + stage.icon + ' ' + stage.label + ' <span class="hil-count">' + creators.length + '</span></div>';
-    html += '<div style="display:flex;gap:4px;align-items:center">';
-    html += '<label style="font-size:9px;color:var(--dim);cursor:pointer"><input type="checkbox" checked onchange="toggleHilGroup(\'' + stage.status + '\',this.checked)" style="width:12px;height:12px;accent-color:var(--a)"> All</label>';
-    html += '<button class="btn btn-sm btn-success" onclick="executeHilGroup(\'' + stage.status + '\')">\uD83D\uDE80 Execute</button>';
-    html += '</div></div>';
-    creators.forEach(function(c) {
-      var by = c.triggered_by ? ' <span style="font-size:9px;color:var(--muted)">by ' + c.triggered_by + '</span>' : '';
-      html += '<div class="hil-item" style="' + (stage.actionFn === 'hilReplyDraft' ? 'flex-direction:column;align-items:stretch' : '') + '">';
-      html += '<label style="display:flex;align-items:center;gap:8px"><input type="checkbox" class="hil-cb" data-hil="' + stage.status + '" data-username="' + c.username + '" checked>';
-      html += '<strong style="color:var(--a)">@' + c.username + '</strong>';
-      html += dmCheckedBadge(c);
-      html += '<span style="color:var(--dim)">' + (c.name || '') + '</span>' + by;
-      html += '</label>';
-      // Show reply draft area for replied creators
-      if (stage.actionFn === 'hilReplyDraft') {
-        var lastMsg = c.last_incoming_msg || c.last_reply || '';
-        html += '<div style="margin:6px 0 0 24px;font-size:10px">';
-        if (lastMsg) html += '<div style="background:#f0f9ff;border-radius:6px;padding:6px 10px;margin-bottom:6px;color:#0369a1;border-left:3px solid #0284c7"><b>Incoming:</b> ' + escapeHtml(lastMsg) + '</div>';
-        html += '<textarea id="reply-draft-' + c.username + '" rows="3" placeholder="Loading AI draft..." style="width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;resize:vertical"></textarea>';
-        html += '<div style="display:flex;gap:4px;margin-top:4px">';
-        html += '<button class="btn btn-sm btn-secondary" onclick="generateReplyDraft(\'' + c.username + '\')" style="font-size:9px">🤖 AI Draft</button>';
-        html += '<button class="btn btn-sm btn-success" onclick="sendReplyDm(\'' + c.username + '\')" style="font-size:9px">📤 Send via ManyChat</button>';
-        html += '<button class="btn btn-sm" style="font-size:9px;background:#e0f2fe;color:#0284c7" onclick="updateStatus(\'' + c.username + '\',\'accepted\').then(function(){loadCreators();showToast(\'@' + c.username + ' → Accepted\')})">✅ Accept</button>';
-        html += '</div></div>';
-      }
-      html += '</div>';
-    });
-    html += '</div>';
-  });
-  if (!totalActions) {
-    html = '<div class="hil-empty">No pending actions. All creators are progressing automatically.</div>';
-  }
-  el.innerHTML = html;
-}
-
-function _showHilConfirmBar(handles) {
-  // Non-blocking replacement for confirm() — renders inline bar in hil-queue
-  var bar = document.createElement('div');
-  bar.id = 'hil-confirm-bar';
-  bar.style.cssText = 'background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap';
-  var names = handles.map(function(h) { return '@' + h; }).join(', ');
-  bar.innerHTML = '<span style="font-size:12px;font-weight:600;color:#15803d;flex:1">DM 보냈나요? ' + names + '</span>'
-    + '<button class="btn btn-sm btn-success" onclick="_hilConfirmAll(' + JSON.stringify(handles) + ')">✅ 전부 보냄</button>'
-    + '<button class="btn btn-sm btn-secondary" onclick="this.closest(\'#hil-confirm-bar\').remove()">✗ 취소</button>';
-  var queue = document.getElementById('hil-queue');
-  if (queue) queue.insertBefore(bar, queue.firstChild);
-}
-
-function _hilConfirmAll(handles) {
-  var bar = document.getElementById('hil-confirm-bar');
-  if (bar) bar.remove();
-  handles.forEach(function(h) {
-    var c = _creators.find(function(x) { return x.username === h; });
-    n8nPost({ action: 'dm_log', sub_action: 'add', username: h, dir: 'out', text: (c && c.dm_draft) || '', sent_by: _currentUser || 'dashboard' });
-    updateStatus(h, 'sent').then(function() { incDmCount(); });
-    scheduleDmBackCheck(h);
-  });
-  showToast('✅ ' + handles.length + ' DMs marked as sent');
-  loadCreators();
-}
-
-function toggleHilGroup(status, checked) {
-  document.querySelectorAll('.hil-cb[data-hil="' + status + '"]').forEach(function(cb) { cb.checked = checked; });
-}
-
-function executeHilGroup(status) {
-  var stage = _hilStages.find(function(s) { return s.status === status; });
-  if (!stage) return;
-  var checked = document.querySelectorAll('.hil-cb[data-hil="' + status + '"]:checked');
-  var handles = [];
-  checked.forEach(function(cb) { handles.push(cb.dataset.username); });
-  if (!handles.length) { showToast('No creators selected', 'err'); return; }
-
-  // Special actions for certain stages
-  if (stage.actionFn === 'hilSendDm') {
-    // Hybrid: 1st outreach = IG manual. 5s intervals, confirm after all done.
-    var remaining = _dailyLimit - _dmSentToday;
-    if (remaining <= 0) { showToast('Daily DM limit reached!', 'err'); return; }
-    handles = handles.slice(0, remaining);
-    var idx = 0;
-    var sent = [];
-    showToast('Opening ' + handles.length + ' DM window(s) — draft auto-copied');
-    (function next() {
-      if (idx >= handles.length) {
-        // Non-blocking: show inline confirm bar instead of confirm()
-        _showHilConfirmBar(handles);
-        return;
-      }
-      var h = handles[idx];
-      var c = _creators.find(function(x) { return x.username === h; });
-      if (c && c.dm_draft) navigator.clipboard.writeText(c.dm_draft).catch(function(){});
-      window.open('https://ig.me/m/' + h, '_blank');
-      showToast('(' + (idx+1) + '/' + handles.length + ') @' + h + ' — draft copied, paste in IG');
-      idx++; setTimeout(next, 2000);
-    })();
-    return;
-  }
-  if (stage.actionFn === 'hilSendForm') {
-    handles.forEach(function(h) { sendFormLink(h); });
-    showToast(handles.length + ' form links copied');
-    return;
-  }
-  if (stage.actionFn === 'hilReplyDraft') {
-    // Batch: send all checked reply drafts via ManyChat
-    var idx3 = 0;
-    showToast('Sending replies to ' + handles.length + ' creators...');
-    (function nextReply() {
-      if (idx3 >= handles.length) { showToast('Done! ' + handles.length + ' replies sent'); loadCreators(); return; }
-      sendReplyDm(handles[idx3]);
-      idx3++; setTimeout(nextReply, 1000);
-    })();
-    return;
-  }
-  if (stage.actionFn === 'hilSendContract') {
-    // Switch to contracts tab
-    var tab = document.querySelector('.mt>div[data-p="contracts"]');
-    if (tab) tab.click();
-    return;
-  }
-  if (stage.actionFn === 'hilSendGuidelines') {
-    var idx2 = 0;
-    showToast('Sending guidelines to ' + handles.length + ' creators...');
-    (function next2() {
-      if (idx2 >= handles.length) { showToast('Done! Guidelines sent'); loadCreators(); return; }
-      sendGuidelines(handles[idx2]);
-      idx2++; setTimeout(next2, 500);
-    })();
-    return;
-  }
-  // Default: just advance status
-  if (stage.nextStatus) {
-    var promises = handles.map(function(h) { return updateStatus(h, stage.nextStatus); });
-    Promise.all(promises).then(function() {
-      showToast(handles.length + ' creators advanced to ' + stage.nextStatus);
-      loadCreators();
-    }).catch(function() { showToast('Some updates failed', 'err'); });
-  }
-}
-
-// ─── Reply Draft & Send ───
-function generateReplyDraft(handle) {
-  var el = document.getElementById('reply-draft-' + handle);
-  if (!el) return;
-  el.value = 'Generating AI draft...';
-  // Fetch DM history, then generate reply based on FAQ + SOP
-  n8nPost({ action: 'dm_log', username: handle }).then(function(logs) {
-    var history = Array.isArray(logs) ? logs : (logs.messages || logs.log || []);
-    var lastIn = '';
-    // Find last incoming message
-    for (var i = history.length - 1; i >= 0; i--) {
-      if (history[i].dir === 'in' || history[i].direction === 'in') {
-        lastIn = history[i].text || history[i].message || '';
-        break;
-      }
-    }
-    // Ask n8n to generate AI reply
-    return n8nPost({
-      action: 'generate_reply',
-      username: handle,
-      last_message: lastIn,
-      history: history.slice(-6)
-    });
-  }).then(function(res) {
-    var draft = res.reply || res.draft || res.dm_draft || '';
-    if (draft) {
-      el.value = draft;
-      showToast('AI draft ready for @' + handle);
-    } else {
-      el.value = '';
-      el.placeholder = 'AI draft failed — write manually';
-    }
-  }).catch(function() {
-    el.value = '';
-    el.placeholder = 'Error loading — write manually';
-  });
-}
-
-function sendReplyDm(handle) {
-  var el = document.getElementById('reply-draft-' + handle);
-  var text = el ? el.value.trim() : '';
-  if (!text) { showToast('No reply text for @' + handle, 'err'); return; }
-  var c = _creators.find(function(x) { return x.username === handle; });
-
-  // Hybrid: if manychat_id exists → API send. Otherwise → IG link + clipboard.
-  if (c && c.manychat_id) {
-    n8nPost({ action: 'send_dm', username: handle, message: text, sent_by: _currentUser || 'dashboard' })
-      .then(function(res) {
-        if (res.status === 'ok' || res.sent) {
-          showToast('Reply sent to @' + handle + ' via ManyChat');
-          n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
-        } else {
-          showToast('ManyChat failed — opening IG DM', 'err');
-          navigator.clipboard.writeText(text).catch(function(){});
-          openProfile(handle);
-          n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
-        }
-      }).catch(function() {
-        navigator.clipboard.writeText(text).catch(function(){});
-        openProfile(handle);
-        n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
-      });
-  } else {
-    // No ManyChat subscriber → manual IG DM
-    navigator.clipboard.writeText(text).catch(function(){});
-    openProfile(handle);
-    showToast('Draft copied — paste in IG DM for @' + handle);
-    n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
-  }
-}
-
-// Auto-generate reply drafts when HiL renders
-function autoLoadReplyDrafts() {
-  var replied = _creators.filter(function(c) { return c.status === 'replied'; });
-  replied.forEach(function(c) {
-    setTimeout(function() { generateReplyDraft(c.username); }, 500);
-  });
-}
 
 // ─── Dashboard: Inbound Queue ───
 function renderInboundQueue() {
@@ -1758,60 +1002,10 @@ function generateDrafts() {
   btn.disabled = true;
   statusEl.innerHTML = '<span class="loading-spinner"></span> Generating via n8n...';
 
-  // Dedup: only not_started, no DM history, and not already in sheet as contacted
+  // Filter: only not_started AND no DM history
   var eligible = _creators.filter(function(c) {
-    return c.status === 'not_started' && c.dm_count === 0 && !hasPastContact(c);
+    return c.status === 'not_started' && c.dm_count === 0;
   });
-  var skippedCount = _creators.filter(function(c) { return c.status === 'not_started' && hasPastContact(c); }).length;
-  if (skippedCount > 0) statusEl.textContent = skippedCount + ' creators skipped (already contacted). ';
-  // Priority toggles — sort eligible list before slicing
-  var videoPriority = document.getElementById('draft-video-priority').checked;
-  var viewPriority = document.getElementById('draft-view-priority').checked;
-  var qualityPriority = document.getElementById('draft-quality-priority').checked;
-  var babyFilter = document.getElementById('draft-baby-filter').checked;
-
-  // Baby filter: only creators who have at least one infant post (subject_age=infant)
-  if (babyFilter) {
-    eligible = eligible.filter(function(c) {
-      var sd = _sheetData.find(function(s) { return s.username === c.username; });
-      if (!sd) return false;
-      var posts = sd.posts || [];
-      return posts.some(function(p) { return p.subject_age === 'infant'; });
-    });
-  }
-
-  if (videoPriority || viewPriority || qualityPriority) {
-    // Find matching sheet data for views/video/quality info
-    eligible.forEach(function(c) {
-      var sd = _sheetData.find(function(s) { return s.username === c.username; });
-      c._hasVideo = sd ? creatorHasVideo(sd) : false;
-      c._bestViews = sd ? (sd._bestViews || 0) : 0;
-      // Best brand_fit_score across all analyzed posts
-      if (sd && sd.posts) {
-        var scores = sd.posts.map(function(p) { return p.brand_fit_score || 0; });
-        c._bestQuality = scores.length ? Math.max.apply(null, scores) : 0;
-      } else {
-        c._bestQuality = 0;
-      }
-    });
-    eligible.sort(function(a, b) {
-      // Video creators first (if toggle on)
-      if (videoPriority) {
-        if (a._hasVideo && !b._hasVideo) return -1;
-        if (!a._hasVideo && b._hasVideo) return 1;
-      }
-      // Quality score first (if toggle on)
-      if (qualityPriority) {
-        var qDiff = (b._bestQuality || 0) - (a._bestQuality || 0);
-        if (qDiff !== 0) return qDiff;
-      }
-      // Higher views first (if toggle on)
-      if (viewPriority) {
-        return (b._bestViews || 0) - (a._bestViews || 0);
-      }
-      return 0;
-    });
-  }
   var batch = parseInt(document.getElementById('draft-batch-size').value) || 10;
   var toGenerate = eligible.slice(0, batch);
 
@@ -1822,14 +1016,7 @@ function generateDrafts() {
   }
 
   var payload = toGenerate.map(function(c) {
-    // Attach best transcript from CI data as content_script
-    var sd = _sheetData.find(function(s) { return s.username === c.username; });
-    var script = c.content_script || '';
-    if (!script && sd && sd._posts) {
-      var bestPost = sd._posts.find(function(p) { return p.transcript && p.transcript.trim(); });
-      if (bestPost) script = bestPost.transcript;
-    }
-    return { username: c.username, name: c.name, followers: c.followers, content_script: script };
+    return { username: c.username, name: c.name, followers: c.followers, content_script: c.content_script || '' };
   });
 
   n8nPost({ action: 'generate_draft', creators: payload })
@@ -1857,7 +1044,7 @@ function generateDrafts() {
 }
 
 function renderDraftsList() {
-  var drafts = _creators.filter(function(c) { return c.status === 'draft_ready' && c.dm_draft && !c.dm_count; });
+  var drafts = _creators.filter(function(c) { return c.status === 'draft_ready' && c.dm_draft; });
   if (!drafts.length) {
     document.getElementById('drafts-list').innerHTML = '<div style="text-align:center;padding:40px;color:var(--dim)">No drafts available.</div>';
     document.getElementById('exec-bar-container').style.display = 'none';
@@ -1869,46 +1056,22 @@ function renderDraftsList() {
 
   var html = '';
   drafts.forEach(function(c, idx) {
+    var dmLink = 'https://ig.me/m/' + c.username;
     html += '<div class="dm-card" id="draft-card-' + c.username + '">';
     html += '<div style="display:flex;justify-content:space-between;align-items:center">';
     html += '<div style="display:flex;align-items:center;gap:8px">';
     html += '<input type="checkbox" class="draft-cb draft-select" data-username="' + c.username + '" checked onchange="updateSelectedCount()" style="width:16px;height:16px;accent-color:var(--a)">';
     html += '<span class="dm-handle">@' + c.username + '</span> <span style="font-size:10px;color:var(--dim)">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + '</span>';
-    // CI summary badges
-    var sd = _sheetData.find(function(s) { return s.username === c.username; });
-    if (sd && sd._ciCount > 0) {
-      html += ' <span style="font-size:9px;padding:1px 6px;border-radius:3px;background:#f0f9ff;color:#0284c7;font-weight:600" title="CI analyzed: DV=' + (sd._ciDelivery||0) + ' BF=' + (sd._ciBrandFit||0) + '">CI';
-      if (sd._ciDelivery) html += ' ' + sd._ciDelivery;
-      html += '</span>';
-    }
     html += '</div>';
     html += '<div style="display:flex;gap:4px">';
-    html += '<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();openDmThread(\'' + c.username + '\')" title="View history">&#x1F4AC;</button>';
-    html += '<button class="btn btn-sm btn-success" onclick="copyAndOpenDm(\'' + c.username + '\')" style="font-weight:700" title="Draft 복사 + IG DM 바로 열기">&#x1F4CB; DM&#x2197;</button>';
-    html += '<button class="btn btn-sm" style="background:#e0f2fe;color:#0284c7;border:1px solid #bae6fd" onclick="markSent(\'' + c.username + '\')" title="보냈으면 체크">&#x2705; 보냄</button>';
+    html += '<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();openDmThread(\'' + c.username + '\')" title="View history">&#x1F4AC; History</button>';
+    html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary">&#x2197; Open IG</a>';
     html += '</div>';
     html += '</div>';
-    // CI detail mini-card in draft
-    if (sd && sd._ciCount > 0 && sd._posts) {
-      var ciPost = sd._posts.find(function(p) { return p.ci || p.delivery_verbal_score; });
-      if (ciPost) {
-        html += '<div style="margin:4px 0;padding:6px 10px;background:#f8fafc;border:1px solid var(--border);border-radius:6px;font-size:9px;color:var(--dim)">';
-        var ciParts = [];
-        if (ciPost.delivery_verbal_score) ciParts.push('Delivery: <b style="color:#10b981">' + ciPost.delivery_verbal_score + '</b>/10');
-        if (ciPost.brand_fit_score) ciParts.push('Brand Fit: <b>' + ciPost.brand_fit_score + '</b>/10');
-        if (ciPost.scene_fit) ciParts.push('Scene: ' + ciPost.scene_fit);
-        if (ciPost.subject_age) ciParts.push('Age: ' + ciPost.subject_age);
-        var ci2 = ciPost.ci || {};
-        if (ci2.hook_type) ciParts.push('Hook: ' + ci2.hook_type);
-        if (ci2.emotional_tone) ciParts.push('Tone: ' + ci2.emotional_tone);
-        html += ciParts.join(' &middot; ');
-        if (ciPost.transcript) html += '<div style="margin-top:3px;font-style:italic;max-height:36px;overflow:hidden;color:#64748b">"' + escapeHtml(ciPost.transcript.substring(0, 150)) + '..."</div>';
-        html += '</div>';
-      }
-    }
     html += '<textarea class="dm-edit" id="dm-body-' + c.username + '" rows="6" oninput="saveDraftEdit(\'' + c.username + '\',this.value)">' + escapeHtml(c.dm_draft) + '</textarea>';
     html += '<div class="dm-actions">';
     html += '<button class="copy-btn" onclick="copyDraft(\'' + c.username + '\',this)">&#x1F4CB; Copy</button>';
+    html += '<button class="btn btn-sm btn-success" onclick="markSent(\'' + c.username + '\')">&#x2705; Mark Sent</button>';
     html += '</div>';
     html += '</div>';
   });
@@ -1962,17 +1125,24 @@ function executeDrafts() {
     document.getElementById('exec-fill').style.width = (((idx + 1) / handles.length) * 100) + '%';
     document.getElementById('exec-current').textContent = 'Opening @' + handle + '...';
 
-    var text = c ? (c.dm_draft || '') : '';
-    // Skip already sent or no draft
-    if (!text || (c && c.status === 'sent')) { idx++; setTimeout(processNext, 300); return; }
-    // 1st outreach = IG manual. Copy draft + open IG DM link.
-    navigator.clipboard.writeText(text).catch(function(){});
-    n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
-    openProfile(handle);
-    updateStatus(handle, 'sent').then(function() { incDmCount(); }).catch(function(){});
+    // Copy draft to clipboard
+    if (c && c.dm_draft) {
+      navigator.clipboard.writeText(c.dm_draft).catch(function() {});
+    }
+
+    // Open IG DM link
+    window.open('https://ig.me/m/' + handle, '_blank');
+
+    // Mark as sent via n8n
+    if (c && c.dm_draft) {
+      n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' });
+    }
+    updateStatus(handle, 'sent').then(function() {
+      incDmCount();
+    }).catch(function() {});
 
     idx++;
-    setTimeout(processNext, 1200);
+    setTimeout(processNext, 1200); // 1.2s delay between opens
   }
   processNext();
 }
@@ -2005,7 +1175,7 @@ function openDmThread(handle) {
   var c = _creators.find(function(x) { return x.username === handle; });
   document.getElementById('thread-handle').textContent = '@' + handle;
   document.getElementById('thread-badge').innerHTML = c ? statusBadge(c.status) : '';
-  document.getElementById('thread-ig-link').href = 'https://www.instagram.com/' + handle;
+  document.getElementById('thread-ig-link').href = 'https://ig.me/m/' + handle;
 
   // Show "Mark Accepted" for replied / inbound / needs_review
   var acceptBtn = document.getElementById('thread-accept-btn');
@@ -2202,140 +1372,6 @@ function importCreators() {
     });
 }
 
-// ─── Copy Draft + Open IG DM ───
-function copyAndOpenDm(handle) {
-  var c = _creators.find(function(x) { return x.username === handle; });
-  var text = (c && c.dm_draft) || (document.getElementById('dm-body-' + handle) && document.getElementById('dm-body-' + handle).value) || '';
-  if (text) {
-    navigator.clipboard.writeText(text).then(function() {
-      showToast('📋 복사됨 — IG DM에 붙여넣기', 'ok');
-    }).catch(function() {
-      showToast('복사 실패 — 수동으로 복사해주세요', 'err');
-    });
-  }
-  openProfile(handle);
-}
-
-// ─── Sheet Batch Add ───
-function getISOWeek(dateStr) {
-  if (!dateStr) return 'Unknown';
-  var d = new Date(dateStr);
-  if (isNaN(d)) return 'Unknown';
-  var day = d.getDay() || 7;
-  d.setDate(d.getDate() + 4 - day);
-  var yearStart = new Date(d.getFullYear(), 0, 1);
-  var week = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-  // Get Monday of that week for display
-  var monday = new Date(d.getFullYear(), 0, 1 + (week - 1) * 7);
-  var sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
-  var fmt = function(dt) { return (dt.getMonth()+1) + '/' + dt.getDate(); };
-  return d.getFullYear() + ' W' + String(week).padStart(2,'0') + ' (' + fmt(monday) + '~' + fmt(sunday) + ')';
-}
-
-function showSheetBatchModal() {
-  var modal = document.getElementById('sheet-batch-modal');
-  modal.style.pointerEvents = 'auto';
-  modal.style.display = 'flex';
-  renderSheetBatchBody();
-}
-
-function closeSheetBatchModal() {
-  var m = document.getElementById('sheet-batch-modal');
-  m.style.display = 'none';
-  m.style.pointerEvents = 'none';
-}
-
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    var m = document.getElementById('sheet-batch-modal');
-    if (m && m.style.display === 'flex') closeSheetBatchModal();
-  }
-});
-
-function renderSheetBatchBody() {
-  // Only show creators NOT in pipeline
-  var eligible = _sheetData.filter(function(c) { return !c._inPipeline; });
-  var body = document.getElementById('sheet-batch-body');
-  if (!eligible.length) {
-    body.innerHTML = '<div style="text-align:center;padding:32px;color:var(--dim)">추가할 크리에이터가 없습니다 (모두 파이프라인에 있음)</div>';
-    return;
-  }
-  // Group by week
-  var weeks = {};
-  eligible.forEach(function(c) {
-    var wk = getISOWeek(c._latestPostDate);
-    if (!weeks[wk]) weeks[wk] = [];
-    weeks[wk].push(c);
-  });
-  // Sort weeks descending (latest first)
-  var sortedWeeks = Object.keys(weeks).sort().reverse();
-  var html = '';
-  sortedWeeks.forEach(function(wk) {
-    var creators = weeks[wk];
-    // Sort by views desc within week
-    creators.sort(function(a,b) { return (b._bestViews||0) - (a._bestViews||0); });
-    var weekId = 'wk-' + wk.replace(/[^a-zA-Z0-9]/g,'_');
-    html += '<div style="margin-bottom:20px">';
-    html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">';
-    html += '<input type="checkbox" id="cb-' + weekId + '" checked onchange="toggleWeekBatch(this,\'' + weekId + '\')" style="width:14px;height:14px;accent-color:var(--g)">';
-    html += '<span style="font-size:12px;font-weight:700;color:var(--text)">' + escapeHtml(wk) + '</span>';
-    html += '<span style="font-size:10px;color:var(--dim)">' + creators.length + '명</span>';
-    html += '</div>';
-    creators.forEach(function(c) {
-      var cbId = 'cb-creator-' + c.username;
-      html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9" data-week="' + weekId + '">';
-      html += '<input type="checkbox" id="' + cbId + '" data-username="' + escapeHtml(c.username) + '" data-week="' + weekId + '" checked class="batch-creator-cb" onchange="updateSheetBatchCount()" style="width:13px;height:13px;accent-color:var(--g)">';
-      html += '<span style="font-size:11px;font-weight:600;color:var(--a)">@' + escapeHtml(c.username) + '</span>';
-      html += '<span style="font-size:10px;color:var(--dim)">' + (c.name || '') + '</span>';
-      if (c.followers) html += '<span style="font-size:10px;color:var(--dim)">' + c.followers.toLocaleString() + ' followers</span>';
-      if (c._bestViews) html += '<span style="font-size:10px;background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:4px">' + (c._bestViews >= 1000 ? Math.round(c._bestViews/1000) + 'K' : c._bestViews) + ' views</span>';
-      if (c._latestPostDate) html += '<span style="font-size:9px;color:var(--muted)">' + c._latestPostDate + '</span>';
-      html += '</div>';
-    });
-    html += '</div>';
-  });
-  body.innerHTML = html;
-  updateSheetBatchCount();
-}
-
-function toggleWeekBatch(weekCb, weekId) {
-  var checked = weekCb.checked;
-  document.querySelectorAll('.batch-creator-cb[data-week="' + weekId + '"]').forEach(function(cb) {
-    cb.checked = checked;
-  });
-  updateSheetBatchCount();
-}
-
-function updateSheetBatchCount() {
-  var selected = document.querySelectorAll('.batch-creator-cb:checked').length;
-  document.getElementById('sheet-batch-status').textContent = selected + '명 선택됨';
-}
-
-function confirmSheetBatchAdd() {
-  var selected = [];
-  document.querySelectorAll('.batch-creator-cb:checked').forEach(function(cb) {
-    var username = cb.dataset.username;
-    var c = _sheetData.find(function(x) { return x.username === username; });
-    if (c) selected.push({ username: c.username, name: c.name || '', followers: c.followers || 0, platform: c.platform || 'instagram', source: 'sheet_batch' });
-  });
-  if (!selected.length) { showToast('선택된 크리에이터가 없습니다', 'err'); return; }
-  var btn = document.getElementById('btn-sheet-batch-add');
-  btn.disabled = true;
-  document.getElementById('sheet-batch-status').textContent = '추가 중...';
-  n8nPost({ action: 'import_creators', creators: selected })
-    .then(function(res) {
-      var count = res.imported || res.count || selected.length;
-      showToast(count + '명 파이프라인에 추가됨');
-      closeSheetBatchModal();
-      loadCreators();
-    })
-    .catch(function(err) {
-      document.getElementById('sheet-batch-status').textContent = '오류: ' + (err.message || err);
-      showToast('추가 실패', 'err');
-      btn.disabled = false;
-    });
-}
-
 // ─── Utils ───
 function escapeHtml(str) {
   var div = document.createElement('div');
@@ -2378,12 +1414,13 @@ function executeCreatorsDrafts() {
     }
     var handle = handles[idx];
     var c = _creators.find(function(x) { return x.username === handle; });
-    var text = c ? (c.dm_draft || '') : '';
-    if (!text || (c && c.status === 'sent')) { idx++; setTimeout(processNext, 300); return; }
-
-    navigator.clipboard.writeText(text).catch(function(){});
-    openProfile(handle);
-    n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: text, sent_by: _currentUser || 'dashboard' });
+    // Copy draft to clipboard
+    if (c && c.dm_draft) {
+      navigator.clipboard.writeText(c.dm_draft).catch(function(){});
+      n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' });
+    }
+    // Open IG DM
+    window.open('https://ig.me/m/' + handle, '_blank');
     updateStatus(handle, 'sent').then(function() { incDmCount(); }).catch(function(){});
     idx++;
     setTimeout(processNext, 1200);
@@ -2400,19 +1437,7 @@ function goToStage(status) {
   var tab = document.querySelector('.mt>div[data-p="creators"]');
   if (tab) tab.click();
   var sel = document.getElementById('creator-status-filter');
-  if (sel) {
-    if (status === 'manual_dm') {
-      sel.value = 'manual_dm';
-    } else {
-      sel.value = status;
-    }
-    filterCreators();
-  }
-  // Scroll to creators area so cards are visible
-  setTimeout(function() {
-    var cards = document.getElementById('creators-cards');
-    if (cards) cards.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 100);
+  if (sel) { sel.value = status; filterCreators(); }
 }
 
 function showToast(msg, type) {
@@ -2456,20 +1481,9 @@ function sendGuidelines(handle) {
 function loadConfig() {
   n8nPost({ action: 'get_config' }).then(function(cfg) {
     if (cfg.mistake_log) document.getElementById('cfg-mistake-log').value = cfg.mistake_log;
-    // dm_template: may be string or object with sections
-    if (cfg.dm_template) {
-      var tmpl = cfg.dm_template;
-      if (typeof tmpl === 'object') {
-        var txt = '';
-        Object.keys(tmpl).forEach(function(k) { txt += '## ' + k + '\n' + tmpl[k] + '\n\n'; });
-        document.getElementById('cfg-dm-template').value = txt.trim();
-      } else {
-        document.getElementById('cfg-dm-template').value = tmpl;
-      }
-    }
+    if (cfg.dm_template) document.getElementById('cfg-dm-template').value = cfg.dm_template;
     if (cfg.docuseal_template_id) document.getElementById('cfg-docuseal-template').value = cfg.docuseal_template_id;
     if (cfg.faq_entries) renderFaqList(cfg.faq_entries);
-    if (cfg.guidelines) renderGuidelinesRules(cfg.guidelines);
     if (cfg.content_guidelines) renderGuidelinesConfig(cfg.content_guidelines);
   }).catch(function(){});
 }
@@ -2483,26 +1497,12 @@ function saveConfig(key, value) {
 // ─── FAQ management ───
 var _faqEntries = [];
 function renderFaqList(entries) {
-  _faqEntries = (entries || []).map(function(e) {
-    // Normalize: support both {q,a} and {id,category,type,questions,answer}
-    if (e.questions || e.answer) return { id: e.id||'', category: e.category||'', type: e.type||'', q: e.questions||e.q||'', a: e.answer||e.a||'' };
-    return e;
-  });
+  _faqEntries = entries || [];
   var html = '';
-  // Group by category if rich format
-  var hasCategories = _faqEntries.some(function(e) { return e.category; });
-  var lastCat = '';
   _faqEntries.forEach(function(e, i) {
-    if (hasCategories && e.category && e.category !== lastCat) {
-      lastCat = e.category;
-      var typeTag = e.type ? ' <span style="display:inline-block;padding:1px 6px;border-radius:8px;font-size:9px;font-weight:600;background:' + (e.type==='High Touch'?'#fef3c7;color:#92400e':'#e0f2fe;color:#0369a1') + '">' + escapeHtml(e.type) + '</span>' : '';
-      html += '<div style="font-size:11px;font-weight:700;color:var(--txt);margin:12px 0 6px;border-bottom:1px solid var(--border);padding-bottom:4px">' + escapeHtml(e.category) + typeTag + '</div>';
-    }
     html += '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:start">';
-    html += '<div style="flex:1">';
-    if (e.id) html += '<div style="font-size:9px;color:var(--dim);margin-bottom:2px">' + escapeHtml(e.id) + '</div>';
-    html += '<textarea class="faq-q" data-idx="' + i + '" rows="2" placeholder="\u8CEA\u554F..." style="width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;resize:vertical;margin-bottom:4px">' + escapeHtml(e.q || '') + '</textarea>';
-    html += '<textarea class="faq-a" data-idx="' + i + '" rows="3" placeholder="\u56DE\u7B54..." style="width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;resize:vertical">' + escapeHtml(e.a || '') + '</textarea></div>';
+    html += '<div style="flex:1"><input type="text" class="faq-q" data-idx="' + i + '" value="' + escapeHtml(e.q || '') + '" placeholder="\u8CEA\u554F..." style="width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;margin-bottom:4px">';
+    html += '<textarea class="faq-a" data-idx="' + i + '" rows="2" placeholder="\u56DE\u7B54..." style="width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;resize:vertical">' + escapeHtml(e.a || '') + '</textarea></div>';
     html += '<button class="btn btn-sm" style="background:var(--rbg);color:var(--r);border:1px solid var(--r)" onclick="removeFaq(' + i + ')">\u2715</button>';
     html += '</div>';
   });
@@ -2517,22 +1517,6 @@ function addFaqEntry() {
 function removeFaq(idx) {
   _faqEntries.splice(idx, 1);
   renderFaqList(_faqEntries);
-}
-
-// ─── DM Guidelines (rules from Google Sheets) ───
-function renderGuidelinesRules(rules) {
-  if (!rules || !rules.length) return;
-  var el = document.getElementById('guidelines-rules');
-  if (!el) return;
-  var html = '<table style="width:100%;font-size:11px;border-collapse:collapse">';
-  html += '<tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:4px 8px;font-weight:700">Category</th><th style="text-align:left;padding:4px 8px;font-weight:700">Rule</th></tr>';
-  rules.forEach(function(r) {
-    html += '<tr style="border-bottom:1px solid var(--border)">';
-    html += '<td style="padding:4px 8px;white-space:nowrap;font-weight:600;color:var(--a)">' + escapeHtml(r.category) + '</td>';
-    html += '<td style="padding:4px 8px">' + escapeHtml(r.rule) + '</td></tr>';
-  });
-  html += '</table>';
-  el.innerHTML = html;
 }
 
 function saveFaq() {
@@ -2780,553 +1764,6 @@ function exportSamples() {
   a.click();
   URL.revokeObjectURL(url);
   showToast('CSV exported');
-}
-
-// ═══ INFLUENCER SHEET ═══
-var DISCOVERY_API = 'https://orbitools.orbiters.co.kr/api/onzenna/discovery/posts/?region=jp&limit=5000';
-var _sheetData = []; // combined: _creators + discovery (deduped by handle)
-var _sheetSort = { key: 'username', asc: true };
-var _sheetPage = 0;
-var _sheetPerPage = 50;
-var _sheetLoading = false;
-var _sheetSubtab = 'all'; // 'all' | 'has_video' | 'image_only'
-
-// Video detection: TikTok = always video; IG = views>0 OR /reel/ in URL OR transcript exists
-function isVideoPost(post) {
-  if ((post.platform || '').toLowerCase().indexOf('tiktok') !== -1) return true;
-  if (post.views && post.views > 0) return true;
-  if (post.url && post.url.indexOf('/reel/') !== -1) return true;
-  if (post.transcript && post.transcript.trim().length > 0) return true;
-  return false;
-}
-
-function creatorHasVideo(c) {
-  if (!c._posts || c._posts.length === 0) return false;
-  return c._posts.some(isVideoPost);
-}
-
-function setSheetSubtab(filter) {
-  _sheetSubtab = filter;
-  _sheetPage = 0;
-  document.querySelectorAll('.sheet-subtab').forEach(function(el) {
-    el.classList.toggle('on', el.getAttribute('data-filter') === filter);
-  });
-  renderSheet();
-}
-
-function importFromDiscovery() {
-  var btn = document.getElementById('btn-import-discovery');
-  var statusEl = document.getElementById('import-discovery-status');
-  btn.disabled = true;
-  statusEl.innerHTML = '<span class="loading-spinner" style="width:10px;height:10px"></span> Importing...';
-
-  var u = localStorage.getItem('dk_user') || 'admin';
-  var p = localStorage.getItem('dk_pass') || 'orbit1234';
-  fetch('https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/import-from-discovery/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa(u + ':' + p) },
-    body: JSON.stringify({ region: 'jp', limit: 200, min_followers: 1000 })
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    statusEl.textContent = data.created + ' imported, ' + data.skipped + ' skipped (of ' + data.total_discovery_handles + ' handles)';
-    btn.disabled = false;
-    if (data.created > 0) {
-      showToast(data.created + ' creators added to pipeline!', 'ok');
-      // Reload creators + sheet to reflect changes
-      loadCreators();
-      loadInfluencerSheet();
-    }
-  })
-  .catch(function(err) {
-    statusEl.textContent = 'Error: ' + err.message;
-    btn.disabled = false;
-    showToast('Import failed', 'err');
-  });
-}
-
-function loadInfluencerSheet() {
-  if (_sheetLoading) return;
-  _sheetLoading = true;
-  var countEl = document.getElementById('sheet-count');
-  if (countEl) countEl.innerHTML = '<span class="loading-spinner" style="width:10px;height:10px"></span> Loading discovery data...';
-
-  var u = localStorage.getItem('dk_user') || 'admin';
-  var p = localStorage.getItem('dk_pass') || 'orbit1234';
-  fetch(DISCOVERY_API, { headers: { 'Authorization': 'Basic ' + btoa(u + ':' + p) } })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      var BRAND_KEYWORDS = ['official', 'shop', 'store', 'honpo', '公式'];
-      var rows = (data.results || []).filter(function(p) {
-        // Video only
-        if ((p.content_type || '').toLowerCase() !== 'video') return false;
-        // Filter brand/official accounts
-        var h = (p.handle || '').toLowerCase();
-        for (var i = 0; i < BRAND_KEYWORDS.length; i++) {
-          if (h.indexOf(BRAND_KEYWORDS[i]) !== -1) return false;
-        }
-        return true;
-      }).map(function(p) {
-        return {
-          'Handle': p.handle || '',
-          'Full Name': p.full_name || '',
-          'Views': p.views || 0,
-          'Likes': p.likes || 0,
-          'Comments Count': p.comments_count || 0,
-          'Followers': p.followers || 0,
-          'Date': (p.post_date || '').slice(0, 10),
-          'URL': p.url || '',
-          'Platform': p.platform || 'instagram',
-          'Source': p.source || '',
-          'Email': p.outreach_email || '',
-          'Caption': p.caption || '',
-          'Hashtags': p.hashtags || '',
-          'Transcript': p.transcript || '',
-          'BrandFit': p.brand_fit_score || null,
-          'SceneFit': p.scene_fit || '',
-          'SubjectAge': p.subject_age || '',
-          'SceneTags': p.scene_tags || '',
-          'CI': p.ci_analysis || null
-        };
-      });
-      mergeSheetData(rows);
-      _sheetLoading = false;
-    }).catch(function(e) {
-      console.error('Discovery API fetch failed:', e);
-      if (countEl) countEl.textContent = 'Failed to load discovery data — showing pipeline only';
-      mergeSheetData([]);
-      _sheetLoading = false;
-    });
-}
-
-function parseCSV(text) {
-  var lines = text.split('\n');
-  if (lines.length < 2) return [];
-  var headers = parseCSVLine(lines[0]);
-  var rows = [];
-  for (var i = 1; i < lines.length; i++) {
-    if (!lines[i].trim()) continue;
-    var vals = parseCSVLine(lines[i]);
-    var obj = {};
-    headers.forEach(function(h, idx) { obj[h] = vals[idx] || ''; });
-    rows.push(obj);
-  }
-  return rows;
-}
-
-function parseCSVLine(line) {
-  var result = []; var current = ''; var inQuotes = false;
-  for (var i = 0; i < line.length; i++) {
-    var ch = line[i];
-    if (inQuotes) {
-      if (ch === '"' && line[i+1] === '"') { current += '"'; i++; }
-      else if (ch === '"') inQuotes = false;
-      else current += ch;
-    } else {
-      if (ch === '"') inQuotes = true;
-      else if (ch === ',') { result.push(current.trim()); current = ''; }
-      else current += ch;
-    }
-  }
-  result.push(current.trim());
-  return result;
-}
-
-function mergeSheetData(discoveryRows) {
-  var map = {};
-
-  // 1. Pipeline creators first (they have definitive status)
-  _creators.forEach(function(c) {
-    map[c.username] = Object.assign({}, c, {
-      _source: getCreatorSource(c),
-      _inPipeline: true,
-      _postCount: 0,
-      _bestViews: c.post_views || 0,
-      _latestPostDate: c.posted_at || '',
-      _latestPostUrl: c.post_url || '',
-      _posts: []
-    });
-  });
-
-  // 2. Discovery rows — dedup by Handle, aggregate metrics
-  discoveryRows.forEach(function(row) {
-    var handle = (row['Handle'] || '').trim();
-    if (!handle) return;
-
-    var views = parseInt(row['Views']) || 0;
-    var likes = parseInt(row['Likes']) || 0;
-    var comments = parseInt(row['Comments Count']) || 0;
-    var followers = parseInt(row['Followers']) || 0;
-    var date = row['Date'] || '';
-    var url = row['URL'] || '';
-    var platform = (row['Platform'] || 'instagram').toLowerCase();
-
-    var ci = row['CI'] || null;
-    var post = { url: url, date: date, views: views, likes: likes, comments: comments, platform: platform, source: row['Source'] || '', caption: row['Caption'] || '', hashtags: row['Hashtags'] || '', transcript: row['Transcript'] || '',
-      brand_fit_score: row['BrandFit'] || (ci && ci.brand_fit_score) || null,
-      delivery_verbal_score: ci && ci.delivery_verbal_score != null ? ci.delivery_verbal_score : null,
-      scene_fit: row['SceneFit'] || (ci && ci.scene_fit) || '',
-      subject_age: row['SubjectAge'] || (ci && ci.subject_age) || '',
-      hook_score: ci && ci.hook_score != null ? ci.hook_score : null,
-      storytelling_score: ci && ci.storytelling_score != null ? ci.storytelling_score : null,
-      authenticity_score: ci && ci.authenticity_score != null ? ci.authenticity_score : null,
-      scene_tags: row['SceneTags'] || (ci && ci.scene_tags) || '',
-      ci: ci
-    };
-
-    if (map[handle]) {
-      // Existing — update aggregates
-      var existing = map[handle];
-      existing._postCount++;
-      existing._posts.push(post);
-      if (views > existing._bestViews) existing._bestViews = views;
-      if (likes > (existing._bestLikes || 0)) existing._bestLikes = likes;
-      existing._totalComments = (existing._totalComments || 0) + comments;
-      if (followers > (existing.followers || 0)) existing.followers = followers;
-      if (date > (existing._latestPostDate || '')) {
-        existing._latestPostDate = date;
-        existing._latestPostUrl = url;
-      }
-    } else {
-      // New discovery creator — not yet in pipeline
-      map[handle] = {
-        username: handle,
-        name: row['Full Name'] || '',
-        followers: followers,
-        status: 'not_started',
-        source: 'discovery',
-        _source: 'discovery',
-        _inPipeline: false,
-        _postCount: 1,
-        _bestViews: views,
-        _bestLikes: likes,
-        _totalComments: comments,
-        _latestPostDate: date,
-        _latestPostUrl: url,
-        _posts: [post],
-        platform: platform,
-        email: row['Email'] || '',
-        is_parent: row['Is Parent'] || '',
-        syncly_kw: row['Syncly KW'] || ''
-      };
-    }
-  });
-
-  // Compute per-creator CI summary scores
-  Object.values(map).forEach(function(c) {
-    var bestBF = 0, bestDV = 0, ciCount = 0;
-    (c._posts || []).forEach(function(p) {
-      if (p.brand_fit_score && p.brand_fit_score > bestBF) bestBF = p.brand_fit_score;
-      if (p.delivery_verbal_score && p.delivery_verbal_score > bestDV) bestDV = p.delivery_verbal_score;
-      if (p.ci || p.brand_fit_score || p.delivery_verbal_score) ciCount++;
-    });
-    c._ciBrandFit = bestBF;
-    c._ciDelivery = bestDV;
-    c._ciCount = ciCount;
-    c._ciScore = bestDV || bestBF; // primary sort key
-  });
-
-  _sheetData = Object.values(map);
-  _sheetPage = 0;
-  renderSheet();
-}
-
-function filterSheet() {
-  _sheetPage = 0;
-  renderSheet();
-}
-
-function sortSheet(key) {
-  if (_sheetSort.key === key) _sheetSort.asc = !_sheetSort.asc;
-  else { _sheetSort.key = key; _sheetSort.asc = true; }
-  renderSheet();
-}
-
-function getFilteredSheet() {
-  var q = (document.getElementById('sheet-search').value || '').toLowerCase();
-  var sf = document.getElementById('sheet-filter-status').value;
-  var src = document.getElementById('sheet-filter-source').value;
-  var hideContacted = document.getElementById('sheet-hide-contacted').checked;
-
-  return _sheetData.filter(function(c) {
-    if (q && c.username.toLowerCase().indexOf(q) === -1 && (c.name || '').toLowerCase().indexOf(q) === -1) return false;
-    if (sf && c.status !== sf) return false;
-    if (src === 'discovery' && c._source !== 'discovery') return false;
-    if (src === 'pipeline' && c._source !== 'pipeline') return false;
-    if (src === 'inbound' && c._source !== 'inbound') return false;
-    if (src === 'manual' && c._source !== 'manual') return false;
-    if (hideContacted && hasPastContact(c)) return false;
-    // Sub-tab: video vs image filter
-    if (_sheetSubtab === 'has_video' && !creatorHasVideo(c)) return false;
-    if (_sheetSubtab === 'image_only' && (creatorHasVideo(c) || !c._posts || c._posts.length === 0)) return false;
-    return true;
-  }).sort(function(a, b) {
-    var va = a[_sheetSort.key] || '';
-    var vb = b[_sheetSort.key] || '';
-    if (typeof va === 'number' && typeof vb === 'number') return _sheetSort.asc ? va - vb : vb - va;
-    va = String(va).toLowerCase(); vb = String(vb).toLowerCase();
-    return _sheetSort.asc ? va.localeCompare(vb) : vb.localeCompare(va);
-  });
-}
-
-function renderSheet() {
-  var filtered = getFilteredSheet();
-  var total = filtered.length;
-  var start = _sheetPage * _sheetPerPage;
-  var page = filtered.slice(start, start + _sheetPerPage);
-  var today = new Date();
-
-  // Update sub-tab counts
-  var allCount = _sheetData.length;
-  var videoCount = _sheetData.filter(creatorHasVideo).length;
-  var imageCount = _sheetData.filter(function(c) { return c._posts && c._posts.length > 0 && !creatorHasVideo(c); }).length;
-  var tabAll = document.querySelector('.sheet-subtab[data-filter="all"]');
-  var tabVideo = document.querySelector('.sheet-subtab[data-filter="has_video"]');
-  var tabImage = document.querySelector('.sheet-subtab[data-filter="image_only"]');
-  if (tabAll) tabAll.textContent = 'All (' + allCount + ')';
-  if (tabVideo) tabVideo.innerHTML = '&#x1F3AC; Has Video (' + videoCount + ')';
-  if (tabImage) tabImage.innerHTML = '&#x1F5BC; Image Only (' + imageCount + ')';
-
-  document.getElementById('sheet-count').textContent = total + ' influencers' + (total !== _sheetData.length ? ' (filtered from ' + _sheetData.length + ')' : '');
-
-  // Update CI summary stats
-  var ciAnalyzed = _sheetData.filter(function(c) { return c._ciCount > 0; });
-  var ciBar = document.getElementById('ci-stats-bar');
-  if (ciAnalyzed.length > 0) {
-    ciBar.style.display = 'block';
-    document.getElementById('ci-stat-count').textContent = ciAnalyzed.length;
-    var dvSum = 0, dvCnt = 0, bfSum = 0, bfCnt = 0, trCnt = 0, topCnt = 0;
-    ciAnalyzed.forEach(function(c) {
-      if (c._ciDelivery > 0) { dvSum += c._ciDelivery; dvCnt++; }
-      if (c._ciBrandFit > 0) { bfSum += c._ciBrandFit; bfCnt++; }
-      if (c._ciDelivery >= 7) topCnt++;
-      (c._posts || []).forEach(function(p) { if (p.transcript && p.transcript.trim()) trCnt++; });
-    });
-    document.getElementById('ci-stat-dv').textContent = dvCnt ? (dvSum / dvCnt).toFixed(1) : '-';
-    document.getElementById('ci-stat-bf').textContent = bfCnt ? (bfSum / bfCnt).toFixed(1) : '-';
-    document.getElementById('ci-stat-tr').textContent = trCnt;
-    document.getElementById('ci-stat-top').textContent = topCnt;
-  } else {
-    ciBar.style.display = 'none';
-  }
-
-  var html = '';
-  page.forEach(function(c) {
-    var contacted = hasPastContact(c);
-    var srcColor = c._source === 'inbound' ? '#0284c7' : c._source === 'manual' ? '#9333ea' : c._source === 'discovery' ? '#6366f1' : 'var(--a)';
-    var srcLabel = c._source === 'inbound' ? 'Inbound' : c._source === 'manual' ? 'Manual' : c._source === 'discovery' ? 'Discovery' : 'Pipeline';
-
-    // D+ days from latest post
-    var dPlus = '';
-    var latestDate = c._latestPostDate || c.posted_at || '';
-    if (latestDate) {
-      var pDate = new Date(latestDate);
-      if (!isNaN(pDate)) {
-        var diffDays = Math.floor((today - pDate) / 86400000);
-        dPlus = 'D+' + diffDays;
-      }
-    }
-
-    // Best metric: views for TikTok, likes for IG (IG has no views from Apify)
-    var bestViews = c._bestViews || c.post_views || 0;
-    var bestLikes = c._bestLikes || 0;
-    var bestMetric = bestViews || bestLikes;  // views first, likes as fallback
-    var metricLabel = bestViews ? 'views' : (bestLikes ? 'likes' : '');
-    var postCount = c._postCount || 0;
-    var totalComments = c._totalComments || 0;
-    var platformIcon = (c.platform || '').indexOf('tiktok') !== -1 ? '🎵' : '📷';
-    var latestPostUrl = c._latestPostUrl || '';
-
-    html += '<tr style="' + (contacted ? 'background:#fef2f2' : '') + '">';
-    // Contacted indicator
-    html += '<td style="text-align:center">' + (contacted ? '<span title="Already contacted" style="color:var(--r);font-size:14px">🚫</span>' : '<span style="color:var(--g);font-size:12px">⭕</span>') + '</td>';
-    // Handle — link to latest post URL (not profile)
-    var detailId = 'detail-' + escapeHtml(c.username).replace(/[^a-zA-Z0-9]/g, '_');
-    var handleLink = latestPostUrl || ('https://instagram.com/' + encodeURIComponent(c.username));
-    html += '<td><a href="' + escapeHtml(handleLink) + '" target="_blank" style="color:var(--a);font-weight:600;font-size:11px">@' + escapeHtml(c.username) + '</a>';
-    if (c._posts && c._posts.length > 0) html += ' <span onclick="togglePostDetail(\'' + detailId + '\')" style="cursor:pointer;font-size:9px;color:var(--dim)" title="Toggle posts detail">▲</span>';
-    if (c.name) html += '<div style="font-size:9px;color:var(--dim)">' + escapeHtml(c.name) + '</div>';
-    if (c.email) html += '<div style="font-size:8px;color:var(--dim)">✉ ' + escapeHtml(c.email) + '</div>';
-    html += '</td>';
-    // Followers
-    html += '<td style="font-family:var(--mono);font-size:11px">' + (c.followers ? Number(c.followers).toLocaleString() : '-') + '</td>';
-    // Platform
-    html += '<td style="font-size:11px;text-align:center">' + platformIcon + '</td>';
-    // Source
-    html += '<td><span style="display:inline-block;padding:1px 6px;border-radius:8px;font-size:9px;font-weight:600;background:' + srcColor + '22;color:' + srcColor + '">' + srcLabel + '</span></td>';
-    // Status
-    html += '<td>' + statusBadge(c.status) + '</td>';
-    // Post count
-    html += '<td style="font-family:var(--mono);font-size:11px;text-align:center;font-weight:' + (postCount > 2 ? '700' : '400') + ';color:' + (postCount > 2 ? 'var(--a)' : 'var(--dim)') + '">' + (postCount || '-') + '</td>';
-    // Best views/likes (IG→likes, TikTok→views)
-    var metricColor = bestMetric > 10000 ? 'var(--g)' : bestMetric > 1000 ? 'var(--am)' : 'var(--dim)';
-    html += '<td style="font-family:var(--mono);font-size:11px;font-weight:600;color:' + metricColor + '">';
-    if (bestMetric) {
-      html += Number(bestMetric).toLocaleString();
-      html += '<div style="font-size:8px;font-weight:400;color:var(--dim)">' + metricLabel + '</div>';
-    } else { html += '-'; }
-    html += '</td>';
-    // Comments (total across all posts)
-    html += '<td style="font-family:var(--mono);font-size:11px;text-align:center;color:' + (totalComments > 10 ? 'var(--am)' : 'var(--dim)') + '">' + (totalComments || '-') + '</td>';
-    // Latest post date
-    html += '<td style="font-size:10px;color:var(--dim)">' + (latestDate ? '<a href="' + escapeHtml(latestPostUrl || handleLink) + '" target="_blank" style="color:var(--dim);text-decoration:underline">' + latestDate + '</a>' : '-') + '</td>';
-    // D+
-    html += '<td style="font-family:var(--mono);font-size:10px;font-weight:600;color:' + (dPlus ? 'var(--dim)' : '') + '">' + (dPlus || '-') + '</td>';
-    // CI Score badge
-    var ciHtml = '';
-    if (c._ciCount > 0) {
-      var dvScore = c._ciDelivery || 0;
-      var bfScore = c._ciBrandFit || 0;
-      var dvColor = dvScore >= 7 ? 'var(--g)' : dvScore >= 4 ? 'var(--am)' : 'var(--dim)';
-      ciHtml += '<div style="display:flex;flex-direction:column;gap:1px;align-items:center">';
-      if (dvScore) ciHtml += '<span style="font-family:var(--mono);font-size:11px;font-weight:700;color:' + dvColor + '" title="Delivery Verbal">' + dvScore + '</span>';
-      if (bfScore) ciHtml += '<span style="font-size:8px;color:var(--dim)" title="Brand Fit">BF ' + bfScore + '</span>';
-      if (!dvScore && !bfScore) ciHtml += '<span class="b c" title="CI analyzed but scores=0">CI</span>';
-      ciHtml += '</div>';
-    }
-    html += '<td style="text-align:center">' + (ciHtml || '<span style="color:var(--muted);font-size:9px">-</span>') + '</td>';
-    // Actions
-    html += '<td>';
-    if (c._inPipeline) {
-      html += '<button class="btn btn-sm btn-secondary" onclick="goToCreator(\'' + escapeHtml(c.username) + '\')" style="font-size:9px">View</button>';
-    } else if (!contacted) {
-      html += '<button class="btn btn-sm btn-primary" onclick="addToPipeline(\'' + escapeHtml(c.username) + '\')" style="font-size:9px">+ Pipeline</button>';
-    } else {
-      html += '<span style="font-size:9px;color:var(--dim)">contacted</span>';
-    }
-    html += '</td>';
-    html += '</tr>';
-
-    // Expandable post details row (caption, hashtags, transcript, comments per post)
-    if (c._posts && c._posts.length > 0) {
-      var rowId = 'detail-' + escapeHtml(c.username).replace(/[^a-zA-Z0-9]/g, '_');
-      html += '<tr id="' + rowId + '"><td colspan="12" style="padding:4px 12px 12px;background:#f8fafc;border-left:3px solid var(--a)">';
-      c._posts.forEach(function(post, pi) {
-        html += '<div style="margin-bottom:8px;padding:8px;background:#fff;border:1px solid var(--border);border-radius:6px">';
-        html += '<div style="display:flex;gap:12px;align-items:center;margin-bottom:4px">';
-        html += '<span style="font-weight:700;font-size:10px;color:var(--a)">Post ' + (pi+1) + '</span>';
-        html += '<span style="font-size:9px;color:var(--dim)">' + (post.date || '') + '</span>';
-        html += '<span style="font-family:var(--mono);font-size:9px">👁 ' + (post.views ? Number(post.views).toLocaleString() : '0') + '</span>';
-        html += '<span style="font-family:var(--mono);font-size:9px">❤ ' + (post.likes ? Number(post.likes).toLocaleString() : '0') + '</span>';
-        html += '<span style="font-family:var(--mono);font-size:9px">💬 ' + (post.comments ? Number(post.comments).toLocaleString() : '0') + '</span>';
-        if (post.url) html += '<a href="' + escapeHtml(post.url) + '" target="_blank" style="font-size:9px;color:var(--a)">🔗 Link</a>';
-        html += '</div>';
-        if (post.caption) html += '<div style="font-size:10px;margin:4px 0;line-height:1.4;max-height:60px;overflow:auto"><b>Caption:</b> ' + escapeHtml(post.caption.substring(0, 300)) + '</div>';
-        if (post.hashtags) html += '<div style="font-size:9px;color:var(--a);margin:2px 0"><b>Tags:</b> ' + escapeHtml(post.hashtags.substring(0, 200)) + '</div>';
-        if (post.transcript) html += '<div style="font-size:9px;color:var(--dim);margin:2px 0"><b>Transcript:</b> ' + escapeHtml(post.transcript.substring(0, 300)) + (post.transcript.length > 300 ? '...' : '') + '</div>';
-        // CI Analysis card
-        if (post.ci || post.brand_fit_score || post.delivery_verbal_score) {
-          html += '<div style="margin-top:6px;padding:8px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px">';
-          html += '<div style="font-size:9px;font-weight:700;color:#0284c7;margin-bottom:4px">Content Intelligence</div>';
-          html += '<div style="display:flex;gap:10px;flex-wrap:wrap;font-size:9px">';
-          var scores = [
-            { label: 'Delivery', val: post.delivery_verbal_score, max: 10 },
-            { label: 'Brand Fit', val: post.brand_fit_score, max: 10 },
-            { label: 'Hook', val: post.hook_score, max: 10 },
-            { label: 'Story', val: post.storytelling_score, max: 10 },
-            { label: 'Auth', val: post.authenticity_score, max: 10 }
-          ];
-          scores.forEach(function(s) {
-            if (s.val == null) return;
-            var pct = Math.round((s.val / s.max) * 100);
-            var color = s.val >= 7 ? '#10b981' : s.val >= 4 ? '#f59e0b' : '#94a3b8';
-            html += '<div style="min-width:70px">';
-            html += '<div style="font-weight:600;color:var(--dim)">' + s.label + '</div>';
-            html += '<div style="display:flex;align-items:center;gap:4px">';
-            html += '<div style="flex:1;height:4px;background:#e2e8f0;border-radius:2px;overflow:hidden"><div style="width:' + pct + '%;height:100%;background:' + color + ';border-radius:2px"></div></div>';
-            html += '<span style="font-family:var(--mono);font-weight:700;color:' + color + '">' + s.val + '</span>';
-            html += '</div></div>';
-          });
-          html += '</div>';
-          // Scene tags + subject age
-          var tags = [];
-          if (post.scene_fit) tags.push('Scene: ' + post.scene_fit);
-          if (post.subject_age) tags.push('Age: ' + post.subject_age);
-          if (post.scene_tags) tags.push(typeof post.scene_tags === 'string' ? post.scene_tags : (post.scene_tags || []).join(', '));
-          if (tags.length) html += '<div style="margin-top:4px;font-size:8px;color:var(--dim)">' + escapeHtml(tags.join(' · ')) + '</div>';
-          // Extended CI fields
-          var ci = post.ci || {};
-          var extras = [];
-          if (ci.hook_type) extras.push('Hook: ' + ci.hook_type);
-          if (ci.emotional_tone) extras.push('Tone: ' + ci.emotional_tone);
-          if (ci.persuasion_type) extras.push('Persuasion: ' + ci.persuasion_type);
-          if (ci.demo_present) extras.push('Demo shown');
-          if (ci.cta_present) extras.push('Has CTA');
-          if (extras.length) html += '<div style="margin-top:2px;font-size:8px;color:#6366f1">' + escapeHtml(extras.join(' · ')) + '</div>';
-          html += '</div>';
-        }
-        html += '</div>';
-      });
-      html += '</td></tr>';
-    }
-  });
-
-  document.getElementById('sheet-body').innerHTML = html || '<tr><td colspan="12" style="text-align:center;padding:30px;color:var(--dim)">No influencers found.</td></tr>';
-
-  // Pager
-  var totalPages = Math.ceil(total / _sheetPerPage);
-  var pagerHtml = '';
-  if (totalPages > 1) {
-    pagerHtml += '<div style="display:flex;gap:4px;justify-content:center;margin-top:12px">';
-    if (_sheetPage > 0) pagerHtml += '<button class="btn btn-sm btn-secondary" onclick="_sheetPage--;renderSheet()">← Prev</button>';
-    pagerHtml += '<span style="font-size:11px;padding:4px 8px;color:var(--dim)">' + (_sheetPage + 1) + ' / ' + totalPages + '</span>';
-    if (_sheetPage < totalPages - 1) pagerHtml += '<button class="btn btn-sm btn-secondary" onclick="_sheetPage++;renderSheet()">Next →</button>';
-    pagerHtml += '</div>';
-  }
-  document.getElementById('sheet-pager').innerHTML = pagerHtml;
-}
-
-function goToCreator(handle) {
-  document.getElementById('creator-search').value = handle;
-  var tab = document.querySelector('.mt>div[data-p="creators"]');
-  if (tab) tab.click();
-  renderCreators();
-}
-
-function togglePostDetail(rowId) {
-  var row = document.getElementById(rowId);
-  if (row) row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
-}
-
-function addToPipeline(handle) {
-  var c = _sheetData.find(function(x) { return x.username === handle; });
-  if (!c) return;
-  var u = localStorage.getItem('dk_user') || 'admin';
-  var p = localStorage.getItem('dk_pass') || 'orbit1234';
-  var plat = (c.platform || 'instagram').toLowerCase();
-  var email = c.email || (handle.replace(/\./g, '_') + '@discovered.apify');
-  var body = {
-    email: email,
-    ig_handle: plat.indexOf('tiktok') === -1 ? handle : '',
-    tiktok_handle: plat.indexOf('tiktok') !== -1 ? handle : '',
-    full_name: c.name || handle,
-    platform: plat.indexOf('tiktok') !== -1 ? 'TikTok' : 'Instagram',
-    pipeline_status: 'Not Started',
-    source: 'discovery',
-    followers: c.followers || 0,
-    avg_views: c._bestViews || c._bestLikes || 0,
-    notes: 'Added from JP Discovery dashboard'
-  };
-  fetch('https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa(u + ':' + p) },
-    body: JSON.stringify(body)
-  }).then(function(r) { return r.json(); })
-  .then(function(res) {
-    if (res.id) {
-      c._inPipeline = true;
-      c.status = 'not_started';
-      c._source = 'pipeline';
-      _creators.push({ username: handle, name: c.name, followers: c.followers, status: 'not_started', dm_count: 0, source: 'discovery', platform: c.platform });
-      showToast('@' + handle + ' added to pipeline');
-      renderSheet();
-      updateStats();
-    } else {
-      showToast('Failed: ' + (res.error || JSON.stringify(res)), 'err');
-    }
-  }).catch(function(e) {
-    showToast('Failed: ' + e.message, 'err');
-  });
 }
 </script>
 </body>
