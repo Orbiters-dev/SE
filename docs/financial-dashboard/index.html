@@ -170,7 +170,8 @@ var AUTH_USERS = {
   'MJ':  'c8fe37479a933b489c5d4a1ff509cbe60095246f1e42f383bc017cb77b3efcbb',
   'HJ':  '75c2e5a66c6bcc985f42b6d402dbb10050a09c9f0371ed735e1983c145da3ffe',
   'JS':  '89d0eb2d586787c34782b6fa71300419edb51538e74596a8c7948c0abca66e6d',
-  'HC':  '357fca21bafbd5f23f141ff9433fe47422f58e9b0521c04e5735ae727313aef5'
+  'HC':  '357fca21bafbd5f23f141ff9433fe47422f58e9b0521c04e5735ae727313aef5',
+  'SE':  '9346ed77d5684897c51838d0c98db23867810a7e4b120c1226a15b834f4af459'
 };
 async function sha256(s){var e=new TextEncoder().encode(s);var h=await crypto.subtle.digest('SHA-256',e);return Array.from(new Uint8Array(h)).map(function(b){return b.toString(16).padStart(2,'0')}).join('')}
 async function doLogin(){
