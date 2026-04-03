@@ -3894,8 +3894,8 @@ async function ensureFtCache(){
     dates=[selWeek];
   }
 
-  // Apply LT/HT filter based on current config mode
-  var typeFilter=(_cfgMode==='ht')?'&outreach_type=HT':(_cfgMode==='lt')?'&outreach_type=LT':'';
+  // Apply LT/HT filter based on current config mode (API uses 'type' param)
+  var typeFilter=(_cfgMode==='ht')?'&type=HT':(_cfgMode==='lt')?'&type=LT':'';
 
   if(dates.length>0){
     // Fetch only creators matching the selected week's discovery dates
