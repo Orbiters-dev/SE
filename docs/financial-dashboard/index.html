@@ -1337,20 +1337,33 @@ function renderFinancial(){
     }
   })();
 
-  // ── 5B: Search Ranking / Autocomplete — static table from latest data ──
+  // ── 5B: Search Ranking / Autocomplete — latest scores + trend chart ──
   (function(){
     var ac=F.autocomplete||{};
     var latest=ac.latest||{};
-    var brands=Object.keys(latest);
-    if(!brands.length) return;
-    traf+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num" style="background:#6366f1">5B</div> Amazon Search Ranking &mdash; Latest Scores</div>';
-    traf+='<div class="desc">Amazon autocomplete 인기도 점수 (0-100). 매일 2회 수집.</div>';
-    var brandColors={'Grosmimi':'#8b5cf6','Naeiae':'#f59e0b','CHA&MOM':'#ef4444','Onzenna':'#10b981'};
-    brands.forEach(function(brand){
-      var usItems=(latest[brand]||{}).US||[];
+    var trends=ac.trends||{};
+    var allDates=ac.dates||[];
+    // Only show these brands (Onzenna excluded — it's our marketplace)
+    var showBrands=['Grosmimi','Naeiae','CHA&MOM'];
+    // Branded keywords to exclude (show generic only)
+    var brandedKws=['grosmimi','naeiae','cha and mom','onzenna','chaenmom','cha & mom'];
+    var brandColors={'Grosmimi':'#8b5cf6','Naeiae':'#f59e0b','CHA&MOM':'#ef4444'};
+    var kwColors=['#6366f1','#ec4899','#f59e0b','#0ea5e9','#10b981','#ef4444','#8b5cf6','#64748b'];
+    var hasBrands=showBrands.some(function(b){return ((latest[b]||{}).US||[]).length>0;});
+    if(!hasBrands) return;
+
+    traf+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num" style="background:#6366f1">5B</div> Amazon Search Ranking &mdash; Generic Keyword Performance</div>';
+    traf+='<div class="desc">Amazon autocomplete 인기도 점수 (0-100). 매일 2회 수집. Generic 키워드만 표시 (브랜드명 제외).</div>';
+
+    showBrands.forEach(function(brand){
+      var usItems=((latest[brand]||{}).US||[]).filter(function(r){
+        return brandedKws.indexOf(r.keyword.toLowerCase())===-1;
+      });
       if(!usItems.length) return;
       usItems.sort(function(a,b){return b.score-a.score;});
       var color=brandColors[brand]||'#64748b';
+
+      // ── Score Table ──
       traf+='<div class="card" style="margin-bottom:8px"><h3 style="color:'+color+';margin-bottom:6px">'+brand+' 🇺🇸</h3>';
       traf+='<table><thead><tr><th>Keyword</th><th style="text-align:right">Score</th><th style="text-align:center">Position</th></tr></thead><tbody>';
       usItems.forEach(function(r){
@@ -1363,7 +1376,68 @@ function renderFinancial(){
         traf+='<td style="text-align:center;font-family:var(--mono);font-size:11px">'+posLabel+'</td>';
         traf+='</tr>';
       });
-      traf+='</tbody></table></div>';
+      traf+='</tbody></table>';
+
+      // ── Trend Chart (SVG) — all dates, static ──
+      var brandTrends=((trends[brand]||{}).US)||{};
+      var trendKws=Object.keys(brandTrends).filter(function(kw){return brandedKws.indexOf(kw.toLowerCase())===-1;});
+      // Build date axis from trend data
+      var mktDates=[];
+      allDates.forEach(function(dt){
+        var found=false;
+        trendKws.forEach(function(kw){(brandTrends[kw]||[]).forEach(function(p){if(p.date===dt)found=true;});});
+        if(found) mktDates.push(dt);
+      });
+      if(trendKws.length && mktDates.length>=2){
+        var W=900,H=220,padL=40,padR=140,padT=20,padB=30;
+        var cw=W-padL-padR,ch=H-padT-padB;
+        var nD=Math.max(mktDates.length,2);
+        traf+='<div style="margin-top:8px"><div style="font-size:10px;color:var(--dim);margin-bottom:4px">Score Trend</div>';
+        traf+='<div style="overflow-x:auto"><svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-height:240px;font-family:var(--mono)">';
+        // Grid
+        for(var g=0;g<=100;g+=25){
+          var gy=padT+ch-(g/100*ch);
+          traf+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="#f1f5f9" stroke-width="1"/>';
+          traf+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" text-anchor="end" fill="#94a3b8" font-size="8">'+g+'</text>';
+        }
+        // X labels
+        var step=Math.max(1,Math.floor(mktDates.length/8));
+        mktDates.forEach(function(dt,i){
+          if(i%step===0||i===mktDates.length-1){
+            var x=padL+(i/(nD-1))*cw;
+            traf+='<text x="'+x+'" y="'+(H-4)+'" text-anchor="middle" fill="#94a3b8" font-size="8">'+dt.substring(5)+'</text>';
+          }
+        });
+        // Lines
+        trendKws.forEach(function(kw,ki){
+          var pts=brandTrends[kw]||[];
+          var lc=kwColors[ki%kwColors.length];
+          var pathD='';
+          pts.forEach(function(p){
+            var di=mktDates.indexOf(p.date); if(di<0) return;
+            var x=padL+(di/(nD-1))*cw;
+            var y=padT+ch-(p.score/100*ch);
+            pathD+=(pathD?'L':'M')+x.toFixed(1)+','+y.toFixed(1);
+          });
+          if(pathD) traf+='<path d="'+pathD+'" fill="none" stroke="'+lc+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+          // Last point label
+          var last=pts[pts.length-1];
+          if(last){
+            var ldi=mktDates.indexOf(last.date);
+            if(ldi>=0){
+              var lx=padL+(ldi/(nD-1))*cw;
+              var ly=padT+ch-(last.score/100*ch);
+              traf+='<circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="3" fill="'+lc+'"/>';
+              traf+='<text x="'+(W-padR+6)+'" y="'+(ly+3)+'" fill="'+lc+'" font-size="8" font-weight="600">'+kw+' ('+last.score+')</text>';
+            }
+          }
+        });
+        traf+='</svg></div></div>';
+      } else if(trendKws.length && mktDates.length===1){
+        // Only 1 day of data — show note
+        traf+='<div style="margin-top:6px;font-size:10px;color:var(--muted)">📈 트렌드 차트: 2일 이상 데이터 수집 후 자동 표시됩니다 (현재 '+mktDates.length+'일)</div>';
+      }
+      traf+='</div>';
     });
     traf+='</div>';
   })();
