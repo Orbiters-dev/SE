@@ -3893,25 +3893,42 @@ async function ensureFtCache(){
   if(_ftCache&&_ftCacheWeek===selWeek)return _ftCache;
   _ftCache=null;_ftResults={};_ftCacheWeek=selWeek;
 
+  // Get batch size from config
+  var batchSize=parseInt(document.getElementById('f-creators-contacted').value)||10;
+
   // Get dates for selected week
   var dates=_weekDateMap[selWeek]||[];
   if(dates.length===0&&selWeek){
-    // Fallback: single date value
     dates=[selWeek];
   }
 
-  // Fetch ALL types (LT+HT) — client-side filtering in updateFtSummary
+  // Fetch creators for this batch — use batch size as target count
+  // Fetch ALL Not Started for this week, not limited by batch size (filters reduce later)
   if(dates.length>0){
     var all=[];
     for(var i=0;i<dates.length;i++){
-      var data=await apiFetch('/pipeline/creators/?status=Not+Started&discovery_date='+dates[i]+'&limit=2000');
-      var items=data.results||[];
-      all=all.concat(items);
+      var page=1;var hasMore=true;
+      while(hasMore){
+        var data=await apiFetch('/pipeline/creators/?status=Not+Started&discovery_date='+dates[i]+'&limit=500&page='+page);
+        var items=data.results||[];
+        all=all.concat(items);
+        hasMore=items.length===500;
+        page++;
+      }
     }
     _ftCache=all;
   }else{
-    var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=5000');
-    _ftCache=data.results||[];
+    // All dates mode — paginate to get everything
+    var all=[];var page=1;var hasMore=true;
+    while(hasMore){
+      var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=500&page='+page);
+      var items=data.results||[];
+      all=all.concat(items);
+      hasMore=items.length===500;
+      page++;
+      if(all.length>=10000)break; // safety cap
+    }
+    _ftCache=all;
   }
   return _ftCache;
 }
