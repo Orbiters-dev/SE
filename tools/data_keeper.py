@@ -686,7 +686,7 @@ def _fetch_amz_ads_report_generic(headers, profile_id, start, end,
         r = None
         for attempt in range(4):
             r = requests.post(
-                "https://advertising-api.amazon.com/reporting/reports",
+                f"{base_url}/reporting/reports",
                 headers=headers, json=body, timeout=30,
             )
             if r.status_code != 425:
@@ -702,7 +702,7 @@ def _fetch_amz_ads_report_generic(headers, profile_id, start, end,
             fresh_h = {**_fresh_amz_ads_headers(),
                        "Amazon-Advertising-API-Scope": profile_id}
             r2 = requests.get(
-                f"https://advertising-api.amazon.com/reporting/reports/{report_id}",
+                f"{base_url}/reporting/reports/{report_id}",
                 headers=fresh_h, timeout=30,
             )
             r2.raise_for_status()
