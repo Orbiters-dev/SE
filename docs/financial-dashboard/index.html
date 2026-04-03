@@ -518,7 +518,7 @@ function renderAutocompleteTab(F){
   // Also render into Traffic tab (5D) if available
   var trafAcEl=document.getElementById('traffic-autocomplete');
   if(trafAcEl){
-    var th='<div class="sec"><div class="sec-title"><div class="num">5D</div> Amazon Search Ranking &mdash; Daily Trend</div>';
+    var th='<div class="sec"><div class="sec-title"><div class="num">5B</div> Amazon Search Ranking &mdash; Daily Trend</div>';
     th+='<div class="desc">Amazon autocomplete 인기도 점수 (0-100). 매일 2회 수집. 브랜드별 키워드 트렌드.</div>';
     th+='<div id="ac-content-traf"></div></div>';
     trafAcEl.innerHTML=th;
@@ -1290,26 +1290,70 @@ function renderFinancial(){
     if(el) el.innerHTML=h;
   };
 
-  // 5B removed — asset breakdown now inline in Attribution table (+ button)
+  // ── 5A: Branded Keyword Search Volume (Weekly, from SQP) ─────────────
+  // Static — does NOT change with 1D/7D/30D toggle
+  (function(){
+    var HP=F.hero_products||{};
+    var cats=HP.categories||[];
+    // Collect all sfr_branded keywords with volume data across all categories
+    var allBrandedKws=[];
+    var seenKw={};
+    cats.forEach(function(c){
+      (c.sfr_branded||[]).forEach(function(kw){
+        if(kw.volume_weekly&&kw.volume_weekly.length&&kw.volume_week_labels&&kw.volume_week_labels.length){
+          var key=kw.keyword.toLowerCase();
+          if(!seenKw[key]){seenKw[key]=true;allBrandedKws.push(kw);}
+        }
+      });
+    });
+    if(allBrandedKws.length){
+      // Sort by latest volume descending
+      allBrandedKws.sort(function(a,b){return (b.volume_weekly[b.volume_weekly.length-1]||0)-(a.volume_weekly[a.volume_weekly.length-1]||0);});
+      var top10=allBrandedKws.slice(0,10);
+      // Build unified week axis
+      var allWks={};
+      top10.forEach(function(kw){(kw.volume_week_labels||[]).forEach(function(w){allWks[w]=true;});});
+      var wksSorted=Object.keys(allWks).sort();
+      traf+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num">5A</div> 검색량 (주간) — TOP 10 브랜디드 키워드 <span style="font-weight:400;color:var(--muted);font-size:11px">(높을수록 더 많이 검색됨)</span></div>';
+      traf+='<div class="card"><div style="overflow-x:auto"><table style="font-size:10px"><thead><tr>';
+      traf+='<th style="text-align:left;white-space:nowrap">키워드</th>';
+      wksSorted.forEach(function(w){traf+='<th style="text-align:right;font-family:var(--mono);font-size:9px">'+w.substring(5)+'</th>';});
+      traf+='</tr></thead><tbody>';
+      top10.forEach(function(kw){
+        traf+='<tr>';
+        traf+='<td style="font-weight:600;white-space:nowrap">'+kw.keyword+'</td>';
+        var labels=kw.volume_week_labels||[],values=kw.volume_weekly||[];
+        wksSorted.forEach(function(w){
+          var wi=labels.indexOf(w);
+          var v=wi>=0?values[wi]:null;
+          var vStr=v==null?'—':(v>=1000?Math.round(v/1000)+'K':''+v);
+          var col=v==null?'#d97706':(v>=3000?'#10b981':v>=500?'#f59e0b':'#ef4444');
+          traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:'+col+';font-weight:600">'+vStr+'</td>';
+        });
+        traf+='</tr>';
+      });
+      // Total row
+      traf+='<tr style="border-top:2px solid var(--border);font-weight:800;background:#fef3c7">';
+      traf+='<td style="color:#92400e">합산 (차트)</td>';
+      wksSorted.forEach(function(w){
+        var total=0;
+        top10.forEach(function(kw){var labels=kw.volume_week_labels||[],values=kw.volume_weekly||[];var wi=labels.indexOf(w);if(wi>=0&&values[wi])total+=values[wi];});
+        var vStr=total>0?(total>=1000?Math.round(total/1000)+'K':''+total):'—';
+        var col=total>0?'#10b981':'#d97706';
+        traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:'+col+';font-weight:700">'+vStr+'</td>';
+      });
+      traf+='</tr>';
+      traf+='</tbody></table></div></div></div>';
+    }
+  })();
 
-  // Original GA4 source/medium detail (collapsed)
-  traf+='<div class="sec" style="margin-top:16px"><div class="sec-title" style="cursor:pointer" onclick="var el=document.getElementById(\'ga4-detail\');el.style.display=el.style.display===\'none\'?\'block\':\'none\'"><div class="num">5A</div> GA4 Source/Medium Detail (click to expand)</div>';
-  traf+='<div id="ga4-detail" style="display:none"><div class="card"><table><thead><tr><th>#</th><th>Source / Medium</th><th style="text-align:right">Sessions</th><th style="text-align:right">Users</th><th style="text-align:right">Revenue</th><th style="text-align:right">Conversions</th><th style="text-align:right">Conv %</th></tr></thead><tbody>';
-  (F.traffic_sources||[]).forEach(function(t,i){
-    traf+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
-    traf+='<td style="font-weight:600">'+t.source+'</td>';
-    traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(t.sessions)+'</td>';
-    traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(t.users)+'</td>';
-    traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(t.revenue))+'</td>';
-    traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(t.conversions)+'</td>';
-    traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+t.conv_rate.toFixed(2)+'%</td></tr>';
-  });
-  traf+='</tbody></table></div></div></div>';
+  // ── 5B: Search Ranking / Autocomplete — embedded from tab 8 ──────────
+  traf+='<div id="traffic-autocomplete" style="margin-top:16px"></div>';
 
-  // ── 5B: GSC Top Queries (30D) ──────────────────────────────────────────
+  // ── 5C: GSC Top Queries (30D) ──────────────────────────────────────────
   var gscQ=F.gsc_queries||[];
   if(gscQ.length){
-    traf+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num">5B</div> Google Search Console &mdash; Top Queries (30D)</div>';
+    traf+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num">5C</div> Google Search Console &mdash; Top Queries (30D)</div>';
     traf+='<div class="card"><table><thead><tr><th>#</th><th>Query</th><th style="text-align:right">Clicks</th><th style="text-align:right">Impressions</th><th style="text-align:right">CTR</th><th style="text-align:center">Position</th></tr></thead><tbody>';
     gscQ.forEach(function(q,i){
       traf+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
@@ -1322,30 +1366,6 @@ function renderFinancial(){
     });
     traf+='</tbody></table></div></div>';
   }
-
-  // ── 5C: Branded Keyword Search Volume (Google) ──────────────────────────
-  var kwVols=F.keyword_volumes||[];
-  if(kwVols.length){
-    var topKws=kwVols.sort(function(a,b){return (b.search_volume||0)-(a.search_volume||0);}).slice(0,15);
-    traf+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num">5C</div> Brand Search Volume &mdash; TOP 15 Branded Keywords (Google)</div>';
-    traf+='<div class="card"><table><thead><tr><th>#</th><th>Keyword</th><th style="text-align:right">Search Vol</th><th style="text-align:right">GSC Impr</th><th style="text-align:right">GSC Clicks</th><th style="text-align:right">GAds Impr</th><th style="text-align:right">GAds Clicks</th></tr></thead><tbody>';
-    topKws.forEach(function(k,i){
-      var volColor=(k.search_volume||0)>=3000?'#10b981':(k.search_volume||0)>=500?'#f59e0b':'#ef4444';
-      traf+='<tr>';
-      traf+='<td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
-      traf+='<td style="font-size:10px;font-weight:600">'+k.keyword+'</td>';
-      traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+volColor+'">'+num(k.search_volume||0)+'</td>';
-      traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.gsc_impressions||0)+'</td>';
-      traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.gsc_clicks||0)+'</td>';
-      traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.gads_impressions||0)+'</td>';
-      traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.gads_clicks||0)+'</td>';
-      traf+='</tr>';
-    });
-    traf+='</tbody></table></div></div>';
-  }
-
-  // ── 5D: Search Ranking (Autocomplete) — embedded from tab 8 ──────────
-  traf+='<div id="traffic-autocomplete" style="margin-top:16px"></div>';
 
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 6: EMAIL MARKETING (Klaviyo) — with 7D / 30D period switcher
