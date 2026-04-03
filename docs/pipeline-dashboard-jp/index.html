@@ -1,147 +1,300 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style rel="stylesheet" type="text/css">@charset "utf-8";
+
+:root { --bg: #f8fafc; --card: #fff; --border: #e2e8f0; --text: #1e293b; --dim: #64748b; --muted: #94a3b8; --a: #ef4444; --abg: #fef2f2; --g: #10b981; --gbg: #ecfdf5; --am: #f59e0b; --ambg: #fffbeb; --r: #ef4444; --rbg: #fef2f2; --c: #0ea5e9; --cbg: #f0f9ff; --p: #ec4899; --mono: 'SF Mono','Fira Code',Consolas,monospace; }
+
+* { margin: 0px; padding: 0px; box-sizing: border-box; }
+
+body { font-family: Inter, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; font-size: 13px; }
+
+.ctr { max-width: 1100px; margin: 0px auto; padding: 28px 20px 80px; }
+
+.hero { text-align: center; margin-bottom: 20px; }
+
+.hero h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+
+.hero h1 span { background: linear-gradient(135deg, rgb(239, 68, 68), rgb(249, 115, 22)) text; -webkit-text-fill-color: transparent; }
+
+.hero .sub { color: var(--dim); font-size: 12px; margin-top: 2px; }
+
+.hero .meta { display: flex; gap: 8px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+
+.pill { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 2px 10px; font-size: 10px; color: var(--dim); display: inline-flex; align-items: center; gap: 4px; }
+
+.pill .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--g); box-shadow: 0 0 3px var(--g); }
+
+.nav-bar { display: flex; justify-content: center; gap: 0px; margin-bottom: 20px; }
+
+.nav-bar > div { display: inline-flex; flex-wrap: nowrap; border: 2px solid var(--border); border-radius: 10px; overflow: hidden; font-size: 12px; font-weight: 700; }
+
+.nav-bar a { padding: 8px 16px; color: var(--dim); text-decoration: none; cursor: pointer; transition: 0.15s; display: flex; align-items: center; }
+
+.nav-bar a:hover { background: var(--abg); color: var(--a); }
+
+.nav-bar .active { background: var(--a); color: rgb(255, 255, 255); cursor: default; }
+
+.mt { display: flex; gap: 0px; border-bottom: 2px solid var(--border); margin-bottom: 0px; overflow-x: auto; }
+
+.mt > div { padding: 10px 20px; font-size: 12px; font-weight: 700; cursor: pointer; color: var(--dim); border-bottom: 3px solid transparent; margin-bottom: -2px; transition: 0.12s; white-space: nowrap; }
+
+.mt > div:hover { color: var(--text); }
+
+.mt > div.on { color: var(--a); border-bottom-color: var(--a); }
+
+.mp { display: none; padding-top: 20px; }
+
+.mp.on { display: block; }
+
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 10px; }
+
+.card h3 { font-size: 12px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+
+.card .desc { font-size: 10px; color: var(--dim); margin-bottom: 8px; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 6px; margin: 10px 0px; }
+
+.stat { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 10px; text-align: center; }
+
+.stat .sl { font-size: 8px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); font-weight: 600; }
+
+.stat .sv { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; font-family: var(--mono); }
+
+.stat.green .sv { color: var(--g); }
+
+.stat.accent .sv { color: var(--a); }
+
+.stat.amber .sv { color: var(--am); }
+
+.stat.cyan .sv { color: var(--c); }
+
+.stat.red .sv { color: var(--r); }
+
+.stat.pink .sv { color: var(--p); }
+
+.btn { display: inline-flex; align-items: center; gap: 5px; padding: 8px 20px; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: 0.15s; }
+
+.btn-primary { background: var(--a); color: rgb(255, 255, 255); }
+
+.btn-primary:hover { opacity: 0.9; }
+
+.btn-secondary { background: var(--abg); color: var(--a); border: 1px solid var(--border); }
+
+.btn-secondary:hover { background: rgb(254, 226, 226); }
+
+.btn-success { background: var(--g); color: rgb(255, 255, 255); }
+
+.btn-success:hover { opacity: 0.9; }
+
+.btn-sm { padding: 4px 10px; font-size: 10px; border-radius: 5px; }
+
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+table { width: 100%; border-collapse: collapse; font-size: 11px; }
+
+th { background: rgb(248, 250, 252); color: var(--dim); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; font-size: 9px; padding: 6px 7px; text-align: left; border-bottom: 2px solid var(--border); position: sticky; top: 0px; z-index: 1; }
+
+td { padding: 6px 7px; border-bottom: 1px solid rgb(241, 245, 249); }
+
+tr:hover td { background: rgb(255, 245, 245); }
+
+.b { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 8px; font-weight: 600; }
+
+.b.g { background: var(--gbg); color: var(--g); }
+
+.b.r { background: var(--rbg); color: var(--r); }
+
+.b.am { background: var(--ambg); color: var(--am); }
+
+.b.c { background: var(--cbg); color: var(--c); }
+
+.b.a { background: var(--abg); color: var(--a); }
+
+.b.p { background: rgb(253, 242, 248); color: var(--p); }
+
+.b.past { background: rgb(224, 231, 255); color: rgb(67, 56, 202); font-size: 8px; }
+
+.filter-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+
+.filter-bar input[type="text"] { flex: 1 1 0%; min-width: 180px; padding: 7px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-family: inherit; }
+
+.filter-bar input:focus { outline: none; border-color: var(--a); box-shadow: rgba(239, 68, 68, 0.15) 0px 0px 0px 2px; }
+
+.filter-bar select { padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 11px; font-family: inherit; background: var(--card); color: var(--text); }
+
+.funnel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; overflow-x: auto; }
+
+.funnel-row { display: flex; align-items: center; gap: 0px; margin-bottom: 4px; }
+
+.funnel-row:last-child { margin-bottom: 0px; }
+
+.funnel-label { font-size: 9px; font-weight: 700; color: var(--dim); min-width: 65px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.fn { flex: 1 1 0%; min-width: 70px; text-align: center; padding: 6px 4px; border-radius: 8px; cursor: pointer; transition: 0.12s; border: 2px solid transparent; }
+
+.fn:hover { background: var(--abg); }
+
+.fn.on { background: var(--abg); border-color: var(--a); }
+
+.fn .fi { font-size: 18px; font-weight: 800; font-family: var(--mono); }
+
+.fn .ft { font-size: 9px; font-weight: 700; color: var(--dim); }
+
+.fn .fs { font-size: 8px; color: var(--muted); }
+
+.fa { color: var(--muted); font-size: 10px; flex-shrink: 0; padding: 0px 1px; }
+
+.pager { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 12px; }
+
+.pager button { padding: 4px 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--card); cursor: pointer; font-size: 11px; font-family: inherit; }
+
+.pager button.on { background: var(--a); color: rgb(255, 255, 255); border-color: var(--a); }
+
+.owner-tab { border-right: 1px solid var(--border); }
+
+.owner-tab:last-child { border-right: none; }
+
+.owner-tab:hover { background: var(--abg); color: var(--a); }
+
+.owner-tab.on { background: var(--a); color: rgb(255, 255, 255); }
+
+.toast { position: fixed; bottom: 20px; right: 20px; padding: 10px 18px; border-radius: 8px; font-size: 12px; font-weight: 600; color: rgb(255, 255, 255); z-index: 999; transform: translateY(100px); opacity: 0; transition: 0.3s; }
+
+.toast.show { transform: translateY(0px); opacity: 1; }
+
+.toast.ok { background: var(--g); }
+
+.toast.err { background: var(--r); }
+
+.dm-preview { background: rgb(250, 251, 255); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-top: 8px; font-size: 11px; line-height: 1.7; white-space: pre-wrap; }
+
+.dm-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 8px; position: relative; }
+
+.dm-card .dm-handle { font-weight: 700; color: var(--a); font-size: 13px; }
+
+.dm-card .dm-meta { font-size: 10px; color: var(--dim); margin: 4px 0px 8px; }
+
+.dm-card .dm-body { background: rgb(248, 250, 252); border: 1px solid rgb(226, 232, 240); border-radius: 8px; padding: 12px; font-size: 12px; line-height: 1.8; white-space: pre-wrap; }
+
+.dm-card .dm-actions { display: flex; gap: 6px; margin-top: 10px; align-items: center; }
+
+.copy-btn { background: rgb(241, 245, 249); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; font-size: 10px; font-weight: 600; cursor: pointer; font-family: inherit; transition: 0.15s; }
+
+.copy-btn:hover { background: rgb(226, 232, 240); }
+
+.copy-btn.copied { background: var(--gbg); color: var(--g); border-color: var(--g); }
+
+.dm-edit { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-family: inherit; line-height: 1.7; resize: vertical; background: rgb(250, 251, 255); margin-top: 8px; color: var(--text); }
+
+.dm-edit:focus { outline: none; border-color: var(--a); box-shadow: rgba(239, 68, 68, 0.1) 0px 0px 0px 2px; }
+
+.dm-thread-overlay { position: fixed; inset: 0px; background: rgba(0, 0, 0, 0.4); z-index: 100; display: flex; align-items: center; justify-content: center; }
+
+.dm-thread-panel { background: var(--card); border-radius: 16px; width: 90%; max-width: 520px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: rgba(0, 0, 0, 0.15) 0px 16px 48px; }
+
+.dm-thread-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+
+.dm-thread-header h3 { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+
+.dm-thread-close { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--dim); padding: 4px 8px; border-radius: 6px; }
+
+.dm-thread-close:hover { background: rgb(241, 245, 249); }
+
+.dm-thread-body { flex: 1 1 0%; overflow-y: auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; min-height: 200px; }
+
+.dm-bubble { max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 12px; line-height: 1.6; word-break: break-word; }
+
+.dm-bubble.out { align-self: flex-end; background: var(--a); color: rgb(255, 255, 255); border-bottom-right-radius: 4px; }
+
+.dm-bubble.in { align-self: flex-start; background: rgb(241, 245, 249); color: var(--text); border-bottom-left-radius: 4px; }
+
+.dm-bubble .dm-time { font-size: 9px; opacity: 0.6; margin-top: 4px; display: block; }
+
+.dm-thread-input { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+
+.dm-thread-input input { flex: 1 1 0%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 24px; font-size: 12px; font-family: inherit; }
+
+.dm-thread-input input:focus { outline: none; border-color: var(--a); box-shadow: rgba(239, 68, 68, 0.15) 0px 0px 0px 2px; }
+
+.dm-thread-input button { padding: 8px 16px; border-radius: 24px; border: none; background: var(--a); color: rgb(255, 255, 255); font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
+
+.dm-thread-input button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.dm-empty { text-align: center; padding: 40px; color: var(--dim); font-size: 11px; }
+
+.dm-limit-banner { background: rgb(254, 243, 199); border: 1px solid rgb(245, 158, 11); border-radius: 8px; padding: 10px 16px; text-align: center; font-size: 12px; font-weight: 600; color: rgb(146, 64, 14); margin-bottom: 12px; }
+
+.exec-progress { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+
+.exec-progress .exec-bar { height: 6px; background: rgb(241, 245, 249); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+
+.exec-progress .exec-fill { height: 100%; background: linear-gradient(90deg,var(--a),var(--am)); transition: 0.3s; border-radius: 3px; }
+
+.draft-cb { width: 16px; height: 16px; accent-color: var(--a); cursor: pointer; vertical-align: middle; margin-right: 6px; }
+
+.activity-item { display: flex; gap: 8px; padding: 6px 0px; border-bottom: 1px solid rgb(241, 245, 249); font-size: 11px; align-items: flex-start; }
+
+.activity-item:last-child { border-bottom: none; }
+
+.activity-time { font-size: 9px; color: var(--muted); min-width: 70px; font-family: var(--mono); }
+
+.activity-text { flex: 1 1 0%; color: var(--text); }
+
+.loading-spinner { display: inline-block; width: 14px; height: 14px; border-top-style: ; border-top-width: ; border-right-color: ; border-right-style: ; border-right-width: ; border-bottom-color: ; border-bottom-style: ; border-bottom-width: ; border-left-color: ; border-left-style: ; border-left-width: ; border-image-source: ; border-image-slice: ; border-image-width: ; border-image-outset: ; border-image-repeat: ; border-top-color: var(--a); border-radius: 50%; animation: 0.6s linear 0s infinite normal none running spin; }
+
+@keyframes spin { 
+  100% { transform: rotate(360deg); }
+}
+
+.loading-overlay { display: flex; align-items: center; justify-content: center; padding: 40px; color: var(--dim); gap: 8px; font-size: 12px; }
+
+.dm-checked { display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: 7px; font-weight: 700; letter-spacing: 0.3px; vertical-align: middle; margin-left: 4px; }
+
+.dm-checked.ok { background: rgb(236, 253, 245); color: rgb(5, 150, 105); }
+
+.dm-checked.warn { background: rgb(254, 243, 199); color: rgb(180, 83, 9); }
+
+.hil-group { margin-bottom: 10px; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+
+.hil-group-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+
+.hil-group-title { font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+
+.hil-group-title .hil-count { background: var(--abg); color: var(--a); padding: 1px 6px; border-radius: 10px; font-size: 9px; font-weight: 700; }
+
+.hil-item { display: flex; align-items: center; gap: 8px; padding: 4px 0px; font-size: 11px; }
+
+.hil-item label { display: flex; align-items: center; gap: 6px; cursor: pointer; flex: 1 1 0%; }
+
+.hil-item input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--a); }
+
+.hil-empty { text-align: center; padding: 16px; color: var(--dim); font-size: 11px; }
+
+@media (max-width: 700px) {
+  .ctr { padding: 12px 8px 60px; }
+  .hero h1 { font-size: 18px; }
+  .mt > div { padding: 8px 12px; font-size: 11px; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .funnel-row { flex-wrap: wrap; }
+  .fn { min-width: 60px; }
+  .filter-bar { flex-direction: column; }
+  .filter-bar input, .filter-bar select { width: 100%; }
+}</style>
+
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pipeline CRM — Japan</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#f8fafc;--card:#fff;--border:#e2e8f0;--text:#1e293b;--dim:#64748b;--muted:#94a3b8;--a:#ef4444;--abg:#fef2f2;--g:#10b981;--gbg:#ecfdf5;--am:#f59e0b;--ambg:#fffbeb;--r:#ef4444;--rbg:#fef2f2;--c:#0ea5e9;--cbg:#f0f9ff;--p:#ec4899;--mono:'SF Mono','Fira Code',Consolas,monospace}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:13px}
-.ctr{max-width:1100px;margin:0 auto;padding:28px 20px 80px}
-.hero{text-align:center;margin-bottom:20px}
-.hero h1{font-size:24px;font-weight:800;letter-spacing:-.5px}.hero h1 span{background:linear-gradient(135deg,#ef4444,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero .sub{color:var(--dim);font-size:12px;margin-top:2px}
-.hero .meta{display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap}
-.pill{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2px 10px;font-size:10px;color:var(--dim);display:inline-flex;align-items:center;gap:4px}
-.pill .dot{width:5px;height:5px;border-radius:50%;background:var(--g);box-shadow:0 0 3px var(--g)}
-.nav-bar{display:flex;justify-content:center;gap:0;margin-bottom:20px}
-.nav-bar>div{display:inline-flex;flex-wrap:nowrap;border:2px solid var(--border);border-radius:10px;overflow:hidden;font-size:12px;font-weight:700}
-.nav-bar a{padding:8px 16px;color:var(--dim);text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center}
-.nav-bar a:hover{background:var(--abg);color:var(--a)}
-.nav-bar .active{background:var(--a);color:#fff;cursor:default}
-.mt{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:0;overflow-x:auto}
-.mt>div{padding:10px 20px;font-size:12px;font-weight:700;cursor:pointer;color:var(--dim);border-bottom:3px solid transparent;margin-bottom:-2px;transition:.12s;white-space:nowrap}
-.mt>div:hover{color:var(--text)}.mt>div.on{color:var(--a);border-bottom-color:var(--a)}
-.mp{display:none;padding-top:20px}.mp.on{display:block}
-.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px}
-.card h3{font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:5px}
-.card .desc{font-size:10px;color:var(--dim);margin-bottom:8px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px;margin:10px 0}
-.stat{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center}
-.stat .sl{font-size:8px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:600}
-.stat .sv{font-size:20px;font-weight:800;letter-spacing:-.5px;font-family:var(--mono)}
-.stat.green .sv{color:var(--g)}.stat.accent .sv{color:var(--a)}.stat.amber .sv{color:var(--am)}.stat.cyan .sv{color:var(--c)}.stat.red .sv{color:var(--r)}.stat.pink .sv{color:var(--p)}
-.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 20px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
-.btn-primary{background:var(--a);color:#fff}.btn-primary:hover{opacity:.9}
-.btn-secondary{background:var(--abg);color:var(--a);border:1px solid var(--border)}.btn-secondary:hover{background:#fee2e2}
-.btn-success{background:var(--g);color:#fff}.btn-success:hover{opacity:.9}
-.btn-sm{padding:4px 10px;font-size:10px;border-radius:5px}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-table{width:100%;border-collapse:collapse;font-size:11px}
-th{background:#f8fafc;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.3px;font-size:9px;padding:6px 7px;text-align:left;border-bottom:2px solid var(--border);position:sticky;top:0;z-index:1}
-td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f5}
-.b{display:inline-block;padding:1px 6px;border-radius:3px;font-size:8px;font-weight:600}
-.b.g{background:var(--gbg);color:var(--g)}.b.r{background:var(--rbg);color:var(--r)}.b.am{background:var(--ambg);color:var(--am)}
-.b.c{background:var(--cbg);color:var(--c)}.b.a{background:var(--abg);color:var(--a)}.b.p{background:#fdf2f8;color:var(--p)}
-.b.past{background:#e0e7ff;color:#4338ca;font-size:8px}
-.filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
-.filter-bar input[type="text"]{flex:1;min-width:180px;padding:7px 12px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit}
-.filter-bar input:focus{outline:none;border-color:var(--a);box-shadow:0 0 0 2px rgba(239,68,68,.15)}
-.filter-bar select{padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;background:var(--card);color:var(--text)}
-.funnel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:16px;overflow-x:auto}
-.funnel-row{display:flex;align-items:center;gap:0;margin-bottom:4px}
-.funnel-row:last-child{margin-bottom:0}
-.funnel-label{font-size:9px;font-weight:700;color:var(--dim);min-width:65px;text-transform:uppercase;letter-spacing:.5px}
-.fn{flex:1;min-width:70px;text-align:center;padding:6px 4px;border-radius:8px;cursor:pointer;transition:.12s;border:2px solid transparent}
-.fn:hover{background:var(--abg)}.fn.on{background:var(--abg);border-color:var(--a)}
-.fn .fi{font-size:18px;font-weight:800;font-family:var(--mono)}.fn .ft{font-size:9px;font-weight:700;color:var(--dim)}.fn .fs{font-size:8px;color:var(--muted)}
-.fa{color:var(--muted);font-size:10px;flex-shrink:0;padding:0 1px}
-.pager{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:12px}
-.pager button{padding:4px 10px;border:1px solid var(--border);border-radius:4px;background:var(--card);cursor:pointer;font-size:11px;font-family:inherit}
-.pager button.on{background:var(--a);color:#fff;border-color:var(--a)}
-.owner-tab{border-right:1px solid var(--border)}.owner-tab:last-child{border-right:none}
-.owner-tab:hover{background:var(--abg);color:var(--a)}.owner-tab.on{background:var(--a);color:#fff}
-.toast{position:fixed;bottom:20px;right:20px;padding:10px 18px;border-radius:8px;font-size:12px;font-weight:600;color:#fff;z-index:999;transform:translateY(100px);opacity:0;transition:.3s}
-.toast.show{transform:translateY(0);opacity:1}
-.toast.ok{background:var(--g)}.toast.err{background:var(--r)}
-.dm-preview{background:#fafbff;border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:8px;font-size:11px;line-height:1.7;white-space:pre-wrap}
-.dm-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;position:relative}
-.dm-card .dm-handle{font-weight:700;color:var(--a);font-size:13px}
-.dm-card .dm-meta{font-size:10px;color:var(--dim);margin:4px 0 8px}
-.dm-card .dm-body{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;font-size:12px;line-height:1.8;white-space:pre-wrap}
-.dm-card .dm-actions{display:flex;gap:6px;margin-top:10px;align-items:center}
-.copy-btn{background:#f1f5f9;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s}
-.copy-btn:hover{background:#e2e8f0}
-.copy-btn.copied{background:var(--gbg);color:var(--g);border-color:var(--g)}
-.dm-edit{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;line-height:1.7;resize:vertical;background:#fafbff;margin-top:8px;color:var(--text)}
-.dm-edit:focus{outline:none;border-color:var(--a);box-shadow:0 0 0 2px rgba(239,68,68,.1)}
-/* DM Thread */
-.dm-thread-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100;display:flex;align-items:center;justify-content:center}
-.dm-thread-panel{background:var(--card);border-radius:16px;width:90%;max-width:520px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.15)}
-.dm-thread-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.dm-thread-header h3{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
-.dm-thread-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--dim);padding:4px 8px;border-radius:6px}.dm-thread-close:hover{background:#f1f5f9}
-.dm-thread-body{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:8px;min-height:200px}
-.dm-bubble{max-width:80%;padding:10px 14px;border-radius:16px;font-size:12px;line-height:1.6;word-break:break-word}
-.dm-bubble.out{align-self:flex-end;background:var(--a);color:#fff;border-bottom-right-radius:4px}
-.dm-bubble.in{align-self:flex-start;background:#f1f5f9;color:var(--text);border-bottom-left-radius:4px}
-.dm-bubble .dm-time{font-size:9px;opacity:.6;margin-top:4px;display:block}
-.dm-thread-input{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px}
-.dm-thread-input input{flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:24px;font-size:12px;font-family:inherit}
-.dm-thread-input input:focus{outline:none;border-color:var(--a);box-shadow:0 0 0 2px rgba(239,68,68,.15)}
-.dm-thread-input button{padding:8px 16px;border-radius:24px;border:none;background:var(--a);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
-.dm-thread-input button:disabled{opacity:.4;cursor:not-allowed}
-.dm-empty{text-align:center;padding:40px;color:var(--dim);font-size:11px}
-.dm-limit-banner{background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:10px 16px;text-align:center;font-size:12px;font-weight:600;color:#92400e;margin-bottom:12px}
-/* Execute progress */
-.exec-progress{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px}
-.exec-progress .exec-bar{height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;margin-top:8px}
-.exec-progress .exec-fill{height:100%;background:linear-gradient(90deg,var(--a),var(--am));transition:.3s;border-radius:3px}
-/* Checkbox */
-.draft-cb{width:16px;height:16px;accent-color:var(--a);cursor:pointer;vertical-align:middle;margin-right:6px}
-/* Activity */
-.activity-item{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:11px;align-items:flex-start}
-.activity-item:last-child{border-bottom:none}
-.activity-time{font-size:9px;color:var(--muted);min-width:70px;font-family:var(--mono)}
-.activity-text{flex:1;color:var(--text)}
-/* Loading */
-.loading-spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--a);border-radius:50%;animation:spin .6s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-overlay{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--dim);gap:8px;font-size:12px}
-/* DM cross-check badge */
-.dm-checked{display:inline-block;padding:1px 5px;border-radius:3px;font-size:7px;font-weight:700;letter-spacing:.3px;vertical-align:middle;margin-left:4px}
-.dm-checked.ok{background:#ecfdf5;color:#059669}.dm-checked.warn{background:#fef3c7;color:#b45309}
-/* HiL Queue */
-.hil-group{margin-bottom:10px;border:1px solid var(--border);border-radius:8px;padding:10px 12px}
-.hil-group-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.hil-group-title{font-size:11px;font-weight:700;display:flex;align-items:center;gap:6px}
-.hil-group-title .hil-count{background:var(--abg);color:var(--a);padding:1px 6px;border-radius:10px;font-size:9px;font-weight:700}
-.hil-item{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:11px}
-.hil-item label{display:flex;align-items:center;gap:6px;cursor:pointer;flex:1}
-.hil-item input[type="checkbox"]{width:14px;height:14px;accent-color:var(--a)}
-.hil-empty{text-align:center;padding:16px;color:var(--dim);font-size:11px}
-@media(max-width:700px){
-  .ctr{padding:12px 8px 60px}.hero h1{font-size:18px}
-  .mt>div{padding:8px 12px;font-size:11px}
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .funnel-row{flex-wrap:wrap}.fn{min-width:60px}
-  .filter-bar{flex-direction:column}.filter-bar input,.filter-bar select{width:100%}
-}
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+
 </head>
 <body>
 
 <!-- LOGIN GATE -->
 <div id="login-gate" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)">
   <div style="background:var(--card);border-radius:16px;padding:48px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.06);border:1px solid var(--border);text-align:center">
-    <div style="font-size:32px;margin-bottom:8px">&#x1F1EF;&#x1F1F5;</div>
+    <div style="font-size:32px;margin-bottom:8px">🇯🇵</div>
     <h2 style="font-size:18px;font-weight:800;margin-bottom:4px">Pipeline CRM <span style="color:var(--a)">Japan</span></h2>
     <p style="font-size:11px;color:var(--dim);margin-bottom:24px">Grosmimi Japan Influencer Pipeline</p>
     <input type="text" id="login-uid" placeholder="User ID" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:8px;font-family:inherit">
-    <input type="password" id="login-pw" placeholder="Password" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:16px;font-family:inherit" onkeydown="if(event.key==='Enter')doLogin()">
-    <button onclick="doLogin()" style="width:100%;background:var(--a);color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">Sign In</button>
+    <input type="password" id="login-pw" placeholder="Password" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:16px;font-family:inherit">
+    <button style="width:100%;background:var(--a);color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">Sign In</button>
     <div id="login-err" style="color:var(--r);font-size:11px;margin-top:10px;display:none"></div>
   </div>
 </div>
@@ -149,9 +302,17 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 <!-- MAIN CONTENT -->
 <div id="main-content" style="display:none">
 <div class="ctr">
-  <div id="standalone-header">
+  <!-- Top-level navigation -->
+  <div class="nav-bar" style="margin-bottom:16px">
+    <div>
+      <a href="https://orbiters-dev.github.io/WJ-Test1/ppc-dashboard/" title="Amazon PPC Intelligence">Amazon PPC</a>
+      <a href="https://orbiters-dev.github.io/WJ-Test1/content-dashboard/" title="Content Intelligence">Content Intelligence</a>
+      <a class="active">Pipeline CRM</a>
+      <a href="https://orbiters-dev.github.io/WJ-Test1/financial-dashboard/" title="Financial KPIs">Financial KPIs</a>
+    </div>
+  </div>
   <div class="hero">
-    <h1 style="display:flex;align-items:center;justify-content:center;gap:12px">&#x1F4CB; Pipeline <span>CRM</span> <span style="font-size:14px;background:#ef4444;color:#fff;padding:2px 10px;border-radius:6px;font-weight:700">JP</span></h1>
+    <h1 style="display:flex;align-items:center;justify-content:center;gap:12px">📋 Pipeline <span>CRM</span> <span style="font-size:14px;background:#ef4444;color:#fff;padding:2px 10px;border-radius:6px;font-weight:700">JP</span></h1>
     <div class="sub">Grosmimi Japan — Influencer DM Outreach Pipeline</div>
     <div class="meta" id="hero-meta">
       <span class="pill" id="pill-status"><span class="dot"></span>Ready</span>
@@ -159,28 +320,26 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
       <span class="pill" id="pill-total">0 creators</span>
     </div>
   </div>
-  </div>
-  <script>if(new URLSearchParams(location.search).get('embed')==='1')document.getElementById('standalone-header').style.display='none';</script>
 
   <!-- PIPELINE OVERVIEW -->
   <div class="card" style="margin-bottom:12px">
-    <h3>&#x1F3AF; Pipeline Overview</h3>
+    <h3>🎯 Pipeline Overview</h3>
     <div class="funnel" id="dash-funnel">
       <div class="funnel-row" style="flex-wrap:wrap">
         <div class="funnel-label">Outbound</div>
-        <div class="fn on" data-stage="not_started" onclick="goToStage('not_started')"><div class="fi" id="f-not-started">0</div><div class="ft">Not Started</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="draft_ready" onclick="goToStage('draft_ready')"><div class="fi" id="f-draft-ready">0</div><div class="ft">Draft</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="sent" onclick="goToStage('sent')"><div class="fi" id="f-sent">0</div><div class="ft">Sent</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="replied" onclick="goToStage('replied')"><div class="fi" id="f-replied">0</div><div class="ft">Replied</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="accepted" onclick="goToStage('accepted')"><div class="fi" id="f-accepted">0</div><div class="ft">Accepted</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="contract_signed" onclick="goToStage('contract_signed')"><div class="fi" id="f-contract-signed">0</div><div class="ft">Contract</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="sample_delivered" onclick="goToStage('sample_delivered')"><div class="fi" id="f-sample-delivered">0</div><div class="ft">Delivered</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="posted" onclick="goToStage('posted')"><div class="fi" id="f-posted">0</div><div class="ft">Posted</div></div>
+        <div class="fn on" data-stage="not_started"><div class="fi" id="f-not-started">0</div><div class="ft">Not Started</div></div><span class="fa">▶</span>
+        <div class="fn" data-stage="draft_ready"><div class="fi" id="f-draft-ready">0</div><div class="ft">Draft</div></div><span class="fa">▶</span>
+        <div class="fn" data-stage="sent"><div class="fi" id="f-sent">0</div><div class="ft">Sent</div></div><span class="fa">▶</span>
+        <div class="fn" data-stage="replied"><div class="fi" id="f-replied">0</div><div class="ft">Replied</div></div><span class="fa">▶</span>
+        <div class="fn" data-stage="accepted"><div class="fi" id="f-accepted">0</div><div class="ft">Accepted</div></div><span class="fa">▶</span>
+        <div class="fn" data-stage="contract_signed"><div class="fi" id="f-contract-signed">0</div><div class="ft">Contract</div></div><span class="fa">▶</span>
+        <div class="fn" data-stage="sample_delivered"><div class="fi" id="f-sample-delivered">0</div><div class="ft">Delivered</div></div><span class="fa">▶</span>
+        <div class="fn" data-stage="posted"><div class="fi" id="f-posted">0</div><div class="ft">Posted</div></div>
       </div>
       <div class="funnel-row" style="margin-top:6px">
         <div class="funnel-label" style="color:var(--c)">Inbound</div>
-        <div class="fn" data-stage="inbound" onclick="goToStage('inbound')"><div class="fi" id="f-inbound" style="color:var(--c)">0</div><div class="ft">Inbound</div></div><span class="fa">&#x25B6;</span>
-        <div class="fn" data-stage="needs_review" onclick="goToStage('needs_review')"><div class="fi" id="f-needs-review">0</div><div class="ft">Review</div></div>
+        <div class="fn" data-stage="inbound"><div class="fi" id="f-inbound" style="color:var(--c)">0</div><div class="ft">Inbound</div></div><span class="fa">▶</span>
+        <div class="fn" data-stage="needs_review"><div class="fi" id="f-needs-review">0</div><div class="ft">Review</div></div>
       </div>
     </div>
     <!-- Hidden count holders for stages not shown in funnel but tracked in data -->
@@ -216,7 +375,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 
     <!-- Daily KPI Table -->
     <div class="card" style="margin-top:12px">
-      <h3>&#x1F4CA; Daily Activity</h3>
+      <h3>📊 Daily Activity</h3>
       <div class="desc">日別 DM アウトリーチ状況</div>
       <div style="overflow-x:auto">
         <table id="daily-kpi-table">
@@ -232,7 +391,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 
     <!-- DM Budget -->
     <div class="card">
-      <h3>&#x1F4CA; Daily DM Budget</h3>
+      <h3>📊 Daily DM Budget</h3>
       <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
         <div style="flex:1;background:#f1f5f9;border-radius:8px;height:24px;overflow:hidden">
           <div id="dm-budget-bar" style="height:100%;background:linear-gradient(90deg,var(--g),var(--am));border-radius:8px;width:0%;transition:.5s"></div>
@@ -244,7 +403,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 
     <!-- Inbound Queue -->
     <div class="card">
-      <h3>&#x1F4E5; Inbound Queue</h3>
+      <h3>📥 Inbound Queue</h3>
       <div class="desc">自然流入 (オーガニックDM / コメント経由) のクリエイター</div>
       <div id="inbound-queue">
         <div style="text-align:center;padding:20px;color:var(--dim);font-size:11px">No inbound creators detected.</div>
@@ -253,7 +412,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 
     <!-- Recent Activity -->
     <div class="card">
-      <h3>&#x23F0; Recent Activity</h3>
+      <h3>⏰ Recent Activity</h3>
       <div id="activity-log" style="max-height:250px;overflow-y:auto">
         <div class="loading-overlay"><span class="loading-spinner"></span> Loading...</div>
       </div>
@@ -264,14 +423,14 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
   <div class="mp" id="p-creators">
     <!-- Owner sub-tabs -->
     <div style="display:flex;gap:0;margin-bottom:12px;border:2px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content">
-      <div class="owner-tab on" data-owner="" onclick="setOwnerFilter('')" style="padding:7px 18px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">All</div>
-      <div class="owner-tab" data-owner="SE" onclick="setOwnerFilter('SE')" style="padding:7px 18px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">&#x1F9D1; SE</div>
-      <div class="owner-tab" data-owner="KAZ" onclick="setOwnerFilter('KAZ')" style="padding:7px 18px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">&#x1F9D1; KAZ</div>
-      <div class="owner-tab" data-owner="_mine" onclick="setOwnerFilter('_mine')" style="padding:7px 18px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">&#x1F4CC; My</div>
+      <div class="owner-tab on" data-owner="" style="padding:7px 18px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">All</div>
+      <div class="owner-tab" data-owner="SE" style="padding:7px 18px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">🧑 SE</div>
+      <div class="owner-tab" data-owner="KAZ" style="padding:7px 18px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">🧑 KAZ</div>
+      <div class="owner-tab" data-owner="_mine" style="padding:7px 18px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">📌 My</div>
     </div>
     <div class="filter-bar">
-      <input type="text" id="creator-search" placeholder="Search by handle, name..." oninput="filterCreators()">
-      <select id="creator-status-filter" onchange="filterCreators()">
+      <input type="text" id="creator-search" placeholder="Search by handle, name...">
+      <select id="creator-status-filter">
         <option value="">All Status</option>
         <option value="not_started">Not Started</option>
         <option value="draft_ready">Draft Ready</option>
@@ -289,12 +448,12 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         <option value="inbound">Inbound</option>
         <option value="needs_review">Needs Review</option>
       </select>
-      <select id="creator-platform-filter" onchange="filterCreators()" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">
+      <select id="creator-platform-filter" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">
         <option value="">All Platforms</option>
-        <option value="instagram">&#x1F4F7; Instagram</option>
-        <option value="tiktok">&#x1F3B5; TikTok</option>
+        <option value="instagram">📷 Instagram</option>
+        <option value="tiktok">🎵 TikTok</option>
       </select>
-      <button class="btn btn-sm btn-secondary" onclick="showImportModal()">&#x1F4E5; Import</button>
+      <button class="btn btn-sm btn-secondary">📥 Import</button>
       <span id="creator-count" style="font-size:11px;color:var(--dim)">0 creators</span>
     </div>
     <!-- Execute bar for creators tab -->
@@ -303,12 +462,12 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
           <div>
             <label style="font-size:11px;font-weight:600;color:var(--dim)">
-              <input type="checkbox" id="creators-select-all" onchange="toggleAllCreatorCb(this.checked)" checked style="accent-color:var(--a)">
+              <input type="checkbox" id="creators-select-all" checked="" style="accent-color:var(--a)">
               Select All
             </label>
             <span id="creators-selected-count" style="font-size:11px;color:var(--dim);margin-left:8px">0 selected</span>
           </div>
-          <button class="btn btn-success" id="btn-creators-execute" onclick="executeCreatorsDrafts()">&#x1F680; Execute Selected</button>
+          <button class="btn btn-success" id="btn-creators-execute">🚀 Execute Selected</button>
         </div>
       </div>
     </div>
@@ -338,14 +497,14 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
   <!-- ===== INFLUENCER SHEET TAB ===== -->
   <div class="mp" id="p-sheet">
     <div class="card" style="border-left:3px solid #6366f1">
-      <h3>&#x1F4CB; Influencer Master Sheet</h3>
+      <h3>📋 Influencer Master Sheet</h3>
       <div class="desc">全クリエイター一覧 — Discovery + Pipeline + Inbound + Manual DM</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
-        <button class="btn btn-primary" onclick="loadInfluencerSheet()">&#x1F504; Refresh</button>
-        <button class="btn" style="background:#10b981;color:#fff" onclick="importFromDiscovery()" id="btn-import-discovery">&#x1F4E5; Import New to Pipeline</button>
+        <button class="btn btn-primary">🔄 Refresh</button>
+        <button class="btn" style="background:#10b981;color:#fff" id="btn-import-discovery">📥 Import New to Pipeline</button>
         <span id="import-discovery-status" style="font-size:10px;color:var(--dim)"></span>
-        <input type="text" id="sheet-search" placeholder="Search @handle, name..." oninput="filterSheet()" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;width:200px">
-        <select id="sheet-filter-status" onchange="filterSheet()" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">
+        <input type="text" id="sheet-search" placeholder="Search @handle, name..." style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;width:200px">
+        <select id="sheet-filter-status" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">
           <option value="">All Statuses</option>
           <option value="not_started">Not Started</option>
           <option value="draft_ready">Draft Ready</option>
@@ -359,14 +518,14 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
           <option value="sample_delivered">Delivered</option>
           <option value="posted">Posted</option>
         </select>
-        <select id="sheet-filter-source" onchange="filterSheet()" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">
+        <select id="sheet-filter-source" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">
           <option value="">All Sources</option>
           <option value="discovery">Discovery (Sheet)</option>
           <option value="pipeline">Pipeline</option>
           <option value="inbound">Inbound</option>
           <option value="manual">Manual DM</option>
         </select>
-        <label style="font-size:10px;display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="sheet-hide-contacted" onchange="filterSheet()"> Hide Already Contacted</label>
+        <label style="font-size:10px;display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="sheet-hide-contacted"> Hide Already Contacted</label>
         <span id="sheet-count" style="font-size:10px;color:var(--dim);margin-left:auto"></span>
       </div>
       <!-- CI Summary Stats -->
@@ -381,27 +540,27 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
       </div>
       <!-- Content Type Sub-tabs -->
       <div id="sheet-subtabs" style="display:flex;gap:0;margin-bottom:12px;border:2px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content">
-        <div class="sheet-subtab on" data-filter="all" onclick="setSheetSubtab('all')" style="padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">All</div>
-        <div class="sheet-subtab" data-filter="has_video" onclick="setSheetSubtab('has_video')" style="padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">&#x1F3AC; Has Video</div>
-        <div class="sheet-subtab" data-filter="image_only" onclick="setSheetSubtab('image_only')" style="padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">&#x1F5BC; Image Only</div>
+        <div class="sheet-subtab on" data-filter="all" style="padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">All</div>
+        <div class="sheet-subtab" data-filter="has_video" style="padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">🎬 Has Video</div>
+        <div class="sheet-subtab" data-filter="image_only" style="padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">🖼 Image Only</div>
       </div>
     </div>
     <div style="overflow-x:auto;margin-top:12px">
       <table class="ct" id="sheet-table" style="width:100%">
         <thead>
           <tr>
-            <th style="width:30px">&#x1F6AB;</th>
-            <th style="cursor:pointer" onclick="sortSheet('username')">Handle &#x2195;</th>
-            <th style="cursor:pointer" onclick="sortSheet('followers')">Followers &#x2195;</th>
+            <th style="width:30px">🚫</th>
+            <th style="cursor:pointer">Handle ↕</th>
+            <th style="cursor:pointer">Followers ↕</th>
             <th>Platform</th>
-            <th style="cursor:pointer" onclick="sortSheet('_source')">Source &#x2195;</th>
-            <th style="cursor:pointer" onclick="sortSheet('status')">Status &#x2195;</th>
-            <th style="cursor:pointer" onclick="sortSheet('_postCount')">Posts &#x2195;</th>
-            <th style="cursor:pointer" onclick="sortSheet('_bestViews')">Best Views/Likes &#x2195;</th>
-            <th style="cursor:pointer" onclick="sortSheet('_totalComments')">Comments &#x2195;</th>
-            <th style="cursor:pointer" onclick="sortSheet('_latestPostDate')">Latest Post &#x2195;</th>
+            <th style="cursor:pointer">Source ↕</th>
+            <th style="cursor:pointer">Status ↕</th>
+            <th style="cursor:pointer">Posts ↕</th>
+            <th style="cursor:pointer">Best Views/Likes ↕</th>
+            <th style="cursor:pointer">Comments ↕</th>
+            <th style="cursor:pointer">Latest Post ↕</th>
             <th>D+</th>
-            <th style="cursor:pointer" onclick="sortSheet('_ciScore')">CI &#x2195;</th>
+            <th style="cursor:pointer">CI ↕</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -414,7 +573,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
   <!-- ===== DM DRAFTS TAB ===== -->
   <div class="mp" id="p-drafts">
     <div class="card" style="border-left:3px solid var(--a)">
-      <h3>&#x1F916; Generate DM Drafts</h3>
+      <h3>🤖 Generate DM Drafts</h3>
       <div class="desc">Not Startedのクリエイター (過去DM履歴なし) にAI初案を生成</div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <div style="font-size:11px;display:flex;gap:8px;align-items:center">
@@ -426,28 +585,28 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
           <label style="font-weight:500;color:#000">TT</label>
           <input type="number" id="draft-tt-count" value="" min="0" max="50" placeholder="all" style="width:50px;padding:5px 6px;border:1px solid var(--border);border-radius:6px;font-size:11px">
         </div>
-        <button class="btn btn-primary" id="btn-generate" onclick="generateDrafts()">
-          &#x26A1; Generate Drafts
+        <button class="btn btn-primary" id="btn-generate">
+          ⚡ Generate Drafts
         </button>
         <span id="draft-status" style="font-size:11px;color:var(--dim)"></span>
       </div>
       <!-- Priority toggles -->
       <div style="display:flex;gap:16px;align-items:center;margin-top:8px;flex-wrap:wrap">
         <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
-          <input type="checkbox" id="draft-video-priority" checked style="width:15px;height:15px;accent-color:var(--a)">
-          &#x1F3AC; 영상 우선
+          <input type="checkbox" id="draft-video-priority" checked="" style="width:15px;height:15px;accent-color:var(--a)">
+          🎬 영상 우선
         </label>
         <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
-          <input type="checkbox" id="draft-view-priority" checked style="width:15px;height:15px;accent-color:var(--a)">
-          &#x1F441; View 우선순위
+          <input type="checkbox" id="draft-view-priority" checked="" style="width:15px;height:15px;accent-color:var(--a)">
+          👁 View 우선순위
         </label>
         <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
           <input type="checkbox" id="draft-quality-priority" style="width:15px;height:15px;accent-color:var(--a)">
-          &#x2B50; Quality Score 우선
+          ⭐ Quality Score 우선
         </label>
         <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
           <input type="checkbox" id="draft-baby-filter" style="width:15px;height:15px;accent-color:var(--a)">
-          &#x1F476; 신생아/영아(0-2y) 등장만
+          👶 신생아/영아(0-2y) 등장만
         </label>
         <span style="font-size:9px;color:var(--muted)">ON = 해당 조건의 크리에이터를 배치 상단에 배치</span>
       </div>
@@ -459,14 +618,14 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
           <div>
             <label style="font-size:11px;font-weight:600;color:var(--dim)">
-              <input type="checkbox" id="select-all-drafts" class="draft-cb" onchange="toggleAllDrafts(this.checked)" checked>
+              <input type="checkbox" id="select-all-drafts" class="draft-cb" checked="">
               Select All
             </label>
             <span id="selected-count" style="font-size:11px;color:var(--dim);margin-left:8px">0 selected</span>
           </div>
           <div style="display:flex;gap:8px;align-items:center">
             <span id="exec-budget-info" style="font-size:10px;color:var(--dim)"></span>
-            <button class="btn btn-success" id="btn-execute" onclick="executeDrafts()">&#x1F680; Execute</button>
+            <button class="btn btn-success" id="btn-execute">🚀 Execute</button>
           </div>
         </div>
       </div>
@@ -492,11 +651,11 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
   <!-- ===== CONTRACTS TAB ===== -->
   <div class="mp" id="p-contracts">
     <div class="card" style="border-left:3px solid var(--c)">
-      <h3>&#x1F4CB; Contract Queue</h3>
+      <h3>📋 Contract Queue</h3>
       <div class="desc">フォーム提出済みクリエイター — AI が対話内容から有償/無償を推薦</div>
       <div style="display:flex;gap:8px;margin-bottom:12px">
-        <button class="btn btn-primary" onclick="classifyContracts()">&#x1F916; AI 分類実行</button>
-        <button class="btn btn-success" id="btn-exec-contracts" onclick="executeContracts()">&#x1F680; Execute</button>
+        <button class="btn btn-primary">🤖 AI 分類実行</button>
+        <button class="btn btn-success" id="btn-exec-contracts">🚀 Execute</button>
         <span id="contract-status" style="font-size:11px;color:var(--dim)"></span>
       </div>
     </div>
@@ -504,14 +663,14 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
       <!-- Gifting (unpaid) column -->
       <div class="card" style="border-top:3px solid var(--g)">
-        <h3 style="color:var(--g)">&#x1F381; 無償 (Gifting)</h3>
+        <h3 style="color:var(--g)">🎁 無償 (Gifting)</h3>
         <div class="desc">商品提供のみ — Template ID: 4</div>
         <div id="contract-gifting-list"></div>
       </div>
 
       <!-- Paid column -->
       <div class="card" style="border-top:3px solid var(--am)">
-        <h3 style="color:var(--am)">&#x1F4B0; 有償 (Paid)</h3>
+        <h3 style="color:var(--am)">💰 有償 (Paid)</h3>
         <div class="desc">報酬あり — Template ID: 5</div>
         <div id="contract-paid-list"></div>
       </div>
@@ -521,7 +680,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
   <!-- ===== CONFIG TAB ===== -->
   <div class="mp" id="p-config">
     <div class="card" style="border-left:3px solid var(--am)">
-      <h3>&#x2699;&#xFE0F; JP Pipeline Config</h3>
+      <h3>⚙️ JP Pipeline Config</h3>
       <div class="desc">DM Config Sheet とデータソースの設定</div>
       <div style="display:grid;gap:10px;margin-top:12px">
         <div style="display:flex;align-items:center;gap:10px">
@@ -540,115 +699,115 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
         </div>
         <div style="display:flex;align-items:center;gap:10px">
           <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:140px">n8n Workflow</label>
-          <a href="https://n8n.orbiters.co.kr" target="_blank" style="font-size:11px;color:var(--a);font-weight:600">JP Pipeline Webhooks &#x2197;</a>
+          <a href="https://n8n.orbiters.co.kr/" target="_blank" style="font-size:11px;color:var(--a);font-weight:600">JP Pipeline Webhooks ↗</a>
           <span class="b g">Active</span>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <h3>&#x1F4DD; DM Template</h3>
+      <h3>📝 DM Template</h3>
       <div class="desc">Claude AIが使う初回DMテンプレート — 編集可能</div>
       <textarea class="dm-edit" id="cfg-dm-template" rows="10"></textarea>
-      <button class="btn btn-sm btn-primary" onclick="saveConfig('dm_template', document.getElementById('cfg-dm-template').value)" style="margin-top:8px">&#x1F4BE; Save</button>
+      <button class="btn btn-sm btn-primary" style="margin-top:8px">💾 Save</button>
     </div>
 
     <div class="card">
-      <h3>&#x1F4DD; 오답노트 (Mistake Log)</h3>
+      <h3>📝 오답노트 (Mistake Log)</h3>
       <div class="desc">パイプライン運用の学びと改善点を記録</div>
       <textarea class="dm-edit" id="cfg-mistake-log" rows="6" placeholder="運用中に気づいた点、改善すべきことを記録..."></textarea>
-      <button class="btn btn-sm btn-primary" onclick="saveConfig('mistake_log', document.getElementById('cfg-mistake-log').value)" style="margin-top:8px">&#x1F4BE; Save</button>
+      <button class="btn btn-sm btn-primary" style="margin-top:8px">💾 Save</button>
     </div>
 
     <div class="card">
-      <h3>&#x2753; FAQ</h3>
+      <h3>❓ FAQ</h3>
       <div class="desc">インフルエンサーからの質問と回答 — 継続的に追加</div>
       <div id="faq-list"></div>
-      <button class="btn btn-sm btn-secondary" onclick="addFaqEntry()" style="margin-top:8px">+ Add FAQ Entry</button>
-      <button class="btn btn-sm btn-primary" onclick="saveFaq()" style="margin-top:8px;margin-left:4px">&#x1F4BE; Save All</button>
+      <button class="btn btn-sm btn-secondary" style="margin-top:8px">+ Add FAQ Entry</button>
+      <button class="btn btn-sm btn-primary" style="margin-top:8px;margin-left:4px">💾 Save All</button>
     </div>
 
     <div class="card">
-      <h3>&#x1F4C4; Content Guidelines</h3>
+      <h3>📄 Content Guidelines</h3>
       <div class="desc">製品別コンテンツガイドライン PDF URL</div>
       <div id="guidelines-config-list"></div>
-      <button class="btn btn-sm btn-secondary" onclick="addGuidelineEntry()" style="margin-top:8px">+ Add Guideline</button>
-      <button class="btn btn-sm btn-primary" onclick="saveConfig('content_guidelines', getGuidelinesData())" style="margin-top:8px;margin-left:4px">&#x1F4BE; Save</button>
+      <button class="btn btn-sm btn-secondary" style="margin-top:8px">+ Add Guideline</button>
+      <button class="btn btn-sm btn-primary" style="margin-top:8px;margin-left:4px">💾 Save</button>
     </div>
 
     <div class="card">
-      <h3>&#x1F4CB; DocuSeal Contract</h3>
+      <h3>📋 DocuSeal Contract</h3>
       <div class="desc">契約書テンプレート設定 — 無償(Gifting)と有償(Paid)の2種類</div>
       <div style="display:grid;gap:8px;margin-top:8px">
         <div style="display:flex;align-items:center;gap:10px">
           <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:180px">無償 (Gifting) Template ID</label>
           <input type="text" id="cfg-docuseal-gifting" value="4" style="width:80px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit">
-          <button class="btn btn-sm btn-primary" onclick="saveConfig('docuseal_template_id_gifting', document.getElementById('cfg-docuseal-gifting').value)">&#x1F4BE;</button>
-          <a href="https://docuseal.orbiters.co.kr/templates/4" target="_blank" style="font-size:10px;color:var(--a)">Edit &#x2197;</a>
+          <button class="btn btn-sm btn-primary">💾</button>
+          <a href="https://docuseal.orbiters.co.kr/templates/4" target="_blank" style="font-size:10px;color:var(--a)">Edit ↗</a>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
           <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:180px">有償 (Paid) Template ID</label>
           <input type="text" id="cfg-docuseal-paid" value="5" style="width:80px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit">
-          <button class="btn btn-sm btn-primary" onclick="saveConfig('docuseal_template_id_paid', document.getElementById('cfg-docuseal-paid').value)">&#x1F4BE;</button>
-          <a href="https://docuseal.orbiters.co.kr/templates/5" target="_blank" style="font-size:10px;color:var(--a)">Edit &#x2197;</a>
+          <button class="btn btn-sm btn-primary">💾</button>
+          <a href="https://docuseal.orbiters.co.kr/templates/5" target="_blank" style="font-size:10px;color:var(--a)">Edit ↗</a>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <h3>&#x1F4E6; Product Catalog</h3>
+      <h3>📦 Product Catalog</h3>
       <table>
         <thead><tr><th>Product</th><th>Size</th><th>Price</th><th>Age</th></tr></thead>
         <tbody>
-          <tr><td>PPSUストローカップ</td><td>200ml</td><td>&#xA5;3,190</td><td>6ヶ月〜</td></tr>
-          <tr><td>PPSUストローカップ</td><td>300ml</td><td>&#xA5;3,600</td><td>6ヶ月〜</td></tr>
-          <tr><td>PPSUワンタッチ式</td><td>300ml</td><td>&#xA5;4,200</td><td>12ヶ月〜</td></tr>
-          <tr><td>ステンレスストローカップ</td><td>200ml</td><td>&#xA5;5,800</td><td>12ヶ月〜</td></tr>
-          <tr><td>ステンレスストローカップ</td><td>300ml</td><td>&#xA5;6,200</td><td>12ヶ月〜</td></tr>
+          <tr><td>PPSUストローカップ</td><td>200ml</td><td>¥3,190</td><td>6ヶ月〜</td></tr>
+          <tr><td>PPSUストローカップ</td><td>300ml</td><td>¥3,600</td><td>6ヶ月〜</td></tr>
+          <tr><td>PPSUワンタッチ式</td><td>300ml</td><td>¥4,200</td><td>12ヶ月〜</td></tr>
+          <tr><td>ステンレスストローカップ</td><td>200ml</td><td>¥5,800</td><td>12ヶ月〜</td></tr>
+          <tr><td>ステンレスストローカップ</td><td>300ml</td><td>¥6,200</td><td>12ヶ月〜</td></tr>
         </tbody>
       </table>
     </div>
 
     <!-- ===== SCORING LAB ===== -->
     <div class="card" style="border-left:3px solid #8b5cf6">
-      <h3>&#x1F9EA; Content Scoring Lab</h3>
+      <h3>🧪 Content Scoring Lab</h3>
       <div class="desc">가중치 조정 → 실시간 크리에이터 스코어 재계산. 최적 배합 테스트용.</div>
       <div style="display:grid;gap:12px;margin-top:12px">
         <div style="display:flex;gap:20px;flex-wrap:wrap">
           <div style="flex:1;min-width:180px">
             <label style="font-size:10px;font-weight:700;color:var(--dim)">Delivery Verbal <span id="lab-w-dv-val" style="color:var(--a)">40</span>%</label>
-            <input type="range" id="lab-w-dv" min="0" max="100" value="40" oninput="recalcScoreLab()" style="width:100%">
+            <input type="range" id="lab-w-dv" min="0" max="100" value="40" style="width:100%">
           </div>
           <div style="flex:1;min-width:180px">
             <label style="font-size:10px;font-weight:700;color:var(--dim)">Views <span id="lab-w-views-val" style="color:var(--a)">25</span>%</label>
-            <input type="range" id="lab-w-views" min="0" max="100" value="25" oninput="recalcScoreLab()" style="width:100%">
+            <input type="range" id="lab-w-views" min="0" max="100" value="25" style="width:100%">
           </div>
           <div style="flex:1;min-width:180px">
             <label style="font-size:10px;font-weight:700;color:var(--dim)">Followers <span id="lab-w-fol-val" style="color:var(--a)">15</span>%</label>
-            <input type="range" id="lab-w-fol" min="0" max="100" value="15" oninput="recalcScoreLab()" style="width:100%">
+            <input type="range" id="lab-w-fol" min="0" max="100" value="15" style="width:100%">
           </div>
           <div style="flex:1;min-width:180px">
             <label style="font-size:10px;font-weight:700;color:var(--dim)">Hook Score <span id="lab-w-hook-val" style="color:var(--a)">10</span>%</label>
-            <input type="range" id="lab-w-hook" min="0" max="100" value="10" oninput="recalcScoreLab()" style="width:100%">
+            <input type="range" id="lab-w-hook" min="0" max="100" value="10" style="width:100%">
           </div>
           <div style="flex:1;min-width:180px">
             <label style="font-size:10px;font-weight:700;color:var(--dim)">Engagement Rate <span id="lab-w-eng-val" style="color:var(--a)">10</span>%</label>
-            <input type="range" id="lab-w-eng" min="0" max="100" value="10" oninput="recalcScoreLab()" style="width:100%">
+            <input type="range" id="lab-w-eng" min="0" max="100" value="10" style="width:100%">
           </div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
-          <button class="btn btn-sm" style="background:#8b5cf6;color:#fff" onclick="recalcScoreLab()">&#x1F504; Recalculate</button>
-          <button class="btn btn-sm btn-secondary" onclick="applyScoreLabWeights()">&#x2705; Apply to DM Queue</button>
+          <button class="btn btn-sm" style="background:#8b5cf6;color:#fff">🔄 Recalculate</button>
+          <button class="btn btn-sm btn-secondary">✅ Apply to DM Queue</button>
           <span id="lab-total-pct" style="font-size:10px;color:var(--dim)">Total: 100%</span>
         </div>
         <div style="overflow-x:auto;max-height:400px;overflow-y:auto">
           <table class="ct" id="lab-results-table" style="width:100%">
             <thead>
               <tr>
-                <th style="cursor:pointer" onclick="sortLabTable('rank')">Rank</th>
+                <th style="cursor:pointer">Rank</th>
                 <th>Platform</th>
-                <th style="cursor:pointer" onclick="sortLabTable('handle')">Handle</th>
-                <th style="cursor:pointer" onclick="sortLabTable('score')">Score</th>
+                <th style="cursor:pointer">Handle</th>
+                <th style="cursor:pointer">Score</th>
                 <th>DV</th>
                 <th>Views</th>
                 <th>Followers</th>
@@ -666,17 +825,17 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
   <!-- ===== SAMPLES TAB ===== -->
   <div class="mp" id="p-samples">
     <div class="card">
-      <h3>&#x1F4E6; Requested Samples</h3>
+      <h3>📦 Requested Samples</h3>
       <div class="desc">ギフティングフォーム提出済みのクリエイター — サンプル発送管理</div>
       <div style="display:flex;gap:8px;margin-bottom:12px">
-        <button class="btn btn-secondary" onclick="exportSamples()">&#x1F4E5; Export CSV</button>
-        <button class="btn btn-success" id="btn-mark-samples-sent" onclick="markSamplesSent()">&#x1F4E6; Mark Selected as Sent</button>
+        <button class="btn btn-secondary">📥 Export CSV</button>
+        <button class="btn btn-success" id="btn-mark-samples-sent">📦 Mark Selected as Sent</button>
       </div>
       <div style="overflow-x:auto">
       <table>
         <thead>
           <tr>
-            <th><input type="checkbox" onchange="toggleAllSamples(this.checked)"></th>
+            <th><input type="checkbox"></th>
             <th>Handle</th><th>Name</th><th>Product</th><th>Color</th>
             <th>Address</th><th>Phone</th><th>Status</th>
           </tr>
@@ -690,13 +849,13 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
   <!-- ===== FAILURES TAB ===== -->
   <div class="mp" id="p-failures">
     <div class="card">
-      <h3 style="color:var(--r)">&#x26A0;&#xFE0F; DM Back-Check Failures</h3>
+      <h3 style="color:var(--r)">⚠️ DM Back-Check Failures</h3>
       <div class="desc">DM 발송 후 5분 이내 확인 실패 → 자동 Draft Ready 롤백 기록. 실제 IG에서 붙여넣기+전송을 안 한 경우 여기 뜸.</div>
       <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
         <span id="failure-count" style="font-family:var(--mono);font-size:20px;font-weight:800;color:var(--r)">0</span>
         <span style="font-size:11px;color:var(--dim)">total failures</span>
         <span id="pending-checks" style="font-size:11px;color:var(--am);margin-left:12px"></span>
-        <button class="btn btn-sm btn-secondary" style="margin-left:auto" onclick="clearFailureLog()">&#x1F5D1; Clear Log</button>
+        <button class="btn btn-sm btn-secondary" style="margin-left:auto">🗑 Clear Log</button>
       </div>
       <div style="overflow-x:auto">
       <table>
@@ -712,7 +871,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
       </div>
     </div>
     <div class="card" style="margin-top:12px">
-      <h3>&#x1F50D; Pending Back-Checks</h3>
+      <h3>🔍 Pending Back-Checks</h3>
       <div class="desc">현재 5분 대기 중인 DM 확인 건</div>
       <div id="pending-checks-list" style="font-size:11px;color:var(--dim);padding:8px">No pending checks</div>
     </div>
@@ -725,8 +884,8 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 <div id="import-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100;display:none;align-items:center;justify-content:center">
   <div style="background:var(--card);border-radius:16px;width:90%;max-width:500px;padding:24px;box-shadow:0 16px 48px rgba(0,0,0,.15)">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <h3 style="font-size:14px;font-weight:700">&#x1F4E5; Import Creators</h3>
-      <button onclick="document.getElementById('import-modal').style.display='none'" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--dim)">&times;</button>
+      <h3 style="font-size:14px;font-weight:700">📥 Import Creators</h3>
+      <button style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--dim)">×</button>
     </div>
     <div class="desc" style="margin-bottom:12px">Paste CSV or JSON. Format: username, name, followers (one per line or JSON array)</div>
     <textarea id="import-data" rows="8" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:11px;font-family:var(--mono);resize:vertical" placeholder="momlife_tokyo, ゆき, 28400
@@ -735,42 +894,42 @@ baby_and_cafe, あいり, 15200
 or JSON:
 [{&quot;username&quot;:&quot;momlife_tokyo&quot;,&quot;name&quot;:&quot;ゆき&quot;,&quot;followers&quot;:28400}]"></textarea>
     <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
-      <button class="btn btn-secondary" onclick="document.getElementById('import-modal').style.display='none'">Cancel</button>
-      <button class="btn btn-primary" id="btn-import" onclick="importCreators()">&#x1F4E5; Import</button>
+      <button class="btn btn-secondary">Cancel</button>
+      <button class="btn btn-primary" id="btn-import">📥 Import</button>
     </div>
     <div id="import-status" style="font-size:11px;color:var(--dim);margin-top:8px"></div>
   </div>
 </div>
 
 <!-- Sheet Batch Modal -->
-<div id="sheet-batch-modal" style="display:none;pointer-events:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 0" onclick="if(event.target===this)closeSheetBatchModal()">
+<div id="sheet-batch-modal" style="display:none;pointer-events:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 0">
   <div style="background:var(--card);border-radius:16px;width:92%;max-width:680px;padding:24px;box-shadow:0 16px 48px rgba(0,0,0,.15);margin:auto">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-      <h3 style="font-size:14px;font-weight:700">&#x1F4CB; Sheet에서 Creators로 추가</h3>
-      <button onclick="closeSheetBatchModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--dim)">&times;</button>
+      <h3 style="font-size:14px;font-weight:700">📋 Sheet에서 Creators로 추가</h3>
+      <button style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--dim)">×</button>
     </div>
     <div style="font-size:11px;color:var(--dim);margin-bottom:16px">파이프라인에 없는 크리에이터를 포스트 주차별로 묶어 추가합니다.</div>
     <div id="sheet-batch-body" style="max-height:60vh;overflow-y:auto"></div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px">
       <span id="sheet-batch-status" style="font-size:11px;color:var(--dim)"></span>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-secondary" onclick="closeSheetBatchModal()">닫기</button>
-        <button class="btn btn-primary" id="btn-sheet-batch-add" onclick="confirmSheetBatchAdd()" style="background:#16a34a">&#x2705; 선택 추가</button>
+        <button class="btn btn-secondary">닫기</button>
+        <button class="btn btn-primary" id="btn-sheet-batch-add" style="background:#16a34a">✅ 선택 추가</button>
       </div>
     </div>
   </div>
 </div>
 
 <!-- DM Thread Modal -->
-<div class="dm-thread-overlay" id="dm-thread" style="display:none" onclick="if(event.target===this)closeDmThread()">
+<div class="dm-thread-overlay" id="dm-thread" style="display:none">
   <div class="dm-thread-panel">
     <div class="dm-thread-header">
       <h3><span id="thread-handle">@handle</span> <span id="thread-badge"></span></h3>
       <div style="display:flex;gap:6px;align-items:center">
-        <button id="thread-accept-btn" class="btn btn-sm btn-success" style="display:none;font-size:9px" onclick="markAcceptedFromThread()">&#x2705; Mark Accepted</button>
-        <button id="thread-decline-btn" class="btn btn-sm btn-secondary" style="display:none;font-size:9px;color:var(--r)" onclick="markDeclinedFromThread()">&#x274C; Decline</button>
-        <a id="thread-ig-link" href="#" target="_blank" class="btn btn-sm btn-secondary" style="font-size:9px">&#x1F4AC; Open IG</a>
-        <button class="dm-thread-close" onclick="closeDmThread()">&times;</button>
+        <button id="thread-accept-btn" class="btn btn-sm btn-success" style="display:none;font-size:9px">✅ Mark Accepted</button>
+        <button id="thread-decline-btn" class="btn btn-sm btn-secondary" style="display:none;font-size:9px;color:var(--r)">❌ Decline</button>
+        <a id="thread-ig-link" href="https://orbiters-dev.github.io/WJ-Test1/pipeline-dashboard-jp/#" target="_blank" class="btn btn-sm btn-secondary" style="font-size:9px">💬 Open IG</a>
+        <button class="dm-thread-close">×</button>
       </div>
     </div>
     <div class="dm-thread-body" id="thread-body">
@@ -778,11 +937,11 @@ or JSON:
     </div>
     <div class="dm-thread-input">
       <select id="thread-dir" style="padding:8px;border:1px solid var(--border);border-radius:24px;font-size:11px;font-family:inherit;background:var(--card)">
-        <option value="out">Sent &#x2192;</option>
-        <option value="in">&#x2190; Received</option>
+        <option value="out">Sent →</option>
+        <option value="in">← Received</option>
       </select>
-      <input type="text" id="thread-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendThreadDm()">
-      <button onclick="sendThreadDm()" id="thread-send-btn">Log</button>
+      <input type="text" id="thread-input" placeholder="Type a message...">
+      <button id="thread-send-btn">Log</button>
     </div>
   </div>
 </div>
@@ -2721,28 +2880,43 @@ function renderSheet() {
     html += '</td>';
     html += '</tr>';
 
-    // Expandable post details row
+    // Expandable post details row — Top 2 full cards + rest as compact table
     if (c._posts && c._posts.length > 0) {
       var rowId = 'detail-' + escapeHtml(c.username).replace(/[^a-zA-Z0-9]/g, '_');
       html += '<tr id="' + rowId + '"><td colspan="12" style="padding:4px 12px 12px;background:#f8fafc;border-left:3px solid var(--a)">';
-      c._posts.forEach(function(post, pi) {
-        html += '<div style="margin-bottom:8px;padding:8px;background:#fff;border:1px solid var(--border);border-radius:6px">';
-        html += '<div style="display:flex;gap:12px;align-items:center;margin-bottom:4px">';
-        html += '<span style="font-weight:700;font-size:10px;color:var(--a)">Post ' + (pi+1) + '</span>';
-        html += '<span style="font-size:9px;color:var(--dim)">' + (post.date || '') + '</span>';
-        html += '<span style="font-family:var(--mono);font-size:9px">\uD83D\uDC41 ' + (post.views ? Number(post.views).toLocaleString() : '0') + '</span>';
-        html += '<span style="font-family:var(--mono);font-size:9px">\u2764 ' + (post.likes ? Number(post.likes).toLocaleString() : '0') + '</span>';
-        html += '<span style="font-family:var(--mono);font-size:9px">\uD83D\uDCAC ' + (post.comments ? Number(post.comments).toLocaleString() : '0') + '</span>';
-        if (post.url) html += '<a href="' + escapeHtml(post.url) + '" target="_blank" style="font-size:9px;color:var(--a)">\uD83D\uDD17 Link</a>';
-        html += '</div>';
-        if (post.caption) html += '<div style="font-size:10px;margin:4px 0;line-height:1.4;max-height:60px;overflow:auto"><b>Caption:</b> ' + escapeHtml(post.caption.substring(0, 300)) + '</div>';
-        if (post.hashtags) html += '<div style="font-size:9px;color:var(--a);margin:2px 0"><b>Tags:</b> ' + escapeHtml(post.hashtags.substring(0, 200)) + '</div>';
-        if (post.transcript) html += '<div style="font-size:9px;color:var(--dim);margin:2px 0"><b>Transcript:</b> ' + escapeHtml(post.transcript.substring(0, 300)) + (post.transcript.length > 300 ? '...' : '') + '</div>';
+      // Sort by views desc, pick top 2
+      var sortedPosts = c._posts.slice().sort(function(a,b){ return (Number(b.views)||0)-(Number(a.views)||0); });
+      var topPosts = sortedPosts.slice(0, 2);
+      var restPosts = sortedPosts.slice(2);
+
+      // --- Helper: render full post card ---
+      function renderFullPost(post, rank) {
+        var h = '';
+        h += '<div style="margin-bottom:8px;padding:10px;background:#fff;border:1px solid var(--border);border-radius:6px">';
+        h += '<div style="display:flex;gap:12px;align-items:center;margin-bottom:4px">';
+        h += '<span style="font-weight:700;font-size:11px;color:var(--a)">\u2B50 Top ' + rank + '</span>';
+        h += '<span style="font-size:9px;color:var(--dim)">' + (post.date || '') + '</span>';
+        h += '<span style="font-family:var(--mono);font-size:9px">\uD83D\uDC41 ' + (post.views ? Number(post.views).toLocaleString() : '0') + '</span>';
+        h += '<span style="font-family:var(--mono);font-size:9px">\u2764 ' + (post.likes ? Number(post.likes).toLocaleString() : '0') + '</span>';
+        h += '<span style="font-family:var(--mono);font-size:9px">\uD83D\uDCAC ' + (post.comments ? Number(post.comments).toLocaleString() : '0') + '</span>';
+        if (post.url) h += '<a href="' + escapeHtml(post.url) + '" target="_blank" style="font-size:9px;color:var(--a)">\uD83D\uDD17 Link</a>';
+        h += '</div>';
+        // Caption + Korean translation
+        if (post.caption) {
+          h += '<div style="font-size:10px;margin:4px 0;line-height:1.4;max-height:80px;overflow:auto"><b>Caption:</b> ' + escapeHtml(post.caption.substring(0, 300)) + '</div>';
+          h += '<div style="font-size:9px;margin:2px 0;color:#6366f1;line-height:1.4;max-height:60px;overflow:auto" data-translate="caption" data-text="' + escapeHtml(post.caption.substring(0, 300)) + '"><i>\uD83C\uDDF0\uD83C\uDDF7 \uBC88\uC5ED \uB85C\uB529\uC911...</i></div>';
+        }
+        if (post.hashtags) h += '<div style="font-size:9px;color:var(--a);margin:2px 0"><b>Tags:</b> ' + escapeHtml(post.hashtags.substring(0, 200)) + '</div>';
+        // Transcript + Korean translation
+        if (post.transcript) {
+          h += '<div style="font-size:9px;color:var(--dim);margin:2px 0"><b>Transcript:</b> ' + escapeHtml(post.transcript.substring(0, 300)) + (post.transcript.length > 300 ? '...' : '') + '</div>';
+          h += '<div style="font-size:9px;margin:2px 0;color:#6366f1;line-height:1.4;max-height:60px;overflow:auto" data-translate="transcript" data-text="' + escapeHtml(post.transcript.substring(0, 300)) + '"><i>\uD83C\uDDF0\uD83C\uDDF7 \uBC88\uC5ED \uB85C\uB529\uC911...</i></div>';
+        }
         // CI Analysis card
         if (post.ci || post.brand_fit_score || post.delivery_verbal_score) {
-          html += '<div style="margin-top:6px;padding:8px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px">';
-          html += '<div style="font-size:9px;font-weight:700;color:#0284c7;margin-bottom:4px">Content Intelligence</div>';
-          html += '<div style="display:flex;gap:10px;flex-wrap:wrap;font-size:9px">';
+          h += '<div style="margin-top:6px;padding:8px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px">';
+          h += '<div style="font-size:9px;font-weight:700;color:#0284c7;margin-bottom:4px">Content Intelligence</div>';
+          h += '<div style="display:flex;gap:10px;flex-wrap:wrap;font-size:9px">';
           var scores = [
             { label: 'Delivery', val: post.delivery_verbal_score, max: 10 },
             { label: 'Brand Fit', val: post.brand_fit_score, max: 10 },
@@ -2754,21 +2928,19 @@ function renderSheet() {
             if (s.val == null) return;
             var pct = Math.round((s.val / s.max) * 100);
             var color = s.val >= 7 ? '#10b981' : s.val >= 4 ? '#f59e0b' : '#94a3b8';
-            html += '<div style="min-width:70px">';
-            html += '<div style="font-weight:600;color:var(--dim)">' + s.label + '</div>';
-            html += '<div style="display:flex;align-items:center;gap:4px">';
-            html += '<div style="flex:1;height:4px;background:#e2e8f0;border-radius:2px;overflow:hidden"><div style="width:' + pct + '%;height:100%;background:' + color + ';border-radius:2px"></div></div>';
-            html += '<span style="font-family:var(--mono);font-weight:700;color:' + color + '">' + s.val + '</span>';
-            html += '</div></div>';
+            h += '<div style="min-width:70px">';
+            h += '<div style="font-weight:600;color:var(--dim)">' + s.label + '</div>';
+            h += '<div style="display:flex;align-items:center;gap:4px">';
+            h += '<div style="flex:1;height:4px;background:#e2e8f0;border-radius:2px;overflow:hidden"><div style="width:' + pct + '%;height:100%;background:' + color + ';border-radius:2px"></div></div>';
+            h += '<span style="font-family:var(--mono);font-weight:700;color:' + color + '">' + s.val + '</span>';
+            h += '</div></div>';
           });
-          html += '</div>';
-          // Scene tags + subject age
+          h += '</div>';
           var tags = [];
           if (post.scene_fit) tags.push('Scene: ' + post.scene_fit);
           if (post.subject_age) tags.push('Age: ' + post.subject_age);
           if (post.scene_tags) tags.push(typeof post.scene_tags === 'string' ? post.scene_tags : (post.scene_tags || []).join(', '));
-          if (tags.length) html += '<div style="margin-top:4px;font-size:8px;color:var(--dim)">' + escapeHtml(tags.join(' \u00B7 ')) + '</div>';
-          // Extended CI fields
+          if (tags.length) h += '<div style="margin-top:4px;font-size:8px;color:var(--dim)">' + escapeHtml(tags.join(' \u00B7 ')) + '</div>';
           var ci = post.ci || {};
           var extras = [];
           if (ci.hook_type) extras.push('Hook: ' + ci.hook_type);
@@ -2776,11 +2948,63 @@ function renderSheet() {
           if (ci.persuasion_type) extras.push('Persuasion: ' + ci.persuasion_type);
           if (ci.demo_present) extras.push('Demo shown');
           if (ci.cta_present) extras.push('Has CTA');
-          if (extras.length) html += '<div style="margin-top:2px;font-size:8px;color:#6366f1">' + escapeHtml(extras.join(' \u00B7 ')) + '</div>';
-          html += '</div>';
+          if (extras.length) h += '<div style="margin-top:2px;font-size:8px;color:#6366f1">' + escapeHtml(extras.join(' \u00B7 ')) + '</div>';
+          h += '</div>';
         }
-        html += '</div>';
+        h += '</div>';
+        return h;
+      }
+
+      // Render Top 2 full cards
+      topPosts.forEach(function(post, idx) {
+        html += renderFullPost(post, idx + 1);
       });
+
+      // Render remaining posts as compact summary table
+      if (restPosts.length > 0) {
+        html += '<div style="margin-top:4px;padding:8px;background:#fff;border:1px solid var(--border);border-radius:6px">';
+        html += '<div style="font-size:10px;font-weight:700;color:var(--dim);margin-bottom:6px">\uD83D\uDCCB Other Posts (' + restPosts.length + ')</div>';
+        html += '<table style="width:100%;font-size:9px;border-collapse:collapse">';
+        html += '<tr style="background:#f1f5f9"><th style="padding:3px 6px;text-align:left">Date</th><th style="padding:3px 6px;text-align:right">Views</th><th style="padding:3px 6px;text-align:right">Likes</th><th style="padding:3px 6px;text-align:right">Comments</th><th style="padding:3px 6px;text-align:left">Caption</th><th style="padding:3px 6px;text-align:center">DV</th><th style="padding:3px 6px">Link</th></tr>';
+        restPosts.forEach(function(post) {
+          var capPreview = post.caption ? escapeHtml(post.caption.substring(0, 60)) + (post.caption.length > 60 ? '...' : '') : '-';
+          var dv = post.delivery_verbal_score != null ? post.delivery_verbal_score : '-';
+          var dvColor = dv >= 7 ? '#10b981' : dv >= 4 ? '#f59e0b' : 'var(--dim)';
+          html += '<tr style="border-bottom:1px solid #f1f5f9">';
+          html += '<td style="padding:3px 6px;font-family:var(--mono);white-space:nowrap">' + (post.date || '-') + '</td>';
+          html += '<td style="padding:3px 6px;text-align:right;font-family:var(--mono)">' + (post.views ? Number(post.views).toLocaleString() : '0') + '</td>';
+          html += '<td style="padding:3px 6px;text-align:right;font-family:var(--mono)">' + (post.likes ? Number(post.likes).toLocaleString() : '0') + '</td>';
+          html += '<td style="padding:3px 6px;text-align:right;font-family:var(--mono)">' + (post.comments ? Number(post.comments).toLocaleString() : '0') + '</td>';
+          html += '<td style="padding:3px 6px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escapeHtml(post.caption || '') + '">' + capPreview + '</td>';
+          html += '<td style="padding:3px 6px;text-align:center;font-weight:700;color:' + dvColor + '">' + dv + '</td>';
+          html += '<td style="padding:3px 6px">' + (post.url ? '<a href="' + escapeHtml(post.url) + '" target="_blank" style="color:var(--a)">\uD83D\uDD17</a>' : '-') + '</td>';
+          html += '</tr>';
+        });
+        html += '</table></div>';
+      }
+
+      // Lazy-translate Japanese text to Korean (client-side, best-effort)
+      setTimeout(function() {
+        document.querySelectorAll('[data-translate]').forEach(function(el) {
+          var text = el.getAttribute('data-text');
+          if (!text || text.length < 3) { el.innerHTML = ''; return; }
+          // Simple heuristic: if contains Japanese chars, show translation placeholder
+          var hasJP = /[\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]/.test(text);
+          if (!hasJP) { el.innerHTML = ''; return; }
+          // Use a free translation approach: Google Translate widget fallback
+          var decoded = el.getAttribute('data-text').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+          try {
+            var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=ja&tl=ko&dt=t&q=' + encodeURIComponent(decoded.substring(0, 300));
+            fetch(url).then(function(r){ return r.json(); }).then(function(d) {
+              if (d && d[0]) {
+                var ko = d[0].map(function(s){ return s[0]; }).join('');
+                el.innerHTML = '<span style="color:#6366f1">\uD83C\uDDF0\uD83C\uDDF7</span> ' + escapeHtml(ko);
+              } else { el.innerHTML = ''; }
+            }).catch(function(){ el.innerHTML = ''; });
+          } catch(e) { el.innerHTML = ''; }
+        });
+      }, 500);
+
       html += '</td></tr>';
     }
   });
@@ -2943,5 +3167,6 @@ function addToPipeline(handle) {
     });
 }
 </script>
-</body>
-</html>
+
+
+</body></html>
