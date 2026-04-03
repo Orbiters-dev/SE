@@ -3818,6 +3818,7 @@ function startRemoteControl(){
   _remoteInterval=setInterval(async function(){
     try{
       var r=await fetch(API_BASE+'/remote/poll/',{headers:{'Authorization':'Basic '+btoa('admin:admin')}});
+      if(!r.ok)return;
       var d=await r.json();
       if(d.commands&&d.commands.length>0){
         for(var i=0;i<d.commands.length;i++){
@@ -3825,7 +3826,7 @@ function startRemoteControl(){
         }
       }
     }catch(e){}
-  },1000);
+  },5000);
   console.log('[Remote] Listening for Claude commands...');
 }
 function executeRemoteCommand(cmd){

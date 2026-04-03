@@ -78,6 +78,9 @@ urlpatterns = [
     path("discovery/posts/<uuid:post_id>/", views.discovery_post_detail, name="discovery_post_detail"),
     path("discovery/posts/", views.discovery_posts_list, name="discovery_posts_list"),
 
+    # Remote Control (Browser ↔ Claude Agent)
+    path("remote/poll/", views.remote_poll, name="remote_poll"),
+
     # Monitoring
     path("tables/", views.list_tables, name="list_tables"),
 ]

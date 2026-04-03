@@ -1885,6 +1885,27 @@ def pipeline_conversations(request):
     return _cors_headers(request, JsonResponse({"error": "Method not allowed"}, status=405))
 
 
+# ========== REMOTE CONTROL (Browser ↔ Claude Agent) ==========
+
+_remote_commands = []  # in-memory command queue
+
+@csrf_exempt
+def remote_poll(request):
+    """GET: return pending commands and clear queue. POST: push a command."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method == 'POST':
+        body = _json_body(request)
+        _remote_commands.append(body)
+        return _cors_headers(request, JsonResponse({"ok": True, "queued": len(_remote_commands)}))
+
+    # GET: drain queue
+    cmds = list(_remote_commands)
+    _remote_commands.clear()
+    return _cors_headers(request, JsonResponse({"commands": cmds}))
+
+
 # ========== DISCOVERY POSTS ==========
 
 @csrf_exempt
