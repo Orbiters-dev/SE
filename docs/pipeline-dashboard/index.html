@@ -2748,6 +2748,32 @@ async function confirmExec(){
   }
   // Trigger n8n webhook if mapped
   else if(WEBHOOK_MAP[action]){
+    // ── DEDUP GUARD: Mark "Approved" → "Sending" BEFORE triggering webhook ──
+    // n8n Approval Send polls for status=Approved every 1 min
+    // Pre-marking as "Sending" prevents n8n polling from picking up same creators
+    if(action==='send'){
+      try{
+        showToast('Marking Approved creators as Sending...','ok');
+        var approved=await apiFetch('/pipeline/creators/?status=Approved&limit=500');
+        var apItems=approved.results||[];
+        if(apItems.length===0){
+          showToast('No Approved creators to send — nothing to do','err');
+          if(btn){btn.disabled=false;btn.textContent=meta.icon+' '+meta.title}
+          return;
+        }
+        var apIds=apItems.map(function(c){return c.id});
+        await apiFetch('/pipeline/creators/bulk-status/',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({ids:apIds,status:'Sending',only_from_status:'Approved',changed_by:_currentUser||'dashboard'})
+        });
+        showToast('Marked '+apIds.length+' creators as Sending (dedup locked)','ok');
+      }catch(e){
+        showToast('Failed to mark as Sending: '+e.message+' — aborting send','err');
+        if(btn){btn.disabled=false;btn.textContent=meta.icon+' '+meta.title}
+        return;
+      }
+    }
     fetch(WEBHOOK_MAP[action],{
       method:'POST',
       headers:{'Content-Type':'application/json'},

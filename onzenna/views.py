@@ -1217,25 +1217,80 @@ def pipeline_creators_bulk_status(request):
     if not creator_ids or not new_status:
         return _cors_headers(request, JsonResponse({"error": "ids and status required"}, status=400))
 
-    updated = 0
-    for cid in creator_ids:
-        try:
-            creator = PipelineCreator.objects.get(id=cid)
-            old_status = creator.pipeline_status
-            if old_status != new_status:
-                creator.pipeline_status = new_status
-                creator.save()
-                PipelineStatusChange.objects.create(
-                    creator_email=creator.email,
-                    from_status=old_status,
-                    to_status=new_status,
-                    changed_by=changed_by,
-                )
-                updated += 1
-        except PipelineCreator.DoesNotExist:
-            continue
+    from django.db import transaction
 
-    return _cors_headers(request, JsonResponse({"updated": updated, "total": len(creator_ids)}))
+    # Optional: only update creators currently in a specific status (race-condition guard)
+    only_from = body.get("only_from_status")  # e.g. "Draft Ready" — skip if already changed
+
+    updated = 0
+    skipped = 0
+    with transaction.atomic():
+        for cid in creator_ids:
+            try:
+                # select_for_update prevents concurrent modification
+                creator = PipelineCreator.objects.select_for_update().get(id=cid)
+                old_status = creator.pipeline_status
+
+                # Guard: if only_from_status specified, skip creators already moved past it
+                if only_from and old_status != only_from:
+                    skipped += 1
+                    continue
+
+                if old_status != new_status:
+                    creator.pipeline_status = new_status
+                    creator.save()
+                    PipelineStatusChange.objects.create(
+                        creator_email=creator.email,
+                        from_status=old_status,
+                        to_status=new_status,
+                        changed_by=changed_by,
+                    )
+                    updated += 1
+            except PipelineCreator.DoesNotExist:
+                continue
+
+    return _cors_headers(request, JsonResponse({"updated": updated, "skipped": skipped, "total": len(creator_ids)}))
+
+
+@csrf_exempt
+def pipeline_creators_claim_approved(request):
+    """Atomically fetch Approved creators and mark them as Sending.
+    Prevents duplicate sends from concurrent n8n executions (race condition guard).
+    Returns the claimed creators so n8n can process them."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method not in ('GET', 'POST'):
+        return _cors_headers(request, JsonResponse({"error": "GET or POST required"}, status=405))
+
+    from django.db import transaction
+
+    limit = int(request.GET.get("limit", 10))
+
+    with transaction.atomic():
+        creators = list(
+            PipelineCreator.objects.select_for_update()
+            .filter(pipeline_status="Approved")
+            .order_by("created_at")[:limit]
+        )
+
+        claimed = []
+        for creator in creators:
+            old_status = creator.pipeline_status
+            creator.pipeline_status = "Sending"
+            creator.save()
+            PipelineStatusChange.objects.create(
+                creator_email=creator.email,
+                from_status=old_status,
+                to_status="Sending",
+                changed_by="n8n-claim",
+            )
+            claimed.append(_serialize_creator(creator))
+
+    return _cors_headers(request, JsonResponse({
+        "results": claimed,
+        "count": len(claimed),
+    }))
 
 
 # --- Pipeline Execution Log ---
