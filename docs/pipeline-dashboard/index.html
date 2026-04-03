@@ -3946,13 +3946,18 @@ async function checkFeatureImpact(feature){
     var noEmail=creators.filter(function(c){return !c.email||c.email.includes('@discovered.')});
 
     if(feature==='rag'){
-      // RAG Email Dedup: check which emails were already contacted
+      // RAG Email Dedup: 3-account cross-check (affiliates@ + zezebaebae@ + ManyChat)
       var emails=withEmail.map(function(c){return c.email}).filter(Boolean);
       var contacted=[];
       if(emails.length>0){
         try{
           var result=await apiFetch('/gmail-rag/bulk-check/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({emails:emails})});
-          contacted=result.contacted||[];
+          // API returns {results: {email: {account, total_sent, ...}}} not {contacted: []}
+          if(result.results&&typeof result.results==='object'){
+            contacted=Object.keys(result.results);
+          }else{
+            contacted=result.contacted||[];
+          }
         }catch(e){contacted=[]}
       }
       _ftResults.rag={count:contacted.length,list:contacted};
@@ -3972,19 +3977,19 @@ async function checkFeatureImpact(feature){
       var total=creators.length;
       var realEmail=withEmail.length;
       var pendingCrawl=creators.filter(function(c){return !c.email||c.email.includes('@discovered.')}).length;
-      var APIFY_FILL_RATE=0.20; // historical ~20% success rate
+      var APIFY_FILL_RATE=0.09; // actual measured rate: 8.9% (69/776 enriched)
       var estimated=Math.round(pendingCrawl*APIFY_FILL_RATE);
       _ftResults.apify={count:pendingCrawl,found:realEmail,total:total,estimated:estimated,list:noEmail};
 
       badge.innerHTML='<span class="b c" style="font-size:10px;padding:2px 8px">'+pendingCrawl+' to crawl</span>'+
-        '<span class="b g" style="font-size:10px;padding:2px 8px;margin-left:4px">est. +'+estimated+' emails (20%)</span>';
+        '<span class="b g" style="font-size:10px;padding:2px 8px;margin-left:4px">est. +'+estimated+' emails (9%)</span>';
       if(realEmail>0)badge.innerHTML+='<span class="b a" style="font-size:10px;padding:2px 4px;margin-left:4px">'+realEmail+' already found</span>';
 
       var h='<div style="font-size:10px;padding:8px;background:var(--cbg);border-radius:6px;margin-bottom:4px">';
       h+='<div style="margin-bottom:4px"><b>'+total+'</b> total Not Started</div>';
       h+='<div style="color:var(--g)"><b>'+realEmail+'</b> already have real email</div>';
       h+='<div style="color:var(--c)"><b>'+pendingCrawl+'</b> pending Apify crawl (@discovered.syncly)</div>';
-      h+='<div style="color:var(--a);margin-top:4px">Est. <b>~'+estimated+'</b> new emails at 20% fill rate &rarr; added to eligible pool</div>';
+      h+='<div style="color:var(--a);margin-top:4px">Est. <b>~'+estimated+'</b> new emails at 9% fill rate (actual measured) &rarr; added to eligible pool</div>';
       h+='</div>';
       if(pendingCrawl>0){
         h+='<div style="font-size:9px;max-height:120px;overflow-y:auto;background:#fafbff;padding:4px;border-radius:4px;cursor:pointer" onclick="this.style.display=\'none\'">';
@@ -4129,9 +4134,9 @@ function updateFtSummary(){
   var ltWithEmail=ltFiltered.filter(_hasRealEmail).length;
   var ltPendingCrawl=ltFiltered.length-ltWithEmail;
 
-  // Stage 6: Apify estimate (20% of LT pending)
+  // Stage 6: Apify estimate (9% actual measured fill rate: 69/776 enriched)
   var apifyCheck=document.getElementById('ft-check-apify').checked;
-  var apifyEstimate=apifyCheck?Math.round(ltPendingCrawl*0.20):0;
+  var apifyEstimate=apifyCheck?Math.round(ltPendingCrawl*0.09):0;
 
   // Stage 7: RAG dedup (only count LT emails that are deduped)
   var ragCheck=document.getElementById('ft-check-rag').checked;
@@ -4156,7 +4161,7 @@ function updateFtSummary(){
     brandRemoved>0?('\u2212'+brandRemoved+' business \u2192 '+afterBrand):'',
     'HT:'+htFiltered.length+' + LT:'+ltFiltered.length,
     'LT '+ltWithEmail+' with email',
-    apifyEstimate>0?('+'+apifyEstimate+' Apify ('+ltPendingCrawl+'\u00d720%)'):'',
+    apifyEstimate>0?('+'+apifyEstimate+' Apify ('+ltPendingCrawl+'\u00d79%)'):'',
     ragCount>0?('\u2212'+ragCount+' dedup'):'',
     '\u2192 '+ltEligible+' eligible (LT only)'
   ].filter(Boolean).join(' \u2192 ');
