@@ -4109,12 +4109,6 @@ function updateFtSummary(){
   document.getElementById('ft-eligible-count').textContent=eligible;
   document.getElementById('ft-total-count').textContent=total+modeLabel;
 
-  // Update Brand Allocation to use eligible count
-  document.getElementById('f-creators-contacted').value=eligible;
-  var allocLabel=document.getElementById('alloc-batch-label');
-  if(allocLabel)allocLabel.textContent=eligible;
-  updateAllocation();
-
   // Platform breakdown (from filtered set)
   var igCount=filtered.filter(function(c){return (c.platform||'').toLowerCase()==='instagram'}).length;
   var ttCount=filtered.filter(function(c){return (c.platform||'').toLowerCase()==='tiktok'}).length;
