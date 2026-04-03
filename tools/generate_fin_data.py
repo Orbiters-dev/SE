@@ -1447,7 +1447,7 @@ def generate():
 
     # ── Amazon Attribution Data ────────────────────────────────────────────
     # Fetch Attribution report: Meta Traffic -> Amazon conversion tracking
-    def _load_attribution():
+    def _load_attribution(days_back=60):
         try:
             import requests as _req
             tok = _req.post("https://api.amazon.com/auth/o2/token", data={
@@ -1470,7 +1470,7 @@ def generate():
                 r = _req.post("https://advertising-api.amazon.com/attribution/report",
                     headers=hdrs, json={
                         "reportType": "PERFORMANCE", "count": 300,
-                        "startDate": (today - timedelta(days=60)).strftime("%Y%m%d"),
+                        "startDate": (today - timedelta(days=days_back)).strftime("%Y%m%d"),
                         "endDate": today.strftime("%Y%m%d"),
                         "groupBy": "CAMPAIGN", "cursorId": cursor,
                     }, timeout=30)
@@ -1499,10 +1499,22 @@ def generate():
             print(f"  [WARN] Attribution load failed: {e}")
             return {}
 
-    attribution = _load_attribution()
+    # Load attribution for each period (1D, 7D, 30D) — actual API data, not pro-rated
+    print("  Loading Attribution data (1D, 7D, 30D)...")
+    attribution_by_period = {}
+    for _attr_days in [1, 7, 30]:
+        _attr_key = f"{_attr_days}d"
+        attribution_by_period[_attr_key] = _load_attribution(_attr_days)
+        _at = attribution_by_period[_attr_key]
+        if _at:
+            _at_sales = sum(v["sales"] for v in _at.values())
+            print(f"    {_attr_key}: {len(_at)} campaigns, ${_at_sales:,.0f} sales")
+
+    # Use 30d as the default for injection into brand platform data
+    attribution = attribution_by_period.get("30d", {})
     if attribution:
         attr_total = {k: sum(v[k] for v in attribution.values()) for k in ["clicks", "purchases", "sales", "brb"]}
-        print(f"  Attribution: {len(attribution)} campaigns, {attr_total['clicks']:,} clicks, ${attr_total['sales']:,.0f} sales, ${attr_total['brb']:,.0f} BRB")
+        print(f"  Attribution (30d): {len(attribution)} campaigns, {attr_total['clicks']:,} clicks, ${attr_total['sales']:,.0f} sales, ${attr_total['brb']:,.0f} BRB")
 
         # Inject Attribution sales into Meta Traffic platform breakdown (Grosmimi)
         mt_gros = brand_ad_by_platform.get("Meta Traffic", {}).get("Grosmimi", {})
@@ -1526,7 +1538,9 @@ def generate():
 
     # ── Channel Traffic Breakdown (Amazon vs Onzenna) ────────────────────────
     # GA4 = Onzenna D2C traffic. Amazon = Ads clicks + Meta Traffic clicks + organic (estimated).
-    def _build_channel_traffic(ga4_rows, amz_ads_rows, meta_rows, google_rows, days, amz_sessions_data=None, amz_sales_rows=None):
+    def _build_channel_traffic(ga4_rows, amz_ads_rows, meta_rows, google_rows, days, amz_sessions_data=None, amz_sales_rows=None, attr_data=None):
+        nonlocal attribution
+        _attr = attr_data if attr_data is not None else attribution
         cutoff = (today - timedelta(days=days)).isoformat()
 
         # Onzenna (GA4 channel groupings)
@@ -1689,26 +1703,10 @@ def generate():
                     best = meta_data
             return best if best_score >= 3 else None
 
-        # Attribution data — API returns 60-day snapshot (not date-filtered).
-        # Pro-rate by Meta Traffic spend ratio for the selected period.
-        attr_full_sales = sum(v["sales"] for v in attribution.values())
-        attr_full_purchases = sum(v["purchases"] for v in attribution.values())
-        attr_full_brb = sum(v["brb"] for v in attribution.values())
-
-        # Compute 60-day Meta Traffic spend as denominator for pro-rating
-        _attr_60d_cutoff = (today - timedelta(days=60)).isoformat()
-        _meta_traffic_60d_spend = sum(
-            float(r.get("spend", 0) or 0) for r in meta_rows
-            if r.get("date", "") >= _attr_60d_cutoff
-            and (lambda cn, lu: "amazon" in cn or "amz" in cn or "amazon" in lu)(
-                (r.get("campaign_name") or "").lower(), (r.get("landing_url") or "").lower()
-            )
-        )
-        _spend_ratio = (meta_traffic["spend"] / _meta_traffic_60d_spend) if _meta_traffic_60d_spend > 0 else (1.0 if days >= 60 else days / 60.0)
-
-        attr_total_sales = attr_full_sales * _spend_ratio
-        attr_total_purchases = round(attr_full_purchases * _spend_ratio)
-        attr_total_brb = attr_full_brb * _spend_ratio
+        # Attribution data — actual API data for this period
+        attr_total_sales = sum(v["sales"] for v in _attr.values())
+        attr_total_purchases = sum(v["purchases"] for v in _attr.values())
+        attr_total_brb = sum(v["brb"] for v in _attr.values())
         meta_spend_for_attr = meta_traffic["spend"]
         attr_roas = round(attr_total_sales / meta_spend_for_attr, 1) if meta_spend_for_attr else 0
         attr_roas_adj = round((attr_total_sales + attr_total_brb) / meta_spend_for_attr, 1) if meta_spend_for_attr else 0
@@ -1718,7 +1716,7 @@ def generate():
             "brb": round(attr_total_brb),
             "roas": attr_roas,
             "roas_with_brb": attr_roas_adj,
-            "campaigns": _build_attr_campaigns(attribution, meta_traffic_by_camp),
+            "campaigns": _build_attr_campaigns(_attr, meta_traffic_by_camp),
         }
 
         def _src(name, clicks, spend, sales, purchases, pct):
@@ -1788,9 +1786,9 @@ def generate():
         }
 
     channel_traffic = {
-        "1d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 1, {}, amazon_sales),
-        "7d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 7, amz_sessions_7d, amazon_sales),
-        "30d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 30, amz_sessions_30d, amazon_sales),
+        "1d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 1, {}, amazon_sales, attr_data=attribution_by_period.get("1d", {})),
+        "7d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 7, amz_sessions_7d, amazon_sales, attr_data=attribution_by_period.get("7d", {})),
+        "30d": _build_channel_traffic(ga4, amazon_ads, meta_ads, google_ads, 30, amz_sessions_30d, amazon_sales, attr_data=attribution_by_period.get("30d", {})),
     }
     onz_30 = channel_traffic["30d"]["onzenna"]["total_sessions"]
     amz_30 = channel_traffic["30d"]["amazon"]["total_clicks"]
