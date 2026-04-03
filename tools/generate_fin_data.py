@@ -3512,29 +3512,103 @@ def generate():
         total_creators = sum(len(v) for v in content_creators_by_cat.values())
         print(f"  Content by creator: {total_creators} creator-category entries across {len(content_creators_by_cat)} categories")
 
-        # ── 7. Daily spend overlay ────────────────────────────────────────
+        # ── 7. Daily spend overlay + performance review data ──────────────
         spend_dates = sorted(set(r.get("date", "") for r in amazon_ads if r.get("date", "") >= cutoff_30d))[-30:]
+        _sd_set = set(spend_dates)
         amz_spend_daily = defaultdict(float)
+        amz_clicks_daily = defaultdict(int)
         meta_spend_daily = defaultdict(float)
+        meta_clicks_daily = defaultdict(int)
+        meta_sales_daily = defaultdict(float)
         google_spend_daily = defaultdict(float)
+        amz_total_sales_daily = defaultdict(float)
+        ga4_sessions_daily = defaultdict(int)
         for r in amazon_ads:
             d = r.get("date", "")
-            if d in spend_dates:
+            if d in _sd_set:
                 amz_spend_daily[d] += float(r.get("spend") or 0)
+                amz_clicks_daily[d] += int(r.get("clicks") or 0)
         for r in meta_ads:
             d = r.get("date", "")
-            if d in spend_dates:
+            if d in _sd_set:
                 meta_spend_daily[d] += float(r.get("spend") or 0)
+                meta_clicks_daily[d] += int(r.get("clicks") or 0)
+                meta_sales_daily[d] += float(r.get("purchase_value") or 0)
         for r in google_ads:
             d = r.get("date", "")
-            if d in spend_dates:
+            if d in _sd_set:
                 google_spend_daily[d] += float(r.get("spend") or 0)
+        for r in amazon_sales:
+            d = r.get("date", "")
+            if d in _sd_set:
+                amz_total_sales_daily[d] += float(r.get("ordered_product_sales") or r.get("gross_sales") or 0)
+        for r in ga4:
+            d = r.get("date", "")
+            if d in _sd_set:
+                ga4_sessions_daily[d] += int(r.get("sessions") or 0)
 
         spend_daily = {
             "dates": spend_dates,
             "amazon": [round(amz_spend_daily.get(d, 0)) for d in spend_dates],
             "meta": [round(meta_spend_daily.get(d, 0)) for d in spend_dates],
             "google": [round(google_spend_daily.get(d, 0)) for d in spend_dates],
+            "amz_clicks": [amz_clicks_daily.get(d, 0) for d in spend_dates],
+            "amz_total_sales": [round(amz_total_sales_daily.get(d, 0)) for d in spend_dates],
+            "meta_clicks": [meta_clicks_daily.get(d, 0) for d in spend_dates],
+            "meta_sales": [round(meta_sales_daily.get(d, 0)) for d in spend_dates],
+            "ga4_sessions": [ga4_sessions_daily.get(d, 0) for d in spend_dates],
+        }
+
+        # ── 8. Brand vs Generic keyword weekly comparison ──────────────────
+        GENERIC_KW_PATTERNS = ["straw cup", "sippy cup", "toddler cup", "baby cup",
+                               "baby bottle", "baby tumbler", "baby moisturizer",
+                               "baby body wash", "baby cream", "rice puff"]
+        all_brand_pats = []
+        for pats in _BRAND_VARIANTS_PY.values():
+            all_brand_pats.extend(pats)
+        # SQP: brand search volume (only brand queries in this dataset)
+        brand_vol_weekly = defaultdict(int)
+        for r in sqp_brand:
+            q = (r.get("search_query") or "").strip().lower()
+            w = str(r.get("week_end", ""))
+            v = int(r.get("search_query_volume") or 0)
+            if q and w and v:
+                brand_vol_weekly[w] += v
+        # Brand Analytics: avg search_frequency_rank for brand vs generic
+        brand_rank_weekly = defaultdict(lambda: {"sum": 0, "cnt": 0, "best": 999999})
+        generic_rank_weekly = defaultdict(lambda: {"sum": 0, "cnt": 0, "best": 999999})
+        generic_terms_weekly = defaultdict(set)
+        for r in brand_analytics:
+            q = (r.get("search_term") or "").strip().lower()
+            w = str(r.get("week_end") or r.get("date", ""))
+            rank = int(r.get("search_frequency_rank") or 0)
+            if not q or not w or not rank:
+                continue
+            is_brand = any(p in q for p in all_brand_pats)
+            is_generic = (not is_brand) and any(p in q for p in GENERIC_KW_PATTERNS)
+            if is_brand:
+                brand_rank_weekly[w]["sum"] += rank
+                brand_rank_weekly[w]["cnt"] += 1
+                if rank < brand_rank_weekly[w]["best"]:
+                    brand_rank_weekly[w]["best"] = rank
+            elif is_generic:
+                generic_rank_weekly[w]["sum"] += rank
+                generic_rank_weekly[w]["cnt"] += 1
+                generic_terms_weekly[w].add(q)
+                if rank < generic_rank_weekly[w]["best"]:
+                    generic_rank_weekly[w]["best"] = rank
+        kw_weeks = sorted(set(brand_vol_weekly.keys()) |
+                          set(brand_rank_weekly.keys()) |
+                          set(generic_rank_weekly.keys()))[-8:]
+        keyword_review = {
+            "weeks": kw_weeks,
+            "brand_volume": [brand_vol_weekly.get(w, 0) for w in kw_weeks],
+            "brand_terms_count": [brand_rank_weekly[w]["cnt"] for w in kw_weeks],
+            "generic_terms_count": [generic_rank_weekly[w]["cnt"] for w in kw_weeks],
+            "brand_best_rank": [brand_rank_weekly[w]["best"] if brand_rank_weekly[w]["cnt"] else 0 for w in kw_weeks],
+            "generic_best_rank": [generic_rank_weekly[w]["best"] if generic_rank_weekly[w]["cnt"] else 0 for w in kw_weeks],
+            "brand_avg_rank": [round(brand_rank_weekly[w]["sum"] / max(brand_rank_weekly[w]["cnt"], 1)) for w in kw_weeks],
+            "generic_avg_rank": [round(generic_rank_weekly[w]["sum"] / max(generic_rank_weekly[w]["cnt"], 1)) for w in kw_weeks],
         }
 
         print(f"  Hero categories: {len(categories)}, keywords: {len(keyword_table)}")
@@ -3546,6 +3620,7 @@ def generate():
             "content_lift": content_lift,
             "content_creators_by_cat": content_creators_by_cat,
             "spend_daily": spend_daily,
+            "keyword_review": keyword_review,
         }
 
     hero_data = _build_hero_products()
