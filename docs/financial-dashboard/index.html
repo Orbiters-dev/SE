@@ -151,6 +151,9 @@ td{padding:6px 8px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#f8fff
 
 <!-- ── JP Sections ──────────────────────────────────────────────────────── -->
 <div id="sec-jp-amazon" style="display:none"></div>
+<div id="sec-jp-ppc" style="display:none">
+  <iframe id="ifr-jp-ppc" src="" style="width:100%;height:90vh;border:none;border-radius:12px;background:var(--bg)"></iframe>
+</div>
 <div id="sec-jp-content" style="display:none">
   <iframe id="ifr-jp-content" src="" style="width:100%;height:90vh;border:none;border-radius:12px;background:var(--bg)"></iframe>
 </div>
@@ -204,12 +207,13 @@ var US_TABS = [
 ];
 var JP_TABS = [
   {id:'jp-amazon',   label:'Amazon JP + 라쿠텐',   sec:'sec-jp-amazon',   ifr:null,              src:null,                                            color:'#ef4444'},
+  {id:'jp-ppc',      label:'Amazon PPC',           sec:'sec-jp-ppc',      ifr:'ifr-jp-ppc',      src:'../jp-ppc-dashboard/index.html?embed=1',        color:'#f97316'},
   {id:'jp-content',  label:'Content Intelligence', sec:'sec-jp-content',  ifr:'ifr-jp-content',  src:'../content-dashboard/index.html?embed=1&region=jp',       color:'#ec4899'},
   {id:'jp-pipeline', label:'Pipeline CRM',         sec:'sec-jp-pipeline', ifr:'ifr-jp-pipeline', src:'../pipeline-dashboard-jp/index.html?embed=1',   color:'#8b5cf6'},
   {id:'jp-fin',      label:'Financial KPIs',       sec:'sec-jp-fin',      ifr:null,              src:null,                                            color:'#10b981'}
 ];
 var _allSecs = ['sec-amazon-ppc','sec-content-intel','sec-pipeline-crm','sec-fin-kpis',
-                'sec-jp-amazon','sec-jp-content','sec-jp-pipeline','sec-jp-fin'];
+                'sec-jp-amazon','sec-jp-ppc','sec-jp-content','sec-jp-pipeline','sec-jp-fin'];
 var _curRegion = 'us';
 var _curSection = {};
 
