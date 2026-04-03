@@ -515,13 +515,13 @@ function renderAutocompleteTab(F){
   h+='</div>';
   el.innerHTML=h;
 
-  // Also render into Traffic tab (5D) if available
+  // Also render full autocomplete into Traffic tab (5B)
   var trafAcEl=document.getElementById('traffic-autocomplete');
   if(trafAcEl){
-    var th='<div class="sec"><div class="sec-title"><div class="num">5B</div> Amazon Search Ranking &mdash; Daily Trend</div>';
-    th+='<div class="desc">Amazon autocomplete 인기도 점수 (0-100). 매일 2회 수집. 브랜드별 키워드 트렌드.</div>';
-    th+='<div id="ac-content-traf"></div></div>';
-    trafAcEl.innerHTML=th;
+    // Clone full content into traffic tab
+    trafAcEl.innerHTML='<div class="sec"><div class="sec-title"><div class="num" style="background:#6366f1">5B</div> Amazon Search Ranking &mdash; Daily Trend</div>'
+      +'<div class="desc">Amazon autocomplete 인기도 점수 (0-100). 매일 2회 수집. 브랜드별 키워드 트렌드.</div>'
+      +'<div id="ac-content-traf"></div></div>';
   }
 
   // Store data globally for sub-renders
