@@ -1903,7 +1903,7 @@ async function loadCreatorStats(){
 }
 
 // HIL = stages where marketer must take action for pipeline to proceed
-var HIL_LT={'Sample Sent':1};  // LT: only manual "sample shipped" click
+var HIL_LT={'Needs Review':1};  // LT: only Needs Review is human-in-loop
 var HIL_HT={'Draft Ready':1,'Sent':1,'Replied':1,'Needs Review':1,'Send Contract':1,'Sample Sent':1,'Payment Sent':1};  // HT: full manual control
 
 function buildFunnel(statusCounts,targetId,activeStatus){
@@ -1929,7 +1929,7 @@ function buildFunnel(statusCounts,targetId,activeStatus){
   }
 
   // Y-fork: Not Started (left center) → LT (top row) / HT (bottom row)
-  var LT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Reminder Sent','Posted'];
+  var LT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Accepted','Sample Shipped','Sample Delivered','Reminder Sent','Posted'];
   var HT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Send Contract','Contract Signed','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Reminder Sent','Payment Sent','Posted'];
   function _row(stages,counts,hilMap){
     var r='';
@@ -2427,40 +2427,51 @@ async function updatePreview(){
     var brands={};
     creators.forEach(function(c){var b=c.brand||'Unknown';brands[b]=(brands[b]||0)+1});
 
-    // 5. LT vs HT
-    var lt=creators.filter(function(c){return c.outreach_type!=='HT'}).length;
-    var ht=creators.filter(function(c){return c.outreach_type==='HT'}).length;
-
-    // 4. Read feature toggles
+    // Read feature toggles
     var ragEnabled=document.getElementById('f-rag-dedup')?document.getElementById('f-rag-dedup').checked:true;
     var apifyEnabled=document.getElementById('f-apify-autofill')?document.getElementById('f-apify-autofill').checked:true;
     var brandFilterEnabled=document.getElementById('f-apify-brand-filter')?document.getElementById('f-apify-brand-filter').checked:true;
+    var usOnly=document.getElementById('f-us-only')?document.getElementById('f-us-only').checked:true;
+    var htThreshold=parseInt(document.getElementById('f-ht-threshold').value)||100000;
 
-    // 5. Brand filter — exclude known brand/reseller accounts
+    // Apply US-only filter
+    var afterUS=usOnly?creators.filter(function(c){return(c.country||'').toLowerCase()==='us'||(c.country||'')===''}):creators;
+    var nonUSCount=creators.length-afterUS.length;
+
+    // Brand filter — exclude known brand/reseller accounts
     var brandFiltered=[];
     var brandFilterList=['onzenna.official','grosmimi_usa','grosmimi_japan','onzenna','chaenmom_official','naeiae_official'];
     if(brandFilterEnabled){
-      brandFiltered=creators.filter(function(c){
+      brandFiltered=afterUS.filter(function(c){
         var h=(c.ig_handle||c.tiktok_handle||'').toLowerCase().replace(/^@/,'');
         return brandFilterList.some(function(b){return h.includes(b)});
       });
     }
+    var afterBrand=afterUS.filter(function(c){return brandFiltered.indexOf(c)===-1});
 
-    // 6. Dedup list
+    // LT only — filter out HT creators for LT dashboard
+    var ltCreators=afterBrand.filter(function(c){return c.outreach_type!=='HT'});
+    var htCreators=afterBrand.filter(function(c){return c.outreach_type==='HT'});
+
+    // Email filter on LT pool
+    var withEmail=ltCreators.filter(function(c){return c.email&&!c.email.includes('@discovered.')});
+    var noEmail=ltCreators.filter(function(c){return !c.email||c.email.includes('@discovered.')});
+
+    // Dedup list
     var dedupList=[];
     if(ragEnabled&&dedupCount>0){
       try{dedupList=dedupResult.contacted||[]}catch(e){}
     }
 
-    // 7. Brand breakdown
+    // Brand breakdown (LT only)
     var brands={};
-    creators.forEach(function(c){var b=c.brand||'Unknown';brands[b]=(brands[b]||0)+1});
+    ltCreators.forEach(function(c){var b=c.brand||'Unknown';brands[b]=(brands[b]||0)+1});
 
-    // 8. LT vs HT
-    var lt=creators.filter(function(c){return c.outreach_type!=='HT'}).length;
-    var ht=creators.filter(function(c){return c.outreach_type==='HT'}).length;
+    // Platform breakdown
+    var igCount=ltCreators.filter(function(c){return(c.platform||'instagram').toLowerCase().includes('instagram')||c.ig_handle}).length;
+    var ttCount=ltCreators.filter(function(c){return(c.platform||'').toLowerCase().includes('tiktok')&&!c.ig_handle}).length;
 
-    var eligible=withEmail.length-(ragEnabled?dedupCount:0)-brandFiltered.length;
+    var eligible=withEmail.length-(ragEnabled?dedupCount:0);
 
     function expandList(id,items,max){
       max=max||50;
@@ -2478,52 +2489,82 @@ async function updatePreview(){
 
     var h='<div style="font-size:11px;line-height:2.2">';
 
+    // Filter Pipeline header
+    h+='<div style="font-size:10px;font-weight:600;color:var(--dim);margin-bottom:2px">Filter Pipeline (LT only)</div>';
+    h+='<div style="font-size:9px;color:var(--muted);font-family:var(--mono);margin-bottom:6px">';
+    h+=total+' total &rarr; &minus;'+nonUSCount+' non-US &rarr; &minus;'+brandFiltered.length+' business &rarr; '+withEmail.length+' with email &rarr; &minus;'+(ragEnabled?dedupCount:0)+' dedup';
+    h+='</div>';
+
     // Total
     h+='<div style="display:flex;align-items:center;gap:6px"><span style="width:20px">&#x1F4E5;</span><b>Total Not Started:</b> <span style="font-family:var(--mono);font-size:14px">'+total+'</span></div>';
 
+    // Non-US filter
+    if(usOnly&&nonUSCount>0){
+      h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px">';
+      h+='<span style="color:var(--r)">&#x1F30E;</span> Non-US removed: <b style="color:var(--r)">-'+nonUSCount+'</b>';
+      h+='</div>';
+    }
+
+    // Brand Filter
+    if(brandFilterEnabled){
+      h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-brand-filter')+'">';
+      h+='<span style="color:var(--r)">&#x1F6AB;</span> Brand/Business: <b style="color:var(--r)">-'+brandFiltered.length+'</b>';
+      h+='</div>';
+      h+=expandList('up-brand-filter',brandFiltered);
+    }
+
+    // HT excluded
+    h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px">';
+    h+='<span style="color:var(--p)">&#x1F451;</span> HT excluded (separate pipeline): <b style="color:var(--p)">'+htCreators.length+'</b>';
+    h+='</div>';
+
+    // LT pool
+    h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px">';
+    h+='<span style="color:var(--a)">&#x26A1;</span> LT pool: <b style="color:var(--a)">'+ltCreators.length+'</b>';
+    h+='</div>';
+
     // Email
     h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-with-email')+'">';
-    h+='<span style="color:var(--g)">&#x2705;</span> Email found: <b>'+withEmail.length+'</b>';
+    h+='<span style="color:var(--g)">&#x2705;</span> With email: <b>'+withEmail.length+'</b>';
     h+='</div>';
 
     // No email
-    h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-no-email')+'">';
-    h+='<span style="color:var(--am)">&#x26A0;&#xFE0F;</span> Missing email: <b style="color:var(--am)">'+noEmail.length+'</b>';
-    if(apifyEnabled)h+=' <span style="font-size:9px;color:var(--dim)">(Apify Autofill ON)</span>';
-    h+='</div>';
-    h+=expandList('up-no-email',noEmail);
+    if(noEmail.length>0){
+      h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-no-email')+'">';
+      h+='<span style="color:var(--am)">&#x26A0;&#xFE0F;</span> Missing email: <b style="color:var(--am)">'+noEmail.length+'</b>';
+      if(apifyEnabled)h+=' <span style="font-size:9px;color:var(--dim)">(Apify Autofill ON)</span>';
+      h+='</div>';
+      h+=expandList('up-no-email',noEmail);
+    }
 
-    // RAG Dedup
+    // RAG Dedup with account details
     if(ragEnabled){
       h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-dedup')+'">';
       h+='<span style="color:var(--p)">&#x1F50D;</span> RAG Email Dedup: <b style="color:var(--r)">-'+dedupCount+'</b> already contacted';
+      h+='</div>';
+      h+='<div style="margin-left:40px;font-size:9px;color:var(--dim);line-height:1.6">';
+      h+='Cross-check accounts:<br>';
+      h+='&nbsp;&nbsp;&#x2709; <b>affiliates@onzenna.com</b> (outreach sender)<br>';
+      h+='&nbsp;&nbsp;&#x2709; <b>hello@zezebaebae.com</b> (test sender)<br>';
+      h+='&nbsp;&nbsp;&#x1F4AC; ManyChat DM history<br>';
+      h+='&nbsp;&nbsp;&#x1F4F7; Syncly Discovery IG handles';
       h+='</div>';
       h+=expandList('up-dedup',dedupList);
     }else{
       h+='<div style="margin-left:20px;color:var(--muted);font-size:10px">&#x1F50D; RAG Dedup: OFF</div>';
     }
 
-    // Brand Filter
-    if(brandFilterEnabled){
-      h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-brand-filter')+'">';
-      h+='<span style="color:var(--r)">&#x1F6AB;</span> Brand Filter: <b style="color:var(--r)">-'+brandFiltered.length+'</b> brand/reseller accounts';
-      h+='</div>';
-      h+=expandList('up-brand-filter',brandFiltered);
-    }else{
-      h+='<div style="margin-left:20px;color:var(--muted);font-size:10px">&#x1F6AB; Brand Filter: OFF</div>';
-    }
-
     // Divider
     h+='<hr style="border:none;border-top:2px solid var(--g);margin:8px 0">';
 
-    // Eligible
-    h+='<div style="display:flex;align-items:center;gap:6px"><span style="width:20px">&#x2709;&#xFE0F;</span><b>Eligible to send:</b> <span style="font-family:var(--mono);font-size:18px;color:var(--g);font-weight:800">'+eligible+'</span></div>';
+    // Eligible (LT only)
+    h+='<div style="display:flex;align-items:center;gap:6px"><span style="width:20px">&#x2709;&#xFE0F;</span><b>LT Eligible to send:</b> <span style="font-family:var(--mono);font-size:18px;color:var(--g);font-weight:800">'+eligible+'</span></div>';
     h+='<div style="margin-left:26px;font-size:10px;color:var(--dim)">';
-    h+='LT (&lt;100K): <b>'+lt+'</b> | HT (&ge;100K): <b>'+ht+'</b>';
+    h+='IG: <b>'+igCount+'</b> | TT: <b>'+ttCount+'</b>';
     h+='</div>';
 
-    // Brand breakdown
-    h+='<div style="margin-top:8px"><b>By Brand:</b></div>';
+    // Brand breakdown (LT only)
+    h+='<div style="margin-top:8px"><b>LT By Brand:</b></div>';
     h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">';
     for(var b in brands){
       var color=b==='Grosmimi'?'var(--g)':b==='CHA&MOM'||b==='cha&mom'?'var(--c)':b==='Naeiae'?'var(--am)':'var(--dim)';
