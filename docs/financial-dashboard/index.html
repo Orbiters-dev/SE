@@ -515,14 +515,7 @@ function renderAutocompleteTab(F){
   h+='</div>';
   el.innerHTML=h;
 
-  // Also render full autocomplete into Traffic tab (5B)
-  var trafAcEl=document.getElementById('traffic-autocomplete');
-  if(trafAcEl){
-    // Clone full content into traffic tab
-    trafAcEl.innerHTML='<div class="sec"><div class="sec-title"><div class="num" style="background:#6366f1">5B</div> Amazon Search Ranking &mdash; Daily Trend</div>'
-      +'<div class="desc">Amazon autocomplete 인기도 점수 (0-100). 매일 2회 수집. 브랜드별 키워드 트렌드.</div>'
-      +'<div id="ac-content-traf"></div></div>';
-  }
+
 
   // Store data globally for sub-renders
   window._acData={latest:latest,trends:trends,dates:dates,brandColors:brandColors,kwColors:kwColors};
@@ -705,9 +698,6 @@ function renderAcContent(){
   }
 
   el.innerHTML=h;
-  // Mirror into Traffic tab (5D)
-  var trafEl=document.getElementById('ac-content-traf');
-  if(trafEl) trafEl.innerHTML=h;
 }
 
 // ── JP Render Helpers ────────────────────────────────────────────────────────
@@ -1347,8 +1337,36 @@ function renderFinancial(){
     }
   })();
 
-  // ── 5B: Search Ranking / Autocomplete — embedded from tab 8 ──────────
-  traf+='<div id="traffic-autocomplete" style="margin-top:16px"></div>';
+  // ── 5B: Search Ranking / Autocomplete — static table from latest data ──
+  (function(){
+    var ac=F.autocomplete||{};
+    var latest=ac.latest||{};
+    var brands=Object.keys(latest);
+    if(!brands.length) return;
+    traf+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num" style="background:#6366f1">5B</div> Amazon Search Ranking &mdash; Latest Scores</div>';
+    traf+='<div class="desc">Amazon autocomplete 인기도 점수 (0-100). 매일 2회 수집.</div>';
+    var brandColors={'Grosmimi':'#8b5cf6','Naeiae':'#f59e0b','CHA&MOM':'#ef4444','Onzenna':'#10b981'};
+    brands.forEach(function(brand){
+      var usItems=(latest[brand]||{}).US||[];
+      if(!usItems.length) return;
+      usItems.sort(function(a,b){return b.score-a.score;});
+      var color=brandColors[brand]||'#64748b';
+      traf+='<div class="card" style="margin-bottom:8px"><h3 style="color:'+color+';margin-bottom:6px">'+brand+' 🇺🇸</h3>';
+      traf+='<table><thead><tr><th>Keyword</th><th style="text-align:right">Score</th><th style="text-align:center">Position</th></tr></thead><tbody>';
+      usItems.forEach(function(r){
+        var posLabel=r.position>=0?'#'+(r.position+1):'—';
+        var scoreColor=r.score>=60?'#10b981':r.score>=30?'#f59e0b':'#ef4444';
+        var barW=Math.max(2,r.score);
+        traf+='<tr>';
+        traf+='<td style="font-weight:600;font-size:11px">'+r.keyword+'</td>';
+        traf+='<td style="text-align:right;font-family:var(--mono);font-size:11px"><span style="display:inline-block;width:'+barW+'px;height:8px;background:'+scoreColor+';border-radius:3px;margin-right:6px;vertical-align:middle"></span><b>'+r.score+'</b></td>';
+        traf+='<td style="text-align:center;font-family:var(--mono);font-size:11px">'+posLabel+'</td>';
+        traf+='</tr>';
+      });
+      traf+='</tbody></table></div>';
+    });
+    traf+='</div>';
+  })();
 
   // ── 5C: GSC Top Queries (30D) ──────────────────────────────────────────
   var gscQ=F.gsc_queries||[];
