@@ -2408,64 +2408,53 @@ async function updatePreview(){
   card.style.display='block';
   el.innerHTML='<div style="color:var(--dim);padding:10px">Loading preview...</div>';
   try{
-    // 1. Total Not Started
-    var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=1');
-    var total=data.total||0;
-
-    // 2. With email vs without
-    var allNS=await apiFetch('/pipeline/creators/?status=Not+Started&limit=5000');
-    var creators=allNS.results||[];
-    var withEmail=creators.filter(function(c){return c.email&&!c.email.includes('@discovered.')});
-    var noEmail=creators.filter(function(c){return !c.email||c.email.includes('@discovered.')});
-
-    // 3. RAG Email Dedup
-    var dedupCount=0;
-    try{
-      var emails=withEmail.map(function(c){return c.email}).filter(Boolean);
-      if(emails.length>0){
-        var dedupResult=await apiFetch('/gmail-rag/bulk-check/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({emails:emails})});
-        dedupCount=(dedupResult.contacted||[]).length;
+    // Use Feature Toggle cache if available (already filtered), otherwise fetch fresh
+    var creators=_ftCache;
+    if(!creators||creators.length===0){
+      creators=[];
+      var page=1;var hasMore=true;
+      while(hasMore){
+        var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=500&page='+page);
+        var items=data.results||[];
+        creators=creators.concat(items);
+        hasMore=items.length===500;
+        page++;
+        if(creators.length>=15000)break;
       }
-    }catch(e){}
-
-    // 4. Brand breakdown
-    var brands={};
-    creators.forEach(function(c){var b=c.brand||'Unknown';brands[b]=(brands[b]||0)+1});
-
-    // 5. LT vs HT
-    var lt=creators.filter(function(c){return c.outreach_type!=='HT'}).length;
-    var ht=creators.filter(function(c){return c.outreach_type==='HT'}).length;
-
-    // 4. Read feature toggles
-    var ragEnabled=document.getElementById('f-rag-dedup')?document.getElementById('f-rag-dedup').checked:true;
-    var apifyEnabled=document.getElementById('f-apify-autofill')?document.getElementById('f-apify-autofill').checked:true;
-    var brandFilterEnabled=document.getElementById('f-apify-brand-filter')?document.getElementById('f-apify-brand-filter').checked:true;
-
-    // 5. Brand filter — exclude known brand/reseller accounts
-    var brandFiltered=[];
-    var brandFilterList=['onzenna.official','grosmimi_usa','grosmimi_japan','onzenna','chaenmom_official','naeiae_official'];
-    if(brandFilterEnabled){
-      brandFiltered=creators.filter(function(c){
-        var h=(c.ig_handle||c.tiktok_handle||'').toLowerCase().replace(/^@/,'');
-        return brandFilterList.some(function(b){return h.includes(b)});
-      });
     }
+    var total=creators.length;
 
-    // 6. Dedup list
+    // Split by real email
+    var withEmail=creators.filter(_hasRealEmail);
+    var noEmail=creators.filter(function(c){return !_hasRealEmail(c)});
+
+    // Split HT / LT
+    var htAll=creators.filter(function(c){return c.outreach_type==='HT'});
+    var ltAll=creators.filter(function(c){return c.outreach_type!=='HT'});
+    var ltWithEmail=ltAll.filter(_hasRealEmail);
+    var ltNoEmail=ltAll.length-ltWithEmail.length;
+
+    // RAG Dedup — check LT real emails only
+    var ltDeduped=0;
     var dedupList=[];
-    if(ragEnabled&&dedupCount>0){
-      try{dedupList=dedupResult.contacted||[]}catch(e){}
+    var ltEmails=ltWithEmail.map(function(c){return c.email}).filter(Boolean);
+    if(ltEmails.length>0){
+      try{
+        var dedupResult=await apiFetch('/gmail-rag/bulk-check/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({emails:ltEmails})});
+        if(dedupResult.results&&typeof dedupResult.results==='object'){
+          dedupList=Object.keys(dedupResult.results).filter(function(e){return dedupResult.results[e]!==null});
+          ltDeduped=dedupList.length;
+        }
+      }catch(e){}
     }
 
-    // 7. Brand breakdown
+    // Eligible = LT with real email minus already contacted
+    var eligible=ltWithEmail.length-ltDeduped;
+    if(eligible<0)eligible=0;
+
+    // Brand breakdown (from LT with real email, not deduped)
     var brands={};
-    creators.forEach(function(c){var b=c.brand||'Unknown';brands[b]=(brands[b]||0)+1});
-
-    // 8. LT vs HT
-    var lt=creators.filter(function(c){return c.outreach_type!=='HT'}).length;
-    var ht=creators.filter(function(c){return c.outreach_type==='HT'}).length;
-
-    var eligible=withEmail.length-(ragEnabled?dedupCount:0)-brandFiltered.length;
+    ltWithEmail.forEach(function(c){var b=c.brand||'Unknown';brands[b]=(brands[b]||0)+1});
 
     function expandList(id,items,max){
       max=max||50;
@@ -2486,49 +2475,34 @@ async function updatePreview(){
     // Total
     h+='<div style="display:flex;align-items:center;gap:6px"><span style="width:20px">&#x1F4E5;</span><b>Total Not Started:</b> <span style="font-family:var(--mono);font-size:14px">'+total+'</span></div>';
 
-    // Email
-    h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-with-email')+'">';
-    h+='<span style="color:var(--g)">&#x2705;</span> Email found: <b>'+withEmail.length+'</b>';
+    // HT / LT split
+    h+='<div style="margin-left:20px;font-size:10px;color:var(--dim)">HT: '+htAll.length+' | LT: '+ltAll.length+'</div>';
+
+    // LT with email
+    h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px">';
+    h+='<span style="color:var(--g)">&#x2705;</span> LT with real email: <b>'+ltWithEmail.length+'</b>';
     h+='</div>';
 
-    // No email
+    // LT no email
     h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-no-email')+'">';
-    h+='<span style="color:var(--am)">&#x26A0;&#xFE0F;</span> Missing email: <b style="color:var(--am)">'+noEmail.length+'</b>';
-    if(apifyEnabled)h+=' <span style="font-size:9px;color:var(--dim)">(Apify Autofill ON)</span>';
+    h+='<span style="color:var(--am)">&#x26A0;&#xFE0F;</span> LT no email: <b style="color:var(--am)">'+ltNoEmail+'</b> <span style="font-size:9px;color:var(--dim)">(@discovered.syncly placeholder)</span>';
     h+='</div>';
-    h+=expandList('up-no-email',noEmail);
 
     // RAG Dedup
-    if(ragEnabled){
-      h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-dedup')+'">';
-      h+='<span style="color:var(--p)">&#x1F50D;</span> RAG Email Dedup: <b style="color:var(--r)">-'+dedupCount+'</b> already contacted';
-      h+='</div>';
-      h+=expandList('up-dedup',dedupList);
-    }else{
-      h+='<div style="margin-left:20px;color:var(--muted);font-size:10px">&#x1F50D; RAG Dedup: OFF</div>';
-    }
-
-    // Brand Filter
-    if(brandFilterEnabled){
-      h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-brand-filter')+'">';
-      h+='<span style="color:var(--r)">&#x1F6AB;</span> Brand Filter: <b style="color:var(--r)">-'+brandFiltered.length+'</b> brand/reseller accounts';
-      h+='</div>';
-      h+=expandList('up-brand-filter',brandFiltered);
-    }else{
-      h+='<div style="margin-left:20px;color:var(--muted);font-size:10px">&#x1F6AB; Brand Filter: OFF</div>';
-    }
+    h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-dedup')+'">';
+    h+='<span style="color:var(--p)">&#x1F50D;</span> Already contacted: <b style="color:var(--r)">-'+ltDeduped+'</b>';
+    h+='</div>';
+    h+=expandList('up-dedup',dedupList);
 
     // Divider
     h+='<hr style="border:none;border-top:2px solid var(--g);margin:8px 0">';
 
     // Eligible
     h+='<div style="display:flex;align-items:center;gap:6px"><span style="width:20px">&#x2709;&#xFE0F;</span><b>Eligible to send:</b> <span style="font-family:var(--mono);font-size:18px;color:var(--g);font-weight:800">'+eligible+'</span></div>';
-    h+='<div style="margin-left:26px;font-size:10px;color:var(--dim)">';
-    h+='LT (&lt;100K): <b>'+lt+'</b> | HT (&ge;100K): <b>'+ht+'</b>';
-    h+='</div>';
+    h+='<div style="margin-left:26px;font-size:10px;color:var(--dim)">LT with real email ('+ltWithEmail.length+') minus already contacted ('+ltDeduped+')</div>';
 
-    // Brand breakdown
-    h+='<div style="margin-top:8px"><b>By Brand:</b></div>';
+    // Brand breakdown (eligible LT)
+    h+='<div style="margin-top:8px"><b>By Brand (LT with email):</b></div>';
     h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">';
     for(var b in brands){
       var color=b==='Grosmimi'?'var(--g)':b==='CHA&MOM'||b==='cha&mom'?'var(--c)':b==='Naeiae'?'var(--am)':'var(--dim)';
@@ -4159,23 +4133,21 @@ function updateFtSummary(){
   var htFiltered=pool.filter(function(c){return c.outreach_type==='HT'});
   var ltFiltered=pool.filter(function(c){return c.outreach_type!=='HT'});
 
-  // Stage 5: LT email stats
+  // Stage 5: LT email stats (actual DB values, no estimation)
   var ltWithEmail=ltFiltered.filter(_hasRealEmail).length;
-  var ltPendingCrawl=ltFiltered.length-ltWithEmail;
+  var ltNoEmail=ltFiltered.length-ltWithEmail;
 
-  // Stage 6: Apify estimate (9% actual measured fill rate: 69/776 enriched)
-  var apifyCheck=document.getElementById('ft-check-apify').checked;
-  var apifyEstimate=apifyCheck?Math.round(ltPendingCrawl*0.09):0;
-
-  // Stage 7: RAG dedup (only count LT emails that are deduped)
+  // Stage 6: RAG dedup — count only LT emails that are already contacted
   var ragCheck=document.getElementById('ft-check-rag').checked;
-  var ragCount=0;
-  if(ragCheck&&_ftResults.rag){
-    ragCount=_ftResults.rag.count||0;
+  var ltRagDedup=0;
+  if(ragCheck&&_ftResults.rag&&_ftResults.rag.list){
+    // Intersect RAG contacted list with LT real emails only
+    var ltEmails=new Set(ltFiltered.filter(_hasRealEmail).map(function(c){return c.email.toLowerCase()}));
+    ltRagDedup=_ftResults.rag.list.filter(function(e){return ltEmails.has(e.toLowerCase())}).length;
   }
 
-  // Final: LT eligible
-  var ltEligible=ltWithEmail+apifyEstimate-ragCount;
+  // Final: LT eligible = LT with real email minus those already contacted
+  var ltEligible=ltWithEmail-ltRagDedup;
   if(ltEligible<0)ltEligible=0;
 
   // Platform breakdown (from filtered LT)
@@ -4189,9 +4161,8 @@ function updateFtSummary(){
     usRemoved>0?('\u2212'+usRemoved+' non-US \u2192 '+afterUs):'',
     brandRemoved>0?('\u2212'+brandRemoved+' business \u2192 '+afterBrand):'',
     'HT:'+htFiltered.length+' + LT:'+ltFiltered.length,
-    'LT '+ltWithEmail+' with email',
-    apifyEstimate>0?('+'+apifyEstimate+' Apify ('+ltPendingCrawl+'\u00d79%)'):'',
-    ragCount>0?('\u2212'+ragCount+' dedup'):'',
+    'LT '+ltWithEmail+' with email ('+ltNoEmail+' no email)',
+    ltRagDedup>0?('\u2212'+ltRagDedup+' already contacted'):'',
     '\u2192 '+ltEligible+' eligible (LT only)'
   ].filter(Boolean).join(' \u2192 ');
 
