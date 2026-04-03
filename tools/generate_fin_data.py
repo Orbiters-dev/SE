@@ -1689,10 +1689,26 @@ def generate():
                     best = meta_data
             return best if best_score >= 3 else None
 
-        # Attribution data (all-time from API, not date-filtered — snapshot)
-        attr_total_sales = sum(v["sales"] for v in attribution.values())
-        attr_total_purchases = sum(v["purchases"] for v in attribution.values())
-        attr_total_brb = sum(v["brb"] for v in attribution.values())
+        # Attribution data — API returns 60-day snapshot (not date-filtered).
+        # Pro-rate by Meta Traffic spend ratio for the selected period.
+        attr_full_sales = sum(v["sales"] for v in attribution.values())
+        attr_full_purchases = sum(v["purchases"] for v in attribution.values())
+        attr_full_brb = sum(v["brb"] for v in attribution.values())
+
+        # Compute 60-day Meta Traffic spend as denominator for pro-rating
+        _attr_60d_cutoff = (today - timedelta(days=60)).isoformat()
+        _meta_traffic_60d_spend = sum(
+            float(r.get("spend", 0) or 0) for r in meta_rows
+            if r.get("date", "") >= _attr_60d_cutoff
+            and (lambda cn, lu: "amazon" in cn or "amz" in cn or "amazon" in lu)(
+                (r.get("campaign_name") or "").lower(), (r.get("landing_url") or "").lower()
+            )
+        )
+        _spend_ratio = (meta_traffic["spend"] / _meta_traffic_60d_spend) if _meta_traffic_60d_spend > 0 else (1.0 if days >= 60 else days / 60.0)
+
+        attr_total_sales = attr_full_sales * _spend_ratio
+        attr_total_purchases = round(attr_full_purchases * _spend_ratio)
+        attr_total_brb = attr_full_brb * _spend_ratio
         meta_spend_for_attr = meta_traffic["spend"]
         attr_roas = round(attr_total_sales / meta_spend_for_attr, 1) if meta_spend_for_attr else 0
         attr_roas_adj = round((attr_total_sales + attr_total_brb) / meta_spend_for_attr, 1) if meta_spend_for_attr else 0

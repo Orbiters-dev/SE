@@ -515,6 +515,15 @@ function renderAutocompleteTab(F){
   h+='</div>';
   el.innerHTML=h;
 
+  // Also render into Traffic tab (5D) if available
+  var trafAcEl=document.getElementById('traffic-autocomplete');
+  if(trafAcEl){
+    var th='<div class="sec"><div class="sec-title"><div class="num">5D</div> Amazon Search Ranking &mdash; Daily Trend</div>';
+    th+='<div class="desc">Amazon autocomplete 인기도 점수 (0-100). 매일 2회 수집. 브랜드별 키워드 트렌드.</div>';
+    th+='<div id="ac-content-traf"></div></div>';
+    trafAcEl.innerHTML=th;
+  }
+
   // Store data globally for sub-renders
   window._acData={latest:latest,trends:trends,dates:dates,brandColors:brandColors,kwColors:kwColors};
   renderAcContent();
@@ -696,6 +705,9 @@ function renderAcContent(){
   }
 
   el.innerHTML=h;
+  // Mirror into Traffic tab (5D)
+  var trafEl=document.getElementById('ac-content-traf');
+  if(trafEl) trafEl.innerHTML=h;
 }
 
 // ── JP Render Helpers ────────────────────────────────────────────────────────
@@ -1293,6 +1305,47 @@ function renderFinancial(){
     traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+t.conv_rate.toFixed(2)+'%</td></tr>';
   });
   traf+='</tbody></table></div></div></div>';
+
+  // ── 5B: GSC Top Queries (30D) ──────────────────────────────────────────
+  var gscQ=F.gsc_queries||[];
+  if(gscQ.length){
+    traf+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num">5B</div> Google Search Console &mdash; Top Queries (30D)</div>';
+    traf+='<div class="card"><table><thead><tr><th>#</th><th>Query</th><th style="text-align:right">Clicks</th><th style="text-align:right">Impressions</th><th style="text-align:right">CTR</th><th style="text-align:center">Position</th></tr></thead><tbody>';
+    gscQ.forEach(function(q,i){
+      traf+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+      traf+='<td style="font-size:10px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+q.query+'">'+q.query+'</td>';
+      traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(q.clicks)+'</td>';
+      traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(q.impressions)+'</td>';
+      traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+q.ctr.toFixed(1)+'%</td>';
+      traf+='<td style="text-align:center">'+posBadge(q.position)+'</td>';
+      traf+='</tr>';
+    });
+    traf+='</tbody></table></div></div>';
+  }
+
+  // ── 5C: Branded Keyword Search Volume (Google) ──────────────────────────
+  var kwVols=F.keyword_volumes||[];
+  if(kwVols.length){
+    var topKws=kwVols.sort(function(a,b){return (b.search_volume||0)-(a.search_volume||0);}).slice(0,15);
+    traf+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num">5C</div> Brand Search Volume &mdash; TOP 15 Branded Keywords (Google)</div>';
+    traf+='<div class="card"><table><thead><tr><th>#</th><th>Keyword</th><th style="text-align:right">Search Vol</th><th style="text-align:right">GSC Impr</th><th style="text-align:right">GSC Clicks</th><th style="text-align:right">GAds Impr</th><th style="text-align:right">GAds Clicks</th></tr></thead><tbody>';
+    topKws.forEach(function(k,i){
+      var volColor=(k.search_volume||0)>=3000?'#10b981':(k.search_volume||0)>=500?'#f59e0b':'#ef4444';
+      traf+='<tr>';
+      traf+='<td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+      traf+='<td style="font-size:10px;font-weight:600">'+k.keyword+'</td>';
+      traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700;color:'+volColor+'">'+num(k.search_volume||0)+'</td>';
+      traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.gsc_impressions||0)+'</td>';
+      traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.gsc_clicks||0)+'</td>';
+      traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.gads_impressions||0)+'</td>';
+      traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(k.gads_clicks||0)+'</td>';
+      traf+='</tr>';
+    });
+    traf+='</tbody></table></div></div>';
+  }
+
+  // ── 5D: Search Ranking (Autocomplete) — embedded from tab 8 ──────────
+  traf+='<div id="traffic-autocomplete" style="margin-top:16px"></div>';
 
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 6: EMAIL MARKETING (Klaviyo) — with 7D / 30D period switcher
