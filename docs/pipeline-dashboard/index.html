@@ -4063,57 +4063,83 @@ async function checkAllFeatures(){
   await checkFeatureImpact('rag');
 }
 
+function _hasRealEmail(c){return c.email&&!c.email.toLowerCase().endsWith('@discovered.syncly')}
+
 function updateFtSummary(){
   if(!_ftCache)return;
-  var all=_ftCache;
-  var totalAll=all.length;
 
-  // Split by type
-  var htAll=all.filter(function(c){return c.outreach_type==='HT'});
-  var ltAll=all.filter(function(c){return c.outreach_type!=='HT'});
-  var htCount=htAll.length;
-  var ltCount=ltAll.length;
+  // Stage 1: Start with full batch
+  var pool=_ftCache.slice();
+  var totalAll=pool.length;
 
-  // Email counts on full set
-  var allWithEmail=all.filter(function(c){return c.email&&!c.email.includes('@discovered.')}).length;
-  var ltWithEmail=ltAll.filter(function(c){return c.email&&!c.email.includes('@discovered.')}).length;
-  var ltPendingCrawl=ltCount-ltWithEmail;
-
-  // Filter counts (from check results — these are on the full set)
+  // Stage 2: Apply US filter (remove non-US)
   var usCheck=document.getElementById('ft-check-us').checked;
-  var ragCheck=document.getElementById('ft-check-rag').checked;
-  var apifyCheck=document.getElementById('ft-check-apify').checked;
-  var brandCheck=document.getElementById('ft-check-brand').checked;
+  var usRemoved=0;
+  if(usCheck&&_ftResults.us&&_ftResults.us.list){
+    var nonUsHandles=new Set(_ftResults.us.list.map(function(h){return h.toLowerCase()}));
+    var before=pool.length;
+    pool=pool.filter(function(c){
+      var h=(c.ig_handle||c.tiktok_handle||'').toLowerCase();
+      return !nonUsHandles.has(h);
+    });
+    usRemoved=before-pool.length;
+  }
+  var afterUs=pool.length;
 
-  var usNonCount=usCheck&&_ftResults.us?_ftResults.us.count:0;
-  var brandCount=brandCheck&&_ftResults.brand?_ftResults.brand.count:0;
-  var ragCount=ragCheck&&_ftResults.rag?_ftResults.rag.count:0;
-  var apifyEstimate=0;
-  if(apifyCheck&&ltPendingCrawl>0){
-    apifyEstimate=Math.round(ltPendingCrawl*0.20);
+  // Stage 3: Apply business account filter
+  var brandCheck=document.getElementById('ft-check-brand').checked;
+  var brandRemoved=0;
+  if(brandCheck&&_ftResults.brand&&_ftResults.brand.list){
+    var bizHandles=new Set(_ftResults.brand.list.map(function(h){return h.toLowerCase()}));
+    var before=pool.length;
+    pool=pool.filter(function(c){
+      var h=(c.ig_handle||c.tiktok_handle||'').toLowerCase();
+      return !bizHandles.has(h);
+    });
+    brandRemoved=before-pool.length;
+  }
+  var afterBrand=pool.length;
+
+  // Stage 4: Split HT / LT from filtered pool
+  var htFiltered=pool.filter(function(c){return c.outreach_type==='HT'});
+  var ltFiltered=pool.filter(function(c){return c.outreach_type!=='HT'});
+
+  // Stage 5: LT email stats
+  var ltWithEmail=ltFiltered.filter(_hasRealEmail).length;
+  var ltPendingCrawl=ltFiltered.length-ltWithEmail;
+
+  // Stage 6: Apify estimate (20% of LT pending)
+  var apifyCheck=document.getElementById('ft-check-apify').checked;
+  var apifyEstimate=apifyCheck?Math.round(ltPendingCrawl*0.20):0;
+
+  // Stage 7: RAG dedup (only count LT emails that are deduped)
+  var ragCheck=document.getElementById('ft-check-rag').checked;
+  var ragCount=0;
+  if(ragCheck&&_ftResults.rag){
+    ragCount=_ftResults.rag.count||0;
   }
 
-  // LT eligible = LT with real email + Apify estimate for LT pending − dedup
+  // Final: LT eligible
   var ltEligible=ltWithEmail+apifyEstimate-ragCount;
   if(ltEligible<0)ltEligible=0;
 
-  // Platform breakdown (LT only)
-  var ltIg=ltAll.filter(function(c){return (c.platform||'').toLowerCase()==='instagram'}).length;
-  var ltTt=ltAll.filter(function(c){return (c.platform||'').toLowerCase()==='tiktok'}).length;
+  // Platform breakdown (from filtered LT)
+  var ltIg=ltFiltered.filter(function(c){return (c.platform||'').toLowerCase()==='instagram'}).length;
+  var ltTt=ltFiltered.filter(function(c){return (c.platform||'').toLowerCase()==='tiktok'}).length;
 
   // Build flow display
   var flowEl=document.getElementById('ft-pipeline-flow');
-  flowEl.textContent='';
-  var parts=[];
-  parts.push(totalAll+' total (HT:'+htCount+' + LT:'+ltCount+')');
-  if(usCheck&&usNonCount>0)parts.push('\u2212'+usNonCount+' non-US');
-  if(brandCheck&&brandCount>0)parts.push('\u2212'+brandCount+' business');
-  if(ragCheck&&ragCount>0)parts.push('\u2212'+ragCount+' dedup');
-  parts.push('LT: '+ltWithEmail+' with email');
-  if(apifyCheck&&apifyEstimate>0)parts.push('+'+apifyEstimate+' Apify ('+ltPendingCrawl+'\u00d720%)');
-  flowEl.textContent=parts.join(' \u2192 ');
+  flowEl.textContent=[
+    totalAll+' total',
+    usRemoved>0?('\u2212'+usRemoved+' non-US \u2192 '+afterUs):'',
+    brandRemoved>0?('\u2212'+brandRemoved+' business \u2192 '+afterBrand):'',
+    'HT:'+htFiltered.length+' + LT:'+ltFiltered.length,
+    'LT '+ltWithEmail+' with email',
+    apifyEstimate>0?('+'+apifyEstimate+' Apify ('+ltPendingCrawl+'\u00d720%)'):'',
+    ragCount>0?('\u2212'+ragCount+' dedup'):'',
+    '\u2192 '+ltEligible+' eligible (LT only)'
+  ].filter(Boolean).join(' \u2192 ');
 
-  // Eligible = LT only
   document.getElementById('ft-eligible-count').textContent=ltEligible;
   document.getElementById('ft-total-count').textContent=totalAll;
 
@@ -4126,15 +4152,14 @@ function updateFtSummary(){
     document.getElementById('ft-pipeline-summary').appendChild(breakdownEl);
   }
   breakdownEl.textContent='';
-  var items=[
-    {label:'HT',val:htCount,color:'#ef4444'},
-    {label:'LT',val:ltCount,color:'#3b82f6'},
+  [
+    {label:'HT',val:htFiltered.length,color:'#ef4444'},
+    {label:'LT',val:ltFiltered.length,color:'#3b82f6'},
     {label:'IG',val:ltIg,color:'#e1306c'},
     {label:'TT',val:ltTt,color:'#000'},
-    {label:'LT with email',val:ltWithEmail,color:'var(--g)'},
-    {label:'LT pending crawl',val:ltPendingCrawl,color:'var(--am)'}
-  ];
-  items.forEach(function(it){
+    {label:'LT email',val:ltWithEmail,color:'var(--g)'},
+    {label:'LT pending',val:ltPendingCrawl,color:'var(--am)'}
+  ].forEach(function(it){
     var sp=document.createElement('span');
     sp.style.cssText='font-weight:600';
     sp.textContent=it.label+': '+it.val;
