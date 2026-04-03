@@ -581,7 +581,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
             <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('rag')" id="ft-btn-rag" style="font-size:10px">&#x1F50D; Check</button>
             <span id="ft-badge-rag"></span>
           </div>
-          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Final gate &#x2014; removes anyone already contacted, even if Apify just found their email</div>
+          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">3-account cross-check: <b>affiliates@onzenna.com</b> + <b>hello@zezebaebae.com</b> + <b>ManyChat DM</b></div>
           <div id="ft-expand-rag" style="display:none;margin:4px 0 0 28px"></div>
         </div>
 
@@ -4070,59 +4070,80 @@ async function checkAllFeatures(){
 function updateFtSummary(){
   if(!_ftCache)return;
   var total=_ftCache.length;
-  var withEmail=_ftCache.filter(function(c){return c.email&&!c.email.includes('@discovered.')}).length;
-  var pendingCrawl=total-withEmail;
 
   var usCheck=document.getElementById('ft-check-us').checked;
   var ragCheck=document.getElementById('ft-check-rag').checked;
   var apifyCheck=document.getElementById('ft-check-apify').checked;
   var brandCheck=document.getElementById('ft-check-brand').checked;
 
-  var usNonCount=usCheck&&_ftResults.us?_ftResults.us.count:0;
-  var brandCount=brandCheck&&_ftResults.brand?_ftResults.brand.count:0;
-  var ragCount=ragCheck&&_ftResults.rag?_ftResults.rag.count:0;
+  // === Sequential filter chain: each step starts from previous result ===
+  var pool=_ftCache.slice(); // start with full batch
+
+  // Step 1: US Only
+  var usNonCount=0;
+  if(usCheck&&_ftResults.us){
+    usNonCount=_ftResults.us.count;
+    var nonUsList=_ftResults.us.list||[];
+    var nonUsIds=new Set(nonUsList.map(function(c){return c.id}));
+    pool=pool.filter(function(c){return !nonUsIds.has(c.id)});
+  }
+  var afterUs=pool.length;
+
+  // Step 2: Business/Brand Filter
+  var brandCount=0;
+  if(brandCheck&&_ftResults.brand){
+    var brandList=_ftResults.brand.list||[];
+    var brandIds=new Set(brandList.map(function(c){return c.id}));
+    var beforeBrand=pool.length;
+    pool=pool.filter(function(c){return !brandIds.has(c.id)});
+    brandCount=beforeBrand-pool.length;
+  }
+  var afterBrand=pool.length;
+
+  // LT only — exclude HT from LT dashboard
+  var ltPool=pool.filter(function(c){return c.outreach_type!=='HT'});
+  var htCount=pool.length-ltPool.length;
+
+  // Step 3: Email filter (LT pool) — only those with real email
+  var withEmail=ltPool.filter(function(c){return c.email&&!c.email.includes('@discovered.')});
+  var noEmail=ltPool.filter(function(c){return !c.email||c.email.includes('@discovered.')});
+  var afterEmail=withEmail.length;
+
+  // Step 3b: Apify Autofill — adds emails to no-email pool (est. 20%)
   var apifyEstimate=0;
-  if(apifyCheck&&_ftResults.apify){
-    apifyEstimate=_ftResults.apify.estimated||Math.round(pendingCrawl*0.20);
+  if(apifyCheck&&noEmail.length>0){
+    apifyEstimate=_ftResults.apify?(_ftResults.apify.estimated||Math.round(noEmail.length*0.20)):Math.round(noEmail.length*0.20);
   }
+  var afterApify=afterEmail+apifyEstimate;
 
-  // Pipeline: total → −non-US → −brand → −RAG dedup → eligible (with email + Apify est.)
-  var afterUs=total-usNonCount;
-  var afterBrand=afterUs-brandCount;
-  if(afterBrand<0)afterBrand=0;
-  var afterRag=afterBrand-ragCount;
-  if(afterRag<0)afterRag=0;
-  // Eligible = creators with real email + Apify fill estimate for those without
-  var eligible;
-  if(apifyCheck&&pendingCrawl>0){
-    eligible=withEmail+apifyEstimate-ragCount;
-  }else{
-    eligible=withEmail-ragCount;
-  }
+  // Step 4: RAG Email Dedup (3 accounts: affiliates@onzenna.com + hello@zezebaebae.com + ManyChat)
+  var ragCount=ragCheck&&_ftResults.rag?_ftResults.rag.count:0;
+  var eligible=afterApify-ragCount;
   if(eligible<0)eligible=0;
-  // Also show total after filters (regardless of email) for context
-  var totalAfterFilters=afterRag;
 
-  // Build flow display
+  // === Build flow display — sequential chain ===
   var flowEl=document.getElementById('ft-pipeline-flow');
-  flowEl.textContent='';
-  var parts=[];
-  parts.push(total+' total');
-  if(usCheck&&_ftResults.us)parts.push('\u2212'+usNonCount+' non-US');
-  if(brandCheck&&_ftResults.brand)parts.push('\u2212'+brandCount+' business');
-  if(ragCheck&&_ftResults.rag)parts.push('\u2212'+ragCount+' dedup');
-  parts.push(totalAfterFilters+' after filters');
-  if(withEmail>0)parts.push(withEmail+' with email');
-  if(apifyCheck&&pendingCrawl>0)parts.push('+'+apifyEstimate+' Apify ('+pendingCrawl+'\u00d720%)');
-  flowEl.textContent=parts.join(' \u2192 ');
+  flowEl.innerHTML='';
+  var h='<div style="line-height:1.6">';
+  h+='<span style="font-weight:800">'+total+'</span> total (LT batch start)';
+  if(usCheck&&_ftResults.us)h+='<br>&nbsp;&nbsp;\u2192 <span style="color:var(--r)">\u2212'+usNonCount+' non-US</span> = <b>'+afterUs+'</b>';
+  if(brandCheck&&_ftResults.brand)h+='<br>&nbsp;&nbsp;\u2192 <span style="color:var(--r)">\u2212'+brandCount+' business</span> = <b>'+afterBrand+'</b>';
+  h+='<br>&nbsp;&nbsp;\u2192 <span style="color:var(--p)">\u2212'+htCount+' HT</span> (separate pipeline) = <b>'+ltPool.length+'</b> LT';
+  h+='<br>&nbsp;&nbsp;\u2192 <span style="color:var(--g)">'+afterEmail+' with email</span>';
+  if(apifyCheck&&noEmail.length>0)h+=' <span style="color:var(--c)">+'+apifyEstimate+' Apify ('+noEmail.length+'\u00d720%)</span> = <b>'+afterApify+'</b>';
+  if(ragCheck)h+='<br>&nbsp;&nbsp;\u2192 <span style="color:var(--r)">\u2212'+ragCount+' RAG dedup</span> (3 accounts) = <b style="color:var(--g);font-size:14px">'+eligible+'</b>';
+  // Show dedup accounts
+  if(ragCheck){
+    h+='<br><span style="font-size:8px;color:var(--dim);margin-left:24px">Dedup: affiliates@onzenna.com + hello@zezebaebae.com + ManyChat DM</span>';
+  }
+  h+='</div>';
+  flowEl.innerHTML=h;
   document.getElementById('ft-eligible-count').textContent=eligible;
   document.getElementById('ft-total-count').textContent=total;
 
-  // HT/LT breakdown
-  var htCount=_ftCache.filter(function(c){return c.outreach_type==='HT'}).length;
-  var ltCount=_ftCache.filter(function(c){return c.outreach_type==='LT'}).length;
-  var igCount=_ftCache.filter(function(c){return (c.platform||'').toLowerCase()==='instagram'}).length;
-  var ttCount=_ftCache.filter(function(c){return (c.platform||'').toLowerCase()==='tiktok'}).length;
+  // LT-only breakdown
+  var igCount=ltPool.filter(function(c){return (c.platform||'').toLowerCase()==='instagram'||c.ig_handle}).length;
+  var ttCount=ltPool.filter(function(c){return (c.platform||'').toLowerCase()==='tiktok'&&!c.ig_handle}).length;
   var breakdownEl=document.getElementById('ft-breakdown');
   if(!breakdownEl){
     breakdownEl=document.createElement('div');
@@ -4132,8 +4153,8 @@ function updateFtSummary(){
   }
   breakdownEl.textContent='';
   var items=[
-    {label:'HT (100K+)',val:htCount,color:'#ef4444'},
-    {label:'LT',val:ltCount,color:'#3b82f6'},
+    {label:'LT eligible',val:eligible,color:'#22c55e'},
+    {label:'HT (separate)',val:htCount,color:'#ef4444'},
     {label:'IG',val:igCount,color:'#e1306c'},
     {label:'TT',val:ttCount,color:'#000'}
   ];
