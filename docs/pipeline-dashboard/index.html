@@ -4099,11 +4099,19 @@ function _hasRealEmail(c){return c.email&&!c.email.toLowerCase().includes('@disc
 function updateFtSummary(){
   if(!_ftCache)return;
 
-  // Stage 1: Start with full batch
+  // ── Pipeline order: Total → Email → US → Business → HT/LT → RAG dedup → Eligible ──
+  // Email is the biggest filter, so it goes FIRST after total.
+
   var pool=_ftCache.slice();
   var totalAll=pool.length;
 
-  // Stage 2: Apply US filter (remove non-US)
+  // Stage 1: Email filter — only real emails (removes @discovered.* placeholders)
+  var withEmail=pool.filter(_hasRealEmail);
+  var noEmail=totalAll-withEmail.length;
+  pool=withEmail;
+  var afterEmail=pool.length;
+
+  // Stage 2: US filter
   var usCheck=document.getElementById('ft-check-us').checked;
   var usRemoved=0;
   if(usCheck&&_ftResults.us&&_ftResults.us.list){
@@ -4116,7 +4124,7 @@ function updateFtSummary(){
   }
   var afterUs=pool.length;
 
-  // Stage 3: Apply business account filter
+  // Stage 3: Business account filter
   var brandCheck=document.getElementById('ft-check-brand').checked;
   var brandRemoved=0;
   if(brandCheck&&_ftResults.brand&&_ftResults.brand.list){
@@ -4129,28 +4137,23 @@ function updateFtSummary(){
   }
   var afterBrand=pool.length;
 
-  // Stage 4: Split HT / LT from filtered pool
+  // Stage 4: Split HT / LT (all remaining have real email)
   var htFiltered=pool.filter(function(c){return c.outreach_type==='HT'});
   var ltFiltered=pool.filter(function(c){return c.outreach_type!=='HT'});
 
-  // Stage 5: LT email stats (actual DB values, no estimation)
-  var ltWithEmail=ltFiltered.filter(_hasRealEmail).length;
-  var ltNoEmail=ltFiltered.length-ltWithEmail;
-
-  // Stage 6: RAG dedup — count only LT emails that are already contacted
+  // Stage 5: RAG dedup — LT emails already contacted
   var ragCheck=document.getElementById('ft-check-rag').checked;
   var ltRagDedup=0;
   if(ragCheck&&_ftResults.rag&&_ftResults.rag.list){
-    // Intersect RAG contacted list with LT real emails only
-    var ltEmails=new Set(ltFiltered.filter(_hasRealEmail).map(function(c){return c.email.toLowerCase()}));
+    var ltEmails=new Set(ltFiltered.map(function(c){return c.email.toLowerCase()}));
     ltRagDedup=_ftResults.rag.list.filter(function(e){return ltEmails.has(e.toLowerCase())}).length;
   }
 
-  // Final: LT eligible = LT with real email minus those already contacted
-  var ltEligible=ltWithEmail-ltRagDedup;
+  // Final: LT eligible
+  var ltEligible=ltFiltered.length-ltRagDedup;
   if(ltEligible<0)ltEligible=0;
 
-  // Platform breakdown (from filtered LT)
+  // Platform breakdown (from filtered LT with email)
   var ltIg=ltFiltered.filter(function(c){return (c.platform||'').toLowerCase()==='instagram'}).length;
   var ltTt=ltFiltered.filter(function(c){return (c.platform||'').toLowerCase()==='tiktok'}).length;
 
@@ -4158,10 +4161,10 @@ function updateFtSummary(){
   var flowEl=document.getElementById('ft-pipeline-flow');
   flowEl.textContent=[
     totalAll+' total',
+    afterEmail+' with email ('+noEmail+' no email)',
     usRemoved>0?('\u2212'+usRemoved+' non-US \u2192 '+afterUs):'',
     brandRemoved>0?('\u2212'+brandRemoved+' business \u2192 '+afterBrand):'',
     'HT:'+htFiltered.length+' + LT:'+ltFiltered.length,
-    'LT '+ltWithEmail+' with email ('+ltNoEmail+' no email)',
     ltRagDedup>0?('\u2212'+ltRagDedup+' already contacted'):'',
     '\u2192 '+ltEligible+' eligible (LT only)'
   ].filter(Boolean).join(' \u2192 ');
@@ -4179,12 +4182,12 @@ function updateFtSummary(){
   }
   breakdownEl.textContent='';
   [
+    {label:'with email',val:afterEmail,color:'var(--g)'},
+    {label:'no email',val:noEmail,color:'var(--muted)'},
     {label:'HT',val:htFiltered.length,color:'#ef4444'},
     {label:'LT',val:ltFiltered.length,color:'#3b82f6'},
     {label:'IG',val:ltIg,color:'#e1306c'},
-    {label:'TT',val:ltTt,color:'#000'},
-    {label:'LT email',val:ltWithEmail,color:'var(--g)'},
-    {label:'LT no email',val:ltNoEmail,color:'var(--am)'}
+    {label:'TT',val:ltTt,color:'#000'}
   ].forEach(function(it){
     var sp=document.createElement('span');
     sp.style.cssText='font-weight:600';
