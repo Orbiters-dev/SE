@@ -156,6 +156,12 @@ if(new URLSearchParams(window.location.search).get('embed')==='1'){
   document.addEventListener('DOMContentLoaded',function(){
     var n=document.getElementById('top-nav'); if(n)n.style.display='none';
   });
+  // Skip login when embedded — parent dashboard already authenticated
+  document.addEventListener('DOMContentLoaded',function(){
+    document.getElementById('login-gate').style.display='none';
+    document.getElementById('main-content').style.display='block';
+    initContentDashboard();
+  });
 }
 // ══════════ AUTH ══════════
 var AUTH_USERS = {
