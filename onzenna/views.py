@@ -1028,6 +1028,15 @@ def pipeline_creators_list(request):
     if discovery_date:
         qs = qs.filter(initial_discovery_date=discovery_date)
 
+    has_email = request.GET.get("has_email")
+    if has_email and has_email.lower() in ("true", "1"):
+        # Real email only — exclude @discovered.* placeholders and blanks
+        from django.db.models import Q
+        qs = qs.exclude(email="").exclude(email__isnull=True).exclude(email__icontains="@discovered.")
+    elif has_email and has_email.lower() in ("false", "0"):
+        from django.db.models import Q
+        qs = qs.filter(Q(email="") | Q(email__isnull=True) | Q(email__icontains="@discovered."))
+
     # Ordering
     order = request.GET.get("order", "-created_at")
     qs = qs.order_by(order)
