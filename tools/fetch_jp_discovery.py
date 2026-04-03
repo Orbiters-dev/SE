@@ -459,6 +459,80 @@ def enrich_ig_views(posts: list[dict]) -> list[dict]:
     return posts
 
 
+# ── RapidAPI Reels Discovery ─────────────────────────────────────────────── #
+def discover_ig_reels(handles: list[str], max_reels_per_handle: int = 5, delay: float = 0.5) -> list[dict]:
+    """Fetch Reels for discovered IG handles via RapidAPI.
+
+    Apify hashtag scraper doesn't return Reels. This fills the gap by
+    fetching Reels from each discovered creator's profile.
+    """
+    if not RAPIDAPI_KEY:
+        print("[REELS] No RAPIDAPI_KEY, skipping Reels discovery")
+        return []
+
+    unique = list(dict.fromkeys(h.lower() for h in handles if h))
+    unique = [h for h in unique if h.lower() not in EXCLUDE_ACCOUNTS]
+    print(f"\n[REELS] Fetching Reels for {len(unique)} IG handles via RapidAPI")
+
+    all_reels = []
+    api_calls = 0
+    for handle in unique:
+        try:
+            time.sleep(delay)
+            url = f"https://{RAPIDAPI_HOST}/get_ig_user_reels.php"
+            data = urllib.parse.urlencode({
+                "username_or_url": handle,
+                "amount": str(max_reels_per_handle),
+            }).encode()
+            req = urllib.request.Request(url, data=data, method="POST")
+            req.add_header("Content-Type", "application/x-www-form-urlencoded")
+            req.add_header("x-rapidapi-host", RAPIDAPI_HOST)
+            req.add_header("x-rapidapi-key", RAPIDAPI_KEY)
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                result = json.loads(resp.read())
+            api_calls += 1
+
+            reels = result.get("reels", [])
+            for r in reels:
+                node = r.get("node", r)
+                media = node.get("media", node)
+                code = media.get("code", "")
+                if not code:
+                    continue
+                cap_obj = media.get("caption", {})
+                caption = cap_obj.get("text", "") if isinstance(cap_obj, dict) else str(cap_obj or "")
+                hashtags = re.findall(r"#[\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+", caption)
+                play_count = media.get("play_count", 0) or 0
+                like_count = media.get("like_count", 0) or 0
+                comment_count = media.get("comment_count", 0) or 0
+
+                all_reels.append({
+                    "Handle": handle,
+                    "Full Name": "",
+                    "Platform": "instagram",
+                    "URL": f"https://www.instagram.com/reel/{code}/",
+                    "Date": "",
+                    "Type": "Video",
+                    "Source": "rapidapi/reels",
+                    "Followers": 0,  # filled later if available
+                    "Views": play_count,
+                    "Likes": like_count,
+                    "Comments Count": comment_count,
+                    "Hashtags": " ".join(hashtags),
+                    "Mentions": "",
+                    "Caption": caption,
+                    "_post_id": code,
+                    "_source_tag": "reels",
+                })
+
+        except Exception as e:
+            print(f"  ⚠ @{handle}: {e}")
+            continue
+
+    print(f"[REELS] Got {len(all_reels)} Reels from {api_calls} handles")
+    return all_reels
+
+
 # ── Sheet Writer ──────────────────────────────────────────────────────────── #
 DISCOVERY_HEADERS = [
     "Handle", "Full Name", "Platform", "URL", "Date", "Type", "Source",
@@ -574,6 +648,17 @@ def main():
         ig_posts = enrich_ig_views(ig_posts)        # Apify: videoViewCount
         save_raw(ig_posts, "jp_ig_discovery")
         all_posts.extend(ig_posts)
+
+        # Reels Discovery: fetch Reels from discovered handles via RapidAPI
+        ig_handles = list(set(p["Handle"] for p in ig_posts if p.get("Handle")))
+        ig_reels = discover_ig_reels(ig_handles, max_reels_per_handle=5)
+        if ig_reels:
+            # Dedup against already-discovered posts
+            existing_urls = set(p["URL"] for p in all_posts)
+            ig_reels = [r for r in ig_reels if r["URL"] not in existing_urls]
+            save_raw(ig_reels, "jp_ig_reels")
+            all_posts.extend(ig_reels)
+            print(f"[REELS] Added {len(ig_reels)} unique Reels to discovery")
 
     # TikTok Discovery
     if not args.ig_only:
