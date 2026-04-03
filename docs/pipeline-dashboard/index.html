@@ -3952,9 +3952,9 @@ async function checkFeatureImpact(feature){
       if(emails.length>0){
         try{
           var result=await apiFetch('/gmail-rag/bulk-check/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({emails:emails})});
-          // API returns {results: {email: {account, total_sent, ...}}} not {contacted: []}
+          // API returns {results: {email: info|null}} — null means NOT contacted
           if(result.results&&typeof result.results==='object'){
-            contacted=Object.keys(result.results);
+            contacted=Object.keys(result.results).filter(function(e){return result.results[e]!==null});
           }else{
             contacted=result.contacted||[];
           }
