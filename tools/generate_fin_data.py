@@ -3513,7 +3513,8 @@ def generate():
         print(f"  Content by creator: {total_creators} creator-category entries across {len(content_creators_by_cat)} categories")
 
         # ── 7. Daily spend overlay + performance review data ──────────────
-        spend_dates = sorted(set(r.get("date", "") for r in amazon_ads if r.get("date", "") >= cutoff_30d))[-30:]
+        # Use 90-day window; frontend slices to 7/30/90 as needed
+        spend_dates = sorted(set(r.get("date", "") for r in amazon_ads if r.get("date", "") >= cutoff_90d))[-90:]
         _sd_set = set(spend_dates)
         amz_spend_daily = defaultdict(float)
         amz_clicks_daily = defaultdict(int)

@@ -2436,126 +2436,106 @@ function renderHeroTab(F){
     html+='</svg></div></div>';
   }
 
-  // ── Section 4B: Daily Performance Review ──
+  // ── Section 4B: Daily Performance Review (7D / 30D / 90D) ──
   if(H.spend_daily&&H.spend_daily.amz_total_sales){
-    var sd=H.spend_daily;
-    var kr=H.keyword_review||{};
-    var n4=sd.dates.length;
-    var li=n4-1; // latest index
-    // Helper: build sparkline bars
-    function dpSpark(arr,color,maxV,w,h){
-      if(!maxV)maxV=Math.max.apply(null,arr)||1;
-      var bw=Math.max(2,Math.floor((w-arr.length)/arr.length));
-      var s='<svg width="'+w+'" height="'+h+'" style="display:block">';
-      arr.forEach(function(v,i){
-        var bh=Math.max(v>0?1:0,v/maxV*(h-2));
-        var x=i*(bw+1);
-        s+='<rect x="'+x+'" y="'+(h-2-bh)+'" width="'+bw+'" height="'+bh+'" fill="'+color+'" rx="0.5" opacity="0.7"/>';
+    var _dpSD=H.spend_daily;
+    var _dpKR=H.keyword_review||{};
+    html+='<div class="sec"><div class="sec-title"><div class="num" style="background:#8b5cf6">4B</div> Daily Performance Review</div>';
+    html+='<div id="dp-review-wrap"></div></div>';
+    window._dpPeriod=30;
+    window.renderDPReview=function(days){
+      window._dpPeriod=days;
+      var sd=_dpSD,kr=_dpKR;
+      var full=sd.dates.length;
+      var n=Math.min(days,full);
+      var off=full-n;
+      function sl(arr){return(arr||[]).slice(off);}
+      var dates=sl(sd.dates),amzS=sl(sd.amz_total_sales),metaSp=sl(sd.meta),metaCl=sl(sd.meta_clicks);
+      var metaSl=sl(sd.meta_sales),ppcSp=sl(sd.amazon),ppcCl=sl(sd.amz_clicks),sess=sl(sd.ga4_sessions);
+      var li=n-1;
+      function sum(a){return a.reduce(function(x,y){return x+y},0);}
+      function spark(arr,color,w,h,maxV){
+        if(!maxV)maxV=Math.max.apply(null,arr)||1;
+        var bw=Math.max(1,Math.floor((w-arr.length*0.5)/arr.length));
+        var s='<svg width="'+w+'" height="'+h+'" style="display:block">';
+        arr.forEach(function(v,i){
+          var bh=Math.max(v>0?1:0,v/maxV*(h-2));
+          s+='<rect x="'+(i*(bw+1))+'" y="'+(h-2-bh)+'" width="'+bw+'" height="'+bh+'" fill="'+color+'" rx="0.5" opacity="0.7"/>';
+        });
+        return s+'</svg>';
+      }
+      function row(label,color,arr,latest,total,prefix){
+        prefix=prefix||'';
+        var h='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9">';
+        h+='<div style="width:130px;flex-shrink:0;display:flex;align-items:center;gap:6px">';
+        h+='<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+color+'"></span>';
+        h+='<span style="font-size:10px;font-weight:700;color:var(--dim)">'+label+'</span></div>';
+        h+='<div style="flex:1;min-width:120px">'+spark(arr,color,220,24)+'</div>';
+        h+='<div style="text-align:right;min-width:90px;font-family:var(--mono);font-weight:700;font-size:13px">'+prefix+latest.toLocaleString()+'</div>';
+        h+='<div style="text-align:right;min-width:80px;font-family:var(--mono);font-size:10px;color:var(--muted)">'+days+'D: '+prefix+total.toLocaleString()+'</div>';
+        return h+'</div>';
+      }
+      var o='<div class="card">';
+      // Period tabs
+      o+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">';
+      [7,30,90].forEach(function(p){
+        var on=p===days;
+        o+='<div onclick="renderDPReview('+p+')" style="padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;cursor:pointer;'
+          +(on?'background:#8b5cf6;color:#fff':'background:#f1f5f9;color:var(--dim)')+'">'+p+'D</div>';
       });
-      s+='</svg>';return s;
-    }
-    // Stat helpers
-    var amzSalesTotal=sd.amz_total_sales.reduce(function(a,b){return a+b},0);
-    var metaSpendTotal=sd.meta.reduce(function(a,b){return a+b},0);
-    var metaClicksTotal=sd.meta_clicks.reduce(function(a,b){return a+b},0);
-    var metaSalesTotal=sd.meta_sales.reduce(function(a,b){return a+b},0);
-    var ppcSpendTotal=sd.amazon.reduce(function(a,b){return a+b},0);
-    var ppcClicksTotal=sd.amz_clicks.reduce(function(a,b){return a+b},0);
-    var sessTotal=sd.ga4_sessions.reduce(function(a,b){return a+b},0);
-
-    html+='<div class="sec"><div class="sec-title"><div class="num" style="background:#8b5cf6">4B</div> Daily Performance Review (30D)</div>';
-    html+='<div class="card">';
-    // Date range header
-    html+='<div style="font-size:11px;color:var(--muted);margin-bottom:10px;font-family:var(--mono)">'+sd.dates[0]+' &rarr; '+sd.dates[li]+'</div>';
-
-    // Row builder
-    function dpRow(label,color,arr,fmtVal,fmtLatest,maxV){
-      var rh='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9">';
-      rh+='<div style="width:130px;flex-shrink:0;display:flex;align-items:center;gap:6px">';
-      rh+='<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+color+'"></span>';
-      rh+='<span style="font-size:10px;font-weight:700;color:var(--dim)">'+label+'</span></div>';
-      rh+='<div style="flex:1;min-width:120px">'+dpSpark(arr,color,maxV||0,180,24)+'</div>';
-      rh+='<div style="text-align:right;min-width:90px;font-family:var(--mono);font-weight:700;font-size:13px">'+fmtLatest+'</div>';
-      rh+='<div style="text-align:right;min-width:80px;font-family:var(--mono);font-size:10px;color:var(--muted)">30D: '+fmtVal+'</div>';
-      rh+='</div>';
-      return rh;
-    }
-
-    // Row 1: Amazon Total Sales
-    html+=dpRow('Amazon Sales','#f59e0b',sd.amz_total_sales,
-      '$'+amzSalesTotal.toLocaleString(),
-      '$'+(sd.amz_total_sales[li]||0).toLocaleString());
-
-    // Row 2: Meta Ads
-    html+=dpRow('Meta Spend','#0ea5e9',sd.meta,
-      '$'+metaSpendTotal.toLocaleString(),
-      '$'+(sd.meta[li]||0).toLocaleString());
-    html+=dpRow('Meta Clicks','#38bdf8',sd.meta_clicks,
-      metaClicksTotal.toLocaleString(),
-      (sd.meta_clicks[li]||0).toLocaleString());
-    html+=dpRow('Meta Sales','#0284c7',sd.meta_sales,
-      '$'+metaSalesTotal.toLocaleString(),
-      '$'+(sd.meta_sales[li]||0).toLocaleString());
-
-    // Row 3: Amazon PPC
-    html+=dpRow('PPC Spend','#f97316',sd.amazon,
-      '$'+ppcSpendTotal.toLocaleString(),
-      '$'+(sd.amazon[li]||0).toLocaleString());
-    html+=dpRow('PPC Clicks','#fb923c',sd.amz_clicks,
-      ppcClicksTotal.toLocaleString(),
-      (sd.amz_clicks[li]||0).toLocaleString());
-
-    // Row 4: Brand vs Generic Keywords (weekly)
-    if(kr.weeks&&kr.weeks.length){
-      var kwN=kr.weeks.length;
-      var bTerms=kr.brand_terms_count||[];
-      var gTerms=kr.generic_terms_count||[];
-      var bVol=kr.brand_volume||[];
-      var kwBW=Math.max(6,Math.floor(180/kwN)-2);
-      // Bar chart: brand volume (purple) + generic terms count scaled (gray)
-      var bVolMax=Math.max.apply(null,bVol)||1;
-      html+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9">';
-      html+='<div style="width:130px;flex-shrink:0;display:flex;align-items:center;gap:6px">';
-      html+='<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#8b5cf6"></span>';
-      html+='<span style="font-size:10px;font-weight:700;color:var(--dim)">Brand vs Generic</span></div>';
-      html+='<div style="flex:1;min-width:120px">';
-      html+='<svg width="180" height="32" style="display:block">';
-      kr.weeks.forEach(function(w,i){
-        var x=i*(kwBW+2);
-        var hB=(bVol[i]||0)/bVolMax*26;
-        html+='<rect x="'+x+'" y="'+(28-hB)+'" width="'+Math.floor(kwBW/2)+'" height="'+Math.max(hB,hB>0?1:0)+'" fill="#8b5cf6" rx="1" opacity="0.8"/>';
-        // Generic: show terms count as bars (scaled to max brand volume for visual comparison)
+      o+='<div style="flex:1"></div>';
+      o+='<span style="font-size:11px;color:var(--muted);font-family:var(--mono)">'+dates[0]+' &rarr; '+dates[li]+'</span>';
+      o+='</div>';
+      // Rows
+      o+=row('Amazon Sales','#f59e0b',amzS,amzS[li]||0,sum(amzS),'$');
+      o+=row('Meta Spend','#0ea5e9',metaSp,metaSp[li]||0,sum(metaSp),'$');
+      o+=row('Meta Clicks','#38bdf8',metaCl,metaCl[li]||0,sum(metaCl));
+      o+=row('Meta Sales','#0284c7',metaSl,metaSl[li]||0,sum(metaSl),'$');
+      o+=row('PPC Spend','#f97316',ppcSp,ppcSp[li]||0,sum(ppcSp),'$');
+      o+=row('PPC Clicks','#fb923c',ppcCl,ppcCl[li]||0,sum(ppcCl));
+      // Brand vs Generic Keywords (weekly — always full range)
+      if(kr.weeks&&kr.weeks.length){
+        var kwN=kr.weeks.length;
+        var bVol=kr.brand_volume||[];
+        var gTerms=kr.generic_terms_count||[];
+        var bVolMax=Math.max.apply(null,bVol)||1;
         var gMax=Math.max.apply(null,gTerms)||1;
-        var hG=(gTerms[i]||0)/gMax*26;
-        html+='<rect x="'+(x+Math.floor(kwBW/2)+1)+'" y="'+(28-hG)+'" width="'+Math.floor(kwBW/2)+'" height="'+Math.max(hG,hG>0?1:0)+'" fill="#94a3b8" rx="1" opacity="0.6"/>';
-      });
-      html+='</svg></div>';
-      var lastBV=bVol[kwN-1]||0;
-      var lastBR=kr.brand_best_rank?kr.brand_best_rank[kwN-1]||0:0;
-      var lastGR=kr.generic_best_rank?kr.generic_best_rank[kwN-1]||0:0;
-      html+='<div style="text-align:right;min-width:110px;font-family:var(--mono);font-size:10px;line-height:1.5">';
-      html+='<div><span style="color:#8b5cf6;font-weight:700">'+lastBV.toLocaleString()+'</span> <span style="color:var(--muted)">vol</span></div>';
-      html+='<div><span style="color:#8b5cf6">Rank #'+(lastBR||'—')+'</span> <span style="color:var(--muted)">vs</span> <span style="color:#64748b">#'+(lastGR||'—')+'</span></div>';
-      html+='</div>';
-      html+='<div style="text-align:right;min-width:70px;font-family:var(--mono);font-size:9px;color:var(--muted)">';
-      html+='<span style="color:#8b5cf6">&#9632;</span> Brand<br><span style="color:#94a3b8">&#9632;</span> Generic</div>';
-      html+='</div>';
-    }
-
-    // Row 5: GA4 Sessions
-    html+=dpRow('Sessions','#10b981',sd.ga4_sessions,
-      sessTotal.toLocaleString(),
-      (sd.ga4_sessions[li]||0).toLocaleString());
-
-    // Summary stats at bottom
-    var ppcROAS=ppcSpendTotal>0?Math.round(amzSalesTotal/ppcSpendTotal*100)/100:0;
-    var metaROAS=metaSpendTotal>0?Math.round(metaSalesTotal/metaSpendTotal*100)/100:0;
-    html+='<div class="stats" style="margin-top:10px">';
-    html+='<div class="stat amber"><div class="sl">AMZ ROAS</div><div class="sv">'+ppcROAS.toFixed(1)+'x</div></div>';
-    html+='<div class="stat cyan"><div class="sl">META ROAS</div><div class="sv">'+metaROAS.toFixed(1)+'x</div></div>';
-    html+='<div class="stat" style="background:#f0fdf4"><div class="sl" style="color:var(--g)">30D SESSIONS</div><div class="sv" style="color:var(--g)">'+sessTotal.toLocaleString()+'</div></div>';
-    html+='</div>';
-    html+='</div></div>';
+        var kwBW=Math.max(6,Math.floor(180/kwN)-2);
+        o+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9">';
+        o+='<div style="width:130px;flex-shrink:0;display:flex;align-items:center;gap:6px">';
+        o+='<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#8b5cf6"></span>';
+        o+='<span style="font-size:10px;font-weight:700;color:var(--dim)">Brand vs Generic</span></div>';
+        o+='<div style="flex:1;min-width:120px"><svg width="220" height="32" style="display:block">';
+        kr.weeks.forEach(function(w,i){
+          var x=i*(kwBW+2);
+          var hB=(bVol[i]||0)/bVolMax*26;
+          var hG=(gTerms[i]||0)/gMax*26;
+          o+='<rect x="'+x+'" y="'+(28-hB)+'" width="'+Math.floor(kwBW/2)+'" height="'+Math.max(hB,hB>0?1:0)+'" fill="#8b5cf6" rx="1" opacity="0.8"/>';
+          o+='<rect x="'+(x+Math.floor(kwBW/2)+1)+'" y="'+(28-hG)+'" width="'+Math.floor(kwBW/2)+'" height="'+Math.max(hG,hG>0?1:0)+'" fill="#94a3b8" rx="1" opacity="0.6"/>';
+        });
+        o+='</svg></div>';
+        var lastBV=bVol[kwN-1]||0;
+        var lastBR=(kr.brand_best_rank||[])[kwN-1]||0;
+        var lastGR=(kr.generic_best_rank||[])[kwN-1]||0;
+        o+='<div style="text-align:right;min-width:110px;font-family:var(--mono);font-size:10px;line-height:1.5">';
+        o+='<div><span style="color:#8b5cf6;font-weight:700">'+lastBV.toLocaleString()+'</span> <span style="color:var(--muted)">vol</span></div>';
+        o+='<div><span style="color:#8b5cf6">#'+(lastBR||'\u2014')+'</span> <span style="color:var(--muted)">vs</span> <span style="color:#64748b">#'+(lastGR||'\u2014')+'</span></div></div>';
+        o+='<div style="text-align:right;min-width:70px;font-size:9px;color:var(--muted)"><span style="color:#8b5cf6">\u25a0</span> Brand<br><span style="color:#94a3b8">\u25a0</span> Generic</div></div>';
+      }
+      o+=row('Sessions','#10b981',sess,sess[li]||0,sum(sess));
+      // Summary stats
+      var ppcR=sum(ppcSp)>0?Math.round(sum(amzS)/sum(ppcSp)*100)/100:0;
+      var metaR=sum(metaSp)>0?Math.round(sum(metaSl)/sum(metaSp)*100)/100:0;
+      o+='<div class="stats" style="margin-top:10px">';
+      o+='<div class="stat amber"><div class="sl">AMZ ROAS</div><div class="sv">'+ppcR.toFixed(1)+'x</div></div>';
+      o+='<div class="stat cyan"><div class="sl">META ROAS</div><div class="sv">'+metaR.toFixed(1)+'x</div></div>';
+      o+='<div class="stat" style="background:#f0fdf4"><div class="sl" style="color:var(--g)">'+days+'D SESSIONS</div><div class="sv" style="color:var(--g)">'+sum(sess).toLocaleString()+'</div></div>';
+      o+='</div>';
+      o+='</div>';
+      document.getElementById('dp-review-wrap').innerHTML=o;
+    };
+    // Initial render after DOM insert (deferred)
+    setTimeout(function(){renderDPReview(30);},0);
   }
 
   // ── Section E: ASIN Reference ──
