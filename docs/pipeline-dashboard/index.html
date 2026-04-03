@@ -1767,6 +1767,8 @@ async function loadConfig(){
     document.getElementById('config-dash').style.display='block';
     document.getElementById('pill-date').textContent=_config.date;
     loadConfigHistory();
+    // Auto-run Feature Toggle checks after config loads
+    setTimeout(function(){try{checkAllFeatures()}catch(e){}},500);
   }catch(e){
     document.getElementById('config-loading').innerHTML='<span style="color:var(--r)">Failed to load: '+e.message+'</span>';
   }
