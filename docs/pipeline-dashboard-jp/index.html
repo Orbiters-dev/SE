@@ -149,6 +149,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
 <!-- MAIN CONTENT -->
 <div id="main-content" style="display:none">
 <div class="ctr">
+  <div id="standalone-header">
   <div class="hero">
     <h1 style="display:flex;align-items:center;justify-content:center;gap:12px">&#x1F4CB; Pipeline <span>CRM</span> <span style="font-size:14px;background:#ef4444;color:#fff;padding:2px 10px;border-radius:6px;font-weight:700">JP</span></h1>
     <div class="sub">Grosmimi Japan — Influencer DM Outreach Pipeline</div>
@@ -158,6 +159,8 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f
       <span class="pill" id="pill-total">0 creators</span>
     </div>
   </div>
+  </div>
+  <script>if(new URLSearchParams(location.search).get('embed')==='1')document.getElementById('standalone-header').style.display='none';</script>
 
   <!-- PIPELINE OVERVIEW -->
   <div class="card" style="margin-bottom:12px">
