@@ -153,7 +153,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
     <div class="sub">Creator Collab Pipeline &#8212; Full Management Dashboard</div>
     <div class="meta" id="hero-meta">
       <span class="pill" id="pill-api"><span class="dot"></span>EC2 API</span>
-      <span class="pill" id="pill-date">—</span>
+      <span class="pill" id="pill-date">Loading...</span>
       <span class="pill" id="pill-total">-</span>
     </div>
   </div>
@@ -1735,12 +1735,10 @@ async function loadDashboard(){
     document.getElementById('ds-accepted').textContent=st.by_status['Accepted']||0;
     document.getElementById('ds-posted').textContent=st.by_status['Posted']||0;
     document.getElementById('ds-review').textContent=st.by_status['Needs Review']||0;
-    var progressed=(st.by_status['Sent']||0)+(st.by_status['Replied']||0)+(st.by_status['Needs Review']||0)+(st.by_status['Accepted']||0)+(st.by_status['Sample Sent']||0)+(st.by_status['Sample Shipped']||0)+(st.by_status['Sample Delivered']||0)+(st.by_status['Reminder Sent']||0)+(st.by_status['Posted']||0);
+    var accepted=(st.by_status['Accepted']||0)+(st.by_status['Sample Sent']||0)+(st.by_status['Sample Shipped']||0)+(st.by_status['Sample Delivered']||0)+(st.by_status['Posted']||0);
     var total=st.total||1;
-    document.getElementById('ds-conversion').textContent=Math.round(progressed/total*100)+'%';
+    document.getElementById('ds-conversion').textContent=Math.round(accepted/total*100)+'%';
     document.getElementById('pill-total').textContent=st.total+' creators';
-    // Set date pill from config or today
-    if(!_config){document.getElementById('pill-date').textContent=new Date().toISOString().slice(0,10)}
     // Mini funnel
     buildFunnel(st.by_status,'dash-funnel',_crStatusFilter);
     // Recent activity
@@ -1786,7 +1784,7 @@ function populateConfigForm(c){
   document.getElementById('f-apify-autofill').checked=c.apify_autofill;
   document.getElementById('f-apify-brand-filter').checked=c.apify_brand_filter!==false;
   document.getElementById('f-us-only').checked=c.us_only!==false;
-  document.getElementById('f-hil-draft').checked=!!c.hil_draft_review;
+  document.getElementById('f-hil-draft').checked=c.hil_draft_review!==false;
   document.getElementById('f-hil-send').checked=c.hil_send_approval!==false;
   document.getElementById('f-hil-sample').checked=!!c.hil_sample_approval;
   document.getElementById('f-sender-email').value=c.sender_email;
@@ -1903,7 +1901,7 @@ async function loadCreatorStats(){
 }
 
 // HIL = stages where marketer must take action for pipeline to proceed
-var HIL_LT={'Needs Review':1};  // LT: only Needs Review is human-in-loop
+var HIL_LT={'Sample Sent':1};  // LT: only manual "sample shipped" click
 var HIL_HT={'Draft Ready':1,'Sent':1,'Replied':1,'Needs Review':1,'Send Contract':1,'Sample Sent':1,'Payment Sent':1};  // HT: full manual control
 
 function buildFunnel(statusCounts,targetId,activeStatus){
@@ -1929,7 +1927,7 @@ function buildFunnel(statusCounts,targetId,activeStatus){
   }
 
   // Y-fork: Not Started (left center) → LT (top row) / HT (bottom row)
-  var LT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Accepted','Sample Shipped','Sample Delivered','Reminder Sent','Posted'];
+  var LT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Reminder Sent','Posted'];
   var HT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Send Contract','Contract Signed','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Reminder Sent','Payment Sent','Posted'];
   function _row(stages,counts,hilMap){
     var r='';
@@ -2427,51 +2425,40 @@ async function updatePreview(){
     var brands={};
     creators.forEach(function(c){var b=c.brand||'Unknown';brands[b]=(brands[b]||0)+1});
 
-    // Read feature toggles
+    // 5. LT vs HT
+    var lt=creators.filter(function(c){return c.outreach_type!=='HT'}).length;
+    var ht=creators.filter(function(c){return c.outreach_type==='HT'}).length;
+
+    // 4. Read feature toggles
     var ragEnabled=document.getElementById('f-rag-dedup')?document.getElementById('f-rag-dedup').checked:true;
     var apifyEnabled=document.getElementById('f-apify-autofill')?document.getElementById('f-apify-autofill').checked:true;
     var brandFilterEnabled=document.getElementById('f-apify-brand-filter')?document.getElementById('f-apify-brand-filter').checked:true;
-    var usOnly=document.getElementById('f-us-only')?document.getElementById('f-us-only').checked:true;
-    var htThreshold=parseInt(document.getElementById('f-ht-threshold').value)||100000;
 
-    // Apply US-only filter
-    var afterUS=usOnly?creators.filter(function(c){return(c.country||'').toLowerCase()==='us'||(c.country||'')===''}):creators;
-    var nonUSCount=creators.length-afterUS.length;
-
-    // Brand filter — exclude known brand/reseller accounts
+    // 5. Brand filter — exclude known brand/reseller accounts
     var brandFiltered=[];
     var brandFilterList=['onzenna.official','grosmimi_usa','grosmimi_japan','onzenna','chaenmom_official','naeiae_official'];
     if(brandFilterEnabled){
-      brandFiltered=afterUS.filter(function(c){
+      brandFiltered=creators.filter(function(c){
         var h=(c.ig_handle||c.tiktok_handle||'').toLowerCase().replace(/^@/,'');
         return brandFilterList.some(function(b){return h.includes(b)});
       });
     }
-    var afterBrand=afterUS.filter(function(c){return brandFiltered.indexOf(c)===-1});
 
-    // LT only — filter out HT creators for LT dashboard
-    var ltCreators=afterBrand.filter(function(c){return c.outreach_type!=='HT'});
-    var htCreators=afterBrand.filter(function(c){return c.outreach_type==='HT'});
-
-    // Email filter on LT pool
-    var withEmail=ltCreators.filter(function(c){return c.email&&!c.email.includes('@discovered.')});
-    var noEmail=ltCreators.filter(function(c){return !c.email||c.email.includes('@discovered.')});
-
-    // Dedup list
+    // 6. Dedup list
     var dedupList=[];
     if(ragEnabled&&dedupCount>0){
       try{dedupList=dedupResult.contacted||[]}catch(e){}
     }
 
-    // Brand breakdown (LT only)
+    // 7. Brand breakdown
     var brands={};
-    ltCreators.forEach(function(c){var b=c.brand||'Unknown';brands[b]=(brands[b]||0)+1});
+    creators.forEach(function(c){var b=c.brand||'Unknown';brands[b]=(brands[b]||0)+1});
 
-    // Platform breakdown
-    var igCount=ltCreators.filter(function(c){return(c.platform||'instagram').toLowerCase().includes('instagram')||c.ig_handle}).length;
-    var ttCount=ltCreators.filter(function(c){return(c.platform||'').toLowerCase().includes('tiktok')&&!c.ig_handle}).length;
+    // 8. LT vs HT
+    var lt=creators.filter(function(c){return c.outreach_type!=='HT'}).length;
+    var ht=creators.filter(function(c){return c.outreach_type==='HT'}).length;
 
-    var eligible=withEmail.length-(ragEnabled?dedupCount:0);
+    var eligible=withEmail.length-(ragEnabled?dedupCount:0)-brandFiltered.length;
 
     function expandList(id,items,max){
       max=max||50;
@@ -2489,82 +2476,52 @@ async function updatePreview(){
 
     var h='<div style="font-size:11px;line-height:2.2">';
 
-    // Filter Pipeline header
-    h+='<div style="font-size:10px;font-weight:600;color:var(--dim);margin-bottom:2px">Filter Pipeline (LT only)</div>';
-    h+='<div style="font-size:9px;color:var(--muted);font-family:var(--mono);margin-bottom:6px">';
-    h+=total+' total &rarr; &minus;'+nonUSCount+' non-US &rarr; &minus;'+brandFiltered.length+' business &rarr; '+withEmail.length+' with email &rarr; &minus;'+(ragEnabled?dedupCount:0)+' dedup';
-    h+='</div>';
-
     // Total
     h+='<div style="display:flex;align-items:center;gap:6px"><span style="width:20px">&#x1F4E5;</span><b>Total Not Started:</b> <span style="font-family:var(--mono);font-size:14px">'+total+'</span></div>';
 
-    // Non-US filter
-    if(usOnly&&nonUSCount>0){
-      h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px">';
-      h+='<span style="color:var(--r)">&#x1F30E;</span> Non-US removed: <b style="color:var(--r)">-'+nonUSCount+'</b>';
-      h+='</div>';
-    }
-
-    // Brand Filter
-    if(brandFilterEnabled){
-      h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-brand-filter')+'">';
-      h+='<span style="color:var(--r)">&#x1F6AB;</span> Brand/Business: <b style="color:var(--r)">-'+brandFiltered.length+'</b>';
-      h+='</div>';
-      h+=expandList('up-brand-filter',brandFiltered);
-    }
-
-    // HT excluded
-    h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px">';
-    h+='<span style="color:var(--p)">&#x1F451;</span> HT excluded (separate pipeline): <b style="color:var(--p)">'+htCreators.length+'</b>';
-    h+='</div>';
-
-    // LT pool
-    h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px">';
-    h+='<span style="color:var(--a)">&#x26A1;</span> LT pool: <b style="color:var(--a)">'+ltCreators.length+'</b>';
-    h+='</div>';
-
     // Email
     h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-with-email')+'">';
-    h+='<span style="color:var(--g)">&#x2705;</span> With email: <b>'+withEmail.length+'</b>';
+    h+='<span style="color:var(--g)">&#x2705;</span> Email found: <b>'+withEmail.length+'</b>';
     h+='</div>';
 
     // No email
-    if(noEmail.length>0){
-      h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-no-email')+'">';
-      h+='<span style="color:var(--am)">&#x26A0;&#xFE0F;</span> Missing email: <b style="color:var(--am)">'+noEmail.length+'</b>';
-      if(apifyEnabled)h+=' <span style="font-size:9px;color:var(--dim)">(Apify Autofill ON)</span>';
-      h+='</div>';
-      h+=expandList('up-no-email',noEmail);
-    }
+    h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-no-email')+'">';
+    h+='<span style="color:var(--am)">&#x26A0;&#xFE0F;</span> Missing email: <b style="color:var(--am)">'+noEmail.length+'</b>';
+    if(apifyEnabled)h+=' <span style="font-size:9px;color:var(--dim)">(Apify Autofill ON)</span>';
+    h+='</div>';
+    h+=expandList('up-no-email',noEmail);
 
-    // RAG Dedup with account details
+    // RAG Dedup
     if(ragEnabled){
       h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-dedup')+'">';
       h+='<span style="color:var(--p)">&#x1F50D;</span> RAG Email Dedup: <b style="color:var(--r)">-'+dedupCount+'</b> already contacted';
-      h+='</div>';
-      h+='<div style="margin-left:40px;font-size:9px;color:var(--dim);line-height:1.6">';
-      h+='Cross-check accounts:<br>';
-      h+='&nbsp;&nbsp;&#x2709; <b>affiliates@onzenna.com</b> (outreach sender)<br>';
-      h+='&nbsp;&nbsp;&#x2709; <b>hello@zezebaebae.com</b> (test sender)<br>';
-      h+='&nbsp;&nbsp;&#x1F4AC; ManyChat DM history<br>';
-      h+='&nbsp;&nbsp;&#x1F4F7; Syncly Discovery IG handles';
       h+='</div>';
       h+=expandList('up-dedup',dedupList);
     }else{
       h+='<div style="margin-left:20px;color:var(--muted);font-size:10px">&#x1F50D; RAG Dedup: OFF</div>';
     }
 
+    // Brand Filter
+    if(brandFilterEnabled){
+      h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-brand-filter')+'">';
+      h+='<span style="color:var(--r)">&#x1F6AB;</span> Brand Filter: <b style="color:var(--r)">-'+brandFiltered.length+'</b> brand/reseller accounts';
+      h+='</div>';
+      h+=expandList('up-brand-filter',brandFiltered);
+    }else{
+      h+='<div style="margin-left:20px;color:var(--muted);font-size:10px">&#x1F6AB; Brand Filter: OFF</div>';
+    }
+
     // Divider
     h+='<hr style="border:none;border-top:2px solid var(--g);margin:8px 0">';
 
-    // Eligible (LT only)
-    h+='<div style="display:flex;align-items:center;gap:6px"><span style="width:20px">&#x2709;&#xFE0F;</span><b>LT Eligible to send:</b> <span style="font-family:var(--mono);font-size:18px;color:var(--g);font-weight:800">'+eligible+'</span></div>';
+    // Eligible
+    h+='<div style="display:flex;align-items:center;gap:6px"><span style="width:20px">&#x2709;&#xFE0F;</span><b>Eligible to send:</b> <span style="font-family:var(--mono);font-size:18px;color:var(--g);font-weight:800">'+eligible+'</span></div>';
     h+='<div style="margin-left:26px;font-size:10px;color:var(--dim)">';
-    h+='IG: <b>'+igCount+'</b> | TT: <b>'+ttCount+'</b>';
+    h+='LT (&lt;100K): <b>'+lt+'</b> | HT (&ge;100K): <b>'+ht+'</b>';
     h+='</div>';
 
-    // Brand breakdown (LT only)
-    h+='<div style="margin-top:8px"><b>LT By Brand:</b></div>';
+    // Brand breakdown
+    h+='<div style="margin-top:8px"><b>By Brand:</b></div>';
     h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">';
     for(var b in brands){
       var color=b==='Grosmimi'?'var(--g)':b==='CHA&MOM'||b==='cha&mom'?'var(--c)':b==='Naeiae'?'var(--am)':'var(--dim)';
@@ -2807,10 +2764,9 @@ async function confirmExec(){
 
   _tabLoaded['execution']=false;
   loadExecLog();
-  var cooldown=(action==='send')?30000:3000;
   setTimeout(function(){
     if(btn){btn.disabled=false;btn.textContent=meta.icon+' '+meta.title}
-  },cooldown);
+  },3000);
 }
 
 // ========== EXECUTION LOG ==========
@@ -3416,7 +3372,10 @@ function switchHwMode(mode){
   document.getElementById('hw-panel-lt').style.display=mode==='lt'?'block':'none';
   document.getElementById('hw-panel-ht').style.display=mode==='ht'?'block':'none';
 }
+var _cfgMode='lt';
 function switchCfgMode(mode){
+  _cfgMode=mode;
+  _ftCache=null;_ftCacheWeek=null;_ftResults={}; // reset cache on mode switch
   document.getElementById('cfg-btn-lt').style.background=mode==='lt'?'var(--a)':'var(--bg)';
   document.getElementById('cfg-btn-lt').style.color=mode==='lt'?'#fff':'var(--dim)';
   document.getElementById('cfg-btn-ht').style.background=mode==='ht'?'var(--p)':'var(--bg)';
@@ -3933,18 +3892,21 @@ async function ensureFtCache(){
     dates=[selWeek];
   }
 
+  // Apply LT/HT filter based on current config mode
+  var typeFilter=(_cfgMode==='ht')?'&outreach_type=HT':(_cfgMode==='lt')?'&outreach_type=LT':'';
+
   if(dates.length>0){
     // Fetch only creators matching the selected week's discovery dates
     var all=[];
     for(var i=0;i<dates.length;i++){
-      var data=await apiFetch('/pipeline/creators/?status=Not+Started&discovery_date='+dates[i]+'&limit=2000');
+      var data=await apiFetch('/pipeline/creators/?status=Not+Started&discovery_date='+dates[i]+typeFilter+'&limit=2000');
       var items=data.results||[];
       all=all.concat(items);
     }
     _ftCache=all;
   }else{
     // No week selected — fetch all (fallback)
-    var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=5000');
+    var data=await apiFetch('/pipeline/creators/?status=Not+Started'+typeFilter+'&limit=5000');
     _ftCache=data.results||[];
   }
   return _ftCache;
@@ -4122,14 +4084,22 @@ function updateFtSummary(){
     apifyEstimate=_ftResults.apify.estimated||Math.round(pendingCrawl*0.20);
   }
 
-  // Pipeline: total → −non-US → −brand → withEmail (base) → +apify est. → −RAG dedup → eligible
+  // Pipeline: total → −non-US → −brand → −RAG dedup → eligible (with email + Apify est.)
   var afterUs=total-usNonCount;
   var afterBrand=afterUs-brandCount;
   if(afterBrand<0)afterBrand=0;
-  var baseEligible=Math.min(withEmail,afterBrand);
-  var afterApify=baseEligible+apifyEstimate;
-  var eligible=afterApify-ragCount;
+  var afterRag=afterBrand-ragCount;
+  if(afterRag<0)afterRag=0;
+  // Eligible = creators with real email + Apify fill estimate for those without
+  var eligible;
+  if(apifyCheck&&pendingCrawl>0){
+    eligible=withEmail+apifyEstimate-ragCount;
+  }else{
+    eligible=withEmail-ragCount;
+  }
   if(eligible<0)eligible=0;
+  // Also show total after filters (regardless of email) for context
+  var totalAfterFilters=afterRag;
 
   // Build flow display
   var flowEl=document.getElementById('ft-pipeline-flow');
@@ -4138,9 +4108,10 @@ function updateFtSummary(){
   parts.push(total+' total');
   if(usCheck&&_ftResults.us)parts.push('\u2212'+usNonCount+' non-US');
   if(brandCheck&&_ftResults.brand)parts.push('\u2212'+brandCount+' business');
-  parts.push(baseEligible+' with email');
-  if(apifyCheck)parts.push('+'+apifyEstimate+' Apify ('+pendingCrawl+'\u00d720%)');
   if(ragCheck&&_ftResults.rag)parts.push('\u2212'+ragCount+' dedup');
+  parts.push(totalAfterFilters+' after filters');
+  if(withEmail>0)parts.push(withEmail+' with email');
+  if(apifyCheck&&pendingCrawl>0)parts.push('+'+apifyEstimate+' Apify ('+pendingCrawl+'\u00d720%)');
   flowEl.textContent=parts.join(' \u2192 ');
   document.getElementById('ft-eligible-count').textContent=eligible;
   document.getElementById('ft-total-count').textContent=total;
@@ -4622,8 +4593,8 @@ async function createReviewDraft(){
   }catch(e){showToast('Draft creation failed: '+e.message,'err')}
 }
 
-// Remote control disabled — /remote/poll/ endpoint not yet implemented on backend
-// startRemoteControl();
+// Auto-start remote control
+startRemoteControl();
 </script>
 </body>
 </html>
