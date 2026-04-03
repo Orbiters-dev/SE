@@ -538,10 +538,10 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <!-- Step 0: US Only Filter -->
         <div class="ft-step" id="fts-us" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <input type="checkbox" checked class="rq-check" id="ft-check-us" style="flex-shrink:0" onchange="updateFtSummary()">
+            <input type="checkbox" class="rq-check" id="ft-check-us" style="flex-shrink:0" onchange="updateFtSummary()">
             <span style="font-size:11px;font-weight:800;color:#ef4444;font-family:var(--mono);min-width:16px">&#x24EA;</span>
             <span style="font-weight:700;min-width:120px">US Only</span>
-            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-us-only" checked><span class="slider"></span></label>
+            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-us-only"><span class="slider"></span></label>
             <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('us')" id="ft-btn-us" style="font-size:10px">&#x1F50D; Check</button>
             <span id="ft-badge-us"></span>
           </div>
@@ -552,10 +552,10 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <!-- Step 1: Brand Filter -->
         <div class="ft-step" id="fts-brand" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <input type="checkbox" checked class="rq-check" id="ft-check-brand" style="flex-shrink:0" onchange="updateFtSummary()">
+            <input type="checkbox" class="rq-check" id="ft-check-brand" style="flex-shrink:0" onchange="updateFtSummary()">
             <span style="font-size:11px;font-weight:800;color:var(--a);font-family:var(--mono);min-width:16px">&#x2460;</span>
             <span style="font-weight:700;min-width:120px">Business Account Filter</span>
-            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-brand-filter" checked><span class="slider"></span></label>
+            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-brand-filter"><span class="slider"></span></label>
             <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('brand')" id="ft-btn-brand" style="font-size:10px">&#x1F50D; Check</button>
             <span id="ft-badge-brand"></span>
           </div>
@@ -566,7 +566,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <!-- Step 2: Apify Autofill -->
         <div class="ft-step" id="fts-apify" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <input type="checkbox" checked class="rq-check" id="ft-check-apify" style="flex-shrink:0" onchange="updateFtSummary()">
+            <input type="checkbox" class="rq-check" id="ft-check-apify" style="flex-shrink:0" onchange="updateFtSummary()">
             <span style="font-size:11px;font-weight:800;color:var(--a);font-family:var(--mono);min-width:16px">&#x2461;</span>
             <span style="font-weight:700;min-width:120px">Apify Autofill</span>
             <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-autofill"><span class="slider"></span></label>
@@ -580,7 +580,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <!-- Step 3: RAG Email Dedup (strongest, runs last) -->
         <div class="ft-step" id="fts-rag" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <input type="checkbox" checked class="rq-check" id="ft-check-rag" style="flex-shrink:0" onchange="updateFtSummary()">
+            <input type="checkbox" class="rq-check" id="ft-check-rag" style="flex-shrink:0" onchange="updateFtSummary()">
             <span style="font-size:11px;font-weight:800;color:var(--r);font-family:var(--mono);min-width:16px">&#x2462;</span>
             <span style="font-weight:700;min-width:120px">RAG Email Dedup</span>
             <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-rag-dedup"><span class="slider"></span></label>
@@ -1773,8 +1773,7 @@ async function loadConfig(){
     document.getElementById('config-dash').style.display='block';
     document.getElementById('pill-date').textContent=_config.date;
     loadConfigHistory();
-    // Auto-run Feature Toggle checks after config loads
-    setTimeout(function(){try{checkAllFeatures()}catch(e){}},500);
+    // Feature Toggles: don't auto-run — user clicks Check individually
   }catch(e){
     document.getElementById('config-loading').innerHTML='<span style="color:var(--r)">Failed to load: '+e.message+'</span>';
   }
@@ -1788,10 +1787,10 @@ function populateConfigForm(c){
   document.getElementById('f-creators-contacted').value=c.creators_contacted;
   document.getElementById('f-ht-threshold').value=c.ht_threshold;
   document.getElementById('f-ht-follower-min').value=c.ht_follower_min||50000;
-  document.getElementById('f-rag-dedup').checked=c.rag_email_dedup;
-  document.getElementById('f-apify-autofill').checked=c.apify_autofill;
-  document.getElementById('f-apify-brand-filter').checked=c.apify_brand_filter!==false;
-  document.getElementById('f-us-only').checked=c.us_only!==false;
+  document.getElementById('f-rag-dedup').checked=!!c.rag_email_dedup;
+  document.getElementById('f-apify-autofill').checked=!!c.apify_autofill;
+  document.getElementById('f-apify-brand-filter').checked=!!c.apify_brand_filter;
+  document.getElementById('f-us-only').checked=!!c.us_only;
   document.getElementById('f-hil-draft').checked=c.hil_draft_review!==false;
   document.getElementById('f-hil-send').checked=c.hil_send_approval!==false;
   document.getElementById('f-hil-sample').checked=!!c.hil_sample_approval;
@@ -3963,6 +3962,9 @@ async function checkFeatureImpact(feature){
   var btn=document.getElementById('ft-btn-'+feature);
   var badge=document.getElementById('ft-badge-'+feature);
   var expand=document.getElementById('ft-expand-'+feature);
+  // Auto-check the inclusion checkbox when user clicks Check
+  var chk=document.getElementById('ft-check-'+feature);
+  if(chk)chk.checked=true;
   btn.disabled=true;btn.textContent='...';
   badge.innerHTML='<span style="color:var(--dim);font-size:9px">checking...</span>';
 

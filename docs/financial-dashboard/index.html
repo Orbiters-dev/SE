@@ -933,10 +933,12 @@ function renderFinancial(){
 
   // ── Time grain toggle builder ──
   function grainToggle(id){
+    var extra = (id==='ads') ? '<div data-gr="daily" onclick="switchTimeGrain(\'daily\',\''+id+'\',this)">Daily</div>' : '';
     return '<div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:12px">'
       +'<div class="period-tabs" id="'+id+'-grain">'
       +'<div class="on" data-gr="monthly" onclick="switchTimeGrain(\'monthly\',\''+id+'\',this)">Monthly</div>'
       +'<div data-gr="weekly" onclick="switchTimeGrain(\'weekly\',\''+id+'\',this)">Weekly</div>'
+      +extra
       +'</div></div>';
   }
 
@@ -3457,7 +3459,11 @@ function switchTimeGrain(grain, tabId, el){
     return label;
   });
 
-  if(grain==='weekly'){
+  if(grain==='daily'){
+    var D=F.daily_review||{};
+    var html=buildDailyAdReview(F);
+    container.innerHTML=html;
+  } else if(grain==='weekly'){
     var wLabels=W.week_labels||[];
     var html='';
     if(tabId==='rev'){
@@ -3491,6 +3497,180 @@ function switchTimeGrain(grain, tabId, el){
     }
     container.innerHTML=html;
   }
+}
+
+// ── Daily Ad Performance Review ──────────────────────────────────────────────
+function buildDailyAdReview(F){
+  var D=F.daily_review||{};
+  var dates=D.dates||[];
+  var labels=D.date_labels||[];
+  var amzSales=D.amazon_sales||[];
+  var AP=D.ad_performance||{};
+  var ga4Sess=D.ga4_sessions||[];
+  var amzSess=D.amz_sessions||[];
+  var accSess=D.accumulated_sessions||[];
+  if(!dates.length) return '<div class="card" style="padding:24px;color:var(--dim)">No daily data available.</div>';
+
+  function delta(cur,prev){
+    if(!prev||prev===0) return '';
+    var pct=((cur-prev)/prev*100);
+    var arrow=pct>=0?'▲':'▼';
+    var color=pct>=0?'#16a34a':'#dc2626';
+    return ' <span style="font-size:9px;color:'+color+'">'+arrow+Math.abs(pct).toFixed(1)+'%</span>';
+  }
+  function deltaSpend(cur,prev){
+    if(!prev||prev===0) return '';
+    var pct=((cur-prev)/prev*100);
+    var arrow=pct>=0?'▲':'▼';
+    return ' <span style="font-size:9px;color:#6b7280">'+arrow+Math.abs(pct).toFixed(1)+'%</span>';
+  }
+
+  var html='';
+
+  // ── Section 1: Recent 7-day cards (newest first) ──
+  html+='<div class="sec"><div class="sec-title"><div class="num">1</div> Daily Performance Review (Last 7 Days)</div>';
+  html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px">';
+
+  var startIdx=Math.max(0, dates.length-7);
+  for(var i=dates.length-1; i>=startIdx; i--){
+    var d=dates[i];
+    var prev=i>0?i-1:-1;
+    // Format date nicely: "4/2/2026 (Wed)"
+    var dt=new Date(d+'T12:00:00');
+    var dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var dateLabel=(dt.getMonth()+1)+'/'+dt.getDate()+'/'+dt.getFullYear()+' ('+dayNames[dt.getDay()]+')';
+
+    var metaCvrSpend=(AP['Meta CVR']?AP['Meta CVR'].spend[i]:0)||0;
+    var metaCvrClicks=(AP['Meta CVR']?AP['Meta CVR'].clicks[i]:0)||0;
+    var metaTrfSpend=(AP['Meta Traffic']?AP['Meta Traffic'].spend[i]:0)||0;
+    var metaTrfClicks=(AP['Meta Traffic']?AP['Meta Traffic'].clicks[i]:0)||0;
+    var metaTotalSpend=metaCvrSpend+metaTrfSpend;
+    var metaTotalClicks=metaCvrClicks+metaTrfClicks;
+
+    var ppcSpend=(AP['Amazon Ads']?AP['Amazon Ads'].spend[i]:0)||0;
+    var ppcClicks=(AP['Amazon Ads']?AP['Amazon Ads'].clicks[i]:0)||0;
+    var ppcSales=(AP['Amazon Ads']?AP['Amazon Ads'].sales[i]:0)||0;
+    var ppcRoas=ppcSpend>0?(ppcSales/ppcSpend).toFixed(2):'—';
+
+    var gSpend=(AP['Google Ads']?AP['Google Ads'].spend[i]:0)||0;
+    var gClicks=(AP['Google Ads']?AP['Google Ads'].clicks[i]:0)||0;
+
+    // Previous day values for delta
+    var pAmzSales=prev>=0?amzSales[prev]:0;
+    var pMetaSpend=prev>=0?((AP['Meta CVR']?AP['Meta CVR'].spend[prev]:0)+(AP['Meta Traffic']?AP['Meta Traffic'].spend[prev]:0)):0;
+    var pPpcSpend=prev>=0?(AP['Amazon Ads']?AP['Amazon Ads'].spend[prev]:0):0;
+    var pPpcSales=prev>=0?(AP['Amazon Ads']?AP['Amazon Ads'].sales[prev]:0):0;
+
+    html+='<div class="card" style="padding:16px">';
+    html+='<div style="font-weight:700;font-size:13px;margin-bottom:10px;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:6px">'+dateLabel+'</div>';
+
+    // Amazon Total Sales
+    html+='<div style="margin-bottom:8px">';
+    html+='<div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px">Amazon Total Sales</div>';
+    html+='<div style="font-size:18px;font-weight:700;font-family:var(--mono);color:#f59e0b">'+$(amzSales[i]||0)+delta(amzSales[i],pAmzSales)+'</div>';
+    html+='</div>';
+
+    // Meta Ads
+    html+='<div style="margin-bottom:8px;padding:8px;background:var(--bg);border-radius:6px">';
+    html+='<div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Meta Ads</div>';
+    html+='<div style="display:flex;gap:16px">';
+    html+='<div><span style="font-size:9px;color:var(--dim)">Clicks</span><br><b style="font-family:var(--mono)">'+num(metaTotalClicks)+'</b></div>';
+    html+='<div><span style="font-size:9px;color:var(--dim)">Spend</span><br><b style="font-family:var(--mono)">'+$(metaTotalSpend)+deltaSpend(metaTotalSpend,pMetaSpend)+'</b></div>';
+    html+='</div>';
+    html+='<div style="font-size:9px;color:var(--dim);margin-top:4px">CVR: '+num(metaCvrClicks)+' clicks / '+$(metaCvrSpend)+' · Traffic: '+num(metaTrfClicks)+' clicks / '+$(metaTrfSpend)+'</div>';
+    html+='</div>';
+
+    // Amazon PPC
+    html+='<div style="margin-bottom:8px;padding:8px;background:var(--bg);border-radius:6px">';
+    html+='<div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Amazon PPC</div>';
+    html+='<div style="display:flex;gap:16px">';
+    html+='<div><span style="font-size:9px;color:var(--dim)">Clicks</span><br><b style="font-family:var(--mono)">'+num(ppcClicks)+'</b></div>';
+    html+='<div><span style="font-size:9px;color:var(--dim)">Spend</span><br><b style="font-family:var(--mono)">'+$(ppcSpend)+deltaSpend(ppcSpend,pPpcSpend)+'</b></div>';
+    html+='<div><span style="font-size:9px;color:var(--dim)">Sales</span><br><b style="font-family:var(--mono)">'+$(ppcSales)+delta(ppcSales,pPpcSales)+'</b></div>';
+    html+='<div><span style="font-size:9px;color:var(--dim)">ROAS</span><br><b style="font-family:var(--mono);color:'+(parseFloat(ppcRoas)>=3?'#16a34a':'#f59e0b')+'">'+ppcRoas+'x</b></div>';
+    html+='</div>';
+    html+='</div>';
+
+    // Google Ads (compact)
+    if(gSpend>0){
+      html+='<div style="margin-bottom:8px;font-size:10px;color:var(--dim)">Google Ads: '+num(gClicks)+' clicks / '+$(gSpend)+'</div>';
+    }
+
+    // Sessions
+    html+='<div style="padding:6px 8px;background:#f0fdf4;border-radius:6px;font-size:11px">';
+    html+='<span style="color:var(--dim)">Sessions:</span> <b>'+num((ga4Sess[i]||0)+(amzSess[i]||0))+'</b>';
+    html+=' <span style="color:var(--dim);margin-left:8px">Accumulated:</span> <b>'+num(accSess[i]||0)+'</b>';
+    html+='</div>';
+
+    html+='</div>'; // close card
+  }
+  html+='</div></div>'; // close grid + sec
+
+  // ── Section 2: 30-day table ──
+  html+='<div class="sec"><div class="sec-title"><div class="num">2</div> Daily Performance (30 Days)</div>';
+  html+='<div class="card"><div style="overflow-x:auto"><table>';
+  html+='<thead><tr>';
+  html+='<th>Date</th><th style="text-align:right">Amz Sales</th>';
+  html+='<th style="text-align:right">Meta Clicks</th><th style="text-align:right">Meta Spend</th>';
+  html+='<th style="text-align:right">PPC Clicks</th><th style="text-align:right">PPC Spend</th>';
+  html+='<th style="text-align:right">PPC Sales</th><th style="text-align:right">ROAS</th>';
+  html+='<th style="text-align:right">Google $</th>';
+  html+='<th style="text-align:right">Sessions</th>';
+  html+='</tr></thead><tbody>';
+
+  for(var i=dates.length-1; i>=0; i--){
+    var metaC=((AP['Meta CVR']?AP['Meta CVR'].clicks[i]:0)||0)+((AP['Meta Traffic']?AP['Meta Traffic'].clicks[i]:0)||0);
+    var metaS=((AP['Meta CVR']?AP['Meta CVR'].spend[i]:0)||0)+((AP['Meta Traffic']?AP['Meta Traffic'].spend[i]:0)||0);
+    var pC=(AP['Amazon Ads']?AP['Amazon Ads'].clicks[i]:0)||0;
+    var pS=(AP['Amazon Ads']?AP['Amazon Ads'].spend[i]:0)||0;
+    var pSa=(AP['Amazon Ads']?AP['Amazon Ads'].sales[i]:0)||0;
+    var roas=pS>0?(pSa/pS).toFixed(2):'—';
+    var gS=(AP['Google Ads']?AP['Google Ads'].spend[i]:0)||0;
+    var sess=(ga4Sess[i]||0)+(amzSess[i]||0);
+    var isWeekend=new Date(dates[i]+'T12:00:00').getDay()%6===0;
+    var rowBg=isWeekend?'background:rgba(99,102,241,0.04)':'';
+    html+='<tr style="'+rowBg+'">';
+    html+='<td style="font-size:10px;white-space:nowrap">'+labels[i]+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(amzSales[i]||0)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(metaC)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(metaS)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(pC)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(pS)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(pSa)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:'+(parseFloat(roas)>=3?'#16a34a':'#f59e0b')+'">'+roas+'x</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(gS)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(sess)+'</td>';
+    html+='</tr>';
+  }
+
+  // Totals row
+  var tAmz=0,tMC=0,tMS=0,tPC=0,tPS=0,tPSa=0,tGS=0,tSess=0;
+  for(var i=0;i<dates.length;i++){
+    tAmz+=amzSales[i]||0;
+    tMC+=((AP['Meta CVR']?AP['Meta CVR'].clicks[i]:0)||0)+((AP['Meta Traffic']?AP['Meta Traffic'].clicks[i]:0)||0);
+    tMS+=((AP['Meta CVR']?AP['Meta CVR'].spend[i]:0)||0)+((AP['Meta Traffic']?AP['Meta Traffic'].spend[i]:0)||0);
+    tPC+=(AP['Amazon Ads']?AP['Amazon Ads'].clicks[i]:0)||0;
+    tPS+=(AP['Amazon Ads']?AP['Amazon Ads'].spend[i]:0)||0;
+    tPSa+=(AP['Amazon Ads']?AP['Amazon Ads'].sales[i]:0)||0;
+    tGS+=(AP['Google Ads']?AP['Google Ads'].spend[i]:0)||0;
+    tSess+=(ga4Sess[i]||0)+(amzSess[i]||0);
+  }
+  var tRoas=tPS>0?(tPSa/tPS).toFixed(2):'—';
+  html+='<tr style="border-top:2px solid var(--border);font-weight:800">';
+  html+='<td>TOTAL</td>';
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(tAmz))+'</td>';
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(tMC)+'</td>';
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(tMS))+'</td>';
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(tPC)+'</td>';
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(tPS))+'</td>';
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(tPSa))+'</td>';
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+tRoas+'x</td>';
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(tGS))+'</td>';
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(tSess)+'</td>';
+  html+='</tr>';
+
+  html+='</tbody></table></div></div></div>';
+  return html;
 }
 
 // ── Weekly generic table (brand/channel revenue) ────────────────────────────

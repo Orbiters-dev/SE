@@ -553,6 +553,90 @@ def generate():
         ad_weekly["Google Ads"][wk]["impressions"] += int(r.get("impressions") or 0)
         ad_weekly["Google Ads"][wk]["clicks"] += int(r.get("clicks") or 0)
 
+    # ── Daily ad performance (last 30 days) for Daily Review tab ────────────
+    print("  Building daily ad performance (30d)...")
+    _daily_cutoff = (today - timedelta(days=30)).isoformat()
+    ad_daily = defaultdict(lambda: defaultdict(lambda: {
+        "spend": 0, "sales": 0, "impressions": 0, "clicks": 0
+    }))
+    amz_sales_daily = defaultdict(float)  # date -> total Amazon net sales
+    ga4_sessions_daily = defaultdict(int)  # date -> total GA4 sessions
+
+    for r in amazon_ads:
+        d = r.get("date", "")
+        if not d or d < _daily_cutoff or d > through:
+            continue
+        ad_daily["Amazon Ads"][d]["spend"] += float(r.get("spend") or 0)
+        ad_daily["Amazon Ads"][d]["sales"] += float(r.get("sales") or 0)
+        ad_daily["Amazon Ads"][d]["impressions"] += int(r.get("impressions") or 0)
+        ad_daily["Amazon Ads"][d]["clicks"] += int(r.get("clicks") or 0)
+
+    for r in meta_ads:
+        d = r.get("date", "")
+        if not d or d < _daily_cutoff or d > through:
+            continue
+        cname = (r.get("campaign_name") or "").lower()
+        landing = (r.get("landing_url") or "").lower()
+        is_amz = "amazon" in cname or "amz" in cname or "amazon" in landing
+        label = "Meta Traffic" if is_amz else "Meta CVR"
+        ad_daily[label][d]["spend"] += float(r.get("spend") or 0)
+        ad_daily[label][d]["sales"] += float(r.get("purchase_value") or 0)
+        ad_daily[label][d]["impressions"] += int(r.get("impressions") or 0)
+        ad_daily[label][d]["clicks"] += int(r.get("clicks") or 0)
+
+    for r in google_ads:
+        d = r.get("date", "")
+        if not d or d < _daily_cutoff or d > through:
+            continue
+        ad_daily["Google Ads"][d]["spend"] += float(r.get("spend") or 0)
+        ad_daily["Google Ads"][d]["sales"] += float(r.get("conversion_value") or 0)
+        ad_daily["Google Ads"][d]["impressions"] += int(r.get("impressions") or 0)
+        ad_daily["Google Ads"][d]["clicks"] += int(r.get("clicks") or 0)
+
+    for r in amazon_sales:
+        d = r.get("date", "")
+        if not d or d < _daily_cutoff or d > through:
+            continue
+        amz_sales_daily[d] += float(r.get("net_sales") or 0)
+
+    for r in ga4:
+        d = r.get("date", "")
+        if not d or d < _daily_cutoff or d > through:
+            continue
+        ga4_sessions_daily[d] += int(r.get("sessions") or 0)
+
+    # Build sorted daily arrays
+    _daily_dates = sorted(set(
+        list(amz_sales_daily.keys()) +
+        [d for p in ad_daily.values() for d in p.keys()]
+    ))
+    _daily_labels = []
+    for dd in _daily_dates:
+        parts = dd.split("-")
+        _daily_labels.append(f"{int(parts[1])}/{int(parts[2])}")
+
+    _daily_ad_out = {}
+    for platform in ["Amazon Ads", "Meta CVR", "Meta Traffic", "Google Ads"]:
+        _daily_ad_out[platform] = {
+            "spend": [round(ad_daily[platform][d]["spend"]) for d in _daily_dates],
+            "sales": [round(ad_daily[platform][d]["sales"]) for d in _daily_dates],
+            "clicks": [ad_daily[platform][d]["clicks"] for d in _daily_dates],
+            "impressions": [ad_daily[platform][d]["impressions"] for d in _daily_dates],
+        }
+
+    # Amazon sessions daily (from amz_sessions_raw built later — deferred)
+    # GA4 sessions + accumulated
+    _ga4_daily_arr = [ga4_sessions_daily.get(d, 0) for d in _daily_dates]
+    _amz_sales_daily_arr = [round(amz_sales_daily.get(d, 0)) for d in _daily_dates]
+
+    daily_review_data = {
+        "dates": _daily_dates,
+        "date_labels": _daily_labels,
+        "amazon_sales": _amz_sales_daily_arr,
+        "ad_performance": _daily_ad_out,
+        "ga4_sessions": _ga4_daily_arr,
+    }
+
     # ── Brand-level ad performance ────────────────────────────────────────────
     brand_ad_monthly = defaultdict(lambda: defaultdict(lambda: {"spend": 0, "sales": 0}))
 
@@ -1291,6 +1375,17 @@ def generate():
     } if amz_sessions_raw else {}
     if amz_sessions_30d:
         print(f"  Amazon sessions (30d): {amz_sessions_30d['sessions']:,} sessions, {amz_sessions_30d['pageViews']:,} pageViews")
+
+    # Backfill Amazon sessions into daily_review_data
+    _amz_sess_days = amz_sessions_raw.get("days", {}) if amz_sessions_raw else {}
+    daily_review_data["amz_sessions"] = [_amz_sess_days.get(d, {}).get("sessions", 0) for d in daily_review_data["dates"]]
+    # Accumulated sessions = running total of GA4 + Amazon sessions
+    _acc = 0
+    _acc_arr = []
+    for i, d in enumerate(daily_review_data["dates"]):
+        _acc += daily_review_data["ga4_sessions"][i] + daily_review_data["amz_sessions"][i]
+        _acc_arr.append(_acc)
+    daily_review_data["accumulated_sessions"] = _acc_arr
 
     # ── Ad Creative Breakdown (WL/Image/Video) ─────────────────────────────
     def _classify_creative(ad_name):
@@ -3698,6 +3793,7 @@ def generate():
         "klaviyo": klaviyo_data,
         "campaign_detail": campaign_detail,
         "brand_ad_by_platform": bap_monthly_out,
+        "daily_review": daily_review_data,
         "weekly": weekly_data,
         "hero_products": hero_data,
         "jp": _build_jp_data(dk, months),
