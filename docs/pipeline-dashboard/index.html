@@ -134,7 +134,8 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 <!-- MAIN CONTENT -->
 <div id="main-content" style="display:none">
 <div class="ctr">
-  <!-- Top-level navigation — switches between dashboards -->
+  <!-- Nav + Hero — hidden when embedded in Financial Dashboard iframe -->
+  <div id="standalone-header">
   <div class="nav-bar" style="margin-bottom:16px">
     <div>
       <a href="../ppc-dashboard/" title="Amazon PPC Intelligence">Amazon PPC</a>
@@ -157,6 +158,8 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
       <span class="pill" id="pill-total">-</span>
     </div>
   </div>
+  </div><!-- /standalone-header -->
+  <script>if(new URLSearchParams(location.search).get('embed')==='1')document.getElementById('standalone-header').style.display='none';</script>
 
   <!-- PIPELINE OVERVIEW — always visible above tabs -->
   <div class="card" style="margin-bottom:12px">
@@ -581,7 +584,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
             <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('rag')" id="ft-btn-rag" style="font-size:10px">&#x1F50D; Check</button>
             <span id="ft-badge-rag"></span>
           </div>
-          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Final gate &#x2014; removes anyone already contacted, even if Apify just found their email</div>
+          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">3-account cross-check: <b>affiliates@onzenna.com</b> + <b>hello@zezebaebae.com</b> + <b>ManyChat DM</b></div>
           <div id="ft-expand-rag" style="display:none;margin:4px 0 0 28px"></div>
         </div>
 
@@ -3979,7 +3982,7 @@ async function checkFeatureImpact(feature){
         'grosmimi','chaandmom','naeiae','zezebaebae','orbitool','toddie','fleeters'];
       var handleFiltered=creators.filter(function(c){
         if(c.is_business_account===true)return false;// already counted
-        var h=(c.ig_handle||c.tiktok_handle||'').toLowerCase().replace(/^@/,'');
+        var h=String(c.ig_handle||c.tiktok_handle||'').toLowerCase().replace(/^@/,'');
         return brandFilterList.some(function(b){return h===b||h.includes(b+'_')});
       });
       var allFiltered=filtered.concat(handleFiltered);
@@ -4076,11 +4079,10 @@ function updateFtSummary(){
   var usCheck=document.getElementById('ft-check-us').checked;
   var usRemoved=0;
   if(usCheck&&_ftResults.us&&_ftResults.us.list){
-    var nonUsHandles=new Set(_ftResults.us.list.map(function(h){return h.toLowerCase()}));
+    var nonUsIds=new Set(_ftResults.us.list.map(function(c){return c.id||String(c.ig_handle||c.tiktok_handle||'').toLowerCase()}));
     var before=pool.length;
     pool=pool.filter(function(c){
-      var h=(c.ig_handle||c.tiktok_handle||'').toLowerCase();
-      return !nonUsHandles.has(h);
+      return !nonUsIds.has(c.id)&&!nonUsIds.has(String(c.ig_handle||c.tiktok_handle||'').toLowerCase());
     });
     usRemoved=before-pool.length;
   }
@@ -4090,11 +4092,10 @@ function updateFtSummary(){
   var brandCheck=document.getElementById('ft-check-brand').checked;
   var brandRemoved=0;
   if(brandCheck&&_ftResults.brand&&_ftResults.brand.list){
-    var bizHandles=new Set(_ftResults.brand.list.map(function(h){return h.toLowerCase()}));
+    var bizIds=new Set(_ftResults.brand.list.map(function(c){return c.id||String(c.ig_handle||c.tiktok_handle||'').toLowerCase()}));
     var before=pool.length;
     pool=pool.filter(function(c){
-      var h=(c.ig_handle||c.tiktok_handle||'').toLowerCase();
-      return !bizHandles.has(h);
+      return !bizIds.has(c.id)&&!bizIds.has(String(c.ig_handle||c.tiktok_handle||'').toLowerCase());
     });
     brandRemoved=before-pool.length;
   }
