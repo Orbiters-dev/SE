@@ -1,5 +1,5 @@
 const PPC_DATA = {
- "generated_pst": "2026-04-02 21:39 PST",
+ "generated_pst": "2026-04-02 21:56 PST",
  "phantom_warnings": [],
  "brands": {
   "grosmimi": {
@@ -22422,7 +22422,7 @@ const PPC_DATA = {
      }
     },
     "2026-04-03": {
-     "generated": "2026-04-02T21:39",
+     "generated": "2026-04-02T21:56",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -26160,7 +26160,7 @@ const PPC_DATA = {
      }
     },
     "2026-04-03": {
-     "generated": "2026-04-02T21:39",
+     "generated": "2026-04-02T21:56",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -26185,7 +26185,7 @@ const PPC_DATA = {
        "bud_before": 100.0,
        "bud_after": null,
        "tier": "8 Strong",
-       "reason": "[AUTO] 7d ROAS 1.54x (ACOS 65.1%) | 30d ROAS 2.68x | target ACOS 35.0% | 7d vs 30d: -42.5%",
+       "reason": "[AUTO] 7d ROAS 1.54x (ACOS 65.1%) | 30d ROAS 2.68x | target ACOS 40.0% | 7d vs 30d: -42.5%",
        "approved": false
       },
       {
@@ -26203,7 +26203,7 @@ const PPC_DATA = {
        "bud_before": 100.0,
        "bud_after": null,
        "tier": "8 Strong",
-       "reason": "[MANUAL] 7d ROAS 7.38x (ACOS 13.6%) | 30d ROAS 5.26x | target ACOS 25.0% | 7d vs 30d: +40.3%\nBudget already at cap ($100/campaign)",
+       "reason": "[MANUAL] 7d ROAS 7.38x (ACOS 13.6%) | 30d ROAS 5.26x | target ACOS 30.0% | 7d vs 30d: +40.3%\nBudget already at cap ($100/campaign)",
        "approved": false
       },
       {
@@ -28940,8 +28940,8 @@ const PPC_DATA = {
     },
     "2026-04-02": {
      "generated": "2026-04-02T15:30",
-     "executed": false,
-     "executed_at": "",
+     "executed": true,
+     "executed_at": "2026-04-02",
      "summary_7d": {
       "spend": 82,
       "sales": 190,
@@ -28977,9 +28977,9 @@ const PPC_DATA = {
      }
     },
     "2026-04-03": {
-     "generated": "2026-04-02T21:39",
-     "executed": false,
-     "executed_at": "",
+     "generated": "2026-04-02T21:56",
+     "executed": true,
+     "executed_at": "2026-04-03",
      "summary_7d": {
       "spend": 85,
       "sales": 190,
@@ -29003,7 +29003,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "10 No-Brainer",
        "reason": "[AUTO] 7d ROAS 0.0x (ACOS None%) | 30d ROAS 12.18x | target ACOS 40.0% | 7d vs 30d: -100.0%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "CHA&MOM_Wash_SP_Auto",
@@ -29277,6 +29277,41 @@ const PPC_DATA = {
      "sales_7d": 28.7,
      "result_status": "OK",
      "exec_date": "2026-03-15"
+    },
+    {
+     "brand_key": "chaenmom",
+     "campaignId": "283428786376604",
+     "campaignName": "CHA&MOM_Cream_SP_Auto",
+     "action": "pause",
+     "priority": "urgent",
+     "reason": "[AUTO] 7d ROAS 0.0x (ACOS None%) | 30d ROAS 12.18x | target ACOS 40.0% | 7d vs 30d: -100.0%",
+     "old_budget": 75.0,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "roas_7d": 0.0,
+     "spend_7d": 3.27,
+     "sales_7d": 0.0,
+     "result_status": "OK",
+     "exec_date": "2026-04-02",
+     "exec_time": "2026-04-02 21:56:12 PST",
+     "user": "DASHBOARD",
+     "source": "dashboard"
+    },
+    {
+     "brand_key": "chaenmom",
+     "campaignId": "283428786376604",
+     "campaignName": "CHA&MOM_Cream_SP_Auto",
+     "action": "pause",
+     "priority": "urgent",
+     "reason": "[AUTO] 7d ROAS 0.0x (ACOS None%) | 30d ROAS 12.18x | target ACOS 40.0% | 7d vs 30d: -100.0%",
+     "old_budget": 75.0,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "roas_7d": 0.0,
+     "spend_7d": 3.27,
+     "sales_7d": 0.0,
+     "result_status": "OK",
+     "exec_date": "2026-04-03"
     }
    ]
   }
