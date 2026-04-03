@@ -3894,21 +3894,17 @@ async function ensureFtCache(){
     dates=[selWeek];
   }
 
-  // Apply LT/HT filter based on current config mode (API uses 'type' param)
-  var typeFilter=(_cfgMode==='ht')?'&type=HT':(_cfgMode==='lt')?'&type=LT':'';
-
+  // Fetch ALL types (LT+HT) — client-side filtering in updateFtSummary
   if(dates.length>0){
-    // Fetch only creators matching the selected week's discovery dates
     var all=[];
     for(var i=0;i<dates.length;i++){
-      var data=await apiFetch('/pipeline/creators/?status=Not+Started&discovery_date='+dates[i]+typeFilter+'&limit=2000');
+      var data=await apiFetch('/pipeline/creators/?status=Not+Started&discovery_date='+dates[i]+'&limit=2000');
       var items=data.results||[];
       all=all.concat(items);
     }
     _ftCache=all;
   }else{
-    // No week selected — fetch all (fallback)
-    var data=await apiFetch('/pipeline/creators/?status=Not+Started'+typeFilter+'&limit=5000');
+    var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=5000');
     _ftCache=data.results||[];
   }
   return _ftCache;
@@ -4069,14 +4065,21 @@ async function checkAllFeatures(){
 
 function updateFtSummary(){
   if(!_ftCache)return;
-  // Filter by current mode (safety net — API should already filter)
-  var modeFilter=_cfgMode;
-  var filtered=modeFilter==='lt'?_ftCache.filter(function(c){return c.outreach_type!=='HT'}):
-               modeFilter==='ht'?_ftCache.filter(function(c){return c.outreach_type==='HT'}):_ftCache;
-  var total=filtered.length;
-  var withEmail=filtered.filter(function(c){return c.email&&!c.email.includes('@discovered.')}).length;
-  var pendingCrawl=total-withEmail;
+  var all=_ftCache;
+  var totalAll=all.length;
 
+  // Split by type
+  var htAll=all.filter(function(c){return c.outreach_type==='HT'});
+  var ltAll=all.filter(function(c){return c.outreach_type!=='HT'});
+  var htCount=htAll.length;
+  var ltCount=ltAll.length;
+
+  // Email counts on full set
+  var allWithEmail=all.filter(function(c){return c.email&&!c.email.includes('@discovered.')}).length;
+  var ltWithEmail=ltAll.filter(function(c){return c.email&&!c.email.includes('@discovered.')}).length;
+  var ltPendingCrawl=ltCount-ltWithEmail;
+
+  // Filter counts (from check results — these are on the full set)
   var usCheck=document.getElementById('ft-check-us').checked;
   var ragCheck=document.getElementById('ft-check-rag').checked;
   var apifyCheck=document.getElementById('ft-check-apify').checked;
@@ -4086,32 +4089,35 @@ function updateFtSummary(){
   var brandCount=brandCheck&&_ftResults.brand?_ftResults.brand.count:0;
   var ragCount=ragCheck&&_ftResults.rag?_ftResults.rag.count:0;
   var apifyEstimate=0;
-  if(apifyCheck&&pendingCrawl>0){
-    apifyEstimate=_ftResults.apify?(_ftResults.apify.estimated||Math.round(pendingCrawl*0.20)):Math.round(pendingCrawl*0.20);
+  if(apifyCheck&&ltPendingCrawl>0){
+    apifyEstimate=Math.round(ltPendingCrawl*0.20);
   }
 
-  // Eligible = with real email + Apify estimate − RAG dedup
-  var eligible=withEmail+apifyEstimate-ragCount;
-  if(eligible<0)eligible=0;
+  // LT eligible = LT with real email + Apify estimate for LT pending − dedup
+  var ltEligible=ltWithEmail+apifyEstimate-ragCount;
+  if(ltEligible<0)ltEligible=0;
+
+  // Platform breakdown (LT only)
+  var ltIg=ltAll.filter(function(c){return (c.platform||'').toLowerCase()==='instagram'}).length;
+  var ltTt=ltAll.filter(function(c){return (c.platform||'').toLowerCase()==='tiktok'}).length;
 
   // Build flow display
-  var modeLabel=modeFilter==='lt'?' (LT only)':modeFilter==='ht'?' (HT only)':'';
   var flowEl=document.getElementById('ft-pipeline-flow');
   flowEl.textContent='';
   var parts=[];
-  parts.push(total+modeLabel);
+  parts.push(totalAll+' total (HT:'+htCount+' + LT:'+ltCount+')');
   if(usCheck&&usNonCount>0)parts.push('\u2212'+usNonCount+' non-US');
   if(brandCheck&&brandCount>0)parts.push('\u2212'+brandCount+' business');
   if(ragCheck&&ragCount>0)parts.push('\u2212'+ragCount+' dedup');
-  parts.push(withEmail+' with email');
-  if(apifyCheck&&apifyEstimate>0)parts.push('+'+apifyEstimate+' Apify ('+pendingCrawl+'\u00d720%)');
+  parts.push('LT: '+ltWithEmail+' with email');
+  if(apifyCheck&&apifyEstimate>0)parts.push('+'+apifyEstimate+' Apify ('+ltPendingCrawl+'\u00d720%)');
   flowEl.textContent=parts.join(' \u2192 ');
-  document.getElementById('ft-eligible-count').textContent=eligible;
-  document.getElementById('ft-total-count').textContent=total+modeLabel;
 
-  // Platform breakdown (from filtered set)
-  var igCount=filtered.filter(function(c){return (c.platform||'').toLowerCase()==='instagram'}).length;
-  var ttCount=filtered.filter(function(c){return (c.platform||'').toLowerCase()==='tiktok'}).length;
+  // Eligible = LT only
+  document.getElementById('ft-eligible-count').textContent=ltEligible;
+  document.getElementById('ft-total-count').textContent=totalAll;
+
+  // Breakdown
   var breakdownEl=document.getElementById('ft-breakdown');
   if(!breakdownEl){
     breakdownEl=document.createElement('div');
@@ -4121,10 +4127,12 @@ function updateFtSummary(){
   }
   breakdownEl.textContent='';
   var items=[
-    {label:'IG',val:igCount,color:'#e1306c'},
-    {label:'TT',val:ttCount,color:'#000'},
-    {label:'with email',val:withEmail,color:'var(--g)'},
-    {label:'pending crawl',val:pendingCrawl,color:'var(--am)'}
+    {label:'HT',val:htCount,color:'#ef4444'},
+    {label:'LT',val:ltCount,color:'#3b82f6'},
+    {label:'IG',val:ltIg,color:'#e1306c'},
+    {label:'TT',val:ltTt,color:'#000'},
+    {label:'LT with email',val:ltWithEmail,color:'var(--g)'},
+    {label:'LT pending crawl',val:ltPendingCrawl,color:'var(--am)'}
   ];
   items.forEach(function(it){
     var sp=document.createElement('span');
