@@ -503,13 +503,9 @@ def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
     print("[Amazon Ads] Collecting...")
     headers = _fresh_amz_ads_headers()
 
-    # 1. Get profiles
-    resp = requests.get("https://advertising-api.amazon.com/v2/profiles",
-                        headers=headers, timeout=30)
-    resp.raise_for_status()
-    profiles = [p for p in resp.json()
-                if p.get("countryCode") == "US" and p.get("accountInfo", {}).get("type") == "seller"]
-    print(f"  Profiles: {len(profiles)}")
+    # 1. Get profiles (US + JP)
+    profiles = _fetch_ads_profiles(headers)
+    print(f"  Profiles: {len(profiles)} (US+JP)")
 
     # 2. Get campaign names (for ID->name mapping)
     campaign_names = {}
@@ -520,8 +516,9 @@ def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
             h = {**headers, "Amazon-Advertising-API-Scope": pid,
                  "Content-Type": "application/vnd.spCampaign.v3+json",
                  "Accept": "application/vnd.spCampaign.v3+json"}
+            ads_base = p.get("_ads_base_url", "https://advertising-api.amazon.com")
             r = requests.post(
-                "https://advertising-api.amazon.com/sp/campaigns/list",
+                f"{ads_base}/sp/campaigns/list",
                 headers=h, json={"maxResults": 5000}, timeout=20,
             )
             r.raise_for_status()
@@ -568,10 +565,12 @@ def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
             type_rows = 0
             while cur <= d_to:
                 chunk_end = min(cur + timedelta(days=chunk_days), d_to)
+                ads_base = p.get("_ads_base_url", "https://advertising-api.amazon.com")
                 report_rows = _fetch_amz_ads_report(
                     h, pid, cur.isoformat(), chunk_end.isoformat(),
                     ad_product=ad_product, report_type_id=report_type_id,
                     columns=cols,
+                    base_url=ads_base,
                 )
                 for row in report_rows:
                     cid = str(row.get("campaignId", ""))
@@ -733,12 +732,7 @@ def collect_amazon_ads_search_terms(date_from: str, date_to: str) -> list[dict]:
     """Collect Amazon Ads search term reports (all profiles, 7-day chunks)."""
     print("[Amazon Ads Search Terms] Collecting...")
     headers = _fresh_amz_ads_headers()
-
-    resp = requests.get("https://advertising-api.amazon.com/v2/profiles",
-                        headers=headers, timeout=30)
-    resp.raise_for_status()
-    profiles = [p for p in resp.json()
-                if p.get("countryCode") == "US" and p.get("accountInfo", {}).get("type") == "seller"]
+    profiles = _fetch_ads_profiles(headers)
 
     all_rows = []
     d_from = datetime.strptime(date_from, "%Y-%m-%d").date()
@@ -755,6 +749,7 @@ def collect_amazon_ads_search_terms(date_from: str, date_to: str) -> list[dict]:
         while cur <= d_to:
             chunk_end = min(cur + timedelta(days=6), d_to)
             print(f"  [{brand}] Search terms {cur}~{chunk_end}...")
+            ads_base = p.get("_ads_base_url", "https://advertising-api.amazon.com")
             rows = _fetch_amz_ads_report_generic(
                 h, pid, cur.isoformat(), chunk_end.isoformat(),
                 report_type_id="spSearchTerm",
@@ -763,6 +758,7 @@ def collect_amazon_ads_search_terms(date_from: str, date_to: str) -> list[dict]:
                          "searchTerm", "impressions", "clicks", "cost",
                          "sales14d", "purchases14d"],
                 time_unit="DAILY",
+                base_url=ads_base,
             )
             for row in rows:
                 # DAILY: row has "date" field; SUMMARY fallback: use range
@@ -792,12 +788,7 @@ def collect_amazon_ads_keywords(date_from: str, date_to: str) -> list[dict]:
     """Collect Amazon Ads keyword-level reports (all profiles, 7-day chunks)."""
     print("[Amazon Ads Keywords] Collecting...")
     headers = _fresh_amz_ads_headers()
-
-    resp = requests.get("https://advertising-api.amazon.com/v2/profiles",
-                        headers=headers, timeout=30)
-    resp.raise_for_status()
-    profiles = [p for p in resp.json()
-                if p.get("countryCode") == "US" and p.get("accountInfo", {}).get("type") == "seller"]
+    profiles = _fetch_ads_profiles(headers)
 
     all_rows = []
     d_from = datetime.strptime(date_from, "%Y-%m-%d").date()
@@ -814,6 +805,7 @@ def collect_amazon_ads_keywords(date_from: str, date_to: str) -> list[dict]:
         while cur <= d_to:
             chunk_end = min(cur + timedelta(days=6), d_to)
             print(f"  [{brand}] Keywords {cur}~{chunk_end}...")
+            ads_base = p.get("_ads_base_url", "https://advertising-api.amazon.com")
             rows = _fetch_amz_ads_report_generic(
                 h, pid, cur.isoformat(), chunk_end.isoformat(),
                 report_type_id="spKeywords",
@@ -823,6 +815,7 @@ def collect_amazon_ads_keywords(date_from: str, date_to: str) -> list[dict]:
                          "impressions", "clicks", "cost",
                          "sales14d", "purchases14d"],
                 time_unit="DAILY",
+                base_url=ads_base,
             )
             for row in rows:
                 row_date = row.get("date", f"{cur}~{chunk_end}")
@@ -2501,17 +2494,14 @@ def collect_amazon_campaigns(date_from: str, date_to: str) -> list[dict]:
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
     }
-    resp = requests.get("https://advertising-api.amazon.com/v2/profiles",
-                        headers=profile_headers, timeout=30)
-    resp.raise_for_status()
-    profiles = [p for p in resp.json()
-                if p.get("countryCode") == "US" and p.get("accountInfo", {}).get("type") == "seller"]
+    profiles = _fetch_ads_profiles(profile_headers)
 
     all_campaigns = []
     for p in profiles:
         pid = str(p["profileId"])
         pname = p.get("accountInfo", {}).get("name", pid)
         brand = PROFILE_BRAND_MAP.get(pname, pname)
+        ads_base = p.get("_ads_base_url", "https://advertising-api.amazon.com")
         h_sp = {**headers, "Amazon-Advertising-API-Scope": pid}
 
         # --- SP campaigns (paginated — API caps at 1000/page) ---
@@ -2523,7 +2513,7 @@ def collect_amazon_campaigns(date_from: str, date_to: str) -> list[dict]:
                 if next_token:
                     body["nextToken"] = next_token
                 r = requests.post(
-                    "https://advertising-api.amazon.com/sp/campaigns/list",
+                    f"{ads_base}/sp/campaigns/list",
                     headers=h_sp, json=body, timeout=30,
                 )
                 r.raise_for_status()
@@ -2562,7 +2552,7 @@ def collect_amazon_campaigns(date_from: str, date_to: str) -> list[dict]:
                 "Amazon-Advertising-API-Scope": pid,
             }
             r = requests.post(
-                "https://advertising-api.amazon.com/sb/v4/campaigns/list",
+                f"{ads_base}/sb/v4/campaigns/list",
                 headers=h_sb, json={"maxResults": 100}, timeout=20,
             )
             r.raise_for_status()
@@ -2596,7 +2586,7 @@ def collect_amazon_campaigns(date_from: str, date_to: str) -> list[dict]:
                 "Amazon-Advertising-API-Scope": pid,
             }
             r = requests.get(
-                "https://advertising-api.amazon.com/sd/campaigns",
+                f"{ads_base}/sd/campaigns",
                 headers=h_sd, timeout=20,
             )
             r.raise_for_status()
