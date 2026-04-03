@@ -134,8 +134,8 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 <!-- MAIN CONTENT -->
 <div id="main-content" style="display:none">
 <div class="ctr">
-  <!-- Top-level navigation — hidden when embedded in Financial Dashboard iframe -->
-  <div class="nav-bar" id="standalone-nav" style="margin-bottom:16px">
+  <!-- Top-level navigation — switches between dashboards -->
+  <div class="nav-bar" style="margin-bottom:16px">
     <div>
       <a href="../ppc-dashboard/" title="Amazon PPC Intelligence">Amazon PPC</a>
       <a href="../content-dashboard/" title="Content Intelligence">Content Intelligence</a>
@@ -143,7 +143,6 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
       <a href="../financial-dashboard/" title="Financial KPIs">Financial KPIs</a>
     </div>
   </div>
-  <script>if(new URLSearchParams(location.search).get('embed')==='1')document.getElementById('standalone-nav').style.display='none';</script>
   <div class="hero">
     <h1 style="display:flex;align-items:center;justify-content:center;gap:12px">&#x1F4CB; Pipeline <span>CRM</span>
       <div style="display:inline-flex;border:2px solid #e2e8f0;border-radius:8px;overflow:hidden;font-size:12px;font-weight:700;vertical-align:middle;margin-left:4px">
@@ -607,7 +606,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
       <div class="card">
         <h3>&#x1F464; Human-in-Loop Controls</h3>
         <div class="desc">Each step can require human approval independently. OFF = auto-proceed.</div>
-        <div class="form-row"><label>Draft Review</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-hil-draft"><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Review generated email drafts before queuing</span></div>
+        <div class="form-row"><label>Draft Review</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-hil-draft" checked><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Review generated email drafts before queuing</span></div>
         <div class="form-row"><label>Send Approval</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-hil-send"><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Confirm before sending real emails</span></div>
 
         <div class="form-row"><label>Sample Approval</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-hil-sample"><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Confirm before creating Shopify draft orders</span></div>
@@ -1507,7 +1506,7 @@ var DEMO_CREATORS=[
 var DEMO_CONFIG={
   date:'2026-03-20',update_date:'2026-03-20',start_from_beginning:false,
   creators_contacted:10,ht_threshold:100000,rag_email_dedup:true,apify_autofill:true,apify_brand_filter:true,us_only:true,
-  hil_draft_review:true,hil_send_approval:true,hil_sample_approval:false,
+  hil_draft_review:true,hil_send_approval:false,hil_sample_approval:false,
   sender_email:'affiliates@onzenna.com',
   outreach_template_id:'1vAvPdheHFz4xIraa3NODUuFG7RagylHEYOvv6BjtxLg',
   grosmimi_form_url:'https://onzenna.com/pages/influencer-gifting',
