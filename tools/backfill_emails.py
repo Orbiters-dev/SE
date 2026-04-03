@@ -6,6 +6,7 @@ import django
 django.setup()
 
 from onzenna.models import PipelineCreator
+from django.db import IntegrityError
 
 # Download sheet
 url = "https://docs.google.com/spreadsheets/d/1dIAhP8wCEdFulSAai3K-RoZTvLBIaWxAK7hzInBsF0o/export?format=csv&gid=522613099"
@@ -22,15 +23,27 @@ for row in reader:
 print(f"Sheet: {len(pairs)} usernames with real emails")
 
 updated = 0
+skipped = 0
+dupes = 0
 creators = PipelineCreator.objects.filter(email__contains="@discovered.syncly")
-print(f"DB: {creators.count()} records with @discovered.syncly")
+total = creators.count()
+print(f"DB: {total} records with @discovered.syncly")
 
 for c in creators.iterator():
     handle = (c.ig_handle or c.tiktok_handle or "").lower()
     real_email = pairs.get(handle)
-    if real_email:
+    if not real_email:
+        skipped += 1
+        continue
+    # Check if email already used by another record
+    if PipelineCreator.objects.filter(email=real_email).exclude(id=c.id).exists():
+        dupes += 1
+        continue
+    try:
         c.email = real_email
         c.save(update_fields=["email"])
         updated += 1
+    except IntegrityError:
+        dupes += 1
 
-print(f"Updated: {updated}")
+print(f"Done! Updated: {updated}, Skipped: {skipped}, Dupes: {dupes}")
