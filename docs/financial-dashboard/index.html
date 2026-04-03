@@ -477,27 +477,27 @@ function switchSeoBrand(brand){
   });
 }
 
-// ── Autocomplete Ranking Tab ─────────────────────────────────────────────────
+// ── Search Ranking Tab ───────────────────────────────────────────────────────
 var _acBrand='Grosmimi', _acMkt='US';
 function renderAutocompleteTab(F){
-  var ac=F.autocomplete||{};
+  var ac=F.search_ranking||{};
   var el=document.getElementById('panel-autocomplete');
   if(!el) return;
 
-  var latest=ac.latest||ac; // backward compat
+  var latest=ac.latest||{};
   var trends=ac.trends||{};
   var dates=ac.dates||[];
   var brands=Object.keys(latest).length ? Object.keys(latest) : Object.keys(trends);
   if(!brands.length){
-    el.innerHTML='<div class="card"><div class="desc" style="text-align:center;padding:24px;color:var(--muted)">No autocomplete data yet. Run: python tools/data_keeper.py --channel amazon_autocomplete</div></div>';
+    el.innerHTML='<div class="card"><div class="desc" style="text-align:center;padding:24px;color:var(--muted)">No search ranking data yet. Run: python tools/data_keeper.py --channel amazon_search_ranking</div></div>';
     return;
   }
 
   var brandColors={'Grosmimi':'#8b5cf6','Naeiae':'#f59e0b','CHA&MOM':'#ef4444'};
   var kwColors=['#6366f1','#ec4899','#f59e0b','#0ea5e9','#10b981','#ef4444','#8b5cf6','#64748b'];
 
-  var h='<div class="sec"><div class="sec-title"><div class="num" style="background:#6366f1">8</div> Amazon Search Ranking &mdash; Daily Trend</div>';
-  h+='<div class="desc">Amazon autocomplete 인기도 점수 (0-100). 매일 2회 수집. 브랜드별 키워드 트렌드.</div>';
+  var h='<div class="sec"><div class="sec-title"><div class="num" style="background:#6366f1">8</div> Amazon Search Ranking &mdash; Product Position Trend</div>';
+  h+='<div class="desc">키워드 검색 시 우리 제품이 몇 번째에 노출되는지. 낮을수록 좋음. 매일 Apify 크롤링.</div>';
 
   // Brand sub-tabs
   h+='<div style="display:flex;gap:4px;margin:12px 0">';
@@ -555,41 +555,45 @@ function renderAcContent(){
     el.innerHTML=h; return;
   }
 
-  // Latest scores table
+  // Latest ranking table
   var latestRows=(d.latest[brand]||{})[mkt]||[];
   if(latestRows.length){
-    h+='<div class="card" style="margin-bottom:10px"><h3 style="color:'+color+'">'+brand+' — '+(mkt==='US'?'🇺🇸':'🇯🇵')+' Latest Scores</h3>';
-    h+='<table><tr><th>Keyword</th><th>Score</th><th>Position</th><th>Δ Score</th><th style="min-width:180px">Visual</th></tr>';
-    latestRows.sort(function(a,b){return b.score-a.score;});
-    // Compute deltas from trend data
+    h+='<div class="card" style="margin-bottom:10px"><h3 style="color:'+color+'">'+brand+' — '+(mkt==='US'?'🇺🇸':'🇯🇵')+' Search Position</h3>';
+    h+='<table><tr><th>Keyword</th><th>Position</th><th>Product</th><th>Hits</th><th>Δ Pos</th><th>Competitors</th></tr>';
+    latestRows.sort(function(a,b){var pa=a.position<0?9999:a.position;var pb=b.position<0?9999:b.position;return pa-pb;});
     var trendRef=(d.trends[brand]||{})[mkt]||{};
     latestRows.forEach(function(r){
-      var posLabel=r.position>=0?'#'+(r.position+1):'—';
-      var posClass=r.position>=0?(r.position<3?'pos-top3':r.position<5?'pos-top10':'pos-low'):'';
-      // Delta: compare latest score vs previous day
+      var pos=r.position;
+      var posLabel=pos>=0?'#'+pos:'Not found';
+      var posColor=pos>=0?(pos<=10?'var(--g)':pos<=30?'var(--am)':pos<=60?'#f97316':'var(--r)'):'var(--muted)';
+      // Delta: compare position vs previous day (lower = better, so negative delta = improvement)
       var delta='', deltaColor='var(--muted)';
       var kwTrend=trendRef[r.keyword]||[];
       if(kwTrend.length>=2){
-        var prev=kwTrend[kwTrend.length-2].score, cur=r.score;
-        var diff=cur-prev;
-        if(diff>0){delta='▲ +'+diff;deltaColor='var(--g)';}
-        else if(diff<0){delta='▼ '+diff;deltaColor='var(--r)';}
-        else{delta='— 0';deltaColor='var(--muted)';}
+        var prev=kwTrend[kwTrend.length-2].position, cur=pos;
+        if(prev>=0 && cur>=0){
+          var diff=prev-cur; // positive = improved (went up in ranking)
+          if(diff>0){delta='▲ +'+diff;deltaColor='var(--g)';}
+          else if(diff<0){delta='▼ '+diff;deltaColor='var(--r)';}
+          else{delta='— 0';deltaColor='var(--muted)';}
+        } else { delta='—'; }
       } else { delta='—'; }
+      var comps=[];try{comps=JSON.parse(r.competitors_top3||'[]');}catch(e){}
+      var compStr=comps.map(function(c){return '#'+c.pos+' '+c.brand;}).join(', ');
       h+='<tr><td style="font-family:var(--mono);font-size:11px">'+r.keyword+'</td>';
-      h+='<td style="text-align:right;font-family:var(--mono);font-weight:700;font-size:14px;color:'+(r.score>=60?'var(--g)':r.score>=30?'var(--am)':'var(--r)')+'">'+r.score+'</td>';
-      h+='<td style="text-align:center">'+(posClass?'<span class="pos-badge '+posClass+'">'+posLabel+'</span>':'<span style="color:var(--muted)">'+posLabel+'</span>')+'</td>';
+      h+='<td style="text-align:center;font-family:var(--mono);font-weight:800;font-size:14px;color:'+posColor+'">'+posLabel+'</td>';
+      h+='<td style="font-size:10px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(r.product_title||'—')+'</td>';
+      h+='<td style="text-align:center;font-family:var(--mono)">'+(r.total_brand_hits||0)+'</td>';
       h+='<td style="text-align:center;font-family:var(--mono);font-size:11px;font-weight:700;color:'+deltaColor+'">'+delta+'</td>';
-      h+='<td><div class="vol-bar" style="min-width:140px"><div class="fill" style="width:'+r.score+'%;background:linear-gradient(90deg,'+color+','+color+'88)"></div></div></td></tr>';
+      h+='<td style="font-size:9px;color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+compStr+'</td></tr>';
     });
     h+='</table></div>';
   }
 
-  // ── Score Trend Chart (SVG) ──────────────────────────────────────────
+  // ── Position Trend Chart (SVG) — inverted Y: #1 at top, #100 at bottom ──
   var trendData=(d.trends[brand]||{})[mkt]||{};
   var keywords=Object.keys(trendData);
   var dates=d.dates||[];
-  // Filter dates to only those relevant for this market
   var mktDates=[];
   dates.forEach(function(dt){
     var found=false;
@@ -600,22 +604,25 @@ function renderAcContent(){
   });
 
   if(keywords.length && mktDates.length>=1){
-    var W=900, H=320, padL=40, padR=140, padT=24, padB=36;
+    var maxPos=100;
+    var W=900, H=320, padL=40, padR=160, padT=24, padB=36;
     var cw=W-padL-padR, ch=H-padT-padB;
     var nDates=Math.max(mktDates.length,2);
 
-    h+='<div class="card"><h3 style="color:'+color+'">'+brand+' — '+(mkt==='US'?'🇺🇸':'🇯🇵')+' Score Trend</h3>';
-    h+='<div class="desc" style="margin-bottom:8px">키워드별 인기도 점수 변화 (0–100). 높을수록 빠르게 자동완성에 노출됨.</div>';
+    h+='<div class="card"><h3 style="color:'+color+'">'+brand+' — '+(mkt==='US'?'🇺🇸':'🇯🇵')+' Position Trend</h3>';
+    h+='<div class="desc" style="margin-bottom:8px">키워드 검색 시 제품 순위 변화. #1이 최상위. 낮을수록 좋음.</div>';
     h+='<div style="overflow-x:auto"><svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-height:340px;font-family:var(--mono)">';
 
-    // Grid lines
-    for(var g=0;g<=100;g+=20){
-      var gy=padT+ch-(g/100*ch);
-      h+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="#f1f5f9" stroke-width="1"/>';
-      h+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" text-anchor="end" fill="#94a3b8" font-size="9">'+g+'</text>';
-    }
+    // Grid lines (inverted: #1 at top)
+    [1,10,20,50,100].forEach(function(g){
+      var gy=padT+(g/maxPos)*ch;
+      h+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="'+(g===10?'#bbf7d0':g===50?'#fef08a':'#f1f5f9')+'" stroke-width="'+(g===10||g===50?1.5:1)+'"/>';
+      h+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" text-anchor="end" fill="#94a3b8" font-size="9">#'+g+'</text>';
+    });
+    // "Not found" zone
+    h+='<rect x="'+padL+'" y="'+(padT+ch-15)+'" width="'+cw+'" height="15" fill="#fef2f2" opacity="0.5" rx="2"/>';
+    h+='<text x="'+(padL+4)+'" y="'+(padT+ch-4)+'" fill="#ef4444" font-size="7" opacity="0.7">Not in top 100</text>';
 
-    // X axis date labels
     var step=Math.max(1,Math.floor(mktDates.length/10));
     mktDates.forEach(function(dt,i){
       if(i%step===0||i===mktDates.length-1){
@@ -624,80 +631,30 @@ function renderAcContent(){
       }
     });
 
-    // Lines + dots + labels
     keywords.forEach(function(kw,ki){
       var pts=trendData[kw];
       var lineColor=kwColors[ki%kwColors.length];
       var pathD='';
-      // Plot each data point
       pts.forEach(function(p){
-        var di=mktDates.indexOf(p.date);
-        if(di<0) return;
+        var di=mktDates.indexOf(p.date); if(di<0) return;
+        var pos=p.position<0?maxPos:Math.min(p.position,maxPos);
         var x=padL+(di/(nDates-1))*cw;
-        var y=padT+ch-(p.score/100*ch);
+        var y=padT+(pos/maxPos)*ch;
         pathD+=(pathD?'L':'M')+x.toFixed(1)+','+y.toFixed(1);
-        // Dot on each data point
         h+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3" fill="'+lineColor+'" opacity="0.8"/>';
       });
       if(pathD){
         h+='<path d="'+pathD+'" stroke="'+lineColor+'" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
-        // Label at rightmost point
         var lastP=pts[pts.length-1];
+        var lPos=lastP.position<0?maxPos:Math.min(lastP.position,maxPos);
         var lx=padL+((mktDates.indexOf(lastP.date))/(nDates-1))*cw;
-        var ly=padT+ch-(lastP.score/100*ch);
+        var ly=padT+(lPos/maxPos)*ch;
+        var label=lastP.position>=0?kw.substring(0,18)+' #'+lastP.position:kw.substring(0,18)+' N/A';
         h+='<circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="4" fill="'+lineColor+'"/>';
-        h+='<text x="'+(lx+8).toFixed(1)+'" y="'+(ly+4).toFixed(1)+'" fill="'+lineColor+'" font-size="9" font-weight="700">'+kw.substring(0,20)+(kw.length>20?'…':'')+' <tspan font-size="11">'+lastP.score+'</tspan></text>';
+        h+='<text x="'+(W-padR+6)+'" y="'+(ly+4).toFixed(1)+'" fill="'+lineColor+'" font-size="9" font-weight="700">'+label+'</text>';
       }
     });
     h+='</svg></div></div>';
-
-    // ── Position Trend Chart ──────────────────────────────────────────
-    {
-      var H2=260;
-      var ch2=H2-padT-padB;
-      h+='<div class="card"><h3 style="color:'+color+'">'+brand+' — '+(mkt==='US'?'🇺🇸':'🇯🇵')+' Position Trend</h3>';
-      h+='<div class="desc" style="margin-bottom:8px">자동완성 추천 위치 (#1이 최상위). 낮을수록 좋음.</div>';
-      h+='<div style="overflow-x:auto"><svg viewBox="0 0 '+W+' '+H2+'" style="width:100%;max-height:280px;font-family:var(--mono)">';
-      // Y axis: position 0(top) to 9(bottom), inverted
-      for(var p=0;p<=10;p+=2){
-        var py=padT+(p/10)*ch2;
-        h+='<line x1="'+padL+'" y1="'+py+'" x2="'+(W-padR)+'" y2="'+py+'" stroke="#f1f5f9" stroke-width="1"/>';
-        h+='<text x="'+(padL-4)+'" y="'+(py+3)+'" text-anchor="end" fill="#94a3b8" font-size="9">#'+(p+1)+'</text>';
-      }
-      // X axis
-      mktDates.forEach(function(dt,i){
-        if(i%step===0||i===mktDates.length-1){
-          var x=padL+(i/(nDates-1))*cw;
-          h+='<text x="'+x+'" y="'+(H2-6)+'" text-anchor="middle" fill="#94a3b8" font-size="8">'+dt.substring(5)+'</text>';
-        }
-      });
-      // Lines
-      keywords.forEach(function(kw,ki){
-        var pts=trendData[kw];
-        var lineColor=kwColors[ki%kwColors.length];
-        var pathD='';
-        pts.forEach(function(p){
-          if(p.position<0) return; // not found — skip
-          var di=mktDates.indexOf(p.date);
-          if(di<0) return;
-          var x=padL+(di/(nDates-1))*cw;
-          var y=padT+(p.position/10)*ch2;
-          pathD+=(pathD?'L':'M')+x.toFixed(1)+','+y.toFixed(1);
-          h+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3" fill="'+lineColor+'" opacity="0.8"/>';
-        });
-        if(pathD){
-          h+='<path d="'+pathD+'" stroke="'+lineColor+'" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6,3"/>';
-          var lastValid=null;
-          for(var lv=pts.length-1;lv>=0;lv--){if(pts[lv].position>=0){lastValid=pts[lv];break;}}
-          if(lastValid){
-            var lx2=padL+((mktDates.indexOf(lastValid.date))/(nDates-1))*cw;
-            var ly2=padT+(lastValid.position/10)*ch2;
-            h+='<text x="'+(lx2+8).toFixed(1)+'" y="'+(ly2+4).toFixed(1)+'" fill="'+lineColor+'" font-size="9" font-weight="700">'+kw.substring(0,16)+' #'+(lastValid.position+1)+'</text>';
-          }
-        }
-      });
-      h+='</svg></div></div>';
-    }
   } else if(keywords.length===0 && latestRows.length===0){
     h+='<div class="card"><div class="desc" style="text-align:center;padding:24px;color:var(--muted)">이 브랜드/마켓에 대한 데이터가 없습니다.</div></div>';
   }
@@ -1342,36 +1299,36 @@ function renderFinancial(){
     }
   })();
 
-  // ── 5B: Search Ranking / Autocomplete — scores + daily trend table ──
+  // ── 5B: Amazon Search Ranking — where our products appear in search results ──
   (function(){
-    var ac=F.autocomplete||{};
-    var latest=ac.latest||{};
-    var trends=ac.trends||{};
-    var allDates=ac.dates||[];
+    var sr=F.search_ranking||{};
+    var latest=sr.latest||{};
+    var trends=sr.trends||{};
+    var allDates=sr.dates||[];
     var showBrands=['Grosmimi','Naeiae','CHA&MOM'];
-    var brandedKws=['grosmimi','naeiae','cha and mom','onzenna','chaenmom','cha & mom'];
     var brandColors={'Grosmimi':'#8b5cf6','Naeiae':'#f59e0b','CHA&MOM':'#ef4444'};
     var kwColors=['#6366f1','#ec4899','#f59e0b','#0ea5e9','#10b981','#ef4444','#8b5cf6','#64748b'];
     var hasBrands=showBrands.some(function(b){return ((latest[b]||{}).US||[]).length>0;});
     if(!hasBrands) return;
 
-    // Latest date label
     var latestDate=allDates.length?allDates[allDates.length-1]:'';
     var dateLabel=latestDate?latestDate.substring(5).replace('-','/'):'';
 
-    traf+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num" style="background:#6366f1">5B</div> Amazon Search Ranking &mdash; Generic Keywords <span style="font-weight:400;color:var(--muted);font-size:11px">Latest: '+dateLabel+'</span></div>';
-    traf+='<div class="desc">Amazon autocomplete 인기도 점수 (0-100). 매일 수집. Generic 키워드만 표시.</div>';
+    traf+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num" style="background:#6366f1">5B</div> Amazon Search Ranking &mdash; Product Position <span style="font-weight:400;color:var(--muted);font-size:11px">Latest: '+dateLabel+'</span></div>';
+    traf+='<div class="desc">키워드 검색 시 우리 제품이 몇 번째에 노출되는지. 낮을수록 좋음. 매일 Apify 크롤링.</div>';
 
     showBrands.forEach(function(brand){
-      var usItems=((latest[brand]||{}).US||[]).filter(function(r){
-        return brandedKws.indexOf(r.keyword.toLowerCase())===-1;
-      });
+      var usItems=(latest[brand]||{}).US||[];
       if(!usItems.length) return;
-      usItems.sort(function(a,b){return b.score-a.score;});
+      // Sort by position (lower = better), not found (-1) at end
+      usItems.sort(function(a,b){
+        var pa=a.position<0?9999:a.position;
+        var pb=b.position<0?9999:b.position;
+        return pa-pb;
+      });
       var color=brandColors[brand]||'#64748b';
       var brandTrends=((trends[brand]||{}).US)||{};
-      var trendKws=Object.keys(brandTrends).filter(function(kw){return brandedKws.indexOf(kw.toLowerCase())===-1;});
-      // Date axis
+      var trendKws=Object.keys(brandTrends);
       var mktDates=[];
       allDates.forEach(function(dt){
         var found=false;
@@ -1380,19 +1337,51 @@ function renderFinancial(){
       });
 
       traf+='<div class="card" style="margin-bottom:10px">';
-      traf+='<h3 style="color:'+color+';margin-bottom:8px">'+brand+' 🇺🇸</h3>';
+      traf+='<h3 style="color:'+color+';margin-bottom:8px">'+brand+' \ud83c\uddfa\ud83c\uddf8</h3>';
 
-      // ── Score Chart (SVG) — works with 1+ days ──
+      // ── Latest Ranking Summary Table ──
+      traf+='<table style="font-size:11px;margin-bottom:12px"><thead><tr>';
+      traf+='<th style="text-align:left">Keyword</th>';
+      traf+='<th style="text-align:center">Position</th>';
+      traf+='<th style="text-align:left">Product</th>';
+      traf+='<th style="text-align:center">Hits</th>';
+      traf+='<th style="text-align:left">Top Competitors</th>';
+      traf+='</tr></thead><tbody>';
+      usItems.forEach(function(r,ri){
+        var pos=r.position;
+        var posLabel=pos>=0?'#'+pos:'Not found';
+        var posColor=pos>=0?(pos<=10?'#10b981':pos<=30?'#f59e0b':pos<=60?'#f97316':'#ef4444'):'var(--muted)';
+        var posSize=pos>=0?(pos<=10?'16px':'13px'):'11px';
+        var comps=[];
+        try{comps=JSON.parse(r.competitors_top3||'[]');}catch(e){}
+        var compStr=comps.map(function(c){return '#'+c.pos+' '+c.brand;}).join(', ');
+        traf+='<tr>';
+        traf+='<td style="font-weight:600;white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+kwColors[ri%kwColors.length]+';margin-right:4px;vertical-align:middle"></span>'+r.keyword+'</td>';
+        traf+='<td style="text-align:center;font-family:var(--mono);color:'+posColor+';font-weight:800;font-size:'+posSize+'">'+posLabel+'</td>';
+        traf+='<td style="font-size:10px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(r.product_title||'—')+'</td>';
+        traf+='<td style="text-align:center;font-family:var(--mono)">'+(r.total_brand_hits||0)+'</td>';
+        traf+='<td style="font-size:9px;color:var(--muted);max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+compStr+'</td>';
+        traf+='</tr>';
+      });
+      traf+='</tbody></table>';
+
+      // ── Position Trend Chart (SVG) — inverted Y axis (lower position = higher on chart) ──
       if(trendKws.length && mktDates.length>=1){
-        var W=900,H=200,padL=40,padR=140,padT=20,padB=30;
+        var maxPos=100; // Y axis max (position 100 at bottom)
+        var W=900,H=220,padL=40,padR=140,padT=20,padB=30;
         var cw=W-padL-padR,ch=H-padT-padB;
         var nD=Math.max(mktDates.length,2);
-        traf+='<div style="overflow-x:auto"><svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-height:220px;font-family:var(--mono)">';
-        for(var g=0;g<=100;g+=25){
-          var gy=padT+ch-(g/100*ch);
-          traf+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="#f1f5f9" stroke-width="1"/>';
-          traf+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" text-anchor="end" fill="#94a3b8" font-size="8">'+g+'</text>';
-        }
+        traf+='<div style="overflow-x:auto;margin-top:4px"><svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-height:240px;font-family:var(--mono)">';
+        // Grid lines — position markers (inverted: #1 at top, #100 at bottom)
+        [1,10,20,50,100].forEach(function(g){
+          var gy=padT+(g/maxPos)*ch;
+          traf+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="'+(g===10?'#bbf7d0':g===50?'#fef08a':'#f1f5f9')+'" stroke-width="'+(g===10||g===50?1.5:1)+'"/>';
+          traf+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" text-anchor="end" fill="#94a3b8" font-size="8">#'+g+'</text>';
+        });
+        // "Not found" zone label
+        traf+='<rect x="'+padL+'" y="'+(padT+ch-15)+'" width="'+cw+'" height="15" fill="#fef2f2" opacity="0.5" rx="2"/>';
+        traf+='<text x="'+(padL+4)+'" y="'+(padT+ch-4)+'" fill="#ef4444" font-size="7" opacity="0.7">Not in top 100</text>';
+        // Date labels
         var step=Math.max(1,Math.floor(mktDates.length/8));
         mktDates.forEach(function(dt,i){
           if(i%step===0||i===mktDates.length-1){
@@ -1404,46 +1393,42 @@ function renderFinancial(){
           var pts=brandTrends[kw]||[];
           var lc=kwColors[ki%kwColors.length];
           if(mktDates.length===1){
-            // Single day — draw dots
             pts.forEach(function(p){
               var di=mktDates.indexOf(p.date); if(di<0) return;
+              var pos=p.position<0?maxPos:Math.min(p.position,maxPos);
               var x=padL+cw/2;
-              var y=padT+ch-(p.score/100*ch);
+              var y=padT+(pos/maxPos)*ch;
               traf+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="5" fill="'+lc+'"/>';
             });
           } else {
-            // Multi day — draw lines
             var pathD='';
             pts.forEach(function(p){
               var di=mktDates.indexOf(p.date); if(di<0) return;
+              var pos=p.position<0?maxPos:Math.min(p.position,maxPos);
               var x=padL+(di/(nD-1))*cw;
-              var y=padT+ch-(p.score/100*ch);
+              var y=padT+(pos/maxPos)*ch;
               pathD+=(pathD?'L':'M')+x.toFixed(1)+','+y.toFixed(1);
               traf+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.5" fill="'+lc+'"/>';
             });
             if(pathD) traf+='<path d="'+pathD+'" fill="none" stroke="'+lc+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
           }
-          // Label at right
           var last=pts[pts.length-1];
           if(last){
-            var ly=padT+ch-(last.score/100*ch);
-            traf+='<text x="'+(W-padR+6)+'" y="'+(ly+3)+'" fill="'+lc+'" font-size="8" font-weight="600">'+kw+' ('+last.score+')</text>';
+            var lPos=last.position<0?maxPos:Math.min(last.position,maxPos);
+            var ly=padT+(lPos/maxPos)*ch;
+            var label=last.position>=0?kw+' (#'+last.position+')':kw+' (N/A)';
+            traf+='<text x="'+(W-padR+6)+'" y="'+(ly+3)+'" fill="'+lc+'" font-size="8" font-weight="600">'+label+'</text>';
           }
         });
         traf+='</svg></div>';
       }
 
-      // ── Daily Trend Table (Score + Position per date) ──
+      // ── Daily Position Trend Table ──
       if(trendKws.length && mktDates.length>=1){
         traf+='<div style="overflow-x:auto;margin-top:8px"><table style="font-size:10px"><thead><tr>';
         traf+='<th style="text-align:left;white-space:nowrap">Keyword</th>';
         mktDates.forEach(function(dt){
-          traf+='<th colspan="2" style="text-align:center;font-family:var(--mono);font-size:9px;border-bottom:2px solid var(--border)">'+dt.substring(5)+'</th>';
-        });
-        traf+='</tr><tr><th></th>';
-        mktDates.forEach(function(){
-          traf+='<th style="text-align:right;font-size:8px;color:var(--muted)">Score</th>';
-          traf+='<th style="text-align:center;font-size:8px;color:var(--muted)">Pos</th>';
+          traf+='<th style="text-align:center;font-family:var(--mono);font-size:9px;border-bottom:2px solid var(--border)">'+dt.substring(5)+'</th>';
         });
         traf+='</tr></thead><tbody>';
         trendKws.forEach(function(kw,ki){
@@ -1455,13 +1440,12 @@ function renderFinancial(){
             var match=null;
             pts.forEach(function(p){if(p.date===dt) match=p;});
             if(match){
-              var sc=match.score>=60?'#10b981':match.score>=30?'#f59e0b':'#ef4444';
-              var posLabel=match.position>=0?'#'+(match.position+1):'—';
-              var posColor=match.position>=0?(match.position<3?'#10b981':match.position<7?'#f59e0b':'#ef4444'):'var(--muted)';
-              traf+='<td style="text-align:right;font-family:var(--mono);color:'+sc+';font-weight:600">'+match.score+'</td>';
-              traf+='<td style="text-align:center;font-family:var(--mono);color:'+posColor+';font-weight:600;font-size:9px">'+posLabel+'</td>';
+              var pos=match.position;
+              var posLabel=pos>=0?'#'+pos:'N/A';
+              var posColor=pos>=0?(pos<=10?'#10b981':pos<=30?'#f59e0b':pos<=60?'#f97316':'#ef4444'):'var(--muted)';
+              traf+='<td style="text-align:center;font-family:var(--mono);color:'+posColor+';font-weight:700">'+posLabel+'</td>';
             } else {
-              traf+='<td style="text-align:right;color:var(--muted)">—</td><td style="text-align:center;color:var(--muted)">—</td>';
+              traf+='<td style="text-align:center;color:var(--muted)">\u2014</td>';
             }
           });
           traf+='</tr>';

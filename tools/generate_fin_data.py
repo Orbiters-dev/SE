@@ -3811,7 +3811,7 @@ def generate():
         "weekly": weekly_data,
         "hero_products": hero_data,
         "jp": _build_jp_data(dk, months),
-        "autocomplete": _build_autocomplete_data(),
+        "search_ranking": _build_search_ranking_data(),
     }
 
     # ── Write output ──────────────────────────────────────────────────────────
@@ -3869,59 +3869,70 @@ def generate():
         print("  Pushed to GitHub")
 
 
-def _build_autocomplete_data() -> dict:
-    """Load Amazon autocomplete rank data — PG first, fallback to local cache."""
+def _build_search_ranking_data() -> dict:
+    """Load Amazon search ranking data — PG first, fallback to local cache."""
     rows = []
 
     # Try PG (has all historical data)
     try:
         from data_keeper_client import DataKeeper
         dk = DataKeeper()
-        rows = dk.get("amazon_autocomplete_daily", days=120) or []
+        rows = dk.get("amazon_search_ranking_daily", days=120) or []
         if rows:
-            print(f"  [autocomplete] {len(rows)} rows from PG")
+            print(f"  [search_ranking] {len(rows)} rows from PG")
     except Exception as e:
-        print(f"  [autocomplete] PG failed ({e}), trying cache")
+        print(f"  [search_ranking] PG failed ({e}), trying cache")
 
     # Fallback to local cache
     if not rows:
-        cache_path = os.path.join(os.path.dirname(__file__), "..", ".tmp", "datakeeper", "amazon_autocomplete_daily.json")
+        cache_path = os.path.join(os.path.dirname(__file__), "..", ".tmp", "datakeeper", "amazon_search_ranking_daily.json")
         if os.path.exists(cache_path):
             with open(cache_path, "r", encoding="utf-8") as f:
                 rows = json.load(f)
 
     if not rows:
-        print("  [autocomplete] No data found")
+        print("  [search_ranking] No data found")
         return {}
 
     # Build two structures:
-    # 1. "latest" — most recent snapshot per brand/market (for summary cards)
-    # 2. "trends" — daily time series per brand/market/keyword (for trend chart)
+    # 1. "latest" — most recent snapshot per brand/market
+    # 2. "trends" — daily time series per brand/market/keyword
     latest_date = max(r.get("date", "") for r in rows)
 
     latest = {}
-    trends = {}  # brand → market → keyword → [{date, score, position}, ...]
+    trends = {}  # brand → market → keyword → [{date, position, ...}, ...]
 
     for r in rows:
         brand = r.get("brand", "")
         market = r.get("market", "US")
         kw = r.get("keyword", "")
-        score = r.get("rank_score", 0)
         pos = r.get("position", -1)
         date = r.get("date", "")
+
+        entry = {
+            "keyword": kw, "position": pos, "date": date,
+            "asin": r.get("asin", ""),
+            "product_title": r.get("product_title", ""),
+            "price": r.get("price", 0),
+            "stars": r.get("stars", 0),
+            "reviews": r.get("reviews", 0),
+            "is_sponsored": r.get("is_sponsored", False),
+            "total_brand_hits": r.get("total_brand_hits", 0),
+            "competitors_top3": r.get("competitors_top3", "[]"),
+        }
 
         # Latest snapshot
         if date == latest_date:
             if brand not in latest:
                 latest[brand] = {"US": [], "JP": []}
-            latest[brand][market].append({"keyword": kw, "score": score, "position": pos, "date": date})
+            latest[brand][market].append(entry)
 
-        # Trends
+        # Trends (only position + date for chart)
         if brand not in trends:
             trends[brand] = {"US": {}, "JP": {}}
         if kw not in trends[brand][market]:
             trends[brand][market][kw] = []
-        trends[brand][market][kw].append({"date": date, "score": score, "position": pos})
+        trends[brand][market][kw].append({"date": date, "position": pos})
 
     # Sort trend entries by date
     for brand in trends:
@@ -3930,7 +3941,7 @@ def _build_autocomplete_data() -> dict:
                 trends[brand][mkt][kw].sort(key=lambda x: x["date"])
 
     all_dates = sorted(set(r.get("date", "") for r in rows))
-    print(f"  [autocomplete] {len(rows)} rows, {len(all_dates)} dates, {len(latest)} brands")
+    print(f"  [search_ranking] {len(rows)} rows, {len(all_dates)} dates, {len(latest)} brands")
     return {"latest": latest, "trends": trends, "dates": all_dates}
 
 

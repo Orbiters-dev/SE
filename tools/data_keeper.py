@@ -2750,16 +2750,30 @@ def collect_rakuten_orders(date_from: str, date_to: str) -> list[dict]:
 # US: English high-volume category keywords + brand
 # JP: Japanese high-volume category keywords + brand (Grosmimi only — only brand sold in JP)
 # NOTE: Onzenna removed — it's our marketplace, not a product brand for autocomplete.
-AUTOCOMPLETE_KEYWORDS = {
+SEARCH_RANKING_KEYWORDS = {
     "US": {
-        "Grosmimi": ["grosmimi", "straw cup", "sippy cup", "toddler cup", "training cup", "baby straw cup"],
-        "Naeiae": ["naeiae", "baby food", "baby snack", "korean baby food", "baby snack organic", "toddler food pouch"],
-        "CHA&MOM": ["cha and mom", "baby lotion", "baby wash", "baby cream"],
+        "Grosmimi": ["training cup", "straw cup", "sippy cup", "toddler cup", "baby straw cup"],
+        "Naeiae": ["baby food", "baby snack", "korean baby food", "baby snack organic", "toddler food pouch"],
+        "CHA&MOM": ["baby lotion", "baby wash", "baby cream"],
     },
     "JP": {
-        "Grosmimi": ["grosmimi", "ストローマグ", "ベビーマグ", "ppsu マグ", "こぼれないコップ", "ストローカップ ベビー"],
+        "Grosmimi": ["ストローマグ", "ベビーマグ", "ppsu マグ", "こぼれないコップ", "ストローカップ ベビー"],
     },
 }
+
+# Brand name patterns for matching in search results
+BRAND_SEARCH_PATTERNS = {
+    "Grosmimi": ["grosmimi"],
+    "Naeiae": ["naeiae"],
+    "CHA&MOM": ["cha&mom", "cha and mom", "chaenmom", "cha & mom"],
+}
+
+SEARCH_RANKING_DOMAINS = {
+    "US": "amazon.com",
+    "JP": "amazon.co.jp",
+}
+
+SEARCH_RANKING_MAX_ITEMS = 100  # 2 pages per keyword
 
 # ── Brand → Category mapping for cross-check ───────────────────────────────
 # Used to validate that keywords match their brand's product category.
@@ -2772,13 +2786,13 @@ BRAND_CATEGORY = {
 
 
 def _crosscheck_keywords():
-    """Validate AUTOCOMPLETE_KEYWORDS against BRAND_CATEGORY.
+    """Validate SEARCH_RANKING_KEYWORDS against BRAND_CATEGORY.
 
     Raises ValueError on brand-keyword mismatch to prevent bad data collection.
     Called at module load and before each collection run.
     """
     errors = []
-    for market, brands in AUTOCOMPLETE_KEYWORDS.items():
+    for market, brands in SEARCH_RANKING_KEYWORDS.items():
         for brand, keywords in brands.items():
             rule = BRAND_CATEGORY.get(brand)
             if not rule:
@@ -2801,89 +2815,154 @@ def _crosscheck_keywords():
 # Run cross-check at module load to catch config errors early
 _crosscheck_keywords()
 
-# Amazon autocomplete endpoint per marketplace
-AUTOCOMPLETE_MARKETS = {
-    "US": {"domain": "completion.amazon.com", "mid": "ATVPDKIKX0DER"},
-    "JP": {"domain": "completion.amazon.co.jp", "mid": "A1VC38T7YXB528"},
-}
+def _search_ranking_for_keyword(keyword, brand, market="US"):
+    """Search Amazon for `keyword` and find `brand`'s product position.
 
-def _autocomplete_rank(keyword, market="US"):
-    """Score 0-100: how quickly `keyword` appears in Amazon autocomplete.
-
-    Tries progressively longer prefixes of the keyword.
-    - Appears at 1 char  → score 100
-    - Appears at full keyword only → score ~20
-    - Never appears → score 0
-    Also returns position (0-9) within suggestions.
+    Uses Apify free-amazon-product-scraper to get real search results.
+    Returns list of dicts: [{position, asin, title, price, is_sponsored}]
+    for matching brand products, plus top_3 competitors.
     """
-    cfg = AUTOCOMPLETE_MARKETS[market]
-    url = f"https://{cfg['domain']}/api/2017/suggestions"
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-    total_chars = len(keyword)
-    if total_chars == 0:
-        return 0, -1, []
+    from apify_client import ApifyClient
 
-    for i in range(1, total_chars + 1):
-        prefix = keyword[:i]
-        try:
-            r = requests.get(url, params={
-                "mid": cfg["mid"], "alias": "aps", "prefix": prefix,
-                "event": "onKeyPress", "limit": 11, "suggestion-type": "KEYWORD",
-            }, timeout=10, headers=headers)
-            if r.status_code != 200:
-                continue
-            data = r.json()
-            suggestions = [s["value"] for s in data.get("suggestions", [])]
-            lower_suggestions = [s.lower() for s in suggestions]
-            if keyword.lower() in lower_suggestions:
-                position = lower_suggestions.index(keyword.lower())
-                prefix_score = max(0, 100 - int((i / total_chars) * 80))
-                position_penalty = position * 2
-                return max(0, prefix_score - position_penalty), position, suggestions
-        except Exception:
-            continue
-        time.sleep(0.3)
+    token = os.environ.get("APIFY_API_TOKEN", "")
+    if not token:
+        print(f"  [WARN] APIFY_API_TOKEN not set, skipping {keyword}")
+        return []
 
-    # Full keyword: check what Amazon suggests
+    domain = SEARCH_RANKING_DOMAINS.get(market, "amazon.com")
+    search_url = f"https://www.{domain}/s?k={keyword.replace(' ', '+')}"
+
+    client = ApifyClient(token)
     try:
-        r = requests.get(url, params={
-            "mid": cfg["mid"], "alias": "aps", "prefix": keyword,
-            "event": "onKeyPress", "limit": 11, "suggestion-type": "KEYWORD",
-        }, timeout=10, headers=headers)
-        if r.status_code == 200:
-            data = r.json()
-            suggestions = [s["value"] for s in data.get("suggestions", [])]
-            return 0, -1, suggestions
-    except Exception:
-        pass
-    return 0, -1, []
+        run = client.actor("junglee/free-amazon-product-scraper").call(
+            run_input={
+                "categoryUrls": [{"url": search_url}],
+                "maxItems": SEARCH_RANKING_MAX_ITEMS,
+            },
+            timeout_secs=300,
+        )
+        if run["status"] != "SUCCEEDED":
+            print(f"  [WARN] Apify run failed for '{keyword}': {run['status']}")
+            return []
+
+        items = list(client.dataset(run["defaultDatasetId"]).iterate_items(
+            limit=SEARCH_RANKING_MAX_ITEMS
+        ))
+    except Exception as e:
+        print(f"  [ERROR] Apify search failed for '{keyword}': {e}")
+        return []
+
+    # Find brand products and top competitors
+    patterns = BRAND_SEARCH_PATTERNS.get(brand, [brand.lower()])
+    brand_results = []
+    competitors = []
+
+    for item in items:
+        cpd = item.get("categoryPageData") or {}
+        pos = cpd.get("productPosition", -1)
+        if pos < 0:
+            continue
+
+        item_brand = (item.get("brand", "") or "").lower()
+        item_title = (item.get("title", "") or "").lower()
+        is_sponsored = bool(cpd.get("isSponsored"))
+        price_data = item.get("price") or {}
+        price_val = price_data.get("value", 0) if isinstance(price_data, dict) else 0
+
+        entry = {
+            "position": pos,
+            "asin": item.get("asin", ""),
+            "title": (item.get("title", "") or "")[:120],
+            "item_brand": item.get("brand", ""),
+            "price": price_val,
+            "is_sponsored": is_sponsored,
+            "stars": item.get("stars", 0),
+            "reviews": item.get("reviewsCount", 0),
+        }
+
+        # Check if this is our brand
+        matched = any(p in item_brand or p in item_title for p in patterns)
+        if matched:
+            brand_results.append(entry)
+        elif len(competitors) < 3 and not is_sponsored:
+            competitors.append(entry)
+
+    return {"brand_results": brand_results, "competitors": competitors, "total_results": len(items)}
 
 
-def collect_amazon_autocomplete(date_from, date_to):
-    """Collect Amazon autocomplete rank scores for brand keywords per market."""
-    print("[Amazon Autocomplete] Collecting rank scores...")
+def collect_amazon_search_ranking(date_from, date_to):
+    """Collect Amazon search ranking positions for brand keywords per market."""
+    print("[Amazon Search Ranking] Collecting via Apify...")
+
+    # Ensure APIFY token is loaded
+    secrets_path = os.path.expanduser("~/.wat_secrets")
+    if os.path.exists(secrets_path):
+        with open(secrets_path, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("export "):
+                    line = line[7:]
+                if "=" in line and not line.startswith("#"):
+                    k, v = line.split("=", 1)
+                    v = v.strip('"').strip("'")
+                    os.environ.setdefault(k, v)
+
     today = _get_pst_today().isoformat()
     all_rows = []
 
-    for market_name in AUTOCOMPLETE_MARKETS:
-        brands = AUTOCOMPLETE_KEYWORDS.get(market_name, {})
+    for market_name in SEARCH_RANKING_DOMAINS:
+        brands = SEARCH_RANKING_KEYWORDS.get(market_name, {})
         for brand, keywords in brands.items():
             for kw in keywords:
-                score, position, suggestions = _autocomplete_rank(kw, market=market_name)
-                all_rows.append({
-                    "date": today,
-                    "brand": brand,
-                    "keyword": kw,
-                    "market": market_name,
-                    "rank_score": score,
-                    "position": position,
-                    "top_suggestions": json.dumps(suggestions[:5], ensure_ascii=False),
-                })
-                status = f"score={score} pos={position}" if position >= 0 else "not found"
-                print(f"  [{market_name}] {brand}/{kw}: {status}")
-                time.sleep(0.5)
+                print(f"  [{market_name}] {brand} / '{kw}' - searching...")
+                result = _search_ranking_for_keyword(kw, brand, market=market_name)
+                if not result:
+                    all_rows.append({
+                        "date": today, "brand": brand, "keyword": kw,
+                        "market": market_name, "position": -1,
+                        "asin": "", "product_title": "",
+                        "competitors_top3": "[]",
+                    })
+                    print(f"    -> no data")
+                    continue
 
-    print(f"[Amazon Autocomplete] Total: {len(all_rows)} rows")
+                brand_hits = result["brand_results"]
+                comps = result["competitors"]
+
+                if brand_hits:
+                    best = min(brand_hits, key=lambda x: x["position"])
+                    all_rows.append({
+                        "date": today, "brand": brand, "keyword": kw,
+                        "market": market_name, "position": best["position"],
+                        "asin": best["asin"],
+                        "product_title": best["title"],
+                        "price": best["price"],
+                        "stars": best["stars"],
+                        "reviews": best["reviews"],
+                        "is_sponsored": best["is_sponsored"],
+                        "total_brand_hits": len(brand_hits),
+                        "competitors_top3": json.dumps(
+                            [{"pos": c["position"], "brand": c["item_brand"], "title": c["title"][:60]}
+                             for c in comps[:3]], ensure_ascii=False
+                        ),
+                    })
+                    print(f"    -> #{best['position']} (ASIN: {best['asin']}, {len(brand_hits)} hits)")
+                else:
+                    all_rows.append({
+                        "date": today, "brand": brand, "keyword": kw,
+                        "market": market_name, "position": -1,
+                        "asin": "", "product_title": "",
+                        "total_brand_hits": 0,
+                        "competitors_top3": json.dumps(
+                            [{"pos": c["position"], "brand": c["item_brand"], "title": c["title"][:60]}
+                             for c in comps[:3]], ensure_ascii=False
+                        ),
+                    })
+                    print(f"    -> NOT FOUND in top {result['total_results']}")
+
+                time.sleep(1)  # Rate limit between keywords
+
+    print(f"[Amazon Search Ranking] Total: {len(all_rows)} rows")
     return all_rows
 
 
@@ -2908,7 +2987,7 @@ CHANNEL_COLLECTORS = {
     "gsc": ("gsc_daily", collect_gsc),
     "dataforseo": ("dataforseo_keywords", collect_dataforseo),
     "rakuten": ("rakuten_orders_daily", collect_rakuten_orders),
-    "amazon_autocomplete": ("amazon_autocomplete_daily", collect_amazon_autocomplete),
+    "amazon_search_ranking": ("amazon_search_ranking_daily", collect_amazon_search_ranking),
 }
 
 
