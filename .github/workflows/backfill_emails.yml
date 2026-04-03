@@ -1,0 +1,25 @@
+name: Backfill Emails from Syncly Sheet
+
+on:
+  workflow_dispatch:
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key.pem
+          chmod 600 ~/.ssh/ec2_key.pem
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+      - name: Run backfill on EC2
+        run: |
+          EC2_USER="${{ secrets.EC2_USER || 'ubuntu' }}"
+          EC2_HOST="${{ secrets.EC2_HOST }}"
+          scp -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no \
+            tools/backfill_emails.py ${EC2_USER}@${EC2_HOST}:/home/ubuntu/export_calculator/
+          ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} \
+            "cd /home/ubuntu/export_calculator && python3 backfill_emails.py"
