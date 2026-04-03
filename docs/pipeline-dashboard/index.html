@@ -4069,8 +4069,12 @@ async function checkAllFeatures(){
 
 function updateFtSummary(){
   if(!_ftCache)return;
-  var total=_ftCache.length;
-  var withEmail=_ftCache.filter(function(c){return c.email&&!c.email.includes('@discovered.')}).length;
+  // Filter by current mode (safety net — API should already filter)
+  var modeFilter=_cfgMode;
+  var filtered=modeFilter==='lt'?_ftCache.filter(function(c){return c.outreach_type!=='HT'}):
+               modeFilter==='ht'?_ftCache.filter(function(c){return c.outreach_type==='HT'}):_ftCache;
+  var total=filtered.length;
+  var withEmail=filtered.filter(function(c){return c.email&&!c.email.includes('@discovered.')}).length;
   var pendingCrawl=total-withEmail;
 
   var usCheck=document.getElementById('ft-check-us').checked;
@@ -4082,47 +4086,38 @@ function updateFtSummary(){
   var brandCount=brandCheck&&_ftResults.brand?_ftResults.brand.count:0;
   var ragCount=ragCheck&&_ftResults.rag?_ftResults.rag.count:0;
   var apifyEstimate=0;
-  if(apifyCheck&&_ftResults.apify){
-    apifyEstimate=_ftResults.apify.estimated||Math.round(pendingCrawl*0.20);
+  if(apifyCheck&&pendingCrawl>0){
+    apifyEstimate=_ftResults.apify?(_ftResults.apify.estimated||Math.round(pendingCrawl*0.20)):Math.round(pendingCrawl*0.20);
   }
 
-  // Pipeline: total → −non-US → −brand → −RAG dedup → eligible (with email + Apify est.)
-  var afterUs=total-usNonCount;
-  var afterBrand=afterUs-brandCount;
-  if(afterBrand<0)afterBrand=0;
-  var afterRag=afterBrand-ragCount;
-  if(afterRag<0)afterRag=0;
-  // Eligible = creators with real email + Apify fill estimate for those without
-  var eligible;
-  if(apifyCheck&&pendingCrawl>0){
-    eligible=withEmail+apifyEstimate-ragCount;
-  }else{
-    eligible=withEmail-ragCount;
-  }
+  // Eligible = with real email + Apify estimate − RAG dedup
+  var eligible=withEmail+apifyEstimate-ragCount;
   if(eligible<0)eligible=0;
-  // Also show total after filters (regardless of email) for context
-  var totalAfterFilters=afterRag;
 
   // Build flow display
+  var modeLabel=modeFilter==='lt'?' (LT only)':modeFilter==='ht'?' (HT only)':'';
   var flowEl=document.getElementById('ft-pipeline-flow');
   flowEl.textContent='';
   var parts=[];
-  parts.push(total+' total');
-  if(usCheck&&_ftResults.us)parts.push('\u2212'+usNonCount+' non-US');
-  if(brandCheck&&_ftResults.brand)parts.push('\u2212'+brandCount+' business');
-  if(ragCheck&&_ftResults.rag)parts.push('\u2212'+ragCount+' dedup');
-  parts.push(totalAfterFilters+' after filters');
-  if(withEmail>0)parts.push(withEmail+' with email');
-  if(apifyCheck&&pendingCrawl>0)parts.push('+'+apifyEstimate+' Apify ('+pendingCrawl+'\u00d720%)');
+  parts.push(total+modeLabel);
+  if(usCheck&&usNonCount>0)parts.push('\u2212'+usNonCount+' non-US');
+  if(brandCheck&&brandCount>0)parts.push('\u2212'+brandCount+' business');
+  if(ragCheck&&ragCount>0)parts.push('\u2212'+ragCount+' dedup');
+  parts.push(withEmail+' with email');
+  if(apifyCheck&&apifyEstimate>0)parts.push('+'+apifyEstimate+' Apify ('+pendingCrawl+'\u00d720%)');
   flowEl.textContent=parts.join(' \u2192 ');
   document.getElementById('ft-eligible-count').textContent=eligible;
-  document.getElementById('ft-total-count').textContent=total;
+  document.getElementById('ft-total-count').textContent=total+modeLabel;
 
-  // HT/LT breakdown
-  var htCount=_ftCache.filter(function(c){return c.outreach_type==='HT'}).length;
-  var ltCount=_ftCache.filter(function(c){return c.outreach_type==='LT'}).length;
-  var igCount=_ftCache.filter(function(c){return (c.platform||'').toLowerCase()==='instagram'}).length;
-  var ttCount=_ftCache.filter(function(c){return (c.platform||'').toLowerCase()==='tiktok'}).length;
+  // Update Brand Allocation to use eligible count
+  document.getElementById('f-creators-contacted').value=eligible;
+  var allocLabel=document.getElementById('alloc-batch-label');
+  if(allocLabel)allocLabel.textContent=eligible;
+  updateAllocation();
+
+  // Platform breakdown (from filtered set)
+  var igCount=filtered.filter(function(c){return (c.platform||'').toLowerCase()==='instagram'}).length;
+  var ttCount=filtered.filter(function(c){return (c.platform||'').toLowerCase()==='tiktok'}).length;
   var breakdownEl=document.getElementById('ft-breakdown');
   if(!breakdownEl){
     breakdownEl=document.createElement('div');
@@ -4132,10 +4127,10 @@ function updateFtSummary(){
   }
   breakdownEl.textContent='';
   var items=[
-    {label:'HT (100K+)',val:htCount,color:'#ef4444'},
-    {label:'LT',val:ltCount,color:'#3b82f6'},
     {label:'IG',val:igCount,color:'#e1306c'},
-    {label:'TT',val:ttCount,color:'#000'}
+    {label:'TT',val:ttCount,color:'#000'},
+    {label:'with email',val:withEmail,color:'var(--g)'},
+    {label:'pending crawl',val:pendingCrawl,color:'var(--am)'}
   ];
   items.forEach(function(it){
     var sp=document.createElement('span');
