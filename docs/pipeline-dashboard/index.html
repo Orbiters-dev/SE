@@ -4120,7 +4120,7 @@ async function checkAllFeatures(){
   await checkFeatureImpact('rag');
 }
 
-function _hasRealEmail(c){return c.email&&!c.email.toLowerCase().endsWith('@discovered.syncly')}
+function _hasRealEmail(c){return c.email&&!c.email.toLowerCase().includes('@discovered.')}
 
 function updateFtSummary(){
   if(!_ftCache)return;
