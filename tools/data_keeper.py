@@ -228,7 +228,43 @@ PROFILE_BRAND_MAP = {
     "GROSMIMI USA": "Grosmimi",
     "Fleeters Inc": "Naeiae",
     "Orbitool": "CHA&MOM",
+    # JP — profile name may differ; add alias after console auth
+    "GROSMIMI JP": "Grosmimi JP",
+    "Grosmimi JP": "Grosmimi JP",
 }
+
+# Amazon Ads API regional endpoints
+ADS_ENDPOINTS = {
+    "NA": "https://advertising-api.amazon.com",        # US, CA, MX, BR
+    "FE": "https://advertising-api-fe.amazon.com",     # JP, AU, SG
+}
+
+# Countries to collect Ads data for
+ADS_COLLECT_COUNTRIES = {"US", "JP"}
+
+
+def _fetch_ads_profiles(headers, countries=None):
+    """Fetch Amazon Ads profiles from all regional endpoints, filtered by country.
+
+    Each returned profile dict gets an extra '_ads_base_url' key so callers
+    know which regional endpoint to use for reports and campaign listing.
+    """
+    if countries is None:
+        countries = ADS_COLLECT_COUNTRIES
+    all_profiles = []
+    for region, base_url in ADS_ENDPOINTS.items():
+        try:
+            resp = requests.get(f"{base_url}/v2/profiles",
+                                headers=headers, timeout=30)
+            resp.raise_for_status()
+            for p in resp.json():
+                if (p.get("countryCode") in countries
+                        and p.get("accountInfo", {}).get("type") == "seller"):
+                    p["_ads_base_url"] = base_url
+                    all_profiles.append(p)
+        except Exception as e:
+            print(f"  [WARN] Ads profiles from {region} ({base_url}): {e}")
+    return all_profiles
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────
@@ -567,7 +603,8 @@ def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
 def _fetch_amz_ads_report(headers, profile_id, start, end,
                           ad_product="SPONSORED_PRODUCTS",
                           report_type_id="spCampaigns",
-                          columns=None):
+                          columns=None,
+                          base_url="https://advertising-api.amazon.com"):
     """Submit, poll, download a single Amazon Ads report chunk."""
     if columns is None:
         columns = ["date", "campaignId", "impressions", "clicks",
@@ -587,7 +624,7 @@ def _fetch_amz_ads_report(headers, profile_id, start, end,
     }
     try:
         r = requests.post(
-            "https://advertising-api.amazon.com/reporting/reports",
+            f"{base_url}/reporting/reports",
             headers=headers, json=body, timeout=30,
         )
         r.raise_for_status()
@@ -599,7 +636,7 @@ def _fetch_amz_ads_report(headers, profile_id, start, end,
             headers = {**_fresh_amz_ads_headers(),
                        "Amazon-Advertising-API-Scope": profile_id}
             r2 = requests.get(
-                f"https://advertising-api.amazon.com/reporting/reports/{report_id}",
+                f"{base_url}/reporting/reports/{report_id}",
                 headers=headers, timeout=30,
             )
             r2.raise_for_status()
@@ -622,7 +659,8 @@ def _fetch_amz_ads_report(headers, profile_id, start, end,
 
 def _fetch_amz_ads_report_generic(headers, profile_id, start, end,
                                    report_type_id, group_by, columns,
-                                   time_unit="DAILY"):
+                                   time_unit="DAILY",
+                                   base_url="https://advertising-api.amazon.com"):
     """Generic Amazon Ads report fetcher with 425 retry support.
     time_unit: DAILY (per-day rows) or SUMMARY (aggregated across range).
     """
@@ -2724,9 +2762,9 @@ def collect_rakuten_orders(date_from: str, date_to: str) -> list[dict]:
 # NOTE: Onzenna removed — it's our marketplace, not a product brand for autocomplete.
 AUTOCOMPLETE_KEYWORDS = {
     "US": {
-        "Grosmimi": ["grosmimi", "straw cup", "sippy cup", "toddler cup", "baby straw cup", "ppsu cup"],
-        "Naeiae": ["naeiae", "baby food pouch", "organic baby food", "korean baby food", "baby snack organic", "toddler food pouch"],
-        "CHA&MOM": ["cha and mom", "baby lotion", "baby body lotion", "baby cream", "baby moisturizer", "mom body cream"],
+        "Grosmimi": ["grosmimi", "straw cup", "sippy cup", "toddler cup", "training cup", "baby straw cup"],
+        "Naeiae": ["naeiae", "baby food", "baby snack", "korean baby food", "baby snack organic", "toddler food pouch"],
+        "CHA&MOM": ["cha and mom", "baby lotion", "baby wash", "baby cream"],
     },
     "JP": {
         "Grosmimi": ["grosmimi", "ストローマグ", "ベビーマグ", "ppsu マグ", "こぼれないコップ", "ストローカップ ベビー"],

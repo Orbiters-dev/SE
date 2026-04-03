@@ -1434,9 +1434,22 @@ function renderFinancial(){
           }
         });
         traf+='</svg></div></div>';
-      } else if(trendKws.length && mktDates.length===1){
-        // Only 1 day of data — show note
-        traf+='<div style="margin-top:6px;font-size:10px;color:var(--muted)">📈 트렌드 차트: 2일 이상 데이터 수집 후 자동 표시됩니다 (현재 '+mktDates.length+'일)</div>';
+      } else if(trendKws.length){
+        // 1 day — horizontal bar chart
+        var barH=24,barGap=4,bW=500,bPadL=140,bPadR=50;
+        var totalH=(barH+barGap)*usItems.length+20;
+        traf+='<div style="margin-top:8px"><div style="font-size:10px;color:var(--dim);margin-bottom:4px">Score Overview</div>';
+        traf+='<div style="overflow-x:auto"><svg viewBox="0 0 '+bW+' '+totalH+'" style="width:100%;max-height:'+(totalH+10)+'px;font-family:var(--mono)">';
+        usItems.forEach(function(r,ri){
+          var y=ri*(barH+barGap)+4;
+          var sc=r.score>=60?'#10b981':r.score>=30?'#f59e0b':'#ef4444';
+          var bw=Math.max(2,r.score/100*(bW-bPadL-bPadR));
+          traf+='<text x="'+(bPadL-6)+'" y="'+(y+barH/2+4)+'" text-anchor="end" fill="var(--text)" font-size="10" font-weight="600">'+r.keyword+'</text>';
+          traf+='<rect x="'+bPadL+'" y="'+y+'" width="'+bw+'" height="'+barH+'" rx="4" fill="'+sc+'" opacity="0.85"/>';
+          traf+='<text x="'+(bPadL+bw+6)+'" y="'+(y+barH/2+4)+'" fill="'+sc+'" font-size="10" font-weight="700">'+r.score+'</text>';
+          if(r.position>=0) traf+='<text x="'+(bW-4)+'" y="'+(y+barH/2+4)+'" text-anchor="end" fill="#94a3b8" font-size="9">#'+(r.position+1)+'</text>';
+        });
+        traf+='</svg></div></div>';
       }
       traf+='</div>';
     });
