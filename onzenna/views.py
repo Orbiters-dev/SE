@@ -656,10 +656,6 @@ def get_or_save_pipeline_config(request, config_date):
         defaults["human_in_loop"] = body["human_in_loop"]
     if "sender_email" in body:
         defaults["sender_email"] = body["sender_email"]
-    if "test_email_override" in body:
-        defaults["test_email_override"] = body["test_email_override"]
-    if "notification_email" in body:
-        defaults["notification_email"] = body["notification_email"]
     # Brand allocation
     for field in ("alloc_grosmimi", "alloc_chaenmom", "alloc_naeiae"):
         if field in body:
@@ -671,13 +667,6 @@ def get_or_save_pipeline_config(request, config_date):
                   "naeiae_form_url", "ht_form_url"):
         if field in body:
             defaults[field] = body[field]
-    # Email content config
-    for field in ("assistant_name", "brand_name", "tone", "sign_off",
-                  "company_signer_name", "company_signer_title"):
-        if field in body:
-            defaults[field] = body[field]
-    if "max_body_sentences" in body:
-        defaults["max_body_sentences"] = int(body["max_body_sentences"])
     # Computed fields (from preview tool)
     for field in ("eligible_total", "eligible_grosmimi", "eligible_chaenmom",
                   "eligible_naeiae", "eligible_unknown", "ht_count", "lt_count"):
@@ -1039,10 +1028,6 @@ def pipeline_creators_list(request):
     if discovery_date:
         qs = qs.filter(initial_discovery_date=discovery_date)
 
-    has_email = request.GET.get("has_email")
-    if has_email and has_email.lower() in ("true", "1"):
-        qs = qs.exclude(email__isnull=True).exclude(email='').exclude(email__endswith='@discovered.syncly')
-
     # Ordering
     order = request.GET.get("order", "-created_at")
     qs = qs.order_by(order)
@@ -1098,7 +1083,7 @@ def pipeline_creator_detail(request, creator_id):
         body = _json_body(request)
         old_status = creator.pipeline_status
 
-        for field in ("ig_handle", "tiktok_handle", "full_name", "platform",
+        for field in ("email", "ig_handle", "tiktok_handle", "full_name", "platform",
                       "pipeline_status", "brand", "assigned_to", "outreach_type",
                       "source", "notes",
                       "shopify_customer_id", "shopify_draft_order_id",
@@ -1203,16 +1188,6 @@ def pipeline_creators_stats(request):
     # Convert date keys to strings
     discovery_dates = {str(k): v for k, v in discovery_date_counts.items() if k}
 
-    # Discovery date breakdown for Not Started creators WITH real email
-    discovery_date_email_counts = dict(
-        PipelineCreator.objects.filter(pipeline_status='Not Started')
-        .exclude(Q(email__isnull=True) | Q(email='') | Q(email__endswith='@discovered.syncly'))
-        .values_list('initial_discovery_date')
-        .annotate(c=Count('id'))
-        .values_list('initial_discovery_date', 'c')
-    )
-    discovery_dates_with_email = {str(k): v for k, v in discovery_date_email_counts.items() if k}
-
     return _cors_headers(request, JsonResponse({
         "total": total,
         "by_status": status_counts,
@@ -1222,7 +1197,6 @@ def pipeline_creators_stats(request):
         "by_type": type_counts,
         "new_this_week": new_this_week,
         "by_discovery_date": discovery_dates,
-        "by_discovery_date_with_email": discovery_dates_with_email,
     }))
 
 
@@ -1478,154 +1452,6 @@ def import_syncly_discovery(request):
     return _cors_headers(request, JsonResponse({
         "created": created,
         "skipped": skipped,
-        "imported": imported,
-    }, status=201))
-
-
-# --- Apify Discovery Import ---
-
-
-@csrf_exempt
-def import_apify_discovery(request):
-    """POST: Import creators from onz_discovery_posts into pipeline_creators.
-
-    Finds Video-type creators in discovery_posts that don't exist in
-    pipeline_creators yet. Creates them with status='Not Started',
-    source='apify_discovery'. Also back-links discovery posts via
-    pipeline_creator_id.
-
-    Body (optional):
-      region: 'jp' (default) or 'us'
-      limit: max creators to import (default: 100)
-      min_followers: minimum followers to qualify (default: 1000)
-      platform: filter by platform — 'instagram', 'tiktok', or '' for all
-    """
-    if request.method == 'OPTIONS':
-        return _cors_headers(request, HttpResponse(status=204))
-
-    if request.method != 'POST':
-        return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
-
-    import re
-    from datetime import date as date_cls
-
-    body = _json_body(request)
-    region = body.get("region", "jp")
-    limit = int(body.get("limit", 100))
-    min_followers = int(body.get("min_followers", 1000))
-    platform_filter = body.get("platform", "")
-
-    # Read HT thresholds from config
-    ht_threshold = 100000
-    ht_follower_min = 50000
-    try:
-        latest_cfg = PipelineConfig.objects.order_by('-date').first()
-        if latest_cfg:
-            if latest_cfg.ht_threshold:
-                ht_threshold = latest_cfg.ht_threshold
-            if latest_cfg.ht_follower_min:
-                ht_follower_min = latest_cfg.ht_follower_min
-    except Exception:
-        pass
-
-    # Get unique handles from discovery that are NOT in pipeline yet
-    posts_qs = DiscoveryPost.objects.filter(
-        region=region,
-        content_type="Video",
-    ).exclude(handle="").exclude(handle__isnull=True)
-
-    if min_followers:
-        posts_qs = posts_qs.filter(followers__gte=min_followers)
-    if platform_filter:
-        posts_qs = posts_qs.filter(platform__iexact=platform_filter)
-
-    # Group by handle, pick the best post per handle (most views)
-    handles_seen = set()
-    best_posts = []
-    for post in posts_qs.order_by("handle", "-views"):
-        h = post.handle.lower()
-        if h in handles_seen:
-            continue
-        handles_seen.add(h)
-        best_posts.append(post)
-
-    created = 0
-    skipped = 0
-    imported = []
-
-    for post in best_posts:
-        if created >= limit:
-            break
-
-        handle = post.handle.lstrip("@").strip()
-        if not handle or not re.match(r'^[a-zA-Z0-9._]+$', handle):
-            skipped += 1
-            continue
-
-        # Check if already in pipeline
-        exists = PipelineCreator.objects.filter(
-            ig_handle__iexact=handle
-        ).exists() or PipelineCreator.objects.filter(
-            tiktok_handle__iexact=handle
-        ).exists()
-
-        if exists:
-            skipped += 1
-            continue
-
-        plat = (post.platform or "").lower()
-        ig_handle = handle if "tiktok" not in plat else ""
-        tiktok_handle = handle if "tiktok" in plat else ""
-        email = f"{handle.replace('.', '_')}@discovered.apify"
-
-        # Check email uniqueness
-        if PipelineCreator.objects.filter(email=email).exists():
-            skipped += 1
-            continue
-
-        followers = post.followers or 0
-        est_r30d = int(followers * (0.15 if "tiktok" in plat else 0.08))
-        is_ht = followers >= ht_follower_min and est_r30d >= ht_threshold
-
-        try:
-            creator = PipelineCreator.objects.create(
-                email=email,
-                ig_handle=ig_handle,
-                tiktok_handle=tiktok_handle,
-                full_name=post.full_name or handle,
-                platform="TikTok" if "tiktok" in plat else "Instagram",
-                pipeline_status="Not Started",
-                brand="Grosmimi",
-                assigned_to=_assign_owner("Grosmimi"),
-                outreach_type="HT" if is_ht else "LT",
-                source="apify_discovery",
-                followers=followers,
-                avg_views=post.views or est_r30d,
-                initial_discovery_date=post.post_date or date_cls.today(),
-                notes=f"Apify discovery ({region}). Post: {post.url or 'N/A'}",
-            )
-
-            # Back-link all discovery posts by this handle
-            DiscoveryPost.objects.filter(
-                handle__iexact=handle, region=region
-            ).update(pipeline_creator_id=creator.id)
-
-            created += 1
-            imported.append({
-                "id": str(creator.id),
-                "handle": handle,
-                "platform": creator.platform,
-                "followers": followers,
-                "outreach_type": creator.outreach_type,
-            })
-        except Exception:
-            skipped += 1
-            continue
-
-    return _cors_headers(request, JsonResponse({
-        "created": created,
-        "skipped": skipped,
-        "total_discovery_handles": len(best_posts),
         "imported": imported,
     }, status=201))
 
@@ -1991,14 +1817,11 @@ def pipeline_conversations(request):
         body = _json_body(request)
         c = PipelineConversation.objects.create(
             creator_email=body.get("creator_email", ""),
-            creator_handle=body.get("creator_handle", ""),
             direction=body.get("direction", "Outbound"),
-            channel=body.get("channel", ""),
             subject=body.get("subject", ""),
             message_content=body.get("message_content", ""),
             brand=body.get("brand", ""),
             outreach_type=body.get("outreach_type", ""),
-            status=body.get("status", "Draft"),
             gmail_message_id=body.get("gmail_message_id", ""),
             gmail_thread_id=body.get("gmail_thread_id", ""),
         )
@@ -2105,41 +1928,7 @@ def discovery_posts_list(request):
                 "source": p.get("source", ""),
                 "region": p.get("region", "jp"),
                 "discovery_batch": p.get("discovery_batch", ""),
-                # CI fields
-                "transcript": p.get("transcript", ""),
-                "scene_fit": p.get("scene_fit", ""),
-                "has_subtitles": p.get("has_subtitles"),
-                "brand_fit_score": p.get("brand_fit_score"),
-                "scene_tags": p.get("scene_tags", ""),
-                "product_mention": p.get("product_mention"),
-                "subject_age": p.get("subject_age", ""),
-                "ci_analysis": p.get("ci_analysis"),
             }
-            # Don't overwrite existing data with empty values
-            for field in ("handle", "full_name", "platform", "content_type", "source", "region", "discovery_batch"):
-                if not defaults.get(field):
-                    defaults.pop(field, None)
-            for field in ("followers", "views", "likes", "comments_count"):
-                if defaults.get(field) is None:
-                    defaults.pop(field, None)
-            if not defaults.get("post_date"):
-                defaults.pop("post_date", None)
-            for field in ("caption", "hashtags", "mentions", "transcript"):
-                if not defaults.get(field):
-                    defaults.pop(field, None)
-            # CI fields null safety
-            if not defaults.get("scene_fit"):
-                defaults.pop("scene_fit", None)
-            if defaults.get("has_subtitles") is None:
-                defaults.pop("has_subtitles", None)
-            if defaults.get("brand_fit_score") is None:
-                defaults.pop("brand_fit_score", None)
-            if defaults.get("product_mention") is None:
-                defaults.pop("product_mention", None)
-            if not defaults.get("subject_age"):
-                defaults.pop("subject_age", None)
-            if not defaults.get("ci_analysis"):
-                defaults.pop("ci_analysis", None)
 
             obj, is_new = DiscoveryPost.objects.update_or_create(
                 url=url,
