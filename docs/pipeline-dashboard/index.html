@@ -134,8 +134,8 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 <!-- MAIN CONTENT -->
 <div id="main-content" style="display:none">
 <div class="ctr">
-  <!-- Top-level navigation — switches between dashboards -->
-  <div class="nav-bar" style="margin-bottom:16px">
+  <!-- Top-level navigation — hidden when embedded in Financial Dashboard iframe -->
+  <div class="nav-bar" id="standalone-nav" style="margin-bottom:16px">
     <div>
       <a href="../ppc-dashboard/" title="Amazon PPC Intelligence">Amazon PPC</a>
       <a href="../content-dashboard/" title="Content Intelligence">Content Intelligence</a>
@@ -143,6 +143,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
       <a href="../financial-dashboard/" title="Financial KPIs">Financial KPIs</a>
     </div>
   </div>
+  <script>if(new URLSearchParams(location.search).get('embed')==='1')document.getElementById('standalone-nav').style.display='none';</script>
   <div class="hero">
     <h1 style="display:flex;align-items:center;justify-content:center;gap:12px">&#x1F4CB; Pipeline <span>CRM</span>
       <div style="display:inline-flex;border:2px solid #e2e8f0;border-radius:8px;overflow:hidden;font-size:12px;font-weight:700;vertical-align:middle;margin-left:4px">
