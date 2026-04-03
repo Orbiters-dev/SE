@@ -1903,7 +1903,7 @@ async function loadCreatorStats(){
 }
 
 // HIL = stages where marketer must take action for pipeline to proceed
-var HIL_LT={'Sample Sent':1};  // LT: only manual "sample shipped" click
+var HIL_LT={'Needs Review':1};  // LT: only Needs Review is human-in-loop
 var HIL_HT={'Draft Ready':1,'Sent':1,'Replied':1,'Needs Review':1,'Send Contract':1,'Sample Sent':1,'Payment Sent':1};  // HT: full manual control
 
 function buildFunnel(statusCounts,targetId,activeStatus){
@@ -1929,7 +1929,7 @@ function buildFunnel(statusCounts,targetId,activeStatus){
   }
 
   // Y-fork: Not Started (left center) → LT (top row) / HT (bottom row)
-  var LT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Reminder Sent','Posted'];
+  var LT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Accepted','Sample Shipped','Sample Delivered','Reminder Sent','Posted'];
   var HT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Send Contract','Contract Signed','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Reminder Sent','Payment Sent','Posted'];
   function _row(stages,counts,hilMap){
     var r='';
