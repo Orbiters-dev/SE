@@ -1367,15 +1367,14 @@ def pipeline_execution_log(request):
 
 @csrf_exempt
 def import_syncly_discovery(request):
-    """POST: Import creators from gk_content_posts into pipeline_creators.
+    """POST: Import creators from Syncly Creators_updated sheet for a specific week.
 
-    Finds creators in content_posts that don't exist in pipeline_creators yet.
-    Creates them with status='Not Started', source='syncly'.
+    Runs import_syncly_batch.py in background on EC2.
+    Only imports: real email + 제휴 상태 blank + not blacklisted.
 
-    Body (optional):
-      brand: filter by brand (default: all)
-      limit: max creators to import (default: 50)
-      days: look back N days (default: 30)
+    Body:
+      week: week start date (e.g. "2026-01-28") — REQUIRED
+      clean_placeholders: if true, delete @discovered.* for this week (default: true)
     """
     if request.method == 'OPTIONS':
         return _cors_headers(request, HttpResponse(status=204))
@@ -1384,140 +1383,41 @@ def import_syncly_discovery(request):
         return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
 
     body = _json_body(request)
-    brand_filter = body.get("brand", "")
-    limit = int(body.get("limit", 50))
-    days = int(body.get("days", 30))
+    week = body.get("week", "")
 
-    from django.db import connection
-    from datetime import timedelta
-    from datetime import date as date_cls
+    if not week:
+        return _cors_headers(request, JsonResponse({"error": "week is required (e.g. 2026-01-28)"}, status=400))
 
-    cutoff = date_cls.today() - timedelta(days=days)
+    import subprocess, os
 
-    # Query gk_content_posts for unique creators not already in pipeline
-    sql = """
-        SELECT DISTINCT ON (cp.username)
-            cp.username, cp.nickname, cp.followers, cp.platform,
-            cp.brand, cp.caption, cp.url, cp.post_date
-        FROM gk_content_posts cp
-        LEFT JOIN onz_pipeline_creators pc
-            ON LOWER(cp.username) = LOWER(pc.ig_handle)
-            OR LOWER(cp.username) = LOWER(pc.tiktok_handle)
-        WHERE pc.id IS NULL
-          AND cp.post_date >= %s
-          AND cp.username IS NOT NULL
-          AND cp.username != ''
-    """
-    params = [cutoff]
+    # Run import_syncly_batch.py in background
+    script = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "import_syncly_batch.py")
+    if not os.path.exists(script):
+        script = "/home/ubuntu/export_calculator/tools/import_syncly_batch.py"
 
-    if brand_filter:
-        sql += " AND LOWER(cp.brand) = LOWER(%s)"
-        params.append(brand_filter)
+    cmd = ["python3", script, "--week", week]
+    log_path = f"/tmp/syncly_import_{week}.log"
+    project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    sql += " ORDER BY cp.username, cp.followers DESC NULLS LAST LIMIT %s"
-    params.append(limit)
-
-    created = 0
-    skipped = 0
-    imported = []
-
-    # Read HT thresholds from config
-    ht_threshold = 100000   # R30D views
-    ht_follower_min = 50000  # Minimum followers
-    try:
-        from datetime import date as _date
-        latest_cfg = PipelineConfig.objects.order_by('-date').first()
-        if latest_cfg:
-            if latest_cfg.ht_threshold:
-                ht_threshold = latest_cfg.ht_threshold
-            if latest_cfg.ht_follower_min:
-                ht_follower_min = latest_cfg.ht_follower_min
-    except Exception:
-        pass
+    env = os.environ.copy()
+    env["DJANGO_SETTINGS_MODULE"] = "export_calculator.settings.production"
+    env["PYTHONPATH"] = project_dir
+    env["PYTHONUNBUFFERED"] = "1"
 
     try:
-        with connection.cursor() as cursor:
-            cursor.execute(sql, params)
-            rows = cursor.fetchall()
-
-        for row in rows:
-            username, nickname, followers, platform, brand, caption, url, post_date = row
-
-            # Clean handle (remove @)
-            handle = (username or "").lstrip("@").strip()
-            if not handle:
-                skipped += 1
-                continue
-
-            # Validate handle — reject non-Latin characters (Japanese text, emoji, etc.)
-            import re
-            if not re.match(r'^[a-zA-Z0-9._]+$', handle):
-                skipped += 1
-                continue
-
-            # Determine platform
-            plat = (platform or "").lower()
-            ig_handle = handle if "tiktok" not in plat else ""
-            tiktok_handle = handle if "tiktok" in plat else ""
-
-            # Generate placeholder email
-            email = f"{handle.replace('.', '_')}@discovered.syncly"
-
-            # Check if already exists by handle
-            exists = PipelineCreator.objects.filter(
-                ig_handle__iexact=handle
-            ).exists() or PipelineCreator.objects.filter(
-                tiktok_handle__iexact=handle
-            ).exists() or PipelineCreator.objects.filter(
-                email=email
-            ).exists()
-
-            if exists:
-                skipped += 1
-                continue
-
-            # Estimate R30D views from followers if not available
-            est_r30d = int((followers or 0) * (0.15 if "tiktok" in plat else 0.08))
-
-            # HT = followers >= ht_follower_min AND R30D views >= ht_threshold
-            is_ht = (followers or 0) >= ht_follower_min and est_r30d >= ht_threshold
-
-            creator = PipelineCreator.objects.create(
-                email=email,
-                ig_handle=ig_handle,
-                tiktok_handle=tiktok_handle,
-                full_name=nickname or handle,
-                platform="TikTok" if "tiktok" in plat else "Instagram",
-                pipeline_status="Not Started",
-                brand=brand or "",
-                assigned_to=_assign_owner(brand or ""),
-                outreach_type="HT" if is_ht else "LT",
-                source="syncly",
-                followers=followers,
-                avg_views=est_r30d,
-                initial_discovery_date=post_date or date_cls.today(),
-                notes=f"Syncly discovery. Post: {url or 'N/A'}",
-            )
-            created += 1
-            imported.append({
-                "id": str(creator.id),
-                "handle": handle,
-                "brand": brand,
-                "followers": followers,
-            })
-
-    except Exception as e:
+        proc = subprocess.Popen(
+            cmd, stdout=open(log_path, "w"), stderr=subprocess.STDOUT,
+            cwd=project_dir, env=env,
+        )
         return _cors_headers(request, JsonResponse({
-            "error": str(e),
-            "created": created,
-            "skipped": skipped,
-        }, status=500))
-
-    return _cors_headers(request, JsonResponse({
-        "created": created,
-        "skipped": skipped,
-        "imported": imported,
-    }, status=201))
+            "status": "started",
+            "week": week,
+            "pid": proc.pid,
+            "log": log_path,
+            "message": f"Import started in background (PID {proc.pid}). Check log at {log_path}",
+        }, status=202))
+    except Exception as e:
+        return _cors_headers(request, JsonResponse({"error": str(e)}, status=500))
 
 
 # ========== EMAIL REPLY CONFIG ==========
