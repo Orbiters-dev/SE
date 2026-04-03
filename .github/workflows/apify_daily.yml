@@ -111,12 +111,18 @@ jobs:
           python -u tools/fetch_jp_discovery.py --days 1 --no-sheet
           # Sync to PG via orbitools API
           TODAY=$(date -u +%Y-%m-%d)
-          for f in "Data Storage/discovery/${TODAY}_jp_ig_discovery.json" "Data Storage/discovery/${TODAY}_jp_tt_discovery.json"; do
+          for f in "Data Storage/discovery/${TODAY}_jp_ig_discovery.json" "Data Storage/discovery/${TODAY}_jp_tt_discovery.json" "Data Storage/discovery/${TODAY}_jp_ig_reels.json"; do
             if [ -f "$f" ]; then
               echo "Syncing $f to PG..."
               python -u tools/sync_discovery_to_pg.py --json "$f" --region jp
             fi
           done
+          # Auto-import new creators to Pipeline
+          echo "Importing new creators to Pipeline..."
+          curl -sk -X POST "https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/import-from-discovery/" \
+            -H "Content-Type: application/json" \
+            -u "${ORBITOOLS_USER}:${ORBITOOLS_PASS}" \
+            -d '{"region":"jp","limit":200,"min_followers":1000}' || true
         continue-on-error: true
 
       - name: Backfill Enrichment (RapidAPI + Apify views)
