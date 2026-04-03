@@ -3390,6 +3390,7 @@ def generate():
         # views in metrics = cumulative snapshot, so delta = today - yesterday
         post_snapshots = defaultdict(dict)  # pid → {date → views}
         post_max_views = defaultdict(int)
+        post_first_views = defaultdict(int)  # pid → views at first observation
         for m in content_metrics:
             pid = m.get("post_id", "")
             d = m.get("date", "")
@@ -3411,6 +3412,7 @@ def generate():
             if len(sorted_dates) < 2:
                 continue  # need at least 2 snapshots to compute delta
             prev_v = snaps[sorted_dates[0]]  # first snapshot = baseline
+            post_first_views[pid] = prev_v  # store baseline views at first observation
             for d in sorted_dates[1:]:
                 v = snaps[d]
                 delta = max(0, v - prev_v)
@@ -3469,6 +3471,13 @@ def generate():
         for (cat, uname), meta in cat_creator_meta.items():
             pids = cat_user_posts.get(cat, {}).get(uname, set())
             meta["total_views"] = sum(post_max_views.get(pid, 0) for pid in pids)
+            meta["base_views"] = sum(post_first_views.get(pid, 0) for pid in pids)
+            # First observation date = earliest snapshot date across all posts
+            obs_dates = []
+            for pid in pids:
+                if pid in post_snapshots and post_snapshots[pid]:
+                    obs_dates.append(min(post_snapshots[pid].keys()))
+            meta["first_observed"] = min(obs_dates) if obs_dates else ""
 
         # Build per-category top creators
         # Exclude creators whose content is not ours (false positives from crawler)
@@ -3492,6 +3501,8 @@ def generate():
                         "brand": meta.get("brand", ""),
                         "platform": meta.get("platform", ""),
                         "total_views": observed_growth,  # = actual growth observed
+                        "base_views": meta.get("base_views", 0),  # views at first observation
+                        "first_observed": meta.get("first_observed", ""),
                         "upload_date": meta.get("upload_date", ""),
                         "daily_views": [dv.get(d, 0) for d in daily_dates],
                     })

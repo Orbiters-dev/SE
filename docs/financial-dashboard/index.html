@@ -1766,11 +1766,27 @@ function renderHeroTab(F){
           if(gv>0)html+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" fill="'+bc+'" font-size="7" font-family="var(--mono)" text-anchor="end" opacity="0.5">'+gv.toLocaleString()+'</text>';
         }
         html+='<text x="'+(padL+2)+'" y="'+(delTop+10)+'" fill="'+bc+'" font-size="8" font-weight="700" opacity="0.4">Total Views (cumulative)</text>';
+        // Hatched pattern for pre-observation base area
+        html+='<defs><pattern id="hatch-base" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="4" stroke="#94a3b8" stroke-width="0.5" opacity="0.15"/></pattern></defs>';
         // Draw lines — only from first non-zero onwards
         ffCreators.forEach(function(x,ci){
           var col=INF_COLORS[ci%INF_COLORS.length];
           var firstNZ=x.ff.findIndex(function(v){return v>0;});
           if(firstNZ<0)return;
+          var base=x.base||0;
+          // Hatched base region + dashed baseline showing pre-observation views
+          if(base>0){
+            var baseY=delTop+delH-base/crMaxV*delH*0.9;
+            var botY=delTop+delH;
+            var startX=padL+firstNZ*(bw+1);
+            var endX=padL+(n-1)*(bw+1)+bw;
+            html+='<rect x="'+startX+'" y="'+baseY+'" width="'+(endX-startX)+'" height="'+(botY-baseY)+'" fill="url(#hatch-base)" opacity="0.6"/>';
+            html+='<line x1="'+startX+'" y1="'+baseY+'" x2="'+endX+'" y2="'+baseY+'" stroke="'+col+'" stroke-width="0.7" stroke-dasharray="3,2" opacity="0.35"/>';
+            var fo=x.cr.first_observed||'';
+            var baseStr=base>=1000?Math.round(base/1000)+'K':''+base;
+            var tagTxt=baseStr+(fo?' ('+fo.substring(5)+' ~)':'');
+            html+='<text x="'+(startX+2)+'" y="'+(baseY-2)+'" fill="'+col+'" font-size="5.5" font-family="var(--mono)" opacity="0.5">'+tagTxt+'</text>';
+          }
           var pts=[];
           for(var i=firstNZ;i<n;i++){
             var px=padL+i*(bw+1)+bw/2,py=delTop+delH-x.ff[i]/crMaxV*delH*0.9;
@@ -1899,7 +1915,10 @@ function renderHeroTab(F){
           // Views total delta row + cumulative row
           if(crDeltaArr.length){
             html+='<tr style="border-top:2px solid var(--border);background:#f0fdf4"><td style="font-weight:700;color:var(--g)">Views Delta (sum)</td>';
-            var cumViews=0;
+            // Sum base_views across all creators for cumulative starting point
+            var baseViewsTotal=0;
+            crDeltaArr.forEach(function(x){baseViewsTotal+=(x.cr.base_views||0);});
+            var cumViews=baseViewsTotal;
             var wkDeltas=[];
             wkSlice.forEach(function(wk,wi){
               var weekTotal=0;var wkIdx=wkOffset+wi;
@@ -2299,10 +2318,11 @@ function renderHeroTab(F){
     html+='<div class="sec"><div class="sec-title"><div class="num">4</div> Content Views by Influencer (90D)</div>';
     html+='<div class="card"><div class="desc">Daily cumulative views per creator over 90 days. Hover lines for details.</div>';
     // Stats row
-    var cbcTotalV=0;cbcTop.forEach(function(cr){cbcTotalV+=cr.total_views;});
+    var cbcTotalV=0;var cbcTotalGrowth=0;cbcTop.forEach(function(cr){cbcTotalV+=(cr.base_views||0)+cr.total_views;cbcTotalGrowth+=cr.total_views;});
     html+='<div class="stats" style="margin-bottom:12px">';
     html+='<div class="stat accent"><div class="sl">TRACKED CREATORS</div><div class="sv">'+cbc.length+'</div></div>';
     html+='<div class="stat cyan"><div class="sl">TOP 10 TOTAL VIEWS</div><div class="sv">'+cbcTotalV.toLocaleString()+'</div></div>';
+    html+='<div class="stat" style="background:#f0fdf4"><div class="sl" style="color:var(--g)">90D GROWTH</div><div class="sv" style="color:var(--g)">+'+cbcTotalGrowth.toLocaleString()+'</div></div>';
     html+='</div>';
     // Build line chart
     var crDates=H.daily_dates||[];
@@ -2360,17 +2380,19 @@ function renderHeroTab(F){
     html+='</div>';
     html+='<div style="font-size:9px;color:var(--muted);margin-top:6px">Daily views per influencer over last 90 days. Hover for breakdown.</div>';
     // Leaderboard table
-    html+='<table style="margin-top:12px"><thead><tr><th>#</th><th>Username</th><th>Platform</th><th>Brand</th><th style="text-align:right">Total Views</th><th>Products</th></tr></thead><tbody>';
+    html+='<table style="margin-top:12px"><thead><tr><th>#</th><th>Username</th><th>Platform</th><th>Brand</th><th style="text-align:right">Total Views</th><th style="text-align:right;font-size:9px;color:var(--muted)">Growth</th><th>Products</th></tr></thead><tbody>';
     cbcTop.forEach(function(cr,ci){
       var col=CR_COLORS[ci%CR_COLORS.length];
       var prodHtml=cr.product_types&&cr.product_types.length?cr.product_types.map(function(t){return '<span style="display:inline-block;padding:1px 5px;border-radius:8px;background:#f3e8ff;color:#7c3aed;font-size:9px;margin:1px 2px">'+t+'</span>';}).join(''):'<span style="color:var(--muted);font-size:9px">-</span>';
       var platBadge=cr.platform==='tiktok'||cr.platform==='TT'?'<span style="padding:1px 5px;border-radius:4px;background:#fce7f3;color:#ec4899;font-size:9px;font-weight:700">TT</span>':'<span style="padding:1px 5px;border-radius:4px;background:#fef3c7;color:#f59e0b;font-size:9px;font-weight:700">IG</span>';
+      var actualTotal=(cr.base_views||0)+cr.total_views;
       html+='<tr>';
       html+='<td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+col+';margin-right:4px"></span>'+(ci+1)+'</td>';
       html+='<td style="font-weight:700">@'+cr.username+'</td>';
       html+='<td>'+platBadge+'</td>';
       html+='<td style="font-size:10px;color:var(--dim)">'+cr.brand+'</td>';
-      html+='<td style="text-align:right;font-family:var(--mono);font-weight:700">'+cr.total_views.toLocaleString()+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-weight:700">'+actualTotal.toLocaleString()+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--g)">+'+cr.total_views.toLocaleString()+'</td>';
       html+='<td>'+prodHtml+'</td>';
       html+='</tr>';
     });

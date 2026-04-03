@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-04-02 15:58 PST",
+ "generated_pst": "2026-04-02 15:45 PST",
  "through_date": "2026-04-01",
  "months": [
   "2025-01",
@@ -109,10 +109,10 @@ const FIN_DATA = {
    "total_ad_spend": 44121,
    "ad_attributed_sales": 139421,
    "organic_revenue": 127536,
-   "gross_margin": 266957,
-   "gm_pct": 100.0,
-   "contribution_margin": 221934,
-   "cm_pct": 83.1,
+   "gross_margin": 172585,
+   "gm_pct": 64.6,
+   "contribution_margin": 127562,
+   "cm_pct": 47.8,
    "mer": 6.05,
    "roas": 3.16,
    "discount_rate": 5.6
@@ -125,10 +125,10 @@ const FIN_DATA = {
    "total_ad_spend": 148089,
    "ad_attributed_sales": 526391,
    "organic_revenue": 452373,
-   "gross_margin": 978764,
-   "gm_pct": 100.0,
-   "contribution_margin": 825152,
-   "cm_pct": 84.3,
+   "gross_margin": 656514,
+   "gm_pct": 67.1,
+   "contribution_margin": 502902,
+   "cm_pct": 51.4,
    "mer": 6.61,
    "roas": 3.55,
    "discount_rate": 5.6
@@ -141,10 +141,10 @@ const FIN_DATA = {
    "total_ad_spend": 4431,
    "ad_attributed_sales": 11979,
    "organic_revenue": 27149,
-   "gross_margin": 39128,
-   "gm_pct": 100.0,
-   "contribution_margin": 34596,
-   "cm_pct": 88.4,
+   "gross_margin": 27732,
+   "gm_pct": 70.9,
+   "contribution_margin": 23200,
+   "cm_pct": 59.3,
    "mer": 8.83,
    "roas": 2.7,
    "discount_rate": 4.0
@@ -1514,76 +1514,76 @@ const FIN_DATA = {
    1371180
   ],
   "cogs": [
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0
+   201474,
+   187140,
+   213951,
+   197627,
+   200167,
+   240388,
+   323150,
+   253099,
+   219857,
+   279092,
+   287745,
+   236137,
+   261351,
+   229227,
+   319230,
+   11572
   ],
   "cogs_proj": [
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0
+   201474,
+   187140,
+   213951,
+   197627,
+   200167,
+   240388,
+   323150,
+   253099,
+   219857,
+   279092,
+   287745,
+   236137,
+   261351,
+   229227,
+   319230,
+   347160
   ],
   "gross_margin": [
-   534321,
-   482222,
-   544105,
-   531922,
-   559100,
-   678237,
-   880859,
-   770943,
-   665841,
-   740152,
-   823159,
-   701336,
-   882669,
-   921177,
-   1178084,
-   45706
+   332846,
+   295082,
+   330154,
+   334294,
+   358933,
+   437849,
+   557709,
+   517844,
+   445984,
+   461060,
+   535414,
+   465199,
+   621318,
+   691951,
+   858854,
+   34134
   ],
   "gross_margin_proj": [
-   534321,
-   482222,
-   544105,
-   531922,
-   559100,
-   678237,
-   880859,
-   770943,
-   665841,
-   740152,
-   823159,
-   701336,
-   882669,
-   921177,
-   1178084,
-   1371180
+   332846,
+   295082,
+   330154,
+   334294,
+   358933,
+   437849,
+   557709,
+   517844,
+   445984,
+   461060,
+   535414,
+   465199,
+   621318,
+   691951,
+   858854,
+   1024020
   ],
   "variable_costs": [
    61581,
@@ -1595,13 +1595,13 @@ const FIN_DATA = {
    112674,
    93786,
    79215,
-   93404,
-   103417,
-   90326,
-   111498,
-   121271,
-   158820,
-   6478
+   107760,
+   214035,
+   174361,
+   196363,
+   202401,
+   287559,
+   11655
   ],
   "variable_detail": {
    "amz_ref_fee": [
@@ -1632,63 +1632,63 @@ const FIN_DATA = {
     0,
     0,
     0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    14356,
+    110618,
+    84035,
+    84865,
+    81130,
+    128739,
+    5176
    ]
   },
   "cm_before_mkt": [
-   472740,
-   425653,
-   469254,
-   452402,
-   480055,
-   596384,
-   768185,
-   677158,
-   586626,
-   646748,
-   719742,
-   611010,
-   771171,
-   799906,
-   1019264,
-   39228
+   271265,
+   238513,
+   255303,
+   254774,
+   279889,
+   355996,
+   445035,
+   424059,
+   366769,
+   353300,
+   321379,
+   290838,
+   424955,
+   489549,
+   571295,
+   22479
   ],
   "cm_before_mkt_proj": [
-   472740,
-   425653,
-   469254,
-   452402,
-   480055,
-   596384,
-   768185,
-   677158,
-   586626,
-   646748,
-   719742,
-   611010,
-   771171,
-   799906,
-   1019264,
-   1176840
+   271265,
+   238513,
+   255303,
+   254774,
+   279889,
+   355996,
+   445035,
+   424059,
+   366769,
+   353300,
+   321379,
+   290838,
+   424955,
+   489549,
+   571295,
+   674370
   ],
   "ad_spend": [
-   20996,
-   16546,
-   17863,
-   17410,
-   17003,
-   16451,
-   21579,
-   24911,
-   27700,
-   31719,
-   39600,
+   68843,
+   54550,
+   58745,
+   63551,
+   62851,
+   72745,
+   103700,
+   92178,
+   83337,
+   91284,
+   104991,
    71387,
    118156,
    119783,
@@ -1696,17 +1696,17 @@ const FIN_DATA = {
    4431
   ],
   "ad_spend_proj": [
-   20996,
-   16546,
-   17863,
-   17410,
-   17003,
-   16451,
-   21579,
-   24911,
-   27700,
-   31719,
-   39600,
+   68843,
+   54550,
+   58745,
+   63551,
+   62851,
+   72745,
+   103700,
+   92178,
+   83337,
+   91284,
+   104991,
    71387,
    118156,
    119783,
@@ -1770,150 +1770,150 @@ const FIN_DATA = {
    ]
   },
   "seeding": [
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
+   3311,
+   5282,
+   2811,
+   3225,
+   3184,
+   2875,
+   5045,
+   19121,
+   10271,
+   23233,
+   4420,
+   2156,
+   8235,
+   11911,
+   7290,
    0
   ],
   "seeding_proj": [
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
+   3311,
+   5282,
+   2811,
+   3225,
+   3184,
+   2875,
+   5045,
+   19121,
+   10271,
+   23233,
+   4420,
+   2156,
+   8235,
+   11911,
+   7290,
    0
   ],
   "influencer_detail": {
    "paid": [
+    1100,
+    2900,
     0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
+    1532,
+    2107,
+    2020,
+    3467,
+    18004,
+    7437,
+    22277,
+    1318,
+    814,
+    450,
+    5878,
+    4550,
     0
    ],
    "nonpaid": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
+    2211,
+    2382,
+    2811,
+    1693,
+    1077,
+    855,
+    1577,
+    1117,
+    2833,
+    956,
+    3102,
+    1341,
+    7785,
+    6033,
+    2740,
     0
    ]
   },
   "mkt_total": [
-   39184,
-   28416,
-   22108,
-   17472,
-   18934,
-   39396,
-   31562,
-   36471,
-   35305,
-   35390,
-   59273,
-   80465,
-   134237,
-   126108,
-   158704,
+   90341,
+   71701,
+   65801,
+   66838,
+   67966,
+   98565,
+   118728,
+   122859,
+   101213,
+   118188,
+   129083,
+   82621,
+   142471,
+   138019,
+   165994,
    4531
   ],
   "mkt_total_proj": [
-   39184,
-   28416,
-   22108,
-   17472,
-   18934,
-   39396,
-   31562,
-   36471,
-   35305,
-   35390,
-   59273,
-   80465,
-   134237,
-   126108,
-   158704,
+   90341,
+   71701,
+   65801,
+   66838,
+   67966,
+   98565,
+   118728,
+   122859,
+   101213,
+   118188,
+   129083,
+   82621,
+   142471,
+   138019,
+   165994,
    135930
   ],
   "contribution_margin": [
-   433556,
-   397237,
-   447146,
-   434930,
-   461121,
-   556988,
-   736623,
-   640687,
-   551321,
-   611357,
-   660469,
-   530545,
-   636934,
-   673798,
-   860559,
-   34697
+   180924,
+   166811,
+   189502,
+   187937,
+   211923,
+   257431,
+   326308,
+   301200,
+   265556,
+   235112,
+   192296,
+   208218,
+   282484,
+   351530,
+   405301,
+   17948
   ],
   "contribution_margin_proj": [
-   433556,
-   397237,
-   447146,
-   434930,
-   461121,
-   556988,
-   736623,
-   640687,
-   551321,
-   611357,
-   660469,
-   530545,
-   636934,
-   673798,
-   860559,
-   1040910
+   180924,
+   166811,
+   189502,
+   187937,
+   211923,
+   257431,
+   326308,
+   301200,
+   265556,
+   235112,
+   192296,
+   208218,
+   282484,
+   351530,
+   405301,
+   538440
   ]
  },
  "search_queries": [
@@ -14850,7 +14850,7 @@ const FIN_DATA = {
    "impressions": 131,
    "clicks": 5,
    "ctr": 3.82,
-   "position": 4.9
+   "position": 5.0
   },
   {
    "query": "bamboo bebe gauze",
@@ -15314,7 +15314,7 @@ const FIN_DATA = {
     "query": "grossmimi",
     "clicks": 5,
     "impressions": 131,
-    "avg_position": 4.9,
+    "avg_position": 5.0,
     "ctr": 3.82,
     "weekly_positions": [
      5.1,
@@ -15679,7 +15679,7 @@ const FIN_DATA = {
      11.9,
      10.8,
      11.0,
-     10.6,
+     10.5,
      9.3,
      8.8
     ]
@@ -16160,7 +16160,7 @@ const FIN_DATA = {
    "pos_7d": null,
    "clicks_7d": 0,
    "impressions_7d": 0,
-   "pos_30d": 4.9,
+   "pos_30d": 5.0,
    "clicks_30d": 5,
    "impressions_30d": 131,
    "pos_90d": 5.0,
@@ -16742,13 +16742,13 @@ const FIN_DATA = {
    "monthly_trend": []
   },
   {
-   "keyword": "olee sippy cup",
+   "keyword": "grosmimi straw cup stainless steel",
    "brand": "",
    "search_volume": 76,
-   "gsc_impressions": 0,
-   "gsc_clicks": 0,
-   "gads_impressions": 76,
-   "gads_clicks": 0,
+   "gsc_impressions": 58,
+   "gsc_clicks": 1,
+   "gads_impressions": 18,
+   "gads_clicks": 2,
    "monthly_trend": []
   },
   {
@@ -16762,13 +16762,13 @@ const FIN_DATA = {
    "monthly_trend": []
   },
   {
-   "keyword": "grosmimi straw cup stainless steel",
+   "keyword": "olee sippy cup",
    "brand": "",
    "search_volume": 76,
-   "gsc_impressions": 58,
-   "gsc_clicks": 1,
-   "gads_impressions": 18,
-   "gads_clicks": 2,
+   "gsc_impressions": 0,
+   "gsc_clicks": 0,
+   "gads_impressions": 76,
+   "gads_clicks": 0,
    "monthly_trend": []
   },
   {
@@ -16842,16 +16842,6 @@ const FIN_DATA = {
    "monthly_trend": []
   },
   {
-   "keyword": "grosmimi stainless steel cup",
-   "brand": "",
-   "search_volume": 59,
-   "gsc_impressions": 39,
-   "gsc_clicks": 1,
-   "gads_impressions": 20,
-   "gads_clicks": 3,
-   "monthly_trend": []
-  },
-  {
    "keyword": "alpremio baby feeding seat",
    "brand": "",
    "search_volume": 59,
@@ -16859,6 +16849,16 @@ const FIN_DATA = {
    "gsc_clicks": 0,
    "gads_impressions": 3,
    "gads_clicks": 0,
+   "monthly_trend": []
+  },
+  {
+   "keyword": "grosmimi stainless steel cup",
+   "brand": "",
+   "search_volume": 59,
+   "gsc_impressions": 39,
+   "gsc_clicks": 1,
+   "gads_impressions": 20,
+   "gads_clicks": 3,
    "monthly_trend": []
   },
   {
@@ -19407,42 +19407,42 @@ const FIN_DATA = {
    45706
   ],
   "cogs": [
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0
+   201474,
+   187140,
+   213951,
+   197627,
+   200167,
+   240388,
+   323150,
+   253099,
+   219857,
+   279092,
+   287745,
+   236137,
+   2839827,
+   261351,
+   229227,
+   319230,
+   11572
   ],
   "gross_margin": [
-   534321,
-   482222,
-   544105,
-   531922,
-   559100,
-   678237,
-   880859,
-   770943,
-   665841,
-   740152,
-   823159,
-   701336,
-   7912197,
-   882669,
-   921177,
-   1178084,
-   45706
+   332846,
+   295082,
+   330154,
+   334294,
+   358933,
+   437849,
+   557709,
+   517844,
+   445984,
+   461060,
+   535414,
+   465199,
+   5072368,
+   621318,
+   691951,
+   858854,
+   34134
   ],
   "variable_costs": [
    61581,
@@ -19454,14 +19454,14 @@ const FIN_DATA = {
    112674,
    93786,
    79215,
-   93404,
-   103417,
-   90326,
-   1006241,
-   111498,
-   121271,
-   158820,
-   6478
+   107760,
+   214035,
+   174361,
+   1215250,
+   196363,
+   202401,
+   287559,
+   11655
   ],
   "variable_detail": {
    "amz_ref_fee": [
@@ -19493,14 +19493,14 @@ const FIN_DATA = {
     0,
     0,
     0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    14356,
+    110618,
+    84035,
+    209009,
+    84865,
+    81130,
+    128739,
+    5176
    ],
    "fba_nm_months": [
     0,
@@ -19515,23 +19515,23 @@ const FIN_DATA = {
    ]
   },
   "cm_before_mkt": [
-   472740,
-   425653,
-   469254,
-   452402,
-   480055,
-   596384,
-   768185,
-   677158,
-   586626,
-   646748,
-   719742,
-   611010,
-   6905957,
-   771171,
-   799906,
-   1019264,
-   39228
+   271265,
+   238513,
+   255303,
+   254774,
+   279889,
+   355996,
+   445035,
+   424059,
+   366769,
+   353300,
+   321379,
+   290838,
+   3857120,
+   424955,
+   489549,
+   571295,
+   22479
   ],
   "ad_spend": {
    "onzenna": [
@@ -19554,38 +19554,38 @@ const FIN_DATA = {
     1040
    ],
    "amazon": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
+    47847,
+    38004,
+    40882,
+    46141,
+    45848,
+    56294,
+    82121,
+    67267,
+    55637,
+    59565,
+    65391,
     34382,
-    34382,
+    639379,
     79637,
     80371,
     115653,
     3391
    ],
    "total": [
-    20996,
-    16546,
-    17863,
-    17410,
-    17003,
-    16451,
-    21579,
-    24911,
-    27700,
-    31719,
-    39600,
+    68843,
+    54550,
+    58745,
+    63551,
+    62851,
+    72745,
+    103700,
+    92178,
+    83337,
+    91284,
+    104991,
     71387,
-    323165,
+    928162,
     118156,
     119783,
     153080,
@@ -19848,101 +19848,101 @@ const FIN_DATA = {
    ]
   },
   "influencer_spend": [
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
+   3311,
+   5282,
+   2811,
+   3225,
+   3184,
+   2875,
+   5045,
+   19121,
+   10271,
+   23233,
+   4420,
+   2156,
+   84934,
+   8235,
+   11911,
+   7290,
    0
   ],
   "influencer_detail": {
    "paid": [
+    1100,
+    2900,
     0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
+    1532,
+    2107,
+    2020,
+    3467,
+    18004,
+    7437,
+    22277,
+    1318,
+    814,
+    62976,
+    450,
+    5878,
+    4550,
     0
    ],
    "nonpaid": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
+    2211,
+    2382,
+    2811,
+    1693,
+    1077,
+    855,
+    1577,
+    1117,
+    2833,
+    956,
+    3102,
+    1341,
+    21955,
+    7785,
+    6033,
+    2740,
     0
    ]
   },
   "cm_after_ads": [
-   513325,
-   465676,
-   526242,
-   514512,
-   542097,
-   661786,
-   859280,
-   746032,
-   638141,
-   708433,
-   783559,
-   629949,
-   7589032,
-   764513,
-   801394,
-   1025004,
-   41275
+   264003,
+   240532,
+   271409,
+   270743,
+   296082,
+   365104,
+   454009,
+   425666,
+   362647,
+   369776,
+   430423,
+   393812,
+   4144206,
+   503162,
+   572168,
+   705774,
+   29703
   ],
   "cm_final": [
-   513325,
-   465676,
-   526242,
-   514512,
-   542097,
-   661786,
-   859280,
-   746032,
-   638141,
-   708433,
-   783559,
-   629949,
-   7589032,
-   764513,
-   801394,
-   1025004,
-   41275
+   260692,
+   235250,
+   268598,
+   267518,
+   292898,
+   362229,
+   448964,
+   406545,
+   352376,
+   346543,
+   426003,
+   391656,
+   4059272,
+   494927,
+   560257,
+   698484,
+   29703
   ],
   "channel_pnl": {
    "Amazon MP": {
@@ -19965,22 +19965,22 @@ const FIN_DATA = {
      43188
     ],
     "cogs": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0
+     162825,
+     146931,
+     198991,
+     197228,
+     191599,
+     195586,
+     291995,
+     217535,
+     181049,
+     213028,
+     237926,
+     199052,
+     210007,
+     190983,
+     284705,
+     10697
     ],
     "selling_fees": [
      61581,
@@ -20010,13 +20010,13 @@ const FIN_DATA = {
      null,
      null,
      null,
-     null,
-     null,
-     null,
-     null,
-     null,
-     null,
-     null
+     14356,
+     110618,
+     84035,
+     84865,
+     81130,
+     128739,
+     5176
     ],
     "fulfillment_nm": true,
     "ad_spend": [
@@ -20038,40 +20038,40 @@ const FIN_DATA = {
      3777
     ],
     "gross_margin": [
-     348959,
-     320560,
-     424158,
-     450612,
-     447920,
-     463835,
-     638488,
-     531451,
-     448886,
-     529292,
-     586032,
-     511845,
-     631824,
-     687202,
-     899981,
-     36710
+     186134,
+     173629,
+     225167,
+     253384,
+     256321,
+     268249,
+     346493,
+     313916,
+     267837,
+     301908,
+     237488,
+     228758,
+     336952,
+     415089,
+     486537,
+     20837
     ],
     "contribution_margin": [
-     348959,
-     320560,
-     424158,
-     449472,
-     444857,
-     461585,
-     636167,
-     529178,
-     445952,
-     524564,
-     574652,
-     468378,
-     540656,
-     597183,
-     769958,
-     32933
+     186134,
+     173629,
+     225167,
+     252244,
+     253258,
+     265999,
+     344172,
+     311643,
+     264903,
+     297180,
+     226108,
+     185291,
+     245784,
+     325070,
+     356514,
+     17060
     ],
     "color": "#f59e0b"
    },
@@ -20104,13 +20104,13 @@ const FIN_DATA = {
      0,
      0,
      0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0
+     26110,
+     44647,
+     33214,
+     41925,
+     36610,
+     32036,
+     865
     ],
     "selling_fees": [
      0,
@@ -20177,13 +20177,13 @@ const FIN_DATA = {
      103139,
      115369,
      118461,
-     99750,
-     100215,
-     72542,
-     95418,
-     72668,
-     73780,
-     1985
+     73640,
+     55568,
+     39328,
+     53493,
+     36058,
+     41744,
+     1120
     ],
     "contribution_margin": [
      66161,
@@ -20195,13 +20195,13 @@ const FIN_DATA = {
      83881,
      92731,
      93695,
-     72759,
-     71995,
-     44623,
-     68430,
-     42904,
-     50724,
-     1331
+     46649,
+     27348,
+     11409,
+     26505,
+     6294,
+     18688,
+     466
     ],
     "color": "#6366f1"
    },
@@ -20364,12 +20364,12 @@ const FIN_DATA = {
      84,
      120,
      108,
-     144,
-     180,
-     108,
-     144,
-     60,
-     108,
+     3607,
+     5141,
+     3828,
+     9418,
+     1584,
+     2450,
      0
     ],
     "selling_fees": [
@@ -20437,12 +20437,12 @@ const FIN_DATA = {
      3755,
      5242,
      5137,
-     8767,
-     8478,
-     6567,
-     15835,
-     9797,
-     4013,
+     5304,
+     3517,
+     2847,
+     6561,
+     8273,
+     1671,
      0
     ],
     "contribution_margin": [
@@ -20455,12 +20455,12 @@ const FIN_DATA = {
      3755,
      5242,
      5137,
-     8767,
-     8478,
-     6567,
-     15835,
-     9797,
-     4013,
+     5304,
+     3517,
+     2847,
+     6561,
+     8273,
+     1671,
      0
     ],
     "color": "#10b981"
@@ -32223,32 +32223,32 @@ const FIN_DATA = {
     116684
    ],
    "cogs": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    54036,
+    54268,
+    52504,
+    54226,
+    51633,
+    54095,
+    56518,
+    58425,
+    62867,
+    61903,
+    88315,
+    38689
    ],
    "gross_margin": [
-    152091,
-    191632,
-    191043,
-    205324,
-    180787,
-    199243,
-    203872,
-    184249,
-    239929,
-    200569,
-    282001,
-    116684
+    98055,
+    137363,
+    138539,
+    151098,
+    129153,
+    145148,
+    147353,
+    125824,
+    177062,
+    138666,
+    193685,
+    77995
    ],
    "ad_spend": [
     27210,
@@ -32293,18 +32293,18 @@ const FIN_DATA = {
     17248
    ],
    "contribution_margin": [
-    123888,
-    158547,
-    160135,
-    174852,
-    148758,
-    166933,
-    173047,
-    152772,
-    206061,
-    169982,
-    236706,
-    99436
+    69852,
+    104279,
+    107632,
+    120626,
+    97125,
+    112838,
+    116529,
+    94347,
+    143194,
+    108080,
+    148391,
+    60747
    ]
   },
   "channel_pnl": {
@@ -32324,18 +32324,18 @@ const FIN_DATA = {
      109928
     ],
     "cogs": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0
+     47811,
+     42182,
+     45625,
+     46092,
+     45146,
+     48414,
+     51203,
+     52987,
+     56690,
+     55992,
+     83177,
+     36871
     ],
     "fees": [
      22831,
@@ -32366,32 +32366,32 @@ const FIN_DATA = {
      14998
     ],
     "gross_margin": [
-     106546,
-     130850,
-     137562,
-     134504,
-     130128,
-     146894,
-     151617,
-     136409,
-     180261,
-     148267,
-     194010,
-     90529
+     58735,
+     88668,
+     91937,
+     88412,
+     84982,
+     98480,
+     100414,
+     83422,
+     123571,
+     92275,
+     110833,
+     53658
     ],
     "contribution_margin": [
-     84665,
-     109928,
-     114711,
-     112699,
-     108706,
-     123727,
-     128119,
-     111961,
-     153886,
-     123341,
-     154699,
-     75531
+     36854,
+     67746,
+     69086,
+     66607,
+     63560,
+     75313,
+     76916,
+     58974,
+     97196,
+     67349,
+     71522,
+     38660
     ],
     "color": "#f59e0b"
    },
@@ -32411,18 +32411,18 @@ const FIN_DATA = {
      5103
     ],
     "cogs": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0
+     6225,
+     12086,
+     6878,
+     8133,
+     6488,
+     5681,
+     5315,
+     5438,
+     6177,
+     5911,
+     5138,
+     1818
     ],
     "fees": [
      0,
@@ -32453,32 +32453,32 @@ const FIN_DATA = {
      2031
     ],
     "gross_margin": [
-     20354,
-     22246,
-     21386,
-     22333,
-     17769,
-     16372,
-     15121,
-     12512,
-     14894,
-     13916,
-     27056,
-     5103
+     14129,
+     10160,
+     14508,
+     14200,
+     11281,
+     10691,
+     9806,
+     7074,
+     8717,
+     8005,
+     21918,
+     3285
     ],
     "contribution_margin": [
-     15025,
-     16671,
-     14529,
-     16033,
-     8964,
-     8528,
-     8479,
-     6855,
-     9358,
-     9319,
-     22121,
-     3072
+     8800,
+     4585,
+     7651,
+     7900,
+     2476,
+     2847,
+     3164,
+     1417,
+     3181,
+     3408,
+     16983,
+     1254
     ],
     "color": "#6366f1"
    },
@@ -34349,6 +34349,22 @@ const FIN_DATA = {
     ],
     "asins": [
      {
+      "asin": "B0DB7V1BW3",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DCV7MTLS",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DB7SPP2P",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DCV766MB",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
       "asin": "B0DY6SKQ2N",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
@@ -34357,27 +34373,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0F6XNGT85",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DCV766MB",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DB7SPP2P",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DCV7MTLS",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
       "asin": "B0F9PZGGF2",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DB7V1BW3",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -34385,15 +34381,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0F4D28MC3",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
+      "asin": "B0F6XNGT85",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
       "asin": "B0F4D8L1HL",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0F4D3YZ8H",
+      "asin": "B0F4D1V39Q",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
@@ -34401,8 +34397,20 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0F4D1V39Q",
+      "asin": "B0F4D3YZ8H",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
+     },
+     {
+      "asin": "B0F4D28MC3",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
+     },
+     {
+      "asin": "B0F9PZPMH8",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
+     },
+     {
+      "asin": "B0F9PZD6QM",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
       "asin": "B0F9PX51FX",
@@ -34413,43 +34421,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PZD6QM",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
-     },
-     {
-      "asin": "B0F9PZPMH8",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
-     },
-     {
       "asin": "B0F9PY2LBV",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0BZYSL3BH",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B083WJBR9B",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
       "asin": "B0C1N3QZ7K",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B082SSPN4X",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B07YKH98WT",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0C1N1PLYD",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B08398KZ2B",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -34457,7 +34433,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0842D5Z17",
+      "asin": "B083WJBR9B",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B08398KZ2B",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -34465,7 +34445,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B07YKJ18D5",
+      "asin": "B0C1N1PLYD",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -34477,15 +34457,27 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0F9NPRCTM",
-      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+      "asin": "B0BZYSL3BH",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0F8QH8T8X",
-      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+      "asin": "B07YKH98WT",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0F8QHJN6G",
+      "asin": "B0842D5Z17",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B082SSPN4X",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B07YKJ18D5",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0F8QHRGKW",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
@@ -34493,11 +34485,19 @@ const FIN_DATA = {
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
-      "asin": "B0F8QHRGKW",
+      "asin": "B0F8Q8RK18",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
-      "asin": "B0F8Q8RK18",
+      "asin": "B0F9NPRCTM",
+      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+     },
+     {
+      "asin": "B0F8QHJN6G",
+      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+     },
+     {
+      "asin": "B0F8QH8T8X",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
@@ -34505,7 +34505,7 @@ const FIN_DATA = {
       "name": "GROSMIMI(�O���~�~) �X�g���[�j�b�v�� �X�e�[�W2 12�������� �����p�p�[�c �v���~�A��"
      },
      {
-      "asin": "B0842DMZ3H",
+      "asin": "B08398HJRD",
       "name": "GROSMIMI(�O���~�~) �X�g���[�}�O �x�r�[�J�b�v PPSU �R��Ȃ� 300ml �o�Y�j�� BPA�t���"
      },
      {
@@ -34513,7 +34513,7 @@ const FIN_DATA = {
       "name": "GROSMIMI(�O���~�~) �X�g���[�}�O �x�r�[�J�b�v PPSU �R��Ȃ� 300ml �o�Y�j�� BPA�t���"
      },
      {
-      "asin": "B08398HJRD",
+      "asin": "B0842DMZ3H",
       "name": "GROSMIMI(�O���~�~) �X�g���[�}�O �x�r�[�J�b�v PPSU �R��Ȃ� 300ml �o�Y�j�� BPA�t���"
      }
     ]
@@ -35306,11 +35306,7 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0FHKC2DVV",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FKGCRG45",
+      "asin": "B0FHKG2SG5",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -35318,19 +35314,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FHKG2SG5",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FKGFN121",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FKFW6PND",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
       "asin": "B0FKFN91X9",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FHKFQPGR",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FHKC2DVV",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -35338,11 +35330,19 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FKG6RCDC",
+      "asin": "B0FKGCRG45",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FHKFQPGR",
+      "asin": "B0FKFW6PND",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FKGFN121",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FKG6RCDC",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      }
     ]
@@ -36369,15 +36369,15 @@ const FIN_DATA = {
     ],
     "asins": [
      {
+      "asin": "B0FR4RQRNR",
+      "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
+     },
+     {
       "asin": "B0FR4FGBPP",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
       "asin": "B0FR4Q6LXQ",
-      "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
-     },
-     {
-      "asin": "B0FR4RQRNR",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      }
     ]
@@ -45547,6 +45547,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "instagram",
      "total_views": 160560,
+     "base_views": 236117,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-02-26",
      "daily_views": [
       0,
@@ -45646,6 +45648,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 142900,
+     "base_views": 85500,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-02-26",
      "daily_views": [
       0,
@@ -45745,6 +45749,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 12394,
+     "base_views": 11141,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-02-05",
      "daily_views": [
       0,
@@ -45844,6 +45850,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "instagram",
      "total_views": 10729,
+     "base_views": 3474,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-03-02",
      "daily_views": [
       0,
@@ -45943,6 +45951,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 6725,
+     "base_views": 1316,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-03-13",
      "daily_views": [
       0,
@@ -46042,6 +46052,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "instagram",
      "total_views": 6213,
+     "base_views": 11036,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-03-02",
      "daily_views": [
       0,
@@ -46141,6 +46153,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 2300,
+     "base_views": 37300,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-02-22",
      "daily_views": [
       0,
@@ -46240,6 +46254,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 2261,
+     "base_views": 607,
+     "first_observed": "2026-03-23",
      "upload_date": "2026-03-23",
      "daily_views": [
       0,
@@ -46339,6 +46355,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 1864,
+     "base_views": 4629,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-03-10",
      "daily_views": [
       0,
@@ -46438,6 +46456,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "instagram",
      "total_views": 1842,
+     "base_views": 1937,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-03-02",
      "daily_views": [
       0,
@@ -46539,6 +46559,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 6725,
+     "base_views": 1316,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-03-13",
      "daily_views": [
       0,
@@ -46638,6 +46660,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "instagram",
      "total_views": 6213,
+     "base_views": 11036,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-03-02",
      "daily_views": [
       0,
@@ -46737,6 +46761,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 3609,
+     "base_views": 3553,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-03-28",
      "daily_views": [
       0,
@@ -46836,6 +46862,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 2300,
+     "base_views": 37300,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-02-22",
      "daily_views": [
       0,
@@ -46935,6 +46963,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 2261,
+     "base_views": 607,
+     "first_observed": "2026-03-23",
      "upload_date": "2026-03-23",
      "daily_views": [
       0,
@@ -47034,6 +47064,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 1864,
+     "base_views": 4629,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-03-10",
      "daily_views": [
       0,
@@ -47133,6 +47165,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "instagram",
      "total_views": 1200,
+     "base_views": 5012,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-02-28",
      "daily_views": [
       0,
@@ -47232,6 +47266,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 1100,
+     "base_views": 23100,
+     "first_observed": "2026-03-19",
      "upload_date": "2026-02-20",
      "daily_views": [
       0,
@@ -47331,6 +47367,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 1020,
+     "base_views": 2131,
+     "first_observed": "2026-03-22",
      "upload_date": "2026-03-21",
      "daily_views": [
       0,
@@ -47430,6 +47468,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "instagram",
      "total_views": 878,
+     "base_views": 363,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-02-25",
      "daily_views": [
       0,
@@ -47531,6 +47571,8 @@ const FIN_DATA = {
      "brand": "Naeiae",
      "platform": "tiktok",
      "total_views": 3710,
+     "base_views": 4529,
+     "first_observed": "2026-03-27",
      "upload_date": "2026-03-27",
      "daily_views": [
       0,
@@ -47630,6 +47672,8 @@ const FIN_DATA = {
      "brand": "Naeiae",
      "platform": "instagram",
      "total_views": 950,
+     "base_views": 28527,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-02-24",
      "daily_views": [
       0,
@@ -47729,6 +47773,8 @@ const FIN_DATA = {
      "brand": "Naeiae",
      "platform": "instagram",
      "total_views": 686,
+     "base_views": 52836,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-02-09",
      "daily_views": [
       0,
@@ -47828,6 +47874,8 @@ const FIN_DATA = {
      "brand": "Naeiae",
      "platform": "instagram",
      "total_views": 17,
+     "base_views": 185,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-03-06",
      "daily_views": [
       0,
@@ -47927,6 +47975,8 @@ const FIN_DATA = {
      "brand": "Naeiae",
      "platform": "tiktok",
      "total_views": 15,
+     "base_views": 277,
+     "first_observed": "2026-03-31",
      "upload_date": "2026-03-31",
      "daily_views": [
       0,
@@ -48028,6 +48078,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 6725,
+     "base_views": 1316,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-03-13",
      "daily_views": [
       0,
@@ -48127,6 +48179,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 3609,
+     "base_views": 3553,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-03-28",
      "daily_views": [
       0,
@@ -48226,6 +48280,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 2300,
+     "base_views": 37300,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-02-22",
      "daily_views": [
       0,
@@ -48325,6 +48381,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 2261,
+     "base_views": 607,
+     "first_observed": "2026-03-23",
      "upload_date": "2026-03-23",
      "daily_views": [
       0,
@@ -48424,6 +48482,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 1864,
+     "base_views": 4629,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-03-10",
      "daily_views": [
       0,
@@ -48523,6 +48583,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "instagram",
      "total_views": 1200,
+     "base_views": 5012,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-02-28",
      "daily_views": [
       0,
@@ -48622,6 +48684,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 1100,
+     "base_views": 23100,
+     "first_observed": "2026-03-19",
      "upload_date": "2026-02-20",
      "daily_views": [
       0,
@@ -48721,6 +48785,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "instagram",
      "total_views": 1070,
+     "base_views": 595,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-02-25",
      "daily_views": [
       0,
@@ -48820,6 +48886,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 1020,
+     "base_views": 2131,
+     "first_observed": "2026-03-22",
      "upload_date": "2026-03-21",
      "daily_views": [
       0,
@@ -48919,6 +48987,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "instagram",
      "total_views": 888,
+     "base_views": 1515,
+     "first_observed": "2026-03-23",
      "upload_date": "2026-03-20",
      "daily_views": [
       0,
@@ -49020,6 +49090,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 6725,
+     "base_views": 1316,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-03-13",
      "daily_views": [
       0,
@@ -49119,6 +49191,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 3609,
+     "base_views": 3553,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-03-28",
      "daily_views": [
       0,
@@ -49218,6 +49292,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 2300,
+     "base_views": 37300,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-02-22",
      "daily_views": [
       0,
@@ -49317,6 +49393,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 2261,
+     "base_views": 607,
+     "first_observed": "2026-03-23",
      "upload_date": "2026-03-23",
      "daily_views": [
       0,
@@ -49416,6 +49494,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 1864,
+     "base_views": 4629,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-03-10",
      "daily_views": [
       0,
@@ -49515,6 +49595,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 1100,
+     "base_views": 23100,
+     "first_observed": "2026-03-19",
      "upload_date": "2026-02-20",
      "daily_views": [
       0,
@@ -49614,6 +49696,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 1020,
+     "base_views": 2131,
+     "first_observed": "2026-03-22",
      "upload_date": "2026-03-21",
      "daily_views": [
       0,
@@ -49713,6 +49797,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "instagram",
      "total_views": 878,
+     "base_views": 363,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-02-25",
      "daily_views": [
       0,
@@ -49812,6 +49898,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 816,
+     "base_views": 10594,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-03-13",
      "daily_views": [
       0,
@@ -49911,6 +49999,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "instagram",
      "total_views": 804,
+     "base_views": 5545,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-02-09",
      "daily_views": [
       0,
@@ -50012,6 +50102,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 6725,
+     "base_views": 1316,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-03-13",
      "daily_views": [
       0,
@@ -50111,6 +50203,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 3609,
+     "base_views": 3553,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-03-28",
      "daily_views": [
       0,
@@ -50210,6 +50304,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 2300,
+     "base_views": 37300,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-02-22",
      "daily_views": [
       0,
@@ -50309,6 +50405,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 2261,
+     "base_views": 607,
+     "first_observed": "2026-03-23",
      "upload_date": "2026-03-23",
      "daily_views": [
       0,
@@ -50408,6 +50506,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 1864,
+     "base_views": 4629,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-03-10",
      "daily_views": [
       0,
@@ -50507,6 +50607,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 1100,
+     "base_views": 23100,
+     "first_observed": "2026-03-19",
      "upload_date": "2026-02-20",
      "daily_views": [
       0,
@@ -50606,6 +50708,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 1020,
+     "base_views": 2131,
+     "first_observed": "2026-03-22",
      "upload_date": "2026-03-21",
      "daily_views": [
       0,
@@ -50705,6 +50809,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "instagram",
      "total_views": 878,
+     "base_views": 363,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-02-25",
      "daily_views": [
       0,
@@ -50804,6 +50910,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "tiktok",
      "total_views": 816,
+     "base_views": 10594,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-03-13",
      "daily_views": [
       0,
@@ -50903,6 +51011,8 @@ const FIN_DATA = {
      "brand": "Grosmimi",
      "platform": "instagram",
      "total_views": 793,
+     "base_views": 3749,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-02-28",
      "daily_views": [
       0,
@@ -51004,6 +51114,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "instagram",
      "total_views": 787,
+     "base_views": 91288,
+     "first_observed": "2026-03-18",
      "upload_date": "2026-03-17",
      "daily_views": [
       0,
@@ -51103,6 +51215,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "tiktok",
      "total_views": 382,
+     "base_views": 111,
+     "first_observed": "2026-03-27",
      "upload_date": "2026-03-27",
      "daily_views": [
       0,
@@ -51202,6 +51316,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "instagram",
      "total_views": 83,
+     "base_views": 271,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-03-09",
      "daily_views": [
       0,
@@ -51301,6 +51417,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "instagram",
      "total_views": 59,
+     "base_views": 693,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-01-29",
      "daily_views": [
       0,
@@ -51400,6 +51518,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "instagram",
      "total_views": 49,
+     "base_views": 67,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-03-12",
      "daily_views": [
       0,
@@ -51499,6 +51619,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "instagram",
      "total_views": 38,
+     "base_views": 452,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-01-23",
      "daily_views": [
       0,
@@ -51598,6 +51720,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "tiktok",
      "total_views": 34,
+     "base_views": 213,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-02-11",
      "daily_views": [
       0,
@@ -51697,6 +51821,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "instagram",
      "total_views": 11,
+     "base_views": 294,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-02-20",
      "daily_views": [
       0,
@@ -51796,6 +51922,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "instagram",
      "total_views": 8,
+     "base_views": 168,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-02-11",
      "daily_views": [
       0,
@@ -51895,6 +52023,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "instagram",
      "total_views": 1,
+     "base_views": 1653,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-01-02",
      "daily_views": [
       0,
@@ -51996,6 +52126,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "instagram",
      "total_views": 59,
+     "base_views": 693,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-01-29",
      "daily_views": [
       0,
@@ -52095,6 +52227,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "instagram",
      "total_views": 38,
+     "base_views": 452,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-01-23",
      "daily_views": [
       0,
@@ -52194,6 +52328,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "tiktok",
      "total_views": 34,
+     "base_views": 213,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-02-11",
      "daily_views": [
       0,
@@ -52293,6 +52429,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "instagram",
      "total_views": 11,
+     "base_views": 294,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-02-20",
      "daily_views": [
       0,
@@ -52392,6 +52530,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "instagram",
      "total_views": 8,
+     "base_views": 168,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-02-11",
      "daily_views": [
       0,
@@ -52491,6 +52631,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "instagram",
      "total_views": 1,
+     "base_views": 1653,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-01-02",
      "daily_views": [
       0,
@@ -52592,6 +52734,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "instagram",
      "total_views": 83,
+     "base_views": 271,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-03-09",
      "daily_views": [
       0,
@@ -52691,6 +52835,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "instagram",
      "total_views": 59,
+     "base_views": 693,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-01-29",
      "daily_views": [
       0,
@@ -52790,6 +52936,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "instagram",
      "total_views": 38,
+     "base_views": 452,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-01-23",
      "daily_views": [
       0,
@@ -52889,6 +53037,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "tiktok",
      "total_views": 34,
+     "base_views": 213,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-02-11",
      "daily_views": [
       0,
@@ -52988,6 +53138,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "instagram",
      "total_views": 11,
+     "base_views": 294,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-02-20",
      "daily_views": [
       0,
@@ -53087,6 +53239,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "instagram",
      "total_views": 8,
+     "base_views": 168,
+     "first_observed": "2026-03-13",
      "upload_date": "2026-02-11",
      "daily_views": [
       0,
@@ -53186,6 +53340,8 @@ const FIN_DATA = {
      "brand": "CHA&MOM",
      "platform": "instagram",
      "total_views": 1,
+     "base_views": 1653,
+     "first_observed": "2026-03-16",
      "upload_date": "2026-01-02",
      "daily_views": [
       0,
