@@ -3335,9 +3335,10 @@ def generate():
                     ud = meta.get("upload_date", "")
                     if ud and ud < cutoff_90d:
                         continue
+                    base = meta.get("base_views", 0)
                     totals.append({
                         "username": uname, "brand": meta.get("brand", ""), "platform": meta.get("platform", ""),
-                        "total_views": growth, "base_views": meta.get("base_views", 0),
+                        "total_views": base + growth, "base_views": base,
                         "first_observed": meta.get("first_observed", ""), "upload_date": ud,
                         "daily_views": [dv.get(d, 0) for d in daily_dates],
                     })

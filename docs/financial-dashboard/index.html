@@ -1634,9 +1634,10 @@ function renderHeroTab(F){
     if(c.sfr_branded)c.sfr_branded.forEach(function(kw){if(!bg._sfrSeen[kw.keyword]){bg._sfrSeen[kw.keyword]=true;bg.sfr_branded.push(kw);}});
     var catCrs=(H.content_creators_by_cat||{})[c.category]||[];
     catCrs.forEach(function(cr){
-      if(!bg._crMap[cr.username])bg._crMap[cr.username]={username:cr.username,platform:cr.platform,brand:cr.brand,total_views:0,upload_date:cr.upload_date||'',daily_views:[]};
+      if(!bg._crMap[cr.username])bg._crMap[cr.username]={username:cr.username,platform:cr.platform,brand:cr.brand,total_views:0,base_views:0,upload_date:cr.upload_date||'',daily_views:[]};
       var ex=bg._crMap[cr.username];
       ex.total_views+=cr.total_views;
+      ex.base_views+=(cr.base_views||0);
       if(cr.upload_date&&(!ex.upload_date||cr.upload_date<ex.upload_date))ex.upload_date=cr.upload_date;
       if(cr.daily_views)cr.daily_views.forEach(function(v,i){ex.daily_views[i]=(ex.daily_views[i]||0)+v;});
     });
@@ -1715,6 +1716,7 @@ function renderHeroTab(F){
       // Top 10 creators by observed growth (already sorted in generate_fin_data.py)
       var slicedCreators=catCreators.slice(0,10).map(function(cr){
         return {username:cr.username,brand:cr.brand,platform:cr.platform,total_views:cr.total_views,
+          base_views:cr.base_views||0,first_observed:cr.first_observed||'',
           upload_date:cr.upload_date||'',daily_views:cr.daily_views.slice(-pDays)};
       });
       var n=ds.length;
@@ -1974,9 +1976,9 @@ function renderHeroTab(F){
             html+='<rect x="'+startX+'" y="'+baseY+'" width="'+(endX-startX)+'" height="'+(botY-baseY)+'" fill="url(#hatch-base)" opacity="0.6"/>';
             html+='<line x1="'+startX+'" y1="'+baseY+'" x2="'+endX+'" y2="'+baseY+'" stroke="'+col+'" stroke-width="0.7" stroke-dasharray="3,2" opacity="0.35"/>';
             var fo=x.cr.first_observed||'';
-            var baseStr=base>=1000?Math.round(base/1000)+'K':''+base;
-            var tagTxt=baseStr+(fo?' ('+fo.substring(5)+' ~)':'');
-            html+='<text x="'+(startX+2)+'" y="'+(baseY-2)+'" fill="'+col+'" font-size="5.5" font-family="var(--mono)" opacity="0.5">'+tagTxt+'</text>';
+            var baseStr=base>=1000?(base/1000).toFixed(1)+'K':base.toLocaleString();
+            var tagTxt='수집시작 '+baseStr+(fo?' ('+fo.substring(5)+')':'');
+            html+='<text x="'+(startX+2)+'" y="'+(baseY-2)+'" fill="'+col+'" font-size="6.5" font-family="var(--mono)" opacity="0.6" font-weight="600">'+tagTxt+'</text>';
           }
           var pts=[];
           for(var i=firstNZ;i<n;i++){
@@ -2519,7 +2521,7 @@ function renderHeroTab(F){
     html+='<div class="sec"><div class="sec-title"><div class="num">4</div> Content Views by Influencer (90D)</div>';
     html+='<div class="card"><div class="desc">Daily cumulative views per creator over 90 days. Hover lines for details.</div>';
     // Stats row
-    var cbcTotalV=0;var cbcTotalGrowth=0;cbcTop.forEach(function(cr){cbcTotalV+=(cr.base_views||0)+cr.total_views;cbcTotalGrowth+=cr.total_views;});
+    var cbcTotalV=0;var cbcTotalGrowth=0;cbcTop.forEach(function(cr){cbcTotalV+=cr.total_views;cbcTotalGrowth+=cr.total_views-(cr.base_views||0);});
     html+='<div class="stats" style="margin-bottom:12px">';
     html+='<div class="stat accent"><div class="sl">TRACKED CREATORS</div><div class="sv">'+cbc.length+'</div></div>';
     html+='<div class="stat cyan"><div class="sl">TOP 10 TOTAL VIEWS</div><div class="sv">'+cbcTotalV.toLocaleString()+'</div></div>';
@@ -2586,7 +2588,7 @@ function renderHeroTab(F){
       var col=CR_COLORS[ci%CR_COLORS.length];
       var prodHtml=cr.product_types&&cr.product_types.length?cr.product_types.map(function(t){return '<span style="display:inline-block;padding:1px 5px;border-radius:8px;background:#f3e8ff;color:#7c3aed;font-size:9px;margin:1px 2px">'+t+'</span>';}).join(''):'<span style="color:var(--muted);font-size:9px">-</span>';
       var platBadge=cr.platform==='tiktok'||cr.platform==='TT'?'<span style="padding:1px 5px;border-radius:4px;background:#fce7f3;color:#ec4899;font-size:9px;font-weight:700">TT</span>':'<span style="padding:1px 5px;border-radius:4px;background:#fef3c7;color:#f59e0b;font-size:9px;font-weight:700">IG</span>';
-      var actualTotal=(cr.base_views||0)+cr.total_views;
+      var actualTotal=cr.total_views; // total_views now = base + growth
       html+='<tr>';
       html+='<td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+col+';margin-right:4px"></span>'+(ci+1)+'</td>';
       html+='<td style="font-weight:700">@'+cr.username+'</td>';
