@@ -3621,16 +3621,25 @@ function _saveHash(){
   var mainTab = (document.querySelector('.mt>div.on')||{}).dataset;
   var p = mainTab ? mainTab.p : 'tab-flow';
   var parts = [p];
-  if(p==='tab-config') parts.push(_cfgBrand||'grosmimi');
+  if(p==='tab-config') parts.push(localStorage.getItem('ppc_last_brand')||'grosmimi');
   if(p==='tab-analytics') parts.push(_currentAnalyticsBrand||'grosmimi', _currentAnalyticsSub||'campaigns');
   if(p==='tab-sysadmin'){
     var sa = document.querySelector('#tab-sysadmin [data-sysub].on') || document.querySelector('#tab-sysadmin [data-sysub][style*="color:var(--a)"]');
     parts.push(sa ? sa.dataset.sysub : 'workflows');
   }
+  // Persist to both hash and localStorage (localStorage survives iframe reload)
+  localStorage.setItem('ppc_last_tab', p);
   history.replaceState(null,null,'#'+parts.join('/'));
 }
 function _restoreHash(){
   var h = location.hash.replace('#','');
+  // Fallback to localStorage if no hash (iframe reload loses hash)
+  if(!h) {
+    var savedTab = localStorage.getItem('ppc_last_tab');
+    if(savedTab) h = savedTab;
+    var savedBrand = localStorage.getItem('ppc_last_brand');
+    if(savedTab==='tab-config' && savedBrand) h = savedTab+'/'+savedBrand;
+  }
   if(!h) return;
   var parts = h.split('/');
   var mainId = parts[0];
@@ -3638,12 +3647,12 @@ function _restoreHash(){
   var mainBtn = document.querySelector('.mt>div[data-p="'+mainId+'"]');
   if(mainBtn) mainBtn.click();
   // Restore sub-state
-  if(mainId==='tab-config' && parts[1]){
-    var cfgBtn = null;
-    document.querySelectorAll('#cfg-brand-selector div').forEach(function(d){
-      if(d.getAttribute('onclick') && d.getAttribute('onclick').indexOf("'"+parts[1]+"'")>-1) cfgBtn=d;
-    });
-    if(cfgBtn) switchCfgBrand(parts[1], cfgBtn);
+  if(mainId==='tab-config'){
+    var brandToRestore = parts[1] || localStorage.getItem('ppc_last_brand');
+    if(brandToRestore){
+      var cfgBtn = document.querySelector('#configBrandTabs div[data-brand="'+brandToRestore+'"]');
+      if(cfgBtn) { cfgBtn.click(); }
+    }
   }
   if(mainId==='tab-analytics'){
     if(parts[1]){
