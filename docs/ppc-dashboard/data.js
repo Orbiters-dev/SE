@@ -1,5 +1,5 @@
 const PPC_DATA = {
- "generated_pst": "2026-04-04 16:07 PST",
+ "generated_pst": "2026-04-04 16:26 PST",
  "phantom_warnings": [],
  "brands": {
   "grosmimi": {
@@ -23627,7 +23627,7 @@ const PPC_DATA = {
      }
     },
     "2026-04-04": {
-     "generated": "2026-04-04T16:07",
+     "generated": "2026-04-04T16:26",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -27362,7 +27362,7 @@ const PPC_DATA = {
      }
     },
     "2026-04-04": {
-     "generated": "2026-04-04T16:07",
+     "generated": "2026-04-04T16:26",
      "executed": true,
      "executed_at": "2026-04-04",
      "summary_7d": {
@@ -27385,9 +27385,9 @@ const PPC_DATA = {
        "action": "increase_budget",
        "bid_pct": 10,
        "bud_before": 120.0,
-       "bud_after": null,
+       "bud_after": 192.0,
        "tier": "8 Strong",
-       "reason": "[MANUAL] 7d ROAS 5.81x (ACOS 17.2%) | 30d ROAS 5.43x | target ACOS 25.0% | 7d vs 30d: +7.0%\nBudget already at cap ($100/campaign)",
+       "reason": "[MANUAL] 7d ROAS 5.81x (ACOS 17.2%) | 30d ROAS 5.43x | target ACOS 30.0% | 7d vs 30d: +7.0%\n** UNDERSPEND BOOST: budget increase amplified (+30% -> +60%) to reach $400.0/day target",
        "approved": true
       },
       {
@@ -27405,7 +27405,7 @@ const PPC_DATA = {
        "bud_before": 120.0,
        "bud_after": null,
        "tier": "6 Optimize",
-       "reason": "[AUTO] 7d ROAS 2.61x (ACOS 38.4%) | 30d ROAS 2.81x | 7d vs 30d: -7.1%\nOptimization: ACOS 38.4% exceeds target 35.0% by 3.4pp -> bid -10%",
+       "reason": "[AUTO] 7d ROAS 2.61x (ACOS 38.4%) | 30d ROAS 2.81x | 7d vs 30d: -7.1%\nOptimization: ACOS 38.4% near target 40.0% -> fine-tune keyword bids",
        "approved": true
       },
       {
