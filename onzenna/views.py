@@ -1,6 +1,6 @@
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 from django.http import HttpResponse, JsonResponse
@@ -954,13 +954,26 @@ def pipeline_creators_list(request):
     if request.GET.get("is_manychat_contact") == "true":
         qs = qs.filter(is_manychat_contact=True)
 
-    # Ordering
+    # Ordering (whitelist to prevent field enumeration)
+    ALLOWED_ORDERS = {
+        "-created_at", "created_at", "-followers", "followers",
+        "-avg_views", "avg_views", "email", "-email",
+        "-updated_at", "updated_at", "pipeline_status", "-pipeline_status",
+    }
     order = request.GET.get("order", "-created_at")
+    if order not in ALLOWED_ORDERS:
+        order = "-created_at"
     qs = qs.order_by(order)
 
-    # Pagination
-    page = int(request.GET.get("page", 1))
-    limit = int(request.GET.get("limit", 50))
+    # Pagination (safe parsing)
+    try:
+        page = max(1, int(request.GET.get("page", 1)))
+    except (ValueError, TypeError):
+        page = 1
+    try:
+        limit = min(500, max(1, int(request.GET.get("limit", 50))))
+    except (ValueError, TypeError):
+        limit = 50
     total = qs.count()
     offset = (page - 1) * limit
     creators = qs[offset:offset + limit]
@@ -1832,7 +1845,7 @@ def reply_log_create(request):
 
     if request.method == "GET":
         days = int(request.GET.get("days", 7))
-        cutoff = datetime.now() - __import__("datetime").timedelta(days=days)
+        cutoff = datetime.now() - timedelta(days=days)
         qs = EmailReplyLog.objects.filter(processed_at__gte=cutoff)
         brand = request.GET.get("brand")
         if brand:
@@ -2033,7 +2046,7 @@ def pipeline_creators_cross_check(request):
                     changed = True
 
                 cr.apify_posts = apify_json
-                cr.apify_last_crawled_at = datetime.utcnow()
+                cr.apify_last_crawled_at = datetime.now()
                 changed = True
 
                 src = cr.sources or []

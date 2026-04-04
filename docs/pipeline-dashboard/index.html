@@ -1374,7 +1374,7 @@ async function loadOverviewFunnel(){
       var d=new Date(ts),now=new Date(),diffH=(now-d)/(1000*3600);
       var dd=ts.substring(0,10);
       if(diffH<24)return{text:dd,color:'var(--g)'};
-      if(diffH<72)return{text:dd,color:'var(--y)'};
+      if(diffH<72)return{text:dd,color:'var(--am)'};
       return{text:dd,color:'var(--r)'};
     }
     if(ds.syncly){var f=fmtFresh(ds.syncly.last_collected);el=document.getElementById('hw-ts-syncly');if(el){el.textContent=f.text;el.style.color=f.color;}}
@@ -1631,9 +1631,8 @@ function switchTab(name){
   if(!_tabLoaded[name]){
     _tabLoaded[name]=true;
     if(name==='dashboard')loadDashboard();
-    else if(name==='config')loadConfig();
+    else if(name==='config'){loadConfig();loadPendingActions();loadReviewQueue();loadExecLog()}
     else if(name==='creators'){loadCreatorStats();loadCreators()}
-    else if(name==='execution'){loadCreatorStats();loadPendingActions();loadReviewQueue();loadExecLog()}
     else if(name==='emailcfg'){loadEmailConfigs();loadFAQEntries();loadReplyLogs()}
   }
 }
@@ -2598,10 +2597,10 @@ var _pendingAction=null;
 async function runCrossCheck(){
   var st=document.getElementById('xcheck-status');
   var res=document.getElementById('xcheck-result');
-  st.textContent='Running cross-check...';st.style.color='var(--y)';
+  st.textContent='Running cross-check...';st.style.color='var(--am)';
   res.style.display='none';
   try{
-    var resp=await fetch(API+'/pipeline/creators/cross-check/?sources=gmail,apify,shopify_pr',{method:'POST',headers:{'Authorization':'Basic '+btoa('admin:admin')}});
+    var resp=await fetch(API_BASE+'/pipeline/creators/cross-check/?sources=gmail,apify,shopify_pr',{method:'POST',headers:{'Authorization':'Basic '+btoa('admin:admin')}});
     if(!resp.ok)throw new Error('HTTP '+resp.status);
     var d=await resp.json();
     st.textContent='Done!';st.style.color='var(--g)';
@@ -3528,16 +3527,16 @@ async function loadEmailConfigs(){
       var htBadge=c.auto_send.ht?'<span class="b g">HT Auto</span>':'<span class="b am">HT Manual</span>';
       html+='<div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;border-left:3px solid var(--a)">';
       html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">';
-      html+='<span style="font-weight:700;font-size:13px;text-transform:uppercase">'+c.brand+'</span>';
+      html+='<span style="font-weight:700;font-size:13px;text-transform:uppercase">'+esc(c.brand)+'</span>';
       html+='<span class="b '+(c.is_active?'g':'r')+'">'+(c.is_active?'Active':'Inactive')+'</span>';
       html+=ltBadge+' '+htBadge;
       html+='<span style="margin-left:auto;font-size:9px;color:var(--muted)">v'+c.version+' | '+new Date(c.updated_at).toLocaleDateString()+'</span>';
-      html+='<button class="btn btn-sm btn-secondary" onclick="editEmailConfig(\''+c.brand+'\')">Edit</button>';
+      html+='<button class="btn btn-sm btn-secondary" onclick="editEmailConfig(\''+esc(c.brand)+'\')">Edit</button>';
       html+='</div>';
       html+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:10px">';
-      html+='<div><b>Classification Prompt</b><div style="color:var(--dim);max-height:60px;overflow:hidden;margin-top:2px">'+(c.classification.prompt?c.classification.prompt.substring(0,150)+'...':'<em>Not set</em>')+'</div></div>';
-      html+='<div><b>Accept Template</b><div style="color:var(--dim);max-height:60px;overflow:hidden;margin-top:2px">'+(c.templates.accept?c.templates.accept.substring(0,150)+'...':'<em>Not set</em>')+'</div></div>';
-      html+='<div><b>Content Guidelines</b><div style="color:var(--dim);margin-top:2px">Hashtags: '+(c.content_guidelines.hashtags||[]).join(', ')+'<br>Deadline: '+c.content_guidelines.deadline_days+' days</div></div>';
+      html+='<div><b>Classification Prompt</b><div style="color:var(--dim);max-height:60px;overflow:hidden;margin-top:2px">'+(c.classification.prompt?esc(c.classification.prompt.substring(0,150))+'...':'<em>Not set</em>')+'</div></div>';
+      html+='<div><b>Accept Template</b><div style="color:var(--dim);max-height:60px;overflow:hidden;margin-top:2px">'+(c.templates.accept?esc(c.templates.accept.substring(0,150))+'...':'<em>Not set</em>')+'</div></div>';
+      html+='<div><b>Content Guidelines</b><div style="color:var(--dim);margin-top:2px">Hashtags: '+esc((c.content_guidelines.hashtags||[]).join(', '))+'<br>Deadline: '+c.content_guidelines.deadline_days+' days</div></div>';
       html+='</div>';
       html+='</div>';
     });
@@ -3558,10 +3557,10 @@ async function loadFAQEntries(){
     if(!faqs.length){html+='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">No FAQ entries</td></tr>'}
     faqs.forEach(function(f){
       html+='<tr>';
-      html+='<td><span class="b a">'+f.brand+'</span></td>';
-      html+='<td>'+f.category+'</td>';
-      html+='<td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+f.question+'</td>';
-      html+='<td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dim)">'+f.answer+'</td>';
+      html+='<td><span class="b a">'+esc(f.brand)+'</span></td>';
+      html+='<td>'+esc(f.category)+'</td>';
+      html+='<td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(f.question)+'</td>';
+      html+='<td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dim)">'+esc(f.answer)+'</td>';
       html+='<td style="text-align:center">'+f.priority+'</td>';
       html+='<td><button class="btn btn-sm btn-secondary" onclick="deleteFAQ(\''+f.id+'\')">Del</button></td>';
       html+='</tr>';
@@ -3582,7 +3581,7 @@ async function loadReplyLogs(){
     var html='<table><thead><tr><th>Time</th><th>Creator</th><th>Brand</th><th>Intent</th><th>Auto</th><th>Subject</th><th style="min-width:100px">Actions</th></tr></thead><tbody>';
     if(!logs.length){html+='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No reply logs yet</td></tr>'}
     logs.forEach(function(r,i){
-      var intentBadge='<span class="b '+(r.intent==='Accept'?'g':r.intent==='FAQ_Gap'?'c':'am')+'">'+r.intent+'</span>';
+      var intentBadge='<span class="b '+(r.intent==='Accept'?'g':r.intent==='FAQ_Gap'?'c':'am')+'">'+esc(r.intent)+'</span>';
       html+='<tr>';
       html+='<td style="font-family:var(--mono);font-size:9px">'+new Date(r.processed_at).toLocaleString()+'</td>';
       html+='<td style="font-size:10px">'+esc(r.creator_email)+'</td>';
