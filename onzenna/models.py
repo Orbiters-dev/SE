@@ -278,6 +278,41 @@ class PipelineCreator(models.Model):
     # Legacy Airtable ref
     airtable_record_id = models.CharField(max_length=50, blank=True, default="", db_index=True)
 
+    # Multi-source tracking
+    sources = models.JSONField(default=list, blank=True)  # ["syncly", "manychat", "apify", "shopify_pr", "gmail_inbound"]
+    first_contacted_at = models.DateTimeField(null=True, blank=True)
+    last_contacted_at = models.DateTimeField(null=True, blank=True)
+    contact_count = models.IntegerField(default=0)
+
+    # Gmail RAG integration
+    gmail_first_contact = models.DateField(null=True, blank=True)
+    gmail_last_contact = models.DateField(null=True, blank=True)
+    gmail_total_sent = models.IntegerField(default=0)
+    gmail_total_received = models.IntegerField(default=0)
+    gmail_accounts = models.JSONField(default=list, blank=True)  # ["hello@zezebaebae.com", "affiliates@onzenna.com"]
+
+    # Cross-check flags
+    is_shopify_pr = models.BooleanField(default=False)
+    is_apify_tagged = models.BooleanField(default=False)
+    is_manychat_contact = models.BooleanField(default=False)
+    collaboration_status = models.CharField(max_length=30, blank=True, default="")
+    # "active" | "completed" | "declined" | "pending" | ""
+
+    # Shopify PR detail (customer metafield + order line items)
+    phone = models.CharField(max_length=30, blank=True, default="")
+    child_1_birthday = models.CharField(max_length=20, blank=True, default="")
+    child_2_birthday = models.CharField(max_length=20, blank=True, default="")
+    pr_products = models.JSONField(default=list, blank=True)
+    # [{"brand":"Grosmimi","product":"PPSU Straw Cup 300ml","order_date":"2026-03-15"}, ...]
+
+    # Apify Posted data (D+90 view tracking)
+    apify_post_count = models.IntegerField(default=0)
+    apify_posted_brands = models.JSONField(default=list, blank=True)  # ["onzenna", "zezebaebae", "grosmimi"]
+    apify_last_post_date = models.DateField(null=True, blank=True)
+    apify_last_crawled_at = models.DateTimeField(null=True, blank=True)
+    apify_posts = models.JSONField(default=list, blank=True)
+    # [{post_id, url, platform, post_date, views, likes, comments, d90_views, caption_snippet}, ...]
+
     # Notes
     notes = models.TextField(blank=True, default="")
 

@@ -795,6 +795,7 @@ def _serialize_creator(obj):
         elif hasattr(val, 'isoformat'):
             val = val.isoformat() if val else None
         data[field.name] = val
+    # JSONFields are already native list/dict from Django — no extra parsing needed
     return data
 
 
@@ -840,6 +841,45 @@ def pipeline_creators_list(request):
                    "shopify_draft_order_name", "airtable_record_id"):
             if body.get(f):
                 defaults[f] = str(body[f])
+
+        # New multi-source fields
+        for f in ("sources", "gmail_accounts", "pr_products",
+                   "apify_posted_brands", "apify_posts"):
+            if f in body and isinstance(body[f], list):
+                defaults[f] = body[f]
+        for f in ("phone", "child_1_birthday", "child_2_birthday", "collaboration_status"):
+            if f in body:
+                defaults[f] = str(body[f])
+        for f in ("is_shopify_pr", "is_apify_tagged", "is_manychat_contact"):
+            if f in body:
+                defaults[f] = bool(body[f])
+        for f in ("contact_count", "gmail_total_sent", "gmail_total_received", "apify_post_count"):
+            if body.get(f) is not None:
+                defaults[f] = int(body[f])
+        if body.get("gmail_first_contact"):
+            defaults["gmail_first_contact"] = _parse_date(body["gmail_first_contact"])
+        if body.get("gmail_last_contact"):
+            defaults["gmail_last_contact"] = _parse_date(body["gmail_last_contact"])
+        if body.get("apify_last_post_date"):
+            defaults["apify_last_post_date"] = _parse_date(body["apify_last_post_date"])
+        if body.get("first_contacted_at"):
+            try:
+                defaults["first_contacted_at"] = datetime.fromisoformat(
+                    body["first_contacted_at"].replace("Z", "+00:00"))
+            except (ValueError, AttributeError):
+                pass
+        if body.get("last_contacted_at"):
+            try:
+                defaults["last_contacted_at"] = datetime.fromisoformat(
+                    body["last_contacted_at"].replace("Z", "+00:00"))
+            except (ValueError, AttributeError):
+                pass
+        if body.get("apify_last_crawled_at"):
+            try:
+                defaults["apify_last_crawled_at"] = datetime.fromisoformat(
+                    body["apify_last_crawled_at"].replace("Z", "+00:00"))
+            except (ValueError, AttributeError):
+                pass
 
         creator, created = PipelineCreator.objects.update_or_create(
             email=email, defaults=defaults
@@ -923,7 +963,8 @@ def pipeline_creator_detail(request, creator_id):
         for field in ("ig_handle", "tiktok_handle", "full_name", "platform",
                       "pipeline_status", "brand", "outreach_type", "source", "notes",
                       "shopify_customer_id", "shopify_draft_order_id",
-                      "shopify_draft_order_name", "airtable_record_id"):
+                      "shopify_draft_order_name", "airtable_record_id",
+                      "phone", "child_1_birthday", "child_2_birthday", "collaboration_status"):
             if field in body:
                 setattr(creator, field, body[field])
 
@@ -933,6 +974,32 @@ def pipeline_creator_detail(request, creator_id):
             creator.avg_views = int(body["avg_views"]) if body["avg_views"] else None
         if "initial_discovery_date" in body:
             creator.initial_discovery_date = _parse_date(body["initial_discovery_date"])
+
+        # JSONField updates
+        for f in ("sources", "gmail_accounts", "pr_products",
+                   "apify_posted_brands", "apify_posts"):
+            if f in body and isinstance(body[f], list):
+                setattr(creator, f, body[f])
+        # Boolean flags
+        for f in ("is_shopify_pr", "is_apify_tagged", "is_manychat_contact"):
+            if f in body:
+                setattr(creator, f, bool(body[f]))
+        # Integer fields
+        for f in ("contact_count", "gmail_total_sent", "gmail_total_received", "apify_post_count"):
+            if f in body and body[f] is not None:
+                setattr(creator, f, int(body[f]))
+        # Date fields
+        for f in ("gmail_first_contact", "gmail_last_contact", "apify_last_post_date"):
+            if f in body:
+                setattr(creator, f, _parse_date(body[f]))
+        # Datetime fields
+        for f in ("first_contacted_at", "last_contacted_at", "apify_last_crawled_at"):
+            if f in body and body[f]:
+                try:
+                    setattr(creator, f, datetime.fromisoformat(
+                        body[f].replace("Z", "+00:00")))
+                except (ValueError, AttributeError):
+                    pass
 
         creator.save()
 
@@ -1003,6 +1070,16 @@ def pipeline_creators_stats(request):
         .values_list('pipeline_status', 'c')
     )
 
+    # @discovered.syncly email count (unconfirmed)
+    discovered_email_count = PipelineCreator.objects.filter(
+        email__endswith="@discovered.syncly"
+    ).count()
+
+    # Cross-check summary
+    shopify_pr_count = PipelineCreator.objects.filter(is_shopify_pr=True).count()
+    apify_tagged_count = PipelineCreator.objects.filter(is_apify_tagged=True).count()
+    manychat_count = PipelineCreator.objects.filter(is_manychat_contact=True).count()
+
     return _cors_headers(request, JsonResponse({
         "total": total,
         "by_status": status_counts,
@@ -1011,6 +1088,10 @@ def pipeline_creators_stats(request):
         "by_brand": brand_counts,
         "by_type": type_counts,
         "new_this_week": new_this_week,
+        "discovered_email_count": discovered_email_count,
+        "shopify_pr_count": shopify_pr_count,
+        "apify_tagged_count": apify_tagged_count,
+        "manychat_count": manychat_count,
     }))
 
 
@@ -1736,3 +1817,90 @@ def reply_log_create(request):
         return _cors_headers(request, JsonResponse({"id": str(r.id), "created": True}, status=201))
 
     return _cors_headers(request, JsonResponse({"error": "Method not allowed"}, status=405))
+
+
+# --- Cross-Check: Gmail + Apify + Shopify PR batch match ---
+
+
+@csrf_exempt
+def pipeline_creators_cross_check(request):
+    """POST: Batch cross-check all PipelineCreators against Gmail contacts.
+
+    Matches by email → enriches gmail_* fields on PipelineCreator.
+    Apify and Shopify PR cross-checks are triggered by their respective tools
+    (fetch_apify_content.py, influencer_customer_lookup.py) which call the
+    upsert/PUT endpoints directly.
+
+    Returns summary counts of what was matched/updated.
+    """
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method != 'POST':
+        return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
+
+    gmail_matched = 0
+    gmail_updated = 0
+
+    # Gmail cross-check: match PipelineCreator.email against GmailContact
+    all_gmail = {c.email: c for c in GmailContact.objects.all()}
+
+    # Process in batches to avoid memory issues
+    batch_size = 500
+    offset = 0
+    total_creators = PipelineCreator.objects.count()
+
+    while offset < total_creators:
+        creators = list(PipelineCreator.objects.all()[offset:offset + batch_size])
+        for cr in creators:
+            gc = all_gmail.get(cr.email)
+            if not gc:
+                continue
+
+            gmail_matched += 1
+            changed = False
+
+            if gc.first_contact_date and (not cr.gmail_first_contact):
+                cr.gmail_first_contact = gc.first_contact_date.date() if hasattr(gc.first_contact_date, 'date') else gc.first_contact_date
+                changed = True
+            if gc.last_contact_date and (not cr.gmail_last_contact or gc.last_contact_date > (cr.gmail_last_contact if not hasattr(cr.gmail_last_contact, 'date') else datetime.combine(cr.gmail_last_contact, datetime.min.time()))):
+                cr.gmail_last_contact = gc.last_contact_date.date() if hasattr(gc.last_contact_date, 'date') else gc.last_contact_date
+                changed = True
+            if gc.total_sent and gc.total_sent > cr.gmail_total_sent:
+                cr.gmail_total_sent = gc.total_sent
+                changed = True
+            if gc.total_received and gc.total_received > cr.gmail_total_received:
+                cr.gmail_total_received = gc.total_received
+                changed = True
+
+            # Track which Gmail account matched
+            acct = gc.account or "zezebaebae"
+            current_accounts = cr.gmail_accounts or []
+            if acct not in current_accounts:
+                cr.gmail_accounts = current_accounts + [acct]
+                changed = True
+
+            # Add "gmail_inbound" to sources if not already there
+            current_sources = cr.sources or []
+            if "gmail_inbound" not in current_sources:
+                cr.sources = current_sources + ["gmail_inbound"]
+                changed = True
+
+            if changed:
+                cr.save()
+                gmail_updated += 1
+
+        offset += batch_size
+
+    # Summary counts from DB
+    summary = {
+        "gmail_matched": gmail_matched,
+        "gmail_updated": gmail_updated,
+        "total_creators": total_creators,
+        "total_gmail_contacts": len(all_gmail),
+        "shopify_pr_count": PipelineCreator.objects.filter(is_shopify_pr=True).count(),
+        "apify_tagged_count": PipelineCreator.objects.filter(is_apify_tagged=True).count(),
+        "manychat_count": PipelineCreator.objects.filter(is_manychat_contact=True).count(),
+    }
+
+    return _cors_headers(request, JsonResponse(summary, status=200))

@@ -304,15 +304,28 @@ def generate():
     ga4 = dk.get("ga4_daily", days=days_back)
     search_terms = dk.get("amazon_ads_search_terms", days=30)
     gsc = dk.get("gsc_daily", days=30)
-    brand_analytics = dk.get("amazon_brand_analytics", days=30)
     shopify_sku = dk.get("shopify_orders_sku_daily", date_from="2025-06-01")
     amazon_sku = dk.get("amazon_sales_sku_daily", days=days_back)
     klaviyo = dk.get("klaviyo_daily", days=days_back)
+    # Hero Products dependencies
+    brand_analytics = dk.get("amazon_brand_analytics", days=180)  # override 30d with 180d for hero SFR history
+    sqp_brand = dk.get("amazon_sqp_brand", days=365)
+    _cp_all = {}
+    for _brand in ["Grosmimi", "CHA&MOM", "Naeiae", "Onzenna", "Babyrabbit", "Commemoi", "Goongbe", ""]:
+        _cp = dk.get("content_posts", days=365, limit=50000, brand=_brand if _brand else None)
+        for p in _cp:
+            pid = p.get("post_id") or p.get("url", "")
+            if pid and pid not in _cp_all:
+                _cp_all[pid] = p
+    content_posts = list(_cp_all.values())
+    content_metrics = dk.get("content_metrics_daily", days=90, limit=50000)
+    google_search_terms = dk.get("google_ads_search_terms", days=30)
     print(f"  Shopify: {len(shopify)} rows, Amazon Sales: {len(amazon_sales)}")
     print(f"  Amazon Ads: {len(amazon_ads)}, Meta: {len(meta_ads)}, Google: {len(google_ads)}")
     print(f"  GA4: {len(ga4)}, Search Terms: {len(search_terms)}, GSC: {len(gsc)}")
     print(f"  Brand Analytics: {len(brand_analytics)}, Shopify SKU: {len(shopify_sku)}, Amazon SKU: {len(amazon_sku)}")
     print(f"  Klaviyo: {len(klaviyo)}")
+    print(f"  SQP Brand: {len(sqp_brand)}, Content Posts: {len(content_posts)}, Content Metrics: {len(content_metrics)}")
 
     # ── Load SKU-level COGS map ──────────────────────────────────────────────
     sku_cogs_map = load_sku_cogs_map()
@@ -590,6 +603,12 @@ def generate():
         lambda: {"spend": 0, "sales": 0, "impressions": 0, "clicks": 0}
     )))
 
+    # ── Brand × Platform DAILY (for Hero Products ad overlay) ─────────────────
+    # brand_ad_daily_raw[brand][metric][date] = float
+    # metrics: amz_spend, amz_clicks, amz_sales, mt_spend, mt_clicks, mt_sales,
+    #          gads_spend, gads_clicks, gads_sales
+    brand_ad_daily_raw = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))
+
     for r in amazon_ads:
         d = r.get("date", "")
         if not d or d > through:
@@ -607,6 +626,10 @@ def generate():
         brand_ad_by_platform_wk["Amazon Ads"][brand][wk]["sales"] += float(r.get("sales") or 0)
         brand_ad_by_platform_wk["Amazon Ads"][brand][wk]["impressions"] += int(r.get("impressions") or 0)
         brand_ad_by_platform_wk["Amazon Ads"][brand][wk]["clicks"] += int(r.get("clicks") or 0)
+        # Daily accumulation for Hero tab
+        brand_ad_daily_raw[brand]["amz_spend"][d] += float(r.get("spend") or 0)
+        brand_ad_daily_raw[brand]["amz_clicks"][d] += int(r.get("clicks") or 0)
+        brand_ad_daily_raw[brand]["amz_sales"][d] += float(r.get("sales") or 0)
 
     for r in meta_ads:
         d = r.get("date", "")
@@ -629,6 +652,11 @@ def generate():
         brand_ad_by_platform_wk[label][brand][wk]["sales"] += float(r.get("purchase_value") or 0)
         brand_ad_by_platform_wk[label][brand][wk]["impressions"] += int(r.get("impressions") or 0)
         brand_ad_by_platform_wk[label][brand][wk]["clicks"] += int(r.get("clicks") or 0)
+        # Daily accumulation for Hero tab (Meta Traffic = AMZ landing)
+        if is_amz:
+            brand_ad_daily_raw[brand]["mt_spend"][d] += float(r.get("spend") or 0)
+            brand_ad_daily_raw[brand]["mt_clicks"][d] += int(r.get("clicks") or 0)
+            brand_ad_daily_raw[brand]["mt_sales"][d] += float(r.get("purchase_value") or 0)
 
     # NOTE: Attribution sales injection happens after attribution data loaded (see below)
 
@@ -649,6 +677,10 @@ def generate():
         brand_ad_by_platform_wk["Google Ads"][brand][wk]["sales"] += float(r.get("conversion_value") or 0)
         brand_ad_by_platform_wk["Google Ads"][brand][wk]["impressions"] += int(r.get("impressions") or 0)
         brand_ad_by_platform_wk["Google Ads"][brand][wk]["clicks"] += int(r.get("clicks") or 0)
+        # Daily accumulation for Hero tab
+        brand_ad_daily_raw[brand]["gads_spend"][d] += float(r.get("spend") or 0)
+        brand_ad_daily_raw[brand]["gads_clicks"][d] += int(r.get("clicks") or 0)
+        brand_ad_daily_raw[brand]["gads_sales"][d] += float(r.get("conversion_value") or 0)
 
     # ── Build month list ──────────────────────────────────────────────────────
     all_months_set = set()
@@ -1231,7 +1263,7 @@ def generate():
                 content = _gz.decompress(content)
             data = json.loads(content.decode("utf-8"))
             # Aggregate daily
-            result = {"sessions": 0, "pageViews": 0, "days": {}}
+            result = {"sessions": 0, "pageViews": 0, "days": {}, "asin_days": defaultdict(dict)}
             for e in data.get("salesAndTrafficByDate", []):
                 d = e.get("date", "")
                 t = e.get("trafficByDate", {})
@@ -1240,6 +1272,16 @@ def generate():
                 result["sessions"] += sess
                 result["pageViews"] += pv
                 result["days"][d] = {"sessions": sess, "pageViews": pv}
+            # Per-ASIN daily for hero category sessions
+            for e in data.get("salesAndTrafficByAsin", []):
+                asin = e.get("parentAsin") or e.get("childAsin", "")
+                d = e.get("date", "")
+                t = e.get("trafficByAsin", {})
+                if asin and d:
+                    result["asin_days"][asin][d] = {
+                        "sessions": t.get("sessions", 0),
+                        "pageViews": t.get("pageViews", 0),
+                    }
             return result
         except Exception as ex:
             print(f"  [WARN] Amazon sessions fetch failed: {ex}")
@@ -1250,6 +1292,9 @@ def generate():
     amz_sessions_7d = _fetch_amz_sessions(7)
     if amz_sessions_30d:
         print(f"  Amazon sessions (30d): {amz_sessions_30d['sessions']:,} sessions, {amz_sessions_30d['pageViews']:,} pageViews")
+    amz_sessions_raw = _fetch_amz_sessions(90)
+    if amz_sessions_raw:
+        print(f"  Amazon sessions (90d): {amz_sessions_raw['sessions']:,} sessions, {len(amz_sessions_raw.get('asin_days',{}))} ASINs")
 
     # ── Ad Creative Breakdown (WL/Image/Video) ─────────────────────────────
     def _classify_creative(ad_name):
@@ -2874,6 +2919,31 @@ def generate():
     bap_weekly_out = _bap_serialize(brand_ad_by_platform_wk, weeks)
     weekly_data["brand_ad_by_platform"] = bap_weekly_out
 
+    # ── Serialize brand_ad_daily (for Hero Products ad overlay) ───────────────
+    all_ad_dates = set()
+    for brand_data in brand_ad_daily_raw.values():
+        for metric_data in brand_data.values():
+            all_ad_dates |= set(metric_data.keys())
+    ad_dates_sorted = sorted(all_ad_dates)
+
+    DAILY_METRICS = ["amz_spend", "amz_clicks", "amz_sales",
+                     "mt_spend", "mt_clicks", "mt_sales",
+                     "gads_spend", "gads_clicks", "gads_sales"]
+    brand_ad_daily_out = {"dates": ad_dates_sorted}
+    for brand in BRAND_ORDER:
+        if brand not in brand_ad_daily_raw:
+            continue
+        bd = brand_ad_daily_raw[brand]
+        brand_out = {}
+        for metric in DAILY_METRICS:
+            vals = [round(bd[metric].get(d, 0), 2) for d in ad_dates_sorted]
+            if any(v > 0 for v in vals):
+                brand_out[metric] = vals
+        if brand_out:
+            brand_ad_daily_out[brand] = brand_out
+
+    print(f"  Brand ad daily: {len(ad_dates_sorted)} dates, {len(brand_ad_daily_out)-1} brands")
+
     # ── Assemble final data ───────────────────────────────────────────────────
     fin_data = {
         "generated_pst": now_pst.strftime("%Y-%m-%d %H:%M PST"),
@@ -2946,6 +3016,7 @@ def generate():
         "klaviyo": klaviyo_data,
         "campaign_detail": campaign_detail,
         "brand_ad_by_platform": bap_monthly_out,
+        "brand_ad_daily": brand_ad_daily_out,
         "weekly": weekly_data,
     }
 

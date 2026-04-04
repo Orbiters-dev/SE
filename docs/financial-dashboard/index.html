@@ -1690,6 +1690,30 @@ function renderHeroTab(F){
       var gscD=_allGsc.slice(-pDays);
       var sessD=_allSess.slice(-pDays);
       var pvD=_allPv.slice(-pDays);
+      // ── Ad spend data (brand_ad_daily → hero daily_dates alignment) ──
+      var _bad=F.brand_ad_daily||{},_badDates=_bad.dates||[],_bd=_bad[c.brand]||{};
+      var _badIdx={};_badDates.forEach(function(d,i){_badIdx[d]=i;});
+      var _amzSpAll=[],_mtSpAll=[],_amzClAll=[],_mtClAll=[],_amzSlAll=[],_mtSlAll=[];
+      var _gadsSpAll=[],_gadsClAll=[],_gadsSlAll=[];
+      _allDates.forEach(function(d){var ai=_badIdx[d];
+        _amzSpAll.push(ai!=null&&_bd.amz_spend?_bd.amz_spend[ai]||0:0);
+        _mtSpAll.push(ai!=null&&_bd.mt_spend?_bd.mt_spend[ai]||0:0);
+        _amzClAll.push(ai!=null&&_bd.amz_clicks?_bd.amz_clicks[ai]||0:0);
+        _mtClAll.push(ai!=null&&_bd.mt_clicks?_bd.mt_clicks[ai]||0:0);
+        _amzSlAll.push(ai!=null&&_bd.amz_sales?_bd.amz_sales[ai]||0:0);
+        _mtSlAll.push(ai!=null&&_bd.mt_sales?_bd.mt_sales[ai]||0:0);
+        _gadsSpAll.push(ai!=null&&_bd.gads_spend?_bd.gads_spend[ai]||0:0);
+        _gadsClAll.push(ai!=null&&_bd.gads_clicks?_bd.gads_clicks[ai]||0:0);
+        _gadsSlAll.push(ai!=null&&_bd.gads_sales?_bd.gads_sales[ai]||0:0);
+      });
+      var amzSpD=_amzSpAll.slice(-pDays),mtSpD=_mtSpAll.slice(-pDays);
+      var amzClD=_amzClAll.slice(-pDays),mtClD=_mtClAll.slice(-pDays);
+      var amzSlD=_amzSlAll.slice(-pDays),mtSlD=_mtSlAll.slice(-pDays);
+      var gadsSpD=_gadsSpAll.slice(-pDays),gadsClD=_gadsClAll.slice(-pDays),gadsSlD=_gadsSlAll.slice(-pDays);
+      var _amzSpTot=amzSpD.reduce(function(a,b){return a+b},0);
+      var _mtSpTot=mtSpD.reduce(function(a,b){return a+b},0);
+      var _gadsSpTot=gadsSpD.reduce(function(a,b){return a+b},0);
+      var _adSpTot=_amzSpTot+_mtSpTot+_gadsSpTot;
       // Top 10 creators by observed growth (already sorted in generate_fin_data.py)
       var slicedCreators=catCreators.slice(0,10).map(function(cr){
         return {username:cr.username,brand:cr.brand,platform:cr.platform,total_views:cr.total_views,
@@ -1738,6 +1762,9 @@ function renderHeroTab(F){
       if(sessTotalAll>0) html+='<span style="color:#6366f1">&#9644; Sessions ('+sessTotalAll.toLocaleString()+')</span>';
       var pvTotalAll=pvD.reduce(function(a,b){return a+b},0);
       if(pvTotalAll>0) html+='<span style="color:#a78bfa">&#x2508; Page Views ('+pvTotalAll.toLocaleString()+')</span>';
+      if(_amzSpTot>0) html+='<span style="color:#f59e0b">&#9644; AMZ Ads $'+Math.round(_amzSpTot).toLocaleString()+'</span>';
+      if(_mtSpTot>0) html+='<span style="color:#3b82f6">--- Meta→AMZ $'+Math.round(_mtSpTot).toLocaleString()+'</span>';
+      if(_gadsSpTot>0) html+='<span style="color:#ef4444">&#9644; GAds $'+Math.round(_gadsSpTot).toLocaleString()+'</span>';
       html+='<span style="margin-left:auto;font-weight:700">$'+c.sales_7d.toLocaleString()+' 7D</span></div>';
       // ── TOP CHART: Sales ──
       var svgTotalH=padT+topH+gap+botH+30;
@@ -1897,6 +1924,23 @@ function renderHeroTab(F){
         });
         html+='<polyline points="'+pvPts.join(' ')+'" fill="none" stroke="#a78bfa" stroke-width="1" stroke-dasharray="4,3" stroke-linecap="round" opacity="0.6"/>';
       }
+      // Ad spend overlays on sales chart
+      if(_adSpTot>0){
+        var _spMax=Math.max.apply(null,amzSpD.concat(mtSpD).concat(gadsSpD))||1;
+        if(_amzSpTot>0){var _aPts=[];amzSpD.forEach(function(v,i){var x=padL+i*(bw+1)+bw/2,y=padT+topH-v/_spMax*topH*0.35;_aPts.push(x+','+y);});
+          html+='<polygon points="'+padL+','+(padT+topH)+' '+_aPts.join(' ')+' '+(padL+(n-1)*(bw+1)+bw/2)+','+(padT+topH)+'" fill="#f59e0b" opacity="0.1"/>';
+          html+='<polyline points="'+_aPts.join(' ')+'" fill="none" stroke="#f59e0b" stroke-width="1.5" opacity="0.55"/>';
+        }
+        if(_mtSpTot>0){var _mPts=[];mtSpD.forEach(function(v,i){var x=padL+i*(bw+1)+bw/2,y=padT+topH-v/_spMax*topH*0.35;_mPts.push(x+','+y);});
+          html+='<polygon points="'+padL+','+(padT+topH)+' '+_mPts.join(' ')+' '+(padL+(n-1)*(bw+1)+bw/2)+','+(padT+topH)+'" fill="#3b82f6" opacity="0.08"/>';
+          html+='<polyline points="'+_mPts.join(' ')+'" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,2" opacity="0.55"/>';
+        }
+        if(_gadsSpTot>0){var _gPts2=[];gadsSpD.forEach(function(v,i){var x=padL+i*(bw+1)+bw/2,y=padT+topH-v/_spMax*topH*0.35;_gPts2.push(x+','+y);});
+          html+='<polyline points="'+_gPts2.join(' ')+'" fill="none" stroke="#ef4444" stroke-width="1" stroke-dasharray="2,2" opacity="0.5"/>';
+        }
+        html+='<text x="'+(chartW-padR+4)+'" y="'+(padT+topH-8)+'" fill="#94a3b8" font-size="6" font-family="var(--mono)" opacity="0.7">$'+Math.round(_spMax).toLocaleString()+'</text>';
+        html+='<text x="'+(chartW-padR+4)+'" y="'+(padT+topH-1)+'" fill="#94a3b8" font-size="5" opacity="0.5">ad spend</text>';
+      }
       // Sales end label
       var lsx=padL+(n-1)*(bw+1)+bw/2,lsy=padT+topH-ds[n-1]/maxS*topH;
       html+='<text x="'+(lsx+6)+'" y="'+(lsy+3)+'" fill="var(--g)" font-size="8" font-weight="700">Sales</text>';
@@ -2019,6 +2063,9 @@ function renderHeroTab(F){
         if(ttSess>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#6366f1></span>Sessions: '+ttSess.toLocaleString()+'</div>';
         var ttPv=pvD[i]||0;
         if(ttPv>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#a78bfa></span>Page Views: '+ttPv.toLocaleString()+'</div>';
+        var _ttAmzSp=amzSpD[i]||0;if(_ttAmzSp>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#f59e0b></span>AMZ Ads: $'+_ttAmzSp.toFixed(0)+'</div>';
+        var _ttMtSp=mtSpD[i]||0;if(_ttMtSp>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#3b82f6></span>Meta→AMZ: $'+_ttMtSp.toFixed(0)+'</div>';
+        var _ttGdSp=gadsSpD[i]||0;if(_ttGdSp>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#ef4444></span>GAds: $'+_ttGdSp.toFixed(0)+'</div>';
         crDeltaArr.forEach(function(x,ci){
           var cv=x.cr.daily_views[i]||0;
           var dv=x.deltas[i]||0;
@@ -2032,6 +2079,56 @@ function renderHeroTab(F){
           +'/>';
       }
       html+='</svg></div>';
+      // ── Ad Performance Section (stacked bar + ROAS + table) ──
+      if(_adSpTot>0){
+        var _totalAdClicks=amzClD.reduce(function(a,b){return a+b},0)+mtClD.reduce(function(a,b){return a+b},0)+gadsClD.reduce(function(a,b){return a+b},0);
+        var _totalAdSales=amzSlD.reduce(function(a,b){return a+b},0)+mtSlD.reduce(function(a,b){return a+b},0)+gadsSlD.reduce(function(a,b){return a+b},0);
+        var _totalCPC=_totalAdClicks>0?_adSpTot/_totalAdClicks:0;
+        var _totalROAS=_adSpTot>0?_totalAdSales/_adSpTot:0;
+        html+='<div style="margin-top:10px;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:6px">';
+        html+='<div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:6px">Ad Performance — '+c.brand+' <span style="font-weight:400;font-size:9px;color:var(--muted)">('+pDays+'D)</span></div>';
+        // Stacked bar chart
+        var _adH=100,_adPT=8;
+        var _dTot=[];for(var _ai=0;_ai<n;_ai++)_dTot.push((amzSpD[_ai]||0)+(mtSpD[_ai]||0)+(gadsSpD[_ai]||0));
+        var _adMax=Math.max.apply(null,_dTot)||1;
+        var _dROAS=[];for(var _ai=0;_ai<n;_ai++){var _ws=Math.max(0,_ai-6),_wSp=0,_wSl=0;for(var _wi=_ws;_wi<=_ai;_wi++){_wSp+=(amzSpD[_wi]||0)+(mtSpD[_wi]||0)+(gadsSpD[_wi]||0);_wSl+=(amzSlD[_wi]||0)+(mtSlD[_wi]||0)+(gadsSlD[_wi]||0);}_dROAS.push(_wSp>0?_wSl/_wSp:0);}
+        var _rMax=Math.max.apply(null,_dROAS)||1;
+        html+='<div style="overflow-x:auto"><svg width="'+chartW+'" height="'+(_adH+_adPT+22)+'" style="display:block;width:100%;min-width:'+chartW+'px">';
+        for(var g=0;g<=2;g++){var gy=_adPT+_adH-g/2*_adH,gv=Math.round(_adMax*g/2);
+          html+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(chartW-padR)+'" y2="'+gy+'" stroke="#f1f5f9" stroke-width="0.5"/>';
+          if(gv>0)html+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" fill="#94a3b8" font-size="7" font-family="var(--mono)" text-anchor="end">$'+gv.toLocaleString()+'</text>';}
+        for(var _ai=0;_ai<n;_ai++){var _x=padL+_ai*(bw+1),_yS=_adPT+_adH;
+          var _aV=amzSpD[_ai]||0,_mV=mtSpD[_ai]||0,_gV=gadsSpD[_ai]||0;
+          if(_aV>0){var _bh=_aV/_adMax*_adH;html+='<rect x="'+_x+'" y="'+(_yS-_bh)+'" width="'+bw+'" height="'+_bh+'" fill="#f59e0b" opacity="0.7"/>';_yS-=_bh;}
+          if(_mV>0){var _bh2=_mV/_adMax*_adH;html+='<rect x="'+_x+'" y="'+(_yS-_bh2)+'" width="'+bw+'" height="'+_bh2+'" fill="#3b82f6" opacity="0.7"/>';_yS-=_bh2;}
+          if(_gV>0){var _bh3=_gV/_adMax*_adH;html+='<rect x="'+_x+'" y="'+(_yS-_bh3)+'" width="'+bw+'" height="'+_bh3+'" fill="#ef4444" opacity="0.7"/>';_yS-=_bh3;}}
+        if(_rMax>0){var _rPts=[];_dROAS.forEach(function(v,i){var x=padL+i*(bw+1)+bw/2,y=_adPT+_adH-v/_rMax*_adH*0.9;_rPts.push(x+','+y);});
+          html+='<polyline points="'+_rPts.join(' ')+'" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,2" opacity="0.8"/>';
+          html+='<text x="'+(chartW-padR+4)+'" y="'+(_adPT+5)+'" fill="#10b981" font-size="7" font-weight="600">'+_rMax.toFixed(1)+'x</text>';
+          html+='<text x="'+(chartW-padR+4)+'" y="'+(_adPT+13)+'" fill="#10b981" font-size="5" opacity="0.6">ROAS</text>';
+          var _lastR=_dROAS[n-1];if(_lastR>0){var _rlx=padL+(n-1)*(bw+1)+bw/2,_rly=_adPT+_adH-_lastR/_rMax*_adH*0.9;
+            html+='<circle cx="'+_rlx+'" cy="'+_rly+'" r="3" fill="#10b981"/>';
+            html+='<text x="'+(_rlx-4)+'" y="'+(_rly-5)+'" fill="#10b981" font-size="8" font-weight="700" font-family="var(--mono)">'+_lastR.toFixed(1)+'x</text>';}}
+        for(var _ai=0;_ai<n;_ai+=step){var _x2=padL+_ai*(bw+1)+bw/2;
+          html+='<text x="'+_x2+'" y="'+(_adPT+_adH+14)+'" fill="#94a3b8" font-size="7" font-family="var(--mono)" text-anchor="middle" transform="rotate(-30,'+_x2+','+(_adPT+_adH+14)+')">'+dates[_ai].substring(5)+'</text>';}
+        html+='</svg></div>';
+        html+='<div style="display:flex;gap:10px;font-size:9px;color:var(--muted);margin:4px 0">';
+        html+='<span style="color:#f59e0b">&#9632; Amazon Ads</span><span style="color:#3b82f6">&#9632; Meta→AMZ</span>';
+        if(_gadsSpTot>0)html+='<span style="color:#ef4444">&#9632; Google Ads</span>';
+        html+='<span style="color:#10b981">--- ROAS (7D avg)</span></div>';
+        // Summary table
+        html+='<table style="font-size:10px;margin-top:4px"><thead><tr><th>Platform</th><th style="text-align:right">Spend</th><th style="text-align:right">Clicks</th><th style="text-align:right">Sales</th><th style="text-align:right">CPC</th><th style="text-align:right">ROAS</th></tr></thead><tbody>';
+        function _adRow(l,co,sp,cl,sl){if(sp<=0)return '';var cp=cl>0?'$'+(sp/cl).toFixed(2):'—';var ro=sp>0?(sl/sp).toFixed(2)+'x':'—';
+          return '<tr><td><span style="color:'+co+';font-weight:600">'+l+'</span></td><td style="text-align:right;font-family:var(--mono)">$'+Math.round(sp).toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">'+cl.toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">$'+Math.round(sl).toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">'+cp+'</td><td style="text-align:right;font-family:var(--mono);font-weight:700">'+ro+'</td></tr>';}
+        var _amzCl=amzClD.reduce(function(a,b){return a+b},0),_amzSl=amzSlD.reduce(function(a,b){return a+b},0);
+        var _mtCl=mtClD.reduce(function(a,b){return a+b},0),_mtSl=mtSlD.reduce(function(a,b){return a+b},0);
+        var _gadsCl=gadsClD.reduce(function(a,b){return a+b},0),_gadsSl=gadsSlD.reduce(function(a,b){return a+b},0);
+        html+=_adRow('Amazon Ads','#f59e0b',_amzSpTot,_amzCl,_amzSl);
+        html+=_adRow('Meta→AMZ','#3b82f6',_mtSpTot,_mtCl,_mtSl);
+        html+=_adRow('Google Ads','#ef4444',_gadsSpTot,_gadsCl,_gadsSl);
+        html+='<tr style="border-top:1px solid var(--border);font-weight:700"><td>Total</td><td style="text-align:right;font-family:var(--mono)">$'+Math.round(_adSpTot).toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">'+_totalAdClicks.toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">$'+Math.round(_totalAdSales).toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">$'+_totalCPC.toFixed(2)+'</td><td style="text-align:right;font-family:var(--mono)">'+_totalROAS.toFixed(2)+'x</td></tr>';
+        html+='</tbody></table></div>';
+      }
       // ── Summary table (daily for 7D, weekly for 30D/90D) ──
       if(pDays<=7){
         // Daily columns for 7D
