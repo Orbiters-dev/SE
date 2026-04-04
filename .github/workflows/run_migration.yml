@@ -15,42 +15,29 @@ jobs:
           chmod 600 ~/.ssh/ec2_key
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
 
-      - name: Run ALTER TABLE migration
+      - name: Investigate Django deployment
         run: |
-          cat onzenna/migrations/add_creator_master_list_fields.sql | \
-            ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} \
-              "PGPASSWORD=orbit1234 psql -h 172.31.13.240 -U es_db_user -d export_calculator_db -f -"
-
-      - name: Deploy updated Django code
-        run: |
-          # Copy files directly via SCP
-          scp -i ~/.ssh/ec2_key \
-            onzenna/models.py onzenna/views.py onzenna/urls.py \
-            ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/export_calculator/onzenna/
-
-          # Find and restart the web server
           ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} '
-            echo "=== Files updated ==="
-            ls -la /home/ubuntu/export_calculator/onzenna/models.py /home/ubuntu/export_calculator/onzenna/views.py /home/ubuntu/export_calculator/onzenna/urls.py
+            echo "=== Docker containers ==="
+            docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || echo "no docker"
 
-            echo "=== Finding web server service ==="
-            sudo systemctl list-units --type=service --state=running | grep -iE "gunicorn|uwsgi|django|web|app" || true
+            echo ""
+            echo "=== Systemd services with gunicorn/uwsgi/django ==="
+            sudo systemctl list-units --all | grep -iE "gunicorn|uwsgi|django|export|calculator" || echo "none found"
 
-            # Try common service names
-            sudo systemctl restart gunicorn 2>/dev/null && echo "Restarted gunicorn" || \
-            sudo systemctl restart gunicorn.socket 2>/dev/null && echo "Restarted gunicorn.socket" || \
-            sudo systemctl restart export_calculator 2>/dev/null && echo "Restarted export_calculator" || \
-            sudo systemctl restart django 2>/dev/null && echo "Restarted django" || \
-            echo "Could not find service — trying pkill"
+            echo ""
+            echo "=== Supervisor status ==="
+            sudo supervisorctl status 2>/dev/null || echo "no supervisorctl"
 
-            # Fallback: kill gunicorn processes and let supervisor/systemd restart
-            sudo pkill -HUP gunicorn 2>/dev/null && echo "Sent HUP to gunicorn" || \
-            echo "No gunicorn process found to HUP"
+            echo ""
+            echo "=== Nginx config for export_calculator ==="
+            grep -r "proxy_pass\|upstream\|export_calculator" /etc/nginx/ 2>/dev/null | head -20 || echo "no nginx config found"
 
-            echo "=== Deploy complete ==="
+            echo ""
+            echo "=== Running Python/Django processes ==="
+            ps aux | grep -E "python|gunicorn|uwsgi|manage.py" | grep -v grep || echo "none"
+
+            echo ""
+            echo "=== Port 8000-8999 listeners ==="
+            sudo ss -tlnp | grep -E "8[0-9]{3}" || echo "none"
           '
-
-      - name: Verify columns and API
-        run: |
-          ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} \
-            "PGPASSWORD=orbit1234 psql -h 172.31.13.240 -U es_db_user -d export_calculator_db -c \"SELECT count(*) as total_columns FROM information_schema.columns WHERE table_name='onz_pipeline_creators';\""
