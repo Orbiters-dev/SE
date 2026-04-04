@@ -925,6 +925,27 @@ def pipeline_creators_list(request):
     if outreach_type:
         qs = qs.filter(outreach_type=outreach_type)
 
+    assigned_to = request.GET.get("assigned_to")
+    if assigned_to is not None:
+        if assigned_to == "":
+            qs = qs.filter(assigned_to="")
+        else:
+            qs = qs.filter(assigned_to=assigned_to)
+
+    # Cross-check filters
+    email_suffix = request.GET.get("email_suffix")
+    if email_suffix:
+        qs = qs.filter(email__endswith=email_suffix)
+
+    if request.GET.get("is_shopify_pr") == "true":
+        qs = qs.filter(is_shopify_pr=True)
+
+    if request.GET.get("is_apify_tagged") == "true":
+        qs = qs.filter(is_apify_tagged=True)
+
+    if request.GET.get("is_manychat_contact") == "true":
+        qs = qs.filter(is_manychat_contact=True)
+
     # Ordering
     order = request.GET.get("order", "-created_at")
     qs = qs.order_by(order)

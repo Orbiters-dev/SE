@@ -1012,11 +1012,12 @@ Shopify                         Apify / Syncly                   Gmail RAG
   <div class="mp" id="p-creators">
     <div class="stats" id="creator-stats">
       <div class="stat accent"><div class="sl">Total</div><div class="sv" id="cs-total">-</div></div>
-      <div class="stat green"><div class="sl">Accepted</div><div class="sv" id="cs-accepted">-</div></div>
-      <div class="stat cyan"><div class="sl">Sent</div><div class="sv" id="cs-sent">-</div></div>
-      <div class="stat amber"><div class="sl">Posted</div><div class="sv" id="cs-posted">-</div></div>
+      <div class="stat amber"><div class="sl">&#x1F7E1; Email Unknown</div><div class="sv" id="cs-discovered">-</div></div>
+      <div class="stat green"><div class="sl">&#x1F4E6; Shopify PR</div><div class="sv" id="cs-shopify-pr">-</div></div>
+      <div class="stat cyan"><div class="sl">&#x1F577;&#xFE0F; Apify Tagged</div><div class="sv" id="cs-apify">-</div></div>
       <div class="stat"><div class="sl">This Week</div><div class="sv" id="cs-week">-</div></div>
     </div>
+    <div style="text-align:right;font-size:9px;color:var(--muted)" id="cs-updated">Last updated: -</div>
     <div class="filter-bar">
       <input type="text" id="cr-search" placeholder="Search handle, email, name..." onkeydown="if(event.key==='Enter')loadCreators()">
       <select id="cr-status" onchange="_crStatusFilter=this.value;if(_lastStats){buildFunnel(_lastStats.by_status,'dash-funnel',this.value);}if(this.value)location.hash='creators/'+encodeURIComponent(this.value);else location.hash='creators';loadCreators()">
@@ -1038,7 +1039,11 @@ Shopify                         Apify / Syncly                   Gmail RAG
       </select>
       <select id="cr-source" onchange="loadCreators()">
         <option value="">All Sources</option>
-        <option value="outbound">Outbound</option><option value="inbound">Inbound</option>
+        <option value="outbound">Outbound</option>
+        <option value="inbound">Inbound</option>
+        <option value="discovered">&#x1F7E1; Email Unknown</option>
+        <option value="shopify_pr">&#x1F4E6; Shopify PR</option>
+        <option value="apify_tagged">&#x1F577;&#xFE0F; Apify Tagged</option>
       </select>
       <select id="cr-assigned" onchange="loadCreators()">
         <option value="">All Owners</option>
@@ -1050,10 +1055,10 @@ Shopify                         Apify / Syncly                   Gmail RAG
     <div style="overflow-x:auto;max-height:500px;overflow-y:auto;border:1px solid var(--border);border-radius:8px">
       <table id="creators-table">
         <thead><tr>
-          <th>Handle</th><th>Email</th><th>Brand</th><th>Status</th><th>Type</th><th>Followers</th><th>Content</th><th>Date</th><th>Actions</th>
+          <th>Handle</th><th>Email</th><th>Sources</th><th>Brand</th><th>Status</th><th>Type</th><th>Followers</th><th>Content</th><th>Date</th><th>Actions</th>
         </tr></thead>
         <tbody id="creators-body">
-          <tr><td colspan="9" style="text-align:center;color:var(--muted);padding:30px">Select filters and search to load creators</td></tr>
+          <tr><td colspan="10" style="text-align:center;color:var(--muted);padding:30px">Select filters and search to load creators</td></tr>
         </tbody>
       </table>
     </div>
@@ -1764,10 +1769,14 @@ async function loadCreatorStats(){
     _lastStats=st;
     if(document.getElementById('cs-total')){
       document.getElementById('cs-total').textContent=st.total||0;
-      document.getElementById('cs-accepted').textContent=st.by_status['Accepted']||0;
-      document.getElementById('cs-sent').textContent=st.by_status['Sent']||0;
-      document.getElementById('cs-posted').textContent=st.by_status['Posted']||0;
       document.getElementById('cs-week').textContent='+'+st.new_this_week;
+    }
+    if(document.getElementById('cs-discovered')) document.getElementById('cs-discovered').textContent=st.discovered_email_count||0;
+    if(document.getElementById('cs-shopify-pr')) document.getElementById('cs-shopify-pr').textContent=st.shopify_pr_count||0;
+    if(document.getElementById('cs-apify')) document.getElementById('cs-apify').textContent=st.apify_tagged_count||0;
+    if(document.getElementById('cs-updated')){
+      var now=new Date();
+      document.getElementById('cs-updated').textContent='Last updated: '+now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
     }
     document.getElementById('pill-total').textContent=st.total+' creators';
     buildFunnel(st.by_status,'dash-funnel',_crStatusFilter);
@@ -1859,15 +1868,18 @@ async function loadCreators(){
   if(assigned==='__none')params+='&assigned_to=';
   else if(assigned)params+='&assigned_to='+encodeURIComponent(assigned);
   if(brand)params+='&brand='+encodeURIComponent(brand);
-  if(source)params+='&source='+encodeURIComponent(source);
+  if(source==='discovered')params+='&email_suffix='+encodeURIComponent('@discovered.syncly');
+  else if(source==='shopify_pr')params+='&is_shopify_pr=true';
+  else if(source==='apify_tagged')params+='&is_apify_tagged=true';
+  else if(source)params+='&source='+encodeURIComponent(source);
   var body=document.getElementById('creators-body');
-  body.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr>';
+  body.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr>';
   try{
     var data=await apiFetch('/pipeline/creators/'+params);
     renderCreatorsTable(data);
     renderPager(data);
   }catch(e){
-    body.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--r);padding:20px">Error: '+e.message+'</td></tr>';
+    body.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--r);padding:20px">Error: '+e.message+'</td></tr>';
   }
 }
 
@@ -2013,7 +2025,7 @@ function profileLinks(c){
 function renderCreatorsTable(data){
   var body=document.getElementById('creators-body');
   if(!data.results||data.results.length===0){
-    body.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:30px">No creators found</td></tr>';
+    body.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:30px">No creators found</td></tr>';
     return;
   }
   var html='';
@@ -2026,8 +2038,26 @@ function renderCreatorsTable(data){
     var followers=c.followers?formatNum(c.followers):'-';
     html+='<tr>';
     html+='<td style="font-weight:600;font-family:var(--mono);font-size:10px">'+esc(handle)+'</td>';
-    html+='<td style="font-size:10px">'+esc(c.email)+'</td>';
-    html+='<td><span class="b '+(c.brand==='Grosmimi'?'g':c.brand==='CHA&MOM'?'c':c.brand==='Naeiae'?'am':'')+'">'+esc(c.brand||'?')+'</span>'+ownerTag(c)+'</td>';
+    // Email column: show badge if @discovered.syncly
+    if(c.email&&c.email.endsWith('@discovered.syncly')){
+      html+='<td style="font-size:10px"><span class="b am">&#x1F7E1; &#xBBF8;&#xD655;&#xC778;</span></td>';
+    }else{
+      html+='<td style="font-size:10px">'+esc(c.email||'')+'</td>';
+    }
+    // Sources column
+    var srcHtml='';
+    if(c.sources&&c.sources.length){
+      var srcMap={syncly:'<span class="b a">S</span>',gmail_inbound:'<span class="b g">G</span>',apify:'<span class="b c">A</span>',shopify_pr:'<span class="b am">PR</span>',manychat:'<span class="b p">MC</span>'};
+      for(var si=0;si<c.sources.length;si++){if(srcMap[c.sources[si]])srcHtml+=srcMap[c.sources[si]]+' ';}
+    }
+    if(c.is_shopify_pr)srcHtml+='&#x1F4E6; ';
+    if(c.is_apify_tagged)srcHtml+='&#x1F577;&#xFE0F; ';
+    if(c.is_manychat_contact)srcHtml+='&#x1F4AC; ';
+    html+='<td style="font-size:10px">'+srcHtml+'</td>';
+    // Brand column with PR products info
+    var brandExtra='';
+    if(c.pr_products&&c.pr_products.length){brandExtra='<div style="font-size:8px;color:var(--dim)">&#x1F4E6; '+c.pr_products.length+' product'+(c.pr_products.length>1?'s':'')+'</div>';}
+    html+='<td><span class="b '+(c.brand==='Grosmimi'?'g':c.brand==='CHA&MOM'?'c':c.brand==='Naeiae'?'am':'')+'">'+esc(c.brand||'?')+'</span>'+ownerTag(c)+brandExtra+'</td>';
     html+='<td><span class="b '+badgeClass+'">'+esc(c.pipeline_status)+'</span></td>';
     html+='<td style="font-size:10px">'+esc(c.outreach_type||'-')+'</td>';
     html+='<td style="font-size:10px;font-family:var(--mono)">'+followers+'</td>';
@@ -2044,7 +2074,7 @@ function renderCreatorsTable(data){
     html+='</td>';
     html+='</tr>';
     // Hidden email history row (accordion)
-    html+='<tr id="email-hist-'+c.id+'" style="display:none"><td colspan="9" style="padding:0">';
+    html+='<tr id="email-hist-'+c.id+'" style="display:none"><td colspan="10" style="padding:0">';
     html+='<div style="background:#f8fafc;border:1px solid var(--border);border-radius:6px;margin:4px 8px 8px;padding:10px;font-size:10px">';
     html+='<div id="email-hist-content-'+c.id+'" style="color:var(--dim)">Loading email history...</div>';
     html+='</div></td></tr>';
