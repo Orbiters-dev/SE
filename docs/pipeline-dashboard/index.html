@@ -629,6 +629,17 @@ Shopify                         Apify / Syncly                   Gmail RAG
         </div>
         <div style="margin-top:6px;font-size:9px;color:var(--muted)">Schedule: Apify &#xD3C9;&#xC77C; KST 08:00 | Syncly D+60 &#xB9E4;&#xC77C; | SNS Tab &#xB9E4;&#xC77C; | Gmail &#xB9E4;&#xC77C;</div>
       </div>
+      <!-- Cross-Check: match creators against all data sources -->
+      <div class="card">
+        <h3>&#x1F50D; Cross-Check (Identity Resolution)</h3>
+        <div class="desc">PipelineCreator &#xB808;&#xCF54;&#xB4DC;&#xB97C; Gmail / Apify / Shopify PR &#xB370;&#xC774;&#xD130;&#xC640; &#xC77C;&#xAD04; &#xB9E4;&#xCE6D;. handle&#xC774;&#xB098; email&#xB85C; &#xB9E4;&#xCE6D;&#xB418;&#xBA74; &#xC18C;&#xC2A4; &#xBC30;&#xC9C0; + &#xC0C1;&#xC138; &#xB370;&#xC774;&#xD130; &#xC790;&#xB3D9; &#xCC44;&#xC6C0;.</div>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">
+          <button class="btn btn-sm" style="background:var(--primary);color:#fff;font-size:11px;padding:5px 14px" onclick="runCrossCheck()">&#x26A1; Run Cross-Check All</button>
+          <span id="xcheck-status" style="font-size:10px;color:var(--dim)"></span>
+        </div>
+        <div id="xcheck-result" style="display:none;margin-top:8px;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:10px">
+        </div>
+      </div>
       <div class="card">
         <h3>&#x1F527; Feature Toggles</h3>
         <div class="desc">Each filter adjusts the eligible pool. Click <b>Check</b> to see impact before executing.</div>
@@ -2558,6 +2569,28 @@ var WEBHOOK_MAP={
 };
 var _pendingAction=null;
 
+async function runCrossCheck(){
+  var st=document.getElementById('xcheck-status');
+  var res=document.getElementById('xcheck-result');
+  st.textContent='Running cross-check...';st.style.color='var(--y)';
+  res.style.display='none';
+  try{
+    var resp=await fetch(API+'/pipeline/creators/cross-check/?sources=gmail,apify,shopify_pr',{method:'POST',headers:{'Authorization':'Basic '+btoa('admin:admin')}});
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    var d=await resp.json();
+    st.textContent='Done!';st.style.color='var(--g)';
+    var html='<table style="width:100%;font-size:10px"><tr style="font-weight:700"><td>Source</td><td>Matched</td><td>Updated</td><td>Pool</td></tr>';
+    if(d.gmail_matched!==undefined)html+='<tr><td>Gmail</td><td>'+d.gmail_matched+'</td><td>'+d.gmail_updated+'</td><td>'+d.total_gmail_contacts+' contacts</td></tr>';
+    if(d.apify_matched!==undefined)html+='<tr><td>Apify</td><td>'+d.apify_matched+'</td><td>'+d.apify_updated+'</td><td>'+d.apify_total_posts+' posts</td></tr>';
+    if(d.shopify_pr_matched!==undefined)html+='<tr><td>Shopify PR</td><td>'+d.shopify_pr_matched+'</td><td>'+d.shopify_pr_updated+'</td><td>'+d.shopify_pr_total_orders+' orders</td></tr>';
+    html+='</table>';
+    html+='<div style="margin-top:6px;color:var(--dim)">Totals: '+d.total_creators+' creators | Apify Tagged: '+d.apify_tagged_count+' | Shopify PR: '+d.shopify_pr_count+' | ManyChat: '+d.manychat_count+'</div>';
+    res.innerHTML=html;res.style.display='block';
+    loadCreatorStats();
+  }catch(e){
+    st.textContent='Error: '+e.message;st.style.color='var(--r)';
+  }
+}
 function execAction(actionType){
   var meta=ACTION_META[actionType];
   if(!meta)return;

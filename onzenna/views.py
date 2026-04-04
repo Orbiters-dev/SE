@@ -1853,14 +1853,14 @@ def reply_log_create(request):
 
 @csrf_exempt
 def pipeline_creators_cross_check(request):
-    """POST: Batch cross-check all PipelineCreators against Gmail contacts.
+    """POST: Batch cross-check PipelineCreators against Gmail, Apify, Shopify PR.
 
-    Matches by email → enriches gmail_* fields on PipelineCreator.
-    Apify and Shopify PR cross-checks are triggered by their respective tools
-    (fetch_apify_content.py, influencer_customer_lookup.py) which call the
-    upsert/PUT endpoints directly.
+    Query params:
+        sources=gmail,apify,shopify_pr  (comma-separated, default: all)
 
-    Returns summary counts of what was matched/updated.
+    Gmail: match email → enrich gmail_* fields
+    Apify: match ig_handle/tiktok_handle against gk_content_posts → enrich apify_* fields
+    Shopify PR: match ig_handle/email against gk_influencer_orders → enrich pr_* fields
     """
     if request.method == 'OPTIONS':
         return _cors_headers(request, HttpResponse(status=204))
@@ -1868,68 +1868,254 @@ def pipeline_creators_cross_check(request):
     if request.method != 'POST':
         return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
 
-    gmail_matched = 0
-    gmail_updated = 0
+    from django.db import connection
 
-    # Gmail cross-check: match PipelineCreator.email against GmailContact
-    all_gmail = {c.email: c for c in GmailContact.objects.all()}
+    requested = request.GET.get("sources", "gmail,apify,shopify_pr")
+    run_sources = [s.strip() for s in requested.split(",")]
 
-    # Process in batches to avoid memory issues
-    batch_size = 500
-    offset = 0
     total_creators = PipelineCreator.objects.count()
+    result = {"total_creators": total_creators}
 
-    while offset < total_creators:
-        creators = list(PipelineCreator.objects.all()[offset:offset + batch_size])
-        for cr in creators:
-            gc = all_gmail.get(cr.email)
-            if not gc:
+    # --- Gmail cross-check ---
+    if "gmail" in run_sources:
+        gmail_matched = 0
+        gmail_updated = 0
+        all_gmail = {c.email: c for c in GmailContact.objects.all()}
+
+        batch_size = 500
+        off = 0
+        while off < total_creators:
+            creators = list(PipelineCreator.objects.all()[off:off + batch_size])
+            for cr in creators:
+                gc = all_gmail.get(cr.email)
+                if not gc:
+                    continue
+                gmail_matched += 1
+                changed = False
+                if gc.first_contact_date and not cr.gmail_first_contact:
+                    cr.gmail_first_contact = gc.first_contact_date.date() if hasattr(gc.first_contact_date, 'date') else gc.first_contact_date
+                    changed = True
+                if gc.last_contact_date:
+                    gc_date = gc.last_contact_date.date() if hasattr(gc.last_contact_date, 'date') else gc.last_contact_date
+                    if not cr.gmail_last_contact or gc_date > cr.gmail_last_contact:
+                        cr.gmail_last_contact = gc_date
+                        changed = True
+                if gc.total_sent and gc.total_sent > cr.gmail_total_sent:
+                    cr.gmail_total_sent = gc.total_sent
+                    changed = True
+                if gc.total_received and gc.total_received > cr.gmail_total_received:
+                    cr.gmail_total_received = gc.total_received
+                    changed = True
+                acct = gc.account or "zezebaebae"
+                current_accounts = cr.gmail_accounts or []
+                if acct not in current_accounts:
+                    cr.gmail_accounts = current_accounts + [acct]
+                    changed = True
+                current_sources = cr.sources or []
+                if "gmail_inbound" not in current_sources:
+                    cr.sources = current_sources + ["gmail_inbound"]
+                    changed = True
+                if changed:
+                    cr.save()
+                    gmail_updated += 1
+            off += batch_size
+
+        result["gmail_matched"] = gmail_matched
+        result["gmail_updated"] = gmail_updated
+        result["total_gmail_contacts"] = len(all_gmail)
+
+    # --- Apify cross-check (gk_content_posts → PipelineCreator) ---
+    if "apify" in run_sources:
+        apify_matched = 0
+        apify_updated = 0
+
+        # Build handle→posts map from gk_content_posts
+        with connection.cursor() as cur:
+            cur.execute("""
+                SELECT username, platform, brand, post_date, url,
+                       views_30d, likes_30d, comments_30d, post_id
+                FROM gk_content_posts
+                ORDER BY post_date DESC
+            """)
+            cols = [c[0] for c in cur.description]
+            rows = [dict(zip(cols, r)) for r in cur.fetchall()]
+
+        # Group by lowercase handle
+        handle_posts = {}
+        for r in rows:
+            h = (r["username"] or "").lower().lstrip("@")
+            if not h:
                 continue
+            handle_posts.setdefault(h, []).append(r)
 
-            gmail_matched += 1
-            changed = False
+        # Match against PipelineCreator
+        batch_size = 500
+        off = 0
+        while off < total_creators:
+            creators = list(PipelineCreator.objects.all()[off:off + batch_size])
+            for cr in creators:
+                ig = (cr.ig_handle or "").lower().lstrip("@")
+                tt = (cr.tiktok_handle or "").lower().lstrip("@")
+                posts = []
+                if ig and ig in handle_posts:
+                    posts.extend(handle_posts[ig])
+                if tt and tt in handle_posts:
+                    posts.extend(handle_posts[tt])
+                if not posts:
+                    continue
 
-            if gc.first_contact_date and (not cr.gmail_first_contact):
-                cr.gmail_first_contact = gc.first_contact_date.date() if hasattr(gc.first_contact_date, 'date') else gc.first_contact_date
+                apify_matched += 1
+                changed = False
+
+                # Deduplicate by post_id
+                seen = set()
+                unique_posts = []
+                for p in posts:
+                    if p["post_id"] not in seen:
+                        seen.add(p["post_id"])
+                        unique_posts.append(p)
+
+                new_count = len(unique_posts)
+                brands = list(set(p["brand"] for p in unique_posts if p.get("brand")))
+                last_date = max((p["post_date"] for p in unique_posts if p.get("post_date")), default=None)
+
+                # Build apify_posts JSON (top 50 by date)
+                top_posts = sorted(unique_posts, key=lambda x: x.get("post_date") or "", reverse=True)[:50]
+                apify_json = [{
+                    "post_id": p["post_id"],
+                    "url": p.get("url", ""),
+                    "platform": p.get("platform", ""),
+                    "post_date": str(p["post_date"]) if p.get("post_date") else "",
+                    "views": p.get("views_30d", 0),
+                    "likes": p.get("likes_30d", 0),
+                    "comments": p.get("comments_30d", 0),
+                } for p in top_posts]
+
+                if not cr.is_apify_tagged:
+                    cr.is_apify_tagged = True
+                    changed = True
+                if new_count != cr.apify_post_count:
+                    cr.apify_post_count = new_count
+                    changed = True
+                if sorted(brands) != sorted(cr.apify_posted_brands or []):
+                    cr.apify_posted_brands = brands
+                    changed = True
+                if last_date and (not cr.apify_last_post_date or last_date > cr.apify_last_post_date):
+                    cr.apify_last_post_date = last_date
+                    changed = True
+
+                cr.apify_posts = apify_json
+                cr.apify_last_crawled_at = datetime.utcnow()
                 changed = True
-            if gc.last_contact_date and (not cr.gmail_last_contact or gc.last_contact_date > (cr.gmail_last_contact if not hasattr(cr.gmail_last_contact, 'date') else datetime.combine(cr.gmail_last_contact, datetime.min.time()))):
-                cr.gmail_last_contact = gc.last_contact_date.date() if hasattr(gc.last_contact_date, 'date') else gc.last_contact_date
-                changed = True
-            if gc.total_sent and gc.total_sent > cr.gmail_total_sent:
-                cr.gmail_total_sent = gc.total_sent
-                changed = True
-            if gc.total_received and gc.total_received > cr.gmail_total_received:
-                cr.gmail_total_received = gc.total_received
-                changed = True
 
-            # Track which Gmail account matched
-            acct = gc.account or "zezebaebae"
-            current_accounts = cr.gmail_accounts or []
-            if acct not in current_accounts:
-                cr.gmail_accounts = current_accounts + [acct]
-                changed = True
+                src = cr.sources or []
+                if "apify" not in src:
+                    cr.sources = src + ["apify"]
+                    changed = True
 
-            # Add "gmail_inbound" to sources if not already there
-            current_sources = cr.sources or []
-            if "gmail_inbound" not in current_sources:
-                cr.sources = current_sources + ["gmail_inbound"]
-                changed = True
+                if not cr.collaboration_status and new_count > 0:
+                    cr.collaboration_status = "active"
+                    changed = True
 
-            if changed:
-                cr.save()
-                gmail_updated += 1
+                if changed:
+                    cr.save()
+                    apify_updated += 1
+            off += batch_size
 
-        offset += batch_size
+        result["apify_matched"] = apify_matched
+        result["apify_updated"] = apify_updated
+        result["apify_total_posts"] = len(rows)
 
-    # Summary counts from DB
-    summary = {
-        "gmail_matched": gmail_matched,
-        "gmail_updated": gmail_updated,
-        "total_creators": total_creators,
-        "total_gmail_contacts": len(all_gmail),
-        "shopify_pr_count": PipelineCreator.objects.filter(is_shopify_pr=True).count(),
-        "apify_tagged_count": PipelineCreator.objects.filter(is_apify_tagged=True).count(),
-        "manychat_count": PipelineCreator.objects.filter(is_manychat_contact=True).count(),
-    }
+    # --- Shopify PR cross-check (gk_influencer_orders → PipelineCreator) ---
+    if "shopify_pr" in run_sources:
+        pr_matched = 0
+        pr_updated = 0
 
-    return _cors_headers(request, JsonResponse(summary, status=200))
+        with connection.cursor() as cur:
+            cur.execute("""
+                SELECT account_handle, customer_email, brand,
+                       product_names, product_types, shipping_date, order_name
+                FROM gk_influencer_orders
+                ORDER BY shipping_date DESC NULLS LAST
+            """)
+            cols = [c[0] for c in cur.description]
+            pr_rows = [dict(zip(cols, r)) for r in cur.fetchall()]
+
+        # Build handle→orders and email→orders maps
+        handle_orders = {}
+        email_orders = {}
+        for r in pr_rows:
+            h = (r.get("account_handle") or "").lower().lstrip("@")
+            e = (r.get("customer_email") or "").lower()
+            if h:
+                handle_orders.setdefault(h, []).append(r)
+            if e:
+                email_orders.setdefault(e, []).append(r)
+
+        batch_size = 500
+        off = 0
+        while off < total_creators:
+            creators = list(PipelineCreator.objects.all()[off:off + batch_size])
+            for cr in creators:
+                ig = (cr.ig_handle or "").lower().lstrip("@")
+                email_lower = (cr.email or "").lower()
+                orders = []
+                if ig and ig in handle_orders:
+                    orders.extend(handle_orders[ig])
+                if email_lower and email_lower in email_orders:
+                    orders.extend(email_orders[email_lower])
+                if not orders:
+                    continue
+
+                pr_matched += 1
+                changed = False
+
+                # Deduplicate by order_name
+                seen = set()
+                unique_orders = []
+                for o in orders:
+                    key = o.get("order_name", "")
+                    if key and key not in seen:
+                        seen.add(key)
+                        unique_orders.append(o)
+
+                # Build pr_products JSON
+                pr_products = []
+                for o in unique_orders:
+                    products = (o.get("product_names") or "").split(",")
+                    for prod in products:
+                        prod = prod.strip()
+                        if prod:
+                            pr_products.append({
+                                "brand": o.get("brand", ""),
+                                "product": prod,
+                                "order_date": str(o["shipping_date"]) if o.get("shipping_date") else "",
+                            })
+
+                if not cr.is_shopify_pr:
+                    cr.is_shopify_pr = True
+                    changed = True
+                if pr_products and pr_products != (cr.pr_products or []):
+                    cr.pr_products = pr_products
+                    changed = True
+
+                src = cr.sources or []
+                if "shopify_pr" not in src:
+                    cr.sources = src + ["shopify_pr"]
+                    changed = True
+
+                if changed:
+                    cr.save()
+                    pr_updated += 1
+            off += batch_size
+
+        result["shopify_pr_matched"] = pr_matched
+        result["shopify_pr_updated"] = pr_updated
+        result["shopify_pr_total_orders"] = len(pr_rows)
+
+    # Always include current flag counts
+    result["shopify_pr_count"] = PipelineCreator.objects.filter(is_shopify_pr=True).count()
+    result["apify_tagged_count"] = PipelineCreator.objects.filter(is_apify_tagged=True).count()
+    result["manychat_count"] = PipelineCreator.objects.filter(is_manychat_contact=True).count()
+
+    return _cors_headers(request, JsonResponse(result, status=200))
