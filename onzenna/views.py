@@ -1204,7 +1204,12 @@ def pipeline_filter_stats(request):
 
     qs = PipelineCreator.objects.filter(pipeline_status='Not Started')
     if discovery_date:
-        qs = qs.filter(initial_discovery_date=discovery_date)
+        # Support comma-separated dates for week groups (e.g. 2026-02-04,2026-02-05,...)
+        dates = [d.strip() for d in discovery_date.split(",") if d.strip()]
+        if len(dates) == 1:
+            qs = qs.filter(initial_discovery_date=dates[0])
+        else:
+            qs = qs.filter(initial_discovery_date__in=dates)
 
     total = qs.count()
     with_email = qs.exclude(

@@ -3234,8 +3234,8 @@ async function onDiscoveryDateSelect(val){
       hintEl.textContent='\u2713 '+group.label+' \u2014 '+cnt+'\uBA85 ('+group.dates.length+'\uC77C\uAC04 \uBC1C\uACAC) \u2192 Batch Size \uC790\uB3D9 \uC124\uC815';
       hintEl.style.color='var(--g)';hintEl.style.display='block';
     }
-    // Fetch HT/LT split from server
-    _fetchHtLtSplit(group.dates[0]||val);
+    // Fetch HT/LT split from server (all dates in week group)
+    _fetchHtLtSplit(group.dates);
     return;
   }
   // Fallback: raw date
@@ -3245,7 +3245,7 @@ async function onDiscoveryDateSelect(val){
     var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
     updateAllocation();
     if(hintEl){hintEl.textContent='\u2713 '+val+' \u2014 Not Started '+cnt+'\uBA85';hintEl.style.display='block'}
-    _fetchHtLtSplit(val);
+    _fetchHtLtSplit([val]);
     return;
   }
   if(hintEl){hintEl.textContent='\uC870\uD68C \uC911...';hintEl.style.display='block';hintEl.style.color='var(--muted)'}
@@ -3257,18 +3257,18 @@ async function onDiscoveryDateSelect(val){
     var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
     updateAllocation();
     if(hintEl){hintEl.textContent='\u2713 '+val+' \u2014 Not Started '+cnt+'\uBA85';hintEl.style.color='var(--g)';hintEl.style.display='block'}
-    _fetchHtLtSplit(val);
+    _fetchHtLtSplit([val]);
   }catch(e){if(hintEl){hintEl.textContent='\uC870\uD68C \uC2E4\uD328';hintEl.style.color='var(--r)'}}
 }
 
-async function _fetchHtLtSplit(date){
+async function _fetchHtLtSplit(dates){
   var splitEl=document.getElementById('ht-lt-split-hint');
-  if(!splitEl)return;
+  if(!splitEl||!dates||dates.length===0)return;
   try{
-    var stats=await apiFetch('/pipeline/creators/filter-stats/?discovery_date='+date);
+    // Send all dates in one API call (comma-separated)
+    var stats=await apiFetch('/pipeline/creators/filter-stats/?discovery_date='+dates.join(','));
     var ht=stats.ht||0,lt=stats.lt||0,total=stats.total||0;
-    var ltEmail=stats.lt_with_email!=null?stats.lt_with_email:'?';
-    var htEmail=stats.ht_with_email!=null?stats.ht_with_email:'?';
+    var ltEmail=stats.lt_with_email||0,htEmail=stats.ht_with_email||0;
     splitEl.innerHTML='<span style="font-weight:700">'+total+'</span>\uBA85 \u2192 '
       +'<span style="color:#ef4444;font-weight:700">HT: '+ht+'</span> <span style="font-size:9px;color:var(--dim)">(\uC774\uBA54\uC77C '+htEmail+')</span> '
       +'<span style="color:#3b82f6;font-weight:700">LT: '+lt+'</span> <span style="font-size:9px;color:var(--dim)">(\uC774\uBA54\uC77C '+ltEmail+')</span>'
@@ -3864,7 +3864,7 @@ async function ensureFtCache(){
 
   // Fetch server-side stats first (accurate counts without loading all records)
   var statsUrl='/pipeline/creators/filter-stats/';
-  if(dates.length>0){statsUrl+='?discovery_date='+dates[0]}
+  if(dates.length>0){statsUrl+='?discovery_date='+dates.join(',')}
   try{_ftServerStats=await apiFetch(statsUrl)}catch(e){_ftServerStats=null}
 
   // Fetch creators for this batch
