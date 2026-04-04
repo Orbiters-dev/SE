@@ -1215,11 +1215,15 @@ def pipeline_filter_stats(request):
     ht = qs.filter(outreach_type='HT').count()
     lt = total - ht
 
-    # Apify fill rate: actual measured from DB
-    apify_crawled = qs.filter(is_apify_tagged=True).count()
-    apify_with_email = qs.filter(is_apify_tagged=True).exclude(
-        Q(email__endswith='@discovered.syncly') | Q(email='')
-    ).count()
+    # HT/LT with real email breakdown (for LT-only filter pipeline)
+    email_filter = Q(email__endswith='@discovered.syncly') | Q(email='')
+    ht_with_email = qs.filter(outreach_type='HT').exclude(email_filter).count()
+    lt_with_email = with_email - ht_with_email
+
+    # Apify fill rate: actual measured from DB (LT only — HT doesn't need Apify)
+    lt_qs = qs.exclude(outreach_type='HT')
+    apify_crawled = lt_qs.filter(is_apify_tagged=True).count()
+    apify_with_email = lt_qs.filter(is_apify_tagged=True).exclude(email_filter).count()
     apify_fill_rate = round(apify_with_email / apify_crawled, 4) if apify_crawled > 0 else 0.09
 
     return _cors_headers(request, JsonResponse({
@@ -1229,6 +1233,8 @@ def pipeline_filter_stats(request):
         "business_accounts": business,
         "ht": ht,
         "lt": lt,
+        "ht_with_email": ht_with_email,
+        "lt_with_email": lt_with_email,
         "apify_crawled": apify_crawled,
         "apify_with_email": apify_with_email,
         "apify_fill_rate": apify_fill_rate,

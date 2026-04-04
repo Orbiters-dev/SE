@@ -3267,10 +3267,12 @@ async function _fetchHtLtSplit(date){
   try{
     var stats=await apiFetch('/pipeline/creators/filter-stats/?discovery_date='+date);
     var ht=stats.ht||0,lt=stats.lt||0,total=stats.total||0;
+    var ltEmail=stats.lt_with_email!=null?stats.lt_with_email:'?';
+    var htEmail=stats.ht_with_email!=null?stats.ht_with_email:'?';
     splitEl.innerHTML='<span style="font-weight:700">'+total+'</span>\uBA85 \u2192 '
-      +'<span style="color:#ef4444;font-weight:700">HT: '+ht+'</span> '
-      +'<span style="color:#3b82f6;font-weight:700">LT: '+lt+'</span>'
-      +' &nbsp;<span style="font-size:9px;color:var(--dim)">(HT\uB294 HT Config \uD0ED\uC5D0\uC11C \uBCC4\uB3C4 \uAD00\uB9AC, \uC544\uB798 Toggle\uC740 LT\uC5D0\uB9CC \uC801\uC6A9)</span>';
+      +'<span style="color:#ef4444;font-weight:700">HT: '+ht+'</span> <span style="font-size:9px;color:var(--dim)">(\uC774\uBA54\uC77C '+htEmail+')</span> '
+      +'<span style="color:#3b82f6;font-weight:700">LT: '+lt+'</span> <span style="font-size:9px;color:var(--dim)">(\uC774\uBA54\uC77C '+ltEmail+')</span>'
+      +'<br><span style="font-size:9px;color:var(--dim)">HT\uB294 HT Config \uD0ED\uC5D0\uC11C \uBCC4\uB3C4 \uAD00\uB9AC \xB7 \uC544\uB798 Toggle\uC740 LT\uC5D0\uB9CC \uC801\uC6A9</span>';
     splitEl.style.display='block';
     // Update HT tab badge
     var htBadge=document.getElementById('cfg-btn-ht-badge');
@@ -4073,16 +4075,19 @@ function updateFtSummary(){
   var totalAll=(_ftServerStats&&_ftServerStats.total)?_ftServerStats.total:all.length;
 
   // Stage 0: Split HT / LT FIRST (before any filtering)
+  // Use server stats when available (accurate even with partial client data)
   var htAll=all.filter(function(c){return c.outreach_type==='HT'});
   var pool=all.filter(function(c){return c.outreach_type!=='HT'}); // LT only from here
-  var ltTotal=pool.length;
-  var htTotal=totalAll-ltTotal;
+  var ltTotal=(_ftServerStats&&_ftServerStats.lt)?_ftServerStats.lt:pool.length;
+  var htTotal=(_ftServerStats&&_ftServerStats.ht)?_ftServerStats.ht:(totalAll-ltTotal);
 
   // Stage 1: Email filter — LT only, real emails (removes @discovered.* placeholders)
   var withEmail=pool.filter(_hasRealEmail);
-  var noEmail=ltTotal-withEmail.length;
+  // Prefer server-side lt_with_email for accuracy
+  var ltWithEmailServer=(_ftServerStats&&_ftServerStats.lt_with_email!=null)?_ftServerStats.lt_with_email:null;
+  var afterEmail=ltWithEmailServer!=null?ltWithEmailServer:withEmail.length;
+  var noEmail=ltTotal-afterEmail;
   pool=withEmail;
-  var afterEmail=pool.length;
 
   // Stage 2: US filter (LT only)
   var usCheck=document.getElementById('ft-check-us').checked;
