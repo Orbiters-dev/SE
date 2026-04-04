@@ -219,12 +219,15 @@ var _curSection = {};
 
 if(checkAuth()) showDashboard();
 
+var _iframeSubHash = ''; // PPC iframe sub-state from URL hash
 function initDashboard() {
   // Hash takes priority → localStorage fallback
   var hash = window.location.hash.replace('#','');
   var parts = hash ? hash.split('/') : [];
   var hashRgn = parts[0]; // 'us' or 'jp'
   var hashSec = parts[1]; // tab id
+  // Capture sub-hash (parts[2+]) for iframe state restore
+  if(parts.length > 2) _iframeSubHash = parts.slice(2).join('/');
 
   _curSection['us'] = localStorage.getItem('fin_sec_us') || 'fin-kpis';
   _curSection['jp'] = localStorage.getItem('fin_sec_jp') || 'jp-amazon';
@@ -239,6 +242,17 @@ window.addEventListener('hashchange', function(){
   if(parts[0]==='us'||parts[0]==='jp'){
     if(parts[0]!==_curRegion) switchRegion(parts[0]);
     else if(parts[1]) switchSection(parts[1]);
+  }
+});
+
+// Listen for PPC iframe hash updates → reflect in parent URL
+window.addEventListener('message', function(e){
+  if(e.data && e.data.type==='ppc-hash'){
+    var curHash = window.location.hash.replace('#','');
+    var parts = curHash.split('/');
+    // Replace everything after region/section with iframe sub-hash
+    // e.g. #us/amazon-ppc/tab-config/naeiae
+    history.replaceState(null,'', '#'+(parts[0]||'us')+'/'+(parts[1]||'amazon-ppc')+'/'+e.data.hash);
   }
 });
 
@@ -289,10 +303,15 @@ function switchSection(tabId, init) {
   // show target
   document.getElementById(tab.sec).style.display='block';
 
-  // lazy-load iframe
+  // lazy-load iframe (pass sub-hash from URL if present)
   if(tab.ifr && tab.src){
     var ifr=document.getElementById(tab.ifr);
-    if(!ifr.getAttribute('src')) ifr.src=tab.src;
+    if(!ifr.getAttribute('src')){
+      var ifrSrc = tab.src;
+      if(_iframeSubHash && tab.id==='amazon-ppc') ifrSrc += '#' + _iframeSubHash;
+      ifr.src = ifrSrc;
+      _iframeSubHash = ''; // consumed
+    }
   }
 
   // Financial KPIs inline render

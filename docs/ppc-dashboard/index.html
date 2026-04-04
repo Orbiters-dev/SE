@@ -3630,6 +3630,10 @@ function _saveHash(){
   // Persist to both hash and localStorage (localStorage survives iframe reload)
   localStorage.setItem('ppc_last_tab', p);
   history.replaceState(null,null,'#'+parts.join('/'));
+  // Notify parent (financial-dashboard) so it can update its URL hash
+  if(window.parent !== window){
+    try { window.parent.postMessage({type:'ppc-hash', hash: parts.join('/')}, '*'); } catch(e){}
+  }
 }
 function _restoreHash(){
   var h = location.hash.replace('#','');
