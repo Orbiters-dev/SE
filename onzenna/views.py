@@ -925,12 +925,20 @@ def pipeline_creators_list(request):
     if outreach_type:
         qs = qs.filter(outreach_type=outreach_type)
 
+    # assigned_to filter: maps owner name → brand(s)
+    _OWNER_BRANDS = {
+        "Jeehoo": ["Grosmimi"],
+        "Laeeka": ["CHA&MOM"],
+        "Soyeon": ["Naeiae"],
+    }
     assigned_to = request.GET.get("assigned_to")
     if assigned_to is not None:
         if assigned_to == "":
-            qs = qs.filter(assigned_to="")
-        else:
-            qs = qs.filter(assigned_to=assigned_to)
+            # Unassigned = brands not in any owner mapping
+            all_owned = [b for bs in _OWNER_BRANDS.values() for b in bs]
+            qs = qs.exclude(brand__in=all_owned)
+        elif assigned_to in _OWNER_BRANDS:
+            qs = qs.filter(brand__in=_OWNER_BRANDS[assigned_to])
 
     # Cross-check filters
     email_suffix = request.GET.get("email_suffix")
