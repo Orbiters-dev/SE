@@ -583,7 +583,7 @@ def fetch_sp_report(profile_id: int, start: date, end: date) -> List[Dict]:
         report_id = resp.json()["reportId"]
 
         # Poll
-        deadline_t = time.time() + 600
+        deadline_t = time.time() + 1800  # 30min (increased: Amazon report gen slowed since 2026-03)
         while time.time() < deadline_t:
             time.sleep(15)
             st = requests.get(f"{API_BASE}/reporting/reports/{report_id}",
@@ -686,7 +686,7 @@ def fetch_search_term_report(profile_id: int, start: date, end: date) -> List[Di
         resp.raise_for_status()
         report_id = resp.json()["reportId"]
 
-        deadline_t = time.time() + 600
+        deadline_t = time.time() + 1800  # 30min (increased: Amazon report gen slowed since 2026-03)
         while time.time() < deadline_t:
             time.sleep(15)
             st = requests.get(f"{API_BASE}/reporting/reports/{report_id}",
@@ -761,7 +761,7 @@ def fetch_keyword_report(profile_id: int, start: date, end: date) -> List[Dict]:
         resp.raise_for_status()
         report_id = resp.json()["reportId"]
 
-        deadline_t = time.time() + 600
+        deadline_t = time.time() + 1800  # 30min (increased: Amazon report gen slowed since 2026-03)
         while time.time() < deadline_t:
             time.sleep(15)
             st = requests.get(f"{API_BASE}/reporting/reports/{report_id}",

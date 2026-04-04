@@ -647,7 +647,7 @@ def _fetch_amz_ads_report_generic(headers, profile_id, start, end,
         r.raise_for_status()
         report_id = r.json().get("reportId")
 
-        for _ in range(40):
+        for poll_i in range(120):  # 30min max (was 10min=40, increased due to slow spSearchTerm since 2026-03)
             time.sleep(15)
             fresh_h = {**_fresh_amz_ads_headers(),
                        "Amazon-Advertising-API-Scope": profile_id}
