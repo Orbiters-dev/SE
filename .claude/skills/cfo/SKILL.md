@@ -133,12 +133,56 @@ Communication via `.tmp/cfo_sessions/{session_id}/`
 
 ---
 
+## Codex Evaluator Integration (Cross-AI Harness)
+
+CFO 하네스의 Evaluator 역할을 **OpenAI Codex (gpt-4.1)**에 위임하여 독립 검증한다.
+Claude가 골만이 역할로 숫자를 생성하면, 동일 AI가 자기 산출물을 평가하는 bias를 물리적으로 제거.
+
+### Usage
+
+```bash
+# 골만이 output을 Codex가 CFO 감사
+python tools/codex_evaluator.py --domain cfo audit --files .tmp/cfo_sessions/golmani_output.json
+
+# Sprint contract 검증 (CFO 관점)
+python tools/codex_evaluator.py --domain cfo verify --contract .tmp/sprint_contract.md
+
+# CFO 도메인 질문
+python tools/codex_evaluator.py --domain cfo ask "이 P&L에서 Gross Margin 85%는 정상인가?"
+
+# JSON output (자동화 파이프라인용)
+python tools/codex_evaluator.py --domain cfo audit --files output.json --json
+```
+
+### Automated CFO Loop
+
+```
+1. Claude (골만이) → 재무 모델 생성 → golmani_output.json
+2. codex_evaluator.py --domain cfo audit → Codex가 독립 감사
+3. CFO 결정:
+   - PASS → APPROVE (sign-off)
+   - FAIL (CRITICAL/MAJOR) → 골만이에게 수정 지시 → goto 1 (max 3x)
+   - 3회 실패 → ESCALATE
+```
+
+### What Codex Checks (6-Point)
+- A: Arithmetic (소계→합계 일치)
+- B: Cross-Table (P&L ↔ Channel ↔ DataKeeper)
+- C: Period Consistency (동일 기간)
+- D: Sign Conventions (비용/수익 부호)
+- E: Accounting Standards (GAAP, Grosmimi cutoff)
+- F: Materiality (벤치마크 범위 이탈)
+
+---
+
 ## References
 
+- `tools/codex_evaluator.py` — Codex Evaluator (--domain cfo)
 - `tools/cfo_harness.py` — Python harness (API 기반 자동화)
 - `.claude/skills/auditor/SKILL.md` — 감사관 스킬
 - `.claude/skills/golmani/SKILL.md` — 골만이 스킬
 - `workflows/cfo_financial_review.md` — 전체 SOP
+- `AGENTS.md` — Codex가 읽는 Evaluator 지침서 (CFO 섹션 포함)
 
 ## Ops Checklist (→ `_ops-framework/OPS_FRAMEWORK.md`)
 

@@ -1,24 +1,29 @@
 """
-Codex Evaluator — 제갈량 harness의 Evaluator 에이전트.
+Codex Evaluator — Cross-AI Harness Evaluator (Claude=Generator, Codex=Evaluator).
 
-WJ Test1 (Claude) = Generator, OpenAI Codex = Evaluator.
-Anthropic "Harness Design for Long-Running Apps" 패턴 적용.
+Supports 3 domain-specific audit modes:
+  - general: Code quality, security, logic errors (제갈량 harness)
+  - cfo: Financial model verification, AICPA/KICPA 6-point checklist (CFO harness)
+  - pipeliner: E2E pipeline dual-test verification, Maker-Checker cross-system (Pipeliner harness)
 
 Usage:
-    # 코드 리뷰 (Evaluator)
-    python tools/codex_evaluator.py audit --files tools/data_keeper.py tools/run_kpi_monthly.py
+    # General code audit
+    python tools/codex_evaluator.py audit --files tools/data_keeper.py
+
+    # CFO financial audit (골만이 output 검증)
+    python tools/codex_evaluator.py --domain cfo audit --files .tmp/cfo_sessions/golmani_output.json
+
+    # Pipeliner E2E audit (dual test results 검증)
+    python tools/codex_evaluator.py --domain pipeliner audit --files .tmp/dual_test/run_latest/merged_report.html
 
     # Sprint contract 검증
     python tools/codex_evaluator.py verify --contract .tmp/sprint_contract.md
 
-    # 자유 프롬프트
-    python tools/codex_evaluator.py ask "이 리포의 보안 취약점을 찾아줘"
+    # 도메인 특화 질문
+    python tools/codex_evaluator.py --domain cfo ask "Grosmimi Q1 Gross Margin이 85%로 나오는데 정상인가?"
 
     # JSON 출력 (파이프라인용)
-    python tools/codex_evaluator.py audit --files tools/data_keeper.py --json
-
-    # 이전 세션 이어서
-    python tools/codex_evaluator.py resume --thread-id <id> "수정한 부분 다시 검증해줘"
+    python tools/codex_evaluator.py --domain pipeliner audit --files report.json --json
 
 Env:
     OPENAI_API_KEY  — OpenAI API key (from .env)
@@ -78,6 +83,120 @@ For each criterion:
 - PARTIAL: implemented but with caveats (list them)
 
 Output a scorecard table and overall verdict."""
+
+# ─── Domain-specific Evaluator prompts ────────────────────────────
+
+CFO_AUDIT_SYSTEM = """You are an independent financial auditor (AICPA/KICPA dual-certified) for ORBI.
+You audit the output of "Golmani" (VP of Financial Modeling) with ZERO trust.
+Do NOT rely on Golmani's explanations — verify every number independently.
+
+## 6-Point Audit Checklist (ALL mandatory):
+
+A. ARITHMETIC — Every subtotal must sum to its parent total.
+   Revenue components = Total Revenue. Gross Profit = Revenue - COGS.
+   Percentages must match numerator/denominator (±0.1% rounding tolerance).
+
+B. CROSS-TABLE CONSISTENCY — Same metric across multiple tables must match.
+   P&L Revenue = Channel Breakdown Total = DataKeeper raw sum.
+   Any $1K+ discrepancy = MAJOR. Any $10K+ = CRITICAL.
+
+C. PERIOD CONSISTENCY — All tables must use the same date_from ~ date_to.
+   YoY/MoM base period must be correct.
+
+D. SIGN CONVENTIONS — Costs always positive or always negative (consistent).
+   Discounts are revenue deductions. Margins must be positive (flag if negative).
+
+E. ACCOUNTING STANDARDS
+   - Revenue Recognition: Gross Revenue before platform fees (ORBI standard)
+   - COGS: landed cost = FOB × 1.15 (NOT retail price)
+   - Grosmimi Price Cutoff: 2025-03-01 (different prices before/after)
+   - Operating vs Non-operating: ad spend = operating, FX = non-operating
+
+F. MATERIALITY & SANITY
+   | Metric | Normal | WARN | CRITICAL |
+   | Grosmimi Gross Margin | 68-72% | 60-80% | <55% or >85% |
+   | Amazon ACOS | 15-25% | 10-35% | <8% or >50% |
+   | MER | 10-20% | 8-28% | <5% or >35% |
+
+## Severity Classification:
+- CRITICAL: Numbers are wrong (arithmetic error, wrong period). MUST fix.
+- MAJOR: Significant inconsistency ($10K+ cross-table diff). Should fix.
+- MINOR: Small inconsistency (<$1K, rounding). CFO discretion.
+- INFO: Benchmark notes, methodology comments. Ignorable.
+
+## Output Format:
+```json
+{
+  "status": "PASS | WARN | FAIL",
+  "summary": "One-line verdict",
+  "findings": [{"id": "F001", "severity": "CRITICAL", "category": "A-F", "section": "...", "description": "...", "expected": "...", "actual": "...", "correction_needed": "..."}],
+  "corrections_required": ["F001"],
+  "approved_sections": ["..."]
+}
+```
+
+Be ruthless with numbers. $1 off in a total is a bug."""
+
+PIPELINER_AUDIT_SYSTEM = """You are an E2E pipeline verification specialist for ORBI's Creator Collab system.
+You audit the Maker-Checker dual test results for the influencer gifting pipeline.
+
+## Pipeline Architecture:
+8-stage pipeline: Syncly Discovery → Email → Gifting Form → Profile Review → Sample Select → Sample Sent → Fulfillment → Content Posted
+Systems: Airtable CRM, Shopify (draft orders/customers), PostgreSQL, n8n workflows, Gmail
+
+## Verification Criteria (per stage):
+
+### STAGE INTEGRITY (CRITICAL — any failure = FAIL)
+- Executor (Maker) action completed: record created/updated in target system
+- Verifier (Checker) independently confirmed: downstream state matches expected
+- Cross-system consistency: Airtable ↔ Shopify ↔ PostgreSQL all agree
+- Signal file written with correct stage metadata
+
+### DATA FLOW (HIGH)
+- Record IDs propagate correctly across systems (AT record ID → Shopify customer ID → PG row)
+- Email addresses match across all systems (no typo propagation)
+- Status transitions are valid (no skipped stages)
+- Timestamps are monotonically increasing per pipeline run
+
+### WEBHOOK/n8n HEALTH (MEDIUM)
+- n8n workflows are active and responding
+- Webhook response times < 15s (WARN if > 30s)
+- No "Task Runner Offer Expired" errors
+- Poll-based workflows (5min/30min/6hr) are on schedule
+
+### NEGATIVE TESTS (HIGH)
+- Records that should NOT exist don't exist (neg checks)
+- Duplicate submissions are rejected or idempotent
+- Invalid data is caught at entry (form validation)
+
+### CLEANUP (LOW)
+- Test data is cleaned up after run (unless --no-cleanup)
+- No orphaned records left in Airtable/Shopify/PG
+
+## Dual Test Stages to Verify:
+| Stage | Executor Creates | Verifier Checks |
+| seed | AT Creator record | AT Creator exists, AT Applicants absent, Shopify absent |
+| gifting | POST webhook → AT Applicant | AT Applicant exists, AT Creator status=Needs Review, Shopify customer, PG row, email match |
+| gifting2 | POST webhook → Draft Order | AT Draft Order ID present, AT Creator exists, PG updated |
+| sample_sent | AT status update | AT status changed, n8n WF active |
+
+## Output Format:
+```
+## Pipeline Audit — [run_id]
+
+### Stage Results
+| Stage | Executor | Verifier | Cross-System | Verdict |
+|-------|----------|----------|--------------|---------|
+| seed | PASS/FAIL | PASS/FAIL | PASS/FAIL | PASS/FAIL |
+
+### Issues Found
+1. **[CRITICAL]** Stage X: Executor PASS but Verifier FAIL — [details]
+
+### Overall: PASS / FAIL
+```
+
+Any executor-verifier disagreement (one PASS, other FAIL) is automatically CRITICAL.
+Silent failures (no error but wrong data) are worse than loud failures."""
 
 # ─── OpenAI API call (chat completions) ─────────────────────────────
 
@@ -151,6 +270,19 @@ def call_codex_exec(prompt: str, full_auto: bool = False, json_output: bool = Fa
 
 # ─── Commands ───────────────────────────────────────────────────────
 
+DOMAIN_PROMPTS = {
+    "general": AUDIT_SYSTEM,
+    "cfo": CFO_AUDIT_SYSTEM,
+    "pipeliner": PIPELINER_AUDIT_SYSTEM,
+}
+
+
+def _get_domain_prompt(args) -> str:
+    """Return the system prompt for the selected domain."""
+    domain = getattr(args, "domain", "general") or "general"
+    return DOMAIN_PROMPTS.get(domain, AUDIT_SYSTEM)
+
+
 def cmd_audit(args):
     """Audit specified files as Evaluator."""
     file_contents = []
@@ -168,15 +300,17 @@ def cmd_audit(args):
         else:
             file_contents.append(f"### {fp}\n(FILE NOT FOUND)")
 
+    system_prompt = _get_domain_prompt(args)
+    domain = getattr(args, "domain", "general") or "general"
     user_prompt = (
-        "Audit the following files. Apply hard thresholds. Be skeptical.\n\n"
+        f"[{domain.upper()} AUDIT] Audit the following files. Apply hard thresholds. Be skeptical.\n\n"
         + "\n\n".join(file_contents)
     )
 
     if args.use_codex:
-        result = call_codex_exec(f"[AUDIT MODE] {user_prompt}")
+        result = call_codex_exec(f"[{domain.upper()} AUDIT MODE] {user_prompt}")
     else:
-        result = call_openai(AUDIT_SYSTEM, user_prompt, model=args.model)
+        result = call_openai(system_prompt, user_prompt, model=args.model)
 
     _output(result, args)
 
@@ -191,8 +325,9 @@ def cmd_verify(args):
         sys.exit(1)
 
     contract = contract_path.read_text(encoding="utf-8")
+    domain = getattr(args, "domain", "general") or "general"
     user_prompt = (
-        "Verify this sprint contract against the current codebase.\n\n"
+        f"[{domain.upper()} VERIFY] Verify this sprint contract against the current codebase.\n\n"
         f"## Sprint Contract\n{contract}\n\n"
         "Check each acceptance criterion. Report PASS/FAIL/PARTIAL for each."
     )
@@ -207,11 +342,12 @@ def cmd_verify(args):
 
 def cmd_ask(args):
     """Free-form question to Evaluator."""
+    system_prompt = _get_domain_prompt(args)
     prompt = args.prompt
     if args.use_codex:
         result = call_codex_exec(prompt)
     else:
-        result = call_openai(AUDIT_SYSTEM, prompt, model=args.model)
+        result = call_openai(system_prompt, prompt, model=args.model)
 
     _output(result, args)
 
@@ -281,6 +417,8 @@ def main():
     parser.add_argument("--model", default="gpt-4.1", help="OpenAI model (default: gpt-4.1)")
     parser.add_argument("--use-codex", action="store_true", help="Use codex CLI instead of API")
     parser.add_argument("--json", dest="json_output", action="store_true", help="JSON output")
+    parser.add_argument("--domain", choices=["general", "cfo", "pipeliner"], default="general",
+                        help="Domain-specific audit mode (default: general)")
 
     sub = parser.add_subparsers(dest="command", required=True)
 

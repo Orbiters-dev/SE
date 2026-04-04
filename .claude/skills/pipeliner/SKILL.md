@@ -156,3 +156,52 @@ When "파이프라이너" is invoked, determine the appropriate action:
 | `docs/pipeline/tests-ko.html` | E2E test results documentation |
 
 Python path: `/c/Users/wjcho/AppData/Local/Programs/Python/Python312/python.exe`
+
+---
+
+## Codex Evaluator Integration (Cross-AI Harness)
+
+파이프라인 dual test 결과를 **OpenAI Codex (gpt-4.1)**에 위임하여 독립 검증한다.
+Claude가 Executor 역할로 테스트를 실행하면, Codex가 Verifier 결과를 교차 검증하여
+Executor-Verifier 불일치(한쪽 PASS, 다른 쪽 FAIL)를 자동 탐지.
+
+### Usage
+
+```bash
+# Dual test 결과를 Codex가 E2E 감사
+python tools/codex_evaluator.py --domain pipeliner audit --files .tmp/dual_test/run_latest/merged_report.html
+
+# Executor/Verifier 로그 개별 검증
+python tools/codex_evaluator.py --domain pipeliner audit --files .tmp/dual_test/run_latest/executor_log.json .tmp/dual_test/run_latest/verifier_log.json
+
+# 파이프라인 도메인 질문
+python tools/codex_evaluator.py --domain pipeliner ask "gifting stage에서 Shopify customer가 안 만들어지는 원인은?"
+
+# JSON output (CI/CD 연동용)
+python tools/codex_evaluator.py --domain pipeliner audit --files report.json --json
+```
+
+### Automated Pipeliner Loop
+
+```
+1. dual_test_runner.py --dual → Executor + Verifier 실행
+2. codex_evaluator.py --domain pipeliner audit → Codex가 교차 검증
+3. Pipeliner 결정:
+   - 전 스테이지 PASS → Pipeline HEALTHY
+   - 특정 스테이지 FAIL → 해당 스테이지 재실행 or n8n 진단
+   - Executor-Verifier 불일치 → CRITICAL (자동 escalate)
+```
+
+### What Codex Checks
+- **Stage Integrity**: Executor 액션 완료 + Verifier 독립 확인 일치
+- **Cross-System**: Airtable ↔ Shopify ↔ PostgreSQL 데이터 정합성
+- **Data Flow**: Record ID 전파, 이메일 일치, 상태 전이 유효성
+- **Negative Tests**: 존재하면 안 되는 레코드가 없는지 확인
+- **Webhook Health**: n8n 응답시간, Task Runner 상태
+
+### References
+
+- `tools/codex_evaluator.py` — Codex Evaluator (--domain pipeliner)
+- `AGENTS.md` — Codex가 읽는 Evaluator 지침서 (Pipeliner 섹션 포함)
+- `references/n8n-workflows.md` — PROD/WJ TEST workflow IDs
+- `references/troubleshooting.md` — 트러블슈팅 패턴

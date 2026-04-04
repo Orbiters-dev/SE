@@ -158,12 +158,26 @@ CFO (최종 결정)
 
 ---
 
+## Codex Evaluator (Cross-AI 독립 검증)
+
+감사관 역할을 **OpenAI Codex (gpt-4.1)**에도 위임 가능.
+Claude 감사관이 한 번 검토한 후, Codex가 동일 산출물을 독립 재검토하면 이중 감사 완성.
+
+```bash
+# Codex에게 CFO 도메인 감사 위임
+python tools/codex_evaluator.py --domain cfo audit --files .tmp/cfo_sessions/golmani_output.json
+```
+
+---
+
 ## References
 
+- `tools/codex_evaluator.py` — Codex Evaluator (--domain cfo)
 - `tools/cfo_harness.py` — 자동화 하네스 (AUDITOR_SYSTEM 프롬프트 포함)
 - `.claude/skills/cfo/SKILL.md` — CFO 오케스트레이터
 - `.claude/skills/golmani/SKILL.md` — 골만이 (검토 대상)
 - `workflows/cfo_financial_review.md` — 전체 SOP
+- `AGENTS.md` — Codex가 읽는 Evaluator 지침서
 
 ## Ops Checklist (→ `_ops-framework/OPS_FRAMEWORK.md`)
 
