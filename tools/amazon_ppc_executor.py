@@ -189,14 +189,21 @@ def _apply_brand_config(brand_key: str):
     TARGETING_CONFIG["AUTO"]["budget_share"] = cfg["targeting"]["AUTO"]["budget_share"]
     # Apply dashboard config override (set by user in PPC dashboard UI)
     dash = load_dashboard_config().get(brand_key, {})
-    if dash.get("daily_budget"):
-        TOTAL_DAILY_BUDGET_USD = float(dash["daily_budget"])
-    if dash.get("max_bid"):
-        MAX_BID_USD = float(dash["max_bid"])
-    if dash.get("manual_acos"):
-        TARGETING_CONFIG["MANUAL"]["target_acos"] = float(dash["manual_acos"])
-    if dash.get("auto_acos"):
-        TARGETING_CONFIG["AUTO"]["target_acos"] = float(dash["auto_acos"])
+    if dash:
+        if dash.get("daily_budget"):
+            TOTAL_DAILY_BUDGET_USD = float(dash["daily_budget"])
+        if dash.get("max_campaign"):
+            MAX_SINGLE_CAMPAIGN_BUDGET = float(dash["max_campaign"])
+        if dash.get("max_bid"):
+            MAX_BID_USD = float(dash["max_bid"])
+        if dash.get("manual_acos"):
+            TARGETING_CONFIG["MANUAL"]["target_acos"] = float(dash["manual_acos"])
+        if dash.get("auto_acos"):
+            TARGETING_CONFIG["AUTO"]["target_acos"] = float(dash["auto_acos"])
+        if dash.get("target_roas"):
+            TARGETING_CONFIG["MANUAL"]["min_roas"] = float(dash["target_roas"])
+            TARGETING_CONFIG["AUTO"]["min_roas"] = float(dash["target_roas"])
+        print(f"  [CONFIG] Dashboard override for {brand_key}: budget=${TOTAL_DAILY_BUDGET_USD}, max_camp=${MAX_SINGLE_CAMPAIGN_BUDGET}, max_bid=${MAX_BID_USD}, manual_acos={TARGETING_CONFIG['MANUAL']['target_acos']}%, auto_acos={TARGETING_CONFIG['AUTO']['target_acos']}%")
 
 # --- Keyword-level Bid Presets ---
 BID_PRESETS = {
