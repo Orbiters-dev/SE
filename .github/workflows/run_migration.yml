@@ -2,100 +2,31 @@ name: Run DB Migration
 on:
   workflow_dispatch:
 
-env:
-  INSTANCE_ID: i-0858c9609a113efe1
-  EC2_HOST: 43.201.110.115
-  EC2_AZ: ap-northeast-2a
-
 jobs:
   migrate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure AWS
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
-
-      - name: Check AWS CLI version
-        run: aws --version
-
-      - name: Try EC2 Instance Connect SSH (v2 built-in)
-        id: eice_ssh
-        continue-on-error: true
+      - name: Setup SSH key
         run: |
-          # Try direct connection type (aws cli v2 handles key gen + push + ssh)
-          aws ec2-instance-connect ssh \
-            --instance-id $INSTANCE_ID \
-            --os-user ubuntu \
-            --connection-type direct \
-            -- "echo 'SSH connection successful'"
-
-      - name: Fallback — manual key push + SSH
-        if: steps.eice_ssh.outcome == 'failure'
-        id: manual_ssh
-        run: |
-          echo "EICE SSH failed, trying manual approach..."
-          ssh-keygen -t ed25519 -f /tmp/ec2_key -N "" -q
-
-          aws ec2-instance-connect send-ssh-public-key \
-            --instance-id $INSTANCE_ID \
-            --instance-os-user ubuntu \
-            --ssh-public-key file:///tmp/ec2_key.pub \
-            --availability-zone $EC2_AZ
-
-          # Immediate SSH within 60s window
-          ssh -v -o StrictHostKeyChecking=no -o ConnectTimeout=15 \
-            -i /tmp/ec2_key ubuntu@$EC2_HOST "echo 'Manual SSH connection successful'"
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key
+          chmod 600 ~/.ssh/ec2_key
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Run ALTER TABLE migration
         run: |
-          # Determine which SSH method works
-          if [ "${{ steps.eice_ssh.outcome }}" == "success" ]; then
-            SSH_CMD="aws ec2-instance-connect ssh --instance-id $INSTANCE_ID --os-user ubuntu --connection-type direct --"
-          else
-            # Re-push key for new 60s window
-            aws ec2-instance-connect send-ssh-public-key \
-              --instance-id $INSTANCE_ID \
-              --instance-os-user ubuntu \
-              --ssh-public-key file:///tmp/ec2_key.pub \
-              --availability-zone $EC2_AZ
-            SSH_CMD="ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15 -i /tmp/ec2_key ubuntu@$EC2_HOST"
-          fi
-
-          $SSH_CMD "sudo -u postgres psql -d export_calculator -f -" < onzenna/migrations/add_creator_master_list_fields.sql
-
-          echo "Migration SQL executed successfully"
+          ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} \
+            "sudo -u postgres psql -d export_calculator -f -" \
+            < onzenna/migrations/add_creator_master_list_fields.sql
 
       - name: Deploy updated Django code
         run: |
-          if [ "${{ steps.eice_ssh.outcome }}" == "success" ]; then
-            SSH_CMD="aws ec2-instance-connect ssh --instance-id $INSTANCE_ID --os-user ubuntu --connection-type direct --"
-          else
-            aws ec2-instance-connect send-ssh-public-key \
-              --instance-id $INSTANCE_ID \
-              --instance-os-user ubuntu \
-              --ssh-public-key file:///tmp/ec2_key.pub \
-              --availability-zone $EC2_AZ
-            SSH_CMD="ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15 -i /tmp/ec2_key ubuntu@$EC2_HOST"
-          fi
-
-          $SSH_CMD "cd /home/ubuntu/export_calculator && git fetch origin main && git checkout origin/main -- onzenna/models.py onzenna/views.py onzenna/urls.py && sudo systemctl restart gunicorn && echo 'Deploy complete — gunicorn restarted'"
+          ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} \
+            "cd /home/ubuntu/export_calculator && git fetch origin main && git checkout origin/main -- onzenna/models.py onzenna/views.py onzenna/urls.py && sudo systemctl restart gunicorn && echo 'Deploy complete'"
 
       - name: Verify columns
         run: |
-          if [ "${{ steps.eice_ssh.outcome }}" == "success" ]; then
-            SSH_CMD="aws ec2-instance-connect ssh --instance-id $INSTANCE_ID --os-user ubuntu --connection-type direct --"
-          else
-            aws ec2-instance-connect send-ssh-public-key \
-              --instance-id $INSTANCE_ID \
-              --instance-os-user ubuntu \
-              --ssh-public-key file:///tmp/ec2_key.pub \
-              --availability-zone $EC2_AZ
-            SSH_CMD="ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15 -i /tmp/ec2_key ubuntu@$EC2_HOST"
-          fi
-
-          $SSH_CMD "sudo -u postgres psql -d export_calculator -c \"SELECT column_name FROM information_schema.columns WHERE table_name='onz_pipeline_creators' ORDER BY ordinal_position;\""
+          ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} \
+            "sudo -u postgres psql -d export_calculator -c \"SELECT column_name FROM information_schema.columns WHERE table_name='onz_pipeline_creators' ORDER BY ordinal_position;\""
