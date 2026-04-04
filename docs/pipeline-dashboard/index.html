@@ -581,53 +581,53 @@ Shopify                         Apify / Syncly                   Gmail RAG
           <div id="syncly-content-result" style="display:none;margin-top:6px;padding:6px 10px;border-radius:6px;font-size:10px;background:var(--bg)"></div>
         </div>
       </div>
-      <!-- Data Sync Status (NEW — moved from Execution) -->
+      <!-- Data Freshness — read-only status from last pipeline runs -->
       <div class="card">
-        <h3>&#x1F4E1; Data Sync Status</h3>
-        <div class="desc">Content Intelligence &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778; &#xB370;&#xC774;&#xD130; &#xC18C;&#xC2A4;. &#xC790;&#xB3D9; &#xC2A4;&#xCF00;&#xC904; + &#xC218;&#xB3D9; &#xD2B8;&#xB9AC;&#xAC70;.</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;margin-top:8px">
-          <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg)">
-            <span style="font-size:14px">&#x1F577;&#xFE0F;</span>
-            <div style="flex:1">
-              <div style="font-size:10px;font-weight:700">Apify Content Crawl</div>
-              <div style="font-size:9px;color:var(--dim)">last: <b id="ts-apify" style="color:var(--g)">--</b></div>
+        <h3>&#x1F4E1; Data Freshness</h3>
+        <div class="desc">&#xAC01; &#xB370;&#xC774;&#xD130; &#xC18C;&#xC2A4;&#xC758; &#xB9C8;&#xC9C0;&#xB9C9; &#xC218;&#xC9D1; &#xC2DC;&#xC810; + &#xB808;&#xCF54;&#xB4DC; &#xC218;. &#xC704; Batch Pipeline&#xC5D0;&#xC11C; Pull/Import &#xC2E4;&#xD589; &#xC2DC; &#xC790;&#xB3D9; &#xAC31;&#xC2E0;.</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:8px" id="ds-freshness-grid">
+          <div style="padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg)">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:14px">&#x1F577;&#xFE0F;</span>
+              <div style="font-size:10px;font-weight:700">Apify / Content Posts</div>
             </div>
-            <button class="btn btn-sm btn-secondary" onclick="execAction('apify_crawl')" style="font-size:9px;padding:3px 8px">Run</button>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg)">
-            <span style="font-size:14px">&#x1F504;</span>
-            <div style="flex:1">
-              <div style="font-size:10px;font-weight:700">Syncly D+60</div>
-              <div style="font-size:9px;color:var(--dim)">last: <b id="ts-syncly" style="color:var(--g)">--</b></div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:9px">
+              <span style="color:var(--dim)">last: <b id="ts-apify" style="color:var(--muted)">--</b></span>
+              <span id="ts-apify-cnt" style="color:var(--muted)">-- rows</span>
             </div>
-            <button class="btn btn-sm btn-secondary" onclick="execAction('syncly_sync')" style="font-size:9px;padding:3px 8px">Run</button>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg)">
-            <span style="font-size:14px">&#x1F4CA;</span>
-            <div style="flex:1">
-              <div style="font-size:10px;font-weight:700">SNS Tab</div>
-              <div style="font-size:9px;color:var(--dim)">last: <b id="ts-sns" style="color:var(--g)">--</b></div>
+          <div style="padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg)">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:14px">&#x1F6D2;</span>
+              <div style="font-size:10px;font-weight:700">Shopify PR Orders</div>
             </div>
-            <button class="btn btn-sm btn-secondary" onclick="execAction('sns_sync')" style="font-size:9px;padding:3px 8px">Run</button>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg)">
-            <span style="font-size:14px">&#x1F4E7;</span>
-            <div style="flex:1">
-              <div style="font-size:10px;font-weight:700">Gmail RAG</div>
-              <div style="font-size:9px;color:var(--dim)">last: <b id="ts-gmail" style="color:var(--g)">--</b></div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:9px">
+              <span style="color:var(--dim)">last: <b id="ts-shopify-pr" style="color:var(--muted)">--</b></span>
+              <span id="ts-shopify-pr-cnt" style="color:var(--muted)">-- rows</span>
             </div>
-            <button class="btn btn-sm btn-secondary" onclick="execAction('gmail_sync')" style="font-size:9px;padding:3px 8px">Run</button>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg)">
-            <span style="font-size:14px">&#x1F50E;</span>
-            <div style="flex:1">
+          <div style="padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg)">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:14px">&#x1F4E7;</span>
+              <div style="font-size:10px;font-weight:700">Gmail Contacts</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:9px">
+              <span style="color:var(--dim)">last: <b id="ts-gmail" style="color:var(--muted)">--</b></span>
+              <span id="ts-gmail-cnt" style="color:var(--muted)">-- rows</span>
+            </div>
+          </div>
+          <div style="padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg)">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:14px">&#x1F50E;</span>
               <div style="font-size:10px;font-weight:700">Syncly Discovery</div>
-              <div style="font-size:9px;color:var(--dim)">last: <b id="ts-syncly-disc" style="color:var(--g)">--</b></div>
             </div>
-            <button class="btn btn-sm btn-secondary" onclick="execAction('syncly_discovery')" style="font-size:9px;padding:3px 8px">Run</button>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:9px">
+              <span style="color:var(--dim)">last: <b id="ts-syncly-disc" style="color:var(--muted)">--</b></span>
+              <span id="ts-syncly-disc-cnt" style="color:var(--muted)">-- creators</span>
+            </div>
           </div>
         </div>
-        <div style="margin-top:6px;font-size:9px;color:var(--muted)">Schedule: Apify &#xD3C9;&#xC77C; KST 08:00 | Syncly D+60 &#xB9E4;&#xC77C; | SNS Tab &#xB9E4;&#xC77C; | Gmail &#xB9E4;&#xC77C;</div>
+        <div style="margin-top:6px;font-size:9px;color:var(--muted)">&#x1F7E2; &lt;24h | &#x1F7E1; 1-3&#xC77C; | &#x1F534; 3&#xC77C;+ &#xBBF8;&#xAC31;&#xC2E0; &mdash; &#xC790;&#xB3D9; &#xC2A4;&#xCF00;&#xC904;: Apify &#xD3C9;&#xC77C; KST 08:00 | Gmail &#xB9E4;&#xC77C;</div>
       </div>
       <!-- Cross-Check: match creators against all data sources -->
       <div class="card">
@@ -1380,6 +1380,19 @@ async function loadOverviewFunnel(){
     if(ds.syncly){var f=fmtFresh(ds.syncly.last_collected);el=document.getElementById('hw-ts-syncly');if(el){el.textContent=f.text;el.style.color=f.color;}}
     if(ds.apify){var f=fmtFresh(ds.apify.last_collected);el=document.getElementById('hw-ts-apify');if(el){el.textContent=f.text;el.style.color=f.color;}el=document.getElementById('hw-cnt-apify');if(el)el.textContent=ds.apify.count+' posts';}
     if(ds.gmail){var f=fmtFresh(ds.gmail.last_collected);el=document.getElementById('hw-ts-gmail');if(el){el.textContent=f.text;el.style.color=f.color;}el=document.getElementById('hw-cnt-gmail');if(el)el.textContent=ds.gmail.count+' contacts';}
+    // Config tab — Data Freshness card
+    function _setFresh(idTs,idCnt,src,unit){
+      if(!src)return;
+      var f=fmtFresh(src.last_collected);
+      el=document.getElementById(idTs);if(el){el.textContent=f.text;el.style.color=f.color;}
+      el=document.getElementById(idCnt);if(el)el.textContent=(src.count||0).toLocaleString()+' '+unit;
+    }
+    _setFresh('ts-apify','ts-apify-cnt',ds.apify,'rows');
+    _setFresh('ts-shopify-pr','ts-shopify-pr-cnt',ds.shopify_pr,'rows');
+    _setFresh('ts-gmail','ts-gmail-cnt',ds.gmail,'contacts');
+    // Syncly discovery = total Not Started creators count
+    el=document.getElementById('ts-syncly-disc');if(el){el.textContent=st.total?new Date().toISOString().slice(0,10):'--';el.style.color='var(--g)';}
+    el=document.getElementById('ts-syncly-disc-cnt');if(el)el.textContent=(st.by_status&&st.by_status['Not Started']||0).toLocaleString()+' creators';
   }catch(e){
     document.getElementById('dash-funnel').innerHTML='<span style="color:var(--muted);font-size:11px">—</span>';
   }
@@ -2762,28 +2775,8 @@ async function loadExecLog(){
 }
 
 function updateCrawlTimestamps(logs){
-  var map={syncly_discovery:'ts-syncly-disc',apify_crawl:'ts-apify',syncly_sync:'ts-syncly',sns_sync:'ts-sns',gmail_sync:'ts-gmail'};
-  var latest={};
-  for(var i=0;i<logs.length;i++){
-    var l=logs[i];
-    if(l.status==='success'&&map[l.action_type]&&!latest[l.action_type]){
-      latest[l.action_type]=l.started_at;
-    }
-  }
-  for(var action in map){
-    var el=document.getElementById(map[action]);
-    if(!el)continue;
-    if(latest[action]){
-      var d=new Date(latest[action]);
-      el.textContent=d.toLocaleString('en-US',{timeZone:'America/Los_Angeles',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:true})+' PST';
-      // highlight if older than 26 hours
-      var age=(Date.now()-d.getTime())/3600000;
-      el.style.color=age>26?'var(--r)':age>13?'var(--am)':'var(--g)';
-    }else{
-      el.textContent='never';
-      el.style.color='var(--r)';
-    }
-  }
+  // Data Freshness card is now populated from stats API data_sources.
+  // This function is kept for backward compat but no longer overwrites freshness IDs.
 }
 
 // ========== BRAND FORMS CRUD ==========

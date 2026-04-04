@@ -1117,6 +1117,21 @@ def pipeline_creators_stats(request):
         email__endswith="@discovered.syncly"
     ).count()
 
+    # Discovery date breakdown (Not Started only, for batch dropdown)
+    from django.db.models.functions import TruncDate
+    discovery_date_qs = (
+        PipelineCreator.objects
+        .filter(pipeline_status='Not Started')
+        .exclude(initial_discovery_date__isnull=True)
+        .values('initial_discovery_date')
+        .annotate(c=Count('id'))
+        .order_by('-initial_discovery_date')
+    )
+    by_discovery_date = {}
+    for row in discovery_date_qs:
+        d = row['initial_discovery_date']
+        by_discovery_date[str(d)] = row['c']
+
     # Cross-check summary
     shopify_pr_count = PipelineCreator.objects.filter(is_shopify_pr=True).count()
     apify_tagged_count = PipelineCreator.objects.filter(is_apify_tagged=True).count()
@@ -1162,6 +1177,7 @@ def pipeline_creators_stats(request):
         "apify_tagged_count": apify_tagged_count,
         "manychat_count": manychat_count,
         "data_sources": data_sources,
+        "by_discovery_date": by_discovery_date,
     }))
 
 
