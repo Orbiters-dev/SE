@@ -1,0 +1,70 @@
+name: PPC Email Reply Check
+
+on:
+  schedule:
+    # Every 2 hours during business hours (KST 8AM-10PM = UTC 23,1,3,5,7,9,11,13)
+    - cron: '0 23,1,3,5,7,9,11,13 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests python-dotenv google-auth google-auth-oauthlib google-api-python-client
+
+      - name: Write credentials
+        run: |
+          cat > .env << ENVEOF
+          AMZ_ADS_CLIENT_ID=${{ secrets.AMZ_ADS_CLIENT_ID }}
+          AMZ_ADS_CLIENT_SECRET=${{ secrets.AMZ_ADS_CLIENT_SECRET }}
+          AMZ_ADS_REFRESH_TOKEN=${{ secrets.AMZ_ADS_REFRESH_TOKEN }}
+          AMZ_SP_CLIENT_ID=${{ secrets.AMZ_SP_CLIENT_ID }}
+          AMZ_SP_CLIENT_SECRET=${{ secrets.AMZ_SP_CLIENT_SECRET }}
+          AMZ_SP_REFRESH_TOKEN_FLEETERS=${{ secrets.AMZ_SP_REFRESH_TOKEN_FLEETERS }}
+          AMZ_SP_REFRESH_TOKEN_GROSMIMI=${{ secrets.AMZ_SP_REFRESH_TOKEN_GROSMIMI }}
+          AMZ_SP_REFRESH_TOKEN_ORBITOOL=${{ secrets.AMZ_SP_REFRESH_TOKEN_ORBITOOL }}
+          ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
+          ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
+          PPC_REPORT_RECIPIENT=${{ secrets.PPC_REPORT_RECIPIENT }}
+          ENVEOF
+
+          # Gmail OAuth
+          echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials.json
+          echo '${{ secrets.GMAIL_TOKEN_JSON }}' > token.json
+
+      - name: Check email replies and auto-execute
+        run: |
+          echo "=== Checking for execute replies ==="
+          python -u tools/amazon_ppc_executor.py --check-execute --to "$PPC_REPORT_RECIPIENT" 2>&1 || echo "[WARN] Check-execute finished with issues"
+        env:
+          PPC_REPORT_RECIPIENT: ${{ secrets.PPC_REPORT_RECIPIENT }}
+
+      - name: Push updated data if executed
+        run: |
+          # If any executions happened, regenerate dashboard data and push
+          if ls .tmp/ppc_executed_*.json 1>/dev/null 2>&1; then
+            echo "=== Executions detected, regenerating dashboard data ==="
+            python -u tools/generate_dashboard_data.py 2>&1 || true
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add docs/ppc-dashboard/data.js docs/ppc-dashboard/bt_data.js docs/ppc-dashboard/exec_log.json
+            git diff --cached --quiet || git commit -m "auto: execute PPC changes via email reply [skip ci]"
+            git pull --rebase || true
+            git push || echo "[WARN] Push failed"
+          else
+            echo "=== No executions, nothing to push ==="
+          fi
