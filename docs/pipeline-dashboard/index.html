@@ -1028,7 +1028,12 @@ Shopify                         Apify / Syncly                   Gmail RAG
       <div class="stat cyan"><div class="sl">&#x1F577;&#xFE0F; Apify Tagged</div><div class="sv" id="cs-apify">-</div></div>
       <div class="stat"><div class="sl">This Week</div><div class="sv" id="cs-week">-</div></div>
     </div>
-    <div style="text-align:right;font-size:9px;color:var(--muted)" id="cs-updated">Last updated: -</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:2px 0">
+      <label style="font-size:9px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:4px">
+        <input type="checkbox" id="cr-autorefresh" onchange="toggleAutoRefresh(this.checked)" style="width:12px;height:12px"> Auto-refresh (30s)
+      </label>
+      <div style="font-size:9px;color:var(--muted)" id="cs-updated">Last updated: -</div>
+    </div>
     <div class="filter-bar">
       <input type="text" id="cr-search" placeholder="Search handle, email, name..." onkeydown="if(event.key==='Enter')loadCreators()">
       <select id="cr-status" onchange="_crStatusFilter=this.value;if(_lastStats){buildFunnel(_lastStats.by_status,'dash-funnel',this.value);}if(this.value)location.hash='creators/'+encodeURIComponent(this.value);else location.hash='creators';loadCreators()">
@@ -1359,6 +1364,22 @@ async function loadOverviewFunnel(){
     var confirmedCount=st.total-discoveredCount;
     el=document.getElementById('hw-master-confirmed');if(el)el.innerHTML='\uD83D\uDFE2 <b>'+confirmedCount+'</b> \uC774\uBA54\uC77C \uD655\uC778';
     el=document.getElementById('hw-master-unknown');if(el)el.innerHTML='\uD83D\uDFE1 <b>'+discoveredCount+'</b> \uBBF8\uD655\uC778';
+    // Source-level counts from cross-check flags
+    el=document.getElementById('hw-cnt-syncly');if(el)el.textContent=(st.total||0)+' creators';
+    el=document.getElementById('hw-cnt-shopify');if(el)el.textContent=(st.shopify_pr_count||0)+' PR orders';
+    // Data source freshness from gk_* tables
+    var ds=st.data_sources||{};
+    function fmtFresh(ts){
+      if(!ts)return{text:'--',color:'var(--muted)'};
+      var d=new Date(ts),now=new Date(),diffH=(now-d)/(1000*3600);
+      var dd=ts.substring(0,10);
+      if(diffH<24)return{text:dd,color:'var(--g)'};
+      if(diffH<72)return{text:dd,color:'var(--y)'};
+      return{text:dd,color:'var(--r)'};
+    }
+    if(ds.syncly){var f=fmtFresh(ds.syncly.last_collected);el=document.getElementById('hw-ts-syncly');if(el){el.textContent=f.text;el.style.color=f.color;}}
+    if(ds.apify){var f=fmtFresh(ds.apify.last_collected);el=document.getElementById('hw-ts-apify');if(el){el.textContent=f.text;el.style.color=f.color;}el=document.getElementById('hw-cnt-apify');if(el)el.textContent=ds.apify.count+' posts';}
+    if(ds.gmail){var f=fmtFresh(ds.gmail.last_collected);el=document.getElementById('hw-ts-gmail');if(el){el.textContent=f.text;el.style.color=f.color;}el=document.getElementById('hw-cnt-gmail');if(el)el.textContent=ds.gmail.count+' contacts';}
   }catch(e){
     document.getElementById('dash-funnel').innerHTML='<span style="color:var(--muted);font-size:11px">—</span>';
   }
@@ -1792,6 +1813,11 @@ async function loadCreatorStats(){
     document.getElementById('pill-total').textContent=st.total+' creators';
     buildFunnel(st.by_status,'dash-funnel',_crStatusFilter);
   }catch(e){console.error('Stats error:',e)}
+}
+var _crAutoRefreshId=null;
+function toggleAutoRefresh(on){
+  if(_crAutoRefreshId){clearInterval(_crAutoRefreshId);_crAutoRefreshId=null;}
+  if(on){_crAutoRefreshId=setInterval(function(){loadCreators();loadCreatorStats();},30000);}
 }
 
 // HIL = stages where marketer must take action for pipeline to proceed

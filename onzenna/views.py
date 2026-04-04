@@ -1109,6 +1109,33 @@ def pipeline_creators_stats(request):
     apify_tagged_count = PipelineCreator.objects.filter(is_apify_tagged=True).count()
     manychat_count = PipelineCreator.objects.filter(is_manychat_contact=True).count()
 
+    # Data source freshness (from gk_* tables)
+    from django.db import connection
+    data_sources = {}
+    try:
+        with connection.cursor() as cur:
+            # Syncly (source='syncly' in content_posts)
+            cur.execute("SELECT COUNT(*), MAX(collected_at) FROM gk_content_posts WHERE source='syncly'")
+            row = cur.fetchone()
+            data_sources["syncly"] = {"count": row[0] or 0, "last_collected": str(row[1]) if row[1] else None}
+
+            # Apify (source='apify' or all posts)
+            cur.execute("SELECT COUNT(*), MAX(collected_at) FROM gk_content_posts")
+            row = cur.fetchone()
+            data_sources["apify"] = {"count": row[0] or 0, "last_collected": str(row[1]) if row[1] else None}
+
+            # Shopify PR orders
+            cur.execute("SELECT COUNT(*), MAX(collected_at) FROM gk_influencer_orders")
+            row = cur.fetchone()
+            data_sources["shopify_pr"] = {"count": row[0] or 0, "last_collected": str(row[1]) if row[1] else None}
+
+            # Gmail contacts
+            cur.execute("SELECT COUNT(*), MAX(synced_at) FROM gk_gmail_contacts")
+            row = cur.fetchone()
+            data_sources["gmail"] = {"count": row[0] or 0, "last_collected": str(row[1]) if row[1] else None}
+    except Exception:
+        pass  # gk_ tables may not exist in all envs
+
     return _cors_headers(request, JsonResponse({
         "total": total,
         "by_status": status_counts,
@@ -1121,6 +1148,7 @@ def pipeline_creators_stats(request):
         "shopify_pr_count": shopify_pr_count,
         "apify_tagged_count": apify_tagged_count,
         "manychat_count": manychat_count,
+        "data_sources": data_sources,
     }))
 
 
