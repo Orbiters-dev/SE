@@ -14,8 +14,6 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key
           chmod 600 ~/.ssh/ec2_key
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
-
-          # Setup SSH multiplexing for persistent connection
           cat >> ~/.ssh/config << EOF
           Host ec2
             HostName ${{ secrets.EC2_HOST }}
@@ -26,23 +24,35 @@ jobs:
             ControlPersist 300
           EOF
 
-      - name: Run migration + deploy + restart (single session)
+      - name: Run migration + deploy + restart
         run: |
-          # Step 1: Run migration SQL
-          echo "=== Running ALTER TABLE migration ==="
+          # Step 1: Migration SQL
+          echo "=== Running ALTER TABLE ==="
           cat onzenna/migrations/add_creator_master_list_fields.sql | \
             ssh ec2 "PGPASSWORD=orbit1234 psql -h 172.31.13.240 -U es_db_user -d export_calculator_db -f -"
 
           # Step 2: Deploy files
-          echo "=== Deploying updated Django files ==="
+          echo "=== Deploying files ==="
           tar czf - onzenna/models.py onzenna/views.py onzenna/urls.py | \
             ssh ec2 "cd /home/ubuntu/export_calculator && tar xzf -"
           echo "Files deployed"
 
-          # Step 3: Restart gunicorn
+          # Step 3: Restart gunicorn using a remote script to avoid self-kill
           echo "=== Restarting gunicorn ==="
-          ssh ec2 'cd /home/ubuntu/export_calculator && pkill -f "gunicorn.*export_calculator" || true && sleep 2 && python3 -m gunicorn --workers=1 --timeout=600 --bind 0.0.0.0:8000 --daemon export_calculator.wsgi:application && sleep 3 && pgrep -f "gunicorn.*export_calculator" && echo "Gunicorn OK"'
+          ssh ec2 'bash -c "
+            PIDS=\$(pgrep -f \"[g]unicorn.*wsgi\")
+            if [ -n \"\$PIDS\" ]; then
+              echo \"Killing gunicorn PIDs: \$PIDS\"
+              kill \$PIDS
+              sleep 2
+            fi
+            cd /home/ubuntu/export_calculator
+            nohup python3 -m gunicorn --workers=1 --timeout=600 --bind 0.0.0.0:8000 --daemon export_calculator.wsgi:application
+            sleep 3
+            NEW_PIDS=\$(pgrep -f \"[g]unicorn.*wsgi\")
+            echo \"New gunicorn PIDs: \$NEW_PIDS\"
+          "'
 
-          # Step 4: Verify API
+          # Step 4: Verify
           echo "=== Verifying API ==="
           ssh ec2 'curl -sf -u admin:admin http://localhost:8000/api/onzenna/pipeline/creators/stats/ | python3 -m json.tool'
