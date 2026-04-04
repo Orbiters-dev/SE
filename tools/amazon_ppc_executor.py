@@ -2300,7 +2300,7 @@ def analyze_campaigns(campaigns: List[Dict], report_rows: List[Dict]) -> tuple:
 
     # Underspend detection: actual 7d daily avg vs budget target
     cfg = _cfg()
-    target_daily = cfg["total_daily_budget"]
+    target_daily = TOTAL_DAILY_BUDGET_USD
     actual_daily_7d = summary["7d"]["spend"] / 7 if summary["7d"]["spend"] > 0 else 0
     if target_daily > 0 and actual_daily_7d > 0:
         utilization = actual_daily_7d / target_daily * 100
@@ -2956,7 +2956,7 @@ def print_proposal_summary(proposals: List[Dict], brand_key: str = "naeiae"):
     cfg = BRAND_CONFIGS[brand_key]
     print(f"\n{'='*70}")
     print(f"  {cfg['brand_display']} ({cfg['seller_name']}) PPC Change Proposals - {date.today()}")
-    print(f"  Daily Budget Cap: ${cfg['total_daily_budget']} (Manual 60% / Auto 40%)")
+    print(f"  Daily Budget Cap: ${TOTAL_DAILY_BUDGET_USD} (Manual 60% / Auto 40%) | Camp Cap: ${MAX_SINGLE_CAMPAIGN_BUDGET}")
     print(f"{'='*70}")
 
     # Type breakdown
@@ -4712,7 +4712,7 @@ def build_proposal_html(proposals: List[Dict],
         <strong>Data Sources:</strong> {sources_str}
     </div>
     <h2 style="color:#333;">{cfg['brand_display']} ({cfg['seller_name']}) PPC Daily Proposal</h2>
-    <p style="color:#666;">Generated: {now} | Daily Budget: ${cfg['total_daily_budget']:,.0f} | ACOS targets: Manual {cfg['targeting']['MANUAL']['target_acos']}% / Auto {cfg['targeting']['AUTO']['target_acos']}%</p>
+    <p style="color:#666;">Generated: {now} | Daily Budget: ${TOTAL_DAILY_BUDGET_USD:,.0f} | Camp Cap: ${MAX_SINGLE_CAMPAIGN_BUDGET:,.0f} | ACOS targets: Manual {TARGETING_CONFIG['MANUAL']['target_acos']}% / Auto {TARGETING_CONFIG['AUTO']['target_acos']}%</p>
 
     {summary_html}
 
@@ -5677,7 +5677,7 @@ def run_propose_single(args, brand_key: str):
 
     print(f"\n{'#'*70}")
     print(f"  {brand_display} ({cfg['seller_name']}) - Proposal Analysis")
-    print(f"  Budget: ${cfg['total_daily_budget']:,.0f}/day | ACOS targets: Manual {cfg['targeting']['MANUAL']['target_acos']}% / Auto {cfg['targeting']['AUTO']['target_acos']}%")
+    print(f"  Budget: ${TOTAL_DAILY_BUDGET_USD:,.0f}/day | Camp Cap: ${MAX_SINGLE_CAMPAIGN_BUDGET:,.0f} | ACOS targets: Manual {TARGETING_CONFIG['MANUAL']['target_acos']}% / Auto {TARGETING_CONFIG['AUTO']['target_acos']}%")
     print(f"{'#'*70}")
 
     print(f"\n[1/7] Finding {cfg['seller_name']} profile...")
