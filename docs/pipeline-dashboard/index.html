@@ -2551,20 +2551,23 @@ async function bulkReview(newStatus){
   }catch(e){showToast('Review failed: '+e.message,'err')}
 }
 
-function loadReviewHistory(){
+async function loadReviewHistory(){
   var histEl=document.getElementById('rq-history');
-  // Show review actions from exec log
-  var reviewLogs=DEMO_EXEC_LOG.filter(function(l){return l.action_type==='review_accept'||l.action_type==='review_decline'});
-  if(reviewLogs.length===0){histEl.innerHTML='';return}
-  var html='<div style="margin-top:6px;font-size:10px;font-weight:700;color:var(--dim)">Review History</div>';
-  for(var i=0;i<reviewLogs.length;i++){
-    var l=reviewLogs[i];
-    var ts=new Date(l.started_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-    var isAccept=l.action_type==='review_accept';
-    var det;try{det=JSON.parse(l.details)}catch(e){det={}}
-    html+='<div class="log-entry"><span class="ts">'+ts+'</span><span class="msg"><span class="b '+(isAccept?'g':'r')+'">'+(isAccept?'ACCEPTED':'DECLINED')+'</span> '+l.target_count+' creators by <b>'+esc(l.triggered_by)+'</b>'+(det.note?' &mdash; "'+esc(det.note)+'"':'')+'</span></div>';
-  }
-  histEl.innerHTML=html;
+  try{
+    var data=await apiFetch('/pipeline/execution/log/?limit=50');
+    var logs=data.results||data||[];
+    var reviewLogs=logs.filter(function(l){return l.action_type==='review_accept'||l.action_type==='review_decline'});
+    if(reviewLogs.length===0){histEl.innerHTML='';return}
+    var html='<div style="margin-top:6px;font-size:10px;font-weight:700;color:var(--dim)">Review History</div>';
+    for(var i=0;i<reviewLogs.length;i++){
+      var l=reviewLogs[i];
+      var ts=new Date(l.started_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+      var isAccept=l.action_type==='review_accept';
+      var det;try{det=typeof l.details==='string'?JSON.parse(l.details):l.details||{}}catch(e){det={}}
+      html+='<div class="log-entry"><span class="ts">'+ts+'</span><span class="msg"><span class="b '+(isAccept?'g':'r')+'">'+(isAccept?'ACCEPTED':'DECLINED')+'</span> '+(l.target_count||0)+' creators by <b>'+esc(l.triggered_by||'system')+'</b>'+(det.note?' &mdash; "'+esc(det.note)+'"':'')+'</span></div>';
+    }
+    histEl.innerHTML=html;
+  }catch(e){histEl.innerHTML=''}
 }
 
 // ========== ACTION BUTTONS ==========
@@ -3278,7 +3281,7 @@ function toggleAllDates(on){
   else{vb.style.display='none'}
 }
 function renderVintageBreakdown(){
-  var creators=DEMO_MODE?DEMO_CREATORS:(_allCreators||[]);
+  var creators=DEMO_MODE?DEMO_CREATORS:(_ftCache||[]);
   // Filter "Not Started" only
   var eligible=creators.filter(function(c){return c.pipeline_status==='Not Started'});
   // Group by initial_discovery_date
@@ -4351,172 +4354,6 @@ function resetHtBatchPipeline(){
     else{if(stepEl)stepEl.style.opacity='.5';if(btnEl)btnEl.disabled=true}
   }
   showToast('HT Pipeline reset','ok');
-}
-
-// ========== ICO OUTREACH PIPELINE ==========
-var _icoBpCompleted={};
-var _icoData=null;
-
-function collectIcoConfig(){
-  return{
-    spreadsheet_id:(document.getElementById('ico-spreadsheet-id')||{}).value||'',
-    data_tab:(document.getElementById('ico-data-tab')||{}).value||'',
-    creators_tab:(document.getElementById('ico-creators-tab')||{}).value||'',
-    filter_geo:(document.getElementById('ico-filter-geo')||{}).checked!==false,
-    filter_brand:(document.getElementById('ico-filter-brand')||{}).checked!==false,
-    filter_email:(document.getElementById('ico-filter-email')||{}).checked!==false,
-    filter_dedup:(document.getElementById('ico-filter-dedup')||{}).checked!==false,
-    fit_threshold:parseInt((document.getElementById('ico-fit-threshold')||{}).value)||40,
-    sender_name:(document.getElementById('ico-sender-name')||{}).value||'Jane',
-    sender_email:(document.getElementById('ico-sender-email')||{}).value||'affiliates@onzenna.com',
-    batch_size:parseInt((document.getElementById('ico-batch-size')||{}).value)||50,
-    discord_url:(document.getElementById('ico-discord-url')||{}).value||''
-  };
-}
-
-function loadIcoConfig(){
-  try{
-    var saved=localStorage.getItem('ico_config');
-    if(saved){
-      var c=JSON.parse(saved);
-      var fields={spreadsheet_id:1,data_tab:1,creators_tab:1,sender_name:1,sender_email:1,discord_url:1};
-      for(var k in fields){if(c[k]){var el=document.getElementById('ico-'+k.replace(/_/g,'-'));if(el)el.value=c[k]}}
-      if(c.fit_threshold)document.getElementById('ico-fit-threshold').value=c.fit_threshold;
-      if(c.batch_size)document.getElementById('ico-batch-size').value=c.batch_size;
-      var toggles=['filter_geo','filter_brand','filter_email','filter_dedup'];
-      for(var i=0;i<toggles.length;i++){
-        var key=toggles[i];
-        if(c[key]!==undefined){var el=document.getElementById('ico-'+key.replace(/_/g,'-'));if(el)el.checked=c[key]}
-      }
-    }
-  }catch(e){console.error('ICO config load error:',e)}
-}
-
-function saveIcoConfig(){
-  try{localStorage.setItem('ico_config',JSON.stringify(collectIcoConfig()))}catch(e){}
-}
-
-async function execIcoBatchStep(step){
-  var btn=document.getElementById('ico-bp-btn-'+step);
-  var result=document.getElementById('ico-bp-result-'+step);
-  var check=document.getElementById('ico-bp-check-'+step);
-  if(!check.checked){showToast('ICO Step '+step+' skipped (unchecked)','ok');enableNextIcoStep(step);return}
-  btn.disabled=true;btn.textContent='Running...';
-  result.textContent='\u23F3';
-
-  var stepActions=['ico_fetch_syncly','ico_filter_score','ico_dedup','ico_generate_drafts','ico_report'];
-  try{
-    var cfg=collectIcoConfig();
-    saveIcoConfig();
-    var payload={action:stepActions[step-1],config:cfg,timestamp:new Date().toISOString(),triggered_by:_currentUser};
-    var resp=await fetch(WEBHOOK_MAP.ico_outreach,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    if(!resp.ok)throw new Error('HTTP '+resp.status);
-    var data=await resp.json().catch(function(){return{}});
-
-    if(step===1){
-      var total=data.total||data.count||(data.creators?data.creators.length:0)||0;
-      _icoData=data;
-      result.textContent='\u2705 '+total+' creators fetched';
-    }else if(step===2){
-      var passed=data.passed||0;var skipped=data.skipped||0;
-      result.textContent='\u2705 '+passed+' passed, '+skipped+' skipped';
-      showIcoPreview(data,cfg);
-    }else if(step===3){
-      result.textContent='\u2705 '+(data.unique||0)+' unique, '+(data.duplicates||0)+' dupes';
-    }else if(step===4){
-      result.textContent='\u2705 '+(data.drafted||0)+' drafts created';
-    }else if(step===5){
-      result.textContent='\u2705 Report sent';
-    }
-
-    try{
-      await apiFetch('/pipeline/execution/log/',{method:'POST',body:JSON.stringify({action_type:'ico_step_'+step,triggered_by:_currentUser,target_count:0,status:'completed',details:JSON.stringify({step:step})})});
-    }catch(e){}
-
-    _icoBpCompleted[step]=true;
-    enableNextIcoStep(step);
-    showToast('ICO Step '+step+' completed','ok');
-  }catch(e){
-    result.textContent='\u274C '+e.message;
-    showToast('ICO Step '+step+' failed: '+e.message,'err');
-  }finally{
-    btn.disabled=false;btn.textContent='\u25B6 Execute';
-  }
-}
-
-function showIcoPreview(data,cfg){
-  var preview=document.getElementById('ico-results-preview');
-  if(!preview)return;
-  preview.style.display='';
-  var el=document.getElementById('ico-results-content');
-  var items=[];
-  items.push({label:'Passed',val:data.passed||0,cls:'green'});
-  items.push({label:'Skipped',val:data.skipped||0,cls:'red'});
-  if(data.geo_skip)items.push({label:'Geo Skip',val:data.geo_skip,cls:''});
-  if(data.brand_skip)items.push({label:'Brand Skip',val:data.brand_skip,cls:''});
-  if(data.fit_skip)items.push({label:'Fit<'+cfg.fit_threshold,val:data.fit_skip,cls:'amber'});
-  var html='<div class="stats">';
-  for(var i=0;i<items.length;i++){
-    html+='<div class="stat '+items[i].cls+'"><div class="sl">'+esc(items[i].label)+'</div><div class="sv">'+items[i].val+'</div></div>';
-  }
-  html+='</div>';
-  el.innerHTML=html;
-}
-
-function enableNextIcoStep(s){
-  var next=s+1;if(next>5)return;
-  var stepEl=document.getElementById('ico-bp-step-'+next);
-  var btnEl=document.getElementById('ico-bp-btn-'+next);
-  if(stepEl)stepEl.style.opacity='1';
-  if(btnEl)btnEl.disabled=false;
-}
-
-async function execAllIcoBatchSteps(){
-  for(var i=1;i<=5;i++){
-    var check=document.getElementById('ico-bp-check-'+i);
-    if(!check||!check.checked)continue;
-    await execIcoBatchStep(i);
-    await new Promise(function(r){setTimeout(r,500)});
-  }
-  showToast('ICO Outreach pipeline completed','ok');
-}
-
-function resetIcoBatchPipeline(){
-  _icoBpCompleted={};_icoData=null;
-  for(var i=1;i<=5;i++){
-    var stepEl=document.getElementById('ico-bp-step-'+i);
-    var btnEl=document.getElementById('ico-bp-btn-'+i);
-    var resultEl=document.getElementById('ico-bp-result-'+i);
-    var checkEl=document.getElementById('ico-bp-check-'+i);
-    if(resultEl)resultEl.textContent='';
-    if(checkEl)checkEl.checked=true;
-    if(i===1){if(stepEl)stepEl.style.opacity='1';if(btnEl)btnEl.disabled=false}
-    else{if(stepEl)stepEl.style.opacity='.5';if(btnEl)btnEl.disabled=true}
-  }
-  var preview=document.getElementById('ico-results-preview');
-  if(preview)preview.style.display='none';
-  showToast('ICO Pipeline reset','ok');
-}
-
-async function loadIcoStatus(){
-  var el=document.getElementById('ico-exec-status');
-  var detail=document.getElementById('ico-exec-detail');
-  el.style.display='';
-  detail.textContent='Loading...';
-  try{
-    var logs=await apiFetch('/pipeline/execution/log/?limit=20');
-    var items=logs.results||logs;
-    var icoLogs=items.filter(function(l){return l.action_type&&l.action_type.indexOf('ico')===0});
-    if(!icoLogs.length){detail.textContent='No ICO runs yet';return}
-    var html='';
-    for(var i=0;i<Math.min(icoLogs.length,5);i++){
-      var log=icoLogs[i];
-      var ts=log.started_at?new Date(log.started_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'?';
-      var sb=log.status==='completed'?'g':log.status==='failed'?'r':'am';
-      html+='<div style="padding:2px 0"><span class="b '+sb+'">'+esc(log.status)+'</span> <span style="color:var(--muted);font-size:9px">'+ts+'</span> '+esc(log.action_type)+' by '+esc(log.triggered_by||'system')+'</div>';
-    }
-    detail.innerHTML=html;
-  }catch(e){detail.textContent='Error: '+e.message}
 }
 
 // ========== DOCUSEAL CONTRACT (HT) ==========

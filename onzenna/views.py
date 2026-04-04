@@ -1976,6 +1976,7 @@ def pipeline_creators_cross_check(request):
                 SELECT username, platform, brand, post_date, url,
                        views_30d, likes_30d, comments_30d, post_id
                 FROM gk_content_posts
+                WHERE post_date >= CURRENT_DATE - INTERVAL '180 days'
                 ORDER BY post_date DESC
             """)
             cols = [c[0] for c in cur.description]
