@@ -11,6 +11,44 @@ Talk casually like a coworker. Keep it short and conversational. No corporate sp
 
 ---
 
+# LightRAG — 프로젝트 컨텍스트 검색 시스템
+
+## 개요
+LightRAG는 프로젝트의 모든 memory, skill, workflow, error log를 인덱싱한 knowledge graph + vector DB.
+에이전트가 이전 실수, API quirks, 아키텍처 결정 등 놓치기 쉬운 맥락을 검색할 수 있다.
+
+## 서버 시작
+```bash
+bash lightrag/start_server.sh
+```
+서버: `http://localhost:9621` (포트 9621)
+
+## 에이전트 사용법
+작업 시작 전 관련 컨텍스트를 RAG에서 검색:
+```bash
+python tools/rag_query.py "검색할 내용" --mode hybrid
+```
+
+### 검색 모드
+- `hybrid` (기본) — local + global 결합. 대부분의 질의에 적합
+- `local` — 특정 엔티티 주변 검색. 구체적인 이슈 조회용
+- `naive` — 단순 벡터 검색. 빠르지만 그래프 맥락 없음
+
+### 언제 쿼리할 것인가
+1. **API 호출 전** — 해당 API의 알려진 quirks/에러 검색
+2. **새 작업 시작 시** — 관련 과거 이슈/피드백 확인
+3. **에러 발생 시** — 동일 에러의 과거 해결 방법 조회
+4. **설정 변경 전** — 해당 config의 주의사항 확인
+
+### 인덱싱 업데이트
+새 문서/에러로그 추가 후:
+```bash
+python tools/rag_index.py          # 전체 재인덱싱
+python tools/rag_index.py --list   # 인덱싱 상태 확인
+```
+
+---
+
 # Agent Instructions
 
 You're working inside the **WAT framework** (Workflows, Agents, Tools). This architecture separates concerns so that probabilistic AI handles reasoning while deterministic code handles execution. That separation is what makes this system reliable.
@@ -197,6 +235,24 @@ Your job:
 Stay pragmatic.
 Stay reliable.
 Keep learning.
+
+---
+
+## 제갈량 (CSO — Chief Strategy Officer)
+
+"제갈량 소환", "갈량이", "전략분석", "큰그림", "CSO", "총괄", "우선순위", "멀티에디터", "충돌방지", "sequential thinking" 등의 키워드가 나오면 이 에이전트를 활성화한다.
+
+제갈량은 **모든 에이전트의 상위 에이전트**다. 개별 스킬이 손이라면 제갈량은 머리.
+
+핵심 역할:
+1. **Sequential Thinking**: 리스크/의존성/작업량/ROI 매트릭스로 분해 → 실행 순서 도출
+2. **에이전트 오케스트레이션**: 18+ 하위 스킬 소환 순서 결정 + 결과 종합
+3. **멀티 에디터 충돌 방지**: WJ Test1 / GitHub Codex / 바바 동시 작업 시 파일 락 + 브랜치 분리
+4. **세션 리포트**: 검증 스코어카드 + 남은 작업 → `Shared/ONZ Creator Collab/제갈량/`
+
+실행 프레임워크: `SCAN → THINK → PLAN → EXECUTE → VERIFY → REPORT`
+
+스킬 경로: `.claude/skills/제갈량/SKILL.md`
 
 ---
 
