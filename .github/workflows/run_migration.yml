@@ -24,35 +24,53 @@ jobs:
             ControlPersist 300
           EOF
 
-      - name: Run migration + deploy + restart
+      - name: Run migration SQL
         run: |
-          # Step 1: Migration SQL
-          echo "=== Running ALTER TABLE ==="
           cat onzenna/migrations/add_creator_master_list_fields.sql | \
             ssh ec2 "PGPASSWORD=orbit1234 psql -h 172.31.13.240 -U es_db_user -d export_calculator_db -f -"
 
-          # Step 2: Deploy files
-          echo "=== Deploying files ==="
+      - name: Deploy files
+        run: |
           tar czf - onzenna/models.py onzenna/views.py onzenna/urls.py | \
             ssh ec2 "cd /home/ubuntu/export_calculator && tar xzf -"
-          echo "Files deployed"
+          echo "Files deployed OK"
 
-          # Step 3: Restart gunicorn using a remote script to avoid self-kill
-          echo "=== Restarting gunicorn ==="
-          ssh ec2 'bash -c "
-            PIDS=\$(pgrep -f \"[g]unicorn.*wsgi\")
-            if [ -n \"\$PIDS\" ]; then
-              echo \"Killing gunicorn PIDs: \$PIDS\"
-              kill \$PIDS
-              sleep 2
-            fi
-            cd /home/ubuntu/export_calculator
-            nohup python3 -m gunicorn --workers=1 --timeout=600 --bind 0.0.0.0:8000 --daemon export_calculator.wsgi:application
+      - name: Create and run restart script
+        run: |
+          # Create restart script on remote
+          ssh ec2 'cat > /tmp/restart_gunicorn.sh << "SCRIPT"
+          #!/bin/bash
+          cd /home/ubuntu/export_calculator
+
+          # Find and kill gunicorn by PID file or pgrep (bracket trick avoids self-match)
+          PIDS=$(pgrep -f "[g]unicorn.*wsgi" || true)
+          if [ -n "$PIDS" ]; then
+            echo "Stopping gunicorn PIDs: $PIDS"
+            kill $PIDS 2>/dev/null || true
             sleep 3
-            NEW_PIDS=\$(pgrep -f \"[g]unicorn.*wsgi\")
-            echo \"New gunicorn PIDs: \$NEW_PIDS\"
-          "'
+          else
+            echo "No running gunicorn found"
+          fi
 
-          # Step 4: Verify
-          echo "=== Verifying API ==="
+          # Start fresh
+          python3 -m gunicorn --workers=1 --timeout=600 --bind 0.0.0.0:8000 --daemon export_calculator.wsgi:application
+          sleep 3
+
+          # Verify
+          NEW=$(pgrep -f "[g]unicorn.*wsgi" || true)
+          if [ -n "$NEW" ]; then
+            echo "SUCCESS: gunicorn running with PIDs: $NEW"
+          else
+            echo "ERROR: gunicorn failed to start"
+            exit 1
+          fi
+          SCRIPT
+          chmod +x /tmp/restart_gunicorn.sh'
+
+          # Execute restart script via nohup (detached from SSH)
+          ssh ec2 'nohup /tmp/restart_gunicorn.sh > /tmp/restart_gunicorn.log 2>&1; cat /tmp/restart_gunicorn.log'
+
+      - name: Verify API
+        run: |
+          sleep 3
           ssh ec2 'curl -sf -u admin:admin http://localhost:8000/api/onzenna/pipeline/creators/stats/ | python3 -m json.tool'
