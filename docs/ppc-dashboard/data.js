@@ -1,5 +1,5 @@
 const PPC_DATA = {
- "generated_pst": "2026-04-04 16:26 PST",
+ "generated_pst": "2026-04-04 16:41 PST",
  "phantom_warnings": [],
  "brands": {
   "grosmimi": {
@@ -23627,7 +23627,7 @@ const PPC_DATA = {
      }
     },
     "2026-04-04": {
-     "generated": "2026-04-04T16:26",
+     "generated": "2026-04-04T16:41",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -27362,7 +27362,7 @@ const PPC_DATA = {
      }
     },
     "2026-04-04": {
-     "generated": "2026-04-04T16:26",
+     "generated": "2026-04-04T16:41",
      "executed": true,
      "executed_at": "2026-04-04",
      "summary_7d": {
@@ -27385,9 +27385,9 @@ const PPC_DATA = {
        "action": "increase_budget",
        "bid_pct": 10,
        "bud_before": 120.0,
-       "bud_after": 192.0,
+       "bud_after": null,
        "tier": "8 Strong",
-       "reason": "[MANUAL] 7d ROAS 5.81x (ACOS 17.2%) | 30d ROAS 5.43x | target ACOS 30.0% | 7d vs 30d: +7.0%\n** UNDERSPEND BOOST: budget increase amplified (+30% -> +60%) to reach $400.0/day target",
+       "reason": "[MANUAL] 7d ROAS 5.81x (ACOS 17.2%) | 30d ROAS 5.43x | target ACOS 25.0% | 7d vs 30d: +7.0%\nBudget already at cap ($100/campaign)",
        "approved": true
       },
       {
@@ -27405,8 +27405,8 @@ const PPC_DATA = {
        "bud_before": 120.0,
        "bud_after": null,
        "tier": "6 Optimize",
-       "reason": "[AUTO] 7d ROAS 2.61x (ACOS 38.4%) | 30d ROAS 2.81x | 7d vs 30d: -7.1%\nOptimization: ACOS 38.4% near target 40.0% -> fine-tune keyword bids",
-       "approved": true
+       "reason": "[AUTO] 7d ROAS 2.61x (ACOS 38.4%) | 30d ROAS 2.81x | 7d vs 30d: -7.1%\nOptimization: ACOS 38.4% exceeds target 35.0% by 3.4pp -> bid -10%",
+       "approved": false
       },
       {
        "name": "Naeiae Rice Pop - SB - Manual",
@@ -27427,11 +27427,23 @@ const PPC_DATA = {
        "approved": false
       }
      ],
-     "harvest": [],
+     "harvest": [
+      {
+       "term": "rice puff",
+       "sales": 73.8,
+       "cost": 8.46,
+       "acos": 11.5,
+       "clicks": 10,
+       "purchases": 3,
+       "bid": 0.93,
+       "campaign": "Naeiae Rice Pop - SP - Auto",
+       "sim_confirmed": false
+      }
+     ],
      "negate": [],
      "counts": {
       "campaigns": 3,
-      "harvest": 0,
+      "harvest": 1,
       "negate": 0
      }
     }
@@ -28441,44 +28453,6 @@ const PPC_DATA = {
      "brand_key": "naeiae",
      "campaignId": "365330679770972",
      "campaignName": "Naeiae Rice Pop - SP - Auto",
-     "action": "negate_high_acos",
-     "priority": "high",
-     "reason": "ACOS 148.4% > 70.0% threshold",
-     "old_budget": null,
-     "new_budget": null,
-     "bid_change_pct": null,
-     "keyword": "puffed rice",
-     "old_bid": null,
-     "new_bid": null,
-     "roas_7d": null,
-     "spend_7d": 36.51,
-     "sales_7d": 24.6,
-     "result_status": "ERROR: 0",
-     "exec_date": "2026-03-26"
-    },
-    {
-     "brand_key": "naeiae",
-     "campaignId": "444108265805305",
-     "campaignName": "Naeiae Rice Pop - SP - Manual",
-     "action": "negate_high_acos",
-     "priority": "high",
-     "reason": "ACOS 118.4% > 50.0% threshold",
-     "old_budget": null,
-     "new_budget": null,
-     "bid_change_pct": null,
-     "keyword": "toddler snacks",
-     "old_bid": null,
-     "new_bid": null,
-     "roas_7d": null,
-     "spend_7d": 29.12,
-     "sales_7d": 24.6,
-     "result_status": "ERROR: 0",
-     "exec_date": "2026-03-26"
-    },
-    {
-     "brand_key": "naeiae",
-     "campaignId": "365330679770972",
-     "campaignName": "Naeiae Rice Pop - SP - Auto",
      "action": "reduce_bid",
      "priority": "urgent",
      "reason": "[AUTO] 7d ROAS 1.0x (ACOS 100.0%) | 30d ROAS 2.73x | target ACOS 35.0% | 7d vs 30d: -63.4%",
@@ -28869,41 +28843,6 @@ const PPC_DATA = {
      "sales_7d": 0,
      "result_status": "OK",
      "exec_date": "2026-03-09"
-    },
-    {
-     "brand_key": "naeiae",
-     "campaignId": "444108265805305",
-     "campaignName": "Naeiae Rice Pop - SP - Manual",
-     "action": "increase_budget",
-     "priority": "high",
-     "reason": "[MANUAL] 7d ROAS 5.81x (ACOS 17.2%) | 30d ROAS 5.43x | target ACOS 25.0% | 7d vs 30d: +7.0%\nBudget already at cap ($100/campaign)",
-     "old_budget": 120.0,
-     "new_budget": 120,
-     "bid_change_pct": 10,
-     "roas_7d": 5.81,
-     "spend_7d": 181.92,
-     "sales_7d": 1057.8,
-     "result_status": "ERROR: Budget $120 exceeds per-campaign cap $100.0",
-     "exec_date": "2026-04-04"
-    },
-    {
-     "brand_key": "naeiae",
-     "campaignId": "365330679770972",
-     "campaignName": "Naeiae Rice Pop - SP - Auto",
-     "action": "harvest",
-     "priority": "medium",
-     "reason": "Profitable ST: ACOS 11.5% < target 35.0%, 3 sales",
-     "old_budget": null,
-     "new_budget": null,
-     "bid_change_pct": null,
-     "keyword": "rice puff",
-     "old_bid": null,
-     "new_bid": 0.93,
-     "roas_7d": null,
-     "spend_7d": 8.46,
-     "sales_7d": 73.8,
-     "result_status": "ERROR: 0",
-     "exec_date": "2026-04-04"
     },
     {
      "brand_key": "naeiae",
