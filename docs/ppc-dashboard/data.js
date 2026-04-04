@@ -1,5 +1,5 @@
 const PPC_DATA = {
- "generated_pst": "2026-04-04 15:19 PST",
+ "generated_pst": "2026-04-04 15:58 PST",
  "phantom_warnings": [],
  "brands": {
   "grosmimi": {
@@ -23627,7 +23627,7 @@ const PPC_DATA = {
      }
     },
     "2026-04-04": {
-     "generated": "2026-04-04T15:19",
+     "generated": "2026-04-04T15:58",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -27362,7 +27362,7 @@ const PPC_DATA = {
      }
     },
     "2026-04-04": {
-     "generated": "2026-04-04T15:19",
+     "generated": "2026-04-04T15:58",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -30303,7 +30303,7 @@ const PPC_DATA = {
      }
     },
     "2026-04-04": {
-     "generated": "2026-04-04T15:19",
+     "generated": "2026-04-04T15:58",
      "executed": true,
      "executed_at": "2026-04-04",
      "summary_7d": {
