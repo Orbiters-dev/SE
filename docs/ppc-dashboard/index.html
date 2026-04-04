@@ -1137,10 +1137,17 @@ async function executeSelected(bk, dt) {
       negate: selectedNegate.map(function(n){ return n.idx; })
     };
 
+    // Build config for this brand so executor uses correct caps (max_campaign etc.)
+    var execConfig = {};
+    execConfig[bk] = {};
+    CFG_FIELDS.forEach(function(f){
+      execConfig[bk][f] = parseFloat(getCfgVal(bk, f, BRAND_DEFAULTS[bk][f]));
+    });
+
     try {
       var res = await dispatchWorkflow({
         action: 'execute',
-        config_json: '',
+        config_json: JSON.stringify(execConfig),
         selected_ids: JSON.stringify(selection)
       });
       if(res.status === 204) {
