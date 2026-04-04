@@ -1,5 +1,5 @@
 const PPC_DATA = {
- "generated_pst": "2026-04-04 02:01 PST",
+ "generated_pst": "2026-04-04 02:11 PST",
  "phantom_warnings": [],
  "brands": {
   "grosmimi": {
@@ -23627,7 +23627,7 @@ const PPC_DATA = {
      }
     },
     "2026-04-04": {
-     "generated": "2026-04-04T02:01",
+     "generated": "2026-04-04T02:11",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -27505,7 +27505,7 @@ const PPC_DATA = {
      }
     },
     "2026-04-04": {
-     "generated": "2026-04-04T02:01",
+     "generated": "2026-04-04T02:11",
      "executed": true,
      "executed_at": "2026-04-04",
      "summary_7d": {
@@ -27546,9 +27546,9 @@ const PPC_DATA = {
        "action": "increase_budget",
        "bid_pct": -10,
        "bud_before": 120.0,
-       "bud_after": null,
+       "bud_after": 192.0,
        "tier": "8 Strong",
-       "reason": "[MANUAL] 7d ROAS 6.46x (ACOS 15.5%) | 30d ROAS 5.25x | target ACOS 30.0% | 7d vs 30d: +23.0%\nBudget already at cap ($100/campaign)",
+       "reason": "[MANUAL] 7d ROAS 6.46x (ACOS 15.5%) | 30d ROAS 5.25x | target ACOS 30.0% | 7d vs 30d: +23.0%\n** UNDERSPEND BOOST: budget increase amplified (+30% -> +60%) to reach $150.0/day target",
        "approved": true
       },
       {
@@ -30410,7 +30410,7 @@ const PPC_DATA = {
      }
     },
     "2026-04-04": {
-     "generated": "2026-04-04T02:01",
+     "generated": "2026-04-04T02:11",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
