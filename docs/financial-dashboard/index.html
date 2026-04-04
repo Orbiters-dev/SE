@@ -2038,22 +2038,37 @@ function renderHeroTab(F){
           +'/>';
       }
       html+='</svg></div>';
-      // ── Ad Performance Section (AMZ + Meta only, no GAds) ──
+      // ── Ad Performance Section (AMZ + Meta) ──
+      // Category view: use cat_attribution (specific campaign matches only)
+      // Brand view: use brand_attribution (ALL campaigns for that brand)
+      var _attrData=(_heroView==='category')
+        ?((H.cat_attribution||{})[c.category]||{})
+        :((H.brand_attribution||{})[c.brand]||{});
+      var _mtAttrSales=_attrData.sales||0;
+      var _mtAttrBrb=_attrData.brb||0;
+      var _mtAttrSpend=_attrData.spend||0;
       var _amzMetaSpTot=_amzSpTot+_mtSpTot;
       if(_amzMetaSpTot>0){
         var _amzCl=amzClD.reduce(function(a,b){return a+b},0),_amzSl=amzSlD.reduce(function(a,b){return a+b},0);
-        var _mtCl=mtClD.reduce(function(a,b){return a+b},0),_mtSl=mtSlD.reduce(function(a,b){return a+b},0);
+        var _mtCl=mtClD.reduce(function(a,b){return a+b},0);
+        // Use attribution sales for Meta (not raw mt_sales which is ~0)
+        var _mtSlAttr=_mtAttrSales;
         var _totalAdClicks2=_amzCl+_mtCl;
-        var _totalAdSales2=_amzSl+_mtSl;
+        var _totalAdSales2=_amzSl+_mtSlAttr;
+        var _totalBrb=_mtAttrBrb;
         var _totalCPC2=_totalAdClicks2>0?_amzMetaSpTot/_totalAdClicks2:0;
         var _totalROAS2=_amzMetaSpTot>0?_totalAdSales2/_amzMetaSpTot:0;
+        var _totalROAS_BRB=_amzMetaSpTot>0?(_totalAdSales2+_totalBrb)/_amzMetaSpTot:0;
+        // Title: category in category view, brand in brand view
+        var _adTitle=(_heroView==='category')?c.category:c.brand;
         html+='<div style="margin-top:10px;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:6px">';
-        html+='<div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:6px">Ad Performance — '+c.brand+' <span style="font-weight:400;font-size:9px;color:var(--muted)">('+pDays+'D)</span></div>';
+        html+='<div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:6px">Ad Performance — '+_adTitle+' <span style="font-weight:400;font-size:9px;color:var(--muted)">('+pDays+'D)</span></div>';
         // Stacked bar chart (AMZ + Meta only)
-        var _adH=100,_adPT=18;
+        var _adH=120,_adPT=20;
         var _dTot2=[];for(var _ai=0;_ai<n;_ai++)_dTot2.push((amzSpD[_ai]||0)+(mtSpD[_ai]||0));
         var _adMax2=Math.max.apply(null,_dTot2)||1;
-        var _dROAS2=[];for(var _ai=0;_ai<n;_ai++){var _ws=Math.max(0,_ai-6),_wSp=0,_wSl=0;for(var _wi=_ws;_wi<=_ai;_wi++){_wSp+=(amzSpD[_wi]||0)+(mtSpD[_wi]||0);_wSl+=(amzSlD[_wi]||0)+(mtSlD[_wi]||0);}_dROAS2.push(_wSp>0?_wSl/_wSp:0);}
+        // Daily ROAS uses AMZ sales only (Meta attribution is period-level, not daily)
+        var _dROAS2=[];for(var _ai=0;_ai<n;_ai++){var _ws=Math.max(0,_ai-6),_wSp=0,_wSl=0;for(var _wi=_ws;_wi<=_ai;_wi++){_wSp+=(amzSpD[_wi]||0)+(mtSpD[_wi]||0);_wSl+=(amzSlD[_wi]||0);}_dROAS2.push(_wSp>0?_wSl/_wSp:0);}
         var _rMax2=Math.max.apply(null,_dROAS2)||1;
         html+='<div style="overflow-x:auto"><svg width="'+chartW+'" height="'+(_adH+_adPT+22)+'" style="display:block;width:100%;min-width:'+chartW+'px">';
         for(var g=0;g<=2;g++){var gy=_adPT+_adH-g/2*_adH,gv=Math.round(_adMax2*g/2);
@@ -2061,54 +2076,73 @@ function renderHeroTab(F){
           if(gv>0)html+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" fill="#94a3b8" font-size="7" font-family="var(--mono)" text-anchor="end">$'+gv.toLocaleString()+'</text>';}
         for(var _ai=0;_ai<n;_ai++){var _x=padL+_ai*(bw+1),_yS=_adPT+_adH;
           var _aV=amzSpD[_ai]||0,_mV=mtSpD[_ai]||0,_dV=_aV+_mV;
-          if(_aV>0){var _bh=_aV/_adMax2*_adH;html+='<rect x="'+_x+'" y="'+(_yS-_bh)+'" width="'+bw+'" height="'+_bh+'" fill="#f59e0b" opacity="0.7"/>';_yS-=_bh;}
+          // AMZ bar (amber)
+          if(_aV>0){var _bh=_aV/_adMax2*_adH;html+='<rect x="'+_x+'" y="'+(_yS-_bh)+'" width="'+bw+'" height="'+_bh+'" fill="#f59e0b" opacity="0.7"/>';
+            // Inside AMZ bar: spend + sales + ROAS (at step intervals, if bar is tall enough)
+            if(_ai%step===0&&_bh>30){
+              var _amzDaySl=amzSlD[_ai]||0;var _amzDayR=_aV>0?(_amzDaySl/_aV):0;
+              var _bMidY=_yS-_bh/2;
+              html+='<text x="'+(_x+bw/2)+'" y="'+(_bMidY-6)+'" fill="#fff" font-size="6" font-family="var(--mono)" text-anchor="middle" font-weight="600" opacity="0.9">$'+Math.round(_aV)+'</text>';
+              html+='<text x="'+(_x+bw/2)+'" y="'+(_bMidY+2)+'" fill="#fff" font-size="5" font-family="var(--mono)" text-anchor="middle" opacity="0.8">sl$'+Math.round(_amzDaySl)+'</text>';
+              html+='<text x="'+(_x+bw/2)+'" y="'+(_bMidY+10)+'" fill="#fff" font-size="5" font-family="var(--mono)" text-anchor="middle" opacity="0.8">'+_amzDayR.toFixed(1)+'x</text>';
+            }
+            _yS-=_bh;
+          }
+          // Meta bar (blue)
           if(_mV>0){var _bh2=_mV/_adMax2*_adH;html+='<rect x="'+_x+'" y="'+(_yS-_bh2)+'" width="'+bw+'" height="'+_bh2+'" fill="#3b82f6" opacity="0.7"/>';_yS-=_bh2;}
-          // $ label on top of bar + % breakdown
+          // Top label: total $ + A/M% + ROAS
           if(_dV>0&&_ai%step===0){
             var _barTopY=_adPT+_adH-_dV/_adMax2*_adH;
             html+='<text x="'+(padL+_ai*(bw+1)+bw/2)+'" y="'+(_barTopY-2)+'" fill="var(--dim)" font-size="6" font-family="var(--mono)" text-anchor="middle" font-weight="700">$'+Math.round(_dV)+'</text>';
+            // ROAS label above $ label
+            var _dayR2=_dROAS2[_ai]||0;
+            if(_dayR2>0)html+='<text x="'+(padL+_ai*(bw+1)+bw/2)+'" y="'+(_barTopY-9)+'" fill="#10b981" font-size="5" font-family="var(--mono)" text-anchor="middle" font-weight="600">'+_dayR2.toFixed(1)+'x</text>';
             if(_mV>0&&_aV>0){var _amzPct=Math.round(_aV/_dV*100);
-              html+='<text x="'+(padL+_ai*(bw+1)+bw/2)+'" y="'+(_barTopY-9)+'" fill="var(--muted)" font-size="5" font-family="var(--mono)" text-anchor="middle">A'+_amzPct+'% M'+(100-_amzPct)+'%</text>';}
+              html+='<text x="'+(padL+_ai*(bw+1)+bw/2)+'" y="'+(_barTopY-16)+'" fill="var(--muted)" font-size="5" font-family="var(--mono)" text-anchor="middle">A'+_amzPct+'% M'+(100-_amzPct)+'%</text>';}
           }}
+        // ROAS line
         if(_rMax2>0){var _rPts2=[];_dROAS2.forEach(function(v,i){var x=padL+i*(bw+1)+bw/2,y=_adPT+_adH-v/_rMax2*_adH*0.9;_rPts2.push(x+','+y);});
           html+='<polyline points="'+_rPts2.join(' ')+'" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,2" opacity="0.8"/>';
           html+='<text x="'+(chartW-padR+4)+'" y="'+(_adPT+5)+'" fill="#10b981" font-size="7" font-weight="600">'+_rMax2.toFixed(1)+'x</text>';
-          html+='<text x="'+(chartW-padR+4)+'" y="'+(_adPT+13)+'" fill="#10b981" font-size="5" opacity="0.6">ROAS</text>';
+          html+='<text x="'+(chartW-padR+4)+'" y="'+(_adPT+13)+'" fill="#10b981" font-size="5" opacity="0.6">AMZ ROAS</text>';
           var _lastR2=_dROAS2[n-1];if(_lastR2>0){var _rlx2=padL+(n-1)*(bw+1)+bw/2,_rly2=_adPT+_adH-_lastR2/_rMax2*_adH*0.9;
             html+='<circle cx="'+_rlx2+'" cy="'+_rly2+'" r="3" fill="#10b981"/>';
             html+='<text x="'+(_rlx2-4)+'" y="'+(_rly2-5)+'" fill="#10b981" font-size="8" font-weight="700" font-family="var(--mono)">'+_lastR2.toFixed(1)+'x</text>';}}
+        // X-axis
         for(var _ai=0;_ai<n;_ai+=step){var _x2=padL+_ai*(bw+1)+bw/2;
           html+='<text x="'+_x2+'" y="'+(_adPT+_adH+14)+'" fill="#94a3b8" font-size="7" font-family="var(--mono)" text-anchor="middle" transform="rotate(-30,'+_x2+','+(_adPT+_adH+14)+')">'+dates[_ai].substring(5)+'</text>';}
         html+='</svg></div>';
         html+='<div style="display:flex;gap:10px;font-size:9px;color:var(--muted);margin:4px 0">';
         html+='<span style="color:#f59e0b">&#9632; Amazon Ads</span><span style="color:#3b82f6">&#9632; Meta→AMZ</span>';
-        html+='<span style="color:#10b981">--- ROAS (7D avg)</span></div>';
-        // Summary table (AMZ + Meta only)
-        html+='<table style="font-size:10px;margin-top:4px"><thead><tr><th>Platform</th><th style="text-align:right">Spend</th><th style="text-align:right">Clicks</th><th style="text-align:right">Sales</th><th style="text-align:right">CPC</th><th style="text-align:right">ROAS</th></tr></thead><tbody>';
-        function _adRow2(l,co,sp,cl,sl){if(sp<=0)return '';var cp=cl>0?'$'+(sp/cl).toFixed(2):'—';var ro=sp>0?(sl/sp).toFixed(2)+'x':'—';
-          return '<tr><td><span style="color:'+co+';font-weight:600">'+l+'</span></td><td style="text-align:right;font-family:var(--mono)">$'+Math.round(sp).toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">'+cl.toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">$'+Math.round(sl).toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">'+cp+'</td><td style="text-align:right;font-family:var(--mono);font-weight:700">'+ro+'</td></tr>';}
-        html+=_adRow2('Amazon Ads','#f59e0b',_amzSpTot,_amzCl,_amzSl);
-        html+=_adRow2('Meta→AMZ','#3b82f6',_mtSpTot,_mtCl,_mtSl);
-        html+='<tr style="border-top:1px solid var(--border);font-weight:700"><td>Total</td><td style="text-align:right;font-family:var(--mono)">$'+Math.round(_amzMetaSpTot).toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">'+_totalAdClicks2.toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">$'+Math.round(_totalAdSales2).toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">$'+_totalCPC2.toFixed(2)+'</td><td style="text-align:right;font-family:var(--mono)">'+_totalROAS2.toFixed(2)+'x</td></tr>';
+        html+='<span style="color:#10b981">--- AMZ ROAS (7D avg)</span></div>';
+        // Summary table with BRB ROAS
+        html+='<table style="font-size:10px;margin-top:4px"><thead><tr><th>Platform</th><th style="text-align:right">Spend</th><th style="text-align:right">Clicks</th><th style="text-align:right">Sales</th><th style="text-align:right">CPC</th><th style="text-align:right">ROAS</th><th style="text-align:right;color:#8b5cf6">ROAS+BRB</th></tr></thead><tbody>';
+        function _adRow3(l,co,sp,cl,sl,brb){if(sp<=0&&sl<=0)return '';var cp=cl>0?'$'+(sp/cl).toFixed(2):'—';var ro=sp>0?(sl/sp).toFixed(2)+'x':'—';var roB=sp>0?((sl+brb)/sp).toFixed(2)+'x':'—';
+          return '<tr><td><span style="color:'+co+';font-weight:600">'+l+'</span></td><td style="text-align:right;font-family:var(--mono)">$'+Math.round(sp).toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">'+cl.toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">$'+Math.round(sl).toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">'+cp+'</td><td style="text-align:right;font-family:var(--mono);font-weight:700">'+ro+'</td><td style="text-align:right;font-family:var(--mono);color:#8b5cf6">'+roB+'</td></tr>';}
+        html+=_adRow3('Amazon Ads','#f59e0b',_amzSpTot,_amzCl,_amzSl,0);
+        html+=_adRow3('Meta→AMZ','#3b82f6',_mtSpTot,_mtCl,_mtSlAttr,_totalBrb);
+        html+='<tr style="border-top:1px solid var(--border);font-weight:700"><td>Total</td><td style="text-align:right;font-family:var(--mono)">$'+Math.round(_amzMetaSpTot).toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">'+_totalAdClicks2.toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">$'+Math.round(_totalAdSales2).toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">$'+_totalCPC2.toFixed(2)+'</td><td style="text-align:right;font-family:var(--mono)">'+_totalROAS2.toFixed(2)+'x</td><td style="text-align:right;font-family:var(--mono);color:#8b5cf6">'+_totalROAS_BRB.toFixed(2)+'x</td></tr>';
         html+='</tbody></table>';
-        // ── Meta Attribution Campaign Detail (from 5.Traffic data) ──
-        var _ct30=(F.channel_traffic||{})['30d']||{};
-        var _attrCamps=(_ct30.amazon||{}).attribution?((_ct30.amazon||{}).attribution||{}).campaigns||[]:[];
-        if(_attrCamps.length){
-          html+='<div style="margin-top:8px;font-size:10px;font-weight:700;color:#3b82f6;margin-bottom:4px">Meta→AMZ Campaign Detail <span style="font-weight:400;font-size:9px;color:var(--muted)">(Attribution)</span></div>';
-          html+='<table style="font-size:10px"><thead><tr><th>#</th><th>Campaign</th><th style="text-align:right">Spend</th><th style="text-align:right">Attr. Sales</th><th style="text-align:right">CPC</th><th style="text-align:right">ROAS</th><th style="text-align:right">Orders</th></tr></thead><tbody>';
-          _attrCamps.forEach(function(ac,ai){
+        if(_mtSlAttr>0) html+='<div style="font-size:8px;color:var(--muted);margin-top:2px">* Meta→AMZ Sales = Amazon Attribution (30D snapshot). BRB = Brand Referral Bonus.</div>';
+        // ── Meta Attribution Campaign Detail (category-matched) ──
+        var _catCamps=(_attrData.campaigns||[]);
+        if(_catCamps.length){
+          html+='<div style="margin-top:8px;font-size:10px;font-weight:700;color:#3b82f6;margin-bottom:4px">Meta→AMZ Campaign Detail — '+_adTitle+' <span style="font-weight:400;font-size:9px;color:var(--muted)">(Attribution, 30D)</span></div>';
+          html+='<table style="font-size:10px"><thead><tr><th>#</th><th>Campaign</th><th style="text-align:right">Spend</th><th style="text-align:right">Attr. Sales</th><th style="text-align:right">BRB</th><th style="text-align:right">CPC</th><th style="text-align:right">ROAS</th><th style="text-align:right;color:#8b5cf6">+BRB</th></tr></thead><tbody>';
+          _catCamps.forEach(function(ac,ai){
             if(ac.spend<=0&&ac.sales<=0)return;
             var _acCpc=ac.clicks>0?'$'+(ac.spend/ac.clicks).toFixed(2):'—';
             var _acRoas=ac.spend>0?(ac.sales/ac.spend).toFixed(1)+'x':'—';
-            var _rc2=ac.roas>=2?'var(--g)':ac.roas>=0.5?'var(--am)':'var(--r)';
+            var _acRoasB=ac.spend>0?((ac.sales+(ac.brb||0))/ac.spend).toFixed(1)+'x':'—';
+            var _rc2=(ac.roas||0)>=2?'var(--g)':(ac.roas||0)>=0.5?'var(--am)':'var(--r)';
             html+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(ai+1)+'</td>';
-            html+='<td style="font-size:10px;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+ac.name+'">'+ac.name+'</td>';
+            html+='<td style="font-size:10px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+ac.name+'">'+ac.name+'</td>';
             html+='<td style="text-align:right;font-family:var(--mono)">$'+Math.round(ac.spend).toLocaleString()+'</td>';
             html+='<td style="text-align:right;font-family:var(--mono)">$'+Math.round(ac.sales).toLocaleString()+'</td>';
+            html+='<td style="text-align:right;font-family:var(--mono);color:#8b5cf6">$'+Math.round(ac.brb||0).toLocaleString()+'</td>';
             html+='<td style="text-align:right;font-family:var(--mono)">'+_acCpc+'</td>';
             html+='<td style="text-align:right;font-family:var(--mono);font-weight:700;color:'+_rc2+'">'+_acRoas+'</td>';
-            html+='<td style="text-align:right;font-family:var(--mono)">'+ac.purchases+'</td>';
+            html+='<td style="text-align:right;font-family:var(--mono);color:#8b5cf6">'+_acRoasB+'</td>';
             html+='</tr>';
           });
           html+='</tbody></table>';

@@ -3391,6 +3391,125 @@ def generate():
 
     hero_data = _build_hero_products()
 
+    # ── Add per-category attribution campaign mapping to hero_products ──
+    _attr_30d = channel_traffic["30d"]["amazon"].get("attribution", {})
+    _attr_camps = _attr_30d.get("campaigns", [])
+    if hero_data and _attr_camps:
+        # Ordered list: check most specific keywords first, avoid cross-matching
+        # Each campaign is assigned to AT MOST ONE category (first match wins)
+        CAT_KEYWORDS_ORDERED = [
+            ("PPSU Straw Cup", ["ppsu straw", "ppsu strawcup"]),
+            ("Stainless Straw Cup", ["stainless straw", "stainless strawcup", "steel straw"]),
+            ("PPSU Tumbler", ["ppsu tumbler"]),
+            ("Stainless Tumbler", ["stainless tumbler", "steel tumbler"]),
+            ("PPSU Baby Bottle", ["ppsu bottle", "baby bottle", "ppsu baby"]),
+            ("Rice Puff", ["rice puff", "rice snack", "naeiae rice"]),
+            ("Moisturizer", ["moisturizer", "lotion"]),
+            ("Body Wash", ["body wash"]),
+            ("Alpremio", ["alpremio"]),
+            ("Baby Cream", ["baby cream"]),
+        ]
+
+        # Phase 1: assign each campaign to specific category or "unmatched"
+        camp_assignments = {}  # campaign_name -> category or None
+        for ac in _attr_camps:
+            cn_lower = ac["name"].lower().replace("_", " ").replace("|", " ")
+            assigned = None
+            for cat_name, kws in CAT_KEYWORDS_ORDERED:
+                if any(kw in cn_lower for kw in kws):
+                    assigned = cat_name
+                    break
+            camp_assignments[ac["name"]] = assigned
+
+        # Phase 2: build per-category lists (specific matches only)
+        cat_attr = {cat_data["category"]: [] for cat_data in hero_data.get("categories", [])}
+        unmatched = []  # brand-level generic campaigns
+        for ac in _attr_camps:
+            assigned = camp_assignments.get(ac["name"])
+            if assigned and assigned in cat_attr:
+                cat_attr[assigned].append(ac)
+            else:
+                unmatched.append(ac)
+
+        n_matched = sum(len(v) for v in cat_attr.values())
+        n_unmatched = len(unmatched)
+        print(f"  Attribution mapping: {n_matched} specific + {n_unmatched} generic (brand-level)")
+
+        # Phase 3: cat_attribution — only specifically matched campaigns
+        hero_data["cat_attribution"] = {}
+        for cat, camps in cat_attr.items():
+            total_sales = sum(c.get("sales", 0) for c in camps)
+            total_spend = sum(c.get("spend", 0) for c in camps)
+            total_brb = sum(c.get("brb", 0) for c in camps)
+            total_orders = sum(c.get("purchases", 0) for c in camps)
+            hero_data["cat_attribution"][cat] = {
+                "sales": round(total_sales),
+                "spend": round(total_spend),
+                "brb": round(total_brb, 2),
+                "orders": total_orders,
+                "roas": round(total_sales / total_spend, 2) if total_spend > 0 else 0,
+                "roas_brb": round((total_sales + total_brb) / total_spend, 2) if total_spend > 0 else 0,
+                "campaigns": [{
+                    "name": c["name"].strip()[:60],
+                    "spend": c.get("spend", 0),
+                    "sales": c.get("sales", 0),
+                    "brb": round(c.get("brb", 0), 2),
+                    "clicks": c.get("clicks", 0),
+                    "purchases": c.get("purchases", 0),
+                    "roas": c.get("roas", 0),
+                    "roas_adj": c.get("roas_adj", 0),
+                } for c in camps if c.get("spend", 0) > 0 or c.get("sales", 0) > 0],
+            }
+
+        # Phase 4: brand_attribution — ALL campaigns (for Brand view toggle)
+        brand_attr_map = {}  # brand -> list of all campaigns
+        brand_cats = {}  # brand -> set of categories
+        for cat_data in hero_data.get("categories", []):
+            brand = cat_data["brand"]
+            brand_cats.setdefault(brand, set()).add(cat_data["category"])
+        # All attribution campaigns are Grosmimi (Meta→AMZ traffic)
+        # Group by brand based on campaign name heuristics
+        for ac in _attr_camps:
+            cn_lower = ac["name"].lower()
+            # Default to Grosmimi (most Meta→AMZ campaigns are for Grosmimi)
+            brand = "Grosmimi"
+            if "naeiae" in cn_lower:
+                brand = "Naeiae"
+            elif "chamom" in cn_lower or "cha&mom" in cn_lower:
+                brand = "CHA&MOM"
+            elif "alpremio" in cn_lower:
+                brand = "Alpremio"
+            brand_attr_map.setdefault(brand, []).append(ac)
+
+        hero_data["brand_attribution"] = {}
+        for brand, camps in brand_attr_map.items():
+            total_sales = sum(c.get("sales", 0) for c in camps)
+            total_spend = sum(c.get("spend", 0) for c in camps)
+            total_brb = sum(c.get("brb", 0) for c in camps)
+            total_orders = sum(c.get("purchases", 0) for c in camps)
+            hero_data["brand_attribution"][brand] = {
+                "sales": round(total_sales),
+                "spend": round(total_spend),
+                "brb": round(total_brb, 2),
+                "orders": total_orders,
+                "roas": round(total_sales / total_spend, 2) if total_spend > 0 else 0,
+                "roas_brb": round((total_sales + total_brb) / total_spend, 2) if total_spend > 0 else 0,
+                "campaigns": [{
+                    "name": c["name"].strip()[:60],
+                    "spend": c.get("spend", 0),
+                    "sales": c.get("sales", 0),
+                    "brb": round(c.get("brb", 0), 2),
+                    "clicks": c.get("clicks", 0),
+                    "purchases": c.get("purchases", 0),
+                    "roas": c.get("roas", 0),
+                    "roas_adj": c.get("roas_adj", 0),
+                } for c in camps if c.get("spend", 0) > 0 or c.get("sales", 0) > 0],
+            }
+
+        print(f"  Hero category attribution: {sum(1 for v in hero_data['cat_attribution'].values() if v['sales'] > 0)} cats with sales")
+        _ba_parts = [f"{b} ${v['sales']:,}" for b, v in hero_data['brand_attribution'].items()]
+        print(f"  Hero brand attribution: {', '.join(_ba_parts)}")
+
     # ── Serialize brand_ad_daily (for Hero Products ad overlay) ───────────────
     all_ad_dates = set()
     for brand_data in brand_ad_daily_raw.values():
