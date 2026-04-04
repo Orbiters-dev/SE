@@ -2908,7 +2908,9 @@ def log_to_sheets(executed_changes: List[Dict], brand_key: str = "naeiae"):
 def save_proposal(proposals: List[Dict], profile_id: int,
                    keyword_proposals: Optional[List[Dict]] = None,
                    brand_key: str = "naeiae",
-                   all_campaigns: Optional[List[Dict]] = None):
+                   all_campaigns: Optional[List[Dict]] = None,
+                   search_term_rows: int = 0,
+                   keyword_rows: int = 0):
     cfg = BRAND_CONFIGS[brand_key]
     today_str = date.today().strftime("%Y%m%d")
     filepath = TMP_DIR / f"ppc_proposal_{brand_key}_{today_str}.json"
@@ -2951,6 +2953,8 @@ def save_proposal(proposals: List[Dict], profile_id: int,
         "config_source": "dashboard_override" if (TMP_DIR / "dashboard_config_override.json").exists() else "hardcoded",
         "proposal_count": len(proposals),
         "keyword_proposal_count": len(kw_props),
+        "search_term_rows": search_term_rows,
+        "keyword_rows": keyword_rows,
     }
     audit_path = TMP_DIR / f"ppc_audit_context_{brand_key}.json"
     audit_path.write_text(json.dumps(audit_ctx, indent=2), encoding="utf-8")
@@ -5895,7 +5899,8 @@ def run_propose_single(args, brand_key: str):
             print(f"  [AUTOPILOT] No items matched auto tier settings")
 
     # Always save and send -- even with 0 action proposals, the analysis is valuable
-    filepath = save_proposal(proposals, profile_id, kw_proposals, brand_key=brand_key, all_campaigns=all_camps)
+    filepath = save_proposal(proposals, profile_id, kw_proposals, brand_key=brand_key, all_campaigns=all_camps,
+                              search_term_rows=len(st_rows), keyword_rows=len(kw_rows))
     if proposals:
         print_proposal_summary(proposals, brand_key=brand_key)
     if kw_proposals:

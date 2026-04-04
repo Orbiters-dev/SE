@@ -78,6 +78,35 @@ def audit_round1(recheck=False):
 
     checks = []
 
+    # CHECK: DataKeeper search term freshness (global, not per-brand)
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+        import os, requests as _req
+        dk_user = os.getenv("ORBITOOLS_USER", "")
+        dk_pass = os.getenv("ORBITOOLS_PASS", "")
+        if dk_user:
+            dk_r = _req.get("https://orbitools.orbiters.co.kr/api/datakeeper/status/",
+                            auth=(dk_user, dk_pass), timeout=10)
+            dk_status = dk_r.json().get("status", dk_r.json())
+            for ch_name in ["amazon_ads_search_terms", "amazon_ads_keywords"]:
+                ch_info = dk_status.get(ch_name, {})
+                latest = ch_info.get("latest_collected", "")[:10]
+                if latest:
+                    from datetime import timedelta
+                    days_stale = (date.today() - date.fromisoformat(latest)).days
+                    if days_stale > 3:
+                        checks.append(check(f"datakeeper_{ch_name}_fresh", "FAIL",
+                                            severity="CRITICAL",
+                                            expected="<= 3 days stale",
+                                            actual=f"{days_stale} days stale (last: {latest})"))
+                        print(f"  [FAIL] DataKeeper {ch_name}: {days_stale} days stale!")
+                    else:
+                        checks.append(check(f"datakeeper_{ch_name}_fresh", "PASS",
+                                            detail=f"last collected {latest} ({days_stale}d ago)"))
+    except Exception as e:
+        print(f"  [WARN] DataKeeper freshness check skipped: {e}")
+
     # Load dashboard config override
     override_path = TMP / "dashboard_config_override.json"
     override = {}
@@ -106,6 +135,20 @@ def audit_round1(recheck=False):
         print(f"    Config applied: budget=${applied.get('total_daily_budget')}, "
               f"camp_cap=${applied.get('max_single_campaign_budget')}, "
               f"manual_acos={applied.get('manual_acos')}%")
+
+        # CHECK 0: Search term & keyword data availability (CRITICAL — prevents silent blind spots)
+        st_count = ctx.get("search_term_rows", 0)
+        kw_count = ctx.get("keyword_rows", 0)
+        if st_count == 0:
+            checks.append(check("search_term_data_available", "FAIL", brand=brand_key,
+                                severity="CRITICAL",
+                                expected=">0 search term rows",
+                                actual="0 rows — keyword harvest/negate/bid optimization DISABLED"))
+            print(f"    [FAIL] Search term data: 0 rows — all keyword optimization disabled!")
+        else:
+            checks.append(check("search_term_data_available", "PASS", brand=brand_key,
+                                detail=f"{st_count} search term rows, {kw_count} keyword rows"))
+            print(f"    [OK] Search term data: {st_count} rows, keyword data: {kw_count} rows")
 
         # CHECK 1: Config override fields match
         brand_override = override.get(brand_key, {})
