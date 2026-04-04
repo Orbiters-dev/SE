@@ -1712,8 +1712,6 @@ function renderHeroTab(F){
       var gadsSpD=_gadsSpAll.slice(-pDays),gadsClD=_gadsClAll.slice(-pDays),gadsSlD=_gadsSlAll.slice(-pDays);
       var _amzSpTot=amzSpD.reduce(function(a,b){return a+b},0);
       var _mtSpTot=mtSpD.reduce(function(a,b){return a+b},0);
-      var _gadsSpTot=gadsSpD.reduce(function(a,b){return a+b},0);
-      var _adSpTot=_amzSpTot+_mtSpTot+_gadsSpTot;
       // Top 10 creators by observed growth (already sorted in generate_fin_data.py)
       var slicedCreators=catCreators.slice(0,10).map(function(cr){
         return {username:cr.username,brand:cr.brand,platform:cr.platform,total_views:cr.total_views,
@@ -1755,16 +1753,11 @@ function renderHeroTab(F){
         var _cu=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
         html+='<a href="'+_cu+'" target="_blank" style="color:'+INF_COLORS[ci%INF_COLORS.length]+';text-decoration:none">&#9642; @'+x.cr.username+(x.total>0?' +'+x.total.toLocaleString():'')+' views</a>';
       });
-      var gscTotalAll=gscD.reduce(function(a,b){return a+b},0);
-      if(gscTotalAll>0) html+='<span style="color:#f59e0b">--- GSC Search ('+gscTotalAll.toLocaleString()+' impr)</span>';
       if(c.sfr_branded&&c.sfr_branded.length){var _sfrLeg=c.sfr_branded.filter(function(kw){return kw.rank_weekly&&kw.rank_weekly.length;}).slice(0,3);_sfrLeg.forEach(function(kw,ki){var _sc=['#f59e0b','#f97316','#eab308'][ki];html+='<span style="color:'+_sc+'">&#9679; SFR:'+kw.keyword.substring(0,15)+' ('+( kw.rank_weekly[kw.rank_weekly.length-1]>=1000?Math.round(kw.rank_weekly[kw.rank_weekly.length-1]/1000)+'K':kw.rank_weekly[kw.rank_weekly.length-1])+')</span>';});}
       var sessTotalAll=sessD.reduce(function(a,b){return a+b},0);
       if(sessTotalAll>0) html+='<span style="color:#6366f1">&#9644; Sessions ('+sessTotalAll.toLocaleString()+')</span>';
       var pvTotalAll=pvD.reduce(function(a,b){return a+b},0);
       if(pvTotalAll>0) html+='<span style="color:#a78bfa">&#x2508; Page Views ('+pvTotalAll.toLocaleString()+')</span>';
-      if(_amzSpTot>0) html+='<span style="color:#f59e0b">&#9644; AMZ Ads $'+Math.round(_amzSpTot).toLocaleString()+'</span>';
-      if(_mtSpTot>0) html+='<span style="color:#3b82f6">--- Meta→AMZ $'+Math.round(_mtSpTot).toLocaleString()+'</span>';
-      if(_gadsSpTot>0) html+='<span style="color:#ef4444">&#9644; GAds $'+Math.round(_gadsSpTot).toLocaleString()+'</span>';
       html+='<span style="margin-left:auto;font-weight:700">$'+c.sales_7d.toLocaleString()+' 7D</span></div>';
       // ── TOP CHART: Sales ──
       var svgTotalH=padT+topH+gap+botH+30;
@@ -1797,20 +1790,7 @@ function renderHeroTab(F){
         html+='<circle cx="'+_vx+'" cy="'+_vy+'" r="2" fill="var(--g)" opacity="0.6"/>';
         html+='<text x="'+_vx+'" y="'+(_vy-5)+'" fill="var(--g)" font-size="7" font-family="var(--mono)" text-anchor="middle" opacity="0.75">$'+ds[_vi].toLocaleString()+'</text>';
       }
-      // GSC search impressions (yellow area on sales chart)
-      var gscMax=Math.max.apply(null,gscD.length?gscD:[0])||1;
-      var gscTotal=gscD.reduce(function(a,b){return a+b},0);
-      if(gscTotal>0){
-        var gPts=[];
-        gscD.forEach(function(v,i){
-          var x=padL+i*(bw+1)+bw/2,y=padT+topH-v/gscMax*topH*0.4;
-          gPts.push(x+','+y);
-        });
-        html+='<polygon points="'+padL+','+(padT+topH)+' '+gPts.join(' ')+' '+(padL+(n-1)*(bw+1)+bw/2)+','+(padT+topH)+'" fill="#f59e0b" opacity="0.08"/>';
-        html+='<polyline points="'+gPts.join(' ')+'" fill="none" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>';
-        var glx=padL+(n-1)*(bw+1)+bw/2,gly=padT+topH-gscD[n-1]/gscMax*topH*0.4;
-        html+='<text x="'+(glx+6)+'" y="'+(gly+3)+'" fill="#f59e0b" font-size="7" font-weight="600" opacity="0.7">GSC</text>';
-      }
+      // (GSC overlay removed — too cluttered)
       // SFR/Volume overlay — branded keywords from pre-filtered sfr_branded field
       // Use volume_weekly (SQP brand view) if available, else rank_weekly (SP-API SFR)
       var _sfrOverlayKws=[];
@@ -1924,23 +1904,7 @@ function renderHeroTab(F){
         });
         html+='<polyline points="'+pvPts.join(' ')+'" fill="none" stroke="#a78bfa" stroke-width="1" stroke-dasharray="4,3" stroke-linecap="round" opacity="0.6"/>';
       }
-      // Ad spend overlays on sales chart
-      if(_adSpTot>0){
-        var _spMax=Math.max.apply(null,amzSpD.concat(mtSpD).concat(gadsSpD))||1;
-        if(_amzSpTot>0){var _aPts=[];amzSpD.forEach(function(v,i){var x=padL+i*(bw+1)+bw/2,y=padT+topH-v/_spMax*topH*0.35;_aPts.push(x+','+y);});
-          html+='<polygon points="'+padL+','+(padT+topH)+' '+_aPts.join(' ')+' '+(padL+(n-1)*(bw+1)+bw/2)+','+(padT+topH)+'" fill="#f59e0b" opacity="0.1"/>';
-          html+='<polyline points="'+_aPts.join(' ')+'" fill="none" stroke="#f59e0b" stroke-width="1.5" opacity="0.55"/>';
-        }
-        if(_mtSpTot>0){var _mPts=[];mtSpD.forEach(function(v,i){var x=padL+i*(bw+1)+bw/2,y=padT+topH-v/_spMax*topH*0.35;_mPts.push(x+','+y);});
-          html+='<polygon points="'+padL+','+(padT+topH)+' '+_mPts.join(' ')+' '+(padL+(n-1)*(bw+1)+bw/2)+','+(padT+topH)+'" fill="#3b82f6" opacity="0.08"/>';
-          html+='<polyline points="'+_mPts.join(' ')+'" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,2" opacity="0.55"/>';
-        }
-        if(_gadsSpTot>0){var _gPts2=[];gadsSpD.forEach(function(v,i){var x=padL+i*(bw+1)+bw/2,y=padT+topH-v/_spMax*topH*0.35;_gPts2.push(x+','+y);});
-          html+='<polyline points="'+_gPts2.join(' ')+'" fill="none" stroke="#ef4444" stroke-width="1" stroke-dasharray="2,2" opacity="0.5"/>';
-        }
-        html+='<text x="'+(chartW-padR+4)+'" y="'+(padT+topH-8)+'" fill="#94a3b8" font-size="6" font-family="var(--mono)" opacity="0.7">$'+Math.round(_spMax).toLocaleString()+'</text>';
-        html+='<text x="'+(chartW-padR+4)+'" y="'+(padT+topH-1)+'" fill="#94a3b8" font-size="5" opacity="0.5">ad spend</text>';
-      }
+      // (Ad spend overlays removed from sales chart — shown in dedicated Ad Performance section below)
       // Sales end label
       var lsx=padL+(n-1)*(bw+1)+bw/2,lsy=padT+topH-ds[n-1]/maxS*topH;
       html+='<text x="'+(lsx+6)+'" y="'+(lsy+3)+'" fill="var(--g)" font-size="8" font-weight="700">Sales</text>';
@@ -2057,15 +2021,10 @@ function renderHeroTab(F){
           +'<div class=tt-row><span class=tt-dot style=background:#10b981></span>Sales: $'+ttSales.toLocaleString()+'</div>'
           +'<div class=tt-row><span class=tt-dot style=background:var(--dim)></span>Units: '+ttUnits.toLocaleString()+'</div>';
         if(ttViews>0) ttH+='<div class=tt-row><span class=tt-dot style=background:'+bc+'></span>Views: '+ttViews.toLocaleString()+'</div>';
-        var ttGsc=gscD[i]||0;
-        if(ttGsc>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#f59e0b></span>GSC: '+ttGsc.toLocaleString()+' impr</div>';
         var ttSess=sessD[i]||0;
         if(ttSess>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#6366f1></span>Sessions: '+ttSess.toLocaleString()+'</div>';
         var ttPv=pvD[i]||0;
         if(ttPv>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#a78bfa></span>Page Views: '+ttPv.toLocaleString()+'</div>';
-        var _ttAmzSp=amzSpD[i]||0;if(_ttAmzSp>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#f59e0b></span>AMZ Ads: $'+_ttAmzSp.toFixed(0)+'</div>';
-        var _ttMtSp=mtSpD[i]||0;if(_ttMtSp>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#3b82f6></span>Meta→AMZ: $'+_ttMtSp.toFixed(0)+'</div>';
-        var _ttGdSp=gadsSpD[i]||0;if(_ttGdSp>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#ef4444></span>GAds: $'+_ttGdSp.toFixed(0)+'</div>';
         crDeltaArr.forEach(function(x,ci){
           var cv=x.cr.daily_views[i]||0;
           var dv=x.deltas[i]||0;
@@ -2079,55 +2038,82 @@ function renderHeroTab(F){
           +'/>';
       }
       html+='</svg></div>';
-      // ── Ad Performance Section (stacked bar + ROAS + table) ──
-      if(_adSpTot>0){
-        var _totalAdClicks=amzClD.reduce(function(a,b){return a+b},0)+mtClD.reduce(function(a,b){return a+b},0)+gadsClD.reduce(function(a,b){return a+b},0);
-        var _totalAdSales=amzSlD.reduce(function(a,b){return a+b},0)+mtSlD.reduce(function(a,b){return a+b},0)+gadsSlD.reduce(function(a,b){return a+b},0);
-        var _totalCPC=_totalAdClicks>0?_adSpTot/_totalAdClicks:0;
-        var _totalROAS=_adSpTot>0?_totalAdSales/_adSpTot:0;
+      // ── Ad Performance Section (AMZ + Meta only, no GAds) ──
+      var _amzMetaSpTot=_amzSpTot+_mtSpTot;
+      if(_amzMetaSpTot>0){
+        var _amzCl=amzClD.reduce(function(a,b){return a+b},0),_amzSl=amzSlD.reduce(function(a,b){return a+b},0);
+        var _mtCl=mtClD.reduce(function(a,b){return a+b},0),_mtSl=mtSlD.reduce(function(a,b){return a+b},0);
+        var _totalAdClicks2=_amzCl+_mtCl;
+        var _totalAdSales2=_amzSl+_mtSl;
+        var _totalCPC2=_totalAdClicks2>0?_amzMetaSpTot/_totalAdClicks2:0;
+        var _totalROAS2=_amzMetaSpTot>0?_totalAdSales2/_amzMetaSpTot:0;
         html+='<div style="margin-top:10px;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:6px">';
         html+='<div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:6px">Ad Performance — '+c.brand+' <span style="font-weight:400;font-size:9px;color:var(--muted)">('+pDays+'D)</span></div>';
-        // Stacked bar chart
-        var _adH=100,_adPT=8;
-        var _dTot=[];for(var _ai=0;_ai<n;_ai++)_dTot.push((amzSpD[_ai]||0)+(mtSpD[_ai]||0)+(gadsSpD[_ai]||0));
-        var _adMax=Math.max.apply(null,_dTot)||1;
-        var _dROAS=[];for(var _ai=0;_ai<n;_ai++){var _ws=Math.max(0,_ai-6),_wSp=0,_wSl=0;for(var _wi=_ws;_wi<=_ai;_wi++){_wSp+=(amzSpD[_wi]||0)+(mtSpD[_wi]||0)+(gadsSpD[_wi]||0);_wSl+=(amzSlD[_wi]||0)+(mtSlD[_wi]||0)+(gadsSlD[_wi]||0);}_dROAS.push(_wSp>0?_wSl/_wSp:0);}
-        var _rMax=Math.max.apply(null,_dROAS)||1;
+        // Stacked bar chart (AMZ + Meta only)
+        var _adH=100,_adPT=18;
+        var _dTot2=[];for(var _ai=0;_ai<n;_ai++)_dTot2.push((amzSpD[_ai]||0)+(mtSpD[_ai]||0));
+        var _adMax2=Math.max.apply(null,_dTot2)||1;
+        var _dROAS2=[];for(var _ai=0;_ai<n;_ai++){var _ws=Math.max(0,_ai-6),_wSp=0,_wSl=0;for(var _wi=_ws;_wi<=_ai;_wi++){_wSp+=(amzSpD[_wi]||0)+(mtSpD[_wi]||0);_wSl+=(amzSlD[_wi]||0)+(mtSlD[_wi]||0);}_dROAS2.push(_wSp>0?_wSl/_wSp:0);}
+        var _rMax2=Math.max.apply(null,_dROAS2)||1;
         html+='<div style="overflow-x:auto"><svg width="'+chartW+'" height="'+(_adH+_adPT+22)+'" style="display:block;width:100%;min-width:'+chartW+'px">';
-        for(var g=0;g<=2;g++){var gy=_adPT+_adH-g/2*_adH,gv=Math.round(_adMax*g/2);
+        for(var g=0;g<=2;g++){var gy=_adPT+_adH-g/2*_adH,gv=Math.round(_adMax2*g/2);
           html+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(chartW-padR)+'" y2="'+gy+'" stroke="#f1f5f9" stroke-width="0.5"/>';
           if(gv>0)html+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" fill="#94a3b8" font-size="7" font-family="var(--mono)" text-anchor="end">$'+gv.toLocaleString()+'</text>';}
         for(var _ai=0;_ai<n;_ai++){var _x=padL+_ai*(bw+1),_yS=_adPT+_adH;
-          var _aV=amzSpD[_ai]||0,_mV=mtSpD[_ai]||0,_gV=gadsSpD[_ai]||0;
-          if(_aV>0){var _bh=_aV/_adMax*_adH;html+='<rect x="'+_x+'" y="'+(_yS-_bh)+'" width="'+bw+'" height="'+_bh+'" fill="#f59e0b" opacity="0.7"/>';_yS-=_bh;}
-          if(_mV>0){var _bh2=_mV/_adMax*_adH;html+='<rect x="'+_x+'" y="'+(_yS-_bh2)+'" width="'+bw+'" height="'+_bh2+'" fill="#3b82f6" opacity="0.7"/>';_yS-=_bh2;}
-          if(_gV>0){var _bh3=_gV/_adMax*_adH;html+='<rect x="'+_x+'" y="'+(_yS-_bh3)+'" width="'+bw+'" height="'+_bh3+'" fill="#ef4444" opacity="0.7"/>';_yS-=_bh3;}}
-        if(_rMax>0){var _rPts=[];_dROAS.forEach(function(v,i){var x=padL+i*(bw+1)+bw/2,y=_adPT+_adH-v/_rMax*_adH*0.9;_rPts.push(x+','+y);});
-          html+='<polyline points="'+_rPts.join(' ')+'" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,2" opacity="0.8"/>';
-          html+='<text x="'+(chartW-padR+4)+'" y="'+(_adPT+5)+'" fill="#10b981" font-size="7" font-weight="600">'+_rMax.toFixed(1)+'x</text>';
+          var _aV=amzSpD[_ai]||0,_mV=mtSpD[_ai]||0,_dV=_aV+_mV;
+          if(_aV>0){var _bh=_aV/_adMax2*_adH;html+='<rect x="'+_x+'" y="'+(_yS-_bh)+'" width="'+bw+'" height="'+_bh+'" fill="#f59e0b" opacity="0.7"/>';_yS-=_bh;}
+          if(_mV>0){var _bh2=_mV/_adMax2*_adH;html+='<rect x="'+_x+'" y="'+(_yS-_bh2)+'" width="'+bw+'" height="'+_bh2+'" fill="#3b82f6" opacity="0.7"/>';_yS-=_bh2;}
+          // $ label on top of bar + % breakdown
+          if(_dV>0&&_ai%step===0){
+            var _barTopY=_adPT+_adH-_dV/_adMax2*_adH;
+            html+='<text x="'+(padL+_ai*(bw+1)+bw/2)+'" y="'+(_barTopY-2)+'" fill="var(--dim)" font-size="6" font-family="var(--mono)" text-anchor="middle" font-weight="700">$'+Math.round(_dV)+'</text>';
+            if(_mV>0&&_aV>0){var _amzPct=Math.round(_aV/_dV*100);
+              html+='<text x="'+(padL+_ai*(bw+1)+bw/2)+'" y="'+(_barTopY-9)+'" fill="var(--muted)" font-size="5" font-family="var(--mono)" text-anchor="middle">A'+_amzPct+'% M'+(100-_amzPct)+'%</text>';}
+          }}
+        if(_rMax2>0){var _rPts2=[];_dROAS2.forEach(function(v,i){var x=padL+i*(bw+1)+bw/2,y=_adPT+_adH-v/_rMax2*_adH*0.9;_rPts2.push(x+','+y);});
+          html+='<polyline points="'+_rPts2.join(' ')+'" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,2" opacity="0.8"/>';
+          html+='<text x="'+(chartW-padR+4)+'" y="'+(_adPT+5)+'" fill="#10b981" font-size="7" font-weight="600">'+_rMax2.toFixed(1)+'x</text>';
           html+='<text x="'+(chartW-padR+4)+'" y="'+(_adPT+13)+'" fill="#10b981" font-size="5" opacity="0.6">ROAS</text>';
-          var _lastR=_dROAS[n-1];if(_lastR>0){var _rlx=padL+(n-1)*(bw+1)+bw/2,_rly=_adPT+_adH-_lastR/_rMax*_adH*0.9;
-            html+='<circle cx="'+_rlx+'" cy="'+_rly+'" r="3" fill="#10b981"/>';
-            html+='<text x="'+(_rlx-4)+'" y="'+(_rly-5)+'" fill="#10b981" font-size="8" font-weight="700" font-family="var(--mono)">'+_lastR.toFixed(1)+'x</text>';}}
+          var _lastR2=_dROAS2[n-1];if(_lastR2>0){var _rlx2=padL+(n-1)*(bw+1)+bw/2,_rly2=_adPT+_adH-_lastR2/_rMax2*_adH*0.9;
+            html+='<circle cx="'+_rlx2+'" cy="'+_rly2+'" r="3" fill="#10b981"/>';
+            html+='<text x="'+(_rlx2-4)+'" y="'+(_rly2-5)+'" fill="#10b981" font-size="8" font-weight="700" font-family="var(--mono)">'+_lastR2.toFixed(1)+'x</text>';}}
         for(var _ai=0;_ai<n;_ai+=step){var _x2=padL+_ai*(bw+1)+bw/2;
           html+='<text x="'+_x2+'" y="'+(_adPT+_adH+14)+'" fill="#94a3b8" font-size="7" font-family="var(--mono)" text-anchor="middle" transform="rotate(-30,'+_x2+','+(_adPT+_adH+14)+')">'+dates[_ai].substring(5)+'</text>';}
         html+='</svg></div>';
         html+='<div style="display:flex;gap:10px;font-size:9px;color:var(--muted);margin:4px 0">';
         html+='<span style="color:#f59e0b">&#9632; Amazon Ads</span><span style="color:#3b82f6">&#9632; Meta→AMZ</span>';
-        if(_gadsSpTot>0)html+='<span style="color:#ef4444">&#9632; Google Ads</span>';
         html+='<span style="color:#10b981">--- ROAS (7D avg)</span></div>';
-        // Summary table
+        // Summary table (AMZ + Meta only)
         html+='<table style="font-size:10px;margin-top:4px"><thead><tr><th>Platform</th><th style="text-align:right">Spend</th><th style="text-align:right">Clicks</th><th style="text-align:right">Sales</th><th style="text-align:right">CPC</th><th style="text-align:right">ROAS</th></tr></thead><tbody>';
-        function _adRow(l,co,sp,cl,sl){if(sp<=0)return '';var cp=cl>0?'$'+(sp/cl).toFixed(2):'—';var ro=sp>0?(sl/sp).toFixed(2)+'x':'—';
+        function _adRow2(l,co,sp,cl,sl){if(sp<=0)return '';var cp=cl>0?'$'+(sp/cl).toFixed(2):'—';var ro=sp>0?(sl/sp).toFixed(2)+'x':'—';
           return '<tr><td><span style="color:'+co+';font-weight:600">'+l+'</span></td><td style="text-align:right;font-family:var(--mono)">$'+Math.round(sp).toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">'+cl.toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">$'+Math.round(sl).toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">'+cp+'</td><td style="text-align:right;font-family:var(--mono);font-weight:700">'+ro+'</td></tr>';}
-        var _amzCl=amzClD.reduce(function(a,b){return a+b},0),_amzSl=amzSlD.reduce(function(a,b){return a+b},0);
-        var _mtCl=mtClD.reduce(function(a,b){return a+b},0),_mtSl=mtSlD.reduce(function(a,b){return a+b},0);
-        var _gadsCl=gadsClD.reduce(function(a,b){return a+b},0),_gadsSl=gadsSlD.reduce(function(a,b){return a+b},0);
-        html+=_adRow('Amazon Ads','#f59e0b',_amzSpTot,_amzCl,_amzSl);
-        html+=_adRow('Meta→AMZ','#3b82f6',_mtSpTot,_mtCl,_mtSl);
-        html+=_adRow('Google Ads','#ef4444',_gadsSpTot,_gadsCl,_gadsSl);
-        html+='<tr style="border-top:1px solid var(--border);font-weight:700"><td>Total</td><td style="text-align:right;font-family:var(--mono)">$'+Math.round(_adSpTot).toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">'+_totalAdClicks.toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">$'+Math.round(_totalAdSales).toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">$'+_totalCPC.toFixed(2)+'</td><td style="text-align:right;font-family:var(--mono)">'+_totalROAS.toFixed(2)+'x</td></tr>';
-        html+='</tbody></table></div>';
+        html+=_adRow2('Amazon Ads','#f59e0b',_amzSpTot,_amzCl,_amzSl);
+        html+=_adRow2('Meta→AMZ','#3b82f6',_mtSpTot,_mtCl,_mtSl);
+        html+='<tr style="border-top:1px solid var(--border);font-weight:700"><td>Total</td><td style="text-align:right;font-family:var(--mono)">$'+Math.round(_amzMetaSpTot).toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">'+_totalAdClicks2.toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">$'+Math.round(_totalAdSales2).toLocaleString()+'</td><td style="text-align:right;font-family:var(--mono)">$'+_totalCPC2.toFixed(2)+'</td><td style="text-align:right;font-family:var(--mono)">'+_totalROAS2.toFixed(2)+'x</td></tr>';
+        html+='</tbody></table>';
+        // ── Meta Attribution Campaign Detail (from 5.Traffic data) ──
+        var _ct30=(F.channel_traffic||{})['30d']||{};
+        var _attrCamps=(_ct30.amazon||{}).attribution?((_ct30.amazon||{}).attribution||{}).campaigns||[]:[];
+        if(_attrCamps.length){
+          html+='<div style="margin-top:8px;font-size:10px;font-weight:700;color:#3b82f6;margin-bottom:4px">Meta→AMZ Campaign Detail <span style="font-weight:400;font-size:9px;color:var(--muted)">(Attribution)</span></div>';
+          html+='<table style="font-size:10px"><thead><tr><th>#</th><th>Campaign</th><th style="text-align:right">Spend</th><th style="text-align:right">Attr. Sales</th><th style="text-align:right">CPC</th><th style="text-align:right">ROAS</th><th style="text-align:right">Orders</th></tr></thead><tbody>';
+          _attrCamps.forEach(function(ac,ai){
+            if(ac.spend<=0&&ac.sales<=0)return;
+            var _acCpc=ac.clicks>0?'$'+(ac.spend/ac.clicks).toFixed(2):'—';
+            var _acRoas=ac.spend>0?(ac.sales/ac.spend).toFixed(1)+'x':'—';
+            var _rc2=ac.roas>=2?'var(--g)':ac.roas>=0.5?'var(--am)':'var(--r)';
+            html+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(ai+1)+'</td>';
+            html+='<td style="font-size:10px;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+ac.name+'">'+ac.name+'</td>';
+            html+='<td style="text-align:right;font-family:var(--mono)">$'+Math.round(ac.spend).toLocaleString()+'</td>';
+            html+='<td style="text-align:right;font-family:var(--mono)">$'+Math.round(ac.sales).toLocaleString()+'</td>';
+            html+='<td style="text-align:right;font-family:var(--mono)">'+_acCpc+'</td>';
+            html+='<td style="text-align:right;font-family:var(--mono);font-weight:700;color:'+_rc2+'">'+_acRoas+'</td>';
+            html+='<td style="text-align:right;font-family:var(--mono)">'+ac.purchases+'</td>';
+            html+='</tr>';
+          });
+          html+='</tbody></table>';
+        }
+        html+='</div>';
       }
       // ── Summary table (daily for 7D, weekly for 30D/90D) ──
       if(pDays<=7){
@@ -2141,24 +2127,6 @@ function renderHeroTab(F){
         html+='<tr><td style="font-weight:600;color:var(--dim)">Units</td>';
         du.forEach(function(v){html+='<td style="text-align:right;font-family:var(--mono)">'+v.toLocaleString()+'</td>';});
         html+='</tr>';
-        if(totalNewViews>0){
-          html+='<tr><td style="font-weight:600;color:'+bc+'">Content Views</td>';
-          vw.forEach(function(v){html+='<td style="text-align:right;font-family:var(--mono)">'+(v>0?v.toLocaleString():'—')+'</td>';});
-          html+='</tr>';
-        }
-        crDeltaArr.forEach(function(x,ci){
-          var _tu=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
-          var _ud7=x.cr.upload_date?x.cr.upload_date.substring(5):'';
-          html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_tu+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a>'+(_ud7?' <span style="font-size:8px;color:var(--muted);font-weight:400">&#x1F4C5;'+_ud7+'</span>':'')+'</td>';
-          x.cr.daily_views.forEach(function(v){html+='<td style="text-align:right;font-family:var(--mono)">'+(v>0?v.toLocaleString():'—')+'</td>';});
-          html+='</tr>';
-        });
-        var gscT=gscD.reduce(function(a,b){return a+b},0);
-        if(gscT>0){
-          html+='<tr style="border-top:2px solid var(--border)"><td style="font-weight:600;color:#f59e0b">GSC Search</td>';
-          gscD.forEach(function(v){html+='<td style="text-align:right;font-family:var(--mono);color:#f59e0b">'+(v>0?v.toLocaleString():'—')+'</td>';});
-          html+='</tr>';
-        }
         html+='</tbody></table>';
       } else {
         // Weekly columns for 30D/90D
@@ -2176,58 +2144,6 @@ function renderHeroTab(F){
           html+='<tr><td style="font-weight:600;color:var(--dim)">Units</td>';
           wkSlice.forEach(function(w,wi){var v=c.units_weekly[wkOffset+wi]||0;html+='<td style="text-align:right;font-family:var(--mono)">'+v.toLocaleString()+'</td>';});
           html+='</tr>';
-          // Per-creator rows: weekly new views (sum of daily within week) + Total Views column
-          crDeltaArr.forEach(function(x,ci){
-            var allDv=x.cr.daily_views;
-            var _wu=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
-            var _ud=x.cr.upload_date?x.cr.upload_date.substring(5):'';
-            var _col=INF_COLORS[ci%INF_COLORS.length];
-            html+='<tr><td style="font-weight:600;color:'+_col+'"><a href="'+_wu+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a>'
-              +(_ud?' <span style="font-size:8px;color:var(--muted);font-weight:400">'+_ud+'</span>':'')
-              +'</td>';
-            wkSlice.forEach(function(wk,wi){
-              var weekTotal=0;var wkIdx=wkOffset+wi;
-              for(var d=wkIdx*7;d<Math.min((wkIdx+1)*7,allDv.length);d++){weekTotal+=(allDv[d]||0);}
-              html+='<td style="text-align:right;font-family:var(--mono)">'+(weekTotal>0?weekTotal.toLocaleString():'—')+'</td>';
-            });
-            html+='</tr>';
-          });
-          // Views total delta row + cumulative row
-          if(crDeltaArr.length){
-            html+='<tr style="border-top:2px solid var(--border);background:#f0fdf4"><td style="font-weight:700;color:var(--g)">Views Delta (sum)</td>';
-            // Sum base_views across all creators for cumulative starting point
-            var baseViewsTotal=0;
-            crDeltaArr.forEach(function(x){baseViewsTotal+=(x.cr.base_views||0);});
-            var cumViews=baseViewsTotal;
-            var wkDeltas=[];
-            wkSlice.forEach(function(wk,wi){
-              var weekTotal=0;var wkIdx=wkOffset+wi;
-              crDeltaArr.forEach(function(x){
-                var allDv=x.cr.daily_views;
-                for(var d=wkIdx*7;d<Math.min((wkIdx+1)*7,allDv.length);d++){weekTotal+=(allDv[d]||0);}
-              });
-              wkDeltas.push(weekTotal);
-              html+='<td style="text-align:right;font-family:var(--mono);font-weight:700;color:var(--g)">'+(weekTotal>0?'+'+weekTotal.toLocaleString():'—')+'</td>';
-            });
-            html+='</tr>';
-            html+='<tr style="background:#f0fdf4"><td style="font-weight:700;color:#059669">Views Cumulative</td>';
-            wkDeltas.forEach(function(d){
-              cumViews+=d;
-              html+='<td style="text-align:right;font-family:var(--mono);font-weight:700;color:#059669">'+(cumViews>0?cumViews.toLocaleString():'—')+'</td>';
-            });
-            html+='</tr>';
-          }
-          // GSC weekly
-          var gscT=gscD.reduce(function(a,b){return a+b},0);
-          if(gscT>0){
-            html+='<tr style="border-top:2px solid var(--border)"><td style="font-weight:600;color:#f59e0b">GSC Search</td>';
-            wkSlice.forEach(function(wk,wi){
-              var weekTotal=0;var wkIdx=wkOffset+wi;
-              for(var d=wkIdx*7;d<Math.min((wkIdx+1)*7,_allGsc.length);d++){weekTotal+=(_allGsc[d]||0);}
-              html+='<td style="text-align:right;font-family:var(--mono);color:#f59e0b">'+(weekTotal>0?weekTotal.toLocaleString():'—')+'</td>';
-            });
-            html+='</tr>';
-          }
           html+='</tbody></table>';
         }
       }
@@ -2273,43 +2189,7 @@ function renderHeroTab(F){
         html+='</tr>';
         html+='</tbody></table></div></div>';
       }
-      // ── Delta table: view changes per period ──
-        var hasDeltaData=crDeltaArr.some(function(x){return x.total>0;});
-        if(hasDeltaData){
-          if(pDays<=7){
-            html+='<table style="margin-top:8px;font-size:10px"><thead><tr><th style="min-width:90px">View Delta (daily)</th>';
-            dates.forEach(function(d){html+='<th style="text-align:right;font-size:9px">'+d.substring(5)+'</th>';});
-            html+='</tr></thead><tbody>';
-            crDeltaArr.forEach(function(x,ci){
-              var _du=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
-              var _udd=x.cr.upload_date?x.cr.upload_date.substring(5):'';
-              html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_du+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a>'+(_udd?' <span style="font-size:8px;color:var(--muted);font-weight:400">&#x1F4C5;'+_udd+'</span>':'')+'</td>';
-              x.deltas.forEach(function(delta){
-                var col=delta>0?'#10b981':'var(--muted)';
-                html+='<td style="text-align:right;font-family:var(--mono);color:'+col+';font-size:10px">'+(delta>0?'+':'')+delta.toLocaleString()+'</td>';
-              });
-              html+='</tr>';
-            });
-            html+='</tbody></table>';
-          } else {
-            html+='<table style="margin-top:8px;font-size:10px"><thead><tr><th style="min-width:90px">View Delta (weekly)</th>';
-            wks.forEach(function(w){html+='<th style="text-align:right;font-size:9px">'+w+'</th>';});
-            html+='</tr></thead><tbody>';
-            crDeltaArr.forEach(function(x,ci){
-              var _duw=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
-              var _udw=x.cr.upload_date?x.cr.upload_date.substring(5):'';
-              html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_duw+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a>'+(_udw?' <span style="font-size:8px;color:var(--muted);font-weight:400">'+_udw+'</span>':'')+'</td>';
-              wks.forEach(function(wk,wi){
-                var weekTotal=0;
-                for(var d2=wi*7;d2<Math.min((wi+1)*7,n);d2++){weekTotal+=(x.cr.daily_views[d2]||0);}
-                var col=weekTotal>0?'#10b981':'var(--muted)';
-                html+='<td style="text-align:right;font-family:var(--mono);color:'+col+';font-size:10px">'+(weekTotal>0?'+'+weekTotal.toLocaleString():'—')+'</td>';
-              });
-              html+='</tr>';
-            });
-            html+='</tbody></table>';
-          }
-        }
+      // (View Delta table removed — redundant with stacked chart above)
       // Related keywords
       if(catKwVols.length){
         html+='<div style="margin-top:4px;font-size:9px;color:var(--muted)">Branded search (Google volume):';
