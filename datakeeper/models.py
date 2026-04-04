@@ -442,6 +442,7 @@ class AmazonBrandAnalytics(models.Model):
     asin_rank = models.IntegerField(default=0)  # 1, 2, or 3
     click_share = models.DecimalField(max_digits=8, decimal_places=4, default=0)
     conversion_share = models.DecimalField(max_digits=8, decimal_places=4, default=0)
+    match_reason = models.CharField(max_length=20, blank=True, default="")  # brand_kw, asin, category_kw, top_n
     collected_at = models.DateTimeField(auto_now=True)
 
     class Meta:
