@@ -1999,9 +1999,14 @@ function renderPropose(bk, dt, containerId){
   var executedCamps = {};
   var executedKws = {};
   var execLog = (D.brands[bk] && D.brands[bk].execution_log) || [];
+  // Campaign actions: same-date only (budget changes can repeat daily)
   execLog.filter(function(e){ return e.exec_date===dt; }).forEach(function(e){
-    if(e.campaignName) executedCamps[e.campaignName] = e.result_status||'OK';
-    if(e.keyword) executedKws[e.keyword] = e.result_status||'OK';
+    if(e.campaignName && !e.keyword) executedCamps[e.campaignName] = e.result_status||'OK';
+  });
+  // Keyword actions (harvest/negate): 14-day lookback — once executed, stay locked
+  var kwCutoff = new Date(Date.now() - 14*86400000).toISOString().slice(0,10);
+  execLog.filter(function(e){ return e.exec_date>=kwCutoff && e.keyword; }).forEach(function(e){
+    executedKws[e.keyword] = e.result_status||'OK';
   });
   var hasAnyExecuted = Object.keys(executedCamps).length>0 || Object.keys(executedKws).length>0;
 
