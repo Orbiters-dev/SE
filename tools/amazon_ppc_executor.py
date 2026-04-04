@@ -5238,10 +5238,10 @@ def _check_execute_for_brand(args, brand_key: str):
         print(f"[check-execute] {cfg['brand_display']}: Latest proposal already executed. Skipping.")
         return
 
-    # No email tracking info?
-    sent_at = data.get("email_sent_at")
+    # Email tracking info (fallback to generated_at if email wasn't sent)
+    sent_at = data.get("email_sent_at") or data.get("generated_at")
     if not sent_at:
-        print("[check-execute] Proposal has no email_sent_at. Was it emailed? Skipping.")
+        print("[check-execute] Proposal has no email_sent_at or generated_at. Skipping.")
         return
 
     # Import search function from send_gmail
@@ -5277,14 +5277,21 @@ def _check_execute_for_brand(args, brand_key: str):
     # Search for replies to THIS BRAND's PPC proposal email from the approver
     approver = args.to  # The person who receives proposals
     brand_display = cfg["brand_display"]
-    query = (
-        f'subject:"[Amazon PPC] {brand_display}" from:{approver} newer_than:2d'
-    )
-    print(f"[check-execute] Searching Gmail: {query}")
-    messages = search_emails(query, max_results=10)
+    # Try multiple query patterns to catch different email subject formats
+    queries = [
+        f'subject:"[Amazon PPC] {brand_display}" from:{approver} newer_than:2d',
+        f'subject:"PPC" subject:"{brand_display}" from:{approver} newer_than:2d',
+        f'subject:"proposal" subject:"{brand_display}" from:{approver} newer_than:2d',
+    ]
+    messages = []
+    for query in queries:
+        print(f"[check-execute] Searching Gmail: {query}")
+        messages = search_emails(query, max_results=10)
+        if messages:
+            break
 
     if not messages:
-        print("[check-execute] No reply emails found.")
+        print("[check-execute] No reply emails found across all query patterns.")
         return
 
     # Check if any reply contains an execute keyword
