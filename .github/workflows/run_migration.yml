@@ -15,13 +15,24 @@ jobs:
           chmod 600 ~/.ssh/ec2_key
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
 
-      - name: Get DB config and run migration
+      - name: Run ALTER TABLE migration via SSH tunnel
+        run: |
+          # SSH into EC2 and use psql to connect to the actual PG host
+          cat onzenna/migrations/add_creator_master_list_fields.sql | \
+            ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} \
+              "PGPASSWORD=orbit1234 psql -h 172.31.13.240 -U es_db_user -d export_calculator_db -f -"
+
+      - name: Deploy updated Django code
         run: |
           ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} '
-            echo "=== DB Settings ==="
-            grep -A 10 "DATABASES" /home/ubuntu/export_calculator/export_calculator/settings/production.py 2>/dev/null
-            echo "=== PG processes ==="
-            ps aux | grep postgres | head -5
-            echo "=== PG HBA ==="
-            sudo find / -name pg_hba.conf 2>/dev/null | head -3
+            cd /home/ubuntu/export_calculator
+            git fetch origin main
+            git checkout origin/main -- onzenna/models.py onzenna/views.py onzenna/urls.py
+            sudo systemctl restart gunicorn
+            echo "Deploy complete — gunicorn restarted"
           '
+
+      - name: Verify new columns
+        run: |
+          ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} \
+            "PGPASSWORD=orbit1234 psql -h 172.31.13.240 -U es_db_user -d export_calculator_db -c \"SELECT column_name FROM information_schema.columns WHERE table_name='onz_pipeline_creators' ORDER BY ordinal_position;\""
