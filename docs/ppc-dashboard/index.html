@@ -1909,7 +1909,7 @@ brands.forEach(function(bk,i){
   d.textContent = BRAND_LABELS[bk];
   d.dataset.brand = bk;
   if(i===0) d.classList.add('on');
-  d.onclick = function(){ cfgBtEl.querySelectorAll('div').forEach(function(x){x.classList.remove('on');}); d.classList.add('on'); renderConfigBrand(bk); };
+  d.onclick = function(){ cfgBtEl.querySelectorAll('div').forEach(function(x){x.classList.remove('on');}); d.classList.add('on'); localStorage.setItem('ppc_last_brand',bk); renderConfigBrand(bk); if(typeof _saveHash==='function') _saveHash(); };
   cfgBtEl.appendChild(d);
 });
 
@@ -1920,7 +1920,7 @@ brands.forEach(function(bk,i){
   d.textContent = BRAND_LABELS[bk];
   d.dataset.brand = bk;
   if(i===0) d.classList.add('on');
-  d.onclick = function(){ execBtEl.querySelectorAll('div').forEach(function(x){x.classList.remove('on');}); d.classList.add('on'); renderExecLog(bk); };
+  d.onclick = function(){ execBtEl.querySelectorAll('div').forEach(function(x){x.classList.remove('on');}); d.classList.add('on'); localStorage.setItem('ppc_last_brand',bk); renderExecLog(bk); };
   execBtEl.appendChild(d);
 });
 
@@ -3202,9 +3202,14 @@ updateArchActiveExp();
   }
 })();
 
-// Init — render first brand in all tabs
-renderConfigBrand(brands[0]);
-renderExecLog(brands[0]);
+// Init — render last-used brand (or first)
+var _initBrand = localStorage.getItem('ppc_last_brand');
+if(!_initBrand || brands.indexOf(_initBrand)===-1) _initBrand = brands[0];
+// Activate the correct brand tab
+cfgBtEl.querySelectorAll('div').forEach(function(x){ x.classList.toggle('on', x.dataset.brand===_initBrand); });
+execBtEl.querySelectorAll('div').forEach(function(x){ x.classList.toggle('on', x.dataset.brand===_initBrand); });
+renderConfigBrand(_initBrand);
+renderExecLog(_initBrand);
 renderExecAudit();
 if(btBrands.length) renderBacktestBrand(btBrands[0]);
 </script>
