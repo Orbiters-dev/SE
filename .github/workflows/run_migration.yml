@@ -15,18 +15,19 @@ jobs:
           chmod 600 ~/.ssh/ec2_key
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
 
-      - name: Run ALTER TABLE migration
+      - name: Check PG setup on EC2
         run: |
-          ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} \
-            "sudo -u postgres psql -d export_calculator -f -" \
-            < onzenna/migrations/add_creator_master_list_fields.sql
-
-      - name: Deploy updated Django code
-        run: |
-          ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} \
-            "cd /home/ubuntu/export_calculator && git fetch origin main && git checkout origin/main -- onzenna/models.py onzenna/views.py onzenna/urls.py && sudo systemctl restart gunicorn && echo 'Deploy complete'"
-
-      - name: Verify columns
-        run: |
-          ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} \
-            "sudo -u postgres psql -d export_calculator -c \"SELECT column_name FROM information_schema.columns WHERE table_name='onz_pipeline_creators' ORDER BY ordinal_position;\""
+          ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} '
+            echo "=== whoami ==="
+            whoami
+            echo "=== pg users ==="
+            cat /etc/passwd | grep -i post || echo "no postgres user in passwd"
+            echo "=== pg service ==="
+            systemctl status postgresql 2>/dev/null | head -5 || echo "no systemctl postgresql"
+            echo "=== pg config ==="
+            grep -r "DATABASES" /home/ubuntu/export_calculator/export_calculator/settings/ 2>/dev/null | head -10 || echo "no settings found"
+            echo "=== psql check ==="
+            which psql 2>/dev/null || echo "no psql binary"
+            echo "=== django manage check ==="
+            ls /home/ubuntu/export_calculator/manage.py 2>/dev/null || echo "no manage.py"
+          '
