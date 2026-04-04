@@ -3611,6 +3611,7 @@ def generate():
         "brand_ad_daily": brand_ad_daily_out,
         "weekly": weekly_data,
         "hero_products": hero_data,
+        "search_ranking": _build_autocomplete_data(),
     }
 
     # ── Write output ──────────────────────────────────────────────────────────
@@ -3666,6 +3667,71 @@ def generate():
         subprocess.run(["git", "commit", "-m", "auto: update financial KPI data [skip ci]"], check=False)
         subprocess.run(["git", "push"], check=True)
         print("  Pushed to GitHub")
+
+
+def _build_autocomplete_data() -> dict:
+    """Load Amazon autocomplete rank data — PG first, fallback to local cache."""
+    rows = []
+
+    # Try PG (has all historical data)
+    try:
+        from data_keeper_client import DataKeeper
+        dk = DataKeeper()
+        rows = dk.get("amazon_autocomplete_daily", days=120) or []
+        if rows:
+            print(f"  [autocomplete] {len(rows)} rows from PG")
+    except Exception as e:
+        print(f"  [autocomplete] PG failed ({e}), trying cache")
+
+    # Fallback to local cache
+    if not rows:
+        cache_path = os.path.join(os.path.dirname(__file__), "..", ".tmp", "datakeeper", "amazon_autocomplete_daily.json")
+        if os.path.exists(cache_path):
+            with open(cache_path, "r", encoding="utf-8") as f:
+                rows = json.load(f)
+
+    if not rows:
+        print("  [autocomplete] No data found")
+        return {}
+
+    # Build two structures:
+    # 1. "latest" — most recent snapshot per brand/market (for summary cards)
+    # 2. "trends" — daily time series per brand/market/keyword (for trend chart)
+    latest_date = max(r.get("date", "") for r in rows)
+
+    latest = {}
+    trends = {}  # brand → market → keyword → [{date, score, position}, ...]
+
+    for r in rows:
+        brand = r.get("brand", "")
+        market = r.get("market", "US")
+        kw = r.get("keyword", "")
+        score = r.get("rank_score", 0)
+        pos = r.get("position", -1)
+        date = r.get("date", "")
+
+        # Latest snapshot
+        if date == latest_date:
+            if brand not in latest:
+                latest[brand] = {"US": [], "JP": []}
+            latest[brand][market].append({"keyword": kw, "score": score, "position": pos, "date": date})
+
+        # Trends
+        if brand not in trends:
+            trends[brand] = {"US": {}, "JP": {}}
+        if kw not in trends[brand][market]:
+            trends[brand][market][kw] = []
+        trends[brand][market][kw].append({"date": date, "score": score, "position": pos})
+
+    # Sort trend entries by date
+    for brand in trends:
+        for mkt in trends[brand]:
+            for kw in trends[brand][mkt]:
+                trends[brand][mkt][kw].sort(key=lambda x: x["date"])
+
+    all_dates = sorted(set(r.get("date", "") for r in rows))
+    print(f"  [autocomplete] {len(rows)} rows, {len(all_dates)} dates, {len(latest)} brands")
+    return {"latest": latest, "trends": trends, "dates": all_dates}
 
 
 if __name__ == "__main__":
