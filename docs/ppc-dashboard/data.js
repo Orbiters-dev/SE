@@ -1,5 +1,5 @@
 const PPC_DATA = {
- "generated_pst": "2026-04-04 15:58 PST",
+ "generated_pst": "2026-04-04 16:07 PST",
  "phantom_warnings": [],
  "brands": {
   "grosmimi": {
@@ -23627,7 +23627,7 @@ const PPC_DATA = {
      }
     },
     "2026-04-04": {
-     "generated": "2026-04-04T15:58",
+     "generated": "2026-04-04T16:07",
      "executed": false,
      "executed_at": "",
      "summary_7d": {
@@ -27362,9 +27362,9 @@ const PPC_DATA = {
      }
     },
     "2026-04-04": {
-     "generated": "2026-04-04T15:58",
-     "executed": false,
-     "executed_at": "",
+     "generated": "2026-04-04T16:07",
+     "executed": true,
+     "executed_at": "2026-04-04",
      "summary_7d": {
       "spend": 352,
       "sales": 1501,
@@ -27388,7 +27388,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "8 Strong",
        "reason": "[MANUAL] 7d ROAS 5.81x (ACOS 17.2%) | 30d ROAS 5.43x | target ACOS 25.0% | 7d vs 30d: +7.0%\nBudget already at cap ($100/campaign)",
-       "approved": false
+       "approved": true
       },
       {
        "name": "Naeiae Rice Pop - SP - Auto",
@@ -27406,7 +27406,7 @@ const PPC_DATA = {
        "bud_after": null,
        "tier": "6 Optimize",
        "reason": "[AUTO] 7d ROAS 2.61x (ACOS 38.4%) | 30d ROAS 2.81x | 7d vs 30d: -7.1%\nOptimization: ACOS 38.4% exceeds target 35.0% by 3.4pp -> bid -10%",
-       "approved": false
+       "approved": true
       },
       {
        "name": "Naeiae Rice Pop - SB - Manual",
@@ -27427,80 +27427,12 @@ const PPC_DATA = {
        "approved": false
       }
      ],
-     "harvest": [
-      {
-       "term": "rice puff",
-       "sales": 73.8,
-       "cost": 8.46,
-       "acos": 11.5,
-       "clicks": 10,
-       "purchases": 3,
-       "bid": 0.93,
-       "campaign": "Naeiae Rice Pop - SP - Auto",
-       "sim_confirmed": false
-      }
-     ],
-     "negate": [
-      {
-       "term": "baby rice crackers",
-       "cost": 43.13,
-       "sales": 49.2,
-       "acos": 87.7,
-       "clicks": 26,
-       "type": "negate_high_acos",
-       "reason": "ACOS 87.7% > 50.0% threshold",
-       "campaign": "Naeiae Rice Pop - SP - Manual",
-       "sim_save": 0
-      },
-      {
-       "term": "rice snacks",
-       "cost": 36.54,
-       "sales": 49.2,
-       "acos": 74.3,
-       "clicks": 22,
-       "type": "negate_high_acos",
-       "reason": "ACOS 74.3% > 50.0% threshold",
-       "campaign": "Naeiae Rice Pop - SP - Manual",
-       "sim_save": 0
-      },
-      {
-       "term": "baby snack",
-       "cost": 19.84,
-       "sales": 24.6,
-       "acos": 80.7,
-       "clicks": 19,
-       "type": "negate_high_acos",
-       "reason": "ACOS 80.7% > 50.0% threshold",
-       "campaign": "Naeiae Rice Pop - SP - Manual",
-       "sim_save": 0
-      },
-      {
-       "term": "rice snack",
-       "cost": 16.64,
-       "sales": 0,
-       "acos": 0,
-       "clicks": 11,
-       "type": "negate_zero_sales",
-       "reason": "$16.64 spent, 11 clicks, 0 sales (>3.0x target CPA)",
-       "campaign": "Naeiae Rice Pop - SP - Manual",
-       "sim_save": 0
-      },
-      {
-       "term": "teething crackers",
-       "cost": 14.13,
-       "sales": 24.6,
-       "acos": 57.4,
-       "clicks": 14,
-       "type": "negate_high_acos",
-       "reason": "ACOS 57.4% > 50.0% threshold",
-       "campaign": "Naeiae Rice Pop - SP - Manual",
-       "sim_save": 0
-      }
-     ],
+     "harvest": [],
+     "negate": [],
      "counts": {
       "campaigns": 3,
-      "harvest": 1,
-      "negate": 5
+      "harvest": 0,
+      "negate": 0
      }
     }
    },
@@ -28937,6 +28869,136 @@ const PPC_DATA = {
      "sales_7d": 0,
      "result_status": "OK",
      "exec_date": "2026-03-09"
+    },
+    {
+     "brand_key": "naeiae",
+     "campaignId": "444108265805305",
+     "campaignName": "Naeiae Rice Pop - SP - Manual",
+     "action": "increase_budget",
+     "priority": "high",
+     "reason": "[MANUAL] 7d ROAS 5.81x (ACOS 17.2%) | 30d ROAS 5.43x | target ACOS 25.0% | 7d vs 30d: +7.0%\nBudget already at cap ($100/campaign)",
+     "old_budget": 120.0,
+     "new_budget": 120,
+     "bid_change_pct": 10,
+     "roas_7d": 5.81,
+     "spend_7d": 181.92,
+     "sales_7d": 1057.8,
+     "result_status": "ERROR: Budget $120 exceeds per-campaign cap $100.0",
+     "exec_date": "2026-04-04"
+    },
+    {
+     "brand_key": "naeiae",
+     "campaignId": "365330679770972",
+     "campaignName": "Naeiae Rice Pop - SP - Auto",
+     "action": "harvest",
+     "priority": "medium",
+     "reason": "Profitable ST: ACOS 11.5% < target 35.0%, 3 sales",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "rice puff",
+     "old_bid": null,
+     "new_bid": 0.93,
+     "roas_7d": null,
+     "spend_7d": 8.46,
+     "sales_7d": 73.8,
+     "result_status": "ERROR: 0",
+     "exec_date": "2026-04-04"
+    },
+    {
+     "brand_key": "naeiae",
+     "campaignId": "444108265805305",
+     "campaignName": "Naeiae Rice Pop - SP - Manual",
+     "action": "negate_high_acos",
+     "priority": "high",
+     "reason": "ACOS 87.7% > 50.0% threshold",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "baby rice crackers",
+     "old_bid": null,
+     "new_bid": null,
+     "roas_7d": null,
+     "spend_7d": 43.13,
+     "sales_7d": 49.2,
+     "result_status": "OK",
+     "exec_date": "2026-04-04"
+    },
+    {
+     "brand_key": "naeiae",
+     "campaignId": "444108265805305",
+     "campaignName": "Naeiae Rice Pop - SP - Manual",
+     "action": "negate_high_acos",
+     "priority": "high",
+     "reason": "ACOS 74.3% > 50.0% threshold",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "rice snacks",
+     "old_bid": null,
+     "new_bid": null,
+     "roas_7d": null,
+     "spend_7d": 36.54,
+     "sales_7d": 49.2,
+     "result_status": "OK",
+     "exec_date": "2026-04-04"
+    },
+    {
+     "brand_key": "naeiae",
+     "campaignId": "444108265805305",
+     "campaignName": "Naeiae Rice Pop - SP - Manual",
+     "action": "negate_high_acos",
+     "priority": "high",
+     "reason": "ACOS 80.7% > 50.0% threshold",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "baby snack",
+     "old_bid": null,
+     "new_bid": null,
+     "roas_7d": null,
+     "spend_7d": 19.84,
+     "sales_7d": 24.6,
+     "result_status": "OK",
+     "exec_date": "2026-04-04"
+    },
+    {
+     "brand_key": "naeiae",
+     "campaignId": "444108265805305",
+     "campaignName": "Naeiae Rice Pop - SP - Manual",
+     "action": "negate_zero_sales",
+     "priority": "urgent",
+     "reason": "$16.64 spent, 11 clicks, 0 sales (>3.0x target CPA)",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "rice snack",
+     "old_bid": null,
+     "new_bid": null,
+     "roas_7d": null,
+     "spend_7d": 16.64,
+     "sales_7d": 0,
+     "result_status": "OK",
+     "exec_date": "2026-04-04"
+    },
+    {
+     "brand_key": "naeiae",
+     "campaignId": "444108265805305",
+     "campaignName": "Naeiae Rice Pop - SP - Manual",
+     "action": "negate_high_acos",
+     "priority": "high",
+     "reason": "ACOS 57.4% > 50.0% threshold",
+     "old_budget": null,
+     "new_budget": null,
+     "bid_change_pct": null,
+     "keyword": "teething crackers",
+     "old_bid": null,
+     "new_bid": null,
+     "roas_7d": null,
+     "spend_7d": 14.13,
+     "sales_7d": 24.6,
+     "result_status": "OK",
+     "exec_date": "2026-04-04"
     }
    ]
   },
