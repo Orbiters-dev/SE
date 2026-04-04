@@ -80,46 +80,6 @@ Google Sheets에 누적 저장하고 USA_LLM · SNS 탭 등 하위 시스템에 
    └── grosmimi_japan/tags → JP 3탭 업데이트
 ```
 
-### JP Discovery Pipeline (fetch_jp_discovery.py)
-
-Syncly 완전 대체. 일본 육아 인플루언서 독립 발견 파이프라인.
-
-```
-1. IG Hashtag Discovery (Apify instagram-hashtag-scraper)
-   └── 11개 JP 해시태그 × 200 limit = ~401 포스트/일
-   └── ⚠️ Reels는 안 잡힘 (explore/tags Top/Recent만 크롤)
-
-2. IG Reels Discovery (RapidAPI get_ig_user_reels.php) ← 2026-04-03 추가
-   └── Step 1에서 발견된 handle에서 프로필별 Reels 5개씩
-   └── ~100-150 Reels/일 (대사 있는 영상의 핵심 소스)
-   └── ⚠️ Apify hashtag scraper가 Reels 못 긁는 이유:
-       IG explore/tags 페이지가 Reels를 별도 탭으로 분리해서
-       scraper가 Top/Recent 그리드만 크롤 → Image/Sidecar만 반환
-
-3. RapidAPI Enrichment (likes/comments 보강)
-   └── get_ig_user_posts.php → 포스트별 engagement
-
-4. TikTok Discovery (Apify free-tiktok-scraper)
-   └── 3개 키워드 × 100 limit = ~17 포스트/일 (전부 Video)
-
-5. PG 동기화 (sync_discovery_to_pg.py)
-   └── onz_discovery_posts 테이블에 upsert
-
-6. Pipeline 임포트 (import-from-discovery API)
-   └── Video + followers >= 1000 → onz_pipeline_creators에 자동 추가
-
-7. CI 분석 (analyze_video_content.py)
-   └── Whisper(transcript) + GPT-4o Vision(brand_fit) + Script Analysis
-   └── TikTok: yt-dlp 다운로드 (CDN URL 직접 접근 불가)
-   └── --vision-only 모드: transcript 있는 포스트에 Vision만 추가
-```
-
-**오답노트 (2026-04-03):**
-IG Video가 2/401건으로 나왔을 때 "실제로 Reels가 적다"고 판단했으나,
-실제 원인은 **Apify hashtag scraper가 Reels를 아예 안 긁는 것**이었음.
-RapidAPI `get_ig_user_reels.php`로 같은 handle에서 10개 Reels (2만~23만 plays) 확인.
-→ "수집량이 적다" = 반드시 **도구가 실제로 뭘 긁는지** raw 출력 확인 먼저.
-
 ---
 
 ## GitHub Actions 전체 스텝 순서

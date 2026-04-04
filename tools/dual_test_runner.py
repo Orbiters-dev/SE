@@ -11,7 +11,7 @@ Architecture (Airtable 제거 후):
 Stages (Stage 0-7):
   syncly_check      : Stage 0  — n8n Syncly + Content WF active check
   seed              : Stage 0b — PG pipeline_creators 시드 레코드 생성
-  email_draft       : Stage 1a — AI 이메일 드래프트 (PG Conversations)
+  email_draft       : Stage 1a — AI 이메일 드래프트 (AT Conversations 유지)
   email_approve     : Stage 1b — 아웃리치 이메일 발송 승인
   email_reply       : Stage 1c — 인플루언서 회신 시뮬
   email_confirm     : Stage 1d — 기프팅폼 링크 확인 이메일
@@ -39,7 +39,6 @@ import time
 import random
 import string
 import argparse
-import base64
 import urllib.request
 import urllib.error
 import urllib.parse
@@ -71,6 +70,18 @@ from test_influencer_flow import (
     link_shopify, link_n8n_wf,
 )
 
+# ─── Airtable (email/outreach 스테이지에서만 사용 — gifting/seed/sample은 PG 사용) ──
+AT_BASE          = "app3Vnmh7hLAVsevE"
+AT_CREATORS      = "tblv2Jw3ZAtAMhiYY"
+AT_ORDERS        = "tblQUz8zQRDdZvES3"
+AT_APPLICANTS    = "tblQUz8zQRDdZvES3"
+AT_CONVERSATIONS = "tblNeTyVwMomsfSk7"
+
+AIRTABLE_API_KEY = (
+    os.getenv("AT_API_KEY_PATHLIGHT") or
+    os.getenv("AIRTABLE_API_KEY", "")
+)
+
 # ─── ORBITOOLS / PostgreSQL (primary backend for pipeline) ───────────────────
 ORBITOOLS_USER = os.getenv("ORBITOOLS_USER") or "admin"
 ORBITOOLS_PASS = os.getenv("ORBITOOLS_PASS") or "admin"
@@ -98,7 +109,7 @@ def info(msg): print(f"  [INFO] {msg}")
 ALL_STAGES = [
     "syncly_check",       # Stage 0: Syncly/Content WF active check (before seed)
     "seed",               # Stage 0b: PG pipeline_creators 시드
-    "email_draft",        # Stage 1a: AI 이메일 드래프트 (PG Conversations)
+    "email_draft",        # Stage 1a: AI 이메일 드래프트 (AT Conversations 유지)
     "email_approve",      # Stage 1b: 아웃리치 이메일 발송 승인
     "email_reply",        # Stage 1c: 인플루언서 회신 시뮬
     "email_confirm",      # Stage 1d: 기프팅폼 링크 확인 이메일
@@ -211,52 +222,51 @@ class SignalFile:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# Django API / Shopify / PG helpers (thin wrappers for verification)
+# Airtable / Shopify / PG helpers (thin wrappers for verification)
 # ═══════════════════════════════════════════════════════════════════════════
 
-def _pg_headers():
-    credentials = base64.b64encode(f"{ORBITOOLS_USER}:{ORBITOOLS_PASS}".encode()).decode()
-    return {"Authorization": f"Basic {credentials}", "Content-Type": "application/json"}
+def _at_headers():
+    return {"Authorization": f"Bearer {AIRTABLE_API_KEY}", "Content-Type": "application/json"}
 
-def pg_find_resource(resource, field, value, max_records=5):
-    """Find records via Django API search. Returns flat list of dicts (no 'fields' wrapper)."""
-    url = f"{ORBITOOLS_URL}/api/onzenna/pipeline/{resource}/?search={urllib.parse.quote(str(value))}"
-    status, body = http_request("GET", url, headers=_pg_headers())
-    if status == 200:
-        if isinstance(body, dict):
-            results = body.get("results", [])
-        elif isinstance(body, list):
-            results = body
-        else:
-            results = []
-        return results[:max_records]
+def at_find(table_id, field, value, max_records=5):
+    safe = value.replace("'", "\\'")
+    formula = urllib.parse.quote(f"{{{field}}}='{safe}'")
+    url = f"https://api.airtable.com/v0/{AT_BASE}/{table_id}?filterByFormula={formula}&maxRecords={max_records}"
+    status, body = http_request("GET", url, headers=_at_headers())
+    if status == 200 and isinstance(body, dict):
+        return body.get("records", [])
     return []
 
-def pg_create_resource(resource, data):
-    """Create a record via Django API POST. Returns (status, body) with flat dict response."""
-    url = f"{ORBITOOLS_URL}/api/onzenna/pipeline/{resource}/"
-    status, body = http_request("POST", url, payload=data, headers=_pg_headers())
+def at_create(table_id, fields):
+    url = f"https://api.airtable.com/v0/{AT_BASE}/{table_id}"
+    payload = {"fields": fields, "typecast": True}
+    status, body = http_request("POST", url, payload=payload, headers=_at_headers())
     return status, body
 
-def pg_update_resource(resource, record_id, data):
-    """Update a record via Django API PUT. Returns (status, body)."""
-    url = f"{ORBITOOLS_URL}/api/onzenna/pipeline/{resource}/{record_id}/"
-    status, body = http_request("PUT", url, payload=data, headers=_pg_headers())
+def at_update(table_id, record_id, fields):
+    url = f"https://api.airtable.com/v0/{AT_BASE}/{table_id}/{record_id}"
+    payload = {"fields": fields, "typecast": True}
+    status, body = http_request("PATCH", url, payload=payload, headers=_at_headers())
     return status, body
 
-def pg_delete_resource(resource, record_id):
-    """Delete a record via Django API DELETE. Returns (status, body)."""
-    if not record_id:
+def at_delete(table_id, record_id):
+    if not record_id or not str(record_id).startswith("rec"):
         return 0, "invalid record_id"
-    url = f"{ORBITOOLS_URL}/api/onzenna/pipeline/{resource}/{record_id}/"
-    status, body = http_request("DELETE", url, headers=_pg_headers())
+    url = f"https://api.airtable.com/v0/{AT_BASE}/{table_id}/{record_id}"
+    status, body = http_request("DELETE", url, headers=_at_headers())
     return status, body
 
-def pg_get_resource(resource, record_id):
-    """Get a single record by ID via Django API GET. Returns (status, body)."""
-    url = f"{ORBITOOLS_URL}/api/onzenna/pipeline/{resource}/{record_id}/"
-    status, body = http_request("GET", url, headers=_pg_headers())
-    return status, body
+def find_orders_by_draft_id(draft_order_id, max_records=5):
+    """Find WJ TEST Orders by Shopify Draft Order ID."""
+    if not draft_order_id:
+        return []
+    safe = str(draft_order_id).replace("'", "\\'")
+    formula = urllib.parse.quote(f"{{Shopify Order ID}}='{safe}'")
+    url = f"https://api.airtable.com/v0/{AT_BASE}/{AT_ORDERS}?filterByFormula={formula}&maxRecords={max_records}"
+    status, body = http_request("GET", url, headers=_at_headers())
+    if status == 200 and isinstance(body, dict):
+        return body.get("records", [])
+    return []
 
 def shopify_find_customer(email):
     if not SHOPIFY_STORE or not SHOPIFY_TOKEN:
@@ -425,7 +435,7 @@ class ExecutorAgent:
         info(f"  Webhook: {webhook_url}")
 
         seed_ctx = self.signal.get_stage_context("seed")
-        creator_record_id = seed_ctx.get("creator_pg_id", "") or seed_ctx.get("creator_record_id", "")
+        creator_record_id = seed_ctx.get("creator_record_id", "")
         test_ig = self.config.test_ig.lstrip("@")
         subj, body, _, _ = _email_templates("Sarah Kim", test_ig, self.config.test_email)
 
@@ -434,23 +444,21 @@ class ExecutorAgent:
             return checks, ctx
 
         if not creator_record_id:
-            # Try to find existing PG creator by email
-            creators = pg_find_creators(self.config.test_email)
-            creator_record_id = creators[0]["id"] if creators else ""
-            if not creator_record_id:
-                warn("[1a] No creator_record_id from seed — generating payload without PG link")
+            # email stages use AT — but seed now creates PG record, not AT
+            warn("[1a] No AT creator_record_id from seed (seed now creates PG records) — generating payload without AT link")
+            creator_record_id = ""
 
         payload = {
             "records": [{
                 "id": creator_record_id,
                 "fields": {
-                    "creator_handle": test_ig,
-                    "email": OUTREACH_TEST_RECIPIENT,  # real inbox — receives actual outreach email in test
-                    "channel": "Instagram",
-                    "outreach_type": "Low Touch",
-                    "status": "Not Started",
-                    "full_name": "Sarah Kim",
-                    "brand": "Grosmimi",
+                    "Username": test_ig,
+                    "Email": OUTREACH_TEST_RECIPIENT,  # real inbox — receives actual outreach email in test
+                    "Platform": "Instagram",
+                    "Outreach Type": "Low Touch",
+                    "Outreach Status": "Not Started",
+                    "Name": "Sarah Kim",
+                    "Brand Classification": "Grosmimi",
                 },
                 "createdTime": datetime.now().isoformat(),
             }]
@@ -495,27 +503,27 @@ class ExecutorAgent:
             return checks, ctx
 
         seed_ctx = self.signal.get_stage_context("seed")
-        creator_record_id = seed_ctx.get("creator_pg_id", "") or seed_ctx.get("creator_record_id", "")
+        creator_record_id = seed_ctx.get("creator_record_id", "")
         if not creator_record_id:
-            creators = pg_find_creators(self.config.test_email)
-            creator_record_id = creators[0]["id"] if creators else ""
+            records = at_find(AT_CREATORS, "Email", self.config.test_email)
+            creator_record_id = records[0]["id"] if records else ""
 
-        # Log outreach email in Conversations
-        conv_data = {
-            "subject": subj,
-            "channel": "Email",
-            "direction": "Outbound",
-            "message_content": body,
+        # Log outreach email in Conversations (fields: Subject, Channel, Direction, Message Content, Creator)
+        conv_fields = {
+            "Subject": subj,
+            "Channel": "Email",
+            "Direction": "Outbound",
+            "Message Content": body,
         }
         if creator_record_id:
-            conv_data["creator"] = creator_record_id
+            conv_fields["Creator"] = [creator_record_id]
 
         info(f"  [1b.1] Creating Conversations record (outreach email)")
-        status, resp = pg_create_resource("conversations", conv_data)
+        status, resp = at_create(AT_CONVERSATIONS, conv_fields)
         if status in (200, 201) and isinstance(resp, dict) and resp.get("id"):
             conv_id = resp["id"]
             ok(f"[1b.1] Outreach email logged: {conv_id}")
-            checks.append(Check("[1b] Log outreach email", True, detail=str(conv_id)))
+            checks.append(Check("[1b] Log outreach email", True, detail=conv_id))
             ctx["outreach_conv_id"] = conv_id
         else:
             fail(f"[1b.1] Failed to log email: {status}")
@@ -524,12 +532,10 @@ class ExecutorAgent:
         # Update creator status -> Sent
         if creator_record_id:
             info(f"  [1b.2] Updating creator status -> Sent")
-            # Get current record first for PUT
-            cur_s, cur_body = pg_get_resource("creators", creator_record_id)
-            update_data = dict(cur_body) if cur_s == 200 and isinstance(cur_body, dict) else {}
-            update_data["pipeline_status"] = "Sent"
-            update_data["outreach_sent_at"] = datetime.now().strftime("%Y-%m-%d")
-            s, _ = pg_update_resource("creators", creator_record_id, update_data)
+            s, _ = at_update(AT_CREATORS, creator_record_id, {
+                "Outreach Status": "Sent",
+                "Outreach Sent At": datetime.now().strftime("%Y-%m-%d"),
+            })
             if s == 200:
                 ok("[1b.2] Creator status -> Sent")
                 checks.append(Check("[1b] Update status -> Sent", True))
@@ -553,26 +559,26 @@ class ExecutorAgent:
             return checks, ctx
 
         seed_ctx = self.signal.get_stage_context("seed")
-        creator_record_id = seed_ctx.get("creator_pg_id", "") or seed_ctx.get("creator_record_id", "")
+        creator_record_id = seed_ctx.get("creator_record_id", "")
         if not creator_record_id:
-            creators = pg_find_creators(self.config.test_email)
-            creator_record_id = creators[0]["id"] if creators else ""
+            records = at_find(AT_CREATORS, "Email", self.config.test_email)
+            creator_record_id = records[0]["id"] if records else ""
 
-        conv_data = {
-            "subject": f"Re: {subj}",
-            "channel": "Email",
-            "direction": "Inbound",
-            "message_content": reply_body,
+        conv_fields = {
+            "Subject": f"Re: {subj}",
+            "Channel": "Email",
+            "Direction": "Inbound",
+            "Message Content": reply_body,
         }
         if creator_record_id:
-            conv_data["creator"] = creator_record_id
+            conv_fields["Creator"] = [creator_record_id]
 
         info(f"  [1c.1] Creating Conversations record (influencer reply)")
-        status, resp = pg_create_resource("conversations", conv_data)
+        status, resp = at_create(AT_CONVERSATIONS, conv_fields)
         if status in (200, 201) and isinstance(resp, dict) and resp.get("id"):
             conv_id = resp["id"]
             ok(f"[1c.1] Reply logged: {conv_id}")
-            checks.append(Check("[1c] Log influencer reply", True, detail=str(conv_id)))
+            checks.append(Check("[1c] Log influencer reply", True, detail=conv_id))
             ctx["reply_conv_id"] = conv_id
         else:
             fail(f"[1c.1] Failed: {status}")
@@ -580,11 +586,10 @@ class ExecutorAgent:
 
         if creator_record_id:
             info(f"  [1c.2] Updating creator status -> Replied")
-            cur_s, cur_body = pg_get_resource("creators", creator_record_id)
-            update_data = dict(cur_body) if cur_s == 200 and isinstance(cur_body, dict) else {}
-            update_data["pipeline_status"] = "Replied"
-            update_data["partnership_status"] = "In Progress"
-            s, _ = pg_update_resource("creators", creator_record_id, update_data)
+            s, _ = at_update(AT_CREATORS, creator_record_id, {
+                "Outreach Status": "Replied",
+                "Partnership Status": "In Progress",
+            })
             if s == 200:
                 ok("[1c.2] Creator status -> Replied")
                 checks.append(Check("[1c] Update status -> Replied", True))
@@ -607,26 +612,26 @@ class ExecutorAgent:
             return checks, ctx
 
         seed_ctx = self.signal.get_stage_context("seed")
-        creator_record_id = seed_ctx.get("creator_pg_id", "") or seed_ctx.get("creator_record_id", "")
+        creator_record_id = seed_ctx.get("creator_record_id", "")
         if not creator_record_id:
-            creators = pg_find_creators(self.config.test_email)
-            creator_record_id = creators[0]["id"] if creators else ""
+            records = at_find(AT_CREATORS, "Email", self.config.test_email)
+            creator_record_id = records[0]["id"] if records else ""
 
-        conv_data = {
-            "subject": f"Re: {subj}",
-            "channel": "Email",
-            "direction": "Outbound",
-            "message_content": confirm_body,
+        conv_fields = {
+            "Subject": f"Re: {subj}",
+            "Channel": "Email",
+            "Direction": "Outbound",
+            "Message Content": confirm_body,
         }
         if creator_record_id:
-            conv_data["creator"] = creator_record_id
+            conv_fields["Creator"] = [creator_record_id]
 
         info(f"  [1d.1] Creating Conversations record (confirmation)")
-        status, resp = pg_create_resource("conversations", conv_data)
+        status, resp = at_create(AT_CONVERSATIONS, conv_fields)
         if status in (200, 201) and isinstance(resp, dict) and resp.get("id"):
             conv_id = resp["id"]
             ok(f"[1d.1] Confirmation logged: {conv_id}")
-            checks.append(Check("[1d] Log confirmation email", True, detail=str(conv_id)))
+            checks.append(Check("[1d] Log confirmation email", True, detail=conv_id))
             ctx["confirm_conv_id"] = conv_id
         else:
             fail(f"[1d.1] Failed: {status}")
@@ -634,10 +639,7 @@ class ExecutorAgent:
 
         if creator_record_id:
             info(f"  [1d.2] Updating creator status -> Confirmed")
-            cur_s, cur_body = pg_get_resource("creators", creator_record_id)
-            update_data = dict(cur_body) if cur_s == 200 and isinstance(cur_body, dict) else {}
-            update_data["pipeline_status"] = "Confirmed"
-            s, _ = pg_update_resource("creators", creator_record_id, update_data)
+            s, _ = at_update(AT_CREATORS, creator_record_id, {"Outreach Status": "Confirmed"})
             if s == 200:
                 ok("[1d.2] Creator status -> Confirmed")
                 checks.append(Check("[1d] Update status -> Confirmed", True))
@@ -706,10 +708,10 @@ class ExecutorAgent:
 
         # Wait for n8n 5-way processing:
         # 1) Shopify customer lookup/create 2) Draft Order 3) Metafields
-        # 4) PostgreSQL pipeline_creators 5) PostgreSQL gifting_applications
+        # 4) Airtable CRM 5) PostgreSQL
         wait_sec = 14
         info(f"  [2.3] Waiting {wait_sec}s for n8n 5-way processing...")
-        info(f"        -> Shopify customer + Draft Order + Metafields + PostgreSQL")
+        info(f"        -> Shopify customer + Draft Order + Metafields + Airtable + PostgreSQL")
         time.sleep(wait_sec)
         checks.append(Check(f"[2] Wait {wait_sec}s for n8n", True))
 
@@ -782,7 +784,7 @@ class ExecutorAgent:
 
         wait_sec = 15
         info(f"  [4.3] Waiting {wait_sec}s for n8n Draft Order creation...")
-        info(f"        -> Shopify Draft Order (100% discount) + PG upsert")
+        info(f"        -> Shopify Draft Order (100% discount) + Airtable update + PG upsert")
         time.sleep(wait_sec)
         checks.append(Check(f"[4] Wait {wait_sec}s for Draft Order", True))
 
@@ -931,132 +933,46 @@ class ExecutorAgent:
 
         return checks, ctx
 
-    # ── Stage 7: Content/Syncly Metrics WF + Crawler Data Quality ──────────
+    # ── Stage 7: Content/Syncly Metrics WF structural check ──────────────
     def _stage_content_check(self):
-        """Stage 7: Content WF check + Apify crawler data freshness + quality."""
+        """Stage 7: Content detection + Shipped→Delivered + Delivered→Posted WF check."""
         checks = []
         ctx = {}
 
         if self.dry_run:
-            checks.append(Check("[7] DRY-RUN: Would check Content/Syncly WFs + crawler data", True))
+            checks.append(Check("[7] DRY-RUN: Would check Content/Syncly WFs", True))
             return checks, ctx
 
-        # ── Part A: n8n WF active checks (existing) ──────────────────────
         wf_targets = {
-            "syncly_metrics":  WJ_WORKFLOWS.get("syncly_metrics", ""),
-            "shipped_delivered": WJ_WORKFLOWS.get("shipped_delivered", ""),
-            "delivered_posted":  WJ_WORKFLOWS.get("delivered_posted", ""),
+            "syncly_metrics":  WJ_WORKFLOWS.get("syncly_metrics", ""),   # FzBJVEOTvr6qJPAL
+            "shipped_delivered": WJ_WORKFLOWS.get("shipped_delivered", ""), # k61gzrshITfju33V
+            "delivered_posted":  WJ_WORKFLOWS.get("delivered_posted", ""),  # tvmHITPHpWFtcmh0
         }
-        if N8N_API_KEY:
-            for wf_key, wf_id in wf_targets.items():
-                if not wf_id:
-                    checks.append(Check(f"[7] n8n WF {wf_key}: skip (no ID)", None))
-                    continue
-                url = f"{N8N_BASE_URL}/api/v1/workflows/{wf_id}"
-                headers = {"X-N8N-API-KEY": N8N_API_KEY}
-                status, body = http_request("GET", url, headers=headers)
-                if status == 200 and isinstance(body, dict):
-                    active = body.get("active", False)
-                    name = body.get("name", "")
-                    node_count = len(body.get("nodes", []))
-                    info(f"  [7] {wf_key} | name={name} | active={active} | nodes={node_count}")
-                    if active:
-                        ok(f"[7] {wf_key} WF active: {name} ({node_count} nodes)")
-                        checks.append(Check(f"[7] n8n WF {wf_key}: active", True, detail=name))
-                    else:
-                        warn(f"[7] {wf_key} WF INACTIVE: {name}")
-                        checks.append(Check(f"[7] n8n WF {wf_key}: active", None, detail="Inactive"))
-                else:
-                    warn(f"[7] {wf_key} WF check failed: HTTP {status}")
-                    checks.append(Check(f"[7] n8n WF {wf_key}: reachable", None, actual=str(status)))
-        else:
+        if not N8N_API_KEY:
             checks.append(Check("[7] n8n API key present", None, detail="N8N_API_KEY not set"))
+            return checks, ctx
 
-        # ── Part B: Crawler Data Freshness (Data Storage files) ──────────
-        info("[7] Checking Apify crawler data freshness...")
-        import glob as glob_mod
-        from datetime import datetime as dt, timedelta as td
-
-        data_storage = os.path.join(ROOT, "Data Storage", "apify")
-        today = dt.now().strftime("%Y-%m-%d")
-        yesterday = (dt.now() - td(days=1)).strftime("%Y-%m-%d")
-
-        if os.path.isdir(data_storage):
-            # Check for recent files (today or yesterday)
-            regions = ["us", "jp"]
-            file_types = ["tagged_raw", "tiktok_raw", "follower_map"]
-            fresh_count = 0
-            stale_files = []
-
-            for region in regions:
-                for ftype in file_types:
-                    today_file = os.path.join(data_storage, f"{today}_{region}_{ftype}.json")
-                    yesterday_file = os.path.join(data_storage, f"{yesterday}_{region}_{ftype}.json")
-
-                    if os.path.exists(today_file):
-                        fresh_count += 1
-                    elif os.path.exists(yesterday_file):
-                        fresh_count += 1
-                    else:
-                        stale_files.append(f"{region}_{ftype}")
-
-            total_expected = len(regions) * len(file_types)  # 6
-            if fresh_count == total_expected:
-                ok(f"[7] Crawler data: all {fresh_count}/{total_expected} files fresh (<48h)")
-                checks.append(Check("[7] Crawler data freshness", True,
-                                   detail=f"{fresh_count}/{total_expected} fresh"))
-            elif fresh_count > 0:
-                warn(f"[7] Crawler data: {fresh_count}/{total_expected} fresh, stale: {stale_files}")
-                checks.append(Check("[7] Crawler data freshness", None,
-                                   expected=str(total_expected), actual=str(fresh_count),
-                                   detail=f"Stale: {', '.join(stale_files)}"))
-                ctx["crawler_stale_files"] = stale_files
-            else:
-                fail(f"[7] Crawler data: NO recent files found in {data_storage}")
-                checks.append(Check("[7] Crawler data freshness", False,
-                                   expected=">0 fresh", actual="0",
-                                   detail="No files from today or yesterday"))
-                ctx["crawler_stale_files"] = stale_files
-        else:
-            info(f"[7] Data Storage/apify/ not found — skipping freshness check")
-            checks.append(Check("[7] Crawler data directory", None,
-                               detail="Data Storage/apify/ not found"))
-
-        # ── Part C: GitHub Actions apify_daily status ────────────────────
-        info("[7] Checking GitHub Actions apify_daily.yml status...")
-        try:
-            import subprocess
-            result = subprocess.run(
-                ["gh", "run", "list", "--workflow=apify_daily.yml", "--limit=1", "--json",
-                 "status,conclusion,createdAt,headBranch"],
-                capture_output=True, text=True, timeout=10,
-                cwd=ROOT
-            )
-            if result.returncode == 0 and result.stdout.strip():
-                runs = json.loads(result.stdout)
-                if runs:
-                    run = runs[0]
-                    conclusion = run.get("conclusion", "unknown")
-                    created = run.get("createdAt", "?")[:16]
-                    info(f"  [7] apify_daily last run: {conclusion} at {created}")
-                    if conclusion == "success":
-                        ok(f"[7] apify_daily.yml: last run SUCCESS ({created})")
-                        checks.append(Check("[7] GH Actions apify_daily", True,
-                                           detail=f"success at {created}"))
-                    else:
-                        warn(f"[7] apify_daily.yml: last run {conclusion} ({created})")
-                        checks.append(Check("[7] GH Actions apify_daily", False,
-                                           expected="success", actual=conclusion,
-                                           detail=f"at {created}"))
-                        ctx["crawler_gh_action_failed"] = True
+        for wf_key, wf_id in wf_targets.items():
+            if not wf_id:
+                checks.append(Check(f"[7] n8n WF {wf_key}: skip (no ID)", None))
+                continue
+            url = f"{N8N_BASE_URL}/api/v1/workflows/{wf_id}"
+            headers = {"X-N8N-API-KEY": N8N_API_KEY}
+            status, body = http_request("GET", url, headers=headers)
+            if status == 200 and isinstance(body, dict):
+                active = body.get("active", False)
+                name = body.get("name", "")
+                node_count = len(body.get("nodes", []))
+                info(f"  [7] {wf_key} | name={name} | active={active} | nodes={node_count}")
+                if active:
+                    ok(f"[7] {wf_key} WF active: {name} ({node_count} nodes)")
+                    checks.append(Check(f"[7] n8n WF {wf_key}: active", True, detail=name))
                 else:
-                    checks.append(Check("[7] GH Actions apify_daily", None,
-                                       detail="No runs found"))
+                    warn(f"[7] {wf_key} WF INACTIVE: {name}")
+                    checks.append(Check(f"[7] n8n WF {wf_key}: active", None, detail="Inactive"))
             else:
-                checks.append(Check("[7] GH Actions apify_daily", None,
-                                   detail="gh CLI not available or error"))
-        except Exception as e:
-            checks.append(Check("[7] GH Actions apify_daily", None, detail=str(e)[:100]))
+                warn(f"[7] {wf_key} WF check failed: HTTP {status}")
+                checks.append(Check(f"[7] n8n WF {wf_key}: reachable", None, actual=str(status)))
 
         return checks, ctx
 
@@ -1179,20 +1095,23 @@ class VerifierAgent:
             return checks
 
         # Check Conversations for draft
-        info(f"  [V-1a.1] Checking PG Conversations for subject containing '{test_ig}'")
-        records = pg_find_resource("conversations", "subject", test_ig)
+        info(f"  [V-1a.1] Checking AT Conversations for subject containing '{test_ig}'")
+        formula = urllib.parse.quote(f"FIND('{test_ig}', {{Subject}})")
+        url = f"https://api.airtable.com/v0/{AT_BASE}/{AT_CONVERSATIONS}?filterByFormula={formula}&maxRecords=5"
+        status, body = http_request("GET", url, headers=_at_headers())
+        records = body.get("records", []) if isinstance(body, dict) else []
         if records:
             ok(f"[V-1a.1] Conversations draft found ({len(records)} records)")
-            checks.append(Check("[V-1a] PG Conversations: draft exists", True, detail=str(records[0]["id"])))
+            checks.append(Check("[V-1a] AT Conversations: draft exists", True, detail=records[0]["id"]))
         else:
             warn(f"[V-1a.1] No draft in Conversations (AI may have failed)")
-            checks.append(Check("[V-1a] PG Conversations: draft exists", None, detail="AI draft may take longer"))
+            checks.append(Check("[V-1a] AT Conversations: draft exists", None, detail="AI draft may take longer"))
 
         # Check Creator status changed from "Not Started"
         info(f"  [V-1a.2] Checking Creator status (expected: not 'Not Started')")
-        cr_records = pg_find_creators(email)
+        cr_records = at_find(AT_CREATORS, "Email", email)
         if cr_records:
-            cr_status = cr_records[0].get("pipeline_status", "")
+            cr_status = cr_records[0].get("fields", {}).get("Outreach Status", "")
             info(f"         Current status: {cr_status}")
             checks.append(Check("[V-1a] Creator status changed", True, detail=cr_status))
         else:
@@ -1213,9 +1132,11 @@ class VerifierAgent:
         outreach_conv_id = ctx.get("outreach_conv_id", "")
         if outreach_conv_id:
             info(f"  [V-1b.1] Verifying outreach Conversations record {outreach_conv_id}")
-            status, body = pg_get_resource("conversations", outreach_conv_id)
+            url = f"https://api.airtable.com/v0/{AT_BASE}/{AT_CONVERSATIONS}/{outreach_conv_id}"
+            status, body = http_request("GET", url, headers=_at_headers())
             if status == 200 and isinstance(body, dict):
-                direction = body.get("direction", "")
+                fields = body.get("fields", {})
+                direction = fields.get("Direction", "")
                 ok(f"[V-1b.1] Outreach email exists (Direction: {direction})")
                 checks.append(Check("[V-1b] Outreach email in Conversations", True))
                 if direction == "Outbound":
@@ -1228,9 +1149,9 @@ class VerifierAgent:
             checks.append(Check("[V-1b] Outreach email in Conversations", None, detail="No conv_id in context"))
 
         # Check Creator status = Sent
-        cr_records = pg_find_creators(self.config.test_email)
+        cr_records = at_find(AT_CREATORS, "Email", self.config.test_email)
         if cr_records:
-            cr_status = cr_records[0].get("pipeline_status", "")
+            cr_status = cr_records[0].get("fields", {}).get("Outreach Status", "")
             if cr_status == "Sent":
                 ok(f"[V-1b.2] Creator status = Sent")
                 checks.append(Check("[V-1b] Creator status = Sent", True))
@@ -1252,9 +1173,10 @@ class VerifierAgent:
 
         reply_conv_id = ctx.get("reply_conv_id", "")
         if reply_conv_id:
-            status, body = pg_get_resource("conversations", reply_conv_id)
+            url = f"https://api.airtable.com/v0/{AT_BASE}/{AT_CONVERSATIONS}/{reply_conv_id}"
+            status, body = http_request("GET", url, headers=_at_headers())
             if status == 200 and isinstance(body, dict):
-                direction = body.get("direction", "")
+                direction = body.get("fields", {}).get("Direction", "")
                 ok(f"[V-1c.1] Reply email exists (Direction: {direction})")
                 checks.append(Check("[V-1c] Reply in Conversations", True))
                 if direction == "Inbound":
@@ -1266,9 +1188,9 @@ class VerifierAgent:
         else:
             checks.append(Check("[V-1c] Reply in Conversations", None, detail="No conv_id in context"))
 
-        cr_records = pg_find_creators(self.config.test_email)
+        cr_records = at_find(AT_CREATORS, "Email", self.config.test_email)
         if cr_records:
-            cr_status = cr_records[0].get("pipeline_status", "")
+            cr_status = cr_records[0].get("fields", {}).get("Outreach Status", "")
             if cr_status == "Replied":
                 ok("[V-1c.2] Creator status = Replied")
                 checks.append(Check("[V-1c] Creator status = Replied", True))
@@ -1289,7 +1211,8 @@ class VerifierAgent:
 
         confirm_conv_id = ctx.get("confirm_conv_id", "")
         if confirm_conv_id:
-            status, body = pg_get_resource("conversations", confirm_conv_id)
+            url = f"https://api.airtable.com/v0/{AT_BASE}/{AT_CONVERSATIONS}/{confirm_conv_id}"
+            status, body = http_request("GET", url, headers=_at_headers())
             if status == 200 and isinstance(body, dict):
                 ok(f"[V-1d.1] Confirmation email exists")
                 checks.append(Check("[V-1d] Confirmation in Conversations", True))
@@ -1298,9 +1221,9 @@ class VerifierAgent:
         else:
             checks.append(Check("[V-1d] Confirmation in Conversations", None, detail="No conv_id"))
 
-        cr_records = pg_find_creators(self.config.test_email)
+        cr_records = at_find(AT_CREATORS, "Email", self.config.test_email)
         if cr_records:
-            cr_status = cr_records[0].get("pipeline_status", "")
+            cr_status = cr_records[0].get("fields", {}).get("Outreach Status", "")
             if cr_status == "Confirmed":
                 ok("[V-1d.2] Creator status = Confirmed")
                 checks.append(Check("[V-1d] Creator status = Confirmed", True))
@@ -1308,7 +1231,10 @@ class VerifierAgent:
                 checks.append(Check("[V-1d] Creator status = Confirmed", False, expected="Confirmed", actual=cr_status))
 
         # Cross-system: count total Conversations for this creator
-        records = pg_find_resource("conversations", "subject", test_ig, max_records=10)
+        formula = urllib.parse.quote(f"FIND('{test_ig}', {{Subject}})")
+        url = f"https://api.airtable.com/v0/{AT_BASE}/{AT_CONVERSATIONS}?filterByFormula={formula}&maxRecords=10"
+        status, body = http_request("GET", url, headers=_at_headers())
+        records = body.get("records", []) if isinstance(body, dict) else []
         conv_count = len(records)
         expected_min = 3  # outreach + reply + confirm
         info(f"  [V-1d.3] X-SYS: Total conversation records: {conv_count} (expected >= {expected_min})")
@@ -1596,102 +1522,43 @@ class VerifierAgent:
                 checks.append(Check(f"[V-6] n8n WF {wf_key}: reachable", None, actual=str(status)))
         return checks
 
-    # ── Verify Stage 7: Content/Syncly + Crawler Data Quality ──────────────
+    # ── Verify Stage 7: Content/Syncly Metrics WF check ──────────────────
     def _verify_content_check(self, ctx):
         checks = []
-        info("[V-7] Verifying Stage 7: Content WFs + Crawler data quality (independent)")
+        info("[V-7] Verifying Stage 7: Content/Syncly Metrics + Shipped/Delivered WFs active")
 
         if self.dry_run:
-            checks.append(Check("DRY-RUN: Would verify content_check + crawler", True))
+            checks.append(Check("DRY-RUN: Would verify content_check", True))
             return checks
 
-        # Part A: n8n WF verification
-        if N8N_API_KEY:
-            wf_targets = {
-                "syncly_metrics":   WJ_WORKFLOWS.get("syncly_metrics", ""),
-                "shipped_delivered": WJ_WORKFLOWS.get("shipped_delivered", ""),
-                "delivered_posted":  WJ_WORKFLOWS.get("delivered_posted", ""),
-            }
-            for wf_key, wf_id in wf_targets.items():
-                if not wf_id:
-                    checks.append(Check(f"[V-7] n8n WF {wf_key}: skip (no ID)", None))
-                    continue
-                url = f"{N8N_BASE_URL}/api/v1/workflows/{wf_id}"
-                headers = {"X-N8N-API-KEY": N8N_API_KEY}
-                status, body = http_request("GET", url, headers=headers)
-                if status == 200 and isinstance(body, dict):
-                    active = body.get("active", False)
-                    name = body.get("name", "")
-                    node_count = len(body.get("nodes", []))
-                    if active:
-                        ok(f"[V-7] {wf_key} WF active: {name} ({node_count} nodes)")
-                        checks.append(Check(f"[V-7] n8n WF {wf_key}: active", True, detail=name))
-                    else:
-                        warn(f"[V-7] {wf_key} WF INACTIVE: {name}")
-                        checks.append(Check(f"[V-7] n8n WF {wf_key}: active", None, detail="Inactive"))
-                else:
-                    checks.append(Check(f"[V-7] n8n WF {wf_key}: reachable", None, actual=str(status)))
-        else:
+        if not N8N_API_KEY:
             checks.append(Check("[V-7] n8n API key present", None, detail="N8N_API_KEY not set"))
+            return checks
 
-        # Part B: Independent crawler data cross-check
-        info("[V-7] Cross-checking crawler data independently...")
-        executor_stale = ctx.get("crawler_stale_files", [])
-        executor_gh_failed = ctx.get("crawler_gh_action_failed", False)
-
-        # Verifier independently checks Data Storage
-        import glob as glob_mod
-        from datetime import datetime as dt, timedelta as td
-        data_storage = os.path.join(ROOT, "Data Storage", "apify")
-
-        if os.path.isdir(data_storage):
-            today = dt.now().strftime("%Y-%m-%d")
-            yesterday = (dt.now() - td(days=1)).strftime("%Y-%m-%d")
-
-            # Find the most recent file
-            all_files = sorted(glob_mod.glob(os.path.join(data_storage, "*.json")), reverse=True)
-            if all_files:
-                newest = os.path.basename(all_files[0])
-                newest_date = newest[:10]  # YYYY-MM-DD prefix
-                try:
-                    file_age = (dt.now() - dt.strptime(newest_date, "%Y-%m-%d")).days
-                except ValueError:
-                    file_age = 99
-
-                if file_age <= 1:
-                    ok(f"[V-7] Crawler newest file: {newest} (age: {file_age}d)")
-                    checks.append(Check("[V-7] Crawler data age", True,
-                                       detail=f"newest: {newest}, {file_age}d old"))
-                elif file_age <= 3:
-                    warn(f"[V-7] Crawler data aging: {newest} ({file_age}d old)")
-                    checks.append(Check("[V-7] Crawler data age", None,
-                                       expected="<2d", actual=f"{file_age}d",
-                                       detail=f"newest: {newest}"))
+        wf_targets = {
+            "syncly_metrics":   WJ_WORKFLOWS.get("syncly_metrics", ""),
+            "shipped_delivered": WJ_WORKFLOWS.get("shipped_delivered", ""),
+            "delivered_posted":  WJ_WORKFLOWS.get("delivered_posted", ""),
+        }
+        for wf_key, wf_id in wf_targets.items():
+            if not wf_id:
+                checks.append(Check(f"[V-7] n8n WF {wf_key}: skip (no ID)", None))
+                continue
+            url = f"{N8N_BASE_URL}/api/v1/workflows/{wf_id}"
+            headers = {"X-N8N-API-KEY": N8N_API_KEY}
+            status, body = http_request("GET", url, headers=headers)
+            if status == 200 and isinstance(body, dict):
+                active = body.get("active", False)
+                name = body.get("name", "")
+                node_count = len(body.get("nodes", []))
+                if active:
+                    ok(f"[V-7] {wf_key} WF active: {name} ({node_count} nodes)")
+                    checks.append(Check(f"[V-7] n8n WF {wf_key}: active", True, detail=name))
                 else:
-                    fail(f"[V-7] Crawler data STALE: {newest} ({file_age}d old)")
-                    checks.append(Check("[V-7] Crawler data age", False,
-                                       expected="<2d", actual=f"{file_age}d",
-                                       detail=f"newest: {newest}"))
-
-                # Cross-check with executor's findings
-                if executor_stale:
-                    info(f"[V-7] Executor reported stale: {executor_stale}")
-                    checks.append(Check("[V-7] Executor stale files confirmed", None,
-                                       detail=f"Stale: {', '.join(executor_stale)}"))
-
-                # File count sanity
-                recent_files = [f for f in all_files if os.path.basename(f)[:10] in (today, yesterday)]
-                checks.append(Check(f"[V-7] Recent crawler files count", len(recent_files) >= 3,
-                                   expected=">=3", actual=str(len(recent_files)),
-                                   detail=f"{len(recent_files)} files from today/yesterday"))
+                    warn(f"[V-7] {wf_key} WF INACTIVE: {name}")
+                    checks.append(Check(f"[V-7] n8n WF {wf_key}: active", None, detail="Inactive"))
             else:
-                fail("[V-7] No crawler files found in Data Storage/apify/")
-                checks.append(Check("[V-7] Crawler files exist", False,
-                                   expected=">0", actual="0"))
-        else:
-            checks.append(Check("[V-7] Crawler data dir", None,
-                               detail="Data Storage/apify/ not found"))
-
+                checks.append(Check(f"[V-7] n8n WF {wf_key}: reachable", None, actual=str(status)))
         return checks
 
 
@@ -1844,7 +1711,7 @@ body {{ font-family: 'Noto Sans KR', -apple-system, sans-serif; background: #faf
             "email_approve": "Stage 1b: Marketer Approves Draft -> Outreach Sent",
             "email_reply": "Stage 1c: Influencer Reply -> Status Replied",
             "email_confirm": "Stage 1d: Confirmation Email + Gifting Form Link",
-            "gifting": "Stage 2: Gifting Application -> Shopify + PG (5-way)",
+            "gifting": "Stage 2: Gifting Application -> Shopify + Airtable + PG (5-way)",
             "gifting2": "Stage 4: Sample Request -> Draft Order (100% Discount)",
             "sample_sent": "Stage 5: Sample Sent -> n8n Poll -> Draft Order Complete",
         }.get(stage_name, stage_name)

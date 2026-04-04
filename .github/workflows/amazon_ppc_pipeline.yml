@@ -68,31 +68,12 @@ jobs:
         run: python -u tools/run_amazon_ppc_daily.py
         continue-on-error: true
 
-      - name: "GATE 1: Pre-Propose Cross-Check (3 loops)"
-        run: |
-          python -u tools/ppc_cross_verifier.py \
-            --gate 1 \
-            --loops 3 \
-            --fail-action block
-        continue-on-error: false
-
       - name: Run Propose + Auto-Execute (tier 1-2)
         run: |
           python -u tools/amazon_ppc_executor.py \
             --propose \
             --auto-execute \
-            --pre-execute-gate \
             --no-email
-
-      - name: "GATE 3: Post-Execute Analysis (3 loops)"
-        if: always()
-        run: |
-          python -u tools/ppc_cross_verifier.py \
-            --gate 3 \
-            --loops 3 \
-            --codex-analyze \
-            --fail-action warn
-        continue-on-error: true
 
       - name: Upload proposal artifacts
         if: always()

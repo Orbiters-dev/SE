@@ -49,15 +49,8 @@ urlpatterns = [
     # Pipeline Creators (CRM Dashboard)
     path("pipeline/creators/stats/", views.pipeline_creators_stats, name="pipeline_creators_stats"),
     path("pipeline/creators/bulk-status/", views.pipeline_creators_bulk_status, name="pipeline_creators_bulk_status"),
-    path("pipeline/creators/claim-approved/", views.pipeline_creators_claim_approved, name="pipeline_creators_claim_approved"),
     path("pipeline/creators/<uuid:creator_id>/", views.pipeline_creator_detail, name="pipeline_creator_detail"),
     path("pipeline/creators/", views.pipeline_creators_list, name="pipeline_creators_list"),
-
-    # Backfill Language → Country (batch-level, from Syncly sheet)
-    path("pipeline/creators/backfill-language/", views.backfill_language, name="backfill_language"),
-
-    # Pipeline Conversations (email thread tracking)
-    path("pipeline/conversations/", views.pipeline_conversations, name="pipeline_conversations"),
 
     # Pipeline Execution Log
     path("pipeline/execution/log/", views.pipeline_execution_log, name="pipeline_execution_log"),
@@ -65,21 +58,15 @@ urlpatterns = [
     # Pipeline Syncly Discovery Import
     path("pipeline/creators/import-discovery/", views.import_syncly_discovery, name="import_syncly_discovery"),
 
+    # Pipeline Syncly Content Import (full: email + transcript + views + post_url)
+    path("pipeline/creators/syncly-content-import/", views.syncly_content_import, name="syncly_content_import"),
+
     # Email Reply Config (n8n + dashboard)
     path("pipeline/email-config/", views.email_config_list, name="email_config_list"),
     path("pipeline/email-config/<str:brand>/", views.email_config_detail, name="email_config_detail"),
     path("pipeline/faq/", views.faq_list, name="faq_list"),
     path("pipeline/faq/<uuid:faq_id>/", views.faq_detail, name="faq_detail"),
     path("pipeline/reply-log/", views.reply_log_create, name="reply_log"),
-
-    # Discovery Posts (JP/US content discovery pipeline)
-    path("discovery/posts/stats/", views.discovery_posts_stats, name="discovery_posts_stats"),
-    path("discovery/posts/bulk-update/", views.discovery_posts_bulk_update, name="discovery_posts_bulk_update"),
-    path("discovery/posts/<uuid:post_id>/", views.discovery_post_detail, name="discovery_post_detail"),
-    path("discovery/posts/", views.discovery_posts_list, name="discovery_posts_list"),
-
-    # Remote Control (Browser ↔ Claude Agent)
-    path("remote/poll/", views.remote_poll, name="remote_poll"),
 
     # Monitoring
     path("tables/", views.list_tables, name="list_tables"),

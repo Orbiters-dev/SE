@@ -47,13 +47,12 @@ VALID_TABLES = [
     "shopify_orders_daily", "shopify_orders_sku_daily",
     "amazon_sales_daily", "amazon_sales_sku_daily",
     "amazon_ads_daily", "amazon_ads_search_terms", "amazon_ads_keywords",
-    "amazon_campaigns", "amazon_brand_analytics", "amazon_sqp_brand",
+    "amazon_campaigns", "amazon_brand_analytics",
     "meta_ads_daily", "meta_campaigns",
     "google_ads_daily", "google_ads_search_terms",
     "ga4_daily", "klaviyo_daily",
     "gsc_daily", "dataforseo_keywords",
     "content_posts", "content_metrics_daily", "influencer_orders",
-    "rakuten_orders_daily", "amazon_search_ranking_daily",
 ]
 
 

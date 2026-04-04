@@ -5,7 +5,8 @@ filters out:
   - Creators: no email, blacklisted, 제휴 진행중/완료
   - Output: not full_matched
 
-Saves to Z:\...\제갈량\syncly_creators_clean.xlsx and syncly_output_clean.xlsx
+JOINs best post from Output to each Creator (highest views).
+Saves to Z:\...\제갈량\syncly_creators_clean.xlsx
 
 Usage:
     python tools/export_syncly_clean.py
@@ -29,6 +30,21 @@ from google.oauth2.service_account import Credentials
 SHEET_ID = "1dIAhP8wCEdFulSAai3K-RoZTvLBIaWxAK7hzInBsF0o"
 PROJECT_ROOT = os.path.dirname(DIR)
 OUTPUT_DIR = r"Z:\Orbiters\ORBI CLAUDE_0223\ORBITERS CLAUDE\ORBITERS CLAUDE\Shared\ONZ Creator Collab\제갈량"
+
+# Output_updated column indices (0-based) — from load_syncly_output_to_pg.py
+OUT_COL = {
+    "username": 6,       # G
+    "level": 8,          # I
+    "post_url": 15,      # P
+    "text": 18,          # S
+    "transcript": 19,    # T
+    "caption": 20,       # U
+    "post_date": 21,     # V
+    "followers": 32,     # AG
+    "avg_view": 33,      # AH
+    "views_30d": 39,     # AN
+    "likes_30d": 40,     # AO
+}
 
 
 def get_gc():
@@ -57,8 +73,73 @@ def download_sheet_data(gc, sheet_id, tab_name, max_retries=3):
                 raise
 
 
+def safe_int(val):
+    """Parse integer from string, return None on failure."""
+    if not val:
+        return None
+    try:
+        return int(str(val).replace(",", "").strip())
+    except (ValueError, TypeError):
+        return None
+
+
+def build_best_post_map(output_rows):
+    """Build username → best post dict from Output_updated rows.
+
+    For each username, picks the post with highest views_30d (or avg_view fallback).
+    Returns: {username_lower: {post_url, transcript, caption, views, post_date, views_30d, likes_30d, followers}}
+    """
+    best = {}
+
+    for row in output_rows:
+        def col(key):
+            idx = OUT_COL.get(key, -1)
+            if 0 <= idx < len(row):
+                return (row[idx] or "").strip()
+            return ""
+
+        level = col("level").lower()
+        if level != "full_matched":
+            continue
+
+        username = col("username").lstrip("@").lower()
+        if not username:
+            continue
+
+        views = safe_int(col("views_30d")) or safe_int(col("avg_view")) or 0
+        post_url = col("post_url")
+        transcript = col("transcript")
+        caption = col("caption")
+        text = col("text")
+        post_date = col("post_date")
+        followers = safe_int(col("followers"))
+        views_30d = safe_int(col("views_30d"))
+        likes_30d = safe_int(col("likes_30d"))
+        avg_view = safe_int(col("avg_view"))
+
+        # Use transcript, fallback to text, fallback to caption
+        best_transcript = transcript or text or caption or ""
+
+        current = best.get(username)
+        if not current or views > (current.get("_sort_views") or 0):
+            best[username] = {
+                "top_post_url": post_url,
+                "top_post_transcript": best_transcript,
+                "top_post_caption": caption,
+                "top_post_views": safe_int(col("views_30d")) or safe_int(col("avg_view")),
+                "top_post_date": post_date,
+                "views_30d": views_30d,
+                "likes_30d": likes_30d,
+                "avg_view": avg_view,
+                "followers": followers,
+                "_sort_views": views,
+            }
+
+    return best
+
+
 def main():
-    import csv, io, argparse
+    import argparse
     try:
         import openpyxl
     except ImportError:
@@ -68,12 +149,19 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--clear-cache", action="store_true", help="Delete cached sheet data")
     args = parser.parse_args()
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     import json as _json
     CACHE_DIR = os.path.join(PROJECT_ROOT, ".tmp", "syncly_cache")
     os.makedirs(CACHE_DIR, exist_ok=True)
+
+    if args.clear_cache:
+        import glob
+        for f in glob.glob(os.path.join(CACHE_DIR, "*.json")):
+            os.remove(f)
+            print(f"  Deleted cache: {f}", flush=True)
 
     # Helper: cache sheet data to avoid re-reading on retry
     def _cached_read(sheet_name, cache_key):
@@ -88,8 +176,17 @@ def main():
             _json.dump(data, f, ensure_ascii=False)
         return data
 
-    # ── 1. Creators_updated (gid=522613099) ──
-    print("=== Creators_updated ===", flush=True)
+    # ── 1. Output_updated (read first to build best post map) ──
+    print("=== Output_updated ===", flush=True)
+    raw_data2 = _cached_read("Output_updated", "output_raw")
+    output_rows = raw_data2[1:]  # skip header
+    print(f"  Total rows: {len(output_rows)}", flush=True)
+
+    best_post_map = build_best_post_map(output_rows)
+    print(f"  Unique creators with best post: {len(best_post_map)}", flush=True)
+
+    # ── 2. Creators_updated ──
+    print("\n=== Creators_updated ===", flush=True)
     raw_data = _cached_read("Creators_updated", "creators_raw")
     headers = raw_data[0]
     all_rows = []
@@ -102,7 +199,7 @@ def main():
 
     # Filter
     clean_creators = []
-    stats = {"no_email": 0, "blacklist": 0, "collab": 0, "kept": 0}
+    stats = {"no_email": 0, "blacklist": 0, "collab": 0, "kept": 0, "with_content": 0}
 
     for row in all_rows:
         email = (row.get("Email") or "").strip()
@@ -124,78 +221,75 @@ def main():
             stats["collab"] += 1
             continue
 
+        # JOIN best post from Output
+        username = (row.get("Username") or "").lstrip("@").lower()
+        bp = best_post_map.get(username, {})
+
+        row["__top_post_url"] = bp.get("top_post_url", "")
+        row["__top_post_transcript"] = bp.get("top_post_transcript", "")
+        row["__top_post_caption"] = bp.get("top_post_caption", "")
+        row["__top_post_views"] = bp.get("top_post_views")
+        row["__top_post_date"] = bp.get("top_post_date", "")
+        row["__views_30d"] = bp.get("views_30d")
+        row["__likes_30d"] = bp.get("likes_30d")
+        row["__avg_view"] = bp.get("avg_view")
+        row["__followers"] = bp.get("followers")
+
+        if bp:
+            stats["with_content"] += 1
+
         clean_creators.append(row)
         stats["kept"] += 1
 
     print(f"  Filtered: {stats}", flush=True)
-    print(f"  Clean creators: {stats['kept']}", flush=True)
+    print(f"  Clean creators: {stats['kept']} ({stats['with_content']} with content data)", flush=True)
 
-    # ── 2. Output_updated (gid=1123915760) ──
-    print("\n=== Output_updated ===", flush=True)
-    raw_data2 = _cached_read("Output_updated", "output_raw")
-    headers2 = raw_data2[0]
-    all_output = []
-    for row in raw_data2[1:]:
-        d = {}
-        for i, h in enumerate(headers2):
-            d[h] = row[i] if i < len(row) else ""
-        all_output.append(d)
-    print(f"  Total rows: {len(all_output)}", flush=True)
-
-    # Filter: only full_matched
-    # Level column (I) = "full_matched"
-    clean_output = []
-    out_stats = {"not_matched": 0, "kept": 0}
-
-    for row in all_output:
-        level = (row.get("Level") or "").strip().lower()
-        if level != "full_matched":
-            out_stats["not_matched"] += 1
-            continue
-        clean_output.append(row)
-        out_stats["kept"] += 1
-
-    print(f"  Filtered: {out_stats}", flush=True)
-    print(f"  Clean output: {out_stats['kept']}", flush=True)
+    # Extra columns appended to each creator row
+    EXTRA_COLS = [
+        "__top_post_url", "__top_post_transcript", "__top_post_caption",
+        "__top_post_views", "__top_post_date", "__views_30d", "__likes_30d",
+        "__avg_view", "__followers",
+    ]
+    EXTRA_HEADERS = [
+        "top_post_url", "top_post_transcript", "top_post_caption",
+        "top_post_views", "top_post_date", "views_30d", "likes_30d",
+        "avg_view", "followers_output",
+    ]
 
     if args.dry_run:
-        print("\n[DRY RUN] Would save:")
-        print(f"  {OUTPUT_DIR}/syncly_creators_clean.xlsx ({stats['kept']} rows)")
-        print(f"  {OUTPUT_DIR}/syncly_output_clean.xlsx ({out_stats['kept']} rows)")
+        print(f"\n[DRY RUN] Would save:")
+        print(f"  {OUTPUT_DIR}/syncly_creators_clean.xlsx ({stats['kept']} rows, +{len(EXTRA_HEADERS)} content columns)")
+        # Show sample
+        sample = [c for c in clean_creators if c.get("__top_post_url")][:3]
+        for s in sample:
+            uname = (s.get("Username") or "").lstrip("@")
+            print(f"  @{uname} | views_30d={s.get('__views_30d')} | transcript={len(s.get('__top_post_transcript',''))} chars | {s.get('__top_post_url','')[:60]}")
         return
 
     # ── 3. Save to Excel ──
     import re as _re
-    # Remove illegal XML characters that openpyxl can't handle
     _ILLEGAL_CHARS = _re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]')
     def clean_cell(val):
         if isinstance(val, str):
             return _ILLEGAL_CHARS.sub('', val)
+        if val is None:
+            return ""
         return val
 
-    print("\nSaving Excel files...", flush=True)
+    print("\nSaving Excel...", flush=True)
 
-    # Creators
-    wb1 = openpyxl.Workbook()
-    ws1 = wb1.active
-    ws1.title = "Creators"
-    ws1.append(headers)
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Creators"
+    ws.append(headers + EXTRA_HEADERS)
     for row in clean_creators:
-        ws1.append([clean_cell(row.get(h, "")) for h in headers])
-    path1 = os.path.join(OUTPUT_DIR, "syncly_creators_clean.xlsx")
-    wb1.save(path1)
-    print(f"  Saved: {path1} ({len(clean_creators)} rows)", flush=True)
+        base = [clean_cell(row.get(h, "")) for h in headers]
+        extra = [clean_cell(row.get(k, "")) for k in EXTRA_COLS]
+        ws.append(base + extra)
 
-    # Output
-    wb2 = openpyxl.Workbook()
-    ws2 = wb2.active
-    ws2.title = "Output"
-    ws2.append(headers2)
-    for row in clean_output:
-        ws2.append([clean_cell(row.get(h, "")) for h in headers2])
-    path2 = os.path.join(OUTPUT_DIR, "syncly_output_clean.xlsx")
-    wb2.save(path2)
-    print(f"  Saved: {path2} ({len(clean_output)} rows)", flush=True)
+    path = os.path.join(OUTPUT_DIR, "syncly_creators_clean.xlsx")
+    wb.save(path)
+    print(f"  Saved: {path} ({len(clean_creators)} rows, {len(headers)+len(EXTRA_HEADERS)} cols)", flush=True)
 
     print(f"\nDone! Files saved to {OUTPUT_DIR}")
 

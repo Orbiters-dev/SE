@@ -46,20 +46,24 @@ try:
 except ImportError:
     pass
 
+AIRTABLE_API_KEY = os.getenv("AIRTABLE_API_KEY", "")
 N8N_BASE_URL = os.getenv("N8N_BASE_URL", "https://n8n.orbiters.co.kr")
 N8N_API_KEY = os.getenv("N8N_API_KEY", "")
 
-# ─── Django API (orbitools) Config ──────────────────────────────────────────
-ORBITOOLS_BASE = "https://orbitools.orbiters.co.kr/api/onzenna/pipeline"
-DATAKEEPER_SAVE_URL = "https://orbitools.orbiters.co.kr/api/datakeeper/save/"
-ORBITOOLS_USER = os.getenv("ORBITOOLS_USER", "")
-ORBITOOLS_PASS = os.getenv("ORBITOOLS_PASS", "")
+# ─── Airtable Config ────────────────────────────────────────────────────────
+AT_BASE = "app3Vnmh7hLAVsevE"
+AT_CREATORS = "tblQUz8zQRDdZvES3"      # Creators table (n8n Draft Gen polls this)
+AT_CONTENT = "tblr9TxFzIaKNGJGD"        # Content table (transcripts)
+AT_CONVERSATIONS = "tblHFXkBJvPediFYG"   # Conversations (drafts stored here)
+AT_DASHBOARD = "tblS7V4M9sqWuJPok"
+AT_TEMPLATES = "tblG3DoBW4Khz1ceU"
+AT_CONFIG = "tbl6gGyLMvp57q1v7"
 
 # n8n Draft Gen workflow
 DRAFT_GEN_WF = "fwwOeLiDLSnR77E1"
 
 # URLs for browser tabs
-DASHBOARD_URL = "https://orbitools.orbiters.co.kr/pipeline/jp/"
+AIRTABLE_URL = f"https://airtable.com/{AT_BASE}/{AT_CREATORS}"
 N8N_EXEC_URL = f"{N8N_BASE_URL}/workflow/{DRAFT_GEN_WF}/executions"
 GMAIL_AUTO_OUTREACH_URL = "https://mail.google.com/mail/u/1/#label/Auto+Outreach"
 
@@ -103,17 +107,13 @@ def api_request(method, url, payload=None, headers=None, timeout=30):
             return e.code, body
 
 
-def pg_headers():
-    """Basic Auth headers for Django orbitools API."""
-    import base64
-    cred = base64.b64encode(f"{ORBITOOLS_USER}:{ORBITOOLS_PASS}".encode()).decode()
-    return {"Authorization": f"Basic {cred}"}
+def at_headers():
+    return {"Authorization": f"Bearer {AIRTABLE_API_KEY}"}
 
 
-def pg_url(resource, record_id=""):
-    """Build Django API URL. resource: creators, conversations, content-posts."""
-    base = f"{ORBITOOLS_BASE}/{resource}"
-    return f"{base}/{record_id}/" if record_id else f"{base}/"
+def at_url(table, record_id=""):
+    base = f"https://api.airtable.com/v0/{AT_BASE}/{table}"
+    return f"{base}/{record_id}" if record_id else base
 
 
 def rand_suffix():
@@ -130,85 +130,85 @@ def make_test_data():
         {
             "brand": "grosmimi",
             "fields": {
-                "creator_handle": f"auto_grosmimi_{ts}",
-                "channel": "Instagram",
-                "email": f"auto_gros_{ts}_{suffix}@{TEST_EMAIL_DOMAIN}",
-                "name": "Sarah Kim (Auto)",
-                "followers": 12500,
-                "avg_views": 4800,
-                "recent_30d_views": 8200,
-                "partnership_status": "New",
-                "pipeline_status": "Not Started",
-                "outreach_type": "Low Touch",
-                "source": "Autopilot Test",
-                "brand": "grosmimi",
-                "profile_url": f"https://instagram.com/auto_grosmimi_{ts}",
+                "Username": f"auto_grosmimi_{ts}",
+                "Platform": "Instagram",
+                "Email": f"auto_gros_{ts}_{suffix}@{TEST_EMAIL_DOMAIN}",
+                "Name": "Sarah Kim (Auto)",
+                "Followers": 12500,
+                "Avg Views": 4800,
+                "Recent 30-Day Views": 8200,
+                "Partnership Status": "New",
+                "Outreach Status": "Not Started",
+                "Outreach Type": "Low Touch",
+                "Source": "Autopilot Test",
+                "Syncly Synced": True,
+                "Profile URL": f"https://instagram.com/auto_grosmimi_{ts}",
             },
             "content": {
-                "channel": "Instagram",
-                "post_date": datetime.now().strftime("%Y-%m-%d"),
-                "views": 4800, "likes": 384, "comments": 48,
-                "caption": "#grosmimi #ppsu #strawcup #babycup #momlife",
-                "summary": "Grosmimi PPSU product review",
-                "post_url": f"https://www.instagram.com/reel/auto_grosmimi_{ts}_test/",
-                "transcript": "Let me show you this cup my daughter loves. It's the Grosmimi PPSU straw cup and the suction is perfect. The PPSU material is BPA-free which was huge for me. I also got their baby bottle and the anti-colic system actually works!",
-                "content_status": "Pending",
+                "Platform": "Instagram",
+                "Post Date": datetime.now().strftime("%Y-%m-%d"),
+                "Views": 4800, "Likes": 384, "Comments": 48,
+                "Caption": "#grosmimi #ppsu #strawcup #babycup #momlife",
+                "Summary": "Grosmimi PPSU product review",
+                "Post URL": f"https://www.instagram.com/reel/auto_grosmimi_{ts}_test/",
+                "Text": "Let me show you this cup my daughter loves. It's the Grosmimi PPSU straw cup and the suction is perfect. The PPSU material is BPA-free which was huge for me. I also got their baby bottle and the anti-colic system actually works!",
+                "Content Status": "Pending",
             },
         },
         {
             "brand": "chamom",
             "fields": {
-                "creator_handle": f"auto_chamom_{ts}",
-                "channel": "TikTok",
-                "email": f"auto_cham_{ts}_{suffix}@{TEST_EMAIL_DOMAIN}",
-                "name": "Emily Torres (Auto)",
-                "followers": 8900,
-                "avg_views": 3200,
-                "recent_30d_views": 5100,
-                "partnership_status": "New",
-                "pipeline_status": "Not Started",
-                "outreach_type": "Low Touch",
-                "source": "Autopilot Test",
-                "brand": "chamom",
-                "profile_url": f"https://tiktok.com/auto_chamom_{ts}",
+                "Username": f"auto_chamom_{ts}",
+                "Platform": "TikTok",
+                "Email": f"auto_cham_{ts}_{suffix}@{TEST_EMAIL_DOMAIN}",
+                "Name": "Emily Torres (Auto)",
+                "Followers": 8900,
+                "Avg Views": 3200,
+                "Recent 30-Day Views": 5100,
+                "Partnership Status": "New",
+                "Outreach Status": "Not Started",
+                "Outreach Type": "Low Touch",
+                "Source": "Autopilot Test",
+                "Syncly Synced": True,
+                "Profile URL": f"https://tiktok.com/auto_chamom_{ts}",
             },
             "content": {
-                "channel": "TikTok",
-                "post_date": datetime.now().strftime("%Y-%m-%d"),
-                "views": 3200, "likes": 256, "comments": 32,
-                "caption": "#chamom #babyskincare #eczema #pscream #babylotion",
-                "summary": "CHA&MOM skincare product review",
-                "post_url": f"https://www.tiktok.com/@auto_chamom_{ts}_test",
-                "transcript": "This baby cream changed everything. The PS Cream by CHA&MOM with Phyto Seline fixed my son's eczema. The moisturizer absorbs quickly and the ingredients are super clean - no parabens, no fragrance. Best baby skincare lotion I've tried.",
-                "content_status": "Pending",
+                "Platform": "TikTok",
+                "Post Date": datetime.now().strftime("%Y-%m-%d"),
+                "Views": 3200, "Likes": 256, "Comments": 32,
+                "Caption": "#chamom #babyskincare #eczema #pscream #babylotion",
+                "Summary": "CHA&MOM skincare product review",
+                "Post URL": f"https://www.tiktok.com/@auto_chamom_{ts}_test",
+                "Text": "This baby cream changed everything. The PS Cream by CHA&MOM with Phyto Seline fixed my son's eczema. The moisturizer absorbs quickly and the ingredients are super clean - no parabens, no fragrance. Best baby skincare lotion I've tried.",
+                "Content Status": "Pending",
             },
         },
         {
             "brand": "naeiae",
             "fields": {
-                "creator_handle": f"auto_naeiae_{ts}",
-                "channel": "Instagram",
-                "email": f"auto_naei_{ts}_{suffix}@{TEST_EMAIL_DOMAIN}",
-                "name": "Jessica Park (Auto)",
-                "followers": 6700,
-                "avg_views": 2100,
-                "recent_30d_views": 3400,
-                "partnership_status": "New",
-                "pipeline_status": "Not Started",
-                "outreach_type": "Low Touch",
-                "source": "Autopilot Test",
-                "brand": "naeiae",
-                "profile_url": f"https://instagram.com/auto_naeiae_{ts}",
+                "Username": f"auto_naeiae_{ts}",
+                "Platform": "Instagram",
+                "Email": f"auto_naei_{ts}_{suffix}@{TEST_EMAIL_DOMAIN}",
+                "Name": "Jessica Park (Auto)",
+                "Followers": 6700,
+                "Avg Views": 2100,
+                "Recent 30-Day Views": 3400,
+                "Partnership Status": "New",
+                "Outreach Status": "Not Started",
+                "Outreach Type": "Low Touch",
+                "Source": "Autopilot Test",
+                "Syncly Synced": True,
+                "Profile URL": f"https://instagram.com/auto_naeiae_{ts}",
             },
             "content": {
-                "channel": "Instagram",
-                "post_date": datetime.now().strftime("%Y-%m-%d"),
-                "views": 2100, "likes": 168, "comments": 21,
-                "caption": "#naeiae #babysnacks #ricepuff #blw #organicbaby",
-                "summary": "Naeiae rice snack product review",
-                "post_url": f"https://www.instagram.com/reel/auto_naeiae_{ts}_test/",
-                "transcript": "These organic pop rice puffs from Naeiae are perfect for baby led weaning. They dissolve easily and have no added sugar. The rice puff texture is great for little fingers. Naeiae uses organic Korean rice which I love.",
-                "content_status": "Pending",
+                "Platform": "Instagram",
+                "Post Date": datetime.now().strftime("%Y-%m-%d"),
+                "Views": 2100, "Likes": 168, "Comments": 21,
+                "Caption": "#naeiae #babysnacks #ricepuff #blw #organicbaby",
+                "Summary": "Naeiae rice snack product review",
+                "Post URL": f"https://www.instagram.com/reel/auto_naeiae_{ts}_test/",
+                "Text": "These organic pop rice puffs from Naeiae are perfect for baby led weaning. They dissolve easily and have no added sugar. The rice puff texture is great for little fingers. Naeiae uses organic Korean rice which I love.",
+                "Content Status": "Pending",
             },
         },
     ]
@@ -217,8 +217,8 @@ def make_test_data():
 
 # ─── Phase 1: Seed Test Data ─────────────────────────────────────────────────
 def seed_test_data(test_data):
-    """Create 3 test creators + 3 content records via Django API (orbitools)."""
-    log("Phase 1: Seeding test data into Django API...")
+    """Create 3 test creators + 3 content records in Airtable."""
+    log("Phase 1: Seeding test data into Airtable...")
     sep()
 
     created_ids = []
@@ -226,33 +226,31 @@ def seed_test_data(test_data):
     for item in test_data:
         brand = item["brand"]
 
-        # Create Creator via Django API
+        # Create Creator
         status, resp = api_request(
-            "POST", pg_url("creators"),
-            payload=item["fields"],
-            headers=pg_headers(),
+            "POST", at_url(AT_CREATORS),
+            payload={"fields": item["fields"]},
+            headers=at_headers(),
         )
         if status in (200, 201):
             creator_id = resp.get("id", "")
-            ok(f"Creator [{brand}]: {creator_id} -- {item['fields']['creator_handle']}")
+            ok(f"Creator [{brand}]: {creator_id} -- {item['fields']['Username']}")
         else:
             fail(f"Creator [{brand}]: HTTP {status} -- {resp}")
             created_ids.append({"brand": brand, "creator_id": None, "content_id": None})
             continue
 
-        # Create Content via DataKeeper API (content_posts table)
+        # Create Content linked to Creator
         content_fields = dict(item["content"])
-        content_fields["creator_id"] = creator_id
-        content_fields["creator_handle"] = item["fields"]["creator_handle"]
+        content_fields["Creator"] = [creator_id]
         status2, resp2 = api_request(
-            "POST", DATAKEEPER_SAVE_URL,
-            payload={"table": "content_posts", "rows": [content_fields]},
-            headers=pg_headers(),
+            "POST", at_url(AT_CONTENT),
+            payload={"fields": content_fields},
+            headers=at_headers(),
         )
         content_id = ""
         if status2 in (200, 201):
-            # DataKeeper may return saved count or row IDs
-            content_id = str(resp2.get("id", resp2.get("saved", "")))
+            content_id = resp2.get("id", "")
             ok(f"Content [{brand}]: {content_id} -- transcript loaded")
         else:
             fail(f"Content [{brand}]: HTTP {status2} -- {resp2}")
@@ -261,8 +259,8 @@ def seed_test_data(test_data):
             "brand": brand,
             "creator_id": creator_id,
             "content_id": content_id,
-            "username": item["fields"]["creator_handle"],
-            "email": item["fields"]["email"],
+            "username": item["fields"]["Username"],
+            "email": item["fields"]["Email"],
         })
 
     sep()
@@ -287,10 +285,10 @@ def open_browser(headless=False, slow_mo=500):
         slow_mo=slow_mo if not headless else 0,
     )
 
-    # Tab 1: JP Pipeline CRM Dashboard
+    # Tab 1: Airtable Creators
     tab_at = context.pages[0] if context.pages else context.new_page()
-    info("Tab 1: JP Pipeline CRM Dashboard")
-    tab_at.goto(DASHBOARD_URL, wait_until="domcontentloaded", timeout=30000)
+    info("Tab 1: Airtable Creators table")
+    tab_at.goto(AIRTABLE_URL, wait_until="domcontentloaded", timeout=30000)
 
     # Tab 2: n8n Executions
     tab_n8n = context.new_page()
@@ -350,7 +348,7 @@ def trigger_draft_gen():
 
 # ─── Phase 4: Watch & Verify ─────────────────────────────────────────────────
 def watch_and_verify(created_ids, tab_at, tab_n8n, tab_gmail, step_mode=False):
-    """Poll Django API for status changes, refresh browser tabs, take screenshots."""
+    """Poll Airtable for status changes, refresh browser tabs, take screenshots."""
     log("Phase 4: Watching for Draft Ready status change...")
     sep()
 
@@ -366,13 +364,12 @@ def watch_and_verify(created_ids, tab_at, tab_n8n, tab_gmail, step_mode=False):
             if not item.get("creator_id"):
                 continue
             status, resp = api_request(
-                "GET", pg_url("creators", item["creator_id"]),
-                headers=pg_headers(),
+                "GET", at_url(AT_CREATORS, item["creator_id"]),
+                headers=at_headers(),
             )
             if status == 200:
-                # Django returns flat JSON (no {fields: {...}} wrapper)
-                outreach_status = resp.get("pipeline_status", "")
-                if outreach_status == "draft_ready":
+                outreach_status = resp.get("fields", {}).get("Outreach Status", "")
+                if outreach_status == "Draft Ready":
                     ready_count += 1
                     if not item.get("_notified"):
                         ok(f"[{item['brand']}] {item['username']} -> Draft Ready!")
@@ -428,26 +425,29 @@ def verify_results(created_ids, tab_at, tab_n8n, tab_gmail):
         if not item.get("creator_id"):
             continue
 
-        # Check creator status via Django API
+        # Check creator status
         status, resp = api_request(
-            "GET", pg_url("creators", item["creator_id"]),
-            headers=pg_headers(),
+            "GET", at_url(AT_CREATORS, item["creator_id"]),
+            headers=at_headers(),
         )
         if status == 200:
-            # Django returns flat JSON
-            if resp.get("pipeline_status") == "Draft Ready":
+            fields = resp.get("fields", {})
+            if fields.get("Outreach Status") == "Draft Ready":
                 results["creators"] += 1
 
-            # Get conversations for this creator
-            convo_url = f"{ORBITOOLS_BASE}/conversations/?creator_id={item['creator_id']}"
-            cs, cr = api_request("GET", convo_url, headers=pg_headers())
-            if cs == 200:
-                convos = cr if isinstance(cr, list) else cr.get("results", [])
-                if convos:
-                    latest = convos[-1]
-                    msg = latest.get("message_content", "")
+            # Check linked conversations
+            convos = fields.get("Conversation", [])
+            if convos:
+                # Get the latest conversation
+                latest_convo_id = convos[-1]
+                cs, cr = api_request(
+                    "GET", at_url(AT_CONVERSATIONS, latest_convo_id),
+                    headers=at_headers(),
+                )
+                if cs == 200:
+                    msg = cr.get("fields", {}).get("Message Content", "")
                     results["conversations"] += 1
-                    ok(f"[{item['brand']}] Conversation: {latest.get('id', '?')}")
+                    ok(f"[{item['brand']}] Conversation: {latest_convo_id}")
 
                     # Check brand-specific form link
                     expected_form = brand_form_map.get(item["brand"], "")
@@ -481,7 +481,7 @@ def take_screenshots(tab_at, tab_n8n, tab_gmail):
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
 
     screenshots = {}
-    for name, tab in [("dashboard", tab_at), ("n8n", tab_n8n), ("gmail", tab_gmail)]:
+    for name, tab in [("airtable", tab_at), ("n8n", tab_n8n), ("gmail", tab_gmail)]:
         path = AUTOPILOT_DIR / f"{name}_{ts}.png"
         try:
             tab.screenshot(path=str(path), full_page=True)
@@ -495,29 +495,27 @@ def take_screenshots(tab_at, tab_n8n, tab_gmail):
 
 # ─── Phase 7: Cleanup ────────────────────────────────────────────────────────
 def cleanup(created_ids):
-    """Delete test data from Django API."""
+    """Delete test data from Airtable."""
     log("Phase 7: Cleaning up test data...")
     sep()
 
     for item in created_ids:
-        # Delete content via DataKeeper
-        if item.get("content_id") and item.get("creator_id"):
-            # Delete content_posts rows linked to this creator
+        # Delete content
+        if item.get("content_id"):
             status, _ = api_request(
-                "POST", DATAKEEPER_SAVE_URL,
-                payload={"table": "content_posts", "delete_by": {"creator_id": item["creator_id"]}},
-                headers=pg_headers(),
+                "DELETE", at_url(AT_CONTENT, item["content_id"]),
+                headers=at_headers(),
             )
-            if status in (200, 204):
-                ok(f"Deleted content for creator: {item['creator_id']}")
+            if status == 200:
+                ok(f"Deleted content: {item['content_id']}")
 
-        # Delete creator (Django may cascade conversations)
+        # Delete creator (cascades conversations in AT)
         if item.get("creator_id"):
             status, _ = api_request(
-                "DELETE", pg_url("creators", item["creator_id"]),
-                headers=pg_headers(),
+                "DELETE", at_url(AT_CREATORS, item["creator_id"]),
+                headers=at_headers(),
             )
-            if status in (200, 204):
+            if status == 200:
                 ok(f"Deleted creator: {item['creator_id']}")
 
     sep()
@@ -542,8 +540,8 @@ def main():
     sep()
 
     # Pre-check
-    if not ORBITOOLS_USER or not ORBITOOLS_PASS:
-        fail("ORBITOOLS_USER / ORBITOOLS_PASS not set"); return
+    if not AIRTABLE_API_KEY:
+        fail("AIRTABLE_API_KEY not set"); return
     if not N8N_API_KEY:
         fail("N8N_API_KEY not set"); return
 
@@ -558,8 +556,8 @@ def main():
             if args.step:
                 log("Seed data prepared:")
                 for td in test_data:
-                    info(f"  {td['brand']}: {td['fields']['creator_handle']}")
-                input("\n  [STEP] Press Enter to seed into Django API...")
+                    info(f"  {td['brand']}: {td['fields']['Username']}")
+                input("\n  [STEP] Press Enter to seed into Airtable...")
             created_ids = seed_test_data(test_data)
         else:
             log("Skipping seed (--skip-seed)")

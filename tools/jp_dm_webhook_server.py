@@ -353,48 +353,9 @@ def send_manychat_dm(subscriber_id: str, message: str) -> bool:
 
 # ─── Background task ─────────────────────────────────────────────────────────
 
-JP_PIPELINE_API = "https://n8n.orbiters.co.kr/webhook/jp-pipeline-api"
-
-def flag_reply_in_pipeline(subscriber_name: str, subscriber_id: str):
-    """Auto-update pipeline status to 'replied' when influencer responds to DM."""
-    try:
-        # Try to match by subscriber name (IG handle)
-        handle = subscriber_name.replace("@", "").strip()
-        if not handle or handle == "名前不明":
-            return
-        with httpx.Client(verify=False, timeout=10) as client:
-            # Update status to replied (only if currently 'sent')
-            resp = client.post(JP_PIPELINE_API, json={
-                "action": "update_status_if",
-                "username": handle,
-                "current_status": "sent",
-                "new_status": "replied",
-                "triggered_by": "manychat_auto"
-            })
-            if resp.status_code == 200:
-                result = resp.json()
-                if result.get("updated"):
-                    print(f"[Pipeline] @{handle} → replied (auto-flagged)")
-                else:
-                    # Fallback: try unconditional dm_log
-                    client.post(JP_PIPELINE_API, json={
-                        "action": "dm_log",
-                        "sub_action": "add",
-                        "username": handle,
-                        "dir": "in",
-                        "text": "(incoming DM detected)",
-                        "sent_by": "manychat_auto"
-                    })
-    except Exception as e:
-        print(f"[Pipeline] flag_reply failed for {subscriber_name}: {e}")
-
-
 def process_dm(subscriber_id: str, subscriber_name: str, message: str):
     data = load_data()
     history = data.get(f"history_{subscriber_id}", [])
-
-    # Flag reply in pipeline (auto-update status: sent → replied)
-    flag_reply_in_pipeline(subscriber_name, subscriber_id)
 
     result = call_claude(history, subscriber_name, message)
 

@@ -7,27 +7,6 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-_DEFAULT_BRAND_ASSIGNEES = {"Grosmimi": "Jeehoo", "CHA&MOM": "Laeeka", "Naeiae": "Soyeon"}
-
-
-def _get_brand_assignees():
-    """Load brand→assignee mapping from latest config, fallback to defaults."""
-    try:
-        from .models import PipelineConfig
-        cfg = PipelineConfig.objects.order_by('-date').first()
-        if cfg and cfg.brand_assignees:
-            return json.loads(cfg.brand_assignees)
-    except Exception:
-        pass
-    return _DEFAULT_BRAND_ASSIGNEES
-
-
-def _assign_owner(brand):
-    """Return the assignee for a brand."""
-    mapping = _get_brand_assignees()
-    return mapping.get(brand, mapping.get("Grosmimi", ""))
-
-
 # CORS origins allowed for GH Pages dashboards
 _CORS_ORIGINS = (
     'https://orbiters-dev.github.io',
@@ -61,8 +40,6 @@ from .models import (
     EmailReplyConfig,
     FAQEntry,
     EmailReplyLog,
-    PipelineConversation,
-    DiscoveryPost,
 )
 
 
@@ -643,25 +620,14 @@ def get_or_save_pipeline_config(request, config_date):
         defaults["creators_contacted"] = int(body["creators_contacted"])
     if "ht_threshold" in body:
         defaults["ht_threshold"] = int(body["ht_threshold"])
-    if "ht_follower_min" in body:
-        defaults["ht_follower_min"] = int(body["ht_follower_min"])
-    if "brand_assignees" in body:
-        defaults["brand_assignees"] = json.dumps(body["brand_assignees"]) if isinstance(body["brand_assignees"], dict) else body["brand_assignees"]
     # Feature toggles
-    for field in ("rag_email_dedup", "apify_autofill", "apify_brand_filter",
-                  "us_only", "hil_draft_review", "hil_send_approval", "hil_sample_approval"):
+    for field in ("rag_email_dedup", "apify_autofill"):
         if field in body:
             defaults[field] = bool(body[field])
     if "human_in_loop" in body:
         defaults["human_in_loop"] = body["human_in_loop"]
     if "sender_email" in body:
         defaults["sender_email"] = body["sender_email"]
-    # Brand allocation
-    for field in ("alloc_grosmimi", "alloc_chaenmom", "alloc_naeiae"):
-        if field in body:
-            defaults[field] = int(body[field])
-    if "account_handles" in body:
-        defaults["account_handles"] = json.dumps(body["account_handles"]) if isinstance(body["account_handles"], dict) else body["account_handles"]
     # Templates & forms
     for field in ("outreach_template_id", "grosmimi_form_url", "chaenmom_form_url",
                   "naeiae_form_url", "ht_form_url"):
@@ -713,7 +679,6 @@ def list_tables(request):
         "onz_pipeline_creators": PipelineCreator.objects.count(),
         "onz_pipeline_execution_log": PipelineExecutionLog.objects.count(),
         "onz_pipeline_status_changes": PipelineStatusChange.objects.count(),
-        "onz_pipeline_conversations": PipelineConversation.objects.count(),
     }
     return JsonResponse({"tables": tables})
 
@@ -818,10 +783,8 @@ def sync_gmail_contacts(request):
 # --- Pipeline Creators (CRM Dashboard) ---
 
 
-def _serialize_creator(obj, discovery_data=None):
-    """Serialize PipelineCreator / PipelineExecutionLog to dict.
-    discovery_data: optional dict with posts_count, best_views, latest_post_date, d_plus from DiscoveryPost aggregates.
-    """
+def _serialize_creator(obj):
+    """Serialize PipelineCreator / PipelineExecutionLog to dict."""
     data = {}
     for field in obj._meta.fields:
         val = getattr(obj, field.name)
@@ -832,77 +795,7 @@ def _serialize_creator(obj, discovery_data=None):
         elif hasattr(val, 'isoformat'):
             val = val.isoformat() if val else None
         data[field.name] = val
-    if discovery_data:
-        data.update(discovery_data)
     return data
-
-
-def _get_discovery_aggregates(handles, include_posts=False):
-    """Fetch DiscoveryPost aggregates for a list of handles.
-    Returns dict: {handle_lower: {posts_count, best_views, latest_post_date, d_plus, ...}}
-    If include_posts=True, also includes full post details (for detail view).
-    """
-    if not handles:
-        return {}
-    from django.db.models import Count, Max, Sum
-    from datetime import date as date_cls
-
-    agg = (
-        DiscoveryPost.objects
-        .filter(handle__in=handles)
-        .values("handle")
-        .annotate(
-            posts_count=Count("id"),
-            best_views=Max("views"),
-            total_views=Sum("views"),
-            total_likes=Sum("likes"),
-            total_comments=Sum("comments_count"),
-            latest_post_date=Max("post_date"),
-        )
-    )
-    result = {}
-    today = date_cls.today()
-    for row in agg:
-        h = (row["handle"] or "").lower()
-        d_plus = None
-        if row["latest_post_date"]:
-            d_plus = (today - row["latest_post_date"]).days
-        result[h] = {
-            "posts_count": row["posts_count"] or 0,
-            "best_views": row["best_views"],
-            "total_views": row["total_views"],
-            "total_likes": row["total_likes"],
-            "total_comments": row["total_comments"],
-            "latest_post_date": row["latest_post_date"].isoformat() if row["latest_post_date"] else None,
-            "d_plus": d_plus,
-        }
-
-    # Include full post details for detail/single-creator views
-    if include_posts:
-        posts_by_handle = {}
-        posts_qs = (
-            DiscoveryPost.objects
-            .filter(handle__in=handles)
-            .order_by("-views")
-            .values("id", "handle", "url", "platform", "post_date",
-                    "caption", "hashtags", "mentions", "transcript",
-                    "followers", "views", "likes", "comments_count",
-                    "content_type", "source", "outreach_status")
-        )
-        for p in posts_qs:
-            h = (p["handle"] or "").lower()
-            if h not in posts_by_handle:
-                posts_by_handle[h] = []
-            pd = dict(p)
-            pd["id"] = str(pd["id"])
-            if pd.get("post_date"):
-                pd["post_date"] = pd["post_date"].isoformat()
-            posts_by_handle[h].append(pd)
-
-        for h in result:
-            result[h]["discovery_posts"] = posts_by_handle.get(h, [])
-
-    return result
 
 
 @csrf_exempt
@@ -924,7 +817,6 @@ def pipeline_creators_list(request):
             "platform": body.get("platform", ""),
             "pipeline_status": body.get("pipeline_status", "Not Started"),
             "brand": body.get("brand", ""),
-            "assigned_to": body.get("assigned_to") or _assign_owner(body.get("brand", "")),
             "outreach_type": body.get("outreach_type", ""),
             "source": body.get("source", "outbound"),
             "notes": body.get("notes", ""),
@@ -935,15 +827,19 @@ def pipeline_creators_list(request):
             defaults["avg_views"] = int(body["avg_views"]) if body["avg_views"] else None
         if body.get("initial_discovery_date"):
             defaults["initial_discovery_date"] = _parse_date(body["initial_discovery_date"])
+        # Content fields (from Syncly)
+        for f in ("top_post_url", "top_post_transcript", "top_post_caption"):
+            if body.get(f) is not None:
+                defaults[f] = str(body[f])
+        for f in ("top_post_views", "views_30d", "likes_30d"):
+            if body.get(f) is not None:
+                defaults[f] = int(body[f]) if body[f] else None
+        if body.get("top_post_date"):
+            defaults["top_post_date"] = _parse_date(body["top_post_date"])
         for f in ("shopify_customer_id", "shopify_draft_order_id",
-                   "shopify_draft_order_name", "airtable_record_id",
-                   "country", "business_category", "biography"):
+                   "shopify_draft_order_name", "airtable_record_id"):
             if body.get(f):
                 defaults[f] = str(body[f])
-        if body.get("is_business_account") is not None:
-            defaults["is_business_account"] = bool(body["is_business_account"])
-        if body.get("is_verified") is not None:
-            defaults["is_verified"] = bool(body["is_verified"])
 
         creator, created = PipelineCreator.objects.update_or_create(
             email=email, defaults=defaults
@@ -989,54 +885,6 @@ def pipeline_creators_list(request):
     if outreach_type:
         qs = qs.filter(outreach_type=outreach_type)
 
-    country = request.GET.get("country")
-    if country:
-        qs = qs.filter(country__icontains=country)
-
-    us_only = request.GET.get("us_only")
-    if us_only and us_only.lower() in ("true", "1"):
-        from django.db.models import Q
-        qs = qs.filter(Q(country__icontains="United States") | Q(country="US") | Q(country="USA"))
-
-    assigned_to = request.GET.get("assigned_to")
-    if assigned_to is not None:
-        if assigned_to == "":
-            # Unassigned: no assigned_to AND brand not in mapping
-            qs = qs.filter(assigned_to="").exclude(
-                brand__in=list(_DEFAULT_BRAND_ASSIGNEES.keys()))
-        else:
-            # Find by assigned_to OR by brand fallback
-            from django.db.models import Q
-            reverse_map = {v: k for k, v in _get_brand_assignees().items()}
-            brand_for_owner = reverse_map.get(assigned_to, "")
-            qs = qs.filter(
-                Q(assigned_to=assigned_to) |
-                Q(assigned_to="", brand=brand_for_owner)
-            )
-
-    is_business = request.GET.get("is_business")
-    if is_business is not None and is_business.lower() in ("true", "false", "1", "0"):
-        qs = qs.filter(is_business_account=(is_business.lower() in ("true", "1")))
-
-    enriched = request.GET.get("enriched")
-    if enriched and enriched.lower() in ("true", "1"):
-        qs = qs.filter(enriched_at__isnull=False)
-    elif enriched and enriched.lower() in ("false", "0"):
-        qs = qs.filter(enriched_at__isnull=True)
-
-    discovery_date = request.GET.get("discovery_date")
-    if discovery_date:
-        qs = qs.filter(initial_discovery_date=discovery_date)
-
-    has_email = request.GET.get("has_email")
-    if has_email and has_email.lower() in ("true", "1"):
-        # Real email only — exclude @discovered.* placeholders and blanks
-        from django.db.models import Q
-        qs = qs.exclude(email="").exclude(email__isnull=True).exclude(email__icontains="@discovered.")
-    elif has_email and has_email.lower() in ("false", "0"):
-        from django.db.models import Q
-        qs = qs.filter(Q(email="") | Q(email__isnull=True) | Q(email__icontains="@discovered."))
-
     # Ordering
     order = request.GET.get("order", "-created_at")
     qs = qs.order_by(order)
@@ -1046,25 +894,10 @@ def pipeline_creators_list(request):
     limit = int(request.GET.get("limit", 50))
     total = qs.count()
     offset = (page - 1) * limit
-    creators = list(qs[offset:offset + limit])
-
-    # Annotate with DiscoveryPost aggregates (posts_count, best_views, latest_post, D+)
-    handles = []
-    for c in creators:
-        if c.ig_handle:
-            handles.append(c.ig_handle.lower())
-        if c.tiktok_handle:
-            handles.append(c.tiktok_handle.lower())
-    disc_agg = _get_discovery_aggregates(handles)
-
-    results = []
-    for c in creators:
-        h = (c.ig_handle or c.tiktok_handle or "").lower()
-        disc = disc_agg.get(h, {})
-        results.append(_serialize_creator(c, discovery_data=disc))
+    creators = qs[offset:offset + limit]
 
     return _cors_headers(request, JsonResponse({
-        "results": results,
+        "results": [_serialize_creator(c) for c in creators],
         "total": total,
         "page": page,
         "limit": limit,
@@ -1083,27 +916,16 @@ def pipeline_creator_detail(request, creator_id):
     except PipelineCreator.DoesNotExist:
         return _cors_headers(request, JsonResponse({"error": "Creator not found"}, status=404))
 
-    # Get discovery aggregates for this creator (include full posts for detail view)
-    h = (creator.ig_handle or creator.tiktok_handle or "").lower()
-    disc_agg = _get_discovery_aggregates([h], include_posts=True) if h else {}
-    disc = disc_agg.get(h, {})
-
     if request.method == 'PUT':
         body = _json_body(request)
         old_status = creator.pipeline_status
 
-        for field in ("email", "ig_handle", "tiktok_handle", "full_name", "platform",
-                      "pipeline_status", "brand", "assigned_to", "outreach_type",
-                      "source", "notes",
+        for field in ("ig_handle", "tiktok_handle", "full_name", "platform",
+                      "pipeline_status", "brand", "outreach_type", "source", "notes",
                       "shopify_customer_id", "shopify_draft_order_id",
-                      "shopify_draft_order_name", "airtable_record_id",
-                      "country", "business_category", "biography"):
+                      "shopify_draft_order_name", "airtable_record_id"):
             if field in body:
                 setattr(creator, field, body[field])
-
-        # Auto-assign owner when brand changes
-        if "brand" in body and "assigned_to" not in body:
-            creator.assigned_to = _assign_owner(body["brand"])
 
         if "followers" in body:
             creator.followers = int(body["followers"]) if body["followers"] else None
@@ -1111,12 +933,6 @@ def pipeline_creator_detail(request, creator_id):
             creator.avg_views = int(body["avg_views"]) if body["avg_views"] else None
         if "initial_discovery_date" in body:
             creator.initial_discovery_date = _parse_date(body["initial_discovery_date"])
-        if "is_business_account" in body:
-            creator.is_business_account = bool(body["is_business_account"]) if body["is_business_account"] is not None else None
-        if "is_verified" in body:
-            creator.is_verified = bool(body["is_verified"]) if body["is_verified"] is not None else None
-        if "enriched_at" in body:
-            creator.enriched_at = body["enriched_at"]
 
         creator.save()
 
@@ -1130,10 +946,10 @@ def pipeline_creator_detail(request, creator_id):
                 changed_by=body.get("changed_by", "dashboard"),
             )
 
-        return _cors_headers(request, JsonResponse(_serialize_creator(creator, discovery_data=disc)))
+        return _cors_headers(request, JsonResponse(_serialize_creator(creator)))
 
     # GET
-    return _cors_headers(request, JsonResponse(_serialize_creator(creator, discovery_data=disc)))
+    return _cors_headers(request, JsonResponse(_serialize_creator(creator)))
 
 
 @csrf_exempt
@@ -1173,39 +989,12 @@ def pipeline_creators_stats(request):
         .values_list('outreach_type', 'c')
     )
 
-    # LT/HT status breakdown for Y-fork funnel
-    by_status_lt = dict(
-        PipelineCreator.objects.filter(outreach_type='LT')
-        .values_list('pipeline_status')
-        .annotate(c=Count('id'))
-        .values_list('pipeline_status', 'c')
-    )
-    by_status_ht = dict(
-        PipelineCreator.objects.filter(outreach_type='HT')
-        .values_list('pipeline_status')
-        .annotate(c=Count('id'))
-        .values_list('pipeline_status', 'c')
-    )
-
-    # Discovery date breakdown for Not Started creators (for batch dropdown)
-    discovery_date_counts = dict(
-        PipelineCreator.objects.filter(pipeline_status='Not Started')
-        .values_list('initial_discovery_date')
-        .annotate(c=Count('id'))
-        .values_list('initial_discovery_date', 'c')
-    )
-    # Convert date keys to strings
-    discovery_dates = {str(k): v for k, v in discovery_date_counts.items() if k}
-
     return _cors_headers(request, JsonResponse({
         "total": total,
         "by_status": status_counts,
-        "by_status_lt": by_status_lt,
-        "by_status_ht": by_status_ht,
         "by_brand": brand_counts,
         "by_type": type_counts,
         "new_this_week": new_this_week,
-        "by_discovery_date": discovery_dates,
     }))
 
 
@@ -1226,80 +1015,25 @@ def pipeline_creators_bulk_status(request):
     if not creator_ids or not new_status:
         return _cors_headers(request, JsonResponse({"error": "ids and status required"}, status=400))
 
-    from django.db import transaction
-
-    # Optional: only update creators currently in a specific status (race-condition guard)
-    only_from = body.get("only_from_status")  # e.g. "Draft Ready" — skip if already changed
-
     updated = 0
-    skipped = 0
-    with transaction.atomic():
-        for cid in creator_ids:
-            try:
-                # select_for_update prevents concurrent modification
-                creator = PipelineCreator.objects.select_for_update().get(id=cid)
-                old_status = creator.pipeline_status
-
-                # Guard: if only_from_status specified, skip creators already moved past it
-                if only_from and old_status != only_from:
-                    skipped += 1
-                    continue
-
-                if old_status != new_status:
-                    creator.pipeline_status = new_status
-                    creator.save()
-                    PipelineStatusChange.objects.create(
-                        creator_email=creator.email,
-                        from_status=old_status,
-                        to_status=new_status,
-                        changed_by=changed_by,
-                    )
-                    updated += 1
-            except PipelineCreator.DoesNotExist:
-                continue
-
-    return _cors_headers(request, JsonResponse({"updated": updated, "skipped": skipped, "total": len(creator_ids)}))
-
-
-@csrf_exempt
-def pipeline_creators_claim_approved(request):
-    """Atomically fetch Approved creators and mark them as Sending.
-    Prevents duplicate sends from concurrent n8n executions (race condition guard).
-    Returns the claimed creators so n8n can process them."""
-    if request.method == 'OPTIONS':
-        return _cors_headers(request, HttpResponse(status=204))
-
-    if request.method not in ('GET', 'POST'):
-        return _cors_headers(request, JsonResponse({"error": "GET or POST required"}, status=405))
-
-    from django.db import transaction
-
-    limit = int(request.GET.get("limit", 10))
-
-    with transaction.atomic():
-        creators = list(
-            PipelineCreator.objects.select_for_update()
-            .filter(pipeline_status="Approved")
-            .order_by("created_at")[:limit]
-        )
-
-        claimed = []
-        for creator in creators:
+    for cid in creator_ids:
+        try:
+            creator = PipelineCreator.objects.get(id=cid)
             old_status = creator.pipeline_status
-            creator.pipeline_status = "Sending"
-            creator.save()
-            PipelineStatusChange.objects.create(
-                creator_email=creator.email,
-                from_status=old_status,
-                to_status="Sending",
-                changed_by="n8n-claim",
-            )
-            claimed.append(_serialize_creator(creator))
+            if old_status != new_status:
+                creator.pipeline_status = new_status
+                creator.save()
+                PipelineStatusChange.objects.create(
+                    creator_email=creator.email,
+                    from_status=old_status,
+                    to_status=new_status,
+                    changed_by=changed_by,
+                )
+                updated += 1
+        except PipelineCreator.DoesNotExist:
+            continue
 
-    return _cors_headers(request, JsonResponse({
-        "results": claimed,
-        "count": len(claimed),
-    }))
+    return _cors_headers(request, JsonResponse({"updated": updated, "total": len(creator_ids)}))
 
 
 # --- Pipeline Execution Log ---
@@ -1367,14 +1101,15 @@ def pipeline_execution_log(request):
 
 @csrf_exempt
 def import_syncly_discovery(request):
-    """POST: Import creators from Syncly Creators_updated sheet for a specific week.
+    """POST: Import creators from gk_content_posts into pipeline_creators.
 
-    Runs import_syncly_batch.py in background on EC2.
-    Only imports: real email + 제휴 상태 blank + not blacklisted.
+    Finds creators in content_posts that don't exist in pipeline_creators yet.
+    Creates them with status='Not Started', source='syncly'.
 
-    Body:
-      week: week start date (e.g. "2026-01-28") — REQUIRED
-      clean_placeholders: if true, delete @discovered.* for this week (default: true)
+    Body (optional):
+      brand: filter by brand (default: all)
+      limit: max creators to import (default: 50)
+      days: look back N days (default: 30)
     """
     if request.method == 'OPTIONS':
         return _cors_headers(request, HttpResponse(status=204))
@@ -1383,41 +1118,371 @@ def import_syncly_discovery(request):
         return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
 
     body = _json_body(request)
-    week = body.get("week", "")
+    brand_filter = body.get("brand", "")
+    limit = int(body.get("limit", 50))
+    days = int(body.get("days", 30))
 
-    if not week:
-        return _cors_headers(request, JsonResponse({"error": "week is required (e.g. 2026-01-28)"}, status=400))
+    from django.db import connection
+    from datetime import timedelta
+    from datetime import date as date_cls
 
-    import subprocess, os
+    cutoff = date_cls.today() - timedelta(days=days)
 
-    # Run import_syncly_batch.py in background
-    script = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "import_syncly_batch.py")
-    if not os.path.exists(script):
-        script = "/home/ubuntu/export_calculator/tools/import_syncly_batch.py"
+    # Query gk_content_posts for unique creators not already in pipeline
+    sql = """
+        SELECT DISTINCT ON (cp.username)
+            cp.username, cp.nickname, cp.followers, cp.platform,
+            cp.brand, cp.caption, cp.url, cp.post_date
+        FROM gk_content_posts cp
+        LEFT JOIN onz_pipeline_creators pc
+            ON LOWER(cp.username) = LOWER(pc.ig_handle)
+            OR LOWER(cp.username) = LOWER(pc.tiktok_handle)
+        WHERE pc.id IS NULL
+          AND cp.post_date >= %s
+          AND cp.username IS NOT NULL
+          AND cp.username != ''
+    """
+    params = [cutoff]
 
-    cmd = ["python3", script, "--week", week]
-    log_path = f"/tmp/syncly_import_{week}.log"
-    project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if brand_filter:
+        sql += " AND LOWER(cp.brand) = LOWER(%s)"
+        params.append(brand_filter)
 
-    env = os.environ.copy()
-    env["DJANGO_SETTINGS_MODULE"] = "export_calculator.settings.production"
-    env["PYTHONPATH"] = project_dir
-    env["PYTHONUNBUFFERED"] = "1"
+    sql += " ORDER BY cp.username, cp.followers DESC NULLS LAST LIMIT %s"
+    params.append(limit)
+
+    created = 0
+    skipped = 0
+    imported = []
 
     try:
-        proc = subprocess.Popen(
-            cmd, stdout=open(log_path, "w"), stderr=subprocess.STDOUT,
-            cwd=project_dir, env=env,
-        )
-        return _cors_headers(request, JsonResponse({
-            "status": "started",
-            "week": week,
-            "pid": proc.pid,
-            "log": log_path,
-            "message": f"Import started in background (PID {proc.pid}). Check log at {log_path}",
-        }, status=202))
+        with connection.cursor() as cursor:
+            cursor.execute(sql, params)
+            rows = cursor.fetchall()
+
+        for row in rows:
+            username, nickname, followers, platform, brand, caption, url, post_date = row
+
+            # Clean handle (remove @)
+            handle = (username or "").lstrip("@").strip()
+            if not handle:
+                skipped += 1
+                continue
+
+            # Determine platform
+            plat = (platform or "").lower()
+            ig_handle = handle if "tiktok" not in plat else ""
+            tiktok_handle = handle if "tiktok" in plat else ""
+
+            # Generate placeholder email
+            email = f"{handle.replace('.', '_')}@discovered.syncly"
+
+            # Check if already exists by handle
+            exists = PipelineCreator.objects.filter(
+                ig_handle__iexact=handle
+            ).exists() or PipelineCreator.objects.filter(
+                tiktok_handle__iexact=handle
+            ).exists() or PipelineCreator.objects.filter(
+                email=email
+            ).exists()
+
+            if exists:
+                skipped += 1
+                continue
+
+            creator = PipelineCreator.objects.create(
+                email=email,
+                ig_handle=ig_handle,
+                tiktok_handle=tiktok_handle,
+                full_name=nickname or handle,
+                platform="TikTok" if "tiktok" in plat else "Instagram",
+                pipeline_status="Not Started",
+                brand=brand or "",
+                outreach_type="LT" if (followers or 0) < 100000 else "HT",
+                source="syncly",
+                followers=followers,
+                avg_views=int((followers or 0) * (0.15 if "tiktok" in plat else 0.08)),
+                initial_discovery_date=post_date or date_cls.today(),
+                notes=f"Syncly discovery. Post: {url or 'N/A'}",
+            )
+            created += 1
+            imported.append({
+                "id": str(creator.id),
+                "handle": handle,
+                "brand": brand,
+                "followers": followers,
+            })
+
     except Exception as e:
-        return _cors_headers(request, JsonResponse({"error": str(e)}, status=500))
+        return _cors_headers(request, JsonResponse({
+            "error": str(e),
+            "created": created,
+            "skipped": skipped,
+        }, status=500))
+
+    return _cors_headers(request, JsonResponse({
+        "created": created,
+        "skipped": skipped,
+        "imported": imported,
+    }, status=201))
+
+
+@csrf_exempt
+def syncly_content_import(request):
+    """POST: Import creators from Syncly Google Sheets with full content data.
+
+    Reads Creators_updated + Output_updated, JOINs best post per creator,
+    upserts into PipelineCreator with transcript, post_url, views, etc.
+
+    Body (optional):
+      days: only import creators discovered in last N days (default: 30)
+      limit: max creators per run (default: 500)
+      dry_run: if true, return preview without DB changes
+    """
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method != 'POST':
+        return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
+
+    body = _json_body(request)
+    days = int(body.get("days", 30))
+    limit = int(body.get("limit", 500))
+    dry_run = body.get("dry_run", False)
+
+    import os as _os
+    import gspread
+    from google.oauth2.service_account import Credentials as SACredentials
+    from datetime import timedelta, date as date_cls
+
+    PROJECT_ROOT = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+    SHEET_ID = "1dIAhP8wCEdFulSAai3K-RoZTvLBIaWxAK7hzInBsF0o"
+
+    # Output column indices (0-based)
+    OUT_COL = {
+        "username": 6, "level": 8, "post_url": 15, "text": 18,
+        "transcript": 19, "caption": 20, "post_date": 21,
+        "followers": 32, "avg_view": 33, "views_30d": 39, "likes_30d": 40,
+    }
+
+    def _safe_int(val):
+        if not val:
+            return None
+        try:
+            return int(str(val).replace(",", "").strip())
+        except (ValueError, TypeError):
+            return None
+
+    try:
+        creds = SACredentials.from_service_account_file(
+            _os.path.join(PROJECT_ROOT, "credentials", "google_service_account.json"),
+            scopes=["https://www.googleapis.com/auth/spreadsheets.readonly"],
+        )
+        gc = gspread.authorize(creds)
+        sh = gc.open_by_key(SHEET_ID)
+
+        # Read Output_updated — build best post map
+        ws_out = sh.worksheet("Output_updated")
+        out_data = ws_out.get_all_values()
+        out_rows = out_data[1:]
+
+        best_posts = {}
+        for row in out_rows:
+            def _col(key):
+                idx = OUT_COL.get(key, -1)
+                return (row[idx] or "").strip() if 0 <= idx < len(row) else ""
+
+            if _col("level").lower() != "full_matched":
+                continue
+
+            uname = _col("username").lstrip("@").lower()
+            if not uname:
+                continue
+
+            views = _safe_int(_col("views_30d")) or _safe_int(_col("avg_view")) or 0
+            current = best_posts.get(uname)
+            if not current or views > (current.get("_v") or 0):
+                transcript = _col("transcript") or _col("text") or _col("caption") or ""
+                best_posts[uname] = {
+                    "top_post_url": _col("post_url"),
+                    "top_post_transcript": transcript,
+                    "top_post_caption": _col("caption"),
+                    "top_post_views": _safe_int(_col("views_30d")) or _safe_int(_col("avg_view")),
+                    "top_post_date": _col("post_date"),
+                    "views_30d": _safe_int(_col("views_30d")),
+                    "likes_30d": _safe_int(_col("likes_30d")),
+                    "avg_view": _safe_int(_col("avg_view")),
+                    "followers": _safe_int(_col("followers")),
+                    "_v": views,
+                }
+
+        # Read Creators_updated
+        ws_cr = sh.worksheet("Creators_updated")
+        cr_data = ws_cr.get_all_values()
+        cr_headers = cr_data[0]
+        cr_rows = cr_data[1:]
+
+        def _cr_col_idx(name):
+            for i, h in enumerate(cr_headers):
+                if name.lower() in h.lower():
+                    return i
+            return -1
+
+        idx_email = _cr_col_idx("Email")
+        idx_username = _cr_col_idx("Username")
+        idx_platform = _cr_col_idx("Platform")
+        idx_blacklist = _cr_col_idx("Blacklist")
+        idx_collab = _cr_col_idx("\uc81c\ud734 \uc0c1\ud0dc")
+        if idx_collab < 0:
+            idx_collab = _cr_col_idx("제휴 상태")
+        idx_discovery = _cr_col_idx("\ucd5c\ucd08 \ubc1c\uacac")
+        if idx_discovery < 0:
+            idx_discovery = _cr_col_idx("발견")
+
+        cutoff = date_cls.today() - timedelta(days=days)
+        ht_threshold = 100000
+        try:
+            cfg = PipelineConfig.objects.order_by('-date').first()
+            if cfg and cfg.ht_threshold:
+                ht_threshold = cfg.ht_threshold
+        except Exception:
+            pass
+
+        created = 0
+        updated = 0
+        skipped = 0
+
+        for row in cr_rows:
+            if created + updated >= limit:
+                break
+
+            def _cell(idx):
+                return str(row[idx] or "").strip() if 0 <= idx < len(row) else ""
+
+            email = _cell(idx_email)
+            if not email or "@" not in email or "@discovered." in email.lower():
+                continue
+
+            blacklist = _cell(idx_blacklist)
+            if blacklist.upper() == "TRUE":
+                continue
+
+            collab = _cell(idx_collab)
+            if collab:
+                continue
+
+            username = _cell(idx_username).lstrip("@").lower()
+            if not username:
+                continue
+
+            # Parse discovery date
+            disc_date = None
+            disc_raw = _cell(idx_discovery)
+            if disc_raw and "-" in disc_raw:
+                try:
+                    parts = disc_raw.split("-")
+                    y = int(parts[0])
+                    if y < 100:
+                        y += 2000
+                    disc_date = date_cls(y, int(parts[1]), int(parts[2]))
+                except Exception:
+                    pass
+
+            # Filter by days
+            if disc_date and disc_date < cutoff:
+                continue
+
+            bp = best_posts.get(username, {})
+            plat_raw = _cell(idx_platform).lower()
+            plat = "TikTok" if "tiktok" in plat_raw else "Instagram"
+            ig_handle = username if plat == "Instagram" else ""
+            tiktok_handle = username if plat == "TikTok" else ""
+
+            avg_v = bp.get("avg_view") or bp.get("views_30d") or 0
+            outreach_type = "HT" if avg_v >= ht_threshold else "LT"
+
+            content_fields = {}
+            if bp:
+                content_fields = {
+                    "top_post_url": bp.get("top_post_url", ""),
+                    "top_post_transcript": bp.get("top_post_transcript", ""),
+                    "top_post_caption": bp.get("top_post_caption", ""),
+                    "top_post_views": bp.get("top_post_views"),
+                    "views_30d": bp.get("views_30d"),
+                    "likes_30d": bp.get("likes_30d"),
+                }
+                # Parse post date
+                pd_raw = bp.get("top_post_date", "")
+                if pd_raw and "-" in pd_raw:
+                    try:
+                        pp = pd_raw.split("-")
+                        content_fields["top_post_date"] = date_cls(int(pp[0]), int(pp[1]), int(pp[2]))
+                    except Exception:
+                        pass
+
+            existing = PipelineCreator.objects.filter(ig_handle__iexact=username).first() or \
+                       PipelineCreator.objects.filter(tiktok_handle__iexact=username).first() or \
+                       PipelineCreator.objects.filter(email__iexact=email).first()
+
+            if existing:
+                changed = False
+                if "@discovered." in (existing.email or "") and email:
+                    if not PipelineCreator.objects.filter(email=email).exclude(id=existing.id).exists():
+                        existing.email = email
+                        changed = True
+                if bp:
+                    for f, v in content_fields.items():
+                        if v is not None and v != "":
+                            setattr(existing, f, v)
+                            changed = True
+                if avg_v and (not existing.avg_views or avg_v > existing.avg_views):
+                    existing.avg_views = avg_v
+                    changed = True
+                followers = bp.get("followers")
+                if followers and (not existing.followers or followers > existing.followers):
+                    existing.followers = followers
+                    changed = True
+                if changed:
+                    if not dry_run:
+                        existing.save()
+                    updated += 1
+            else:
+                if PipelineCreator.objects.filter(email=email).exists():
+                    skipped += 1
+                    continue
+                if not dry_run:
+                    PipelineCreator.objects.create(
+                        email=email,
+                        ig_handle=ig_handle,
+                        tiktok_handle=tiktok_handle,
+                        full_name=username,
+                        platform=plat,
+                        pipeline_status="Not Started",
+                        outreach_type=outreach_type,
+                        source="syncly",
+                        followers=bp.get("followers"),
+                        avg_views=avg_v or None,
+                        initial_discovery_date=disc_date or date_cls.today(),
+                        notes="Syncly content import (real email + content)",
+                        **content_fields,
+                    )
+                created += 1
+
+        return _cors_headers(request, JsonResponse({
+            "created": created,
+            "updated": updated,
+            "skipped": skipped,
+            "total_output_creators": len(best_posts),
+            "total_sheet_rows": len(cr_rows),
+            "dry_run": dry_run,
+        }, status=201))
+
+    except Exception as e:
+        import traceback
+        return _cors_headers(request, JsonResponse({
+            "error": str(e),
+            "traceback": traceback.format_exc(),
+        }, status=500))
 
 
 # ========== EMAIL REPLY CONFIG ==========
@@ -1655,386 +1720,3 @@ def reply_log_create(request):
         return _cors_headers(request, JsonResponse({"id": str(r.id), "created": True}, status=201))
 
     return _cors_headers(request, JsonResponse({"error": "Method not allowed"}, status=405))
-
-
-# ========== BACKFILL LANGUAGE → COUNTRY ==========
-
-
-@csrf_exempt
-def backfill_language(request):
-    """POST: Given a list of usernames, look up Syncly sheet Language column
-    and set country='United States' for Language=en/English.
-
-    POST body: {usernames: ["handle1", "handle2", ...]}
-    Returns: {updated: N, skipped_non_en: N, skipped_not_found: N}
-    """
-    if request.method == "OPTIONS":
-        return _cors_headers(request, HttpResponse(status=204))
-    if request.method != "POST":
-        return _cors_headers(request, JsonResponse({"error": "POST only"}, status=405))
-
-    body = _json_body(request)
-    usernames = body.get("usernames", [])
-    if not usernames:
-        return _cors_headers(request, JsonResponse({"error": "usernames required"}, status=400))
-
-    # Read Syncly sheet Language column
-    import gspread
-    from google.oauth2.service_account import Credentials as SACreds
-    import os
-    sa_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "credentials", "google_service_account.json")
-    try:
-        creds = SACreds.from_service_account_file(sa_path, scopes=[
-            "https://spreadsheets.google.com/feeds",
-            "https://www.googleapis.com/auth/drive",
-        ])
-        gc = gspread.authorize(creds)
-        sh = gc.open_by_key("1dIAhP8wCEdFulSAai3K-RoZTvLBIaWxAK7hzInBsF0o")
-        tabs = sorted(
-            [w for w in sh.worksheets() if w.title.startswith("Creators_updated_")],
-            key=lambda w: w.title, reverse=True,
-        )
-        ws = tabs[0]
-        all_data = ws.get_all_values()
-        headers = all_data[0]
-        uc = headers.index("Username (id)")
-        lc = headers.index("Language")
-        lang_map = {}
-        for row in all_data[1:]:
-            if len(row) > max(uc, lc):
-                u = row[uc].strip().lower()
-                la = row[lc].strip().lower()
-                if u:
-                    lang_map[u] = la in ("en", "english")
-    except Exception as e:
-        return _cors_headers(request, JsonResponse({"error": f"Sheet read failed: {e}"}, status=500))
-
-    # Match and update DB
-    updated = 0
-    skipped_non_en = 0
-    skipped_not_found = 0
-    lookup = {u.lower().lstrip("@"): u for u in usernames}
-
-    for handle_raw in usernames:
-        handle = handle_raw.lower().lstrip("@")
-        is_en = lang_map.get(handle)
-        if is_en is True:
-            # Find creator in DB and set country
-            qs = PipelineCreator.objects.filter(
-                models.Q(ig_handle__iexact=handle) | models.Q(tiktok_handle__iexact=handle)
-            ).filter(country="")
-            count = qs.update(country="United States")
-            updated += count
-        elif is_en is False:
-            skipped_non_en += 1
-        else:
-            skipped_not_found += 1
-
-    return _cors_headers(request, JsonResponse({
-        "updated": updated,
-        "skipped_non_en": skipped_non_en,
-        "skipped_not_found": skipped_not_found,
-        "sheet_tab": ws.title,
-    }))
-
-
-# ========== PIPELINE CONVERSATIONS ==========
-
-
-@csrf_exempt
-def pipeline_conversations(request):
-    """GET: List email conversations for a creator.  POST: Log a new conversation.
-
-    GET params: email (required), limit (default 50)
-    POST body: {creator_email, direction, subject, message_content, brand, outreach_type,
-                gmail_message_id, gmail_thread_id}
-    """
-    if request.method == "OPTIONS":
-        return _cors_headers(request, HttpResponse(status=204))
-
-    if request.method == "GET":
-        email = request.GET.get("email", "").strip()
-        limit = min(int(request.GET.get("limit", 50)), 200)
-
-        qs = PipelineConversation.objects.all()
-        if email:
-            qs = qs.filter(creator_email=email)
-
-        data = [
-            {
-                "id": str(c.id),
-                "creator_email": c.creator_email,
-                "direction": c.direction,
-                "subject": c.subject,
-                "message_content": c.message_content,
-                "brand": c.brand,
-                "outreach_type": c.outreach_type,
-                "gmail_message_id": c.gmail_message_id,
-                "gmail_thread_id": c.gmail_thread_id,
-                "created_at": c.created_at.isoformat() if c.created_at else None,
-            }
-            for c in qs[:limit]
-        ]
-        return _cors_headers(request, JsonResponse(data, safe=False))
-
-    if request.method == "POST":
-        body = _json_body(request)
-        c = PipelineConversation.objects.create(
-            creator_email=body.get("creator_email", ""),
-            direction=body.get("direction", "Outbound"),
-            subject=body.get("subject", ""),
-            message_content=body.get("message_content", ""),
-            brand=body.get("brand", ""),
-            outreach_type=body.get("outreach_type", ""),
-            gmail_message_id=body.get("gmail_message_id", ""),
-            gmail_thread_id=body.get("gmail_thread_id", ""),
-        )
-        return _cors_headers(request, JsonResponse({"id": str(c.id), "created": True}, status=201))
-
-    return _cors_headers(request, JsonResponse({"error": "Method not allowed"}, status=405))
-
-
-# ========== REMOTE CONTROL (Browser ↔ Claude Agent) ==========
-
-_remote_commands = []  # in-memory command queue
-
-@csrf_exempt
-def remote_poll(request):
-    """GET: return pending commands and clear queue. POST: push a command."""
-    if request.method == 'OPTIONS':
-        return _cors_headers(request, HttpResponse(status=204))
-
-    if request.method == 'POST':
-        body = _json_body(request)
-        _remote_commands.append(body)
-        return _cors_headers(request, JsonResponse({"ok": True, "queued": len(_remote_commands)}))
-
-    # GET: drain queue
-    cmds = list(_remote_commands)
-    _remote_commands.clear()
-    return _cors_headers(request, JsonResponse({"commands": cmds}))
-
-
-# ========== DISCOVERY POSTS ==========
-
-@csrf_exempt
-def discovery_posts_list(request):
-    """GET: List/filter discovery posts. POST: Bulk upsert (by URL)."""
-    if request.method == 'OPTIONS':
-        return _cors_headers(request, HttpResponse(status=204))
-
-    if request.method == 'GET':
-        qs = DiscoveryPost.objects.all()
-        region = request.GET.get("region")
-        platform = request.GET.get("platform")
-        status = request.GET.get("status")
-        handle = request.GET.get("handle")
-        batch = request.GET.get("batch")
-        min_followers = request.GET.get("min_followers")
-
-        if region:
-            qs = qs.filter(region=region)
-        if platform:
-            qs = qs.filter(platform__iexact=platform)
-        if status:
-            qs = qs.filter(outreach_status=status)
-        if handle:
-            qs = qs.filter(handle__icontains=handle)
-        if batch:
-            qs = qs.filter(discovery_batch=batch)
-        if min_followers:
-            qs = qs.filter(followers__gte=int(min_followers))
-        min_views = request.GET.get("min_views")
-        if min_views:
-            qs = qs.filter(views__gte=int(min_views))
-
-        # Sorting: order_by = followers | views | likes | date (default: -post_date, -followers)
-        order_by = request.GET.get("order_by", "")
-        if order_by == "followers":
-            qs = qs.order_by("-followers")
-        elif order_by == "views":
-            qs = qs.order_by("-views")
-        elif order_by == "likes":
-            qs = qs.order_by("-likes")
-        elif order_by == "date":
-            qs = qs.order_by("-post_date")
-        # else: default ordering from model Meta (-post_date, -followers)
-
-        page = int(request.GET.get("page", 1))
-        limit = min(int(request.GET.get("limit", 50)), 5000)
-        offset = (page - 1) * limit
-        total = qs.count()
-
-        items = list(qs[offset:offset + limit].values())
-        for item in items:
-            item["id"] = str(item["id"])
-            if item.get("pipeline_creator_id"):
-                item["pipeline_creator_id"] = str(item["pipeline_creator_id"])
-            for k in ("created_at", "updated_at", "post_date", "outreach_date"):
-                if item.get(k):
-                    item[k] = item[k].isoformat() if hasattr(item[k], "isoformat") else str(item[k])
-
-        return _cors_headers(request, JsonResponse({
-            "results": items,
-            "total": total,
-            "page": page,
-            "limit": limit,
-        }))
-
-    if request.method == 'POST':
-        body = _json_body(request)
-        posts = body.get("posts", [])
-        if not posts:
-            return _cors_headers(request, JsonResponse({"error": "posts array required"}, status=400))
-
-        created = 0
-        updated = 0
-        skipped = 0
-
-        for p in posts:
-            url = p.get("url", "").strip()
-            if not url:
-                skipped += 1
-                continue
-
-            defaults = {
-                "handle": p.get("handle", ""),
-                "full_name": p.get("full_name", ""),
-                "platform": p.get("platform", ""),
-                "post_date": p.get("post_date") or None,
-                "content_type": p.get("content_type", ""),
-                "caption": p.get("caption", ""),
-                "hashtags": p.get("hashtags", ""),
-                "mentions": p.get("mentions", ""),
-                "followers": p.get("followers"),
-                "views": p.get("views"),
-                "likes": p.get("likes"),
-                "comments_count": p.get("comments_count"),
-                "source": p.get("source", ""),
-                "region": p.get("region", "jp"),
-                "discovery_batch": p.get("discovery_batch", ""),
-            }
-
-            obj, is_new = DiscoveryPost.objects.update_or_create(
-                url=url,
-                defaults=defaults,
-            )
-            if is_new:
-                created += 1
-            else:
-                updated += 1
-
-        return _cors_headers(request, JsonResponse({
-            "created": created,
-            "updated": updated,
-            "skipped": skipped,
-            "total": created + updated,
-        }, status=201))
-
-    return _cors_headers(request, JsonResponse({"error": "GET or POST required"}, status=405))
-
-
-@csrf_exempt
-def discovery_post_detail(request, post_id):
-    """GET/PUT single discovery post."""
-    if request.method == 'OPTIONS':
-        return _cors_headers(request, HttpResponse(status=204))
-
-    try:
-        post = DiscoveryPost.objects.get(id=post_id)
-    except DiscoveryPost.DoesNotExist:
-        return _cors_headers(request, JsonResponse({"error": "Not found"}, status=404))
-
-    if request.method == 'GET':
-        data = _serialize(post)
-        return _cors_headers(request, JsonResponse(data))
-
-    if request.method == 'PUT':
-        body = _json_body(request)
-        for field in ("outreach_status", "outreach_email", "outreach_date",
-                      "outreach_notes", "pipeline_creator_id", "transcript",
-                      "followers", "views", "likes", "comments_count"):
-            if field in body:
-                val = body[field]
-                if field in ("pipeline_creator_id",) and not val:
-                    val = None
-                elif field in ("outreach_date",) and not val:
-                    val = None
-                elif field in ("followers", "views", "likes", "comments_count"):
-                    val = int(val) if val else None
-                setattr(post, field, val)
-        post.save()
-        return _cors_headers(request, JsonResponse(_serialize(post)))
-
-    return _cors_headers(request, JsonResponse({"error": "GET or PUT required"}, status=405))
-
-
-@csrf_exempt
-def discovery_posts_stats(request):
-    """GET: Aggregate stats for discovery posts."""
-    if request.method == 'OPTIONS':
-        return _cors_headers(request, HttpResponse(status=204))
-
-    region = request.GET.get("region")
-    qs = DiscoveryPost.objects.all()
-    if region:
-        qs = qs.filter(region=region)
-
-    from django.db.models import Count, Avg
-
-    total = qs.count()
-    by_status = dict(qs.values_list("outreach_status").annotate(c=Count("id")).values_list("outreach_status", "c"))
-    by_platform = dict(qs.values_list("platform").annotate(c=Count("id")).values_list("platform", "c"))
-    by_batch = dict(qs.values_list("discovery_batch").annotate(c=Count("id")).values_list("discovery_batch", "c"))
-    unique_handles = qs.values("handle").distinct().count()
-    avg_followers = qs.aggregate(avg=Avg("followers"))["avg"]
-
-    return _cors_headers(request, JsonResponse({
-        "total": total,
-        "unique_handles": unique_handles,
-        "avg_followers": round(avg_followers or 0),
-        "by_status": by_status,
-        "by_platform": by_platform,
-        "by_batch": by_batch,
-    }))
-
-
-@csrf_exempt
-def discovery_posts_bulk_update(request):
-    """POST: Bulk update fields by handle (e.g., enrich followers for all posts by a creator).
-
-    Body: {"updates": [{"handle": "xxx", "platform": "instagram", "followers": 12345}, ...]}
-    """
-    if request.method == 'OPTIONS':
-        return _cors_headers(request, HttpResponse(status=204))
-
-    if request.method != 'POST':
-        return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
-
-    body = _json_body(request)
-    updates = body.get("updates", [])
-    total_updated = 0
-
-    for u in updates:
-        handle = u.get("handle", "").strip()
-        if not handle:
-            continue
-
-        qs = DiscoveryPost.objects.filter(handle__iexact=handle)
-        platform = u.get("platform")
-        if platform:
-            qs = qs.filter(platform__iexact=platform)
-
-        update_fields = {}
-        for f in ("followers", "views", "likes", "comments_count"):
-            if f in u and u[f] is not None:
-                update_fields[f] = int(u[f])
-
-        if update_fields:
-            count = qs.update(**update_fields)
-            total_updated += count
-
-    return _cors_headers(request, JsonResponse({
-        "updated_posts": total_updated,
-        "handles_processed": len(updates),
-    }))

@@ -424,42 +424,20 @@ def fetch_ig_profiles(client, usernames):
 # Normalize raw data to common format
 # ---------------------------------------------------------------------------
 
-# Language filter — keep only English/Japanese, skip Vietnamese/Thai/Arabic/Cyrillic/etc.
+# Language filter — keep only English/Japanese, skip Vietnamese/Thai/Arabic/Cyrillic
 _NON_ENJP_RE = _re.compile(
     r'[\u0E00-\u0E7F]'          # Thai
     r'|[\u0600-\u06FF]'          # Arabic
     r'|[\u0400-\u04FF]'          # Cyrillic (Russian etc.)
     r'|[ơưăđĐ]'                 # Vietnamese-specific
     r'|[ầấẩẫậềếểễệờớởỡợừứửữựỳỷỹỵ]'  # Vietnamese diacritics
-    r'|[\u0900-\u097F]'          # Hindi/Devanagari
-    r'|[\u0B80-\u0BFF]'          # Tamil
-    r'|[\uAC00-\uD7AF]'          # Korean (Hangul)
 )
-
-# French/Spanish/Portuguese/German — Latin-script languages detected by word patterns
-# These use accented chars that rarely appear in English product content
-_NON_EN_LATIN_WORDS = _re.compile(
-    r'\b(avec|pour|dans|cette|très|mais|aussi|comme|fait|sont|nous|vous'  # French
-    r'|bébé|maman|enfant|j\'ai|c\'est|qu\'|n\'est|l\'|d\'un'            # French baby/parenting
-    r'|para|como|esto|esta|tiene|mejor|puede|niño|bebé|hijo'             # Spanish
-    r'|para|como|isso|esta|muito|filho|criança|minha|meu)'               # Portuguese
-    r'\b', _re.IGNORECASE
-)
-
 
 def _is_foreign_lang(text):
-    """Return True if text is in a non-English/non-Japanese language."""
+    """Return True if text contains non-English/Japanese characters."""
     if not text:
         return False
-    # Fast check: non-Latin script characters
-    if _NON_ENJP_RE.search(text):
-        return True
-    # Slower check: Latin-script non-English languages (French, Spanish, etc.)
-    # Require 3+ matches to avoid false positives from single loanwords
-    matches = _NON_EN_LATIN_WORDS.findall(text.lower())
-    if len(matches) >= 3:
-        return True
-    return False
+    return bool(_NON_ENJP_RE.search(text))
 
 
 def normalize_ig(items, fmap=None):
@@ -491,8 +469,7 @@ def normalize_ig(items, fmap=None):
             "post_date": ts,
             "comments": item.get("commentsCount", 0) or 0,
             "likes": item.get("likesCount", 0) or 0,
-            "views": item.get("videoViewCount") or 0,
-            "is_video": bool(item.get("videoViewCount")),
+            "views": item.get("videoViewCount", 0) or 0,
         })
     return result
 
@@ -508,12 +485,13 @@ def normalize_tt(items, skip_keyword_filter=False):
         caption_raw = item.get("text", "") or ""
         if _is_foreign_lang(caption_raw):
             continue
-        # Relevance filter — ALWAYS require brand keyword match (even URL-scraped)
-        text = caption_raw.lower()
-        ht_names = [h.get("name", "").lower() for h in (item.get("hashtags", []) or [])]
-        all_text = text + " " + " ".join(ht_names) + " " + uname
-        if not any(kw in all_text for kw in TT_KEYWORDS):
-            continue
+        # Relevance filter (skip for URL-scraped posts — already verified relevant)
+        if not skip_keyword_filter:
+            text = caption_raw.lower()
+            ht_names = [h.get("name", "").lower() for h in (item.get("hashtags", []) or [])]
+            all_text = text + " " + " ".join(ht_names)
+            if not any(kw in all_text for kw in TT_KEYWORDS):
+                continue
         seen.add(vid)
         result.append({
             "post_id": vid,
@@ -537,7 +515,7 @@ def normalize_tt(items, skip_keyword_filter=False):
 # Brand/Product Enrichment — Shopify orders cross-match
 # ---------------------------------------------------------------------------
 
-# Product type classification rules (from sync_sns_tab.py) — for Shopify product titles
+# Product type classification rules (from sync_sns_tab.py)
 PRODUCT_TYPE_RULES = [
     ("PPSU Straw Cup",      lambda t: "ppsu" in t and "straw cup" in t),
     ("PPSU Straw Cup",      lambda t: "knotted" in t and "flip top" in t),
@@ -548,59 +526,6 @@ PRODUCT_TYPE_RULES = [
     ("Accessory",           lambda t: any(kw in t for kw in ("tray", "brush", "teether", "lunch bag"))),
     ("Replacement",         lambda t: any(kw in t for kw in ("strap", "accessory pack", "straw kit", "replacement", "silicone tip"))),
 ]
-
-
-def classify_product_from_hashtags(hashtags_str, caption="", brand=""):
-    """Classify product type from hashtags + caption text.
-
-    For Grosmimi: #ppsu, #stainless, #strawcup, #sippycup, #tumbler, #babybottle
-    For CHA&MOM: lotion, moisturizer, body wash, cream, phyto seline
-    For Naeiae: rice puff (single SKU)
-
-    Returns comma-separated product types string.
-    Hashtags are concatenated words (e.g., #PPSUstrawcup) so we match without spaces.
-    """
-    ht = (hashtags_str or "").lower().replace(",", " ").replace("#", " ")
-    cap = (caption or "").lower()
-    txt = f"{ht} {cap}"
-
-    types = set()
-    brand_upper = (brand or "").upper()
-
-    if "GROSMIMI" in brand_upper or "grosmimi" in txt:
-        has_ppsu = "ppsu" in txt
-        has_stainless = "stainless" in txt
-        has_straw = any(k in txt for k in ("strawcup", "straw cup", "sippycup", "sippy cup", "sippy"))
-        has_bottle = any(k in txt for k in ("babybottle", "baby bottle", "feedingbottle", "feeding bottle"))
-        has_tumbler = "tumbler" in txt
-
-        if has_ppsu and has_straw:      types.add("PPSU Straw Cup")
-        if has_ppsu and has_tumbler:    types.add("PPSU Tumbler")
-        if has_ppsu and has_bottle:     types.add("PPSU Baby Bottle")
-        if has_stainless and has_straw: types.add("Stainless Straw Cup")
-        if has_stainless and has_tumbler: types.add("Stainless Tumbler")
-        # Fallback: material without specific product
-        if has_ppsu and not types:      types.add("PPSU Straw Cup")  # PPSU default = straw cup
-        if has_stainless and not types: types.add("Stainless Straw Cup")
-        # Generic product without material
-        if not types and has_straw:     types.add("Straw Cup")
-        if not types and has_bottle:    types.add("Baby Bottle")
-        if not types and has_tumbler:   types.add("Tumbler")
-
-    elif "CHA" in brand_upper:
-        if any(k in txt for k in ("lotion", "moisturizer", "phytoseline", "phyto seline")):
-            types.add("Moisturizer")
-        if any(k in txt for k in ("bodywash", "body wash", "hairwash", "hair wash", "headtotoe", "head to toe")):
-            types.add("Body Wash")
-        if any(k in txt for k in ("babycream", "baby cream", "intense cream")):
-            types.add("Baby Cream")
-        if not types:
-            types.add("Skincare")  # generic CHA&MOM fallback
-
-    elif "NAEIAE" in brand_upper or "naeiae" in txt:
-        types.add("Rice Puff")
-
-    return ",".join(sorted(types))
 
 # Brand detection from product titles
 BRAND_PRODUCT_RULES = [
@@ -704,18 +629,11 @@ def enrich_posts_from_orders(posts):
     # 1. Load orders
     if not INFLUENCER_ORDERS_PATH.exists():
         print("[ENRICH] No orders file — using caption/hashtag fallback only")
-        ht_ct = 0
         for p in posts:
             if not p.get("brand"):
                 text = f"{p.get('caption', '')} {p.get('hashtags', '')} {p.get('tagged_account', '')}"
                 p["brand"] = _detect_brand_from_text(text)
-            pt = classify_product_from_hashtags(
-                p.get("hashtags", ""), p.get("caption", ""), p.get("brand", "")
-            )
-            p["product_types"] = pt
-            if pt:
-                ht_ct += 1
-        print(f"[ENRICH] Hashtag product classification: {ht_ct}/{len(posts)} posts classified")
+            p.setdefault("product_types", "")
         return
 
     raw = json.loads(INFLUENCER_ORDERS_PATH.read_text(encoding="utf-8"))
@@ -784,18 +702,6 @@ def enrich_posts_from_orders(posts):
 
     print(f"[ENRICH] Results: {matched} order-matched, {fallback} caption-detected, {unmatched} unmatched")
 
-    # Hashtag-based product_types classification (fills gaps from order-matching)
-    ht_classified = 0
-    for p in posts:
-        if not p.get("product_types") and p.get("brand"):
-            pt = classify_product_from_hashtags(
-                p.get("hashtags", ""), p.get("caption", ""), p.get("brand", "")
-            )
-            if pt:
-                p["product_types"] = pt
-                ht_classified += 1
-    print(f"[ENRICH] Hashtag product classification: {ht_classified} posts classified")
-
 
 # ---------------------------------------------------------------------------
 # Google Sheets update (6-tab structure)
@@ -835,29 +741,8 @@ def get_post_id_to_row(ws):
     return result
 
 
-def _view_val(d):
-    """Return views value for sheet: 'N/V' for IG non-video posts, number otherwise."""
-    if d.get("platform") == "instagram" and not d.get("is_video"):
-        return "N/V"
-    v = d.get("views", 0)
-    return "N/V" if v in (0, -1, None) and d.get("platform") == "instagram" else v
-
-
 def update_posts_master(sh, data, tab_name):
-    """Add new posts, update metrics for existing.
-
-    Brand relevance gate: posts with no brand after enrichment are excluded
-    from new writes (existing posts keep getting metric updates).
-    """
-    # Filter out unbranded posts BEFORE writing new rows
-    branded_data = [d for d in data if d.get("brand")]
-    skipped = len(data) - len(branded_data)
-    if skipped:
-        skipped_users = set(d["username"] for d in data if not d.get("brand"))
-        print(f"[{tab_name}] Brand gate: {skipped} unbranded posts excluded "
-              f"({', '.join(list(skipped_users)[:5])}{'...' if len(skipped_users) > 5 else ''})")
-    data = branded_data
-
+    """Add new posts, update metrics for existing."""
     headers = [
         "Post ID", "URL", "Platform", "Username", "Nickname", "Followers",
         "Content", "Hashtags", "Tagged Account", "Post Date",
@@ -889,7 +774,7 @@ def update_posts_master(sh, data, tab_name):
                 safe_hl(profile_url(d["username"], d["platform"]), d["username"]),
                 d["nickname"], d["followers"], d["caption"], d["hashtags"],
                 d["tagged_account"], d["post_date"],
-                d["comments"], d["likes"], _view_val(d),
+                d["comments"], d["likes"], d["views"],
                 d.get("brand", ""),
             ])
         try:
@@ -915,7 +800,7 @@ def update_posts_master(sh, data, tab_name):
             safe_hl(profile_url(d["username"], d["platform"]), d["username"]),
             d["nickname"], d["followers"], d["caption"], d["hashtags"],
             d["tagged_account"], d["post_date"],
-            d["comments"], d["likes"], _view_val(d),
+            d["comments"], d["likes"], d["views"],
             d.get("brand", ""),
         ])
     if new_rows:
@@ -943,7 +828,7 @@ def _update_pm_metrics(ws, existing, data):
             # K=Comments(11), L=Likes(12), M=Views(13), N=Brand(14)
             updates.append({
                 "range": f"'{ws.title}'!K{row_idx}:N{row_idx}",
-                "values": [[d["comments"], d["likes"], _view_val(d), d.get("brand", "")]],
+                "values": [[d["comments"], d["likes"], d["views"], d.get("brand", "")]],
             })
     if updates:
         for i in range(0, len(updates), 200):
@@ -1005,7 +890,7 @@ def update_d60_tracker(sh, data, tab_name, pm_tab_name=None, pm_pid_to_row=None)
         # Status: G=D+Days, H=CurrComment, I=CurrLike, J=CurrView
         updates.append({
             "range": f"'{tab_name}'!G{row_idx + 1}:J{row_idx + 1}",
-            "values": [[d_plus, d["comments"], d["likes"], _view_val(d)]],
+            "values": [[d_plus, d["comments"], d["likes"], d["views"]]],
         })
 
         # Fill D+N snapshot column based on schedule:
@@ -1023,7 +908,7 @@ def update_d60_tracker(sh, data, tab_name, pm_tab_name=None, pm_pid_to_row=None)
             col_letter_3 = _col_letter(col_start + 2)
             updates.append({
                 "range": f"'{tab_name}'!{col_letter_1}{row_idx + 1}:{col_letter_3}{row_idx + 1}",
-                "values": [[d["comments"], d["likes"], _view_val(d)]],
+                "values": [[d["comments"], d["likes"], d["views"]]],
             })
 
     # Also append new posts not yet in tracker

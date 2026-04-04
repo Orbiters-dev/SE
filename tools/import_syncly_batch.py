@@ -2,6 +2,7 @@
 
 Reads from Z drive Excel files (exported by export_syncly_clean.py).
 Only imports creators with real email, 제휴 상태 blank, not blacklisted.
+Includes content data: transcript, post_url, views, likes for LT/HT classification.
 Deletes existing @discovered.* placeholders for the same week.
 
 Usage:
@@ -34,22 +35,16 @@ except Exception:
 
 PROJECT_ROOT = os.path.dirname(DIR)
 
-# Excel file locations
+# Excel file location
 CREATORS_XLSX = os.path.join(
     "Z:", os.sep, "Orbiters", "ORBI CLAUDE_0223", "ORBITERS CLAUDE",
     "ORBITERS CLAUDE", "Shared", "ONZ Creator Collab", "\uc81c\uac08\ub7c9",
     "syncly_creators_clean.xlsx"
 )
-OUTPUT_XLSX = os.path.join(
-    "Z:", os.sep, "Orbiters", "ORBI CLAUDE_0223", "ORBITERS CLAUDE",
-    "ORBITERS CLAUDE", "Shared", "ONZ Creator Collab", "\uc81c\uac08\ub7c9",
-    "syncly_output_clean.xlsx"
-)
 
-# EC2 fallback paths
+# EC2 fallback path
 if not os.path.exists(CREATORS_XLSX):
     CREATORS_XLSX = os.path.join(PROJECT_ROOT, "Data Storage", "syncly_creators_clean.xlsx")
-    OUTPUT_XLSX = os.path.join(PROJECT_ROOT, "Data Storage", "syncly_output_clean.xlsx")
 
 
 def parse_date(raw):
@@ -69,6 +64,15 @@ def parse_date(raw):
     except Exception:
         pass
     return None
+
+
+def safe_int(val):
+    if not val:
+        return None
+    try:
+        return int(str(val).replace(",", "").replace(".0", "").strip())
+    except (ValueError, TypeError):
+        return None
 
 
 def week_dates(week_start_str):
@@ -135,7 +139,7 @@ def main():
     # Build header index
     def col_idx(name):
         for i, h in enumerate(headers):
-            if name in h:
+            if name.lower() in h.lower():
                 return i
         return -1
 
@@ -150,7 +154,19 @@ def main():
     if idx_discovery < 0:
         idx_discovery = col_idx("발견")
 
-    print(f"  Column indices: platform={idx_platform} collab={idx_collab} blacklist={idx_blacklist} username={idx_username} email={idx_email} discovery={idx_discovery}", flush=True)
+    # Content columns (appended by export_syncly_clean.py)
+    idx_top_post_url = col_idx("top_post_url")
+    idx_top_post_transcript = col_idx("top_post_transcript")
+    idx_top_post_caption = col_idx("top_post_caption")
+    idx_top_post_views = col_idx("top_post_views")
+    idx_top_post_date = col_idx("top_post_date")
+    idx_views_30d = col_idx("views_30d")
+    idx_likes_30d = col_idx("likes_30d")
+    idx_avg_view = col_idx("avg_view")
+    idx_followers_output = col_idx("followers_output")
+
+    print(f"  Core columns: platform={idx_platform} email={idx_email} discovery={idx_discovery}", flush=True)
+    print(f"  Content columns: post_url={idx_top_post_url} transcript={idx_top_post_transcript} views_30d={idx_views_30d}", flush=True)
 
     # Step 3: Filter to target week
     target_date_set = set(target_dates)
@@ -167,7 +183,7 @@ def main():
         print("No rows found for this week.", flush=True)
         return
 
-    # Step 4: Build eligible list (already filtered by export_syncly_clean.py, but double-check)
+    # Step 4: Build eligible list
     eligible = []
     skip_collab = 0
     skip_no_email = 0
@@ -195,34 +211,45 @@ def main():
             skip_no_email += 1
             continue
 
-        eligible.append({
+        entry = {
             "username": username,
             "email": email_val,
             "platform": platform_val,
             "discovery_date": parse_date(disc_raw),
-        })
+            # Content fields
+            "top_post_url": cell(idx_top_post_url) if idx_top_post_url >= 0 else "",
+            "top_post_transcript": cell(idx_top_post_transcript) if idx_top_post_transcript >= 0 else "",
+            "top_post_caption": cell(idx_top_post_caption) if idx_top_post_caption >= 0 else "",
+            "top_post_views": safe_int(cell(idx_top_post_views)) if idx_top_post_views >= 0 else None,
+            "top_post_date": parse_date(cell(idx_top_post_date)) if idx_top_post_date >= 0 else None,
+            "views_30d": safe_int(cell(idx_views_30d)) if idx_views_30d >= 0 else None,
+            "likes_30d": safe_int(cell(idx_likes_30d)) if idx_likes_30d >= 0 else None,
+            "avg_views": safe_int(cell(idx_avg_view)) if idx_avg_view >= 0 else None,
+            "followers": safe_int(cell(idx_followers_output)) if idx_followers_output >= 0 else None,
+        }
+        eligible.append(entry)
 
     print(f"\nEligible: {len(eligible)}", flush=True)
     print(f"  Skipped (collab): {skip_collab}, no email: {skip_no_email}, invalid: {skip_invalid}", flush=True)
+    content_count = sum(1 for e in eligible if e["top_post_url"])
+    print(f"  With content data: {content_count}/{len(eligible)}", flush=True)
 
     if not DJANGO_OK or args.dry_run:
         for e in eligible[:10]:
-            print(f"  {e['username']} | {e['email']} | {e['platform']} | {e['discovery_date']}", flush=True)
+            t_len = len(e.get("top_post_transcript") or "")
+            print(f"  @{e['username']} | {e['email']} | views_30d={e.get('views_30d')} | transcript={t_len}c | {(e.get('top_post_url') or '')[:50]}", flush=True)
         if len(eligible) > 10:
             print(f"  ... and {len(eligible) - 10} more", flush=True)
         if args.dry_run:
             print("\n[DRY RUN] No DB changes made", flush=True)
         return
 
-    # Step 5: Import to DB
-    ht_follower_min = 50000
+    # Step 5: Import to DB with content + LT/HT auto-classification
     ht_threshold = 100000
     try:
         cfg = PipelineConfig.objects.order_by('-date').first()
         if cfg and cfg.ht_threshold:
             ht_threshold = cfg.ht_threshold
-        if cfg and cfg.ht_follower_min:
-            ht_follower_min = cfg.ht_follower_min
     except Exception:
         pass
 
@@ -238,19 +265,57 @@ def main():
         tiktok_handle = handle if plat == "TikTok" else ""
         disc_date = e["discovery_date"] or target_dates[0]
 
+        # LT/HT classification based on avg_views
+        avg_v = e.get("avg_views") or e.get("views_30d") or 0
+        outreach_type = "HT" if avg_v >= ht_threshold else "LT"
+
+        # Content fields
+        content_fields = {
+            "top_post_url": e.get("top_post_url") or "",
+            "top_post_transcript": e.get("top_post_transcript") or "",
+            "top_post_caption": e.get("top_post_caption") or "",
+            "top_post_views": e.get("top_post_views"),
+            "top_post_date": e.get("top_post_date"),
+            "views_30d": e.get("views_30d"),
+            "likes_30d": e.get("likes_30d"),
+        }
+
         existing = PipelineCreator.objects.filter(ig_handle__iexact=handle).first() or \
                    PipelineCreator.objects.filter(tiktok_handle__iexact=handle).first()
 
         if existing:
+            changed = False
+            # Update email if placeholder
             if "@discovered." in (existing.email or ""):
                 if not PipelineCreator.objects.filter(email=email_val).exclude(id=existing.id).exists():
                     existing.email = email_val
-                    if not existing.initial_discovery_date:
-                        existing.initial_discovery_date = disc_date
-                    existing.save()
-                    updated += 1
+                    changed = True
                 else:
                     dupes += 1
+                    continue
+
+            # Always update content fields if we have new data
+            if e.get("top_post_url"):
+                for field, val in content_fields.items():
+                    if val is not None and val != "":
+                        setattr(existing, field, val)
+                        changed = True
+
+            # Update metrics if we have them
+            if e.get("avg_views") and (not existing.avg_views or e["avg_views"] > existing.avg_views):
+                existing.avg_views = e["avg_views"]
+                changed = True
+            if e.get("followers") and (not existing.followers or e["followers"] > existing.followers):
+                existing.followers = e["followers"]
+                changed = True
+
+            if not existing.initial_discovery_date:
+                existing.initial_discovery_date = disc_date
+                changed = True
+
+            if changed:
+                existing.save()
+                updated += 1
             continue
 
         if PipelineCreator.objects.filter(email=email_val).exists():
@@ -265,10 +330,13 @@ def main():
                 full_name=handle,
                 platform=plat,
                 pipeline_status="Not Started",
-                outreach_type="LT",
+                outreach_type=outreach_type,
                 source="syncly",
+                followers=e.get("followers"),
+                avg_views=avg_v or None,
                 initial_discovery_date=disc_date,
-                notes="Syncly batch import (real email)",
+                notes="Syncly batch import (real email + content)",
+                **content_fields,
             )
             created += 1
         except Exception:

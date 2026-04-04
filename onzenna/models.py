@@ -201,10 +201,7 @@ class PipelineConfig(models.Model):
     update_date = models.DateField(null=True, blank=True)
     start_from_beginning = models.BooleanField(default=False)
     creators_contacted = models.IntegerField(default=10)
-    ht_threshold = models.IntegerField(default=100000)       # R30D views
-    ht_follower_min = models.IntegerField(default=50000)     # Minimum followers for HT
-    # Brand → assignee mapping (JSON: {"Grosmimi":"Jeehoo","CHA&MOM":"Laeeka","Naeiae":"Soyeon"})
-    brand_assignees = models.TextField(default='{"Grosmimi":"Jeehoo","CHA&MOM":"Laeeka","Naeiae":"Soyeon"}')
+    ht_threshold = models.IntegerField(default=100000)
     # Feature toggles
     rag_email_dedup = models.BooleanField(default=True)
     apify_autofill = models.BooleanField(default=True)
@@ -224,43 +221,6 @@ class PipelineConfig(models.Model):
     eligible_unknown = models.IntegerField(default=0)
     ht_count = models.IntegerField(default=0)
     lt_count = models.IntegerField(default=0)
-    # Feature toggles (granular)
-    apify_brand_filter = models.BooleanField(default=True)
-    us_only = models.BooleanField(default=True)
-    hil_draft_review = models.BooleanField(default=True)
-    hil_send_approval = models.BooleanField(default=True)
-    hil_sample_approval = models.BooleanField(default=False)
-    # Brand allocation
-    alloc_grosmimi = models.IntegerField(default=5)
-    alloc_chaenmom = models.IntegerField(default=3)
-    alloc_naeiae = models.IntegerField(default=2)
-    # Account handles (JSON — per-brand sender accounts)
-    account_handles = models.TextField(blank=True, default="{}")
-    # Pipeline operational config (migrated from n8n Airtable Config)
-    active = models.BooleanField(default=True)
-    mode = models.CharField(max_length=20, default="production")
-    notification_email = models.CharField(max_length=200, default="william@pathlightai.io")
-    only_pull_with_email = models.BooleanField(default=True)
-    test_email_override = models.CharField(max_length=200, blank=True, default="")
-    # Email template settings
-    tone = models.CharField(max_length=50, default="friendly")
-    sign_off = models.CharField(max_length=100, default="Best,\nOnzenna")
-    max_body_sentences = models.IntegerField(default=5)
-    assistant_name = models.CharField(max_length=50, default="William")
-    brand_name = models.CharField(max_length=100, default="Onzenna")
-    # Contract/agreement settings
-    company_signer_name = models.CharField(max_length=100, default="Jeehoo Jeon")
-    company_signer_title = models.CharField(max_length=100, default="CEO")
-    estimated_shipping_days = models.IntegerField(default=5)
-    # Content tracking requirements
-    ht_required_posts = models.IntegerField(default=2)
-    lt_required_posts = models.IntegerField(default=1)
-    ht_reminder_days = models.IntegerField(default=14)
-    lt_reminder_days = models.IntegerField(default=7)
-    # Additional HIL toggles
-    hil_draft_gen = models.BooleanField(default=True)
-    hil_manychat = models.BooleanField(default=False)
-    hil_reply_handler = models.BooleanField(default=True)
     # Meta
     updated_at = models.DateTimeField(auto_now=True)
     updated_by = models.CharField(max_length=50, blank=True, default="")
@@ -291,21 +251,21 @@ class PipelineCreator(models.Model):
 
     # Classification
     brand = models.CharField(max_length=30, blank=True, default="")
-    assigned_to = models.CharField(max_length=30, blank=True, default="")  # Brand owner tag
     outreach_type = models.CharField(max_length=10, blank=True, default="")  # HT, LT
     source = models.CharField(max_length=30, default="outbound")  # outbound, inbound
-
-    # Profile enrichment (from Apify profile scrapers)
-    country = models.CharField(max_length=50, blank=True, default="")  # "United States", "US", etc.
-    is_business_account = models.BooleanField(null=True, blank=True)  # True = brand/business
-    business_category = models.CharField(max_length=100, blank=True, default="")  # e.g. "Beauty Store"
-    biography = models.TextField(blank=True, default="")
-    is_verified = models.BooleanField(null=True, blank=True)
-    enriched_at = models.DateTimeField(null=True, blank=True)  # when profile was last enriched
 
     # Metrics
     followers = models.IntegerField(null=True, blank=True)
     avg_views = models.IntegerField(null=True, blank=True)
+
+    # Content reference (from Syncly Output — best post)
+    top_post_url = models.URLField(max_length=500, blank=True, default="")
+    top_post_transcript = models.TextField(blank=True, default="")
+    top_post_caption = models.TextField(blank=True, default="")
+    top_post_views = models.IntegerField(null=True, blank=True)
+    top_post_date = models.DateField(null=True, blank=True)
+    views_30d = models.IntegerField(null=True, blank=True)
+    likes_30d = models.IntegerField(null=True, blank=True)
 
     # Discovery
     initial_discovery_date = models.DateField(null=True, blank=True)
@@ -453,99 +413,6 @@ class EmailReplyLog(models.Model):
 
     def __str__(self):
         return f"{self.creator_email} [{self.intent}] auto={self.auto_sent}"
-
-
-class PipelineConversation(models.Model):
-    """Email conversation records for pipeline creators.
-    Tracks both outbound (we sent) and inbound (they replied) emails.
-    Consumed by dashboard Email History panel and n8n Reply Handler.
-    """
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    creator_email = models.EmailField(db_index=True)
-    creator_handle = models.CharField(max_length=100, blank=True, default="")
-    direction = models.CharField(max_length=10)  # Inbound, Outbound
-    channel = models.CharField(max_length=30, blank=True, default="")  # email, instagram, etc.
-    subject = models.CharField(max_length=500, blank=True, default="")
-    message_content = models.TextField(blank=True, default="")
-    brand = models.CharField(max_length=30, blank=True, default="")
-    outreach_type = models.CharField(max_length=10, blank=True, default="")  # LT, HT
-    status = models.CharField(max_length=30, blank=True, default="Draft")  # Draft, Sent, Replied
-    gmail_message_id = models.CharField(max_length=200, blank=True, default="")
-    gmail_thread_id = models.CharField(max_length=200, blank=True, default="")
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = "onz_pipeline_conversations"
-        ordering = ["-created_at"]
-
-    def __str__(self):
-        return f"{self.creator_email} [{self.direction}] {self.subject[:50]}"
-
-
-class DiscoveryPost(models.Model):
-    """Discovery pipeline posts — JP (and later US) content discovered via Apify.
-    Separate from PipelineCreator (outreach CRM) and content_posts (Syncly).
-    One row = one social media post discovered by hashtag/keyword search.
-    """
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-
-    # Post identity
-    handle = models.CharField(max_length=200, db_index=True)
-    full_name = models.CharField(max_length=200, blank=True, default="")
-    platform = models.CharField(max_length=30, db_index=True)  # instagram, tiktok
-    url = models.URLField(max_length=500, unique=True, db_index=True)
-    post_date = models.DateField(null=True, blank=True)
-
-    # Content
-    content_type = models.CharField(max_length=30, blank=True, default="")  # Video, Image, Sidecar
-    caption = models.TextField(blank=True, default="")
-    hashtags = models.TextField(blank=True, default="")
-    mentions = models.CharField(max_length=500, blank=True, default="")
-    transcript = models.TextField(blank=True, default="")
-
-    # Metrics
-    followers = models.IntegerField(null=True, blank=True)
-    views = models.IntegerField(null=True, blank=True)
-    likes = models.IntegerField(null=True, blank=True)
-    comments_count = models.IntegerField(null=True, blank=True)
-
-    # Discovery metadata
-    source = models.CharField(max_length=100, blank=True, default="")  # apify/#育児, apify/tt:育児
-    region = models.CharField(max_length=10, db_index=True, default="jp")  # jp, us
-    discovery_batch = models.CharField(max_length=50, blank=True, default="")  # e.g. "Mar24-Mar31"
-
-    # Outreach tracking
-    outreach_status = models.CharField(max_length=30, default="discovered")
-    # discovered / shortlisted / contacted / replied / declined / posted
-    outreach_email = models.EmailField(blank=True, default="")
-    outreach_date = models.DateField(null=True, blank=True)
-    outreach_notes = models.TextField(blank=True, default="")
-
-    # CI (Content Intelligence) analysis results
-    scene_fit = models.CharField(max_length=10, blank=True, default="")
-    has_subtitles = models.BooleanField(null=True, blank=True)
-    brand_fit_score = models.IntegerField(null=True, blank=True)
-    scene_tags = models.CharField(max_length=500, blank=True, default="")
-    product_mention = models.BooleanField(null=True, blank=True)
-    subject_age = models.CharField(max_length=20, blank=True, default="")
-    ci_analysis = models.JSONField(null=True, blank=True)  # extended HVA/script analysis
-
-    # Link to PipelineCreator (after outreach begins)
-    pipeline_creator_id = models.UUIDField(null=True, blank=True, db_index=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        db_table = "onz_discovery_posts"
-        ordering = ["-post_date", "-followers"]
-        indexes = [
-            models.Index(fields=["region", "outreach_status"]),
-            models.Index(fields=["handle", "platform"]),
-        ]
-
-    def __str__(self):
-        return f"@{self.handle} [{self.platform}] {self.post_date} ({self.outreach_status})"
 
 
 class GmailContact(models.Model):

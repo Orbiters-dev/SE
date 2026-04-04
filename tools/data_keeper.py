@@ -138,7 +138,6 @@ SELLER_CONFIGS = [
         "client_id": os.getenv("AMZ_SP_GROSMIMI_CLIENT_ID") or AMZ_SP_CLIENT_ID,
         "client_secret": os.getenv("AMZ_SP_GROSMIMI_CLIENT_SECRET") or AMZ_SP_CLIENT_SECRET,
         "seller_id": "A3IA0XWP2WCD15",
-        "marketplace_id": "ATVPDKIKX0DER",
     },
     {
         "name": "Fleeters", "brand": "Naeiae",
@@ -146,7 +145,6 @@ SELLER_CONFIGS = [
         "client_id": AMZ_SP_CLIENT_ID,
         "client_secret": AMZ_SP_CLIENT_SECRET,
         "seller_id": "A2RE0E056TH6H3",
-        "marketplace_id": "ATVPDKIKX0DER",
     },
     {
         "name": "Orbitool", "brand": "CHA&MOM",
@@ -155,16 +153,6 @@ SELLER_CONFIGS = [
         "client_id": os.getenv("AMZ_SP_ORBITOOL_CLIENT_ID") or AMZ_SP_CLIENT_ID,
         "client_secret": os.getenv("AMZ_SP_ORBITOOL_CLIENT_SECRET") or AMZ_SP_CLIENT_SECRET,
         "seller_id": "A3H2CLSAX0BTX6",
-        "marketplace_id": "ATVPDKIKX0DER",
-    },
-    {
-        "name": "Grosmimi JP", "brand": "Grosmimi",
-        "refresh_token": os.getenv("AMZ_SP_REFRESH_TOKEN_GROSMIMI_JP", ""),
-        "client_id": os.getenv("AMZ_SP_GROSMIMI_JP_CLIENT_ID") or os.getenv("AMZ_SP_GROSMIMI_CLIENT_ID") or AMZ_SP_CLIENT_ID,
-        "client_secret": os.getenv("AMZ_SP_GROSMIMI_JP_CLIENT_SECRET") or os.getenv("AMZ_SP_GROSMIMI_CLIENT_SECRET") or AMZ_SP_CLIENT_SECRET,
-        "seller_id": os.getenv("AMZ_SP_GROSMIMI_JP_SELLER_ID", "A1A01CME113JSP"),
-        "marketplace_id": "A1VC38T7YXB528",
-        "region": "JP",
     },
 ]
 
@@ -228,43 +216,7 @@ PROFILE_BRAND_MAP = {
     "GROSMIMI USA": "Grosmimi",
     "Fleeters Inc": "Naeiae",
     "Orbitool": "CHA&MOM",
-    # JP — profile name may differ; add alias after console auth
-    "GROSMIMI JP": "Grosmimi JP",
-    "Grosmimi JP": "Grosmimi JP",
 }
-
-# Amazon Ads API regional endpoints
-ADS_ENDPOINTS = {
-    "NA": "https://advertising-api.amazon.com",        # US, CA, MX, BR
-    "FE": "https://advertising-api-fe.amazon.com",     # JP, AU, SG
-}
-
-# Countries to collect Ads data for
-ADS_COLLECT_COUNTRIES = {"US", "JP"}
-
-
-def _fetch_ads_profiles(headers, countries=None):
-    """Fetch Amazon Ads profiles from all regional endpoints, filtered by country.
-
-    Each returned profile dict gets an extra '_ads_base_url' key so callers
-    know which regional endpoint to use for reports and campaign listing.
-    """
-    if countries is None:
-        countries = ADS_COLLECT_COUNTRIES
-    all_profiles = []
-    for region, base_url in ADS_ENDPOINTS.items():
-        try:
-            resp = requests.get(f"{base_url}/v2/profiles",
-                                headers=headers, timeout=30)
-            resp.raise_for_status()
-            for p in resp.json():
-                if (p.get("countryCode") in countries
-                        and p.get("accountInfo", {}).get("type") == "seller"):
-                    p["_ads_base_url"] = base_url
-                    all_profiles.append(p)
-        except Exception as e:
-            print(f"  [WARN] Ads profiles from {region} ({base_url}): {e}")
-    return all_profiles
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────
@@ -503,9 +455,13 @@ def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
     print("[Amazon Ads] Collecting...")
     headers = _fresh_amz_ads_headers()
 
-    # 1. Get profiles (US + JP)
-    profiles = _fetch_ads_profiles(headers)
-    print(f"  Profiles: {len(profiles)} (US+JP)")
+    # 1. Get profiles
+    resp = requests.get("https://advertising-api.amazon.com/v2/profiles",
+                        headers=headers, timeout=30)
+    resp.raise_for_status()
+    profiles = [p for p in resp.json()
+                if p.get("countryCode") == "US" and p.get("accountInfo", {}).get("type") == "seller"]
+    print(f"  Profiles: {len(profiles)}")
 
     # 2. Get campaign names (for ID->name mapping)
     campaign_names = {}
@@ -516,9 +472,8 @@ def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
             h = {**headers, "Amazon-Advertising-API-Scope": pid,
                  "Content-Type": "application/vnd.spCampaign.v3+json",
                  "Accept": "application/vnd.spCampaign.v3+json"}
-            ads_base = p.get("_ads_base_url", "https://advertising-api.amazon.com")
             r = requests.post(
-                f"{ads_base}/sp/campaigns/list",
+                "https://advertising-api.amazon.com/sp/campaigns/list",
                 headers=h, json={"maxResults": 5000}, timeout=20,
             )
             r.raise_for_status()
@@ -565,12 +520,10 @@ def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
             type_rows = 0
             while cur <= d_to:
                 chunk_end = min(cur + timedelta(days=chunk_days), d_to)
-                ads_base = p.get("_ads_base_url", "https://advertising-api.amazon.com")
                 report_rows = _fetch_amz_ads_report(
                     h, pid, cur.isoformat(), chunk_end.isoformat(),
                     ad_product=ad_product, report_type_id=report_type_id,
                     columns=cols,
-                    base_url=ads_base,
                 )
                 for row in report_rows:
                     cid = str(row.get("campaignId", ""))
@@ -602,8 +555,7 @@ def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
 def _fetch_amz_ads_report(headers, profile_id, start, end,
                           ad_product="SPONSORED_PRODUCTS",
                           report_type_id="spCampaigns",
-                          columns=None,
-                          base_url="https://advertising-api.amazon.com"):
+                          columns=None):
     """Submit, poll, download a single Amazon Ads report chunk."""
     if columns is None:
         columns = ["date", "campaignId", "impressions", "clicks",
@@ -623,7 +575,7 @@ def _fetch_amz_ads_report(headers, profile_id, start, end,
     }
     try:
         r = requests.post(
-            f"{base_url}/reporting/reports",
+            "https://advertising-api.amazon.com/reporting/reports",
             headers=headers, json=body, timeout=30,
         )
         r.raise_for_status()
@@ -635,7 +587,7 @@ def _fetch_amz_ads_report(headers, profile_id, start, end,
             headers = {**_fresh_amz_ads_headers(),
                        "Amazon-Advertising-API-Scope": profile_id}
             r2 = requests.get(
-                f"{base_url}/reporting/reports/{report_id}",
+                f"https://advertising-api.amazon.com/reporting/reports/{report_id}",
                 headers=headers, timeout=30,
             )
             r2.raise_for_status()
@@ -658,8 +610,7 @@ def _fetch_amz_ads_report(headers, profile_id, start, end,
 
 def _fetch_amz_ads_report_generic(headers, profile_id, start, end,
                                    report_type_id, group_by, columns,
-                                   time_unit="DAILY",
-                                   base_url="https://advertising-api.amazon.com"):
+                                   time_unit="DAILY"):
     """Generic Amazon Ads report fetcher with 425 retry support.
     time_unit: DAILY (per-day rows) or SUMMARY (aggregated across range).
     """
@@ -685,7 +636,7 @@ def _fetch_amz_ads_report_generic(headers, profile_id, start, end,
         r = None
         for attempt in range(4):
             r = requests.post(
-                f"{base_url}/reporting/reports",
+                "https://advertising-api.amazon.com/reporting/reports",
                 headers=headers, json=body, timeout=30,
             )
             if r.status_code != 425:
@@ -701,7 +652,7 @@ def _fetch_amz_ads_report_generic(headers, profile_id, start, end,
             fresh_h = {**_fresh_amz_ads_headers(),
                        "Amazon-Advertising-API-Scope": profile_id}
             r2 = requests.get(
-                f"{base_url}/reporting/reports/{report_id}",
+                f"https://advertising-api.amazon.com/reporting/reports/{report_id}",
                 headers=fresh_h, timeout=30,
             )
             r2.raise_for_status()
@@ -732,7 +683,12 @@ def collect_amazon_ads_search_terms(date_from: str, date_to: str) -> list[dict]:
     """Collect Amazon Ads search term reports (all profiles, 7-day chunks)."""
     print("[Amazon Ads Search Terms] Collecting...")
     headers = _fresh_amz_ads_headers()
-    profiles = _fetch_ads_profiles(headers)
+
+    resp = requests.get("https://advertising-api.amazon.com/v2/profiles",
+                        headers=headers, timeout=30)
+    resp.raise_for_status()
+    profiles = [p for p in resp.json()
+                if p.get("countryCode") == "US" and p.get("accountInfo", {}).get("type") == "seller"]
 
     all_rows = []
     d_from = datetime.strptime(date_from, "%Y-%m-%d").date()
@@ -749,7 +705,6 @@ def collect_amazon_ads_search_terms(date_from: str, date_to: str) -> list[dict]:
         while cur <= d_to:
             chunk_end = min(cur + timedelta(days=6), d_to)
             print(f"  [{brand}] Search terms {cur}~{chunk_end}...")
-            ads_base = p.get("_ads_base_url", "https://advertising-api.amazon.com")
             rows = _fetch_amz_ads_report_generic(
                 h, pid, cur.isoformat(), chunk_end.isoformat(),
                 report_type_id="spSearchTerm",
@@ -758,7 +713,6 @@ def collect_amazon_ads_search_terms(date_from: str, date_to: str) -> list[dict]:
                          "searchTerm", "impressions", "clicks", "cost",
                          "sales14d", "purchases14d"],
                 time_unit="DAILY",
-                base_url=ads_base,
             )
             for row in rows:
                 # DAILY: row has "date" field; SUMMARY fallback: use range
@@ -788,7 +742,12 @@ def collect_amazon_ads_keywords(date_from: str, date_to: str) -> list[dict]:
     """Collect Amazon Ads keyword-level reports (all profiles, 7-day chunks)."""
     print("[Amazon Ads Keywords] Collecting...")
     headers = _fresh_amz_ads_headers()
-    profiles = _fetch_ads_profiles(headers)
+
+    resp = requests.get("https://advertising-api.amazon.com/v2/profiles",
+                        headers=headers, timeout=30)
+    resp.raise_for_status()
+    profiles = [p for p in resp.json()
+                if p.get("countryCode") == "US" and p.get("accountInfo", {}).get("type") == "seller"]
 
     all_rows = []
     d_from = datetime.strptime(date_from, "%Y-%m-%d").date()
@@ -805,7 +764,6 @@ def collect_amazon_ads_keywords(date_from: str, date_to: str) -> list[dict]:
         while cur <= d_to:
             chunk_end = min(cur + timedelta(days=6), d_to)
             print(f"  [{brand}] Keywords {cur}~{chunk_end}...")
-            ads_base = p.get("_ads_base_url", "https://advertising-api.amazon.com")
             rows = _fetch_amz_ads_report_generic(
                 h, pid, cur.isoformat(), chunk_end.isoformat(),
                 report_type_id="spKeywords",
@@ -815,7 +773,6 @@ def collect_amazon_ads_keywords(date_from: str, date_to: str) -> list[dict]:
                          "impressions", "clicks", "cost",
                          "sales14d", "purchases14d"],
                 time_unit="DAILY",
-                base_url=ads_base,
             )
             for row in rows:
                 row_date = row.get("date", f"{cur}~{chunk_end}")
@@ -839,16 +796,6 @@ def collect_amazon_ads_keywords(date_from: str, date_to: str) -> list[dict]:
         print(f"  {brand}: {sum(1 for r in all_rows if r['profile_id'] == pid)} keyword rows")
 
     return all_rows
-
-
-def _sp_api_base(seller):
-    """Return SP-API base URL for seller's region."""
-    region = seller.get("region", "US").upper()
-    if region == "JP":
-        return "https://sellingpartnerapi-fe.amazon.com"
-    elif region in ("EU", "UK", "DE", "FR", "IT", "ES"):
-        return "https://sellingpartnerapi-eu.amazon.com"
-    return "https://sellingpartnerapi-na.amazon.com"
 
 
 def collect_amazon_sales(date_from: str, date_to: str) -> list[dict]:
@@ -892,7 +839,7 @@ def collect_amazon_sales(date_from: str, date_to: str) -> list[dict]:
         while cur <= d_to:
             chunk_end = min(cur + timedelta(days=29), d_to)
             daily_rows, sku_rows = _fetch_sp_orders(sp_headers, cur.isoformat(), chunk_end.isoformat(),
-                                                    seller, seller.get("marketplace_id", AMZ_SP_MARKETPLACE_ID))
+                                                    seller, AMZ_SP_MARKETPLACE_ID)
             seller_rows.extend(daily_rows)
             seller_sku_rows.extend(sku_rows)
             cur = chunk_end + timedelta(days=1)
@@ -913,7 +860,7 @@ def collect_amazon_sales(date_from: str, date_to: str) -> list[dict]:
 
         # Fetch FBA fee estimates (ASIN -> per-unit fulfillment cost)
         print(f"  [{seller['name']}] Fetching FBA fee estimates...")
-        fba_fees = _fetch_fba_fees(sp_headers, seller, seller.get("marketplace_id", AMZ_SP_MARKETPLACE_ID))
+        fba_fees = _fetch_fba_fees(sp_headers, seller, AMZ_SP_MARKETPLACE_ID)
 
         # Inject FBA fees into SKU rows
         for sku_row in seller_sku_rows:
@@ -944,7 +891,6 @@ def collect_amazon_sales(date_from: str, date_to: str) -> list[dict]:
 
 def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
     """Fetch SP-API flat-file orders report for a date range."""
-    base = _sp_api_base(seller)
     try:
         body = {
             "reportType": "GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL",
@@ -953,7 +899,7 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
             "marketplaceIds": [marketplace_id],
         }
         r = requests.post(
-            f"{base}/reports/2021-06-30/reports",
+            "https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/reports",
             headers=headers, json=body, timeout=30,
         )
         if r.status_code >= 400:
@@ -966,7 +912,7 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
         for _ in range(60):
             time.sleep(10)
             r2 = requests.get(
-                f"{base}/reports/2021-06-30/reports/{report_id}",
+                f"https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/reports/{report_id}",
                 headers=headers, timeout=30,
             )
             r2.raise_for_status()
@@ -981,7 +927,7 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
 
         # Download document
         r3 = requests.get(
-            f"{base}/reports/2021-06-30/documents/{doc_id}",
+            f"https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/documents/{doc_id}",
             headers=headers, timeout=30,
         )
         r3.raise_for_status()
@@ -1075,14 +1021,13 @@ def _fetch_sp_orders(headers, start, end, seller, marketplace_id):
 
 def _fetch_fba_fees(headers, seller, marketplace_id) -> dict:
     """Fetch ASIN -> FBA fulfillment fee per unit from SP-API estimated fees report."""
-    base = _sp_api_base(seller)
     try:
         body = {
             "reportType": "GET_FBA_ESTIMATED_FBA_FEES_TXT_DATA",
             "marketplaceIds": [marketplace_id],
         }
         r = requests.post(
-            f"{base}/reports/2021-06-30/reports",
+            "https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/reports",
             headers=headers, json=body, timeout=30,
         )
         if r.status_code >= 400:
@@ -1094,7 +1039,7 @@ def _fetch_fba_fees(headers, seller, marketplace_id) -> dict:
         for _ in range(60):
             time.sleep(10)
             r2 = requests.get(
-                f"{base}/reports/2021-06-30/reports/{report_id}",
+                f"https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/reports/{report_id}",
                 headers=headers, timeout=30,
             )
             r2.raise_for_status()
@@ -1110,7 +1055,7 @@ def _fetch_fba_fees(headers, seller, marketplace_id) -> dict:
             return {}
 
         r3 = requests.get(
-            f"{base}/reports/2021-06-30/documents/{doc_id}",
+            f"https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/documents/{doc_id}",
             headers=headers, timeout=30,
         )
         r3.raise_for_status()
@@ -1281,7 +1226,6 @@ def _fetch_brand_analytics_report(headers, start, end, seller, marketplace_id, o
     """
     if asin_brand_map is None:
         asin_brand_map = {}
-    base = _sp_api_base(seller)
     try:
         body = {
             "reportType": "GET_BRAND_ANALYTICS_SEARCH_TERMS_REPORT",
@@ -1293,7 +1237,7 @@ def _fetch_brand_analytics_report(headers, start, end, seller, marketplace_id, o
             },
         }
         r = requests.post(
-            f"{base}/reports/2021-06-30/reports",
+            "https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/reports",
             headers=headers, json=body, timeout=30,
         )
         if r.status_code == 403:
@@ -1326,7 +1270,7 @@ def _fetch_brand_analytics_report(headers, start, end, seller, marketplace_id, o
                 pass  # use existing token
 
             r2 = requests.get(
-                f"{base}/reports/2021-06-30/reports/{report_id}",
+                f"https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/reports/{report_id}",
                 headers=headers, timeout=30,
             )
             r2.raise_for_status()
@@ -1345,7 +1289,7 @@ def _fetch_brand_analytics_report(headers, start, end, seller, marketplace_id, o
 
         # Download document — stream to temp file to avoid OOM on 3GB+ reports
         r3 = requests.get(
-            f"{base}/reports/2021-06-30/documents/{doc_id}",
+            f"https://sellingpartnerapi-na.amazon.com/reports/2021-06-30/documents/{doc_id}",
             headers=headers, timeout=30,
         )
         r3.raise_for_status()
@@ -2494,14 +2438,17 @@ def collect_amazon_campaigns(date_from: str, date_to: str) -> list[dict]:
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
     }
-    profiles = _fetch_ads_profiles(profile_headers)
+    resp = requests.get("https://advertising-api.amazon.com/v2/profiles",
+                        headers=profile_headers, timeout=30)
+    resp.raise_for_status()
+    profiles = [p for p in resp.json()
+                if p.get("countryCode") == "US" and p.get("accountInfo", {}).get("type") == "seller"]
 
     all_campaigns = []
     for p in profiles:
         pid = str(p["profileId"])
         pname = p.get("accountInfo", {}).get("name", pid)
         brand = PROFILE_BRAND_MAP.get(pname, pname)
-        ads_base = p.get("_ads_base_url", "https://advertising-api.amazon.com")
         h_sp = {**headers, "Amazon-Advertising-API-Scope": pid}
 
         # --- SP campaigns (paginated — API caps at 1000/page) ---
@@ -2513,7 +2460,7 @@ def collect_amazon_campaigns(date_from: str, date_to: str) -> list[dict]:
                 if next_token:
                     body["nextToken"] = next_token
                 r = requests.post(
-                    f"{ads_base}/sp/campaigns/list",
+                    "https://advertising-api.amazon.com/sp/campaigns/list",
                     headers=h_sp, json=body, timeout=30,
                 )
                 r.raise_for_status()
@@ -2552,7 +2499,7 @@ def collect_amazon_campaigns(date_from: str, date_to: str) -> list[dict]:
                 "Amazon-Advertising-API-Scope": pid,
             }
             r = requests.post(
-                f"{ads_base}/sb/v4/campaigns/list",
+                "https://advertising-api.amazon.com/sb/v4/campaigns/list",
                 headers=h_sb, json={"maxResults": 100}, timeout=20,
             )
             r.raise_for_status()
@@ -2586,7 +2533,7 @@ def collect_amazon_campaigns(date_from: str, date_to: str) -> list[dict]:
                 "Amazon-Advertising-API-Scope": pid,
             }
             r = requests.get(
-                f"{ads_base}/sd/campaigns",
+                "https://advertising-api.amazon.com/sd/campaigns",
                 headers=h_sd, timeout=20,
             )
             r.raise_for_status()
@@ -2652,321 +2599,6 @@ def collect_meta_campaigns(date_from: str, date_to: str) -> list[dict]:
 
 
 # ══════════════════════════════════════════════════════════════════════════
-# RAKUTEN COLLECTOR
-# ══════════════════════════════════════════════════════════════════════════
-
-def collect_rakuten_orders(date_from: str, date_to: str) -> list[dict]:
-    """Collect Rakuten order data via RMS API 2.0."""
-    import base64
-    service_secret = os.getenv("RAKUTEN_SERVICE_SECRET", "")
-    license_key = os.getenv("RAKUTEN_LICENSE_KEY", "")
-    if not service_secret or not license_key:
-        print("[Rakuten] SKIP: no credentials")
-        return []
-
-    print("[Rakuten] Collecting orders...")
-    auth = base64.b64encode(f"{service_secret}:{license_key}".encode()).decode()
-    headers = {
-        "Authorization": f"ESA {auth}",
-        "Content-Type": "application/json; charset=utf-8",
-    }
-
-    all_rows: list[dict] = []
-    d_from = datetime.strptime(date_from, "%Y-%m-%d").date()
-    d_to = datetime.strptime(date_to, "%Y-%m-%d").date()
-    cur = d_from
-
-    while cur <= d_to:
-        chunk_end = min(cur + timedelta(days=29), d_to)
-        payload = {
-            "dateType": 1,  # 1 = order date
-            "startDatetime": f"{cur.isoformat()}T00:00:00+0900",
-            "endDatetime": f"{chunk_end.isoformat()}T23:59:59+0900",
-            "PaginationRequestModel": {"requestRecordsAmount": 1000, "requestPage": 1},
-        }
-        try:
-            r = requests.post(
-                "https://api.rms.rakuten.co.jp/es/2.0/order/searchOrder/",
-                headers=headers, json=payload, timeout=30
-            )
-            r.raise_for_status()
-            data = r.json()
-        except Exception as e:
-            print(f"  [Rakuten] {cur} ~ {chunk_end} ERROR: {e}")
-            cur = chunk_end + timedelta(days=1)
-            continue
-
-        order_numbers = data.get("orderNumberList", []) or []
-        if not order_numbers:
-            cur = chunk_end + timedelta(days=1)
-            continue
-
-        # Fetch order details in batches of 100
-        for i in range(0, len(order_numbers), 100):
-            batch = order_numbers[i:i+100]
-            try:
-                detail_r = requests.post(
-                    "https://api.rms.rakuten.co.jp/es/2.0/order/getOrder/",
-                    headers=headers, json={"orderNumberList": batch, "version": 7}, timeout=30
-                )
-                detail_r.raise_for_status()
-                orders = detail_r.json().get("OrderModelList", []) or []
-            except Exception as e:
-                print(f"  [Rakuten] getOrder batch error: {e}")
-                continue
-
-            # Aggregate by date
-            daily: dict = {}
-            for o in orders:
-                order_date = (o.get("orderDatetime") or "")[:10]
-                if not order_date:
-                    continue
-                status = o.get("orderProgress", 0)
-                if status in (900, 700):  # cancelled/returned
-                    continue
-                price = float(o.get("goodsPrice", 0) or 0) + float(o.get("deliveryPrice", 0) or 0)
-                pkgs = o.get("PackageModelList", []) or []
-                units = sum(int(i.get("units", 0) or 0) for i in (pkgs[0].get("ItemModelList", []) if pkgs else []))
-                if order_date not in daily:
-                    daily[order_date] = {"date": order_date, "brand": "Grosmimi", "orders": 0, "units": 0, "revenue": 0.0}
-                daily[order_date]["orders"] += 1
-                daily[order_date]["units"] += units
-                daily[order_date]["revenue"] = round(daily[order_date]["revenue"] + price, 2)
-
-            all_rows.extend(daily.values())
-
-        print(f"  [Rakuten] {cur} ~ {chunk_end}: {len(order_numbers)} orders")
-        cur = chunk_end + timedelta(days=1)
-
-    print(f"[Rakuten] Total: {len(all_rows)} daily rows")
-    return all_rows
-
-
-# ══════════════════════════════════════════════════════════════════════════
-# AMAZON AUTOCOMPLETE RANK
-# ══════════════════════════════════════════════════════════════════════════
-
-# Brand keywords to track autocomplete rank — per market
-# US: English high-volume category keywords + brand
-# JP: Japanese high-volume category keywords + brand (Grosmimi only — only brand sold in JP)
-# NOTE: Onzenna removed — it's our marketplace, not a product brand for autocomplete.
-SEARCH_RANKING_KEYWORDS = {
-    "US": {
-        "Grosmimi": ["training cup", "straw cup", "sippy cup", "toddler cup", "baby straw cup"],
-        "Naeiae": ["baby food", "baby snack", "korean baby food", "baby snack organic", "toddler food pouch"],
-        "CHA&MOM": ["baby lotion", "baby wash", "baby cream"],
-    },
-    "JP": {
-        "Grosmimi": ["ストローマグ", "ベビーマグ", "ppsu マグ", "こぼれないコップ", "ストローカップ ベビー"],
-    },
-}
-
-# Brand name patterns for matching in search results
-BRAND_SEARCH_PATTERNS = {
-    "Grosmimi": ["grosmimi"],
-    "Naeiae": ["naeiae"],
-    "CHA&MOM": ["cha&mom", "cha and mom", "chaenmom", "cha & mom"],
-}
-
-SEARCH_RANKING_DOMAINS = {
-    "US": "amazon.com",
-    "JP": "amazon.co.jp",
-}
-
-SEARCH_RANKING_MAX_ITEMS = 100  # 2 pages per keyword
-
-# ── Brand → Category mapping for cross-check ───────────────────────────────
-# Used to validate that keywords match their brand's product category.
-# Prevents accidental brand-keyword mismatches (e.g., CHA&MOM + "baby food").
-BRAND_CATEGORY = {
-    "Grosmimi": {"category": "baby cups & bottles", "must_not_contain": ["food", "snack", "lotion", "cream", "sunscreen"]},
-    "Naeiae":   {"category": "baby food & snacks",  "must_not_contain": ["cup", "straw", "lotion", "cream", "sunscreen"]},
-    "CHA&MOM":  {"category": "baby & mom skincare", "must_not_contain": ["food", "snack", "cup", "straw", "sunscreen"]},
-}
-
-
-def _crosscheck_keywords():
-    """Validate SEARCH_RANKING_KEYWORDS against BRAND_CATEGORY.
-
-    Raises ValueError on brand-keyword mismatch to prevent bad data collection.
-    Called at module load and before each collection run.
-    """
-    errors = []
-    for market, brands in SEARCH_RANKING_KEYWORDS.items():
-        for brand, keywords in brands.items():
-            rule = BRAND_CATEGORY.get(brand)
-            if not rule:
-                continue
-            for kw in keywords:
-                if kw.lower() == brand.lower():
-                    continue  # brand name itself is always OK
-                for bad in rule["must_not_contain"]:
-                    if bad in kw.lower():
-                        errors.append(
-                            f"[CROSS-CHECK] {market}/{brand}: keyword '{kw}' contains "
-                            f"'{bad}' — mismatches category '{rule['category']}'"
-                        )
-    if errors:
-        raise ValueError(
-            "Brand-keyword cross-check failed!\n" + "\n".join(errors)
-        )
-
-
-# Run cross-check at module load to catch config errors early
-_crosscheck_keywords()
-
-def _search_ranking_for_keyword(keyword, brand, market="US"):
-    """Search Amazon for `keyword` and find `brand`'s product position.
-
-    Uses Apify free-amazon-product-scraper to get real search results.
-    Returns list of dicts: [{position, asin, title, price, is_sponsored}]
-    for matching brand products, plus top_3 competitors.
-    """
-    from apify_client import ApifyClient
-
-    token = os.environ.get("APIFY_API_TOKEN", "")
-    if not token:
-        print(f"  [WARN] APIFY_API_TOKEN not set, skipping {keyword}")
-        return []
-
-    domain = SEARCH_RANKING_DOMAINS.get(market, "amazon.com")
-    search_url = f"https://www.{domain}/s?k={keyword.replace(' ', '+')}"
-
-    client = ApifyClient(token)
-    try:
-        run = client.actor("junglee/free-amazon-product-scraper").call(
-            run_input={
-                "categoryUrls": [{"url": search_url}],
-                "maxItems": SEARCH_RANKING_MAX_ITEMS,
-            },
-            timeout_secs=300,
-        )
-        if run["status"] != "SUCCEEDED":
-            print(f"  [WARN] Apify run failed for '{keyword}': {run['status']}")
-            return []
-
-        items = list(client.dataset(run["defaultDatasetId"]).iterate_items(
-            limit=SEARCH_RANKING_MAX_ITEMS
-        ))
-    except Exception as e:
-        print(f"  [ERROR] Apify search failed for '{keyword}': {e}")
-        return []
-
-    # Find brand products and top competitors
-    patterns = BRAND_SEARCH_PATTERNS.get(brand, [brand.lower()])
-    brand_results = []
-    competitors = []
-
-    for item in items:
-        cpd = item.get("categoryPageData") or {}
-        pos = cpd.get("productPosition", -1)
-        if pos < 0:
-            continue
-
-        item_brand = (item.get("brand", "") or "").lower()
-        item_title = (item.get("title", "") or "").lower()
-        is_sponsored = bool(cpd.get("isSponsored"))
-        price_data = item.get("price") or {}
-        price_val = price_data.get("value", 0) if isinstance(price_data, dict) else 0
-
-        entry = {
-            "position": pos,
-            "asin": item.get("asin", ""),
-            "title": (item.get("title", "") or "")[:120],
-            "item_brand": item.get("brand", ""),
-            "price": price_val,
-            "is_sponsored": is_sponsored,
-            "stars": item.get("stars", 0),
-            "reviews": item.get("reviewsCount", 0),
-        }
-
-        # Check if this is our brand
-        matched = any(p in item_brand or p in item_title for p in patterns)
-        if matched:
-            brand_results.append(entry)
-        elif len(competitors) < 3 and not is_sponsored:
-            competitors.append(entry)
-
-    return {"brand_results": brand_results, "competitors": competitors, "total_results": len(items)}
-
-
-def collect_amazon_search_ranking(date_from, date_to):
-    """Collect Amazon search ranking positions for brand keywords per market."""
-    print("[Amazon Search Ranking] Collecting via Apify...")
-
-    # Ensure APIFY token is loaded
-    secrets_path = os.path.expanduser("~/.wat_secrets")
-    if os.path.exists(secrets_path):
-        with open(secrets_path, encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if line.startswith("export "):
-                    line = line[7:]
-                if "=" in line and not line.startswith("#"):
-                    k, v = line.split("=", 1)
-                    v = v.strip('"').strip("'")
-                    os.environ.setdefault(k, v)
-
-    today = _get_pst_today().isoformat()
-    all_rows = []
-
-    for market_name in SEARCH_RANKING_DOMAINS:
-        brands = SEARCH_RANKING_KEYWORDS.get(market_name, {})
-        for brand, keywords in brands.items():
-            for kw in keywords:
-                print(f"  [{market_name}] {brand} / '{kw}' - searching...")
-                result = _search_ranking_for_keyword(kw, brand, market=market_name)
-                if not result:
-                    all_rows.append({
-                        "date": today, "brand": brand, "keyword": kw,
-                        "market": market_name, "position": -1,
-                        "asin": "", "product_title": "",
-                        "competitors_top3": "[]",
-                    })
-                    print(f"    -> no data")
-                    continue
-
-                brand_hits = result["brand_results"]
-                comps = result["competitors"]
-
-                if brand_hits:
-                    best = min(brand_hits, key=lambda x: x["position"])
-                    all_rows.append({
-                        "date": today, "brand": brand, "keyword": kw,
-                        "market": market_name, "position": best["position"],
-                        "asin": best["asin"],
-                        "product_title": best["title"],
-                        "price": best["price"],
-                        "stars": best["stars"],
-                        "reviews": best["reviews"],
-                        "is_sponsored": best["is_sponsored"],
-                        "total_brand_hits": len(brand_hits),
-                        "competitors_top3": json.dumps(
-                            [{"pos": c["position"], "brand": c["item_brand"], "title": c["title"][:60]}
-                             for c in comps[:3]], ensure_ascii=False
-                        ),
-                    })
-                    print(f"    -> #{best['position']} (ASIN: {best['asin']}, {len(brand_hits)} hits)")
-                else:
-                    all_rows.append({
-                        "date": today, "brand": brand, "keyword": kw,
-                        "market": market_name, "position": -1,
-                        "asin": "", "product_title": "",
-                        "total_brand_hits": 0,
-                        "competitors_top3": json.dumps(
-                            [{"pos": c["position"], "brand": c["item_brand"], "title": c["title"][:60]}
-                             for c in comps[:3]], ensure_ascii=False
-                        ),
-                    })
-                    print(f"    -> NOT FOUND in top {result['total_results']}")
-
-                time.sleep(1)  # Rate limit between keywords
-
-    print(f"[Amazon Search Ranking] Total: {len(all_rows)} rows")
-    return all_rows
-
-
-# ══════════════════════════════════════════════════════════════════════════
 # MAIN ORCHESTRATOR
 # ══════════════════════════════════════════════════════════════════════════
 
@@ -2986,8 +2618,6 @@ CHANNEL_COLLECTORS = {
     "shopify": ("shopify_orders_daily", collect_shopify),
     "gsc": ("gsc_daily", collect_gsc),
     "dataforseo": ("dataforseo_keywords", collect_dataforseo),
-    "rakuten": ("rakuten_orders_daily", collect_rakuten_orders),
-    "amazon_search_ranking": ("amazon_search_ranking_daily", collect_amazon_search_ranking),
 }
 
 

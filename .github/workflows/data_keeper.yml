@@ -7,7 +7,7 @@ on:
   workflow_dispatch:         # manual trigger
     inputs:
       channel:
-        description: 'Channel to collect (all, amazon_ads, amazon_ads_search_terms, amazon_ads_keywords, amazon_brand_analytics, amazon_sales, meta, google, google_ads_search_terms, ga4, klaviyo, shopify, gsc, dataforseo, amazon_search_ranking)'
+        description: 'Channel to collect (all, amazon_ads, amazon_ads_search_terms, amazon_ads_keywords, amazon_brand_analytics, amazon_sales, meta, google, google_ads_search_terms, ga4, klaviyo, shopify, gsc, dataforseo)'
         required: false
         default: 'all'
       days:
@@ -40,7 +40,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --quiet \
-            requests python-dotenv google-ads ijson apify-client
+            requests python-dotenv google-ads ijson
 
       - name: Write .env
         run: |
@@ -60,12 +60,6 @@ jobs:
           AMZ_SP_ORBITOOL_CLIENT_ID=${{ secrets.AMZ_SP_ORBITOOL_CLIENT_ID }}
           AMZ_SP_ORBITOOL_CLIENT_SECRET=${{ secrets.AMZ_SP_ORBITOOL_CLIENT_SECRET }}
           AMZ_SP_MARKETPLACE_ID=ATVPDKIKX0DER
-          AMZ_SP_REFRESH_TOKEN_GROSMIMI_JP=${{ secrets.AMZ_SP_REFRESH_TOKEN_GROSMIMI_JP }}
-          AMZ_SP_GROSMIMI_JP_SELLER_ID=${{ secrets.AMZ_SP_GROSMIMI_JP_SELLER_ID }}
-          AMZ_SP_GROSMIMI_JP_CLIENT_ID=${{ secrets.AMZ_SP_GROSMIMI_JP_CLIENT_ID }}
-          AMZ_SP_GROSMIMI_JP_CLIENT_SECRET=${{ secrets.AMZ_SP_GROSMIMI_JP_CLIENT_SECRET }}
-          RAKUTEN_SERVICE_SECRET=${{ secrets.RAKUTEN_SERVICE_SECRET }}
-          RAKUTEN_LICENSE_KEY=${{ secrets.RAKUTEN_LICENSE_KEY }}
           META_ACCESS_TOKEN=${{ secrets.META_ACCESS_TOKEN }}
           META_AD_ACCOUNT_ID=${{ secrets.META_AD_ACCOUNT_ID }}
           SHOPIFY_SHOP=${{ secrets.SHOPIFY_SHOP }}
@@ -87,7 +81,6 @@ jobs:
           ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
           PPC_REPORT_RECIPIENT=${{ secrets.PPC_REPORT_RECIPIENT }}
           DATA_KEEPER_RECIPIENT=${{ secrets.DATA_KEEPER_RECIPIENT }}
-          APIFY_API_TOKEN=${{ secrets.APIFY_API_TOKEN }}
           ENVEOF
           # Strip leading whitespace from heredoc indentation
           sed -i 's/^[[:space:]]*//' .env
@@ -170,11 +163,6 @@ jobs:
         if: steps.mode.outputs.notify_only == 'false' && steps.mode.outputs.is_daily == 'true' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_brand_analytics')
         run: |
           python -u tools/data_keeper.py --channel amazon_brand_analytics --days 35 || echo "Brand Analytics collection failed (non-fatal)"
-
-      - name: Collect Amazon Search Ranking (Apify)
-        if: steps.mode.outputs.notify_only == 'false' && steps.mode.outputs.is_daily == 'true' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_search_ranking')
-        run: |
-          python -u tools/data_keeper.py --channel amazon_search_ranking --days 1 || echo "Search ranking collection failed (non-fatal)"
 
       - name: Run Amazon PPC Analysis
         if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_ads')

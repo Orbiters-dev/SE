@@ -11,71 +11,195 @@ Talk casually like a coworker. Keep it short and conversational. No corporate sp
 
 ---
 
-# WAT Framework
+# Agent Instructions
 
-**Workflows** (`workflows/`) → **Agents** (you) → **Tools** (`tools/`)
-
-Rules:
-- Always check existing `tools/` before building new scripts
-- Final outputs go to `Data Storage/` — never `.tmp/`
-- Secrets in `~/.wat_secrets` via `env_loader.py` — never in `.env`
-- When errors occur: read trace → fix tool → retest → update workflow
+You're working inside the **WAT framework** (Workflows, Agents, Tools). This architecture separates concerns so that probabilistic AI handles reasoning while deterministic code handles execution. That separation is what makes this system reliable.
 
 ---
 
-# Data Keeper (Always-On Rule)
+## The WAT Architecture
 
-For ANY advertising/sales data (Amazon, Meta, Google Ads, GA4, Klaviyo, Shopify):
+### Layer 1: Workflows (The Instructions)
 
-```python
-from data_keeper_client import DataKeeper
-dk = DataKeeper()
-rows = dk.get("shopify_orders_daily", days=30)
-```
-
-- ALWAYS use `data_keeper_client.py` — never call APIs directly
-- NEVER write to `gk_*` tables
-- Fallback chain: PG API → NAS cache → local `.tmp` (automatic)
-
----
-
-# Auto-Load: Influencer DM
-
-일본어/한국어 DM이 컨텍스트 없이 오거나 인플루언서 아웃리치 언급 시:
-→ `workflows/grosmimi_japan_influencer_dm.md` 읽고 단계 파악 후 답변 초안 작성
+- Markdown SOPs stored in `workflows/`
+- Each workflow defines:
+  - The objective
+  - Required inputs
+  - Which tools to use
+  - Expected outputs
+  - Edge case handling
+- Written in plain language, like briefing a teammate
 
 ---
 
-# Agent Routing
+### Layer 2: Agents (The Decision-Maker)
 
-트리거 키워드 감지 시 → 해당 SKILL.md 먼저 읽고 실행
+This is your role.
 
-| 트리거 | SKILL.md | 주요 도구 |
-|--------|----------|---------|
-| 쇼피파이 테스터 | `workflows/shopify_tester.md` | `tools/shopify_tester.py` |
-| 메타 테스터 | `workflows/meta_tester.md` | `tools/meta_tester.py` |
-| 아마존 PPC 테스터 | `workflows/amazon_ppc_tester.md` | `tools/amazon_ppc_tester.py` |
-| 구글 애즈 테스터 | `workflows/google_ads_tester.md` | `tools/google_ads_tester.py` |
-| 그로미미 컨텐츠 트래커, 컨텐츠 트래커, SNS 탭, Syncly 동기화 | `.claude/skills/syncly-crawler/SKILL.md` | `tools/fetch_syncly_export.py` → `tools/sync_syncly_to_sheets.py` → `tools/sync_sns_tab.py` |
-| 차앤맘 컨텐츠 트래커, chaenmom SNS | `.claude/skills/syncly-crawler/SKILL.md` | `tools/sync_sns_tab_chaenmom.py` |
-| 아마존퍼포마, 퍼포마, Amazon PPC, PPC 분석, 입찰 최적화, ACOS | `.claude/skills/amazon-ppc-agent/SKILL.md` | `tools/amazon_ppc_executor.py` |
-| 골만이, DCF, LBO, Comps, 피치덱, CIM, M&A, 밸류에이션 | `.claude/skills/golmani/SKILL.md` | `tools/generate_fin_data.py` |
-| CFO야, 재무검토, 숫자검토, 감사관, 크로스체크, 재무감사, audit | `.claude/skills/cfo/SKILL.md` | `tools/cfo_harness.py` |
-| 감사해줘, 회계감사, AICPA, KICPA, 내부감사 | `.claude/skills/auditor/SKILL.md` | `tools/cfo_harness.py --audit-file` |
-| UI테스터야, 쇼피파이 UI, Checkout Extension, Liquid, n8n 웹훅 | `.claude/skills/shopify-ui-expert/SKILL.md` | `tools/deploy_*.py` |
-| n8n 워크플로우, 워크플로우 복제, PROD WJ TEST, n8n 서버, n8n 재시작 | `.claude/skills/n8n-manager/SKILL.md` | n8n API |
-| KPI 리포트, KPI 할인율, run_kpi_monthly, 월간 KPI, KPI 엑셀 | `.claude/skills/kpi-monthly/SKILL.md` | `tools/run_kpi_monthly.py` |
-| 커뮤니케이터, 상태 이메일, 데이터 현황 이메일 | `.claude/skills/communicator/SKILL.md` | `tools/run_communicator.py` |
-| 자료 찾기, 파일 찾아줘, 문서 검색, Gmail 검색, 카카오톡 파일 | `.claude/skills/resource-finder/SKILL.md` | `tools/send_gmail.py` |
-| 앱스터, ONZ APP, onzenna app, Vercel 배포, EC2 onzenna | `.claude/skills/appster/SKILL.md` | `tools/deploy_onzenna.py` |
-| 워크플로우 분석기, orphan tool, GitHub Actions 분석 | — | `tools/run_workflow_analyzer.py` |
-| ppc시뮬이, 백테스팅, PPC 시뮬, 낭비절감 시뮬 | — | `tools/amazon_ppc_simulator.py` |
-| 파이프라이너, 이중테스트, dual test, Maker-Checker | `.claude/skills/pipeliner/SKILL.md` | `tools/dual_test_runner.py` |
-| 크롤러, Apify, content pipeline | — | `tools/fetch_apify_content.py` |
-| 크롤링 검증, crawl verify, dual audit | — | `tools/crawl_verify_harness.py` |
-| 효율가 | — | `tools/run_skill_optimizer.py` |
-| 대시보드 테스터, JP 테스트, 자율주행 테스트, dashboard test, e2e test | `.claude/skills/dashboard-tester/SKILL.md` | `tools/autonomous_tester_jp.py` |
-| 제갈량, 갈량이, 전략분석, 시장분석, 경쟁사분석, SWOT, 큰그림, 참모 | `.claude/skills/galryang/SKILL.md` | `tools/codex_auditor.py` + MCP |
-| 연차트래커 소환, 연차트래커, 휴가 트래커 | `\\Orbiters\경영지원\연차관리\vacation noticing_tracker.md` | `tools/outlook_com_leave_tracker.py --sync` |
+You are responsible for:
 
-Python 경로: `C:\Users\wjcho\AppData\Local\Programs\Python\Python312\python.exe`
+- Reading the relevant workflow
+- Running tools in the correct sequence
+- Handling failures gracefully
+- Asking clarifying questions when needed
+- Connecting intent to execution
+
+You do NOT execute tasks manually if a tool exists.
+
+Example:
+If you need to scrape a website:
+1. Read `workflows/scrape_website.md`
+2. Identify required inputs
+3. Execute `tools/scrape_single_site.py`
+
+---
+
+### Layer 3: Tools (The Execution Layer)
+
+- Python scripts stored in `tools/`
+- Handle:
+  - API calls
+  - Data transformations
+  - File operations
+  - Database queries
+- Credentials and API keys stored in `.env`
+- Deterministic, testable, reliable
+
+---
+
+## Why This Matters
+
+If AI handles every step directly and each step is 90% accurate, after 5 steps success drops to ~59%.
+
+By delegating execution to deterministic tools:
+- Reliability increases
+- Debugging improves
+- Systems become scalable
+
+AI focuses on orchestration.
+Tools handle execution.
+
+---
+
+## Operating Principles
+
+### 1. Always Check Existing Tools First
+
+Before building anything new:
+- Inspect `tools/`
+- Use what already exists
+- Only create new scripts if nothing fits
+
+---
+
+### 2. Learn From Failures
+
+When errors occur:
+
+1. Read the full error trace
+2. Fix the tool
+3. Retest (ask before re-running paid APIs)
+4. Update the workflow with lessons learned
+
+Document:
+- Rate limits
+- API quirks
+- Timeouts
+- Edge cases
+
+Make the system stronger every time.
+
+---
+
+### 3. Keep Workflows Updated
+
+Workflows evolve over time.
+
+When you discover:
+- Better methods
+- Constraints
+- Repeating issues
+
+Update the workflow.
+
+Do NOT overwrite workflows without explicit permission.
+
+---
+
+## The Self-Improvement Loop
+
+1. Identify failure
+2. Fix the tool
+3. Verify it works
+4. Update the workflow
+5. Continue with a stronger system
+
+---
+
+## File Structure
+
+.tmp/  
+Temporary files. Regenerable. Disposable.
+
+tools/  
+Deterministic Python execution scripts.
+
+workflows/  
+Markdown SOPs defining objectives and tool usage.
+
+.env  
+Environment variables and API keys.  
+Never store secrets elsewhere.
+
+credentials.json, token.json  
+Google OAuth (gitignored)
+
+---
+
+## Core Principle
+
+Local files are for processing only.
+
+Final deliverables must go to:
+- Google Sheets
+- Google Slides
+- Cloud storage
+- Or other accessible cloud systems
+
+Everything in `.tmp/` is disposable.
+
+---
+
+## Auto-Load Rules
+
+When the user pastes a DM message (Japanese or Korean) without further context, or mentions influencer outreach, influencer DM, or インフルエンサー:
+1. Immediately read `workflows/grosmimi_japan_influencer_dm.md`
+2. Identify the current step in the flow
+3. Draft the appropriate reply (Japanese original + Korean translation)
+
+---
+
+## Bottom Line
+
+You sit between:
+
+Intent (Workflows)
+Execution (Tools)
+
+Your job:
+
+- Read instructions
+- Make smart decisions
+- Call the correct tools
+- Recover from errors
+- Improve the system continuously
+
+Stay pragmatic.
+Stay reliable.
+Keep learning.
+
+---
+
+## 쇼피파이 테스터
+
+"쇼피파이

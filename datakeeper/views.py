@@ -75,9 +75,7 @@ TABLE_MAP = {
     "content_metrics_daily": models.ContentMetricsDaily,
     "influencer_orders": models.InfluencerOrders,
     "amazon_brand_analytics": models.AmazonBrandAnalytics,
-    "amazon_sqp_brand": models.AmazonSQPBrand,
     "google_ads_search_terms": models.GoogleAdsSearchTerms,
-    "rakuten_orders_daily": models.RakutenOrdersDaily,
 }
 
 
@@ -288,15 +286,9 @@ def query_rows(request):
     if username and "username" in field_names:
         qs = qs.filter(username__iexact=username)
 
-    # Order by date desc if available (content_posts uses post_date, not date)
+    # Order by date desc if available
     if "date" in field_names:
         qs = qs.order_by("-date")
-    elif "post_date" in field_names:
-        qs = qs.order_by("-post_date")
-    elif "collected_at" in field_names:
-        qs = qs.order_by("-collected_at")
-    else:
-        qs = qs.order_by("-id")
 
     limit = min(int(request.GET.get("limit", 5000)), 10000)
     qs = qs[:limit]
