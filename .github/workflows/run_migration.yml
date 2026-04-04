@@ -15,29 +15,45 @@ jobs:
           chmod 600 ~/.ssh/ec2_key
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
 
-      - name: Investigate Django deployment
+      - name: Run ALTER TABLE migration
         run: |
+          cat onzenna/migrations/add_creator_master_list_fields.sql | \
+            ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} \
+              "PGPASSWORD=orbit1234 psql -h 172.31.13.240 -U es_db_user -d export_calculator_db -f -"
+
+      - name: Deploy updated Django code and restart gunicorn
+        run: |
+          # Copy files
+          scp -i ~/.ssh/ec2_key \
+            onzenna/models.py onzenna/views.py onzenna/urls.py \
+            ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/export_calculator/onzenna/
+
+          # Graceful restart: kill old gunicorn, start new one
           ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} '
-            echo "=== Docker containers ==="
-            docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || echo "no docker"
+            cd /home/ubuntu/export_calculator
 
-            echo ""
-            echo "=== Systemd services with gunicorn/uwsgi/django ==="
-            sudo systemctl list-units --all | grep -iE "gunicorn|uwsgi|django|export|calculator" || echo "none found"
+            # Kill existing gunicorn
+            pkill -f "gunicorn.*export_calculator" || true
+            sleep 2
 
-            echo ""
-            echo "=== Supervisor status ==="
-            sudo supervisorctl status 2>/dev/null || echo "no supervisorctl"
+            # Start gunicorn daemon
+            python3 -m gunicorn --workers=1 --timeout=600 --bind 0.0.0.0:8000 --daemon export_calculator.wsgi:application
 
-            echo ""
-            echo "=== Nginx config for export_calculator ==="
-            grep -r "proxy_pass\|upstream\|export_calculator" /etc/nginx/ 2>/dev/null | head -20 || echo "no nginx config found"
+            sleep 2
 
-            echo ""
-            echo "=== Running Python/Django processes ==="
-            ps aux | grep -E "python|gunicorn|uwsgi|manage.py" | grep -v grep || echo "none"
+            # Verify it started
+            if pgrep -f "gunicorn.*export_calculator" > /dev/null; then
+              echo "Gunicorn restarted successfully"
+              ps aux | grep gunicorn | grep -v grep
+            else
+              echo "ERROR: Gunicorn failed to start"
+              exit 1
+            fi
+          '
 
-            echo ""
-            echo "=== Port 8000-8999 listeners ==="
-            sudo ss -tlnp | grep -E "8[0-9]{3}" || echo "none"
+      - name: Verify API
+        run: |
+          sleep 3
+          ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} '
+            curl -s -u admin:admin http://localhost:8000/api/onzenna/pipeline/creators/stats/ | python3 -m json.tool
           '
