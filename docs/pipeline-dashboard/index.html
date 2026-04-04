@@ -176,7 +176,6 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
     <div data-p="config">Config</div>
     <div class="on" data-p="dashboard">Dashboard</div>
     <div data-p="creators">Creators</div>
-    <div data-p="execution">Execution</div>
     <div data-p="content">Content</div>
     <div data-p="comms">Comms</div>
     <div data-p="emailcfg">Email Config</div>
@@ -185,6 +184,61 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 
   <!-- ===== HOW IT WORKS TAB ===== -->
   <div class="mp" id="p-howto">
+    <!-- Data Sources Overview — Master List Architecture -->
+    <div class="card" style="border-left:3px solid var(--a);margin-bottom:14px">
+      <h3>&#x1F4CA; Data Sources &#x2192; PipelineCreator (Master List)</h3>
+      <div class="desc">&#xBAA8;&#xB4E0; &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130; &#xB370;&#xC774;&#xD130;&#xAC00; &#xD558;&#xB098;&#xC758; Master List&#xB85C; &#xD1B5;&#xD569;&#xB429;&#xB2C8;&#xB2E4;. Identity Resolution (email &#x2192; handle &#x2192; merge)&#xC73C;&#xB85C; &#xC911;&#xBCF5; &#xBC29;&#xC9C0;.</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-top:10px" id="hw-data-sources">
+        <div style="border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;background:var(--bg)">
+          <div style="font-size:18px">&#x1F50E;</div>
+          <div style="font-size:11px;font-weight:700">Syncly</div>
+          <div style="font-size:9px;color:var(--dim)">D+60 &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130; &#xBC1C;&#xACAC;</div>
+          <div style="font-size:9px;margin-top:4px" id="hw-src-syncly"><span style="color:var(--g)">&#x1F7E2;</span> <b id="hw-ts-syncly">--</b></div>
+          <div style="font-size:9px;color:var(--muted)" id="hw-cnt-syncly">-- records</div>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;background:var(--bg)">
+          <div style="font-size:18px">&#x1F577;&#xFE0F;</div>
+          <div style="font-size:11px;font-weight:700">Apify Crawler</div>
+          <div style="font-size:9px;color:var(--dim)">IG/TT &#xD3EC;&#xC2A4;&#xD2B8; + D+90 Views</div>
+          <div style="font-size:9px;margin-top:4px" id="hw-src-apify"><span style="color:var(--g)">&#x1F7E2;</span> <b id="hw-ts-apify">--</b></div>
+          <div style="font-size:9px;color:var(--muted)" id="hw-cnt-apify">-- posts</div>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;background:var(--bg)">
+          <div style="font-size:18px">&#x1F6D2;</div>
+          <div style="font-size:11px;font-weight:700">Shopify PR</div>
+          <div style="font-size:9px;color:var(--dim)">&#xC8FC;&#xBB38;&#xC815;&#xBCF4; + &#xC804;&#xD654;&#xBC88;&#xD638; + &#xC544;&#xC774;&#xB098;&#xC774;</div>
+          <div style="font-size:9px;margin-top:4px"><span style="color:var(--g)">&#x1F7E2;</span> <b>Live API</b></div>
+          <div style="font-size:9px;color:var(--muted)" id="hw-cnt-shopify">-- PR orders</div>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;background:var(--bg)">
+          <div style="font-size:18px">&#x1F4E7;</div>
+          <div style="font-size:11px;font-weight:700">Gmail RAG</div>
+          <div style="font-size:9px;color:var(--dim)">hello@ + affiliates@ &#xC774;&#xBA54;&#xC77C; &#xC774;&#xB825;</div>
+          <div style="font-size:9px;margin-top:4px" id="hw-src-gmail"><span style="color:var(--g)">&#x1F7E2;</span> <b id="hw-ts-gmail">--</b></div>
+          <div style="font-size:9px;color:var(--muted)" id="hw-cnt-gmail">-- contacts</div>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;background:var(--bg)">
+          <div style="font-size:18px">&#x1F4AC;</div>
+          <div style="font-size:11px;font-weight:700">ManyChat</div>
+          <div style="font-size:9px;color:var(--dim)">DM &#xC774;&#xB825;</div>
+          <div style="font-size:9px;margin-top:4px"><span style="color:var(--am)">&#x1F7E1;</span> <b>Coming Soon</b></div>
+          <div style="font-size:9px;color:var(--muted)">N/A</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;text-align:center;padding:10px;background:var(--abg);border-radius:8px">
+        <div style="font-size:10px;color:var(--dim)">&#x2B07;&#xFE0F; Identity Resolution (email &#x2192; ig_handle &#x2192; tiktok_handle)</div>
+        <div style="font-size:14px;font-weight:800;color:var(--a);margin-top:4px">PipelineCreator = Master List</div>
+        <div style="display:flex;gap:12px;justify-content:center;margin-top:6px;flex-wrap:wrap">
+          <span style="font-size:10px" id="hw-master-total">&#x1F465; <b>--</b> creators</span>
+          <span style="font-size:10px" id="hw-master-confirmed">&#x1F7E2; <b>--</b> &#xC774;&#xBA54;&#xC77C; &#xD655;&#xC778;</span>
+          <span style="font-size:10px" id="hw-master-unknown">&#x1F7E1; <b>--</b> &#xBBF8;&#xD655;&#xC778;</span>
+        </div>
+      </div>
+      <div style="margin-top:8px;text-align:center;font-size:9px;color:var(--muted)">
+        &#x2B07;&#xFE0F; Pipeline Flow: Not Started &#x2192; Sent &#x2192; Replied &#x2192; Accepted &#x2192; Shipped &#x2192; Posted
+      </div>
+    </div>
+
     <!-- HT/LT Sub-tabs -->
     <div style="display:flex;gap:0;margin-bottom:16px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
       <button class="btn" id="hw-btn-lt" onclick="switchHwMode('lt')" style="flex:1;border-radius:0;border:none;padding:12px;font-size:12px;font-weight:700;background:var(--a);color:#fff">
@@ -475,9 +529,6 @@ Shopify                         Apify / Syncly                   Gmail RAG
       <button class="btn" id="cfg-btn-ht" onclick="switchCfgMode('ht')" style="flex:1;border-radius:0;border:none;border-left:1px solid var(--border);padding:10px;font-size:11px;font-weight:700;background:var(--bg);color:var(--dim)">
         &#x1F451; HT Config<br><span style="font-weight:400;font-size:9px">Manual review, contract, payment</span>
       </button>
-      <button class="btn" id="cfg-btn-ico" onclick="switchCfgMode('ico')" style="flex:1;border-radius:0;border:none;border-left:1px solid var(--border);padding:10px;font-size:11px;font-weight:700;background:var(--bg);color:var(--dim)">
-        &#x2728; ICO Outreach<br><span style="font-weight:400;font-size:9px">Syncly &rarr; Fit Score &rarr; Personalized Email</span>
-      </button>
     </div>
     <!-- LT Config Summary -->
     <div id="cfg-lt-summary" class="card" style="border-left:3px solid var(--a);margin-bottom:12px">
@@ -496,16 +547,6 @@ Shopify                         Apify / Syncly                   Gmail RAG
         &#x2022; Reply Handler: <span class="b p">Needs Review</span> (&#xC218;&#xB3D9; &#xC2B9;&#xC778;)<br>
         &#x2022; &#xBCF4;&#xC0C1;: <b>&#xACC4;&#xC57D;&#xC11C; + &#xACB0;&#xC81C;</b> (&#xCF58;&#xD150;&#xCE20; &#xD655;&#xC778; &#xD6C4;)<br>
         &#x2022; Accept &#xC804;&#xC5D0; &#xACC4;&#xC57D; &#xC11C;&#xBA85; &#xD544;&#xC694;
-      </div>
-    </div>
-    <div id="cfg-ico-summary" class="card" style="display:none;border-left:3px solid #06b6d4;margin-bottom:12px">
-      <div style="font-size:11px;line-height:1.7">
-        <b>&#x2728; ICO Outreach &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778;</b> &mdash; Jeehoo Agent<br>
-        &#x2022; &#xB370;&#xC774;&#xD130;: <b>Syncly &#xC2DC;&#xD2B8;</b> (&#xD504;&#xB85C;&#xD544;/&#xCF58;&#xD150;&#xCE20;/&#xBC14;&#xC774;&#xC624;)<br>
-        &#x2022; 3-Way &#xD544;&#xD130;: <b>Geo + Brand + Email</b> &#xC790;&#xB3D9; &#xC2A4;&#xD0B5;<br>
-        &#x2022; Fit Score: <b>40+ &#xC774;&#xC0C1;&#xB9CC; &#xC9C4;&#xD589;</b> (&#xC721;&#xC544; &#xD0A4;&#xC6CC;&#xB4DC; &#xBC00;&#xB3C4;)<br>
-        &#x2022; 3-Way Dedup: <b>zezebaebae + onzenna + Creators &#xC2DC;&#xD2B8;</b><br>
-        &#x2022; AI &#xAC1C;&#xC778;&#xD654; &#xC774;&#xBA54;&#xC77C; &#x2192; <b>Gmail Draft</b> (&#xC790;&#xB3D9; &#xBC1C;&#xC1A1; &#xC5C6;&#xC74C;)
       </div>
     </div>
     <div id="config-loading" style="text-align:center;padding:30px;color:var(--dim)">Loading config...</div>
@@ -530,6 +571,63 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <div class="form-row"><label>Batch Size</label><input type="number" id="f-creators-contacted" min="1" max="500" step="1" oninput="var l=document.getElementById('alloc-batch-label');if(l)l.textContent=this.value;updateAllocation()"></div>
         <div class="form-row"><label>HT Threshold (R30D)</label><input type="number" id="f-ht-threshold" min="0" step="10000"></div>
         <div class="form-row"><label>HT Min Followers</label><input type="number" id="f-ht-follower-min" min="0" step="5000"></div>
+        <!-- Discovery & Content Import (moved from Execution) -->
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+          <div style="font-size:10px;font-weight:700;color:var(--dim);margin-bottom:6px">&#x1F50E; Discovery &amp; Content Import</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn btn-secondary btn-sm" id="btn-syncly-discovery" onclick="execAction('syncly_discovery')" style="border-left:3px solid var(--p)">&#x1F50E; Pull Syncly Discovery</button>
+            <button class="btn btn-secondary btn-sm" id="btn-syncly-content" onclick="execSynclyContentImport()" style="border-left:3px solid var(--g)">&#x1F4E5; Syncly Content Import</button>
+          </div>
+          <div id="syncly-content-result" style="display:none;margin-top:6px;padding:6px 10px;border-radius:6px;font-size:10px;background:var(--bg)"></div>
+        </div>
+      </div>
+      <!-- Data Sync Status (NEW — moved from Execution) -->
+      <div class="card">
+        <h3>&#x1F4E1; Data Sync Status</h3>
+        <div class="desc">Content Intelligence &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778; &#xB370;&#xC774;&#xD130; &#xC18C;&#xC2A4;. &#xC790;&#xB3D9; &#xC2A4;&#xCF00;&#xC904; + &#xC218;&#xB3D9; &#xD2B8;&#xB9AC;&#xAC70;.</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;margin-top:8px">
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg)">
+            <span style="font-size:14px">&#x1F577;&#xFE0F;</span>
+            <div style="flex:1">
+              <div style="font-size:10px;font-weight:700">Apify Content Crawl</div>
+              <div style="font-size:9px;color:var(--dim)">last: <b id="ts-apify" style="color:var(--g)">--</b></div>
+            </div>
+            <button class="btn btn-sm btn-secondary" onclick="execAction('apify_crawl')" style="font-size:9px;padding:3px 8px">Run</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg)">
+            <span style="font-size:14px">&#x1F504;</span>
+            <div style="flex:1">
+              <div style="font-size:10px;font-weight:700">Syncly D+60</div>
+              <div style="font-size:9px;color:var(--dim)">last: <b id="ts-syncly" style="color:var(--g)">--</b></div>
+            </div>
+            <button class="btn btn-sm btn-secondary" onclick="execAction('syncly_sync')" style="font-size:9px;padding:3px 8px">Run</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg)">
+            <span style="font-size:14px">&#x1F4CA;</span>
+            <div style="flex:1">
+              <div style="font-size:10px;font-weight:700">SNS Tab</div>
+              <div style="font-size:9px;color:var(--dim)">last: <b id="ts-sns" style="color:var(--g)">--</b></div>
+            </div>
+            <button class="btn btn-sm btn-secondary" onclick="execAction('sns_sync')" style="font-size:9px;padding:3px 8px">Run</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg)">
+            <span style="font-size:14px">&#x1F4E7;</span>
+            <div style="flex:1">
+              <div style="font-size:10px;font-weight:700">Gmail RAG</div>
+              <div style="font-size:9px;color:var(--dim)">last: <b id="ts-gmail" style="color:var(--g)">--</b></div>
+            </div>
+            <button class="btn btn-sm btn-secondary" onclick="execAction('gmail_sync')" style="font-size:9px;padding:3px 8px">Run</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg)">
+            <span style="font-size:14px">&#x1F50E;</span>
+            <div style="flex:1">
+              <div style="font-size:10px;font-weight:700">Syncly Discovery</div>
+              <div style="font-size:9px;color:var(--dim)">last: <b id="ts-syncly-disc" style="color:var(--g)">--</b></div>
+            </div>
+            <button class="btn btn-sm btn-secondary" onclick="execAction('syncly_discovery')" style="font-size:9px;padding:3px 8px">Run</button>
+          </div>
+        </div>
+        <div style="margin-top:6px;font-size:9px;color:var(--muted)">Schedule: Apify &#xD3C9;&#xC77C; KST 08:00 | Syncly D+60 &#xB9E4;&#xC77C; | SNS Tab &#xB9E4;&#xC77C; | Gmail &#xB9E4;&#xC77C;</div>
       </div>
       <div class="card">
         <h3>&#x1F527; Feature Toggles</h3>
@@ -870,150 +968,43 @@ Shopify                         Apify / Syncly                   Gmail RAG
         </div>
       </div><!-- /cfg-ht-body -->
 
-      <!-- ===== ICO CONFIG BODY ===== -->
-      <div id="cfg-ico-body" style="display:none">
-        <div class="card" style="border-left:3px solid #06b6d4">
-          <h3>&#x1F4CB; Syncly Data Source</h3>
-          <div class="desc">Syncly &#xC2DC;&#xD2B8;&#xC5D0;&#xC11C; &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130; &#xB370;&#xC774;&#xD130;&#xB97C; &#xAC00;&#xC838;&#xC635;&#xB2C8;&#xB2E4;.</div>
-          <div class="form-row"><label>Spreadsheet ID</label><input type="text" id="ico-spreadsheet-id" value="1_IWDPmWIqjtGXyMoD5vfGbdAJcBjlZMrTUWGiQ2ZtIg"></div>
-          <div class="form-row"><label>Data Tab</label><input type="text" id="ico-data-tab" placeholder="Output_updated_YYMMDD"></div>
-          <div class="form-row"><label>Creators Tab</label><input type="text" id="ico-creators-tab" placeholder="Creators_updated_YYMMDD"></div>
+      <!-- ICO Config Body removed -->
+
+      <!-- ===== SHARED: Pending Actions + Review + Log (moved from Execution) ===== -->
+      <div class="card" id="propose-execute-card">
+        <h3>&#x26A1; Pending Actions <span id="pe-total" style="background:var(--am);color:#fff;padding:1px 8px;border-radius:10px;font-size:10px;margin-left:4px">0</span>
+          <button class="btn btn-primary" id="pe-execute-btn" onclick="executeAllPending()" style="margin-left:auto;font-size:11px;padding:5px 16px">&#x1F680; Execute All</button>
+        </h3>
+        <div class="desc">Propose &amp; Execute &#xD328;&#xD134;. &#xCCB4;&#xD06C;&#xB41C; &#xD56D;&#xBAA9;&#xB9CC; &#xC2E4;&#xD589;.</div>
+        <div id="pe-actions" style="margin-top:10px">
+          <div style="color:var(--muted);font-size:11px;padding:8px 0">Loading pending actions...</div>
         </div>
-
-        <div class="card" style="border-left:3px solid #06b6d4">
-          <h3>&#x1F527; Pre-Filters</h3>
-          <div class="desc">&#xAC01; &#xD544;&#xD130;&#xB294; &#xC21C;&#xCC28;&#xC801;&#xC73C;&#xB85C; &#xC801;&#xC6A9;. &#xBD80;&#xC801;&#xD569; &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130;&#xB294; &#xC790;&#xB3D9; &#xBE14;&#xB799;&#xB9AC;&#xC2A4;&#xD2B8;.</div>
-
-          <div style="padding:8px 0;border-bottom:1px solid #f1f5f9">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span style="font-size:11px;font-weight:800;color:#06b6d4;font-family:var(--mono);min-width:16px">&#x2460;</span>
-              <span style="font-weight:700;min-width:100px">Geo Filter</span>
-              <label class="toggle" style="min-width:auto"><input type="checkbox" id="ico-filter-geo" checked><span class="slider"></span></label>
-              <span style="font-size:9px;color:var(--dim)">US/CA &#xC774;&#xC678; &#xC9C0;&#xC5ED; &#xC790;&#xB3D9; &#xC2A4;&#xD0B5;</span>
-            </div>
+      </div>
+      <div class="card" id="review-queue-card">
+        <h3>&#x1F50D; HT Review Queue <span id="rq-count" style="background:var(--p);color:#fff;padding:1px 8px;border-radius:10px;font-size:10px;margin-left:4px">0</span></h3>
+        <div class="desc">HT Creators &#xAC80;&#xD1A0; &#xB300;&#xAE30;. Draft Review, Reply Review, Contract, Payment &#xBAA8;&#xB450; &#xC5EC;&#xAE30;&#xC11C; &#xCC98;&#xB9AC;.</div>
+        <div id="rq-items" style="max-height:400px;overflow-y:auto">
+          <div style="color:var(--muted);font-size:11px;padding:8px 0">Loading...</div>
+        </div>
+        <div id="rq-toolbar" style="display:none;margin-top:12px;padding:12px;background:#fafbff;border:1px solid var(--border);border-radius:8px">
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+            <span style="font-size:11px;color:var(--dim);white-space:nowrap">Note:</span>
+            <input type="text" id="rq-note" placeholder="Reason for this decision (optional)" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit">
           </div>
-
-          <div style="padding:8px 0;border-bottom:1px solid #f1f5f9">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span style="font-size:11px;font-weight:800;color:#06b6d4;font-family:var(--mono);min-width:16px">&#x2461;</span>
-              <span style="font-weight:700;min-width:100px">Brand Filter</span>
-              <label class="toggle" style="min-width:auto"><input type="checkbox" id="ico-filter-brand" checked><span class="slider"></span></label>
-              <span style="font-size:9px;color:var(--dim)">&#xBE0C;&#xB79C;&#xB4DC;/&#xB9F4; &#xACC4;&#xC815; &#xC790;&#xB3D9; &#xC2A4;&#xD0B5;</span>
-            </div>
-          </div>
-
-          <div style="padding:8px 0;border-bottom:1px solid #f1f5f9">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span style="font-size:11px;font-weight:800;color:#06b6d4;font-family:var(--mono);min-width:16px">&#x2462;</span>
-              <span style="font-weight:700;min-width:100px">Email Filter</span>
-              <label class="toggle" style="min-width:auto"><input type="checkbox" id="ico-filter-email" checked><span class="slider"></span></label>
-              <span style="font-size:9px;color:var(--dim)">&#xC784;&#xC2DC; &#xC774;&#xBA54;&#xC77C;/&#xC720;&#xD6A8;&#xD558;&#xC9C0; &#xC54A;&#xC740; &#xD3EC;&#xB9F7; &#xC2A4;&#xD0B5;</span>
-            </div>
-          </div>
-
-          <div style="padding:8px 0">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span style="font-size:11px;font-weight:800;color:var(--r);font-family:var(--mono);min-width:16px">&#x2463;</span>
-              <span style="font-weight:700;min-width:100px">3-Way Dedup</span>
-              <label class="toggle" style="min-width:auto"><input type="checkbox" id="ico-filter-dedup" checked><span class="slider"></span></label>
-              <span style="font-size:9px;color:var(--dim)">zezebaebae + onzenna + Creators &#xC2DC;&#xD2B8; &#xC911;&#xBCF5; &#xCCB4;&#xD06C;</span>
-            </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button class="btn btn-success" id="rq-accept-btn" onclick="bulkReview('Accepted')">&#x2705; Accept Selected (<span id="rq-accept-count">0</span>)</button>
+            <button class="btn btn-danger btn-sm" id="rq-decline-btn" onclick="bulkReview('Declined')">&#x274C; Decline Selected</button>
           </div>
         </div>
-
-        <div class="card" style="border-left:3px solid #06b6d4">
-          <h3>&#x1F3AF; Fit Scoring</h3>
-          <div class="desc">&#xC721;&#xC544; &#xD0A4;&#xC6CC;&#xB4DC; &#xBC00;&#xB3C4; + Transcript &#xD488;&#xC9C8; + Bio &#xBD84;&#xC11D;&#xC73C;&#xB85C; &#xC810;&#xC218;&#xD654;</div>
-          <div class="form-row"><label>Fit Score Threshold</label><input type="number" id="ico-fit-threshold" value="40" min="0" max="100" step="5"></div>
-          <div style="font-size:9px;color:var(--dim);margin-top:4px;padding-left:145px">
-            40+ = &#xC9C4;&#xD589; &#x2705; | 0-39 = &#xC2A4;&#xD0B5; + &#xBE14;&#xB799;&#xB9AC;&#xC2A4;&#xD2B8; &#x274C;
-          </div>
-          <div style="margin-top:10px;padding:8px;background:#f0f9ff;border:1px solid var(--border);border-radius:6px">
-            <div style="font-size:9px;font-weight:700;color:var(--dim);margin-bottom:4px">Scoring Components</div>
-            <div style="font-size:9px;color:var(--dim);line-height:1.6;font-family:var(--mono)">
-              Parenting Keywords (40pt) + Transcript Richness (20pt)<br>
-              + Bio Keywords (20pt) + Theme Bonus (10pt) + Competitor Bonus (+10pt)
-            </div>
-          </div>
+        <div id="rq-history" style="margin-top:10px"></div>
+      </div>
+      <div class="card">
+        <h3>&#x1F4DC; Execution Log</h3>
+        <div class="desc">Pipeline actions triggered from dashboard or automation</div>
+        <div id="exec-log" style="max-height:400px;overflow-y:auto">
+          <div style="color:var(--muted);font-size:11px;padding:8px 0">Loading...</div>
         </div>
-
-        <div class="card" style="border-left:3px solid #06b6d4">
-          <h3>&#x2709;&#xFE0F; Email Settings</h3>
-          <div class="form-row"><label>Sender Name</label><input type="text" id="ico-sender-name" value="Jane"></div>
-          <div class="form-row"><label>Sender Email</label><input type="email" id="ico-sender-email" value="affiliates@onzenna.com"></div>
-          <div class="form-row"><label>Batch Size</label><input type="number" id="ico-batch-size" value="50" min="1" max="50" step="1"></div>
-          <div style="font-size:9px;color:var(--dim);margin-top:4px;padding-left:145px">
-            &#xCD5C;&#xB300; 50&#xBA85;/&#xBC30;&#xCE58;. Gmail Draft&#xB9CC; &#xC0DD;&#xC131; (&#xC790;&#xB3D9; &#xBC1C;&#xC1A1; &#xC5C6;&#xC74C;)
-          </div>
-        </div>
-
-        <div class="card" style="border-left:3px solid #06b6d4">
-          <h3>&#x1F4AC; Notification</h3>
-          <div class="form-row"><label>Discord Webhook</label><input type="url" id="ico-discord-url" placeholder="https://discordapp.com/api/webhooks/..."></div>
-        </div>
-
-        <!-- ICO Batch Pipeline -->
-        <div class="card" style="border-left:3px solid #06b6d4">
-          <h3>&#x1F680; ICO Outreach Pipeline</h3>
-          <div class="desc">Syncly &#xB370;&#xC774;&#xD130; &#x2192; &#xD544;&#xD130; &#x2192; Fit Score &#x2192; Dedup &#x2192; AI &#xC774;&#xBA54;&#xC77C; &#xCD08;&#xC548; &#xC0DD;&#xC131;</div>
-
-          <!-- ICO Step 1: Fetch Syncly Data -->
-          <div class="bp-step" id="ico-bp-step-1" style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f1f5f9">
-            <input type="checkbox" checked class="rq-check" id="ico-bp-check-1" style="flex-shrink:0">
-            <span style="font-size:11px;font-weight:800;color:#06b6d4;font-family:var(--mono);min-width:20px">&#x2460;</span>
-            <span style="font-weight:700;flex:1">Fetch Syncly Data</span>
-            <span id="ico-bp-result-1" style="font-size:10px"></span>
-            <button class="btn btn-sm" onclick="execIcoBatchStep(1)" id="ico-bp-btn-1" style="background:#06b6d4;color:#fff">&#x25B6; Execute</button>
-          </div>
-
-          <!-- ICO Step 2: Run Pre-Filters + Fit Score -->
-          <div class="bp-step" id="ico-bp-step-2" style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f1f5f9;opacity:.5">
-            <input type="checkbox" checked class="rq-check" id="ico-bp-check-2" style="flex-shrink:0">
-            <span style="font-size:11px;font-weight:800;color:#06b6d4;font-family:var(--mono);min-width:20px">&#x2461;</span>
-            <span style="font-weight:700;flex:1">Run Filters + Fit Score</span>
-            <span id="ico-bp-result-2" style="font-size:10px"></span>
-            <button class="btn btn-sm" onclick="execIcoBatchStep(2)" id="ico-bp-btn-2" disabled style="background:#06b6d4;color:#fff">&#x25B6; Execute</button>
-          </div>
-
-          <!-- ICO Step 3: 3-Way Dedup -->
-          <div class="bp-step" id="ico-bp-step-3" style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f1f5f9;opacity:.5">
-            <input type="checkbox" checked class="rq-check" id="ico-bp-check-3" style="flex-shrink:0">
-            <span style="font-size:11px;font-weight:800;color:var(--r);font-family:var(--mono);min-width:20px">&#x2462;</span>
-            <span style="font-weight:700;flex:1">3-Way Dedup Check</span>
-            <span id="ico-bp-result-3" style="font-size:10px"></span>
-            <button class="btn btn-sm" onclick="execIcoBatchStep(3)" id="ico-bp-btn-3" disabled style="background:#06b6d4;color:#fff">&#x25B6; Execute</button>
-          </div>
-
-          <!-- ICO Step 4: Generate AI Drafts -->
-          <div class="bp-step" id="ico-bp-step-4" style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f1f5f9;opacity:.5">
-            <input type="checkbox" checked class="rq-check" id="ico-bp-check-4" style="flex-shrink:0">
-            <span style="font-size:11px;font-weight:800;color:var(--g);font-family:var(--mono);min-width:20px">&#x2463;</span>
-            <span style="font-weight:700;flex:1">Generate AI Drafts</span>
-            <span id="ico-bp-result-4" style="font-size:10px"></span>
-            <button class="btn btn-sm btn-success" onclick="execIcoBatchStep(4)" id="ico-bp-btn-4" disabled>&#x25B6; Execute</button>
-          </div>
-
-          <!-- ICO Step 5: Report + Discord -->
-          <div class="bp-step" id="ico-bp-step-5" style="display:flex;align-items:center;gap:8px;padding:10px 0;opacity:.5">
-            <input type="checkbox" checked class="rq-check" id="ico-bp-check-5" style="flex-shrink:0">
-            <span style="font-size:11px;font-weight:800;color:var(--am);font-family:var(--mono);min-width:20px">&#x2464;</span>
-            <span style="font-weight:700;flex:1">Report + Notify</span>
-            <span id="ico-bp-result-5" style="font-size:10px"></span>
-            <button class="btn btn-sm" onclick="execIcoBatchStep(5)" id="ico-bp-btn-5" disabled style="background:var(--am);color:#fff">&#x25B6; Execute</button>
-          </div>
-
-          <div style="display:flex;gap:6px;margin-top:12px;justify-content:center">
-            <button class="btn" onclick="execAllIcoBatchSteps()" style="background:#06b6d4;color:#fff">&#x1F680; Execute All Checked</button>
-            <button class="btn btn-secondary" onclick="resetIcoBatchPipeline()">&#x21BB; Reset</button>
-          </div>
-        </div>
-
-        <!-- ICO Results Preview -->
-        <div id="ico-results-preview" class="card" style="display:none;border-left:3px solid var(--g)">
-          <h3>&#x1F4CA; ICO Batch Results</h3>
-          <div id="ico-results-content"></div>
-        </div>
-      </div><!-- /cfg-ico-body -->
+      </div>
     </div>
   </div>
 
@@ -1028,7 +1019,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
     </div>
     <div class="filter-bar">
       <input type="text" id="cr-search" placeholder="Search handle, email, name..." onkeydown="if(event.key==='Enter')loadCreators()">
-      <select id="cr-status" onchange="_crStatusFilter=this.value;if(_lastStats){buildFunnel(_lastStats.by_status,'exec-funnel',this.value);buildFunnel(_lastStats.by_status,'dash-funnel',this.value);}if(this.value)location.hash='creators/'+encodeURIComponent(this.value);else location.hash='creators';loadCreators()">
+      <select id="cr-status" onchange="_crStatusFilter=this.value;if(_lastStats){buildFunnel(_lastStats.by_status,'dash-funnel',this.value);}if(this.value)location.hash='creators/'+encodeURIComponent(this.value);else location.hash='creators';loadCreators()">
         <option value="">All Status</option>
         <option value="Not Started">Not Started</option><option value="Draft Ready">Draft Ready</option>
         <option value="Sent">Sent</option><option value="Replied">Replied</option>
@@ -1069,139 +1060,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
     <div class="pager" id="cr-pager"></div>
   </div>
 
-  <!-- ===== TAB 3: EXECUTION ===== -->
-  <div class="mp" id="p-execution">
-    <!-- LT/HT Execution Sub-tabs -->
-    <div style="display:flex;gap:0;margin-bottom:16px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
-      <button class="btn" id="ex-btn-lt" onclick="switchExecMode('lt')" style="flex:1;border-radius:0;border:none;padding:12px;font-size:12px;font-weight:700;background:var(--a);color:#fff">
-        &#x26A1; LOW TOUCH<br><span style="font-weight:400;font-size:10px">Auto-send | Gifting only</span>
-      </button>
-      <button class="btn" id="ex-btn-ht" onclick="switchExecMode('ht')" style="flex:1;border-radius:0;border:none;border-left:1px solid var(--border);padding:12px;font-size:12px;font-weight:700;background:var(--bg);color:var(--dim)">
-        &#x1F451; HIGH TOUCH<br><span style="font-weight:400;font-size:10px">Manual review | Contract + Payment</span>
-      </button>
-    </div>
-
-    <!-- Pipeline funnel -->
-    <div class="card">
-      <h3>&#x1F3AF; Pipeline Funnel</h3>
-      <div class="funnel" id="exec-funnel"></div>
-    </div>
-
-    <!-- ===== LT Execution Panel ===== -->
-    <div id="exec-panel-lt">
-      <div class="card" id="propose-execute-card">
-        <h3>&#x26A1; Pending Actions <span id="pe-total" style="background:var(--am);color:#fff;padding:1px 8px;border-radius:10px;font-size:10px;margin-left:4px">0</span>
-          <button class="btn btn-primary" id="pe-execute-btn" onclick="executeAllPending()" style="margin-left:auto;font-size:11px;padding:5px 16px">&#x1F680; Execute All</button>
-        </h3>
-        <div class="desc">PPC Propose &amp; Execute &#xD328;&#xD134;. &#xCCB4;&#xD06C;&#xB41C; &#xD56D;&#xBAA9;&#xB9CC; &#xC2E4;&#xD589;&#xB429;&#xB2C8;&#xB2E4;. &#xAE30;&#xBCF8; &#xC804;&#xCCB4; &#xCCB4;&#xD06C;.</div>
-        <div id="pe-actions" style="margin-top:10px">
-          <div style="color:var(--muted);font-size:11px;padding:8px 0">Loading pending actions...</div>
-        </div>
-      </div>
-      <div style="background:#eff6ff;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:11px;border-left:3px solid var(--a)">&#x26A1; <b>LT Execution</b> &mdash; Draft <b>Auto-approve</b> &#x2192; Send <b>Auto-send</b> &#x2192; Accept <b>Auto-complete</b>. &#xC0AC;&#xB78C; &#xAC80;&#xD1A0; &#xCD5C;&#xC18C;&#xD654;.</div>
-      <!-- LT Pipeline Operations -->
-      <div class="card">
-        <h3>&#x2699;&#xFE0F; LT Pipeline Operations</h3>
-        <div class="desc">&#xC790;&#xB3D9;&#xD654; &#xC911;&#xC2EC;. Draft &#x2192; Send &#x2192; Accept &#xC790;&#xB3D9; &#xCC98;&#xB9AC;.</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px">
-          <button class="btn btn-secondary" id="btn-preview" onclick="execAction('preview')">&#x1F50D; Preview Counts</button>
-          <button class="btn btn-secondary" id="btn-draft" onclick="execAction('draft_gen')" style="border-left:3px solid var(--a)">&#x1F4DD; Generate Drafts</button>
-          <button class="btn btn-secondary" id="btn-send" onclick="execAction('send')" style="border-left:3px solid var(--am)">&#x1F4E8; Send Batch</button>
-          <button class="btn btn-secondary" onclick="refreshFunnel()">&#x1F504; Refresh Funnel</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== HT Execution Panel ===== -->
-    <div id="exec-panel-ht" style="display:none">
-      <div style="background:#fdf2f8;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:11px;border-left:3px solid var(--p)">&#x1F451; <b>HT Execution</b> &mdash; Draft <b>Manual Review</b> &#x2192; Send <b>Manual Review</b> &#x2192; <b>Contract &#xC11C;&#xBA85;</b> &#x2192; Accept &#x2192; Sample &#x2192; <b>Payment</b>. &#xB9E4; &#xB2E8;&#xACC4; &#xC0AC;&#xB78C; &#xAC80;&#xD1A0;.</div>
-      <!-- HT Review Queue -->
-      <div class="card" id="review-queue-card">
-        <h3>&#x1F50D; Review Queue <span id="rq-count" style="background:var(--p);color:#fff;padding:1px 8px;border-radius:10px;font-size:10px;margin-left:4px">0</span></h3>
-        <div class="desc">HT Creators &#xAC80;&#xD1A0; &#xB300;&#xAE30;. Draft Review, Reply Review, Contract, Payment &#xBAA8;&#xB450; &#xC5EC;&#xAE30;&#xC11C; &#xCC98;&#xB9AC;.</div>
-        <div id="rq-items" style="max-height:400px;overflow-y:auto">
-          <div style="color:var(--muted);font-size:11px;padding:8px 0">Loading...</div>
-        </div>
-        <div id="rq-toolbar" style="display:none;margin-top:12px;padding:12px;background:#fafbff;border:1px solid var(--border);border-radius:8px">
-          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-            <span style="font-size:11px;color:var(--dim);white-space:nowrap">Note:</span>
-            <input type="text" id="rq-note" placeholder="Reason for this decision (optional)" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit">
-          </div>
-          <div style="display:flex;gap:8px;justify-content:flex-end">
-            <button class="btn btn-success" id="rq-accept-btn" onclick="bulkReview('Accepted')">&#x2705; Accept Selected (<span id="rq-accept-count">0</span>)</button>
-            <button class="btn btn-danger btn-sm" id="rq-decline-btn" onclick="bulkReview('Declined')">&#x274C; Decline Selected</button>
-          </div>
-        </div>
-        <div id="rq-history" style="margin-top:10px"></div>
-      </div>
-      <!-- HT Pipeline Operations -->
-      <div class="card">
-        <h3>&#x2699;&#xFE0F; HT Pipeline Operations</h3>
-        <div class="desc">&#xC218;&#xB3D9; &#xAC80;&#xD1A0; &#xC911;&#xC2EC;. Draft Review &#x2192; Send Review &#x2192; Contract &#x2192; Accept &#x2192; Payment.</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px">
-          <button class="btn btn-secondary" onclick="execAction('preview')">&#x1F50D; Preview Counts</button>
-          <button class="btn btn-secondary" onclick="execAction('draft_gen')" style="border-left:3px solid var(--p)">&#x1F4DD; Generate Drafts (Review)</button>
-          <button class="btn btn-secondary" onclick="execAction('send')" style="border-left:3px solid var(--p)">&#x1F4E8; Send Batch (Review)</button>
-          <button class="btn btn-secondary" onclick="execAction('contract')" style="border-left:3px solid #8250df">&#x1F4DC; Send Contracts</button>
-          <button class="btn btn-secondary" onclick="execAction('payment')" style="border-left:3px solid #ea580c">&#x1F4B3; Process Payments</button>
-          <button class="btn btn-secondary" onclick="refreshFunnel()">&#x1F504; Refresh Funnel</button>
-        </div>
-      </div>
-    </div>
-    <!-- ICO Outreach Operations -->
-    <div class="card" style="border-left:3px solid #06b6d4">
-      <h3>&#x2728; ICO Outreach <span style="background:#06b6d4;color:#fff;padding:1px 8px;border-radius:10px;font-size:9px;margin-left:4px">Jeehoo Agent</span></h3>
-      <div class="desc">Syncly &#xB370;&#xC774;&#xD130; &#xAE30;&#xBC18; &#xAC1C;&#xC778;&#xD654; &#xC544;&#xC6C3;&#xB9AC;&#xCE58;. Config &gt; ICO &#xD0ED;&#xC5D0;&#xC11C; &#xC124;&#xC815; &#xD6C4; &#xC2E4;&#xD589;.</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px">
-        <button class="btn btn-secondary" id="btn-ico-trigger" onclick="execAction('ico_outreach')" style="border-left:3px solid #06b6d4">&#x2728; Run ICO Outreach</button>
-        <button class="btn btn-secondary" id="btn-ico-status" onclick="loadIcoStatus()" style="border-left:3px solid #06b6d4">&#x1F4CB; Check ICO Status</button>
-      </div>
-      <div id="ico-exec-status" style="display:none;margin-top:10px;padding:10px;background:#f0f9ff;border:1px solid var(--border);border-radius:8px">
-        <div style="font-size:10px;font-weight:600;color:var(--dim);margin-bottom:4px">Last ICO Run</div>
-        <div id="ico-exec-detail" style="font-family:var(--mono);font-size:10px;line-height:1.8"></div>
-      </div>
-    </div>
-    <!-- Discovery & Sourcing -->
-    <div class="card">
-      <h3>&#x1F50E; Discovery &amp; Sourcing</h3>
-      <div class="desc">Pull new creator candidates from Syncly into the pipeline as "Not Started".</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px">
-        <button class="btn btn-secondary" id="btn-syncly-discovery" onclick="execAction('syncly_discovery')" style="border-left:3px solid var(--p)">&#x1F50E; Pull Syncly Discovery</button>
-        <button class="btn btn-secondary" id="btn-syncly-content" onclick="execSynclyContentImport()" style="border-left:3px solid var(--g)">&#x1F4E5; Syncly Content Import</button>
-      </div>
-      <div id="syncly-content-result" style="display:none;margin-top:8px;padding:8px 12px;border-radius:6px;font-size:11px;background:var(--bg)"></div>
-    </div>
-    <!-- Content & Sync -->
-    <div class="card">
-      <h3>&#x1F4F8; Content &amp; Sync</h3>
-      <div class="desc">Content Intelligence &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778;&#xACFC; &#xB3D9;&#xC77C; &#xC18C;&#xC2A4; (Apify &#xD06C;&#xB864;&#xB7EC; &#xAE30;&#xBC18;). &#xC218;&#xB3D9; &#xD2B8;&#xB9AC;&#xAC70; &#xBC84;&#xD2BC; + &#xC790;&#xB3D9; &#xC2A4;&#xCF00;&#xC904;.</div>
-      <div style="font-size:9px;color:var(--muted);margin-bottom:6px">Schedule: Apify &#xD3C9;&#xC77C; KST 08:00 | Syncly D+60 &#xB9E4;&#xC77C; | SNS Tab &#xB9E4;&#xC77C; | Gmail &#xB9E4;&#xC77C;</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px">
-        <button class="btn btn-secondary" id="btn-apify" onclick="execAction('apify_crawl')" style="border-left:3px solid var(--g)">&#x1F577;&#xFE0F; Apify Content Crawl</button>
-        <button class="btn btn-secondary" id="btn-syncly" onclick="execAction('syncly_sync')" style="border-left:3px solid var(--c)">&#x1F504; Sync Syncly D+60</button>
-        <button class="btn btn-secondary" id="btn-sns" onclick="execAction('sns_sync')" style="border-left:3px solid var(--p)">&#x1F4CA; Sync SNS Tab</button>
-        <button class="btn btn-secondary" id="btn-gmail-sync" onclick="execAction('gmail_sync')" style="border-left:3px solid var(--am)">&#x1F4E7; Sync Gmail RAG</button>
-      </div>
-      <div id="crawl-timestamps" style="margin-top:10px;font-size:10px;color:var(--dim);border-top:1px solid var(--border);padding-top:8px">
-        <b>Last Crawl (PST)</b>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:4px;margin-top:4px">
-          <span>Syncly Discovery: <b id="ts-syncly-disc">--</b></span>
-          <span>Apify Content: <b id="ts-apify">--</b></span>
-          <span>Syncly D+60: <b id="ts-syncly">--</b></span>
-          <span>SNS Tab: <b id="ts-sns">--</b></span>
-          <span>Gmail RAG: <b id="ts-gmail">--</b></span>
-        </div>
-      </div>
-    </div>
-    <!-- Execution log -->
-    <div class="card">
-      <h3>&#x1F4DC; Execution Log</h3>
-      <div class="desc">Pipeline actions triggered from dashboard or automation</div>
-      <div id="exec-log" style="max-height:400px;overflow-y:auto">
-        <div style="color:var(--muted);font-size:11px;padding:8px 0">Loading...</div>
-      </div>
-    </div>
-  </div>
+  <!-- Execution tab removed — merged into Config -->
 
   <!-- Confirm Modal -->
   <div id="confirm-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center">
@@ -1477,6 +1336,13 @@ async function loadOverviewFunnel(){
     _lastStats=st;
     buildFunnel(st.by_status,'dash-funnel',_crStatusFilter);
     document.getElementById('pill-total').textContent=st.total+' creators';
+    // How It Works — master list stats
+    var el;
+    el=document.getElementById('hw-master-total');if(el)el.innerHTML='\uD83D\uDC65 <b>'+st.total+'</b> creators';
+    var discoveredCount=st.discovered_email_count||0;
+    var confirmedCount=st.total-discoveredCount;
+    el=document.getElementById('hw-master-confirmed');if(el)el.innerHTML='\uD83D\uDFE2 <b>'+confirmedCount+'</b> \uC774\uBA54\uC77C \uD655\uC778';
+    el=document.getElementById('hw-master-unknown');if(el)el.innerHTML='\uD83D\uDFE1 <b>'+discoveredCount+'</b> \uBBF8\uD655\uC778';
   }catch(e){
     document.getElementById('dash-funnel').innerHTML='<span style="color:var(--muted);font-size:11px">—</span>';
   }
@@ -1904,7 +1770,6 @@ async function loadCreatorStats(){
       document.getElementById('cs-week').textContent='+'+st.new_this_week;
     }
     document.getElementById('pill-total').textContent=st.total+' creators';
-    buildFunnel(st.by_status,'exec-funnel',_crStatusFilter);
     buildFunnel(st.by_status,'dash-funnel',_crStatusFilter);
   }catch(e){console.error('Stats error:',e)}
 }
@@ -2272,7 +2137,6 @@ function filterByStatus(status){
   location.hash='creators/'+encodeURIComponent(status);
   // Re-render both funnels with active state
   if(_lastStats){
-    buildFunnel(_lastStats.by_status,'exec-funnel',status);
     buildFunnel(_lastStats.by_status,'dash-funnel',status);
   }
 }
@@ -3364,14 +3228,7 @@ function renderVintageBreakdown(){
 
 // ========== HOW IT WORKS TAB ==========
 var _hwMode='lt';
-function switchExecMode(mode){
-  document.getElementById('ex-btn-lt').style.background=mode==='lt'?'var(--a)':'var(--bg)';
-  document.getElementById('ex-btn-lt').style.color=mode==='lt'?'#fff':'var(--dim)';
-  document.getElementById('ex-btn-ht').style.background=mode==='ht'?'var(--p)':'var(--bg)';
-  document.getElementById('ex-btn-ht').style.color=mode==='ht'?'#fff':'var(--dim)';
-  document.getElementById('exec-panel-lt').style.display=mode==='lt'?'block':'none';
-  document.getElementById('exec-panel-ht').style.display=mode==='ht'?'block':'none';
-}
+function switchExecMode(mode){/* Execution tab removed — no-op */}
 function switchHwMode(mode){
   _hwMode=mode;
   document.getElementById('hw-btn-lt').style.background=mode==='lt'?'var(--a)':'var(--bg)';
@@ -3389,16 +3246,11 @@ function switchCfgMode(mode){
   document.getElementById('cfg-btn-lt').style.color=mode==='lt'?'#fff':'var(--dim)';
   document.getElementById('cfg-btn-ht').style.background=mode==='ht'?'var(--p)':'var(--bg)';
   document.getElementById('cfg-btn-ht').style.color=mode==='ht'?'#fff':'var(--dim)';
-  document.getElementById('cfg-btn-ico').style.background=mode==='ico'?'#06b6d4':'var(--bg)';
-  document.getElementById('cfg-btn-ico').style.color=mode==='ico'?'#fff':'var(--dim)';
   document.getElementById('cfg-lt-summary').style.display=mode==='lt'?'block':'none';
   document.getElementById('cfg-ht-summary').style.display=mode==='ht'?'block':'none';
-  document.getElementById('cfg-ico-summary').style.display=mode==='ico'?'block':'none';
   document.getElementById('cfg-lt-body').style.display=mode==='lt'?'block':'none';
   document.getElementById('cfg-ht-body').style.display=mode==='ht'?'block':'none';
-  document.getElementById('cfg-ico-body').style.display=mode==='ico'?'block':'none';
   if(mode==='ht')loadHtPreview();
-  if(mode==='ico')loadIcoConfig();
 }
 function toggleHwSec(el){el.classList.toggle('open')}
 function scrollToHwSec(id){
