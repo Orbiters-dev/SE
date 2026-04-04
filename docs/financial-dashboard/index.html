@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Financial KPIs Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -57,6 +60,11 @@ td{padding:6px 8px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#f8fff
 /* Volume bar */
 .vol-bar{height:6px;border-radius:3px;background:#e2e8f0;position:relative;overflow:hidden;min-width:60px}
 .vol-bar .fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#10b981,#0ea5e9)}
+/* ── SVG Chart Tooltip ── */
+.fin-tooltip{position:fixed;pointer-events:none;background:#1e293b;color:#fff;padding:6px 10px;border-radius:6px;font-size:10px;font-family:var(--mono);line-height:1.5;z-index:9999;display:none;box-shadow:0 4px 12px rgba(0,0,0,.2);max-width:220px;white-space:nowrap}
+.fin-tooltip .tt-date{color:#94a3b8;font-size:9px;margin-bottom:2px}
+.fin-tooltip .tt-row{display:flex;align-items:center;gap:4px}
+.fin-tooltip .tt-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 /* ── Mobile Responsive ── */
 @media(max-width:700px){
   .ctr{padding:12px 8px 60px}
@@ -89,6 +97,7 @@ td{padding:6px 8px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#f8fff
 </style>
 </head>
 <body>
+<div class="fin-tooltip" id="fin-tt"></div>
 
 <!-- LOGIN GATE -->
 <div id="login-gate" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)">
@@ -107,27 +116,51 @@ td{padding:6px 8px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#f8fff
 <div id="main-content" style="display:none">
 <div class="ctr">
 
-<!-- Top nav -->
-<div style="display:flex;justify-content:center;gap:4px;margin-bottom:20px">
-  <div style="display:inline-flex;border:2px solid #e2e8f0;border-radius:10px;overflow:hidden;font-size:12px;font-weight:700">
-    <a href="../ppc-dashboard/index.html" style="padding:8px 20px;color:#64748b;text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center" onmouseover="this.style.background='#eef2ff';this.style.color='#6366f1'" onmouseout="this.style.background='';this.style.color='#64748b'">Amazon PPC</a>
-    <a href="../content-dashboard/index.html" style="padding:8px 20px;color:#64748b;text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center" onmouseover="this.style.background='#fce7f3';this.style.color='#ec4899'" onmouseout="this.style.background='';this.style.color='#64748b'">Content Intelligence</a>
-    <a href="../pipeline-dashboard/index.html" style="padding:8px 20px;color:#64748b;text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center" onmouseover="this.style.background='#fef3c7';this.style.color='#f59e0b'" onmouseout="this.style.background='';this.style.color='#64748b'">Pipeline CRM</a>
-    <div style="padding:8px 20px;background:#10b981;color:#fff;cursor:default">Financial KPIs</div>
+<!-- Region Toggle -->
+<div style="display:flex;justify-content:center;margin-bottom:12px">
+  <div style="display:inline-flex;border:2px solid #e2e8f0;border-radius:10px;overflow:hidden;font-size:13px;font-weight:700">
+    <div id="rgn-us" onclick="switchRegion('us')" style="padding:8px 28px;background:#10b981;color:#fff;cursor:pointer;transition:.15s">🇺🇸 US</div>
+    <div id="rgn-jp" onclick="switchRegion('jp')" style="padding:8px 28px;color:#64748b;cursor:pointer;transition:.15s">🇯🇵 JP</div>
   </div>
 </div>
 
-<div class="hero">
-  <h1>Financial <span>KPIs</span></h1>
-  <div class="sub">Revenue, Ad Performance, Margins & Traffic Analytics</div>
-  <div class="meta" id="hero-meta"></div>
+<!-- Section sub-tabs -->
+<div style="display:flex;justify-content:center;margin-bottom:20px">
+  <div id="section-tabs" style="display:inline-flex;border:2px solid #e2e8f0;border-radius:10px;overflow:hidden;font-size:12px;font-weight:700"></div>
 </div>
 
-<!-- Sub-tabs -->
-<div class="sub-tabs" id="fin-sub-tabs"></div>
+<!-- ── US Sections ──────────────────────────────────────────────────────── -->
+<div id="sec-amazon-ppc" style="display:none">
+  <iframe id="ifr-amazon-ppc" src="" style="width:100%;height:90vh;border:none;border-radius:12px;background:var(--bg)"></iframe>
+</div>
+<div id="sec-content-intel" style="display:none">
+  <iframe id="ifr-content-intel" src="" style="width:100%;height:90vh;border:none;border-radius:12px;background:var(--bg)"></iframe>
+</div>
+<div id="sec-pipeline-crm" style="display:none">
+  <iframe id="ifr-pipeline-crm" src="" style="width:100%;height:90vh;border:none;border-radius:12px;background:var(--bg)"></iframe>
+</div>
+<div id="sec-fin-kpis" style="display:none">
+  <div class="hero">
+    <h1>Financial <span>KPIs</span></h1>
+    <div class="sub">Revenue, Ad Performance, Margins & Traffic Analytics</div>
+    <div class="meta" id="hero-meta"></div>
+  </div>
+  <div class="sub-tabs" id="fin-sub-tabs"></div>
+  <div id="fin-panels"></div>
+</div>
 
-<!-- Tab panels container -->
-<div id="fin-panels"></div>
+<!-- ── JP Sections ──────────────────────────────────────────────────────── -->
+<div id="sec-jp-amazon" style="display:none"></div>
+<div id="sec-jp-ppc" style="display:none">
+  <iframe id="ifr-jp-ppc" src="" style="width:100%;height:90vh;border:none;border-radius:12px;background:var(--bg)"></iframe>
+</div>
+<div id="sec-jp-content" style="display:none">
+  <iframe id="ifr-jp-content" src="" style="width:100%;height:90vh;border:none;border-radius:12px;background:var(--bg)"></iframe>
+</div>
+<div id="sec-jp-pipeline" style="display:none">
+  <iframe id="ifr-jp-pipeline" src="" style="width:100%;height:90vh;border:none;border-radius:12px;background:var(--bg)"></iframe>
+</div>
+<div id="sec-jp-fin" style="display:none"></div>
 
 </div>
 </div>
@@ -140,7 +173,8 @@ var AUTH_USERS = {
   'MJ':  'c8fe37479a933b489c5d4a1ff509cbe60095246f1e42f383bc017cb77b3efcbb',
   'HJ':  '75c2e5a66c6bcc985f42b6d402dbb10050a09c9f0371ed735e1983c145da3ffe',
   'JS':  '89d0eb2d586787c34782b6fa71300419edb51538e74596a8c7948c0abca66e6d',
-  'HC':  '357fca21bafbd5f23f141ff9433fe47422f58e9b0521c04e5735ae727313aef5'
+  'HC':  '357fca21bafbd5f23f141ff9433fe47422f58e9b0521c04e5735ae727313aef5',
+  'SE':  '9346ed77d5684897c51838d0c98db23867810a7e4b120c1226a15b834f4af459'
 };
 async function sha256(s){var e=new TextEncoder().encode(s);var h=await crypto.subtle.digest('SHA-256',e);return Array.from(new Uint8Array(h)).map(function(b){return b.toString(16).padStart(2,'0')}).join('')}
 async function doLogin(){
@@ -161,9 +195,150 @@ function checkAuth(){
 function showDashboard(){
   document.getElementById('login-gate').style.display='none';
   document.getElementById('main-content').style.display='block';
-  renderFinancial();
+  initDashboard();
 }
+
+// ── Region / Section Navigation ──────────────────────────────────────────────
+var US_TABS = [
+  {id:'amazon-ppc',    label:'Amazon PPC',           sec:'sec-amazon-ppc',    ifr:'ifr-amazon-ppc',    src:'../ppc-dashboard/index.html?embed=1',        color:'#f59e0b'},
+  {id:'content-intel', label:'Content Intelligence', sec:'sec-content-intel', ifr:'ifr-content-intel', src:'../content-dashboard/index.html?embed=1',    color:'#ec4899'},
+  {id:'pipeline-crm',  label:'Pipeline CRM',         sec:'sec-pipeline-crm',  ifr:'ifr-pipeline-crm',  src:'../pipeline-dashboard/index.html?embed=1',   color:'#8b5cf6'},
+  {id:'fin-kpis',      label:'Financial KPIs',       sec:'sec-fin-kpis',      ifr:null,                src:null,                                          color:'#10b981'}
+];
+var JP_TABS = [
+  {id:'jp-amazon',   label:'Amazon JP + 라쿠텐',   sec:'sec-jp-amazon',   ifr:null,              src:null,                                            color:'#ef4444'},
+  {id:'jp-ppc',      label:'Amazon PPC',           sec:'sec-jp-ppc',      ifr:'ifr-jp-ppc',      src:'../jp-ppc-dashboard/index.html?embed=1',        color:'#f97316'},
+  {id:'jp-content',  label:'Content Intelligence', sec:'sec-jp-content',  ifr:'ifr-jp-content',  src:'../content-dashboard/index.html?embed=1&region=jp',       color:'#ec4899'},
+  {id:'jp-pipeline', label:'Pipeline CRM',         sec:'sec-jp-pipeline', ifr:'ifr-jp-pipeline', src:'../pipeline-dashboard-jp/index.html?embed=1',   color:'#8b5cf6'},
+  {id:'jp-fin',      label:'Financial KPIs',       sec:'sec-jp-fin',      ifr:null,              src:null,                                            color:'#10b981'}
+];
+var _allSecs = ['sec-amazon-ppc','sec-content-intel','sec-pipeline-crm','sec-fin-kpis',
+                'sec-jp-amazon','sec-jp-ppc','sec-jp-content','sec-jp-pipeline','sec-jp-fin'];
+var _curRegion = 'us';
+var _curSection = {};
+
 if(checkAuth()) showDashboard();
+
+function initDashboard() {
+  // Hash takes priority → localStorage fallback
+  var hash = window.location.hash.replace('#','');
+  var parts = hash ? hash.split('/') : [];
+  var hashRgn = parts[0]; // 'us' or 'jp'
+  var hashSec = parts[1]; // tab id
+
+  _curSection['us'] = localStorage.getItem('fin_sec_us') || 'fin-kpis';
+  _curSection['jp'] = localStorage.getItem('fin_sec_jp') || 'jp-amazon';
+
+  var rgn = (hashRgn==='us'||hashRgn==='jp') ? hashRgn : (localStorage.getItem('fin_region') || 'us');
+  if(hashSec) _curSection[rgn] = hashSec;
+  switchRegion(rgn, true);
+}
+window.addEventListener('hashchange', function(){
+  var hash = window.location.hash.replace('#','');
+  var parts = hash.split('/');
+  if(parts[0]==='us'||parts[0]==='jp'){
+    if(parts[0]!==_curRegion) switchRegion(parts[0]);
+    else if(parts[1]) switchSection(parts[1]);
+  }
+});
+
+function switchRegion(rgn, init) {
+  _curRegion = rgn;
+  localStorage.setItem('fin_region', rgn);
+  var usEl=document.getElementById('rgn-us'), jpEl=document.getElementById('rgn-jp');
+  if(rgn==='us'){
+    usEl.style.background='#10b981'; usEl.style.color='#fff';
+    jpEl.style.background=''; jpEl.style.color='#64748b';
+  } else {
+    jpEl.style.background='#e11d48'; jpEl.style.color='#fff';
+    usEl.style.background=''; usEl.style.color='#64748b';
+  }
+  renderSectionTabs(rgn==='us' ? US_TABS : JP_TABS);
+  var secId = _curSection[rgn] || (rgn==='us' ? 'fin-kpis' : 'jp-amazon');
+  switchSection(secId, init);
+}
+
+function renderSectionTabs(tabs) {
+  var html='';
+  var curSec = _curSection[_curRegion];
+  tabs.forEach(function(t,i){
+    var isActive = (t.id === curSec);
+    var bg = isActive ? t.color : '';
+    var fg = isActive ? '#fff' : '#64748b';
+    html += '<div onclick="switchSection(\''+t.id+'\')" data-sec="'+t.id+'" '
+      +'style="padding:8px 20px;background:'+bg+';color:'+fg+';cursor:pointer;transition:.15s;border-right:1px solid #e2e8f0"'
+      +' onmouseover="if(this.dataset.sec!==document.getElementById(\'section-tabs\').dataset.active)this.style.background=\'#f1f5f9\'"'
+      +' onmouseout="if(this.dataset.sec!==document.getElementById(\'section-tabs\').dataset.active)this.style.background=\'\'"'
+      +'>'+t.label+'</div>';
+  });
+  var el=document.getElementById('section-tabs');
+  el.innerHTML=html;
+  el.dataset.active=curSec;
+}
+
+function switchSection(tabId, init) {
+  var tabs = _curRegion==='us' ? US_TABS : JP_TABS;
+  var tab = tabs.find(function(t){return t.id===tabId;}) || tabs[tabs.length-1];
+  _curSection[_curRegion] = tab.id;
+  localStorage.setItem('fin_sec_'+_curRegion, tab.id);
+  // update URL hash
+  history.replaceState(null, '', '#'+_curRegion+'/'+tab.id);
+
+  // hide all sections
+  _allSecs.forEach(function(s){ document.getElementById(s).style.display='none'; });
+  // show target
+  document.getElementById(tab.sec).style.display='block';
+
+  // lazy-load iframe
+  if(tab.ifr && tab.src){
+    var ifr=document.getElementById(tab.ifr);
+    if(!ifr.getAttribute('src')) ifr.src=tab.src;
+  }
+
+  // Financial KPIs inline render
+  if(tab.id==='fin-kpis' && !window._finRendered){ renderFinancial(); window._finRendered=true; }
+  // JP inline renders
+  if(tab.id==='jp-amazon' && !window._jpAmazonRendered){ renderJpAmazon(); window._jpAmazonRendered=true; }
+  if(tab.id==='jp-fin' && !window._jpFinRendered){ renderJpFin(); window._jpFinRendered=true; }
+
+  // update tab bar highlight
+  var el=document.getElementById('section-tabs');
+  el.dataset.active=tab.id;
+  el.querySelectorAll('div[data-sec]').forEach(function(d){
+    var t2=tabs.find(function(x){return x.id===d.dataset.sec;});
+    if(d.dataset.sec===tab.id){ d.style.background=t2?t2.color:'#10b981'; d.style.color='#fff'; }
+    else { d.style.background=''; d.style.color='#64748b'; }
+  });
+}
+
+// ── Tooltip ──────────────────────────────────────────────────────────────────
+function showTT(evt, html){
+  var tt=document.getElementById('fin-tt');
+  tt.innerHTML=html;
+  tt.style.display='block';
+  var r=tt.getBoundingClientRect();
+  var x=evt.clientX+12, y=evt.clientY-r.height-8;
+  if(x+r.width>window.innerWidth) x=evt.clientX-r.width-12;
+  if(y<4) y=evt.clientY+16;
+  tt.style.left=x+'px';
+  tt.style.top=y+'px';
+}
+// Pin tooltip to SVG element position (not mouse cursor)
+function showTTAt(svgEl, html){
+  var tt=document.getElementById('fin-tt');
+  tt.innerHTML=html;
+  tt.style.display='block';
+  var r=tt.getBoundingClientRect();
+  var er=svgEl.getBoundingClientRect();
+  var x=er.left+er.width/2-r.width/2;
+  var y=er.top-r.height-6;
+  if(x+r.width>window.innerWidth-8) x=window.innerWidth-r.width-8;
+  if(x<4) x=4;
+  if(y<4) y=er.bottom+6;
+  tt.style.left=x+'px';
+  tt.style.top=y+'px';
+}
+function hideTT(){ var tt=document.getElementById('fin-tt'); tt.style.display='none'; }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function $(v){ return typeof v==='number'?'$'+v.toLocaleString():v; }
@@ -214,6 +389,7 @@ function volBar(vol, maxVol){
 
 function barChart(datasets, labels, opts){
   var w=opts.w||900, h=opts.h||170, pad=44, barW=opts.barW||12;
+  var pfx=opts.prefix||'$';
   var n=labels.length, gapX=(w-pad*2)/n;
   var allVals=[]; datasets.forEach(function(ds){ ds.data.forEach(function(v){ allVals.push(Math.abs(v)); }); });
   var maxV=Math.max.apply(null, allVals)||1;
@@ -230,7 +406,7 @@ function barChart(datasets, labels, opts){
     var gy=h-pad-((h-pad-24)/3*g);
     var gv=Math.round(maxV/3*g);
     svg+='<line x1="'+pad+'" y1="'+gy+'" x2="'+(w-10)+'" y2="'+gy+'" stroke="#e2e8f0" stroke-width="0.5"/>';
-    svg+='<text x="'+(pad-4)+'" y="'+(gy+3)+'" text-anchor="end" fill="#94a3b8" font-size="8" font-family="var(--mono)">$'+(gv>=1000?Math.round(gv/1000)+'K':gv)+'</text>';
+    svg+='<text x="'+(pad-4)+'" y="'+(gy+3)+'" text-anchor="end" fill="#94a3b8" font-size="8" font-family="var(--mono)">'+pfx+(gv>=1000?Math.round(gv/1000)+'K':gv)+'</text>';
   }
   if(opts.stacked){
     for(var i=0;i<n;i++){
@@ -254,6 +430,17 @@ function barChart(datasets, labels, opts){
       });
       svg+='<text x="'+cx+'" y="'+(h-pad+14)+'" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="600">'+labels[i]+'</text>';
     }
+  }
+  // Tooltip hit areas per label group
+  for(var i=0;i<n;i++){
+    var hx=pad+gapX*i, hw=gapX;
+    var ttHtml='<div class=tt-date>'+labels[i].replace(/'/g,'\\&#39;')+'</div>';
+    datasets.forEach(function(ds){
+      var v=Math.abs(ds.data[i]||0);
+      ttHtml+='<div class=tt-row><span class=tt-dot style=background:'+ds.color+'></span>'+ds.label+': '+pfx+v.toLocaleString()+'</div>';
+    });
+    svg+='<rect x="'+hx+'" y="20" width="'+hw+'" height="'+(h-pad-20)+'" fill="transparent" style="cursor:crosshair"'
+      +' onmousemove="showTT(event,\''+ttHtml.replace(/'/g,"\\'")+'\')" onmouseleave="hideTT()"/>';
   }
   var lx=pad;
   datasets.forEach(function(ds){
@@ -290,6 +477,301 @@ function switchSeoBrand(brand){
   });
 }
 
+// ── Search Ranking Tab ───────────────────────────────────────────────────────
+var _acBrand='Grosmimi', _acMkt='US';
+function renderAutocompleteTab(F){
+  var ac=F.search_ranking||{};
+  var el=document.getElementById('panel-autocomplete');
+  if(!el) return;
+
+  var latest=ac.latest||{};
+  var trends=ac.trends||{};
+  var dates=ac.dates||[];
+  var brands=Object.keys(latest).length ? Object.keys(latest) : Object.keys(trends);
+  if(!brands.length){
+    el.innerHTML='<div class="card"><div class="desc" style="text-align:center;padding:24px;color:var(--muted)">No search ranking data yet. Run: python tools/data_keeper.py --channel amazon_search_ranking</div></div>';
+    return;
+  }
+
+  var brandColors={'Grosmimi':'#8b5cf6','Naeiae':'#f59e0b','CHA&MOM':'#ef4444'};
+  var kwColors=['#6366f1','#ec4899','#f59e0b','#0ea5e9','#10b981','#ef4444','#8b5cf6','#64748b'];
+
+  var h='<div class="sec"><div class="sec-title"><div class="num" style="background:#6366f1">8</div> Amazon Search Ranking &mdash; Product Position Trend</div>';
+  h+='<div class="desc">키워드 검색 시 우리 제품이 몇 번째에 노출되는지. 낮을수록 좋음. 매일 Apify 크롤링.</div>';
+
+  // Brand sub-tabs
+  h+='<div style="display:flex;gap:4px;margin:12px 0">';
+  brands.forEach(function(b){
+    var color=brandColors[b]||'#64748b';
+    var isOn=b===_acBrand;
+    h+='<div onclick="_acBrand=\''+b+'\';renderAcContent()" style="padding:6px 16px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;'
+      +(isOn?'background:'+color+';color:#fff':'color:'+color+';border:1px solid '+color)
+      +'">'+b+'</div>';
+  });
+  h+='</div>';
+
+  // Market toggle
+  h+='<div style="display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;font-size:10px;margin-bottom:12px">';
+  h+='<div onclick="_acMkt=\'US\';renderAcContent()" id="ac-mkt-us" style="padding:5px 14px;cursor:pointer;font-weight:700;'+(_acMkt==='US'?'background:#10b981;color:#fff':'color:var(--dim)')+'">🇺🇸 US</div>';
+  h+='<div onclick="_acMkt=\'JP\';renderAcContent()" id="ac-mkt-jp" style="padding:5px 14px;cursor:pointer;font-weight:700;'+(_acMkt==='JP'?'background:#ef4444;color:#fff':'color:var(--dim)')+'">🇯🇵 JP</div>';
+  h+='</div>';
+
+  h+='<div id="ac-content"></div>';
+  h+='</div>';
+  el.innerHTML=h;
+
+
+
+  // Store data globally for sub-renders
+  window._acData={latest:latest,trends:trends,dates:dates,brandColors:brandColors,kwColors:kwColors};
+  renderAcContent();
+}
+
+function renderAcContent(){
+  var d=window._acData; if(!d) return;
+  var el=document.getElementById('ac-content'); if(!el) return;
+  var brand=_acBrand, mkt=_acMkt;
+  var brandColors=d.brandColors, kwColors=d.kwColors;
+  var color=brandColors[brand]||'#64748b';
+
+  // Update brand tab highlight
+  document.querySelectorAll('#panel-autocomplete div[onclick*="_acBrand"]').forEach(function(t){
+    var b=t.textContent.trim();
+    var c=brandColors[b]||'#64748b';
+    if(b===brand){t.style.background=c;t.style.color='#fff';t.style.border='none';}
+    else{t.style.background='';t.style.color=c;t.style.border='1px solid '+c;}
+  });
+  var usBtn=document.getElementById('ac-mkt-us'), jpBtn=document.getElementById('ac-mkt-jp');
+  if(usBtn){usBtn.style.background=mkt==='US'?'#10b981':'';usBtn.style.color=mkt==='US'?'#fff':'var(--dim)';}
+  if(jpBtn){jpBtn.style.background=mkt==='JP'?'#ef4444':'';jpBtn.style.color=mkt==='JP'?'#fff':'var(--dim)';}
+
+  var h='';
+
+  // JP market: only Grosmimi
+  if(mkt==='JP' && brand!=='Grosmimi'){
+    h+='<div class="card" style="text-align:center;padding:32px"><div style="font-size:32px;margin-bottom:8px">🇯🇵</div>';
+    h+='<h3 style="margin:0 0 6px">JP 마켓은 Grosmimi만 판매 중</h3>';
+    h+='<div class="desc">'+brand+'는 US 마켓에서만 추적됩니다.</div></div>';
+    el.innerHTML=h; return;
+  }
+
+  // Latest ranking table
+  var latestRows=(d.latest[brand]||{})[mkt]||[];
+  if(latestRows.length){
+    h+='<div class="card" style="margin-bottom:10px"><h3 style="color:'+color+'">'+brand+' — '+(mkt==='US'?'🇺🇸':'🇯🇵')+' Search Position</h3>';
+    h+='<table><tr><th>Keyword</th><th>Position</th><th>Product</th><th>Hits</th><th>Δ Pos</th><th>Competitors</th></tr>';
+    latestRows.sort(function(a,b){var pa=a.position<0?9999:a.position;var pb=b.position<0?9999:b.position;return pa-pb;});
+    var trendRef=(d.trends[brand]||{})[mkt]||{};
+    latestRows.forEach(function(r){
+      var pos=r.position;
+      var posLabel=pos>=0?'#'+pos:'Not found';
+      var posColor=pos>=0?(pos<=10?'var(--g)':pos<=30?'var(--am)':pos<=60?'#f97316':'var(--r)'):'var(--muted)';
+      // Delta: compare position vs previous day (lower = better, so negative delta = improvement)
+      var delta='', deltaColor='var(--muted)';
+      var kwTrend=trendRef[r.keyword]||[];
+      if(kwTrend.length>=2){
+        var prev=kwTrend[kwTrend.length-2].position, cur=pos;
+        if(prev>=0 && cur>=0){
+          var diff=prev-cur; // positive = improved (went up in ranking)
+          if(diff>0){delta='▲ +'+diff;deltaColor='var(--g)';}
+          else if(diff<0){delta='▼ '+diff;deltaColor='var(--r)';}
+          else{delta='— 0';deltaColor='var(--muted)';}
+        } else { delta='—'; }
+      } else { delta='—'; }
+      var comps=[];try{comps=JSON.parse(r.competitors_top3||'[]');}catch(e){}
+      var compStr=comps.map(function(c){return '#'+c.pos+' '+c.brand;}).join(', ');
+      h+='<tr><td style="font-family:var(--mono);font-size:11px">'+r.keyword+'</td>';
+      h+='<td style="text-align:center;font-family:var(--mono);font-weight:800;font-size:14px;color:'+posColor+'">'+posLabel+'</td>';
+      h+='<td style="font-size:10px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(r.product_title||'—')+'</td>';
+      h+='<td style="text-align:center;font-family:var(--mono)">'+(r.total_brand_hits||0)+'</td>';
+      h+='<td style="text-align:center;font-family:var(--mono);font-size:11px;font-weight:700;color:'+deltaColor+'">'+delta+'</td>';
+      h+='<td style="font-size:9px;color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+compStr+'</td></tr>';
+    });
+    h+='</table></div>';
+  }
+
+  // ── Position Trend Chart (SVG) — inverted Y: #1 at top, #100 at bottom ──
+  var trendData=(d.trends[brand]||{})[mkt]||{};
+  var keywords=Object.keys(trendData);
+  var dates=d.dates||[];
+  var mktDates=[];
+  dates.forEach(function(dt){
+    var found=false;
+    keywords.forEach(function(kw){
+      (trendData[kw]||[]).forEach(function(p){if(p.date===dt)found=true;});
+    });
+    if(found)mktDates.push(dt);
+  });
+
+  if(keywords.length && mktDates.length>=1){
+    var maxPos=100;
+    var W=900, H=320, padL=40, padR=160, padT=24, padB=36;
+    var cw=W-padL-padR, ch=H-padT-padB;
+    var nDates=Math.max(mktDates.length,2);
+
+    h+='<div class="card"><h3 style="color:'+color+'">'+brand+' — '+(mkt==='US'?'🇺🇸':'🇯🇵')+' Position Trend</h3>';
+    h+='<div class="desc" style="margin-bottom:8px">키워드 검색 시 제품 순위 변화. #1이 최상위. 낮을수록 좋음.</div>';
+    h+='<div style="overflow-x:auto"><svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-height:340px;font-family:var(--mono)">';
+
+    // Grid lines (inverted: #1 at top)
+    [1,10,20,50,100].forEach(function(g){
+      var gy=padT+(g/maxPos)*ch;
+      h+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="'+(g===10?'#bbf7d0':g===50?'#fef08a':'#f1f5f9')+'" stroke-width="'+(g===10||g===50?1.5:1)+'"/>';
+      h+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" text-anchor="end" fill="#94a3b8" font-size="9">#'+g+'</text>';
+    });
+    // "Not found" zone
+    h+='<rect x="'+padL+'" y="'+(padT+ch-15)+'" width="'+cw+'" height="15" fill="#fef2f2" opacity="0.5" rx="2"/>';
+    h+='<text x="'+(padL+4)+'" y="'+(padT+ch-4)+'" fill="#ef4444" font-size="7" opacity="0.7">Not in top 100</text>';
+
+    var step=Math.max(1,Math.floor(mktDates.length/10));
+    mktDates.forEach(function(dt,i){
+      if(i%step===0||i===mktDates.length-1){
+        var x=padL+(i/(nDates-1))*cw;
+        h+='<text x="'+x+'" y="'+(H-6)+'" text-anchor="middle" fill="#94a3b8" font-size="8">'+dt.substring(5)+'</text>';
+      }
+    });
+
+    keywords.forEach(function(kw,ki){
+      var pts=trendData[kw];
+      var lineColor=kwColors[ki%kwColors.length];
+      var pathD='';
+      pts.forEach(function(p){
+        var di=mktDates.indexOf(p.date); if(di<0) return;
+        var pos=p.position<0?maxPos:Math.min(p.position,maxPos);
+        var x=padL+(di/(nDates-1))*cw;
+        var y=padT+(pos/maxPos)*ch;
+        pathD+=(pathD?'L':'M')+x.toFixed(1)+','+y.toFixed(1);
+        h+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3" fill="'+lineColor+'" opacity="0.8"/>';
+      });
+      if(pathD){
+        h+='<path d="'+pathD+'" stroke="'+lineColor+'" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+        var lastP=pts[pts.length-1];
+        var lPos=lastP.position<0?maxPos:Math.min(lastP.position,maxPos);
+        var lx=padL+((mktDates.indexOf(lastP.date))/(nDates-1))*cw;
+        var ly=padT+(lPos/maxPos)*ch;
+        var label=lastP.position>=0?kw.substring(0,18)+' #'+lastP.position:kw.substring(0,18)+' N/A';
+        h+='<circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="4" fill="'+lineColor+'"/>';
+        h+='<text x="'+(W-padR+6)+'" y="'+(ly+4).toFixed(1)+'" fill="'+lineColor+'" font-size="9" font-weight="700">'+label+'</text>';
+      }
+    });
+    h+='</svg></div></div>';
+  } else if(keywords.length===0 && latestRows.length===0){
+    h+='<div class="card"><div class="desc" style="text-align:center;padding:24px;color:var(--muted)">이 브랜드/마켓에 대한 데이터가 없습니다.</div></div>';
+  }
+
+  el.innerHTML=h;
+}
+
+// ── JP Render Helpers ────────────────────────────────────────────────────────
+function _jpNoData(icon, title, desc) {
+  return '<div class="hero"><h1>'+title+'</h1></div>'
+    +'<div class="card" style="text-align:center;padding:56px 24px;margin-top:8px">'
+    +'<div style="font-size:44px;margin-bottom:12px">'+icon+'</div>'
+    +'<h3 style="margin:0 0 8px;font-size:18px">'+title+'</h3>'
+    +'<div class="desc" style="margin-bottom:16px">'+desc+'</div>'
+    +'<div style="padding:8px 16px;background:#fef3c7;border-radius:8px;font-size:11px;color:#92400e;display:inline-block">⏳ 데이터 준비 중</div>'
+    +'</div>';
+}
+
+function _jpRevenueChart(label, data) {
+  var months = data.months || [];
+  var rev = data.revenue || [];
+  var units = data.units || [];
+  var orders = data.orders || [];
+  var currency = data.currency || 'JPY';
+  var maxRev = Math.max.apply(null, rev.concat([1]));
+  var html = '<div class="sec"><div class="sec-title"><div class="num" style="background:#ef4444">1</div> Monthly Revenue — '+label+'</div>';
+  html += '<div style="overflow-x:auto"><table class="tbl"><thead><tr>'
+    +'<th>Month</th><th>Revenue ('+currency+')</th><th>Chart</th><th>Orders</th><th>Units</th></tr></thead><tbody>';
+  months.forEach(function(m, i) {
+    var r = rev[i] || 0;
+    var pct = maxRev > 0 ? (r / maxRev * 100).toFixed(1) : 0;
+    var mLabel = m.split('-')[1]+'/'+m.split('-')[0].substring(2);
+    html += '<tr>'
+      +'<td>'+mLabel+'</td>'
+      +'<td style="text-align:right;font-weight:700">'+(r > 0 ? '¥'+Math.round(r).toLocaleString() : '<span style="color:var(--dim)">—</span>')+'</td>'
+      +'<td style="min-width:120px">'+barChart(pct, '#ef4444')+'</td>'
+      +'<td style="text-align:right">'+(orders[i] || 0)+'</td>'
+      +'<td style="text-align:right">'+(units[i] || 0)+'</td>'
+      +'</tr>';
+  });
+  html += '</tbody></table></div></div>';
+  return html;
+}
+
+function renderJpAmazon() {
+  var jp = (typeof FIN_DATA !== 'undefined' && FIN_DATA.jp) ? FIN_DATA.jp : null;
+  var el = document.getElementById('sec-jp-amazon');
+  var html = '<div class="hero"><h1>Amazon <span>JP</span> &amp; 라쿠텐</h1>'
+    +'<div class="sub">Japan Marketplace — Amazon JP + Rakuten</div></div>';
+
+  var hasAmazon = jp && jp.amazon && jp.amazon.months && jp.amazon.revenue && jp.amazon.revenue.some(function(v){return v>0;});
+  var hasRakuten = jp && jp.rakuten && jp.rakuten.months && jp.rakuten.revenue && jp.rakuten.revenue.some(function(v){return v>0;});
+
+  if (!hasAmazon && !hasRakuten) {
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:8px">'
+      +'<div class="card" style="text-align:center;padding:56px 24px">'
+      +'<div style="font-size:44px;margin-bottom:12px">🛒</div>'
+      +'<h3 style="margin:0 0 8px;font-size:18px">Amazon JP</h3>'
+      +'<div class="desc" style="margin-bottom:16px">marketplace_id: A1VC38T7YXB528<br>SP-API 수집 설정 후 자동으로 채워집니다</div>'
+      +'<div style="padding:8px 16px;background:#fef3c7;border-radius:8px;font-size:11px;color:#92400e;display:inline-block">⏳ 데이터 준비 중</div>'
+      +'</div>'
+      +'<div class="card" style="text-align:center;padding:56px 24px">'
+      +'<div style="font-size:44px;margin-bottom:12px">🏪</div>'
+      +'<h3 style="margin:0 0 8px;font-size:18px">라쿠텐</h3>'
+      +'<div class="desc" style="margin-bottom:16px">rakuten_orders_daily<br>Rakuten API 연동 후 자동으로 채워집니다</div>'
+      +'<div style="padding:8px 16px;background:#fef3c7;border-radius:8px;font-size:11px;color:#92400e;display:inline-block">⏳ 데이터 준비 중</div>'
+      +'</div></div>';
+  } else {
+    if (hasAmazon) html += _jpRevenueChart('🛒 Amazon JP', jp.amazon);
+    else html += '<div class="card" style="text-align:center;padding:32px"><div style="font-size:32px">🛒</div><div class="desc">Amazon JP 데이터 준비 중</div></div>';
+    if (hasRakuten) html += _jpRevenueChart('🏪 라쿠텐', jp.rakuten);
+    else html += '<div class="card" style="text-align:center;padding:32px;margin-top:16px"><div style="font-size:32px">🏪</div><div class="desc">라쿠텐 데이터 준비 중</div></div>';
+  }
+  el.innerHTML = html;
+}
+
+function renderJpFin() {
+  var jp = (typeof FIN_DATA !== 'undefined' && FIN_DATA.jp) ? FIN_DATA.jp : null;
+  var el = document.getElementById('sec-jp-fin');
+  var html = '<div class="hero"><h1>Financial <span>KPIs</span> — JP</h1>'
+    +'<div class="sub">Japan Revenue Summary</div></div>';
+
+  var hasData = jp && ((jp.amazon && jp.amazon.revenue && jp.amazon.revenue.some(function(v){return v>0;}))
+                    || (jp.rakuten && jp.rakuten.revenue && jp.rakuten.revenue.some(function(v){return v>0;})));
+  if (!hasData) {
+    html += '<div class="card" style="text-align:center;padding:56px 24px;margin-top:8px">'
+      +'<div style="font-size:44px;margin-bottom:12px">📊</div>'
+      +'<h3 style="margin:0 0 8px;font-size:18px">JP Financial KPIs</h3>'
+      +'<div class="desc" style="margin-bottom:16px">Amazon JP + 라쿠텐 매출 데이터 수집 후<br>자동으로 채워집니다</div>'
+      +'<div style="padding:8px 16px;background:#fef3c7;border-radius:8px;font-size:11px;color:#92400e;display:inline-block">⏳ 데이터 준비 중</div>'
+      +'</div>';
+  } else {
+    // Combined JP revenue KPI cards
+    var amzRev = jp.amazon && jp.amazon.revenue ? jp.amazon.revenue : [];
+    var rakRev = jp.rakuten && jp.rakuten.revenue ? jp.rakuten.revenue : [];
+    var months = (jp.amazon && jp.amazon.months) || (jp.rakuten && jp.rakuten.months) || [];
+    var last3 = months.slice(-3);
+    html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px">';
+    last3.forEach(function(m, idx) {
+      var mi = months.indexOf(m);
+      var amz = amzRev[mi] || 0;
+      var rak = rakRev[mi] || 0;
+      var total = amz + rak;
+      var mLabel = m.split('-')[1]+'/'+m.split('-')[0].substring(2);
+      html += '<div class="card"><div class="kpi-label">'+mLabel+' Total JP</div>'
+        +'<div class="kpi-val">¥'+(total>0?Math.round(total).toLocaleString():'—')+'</div>'
+        +'<div class="desc" style="margin-top:4px">Amazon JP ¥'+(amz>0?Math.round(amz).toLocaleString():'—')
+        +' · 라쿠텐 ¥'+(rak>0?Math.round(rak).toLocaleString():'—')+'</div>'
+        +'</div>';
+    });
+    html += '</div>';
+    if (jp.amazon && jp.amazon.revenue) html += _jpRevenueChart('🛒 Amazon JP', jp.amazon);
+    if (jp.rakuten && jp.rakuten.revenue) html += _jpRevenueChart('🏪 라쿠텐', jp.rakuten);
+  }
+  el.innerHTML = html;
+}
+
 // ── Main Render ──────────────────────────────────────────────────────────────
 function renderFinancial(){
   var F = (typeof FIN_DATA !== 'undefined') ? FIN_DATA : null;
@@ -324,7 +806,9 @@ function renderFinancial(){
     {id:'margins',label:'3. Margins & P&L'},
     {id:'search',label:'4. Search & SEO'},
     {id:'traffic',label:'5. Traffic'},
-    {id:'klaviyo',label:'6. Email Marketing'}
+    {id:'klaviyo',label:'6. Email Marketing'},
+    {id:'hero',label:'7. Hero Products'},
+    {id:'autocomplete',label:'8. Search Ranking'}
   ];
   var tabHtml='';
   tabs.forEach(function(t,i){
@@ -413,10 +897,12 @@ function renderFinancial(){
 
   // ── Time grain toggle builder ──
   function grainToggle(id){
+    var extra = (id==='ads') ? '<div data-gr="daily" onclick="switchTimeGrain(\'daily\',\''+id+'\',this)">Daily</div>' : '';
     return '<div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:12px">'
       +'<div class="period-tabs" id="'+id+'-grain">'
       +'<div class="on" data-gr="monthly" onclick="switchTimeGrain(\'monthly\',\''+id+'\',this)">Monthly</div>'
       +'<div data-gr="weekly" onclick="switchTimeGrain(\'weekly\',\''+id+'\',this)">Weekly</div>'
+      +extra
       +'</div></div>';
   }
 
@@ -499,7 +985,7 @@ function renderFinancial(){
   // Helper: render keyword table for a brand filter
   function renderKwTable(items, secNum){
     var h='<div class="sec"><div class="sec-title"><div class="num">'+secNum+'</div> Keyword Rankings &mdash; GSC Position + Search Volume</div>';
-    h+='<div class="card"><div class="desc">Google position (GSC, 7/30/90D) + monthly search volume (DataForSEO).</div>';
+    h+='<div class="card"><div class="desc">Google position (GSC, 7/30/90D) + monthly search volume (GSC + Google Ads).</div>';
     h+='<div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Keyword</th><th>Brand</th>';
     h+='<th style="text-align:center;background:#ecfdf5">Pos 7D</th>';
     h+='<th style="text-align:center;background:#f0f9ff">Pos 30D</th>';
@@ -756,21 +1242,238 @@ function renderFinancial(){
     if(el) el.innerHTML=h;
   };
 
-  // 5B removed — asset breakdown now inline in Attribution table (+ button)
+  // ── 5A: Branded Keyword Search Volume (Weekly, from SQP) ─────────────
+  // Static — does NOT change with 1D/7D/30D toggle
+  (function(){
+    var HP=F.hero_products||{};
+    var cats=HP.categories||[];
+    // Collect all sfr_branded keywords with volume data across all categories
+    var allBrandedKws=[];
+    var seenKw={};
+    cats.forEach(function(c){
+      (c.sfr_branded||[]).forEach(function(kw){
+        if(kw.volume_weekly&&kw.volume_weekly.length&&kw.volume_week_labels&&kw.volume_week_labels.length){
+          var key=kw.keyword.toLowerCase();
+          if(!seenKw[key]){seenKw[key]=true;allBrandedKws.push(kw);}
+        }
+      });
+    });
+    if(allBrandedKws.length){
+      // Sort by latest volume descending
+      allBrandedKws.sort(function(a,b){return (b.volume_weekly[b.volume_weekly.length-1]||0)-(a.volume_weekly[a.volume_weekly.length-1]||0);});
+      var top10=allBrandedKws.slice(0,10);
+      // Build unified week axis
+      var allWks={};
+      top10.forEach(function(kw){(kw.volume_week_labels||[]).forEach(function(w){allWks[w]=true;});});
+      var wksSorted=Object.keys(allWks).sort();
+      traf+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num">5A</div> 검색량 (주간) — TOP 10 브랜디드 키워드 <span style="font-weight:400;color:var(--muted);font-size:11px">(높을수록 더 많이 검색됨)</span></div>';
+      traf+='<div class="card"><div style="overflow-x:auto"><table style="font-size:10px"><thead><tr>';
+      traf+='<th style="text-align:left;white-space:nowrap">키워드</th>';
+      wksSorted.forEach(function(w){traf+='<th style="text-align:right;font-family:var(--mono);font-size:9px">'+w.substring(5)+'</th>';});
+      traf+='</tr></thead><tbody>';
+      top10.forEach(function(kw){
+        traf+='<tr>';
+        traf+='<td style="font-weight:600;white-space:nowrap">'+kw.keyword+'</td>';
+        var labels=kw.volume_week_labels||[],values=kw.volume_weekly||[];
+        wksSorted.forEach(function(w){
+          var wi=labels.indexOf(w);
+          var v=wi>=0?values[wi]:null;
+          var vStr=v==null?'—':(v>=1000?Math.round(v/1000)+'K':''+v);
+          var col=v==null?'#d97706':(v>=3000?'#10b981':v>=500?'#f59e0b':'#ef4444');
+          traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:'+col+';font-weight:600">'+vStr+'</td>';
+        });
+        traf+='</tr>';
+      });
+      // Total row
+      traf+='<tr style="border-top:2px solid var(--border);font-weight:800;background:#fef3c7">';
+      traf+='<td style="color:#92400e">합산 (차트)</td>';
+      wksSorted.forEach(function(w){
+        var total=0;
+        top10.forEach(function(kw){var labels=kw.volume_week_labels||[],values=kw.volume_weekly||[];var wi=labels.indexOf(w);if(wi>=0&&values[wi])total+=values[wi];});
+        var vStr=total>0?(total>=1000?Math.round(total/1000)+'K':''+total):'—';
+        var col=total>0?'#10b981':'#d97706';
+        traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:'+col+';font-weight:700">'+vStr+'</td>';
+      });
+      traf+='</tr>';
+      traf+='</tbody></table></div></div></div>';
+    }
+  })();
 
-  // Original GA4 source/medium detail (collapsed)
-  traf+='<div class="sec" style="margin-top:16px"><div class="sec-title" style="cursor:pointer" onclick="var el=document.getElementById(\'ga4-detail\');el.style.display=el.style.display===\'none\'?\'block\':\'none\'"><div class="num">5A</div> GA4 Source/Medium Detail (click to expand)</div>';
-  traf+='<div id="ga4-detail" style="display:none"><div class="card"><table><thead><tr><th>#</th><th>Source / Medium</th><th style="text-align:right">Sessions</th><th style="text-align:right">Users</th><th style="text-align:right">Revenue</th><th style="text-align:right">Conversions</th><th style="text-align:right">Conv %</th></tr></thead><tbody>';
-  (F.traffic_sources||[]).forEach(function(t,i){
-    traf+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
-    traf+='<td style="font-weight:600">'+t.source+'</td>';
-    traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(t.sessions)+'</td>';
-    traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(t.users)+'</td>';
-    traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(t.revenue))+'</td>';
-    traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(t.conversions)+'</td>';
-    traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+t.conv_rate.toFixed(2)+'%</td></tr>';
-  });
-  traf+='</tbody></table></div></div></div>';
+  // ── 5B: Amazon Search Ranking — where our products appear in search results ──
+  (function(){
+    var sr=F.search_ranking||{};
+    var latest=sr.latest||{};
+    var trends=sr.trends||{};
+    var allDates=sr.dates||[];
+    var showBrands=['Grosmimi','Naeiae','CHA&MOM'];
+    var brandColors={'Grosmimi':'#8b5cf6','Naeiae':'#f59e0b','CHA&MOM':'#ef4444'};
+    var kwColors=['#6366f1','#ec4899','#f59e0b','#0ea5e9','#10b981','#ef4444','#8b5cf6','#64748b'];
+    var hasBrands=showBrands.some(function(b){return ((latest[b]||{}).US||[]).length>0;});
+    if(!hasBrands) return;
+
+    var latestDate=allDates.length?allDates[allDates.length-1]:'';
+    var dateLabel=latestDate?latestDate.substring(5).replace('-','/'):'';
+
+    traf+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num" style="background:#6366f1">5B</div> Amazon Search Ranking &mdash; Product Position <span style="font-weight:400;color:var(--muted);font-size:11px">Latest: '+dateLabel+'</span></div>';
+    traf+='<div class="desc">키워드 검색 시 우리 제품이 몇 번째에 노출되는지. 낮을수록 좋음. 매일 Apify 크롤링.</div>';
+
+    showBrands.forEach(function(brand){
+      var usItems=(latest[brand]||{}).US||[];
+      if(!usItems.length) return;
+      // Sort by position (lower = better), not found (-1) at end
+      usItems.sort(function(a,b){
+        var pa=a.position<0?9999:a.position;
+        var pb=b.position<0?9999:b.position;
+        return pa-pb;
+      });
+      var color=brandColors[brand]||'#64748b';
+      var brandTrends=((trends[brand]||{}).US)||{};
+      var trendKws=Object.keys(brandTrends);
+      var mktDates=[];
+      allDates.forEach(function(dt){
+        var found=false;
+        trendKws.forEach(function(kw){(brandTrends[kw]||[]).forEach(function(p){if(p.date===dt)found=true;});});
+        if(found) mktDates.push(dt);
+      });
+
+      traf+='<div class="card" style="margin-bottom:10px">';
+      traf+='<h3 style="color:'+color+';margin-bottom:8px">'+brand+' \ud83c\uddfa\ud83c\uddf8</h3>';
+
+      // ── Latest Ranking Summary Table ──
+      traf+='<table style="font-size:11px;margin-bottom:12px"><thead><tr>';
+      traf+='<th style="text-align:left">Keyword</th>';
+      traf+='<th style="text-align:center">Position</th>';
+      traf+='<th style="text-align:left">Product</th>';
+      traf+='<th style="text-align:center">Hits</th>';
+      traf+='<th style="text-align:left">Top Competitors</th>';
+      traf+='</tr></thead><tbody>';
+      usItems.forEach(function(r,ri){
+        var pos=r.position;
+        var posLabel=pos>=0?'#'+pos:'Not found';
+        var posColor=pos>=0?(pos<=10?'#10b981':pos<=30?'#f59e0b':pos<=60?'#f97316':'#ef4444'):'var(--muted)';
+        var posSize=pos>=0?(pos<=10?'16px':'13px'):'11px';
+        var comps=[];
+        try{comps=JSON.parse(r.competitors_top3||'[]');}catch(e){}
+        var compStr=comps.map(function(c){return '#'+c.pos+' '+c.brand;}).join(', ');
+        traf+='<tr>';
+        traf+='<td style="font-weight:600;white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+kwColors[ri%kwColors.length]+';margin-right:4px;vertical-align:middle"></span>'+r.keyword+'</td>';
+        traf+='<td style="text-align:center;font-family:var(--mono);color:'+posColor+';font-weight:800;font-size:'+posSize+'">'+posLabel+'</td>';
+        traf+='<td style="font-size:10px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(r.product_title||'—')+'</td>';
+        traf+='<td style="text-align:center;font-family:var(--mono)">'+(r.total_brand_hits||0)+'</td>';
+        traf+='<td style="font-size:9px;color:var(--muted);max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+compStr+'</td>';
+        traf+='</tr>';
+      });
+      traf+='</tbody></table>';
+
+      // ── Position Trend Chart (SVG) — inverted Y axis (lower position = higher on chart) ──
+      if(trendKws.length && mktDates.length>=1){
+        var maxPos=100; // Y axis max (position 100 at bottom)
+        var W=900,H=220,padL=40,padR=140,padT=20,padB=30;
+        var cw=W-padL-padR,ch=H-padT-padB;
+        var nD=Math.max(mktDates.length,2);
+        traf+='<div style="overflow-x:auto;margin-top:4px"><svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-height:240px;font-family:var(--mono)">';
+        // Grid lines — position markers (inverted: #1 at top, #100 at bottom)
+        [1,10,20,50,100].forEach(function(g){
+          var gy=padT+(g/maxPos)*ch;
+          traf+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="'+(g===10?'#bbf7d0':g===50?'#fef08a':'#f1f5f9')+'" stroke-width="'+(g===10||g===50?1.5:1)+'"/>';
+          traf+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" text-anchor="end" fill="#94a3b8" font-size="8">#'+g+'</text>';
+        });
+        // "Not found" zone label
+        traf+='<rect x="'+padL+'" y="'+(padT+ch-15)+'" width="'+cw+'" height="15" fill="#fef2f2" opacity="0.5" rx="2"/>';
+        traf+='<text x="'+(padL+4)+'" y="'+(padT+ch-4)+'" fill="#ef4444" font-size="7" opacity="0.7">Not in top 100</text>';
+        // Date labels
+        var step=Math.max(1,Math.floor(mktDates.length/8));
+        mktDates.forEach(function(dt,i){
+          if(i%step===0||i===mktDates.length-1){
+            var x=padL+(mktDates.length>1?(i/(nD-1))*cw:cw/2);
+            traf+='<text x="'+x+'" y="'+(H-4)+'" text-anchor="middle" fill="#94a3b8" font-size="8">'+dt.substring(5)+'</text>';
+          }
+        });
+        trendKws.forEach(function(kw,ki){
+          var pts=brandTrends[kw]||[];
+          var lc=kwColors[ki%kwColors.length];
+          if(mktDates.length===1){
+            pts.forEach(function(p){
+              var di=mktDates.indexOf(p.date); if(di<0) return;
+              var pos=p.position<0?maxPos:Math.min(p.position,maxPos);
+              var x=padL+cw/2;
+              var y=padT+(pos/maxPos)*ch;
+              traf+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="5" fill="'+lc+'"/>';
+            });
+          } else {
+            var pathD='';
+            pts.forEach(function(p){
+              var di=mktDates.indexOf(p.date); if(di<0) return;
+              var pos=p.position<0?maxPos:Math.min(p.position,maxPos);
+              var x=padL+(di/(nD-1))*cw;
+              var y=padT+(pos/maxPos)*ch;
+              pathD+=(pathD?'L':'M')+x.toFixed(1)+','+y.toFixed(1);
+              traf+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.5" fill="'+lc+'"/>';
+            });
+            if(pathD) traf+='<path d="'+pathD+'" fill="none" stroke="'+lc+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+          }
+          var last=pts[pts.length-1];
+          if(last){
+            var lPos=last.position<0?maxPos:Math.min(last.position,maxPos);
+            var ly=padT+(lPos/maxPos)*ch;
+            var label=last.position>=0?kw+' (#'+last.position+')':kw+' (N/A)';
+            traf+='<text x="'+(W-padR+6)+'" y="'+(ly+3)+'" fill="'+lc+'" font-size="8" font-weight="600">'+label+'</text>';
+          }
+        });
+        traf+='</svg></div>';
+      }
+
+      // ── Daily Position Trend Table ──
+      if(trendKws.length && mktDates.length>=1){
+        traf+='<div style="overflow-x:auto;margin-top:8px"><table style="font-size:10px"><thead><tr>';
+        traf+='<th style="text-align:left;white-space:nowrap">Keyword</th>';
+        mktDates.forEach(function(dt){
+          traf+='<th style="text-align:center;font-family:var(--mono);font-size:9px;border-bottom:2px solid var(--border)">'+dt.substring(5)+'</th>';
+        });
+        traf+='</tr></thead><tbody>';
+        trendKws.forEach(function(kw,ki){
+          var pts=brandTrends[kw]||[];
+          var lc=kwColors[ki%kwColors.length];
+          traf+='<tr>';
+          traf+='<td style="font-weight:600;white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+lc+';margin-right:4px;vertical-align:middle"></span>'+kw+'</td>';
+          mktDates.forEach(function(dt){
+            var match=null;
+            pts.forEach(function(p){if(p.date===dt) match=p;});
+            if(match){
+              var pos=match.position;
+              var posLabel=pos>=0?'#'+pos:'N/A';
+              var posColor=pos>=0?(pos<=10?'#10b981':pos<=30?'#f59e0b':pos<=60?'#f97316':'#ef4444'):'var(--muted)';
+              traf+='<td style="text-align:center;font-family:var(--mono);color:'+posColor+';font-weight:700">'+posLabel+'</td>';
+            } else {
+              traf+='<td style="text-align:center;color:var(--muted)">\u2014</td>';
+            }
+          });
+          traf+='</tr>';
+        });
+        traf+='</tbody></table></div>';
+      }
+
+      traf+='</div>'; // close card
+    });
+    traf+='</div>'; // close sec
+  })();
+
+  // ── 5C: GSC Top Queries (30D) ──────────────────────────────────────────
+  var gscQ=F.gsc_queries||[];
+  if(gscQ.length){
+    traf+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num">5C</div> Google Search Console &mdash; Top Queries (30D)</div>';
+    traf+='<div class="card"><table><thead><tr><th>#</th><th>Query</th><th style="text-align:right">Clicks</th><th style="text-align:right">Impressions</th><th style="text-align:right">CTR</th><th style="text-align:center">Position</th></tr></thead><tbody>';
+    gscQ.forEach(function(q,i){
+      traf+='<tr><td style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+(i+1)+'</td>';
+      traf+='<td style="font-size:10px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+q.query+'">'+q.query+'</td>';
+      traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(q.clicks)+'</td>';
+      traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(q.impressions)+'</td>';
+      traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+q.ctr.toFixed(1)+'%</td>';
+      traf+='<td style="text-align:center">'+posBadge(q.position)+'</td>';
+      traf+='</tr>';
+    });
+    traf+='</tbody></table></div></div>';
+  }
 
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 6: EMAIL MARKETING (Klaviyo) — with 7D / 30D period switcher
@@ -843,15 +1546,1204 @@ function renderFinancial(){
   panelsHtml+='<div class="tab-panel" id="panel-search">'+srch+'</div>';
   panelsHtml+='<div class="tab-panel" id="panel-traffic">'+traf+'</div>';
   panelsHtml+='<div class="tab-panel" id="panel-klaviyo">'+klav+'</div>';
+  panelsHtml+='<div class="tab-panel" id="panel-hero"></div>';
+  panelsHtml+='<div class="tab-panel" id="panel-autocomplete"></div>';
   document.getElementById('fin-panels').innerHTML=panelsHtml;
 
   // Init dynamic sections after DOM is ready
   if(window.renderCt) try{ window.renderCt(); }catch(e){}
   if(window.renderKwTable) try{ window.renderKwTable(); }catch(e){}
+  try{ renderHeroTab(F); }catch(e){ console.error('Hero tab error:', e); }
+  try{ renderAutocompleteTab(F); }catch(e){ console.error('Autocomplete tab error:', e); }
 
   // Check URL hash for tab
   var hash=window.location.hash.replace('#','');
   if(hash && document.getElementById('panel-'+hash)) switchFinTab(hash);
+}
+
+// ── Hero Products Tab ────────────────────────────────────────────────────────
+var _heroPeriod=90;
+var _heroView='cat'; // 'cat' or 'brand'
+function setHeroPeriod(d){
+  _heroPeriod=d;
+  document.querySelectorAll('#hero-period-tabs>div').forEach(function(t){t.classList.toggle('on',parseInt(t.dataset.d)===d);});
+  if(window._heroF) renderHeroTab(window._heroF);
+}
+function setHeroView(v){
+  _heroView=v;
+  document.querySelectorAll('#hero-view-tabs>div').forEach(function(t){t.classList.toggle('on',t.dataset.v===v);});
+  if(window._heroF) renderHeroTab(window._heroF);
+}
+function renderHeroTab(F){
+  window._heroF=F;
+  var H=F.hero_products;
+  if(!H||!H.categories||!H.categories.length){
+    document.getElementById('panel-hero').innerHTML='<div class="card"><h3>No Hero Products Data</h3><div class="desc">Run generate_fin_data.py to build product category data.</div></div>';
+    return;
+  }
+  var html='';
+  var CATCOLORS={
+    'PPSU Straw Cup':'#8b5cf6','Stainless Straw Cup':'#a78bfa','PPSU Tumbler':'#6366f1',
+    'Stainless Tumbler':'#818cf8','PPSU Baby Bottle':'#c084fc','Accessories':'#d8b4fe',
+    'Moisturizer':'#0ea5e9','Body Wash':'#22d3ee','Baby Cream':'#06b6d4',
+    'Rice Puff':'#eab308','Alpremio':'#f97316'
+  };
+  var BCOLORS={'Grosmimi':'#8b5cf6','CHA&MOM':'#0ea5e9','Naeiae':'#eab308','Alpremio':'#f97316'};
+
+  // ── Section A: Product Category Scorecard ──
+  // Store F globally for period toggle re-renders
+  window._heroF=F;
+  // Keep existing period if user already toggled
+  html+='<div class="sec"><div class="sec-title"><div class="num">1</div> Product Category Scorecard';
+  html+=' <div class="period-tabs" id="hero-view-tabs" style="margin-left:auto;margin-right:6px"><div data-v="cat" onclick="setHeroView(\'cat\')" '+(_heroView==='cat'?'class="on"':'')+'>Category</div><div data-v="brand" onclick="setHeroView(\'brand\')" '+(_heroView==='brand'?'class="on"':'')+'>Brand</div></div>';
+  html+=' <div class="period-tabs" id="hero-period-tabs"><div data-d="7" onclick="setHeroPeriod(7)" '+((_heroPeriod===7)?'class="on"':'')+'>7D</div><div data-d="30" onclick="setHeroPeriod(30)" '+((_heroPeriod===30)?'class="on"':'')+'>30D</div><div data-d="90" onclick="setHeroPeriod(90)" '+((_heroPeriod===90)?'class="on"':'')+'>90D</div></div>';
+  html+='</div>';
+  html+='<div class="card">';
+  // Brand summary row
+  var brandTotals={};
+  H.categories.forEach(function(c){
+    var b=c.brand||'Other';
+    if(!brandTotals[b])brandTotals[b]={sales_7d:0,sales_30d:0,units_30d:0};
+    brandTotals[b].sales_7d+=c.sales_7d;brandTotals[b].sales_30d+=c.sales_30d;brandTotals[b].units_30d+=c.units_30d;
+  });
+  var brandOrder=Object.keys(brandTotals).sort(function(a,b){return brandTotals[b].sales_30d-brandTotals[a].sales_30d;});
+  html+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
+  brandOrder.forEach(function(b){
+    var bt=brandTotals[b],bc2=BCOLORS[b]||'#94a3b8';
+    html+='<div style="flex:1;min-width:140px;border:1px solid '+bc2+'55;border-radius:6px;padding:8px 12px;background:'+bc2+'10">';
+    html+='<div style="font-size:10px;font-weight:700;color:'+bc2+'">'+b+'</div>';
+    html+='<div style="font-family:var(--mono);font-weight:800;font-size:15px;color:var(--g)">$'+bt.sales_30d.toLocaleString()+'</div>';
+    html+='<div style="font-size:9px;color:var(--dim)">30D &nbsp;·&nbsp; $'+bt.sales_7d.toLocaleString()+' 7D &nbsp;·&nbsp; '+bt.units_30d.toLocaleString()+' units</div>';
+    html+='</div>';
+  });
+  html+='</div>';
+  // ── Build brand-aggregated cards for brand view ──
+  var _brandGroups={};
+  H.categories.forEach(function(c){
+    var b=c.brand||'Other';
+    if(!_brandGroups[b])_brandGroups[b]={category:b,brand:b,_isBrand:true,asin_count:0,sales_7d:0,sales_30d:0,units_30d:0,units_7d:0,daily_sales:[],daily_units:[],_gsc:[],top_keywords:[],_kwSeen:{},sfr_branded:[],_sfrSeen:{},_crMap:{},_subCats:[]};
+    var bg=_brandGroups[b];
+    bg._subCats.push(c.category);
+    bg.asin_count+=c.asin_count;
+    bg.sales_7d+=c.sales_7d;bg.sales_30d+=c.sales_30d;bg.units_30d+=c.units_30d;bg.units_7d+=(c.units_7d||0);
+    if(c.daily_sales)c.daily_sales.forEach(function(v,i){bg.daily_sales[i]=(bg.daily_sales[i]||0)+v;});
+    if(c.daily_units)c.daily_units.forEach(function(v,i){bg.daily_units[i]=(bg.daily_units[i]||0)+v;});
+    var _cl2=H.content_lift?H.content_lift[c.category]:null;
+    if(_cl2&&_cl2.gsc_daily)_cl2.gsc_daily.forEach(function(v,i){bg._gsc[i]=(bg._gsc[i]||0)+v;});
+    if(c.top_keywords)c.top_keywords.forEach(function(kw){if(!bg._kwSeen[kw.keyword]){bg._kwSeen[kw.keyword]=true;bg.top_keywords.push(kw);}});
+    if(c.sfr_branded)c.sfr_branded.forEach(function(kw){if(!bg._sfrSeen[kw.keyword]){bg._sfrSeen[kw.keyword]=true;bg.sfr_branded.push(kw);}});
+    var catCrs=(H.content_creators_by_cat||{})[c.category]||[];
+    catCrs.forEach(function(cr){
+      if(!bg._crMap[cr.username])bg._crMap[cr.username]={username:cr.username,platform:cr.platform,brand:cr.brand,total_views:0,upload_date:cr.upload_date||'',daily_views:[]};
+      var ex=bg._crMap[cr.username];
+      ex.total_views+=cr.total_views;
+      if(cr.upload_date&&(!ex.upload_date||cr.upload_date<ex.upload_date))ex.upload_date=cr.upload_date;
+      if(cr.daily_views)cr.daily_views.forEach(function(v,i){ex.daily_views[i]=(ex.daily_views[i]||0)+v;});
+    });
+  });
+  Object.values(_brandGroups).forEach(function(bg){
+    bg.top_keywords.sort(function(a,b2){return a.search_freq_rank-b2.search_freq_rank;});
+    bg._creators=Object.values(bg._crMap).sort(function(a,b2){return b2.total_views-a.total_views;});
+  });
+  var _brandOrder2=Object.keys(_brandGroups).sort(function(a,b){return _brandGroups[b].sales_30d-_brandGroups[a].sales_30d;});
+  // ── Select render list based on view ──
+  var _renderList=_heroView==='brand'?_brandOrder2.map(function(b){return _brandGroups[b];}):H.categories;
+  html+='<div class="desc" style="margin-bottom:12px">'+(_heroView==='brand'?'Sales by brand ('+_brandOrder2.length+' brands). All categories merged.':'Sales by product category ('+H.categories.length+' categories). Keywords from Amazon Brand Analytics.')+'</div>';
+  _renderList.forEach(function(c,idx){
+    var bc=CATCOLORS[c.category]||(BCOLORS[c.brand]||'#94a3b8');
+    var brandBg=BCOLORS[c.brand]||'#94a3b8';
+    html+='<div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+    html+='<div><span style="font-weight:700;font-size:13px;color:'+bc+'">'+c.category+'</span>';
+    if(!c._isBrand)html+=' <span style="font-size:9px;padding:1px 6px;border-radius:10px;background:'+brandBg+'22;color:'+brandBg+';font-weight:600">'+c.brand+'</span>';
+    else if(c._subCats)html+=' <span style="font-size:9px;color:var(--muted)">'+c._subCats.join(' · ')+'</span>';
+    html+=' <span style="font-size:9px;color:var(--muted);font-family:var(--mono)">'+c.asin_count+' ASINs</span></div>';
+    html+='<div style="text-align:right">';
+    html+='<span style="font-family:var(--mono);font-weight:800;font-size:16px;color:var(--g)">$'+c.sales_30d.toLocaleString()+'</span>';
+    html+=' <span style="font-size:9px;color:var(--dim)">30D</span>';
+    html+=' <span style="font-family:var(--mono);font-size:11px;color:var(--dim);margin-left:8px">'+c.units_30d.toLocaleString()+' units</span>';
+    html+='</div></div>';
+    // ═══ Dual Chart: Sales (top) + Content (bottom), full width ═══
+    var cl=c._isBrand?{gsc_daily:c._gsc||[],sessions_daily:[],pageviews_daily:[],views:[]}:(H.content_lift?H.content_lift[c.category]:null);
+    var catCreators=c._creators||(H.content_creators_by_cat||{})[c.category]||[];
+    // Get search volume for this brand from top-level keyword_volumes
+    var catKwVols=[];
+    var _brandSlug=(c.brand||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+    var _brandAlt=_brandSlug==='grosmimi'?'grosmini':null; // typo variant
+    if(c.top_keywords){c.top_keywords.forEach(function(kw){
+      var kwSlug=kw.keyword.toLowerCase().replace(/[^a-z0-9]/g,'');
+      if(kw.google_volume>0&&_brandSlug&&(kwSlug.includes(_brandSlug)||(_brandAlt&&kwSlug.includes(_brandAlt)))) catKwVols.push({keyword:kw.keyword,volume:kw.google_volume});
+    });}
+    var totalKwVol=0;catKwVols.forEach(function(k){totalKwVol+=k.volume;});
+    if(c.daily_sales&&c.daily_sales.length>1){
+      var _allDs=c.daily_sales,_allDu=c.daily_units||[];
+      var _allVw=cl?cl.views:[];
+      var _allDates=H.daily_dates||[];
+      var _allGsc=cl?cl.gsc_daily||[]:[];
+      var _allSess=cl?cl.sessions_daily||[]:[];
+      var _allPv=cl?cl.pageviews_daily||[]:[];
+      // Slice by period
+      var pDays=_heroPeriod;
+      var step=pDays<=7?1:7;
+      var ds=_allDs.slice(-pDays),du=_allDu.slice(-pDays);
+      var vw=_allVw.slice(-pDays),dates=_allDates.slice(-pDays);
+      var gscD=_allGsc.slice(-pDays);
+      var sessD=_allSess.slice(-pDays);
+      var pvD=_allPv.slice(-pDays);
+      // Top 10 creators by observed growth (already sorted in generate_fin_data.py)
+      var slicedCreators=catCreators.slice(0,10).map(function(cr){
+        return {username:cr.username,brand:cr.brand,platform:cr.platform,total_views:cr.total_views,
+          upload_date:cr.upload_date||'',daily_views:cr.daily_views.slice(-pDays)};
+      });
+      var n=ds.length;
+      var hasContent=catCreators.length>0||(vw.length&&vw.reduce(function(a,b){return a+b},0)>0);
+      var INF_COLORS=['#3b82f6','#ec4899','#f97316','#14b8a6','#6366f1','#ef4444','#a855f7','#eab308','#0ea5e9','#84cc16'];
+      // Full-width chart dimensions
+      var padL=50,padR=150,padT=14,gap=6;
+      var midH=140,delH=120;
+      var botH=hasContent?(midH+gap+delH):0;
+      var topH=160;
+      var chartW=1020;
+      var bw=Math.max(Math.floor((chartW-padL-padR)/n)-1,3);
+      var maxS=Math.max.apply(null,ds)||1;
+      // Pre-compute per-creator deltas and sort by total delta desc
+      var crDeltaArr=[];
+      slicedCreators.forEach(function(cr){
+        var d=[],tot=0;
+        for(var i=0;i<n;i++){
+          var dv=cr.daily_views[i]||0;
+          d.push(dv);tot+=dv;
+        }
+        crDeltaArr.push({cr:cr,deltas:d,total:tot});
+      });
+      crDeltaArr.sort(function(a,b){return b.total-a.total;});
+      // Stacked daily max for scale
+      var aggDeltas=new Array(n).fill(0);
+      crDeltaArr.forEach(function(x){x.deltas.forEach(function(v,i){aggDeltas[i]+=v;});});
+      var aggMax=Math.max.apply(null,aggDeltas)||1;
+      // Total new views (for legend)
+      var totalNewViews=aggDeltas.reduce(function(a,b){return a+b},0);
+      // Legend
+      html+='<div style="margin:8px 0 4px;display:flex;gap:10px;font-size:9px;color:var(--muted);flex-wrap:wrap">';
+      html+='<span style="color:var(--g)">&#9644; Sales</span>';
+      if(totalNewViews>0) html+='<span style="color:'+bc+'">&#9651; +'+totalNewViews.toLocaleString()+' new views</span>';
+      crDeltaArr.forEach(function(x,ci){
+        var _cu=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
+        html+='<a href="'+_cu+'" target="_blank" style="color:'+INF_COLORS[ci%INF_COLORS.length]+';text-decoration:none">&#9642; @'+x.cr.username+(x.total>0?' +'+x.total.toLocaleString():'')+' views</a>';
+      });
+      var gscTotalAll=gscD.reduce(function(a,b){return a+b},0);
+      if(gscTotalAll>0) html+='<span style="color:#f59e0b">--- GSC Search ('+gscTotalAll.toLocaleString()+' impr)</span>';
+      if(c.sfr_branded&&c.sfr_branded.length){var _sfrLeg=c.sfr_branded.filter(function(kw){return kw.rank_weekly&&kw.rank_weekly.length;}).slice(0,3);_sfrLeg.forEach(function(kw,ki){var _sc=['#f59e0b','#f97316','#eab308'][ki];html+='<span style="color:'+_sc+'">&#9679; SFR:'+kw.keyword.substring(0,15)+' ('+( kw.rank_weekly[kw.rank_weekly.length-1]>=1000?Math.round(kw.rank_weekly[kw.rank_weekly.length-1]/1000)+'K':kw.rank_weekly[kw.rank_weekly.length-1])+')</span>';});}
+      var sessTotalAll=sessD.reduce(function(a,b){return a+b},0);
+      if(sessTotalAll>0) html+='<span style="color:#6366f1">&#9644; Sessions ('+sessTotalAll.toLocaleString()+')</span>';
+      var pvTotalAll=pvD.reduce(function(a,b){return a+b},0);
+      if(pvTotalAll>0) html+='<span style="color:#a78bfa">&#x2508; Page Views ('+pvTotalAll.toLocaleString()+')</span>';
+      html+='<span style="margin-left:auto;font-weight:700">$'+c.sales_7d.toLocaleString()+' 7D</span></div>';
+      // ── TOP CHART: Sales ──
+      var svgTotalH=padT+topH+gap+botH+30;
+      html+='<div style="overflow-x:auto">';
+      html+='<svg width="'+chartW+'" height="'+svgTotalH+'" style="display:block;width:100%;min-width:'+chartW+'px">';
+      // Sales Y-axis
+      for(var g=0;g<=3;g++){
+        var gy=padT+topH-g/3*topH;
+        var gv=Math.round(maxS*g/3);
+        html+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(chartW-padR)+'" y2="'+gy+'" stroke="#f1f5f9" stroke-width="0.5"/>';
+        html+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" fill="#94a3b8" font-size="7" font-family="var(--mono)" text-anchor="end">$'+gv.toLocaleString()+'</text>';
+      }
+      // Sales area + line
+      var spts=[];
+      ds.forEach(function(v,i){
+        var x=padL+i*(bw+1)+bw/2,y=padT+topH-v/maxS*topH;
+        spts.push(x+','+y);
+      });
+      html+='<polygon points="'+padL+','+(padT+topH)+' '+spts.join(' ')+' '+(padL+(n-1)*(bw+1)+bw/2)+','+(padT+topH)+'" fill="var(--g)" opacity="0.08"/>';
+      html+='<polyline points="'+spts.join(' ')+'" fill="none" stroke="var(--g)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+      // Peak dot
+      var peakSi=0;ds.forEach(function(v,i){if(v>ds[peakSi])peakSi=i;});
+      var psx=padL+peakSi*(bw+1)+bw/2,psy=padT+topH-ds[peakSi]/maxS*topH;
+      html+='<circle cx="'+psx+'" cy="'+psy+'" r="3" fill="var(--g)"/>';
+      html+='<text x="'+psx+'" y="'+(psy-6)+'" fill="var(--g)" font-size="8" font-weight="700" font-family="var(--mono)" text-anchor="middle">$'+ds[peakSi].toLocaleString()+'</text>';
+      // Value labels at every step (same step as x-axis)
+      for(var _vi=0;_vi<n;_vi+=step){
+        if(_vi===peakSi)continue; // already labelled
+        var _vx=padL+_vi*(bw+1)+bw/2,_vy=padT+topH-ds[_vi]/maxS*topH;
+        html+='<circle cx="'+_vx+'" cy="'+_vy+'" r="2" fill="var(--g)" opacity="0.6"/>';
+        html+='<text x="'+_vx+'" y="'+(_vy-5)+'" fill="var(--g)" font-size="7" font-family="var(--mono)" text-anchor="middle" opacity="0.75">$'+ds[_vi].toLocaleString()+'</text>';
+      }
+      // GSC search impressions (yellow area on sales chart)
+      var gscMax=Math.max.apply(null,gscD.length?gscD:[0])||1;
+      var gscTotal=gscD.reduce(function(a,b){return a+b},0);
+      if(gscTotal>0){
+        var gPts=[];
+        gscD.forEach(function(v,i){
+          var x=padL+i*(bw+1)+bw/2,y=padT+topH-v/gscMax*topH*0.4;
+          gPts.push(x+','+y);
+        });
+        html+='<polygon points="'+padL+','+(padT+topH)+' '+gPts.join(' ')+' '+(padL+(n-1)*(bw+1)+bw/2)+','+(padT+topH)+'" fill="#f59e0b" opacity="0.08"/>';
+        html+='<polyline points="'+gPts.join(' ')+'" fill="none" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>';
+        var glx=padL+(n-1)*(bw+1)+bw/2,gly=padT+topH-gscD[n-1]/gscMax*topH*0.4;
+        html+='<text x="'+(glx+6)+'" y="'+(gly+3)+'" fill="#f59e0b" font-size="7" font-weight="600" opacity="0.7">GSC</text>';
+      }
+      // SFR/Volume overlay — branded keywords from pre-filtered sfr_branded field
+      // Use volume_weekly (SQP brand view) if available, else rank_weekly (SP-API SFR)
+      var _sfrOverlayKws=[];
+      var _useVolume=false;
+      if(c.sfr_branded&&c.sfr_branded.length){
+        // Prefer volume_weekly (actual search count, from SQP brand view CSV upload)
+        var _volKws=c.sfr_branded.filter(function(kw){return kw.volume_weekly&&kw.volume_weekly.length&&kw.volume_week_labels&&kw.volume_week_labels.length;});
+        if(_volKws.length){_sfrOverlayKws=_volKws;_useVolume=true;}
+        else{
+          _sfrOverlayKws=c.sfr_branded.filter(function(kw){return kw.rank_weekly&&kw.rank_weekly.length&&kw.rank_week_labels&&kw.rank_week_labels.length;});
+        }
+      }
+      if(_sfrOverlayKws.length){
+        // Build unified week axis
+        var _sfrWkSet={};
+        var _wkField=_useVolume?'volume_week_labels':'rank_week_labels';
+        var _valField=_useVolume?'volume_weekly':'rank_weekly';
+        _sfrOverlayKws.forEach(function(kw){(kw[_wkField]||[]).forEach(function(w){_sfrWkSet[w]=true;});});
+        var _sfrWks=Object.keys(_sfrWkSet).sort();
+        // Per week: average across all branded keywords that have data that week
+        var _sfrAvg=[];
+        _sfrWks.forEach(function(w){
+          var vals=[];
+          _sfrOverlayKws.forEach(function(kw){
+            var labels=kw[_wkField]||[],values=kw[_valField]||[];
+            var wi=labels.indexOf(w);
+            if(wi>=0&&values[wi])vals.push(values[wi]);
+          });
+          if(vals.length) _sfrAvg.push({w:w,v:vals.reduce(function(a,b){return a+b},0)});
+        });
+        if(_sfrAvg.length){
+          var _sfrVals=_sfrAvg.map(function(p){return p.v;});
+          var _sfrMin=Math.min.apply(null,_sfrVals),_sfrMax=Math.max.apply(null,_sfrVals);
+          if(_sfrMin===_sfrMax){_sfrMin=Math.round(_sfrMin*0.85);_sfrMax=Math.round(_sfrMax*1.15);}
+          // Volume: higher=more searched, higher on chart. SFR rank: same direction (higher rank# = higher on chart)
+          function sfrY(r){return padT+topH*0.9-topH*0.82*(r-_sfrMin)/(_sfrMax-_sfrMin);}
+          // Map week dates to x — only include weeks within chart date range
+          var _chartStart=new Date(dates[0]),_chartEnd=new Date(dates[n-1]);
+          _chartStart.setDate(_chartStart.getDate()-4); // week can start a few days before first daily date
+          var _sfrPts=[];
+          _sfrAvg.forEach(function(p){
+            var pw=new Date(p.w);
+            if(pw<_chartStart||pw>_chartEnd)return; // skip weeks outside chart range
+            var bestDi=0,bestDiff=999999;
+            for(var di=0;di<n;di++){
+              var diff=Math.abs(new Date(dates[di])-pw);
+              if(diff<bestDiff){bestDiff=diff;bestDi=di;}
+            }
+            _sfrPts.push({x:padL+bestDi*(bw+1)+bw/2,y:sfrY(p.v),v:p.v,w:p.w});
+          });
+          // Right Y-axis ticks (max at top, min at bottom)
+          [[_sfrMax,'↑많이검색'],[_sfrMin,'↓적게검색']].forEach(function(pair){
+            var v=pair[0],label=pair[1];
+            var y=sfrY(v),vStr=v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?Math.round(v/1000)+'K':''+v;
+            html+='<text x="'+(chartW-padR+4)+'" y="'+(y+3)+'" fill="#f59e0b" font-size="6" font-family="var(--mono)" opacity="0.7">'+vStr+'</text>';
+            html+='<text x="'+(chartW-padR+4)+'" y="'+(y+11)+'" fill="#f59e0b" font-size="6" opacity="0.5">'+label+'</text>';
+          });
+          html+='<text x="'+(chartW-padR+4)+'" y="'+(padT+7)+'" fill="#f59e0b" font-size="6" font-weight="700" opacity="0.75">'+(_useVolume?'Vol':'SFR')+'</text>';
+          // Dashed connecting line
+          if(_sfrPts.length>1){
+            html+='<polyline points="'+_sfrPts.map(function(p){return p.x+','+p.y;}).join(' ')+'" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>';
+          }
+          // Dots with per-point tooltips (pinned to dot)
+          _sfrPts.forEach(function(p,pi){
+            var vStr=p.v>=1000000?(p.v/1000000).toFixed(1)+'M':p.v>=1000?Math.round(p.v/1000)+'K':''+p.v;
+            // Build tooltip: week date + each keyword's value that week
+            var _ttLabel=_useVolume?'Total Vol':'Total SFR';
+            var _sfrTt='<div class=tt-date>'+(_useVolume?'Search Vol':'SFR')+' week of '+p.w+'</div><div class=tt-row><span class=tt-dot style=background:#f59e0b></span>'+_ttLabel+': '+p.v.toLocaleString()+'</div>';
+            _sfrOverlayKws.forEach(function(kw){
+              var labels=kw[_wkField]||[],values=kw[_valField]||[];
+              var wi=labels.indexOf(p.w);
+              if(wi>=0&&values[wi]){
+                var kv=values[wi];
+                var kvStr=kv>=1000000?(kv/1000000).toFixed(1)+'M':kv>=1000?Math.round(kv/1000)+'K':''+kv;
+                _sfrTt+='<div class=tt-row><span class=tt-dot style=background:#fcd34d></span>'+kw.keyword+': '+kvStr+'</div>';
+              }
+            });
+            var _dotId='sfr-dot-'+idx+'-'+pi;
+            html+='<circle cx="'+p.x+'" cy="'+p.y+'" r="5" fill="#f59e0b" stroke="#fff" stroke-width="1.5" opacity="0.9" id="'+_dotId+'" style="cursor:pointer"'
+              +' onmouseenter="showTTAt(document.getElementById(\''+_dotId+'\'),\''+_sfrTt.replace(/'/g,"\\'")+'\');"'
+              +' onmouseleave="hideTT()"/>';
+            html+='<text x="'+p.x+'" y="'+(p.y-9)+'" fill="#f59e0b" font-size="7" font-family="var(--mono)" text-anchor="middle" font-weight="700" pointer-events="none">'+vStr+'</text>';
+          });
+          // End label showing which keywords are included
+          var _lastPt=_sfrPts[_sfrPts.length-1];
+          html+='<text x="'+(chartW-padR+4)+'" y="'+(padT+16)+'" fill="#f59e0b" font-size="6" opacity="0.65">avg '+_sfrOverlayKws.length+' kws</text>';
+        }
+      }
+      // Sessions line overlay on sales chart
+      var sessTotal=sessD.reduce(function(a,b){return a+b},0);
+      if(sessTotal>0){
+        var sessMax=Math.max.apply(null,sessD)||1;
+        var sPts=[];
+        sessD.forEach(function(v,i){
+          var x=padL+i*(bw+1)+bw/2,y=padT+topH-v/sessMax*topH*0.5;
+          sPts.push(x+','+y);
+        });
+        html+='<polygon points="'+padL+','+(padT+topH)+' '+sPts.join(' ')+' '+(padL+(n-1)*(bw+1)+bw/2)+','+(padT+topH)+'" fill="#6366f1" opacity="0.06"/>';
+        html+='<polyline points="'+sPts.join(' ')+'" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>';
+        var slx=padL+(n-1)*(bw+1)+bw/2,sly=padT+topH-sessD[n-1]/sessMax*topH*0.5;
+        html+='<text x="'+(slx+6)+'" y="'+(sly+3)+'" fill="#6366f1" font-size="7" font-weight="600" opacity="0.8">Sess</text>';
+      }
+      // Page views line overlay
+      var pvTotal=pvD.reduce(function(a,b){return a+b},0);
+      if(pvTotal>0){
+        var pvMax=Math.max.apply(null,pvD)||1;
+        var pvPts=[];
+        pvD.forEach(function(v,i){
+          var x=padL+i*(bw+1)+bw/2,y=padT+topH-v/pvMax*topH*0.5;
+          pvPts.push(x+','+y);
+        });
+        html+='<polyline points="'+pvPts.join(' ')+'" fill="none" stroke="#a78bfa" stroke-width="1" stroke-dasharray="4,3" stroke-linecap="round" opacity="0.6"/>';
+      }
+      // Sales end label
+      var lsx=padL+(n-1)*(bw+1)+bw/2,lsy=padT+topH-ds[n-1]/maxS*topH;
+      html+='<text x="'+(lsx+6)+'" y="'+(lsy+3)+'" fill="var(--g)" font-size="8" font-weight="700">Sales</text>';
+      // Divider line between charts
+      if(hasContent){
+        // ── MID CHART: Stacked delta bars (top 10 creators, sorted by total delta desc) ──
+        var divY1=padT+topH+gap/2;
+        html+='<line x1="'+padL+'" y1="'+divY1+'" x2="'+(chartW-padR)+'" y2="'+divY1+'" stroke="var(--border)" stroke-width="1"/>';
+        var midTop=padT+topH+gap;
+        // Y-axis gridlines
+        for(var g=0;g<=3;g++){
+          var gy=midTop+midH-g/3*midH,gv=Math.round(aggMax*g/3);
+          html+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(chartW-padR)+'" y2="'+gy+'" stroke="#f1f5f9" stroke-width="0.5"/>';
+          if(gv>0)html+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" fill="'+bc+'" font-size="7" font-family="var(--mono)" text-anchor="end" opacity="0.7">'+gv.toLocaleString()+'</text>';
+        }
+        html+='<text x="'+(padL+2)+'" y="'+(midTop+10)+'" fill="'+bc+'" font-size="8" font-weight="700" opacity="0.6">Daily New Views &#9651; — stacked by creator</text>';
+        // Draw stacked bars: biggest total delta at bottom
+        for(var i=0;i<n;i++){
+          var yStack=midTop+midH,colTotal=0;
+          crDeltaArr.forEach(function(x,ci){
+            var v=x.deltas[i];
+            if(v>0){
+              var bh=v/aggMax*midH*0.92,col=INF_COLORS[ci%INF_COLORS.length];
+              html+='<rect x="'+(padL+i*(bw+1))+'" y="'+(yStack-bh)+'" width="'+bw+'" height="'+bh+'" fill="'+col+'" opacity="0.85"/>';
+              yStack-=bh;colTotal+=v;
+            }
+          });
+          if(colTotal>0){
+            var lx=padL+i*(bw+1)+bw/2,ly=yStack-4;
+            html+='<text x="'+lx+'" y="'+ly+'" fill="'+bc+'" font-size="6" font-family="var(--mono)" text-anchor="middle" font-weight="600" opacity="0.8">'+(colTotal>=1000?Math.round(colTotal/1000)+'K':colTotal)+'</text>';
+          }
+        }
+        // ── BOTTOM CHART: Cumulative view lines (forward-filled, one line per creator) ──
+        var divY2=midTop+midH+gap/2;
+        html+='<line x1="'+padL+'" y1="'+divY2+'" x2="'+(chartW-padR)+'" y2="'+divY2+'" stroke="var(--border)" stroke-width="1"/>';
+        var delTop=midTop+midH+gap;
+        // Running sum of daily deltas + base_views → true cumulative view lines
+        var ffCreators=crDeltaArr.map(function(x){
+          var base=x.cr.base_views||0;
+          var ff=[],cumSum=base;
+          for(var i=0;i<n;i++){cumSum+=x.cr.daily_views[i]||0;ff.push(cumSum);}
+          return {cr:x.cr,ff:ff,ci:crDeltaArr.indexOf(x),base:base};
+        });
+        var crMaxV=1;
+        ffCreators.forEach(function(x){x.ff.forEach(function(v){if(v>crMaxV)crMaxV=v;});});
+        // Y-axis
+        for(var g=0;g<=2;g++){
+          var gy=delTop+delH-g/2*delH,gv=Math.round(crMaxV*g/2);
+          html+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(chartW-padR)+'" y2="'+gy+'" stroke="#f1f5f9" stroke-width="0.5"/>';
+          if(gv>0)html+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" fill="'+bc+'" font-size="7" font-family="var(--mono)" text-anchor="end" opacity="0.5">'+gv.toLocaleString()+'</text>';
+        }
+        html+='<text x="'+(padL+2)+'" y="'+(delTop+10)+'" fill="'+bc+'" font-size="8" font-weight="700" opacity="0.4">Total Views (cumulative)</text>';
+        // Hatched pattern for pre-observation base area
+        html+='<defs><pattern id="hatch-base" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="4" stroke="#94a3b8" stroke-width="0.5" opacity="0.15"/></pattern></defs>';
+        // Draw lines — only from first non-zero onwards
+        ffCreators.forEach(function(x,ci){
+          var col=INF_COLORS[ci%INF_COLORS.length];
+          var firstNZ=x.ff.findIndex(function(v){return v>0;});
+          if(firstNZ<0)return;
+          var base=x.base||0;
+          // Hatched base region + dashed baseline showing pre-observation views
+          if(base>0){
+            var baseY=delTop+delH-base/crMaxV*delH*0.9;
+            var botY=delTop+delH;
+            var startX=padL+firstNZ*(bw+1);
+            var endX=padL+(n-1)*(bw+1)+bw;
+            html+='<rect x="'+startX+'" y="'+baseY+'" width="'+(endX-startX)+'" height="'+(botY-baseY)+'" fill="url(#hatch-base)" opacity="0.6"/>';
+            html+='<line x1="'+startX+'" y1="'+baseY+'" x2="'+endX+'" y2="'+baseY+'" stroke="'+col+'" stroke-width="0.7" stroke-dasharray="3,2" opacity="0.35"/>';
+            var fo=x.cr.first_observed||'';
+            var baseStr=base>=1000?Math.round(base/1000)+'K':''+base;
+            var tagTxt=baseStr+(fo?' ('+fo.substring(5)+' ~)':'');
+            html+='<text x="'+(startX+2)+'" y="'+(baseY-2)+'" fill="'+col+'" font-size="5.5" font-family="var(--mono)" opacity="0.5">'+tagTxt+'</text>';
+          }
+          var pts=[];
+          for(var i=firstNZ;i<n;i++){
+            var px=padL+i*(bw+1)+bw/2,py=delTop+delH-x.ff[i]/crMaxV*delH*0.9;
+            pts.push(px+','+py);
+          }
+          if(pts.length)html+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+col+'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>';
+          // Value labels at step intervals
+          for(var i=firstNZ;i<n;i+=step){
+            var v=x.ff[i]||0;
+            if(v>0){
+              var lx2=padL+i*(bw+1)+bw/2,ly2=delTop+delH-v/crMaxV*delH*0.9;
+              var vStr2=v>=1000?Math.round(v/1000)+'K':''+v;
+              html+='<text x="'+lx2+'" y="'+(ly2-4)+'" fill="'+col+'" font-size="6" font-family="var(--mono)" text-anchor="middle" font-weight="600" opacity="0.75">'+vStr2+'</text>';
+            }
+          }
+          // Label at end
+          var lastFF=x.ff[n-1]||0;
+          if(lastFF>0){
+            var lx=padL+(n-1)*(bw+1)+bw/2,ly=delTop+delH-lastFF/crMaxV*delH*0.9;
+            var _lcu=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
+            html+='<circle cx="'+lx+'" cy="'+ly+'" r="3" fill="'+col+'"/>';
+            html+='<a href="'+_lcu+'" target="_blank"><text x="'+(lx+6)+'" y="'+(ly+3)+'" fill="'+col+'" font-size="8" font-weight="600" style="cursor:pointer;text-decoration:underline">@'+x.cr.username+' '+lastFF.toLocaleString()+'</text></a>';
+          }
+        });
+        // botH already = midH+gap+delH
+      }
+      // X-axis date labels (shared)
+      var xBase=padT+topH+gap+botH;
+      for(var i=0;i<n;i+=step){var x=padL+i*(bw+1)+bw/2;
+      html+='<text x="'+x+'" y="'+(xBase+14)+'" fill="#94a3b8" font-size="7" font-family="var(--mono)" text-anchor="middle" transform="rotate(-30,'+x+','+(xBase+14)+')">'+dates[i].substring(5)+'</text>';}
+      // Shared vertical guide line
+      html+='<line id="hero-guide-'+idx+'" x1="0" y1="'+padT+'" x2="0" y2="'+xBase+'" stroke="#94a3b8" stroke-width="0.5" stroke-dasharray="2,2" opacity="0" pointer-events="none"/>';
+      // Tooltip hit rectangles (cover both charts)
+      for(var i=0;i<n;i++){
+        var hx=padL+i*(bw+1), hw=bw+1;
+        var ttDate=dates[i]||'';
+        var ttSales=ds[i]||0;
+        var ttUnits=du[i]||0;
+        var ttViews=vw[i]||0;
+        var ttH='<div class=tt-date>'+ttDate+'</div>'
+          +'<div class=tt-row><span class=tt-dot style=background:#10b981></span>Sales: $'+ttSales.toLocaleString()+'</div>'
+          +'<div class=tt-row><span class=tt-dot style=background:var(--dim)></span>Units: '+ttUnits.toLocaleString()+'</div>';
+        if(ttViews>0) ttH+='<div class=tt-row><span class=tt-dot style=background:'+bc+'></span>Views: '+ttViews.toLocaleString()+'</div>';
+        var ttGsc=gscD[i]||0;
+        if(ttGsc>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#f59e0b></span>GSC: '+ttGsc.toLocaleString()+' impr</div>';
+        var ttSess=sessD[i]||0;
+        if(ttSess>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#6366f1></span>Sessions: '+ttSess.toLocaleString()+'</div>';
+        var ttPv=pvD[i]||0;
+        if(ttPv>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#a78bfa></span>Page Views: '+ttPv.toLocaleString()+'</div>';
+        crDeltaArr.forEach(function(x,ci){
+          var cv=x.cr.daily_views[i]||0;
+          var dv=x.deltas[i]||0;
+          var deltaStr=dv>0?'+'+dv.toLocaleString():'—';
+          if(cv>0||dv>0) ttH+='<div class=tt-row><span class=tt-dot style=background:'+INF_COLORS[ci%INF_COLORS.length]+'></span>@'+x.cr.username+': '+cv.toLocaleString()+' <span style=color:#10b981>'+deltaStr+'</span></div>';
+        });
+        var _sy=padT+topH-ds[i]/maxS*topH; // sales point y for this col
+        html+='<rect x="'+hx+'" y="'+padT+'" width="'+hw+'" height="'+xBase+'" fill="transparent" style="cursor:crosshair" id="hero-hit-'+idx+'-'+i+'"'
+          +' onmouseenter="showTTAt(document.getElementById(\'hero-hit-'+idx+'-'+i+'\'),\''+ttH.replace(/'/g,"\\'")+'\');var g=document.getElementById(\'hero-guide-'+idx+'\');if(g){g.setAttribute(\'x1\','+(hx+hw/2)+');g.setAttribute(\'x2\','+(hx+hw/2)+');g.setAttribute(\'opacity\',\'0.6\');}"'
+          +' onmouseleave="hideTT();var g=document.getElementById(\'hero-guide-'+idx+'\');if(g)g.setAttribute(\'opacity\',\'0\');"'
+          +'/>';
+      }
+      html+='</svg></div>';
+      // ── Summary table (daily for 7D, weekly for 30D/90D) ──
+      if(pDays<=7){
+        // Daily columns for 7D
+        html+='<table style="margin-top:6px;font-size:10px"><thead><tr><th style="min-width:90px">Metric</th>';
+        dates.forEach(function(d){html+='<th style="text-align:right;font-size:9px">'+d.substring(5)+'</th>';});
+        html+='</tr></thead><tbody>';
+        html+='<tr><td style="font-weight:600;color:var(--g)">Sales ($)</td>';
+        ds.forEach(function(v){html+='<td style="text-align:right;font-family:var(--mono)">$'+v.toLocaleString()+'</td>';});
+        html+='</tr>';
+        html+='<tr><td style="font-weight:600;color:var(--dim)">Units</td>';
+        du.forEach(function(v){html+='<td style="text-align:right;font-family:var(--mono)">'+v.toLocaleString()+'</td>';});
+        html+='</tr>';
+        if(totalNewViews>0){
+          html+='<tr><td style="font-weight:600;color:'+bc+'">Content Views</td>';
+          vw.forEach(function(v){html+='<td style="text-align:right;font-family:var(--mono)">'+(v>0?v.toLocaleString():'—')+'</td>';});
+          html+='</tr>';
+        }
+        crDeltaArr.forEach(function(x,ci){
+          var _tu=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
+          var _ud7=x.cr.upload_date?x.cr.upload_date.substring(5):'';
+          html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_tu+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a>'+(_ud7?' <span style="font-size:8px;color:var(--muted);font-weight:400">&#x1F4C5;'+_ud7+'</span>':'')+'</td>';
+          x.cr.daily_views.forEach(function(v){html+='<td style="text-align:right;font-family:var(--mono)">'+(v>0?v.toLocaleString():'—')+'</td>';});
+          html+='</tr>';
+        });
+        var gscT=gscD.reduce(function(a,b){return a+b},0);
+        if(gscT>0){
+          html+='<tr style="border-top:2px solid var(--border)"><td style="font-weight:600;color:#f59e0b">GSC Search</td>';
+          gscD.forEach(function(v){html+='<td style="text-align:right;font-family:var(--mono);color:#f59e0b">'+(v>0?v.toLocaleString():'—')+'</td>';});
+          html+='</tr>';
+        }
+        html+='</tbody></table>';
+      } else {
+        // Weekly columns for 30D/90D
+        var wks=H.week_keys||[];
+        var wkSlice=pDays<=30?wks.slice(-4):wks; // Last 4 weeks for 30D
+        var wkOffset=wks.length-wkSlice.length;
+        if(wkSlice.length){
+          html+='<table style="margin-top:6px;font-size:10px"><thead><tr><th style="min-width:90px">Metric</th>';
+          wkSlice.forEach(function(w){html+='<th style="text-align:right;font-size:9px">'+w+'</th>';});
+          // Total column removed
+          html+='</tr></thead><tbody>';
+          html+='<tr><td style="font-weight:600;color:var(--g)">Sales ($)</td>';
+          wkSlice.forEach(function(w,wi){var v=c.sales_weekly[wkOffset+wi]||0;html+='<td style="text-align:right;font-family:var(--mono)">$'+v.toLocaleString()+'</td>';});
+          html+='</tr>';
+          html+='<tr><td style="font-weight:600;color:var(--dim)">Units</td>';
+          wkSlice.forEach(function(w,wi){var v=c.units_weekly[wkOffset+wi]||0;html+='<td style="text-align:right;font-family:var(--mono)">'+v.toLocaleString()+'</td>';});
+          html+='</tr>';
+          // Per-creator rows: weekly new views (sum of daily within week) + Total Views column
+          crDeltaArr.forEach(function(x,ci){
+            var allDv=x.cr.daily_views;
+            var _wu=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
+            var _ud=x.cr.upload_date?x.cr.upload_date.substring(5):'';
+            var _col=INF_COLORS[ci%INF_COLORS.length];
+            html+='<tr><td style="font-weight:600;color:'+_col+'"><a href="'+_wu+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a>'
+              +(_ud?' <span style="font-size:8px;color:var(--muted);font-weight:400">'+_ud+'</span>':'')
+              +'</td>';
+            wkSlice.forEach(function(wk,wi){
+              var weekTotal=0;var wkIdx=wkOffset+wi;
+              for(var d=wkIdx*7;d<Math.min((wkIdx+1)*7,allDv.length);d++){weekTotal+=(allDv[d]||0);}
+              html+='<td style="text-align:right;font-family:var(--mono)">'+(weekTotal>0?weekTotal.toLocaleString():'—')+'</td>';
+            });
+            html+='</tr>';
+          });
+          // Views total delta row + cumulative row
+          if(crDeltaArr.length){
+            html+='<tr style="border-top:2px solid var(--border);background:#f0fdf4"><td style="font-weight:700;color:var(--g)">Views Delta (sum)</td>';
+            // Sum base_views across all creators for cumulative starting point
+            var baseViewsTotal=0;
+            crDeltaArr.forEach(function(x){baseViewsTotal+=(x.cr.base_views||0);});
+            var cumViews=baseViewsTotal;
+            var wkDeltas=[];
+            wkSlice.forEach(function(wk,wi){
+              var weekTotal=0;var wkIdx=wkOffset+wi;
+              crDeltaArr.forEach(function(x){
+                var allDv=x.cr.daily_views;
+                for(var d=wkIdx*7;d<Math.min((wkIdx+1)*7,allDv.length);d++){weekTotal+=(allDv[d]||0);}
+              });
+              wkDeltas.push(weekTotal);
+              html+='<td style="text-align:right;font-family:var(--mono);font-weight:700;color:var(--g)">'+(weekTotal>0?'+'+weekTotal.toLocaleString():'—')+'</td>';
+            });
+            html+='</tr>';
+            html+='<tr style="background:#f0fdf4"><td style="font-weight:700;color:#059669">Views Cumulative</td>';
+            wkDeltas.forEach(function(d){
+              cumViews+=d;
+              html+='<td style="text-align:right;font-family:var(--mono);font-weight:700;color:#059669">'+(cumViews>0?cumViews.toLocaleString():'—')+'</td>';
+            });
+            html+='</tr>';
+          }
+          // GSC weekly
+          var gscT=gscD.reduce(function(a,b){return a+b},0);
+          if(gscT>0){
+            html+='<tr style="border-top:2px solid var(--border)"><td style="font-weight:600;color:#f59e0b">GSC Search</td>';
+            wkSlice.forEach(function(wk,wi){
+              var weekTotal=0;var wkIdx=wkOffset+wi;
+              for(var d=wkIdx*7;d<Math.min((wkIdx+1)*7,_allGsc.length);d++){weekTotal+=(_allGsc[d]||0);}
+              html+='<td style="text-align:right;font-family:var(--mono);color:#f59e0b">'+(weekTotal>0?weekTotal.toLocaleString():'—')+'</td>';
+            });
+            html+='</tr>';
+          }
+          html+='</tbody></table>';
+        }
+      }
+      // ── Search Volume breakdown box (top 10 consistent branded keywords) ──
+      if(_sfrOverlayKws.length){
+        // Build unified week axis using whichever field is active (_wkField/_valField)
+        var _sfrAllWks={};
+        _sfrOverlayKws.forEach(function(kw){(kw[_wkField]||[]).forEach(function(w){_sfrAllWks[w]=true;});});
+        var _sfrAllWksSorted=Object.keys(_sfrAllWks).sort();
+        var _metricLabel=_useVolume?'검색량 (주간)':'SFR Rank';
+        var _metricNote=_useVolume?'(높을수록 더 많이 검색됨)':'(낮을수록 더 많이 검색됨)';
+        html+='<div style="margin-top:6px;padding:8px 10px;background:#fffbeb;border:1px solid #f59e0b44;border-radius:6px;font-size:10px">';
+        html+='<div style="font-weight:700;color:#f59e0b;margin-bottom:6px">&#9679; '+_metricLabel+' — TOP '+_sfrOverlayKws.length+' 브랜디드 키워드 <span style="font-weight:400;color:#92400e;font-size:9px">'+_metricNote+'</span></div>';
+        html+='<div style="overflow-x:auto"><table style="font-size:9px;border-collapse:collapse;width:auto"><thead><tr>';
+        html+='<th style="text-align:left;padding:3px 8px;color:#92400e;font-weight:600;white-space:nowrap">키워드</th>';
+        _sfrAllWksSorted.forEach(function(w){html+='<th style="text-align:right;padding:3px 8px;color:#92400e;font-family:var(--mono);font-weight:600">'+w.substring(5)+'</th>';});
+        html+='</tr></thead><tbody>';
+        _sfrOverlayKws.forEach(function(kw){
+          html+='<tr style="border-top:1px solid #fde68a">';
+          html+='<td style="padding:3px 8px;color:#78350f;font-weight:600;white-space:nowrap">'+kw.keyword+'</td>';
+          var labels=kw[_wkField]||[],values=kw[_valField]||[];
+          _sfrAllWksSorted.forEach(function(w){
+            var wi=labels.indexOf(w);
+            var v=wi>=0&&values[wi]?values[wi]:null;
+            var vStr=v==null?'—':(v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?Math.round(v/1000)+'K':''+v);
+            // Volume: green=high, red=low. Rank: green=low(good), red=high(bad)
+            var col=v==null?'#d97706':(_useVolume?(v>=3000?'#10b981':v>=500?'#f59e0b':'#ef4444'):(v<50000?'#10b981':v<300000?'#f59e0b':'#ef4444'));
+            html+='<td style="text-align:right;padding:3px 8px;font-family:var(--mono);color:'+col+';font-weight:600">'+vStr+'</td>';
+          });
+          html+='</tr>';
+        });
+        // Avg row (matches the chart line)
+        html+='<tr style="border-top:2px solid #f59e0b;background:#fef3c7">';
+        html+='<td style="padding:3px 8px;color:#92400e;font-weight:700">합산 (차트)</td>';
+        _sfrAllWksSorted.forEach(function(w){
+          var vals=[];
+          _sfrOverlayKws.forEach(function(kw){var labels=kw[_wkField]||[],values=kw[_valField]||[];var wi=labels.indexOf(w);if(wi>=0&&values[wi])vals.push(values[wi]);});
+          var avg=vals.length?vals.reduce(function(a,b){return a+b},0):null;
+          var vStr=avg==null?'—':(avg>=1000000?(avg/1000000).toFixed(1)+'M':avg>=1000?Math.round(avg/1000)+'K':''+avg);
+          var col=avg==null?'#d97706':(_useVolume?(avg>=3000?'#10b981':avg>=500?'#f59e0b':'#ef4444'):(avg<50000?'#10b981':avg<300000?'#f59e0b':'#ef4444'));
+          html+='<td style="text-align:right;padding:3px 8px;font-family:var(--mono);color:'+col+';font-weight:700">'+vStr+'</td>';
+        });
+        html+='</tr>';
+        html+='</tbody></table></div></div>';
+      }
+      // ── Delta table: view changes per period ──
+        var hasDeltaData=crDeltaArr.some(function(x){return x.total>0;});
+        if(hasDeltaData){
+          if(pDays<=7){
+            html+='<table style="margin-top:8px;font-size:10px"><thead><tr><th style="min-width:90px">View Delta (daily)</th>';
+            dates.forEach(function(d){html+='<th style="text-align:right;font-size:9px">'+d.substring(5)+'</th>';});
+            html+='</tr></thead><tbody>';
+            crDeltaArr.forEach(function(x,ci){
+              var _du=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
+              var _udd=x.cr.upload_date?x.cr.upload_date.substring(5):'';
+              html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_du+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a>'+(_udd?' <span style="font-size:8px;color:var(--muted);font-weight:400">&#x1F4C5;'+_udd+'</span>':'')+'</td>';
+              x.deltas.forEach(function(delta){
+                var col=delta>0?'#10b981':'var(--muted)';
+                html+='<td style="text-align:right;font-family:var(--mono);color:'+col+';font-size:10px">'+(delta>0?'+':'')+delta.toLocaleString()+'</td>';
+              });
+              html+='</tr>';
+            });
+            html+='</tbody></table>';
+          } else {
+            html+='<table style="margin-top:8px;font-size:10px"><thead><tr><th style="min-width:90px">View Delta (weekly)</th>';
+            wks.forEach(function(w){html+='<th style="text-align:right;font-size:9px">'+w+'</th>';});
+            html+='</tr></thead><tbody>';
+            crDeltaArr.forEach(function(x,ci){
+              var _duw=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
+              var _udw=x.cr.upload_date?x.cr.upload_date.substring(5):'';
+              html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_duw+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a>'+(_udw?' <span style="font-size:8px;color:var(--muted);font-weight:400">'+_udw+'</span>':'')+'</td>';
+              wks.forEach(function(wk,wi){
+                var weekTotal=0;
+                for(var d2=wi*7;d2<Math.min((wi+1)*7,n);d2++){weekTotal+=(x.cr.daily_views[d2]||0);}
+                var col=weekTotal>0?'#10b981':'var(--muted)';
+                html+='<td style="text-align:right;font-family:var(--mono);color:'+col+';font-size:10px">'+(weekTotal>0?'+'+weekTotal.toLocaleString():'—')+'</td>';
+              });
+              html+='</tr>';
+            });
+            html+='</tbody></table>';
+          }
+        }
+      // Related keywords
+      if(catKwVols.length){
+        html+='<div style="margin-top:4px;font-size:9px;color:var(--muted)">Branded search (Google volume):';
+        html+=catKwVols.map(function(k){return '<span style="font-weight:600;color:#f59e0b">'+k.keyword+'</span> ('+k.volume.toLocaleString()+')';}).join(', ');
+        html+='</div>';
+      }
+    }
+    // Top keywords for this category
+    if(c.top_keywords&&c.top_keywords.length){
+      html+='<table style="margin-top:4px"><thead><tr>';
+      html+='<th>Keyword</th><th style="text-align:right">Search Rank</th><th style="text-align:right">Trend</th>';
+      html+='<th style="text-align:right">Click %</th><th style="text-align:right">G.Ads Impr</th><th style="text-align:right">Ad Spend</th><th style="text-align:right">ACOS</th>';
+      html+='</tr></thead><tbody>';
+      c.top_keywords.forEach(function(kw){
+        var rankCol=kw.search_freq_rank<500?'var(--g)':kw.search_freq_rank<2000?'var(--am)':'var(--r)';
+        var rkSpark='';
+        if(kw.rank_weekly&&kw.rank_weekly.length>1){
+          var rmx=Math.max.apply(null,kw.rank_weekly)||1,rmn=Math.min.apply(null,kw.rank_weekly)||0;
+          rkSpark='<svg width="60" height="16" style="vertical-align:middle">';
+          var rpts=[];
+          kw.rank_weekly.forEach(function(v,i){
+            var x=i/(kw.rank_weekly.length-1)*56+2;
+            var y=rmx===rmn?8:14-(v-rmn)/(rmx-rmn)*12;
+            rpts.push(x+','+y);
+          });
+          rkSpark+='<polyline points="'+rpts.join(' ')+'" fill="none" stroke="var(--c)" stroke-width="1" stroke-linecap="round"/>';
+          rkSpark+='</svg>';
+          var first=kw.rank_weekly[0],last=kw.rank_weekly[kw.rank_weekly.length-1];
+          if(last<first) rkSpark+=' <span style="color:var(--g);font-size:9px">&#9650;</span>';
+          else if(last>first) rkSpark+=' <span style="color:var(--r);font-size:9px">&#9660;</span>';
+        }
+        var acosCol=kw.ads_acos>0?(kw.ads_acos<0.3?'var(--g)':kw.ads_acos<0.5?'var(--am)':'var(--r)'):'var(--muted)';
+        html+='<tr>';
+        html+='<td style="font-weight:500;font-size:11px">'+kw.keyword+'</td>';
+        html+='<td style="text-align:right;font-family:var(--mono);color:'+rankCol+'">'+kw.search_freq_rank.toLocaleString()+'</td>';
+        html+='<td style="text-align:right">'+rkSpark+'</td>';
+        html+='<td style="text-align:right;font-family:var(--mono)">'+kw.click_share.toFixed(1)+'%</td>';
+        html+='<td style="text-align:right;font-family:var(--mono)">'+(kw.google_ads_impressions?kw.google_ads_impressions.toLocaleString():'—')+'</td>';
+        html+='<td style="text-align:right;font-family:var(--mono)">'+(kw.ads_spend_30d?'$'+kw.ads_spend_30d.toLocaleString():'—')+'</td>';
+        html+='<td style="text-align:right;font-family:var(--mono);color:'+acosCol+'">'+(kw.ads_acos>0?(kw.ads_acos*100).toFixed(0)+'%':'—')+'</td>';
+        html+='</tr>';
+      });
+      html+='</tbody></table>';
+    }
+    html+='</div>';
+  });
+  html+='</div></div>';
+
+  // ── Section SQ: Amazon Search Query (SFR) Weekly Trends ──
+  (function(){
+    // Collect all keywords across categories with their actual week labels
+    var allKws=[];
+    H.categories.forEach(function(c){
+      if(!c.top_keywords)return;
+      c.top_keywords.forEach(function(kw){
+        if(!kw.rank_weekly||!kw.rank_weekly.length)return;
+        var labels=kw.rank_week_labels||[];
+        allKws.push({keyword:kw.keyword,brand:c.brand,category:c.category,
+          click_share:kw.click_share,conv_share:kw.conv_share||0,
+          rank_weekly:kw.rank_weekly,rank_week_labels:labels,
+          latest:kw.rank_weekly[kw.rank_weekly.length-1]||0});
+      });
+    });
+    // Deduplicate by keyword+brand
+    var kwMap={};
+    allKws.forEach(function(k){
+      var key=k.brand+'|'+k.keyword;
+      if(!kwMap[key]||k.click_share>kwMap[key].click_share)kwMap[key]=k;
+    });
+    var kwList=Object.values(kwMap).sort(function(a,b){return a.latest-b.latest;});
+    if(!kwList.length)return;
+
+    // Build unified week axis from all labels
+    var wkSet={};
+    kwList.forEach(function(k){k.rank_week_labels.forEach(function(w){wkSet[w]=true;});});
+    var wks=Object.keys(wkSet).sort();
+
+    // Align each keyword to the unified week axis
+    kwList.forEach(function(k){
+      var aligned=new Array(wks.length).fill(null);
+      k.rank_week_labels.forEach(function(w,i){
+        var idx=wks.indexOf(w);
+        if(idx>=0)aligned[idx]=k.rank_weekly[i];
+      });
+      k.aligned=aligned;
+      k.latest=k.rank_weekly[k.rank_weekly.length-1]||0;
+    });
+
+    // Group by brand
+    var byBrand={};
+    kwList.forEach(function(k){if(!byBrand[k.brand])byBrand[k.brand]=[];byBrand[k.brand].push(k);});
+    var brandOrderSQ=Object.keys(byBrand).sort(function(a,b){return byBrand[a][0].latest-byBrand[b][0].latest;});
+
+    // Week labels — handles both ISO week ("2026-W03") and date ("2026-02-08") formats
+    function wkLabel(wk){
+      if(wk.indexOf('-W')>0){var parts=wk.split('-W');return 'W'+parts[1];}
+      // Date format: show MM-DD
+      return wk.substring(5);
+    }
+    function wkMonth(wk){
+      if(wk.indexOf('-W')>0){
+        var parts=wk.split('-W');var yr=parseInt(parts[0]),wn=parseInt(parts[1]);
+        var jan4=new Date(yr,0,4);var dayOfYear=(wn-1)*7-jan4.getDay()+1;
+        var d=new Date(yr,0,4+dayOfYear);
+        return (d.getMonth()+1<10?'0'+(d.getMonth()+1):''+(d.getMonth()+1));
+      }
+      // Date format: extract month
+      return wk.substring(5,7);
+    }
+    // Group weeks into months
+    var moGroups={};
+    wks.forEach(function(wk,i){var m=wkMonth(wk);if(!moGroups[m])moGroups[m]={label:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(m)-1],indices:[]};moGroups[m].indices.push(i);});
+    var moList=Object.keys(moGroups).sort();
+
+    html+='<div class="sec"><div class="sec-title"><div class="num">2</div> Amazon Search Query Trends (SFR)';
+    html+=' <span style="font-size:10px;font-weight:400;color:var(--muted);margin-left:8px">Lower SFR = more searched. Source: Brand Analytics weekly.</span></div>';
+
+    brandOrderSQ.forEach(function(brand){
+      var rows=byBrand[brand];
+      var bCol=BCOLORS[brand]||'#94a3b8';
+
+      // ── SFR Chart: one line per keyword ──
+      var CW=900,CH=200,PL=60,PR=160,PT=20,PB=30;
+      var KW_COLORS=['#3b82f6','#10b981','#8b5cf6','#f59e0b','#ef4444','#ec4899','#14b8a6','#f97316','#6366f1','#a855f7','#84cc16','#0ea5e9'];
+      // Find max rank for y-scale (inverted)
+      var allRanks=[];
+      rows.forEach(function(k){k.aligned.forEach(function(v){if(v)allRanks.push(v);});});
+      if(!allRanks.length)return;
+      var maxRank=Math.max.apply(null,allRanks);
+      var minRank=Math.min.apply(null,allRanks);
+      // Add 10% headroom
+      var rangeTop=minRank*0.9,rangeBot=maxRank*1.05;
+      function rankY(r){return PT+(CH-PT-PB)*(r-rangeTop)/(rangeBot-rangeTop);}
+      var n=wks.length,colW=(CW-PL-PR)/n;
+
+      html+='<div class="card" style="margin-bottom:6px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">';
+      html+='<span style="font-size:12px;font-weight:800;color:'+bCol+'">'+brand+'</span>';
+      html+='<span style="font-size:9px;color:var(--muted)">'+rows.length+' keywords tracked</span>';
+      html+='</div>';
+
+      html+='<div style="overflow-x:auto"><svg width="'+CW+'" height="'+CH+'" style="display:block;min-width:'+CW+'px">';
+      // Y grid (inverted: lower rank = better = higher on chart)
+      var yTicks=[minRank,Math.round((minRank+maxRank)/2),maxRank];
+      yTicks.forEach(function(v){
+        var y=rankY(v);
+        html+='<line x1="'+PL+'" y1="'+y+'" x2="'+(CW-PR)+'" y2="'+y+'" stroke="#f1f5f9" stroke-width="0.5"/>';
+        html+='<text x="'+(PL-4)+'" y="'+(y+3)+'" fill="#94a3b8" font-size="7" text-anchor="end" font-family="var(--mono)">'+(v>=1000000?(v/1000000).toFixed(1)+'M':(v>=1000?(v/1000).toFixed(0)+'K':''+v))+'</text>';
+      });
+      // X-axis week labels
+      wks.forEach(function(wk,i){
+        var x=PL+(i+0.5)*colW;
+        html+='<text x="'+x+'" y="'+(CH-PB+12)+'" fill="#94a3b8" font-size="7" text-anchor="middle" font-family="var(--mono)">'+wkLabel(wk)+'</text>';
+      });
+      // Month dividers
+      var prevMo=null;
+      wks.forEach(function(wk,i){
+        var mo=wkMonth(wk);
+        if(mo!==prevMo&&i>0){
+          var x=PL+i*colW;
+          html+='<line x1="'+x+'" y1="'+PT+'" x2="'+x+'" y2="'+(CH-PB)+'" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2,2"/>';
+        }
+        if(mo!==prevMo){
+          var moLab=moGroups[mo]?moGroups[mo].label:mo;
+          var lx=PL+(i+0.5)*colW;
+          html+='<text x="'+lx+'" y="'+(PT-4)+'" fill="#94a3b8" font-size="8" text-anchor="middle" font-weight="600">'+moLab+'</text>';
+          prevMo=mo;
+        }
+      });
+      // Draw lines
+      rows.forEach(function(k,ki){
+        var col=KW_COLORS[ki%KW_COLORS.length];
+        var pts=[];
+        k.aligned.forEach(function(v,i){
+          if(v===null)return;
+          var x=PL+(i+0.5)*colW,y=rankY(v);
+          pts.push({x:x,y:y,v:v});
+        });
+        if(pts.length<1)return;
+        var d='M'+pts[0].x+','+pts[0].y;
+        for(var pi=1;pi<pts.length;pi++){d+=' L'+pts[pi].x+','+pts[pi].y;}
+        html+='<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>';
+        // Dots on data points
+        pts.forEach(function(p){html+='<circle cx="'+p.x+'" cy="'+p.y+'" r="2.5" fill="'+col+'"/>';});
+        // End label
+        var last=pts[pts.length-1];
+        var labelV=last.v>=1000000?(last.v/1000000).toFixed(1)+'M':(last.v>=1000?(last.v/1000).toFixed(0)+'K':''+last.v);
+        html+='<text x="'+(last.x+8)+'" y="'+(last.y+3)+'" fill="'+col+'" font-size="8" font-weight="600">'+k.keyword+'</text>';
+        html+='<text x="'+(last.x+8)+'" y="'+(last.y+12)+'" fill="'+col+'" font-size="7" opacity="0.8">SFR '+labelV+'</text>';
+      });
+      html+='</svg></div>';
+
+      // ── Weekly table ──
+      html+='<div style="overflow-x:auto;margin-top:8px"><table style="font-size:10px;min-width:600px"><thead><tr>';
+      html+='<th style="min-width:140px">Keyword</th><th style="text-align:right">Click%</th><th style="text-align:right">Conv%</th>';
+      wks.forEach(function(wk){html+='<th style="text-align:right;font-size:8px;font-family:var(--mono)">'+wkLabel(wk)+'</th>';});
+      html+='</tr></thead><tbody>';
+      rows.forEach(function(k,ki){
+        var col=KW_COLORS[ki%KW_COLORS.length];
+        html+='<tr>';
+        html+='<td style="font-weight:600;color:'+col+'">'+k.keyword+'</td>';
+        html+='<td style="text-align:right;font-family:var(--mono)">'+k.click_share.toFixed(1)+'%</td>';
+        html+='<td style="text-align:right;font-family:var(--mono)">'+(k.conv_share>0?k.conv_share.toFixed(1)+'%':'—')+'</td>';
+        k.aligned.forEach(function(v){
+          var rankStr=v===null?'—':(v>=1000000?(v/1000000).toFixed(1)+'M':(v>=1000?Math.round(v/1000)+'K':''+v));
+          var rankCol=v===null?'var(--muted)':v<50000?'var(--g)':v<200000?'var(--am)':'var(--r)';
+          html+='<td style="text-align:right;font-family:var(--mono);color:'+rankCol+';font-size:9px">'+rankStr+'</td>';
+        });
+        html+='</tr>';
+      });
+      html+='</tbody></table></div>';
+
+      // ── Monthly rollup ──
+      html+='<div style="margin-top:10px;font-size:10px;font-weight:700;color:var(--dim)">Monthly avg SFR</div>';
+      html+='<div style="overflow-x:auto"><table style="font-size:10px"><thead><tr>';
+      html+='<th style="min-width:140px">Keyword</th>';
+      moList.forEach(function(m){html+='<th style="text-align:right;font-size:9px">'+moGroups[m].label+'</th>';});
+      html+='</tr></thead><tbody>';
+      rows.forEach(function(k,ki){
+        var col=KW_COLORS[ki%KW_COLORS.length];
+        html+='<tr><td style="font-weight:600;color:'+col+'">'+k.keyword+'</td>';
+        moList.forEach(function(m){
+          var idxs=moGroups[m].indices;
+          var vals=idxs.map(function(i){return k.aligned[i];}).filter(function(v){return v!==null;});
+          if(!vals.length){html+='<td style="text-align:right;color:var(--muted)">—</td>';return;}
+          var avg=Math.round(vals.reduce(function(a,b){return a+b},0)/vals.length);
+          var bestWeek=Math.min.apply(null,vals);
+          var avgStr=avg>=1000000?(avg/1000000).toFixed(1)+'M':avg>=1000?Math.round(avg/1000)+'K':''+avg;
+          var rankCol=avg<50000?'var(--g)':avg<200000?'var(--am)':'var(--r)';
+          html+='<td style="text-align:right;font-family:var(--mono);color:'+rankCol+';font-size:9px">'+avgStr+'</td>';
+        });
+        html+='</tr>';
+      });
+      html+='</tbody></table></div>';
+      html+='</div>'; // card
+    });
+    html+='</div>'; // sec
+  })();
+
+  // ── Section B: Keyword Deep Dive ──
+  if(H.keyword_table&&H.keyword_table.length){
+    html+='<div class="sec"><div class="sec-title"><div class="num">3</div> Keyword Deep Dive</div>';
+    html+='<div class="card"><div class="desc">All keywords across product categories. Sorted by Google Ads impressions.</div>';
+    html+='<table><thead><tr>';
+    html+='<th>Keyword</th><th>Category</th><th>Brand</th>';
+    html+='<th style="text-align:right">BA Rank</th><th style="text-align:right">Trend</th>';
+    html+='<th style="text-align:right">Click %</th><th style="text-align:right">G.Ads Impr</th>';
+    html+='<th style="text-align:right">Ad Spend</th><th style="text-align:right">ACOS</th>';
+    html+='</tr></thead><tbody>';
+    H.keyword_table.forEach(function(kw){
+      var bc=CATCOLORS[kw.category]||BCOLORS[kw.brand]||'#94a3b8';
+      var rankCol=kw.search_freq_rank<500?'var(--g)':kw.search_freq_rank<2000?'var(--am)':'var(--r)';
+      var acosCol=kw.ads_acos>0?(kw.ads_acos<0.3?'var(--g)':kw.ads_acos<0.5?'var(--am)':'var(--r)'):'var(--muted)';
+      var rkSpark='';
+      if(kw.rank_weekly&&kw.rank_weekly.length>1){
+        var rmx=Math.max.apply(null,kw.rank_weekly)||1,rmn=Math.min.apply(null,kw.rank_weekly)||0;
+        rkSpark='<svg width="50" height="14" style="vertical-align:middle">';
+        var rpts=[];
+        kw.rank_weekly.forEach(function(v,i){
+          var x=i/(kw.rank_weekly.length-1)*46+2;
+          var y=rmx===rmn?7:12-(v-rmn)/(rmx-rmn)*10;
+          rpts.push(x+','+y);
+        });
+        rkSpark+='<polyline points="'+rpts.join(' ')+'" fill="none" stroke="var(--c)" stroke-width="1"/>';
+        rkSpark+='</svg>';
+      }
+      html+='<tr>';
+      html+='<td style="font-weight:500;font-size:10px">'+kw.keyword+'</td>';
+      html+='<td><span style="font-size:9px;padding:1px 5px;border-radius:8px;background:'+bc+'22;color:'+bc+'">'+kw.category+'</span></td>';
+      html+='<td style="font-size:9px;color:var(--dim)">'+kw.brand+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);color:'+rankCol+';font-size:10px">'+kw.search_freq_rank.toLocaleString()+'</td>';
+      html+='<td style="text-align:right">'+rkSpark+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+kw.click_share.toFixed(1)+'%</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+(kw.google_ads_impressions?kw.google_ads_impressions.toLocaleString():'—')+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+(kw.ads_spend?'$'+kw.ads_spend.toLocaleString():'—')+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:'+acosCol+'">'+(kw.ads_acos>0?(kw.ads_acos*100).toFixed(0)+'%':'—')+'</td>';
+      html+='</tr>';
+    });
+    html+='</tbody></table></div></div>';
+  }
+
+  // ── Section C2: Search Volume Trends — REMOVED (DataForSEO deprecated, using GSC+GAds in category charts) ──
+
+  // ── Section D: Content by Creator (Influencer Lines) — REMOVED, merged into Section 1 ──
+  if(false){
+    var cbcTop=[];
+    html+='<div class="sec"><div class="sec-title"><div class="num">4</div> Content Views by Influencer (90D)</div>';
+    html+='<div class="card"><div class="desc">Daily cumulative views per creator over 90 days. Hover lines for details.</div>';
+    // Stats row
+    var cbcTotalV=0;var cbcTotalGrowth=0;cbcTop.forEach(function(cr){cbcTotalV+=(cr.base_views||0)+cr.total_views;cbcTotalGrowth+=cr.total_views;});
+    html+='<div class="stats" style="margin-bottom:12px">';
+    html+='<div class="stat accent"><div class="sl">TRACKED CREATORS</div><div class="sv">'+cbc.length+'</div></div>';
+    html+='<div class="stat cyan"><div class="sl">TOP 10 TOTAL VIEWS</div><div class="sv">'+cbcTotalV.toLocaleString()+'</div></div>';
+    html+='<div class="stat" style="background:#f0fdf4"><div class="sl" style="color:var(--g)">90D GROWTH</div><div class="sv" style="color:var(--g)">+'+cbcTotalGrowth.toLocaleString()+'</div></div>';
+    html+='</div>';
+    // Build line chart
+    var crDates=H.daily_dates||[];
+    var crN=crDates.length;
+    var CRW=860,CRH=320,CRP={l:60,r:150,t:20,b:36};
+    var crCW=CRW-CRP.l-CRP.r,crCH=CRH-CRP.t-CRP.b;
+    var CR_COLORS=['#3b82f6','#10b981','#8b5cf6','#f59e0b','#ef4444','#ec4899','#14b8a6','#f97316','#6366f1','#a855f7'];
+    // Find max daily view across all creators
+    var crMax=1;
+    cbcTop.forEach(function(cr){cr.daily_views.forEach(function(v){if(v>crMax)crMax=v;});});
+    function crX(i){return CRP.l+i/(crN-1)*crCW;}
+    function crY(v){return CRP.t+crCH-v/crMax*crCH;}
+    var crGrid='';
+    for(var cg=0;cg<=4;cg++){
+      var cgv=crMax/4*cg,cgy=crY(cgv);
+      crGrid+='<line x1="'+CRP.l+'" y1="'+cgy+'" x2="'+(CRW-CRP.r)+'" y2="'+cgy+'" stroke="#f1f5f9"/>';
+      crGrid+='<text x="'+(CRP.l-6)+'" y="'+(cgy+3)+'" text-anchor="end" font-size="8" fill="#94a3b8">'+cgv.toLocaleString()+'</text>';
+    }
+    // X-axis labels
+    var crXL='';
+    var crStep=Math.max(Math.floor(crN/8),1);
+    for(var xi=0;xi<crN;xi+=crStep){
+      crXL+='<text x="'+crX(xi)+'" y="'+(CRH-4)+'" text-anchor="middle" font-size="8" fill="#94a3b8">'+crDates[xi].substring(5)+'</text>';
+    }
+    // Lines + end labels
+    var crLines='',crEnd='';
+    cbcTop.forEach(function(cr,ci){
+      var col=CR_COLORS[ci%CR_COLORS.length];
+      var pts=[];
+      cr.daily_views.forEach(function(v,i){
+        if(i<crN) pts.push(crX(i).toFixed(1)+','+crY(v).toFixed(1));
+      });
+      if(!pts.length) return;
+      crLines+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+col+'" stroke-width="2" stroke-linecap="round" opacity="0.8"/>';
+      var lastV=cr.daily_views[crN-1]||0;
+      var lx=crX(crN-1),ly=crY(lastV);
+      crLines+='<circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="4" fill="'+col+'"/>';
+      crEnd+='<text x="'+(lx+8).toFixed(1)+'" y="'+(ly+3).toFixed(1)+'" fill="'+col+'" font-size="9" font-weight="600">@'+cr.username+'</text>';
+    });
+    // Tooltip hit columns
+    var crHits='';
+    var crColW=crCW/crN;
+    for(var di=0;di<crN;di++){
+      var hx=crX(di)-crColW/2;
+      var ttH='<div class=tt-date>'+crDates[di]+'</div>';
+      cbcTop.forEach(function(cr,ci){
+        var v=cr.daily_views[di]||0;
+        if(v>0) ttH+='<div class=tt-row><span class=tt-dot style=background:'+CR_COLORS[ci%CR_COLORS.length]+'></span>@'+cr.username+': '+v.toLocaleString()+'</div>';
+      });
+      crHits+='<rect x="'+hx+'" y="'+CRP.t+'" width="'+crColW+'" height="'+crCH+'" fill="transparent" style="cursor:crosshair"'
+        +' onmousemove="showTT(event,\''+ttH.replace(/'/g,"\\'")+'\')" onmouseleave="hideTT()"/>';
+    }
+    html+='<div style="overflow-x:auto;cursor:crosshair">';
+    html+='<svg viewBox="0 0 '+CRW+' '+CRH+'" style="width:100%;min-width:480px;height:auto;display:block">'+crGrid+crXL+crLines+crEnd+crHits+'</svg>';
+    html+='</div>';
+    html+='<div style="font-size:9px;color:var(--muted);margin-top:6px">Daily views per influencer over last 90 days. Hover for breakdown.</div>';
+    // Leaderboard table
+    html+='<table style="margin-top:12px"><thead><tr><th>#</th><th>Username</th><th>Platform</th><th>Brand</th><th style="text-align:right">Total Views</th><th style="text-align:right;font-size:9px;color:var(--muted)">Growth</th><th>Products</th></tr></thead><tbody>';
+    cbcTop.forEach(function(cr,ci){
+      var col=CR_COLORS[ci%CR_COLORS.length];
+      var prodHtml=cr.product_types&&cr.product_types.length?cr.product_types.map(function(t){return '<span style="display:inline-block;padding:1px 5px;border-radius:8px;background:#f3e8ff;color:#7c3aed;font-size:9px;margin:1px 2px">'+t+'</span>';}).join(''):'<span style="color:var(--muted);font-size:9px">-</span>';
+      var platBadge=cr.platform==='tiktok'||cr.platform==='TT'?'<span style="padding:1px 5px;border-radius:4px;background:#fce7f3;color:#ec4899;font-size:9px;font-weight:700">TT</span>':'<span style="padding:1px 5px;border-radius:4px;background:#fef3c7;color:#f59e0b;font-size:9px;font-weight:700">IG</span>';
+      var actualTotal=(cr.base_views||0)+cr.total_views;
+      html+='<tr>';
+      html+='<td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+col+';margin-right:4px"></span>'+(ci+1)+'</td>';
+      html+='<td style="font-weight:700">@'+cr.username+'</td>';
+      html+='<td>'+platBadge+'</td>';
+      html+='<td style="font-size:10px;color:var(--dim)">'+cr.brand+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-weight:700">'+actualTotal.toLocaleString()+'</td>';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--g)">+'+cr.total_views.toLocaleString()+'</td>';
+      html+='<td>'+prodHtml+'</td>';
+      html+='</tr>';
+    });
+    html+='</tbody></table>';
+    html+='</div></div>';
+  }
+
+  // ── Section E: Spend Overlay ──
+  if(H.spend_daily&&H.spend_daily.dates&&H.spend_daily.dates.length){
+    var sd=H.spend_daily;
+    html+='<div class="sec"><div class="sec-title"><div class="num">4</div> Daily Ad Spend by Platform (30D)</div>';
+    html+='<div class="card">';
+    var totalAmz=sd.amazon.reduce(function(a,b){return a+b},0);
+    var totalMeta=sd.meta.reduce(function(a,b){return a+b},0);
+    var totalGoogle=sd.google.reduce(function(a,b){return a+b},0);
+    html+='<div class="stats"><div class="stat amber"><div class="sl">Amazon Ads</div><div class="sv">$'+totalAmz.toLocaleString()+'</div></div>';
+    html+='<div class="stat cyan"><div class="sl">Meta</div><div class="sv">$'+totalMeta.toLocaleString()+'</div></div>';
+    html+='<div class="stat purple"><div class="sl">Google</div><div class="sv">$'+totalGoogle.toLocaleString()+'</div></div>';
+    html+='<div class="stat"><div class="sl">Total</div><div class="sv">$'+(totalAmz+totalMeta+totalGoogle).toLocaleString()+'</div></div></div>';
+    var maxDay=0;
+    sd.dates.forEach(function(_,i){var t=(sd.amazon[i]||0)+(sd.meta[i]||0)+(sd.google[i]||0);if(t>maxDay)maxDay=t;});
+    maxDay=maxDay||1;
+    var cw=Math.min(sd.dates.length*18,540);
+    html+='<svg width="'+cw+'" height="80" style="display:block;margin:8px auto">';
+    sd.dates.forEach(function(d,i){var x=i*18+2;
+    var hA=(sd.amazon[i]||0)/maxDay*60,hM=(sd.meta[i]||0)/maxDay*60,hG=(sd.google[i]||0)/maxDay*60,y0=65;
+    html+='<rect x="'+x+'" y="'+(y0-hA)+'" width="14" height="'+hA+'" fill="#f59e0b" rx="1"/>';
+    html+='<rect x="'+x+'" y="'+(y0-hA-hM)+'" width="14" height="'+hM+'" fill="#0ea5e9" rx="1"/>';
+    html+='<rect x="'+x+'" y="'+(y0-hA-hM-hG)+'" width="14" height="'+hG+'" fill="#6366f1" rx="1"/>';
+    // Tooltip hit area
+    var spTt='<div class=tt-date>'+d+'</div>'
+      +'<div class=tt-row><span class=tt-dot style=background:#f59e0b></span>AMZ: $'+(sd.amazon[i]||0).toLocaleString()+(sd.amz_clicks?' | '+(sd.amz_clicks[i]||0)+' clicks':'')+'</div>'
+      +'<div class=tt-row><span class=tt-dot style=background:#0ea5e9></span>Meta: $'+(sd.meta[i]||0).toLocaleString()+(sd.meta_clicks?' | '+(sd.meta_clicks[i]||0)+' clicks':'')+'</div>'
+      +'<div class=tt-row><span class=tt-dot style=background:#6366f1></span>Google: $'+(sd.google[i]||0).toLocaleString()+'</div>'
+      +'<div class=tt-row style=border-top:1px_solid_#475569;padding-top:2px;margin-top:2px>Total: $'+((sd.amazon[i]||0)+(sd.meta[i]||0)+(sd.google[i]||0)).toLocaleString()+'</div>';
+    html+='<rect x="'+x+'" y="2" width="16" height="68" fill="transparent" style="cursor:crosshair" onmousemove="showTT(event,\''+spTt.replace(/'/g,"\\'")+'\')" onmouseleave="hideTT()"/>';
+    });
+    html+='<rect x="2" y="72" width="8" height="5" fill="#f59e0b" rx="1"/><text x="13" y="77" fill="var(--dim)" font-size="8">AMZ</text>';
+    html+='<rect x="45" y="72" width="8" height="5" fill="#0ea5e9" rx="1"/><text x="56" y="77" fill="var(--dim)" font-size="8">Meta</text>';
+    html+='<rect x="85" y="72" width="8" height="5" fill="#6366f1" rx="1"/><text x="96" y="77" fill="var(--dim)" font-size="8">Google</text>';
+    html+='</svg></div></div>';
+  }
+
+  // ── Section 4B: Daily Performance Review (7D / 30D / 90D) ──
+  if(H.spend_daily&&H.spend_daily.amz_total_sales){
+    var _dpSD=H.spend_daily;
+    var _dpKR=H.keyword_review||{};
+    html+='<div class="sec"><div class="sec-title"><div class="num" style="background:#8b5cf6">4B</div> Daily Performance Review</div>';
+    html+='<div id="dp-review-wrap"></div></div>';
+    window._dpPeriod=30;
+    window.renderDPReview=function(days){
+      window._dpPeriod=days;
+      var sd=_dpSD,kr=_dpKR;
+      var full=sd.dates.length;
+      var n=Math.min(days,full);
+      var off=full-n;
+      function sl(arr){return(arr||[]).slice(off);}
+      var dates=sl(sd.dates),amzS=sl(sd.amz_total_sales),metaSp=sl(sd.meta),metaCl=sl(sd.meta_clicks);
+      var metaSl=sl(sd.meta_sales),ppcSp=sl(sd.amazon),ppcCl=sl(sd.amz_clicks),sess=sl(sd.ga4_sessions);
+      var li=n-1;
+      function sum(a){return a.reduce(function(x,y){return x+y},0);}
+      function spark(arr,color,w,h,maxV){
+        if(!maxV)maxV=Math.max.apply(null,arr)||1;
+        var bw=Math.max(1,Math.floor((w-arr.length*0.5)/arr.length));
+        var s='<svg width="'+w+'" height="'+h+'" style="display:block">';
+        arr.forEach(function(v,i){
+          var bh=Math.max(v>0?1:0,v/maxV*(h-2));
+          s+='<rect x="'+(i*(bw+1))+'" y="'+(h-2-bh)+'" width="'+bw+'" height="'+bh+'" fill="'+color+'" rx="0.5" opacity="0.7"/>';
+        });
+        return s+'</svg>';
+      }
+      function row(label,color,arr,latest,total,prefix){
+        prefix=prefix||'';
+        var h='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9">';
+        h+='<div style="width:130px;flex-shrink:0;display:flex;align-items:center;gap:6px">';
+        h+='<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+color+'"></span>';
+        h+='<span style="font-size:10px;font-weight:700;color:var(--dim)">'+label+'</span></div>';
+        h+='<div style="flex:1;min-width:120px">'+spark(arr,color,220,24)+'</div>';
+        h+='<div style="text-align:right;min-width:90px;font-family:var(--mono);font-weight:700;font-size:13px">'+prefix+latest.toLocaleString()+'</div>';
+        h+='<div style="text-align:right;min-width:80px;font-family:var(--mono);font-size:10px;color:var(--muted)">'+days+'D: '+prefix+total.toLocaleString()+'</div>';
+        return h+'</div>';
+      }
+      var o='<div class="card">';
+      // Period tabs
+      o+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">';
+      [7,30,90].forEach(function(p){
+        var on=p===days;
+        o+='<div onclick="renderDPReview('+p+')" style="padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;cursor:pointer;'
+          +(on?'background:#8b5cf6;color:#fff':'background:#f1f5f9;color:var(--dim)')+'">'+p+'D</div>';
+      });
+      o+='<div style="flex:1"></div>';
+      o+='<span style="font-size:11px;color:var(--muted);font-family:var(--mono)">'+dates[0]+' &rarr; '+dates[li]+'</span>';
+      o+='</div>';
+      // Rows
+      o+=row('Amazon Sales','#f59e0b',amzS,amzS[li]||0,sum(amzS),'$');
+      o+=row('Meta Spend','#0ea5e9',metaSp,metaSp[li]||0,sum(metaSp),'$');
+      o+=row('Meta Clicks','#38bdf8',metaCl,metaCl[li]||0,sum(metaCl));
+      o+=row('Meta Sales','#0284c7',metaSl,metaSl[li]||0,sum(metaSl),'$');
+      o+=row('PPC Spend','#f97316',ppcSp,ppcSp[li]||0,sum(ppcSp),'$');
+      o+=row('PPC Clicks','#fb923c',ppcCl,ppcCl[li]||0,sum(ppcCl));
+      // Brand vs Generic Keywords (weekly — always full range)
+      if(kr.weeks&&kr.weeks.length){
+        var kwN=kr.weeks.length;
+        var bVol=kr.brand_volume||[];
+        var gTerms=kr.generic_terms_count||[];
+        var bVolMax=Math.max.apply(null,bVol)||1;
+        var gMax=Math.max.apply(null,gTerms)||1;
+        var kwBW=Math.max(6,Math.floor(180/kwN)-2);
+        o+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9">';
+        o+='<div style="width:130px;flex-shrink:0;display:flex;align-items:center;gap:6px">';
+        o+='<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#8b5cf6"></span>';
+        o+='<span style="font-size:10px;font-weight:700;color:var(--dim)">Brand vs Generic</span></div>';
+        o+='<div style="flex:1;min-width:120px"><svg width="220" height="32" style="display:block">';
+        kr.weeks.forEach(function(w,i){
+          var x=i*(kwBW+2);
+          var hB=(bVol[i]||0)/bVolMax*26;
+          var hG=(gTerms[i]||0)/gMax*26;
+          o+='<rect x="'+x+'" y="'+(28-hB)+'" width="'+Math.floor(kwBW/2)+'" height="'+Math.max(hB,hB>0?1:0)+'" fill="#8b5cf6" rx="1" opacity="0.8"/>';
+          o+='<rect x="'+(x+Math.floor(kwBW/2)+1)+'" y="'+(28-hG)+'" width="'+Math.floor(kwBW/2)+'" height="'+Math.max(hG,hG>0?1:0)+'" fill="#94a3b8" rx="1" opacity="0.6"/>';
+        });
+        o+='</svg></div>';
+        var lastBV=bVol[kwN-1]||0;
+        var lastBR=(kr.brand_best_rank||[])[kwN-1]||0;
+        var lastGR=(kr.generic_best_rank||[])[kwN-1]||0;
+        o+='<div style="text-align:right;min-width:110px;font-family:var(--mono);font-size:10px;line-height:1.5">';
+        o+='<div><span style="color:#8b5cf6;font-weight:700">'+lastBV.toLocaleString()+'</span> <span style="color:var(--muted)">vol</span></div>';
+        o+='<div><span style="color:#8b5cf6">#'+(lastBR||'\u2014')+'</span> <span style="color:var(--muted)">vs</span> <span style="color:#64748b">#'+(lastGR||'\u2014')+'</span></div></div>';
+        o+='<div style="text-align:right;min-width:70px;font-size:9px;color:var(--muted)"><span style="color:#8b5cf6">\u25a0</span> Brand<br><span style="color:#94a3b8">\u25a0</span> Generic</div></div>';
+      }
+      o+=row('Sessions','#10b981',sess,sess[li]||0,sum(sess));
+      // Summary stats
+      var ppcR=sum(ppcSp)>0?Math.round(sum(amzS)/sum(ppcSp)*100)/100:0;
+      var metaR=sum(metaSp)>0?Math.round(sum(metaSl)/sum(metaSp)*100)/100:0;
+      o+='<div class="stats" style="margin-top:10px">';
+      o+='<div class="stat amber"><div class="sl">AMZ ROAS</div><div class="sv">'+ppcR.toFixed(1)+'x</div></div>';
+      o+='<div class="stat cyan"><div class="sl">META ROAS</div><div class="sv">'+metaR.toFixed(1)+'x</div></div>';
+      o+='<div class="stat" style="background:#f0fdf4"><div class="sl" style="color:var(--g)">'+days+'D SESSIONS</div><div class="sv" style="color:var(--g)">'+sum(sess).toLocaleString()+'</div></div>';
+      o+='</div>';
+      o+='</div>';
+      document.getElementById('dp-review-wrap').innerHTML=o;
+    };
+    // Initial render after DOM insert (deferred)
+    setTimeout(function(){renderDPReview(30);},0);
+  }
+
+  // ── Section E: ASIN Reference ──
+  if(H.categories&&H.categories.length){
+    html+='<div class="sec"><div class="sec-title"><div class="num">5</div> ASIN &rarr; Category Reference</div>';
+    html+='<div class="card"><div class="desc">All ASINs and their assigned product category. Verify classification is correct.</div>';
+    html+='<table><thead><tr><th>Category</th><th>Brand</th><th>ASIN</th><th>Product Name</th></tr></thead><tbody>';
+    H.categories.forEach(function(c){
+      var bc=CATCOLORS[c.category]||'#94a3b8';
+      if(c.asins&&c.asins.length){
+        c.asins.forEach(function(a,ai){
+          html+='<tr>';
+          if(ai===0){
+            html+='<td rowspan="'+c.asins.length+'" style="vertical-align:top"><span style="font-size:9px;padding:2px 6px;border-radius:8px;background:'+bc+'22;color:'+bc+';font-weight:600">'+c.category+'</span></td>';
+            html+='<td rowspan="'+c.asins.length+'" style="vertical-align:top;font-size:9px;color:var(--dim)">'+c.brand+'</td>';
+          }
+          html+='<td style="font-family:var(--mono);font-size:9px">'+a.asin+'</td>';
+          html+='<td style="font-size:9px;color:var(--dim)">'+a.name+'</td></tr>';
+        });
+      }
+    });
+    html+='</tbody></table></div></div>';
+  }
+
+  document.getElementById('panel-hero').innerHTML=html;
 }
 
 // ── Reusable section builders ────────────────────────────────────────────────
@@ -1380,7 +3272,7 @@ function buildKeywordPerformance(F){
     var kws=bd[window.KP_VIEW]||bd.top||[];
     var h='<div style="overflow-x:auto"><table><thead><tr>';
     h+='<th>#</th><th>Keyword</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th>';
-    h+='<th style="text-align:right">ROAS</th><th style="text-align:right">CPC</th><th style="text-align:right">CTR</th>';
+    h+='<th style="text-align:right">ROAS</th><th style="text-align:right">Avg Bid</th><th style="text-align:right">CTR</th>';
     h+='<th style="text-align:right">Clicks</th><th style="text-align:right">Impr</th><th style="text-align:right">Orders</th>';
     h+='</tr></thead><tbody>';
     kws.forEach(function(k,i){
@@ -1748,7 +3640,11 @@ function switchTimeGrain(grain, tabId, el){
     return label;
   });
 
-  if(grain==='weekly'){
+  if(grain==='daily'){
+    var D=F.daily_review||{};
+    var html=buildDailyAdReview(F);
+    container.innerHTML=html;
+  } else if(grain==='weekly'){
     var wLabels=W.week_labels||[];
     var html='';
     if(tabId==='rev'){
@@ -1782,6 +3678,180 @@ function switchTimeGrain(grain, tabId, el){
     }
     container.innerHTML=html;
   }
+}
+
+// ── Daily Ad Performance Review ──────────────────────────────────────────────
+function buildDailyAdReview(F){
+  var D=F.daily_review||{};
+  var dates=D.dates||[];
+  var labels=D.date_labels||[];
+  var amzSales=D.amazon_sales||[];
+  var AP=D.ad_performance||{};
+  var ga4Sess=D.ga4_sessions||[];
+  var amzSess=D.amz_sessions||[];
+  var accSess=D.accumulated_sessions||[];
+  if(!dates.length) return '<div class="card" style="padding:24px;color:var(--dim)">No daily data available.</div>';
+
+  function delta(cur,prev){
+    if(!prev||prev===0) return '';
+    var pct=((cur-prev)/prev*100);
+    var arrow=pct>=0?'▲':'▼';
+    var color=pct>=0?'#16a34a':'#dc2626';
+    return ' <span style="font-size:9px;color:'+color+'">'+arrow+Math.abs(pct).toFixed(1)+'%</span>';
+  }
+  function deltaSpend(cur,prev){
+    if(!prev||prev===0) return '';
+    var pct=((cur-prev)/prev*100);
+    var arrow=pct>=0?'▲':'▼';
+    return ' <span style="font-size:9px;color:#6b7280">'+arrow+Math.abs(pct).toFixed(1)+'%</span>';
+  }
+
+  var html='';
+
+  // ── Section 1: Recent 7-day cards (newest first) ──
+  html+='<div class="sec"><div class="sec-title"><div class="num">1</div> Daily Performance Review (Last 7 Days)</div>';
+  html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px">';
+
+  var startIdx=Math.max(0, dates.length-7);
+  for(var i=dates.length-1; i>=startIdx; i--){
+    var d=dates[i];
+    var prev=i>0?i-1:-1;
+    // Format date nicely: "4/2/2026 (Wed)"
+    var dt=new Date(d+'T12:00:00');
+    var dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var dateLabel=(dt.getMonth()+1)+'/'+dt.getDate()+'/'+dt.getFullYear()+' ('+dayNames[dt.getDay()]+')';
+
+    var metaCvrSpend=(AP['Meta CVR']?AP['Meta CVR'].spend[i]:0)||0;
+    var metaCvrClicks=(AP['Meta CVR']?AP['Meta CVR'].clicks[i]:0)||0;
+    var metaTrfSpend=(AP['Meta Traffic']?AP['Meta Traffic'].spend[i]:0)||0;
+    var metaTrfClicks=(AP['Meta Traffic']?AP['Meta Traffic'].clicks[i]:0)||0;
+    var metaTotalSpend=metaCvrSpend+metaTrfSpend;
+    var metaTotalClicks=metaCvrClicks+metaTrfClicks;
+
+    var ppcSpend=(AP['Amazon Ads']?AP['Amazon Ads'].spend[i]:0)||0;
+    var ppcClicks=(AP['Amazon Ads']?AP['Amazon Ads'].clicks[i]:0)||0;
+    var ppcSales=(AP['Amazon Ads']?AP['Amazon Ads'].sales[i]:0)||0;
+    var ppcRoas=ppcSpend>0?(ppcSales/ppcSpend).toFixed(2):'—';
+
+    var gSpend=(AP['Google Ads']?AP['Google Ads'].spend[i]:0)||0;
+    var gClicks=(AP['Google Ads']?AP['Google Ads'].clicks[i]:0)||0;
+
+    // Previous day values for delta
+    var pAmzSales=prev>=0?amzSales[prev]:0;
+    var pMetaSpend=prev>=0?((AP['Meta CVR']?AP['Meta CVR'].spend[prev]:0)+(AP['Meta Traffic']?AP['Meta Traffic'].spend[prev]:0)):0;
+    var pPpcSpend=prev>=0?(AP['Amazon Ads']?AP['Amazon Ads'].spend[prev]:0):0;
+    var pPpcSales=prev>=0?(AP['Amazon Ads']?AP['Amazon Ads'].sales[prev]:0):0;
+
+    html+='<div class="card" style="padding:16px">';
+    html+='<div style="font-weight:700;font-size:13px;margin-bottom:10px;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:6px">'+dateLabel+'</div>';
+
+    // Amazon Total Sales
+    html+='<div style="margin-bottom:8px">';
+    html+='<div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px">Amazon Total Sales</div>';
+    html+='<div style="font-size:18px;font-weight:700;font-family:var(--mono);color:#f59e0b">'+$(amzSales[i]||0)+delta(amzSales[i],pAmzSales)+'</div>';
+    html+='</div>';
+
+    // Meta Ads
+    html+='<div style="margin-bottom:8px;padding:8px;background:var(--bg);border-radius:6px">';
+    html+='<div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Meta Ads</div>';
+    html+='<div style="display:flex;gap:16px">';
+    html+='<div><span style="font-size:9px;color:var(--dim)">Clicks</span><br><b style="font-family:var(--mono)">'+num(metaTotalClicks)+'</b></div>';
+    html+='<div><span style="font-size:9px;color:var(--dim)">Spend</span><br><b style="font-family:var(--mono)">'+$(metaTotalSpend)+deltaSpend(metaTotalSpend,pMetaSpend)+'</b></div>';
+    html+='</div>';
+    html+='<div style="font-size:9px;color:var(--dim);margin-top:4px">CVR: '+num(metaCvrClicks)+' clicks / '+$(metaCvrSpend)+' · Traffic: '+num(metaTrfClicks)+' clicks / '+$(metaTrfSpend)+'</div>';
+    html+='</div>';
+
+    // Amazon PPC
+    html+='<div style="margin-bottom:8px;padding:8px;background:var(--bg);border-radius:6px">';
+    html+='<div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Amazon PPC</div>';
+    html+='<div style="display:flex;gap:16px">';
+    html+='<div><span style="font-size:9px;color:var(--dim)">Clicks</span><br><b style="font-family:var(--mono)">'+num(ppcClicks)+'</b></div>';
+    html+='<div><span style="font-size:9px;color:var(--dim)">Spend</span><br><b style="font-family:var(--mono)">'+$(ppcSpend)+deltaSpend(ppcSpend,pPpcSpend)+'</b></div>';
+    html+='<div><span style="font-size:9px;color:var(--dim)">Sales</span><br><b style="font-family:var(--mono)">'+$(ppcSales)+delta(ppcSales,pPpcSales)+'</b></div>';
+    html+='<div><span style="font-size:9px;color:var(--dim)">ROAS</span><br><b style="font-family:var(--mono);color:'+(parseFloat(ppcRoas)>=3?'#16a34a':'#f59e0b')+'">'+ppcRoas+'x</b></div>';
+    html+='</div>';
+    html+='</div>';
+
+    // Google Ads (compact)
+    if(gSpend>0){
+      html+='<div style="margin-bottom:8px;font-size:10px;color:var(--dim)">Google Ads: '+num(gClicks)+' clicks / '+$(gSpend)+'</div>';
+    }
+
+    // Sessions
+    html+='<div style="padding:6px 8px;background:#f0fdf4;border-radius:6px;font-size:11px">';
+    html+='<span style="color:var(--dim)">Sessions:</span> <b>'+num((ga4Sess[i]||0)+(amzSess[i]||0))+'</b>';
+    html+=' <span style="color:var(--dim);margin-left:8px">Accumulated:</span> <b>'+num(accSess[i]||0)+'</b>';
+    html+='</div>';
+
+    html+='</div>'; // close card
+  }
+  html+='</div></div>'; // close grid + sec
+
+  // ── Section 2: 30-day table ──
+  html+='<div class="sec"><div class="sec-title"><div class="num">2</div> Daily Performance (30 Days)</div>';
+  html+='<div class="card"><div style="overflow-x:auto"><table>';
+  html+='<thead><tr>';
+  html+='<th>Date</th><th style="text-align:right">Amz Sales</th>';
+  html+='<th style="text-align:right">Meta Clicks</th><th style="text-align:right">Meta Spend</th>';
+  html+='<th style="text-align:right">PPC Clicks</th><th style="text-align:right">PPC Spend</th>';
+  html+='<th style="text-align:right">PPC Sales</th><th style="text-align:right">ROAS</th>';
+  html+='<th style="text-align:right">Google $</th>';
+  html+='<th style="text-align:right">Sessions</th>';
+  html+='</tr></thead><tbody>';
+
+  for(var i=dates.length-1; i>=0; i--){
+    var metaC=((AP['Meta CVR']?AP['Meta CVR'].clicks[i]:0)||0)+((AP['Meta Traffic']?AP['Meta Traffic'].clicks[i]:0)||0);
+    var metaS=((AP['Meta CVR']?AP['Meta CVR'].spend[i]:0)||0)+((AP['Meta Traffic']?AP['Meta Traffic'].spend[i]:0)||0);
+    var pC=(AP['Amazon Ads']?AP['Amazon Ads'].clicks[i]:0)||0;
+    var pS=(AP['Amazon Ads']?AP['Amazon Ads'].spend[i]:0)||0;
+    var pSa=(AP['Amazon Ads']?AP['Amazon Ads'].sales[i]:0)||0;
+    var roas=pS>0?(pSa/pS).toFixed(2):'—';
+    var gS=(AP['Google Ads']?AP['Google Ads'].spend[i]:0)||0;
+    var sess=(ga4Sess[i]||0)+(amzSess[i]||0);
+    var isWeekend=new Date(dates[i]+'T12:00:00').getDay()%6===0;
+    var rowBg=isWeekend?'background:rgba(99,102,241,0.04)':'';
+    html+='<tr style="'+rowBg+'">';
+    html+='<td style="font-size:10px;white-space:nowrap">'+labels[i]+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(amzSales[i]||0)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(metaC)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(metaS)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(pC)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(pS)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(pSa)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:'+(parseFloat(roas)>=3?'#16a34a':'#f59e0b')+'">'+roas+'x</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(gS)+'</td>';
+    html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(sess)+'</td>';
+    html+='</tr>';
+  }
+
+  // Totals row
+  var tAmz=0,tMC=0,tMS=0,tPC=0,tPS=0,tPSa=0,tGS=0,tSess=0;
+  for(var i=0;i<dates.length;i++){
+    tAmz+=amzSales[i]||0;
+    tMC+=((AP['Meta CVR']?AP['Meta CVR'].clicks[i]:0)||0)+((AP['Meta Traffic']?AP['Meta Traffic'].clicks[i]:0)||0);
+    tMS+=((AP['Meta CVR']?AP['Meta CVR'].spend[i]:0)||0)+((AP['Meta Traffic']?AP['Meta Traffic'].spend[i]:0)||0);
+    tPC+=(AP['Amazon Ads']?AP['Amazon Ads'].clicks[i]:0)||0;
+    tPS+=(AP['Amazon Ads']?AP['Amazon Ads'].spend[i]:0)||0;
+    tPSa+=(AP['Amazon Ads']?AP['Amazon Ads'].sales[i]:0)||0;
+    tGS+=(AP['Google Ads']?AP['Google Ads'].spend[i]:0)||0;
+    tSess+=(ga4Sess[i]||0)+(amzSess[i]||0);
+  }
+  var tRoas=tPS>0?(tPSa/tPS).toFixed(2):'—';
+  html+='<tr style="border-top:2px solid var(--border);font-weight:800">';
+  html+='<td>TOTAL</td>';
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(tAmz))+'</td>';
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(tMC)+'</td>';
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(tMS))+'</td>';
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(tPC)+'</td>';
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(tPS))+'</td>';
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(tPSa))+'</td>';
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+tRoas+'x</td>';
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+$(Math.round(tGS))+'</td>';
+  html+='<td style="text-align:right;font-family:var(--mono);font-size:10px">'+num(tSess)+'</td>';
+  html+='</tr>';
+
+  html+='</tbody></table></div></div></div>';
+  return html;
 }
 
 // ── Weekly generic table (brand/channel revenue) ────────────────────────────

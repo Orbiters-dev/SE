@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Pipeline CRM Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -134,7 +137,8 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 <!-- MAIN CONTENT -->
 <div id="main-content" style="display:none">
 <div class="ctr">
-  <!-- Top-level navigation — switches between dashboards -->
+  <!-- Nav + Hero — hidden when embedded in Financial Dashboard iframe -->
+  <div id="standalone-header">
   <div class="nav-bar" style="margin-bottom:16px">
     <div>
       <a href="../ppc-dashboard/" title="Amazon PPC Intelligence">Amazon PPC</a>
@@ -157,6 +161,8 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
       <span class="pill" id="pill-total">-</span>
     </div>
   </div>
+  </div><!-- /standalone-header -->
+  <script>if(new URLSearchParams(location.search).get('embed')==='1')document.getElementById('standalone-header').style.display='none';</script>
 
   <!-- PIPELINE OVERVIEW — always visible above tabs -->
   <div class="card" style="margin-bottom:12px">
@@ -191,129 +197,162 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
       </button>
     </div>
 
-    <!-- Flow Bar -->
-    <div class="funnel" style="margin-bottom:20px">
-      <div class="fn on" onclick="scrollToHwSec('hw-discover')"><div class="fi" style="font-size:16px">&#x1F50E;</div><div class="ft">Discover</div><div class="fs">Find creators</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" onclick="scrollToHwSec('hw-config')"><div class="fi" style="font-size:16px">&#x2699;&#xFE0F;</div><div class="ft">Config</div><div class="fs">Set batch params</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" onclick="scrollToHwSec('hw-preview')"><div class="fi" style="font-size:16px">&#x1F50D;</div><div class="ft">Preview</div><div class="fs">Count eligible</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" onclick="scrollToHwSec('hw-draft')"><div class="fi" style="font-size:16px">&#x1F4DD;</div><div class="ft">Draft</div><div class="fs">Generate emails</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" onclick="scrollToHwSec('hw-send')"><div class="fi" style="font-size:16px">&#x1F4E8;</div><div class="ft">Send+QnA</div><div class="fs">Outreach + Reply</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" onclick="scrollToHwSec('hw-review')"><div class="fi" style="font-size:16px">&#x2705;</div><div class="ft">Accept</div><div class="fs">Order auto-complete</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" onclick="scrollToHwSec('hw-sample')"><div class="fi" style="font-size:16px">&#x1F4E6;</div><div class="ft">Sample</div><div class="fs">Ship products</div></div><span class="fa">&#x25B6;</span>
-      <div class="fn" onclick="scrollToHwSec('hw-track')"><div class="fi" style="font-size:16px">&#x1F4F8;</div><div class="ft">Track</div><div class="fs">Content D+60</div></div>
-    </div>
-
-    <!-- Accordion sections - all visible, click h3 to expand/collapse -->
-    <div class="card hw-sec open" id="hw-discover" style="border-left:3px solid var(--p)">
-      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F50E; Step 0: Discover &mdash; Find New Creators</h3>
-      <div class="hw-body">
-        <div class="desc" style="font-size:11px;line-height:1.7;margin-bottom:12px">Syncly Discovery&#xC5D0;&#xC11C; &#xBE0C;&#xB79C;&#xB4DC; &#xAD00;&#xB828; &#xCF58;&#xD150;&#xCE20; + <b>&#xB300;&#xC0AC;(&#xCE90;&#xD504;&#xC158;)</b>&#xC744; &#xD568;&#xAED8; &#xBC1C;&#xAD74;.<br>&#xB300;&#xC0AC;&#xB294; outreach &#xC774;&#xBA54;&#xC77C; &#xC791;&#xC131; &#xADFC;&#xAC70;&#xB85C; &#xD65C;&#xC6A9;&#xB428;. Execution &#xD0ED; > <b>Discovery &amp; Sourcing</b>&#xC5D0;&#xC11C; &#xC2E4;&#xD589;.</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div style="background:#fdf2f8;border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--p)">Syncly Discovery (Outbound)</b><br>&#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130; &#xC815;&#xBCF4; (&#xD575;&#xB4E4;, &#xD314;&#xB85C;&#xC6CC;, &#xC778;&#xAC8C;&#xC774;&#xC9C0;&#xBA3C;&#xD2B8;) + &#xBC1C;&#xACAC; &#xCF58;&#xD150;&#xCE20; (&#xCE90;&#xD504;&#xC158;/&#xB300;&#xC0AC; &#xD3EC;&#xD568;) &#xC784;&#xD3EC;&#xD2B8;.<br><span class="b">Not Started</span>&#xB85C; &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778; &#xC9C4;&#xC785;. &#xC790;&#xB3D9; &#xB204;&#xC801;.</div>
-          <div style="background:var(--abg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--a)">Inbound (&#xC790;&#xB3D9;)</b><br>&#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130;&#xAC00; Gifting &#xD3FC; &#xC81C;&#xCD9C; &#x2192; <span class="b p">Needs Review</span> &#xC790;&#xB3D9; &#xB4F1;&#xB85D;.<br>Review Queue&#xC5D0;&#xC11C; &#xC2B9;&#xC778;/&#xAC70;&#xBD80;.</div>
-        </div>
-        <div style="margin-top:8px;font-size:10px;color:var(--dim)"><b>Note:</b> Apify Content Crawl = Track &#xB2E8;&#xACC4;(D+60 &#xBAA8;&#xB2C8;&#xD130;&#xB9C1;). Draft&#xC5D0;&#xC11C;&#xB3C4; Autofill(&#xD504;&#xB85C;&#xD544; &#xBCF4;&#xCDA9;)&#xC73C;&#xB85C; &#xD65C;&#xC6A9;.</div>
+    <!-- ==================== LOW TOUCH 전체 화면 ==================== -->
+    <div id="hw-panel-lt" class="hw-lt">
+      <div class="funnel" style="margin-bottom:20px">
+        <div class="fn on" onclick="scrollToHwSec('lt-s0')"><div class="fi" style="font-size:16px">&#x1F50E;</div><div class="ft">Discover</div><div class="fs">Find creators</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('lt-s1')"><div class="fi" style="font-size:16px">&#x2699;&#xFE0F;</div><div class="ft">Config</div><div class="fs">Batch params</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('lt-s2')"><div class="fi" style="font-size:16px">&#x1F50D;</div><div class="ft">Preview</div><div class="fs">Count eligible</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('lt-s3')"><div class="fi" style="font-size:16px">&#x1F4DD;</div><div class="ft">Draft</div><div class="fs">Auto-approve</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('lt-s4')"><div class="fi" style="font-size:16px">&#x1F4E8;</div><div class="ft">Send+QnA</div><div class="fs">Auto-send</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('lt-s5')"><div class="fi" style="font-size:16px">&#x2705;</div><div class="ft">Accept</div><div class="fs">Auto-complete</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('lt-s6')"><div class="fi" style="font-size:16px">&#x1F4E6;</div><div class="ft">Sample</div><div class="fs">Ship products</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('lt-s7')"><div class="fi" style="font-size:16px">&#x1F4F8;</div><div class="ft">Track</div><div class="fs">Content D+60</div></div>
       </div>
-    </div>
-
-    <div class="card hw-sec" id="hw-config" style="border-left:3px solid var(--a)">
-      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x2699;&#xFE0F; Step 1: Config &mdash; Set Batch Parameters</h3>
-      <div class="hw-body">
-        <div class="desc" style="font-size:11px;line-height:1.7">Batch Size, HT Threshold, Feature Toggles, Human-in-Loop &#xC124;&#xC815;. &#xB9E4;&#xC77C; &#xBC30;&#xCE58; &#xC804;&#xC5D0; &#xD655;&#xC778; &#x2192; Apply Config.</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
-          <div style="background:var(--abg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--a)">Batch Size</b><br>&#xD55C; &#xBC88;&#xC5D0; &#xBCF4;&#xB0BC; &#xC218;. &#xCD08;&#xAE30; 5-10, &#xC548;&#xC815;&#xD654; &#xD6C4; 20-30.</div>
-          <div style="background:var(--abg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--a)">HT Threshold</b><br>R30D 100K+ = High Touch (&#xACC4;&#xC57D;+&#xACB0;&#xC81C;), &#xBBF8;&#xB9CC; = Low Touch (&#xBB34;&#xB8CC;).</div>
-          <div style="background:var(--gbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--g)">RAG Email Dedup</b><br>&#xC774;&#xBBF8; &#xC5F0;&#xB77D;&#xD55C; &#xC0AC;&#xB78C; &#xC790;&#xB3D9; &#xC81C;&#xC678;.</div>
-          <div style="background:var(--gbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--g)">Apify Brand Filter</b><br>27&#xAC1C; &#xBE0C;&#xB79C;&#xB4DC;/&#xB9AC;&#xC140;&#xB7EC; &#xACC4;&#xC815; &#xC790;&#xB3D9; &#xC81C;&#xC678;.</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card hw-sec" id="hw-preview" style="border-left:3px solid var(--c)">
-      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F50D; Step 2: Preview Counts</h3>
-      <div class="hw-body">
-        <div style="background:#f0f9ff;border-radius:8px;padding:12px;font-size:11px;font-family:var(--mono)"><b>&#xC870;&#xAC74;:</b> pipeline_status="Not Started" + update_date &#xC774;&#xC804; &#xBC1C;&#xACAC; + RAG dedup &#xD1B5;&#xACFC; + HT/LT &#xBD84;&#xB958;</div>
-      </div>
-    </div>
-
-    <div class="card hw-sec" id="hw-draft" style="border-left:3px solid var(--a)">
-      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4DD; Step 3: Generate Drafts</h3>
-      <div class="hw-body">
-        <div style="background:var(--abg);border-radius:8px;padding:12px;font-size:11px;margin-bottom:8px">
-          <b>n8n Draft Gen WF</b> (<code>fwwOeLiDLSnR77E1</code>)<br>
-          &#x2022; eligible &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130; &#xC870;&#xD68C; &#x2192; Apify &#xD504;&#xB85C;&#xD544; &#xC218;&#xC9D1; &#x2192; Claude AI &#xAC1C;&#xC778;&#xD654; &#xC774;&#xBA54;&#xC77C; &#xC0DD;&#xC131;<br>
-          &#x2022; Not Started &#x2192; <span class="b a">Draft Ready</span>
-        </div>
-        <div class="hw-lt" style="background:#eff6ff;border-radius:6px;padding:8px;font-size:10px;border-left:3px solid var(--a)">
-          <b>&#x26A1; LT:</b> &#xC790;&#xB3D9; &#xC2B9;&#xC778; &#x2192; &#xBC14;&#xB85C; Send &#xB2E8;&#xACC4;&#xB85C;. Draft Review &#xC5C6;&#xC74C;.
-        </div>
-        <div class="hw-ht" style="display:none;background:#fdf2f8;border-radius:6px;padding:8px;font-size:10px;border-left:3px solid var(--p)">
-          <b>&#x1F451; HT:</b> <span class="b am">Draft Review &#xD544;&#xC218;</span> &#x2014; &#xB9C8;&#xCF00;&#xD130;&#xAC00; &#xC774;&#xBA54;&#xC77C; &#xB0B4;&#xC6A9; &#xD655;&#xC778; &#xD6C4; &#xC2B9;&#xC778;. &#xACC4;&#xC57D; &#xC870;&#xAC74;/&#xBCF4;&#xC0C1; &#xBA58;&#xC158; &#xD3EC;&#xD568; &#xC5EC;&#xBD80; &#xCCB4;&#xD06C;.
-        </div>
-      </div>
-    </div>
-
-    <div class="card hw-sec" id="hw-send" style="border-left:3px solid var(--am)">
-      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E8; Step 4: Send + Email QnA <span class="b am" style="margin-left:6px">HIL</span></h3>
-      <div class="hw-body">
-        <div style="background:var(--ambg);border-radius:8px;padding:12px;font-size:11px;margin-bottom:10px">
-          <b>&#x2460; Outreach &#xBC1C;&#xC1A1;</b><br>
-          &#x2022; <code>affiliates@onzenna.com</code>&#xC5D0;&#xC11C; &#xBC1C;&#xC1A1; | &#xBE0C;&#xB79C;&#xB4DC;&#xBCC4; Gifting &#xD3FC; URL &#xD3EC;&#xD568;<br>
-          &#x2022; Draft Ready &#x2192; <span class="b c">Sent</span> | <span class="b am">Human-in-Loop: Send Approval</span>
-        </div>
-        <div style="background:#fdf2f8;border-radius:8px;padding:12px;font-size:11px;margin-bottom:10px">
-          <b>&#x2461; Reply Handler &#x2014; &#xC774;&#xBA54;&#xC77C; QnA &#xC790;&#xB3D9;&#xD654;</b> (WF: <code>K99grtW9iWq8V79f</code>)<br>
-          Creator &#xB2F5;&#xC7A5; &#xAC10;&#xC9C0; &#x2192; <span class="b am">Replied</span> &#x2192; Claude AI &#xBD84;&#xB958;:<br>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:6px">
-            <div style="background:var(--gbg);border-radius:4px;padding:6px;font-size:10px"><span class="b g">Accept</span><br>&#xD611;&#xC5C5; &#xC218;&#xB77D; &#x2192; Gifting &#xD3FC; &#xB9C1;&#xD06C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</div>
-            <div style="background:var(--cbg);border-radius:4px;padding:6px;font-size:10px"><span class="b c">FAQ_Gap</span><br>&#xC9C8;&#xBB38; (&#xBC30;&#xC1A1;/&#xC0C1;&#xD488;/&#xBCF4;&#xC0C1;) &#x2192; FAQ DB&#xC5D0;&#xC11C; &#xC790;&#xB3D9; &#xC751;&#xB2F5;</div>
-            <div style="background:var(--ambg);border-radius:4px;padding:6px;font-size:10px"><span class="b am">Normal</span><br>&#xC77C;&#xBC18; &#xB300;&#xD654; &#x2192; &#xAC10;&#xC0AC; &#xC751;&#xB2F5; &#xC790;&#xB3D9;</div>
-          </div>
-          <div style="margin-top:6px;font-size:10px;color:var(--dim)">Config: <b>Email Config &#xD0ED;</b>&#xC5D0;&#xC11C; &#xBD84;&#xB958; &#xD504;&#xB86C;&#xD504;&#xD2B8;, &#xD15C;&#xD50C;&#xB9BF;, FAQ &#xC218;&#xC815; &#xAC00;&#xB2A5; (PG API)</div>
-          <div class="hw-lt" style="margin-top:6px;background:#eff6ff;border-radius:6px;padding:8px;font-size:10px;border-left:3px solid var(--a)">
-            <b>&#x26A1; LT:</b> Reply &#xBD84;&#xB958; &#xD6C4; <b>&#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</b>. Accept &#x2192; Gifting &#xD3FC; &#xB9C1;&#xD06C; &#xC790;&#xB3D9; | FAQ &#x2192; &#xC790;&#xB3D9; &#xC751;&#xB2F5;. &#xC0AC;&#xB78C; &#xAC1C;&#xC785; &#xC5C6;&#xC74C;.
-          </div>
-          <div class="hw-ht" style="display:none;margin-top:6px;background:#fdf2f8;border-radius:6px;padding:8px;font-size:10px;border-left:3px solid var(--p)">
-            <b>&#x1F451; HT:</b> Reply &#xBD84;&#xB958; &#xD6C4; <span class="b p">Needs Review</span>. &#xB9C8;&#xCF00;&#xD130;&#xAC00; &#xB2F5;&#xC7A5; &#xB0B4;&#xC6A9; &#xD655;&#xC778; &#xD6C4; &#xC218;&#xB3D9; &#xBC1C;&#xC1A1;. &#xBCF4;&#xC0C1;/&#xACC4;&#xC57D; &#xB17C;&#xC758; &#xD3EC;&#xD568; &#xAC00;&#xB2A5;.
+      <div style="background:#eff6ff;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:11px;border-left:3px solid var(--a)">&#x26A1; <b>LOW TOUCH</b> &mdash; &lt;100K followers. &#xC804; &#xACFC;&#xC815; &#xC790;&#xB3D9;&#xD654;. &#xACC4;&#xC57D;/&#xBCF4;&#xC0C1; &#xC5C6;&#xC74C;. &#xBB34;&#xB8CC; &#xC0D8;&#xD50C;&#xB9CC; &#xC81C;&#xACF5;. Human-in-Loop 3&#xAC1C; (Draft, Send, Sample).</div>
+      <div class="card hw-sec open" id="lt-s0" style="border-left:3px solid var(--a)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F50E; Step 0: Discover</h3>
+        <div class="hw-body">
+          <div class="desc" style="font-size:11px;line-height:1.7;margin-bottom:8px">Syncly Discovery&#xC5D0;&#xC11C; &#xBE0C;&#xB79C;&#xB4DC; &#xAD00;&#xB828; &#xCF58;&#xD150;&#xCE20; + &#xB300;&#xC0AC; &#xBC1C;&#xAD74;. Outbound + Inbound &#xC790;&#xB3D9; &#xB204;&#xC801;.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="background:var(--abg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--a)">Outbound</b><br>Syncly&#xC5D0;&#xC11C; &#xBC1C;&#xACAC; &#x2192; <span class="b">Not Started</span>&#xB85C; &#xC9C4;&#xC785;</div>
+            <div style="background:var(--abg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--a)">Inbound</b><br>Creator&#xAC00; Gifting &#xD3FC; &#xC81C;&#xCD9C; &#x2192; &#xC790;&#xB3D9; &#xB4F1;&#xB85D;</div>
           </div>
         </div>
-        <div style="background:var(--gbg);border-radius:8px;padding:12px;font-size:11px">
-          <b>&#x2462; Gifting &#xD3FC; &#xC81C;&#xCD9C; (1&#xD68C;)</b><br>
-          Creator&#xAC00; &#xD3FC; &#xC791;&#xC131; &#x2192; &#xC0D8;&#xD50C; &#xC120;&#xD0DD; + &#xC8FC;&#xC18C; &#xC785;&#xB825; &#x2192; n8n Webhook &#x2192; <b>Shopify &#xACE0;&#xAC1D; + Draft Order &#xC790;&#xB3D9; &#xC0DD;&#xC131;</b><br>
-          &#x2022; WF: <code>F0sv8RsCS1v56Gkw</code> | 1&#xD3FC;&#xC73C;&#xB85C; &#xC0D8;&#xD50C; &#xC120;&#xD0DD;&#xAE4C;&#xC9C0; &#xC644;&#xACB0;
+      </div>
+      <div class="card hw-sec" id="lt-s1" style="border-left:3px solid var(--a)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x2699;&#xFE0F; Step 1: Config</h3>
+        <div class="hw-body"><div style="font-size:11px">Batch Size, HT Threshold, Feature Toggles &#xC124;&#xC815;. HIL: Draft Review <b>OFF</b>, Send Approval, Sample Approval.</div></div>
+      </div>
+      <div class="card hw-sec" id="lt-s2" style="border-left:3px solid var(--a)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F50D; Step 2: Preview</h3>
+        <div class="hw-body"><div style="font-size:11px;font-family:var(--mono);background:#f0f9ff;border-radius:6px;padding:10px">pipeline_status="Not Started" + LT&#xBD84;&#xB958;(&lt;100K) + RAG dedup &#xD1B5;&#xACFC; &#x2192; eligible count &#xD655;&#xC778;</div></div>
+      </div>
+      <div class="card hw-sec" id="lt-s3" style="border-left:3px solid var(--a)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4DD; Step 3: Draft &mdash; <span style="color:var(--a)">Auto-approve</span></h3>
+        <div class="hw-body">
+          <div style="font-size:11px;margin-bottom:8px">n8n Draft Gen WF (<code>fwwOeLiDLSnR77E1</code>) &#x2192; Claude AI &#xAC1C;&#xC778;&#xD654; &#xC774;&#xBA54;&#xC77C; &#xC0DD;&#xC131;</div>
+          <div style="background:#eff6ff;border-radius:6px;padding:10px;font-size:11px;border-left:3px solid var(--a)"><b>&#xC790;&#xB3D9; &#xC2B9;&#xC778;</b> &#x2192; Draft Review &#xC5C6;&#xC774; &#xBC14;&#xB85C; Send &#xB2E8;&#xACC4;&#xB85C;. &#xC0AC;&#xB78C; &#xAC80;&#xD1A0; &#xBD88;&#xD544;&#xC694;.</div>
         </div>
+      </div>
+      <div class="card hw-sec" id="lt-s4" style="border-left:3px solid var(--a)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E8; Step 4: Send + QnA &mdash; <span style="color:var(--a)">Auto-send</span></h3>
+        <div class="hw-body">
+          <div style="font-size:11px;margin-bottom:8px">Outreach &#xBC1C;&#xC1A1; + Reply Handler (WF: <code>K99grtW9iWq8V79f</code>)</div>
+          <div style="background:#eff6ff;border-radius:6px;padding:10px;font-size:11px;border-left:3px solid var(--a)">Reply &#xBD84;&#xB958; &#xD6C4; <b>&#xC804;&#xBD80; &#xC790;&#xB3D9;</b>: Accept &#x2192; Gifting &#xD3FC; &#xB9C1;&#xD06C; | FAQ &#x2192; &#xC790;&#xB3D9; &#xC751;&#xB2F5; | Normal &#x2192; &#xAC10;&#xC0AC; &#xC751;&#xB2F5;. <b>&#xC0AC;&#xB78C; &#xAC1C;&#xC785; &#xC5C6;&#xC74C;.</b></div>
+          <div style="margin-top:8px;background:var(--gbg);border-radius:6px;padding:10px;font-size:10px">Creator&#xAC00; Gifting &#xD3FC; &#xC81C;&#xCD9C; &#x2192; &#xC0D8;&#xD50C; &#xC120;&#xD0DD; + &#xC8FC;&#xC18C; &#xC785;&#xB825; &#x2192; Shopify Draft Order &#xC790;&#xB3D9; &#xC0DD;&#xC131;</div>
+        </div>
+      </div>
+      <div class="card hw-sec" id="lt-s5" style="border-left:3px solid var(--a)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x2705; Step 5: Accept &mdash; <span style="color:var(--a)">Auto-complete</span></h3>
+        <div class="hw-body">
+          <div style="background:#eff6ff;border-radius:6px;padding:10px;font-size:11px;border-left:3px solid var(--a)">&#xB9C8;&#xCF00;&#xD130; Accept &#xD074;&#xB9AD; &#x2192; Shopify Draft Order &#xC790;&#xB3D9; &#xC644;&#xB8CC;. <b>&#xACC4;&#xC57D;&#xC11C; &#xC5C6;&#xC74C;. &#xBCF4;&#xC0C1; &#xC5C6;&#xC74C;. &#xBB34;&#xB8CC; &#xC0D8;&#xD50C;&#xB9CC; &#xC81C;&#xACF5;.</b></div>
+        </div>
+      </div>
+      <div class="card hw-sec" id="lt-s6" style="border-left:3px solid var(--c)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E6; Step 6: Sample Fulfillment</h3>
+        <div class="hw-body"><div style="font-size:11px">Accept &#x2192; Draft Order &#xC644;&#xB8CC; &#x2192; <span class="b c">Sample Sent</span> &#x2192; Shopify &#xBC30;&#xC1A1; &#x2192; <span class="b g">Delivered</span> + Content Guidelines &#xC774;&#xBA54;&#xC77C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</div></div>
+      </div>
+      <div class="card hw-sec" id="lt-s7" style="border-left:3px solid var(--g)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4F8; Step 7: Content Tracking (D+60)</h3>
+        <div class="hw-body"><div style="font-size:11px">Apify Crawl (IG+TikTok) &#x2192; D+7/14/30/60 &#xBA54;&#xD2B8;&#xB9AD; &#xCD94;&#xC801; &#x2192; <span class="b g">Posted</span> &#xAC10;&#xC9C0; &#x2192; &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778; &#xC885;&#xB8CC;</div></div>
       </div>
     </div>
 
-    <div class="card hw-sec" id="hw-review" style="border-left:3px solid var(--p)">
-      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F50D; Step 5: Review &amp; Accept <span class="b p" style="margin-left:6px">Always HIL</span></h3>
-      <div class="hw-body">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div style="background:var(--gbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--g)">Accept</b><br>&#xB9C8;&#xCF00;&#xD130; Accept &#xD074;&#xB9AD; &#x2192; <span class="b g">Accepted</span><br>&#x2192; n8n&#xC774; 5&#xBD84; poll&#xB85C; &#xAC10;&#xC9C0;<br>&#x2192; PG&#xC5D0;&#xC11C; Draft Order ID &#xC870;&#xD68C;<br>&#x2192; <b>Shopify Draft Order &#xC790;&#xB3D9; &#xC644;&#xB8CC;</b><br><span style="font-size:9px;color:var(--dim)">WF: <code>Ow5bD5keNf2HFo83</code> (&#xD06C;&#xB9AC;&#xB374;&#xC15C; &#xC5F0;&#xACB0; &#xD6C4; ON)</span></div>
-          <div style="background:var(--rbg);border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--r)">Decline</b><br>&#x2192; <span class="b r">Declined</span> | &#xD314;&#xB85C;&#xC6CC; &#xBD80;&#xC871;, &#xBE0C;&#xB79C;&#xB4DC; &#xBD88;&#xC77C;&#xCE58; &#xB4F1; | Note &#xAE30;&#xB85D;</div>
+    <!-- ==================== HIGH TOUCH 전체 화면 ==================== -->
+    <div id="hw-panel-ht" class="hw-ht" style="display:none">
+      <div class="funnel" style="margin-bottom:20px">
+        <div class="fn on" onclick="scrollToHwSec('ht-s0')"><div class="fi" style="font-size:16px">&#x1F50E;</div><div class="ft">Discover</div><div class="fs">Find creators</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('ht-s1')"><div class="fi" style="font-size:16px">&#x2699;&#xFE0F;</div><div class="ft">Config</div><div class="fs">Batch params</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('ht-s2')"><div class="fi" style="font-size:16px">&#x1F50D;</div><div class="ft">Preview</div><div class="fs">Count eligible</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('ht-s3')"><div class="fi" style="font-size:16px">&#x1F4DD;</div><div class="ft">Draft</div><div class="fs">Manual review</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('ht-s4')"><div class="fi" style="font-size:16px">&#x1F4E8;</div><div class="ft">Send+QnA</div><div class="fs">Manual review</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('ht-s5')"><div class="fi" style="font-size:16px">&#x1F4DC;</div><div class="ft">Contract</div><div class="fs">DocuSeal</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('ht-s6')"><div class="fi" style="font-size:16px">&#x2705;</div><div class="ft">Accept</div><div class="fs">Manual approve</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('ht-s7')"><div class="fi" style="font-size:16px">&#x1F4E6;</div><div class="ft">Sample</div><div class="fs">Ship products</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('ht-s8')"><div class="fi" style="font-size:16px">&#x1F4B3;</div><div class="ft">Payment</div><div class="fs">Compensation</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" onclick="scrollToHwSec('ht-s9')"><div class="fi" style="font-size:16px">&#x1F4F8;</div><div class="ft">Track</div><div class="fs">Content D+60</div></div>
+      </div>
+      <div style="background:#fdf2f8;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:11px;border-left:3px solid var(--p)">&#x1F451; <b>HIGH TOUCH</b> &mdash; &ge;100K followers. &#xB9E4; &#xB2E8;&#xACC4; &#xC0AC;&#xB78C; &#xAC80;&#xD1A0;. &#xACC4;&#xC57D;&#xC11C; &#xC11C;&#xBA85; + &#xBCF4;&#xC0C1;&#xAE08; &#xC9C0;&#xAE09;. Human-in-Loop 5&#xAC1C; (Draft, Send, Contract, Sample, Payment).</div>
+      <div class="card hw-sec open" id="ht-s0" style="border-left:3px solid var(--p)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F50E; Step 0: Discover</h3>
+        <div class="hw-body">
+          <div class="desc" style="font-size:11px;line-height:1.7;margin-bottom:8px">Syncly Discovery&#xC5D0;&#xC11C; &#xBE0C;&#xB79C;&#xB4DC; &#xAD00;&#xB828; &#xCF58;&#xD150;&#xCE20; + &#xB300;&#xC0AC; &#xBC1C;&#xAD74;. Outbound + Inbound &#xC790;&#xB3D9; &#xB204;&#xC801;.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="background:#fdf2f8;border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--p)">Outbound</b><br>Syncly&#xC5D0;&#xC11C; &#xBC1C;&#xACAC; &#x2192; <span class="b">Not Started</span>&#xB85C; &#xC9C4;&#xC785;</div>
+            <div style="background:#fdf2f8;border-radius:6px;padding:10px;font-size:10px"><b style="color:var(--p)">Inbound</b><br>Creator&#xAC00; Gifting &#xD3FC; &#xC81C;&#xCD9C; &#x2192; <span class="b p">Needs Review</span></div>
+          </div>
         </div>
-        <div style="margin-top:8px;padding:8px;background:#fffbeb;border-radius:6px;font-size:10px;color:#92400e"><b>1-&#xD3FC; &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778;:</b> Creator&#xAC00; Gifting &#xD3FC;&#xC5D0;&#xC11C; &#xC0D8;&#xD50C;&#xAE4C;&#xC9C0; &#xC120;&#xD0DD; &#xC644;&#xB8CC; &#x2192; Draft Order &#xC774;&#xBBF8; &#xC0DD;&#xC131;&#xB428; &#x2192; Accept &#xC2DC; &#xBC14;&#xB85C; &#xC624;&#xB354; &#xB098;&#xAC10;. Gifting2 &#xD3FC; &#xC5C6;&#xC74C;.</div>
-        <div class="hw-lt" style="margin-top:8px;background:#eff6ff;border-radius:6px;padding:8px;font-size:10px;border-left:3px solid var(--a)">
-          <b>&#x26A1; LT:</b> Accept &#xD074;&#xB9AD;&#xB9CC;&#xC73C;&#xB85C; &#xC644;&#xB8CC;. &#xACC4;&#xC57D;/&#xBCF4;&#xC0C1; &#xC5C6;&#xC74C;. &#xBB34;&#xB8CC; &#xC0D8;&#xD50C; &#xC81C;&#xACF5;.
+      </div>
+      <div class="card hw-sec" id="ht-s1" style="border-left:3px solid var(--p)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x2699;&#xFE0F; Step 1: Config</h3>
+        <div class="hw-body"><div style="font-size:11px">HT Threshold, Batch Size, Template Doc ID &#xC124;&#xC815;. HIL: Draft Review <b>ON</b>, Send Approval, <b>Contract</b>, Sample Approval, <b>Payment</b>.</div></div>
+      </div>
+      <div class="card hw-sec" id="ht-s2" style="border-left:3px solid var(--p)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F50D; Step 2: Preview</h3>
+        <div class="hw-body"><div style="font-size:11px;font-family:var(--mono);background:#fdf2f8;border-radius:6px;padding:10px">pipeline_status="Not Started" + HT&#xBD84;&#xB958;(&ge;100K) + RAG dedup &#xD1B5;&#xACFC; &#x2192; eligible count &#xD655;&#xC778;</div></div>
+      </div>
+      <div class="card hw-sec" id="ht-s3" style="border-left:3px solid var(--p)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4DD; Step 3: Draft &mdash; <span style="color:var(--p)">Manual Review &#xD544;&#xC218;</span></h3>
+        <div class="hw-body">
+          <div style="font-size:11px;margin-bottom:8px">n8n Draft Gen WF (<code>fwwOeLiDLSnR77E1</code>) &#x2192; Claude AI &#xAC1C;&#xC778;&#xD654; &#xC774;&#xBA54;&#xC77C; &#xC0DD;&#xC131;</div>
+          <div style="background:#fdf2f8;border-radius:6px;padding:10px;font-size:11px;border-left:3px solid var(--p)"><span class="b am">Draft Review &#xD544;&#xC218;</span> &#x2014; &#xB9C8;&#xCF00;&#xD130;&#xAC00; &#xC774;&#xBA54;&#xC77C; &#xB0B4;&#xC6A9; &#xD655;&#xC778;. <b>&#xACC4;&#xC57D; &#xC870;&#xAC74;/&#xBCF4;&#xC0C1; &#xBA58;&#xC158;</b> &#xD3EC;&#xD568; &#xC5EC;&#xBD80; &#xCCB4;&#xD06C; &#xD6C4; &#xC2B9;&#xC778;.</div>
         </div>
-        <div class="hw-ht" style="display:none;margin-top:8px;background:#fdf2f8;border-radius:6px;padding:8px;font-size:10px;border-left:3px solid var(--p)">
-          <b>&#x1F451; HT:</b> Accept &#xC804;&#xC5D0; <b>&#xACC4;&#xC57D;&#xC11C; &#xBC1C;&#xC1A1; + &#xC11C;&#xBA85; &#xD655;&#xC778;</b> &#xD544;&#xC694;. &#xBCF4;&#xC0C1; &#xC870;&#xAC74; &#xD569;&#xC758; &#xD6C4; Accept. &#xACB0;&#xC81C;&#xB294; &#xCF58;&#xD150;&#xCE20; &#xD655;&#xC778; &#xD6C4; &#xCC98;&#xB9AC;.
+      </div>
+      <div class="card hw-sec" id="ht-s4" style="border-left:3px solid var(--p)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E8; Step 4: Send + QnA &mdash; <span style="color:var(--p)">Manual Review</span></h3>
+        <div class="hw-body">
+          <div style="font-size:11px;margin-bottom:8px">Outreach &#xBC1C;&#xC1A1; + Reply Handler (WF: <code>K99grtW9iWq8V79f</code>)</div>
+          <div style="background:#fdf2f8;border-radius:6px;padding:10px;font-size:11px;border-left:3px solid var(--p)">Reply &#xBD84;&#xB958; &#xD6C4; <span class="b p">Needs Review</span>. &#xB9C8;&#xCF00;&#xD130;&#xAC00; &#xB2F5;&#xC7A5; &#xB0B4;&#xC6A9; &#xD655;&#xC778; &#xD6C4; &#xC218;&#xB3D9; &#xBC1C;&#xC1A1;. <b>&#xBCF4;&#xC0C1;/&#xACC4;&#xC57D; &#xB17C;&#xC758; &#xD3EC;&#xD568; &#xAC00;&#xB2A5;.</b></div>
+          <div style="margin-top:8px;background:var(--gbg);border-radius:6px;padding:10px;font-size:10px">Creator&#xAC00; Gifting &#xD3FC; &#xC81C;&#xCD9C; &#x2192; &#xC0D8;&#xD50C; &#xC120;&#xD0DD; + &#xC8FC;&#xC18C; &#xC785;&#xB825; &#x2192; Shopify Draft Order &#xC0DD;&#xC131;</div>
         </div>
-        <div style="margin-top:8px;font-size:10px;color:var(--dim)"><b>&#xD310;&#xB2E8;:</b> Content &#xB9C1;&#xD06C;(IG/TT) &#x2192; &#xD314;&#xB85C;&#xC6CC;, &#xCF58;&#xD150;&#xCE20; &#xD488;&#xC9C8;, &#xBE0C;&#xB79C;&#xB4DC; &#xC801;&#xD569;&#xC131;, &#xC544;&#xC774; &#xB098;&#xC774;</div>
+      </div>
+      <div class="card hw-sec" id="ht-s5" style="border-left:3px solid #8250df">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4DC; Step 5: Contract &mdash; DocuSeal Signing</h3>
+        <div class="hw-body">
+          <div style="background:#f5f3ff;border-radius:8px;padding:12px;font-size:11px">
+            &#x2022; Creator &#xD611;&#xC5C5; &#xC218;&#xB77D; &#x2192; &#xBCF4;&#xC0C1; &#xC870;&#xAC74; &#xD569;&#xC758;<br>
+            &#x2022; DocuSeal &#xD15C;&#xD50C;&#xB9BF; &#xACC4;&#xC57D;&#xC11C; &#xC790;&#xB3D9; &#xC0DD;&#xC131; (&#xBB34;&#xB8CC;#4 / &#xC720;&#xB8CC;#5)<br>
+            &#x2022; Creator &#xC774;&#xBA54;&#xC77C;&#xB85C; &#xBC1C;&#xC1A1; &#x2192; &#xC804;&#xC790; &#xC11C;&#xBA85;<br>
+            &#x2022; &#xC11C;&#xBA85; &#xC644;&#xB8CC; &#x2192; <span class="b" style="background:#8250df;color:#fff">Contract Signed</span> &#x2192; Accept &#xB2E8;&#xACC4;&#xB85C;<br>
+            <span style="font-size:10px;color:var(--dim)">WF: <code>HeJtfn0m3PJoPzg0</code></span>
+          </div>
+        </div>
+      </div>
+      <div class="card hw-sec" id="ht-s6" style="border-left:3px solid var(--p)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x2705; Step 6: Accept &mdash; <span style="color:var(--p)">Manual Approve</span></h3>
+        <div class="hw-body">
+          <div style="background:#fdf2f8;border-radius:6px;padding:10px;font-size:11px;border-left:3px solid var(--p)">&#xACC4;&#xC57D; &#xC11C;&#xBA85; &#xC644;&#xB8CC; &#xD655;&#xC778; &#xD6C4; &#xB9C8;&#xCF00;&#xD130;&#xAC00; Accept. Shopify Draft Order &#xC644;&#xB8CC;. <b>&#xBCF4;&#xC0C1; &#xC870;&#xAC74; &#xD569;&#xC758; &#xD6C4; &#xC9C4;&#xD589;.</b></div>
+          <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="background:var(--gbg);border-radius:6px;padding:8px;font-size:10px"><b style="color:var(--g)">Accept</b> &#x2192; <span class="b g">Accepted</span> &#x2192; Sample &#xBC1C;&#xC1A1;</div>
+            <div style="background:var(--rbg);border-radius:6px;padding:8px;font-size:10px"><b style="color:var(--r)">Decline</b> &#x2192; <span class="b r">Declined</span> + Note</div>
+          </div>
+        </div>
+      </div>
+      <div class="card hw-sec" id="ht-s7" style="border-left:3px solid var(--c)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E6; Step 7: Sample Fulfillment</h3>
+        <div class="hw-body"><div style="font-size:11px">Accept &#x2192; Draft Order &#xC644;&#xB8CC; &#x2192; <span class="b c">Sample Sent</span> &#x2192; Shopify &#xBC30;&#xC1A1; &#x2192; <span class="b g">Delivered</span> + Content Guidelines &#xC774;&#xBA54;&#xC77C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</div></div>
+      </div>
+      <div class="card hw-sec" id="ht-s8" style="border-left:3px solid #ea580c">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4B3; Step 8: Payment &mdash; Creator Compensation</h3>
+        <div class="hw-body">
+          <div style="background:#fff7ed;border-radius:8px;padding:12px;font-size:11px">
+            &#x2022; &#xCF58;&#xD150;&#xCE20; &#xD3EC;&#xC2A4;&#xD305; &#xC644;&#xB8CC; (<span class="b g">Posted</span>) &#xD655;&#xC778;<br>
+            &#x2022; &#xACC4;&#xC57D;&#xC11C; &#xC870;&#xAC74;&#xB300;&#xB85C; &#xBCF4;&#xC0C1;&#xAE08; &#xCC98;&#xB9AC;<br>
+            &#x2022; PayPal / &#xC740;&#xD589; &#xC1A1;&#xAE08; &#x2192; <span class="b" style="background:#ea580c;color:#fff">Payment Sent</span><br>
+            <span style="font-size:10px;color:var(--dim)">WF: <code>FRNxtYh8SfMu9Q5E</code> (&#xD604;&#xC7AC; Inactive)</span>
+          </div>
+        </div>
+      </div>
+      <div class="card hw-sec" id="ht-s9" style="border-left:3px solid var(--g)">
+        <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4F8; Step 9: Content Tracking (D+60)</h3>
+        <div class="hw-body"><div style="font-size:11px">Apify Crawl (IG+TikTok) &#x2192; D+7/14/30/60 &#xBA54;&#xD2B8;&#xB9AD; &#xCD94;&#xC801; &#x2192; <span class="b g">Posted</span> &#xAC10;&#xC9C0; &#x2192; Payment &#xD6C4; &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778; &#xC885;&#xB8CC;</div></div>
       </div>
     </div>
 
-    <div class="card hw-sec" id="hw-sample" style="border-left:3px solid var(--c)">
-      <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4E6; Step 6: Sample Fulfillment</h3>
-      <div class="hw-body">
-        <div style="background:var(--cbg);border-radius:8px;padding:12px;font-size:11px">
-          &#x2460; Accept &#x2192; Draft Order &#xC790;&#xB3D9; &#xC644;&#xB8CC; &#x2192; &#x2461; <span class="b c">Sample Sent</span> (&#xB9C8;&#xCF00;&#xD130; &#xD074;&#xB9AD;) &#x2192; &#x2462; n8n poll &#x2192; Shopify Order &#xC0C1;&#xD0DC; &#xC5C5;&#xB370;&#xC774;&#xD2B8; &#x2192; &#x2463; &#xBC30;&#xC1A1; &#xCC98;&#xB9AC; <span class="b c">Sample Shipped</span> &#x2192; &#x2464; <span class="b g">Sample Delivered</span> + Content Guidelines &#xC774;&#xBA54;&#xC77C; &#xC790;&#xB3D9; &#xBC1C;&#xC1A1;<br>
-          <span style="font-size:10px;color:var(--dim)">&#x2465; &#xD3EC;&#xC2A4;&#xD305; &#xC548; &#xD55C; &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130;&#xC5D0;&#xAC8C;&#xB9CC; <span style="border:1px dashed var(--am);padding:1px 4px;border-radius:3px;color:var(--am)">Reminder Sent</span> (&#xC120;&#xD0DD;&#xC801;)</span>
-        </div>
-      </div>
-    </div>
+    <!-- ==================== 공통 섹션 (Architecture, Tests 등) ==================== -->
 
-    <div class="card hw-sec" id="hw-track" style="border-left:3px solid var(--g)">
+    <div class="card hw-sec" id="hw-track" style="border-left:3px solid var(--g);display:none">
       <h3 style="font-size:14px" onclick="toggleHwSec(this.parentElement)">&#x1F4F8; Step 7: Content Tracking (D+60) &mdash; CI Pipeline</h3>
       <div class="hw-body">
         <div class="desc" style="font-size:10px;color:var(--dim);margin-bottom:8px">Content Intelligence &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778;&#xACFC; &#xB3D9;&#xC77C; &#xC18C;&#xC2A4; (Apify &#xD06C;&#xB864;&#xB7EC; &#xAE30;&#xBC18;)</div>
@@ -428,7 +467,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
 
   <!-- ===== TAB 1: CONFIG ===== -->
   <div class="mp" id="p-config">
-    <!-- LT/HT Sub-tabs for Config -->
+    <!-- LT/HT/ICO Sub-tabs for Config -->
     <div style="display:flex;gap:0;margin-bottom:14px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
       <button class="btn" id="cfg-btn-lt" onclick="switchCfgMode('lt')" style="flex:1;border-radius:0;border:none;padding:10px;font-size:11px;font-weight:700;background:var(--a);color:#fff">
         &#x26A1; LT Config<br><span style="font-weight:400;font-size:9px">Auto-send, auto-reply, no contract</span>
@@ -436,11 +475,14 @@ Shopify                         Apify / Syncly                   Gmail RAG
       <button class="btn" id="cfg-btn-ht" onclick="switchCfgMode('ht')" style="flex:1;border-radius:0;border:none;border-left:1px solid var(--border);padding:10px;font-size:11px;font-weight:700;background:var(--bg);color:var(--dim)">
         &#x1F451; HT Config<br><span style="font-weight:400;font-size:9px">Manual review, contract, payment</span>
       </button>
+      <button class="btn" id="cfg-btn-ico" onclick="switchCfgMode('ico')" style="flex:1;border-radius:0;border:none;border-left:1px solid var(--border);padding:10px;font-size:11px;font-weight:700;background:var(--bg);color:var(--dim)">
+        &#x2728; ICO Outreach<br><span style="font-weight:400;font-size:9px">Syncly &rarr; Fit Score &rarr; Personalized Email</span>
+      </button>
     </div>
     <!-- LT Config Summary -->
     <div id="cfg-lt-summary" class="card" style="border-left:3px solid var(--a);margin-bottom:12px">
       <div style="font-size:11px;line-height:1.7">
-        <b>&#x26A1; Low Touch &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778;</b> &mdash; &lt; 100K followers<br>
+        <b>&#x26A1; Low Touch &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778;</b> &mdash; &#xD314;&#xB85C;&#xC6CC; &lt; 50K &#xB610;&#xB294; R30D &#xC870;&#xD68C;&#xC218; &lt; 100K<br>
         &#x2022; &#xC774;&#xBA54;&#xC77C; &#xCD08;&#xC548;: <b>&#xC790;&#xB3D9; &#xC2B9;&#xC778;</b> (Draft Review OFF)<br>
         &#x2022; Reply Handler: <b>&#xC790;&#xB3D9; &#xBC1C;&#xC1A1;</b> (Accept/FAQ/Normal &#xBAA8;&#xB450;)<br>
         &#x2022; &#xBCF4;&#xC0C1;: <b>&#xBB34;&#xB8CC; &#xC0D8;&#xD50C;</b> (&#xACC4;&#xC57D;/&#xACB0;&#xC81C; &#xC5C6;&#xC74C;)<br>
@@ -454,6 +496,16 @@ Shopify                         Apify / Syncly                   Gmail RAG
         &#x2022; Reply Handler: <span class="b p">Needs Review</span> (&#xC218;&#xB3D9; &#xC2B9;&#xC778;)<br>
         &#x2022; &#xBCF4;&#xC0C1;: <b>&#xACC4;&#xC57D;&#xC11C; + &#xACB0;&#xC81C;</b> (&#xCF58;&#xD150;&#xCE20; &#xD655;&#xC778; &#xD6C4;)<br>
         &#x2022; Accept &#xC804;&#xC5D0; &#xACC4;&#xC57D; &#xC11C;&#xBA85; &#xD544;&#xC694;
+      </div>
+    </div>
+    <div id="cfg-ico-summary" class="card" style="display:none;border-left:3px solid #06b6d4;margin-bottom:12px">
+      <div style="font-size:11px;line-height:1.7">
+        <b>&#x2728; ICO Outreach &#xD30C;&#xC774;&#xD504;&#xB77C;&#xC778;</b> &mdash; Jeehoo Agent<br>
+        &#x2022; &#xB370;&#xC774;&#xD130;: <b>Syncly &#xC2DC;&#xD2B8;</b> (&#xD504;&#xB85C;&#xD544;/&#xCF58;&#xD150;&#xCE20;/&#xBC14;&#xC774;&#xC624;)<br>
+        &#x2022; 3-Way &#xD544;&#xD130;: <b>Geo + Brand + Email</b> &#xC790;&#xB3D9; &#xC2A4;&#xD0B5;<br>
+        &#x2022; Fit Score: <b>40+ &#xC774;&#xC0C1;&#xB9CC; &#xC9C4;&#xD589;</b> (&#xC721;&#xC544; &#xD0A4;&#xC6CC;&#xB4DC; &#xBC00;&#xB3C4;)<br>
+        &#x2022; 3-Way Dedup: <b>zezebaebae + onzenna + Creators &#xC2DC;&#xD2B8;</b><br>
+        &#x2022; AI &#xAC1C;&#xC778;&#xD654; &#xC774;&#xBA54;&#xC77C; &#x2192; <b>Gmail Draft</b> (&#xC790;&#xB3D9; &#xBC1C;&#xC1A1; &#xC5C6;&#xC74C;)
       </div>
     </div>
     <div id="config-loading" style="text-align:center;padding:30px;color:var(--dim)">Loading config...</div>
@@ -477,29 +529,44 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <div id="date-count-hint" style="font-size:10px;color:var(--g);padding:2px 0 4px 145px;display:none"></div>
         <div class="form-row"><label>Batch Size</label><input type="number" id="f-creators-contacted" min="1" max="500" step="1" oninput="var l=document.getElementById('alloc-batch-label');if(l)l.textContent=this.value;updateAllocation()"></div>
         <div class="form-row"><label>HT Threshold (R30D)</label><input type="number" id="f-ht-threshold" min="0" step="10000"></div>
+        <div class="form-row"><label>HT Min Followers</label><input type="number" id="f-ht-follower-min" min="0" step="5000"></div>
       </div>
       <div class="card">
         <h3>&#x1F527; Feature Toggles</h3>
         <div class="desc">Each filter adjusts the eligible pool. Click <b>Check</b> to see impact before executing.</div>
 
+        <!-- Step 0: US Only Filter -->
+        <div class="ft-step" id="fts-us" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <input type="checkbox" class="rq-check" id="ft-check-us" style="flex-shrink:0" onchange="updateFtSummary()">
+            <span style="font-size:11px;font-weight:800;color:#ef4444;font-family:var(--mono);min-width:16px">&#x24EA;</span>
+            <span style="font-weight:700;min-width:120px">US Only</span>
+            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-us-only"><span class="slider"></span></label>
+            <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('us')" id="ft-btn-us" style="font-size:10px">&#x1F50D; Check</button>
+            <span id="ft-badge-us"></span>
+          </div>
+          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Only include English-language creators (Syncly Language=en). Non-US filtered at shipping address.</div>
+          <div id="ft-expand-us" style="display:none;margin:4px 0 0 28px"></div>
+        </div>
+
         <!-- Step 1: Brand Filter -->
         <div class="ft-step" id="fts-brand" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <input type="checkbox" checked class="rq-check" id="ft-check-brand" style="flex-shrink:0" onchange="updateFtSummary()">
+            <input type="checkbox" class="rq-check" id="ft-check-brand" style="flex-shrink:0" onchange="updateFtSummary()">
             <span style="font-size:11px;font-weight:800;color:var(--a);font-family:var(--mono);min-width:16px">&#x2460;</span>
-            <span style="font-weight:700;min-width:120px">Apify Brand Filter</span>
-            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-brand-filter" checked><span class="slider"></span></label>
+            <span style="font-weight:700;min-width:120px">Business Account Filter</span>
+            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-brand-filter"><span class="slider"></span></label>
             <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('brand')" id="ft-btn-brand" style="font-size:10px">&#x1F50D; Check</button>
             <span id="ft-badge-brand"></span>
           </div>
-          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Auto-exclude 27 brand/reseller accounts from crawl</div>
+          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Exclude business/brand accounts (Apify isBusinessAccount + businessCategoryName)</div>
           <div id="ft-expand-brand" style="display:none;margin:4px 0 0 28px"></div>
         </div>
 
         <!-- Step 2: Apify Autofill -->
         <div class="ft-step" id="fts-apify" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <input type="checkbox" checked class="rq-check" id="ft-check-apify" style="flex-shrink:0" onchange="updateFtSummary()">
+            <input type="checkbox" class="rq-check" id="ft-check-apify" style="flex-shrink:0" onchange="updateFtSummary()">
             <span style="font-size:11px;font-weight:800;color:var(--a);font-family:var(--mono);min-width:16px">&#x2461;</span>
             <span style="font-weight:700;min-width:120px">Apify Autofill</span>
             <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-autofill"><span class="slider"></span></label>
@@ -513,14 +580,14 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <!-- Step 3: RAG Email Dedup (strongest, runs last) -->
         <div class="ft-step" id="fts-rag" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <input type="checkbox" checked class="rq-check" id="ft-check-rag" style="flex-shrink:0" onchange="updateFtSummary()">
+            <input type="checkbox" class="rq-check" id="ft-check-rag" style="flex-shrink:0" onchange="updateFtSummary()">
             <span style="font-size:11px;font-weight:800;color:var(--r);font-family:var(--mono);min-width:16px">&#x2462;</span>
             <span style="font-weight:700;min-width:120px">RAG Email Dedup</span>
             <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-rag-dedup"><span class="slider"></span></label>
             <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('rag')" id="ft-btn-rag" style="font-size:10px">&#x1F50D; Check</button>
             <span id="ft-badge-rag"></span>
           </div>
-          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Final gate &#x2014; removes anyone already contacted, even if Apify just found their email</div>
+          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">3-account cross-check: <b>affiliates@onzenna.com</b> + <b>hello@zezebaebae.com</b> + <b>ManyChat DM</b></div>
           <div id="ft-expand-rag" style="display:none;margin:4px 0 0 28px"></div>
         </div>
 
@@ -545,7 +612,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
       <div class="card">
         <h3>&#x1F464; Human-in-Loop Controls</h3>
         <div class="desc">Each step can require human approval independently. OFF = auto-proceed.</div>
-        <div class="form-row"><label>Draft Review</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-hil-draft"><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Review generated email drafts before queuing</span></div>
+        <div class="form-row"><label>Draft Review</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-hil-draft" checked><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Review generated email drafts before queuing</span></div>
         <div class="form-row"><label>Send Approval</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-hil-send"><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Confirm before sending real emails</span></div>
 
         <div class="form-row"><label>Sample Approval</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="f-hil-sample"><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Confirm before creating Shopify draft orders</span></div>
@@ -596,9 +663,9 @@ Shopify                         Apify / Syncly                   Gmail RAG
           <div style="font-size:9px;color:var(--dim);margin-bottom:8px">Content hashtag/keyword &#x2192; brand assignment. Grosmimi = default (&#xB098;&#xBA38;&#xC9C0; &#xC804;&#xBD80;).</div>
           <div style="display:grid;grid-template-columns:80px 1fr;gap:4px 8px;font-size:10px">
             <span style="font-weight:700;color:var(--am)">Naeiae</span>
-            <input type="text" id="brand-kw-naeiae" value="naeiae, rice puff, baby snack, organic snack, puff snack, teething wafer, baby food, rice cracker" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:9px;font-family:var(--mono);color:var(--text)">
+            <input type="text" id="brand-kw-naeiae" value="toddler snacks, #blw, #babyledweaning, starting solids, #teething, self feeding, solid foods, toddler meals, baby snacks, baby food, finger food" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:9px;font-family:var(--mono);color:var(--text)">
             <span style="font-weight:700;color:var(--c)">CHA&amp;MOM</span>
-            <input type="text" id="brand-kw-chaenmom" value="cha&amp;mom, chamom, chaenmom, ps cream, skincare, lotion, moisturizer, baby cream, eczema, sensitive skin, diaper cream" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:9px;font-family:var(--mono);color:var(--text)">
+            <input type="text" id="brand-kw-chaenmom" value="baby lotion, baby cream, ointment, newborn, face, body, diaper, diaper cream, rash, eczema, dry skin, itch, sensitive" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:9px;font-family:var(--mono);color:var(--text)">
             <span style="font-weight:700;color:var(--g)">Grosmimi</span>
             <span style="font-size:9px;color:var(--dim);padding:3px 0">&#x2190; default (&#xC704; &#xB450; &#xBE0C;&#xB79C;&#xB4DC;&#xC5D0; &#xD574;&#xB2F9; &#xC548; &#xB418;&#xBA74; &#xC804;&#xBD80; Grosmimi)</span>
           </div>
@@ -612,13 +679,13 @@ Shopify                         Apify / Syncly                   Gmail RAG
           </div>
           <div id="alloc-auto-info" style="display:none;font-size:9px;color:var(--dim);margin-bottom:6px;padding:4px 6px;background:var(--abg);border-radius:4px"></div>
           <div style="display:grid;grid-template-columns:90px 60px 1fr;gap:4px 8px;align-items:center;font-size:11px">
-            <label style="font-weight:600;color:var(--g)">Grosmimi</label>
+            <label style="font-weight:600;color:var(--g)">Grosmimi <span style="font-size:8px;background:var(--g);color:#fff;padding:1px 5px;border-radius:8px;font-weight:600">Jeehoo</span></label>
             <input type="number" id="alloc-grosmimi" value="5" min="0" max="999" style="width:50px;padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit;text-align:center" oninput="updateAllocation()">
             <div style="background:var(--border);border-radius:3px;height:10px;overflow:hidden"><div id="bar-grosmimi" style="height:100%;background:var(--g);width:50%;transition:.2s"></div></div>
-            <label style="font-weight:600;color:var(--c)">CHA&amp;MOM</label>
+            <label style="font-weight:600;color:var(--c)">CHA&amp;MOM <span style="font-size:8px;background:var(--c);color:#fff;padding:1px 5px;border-radius:8px;font-weight:600">Laeeka</span></label>
             <input type="number" id="alloc-chaenmom" value="3" min="0" max="999" style="width:50px;padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit;text-align:center" oninput="updateAllocation()">
             <div style="background:var(--border);border-radius:3px;height:10px;overflow:hidden"><div id="bar-chaenmom" style="height:100%;background:var(--c);width:30%;transition:.2s"></div></div>
-            <label style="font-weight:600;color:var(--am)">Naeiae</label>
+            <label style="font-weight:600;color:var(--am)">Naeiae <span style="font-size:8px;background:var(--am);color:#fff;padding:1px 5px;border-radius:8px;font-weight:600">Soyeon</span></label>
             <input type="number" id="alloc-naeiae" value="2" min="0" max="999" style="width:50px;padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit;text-align:center" oninput="updateAllocation()">
             <div style="background:var(--border);border-radius:3px;height:10px;overflow:hidden"><div id="bar-naeiae" style="height:100%;background:var(--am);width:20%;transition:.2s"></div></div>
             <label style="font-weight:600;color:var(--muted)">Unallocated</label>
@@ -695,7 +762,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
       <div id="cfg-ht-body" style="display:none">
         <div class="card" style="border-left:3px solid var(--p)">
           <h3>&#x1F451; HT Batch Control</h3>
-          <div class="desc">High Touch creators (&ge; 100K followers). Manual review, contract, payment flow.</div>
+          <div class="desc">High Touch creators (&#xD314;&#xB85C;&#xC6CC; &ge;50K AND R30D &ge;100K). Manual review, contract, payment flow.</div>
           <div class="form-row"><label>HT Threshold (R30D)</label><input type="number" id="ht-f-threshold" min="0" step="10000" value="100000" onchange="loadHtPreview()"></div>
           <div class="form-row"><label>Batch Size</label><input type="number" id="ht-f-batch-size" min="1" max="100" step="1" value="5"></div>
           <div class="form-row"><label>Sender Email</label><input type="email" id="ht-f-sender-email" value="affiliates@onzenna.com"></div>
@@ -710,6 +777,23 @@ Shopify                         Apify / Syncly                   Gmail RAG
           <div class="form-row"><label>Contract Review</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="ht-f-hil-contract" checked><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Review and send contract before proceeding</span></div>
           <div class="form-row"><label>Sample Approval</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="ht-f-hil-sample" checked><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Approve sample after contract is signed</span></div>
           <div class="form-row"><label>Payment Approval</label><label class="toggle" style="min-width:auto"><input type="checkbox" id="ht-f-hil-payment" checked><span class="slider"></span></label><span style="font-size:10px;color:var(--dim)">Approve payment after content is posted</span></div>
+        </div>
+
+        <div class="card" style="border-left:3px solid var(--p)">
+          <h3>&#x1F4DD; DocuSeal Contract Settings</h3>
+          <div class="desc">DocuSeal API &#xC5F0;&#xB3D9;&#xC73C;&#xB85C; &#xACC4;&#xC57D;&#xC11C; &#xC790;&#xB3D9; &#xC0DD;&#xC131; + &#xC11C;&#xBA85; &#xCD94;&#xC801;</div>
+          <div class="form-row"><label>DocuSeal API URL</label><input type="url" id="ht-docuseal-url" value="https://docuseal.orbiters.co.kr" placeholder="https://docuseal.orbiters.co.kr"></div>
+          <div class="form-row"><label>Template ID</label><input type="number" id="ht-docuseal-template" value="1" placeholder="DocuSeal template ID"></div>
+          <div class="form-row"><label>W-9 Threshold ($)</label><input type="number" id="ht-w9-threshold" value="600" min="0" step="100"></div>
+          <div style="font-size:9px;color:var(--dim);padding:2px 0 0 145px">$600+ &#xACB0;&#xC81C; &#xC2DC; W-9 &#xC790;&#xB3D9; &#xD3EC;&#xD568;</div>
+          <div style="margin-top:10px;padding:8px;background:#fdf2f8;border:1px solid var(--border);border-radius:6px">
+            <div style="font-size:9px;font-weight:700;color:var(--dim);margin-bottom:4px">Contract Flow</div>
+            <div style="font-size:9px;color:var(--dim);line-height:1.6;font-family:var(--mono)">
+              Gmail &#xC2A4;&#xB808;&#xB4DC; &#x2192; &#xC870;&#xAC74; &#xCD94;&#xCD9C; &#x2192; Word &#xD15C;&#xD50C;&#xB9BF; &#xCC44;&#xC6B0;&#xAE30; &#x2192; DocuSeal &#xC5C5;&#xB85C;&#xB4DC;<br>
+              &#x2192; &#xC11C;&#xBA85; &#xC694;&#xCCAD; &#xC0DD;&#xC131; (Draft) &#x2192; &#xC11C;&#xBA85; &#xC0C1;&#xD0DC; &#xCD94;&#xC801;<br>
+              Status: Draft &#x2192; Sent &#x2192; Viewed &#x2192; Signed
+            </div>
+          </div>
         </div>
 
         <div class="card" style="border-left:3px solid var(--p)">
@@ -747,12 +831,30 @@ Shopify                         Apify / Syncly                   Gmail RAG
           </div>
 
           <!-- HT Step 3: Review & Send -->
-          <div class="bp-step" id="ht-bp-step-3" style="display:flex;align-items:center;gap:8px;padding:10px 0;opacity:.5">
+          <div class="bp-step" id="ht-bp-step-3" style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f1f5f9;opacity:.5">
             <input type="checkbox" checked class="rq-check" id="ht-bp-check-3" style="flex-shrink:0">
             <span style="font-size:11px;font-weight:800;color:var(--am);font-family:var(--mono);min-width:20px">&#x2462;</span>
             <span style="font-weight:700;flex:1">Review &amp; Send</span>
             <span id="ht-bp-result-3" style="font-size:10px"></span>
             <button class="btn btn-sm btn-success" onclick="execHtBatchStep(3)" id="ht-bp-btn-3" disabled>&#x25B6; Execute</button>
+          </div>
+
+          <!-- HT Step 4: Send Contract (DocuSeal) -->
+          <div class="bp-step" id="ht-bp-step-4" style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f1f5f9;opacity:.5">
+            <input type="checkbox" checked class="rq-check" id="ht-bp-check-4" style="flex-shrink:0">
+            <span style="font-size:11px;font-weight:800;color:var(--p);font-family:var(--mono);min-width:20px">&#x2463;</span>
+            <span style="font-weight:700;flex:1">Send Contract <span style="font-size:9px;color:var(--dim);font-weight:400">(DocuSeal)</span></span>
+            <span id="ht-bp-result-4" style="font-size:10px"></span>
+            <button class="btn btn-sm" onclick="execHtBatchStep(4)" id="ht-bp-btn-4" disabled style="background:var(--p);color:#fff">&#x25B6; Execute</button>
+          </div>
+
+          <!-- HT Step 5: Check Contract Status -->
+          <div class="bp-step" id="ht-bp-step-5" style="display:flex;align-items:center;gap:8px;padding:10px 0;opacity:.5">
+            <input type="checkbox" checked class="rq-check" id="ht-bp-check-5" style="flex-shrink:0">
+            <span style="font-size:11px;font-weight:800;color:var(--g);font-family:var(--mono);min-width:20px">&#x2464;</span>
+            <span style="font-weight:700;flex:1">Check Signatures</span>
+            <span id="ht-bp-result-5" style="font-size:10px"></span>
+            <button class="btn btn-sm btn-success" onclick="execHtBatchStep(5)" id="ht-bp-btn-5" disabled>&#x25B6; Execute</button>
           </div>
 
           <div style="display:flex;gap:6px;margin-top:12px;justify-content:center">
@@ -767,6 +869,151 @@ Shopify                         Apify / Syncly                   Gmail RAG
           <div id="ht-change-log" style="max-height:200px;overflow-y:auto"><div style="color:var(--muted);font-size:11px;padding:8px 0">No history yet</div></div>
         </div>
       </div><!-- /cfg-ht-body -->
+
+      <!-- ===== ICO CONFIG BODY ===== -->
+      <div id="cfg-ico-body" style="display:none">
+        <div class="card" style="border-left:3px solid #06b6d4">
+          <h3>&#x1F4CB; Syncly Data Source</h3>
+          <div class="desc">Syncly &#xC2DC;&#xD2B8;&#xC5D0;&#xC11C; &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130; &#xB370;&#xC774;&#xD130;&#xB97C; &#xAC00;&#xC838;&#xC635;&#xB2C8;&#xB2E4;.</div>
+          <div class="form-row"><label>Spreadsheet ID</label><input type="text" id="ico-spreadsheet-id" value="1_IWDPmWIqjtGXyMoD5vfGbdAJcBjlZMrTUWGiQ2ZtIg"></div>
+          <div class="form-row"><label>Data Tab</label><input type="text" id="ico-data-tab" placeholder="Output_updated_YYMMDD"></div>
+          <div class="form-row"><label>Creators Tab</label><input type="text" id="ico-creators-tab" placeholder="Creators_updated_YYMMDD"></div>
+        </div>
+
+        <div class="card" style="border-left:3px solid #06b6d4">
+          <h3>&#x1F527; Pre-Filters</h3>
+          <div class="desc">&#xAC01; &#xD544;&#xD130;&#xB294; &#xC21C;&#xCC28;&#xC801;&#xC73C;&#xB85C; &#xC801;&#xC6A9;. &#xBD80;&#xC801;&#xD569; &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130;&#xB294; &#xC790;&#xB3D9; &#xBE14;&#xB799;&#xB9AC;&#xC2A4;&#xD2B8;.</div>
+
+          <div style="padding:8px 0;border-bottom:1px solid #f1f5f9">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:11px;font-weight:800;color:#06b6d4;font-family:var(--mono);min-width:16px">&#x2460;</span>
+              <span style="font-weight:700;min-width:100px">Geo Filter</span>
+              <label class="toggle" style="min-width:auto"><input type="checkbox" id="ico-filter-geo" checked><span class="slider"></span></label>
+              <span style="font-size:9px;color:var(--dim)">US/CA &#xC774;&#xC678; &#xC9C0;&#xC5ED; &#xC790;&#xB3D9; &#xC2A4;&#xD0B5;</span>
+            </div>
+          </div>
+
+          <div style="padding:8px 0;border-bottom:1px solid #f1f5f9">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:11px;font-weight:800;color:#06b6d4;font-family:var(--mono);min-width:16px">&#x2461;</span>
+              <span style="font-weight:700;min-width:100px">Brand Filter</span>
+              <label class="toggle" style="min-width:auto"><input type="checkbox" id="ico-filter-brand" checked><span class="slider"></span></label>
+              <span style="font-size:9px;color:var(--dim)">&#xBE0C;&#xB79C;&#xB4DC;/&#xB9F4; &#xACC4;&#xC815; &#xC790;&#xB3D9; &#xC2A4;&#xD0B5;</span>
+            </div>
+          </div>
+
+          <div style="padding:8px 0;border-bottom:1px solid #f1f5f9">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:11px;font-weight:800;color:#06b6d4;font-family:var(--mono);min-width:16px">&#x2462;</span>
+              <span style="font-weight:700;min-width:100px">Email Filter</span>
+              <label class="toggle" style="min-width:auto"><input type="checkbox" id="ico-filter-email" checked><span class="slider"></span></label>
+              <span style="font-size:9px;color:var(--dim)">&#xC784;&#xC2DC; &#xC774;&#xBA54;&#xC77C;/&#xC720;&#xD6A8;&#xD558;&#xC9C0; &#xC54A;&#xC740; &#xD3EC;&#xB9F7; &#xC2A4;&#xD0B5;</span>
+            </div>
+          </div>
+
+          <div style="padding:8px 0">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:11px;font-weight:800;color:var(--r);font-family:var(--mono);min-width:16px">&#x2463;</span>
+              <span style="font-weight:700;min-width:100px">3-Way Dedup</span>
+              <label class="toggle" style="min-width:auto"><input type="checkbox" id="ico-filter-dedup" checked><span class="slider"></span></label>
+              <span style="font-size:9px;color:var(--dim)">zezebaebae + onzenna + Creators &#xC2DC;&#xD2B8; &#xC911;&#xBCF5; &#xCCB4;&#xD06C;</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="border-left:3px solid #06b6d4">
+          <h3>&#x1F3AF; Fit Scoring</h3>
+          <div class="desc">&#xC721;&#xC544; &#xD0A4;&#xC6CC;&#xB4DC; &#xBC00;&#xB3C4; + Transcript &#xD488;&#xC9C8; + Bio &#xBD84;&#xC11D;&#xC73C;&#xB85C; &#xC810;&#xC218;&#xD654;</div>
+          <div class="form-row"><label>Fit Score Threshold</label><input type="number" id="ico-fit-threshold" value="40" min="0" max="100" step="5"></div>
+          <div style="font-size:9px;color:var(--dim);margin-top:4px;padding-left:145px">
+            40+ = &#xC9C4;&#xD589; &#x2705; | 0-39 = &#xC2A4;&#xD0B5; + &#xBE14;&#xB799;&#xB9AC;&#xC2A4;&#xD2B8; &#x274C;
+          </div>
+          <div style="margin-top:10px;padding:8px;background:#f0f9ff;border:1px solid var(--border);border-radius:6px">
+            <div style="font-size:9px;font-weight:700;color:var(--dim);margin-bottom:4px">Scoring Components</div>
+            <div style="font-size:9px;color:var(--dim);line-height:1.6;font-family:var(--mono)">
+              Parenting Keywords (40pt) + Transcript Richness (20pt)<br>
+              + Bio Keywords (20pt) + Theme Bonus (10pt) + Competitor Bonus (+10pt)
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="border-left:3px solid #06b6d4">
+          <h3>&#x2709;&#xFE0F; Email Settings</h3>
+          <div class="form-row"><label>Sender Name</label><input type="text" id="ico-sender-name" value="Jane"></div>
+          <div class="form-row"><label>Sender Email</label><input type="email" id="ico-sender-email" value="affiliates@onzenna.com"></div>
+          <div class="form-row"><label>Batch Size</label><input type="number" id="ico-batch-size" value="50" min="1" max="50" step="1"></div>
+          <div style="font-size:9px;color:var(--dim);margin-top:4px;padding-left:145px">
+            &#xCD5C;&#xB300; 50&#xBA85;/&#xBC30;&#xCE58;. Gmail Draft&#xB9CC; &#xC0DD;&#xC131; (&#xC790;&#xB3D9; &#xBC1C;&#xC1A1; &#xC5C6;&#xC74C;)
+          </div>
+        </div>
+
+        <div class="card" style="border-left:3px solid #06b6d4">
+          <h3>&#x1F4AC; Notification</h3>
+          <div class="form-row"><label>Discord Webhook</label><input type="url" id="ico-discord-url" placeholder="https://discordapp.com/api/webhooks/..."></div>
+        </div>
+
+        <!-- ICO Batch Pipeline -->
+        <div class="card" style="border-left:3px solid #06b6d4">
+          <h3>&#x1F680; ICO Outreach Pipeline</h3>
+          <div class="desc">Syncly &#xB370;&#xC774;&#xD130; &#x2192; &#xD544;&#xD130; &#x2192; Fit Score &#x2192; Dedup &#x2192; AI &#xC774;&#xBA54;&#xC77C; &#xCD08;&#xC548; &#xC0DD;&#xC131;</div>
+
+          <!-- ICO Step 1: Fetch Syncly Data -->
+          <div class="bp-step" id="ico-bp-step-1" style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f1f5f9">
+            <input type="checkbox" checked class="rq-check" id="ico-bp-check-1" style="flex-shrink:0">
+            <span style="font-size:11px;font-weight:800;color:#06b6d4;font-family:var(--mono);min-width:20px">&#x2460;</span>
+            <span style="font-weight:700;flex:1">Fetch Syncly Data</span>
+            <span id="ico-bp-result-1" style="font-size:10px"></span>
+            <button class="btn btn-sm" onclick="execIcoBatchStep(1)" id="ico-bp-btn-1" style="background:#06b6d4;color:#fff">&#x25B6; Execute</button>
+          </div>
+
+          <!-- ICO Step 2: Run Pre-Filters + Fit Score -->
+          <div class="bp-step" id="ico-bp-step-2" style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f1f5f9;opacity:.5">
+            <input type="checkbox" checked class="rq-check" id="ico-bp-check-2" style="flex-shrink:0">
+            <span style="font-size:11px;font-weight:800;color:#06b6d4;font-family:var(--mono);min-width:20px">&#x2461;</span>
+            <span style="font-weight:700;flex:1">Run Filters + Fit Score</span>
+            <span id="ico-bp-result-2" style="font-size:10px"></span>
+            <button class="btn btn-sm" onclick="execIcoBatchStep(2)" id="ico-bp-btn-2" disabled style="background:#06b6d4;color:#fff">&#x25B6; Execute</button>
+          </div>
+
+          <!-- ICO Step 3: 3-Way Dedup -->
+          <div class="bp-step" id="ico-bp-step-3" style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f1f5f9;opacity:.5">
+            <input type="checkbox" checked class="rq-check" id="ico-bp-check-3" style="flex-shrink:0">
+            <span style="font-size:11px;font-weight:800;color:var(--r);font-family:var(--mono);min-width:20px">&#x2462;</span>
+            <span style="font-weight:700;flex:1">3-Way Dedup Check</span>
+            <span id="ico-bp-result-3" style="font-size:10px"></span>
+            <button class="btn btn-sm" onclick="execIcoBatchStep(3)" id="ico-bp-btn-3" disabled style="background:#06b6d4;color:#fff">&#x25B6; Execute</button>
+          </div>
+
+          <!-- ICO Step 4: Generate AI Drafts -->
+          <div class="bp-step" id="ico-bp-step-4" style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f1f5f9;opacity:.5">
+            <input type="checkbox" checked class="rq-check" id="ico-bp-check-4" style="flex-shrink:0">
+            <span style="font-size:11px;font-weight:800;color:var(--g);font-family:var(--mono);min-width:20px">&#x2463;</span>
+            <span style="font-weight:700;flex:1">Generate AI Drafts</span>
+            <span id="ico-bp-result-4" style="font-size:10px"></span>
+            <button class="btn btn-sm btn-success" onclick="execIcoBatchStep(4)" id="ico-bp-btn-4" disabled>&#x25B6; Execute</button>
+          </div>
+
+          <!-- ICO Step 5: Report + Discord -->
+          <div class="bp-step" id="ico-bp-step-5" style="display:flex;align-items:center;gap:8px;padding:10px 0;opacity:.5">
+            <input type="checkbox" checked class="rq-check" id="ico-bp-check-5" style="flex-shrink:0">
+            <span style="font-size:11px;font-weight:800;color:var(--am);font-family:var(--mono);min-width:20px">&#x2464;</span>
+            <span style="font-weight:700;flex:1">Report + Notify</span>
+            <span id="ico-bp-result-5" style="font-size:10px"></span>
+            <button class="btn btn-sm" onclick="execIcoBatchStep(5)" id="ico-bp-btn-5" disabled style="background:var(--am);color:#fff">&#x25B6; Execute</button>
+          </div>
+
+          <div style="display:flex;gap:6px;margin-top:12px;justify-content:center">
+            <button class="btn" onclick="execAllIcoBatchSteps()" style="background:#06b6d4;color:#fff">&#x1F680; Execute All Checked</button>
+            <button class="btn btn-secondary" onclick="resetIcoBatchPipeline()">&#x21BB; Reset</button>
+          </div>
+        </div>
+
+        <!-- ICO Results Preview -->
+        <div id="ico-results-preview" class="card" style="display:none;border-left:3px solid var(--g)">
+          <h3>&#x1F4CA; ICO Batch Results</h3>
+          <div id="ico-results-content"></div>
+        </div>
+      </div><!-- /cfg-ico-body -->
     </div>
   </div>
 
@@ -802,6 +1049,11 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <option value="">All Sources</option>
         <option value="outbound">Outbound</option><option value="inbound">Inbound</option>
       </select>
+      <select id="cr-assigned" onchange="loadCreators()">
+        <option value="">All Owners</option>
+        <option value="Jeehoo">Jeehoo</option><option value="Laeeka">Laeeka</option>
+        <option value="Soyeon">Soyeon</option><option value="__none">Unassigned</option>
+      </select>
       <button class="btn btn-sm btn-secondary" onclick="loadCreators()">&#x1F50D;</button>
     </div>
     <div style="overflow-x:auto;max-height:500px;overflow-y:auto;border:1px solid var(--border);border-radius:8px">
@@ -819,50 +1071,94 @@ Shopify                         Apify / Syncly                   Gmail RAG
 
   <!-- ===== TAB 3: EXECUTION ===== -->
   <div class="mp" id="p-execution">
+    <!-- LT/HT Execution Sub-tabs -->
+    <div style="display:flex;gap:0;margin-bottom:16px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+      <button class="btn" id="ex-btn-lt" onclick="switchExecMode('lt')" style="flex:1;border-radius:0;border:none;padding:12px;font-size:12px;font-weight:700;background:var(--a);color:#fff">
+        &#x26A1; LOW TOUCH<br><span style="font-weight:400;font-size:10px">Auto-send | Gifting only</span>
+      </button>
+      <button class="btn" id="ex-btn-ht" onclick="switchExecMode('ht')" style="flex:1;border-radius:0;border:none;border-left:1px solid var(--border);padding:12px;font-size:12px;font-weight:700;background:var(--bg);color:var(--dim)">
+        &#x1F451; HIGH TOUCH<br><span style="font-weight:400;font-size:10px">Manual review | Contract + Payment</span>
+      </button>
+    </div>
+
     <!-- Pipeline funnel -->
     <div class="card">
       <h3>&#x1F3AF; Pipeline Funnel</h3>
       <div class="funnel" id="exec-funnel"></div>
     </div>
-    <!-- PROPOSE & EXECUTE -->
-    <div class="card" id="propose-execute-card">
-      <h3>&#x26A1; Pending Actions <span id="pe-total" style="background:var(--am);color:#fff;padding:1px 8px;border-radius:10px;font-size:10px;margin-left:4px">0</span>
-        <button class="btn btn-primary" id="pe-execute-btn" onclick="executeAllPending()" style="margin-left:auto;font-size:11px;padding:5px 16px">&#x1F680; Execute All</button>
-      </h3>
-      <div class="desc">PPC Propose &amp; Execute &#xD328;&#xD134;. &#xCCB4;&#xD06C;&#xB41C; &#xD56D;&#xBAA9;&#xB9CC; &#xC2E4;&#xD589;&#xB429;&#xB2C8;&#xB2E4;. &#xAE30;&#xBCF8; &#xC804;&#xCCB4; &#xCCB4;&#xD06C;.</div>
-      <div id="pe-actions" style="margin-top:10px">
-        <div style="color:var(--muted);font-size:11px;padding:8px 0">Loading pending actions...</div>
+
+    <!-- ===== LT Execution Panel ===== -->
+    <div id="exec-panel-lt">
+      <div class="card" id="propose-execute-card">
+        <h3>&#x26A1; Pending Actions <span id="pe-total" style="background:var(--am);color:#fff;padding:1px 8px;border-radius:10px;font-size:10px;margin-left:4px">0</span>
+          <button class="btn btn-primary" id="pe-execute-btn" onclick="executeAllPending()" style="margin-left:auto;font-size:11px;padding:5px 16px">&#x1F680; Execute All</button>
+        </h3>
+        <div class="desc">PPC Propose &amp; Execute &#xD328;&#xD134;. &#xCCB4;&#xD06C;&#xB41C; &#xD56D;&#xBAA9;&#xB9CC; &#xC2E4;&#xD589;&#xB429;&#xB2C8;&#xB2E4;. &#xAE30;&#xBCF8; &#xC804;&#xCCB4; &#xCCB4;&#xD06C;.</div>
+        <div id="pe-actions" style="margin-top:10px">
+          <div style="color:var(--muted);font-size:11px;padding:8px 0">Loading pending actions...</div>
+        </div>
+      </div>
+      <div style="background:#eff6ff;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:11px;border-left:3px solid var(--a)">&#x26A1; <b>LT Execution</b> &mdash; Draft <b>Auto-approve</b> &#x2192; Send <b>Auto-send</b> &#x2192; Accept <b>Auto-complete</b>. &#xC0AC;&#xB78C; &#xAC80;&#xD1A0; &#xCD5C;&#xC18C;&#xD654;.</div>
+      <!-- LT Pipeline Operations -->
+      <div class="card">
+        <h3>&#x2699;&#xFE0F; LT Pipeline Operations</h3>
+        <div class="desc">&#xC790;&#xB3D9;&#xD654; &#xC911;&#xC2EC;. Draft &#x2192; Send &#x2192; Accept &#xC790;&#xB3D9; &#xCC98;&#xB9AC;.</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px">
+          <button class="btn btn-secondary" id="btn-preview" onclick="execAction('preview')">&#x1F50D; Preview Counts</button>
+          <button class="btn btn-secondary" id="btn-draft" onclick="execAction('draft_gen')" style="border-left:3px solid var(--a)">&#x1F4DD; Generate Drafts</button>
+          <button class="btn btn-secondary" id="btn-send" onclick="execAction('send')" style="border-left:3px solid var(--am)">&#x1F4E8; Send Batch</button>
+          <button class="btn btn-secondary" onclick="refreshFunnel()">&#x1F504; Refresh Funnel</button>
+        </div>
       </div>
     </div>
 
-    <!-- REVIEW QUEUE -->
-    <div class="card" id="review-queue-card">
-      <h3>&#x1F50D; Review Queue <span id="rq-count" style="background:var(--p);color:#fff;padding:1px 8px;border-radius:10px;font-size:10px;margin-left:4px">0</span></h3>
-      <div class="desc">Creators awaiting review. Check items to approve or decline. Like PPC harvest &#8212; auto-checked by default.</div>
-      <div id="rq-items" style="max-height:400px;overflow-y:auto">
-        <div style="color:var(--muted);font-size:11px;padding:8px 0">Loading...</div>
-      </div>
-      <div id="rq-toolbar" style="display:none;margin-top:12px;padding:12px;background:#fafbff;border:1px solid var(--border);border-radius:8px">
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-          <span style="font-size:11px;color:var(--dim);white-space:nowrap">Note:</span>
-          <input type="text" id="rq-note" placeholder="Reason for this decision (optional)" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit">
+    <!-- ===== HT Execution Panel ===== -->
+    <div id="exec-panel-ht" style="display:none">
+      <div style="background:#fdf2f8;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:11px;border-left:3px solid var(--p)">&#x1F451; <b>HT Execution</b> &mdash; Draft <b>Manual Review</b> &#x2192; Send <b>Manual Review</b> &#x2192; <b>Contract &#xC11C;&#xBA85;</b> &#x2192; Accept &#x2192; Sample &#x2192; <b>Payment</b>. &#xB9E4; &#xB2E8;&#xACC4; &#xC0AC;&#xB78C; &#xAC80;&#xD1A0;.</div>
+      <!-- HT Review Queue -->
+      <div class="card" id="review-queue-card">
+        <h3>&#x1F50D; Review Queue <span id="rq-count" style="background:var(--p);color:#fff;padding:1px 8px;border-radius:10px;font-size:10px;margin-left:4px">0</span></h3>
+        <div class="desc">HT Creators &#xAC80;&#xD1A0; &#xB300;&#xAE30;. Draft Review, Reply Review, Contract, Payment &#xBAA8;&#xB450; &#xC5EC;&#xAE30;&#xC11C; &#xCC98;&#xB9AC;.</div>
+        <div id="rq-items" style="max-height:400px;overflow-y:auto">
+          <div style="color:var(--muted);font-size:11px;padding:8px 0">Loading...</div>
         </div>
-        <div style="display:flex;gap:8px;justify-content:flex-end">
-          <button class="btn btn-success" id="rq-accept-btn" onclick="bulkReview('Accepted')">&#x2705; Accept Selected (<span id="rq-accept-count">0</span>)</button>
-          <button class="btn btn-danger btn-sm" id="rq-decline-btn" onclick="bulkReview('Declined')">&#x274C; Decline Selected</button>
+        <div id="rq-toolbar" style="display:none;margin-top:12px;padding:12px;background:#fafbff;border:1px solid var(--border);border-radius:8px">
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+            <span style="font-size:11px;color:var(--dim);white-space:nowrap">Note:</span>
+            <input type="text" id="rq-note" placeholder="Reason for this decision (optional)" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit">
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button class="btn btn-success" id="rq-accept-btn" onclick="bulkReview('Accepted')">&#x2705; Accept Selected (<span id="rq-accept-count">0</span>)</button>
+            <button class="btn btn-danger btn-sm" id="rq-decline-btn" onclick="bulkReview('Declined')">&#x274C; Decline Selected</button>
+          </div>
+        </div>
+        <div id="rq-history" style="margin-top:10px"></div>
+      </div>
+      <!-- HT Pipeline Operations -->
+      <div class="card">
+        <h3>&#x2699;&#xFE0F; HT Pipeline Operations</h3>
+        <div class="desc">&#xC218;&#xB3D9; &#xAC80;&#xD1A0; &#xC911;&#xC2EC;. Draft Review &#x2192; Send Review &#x2192; Contract &#x2192; Accept &#x2192; Payment.</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px">
+          <button class="btn btn-secondary" onclick="execAction('preview')">&#x1F50D; Preview Counts</button>
+          <button class="btn btn-secondary" onclick="execAction('draft_gen')" style="border-left:3px solid var(--p)">&#x1F4DD; Generate Drafts (Review)</button>
+          <button class="btn btn-secondary" onclick="execAction('send')" style="border-left:3px solid var(--p)">&#x1F4E8; Send Batch (Review)</button>
+          <button class="btn btn-secondary" onclick="execAction('contract')" style="border-left:3px solid #8250df">&#x1F4DC; Send Contracts</button>
+          <button class="btn btn-secondary" onclick="execAction('payment')" style="border-left:3px solid #ea580c">&#x1F4B3; Process Payments</button>
+          <button class="btn btn-secondary" onclick="refreshFunnel()">&#x1F504; Refresh Funnel</button>
         </div>
       </div>
-      <div id="rq-history" style="margin-top:10px"></div>
     </div>
-    <!-- Pipeline Operations -->
-    <div class="card">
-      <h3>&#x2699;&#xFE0F; Pipeline Operations</h3>
-      <div class="desc">Run pipeline stages. Each action logs to execution history below.</div>
+    <!-- ICO Outreach Operations -->
+    <div class="card" style="border-left:3px solid #06b6d4">
+      <h3>&#x2728; ICO Outreach <span style="background:#06b6d4;color:#fff;padding:1px 8px;border-radius:10px;font-size:9px;margin-left:4px">Jeehoo Agent</span></h3>
+      <div class="desc">Syncly &#xB370;&#xC774;&#xD130; &#xAE30;&#xBC18; &#xAC1C;&#xC778;&#xD654; &#xC544;&#xC6C3;&#xB9AC;&#xCE58;. Config &gt; ICO &#xD0ED;&#xC5D0;&#xC11C; &#xC124;&#xC815; &#xD6C4; &#xC2E4;&#xD589;.</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px">
-        <button class="btn btn-secondary" id="btn-preview" onclick="execAction('preview')">&#x1F50D; Preview Counts</button>
-        <button class="btn btn-secondary" id="btn-draft" onclick="execAction('draft_gen')" style="border-left:3px solid var(--a)">&#x1F4DD; Generate Drafts</button>
-        <button class="btn btn-secondary" id="btn-send" onclick="execAction('send')" style="border-left:3px solid var(--am)">&#x1F4E8; Send Batch</button>
-        <button class="btn btn-secondary" onclick="refreshFunnel()">&#x1F504; Refresh Funnel</button>
+        <button class="btn btn-secondary" id="btn-ico-trigger" onclick="execAction('ico_outreach')" style="border-left:3px solid #06b6d4">&#x2728; Run ICO Outreach</button>
+        <button class="btn btn-secondary" id="btn-ico-status" onclick="loadIcoStatus()" style="border-left:3px solid #06b6d4">&#x1F4CB; Check ICO Status</button>
+      </div>
+      <div id="ico-exec-status" style="display:none;margin-top:10px;padding:10px;background:#f0f9ff;border:1px solid var(--border);border-radius:8px">
+        <div style="font-size:10px;font-weight:600;color:var(--dim);margin-bottom:4px">Last ICO Run</div>
+        <div id="ico-exec-detail" style="font-family:var(--mono);font-size:10px;line-height:1.8"></div>
       </div>
     </div>
     <!-- Discovery & Sourcing -->
@@ -950,6 +1246,67 @@ Shopify                         Apify / Syncly                   Gmail RAG
       </div>
       <div id="content-stats" style="display:flex;gap:12px;margin-bottom:8px;font-size:10px;color:var(--dim)"></div>
       <div id="content-results" style="font-size:11px;color:var(--dim)">Select filters and click Search to load content posts.</div>
+    </div>
+
+    <!-- Content Draft Review -->
+    <div class="card" style="border-left:3px solid var(--am)">
+      <h3>&#x1F3AC; Content Draft Review <span style="background:var(--am);color:#fff;padding:1px 8px;border-radius:10px;font-size:9px;margin-left:4px">PD + Brand Voice</span></h3>
+      <div class="desc">&#xC778;&#xD50C;&#xB8E8;&#xC5B8;&#xC11C; &#xC601;&#xC0C1; &#xCD08;&#xC548;&#xC744; TikTok &#xCD5C;&#xC801;&#xD654;, &#xC81C;&#xD488; &#xB0B4;&#xB7EC;&#xD2F0;&#xBE0C;, &#xC9C4;&#xC815;&#xC131; 3&#xCD95;&#xC73C;&#xB85C; &#xD3C9;&#xAC00;. PD(&#xB4DC;&#xB798;&#xACE4;) + &#xD64D;&#xD300;(&#xBE0C;&#xB79C;&#xB4DC; &#xBCF4;&#xC774;&#xC2A4;) &#xD611;&#xC5C5; &#xB9AC;&#xBDF0;.</div>
+
+      <div style="display:flex;gap:8px;margin:10px 0;flex-wrap:wrap;align-items:flex-end">
+        <div style="flex:2;min-width:200px">
+          <label style="font-size:10px;font-weight:600;color:var(--dim);display:block;margin-bottom:2px">Video URL (TikTok / Instagram / File)</label>
+          <input type="text" id="review-video-url" placeholder="https://www.tiktok.com/@handle/video/... or local path" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit">
+        </div>
+        <div style="min-width:120px">
+          <label style="font-size:10px;font-weight:600;color:var(--dim);display:block;margin-bottom:2px">Target Brand</label>
+          <select id="review-brand" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;background:var(--card)">
+            <option value="Grosmimi">Grosmimi</option>
+            <option value="CHA&MOM">CHA&amp;MOM</option>
+            <option value="Naeiae">Naeiae</option>
+          </select>
+        </div>
+        <div style="min-width:120px">
+          <label style="font-size:10px;font-weight:600;color:var(--dim);display:block;margin-bottom:2px">Analysis Engine</label>
+          <select id="review-engine" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;background:var(--card)">
+            <option value="gemini">Gemini (Video AI)</option>
+            <option value="claude">Claude Vision (Keyframes)</option>
+            <option value="manual">Manual Review (PD Agent)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin:8px 0;flex-wrap:wrap;align-items:center">
+        <input type="text" id="review-handle" placeholder="@influencer_handle" style="width:160px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit">
+        <input type="text" id="review-notes" placeholder="Special instructions (optional)" style="flex:1;min-width:200px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit">
+        <button class="btn" onclick="submitVideoReview()" id="btn-submit-review" style="background:var(--am);color:#fff">&#x1F3AC; Submit Review</button>
+      </div>
+
+      <!-- Review Results -->
+      <div id="review-results" style="display:none;margin-top:12px">
+        <div style="font-size:10px;font-weight:700;color:var(--dim);margin-bottom:8px">Review Results</div>
+        <!-- 3-Axis Scores -->
+        <div class="stats" id="review-scores">
+          <div class="stat cyan"><div class="sl">TikTok Fit</div><div class="sv" id="rv-fit">-</div></div>
+          <div class="stat accent"><div class="sl">Product Narrative</div><div class="sv" id="rv-product">-</div></div>
+          <div class="stat green"><div class="sl">Authenticity</div><div class="sv" id="rv-auth">-</div></div>
+          <div class="stat amber"><div class="sl">Overall</div><div class="sv" id="rv-overall">-</div></div>
+          <div class="stat"><div class="sl">Verdict</div><div class="sv" id="rv-verdict">-</div></div>
+        </div>
+        <!-- Brand Voice Check -->
+        <div style="margin-top:8px;padding:8px;background:#fdf2f8;border:1px solid var(--border);border-radius:6px">
+          <div style="font-size:9px;font-weight:700;color:var(--p);margin-bottom:4px">Brand Voice Check</div>
+          <div id="rv-brand-voice" style="font-size:10px;line-height:1.6;color:var(--dim)">-</div>
+        </div>
+        <!-- Feedback Preview -->
+        <div style="margin-top:8px;padding:8px;background:var(--abg);border:1px solid var(--border);border-radius:6px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <div style="font-size:9px;font-weight:700;color:var(--a)">Feedback Email Preview</div>
+            <button class="btn btn-sm btn-primary" onclick="createReviewDraft()" style="margin-left:auto;font-size:9px">&#x2709;&#xFE0F; Create Gmail Draft</button>
+          </div>
+          <div id="rv-feedback" style="font-size:10px;line-height:1.6;color:var(--text);white-space:pre-wrap;max-height:200px;overflow-y:auto">-</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1156,8 +1513,8 @@ var DEMO_CREATORS=[
 ];
 var DEMO_CONFIG={
   date:'2026-03-20',update_date:'2026-03-20',start_from_beginning:false,
-  creators_contacted:10,ht_threshold:100000,rag_email_dedup:true,apify_autofill:true,apify_brand_filter:true,
-  hil_draft_review:true,hil_send_approval:true,hil_sample_approval:false,
+  creators_contacted:10,ht_threshold:100000,rag_email_dedup:true,apify_autofill:true,apify_brand_filter:true,us_only:true,
+  hil_draft_review:true,hil_send_approval:false,hil_sample_approval:false,
   sender_email:'affiliates@onzenna.com',
   outreach_template_id:'1vAvPdheHFz4xIraa3NODUuFG7RagylHEYOvv6BjtxLg',
   grosmimi_form_url:'https://onzenna.com/pages/influencer-gifting',
@@ -1337,17 +1694,20 @@ async function apiFetch(path,opts){
   var sep=path.indexOf('?')>=0?'&':'?';
   var url=API_BASE+path+sep+'_t='+Date.now();
   var r;
-  try{r=await fetch(url,opts)}catch(err){
-    console.warn('API unreachable, switching to DEMO mode');
-    DEMO_MODE=true;
-    document.getElementById('pill-api').innerHTML='<span class="dot" style="background:var(--am)"></span>DEMO';
-    if(opts.method==='POST'||opts.method==='PUT')return{ok:true};
-    return demoResponse(path);
+  for(var _retry=0;_retry<2;_retry++){
+    try{r=await fetch(url,opts);break}catch(err){
+      if(_retry===0){await new Promise(function(ok){setTimeout(ok,1000)});continue}
+      console.warn('API unreachable after retry, switching to DEMO mode');
+      DEMO_MODE=true;
+      var pe=document.getElementById('pill-api');if(pe)pe.textContent='DEMO';
+      if(opts.method==='POST'||opts.method==='PUT')return{ok:true};
+      return demoResponse(path);
+    }
   }
   if(!r.ok){
     console.warn('API error '+r.status+' on '+path+', switching to DEMO mode');
     DEMO_MODE=true;
-    document.getElementById('pill-api').innerHTML='<span class="dot" style="background:var(--am)"></span>DEMO';
+    var pe2=document.getElementById('pill-api');if(pe2)pe2.textContent='DEMO';
     if(opts.method==='POST'||opts.method==='PUT')return{ok:true};
     return demoResponse(path);
   }
@@ -1415,19 +1775,24 @@ async function loadConfig(){
     document.getElementById('config-dash').style.display='block';
     document.getElementById('pill-date').textContent=_config.date;
     loadConfigHistory();
+    // Feature Toggles: don't auto-run — user clicks Check individually
   }catch(e){
     document.getElementById('config-loading').innerHTML='<span style="color:var(--r)">Failed to load: '+e.message+'</span>';
   }
 }
 function populateConfigForm(c){
-  populateDiscoveryDates(c.update_date||'');
+  // Auto-pull fresh data on first load (replaces stale cache)
+  if(_weekGroups.length===0){pullDiscoveryDates().then(function(){populateDiscoveryDates(c.update_date||'')})}
+  else populateDiscoveryDates(c.update_date||'');
   document.getElementById('f-start-beginning').checked=c.start_from_beginning;
   toggleAllDates(!!c.start_from_beginning);
   document.getElementById('f-creators-contacted').value=c.creators_contacted;
   document.getElementById('f-ht-threshold').value=c.ht_threshold;
-  document.getElementById('f-rag-dedup').checked=c.rag_email_dedup;
-  document.getElementById('f-apify-autofill').checked=c.apify_autofill;
-  document.getElementById('f-apify-brand-filter').checked=c.apify_brand_filter!==false;
+  document.getElementById('f-ht-follower-min').value=c.ht_follower_min||50000;
+  document.getElementById('f-rag-dedup').checked=!!c.rag_email_dedup;
+  document.getElementById('f-apify-autofill').checked=!!c.apify_autofill;
+  document.getElementById('f-apify-brand-filter').checked=!!c.apify_brand_filter;
+  document.getElementById('f-us-only').checked=!!c.us_only;
   document.getElementById('f-hil-draft').checked=c.hil_draft_review!==false;
   document.getElementById('f-hil-send').checked=c.hil_send_approval!==false;
   document.getElementById('f-hil-sample').checked=!!c.hil_sample_approval;
@@ -1460,9 +1825,11 @@ function collectConfigForm(){
     start_from_beginning:document.getElementById('f-start-beginning').checked,
     creators_contacted:parseInt(document.getElementById('f-creators-contacted').value)||10,
     ht_threshold:parseInt(document.getElementById('f-ht-threshold').value)||100000,
+    ht_follower_min:parseInt(document.getElementById('f-ht-follower-min').value)||50000,
     rag_email_dedup:document.getElementById('f-rag-dedup').checked,
     apify_autofill:document.getElementById('f-apify-autofill').checked,
     apify_brand_filter:document.getElementById('f-apify-brand-filter').checked,
+    us_only:document.getElementById('f-us-only').checked,
     hil_draft_review:document.getElementById('f-hil-draft').checked,
     hil_send_approval:document.getElementById('f-hil-send').checked,
     hil_sample_approval:document.getElementById('f-hil-sample').checked,
@@ -1543,7 +1910,7 @@ async function loadCreatorStats(){
 }
 
 // HIL = stages where marketer must take action for pipeline to proceed
-var HIL_LT={'Sample Sent':1};  // LT: only manual "sample shipped" click
+var HIL_LT={'Needs Review':1};  // LT: only Needs Review is human-in-loop
 var HIL_HT={'Draft Ready':1,'Sent':1,'Replied':1,'Needs Review':1,'Send Contract':1,'Sample Sent':1,'Payment Sent':1};  // HT: full manual control
 
 function buildFunnel(statusCounts,targetId,activeStatus){
@@ -1569,7 +1936,7 @@ function buildFunnel(statusCounts,targetId,activeStatus){
   }
 
   // Y-fork: Not Started (left center) → LT (top row) / HT (bottom row)
-  var LT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Reminder Sent','Posted'];
+  var LT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Accepted','Sample Shipped','Sample Delivered','Reminder Sent','Posted'];
   var HT_STAGES=['Draft Ready','Sent','Replied','Needs Review','Send Contract','Contract Signed','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Reminder Sent','Payment Sent','Posted'];
   function _row(stages,counts,hilMap){
     var r='';
@@ -1620,9 +1987,12 @@ async function loadCreators(){
   var status=document.getElementById('cr-status').value;
   var brand=document.getElementById('cr-brand').value;
   var source=document.getElementById('cr-source').value;
+  var assigned=document.getElementById('cr-assigned').value;
   var params='?page='+_crPage+'&limit='+_crLimit;
   if(search)params+='&search='+encodeURIComponent(search);
   if(status)params+='&status='+encodeURIComponent(status);
+  if(assigned==='__none')params+='&assigned_to=';
+  else if(assigned)params+='&assigned_to='+encodeURIComponent(assigned);
   if(brand)params+='&brand='+encodeURIComponent(brand);
   if(source)params+='&source='+encodeURIComponent(source);
   var body=document.getElementById('creators-body');
@@ -1717,7 +2087,7 @@ async function loadContentTab(){
       h+='<td style="padding:5px 8px;font-family:var(--mono);font-weight:600;white-space:nowrap"><a href="https://instagram.com/'+esc(p.username||'')+'" target="_blank" style="color:var(--fg);text-decoration:none">@'+esc(p.username||'')+'</a></td>';
       h+='<td style="padding:5px 8px"><span class="b '+(p.platform==='tiktok'?'am':'a')+'">'+plat+'</span></td>';
       h+='<td style="padding:5px 8px">'+link+'</td>';
-      h+='<td style="padding:5px 8px"><span class="b '+(p.brand==='Grosmimi'?'g':p.brand==='CHA&MOM'?'c':'am')+'">'+esc(p.brand||'')+'</span></td>';
+      h+='<td style="padding:5px 8px"><span class="b '+(p.brand==='Grosmimi'?'g':p.brand==='CHA&MOM'?'c':'am')+'">'+esc(p.brand||'')+'</span>'+ownerTag(p)+'</td>';
       h+='<td style="padding:5px 8px;font-size:9px">'+dateLabel+'</td>';
       var postId=p.post_id||((p.url||'').match(/\/(\d{15,})/) ||[])[1]||'';
       var met=metricsMap[postId]||{};
@@ -1752,6 +2122,15 @@ async function loadContentTab(){
   }
 }
 
+var _BRAND_OWNERS={"Grosmimi":"Jeehoo","CHA&MOM":"Laeeka","Naeiae":"Soyeon"};
+var _OWNER_COLORS={"Jeehoo":"var(--g)","Laeeka":"var(--c)","Soyeon":"var(--am)"};
+function ownerTag(c){
+  var name=c.assigned_to||_BRAND_OWNERS[c.brand]||'';
+  if(!name)return'';
+  var col=_OWNER_COLORS[name]||'var(--dim)';
+  return' <span style="font-size:7px;background:'+col+';color:#fff;padding:1px 4px;border-radius:6px;font-weight:700;vertical-align:middle">'+name+'</span>';
+}
+
 function profileLinks(c){
   var html='';
   if(c.ig_handle){
@@ -1783,7 +2162,7 @@ function renderCreatorsTable(data){
     html+='<tr>';
     html+='<td style="font-weight:600;font-family:var(--mono);font-size:10px">'+esc(handle)+'</td>';
     html+='<td style="font-size:10px">'+esc(c.email)+'</td>';
-    html+='<td><span class="b '+(c.brand==='Grosmimi'?'g':c.brand==='CHA&MOM'?'c':c.brand==='Naeiae'?'am':'')+'">'+esc(c.brand||'?')+'</span></td>';
+    html+='<td><span class="b '+(c.brand==='Grosmimi'?'g':c.brand==='CHA&MOM'?'c':c.brand==='Naeiae'?'am':'')+'">'+esc(c.brand||'?')+'</span>'+ownerTag(c)+'</td>';
     html+='<td><span class="b '+badgeClass+'">'+esc(c.pipeline_status)+'</span></td>';
     html+='<td style="font-size:10px">'+esc(c.outreach_type||'-')+'</td>';
     html+='<td style="font-size:10px;font-family:var(--mono)">'+followers+'</td>';
@@ -1962,7 +2341,7 @@ async function loadPendingActions(){
         html+='</div>';
         html+='<div style="font-size:9px;color:var(--dim)">';
         html+=esc(cr.email||'')+' &bull; '+followers+' followers &bull; '+views+' avg views';
-        if(cr.brand)html+=' &bull; <span class="b a" style="font-size:8px">'+esc(cr.brand)+'</span>';
+        if(cr.brand)html+=' &bull; <span class="b '+(cr.brand==='Grosmimi'?'g':cr.brand==='CHA&MOM'?'c':'am')+'" style="font-size:8px">'+esc(cr.brand)+'</span>'+ownerTag(cr);
         html+='</div>';
         html+='</div>';
         html+='<button onclick="toggleEmailHistory(\''+cr.id+'\',\''+esc(cr.email||'')+'\')" style="background:none;border:1px solid var(--border);border-radius:3px;cursor:pointer;font-size:8px;padding:1px 4px;color:var(--a);flex-shrink:0" title="Email history">&#x1F4E7;</button>';
@@ -2031,64 +2410,53 @@ async function updatePreview(){
   card.style.display='block';
   el.innerHTML='<div style="color:var(--dim);padding:10px">Loading preview...</div>';
   try{
-    // 1. Total Not Started
-    var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=1');
-    var total=data.total||0;
-
-    // 2. With email vs without
-    var allNS=await apiFetch('/pipeline/creators/?status=Not+Started&limit=5000');
-    var creators=allNS.results||[];
-    var withEmail=creators.filter(function(c){return c.email&&!c.email.includes('@discovered.')});
-    var noEmail=creators.filter(function(c){return !c.email||c.email.includes('@discovered.')});
-
-    // 3. RAG Email Dedup
-    var dedupCount=0;
-    try{
-      var emails=withEmail.map(function(c){return c.email}).filter(Boolean);
-      if(emails.length>0){
-        var dedupResult=await apiFetch('/gmail-rag/bulk-check/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({emails:emails})});
-        dedupCount=(dedupResult.contacted||[]).length;
+    // Use Feature Toggle cache if available (already filtered), otherwise fetch fresh
+    var creators=_ftCache;
+    if(!creators||creators.length===0){
+      creators=[];
+      var page=1;var hasMore=true;
+      while(hasMore){
+        var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=500&page='+page);
+        var items=data.results||[];
+        creators=creators.concat(items);
+        hasMore=items.length===500;
+        page++;
+        if(creators.length>=15000)break;
       }
-    }catch(e){}
-
-    // 4. Brand breakdown
-    var brands={};
-    creators.forEach(function(c){var b=c.brand||'Unknown';brands[b]=(brands[b]||0)+1});
-
-    // 5. LT vs HT
-    var lt=creators.filter(function(c){return c.outreach_type!=='HT'}).length;
-    var ht=creators.filter(function(c){return c.outreach_type==='HT'}).length;
-
-    // 4. Read feature toggles
-    var ragEnabled=document.getElementById('f-rag-dedup')?document.getElementById('f-rag-dedup').checked:true;
-    var apifyEnabled=document.getElementById('f-apify-autofill')?document.getElementById('f-apify-autofill').checked:true;
-    var brandFilterEnabled=document.getElementById('f-apify-brand-filter')?document.getElementById('f-apify-brand-filter').checked:true;
-
-    // 5. Brand filter — exclude known brand/reseller accounts
-    var brandFiltered=[];
-    var brandFilterList=['onzenna.official','grosmimi_usa','grosmimi_japan','onzenna','chaenmom_official','naeiae_official'];
-    if(brandFilterEnabled){
-      brandFiltered=creators.filter(function(c){
-        var h=(c.ig_handle||c.tiktok_handle||'').toLowerCase().lstrip('@');
-        return brandFilterList.some(function(b){return h.includes(b)});
-      });
     }
+    var total=creators.length;
 
-    // 6. Dedup list
+    // Split by real email
+    var withEmail=creators.filter(_hasRealEmail);
+    var noEmail=creators.filter(function(c){return !_hasRealEmail(c)});
+
+    // Split HT / LT
+    var htAll=creators.filter(function(c){return c.outreach_type==='HT'});
+    var ltAll=creators.filter(function(c){return c.outreach_type!=='HT'});
+    var ltWithEmail=ltAll.filter(_hasRealEmail);
+    var ltNoEmail=ltAll.length-ltWithEmail.length;
+
+    // RAG Dedup — check LT real emails only
+    var ltDeduped=0;
     var dedupList=[];
-    if(ragEnabled&&dedupCount>0){
-      try{dedupList=dedupResult.contacted||[]}catch(e){}
+    var ltEmails=ltWithEmail.map(function(c){return c.email}).filter(Boolean);
+    if(ltEmails.length>0){
+      try{
+        var dedupResult=await apiFetch('/gmail-rag/bulk-check/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({emails:ltEmails})});
+        if(dedupResult.results&&typeof dedupResult.results==='object'){
+          dedupList=Object.keys(dedupResult.results).filter(function(e){return dedupResult.results[e]!==null});
+          ltDeduped=dedupList.length;
+        }
+      }catch(e){}
     }
 
-    // 7. Brand breakdown
+    // Eligible = LT with real email minus already contacted
+    var eligible=ltWithEmail.length-ltDeduped;
+    if(eligible<0)eligible=0;
+
+    // Brand breakdown (from LT with real email, not deduped)
     var brands={};
-    creators.forEach(function(c){var b=c.brand||'Unknown';brands[b]=(brands[b]||0)+1});
-
-    // 8. LT vs HT
-    var lt=creators.filter(function(c){return c.outreach_type!=='HT'}).length;
-    var ht=creators.filter(function(c){return c.outreach_type==='HT'}).length;
-
-    var eligible=withEmail.length-(ragEnabled?dedupCount:0)-brandFiltered.length;
+    ltWithEmail.forEach(function(c){var b=c.brand||'Unknown';brands[b]=(brands[b]||0)+1});
 
     function expandList(id,items,max){
       max=max||50;
@@ -2109,49 +2477,34 @@ async function updatePreview(){
     // Total
     h+='<div style="display:flex;align-items:center;gap:6px"><span style="width:20px">&#x1F4E5;</span><b>Total Not Started:</b> <span style="font-family:var(--mono);font-size:14px">'+total+'</span></div>';
 
-    // Email
-    h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-with-email')+'">';
-    h+='<span style="color:var(--g)">&#x2705;</span> Email found: <b>'+withEmail.length+'</b>';
+    // HT / LT split
+    h+='<div style="margin-left:20px;font-size:10px;color:var(--dim)">HT: '+htAll.length+' | LT: '+ltAll.length+'</div>';
+
+    // LT with email
+    h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px">';
+    h+='<span style="color:var(--g)">&#x2705;</span> LT with real email: <b>'+ltWithEmail.length+'</b>';
     h+='</div>';
 
-    // No email
+    // LT no email
     h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-no-email')+'">';
-    h+='<span style="color:var(--am)">&#x26A0;&#xFE0F;</span> Missing email: <b style="color:var(--am)">'+noEmail.length+'</b>';
-    if(apifyEnabled)h+=' <span style="font-size:9px;color:var(--dim)">(Apify Autofill ON)</span>';
+    h+='<span style="color:var(--am)">&#x26A0;&#xFE0F;</span> LT no email: <b style="color:var(--am)">'+ltNoEmail+'</b> <span style="font-size:9px;color:var(--dim)">(@discovered.syncly placeholder)</span>';
     h+='</div>';
-    h+=expandList('up-no-email',noEmail);
 
     // RAG Dedup
-    if(ragEnabled){
-      h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-dedup')+'">';
-      h+='<span style="color:var(--p)">&#x1F50D;</span> RAG Email Dedup: <b style="color:var(--r)">-'+dedupCount+'</b> already contacted';
-      h+='</div>';
-      h+=expandList('up-dedup',dedupList);
-    }else{
-      h+='<div style="margin-left:20px;color:var(--muted);font-size:10px">&#x1F50D; RAG Dedup: OFF</div>';
-    }
-
-    // Brand Filter
-    if(brandFilterEnabled){
-      h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-brand-filter')+'">';
-      h+='<span style="color:var(--r)">&#x1F6AB;</span> Brand Filter: <b style="color:var(--r)">-'+brandFiltered.length+'</b> brand/reseller accounts';
-      h+='</div>';
-      h+=expandList('up-brand-filter',brandFiltered);
-    }else{
-      h+='<div style="margin-left:20px;color:var(--muted);font-size:10px">&#x1F6AB; Brand Filter: OFF</div>';
-    }
+    h+='<div style="display:flex;align-items:center;gap:6px;margin-left:20px;cursor:pointer" onclick="'+toggleBlock('up-dedup')+'">';
+    h+='<span style="color:var(--p)">&#x1F50D;</span> Already contacted: <b style="color:var(--r)">-'+ltDeduped+'</b>';
+    h+='</div>';
+    h+=expandList('up-dedup',dedupList);
 
     // Divider
     h+='<hr style="border:none;border-top:2px solid var(--g);margin:8px 0">';
 
     // Eligible
     h+='<div style="display:flex;align-items:center;gap:6px"><span style="width:20px">&#x2709;&#xFE0F;</span><b>Eligible to send:</b> <span style="font-family:var(--mono);font-size:18px;color:var(--g);font-weight:800">'+eligible+'</span></div>';
-    h+='<div style="margin-left:26px;font-size:10px;color:var(--dim)">';
-    h+='LT (&lt;100K): <b>'+lt+'</b> | HT (&ge;100K): <b>'+ht+'</b>';
-    h+='</div>';
+    h+='<div style="margin-left:26px;font-size:10px;color:var(--dim)">LT with real email ('+ltWithEmail.length+') minus already contacted ('+ltDeduped+')</div>';
 
-    // Brand breakdown
-    h+='<div style="margin-top:8px"><b>By Brand:</b></div>';
+    // Brand breakdown (eligible LT)
+    h+='<div style="margin-top:8px"><b>By Brand (LT with email):</b></div>';
     h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">';
     for(var b in brands){
       var color=b==='Grosmimi'?'var(--g)':b==='CHA&MOM'||b==='cha&mom'?'var(--c)':b==='Naeiae'?'var(--am)':'var(--dim)';
@@ -2210,7 +2563,7 @@ async function loadReviewQueue(){
       html+='<span style="flex:1"></span>';
       html+='<span style="font-weight:600;font-family:var(--mono);font-size:10px;width:60px;overflow:hidden;text-overflow:ellipsis">'+esc(handle)+'</span>';
       html+='<span style="font-family:var(--mono);font-size:10px;width:70px">'+formatNum(c.followers||0)+'</span>';
-      html+='<span style="width:60px"><span class="b '+(c.brand==='Grosmimi'?'g':c.brand==='CHA&MOM'?'c':'am')+'">'+esc(c.brand)+'</span></span>';
+      html+='<span style="width:80px"><span class="b '+(c.brand==='Grosmimi'?'g':c.brand==='CHA&MOM'?'c':'am')+'">'+esc(c.brand)+'</span>'+ownerTag(c)+'</span>';
       html+='<span style="width:60px">'+profileLinks(c)+'</span>';
       html+='<span style="font-size:10px;color:var(--dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(c.notes)+'">'+esc(c.notes||'-')+'</span>';
       html+='</div>';
@@ -2293,17 +2646,21 @@ var ACTION_META={
   syncly_sync:{title:'Sync Syncly',desc:'Pull latest content metrics from Syncly D+60 tracker and sync to Google Sheets.',btnId:'btn-syncly',icon:'\uD83D\uDD04'},
   apify_crawl:{title:'Pull Content (Apify)',desc:'Crawl influencer posts via Apify (IG Graph API + TikTok). Takes 5-15 minutes.',btnId:'btn-apify',icon:'\uD83D\uDD77\uFE0F'},
   sns_sync:{title:'Sync SNS Tab',desc:'Match influencer posts to Shopify orders and update SNS tracking sheets.',btnId:'btn-sns',icon:'\uD83D\uDCCA'},
-  gmail_sync:{title:'Sync Gmail RAG',desc:'Sync Gmail contact index for duplicate checking. Updates email history cache.',btnId:'btn-gmail-sync',icon:'\uD83D\uDCE7'}
+  gmail_sync:{title:'Sync Gmail RAG',desc:'Sync Gmail contact index for duplicate checking. Updates email history cache.',btnId:'btn-gmail-sync',icon:'\uD83D\uDCE7'},
+  ico_outreach:{title:'ICO Outreach',desc:'Syncly \uB370\uC774\uD130 \uAE30\uBC18 \uAC1C\uC778\uD654 \uC544\uC6C3\uB9AC\uCE58.\nFit Score \uD544\uD130\uB9C1 \u2192 3-Way Dedup \u2192 AI \uC774\uBA54\uC77C \uCD08\uC548 \uC0DD\uC131.\nGmail Draft\uB9CC \uC0DD\uC131 (\uC790\uB3D9 \uBC1C\uC1A1 \uC5C6\uC74C).',btnId:'btn-ico-trigger',icon:'\u2728'},
+  ico_status:{title:'ICO Status',desc:'Check last ICO outreach batch results.',btnId:'btn-ico-status',icon:'\uD83D\uDCCB'}
 };
 var WEBHOOK_MAP={
   draft_gen:'https://n8n.orbiters.co.kr/webhook/draft-gen',
   send:'https://n8n.orbiters.co.kr/webhook/approval-send',
+  ico_outreach:'https://n8n.orbiters.co.kr/webhook/ico-outreach',
   syncly_discovery:null,
   apify_crawl:null,
   syncly_sync:null,
   sns_sync:null,
   gmail_sync:null,
-  preview:null
+  preview:null,
+  ico_status:null
 };
 var _pendingAction=null;
 
@@ -2366,6 +2723,32 @@ async function confirmExec(){
   }
   // Trigger n8n webhook if mapped
   else if(WEBHOOK_MAP[action]){
+    // ── DEDUP GUARD: Mark "Approved" → "Sending" BEFORE triggering webhook ──
+    // n8n Approval Send polls for status=Approved every 1 min
+    // Pre-marking as "Sending" prevents n8n polling from picking up same creators
+    if(action==='send'){
+      try{
+        showToast('Marking Approved creators as Sending...','ok');
+        var approved=await apiFetch('/pipeline/creators/?status=Approved&limit=500');
+        var apItems=approved.results||[];
+        if(apItems.length===0){
+          showToast('No Approved creators to send — nothing to do','err');
+          if(btn){btn.disabled=false;btn.textContent=meta.icon+' '+meta.title}
+          return;
+        }
+        var apIds=apItems.map(function(c){return c.id});
+        await apiFetch('/pipeline/creators/bulk-status/',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({ids:apIds,status:'Sending',only_from_status:'Approved',changed_by:_currentUser||'dashboard'})
+        });
+        showToast('Marked '+apIds.length+' creators as Sending (dedup locked)','ok');
+      }catch(e){
+        showToast('Failed to mark as Sending: '+e.message+' — aborting send','err');
+        if(btn){btn.disabled=false;btn.textContent=meta.icon+' '+meta.title}
+        return;
+      }
+    }
     fetch(WEBHOOK_MAP[action],{
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -2393,37 +2776,6 @@ async function confirmExec(){
   setTimeout(function(){
     if(btn){btn.disabled=false;btn.textContent=meta.icon+' '+meta.title}
   },3000);
-}
-
-// ========== SYNCLY CONTENT IMPORT ==========
-async function execSynclyContentImport(){
-  var btn=document.getElementById('btn-syncly-content');
-  var resEl=document.getElementById('syncly-content-result');
-  btn.disabled=true;btn.textContent='Importing...';
-  resEl.style.display='block';resEl.style.color='var(--muted)';
-  resEl.textContent='Reading Syncly sheets (Creators + Output)... this may take 30-60s';
-
-  try{
-    var data=await apiFetch('/pipeline/creators/syncly-content-import/',{
-      method:'POST',
-      body:JSON.stringify({days:30,limit:500,triggered_by:_currentUser})
-    });
-    var msg='Created: '+data.created+' | Updated: '+data.updated+' | Skipped: '+data.skipped;
-    msg+=' | Sheet rows: '+data.total_sheet_rows+' | Output creators: '+data.total_output_creators;
-    if(data.dry_run) msg+=' [DRY RUN]';
-    resEl.style.color='var(--g)';
-    resEl.innerHTML='<b>Import complete</b> '+msg;
-    showToast('Syncly Content Import: '+data.created+' created, '+data.updated+' updated','ok');
-    // Refresh data
-    _tabLoaded['execution']=false;
-    loadExecLog();
-  }catch(e){
-    resEl.style.color='var(--r)';
-    resEl.textContent='Import failed: '+e.message;
-    showToast('Syncly Content Import failed: '+e.message,'err');
-  }finally{
-    btn.disabled=false;btn.textContent='\uD83D\uDCE5 Syncly Content Import';
-  }
 }
 
 // ========== EXECUTION LOG ==========
@@ -2787,75 +3139,173 @@ function updateAllocation(){
 
 // ========== ALL DATES TOGGLE + VINTAGE ==========
 // ========== DISCOVERY DATE DROPDOWN ==========
-var _discoveryDates=(function(){try{var s=localStorage.getItem('pipeline_discovery_dates');return s?JSON.parse(s):[]}catch(e){return[]}})();
+var _discoveryDates=[];
+var _cachedDateCounts={};
+
+// ─── Weekly grouping helpers ───
+function _isoWeekKey(dateStr){
+  var d=new Date(dateStr+'T00:00:00');
+  d.setDate(d.getDate()+3-(d.getDay()+6)%7);
+  var w1=new Date(d.getFullYear(),0,4);
+  var wn=1+Math.round(((d-w1)/86400000-3+(w1.getDay()+6)%7)/7);
+  return d.getFullYear()+'-W'+String(wn).padStart(2,'0');
+}
+function _weekMonday(dateStr){
+  var d=new Date(dateStr+'T00:00:00');
+  var day=d.getDay();var diff=d.getDate()-day+(day===0?-6:1);
+  return new Date(d.setDate(diff)).toISOString().slice(0,10);
+}
+function _weekSunday(dateStr){
+  var mon=new Date(_weekMonday(dateStr)+'T00:00:00');
+  mon.setDate(mon.getDate()+6);
+  return mon.toISOString().slice(0,10);
+}
+
+var _weekGroups=[];
+var _dateCountMap={};
+var _weekDateMap={};
+
+function _buildWeekGroups(dateMap){
+  // Group by Syncly crawl date: big batches are anchors, small counts merge into nearest anchor
+  var dates=Object.keys(dateMap).filter(function(d){return d.match(/^\d{4}-\d{2}-\d{2}$/)}).sort();
+  if(dates.length===0){_weekGroups=[];return []}
+  // Find anchor dates (Syncly crawl days) — dates with 50+ creators
+  var anchors=dates.filter(function(d){return dateMap[d]>=50});
+  // If no anchors found, use all dates as-is
+  if(anchors.length===0)anchors=dates.slice();
+  // Merge each date into nearest anchor
+  var buckets={};
+  anchors.forEach(function(a){buckets[a]={count:0,dates:[]}});
+  dates.forEach(function(d){
+    var best=anchors[0];
+    var bestDist=Math.abs(new Date(d)-new Date(anchors[0]));
+    for(var i=1;i<anchors.length;i++){
+      var dist=Math.abs(new Date(d)-new Date(anchors[i]));
+      if(dist<bestDist){bestDist=dist;best=anchors[i]}
+    }
+    buckets[best].count+=dateMap[d];
+    buckets[best].dates.push(d);
+  });
+  _weekDateMap={};
+  var groups=anchors.map(function(a){
+    var b=buckets[a];
+    b.dates.sort();
+    _weekDateMap[a]=b.dates;
+    return {key:a, label:a.slice(2), count:b.count, dates:b.dates};
+  });
+  groups.sort(function(a,b){return b.key<a.key?-1:b.key>a.key?1:0});
+  _weekGroups=groups;
+  return groups;
+}
 
 function populateDiscoveryDates(selectedVal){
   var sel=document.getElementById('f-update-date');
   if(!sel)return;
-  // Merge saved dates with any new dates, dedupe, sort descending (newest first)
-  var all=_discoveryDates.slice();
-  // Also extract dates from DEMO_CREATORS for demo mode
-  if(DEMO_MODE){
-    DEMO_CREATORS.forEach(function(c){if(c.initial_discovery_date&&all.indexOf(c.initial_discovery_date)<0)all.push(c.initial_discovery_date)});
+  // Clear existing options
+  while(sel.firstChild)sel.removeChild(sel.firstChild);
+  var defOpt=document.createElement('option');
+  defOpt.value='';defOpt.textContent='-- 주간 배치 선택 --';
+  sel.appendChild(defOpt);
+  // If no week groups, try cached counts from localStorage
+  if(_weekGroups.length===0){
+    if(Object.keys(_dateCountMap).length>0){
+      _buildWeekGroups(_dateCountMap);
+    } else {
+      try{
+        var cached=localStorage.getItem('pipeline_date_counts');
+        if(cached){
+          var parsed=JSON.parse(cached);
+          // Invalidate old weekly-grouped cache (keys like "2026-W12")
+          var keys=Object.keys(parsed);
+          if(keys.length>0&&keys[0].indexOf('-W')>=0){localStorage.removeItem('pipeline_date_counts');localStorage.removeItem('pipeline_discovery_dates')}
+          else{_dateCountMap=parsed;_buildWeekGroups(_dateCountMap)}
+        }
+      }catch(e){}
+    }
   }
-  all=all.filter(function(d){return d&&d.match(/^\d{4}-\d{2}-\d{2}$/)});
-  all.sort().reverse();// newest first
-  var html='<option value="">-- 날짜 선택 --</option>';
-  all.forEach(function(d){
-    html+='<option value="'+d+'"'+(d===selectedVal?' selected':'')+'>'+d+'</option>';
-  });
-  if(all.length===0)html+='<option disabled value="">↻ Pull 버튼으로 날짜 로드</option>';
-  sel.innerHTML=html;
+  if(_weekGroups.length>0){
+    _weekGroups.forEach(function(g){
+      var opt=document.createElement('option');
+      opt.value=g.key;
+      opt.textContent=g.label+' \u2014 '+g.count+'\uBA85';
+      if(g.key===selectedVal)opt.selected=true;
+      sel.appendChild(opt);
+    });
+  } else {
+    var ph=document.createElement('option');
+    ph.disabled=true;ph.value='';ph.textContent='\u21BB Pull \uBC84\uD2BC\uC73C\uB85C \uBC30\uCE58 \uB85C\uB4DC';
+    sel.appendChild(ph);
+  }
 }
 
 async function pullDiscoveryDates(){
   var btn=document.getElementById('btn-pull-dates');
   btn.disabled=true;btn.textContent='Loading...';
   try{
-    // Fetch all Not Started creators and extract unique discovery dates
-    var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=5000');
-    var items=data.results||[];
-    var dateMap={};
-    items.forEach(function(c){
-      var d=c.initial_discovery_date||(c.created_at||'').slice(0,10);
-      if(d)dateMap[d]=(dateMap[d]||0)+1;
-    });
-    var dates=Object.keys(dateMap).filter(function(d){return d.match(/^\d{4}-\d{2}-\d{2}$/)});
-    // Merge with existing saved dates
-    dates.forEach(function(d){if(_discoveryDates.indexOf(d)<0)_discoveryDates.push(d)});
-    try{localStorage.setItem('pipeline_discovery_dates',JSON.stringify(_discoveryDates))}catch(e){}
-    // Store counts
+    // Use lightweight stats endpoint instead of fetching all 6000+ creators
+    var wasDemoMode=DEMO_MODE;
+    DEMO_MODE=false;
+    var stats=await apiFetch('/pipeline/creators/stats/');
+    if(DEMO_MODE&&wasDemoMode){showToast('API \uC5F0\uACB0 \uC2E4\uD328 — DEMO \uB370\uC774\uD130 \uD45C\uC2DC \uC911','err');return}
+    var dateMap=stats.by_discovery_date||{};
+    // Fallback: if server doesn't have by_discovery_date yet, fetch page 1
+    if(Object.keys(dateMap).length===0){
+      try{
+        var fallback=await apiFetch('/pipeline/creators/?status=Not+Started&limit=2000');
+        (fallback.results||[]).forEach(function(c){
+          var dd=c.initial_discovery_date||(c.created_at||'').slice(0,10);
+          if(dd)dateMap[dd]=(dateMap[dd]||0)+1;
+        });
+      }catch(e2){}
+    }
+    var totalNotStarted=0;
+    Object.keys(dateMap).forEach(function(k){totalNotStarted+=dateMap[k]});
     _dateCountMap=dateMap;
+    var groups=_buildWeekGroups(dateMap);
+    var dates=Object.keys(dateMap).filter(function(d){return d.match(/^\d{4}-\d{2}-\d{2}$/)});
+    _discoveryDates=dates;
+    try{localStorage.setItem('pipeline_discovery_dates',JSON.stringify(dates));localStorage.setItem('pipeline_date_counts',JSON.stringify(dateMap))}catch(e){}
     populateDiscoveryDates(document.getElementById('f-update-date').value);
-    showToast('날짜 '+dates.length+'개 로드됨','ok');
-  }catch(e){showToast('Pull 실패: '+e.message,'err')}
-  finally{btn.disabled=false;btn.textContent='↻ Pull'}
+    showToast(groups.length+'\uAC1C \uC8FC\uAC04 \uBC30\uCE58 \uB85C\uB4DC ('+totalNotStarted+'\uBA85)','ok');
+    try{loadCreators()}catch(e){}
+  }catch(e){showToast('Pull \uC2E4\uD328: '+e.message,'err')}
+  finally{btn.disabled=false;btn.textContent='\u21BB Pull'}
 }
 
-var _dateCountMap={};
-async function onDiscoveryDateSelect(date){
+async function onDiscoveryDateSelect(val){
   var hintEl=document.getElementById('date-count-hint');
-  if(!date){if(hintEl)hintEl.style.display='none';return}
-  // Check local cache first
-  if(_dateCountMap[date]!==undefined){
-    var cnt=_dateCountMap[date];
+  if(!val){if(hintEl)hintEl.style.display='none';return}
+  var group=_weekGroups.find(function(g){return g.key===val});
+  if(group){
+    var cnt=group.count;
     document.getElementById('f-creators-contacted').value=cnt;
     var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
     updateAllocation();
-    if(hintEl){hintEl.textContent='✓ '+date+' — Not Started '+cnt+'명 → Batch Size 자동 설정';hintEl.style.display='block'}
+    if(hintEl){
+      hintEl.textContent='\u2713 '+group.label+' \u2014 '+cnt+'\uBA85 ('+group.dates.length+'\uC77C\uAC04 \uBC1C\uACAC) \u2192 Batch Size \uC790\uB3D9 \uC124\uC815';
+      hintEl.style.color='var(--g)';hintEl.style.display='block';
+    }
     return;
   }
-  // Fetch count from API
-  if(hintEl){hintEl.textContent='조회 중...';hintEl.style.display='block';hintEl.style.color='var(--muted)'}
-  try{
-    var data=await apiFetch('/pipeline/creators/?status=Not+Started&discovery_date='+date+'&limit=1');
-    var cnt=data.total||data.count||0;
-    _dateCountMap[date]=cnt;
+  // Fallback: raw date
+  if(_dateCountMap[val]!==undefined){
+    var cnt=_dateCountMap[val];
     document.getElementById('f-creators-contacted').value=cnt;
     var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
     updateAllocation();
-    if(hintEl){hintEl.textContent='✓ '+date+' — Not Started '+cnt+'명 → Batch Size 자동 설정';hintEl.style.color='var(--g)';hintEl.style.display='block'}
-  }catch(e){if(hintEl){hintEl.textContent='조회 실패';hintEl.style.color='var(--r)'}}
+    if(hintEl){hintEl.textContent='\u2713 '+val+' \u2014 Not Started '+cnt+'\uBA85';hintEl.style.display='block'}
+    return;
+  }
+  if(hintEl){hintEl.textContent='\uC870\uD68C \uC911...';hintEl.style.display='block';hintEl.style.color='var(--muted)'}
+  try{
+    var data=await apiFetch('/pipeline/creators/?status=Not+Started&discovery_date='+val+'&limit=1');
+    var cnt=data.total||data.count||0;
+    _dateCountMap[val]=cnt;
+    document.getElementById('f-creators-contacted').value=cnt;
+    var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
+    updateAllocation();
+    if(hintEl){hintEl.textContent='\u2713 '+val+' \u2014 Not Started '+cnt+'\uBA85';hintEl.style.color='var(--g)';hintEl.style.display='block'}
+  }catch(e){if(hintEl){hintEl.textContent='\uC870\uD68C \uC2E4\uD328';hintEl.style.color='var(--r)'}}
 }
 
 function toggleAllDates(on){
@@ -2914,27 +3364,41 @@ function renderVintageBreakdown(){
 
 // ========== HOW IT WORKS TAB ==========
 var _hwMode='lt';
+function switchExecMode(mode){
+  document.getElementById('ex-btn-lt').style.background=mode==='lt'?'var(--a)':'var(--bg)';
+  document.getElementById('ex-btn-lt').style.color=mode==='lt'?'#fff':'var(--dim)';
+  document.getElementById('ex-btn-ht').style.background=mode==='ht'?'var(--p)':'var(--bg)';
+  document.getElementById('ex-btn-ht').style.color=mode==='ht'?'#fff':'var(--dim)';
+  document.getElementById('exec-panel-lt').style.display=mode==='lt'?'block':'none';
+  document.getElementById('exec-panel-ht').style.display=mode==='ht'?'block':'none';
+}
 function switchHwMode(mode){
   _hwMode=mode;
   document.getElementById('hw-btn-lt').style.background=mode==='lt'?'var(--a)':'var(--bg)';
   document.getElementById('hw-btn-lt').style.color=mode==='lt'?'#fff':'var(--dim)';
   document.getElementById('hw-btn-ht').style.background=mode==='ht'?'var(--p)':'var(--bg)';
   document.getElementById('hw-btn-ht').style.color=mode==='ht'?'#fff':'var(--dim)';
-  var lts=document.querySelectorAll('.hw-lt');
-  var hts=document.querySelectorAll('.hw-ht');
-  for(var i=0;i<lts.length;i++)lts[i].style.display=mode==='lt'?'block':'none';
-  for(var i=0;i<hts.length;i++)hts[i].style.display=mode==='ht'?'block':'none';
+  document.getElementById('hw-panel-lt').style.display=mode==='lt'?'block':'none';
+  document.getElementById('hw-panel-ht').style.display=mode==='ht'?'block':'none';
 }
+var _cfgMode='lt';
 function switchCfgMode(mode){
+  _cfgMode=mode;
+  _ftCache=null;_ftCacheWeek=null;_ftResults={}; // reset cache on mode switch
   document.getElementById('cfg-btn-lt').style.background=mode==='lt'?'var(--a)':'var(--bg)';
   document.getElementById('cfg-btn-lt').style.color=mode==='lt'?'#fff':'var(--dim)';
   document.getElementById('cfg-btn-ht').style.background=mode==='ht'?'var(--p)':'var(--bg)';
   document.getElementById('cfg-btn-ht').style.color=mode==='ht'?'#fff':'var(--dim)';
+  document.getElementById('cfg-btn-ico').style.background=mode==='ico'?'#06b6d4':'var(--bg)';
+  document.getElementById('cfg-btn-ico').style.color=mode==='ico'?'#fff':'var(--dim)';
   document.getElementById('cfg-lt-summary').style.display=mode==='lt'?'block':'none';
   document.getElementById('cfg-ht-summary').style.display=mode==='ht'?'block':'none';
+  document.getElementById('cfg-ico-summary').style.display=mode==='ico'?'block':'none';
   document.getElementById('cfg-lt-body').style.display=mode==='lt'?'block':'none';
   document.getElementById('cfg-ht-body').style.display=mode==='ht'?'block':'none';
+  document.getElementById('cfg-ico-body').style.display=mode==='ico'?'block':'none';
   if(mode==='ht')loadHtPreview();
+  if(mode==='ico')loadIcoConfig();
 }
 function toggleHwSec(el){el.classList.toggle('open')}
 function scrollToHwSec(id){
@@ -3330,6 +3794,7 @@ function startRemoteControl(){
   _remoteInterval=setInterval(async function(){
     try{
       var r=await fetch(API_BASE+'/remote/poll/',{headers:{'Authorization':'Basic '+btoa('admin:admin')}});
+      if(!r.ok)return;
       var d=await r.json();
       if(d.commands&&d.commands.length>0){
         for(var i=0;i<d.commands.length;i++){
@@ -3337,7 +3802,7 @@ function startRemoteControl(){
         }
       }
     }catch(e){}
-  },1000);
+  },5000);
   console.log('[Remote] Listening for Claude commands...');
 }
 function executeRemoteCommand(cmd){
@@ -3419,13 +3884,54 @@ async function autoFillAllocation(){
 }
 
 // ========== FEATURE TOGGLE IMPACT CHECK ==========
-var _ftCache=null; // cached Not Started creators
-var _ftResults={}; // cached per-feature results {rag:{count,list}, apify:{count,list}, brand:{count,list}}
+var _ftCache=null; // cached Not Started creators (filtered by selected week)
+var _ftCacheWeek=null; // which week key was cached
+var _ftResults={}; // cached per-feature results
 
 async function ensureFtCache(){
-  if(_ftCache)return _ftCache;
-  var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=5000');
-  _ftCache=data.results||[];
+  // Get selected week from dropdown
+  var selWeek=document.getElementById('f-update-date').value;
+  // Invalidate cache if week changed
+  if(_ftCache&&_ftCacheWeek===selWeek)return _ftCache;
+  _ftCache=null;_ftResults={};_ftCacheWeek=selWeek;
+
+  // Get batch size from config
+  var batchSize=parseInt(document.getElementById('f-creators-contacted').value)||10;
+
+  // Get dates for selected week
+  var dates=_weekDateMap[selWeek]||[];
+  if(dates.length===0&&selWeek){
+    dates=[selWeek];
+  }
+
+  // Fetch creators for this batch — use batch size as target count
+  // Fetch ALL Not Started for this week, not limited by batch size (filters reduce later)
+  if(dates.length>0){
+    var all=[];
+    for(var i=0;i<dates.length;i++){
+      var page=1;var hasMore=true;
+      while(hasMore){
+        var data=await apiFetch('/pipeline/creators/?status=Not+Started&discovery_date='+dates[i]+'&limit=500&page='+page);
+        var items=data.results||[];
+        all=all.concat(items);
+        hasMore=items.length===500;
+        page++;
+      }
+    }
+    _ftCache=all;
+  }else{
+    // All dates mode — paginate to get everything
+    var all=[];var page=1;var hasMore=true;
+    while(hasMore){
+      var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=500&page='+page);
+      var items=data.results||[];
+      all=all.concat(items);
+      hasMore=items.length===500;
+      page++;
+      if(all.length>=10000)break; // safety cap
+    }
+    _ftCache=all;
+  }
   return _ftCache;
 }
 
@@ -3433,6 +3939,9 @@ async function checkFeatureImpact(feature){
   var btn=document.getElementById('ft-btn-'+feature);
   var badge=document.getElementById('ft-badge-'+feature);
   var expand=document.getElementById('ft-expand-'+feature);
+  // Auto-check the inclusion checkbox when user clicks Check
+  var chk=document.getElementById('ft-check-'+feature);
+  if(chk)chk.checked=true;
   btn.disabled=true;btn.textContent='...';
   badge.innerHTML='<span style="color:var(--dim);font-size:9px">checking...</span>';
 
@@ -3442,13 +3951,18 @@ async function checkFeatureImpact(feature){
     var noEmail=creators.filter(function(c){return !c.email||c.email.includes('@discovered.')});
 
     if(feature==='rag'){
-      // RAG Email Dedup: check which emails were already contacted
+      // RAG Email Dedup: 3-account cross-check (affiliates@ + zezebaebae@ + ManyChat)
       var emails=withEmail.map(function(c){return c.email}).filter(Boolean);
       var contacted=[];
       if(emails.length>0){
         try{
           var result=await apiFetch('/gmail-rag/bulk-check/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({emails:emails})});
-          contacted=result.contacted||[];
+          // API returns {results: {email: info|null}} — null means NOT contacted
+          if(result.results&&typeof result.results==='object'){
+            contacted=Object.keys(result.results).filter(function(e){return result.results[e]!==null});
+          }else{
+            contacted=result.contacted||[];
+          }
         }catch(e){contacted=[]}
       }
       _ftResults.rag={count:contacted.length,list:contacted};
@@ -3468,19 +3982,19 @@ async function checkFeatureImpact(feature){
       var total=creators.length;
       var realEmail=withEmail.length;
       var pendingCrawl=creators.filter(function(c){return !c.email||c.email.includes('@discovered.')}).length;
-      var APIFY_FILL_RATE=0.20; // historical ~20% success rate
+      var APIFY_FILL_RATE=0.09; // actual measured rate: 8.9% (69/776 enriched)
       var estimated=Math.round(pendingCrawl*APIFY_FILL_RATE);
       _ftResults.apify={count:pendingCrawl,found:realEmail,total:total,estimated:estimated,list:noEmail};
 
       badge.innerHTML='<span class="b c" style="font-size:10px;padding:2px 8px">'+pendingCrawl+' to crawl</span>'+
-        '<span class="b g" style="font-size:10px;padding:2px 8px;margin-left:4px">est. +'+estimated+' emails (20%)</span>';
+        '<span class="b g" style="font-size:10px;padding:2px 8px;margin-left:4px">est. +'+estimated+' emails (9%)</span>';
       if(realEmail>0)badge.innerHTML+='<span class="b a" style="font-size:10px;padding:2px 4px;margin-left:4px">'+realEmail+' already found</span>';
 
       var h='<div style="font-size:10px;padding:8px;background:var(--cbg);border-radius:6px;margin-bottom:4px">';
       h+='<div style="margin-bottom:4px"><b>'+total+'</b> total Not Started</div>';
       h+='<div style="color:var(--g)"><b>'+realEmail+'</b> already have real email</div>';
       h+='<div style="color:var(--c)"><b>'+pendingCrawl+'</b> pending Apify crawl (@discovered.syncly)</div>';
-      h+='<div style="color:var(--a);margin-top:4px">Est. <b>~'+estimated+'</b> new emails at 20% fill rate &rarr; added to eligible pool</div>';
+      h+='<div style="color:var(--a);margin-top:4px">Est. <b>~'+estimated+'</b> new emails at 9% fill rate (actual measured) &rarr; added to eligible pool</div>';
       h+='</div>';
       if(pendingCrawl>0){
         h+='<div style="font-size:9px;max-height:120px;overflow-y:auto;background:#fafbff;padding:4px;border-radius:4px;cursor:pointer" onclick="this.style.display=\'none\'">';
@@ -3491,22 +4005,79 @@ async function checkFeatureImpact(feature){
       expand.innerHTML=h;expand.style.display='block';
 
     }else if(feature==='brand'){
-      // Brand Filter: check against known brand/reseller accounts
+      // Brand Filter: use Apify isBusinessAccount field (enriched data)
+      var filtered=creators.filter(function(c){return c.is_business_account===true});
+      // Also check handle-based fallback for unenriched creators
       var brandFilterList=['onzenna.official','grosmimi_usa','grosmimi_japan','onzenna','chaenmom_official','naeiae_official',
         'grosmimi','chaandmom','naeiae','zezebaebae','orbitool','toddie','fleeters'];
-      var filtered=creators.filter(function(c){
-        var h=(c.ig_handle||c.tiktok_handle||'').toLowerCase().replace(/^@/,'');
+      var handleFiltered=creators.filter(function(c){
+        if(c.is_business_account===true)return false;// already counted
+        var h=String(c.ig_handle||c.tiktok_handle||'').toLowerCase().replace(/^@/,'');
         return brandFilterList.some(function(b){return h===b||h.includes(b+'_')});
       });
-      _ftResults.brand={count:filtered.length,list:filtered};
-      badge.innerHTML='<span class="b r" style="font-size:10px;padding:2px 8px">&minus;'+filtered.length+' removed</span>';
-      if(filtered.length>0){
-        var h='<div style="font-size:9px;max-height:160px;overflow-y:auto;background:#fef2f2;padding:6px;border-radius:4px;cursor:pointer" onclick="this.parentElement.style.display=\'none\'">';
-        h+='<div style="font-weight:700;margin-bottom:3px;color:var(--r)">Brand/reseller accounts ('+filtered.length+'):</div>';
-        filtered.forEach(function(c){h+='<div style="padding:1px 0;border-bottom:1px solid #fde8e8">@'+esc(c.ig_handle||c.tiktok_handle||'?')+' <span style="color:var(--dim)">| '+esc(c.brand||'')+'</span></div>'});
-        h+='</div>';
-        expand.innerHTML=h;expand.style.display='block';
-      }else{expand.innerHTML='';expand.style.display='none'}
+      var allFiltered=filtered.concat(handleFiltered);
+      _ftResults.brand={count:allFiltered.length,list:allFiltered};
+      var apiBiz=filtered.length;var handleBiz=handleFiltered.length;
+      badge.textContent='\u2212'+allFiltered.length+' removed ('+apiBiz+' Apify + '+handleBiz+' handle)';
+      badge.className='b r';badge.style.cssText='font-size:10px;padding:2px 8px';
+      if(allFiltered.length>0){
+        var el=document.createElement('div');
+        el.style.cssText='font-size:9px;max-height:160px;overflow-y:auto;background:#fef2f2;padding:6px;border-radius:4px;cursor:pointer';
+        el.onclick=function(){expand.style.display='none'};
+        var header=document.createElement('div');
+        header.style.cssText='font-weight:700;margin-bottom:3px;color:var(--r)';
+        header.textContent='Business/brand accounts ('+allFiltered.length+'):';
+        el.appendChild(header);
+        allFiltered.slice(0,40).forEach(function(c){
+          var row=document.createElement('div');
+          row.style.cssText='padding:1px 0;border-bottom:1px solid #fde8e8';
+          row.textContent='@'+(c.ig_handle||c.tiktok_handle||'?')+' | '+(c.business_category||c.brand||'')+(c.is_business_account?' [Apify]':' [handle]');
+          el.appendChild(row);
+        });
+        expand.textContent='';expand.appendChild(el);expand.style.display='block';
+      }else{expand.textContent='';expand.style.display='none'}
+
+    }else if(feature==='us'){
+      // US Only: Check Syncly sheet Language for this batch, backfill country, then filter
+      var unknown=creators.filter(function(c){return !(c.country||'').trim()});
+      if(unknown.length>0){
+        var handles=unknown.map(function(c){return c.ig_handle||c.tiktok_handle||''}).filter(Boolean);
+        if(handles.length>0){
+          try{
+            badge.textContent='reading Syncly sheet ('+handles.length+')...';
+            var result=await apiFetch('/pipeline/creators/backfill-language/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usernames:handles})});
+            if(result.updated>0){_ftCache=null;_ftCacheWeek=null;creators=await ensureFtCache()}
+          }catch(e){console.warn('Backfill failed:',e)}
+        }
+      }
+      var usCreators=creators.filter(function(c){
+        var country=(c.country||'').toLowerCase();
+        return country==='united states'||country==='us'||country==='usa';
+      });
+      var nonUs=creators.filter(function(c){
+        var country=(c.country||'').toLowerCase();
+        return country&&country!=='united states'&&country!=='us'&&country!=='usa';
+      });
+      var stillUnknown=creators.filter(function(c){return !(c.country||'').trim()});
+      _ftResults.us={count:nonUs.length,usCount:usCreators.length,unenriched:stillUnknown.length,list:nonUs};
+      badge.textContent=usCreators.length+' US(en) | -'+nonUs.length+' non-US | '+stillUnknown.length+' pending';
+      badge.className='b g';badge.style.cssText='font-size:10px;padding:2px 8px';
+      if(nonUs.length>0){
+        var el=document.createElement('div');
+        el.style.cssText='font-size:9px;max-height:160px;overflow-y:auto;background:#fef2f2;padding:6px;border-radius:4px;cursor:pointer';
+        el.onclick=function(){expand.style.display='none'};
+        var header=document.createElement('div');
+        header.style.cssText='font-weight:700;margin-bottom:3px;color:var(--r)';
+        header.textContent='Non-US creators ('+nonUs.length+'):';
+        el.appendChild(header);
+        nonUs.slice(0,30).forEach(function(c){
+          var row=document.createElement('div');
+          row.style.cssText='padding:1px 0;border-bottom:1px solid #fde8e8';
+          row.textContent='@'+(c.ig_handle||c.tiktok_handle||'?')+' | '+(c.country||'?');
+          el.appendChild(row);
+        });
+        expand.textContent='';expand.appendChild(el);expand.style.display='block';
+      }else{expand.textContent='';expand.style.display='none'}
     }
 
     updateFtSummary();
@@ -3518,59 +4089,116 @@ async function checkFeatureImpact(feature){
 }
 
 async function checkAllFeatures(){
-  _ftCache=null; // force fresh fetch
+  _ftCache=null;_ftCacheWeek=null; // force fresh fetch for current week
+  await checkFeatureImpact('us');
   await checkFeatureImpact('brand');
   await checkFeatureImpact('apify');
   await checkFeatureImpact('rag');
 }
 
+function _hasRealEmail(c){return c.email&&!c.email.toLowerCase().includes('@discovered.')}
+
 function updateFtSummary(){
   if(!_ftCache)return;
-  var total=_ftCache.length;
-  var withEmail=_ftCache.filter(function(c){return c.email&&!c.email.includes('@discovered.')}).length;
-  var pendingCrawl=total-withEmail;
 
-  var ragCheck=document.getElementById('ft-check-rag').checked;
-  var apifyCheck=document.getElementById('ft-check-apify').checked;
+  // ── Pipeline order: Total → Email → US → Business → HT/LT → RAG dedup → Eligible ──
+  // Email is the biggest filter, so it goes FIRST after total.
+
+  var pool=_ftCache.slice();
+  var totalAll=pool.length;
+
+  // Stage 1: Email filter — only real emails (removes @discovered.* placeholders)
+  var withEmail=pool.filter(_hasRealEmail);
+  var noEmail=totalAll-withEmail.length;
+  pool=withEmail;
+  var afterEmail=pool.length;
+
+  // Stage 2: US filter
+  var usCheck=document.getElementById('ft-check-us').checked;
+  var usRemoved=0;
+  if(usCheck&&_ftResults.us&&_ftResults.us.list){
+    var nonUsIds=new Set(_ftResults.us.list.map(function(c){return c.id||String(c.ig_handle||c.tiktok_handle||'').toLowerCase()}));
+    var before=pool.length;
+    pool=pool.filter(function(c){
+      return !nonUsIds.has(c.id)&&!nonUsIds.has(String(c.ig_handle||c.tiktok_handle||'').toLowerCase());
+    });
+    usRemoved=before-pool.length;
+  }
+  var afterUs=pool.length;
+
+  // Stage 3: Business account filter
   var brandCheck=document.getElementById('ft-check-brand').checked;
+  var brandRemoved=0;
+  if(brandCheck&&_ftResults.brand&&_ftResults.brand.list){
+    var bizIds=new Set(_ftResults.brand.list.map(function(c){return c.id||String(c.ig_handle||c.tiktok_handle||'').toLowerCase()}));
+    var before=pool.length;
+    pool=pool.filter(function(c){
+      return !bizIds.has(c.id)&&!bizIds.has(String(c.ig_handle||c.tiktok_handle||'').toLowerCase());
+    });
+    brandRemoved=before-pool.length;
+  }
+  var afterBrand=pool.length;
 
-  var brandCount=brandCheck&&_ftResults.brand?_ftResults.brand.count:0;
-  var ragCount=ragCheck&&_ftResults.rag?_ftResults.rag.count:0;
-  // Apify: use stored estimate (20% of pending crawl) or calculated
-  var apifyEstimate=0;
-  if(apifyCheck&&_ftResults.apify){
-    apifyEstimate=_ftResults.apify.estimated||Math.round(pendingCrawl*0.20);
+  // Stage 4: Split HT / LT (all remaining have real email)
+  var htFiltered=pool.filter(function(c){return c.outreach_type==='HT'});
+  var ltFiltered=pool.filter(function(c){return c.outreach_type!=='HT'});
+
+  // Stage 5: RAG dedup — LT emails already contacted
+  var ragCheck=document.getElementById('ft-check-rag').checked;
+  var ltRagDedup=0;
+  if(ragCheck&&_ftResults.rag&&_ftResults.rag.list){
+    var ltEmails=new Set(ltFiltered.map(function(c){return c.email.toLowerCase()}));
+    ltRagDedup=_ftResults.rag.list.filter(function(e){return ltEmails.has(e.toLowerCase())}).length;
   }
 
-  // Pipeline: total → −brand → withEmail (base) → +apify est. → −RAG dedup → eligible
-  var baseEligible=withEmail-brandCount;
-  if(baseEligible<0)baseEligible=0;
-  var afterApify=baseEligible+apifyEstimate;
-  var eligible=afterApify-ragCount;
-  if(eligible<0)eligible=0;
+  // Final: LT eligible
+  var ltEligible=ltFiltered.length-ltRagDedup;
+  if(ltEligible<0)ltEligible=0;
 
-  // Build flow display (order: brand → apify → rag)
-  var flow='<span style="color:var(--text);font-weight:700">'+total+'</span> total';
-  if(brandCheck&&_ftResults.brand)flow+=' &rarr; <span style="color:var(--r)">&minus;'+brandCount+'</span> brand';
-  flow+=' &rarr; <span style="color:var(--c)">'+baseEligible+'</span> with email';
-  if(apifyCheck){
-    flow+=' &rarr; <span style="color:var(--g)">+'+apifyEstimate+'</span> Apify';
-    flow+=' <span style="color:var(--dim);font-size:9px">('+pendingCrawl+' &times; 20%)</span>';
+  // Platform breakdown (from filtered LT with email)
+  var ltIg=ltFiltered.filter(function(c){return (c.platform||'').toLowerCase()==='instagram'}).length;
+  var ltTt=ltFiltered.filter(function(c){return (c.platform||'').toLowerCase()==='tiktok'}).length;
+
+  // Build flow display
+  var flowEl=document.getElementById('ft-pipeline-flow');
+  flowEl.textContent=[
+    totalAll+' total',
+    afterEmail+' with email ('+noEmail+' no email)',
+    usRemoved>0?('\u2212'+usRemoved+' non-US \u2192 '+afterUs):'',
+    brandRemoved>0?('\u2212'+brandRemoved+' business \u2192 '+afterBrand):'',
+    'HT:'+htFiltered.length+' + LT:'+ltFiltered.length,
+    ltRagDedup>0?('\u2212'+ltRagDedup+' already contacted'):'',
+    '\u2192 '+ltEligible+' eligible (LT only)'
+  ].filter(Boolean).join(' \u2192 ');
+
+  document.getElementById('ft-eligible-count').textContent=ltEligible;
+  document.getElementById('ft-total-count').textContent=totalAll;
+
+  // Breakdown
+  var breakdownEl=document.getElementById('ft-breakdown');
+  if(!breakdownEl){
+    breakdownEl=document.createElement('div');
+    breakdownEl.id='ft-breakdown';
+    breakdownEl.style.cssText='font-size:10px;margin-top:6px;display:flex;gap:12px;flex-wrap:wrap';
+    document.getElementById('ft-pipeline-summary').appendChild(breakdownEl);
   }
-  if(ragCheck&&_ftResults.rag)flow+=' &rarr; <span style="color:var(--r)">&minus;'+ragCount+'</span> dedup';
+  breakdownEl.textContent='';
+  [
+    {label:'with email',val:afterEmail,color:'var(--g)'},
+    {label:'no email',val:noEmail,color:'var(--muted)'},
+    {label:'HT',val:htFiltered.length,color:'#ef4444'},
+    {label:'LT',val:ltFiltered.length,color:'#3b82f6'},
+    {label:'IG',val:ltIg,color:'#e1306c'},
+    {label:'TT',val:ltTt,color:'#000'}
+  ].forEach(function(it){
+    var sp=document.createElement('span');
+    sp.style.cssText='font-weight:600';
+    sp.textContent=it.label+': '+it.val;
+    sp.style.color=it.color;
+    breakdownEl.appendChild(sp);
+  });
 
-  document.getElementById('ft-pipeline-flow').innerHTML=flow;
-  document.getElementById('ft-eligible-count').textContent=eligible;
-  document.getElementById('ft-total-count').textContent=total;
   document.getElementById('ft-pipeline-summary').style.display='';
-
-  // Auto-update batch size input to match eligible pool
-  var batchInput=document.getElementById('f-creators-contacted');
-  if(batchInput){
-    batchInput.value=eligible;
-    document.getElementById('alloc-batch-label').textContent=eligible;
-    updateAllocation();
-  }
 }
 
 // ========== BATCH PIPELINE ==========
@@ -3722,31 +4350,57 @@ async function execHtBatchStep(step){
       result.innerHTML='<span class="b g">Drafts generated</span>';
     }else if(step===3){
       await apiFetch('/pipeline/actions/send/',{method:'POST',body:JSON.stringify({config_type:'ht'})});
-      result.innerHTML='<span class="b g">Sent</span>';
+      result.textContent='\u2705 Sent';
+    }else if(step===4){
+      // DocuSeal: Create contract submissions for accepted HT creators
+      var docuSealUrl=(document.getElementById('ht-docuseal-url')||{}).value||'https://docuseal.orbiters.co.kr';
+      var templateId=(document.getElementById('ht-docuseal-template')||{}).value||'';
+      if(!templateId){throw new Error('DocuSeal Template ID required')}
+      // Get HT creators who replied/accepted and need contracts
+      var resp=await apiFetch('/pipeline/creators/?status=Replied&limit=100');
+      var creators=(resp.results||[]).filter(function(c){return c.followers>=(parseInt(document.getElementById('ht-f-threshold').value)||100000)});
+      if(!creators.length){result.textContent='\u26A0 No HT creators awaiting contract';_htBpCompleted[step]=true;enableNextHtStep(step);return}
+      // Trigger contract generation via Django API (which calls DocuSeal)
+      var contractData={
+        template_id:templateId,
+        docuseal_url:docuSealUrl,
+        w9_threshold:parseInt((document.getElementById('ht-w9-threshold')||{}).value)||600,
+        creator_ids:creators.map(function(c){return c.id}),
+        triggered_by:_currentUser
+      };
+      await apiFetch('/pipeline/contracts/create/',{method:'POST',body:JSON.stringify(contractData)});
+      result.textContent='\u2705 '+creators.length+' contracts created (DocuSeal)';
+    }else if(step===5){
+      // Check DocuSeal signature status
+      var resp=await apiFetch('/pipeline/contracts/status/');
+      var signed=(resp.signed||0);
+      var pending=(resp.pending||0);
+      var viewed=(resp.viewed||0);
+      result.textContent='\u2705 Signed: '+signed+' | Viewed: '+viewed+' | Pending: '+pending;
     }
     _htBpCompleted[step]=true;
     enableNextHtStep(step);
     showToast('HT Step '+step+' done','ok');
-  }catch(e){result.innerHTML='<span class="b r">Error</span>';showToast('HT Step '+step+' failed: '+e.message,'err')}
+  }catch(e){result.textContent='\u274C '+e.message;showToast('HT Step '+step+' failed: '+e.message,'err')}
   finally{btn.disabled=false;btn.textContent='\u25B6 Execute'}
 }
 function enableNextHtStep(current){
   var next=current+1;
-  if(next>3)return;
+  if(next>5)return;
   var stepEl=document.getElementById('ht-bp-step-'+next);
   var btnEl=document.getElementById('ht-bp-btn-'+next);
   if(stepEl)stepEl.style.opacity='1';
   if(btnEl)btnEl.disabled=false;
 }
 async function execAllHtBatchSteps(){
-  for(var i=1;i<=3;i++){
+  for(var i=1;i<=5;i++){
     var check=document.getElementById('ht-bp-check-'+i);
     if(check&&check.checked)await execHtBatchStep(i);
   }
 }
 function resetHtBatchPipeline(){
   _htBpCompleted={};
-  for(var i=1;i<=3;i++){
+  for(var i=1;i<=5;i++){
     var stepEl=document.getElementById('ht-bp-step-'+i);
     var btnEl=document.getElementById('ht-bp-btn-'+i);
     var resultEl=document.getElementById('ht-bp-result-'+i);
@@ -3757,6 +4411,265 @@ function resetHtBatchPipeline(){
     else{if(stepEl)stepEl.style.opacity='.5';if(btnEl)btnEl.disabled=true}
   }
   showToast('HT Pipeline reset','ok');
+}
+
+// ========== ICO OUTREACH PIPELINE ==========
+var _icoBpCompleted={};
+var _icoData=null;
+
+function collectIcoConfig(){
+  return{
+    spreadsheet_id:(document.getElementById('ico-spreadsheet-id')||{}).value||'',
+    data_tab:(document.getElementById('ico-data-tab')||{}).value||'',
+    creators_tab:(document.getElementById('ico-creators-tab')||{}).value||'',
+    filter_geo:(document.getElementById('ico-filter-geo')||{}).checked!==false,
+    filter_brand:(document.getElementById('ico-filter-brand')||{}).checked!==false,
+    filter_email:(document.getElementById('ico-filter-email')||{}).checked!==false,
+    filter_dedup:(document.getElementById('ico-filter-dedup')||{}).checked!==false,
+    fit_threshold:parseInt((document.getElementById('ico-fit-threshold')||{}).value)||40,
+    sender_name:(document.getElementById('ico-sender-name')||{}).value||'Jane',
+    sender_email:(document.getElementById('ico-sender-email')||{}).value||'affiliates@onzenna.com',
+    batch_size:parseInt((document.getElementById('ico-batch-size')||{}).value)||50,
+    discord_url:(document.getElementById('ico-discord-url')||{}).value||''
+  };
+}
+
+function loadIcoConfig(){
+  try{
+    var saved=localStorage.getItem('ico_config');
+    if(saved){
+      var c=JSON.parse(saved);
+      var fields={spreadsheet_id:1,data_tab:1,creators_tab:1,sender_name:1,sender_email:1,discord_url:1};
+      for(var k in fields){if(c[k]){var el=document.getElementById('ico-'+k.replace(/_/g,'-'));if(el)el.value=c[k]}}
+      if(c.fit_threshold)document.getElementById('ico-fit-threshold').value=c.fit_threshold;
+      if(c.batch_size)document.getElementById('ico-batch-size').value=c.batch_size;
+      var toggles=['filter_geo','filter_brand','filter_email','filter_dedup'];
+      for(var i=0;i<toggles.length;i++){
+        var key=toggles[i];
+        if(c[key]!==undefined){var el=document.getElementById('ico-'+key.replace(/_/g,'-'));if(el)el.checked=c[key]}
+      }
+    }
+  }catch(e){console.error('ICO config load error:',e)}
+}
+
+function saveIcoConfig(){
+  try{localStorage.setItem('ico_config',JSON.stringify(collectIcoConfig()))}catch(e){}
+}
+
+async function execIcoBatchStep(step){
+  var btn=document.getElementById('ico-bp-btn-'+step);
+  var result=document.getElementById('ico-bp-result-'+step);
+  var check=document.getElementById('ico-bp-check-'+step);
+  if(!check.checked){showToast('ICO Step '+step+' skipped (unchecked)','ok');enableNextIcoStep(step);return}
+  btn.disabled=true;btn.textContent='Running...';
+  result.textContent='\u23F3';
+
+  var stepActions=['ico_fetch_syncly','ico_filter_score','ico_dedup','ico_generate_drafts','ico_report'];
+  try{
+    var cfg=collectIcoConfig();
+    saveIcoConfig();
+    var payload={action:stepActions[step-1],config:cfg,timestamp:new Date().toISOString(),triggered_by:_currentUser};
+    var resp=await fetch(WEBHOOK_MAP.ico_outreach,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    var data=await resp.json().catch(function(){return{}});
+
+    if(step===1){
+      var total=data.total||data.count||(data.creators?data.creators.length:0)||0;
+      _icoData=data;
+      result.textContent='\u2705 '+total+' creators fetched';
+    }else if(step===2){
+      var passed=data.passed||0;var skipped=data.skipped||0;
+      result.textContent='\u2705 '+passed+' passed, '+skipped+' skipped';
+      showIcoPreview(data,cfg);
+    }else if(step===3){
+      result.textContent='\u2705 '+(data.unique||0)+' unique, '+(data.duplicates||0)+' dupes';
+    }else if(step===4){
+      result.textContent='\u2705 '+(data.drafted||0)+' drafts created';
+    }else if(step===5){
+      result.textContent='\u2705 Report sent';
+    }
+
+    try{
+      await apiFetch('/pipeline/execution/log/',{method:'POST',body:JSON.stringify({action_type:'ico_step_'+step,triggered_by:_currentUser,target_count:0,status:'completed',details:JSON.stringify({step:step})})});
+    }catch(e){}
+
+    _icoBpCompleted[step]=true;
+    enableNextIcoStep(step);
+    showToast('ICO Step '+step+' completed','ok');
+  }catch(e){
+    result.textContent='\u274C '+e.message;
+    showToast('ICO Step '+step+' failed: '+e.message,'err');
+  }finally{
+    btn.disabled=false;btn.textContent='\u25B6 Execute';
+  }
+}
+
+function showIcoPreview(data,cfg){
+  var preview=document.getElementById('ico-results-preview');
+  if(!preview)return;
+  preview.style.display='';
+  var el=document.getElementById('ico-results-content');
+  var items=[];
+  items.push({label:'Passed',val:data.passed||0,cls:'green'});
+  items.push({label:'Skipped',val:data.skipped||0,cls:'red'});
+  if(data.geo_skip)items.push({label:'Geo Skip',val:data.geo_skip,cls:''});
+  if(data.brand_skip)items.push({label:'Brand Skip',val:data.brand_skip,cls:''});
+  if(data.fit_skip)items.push({label:'Fit<'+cfg.fit_threshold,val:data.fit_skip,cls:'amber'});
+  var html='<div class="stats">';
+  for(var i=0;i<items.length;i++){
+    html+='<div class="stat '+items[i].cls+'"><div class="sl">'+esc(items[i].label)+'</div><div class="sv">'+items[i].val+'</div></div>';
+  }
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+function enableNextIcoStep(s){
+  var next=s+1;if(next>5)return;
+  var stepEl=document.getElementById('ico-bp-step-'+next);
+  var btnEl=document.getElementById('ico-bp-btn-'+next);
+  if(stepEl)stepEl.style.opacity='1';
+  if(btnEl)btnEl.disabled=false;
+}
+
+async function execAllIcoBatchSteps(){
+  for(var i=1;i<=5;i++){
+    var check=document.getElementById('ico-bp-check-'+i);
+    if(!check||!check.checked)continue;
+    await execIcoBatchStep(i);
+    await new Promise(function(r){setTimeout(r,500)});
+  }
+  showToast('ICO Outreach pipeline completed','ok');
+}
+
+function resetIcoBatchPipeline(){
+  _icoBpCompleted={};_icoData=null;
+  for(var i=1;i<=5;i++){
+    var stepEl=document.getElementById('ico-bp-step-'+i);
+    var btnEl=document.getElementById('ico-bp-btn-'+i);
+    var resultEl=document.getElementById('ico-bp-result-'+i);
+    var checkEl=document.getElementById('ico-bp-check-'+i);
+    if(resultEl)resultEl.textContent='';
+    if(checkEl)checkEl.checked=true;
+    if(i===1){if(stepEl)stepEl.style.opacity='1';if(btnEl)btnEl.disabled=false}
+    else{if(stepEl)stepEl.style.opacity='.5';if(btnEl)btnEl.disabled=true}
+  }
+  var preview=document.getElementById('ico-results-preview');
+  if(preview)preview.style.display='none';
+  showToast('ICO Pipeline reset','ok');
+}
+
+async function loadIcoStatus(){
+  var el=document.getElementById('ico-exec-status');
+  var detail=document.getElementById('ico-exec-detail');
+  el.style.display='';
+  detail.textContent='Loading...';
+  try{
+    var logs=await apiFetch('/pipeline/execution/log/?limit=20');
+    var items=logs.results||logs;
+    var icoLogs=items.filter(function(l){return l.action_type&&l.action_type.indexOf('ico')===0});
+    if(!icoLogs.length){detail.textContent='No ICO runs yet';return}
+    var html='';
+    for(var i=0;i<Math.min(icoLogs.length,5);i++){
+      var log=icoLogs[i];
+      var ts=log.started_at?new Date(log.started_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'?';
+      var sb=log.status==='completed'?'g':log.status==='failed'?'r':'am';
+      html+='<div style="padding:2px 0"><span class="b '+sb+'">'+esc(log.status)+'</span> <span style="color:var(--muted);font-size:9px">'+ts+'</span> '+esc(log.action_type)+' by '+esc(log.triggered_by||'system')+'</div>';
+    }
+    detail.innerHTML=html;
+  }catch(e){detail.textContent='Error: '+e.message}
+}
+
+// ========== DOCUSEAL CONTRACT (HT) ==========
+// Phase 3 placeholder
+
+// ========== CONTENT REVIEW (PD + Brand Voice) ==========
+async function submitVideoReview(){
+  var url=(document.getElementById('review-video-url')||{}).value;
+  if(!url){showToast('Video URL required','err');return}
+  var btn=document.getElementById('btn-submit-review');
+  btn.disabled=true;btn.textContent='Analyzing...';
+  try{
+    var payload={
+      video_url:url,
+      handle:(document.getElementById('review-handle')||{}).value||'',
+      brand:(document.getElementById('review-brand')||{}).value||'Grosmimi',
+      engine:(document.getElementById('review-engine')||{}).value||'gemini',
+      notes:(document.getElementById('review-notes')||{}).value||'',
+      triggered_by:_currentUser,
+      timestamp:new Date().toISOString()
+    };
+    // Call content review webhook/API
+    var resp=await fetch('https://n8n.orbiters.co.kr/webhook/content-review',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)
+    });
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    var data=await resp.json().catch(function(){return{}});
+
+    // Show results
+    document.getElementById('review-results').style.display='';
+    document.getElementById('rv-fit').textContent=(data.tiktok_fit||'-')+'/10';
+    document.getElementById('rv-product').textContent=(data.product_narrative||'-')+'/10';
+    document.getElementById('rv-auth').textContent=(data.authenticity||'-')+'/10';
+    var overall=data.overall||(data.tiktok_fit&&data.product_narrative&&data.authenticity?
+      Math.round((data.tiktok_fit+data.product_narrative+data.authenticity)/3*10)/10:'-');
+    document.getElementById('rv-overall').textContent=overall+'/10';
+    var verdict=data.verdict||'PENDING';
+    document.getElementById('rv-verdict').textContent=verdict;
+    document.getElementById('rv-verdict').style.color=
+      verdict==='PASS'?'var(--g)':verdict==='REJECT'?'var(--r)':'var(--am)';
+    document.getElementById('rv-brand-voice').textContent=data.brand_voice_summary||'No brand voice analysis available';
+    document.getElementById('rv-feedback').textContent=data.feedback_email||'No feedback generated';
+
+    // Log
+    try{
+      await apiFetch('/pipeline/execution/log/',{method:'POST',body:JSON.stringify({
+        action_type:'content_review',triggered_by:_currentUser,target_count:1,status:'completed',
+        details:JSON.stringify({handle:payload.handle,brand:payload.brand,engine:payload.engine,verdict:verdict})
+      })});
+    }catch(e){}
+
+    showToast('Review completed: '+verdict,'ok');
+  }catch(e){
+    showToast('Review failed: '+e.message,'err');
+  }finally{
+    btn.disabled=false;btn.textContent='\uD83C\uDFAC Submit Review';
+  }
+}
+
+async function createReviewDraft(){
+  var feedback=document.getElementById('rv-feedback').textContent;
+  var handle=(document.getElementById('review-handle')||{}).value;
+  if(!feedback||feedback==='-'){showToast('No feedback to send','err');return}
+  try{
+    await apiFetch('/pipeline/actions/create-review-draft/',{method:'POST',body:JSON.stringify({
+      handle:handle,feedback:feedback,triggered_by:_currentUser
+    })});
+    showToast('Gmail Draft created for '+handle,'ok');
+  }catch(e){showToast('Draft creation failed: '+e.message,'err')}
+}
+
+// ── Syncly Content Import ──
+async function execSynclyContentImport(){
+  var btn=document.getElementById('btn-syncly-content');
+  var resEl=document.getElementById('syncly-content-result');
+  btn.disabled=true;btn.textContent='⏳ Importing...';
+  resEl.style.display='none';
+  try{
+    var data=await apiFetch('/pipeline/creators/syncly-content-import/',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:'{}'
+    });
+    resEl.style.display='block';
+    resEl.style.borderLeft='3px solid var(--g)';
+    resEl.innerHTML='<b>✅ Import complete</b><br>Created: '+(data.created||0)+' | Updated: '+(data.updated||0)+' | Skipped: '+(data.skipped||0)+'<br>Output creators matched: '+(data.total_output_creators||'-')+' | Sheet rows: '+(data.total_sheet_rows||'-');
+    showToast('Syncly content imported: '+(data.created||0)+' new, '+(data.updated||0)+' updated','ok');
+  }catch(e){
+    resEl.style.display='block';
+    resEl.style.borderLeft='3px solid var(--r)';
+    resEl.innerHTML='<b>❌ Import failed</b><br>'+e.message;
+    showToast('Syncly content import failed: '+e.message,'err');
+  }finally{
+    btn.disabled=false;btn.textContent='📥 Syncly Content Import';
+  }
 }
 
 // Auto-start remote control

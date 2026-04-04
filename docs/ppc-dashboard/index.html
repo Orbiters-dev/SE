@@ -205,7 +205,7 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
 
 <div class="ctr" id="main-content" style="display:none">
 
-<div style="display:flex;justify-content:center;gap:4px;margin-bottom:20px">
+<div id="top-nav" style="display:flex;justify-content:center;gap:4px;margin-bottom:20px">
   <div style="display:inline-flex;border:2px solid #e2e8f0;border-radius:10px;overflow:hidden;font-size:12px;font-weight:700">
     <div style="padding:8px 20px;background:#6366f1;color:#fff;cursor:default">Amazon PPC</div>
     <a href="../content-dashboard/index.html" style="padding:8px 20px;color:#64748b;text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center" onmouseover="this.style.background='#fce7f3';this.style.color='#ec4899'" onmouseout="this.style.background='';this.style.color='#64748b'">Content Intelligence</a>
@@ -647,6 +647,12 @@ input[type=range]{accent-color:var(--a);cursor:pointer;height:4px}
 </div>
 
 <script>
+// ─── Embed mode: hide nav when loaded in iframe ───
+if(new URLSearchParams(window.location.search).get('embed')==='1'){
+  document.addEventListener('DOMContentLoaded',function(){
+    var n=document.getElementById('top-nav'); if(n)n.style.display='none';
+  });
+}
 const D = PPC_DATA;
 const BRAND_LABELS = {grosmimi:'🟣 Grosmimi', naeiae:'🟡 Naeiae', chaenmom:'🔵 CHA&MOM'};
 const BRAND_PL = {
