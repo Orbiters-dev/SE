@@ -2387,15 +2387,15 @@ def collect_shopify(date_from: str, date_to: str) -> list[dict]:
         tags   = (order.get("tags")        or "").lower()
         source = (order.get("source_name") or "").lower()
 
-        # Channel detection (order level)
-        # NOTE: "amazon" in tags catches multiple cases — order matters:
-        #  1. Faire B2B wholesale → B2B (Faire tag present)
-        #  2. FBA MCF fulfilled ("Exported To Amazon by WebBee App") → D2C
-        #  3. FBA MCF rejected ("Rejected by Amazon - WebBee app") → D2C
-        #     Both 2 & 3 are Shopify DTC sales; Amazon is just fulfillment logistics
+        # Channel detection (order level) — priority order matters:
+        #  1. Faire B2B wholesale → B2B
+        #  2. PR/sample/supporter → PR (before FBA MCF! fulfillment ≠ channel)
+        #  3. FBA MCF fulfilled/rejected → D2C (Amazon is just logistics)
         #  4. True Amazon Marketplace orders don't come through Shopify (they're in amazon_sales_daily via SP-API)
         if "faire" in tags:
             channel = "B2B"
+        elif any(k in tags for k in ["pr", "sample", "supporter"]):
+            channel = "PR"   # PR/sample before FBA MCF — fulfillment method ≠ channel
         elif "exported to amazon" in tags or "amazon status" in tags or "rejected by amazon" in tags:
             channel = "D2C"   # FBA MCF (fulfilled or rejected): sale is on Shopify, not Amazon Marketplace
         elif "amazon" in tags or "amazon" in source:
@@ -2406,8 +2406,6 @@ def collect_shopify(date_from: str, date_to: str) -> list[dict]:
             channel = "TikTok"
         elif any(k in tags for k in ["b2b", "wholesale"]):
             channel = "B2B"
-        elif any(k in tags for k in ["pr", "sample", "supporter"]):
-            channel = "PR"
         else:
             channel = "D2C"
 

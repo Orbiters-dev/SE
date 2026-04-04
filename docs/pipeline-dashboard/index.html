@@ -527,7 +527,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
         &#x26A1; LT Config<br><span style="font-weight:400;font-size:9px">Auto-send, auto-reply, no contract</span>
       </button>
       <button class="btn" id="cfg-btn-ht" onclick="switchCfgMode('ht')" style="flex:1;border-radius:0;border:none;border-left:1px solid var(--border);padding:10px;font-size:11px;font-weight:700;background:var(--bg);color:var(--dim)">
-        &#x1F451; HT Config<br><span style="font-weight:400;font-size:9px">Manual review, contract, payment</span>
+        &#x1F451; HT Config <span id="cfg-btn-ht-badge" style="background:#ef4444;color:#fff;border-radius:10px;padding:1px 6px;font-size:9px;font-weight:700;min-width:16px;text-align:center"></span><br><span style="font-weight:400;font-size:9px">Manual review, contract, payment</span>
       </button>
     </div>
     <!-- LT Config Summary -->
@@ -571,6 +571,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <div class="form-row"><label>Batch Size</label><input type="number" id="f-creators-contacted" min="1" max="500" step="1" oninput="var l=document.getElementById('alloc-batch-label');if(l)l.textContent=this.value;updateAllocation()"></div>
         <div class="form-row"><label>HT Threshold (R30D)</label><input type="number" id="f-ht-threshold" min="0" step="10000"></div>
         <div class="form-row"><label>HT Min Followers</label><input type="number" id="f-ht-follower-min" min="0" step="5000"></div>
+        <div id="ht-lt-split-hint" style="display:none;margin:6px 0 4px 0;padding:8px 12px;background:linear-gradient(135deg,#fef3c7,#eff6ff);border:1px solid #e5e7eb;border-radius:6px;font-size:11px;font-family:var(--mono)"></div>
         <!-- Discovery & Content Import (moved from Execution) -->
         <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
           <div style="font-size:10px;font-weight:700;color:var(--dim);margin-bottom:6px">&#x1F50E; Discovery &amp; Content Import</div>
@@ -641,8 +642,8 @@ Shopify                         Apify / Syncly                   Gmail RAG
         </div>
       </div>
       <div class="card">
-        <h3>&#x1F527; Feature Toggles</h3>
-        <div class="desc">Each filter adjusts the eligible pool. Click <b>Check</b> to see impact before executing.</div>
+        <h3>&#x1F527; Feature Toggles <span style="font-size:10px;font-weight:400;color:#3b82f6">(LT only)</span></h3>
+        <div class="desc">Each filter adjusts the LT eligible pool. HT is managed separately in the HT Config tab.</div>
 
         <!-- Step 0: US Only Filter -->
         <div class="ft-step" id="fts-us" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
@@ -3233,6 +3234,8 @@ async function onDiscoveryDateSelect(val){
       hintEl.textContent='\u2713 '+group.label+' \u2014 '+cnt+'\uBA85 ('+group.dates.length+'\uC77C\uAC04 \uBC1C\uACAC) \u2192 Batch Size \uC790\uB3D9 \uC124\uC815';
       hintEl.style.color='var(--g)';hintEl.style.display='block';
     }
+    // Fetch HT/LT split from server
+    _fetchHtLtSplit(group.dates[0]||val);
     return;
   }
   // Fallback: raw date
@@ -3242,6 +3245,7 @@ async function onDiscoveryDateSelect(val){
     var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
     updateAllocation();
     if(hintEl){hintEl.textContent='\u2713 '+val+' \u2014 Not Started '+cnt+'\uBA85';hintEl.style.display='block'}
+    _fetchHtLtSplit(val);
     return;
   }
   if(hintEl){hintEl.textContent='\uC870\uD68C \uC911...';hintEl.style.display='block';hintEl.style.color='var(--muted)'}
@@ -3253,7 +3257,25 @@ async function onDiscoveryDateSelect(val){
     var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
     updateAllocation();
     if(hintEl){hintEl.textContent='\u2713 '+val+' \u2014 Not Started '+cnt+'\uBA85';hintEl.style.color='var(--g)';hintEl.style.display='block'}
+    _fetchHtLtSplit(val);
   }catch(e){if(hintEl){hintEl.textContent='\uC870\uD68C \uC2E4\uD328';hintEl.style.color='var(--r)'}}
+}
+
+async function _fetchHtLtSplit(date){
+  var splitEl=document.getElementById('ht-lt-split-hint');
+  if(!splitEl)return;
+  try{
+    var stats=await apiFetch('/pipeline/creators/filter-stats/?discovery_date='+date);
+    var ht=stats.ht||0,lt=stats.lt||0,total=stats.total||0;
+    splitEl.innerHTML='<span style="font-weight:700">'+total+'</span>\uBA85 \u2192 '
+      +'<span style="color:#ef4444;font-weight:700">HT: '+ht+'</span> '
+      +'<span style="color:#3b82f6;font-weight:700">LT: '+lt+'</span>'
+      +' &nbsp;<span style="font-size:9px;color:var(--dim)">(HT\uB294 HT Config \uD0ED\uC5D0\uC11C \uBCC4\uB3C4 \uAD00\uB9AC, \uC544\uB798 Toggle\uC740 LT\uC5D0\uB9CC \uC801\uC6A9)</span>';
+    splitEl.style.display='block';
+    // Update HT tab badge
+    var htBadge=document.getElementById('cfg-btn-ht-badge');
+    if(htBadge)htBadge.textContent=ht;
+  }catch(e){splitEl.style.display='none'}
 }
 
 function toggleAllDates(on){
@@ -3883,7 +3905,9 @@ async function checkFeatureImpact(feature){
   badge.innerHTML='<span style="color:var(--dim);font-size:9px">checking...</span>';
 
   try{
-    var creators=await ensureFtCache();
+    var allCreators=await ensureFtCache();
+    // Filter to LT only — HT managed separately in HT Config tab
+    var creators=allCreators.filter(function(c){return c.outreach_type!=='HT'});
     var withEmail=creators.filter(function(c){return c.email&&!c.email.includes('@discovered.')});
     var noEmail=creators.filter(function(c){return !c.email||c.email.includes('@discovered.')});
 
@@ -3987,7 +4011,7 @@ async function checkFeatureImpact(feature){
           try{
             badge.textContent='reading Syncly sheet ('+handles.length+')...';
             var result=await apiFetch('/pipeline/creators/backfill-language/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usernames:handles})});
-            if(result.updated>0){_ftCache=null;_ftCacheWeek=null;creators=await ensureFtCache()}
+            if(result.updated>0){_ftCache=null;_ftCacheWeek=null;var refreshed=await ensureFtCache();creators=refreshed.filter(function(c){return c.outreach_type!=='HT'})}
           }catch(e){console.warn('Backfill failed:',e)}
         }
       }
@@ -4042,20 +4066,25 @@ function _hasRealEmail(c){return c.email&&!c.email.toLowerCase().includes('@disc
 function updateFtSummary(){
   if(!_ftCache)return;
 
-  // ── Pipeline order: Total → Email → US → Business → HT/LT → RAG dedup → Eligible ──
-  // Email is the biggest filter, so it goes FIRST after total.
+  // ── Pipeline order: Total → HT/LT split → LT only → Email → US → Business → RAG dedup → Eligible ──
+  // HT separated FIRST — toggles only apply to LT pool.
 
-  var pool=_ftCache.slice();
-  // Use server stats for accurate total (client may have incomplete data in All dates mode)
-  var totalAll=(_ftServerStats&&_ftServerStats.total)?_ftServerStats.total:pool.length;
+  var all=_ftCache.slice();
+  var totalAll=(_ftServerStats&&_ftServerStats.total)?_ftServerStats.total:all.length;
 
-  // Stage 1: Email filter — only real emails (removes @discovered.* placeholders)
+  // Stage 0: Split HT / LT FIRST (before any filtering)
+  var htAll=all.filter(function(c){return c.outreach_type==='HT'});
+  var pool=all.filter(function(c){return c.outreach_type!=='HT'}); // LT only from here
+  var ltTotal=pool.length;
+  var htTotal=totalAll-ltTotal;
+
+  // Stage 1: Email filter — LT only, real emails (removes @discovered.* placeholders)
   var withEmail=pool.filter(_hasRealEmail);
-  var noEmail=totalAll-withEmail.length;
+  var noEmail=ltTotal-withEmail.length;
   pool=withEmail;
   var afterEmail=pool.length;
 
-  // Stage 2: US filter
+  // Stage 2: US filter (LT only)
   var usCheck=document.getElementById('ft-check-us').checked;
   var usRemoved=0;
   if(usCheck&&_ftResults.us&&_ftResults.us.list){
@@ -4068,7 +4097,7 @@ function updateFtSummary(){
   }
   var afterUs=pool.length;
 
-  // Stage 3: Business account filter
+  // Stage 3: Business account filter (LT only)
   var brandCheck=document.getElementById('ft-check-brand').checked;
   var brandRemoved=0;
   if(brandCheck&&_ftResults.brand&&_ftResults.brand.list){
@@ -4081,34 +4110,29 @@ function updateFtSummary(){
   }
   var afterBrand=pool.length;
 
-  // Stage 4: Split HT / LT (all remaining have real email)
-  var htFiltered=pool.filter(function(c){return c.outreach_type==='HT'});
-  var ltFiltered=pool.filter(function(c){return c.outreach_type!=='HT'});
-
-  // Stage 5: RAG dedup — LT emails already contacted
+  // Stage 4: RAG dedup — LT emails already contacted
   var ragCheck=document.getElementById('ft-check-rag').checked;
   var ltRagDedup=0;
   if(ragCheck&&_ftResults.rag&&_ftResults.rag.list){
-    var ltEmails=new Set(ltFiltered.map(function(c){return c.email.toLowerCase()}));
+    var ltEmails=new Set(pool.map(function(c){return c.email.toLowerCase()}));
     ltRagDedup=_ftResults.rag.list.filter(function(e){return ltEmails.has(e.toLowerCase())}).length;
   }
 
   // Final: LT eligible
-  var ltEligible=ltFiltered.length-ltRagDedup;
+  var ltEligible=pool.length-ltRagDedup;
   if(ltEligible<0)ltEligible=0;
 
   // Platform breakdown (from filtered LT with email)
-  var ltIg=ltFiltered.filter(function(c){return (c.platform||'').toLowerCase()==='instagram'}).length;
-  var ltTt=ltFiltered.filter(function(c){return (c.platform||'').toLowerCase()==='tiktok'}).length;
+  var ltIg=pool.filter(function(c){return (c.platform||'').toLowerCase()==='instagram'}).length;
+  var ltTt=pool.filter(function(c){return (c.platform||'').toLowerCase()==='tiktok'}).length;
 
   // Build flow display
   var flowEl=document.getElementById('ft-pipeline-flow');
   flowEl.textContent=[
-    totalAll+' total',
-    afterEmail+' with email ('+noEmail+' no email)',
+    totalAll+' total \u2192 HT:'+htTotal+' + LT:'+ltTotal,
+    ltTotal+' LT \u2192 '+afterEmail+' with email ('+noEmail+' no email)',
     usRemoved>0?('\u2212'+usRemoved+' non-US \u2192 '+afterUs):'',
     brandRemoved>0?('\u2212'+brandRemoved+' business \u2192 '+afterBrand):'',
-    'HT:'+htFiltered.length+' + LT:'+ltFiltered.length,
     ltRagDedup>0?('\u2212'+ltRagDedup+' already contacted'):'',
     '\u2192 '+ltEligible+' eligible (LT only)'
   ].filter(Boolean).join(' \u2192 ');
@@ -4116,7 +4140,7 @@ function updateFtSummary(){
   document.getElementById('ft-eligible-count').textContent=ltEligible;
   document.getElementById('ft-total-count').textContent=totalAll;
   // Show server stats accuracy note if client loaded fewer than server total
-  var clientLoaded=pool.length+noEmail;
+  var clientLoaded=all.length;
   if(_ftServerStats&&_ftServerStats.total>clientLoaded){
     document.getElementById('ft-total-count').title='Server: '+_ftServerStats.total+' | Client loaded: '+clientLoaded;
   }
@@ -4133,8 +4157,8 @@ function updateFtSummary(){
   [
     {label:'with email',val:afterEmail,color:'var(--g)'},
     {label:'no email',val:noEmail,color:'var(--muted)'},
-    {label:'HT',val:htFiltered.length,color:'#ef4444'},
-    {label:'LT',val:ltFiltered.length,color:'#3b82f6'},
+    {label:'HT',val:htTotal,color:'#ef4444'},
+    {label:'LT',val:ltTotal,color:'#3b82f6'},
     {label:'IG',val:ltIg,color:'#e1306c'},
     {label:'TT',val:ltTt,color:'#000'}
   ].forEach(function(it){
