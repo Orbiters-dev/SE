@@ -53,6 +53,60 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 TMP_DIR = REPO_ROOT / ".tmp" / "codex_evaluator"
 TMP_DIR.mkdir(parents=True, exist_ok=True)
 
+# ─── LightRAG Integration ────────────────────────────────────────
+
+LIGHTRAG_URL = os.environ.get("LIGHTRAG_URL", "http://localhost:9621")
+
+
+def _rag_healthy() -> bool:
+    """Check if LightRAG server is reachable."""
+    try:
+        import urllib.request
+        req = urllib.request.Request(f"{LIGHTRAG_URL}/health", method="GET")
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return data.get("status") == "healthy"
+    except Exception:
+        return False
+
+
+def _rag_query(text: str, mode: str = "hybrid", top_k: int = 5) -> str:
+    """Query LightRAG for related context. Returns empty string on failure."""
+    try:
+        import urllib.request
+        payload = json.dumps({"query": text, "mode": mode, "top_k": top_k, "only_need_context": True}).encode("utf-8")
+        req = urllib.request.Request(f"{LIGHTRAG_URL}/query", data=payload, method="POST",
+                                     headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            if isinstance(data, str):
+                return data
+            if isinstance(data, dict):
+                return data.get("response", data.get("result", ""))
+            return str(data)
+    except Exception:
+        return ""
+
+
+def _rag_index_result(result: dict, domain: str, ts: str):
+    """Index audit result into LightRAG for future retrieval (fire-and-forget)."""
+    if not _rag_healthy():
+        return
+    try:
+        import urllib.request
+        content = result.get("content", "")
+        if not content or len(content) < 50:
+            return
+        # Wrap with metadata for better retrieval
+        doc = f"# Codex Audit Result [{domain.upper()}] — {ts}\n\n{content[:3000]}"
+        payload = json.dumps({"text": doc}).encode("utf-8")
+        req = urllib.request.Request(f"{LIGHTRAG_URL}/documents/text", data=payload, method="POST",
+                                     headers={"Content-Type": "application/json"})
+        urllib.request.urlopen(req, timeout=10)
+        print(f"[RAG] Indexed audit result ({len(doc)} chars)", file=sys.stderr)
+    except Exception as e:
+        print(f"[RAG] Index failed (non-blocking): {e}", file=sys.stderr)
+
 # ─── Evaluator system prompts ───────────────────────────────────────
 
 AUDIT_SYSTEM = """You are a skeptical code auditor for the ORBI system.
@@ -302,9 +356,20 @@ def cmd_audit(args):
 
     system_prompt = _get_domain_prompt(args)
     domain = getattr(args, "domain", "general") or "general"
+
+    # RAG: enrich with past audit context if available
+    rag_context = ""
+    if not getattr(args, "no_rag", False) and _rag_healthy():
+        rag_query_text = f"{domain} audit issues: " + " ".join(args.files[:3])
+        rag_context = _rag_query(rag_query_text, mode="hybrid", top_k=3)
+        if rag_context and len(rag_context) > 50:
+            rag_context = f"\n\n## Prior Context (from RAG)\n{rag_context[:2000]}\n"
+            print(f"[RAG] Enriched with {len(rag_context)} chars of prior context", file=sys.stderr)
+
     user_prompt = (
         f"[{domain.upper()} AUDIT] Audit the following files. Apply hard thresholds. Be skeptical.\n\n"
         + "\n\n".join(file_contents)
+        + rag_context
     )
 
     if args.use_codex:
@@ -344,6 +409,14 @@ def cmd_ask(args):
     """Free-form question to Evaluator."""
     system_prompt = _get_domain_prompt(args)
     prompt = args.prompt
+
+    # RAG: enrich question with related context
+    if not getattr(args, "no_rag", False) and _rag_healthy():
+        rag_context = _rag_query(prompt, mode="hybrid", top_k=5)
+        if rag_context and len(rag_context) > 50:
+            prompt = f"{prompt}\n\n## Related Context (from RAG)\n{rag_context[:2000]}"
+            print(f"[RAG] Enriched question with {len(rag_context)} chars", file=sys.stderr)
+
     if args.use_codex:
         result = call_codex_exec(prompt)
     else:
@@ -407,6 +480,11 @@ def _output(result: dict, args):
         total = usage.get("total_tokens", usage.get("input_tokens", 0) + usage.get("output_tokens", 0))
         print(f"[Tokens: {total}]", file=sys.stderr)
 
+    # RAG: auto-index successful audit results for future retrieval
+    if result.get("ok") and not getattr(args, "no_rag", False):
+        domain = getattr(args, "domain", "general") or "general"
+        _rag_index_result(result, domain, ts)
+
 
 # ─── CLI ────────────────────────────────────────────────────────────
 
@@ -419,6 +497,8 @@ def main():
     parser.add_argument("--json", dest="json_output", action="store_true", help="JSON output")
     parser.add_argument("--domain", choices=["general", "cfo", "pipeliner"], default="general",
                         help="Domain-specific audit mode (default: general)")
+    parser.add_argument("--no-rag", action="store_true",
+                        help="Disable LightRAG context enrichment and auto-indexing")
 
     sub = parser.add_subparsers(dest="command", required=True)
 
