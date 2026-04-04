@@ -8,38 +8,41 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup SSH key
+      - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key
           chmod 600 ~/.ssh/ec2_key
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
 
-      - name: Run ALTER TABLE migration
+          # Setup SSH multiplexing for persistent connection
+          cat >> ~/.ssh/config << EOF
+          Host ec2
+            HostName ${{ secrets.EC2_HOST }}
+            User ubuntu
+            IdentityFile ~/.ssh/ec2_key
+            ControlMaster auto
+            ControlPath /tmp/ssh-%r@%h:%p
+            ControlPersist 300
+          EOF
+
+      - name: Run migration + deploy + restart (single session)
         run: |
+          # Step 1: Run migration SQL
+          echo "=== Running ALTER TABLE migration ==="
           cat onzenna/migrations/add_creator_master_list_fields.sql | \
-            ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} \
-              "PGPASSWORD=orbit1234 psql -h 172.31.13.240 -U es_db_user -d export_calculator_db -f -"
+            ssh ec2 "PGPASSWORD=orbit1234 psql -h 172.31.13.240 -U es_db_user -d export_calculator_db -f -"
 
-      - name: Deploy files via tar pipe
-        run: |
+          # Step 2: Deploy files
+          echo "=== Deploying updated Django files ==="
           tar czf - onzenna/models.py onzenna/views.py onzenna/urls.py | \
-            ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} \
-              "cd /home/ubuntu/export_calculator && tar xzf - && echo 'Files extracted'"
+            ssh ec2 "cd /home/ubuntu/export_calculator && tar xzf -"
+          echo "Files deployed"
 
-      - name: Restart gunicorn
-        run: |
-          ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} '
-            cd /home/ubuntu/export_calculator
-            pkill -f "gunicorn.*export_calculator" || true
-            sleep 2
-            python3 -m gunicorn --workers=1 --timeout=600 --bind 0.0.0.0:8000 --daemon export_calculator.wsgi:application
-            sleep 2
-            pgrep -f "gunicorn.*export_calculator" && echo "Gunicorn restarted OK" || echo "Gunicorn failed to start"
-          '
+          # Step 3: Restart gunicorn
+          echo "=== Restarting gunicorn ==="
+          ssh ec2 'cd /home/ubuntu/export_calculator && pkill -f "gunicorn.*export_calculator" || true && sleep 2 && python3 -m gunicorn --workers=1 --timeout=600 --bind 0.0.0.0:8000 --daemon export_calculator.wsgi:application && sleep 3 && pgrep -f "gunicorn.*export_calculator" && echo "Gunicorn OK"'
 
-      - name: Verify API
-        run: |
-          sleep 3
-          ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} \
-            'curl -s -u admin:admin http://localhost:8000/api/onzenna/pipeline/creators/stats/ | python3 -m json.tool'
+          # Step 4: Verify API
+          echo "=== Verifying API ==="
+          ssh ec2 'curl -sf -u admin:admin http://localhost:8000/api/onzenna/pipeline/creators/stats/ | python3 -m json.tool'
