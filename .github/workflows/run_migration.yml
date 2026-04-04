@@ -15,19 +15,13 @@ jobs:
           chmod 600 ~/.ssh/ec2_key
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
 
-      - name: Check PG setup on EC2
+      - name: Get DB config and run migration
         run: |
           ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} '
-            echo "=== whoami ==="
-            whoami
-            echo "=== pg users ==="
-            cat /etc/passwd | grep -i post || echo "no postgres user in passwd"
-            echo "=== pg service ==="
-            systemctl status postgresql 2>/dev/null | head -5 || echo "no systemctl postgresql"
-            echo "=== pg config ==="
-            grep -r "DATABASES" /home/ubuntu/export_calculator/export_calculator/settings/ 2>/dev/null | head -10 || echo "no settings found"
-            echo "=== psql check ==="
-            which psql 2>/dev/null || echo "no psql binary"
-            echo "=== django manage check ==="
-            ls /home/ubuntu/export_calculator/manage.py 2>/dev/null || echo "no manage.py"
+            echo "=== DB Settings ==="
+            grep -A 10 "DATABASES" /home/ubuntu/export_calculator/export_calculator/settings/production.py 2>/dev/null
+            echo "=== PG processes ==="
+            ps aux | grep postgres | head -5
+            echo "=== PG HBA ==="
+            sudo find / -name pg_hba.conf 2>/dev/null | head -3
           '
