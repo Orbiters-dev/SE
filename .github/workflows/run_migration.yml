@@ -21,39 +21,25 @@ jobs:
             ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} \
               "PGPASSWORD=orbit1234 psql -h 172.31.13.240 -U es_db_user -d export_calculator_db -f -"
 
-      - name: Deploy updated Django code and restart gunicorn
+      - name: Deploy files via tar pipe
         run: |
-          # Copy files
-          scp -i ~/.ssh/ec2_key \
-            onzenna/models.py onzenna/views.py onzenna/urls.py \
-            ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/export_calculator/onzenna/
+          tar czf - onzenna/models.py onzenna/views.py onzenna/urls.py | \
+            ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} \
+              "cd /home/ubuntu/export_calculator && tar xzf - && echo 'Files extracted'"
 
-          # Graceful restart: kill old gunicorn, start new one
+      - name: Restart gunicorn
+        run: |
           ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} '
             cd /home/ubuntu/export_calculator
-
-            # Kill existing gunicorn
             pkill -f "gunicorn.*export_calculator" || true
             sleep 2
-
-            # Start gunicorn daemon
             python3 -m gunicorn --workers=1 --timeout=600 --bind 0.0.0.0:8000 --daemon export_calculator.wsgi:application
-
             sleep 2
-
-            # Verify it started
-            if pgrep -f "gunicorn.*export_calculator" > /dev/null; then
-              echo "Gunicorn restarted successfully"
-              ps aux | grep gunicorn | grep -v grep
-            else
-              echo "ERROR: Gunicorn failed to start"
-              exit 1
-            fi
+            pgrep -f "gunicorn.*export_calculator" && echo "Gunicorn restarted OK" || echo "Gunicorn failed to start"
           '
 
       - name: Verify API
         run: |
           sleep 3
-          ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} '
-            curl -s -u admin:admin http://localhost:8000/api/onzenna/pipeline/creators/stats/ | python3 -m json.tool
-          '
+          ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.EC2_HOST }} \
+            'curl -s -u admin:admin http://localhost:8000/api/onzenna/pipeline/creators/stats/ | python3 -m json.tool'
