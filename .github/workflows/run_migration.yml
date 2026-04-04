@@ -2,10 +2,17 @@ name: Run DB Migration
 on:
   workflow_dispatch:
 
+env:
+  INSTANCE_ID: i-0858c9609a113efe1
+  EC2_HOST: 43.201.110.115
+  EC2_AZ: ap-northeast-2a
+
 jobs:
   migrate:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -13,66 +20,82 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      - name: SSH via EC2 Instance Connect and run migration
+      - name: Check AWS CLI version
+        run: aws --version
+
+      - name: Try EC2 Instance Connect SSH (v2 built-in)
+        id: eice_ssh
+        continue-on-error: true
         run: |
-          # Generate temp SSH key
+          # Try direct connection type (aws cli v2 handles key gen + push + ssh)
+          aws ec2-instance-connect ssh \
+            --instance-id $INSTANCE_ID \
+            --os-user ubuntu \
+            --connection-type direct \
+            -- "echo 'SSH connection successful'"
+
+      - name: Fallback — manual key push + SSH
+        if: steps.eice_ssh.outcome == 'failure'
+        id: manual_ssh
+        run: |
+          echo "EICE SSH failed, trying manual approach..."
           ssh-keygen -t ed25519 -f /tmp/ec2_key -N "" -q
 
-          # Push key to EC2 Instance Connect (60s window)
           aws ec2-instance-connect send-ssh-public-key \
-            --instance-id i-0858c9609a113efe1 \
+            --instance-id $INSTANCE_ID \
             --instance-os-user ubuntu \
             --ssh-public-key file:///tmp/ec2_key.pub \
-            --availability-zone ap-northeast-2a
+            --availability-zone $EC2_AZ
 
-          # SSH and run ALTER TABLE
-          ssh -o StrictHostKeyChecking=no -i /tmp/ec2_key ubuntu@43.201.110.115 << 'ENDSSH'
-          sudo -u postgres psql -d export_calculator << 'ENDSQL'
-          ALTER TABLE onz_pipeline_creators
-            ADD COLUMN IF NOT EXISTS sources jsonb DEFAULT '[]'::jsonb,
-            ADD COLUMN IF NOT EXISTS first_contacted_at timestamptz,
-            ADD COLUMN IF NOT EXISTS last_contacted_at timestamptz,
-            ADD COLUMN IF NOT EXISTS contact_count integer DEFAULT 0,
-            ADD COLUMN IF NOT EXISTS gmail_first_contact date,
-            ADD COLUMN IF NOT EXISTS gmail_last_contact date,
-            ADD COLUMN IF NOT EXISTS gmail_total_sent integer DEFAULT 0,
-            ADD COLUMN IF NOT EXISTS gmail_total_received integer DEFAULT 0,
-            ADD COLUMN IF NOT EXISTS gmail_accounts jsonb DEFAULT '[]'::jsonb,
-            ADD COLUMN IF NOT EXISTS is_shopify_pr boolean DEFAULT false,
-            ADD COLUMN IF NOT EXISTS is_apify_tagged boolean DEFAULT false,
-            ADD COLUMN IF NOT EXISTS is_manychat_contact boolean DEFAULT false,
-            ADD COLUMN IF NOT EXISTS collaboration_status varchar(30) DEFAULT '',
-            ADD COLUMN IF NOT EXISTS phone varchar(30) DEFAULT '',
-            ADD COLUMN IF NOT EXISTS child_1_birthday varchar(20) DEFAULT '',
-            ADD COLUMN IF NOT EXISTS child_2_birthday varchar(20) DEFAULT '',
-            ADD COLUMN IF NOT EXISTS pr_products jsonb DEFAULT '[]'::jsonb,
-            ADD COLUMN IF NOT EXISTS apify_post_count integer DEFAULT 0,
-            ADD COLUMN IF NOT EXISTS apify_posted_brands jsonb DEFAULT '[]'::jsonb,
-            ADD COLUMN IF NOT EXISTS apify_last_post_date date,
-            ADD COLUMN IF NOT EXISTS apify_last_crawled_at timestamptz,
-            ADD COLUMN IF NOT EXISTS apify_posts jsonb DEFAULT '[]'::jsonb;
+          # Immediate SSH within 60s window
+          ssh -v -o StrictHostKeyChecking=no -o ConnectTimeout=15 \
+            -i /tmp/ec2_key ubuntu@$EC2_HOST "echo 'Manual SSH connection successful'"
 
-          CREATE INDEX IF NOT EXISTS idx_pc_is_shopify_pr ON onz_pipeline_creators (is_shopify_pr) WHERE is_shopify_pr = true;
-          CREATE INDEX IF NOT EXISTS idx_pc_is_apify_tagged ON onz_pipeline_creators (is_apify_tagged) WHERE is_apify_tagged = true;
-          CREATE INDEX IF NOT EXISTS idx_pc_email_discovered ON onz_pipeline_creators (email) WHERE email LIKE '%@discovered.syncly';
-
-          SELECT column_name FROM information_schema.columns WHERE table_name='onz_pipeline_creators' ORDER BY ordinal_position;
-          ENDSQL
-          ENDSSH
-
-      - name: Deploy updated views.py + models.py to EC2
+      - name: Run ALTER TABLE migration
         run: |
-          # Push key again (previous expired)
-          aws ec2-instance-connect send-ssh-public-key \
-            --instance-id i-0858c9609a113efe1 \
-            --instance-os-user ubuntu \
-            --ssh-public-key file:///tmp/ec2_key.pub \
-            --availability-zone ap-northeast-2a
+          # Determine which SSH method works
+          if [ "${{ steps.eice_ssh.outcome }}" == "success" ]; then
+            SSH_CMD="aws ec2-instance-connect ssh --instance-id $INSTANCE_ID --os-user ubuntu --connection-type direct --"
+          else
+            # Re-push key for new 60s window
+            aws ec2-instance-connect send-ssh-public-key \
+              --instance-id $INSTANCE_ID \
+              --instance-os-user ubuntu \
+              --ssh-public-key file:///tmp/ec2_key.pub \
+              --availability-zone $EC2_AZ
+            SSH_CMD="ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15 -i /tmp/ec2_key ubuntu@$EC2_HOST"
+          fi
 
-          ssh -o StrictHostKeyChecking=no -i /tmp/ec2_key ubuntu@43.201.110.115 << 'ENDSSH'
-          cd /home/ubuntu/export_calculator
-          sudo -u ubuntu git fetch origin main
-          sudo -u ubuntu git checkout origin/main -- onzenna/models.py onzenna/views.py onzenna/urls.py
-          sudo systemctl restart gunicorn
-          echo "Django code updated and gunicorn restarted"
-          ENDSSH
+          $SSH_CMD "sudo -u postgres psql -d export_calculator -f -" < onzenna/migrations/add_creator_master_list_fields.sql
+
+          echo "Migration SQL executed successfully"
+
+      - name: Deploy updated Django code
+        run: |
+          if [ "${{ steps.eice_ssh.outcome }}" == "success" ]; then
+            SSH_CMD="aws ec2-instance-connect ssh --instance-id $INSTANCE_ID --os-user ubuntu --connection-type direct --"
+          else
+            aws ec2-instance-connect send-ssh-public-key \
+              --instance-id $INSTANCE_ID \
+              --instance-os-user ubuntu \
+              --ssh-public-key file:///tmp/ec2_key.pub \
+              --availability-zone $EC2_AZ
+            SSH_CMD="ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15 -i /tmp/ec2_key ubuntu@$EC2_HOST"
+          fi
+
+          $SSH_CMD "cd /home/ubuntu/export_calculator && git fetch origin main && git checkout origin/main -- onzenna/models.py onzenna/views.py onzenna/urls.py && sudo systemctl restart gunicorn && echo 'Deploy complete — gunicorn restarted'"
+
+      - name: Verify columns
+        run: |
+          if [ "${{ steps.eice_ssh.outcome }}" == "success" ]; then
+            SSH_CMD="aws ec2-instance-connect ssh --instance-id $INSTANCE_ID --os-user ubuntu --connection-type direct --"
+          else
+            aws ec2-instance-connect send-ssh-public-key \
+              --instance-id $INSTANCE_ID \
+              --instance-os-user ubuntu \
+              --ssh-public-key file:///tmp/ec2_key.pub \
+              --availability-zone $EC2_AZ
+            SSH_CMD="ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15 -i /tmp/ec2_key ubuntu@$EC2_HOST"
+          fi
+
+          $SSH_CMD "sudo -u postgres psql -d export_calculator -c \"SELECT column_name FROM information_schema.columns WHERE table_name='onz_pipeline_creators' ORDER BY ordinal_position;\""
