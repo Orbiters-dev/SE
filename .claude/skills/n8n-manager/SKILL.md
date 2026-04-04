@@ -222,3 +222,50 @@ cd /home/ubuntu/n8n && docker compose down && docker compose up -d
 | 에러 핸들링 | `Stop: No Email`, `Stop: Missing Email` StopAndError | 없음 (Notify만) |
 
 PROD Config 패턴이 더 안정적 (중앙 제어 + 에러 차단). 2026-03-13 머지로 WJ TEST에도 추가됨.
+
+## Ops Framework (→ `_ops-framework/OPS_FRAMEWORK.md`)
+
+n8n-manager에 4가지 운영 패턴을 적용한다.
+
+### Workflow Evaluate (→ `references/n8n-evaluate-checklist.md`)
+
+단일 워크플로우의 구조적 정합성 검증. 7개 카테고리:
+1. **Credential 검증** — 모든 노드의 credentials 객체 + ID 존재
+2. **Expression 참조** — `$('Node Name')` 실제 존재 + 실행경로 도달 가능
+3. **Airtable 특화** — matchingColumns, Select 값, ISO date, zero-value guard
+4. **Gmail 특화** — appendAttribution: false
+5. **토폴로지** — 끊어진 노드, Merge 입력, SplitInBatches v3 (done=0, loop=1)
+6. **Config Flow-Through** — Config 출력이 downstream에서 실제 소비되는지
+7. **Test Mode 탐지** — manual trigger, PROD base ID 혼재
+
+출력: `PASS` / `NEEDS_FIXES` / `BLOCKED` + CRITICAL/WARNING/INFO 이슈 리스트
+
+### Cross-Workflow Audit (→ `references/n8n-audit-guide.md`)
+
+여러 워크플로우 간 일관성 감사. 주요 체크:
+- PROD↔WJ TEST 환경 일관성 (base ID, credential ID, 필드명)
+- Airtable 필드 읽기/쓰기 크로스체크 (case-sensitive)
+- Status/Select 값 크로스 검증
+- Gmail thread ID 연속성
+- WJ TEST 18개 워크플로우 인벤토리 기반
+
+출력: Blast Radius 테이블 + `CLEAN` / `ISSUES_FOUND`
+
+### Standard Fix Pattern (→ `references/n8n-fix-pattern.md`)
+
+REST-first 5단계 수정 절차 (MCP update 도구 사용 금지):
+1. Fresh fetch (old cache 재사용 금지)
+2. Change plan 제시
+3. Python으로 JSON 수정
+4. PUT + re-fetch 검증
+5. Auto-QA (evaluate 경량 실행)
+
+핵심: 여러 변경 = 1회 fetch→modify→PUT. PUT 200 ≠ 성공 (re-fetch 필수).
+
+### Impact Analysis (→ `references/n8n-impact-analysis.md`)
+
+변경 전 blast radius 사전 파악:
+- Dependency Registry로 영향받는 WF/노드 추적
+- 변경 타입 분류 (field rename = 가장 위험)
+- Break Risk 매트릭스 (HIGH/MEDIUM/LOW)
+- 태스크 순서: AT 스키마 → 상류 WF → 하류 WF → evaluate → audit

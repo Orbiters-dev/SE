@@ -354,3 +354,35 @@ Logic:
 | `.github/workflows/data_keeper.yml` | Automated collection (2x daily) |
 | `.github/workflows/deploy_ec2.yml` | EC2 deployment |
 | `.tmp/datakeeper/*.json` | Local cache files |
+
+## Ops Checklist (→ `_ops-framework/OPS_FRAMEWORK.md`)
+
+### EVALUATE (단일 채널 건강체크)
+- 마지막 수집 시각 (freshness) — core 14h, campaigns/GSC 25h threshold
+- Row count 이상 여부 (이전 대비 급감/급증)
+- API 응답 코드 확인 (401=토큰만료, 404=엔드포인트변경, 429=rate limit)
+- 출력: PASS / NEEDS_FIXES / BLOCKED
+
+### AUDIT (9채널 크로스체크)
+- 9채널 freshness 동시 비교 (전체 stale 여부)
+- PG 데이터 vs .tmp 캐시 일치 여부
+- Shared export (`Shared/datakeeper/latest/`) 최신성
+- manifest.json 타임스탬프 vs 실제 파일 일치
+
+### FIX (수집 장애 복구)
+1. 장애 채널 식별 (orbitools API 조회)
+2. Credential reload (토큰 갱신)
+3. Single-channel test (`--channel {name} --days 1`)
+4. 성공 시 전체 수집 재실행
+5. 실패 지속 시 .tmp 캐시 fallback 활성화
+
+### IMPACT (채널 중단 downstream 영향)
+| 채널 | downstream 영향 |
+|------|----------------|
+| amazon_ads_daily | PPC Agent 분석 불가, KPI 광고비 누락 |
+| amazon_sales_daily | KPI 매출 누락 (3 seller) |
+| meta_ads_daily | Meta Agent 분석 불가 |
+| google_ads_daily | Google 광고비 누락 |
+| ga4_daily | 트래픽/전환 분석 불가 |
+| klaviyo_daily | 이메일 마케팅 분석 불가 |
+| shopify_orders_daily | D2C 매출/할인율 산출 불가 |

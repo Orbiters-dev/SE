@@ -139,3 +139,28 @@ Communication via `.tmp/cfo_sessions/{session_id}/`
 - `.claude/skills/auditor/SKILL.md` — 감사관 스킬
 - `.claude/skills/golmani/SKILL.md` — 골만이 스킬
 - `workflows/cfo_financial_review.md` — 전체 SOP
+
+## Ops Checklist (→ `_ops-framework/OPS_FRAMEWORK.md`)
+
+### EVALUATE (골만이 출력 검증)
+- 6-point 감사 체크리스트 (Arithmetic, Cross-table, Period, Signs, GAAP, Materiality)
+- severity 분류: CRITICAL / MAJOR / MINOR / INFO
+- 출력: APPROVE / REVISE / ESCALATE
+
+### AUDIT (골만이↔DataKeeper 교차)
+- 골만이 산출 매출 vs DataKeeper raw 매출 일치 여부
+- 채널별 합계 = 총매출 검증
+- 기간 일관성 (모든 테이블 동일 기간)
+- 환율/단위 일관성
+
+### FIX (REVISE 루프)
+1. 감사관이 CRITICAL/MAJOR 이슈 식별
+2. CFO가 골만이에게 구체적 수정 지시
+3. 골만이 수정 후 감사관 재검증
+4. Max 3 loops → 해결 안 되면 ESCALATE
+5. ESCALATE 시 partial output + 이슈 요약
+
+### IMPACT (ESCALATE 범위)
+- 3회 수정 실패 시 partial output에 포함되는 항목
+- 누락되는 분석 항목 목록
+- downstream 영향 (투자 의사결정 지연 등)

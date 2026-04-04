@@ -302,3 +302,32 @@ See `references/orbi-business-context.md` for full detail.
 | `references/query-patterns.md` | Natural language query routing guide |
 | `references/kpi-data-taxonomy.md` | DataKeeper schemas, channel/brand classification, metric formulas, data quality rules |
 | `references/industry-benchmarks.md` | Baby products / DTC / Amazon comps & benchmarks |
+
+## Ops Checklist (→ `_ops-framework/OPS_FRAMEWORK.md`)
+
+### EVALUATE (입력 데이터 건강체크)
+- DataKeeper 9테이블 가용성 (freshness + row count)
+- COGS 맵 최신성 (685-SKU, 마지막 업데이트)
+- Grosmimi 가격 이력 (pre/post 2025-03-01 구분 정상)
+- Shopify 채널 분류 (D2C/Amazon/B2B) 정확성
+- 출력: PASS / NEEDS_FIXES / BLOCKED
+
+### AUDIT (KPI 탭 간 정합)
+- KPI_할인율 vs KPI_Amazon할인_상세: 같은 기간 Amazon 할인 합계 일치
+- 채널별 매출 합계 = 총매출
+- KPI_광고비: 수집 완료 월 vs "n.m" 표기 일관성
+- KPI_시딩비용: PayPal + COGS + Shipping 합계 검증
+- Executive Summary 숫자 vs 개별 탭 소스 일치
+
+### FIX (리포트 수정 절차)
+1. `--skip-validation` 으로 특정 검증 우회 (데이터 이슈 분리)
+2. 감사관 피드백 반영 (CRITICAL/MAJOR 우선)
+3. Excel 재생성 (`kpis_model_YYYY-MM-DD_vN+1.xlsx`)
+4. Validator 재실행으로 수정 확인
+5. Data Storage 배포
+
+### IMPACT (데이터 변경 영향)
+- 가격 변경 → discount 로직 재계산 범위
+- SKU 추가 → COGS 맵 업데이트 필요
+- 채널 분류 변경 → KPI_할인율 전체 재계산
+- DataKeeper 스키마 변경 → 영향받는 KPI 탭 목록

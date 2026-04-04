@@ -164,3 +164,30 @@ CFO (최종 결정)
 - `.claude/skills/cfo/SKILL.md` — CFO 오케스트레이터
 - `.claude/skills/golmani/SKILL.md` — 골만이 (검토 대상)
 - `workflows/cfo_financial_review.md` — 전체 SOP
+
+## Ops Checklist (→ `_ops-framework/OPS_FRAMEWORK.md`)
+
+### EVALUATE (감사 인프라 건강체크)
+- Codex CLI 가용성 (`codex --version`)
+- OPENAI_API_KEY 유효성
+- 최근 verdict 파일 정합 (JSON schema 준수)
+- cfo_harness.py 접근 가능
+- 출력: PASS / NEEDS_FIXES / BLOCKED
+
+### AUDIT (executor↔verifier 교차 검증)
+- executor_log.json vs verifier_log.json 결과 비교
+- 동일 stage에서 executor PASS + verifier FAIL → 불일치 탐지
+- verdict 누적 추이 (round 1 → round 2 개선 여부)
+- 감사 카테고리 6종 커버리지 (누락 카테고리 없는지)
+
+### FIX (감사 실패 복구)
+1. Codex CLI 연결 확인 (`--health`)
+2. verdict ERROR 시 prompt 재구성
+3. 재실행 (max 2 rounds)
+4. JSON 파싱 실패 시 raw output에서 수동 추출
+5. 지속 실패 시 fallback: Claude 기반 감사
+
+### IMPACT (감사 불능 시 영향)
+- CFO 하네스 Evaluator 역할 불가 → 골만이 출력 미검증 배포 위험
+- 3-round revision loop 작동 불가
+- ESCALATE 판단 근거 부재

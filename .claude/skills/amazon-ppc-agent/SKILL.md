@@ -491,3 +491,31 @@ See `references/` directory for:
 - `budget-allocation.md` - Budget distribution best practices
 - `conversion-tracking.md` - Attribution and tracking setup
 - `scoring-system.md` - Performance scoring methodology
+
+## Ops Checklist (→ `_ops-framework/OPS_FRAMEWORK.md`)
+
+### EVALUATE (단일 캠페인 건강체크)
+- ACOS, CTR, CPC, impression share 기준치 대비 검증
+- 브랜드별 threshold: Grosmimi <15%, Naeiae <20%, CHA&MOM <25%
+- 예산 소진율 (budget depletion) 이상 여부
+- Zero-sales 캠페인 탐지
+- 출력: PASS / NEEDS_FIXES / BLOCKED
+
+### AUDIT (3브랜드 크로스체크)
+- 3 브랜드 간 ACOS threshold 일관성
+- Budget depletion 패턴 비교 (시간대별)
+- Campaign 구조 일관성 (naming convention, targeting)
+- DataKeeper amazon_ads_daily vs executor 로그 정합
+
+### FIX (표준 수정 절차)
+1. DataKeeper에서 최신 데이터 fetch
+2. `--propose` 로 변경 계획 생성 (confidence tier 포함)
+3. 승인 후 `--execute` 실행
+4. Google Sheets 로깅 확인
+5. 다음 날 DataKeeper에서 효과 검증
+
+### IMPACT (bid/budget 변경 영향도)
+- 변경 대상 캠페인 수 + 예상 daily spend 변화량
+- 네거티브 추가 → 영향받는 search term 트래픽 비율
+- Bid 변경 → 예상 position/impression 변화
+- Budget 변경 → 예상 delivery 변화

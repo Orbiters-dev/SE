@@ -318,3 +318,32 @@ python tools/sync_sns_tab_chaenmom.py --dry-run
 - 광고 성과와 연계: Amazon PPC (`amazon-ppc-agent`), Meta Ads (`meta-ads-agent`)
 - 재무 모델: `tools/no_polar/` (Shopify/Amazon/Meta/Google 월간 데이터)
 - SNS 탭 상태는 Communicator 이메일에 자동 포함 (`run_communicator.py`)
+
+## Ops Checklist (→ `_ops-framework/OPS_FRAMEWORK.md`)
+
+### EVALUATE (크롤링 건강체크)
+- Syncly 세션 유효성 (로그인 상태)
+- Google Sheets API 접근 가능 (6 tabs US/JP)
+- 마지막 sync 시각 vs 현재 (freshness)
+- CSV export 100-row 제한 내 동작 확인
+- 출력: PASS / NEEDS_FIXES / BLOCKED
+
+### AUDIT (데이터 정합성)
+- v3 스키마 일치 (192 columns = 9 fixed + 61 days × 3 metrics)
+- 브랜드 auto-detection 정확도 (7 keywords per canonical)
+- US vs JP region 분리 정상 여부
+- Google Sheets 탭별 row count vs Syncly source 일치
+- Dedup 정상 (source.id 기준 중복 없음)
+
+### FIX (크롤링 장애 복구)
+1. `--login` 으로 Syncly 세션 갱신
+2. Region-aware CSV 필터 확인
+3. v3 auto-migration 트리거 (스키마 변경 시)
+4. Google Sheets 수동 sync 실행
+5. D+60 tracker 재계산
+
+### IMPACT (크롤링 중단 영향)
+- D+60 tracker 업데이트 중단 → 콘텐츠 성과 추적 불가
+- Communicator 이메일의 Syncly row count 섹션 stale
+- 마케터 콘텐츠 메트릭 판단 근거 누락
+- 일간 이메일 리포트 빈 데이터

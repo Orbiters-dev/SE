@@ -198,3 +198,31 @@ echo '{"channels":{},"workflows":{},"last_run":null,"syncly":{}}' > .tmp/communi
 | `.tmp/communicator_state.json` | 연속 실패 상태 파일 |
 | `.tmp/communicator_preview.html` | `--preview` 출력 |
 | `.tmp/naeiae_execution_baseline.json` | PPC 실행 전/후 비교 기준 |
+
+## Ops Checklist (→ `_ops-framework/OPS_FRAMEWORK.md`)
+
+### EVALUATE (발송 가능 여부)
+- Gmail OAuth 토큰 유효성 (GMAIL_TOKEN_JSON)
+- DataKeeper API 응답 여부 (orbitools.orbiters.co.kr)
+- GitHub API 응답 여부 (GH_PAT)
+- Google Sheets API 접근 (Syncly row counts)
+- 출력: PASS / NEEDS_FIXES / BLOCKED
+
+### AUDIT (상태 정합성)
+- `.tmp/communicator_state.json` 누적 vs 실제 상태 일치
+- 연속 실패 카운트 정합 (threshold=2)
+- 이메일 발송 기록 vs 예정 스케줄 일치
+- 채널 freshness 인디케이터 (🟢/🟡/🔴) 정확성
+
+### FIX (발송 장애 복구)
+1. `--dry-run` 으로 데이터 수집 테스트
+2. Gmail 토큰 갱신 (만료 시)
+3. `--reset-state` 로 escalation 카운터 초기화
+4. 수동 발송 테스트 (`python tools/run_communicator.py`)
+5. GitHub Actions 워크플로우 수동 트리거
+
+### IMPACT (미발송 시 영향)
+- 팀 전체 데이터 현황 인지 지연 (12h cycle)
+- 수집 실패 조기 발견 불가
+- PPC 실행 결과 추적 누락
+- SEO insights 전달 지연
