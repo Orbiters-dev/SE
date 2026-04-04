@@ -3823,16 +3823,14 @@ async function autoFillAllocation(){
 var _ftCache=null; // cached Not Started creators (filtered by selected week)
 var _ftCacheWeek=null; // which week key was cached
 var _ftResults={}; // cached per-feature results
+var _ftServerStats=null; // server-side filter stats (accurate totals)
 
 async function ensureFtCache(){
   // Get selected week from dropdown
   var selWeek=document.getElementById('f-update-date').value;
   // Invalidate cache if week changed
   if(_ftCache&&_ftCacheWeek===selWeek)return _ftCache;
-  _ftCache=null;_ftResults={};_ftCacheWeek=selWeek;
-
-  // Get batch size from config
-  var batchSize=parseInt(document.getElementById('f-creators-contacted').value)||10;
+  _ftCache=null;_ftResults={};_ftCacheWeek=selWeek;_ftServerStats=null;
 
   // Get dates for selected week
   var dates=_weekDateMap[selWeek]||[];
@@ -3840,8 +3838,12 @@ async function ensureFtCache(){
     dates=[selWeek];
   }
 
-  // Fetch creators for this batch — use batch size as target count
-  // Fetch ALL Not Started for this week, not limited by batch size (filters reduce later)
+  // Fetch server-side stats first (accurate counts without loading all records)
+  var statsUrl='/pipeline/creators/filter-stats/';
+  if(dates.length>0){statsUrl+='?discovery_date='+dates[0]}
+  try{_ftServerStats=await apiFetch(statsUrl)}catch(e){_ftServerStats=null}
+
+  // Fetch creators for this batch
   if(dates.length>0){
     var all=[];
     for(var i=0;i<dates.length;i++){
@@ -3856,7 +3858,7 @@ async function ensureFtCache(){
     }
     _ftCache=all;
   }else{
-    // All dates mode — paginate to get everything
+    // All dates mode — paginate to get all records (no safety cap)
     var all=[];var page=1;var hasMore=true;
     while(hasMore){
       var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=500&page='+page);
@@ -3864,7 +3866,6 @@ async function ensureFtCache(){
       all=all.concat(items);
       hasMore=items.length===500;
       page++;
-      if(all.length>=10000)break; // safety cap
     }
     _ftCache=all;
   }
@@ -3888,7 +3889,10 @@ async function checkFeatureImpact(feature){
 
     if(feature==='rag'){
       // RAG Email Dedup: 3-account cross-check (affiliates@ + zezebaebae@ + ManyChat)
-      var emails=withEmail.map(function(c){return c.email}).filter(Boolean);
+      var INTERNAL_DOMAINS=['@orbiters.co.kr','@onzenna.com','@zezebaebae.com'];
+      var emails=withEmail.map(function(c){return c.email}).filter(function(e){
+        return e&&!INTERNAL_DOMAINS.some(function(d){return e.toLowerCase().endsWith(d)});
+      });
       var contacted=[];
       if(emails.length>0){
         try{
@@ -3918,19 +3922,20 @@ async function checkFeatureImpact(feature){
       var total=creators.length;
       var realEmail=withEmail.length;
       var pendingCrawl=creators.filter(function(c){return !c.email||c.email.includes('@discovered.')}).length;
-      var APIFY_FILL_RATE=0.09; // actual measured rate: 8.9% (69/776 enriched)
+      var APIFY_FILL_RATE=(_ftServerStats&&_ftServerStats.apify_fill_rate)?_ftServerStats.apify_fill_rate:0.09;
       var estimated=Math.round(pendingCrawl*APIFY_FILL_RATE);
+      var fillPct=Math.round(APIFY_FILL_RATE*100);
       _ftResults.apify={count:pendingCrawl,found:realEmail,total:total,estimated:estimated,list:noEmail};
 
       badge.innerHTML='<span class="b c" style="font-size:10px;padding:2px 8px">'+pendingCrawl+' to crawl</span>'+
-        '<span class="b g" style="font-size:10px;padding:2px 8px;margin-left:4px">est. +'+estimated+' emails (9%)</span>';
+        '<span class="b g" style="font-size:10px;padding:2px 8px;margin-left:4px">est. +'+estimated+' emails ('+fillPct+'%)</span>';
       if(realEmail>0)badge.innerHTML+='<span class="b a" style="font-size:10px;padding:2px 4px;margin-left:4px">'+realEmail+' already found</span>';
 
       var h='<div style="font-size:10px;padding:8px;background:var(--cbg);border-radius:6px;margin-bottom:4px">';
       h+='<div style="margin-bottom:4px"><b>'+total+'</b> total Not Started</div>';
       h+='<div style="color:var(--g)"><b>'+realEmail+'</b> already have real email</div>';
       h+='<div style="color:var(--c)"><b>'+pendingCrawl+'</b> pending Apify crawl (@discovered.syncly)</div>';
-      h+='<div style="color:var(--a);margin-top:4px">Est. <b>~'+estimated+'</b> new emails at 9% fill rate (actual measured) &rarr; added to eligible pool</div>';
+      h+='<div style="color:var(--a);margin-top:4px">Est. <b>~'+estimated+'</b> new emails at '+fillPct+'% fill rate (DB measured) &rarr; added to eligible pool</div>';
       h+='</div>';
       if(pendingCrawl>0){
         h+='<div style="font-size:9px;max-height:120px;overflow-y:auto;background:#fafbff;padding:4px;border-radius:4px;cursor:pointer" onclick="this.style.display=\'none\'">';
@@ -4041,7 +4046,8 @@ function updateFtSummary(){
   // Email is the biggest filter, so it goes FIRST after total.
 
   var pool=_ftCache.slice();
-  var totalAll=pool.length;
+  // Use server stats for accurate total (client may have incomplete data in All dates mode)
+  var totalAll=(_ftServerStats&&_ftServerStats.total)?_ftServerStats.total:pool.length;
 
   // Stage 1: Email filter — only real emails (removes @discovered.* placeholders)
   var withEmail=pool.filter(_hasRealEmail);
@@ -4109,6 +4115,11 @@ function updateFtSummary(){
 
   document.getElementById('ft-eligible-count').textContent=ltEligible;
   document.getElementById('ft-total-count').textContent=totalAll;
+  // Show server stats accuracy note if client loaded fewer than server total
+  var clientLoaded=pool.length+noEmail;
+  if(_ftServerStats&&_ftServerStats.total>clientLoaded){
+    document.getElementById('ft-total-count').title='Server: '+_ftServerStats.total+' | Client loaded: '+clientLoaded;
+  }
 
   // Breakdown
   var breakdownEl=document.getElementById('ft-breakdown');

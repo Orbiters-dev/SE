@@ -295,6 +295,8 @@ class PipelineCreator(models.Model):
     is_shopify_pr = models.BooleanField(default=False)
     is_apify_tagged = models.BooleanField(default=False)
     is_manychat_contact = models.BooleanField(default=False)
+    is_business_account = models.BooleanField(default=False)
+    business_category = models.CharField(max_length=100, blank=True, default="")
     collaboration_status = models.CharField(max_length=30, blank=True, default="")
     # "active" | "completed" | "declined" | "pending" | ""
 

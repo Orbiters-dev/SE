@@ -850,9 +850,11 @@ def pipeline_creators_list(request):
         for f in ("phone", "child_1_birthday", "child_2_birthday", "collaboration_status"):
             if f in body:
                 defaults[f] = str(body[f])
-        for f in ("is_shopify_pr", "is_apify_tagged", "is_manychat_contact"):
+        for f in ("is_shopify_pr", "is_apify_tagged", "is_manychat_contact", "is_business_account"):
             if f in body:
                 defaults[f] = bool(body[f])
+        if "business_category" in body:
+            defaults["business_category"] = str(body["business_category"])
         for f in ("contact_count", "gmail_total_sent", "gmail_total_received", "apify_post_count"):
             if body.get(f) is not None:
                 defaults[f] = int(body[f])
@@ -939,6 +941,11 @@ def pipeline_creators_list(request):
             qs = qs.exclude(brand__in=all_owned)
         elif assigned_to in _OWNER_BRANDS:
             qs = qs.filter(brand__in=_OWNER_BRANDS[assigned_to])
+
+    # Discovery date filter (for weekly batch selection)
+    discovery_date = request.GET.get("discovery_date")
+    if discovery_date:
+        qs = qs.filter(initial_discovery_date=discovery_date)
 
     # Cross-check filters
     email_suffix = request.GET.get("email_suffix")
@@ -1182,6 +1189,53 @@ def pipeline_creators_stats(request):
 
 
 @csrf_exempt
+def pipeline_filter_stats(request):
+    """GET: Server-side filter pipeline statistics for Feature Toggle dashboard.
+
+    Avoids loading 10K+ records into the browser by computing filter stats on the server.
+    Accepts ?discovery_date=YYYY-MM-DD to scope to a single batch week.
+    """
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    from django.db.models import Q
+
+    discovery_date = request.GET.get("discovery_date")
+
+    qs = PipelineCreator.objects.filter(pipeline_status='Not Started')
+    if discovery_date:
+        qs = qs.filter(initial_discovery_date=discovery_date)
+
+    total = qs.count()
+    with_email = qs.exclude(
+        Q(email__endswith='@discovered.syncly') | Q(email='')
+    ).count()
+    no_email = total - with_email
+    business = qs.filter(is_business_account=True).count()
+    ht = qs.filter(outreach_type='HT').count()
+    lt = total - ht
+
+    # Apify fill rate: actual measured from DB
+    apify_crawled = qs.filter(is_apify_tagged=True).count()
+    apify_with_email = qs.filter(is_apify_tagged=True).exclude(
+        Q(email__endswith='@discovered.syncly') | Q(email='')
+    ).count()
+    apify_fill_rate = round(apify_with_email / apify_crawled, 4) if apify_crawled > 0 else 0.09
+
+    return _cors_headers(request, JsonResponse({
+        "total": total,
+        "with_email": with_email,
+        "no_email": no_email,
+        "business_accounts": business,
+        "ht": ht,
+        "lt": lt,
+        "apify_crawled": apify_crawled,
+        "apify_with_email": apify_with_email,
+        "apify_fill_rate": apify_fill_rate,
+    }))
+
+
+@csrf_exempt
 def pipeline_creators_bulk_status(request):
     """Bulk update status for multiple creators."""
     if request.method == 'OPTIONS':
@@ -1357,16 +1411,18 @@ def import_syncly_discovery(request):
             ig_handle = handle if "tiktok" not in plat else ""
             tiktok_handle = handle if "tiktok" in plat else ""
 
-            # Generate placeholder email
-            email = f"{handle.replace('.', '_')}@discovered.syncly"
+            # Generate placeholder email (normalize: lowercase, strip dots/dashes/underscores)
+            normalized_handle = handle.lower().replace('.', '_').replace('-', '_')
+            email = f"{normalized_handle}@discovered.syncly"
 
-            # Check if already exists by handle
+            # Check if already exists by handle (case-insensitive) or normalized email
+            handle_lower = handle.lower()
             exists = PipelineCreator.objects.filter(
-                ig_handle__iexact=handle
+                ig_handle__iexact=handle_lower
             ).exists() or PipelineCreator.objects.filter(
-                tiktok_handle__iexact=handle
+                tiktok_handle__iexact=handle_lower
             ).exists() or PipelineCreator.objects.filter(
-                email=email
+                email__iexact=email
             ).exists()
 
             if exists:
