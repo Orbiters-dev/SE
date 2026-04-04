@@ -115,10 +115,35 @@ jobs:
         env:
           PPC_REPORT_RECIPIENT: ${{ secrets.PPC_REPORT_RECIPIENT }}
 
+      - name: Audit Round 1 (Propose Validation)
+        if: always()
+        run: |
+          echo "=== PPC Audit Round 1 ==="
+          python -u tools/ppc_auditor.py --round 1 2>&1 || echo "[WARN] Audit R1 had issues"
+
+      - name: Auto-fix and Re-propose (if Round 1 FAIL)
+        if: always()
+        run: |
+          if [ -f .tmp/ppc_audit/round1_needs_fix.flag ]; then
+            echo "=== Round 1 FAIL detected, re-proposing ==="
+            python -u tools/amazon_ppc_executor.py --propose 2>&1 || true
+            python -u tools/ppc_auditor.py --round 1 --recheck 2>&1 || true
+          else
+            echo "=== Round 1 OK, no re-propose needed ==="
+          fi
+        env:
+          PPC_REPORT_RECIPIENT: ${{ secrets.PPC_REPORT_RECIPIENT }}
+
       - name: Verify recent executions against live Amazon data
         run: |
           echo "=== Verifying exec_log entries (last 3 days) ==="
           python -u tools/amazon_ppc_executor.py --verify 2>&1 || echo "[WARN] Verification had issues"
+
+      - name: Audit Round 2 (Execute Validation)
+        if: always()
+        run: |
+          echo "=== PPC Audit Round 2 ==="
+          python -u tools/ppc_auditor.py --round 2 2>&1 || echo "[WARN] Audit R2 had issues"
 
       - name: Update dashboard data.js
         run: |
@@ -153,5 +178,6 @@ jobs:
             .tmp/ppc_proposal_*.json
             .tmp/ppc_executed_*.json
             .tmp/ppc_executed_*.html
+            .tmp/ppc_audit/verdict_*.json
           retention-days: 7
           if-no-files-found: warn

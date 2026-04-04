@@ -2934,6 +2934,27 @@ def save_proposal(proposals: List[Dict], profile_id: int,
     }
     filepath.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"\n[SAVED] {filepath}")
+
+    # Save audit context for ppc_auditor.py
+    audit_ctx = {
+        "brand_key": brand_key,
+        "generated_at": datetime.now().isoformat(),
+        "config_applied": {
+            "total_daily_budget": TOTAL_DAILY_BUDGET_USD,
+            "max_single_campaign_budget": MAX_SINGLE_CAMPAIGN_BUDGET,
+            "max_bid": MAX_BID_USD,
+            "manual_acos": TARGETING_CONFIG["MANUAL"]["target_acos"],
+            "auto_acos": TARGETING_CONFIG["AUTO"]["target_acos"],
+            "manual_min_roas": TARGETING_CONFIG["MANUAL"]["min_roas"],
+            "auto_min_roas": TARGETING_CONFIG["AUTO"]["min_roas"],
+        },
+        "config_source": "dashboard_override" if (TMP_DIR / "dashboard_config_override.json").exists() else "hardcoded",
+        "proposal_count": len(proposals),
+        "keyword_proposal_count": len(kw_props),
+    }
+    audit_path = TMP_DIR / f"ppc_audit_context_{brand_key}.json"
+    audit_path.write_text(json.dumps(audit_ctx, indent=2), encoding="utf-8")
+
     return filepath
 
 
