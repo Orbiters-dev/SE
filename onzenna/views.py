@@ -989,9 +989,25 @@ def pipeline_creators_stats(request):
         .values_list('outreach_type', 'c')
     )
 
+    # LT/HT status breakdown (for Y-fork funnel)
+    lt_status = dict(
+        PipelineCreator.objects.filter(outreach_type='LT')
+        .values_list('pipeline_status')
+        .annotate(c=Count('id'))
+        .values_list('pipeline_status', 'c')
+    )
+    ht_status = dict(
+        PipelineCreator.objects.filter(outreach_type='HT')
+        .values_list('pipeline_status')
+        .annotate(c=Count('id'))
+        .values_list('pipeline_status', 'c')
+    )
+
     return _cors_headers(request, JsonResponse({
         "total": total,
         "by_status": status_counts,
+        "by_status_lt": lt_status,
+        "by_status_ht": ht_status,
         "by_brand": brand_counts,
         "by_type": type_counts,
         "new_this_week": new_this_week,
