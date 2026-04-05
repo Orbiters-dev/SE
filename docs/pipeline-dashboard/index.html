@@ -2179,8 +2179,8 @@ function renderCreatorsTable(data){
     if(c.pipeline_status==='Draft Ready'||c.pipeline_status==='Sent'||c.pipeline_status==='Replied'){
       html+=' <button onclick="toggleDraftPreview(\''+c.id+'\',\''+esc(c.email)+'\')" style="background:none;border:1px solid var(--a);border-radius:3px;cursor:pointer;font-size:8px;padding:1px 4px;color:var(--a);font-weight:700" title="View draft email">Draft</button>';
     }
-    // Transcript button (Draft Ready — show creator's recent content)
-    if(c.pipeline_status==='Draft Ready'){
+    // Transcript button — all stages (show creator's recent content)
+    if(c.ig_handle||c.tiktok_handle){
       html+=' <button onclick="toggleTranscript(\''+c.id+'\',\''+esc(c.ig_handle||c.tiktok_handle||'')+'\')" style="background:none;border:1px solid #8b5cf6;border-radius:3px;cursor:pointer;font-size:8px;padding:1px 4px;color:#8b5cf6;font-weight:700" title="Recent content transcripts">Transcript</button>';
     }
     html+='</td>';
