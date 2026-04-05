@@ -3619,14 +3619,24 @@ def generate():
         ]
 
         # Phase 1: assign each campaign to specific category or "unmatched"
+        # Manual overrides for campaigns where URL resolution confirmed the product group
+        ATTR_CAMP_OVERRIDE = {
+            "amazon spring sale": "PPSU Straw Cup",  # All 6 geni.us links → PPSU (verified 2026-04-05)
+        }
         camp_assignments = {}  # campaign_name -> category or None
         for ac in _attr_camps:
             cn_lower = ac["name"].lower().replace("_", " ").replace("|", " ")
+            # Check manual override first
             assigned = None
-            for cat_name, kws in CAT_KEYWORDS_ORDERED:
-                if any(kw in cn_lower for kw in kws):
-                    assigned = cat_name
+            for override_key, override_cat in ATTR_CAMP_OVERRIDE.items():
+                if override_key in cn_lower:
+                    assigned = override_cat
                     break
+            if not assigned:
+                for cat_name, kws in CAT_KEYWORDS_ORDERED:
+                    if any(kw in cn_lower for kw in kws):
+                        assigned = cat_name
+                        break
             camp_assignments[ac["name"]] = assigned
 
         # Phase 2: build per-category lists (specific matches only)
@@ -3666,6 +3676,8 @@ def generate():
                     "purchases": c.get("purchases", 0),
                     "roas": c.get("roas", 0),
                     "roas_adj": c.get("roas_adj", 0),
+                    "daily_spend": [round(c.get("_daily_spend", {}).get(d, 0), 2) for d in ad_dates_sorted] if c.get("_daily_spend") else [],
+                    "daily_clicks": [c.get("_daily_clicks", {}).get(d, 0) for d in ad_dates_sorted] if c.get("_daily_clicks") else [],
                 } for c in camps if c.get("spend", 0) > 0 or c.get("sales", 0) > 0],
             }
 
