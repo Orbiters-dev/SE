@@ -1451,7 +1451,7 @@ def generate():
         # Meta: split traffic vs CVR
         meta_traffic = {"clicks": 0, "spend": 0.0, "purchases": 0, "purchase_value": 0.0}
         meta_cvr = {"clicks": 0, "spend": 0.0, "purchases": 0, "purchase_value": 0.0}
-        meta_traffic_by_camp = defaultdict(lambda: {"clicks": 0, "spend": 0.0, "ads": defaultdict(lambda: {"spend": 0.0, "clicks": 0, "id": "", "name": ""})})
+        meta_traffic_by_camp = defaultdict(lambda: {"clicks": 0, "spend": 0.0, "daily_spend": defaultdict(float), "daily_clicks": defaultdict(int), "ads": defaultdict(lambda: {"spend": 0.0, "clicks": 0, "id": "", "name": ""})})
         for r in meta_rows:
             if r.get("date", "") < cutoff:
                 continue
@@ -1464,6 +1464,9 @@ def generate():
                 meta_traffic["purchase_value"] += float(r.get("purchase_value", 0) or 0)
                 meta_traffic_by_camp[cn]["clicks"] += int(r.get("clicks", 0) or 0)
                 meta_traffic_by_camp[cn]["spend"] += float(r.get("spend", 0) or 0)
+                _md = r.get("date", "")
+                meta_traffic_by_camp[cn]["daily_spend"][_md] += float(r.get("spend", 0) or 0)
+                meta_traffic_by_camp[cn]["daily_clicks"][_md] += int(r.get("clicks", 0) or 0)
                 # Ad-level for asset breakdown
                 aid = r.get("ad_id", "")
                 an = r.get("ad_name", "")
@@ -1552,6 +1555,12 @@ def generate():
                             "ads": ta["ads"][:5],
                         })
 
+                # Daily spend/clicks from matched Meta campaign
+                daily_sp = {}
+                daily_cl = {}
+                if best_meta:
+                    daily_sp = dict(best_meta.get("daily_spend", {}))
+                    daily_cl = dict(best_meta.get("daily_clicks", {}))
                 camps.append({
                     "name": attr_name[:60],
                     "sales": round(v["sales"]),
@@ -1562,6 +1571,8 @@ def generate():
                     "roas": camp_roas,
                     "roas_adj": camp_roas_adj,
                     "assets": assets,
+                    "_daily_spend": daily_sp,
+                    "_daily_clicks": daily_cl,
                 })
             return camps
 
@@ -3211,8 +3222,8 @@ def generate():
             ptypes = info["product_types"]
             brand = info["brand"]
             if ptypes:
-                for pt in ptypes:
-                    ptype_views[pt][d] += views
+                # Single product group per post — first match wins (hashtag-based)
+                ptype_views[ptypes[0]][d] += views
             else:
                 if brand == "Grosmimi":
                     for cat in GROSMIMI_CATEGORIES:
@@ -3300,7 +3311,9 @@ def generate():
                 continue
             uname, brand = info["username"], info["brand"]
             ptypes = info["product_types"]
-            cats = ptypes if ptypes else (
+            # Single product group per post — first match wins (hashtag-based)
+            # Prevents same creator appearing in multiple categories
+            cats = [ptypes[0]] if ptypes else (
                 GROSMIMI_CATEGORIES if brand == "Grosmimi"
                 else CHAMOM_CATEGORIES if brand == "CHA&MOM"
                 else ["Rice Puff"] if brand == "Naeiae" else [])
@@ -3612,6 +3625,8 @@ def generate():
                     "purchases": c.get("purchases", 0),
                     "roas": c.get("roas", 0),
                     "roas_adj": c.get("roas_adj", 0),
+                    "daily_spend": [round(c.get("_daily_spend", {}).get(d, 0), 2) for d in ad_dates_sorted] if c.get("_daily_spend") else [],
+                    "daily_clicks": [c.get("_daily_clicks", {}).get(d, 0) for d in ad_dates_sorted] if c.get("_daily_clicks") else [],
                 } for c in camps if c.get("spend", 0) > 0 or c.get("sales", 0) > 0],
             }
 

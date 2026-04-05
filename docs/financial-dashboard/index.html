@@ -1304,9 +1304,9 @@ function renderFinancial(){
       top10.forEach(function(kw){(kw.volume_week_labels||[]).forEach(function(w){allWks[w]=true;});});
       var wksSorted=Object.keys(allWks).sort();
       traf+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num">5A</div> 검색량 (주간) — TOP 10 브랜디드 키워드 <span style="font-weight:400;color:var(--muted);font-size:11px">(높을수록 더 많이 검색됨)</span></div>';
-      traf+='<div class="card"><div style="overflow-x:auto"><table style="font-size:10px"><thead><tr>';
-      traf+='<th style="text-align:left;white-space:nowrap">키워드</th>';
-      wksSorted.forEach(function(w){traf+='<th style="text-align:right;font-family:var(--mono);font-size:9px">'+w.substring(5)+'</th>';});
+      traf+='<div class="card"><div style="overflow-x:auto"><table style="font-size:10px;border-collapse:collapse"><thead><tr>';
+      traf+='<th style="text-align:left;white-space:nowrap;min-width:180px">키워드</th>';
+      wksSorted.forEach(function(w,wi){traf+='<th style="text-align:right;font-family:var(--mono);font-size:9px;min-width:44px;padding:2px 4px"><div style="color:var(--dim);font-size:8px">W'+(wi+1)+'</div><div>'+w.substring(5)+'</div></th>';});
       traf+='</tr></thead><tbody>';
       top10.forEach(function(kw){
         traf+='<tr>';
@@ -1315,9 +1315,9 @@ function renderFinancial(){
         wksSorted.forEach(function(w){
           var wi=labels.indexOf(w);
           var v=wi>=0?values[wi]:null;
-          var vStr=v==null?'—':(v>=1000?Math.round(v/1000)+'K':''+v);
-          var col=v==null?'#d97706':(v>=3000?'#10b981':v>=500?'#f59e0b':'#ef4444');
-          traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:'+col+';font-weight:600">'+vStr+'</td>';
+          var vStr=v==null?'-':(v>=1000?Math.round(v/1000)+'K':''+v);
+          var col=v==null?'#cbd5e1':(v>=3000?'#10b981':v>=500?'#f59e0b':'#ef4444');
+          traf+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:'+col+';font-weight:600;padding:2px 4px">'+vStr+'</td>';
         });
         traf+='</tr>';
       });
@@ -2151,7 +2151,7 @@ function renderHeroTab(F){
         html+='<span><span style="color:#5eead4;opacity:0.7">╌</span> Blend CPC</span>';
         html+='</div>';
         // ── 6-line chart: ROAS (left axis) + CPC (right axis) ──
-        var _adH=160,_adPT=20,_adPR=54;
+        var _adH=220,_adPT=24,_adPR=60;
         var _amzROAS=[],_blROAS=[],_amzCPCA=[],_mtCPCA=[],_blCPCA=[];
         // Blended ROAS uses Attribution sales (actual) instead of Meta pixel sales
         var _periodAmzSl=0,_periodAmzSp=0,_periodMtSp=0;
@@ -2189,16 +2189,16 @@ function renderHeroTab(F){
         var _roasPts=function(arr,maxR){var pts=[];arr.forEach(function(v,i){var x=padL+i*_rlBw+_rlBw/2,y=_adPT+_adH-(v/maxR)*_adH;pts.push(x+','+y);});return pts.join(' ');};
         var _cpcPts=function(arr){var pts=[];arr.forEach(function(v,i){var x=padL+i*_rlBw+_rlBw/2,y=_adPT+_adH-(v/_cpcMax)*_adH;pts.push(x+','+y);});return pts.join(' ');};
         // ROAS lines (thick, solid)
-        html+='<polyline points="'+_roasPts(_amzROAS,_rMax3)+'" fill="none" stroke="#ea580c" stroke-width="2.5" opacity="0.95"/>';
+        html+='<polyline points="'+_roasPts(_amzROAS,_rMax3)+'" fill="none" stroke="#ea580c" stroke-width="3" opacity="1"/>';
         // Attribution ROAS = horizontal reference line (actual campaign data, not daily)
         if(_atRoas>0){var _atY=_adPT+_adH-(_atRoas/_rMax3)*_adH;
-          html+='<line x1="'+padL+'" y1="'+_atY+'" x2="'+(chartW-_adPR)+'" y2="'+_atY+'" stroke="#7c3aed" stroke-width="2" stroke-dasharray="8,4" opacity="0.8"/>';
-          html+='<text x="'+(chartW-_adPR+4)+'" y="'+(_atY-4)+'" fill="#7c3aed" font-size="9" font-weight="700">Attr '+_atRoas.toFixed(1)+'x</text>';}
-        html+='<polyline points="'+_roasPts(_blROAS,_rMax3)+'" fill="none" stroke="#0d9488" stroke-width="2.5" stroke-dasharray="6,3" opacity="0.9"/>';
-        // CPC lines (thin, dashed)
-        html+='<polyline points="'+_cpcPts(_amzCPCA)+'" fill="none" stroke="#fb923c" stroke-width="1.5" stroke-dasharray="4,2" opacity="0.7"/>';
-        html+='<polyline points="'+_cpcPts(_mtCPCA)+'" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4,2" opacity="0.7"/>';
-        html+='<polyline points="'+_cpcPts(_blCPCA)+'" fill="none" stroke="#5eead4" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.6"/>';
+          html+='<line x1="'+padL+'" y1="'+_atY+'" x2="'+(chartW-_adPR)+'" y2="'+_atY+'" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="10,5" opacity="0.85"/>';
+          html+='<text x="'+(chartW-_adPR+4)+'" y="'+(_atY-4)+'" fill="#7c3aed" font-size="10" font-weight="700">Attr '+_atRoas.toFixed(1)+'x</text>';}
+        html+='<polyline points="'+_roasPts(_blROAS,_rMax3)+'" fill="none" stroke="#0d9488" stroke-width="3" stroke-dasharray="8,4" opacity="0.95"/>';
+        // CPC lines (medium, dashed)
+        html+='<polyline points="'+_cpcPts(_amzCPCA)+'" fill="none" stroke="#fb923c" stroke-width="2" stroke-dasharray="5,3" opacity="0.75"/>';
+        html+='<polyline points="'+_cpcPts(_mtCPCA)+'" fill="none" stroke="#a78bfa" stroke-width="2" stroke-dasharray="5,3" opacity="0.75"/>';
+        html+='<polyline points="'+_cpcPts(_blCPCA)+'" fill="none" stroke="#5eead4" stroke-width="2" stroke-dasharray="4,3" opacity="0.65"/>';
         // Weekly value labels on ALL 6 lines (every 7 days)
         var _wkStep=7;
         [{arr:_amzROAS,max:_rMax3,color:'#ea580c',fmt:function(v){return v.toFixed(1)+'x';},isCPC:false},
@@ -2210,14 +2210,14 @@ function renderHeroTab(F){
           for(var wi=0;wi<ln.arr.length;wi+=_wkStep){
             var wv=ln.arr[wi]||0;if(wv<=0)continue;
             var wx=padL+wi*_rlBw+_rlBw/2,wy=_adPT+_adH-(wv/ln.max)*_adH;
-            html+='<circle cx="'+wx+'" cy="'+wy+'" r="2" fill="'+ln.color+'" opacity="'+(ln.isCPC?'0.5':'0.8')+'"/>';
-            html+='<text x="'+wx+'" y="'+(wy-(ln.isCPC?4:6))+'" fill="'+ln.color+'" font-size="8" font-family="var(--mono)" text-anchor="middle" opacity="'+(ln.isCPC?'0.55':'0.85')+'">'+ln.fmt(wv)+'</text>';
+            html+='<circle cx="'+wx+'" cy="'+wy+'" r="'+(ln.isCPC?'2.5':'3')+'" fill="'+ln.color+'" opacity="'+(ln.isCPC?'0.6':'0.9')+'"/>';
+            html+='<text x="'+wx+'" y="'+(wy-(ln.isCPC?5:8))+'" fill="'+ln.color+'" font-size="'+(ln.isCPC?'8':'9')+'" font-family="var(--mono)" text-anchor="middle" font-weight="'+(ln.isCPC?'500':'700')+'" opacity="'+(ln.isCPC?'0.65':'0.95')+'">'+ln.fmt(wv)+'</text>';
           }
           // End dot + label
           var _lv=ln.arr[ln.arr.length-1]||0;if(_lv<=0)return;
           var _lx=padL+(_rLineN-1)*_rlBw+_rlBw/2,_ly=_adPT+_adH-(_lv/ln.max)*_adH;
-          html+='<circle cx="'+_lx+'" cy="'+_ly+'" r="3" fill="'+ln.color+'"/>';
-          html+='<text x="'+(_lx+6)+'" y="'+(_ly+3)+'" fill="'+ln.color+'" font-size="9" font-weight="700" font-family="var(--mono)">'+ln.fmt(_lv)+'</text>';
+          html+='<circle cx="'+_lx+'" cy="'+_ly+'" r="4" fill="'+ln.color+'"/>';
+          html+='<text x="'+(_lx+8)+'" y="'+(_ly+4)+'" fill="'+ln.color+'" font-size="10" font-weight="700" font-family="var(--mono)">'+ln.fmt(_lv)+'</text>';
         });
         // Y-axis labels
         html+='<text x="'+(padL-4)+'" y="'+(_adPT-6)+'" fill="#94a3b8" font-size="8" text-anchor="end">ROAS ↑</text>';
@@ -2259,18 +2259,30 @@ function renderHeroTab(F){
         _tRow('CPC','var(--dim)',true,_amzCPCD,function(v){return v>0?'$'+v.toFixed(2):'—';});
         // Section: Meta → AMZ Landing (Attribution actual data)
         _secHeader('Meta → AMZ Landing','#7c3aed');
-        // Attribution Sales — per-campaign breakdown
+        // Attribution Sales — per-campaign breakdown with daily Meta spend
         if(_atSales>0){
           var _atCamps=(_attrData.campaigns||[]);
           if(_atCamps.length>0){
             _atCamps.forEach(function(ac){
               var _acRoas=ac.roas||0,_acRc=_acRoas>=2?'var(--g)':_acRoas>=1?'var(--am)':'var(--r)';
-              html+='<tr><td style="padding-left:16px;text-align:left;'+_stickyTd+';color:#7c3aed;font-size:9px" title="'+ac.name+'">'+ac.name.substring(0,35)+'</td>';
-              html+='<td colspan="'+_tblN+'" style="text-align:center;font-family:var(--mono);font-size:10px;padding:2px">';
-              html+='<span style="color:var(--g);font-weight:700">$'+ac.sales.toLocaleString()+'</span>';
+              // Campaign header row: name + aggregate metrics
+              html+='<tr><td style="padding-left:16px;text-align:left;'+_stickyTd+';color:#7c3aed;font-size:9px;font-weight:700;border-bottom:1px solid #7c3aed20" title="'+ac.name+'">'+ac.name.substring(0,35)+'</td>';
+              html+='<td colspan="'+_tblN+'" style="text-align:left;font-family:var(--mono);font-size:10px;padding:2px 6px;border-bottom:1px solid #7c3aed20">';
+              html+='<span style="color:var(--g);font-weight:700">Attr $'+ac.sales.toLocaleString()+'</span>';
               html+=' · <span style="color:var(--dim)">spend $'+ac.spend.toLocaleString()+'</span>';
               if(_acRoas>0) html+=' · <span style="color:'+_acRc+';font-weight:600">'+_acRoas.toFixed(1)+'x</span>';
               html+='</td></tr>';
+              // Daily spend row if matched_daily available
+              if(ac.daily_spend&&ac.daily_spend.length){
+                html+='<tr><td style="padding-left:28px;text-align:left;'+_stickyTd+';color:#a78bfa;font-size:9px">Spend</td>';
+                for(var j=0;j<_tblN;j++){var sv=ac.daily_spend[j]||0;html+='<td style="text-align:right;padding:2px 6px;font-family:var(--mono);color:#a78bfa;font-size:9px">'+(sv>0?'$'+Math.round(sv).toLocaleString():'—')+'</td>';}
+                html+='</tr>';
+              }
+              if(ac.daily_clicks&&ac.daily_clicks.length){
+                html+='<tr><td style="padding-left:28px;text-align:left;'+_stickyTd+';color:#a78bfa;font-size:9px">Clicks</td>';
+                for(var j=0;j<_tblN;j++){var cv=ac.daily_clicks[j]||0;html+='<td style="text-align:right;padding:2px 6px;font-family:var(--mono);color:#a78bfa;font-size:9px">'+(cv>0?cv.toLocaleString():'—')+'</td>';}
+                html+='</tr>';
+              }
             });
           } else {
             html+='<tr><td style="padding-left:16px;text-align:left;'+_stickyTd+';color:var(--g)">Attr Sales (60D)</td>';
