@@ -164,6 +164,7 @@ def load_sku_cogs_map():
             wb.close()
             return {}
         out = {}
+        anomalies = []
         for row in rows[1:]:
             sku = str(row[sku_col] or "").strip().lower()
             try:
@@ -171,8 +172,13 @@ def load_sku_cogs_map():
             except (TypeError, ValueError):
                 continue
             if sku and cost > 0:
+                # F002: Validate COGS range ($3-$30 for consumer products)
+                if cost < 3 or cost > 30:
+                    anomalies.append(f"{sku}=${cost:.2f}")
                 out[sku] = cost
         wb.close()
+        if anomalies:
+            print(f"  [AUDIT] COGS range anomalies ({len(anomalies)}): {', '.join(anomalies[:5])}{'...' if len(anomalies) > 5 else ''}")
         return out
     except Exception as e:
         print(f"  [WARN] SKU COGS load failed: {e}")
@@ -1886,6 +1892,7 @@ def generate():
     _inf_paid_arr = []    # Influencer PAID (PayPal)
     _inf_nonpaid_arr = [] # Influencer NON-PAID (COGS + shipping)
     _shipping_cost_arr = []  # Shipping Cost (HARDCODED 25% of revenue until real data available)
+    _cogs_estimated_arr = []  # F001: True if COGS is estimated (fallback avg), not SKU-level
     total_seeding_monthly = []
     total_mkt_monthly = []
     total_cm_monthly = []
@@ -1925,11 +1932,13 @@ def generate():
 
         # COGS from SKU-level data (or fallback to brand avg)
         cogs = 0
+        cogs_estimated = False  # F001: flag when using fallback avg instead of SKU data
         for b in BRAND_ORDER + ["Other"]:
             cogs += shop_sku_cogs.get(b, {}).get(m, 0)
             cogs += amz_sku_cogs.get(b, {}).get(m, 0)
         # Fallback: if SKU data missing for this month, use brand avg with units
         if cogs == 0 and rev > 0:
+            cogs_estimated = True
             for b in BRAND_ORDER:
                 v = brand_monthly.get(b, {}).get(m, {})
                 units = v.get("units", 0)
@@ -1993,6 +2002,7 @@ def generate():
 
         total_rev_monthly.append(round(rev))
         total_cogs_monthly.append(round(cogs))
+        _cogs_estimated_arr.append(cogs_estimated)
         total_gm_monthly.append(round(gm))
         _shipping_cost_arr.append(round(shipping_cost))
         _variable_costs_arr.append(round(variable_costs))
@@ -2098,6 +2108,7 @@ def generate():
         "brand_sales": brand_rev_pnl,
         "total_revenue": _pnl_with_annual(total_rev_monthly, fy2025_idx),
         "cogs": _pnl_with_annual(total_cogs_monthly, fy2025_idx),
+        "cogs_estimated": _cogs_estimated_arr,  # F001: True = fallback avg, False = SKU-level
         "gross_margin": _pnl_with_annual(total_gm_monthly, fy2025_idx),
         "shipping_cost": _pnl_with_annual(_shipping_cost_arr, fy2025_idx),
         "variable_costs": _pnl_with_annual(_variable_costs_arr, fy2025_idx),
