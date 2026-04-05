@@ -1763,7 +1763,7 @@ function renderHeroTab(F){
       var slicedCreators=catCreators.slice(0,10).map(function(cr){
         return {username:cr.username,brand:cr.brand,platform:cr.platform,total_views:cr.total_views,
           base_views:cr.base_views||0,first_observed:cr.first_observed||'',
-          upload_date:cr.upload_date||'',daily_views:cr.daily_views.slice(-pDays)};
+          upload_date:cr.upload_date||'',post_url:cr.post_url||'',daily_views:cr.daily_views.slice(-pDays)};
       });
       var n=ds.length;
       var hasContent=catCreators.length>0||(vw.length&&vw.reduce(function(a,b){return a+b},0)>0);
@@ -1798,7 +1798,7 @@ function renderHeroTab(F){
       html+='<span style="color:var(--g)">&#9644; Sales</span>';
       if(totalNewViews>0) html+='<span style="color:'+bc+'">&#9651; +'+totalNewViews.toLocaleString()+' new views</span>';
       crDeltaArr.forEach(function(x,ci){
-        var _cu=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
+        var _cu=x.cr.post_url||(x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/');
         html+='<a href="'+_cu+'" target="_blank" style="color:'+INF_COLORS[ci%INF_COLORS.length]+';text-decoration:none">&#9642; @'+x.cr.username+(x.total>0?' +'+x.total.toLocaleString():'')+' views</a>';
       });
       // GSC removed from Hero tab (Amazon-focused)
@@ -2065,7 +2065,7 @@ function renderHeroTab(F){
           var lastFF=x.ff[n-1]||0;
           if(lastFF>0){
             var lx=padL+(n-1)*(bw+1)+bw/2,ly=delTop+delH-lastFF/crMaxV*delH*0.9;
-            var _lcu=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
+            var _lcu=x.cr.post_url||(x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/');
             html+='<circle cx="'+lx+'" cy="'+ly+'" r="3" fill="'+col+'"/>';
             html+='<a href="'+_lcu+'" target="_blank"><text x="'+(lx+6)+'" y="'+(ly+3)+'" fill="'+col+'" font-size="9" font-weight="700" style="cursor:pointer;text-decoration:underline">@'+x.cr.username+' '+lastFF.toLocaleString()+' total</text></a>';
           }
@@ -2365,7 +2365,7 @@ function renderHeroTab(F){
             dates.forEach(function(d){html+='<th style="text-align:right;font-size:9px">'+d.substring(5)+'</th>';});
             html+='</tr></thead><tbody>';
             crDeltaArr.forEach(function(x,ci){
-              var _du=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
+              var _du=x.cr.post_url||(x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/');
               var _udd=x.cr.upload_date?x.cr.upload_date.substring(5):'';
               html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_du+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a>'+(_udd?' <span style="font-size:8px;color:var(--muted);font-weight:400">&#x1F4C5;'+_udd+'</span>':'')+'</td>';
               x.deltas.forEach(function(delta){
@@ -2380,7 +2380,7 @@ function renderHeroTab(F){
             wks.forEach(function(w){html+='<th style="text-align:right;font-size:9px">'+w+'</th>';});
             html+='</tr></thead><tbody>';
             crDeltaArr.forEach(function(x,ci){
-              var _duw=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
+              var _duw=x.cr.post_url||(x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/');
               var _udw=x.cr.upload_date?x.cr.upload_date.substring(5):'';
               html+='<tr><td style="font-weight:600;color:'+INF_COLORS[ci%INF_COLORS.length]+'"><a href="'+_duw+'" target="_blank" style="color:inherit;text-decoration:none">@'+x.cr.username+'</a>'+(_udw?' <span style="font-size:8px;color:var(--muted);font-weight:400">'+_udw+'</span>':'')+'</td>';
               wks.forEach(function(wk,wi){

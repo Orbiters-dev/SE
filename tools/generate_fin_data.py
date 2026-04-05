@@ -3409,23 +3409,26 @@ def generate():
             tag_joined = " ".join(tags)
 
             if brand == "Grosmimi":
-                has_stainless = any(t in tag_set or "stainless" in t for t in tags)
+                has_stainless = any("stainless" in t for t in tags)
                 has_tumbler = any("tumbler" in t for t in tags)
                 has_ppsu = any("ppsu" in t for t in tags)
                 has_bottle = any("bottle" in t and "straw" not in t for t in tags)
                 has_straw = any("straw" in t or "sippy" in t or "cup" in t for t in tags)
+                # PPSU-specific hashtags take priority over generic straw/cup
+                if has_ppsu:
+                    if has_bottle:
+                        return "PPSU Baby Bottle"
+                    return "PPSU Straw Cup"
                 if has_stainless and has_tumbler:
                     return "Stainless Tumbler"
                 if has_stainless:
                     return "Stainless Straw Cup"
                 if has_tumbler:
                     return "PPSU Tumbler"
-                if has_ppsu and has_bottle:
-                    return "PPSU Baby Bottle"
-                if has_ppsu or has_straw:
-                    return "PPSU Straw Cup"
                 if has_bottle:
                     return "PPSU Baby Bottle"
+                if has_straw:
+                    return "PPSU Straw Cup"
                 return "PPSU Straw Cup"  # default for Grosmimi
             if brand == "CHA&MOM":
                 if any("wash" in t for t in tags):
@@ -3440,22 +3443,32 @@ def generate():
             return None
 
         post_info = {}
+        _ht_override_count = 0
         for p in content_posts:
             pid = p.get("post_id") or p.get("url", "")
             brand = p.get("brand", "")
             pt_raw = p.get("product_types", "")
-            ptypes = [t.strip() for t in pt_raw.split(",") if t.strip()] if pt_raw else []
-            # If no explicit product_types, infer from hashtags
-            if not ptypes:
-                ht_raw = p.get("hashtags", "")
-                inferred = _classify_post_by_hashtags(ht_raw, brand)
-                if inferred:
-                    ptypes = [inferred]
+            ptypes_db = [t.strip() for t in pt_raw.split(",") if t.strip()] if pt_raw else []
+            # HASHTAG-FIRST: always classify by hashtags, DB product_types is fallback only
+            ht_raw = p.get("hashtags", "")
+            ht_inferred = _classify_post_by_hashtags(ht_raw, brand)
+            if ht_inferred:
+                if ptypes_db and ptypes_db[0] != ht_inferred:
+                    _ht_override_count += 1
+                ptypes = [ht_inferred]
+            elif ptypes_db:
+                ptypes = ptypes_db
+            else:
+                ptypes = []
             uname = (p.get("username") or "").strip()
             platform = p.get("platform", "")
-            region = (p.get("region") or "us").lower()
+            post_url = p.get("url", "")
+            region = (p.get("region") or "").lower()
+            # Only include US content (empty region = unknown, skip to avoid JP leakage)
             if pid and region == "us":
-                post_info[pid] = {"brand": brand, "product_types": ptypes, "username": uname, "platform": platform, "post_date": p.get("post_date", "")}
+                post_info[pid] = {"brand": brand, "product_types": ptypes, "username": uname, "platform": platform, "post_date": p.get("post_date", ""), "post_url": post_url}
+        if _ht_override_count:
+            print(f"  [AUDIT] Hashtag overrode DB product_types in {_ht_override_count} posts")
 
         ptype_views = defaultdict(lambda: defaultdict(int))
         for m in content_metrics:
@@ -3568,7 +3581,7 @@ def generate():
                         cat_creator_daily[cat][uname][d] += dv
                 key = (cat, uname)
                 if key not in cat_creator_meta:
-                    cat_creator_meta[key] = {"brand": brand, "platform": info.get("platform", ""), "upload_date": info.get("post_date", ""), "total_views": 0}
+                    cat_creator_meta[key] = {"brand": brand, "platform": info.get("platform", ""), "upload_date": info.get("post_date", ""), "total_views": 0, "post_url": info.get("post_url", "")}
                 pd_val = info.get("post_date", "")
                 if pd_val and (not cat_creator_meta[key]["upload_date"] or pd_val < cat_creator_meta[key]["upload_date"]):
                     cat_creator_meta[key]["upload_date"] = pd_val
@@ -3592,8 +3605,20 @@ def generate():
             meta["base_views"] = sum(post_first_views.get(pid, 0) for pid in pids)
             obs = [min(post_snapshots[pid].keys()) for pid in pids if pid in post_snapshots and post_snapshots[pid]]
             meta["first_observed"] = min(obs) if obs else ""
+            # Best post URL = highest views post
+            best_pid = max(pids, key=lambda p: post_max_views.get(p, 0)) if pids else None
+            meta["post_url"] = post_info.get(best_pid, {}).get("post_url", "") if best_pid else ""
 
-        EXCLUDED_CREATORS = {"rosalieflorentin"}
+        # Detect JP creators: any post with region=jp → exclude from US Hero
+        jp_creators = set()
+        for p in content_posts:
+            if (p.get("region") or "").lower() == "jp":
+                uname = (p.get("username") or "").strip()
+                if uname:
+                    jp_creators.add(uname.lower())
+        if jp_creators:
+            print(f"  [AUDIT] JP creators filtered from US Hero: {jp_creators}")
+        EXCLUDED_CREATORS = {"rosalieflorentin"} | jp_creators
         content_creators_by_cat = {}
         for cat in [c[0] for c in sorted_cats]:
             totals = []
@@ -3611,6 +3636,7 @@ def generate():
                         "username": uname, "brand": meta.get("brand", ""), "platform": meta.get("platform", ""),
                         "total_views": base + growth, "base_views": base,
                         "first_observed": meta.get("first_observed", ""), "upload_date": ud,
+                        "post_url": meta.get("post_url", ""),
                         "daily_views": [dv.get(d, 0) for d in daily_dates],
                     })
             totals.sort(key=lambda x: -x["total_views"])
