@@ -1377,6 +1377,31 @@ def generate():
                 "Amazon-Advertising-API-Scope": "1094731557245186",  # Grosmimi Attribution
                 "Content-Type": "application/json",
             }
+            # --- Pass 1: CAMPAIGN-level for BRB totals ---
+            camp_brb = defaultdict(float)
+            cursor = ""
+            for _ in range(10):
+                r = _req.post("https://advertising-api.amazon.com/attribution/report",
+                    headers=hdrs, json={
+                        "reportType": "PERFORMANCE", "count": 300,
+                        "startDate": (today - timedelta(days=60)).strftime("%Y%m%d"),
+                        "endDate": today.strftime("%Y%m%d"),
+                        "groupBy": "CAMPAIGN", "cursorId": cursor,
+                    }, timeout=30)
+                if r.status_code != 200:
+                    break
+                data = r.json()
+                rpts = data.get("reports", [])
+                for rr in rpts:
+                    cid = rr.get("campaignId", "")
+                    camp_brb[cid] += float(rr.get("brb_bonus_amount", 0) or 0)
+                cursor = data.get("cursorId", "")
+                if not cursor or not rpts:
+                    break
+            total_brb = sum(camp_brb.values())
+            print(f"  Attribution CAMPAIGN-level BRB: ${total_brb:,.0f} across {len(camp_brb)} campaigns")
+
+            # --- Pass 2: CREATIVE-level for daily breakdown ---
             all_rpts = []
             cursor = ""
             for _ in range(20):  # more pages for CREATIVE-level daily data
@@ -1418,6 +1443,15 @@ def generate():
                     camp[cid]["daily"][d]["clicks"] += clicks
                     camp[cid]["daily"][d]["sales"] += sales
                     camp[cid]["daily"][d]["purchases"] += purchases
+
+            # Merge CAMPAIGN-level BRB into CREATIVE-level results
+            for cid in camp:
+                creative_brb = camp[cid]["brb"]
+                campaign_brb = camp_brb.get(cid, 0)
+                if campaign_brb > creative_brb:
+                    camp[cid]["brb"] = campaign_brb
+                    print(f"  BRB override for {cid[:40]}: ${creative_brb:,.0f} → ${campaign_brb:,.0f}")
+
             # Convert daily defaultdicts to regular dicts
             result = {}
             for cid, cv in camp.items():
