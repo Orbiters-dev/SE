@@ -477,12 +477,104 @@ function switchSeoBrand(brand){
   });
 }
 
-// ── Search Ranking Tab (removed — was autocomplete suggestion, not product ranking) ──
-function renderAutocompleteTab(F){
-  var el=document.getElementById('panel-autocomplete');
+// ── 8. Search Ranking Tab — Product position in Amazon search results ──
+function renderSearchRankTab(F){
+  var el=document.getElementById('panel-searchrank');
   if(!el) return;
-  el.innerHTML='<div class="card" style="text-align:center;padding:48px"><div style="font-size:36px;margin-bottom:12px">🔍</div><h3>Amazon Product Search Ranking</h3><div class="desc" style="margin-top:8px">Generic 키워드(sippy cup, toddler cup 등) 검색 시 우리 제품이 몇 번째에 노출되는지 추적.<br>Apify 기반 실제 검색결과 크롤링 필요 — 준비 중.</div></div>';
-  return;
+  var sr=F.search_ranking||{};
+  var html='';
+
+  // Check if we have data
+  var hasDates=sr.dates&&sr.dates.length>0;
+  if(!hasDates){
+    el.innerHTML='<div class="card" style="text-align:center;padding:48px"><div style="font-size:36px;margin-bottom:12px">🔍</div><h3>Amazon Product Search Ranking</h3><div class="desc" style="margin-top:8px">Generic 키워드 검색 시 우리 제품 노출 순위 추적.<br>데이터 수집 중...</div></div>';
+    return;
+  }
+
+  var dates=sr.dates;
+  var brands=sr.brands||{};
+  var latestDate=dates[dates.length-1];
+  var brandColors={'Grosmimi':'#f97316','Naeiae':'#22c55e','CHA&MOM':'#a855f7'};
+  var showBrands=Object.keys(brands);
+
+  // ── Latest Rankings Summary ──
+  html+='<div class="sec"><div class="sec-title"><div class="num" style="background:#6366f1">8A</div> Amazon Product Search Ranking <span style="font-weight:400;color:var(--muted);font-size:11px">Latest: '+latestDate+'</span></div>';
+  html+='<div class="desc">Generic 키워드(sippy cup, toddler cup 등) 검색 시 Amazon 검색결과에서 우리 제품이 몇 번째에 노출되는지. 낮을수록 좋음. "N/F" = 48위 안에 없음.</div>';
+
+  showBrands.forEach(function(brand){
+    var bdata=brands[brand]||{};
+    var latest=bdata.latest||{};
+    var keywords=Object.keys(latest);
+    if(!keywords.length) return;
+    var color=brandColors[brand]||'#64748b';
+
+    html+='<div style="margin:12px 0 4px"><span style="color:'+color+';font-weight:700">'+brand+'</span></div>';
+    html+='<div class="responsive-table"><table><thead><tr><th>Keyword</th><th style="text-align:center">Position</th><th>Product Title</th><th style="text-align:center">Price</th><th style="text-align:center">Rating</th></tr></thead><tbody>';
+    keywords.sort(function(a,b){
+      var pa=latest[a].position>0?latest[a].position:999;
+      var pb=latest[b].position>0?latest[b].position:999;
+      return pa-pb;
+    });
+    keywords.forEach(function(kw){
+      var d=latest[kw];
+      var pos=d.position;
+      var posStr=pos>0?('#'+pos):'<span style="color:var(--muted)">N/F</span>';
+      var posColor=pos>0?(pos<=10?'#22c55e':pos<=20?'#f59e0b':'#ef4444'):'#94a3b8';
+      var title=d.title||'—';
+      if(title.length>60) title=title.substring(0,57)+'...';
+      var price=d.price?('$'+d.price.toFixed(2)):'—';
+      var rating=d.rating?(d.rating.toFixed(1)+'★'):'—';
+      html+='<tr><td style="font-weight:600">'+kw+'</td>';
+      html+='<td style="text-align:center;font-size:18px;font-weight:700;color:'+posColor+'">'+posStr+'</td>';
+      html+='<td style="font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+title+'</td>';
+      html+='<td style="text-align:center">'+price+'</td>';
+      html+='<td style="text-align:center">'+rating+'</td></tr>';
+    });
+    html+='</tbody></table></div>';
+  });
+  html+='</div>';
+
+  // ── Position Trend Chart ──
+  if(dates.length>=2){
+    html+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num" style="background:#6366f1">8B</div> Position Trend (Lower = Better)</div>';
+    html+='<div class="desc">날짜별 검색 순위 추이. 선이 아래로 갈수록 검색결과 상위 노출.</div>';
+
+    showBrands.forEach(function(brand){
+      var bdata=brands[brand]||{};
+      var history=bdata.history||{};
+      var keywords=Object.keys(history);
+      if(!keywords.length) return;
+      var color=brandColors[brand]||'#64748b';
+
+      html+='<div style="margin:12px 0 4px"><span style="color:'+color+';font-weight:700">'+brand+'</span></div>';
+      html+='<div class="responsive-table"><table><thead><tr><th>Keyword</th>';
+      // Show last 14 dates max
+      var showDates=dates.slice(-14);
+      showDates.forEach(function(d){
+        html+='<th style="text-align:center;font-size:10px;white-space:nowrap">'+d.substring(5)+'</th>';
+      });
+      html+='</tr></thead><tbody>';
+
+      keywords.forEach(function(kw){
+        var vals=history[kw]||{};
+        html+='<tr><td style="font-weight:600;white-space:nowrap">'+kw+'</td>';
+        showDates.forEach(function(d){
+          var v=vals[d];
+          if(v&&v>0){
+            var c=v<=10?'#22c55e':v<=20?'#f59e0b':'#ef4444';
+            html+='<td style="text-align:center;color:'+c+';font-weight:600">#'+v+'</td>';
+          } else if(v===0||v===-1||!v){
+            html+='<td style="text-align:center;color:var(--muted)">—</td>';
+          }
+        });
+        html+='</tr>';
+      });
+      html+='</tbody></table></div>';
+    });
+    html+='</div>';
+  }
+
+  el.innerHTML=html;
 }
 
 // ── JP Render Helpers ────────────────────────────────────────────────────────
@@ -631,7 +723,7 @@ function renderFinancial(){
     {id:'traffic',label:'5. Traffic'},
     {id:'klaviyo',label:'6. Email Marketing'},
     {id:'hero',label:'7. Hero Products'},
-    {id:'autocomplete',label:'8. Autocomplete'}
+    {id:'searchrank',label:'8. Search Ranking'}
   ];
   var tabHtml='';
   tabs.forEach(function(t,i){
@@ -1122,15 +1214,14 @@ function renderFinancial(){
     }
   })();
 
-  // ── 5B: (removed — was autocomplete suggestion, not product search ranking) ──
-  (function(){
-    return; // Section 5B disabled — needs real product search ranking (Apify)
+  // ── 5B: removed (moved to Tab 8 Search Ranking) ──
+  (function(){ return; /* all search ranking data is in Tab 8 now */
 
     var latestDate=allDates.length?allDates[allDates.length-1]:'';
     var dateLabel=latestDate?latestDate.substring(5).replace('-','/'):'';
 
-    traf+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num" style="background:#6366f1">5B</div> Amazon Autocomplete &mdash; Keyword Suggestion Position <span style="font-weight:400;color:var(--muted);font-size:11px">Latest: '+dateLabel+'</span></div>';
-    traf+='<div class="desc">Amazon 검색창에 키워드 입력 시 자동완성 제안 순위. #1 = 첫 번째 제안. 낮을수록 좋음.</div>';
+    traf+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num" style="background:#6366f1">5B</div> (Removed)</div>';
+    traf+='<div class="desc">Moved to Tab 8</div>';
 
     showBrands.forEach(function(brand){
       var usItems=(latest[brand]||{}).US||[];
@@ -1371,14 +1462,14 @@ function renderFinancial(){
   panelsHtml+='<div class="tab-panel" id="panel-traffic">'+traf+'</div>';
   panelsHtml+='<div class="tab-panel" id="panel-klaviyo">'+klav+'</div>';
   panelsHtml+='<div class="tab-panel" id="panel-hero"></div>';
-  panelsHtml+='<div class="tab-panel" id="panel-autocomplete"></div>';
+  panelsHtml+='<div class="tab-panel" id="panel-searchrank"></div>';
   document.getElementById('fin-panels').innerHTML=panelsHtml;
 
   // Init dynamic sections after DOM is ready
   if(window.renderCt) try{ window.renderCt(); }catch(e){}
   if(window.renderKwTable) try{ window.renderKwTable(); }catch(e){}
   try{ renderHeroTab(F); }catch(e){ console.error('Hero tab error:', e); }
-  try{ renderAutocompleteTab(F); }catch(e){ console.error('Autocomplete tab error:', e); }
+  try{ renderSearchRankTab(F); }catch(e){ console.error('Search rank tab error:', e); }
 
   // Check URL hash for tab
   var hash=window.location.hash.replace('#','');

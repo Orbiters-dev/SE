@@ -76,6 +76,7 @@ TABLE_MAP = {
     "influencer_orders": models.InfluencerOrders,
     "amazon_brand_analytics": models.AmazonBrandAnalytics,
     "amazon_autocomplete_daily": models.AmazonAutocompleteDaily,
+    "amazon_search_ranking": models.AmazonSearchRanking,
     "google_ads_search_terms": models.GoogleAdsSearchTerms,
 }
 

@@ -472,6 +472,33 @@ class AmazonAutocompleteDaily(models.Model):
         return f"{self.date} {self.brand} {self.keyword} ({self.market})"
 
 
+class AmazonSearchRanking(models.Model):
+    """Daily Amazon search result ranking for generic keywords.
+
+    Tracks where our products (Grosmimi, Naeiae, CHA&MOM) appear
+    in Amazon search results for category keywords like 'sippy cup'.
+    """
+    date = models.DateField()
+    brand = models.CharField(max_length=100)
+    keyword = models.CharField(max_length=500)
+    market = models.CharField(max_length=10, default="US")
+    position = models.IntegerField(default=-1)  # 1-indexed, -1 = not found
+    asin = models.CharField(max_length=20, blank=True, default="")
+    title = models.CharField(max_length=500, blank=True, default="")
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    rating = models.DecimalField(max_digits=3, decimal_places=1, default=0)
+    reviews = models.IntegerField(default=0)
+    total_results = models.IntegerField(default=0)
+    collected_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "gk_amazon_search_ranking"
+        unique_together = ("date", "brand", "keyword", "market")
+
+    def __str__(self):
+        return f"{self.date} {self.brand} '{self.keyword}' #{self.position}"
+
+
 class GoogleAdsSearchTerms(models.Model):
     """Google Ads search term view daily metrics."""
     date = models.DateField()
