@@ -2252,6 +2252,7 @@ function renderHeroTab(F){
         html+='</tbody></table></div></div>';
       }
       // ── Delta table: view changes per period ──
+        var wks=H.week_keys||[];
         var hasDeltaData=crDeltaArr.some(function(x){return x.total>0;});
         if(hasDeltaData){
           if(pDays<=7){
