@@ -2131,6 +2131,8 @@ function renderCreatorsTable(data){
   var checkedCount=0;
   for(var i=0;i<data.results.length;i++){
     var c=data.results[i];
+    // Skip @discovered.syncly in Draft Ready view — no real email, can't send
+    if(c.email&&c.email.endsWith('@discovered.syncly')&&c.pipeline_status==='Draft Ready')continue;
     var handle=c.ig_handle?'@'+c.ig_handle:c.tiktok_handle?'@'+c.tiktok_handle:'-';
     var badgeClass=STATUS_COLORS[c.pipeline_status]||'';
     var date=c.initial_discovery_date||c.created_at;
@@ -2459,7 +2461,8 @@ async function toggleTranscript(creatorId, handle){
         var views=p.views||p.view_count||0;
         var likes=p.likes||p.like_count||0;
         var date=(p.post_date||'').slice(0,10);
-        var caption=p.caption||p.transcript||p.text||'';
+        var transcript=p.transcript||'';
+        var caption=p.caption||'';
         var url=p.url||'#';
         html+='<div style="border:1px solid #ddd5f3;border-radius:6px;padding:8px;margin-bottom:6px;background:#fff">';
         html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
@@ -2468,10 +2471,15 @@ async function toggleTranscript(creatorId, handle){
         if(views)html+=formatNum(views)+' views ';
         if(likes)html+=formatNum(likes)+' likes';
         html+='</span></div>';
-        if(caption){
-          html+='<div style="white-space:pre-wrap;font-size:10px;line-height:1.5;color:var(--fg);max-height:150px;overflow-y:auto">'+esc(caption)+'</div>';
+        if(transcript){
+          html+='<div style="font-weight:600;font-size:9px;color:#7c3aed;margin-bottom:2px">Transcript</div>';
+          html+='<div style="white-space:pre-wrap;font-size:10px;line-height:1.5;color:var(--fg);max-height:200px;overflow-y:auto">'+esc(transcript)+'</div>';
         }else{
-          html+='<div style="color:var(--muted);font-size:10px;font-style:italic">No caption/transcript</div>';
+          html+='<div style="color:var(--muted);font-size:10px;font-style:italic">No transcript available</div>';
+        }
+        if(caption){
+          html+='<div style="font-weight:600;font-size:9px;color:var(--dim);margin-top:6px;margin-bottom:2px">Caption</div>';
+          html+='<div style="white-space:pre-wrap;font-size:10px;line-height:1.4;color:var(--dim);max-height:100px;overflow-y:auto">'+esc(caption)+'</div>';
         }
         html+='</div>';
       });
