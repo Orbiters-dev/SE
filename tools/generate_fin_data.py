@@ -1433,6 +1433,25 @@ def generate():
                 ratio = v.get("spend", 0) / total_mt_wk_spend
                 v["sales"] = round(attr_total["sales"] * ratio, 2)
             print(f"  Attribution -> Meta Traffic Grosmimi (weekly): across {len(mt_gros_wk)} weeks")
+
+        # Daily too — inject Attribution sales into brand_ad_daily_raw for Hero Products
+        # Only within Attribution report window (last 60 days), same as API startDate
+        attr_cutoff = (today - timedelta(days=60)).isoformat()
+        mt_daily_spend_total = {}
+        for brand in brand_ad_daily_raw:
+            for d, v in brand_ad_daily_raw[brand].get("mt_spend", {}).items():
+                if d >= attr_cutoff:
+                    mt_daily_spend_total[d] = mt_daily_spend_total.get(d, 0) + v
+        total_mt_daily_spend = sum(mt_daily_spend_total.values())
+        if total_mt_daily_spend > 0 and attr_total["sales"] > 0:
+            for brand in brand_ad_daily_raw:
+                mt_spend_by_day = brand_ad_daily_raw[brand].get("mt_spend", {})
+                for d, sp in mt_spend_by_day.items():
+                    if d >= attr_cutoff and sp > 0:
+                        ratio = sp / total_mt_daily_spend
+                        brand_ad_daily_raw[brand]["mt_sales"][d] = round(attr_total["sales"] * ratio, 2)
+            n_days = len([d for d in mt_daily_spend_total if mt_daily_spend_total[d] > 0])
+            print(f"  Attribution -> brand_ad_daily mt_sales (daily): ${attr_total['sales']:,.0f} across {n_days} days (last 60d)")
     else:
         print("  Attribution: no data")
 
