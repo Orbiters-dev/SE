@@ -3,53 +3,8 @@
     "allow": [
       "Bash(*)",
       "Edit",
-      "Write",
-      "Read",
-      "Glob",
-      "Grep",
-      "WebFetch",
-      "WebSearch",
-      "NotebookEdit",
-      "Task",
-      "Skill",
-      "mcp__*"
+      "Write"
     ],
     "deny": []
-  },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash|Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe \"c:/SynologyDrive/ORBI CLAUDE_0223/ORBITERS CLAUDE/ORBITERS CLAUDE/WJ Test1/tools/mistake_checker.py\"",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe \"c:/SynologyDrive/ORBI CLAUDE_0223/ORBITERS CLAUDE/ORBITERS CLAUDE/WJ Test1/tools/error_logger.py\"",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "Bash|Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe \"c:/SynologyDrive/ORBI CLAUDE_0223/ORBITERS CLAUDE/ORBITERS CLAUDE/WJ Test1/tools/mistake_recorder.py\"",
-            "timeout": 5
-          }
-        ]
-      }
-    ]
   }
 }
