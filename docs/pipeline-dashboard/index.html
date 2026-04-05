@@ -2357,18 +2357,27 @@ async function updatePreview(){
   card.style.display='block';
   el.innerHTML='<div style="color:var(--dim);padding:10px">Loading preview...</div>';
   try{
-    // Use Feature Toggle cache if available (already filtered), otherwise fetch fresh
+    // Use Feature Toggle cache if available (already filtered)
+    // If no cache, run Feature Toggle filters first to get the correct batch scope
     var creators=_ftCache;
     if(!creators||creators.length===0){
-      creators=[];
-      var page=1;var hasMore=true;
-      while(hasMore){
-        var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=500&page='+page);
-        var items=data.results||[];
-        creators=creators.concat(items);
-        hasMore=items.length===500;
-        page++;
-        if(creators.length>=15000)break;
+      // Try to populate _ftCache via ensureFtCache (loads Not Started for selected week)
+      if(typeof ensureFtCache==='function'){
+        try{creators=await ensureFtCache();if(!creators||creators.length===0)creators=_ftCache||[]}catch(e){}
+      }
+      // If still empty, fetch with discovery_date filter from config
+      if(!creators||creators.length===0){
+        creators=[];
+        var page=1;var hasMore=true;
+        var dateParam=(_config&&_config.update_date)?'&discovery_date='+_config.update_date:'';
+        while(hasMore){
+          var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=500&page='+page+dateParam);
+          var items=data.results||[];
+          creators=creators.concat(items);
+          hasMore=items.length===500;
+          page++;
+          if(creators.length>=15000)break;
+        }
       }
     }
     var total=creators.length;
