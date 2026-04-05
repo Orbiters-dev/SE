@@ -1613,6 +1613,8 @@ function setHeroView(v){
 }
 function renderHeroTab(F){
   window._heroF=F;
+  // Force Product Group view as default on tab entry
+  if(_heroView!=='cat'&&_heroView!=='brand') _heroView='cat';
   var H=F.hero_products;
   if(!H||!H.categories||!H.categories.length){
     document.getElementById('panel-hero').innerHTML='<div class="card"><h3>No Hero Products Data</h3><div class="desc">Run generate_fin_data.py to build product category data.</div></div>';
@@ -1632,7 +1634,7 @@ function renderHeroTab(F){
   window._heroF=F;
   // Keep existing period if user already toggled
   html+='<div class="sec"><div class="sec-title"><div class="num">1</div> Product Category Scorecard';
-  html+=' <div class="period-tabs" id="hero-view-tabs" style="margin-left:auto;margin-right:6px"><div data-v="cat" onclick="setHeroView(\'cat\')" '+(_heroView==='cat'?'class="on"':'')+'>Category</div><div data-v="brand" onclick="setHeroView(\'brand\')" '+(_heroView==='brand'?'class="on"':'')+'>Brand</div></div>';
+  html+=' <div class="period-tabs" id="hero-view-tabs" style="margin-left:auto;margin-right:6px"><div data-v="cat" onclick="setHeroView(\'cat\')" '+(_heroView==='cat'?'class="on"':'')+'>Product Group</div><div data-v="brand" onclick="setHeroView(\'brand\')" '+(_heroView==='brand'?'class="on"':'')+'>Brand</div></div>';
   html+=' <div class="period-tabs" id="hero-period-tabs"><div data-d="7" onclick="setHeroPeriod(7)" '+((_heroPeriod===7)?'class="on"':'')+'>7D</div><div data-d="30" onclick="setHeroPeriod(30)" '+((_heroPeriod===30)?'class="on"':'')+'>30D</div><div data-d="90" onclick="setHeroPeriod(90)" '+((_heroPeriod===90)?'class="on"':'')+'>90D</div></div>';
   html+='</div>';
   html+='<div class="card">';

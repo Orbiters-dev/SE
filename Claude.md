@@ -11,6 +11,43 @@ Talk casually like a coworker. Keep it short and conversational. No corporate sp
 
 ---
 
+# Harness 강제 적용 (모든 에이전트 필수)
+
+**모든 에이전트/스킬 호출 시 아래 규칙을 자동으로 적용한다. 예외 없음.**
+
+## 1. Codex Evaluator (Cross-AI Audit)
+코드 수정 작업 완료 후 반드시 Codex Evaluator 실행:
+```bash
+python tools/codex_evaluator.py --domain <domain> audit --files <changed_files>
+```
+- domain: `cfo` (재무), `pipeliner` (파이프라인), `general` (기타)
+- CRITICAL/MAJOR 발견 시 수정 후 재감사 (max 3회)
+- Evaluator 결과는 `.tmp/codex_evaluator/`에 자동 저장
+
+## 2. NAS 경로 규칙
+Z: 드라이브 경로 사용 시 반드시 SynologyDrive fallback 추가:
+```python
+path = Path(r"Z:\Orbiters\...")
+if not path.exists():
+    path = Path(r"C:\SynologyDrive\...")  # Synology Drive sync
+```
+**GitHub Actions에서는 둘 다 없으므로 graceful fallback 필수.**
+
+## 3. CFO Harness (재무 관련 작업)
+golmani 산출물 → Codex Evaluator(auditor) → CFO 판정 루프:
+- 세션 파일: `.tmp/cfo_sessions/{session_id}/`
+- directive.json → golmani_output → audit_report → cfo_decision
+- REVISE 시 구체적 correction point 명시 (max 3 loops)
+
+## 4. 세션 리포트 (Structured Handoff)
+작업 완료 시 세션 리포트 생성:
+```bash
+node ~/.claude/hooks/session-report-gen.js
+```
+저장 위치: `Shared/ONZ Creator Collab/제갈량/`
+
+---
+
 # LightRAG — 프로젝트 컨텍스트 검색 시스템
 
 ## 개요
