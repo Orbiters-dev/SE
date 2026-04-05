@@ -633,6 +633,10 @@ def get_or_save_pipeline_config(request, config_date):
                   "naeiae_form_url", "ht_form_url"):
         if field in body:
             defaults[field] = body[field]
+    # Brand allocation
+    for field in ("alloc_grosmimi", "alloc_chaenmom", "alloc_naeiae"):
+        if field in body:
+            defaults[field] = int(body[field])
     # Computed fields (from preview tool)
     for field in ("eligible_total", "eligible_grosmimi", "eligible_chaenmom",
                   "eligible_naeiae", "eligible_unknown", "ht_count", "lt_count"):

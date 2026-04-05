@@ -1722,10 +1722,10 @@ function populateConfigForm(c){
   document.getElementById('s-cham').textContent=c.eligible_chaenmom||0;
   document.getElementById('s-nae').textContent=c.eligible_naeiae||0;
   document.getElementById('s-htlt').textContent=(c.ht_count||0)+' / '+(c.lt_count||0);
-  // Allocation
-  document.getElementById('alloc-grosmimi').value=c.alloc_grosmimi||5;
-  document.getElementById('alloc-chaenmom').value=c.alloc_chaenmom||3;
-  document.getElementById('alloc-naeiae').value=c.alloc_naeiae||2;
+  // Allocation — from DB (PipelineConfig.alloc_* fields)
+  document.getElementById('alloc-grosmimi').value=c.alloc_grosmimi!=null?c.alloc_grosmimi:5;
+  document.getElementById('alloc-chaenmom').value=c.alloc_chaenmom!=null?c.alloc_chaenmom:3;
+  document.getElementById('alloc-naeiae').value=c.alloc_naeiae!=null?c.alloc_naeiae:2;
   document.getElementById('alloc-batch-label').textContent=c.creators_contacted||10;
   updateAllocation();
   // HT config fields
@@ -2723,6 +2723,9 @@ async function confirmExec(){
       // Update exec log from running to success
       apiFetch('/pipeline/execution/log/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action_type:action,triggered_by:_currentUser,status:'completed',target_count:0,details:JSON.stringify({source:'dashboard-webhook-callback'})})});
       loadExecLog();
+      // Refresh pipeline chart + creator list to show status changes
+      if(typeof renderPipelineFunnel==='function')renderPipelineFunnel();
+      if(typeof loadCreators==='function')loadCreators();
     }).catch(function(e){
       showToast('Webhook failed: '+e.message,'err');
       apiFetch('/pipeline/execution/log/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action_type:action,triggered_by:_currentUser,status:'failed',target_count:0,details:JSON.stringify({error:e.message})})});

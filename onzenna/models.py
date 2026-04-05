@@ -213,6 +213,10 @@ class PipelineConfig(models.Model):
     chaenmom_form_url = models.URLField(max_length=500, blank=True, default="")
     naeiae_form_url = models.URLField(max_length=500, blank=True, default="")
     ht_form_url = models.URLField(max_length=500, blank=True, default="")
+    # Brand allocation
+    alloc_grosmimi = models.IntegerField(default=5)
+    alloc_chaenmom = models.IntegerField(default=3)
+    alloc_naeiae = models.IntegerField(default=2)
     # Computed (written by preview tool)
     eligible_total = models.IntegerField(default=0)
     eligible_grosmimi = models.IntegerField(default=0)
