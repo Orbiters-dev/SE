@@ -1677,7 +1677,9 @@ def generate():
     }
     onz_30 = channel_traffic["30d"]["onzenna"]["total_sessions"]
     amz_30 = channel_traffic["30d"]["amazon"]["total_clicks"]
+    _ct_attr = channel_traffic["30d"]["amazon"].get("attribution", {})
     print(f"  Channel traffic (30d): Onzenna {onz_30:,} sessions, Amazon {amz_30:,} clicks")
+    print(f"  Attribution -> channel_traffic: ${_ct_attr.get('sales',0):,} sales, {len(_ct_attr.get('campaigns',[]))} campaigns")
 
     # ── 7. Build monthly waterfall data ───────────────────────────────────────
     print("\n[7/7] Building monthly waterfall...")
