@@ -2218,6 +2218,23 @@ function renderCreatorsTable(data){
   }
 }
 
+function stripQuotedReply(text){
+  if(!text)return text;
+  // Strip quoted thread: "On Mon, Apr 2, 2026 at 1:43 PM ... wrote:" pattern
+  var patterns=[
+    /\nOn\s+\w{3},\s+\w{3}\s+\d{1,2},\s+\d{4}\s+at\s+\d{1,2}:\d{2}\s+[AP]M\s+.*?\s+wrote:[\s\S]*/i,
+    /\nOn\s+\w{3,9},\s+\w{3,9}\s+\d{1,2},\s+\d{4}\s+.*?\s+wrote:[\s\S]*/i,
+    /\n>+\s+On\s+.*?\s+wrote:[\s\S]*/i,
+    /\n-{3,}\s*Original Message\s*-{3,}[\s\S]*/i,
+    /\n_{3,}\s*From:[\s\S]*/i
+  ];
+  for(var i=0;i<patterns.length;i++){
+    var m=text.match(patterns[i]);
+    if(m)text=text.substring(0,m.index);
+  }
+  return text.trim();
+}
+
 function renderEmailHistory(el, email, items, relatedLogs){
   if(items.length===0&&relatedLogs.length===0){
     el.innerHTML='<span style="color:var(--muted)">No email history yet</span>';
@@ -2240,7 +2257,8 @@ function renderEmailHistory(el, email, items, relatedLogs){
     h+='</div>';
     if(r.subject)h+='<div style="font-weight:600;font-size:10px;margin-bottom:4px">'+esc(r.subject)+'</div>';
     if(r.content){
-      h+='<div style="white-space:pre-wrap;font-size:10px;line-height:1.5;color:var(--fg);max-height:200px;overflow-y:auto">'+esc(r.content)+'</div>';
+      var cleanContent=stripQuotedReply(r.content);
+      h+='<div style="white-space:pre-wrap;font-size:10px;line-height:1.5;color:var(--fg);max-height:200px;overflow-y:auto">'+esc(cleanContent)+'</div>';
     }
     if(r.intent&&r.intent!=='-')h+='<div style="margin-top:4px"><span class="b '+(r.intent==='Accept'?'g':r.intent==='FAQ_Gap'?'a':'')+'">'+esc(r.intent)+'</span></div>';
     h+='</div>';
