@@ -687,7 +687,7 @@ def pipeline_config_history(request):
 
 @csrf_exempt
 def pipeline_conversations(request):
-    """GET: list conversations. POST: create new conversation record."""
+    """GET: list conversations. POST: create new. DELETE: remove conversations."""
     if request.method == 'OPTIONS':
         return _cors_headers(request, HttpResponse(status=204))
 
@@ -705,7 +705,7 @@ def pipeline_conversations(request):
             for k in ("id",):
                 if k in item:
                     item[k] = str(item[k])
-            for k in ("created_at", "updated_at"):
+            for k in ("created_at", "updated_at", "email_date"):
                 if k in item and item[k]:
                     item[k] = item[k].isoformat()
         return _cors_headers(request, JsonResponse({"results": items, "total": qs.count()}))
@@ -714,6 +714,11 @@ def pipeline_conversations(request):
         body = json.loads(request.body or "{}")
         creator_email = body.get("creator_email", "")
         status_val = body.get("status", "Draft Ready")
+        # Parse email_date if provided
+        email_date_val = None
+        if body.get("email_date"):
+            from django.utils.dateparse import parse_datetime
+            email_date_val = parse_datetime(body["email_date"])
         defaults = {
             "creator_handle": body.get("creator_handle", ""),
             "direction": body.get("direction", "Outbound"),
@@ -724,6 +729,8 @@ def pipeline_conversations(request):
             "outreach_type": body.get("outreach_type", "LT"),
             "gmail_thread_id": body.get("gmail_thread_id", ""),
             "gmail_message_id": body.get("gmail_message_id", ""),
+            "is_auto_sent": body.get("is_auto_sent", False),
+            "email_date": email_date_val,
         }
         # Upsert: one Draft Ready conversation per creator_email+brand
         if creator_email and status_val == "Draft Ready":
@@ -735,11 +742,30 @@ def pipeline_conversations(request):
                 defaults=defaults, **lookup
             )
         else:
+            # Dedup by gmail_message_id if provided
+            gmail_mid = body.get("gmail_message_id", "")
+            if gmail_mid:
+                existing = PipelineConversation.objects.filter(gmail_message_id=gmail_mid).first()
+                if existing:
+                    return _cors_headers(request, JsonResponse({"id": str(existing.id), "status": existing.status, "duplicate": True}, status=200))
             conv = PipelineConversation.objects.create(
                 creator_email=creator_email, status=status_val, **defaults
             )
             created = True
         return _cors_headers(request, JsonResponse({"id": str(conv.id), "status": conv.status}, status=201 if created else 200))
+
+    if request.method == 'DELETE':
+        email = request.GET.get("creator_email")
+        if email:
+            deleted, _ = PipelineConversation.objects.filter(creator_email=email).delete()
+        else:
+            # Delete all non-Draft-Ready conversations (keep drafts)
+            keep_drafts = request.GET.get("keep_drafts", "true") == "true"
+            if keep_drafts:
+                deleted, _ = PipelineConversation.objects.exclude(status="Draft Ready").delete()
+            else:
+                deleted, _ = PipelineConversation.objects.all().delete()
+        return _cors_headers(request, JsonResponse({"deleted": deleted}))
 
     return _cors_headers(request, JsonResponse({"error": "Method not allowed"}, status=405))
 

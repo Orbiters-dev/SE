@@ -490,12 +490,14 @@ class PipelineConversation(models.Model):
     status = models.CharField(max_length=30, default="Draft Ready")  # Draft Ready / Sent / Replied
     gmail_thread_id = models.CharField(max_length=100, blank=True, default="")
     gmail_message_id = models.CharField(max_length=100, blank=True, default="")
+    is_auto_sent = models.BooleanField(default=False)  # True = sent by n8n auto (no manual label)
+    email_date = models.DateTimeField(null=True, blank=True)  # actual email timestamp from Gmail
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "onz_pipeline_conversations"
-        ordering = ["-created_at"]
+        ordering = ["-email_date", "-created_at"]
 
     def __str__(self):
         return f"{self.creator_email} | {self.direction} | {self.status}"
