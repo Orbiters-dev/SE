@@ -3814,6 +3814,45 @@ def generate():
         n_total_amz = sum(1 for r in amazon_ads if r.get("date", "") in _sd_set)
         print(f"  cat_ad_daily: {len(cat_names_with_ads)} categories with ads, AMZ mapped {n_mapped_amz}/{n_total_amz}")
 
+        # ── MECE Audit: category totals vs brand totals ─────────────────────
+        # Sum all classified category spend/sales across all dates
+        _mece_cat_spend = sum(
+            cd[metric].get(d, 0)
+            for cd in cat_ad_daily_raw.values()
+            for metric in ["amz_spend", "mt_spend"]
+            for d in spend_dates
+        )
+        _mece_cat_sales = sum(
+            cd["amz_sales"].get(d, 0)
+            for cd in cat_ad_daily_raw.values()
+            for d in spend_dates
+        )
+        # Brand-level totals (Grosmimi only for now, main brand with categories)
+        _mece_brand_spend = sum(
+            brand_ad_daily_raw.get("Grosmimi", {}).get(m, {}).get(d, 0)
+            for m in ["amz_spend", "mt_spend"]
+            for d in spend_dates
+        )
+        _mece_brand_sales = sum(
+            brand_ad_daily_raw.get("Grosmimi", {}).get("amz_sales", {}).get(d, 0)
+            for d in spend_dates
+        )
+        _spend_pct = (_mece_cat_spend / _mece_brand_spend * 100) if _mece_brand_spend else 0
+        _sales_pct = (_mece_cat_sales / _mece_brand_sales * 100) if _mece_brand_sales else 0
+        print(f"  [MECE] Category vs Brand - Spend: ${_mece_cat_spend:,.0f} / ${_mece_brand_spend:,.0f} ({_spend_pct:.1f}%) | Sales: ${_mece_cat_sales:,.0f} / ${_mece_brand_sales:,.0f} ({_sales_pct:.1f}%)")
+        # Warn if classified < 90% or > 110%
+        if _spend_pct < 90 or _spend_pct > 110:
+            print(f"  [MECE][WARN] Spend classification {_spend_pct:.1f}% — outside 90-110% range!")
+        if _sales_pct < 90 or _sales_pct > 110:
+            print(f"  [MECE][WARN] Sales classification {_sales_pct:.1f}% — outside 90-110% range!")
+        # Per-category breakdown
+        for cat_name in sorted(cat_ad_daily_raw.keys()):
+            cd = cat_ad_daily_raw[cat_name]
+            cs = sum(cd["amz_spend"].get(d, 0) + cd["mt_spend"].get(d, 0) for d in spend_dates)
+            cr = sum(cd["amz_sales"].get(d, 0) for d in spend_dates)
+            if cs > 0 or cr > 0:
+                print(f"    {cat_name:25s} spend=${cs:>10,.0f}  sales=${cr:>10,.0f}")
+
         print(f"  Hero categories: {len(categories)}, keywords: {len([k for c in categories for k in c.get('top_keywords',[])])}")
         return {
             "week_keys": week_keys, "daily_dates": daily_dates,
