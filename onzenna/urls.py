@@ -60,8 +60,8 @@ urlpatterns = [
     # Pipeline Syncly Discovery Import (legacy — reads gk_content_posts)
     path("pipeline/creators/import-discovery/", views.import_syncly_discovery, name="import_syncly_discovery"),
 
-    # Syncly 2-step pipeline: Sheet → Excel → DB
-    path("pipeline/syncly/export-excel/", views.syncly_export_excel, name="syncly_export_excel"),
+    # Syncly 3-step pipeline: Upload Excel → DB → Content Enrich
+    path("pipeline/syncly/upload-excel/", views.syncly_upload_excel, name="syncly_upload_excel"),
     path("pipeline/syncly/import-excel/", views.syncly_import_excel, name="syncly_import_excel"),
     path("pipeline/syncly/status/", views.syncly_excel_status, name="syncly_excel_status"),
 

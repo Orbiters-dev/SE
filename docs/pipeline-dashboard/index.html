@@ -561,28 +561,14 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)">
           <div style="font-size:10px;font-weight:700;color:var(--dim);margin-bottom:8px">&#x1F50E; Syncly Discovery Pipeline</div>
           <div id="syncly-pipeline-status" style="display:none;margin-bottom:8px;padding:6px 10px;border-radius:6px;font-size:9px;background:var(--bg);border:1px solid var(--border);font-family:var(--mono)"></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-            <div style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg)">
-              <div style="font-size:9px;font-weight:700;color:var(--p);margin-bottom:2px">Step 1: Sheet &#x2192; Excel</div>
-              <div style="font-size:8px;color:var(--muted);margin-bottom:4px;line-height:1.4">Creators_updated + Output_updated 읽음<br>삭제: 이메일없음 / 블랙리스트 / 제휴진행중다된애<br>남김: 이메일있는 크리에이터 + best post JOIN</div>
-              <div id="syncly-step1-stats" style="font-size:9px;color:var(--dim);margin-bottom:6px">Loading...</div>
-              <button class="btn btn-secondary btn-sm" id="btn-syncly-export" onclick="execSynclyExport()" style="width:100%;border-left:3px solid var(--p)">&#x1F4E4; Export Sheet &#x2192; Excel</button>
-              <div id="syncly-step1-result" style="display:none;margin-top:4px;font-size:9px;padding:4px 8px;border-radius:4px"></div>
+          <div style="border:1px solid var(--border);border-radius:8px;padding:10px 12px;background:var(--bg)">
+            <div style="font-size:9px;font-weight:700;color:var(--p);margin-bottom:4px">&#x1F4E4; Excel &#x2192; DB (한방)</div>
+            <div style="font-size:8px;color:var(--muted);margin-bottom:6px;line-height:1.4">Syncly Excel 업로드 &#x2192; 즉시 DB 반영<br>신규: create / 기존: email+콘텐츠 업데이트 / 제휴진행중+블랙리스트: skip<br>transcript, views, post_url 포함 시 자동 매칭</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="file" id="syncly-file-input" accept=".xlsx,.xls" style="font-size:10px;flex:1">
+              <button class="btn btn-secondary btn-sm" id="btn-syncly-upload" onclick="execSynclyUpload()" style="white-space:nowrap;border-left:3px solid var(--p)">&#x1F4E4; Upload &#x2192; DB</button>
             </div>
-            <div style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg)">
-              <div style="font-size:9px;font-weight:700;color:var(--g);margin-bottom:2px">Step 2: Excel &#x2192; DB</div>
-              <div style="font-size:8px;color:var(--muted);margin-bottom:4px;line-height:1.4">Excel 읽음 &#x2192; pipeline_creators upsert<br>신규: create / 기존: email도치+콘텐츠 업데이트<br>@discovered.* placeholder 자동 정리</div>
-              <div id="syncly-step2-stats" style="font-size:9px;color:var(--dim);margin-bottom:6px">Run Step 1 first</div>
-              <button class="btn btn-secondary btn-sm" id="btn-syncly-import" onclick="execSynclyImportExcel()" style="width:100%;border-left:3px solid var(--g)">&#x1F4E5; Import Excel &#x2192; DB</button>
-              <div id="syncly-step2-result" style="display:none;margin-top:4px;font-size:9px;padding:4px 8px;border-radius:4px"></div>
-            </div>
-            <div style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg)">
-              <div style="font-size:9px;font-weight:700;color:#8b5cf6;margin-bottom:2px">Step 3: Content Enrich</div>
-              <div style="font-size:8px;color:var(--muted);margin-bottom:4px;line-height:1.4">Output_updated에서 추가 매칭<br>transcript / views / post_url<br>DB 크리에이터에 콘텐츠 메트릭 보강</div>
-              <div id="syncly-step3-stats" style="font-size:9px;color:var(--dim);margin-bottom:6px">Run after Step 2</div>
-              <button class="btn btn-secondary btn-sm" id="btn-syncly-content" onclick="execSynclyContentImport()" style="width:100%;border-left:3px solid #8b5cf6">&#x1F4E5; Content Enrich</button>
-              <div id="syncly-content-result" style="display:none;margin-top:4px;font-size:9px;padding:4px 8px;border-radius:4px"></div>
-            </div>
+            <div id="syncly-upload-result" style="display:none;margin-top:6px;font-size:9px;padding:6px 10px;border-radius:4px"></div>
           </div>
         </div>
         <div class="form-row">
@@ -4431,86 +4417,28 @@ async function createReviewDraft(){
   }catch(e){showToast('Draft creation failed: '+e.message,'err')}
 }
 
-// ── Syncly Content Import ──
-async function execSynclyContentImport(){
-  var btn=document.getElementById('btn-syncly-content');
-  var resEl=document.getElementById('syncly-content-result');
-  var card=btn.closest('div[style*="border:1px"]');
-  btn.disabled=true;btn.style.opacity='0.6';btn.style.cursor='wait';
-  resEl.style.display='block';
-  resEl.style.background='#eff6ff';resEl.style.borderLeft='3px solid #8b5cf6';
-  if(card)card.style.boxShadow='0 0 0 2px #8b5cf6';
-  var startTs=Date.now();var dots=0;
-  var timer=setInterval(function(){
-    var sec=Math.round((Date.now()-startTs)/1000);
-    dots=(dots+1)%4;var ds='.'.repeat(dots);
-    btn.textContent='Running '+sec+'s'+ds;
-    resEl.innerHTML='<div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:50%;background:#8b5cf6;animation:pulse 1s infinite"></div><b style="color:#8b5cf6">Step 3 진행중</b></div>'
-      +'<div style="margin-top:2px">Output_updated에서 콘텐츠 매칭중'+ds+'</div>'
-      +'<div style="color:var(--dim);margin-top:1px">경과: '+sec+'초</div>';
-  },1000);
-  try{
-    var data=await apiFetch('/pipeline/creators/syncly-content-import/',{
-      method:'POST',headers:{'Content-Type':'application/json'},body:'{}'
-    });
-    clearInterval(timer);
-    var sec=Math.round((Date.now()-startTs)/1000);
-    var v=function(k){var x=data[k];return x!=null?x:'?'};
-    resEl.style.display='block';
-    resEl.style.background='#f0fdf4';resEl.style.borderLeft='3px solid var(--g)';
-    if(card)card.style.boxShadow='';
-    resEl.innerHTML='<b>&#x2705; Enrich complete</b> <span style="color:var(--dim)">('+sec+'s)</span><br>Created: '+v('created')+' | Updated: '+v('updated')+' | Skipped: '+v('skipped')+'<br>Output matched: '+v('total_output_creators')+' | Sheet rows: '+v('total_sheet_rows');
-    showToast('Content enriched: '+v('created')+' new, '+v('updated')+' updated ('+sec+'s)','ok');
-  }catch(e){
-    clearInterval(timer);
-    var sec=Math.round((Date.now()-startTs)/1000);
-    resEl.style.display='block';
-    resEl.style.background='#fef2f2';resEl.style.borderLeft='3px solid var(--r)';
-    if(card)card.style.boxShadow='';
-    resEl.innerHTML='<b>&#x274C; Enrich failed</b> <span style="color:var(--dim)">('+sec+'s)</span><br>'+e.message;
-    showToast('Content enrich failed: '+e.message,'err');
-  }finally{
-    btn.disabled=false;btn.style.opacity='';btn.style.cursor='';
-    btn.textContent='\uD83D\uDCE5 Content Enrich';
-    if(card)card.style.boxShadow='';
-  }
-}
-
-// ── Syncly 2-Step Pipeline: Sheet → Excel → DB ──
+// ── Syncly Upload Excel → DB (single step) ──
 
 async function loadSynclyPipelineStatus(){
   try{
     var data=await apiFetch('/pipeline/syncly/status/');
-    var s1=document.getElementById('syncly-step1-stats');
-    var s2=document.getElementById('syncly-step2-stats');
     var bar=document.getElementById('syncly-pipeline-status');
-
-    if(data.excel_exists){
-      var d=new Date(data.excel_date);
-      var ago=Math.round((Date.now()-d.getTime())/3600000);
-      var agoTxt=ago<1?'just now':ago<24?ago+'h ago':Math.round(ago/24)+'d ago';
-      s1.innerHTML='<span style="color:var(--g)">&#x2705;</span> '+data.excel_rows+' rows | '+agoTxt+' <span style="color:var(--dim)">('+d.toLocaleDateString()+')</span>';
-      s2.innerHTML='Ready to import '+data.excel_rows+' rows';
-    }else{
-      s1.innerHTML='<span style="color:var(--r)">&#x26A0;</span> No Excel file yet — run Export first';
-      s2.innerHTML='<span style="color:var(--dim)">Waiting for Step 1</span>';
-    }
-
     if(data.db_syncly_total!=null){
       bar.style.display='block';
       bar.innerHTML='DB: <b>'+data.db_syncly_total+'</b> syncly creators | <span style="color:var(--g)">'+data.db_syncly_with_email+' with email</span> | <span style="color:var(--dim)">'+data.db_syncly_placeholder+' placeholder</span>';
     }
-  }catch(e){
-    var s1=document.getElementById('syncly-step1-stats');
-    if(s1)s1.innerHTML='<span style="color:var(--r)">Failed to load status</span>';
-  }
+  }catch(e){}
 }
 
-async function execSynclyExport(){
-  var btn=document.getElementById('btn-syncly-export');
-  var res=document.getElementById('syncly-step1-result');
-  btn.disabled=true;btn.style.opacity='0.6';btn.style.cursor='wait';
+async function execSynclyUpload(){
+  var btn=document.getElementById('btn-syncly-upload');
+  var res=document.getElementById('syncly-upload-result');
+  var fileInput=document.getElementById('syncly-file-input');
   var card=btn.closest('div[style*="border:1px"]');
+  if(!fileInput.files||!fileInput.files.length){showToast('Excel 파일을 선택해주세요','err');return}
+  var file=fileInput.files[0];
+
+  btn.disabled=true;btn.style.opacity='0.6';btn.style.cursor='wait';
   res.style.display='block';
   res.style.background='#eff6ff';res.style.borderLeft='3px solid var(--p)';
   if(card)card.style.boxShadow='0 0 0 2px var(--p)';
@@ -4518,85 +4446,32 @@ async function execSynclyExport(){
   var timer=setInterval(function(){
     var sec=Math.round((Date.now()-startTs)/1000);
     dots=(dots+1)%4;var ds='.'.repeat(dots);
-    btn.textContent='Running '+sec+'s'+ds;
-    res.innerHTML='<div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:50%;background:var(--p);animation:pulse 1s infinite"></div><b style="color:var(--p)">Step 1 진행중</b></div>'
-      +'<div style="margin-top:2px">Google Sheet 2탭 읽는중 (Creators + Output)'+ds+'</div>'
-      +'<div style="color:var(--dim);margin-top:1px">경과: '+sec+'초 | 보통 1~3분 소요</div>';
-  },1000);
-  try{
-    var data=await apiFetch('/pipeline/syncly/export-excel/',{
-      method:'POST',headers:{'Content-Type':'application/json'},body:'{}'
-    });
-    clearInterval(timer);
-    if(!data||typeof data!=='object'){
-      throw new Error('Server returned invalid response: '+JSON.stringify(data).substring(0,200));
-    }
-    var sec=Math.round((Date.now()-startTs)/1000);
-    var v=function(k){var x=data[k];return x!=null?x:'?'};
-    res.style.background='#f0fdf4';res.style.borderLeft='3px solid var(--g)';
-    if(card)card.style.boxShadow='';
-    res.innerHTML='<b>&#x2705; Export complete</b> <span style="color:var(--dim)">('+sec+'s)</span><br>'
-      +'Total raw: <b>'+v('total_raw')+'</b> | Kept: <b style="color:var(--g)">'+v('kept')+'</b> (with content: '+v('with_content')+')<br>'
-      +'Filtered out &#x2014; no email: '+v('no_email')+', blacklist: '+v('blacklist')+', collab: '+v('collab')+'<br>'
-      +'Output posts: '+v('output_posts_total')+' &#x2192; matched: '+v('output_matched');
-    showToast('Sheet &#x2192; Excel: '+v('kept')+' creators exported ('+sec+'s)','ok');
-    loadSynclyPipelineStatus();
-  }catch(e){
-    clearInterval(timer);
-    var sec=Math.round((Date.now()-startTs)/1000);
-    res.style.display='block';
-    res.style.background='#fef2f2';res.style.borderLeft='3px solid var(--r)';
-    if(card)card.style.boxShadow='';
-    var msg=e.message||'Unknown error';
-    if(msg.includes('504')||msg.includes('timeout')||sec>55)msg='Timeout ('+sec+'s). nginx 타임아웃 초과. EC2에서 직접 확인 필요.';
-    res.innerHTML='<b>&#x274C; Export failed</b> <span style="color:var(--dim)">('+sec+'s)</span><br>'+msg;
-    showToast('Export failed ('+sec+'s): '+msg,'err');
-  }finally{
-    btn.disabled=false;btn.style.opacity='';btn.style.cursor='';
-    btn.textContent='\uD83D\uDCE4 Export Sheet \u2192 Excel';
-    if(card)card.style.boxShadow='';
-  }
-}
-
-async function execSynclyImportExcel(){
-  var btn=document.getElementById('btn-syncly-import');
-  var res=document.getElementById('syncly-step2-result');
-  btn.disabled=true;btn.style.opacity='0.6';btn.style.cursor='wait';
-  var card=btn.closest('div[style*="border:1px"]');
-  res.style.display='block';
-  res.style.background='#eff6ff';res.style.borderLeft='3px solid var(--g)';
-  if(card)card.style.boxShadow='0 0 0 2px var(--g)';
-  var startTs=Date.now();var dots=0;
-  var timer=setInterval(function(){
-    var sec=Math.round((Date.now()-startTs)/1000);
-    dots=(dots+1)%4;var ds='.'.repeat(dots);
-    btn.textContent='Running '+sec+'s'+ds;
-    res.innerHTML='<div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:50%;background:var(--g);animation:pulse 1s infinite"></div><b style="color:var(--g)">Step 2 진행중</b></div>'
-      +'<div style="margin-top:2px">Excel 읽고 DB upsert 중'+ds+'</div>'
+    btn.textContent='Uploading '+sec+'s'+ds;
+    res.innerHTML='<div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:50%;background:var(--p);animation:pulse 1s infinite"></div><b style="color:var(--p)">업로드 + DB 반영중</b></div>'
+      +'<div style="margin-top:2px">'+file.name+' ('+Math.round(file.size/1024)+'KB)'+ds+'</div>'
       +'<div style="color:var(--dim);margin-top:1px">경과: '+sec+'초</div>';
   },1000);
+
   try{
-    var body={clean_placeholders:true};
-    var sel=document.getElementById('f-update-date');
-    if(sel&&sel.value)body.week=sel.value;
-    var data=await apiFetch('/pipeline/syncly/import-excel/',{
-      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
-    });
+    var fd=new FormData();
+    fd.append('file',file);
+    // Use raw fetch — apiFetch sets Content-Type to json, but we need multipart
+    var resp=await fetch(API_BASE+'/pipeline/syncly/upload-excel/',{method:'POST',body:fd});
+    var data=await resp.json();
     clearInterval(timer);
-    if(!data||typeof data!=='object'){
-      throw new Error('Server returned invalid response: '+JSON.stringify(data).substring(0,200));
-    }
+    if(!resp.ok)throw new Error(data.error||'Server error '+resp.status);
+
     var sec=Math.round((Date.now()-startTs)/1000);
     var v=function(k){var x=data[k];return x!=null?x:'?'};
     res.style.background='#f0fdf4';res.style.borderLeft='3px solid var(--g)';
     if(card)card.style.boxShadow='';
-    var parts=['<b>&#x2705; Import complete</b> <span style="color:var(--dim)">('+sec+'s)</span>'];
+    var parts=['<b>&#x2705; Upload complete</b> <span style="color:var(--dim)">('+sec+'s)</span>'];
     parts.push('Excel rows: <b>'+v('total_rows')+'</b> | Eligible: <b>'+v('eligible')+'</b> (with content: '+v('with_content')+')');
     if(data.skip_no_email||data.skip_collab||data.skip_invalid)
       parts.push('Skipped &#x2014; no email: '+v('skip_no_email')+', collab: '+v('skip_collab')+', invalid: '+v('skip_invalid'));
-    parts.push('Result &#x2014; <span style="color:var(--g)"><b>created: '+v('created')+'</b></span> | <span style="color:var(--p)"><b>updated: '+v('updated')+'</b></span> | dupes: '+v('dupes')+' | placeholders cleaned: '+v('cleaned_placeholders'));
+    parts.push('Result &#x2014; <span style="color:var(--g)"><b>created: '+v('created')+'</b></span> | <span style="color:var(--p)"><b>updated: '+v('updated')+'</b></span> | dupes: '+v('dupes'));
     res.innerHTML=parts.join('<br>');
-    showToast('Excel &#x2192; DB: '+v('created')+' new, '+v('updated')+' updated ('+sec+'s)','ok');
+    showToast(file.name+': '+v('created')+' new, '+v('updated')+' updated ('+sec+'s)','ok');
     loadSynclyPipelineStatus();
   }catch(e){
     clearInterval(timer);
@@ -4604,11 +4479,11 @@ async function execSynclyImportExcel(){
     res.style.display='block';
     res.style.background='#fef2f2';res.style.borderLeft='3px solid var(--r)';
     if(card)card.style.boxShadow='';
-    res.innerHTML='<b>&#x274C; Import failed</b> <span style="color:var(--dim)">('+sec+'s)</span><br>'+e.message;
-    showToast('Import failed: '+e.message,'err');
+    res.innerHTML='<b>&#x274C; Upload failed</b> <span style="color:var(--dim)">('+sec+'s)</span><br>'+e.message;
+    showToast('Upload failed: '+e.message,'err');
   }finally{
     btn.disabled=false;btn.style.opacity='';btn.style.cursor='';
-    btn.textContent='\uD83D\uDCE5 Import Excel \u2192 DB';
+    btn.textContent='\uD83D\uDCE4 Upload \u2192 DB';
     if(card)card.style.boxShadow='';
   }
 }

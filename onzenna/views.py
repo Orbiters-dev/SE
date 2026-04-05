@@ -1505,148 +1505,238 @@ def _safe_int(val):
         return None
 
 
-@csrf_exempt
-def syncly_export_excel(request):
-    """POST: Download Syncly Google Sheet → filter → save Excel on server.
+# ── Syncly Pipeline: Upload Excel → DB (single step, no Google Sheets) ──
 
-    Step 1 of the 2-step pipeline.  Returns stats about what was exported.
+@csrf_exempt
+def syncly_upload_excel(request):
+    """POST: Upload Excel → save on server → upsert to pipeline_creators.
+
+    One-step pipeline. Accepts multipart/form-data with field 'file'.
+    Saves file, reads it, upserts creators + content fields to DB.
+    Returns stats (created, updated, skipped, etc.)
     """
     if request.method == 'OPTIONS':
         return _cors_headers(request, HttpResponse(status=204))
     if request.method != 'POST':
         return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
 
-    import os as _os, re as _re, time as _time
+    import os as _os, re as _re
+    from datetime import date as date_cls
 
-    try:
-        import gspread
-        from google.oauth2.service_account import Credentials as SACredentials
-    except ImportError:
-        return _cors_headers(request, JsonResponse({"error": "gspread not installed"}, status=500))
+    f = request.FILES.get('file')
+    if not f:
+        return _cors_headers(request, JsonResponse({"error": "No file uploaded. Use field name 'file'."}, status=400))
+
+    if not f.name.endswith(('.xlsx', '.xls')):
+        return _cors_headers(request, JsonResponse({"error": "Only .xlsx/.xls files accepted"}, status=400))
 
     try:
         import openpyxl
-    except ImportError:
-        return _cors_headers(request, JsonResponse({"error": "openpyxl not installed"}, status=500))
-
-    proj = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
-    sa_path = _os.path.join(proj, "credentials", "google_service_account.json")
-
-    try:
-        creds = SACredentials.from_service_account_file(
-            sa_path, scopes=["https://www.googleapis.com/auth/spreadsheets.readonly"])
-        gc = gspread.authorize(creds)
-        sh = gc.open_by_key(_SYNCLY_SHEET_ID)
-
-        # 1. Read Output_updated → build best post map
-        ws_out = sh.worksheet("Output_updated")
-        out_data = ws_out.get_all_values()
-        out_rows = out_data[1:]
-
-        best_posts = {}
-        for row in out_rows:
-            def _col(key, _row=row):
-                idx = _OUT_COL.get(key, -1)
-                return (_row[idx] or "").strip() if 0 <= idx < len(_row) else ""
-
-            if _col("level").lower() != "full_matched":
-                continue
-            uname = _col("username").lstrip("@").lower()
-            if not uname:
-                continue
-            views = _safe_int(_col("views_30d")) or _safe_int(_col("avg_view")) or 0
-            cur = best_posts.get(uname)
-            if not cur or views > (cur.get("_v") or 0):
-                best_posts[uname] = {
-                    "top_post_url": _col("post_url"),
-                    "top_post_transcript": _col("transcript") or _col("text") or _col("caption") or "",
-                    "top_post_caption": _col("caption"),
-                    "top_post_views": _safe_int(_col("views_30d")) or _safe_int(_col("avg_view")),
-                    "top_post_date": _col("post_date"),
-                    "views_30d": _safe_int(_col("views_30d")),
-                    "likes_30d": _safe_int(_col("likes_30d")),
-                    "avg_view": _safe_int(_col("avg_view")),
-                    "followers": _safe_int(_col("followers")),
-                    "_v": views,
-                }
-
-        # 2. Read Creators_updated → filter
-        ws_cr = sh.worksheet("Creators_updated")
-        cr_data = ws_cr.get_all_values()
-        headers = cr_data[0]
-        all_rows = []
-        for row in cr_data[1:]:
-            d = {}
-            for i, h in enumerate(headers):
-                d[h] = row[i] if i < len(row) else ""
-            all_rows.append(d)
-
-        stats = {"total_raw": len(all_rows), "no_email": 0, "blacklist": 0,
-                 "collab": 0, "kept": 0, "with_content": 0}
-        clean = []
-
-        for row in all_rows:
-            email = (row.get("Email") or "").strip()
-            bl = (row.get("Blacklist 여부") or row.get("Blacklist \uc5ec\ubd80") or "").strip()
-            collab = (row.get("제휴 상태") or row.get("\uc81c\ud734 \uc0c1\ud0dc") or "").strip()
-
-            if not email or "@" not in email or "@discovered." in email.lower():
-                stats["no_email"] += 1
-                continue
-            if bl.upper() == "TRUE":
-                stats["blacklist"] += 1
-                continue
-            if collab:
-                stats["collab"] += 1
-                continue
-
-            uname = (row.get("Username") or "").lstrip("@").lower()
-            bp = best_posts.get(uname, {})
-            row["__top_post_url"] = bp.get("top_post_url", "")
-            row["__top_post_transcript"] = bp.get("top_post_transcript", "")
-            row["__top_post_caption"] = bp.get("top_post_caption", "")
-            row["__top_post_views"] = bp.get("top_post_views")
-            row["__top_post_date"] = bp.get("top_post_date", "")
-            row["__views_30d"] = bp.get("views_30d")
-            row["__likes_30d"] = bp.get("likes_30d")
-            row["__avg_view"] = bp.get("avg_view")
-            row["__followers"] = bp.get("followers")
-            if bp:
-                stats["with_content"] += 1
-            clean.append(row)
-            stats["kept"] += 1
-
-        # 3. Save Excel
-        EXTRA_COLS = ["__top_post_url", "__top_post_transcript", "__top_post_caption",
-                      "__top_post_views", "__top_post_date", "__views_30d", "__likes_30d",
-                      "__avg_view", "__followers"]
-        EXTRA_HEADERS = ["top_post_url", "top_post_transcript", "top_post_caption",
-                         "top_post_views", "top_post_date", "views_30d", "likes_30d",
-                         "avg_view", "followers_output"]
-
-        _ILLEGAL = _re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]')
-        def _clean(val):
-            if isinstance(val, str):
-                return _ILLEGAL.sub('', val)
-            return "" if val is None else val
-
-        wb = openpyxl.Workbook()
-        ws = wb.active
-        ws.title = "Creators"
-        ws.append(headers + EXTRA_HEADERS)
-        for row in clean:
-            base = [_clean(row.get(h, "")) for h in headers]
-            extra = [_clean(row.get(k, "")) for k in EXTRA_COLS]
-            ws.append(base + extra)
 
         xlsx_path = _syncly_excel_path()
         _os.makedirs(_os.path.dirname(xlsx_path), exist_ok=True)
-        wb.save(xlsx_path)
 
-        stats["excel_path"] = xlsx_path
-        stats["excel_date"] = datetime.now().isoformat()
-        stats["output_posts_total"] = len(out_rows)
-        stats["output_matched"] = len(best_posts)
+        # 1. Save uploaded file
+        with open(xlsx_path, 'wb') as dest:
+            for chunk in f.chunks():
+                dest.write(chunk)
+
+        # 2. Read Excel
+        wb = openpyxl.load_workbook(xlsx_path, read_only=True, data_only=True)
+        ws = wb.active
+        rows = list(ws.iter_rows(values_only=True))
+        wb.close()
+
+        if len(rows) < 2:
+            return _cors_headers(request, JsonResponse({"error": "Excel has no data rows"}, status=400))
+
+        hdr = [str(h or "").strip() for h in rows[0]]
+        data_rows = rows[1:]
+
+        def col_idx(name):
+            nl = name.lower()
+            for i, h in enumerate(hdr):
+                if h.lower() == nl:
+                    return i
+            for i, h in enumerate(hdr):
+                if nl in h.lower():
+                    return i
+            return -1
+
+        def _parse_date(raw):
+            if raw is None:
+                return None
+            if hasattr(raw, 'date') and callable(getattr(raw, 'date', None)):
+                return raw.date()
+            raw = str(raw).strip()
+            if not raw:
+                return None
+            if " " in raw:
+                raw = raw.split(" ")[0]
+            try:
+                if "-" in raw:
+                    parts = raw.split("-")
+                    if len(parts) == 3:
+                        y = int(parts[0])
+                        if y < 100:
+                            y += 2000
+                        return date_cls(y, int(parts[1]), int(parts[2]))
+            except Exception:
+                pass
+            return None
+
+        # Column indices
+        idx_username = col_idx("Username")
+        idx_email = col_idx("Email")
+        idx_platform = col_idx("Platform")
+        idx_collab = col_idx("제휴 상태")
+        if idx_collab < 0:
+            idx_collab = col_idx("\uc81c\ud734 \uc0c1\ud0dc")
+        idx_discovery = col_idx("최초 발견")
+        if idx_discovery < 0:
+            idx_discovery = col_idx("발견")
+        idx_followers_cr = col_idx("Followers")
+
+        # Content columns
+        idx_top_post_url = col_idx("top_post_url")
+        idx_top_post_transcript = col_idx("top_post_transcript")
+        if idx_top_post_transcript < 0:
+            idx_top_post_transcript = col_idx("transcript")
+        idx_top_post_caption = col_idx("top_post_caption")
+        if idx_top_post_caption < 0:
+            idx_top_post_caption = col_idx("caption")
+        idx_top_post_views = col_idx("top_post_views")
+        idx_views_30d = col_idx("views_30d")
+        idx_likes_30d = col_idx("likes_30d")
+        idx_avg_view = col_idx("avg_view")
+        idx_followers_output = col_idx("followers_output")
+        idx_post_date = col_idx("top_post_date")
+        if idx_post_date < 0:
+            idx_post_date = col_idx("post_date")
+
+        # 3. Process rows
+        stats = {"total_rows": len(data_rows), "skip_no_email": 0,
+                 "skip_collab": 0, "skip_invalid": 0, "eligible": 0,
+                 "with_content": 0, "created": 0, "updated": 0, "dupes": 0}
+
+        ht_threshold = 100000
+        try:
+            cfg = PipelineConfig.objects.order_by('-date').first()
+            if cfg and cfg.ht_threshold:
+                ht_threshold = cfg.ht_threshold
+        except Exception:
+            pass
+
+        for row in data_rows:
+            def cell(idx, _row=row):
+                return str(_row[idx] or "").strip() if 0 <= idx < len(_row) else ""
+
+            username = cell(idx_username).lstrip("@").strip()
+            if not username or not _re.match(r'^[a-zA-Z0-9._]+$', username):
+                stats["skip_invalid"] += 1
+                continue
+
+            email_val = cell(idx_email)
+            if not email_val or "@" not in email_val or "@discovered." in email_val.lower():
+                stats["skip_no_email"] += 1
+                continue
+
+            collab = cell(idx_collab)
+            if collab:
+                stats["skip_collab"] += 1
+                continue
+
+            stats["eligible"] += 1
+
+            raw_d = row[idx_discovery] if 0 <= idx_discovery < len(row) else None
+            disc_date = _parse_date(str(raw_d) if raw_d else "")
+
+            handle = username.lower()
+            plat = "TikTok" if "tiktok" in cell(idx_platform).lower() else "Instagram"
+            ig_handle = handle if plat == "Instagram" else ""
+            tiktok_handle = handle if plat == "TikTok" else ""
+
+            avg_v = _safe_int(cell(idx_avg_view)) if idx_avg_view >= 0 else None
+            views_30d = _safe_int(cell(idx_views_30d)) if idx_views_30d >= 0 else None
+            avg_v = avg_v or views_30d or 0
+            outreach_type = "HT" if avg_v >= ht_threshold else "LT"
+            followers = (_safe_int(cell(idx_followers_output)) if idx_followers_output >= 0 else None) \
+                        or (_safe_int(cell(idx_followers_cr)) if idx_followers_cr >= 0 else None) or 0
+
+            content_fields = {}
+            post_url = cell(idx_top_post_url) if idx_top_post_url >= 0 else ""
+            if post_url:
+                stats["with_content"] += 1
+                content_fields["top_post_url"] = post_url
+                content_fields["top_post_transcript"] = cell(idx_top_post_transcript) if idx_top_post_transcript >= 0 else ""
+                content_fields["top_post_caption"] = cell(idx_top_post_caption) if idx_top_post_caption >= 0 else ""
+                content_fields["top_post_views"] = _safe_int(cell(idx_top_post_views)) if idx_top_post_views >= 0 else None
+                content_fields["views_30d"] = views_30d
+                content_fields["likes_30d"] = _safe_int(cell(idx_likes_30d)) if idx_likes_30d >= 0 else None
+                pd = _parse_date(cell(idx_post_date)) if idx_post_date >= 0 else None
+                if pd:
+                    content_fields["top_post_date"] = pd
+
+            # Upsert
+            existing = PipelineCreator.objects.filter(ig_handle__iexact=handle).first() or \
+                       PipelineCreator.objects.filter(tiktok_handle__iexact=handle).first()
+
+            if existing:
+                changed = False
+                if "@discovered." in (existing.email or ""):
+                    if not PipelineCreator.objects.filter(email=email_val).exclude(id=existing.id).exists():
+                        existing.email = email_val
+                        changed = True
+                    else:
+                        stats["dupes"] += 1
+                        continue
+
+                for field, val in content_fields.items():
+                    if val is not None and val != "":
+                        setattr(existing, field, val)
+                        changed = True
+
+                if avg_v and (not existing.avg_views or avg_v > existing.avg_views):
+                    existing.avg_views = avg_v
+                    changed = True
+                if followers and (not existing.followers or followers > existing.followers):
+                    existing.followers = followers
+                    changed = True
+                if not existing.initial_discovery_date and disc_date:
+                    existing.initial_discovery_date = disc_date
+                    changed = True
+
+                if changed:
+                    existing.save()
+                    stats["updated"] += 1
+                continue
+
+            if PipelineCreator.objects.filter(email=email_val).exists():
+                stats["dupes"] += 1
+                continue
+
+            try:
+                PipelineCreator.objects.create(
+                    email=email_val,
+                    ig_handle=ig_handle,
+                    tiktok_handle=tiktok_handle,
+                    full_name=handle,
+                    platform=plat,
+                    pipeline_status="Not Started",
+                    outreach_type=outreach_type,
+                    source="syncly",
+                    followers=followers,
+                    avg_views=avg_v,
+                    initial_discovery_date=disc_date or date_cls.today(),
+                    notes=f"Excel upload. Post: {post_url or 'N/A'}",
+                    **content_fields,
+                )
+                stats["created"] += 1
+            except Exception:
+                stats["dupes"] += 1
+
+        stats["filename"] = f.name
+        stats["uploaded_at"] = datetime.now().isoformat()
         return _cors_headers(request, JsonResponse(stats, status=200))
 
     except Exception as e:
@@ -1996,15 +2086,13 @@ def syncly_excel_status(request):
 
 @csrf_exempt
 def syncly_content_import(request):
-    """POST: Import creators from Syncly Google Sheets with full content data.
+    """POST: Enrich DB creators with content data from uploaded Excel.
 
-    Reads Creators_updated + Output_updated, JOINs best post per creator,
-    upserts into PipelineCreator with transcript, post_url, views, etc.
+    Reads the uploaded Excel file (Step 1), finds content columns
+    (transcript, post_url, views, etc.), matches by username,
+    and updates existing PipelineCreator records.
 
-    Body (optional):
-      days: only import creators discovered in last N days (default: 30)
-      limit: max creators per run (default: 500)
-      dry_run: if true, return preview without DB changes
+    No Google Sheets dependency — reads from local Excel only.
     """
     if request.method == 'OPTIONS':
         return _cors_headers(request, HttpResponse(status=204))
@@ -2012,237 +2100,162 @@ def syncly_content_import(request):
     if request.method != 'POST':
         return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
 
-    body = _json_body(request)
-    days = int(body.get("days", 30))
-    limit = int(body.get("limit", 500))
-    dry_run = body.get("dry_run", False)
-
     import os as _os
-    import gspread
-    from google.oauth2.service_account import Credentials as SACredentials
-    from datetime import timedelta, date as date_cls
+    from datetime import date as date_cls
 
-    PROJECT_ROOT = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
-    SHEET_ID = "1dIAhP8wCEdFulSAai3K-RoZTvLBIaWxAK7hzInBsF0o"
-
-    # Output column indices (0-based)
-    OUT_COL = {
-        "username": 6, "level": 8, "post_url": 15, "text": 18,
-        "transcript": 19, "caption": 20, "post_date": 21,
-        "followers": 32, "avg_view": 33, "views_30d": 39, "likes_30d": 40,
-    }
-
-    def _safe_int(val):
-        if not val:
-            return None
-        try:
-            return int(str(val).replace(",", "").strip())
-        except (ValueError, TypeError):
-            return None
+    xlsx_path = _syncly_excel_path()
+    if not _os.path.exists(xlsx_path):
+        return _cors_headers(request, JsonResponse({
+            "error": "No Excel file found. Upload one first (Step 1).",
+            "path": xlsx_path,
+        }, status=404))
 
     try:
-        creds = SACredentials.from_service_account_file(
-            _os.path.join(PROJECT_ROOT, "credentials", "google_service_account.json"),
-            scopes=["https://www.googleapis.com/auth/spreadsheets.readonly"],
-        )
-        gc = gspread.authorize(creds)
-        sh = gc.open_by_key(SHEET_ID)
+        import openpyxl
+        wb = openpyxl.load_workbook(xlsx_path, read_only=True, data_only=True)
+        ws = wb.active
+        rows = list(ws.iter_rows(values_only=True))
+        wb.close()
 
-        # Read Output_updated — build best post map
-        ws_out = sh.worksheet("Output_updated")
-        out_data = ws_out.get_all_values()
-        out_rows = out_data[1:]
+        if len(rows) < 2:
+            return _cors_headers(request, JsonResponse({"error": "Excel has no data rows"}, status=400))
 
-        best_posts = {}
-        for row in out_rows:
-            def _col(key):
-                idx = OUT_COL.get(key, -1)
-                return (row[idx] or "").strip() if 0 <= idx < len(row) else ""
+        hdr = [str(h or "").strip() for h in rows[0]]
+        data_rows = rows[1:]
 
-            if _col("level").lower() != "full_matched":
-                continue
-
-            uname = _col("username").lstrip("@").lower()
-            if not uname:
-                continue
-
-            views = _safe_int(_col("views_30d")) or _safe_int(_col("avg_view")) or 0
-            current = best_posts.get(uname)
-            if not current or views > (current.get("_v") or 0):
-                transcript = _col("transcript") or _col("text") or _col("caption") or ""
-                best_posts[uname] = {
-                    "top_post_url": _col("post_url"),
-                    "top_post_transcript": transcript,
-                    "top_post_caption": _col("caption"),
-                    "top_post_views": _safe_int(_col("views_30d")) or _safe_int(_col("avg_view")),
-                    "top_post_date": _col("post_date"),
-                    "views_30d": _safe_int(_col("views_30d")),
-                    "likes_30d": _safe_int(_col("likes_30d")),
-                    "avg_view": _safe_int(_col("avg_view")),
-                    "followers": _safe_int(_col("followers")),
-                    "_v": views,
-                }
-
-        # Read Creators_updated
-        ws_cr = sh.worksheet("Creators_updated")
-        cr_data = ws_cr.get_all_values()
-        cr_headers = cr_data[0]
-        cr_rows = cr_data[1:]
-
-        def _cr_col_idx(name):
-            for i, h in enumerate(cr_headers):
-                if name.lower() in h.lower():
+        def col_idx(name):
+            nl = name.lower()
+            for i, h in enumerate(hdr):
+                if h.lower() == nl:
+                    return i
+            for i, h in enumerate(hdr):
+                if nl in h.lower():
                     return i
             return -1
 
-        idx_email = _cr_col_idx("Email")
-        idx_username = _cr_col_idx("Username")
-        idx_platform = _cr_col_idx("Platform")
-        idx_blacklist = _cr_col_idx("Blacklist")
-        idx_collab = _cr_col_idx("\uc81c\ud734 \uc0c1\ud0dc")
-        if idx_collab < 0:
-            idx_collab = _cr_col_idx("제휴 상태")
-        idx_discovery = _cr_col_idx("\ucd5c\ucd08 \ubc1c\uacac")
-        if idx_discovery < 0:
-            idx_discovery = _cr_col_idx("발견")
+        # Find content columns
+        i_username = col_idx("Username")
+        i_transcript = col_idx("top_post_transcript")
+        if i_transcript < 0:
+            i_transcript = col_idx("transcript")
+        i_post_url = col_idx("top_post_url")
+        if i_post_url < 0:
+            i_post_url = col_idx("post_url")
+        i_caption = col_idx("top_post_caption")
+        if i_caption < 0:
+            i_caption = col_idx("caption")
+        i_views = col_idx("top_post_views")
+        if i_views < 0:
+            i_views = col_idx("views_30d")
+        i_likes = col_idx("likes_30d")
+        i_avg_view = col_idx("avg_view")
+        i_followers = col_idx("followers_output")
+        if i_followers < 0:
+            i_followers = col_idx("Followers")
+        i_post_date = col_idx("top_post_date")
+        if i_post_date < 0:
+            i_post_date = col_idx("post_date")
 
-        cutoff = date_cls.today() - timedelta(days=days)
-        ht_threshold = 100000
-        try:
-            cfg = PipelineConfig.objects.order_by('-date').first()
-            if cfg and cfg.ht_threshold:
-                ht_threshold = cfg.ht_threshold
-        except Exception:
-            pass
+        if i_username < 0:
+            return _cors_headers(request, JsonResponse({
+                "error": "No 'Username' column found in Excel",
+                "columns": hdr[:20],
+            }, status=400))
 
-        created = 0
+        def _cell(row, idx):
+            if idx < 0 or idx >= len(row):
+                return ""
+            v = row[idx]
+            if v is None:
+                return ""
+            return str(v).strip()
+
         updated = 0
         skipped = 0
+        not_found = 0
 
-        for row in cr_rows:
-            if created + updated >= limit:
-                break
-
-            def _cell(idx):
-                return str(row[idx] or "").strip() if 0 <= idx < len(row) else ""
-
-            email = _cell(idx_email)
-            if not email or "@" not in email or "@discovered." in email.lower():
-                continue
-
-            blacklist = _cell(idx_blacklist)
-            if blacklist.upper() == "TRUE":
-                continue
-
-            collab = _cell(idx_collab)
-            if collab:
-                continue
-
-            username = _cell(idx_username).lstrip("@").lower()
+        for row in data_rows:
+            username = _cell(row, i_username).lstrip("@").lower()
             if not username:
+                skipped += 1
                 continue
 
-            # Parse discovery date
-            disc_date = None
-            disc_raw = _cell(idx_discovery)
-            if disc_raw and "-" in disc_raw:
+            # Find existing creator by handle
+            existing = PipelineCreator.objects.filter(ig_handle__iexact=username).first() or \
+                       PipelineCreator.objects.filter(tiktok_handle__iexact=username).first()
+
+            if not existing:
+                not_found += 1
+                continue
+
+            changed = False
+
+            # Update content fields
+            transcript = _cell(row, i_transcript)
+            if transcript and (not existing.top_post_transcript or len(transcript) > len(existing.top_post_transcript or "")):
+                existing.top_post_transcript = transcript
+                changed = True
+
+            post_url = _cell(row, i_post_url)
+            if post_url and not existing.top_post_url:
+                existing.top_post_url = post_url
+                changed = True
+
+            caption = _cell(row, i_caption)
+            if caption and not existing.top_post_caption:
+                existing.top_post_caption = caption
+                changed = True
+
+            views = _safe_int(_cell(row, i_views))
+            if views and (not existing.top_post_views or views > existing.top_post_views):
+                existing.top_post_views = views
+                changed = True
+
+            views_30d = _safe_int(_cell(row, i_views))
+            if views_30d and (not existing.views_30d or views_30d > existing.views_30d):
+                existing.views_30d = views_30d
+                changed = True
+
+            likes = _safe_int(_cell(row, i_likes))
+            if likes and (not existing.likes_30d or likes > existing.likes_30d):
+                existing.likes_30d = likes
+                changed = True
+
+            avg_v = _safe_int(_cell(row, i_avg_view))
+            if avg_v and (not existing.avg_views or avg_v > existing.avg_views):
+                existing.avg_views = avg_v
+                changed = True
+
+            followers = _safe_int(_cell(row, i_followers))
+            if followers and (not existing.followers or followers > existing.followers):
+                existing.followers = followers
+                changed = True
+
+            # Post date
+            pd_raw = _cell(row, i_post_date)
+            if pd_raw and "-" in pd_raw:
                 try:
-                    parts = disc_raw.split("-")
-                    y = int(parts[0])
-                    if y < 100:
-                        y += 2000
-                    disc_date = date_cls(y, int(parts[1]), int(parts[2]))
+                    if " " in pd_raw:
+                        pd_raw = pd_raw.split(" ")[0]
+                    pp = pd_raw.split("-")
+                    existing.top_post_date = date_cls(int(pp[0]), int(pp[1]), int(pp[2]))
+                    changed = True
                 except Exception:
                     pass
 
-            # Filter by days
-            if disc_date and disc_date < cutoff:
-                continue
-
-            bp = best_posts.get(username, {})
-            plat_raw = _cell(idx_platform).lower()
-            plat = "TikTok" if "tiktok" in plat_raw else "Instagram"
-            ig_handle = username if plat == "Instagram" else ""
-            tiktok_handle = username if plat == "TikTok" else ""
-
-            avg_v = bp.get("avg_view") or bp.get("views_30d") or 0
-            outreach_type = "HT" if avg_v >= ht_threshold else "LT"
-
-            content_fields = {}
-            if bp:
-                content_fields = {
-                    "top_post_url": bp.get("top_post_url", ""),
-                    "top_post_transcript": bp.get("top_post_transcript", ""),
-                    "top_post_caption": bp.get("top_post_caption", ""),
-                    "top_post_views": bp.get("top_post_views"),
-                    "views_30d": bp.get("views_30d"),
-                    "likes_30d": bp.get("likes_30d"),
-                }
-                # Parse post date
-                pd_raw = bp.get("top_post_date", "")
-                if pd_raw and "-" in pd_raw:
-                    try:
-                        pp = pd_raw.split("-")
-                        content_fields["top_post_date"] = date_cls(int(pp[0]), int(pp[1]), int(pp[2]))
-                    except Exception:
-                        pass
-
-            existing = PipelineCreator.objects.filter(ig_handle__iexact=username).first() or \
-                       PipelineCreator.objects.filter(tiktok_handle__iexact=username).first() or \
-                       PipelineCreator.objects.filter(email__iexact=email).first()
-
-            if existing:
-                changed = False
-                if "@discovered." in (existing.email or "") and email:
-                    if not PipelineCreator.objects.filter(email=email).exclude(id=existing.id).exists():
-                        existing.email = email
-                        changed = True
-                if bp:
-                    for f, v in content_fields.items():
-                        if v is not None and v != "":
-                            setattr(existing, f, v)
-                            changed = True
-                if avg_v and (not existing.avg_views or avg_v > existing.avg_views):
-                    existing.avg_views = avg_v
-                    changed = True
-                followers = bp.get("followers")
-                if followers and (not existing.followers or followers > existing.followers):
-                    existing.followers = followers
-                    changed = True
-                if changed:
-                    if not dry_run:
-                        existing.save()
-                    updated += 1
+            if changed:
+                existing.save()
+                updated += 1
             else:
-                if PipelineCreator.objects.filter(email=email).exists():
-                    skipped += 1
-                    continue
-                if not dry_run:
-                    PipelineCreator.objects.create(
-                        email=email,
-                        ig_handle=ig_handle,
-                        tiktok_handle=tiktok_handle,
-                        full_name=username,
-                        platform=plat,
-                        pipeline_status="Not Started",
-                        outreach_type=outreach_type,
-                        source="syncly",
-                        followers=bp.get("followers"),
-                        avg_views=avg_v or None,
-                        initial_discovery_date=disc_date or date_cls.today(),
-                        notes="Syncly content import (real email + content)",
-                        **content_fields,
-                    )
-                created += 1
+                skipped += 1
 
         return _cors_headers(request, JsonResponse({
-            "created": created,
             "updated": updated,
             "skipped": skipped,
-            "total_output_creators": len(best_posts),
-            "total_sheet_rows": len(cr_rows),
-            "dry_run": dry_run,
-        }, status=201))
+            "not_found": not_found,
+            "total_excel_rows": len(data_rows),
+            "created": 0,
+        }, status=200))
 
     except Exception as e:
         import traceback
