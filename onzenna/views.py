@@ -408,6 +408,25 @@ def save_gifting(request):
             defaults=defaults,
         )
 
+    # Auto-update PipelineCreator to "Need Review" when gifting form submitted
+    try:
+        creator = PipelineCreator.objects.filter(email__iexact=email).first()
+        if creator and creator.pipeline_status not in (
+            "Need Review", "Send Contract", "Contract Signed",
+            "Sample Sent", "Sample Shipped", "Sample Delivered", "Posted",
+        ):
+            old_status = creator.pipeline_status
+            creator.pipeline_status = "Need Review"
+            creator.save(update_fields=["pipeline_status"])
+            PipelineStatusChange.objects.create(
+                creator_email=email,
+                from_status=old_status,
+                to_status="Need Review",
+                changed_by="gifting-form",
+            )
+    except Exception:
+        pass  # Don't fail gifting save if pipeline update fails
+
     return JsonResponse(_serialize(app), status=201 if created else 200)
 
 

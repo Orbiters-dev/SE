@@ -2293,10 +2293,12 @@ function updateBatchBar(){
   }else{
     bar.style.display='none';
   }
-  // Show Send Emails button only when Draft Ready or Sent filter is active
+  // Show Send button for Draft Ready (outreach) and Replied (reply draft)
   var sendBtn=document.getElementById('btn-send-emails');
   var statusFilter=document.getElementById('cr-status').value;
-  sendBtn.style.display=(statusFilter==='Draft Ready'&&checked.length>0)?'inline-block':'none';
+  var showSend=(statusFilter==='Draft Ready'||statusFilter==='Replied')&&checked.length>0;
+  sendBtn.style.display=showSend?'inline-block':'none';
+  sendBtn.textContent=statusFilter==='Replied'?'Send Replies':'Send Emails';
 }
 async function executeBatchMove(){
   var target=document.getElementById('batch-target-status').value;
@@ -2325,38 +2327,44 @@ const N8N_SEND_WEBHOOK='https://n8n.orbiters.co.kr/webhook/outreach-send-approve
 async function sendSelectedEmails(){
   var checked=document.querySelectorAll('.cr-check:checked');
   if(checked.length===0)return;
-  // Collect creator emails from checked rows (DEDUP: skip Sent/Replied/Declined)
+  var statusFilter=document.getElementById('cr-status').value;
+  var isReplyMode=statusFilter==='Replied';
+  // DEDUP: statuses that should never be re-sent
+  var SKIP_SEND=['Sent','Declined','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
+  var SKIP_REPLY=['Declined','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
+  var skipList=isReplyMode?SKIP_REPLY:SKIP_SEND.concat(['Replied']);
   var creators=[],skipped=[];
-  var SKIP_STATUSES=['Sent','Replied','Declined','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
   checked.forEach(function(cb){
     var email=cb.getAttribute('data-email')||'';
     var id=cb.getAttribute('data-id');
     var status=cb.getAttribute('data-status')||'';
     if(!email||email.includes('@discovered.')){skipped.push(email+' (no valid email)');return;}
-    if(SKIP_STATUSES.indexOf(status)>=0){skipped.push(email+' (already '+status+')');return;}
-    creators.push({id:id,email:email});
+    if(skipList.indexOf(status)>=0){skipped.push(email+' (already '+status+')');return;}
+    creators.push({id:id,email:email,status:status});
   });
   if(creators.length===0){showToast('No valid emails to send'+(skipped.length?' ('+skipped.length+' skipped)':''),'err');return;}
-  var msg='Send emails to '+creators.length+' creators?\n';
-  if(skipped.length)msg+='\nSkipped '+skipped.length+' (already sent/invalid):\n'+skipped.join('\n')+'\n';
+  var action=isReplyMode?'Send replies to':'Send emails to';
+  var msg=action+' '+creators.length+' creators?\n';
+  if(skipped.length)msg+='\nSkipped '+skipped.length+':\n'+skipped.join('\n')+'\n';
   msg+='\nWill send to:\n';
   creators.forEach(function(c){msg+=c.email+'\n';});
   if(!confirm(msg))return;
 
-  showToast('Sending '+creators.length+' emails...','ok');
+  showToast('Sending '+creators.length+(isReplyMode?' replies':' emails')+'...','ok');
   var ok=0,fail=0,errors=[];
   for(var i=0;i<creators.length;i++){
     var c=creators[i];
     try{
       // DEDUP: Double-check current status from server before sending
       var creatorData=await apiFetch('/pipeline/creators/'+c.id+'/');
-      if(creatorData&&SKIP_STATUSES.indexOf(creatorData.pipeline_status)>=0){
+      if(creatorData&&skipList.indexOf(creatorData.pipeline_status)>=0){
         errors.push(c.email+': already '+creatorData.pipeline_status+' (server check)');fail++;continue;
       }
-      // Fetch draft content
-      var convs=await apiFetch('/pipeline/conversations/?creator_email='+encodeURIComponent(c.email)+'&status=Draft+Ready&limit=1');
+      // Fetch draft content (Draft Ready for outreach, or latest reply draft for Replied)
+      var draftStatus=isReplyMode?'Draft+Ready':'Draft+Ready';
+      var convs=await apiFetch('/pipeline/conversations/?creator_email='+encodeURIComponent(c.email)+'&status='+draftStatus+'&limit=1');
       var items=(Array.isArray(convs)?convs:convs.results||[]);
-      if(!items.length){errors.push(c.email+': no draft');fail++;continue;}
+      if(!items.length){errors.push(c.email+': no draft found');fail++;continue;}
       var draft=items[0];
       // Send via n8n webhook
       var resp=await fetch(N8N_SEND_WEBHOOK,{
@@ -2370,12 +2378,12 @@ async function sendSelectedEmails(){
         })
       });
       if(!resp.ok){var errData=await resp.json().catch(function(){return{}});errors.push(c.email+': '+(errData.error||resp.status));fail++;continue;}
-      // Update creator status to Sent
+      // Update creator status: Replied stays Replied after sending reply, Draft Ready goes to Sent
+      var newStatus=isReplyMode?'Replied':'Sent';
       await apiFetch('/pipeline/creators/'+c.id+'/',{
         method:'PUT',
-        body:JSON.stringify({pipeline_status:'Sent',changed_by:_currentUser||'dashboard'})
+        body:JSON.stringify({pipeline_status:newStatus,changed_by:_currentUser||'dashboard'})
       });
-      // Update conversation status to Sent
       ok++;
     }catch(e){errors.push(c.email+': '+e.message);fail++;}
   }
