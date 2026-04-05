@@ -1379,13 +1379,13 @@ def generate():
             }
             all_rpts = []
             cursor = ""
-            for _ in range(10):
+            for _ in range(20):  # more pages for CREATIVE-level daily data
                 r = _req.post("https://advertising-api.amazon.com/attribution/report",
                     headers=hdrs, json={
                         "reportType": "PERFORMANCE", "count": 300,
                         "startDate": (today - timedelta(days=60)).strftime("%Y%m%d"),
                         "endDate": today.strftime("%Y%m%d"),
-                        "groupBy": "CAMPAIGN", "cursorId": cursor,
+                        "groupBy": "CREATIVE", "cursorId": cursor,
                     }, timeout=30)
                 if r.status_code != 200:
                     break
@@ -1396,18 +1396,34 @@ def generate():
                 if not cursor or not rpts:
                     break
 
-            # Aggregate by campaign
+            # Aggregate by campaign (totals) + daily breakdown
             camp = defaultdict(lambda: {"clicks": 0, "dpv": 0, "atc": 0,
-                                         "purchases": 0, "sales": 0.0, "brb": 0.0})
+                                         "purchases": 0, "sales": 0.0, "brb": 0.0,
+                                         "daily": defaultdict(lambda: {"clicks": 0, "sales": 0.0, "purchases": 0})})
             for rr in all_rpts:
                 cid = rr.get("campaignId", "")
-                camp[cid]["clicks"] += int(rr.get("Click-throughs", 0) or 0)
+                clicks = int(rr.get("Click-throughs", 0) or 0)
+                sales = float(rr.get("attributedSales14d", 0) or 0)
+                purchases = int(rr.get("attributedPurchases14d", 0) or 0)
+                camp[cid]["clicks"] += clicks
                 camp[cid]["dpv"] += int(rr.get("attributedDetailPageViewsClicks14d", 0) or 0)
                 camp[cid]["atc"] += int(rr.get("attributedAddToCartClicks14d", 0) or 0)
-                camp[cid]["purchases"] += int(rr.get("attributedPurchases14d", 0) or 0)
-                camp[cid]["sales"] += float(rr.get("attributedSales14d", 0) or 0)
+                camp[cid]["purchases"] += purchases
+                camp[cid]["sales"] += sales
                 camp[cid]["brb"] += float(rr.get("brb_bonus_amount", 0) or 0)
-            return dict(camp)
+                # Daily breakdown
+                raw_date = rr.get("date", "")
+                if raw_date and len(raw_date) == 8:
+                    d = f"{raw_date[:4]}-{raw_date[4:6]}-{raw_date[6:]}"
+                    camp[cid]["daily"][d]["clicks"] += clicks
+                    camp[cid]["daily"][d]["sales"] += sales
+                    camp[cid]["daily"][d]["purchases"] += purchases
+            # Convert daily defaultdicts to regular dicts
+            result = {}
+            for cid, cv in camp.items():
+                result[cid] = {k: v for k, v in cv.items() if k != "daily"}
+                result[cid]["daily"] = dict(cv["daily"])
+            return result
         except Exception as e:
             print(f"  [WARN] Attribution load failed: {e}")
             return {}
@@ -1561,6 +1577,8 @@ def generate():
                 if best_meta:
                     daily_sp = dict(best_meta.get("daily_spend", {}))
                     daily_cl = dict(best_meta.get("daily_clicks", {}))
+                # Daily attribution sales/clicks from Attribution API
+                daily_attr = v.get("daily", {})
                 camps.append({
                     "name": attr_name[:60],
                     "sales": round(v["sales"]),
@@ -1573,6 +1591,9 @@ def generate():
                     "assets": assets,
                     "_daily_spend": daily_sp,
                     "_daily_clicks": daily_cl,
+                    "_daily_attr_sales": {d: round(dv["sales"], 2) for d, dv in daily_attr.items()},
+                    "_daily_attr_clicks": {d: dv["clicks"] for d, dv in daily_attr.items()},
+                    "_daily_attr_purchases": {d: dv["purchases"] for d, dv in daily_attr.items()},
                 })
             return camps
 
@@ -3678,6 +3699,8 @@ def generate():
                     "roas_adj": c.get("roas_adj", 0),
                     "daily_spend": [round(c.get("_daily_spend", {}).get(d, 0), 2) for d in ad_dates_sorted] if c.get("_daily_spend") else [],
                     "daily_clicks": [c.get("_daily_clicks", {}).get(d, 0) for d in ad_dates_sorted] if c.get("_daily_clicks") else [],
+                    "daily_attr_sales": [round(c.get("_daily_attr_sales", {}).get(d, 0), 2) for d in ad_dates_sorted] if c.get("_daily_attr_sales") else [],
+                    "daily_attr_clicks": [c.get("_daily_attr_clicks", {}).get(d, 0) for d in ad_dates_sorted] if c.get("_daily_attr_clicks") else [],
                 } for c in camps if c.get("spend", 0) > 0 or c.get("sales", 0) > 0],
             }
 
@@ -3725,6 +3748,8 @@ def generate():
                     "roas_adj": c.get("roas_adj", 0),
                     "daily_spend": [round(c.get("_daily_spend", {}).get(d, 0), 2) for d in ad_dates_sorted] if c.get("_daily_spend") else [],
                     "daily_clicks": [c.get("_daily_clicks", {}).get(d, 0) for d in ad_dates_sorted] if c.get("_daily_clicks") else [],
+                    "daily_attr_sales": [round(c.get("_daily_attr_sales", {}).get(d, 0), 2) for d in ad_dates_sorted] if c.get("_daily_attr_sales") else [],
+                    "daily_attr_clicks": [c.get("_daily_attr_clicks", {}).get(d, 0) for d in ad_dates_sorted] if c.get("_daily_attr_clicks") else [],
                 } for c in camps if c.get("spend", 0) > 0 or c.get("sales", 0) > 0],
             }
 
