@@ -309,7 +309,10 @@ def generate():
     klaviyo = dk.get("klaviyo_daily", days=days_back)
     # Hero Products dependencies
     brand_analytics = dk.get("amazon_brand_analytics", days=180)  # override 30d with 180d for hero SFR history
-    sqp_brand = dk.get("amazon_sqp_brand", days=365)
+    try:
+        sqp_brand = dk.get("amazon_sqp_brand", days=365)
+    except (ValueError, Exception):
+        sqp_brand = []  # SQP table not yet in DK
     _cp_all = {}
     for _brand in ["Grosmimi", "CHA&MOM", "Naeiae", "Onzenna", "Babyrabbit", "Commemoi", "Goongbe", ""]:
         _cp = dk.get("content_posts", days=365, limit=50000, brand=_brand if _brand else None)
