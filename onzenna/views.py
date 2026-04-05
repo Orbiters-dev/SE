@@ -2084,6 +2084,221 @@ def syncly_excel_status(request):
     return _cors_headers(request, JsonResponse(result))
 
 
+# ---------------------------------------------------------------------------
+# Syncly Autofill Emails — Apify IG Profile Scraper + Firecrawl
+# ---------------------------------------------------------------------------
+
+import re as _re_mod
+import os as _os
+
+_EMAIL_RE = _re_mod.compile(
+    r'[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}'
+)
+_IGNORE_DOMAINS = {
+    'discovered.syncly', 'onzenna.com', 'orbiters.co.kr',
+    'zezebaebae.com', 'example.com', 'email.com', 'gmail.con',
+    'instagram.com', 'tiktok.com', 'facebook.com', 'twitter.com',
+    'sentry.io', 'sentry-next.wixpress.com',
+}
+
+
+def _extract_emails(text):
+    """Extract valid emails from text, excluding internal/platform domains."""
+    if not text:
+        return []
+    found = _EMAIL_RE.findall(text)
+    return [
+        e.lower() for e in found
+        if e.split('@')[1].lower() not in _IGNORE_DOMAINS
+    ]
+
+
+def _apify_fetch_profiles(handles, token):
+    """Call Apify Instagram Profile Scraper for a batch of handles.
+    Returns dict: {handle: {bio, external_url, ...}}
+    """
+    import urllib.request
+    import urllib.parse
+
+    actor_id = "apify~instagram-profile-scraper"
+    url = f"https://api.apify.com/v2/acts/{actor_id}/runs?token={token}"
+    payload = json.dumps({
+        "usernames": handles,
+    }).encode()
+    req = urllib.request.Request(
+        url, data=payload,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            run_data = json.loads(resp.read())
+    except Exception as e:
+        return {"_error": f"Apify run start failed: {e}"}
+
+    run_id = run_data.get("data", {}).get("id")
+    if not run_id:
+        return {"_error": "No run ID returned"}
+
+    # Poll for completion (max 3 min)
+    import time
+    status_url = f"https://api.apify.com/v2/actor-runs/{run_id}?token={token}"
+    for _ in range(36):  # 36 * 5s = 180s
+        time.sleep(5)
+        try:
+            with urllib.request.urlopen(status_url, timeout=15) as resp:
+                status_data = json.loads(resp.read())
+            status = status_data.get("data", {}).get("status")
+            if status in ("SUCCEEDED", "FAILED", "ABORTED", "TIMED-OUT"):
+                break
+        except Exception:
+            continue
+
+    if status != "SUCCEEDED":
+        return {"_error": f"Apify run status: {status}"}
+
+    # Fetch dataset
+    dataset_id = run_data.get("data", {}).get("defaultDatasetId")
+    if not dataset_id:
+        return {"_error": "No dataset ID"}
+
+    ds_url = f"https://api.apify.com/v2/datasets/{dataset_id}/items?token={token}&limit=200"
+    try:
+        with urllib.request.urlopen(ds_url, timeout=30) as resp:
+            items = json.loads(resp.read())
+    except Exception as e:
+        return {"_error": f"Dataset fetch failed: {e}"}
+
+    result = {}
+    for item in items:
+        uname = (item.get("username") or "").lower()
+        if uname:
+            result[uname] = {
+                "bio": item.get("biography") or item.get("bio") or "",
+                "external_url": item.get("externalUrl") or item.get("external_url") or "",
+                "full_name": item.get("fullName") or item.get("full_name") or "",
+            }
+    return result
+
+
+def _firecrawl_extract_email(url, api_key):
+    """Use Firecrawl to scrape a URL and extract email addresses."""
+    import urllib.request
+
+    fc_url = "https://api.firecrawl.dev/v1/scrape"
+    payload = json.dumps({
+        "url": url,
+        "formats": ["markdown"],
+        "onlyMainContent": True,
+    }).encode()
+    req = urllib.request.Request(
+        fc_url, data=payload,
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read())
+        md = data.get("data", {}).get("markdown", "")
+        return _extract_emails(md)
+    except Exception:
+        return []
+
+
+@csrf_exempt
+def syncly_autofill_emails(request):
+    """POST: Find emails for placeholder creators via Apify + Firecrawl.
+
+    Query params:
+      ?limit=20  — max creators to process (default 20, max 50)
+      ?source=last_upload — only process creators from last Excel upload
+    """
+    if request.method == "OPTIONS":
+        resp = HttpResponse(status=204)
+        return _cors_headers(request, resp)
+    if request.method != "POST":
+        return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
+
+    # Get API keys from env
+    apify_token = _os.environ.get("APIFY_API_TOKEN", "")
+    firecrawl_key = _os.environ.get("FIRECRAWL_API_KEY", "")
+
+    if not apify_token:
+        return _cors_headers(request, JsonResponse({
+            "error": "APIFY_API_TOKEN not configured on server"
+        }, status=500))
+
+    # Parse params
+    limit = min(int(request.GET.get("limit", "20")), 50)
+
+    # Find placeholder creators
+    qs = PipelineCreator.objects.filter(
+        email__icontains="@discovered."
+    ).exclude(
+        ig_handle=""
+    ).exclude(
+        ig_handle__isnull=True
+    ).order_by("-created_at")[:limit]
+
+    creators = list(qs)
+    if not creators:
+        return _cors_headers(request, JsonResponse({
+            "total_checked": 0, "found": 0, "not_found": 0,
+            "message": "No placeholder creators with IG handles to process"
+        }))
+
+    # Batch Apify call
+    handles = [c.ig_handle.lstrip("@").strip() for c in creators if c.ig_handle]
+    profiles = _apify_fetch_profiles(handles, apify_token)
+
+    if "_error" in profiles:
+        return _cors_headers(request, JsonResponse({
+            "error": profiles["_error"],
+            "total_checked": len(handles),
+        }, status=502))
+
+    # Process results
+    found_list = []
+    not_found_list = []
+
+    for c in creators:
+        handle = (c.ig_handle or "").lstrip("@").strip().lower()
+        profile = profiles.get(handle, {})
+        bio = profile.get("bio", "")
+        ext_url = profile.get("external_url", "")
+
+        # 1st: Try bio email
+        emails = _extract_emails(bio)
+
+        # 2nd: Try linked website via Firecrawl
+        if not emails and ext_url and firecrawl_key:
+            emails = _firecrawl_extract_email(ext_url, firecrawl_key)
+
+        if emails:
+            best_email = emails[0]
+            c.email = best_email
+            c.save(update_fields=["email"])
+            found_list.append({
+                "handle": handle,
+                "email": best_email,
+                "source": "bio" if _extract_emails(bio) else "website",
+            })
+        else:
+            not_found_list.append(handle)
+
+    stats = {
+        "total_checked": len(creators),
+        "found": len(found_list),
+        "not_found": len(not_found_list),
+        "updated": found_list,
+        "not_found_handles": not_found_list[:20],
+    }
+    return _cors_headers(request, JsonResponse(stats))
+
+
 @csrf_exempt
 def syncly_content_import(request):
     """POST: Enrich DB creators with content data from uploaded Excel.

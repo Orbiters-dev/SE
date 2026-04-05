@@ -569,6 +569,11 @@ Shopify                         Apify / Syncly                   Gmail RAG
               <button class="btn btn-secondary btn-sm" id="btn-syncly-upload" onclick="execSynclyUpload()" style="white-space:nowrap;border-left:3px solid var(--p)">&#x1F4E4; Upload &#x2192; DB</button>
             </div>
             <div id="syncly-upload-result" style="display:none;margin-top:6px;font-size:9px;padding:6px 10px;border-radius:4px"></div>
+            <div style="margin-top:6px;display:flex;gap:8px;align-items:center">
+              <button class="btn btn-secondary btn-sm" id="btn-syncly-autofill" onclick="execSynclyAutofill()" style="white-space:nowrap;border-left:3px solid #f59e0b;font-size:10px">&#x1F50D; Autofill Emails</button>
+              <span style="font-size:8px;color:var(--dim)">placeholder &#xC774;&#xBA54;&#xC77C; &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130; &#xB300;&#xC0C1; | Apify bio + Firecrawl website</span>
+            </div>
+            <div id="syncly-autofill-result" style="display:none;margin-top:4px;font-size:9px;padding:6px 10px;border-radius:4px"></div>
           </div>
         </div>
         <div class="form-row">
@@ -4119,6 +4124,10 @@ function updateFtSummary(){
 
   document.getElementById('ft-eligible-count').textContent=ltEligible;
   document.getElementById('ft-total-count').textContent=totalAll;
+  // Sync Brand Allocation to eligible count
+  document.getElementById('alloc-batch-label').textContent=ltEligible;
+  document.getElementById('f-creators-contacted').value=ltEligible;
+  updateAllocation();
   // Show server stats accuracy note if client loaded fewer than server total
   var clientLoaded=all.length;
   if(_ftServerStats&&_ftServerStats.total>clientLoaded){
@@ -4501,6 +4510,54 @@ async function execSynclyUpload(){
     btn.disabled=false;btn.style.opacity='';btn.style.cursor='';
     btn.textContent='\uD83D\uDCE4 Upload \u2192 DB';
     if(card)card.style.boxShadow='';
+  }
+}
+
+// ── Syncly Autofill Emails ──
+
+async function execSynclyAutofill(){
+  var btn=document.getElementById('btn-syncly-autofill');
+  var res=document.getElementById('syncly-autofill-result');
+  btn.disabled=true;btn.style.opacity='0.6';btn.style.cursor='wait';
+  res.style.display='block';
+  res.style.background='#fffbeb';res.style.borderLeft='3px solid #f59e0b';
+  var startTs=Date.now();var dots=0;
+  var timer=setInterval(function(){
+    var sec=Math.round((Date.now()-startTs)/1000);
+    dots=(dots+1)%4;var ds='.'.repeat(dots);
+    btn.textContent='Finding '+sec+'s'+ds;
+    res.innerHTML='<div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:50%;background:#f59e0b;animation:pulse 1s infinite"></div><b style="color:#f59e0b">Apify + Firecrawl</b></div>'
+      +'<div style="margin-top:2px">IG bio \u2192 \uc774\uba54\uc77c \ucd94\ucd9c\uc911'+ds+'</div>'
+      +'<div style="color:var(--dim);margin-top:1px">\uacbd\uACFC: '+sec+'\uCD08</div>';
+  },1000);
+  try{
+    var data=await apiFetch('/pipeline/syncly/autofill-emails/',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+    clearInterval(timer);
+    var sec=Math.round((Date.now()-startTs)/1000);
+    var v=function(k){var x=data[k];return x!=null?x:'?'};
+    res.style.background='#f0fdf4';res.style.borderLeft='3px solid var(--g)';
+    var parts=['<b>&#x2705; Autofill complete</b> <span style="color:var(--dim)">('+sec+'s)</span>'];
+    parts.push('Checked: <b>'+v('total_checked')+'</b> | Found: <b style="color:var(--g)">'+v('found')+'</b> | Not found: '+v('not_found'));
+    if(data.updated&&data.updated.length>0){
+      parts.push('<div style="margin-top:4px;max-height:100px;overflow-y:auto">');
+      data.updated.forEach(function(u){
+        parts.push('<div style="display:flex;justify-content:space-between;padding:1px 0;border-bottom:1px solid #e5e7eb"><span>@'+u.handle+'</span><span style="color:var(--g)">'+u.email+' <span style="font-size:7px;color:var(--dim)">('+u.source+')</span></span></div>');
+      });
+      parts.push('</div>');
+    }
+    res.innerHTML=parts.join('<br>');
+    showToast('Autofill: '+v('found')+'/'+v('total_checked')+' emails found ('+sec+'s)','ok');
+    loadSynclyPipelineStatus();
+  }catch(e){
+    clearInterval(timer);
+    var sec=Math.round((Date.now()-startTs)/1000);
+    res.style.display='block';
+    res.style.background='#fef2f2';res.style.borderLeft='3px solid var(--r)';
+    res.innerHTML='<b>&#x274C; Autofill failed</b> <span style="color:var(--dim)">('+sec+'s)</span><br>'+e.message;
+    showToast('Autofill failed: '+e.message,'err');
+  }finally{
+    btn.disabled=false;btn.style.opacity='';btn.style.cursor='';
+    btn.textContent='\uD83D\uDD0D Autofill Emails';
   }
 }
 

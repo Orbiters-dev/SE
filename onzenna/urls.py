@@ -65,6 +65,9 @@ urlpatterns = [
     path("pipeline/syncly/import-excel/", views.syncly_import_excel, name="syncly_import_excel"),
     path("pipeline/syncly/status/", views.syncly_excel_status, name="syncly_excel_status"),
 
+    # Syncly Autofill Emails (Apify + Firecrawl)
+    path("pipeline/syncly/autofill-emails/", views.syncly_autofill_emails, name="syncly_autofill_emails"),
+
     # Pipeline Syncly Content Import (full: email + transcript + views + post_url)
     path("pipeline/creators/syncly-content-import/", views.syncly_content_import, name="syncly_content_import"),
 
