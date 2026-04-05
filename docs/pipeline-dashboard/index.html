@@ -2212,18 +2212,20 @@ function renderCreatorsTable(data){
     }
     html+='</td>';
     html+='</tr>';
-    // Hidden draft preview row (accordion)
-    html+='<tr id="draft-preview-'+c.id+'" style="display:none"><td colspan="11" style="padding:0">';
+    // Draft preview row — DEFAULT VISIBLE for Draft Ready/Sent/Replied
+    var showDraft=c.pipeline_status==='Draft Ready'||c.pipeline_status==='Sent'||c.pipeline_status==='Replied';
+    html+='<tr id="draft-preview-'+c.id+'" style="display:'+(showDraft?'table-row':'none')+'"><td colspan="11" style="padding:0">';
     html+='<div style="background:linear-gradient(135deg,#eef2ff,#f0fdf4);border:2px solid var(--a);border-radius:8px;margin:4px 8px 8px;padding:12px;font-size:11px">';
     html+='<div id="draft-content-'+c.id+'" style="color:var(--dim)">Loading draft...</div>';
     html+='</div></td></tr>';
-    // Hidden transcript row (accordion)
-    html+='<tr id="transcript-'+c.id+'" style="display:none"><td colspan="11" style="padding:0">';
+    // Transcript row — DEFAULT VISIBLE for Draft Ready
+    var showTranscript=c.pipeline_status==='Draft Ready';
+    html+='<tr id="transcript-'+c.id+'" style="display:'+(showTranscript?'table-row':'none')+'"><td colspan="11" style="padding:0">';
     html+='<div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:2px solid #8b5cf6;border-radius:8px;margin:4px 8px 8px;padding:12px;font-size:11px">';
     html+='<div id="transcript-content-'+c.id+'" style="color:var(--dim)">Loading transcripts...</div>';
     html+='</div></td></tr>';
-    // Email history row — DEFAULT VISIBLE for non-Not-Started creators
-    var showHist=c.pipeline_status!=='Not Started';
+    // Email history row — DEFAULT HIDDEN for Draft Ready, visible for Sent/Replied
+    var showHist=c.pipeline_status==='Sent'||c.pipeline_status==='Replied';
     html+='<tr id="email-hist-'+c.id+'" style="display:'+(showHist?'table-row':'none')+'"><td colspan="11" style="padding:0">';
     html+='<div style="background:#f8fafc;border:1px solid var(--border);border-radius:6px;margin:4px 8px 8px;padding:10px;font-size:10px">';
     html+='<div id="email-hist-content-'+c.id+'" style="color:var(--dim)">Loading email history...</div>';
@@ -2234,11 +2236,21 @@ function renderCreatorsTable(data){
   if(checkedCount>0){
     updateBatchBar();
   }
-  // Auto-load email history for visible rows
+  // Auto-load panels for visible rows
   for(var i=0;i<data.results.length;i++){
     var c=data.results[i];
-    if(c.pipeline_status!=='Not Started'&&c.email){
+    // Email history — Sent/Replied only
+    if((c.pipeline_status==='Sent'||c.pipeline_status==='Replied')&&c.email){
       loadEmailHistoryAuto(c.id,c.email);
+    }
+    // Draft preview — Draft Ready/Sent/Replied
+    if((c.pipeline_status==='Draft Ready'||c.pipeline_status==='Sent'||c.pipeline_status==='Replied')&&c.email){
+      loadDraftPreviewAuto(c.id,c.email);
+    }
+    // Transcript — Draft Ready
+    if(c.pipeline_status==='Draft Ready'){
+      var handle=(c.ig_handle||c.tiktok_handle||'').replace(/^@/,'');
+      if(handle)loadTranscriptAuto(c.id,handle);
     }
   }
 }
@@ -2265,7 +2277,9 @@ function renderEmailHistory(el, email, items, relatedLogs){
     el.innerHTML='<span style="color:var(--muted)">No email history yet</span>';
     return;
   }
-  var h='<div style="font-weight:700;margin-bottom:6px;color:var(--fg)">Email History ('+esc(email)+')</div>';
+  var uid='eh-'+email.replace(/[^a-z0-9]/gi,'');
+  var h='<div onclick="var b=document.getElementById(\''+uid+'\');var a=this.querySelector(\'.eh-arrow\');if(b.style.display===\'none\'){b.style.display=\'\';a.textContent=\'\\u25BC\'}else{b.style.display=\'none\';a.textContent=\'\\u25B6\'}" style="font-weight:700;margin-bottom:6px;color:var(--fg);cursor:pointer;user-select:none"><span class="eh-arrow">&#x25BC;</span> Email History ('+esc(email)+') <span style="font-size:9px;color:var(--dim);font-weight:400">'+items.length+' message'+(items.length!==1?'s':'')+'</span></div>';
+  h+='<div id="'+uid+'">';
   // Merge conversations + reply logs by time
   var all=[];
   items.forEach(function(c){all.push({time:c.email_date||c.created_at,dir:c.direction||'Outbound',subject:c.subject||'',intent:'',auto:c.is_auto_sent?'Auto':'',content:c.message_content||'',brand:c.brand||'',status:c.status||'',gmailId:c.gmail_message_id||''})});
@@ -2273,8 +2287,9 @@ function renderEmailHistory(el, email, items, relatedLogs){
   all.sort(function(a,b){return (a.time||'').localeCompare(b.time||'')});
   all.forEach(function(r){
     var dirColor=r.dir==='Outbound'?'var(--a)':'#059669';
-    var dirLabel=r.dir==='Outbound'?'SENT':'RECEIVED';
+    var dirLabel=r.dir==='Outbound'?(r.status==='Draft Ready'?'DRAFT':'SENT'):(r.dir==='Inbound'?'RECEIVED':'SENT');
     var timeStr=r.time?new Date(r.time).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+    if(r.dir==='Outbound'&&r.status==='Draft Ready'){dirColor='#f59e0b';}
     h+='<div style="border-left:3px solid '+dirColor+';padding:6px 10px;margin-bottom:8px;background:#fff;border-radius:0 6px 6px 0">';
     h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
     h+='<span style="font-weight:700;color:'+dirColor+';font-size:9px">'+dirLabel+(r.auto==='Auto'?' <span style="background:#ef4444;color:#fff;padding:1px 4px;border-radius:3px;font-size:7px;margin-left:4px">AUTO</span>':'')+'</span>';
@@ -2288,6 +2303,7 @@ function renderEmailHistory(el, email, items, relatedLogs){
     if(r.intent&&r.intent!=='-')h+='<div style="margin-top:4px"><span class="b '+(r.intent==='Accept'?'g':r.intent==='FAQ_Gap'?'a':'')+'">'+esc(r.intent)+'</span></div>';
     h+='</div>';
   });
+  h+='</div>';
   el.innerHTML=h;
 }
 
@@ -2298,6 +2314,69 @@ async function loadEmailHistoryAuto(creatorId, email){
     var convs=await apiFetch('/pipeline/conversations/?creator_email='+encodeURIComponent(email)+'&limit=20');
     var items=(Array.isArray(convs)?convs:convs.results||[]).filter(function(c){return c.creator_email===email});
     renderEmailHistory(el, email, items, []);
+  }catch(e){
+    el.innerHTML='<span style="color:var(--r)">Error: '+e.message+'</span>';
+  }
+}
+
+async function loadDraftPreviewAuto(creatorId, email){
+  var el=document.getElementById('draft-content-'+creatorId);
+  if(!el)return;
+  try{
+    var convs=await apiFetch('/pipeline/conversations/?creator_email='+encodeURIComponent(email)+'&status=Draft+Ready&limit=5');
+    var items=(Array.isArray(convs)?convs:convs.results||[]);
+    if(items.length===0){el.innerHTML='<span style="color:var(--muted)">No draft found</span>';return;}
+    var h='<div style="font-weight:700;margin-bottom:8px;color:var(--a);font-size:12px">Draft Email Preview</div>';
+    items.forEach(function(conv){
+      var timeStr=conv.created_at?new Date(conv.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+      h+='<div style="border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:8px;background:#fff">';
+      h+='<div style="display:flex;justify-content:space-between;margin-bottom:6px">';
+      h+='<span style="font-weight:700;color:var(--fg)">'+esc(conv.subject||'(No subject)')+'</span>';
+      h+='<span style="font-size:9px;color:var(--dim)">'+timeStr+'</span>';
+      h+='</div>';
+      if(conv.brand){h+='<div style="margin-bottom:6px"><span class="b '+(conv.brand==='Grosmimi'?'g':conv.brand==='CHA&MOM'?'c':conv.brand==='Naeiae'?'am':'')+'">'+esc(conv.brand)+'</span></div>';}
+      h+='<div style="white-space:pre-wrap;font-size:11px;line-height:1.6;color:var(--fg);padding:8px;background:#f8fafc;border-radius:4px;max-height:300px;overflow-y:auto">'+esc(conv.message_content||'(empty)')+'</div>';
+      h+='</div>';
+    });
+    el.innerHTML=h;
+  }catch(e){
+    el.innerHTML='<span style="color:var(--r)">Error: '+e.message+'</span>';
+  }
+}
+
+async function loadTranscriptAuto(creatorId, handle){
+  var el=document.getElementById('transcript-content-'+creatorId);
+  if(!el)return;
+  var h=handle.replace(/^@/,'');
+  try{
+    var dkBase=API_BASE.replace('/api/onzenna','/api/datakeeper');
+    var resp=await fetch(dkBase+'/query/?table=content_posts&username='+encodeURIComponent(h)+'&limit=10',{headers:{'Authorization':'Basic '+btoa('admin:admin')}});
+    var posts=await resp.json();
+    var rows=Array.isArray(posts)?posts:(posts.results||posts.rows||[]);
+    if(!rows.length){el.innerHTML='<span style="color:var(--muted)">No content found for @'+esc(h)+'</span>';return;}
+    var html='<div style="font-weight:700;margin-bottom:8px;color:#7c3aed">Recent Content — @'+esc(h)+' ('+rows.length+' posts)</div>';
+    rows.forEach(function(p){
+      var platform=p.platform==='tiktok'?'TT':'IG';
+      var views=p.views||p.view_count||0;
+      var likes=p.likes||p.like_count||0;
+      var date=(p.post_date||'').slice(0,10);
+      var transcript=p.transcript||'';
+      var url=p.url||'#';
+      html+='<div style="border:1px solid #ddd5f3;border-radius:6px;padding:8px;margin-bottom:6px;background:#fff">';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
+      html+='<a href="'+esc(url)+'" target="_blank" style="font-weight:700;color:#7c3aed;font-size:10px;text-decoration:none">'+platform+' — '+date+'</a>';
+      html+='<span style="font-size:9px;color:var(--dim)">';
+      if(views)html+=formatNum(views)+' views ';
+      if(likes)html+=formatNum(likes)+' likes';
+      html+='</span></div>';
+      if(transcript){
+        html+='<div style="white-space:pre-wrap;font-size:10px;line-height:1.5;color:var(--fg);max-height:200px;overflow-y:auto">'+esc(transcript)+'</div>';
+      }else{
+        html+='<div style="color:var(--muted);font-size:10px;font-style:italic">No transcript available</div>';
+      }
+      html+='</div>';
+    });
+    el.innerHTML=html;
   }catch(e){
     el.innerHTML='<span style="color:var(--r)">Error: '+e.message+'</span>';
   }
