@@ -3683,7 +3683,7 @@ def generate():
         "brand_ad_daily": brand_ad_daily_out,
         "weekly": weekly_data,
         "hero_products": hero_data,
-        "search_ranking": _build_autocomplete_data(),
+        "search_ranking": {},  # TODO: replace with real product search ranking (Apify)
     }
 
     # ── Write output ──────────────────────────────────────────────────────────

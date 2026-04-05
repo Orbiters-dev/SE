@@ -477,201 +477,12 @@ function switchSeoBrand(brand){
   });
 }
 
-// ── Search Ranking Tab ───────────────────────────────────────────────────────
-var _acBrand='Grosmimi', _acMkt='US';
+// ── Search Ranking Tab (removed — was autocomplete suggestion, not product ranking) ──
 function renderAutocompleteTab(F){
-  var ac=F.search_ranking||{};
   var el=document.getElementById('panel-autocomplete');
   if(!el) return;
-
-  var latest=ac.latest||{};
-  var trends=ac.trends||{};
-  var dates=ac.dates||[];
-  var brands=Object.keys(latest).length ? Object.keys(latest) : Object.keys(trends);
-  if(!brands.length){
-    el.innerHTML='<div class="card"><div class="desc" style="text-align:center;padding:24px;color:var(--muted)">No search ranking data yet. Run: python tools/data_keeper.py --channel amazon_search_ranking</div></div>';
-    return;
-  }
-
-  var brandColors={'Grosmimi':'#8b5cf6','Naeiae':'#f59e0b','CHA&MOM':'#ef4444'};
-  var kwColors=['#6366f1','#ec4899','#f59e0b','#0ea5e9','#10b981','#ef4444','#8b5cf6','#64748b'];
-
-  var h='<div class="sec"><div class="sec-title"><div class="num" style="background:#6366f1">8</div> Amazon Autocomplete &mdash; Keyword Suggestion Ranking</div>';
-  h+='<div class="desc">Amazon 검색창에 키워드 입력 시 자동완성 제안 순위. #1 = 첫 번째 제안. 낮을수록 좋음. 매일 수집.</div>';
-
-  // Brand sub-tabs
-  h+='<div style="display:flex;gap:4px;margin:12px 0">';
-  brands.forEach(function(b){
-    var color=brandColors[b]||'#64748b';
-    var isOn=b===_acBrand;
-    h+='<div onclick="_acBrand=\''+b+'\';renderAcContent()" style="padding:6px 16px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;'
-      +(isOn?'background:'+color+';color:#fff':'color:'+color+';border:1px solid '+color)
-      +'">'+b+'</div>';
-  });
-  h+='</div>';
-
-  // Market toggle
-  h+='<div style="display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;font-size:10px;margin-bottom:12px">';
-  h+='<div onclick="_acMkt=\'US\';renderAcContent()" id="ac-mkt-us" style="padding:5px 14px;cursor:pointer;font-weight:700;'+(_acMkt==='US'?'background:#10b981;color:#fff':'color:var(--dim)')+'">🇺🇸 US</div>';
-  h+='<div onclick="_acMkt=\'JP\';renderAcContent()" id="ac-mkt-jp" style="padding:5px 14px;cursor:pointer;font-weight:700;'+(_acMkt==='JP'?'background:#ef4444;color:#fff':'color:var(--dim)')+'">🇯🇵 JP</div>';
-  h+='</div>';
-
-  h+='<div id="ac-content"></div>';
-  h+='</div>';
-  el.innerHTML=h;
-
-
-
-  // Store data globally for sub-renders
-  window._acData={latest:latest,trends:trends,dates:dates,brandColors:brandColors,kwColors:kwColors};
-  renderAcContent();
-}
-
-function renderAcContent(){
-  var d=window._acData; if(!d) return;
-  var el=document.getElementById('ac-content'); if(!el) return;
-  var brand=_acBrand, mkt=_acMkt;
-  var brandColors=d.brandColors, kwColors=d.kwColors;
-  var color=brandColors[brand]||'#64748b';
-
-  // Update brand tab highlight
-  document.querySelectorAll('#panel-autocomplete div[onclick*="_acBrand"]').forEach(function(t){
-    var b=t.textContent.trim();
-    var c=brandColors[b]||'#64748b';
-    if(b===brand){t.style.background=c;t.style.color='#fff';t.style.border='none';}
-    else{t.style.background='';t.style.color=c;t.style.border='1px solid '+c;}
-  });
-  var usBtn=document.getElementById('ac-mkt-us'), jpBtn=document.getElementById('ac-mkt-jp');
-  if(usBtn){usBtn.style.background=mkt==='US'?'#10b981':'';usBtn.style.color=mkt==='US'?'#fff':'var(--dim)';}
-  if(jpBtn){jpBtn.style.background=mkt==='JP'?'#ef4444':'';jpBtn.style.color=mkt==='JP'?'#fff':'var(--dim)';}
-
-  var h='';
-
-  // JP market: only Grosmimi
-  if(mkt==='JP' && brand!=='Grosmimi'){
-    h+='<div class="card" style="text-align:center;padding:32px"><div style="font-size:32px;margin-bottom:8px">🇯🇵</div>';
-    h+='<h3 style="margin:0 0 6px">JP 마켓은 Grosmimi만 판매 중</h3>';
-    h+='<div class="desc">'+brand+'는 US 마켓에서만 추적됩니다.</div></div>';
-    el.innerHTML=h; return;
-  }
-
-  // Latest ranking table
-  var latestRows=(d.latest[brand]||{})[mkt]||[];
-  if(latestRows.length){
-    h+='<div class="card" style="margin-bottom:10px"><h3 style="color:'+color+'">'+brand+' — '+(mkt==='US'?'🇺🇸':'🇯🇵')+' Autocomplete Position</h3>';
-    h+='<table><tr><th>Keyword</th><th>Position</th><th>Score</th><th>Δ Pos</th><th style="min-width:200px">Top Suggestions</th></tr>';
-    latestRows.sort(function(a,b){var pa=a.position<0?9999:a.position;var pb=b.position<0?9999:b.position;return pa-pb;});
-    var trendRef=(d.trends[brand]||{})[mkt]||{};
-    latestRows.forEach(function(r){
-      var pos=r.position;
-      var posLabel=pos>=0?'#'+(pos+1):'Not found';
-      var posColor=pos>=0?(pos<=2?'var(--g)':pos<=5?'var(--am)':pos<=8?'#f97316':'var(--r)'):'var(--muted)';
-      var scoreLabel=r.score||0;
-      var scoreColor=scoreLabel>=50?'var(--g)':scoreLabel>=20?'var(--am)':'var(--muted)';
-      // Delta: compare position vs previous day (lower = better, so negative delta = improvement)
-      var delta='', deltaColor='var(--muted)';
-      var kwTrend=trendRef[r.keyword]||[];
-      if(kwTrend.length>=2){
-        var prev=kwTrend[kwTrend.length-2].position, cur=pos;
-        if(prev>=0 && cur>=0){
-          var diff=prev-cur; // positive = improved (went up in ranking)
-          if(diff>0){delta='▲ +'+diff;deltaColor='var(--g)';}
-          else if(diff<0){delta='▼ '+diff;deltaColor='var(--r)';}
-          else{delta='— 0';deltaColor='var(--muted)';}
-        } else { delta='—'; }
-      } else { delta='—'; }
-      var suggs='';try{var s=JSON.parse(r.top_suggestions||'[]');suggs=s.slice(0,3).join(', ');}catch(e){}
-      h+='<tr><td style="font-family:var(--mono);font-size:11px">'+r.keyword+'</td>';
-      h+='<td style="text-align:center;font-family:var(--mono);font-weight:800;font-size:14px;color:'+posColor+'">'+posLabel+'</td>';
-      h+='<td style="text-align:center;font-family:var(--mono);font-weight:700;color:'+scoreColor+'">'+scoreLabel+'</td>';
-      h+='<td style="text-align:center;font-family:var(--mono);font-size:11px;font-weight:700;color:'+deltaColor+'">'+delta+'</td>';
-      h+='<td style="font-size:9px;color:var(--muted);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+suggs+'</td></tr>';
-    });
-    h+='</table></div>';
-  }
-
-  // ── Position Trend Chart (SVG) — inverted Y: #1 at top, #100 at bottom ──
-  var trendData=(d.trends[brand]||{})[mkt]||{};
-  var keywords=Object.keys(trendData);
-  var dates=d.dates||[];
-  var mktDates=[];
-  dates.forEach(function(dt){
-    var found=false;
-    keywords.forEach(function(kw){
-      (trendData[kw]||[]).forEach(function(p){if(p.date===dt)found=true;});
-    });
-    if(found)mktDates.push(dt);
-  });
-
-  if(keywords.length && mktDates.length>=1){
-    var maxPos=100;
-    var W=900, H=320, padL=40, padR=160, padT=24, padB=36;
-    var cw=W-padL-padR, ch=H-padT-padB;
-    var nDates=Math.max(mktDates.length,2);
-
-    h+='<div class="card"><h3 style="color:'+color+'">'+brand+' — '+(mkt==='US'?'🇺🇸':'🇯🇵')+' Autocomplete Trend</h3>';
-    h+='<div class="desc" style="margin-bottom:8px">자동완성 제안 순위 변화. #1이 최상위 제안. 낮을수록 좋음.</div>';
-    h+='<div style="overflow-x:auto"><svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-height:340px;font-family:var(--mono)">';
-
-    // Grid lines (inverted: #1 at top)
-    [1,10,20,50,100].forEach(function(g){
-      var gy=padT+(g/maxPos)*ch;
-      h+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="'+(g===10?'#bbf7d0':g===50?'#fef08a':'#f1f5f9')+'" stroke-width="'+(g===10||g===50?1.5:1)+'"/>';
-      h+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" text-anchor="end" fill="#94a3b8" font-size="9">#'+g+'</text>';
-    });
-    // "Not found" zone
-    h+='<rect x="'+padL+'" y="'+(padT+ch-15)+'" width="'+cw+'" height="15" fill="#fef2f2" opacity="0.5" rx="2"/>';
-    h+='<text x="'+(padL+4)+'" y="'+(padT+ch-4)+'" fill="#ef4444" font-size="7" opacity="0.7">Not in top 100</text>';
-
-    var step=Math.max(1,Math.floor(mktDates.length/10));
-    mktDates.forEach(function(dt,i){
-      if(i%step===0||i===mktDates.length-1){
-        var x=padL+(i/(nDates-1))*cw;
-        h+='<text x="'+x+'" y="'+(H-6)+'" text-anchor="middle" fill="#94a3b8" font-size="8">'+dt.substring(5)+'</text>';
-      }
-    });
-
-    // Collect label positions for de-overlap
-    var labelEntries=[];
-    keywords.forEach(function(kw,ki){
-      var pts=trendData[kw];
-      var lineColor=kwColors[ki%kwColors.length];
-      var pathD='';
-      pts.forEach(function(p){
-        var di=mktDates.indexOf(p.date); if(di<0) return;
-        var pos=p.position<0?maxPos:Math.min(p.position+1,maxPos); // 1-indexed for chart
-        var x=padL+(di/(nDates-1))*cw;
-        var y=padT+(pos/maxPos)*ch;
-        pathD+=(pathD?'L':'M')+x.toFixed(1)+','+y.toFixed(1);
-        h+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3" fill="'+lineColor+'" opacity="0.8"/>';
-      });
-      if(pathD){
-        h+='<path d="'+pathD+'" stroke="'+lineColor+'" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
-        var lastP=pts[pts.length-1];
-        var lPos=lastP.position<0?maxPos:Math.min(lastP.position+1,maxPos); // 1-indexed
-        var lx=padL+((mktDates.indexOf(lastP.date))/(nDates-1))*cw;
-        var ly=padT+(lPos/maxPos)*ch;
-        var label=lastP.position>=0?kw.substring(0,14)+' #'+(lastP.position+1):kw.substring(0,14)+' N/A';
-        h+='<circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="4" fill="'+lineColor+'"/>';
-        labelEntries.push({y:ly,color:lineColor,label:label});
-      }
-    });
-    // De-overlap labels: sort by y, push apart if too close (min 13px gap)
-    labelEntries.sort(function(a,b){return a.y-b.y;});
-    for(var li=1;li<labelEntries.length;li++){
-      if(labelEntries[li].y - labelEntries[li-1].y < 13){
-        labelEntries[li].y = labelEntries[li-1].y + 13;
-      }
-    }
-    labelEntries.forEach(function(le){
-      h+='<text x="'+(W-padR+6)+'" y="'+(le.y+4).toFixed(1)+'" fill="'+le.color+'" font-size="9" font-weight="700">'+le.label+'</text>';
-    });
-    h+='</svg></div></div>';
-  } else if(keywords.length===0 && latestRows.length===0){
-    h+='<div class="card"><div class="desc" style="text-align:center;padding:24px;color:var(--muted)">이 브랜드/마켓에 대한 데이터가 없습니다.</div></div>';
-  }
-
-  el.innerHTML=h;
+  el.innerHTML='<div class="card" style="text-align:center;padding:48px"><div style="font-size:36px;margin-bottom:12px">🔍</div><h3>Amazon Product Search Ranking</h3><div class="desc" style="margin-top:8px">Generic 키워드(sippy cup, toddler cup 등) 검색 시 우리 제품이 몇 번째에 노출되는지 추적.<br>Apify 기반 실제 검색결과 크롤링 필요 — 준비 중.</div></div>';
+  return;
 }
 
 // ── JP Render Helpers ────────────────────────────────────────────────────────
@@ -1311,17 +1122,9 @@ function renderFinancial(){
     }
   })();
 
-  // ── 5B: Amazon Search Ranking — where our products appear in search results ──
+  // ── 5B: (removed — was autocomplete suggestion, not product search ranking) ──
   (function(){
-    var sr=F.search_ranking||{};
-    var latest=sr.latest||{};
-    var trends=sr.trends||{};
-    var allDates=sr.dates||[];
-    var showBrands=['Grosmimi','Naeiae','CHA&MOM'];
-    var brandColors={'Grosmimi':'#8b5cf6','Naeiae':'#f59e0b','CHA&MOM':'#ef4444'};
-    var kwColors=['#6366f1','#ec4899','#f59e0b','#0ea5e9','#10b981','#ef4444','#8b5cf6','#64748b'];
-    var hasBrands=showBrands.some(function(b){return ((latest[b]||{}).US||[]).length>0;});
-    if(!hasBrands) return;
+    return; // Section 5B disabled — needs real product search ranking (Apify)
 
     var latestDate=allDates.length?allDates[allDates.length-1]:'';
     var dateLabel=latestDate?latestDate.substring(5).replace('-','/'):'';
