@@ -561,26 +561,28 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)">
           <div style="font-size:10px;font-weight:700;color:var(--dim);margin-bottom:8px">&#x1F50E; Syncly Discovery Pipeline</div>
           <div id="syncly-pipeline-status" style="display:none;margin-bottom:8px;padding:6px 10px;border-radius:6px;font-size:9px;background:var(--bg);border:1px solid var(--border);font-family:var(--mono)"></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
             <div style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg)">
               <div style="font-size:9px;font-weight:700;color:var(--p);margin-bottom:2px">Step 1: Sheet &#x2192; Excel</div>
-              <div style="font-size:8px;color:var(--muted);margin-bottom:4px;line-height:1.4">Creators_updated + Output_updated &#xC77D;&#xC74C;<br>&#xC0AD;&#xC81C;: &#xC774;&#xBA54;&#xC77C;&#xC5C6;&#xC74C; / &#xBE14;&#xB799;&#xB9AC;&#xC2A4;&#xD2B8; / &#xC81C;&#xD734;&#xC9C4;&#xD589;&#xC911;&#xB2E4;&#xB41C;&#xC560;<br>&#xB0A8;&#xAE40;: &#xC774;&#xBA54;&#xC77C;&#xC788;&#xB294; &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130; + best post JOIN</div>
+              <div style="font-size:8px;color:var(--muted);margin-bottom:4px;line-height:1.4">Creators_updated + Output_updated 읽음<br>삭제: 이메일없음 / 블랙리스트 / 제휴진행중다된애<br>남김: 이메일있는 크리에이터 + best post JOIN</div>
               <div id="syncly-step1-stats" style="font-size:9px;color:var(--dim);margin-bottom:6px">Loading...</div>
               <button class="btn btn-secondary btn-sm" id="btn-syncly-export" onclick="execSynclyExport()" style="width:100%;border-left:3px solid var(--p)">&#x1F4E4; Export Sheet &#x2192; Excel</button>
               <div id="syncly-step1-result" style="display:none;margin-top:4px;font-size:9px;padding:4px 8px;border-radius:4px"></div>
             </div>
             <div style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg)">
               <div style="font-size:9px;font-weight:700;color:var(--g);margin-bottom:2px">Step 2: Excel &#x2192; DB</div>
-              <div style="font-size:8px;color:var(--muted);margin-bottom:4px;line-height:1.4">Excel &#xC77D;&#xC74C; &#x2192; pipeline_creators upsert<br>&#xC2E0;&#xADDC;: create / &#xAE30;&#xC874;: email&#xB3C4;&#xCE58;+&#xCF58;&#xD150;&#xCE20; &#xC5C5;&#xB370;&#xC774;&#xD2B8;<br>@discovered.* placeholder &#xC790;&#xB3D9; &#xC815;&#xB9AC;</div>
+              <div style="font-size:8px;color:var(--muted);margin-bottom:4px;line-height:1.4">Excel 읽음 &#x2192; pipeline_creators upsert<br>신규: create / 기존: email도치+콘텐츠 업데이트<br>@discovered.* placeholder 자동 정리</div>
               <div id="syncly-step2-stats" style="font-size:9px;color:var(--dim);margin-bottom:6px">Run Step 1 first</div>
               <button class="btn btn-secondary btn-sm" id="btn-syncly-import" onclick="execSynclyImportExcel()" style="width:100%;border-left:3px solid var(--g)">&#x1F4E5; Import Excel &#x2192; DB</button>
               <div id="syncly-step2-result" style="display:none;margin-top:4px;font-size:9px;padding:4px 8px;border-radius:4px"></div>
             </div>
-          </div>
-          <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
-            <button class="btn btn-secondary btn-sm" id="btn-syncly-content" onclick="execSynclyContentImport()" style="border-left:3px solid #8b5cf6">&#x1F4E5; Syncly Content Import</button>
-            <span style="font-size:8px;color:var(--muted)">Output_updated &#xC5D0;&#xC11C; transcript / views / post_url &#xCD94;&#xAC00; &#xB9E4;&#xCE6D;</span>
-            <div id="syncly-content-result" style="display:none;margin-top:4px;padding:4px 8px;border-radius:4px;font-size:9px;background:var(--bg)"></div>
+            <div style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg)">
+              <div style="font-size:9px;font-weight:700;color:#8b5cf6;margin-bottom:2px">Step 3: Content Enrich</div>
+              <div style="font-size:8px;color:var(--muted);margin-bottom:4px;line-height:1.4">Output_updated에서 추가 매칭<br>transcript / views / post_url<br>DB 크리에이터에 콘텐츠 메트릭 보강</div>
+              <div id="syncly-step3-stats" style="font-size:9px;color:var(--dim);margin-bottom:6px">Run after Step 2</div>
+              <button class="btn btn-secondary btn-sm" id="btn-syncly-content" onclick="execSynclyContentImport()" style="width:100%;border-left:3px solid #8b5cf6">&#x1F4E5; Content Enrich</button>
+              <div id="syncly-content-result" style="display:none;margin-top:4px;font-size:9px;padding:4px 8px;border-radius:4px"></div>
+            </div>
           </div>
         </div>
         <div class="form-row">
@@ -4433,23 +4435,44 @@ async function createReviewDraft(){
 async function execSynclyContentImport(){
   var btn=document.getElementById('btn-syncly-content');
   var resEl=document.getElementById('syncly-content-result');
-  btn.disabled=true;btn.textContent='⏳ Importing...';
-  resEl.style.display='none';
+  var card=btn.closest('div[style*="border:1px"]');
+  btn.disabled=true;btn.style.opacity='0.6';btn.style.cursor='wait';
+  resEl.style.display='block';
+  resEl.style.background='#eff6ff';resEl.style.borderLeft='3px solid #8b5cf6';
+  if(card)card.style.boxShadow='0 0 0 2px #8b5cf6';
+  var startTs=Date.now();var dots=0;
+  var timer=setInterval(function(){
+    var sec=Math.round((Date.now()-startTs)/1000);
+    dots=(dots+1)%4;var ds='.'.repeat(dots);
+    btn.textContent='Running '+sec+'s'+ds;
+    resEl.innerHTML='<div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:50%;background:#8b5cf6;animation:pulse 1s infinite"></div><b style="color:#8b5cf6">Step 3 진행중</b></div>'
+      +'<div style="margin-top:2px">Output_updated에서 콘텐츠 매칭중'+ds+'</div>'
+      +'<div style="color:var(--dim);margin-top:1px">경과: '+sec+'초</div>';
+  },1000);
   try{
     var data=await apiFetch('/pipeline/creators/syncly-content-import/',{
       method:'POST',headers:{'Content-Type':'application/json'},body:'{}'
     });
+    clearInterval(timer);
+    var sec=Math.round((Date.now()-startTs)/1000);
+    var v=function(k){var x=data[k];return x!=null?x:'?'};
     resEl.style.display='block';
-    resEl.style.borderLeft='3px solid var(--g)';
-    resEl.innerHTML='<b>✅ Import complete</b><br>Created: '+(data.created||0)+' | Updated: '+(data.updated||0)+' | Skipped: '+(data.skipped||0)+'<br>Output creators matched: '+(data.total_output_creators||'-')+' | Sheet rows: '+(data.total_sheet_rows||'-');
-    showToast('Syncly content imported: '+(data.created||0)+' new, '+(data.updated||0)+' updated','ok');
+    resEl.style.background='#f0fdf4';resEl.style.borderLeft='3px solid var(--g)';
+    if(card)card.style.boxShadow='';
+    resEl.innerHTML='<b>&#x2705; Enrich complete</b> <span style="color:var(--dim)">('+sec+'s)</span><br>Created: '+v('created')+' | Updated: '+v('updated')+' | Skipped: '+v('skipped')+'<br>Output matched: '+v('total_output_creators')+' | Sheet rows: '+v('total_sheet_rows');
+    showToast('Content enriched: '+v('created')+' new, '+v('updated')+' updated ('+sec+'s)','ok');
   }catch(e){
+    clearInterval(timer);
+    var sec=Math.round((Date.now()-startTs)/1000);
     resEl.style.display='block';
-    resEl.style.borderLeft='3px solid var(--r)';
-    resEl.innerHTML='<b>❌ Import failed</b><br>'+e.message;
-    showToast('Syncly content import failed: '+e.message,'err');
+    resEl.style.background='#fef2f2';resEl.style.borderLeft='3px solid var(--r)';
+    if(card)card.style.boxShadow='';
+    resEl.innerHTML='<b>&#x274C; Enrich failed</b> <span style="color:var(--dim)">('+sec+'s)</span><br>'+e.message;
+    showToast('Content enrich failed: '+e.message,'err');
   }finally{
-    btn.disabled=false;btn.textContent='📥 Syncly Content Import';
+    btn.disabled=false;btn.style.opacity='';btn.style.cursor='';
+    btn.textContent='\uD83D\uDCE5 Content Enrich';
+    if(card)card.style.boxShadow='';
   }
 }
 
