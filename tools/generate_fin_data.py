@@ -3904,10 +3904,10 @@ def generate():
                     "purchases": c.get("purchases", 0),
                     "roas": c.get("roas", 0),
                     "roas_adj": c.get("roas_adj", 0),
-                    "daily_spend": [round(c.get("_daily_spend", {}).get(d, 0), 2) for d in ad_dates_sorted] if c.get("_daily_spend") else [],
-                    "daily_clicks": [c.get("_daily_clicks", {}).get(d, 0) for d in ad_dates_sorted] if c.get("_daily_clicks") else [],
-                    "daily_attr_sales": [round(c.get("_daily_attr_sales", {}).get(d, 0), 2) for d in ad_dates_sorted] if c.get("_daily_attr_sales") else [],
-                    "daily_attr_clicks": [c.get("_daily_attr_clicks", {}).get(d, 0) for d in ad_dates_sorted] if c.get("_daily_attr_clicks") else [],
+                    "daily_spend": {d: round(v, 2) for d, v in c.get("_daily_spend", {}).items()},
+                    "daily_clicks": dict(c.get("_daily_clicks", {})),
+                    "daily_attr_sales": {d: round(v, 2) for d, v in c.get("_daily_attr_sales", {}).items()},
+                    "daily_attr_clicks": dict(c.get("_daily_attr_clicks", {})),
                 } for c in camps if c.get("spend", 0) > 0 or c.get("sales", 0) > 0],
             }
 
@@ -3953,10 +3953,10 @@ def generate():
                     "purchases": c.get("purchases", 0),
                     "roas": c.get("roas", 0),
                     "roas_adj": c.get("roas_adj", 0),
-                    "daily_spend": [round(c.get("_daily_spend", {}).get(d, 0), 2) for d in ad_dates_sorted] if c.get("_daily_spend") else [],
-                    "daily_clicks": [c.get("_daily_clicks", {}).get(d, 0) for d in ad_dates_sorted] if c.get("_daily_clicks") else [],
-                    "daily_attr_sales": [round(c.get("_daily_attr_sales", {}).get(d, 0), 2) for d in ad_dates_sorted] if c.get("_daily_attr_sales") else [],
-                    "daily_attr_clicks": [c.get("_daily_attr_clicks", {}).get(d, 0) for d in ad_dates_sorted] if c.get("_daily_attr_clicks") else [],
+                    "daily_spend": {d: round(v, 2) for d, v in c.get("_daily_spend", {}).items()},
+                    "daily_clicks": dict(c.get("_daily_clicks", {})),
+                    "daily_attr_sales": {d: round(v, 2) for d, v in c.get("_daily_attr_sales", {}).items()},
+                    "daily_attr_clicks": dict(c.get("_daily_attr_clicks", {})),
                 } for c in camps if c.get("spend", 0) > 0 or c.get("sales", 0) > 0],
             }
 
