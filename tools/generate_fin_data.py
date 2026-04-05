@@ -3228,11 +3228,17 @@ def generate():
                     if not any(ex in kw["keyword"].lower() for ex in excludes)]
             cat_sfr_branded[cat] = sorted(cat_sfr_branded[cat], key=lambda x: -x.get("click_share", 0))
 
-        # Reliability filter: only keep keywords with data in >= 3 weeks
-        MIN_WEEKS = 3
+        # Reliability filter: only keep keywords that have data for ALL weeks from Jan 2026+
+        # This eliminates sporadic keywords that show up only a few weeks (lots of dashes)
+        _jan_weeks = sorted(w for w in set(
+            w2 for kw_list in cat_sfr_branded.values() for kw in kw_list
+            for w2 in kw.get("rank_week_labels", [])
+        ) if w >= "2026-01-01")
+        _n_jan_weeks = len(_jan_weeks)
         for cat in list(cat_sfr_branded.keys()):
             cat_sfr_branded[cat] = [kw for kw in cat_sfr_branded[cat]
-                if len(kw.get("rank_weekly", [])) >= MIN_WEEKS or len(kw.get("volume_weekly", [])) >= MIN_WEEKS]
+                if len(set(kw.get("rank_week_labels", [])) & set(_jan_weeks)) >= _n_jan_weeks
+                or len(kw.get("volume_weekly", [])) >= _n_jan_weeks]
 
         # SQP branded keywords
         sqp_by_brand = defaultdict(lambda: defaultdict(dict))
