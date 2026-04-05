@@ -2148,15 +2148,15 @@ function renderCreatorsTable(data){
     }else{
       html+='<td style="font-size:10px">'+esc(c.email||'')+'</td>';
     }
-    // Sources column
+    // Sources column — skip Apify (97% have it, not informative)
     var srcHtml='';
     if(c.sources&&c.sources.length){
-      var srcMap={syncly:'<span class="b a">S</span>',gmail_inbound:'<span class="b g">G</span>',apify:'<span class="b c">A</span>',shopify_pr:'<span class="b am">PR</span>',manychat:'<span class="b p">MC</span>'};
+      var srcMap={syncly:'<span class="b a">S</span>',gmail_inbound:'<span class="b g">G</span>',shopify_pr:'<span class="b am">PR</span>',manychat:'<span class="b p">MC</span>'};
       for(var si=0;si<c.sources.length;si++){if(srcMap[c.sources[si]])srcHtml+=srcMap[c.sources[si]]+' ';}
     }
-    if(c.is_shopify_pr)srcHtml+='&#x1F4E6; ';
-    if(c.is_apify_tagged)srcHtml+='&#x1F577;&#xFE0F; ';
-    if(c.is_manychat_contact)srcHtml+='&#x1F4AC; ';
+    if(c.is_shopify_pr)srcHtml+='<span class="b am">PR</span> ';
+    if(c.is_manychat_contact)srcHtml+='<span class="b p">MC</span> ';
+    if(!srcHtml)srcHtml='<span style="color:var(--muted);font-size:9px">-</span>';
     html+='<td style="font-size:10px">'+srcHtml+'</td>';
     // Brand column with PR products info
     var brandExtra='';
