@@ -2264,12 +2264,15 @@ function renderHeroTab(F){
           var _atCamps=(_attrData.campaigns||[]);
           if(_atCamps.length>0){
             _atCamps.forEach(function(ac){
-              var _acRoas=ac.roas||0,_acRc=_acRoas>=2?'var(--g)':_acRoas>=1?'var(--am)':'var(--r)';
+              var _acBrb=ac.brb||0;var _acNetSpend=Math.max(0,(ac.spend||0)-_acBrb);
+              var _acRoas=_acNetSpend>0?(ac.sales||0)/_acNetSpend:0;var _acRc=_acRoas>=2?'var(--g)':_acRoas>=1?'var(--am)':'var(--r)';
+              // BRB daily proration: distribute BRB proportionally across days with spend
+              var _acTotalSpend=ac.spend||0;var _brbRate=_acTotalSpend>0?_acBrb/_acTotalSpend:0;
               // Campaign header row: name + aggregate metrics
               html+='<tr><td style="padding-left:16px;text-align:left;'+_stickyTd+';color:#7c3aed;font-size:9px;font-weight:700;border-bottom:1px solid #7c3aed20" title="'+ac.name+'">'+ac.name.substring(0,35)+'</td>';
               html+='<td colspan="'+_tblN+'" style="text-align:left;font-family:var(--mono);font-size:10px;padding:2px 6px;border-bottom:1px solid #7c3aed20">';
               html+='<span style="color:var(--g);font-weight:700">Attr $'+ac.sales.toLocaleString()+'</span>';
-              html+=' · <span style="color:var(--dim)">spend $'+ac.spend.toLocaleString()+'</span>';
+              html+=' · <span style="color:var(--dim)">net $'+Math.round(_acNetSpend).toLocaleString()+' (spend $'+ac.spend.toLocaleString()+' − BRB $'+Math.round(_acBrb).toLocaleString()+')</span>';
               if(_acRoas>0) html+=' · <span style="color:'+_acRc+';font-weight:600">'+_acRoas.toFixed(1)+'x</span>';
               html+='</td></tr>';
               // Daily Attribution Sales row
@@ -2284,10 +2287,10 @@ function renderHeroTab(F){
                 for(var j=0;j<_tblN;j++){var _bi=_badIdx[dates[j]];var sv=(_bi!=null?ac.daily_spend[_bi]:0)||0;html+='<td style="text-align:right;padding:2px 6px;font-family:var(--mono);color:#a78bfa;font-size:9px">'+(sv>0?'$'+Math.round(sv).toLocaleString():'—')+'</td>';}
                 html+='</tr>';
               }
-              // Daily ROAS (Attr Sales / Meta Spend)
+              // Daily ROAS (Attr Sales / Net Spend where Net = Spend - BRB proration)
               if(ac.daily_attr_sales&&ac.daily_attr_sales.length&&ac.daily_spend&&ac.daily_spend.length){
                 html+='<tr><td style="padding-left:28px;text-align:left;'+_stickyTd+';color:#7c3aed;font-size:9px;font-weight:600">ROAS</td>';
-                for(var j=0;j<_tblN;j++){var _bi3=_badIdx[dates[j]];var _as1=(_bi3!=null?ac.daily_attr_sales[_bi3]:0)||0;var _sp1=(_bi3!=null?ac.daily_spend[_bi3]:0)||0;var _rr=_sp1>0?_as1/_sp1:0;var _rc=_rr>=2?'var(--g)':_rr>=1?'var(--am)':'var(--r)';html+='<td style="text-align:right;padding:2px 6px;font-family:var(--mono);color:'+(_rr>0?_rc:'var(--dim)')+';font-size:9px;font-weight:600">'+(_rr>0?_rr.toFixed(1)+'x':'—')+'</td>';}
+                for(var j=0;j<_tblN;j++){var _bi3=_badIdx[dates[j]];var _as1=(_bi3!=null?ac.daily_attr_sales[_bi3]:0)||0;var _sp1=(_bi3!=null?ac.daily_spend[_bi3]:0)||0;var _netSp=Math.max(0,_sp1*(1-_brbRate));var _rr=_netSp>0?_as1/_netSp:0;var _rc=_rr>=2?'var(--g)':_rr>=1?'var(--am)':'var(--r)';html+='<td style="text-align:right;padding:2px 6px;font-family:var(--mono);color:'+(_rr>0?_rc:'var(--dim)')+';font-size:9px;font-weight:600">'+(_rr>0?_rr.toFixed(1)+'x':'—')+'</td>';}
                 html+='</tr>';
               }
               if(ac.daily_clicks&&ac.daily_clicks.length){
