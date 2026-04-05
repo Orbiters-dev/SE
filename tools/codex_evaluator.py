@@ -457,6 +457,12 @@ def cmd_resume(args):
 
 def _output(result: dict, args):
     """Print result and optionally save."""
+    import io, sys as _sys
+    # Fix Windows cp949 encoding crash — force UTF-8 stdout
+    if _sys.stdout.encoding and _sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
+        _sys.stdout = io.TextIOWrapper(_sys.stdout.buffer, encoding="utf-8", errors="replace")
+        _sys.stderr = io.TextIOWrapper(_sys.stderr.buffer, encoding="utf-8", errors="replace")
+
     ts = time.strftime("%Y%m%d_%H%M%S")
 
     if hasattr(args, "json_output") and args.json_output:
