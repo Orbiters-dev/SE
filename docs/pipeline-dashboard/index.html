@@ -118,6 +118,11 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
   .filter-bar{flex-direction:column}.filter-bar input,.filter-bar select{width:100%}
 }
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.spin-icon{display:inline-block;animation:spin 1s linear infinite}
+.btn-running{background:#f59e0b!important;color:#fff!important;pointer-events:none}
+.btn-done{background:#10b981!important;color:#fff!important}
+.btn-fail{background:#ef4444!important;color:#fff!important}
 </style>
 </head>
 <body>
@@ -2711,36 +2716,40 @@ async function confirmExec(){
         return;
       }
     }
+    // Spinning state on button
+    if(btn){btn.disabled=true;btn.innerHTML='<span class="spin-icon">&#x2699;</span> Running...';btn.classList.add('btn-running')}
     fetch(WEBHOOK_MAP[action],{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({action:action,config:_config,timestamp:new Date().toISOString()})
     }).then(function(r){
       if(!r.ok)throw new Error('HTTP '+r.status);
-      return r.text();
-    }).then(function(){
-      showToast(meta.title+' completed','ok');
-      // Update exec log from running to success
-      apiFetch('/pipeline/execution/log/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action_type:action,triggered_by:_currentUser,status:'completed',target_count:0,details:JSON.stringify({source:'dashboard-webhook-callback'})})});
+      return r.text().then(function(t){try{return JSON.parse(t)}catch(e){return{raw:t}}});
+    }).then(function(res){
+      var cnt=res.processed||res.count||res.total||res.success||0;
+      var fail=res.failed||res.errors||0;
+      var msg=meta.title+' done — '+cnt+' processed';
+      if(fail>0)msg+=', '+fail+' failed';
+      if(btn){btn.classList.remove('btn-running');btn.classList.add('btn-done');btn.innerHTML='&#x2705; Done ('+cnt+')'}
+      showToast(msg,'ok');
+      apiFetch('/pipeline/execution/log/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action_type:action,triggered_by:_currentUser,status:'completed',target_count:cnt,details:JSON.stringify({source:'dashboard-webhook-callback',result:res})})});
       loadExecLog();
-      // Refresh pipeline chart + creator list to show status changes
       loadCreatorStats();
       loadCreators();
+      setTimeout(function(){if(btn){btn.disabled=false;btn.innerHTML=meta.icon+' '+meta.title;btn.classList.remove('btn-done')}},5000);
     }).catch(function(e){
+      if(btn){btn.classList.remove('btn-running');btn.classList.add('btn-fail');btn.innerHTML='&#x274C; Failed'}
       showToast('Webhook failed: '+e.message,'err');
       apiFetch('/pipeline/execution/log/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action_type:action,triggered_by:_currentUser,status:'failed',target_count:0,details:JSON.stringify({error:e.message})})});
       loadExecLog();
+      setTimeout(function(){if(btn){btn.disabled=false;btn.innerHTML=meta.icon+' '+meta.title;btn.classList.remove('btn-fail')}},5000);
     });
-    showToast('Webhook triggered: '+action+' (waiting...)','ok');
   }else{
     showToast(meta.title+' triggered (no webhook)','ok');
   }
 
   _tabLoaded['execution']=false;
   loadExecLog();
-  setTimeout(function(){
-    if(btn){btn.disabled=false;btn.textContent=meta.icon+' '+meta.title}
-  },3000);
 }
 
 // ========== EXECUTION LOG ==========
