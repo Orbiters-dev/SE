@@ -3786,7 +3786,8 @@ def _build_autocomplete_data() -> dict:
         if date == latest_date:
             if brand not in latest:
                 latest[brand] = {"US": [], "JP": []}
-            latest[brand][market].append({"keyword": kw, "score": score, "position": pos, "date": date})
+            top_sugg = r.get("top_suggestions", "[]")
+            latest[brand][market].append({"keyword": kw, "score": score, "position": pos, "date": date, "top_suggestions": top_sugg})
 
         # Trends
         if brand not in trends:
