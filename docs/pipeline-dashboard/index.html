@@ -2724,8 +2724,8 @@ async function confirmExec(){
       apiFetch('/pipeline/execution/log/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action_type:action,triggered_by:_currentUser,status:'completed',target_count:0,details:JSON.stringify({source:'dashboard-webhook-callback'})})});
       loadExecLog();
       // Refresh pipeline chart + creator list to show status changes
-      if(typeof renderPipelineFunnel==='function')renderPipelineFunnel();
-      if(typeof loadCreators==='function')loadCreators();
+      loadCreatorStats();
+      loadCreators();
     }).catch(function(e){
       showToast('Webhook failed: '+e.message,'err');
       apiFetch('/pipeline/execution/log/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action_type:action,triggered_by:_currentUser,status:'failed',target_count:0,details:JSON.stringify({error:e.message})})});
