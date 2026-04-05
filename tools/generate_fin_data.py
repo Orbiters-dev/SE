@@ -3301,7 +3301,7 @@ def generate():
                 if key not in cat_creator_meta:
                     cat_creator_meta[key] = {"brand": brand, "platform": info.get("platform", ""), "upload_date": info.get("post_date", ""), "total_views": 0}
                 pd_val = info.get("post_date", "")
-                if pd_val and (not cat_creator_meta[key]["upload_date"] or pd_val < cat_creator_meta[key]["upload_date"]):
+                if pd_val and (not cat_creator_meta[key]["upload_date"] or pd_val > cat_creator_meta[key]["upload_date"]):
                     cat_creator_meta[key]["upload_date"] = pd_val
 
         cat_user_posts = defaultdict(lambda: defaultdict(set))

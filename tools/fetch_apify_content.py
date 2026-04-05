@@ -1749,6 +1749,195 @@ def run_cross_platform_standalone(dry_run: bool = False) -> dict:
     return {"checked": len(set(p["username"] for p in tt_norm)), "found": len(cross_posts)}
 
 
+def _safe_int(val):
+    """Convert a sheet cell value to int, handling commas/blanks/formulas."""
+    if not val:
+        return 0
+    s = str(val).replace(",", "").strip()
+    try:
+        return int(float(s))
+    except (ValueError, TypeError):
+        return 0
+
+
+def sync_sheet_to_pg(region="all"):
+    """Sync ALL Posts Master + D+60 Tracker data from Google Sheets to PG.
+
+    Fixes the gap where daily crawl only pushes today's results but PG
+    needs the full post roster for generate_fin_data.py to build
+    content_creators_by_cat correctly.
+    """
+    load_env()
+    sh, _ = get_sheets()
+    from push_content_to_pg import push_posts, push_metrics
+
+    tabs = []
+    if region in ("all", "us"):
+        tabs.append(("US Posts Master", "US D+60 Tracker", "us"))
+    if region in ("all", "jp"):
+        tabs.append(("JP Posts Master", "JP D+60 Tracker", "jp"))
+
+    total_posts = 0
+    total_metrics = 0
+
+    for pm_tab, d60_tab, reg in tabs:
+        print(f"\n===== Sync {pm_tab} → PG =====")
+
+        # ── Read Posts Master ──
+        try:
+            ws = sh.worksheet(pm_tab)
+            vals = ws.get_all_values()
+        except Exception as e:
+            print(f"[SYNC] Could not read {pm_tab}: {e}")
+            continue
+        if len(vals) <= 1:
+            print(f"[SYNC] {pm_tab}: empty, skipping")
+            continue
+
+        # Header: Post ID, URL, Platform, Username, Nickname, Followers,
+        #         Content, Hashtags, Tagged Account, Post Date,
+        #         Comments, Likes, Views, Brand
+        posts = []
+        metrics = []
+        today = datetime.now().strftime("%Y-%m-%d")
+
+        for row in vals[1:]:
+            pid = row[0].strip() if len(row) > 0 else ""
+            if not pid or pid.startswith("_test"):
+                continue
+
+            url = row[1].strip() if len(row) > 1 else ""
+            platform = row[2].strip() if len(row) > 2 else ""
+            username = row[3].strip() if len(row) > 3 else ""
+            nickname = row[4].strip() if len(row) > 4 else ""
+            followers = _safe_int(row[5]) if len(row) > 5 else 0
+            caption = row[6] if len(row) > 6 else ""
+            hashtags = row[7] if len(row) > 7 else ""
+            tagged = row[8] if len(row) > 8 else ""
+            post_date = row[9].strip() if len(row) > 9 else ""
+            comments = _safe_int(row[10]) if len(row) > 10 else 0
+            likes = _safe_int(row[11]) if len(row) > 11 else 0
+            views = _safe_int(row[12]) if len(row) > 12 else 0
+            brand = row[13].strip() if len(row) > 13 else ""
+
+            posts.append({
+                "post_id": pid, "url": url, "platform": platform,
+                "username": username, "nickname": nickname, "followers": followers,
+                "caption": caption[:500] if caption else "",
+                "hashtags": hashtags, "tagged_account": tagged,
+                "post_date": post_date, "brand": brand,
+                "region": reg, "source": "apify",
+            })
+
+            if views > 0 or likes > 0 or comments > 0:
+                metrics.append({
+                    "post_id": pid, "date": today,
+                    "comments": comments, "likes": likes, "views": views,
+                })
+
+        if posts:
+            push_posts(posts)
+            total_posts += len(posts)
+
+        # ── Read D+60 Tracker for historical view snapshots ──
+        print(f"  Parsing {d60_tab} for historical snapshots...")
+        try:
+            d60_ws = sh.worksheet(d60_tab)
+            d60_vals = d60_ws.get_all_values()
+        except Exception as e:
+            print(f"  [SYNC] Could not read {d60_tab}: {e}")
+            d60_vals = []
+
+        if len(d60_vals) > 2:
+            # D+60 structure: 6 fixed cols (A-F) + 4 status cols (G-J) = 10 fixed
+            # A=PostID, B=URL, C=Platform, D=Username, E=PostDate, F=TaggedAccount
+            # Then D+0 starts at col 10, each D+N has 3 cols (comments, likes, views)
+            pm_pids = set(p["post_id"] for p in posts)  # Posts Master IDs
+            d60_posts = []  # Posts in D+60 but not in Posts Master
+            historical_metrics = []
+            for row in d60_vals[2:]:  # skip 2 header rows
+                pid = row[0].strip() if len(row) > 0 else ""
+                if not pid or pid.startswith("_test"):
+                    continue
+
+                # Extract post metadata from D+60 (for posts missing from PM)
+                if pid not in pm_pids:
+                    d60_url = row[1].strip() if len(row) > 1 else ""
+                    d60_platform = row[2].strip() if len(row) > 2 else ""
+                    d60_username = row[3].strip() if len(row) > 3 else ""
+                    d60_post_date = row[4].strip() if len(row) > 4 else ""
+                    d60_tagged = row[5].strip() if len(row) > 5 else ""
+                    # Infer brand from tagged account
+                    d60_brand = ""
+                    tagged_lower = d60_tagged.lower()
+                    if any(k in tagged_lower for k in ["grosmimi", "gros_mimi"]):
+                        d60_brand = "Grosmimi"
+                    elif any(k in tagged_lower for k in ["onzenna", "zezebaebae"]):
+                        d60_brand = "Onzenna"
+                    elif any(k in tagged_lower for k in ["chaandmom", "cha_mom", "chamom"]):
+                        d60_brand = "CHA&MOM"
+                    elif any(k in tagged_lower for k in ["naeiae"]):
+                        d60_brand = "Naeiae"
+                    # Current views from status columns (G-J)
+                    d60_views = _safe_int(row[9]) if len(row) > 9 else 0
+                    d60_posts.append({
+                        "post_id": pid, "url": d60_url, "platform": d60_platform,
+                        "username": d60_username, "nickname": "",
+                        "followers": 0, "caption": "", "hashtags": "",
+                        "tagged_account": d60_tagged, "post_date": d60_post_date,
+                        "brand": d60_brand, "region": reg, "source": "apify",
+                    })
+
+                post_date_str = row[4].strip() if len(row) > 4 else ""
+                if not post_date_str:
+                    continue
+                try:
+                    pd_dt = datetime.strptime(post_date_str, "%Y-%m-%d")
+                except ValueError:
+                    continue
+
+                # Walk D+0 through D+90, extracting (comments, likes, views)
+                for d_plus in range(91):
+                    col_start = 10 + d_plus * 3
+                    if col_start + 2 >= len(row):
+                        break
+                    c_val = _safe_int(row[col_start])
+                    l_val = _safe_int(row[col_start + 1])
+                    v_val = _safe_int(row[col_start + 2])
+                    if v_val > 0 or l_val > 0 or c_val > 0:
+                        from datetime import timedelta
+                        snap_date = (pd_dt + timedelta(days=d_plus)).strftime("%Y-%m-%d")
+                        historical_metrics.append({
+                            "post_id": pid, "date": snap_date,
+                            "comments": c_val, "likes": l_val, "views": v_val,
+                        })
+
+            # Push D+60-only posts to content_posts
+            if d60_posts:
+                push_posts(d60_posts)
+                total_posts += len(d60_posts)
+                print(f"  [SYNC] {d60_tab}: {len(d60_posts)} extra posts (D+60 only) pushed")
+
+            if historical_metrics:
+                # Deduplicate: keep max views per (post_id, date)
+                best = {}
+                for m in historical_metrics:
+                    key = (m["post_id"], m["date"])
+                    if key not in best or m["views"] > best[key]["views"]:
+                        best[key] = m
+                deduped = list(best.values())
+                push_metrics(deduped)
+                total_metrics += len(deduped)
+                print(f"  [SYNC] {d60_tab}: {len(deduped)} historical metric snapshots pushed")
+
+        # Push current metrics from Posts Master
+        if metrics:
+            push_metrics(metrics)
+            total_metrics += len(metrics)
+
+    print(f"\n===== Sync Complete: {total_posts} posts + {total_metrics} metrics → PG =====")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Apify Content Pipeline")
     parser.add_argument("--daily", action="store_true", help="Run daily pipeline")
@@ -1756,6 +1945,8 @@ def main():
                         help="Scan active Airtable influencers for new posts")
     parser.add_argument("--cross-platform", action="store_true",
                         help="Check TT creators for IG profiles (standalone)")
+    parser.add_argument("--sync-pg", action="store_true",
+                        help="Sync ALL Posts Master + D+60 data to PostgreSQL")
     parser.add_argument("--region", default="all", choices=["all", "us", "jp"])
     parser.add_argument("--dry-run", action="store_true", help="Use cached JSON, no API calls")
     parser.add_argument("--no-email", action="store_true", help="Skip email notification")
@@ -1767,6 +1958,8 @@ def main():
         run_influencer_scan(dry_run=args.dry_run)
     elif args.cross_platform:
         run_cross_platform_standalone(dry_run=args.dry_run)
+    elif args.sync_pg:
+        sync_sheet_to_pg(region=args.region)
     else:
         parser.print_help()
 
