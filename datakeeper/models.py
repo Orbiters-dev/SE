@@ -453,6 +453,25 @@ class AmazonBrandAnalytics(models.Model):
         return f"{self.date} {self.search_term} {self.asin}"
 
 
+class AmazonAutocompleteDaily(models.Model):
+    """Daily Amazon autocomplete rank scores for tracked brand keywords."""
+    date = models.DateField()
+    brand = models.CharField(max_length=100)
+    keyword = models.CharField(max_length=500)
+    market = models.CharField(max_length=10, default="US")  # US, JP
+    rank_score = models.IntegerField(default=0)  # 0-100
+    position = models.IntegerField(default=-1)  # 0-9 or -1 if not found
+    top_suggestions = models.TextField(blank=True, default="[]")  # JSON list
+    collected_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "gk_amazon_autocomplete_daily"
+        unique_together = ("date", "brand", "keyword", "market")
+
+    def __str__(self):
+        return f"{self.date} {self.brand} {self.keyword} ({self.market})"
+
+
 class GoogleAdsSearchTerms(models.Model):
     """Google Ads search term view daily metrics."""
     date = models.DateField()
