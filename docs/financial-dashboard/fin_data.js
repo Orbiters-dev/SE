@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-04-05 04:44 PST",
+ "generated_pst": "2026-04-05 05:00 PST",
  "through_date": "2026-04-03",
  "months": [
   "2025-01",
@@ -42148,32 +42148,144 @@ const FIN_DATA = {
     ],
     "sfr_branded": [
      {
-      "keyword": "grosmimi cup",
-      "search_freq_rank": 1366604,
+      "keyword": "grosmimi straw cup weighted straw",
+      "search_freq_rank": 830204,
       "rank_weekly": [
-       980264,
-       898171,
-       1165551,
-       948595,
-       1158547,
-       1409484,
-       969585,
-       1302817,
-       1366604
+       2569151,
+       2613076,
+       830204
+      ],
+      "rank_week_labels": [
+       "2026-02-15",
+       "2026-03-08",
+       "2026-03-22"
+      ],
+      "click_share": 43.37,
+      "conv_share": 36.36
+     },
+     {
+      "keyword": "grosmimi weighted straw kit",
+      "search_freq_rank": 1567991,
+      "rank_weekly": [
+       2535571,
+       2121120,
+       2613076,
+       1567991
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-01-11",
+       "2026-03-08",
+       "2026-03-22"
+      ],
+      "click_share": 43.18,
+      "conv_share": 50.0
+     },
+     {
+      "keyword": "grosmimi replacement top",
+      "search_freq_rank": 1353507,
+      "rank_weekly": [
+       1170346,
+       1591714,
+       1296729,
+       2436170,
+       1605802,
+       2461468,
+       1439890,
+       1676259,
+       1354026,
+       2363776,
+       1928957,
+       1353507
       ],
       "rank_week_labels": [
        "2025-12-28",
        "2026-01-04",
        "2026-01-11",
+       "2026-01-18",
        "2026-01-25",
+       "2026-02-01",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 39.22,
+      "conv_share": 38.1
+     },
+     {
+      "keyword": "grosmimi straw replacement",
+      "search_freq_rank": 142630,
+      "rank_weekly": [
+       148736,
+       144694,
+       136858,
+       138394,
+       155093,
+       145235,
+       130973,
+       147363,
+       149314,
+       143204,
+       157311,
+       152496,
+       142630
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
        "2026-02-08",
        "2026-02-15",
        "2026-02-22",
        "2026-03-01",
-       "2026-03-08"
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
       ],
-      "click_share": 29.41,
-      "conv_share": 38.46
+      "click_share": 38.1,
+      "conv_share": 34.05
+     },
+     {
+      "keyword": "grosmimi weighted straw",
+      "search_freq_rank": 465888,
+      "rank_weekly": [
+       1209772,
+       1169224,
+       1431254,
+       982249,
+       1226639,
+       1007532,
+       1097916,
+       1035307,
+       1093121,
+       1278446,
+       1266057,
+       1201772,
+       465888
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 36.73,
+      "conv_share": 22.73
      },
      {
       "keyword": "grosmini",
@@ -42194,78 +42306,79 @@ const FIN_DATA = {
       "conv_share": 0.0
      },
      {
-      "keyword": "grosmimi straw cup 12 months",
-      "search_freq_rank": 1366604,
+      "keyword": "toddler straw cup grosmimi",
+      "search_freq_rank": 1500658,
       "rank_weekly": [
-       2459655,
-       2317125,
-       1851159,
-       1907645,
-       1366604
-      ],
-      "rank_week_labels": [
-       "2026-01-25",
-       "2026-02-15",
-       "2026-02-22",
-       "2026-03-01",
-       "2026-03-08"
-      ],
-      "click_share": 15.69,
-      "conv_share": 18.18
-     },
-     {
-      "keyword": "grosmimi straw cup stage 2",
-      "search_freq_rank": 1868785,
-      "rank_weekly": [
-       1988435,
-       2144517,
-       1868785
-      ],
-      "rank_week_labels": [
-       "2026-01-04",
-       "2026-01-18",
-       "2026-01-25"
-      ],
-      "click_share": 11.43,
-      "conv_share": 11.11
-     },
-     {
-      "keyword": "grosmimi stage 2 straw",
-      "search_freq_rank": 2529861,
-      "rank_weekly": [
-       2719353,
+       2366746,
+       2482683,
+       1567338,
+       2033449,
        2461468,
-       2613076,
-       2529861
-      ],
-      "rank_week_labels": [
-       "2026-01-04",
-       "2026-02-01",
-       "2026-03-08",
-       "2026-03-15"
-      ],
-      "click_share": 11.11,
-      "conv_share": 0.0
-     },
-     {
-      "keyword": "grosmimi",
-      "search_freq_rank": 188551,
-      "rank_weekly": [
-       216025,
-       208502,
-       224629,
-       195060,
-       200964,
-       219897,
-       204177,
-       223848,
-       201149,
-       212812,
-       201907,
-       188551
+       1986607,
+       2191686,
+       2199943,
+       1784856,
+       1500658
       ],
       "rank_week_labels": [
        "2025-12-28",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 26.09,
+      "conv_share": 18.18
+     },
+     {
+      "keyword": "grosmimi straw cup 12 months",
+      "search_freq_rank": 919104,
+      "rank_weekly": [
+       2459655,
+       1870076,
+       2317125,
+       1851159,
+       1907645,
+       1366604,
+       2225059,
+       919104
+      ],
+      "rank_week_labels": [
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 18.67,
+      "conv_share": 0.0
+     },
+     {
+      "keyword": "grossini straw cup",
+      "search_freq_rank": 129736,
+      "rank_weekly": [
+       987552,
+       1165551,
+       2356795,
+       1727913,
+       1227239,
+       415839,
+       291779,
+       230641,
+       192475,
+       209087,
+       185849,
+       129736
+      ],
+      "rank_week_labels": [
        "2026-01-04",
        "2026-01-11",
        "2026-01-18",
@@ -42276,36 +42389,11 @@ const FIN_DATA = {
        "2026-02-22",
        "2026-03-01",
        "2026-03-08",
-       "2026-03-15"
+       "2026-03-15",
+       "2026-03-22"
       ],
-      "click_share": 10.67,
-      "conv_share": 3.08
-     },
-     {
-      "keyword": "toddler straw cup grosmimi",
-      "search_freq_rank": 1784856,
-      "rank_weekly": [
-       2366746,
-       2482683,
-       2033449,
-       2461468,
-       1986607,
-       2191686,
-       2199943,
-       1784856
-      ],
-      "rank_week_labels": [
-       "2025-12-28",
-       "2026-01-11",
-       "2026-01-25",
-       "2026-02-01",
-       "2026-02-15",
-       "2026-02-22",
-       "2026-03-01",
-       "2026-03-15"
-      ],
-      "click_share": 10.26,
-      "conv_share": 9.09
+      "click_share": 16.21,
+      "conv_share": 5.26
      },
      {
       "keyword": "grosmimi sippy cup",
@@ -42316,6 +42404,7 @@ const FIN_DATA = {
        555465,
        523743,
        482004,
+       588080,
        521482,
        626284,
        526120,
@@ -42330,6 +42419,7 @@ const FIN_DATA = {
        "2026-01-11",
        "2026-01-18",
        "2026-01-25",
+       "2026-02-01",
        "2026-02-08",
        "2026-02-15",
        "2026-02-22",
@@ -42338,26 +42428,53 @@ const FIN_DATA = {
        "2026-03-15",
        "2026-03-22"
       ],
-      "click_share": 9.48,
+      "click_share": 15.52,
+      "conv_share": 8.33
+     },
+     {
+      "keyword": "grosmimi straw cup stage 2",
+      "search_freq_rank": 2198549,
+      "rank_weekly": [
+       1988435,
+       2662014,
+       2144517,
+       1868785,
+       2408891,
+       2198549
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-22",
+       "2026-03-22"
+      ],
+      "click_share": 12.9,
       "conv_share": 0.0
      },
      {
-      "keyword": "grosmimi straw cup",
-      "search_freq_rank": 25045,
+      "keyword": "grosmimi cup",
+      "search_freq_rank": 782875,
       "rank_weekly": [
-       28706,
-       28805,
-       27226,
-       26087,
-       24640,
-       29119,
-       28204,
-       23326,
-       23805,
-       25045
+       980264,
+       898171,
+       1165551,
+       1407832,
+       948595,
+       1773847,
+       1158547,
+       1409484,
+       969585,
+       1302817,
+       1366604,
+       1181224,
+       782875
       ],
       "rank_week_labels": [
        "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
        "2026-01-18",
        "2026-01-25",
        "2026-02-01",
@@ -42366,10 +42483,139 @@ const FIN_DATA = {
        "2026-02-22",
        "2026-03-01",
        "2026-03-08",
-       "2026-03-15"
+       "2026-03-15",
+       "2026-03-22"
       ],
-      "click_share": 8.66,
-      "conv_share": 3.85
+      "click_share": 11.36,
+      "conv_share": 6.67
+     },
+     {
+      "keyword": "grosmimi stage 2 straw",
+      "search_freq_rank": 2500019,
+      "rank_weekly": [
+       2719353,
+       2461468,
+       2613076,
+       2529861,
+       2500019
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-02-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 11.11,
+      "conv_share": 25.0
+     },
+     {
+      "keyword": "grosmimi",
+      "search_freq_rank": 140482,
+      "rank_weekly": [
+       216025,
+       208502,
+       224629,
+       195060,
+       200964,
+       219897,
+       204177,
+       223848,
+       201149,
+       212812,
+       201907,
+       188551,
+       140482
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 10.66,
+      "conv_share": 1.11
+     },
+     {
+      "keyword": "grosmimi straw cup",
+      "search_freq_rank": 14848,
+      "rank_weekly": [
+       28706,
+       24602,
+       27370,
+       28805,
+       27226,
+       26087,
+       24640,
+       29119,
+       28204,
+       23326,
+       23805,
+       25045,
+       14848
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 10.32,
+      "conv_share": 5.19
+     },
+     {
+      "keyword": "grosmimi straw",
+      "search_freq_rank": 1094748,
+      "rank_weekly": [
+       1573307,
+       1461001,
+       1799481,
+       1437061,
+       1685235,
+       1728836,
+       1873905,
+       1612254,
+       1851159,
+       2015247,
+       1827973,
+       1453549,
+       1094748
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 7.94,
+      "conv_share": 0.0
      },
      {
       "keyword": "grossmimi",
@@ -42400,19 +42646,7 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0F9Q2F89Y",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0F9PZGGF2",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DB7SPP2P",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DY6SM9Y7",
+      "asin": "B0DB7V1BW3",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -42420,7 +42654,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0DB7V1BW3",
+      "asin": "B0DY6SM9Y7",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -42432,11 +42666,23 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
+      "asin": "B0F9Q2F89Y",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
       "asin": "B0F6XNGT85",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0F4D28MC3",
+      "asin": "B0DB7SPP2P",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0F9PZGGF2",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0F4D8L1HL",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
@@ -42444,23 +42690,27 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0F4D3YZ8H",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
-     },
-     {
       "asin": "B0F4CRT6LV",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0F4D8L1HL",
+      "asin": "B0F4D3YZ8H",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
+     },
+     {
+      "asin": "B0F4D28MC3",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
+     },
+     {
+      "asin": "B0F9PZPMH8",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
       "asin": "B0F9PZD6QM",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PZPMH8",
+      "asin": "B0F9PX51FX",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -42472,27 +42722,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PX51FX",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
-     },
-     {
-      "asin": "B083986L91",
+      "asin": "B07YL2FT96",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0842DMZ3H",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B07YKH98WT",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0BZYSL3BH",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B07YKJ18D5",
+      "asin": "B07YKKWFTN",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -42504,15 +42738,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B082SSPN4X",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B08398KZ2B",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B07YKKWFTN",
+      "asin": "B0C1N3VDL3",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -42520,7 +42746,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B07YL2FT96",
+      "asin": "B082SSPN4X",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B07YKH98WT",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -42528,7 +42758,19 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
+      "asin": "B0BZYSL3BH",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
       "asin": "B083XT642K",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0842DMZ3H",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B07YKJ18D5",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -42536,19 +42778,19 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0C1N3VDL3",
+      "asin": "B08398KZ2B",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0F8QH8T8X",
-      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+      "asin": "B083986L91",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
       "asin": "B0F8Q8RK18",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
-      "asin": "B0F8QGZ7TH",
+      "asin": "B0F8QHRGKW",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
@@ -42556,11 +42798,15 @@ const FIN_DATA = {
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
+      "asin": "B0F8QGZ7TH",
+      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+     },
+     {
       "asin": "B0F8QHJN6G",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
-      "asin": "B0F8QHRGKW",
+      "asin": "B0F8QH8T8X",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
@@ -42959,6 +43205,164 @@ const FIN_DATA = {
     ],
     "sfr_branded": [
      {
+      "keyword": "grosmimi stainless steel",
+      "search_freq_rank": 2681510,
+      "rank_weekly": [
+       2698057,
+       2613076,
+       2618880,
+       2681510
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 68.0,
+      "conv_share": 50.0
+     },
+     {
+      "keyword": "grosmimi straw cup weighted straw",
+      "search_freq_rank": 830204,
+      "rank_weekly": [
+       2569151,
+       2613076,
+       830204
+      ],
+      "rank_week_labels": [
+       "2026-02-15",
+       "2026-03-08",
+       "2026-03-22"
+      ],
+      "click_share": 43.37,
+      "conv_share": 36.36
+     },
+     {
+      "keyword": "grosmimi weighted straw kit",
+      "search_freq_rank": 1567991,
+      "rank_weekly": [
+       2535571,
+       2121120,
+       2613076,
+       1567991
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-01-11",
+       "2026-03-08",
+       "2026-03-22"
+      ],
+      "click_share": 43.18,
+      "conv_share": 50.0
+     },
+     {
+      "keyword": "grosmimi replacement top",
+      "search_freq_rank": 1353507,
+      "rank_weekly": [
+       1170346,
+       1591714,
+       1296729,
+       2436170,
+       1605802,
+       2461468,
+       1439890,
+       1676259,
+       1354026,
+       2363776,
+       1928957,
+       1353507
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 39.22,
+      "conv_share": 38.1
+     },
+     {
+      "keyword": "grosmimi straw replacement",
+      "search_freq_rank": 142630,
+      "rank_weekly": [
+       148736,
+       144694,
+       136858,
+       138394,
+       155093,
+       145235,
+       130973,
+       147363,
+       149314,
+       143204,
+       157311,
+       152496,
+       142630
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 38.1,
+      "conv_share": 34.05
+     },
+     {
+      "keyword": "grosmimi weighted straw",
+      "search_freq_rank": 465888,
+      "rank_weekly": [
+       1209772,
+       1169224,
+       1431254,
+       982249,
+       1226639,
+       1007532,
+       1097916,
+       1035307,
+       1093121,
+       1278446,
+       1266057,
+       1201772,
+       465888
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 36.73,
+      "conv_share": 22.73
+     },
+     {
       "keyword": "grosmini",
       "search_freq_rank": 2198549,
       "rank_weekly": [
@@ -42977,21 +43381,22 @@ const FIN_DATA = {
       "conv_share": 0.0
      },
      {
-      "keyword": "grosmimi",
-      "search_freq_rank": 188551,
+      "keyword": "grosmimi straw cup stainless steel",
+      "search_freq_rank": 748776,
       "rank_weekly": [
-       216025,
-       208502,
-       224629,
-       195060,
-       200964,
-       219897,
-       204177,
-       223848,
-       201149,
-       212812,
-       201907,
-       188551
+       1642857,
+       1790535,
+       1846426,
+       1437061,
+       1226639,
+       1870076,
+       963435,
+       1439890,
+       1351220,
+       1014108,
+       1035881,
+       1316095,
+       748776
       ],
       "rank_week_labels": [
        "2025-12-28",
@@ -43005,39 +43410,382 @@ const FIN_DATA = {
        "2026-02-22",
        "2026-03-01",
        "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 27.17,
+      "conv_share": 6.67
+     },
+     {
+      "keyword": "toddler straw cup grosmimi",
+      "search_freq_rank": 1500658,
+      "rank_weekly": [
+       2366746,
+       2482683,
+       1567338,
+       2033449,
+       2461468,
+       1986607,
+       2191686,
+       2199943,
+       1784856,
+       1500658
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 26.09,
+      "conv_share": 18.18
+     },
+     {
+      "keyword": "grosmimi stainless steel straw cup",
+      "search_freq_rank": 181947,
+      "rank_weekly": [
+       383245,
+       313730,
+       389470,
+       336018,
+       319145,
+       383227,
+       296138,
+       245879,
+       302673,
+       261534,
+       234057,
+       234856,
+       181947
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 25.07,
+      "conv_share": 5.88
+     },
+     {
+      "keyword": "grosmimi stainless steel cup",
+      "search_freq_rank": 2408891,
+      "rank_weekly": [
+       1395260,
+       1431366,
+       1461684,
+       1641586,
+       2377173,
+       1378000,
+       1557914,
+       2045288,
+       2408891
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22"
+      ],
+      "click_share": 21.43,
+      "conv_share": 0.0
+     },
+     {
+      "keyword": "grosmimi straw cup 12 months",
+      "search_freq_rank": 919104,
+      "rank_weekly": [
+       2459655,
+       1870076,
+       2317125,
+       1851159,
+       1907645,
+       1366604,
+       2225059,
+       919104
+      ],
+      "rank_week_labels": [
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 18.67,
+      "conv_share": 0.0
+     },
+     {
+      "keyword": "grossini straw cup",
+      "search_freq_rank": 129736,
+      "rank_weekly": [
+       987552,
+       1165551,
+       2356795,
+       1727913,
+       1227239,
+       415839,
+       291779,
+       230641,
+       192475,
+       209087,
+       185849,
+       129736
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 16.21,
+      "conv_share": 5.26
+     },
+     {
+      "keyword": "grosmimi straw cup stage 2",
+      "search_freq_rank": 2198549,
+      "rank_weekly": [
+       1988435,
+       2662014,
+       2144517,
+       1868785,
+       2408891,
+       2198549
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-22",
+       "2026-03-22"
+      ],
+      "click_share": 12.9,
+      "conv_share": 0.0
+     },
+     {
+      "keyword": "grosmimi cup",
+      "search_freq_rank": 782875,
+      "rank_weekly": [
+       980264,
+       898171,
+       1165551,
+       1407832,
+       948595,
+       1773847,
+       1158547,
+       1409484,
+       969585,
+       1302817,
+       1366604,
+       1181224,
+       782875
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 11.36,
+      "conv_share": 6.67
+     },
+     {
+      "keyword": "grosmimi stage 2 straw",
+      "search_freq_rank": 2500019,
+      "rank_weekly": [
+       2719353,
+       2461468,
+       2613076,
+       2529861,
+       2500019
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-02-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 11.11,
+      "conv_share": 25.0
+     },
+     {
+      "keyword": "grosmimi",
+      "search_freq_rank": 140482,
+      "rank_weekly": [
+       216025,
+       208502,
+       224629,
+       195060,
+       200964,
+       219897,
+       204177,
+       223848,
+       201149,
+       212812,
+       201907,
+       188551,
+       140482
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 10.66,
+      "conv_share": 1.11
+     },
+     {
+      "keyword": "grosmimi straw cup",
+      "search_freq_rank": 14848,
+      "rank_weekly": [
+       28706,
+       24602,
+       27370,
+       28805,
+       27226,
+       26087,
+       24640,
+       29119,
+       28204,
+       23326,
+       23805,
+       25045,
+       14848
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 10.32,
+      "conv_share": 5.19
+     },
+     {
+      "keyword": "grosmimi straw",
+      "search_freq_rank": 1094748,
+      "rank_weekly": [
+       1573307,
+       1461001,
+       1799481,
+       1437061,
+       1685235,
+       1728836,
+       1873905,
+       1612254,
+       1851159,
+       2015247,
+       1827973,
+       1453549,
+       1094748
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 7.94,
+      "conv_share": 0.0
+     },
+     {
+      "keyword": "grossmimi",
+      "search_freq_rank": 1341686,
+      "rank_weekly": [
+       1559739,
+       1435882,
+       2228859,
+       1637423,
+       1781139,
+       1716977,
+       1437839,
+       1341686
+      ],
+      "rank_week_labels": [
+       "2026-01-11",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
        "2026-03-15"
       ],
-      "click_share": 10.67,
-      "conv_share": 3.08
+      "click_share": 7.69,
+      "conv_share": 0.0
      }
     ],
     "asins": [
      {
-      "asin": "B0FKGFN121",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FKG6RCDC",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FHKFQPGR",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
       "asin": "B0FKG59ZMN",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FKFN91X9",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FHKC2DVV",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FKFW6PND",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -43045,11 +43793,35 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FKGCRG45",
+      "asin": "B0FHKC2DVV",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FHKFQPGR",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FKG6RCDC",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FKFN91X9",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FKFW6PND",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
       "asin": "B0FHKBTY2S",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FKGCRG45",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FKGFN121",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      }
     ]
@@ -43299,32 +44071,194 @@ const FIN_DATA = {
     ],
     "sfr_branded": [
      {
-      "keyword": "grosmimi cup",
-      "search_freq_rank": 1366604,
+      "keyword": "grosmimi stainless steel",
+      "search_freq_rank": 2681510,
       "rank_weekly": [
-       980264,
-       898171,
-       1165551,
-       948595,
-       1158547,
-       1409484,
-       969585,
-       1302817,
-       1366604
+       2698057,
+       2613076,
+       2618880,
+       2681510
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 68.0,
+      "conv_share": 50.0
+     },
+     {
+      "keyword": "grosmimi straw cup weighted straw",
+      "search_freq_rank": 830204,
+      "rank_weekly": [
+       2569151,
+       2613076,
+       830204
+      ],
+      "rank_week_labels": [
+       "2026-02-15",
+       "2026-03-08",
+       "2026-03-22"
+      ],
+      "click_share": 43.37,
+      "conv_share": 36.36
+     },
+     {
+      "keyword": "grosmimi weighted straw kit",
+      "search_freq_rank": 1567991,
+      "rank_weekly": [
+       2535571,
+       2121120,
+       2613076,
+       1567991
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-01-11",
+       "2026-03-08",
+       "2026-03-22"
+      ],
+      "click_share": 43.18,
+      "conv_share": 50.0
+     },
+     {
+      "keyword": "grosmimi replacement top",
+      "search_freq_rank": 1353507,
+      "rank_weekly": [
+       1170346,
+       1591714,
+       1296729,
+       2436170,
+       1605802,
+       2461468,
+       1439890,
+       1676259,
+       1354026,
+       2363776,
+       1928957,
+       1353507
       ],
       "rank_week_labels": [
        "2025-12-28",
        "2026-01-04",
        "2026-01-11",
+       "2026-01-18",
        "2026-01-25",
+       "2026-02-01",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 39.22,
+      "conv_share": 38.1
+     },
+     {
+      "keyword": "grosmimi straw replacement",
+      "search_freq_rank": 142630,
+      "rank_weekly": [
+       148736,
+       144694,
+       136858,
+       138394,
+       155093,
+       145235,
+       130973,
+       147363,
+       149314,
+       143204,
+       157311,
+       152496,
+       142630
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 38.1,
+      "conv_share": 34.05
+     },
+     {
+      "keyword": "grosmimi weighted straw",
+      "search_freq_rank": 465888,
+      "rank_weekly": [
+       1209772,
+       1169224,
+       1431254,
+       982249,
+       1226639,
+       1007532,
+       1097916,
+       1035307,
+       1093121,
+       1278446,
+       1266057,
+       1201772,
+       465888
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 36.73,
+      "conv_share": 22.73
+     },
+     {
+      "keyword": "grosmimi tumbler",
+      "search_freq_rank": 2707577,
+      "rank_weekly": [
+       1099166,
+       922196,
+       1461684,
+       1379682,
+       1772818,
+       1569860,
+       1203011,
+       2317125,
+       2577486,
+       2588257,
+       2707577
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
        "2026-02-08",
        "2026-02-15",
        "2026-02-22",
        "2026-03-01",
        "2026-03-08"
       ],
-      "click_share": 29.41,
-      "conv_share": 38.46
+      "click_share": 36.0,
+      "conv_share": 0.0
      },
      {
       "keyword": "grosmini",
@@ -43345,21 +44279,22 @@ const FIN_DATA = {
       "conv_share": 0.0
      },
      {
-      "keyword": "grosmimi",
-      "search_freq_rank": 188551,
+      "keyword": "grosmimi straw cup stainless steel",
+      "search_freq_rank": 748776,
       "rank_weekly": [
-       216025,
-       208502,
-       224629,
-       195060,
-       200964,
-       219897,
-       204177,
-       223848,
-       201149,
-       212812,
-       201907,
-       188551
+       1642857,
+       1790535,
+       1846426,
+       1437061,
+       1226639,
+       1870076,
+       963435,
+       1439890,
+       1351220,
+       1014108,
+       1035881,
+       1316095,
+       748776
       ],
       "rank_week_labels": [
        "2025-12-28",
@@ -43373,10 +44308,387 @@ const FIN_DATA = {
        "2026-02-22",
        "2026-03-01",
        "2026-03-08",
-       "2026-03-15"
+       "2026-03-15",
+       "2026-03-22"
       ],
-      "click_share": 10.67,
-      "conv_share": 3.08
+      "click_share": 27.17,
+      "conv_share": 6.67
+     },
+     {
+      "keyword": "toddler straw cup grosmimi",
+      "search_freq_rank": 1500658,
+      "rank_weekly": [
+       2366746,
+       2482683,
+       1567338,
+       2033449,
+       2461468,
+       1986607,
+       2191686,
+       2199943,
+       1784856,
+       1500658
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 26.09,
+      "conv_share": 18.18
+     },
+     {
+      "keyword": "grosmimi stainless steel straw cup",
+      "search_freq_rank": 181947,
+      "rank_weekly": [
+       383245,
+       313730,
+       389470,
+       336018,
+       319145,
+       383227,
+       296138,
+       245879,
+       302673,
+       261534,
+       234057,
+       234856,
+       181947
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 25.07,
+      "conv_share": 5.88
+     },
+     {
+      "keyword": "grosmimi stainless steel cup",
+      "search_freq_rank": 2408891,
+      "rank_weekly": [
+       1395260,
+       1431366,
+       1461684,
+       1641586,
+       2377173,
+       1378000,
+       1557914,
+       2045288,
+       2408891
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22"
+      ],
+      "click_share": 21.43,
+      "conv_share": 0.0
+     },
+     {
+      "keyword": "grosmimi straw cup 12 months",
+      "search_freq_rank": 919104,
+      "rank_weekly": [
+       2459655,
+       1870076,
+       2317125,
+       1851159,
+       1907645,
+       1366604,
+       2225059,
+       919104
+      ],
+      "rank_week_labels": [
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 18.67,
+      "conv_share": 0.0
+     },
+     {
+      "keyword": "grossini straw cup",
+      "search_freq_rank": 129736,
+      "rank_weekly": [
+       987552,
+       1165551,
+       2356795,
+       1727913,
+       1227239,
+       415839,
+       291779,
+       230641,
+       192475,
+       209087,
+       185849,
+       129736
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 16.21,
+      "conv_share": 5.26
+     },
+     {
+      "keyword": "grosmimi sippy cup",
+      "search_freq_rank": 592859,
+      "rank_weekly": [
+       588709,
+       606722,
+       555465,
+       523743,
+       482004,
+       588080,
+       521482,
+       626284,
+       526120,
+       608273,
+       726915,
+       754360,
+       592859
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 15.52,
+      "conv_share": 8.33
+     },
+     {
+      "keyword": "grosmimi straw cup stage 2",
+      "search_freq_rank": 2198549,
+      "rank_weekly": [
+       1988435,
+       2662014,
+       2144517,
+       1868785,
+       2408891,
+       2198549
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-22",
+       "2026-03-22"
+      ],
+      "click_share": 12.9,
+      "conv_share": 0.0
+     },
+     {
+      "keyword": "grosmimi cup",
+      "search_freq_rank": 782875,
+      "rank_weekly": [
+       980264,
+       898171,
+       1165551,
+       1407832,
+       948595,
+       1773847,
+       1158547,
+       1409484,
+       969585,
+       1302817,
+       1366604,
+       1181224,
+       782875
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 11.36,
+      "conv_share": 6.67
+     },
+     {
+      "keyword": "grosmimi stage 2 straw",
+      "search_freq_rank": 2500019,
+      "rank_weekly": [
+       2719353,
+       2461468,
+       2613076,
+       2529861,
+       2500019
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-02-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 11.11,
+      "conv_share": 25.0
+     },
+     {
+      "keyword": "grosmimi",
+      "search_freq_rank": 140482,
+      "rank_weekly": [
+       216025,
+       208502,
+       224629,
+       195060,
+       200964,
+       219897,
+       204177,
+       223848,
+       201149,
+       212812,
+       201907,
+       188551,
+       140482
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 10.66,
+      "conv_share": 1.11
+     },
+     {
+      "keyword": "grosmimi straw cup",
+      "search_freq_rank": 14848,
+      "rank_weekly": [
+       28706,
+       24602,
+       27370,
+       28805,
+       27226,
+       26087,
+       24640,
+       29119,
+       28204,
+       23326,
+       23805,
+       25045,
+       14848
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 10.32,
+      "conv_share": 5.19
+     },
+     {
+      "keyword": "grosmimi straw",
+      "search_freq_rank": 1094748,
+      "rank_weekly": [
+       1573307,
+       1461001,
+       1799481,
+       1437061,
+       1685235,
+       1728836,
+       1873905,
+       1612254,
+       1851159,
+       2015247,
+       1827973,
+       1453549,
+       1094748
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 7.94,
+      "conv_share": 0.0
      },
      {
       "keyword": "grossmimi",
@@ -43407,15 +44719,15 @@ const FIN_DATA = {
     ],
     "asins": [
      {
+      "asin": "B0FR4Q6LXQ",
+      "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
+     },
+     {
       "asin": "B0FR4RQRNR",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
       "asin": "B0FR4FGBPP",
-      "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
-     },
-     {
-      "asin": "B0FR4Q6LXQ",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      }
     ]
@@ -43641,7 +44953,536 @@ const FIN_DATA = {
      2
     ],
     "top_keywords": [],
-    "sfr_branded": [],
+    "sfr_branded": [
+     {
+      "keyword": "grosmimi straw cup weighted straw",
+      "search_freq_rank": 830204,
+      "rank_weekly": [
+       2569151,
+       2613076,
+       830204
+      ],
+      "rank_week_labels": [
+       "2026-02-15",
+       "2026-03-08",
+       "2026-03-22"
+      ],
+      "click_share": 43.37,
+      "conv_share": 36.36
+     },
+     {
+      "keyword": "grosmimi weighted straw kit",
+      "search_freq_rank": 1567991,
+      "rank_weekly": [
+       2535571,
+       2121120,
+       2613076,
+       1567991
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-01-11",
+       "2026-03-08",
+       "2026-03-22"
+      ],
+      "click_share": 43.18,
+      "conv_share": 50.0
+     },
+     {
+      "keyword": "grosmimi replacement top",
+      "search_freq_rank": 1353507,
+      "rank_weekly": [
+       1170346,
+       1591714,
+       1296729,
+       2436170,
+       1605802,
+       2461468,
+       1439890,
+       1676259,
+       1354026,
+       2363776,
+       1928957,
+       1353507
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 39.22,
+      "conv_share": 38.1
+     },
+     {
+      "keyword": "grosmimi straw replacement",
+      "search_freq_rank": 142630,
+      "rank_weekly": [
+       148736,
+       144694,
+       136858,
+       138394,
+       155093,
+       145235,
+       130973,
+       147363,
+       149314,
+       143204,
+       157311,
+       152496,
+       142630
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 38.1,
+      "conv_share": 34.05
+     },
+     {
+      "keyword": "grosmimi weighted straw",
+      "search_freq_rank": 465888,
+      "rank_weekly": [
+       1209772,
+       1169224,
+       1431254,
+       982249,
+       1226639,
+       1007532,
+       1097916,
+       1035307,
+       1093121,
+       1278446,
+       1266057,
+       1201772,
+       465888
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 36.73,
+      "conv_share": 22.73
+     },
+     {
+      "keyword": "grosmimi tumbler",
+      "search_freq_rank": 2707577,
+      "rank_weekly": [
+       1099166,
+       922196,
+       1461684,
+       1379682,
+       1772818,
+       1569860,
+       1203011,
+       2317125,
+       2577486,
+       2588257,
+       2707577
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08"
+      ],
+      "click_share": 36.0,
+      "conv_share": 0.0
+     },
+     {
+      "keyword": "grosmini",
+      "search_freq_rank": 2198549,
+      "rank_weekly": [
+       2459655,
+       1987467,
+       2441217,
+       2198549
+      ],
+      "rank_week_labels": [
+       "2026-01-25",
+       "2026-02-08",
+       "2026-03-08",
+       "2026-03-22"
+      ],
+      "click_share": 29.03,
+      "conv_share": 0.0
+     },
+     {
+      "keyword": "toddler straw cup grosmimi",
+      "search_freq_rank": 1500658,
+      "rank_weekly": [
+       2366746,
+       2482683,
+       1567338,
+       2033449,
+       2461468,
+       1986607,
+       2191686,
+       2199943,
+       1784856,
+       1500658
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 26.09,
+      "conv_share": 18.18
+     },
+     {
+      "keyword": "grosmimi straw cup 12 months",
+      "search_freq_rank": 919104,
+      "rank_weekly": [
+       2459655,
+       1870076,
+       2317125,
+       1851159,
+       1907645,
+       1366604,
+       2225059,
+       919104
+      ],
+      "rank_week_labels": [
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 18.67,
+      "conv_share": 0.0
+     },
+     {
+      "keyword": "grossini straw cup",
+      "search_freq_rank": 129736,
+      "rank_weekly": [
+       987552,
+       1165551,
+       2356795,
+       1727913,
+       1227239,
+       415839,
+       291779,
+       230641,
+       192475,
+       209087,
+       185849,
+       129736
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 16.21,
+      "conv_share": 5.26
+     },
+     {
+      "keyword": "grosmimi sippy cup",
+      "search_freq_rank": 592859,
+      "rank_weekly": [
+       588709,
+       606722,
+       555465,
+       523743,
+       482004,
+       588080,
+       521482,
+       626284,
+       526120,
+       608273,
+       726915,
+       754360,
+       592859
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 15.52,
+      "conv_share": 8.33
+     },
+     {
+      "keyword": "grosmimi straw cup stage 2",
+      "search_freq_rank": 2198549,
+      "rank_weekly": [
+       1988435,
+       2662014,
+       2144517,
+       1868785,
+       2408891,
+       2198549
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-22",
+       "2026-03-22"
+      ],
+      "click_share": 12.9,
+      "conv_share": 0.0
+     },
+     {
+      "keyword": "grosmimi cup",
+      "search_freq_rank": 782875,
+      "rank_weekly": [
+       980264,
+       898171,
+       1165551,
+       1407832,
+       948595,
+       1773847,
+       1158547,
+       1409484,
+       969585,
+       1302817,
+       1366604,
+       1181224,
+       782875
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 11.36,
+      "conv_share": 6.67
+     },
+     {
+      "keyword": "grosmimi stage 2 straw",
+      "search_freq_rank": 2500019,
+      "rank_weekly": [
+       2719353,
+       2461468,
+       2613076,
+       2529861,
+       2500019
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-02-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 11.11,
+      "conv_share": 25.0
+     },
+     {
+      "keyword": "grosmimi",
+      "search_freq_rank": 140482,
+      "rank_weekly": [
+       216025,
+       208502,
+       224629,
+       195060,
+       200964,
+       219897,
+       204177,
+       223848,
+       201149,
+       212812,
+       201907,
+       188551,
+       140482
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 10.66,
+      "conv_share": 1.11
+     },
+     {
+      "keyword": "grosmimi straw cup",
+      "search_freq_rank": 14848,
+      "rank_weekly": [
+       28706,
+       24602,
+       27370,
+       28805,
+       27226,
+       26087,
+       24640,
+       29119,
+       28204,
+       23326,
+       23805,
+       25045,
+       14848
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 10.32,
+      "conv_share": 5.19
+     },
+     {
+      "keyword": "grosmimi straw",
+      "search_freq_rank": 1094748,
+      "rank_weekly": [
+       1573307,
+       1461001,
+       1799481,
+       1437061,
+       1685235,
+       1728836,
+       1873905,
+       1612254,
+       1851159,
+       2015247,
+       1827973,
+       1453549,
+       1094748
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 7.94,
+      "conv_share": 0.0
+     },
+     {
+      "keyword": "grossmimi",
+      "search_freq_rank": 1341686,
+      "rank_weekly": [
+       1559739,
+       1435882,
+       2228859,
+       1637423,
+       1781139,
+       1716977,
+       1437839,
+       1341686
+      ],
+      "rank_week_labels": [
+       "2026-01-11",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-15"
+      ],
+      "click_share": 7.69,
+      "conv_share": 0.0
+     }
+    ],
     "asins": [
      {
       "asin": "B0FR43XGSS",
@@ -43900,32 +45741,144 @@ const FIN_DATA = {
     ],
     "sfr_branded": [
      {
-      "keyword": "grosmimi cup",
-      "search_freq_rank": 1366604,
+      "keyword": "grosmimi straw cup weighted straw",
+      "search_freq_rank": 830204,
       "rank_weekly": [
-       980264,
-       898171,
-       1165551,
-       948595,
-       1158547,
-       1409484,
-       969585,
-       1302817,
-       1366604
+       2569151,
+       2613076,
+       830204
+      ],
+      "rank_week_labels": [
+       "2026-02-15",
+       "2026-03-08",
+       "2026-03-22"
+      ],
+      "click_share": 43.37,
+      "conv_share": 36.36
+     },
+     {
+      "keyword": "grosmimi weighted straw kit",
+      "search_freq_rank": 1567991,
+      "rank_weekly": [
+       2535571,
+       2121120,
+       2613076,
+       1567991
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-01-11",
+       "2026-03-08",
+       "2026-03-22"
+      ],
+      "click_share": 43.18,
+      "conv_share": 50.0
+     },
+     {
+      "keyword": "grosmimi replacement top",
+      "search_freq_rank": 1353507,
+      "rank_weekly": [
+       1170346,
+       1591714,
+       1296729,
+       2436170,
+       1605802,
+       2461468,
+       1439890,
+       1676259,
+       1354026,
+       2363776,
+       1928957,
+       1353507
       ],
       "rank_week_labels": [
        "2025-12-28",
        "2026-01-04",
        "2026-01-11",
+       "2026-01-18",
        "2026-01-25",
+       "2026-02-01",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 39.22,
+      "conv_share": 38.1
+     },
+     {
+      "keyword": "grosmimi straw replacement",
+      "search_freq_rank": 142630,
+      "rank_weekly": [
+       148736,
+       144694,
+       136858,
+       138394,
+       155093,
+       145235,
+       130973,
+       147363,
+       149314,
+       143204,
+       157311,
+       152496,
+       142630
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
        "2026-02-08",
        "2026-02-15",
        "2026-02-22",
        "2026-03-01",
-       "2026-03-08"
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
       ],
-      "click_share": 29.41,
-      "conv_share": 38.46
+      "click_share": 38.1,
+      "conv_share": 34.05
+     },
+     {
+      "keyword": "grosmimi weighted straw",
+      "search_freq_rank": 465888,
+      "rank_weekly": [
+       1209772,
+       1169224,
+       1431254,
+       982249,
+       1226639,
+       1007532,
+       1097916,
+       1035307,
+       1093121,
+       1278446,
+       1266057,
+       1201772,
+       465888
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 36.73,
+      "conv_share": 22.73
      },
      {
       "keyword": "grosmini",
@@ -43946,21 +45899,112 @@ const FIN_DATA = {
       "conv_share": 0.0
      },
      {
-      "keyword": "grosmimi",
-      "search_freq_rank": 188551,
+      "keyword": "toddler straw cup grosmimi",
+      "search_freq_rank": 1500658,
       "rank_weekly": [
-       216025,
-       208502,
-       224629,
-       195060,
-       200964,
-       219897,
-       204177,
-       223848,
-       201149,
-       212812,
-       201907,
-       188551
+       2366746,
+       2482683,
+       1567338,
+       2033449,
+       2461468,
+       1986607,
+       2191686,
+       2199943,
+       1784856,
+       1500658
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 26.09,
+      "conv_share": 18.18
+     },
+     {
+      "keyword": "grosmimi straw cup 12 months",
+      "search_freq_rank": 919104,
+      "rank_weekly": [
+       2459655,
+       1870076,
+       2317125,
+       1851159,
+       1907645,
+       1366604,
+       2225059,
+       919104
+      ],
+      "rank_week_labels": [
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 18.67,
+      "conv_share": 0.0
+     },
+     {
+      "keyword": "grossini straw cup",
+      "search_freq_rank": 129736,
+      "rank_weekly": [
+       987552,
+       1165551,
+       2356795,
+       1727913,
+       1227239,
+       415839,
+       291779,
+       230641,
+       192475,
+       209087,
+       185849,
+       129736
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 16.21,
+      "conv_share": 5.26
+     },
+     {
+      "keyword": "grosmimi sippy cup",
+      "search_freq_rank": 592859,
+      "rank_weekly": [
+       588709,
+       606722,
+       555465,
+       523743,
+       482004,
+       588080,
+       521482,
+       626284,
+       526120,
+       608273,
+       726915,
+       754360,
+       592859
       ],
       "rank_week_labels": [
        "2025-12-28",
@@ -43974,10 +46018,197 @@ const FIN_DATA = {
        "2026-02-22",
        "2026-03-01",
        "2026-03-08",
-       "2026-03-15"
+       "2026-03-15",
+       "2026-03-22"
       ],
-      "click_share": 10.67,
-      "conv_share": 3.08
+      "click_share": 15.52,
+      "conv_share": 8.33
+     },
+     {
+      "keyword": "grosmimi straw cup stage 2",
+      "search_freq_rank": 2198549,
+      "rank_weekly": [
+       1988435,
+       2662014,
+       2144517,
+       1868785,
+       2408891,
+       2198549
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-22",
+       "2026-03-22"
+      ],
+      "click_share": 12.9,
+      "conv_share": 0.0
+     },
+     {
+      "keyword": "grosmimi cup",
+      "search_freq_rank": 782875,
+      "rank_weekly": [
+       980264,
+       898171,
+       1165551,
+       1407832,
+       948595,
+       1773847,
+       1158547,
+       1409484,
+       969585,
+       1302817,
+       1366604,
+       1181224,
+       782875
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 11.36,
+      "conv_share": 6.67
+     },
+     {
+      "keyword": "grosmimi stage 2 straw",
+      "search_freq_rank": 2500019,
+      "rank_weekly": [
+       2719353,
+       2461468,
+       2613076,
+       2529861,
+       2500019
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-02-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 11.11,
+      "conv_share": 25.0
+     },
+     {
+      "keyword": "grosmimi",
+      "search_freq_rank": 140482,
+      "rank_weekly": [
+       216025,
+       208502,
+       224629,
+       195060,
+       200964,
+       219897,
+       204177,
+       223848,
+       201149,
+       212812,
+       201907,
+       188551,
+       140482
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 10.66,
+      "conv_share": 1.11
+     },
+     {
+      "keyword": "grosmimi straw cup",
+      "search_freq_rank": 14848,
+      "rank_weekly": [
+       28706,
+       24602,
+       27370,
+       28805,
+       27226,
+       26087,
+       24640,
+       29119,
+       28204,
+       23326,
+       23805,
+       25045,
+       14848
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 10.32,
+      "conv_share": 5.19
+     },
+     {
+      "keyword": "grosmimi straw",
+      "search_freq_rank": 1094748,
+      "rank_weekly": [
+       1573307,
+       1461001,
+       1799481,
+       1437061,
+       1685235,
+       1728836,
+       1873905,
+       1612254,
+       1851159,
+       2015247,
+       1827973,
+       1453549,
+       1094748
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 7.94,
+      "conv_share": 0.0
      },
      {
       "keyword": "grossmimi",

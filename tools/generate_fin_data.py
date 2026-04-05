@@ -3130,6 +3130,22 @@ def generate():
                 })
             cat_top_kw[cat] = sorted(best, key=lambda x: -x["click_share"])[:8]
 
+        # Build ALL BA keywords (regardless of is_ours) for SFR branded tracking.
+        # SFR rank is a keyword-level metric, not ASIN-level — we need every week's rank
+        # even when our ASIN isn't in the top 3 clicked for that week.
+        all_ba_keywords = defaultdict(list)
+        for r in brand_analytics:
+            term = (r.get("search_term") or "").strip().lower()
+            if not term:
+                continue
+            all_ba_keywords[term].append({
+                "keyword": term,
+                "search_freq_rank": int(r.get("search_frequency_rank") or 0),
+                "click_share": round(float(r.get("click_share") or 0) * 100, 2),
+                "conv_share": round(float(r.get("conversion_share") or 0) * 100, 2),
+                "week": r.get("date", ""),
+            })
+
         # SFR branded keywords
         _BRAND_VARIANTS_PY = {
             'grosmimi': ['grosmimi', 'grosmini', 'grossini', 'gros mimi', 'grossmimi'],
@@ -3141,21 +3157,19 @@ def generate():
         def _bslug(b): return _re2.sub(r'[^a-z0-9]', '', (b or '').lower())
         cat_brand_map = {cat: CAT_BRAND.get(cat, cd.get("brand", "")) for cat, cd in sorted_cats}
 
+        # Build SFR branded keywords using ALL BA data (not just is_ours)
+        # so we get rank values for every week the keyword appeared in BA
         cat_sfr_branded = {}
-        for cat, entries in cat_keywords.items():
+        for cat in set(list(cat_keywords.keys()) + list(cat_brand_map.keys())):
             slug = _bslug(cat_brand_map.get(cat, ''))
             bvars = _BRAND_VARIANTS_PY.get(slug, [slug] if slug else [])
-            by_kw = defaultdict(list)
-            for e in entries:
-                by_kw[e["keyword"]].append(e)
             branded = []
-            for kw, weeks_data in by_kw.items():
-                kl = kw.lower()
-                if bvars and not any(v in kl for v in bvars):
+            for kw_lower, entries in all_ba_keywords.items():
+                if bvars and not any(v in kw_lower for v in bvars):
                     continue
                 # Dedup by week: same keyword+week from multiple ASINs → keep best rank
                 week_best = {}
-                for w in weeks_data:
+                for w in entries:
                     wk = w["week"]
                     if wk not in week_best or w["search_freq_rank"] < week_best[wk]["search_freq_rank"]:
                         week_best[wk] = w
@@ -3164,9 +3178,9 @@ def generate():
                     continue
                 latest = rank_history[-1]
                 branded.append({
-                    "keyword": kw, "search_freq_rank": latest["search_freq_rank"],
-                    "rank_weekly": [w["search_freq_rank"] for w in rank_history[-12:]],
-                    "rank_week_labels": [w["week"] for w in rank_history[-12:]],
+                    "keyword": kw_lower, "search_freq_rank": latest["search_freq_rank"],
+                    "rank_weekly": [w["search_freq_rank"] for w in rank_history[-16:]],
+                    "rank_week_labels": [w["week"] for w in rank_history[-16:]],
                     "click_share": latest["click_share"], "conv_share": latest["conv_share"],
                 })
             cat_sfr_branded[cat] = sorted(branded, key=lambda x: -x["click_share"])
