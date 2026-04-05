@@ -3087,9 +3087,11 @@ def generate():
             except Exception:
                 pass
 
+        # Sort by brand group then by sales within each group
+        BRAND_GROUP_ORDER = {"Grosmimi": 0, "Naeiae": 1, "CHA&MOM": 2, "Alpremio": 3}
         sorted_cats = sorted(
             [(cat, cd) for cat, cd in cat_data.items() if cat not in EXCLUDE_CATS and cd["sales_30d"] > 0],
-            key=lambda x: -x[1]["sales_30d"]
+            key=lambda x: (BRAND_GROUP_ORDER.get(CAT_BRAND.get(x[0], x[1]["brand"]), 9), -x[1]["sales_30d"])
         )
         print(f"  Categories: {len(sorted_cats)} ({', '.join(c for c,_ in sorted_cats)})")
 
@@ -3151,10 +3153,16 @@ def generate():
                 kl = kw.lower()
                 if bvars and not any(v in kl for v in bvars):
                     continue
-                rank_history = sorted(weeks_data, key=lambda x: x["week"])
+                # Dedup by week: same keyword+week from multiple ASINs → keep best rank
+                week_best = {}
+                for w in weeks_data:
+                    wk = w["week"]
+                    if wk not in week_best or w["search_freq_rank"] < week_best[wk]["search_freq_rank"]:
+                        week_best[wk] = w
+                rank_history = sorted(week_best.values(), key=lambda x: x["week"])
                 if not rank_history:
                     continue
-                latest = max(weeks_data, key=lambda x: x["week"])
+                latest = rank_history[-1]
                 branded.append({
                     "keyword": kw, "search_freq_rank": latest["search_freq_rank"],
                     "rank_weekly": [w["search_freq_rank"] for w in rank_history[-12:]],
@@ -3346,12 +3354,59 @@ def generate():
             })
 
         # Content lift
+        def _classify_post_by_hashtags(hashtags_str, brand):
+            """Classify content post into product group based on hashtags.
+            Returns a single product group string or None."""
+            if not hashtags_str:
+                return None
+            ht = hashtags_str.lower().replace(" ", "")
+            tags = [t.strip() for t in ht.split(",") if t.strip()]
+            tag_set = set(tags)
+            tag_joined = " ".join(tags)
+
+            if brand == "Grosmimi":
+                has_stainless = any(t in tag_set or "stainless" in t for t in tags)
+                has_tumbler = any("tumbler" in t for t in tags)
+                has_ppsu = any("ppsu" in t for t in tags)
+                has_bottle = any("bottle" in t and "straw" not in t for t in tags)
+                has_straw = any("straw" in t or "sippy" in t or "cup" in t for t in tags)
+                if has_stainless and has_tumbler:
+                    return "Stainless Tumbler"
+                if has_stainless:
+                    return "Stainless Straw Cup"
+                if has_tumbler:
+                    return "PPSU Tumbler"
+                if has_ppsu and has_bottle:
+                    return "PPSU Baby Bottle"
+                if has_ppsu or has_straw:
+                    return "PPSU Straw Cup"
+                if has_bottle:
+                    return "PPSU Baby Bottle"
+                return "PPSU Straw Cup"  # default for Grosmimi
+            if brand == "CHA&MOM":
+                if any("wash" in t for t in tags):
+                    return "Body Wash"
+                if any("cream" in t for t in tags):
+                    return "Baby Cream"
+                return "Moisturizer"
+            if brand == "Naeiae":
+                return "Rice Puff"
+            if brand == "Alpremio":
+                return "Alpremio"
+            return None
+
         post_info = {}
         for p in content_posts:
             pid = p.get("post_id") or p.get("url", "")
             brand = p.get("brand", "")
             pt_raw = p.get("product_types", "")
             ptypes = [t.strip() for t in pt_raw.split(",") if t.strip()] if pt_raw else []
+            # If no explicit product_types, infer from hashtags
+            if not ptypes:
+                ht_raw = p.get("hashtags", "")
+                inferred = _classify_post_by_hashtags(ht_raw, brand)
+                if inferred:
+                    ptypes = [inferred]
             uname = (p.get("username") or "").strip()
             platform = p.get("platform", "")
             region = (p.get("region") or "us").lower()
@@ -3372,12 +3427,11 @@ def generate():
                 # Single product group per post — first match wins (hashtag-based)
                 ptype_views[ptypes[0]][d] += views
             else:
+                # No product_types AND no hashtag classification → brand default (single)
                 if brand == "Grosmimi":
-                    for cat in GROSMIMI_CATEGORIES:
-                        ptype_views[cat][d] += views
+                    ptype_views["PPSU Straw Cup"][d] += views  # default Grosmimi product
                 elif brand == "CHA&MOM":
-                    for cat in CHAMOM_CATEGORIES:
-                        ptype_views[cat][d] += views
+                    ptype_views["Moisturizer"][d] += views
                 elif brand == "Naeiae":
                     ptype_views["Rice Puff"][d] += views
 
@@ -3461,8 +3515,8 @@ def generate():
             # Single product group per post — first match wins (hashtag-based)
             # Prevents same creator appearing in multiple categories
             cats = [ptypes[0]] if ptypes else (
-                GROSMIMI_CATEGORIES if brand == "Grosmimi"
-                else CHAMOM_CATEGORIES if brand == "CHA&MOM"
+                ["PPSU Straw Cup"] if brand == "Grosmimi"
+                else ["Moisturizer"] if brand == "CHA&MOM"
                 else ["Rice Puff"] if brand == "Naeiae" else [])
             for cat in cats:
                 for d, dv in deltas.items():
@@ -3481,8 +3535,8 @@ def generate():
                 continue
             uname, brand = info["username"], info["brand"]
             cats = info["product_types"] if info["product_types"] else (
-                GROSMIMI_CATEGORIES if brand == "Grosmimi"
-                else CHAMOM_CATEGORIES if brand == "CHA&MOM"
+                ["PPSU Straw Cup"] if brand == "Grosmimi"
+                else ["Moisturizer"] if brand == "CHA&MOM"
                 else ["Rice Puff"] if brand == "Naeiae" else [])
             for cat in cats:
                 cat_user_posts[cat][uname].add(pid)
@@ -3574,8 +3628,21 @@ def generate():
             ("Baby Cream", ["baby cream", "cream"]),
         ]
 
+        # Meta campaign overrides (by partial name match) for campaigns where
+        # the campaign name alone doesn't indicate product group but landing URL does
+        META_CAMP_OVERRIDE = {
+            "dental mom & livfuselli": "PPSU Straw Cup",
+            "dentalmom_wl": "PPSU Straw Cup",
+            "dental mom_wl": "PPSU Straw Cup",
+        }
+
         def _classify_campaign(campaign_name, brand):
             cn = (campaign_name or "").lower().replace("|", " ").replace("_", " ").replace("-", " ")
+            # Check Meta overrides first
+            cn_raw = (campaign_name or "").lower()
+            for override_key, override_cat in META_CAMP_OVERRIDE.items():
+                if override_key in cn_raw:
+                    return override_cat
             for cat_name, kws in CAT_CAMP_KEYWORDS:
                 if any(kw in cn for kw in kws):
                     return cat_name
@@ -3584,8 +3651,11 @@ def generate():
                 return "Rice Puff"
             if brand == "Alpremio":
                 return "Alpremio"
+            # CHA&MOM default → Moisturizer (primary product)
+            if brand == "CHA&MOM" or "cha&mom" in cn_raw or "chamom" in cn_raw:
+                return "Moisturizer"
             # General/brand-wide campaigns (SBV_brand, SB-manual, SD_Audience,
-            # SP_all_auto, CHA&MOM_Competitor) stay brand-level only
+            # SP_all_auto) stay brand-level only
             return None
 
         # Amazon campaign_id → name lookup
@@ -3683,6 +3753,9 @@ def generate():
         # Manual overrides for campaigns where URL resolution confirmed the product group
         ATTR_CAMP_OVERRIDE = {
             "amazon spring sale": "PPSU Straw Cup",  # All 6 geni.us links → PPSU (verified 2026-04-05)
+            "dental mom & livfuselli": "PPSU Straw Cup",  # Landing URL → PPSU straw cups
+            "dentalmom_wl": "PPSU Straw Cup",  # Dental Mom WL campaign → PPSU straw cups
+            "cha&mom": "Moisturizer",  # CHA&MOM brand default
         }
         camp_assignments = {}  # campaign_name -> category or None
         for ac in _attr_camps:
