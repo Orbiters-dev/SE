@@ -685,23 +685,10 @@ Shopify                         Apify / Syncly                   Gmail RAG
           <div id="ft-expand-brand" style="display:none;margin:4px 0 0 28px"></div>
         </div>
 
-        <!-- Step 2: Apify Autofill (enrichment, not filter) -->
-        <div class="ft-step" id="fts-apify" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <span style="font-size:11px;font-weight:800;color:var(--a);font-family:var(--mono);min-width:16px">&#x2461;</span>
-            <span style="font-weight:700;min-width:120px">Apify Autofill</span>
-            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-autofill"><span class="slider"></span></label>
-            <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('apify')" id="ft-btn-apify" style="font-size:10px">&#x1F50D; Check</button>
-            <span id="ft-badge-apify"></span>
-          </div>
-          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Crawl IG/TT profiles to find emails for creators missing contact info</div>
-          <div id="ft-expand-apify" style="display:none;margin:4px 0 0 28px"></div>
-        </div>
-
-        <!-- Step 3: RAG Email Dedup (strongest, runs last) -->
+        <!-- Step 2: RAG Email Dedup (strongest, runs last) -->
         <div class="ft-step" id="fts-rag" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <span style="font-size:11px;font-weight:800;color:var(--r);font-family:var(--mono);min-width:16px">&#x2462;</span>
+            <span style="font-size:11px;font-weight:800;color:var(--r);font-family:var(--mono);min-width:16px">&#x2461;</span>
             <span style="font-weight:700;min-width:120px">RAG Email Dedup</span>
             <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-rag-dedup" onchange="updateFtSummary()"><span class="slider"></span></label>
             <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('rag')" id="ft-btn-rag" style="font-size:10px">&#x1F50D; Check</button>
@@ -1716,7 +1703,6 @@ function populateConfigForm(c){
   document.getElementById('f-ht-threshold').value=c.ht_threshold;
   document.getElementById('f-ht-follower-min').value=c.ht_follower_min||50000;
   document.getElementById('f-rag-dedup').checked=!!c.rag_email_dedup;
-  document.getElementById('f-apify-autofill').checked=!!c.apify_autofill;
   document.getElementById('f-apify-brand-filter').checked=!!c.apify_brand_filter;
   document.getElementById('f-us-only').checked=!!c.us_only;
   document.getElementById('f-hil-draft').checked=c.hil_draft_review!==false;
@@ -1753,7 +1739,6 @@ function collectConfigForm(){
     ht_threshold:parseInt(document.getElementById('f-ht-threshold').value)||100000,
     ht_follower_min:parseInt(document.getElementById('f-ht-follower-min').value)||50000,
     rag_email_dedup:document.getElementById('f-rag-dedup').checked,
-    apify_autofill:document.getElementById('f-apify-autofill').checked,
     apify_brand_filter:document.getElementById('f-apify-brand-filter').checked,
     us_only:document.getElementById('f-us-only').checked,
     hil_draft_review:document.getElementById('f-hil-draft').checked,
@@ -3947,35 +3932,6 @@ async function checkFeatureImpact(feature){
         h+='</div>';
         expand.innerHTML=h;expand.style.display='block';
       }else{expand.innerHTML='';expand.style.display='none'}
-
-    }else if(feature==='apify'){
-      // Apify Autofill: crawl IG/TT profiles to find real emails
-      // @discovered.syncly = placeholder from Syncly, needs Apify profile crawl
-      var total=creators.length;
-      var realEmail=withEmail.length;
-      var pendingCrawl=creators.filter(function(c){return !c.email||c.email.includes('@discovered.')}).length;
-      var APIFY_FILL_RATE=(_ftServerStats&&_ftServerStats.apify_fill_rate)?_ftServerStats.apify_fill_rate:0.09;
-      var estimated=Math.round(pendingCrawl*APIFY_FILL_RATE);
-      var fillPct=Math.round(APIFY_FILL_RATE*100);
-      _ftResults.apify={count:pendingCrawl,found:realEmail,total:total,estimated:estimated,list:noEmail};
-
-      badge.innerHTML='<span class="b c" style="font-size:10px;padding:2px 8px">'+pendingCrawl+' to crawl</span>'+
-        '<span class="b g" style="font-size:10px;padding:2px 8px;margin-left:4px">est. +'+estimated+' emails ('+fillPct+'%)</span>';
-      if(realEmail>0)badge.innerHTML+='<span class="b a" style="font-size:10px;padding:2px 4px;margin-left:4px">'+realEmail+' already found</span>';
-
-      var h='<div style="font-size:10px;padding:8px;background:var(--cbg);border-radius:6px;margin-bottom:4px">';
-      h+='<div style="margin-bottom:4px"><b>'+total+'</b> total Not Started</div>';
-      h+='<div style="color:var(--g)"><b>'+realEmail+'</b> already have real email</div>';
-      h+='<div style="color:var(--c)"><b>'+pendingCrawl+'</b> pending Apify crawl (@discovered.syncly)</div>';
-      h+='<div style="color:var(--a);margin-top:4px">Est. <b>~'+estimated+'</b> new emails at '+fillPct+'% fill rate (DB measured) &rarr; added to eligible pool</div>';
-      h+='</div>';
-      if(pendingCrawl>0){
-        h+='<div style="font-size:9px;max-height:120px;overflow-y:auto;background:#fafbff;padding:4px;border-radius:4px;cursor:pointer" onclick="this.style.display=\'none\'">';
-        noEmail.slice(0,30).forEach(function(c){h+='<div style="padding:1px 0;border-bottom:1px solid #f1f5f9">@'+esc(c.ig_handle||c.tiktok_handle||'?')+' <span style="color:var(--dim)">'+esc(c.brand||'')+'</span></div>'});
-        if(noEmail.length>30)h+='<div style="color:var(--dim);padding:4px">...+'+(noEmail.length-30)+' more</div>';
-        h+='</div>';
-      }
-      expand.innerHTML=h;expand.style.display='block';
 
     }else if(feature==='brand'){
       // Brand Filter: use Apify isBusinessAccount field (enriched data)
