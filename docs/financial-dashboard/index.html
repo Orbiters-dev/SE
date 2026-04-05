@@ -2085,7 +2085,16 @@ function renderHeroTab(F){
       if(_amzSpTot>0||_mtSpTot>0){
         var _adTitle=(_heroView==='cat')?c.category:c.brand;
         html+='<div style="margin-top:10px;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:6px">';
-        html+='<div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:6px">Ad Performance — '+_adTitle+'</div>';
+        html+='<div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:2px">Ad Performance — '+_adTitle+'</div>';
+        html+='<div style="display:flex;gap:12px;font-size:9px;margin-bottom:4px;flex-wrap:wrap">';
+        html+='<span><span style="color:#f59e0b;font-weight:700">━</span> AMZ ROAS</span>';
+        html+='<span><span style="color:#3b82f6;font-weight:700">━</span> Meta→AMZ ROAS</span>';
+        html+='<span><span style="color:#10b981;font-weight:700">╍</span> Blended ROAS</span>';
+        html+='<span style="color:var(--muted)">|</span>';
+        html+='<span><span style="color:#f59e0b;opacity:0.5">╌</span> AMZ CPC</span>';
+        html+='<span><span style="color:#3b82f6;opacity:0.5">╌</span> Meta CPC</span>';
+        html+='<span><span style="color:#10b981;opacity:0.5">╌</span> Blend CPC</span>';
+        html+='</div>';
         // ── 6-line chart: ROAS (left axis) + CPC (right axis) ──
         var _adH=160,_adPT=20,_adPR=54;
         var _amzROAS=[],_mtROAS=[],_blROAS=[],_amzCPCA=[],_mtCPCA=[],_blCPCA=[];
@@ -2148,10 +2157,9 @@ function renderHeroTab(F){
           html+='<circle cx="'+_lx+'" cy="'+_ly+'" r="3" fill="'+ln.color+'"/>';
           html+='<text x="'+(_lx+6)+'" y="'+(_ly+3)+'" fill="'+ln.color+'" font-size="9" font-weight="700" font-family="var(--mono)">'+ln.fmt(_lv)+'</text>';
         });
-        // Legend (bottom-right)
-        html+='<text x="'+(chartW-_adPR+8)+'" y="'+(_adPT+_adH+4)+'" fill="#f59e0b" font-size="8" font-weight="700">━ AMZ   ╌ CPC</text>';
-        html+='<text x="'+(chartW-_adPR+8)+'" y="'+(_adPT+_adH+14)+'" fill="#3b82f6" font-size="8" font-weight="700">━ Meta  ╌ CPC</text>';
-        html+='<text x="'+(chartW-_adPR+8)+'" y="'+(_adPT+_adH+24)+'" fill="#10b981" font-size="8" font-weight="700">╍ Blend ╌ CPC</text>';
+        // Y-axis labels
+        html+='<text x="'+(padL-4)+'" y="'+(_adPT-6)+'" fill="#94a3b8" font-size="8" text-anchor="end">ROAS ↑</text>';
+        html+='<text x="'+(chartW-_adPR+4)+'" y="'+(_adPT-6)+'" fill="#94a3b8" font-size="8">CPC ↑</text>';
         // X-axis dates
         var _rlStep=Math.max(1,Math.ceil(_rLineN/15));
         for(var _ai=0;_ai<_rLineN;_ai+=_rlStep){var _x2=padL+_ai*_rlBw+_rlBw/2;
