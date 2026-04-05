@@ -40,8 +40,10 @@ WF_ID = "k61gzrshITfju33V"   # PROD: Shipped -> Delivered (migrated 2026-03-18)
 GMAIL_CRED_ID = "ZSCspnGLmbDXJMBu"
 GMAIL_CRED_NAME = "Onzenna Gmail (affiliates@onzenna.com)"
 
-# Content guideline PDFs
+# Content guideline PDFs (Z: = NAS direct, C:\SynologyDrive = Synology Drive sync)
 GUIDELINE_DIR = "Z:/Orbiters/ORBI CLAUDE_0223/ORBITERS CLAUDE/ORBITERS CLAUDE/Shared/ONZ Creator Collab/Content guideline"
+if not os.path.exists(GUIDELINE_DIR):
+    GUIDELINE_DIR = "C:/SynologyDrive/ORBI CLAUDE_0223/ORBITERS CLAUDE/ORBITERS CLAUDE/Shared/ONZ Creator Collab/Content guideline"
 GROSMIMI_PPSU_PDF = os.path.join(GUIDELINE_DIR, "Grosmimi (PPSU) Content Guidelines v2.pdf")
 GROSMIMI_SS_PDF = os.path.join(GUIDELINE_DIR, "Grosmimi (Stainless) Content Guidelines v1.pdf")
 CHAENMOM_PDF = os.path.join(
