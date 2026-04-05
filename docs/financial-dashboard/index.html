@@ -2083,7 +2083,7 @@ function renderHeroTab(F){
       var _lastAmzIdx=n-1;for(var _li=n-1;_li>=0;_li--){if((amzSpD[_li]||0)>0||(amzSlD[_li]||0)>0){_lastAmzIdx=_li;break;}}
       var _amzCl=amzClD.reduce(function(a,b){return a+b},0),_amzSl=amzSlD.reduce(function(a,b){return a+b},0);
       if(_amzSpTot>0||_mtSpTot>0){
-        var _adTitle=(_heroView==='category')?c.category:c.brand;
+        var _adTitle=(_heroView==='cat')?c.category:c.brand;
         html+='<div style="margin-top:10px;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:6px">';
         html+='<div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:6px">Ad Performance — '+_adTitle+'</div>';
         // ── 6-line chart: ROAS (left axis) + CPC (right axis) ──
@@ -2117,8 +2117,8 @@ function renderHeroTab(F){
         for(var g=1;g<=4;g++){var gy2=_adPT+_adH-g/4*_adH,cv2=(_cpcMax*g/4).toFixed(2);
           html+='<text x="'+(chartW-_adPR+4)+'" y="'+(gy2+3)+'" fill="#94a3b8" font-size="9" font-family="var(--mono)" text-anchor="start">$'+cv2+'</text>';}
         // Line drawing helpers
-        function _roasPts(arr,maxR){var pts=[];arr.forEach(function(v,i){var x=padL+i*_rlBw+_rlBw/2,y=_adPT+_adH-(v/maxR)*_adH;pts.push(x+','+y);});return pts.join(' ');}
-        function _cpcPts(arr){var pts=[];arr.forEach(function(v,i){var x=padL+i*_rlBw+_rlBw/2,y=_adPT+_adH-(v/_cpcMax)*_adH;pts.push(x+','+y);});return pts.join(' ');}
+        var _roasPts=function(arr,maxR){var pts=[];arr.forEach(function(v,i){var x=padL+i*_rlBw+_rlBw/2,y=_adPT+_adH-(v/maxR)*_adH;pts.push(x+','+y);});return pts.join(' ');};
+        var _cpcPts=function(arr){var pts=[];arr.forEach(function(v,i){var x=padL+i*_rlBw+_rlBw/2,y=_adPT+_adH-(v/_cpcMax)*_adH;pts.push(x+','+y);});return pts.join(' ');};
         // ROAS lines (thick)
         html+='<polyline points="'+_roasPts(_amzROAS,_rMax3)+'" fill="none" stroke="#f59e0b" stroke-width="2" opacity="0.9"/>';
         html+='<polyline points="'+_roasPts(_mtROAS,_rMax3)+'" fill="none" stroke="#3b82f6" stroke-width="2" opacity="0.9"/>';
@@ -2164,20 +2164,20 @@ function renderHeroTab(F){
         html+='<thead><tr><th style="min-width:140px;text-align:left;'+_stickyTd+'"></th>';
         for(var _ti=0;_ti<_tblN;_ti++){html+='<th style="text-align:right;font-size:9px;padding:2px 6px;font-weight:400;color:var(--muted)">'+dates[_ti].substring(5)+'</th>';}
         html+='</tr></thead><tbody>';
-        function _$c(v){return '$'+Math.round(v).toLocaleString();}
-        function _xc(v){return v>0?v.toFixed(1)+'x':'—';}
-        function _nc(v){return Math.round(v).toLocaleString();}
-        function _tRow(label,color,indent,vals,fmt){
+        var _$c=function(v){return '$'+Math.round(v).toLocaleString();};
+        var _xc=function(v){return v>0?v.toFixed(1)+'x':'—';};
+        var _nc=function(v){return Math.round(v).toLocaleString();};
+        var _tRow=function(label,color,indent,vals,fmt){
           var bg=indent?'padding-left:16px':'font-weight:700';
           html+='<tr><td style="'+bg+';text-align:left;'+_stickyTd+';color:'+color+'">'+label+'</td>';
           for(var j=0;j<_tblN;j++){var v=vals[j]||0;html+='<td style="text-align:right;padding:2px 6px;font-family:var(--mono)">'+fmt(v)+'</td>';}
           html+='</tr>';
-        }
-        function _secHeader(label,color){
+        };
+        var _secHeader=function(label,color){
           html+='<tr><td style="font-weight:800;font-size:11px;color:'+color+';padding:6px 0 2px;border-bottom:2px solid '+color+'30;'+_stickyTd+'">'+label+'</td>';
           for(var j=0;j<_tblN;j++){html+='<td style="border-bottom:2px solid '+color+'30"></td>';}
           html+='</tr>';
-        }
+        };
         // Section: Amazon Ads
         _secHeader('Amazon Ads','#f59e0b');
         _tRow('Sales','var(--dim)',true,amzSlD,_$c);
