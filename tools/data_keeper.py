@@ -1594,24 +1594,55 @@ def collect_meta_ads(date_from: str, date_to: str) -> list[dict]:
         url = data.get("paging", {}).get("next")
     print(f"  Campaigns: {len(objectives)}")
 
-    # 2. Ad landing URLs
+    # 2. Ad landing URLs — two-step: ads→creative_id, then adcreatives→link
     landing_urls = {}
-    url = f"{base}/ads?fields=id,creative{{effective_object_story_spec{{link_data{{link}}}}}}&limit=500&access_token={META_ACCESS_TOKEN}"
+    # Step 2a: Map ad_id → creative_id
+    ad_creative_map = {}
+    url = f"{base}/ads?fields=id,creative{{id}}&limit=500&access_token={META_ACCESS_TOKEN}"
     while url:
         try:
             r = requests.get(url, timeout=30)
             r.raise_for_status()
             data = r.json()
             for ad in data.get("data", []):
-                try:
-                    link = ad["creative"]["effective_object_story_spec"]["link_data"]["link"]
-                    landing_urls[ad["id"]] = link
-                except (KeyError, TypeError):
-                    pass
+                cid = (ad.get("creative") or {}).get("id", "")
+                if cid:
+                    ad_creative_map[cid] = ad["id"]
             url = data.get("paging", {}).get("next")
         except Exception:
             break
-    print(f"  Ads with URLs: {len(landing_urls)}")
+    # Step 2b: Fetch adcreatives with link data (link_data + video_data CTA)
+    creative_links = {}
+    url = f"{base}/adcreatives?fields=id,object_story_spec,url_tags&limit=200&access_token={META_ACCESS_TOKEN}"
+    while url:
+        try:
+            r = requests.get(url, timeout=30)
+            r.raise_for_status()
+            data = r.json()
+            for cr in data.get("data", []):
+                cid = cr.get("id", "")
+                spec = cr.get("object_story_spec") or {}
+                link = ""
+                # Try link_data first (image/carousel ads)
+                ld = spec.get("link_data") or {}
+                if ld.get("link"):
+                    link = ld["link"]
+                # Fallback: video_data CTA link
+                if not link:
+                    vd = spec.get("video_data") or {}
+                    cta = (vd.get("call_to_action") or {}).get("value") or {}
+                    if cta.get("link"):
+                        link = cta["link"]
+                if link and cid:
+                    creative_links[cid] = link
+            url = data.get("paging", {}).get("next")
+        except Exception:
+            break
+    # Map ad_id → landing_url via creative_id
+    for cid, ad_id in ad_creative_map.items():
+        if cid in creative_links:
+            landing_urls[ad_id] = creative_links[cid]
+    print(f"  Ads with URLs: {len(landing_urls)} (creatives: {len(creative_links)})")
 
     # 3. Daily insights (15-day chunks)
     all_rows = []

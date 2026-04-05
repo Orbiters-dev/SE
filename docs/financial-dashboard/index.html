@@ -1984,8 +1984,8 @@ function renderHeroTab(F){
         if(ttSess>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#6366f1></span>Sessions: '+ttSess.toLocaleString()+'</div>';
         var ttPv=pvD[i]||0;
         if(ttPv>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#a78bfa></span>Page Views: '+ttPv.toLocaleString()+'</div>';
-        var _ttAmzSp=amzSpD[i]||0;if(_ttAmzSp>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#f59e0b></span>AMZ Ads: $'+_ttAmzSp.toFixed(0)+'</div>';
-        var _ttMtSp=mtSpD[i]||0;if(_ttMtSp>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#3b82f6></span>Meta→AMZ: $'+_ttMtSp.toFixed(0)+'</div>';
+        var _ttAmzSp=amzSpD[i]||0;if(_ttAmzSp>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#ea580c></span>AMZ Ads: $'+_ttAmzSp.toFixed(0)+'</div>';
+        var _ttMtSp=mtSpD[i]||0;if(_ttMtSp>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#7c3aed></span>Meta→AMZ: $'+_ttMtSp.toFixed(0)+'</div>';
         var _ttGdSp=gadsSpD[i]||0;if(_ttGdSp>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#ef4444></span>GAds: $'+_ttGdSp.toFixed(0)+'</div>';
         crDeltaArr.forEach(function(x,ci){
           var cv=x.cr.daily_views[i]||0;
@@ -2010,7 +2010,7 @@ function renderHeroTab(F){
         // Attribution summary card (actual campaign data, not proportional)
         var _atSales=_attrData.sales||0,_atSpend=_attrData.spend||0,_atBrb=_attrData.brb||0,_atRoas=_attrData.roas||0,_atRoasBrb=_attrData.roas_brb||0;
         if(_atSales>0||_atSpend>0){
-          html+='<div style="display:flex;gap:10px;margin-bottom:6px;flex-wrap:wrap;padding:6px 8px;background:linear-gradient(90deg,#3b82f610,#f59e0b10);border-radius:4px;border:1px solid #3b82f620">';
+          html+='<div style="display:flex;gap:10px;margin-bottom:6px;flex-wrap:wrap;padding:6px 8px;background:linear-gradient(90deg,#7c3aed10,#ea580c10);border-radius:4px;border:1px solid #7c3aed20">';
           html+='<div><div style="font-size:8px;color:var(--dim)">Attribution Sales</div><div style="font-size:14px;font-weight:700;color:var(--g)">$'+_atSales.toLocaleString()+'</div></div>';
           html+='<div><div style="font-size:8px;color:var(--dim)">Meta Spend</div><div style="font-size:14px;font-weight:700">$'+_atSpend.toLocaleString()+'</div></div>';
           var _atRc=_atRoas>=2?'var(--g)':_atRoas>=1?'var(--am)':'var(--r)';
@@ -2020,13 +2020,13 @@ function renderHeroTab(F){
           html+='</div>';
         }
         html+='<div style="display:flex;gap:12px;font-size:9px;margin-bottom:4px;flex-wrap:wrap">';
-        html+='<span><span style="color:#f59e0b;font-weight:700">━</span> AMZ ROAS</span>';
-        if(_atSales>0){html+='<span><span style="color:#3b82f6;font-weight:700">┄</span> Attr ROAS ('+_atRoas.toFixed(1)+'x)</span>';}
-        html+='<span><span style="color:#10b981;font-weight:700">╍</span> Blended ROAS</span>';
+        html+='<span><span style="color:#ea580c;font-weight:700">━</span> AMZ ROAS</span>';
+        if(_atSales>0){html+='<span><span style="color:#7c3aed;font-weight:700">┄</span> Attr ROAS ('+_atRoas.toFixed(1)+'x)</span>';}
+        html+='<span><span style="color:#0d9488;font-weight:700">╍</span> Blended ROAS</span>';
         html+='<span style="color:var(--muted)">|</span>';
-        html+='<span><span style="color:#f59e0b;opacity:0.5">╌</span> AMZ CPC</span>';
-        html+='<span><span style="color:#3b82f6;opacity:0.5">╌</span> Meta CPC</span>';
-        html+='<span><span style="color:#10b981;opacity:0.5">╌</span> Blend CPC</span>';
+        html+='<span><span style="color:#fb923c;opacity:0.7">╌</span> AMZ CPC</span>';
+        html+='<span><span style="color:#a78bfa;opacity:0.7">╌</span> Meta CPC</span>';
+        html+='<span><span style="color:#5eead4;opacity:0.7">╌</span> Blend CPC</span>';
         html+='</div>';
         // ── 6-line chart: ROAS (left axis) + CPC (right axis) ──
         var _adH=160,_adPT=20,_adPR=54;
@@ -2066,24 +2066,24 @@ function renderHeroTab(F){
         // Line drawing helpers
         var _roasPts=function(arr,maxR){var pts=[];arr.forEach(function(v,i){var x=padL+i*_rlBw+_rlBw/2,y=_adPT+_adH-(v/maxR)*_adH;pts.push(x+','+y);});return pts.join(' ');};
         var _cpcPts=function(arr){var pts=[];arr.forEach(function(v,i){var x=padL+i*_rlBw+_rlBw/2,y=_adPT+_adH-(v/_cpcMax)*_adH;pts.push(x+','+y);});return pts.join(' ');};
-        // ROAS lines (thick)
-        html+='<polyline points="'+_roasPts(_amzROAS,_rMax3)+'" fill="none" stroke="#f59e0b" stroke-width="2" opacity="0.9"/>';
+        // ROAS lines (thick, solid)
+        html+='<polyline points="'+_roasPts(_amzROAS,_rMax3)+'" fill="none" stroke="#ea580c" stroke-width="2.5" opacity="0.95"/>';
         // Attribution ROAS = horizontal reference line (actual campaign data, not daily)
         if(_atRoas>0){var _atY=_adPT+_adH-(_atRoas/_rMax3)*_adH;
-          html+='<line x1="'+padL+'" y1="'+_atY+'" x2="'+(chartW-_adPR)+'" y2="'+_atY+'" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="8,4" opacity="0.7"/>';
-          html+='<text x="'+(chartW-_adPR+4)+'" y="'+(_atY-4)+'" fill="#3b82f6" font-size="9" font-weight="700">Attr '+_atRoas.toFixed(1)+'x</text>';}
-        html+='<polyline points="'+_roasPts(_blROAS,_rMax3)+'" fill="none" stroke="#10b981" stroke-width="2.5" stroke-dasharray="6,3" opacity="0.85"/>';
-        // CPC lines (thin, dotted)
-        html+='<polyline points="'+_cpcPts(_amzCPCA)+'" fill="none" stroke="#f59e0b" stroke-width="1.2" stroke-dasharray="3,2" opacity="0.5"/>';
-        html+='<polyline points="'+_cpcPts(_mtCPCA)+'" fill="none" stroke="#3b82f6" stroke-width="1.2" stroke-dasharray="3,2" opacity="0.5"/>';
-        html+='<polyline points="'+_cpcPts(_blCPCA)+'" fill="none" stroke="#10b981" stroke-width="1.2" stroke-dasharray="2,2" opacity="0.4"/>';
+          html+='<line x1="'+padL+'" y1="'+_atY+'" x2="'+(chartW-_adPR)+'" y2="'+_atY+'" stroke="#7c3aed" stroke-width="2" stroke-dasharray="8,4" opacity="0.8"/>';
+          html+='<text x="'+(chartW-_adPR+4)+'" y="'+(_atY-4)+'" fill="#7c3aed" font-size="9" font-weight="700">Attr '+_atRoas.toFixed(1)+'x</text>';}
+        html+='<polyline points="'+_roasPts(_blROAS,_rMax3)+'" fill="none" stroke="#0d9488" stroke-width="2.5" stroke-dasharray="6,3" opacity="0.9"/>';
+        // CPC lines (thin, dashed)
+        html+='<polyline points="'+_cpcPts(_amzCPCA)+'" fill="none" stroke="#fb923c" stroke-width="1.5" stroke-dasharray="4,2" opacity="0.7"/>';
+        html+='<polyline points="'+_cpcPts(_mtCPCA)+'" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4,2" opacity="0.7"/>';
+        html+='<polyline points="'+_cpcPts(_blCPCA)+'" fill="none" stroke="#5eead4" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.6"/>';
         // Weekly value labels on ALL 6 lines (every 7 days)
         var _wkStep=7;
-        [{arr:_amzROAS,max:_rMax3,color:'#f59e0b',fmt:function(v){return v.toFixed(1)+'x';},isCPC:false},
-         {arr:_blROAS,max:_rMax3,color:'#10b981',fmt:function(v){return v.toFixed(1)+'x';},isCPC:false},
-         {arr:_amzCPCA,max:_cpcMax,color:'#f59e0b',fmt:function(v){return '$'+v.toFixed(2);},isCPC:true},
-         {arr:_mtCPCA,max:_cpcMax,color:'#3b82f6',fmt:function(v){return '$'+v.toFixed(2);},isCPC:true},
-         {arr:_blCPCA,max:_cpcMax,color:'#10b981',fmt:function(v){return '$'+v.toFixed(2);},isCPC:true}
+        [{arr:_amzROAS,max:_rMax3,color:'#ea580c',fmt:function(v){return v.toFixed(1)+'x';},isCPC:false},
+         {arr:_blROAS,max:_rMax3,color:'#0d9488',fmt:function(v){return v.toFixed(1)+'x';},isCPC:false},
+         {arr:_amzCPCA,max:_cpcMax,color:'#fb923c',fmt:function(v){return '$'+v.toFixed(2);},isCPC:true},
+         {arr:_mtCPCA,max:_cpcMax,color:'#a78bfa',fmt:function(v){return '$'+v.toFixed(2);},isCPC:true},
+         {arr:_blCPCA,max:_cpcMax,color:'#5eead4',fmt:function(v){return '$'+v.toFixed(2);},isCPC:true}
         ].forEach(function(ln){
           for(var wi=0;wi<ln.arr.length;wi+=_wkStep){
             var wv=ln.arr[wi]||0;if(wv<=0)continue;
@@ -2127,7 +2127,7 @@ function renderHeroTab(F){
           html+='</tr>';
         };
         // Section: Amazon Ads
-        _secHeader('Amazon Ads','#f59e0b');
+        _secHeader('Amazon Ads','#ea580c');
         _tRow('Sales','var(--dim)',true,amzSlD,_$c);
         _tRow('Spend','var(--dim)',true,amzSpD,_$c);
         var _amzROASD=[];for(var j=0;j<_tblN;j++){var _sp=amzSpD[j]||0;_amzROASD.push(_sp>0?(amzSlD[j]||0)/_sp:0);}
@@ -2136,11 +2136,24 @@ function renderHeroTab(F){
         var _amzCPCD=[];for(var j=0;j<_tblN;j++){var _cl=amzClD[j]||0;_amzCPCD.push(_cl>0?(amzSpD[j]||0)/_cl:0);}
         _tRow('CPC','var(--dim)',true,_amzCPCD,function(v){return v>0?'$'+v.toFixed(2):'—';});
         // Section: Meta → AMZ Landing (Attribution actual data)
-        _secHeader('Meta → AMZ Landing','#3b82f6');
-        // Attribution Sales = actual campaign total (not daily pixel data)
+        _secHeader('Meta → AMZ Landing','#7c3aed');
+        // Attribution Sales — per-campaign breakdown
         if(_atSales>0){
-          html+='<tr><td style="padding-left:16px;text-align:left;'+_stickyTd+';color:var(--g)">Attr Sales (60D)</td>';
-          html+='<td colspan="'+_tblN+'" style="text-align:center;font-family:var(--mono);font-weight:700;color:var(--g);font-size:12px;padding:4px">$'+_atSales.toLocaleString()+' ('+_atRoas.toFixed(1)+'x ROAS)</td></tr>';
+          var _atCamps=(_attrData.campaigns||[]);
+          if(_atCamps.length>0){
+            _atCamps.forEach(function(ac){
+              var _acRoas=ac.roas||0,_acRc=_acRoas>=2?'var(--g)':_acRoas>=1?'var(--am)':'var(--r)';
+              html+='<tr><td style="padding-left:16px;text-align:left;'+_stickyTd+';color:#7c3aed;font-size:9px" title="'+ac.name+'">'+ac.name.substring(0,35)+'</td>';
+              html+='<td colspan="'+_tblN+'" style="text-align:center;font-family:var(--mono);font-size:10px;padding:2px">';
+              html+='<span style="color:var(--g);font-weight:700">$'+ac.sales.toLocaleString()+'</span>';
+              html+=' · <span style="color:var(--dim)">spend $'+ac.spend.toLocaleString()+'</span>';
+              if(_acRoas>0) html+=' · <span style="color:'+_acRc+';font-weight:600">'+_acRoas.toFixed(1)+'x</span>';
+              html+='</td></tr>';
+            });
+          } else {
+            html+='<tr><td style="padding-left:16px;text-align:left;'+_stickyTd+';color:var(--g)">Attr Sales (60D)</td>';
+            html+='<td colspan="'+_tblN+'" style="text-align:center;font-family:var(--mono);font-weight:700;color:var(--g);font-size:12px;padding:4px">$'+_atSales.toLocaleString()+' ('+_atRoas.toFixed(1)+'x ROAS)</td></tr>';
+          }
         }
         _tRow('Spend','var(--dim)',true,mtSpD,_$c);
         _tRow('Clicks','var(--dim)',true,mtClD,_nc);
