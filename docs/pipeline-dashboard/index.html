@@ -1053,13 +1053,16 @@ Shopify                         Apify / Syncly                   Gmail RAG
       <span id="batch-count">0 selected</span>
       <select id="batch-target-status" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:#fff">
         <option value="">Move to...</option>
+        <option value="Not Started">Not Started</option>
         <option value="Sent">Sent</option>
         <option value="Needs Review">Needs Review</option>
         <option value="Accepted">Accepted</option>
         <option value="Declined">Declined</option>
         <option value="Sample Sent">Sample Sent</option>
+        <option value="Archived">Archived</option>
       </select>
       <button onclick="executeBatchMove()" style="background:#fff;color:var(--a);border:none;padding:4px 14px;border-radius:6px;font-weight:700;font-size:10px;cursor:pointer">Move Status</button>
+      <button onclick="executeBatchMove('Archived')" style="background:#ef4444;color:#fff;border:none;padding:4px 14px;border-radius:6px;font-weight:700;font-size:10px;cursor:pointer">Archive</button>
       <button id="btn-send-emails" onclick="sendSelectedEmails()" style="background:#e74c3c;color:#fff;border:none;padding:4px 14px;border-radius:6px;font-weight:700;font-size:10px;cursor:pointer;display:none">Send Emails</button>
       <button onclick="clearAllChecks()" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);padding:4px 10px;border-radius:6px;font-size:10px;cursor:pointer">Clear</button>
     </div>
@@ -2468,8 +2471,8 @@ function updateBatchBar(){
   sendBtn.style.display=showSend?'inline-block':'none';
   sendBtn.textContent=statusFilter==='Replied'?'Send Replies':'Send Emails';
 }
-async function executeBatchMove(){
-  var target=document.getElementById('batch-target-status').value;
+async function executeBatchMove(directStatus){
+  var target=directStatus||document.getElementById('batch-target-status').value;
   if(!target){showToast('Select a target status first','err');return;}
   var checked=document.querySelectorAll('.cr-check:checked');
   if(checked.length===0)return;
