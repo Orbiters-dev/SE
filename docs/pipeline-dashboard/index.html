@@ -1059,7 +1059,8 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <option value="Declined">Declined</option>
         <option value="Sample Sent">Sample Sent</option>
       </select>
-      <button onclick="executeBatchMove()" style="background:#fff;color:var(--a);border:none;padding:4px 14px;border-radius:6px;font-weight:700;font-size:10px;cursor:pointer">Execute</button>
+      <button onclick="executeBatchMove()" style="background:#fff;color:var(--a);border:none;padding:4px 14px;border-radius:6px;font-weight:700;font-size:10px;cursor:pointer">Move Status</button>
+      <button id="btn-send-emails" onclick="sendSelectedEmails()" style="background:#e74c3c;color:#fff;border:none;padding:4px 14px;border-radius:6px;font-weight:700;font-size:10px;cursor:pointer;display:none">Send Emails</button>
       <button onclick="clearAllChecks()" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);padding:4px 10px;border-radius:6px;font-size:10px;cursor:pointer">Clear</button>
     </div>
     <div class="filter-bar">
@@ -2292,6 +2293,10 @@ function updateBatchBar(){
   }else{
     bar.style.display='none';
   }
+  // Show Send Emails button only when Draft Ready or Sent filter is active
+  var sendBtn=document.getElementById('btn-send-emails');
+  var statusFilter=document.getElementById('cr-status').value;
+  sendBtn.style.display=(statusFilter==='Draft Ready'&&checked.length>0)?'inline-block':'none';
 }
 async function executeBatchMove(){
   var target=document.getElementById('batch-target-status').value;
@@ -2311,6 +2316,62 @@ async function executeBatchMove(){
     }catch(e){fail++;}
   }
   showToast('Moved '+ok+' creators'+(fail?' ('+fail+' failed)':''),'ok');
+  loadCreatorStats();
+  loadCreators();
+}
+
+// ========== SEND EMAILS (Human-in-Loop) ==========
+const N8N_SEND_WEBHOOK='https://n8n.orbiters.co.kr/webhook/outreach-send-approved';
+async function sendSelectedEmails(){
+  var checked=document.querySelectorAll('.cr-check:checked');
+  if(checked.length===0)return;
+  // Collect creator emails from checked rows
+  var creators=[];
+  checked.forEach(function(cb){
+    var email=cb.getAttribute('data-email')||'';
+    var id=cb.getAttribute('data-id');
+    if(email&&!email.includes('@discovered.'))creators.push({id:id,email:email});
+  });
+  if(creators.length===0){showToast('No valid emails to send','err');return;}
+  var msg='Send emails to '+creators.length+' creators?\n\n';
+  creators.forEach(function(c){msg+=c.email+'\n';});
+  if(!confirm(msg))return;
+
+  showToast('Sending '+creators.length+' emails...','ok');
+  var ok=0,fail=0,errors=[];
+  for(var i=0;i<creators.length;i++){
+    var c=creators[i];
+    try{
+      // Fetch draft content
+      var convs=await apiFetch('/pipeline/conversations/?creator_email='+encodeURIComponent(c.email)+'&status=Draft+Ready&limit=1');
+      var items=(Array.isArray(convs)?convs:convs.results||[]);
+      if(!items.length){errors.push(c.email+': no draft');fail++;continue;}
+      var draft=items[0];
+      // Send via n8n webhook
+      var resp=await fetch(N8N_SEND_WEBHOOK,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          creator_email:c.email,
+          subject:draft.subject,
+          body_html:draft.message_content,
+          brand:draft.brand||'Grosmimi'
+        })
+      });
+      if(!resp.ok){var errData=await resp.json().catch(function(){return{}});errors.push(c.email+': '+(errData.error||resp.status));fail++;continue;}
+      // Update creator status to Sent
+      await apiFetch('/pipeline/creators/'+c.id+'/',{
+        method:'PUT',
+        body:JSON.stringify({pipeline_status:'Sent',changed_by:_currentUser||'dashboard'})
+      });
+      // Update conversation status to Sent
+      ok++;
+    }catch(e){errors.push(c.email+': '+e.message);fail++;}
+  }
+  var msg2='Sent: '+ok;
+  if(fail)msg2+=' | Failed: '+fail;
+  showToast(msg2,fail?'err':'ok');
+  if(errors.length)console.warn('Send errors:',errors);
   loadCreatorStats();
   loadCreators();
 }

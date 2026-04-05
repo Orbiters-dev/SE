@@ -693,20 +693,34 @@ def pipeline_conversations(request):
 
     if request.method == 'POST':
         body = json.loads(request.body or "{}")
-        conv = PipelineConversation.objects.create(
-            creator_email=body.get("creator_email", ""),
-            creator_handle=body.get("creator_handle", ""),
-            direction=body.get("direction", "Outbound"),
-            channel=body.get("channel", "Email"),
-            subject=body.get("subject", ""),
-            message_content=body.get("message_content", ""),
-            brand=body.get("brand", ""),
-            outreach_type=body.get("outreach_type", "LT"),
-            status=body.get("status", "Draft Ready"),
-            gmail_thread_id=body.get("gmail_thread_id", ""),
-            gmail_message_id=body.get("gmail_message_id", ""),
-        )
-        return _cors_headers(request, JsonResponse({"id": str(conv.id), "status": conv.status}, status=201))
+        creator_email = body.get("creator_email", "")
+        status_val = body.get("status", "Draft Ready")
+        defaults = {
+            "creator_handle": body.get("creator_handle", ""),
+            "direction": body.get("direction", "Outbound"),
+            "channel": body.get("channel", "Email"),
+            "subject": body.get("subject", ""),
+            "message_content": body.get("message_content", ""),
+            "brand": body.get("brand", ""),
+            "outreach_type": body.get("outreach_type", "LT"),
+            "gmail_thread_id": body.get("gmail_thread_id", ""),
+            "gmail_message_id": body.get("gmail_message_id", ""),
+        }
+        # Upsert: one Draft Ready conversation per creator_email+brand
+        if creator_email and status_val == "Draft Ready":
+            lookup = {"creator_email": creator_email, "status": "Draft Ready"}
+            brand_val = body.get("brand", "")
+            if brand_val:
+                lookup["brand"] = brand_val
+            conv, created = PipelineConversation.objects.update_or_create(
+                defaults=defaults, **lookup
+            )
+        else:
+            conv = PipelineConversation.objects.create(
+                creator_email=creator_email, status=status_val, **defaults
+            )
+            created = True
+        return _cors_headers(request, JsonResponse({"id": str(conv.id), "status": conv.status}, status=201 if created else 200))
 
     return _cors_headers(request, JsonResponse({"error": "Method not allowed"}, status=405))
 
@@ -1118,6 +1132,33 @@ def pipeline_creator_detail(request, creator_id):
         return _cors_headers(request, JsonResponse(_serialize_creator(creator)))
 
     # GET
+    return _cors_headers(request, JsonResponse(_serialize_creator(creator)))
+
+
+@csrf_exempt
+@require_http_methods(["PUT", "OPTIONS"])
+def pipeline_creator_by_email(request, email):
+    """PUT: update creator by email address (for n8n webhook callbacks)."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+    try:
+        creator = PipelineCreator.objects.get(email=email)
+    except PipelineCreator.DoesNotExist:
+        return _cors_headers(request, JsonResponse({"error": "Creator not found"}, status=404))
+    body = _json_body(request)
+    old_status = creator.pipeline_status
+    if "pipeline_status" in body:
+        creator.pipeline_status = body["pipeline_status"]
+    if "brand" in body:
+        creator.brand = body["brand"]
+    creator.save()
+    if creator.pipeline_status != old_status:
+        PipelineStatusChange.objects.create(
+            creator_email=creator.email,
+            from_status=old_status,
+            to_status=creator.pipeline_status,
+            changed_by=body.get("changed_by", "n8n"),
+        )
     return _cors_headers(request, JsonResponse(_serialize_creator(creator)))
 
 
