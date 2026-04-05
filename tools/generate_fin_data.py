@@ -66,7 +66,10 @@ _NM_RULES = {
 }
 
 # NAS paths for SKU-level COGS (Option B from run_kpi_monthly.py)
+# Z: = NAS direct mount, C:\SynologyDrive = Synology Drive sync (same structure after ORBI CLAUDE_0223)
 _NAS_COGS_DIR = Path(r"Z:\Orbiters\ORBI CLAUDE_0223\ORBITERS CLAUDE\ORBITERS CLAUDE\Shared\NoPolar KPIs\Data config sheet")
+if not _NAS_COGS_DIR.exists():
+    _NAS_COGS_DIR = Path(r"C:\SynologyDrive\ORBI CLAUDE_0223\ORBITERS CLAUDE\ORBITERS CLAUDE\Shared\NoPolar KPIs\Data config sheet")
 
 _POLAR_EXCEL = Path("Data Storage/_archive/Monthly Sales by brands_raw.xlsx")
 _SEEDING_DIR = Path(".tmp/polar_data")
