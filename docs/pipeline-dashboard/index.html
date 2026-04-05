@@ -4480,60 +4480,88 @@ async function loadSynclyPipelineStatus(){
 async function execSynclyExport(){
   var btn=document.getElementById('btn-syncly-export');
   var res=document.getElementById('syncly-step1-result');
-  btn.disabled=true;btn.textContent='⏳ Exporting...';
-  res.style.display='none';
+  btn.disabled=true;
+  res.style.display='block';
+  res.style.background='#eff6ff';res.style.borderLeft='3px solid var(--p)';
+  var startTs=Date.now();
+  var timer=setInterval(function(){
+    var sec=Math.round((Date.now()-startTs)/1000);
+    btn.textContent='Running... '+sec+'s';
+    res.innerHTML='<b style="color:var(--p)">&#x23F3; Exporting...</b> Google Sheet 2&#xD0ED; &#xC77D;&#xB294;&#xC911; (Creators + Output). 1~3&#xBD84; &#xC18C;&#xC694;. <span style="color:var(--dim)">'+sec+'s elapsed</span>';
+  },1000);
   try{
     var data=await apiFetch('/pipeline/syncly/export-excel/',{
       method:'POST',headers:{'Content-Type':'application/json'},body:'{}'
     });
-    res.style.display='block';
+    clearInterval(timer);
+    // Validate response has expected fields
+    if(!data||data.total_raw==null){
+      throw new Error('Server returned incomplete response. Check EC2 logs. Response: '+JSON.stringify(data).substring(0,200));
+    }
     res.style.background='#f0fdf4';res.style.borderLeft='3px solid var(--g)';
-    res.innerHTML='<b>&#x2705; Export complete</b><br>'
+    var sec=Math.round((Date.now()-startTs)/1000);
+    res.innerHTML='<b>&#x2705; Export complete</b> <span style="color:var(--dim)">('+sec+'s)</span><br>'
       +'Total raw: <b>'+data.total_raw+'</b> | Kept: <b style="color:var(--g)">'+data.kept+'</b> (with content: '+data.with_content+')<br>'
-      +'Filtered out — no email: '+data.no_email+', blacklist: '+data.blacklist+', collab: '+data.collab+'<br>'
-      +'Output posts: '+data.output_posts_total+' → matched: '+data.output_matched;
-    showToast('Sheet → Excel: '+data.kept+' creators exported','ok');
+      +'Filtered out &#x2014; no email: '+data.no_email+', blacklist: '+data.blacklist+', collab: '+data.collab+'<br>'
+      +'Output posts: '+data.output_posts_total+' &#x2192; matched: '+data.output_matched;
+    showToast('Sheet &#x2192; Excel: '+data.kept+' creators exported ('+sec+'s)','ok');
     loadSynclyPipelineStatus();
   }catch(e){
+    clearInterval(timer);
+    var sec=Math.round((Date.now()-startTs)/1000);
     res.style.display='block';
     res.style.background='#fef2f2';res.style.borderLeft='3px solid var(--r)';
-    res.innerHTML='<b>&#x274C; Export failed</b><br>'+e.message;
-    showToast('Export failed: '+e.message,'err');
+    var msg=e.message||'Unknown error';
+    if(msg.includes('504')||msg.includes('timeout')||sec>55)msg='Timeout ('+sec+'s). nginx proxy_read_timeout&#xC744; &#xB298;&#xB824;&#xC57C; &#xD568. EC2&#xC5D0;&#xC11C; &#xC9C1;&#xC811; &#xD655;&#xC778; &#xD544;&#xC694;.';
+    res.innerHTML='<b>&#x274C; Export failed</b> <span style="color:var(--dim)">('+sec+'s)</span><br>'+msg;
+    showToast('Export failed ('+sec+'s): '+msg,'err');
   }finally{
-    btn.disabled=false;btn.textContent='📤 Export Sheet → Excel';
+    btn.disabled=false;btn.textContent='\uD83D\uDCE4 Export Sheet \u2192 Excel';
   }
 }
 
 async function execSynclyImportExcel(){
   var btn=document.getElementById('btn-syncly-import');
   var res=document.getElementById('syncly-step2-result');
-  btn.disabled=true;btn.textContent='⏳ Importing...';
-  res.style.display='none';
+  btn.disabled=true;
+  res.style.display='block';
+  res.style.background='#eff6ff';res.style.borderLeft='3px solid var(--g)';
+  var startTs=Date.now();
+  var timer=setInterval(function(){
+    var sec=Math.round((Date.now()-startTs)/1000);
+    btn.textContent='Running... '+sec+'s';
+    res.innerHTML='<b style="color:var(--g)">&#x23F3; Importing...</b> Excel &#xC77D;&#xACE0; DB upsert &#xC911;. <span style="color:var(--dim)">'+sec+'s elapsed</span>';
+  },1000);
   try{
     var body={clean_placeholders:true};
-    // If a week is selected, pass it
     var sel=document.getElementById('f-update-date');
     if(sel&&sel.value)body.week=sel.value;
     var data=await apiFetch('/pipeline/syncly/import-excel/',{
       method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
     });
-    res.style.display='block';
+    clearInterval(timer);
+    if(!data||data.total_rows==null){
+      throw new Error('Server returned incomplete response. Response: '+JSON.stringify(data).substring(0,200));
+    }
+    var sec=Math.round((Date.now()-startTs)/1000);
     res.style.background='#f0fdf4';res.style.borderLeft='3px solid var(--g)';
-    var parts=['<b>&#x2705; Import complete</b>'];
+    var parts=['<b>&#x2705; Import complete</b> <span style="color:var(--dim)">('+sec+'s)</span>'];
     parts.push('Excel rows: <b>'+data.total_rows+'</b> | Eligible: <b>'+data.eligible+'</b> (with content: '+data.with_content+')');
     if(data.skip_no_email||data.skip_collab||data.skip_invalid)
-      parts.push('Skipped — no email: '+data.skip_no_email+', collab: '+data.skip_collab+', invalid: '+data.skip_invalid);
-    parts.push('Result — <span style="color:var(--g)"><b>created: '+data.created+'</b></span> | <span style="color:var(--p)"><b>updated: '+data.updated+'</b></span> | dupes: '+data.dupes+' | placeholders cleaned: '+data.cleaned_placeholders);
+      parts.push('Skipped &#x2014; no email: '+data.skip_no_email+', collab: '+data.skip_collab+', invalid: '+data.skip_invalid);
+    parts.push('Result &#x2014; <span style="color:var(--g)"><b>created: '+data.created+'</b></span> | <span style="color:var(--p)"><b>updated: '+data.updated+'</b></span> | dupes: '+data.dupes+' | placeholders cleaned: '+data.cleaned_placeholders);
     res.innerHTML=parts.join('<br>');
-    showToast('Excel → DB: '+data.created+' new, '+data.updated+' updated','ok');
+    showToast('Excel &#x2192; DB: '+data.created+' new, '+data.updated+' updated ('+sec+'s)','ok');
     loadSynclyPipelineStatus();
   }catch(e){
+    clearInterval(timer);
+    var sec=Math.round((Date.now()-startTs)/1000);
     res.style.display='block';
     res.style.background='#fef2f2';res.style.borderLeft='3px solid var(--r)';
-    res.innerHTML='<b>&#x274C; Import failed</b><br>'+e.message;
+    res.innerHTML='<b>&#x274C; Import failed</b> <span style="color:var(--dim)">('+sec+'s)</span><br>'+e.message;
     showToast('Import failed: '+e.message,'err');
   }finally{
-    btn.disabled=false;btn.textContent='📥 Import Excel → DB';
+    btn.disabled=false;btn.textContent='\uD83D\uDCE5 Import Excel \u2192 DB';
   }
 }
 
