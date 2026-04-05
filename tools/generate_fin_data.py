@@ -3395,14 +3395,18 @@ def generate():
 
         # ── cat_ad_daily: per-category ad data for Hero Products ──────────────
         # Campaign name → category classifier (for Amazon Ads + Meta Traffic)
+        # Campaign name → product group classification
+        # Reference: .claude/skills/amazon-ppc-agent/references/campaign_classification.md
         CAT_CAMP_KEYWORDS = [
-            ("PPSU Straw Cup", ["ppsu straw", "ppsu strawcup", "stage2", "stage 2"]),
+            ("PPSU Straw Cup", ["ppsu straw", "ppsu strawcup", "ppsu manual", "ppsu auto",
+                                "stage2", "stage 2"]),
             ("Stainless Straw Cup", ["stainless straw", "stainless strawcup", "steel straw",
                                      "stainlessstrawcup", "fliptop", "flip top", "flip_top"]),
             ("PPSU Tumbler", ["ppsu tumbler", "knotted"]),
             ("Stainless Tumbler", ["stainless tumbler", "steel tumbler", "vacuum", "vacumm"]),
             ("PPSU Baby Bottle", ["ppsu bottle", "baby bottle", "ppsu baby",
                                   "stage1", "stage 1", "stage_1"]),
+            ("Replacements", ["replacement"]),
             ("Rice Puff", ["rice puff", "rice snack", "rice pop", "naeiae rice"]),
             ("Moisturizer", ["moisturizer", "lotion"]),
             ("Body Wash", ["body wash", "wash"]),
@@ -3420,7 +3424,9 @@ def generate():
                 return "Rice Puff"
             if brand == "Alpremio":
                 return "Alpremio"
-            return None  # unclassifiable → brand-level only
+            # General/brand-wide campaigns (SBV_brand, SB-manual, SD_Audience,
+            # SP_all_auto, CHA&MOM_Competitor) stay brand-level only
+            return None
 
         # Amazon campaign_id → name lookup
         amz_camp_names = {}
@@ -3461,10 +3467,13 @@ def generate():
                     cat_ad_daily_raw[cat]["mt_spend"][d] += float(r.get("spend") or 0)
                     cat_ad_daily_raw[cat]["mt_clicks"][d] += int(r.get("clicks") or 0)
 
-        # Serialize cat_ad_daily
+        # Serialize cat_ad_daily (include ad-only categories like Replacements)
         cat_ad_daily_out = {"dates": spend_dates}
         cat_names_with_ads = set()
-        for cat_name in [c[0] for c in sorted_cats]:
+        _all_cat_names = list(dict.fromkeys(
+            [c[0] for c in sorted_cats] + sorted(cat_ad_daily_raw.keys())
+        ))
+        for cat_name in _all_cat_names:
             if cat_name not in cat_ad_daily_raw:
                 continue
             cd = cat_ad_daily_raw[cat_name]
@@ -3685,7 +3694,7 @@ def generate():
         "brand_ad_daily": brand_ad_daily_out,
         "weekly": weekly_data,
         "hero_products": hero_data,
-        "search_ranking": {},  # TODO: replace with real product search ranking (Apify)
+        "search_ranking": _build_search_ranking_data(),
     }
 
     # ── Write output ──────────────────────────────────────────────────────────
@@ -3807,6 +3816,81 @@ def _build_autocomplete_data() -> dict:
     all_dates = sorted(set(r.get("date", "") for r in rows))
     print(f"  [autocomplete] {len(rows)} rows, {len(all_dates)} dates, {len(latest)} brands")
     return {"latest": latest, "trends": trends, "dates": all_dates}
+
+
+def _build_search_ranking_data() -> dict:
+    """Load Amazon product search ranking data — PG first, fallback to local cache.
+
+    Returns dict consumed by Tab 8:
+    {
+      "dates": ["2026-04-05", ...],
+      "brands": {
+        "Grosmimi": {
+          "latest": {"sippy cup": {position, asin, title, price, rating}, ...},
+          "history": {"sippy cup": {"2026-04-05": 12, "2026-04-04": 15}, ...}
+        }
+      }
+    }
+    """
+    rows = []
+
+    # Try PG first
+    try:
+        from data_keeper_client import DataKeeper
+        dk = DataKeeper()
+        rows = dk.get("amazon_search_ranking", days=90) or []
+        if rows:
+            print(f"  [search_ranking] {len(rows)} rows from PG")
+    except Exception as e:
+        print(f"  [search_ranking] PG failed ({e}), trying cache")
+
+    # Fallback to local cache
+    if not rows:
+        cache_path = os.path.join(os.path.dirname(__file__), "..", ".tmp", "datakeeper", "amazon_search_ranking.json")
+        if os.path.exists(cache_path):
+            try:
+                with open(cache_path, "r", encoding="utf-8") as f:
+                    rows = json.load(f)
+                if rows:
+                    print(f"  [search_ranking] {len(rows)} rows from cache")
+            except Exception:
+                pass
+
+    if not rows:
+        print("  [search_ranking] No data found")
+        return {}
+
+    all_dates = sorted(set(r.get("date", "") for r in rows if r.get("date")))
+    latest_date = all_dates[-1] if all_dates else ""
+
+    brands = {}
+    for r in rows:
+        brand = r.get("brand", "")
+        kw = r.get("keyword", "")
+        pos = r.get("position", -1)
+        date = r.get("date", "")
+
+        if brand not in brands:
+            brands[brand] = {"latest": {}, "history": {}}
+
+        # Latest snapshot
+        if date == latest_date:
+            brands[brand]["latest"][kw] = {
+                "position": pos,
+                "asin": r.get("asin", ""),
+                "title": r.get("title", ""),
+                "price": float(r.get("price", 0) or 0),
+                "rating": float(r.get("rating", 0) or 0),
+                "reviews": int(r.get("reviews", 0) or 0),
+            }
+
+        # History for trend chart
+        if kw not in brands[brand]["history"]:
+            brands[brand]["history"][kw] = {}
+        brands[brand]["history"][kw][date] = pos
+
+    print(f"  [search_ranking] {len(rows)} rows, {len(all_dates)} dates, {len(brands)} brands")
+    return {"dates": all_dates, "brands": brands}
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-04-04 19:56 PST",
+ "generated_pst": "2026-04-04 20:14 PST",
  "through_date": "2026-04-03",
  "months": [
   "2025-01",
@@ -1595,13 +1595,13 @@ const FIN_DATA = {
    112674,
    93786,
    79215,
-   93404,
-   103417,
-   90326,
-   111498,
-   121271,
-   158793,
-   14921
+   101650,
+   214035,
+   174361,
+   196363,
+   202401,
+   287507,
+   27611
   ],
   "variable_detail": {
    "amz_ref_fee": [
@@ -1632,13 +1632,13 @@ const FIN_DATA = {
     0,
     0,
     0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    8245,
+    110618,
+    84035,
+    84865,
+    81130,
+    128713,
+    12690
    ]
   },
   "cm_before_mkt": [
@@ -1651,13 +1651,13 @@ const FIN_DATA = {
    768185,
    677158,
    586626,
-   646748,
-   719742,
-   611010,
-   771171,
-   799906,
-   1019112,
-   93282
+   638502,
+   609124,
+   526975,
+   686306,
+   718776,
+   890399,
+   80591
   ],
   "cm_before_mkt_proj": [
    474257,
@@ -1669,26 +1669,26 @@ const FIN_DATA = {
    768185,
    677158,
    586626,
-   646748,
-   719742,
-   611010,
-   771171,
-   799906,
-   1019112,
-   932820
+   638502,
+   609124,
+   526975,
+   686306,
+   718776,
+   890399,
+   805910
   ],
   "ad_spend": [
-   20996,
-   16546,
-   17863,
-   17410,
-   17003,
-   16451,
-   21579,
-   24911,
-   27700,
-   31719,
-   39600,
+   68843,
+   54550,
+   58745,
+   63551,
+   62851,
+   72745,
+   103700,
+   92178,
+   83337,
+   91284,
+   104991,
    71387,
    118156,
    119783,
@@ -1696,17 +1696,17 @@ const FIN_DATA = {
    12276
   ],
   "ad_spend_proj": [
-   20996,
-   16546,
-   17863,
-   17410,
-   17003,
-   16451,
-   21579,
-   24911,
-   27700,
-   31719,
-   39600,
+   68843,
+   54550,
+   58745,
+   63551,
+   62851,
+   72745,
+   103700,
+   92178,
+   83337,
+   91284,
+   104991,
    71387,
    118156,
    119783,
@@ -1770,150 +1770,150 @@ const FIN_DATA = {
    ]
   },
   "seeding": [
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
+   1910,
+   4000,
+   1390,
+   2332,
+   2647,
+   2440,
+   4227,
+   18484,
+   8857,
+   22737,
+   2568,
+   1424,
+   4380,
+   8718,
+   5880,
    0
   ],
   "seeding_proj": [
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
+   1910,
+   4000,
+   1390,
+   2332,
+   2647,
+   2440,
+   4227,
+   18484,
+   8857,
+   22737,
+   2568,
+   1424,
+   4380,
+   8718,
+   5880,
    0
   ],
   "influencer_detail": {
    "paid": [
+    1100,
+    2900,
     0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
+    1532,
+    2107,
+    2020,
+    3467,
+    18004,
+    7437,
+    22277,
+    1318,
+    814,
+    450,
+    5878,
+    4550,
     0
    ],
    "nonpaid": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
+    810,
+    1100,
+    1390,
+    800,
+    540,
+    420,
+    760,
+    480,
+    1420,
+    460,
+    1250,
+    610,
+    3930,
+    2840,
+    1330,
     0
    ]
   },
   "mkt_total": [
-   39477,
-   28424,
-   22220,
-   17472,
-   18934,
-   39396,
-   31562,
-   36471,
-   35305,
-   35390,
-   59273,
-   80465,
-   134237,
-   126108,
-   158747,
+   89234,
+   70428,
+   64492,
+   65944,
+   67429,
+   98130,
+   117910,
+   122222,
+   99799,
+   117692,
+   127232,
+   81890,
+   138617,
+   134826,
+   164627,
    12574
   ],
   "mkt_total_proj": [
-   39477,
-   28424,
-   22220,
-   17472,
-   18934,
-   39396,
-   31562,
-   36471,
-   35305,
-   35390,
-   59273,
-   80465,
-   134237,
-   126108,
-   158747,
+   89234,
+   70428,
+   64492,
+   65944,
+   67429,
+   98130,
+   117910,
+   122222,
+   99799,
+   117692,
+   127232,
+   81890,
+   138617,
+   134826,
+   164627,
    125740
   ],
   "contribution_margin": [
-   434780,
-   397963,
-   447768,
-   434930,
-   461121,
-   556988,
-   736623,
-   640687,
-   551321,
-   611357,
-   660469,
-   530545,
-   636934,
-   673798,
-   860365,
-   80707
+   385023,
+   355959,
+   405496,
+   386457,
+   412627,
+   498254,
+   650275,
+   554936,
+   486827,
+   520810,
+   481892,
+   445086,
+   547689,
+   583950,
+   725772,
+   68017
   ],
   "contribution_margin_proj": [
-   434780,
-   397963,
-   447768,
-   434930,
-   461121,
-   556988,
-   736623,
-   640687,
-   551321,
-   611357,
-   660469,
-   530545,
-   636934,
-   673798,
-   860365,
-   807070
+   385023,
+   355959,
+   405496,
+   386457,
+   412627,
+   498254,
+   650275,
+   554936,
+   486827,
+   520810,
+   481892,
+   445086,
+   547689,
+   583950,
+   725772,
+   680170
   ]
  },
  "search_queries": [
@@ -8898,7 +8898,7 @@ const FIN_DATA = {
      11.9,
      10.8,
      11.0,
-     10.6,
+     10.5,
      9.3,
      8.8
     ]
@@ -10727,8 +10727,8 @@ const FIN_DATA = {
    },
    "amazon": {
     "total_clicks": 7805,
-    "total_sessions": 0,
-    "total_pageviews": 0,
+    "total_sessions": 106863,
+    "total_pageviews": 130531,
     "total_spend": 3103,
     "total_sales": 9379,
     "total_purchases": 343,
@@ -10747,10 +10747,10 @@ const FIN_DATA = {
       "source": "Meta Traffic (AMZ landing)",
       "clicks": 5247,
       "spend": 402,
-      "sales": 0,
-      "purchases": 0,
+      "sales": 15668,
+      "purchases": 625,
       "cpc": 0.08,
-      "roas": 0.0,
+      "roas": 39.0,
       "pct": 67.2
      },
      {
@@ -10766,12 +10766,143 @@ const FIN_DATA = {
      }
     ],
     "attribution": {
-     "sales": 0,
-     "purchases": 0,
-     "brb": 0,
-     "roas": 0.0,
-     "roas_with_brb": 0.0,
-     "campaigns": []
+     "sales": 15668,
+     "purchases": 625,
+     "brb": 2634,
+     "roas": 39.0,
+     "roas_with_brb": 45.5,
+     "campaigns": [
+      {
+       "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
+       "sales": 8838,
+       "purchases": 379,
+       "clicks": 50131,
+       "brb": 1001.51,
+       "spend": 145,
+       "roas": 61.0,
+       "roas_adj": 67.9,
+       "assets": [
+        {
+         "type": "Whitelabel",
+         "spend": 145,
+         "clicks": 2374,
+         "cpc": 0.06,
+         "ads": [
+          {
+           "id": "120243917640090508",
+           "name": "WL | _cola_henderson | Fliptop | E | 20260325"
+          },
+          {
+           "id": "120243917601910508",
+           "name": "WL | laurencee.slp | Fliptop | AD D | 20260325"
+          },
+          {
+           "id": "120243917556170508",
+           "name": "WL | deanna.hauk | Fliptop | AD C | 20260325"
+          },
+          {
+           "id": "120243917490040508",
+           "name": "WL | _from.mom.to.mom | knotted | AD B | 20260325"
+          },
+          {
+           "id": "120243917383280508",
+           "name": "WL | chatterwithsam | PPSU | AD A | 20260325"
+          }
+         ]
+        },
+        {
+         "type": "Other",
+         "spend": 0,
+         "clicks": 0,
+         "cpc": 0,
+         "ads": [
+          {
+           "id": "120243947414180508",
+           "name": "The easiest | AD G | 20260326"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_20251120-01",
+       "sales": 5136,
+       "purchases": 204,
+       "clicks": 71128,
+       "brb": 557.99,
+       "spend": 148,
+       "roas": 34.6,
+       "roas_adj": 38.3,
+       "assets": [
+        {
+         "type": "Whitelabel",
+         "spend": 148,
+         "clicks": 1713,
+         "cpc": 0.09,
+         "ads": [
+          {
+           "id": "120237969827610508",
+           "name": "WL_Livfuselli_MAY25_Grosmimi_BASIC PPSU300_20251120-01"
+          },
+          {
+           "id": "120237969781310508",
+           "name": "WL_Livfuselli_AUG25_Grosmimi_BASIC PPSU200_20251120-01"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "name": "AMZ_Traffic_Dental Mom_Stainless_StrawCup_20260107",
+       "sales": 1217,
+       "purchases": 26,
+       "clicks": 42364,
+       "brb": 797.23,
+       "spend": 148,
+       "roas": 8.2,
+       "roas_adj": 13.6,
+       "assets": [
+        {
+         "type": "Whitelabel",
+         "spend": 148,
+         "clicks": 1713,
+         "cpc": 0.09,
+         "ads": [
+          {
+           "id": "120237969827610508",
+           "name": "WL_Livfuselli_MAY25_Grosmimi_BASIC PPSU300_20251120-01"
+          },
+          {
+           "id": "120237969781310508",
+           "name": "WL_Livfuselli_AUG25_Grosmimi_BASIC PPSU200_20251120-01"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "name": "aa_2fb5a17db7d14eee6e5a81db265da037",
+       "sales": 378,
+       "purchases": 14,
+       "clicks": 661,
+       "brb": 199.2,
+       "spend": 0,
+       "roas": 0,
+       "roas_adj": 0,
+       "assets": []
+      },
+      {
+       "name": "AMZ_Traffic_Dentalmom_WL_202601",
+       "sales": 100,
+       "purchases": 2,
+       "clicks": 33844,
+       "brb": 78.13,
+       "spend": 0,
+       "roas": 0,
+       "roas_adj": 0,
+       "assets": []
+      }
+     ]
     }
    },
    "meta_detail": {
@@ -10885,8 +11016,8 @@ const FIN_DATA = {
    },
    "amazon": {
     "total_clicks": 78243,
-    "total_sessions": 0,
-    "total_pageviews": 0,
+    "total_sessions": 106863,
+    "total_pageviews": 130531,
     "total_spend": 33924,
     "total_sales": 115320,
     "total_purchases": 4588,
@@ -10905,31 +11036,215 @@ const FIN_DATA = {
       "source": "Meta Traffic (AMZ landing)",
       "clicks": 50288,
       "spend": 4823,
-      "sales": 0,
-      "purchases": 0,
+      "sales": 15668,
+      "purchases": 625,
       "cpc": 0.1,
-      "roas": 0.0,
+      "roas": 3.2,
       "pct": 64.3
      },
      {
-      "source": "Amazon Internal (Organic)",
-      "clicks": 0,
+      "source": "Amazon Internal (Organic + Ads)",
+      "clicks": 56575,
       "spend": 0,
-      "sales": 0,
-      "purchases": 0,
+      "sales": 140615,
+      "purchases": 3513,
       "cpc": 0,
       "roas": 0,
-      "pct": 0,
-      "note": "n.m."
+      "pct": 52.9,
+      "note_text": "Sessions from Amazon search + direct. Ads clicks happen within these sessions."
      }
     ],
     "attribution": {
-     "sales": 0,
-     "purchases": 0,
-     "brb": 0,
-     "roas": 0.0,
-     "roas_with_brb": 0.0,
-     "campaigns": []
+     "sales": 15668,
+     "purchases": 625,
+     "brb": 2634,
+     "roas": 3.2,
+     "roas_with_brb": 3.8,
+     "campaigns": [
+      {
+       "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
+       "sales": 8838,
+       "purchases": 379,
+       "clicks": 50131,
+       "brb": 1001.51,
+       "spend": 2284,
+       "roas": 3.9,
+       "roas_adj": 4.3,
+       "assets": [
+        {
+         "type": "Whitelabel",
+         "spend": 1129,
+         "clicks": 16618,
+         "cpc": 0.07,
+         "ads": [
+          {
+           "id": "120243917640090508",
+           "name": "WL | _cola_henderson | Fliptop | E | 20260325"
+          },
+          {
+           "id": "120243917601910508",
+           "name": "WL | laurencee.slp | Fliptop | AD D | 20260325"
+          },
+          {
+           "id": "120243917556170508",
+           "name": "WL | deanna.hauk | Fliptop | AD C | 20260325"
+          },
+          {
+           "id": "120243917490040508",
+           "name": "WL | _from.mom.to.mom | knotted | AD B | 20260325"
+          },
+          {
+           "id": "120243917383280508",
+           "name": "WL | chatterwithsam | PPSU | AD A | 20260325"
+          }
+         ]
+        },
+        {
+         "type": "Other",
+         "spend": 662,
+         "clicks": 4875,
+         "cpc": 0.14,
+         "ads": [
+          {
+           "id": "120243947414180508",
+           "name": "The easiest | AD G | 20260326"
+          },
+          {
+           "id": "120243947805310508",
+           "name": "Spring's biggest deals(2) | AD I | 20260326"
+          },
+          {
+           "id": "120243916283180508",
+           "name": "Spring Deal Days(3)| Deanna | AD F | 20260325"
+          },
+          {
+           "id": "120243916259860508",
+           "name": "Spring Deal Days(2) | AD E | 20260325"
+          },
+          {
+           "id": "120243909567070508",
+           "name": "The Viral Cup | AD A | 20260325"
+          }
+         ]
+        },
+        {
+         "type": "Image",
+         "spend": 494,
+         "clicks": 3334,
+         "cpc": 0.15,
+         "ads": [
+          {
+           "id": "120243916922570508",
+           "name": "Big Spring Sale | image | AD B | 20260325"
+          },
+          {
+           "id": "120243917176150508",
+           "name": "Spring Deal Days | image | AD D | 20260325"
+          },
+          {
+           "id": "120243916674190508",
+           "name": "Spring Biggest Deals | image | AD A | 20260325"
+          },
+          {
+           "id": "120243947972970508",
+           "name": "Up to 15% off(2) | image | AD F | 20260326"
+          },
+          {
+           "id": "120243917019060508",
+           "name": "Up to 15% off | image | AD C | 20260325"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_20251120-01",
+       "sales": 5136,
+       "purchases": 204,
+       "clicks": 71128,
+       "brb": 557.99,
+       "spend": 1053,
+       "roas": 4.9,
+       "roas_adj": 5.4,
+       "assets": [
+        {
+         "type": "Whitelabel",
+         "spend": 1053,
+         "clicks": 11802,
+         "cpc": 0.09,
+         "ads": [
+          {
+           "id": "120237969827610508",
+           "name": "WL_Livfuselli_MAY25_Grosmimi_BASIC PPSU300_20251120-01"
+          },
+          {
+           "id": "120237969781310508",
+           "name": "WL_Livfuselli_AUG25_Grosmimi_BASIC PPSU200_20251120-01"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "name": "AMZ_Traffic_Dental Mom_Stainless_StrawCup_20260107",
+       "sales": 1217,
+       "purchases": 26,
+       "clicks": 42364,
+       "brb": 797.23,
+       "spend": 319,
+       "roas": 3.8,
+       "roas_adj": 6.3,
+       "assets": [
+        {
+         "type": "Whitelabel",
+         "spend": 319,
+         "clicks": 2294,
+         "cpc": 0.14,
+         "ads": [
+          {
+           "id": "120240689933180508",
+           "name": "Stainless_StrawCup | WL | Dentalmom | 20260107"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "name": "aa_2fb5a17db7d14eee6e5a81db265da037",
+       "sales": 378,
+       "purchases": 14,
+       "clicks": 661,
+       "brb": 199.2,
+       "spend": 0,
+       "roas": 0,
+       "roas_adj": 0,
+       "assets": []
+      },
+      {
+       "name": "AMZ_Traffic_Dentalmom_WL_202601",
+       "sales": 100,
+       "purchases": 2,
+       "clicks": 33844,
+       "brb": 78.13,
+       "spend": 325,
+       "roas": 0.3,
+       "roas_adj": 0.5,
+       "assets": [
+        {
+         "type": "Whitelabel",
+         "spend": 325,
+         "clicks": 2646,
+         "cpc": 0.12,
+         "ads": [
+          {
+           "id": "120240644685990508",
+           "name": "WL_Dentalmom_Stainless_20260106"
+          }
+         ]
+        }
+       ]
+      }
+     ]
     }
    },
    "meta_detail": {
@@ -11049,8 +11364,8 @@ const FIN_DATA = {
    },
    "amazon": {
     "total_clicks": 273487,
-    "total_sessions": 0,
-    "total_pageviews": 0,
+    "total_sessions": 384696,
+    "total_pageviews": 473237,
     "total_spend": 127817,
     "total_sales": 493507,
     "total_purchases": 19054,
@@ -11069,31 +11384,215 @@ const FIN_DATA = {
       "source": "Meta Traffic (AMZ landing)",
       "clicks": 161973,
       "spend": 16083,
-      "sales": 0,
-      "purchases": 0,
+      "sales": 15668,
+      "purchases": 625,
       "cpc": 0.1,
-      "roas": 0.0,
+      "roas": 1.0,
       "pct": 59.2
      },
      {
-      "source": "Amazon Internal (Organic)",
-      "clicks": 0,
+      "source": "Amazon Internal (Organic + Ads)",
+      "clicks": 222723,
       "spend": 0,
-      "sales": 0,
-      "purchases": 0,
+      "sales": 532714,
+      "purchases": 11801,
       "cpc": 0,
       "roas": 0,
-      "pct": 0,
-      "note": "n.m."
+      "pct": 57.9,
+      "note_text": "Sessions from Amazon search + direct. Ads clicks happen within these sessions."
      }
     ],
     "attribution": {
-     "sales": 0,
-     "purchases": 0,
-     "brb": 0,
-     "roas": 0.0,
-     "roas_with_brb": 0.0,
-     "campaigns": []
+     "sales": 15668,
+     "purchases": 625,
+     "brb": 2634,
+     "roas": 1.0,
+     "roas_with_brb": 1.1,
+     "campaigns": [
+      {
+       "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
+       "sales": 8838,
+       "purchases": 379,
+       "clicks": 50131,
+       "brb": 1001.51,
+       "spend": 3934,
+       "roas": 2.2,
+       "roas_adj": 2.5,
+       "assets": [
+        {
+         "type": "Whitelabel",
+         "spend": 1693,
+         "clicks": 24679,
+         "cpc": 0.07,
+         "ads": [
+          {
+           "id": "120243917640090508",
+           "name": "WL | _cola_henderson | Fliptop | E | 20260325"
+          },
+          {
+           "id": "120243917601910508",
+           "name": "WL | laurencee.slp | Fliptop | AD D | 20260325"
+          },
+          {
+           "id": "120243917556170508",
+           "name": "WL | deanna.hauk | Fliptop | AD C | 20260325"
+          },
+          {
+           "id": "120243917490040508",
+           "name": "WL | _from.mom.to.mom | knotted | AD B | 20260325"
+          },
+          {
+           "id": "120243917383280508",
+           "name": "WL | chatterwithsam | PPSU | AD A | 20260325"
+          }
+         ]
+        },
+        {
+         "type": "Other",
+         "spend": 1302,
+         "clicks": 9061,
+         "cpc": 0.14,
+         "ads": [
+          {
+           "id": "120243947414180508",
+           "name": "The easiest | AD G | 20260326"
+          },
+          {
+           "id": "120243947805310508",
+           "name": "Spring's biggest deals(2) | AD I | 20260326"
+          },
+          {
+           "id": "120243916283180508",
+           "name": "Spring Deal Days(3)| Deanna | AD F | 20260325"
+          },
+          {
+           "id": "120243916259860508",
+           "name": "Spring Deal Days(2) | AD E | 20260325"
+          },
+          {
+           "id": "120243909567070508",
+           "name": "The Viral Cup | AD A | 20260325"
+          }
+         ]
+        },
+        {
+         "type": "Image",
+         "spend": 939,
+         "clicks": 6441,
+         "cpc": 0.15,
+         "ads": [
+          {
+           "id": "120243916922570508",
+           "name": "Big Spring Sale | image | AD B | 20260325"
+          },
+          {
+           "id": "120243917176150508",
+           "name": "Spring Deal Days | image | AD D | 20260325"
+          },
+          {
+           "id": "120243916674190508",
+           "name": "Spring Biggest Deals | image | AD A | 20260325"
+          },
+          {
+           "id": "120243947972970508",
+           "name": "Up to 15% off(2) | image | AD F | 20260326"
+          },
+          {
+           "id": "120243917019060508",
+           "name": "Up to 15% off | image | AD C | 20260325"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_20251120-01",
+       "sales": 5136,
+       "purchases": 204,
+       "clicks": 71128,
+       "brb": 557.99,
+       "spend": 4478,
+       "roas": 1.1,
+       "roas_adj": 1.3,
+       "assets": [
+        {
+         "type": "Whitelabel",
+         "spend": 4478,
+         "clicks": 51801,
+         "cpc": 0.09,
+         "ads": [
+          {
+           "id": "120237969827610508",
+           "name": "WL_Livfuselli_MAY25_Grosmimi_BASIC PPSU300_20251120-01"
+          },
+          {
+           "id": "120237969781310508",
+           "name": "WL_Livfuselli_AUG25_Grosmimi_BASIC PPSU200_20251120-01"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "name": "AMZ_Traffic_Dental Mom_Stainless_StrawCup_20260107",
+       "sales": 1217,
+       "purchases": 26,
+       "clicks": 42364,
+       "brb": 797.23,
+       "spend": 2153,
+       "roas": 0.6,
+       "roas_adj": 0.9,
+       "assets": [
+        {
+         "type": "Whitelabel",
+         "spend": 2153,
+         "clicks": 16191,
+         "cpc": 0.13,
+         "ads": [
+          {
+           "id": "120240689933180508",
+           "name": "Stainless_StrawCup | WL | Dentalmom | 20260107"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "name": "aa_2fb5a17db7d14eee6e5a81db265da037",
+       "sales": 378,
+       "purchases": 14,
+       "clicks": 661,
+       "brb": 199.2,
+       "spend": 0,
+       "roas": 0,
+       "roas_adj": 0,
+       "assets": []
+      },
+      {
+       "name": "AMZ_Traffic_Dentalmom_WL_202601",
+       "sales": 100,
+       "purchases": 2,
+       "clicks": 33844,
+       "brb": 78.13,
+       "spend": 2155,
+       "roas": 0.0,
+       "roas_adj": 0.1,
+       "assets": [
+        {
+         "type": "Whitelabel",
+         "spend": 2155,
+         "clicks": 18525,
+         "cpc": 0.12,
+         "ads": [
+          {
+           "id": "120240644685990508",
+           "name": "WL_Dentalmom_Stainless_20260106"
+          }
+         ]
+        }
+       ]
+      }
+     ]
     }
    },
    "meta_detail": {
@@ -11910,12 +12409,12 @@ const FIN_DATA = {
  ],
  "amz_sessions": {
   "7d": {
-   "sessions": 0,
-   "pageViews": 0
+   "sessions": 106863,
+   "pageViews": 130531
   },
   "30d": {
-   "sessions": 0,
-   "pageViews": 0
+   "sessions": 384696,
+   "pageViews": 473237
   }
  },
  "pnl_polar": {
@@ -12125,14 +12624,14 @@ const FIN_DATA = {
    112674,
    93786,
    79215,
-   93404,
-   103417,
-   90326,
-   1006241,
-   111498,
-   121271,
-   158793,
-   14921
+   101650,
+   214035,
+   174361,
+   1209140,
+   196363,
+   202401,
+   287507,
+   27611
   ],
   "variable_detail": {
    "amz_ref_fee": [
@@ -12164,14 +12663,14 @@ const FIN_DATA = {
     0,
     0,
     0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    8245,
+    110618,
+    84035,
+    202898,
+    84865,
+    81130,
+    128713,
+    12690
    ],
    "fba_nm_months": [
     0,
@@ -12195,14 +12694,14 @@ const FIN_DATA = {
    768185,
    677158,
    586626,
-   646748,
-   719742,
-   611010,
-   6908942,
-   771171,
-   799906,
-   1019112,
-   93282
+   638502,
+   609124,
+   526975,
+   6706043,
+   686306,
+   718776,
+   890399,
+   80591
   ],
   "ad_spend": {
    "onzenna": [
@@ -12225,38 +12724,38 @@ const FIN_DATA = {
     2961
    ],
    "amazon": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
+    47847,
+    38004,
+    40882,
+    46141,
+    45848,
+    56294,
+    82121,
+    67267,
+    55637,
+    59565,
+    65391,
     34382,
-    34382,
+    639379,
     79637,
     80371,
     115695,
     9316
    ],
    "total": [
-    20996,
-    16546,
-    17863,
-    17410,
-    17003,
-    16451,
-    21579,
-    24911,
-    27700,
-    31719,
-    39600,
+    68843,
+    54550,
+    58745,
+    63551,
+    62851,
+    72745,
+    103700,
+    92178,
+    83337,
+    91284,
+    104991,
     71387,
-    323165,
+    928162,
     118156,
     119783,
     153122,
@@ -12519,100 +13018,100 @@ const FIN_DATA = {
    ]
   },
   "influencer_spend": [
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
+   1910,
+   4000,
+   1390,
+   2332,
+   2647,
+   2440,
+   4227,
+   18484,
+   8857,
+   22737,
+   2568,
+   1424,
+   73016,
+   4380,
+   8718,
+   5880,
    0
   ],
   "influencer_detail": {
    "paid": [
+    1100,
+    2900,
     0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
+    1532,
+    2107,
+    2020,
+    3467,
+    18004,
+    7437,
+    22277,
+    1318,
+    814,
+    62976,
+    450,
+    5878,
+    4550,
     0
    ],
    "nonpaid": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
+    810,
+    1100,
+    1390,
+    800,
+    540,
+    420,
+    760,
+    480,
+    1420,
+    460,
+    1250,
+    610,
+    10040,
+    3930,
+    2840,
+    1330,
     0
    ]
   },
   "cm_after_ads": [
-   514842,
-   466411,
-   526976,
-   514512,
-   542097,
-   661786,
-   859280,
-   746032,
-   638141,
-   708433,
-   783559,
+   466995,
+   428407,
+   486094,
+   468371,
+   496249,
+   605492,
+   777159,
+   678765,
+   582504,
+   648868,
+   718168,
    629949,
-   7592018,
+   6987021,
    764513,
    801394,
    1024783,
    95926
   ],
   "cm_final": [
-   514842,
-   466411,
-   526976,
-   514512,
-   542097,
-   661786,
-   859280,
-   746032,
-   638141,
-   708433,
-   783559,
-   629949,
-   7592018,
-   764513,
-   801394,
-   1024783,
+   465085,
+   424407,
+   484704,
+   466039,
+   493602,
+   603052,
+   772932,
+   660281,
+   573647,
+   626131,
+   715600,
+   628525,
+   6914005,
+   760133,
+   792676,
+   1018903,
    95926
   ],
   "channel_pnl": {
@@ -12681,13 +13180,13 @@ const FIN_DATA = {
      null,
      null,
      null,
-     null,
-     null,
-     null,
-     null,
-     null,
-     null,
-     null
+     8245,
+     110618,
+     84035,
+     84865,
+     81130,
+     128713,
+     12690
     ],
     "fulfillment_nm": true,
     "ad_spend": [
@@ -12718,13 +13217,13 @@ const FIN_DATA = {
      638488,
      531451,
      448886,
-     529292,
-     586032,
-     511845,
-     631824,
-     687202,
-     899829,
-     84550
+     521047,
+     475414,
+     427810,
+     546959,
+     606072,
+     771116,
+     71860
     ],
     "contribution_margin": [
      348959,
@@ -12736,13 +13235,13 @@ const FIN_DATA = {
      636167,
      529178,
      445952,
-     524564,
-     574652,
-     468378,
-     540656,
-     597183,
-     769763,
-     74187
+     516319,
+     464034,
+     384343,
+     455791,
+     516053,
+     641050,
+     61497
     ],
     "color": "#f59e0b"
    },
@@ -13970,11 +14469,11 @@ const FIN_DATA = {
     "cpc": 0.08,
     "ctr": 13.03,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 5135.8,
+    "attr_purchases": 204,
+    "attr_brb": 557.99,
+    "attr_roas": 0.42,
+    "attr_roas_adj": 0.46
    },
    {
     "id": "120232464266510508",
@@ -14188,11 +14687,11 @@ const FIN_DATA = {
     "cpc": 0.11,
     "ctr": 7.6,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 99.6,
+    "attr_purchases": 2,
+    "attr_brb": 78.13,
+    "attr_roas": 0.02,
+    "attr_roas_adj": 0.03
    },
    {
     "id": "120240689933170508",
@@ -14264,11 +14763,11 @@ const FIN_DATA = {
     "cpc": 0.12,
     "ctr": 6.04,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 1216.8,
+    "attr_purchases": 26,
+    "attr_brb": 797.23,
+    "attr_roas": 0.19,
+    "attr_roas_adj": 0.32
    },
    {
     "id": "120238108466330508",
@@ -14553,11 +15052,11 @@ const FIN_DATA = {
     "cpc": 0.1,
     "ctr": 7.28,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 8837.79,
+    "attr_purchases": 379,
+    "attr_brb": 1001.51,
+    "attr_roas": 2.25,
+    "attr_roas_adj": 2.5
    },
    {
     "id": "481285651003605",
@@ -19211,6 +19710,82 @@ const FIN_DATA = {
   ],
   "weekly_top_traffic": [
    {
+    "id": "120243909567080508",
+    "campaign_id": "120243909567080508",
+    "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331",
+    "platform": "Meta Traffic",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     2623.78,
+     1310.61
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     23.11,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     375226,
+     176435
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     24759,
+     15422
+    ],
+    "total_spend": 3934.39,
+    "total_sales": 23.11,
+    "total_clicks": 40181,
+    "total_impressions": 551661,
+    "roas": 0.01,
+    "cpc": 0.1,
+    "ctr": 7.28,
+    "is_traffic": true,
+    "attr_sales": 8837.79,
+    "attr_purchases": 379,
+    "attr_brb": 1001.51,
+    "attr_roas": 2.25,
+    "attr_roas_adj": 2.5
+   },
+   {
     "id": "120232746327610508",
     "campaign_id": "120232746327610508",
     "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
@@ -19280,87 +19855,11 @@ const FIN_DATA = {
     "cpc": 0.08,
     "ctr": 13.03,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
-   },
-   {
-    "id": "120240644685950508",
-    "campaign_id": "120240644685950508",
-    "name": "AMZ | Traffic | WL | Dentalmom | 202601",
-    "platform": "Meta Traffic",
-    "brand": "Grosmimi",
-    "spend": [
-     561.27,
-     559.4,
-     557.11,
-     561.46,
-     560.72,
-     556.52,
-     559.32,
-     558.57,
-     559.53,
-     560.55,
-     555.35,
-     157.73
-    ],
-    "sales": [
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0
-    ],
-    "impressions": [
-     69691,
-     75174,
-     75802,
-     69415,
-     66841,
-     65130,
-     66961,
-     66847,
-     72581,
-     70019,
-     68325,
-     21040
-    ],
-    "clicks": [
-     6006,
-     6045,
-     5866,
-     5674,
-     5226,
-     5456,
-     5024,
-     4734,
-     4991,
-     4843,
-     4778,
-     1251
-    ],
-    "total_spend": 6307.53,
-    "total_sales": 0.0,
-    "total_clicks": 59894,
-    "total_impressions": 787826,
-    "roas": 0.0,
-    "cpc": 0.11,
-    "ctr": 7.6,
-    "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 5135.8,
+    "attr_purchases": 204,
+    "attr_brb": 557.99,
+    "attr_roas": 0.42,
+    "attr_roas_adj": 0.46
    },
    {
     "id": "120240689933170508",
@@ -19432,87 +19931,87 @@ const FIN_DATA = {
     "cpc": 0.12,
     "ctr": 6.04,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 1216.8,
+    "attr_purchases": 26,
+    "attr_brb": 797.23,
+    "attr_roas": 0.19,
+    "attr_roas_adj": 0.32
    },
    {
-    "id": "120243909567080508",
-    "campaign_id": "120243909567080508",
-    "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331",
+    "id": "120240644685950508",
+    "campaign_id": "120240644685950508",
+    "name": "AMZ | Traffic | WL | Dentalmom | 202601",
     "platform": "Meta Traffic",
     "brand": "Grosmimi",
     "spend": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     2623.78,
-     1310.61
+     561.27,
+     559.4,
+     557.11,
+     561.46,
+     560.72,
+     556.52,
+     559.32,
+     558.57,
+     559.53,
+     560.55,
+     555.35,
+     157.73
     ],
     "sales": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     23.11,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
      0.0
     ],
     "impressions": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     375226,
-     176435
+     69691,
+     75174,
+     75802,
+     69415,
+     66841,
+     65130,
+     66961,
+     66847,
+     72581,
+     70019,
+     68325,
+     21040
     ],
     "clicks": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     24759,
-     15422
+     6006,
+     6045,
+     5866,
+     5674,
+     5226,
+     5456,
+     5024,
+     4734,
+     4991,
+     4843,
+     4778,
+     1251
     ],
-    "total_spend": 3934.39,
-    "total_sales": 23.11,
-    "total_clicks": 40181,
-    "total_impressions": 551661,
-    "roas": 0.01,
-    "cpc": 0.1,
-    "ctr": 7.28,
+    "total_spend": 6307.53,
+    "total_sales": 0.0,
+    "total_clicks": 59894,
+    "total_impressions": 787826,
+    "roas": 0.0,
+    "cpc": 0.11,
+    "ctr": 7.6,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 99.6,
+    "attr_purchases": 2,
+    "attr_brb": 78.13,
+    "attr_roas": 0.02,
+    "attr_roas_adj": 0.03
    },
    {
     "id": "120241255476490508",
@@ -19593,82 +20092,6 @@ const FIN_DATA = {
   ],
   "weekly_bottom_traffic": [
    {
-    "id": "120232746327610508",
-    "campaign_id": "120232746327610508",
-    "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
-    "platform": "Meta Traffic",
-    "brand": "Grosmimi",
-    "spend": [
-     1049.78,
-     1050.59,
-     1046.6,
-     1053.06,
-     1052.28,
-     1041.09,
-     1054.05,
-     1041.12,
-     1053.64,
-     1050.29,
-     1045.19,
-     738.02
-    ],
-    "sales": [
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0
-    ],
-    "impressions": [
-     108419,
-     115496,
-     117918,
-     103110,
-     100743,
-     103659,
-     110767,
-     85081,
-     92428,
-     107886,
-     95501,
-     63672
-    ],
-    "clicks": [
-     14374,
-     14492,
-     14189,
-     13662,
-     14142,
-     14899,
-     13476,
-     13564,
-     12972,
-     11642,
-     11153,
-     8449
-    ],
-    "total_spend": 12275.71,
-    "total_sales": 0.0,
-    "total_clicks": 157014,
-    "total_impressions": 1204680,
-    "roas": 0.0,
-    "cpc": 0.08,
-    "ctr": 13.03,
-    "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
-   },
-   {
     "id": "120240644685950508",
     "campaign_id": "120240644685950508",
     "name": "AMZ | Traffic | WL | Dentalmom | 202601",
@@ -19738,11 +20161,11 @@ const FIN_DATA = {
     "cpc": 0.11,
     "ctr": 7.6,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 99.6,
+    "attr_purchases": 2,
+    "attr_brb": 78.13,
+    "attr_roas": 0.02,
+    "attr_roas_adj": 0.03
    },
    {
     "id": "120240689933170508",
@@ -19814,11 +20237,87 @@ const FIN_DATA = {
     "cpc": 0.12,
     "ctr": 6.04,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 1216.8,
+    "attr_purchases": 26,
+    "attr_brb": 797.23,
+    "attr_roas": 0.19,
+    "attr_roas_adj": 0.32
+   },
+   {
+    "id": "120232746327610508",
+    "campaign_id": "120232746327610508",
+    "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
+    "platform": "Meta Traffic",
+    "brand": "Grosmimi",
+    "spend": [
+     1049.78,
+     1050.59,
+     1046.6,
+     1053.06,
+     1052.28,
+     1041.09,
+     1054.05,
+     1041.12,
+     1053.64,
+     1050.29,
+     1045.19,
+     738.02
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     108419,
+     115496,
+     117918,
+     103110,
+     100743,
+     103659,
+     110767,
+     85081,
+     92428,
+     107886,
+     95501,
+     63672
+    ],
+    "clicks": [
+     14374,
+     14492,
+     14189,
+     13662,
+     14142,
+     14899,
+     13476,
+     13564,
+     12972,
+     11642,
+     11153,
+     8449
+    ],
+    "total_spend": 12275.71,
+    "total_sales": 0.0,
+    "total_clicks": 157014,
+    "total_impressions": 1204680,
+    "roas": 0.0,
+    "cpc": 0.08,
+    "ctr": 13.03,
+    "is_traffic": true,
+    "attr_sales": 5135.8,
+    "attr_purchases": 204,
+    "attr_brb": 557.99,
+    "attr_roas": 0.42,
+    "attr_roas_adj": 0.46
    },
    {
     "id": "120243909567080508",
@@ -19890,11 +20389,11 @@ const FIN_DATA = {
     "cpc": 0.1,
     "ctr": 7.28,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 8837.79,
+    "attr_purchases": 379,
+    "attr_brb": 1001.51,
+    "attr_roas": 2.25,
+    "attr_roas_adj": 2.5
    },
    {
     "id": "120241255476490508",
@@ -20168,11 +20667,11 @@ const FIN_DATA = {
     "cpc": 0.08,
     "ctr": 13.17,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 5135.8,
+    "attr_purchases": 204,
+    "attr_brb": 557.99,
+    "attr_roas": 0.37,
+    "attr_roas_adj": 0.41
    },
    {
     "id": "120232464266510508",
@@ -20329,11 +20828,11 @@ const FIN_DATA = {
     "cpc": 0.1,
     "ctr": 7.79,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 99.6,
+    "attr_purchases": 2,
+    "attr_brb": 78.13,
+    "attr_roas": 0.01,
+    "attr_roas_adj": 0.03
    },
    {
     "id": "120240689933170508",
@@ -20373,11 +20872,11 @@ const FIN_DATA = {
     "cpc": 0.12,
     "ctr": 6.06,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 1216.8,
+    "attr_purchases": 26,
+    "attr_brb": 797.23,
+    "attr_roas": 0.18,
+    "attr_roas_adj": 0.3
    },
    {
     "id": "412813716858145",
@@ -20534,11 +21033,11 @@ const FIN_DATA = {
     "cpc": 0.1,
     "ctr": 7.28,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 8837.79,
+    "attr_purchases": 379,
+    "attr_brb": 1001.51,
+    "attr_roas": 2.25,
+    "attr_roas_adj": 2.5
    },
    {
     "id": "120227412781090508",
@@ -23268,6 +23767,50 @@ const FIN_DATA = {
   ],
   "monthly_top_traffic": [
    {
+    "id": "120243909567080508",
+    "campaign_id": "120243909567080508",
+    "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331",
+    "platform": "Meta Traffic",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     3448.84,
+     485.55
+    ],
+    "sales": [
+     0,
+     0,
+     23.11,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     485838,
+     65823
+    ],
+    "clicks": [
+     0,
+     0,
+     32804,
+     7377
+    ],
+    "total_spend": 3934.39,
+    "total_sales": 23.11,
+    "total_clicks": 40181,
+    "total_impressions": 551661,
+    "roas": 0.01,
+    "cpc": 0.1,
+    "ctr": 7.28,
+    "is_traffic": true,
+    "attr_sales": 8837.79,
+    "attr_purchases": 379,
+    "attr_brb": 1001.51,
+    "attr_roas": 2.25,
+    "attr_roas_adj": 2.5
+   },
+   {
     "id": "120232746327610508",
     "campaign_id": "120232746327610508",
     "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
@@ -23305,55 +23848,11 @@ const FIN_DATA = {
     "cpc": 0.08,
     "ctr": 13.17,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
-   },
-   {
-    "id": "120240644685950508",
-    "campaign_id": "120240644685950508",
-    "name": "AMZ | Traffic | WL | Dentalmom | 202601",
-    "platform": "Meta Traffic",
-    "brand": "Grosmimi",
-    "spend": [
-     2038.31,
-     2237.63,
-     2474.69,
-     0.0
-    ],
-    "sales": [
-     0.0,
-     0.0,
-     0.0,
-     0.0
-    ],
-    "impressions": [
-     270054,
-     270277,
-     308933,
-     0
-    ],
-    "clicks": [
-     23314,
-     21512,
-     21358,
-     0
-    ],
-    "total_spend": 6750.63,
-    "total_sales": 0.0,
-    "total_clicks": 66184,
-    "total_impressions": 849264,
-    "roas": 0.0,
-    "cpc": 0.1,
-    "ctr": 7.79,
-    "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 5135.8,
+    "attr_purchases": 204,
+    "attr_brb": 557.99,
+    "attr_roas": 0.37,
+    "attr_roas_adj": 0.41
    },
    {
     "id": "120240689933170508",
@@ -23393,55 +23892,55 @@ const FIN_DATA = {
     "cpc": 0.12,
     "ctr": 6.06,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 1216.8,
+    "attr_purchases": 26,
+    "attr_brb": 797.23,
+    "attr_roas": 0.18,
+    "attr_roas_adj": 0.3
    },
    {
-    "id": "120243909567080508",
-    "campaign_id": "120243909567080508",
-    "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331",
+    "id": "120240644685950508",
+    "campaign_id": "120240644685950508",
+    "name": "AMZ | Traffic | WL | Dentalmom | 202601",
     "platform": "Meta Traffic",
     "brand": "Grosmimi",
     "spend": [
-     0,
-     0,
-     3448.84,
-     485.55
+     2038.31,
+     2237.63,
+     2474.69,
+     0.0
     ],
     "sales": [
-     0,
-     0,
-     23.11,
+     0.0,
+     0.0,
+     0.0,
      0.0
     ],
     "impressions": [
-     0,
-     0,
-     485838,
-     65823
+     270054,
+     270277,
+     308933,
+     0
     ],
     "clicks": [
-     0,
-     0,
-     32804,
-     7377
+     23314,
+     21512,
+     21358,
+     0
     ],
-    "total_spend": 3934.39,
-    "total_sales": 23.11,
-    "total_clicks": 40181,
-    "total_impressions": 551661,
-    "roas": 0.01,
+    "total_spend": 6750.63,
+    "total_sales": 0.0,
+    "total_clicks": 66184,
+    "total_impressions": 849264,
+    "roas": 0.0,
     "cpc": 0.1,
-    "ctr": 7.28,
+    "ctr": 7.79,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 99.6,
+    "attr_purchases": 2,
+    "attr_brb": 78.13,
+    "attr_roas": 0.01,
+    "attr_roas_adj": 0.03
    },
    {
     "id": "120241255476490508",
@@ -23490,50 +23989,6 @@ const FIN_DATA = {
   ],
   "monthly_bottom_traffic": [
    {
-    "id": "120232746327610508",
-    "campaign_id": "120232746327610508",
-    "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
-    "platform": "Meta Traffic",
-    "brand": "Grosmimi",
-    "spend": [
-     4615.07,
-     4195.53,
-     4659.74,
-     431.41
-    ],
-    "sales": [
-     0.0,
-     0.0,
-     0.0,
-     0.0
-    ],
-    "impressions": [
-     512079,
-     422085,
-     423289,
-     36392
-    ],
-    "clicks": [
-     67407,
-     56248,
-     54961,
-     4929
-    ],
-    "total_spend": 13901.75,
-    "total_sales": 0.0,
-    "total_clicks": 183545,
-    "total_impressions": 1393845,
-    "roas": 0.0,
-    "cpc": 0.08,
-    "ctr": 13.17,
-    "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
-   },
-   {
     "id": "120240644685950508",
     "campaign_id": "120240644685950508",
     "name": "AMZ | Traffic | WL | Dentalmom | 202601",
@@ -23571,11 +24026,11 @@ const FIN_DATA = {
     "cpc": 0.1,
     "ctr": 7.79,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 99.6,
+    "attr_purchases": 2,
+    "attr_brb": 78.13,
+    "attr_roas": 0.01,
+    "attr_roas_adj": 0.03
    },
    {
     "id": "120240689933170508",
@@ -23615,11 +24070,55 @@ const FIN_DATA = {
     "cpc": 0.12,
     "ctr": 6.06,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 1216.8,
+    "attr_purchases": 26,
+    "attr_brb": 797.23,
+    "attr_roas": 0.18,
+    "attr_roas_adj": 0.3
+   },
+   {
+    "id": "120232746327610508",
+    "campaign_id": "120232746327610508",
+    "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
+    "platform": "Meta Traffic",
+    "brand": "Grosmimi",
+    "spend": [
+     4615.07,
+     4195.53,
+     4659.74,
+     431.41
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     512079,
+     422085,
+     423289,
+     36392
+    ],
+    "clicks": [
+     67407,
+     56248,
+     54961,
+     4929
+    ],
+    "total_spend": 13901.75,
+    "total_sales": 0.0,
+    "total_clicks": 183545,
+    "total_impressions": 1393845,
+    "roas": 0.0,
+    "cpc": 0.08,
+    "ctr": 13.17,
+    "is_traffic": true,
+    "attr_sales": 5135.8,
+    "attr_purchases": 204,
+    "attr_brb": 557.99,
+    "attr_roas": 0.37,
+    "attr_roas_adj": 0.41
    },
    {
     "id": "120243909567080508",
@@ -23659,11 +24158,11 @@ const FIN_DATA = {
     "cpc": 0.1,
     "ctr": 7.28,
     "is_traffic": true,
-    "attr_sales": 0,
-    "attr_purchases": 0,
-    "attr_brb": 0,
-    "attr_roas": 0,
-    "attr_roas_adj": 0
+    "attr_sales": 8837.79,
+    "attr_purchases": 379,
+    "attr_brb": 1001.51,
+    "attr_roas": 2.25,
+    "attr_roas_adj": 2.5
    },
    {
     "id": "120241255476490508",
@@ -39463,19 +39962,7 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0DCV7MTLS",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DY6SKQ2N",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DB7SPP2P",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0F6XNGT85",
+      "asin": "B0F9Q2F89Y",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -39483,7 +39970,27 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
+      "asin": "B0DY6SKQ2N",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0F6XNGT85",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DB7V1BW3",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DB7SPP2P",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
       "asin": "B0F9PZGGF2",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DCV7MTLS",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -39491,12 +39998,12 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0F9Q2F89Y",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+      "asin": "B0F4D28MC3",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0DB7V1BW3",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+      "asin": "B0F4D8L1HL",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
       "asin": "B0F4D1V39Q",
@@ -39511,19 +40018,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0F4D28MC3",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
-     },
-     {
-      "asin": "B0F4D8L1HL",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
-     },
-     {
-      "asin": "B0F9PY2LBV",
+      "asin": "B0F9PX51FX",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PZPMH8",
+      "asin": "B0F9PY2LBV",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -39531,7 +40030,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PX51FX",
+      "asin": "B0F9PZPMH8",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -39539,11 +40038,43 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B08398KZ2B",
+      "asin": "B083XT642K",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
       "asin": "B083WJBR9B",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0842DMZ3H",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B08398HJRD",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0C1N1PLYD",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B08398KZ2B",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0C1N3QZ7K",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0BZYSL3BH",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B07YL2FT96",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B083986L91",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -39555,35 +40086,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0842DMZ3H",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0C1N3QZ7K",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B083XT642K",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B082SSPN4X",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0BZYSL3BH",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B07YKH98WT",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B083986L91",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0C1N1PLYD",
+      "asin": "B07YKJ18D5",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -39591,19 +40094,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B07YKJ18D5",
+      "asin": "B082SSPN4X",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B08398HJRD",
+      "asin": "B07YKH98WT",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B07YL2FT96",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0F8QHJN6G",
+      "asin": "B0F8QHRGKW",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
@@ -39611,15 +40110,15 @@ const FIN_DATA = {
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
-      "asin": "B0F8Q8RK18",
-      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
-     },
-     {
-      "asin": "B0F8QHRGKW",
+      "asin": "B0F8QHJN6G",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
       "asin": "B0F8QGZ7TH",
+      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+     },
+     {
+      "asin": "B0F8Q8RK18",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
@@ -40408,14 +40907,6 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0FHKG2SG5",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FHKBTY2S",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
       "asin": "B0FKG59ZMN",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
@@ -40424,7 +40915,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FHKFQPGR",
+      "asin": "B0FHKBTY2S",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -40432,11 +40923,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FKFW6PND",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FKFN91X9",
+      "asin": "B0FHKG2SG5",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -40445,6 +40932,18 @@ const FIN_DATA = {
      },
      {
       "asin": "B0FKGFN121",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FKFN91X9",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FHKFQPGR",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FKFW6PND",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      }
     ]
@@ -41430,15 +41929,15 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0FR4Q6LXQ",
-      "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
-     },
-     {
       "asin": "B0FR4RQRNR",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
       "asin": "B0FR4FGBPP",
+      "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
+     },
+     {
+      "asin": "B0FR4Q6LXQ",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      }
     ]
@@ -57832,280 +58331,280 @@ const FIN_DATA = {
    ],
    "PPSU Straw Cup": {
     "amz_spend": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     4.56,
-     0.0,
-     0.0,
-     0.0,
-     0.74,
-     0.36,
-     5.83,
-     9.32,
-     2.56,
-     0.0,
-     2.71,
-     7.69,
-     0.0,
-     5.87,
-     2.56,
-     3.69,
-     0.0,
-     0.0,
-     0.52,
-     4.9,
-     0.24,
-     2.96,
-     0.0,
-     5.34,
-     0.0,
-     6.63,
-     3.56,
-     0.63,
-     0.72,
-     3.82,
-     19.12,
-     0.87,
-     1.23,
-     4.1,
-     18.34,
-     0.19,
-     3.79,
-     0.11,
-     7.52,
-     4.04,
-     0.0,
-     2.16,
-     2.85,
-     0.0,
-     0.26,
-     0.0,
-     3.48,
-     0.0,
-     1.79,
-     0.0,
-     2.9,
-     0.6,
-     2.11,
-     0.39
+     1236.9,
+     1135.1,
+     1211.79,
+     1349.75,
+     1331.27,
+     1252.18,
+     1471.21,
+     1723.17,
+     1391.64,
+     1621.24,
+     1587.94,
+     1748.5,
+     1724.6,
+     1954.36,
+     2084.6,
+     2118.26,
+     1799.26,
+     1735.25,
+     1508.74,
+     1402.76,
+     1561.18,
+     1705.05,
+     1977.59,
+     1736.09,
+     1698.95,
+     1582.81,
+     1697.29,
+     1868.76,
+     2163.99,
+     1938.95,
+     1799.74,
+     1808.96,
+     1695.44,
+     1494.72,
+     1613.18,
+     1851.06,
+     1815.38,
+     1893.33,
+     1719.13,
+     1649.21,
+     1321.08,
+     1427.51,
+     1867.77,
+     2053.01,
+     1854.35,
+     1913.11,
+     1784.6,
+     1594.58,
+     1856.33,
+     1919.6,
+     1821.2,
+     1850.92,
+     1872.04,
+     1961.19,
+     1824.64,
+     1736.27,
+     2044.28,
+     2112.31,
+     1962.55,
+     2143.41,
+     1759.27,
+     1889.94,
+     2046.26,
+     2123.5,
+     2167.44,
+     2331.46,
+     2319.69,
+     2349.18,
+     2031.19,
+     2192.8,
+     2477.89,
+     2291.74,
+     1824.5,
+     2035.2,
+     1868.47,
+     1704.85,
+     2197.56,
+     2245.05,
+     2349.22,
+     2522.59,
+     3745.24,
+     3488.56,
+     3323.1,
+     3226.8,
+     3430.55,
+     3558.17,
+     3021.72,
+     2179.68,
+     2131.45,
+     1740.96
     ],
     "amz_clicks": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     1.0,
-     0.0,
-     0.0,
-     0.0,
-     2.0,
-     1.0,
-     4.0,
-     2.0,
-     1.0,
-     0.0,
-     5.0,
-     2.0,
-     0.0,
-     3.0,
-     1.0,
-     1.0,
-     0.0,
-     0.0,
-     2.0,
-     3.0,
-     3.0,
-     2.0,
-     0.0,
-     2.0,
-     0.0,
-     8.0,
-     1.0,
-     1.0,
-     1.0,
-     4.0,
-     6.0,
-     2.0,
-     1.0,
-     1.0,
-     4.0,
-     1.0,
-     3.0,
-     1.0,
-     4.0,
-     1.0,
-     0.0,
-     1.0,
-     1.0,
-     0.0,
-     1.0,
-     0.0,
-     2.0,
-     0.0,
-     1.0,
-     0.0,
-     2.0,
-     1.0,
-     5.0,
-     4.0
+     1271.0,
+     1114.0,
+     1128.0,
+     1192.0,
+     1183.0,
+     1075.0,
+     1261.0,
+     1457.0,
+     1164.0,
+     1290.0,
+     1210.0,
+     1272.0,
+     1190.0,
+     1355.0,
+     1512.0,
+     1518.0,
+     1314.0,
+     1288.0,
+     1129.0,
+     1028.0,
+     1140.0,
+     1239.0,
+     1412.0,
+     1365.0,
+     1283.0,
+     1163.0,
+     1181.0,
+     1342.0,
+     1587.0,
+     1423.0,
+     1290.0,
+     1254.0,
+     1209.0,
+     1049.0,
+     1118.0,
+     1313.0,
+     1293.0,
+     1318.0,
+     1223.0,
+     1180.0,
+     963.0,
+     1010.0,
+     1315.0,
+     1442.0,
+     1329.0,
+     1372.0,
+     1296.0,
+     1149.0,
+     1346.0,
+     1429.0,
+     1312.0,
+     1400.0,
+     1413.0,
+     1436.0,
+     1471.0,
+     1229.0,
+     1434.0,
+     1469.0,
+     1386.0,
+     1467.0,
+     1282.0,
+     1292.0,
+     1393.0,
+     1471.0,
+     1540.0,
+     1647.0,
+     1607.0,
+     1616.0,
+     1391.0,
+     1536.0,
+     1723.0,
+     1653.0,
+     1255.0,
+     1409.0,
+     1323.0,
+     1179.0,
+     1430.0,
+     1530.0,
+     1547.0,
+     1626.0,
+     2626.0,
+     2432.0,
+     2288.0,
+     2242.0,
+     2448.0,
+     2466.0,
+     2089.0,
+     1387.0,
+     1398.0,
+     1155.0
     ],
     "amz_sales": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     15.5,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     38.3,
-     0.0,
-     0.0,
-     46.8,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     30.9,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     15.5,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     22.8,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0
+     5296.4,
+     3801.47,
+     4423.59,
+     3869.5,
+     4078.5,
+     3684.89,
+     4296.69,
+     5213.84,
+     4332.3,
+     4540.7,
+     4252.2,
+     3773.9,
+     3459.2,
+     4703.67,
+     4554.2,
+     4314.6,
+     3840.0,
+     3916.9,
+     2902.74,
+     2297.74,
+     2902.64,
+     3539.89,
+     4404.6,
+     3917.21,
+     3414.8,
+     3128.3,
+     3073.78,
+     3896.09,
+     5450.2,
+     4002.6,
+     4194.99,
+     3446.8,
+     5194.71,
+     4222.8,
+     3557.7,
+     5283.8,
+     4714.1,
+     2892.6,
+     3816.78,
+     3860.7,
+     3112.39,
+     3786.49,
+     3859.39,
+     4591.5,
+     5352.38,
+     5053.99,
+     4528.97,
+     4029.9,
+     4528.94,
+     4841.7,
+     4910.97,
+     4735.19,
+     4442.4,
+     4321.29,
+     4970.51,
+     4567.1,
+     5536.3,
+     5916.45,
+     5144.8,
+     5392.3,
+     4621.19,
+     4940.25,
+     4214.57,
+     5405.49,
+     5268.1,
+     6876.57,
+     5459.9,
+     4867.92,
+     4486.2,
+     6317.21,
+     6317.11,
+     5929.77,
+     4776.4,
+     5398.93,
+     5386.59,
+     3723.35,
+     5456.53,
+     6122.77,
+     5363.95,
+     6054.26,
+     8906.54,
+     7704.88,
+     7243.27,
+     8300.63,
+     8058.78,
+     7262.52,
+     5882.36,
+     3859.59,
+     4294.1,
+     3576.7
     ]
    },
    "Stainless Straw Cup": {
@@ -60420,6 +60919,449 @@ const FIN_DATA = {
      0.0,
      0.0,
      0
+    ]
+   },
+   "Replacements": {
+    "amz_spend": [
+     48.48,
+     44.13,
+     40.01,
+     31.01,
+     28.6,
+     31.81,
+     41.69,
+     38.45,
+     41.82,
+     37.35,
+     40.16,
+     39.67,
+     30.13,
+     34.65,
+     38.79,
+     47.35,
+     33.58,
+     29.39,
+     30.82,
+     32.12,
+     27.83,
+     36.86,
+     47.51,
+     42.65,
+     31.68,
+     32.71,
+     39.22,
+     43.81,
+     56.18,
+     47.16,
+     38.32,
+     45.09,
+     36.78,
+     35.69,
+     47.37,
+     49.19,
+     42.99,
+     37.99,
+     40.66,
+     34.95,
+     28.72,
+     46.18,
+     43.52,
+     37.39,
+     45.32,
+     48.82,
+     33.23,
+     36.94,
+     43.34,
+     52.43,
+     41.57,
+     40.33,
+     35.68,
+     43.31,
+     30.78,
+     43.62,
+     55.54,
+     45.38,
+     47.75,
+     47.94,
+     35.78,
+     35.32,
+     48.27,
+     46.23,
+     38.43,
+     38.59,
+     37.93,
+     42.11,
+     24.49,
+     41.8,
+     52.75,
+     33.65,
+     18.07,
+     22.62,
+     22.84,
+     12.15,
+     21.06,
+     17.2,
+     24.15,
+     23.6,
+     32.89,
+     28.45,
+     23.91,
+     23.95,
+     31.77,
+     36.0,
+     28.16,
+     26.46,
+     17.89,
+     12.22
+    ],
+    "amz_clicks": [
+     146.0,
+     140.0,
+     110.0,
+     96.0,
+     86.0,
+     96.0,
+     126.0,
+     110.0,
+     127.0,
+     104.0,
+     127.0,
+     107.0,
+     92.0,
+     103.0,
+     120.0,
+     135.0,
+     104.0,
+     92.0,
+     89.0,
+     98.0,
+     90.0,
+     117.0,
+     135.0,
+     131.0,
+     91.0,
+     94.0,
+     110.0,
+     128.0,
+     164.0,
+     139.0,
+     113.0,
+     133.0,
+     105.0,
+     108.0,
+     128.0,
+     135.0,
+     121.0,
+     111.0,
+     116.0,
+     107.0,
+     78.0,
+     120.0,
+     122.0,
+     111.0,
+     126.0,
+     133.0,
+     94.0,
+     105.0,
+     125.0,
+     159.0,
+     117.0,
+     116.0,
+     111.0,
+     121.0,
+     85.0,
+     121.0,
+     153.0,
+     128.0,
+     139.0,
+     131.0,
+     97.0,
+     101.0,
+     132.0,
+     123.0,
+     114.0,
+     105.0,
+     103.0,
+     114.0,
+     71.0,
+     117.0,
+     136.0,
+     91.0,
+     53.0,
+     72.0,
+     71.0,
+     39.0,
+     63.0,
+     62.0,
+     71.0,
+     76.0,
+     109.0,
+     90.0,
+     73.0,
+     78.0,
+     99.0,
+     115.0,
+     89.0,
+     75.0,
+     55.0,
+     39.0
+    ],
+    "amz_sales": [
+     1846.72,
+     1349.93,
+     1359.26,
+     1395.47,
+     1352.72,
+     1183.27,
+     1229.32,
+     1543.34,
+     1214.86,
+     1141.47,
+     1384.62,
+     1359.88,
+     917.71,
+     1221.13,
+     1388.79,
+     1764.86,
+     974.46,
+     1113.36,
+     902.76,
+     1093.16,
+     1132.75,
+     1450.94,
+     1640.14,
+     1370.95,
+     981.64,
+     1354.15,
+     1221.13,
+     1342.87,
+     1803.17,
+     1432.42,
+     1666.95,
+     1388.91,
+     1268.09,
+     961.67,
+     1365.63,
+     1410.1,
+     1523.13,
+     1395.72,
+     1348.24,
+     1219.43,
+     1053.62,
+     1693.75,
+     1603.69,
+     1209.81,
+     1444.61,
+     1558.82,
+     1078.74,
+     1346.02,
+     1633.0,
+     1841.54,
+     1435.56,
+     1668.62,
+     1243.71,
+     1207.49,
+     1023.75,
+     1666.61,
+     2270.72,
+     1421.75,
+     1436.2,
+     1623.42,
+     991.04,
+     600.58,
+     1258.33,
+     1401.66,
+     1452.93,
+     1404.82,
+     1655.28,
+     1264.33,
+     813.94,
+     1395.32,
+     1760.04,
+     886.07,
+     901.42,
+     735.4,
+     484.49,
+     472.81,
+     989.53,
+     962.24,
+     942.38,
+     1095.59,
+     1268.1,
+     848.73,
+     740.06,
+     935.06,
+     675.4,
+     1528.88,
+     845.72,
+     569.49,
+     603.86,
+     504.79
+    ]
+   }
+  },
+  "cat_attribution": {
+   "PPSU Straw Cup": {
+    "sales": 0,
+    "spend": 0,
+    "brb": 0,
+    "orders": 0,
+    "roas": 0,
+    "roas_brb": 0,
+    "campaigns": []
+   },
+   "Stainless Straw Cup": {
+    "sales": 1217,
+    "spend": 2153,
+    "brb": 797.23,
+    "orders": 26,
+    "roas": 0.57,
+    "roas_brb": 0.94,
+    "campaigns": [
+     {
+      "name": "AMZ_Traffic_Dental Mom_Stainless_StrawCup_20260107",
+      "spend": 2153,
+      "sales": 1217,
+      "brb": 797.23,
+      "clicks": 42364,
+      "purchases": 26,
+      "roas": 0.6,
+      "roas_adj": 0.9
+     }
+    ]
+   },
+   "Rice Puff": {
+    "sales": 0,
+    "spend": 0,
+    "brb": 0,
+    "orders": 0,
+    "roas": 0,
+    "roas_brb": 0,
+    "campaigns": []
+   },
+   "Stainless Tumbler": {
+    "sales": 0,
+    "spend": 0,
+    "brb": 0,
+    "orders": 0,
+    "roas": 0,
+    "roas_brb": 0,
+    "campaigns": []
+   },
+   "PPSU Tumbler": {
+    "sales": 0,
+    "spend": 0,
+    "brb": 0,
+    "orders": 0,
+    "roas": 0,
+    "roas_brb": 0,
+    "campaigns": []
+   },
+   "PPSU Baby Bottle": {
+    "sales": 0,
+    "spend": 0,
+    "brb": 0,
+    "orders": 0,
+    "roas": 0,
+    "roas_brb": 0,
+    "campaigns": []
+   },
+   "Moisturizer": {
+    "sales": 0,
+    "spend": 0,
+    "brb": 0,
+    "orders": 0,
+    "roas": 0,
+    "roas_brb": 0,
+    "campaigns": []
+   },
+   "Body Wash": {
+    "sales": 0,
+    "spend": 0,
+    "brb": 0,
+    "orders": 0,
+    "roas": 0,
+    "roas_brb": 0,
+    "campaigns": []
+   },
+   "Alpremio": {
+    "sales": 0,
+    "spend": 0,
+    "brb": 0,
+    "orders": 0,
+    "roas": 0,
+    "roas_brb": 0,
+    "campaigns": []
+   },
+   "Baby Cream": {
+    "sales": 0,
+    "spend": 0,
+    "brb": 0,
+    "orders": 0,
+    "roas": 0,
+    "roas_brb": 0,
+    "campaigns": []
+   }
+  },
+  "brand_attribution": {
+   "Grosmimi": {
+    "sales": 15669,
+    "spend": 12720,
+    "brb": 2634.06,
+    "orders": 625,
+    "roas": 1.23,
+    "roas_brb": 1.44,
+    "campaigns": [
+     {
+      "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331",
+      "spend": 3934,
+      "sales": 8838,
+      "brb": 1001.51,
+      "clicks": 50131,
+      "purchases": 379,
+      "roas": 2.2,
+      "roas_adj": 2.5
+     },
+     {
+      "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_20251120-01",
+      "spend": 4478,
+      "sales": 5136,
+      "brb": 557.99,
+      "clicks": 71128,
+      "purchases": 204,
+      "roas": 1.1,
+      "roas_adj": 1.3
+     },
+     {
+      "name": "AMZ_Traffic_Dental Mom_Stainless_StrawCup_20260107",
+      "spend": 2153,
+      "sales": 1217,
+      "brb": 797.23,
+      "clicks": 42364,
+      "purchases": 26,
+      "roas": 0.6,
+      "roas_adj": 0.9
+     },
+     {
+      "name": "aa_2fb5a17db7d14eee6e5a81db265da037",
+      "spend": 0,
+      "sales": 378,
+      "brb": 199.2,
+      "clicks": 661,
+      "purchases": 14,
+      "roas": 0,
+      "roas_adj": 0
+     },
+     {
+      "name": "AMZ_Traffic_Dentalmom_WL_202601",
+      "spend": 2155,
+      "sales": 100,
+      "brb": 78.13,
+      "clicks": 33844,
+      "purchases": 2,
+      "roas": 0.0,
+      "roas_adj": 0.1
+     }
     ]
    }
   }
