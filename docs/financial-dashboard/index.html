@@ -1575,6 +1575,7 @@ function setHeroView(v){
   if(window._heroF) renderHeroTab(window._heroF);
 }
 function renderHeroTab(F){
+  try{
   window._heroF=F;
   var H=F.hero_products;
   if(!H||!H.categories||!H.categories.length){
@@ -2818,6 +2819,7 @@ function renderHeroTab(F){
   }
 
   document.getElementById('panel-hero').innerHTML=html;
+  }catch(e){document.getElementById('panel-hero').innerHTML='<div class="card" style="color:red"><h3>Hero Error</h3><pre>'+e.message+'\n'+e.stack+'</pre></div>';console.error('renderHeroTab error:',e);}
 }
 
 // ── Reusable section builders ────────────────────────────────────────────────
