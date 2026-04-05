@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-04-04 16:28 PST",
+ "generated_pst": "2026-04-04 16:55 PST",
  "through_date": "2026-04-03",
  "months": [
   "2025-01",
@@ -1595,13 +1595,13 @@ const FIN_DATA = {
    112674,
    93786,
    79215,
-   101650,
-   214035,
-   174361,
-   196363,
-   202401,
-   287507,
-   27611
+   93404,
+   103417,
+   90326,
+   111498,
+   121271,
+   158793,
+   14921
   ],
   "variable_detail": {
    "amz_ref_fee": [
@@ -1632,13 +1632,13 @@ const FIN_DATA = {
     0,
     0,
     0,
-    8245,
-    110618,
-    84035,
-    84865,
-    81130,
-    128713,
-    12690
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
    ]
   },
   "cm_before_mkt": [
@@ -1651,13 +1651,13 @@ const FIN_DATA = {
    768185,
    677158,
    586626,
-   638502,
-   609124,
-   526975,
-   686306,
-   718776,
-   890399,
-   80591
+   646748,
+   719742,
+   611010,
+   771171,
+   799906,
+   1019112,
+   93282
   ],
   "cm_before_mkt_proj": [
    474257,
@@ -1669,26 +1669,26 @@ const FIN_DATA = {
    768185,
    677158,
    586626,
-   638502,
-   609124,
-   526975,
-   686306,
-   718776,
-   890399,
-   805910
+   646748,
+   719742,
+   611010,
+   771171,
+   799906,
+   1019112,
+   932820
   ],
   "ad_spend": [
-   68843,
-   54550,
-   58745,
-   63551,
-   62851,
-   72745,
-   103700,
-   92178,
-   83337,
-   91284,
-   104991,
+   20996,
+   16546,
+   17863,
+   17410,
+   17003,
+   16451,
+   21579,
+   24911,
+   27700,
+   31719,
+   39600,
    71387,
    118156,
    119783,
@@ -1696,17 +1696,17 @@ const FIN_DATA = {
    12276
   ],
   "ad_spend_proj": [
-   68843,
-   54550,
-   58745,
-   63551,
-   62851,
-   72745,
-   103700,
-   92178,
-   83337,
-   91284,
-   104991,
+   20996,
+   16546,
+   17863,
+   17410,
+   17003,
+   16451,
+   21579,
+   24911,
+   27700,
+   31719,
+   39600,
    71387,
    118156,
    119783,
@@ -1770,150 +1770,150 @@ const FIN_DATA = {
    ]
   },
   "seeding": [
-   1910,
-   4000,
-   1390,
-   2332,
-   2647,
-   2440,
-   4227,
-   18484,
-   8857,
-   22737,
-   2568,
-   1424,
-   4380,
-   8718,
-   5880,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
    0
   ],
   "seeding_proj": [
-   1910,
-   4000,
-   1390,
-   2332,
-   2647,
-   2440,
-   4227,
-   18484,
-   8857,
-   22737,
-   2568,
-   1424,
-   4380,
-   8718,
-   5880,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
    0
   ],
   "influencer_detail": {
    "paid": [
-    1100,
-    2900,
     0,
-    1532,
-    2107,
-    2020,
-    3467,
-    18004,
-    7437,
-    22277,
-    1318,
-    814,
-    450,
-    5878,
-    4550,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
     0
    ],
    "nonpaid": [
-    810,
-    1100,
-    1390,
-    800,
-    540,
-    420,
-    760,
-    480,
-    1420,
-    460,
-    1250,
-    610,
-    3930,
-    2840,
-    1330,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
     0
    ]
   },
   "mkt_total": [
-   89234,
-   70428,
-   64492,
-   65944,
-   67429,
-   98130,
-   117910,
-   122222,
-   99799,
-   117692,
-   127232,
-   81890,
-   138617,
-   134826,
-   164627,
+   39477,
+   28424,
+   22220,
+   17472,
+   18934,
+   39396,
+   31562,
+   36471,
+   35305,
+   35390,
+   59273,
+   80465,
+   134237,
+   126108,
+   158747,
    12574
   ],
   "mkt_total_proj": [
-   89234,
-   70428,
-   64492,
-   65944,
-   67429,
-   98130,
-   117910,
-   122222,
-   99799,
-   117692,
-   127232,
-   81890,
-   138617,
-   134826,
-   164627,
+   39477,
+   28424,
+   22220,
+   17472,
+   18934,
+   39396,
+   31562,
+   36471,
+   35305,
+   35390,
+   59273,
+   80465,
+   134237,
+   126108,
+   158747,
    125740
   ],
   "contribution_margin": [
-   385023,
-   355959,
-   405496,
-   386457,
-   412627,
-   498254,
-   650275,
-   554936,
-   486827,
-   520810,
-   481892,
-   445086,
-   547689,
-   583950,
-   725772,
-   68017
+   434780,
+   397963,
+   447768,
+   434930,
+   461121,
+   556988,
+   736623,
+   640687,
+   551321,
+   611357,
+   660469,
+   530545,
+   636934,
+   673798,
+   860365,
+   80707
   ],
   "contribution_margin_proj": [
-   385023,
-   355959,
-   405496,
-   386457,
-   412627,
-   498254,
-   650275,
-   554936,
-   486827,
-   520810,
-   481892,
-   445086,
-   547689,
-   583950,
-   725772,
-   680170
+   434780,
+   397963,
+   447768,
+   434930,
+   461121,
+   556988,
+   736623,
+   640687,
+   551321,
+   611357,
+   660469,
+   530545,
+   636934,
+   673798,
+   860365,
+   807070
   ]
  },
  "search_queries": [
@@ -8898,7 +8898,7 @@ const FIN_DATA = {
      11.9,
      10.8,
      11.0,
-     10.5,
+     10.6,
      9.3,
      8.8
     ]
@@ -9946,370 +9946,6 @@ const FIN_DATA = {
   }
  ],
  "brand_analytics": {
-  "Grosmimi": [
-   {
-    "term": "grosmimi straw cup",
-    "rank": 23805,
-    "asin_rank": 1,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 14.65,
-    "conv_share": 4.12,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi straw cup",
-    "rank": 23805,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 10.05,
-    "conv_share": 4.31,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi straw cup",
-    "rank": 25045,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 8.66,
-    "conv_share": 3.85,
-    "is_ours": true
-   },
-   {
-    "term": "biberones para bebes de 12 a 24 meses",
-    "rank": 116615,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 5.18,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi straw replacement",
-    "rank": 157311,
-    "asin_rank": 1,
-    "asin_name": "Grosmimi Replacements (Straw kit 2-Counts, Stage 2)",
-    "click_share": 43.36,
-    "conv_share": 36.27,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi straw replacement",
-    "rank": 157311,
-    "asin_rank": 2,
-    "asin_name": "Grosmimi Replacements (Straw only 4-counts, Stage 2)",
-    "click_share": 25.36,
-    "conv_share": 28.43,
-    "is_ours": true
-   },
-   {
-    "term": "grossini straw cup",
-    "rank": 185849,
-    "asin_rank": 1,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 17.73,
-    "conv_share": 6.67,
-    "is_ours": true
-   },
-   {
-    "term": "grossini straw cup",
-    "rank": 185849,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 10.8,
-    "conv_share": 9.52,
-    "is_ours": true
-   },
-   {
-    "term": "grossini straw cup",
-    "rank": 185849,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 9.7,
-    "conv_share": 3.81,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi",
-    "rank": 188551,
-    "asin_rank": 1,
-    "asin_name": "Grosmimi Replacements (Straw only 4-counts, Stage 2)",
-    "click_share": 12.64,
-    "conv_share": 4.62,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi",
-    "rank": 188551,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 10.67,
-    "conv_share": 3.08,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi",
-    "rank": 188551,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 6.74,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "milk bottle for toddlers 1-3 years",
-    "rank": 220514,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 7.21,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "milk bottle for toddlers 1-3 years",
-    "rank": 225043,
-    "asin_rank": 1,
-    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 4.67,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi stainless steel straw cup",
-    "rank": 234057,
-    "asin_rank": 1,
-    "asin_name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with ",
-    "click_share": 34.03,
-    "conv_share": 16.0,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi stainless steel straw cup",
-    "rank": 234057,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with ",
-    "click_share": 14.24,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "grosmimi stainless steel straw cup",
-    "rank": 234856,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with ",
-    "click_share": 7.29,
-    "conv_share": 2.44,
-    "is_ours": true
-   },
-   {
-    "term": "stainless steel straw cup toddler",
-    "rank": 306649,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with ",
-    "click_share": 7.43,
-    "conv_share": 6.67,
-    "is_ours": true
-   },
-   {
-    "term": "infant straw cup",
-    "rank": 509267,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 5.93,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "milk bottle for toddlers 3-5",
-    "rank": 564070,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 6.56,
-    "conv_share": 0.0,
-    "is_ours": true
-   }
-  ],
-  "Naeiae": [
-   {
-    "term": "gross mimi straw cup",
-    "rank": 544443,
-    "asin_rank": 1,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 18.26,
-    "conv_share": 8.82,
-    "is_ours": true
-   },
-   {
-    "term": "gross mimi straw cup",
-    "rank": 544443,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 14.78,
-    "conv_share": 5.88,
-    "is_ours": true
-   },
-   {
-    "term": "gross mimi straw cup",
-    "rank": 544443,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 13.91,
-    "conv_share": 17.65,
-    "is_ours": true
-   },
-   {
-    "term": "yugwa korean rice puff snack",
-    "rank": 724761,
-    "asin_rank": 3,
-    "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
-    "click_share": 12.09,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "yugwa korean rice puff snack",
-    "rank": 997786,
-    "asin_rank": 2,
-    "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
-    "click_share": 20.29,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "rice snack",
-    "rank": 1203011,
-    "asin_rank": 2,
-    "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
-    "click_share": 5.77,
-    "conv_share": 8.33,
-    "is_ours": true
-   },
-   {
-    "term": "baby rice crackers",
-    "rank": 1419350,
-    "asin_rank": 2,
-    "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
-    "click_share": 11.36,
-    "conv_share": 7.14,
-    "is_ours": true
-   },
-   {
-    "term": "rice snack",
-    "rank": 1500176,
-    "asin_rank": 3,
-    "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
-    "click_share": 8.7,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "grossmimi",
-    "rank": 1637423,
-    "asin_rank": 1,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 18.42,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "grossmimi",
-    "rank": 1637423,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 7.89,
-    "conv_share": 10.0,
-    "is_ours": true
-   },
-   {
-    "term": "glass straw cup toddler",
-    "rank": 1680294,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 8.11,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "baby cup straw",
-    "rank": 1725163,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 8.33,
-    "conv_share": 11.11,
-    "is_ours": true
-   },
-   {
-    "term": "baby rice crackers",
-    "rank": 1782418,
-    "asin_rank": 3,
-    "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
-    "click_share": 17.95,
-    "conv_share": 10.0,
-    "is_ours": true
-   },
-   {
-    "term": "bottle transition cup for milk",
-    "rank": 1873905,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 9.09,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "stainless steel toddler cups with straws",
-    "rank": 1928881,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 6.25,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "grosmini",
-    "rank": 1987467,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 12.9,
-    "conv_share": 20.0,
-    "is_ours": true
-   },
-   {
-    "term": "grosmini",
-    "rank": 1987467,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 9.68,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "sippy cups for toddlers 1-3 for milk",
-    "rank": 2183608,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 7.14,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "baby bottle transition cup for milk",
-    "rank": 2257119,
-    "asin_rank": 3,
-    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
-    "click_share": 11.11,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
-    "term": "commemoi",
-    "rank": 2418667,
-    "asin_rank": 1,
-    "asin_name": "Comme Moi Kids’ Large Double-Sided Easel – Learning Chalkboard & Magnetic Whiteb",
-    "click_share": 88.0,
-    "conv_share": 0.0,
-    "is_ours": true
-   }
-  ],
   "unknown": [
    {
     "term": "grosmimi straw cup",
@@ -10375,6 +10011,15 @@ const FIN_DATA = {
     "is_ours": true
    },
    {
+    "term": "milk bottle for toddlers 1-3 years",
+    "rank": 225043,
+    "asin_rank": 1,
+    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
+    "click_share": 4.67,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
     "term": "grosmimi sippy cup",
     "rank": 482004,
     "asin_rank": 3,
@@ -10411,15 +10056,6 @@ const FIN_DATA = {
     "is_ours": true
    },
    {
-    "term": "grosmimi sippy cup",
-    "rank": 606722,
-    "asin_rank": 2,
-    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 13.04,
-    "conv_share": 0.0,
-    "is_ours": true
-   },
-   {
     "term": "vaso entrenador para bebe de 1 año",
     "rank": 640583,
     "asin_rank": 2,
@@ -10429,11 +10065,11 @@ const FIN_DATA = {
     "is_ours": true
    },
    {
-    "term": "vasos para niños de 2 años",
-    "rank": 665160,
-    "asin_rank": 1,
+    "term": "grosmimi sippy cup",
+    "rank": 754360,
+    "asin_rank": 2,
     "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 10.1,
+    "click_share": 13.04,
     "conv_share": 0.0,
     "is_ours": true
    },
@@ -10465,12 +10101,12 @@ const FIN_DATA = {
     "is_ours": true
    },
    {
-    "term": "biberones para niños de 2 años",
-    "rank": 912310,
-    "asin_rank": 2,
+    "term": "vasos para niños de 2 años",
+    "rank": 927142,
+    "asin_rank": 1,
     "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
-    "click_share": 6.85,
-    "conv_share": 12.5,
+    "click_share": 10.67,
+    "conv_share": 0.0,
     "is_ours": true
    },
    {
@@ -10491,16 +10127,380 @@ const FIN_DATA = {
     "conv_share": 12.5,
     "is_ours": true
    }
+  ],
+  "Grosmimi": [
+   {
+    "term": "grosmimi straw cup",
+    "rank": 23805,
+    "asin_rank": 1,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 14.65,
+    "conv_share": 4.12,
+    "is_ours": true
+   },
+   {
+    "term": "grosmimi straw cup",
+    "rank": 23805,
+    "asin_rank": 2,
+    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
+    "click_share": 10.05,
+    "conv_share": 4.31,
+    "is_ours": true
+   },
+   {
+    "term": "grosmimi straw cup",
+    "rank": 23805,
+    "asin_rank": 3,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 7.35,
+    "conv_share": 2.25,
+    "is_ours": true
+   },
+   {
+    "term": "biberones para bebes de 12 a 24 meses",
+    "rank": 116615,
+    "asin_rank": 3,
+    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
+    "click_share": 5.18,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
+    "term": "grosmimi straw replacement",
+    "rank": 157311,
+    "asin_rank": 1,
+    "asin_name": "Grosmimi Replacements (Straw kit 2-Counts, Stage 2)",
+    "click_share": 43.36,
+    "conv_share": 36.27,
+    "is_ours": true
+   },
+   {
+    "term": "grosmimi straw replacement",
+    "rank": 157311,
+    "asin_rank": 2,
+    "asin_name": "Grosmimi Replacements (Straw only 4-counts, Stage 2)",
+    "click_share": 25.36,
+    "conv_share": 28.43,
+    "is_ours": true
+   },
+   {
+    "term": "grosmimi",
+    "rank": 201907,
+    "asin_rank": 1,
+    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
+    "click_share": 12.35,
+    "conv_share": 6.45,
+    "is_ours": true
+   },
+   {
+    "term": "grosmimi",
+    "rank": 201907,
+    "asin_rank": 2,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 6.93,
+    "conv_share": 1.61,
+    "is_ours": true
+   },
+   {
+    "term": "grosmimi",
+    "rank": 201907,
+    "asin_rank": 3,
+    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
+    "click_share": 6.63,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
+    "term": "grossini straw cup",
+    "rank": 209087,
+    "asin_rank": 1,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 17.13,
+    "conv_share": 4.17,
+    "is_ours": true
+   },
+   {
+    "term": "grossini straw cup",
+    "rank": 209087,
+    "asin_rank": 2,
+    "asin_name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with ",
+    "click_share": 9.97,
+    "conv_share": 1.04,
+    "is_ours": true
+   },
+   {
+    "term": "grossini straw cup",
+    "rank": 209087,
+    "asin_rank": 3,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 9.66,
+    "conv_share": 2.08,
+    "is_ours": true
+   },
+   {
+    "term": "milk bottle for toddlers 1-3 years",
+    "rank": 220514,
+    "asin_rank": 2,
+    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
+    "click_share": 7.21,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
+    "term": "grosmimi stainless steel straw cup",
+    "rank": 234057,
+    "asin_rank": 1,
+    "asin_name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with ",
+    "click_share": 34.03,
+    "conv_share": 16.0,
+    "is_ours": true
+   },
+   {
+    "term": "grosmimi stainless steel straw cup",
+    "rank": 234057,
+    "asin_rank": 2,
+    "asin_name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with ",
+    "click_share": 14.24,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
+    "term": "grosmimi stainless steel straw cup",
+    "rank": 234057,
+    "asin_rank": 3,
+    "asin_name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with ",
+    "click_share": 6.6,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
+    "term": "stainless steel straw cup toddler",
+    "rank": 306649,
+    "asin_rank": 2,
+    "asin_name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with ",
+    "click_share": 7.43,
+    "conv_share": 6.67,
+    "is_ours": true
+   },
+   {
+    "term": "infant straw cup",
+    "rank": 509267,
+    "asin_rank": 3,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 5.93,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
+    "term": "milk bottle for toddlers 3-5",
+    "rank": 564070,
+    "asin_rank": 2,
+    "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
+    "click_share": 6.56,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
+    "term": "leak proof straw cups for toddlers",
+    "rank": 595888,
+    "asin_rank": 3,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 4.31,
+    "conv_share": 0.0,
+    "is_ours": true
+   }
+  ],
+  "Naeiae": [
+   {
+    "term": "gross mimi straw cup",
+    "rank": 544443,
+    "asin_rank": 3,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 13.91,
+    "conv_share": 17.65,
+    "is_ours": true
+   },
+   {
+    "term": "gross mimi straw cup",
+    "rank": 544443,
+    "asin_rank": 2,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 14.78,
+    "conv_share": 5.88,
+    "is_ours": true
+   },
+   {
+    "term": "gross mimi straw cup",
+    "rank": 544443,
+    "asin_rank": 1,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 18.26,
+    "conv_share": 8.82,
+    "is_ours": true
+   },
+   {
+    "term": "yugwa korean rice puff snack",
+    "rank": 724761,
+    "asin_rank": 3,
+    "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
+    "click_share": 12.09,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
+    "term": "yugwa korean rice puff snack",
+    "rank": 997786,
+    "asin_rank": 2,
+    "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
+    "click_share": 20.29,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
+    "term": "rice snack",
+    "rank": 1203011,
+    "asin_rank": 2,
+    "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
+    "click_share": 5.77,
+    "conv_share": 8.33,
+    "is_ours": true
+   },
+   {
+    "term": "baby rice crackers",
+    "rank": 1419350,
+    "asin_rank": 2,
+    "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
+    "click_share": 11.36,
+    "conv_share": 7.14,
+    "is_ours": true
+   },
+   {
+    "term": "rice snack",
+    "rank": 1500176,
+    "asin_rank": 3,
+    "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
+    "click_share": 8.7,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
+    "term": "grossmimi",
+    "rank": 1637423,
+    "asin_rank": 3,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 7.89,
+    "conv_share": 10.0,
+    "is_ours": true
+   },
+   {
+    "term": "grossmimi",
+    "rank": 1637423,
+    "asin_rank": 1,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 18.42,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
+    "term": "glass straw cup toddler",
+    "rank": 1680294,
+    "asin_rank": 3,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 8.11,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
+    "term": "baby cup straw",
+    "rank": 1725163,
+    "asin_rank": 3,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 8.33,
+    "conv_share": 11.11,
+    "is_ours": true
+   },
+   {
+    "term": "baby rice crackers",
+    "rank": 1782418,
+    "asin_rank": 3,
+    "asin_name": "Naeiae Pop Organic Snack, Rice Puffs Teething Snack for Babies & Toddlers (100% ",
+    "click_share": 17.95,
+    "conv_share": 10.0,
+    "is_ours": true
+   },
+   {
+    "term": "bottle transition cup for milk",
+    "rank": 1873905,
+    "asin_rank": 2,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 9.09,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
+    "term": "stainless steel toddler cups with straws",
+    "rank": 1928881,
+    "asin_rank": 3,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 6.25,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
+    "term": "grosmini",
+    "rank": 1987467,
+    "asin_rank": 3,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 9.68,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
+    "term": "grosmini",
+    "rank": 1987467,
+    "asin_rank": 2,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 12.9,
+    "conv_share": 20.0,
+    "is_ours": true
+   },
+   {
+    "term": "sippy cups for toddlers 1-3 for milk",
+    "rank": 2183608,
+    "asin_rank": 3,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 7.14,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
+    "term": "baby bottle transition cup for milk",
+    "rank": 2257119,
+    "asin_rank": 3,
+    "asin_name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an",
+    "click_share": 11.11,
+    "conv_share": 0.0,
+    "is_ours": true
+   },
+   {
+    "term": "commemoi",
+    "rank": 2418667,
+    "asin_rank": 1,
+    "asin_name": "Comme Moi Kids’ Large Double-Sided Easel – Learning Chalkboard & Magnetic Whiteb",
+    "click_share": 88.0,
+    "conv_share": 0.0,
+    "is_ours": true
+   }
   ]
  },
  "brand_analytics_category": [
   {
    "term": "baby wipes",
    "rank": 225,
-   "asin_rank": 3,
-   "asin_name": "Amazon Elements Baby Wipes, Unscented, 810 Count, Flip-Top Packs",
-   "click_share": 8.0,
-   "conv_share": 5.94,
+   "asin_rank": 1,
+   "asin_name": "Huggies Natural Care Sensitive Baby Wipes, Unscented, Hypoallergenic, 99% Purifi",
+   "click_share": 11.13,
+   "conv_share": 7.52,
    "is_ours": false
   },
   {
@@ -10515,10 +10515,10 @@ const FIN_DATA = {
   {
    "term": "baby wipes",
    "rank": 225,
-   "asin_rank": 1,
-   "asin_name": "Huggies Natural Care Sensitive Baby Wipes, Unscented, Hypoallergenic, 99% Purifi",
-   "click_share": 11.13,
-   "conv_share": 7.52,
+   "asin_rank": 3,
+   "asin_name": "Amazon Elements Baby Wipes, Unscented, 810 Count, Flip-Top Packs",
+   "click_share": 8.0,
+   "conv_share": 5.94,
    "is_ours": false
   },
   {
@@ -10576,6 +10576,15 @@ const FIN_DATA = {
    "is_ours": false
   },
   {
+   "term": "grosmimi straw cup",
+   "rank": 14848,
+   "asin_rank": 3,
+   "asin_name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo",
+   "click_share": 10.01,
+   "conv_share": 3.46,
+   "is_ours": false
+  },
+  {
    "term": "sippy cup",
    "rank": 15269,
    "asin_rank": 3,
@@ -10618,15 +10627,6 @@ const FIN_DATA = {
    "asin_name": "Dr. Brown's Natural Flow Anti-Colic Options+ Narrow Baby Bottle, 8 oz/250 mL, wi",
    "click_share": 7.48,
    "conv_share": 6.29,
-   "is_ours": false
-  },
-  {
-   "term": "baby bottle",
-   "rank": 23416,
-   "asin_rank": 3,
-   "asin_name": "Dr. Brown's Natural Flow Anti-Colic Options+ Narrow Baby Bottle, 4 oz/120 mL, wi",
-   "click_share": 4.57,
-   "conv_share": 2.83,
    "is_ours": false
   }
  ],
@@ -10727,8 +10727,8 @@ const FIN_DATA = {
    },
    "amazon": {
     "total_clicks": 7805,
-    "total_sessions": 106863,
-    "total_pageviews": 130531,
+    "total_sessions": 0,
+    "total_pageviews": 0,
     "total_spend": 3103,
     "total_sales": 9379,
     "total_purchases": 343,
@@ -10747,10 +10747,10 @@ const FIN_DATA = {
       "source": "Meta Traffic (AMZ landing)",
       "clicks": 5247,
       "spend": 402,
-      "sales": 15668,
-      "purchases": 625,
+      "sales": 0,
+      "purchases": 0,
       "cpc": 0.08,
-      "roas": 39.0,
+      "roas": 0.0,
       "pct": 67.2
      },
      {
@@ -10766,143 +10766,12 @@ const FIN_DATA = {
      }
     ],
     "attribution": {
-     "sales": 15668,
-     "purchases": 625,
-     "brb": 2634,
-     "roas": 39.0,
-     "roas_with_brb": 45.5,
-     "campaigns": [
-      {
-       "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
-       "sales": 8838,
-       "purchases": 379,
-       "clicks": 50131,
-       "brb": 1001.51,
-       "spend": 145,
-       "roas": 61.0,
-       "roas_adj": 67.9,
-       "assets": [
-        {
-         "type": "Whitelabel",
-         "spend": 145,
-         "clicks": 2374,
-         "cpc": 0.06,
-         "ads": [
-          {
-           "id": "120243917640090508",
-           "name": "WL | _cola_henderson | Fliptop | E | 20260325"
-          },
-          {
-           "id": "120243917601910508",
-           "name": "WL | laurencee.slp | Fliptop | AD D | 20260325"
-          },
-          {
-           "id": "120243917556170508",
-           "name": "WL | deanna.hauk | Fliptop | AD C | 20260325"
-          },
-          {
-           "id": "120243917490040508",
-           "name": "WL | _from.mom.to.mom | knotted | AD B | 20260325"
-          },
-          {
-           "id": "120243917383280508",
-           "name": "WL | chatterwithsam | PPSU | AD A | 20260325"
-          }
-         ]
-        },
-        {
-         "type": "Other",
-         "spend": 0,
-         "clicks": 0,
-         "cpc": 0,
-         "ads": [
-          {
-           "id": "120243947414180508",
-           "name": "The easiest | AD G | 20260326"
-          }
-         ]
-        }
-       ]
-      },
-      {
-       "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_20251120-01",
-       "sales": 5136,
-       "purchases": 204,
-       "clicks": 71128,
-       "brb": 557.99,
-       "spend": 148,
-       "roas": 34.6,
-       "roas_adj": 38.3,
-       "assets": [
-        {
-         "type": "Whitelabel",
-         "spend": 148,
-         "clicks": 1713,
-         "cpc": 0.09,
-         "ads": [
-          {
-           "id": "120237969827610508",
-           "name": "WL_Livfuselli_MAY25_Grosmimi_BASIC PPSU300_20251120-01"
-          },
-          {
-           "id": "120237969781310508",
-           "name": "WL_Livfuselli_AUG25_Grosmimi_BASIC PPSU200_20251120-01"
-          }
-         ]
-        }
-       ]
-      },
-      {
-       "name": "AMZ_Traffic_Dental Mom_Stainless_StrawCup_20260107",
-       "sales": 1217,
-       "purchases": 26,
-       "clicks": 42364,
-       "brb": 797.23,
-       "spend": 148,
-       "roas": 8.2,
-       "roas_adj": 13.6,
-       "assets": [
-        {
-         "type": "Whitelabel",
-         "spend": 148,
-         "clicks": 1713,
-         "cpc": 0.09,
-         "ads": [
-          {
-           "id": "120237969827610508",
-           "name": "WL_Livfuselli_MAY25_Grosmimi_BASIC PPSU300_20251120-01"
-          },
-          {
-           "id": "120237969781310508",
-           "name": "WL_Livfuselli_AUG25_Grosmimi_BASIC PPSU200_20251120-01"
-          }
-         ]
-        }
-       ]
-      },
-      {
-       "name": "aa_2fb5a17db7d14eee6e5a81db265da037",
-       "sales": 378,
-       "purchases": 14,
-       "clicks": 661,
-       "brb": 199.2,
-       "spend": 0,
-       "roas": 0,
-       "roas_adj": 0,
-       "assets": []
-      },
-      {
-       "name": "AMZ_Traffic_Dentalmom_WL_202601",
-       "sales": 100,
-       "purchases": 2,
-       "clicks": 33844,
-       "brb": 78.13,
-       "spend": 0,
-       "roas": 0,
-       "roas_adj": 0,
-       "assets": []
-      }
-     ]
+     "sales": 0,
+     "purchases": 0,
+     "brb": 0,
+     "roas": 0.0,
+     "roas_with_brb": 0.0,
+     "campaigns": []
     }
    },
    "meta_detail": {
@@ -11016,8 +10885,8 @@ const FIN_DATA = {
    },
    "amazon": {
     "total_clicks": 78243,
-    "total_sessions": 106863,
-    "total_pageviews": 130531,
+    "total_sessions": 0,
+    "total_pageviews": 0,
     "total_spend": 33924,
     "total_sales": 115320,
     "total_purchases": 4588,
@@ -11036,215 +10905,31 @@ const FIN_DATA = {
       "source": "Meta Traffic (AMZ landing)",
       "clicks": 50288,
       "spend": 4823,
-      "sales": 15668,
-      "purchases": 625,
+      "sales": 0,
+      "purchases": 0,
       "cpc": 0.1,
-      "roas": 3.2,
+      "roas": 0.0,
       "pct": 64.3
      },
      {
-      "source": "Amazon Internal (Organic + Ads)",
-      "clicks": 56575,
+      "source": "Amazon Internal (Organic)",
+      "clicks": 0,
       "spend": 0,
-      "sales": 140615,
-      "purchases": 3513,
+      "sales": 0,
+      "purchases": 0,
       "cpc": 0,
       "roas": 0,
-      "pct": 52.9,
-      "note_text": "Sessions from Amazon search + direct. Ads clicks happen within these sessions."
+      "pct": 0,
+      "note": "n.m."
      }
     ],
     "attribution": {
-     "sales": 15668,
-     "purchases": 625,
-     "brb": 2634,
-     "roas": 3.2,
-     "roas_with_brb": 3.8,
-     "campaigns": [
-      {
-       "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
-       "sales": 8838,
-       "purchases": 379,
-       "clicks": 50131,
-       "brb": 1001.51,
-       "spend": 2284,
-       "roas": 3.9,
-       "roas_adj": 4.3,
-       "assets": [
-        {
-         "type": "Whitelabel",
-         "spend": 1129,
-         "clicks": 16618,
-         "cpc": 0.07,
-         "ads": [
-          {
-           "id": "120243917640090508",
-           "name": "WL | _cola_henderson | Fliptop | E | 20260325"
-          },
-          {
-           "id": "120243917601910508",
-           "name": "WL | laurencee.slp | Fliptop | AD D | 20260325"
-          },
-          {
-           "id": "120243917556170508",
-           "name": "WL | deanna.hauk | Fliptop | AD C | 20260325"
-          },
-          {
-           "id": "120243917490040508",
-           "name": "WL | _from.mom.to.mom | knotted | AD B | 20260325"
-          },
-          {
-           "id": "120243917383280508",
-           "name": "WL | chatterwithsam | PPSU | AD A | 20260325"
-          }
-         ]
-        },
-        {
-         "type": "Other",
-         "spend": 662,
-         "clicks": 4875,
-         "cpc": 0.14,
-         "ads": [
-          {
-           "id": "120243947414180508",
-           "name": "The easiest | AD G | 20260326"
-          },
-          {
-           "id": "120243947805310508",
-           "name": "Spring's biggest deals(2) | AD I | 20260326"
-          },
-          {
-           "id": "120243916283180508",
-           "name": "Spring Deal Days(3)| Deanna | AD F | 20260325"
-          },
-          {
-           "id": "120243916259860508",
-           "name": "Spring Deal Days(2) | AD E | 20260325"
-          },
-          {
-           "id": "120243909567070508",
-           "name": "The Viral Cup | AD A | 20260325"
-          }
-         ]
-        },
-        {
-         "type": "Image",
-         "spend": 494,
-         "clicks": 3334,
-         "cpc": 0.15,
-         "ads": [
-          {
-           "id": "120243916922570508",
-           "name": "Big Spring Sale | image | AD B | 20260325"
-          },
-          {
-           "id": "120243917176150508",
-           "name": "Spring Deal Days | image | AD D | 20260325"
-          },
-          {
-           "id": "120243916674190508",
-           "name": "Spring Biggest Deals | image | AD A | 20260325"
-          },
-          {
-           "id": "120243947972970508",
-           "name": "Up to 15% off(2) | image | AD F | 20260326"
-          },
-          {
-           "id": "120243917019060508",
-           "name": "Up to 15% off | image | AD C | 20260325"
-          }
-         ]
-        }
-       ]
-      },
-      {
-       "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_20251120-01",
-       "sales": 5136,
-       "purchases": 204,
-       "clicks": 71128,
-       "brb": 557.99,
-       "spend": 1053,
-       "roas": 4.9,
-       "roas_adj": 5.4,
-       "assets": [
-        {
-         "type": "Whitelabel",
-         "spend": 1053,
-         "clicks": 11802,
-         "cpc": 0.09,
-         "ads": [
-          {
-           "id": "120237969827610508",
-           "name": "WL_Livfuselli_MAY25_Grosmimi_BASIC PPSU300_20251120-01"
-          },
-          {
-           "id": "120237969781310508",
-           "name": "WL_Livfuselli_AUG25_Grosmimi_BASIC PPSU200_20251120-01"
-          }
-         ]
-        }
-       ]
-      },
-      {
-       "name": "AMZ_Traffic_Dental Mom_Stainless_StrawCup_20260107",
-       "sales": 1217,
-       "purchases": 26,
-       "clicks": 42364,
-       "brb": 797.23,
-       "spend": 319,
-       "roas": 3.8,
-       "roas_adj": 6.3,
-       "assets": [
-        {
-         "type": "Whitelabel",
-         "spend": 319,
-         "clicks": 2294,
-         "cpc": 0.14,
-         "ads": [
-          {
-           "id": "120240689933180508",
-           "name": "Stainless_StrawCup | WL | Dentalmom | 20260107"
-          }
-         ]
-        }
-       ]
-      },
-      {
-       "name": "aa_2fb5a17db7d14eee6e5a81db265da037",
-       "sales": 378,
-       "purchases": 14,
-       "clicks": 661,
-       "brb": 199.2,
-       "spend": 0,
-       "roas": 0,
-       "roas_adj": 0,
-       "assets": []
-      },
-      {
-       "name": "AMZ_Traffic_Dentalmom_WL_202601",
-       "sales": 100,
-       "purchases": 2,
-       "clicks": 33844,
-       "brb": 78.13,
-       "spend": 325,
-       "roas": 0.3,
-       "roas_adj": 0.5,
-       "assets": [
-        {
-         "type": "Whitelabel",
-         "spend": 325,
-         "clicks": 2646,
-         "cpc": 0.12,
-         "ads": [
-          {
-           "id": "120240644685990508",
-           "name": "WL_Dentalmom_Stainless_20260106"
-          }
-         ]
-        }
-       ]
-      }
-     ]
+     "sales": 0,
+     "purchases": 0,
+     "brb": 0,
+     "roas": 0.0,
+     "roas_with_brb": 0.0,
+     "campaigns": []
     }
    },
    "meta_detail": {
@@ -11364,8 +11049,8 @@ const FIN_DATA = {
    },
    "amazon": {
     "total_clicks": 273487,
-    "total_sessions": 384696,
-    "total_pageviews": 473237,
+    "total_sessions": 0,
+    "total_pageviews": 0,
     "total_spend": 127817,
     "total_sales": 493507,
     "total_purchases": 19054,
@@ -11384,215 +11069,31 @@ const FIN_DATA = {
       "source": "Meta Traffic (AMZ landing)",
       "clicks": 161973,
       "spend": 16083,
-      "sales": 15668,
-      "purchases": 625,
+      "sales": 0,
+      "purchases": 0,
       "cpc": 0.1,
-      "roas": 1.0,
+      "roas": 0.0,
       "pct": 59.2
      },
      {
-      "source": "Amazon Internal (Organic + Ads)",
-      "clicks": 222723,
+      "source": "Amazon Internal (Organic)",
+      "clicks": 0,
       "spend": 0,
-      "sales": 532714,
-      "purchases": 11801,
+      "sales": 0,
+      "purchases": 0,
       "cpc": 0,
       "roas": 0,
-      "pct": 57.9,
-      "note_text": "Sessions from Amazon search + direct. Ads clicks happen within these sessions."
+      "pct": 0,
+      "note": "n.m."
      }
     ],
     "attribution": {
-     "sales": 15668,
-     "purchases": 625,
-     "brb": 2634,
-     "roas": 1.0,
-     "roas_with_brb": 1.1,
-     "campaigns": [
-      {
-       "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331\t\t",
-       "sales": 8838,
-       "purchases": 379,
-       "clicks": 50131,
-       "brb": 1001.51,
-       "spend": 3934,
-       "roas": 2.2,
-       "roas_adj": 2.5,
-       "assets": [
-        {
-         "type": "Whitelabel",
-         "spend": 1693,
-         "clicks": 24679,
-         "cpc": 0.07,
-         "ads": [
-          {
-           "id": "120243917640090508",
-           "name": "WL | _cola_henderson | Fliptop | E | 20260325"
-          },
-          {
-           "id": "120243917601910508",
-           "name": "WL | laurencee.slp | Fliptop | AD D | 20260325"
-          },
-          {
-           "id": "120243917556170508",
-           "name": "WL | deanna.hauk | Fliptop | AD C | 20260325"
-          },
-          {
-           "id": "120243917490040508",
-           "name": "WL | _from.mom.to.mom | knotted | AD B | 20260325"
-          },
-          {
-           "id": "120243917383280508",
-           "name": "WL | chatterwithsam | PPSU | AD A | 20260325"
-          }
-         ]
-        },
-        {
-         "type": "Other",
-         "spend": 1302,
-         "clicks": 9061,
-         "cpc": 0.14,
-         "ads": [
-          {
-           "id": "120243947414180508",
-           "name": "The easiest | AD G | 20260326"
-          },
-          {
-           "id": "120243947805310508",
-           "name": "Spring's biggest deals(2) | AD I | 20260326"
-          },
-          {
-           "id": "120243916283180508",
-           "name": "Spring Deal Days(3)| Deanna | AD F | 20260325"
-          },
-          {
-           "id": "120243916259860508",
-           "name": "Spring Deal Days(2) | AD E | 20260325"
-          },
-          {
-           "id": "120243909567070508",
-           "name": "The Viral Cup | AD A | 20260325"
-          }
-         ]
-        },
-        {
-         "type": "Image",
-         "spend": 939,
-         "clicks": 6441,
-         "cpc": 0.15,
-         "ads": [
-          {
-           "id": "120243916922570508",
-           "name": "Big Spring Sale | image | AD B | 20260325"
-          },
-          {
-           "id": "120243917176150508",
-           "name": "Spring Deal Days | image | AD D | 20260325"
-          },
-          {
-           "id": "120243916674190508",
-           "name": "Spring Biggest Deals | image | AD A | 20260325"
-          },
-          {
-           "id": "120243947972970508",
-           "name": "Up to 15% off(2) | image | AD F | 20260326"
-          },
-          {
-           "id": "120243917019060508",
-           "name": "Up to 15% off | image | AD C | 20260325"
-          }
-         ]
-        }
-       ]
-      },
-      {
-       "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_20251120-01",
-       "sales": 5136,
-       "purchases": 204,
-       "clicks": 71128,
-       "brb": 557.99,
-       "spend": 4478,
-       "roas": 1.1,
-       "roas_adj": 1.3,
-       "assets": [
-        {
-         "type": "Whitelabel",
-         "spend": 4478,
-         "clicks": 51801,
-         "cpc": 0.09,
-         "ads": [
-          {
-           "id": "120237969827610508",
-           "name": "WL_Livfuselli_MAY25_Grosmimi_BASIC PPSU300_20251120-01"
-          },
-          {
-           "id": "120237969781310508",
-           "name": "WL_Livfuselli_AUG25_Grosmimi_BASIC PPSU200_20251120-01"
-          }
-         ]
-        }
-       ]
-      },
-      {
-       "name": "AMZ_Traffic_Dental Mom_Stainless_StrawCup_20260107",
-       "sales": 1217,
-       "purchases": 26,
-       "clicks": 42364,
-       "brb": 797.23,
-       "spend": 2153,
-       "roas": 0.6,
-       "roas_adj": 0.9,
-       "assets": [
-        {
-         "type": "Whitelabel",
-         "spend": 2153,
-         "clicks": 16191,
-         "cpc": 0.13,
-         "ads": [
-          {
-           "id": "120240689933180508",
-           "name": "Stainless_StrawCup | WL | Dentalmom | 20260107"
-          }
-         ]
-        }
-       ]
-      },
-      {
-       "name": "aa_2fb5a17db7d14eee6e5a81db265da037",
-       "sales": 378,
-       "purchases": 14,
-       "clicks": 661,
-       "brb": 199.2,
-       "spend": 0,
-       "roas": 0,
-       "roas_adj": 0,
-       "assets": []
-      },
-      {
-       "name": "AMZ_Traffic_Dentalmom_WL_202601",
-       "sales": 100,
-       "purchases": 2,
-       "clicks": 33844,
-       "brb": 78.13,
-       "spend": 2155,
-       "roas": 0.0,
-       "roas_adj": 0.1,
-       "assets": [
-        {
-         "type": "Whitelabel",
-         "spend": 2155,
-         "clicks": 18525,
-         "cpc": 0.12,
-         "ads": [
-          {
-           "id": "120240644685990508",
-           "name": "WL_Dentalmom_Stainless_20260106"
-          }
-         ]
-        }
-       ]
-      }
-     ]
+     "sales": 0,
+     "purchases": 0,
+     "brb": 0,
+     "roas": 0.0,
+     "roas_with_brb": 0.0,
+     "campaigns": []
     }
    },
    "meta_detail": {
@@ -12409,12 +11910,12 @@ const FIN_DATA = {
  ],
  "amz_sessions": {
   "7d": {
-   "sessions": 106863,
-   "pageViews": 130531
+   "sessions": 0,
+   "pageViews": 0
   },
   "30d": {
-   "sessions": 384696,
-   "pageViews": 473237
+   "sessions": 0,
+   "pageViews": 0
   }
  },
  "pnl_polar": {
@@ -12624,14 +12125,14 @@ const FIN_DATA = {
    112674,
    93786,
    79215,
-   101650,
-   214035,
-   174361,
-   1209140,
-   196363,
-   202401,
-   287507,
-   27611
+   93404,
+   103417,
+   90326,
+   1006241,
+   111498,
+   121271,
+   158793,
+   14921
   ],
   "variable_detail": {
    "amz_ref_fee": [
@@ -12663,14 +12164,14 @@ const FIN_DATA = {
     0,
     0,
     0,
-    8245,
-    110618,
-    84035,
-    202898,
-    84865,
-    81130,
-    128713,
-    12690
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
    ],
    "fba_nm_months": [
     0,
@@ -12694,14 +12195,14 @@ const FIN_DATA = {
    768185,
    677158,
    586626,
-   638502,
-   609124,
-   526975,
-   6706043,
-   686306,
-   718776,
-   890399,
-   80591
+   646748,
+   719742,
+   611010,
+   6908942,
+   771171,
+   799906,
+   1019112,
+   93282
   ],
   "ad_spend": {
    "onzenna": [
@@ -12724,38 +12225,38 @@ const FIN_DATA = {
     2961
    ],
    "amazon": [
-    47847,
-    38004,
-    40882,
-    46141,
-    45848,
-    56294,
-    82121,
-    67267,
-    55637,
-    59565,
-    65391,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
     34382,
-    639379,
+    34382,
     79637,
     80371,
     115695,
     9316
    ],
    "total": [
-    68843,
-    54550,
-    58745,
-    63551,
-    62851,
-    72745,
-    103700,
-    92178,
-    83337,
-    91284,
-    104991,
+    20996,
+    16546,
+    17863,
+    17410,
+    17003,
+    16451,
+    21579,
+    24911,
+    27700,
+    31719,
+    39600,
     71387,
-    928162,
+    323165,
     118156,
     119783,
     153122,
@@ -13018,100 +12519,100 @@ const FIN_DATA = {
    ]
   },
   "influencer_spend": [
-   1910,
-   4000,
-   1390,
-   2332,
-   2647,
-   2440,
-   4227,
-   18484,
-   8857,
-   22737,
-   2568,
-   1424,
-   73016,
-   4380,
-   8718,
-   5880,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
    0
   ],
   "influencer_detail": {
    "paid": [
-    1100,
-    2900,
     0,
-    1532,
-    2107,
-    2020,
-    3467,
-    18004,
-    7437,
-    22277,
-    1318,
-    814,
-    62976,
-    450,
-    5878,
-    4550,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
     0
    ],
    "nonpaid": [
-    810,
-    1100,
-    1390,
-    800,
-    540,
-    420,
-    760,
-    480,
-    1420,
-    460,
-    1250,
-    610,
-    10040,
-    3930,
-    2840,
-    1330,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
     0
    ]
   },
   "cm_after_ads": [
-   466995,
-   428407,
-   486094,
-   468371,
-   496249,
-   605492,
-   777159,
-   678765,
-   582504,
-   648868,
-   718168,
+   514842,
+   466411,
+   526976,
+   514512,
+   542097,
+   661786,
+   859280,
+   746032,
+   638141,
+   708433,
+   783559,
    629949,
-   6987021,
+   7592018,
    764513,
    801394,
    1024783,
    95926
   ],
   "cm_final": [
-   465085,
-   424407,
-   484704,
-   466039,
-   493602,
-   603052,
-   772932,
-   660281,
-   573647,
-   626131,
-   715600,
-   628525,
-   6914005,
-   760133,
-   792676,
-   1018903,
+   514842,
+   466411,
+   526976,
+   514512,
+   542097,
+   661786,
+   859280,
+   746032,
+   638141,
+   708433,
+   783559,
+   629949,
+   7592018,
+   764513,
+   801394,
+   1024783,
    95926
   ],
   "channel_pnl": {
@@ -13180,13 +12681,13 @@ const FIN_DATA = {
      null,
      null,
      null,
-     8245,
-     110618,
-     84035,
-     84865,
-     81130,
-     128713,
-     12690
+     null,
+     null,
+     null,
+     null,
+     null,
+     null,
+     null
     ],
     "fulfillment_nm": true,
     "ad_spend": [
@@ -13217,13 +12718,13 @@ const FIN_DATA = {
      638488,
      531451,
      448886,
-     521047,
-     475414,
-     427810,
-     546959,
-     606072,
-     771116,
-     71860
+     529292,
+     586032,
+     511845,
+     631824,
+     687202,
+     899829,
+     84550
     ],
     "contribution_margin": [
      348959,
@@ -13235,13 +12736,13 @@ const FIN_DATA = {
      636167,
      529178,
      445952,
-     516319,
-     464034,
-     384343,
-     455791,
-     516053,
-     641050,
-     61497
+     524564,
+     574652,
+     468378,
+     540656,
+     597183,
+     769763,
+     74187
     ],
     "color": "#f59e0b"
    },
@@ -14469,11 +13970,11 @@ const FIN_DATA = {
     "cpc": 0.08,
     "ctr": 13.03,
     "is_traffic": true,
-    "attr_sales": 5135.8,
-    "attr_purchases": 204,
-    "attr_brb": 557.99,
-    "attr_roas": 0.42,
-    "attr_roas_adj": 0.46
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120232464266510508",
@@ -14687,11 +14188,11 @@ const FIN_DATA = {
     "cpc": 0.11,
     "ctr": 7.6,
     "is_traffic": true,
-    "attr_sales": 99.6,
-    "attr_purchases": 2,
-    "attr_brb": 78.13,
-    "attr_roas": 0.02,
-    "attr_roas_adj": 0.03
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120240689933170508",
@@ -14763,11 +14264,11 @@ const FIN_DATA = {
     "cpc": 0.12,
     "ctr": 6.04,
     "is_traffic": true,
-    "attr_sales": 1216.8,
-    "attr_purchases": 26,
-    "attr_brb": 797.23,
-    "attr_roas": 0.19,
-    "attr_roas_adj": 0.32
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120238108466330508",
@@ -15052,11 +14553,11 @@ const FIN_DATA = {
     "cpc": 0.1,
     "ctr": 7.28,
     "is_traffic": true,
-    "attr_sales": 8837.79,
-    "attr_purchases": 379,
-    "attr_brb": 1001.51,
-    "attr_roas": 2.25,
-    "attr_roas_adj": 2.5
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "481285651003605",
@@ -19710,82 +19211,6 @@ const FIN_DATA = {
   ],
   "weekly_top_traffic": [
    {
-    "id": "120243909567080508",
-    "campaign_id": "120243909567080508",
-    "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331",
-    "platform": "Meta Traffic",
-    "brand": "Grosmimi",
-    "spend": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     2623.78,
-     1310.61
-    ],
-    "sales": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     23.11,
-     0.0
-    ],
-    "impressions": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     375226,
-     176435
-    ],
-    "clicks": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     24759,
-     15422
-    ],
-    "total_spend": 3934.39,
-    "total_sales": 23.11,
-    "total_clicks": 40181,
-    "total_impressions": 551661,
-    "roas": 0.01,
-    "cpc": 0.1,
-    "ctr": 7.28,
-    "is_traffic": true,
-    "attr_sales": 8837.79,
-    "attr_purchases": 379,
-    "attr_brb": 1001.51,
-    "attr_roas": 2.25,
-    "attr_roas_adj": 2.5
-   },
-   {
     "id": "120232746327610508",
     "campaign_id": "120232746327610508",
     "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
@@ -19855,87 +19280,11 @@ const FIN_DATA = {
     "cpc": 0.08,
     "ctr": 13.03,
     "is_traffic": true,
-    "attr_sales": 5135.8,
-    "attr_purchases": 204,
-    "attr_brb": 557.99,
-    "attr_roas": 0.42,
-    "attr_roas_adj": 0.46
-   },
-   {
-    "id": "120240689933170508",
-    "campaign_id": "120240689933170508",
-    "name": "AMZ | Traffic | WL_Dental Mom | Stainless_StrawCup | 20260107",
-    "platform": "Meta Traffic",
-    "brand": "Grosmimi",
-    "spend": [
-     562.9,
-     556.89,
-     557.88,
-     562.35,
-     559.93,
-     560.9,
-     556.19,
-     559.18,
-     559.8,
-     560.13,
-     558.1,
-     151.84
-    ],
-    "sales": [
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     58.77,
-     0.0,
-     0.0,
-     0.0,
-     94.62,
-     199.87,
-     0.0
-    ],
-    "impressions": [
-     82673,
-     86232,
-     99350,
-     76144,
-     76031,
-     80343,
-     67116,
-     62088,
-     74542,
-     85151,
-     72024,
-     19333
-    ],
-    "clicks": [
-     5642,
-     5457,
-     5178,
-     4752,
-     4363,
-     5239,
-     4520,
-     4226,
-     4402,
-     4288,
-     4064,
-     1065
-    ],
-    "total_spend": 6306.09,
-    "total_sales": 353.26,
-    "total_clicks": 53196,
-    "total_impressions": 881027,
-    "roas": 0.06,
-    "cpc": 0.12,
-    "ctr": 6.04,
-    "is_traffic": true,
-    "attr_sales": 1216.8,
-    "attr_purchases": 26,
-    "attr_brb": 797.23,
-    "attr_roas": 0.19,
-    "attr_roas_adj": 0.32
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120240644685950508",
@@ -20007,11 +19356,163 @@ const FIN_DATA = {
     "cpc": 0.11,
     "ctr": 7.6,
     "is_traffic": true,
-    "attr_sales": 99.6,
-    "attr_purchases": 2,
-    "attr_brb": 78.13,
-    "attr_roas": 0.02,
-    "attr_roas_adj": 0.03
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
+   },
+   {
+    "id": "120240689933170508",
+    "campaign_id": "120240689933170508",
+    "name": "AMZ | Traffic | WL_Dental Mom | Stainless_StrawCup | 20260107",
+    "platform": "Meta Traffic",
+    "brand": "Grosmimi",
+    "spend": [
+     562.9,
+     556.89,
+     557.88,
+     562.35,
+     559.93,
+     560.9,
+     556.19,
+     559.18,
+     559.8,
+     560.13,
+     558.1,
+     151.84
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     58.77,
+     0.0,
+     0.0,
+     0.0,
+     94.62,
+     199.87,
+     0.0
+    ],
+    "impressions": [
+     82673,
+     86232,
+     99350,
+     76144,
+     76031,
+     80343,
+     67116,
+     62088,
+     74542,
+     85151,
+     72024,
+     19333
+    ],
+    "clicks": [
+     5642,
+     5457,
+     5178,
+     4752,
+     4363,
+     5239,
+     4520,
+     4226,
+     4402,
+     4288,
+     4064,
+     1065
+    ],
+    "total_spend": 6306.09,
+    "total_sales": 353.26,
+    "total_clicks": 53196,
+    "total_impressions": 881027,
+    "roas": 0.06,
+    "cpc": 0.12,
+    "ctr": 6.04,
+    "is_traffic": true,
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
+   },
+   {
+    "id": "120243909567080508",
+    "campaign_id": "120243909567080508",
+    "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331",
+    "platform": "Meta Traffic",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     2623.78,
+     1310.61
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     23.11,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     375226,
+     176435
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     24759,
+     15422
+    ],
+    "total_spend": 3934.39,
+    "total_sales": 23.11,
+    "total_clicks": 40181,
+    "total_impressions": 551661,
+    "roas": 0.01,
+    "cpc": 0.1,
+    "ctr": 7.28,
+    "is_traffic": true,
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120241255476490508",
@@ -20092,6 +19593,82 @@ const FIN_DATA = {
   ],
   "weekly_bottom_traffic": [
    {
+    "id": "120232746327610508",
+    "campaign_id": "120232746327610508",
+    "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
+    "platform": "Meta Traffic",
+    "brand": "Grosmimi",
+    "spend": [
+     1049.78,
+     1050.59,
+     1046.6,
+     1053.06,
+     1052.28,
+     1041.09,
+     1054.05,
+     1041.12,
+     1053.64,
+     1050.29,
+     1045.19,
+     738.02
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     108419,
+     115496,
+     117918,
+     103110,
+     100743,
+     103659,
+     110767,
+     85081,
+     92428,
+     107886,
+     95501,
+     63672
+    ],
+    "clicks": [
+     14374,
+     14492,
+     14189,
+     13662,
+     14142,
+     14899,
+     13476,
+     13564,
+     12972,
+     11642,
+     11153,
+     8449
+    ],
+    "total_spend": 12275.71,
+    "total_sales": 0.0,
+    "total_clicks": 157014,
+    "total_impressions": 1204680,
+    "roas": 0.0,
+    "cpc": 0.08,
+    "ctr": 13.03,
+    "is_traffic": true,
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
+   },
+   {
     "id": "120240644685950508",
     "campaign_id": "120240644685950508",
     "name": "AMZ | Traffic | WL | Dentalmom | 202601",
@@ -20161,11 +19738,11 @@ const FIN_DATA = {
     "cpc": 0.11,
     "ctr": 7.6,
     "is_traffic": true,
-    "attr_sales": 99.6,
-    "attr_purchases": 2,
-    "attr_brb": 78.13,
-    "attr_roas": 0.02,
-    "attr_roas_adj": 0.03
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120240689933170508",
@@ -20237,87 +19814,11 @@ const FIN_DATA = {
     "cpc": 0.12,
     "ctr": 6.04,
     "is_traffic": true,
-    "attr_sales": 1216.8,
-    "attr_purchases": 26,
-    "attr_brb": 797.23,
-    "attr_roas": 0.19,
-    "attr_roas_adj": 0.32
-   },
-   {
-    "id": "120232746327610508",
-    "campaign_id": "120232746327610508",
-    "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
-    "platform": "Meta Traffic",
-    "brand": "Grosmimi",
-    "spend": [
-     1049.78,
-     1050.59,
-     1046.6,
-     1053.06,
-     1052.28,
-     1041.09,
-     1054.05,
-     1041.12,
-     1053.64,
-     1050.29,
-     1045.19,
-     738.02
-    ],
-    "sales": [
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0
-    ],
-    "impressions": [
-     108419,
-     115496,
-     117918,
-     103110,
-     100743,
-     103659,
-     110767,
-     85081,
-     92428,
-     107886,
-     95501,
-     63672
-    ],
-    "clicks": [
-     14374,
-     14492,
-     14189,
-     13662,
-     14142,
-     14899,
-     13476,
-     13564,
-     12972,
-     11642,
-     11153,
-     8449
-    ],
-    "total_spend": 12275.71,
-    "total_sales": 0.0,
-    "total_clicks": 157014,
-    "total_impressions": 1204680,
-    "roas": 0.0,
-    "cpc": 0.08,
-    "ctr": 13.03,
-    "is_traffic": true,
-    "attr_sales": 5135.8,
-    "attr_purchases": 204,
-    "attr_brb": 557.99,
-    "attr_roas": 0.42,
-    "attr_roas_adj": 0.46
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120243909567080508",
@@ -20389,11 +19890,11 @@ const FIN_DATA = {
     "cpc": 0.1,
     "ctr": 7.28,
     "is_traffic": true,
-    "attr_sales": 8837.79,
-    "attr_purchases": 379,
-    "attr_brb": 1001.51,
-    "attr_roas": 2.25,
-    "attr_roas_adj": 2.5
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120241255476490508",
@@ -20667,11 +20168,11 @@ const FIN_DATA = {
     "cpc": 0.08,
     "ctr": 13.17,
     "is_traffic": true,
-    "attr_sales": 5135.8,
-    "attr_purchases": 204,
-    "attr_brb": 557.99,
-    "attr_roas": 0.37,
-    "attr_roas_adj": 0.41
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120232464266510508",
@@ -20828,11 +20329,11 @@ const FIN_DATA = {
     "cpc": 0.1,
     "ctr": 7.79,
     "is_traffic": true,
-    "attr_sales": 99.6,
-    "attr_purchases": 2,
-    "attr_brb": 78.13,
-    "attr_roas": 0.01,
-    "attr_roas_adj": 0.03
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120240689933170508",
@@ -20872,11 +20373,11 @@ const FIN_DATA = {
     "cpc": 0.12,
     "ctr": 6.06,
     "is_traffic": true,
-    "attr_sales": 1216.8,
-    "attr_purchases": 26,
-    "attr_brb": 797.23,
-    "attr_roas": 0.18,
-    "attr_roas_adj": 0.3
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "412813716858145",
@@ -21033,11 +20534,11 @@ const FIN_DATA = {
     "cpc": 0.1,
     "ctr": 7.28,
     "is_traffic": true,
-    "attr_sales": 8837.79,
-    "attr_purchases": 379,
-    "attr_brb": 1001.51,
-    "attr_roas": 2.25,
-    "attr_roas_adj": 2.5
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120227412781090508",
@@ -23767,50 +23268,6 @@ const FIN_DATA = {
   ],
   "monthly_top_traffic": [
    {
-    "id": "120243909567080508",
-    "campaign_id": "120243909567080508",
-    "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331",
-    "platform": "Meta Traffic",
-    "brand": "Grosmimi",
-    "spend": [
-     0,
-     0,
-     3448.84,
-     485.55
-    ],
-    "sales": [
-     0,
-     0,
-     23.11,
-     0.0
-    ],
-    "impressions": [
-     0,
-     0,
-     485838,
-     65823
-    ],
-    "clicks": [
-     0,
-     0,
-     32804,
-     7377
-    ],
-    "total_spend": 3934.39,
-    "total_sales": 23.11,
-    "total_clicks": 40181,
-    "total_impressions": 551661,
-    "roas": 0.01,
-    "cpc": 0.1,
-    "ctr": 7.28,
-    "is_traffic": true,
-    "attr_sales": 8837.79,
-    "attr_purchases": 379,
-    "attr_brb": 1001.51,
-    "attr_roas": 2.25,
-    "attr_roas_adj": 2.5
-   },
-   {
     "id": "120232746327610508",
     "campaign_id": "120232746327610508",
     "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
@@ -23848,55 +23305,11 @@ const FIN_DATA = {
     "cpc": 0.08,
     "ctr": 13.17,
     "is_traffic": true,
-    "attr_sales": 5135.8,
-    "attr_purchases": 204,
-    "attr_brb": 557.99,
-    "attr_roas": 0.37,
-    "attr_roas_adj": 0.41
-   },
-   {
-    "id": "120240689933170508",
-    "campaign_id": "120240689933170508",
-    "name": "AMZ | Traffic | WL_Dental Mom | Stainless_StrawCup | 20260107",
-    "platform": "Meta Traffic",
-    "brand": "Grosmimi",
-    "spend": [
-     1969.18,
-     2237.12,
-     2475.7,
-     0.0
-    ],
-    "sales": [
-     0.0,
-     58.77,
-     294.49,
-     0.0
-    ],
-    "impressions": [
-     321804,
-     301523,
-     324209,
-     0
-    ],
-    "clicks": [
-     19725,
-     18968,
-     18765,
-     0
-    ],
-    "total_spend": 6682.0,
-    "total_sales": 353.26,
-    "total_clicks": 57458,
-    "total_impressions": 947536,
-    "roas": 0.05,
-    "cpc": 0.12,
-    "ctr": 6.06,
-    "is_traffic": true,
-    "attr_sales": 1216.8,
-    "attr_purchases": 26,
-    "attr_brb": 797.23,
-    "attr_roas": 0.18,
-    "attr_roas_adj": 0.3
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120240644685950508",
@@ -23936,11 +23349,99 @@ const FIN_DATA = {
     "cpc": 0.1,
     "ctr": 7.79,
     "is_traffic": true,
-    "attr_sales": 99.6,
-    "attr_purchases": 2,
-    "attr_brb": 78.13,
-    "attr_roas": 0.01,
-    "attr_roas_adj": 0.03
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
+   },
+   {
+    "id": "120240689933170508",
+    "campaign_id": "120240689933170508",
+    "name": "AMZ | Traffic | WL_Dental Mom | Stainless_StrawCup | 20260107",
+    "platform": "Meta Traffic",
+    "brand": "Grosmimi",
+    "spend": [
+     1969.18,
+     2237.12,
+     2475.7,
+     0.0
+    ],
+    "sales": [
+     0.0,
+     58.77,
+     294.49,
+     0.0
+    ],
+    "impressions": [
+     321804,
+     301523,
+     324209,
+     0
+    ],
+    "clicks": [
+     19725,
+     18968,
+     18765,
+     0
+    ],
+    "total_spend": 6682.0,
+    "total_sales": 353.26,
+    "total_clicks": 57458,
+    "total_impressions": 947536,
+    "roas": 0.05,
+    "cpc": 0.12,
+    "ctr": 6.06,
+    "is_traffic": true,
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
+   },
+   {
+    "id": "120243909567080508",
+    "campaign_id": "120243909567080508",
+    "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331",
+    "platform": "Meta Traffic",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     3448.84,
+     485.55
+    ],
+    "sales": [
+     0,
+     0,
+     23.11,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     485838,
+     65823
+    ],
+    "clicks": [
+     0,
+     0,
+     32804,
+     7377
+    ],
+    "total_spend": 3934.39,
+    "total_sales": 23.11,
+    "total_clicks": 40181,
+    "total_impressions": 551661,
+    "roas": 0.01,
+    "cpc": 0.1,
+    "ctr": 7.28,
+    "is_traffic": true,
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120241255476490508",
@@ -23989,6 +23490,50 @@ const FIN_DATA = {
   ],
   "monthly_bottom_traffic": [
    {
+    "id": "120232746327610508",
+    "campaign_id": "120232746327610508",
+    "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
+    "platform": "Meta Traffic",
+    "brand": "Grosmimi",
+    "spend": [
+     4615.07,
+     4195.53,
+     4659.74,
+     431.41
+    ],
+    "sales": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "impressions": [
+     512079,
+     422085,
+     423289,
+     36392
+    ],
+    "clicks": [
+     67407,
+     56248,
+     54961,
+     4929
+    ],
+    "total_spend": 13901.75,
+    "total_sales": 0.0,
+    "total_clicks": 183545,
+    "total_impressions": 1393845,
+    "roas": 0.0,
+    "cpc": 0.08,
+    "ctr": 13.17,
+    "is_traffic": true,
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
+   },
+   {
     "id": "120240644685950508",
     "campaign_id": "120240644685950508",
     "name": "AMZ | Traffic | WL | Dentalmom | 202601",
@@ -24026,11 +23571,11 @@ const FIN_DATA = {
     "cpc": 0.1,
     "ctr": 7.79,
     "is_traffic": true,
-    "attr_sales": 99.6,
-    "attr_purchases": 2,
-    "attr_brb": 78.13,
-    "attr_roas": 0.01,
-    "attr_roas_adj": 0.03
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120240689933170508",
@@ -24070,55 +23615,11 @@ const FIN_DATA = {
     "cpc": 0.12,
     "ctr": 6.06,
     "is_traffic": true,
-    "attr_sales": 1216.8,
-    "attr_purchases": 26,
-    "attr_brb": 797.23,
-    "attr_roas": 0.18,
-    "attr_roas_adj": 0.3
-   },
-   {
-    "id": "120232746327610508",
-    "campaign_id": "120232746327610508",
-    "name": "AMZ | Traffic | WL_Dental Mom & Livfuselli (May, Aug | 20251120-01",
-    "platform": "Meta Traffic",
-    "brand": "Grosmimi",
-    "spend": [
-     4615.07,
-     4195.53,
-     4659.74,
-     431.41
-    ],
-    "sales": [
-     0.0,
-     0.0,
-     0.0,
-     0.0
-    ],
-    "impressions": [
-     512079,
-     422085,
-     423289,
-     36392
-    ],
-    "clicks": [
-     67407,
-     56248,
-     54961,
-     4929
-    ],
-    "total_spend": 13901.75,
-    "total_sales": 0.0,
-    "total_clicks": 183545,
-    "total_impressions": 1393845,
-    "roas": 0.0,
-    "cpc": 0.08,
-    "ctr": 13.17,
-    "is_traffic": true,
-    "attr_sales": 5135.8,
-    "attr_purchases": 204,
-    "attr_brb": 557.99,
-    "attr_roas": 0.37,
-    "attr_roas_adj": 0.41
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120243909567080508",
@@ -24158,11 +23659,11 @@ const FIN_DATA = {
     "cpc": 0.1,
     "ctr": 7.28,
     "is_traffic": true,
-    "attr_sales": 8837.79,
-    "attr_purchases": 379,
-    "attr_brb": 1001.51,
-    "attr_roas": 2.25,
-    "attr_roas_adj": 2.5
+    "attr_sales": 0,
+    "attr_purchases": 0,
+    "attr_brb": 0,
+    "attr_roas": 0,
+    "attr_roas_adj": 0
    },
    {
     "id": "120241255476490508",
@@ -24469,10 +23970,10 @@ const FIN_DATA = {
      916.96
     ],
     "sales": [
-     4395.54,
-     3708.43,
-     5585.55,
-     392.2
+     0.0,
+     58.77,
+     317.6,
+     0.0
     ],
     "impressions": [
      1363141,
@@ -38815,18 +38316,18 @@ const FIN_DATA = {
       2358.2
      ],
      "sales": [
-      1084.15,
-      926.81,
-      924.55,
-      931.08,
-      929.4,
-      923.23,
-      927.96,
-      923.39,
-      929.42,
-      928.56,
-      2045.52,
-      1008.64
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      58.77,
+      0.0,
+      0.0,
+      0.0,
+      94.62,
+      222.98,
+      0.0
      ],
      "impressions": [
       317187,
@@ -39393,49 +38894,16 @@ const FIN_DATA = {
       "google_ads_clicks": 0
      },
      {
-      "keyword": "grosmimi stage 2 straw",
-      "search_freq_rank": 2529861,
-      "rank_weekly": [
-       2719353,
-       2461468,
-       2613076,
-       2613076,
-       2613076,
-       2529861,
-       2529861
-      ],
-      "rank_week_labels": [
-       "2026-01-04",
-       "2026-02-01",
-       "2026-03-08",
-       "2026-03-08",
-       "2026-03-08",
-       "2026-03-15",
-       "2026-03-15"
-      ],
-      "click_share": 48.15,
-      "conv_share": 44.44,
-      "ads_spend_30d": 12,
-      "ads_clicks_30d": 29,
-      "ads_sales_30d": 338,
-      "ads_acos": 0.03,
-      "google_volume": 4,
-      "google_ads_impressions": 4,
-      "google_ads_clicks": 0
-     },
-     {
       "keyword": "grosmimi straw",
-      "search_freq_rank": 1453549,
+      "search_freq_rank": 1827973,
       "rank_weekly": [
-       1827973,
-       1453549
+       1827973
       ],
       "rank_week_labels": [
-       "2026-03-08",
-       "2026-03-15"
+       "2026-03-08"
       ],
-      "click_share": 47.92,
-      "conv_share": 41.67,
+      "click_share": 44.74,
+      "conv_share": 40.0,
       "ads_spend_30d": 16,
       "ads_clicks_30d": 38,
       "ads_sales_30d": 270,
@@ -39446,17 +38914,15 @@ const FIN_DATA = {
      },
      {
       "keyword": "grosmimi straw replacement",
-      "search_freq_rank": 152496,
+      "search_freq_rank": 157311,
       "rank_weekly": [
-       157311,
-       152496
+       157311
       ],
       "rank_week_labels": [
-       "2026-03-08",
-       "2026-03-15"
+       "2026-03-08"
       ],
-      "click_share": 42.89,
-      "conv_share": 29.8,
+      "click_share": 43.36,
+      "conv_share": 36.27,
       "ads_spend_30d": 33,
       "ads_clicks_30d": 78,
       "ads_sales_30d": 1208,
@@ -39466,8 +38932,68 @@ const FIN_DATA = {
       "google_ads_clicks": 5
      },
      {
+      "keyword": "grosmimi open spout",
+      "search_freq_rank": 2607491,
+      "rank_weekly": [
+       2607491,
+       2607491
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2025-12-28"
+      ],
+      "click_share": 29.63,
+      "conv_share": 0.0,
+      "ads_spend_30d": 0,
+      "ads_clicks_30d": 0,
+      "ads_sales_30d": 0,
+      "ads_acos": 0,
+      "google_volume": 0,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
+     },
+     {
+      "keyword": "grosmimi cup",
+      "search_freq_rank": 1366604,
+      "rank_weekly": [
+       980264,
+       898171,
+       1165551,
+       948595,
+       1158547,
+       1409484,
+       1409484,
+       969585,
+       1302817,
+       1366604,
+       1366604
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-04",
+       "2026-01-11",
+       "2026-01-25",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-08"
+      ],
+      "click_share": 29.41,
+      "conv_share": 38.46,
+      "ads_spend_30d": 16,
+      "ads_clicks_30d": 43,
+      "ads_sales_30d": 382,
+      "ads_acos": 0.04,
+      "google_volume": 970,
+      "google_ads_impressions": 526,
+      "google_ads_clicks": 56
+     },
+     {
       "keyword": "grosmini",
-      "search_freq_rank": 2441217,
+      "search_freq_rank": 2198549,
       "rank_weekly": [
        2459655,
        1987467,
@@ -39475,7 +39001,8 @@ const FIN_DATA = {
        1987467,
        2441217,
        2441217,
-       2441217
+       2441217,
+       2198549
       ],
       "rank_week_labels": [
        "2026-01-25",
@@ -39484,38 +39011,16 @@ const FIN_DATA = {
        "2026-02-08",
        "2026-03-08",
        "2026-03-08",
-       "2026-03-08"
+       "2026-03-08",
+       "2026-03-22"
       ],
-      "click_share": 25.0,
-      "conv_share": 16.67,
+      "click_share": 29.03,
+      "conv_share": 0.0,
       "ads_spend_30d": 5,
       "ads_clicks_30d": 12,
       "ads_sales_30d": 67,
       "ads_acos": 0.07,
       "google_volume": 56,
-      "google_ads_impressions": 0,
-      "google_ads_clicks": 0
-     },
-     {
-      "keyword": "grosmimi replacement top",
-      "search_freq_rank": 1928957,
-      "rank_weekly": [
-       2363776,
-       1928957,
-       1928957
-      ],
-      "rank_week_labels": [
-       "2026-03-08",
-       "2026-03-15",
-       "2026-03-15"
-      ],
-      "click_share": 22.22,
-      "conv_share": 15.38,
-      "ads_spend_30d": 6,
-      "ads_clicks_30d": 14,
-      "ads_sales_30d": 165,
-      "ads_acos": 0.04,
-      "google_volume": 0,
       "google_ads_impressions": 0,
       "google_ads_clicks": 0
      },
@@ -39576,126 +39081,28 @@ const FIN_DATA = {
     ],
     "sfr_branded": [
      {
-      "keyword": "grosmimi stage 2 straw",
-      "search_freq_rank": 2529861,
-      "rank_weekly": [
-       2719353,
-       2461468,
-       2613076,
-       2613076,
-       2613076,
-       2529861,
-       2529861
-      ],
-      "rank_week_labels": [
-       "2026-01-04",
-       "2026-02-01",
-       "2026-03-08",
-       "2026-03-08",
-       "2026-03-08",
-       "2026-03-15",
-       "2026-03-15"
-      ],
-      "click_share": 48.15,
-      "conv_share": 44.44
-     },
-     {
       "keyword": "grosmimi straw",
-      "search_freq_rank": 1453549,
+      "search_freq_rank": 1827973,
       "rank_weekly": [
-       1827973,
-       1453549
+       1827973
       ],
       "rank_week_labels": [
-       "2026-03-08",
-       "2026-03-15"
+       "2026-03-08"
       ],
-      "click_share": 47.92,
-      "conv_share": 41.67
+      "click_share": 44.74,
+      "conv_share": 40.0
      },
      {
       "keyword": "grosmimi straw replacement",
-      "search_freq_rank": 152496,
+      "search_freq_rank": 157311,
       "rank_weekly": [
-       157311,
-       152496
+       157311
       ],
       "rank_week_labels": [
-       "2026-03-08",
-       "2026-03-15"
-      ],
-      "click_share": 42.89,
-      "conv_share": 29.8
-     },
-     {
-      "keyword": "grosmini",
-      "search_freq_rank": 2441217,
-      "rank_weekly": [
-       2459655,
-       1987467,
-       1987467,
-       1987467,
-       2441217,
-       2441217,
-       2441217
-      ],
-      "rank_week_labels": [
-       "2026-01-25",
-       "2026-02-08",
-       "2026-02-08",
-       "2026-02-08",
-       "2026-03-08",
-       "2026-03-08",
        "2026-03-08"
       ],
-      "click_share": 25.0,
-      "conv_share": 16.67
-     },
-     {
-      "keyword": "grosmimi replacement top",
-      "search_freq_rank": 1928957,
-      "rank_weekly": [
-       2363776,
-       1928957,
-       1928957
-      ],
-      "rank_week_labels": [
-       "2026-03-08",
-       "2026-03-15",
-       "2026-03-15"
-      ],
-      "click_share": 22.22,
-      "conv_share": 15.38
-     },
-     {
-      "keyword": "grosmimi straw cup 12 months",
-      "search_freq_rank": 2225059,
-      "rank_weekly": [
-       2459655,
-       2317125,
-       1851159,
-       1907645,
-       1366604,
-       1366604,
-       1366604,
-       2225059,
-       2225059,
-       2225059
-      ],
-      "rank_week_labels": [
-       "2026-01-25",
-       "2026-02-15",
-       "2026-02-22",
-       "2026-03-01",
-       "2026-03-08",
-       "2026-03-08",
-       "2026-03-08",
-       "2026-03-15",
-       "2026-03-15",
-       "2026-03-15"
-      ],
-      "click_share": 19.35,
-      "conv_share": 12.5
+      "click_share": 43.36,
+      "conv_share": 36.27
      },
      {
       "keyword": "grosmimi open spout",
@@ -39708,96 +39115,104 @@ const FIN_DATA = {
        "2025-12-28",
        "2025-12-28"
       ],
-      "click_share": 18.52,
+      "click_share": 29.63,
       "conv_share": 0.0
      },
      {
-      "keyword": "toddler straw cup grosmimi",
-      "search_freq_rank": 1784856,
+      "keyword": "grosmimi cup",
+      "search_freq_rank": 1366604,
       "rank_weekly": [
-       2366746,
-       2482683,
-       2033449,
-       2033449,
-       2461468,
-       1986607,
-       2191686,
-       2191686,
-       2199943,
-       1784856,
-       1784856,
-       1784856
+       980264,
+       898171,
+       1165551,
+       948595,
+       1158547,
+       1409484,
+       1409484,
+       969585,
+       1302817,
+       1366604,
+       1366604
       ],
       "rank_week_labels": [
        "2025-12-28",
+       "2026-01-04",
        "2026-01-11",
        "2026-01-25",
-       "2026-01-25",
-       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
        "2026-02-15",
        "2026-02-22",
-       "2026-02-22",
        "2026-03-01",
-       "2026-03-15",
-       "2026-03-15",
-       "2026-03-15"
+       "2026-03-08",
+       "2026-03-08"
       ],
-      "click_share": 17.95,
+      "click_share": 29.41,
+      "conv_share": 38.46
+     },
+     {
+      "keyword": "grosmini",
+      "search_freq_rank": 2198549,
+      "rank_weekly": [
+       2459655,
+       1987467,
+       1987467,
+       1987467,
+       2441217,
+       2441217,
+       2441217,
+       2198549
+      ],
+      "rank_week_labels": [
+       "2026-01-25",
+       "2026-02-08",
+       "2026-02-08",
+       "2026-02-08",
+       "2026-03-08",
+       "2026-03-08",
+       "2026-03-08",
+       "2026-03-22"
+      ],
+      "click_share": 29.03,
       "conv_share": 0.0
      },
      {
       "keyword": "grossini straw cup",
-      "search_freq_rank": 185849,
+      "search_freq_rank": 209087,
       "rank_weekly": [
        209087,
-       209087,
-       185849,
-       185849,
-       185849
+       209087
       ],
       "rank_week_labels": [
        "2026-03-08",
-       "2026-03-08",
-       "2026-03-15",
-       "2026-03-15",
-       "2026-03-15"
+       "2026-03-08"
       ],
-      "click_share": 17.73,
-      "conv_share": 6.67
+      "click_share": 17.13,
+      "conv_share": 4.17
      },
      {
-      "keyword": "grosmimi sippy cup",
-      "search_freq_rank": 754360,
+      "keyword": "grosmimi straw cup 12 months",
+      "search_freq_rank": 1366604,
       "rank_weekly": [
-       482004,
-       482004,
-       521482,
-       626284,
-       526120,
-       608273,
-       726915,
-       726915,
-       726915,
-       754360,
-       754360,
-       754360
+       2459655,
+       2317125,
+       1851159,
+       1907645,
+       1366604,
+       1366604,
+       1366604
       ],
       "rank_week_labels": [
        "2026-01-25",
-       "2026-01-25",
-       "2026-02-08",
        "2026-02-15",
        "2026-02-22",
        "2026-03-01",
        "2026-03-08",
        "2026-03-08",
-       "2026-03-08",
-       "2026-03-15",
-       "2026-03-15",
-       "2026-03-15"
+       "2026-03-08"
       ],
-      "click_share": 16.3,
-      "conv_share": 9.09
+      "click_share": 15.69,
+      "conv_share": 18.18
      },
      {
       "keyword": "grosmimi straw cup weighted straw",
@@ -39812,40 +39227,6 @@ const FIN_DATA = {
       ],
       "click_share": 15.38,
       "conv_share": 0.0
-     },
-     {
-      "keyword": "grosmimi straw cup",
-      "search_freq_rank": 25045,
-      "rank_weekly": [
-       27226,
-       26087,
-       24640,
-       29119,
-       28204,
-       23326,
-       23805,
-       23805,
-       23805,
-       25045,
-       25045,
-       25045
-      ],
-      "rank_week_labels": [
-       "2026-01-25",
-       "2026-02-01",
-       "2026-02-08",
-       "2026-02-15",
-       "2026-02-22",
-       "2026-03-01",
-       "2026-03-08",
-       "2026-03-08",
-       "2026-03-08",
-       "2026-03-15",
-       "2026-03-15",
-       "2026-03-15"
-      ],
-      "click_share": 12.75,
-      "conv_share": 4.58
      },
      {
       "keyword": "grosmimi tumbler",
@@ -39882,40 +39263,6 @@ const FIN_DATA = {
       "conv_share": 0.0
      },
      {
-      "keyword": "grosmimi cup",
-      "search_freq_rank": 1181224,
-      "rank_weekly": [
-       898171,
-       1165551,
-       948595,
-       1158547,
-       1409484,
-       1409484,
-       969585,
-       1302817,
-       1366604,
-       1366604,
-       1181224,
-       1181224
-      ],
-      "rank_week_labels": [
-       "2026-01-04",
-       "2026-01-11",
-       "2026-01-25",
-       "2026-02-08",
-       "2026-02-15",
-       "2026-02-15",
-       "2026-02-22",
-       "2026-03-01",
-       "2026-03-08",
-       "2026-03-08",
-       "2026-03-15",
-       "2026-03-15"
-      ],
-      "click_share": 11.86,
-      "conv_share": 14.29
-     },
-     {
       "keyword": "grosmimi straw cup stage 2",
       "search_freq_rank": 1868785,
       "rank_weekly": [
@@ -39932,9 +39279,32 @@ const FIN_DATA = {
       "conv_share": 11.11
      },
      {
+      "keyword": "grosmimi stage 2 straw",
+      "search_freq_rank": 2529861,
+      "rank_weekly": [
+       2719353,
+       2461468,
+       2613076,
+       2613076,
+       2613076,
+       2529861
+      ],
+      "rank_week_labels": [
+       "2026-01-04",
+       "2026-02-01",
+       "2026-03-08",
+       "2026-03-08",
+       "2026-03-08",
+       "2026-03-15"
+      ],
+      "click_share": 11.11,
+      "conv_share": 0.0
+     },
+     {
       "keyword": "grosmimi",
       "search_freq_rank": 188551,
       "rank_weekly": [
+       195060,
        195060,
        200964,
        219897,
@@ -39945,10 +39315,10 @@ const FIN_DATA = {
        201907,
        201907,
        201907,
-       188551,
        188551
       ],
       "rank_week_labels": [
+       "2026-01-18",
        "2026-01-18",
        "2026-01-25",
        "2026-02-01",
@@ -39959,7 +39329,6 @@ const FIN_DATA = {
        "2026-03-08",
        "2026-03-08",
        "2026-03-08",
-       "2026-03-15",
        "2026-03-15"
       ],
       "click_share": 10.67,
@@ -39979,6 +39348,118 @@ const FIN_DATA = {
        "2026-01-11"
       ],
       "click_share": 10.64,
+      "conv_share": 0.0
+     },
+     {
+      "keyword": "toddler straw cup grosmimi",
+      "search_freq_rank": 1784856,
+      "rank_weekly": [
+       2366746,
+       2482683,
+       2033449,
+       2033449,
+       2461468,
+       1986607,
+       2191686,
+       2191686,
+       2199943,
+       1784856
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-11",
+       "2026-01-25",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-15"
+      ],
+      "click_share": 10.26,
+      "conv_share": 9.09
+     },
+     {
+      "keyword": "grosmimi sippy cup",
+      "search_freq_rank": 592859,
+      "rank_weekly": [
+       523743,
+       482004,
+       482004,
+       521482,
+       626284,
+       526120,
+       608273,
+       726915,
+       726915,
+       726915,
+       754360,
+       592859
+      ],
+      "rank_week_labels": [
+       "2026-01-18",
+       "2026-01-25",
+       "2026-01-25",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-08",
+       "2026-03-08",
+       "2026-03-15",
+       "2026-03-22"
+      ],
+      "click_share": 9.48,
+      "conv_share": 0.0
+     },
+     {
+      "keyword": "grosmimi straw cup",
+      "search_freq_rank": 25045,
+      "rank_weekly": [
+       28706,
+       28805,
+       27226,
+       26087,
+       24640,
+       29119,
+       28204,
+       23326,
+       23805,
+       23805,
+       23805,
+       25045
+      ],
+      "rank_week_labels": [
+       "2025-12-28",
+       "2026-01-18",
+       "2026-01-25",
+       "2026-02-01",
+       "2026-02-08",
+       "2026-02-15",
+       "2026-02-22",
+       "2026-03-01",
+       "2026-03-08",
+       "2026-03-08",
+       "2026-03-08",
+       "2026-03-15"
+      ],
+      "click_share": 8.66,
+      "conv_share": 3.85
+     },
+     {
+      "keyword": "grosmimi replacement top",
+      "search_freq_rank": 1928957,
+      "rank_weekly": [
+       2363776,
+       1928957
+      ],
+      "rank_week_labels": [
+       "2026-03-08",
+       "2026-03-15"
+      ],
+      "click_share": 8.33,
       "conv_share": 0.0
      },
      {
@@ -40017,17 +39498,15 @@ const FIN_DATA = {
      },
      {
       "keyword": "grosmimi stainless steel",
-      "search_freq_rank": 2618880,
+      "search_freq_rank": 2613076,
       "rank_weekly": [
-       2613076,
-       2618880
+       2613076
       ],
       "rank_week_labels": [
-       "2026-03-08",
-       "2026-03-15"
+       "2026-03-08"
       ],
       "click_share": 7.69,
-      "conv_share": 0.0
+      "conv_share": 33.33
      },
      {
       "keyword": "grosmimi straw cup stainless steel",
@@ -40044,27 +39523,11 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0DB7V1BW3",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
       "asin": "B0DY6SKQ2N",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
       "asin": "B0F9Q2F89Y",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0F6XNGT85",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DCV7MTLS",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DB7SPP2P",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -40076,7 +39539,23 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
+      "asin": "B0DCV7MTLS",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DB7SPP2P",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
       "asin": "B0DY6SM9Y7",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DB7V1BW3",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0F6XNGT85",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -40084,15 +39563,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0F4CRT6LV",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
-     },
-     {
       "asin": "B0F4D3YZ8H",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
-     },
-     {
-      "asin": "B0F4D28MC3",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
@@ -40100,12 +39571,12 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0F9PZPMH8",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
+      "asin": "B0F4CRT6LV",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0F9PVZMR1",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
+      "asin": "B0F4D28MC3",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
       "asin": "B0F9PZD6QM",
@@ -40120,7 +39591,31 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B07YKH98WT",
+      "asin": "B0F9PVZMR1",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
+     },
+     {
+      "asin": "B0F9PZPMH8",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
+     },
+     {
+      "asin": "B0842DMZ3H",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0C1N3QZ7K",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B08398HJRD",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B083XT642K",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B083986L91",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -40128,31 +39623,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0BZYSL3BH",
+      "asin": "B07YKH98WT",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0842DMZ3H",
+      "asin": "B07YL2FT96",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
       "asin": "B082SSPN4X",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B08398KZ2B",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0842D5Z17",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0C1N1PLYD",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0C1N3QZ7K",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -40168,24 +39647,20 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B07YL2FT96",
+      "asin": "B0C1N1PLYD",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B083XT642K",
+      "asin": "B0BZYSL3BH",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B083986L91",
+      "asin": "B08398KZ2B",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B08398HJRD",
+      "asin": "B0842D5Z17",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0F8QHJN6G",
-      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
       "asin": "B0F8Q8RK18",
@@ -40196,11 +39671,15 @@ const FIN_DATA = {
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
-      "asin": "B0F8QH8T8X",
+      "asin": "B0F8QGZ7TH",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
-      "asin": "B0F8QGZ7TH",
+      "asin": "B0F8QHJN6G",
+      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+     },
+     {
+      "asin": "B0F8QH8T8X",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
@@ -40440,20 +39919,16 @@ const FIN_DATA = {
     "top_keywords": [
      {
       "keyword": "grosmimi stainless steel",
-      "search_freq_rank": 2618880,
+      "search_freq_rank": 2613076,
       "rank_weekly": [
        2613076,
-       2613076,
-       2618880,
-       2618880
+       2613076
       ],
       "rank_week_labels": [
        "2026-03-08",
-       "2026-03-08",
-       "2026-03-15",
-       "2026-03-15"
+       "2026-03-08"
       ],
-      "click_share": 46.15,
+      "click_share": 42.31,
       "conv_share": 0.0,
       "ads_spend_30d": 2,
       "ads_clicks_30d": 5,
@@ -40465,24 +39940,18 @@ const FIN_DATA = {
      },
      {
       "keyword": "grosmimi straw cup stainless steel",
-      "search_freq_rank": 1316095,
+      "search_freq_rank": 1035881,
       "rank_weekly": [
        1035881,
        1035881,
-       1035881,
-       1316095,
-       1316095,
-       1316095
+       1035881
       ],
       "rank_week_labels": [
        "2026-03-08",
        "2026-03-08",
-       "2026-03-08",
-       "2026-03-15",
-       "2026-03-15",
-       "2026-03-15"
+       "2026-03-08"
       ],
-      "click_share": 32.08,
+      "click_share": 35.82,
       "conv_share": 0.0,
       "ads_spend_30d": 18,
       "ads_clicks_30d": 31,
@@ -40494,25 +39963,19 @@ const FIN_DATA = {
      },
      {
       "keyword": "grosmimi stainless steel straw cup",
-      "search_freq_rank": 234856,
+      "search_freq_rank": 234057,
       "rank_weekly": [
        234057,
        234057,
-       234057,
-       234856,
-       234856,
-       234856
+       234057
       ],
       "rank_week_labels": [
        "2026-03-08",
        "2026-03-08",
-       "2026-03-08",
-       "2026-03-15",
-       "2026-03-15",
-       "2026-03-15"
+       "2026-03-08"
       ],
-      "click_share": 29.86,
-      "conv_share": 12.2,
+      "click_share": 34.03,
+      "conv_share": 16.0,
       "ads_spend_30d": 84,
       "ads_clicks_30d": 143,
       "ads_sales_30d": 1163,
@@ -40624,65 +40087,49 @@ const FIN_DATA = {
     "sfr_branded": [
      {
       "keyword": "grosmimi stainless steel",
-      "search_freq_rank": 2618880,
+      "search_freq_rank": 2613076,
       "rank_weekly": [
        2613076,
-       2613076,
-       2618880,
-       2618880
+       2613076
       ],
       "rank_week_labels": [
        "2026-03-08",
-       "2026-03-08",
-       "2026-03-15",
-       "2026-03-15"
+       "2026-03-08"
       ],
-      "click_share": 46.15,
+      "click_share": 42.31,
       "conv_share": 0.0
      },
      {
       "keyword": "grosmimi straw cup stainless steel",
-      "search_freq_rank": 1316095,
+      "search_freq_rank": 1035881,
       "rank_weekly": [
        1035881,
        1035881,
-       1035881,
-       1316095,
-       1316095,
-       1316095
+       1035881
       ],
       "rank_week_labels": [
        "2026-03-08",
        "2026-03-08",
-       "2026-03-08",
-       "2026-03-15",
-       "2026-03-15",
-       "2026-03-15"
+       "2026-03-08"
       ],
-      "click_share": 32.08,
+      "click_share": 35.82,
       "conv_share": 0.0
      },
      {
       "keyword": "grosmimi stainless steel straw cup",
-      "search_freq_rank": 234856,
+      "search_freq_rank": 234057,
       "rank_weekly": [
        234057,
        234057,
-       234057,
-       234856,
-       234856,
-       234856
+       234057
       ],
       "rank_week_labels": [
        "2026-03-08",
        "2026-03-08",
-       "2026-03-08",
-       "2026-03-15",
-       "2026-03-15",
-       "2026-03-15"
+       "2026-03-08"
       ],
-      "click_share": 29.86,
-      "conv_share": 12.2
+      "click_share": 34.03,
+      "conv_share": 16.0
      },
      {
       "keyword": "grossmimi",
@@ -40710,22 +40157,20 @@ const FIN_DATA = {
      },
      {
       "keyword": "grosmimi cup",
-      "search_freq_rank": 1181224,
+      "search_freq_rank": 1366604,
       "rank_weekly": [
-       1366604,
-       1181224
+       1366604
       ],
       "rank_week_labels": [
-       "2026-03-08",
-       "2026-03-15"
+       "2026-03-08"
       ],
-      "click_share": 8.47,
+      "click_share": 7.84,
       "conv_share": 0.0
      }
     ],
     "asins": [
      {
-      "asin": "B0FHKBTY2S",
+      "asin": "B0FKGCRG45",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -40737,19 +40182,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FKG59ZMN",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
       "asin": "B0FHKFQPGR",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FKFN91X9",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FHKC2DVV",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -40757,11 +40190,23 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FKGCRG45",
+      "asin": "B0FHKBTY2S",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FHKC2DVV",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
       "asin": "B0FKFW6PND",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FKG59ZMN",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FKFN91X9",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      }
     ]
@@ -41381,7 +40826,7 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0FR4Q6LXQ",
+      "asin": "B0FR4FGBPP",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
@@ -41389,7 +40834,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
-      "asin": "B0FR4FGBPP",
+      "asin": "B0FR4Q6LXQ",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      }
     ]
@@ -56925,618 +56370,7 @@ const FIN_DATA = {
     581,
     490
    ]
-  },
-  "cat_attribution": {
-   "PPSU Straw Cup": {
-    "sales": 0,
-    "spend": 0,
-    "brb": 0,
-    "orders": 0,
-    "roas": 0,
-    "roas_brb": 0,
-    "campaigns": []
-   },
-   "Stainless Straw Cup": {
-    "sales": 1217,
-    "spend": 2153,
-    "brb": 797.23,
-    "orders": 26,
-    "roas": 0.57,
-    "roas_brb": 0.94,
-    "campaigns": [
-     {
-      "name": "AMZ_Traffic_Dental Mom_Stainless_StrawCup_20260107",
-      "spend": 2153,
-      "sales": 1217,
-      "brb": 797.23,
-      "clicks": 42364,
-      "purchases": 26,
-      "roas": 0.6,
-      "roas_adj": 0.9
-     }
-    ]
-   },
-   "Rice Puff": {
-    "sales": 0,
-    "spend": 0,
-    "brb": 0,
-    "orders": 0,
-    "roas": 0,
-    "roas_brb": 0,
-    "campaigns": []
-   },
-   "Stainless Tumbler": {
-    "sales": 0,
-    "spend": 0,
-    "brb": 0,
-    "orders": 0,
-    "roas": 0,
-    "roas_brb": 0,
-    "campaigns": []
-   },
-   "PPSU Tumbler": {
-    "sales": 0,
-    "spend": 0,
-    "brb": 0,
-    "orders": 0,
-    "roas": 0,
-    "roas_brb": 0,
-    "campaigns": []
-   },
-   "PPSU Baby Bottle": {
-    "sales": 0,
-    "spend": 0,
-    "brb": 0,
-    "orders": 0,
-    "roas": 0,
-    "roas_brb": 0,
-    "campaigns": []
-   },
-   "Moisturizer": {
-    "sales": 0,
-    "spend": 0,
-    "brb": 0,
-    "orders": 0,
-    "roas": 0,
-    "roas_brb": 0,
-    "campaigns": []
-   },
-   "Body Wash": {
-    "sales": 0,
-    "spend": 0,
-    "brb": 0,
-    "orders": 0,
-    "roas": 0,
-    "roas_brb": 0,
-    "campaigns": []
-   },
-   "Alpremio": {
-    "sales": 0,
-    "spend": 0,
-    "brb": 0,
-    "orders": 0,
-    "roas": 0,
-    "roas_brb": 0,
-    "campaigns": []
-   },
-   "Baby Cream": {
-    "sales": 0,
-    "spend": 0,
-    "brb": 0,
-    "orders": 0,
-    "roas": 0,
-    "roas_brb": 0,
-    "campaigns": []
-   }
-  },
-  "brand_attribution": {
-   "Grosmimi": {
-    "sales": 15669,
-    "spend": 12720,
-    "brb": 2634.06,
-    "orders": 625,
-    "roas": 1.23,
-    "roas_brb": 1.44,
-    "campaigns": [
-     {
-      "name": "AMZ | Traffic | Amazon Spring Sale | 0325-0331",
-      "spend": 3934,
-      "sales": 8838,
-      "brb": 1001.51,
-      "clicks": 50131,
-      "purchases": 379,
-      "roas": 2.2,
-      "roas_adj": 2.5
-     },
-     {
-      "name": "AMZ_Traffic_Dental Mom & Livfuselli (May, Aug)_20251120-01",
-      "spend": 4478,
-      "sales": 5136,
-      "brb": 557.99,
-      "clicks": 71128,
-      "purchases": 204,
-      "roas": 1.1,
-      "roas_adj": 1.3
-     },
-     {
-      "name": "AMZ_Traffic_Dental Mom_Stainless_StrawCup_20260107",
-      "spend": 2153,
-      "sales": 1217,
-      "brb": 797.23,
-      "clicks": 42364,
-      "purchases": 26,
-      "roas": 0.6,
-      "roas_adj": 0.9
-     },
-     {
-      "name": "aa_2fb5a17db7d14eee6e5a81db265da037",
-      "spend": 0,
-      "sales": 378,
-      "brb": 199.2,
-      "clicks": 661,
-      "purchases": 14,
-      "roas": 0,
-      "roas_adj": 0
-     },
-     {
-      "name": "AMZ_Traffic_Dentalmom_WL_202601",
-      "spend": 2155,
-      "sales": 100,
-      "brb": 78.13,
-      "clicks": 33844,
-      "purchases": 2,
-      "roas": 0.0,
-      "roas_adj": 0.1
-     }
-    ]
-   }
   }
  },
- "search_ranking": {
-  "latest": {
-   "Grosmimi": {
-    "US": [
-     {
-      "keyword": "grosmimi",
-      "score": 0,
-      "position": -1,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "baby straw cup",
-      "score": 52,
-      "position": 4,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "ppsu straw cup",
-      "score": 72,
-      "position": 3,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "baby sippy cup",
-      "score": 60,
-      "position": 0,
-      "date": "2026-04-01"
-     }
-    ],
-    "JP": [
-     {
-      "keyword": "grosmimi",
-      "score": 60,
-      "position": 0,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "baby straw cup",
-      "score": 47,
-      "position": 1,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "ppsu straw cup",
-      "score": 0,
-      "position": -1,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "baby sippy cup",
-      "score": 50,
-      "position": 5,
-      "date": "2026-04-01"
-     }
-    ]
-   },
-   "Naeiae": {
-    "US": [
-     {
-      "keyword": "naeiae",
-      "score": 45,
-      "position": 1,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "pop rice snack",
-      "score": 53,
-      "position": 1,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "baby rice crackers",
-      "score": 57,
-      "position": 4,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "korean baby snack",
-      "score": 37,
-      "position": 8,
-      "date": "2026-04-01"
-     }
-    ],
-    "JP": [
-     {
-      "keyword": "naeiae",
-      "score": 0,
-      "position": -1,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "pop rice snack",
-      "score": 0,
-      "position": -1,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "baby rice crackers",
-      "score": 61,
-      "position": 4,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "korean baby snack",
-      "score": 53,
-      "position": 0,
-      "date": "2026-04-01"
-     }
-    ]
-   },
-   "Onzenna": {
-    "US": [
-     {
-      "keyword": "onzenna",
-      "score": 53,
-      "position": 1,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "korean sunscreen",
-      "score": 86,
-      "position": 2,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "tinted sunscreen",
-      "score": 72,
-      "position": 9,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "mineral sunscreen",
-      "score": 80,
-      "position": 1,
-      "date": "2026-04-01"
-     }
-    ],
-    "JP": [
-     {
-      "keyword": "onzenna",
-      "score": 0,
-      "position": -1,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "korean sunscreen",
-      "score": 59,
-      "position": 8,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "tinted sunscreen",
-      "score": 27,
-      "position": 9,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "mineral sunscreen",
-      "score": 56,
-      "position": 6,
-      "date": "2026-04-01"
-     }
-    ]
-   },
-   "CHA&MOM": {
-    "US": [
-     {
-      "keyword": "cha and mom",
-      "score": 64,
-      "position": 0,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "korean baby food",
-      "score": 36,
-      "position": 7,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "baby food pouch",
-      "score": 16,
-      "position": 2,
-      "date": "2026-04-01"
-     }
-    ],
-    "JP": [
-     {
-      "keyword": "cha and mom",
-      "score": 0,
-      "position": -1,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "korean baby food",
-      "score": 0,
-      "position": -1,
-      "date": "2026-04-01"
-     },
-     {
-      "keyword": "baby food pouch",
-      "score": 40,
-      "position": 1,
-      "date": "2026-04-01"
-     }
-    ]
-   }
-  },
-  "trends": {
-   "Grosmimi": {
-    "US": {
-     "grosmimi": [
-      {
-       "date": "2026-04-01",
-       "score": 0,
-       "position": -1
-      }
-     ],
-     "baby straw cup": [
-      {
-       "date": "2026-04-01",
-       "score": 52,
-       "position": 4
-      }
-     ],
-     "ppsu straw cup": [
-      {
-       "date": "2026-04-01",
-       "score": 72,
-       "position": 3
-      }
-     ],
-     "baby sippy cup": [
-      {
-       "date": "2026-04-01",
-       "score": 60,
-       "position": 0
-      }
-     ]
-    },
-    "JP": {
-     "grosmimi": [
-      {
-       "date": "2026-04-01",
-       "score": 60,
-       "position": 0
-      }
-     ],
-     "baby straw cup": [
-      {
-       "date": "2026-04-01",
-       "score": 47,
-       "position": 1
-      }
-     ],
-     "ppsu straw cup": [
-      {
-       "date": "2026-04-01",
-       "score": 0,
-       "position": -1
-      }
-     ],
-     "baby sippy cup": [
-      {
-       "date": "2026-04-01",
-       "score": 50,
-       "position": 5
-      }
-     ]
-    }
-   },
-   "Naeiae": {
-    "US": {
-     "naeiae": [
-      {
-       "date": "2026-04-01",
-       "score": 45,
-       "position": 1
-      }
-     ],
-     "pop rice snack": [
-      {
-       "date": "2026-04-01",
-       "score": 53,
-       "position": 1
-      }
-     ],
-     "baby rice crackers": [
-      {
-       "date": "2026-04-01",
-       "score": 57,
-       "position": 4
-      }
-     ],
-     "korean baby snack": [
-      {
-       "date": "2026-04-01",
-       "score": 37,
-       "position": 8
-      }
-     ]
-    },
-    "JP": {
-     "naeiae": [
-      {
-       "date": "2026-04-01",
-       "score": 0,
-       "position": -1
-      }
-     ],
-     "pop rice snack": [
-      {
-       "date": "2026-04-01",
-       "score": 0,
-       "position": -1
-      }
-     ],
-     "baby rice crackers": [
-      {
-       "date": "2026-04-01",
-       "score": 61,
-       "position": 4
-      }
-     ],
-     "korean baby snack": [
-      {
-       "date": "2026-04-01",
-       "score": 53,
-       "position": 0
-      }
-     ]
-    }
-   },
-   "Onzenna": {
-    "US": {
-     "onzenna": [
-      {
-       "date": "2026-04-01",
-       "score": 53,
-       "position": 1
-      }
-     ],
-     "korean sunscreen": [
-      {
-       "date": "2026-04-01",
-       "score": 86,
-       "position": 2
-      }
-     ],
-     "tinted sunscreen": [
-      {
-       "date": "2026-04-01",
-       "score": 72,
-       "position": 9
-      }
-     ],
-     "mineral sunscreen": [
-      {
-       "date": "2026-04-01",
-       "score": 80,
-       "position": 1
-      }
-     ]
-    },
-    "JP": {
-     "onzenna": [
-      {
-       "date": "2026-04-01",
-       "score": 0,
-       "position": -1
-      }
-     ],
-     "korean sunscreen": [
-      {
-       "date": "2026-04-01",
-       "score": 59,
-       "position": 8
-      }
-     ],
-     "tinted sunscreen": [
-      {
-       "date": "2026-04-01",
-       "score": 27,
-       "position": 9
-      }
-     ],
-     "mineral sunscreen": [
-      {
-       "date": "2026-04-01",
-       "score": 56,
-       "position": 6
-      }
-     ]
-    }
-   },
-   "CHA&MOM": {
-    "US": {
-     "cha and mom": [
-      {
-       "date": "2026-04-01",
-       "score": 64,
-       "position": 0
-      }
-     ],
-     "korean baby food": [
-      {
-       "date": "2026-04-01",
-       "score": 36,
-       "position": 7
-      }
-     ],
-     "baby food pouch": [
-      {
-       "date": "2026-04-01",
-       "score": 16,
-       "position": 2
-      }
-     ]
-    },
-    "JP": {
-     "cha and mom": [
-      {
-       "date": "2026-04-01",
-       "score": 0,
-       "position": -1
-      }
-     ],
-     "korean baby food": [
-      {
-       "date": "2026-04-01",
-       "score": 0,
-       "position": -1
-      }
-     ],
-     "baby food pouch": [
-      {
-       "date": "2026-04-01",
-       "score": 40,
-       "position": 1
-      }
-     ]
-    }
-   }
-  },
-  "dates": [
-   "2026-04-01"
-  ]
- }
+ "search_ranking": {}
 };
