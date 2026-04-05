@@ -273,6 +273,10 @@ def inject_executions(brands):
                     continue
                 bk = detect_brand(item)
                 item["exec_date"] = dt
+                if not item.get("exec_time"):
+                    from datetime import datetime as _dt2
+                    mtime = os.path.getmtime(f)
+                    item["exec_time"] = _dt2.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S") + " PST"
                 new_by_brand.setdefault(bk, []).append(item)
             # For each brand with new data, merge entries for this date (dedup by key)
             def _dedup_key(e):

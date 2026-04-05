@@ -2064,7 +2064,7 @@ function renderPropose(bk, dt, containerId){
     var campIsExec = !!campExecStatus;
     var checkboxHtml = campIsExec
       ? '<td>'+badge(campExecStatus||'OK', campExecStatus==='OK'?'g':(campExecStatus==='SKIPPED'?'':'r'))+'</td>'
-      : '<td><input type="checkbox" class="camp-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'"'+(isAction?' checked':'')+' data-bud-before="'+(c.bud_before||0)+'" data-bud-suggest="'+(isPause?0:(c.bud_after||c.bud_before||0))+'"></td>';
+      : (isAction ? '<td><input type="checkbox" class="camp-check" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'" checked data-bud-before="'+(c.bud_before||0)+'" data-bud-suggest="'+(isPause?0:(c.bud_after||c.bud_before||0))+'"></td>' : '<td></td>');
     var overrideHtml = campIsExec
       ? '<td style="font-family:var(--mono);color:var(--dim)">'+overrideVal+'</td>'
       : '<td><input type="number" step="1" class="override-input" data-bk="'+bk+'" data-dt="'+dt+'" data-idx="'+i+'" value="'+overrideVal+'" style="width:65px;padding:3px 5px;border:1px solid var(--border);border-radius:4px;font-family:var(--mono);font-size:11px;text-align:right"></td>';
@@ -2731,7 +2731,16 @@ function renderInlineExecLog(bk, dt){
     var negExec = dateEntries.filter(function(e){return e.action&&e.action.indexOf('negate')===0;});
     var campExec = dateEntries.filter(function(e){return !e.keyword;});
     // Use exec_time from first entry if available, fallback to exec_date
-    var execTime = dateEntries[0].exec_time || dt;
+    var rawExecTime = dateEntries[0].exec_time || '';
+    var execTime = dt; // default: just date
+    if(rawExecTime){
+      // Parse "2026-04-02 21:56:12 PST" → "04/02/2026, 09:56 PM PST"
+      var etm = rawExecTime.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+      if(etm){
+        var hh=parseInt(etm[4]), ampm=hh>=12?'PM':'AM'; hh=hh%12||12;
+        execTime = etm[2]+'/'+etm[3]+'/'+etm[1]+', '+String(hh).padStart(2,'0')+':'+etm[5]+' '+ampm+' PST';
+      }
+    }
     entries.push({
       type: 'result',
       time: execTime,
