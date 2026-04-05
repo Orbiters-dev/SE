@@ -79,6 +79,7 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_PATH=credentials/google_service_account.json
           ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
           ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
+          APIFY_API_TOKEN=${{ secrets.APIFY_API_TOKEN }}
           PPC_REPORT_RECIPIENT=${{ secrets.PPC_REPORT_RECIPIENT }}
           DATA_KEEPER_RECIPIENT=${{ secrets.DATA_KEEPER_RECIPIENT }}
           ENVEOF
@@ -168,6 +169,15 @@ jobs:
         if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_ads')
         run: |
           python -u tools/run_amazon_ppc_daily.py --dry-run || echo "PPC analysis failed (non-fatal)"
+
+      - name: Collect Amazon Search Rankings
+        if: steps.mode.outputs.notify_only == 'false' && steps.mode.outputs.is_daily == 'true' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all')
+        run: |
+          python -u tools/collect_search_ranking.py || echo "Search ranking collection failed (non-fatal)"
+        env:
+          APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
+          ORBITOOLS_USER: ${{ secrets.ORBITOOLS_USER }}
+          ORBITOOLS_PASS: ${{ secrets.ORBITOOLS_PASS }}
 
       - name: Upload cache as artifact
         if: always() && steps.mode.outputs.notify_only == 'false'

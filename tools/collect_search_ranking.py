@@ -81,8 +81,8 @@ SEARCH_KEYWORDS = {
     ],
 }
 
-# How many results to scan per keyword (2 pages × ~24 = ~48 products)
-MAX_ITEMS_PER_KEYWORD = 48
+# How many results to scan per keyword (4 pages × ~24 = ~96 products)
+MAX_ITEMS_PER_KEYWORD = 96
 
 
 def _load_asins_from_cache():
@@ -124,7 +124,7 @@ def search_amazon_apify(keyword: str, max_items: int = MAX_ITEMS_PER_KEYWORD) ->
         "maxItems": max_items,
     }
 
-    print(f"    Searching: '{keyword}' (max {max_items} items)...")
+    print(f"    Searching: '{keyword}' (max {max_items} items)...", flush=True)
 
     resp = requests.post(
         run_url,
@@ -156,7 +156,7 @@ def search_amazon_apify(keyword: str, max_items: int = MAX_ITEMS_PER_KEYWORD) ->
             "is_sponsored": item.get("sponsored", False),
         })
 
-    print(f"    Got {len(results)} products")
+    print(f"    Got {len(results)} products", flush=True)
     return results
 
 
@@ -251,7 +251,10 @@ def collect_search_rankings(keywords_filter=None, dry_run=False):
                 all_rows.append(row)
 
                 pos_str = f"#{match['position']}" if match else "NOT FOUND (top 48)"
-                print(f"  '{keyword}' → {brand}: {pos_str}")
+                print(f"  '{keyword}' → {brand}: {pos_str}", flush=True)
+
+                # Save cache incrementally so data is available during collection
+                _save_cache(all_rows)
 
                 # Rate limiting — be gentle with Apify
                 time.sleep(2)
