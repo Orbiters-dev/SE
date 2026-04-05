@@ -308,6 +308,7 @@ def generate():
     amazon_sku = dk.get("amazon_sales_sku_daily", days=days_back)
     klaviyo = dk.get("klaviyo_daily", days=days_back)
     # Hero Products dependencies
+    amazon_campaigns = dk.get("amazon_campaigns", days=90)
     brand_analytics = dk.get("amazon_brand_analytics", days=180)  # override 30d with 180d for hero SFR history
     try:
         sqp_brand = dk.get("amazon_sqp_brand", days=365)
@@ -1416,42 +1417,9 @@ def generate():
         attr_total = {k: sum(v[k] for v in attribution.values()) for k in ["clicks", "purchases", "sales", "brb"]}
         print(f"  Attribution: {len(attribution)} campaigns, {attr_total['clicks']:,} clicks, ${attr_total['sales']:,.0f} sales, ${attr_total['brb']:,.0f} BRB")
 
-        # Inject Attribution sales into Meta Traffic platform breakdown (Grosmimi)
-        mt_gros = brand_ad_by_platform.get("Meta Traffic", {}).get("Grosmimi", {})
-        total_mt_spend = sum(v.get("spend", 0) for v in mt_gros.values())
-        if total_mt_spend > 0 and attr_total["sales"] > 0:
-            for m, v in mt_gros.items():
-                ratio = v.get("spend", 0) / total_mt_spend
-                v["sales"] = round(attr_total["sales"] * ratio, 2)
-            print(f"  Attribution -> Meta Traffic Grosmimi (monthly): ${attr_total['sales']:,.0f} across {len(mt_gros)} months")
-
-        # Weekly too
-        mt_gros_wk = brand_ad_by_platform_wk.get("Meta Traffic", {}).get("Grosmimi", {})
-        total_mt_wk_spend = sum(v.get("spend", 0) for v in mt_gros_wk.values())
-        if total_mt_wk_spend > 0 and attr_total["sales"] > 0:
-            for w, v in mt_gros_wk.items():
-                ratio = v.get("spend", 0) / total_mt_wk_spend
-                v["sales"] = round(attr_total["sales"] * ratio, 2)
-            print(f"  Attribution -> Meta Traffic Grosmimi (weekly): across {len(mt_gros_wk)} weeks")
-
-        # Daily too — inject Attribution sales into brand_ad_daily_raw for Hero Products
-        # Only within Attribution report window (last 60 days), same as API startDate
-        attr_cutoff = (today - timedelta(days=60)).isoformat()
-        mt_daily_spend_total = {}
-        for brand in brand_ad_daily_raw:
-            for d, v in brand_ad_daily_raw[brand].get("mt_spend", {}).items():
-                if d >= attr_cutoff:
-                    mt_daily_spend_total[d] = mt_daily_spend_total.get(d, 0) + v
-        total_mt_daily_spend = sum(mt_daily_spend_total.values())
-        if total_mt_daily_spend > 0 and attr_total["sales"] > 0:
-            for brand in brand_ad_daily_raw:
-                mt_spend_by_day = brand_ad_daily_raw[brand].get("mt_spend", {})
-                for d, sp in mt_spend_by_day.items():
-                    if d >= attr_cutoff and sp > 0:
-                        ratio = sp / total_mt_daily_spend
-                        brand_ad_daily_raw[brand]["mt_sales"][d] = round(attr_total["sales"] * ratio, 2)
-            n_days = len([d for d in mt_daily_spend_total if mt_daily_spend_total[d] > 0])
-            print(f"  Attribution -> brand_ad_daily mt_sales (daily): ${attr_total['sales']:,.0f} across {n_days} days (last 60d)")
+        # NOTE: No proportional distribution of Attribution sales.
+        # Attribution data is shown as actual per-campaign data via cat_attribution / brand_attribution.
+        # mt_sales in brand_ad_daily stays as raw Meta pixel purchase_value (near-zero for AMZ-directed campaigns).
     else:
         print("  Attribution: no data")
 
@@ -3423,12 +3391,100 @@ def generate():
             "ga4_sessions": [_g4sd.get(d, 0) for d in spend_dates],
         }
 
+        # ── cat_ad_daily: per-category ad data for Hero Products ──────────────
+        # Campaign name → category classifier (for Amazon Ads + Meta Traffic)
+        CAT_CAMP_KEYWORDS = [
+            ("PPSU Straw Cup", ["ppsu straw", "ppsu strawcup", "stage2", "stage 2"]),
+            ("Stainless Straw Cup", ["stainless straw", "stainless strawcup", "steel straw",
+                                     "stainlessstrawcup", "fliptop", "flip top", "flip_top"]),
+            ("PPSU Tumbler", ["ppsu tumbler", "knotted"]),
+            ("Stainless Tumbler", ["stainless tumbler", "steel tumbler", "vacuum", "vacumm"]),
+            ("PPSU Baby Bottle", ["ppsu bottle", "baby bottle", "ppsu baby",
+                                  "stage1", "stage 1", "stage_1"]),
+            ("Rice Puff", ["rice puff", "rice snack", "rice pop", "naeiae rice"]),
+            ("Moisturizer", ["moisturizer", "lotion"]),
+            ("Body Wash", ["body wash", "wash"]),
+            ("Alpremio", ["alpremio"]),
+            ("Baby Cream", ["baby cream", "cream"]),
+        ]
+
+        def _classify_campaign(campaign_name, brand):
+            cn = (campaign_name or "").lower().replace("|", " ").replace("_", " ").replace("-", " ")
+            for cat_name, kws in CAT_CAMP_KEYWORDS:
+                if any(kw in cn for kw in kws):
+                    return cat_name
+            # Brand-level fallback for single-category brands
+            if brand == "Naeiae":
+                return "Rice Puff"
+            if brand == "Alpremio":
+                return "Alpremio"
+            return None  # unclassifiable → brand-level only
+
+        # Amazon campaign_id → name lookup
+        amz_camp_names = {}
+        for r in amazon_campaigns:
+            cid = str(r.get("campaign_id", ""))
+            name = r.get("name", "")
+            if cid and name:
+                amz_camp_names[cid] = name
+
+        # Build per-category daily data
+        cat_ad_daily_raw = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))
+        # cat_ad_daily_raw[category][metric][date] = float
+
+        for r in amazon_ads:
+            d = r.get("date", "")
+            if d not in _sd_set:
+                continue
+            cid = str(r.get("campaign_id", ""))
+            brand = r.get("brand", "")
+            camp_name = amz_camp_names.get(cid, cid)
+            cat = _classify_campaign(camp_name, brand)
+            if cat:
+                cat_ad_daily_raw[cat]["amz_spend"][d] += float(r.get("spend") or 0)
+                cat_ad_daily_raw[cat]["amz_clicks"][d] += int(r.get("clicks") or 0)
+                cat_ad_daily_raw[cat]["amz_sales"][d] += float(r.get("sales") or 0)
+
+        for r in meta_ads:
+            d = r.get("date", "")
+            if d not in _sd_set:
+                continue
+            cname = (r.get("campaign_name") or "")
+            landing = (r.get("landing_url") or "").lower()
+            is_amz = "amazon" in cname.lower() or "amz" in cname.lower() or "amazon" in landing
+            if is_amz:
+                brand = r.get("brand", "")
+                cat = _classify_campaign(cname, brand)
+                if cat:
+                    cat_ad_daily_raw[cat]["mt_spend"][d] += float(r.get("spend") or 0)
+                    cat_ad_daily_raw[cat]["mt_clicks"][d] += int(r.get("clicks") or 0)
+
+        # Serialize cat_ad_daily
+        cat_ad_daily_out = {"dates": spend_dates}
+        cat_names_with_ads = set()
+        for cat_name in [c[0] for c in sorted_cats]:
+            if cat_name not in cat_ad_daily_raw:
+                continue
+            cd = cat_ad_daily_raw[cat_name]
+            cat_out = {}
+            for metric in ["amz_spend", "amz_clicks", "amz_sales", "mt_spend", "mt_clicks"]:
+                vals = [round(cd[metric].get(d, 0), 2) for d in spend_dates]
+                if any(v > 0 for v in vals):
+                    cat_out[metric] = vals
+            if cat_out:
+                cat_ad_daily_out[cat_name] = cat_out
+                cat_names_with_ads.add(cat_name)
+
+        n_mapped_amz = sum(1 for r in amazon_ads if _classify_campaign(amz_camp_names.get(str(r.get("campaign_id", "")), ""), r.get("brand", "")) is not None and r.get("date", "") in _sd_set)
+        n_total_amz = sum(1 for r in amazon_ads if r.get("date", "") in _sd_set)
+        print(f"  cat_ad_daily: {len(cat_names_with_ads)} categories with ads, AMZ mapped {n_mapped_amz}/{n_total_amz}")
+
         print(f"  Hero categories: {len(categories)}, keywords: {len([k for c in categories for k in c.get('top_keywords',[])])}")
         return {
             "week_keys": week_keys, "daily_dates": daily_dates,
             "categories": categories, "keyword_table": [],
             "content_lift": content_lift, "content_creators_by_cat": content_creators_by_cat,
-            "spend_daily": spend_daily,
+            "spend_daily": spend_daily, "cat_ad_daily": cat_ad_daily_out,
         }
 
     hero_data = _build_hero_products()

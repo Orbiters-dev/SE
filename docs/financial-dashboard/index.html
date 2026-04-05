@@ -1690,8 +1690,14 @@ function renderHeroTab(F){
       var gscD=_allGsc.slice(-pDays);
       var sessD=_allSess.slice(-pDays);
       var pvD=_allPv.slice(-pDays);
-      // ── Ad spend data (brand_ad_daily → hero daily_dates alignment) ──
-      var _bad=F.brand_ad_daily||{},_badDates=_bad.dates||[],_bd=_bad[c.brand]||{};
+      // ── Ad spend data (brand_ad_daily or cat_ad_daily → hero daily_dates alignment) ──
+      var _catAd=H.cat_ad_daily||{};
+      var _bad,_bd;
+      if(_heroView==='cat'&&_catAd[c.category]){_bad=_catAd;_bd=_catAd[c.category]||{};}
+      else{_bad=F.brand_ad_daily||{};_bd=_bad[c.brand]||{};}
+      var _badDates=_bad.dates||[];
+      // Attribution actual data (per-category or per-brand)
+      var _attrData=(_heroView==='cat')?(H.cat_attribution||{})[c.category]||{}:(H.brand_attribution||{})[c.brand]||{};
       var _badIdx={};_badDates.forEach(function(d,i){_badIdx[d]=i;});
       var _amzSpAll=[],_mtSpAll=[],_amzClAll=[],_mtClAll=[],_amzSlAll=[],_mtSlAll=[];
       var _gadsSpAll=[],_gadsClAll=[],_gadsSlAll=[];
@@ -1992,7 +1998,7 @@ function renderHeroTab(F){
           html+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(chartW-padR)+'" y2="'+gy+'" stroke="#f1f5f9" stroke-width="0.5"/>';
           if(gv>0)html+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" fill="'+bc+'" font-size="7" font-family="var(--mono)" text-anchor="end" opacity="0.5">'+gv.toLocaleString()+'</text>';
         }
-        html+='<text x="'+(padL+2)+'" y="'+(delTop+10)+'" fill="'+bc+'" font-size="8" font-weight="700" opacity="0.4">Total Views (cumulative)</text>';
+        html+='<text x="'+(padL+2)+'" y="'+(delTop+10)+'" fill="'+bc+'" font-size="8" font-weight="700" opacity="0.4">Accumulated Views (base + daily growth)</text>';
         // Hatched pattern for pre-observation base area
         html+='<defs><pattern id="hatch-base" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="4" stroke="#94a3b8" stroke-width="0.5" opacity="0.15"/></pattern></defs>';
         // Draw lines — only from first non-zero onwards
@@ -2035,7 +2041,7 @@ function renderHeroTab(F){
             var lx=padL+(n-1)*(bw+1)+bw/2,ly=delTop+delH-lastFF/crMaxV*delH*0.9;
             var _lcu=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
             html+='<circle cx="'+lx+'" cy="'+ly+'" r="3" fill="'+col+'"/>';
-            html+='<a href="'+_lcu+'" target="_blank"><text x="'+(lx+6)+'" y="'+(ly+3)+'" fill="'+col+'" font-size="8" font-weight="600" style="cursor:pointer;text-decoration:underline">@'+x.cr.username+' '+lastFF.toLocaleString()+'</text></a>';
+            html+='<a href="'+_lcu+'" target="_blank"><text x="'+(lx+6)+'" y="'+(ly+3)+'" fill="'+col+'" font-size="9" font-weight="700" style="cursor:pointer;text-decoration:underline">@'+x.cr.username+' '+lastFF.toLocaleString()+' total</text></a>';
           }
         });
         // botH already = midH+gap+delH
@@ -2086,9 +2092,21 @@ function renderHeroTab(F){
         var _adTitle=(_heroView==='cat')?c.category:c.brand;
         html+='<div style="margin-top:10px;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:6px">';
         html+='<div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:2px">Ad Performance — '+_adTitle+'</div>';
+        // Attribution summary card (actual campaign data, not proportional)
+        var _atSales=_attrData.sales||0,_atSpend=_attrData.spend||0,_atBrb=_attrData.brb||0,_atRoas=_attrData.roas||0,_atRoasBrb=_attrData.roas_brb||0;
+        if(_atSales>0||_atSpend>0){
+          html+='<div style="display:flex;gap:10px;margin-bottom:6px;flex-wrap:wrap;padding:6px 8px;background:linear-gradient(90deg,#3b82f610,#f59e0b10);border-radius:4px;border:1px solid #3b82f620">';
+          html+='<div><div style="font-size:8px;color:var(--dim)">Attribution Sales</div><div style="font-size:14px;font-weight:700;color:var(--g)">$'+_atSales.toLocaleString()+'</div></div>';
+          html+='<div><div style="font-size:8px;color:var(--dim)">Meta Spend</div><div style="font-size:14px;font-weight:700">$'+_atSpend.toLocaleString()+'</div></div>';
+          var _atRc=_atRoas>=2?'var(--g)':_atRoas>=1?'var(--am)':'var(--r)';
+          html+='<div><div style="font-size:8px;color:var(--dim)">Attr ROAS</div><div style="font-size:14px;font-weight:700;color:'+_atRc+'">'+_atRoas.toFixed(1)+'x</div></div>';
+          if(_atBrb>0){html+='<div><div style="font-size:8px;color:var(--dim)">BRB</div><div style="font-size:14px;font-weight:700;color:#8b5cf6">$'+Math.round(_atBrb).toLocaleString()+'</div></div>';
+            html+='<div><div style="font-size:8px;color:var(--dim)">ROAS+BRB</div><div style="font-size:14px;font-weight:700;color:'+_atRc+'">'+_atRoasBrb.toFixed(1)+'x</div></div>';}
+          html+='</div>';
+        }
         html+='<div style="display:flex;gap:12px;font-size:9px;margin-bottom:4px;flex-wrap:wrap">';
         html+='<span><span style="color:#f59e0b;font-weight:700">━</span> AMZ ROAS</span>';
-        html+='<span><span style="color:#3b82f6;font-weight:700">━</span> Meta→AMZ ROAS</span>';
+        if(_atSales>0){html+='<span><span style="color:#3b82f6;font-weight:700">┄</span> Attr ROAS ('+_atRoas.toFixed(1)+'x)</span>';}
         html+='<span><span style="color:#10b981;font-weight:700">╍</span> Blended ROAS</span>';
         html+='<span style="color:var(--muted)">|</span>';
         html+='<span><span style="color:#f59e0b;opacity:0.5">╌</span> AMZ CPC</span>';
@@ -2097,19 +2115,24 @@ function renderHeroTab(F){
         html+='</div>';
         // ── 6-line chart: ROAS (left axis) + CPC (right axis) ──
         var _adH=160,_adPT=20,_adPR=54;
-        var _amzROAS=[],_mtROAS=[],_blROAS=[],_amzCPCA=[],_mtCPCA=[],_blCPCA=[];
+        var _amzROAS=[],_blROAS=[],_amzCPCA=[],_mtCPCA=[],_blCPCA=[];
+        // Blended ROAS uses Attribution sales (actual) instead of Meta pixel sales
+        var _periodAmzSl=0,_periodAmzSp=0,_periodMtSp=0;
         for(var _ai=0;_ai<=_lastAmzIdx;_ai++){
           var _aSp=amzSpD[_ai]||0,_aSl=amzSlD[_ai]||0,_aCl=amzClD[_ai]||0;
-          var _mSp=mtSpD[_ai]||0,_mSl=mtSlD[_ai]||0,_mCl=mtClD[_ai]||0;
+          var _mSp=mtSpD[_ai]||0,_mCl=mtClD[_ai]||0;
           _amzROAS.push(_aSp>0?_aSl/_aSp:0);
-          _mtROAS.push(_mSp>0?_mSl/_mSp:0);
-          var _bSp=_aSp+_mSp,_bSl=_aSl+_mSl;
+          _periodAmzSl+=_aSl;_periodAmzSp+=_aSp;_periodMtSp+=_mSp;
+          // Blended = (AMZ sales + Attribution sales share) / (AMZ spend + Meta spend)
+          var _bSp=_aSp+_mSp,_bSl=_aSl;
+          if(_atSales>0&&_periodMtSp>0){_bSl+=_atSales*(_mSp/_mtSpTot);}
           _blROAS.push(_bSp>0?_bSl/_bSp:0);
           _amzCPCA.push(_aCl>0?_aSp/_aCl:0);
           _mtCPCA.push(_mCl>0?_mSp/_mCl:0);
           var _bCl=_aCl+_mCl;_blCPCA.push(_bCl>0?(_aSp+_mSp)/_bCl:0);
         }
-        var _allR=[].concat(_amzROAS,_mtROAS,_blROAS).filter(function(v){return v>0;});
+        var _allR=[].concat(_amzROAS,_blROAS).filter(function(v){return v>0;});
+        if(_atRoas>0)_allR.push(_atRoas);
         var _rMax3=_allR.length?Math.max.apply(null,_allR):1;
         _rMax3=Math.ceil(_rMax3*1.15*10)/10;
         var _allCPC=[].concat(_amzCPCA,_mtCPCA,_blCPCA).filter(function(v){return v>0;});
@@ -2130,7 +2153,10 @@ function renderHeroTab(F){
         var _cpcPts=function(arr){var pts=[];arr.forEach(function(v,i){var x=padL+i*_rlBw+_rlBw/2,y=_adPT+_adH-(v/_cpcMax)*_adH;pts.push(x+','+y);});return pts.join(' ');};
         // ROAS lines (thick)
         html+='<polyline points="'+_roasPts(_amzROAS,_rMax3)+'" fill="none" stroke="#f59e0b" stroke-width="2" opacity="0.9"/>';
-        html+='<polyline points="'+_roasPts(_mtROAS,_rMax3)+'" fill="none" stroke="#3b82f6" stroke-width="2" opacity="0.9"/>';
+        // Attribution ROAS = horizontal reference line (actual campaign data, not daily)
+        if(_atRoas>0){var _atY=_adPT+_adH-(_atRoas/_rMax3)*_adH;
+          html+='<line x1="'+padL+'" y1="'+_atY+'" x2="'+(chartW-_adPR)+'" y2="'+_atY+'" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="8,4" opacity="0.7"/>';
+          html+='<text x="'+(chartW-_adPR+4)+'" y="'+(_atY-4)+'" fill="#3b82f6" font-size="9" font-weight="700">Attr '+_atRoas.toFixed(1)+'x</text>';}
         html+='<polyline points="'+_roasPts(_blROAS,_rMax3)+'" fill="none" stroke="#10b981" stroke-width="2.5" stroke-dasharray="6,3" opacity="0.85"/>';
         // CPC lines (thin, dotted)
         html+='<polyline points="'+_cpcPts(_amzCPCA)+'" fill="none" stroke="#f59e0b" stroke-width="1.2" stroke-dasharray="3,2" opacity="0.5"/>';
@@ -2139,7 +2165,6 @@ function renderHeroTab(F){
         // Weekly value labels on ALL 6 lines (every 7 days)
         var _wkStep=7;
         [{arr:_amzROAS,max:_rMax3,color:'#f59e0b',fmt:function(v){return v.toFixed(1)+'x';},isCPC:false},
-         {arr:_mtROAS,max:_rMax3,color:'#3b82f6',fmt:function(v){return v.toFixed(1)+'x';},isCPC:false},
          {arr:_blROAS,max:_rMax3,color:'#10b981',fmt:function(v){return v.toFixed(1)+'x';},isCPC:false},
          {arr:_amzCPCA,max:_cpcMax,color:'#f59e0b',fmt:function(v){return '$'+v.toFixed(2);},isCPC:true},
          {arr:_mtCPCA,max:_cpcMax,color:'#3b82f6',fmt:function(v){return '$'+v.toFixed(2);},isCPC:true},
@@ -2195,25 +2220,27 @@ function renderHeroTab(F){
         _tRow('Clicks','var(--dim)',true,amzClD,_nc);
         var _amzCPCD=[];for(var j=0;j<_tblN;j++){var _cl=amzClD[j]||0;_amzCPCD.push(_cl>0?(amzSpD[j]||0)/_cl:0);}
         _tRow('CPC','var(--dim)',true,_amzCPCD,function(v){return v>0?'$'+v.toFixed(2):'—';});
-        // Section: Meta → AMZ Landing
+        // Section: Meta → AMZ Landing (Attribution actual data)
         _secHeader('Meta → AMZ Landing','#3b82f6');
-        _tRow('Sales','var(--dim)',true,mtSlD,_$c);
+        // Attribution Sales = actual campaign total (not daily pixel data)
+        if(_atSales>0){
+          html+='<tr><td style="padding-left:16px;text-align:left;'+_stickyTd+';color:var(--g)">Attr Sales (60D)</td>';
+          html+='<td colspan="'+_tblN+'" style="text-align:center;font-family:var(--mono);font-weight:700;color:var(--g);font-size:12px;padding:4px">$'+_atSales.toLocaleString()+' ('+_atRoas.toFixed(1)+'x ROAS)</td></tr>';
+        }
         _tRow('Spend','var(--dim)',true,mtSpD,_$c);
-        var _mtROASD=[];for(var j=0;j<_tblN;j++){var _sp2=mtSpD[j]||0;_mtROASD.push(_sp2>0?(mtSlD[j]||0)/_sp2:0);}
-        _tRow('ROAS','var(--g)',true,_mtROASD,_xc);
         _tRow('Clicks','var(--dim)',true,mtClD,_nc);
         var _mtCPCD=[];for(var j=0;j<_tblN;j++){var _cl2=mtClD[j]||0;_mtCPCD.push(_cl2>0?(mtSpD[j]||0)/_cl2:0);}
         _tRow('CPC','var(--dim)',true,_mtCPCD,function(v){return v>0?'$'+v.toFixed(2):'—';});
         // Section: Organic + Total
         _secHeader('Total','var(--dim)');
-        var _orgSales=[];for(var j=0;j<_tblN;j++){_orgSales.push(Math.max(0,(ds[j]||0)-(amzSlD[j]||0)-(mtSlD[j]||0)));}
+        var _orgSales=[];for(var j=0;j<_tblN;j++){_orgSales.push(Math.max(0,(ds[j]||0)-(amzSlD[j]||0)));}
         _tRow('Organic Sales','#8b5cf6',true,_orgSales,_$c);
         _tRow('Total Sales','var(--dim)',false,ds.slice(0,_tblN),_$c);
         _tRow('Quantity','var(--dim)',true,du.slice(0,_tblN),_nc);
         var _aovD=[];for(var j=0;j<_tblN;j++){var _u=du[j]||0;_aovD.push(_u>0?(ds[j]||0)/_u:0);}
         _tRow('AOV','var(--dim)',true,_aovD,function(v){return v>0?'$'+v.toFixed(2):'—';});
         html+='</tbody></table></div>';
-        html+='<div style="font-size:9px;color:var(--muted);margin-top:3px">* Amazon Ads = 일별 SP Ads. Meta→AMZ = 일별 Meta spend + Amazon Attribution sales. Organic = Total − (AMZ + Meta).</div>';
+        html+='<div style="font-size:9px;color:var(--muted);margin-top:3px">* Amazon Ads = daily SP data. Meta→AMZ = daily Meta spend + actual Amazon Attribution sales (60D aggregate). Organic = Total − AMZ Ads.</div>';
         html+='</div>';
       }
       // ── Search Volume breakdown box (top 10 consistent branded keywords) ──
