@@ -123,6 +123,12 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 .btn-running{background:#f59e0b!important;color:#fff!important;pointer-events:none}
 .btn-done{background:#10b981!important;color:#fff!important}
 .btn-fail{background:#ef4444!important;color:#fff!important}
+.owner-tab{background:transparent;border:2px solid var(--border);cursor:pointer;transition:all .15s}
+.owner-tab.active{background:var(--a)!important;color:#fff!important;border-color:var(--a)!important}
+.owner-tab:hover:not(.active){opacity:.8}
+.cr-check{width:14px;height:14px;cursor:pointer;accent-color:var(--a)}
+#batch-action-bar{animation:slideDown .2s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
@@ -1034,6 +1040,28 @@ Shopify                         Apify / Syncly                   Gmail RAG
       </label>
       <div style="font-size:9px;color:var(--muted)" id="cs-updated">Last updated: -</div>
     </div>
+    <!-- Owner Sub-tabs -->
+    <div id="owner-tabs" style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+      <button class="btn btn-sm owner-tab active" data-owner="" onclick="selectOwnerTab(this)" style="font-size:10px;padding:3px 10px;border-radius:12px;border:2px solid var(--a)">All</button>
+      <button class="btn btn-sm owner-tab" data-owner="Jeehoo" onclick="selectOwnerTab(this)" style="font-size:10px;padding:3px 10px;border-radius:12px;border:2px solid var(--g);color:var(--g)">Jeehoo</button>
+      <button class="btn btn-sm owner-tab" data-owner="Laeeka" onclick="selectOwnerTab(this)" style="font-size:10px;padding:3px 10px;border-radius:12px;border:2px solid var(--c);color:var(--c)">Laeeka</button>
+      <button class="btn btn-sm owner-tab" data-owner="Soyeon" onclick="selectOwnerTab(this)" style="font-size:10px;padding:3px 10px;border-radius:12px;border:2px solid var(--am);color:var(--am)">Soyeon</button>
+      <button class="btn btn-sm owner-tab" data-owner="__none" onclick="selectOwnerTab(this)" style="font-size:10px;padding:3px 10px;border-radius:12px;border:2px solid var(--muted);color:var(--muted)">Unassigned</button>
+    </div>
+    <!-- Batch Action Bar (hidden until checkboxes selected) -->
+    <div id="batch-action-bar" style="display:none;background:var(--a);color:#fff;padding:6px 14px;border-radius:8px;margin-bottom:8px;font-size:11px;align-items:center;gap:10px;flex-wrap:wrap">
+      <span id="batch-count">0 selected</span>
+      <select id="batch-target-status" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:#fff">
+        <option value="">Move to...</option>
+        <option value="Sent">Sent</option>
+        <option value="Needs Review">Needs Review</option>
+        <option value="Accepted">Accepted</option>
+        <option value="Declined">Declined</option>
+        <option value="Sample Sent">Sample Sent</option>
+      </select>
+      <button onclick="executeBatchMove()" style="background:#fff;color:var(--a);border:none;padding:4px 14px;border-radius:6px;font-weight:700;font-size:10px;cursor:pointer">Execute</button>
+      <button onclick="clearAllChecks()" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);padding:4px 10px;border-radius:6px;font-size:10px;cursor:pointer">Clear</button>
+    </div>
     <div class="filter-bar">
       <input type="text" id="cr-search" placeholder="Search handle, email, name..." onkeydown="if(event.key==='Enter')loadCreators()">
       <select id="cr-status" onchange="_crStatusFilter=this.value;if(_lastStats){buildFunnel(_lastStats.by_status,'dash-funnel',this.value);}if(this.value)location.hash='creators/'+encodeURIComponent(this.value);else location.hash='creators';loadCreators()">
@@ -1071,10 +1099,10 @@ Shopify                         Apify / Syncly                   Gmail RAG
     <div style="overflow-x:auto;max-height:500px;overflow-y:auto;border:1px solid var(--border);border-radius:8px">
       <table id="creators-table">
         <thead><tr>
-          <th>Handle</th><th>Email</th><th>Sources</th><th>Brand</th><th>Status</th><th>Type</th><th>Followers</th><th>Content</th><th>Date</th><th>Actions</th>
+          <th style="width:28px"><input type="checkbox" id="cr-check-all" onchange="toggleAllChecks(this.checked)" title="Select all"></th><th>Handle</th><th>Email</th><th>Sources</th><th>Brand</th><th>Status</th><th>Type</th><th>Followers</th><th>Content</th><th>Date</th><th>Actions</th>
         </tr></thead>
         <tbody id="creators-body">
-          <tr><td colspan="10" style="text-align:center;color:var(--muted);padding:30px">Select filters and search to load creators</td></tr>
+          <tr><td colspan="11" style="text-align:center;color:var(--muted);padding:30px">Select filters and search to load creators</td></tr>
         </tbody>
       </table>
     </div>
@@ -1926,13 +1954,13 @@ async function loadCreators(){
   else if(source==='apify_tagged')params+='&is_apify_tagged=true';
   else if(source)params+='&source='+encodeURIComponent(source);
   var body=document.getElementById('creators-body');
-  body.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr>';
+  body.innerHTML='<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr>';
   try{
     var data=await apiFetch('/pipeline/creators/'+params);
     renderCreatorsTable(data);
     renderPager(data);
   }catch(e){
-    body.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--r);padding:20px">Error: '+e.message+'</td></tr>';
+    body.innerHTML='<tr><td colspan="11" style="text-align:center;color:var(--r);padding:20px">Error: '+e.message+'</td></tr>';
   }
 }
 
@@ -2078,10 +2106,14 @@ function profileLinks(c){
 function renderCreatorsTable(data){
   var body=document.getElementById('creators-body');
   if(!data.results||data.results.length===0){
-    body.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:30px">No creators found</td></tr>';
+    body.innerHTML='<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:30px">No creators found</td></tr>';
+    document.getElementById('batch-action-bar').style.display='none';
     return;
   }
+  // Auto-check statuses: Draft Ready, Needs Review
+  var autoCheckStatuses=['Draft Ready','Needs Review'];
   var html='';
+  var checkedCount=0;
   for(var i=0;i<data.results.length;i++){
     var c=data.results[i];
     var handle=c.ig_handle?'@'+c.ig_handle:c.tiktok_handle?'@'+c.tiktok_handle:'-';
@@ -2089,7 +2121,11 @@ function renderCreatorsTable(data){
     var date=c.initial_discovery_date||c.created_at;
     if(date&&date.length>10)date=date.slice(0,10);
     var followers=c.followers?formatNum(c.followers):'-';
+    var autoChecked=autoCheckStatuses.indexOf(c.pipeline_status)>=0;
+    if(autoChecked)checkedCount++;
     html+='<tr>';
+    // Checkbox column
+    html+='<td style="text-align:center"><input type="checkbox" class="cr-check" data-id="'+c.id+'" data-email="'+esc(c.email)+'" data-status="'+esc(c.pipeline_status)+'"'+(autoChecked?' checked':'')+' onchange="updateBatchBar()"></td>';
     html+='<td style="font-weight:600;font-family:var(--mono);font-size:10px">'+esc(handle)+'</td>';
     // Email column: show badge if @discovered.syncly
     if(c.email&&c.email.endsWith('@discovered.syncly')){
@@ -2124,15 +2160,28 @@ function renderCreatorsTable(data){
     }
     html+='</select>';
     html+=' <button onclick="toggleEmailHistory(\''+c.id+'\',\''+esc(c.email)+'\')" style="background:none;border:1px solid var(--border);border-radius:3px;cursor:pointer;font-size:8px;padding:1px 4px;color:var(--a)" title="Email history">&#x1F4E7;</button>';
+    // Draft preview button (only for Draft Ready / Sent)
+    if(c.pipeline_status==='Draft Ready'||c.pipeline_status==='Sent'){
+      html+=' <button onclick="toggleDraftPreview(\''+c.id+'\',\''+esc(c.email)+'\')" style="background:none;border:1px solid var(--a);border-radius:3px;cursor:pointer;font-size:8px;padding:1px 4px;color:var(--a);font-weight:700" title="View draft email">Draft</button>';
+    }
     html+='</td>';
     html+='</tr>';
+    // Hidden draft preview row (accordion)
+    html+='<tr id="draft-preview-'+c.id+'" style="display:none"><td colspan="11" style="padding:0">';
+    html+='<div style="background:linear-gradient(135deg,#eef2ff,#f0fdf4);border:2px solid var(--a);border-radius:8px;margin:4px 8px 8px;padding:12px;font-size:11px">';
+    html+='<div id="draft-content-'+c.id+'" style="color:var(--dim)">Loading draft...</div>';
+    html+='</div></td></tr>';
     // Hidden email history row (accordion)
-    html+='<tr id="email-hist-'+c.id+'" style="display:none"><td colspan="10" style="padding:0">';
+    html+='<tr id="email-hist-'+c.id+'" style="display:none"><td colspan="11" style="padding:0">';
     html+='<div style="background:#f8fafc;border:1px solid var(--border);border-radius:6px;margin:4px 8px 8px;padding:10px;font-size:10px">';
     html+='<div id="email-hist-content-'+c.id+'" style="color:var(--dim)">Loading email history...</div>';
     html+='</div></td></tr>';
   }
   body.innerHTML=html;
+  // Show batch bar if any auto-checked
+  if(checkedCount>0){
+    updateBatchBar();
+  }
 }
 
 async function toggleEmailHistory(creatorId, email){
@@ -2205,6 +2254,98 @@ async function changeCreatorStatus(sel){
   }catch(e){
     showToast('Update failed: '+e.message,'err');
     loadCreators();
+  }
+}
+
+// ========== OWNER SUB-TABS ==========
+function selectOwnerTab(btn){
+  document.querySelectorAll('.owner-tab').forEach(function(b){
+    b.classList.remove('active');
+    b.style.background='transparent';
+    b.style.color=b.style.borderColor||'var(--fg)';
+  });
+  btn.classList.add('active');
+  btn.style.background=btn.style.borderColor||'var(--a)';
+  btn.style.color='#fff';
+  var owner=btn.getAttribute('data-owner');
+  document.getElementById('cr-assigned').value=owner;
+  _crPage=1;
+  loadCreators();
+}
+
+// ========== CHECKBOX BATCH ACTIONS ==========
+function toggleAllChecks(checked){
+  document.querySelectorAll('.cr-check').forEach(function(cb){cb.checked=checked});
+  updateBatchBar();
+}
+function clearAllChecks(){
+  document.querySelectorAll('.cr-check').forEach(function(cb){cb.checked=false});
+  document.getElementById('cr-check-all').checked=false;
+  updateBatchBar();
+}
+function updateBatchBar(){
+  var checked=document.querySelectorAll('.cr-check:checked');
+  var bar=document.getElementById('batch-action-bar');
+  if(checked.length>0){
+    bar.style.display='flex';
+    document.getElementById('batch-count').textContent=checked.length+' selected';
+  }else{
+    bar.style.display='none';
+  }
+}
+async function executeBatchMove(){
+  var target=document.getElementById('batch-target-status').value;
+  if(!target){showToast('Select a target status first','err');return;}
+  var checked=document.querySelectorAll('.cr-check:checked');
+  if(checked.length===0)return;
+  if(!confirm('Move '+checked.length+' creators to "'+target+'"?'))return;
+  var ok=0,fail=0;
+  for(var i=0;i<checked.length;i++){
+    var id=checked[i].getAttribute('data-id');
+    try{
+      await apiFetch('/pipeline/creators/'+id+'/',{
+        method:'PUT',
+        body:JSON.stringify({pipeline_status:target,changed_by:_currentUser})
+      });
+      ok++;
+    }catch(e){fail++;}
+  }
+  showToast('Moved '+ok+' creators'+(fail?' ('+fail+' failed)':''),'ok');
+  loadCreatorStats();
+  loadCreators();
+}
+
+// ========== DRAFT EMAIL PREVIEW ==========
+async function toggleDraftPreview(creatorId,email){
+  var row=document.getElementById('draft-preview-'+creatorId);
+  if(row.style.display==='none'){
+    row.style.display='table-row';
+    var el=document.getElementById('draft-content-'+creatorId);
+    try{
+      var convs=await apiFetch('/pipeline/conversations/?email='+encodeURIComponent(email)+'&limit=5');
+      var items=(Array.isArray(convs)?convs:convs.results||[]).filter(function(c){return c.creator_email===email&&(c.status==='Draft Ready'||c.status==='Sent')});
+      if(items.length===0){
+        el.innerHTML='<span style="color:var(--muted)">No draft found for this creator</span>';
+        return;
+      }
+      var h='<div style="font-weight:700;margin-bottom:8px;color:var(--a);font-size:12px">Draft Email Preview</div>';
+      items.forEach(function(conv){
+        var timeStr=conv.created_at?new Date(conv.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+        h+='<div style="border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:8px;background:#fff">';
+        h+='<div style="display:flex;justify-content:space-between;margin-bottom:6px">';
+        h+='<span style="font-weight:700;color:var(--fg)">'+esc(conv.subject||'(No subject)')+'</span>';
+        h+='<span style="font-size:9px;color:var(--dim)">'+timeStr+'</span>';
+        h+='</div>';
+        if(conv.brand){h+='<div style="margin-bottom:6px"><span class="b '+(conv.brand==='Grosmimi'?'g':conv.brand==='CHA&MOM'?'c':conv.brand==='Naeiae'?'am':'')+'">'+esc(conv.brand)+'</span></div>';}
+        h+='<div style="white-space:pre-wrap;font-size:11px;line-height:1.6;color:var(--fg);padding:8px;background:#f8fafc;border-radius:4px;max-height:300px;overflow-y:auto">'+esc(conv.message_content||'(empty)')+'</div>';
+        h+='</div>';
+      });
+      el.innerHTML=h;
+    }catch(e){
+      el.innerHTML='<span style="color:var(--r)">Error loading draft: '+e.message+'</span>';
+    }
+  }else{
+    row.style.display='none';
   }
 }
 
