@@ -3915,17 +3915,33 @@ async function checkFeatureImpact(feature){
           // API returns {results: {email: info|null}} — null means NOT contacted
           if(result.results&&typeof result.results==='object'){
             contacted=Object.keys(result.results).filter(function(e){return result.results[e]!==null});
+            // Build tagged list with source account
+            contactedTagged=contacted.map(function(e){
+              var info=result.results[e];
+              var acct=info.account||'unknown';
+              var tag=acct==='onzenna'?'affiliates@':'zezebaebae'===acct?'hello@':'ManyChat';
+              return {email:e,account:acct,tag:tag,sent:info.total_sent||0,last:info.last_contact_date||''};
+            });
           }else{
             contacted=result.contacted||[];
+            contactedTagged=contacted.map(function(e){return {email:e,account:'?',tag:'?',sent:0,last:''}});
           }
-        }catch(e){contacted=[]}
+        }catch(e){contacted=[];contactedTagged=[]}
       }
-      _ftResults.rag={count:contacted.length,list:contacted};
+      _ftResults.rag={count:contacted.length,list:contacted,tagged:contactedTagged};
       badge.innerHTML='<span class="b r" style="font-size:10px;padding:2px 8px">&minus;'+contacted.length+' removed</span>';
       if(contacted.length>0){
-        var h='<div style="font-size:9px;max-height:160px;overflow-y:auto;background:#fef2f2;padding:6px;border-radius:4px;cursor:pointer" onclick="this.parentElement.style.display=\'none\'">';
-        h+='<div style="font-weight:700;margin-bottom:3px;color:var(--r)">Already contacted ('+contacted.length+'):</div>';
-        contacted.slice(0,40).forEach(function(e){h+='<div style="padding:1px 0;border-bottom:1px solid #fde8e8">'+esc(e)+'</div>'});
+        // Count by source
+        var bySrc={};contactedTagged.forEach(function(t){bySrc[t.tag]=(bySrc[t.tag]||0)+1});
+        var srcSummary=Object.keys(bySrc).map(function(k){return k+': '+bySrc[k]}).join(' | ');
+        var h='<div style="font-size:9px;max-height:200px;overflow-y:auto;background:#fef2f2;padding:6px;border-radius:4px;cursor:pointer" onclick="this.parentElement.style.display=\'none\'">';
+        h+='<div style="font-weight:700;margin-bottom:3px;color:var(--r)">Already contacted ('+contacted.length+'): <span style="font-weight:400;color:var(--dim)">'+srcSummary+'</span></div>';
+        contactedTagged.slice(0,40).forEach(function(t){
+          var tagColor=t.tag==='affiliates@'?'#dc2626':t.tag==='hello@'?'#7c3aed':'#0891b2';
+          h+='<div style="padding:1px 0;border-bottom:1px solid #fde8e8;display:flex;justify-content:space-between">'
+            +'<span>'+esc(t.email)+'</span>'
+            +'<span style="color:'+tagColor+';font-weight:600;font-size:8px;white-space:nowrap;margin-left:8px">'+esc(t.tag)+'</span></div>'
+        });
         if(contacted.length>40)h+='<div style="color:var(--dim);padding:4px">...+'+(contacted.length-40)+' more</div>';
         h+='</div>';
         expand.innerHTML=h;expand.style.display='block';
@@ -4095,9 +4111,9 @@ function updateFtSummary(){
   flowEl.textContent=[
     totalAll+' total \u2192 HT:'+htTotal+' + LT:'+ltTotal,
     ltTotal+' LT \u2192 '+afterEmail+' with email ('+noEmail+' no email)',
-    usRemoved>0?('\u2212'+usRemoved+' non-US \u2192 '+afterUs):'',
-    brandRemoved>0?('\u2212'+brandRemoved+' business \u2192 '+afterBrand):'',
-    ltRagDedup>0?('\u2212'+ltRagDedup+' already contacted'):'',
+    usCheck?(usRemoved>0?('\u2212'+usRemoved+' non-US \u2192 '+afterUs):'\u2212 0 non-US'):'',
+    brandCheck?(brandRemoved>0?('\u2212'+brandRemoved+' business \u2192 '+afterBrand):'\u2212 0 business (no-email\uC774\uB77C \uC774\uBBF8 \uC81C\uC678)'):'',
+    ragCheck?(ltRagDedup>0?('\u2212'+ltRagDedup+' already contacted'):'\u2212 0 contacted'):'',
     '\u2192 '+ltEligible+' eligible (LT only)'
   ].filter(Boolean).join(' \u2192 ');
 
