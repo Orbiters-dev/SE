@@ -4222,15 +4222,35 @@ async function execBatchStep(step){
       await updatePreview();
       result.innerHTML='<span class="b g">&#x2705; Done</span>';
 
-    }else if(step===3){
-      // Generate Drafts via webhook
-      execAction('draft_gen');
-      result.innerHTML='<span class="b c">&#x1F4DD; Triggered</span>';
-
-    }else if(step===4){
-      // Send Batch via webhook
-      execAction('send');
-      result.innerHTML='<span class="b am">&#x1F4E8; Triggered</span>';
+    }else if(step===3||step===4){
+      // Generate Drafts (3) or Send Batch (4) via webhook + polling
+      var whAction=step===3?'draft_gen':'send';
+      var whUrl=WEBHOOK_MAP[whAction];
+      if(!whUrl){result.innerHTML='<span class="b r">No webhook</span>';return}
+      // Snapshot stats before
+      var prevSt={};try{var ps=await apiFetch('/pipeline/creators/stats/');prevSt=ps.by_status||{}}catch(e){}
+      btn.innerHTML='<span class="spin-icon">&#x2699;</span>';btn.classList.add('btn-running');
+      result.innerHTML='<span style="color:var(--am);animation:pulse 1.5s infinite">&#x2699; Running...</span>';
+      var wRes=await fetch(whUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:whAction,config:_config,timestamp:new Date().toISOString()})});
+      if(!wRes.ok)throw new Error('Webhook HTTP '+wRes.status);
+      // Poll for changes
+      var found=false;
+      for(var pi=0;pi<12;pi++){
+        await new Promise(function(r){setTimeout(r,5000)});
+        result.innerHTML='<span style="color:var(--am);animation:pulse 1.5s infinite">&#x2699; Processing... ('+(pi+1)*5+'s)</span>';
+        try{
+          var curSt=(await apiFetch('/pipeline/creators/stats/')).by_status||{};
+          for(var k in curSt){if((curSt[k]||0)!==(prevSt[k]||0)){found=true;break}}
+        }catch(e){}
+        if(found)break;
+      }
+      var diff=[];
+      if(found){try{var cs=(await apiFetch('/pipeline/creators/stats/')).by_status||{};for(var k in cs){var d=(cs[k]||0)-(prevSt[k]||0);if(d!==0)diff.push(k+': '+(d>0?'+':'')+d)}}catch(e){}}
+      var summary=diff.length?diff.join(', '):'no changes (0 creators)';
+      btn.classList.remove('btn-running');
+      result.innerHTML='<span class="b g">&#x2705; '+esc(summary)+'</span>';
+      apiFetch('/pipeline/execution/log/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action_type:whAction,triggered_by:_currentUser,status:'completed',target_count:0,details:JSON.stringify({changes:summary})})});
+      loadExecLog();loadCreatorStats();loadCreators();
     }
 
     _bpCompleted[step]=true;
@@ -4240,7 +4260,7 @@ async function execBatchStep(step){
     result.innerHTML='<span class="b r">&#x274C; '+esc(e.message)+'</span>';
     showToast('Step '+step+' failed: '+e.message,'err');
   }finally{
-    btn.disabled=false;btn.textContent='\u25B6 Execute';
+    btn.disabled=false;btn.innerHTML='\u25B6 Execute';btn.classList.remove('btn-running');
   }
 }
 
