@@ -78,6 +78,9 @@ urlpatterns = [
     path("pipeline/faq/<uuid:faq_id>/", views.faq_detail, name="faq_detail"),
     path("pipeline/reply-log/", views.reply_log_create, name="reply_log"),
 
+    # Pipeline Conversations (draft storage for n8n)
+    path("pipeline/conversations/", views.pipeline_conversations, name="pipeline_conversations"),
+
     # Monitoring
     path("tables/", views.list_tables, name="list_tables"),
 ]

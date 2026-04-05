@@ -474,3 +474,28 @@ class GmailContact(models.Model):
 
     def __str__(self):
         return f"{self.email} ({self.account}) sent={self.total_sent}"
+
+
+class PipelineConversation(models.Model):
+    """Outreach email drafts and conversation history."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    creator_email = models.EmailField(db_index=True)
+    creator_handle = models.CharField(max_length=200, blank=True, default="")
+    direction = models.CharField(max_length=20, default="Outbound")  # Outbound / Inbound
+    channel = models.CharField(max_length=20, default="Email")       # Email / DM
+    subject = models.CharField(max_length=500, blank=True, default="")
+    message_content = models.TextField(blank=True, default="")
+    brand = models.CharField(max_length=50, blank=True, default="")
+    outreach_type = models.CharField(max_length=20, blank=True, default="LT")  # LT / HT
+    status = models.CharField(max_length=30, default="Draft Ready")  # Draft Ready / Sent / Replied
+    gmail_thread_id = models.CharField(max_length=100, blank=True, default="")
+    gmail_message_id = models.CharField(max_length=100, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "onz_pipeline_conversations"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.creator_email} | {self.direction} | {self.status}"

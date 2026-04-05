@@ -40,6 +40,7 @@ from .models import (
     EmailReplyConfig,
     FAQEntry,
     EmailReplyLog,
+    PipelineConversation,
 )
 
 
@@ -660,6 +661,54 @@ def pipeline_config_history(request):
     limit = int(request.GET.get("limit", 30))
     configs = PipelineConfig.objects.all()[:limit]
     return _cors_headers(request, JsonResponse([_serialize_config(c) for c in configs], safe=False))
+
+
+# --- Pipeline Conversations (draft storage for n8n) ---
+
+
+@csrf_exempt
+def pipeline_conversations(request):
+    """GET: list conversations. POST: create new conversation record."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method == 'GET':
+        qs = PipelineConversation.objects.all()
+        email = request.GET.get("creator_email")
+        if email:
+            qs = qs.filter(creator_email=email)
+        status = request.GET.get("status")
+        if status:
+            qs = qs.filter(status=status)
+        limit = min(int(request.GET.get("limit", 100)), 500)
+        items = list(qs[:limit].values())
+        for item in items:
+            for k in ("id",):
+                if k in item:
+                    item[k] = str(item[k])
+            for k in ("created_at", "updated_at"):
+                if k in item and item[k]:
+                    item[k] = item[k].isoformat()
+        return _cors_headers(request, JsonResponse({"results": items, "total": qs.count()}))
+
+    if request.method == 'POST':
+        body = json.loads(request.body or "{}")
+        conv = PipelineConversation.objects.create(
+            creator_email=body.get("creator_email", ""),
+            creator_handle=body.get("creator_handle", ""),
+            direction=body.get("direction", "Outbound"),
+            channel=body.get("channel", "Email"),
+            subject=body.get("subject", ""),
+            message_content=body.get("message_content", ""),
+            brand=body.get("brand", ""),
+            outreach_type=body.get("outreach_type", "LT"),
+            status=body.get("status", "Draft Ready"),
+            gmail_thread_id=body.get("gmail_thread_id", ""),
+            gmail_message_id=body.get("gmail_message_id", ""),
+        )
+        return _cors_headers(request, JsonResponse({"id": str(conv.id), "status": conv.status}, status=201))
+
+    return _cors_headers(request, JsonResponse({"error": "Method not allowed"}, status=405))
 
 
 # --- Tables (for monitoring) ---
