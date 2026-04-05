@@ -1477,6 +1477,510 @@ def import_syncly_discovery(request):
     }, status=201))
 
 
+# --- Syncly Sheet → Excel → DB (2-step pipeline) ---
+
+_SYNCLY_SHEET_ID = "1dIAhP8wCEdFulSAai3K-RoZTvLBIaWxAK7hzInBsF0o"
+
+# Output_updated column indices (0-based)
+_OUT_COL = {
+    "username": 6, "level": 8, "post_url": 15, "text": 18,
+    "transcript": 19, "caption": 20, "post_date": 21,
+    "followers": 32, "avg_view": 33, "views_30d": 39, "likes_30d": 40,
+}
+
+
+def _syncly_excel_path():
+    """Return path to the clean Excel file on the server."""
+    import os as _os
+    proj = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+    return _os.path.join(proj, "Data Storage", "syncly_creators_clean.xlsx")
+
+
+def _safe_int(val):
+    if not val:
+        return None
+    try:
+        return int(str(val).replace(",", "").replace(".0", "").strip())
+    except (ValueError, TypeError):
+        return None
+
+
+@csrf_exempt
+def syncly_export_excel(request):
+    """POST: Download Syncly Google Sheet → filter → save Excel on server.
+
+    Step 1 of the 2-step pipeline.  Returns stats about what was exported.
+    """
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+    if request.method != 'POST':
+        return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
+
+    import os as _os, re as _re, time as _time
+
+    try:
+        import gspread
+        from google.oauth2.service_account import Credentials as SACredentials
+    except ImportError:
+        return _cors_headers(request, JsonResponse({"error": "gspread not installed"}, status=500))
+
+    try:
+        import openpyxl
+    except ImportError:
+        return _cors_headers(request, JsonResponse({"error": "openpyxl not installed"}, status=500))
+
+    proj = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+    sa_path = _os.path.join(proj, "credentials", "google_service_account.json")
+
+    try:
+        creds = SACredentials.from_service_account_file(
+            sa_path, scopes=["https://www.googleapis.com/auth/spreadsheets.readonly"])
+        gc = gspread.authorize(creds)
+        sh = gc.open_by_key(_SYNCLY_SHEET_ID)
+
+        # 1. Read Output_updated → build best post map
+        ws_out = sh.worksheet("Output_updated")
+        out_data = ws_out.get_all_values()
+        out_rows = out_data[1:]
+
+        best_posts = {}
+        for row in out_rows:
+            def _col(key, _row=row):
+                idx = _OUT_COL.get(key, -1)
+                return (_row[idx] or "").strip() if 0 <= idx < len(_row) else ""
+
+            if _col("level").lower() != "full_matched":
+                continue
+            uname = _col("username").lstrip("@").lower()
+            if not uname:
+                continue
+            views = _safe_int(_col("views_30d")) or _safe_int(_col("avg_view")) or 0
+            cur = best_posts.get(uname)
+            if not cur or views > (cur.get("_v") or 0):
+                best_posts[uname] = {
+                    "top_post_url": _col("post_url"),
+                    "top_post_transcript": _col("transcript") or _col("text") or _col("caption") or "",
+                    "top_post_caption": _col("caption"),
+                    "top_post_views": _safe_int(_col("views_30d")) or _safe_int(_col("avg_view")),
+                    "top_post_date": _col("post_date"),
+                    "views_30d": _safe_int(_col("views_30d")),
+                    "likes_30d": _safe_int(_col("likes_30d")),
+                    "avg_view": _safe_int(_col("avg_view")),
+                    "followers": _safe_int(_col("followers")),
+                    "_v": views,
+                }
+
+        # 2. Read Creators_updated → filter
+        ws_cr = sh.worksheet("Creators_updated")
+        cr_data = ws_cr.get_all_values()
+        headers = cr_data[0]
+        all_rows = []
+        for row in cr_data[1:]:
+            d = {}
+            for i, h in enumerate(headers):
+                d[h] = row[i] if i < len(row) else ""
+            all_rows.append(d)
+
+        stats = {"total_raw": len(all_rows), "no_email": 0, "blacklist": 0,
+                 "collab": 0, "kept": 0, "with_content": 0}
+        clean = []
+
+        for row in all_rows:
+            email = (row.get("Email") or "").strip()
+            bl = (row.get("Blacklist 여부") or row.get("Blacklist \uc5ec\ubd80") or "").strip()
+            collab = (row.get("제휴 상태") or row.get("\uc81c\ud734 \uc0c1\ud0dc") or "").strip()
+
+            if not email or "@" not in email or "@discovered." in email.lower():
+                stats["no_email"] += 1
+                continue
+            if bl.upper() == "TRUE":
+                stats["blacklist"] += 1
+                continue
+            if collab:
+                stats["collab"] += 1
+                continue
+
+            uname = (row.get("Username") or "").lstrip("@").lower()
+            bp = best_posts.get(uname, {})
+            row["__top_post_url"] = bp.get("top_post_url", "")
+            row["__top_post_transcript"] = bp.get("top_post_transcript", "")
+            row["__top_post_caption"] = bp.get("top_post_caption", "")
+            row["__top_post_views"] = bp.get("top_post_views")
+            row["__top_post_date"] = bp.get("top_post_date", "")
+            row["__views_30d"] = bp.get("views_30d")
+            row["__likes_30d"] = bp.get("likes_30d")
+            row["__avg_view"] = bp.get("avg_view")
+            row["__followers"] = bp.get("followers")
+            if bp:
+                stats["with_content"] += 1
+            clean.append(row)
+            stats["kept"] += 1
+
+        # 3. Save Excel
+        EXTRA_COLS = ["__top_post_url", "__top_post_transcript", "__top_post_caption",
+                      "__top_post_views", "__top_post_date", "__views_30d", "__likes_30d",
+                      "__avg_view", "__followers"]
+        EXTRA_HEADERS = ["top_post_url", "top_post_transcript", "top_post_caption",
+                         "top_post_views", "top_post_date", "views_30d", "likes_30d",
+                         "avg_view", "followers_output"]
+
+        _ILLEGAL = _re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]')
+        def _clean(val):
+            if isinstance(val, str):
+                return _ILLEGAL.sub('', val)
+            return "" if val is None else val
+
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Creators"
+        ws.append(headers + EXTRA_HEADERS)
+        for row in clean:
+            base = [_clean(row.get(h, "")) for h in headers]
+            extra = [_clean(row.get(k, "")) for k in EXTRA_COLS]
+            ws.append(base + extra)
+
+        xlsx_path = _syncly_excel_path()
+        _os.makedirs(_os.path.dirname(xlsx_path), exist_ok=True)
+        wb.save(xlsx_path)
+
+        stats["excel_path"] = xlsx_path
+        stats["excel_date"] = datetime.now().isoformat()
+        stats["output_posts_total"] = len(out_rows)
+        stats["output_matched"] = len(best_posts)
+        return _cors_headers(request, JsonResponse(stats, status=200))
+
+    except Exception as e:
+        import traceback
+        return _cors_headers(request, JsonResponse({
+            "error": str(e), "traceback": traceback.format_exc()
+        }, status=500))
+
+
+@csrf_exempt
+def syncly_import_excel(request):
+    """POST: Read cleaned Excel → import/update pipeline_creators.
+
+    Step 2 of the 2-step pipeline.
+
+    Body (optional):
+      week: filter to specific week (YYYY-MM-DD). If omitted, imports ALL rows.
+      clean_placeholders: true to delete @discovered.* placeholders first (default true)
+    """
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+    if request.method != 'POST':
+        return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
+
+    import os as _os, re as _re
+    from datetime import date as date_cls
+
+    try:
+        import openpyxl
+    except ImportError:
+        return _cors_headers(request, JsonResponse({"error": "openpyxl not installed"}, status=500))
+
+    xlsx_path = _syncly_excel_path()
+    if not _os.path.exists(xlsx_path):
+        return _cors_headers(request, JsonResponse({
+            "error": "Excel file not found. Run Step 1 (Export) first.",
+            "path": xlsx_path,
+        }, status=404))
+
+    body = _json_body(request)
+    week_str = body.get("week", "")
+    clean_ph = body.get("clean_placeholders", True)
+
+    def _parse_date(raw):
+        raw = (raw or "").strip()
+        if not raw:
+            return None
+        try:
+            if "-" in raw:
+                parts = raw.split("-")
+                if len(parts) == 3:
+                    y = int(parts[0])
+                    if y < 100:
+                        y += 2000
+                    return date_cls(y, int(parts[1]), int(parts[2]))
+            elif len(raw) == 6 and raw.isdigit():
+                return date_cls(2000 + int(raw[:2]), int(raw[2:4]), int(raw[4:6]))
+            # Try parsing as datetime object (openpyxl returns datetime)
+            if hasattr(raw, 'date'):
+                return raw.date() if callable(getattr(raw, 'date', None)) else None
+        except Exception:
+            pass
+        return None
+
+    try:
+        # Read Excel
+        wb = openpyxl.load_workbook(xlsx_path, read_only=True)
+        ws = wb.active
+        rows = list(ws.iter_rows(values_only=True))
+        wb.close()
+
+        if len(rows) < 2:
+            return _cors_headers(request, JsonResponse({
+                "error": "Excel file is empty", "total_rows": 0
+            }, status=400))
+
+        hdr = [str(h or "") for h in rows[0]]
+        data_rows = rows[1:]
+
+        def col_idx(name):
+            for i, h in enumerate(hdr):
+                if name.lower() in h.lower():
+                    return i
+            return -1
+
+        idx_username = col_idx("Username")
+        idx_email = col_idx("Email")
+        idx_platform = col_idx("Platform")
+        idx_collab = col_idx("제휴 상태")
+        if idx_collab < 0:
+            idx_collab = col_idx("\uc81c\ud734 \uc0c1\ud0dc")
+        idx_discovery = col_idx("최초 발견")
+        if idx_discovery < 0:
+            idx_discovery = col_idx("발견")
+        idx_followers_cr = col_idx("Followers")
+
+        # Content columns
+        idx_top_post_url = col_idx("top_post_url")
+        idx_top_post_transcript = col_idx("top_post_transcript")
+        idx_top_post_caption = col_idx("top_post_caption")
+        idx_top_post_views = col_idx("top_post_views")
+        idx_top_post_date = col_idx("top_post_date")
+        idx_views_30d = col_idx("views_30d")
+        idx_likes_30d = col_idx("likes_30d")
+        idx_avg_view = col_idx("avg_view")
+        idx_followers_output = col_idx("followers_output")
+
+        # Week filter
+        target_dates = None
+        if week_str:
+            wd = _parse_date(week_str)
+            if wd:
+                target_dates = set([wd + timedelta(days=i) for i in range(7)])
+
+        # Filter rows
+        eligible = []
+        stats = {"total_rows": len(data_rows), "matched_week": 0,
+                 "skip_no_email": 0, "skip_collab": 0, "skip_invalid": 0}
+
+        for row in data_rows:
+            def cell(idx, _row=row):
+                return str(_row[idx] or "").strip() if 0 <= idx < len(_row) else ""
+
+            # Week filter
+            if target_dates:
+                raw_d = row[idx_discovery] if 0 <= idx_discovery < len(row) else None
+                disc_date = _parse_date(str(raw_d) if raw_d else "")
+                if not disc_date or disc_date not in target_dates:
+                    continue
+                stats["matched_week"] += 1
+
+            username = cell(idx_username).lstrip("@").strip()
+            if not username or not _re.match(r'^[a-zA-Z0-9._]+$', username):
+                stats["skip_invalid"] += 1
+                continue
+
+            email_val = cell(idx_email)
+            if not email_val or "@" not in email_val or "@discovered." in email_val.lower():
+                stats["skip_no_email"] += 1
+                continue
+
+            collab = cell(idx_collab)
+            if collab:
+                stats["skip_collab"] += 1
+                continue
+
+            raw_d = row[idx_discovery] if 0 <= idx_discovery < len(row) else None
+            disc_date = _parse_date(str(raw_d) if raw_d else "")
+
+            entry = {
+                "username": username.lower(),
+                "email": email_val,
+                "platform": cell(idx_platform),
+                "discovery_date": disc_date,
+                "followers_cr": _safe_int(cell(idx_followers_cr)) if idx_followers_cr >= 0 else None,
+                "top_post_url": cell(idx_top_post_url) if idx_top_post_url >= 0 else "",
+                "top_post_transcript": cell(idx_top_post_transcript) if idx_top_post_transcript >= 0 else "",
+                "top_post_caption": cell(idx_top_post_caption) if idx_top_post_caption >= 0 else "",
+                "top_post_views": _safe_int(cell(idx_top_post_views)) if idx_top_post_views >= 0 else None,
+                "top_post_date": _parse_date(cell(idx_top_post_date)) if idx_top_post_date >= 0 else None,
+                "views_30d": _safe_int(cell(idx_views_30d)) if idx_views_30d >= 0 else None,
+                "likes_30d": _safe_int(cell(idx_likes_30d)) if idx_likes_30d >= 0 else None,
+                "avg_views": _safe_int(cell(idx_avg_view)) if idx_avg_view >= 0 else None,
+                "followers": _safe_int(cell(idx_followers_output)) if idx_followers_output >= 0 else None,
+            }
+            eligible.append(entry)
+
+        stats["eligible"] = len(eligible)
+        stats["with_content"] = sum(1 for e in eligible if e.get("top_post_url"))
+
+        if not eligible:
+            return _cors_headers(request, JsonResponse(stats, status=200))
+
+        # Clean @discovered.* placeholders if requested
+        cleaned_ph = 0
+        if clean_placeholders:
+            ph_qs = PipelineCreator.objects.filter(
+                email__icontains="@discovered.",
+                pipeline_status="Not Started",
+            )
+            if target_dates:
+                ph_qs = ph_qs.filter(initial_discovery_date__in=list(target_dates))
+            cleaned_ph = ph_qs.delete()[0]
+
+        # HT threshold from config
+        ht_threshold = 100000
+        try:
+            cfg = PipelineConfig.objects.order_by('-date').first()
+            if cfg and cfg.ht_threshold:
+                ht_threshold = cfg.ht_threshold
+        except Exception:
+            pass
+
+        created = 0
+        updated = 0
+        dupes = 0
+
+        for e in eligible:
+            handle = e["username"]
+            email_val = e["email"]
+            plat = "TikTok" if "tiktok" in (e["platform"] or "").lower() else "Instagram"
+            ig_handle = handle if plat == "Instagram" else ""
+            tiktok_handle = handle if plat == "TikTok" else ""
+            disc_date = e["discovery_date"] or date_cls.today()
+
+            avg_v = e.get("avg_views") or e.get("views_30d") or 0
+            outreach_type = "HT" if avg_v >= ht_threshold else "LT"
+            followers = e.get("followers") or e.get("followers_cr") or 0
+
+            content_fields = {
+                "top_post_url": e.get("top_post_url") or "",
+                "top_post_transcript": e.get("top_post_transcript") or "",
+                "top_post_caption": e.get("top_post_caption") or "",
+                "top_post_views": e.get("top_post_views"),
+                "top_post_date": e.get("top_post_date"),
+                "views_30d": e.get("views_30d"),
+                "likes_30d": e.get("likes_30d"),
+            }
+
+            existing = PipelineCreator.objects.filter(ig_handle__iexact=handle).first() or \
+                       PipelineCreator.objects.filter(tiktok_handle__iexact=handle).first()
+
+            if existing:
+                changed = False
+                if "@discovered." in (existing.email or ""):
+                    if not PipelineCreator.objects.filter(email=email_val).exclude(id=existing.id).exists():
+                        existing.email = email_val
+                        changed = True
+                    else:
+                        dupes += 1
+                        continue
+
+                if e.get("top_post_url"):
+                    for field, val in content_fields.items():
+                        if val is not None and val != "":
+                            setattr(existing, field, val)
+                            changed = True
+
+                if e.get("avg_views") and (not existing.avg_views or e["avg_views"] > existing.avg_views):
+                    existing.avg_views = e["avg_views"]
+                    changed = True
+                if followers and (not existing.followers or followers > existing.followers):
+                    existing.followers = followers
+                    changed = True
+                if not existing.initial_discovery_date:
+                    existing.initial_discovery_date = disc_date
+                    changed = True
+
+                if changed:
+                    existing.save()
+                    updated += 1
+                continue
+
+            if PipelineCreator.objects.filter(email=email_val).exists():
+                dupes += 1
+                continue
+
+            try:
+                PipelineCreator.objects.create(
+                    email=email_val,
+                    ig_handle=ig_handle,
+                    tiktok_handle=tiktok_handle,
+                    full_name=handle,
+                    platform=plat,
+                    pipeline_status="Not Started",
+                    outreach_type=outreach_type,
+                    source="syncly",
+                    followers=followers,
+                    avg_views=avg_v,
+                    initial_discovery_date=disc_date,
+                    notes=f"Excel import. Post: {e.get('top_post_url') or 'N/A'}",
+                    **content_fields,
+                )
+                created += 1
+            except Exception:
+                dupes += 1
+
+        stats["cleaned_placeholders"] = cleaned_ph
+        stats["created"] = created
+        stats["updated"] = updated
+        stats["dupes"] = dupes
+        stats["import_date"] = datetime.now().isoformat()
+        return _cors_headers(request, JsonResponse(stats, status=200))
+
+    except Exception as e:
+        import traceback
+        return _cors_headers(request, JsonResponse({
+            "error": str(e), "traceback": traceback.format_exc()
+        }, status=500))
+
+
+@csrf_exempt
+def syncly_excel_status(request):
+    """GET: Return status of the Syncly Excel pipeline (file info + last counts)."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    import os as _os
+
+    xlsx_path = _syncly_excel_path()
+    result = {"excel_exists": False, "excel_path": xlsx_path}
+
+    if _os.path.exists(xlsx_path):
+        stat = _os.stat(xlsx_path)
+        result["excel_exists"] = True
+        result["excel_date"] = datetime.fromtimestamp(stat.st_mtime).isoformat()
+        result["excel_size_kb"] = round(stat.st_size / 1024, 1)
+
+        # Count rows
+        try:
+            import openpyxl
+            wb = openpyxl.load_workbook(xlsx_path, read_only=True)
+            ws = wb.active
+            result["excel_rows"] = ws.max_row - 1 if ws.max_row else 0  # minus header
+            wb.close()
+        except Exception:
+            result["excel_rows"] = None
+
+    # DB stats: how many pipeline_creators from source=syncly
+    try:
+        from django.db.models import Q
+        total_syncly = PipelineCreator.objects.filter(source="syncly").count()
+        placeholder = PipelineCreator.objects.filter(
+            source="syncly", email__icontains="@discovered.").count()
+        with_email = total_syncly - placeholder
+        result["db_syncly_total"] = total_syncly
+        result["db_syncly_with_email"] = with_email
+        result["db_syncly_placeholder"] = placeholder
+    except Exception:
+        pass
+
+    return _cors_headers(request, JsonResponse(result))
+
+
 @csrf_exempt
 def syncly_content_import(request):
     """POST: Import creators from Syncly Google Sheets with full content data.

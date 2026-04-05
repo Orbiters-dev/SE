@@ -572,14 +572,32 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <div class="form-row"><label>HT Threshold (R30D)</label><input type="number" id="f-ht-threshold" min="0" step="10000"></div>
         <div class="form-row"><label>HT Min Followers</label><input type="number" id="f-ht-follower-min" min="0" step="5000"></div>
         <div id="ht-lt-split-hint" style="display:none;margin:6px 0 4px 0;padding:8px 12px;background:linear-gradient(135deg,#fef3c7,#eff6ff);border:1px solid #e5e7eb;border-radius:6px;font-size:11px;font-family:var(--mono)"></div>
-        <!-- Discovery & Content Import (moved from Execution) -->
+        <!-- Syncly 2-Step Pipeline: Sheet → Excel → DB -->
         <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
-          <div style="font-size:10px;font-weight:700;color:var(--dim);margin-bottom:6px">&#x1F50E; Discovery &amp; Content Import</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <button class="btn btn-secondary btn-sm" id="btn-syncly-discovery" onclick="execAction('syncly_discovery')" style="border-left:3px solid var(--p)">&#x1F50E; Pull Syncly Discovery</button>
-            <button class="btn btn-secondary btn-sm" id="btn-syncly-content" onclick="execSynclyContentImport()" style="border-left:3px solid var(--g)">&#x1F4E5; Syncly Content Import</button>
+          <div style="font-size:10px;font-weight:700;color:var(--dim);margin-bottom:8px">&#x1F50E; Syncly Discovery Pipeline</div>
+          <!-- Status bar (loaded on init) -->
+          <div id="syncly-pipeline-status" style="display:none;margin-bottom:8px;padding:6px 10px;border-radius:6px;font-size:9px;background:var(--bg);border:1px solid var(--border);font-family:var(--mono)"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <!-- Step 1: Sheet → Excel -->
+            <div style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg)">
+              <div style="font-size:9px;font-weight:700;color:var(--p);margin-bottom:4px">Step 1: Sheet &#x2192; Excel</div>
+              <div id="syncly-step1-stats" style="font-size:9px;color:var(--dim);margin-bottom:6px">Loading...</div>
+              <button class="btn btn-secondary btn-sm" id="btn-syncly-export" onclick="execSynclyExport()" style="width:100%;border-left:3px solid var(--p)">&#x1F4E4; Export Sheet &#x2192; Excel</button>
+              <div id="syncly-step1-result" style="display:none;margin-top:4px;font-size:9px;padding:4px 8px;border-radius:4px"></div>
+            </div>
+            <!-- Step 2: Excel → DB -->
+            <div style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg)">
+              <div style="font-size:9px;font-weight:700;color:var(--g);margin-bottom:4px">Step 2: Excel &#x2192; DB</div>
+              <div id="syncly-step2-stats" style="font-size:9px;color:var(--dim);margin-bottom:6px">Run Step 1 first</div>
+              <button class="btn btn-secondary btn-sm" id="btn-syncly-import" onclick="execSynclyImportExcel()" style="width:100%;border-left:3px solid var(--g)">&#x1F4E5; Import Excel &#x2192; DB</button>
+              <div id="syncly-step2-result" style="display:none;margin-top:4px;font-size:9px;padding:4px 8px;border-radius:4px"></div>
+            </div>
           </div>
-          <div id="syncly-content-result" style="display:none;margin-top:6px;padding:6px 10px;border-radius:6px;font-size:10px;background:var(--bg)"></div>
+          <!-- Content Import (existing) -->
+          <div style="margin-top:8px">
+            <button class="btn btn-secondary btn-sm" id="btn-syncly-content" onclick="execSynclyContentImport()" style="border-left:3px solid #8b5cf6">&#x1F4E5; Syncly Content Import</button>
+            <div id="syncly-content-result" style="display:none;margin-top:4px;padding:4px 8px;border-radius:4px;font-size:9px;background:var(--bg)"></div>
+          </div>
         </div>
       </div>
       <!-- Data Freshness — read-only status from last pipeline runs -->
@@ -648,10 +666,9 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <!-- Step 0: US Only Filter -->
         <div class="ft-step" id="fts-us" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <input type="checkbox" class="rq-check" id="ft-check-us" style="flex-shrink:0" onchange="updateFtSummary()">
             <span style="font-size:11px;font-weight:800;color:#ef4444;font-family:var(--mono);min-width:16px">&#x24EA;</span>
             <span style="font-weight:700;min-width:120px">US Only</span>
-            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-us-only"><span class="slider"></span></label>
+            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-us-only" onchange="updateFtSummary()"><span class="slider"></span></label>
             <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('us')" id="ft-btn-us" style="font-size:10px">&#x1F50D; Check</button>
             <span id="ft-badge-us"></span>
           </div>
@@ -662,10 +679,9 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <!-- Step 1: Brand Filter -->
         <div class="ft-step" id="fts-brand" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <input type="checkbox" class="rq-check" id="ft-check-brand" style="flex-shrink:0" onchange="updateFtSummary()">
             <span style="font-size:11px;font-weight:800;color:var(--a);font-family:var(--mono);min-width:16px">&#x2460;</span>
             <span style="font-weight:700;min-width:120px">Business Account Filter</span>
-            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-brand-filter"><span class="slider"></span></label>
+            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-brand-filter" onchange="updateFtSummary()"><span class="slider"></span></label>
             <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('brand')" id="ft-btn-brand" style="font-size:10px">&#x1F50D; Check</button>
             <span id="ft-badge-brand"></span>
           </div>
@@ -673,10 +689,9 @@ Shopify                         Apify / Syncly                   Gmail RAG
           <div id="ft-expand-brand" style="display:none;margin:4px 0 0 28px"></div>
         </div>
 
-        <!-- Step 2: Apify Autofill -->
+        <!-- Step 2: Apify Autofill (enrichment, not filter) -->
         <div class="ft-step" id="fts-apify" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <input type="checkbox" class="rq-check" id="ft-check-apify" style="flex-shrink:0" onchange="updateFtSummary()">
             <span style="font-size:11px;font-weight:800;color:var(--a);font-family:var(--mono);min-width:16px">&#x2461;</span>
             <span style="font-weight:700;min-width:120px">Apify Autofill</span>
             <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-apify-autofill"><span class="slider"></span></label>
@@ -690,10 +705,9 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <!-- Step 3: RAG Email Dedup (strongest, runs last) -->
         <div class="ft-step" id="fts-rag" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <input type="checkbox" class="rq-check" id="ft-check-rag" style="flex-shrink:0" onchange="updateFtSummary()">
             <span style="font-size:11px;font-weight:800;color:var(--r);font-family:var(--mono);min-width:16px">&#x2462;</span>
             <span style="font-weight:700;min-width:120px">RAG Email Dedup</span>
-            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-rag-dedup"><span class="slider"></span></label>
+            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-rag-dedup" onchange="updateFtSummary()"><span class="slider"></span></label>
             <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('rag')" id="ft-btn-rag" style="font-size:10px">&#x1F50D; Check</button>
             <span id="ft-badge-rag"></span>
           </div>
@@ -2679,16 +2693,11 @@ async function confirmExec(){
     });
   }catch(e){console.error('Log error:',e)}
 
-  // Syncly Discovery: call import-discovery endpoint instead of webhook
+  // Syncly Discovery: redirect to 2-step pipeline
   if(action==='syncly_discovery'){
-    apiFetch('/pipeline/creators/import-discovery/',{
-      method:'POST',
-      body:JSON.stringify({triggered_by:_currentUser,timestamp:new Date().toISOString()})
-    }).then(function(){
-      showToast('Syncly Discovery import triggered','ok');
-    }).catch(function(e){
-      showToast('Syncly Discovery import failed: '+e.message,'err');
-    });
+    showToast('Use the Step 1/Step 2 buttons in Batch Control instead','err');
+    if(btn){btn.disabled=false;btn.textContent=meta.icon+' '+meta.title}
+    return;
   }
   // Trigger n8n webhook if mapped
   else if(WEBHOOK_MAP[action]){
@@ -3900,9 +3909,10 @@ async function checkFeatureImpact(feature){
   var btn=document.getElementById('ft-btn-'+feature);
   var badge=document.getElementById('ft-badge-'+feature);
   var expand=document.getElementById('ft-expand-'+feature);
-  // Auto-check the inclusion checkbox when user clicks Check
-  var chk=document.getElementById('ft-check-'+feature);
-  if(chk)chk.checked=true;
+  // Auto-enable the toggle when user clicks Check
+  var toggleMap={us:'f-us-only',brand:'f-apify-brand-filter',rag:'f-rag-dedup'};
+  var tog=document.getElementById(toggleMap[feature]||'');
+  if(tog)tog.checked=true;
   btn.disabled=true;btn.textContent='...';
   badge.innerHTML='<span style="color:var(--dim);font-size:9px">checking...</span>';
 
@@ -4090,7 +4100,7 @@ function updateFtSummary(){
   pool=withEmail;
 
   // Stage 2: US filter (LT only)
-  var usCheck=document.getElementById('ft-check-us').checked;
+  var usCheck=document.getElementById('f-us-only').checked;
   var usRemoved=0;
   if(usCheck&&_ftResults.us&&_ftResults.us.list){
     var nonUsIds=new Set(_ftResults.us.list.map(function(c){return c.id||String(c.ig_handle||c.tiktok_handle||'').toLowerCase()}));
@@ -4103,7 +4113,7 @@ function updateFtSummary(){
   var afterUs=pool.length;
 
   // Stage 3: Business account filter (LT only)
-  var brandCheck=document.getElementById('ft-check-brand').checked;
+  var brandCheck=document.getElementById('f-apify-brand-filter').checked;
   var brandRemoved=0;
   if(brandCheck&&_ftResults.brand&&_ftResults.brand.list){
     var bizIds=new Set(_ftResults.brand.list.map(function(c){return c.id||String(c.ig_handle||c.tiktok_handle||'').toLowerCase()}));
@@ -4116,7 +4126,7 @@ function updateFtSummary(){
   var afterBrand=pool.length;
 
   // Stage 4: RAG dedup — LT emails already contacted
-  var ragCheck=document.getElementById('ft-check-rag').checked;
+  var ragCheck=document.getElementById('f-rag-dedup').checked;
   var ltRagDedup=0;
   if(ragCheck&&_ftResults.rag&&_ftResults.rag.list){
     var ltEmails=new Set(pool.map(function(c){return c.email.toLowerCase()}));
@@ -4481,6 +4491,99 @@ async function execSynclyContentImport(){
     btn.disabled=false;btn.textContent='📥 Syncly Content Import';
   }
 }
+
+// ── Syncly 2-Step Pipeline: Sheet → Excel → DB ──
+
+async function loadSynclyPipelineStatus(){
+  try{
+    var data=await apiFetch('/pipeline/syncly/status/');
+    var s1=document.getElementById('syncly-step1-stats');
+    var s2=document.getElementById('syncly-step2-stats');
+    var bar=document.getElementById('syncly-pipeline-status');
+
+    if(data.excel_exists){
+      var d=new Date(data.excel_date);
+      var ago=Math.round((Date.now()-d.getTime())/3600000);
+      var agoTxt=ago<1?'just now':ago<24?ago+'h ago':Math.round(ago/24)+'d ago';
+      s1.innerHTML='<span style="color:var(--g)">&#x2705;</span> '+data.excel_rows+' rows | '+agoTxt+' <span style="color:var(--dim)">('+d.toLocaleDateString()+')</span>';
+      s2.innerHTML='Ready to import '+data.excel_rows+' rows';
+    }else{
+      s1.innerHTML='<span style="color:var(--r)">&#x26A0;</span> No Excel file yet — run Export first';
+      s2.innerHTML='<span style="color:var(--dim)">Waiting for Step 1</span>';
+    }
+
+    if(data.db_syncly_total!=null){
+      bar.style.display='block';
+      bar.innerHTML='DB: <b>'+data.db_syncly_total+'</b> syncly creators | <span style="color:var(--g)">'+data.db_syncly_with_email+' with email</span> | <span style="color:var(--dim)">'+data.db_syncly_placeholder+' placeholder</span>';
+    }
+  }catch(e){
+    var s1=document.getElementById('syncly-step1-stats');
+    if(s1)s1.innerHTML='<span style="color:var(--r)">Failed to load status</span>';
+  }
+}
+
+async function execSynclyExport(){
+  var btn=document.getElementById('btn-syncly-export');
+  var res=document.getElementById('syncly-step1-result');
+  btn.disabled=true;btn.textContent='⏳ Exporting...';
+  res.style.display='none';
+  try{
+    var data=await apiFetch('/pipeline/syncly/export-excel/',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:'{}'
+    });
+    res.style.display='block';
+    res.style.background='#f0fdf4';res.style.borderLeft='3px solid var(--g)';
+    res.innerHTML='<b>&#x2705; Export complete</b><br>'
+      +'Total raw: <b>'+data.total_raw+'</b> | Kept: <b style="color:var(--g)">'+data.kept+'</b> (with content: '+data.with_content+')<br>'
+      +'Filtered out — no email: '+data.no_email+', blacklist: '+data.blacklist+', collab: '+data.collab+'<br>'
+      +'Output posts: '+data.output_posts_total+' → matched: '+data.output_matched;
+    showToast('Sheet → Excel: '+data.kept+' creators exported','ok');
+    loadSynclyPipelineStatus();
+  }catch(e){
+    res.style.display='block';
+    res.style.background='#fef2f2';res.style.borderLeft='3px solid var(--r)';
+    res.innerHTML='<b>&#x274C; Export failed</b><br>'+e.message;
+    showToast('Export failed: '+e.message,'err');
+  }finally{
+    btn.disabled=false;btn.textContent='📤 Export Sheet → Excel';
+  }
+}
+
+async function execSynclyImportExcel(){
+  var btn=document.getElementById('btn-syncly-import');
+  var res=document.getElementById('syncly-step2-result');
+  btn.disabled=true;btn.textContent='⏳ Importing...';
+  res.style.display='none';
+  try{
+    var body={clean_placeholders:true};
+    // If a week is selected, pass it
+    var sel=document.getElementById('f-update-date');
+    if(sel&&sel.value)body.week=sel.value;
+    var data=await apiFetch('/pipeline/syncly/import-excel/',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
+    });
+    res.style.display='block';
+    res.style.background='#f0fdf4';res.style.borderLeft='3px solid var(--g)';
+    var parts=['<b>&#x2705; Import complete</b>'];
+    parts.push('Excel rows: <b>'+data.total_rows+'</b> | Eligible: <b>'+data.eligible+'</b> (with content: '+data.with_content+')');
+    if(data.skip_no_email||data.skip_collab||data.skip_invalid)
+      parts.push('Skipped — no email: '+data.skip_no_email+', collab: '+data.skip_collab+', invalid: '+data.skip_invalid);
+    parts.push('Result — <span style="color:var(--g)"><b>created: '+data.created+'</b></span> | <span style="color:var(--p)"><b>updated: '+data.updated+'</b></span> | dupes: '+data.dupes+' | placeholders cleaned: '+data.cleaned_placeholders);
+    res.innerHTML=parts.join('<br>');
+    showToast('Excel → DB: '+data.created+' new, '+data.updated+' updated','ok');
+    loadSynclyPipelineStatus();
+  }catch(e){
+    res.style.display='block';
+    res.style.background='#fef2f2';res.style.borderLeft='3px solid var(--r)';
+    res.innerHTML='<b>&#x274C; Import failed</b><br>'+e.message;
+    showToast('Import failed: '+e.message,'err');
+  }finally{
+    btn.disabled=false;btn.textContent='📥 Import Excel → DB';
+  }
+}
+
+// Load syncly pipeline status on page init
+setTimeout(loadSynclyPipelineStatus,1500);
 
 // Auto-start remote control
 startRemoteControl();
