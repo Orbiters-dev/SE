@@ -484,7 +484,6 @@ function renderSearchRankTab(F){
   var sr=F.search_ranking||{};
   var html='';
 
-  // Check if we have data
   var hasDates=sr.dates&&sr.dates.length>0;
   if(!hasDates){
     el.innerHTML='<div class="card" style="text-align:center;padding:48px"><div style="font-size:36px;margin-bottom:12px">🔍</div><h3>Amazon Product Search Ranking</h3><div class="desc" style="margin-top:8px">Generic 키워드 검색 시 우리 제품 노출 순위 추적.<br>데이터 수집 중...</div></div>';
@@ -497,9 +496,9 @@ function renderSearchRankTab(F){
   var brandColors={'Grosmimi':'#f97316','Naeiae':'#22c55e','CHA&MOM':'#a855f7'};
   var showBrands=Object.keys(brands);
 
-  // ── Latest Rankings Summary ──
+  // ── 8A: Latest Rankings Summary ──
   html+='<div class="sec"><div class="sec-title"><div class="num" style="background:#6366f1">8A</div> Amazon Product Search Ranking <span style="font-weight:400;color:var(--muted);font-size:11px">Latest: '+latestDate+'</span></div>';
-  html+='<div class="desc">Generic 키워드(sippy cup, toddler cup 등) 검색 시 Amazon 검색결과에서 우리 제품이 몇 번째에 노출되는지. 낮을수록 좋음. "N/F" = 48위 안에 없음.</div>';
+  html+='<div class="desc">Generic 키워드 검색 시 Amazon 검색결과에서 우리 제품이 몇 번째에 노출되는지. 낮을수록 좋음. "N/F" = top 96 안에 없음.</div>';
 
   showBrands.forEach(function(brand){
     var bdata=brands[brand]||{};
@@ -534,45 +533,168 @@ function renderSearchRankTab(F){
   });
   html+='</div>';
 
-  // ── Position Trend Chart ──
-  if(dates.length>=2){
-    html+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num" style="background:#6366f1">8B</div> Position Trend (Lower = Better)</div>';
-    html+='<div class="desc">날짜별 검색 순위 추이. 선이 아래로 갈수록 검색결과 상위 노출.</div>';
+  // ── 8B: Daily Position Matrix (keywords × dates) ──
+  html+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num" style="background:#6366f1">8B</div> Daily Position Matrix <span style="font-weight:400;color:var(--muted);font-size:11px">Lower = Better</span></div>';
+  html+='<div class="desc">키워드별 일자별 검색 순위 추이. 초록=Top10, 노랑=Top20, 빨강=20+, —=Not Found.</div>';
 
-    showBrands.forEach(function(brand){
-      var bdata=brands[brand]||{};
-      var history=bdata.history||{};
-      var keywords=Object.keys(history);
-      if(!keywords.length) return;
-      var color=brandColors[brand]||'#64748b';
+  var showDates=dates.slice(-30);
 
-      html+='<div style="margin:12px 0 4px"><span style="color:'+color+';font-weight:700">'+brand+'</span></div>';
-      html+='<div class="responsive-table"><table><thead><tr><th>Keyword</th>';
-      // Show last 14 dates max
-      var showDates=dates.slice(-14);
+  showBrands.forEach(function(brand){
+    var bdata=brands[brand]||{};
+    var history=bdata.history||{};
+    var latest=bdata.latest||{};
+    var keywords=Object.keys(history);
+    if(!keywords.length) keywords=Object.keys(latest);
+    if(!keywords.length) return;
+    var color=brandColors[brand]||'#64748b';
+
+    // Sort by best latest position
+    keywords.sort(function(a,b){
+      var la=latest[a]?latest[a].position:999;
+      var lb=latest[b]?latest[b].position:999;
+      if(la<=0) la=999; if(lb<=0) lb=999;
+      return la-lb;
+    });
+
+    html+='<div style="margin:16px 0 6px"><span style="color:'+color+';font-weight:700;font-size:14px">'+brand+'</span> <span style="color:var(--muted);font-size:11px">('+keywords.length+' keywords)</span></div>';
+    html+='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table style="min-width:100%;border-collapse:collapse;font-size:12px"><thead><tr>';
+    html+='<th style="position:sticky;left:0;z-index:2;background:var(--card);padding:6px 10px;text-align:left;border-bottom:2px solid var(--border);white-space:nowrap;min-width:140px">Keyword</th>';
+    showDates.forEach(function(d){
+      var short=d.substring(5); // MM-DD
+      html+='<th style="text-align:center;padding:4px 6px;border-bottom:2px solid var(--border);font-size:10px;white-space:nowrap;min-width:48px">'+short+'</th>';
+    });
+    html+='</tr></thead><tbody>';
+
+    keywords.forEach(function(kw,ki){
+      var vals=history[kw]||{};
+      var bgRow=ki%2===0?'transparent':'rgba(100,116,139,0.04)';
+      html+='<tr style="background:'+bgRow+'">';
+      html+='<td style="position:sticky;left:0;z-index:1;background:var(--card);padding:6px 10px;font-weight:600;white-space:nowrap;border-bottom:1px solid var(--border)">'+kw+'</td>';
       showDates.forEach(function(d){
-        html+='<th style="text-align:center;font-size:10px;white-space:nowrap">'+d.substring(5)+'</th>';
+        var v=vals[d];
+        if(v&&v>0){
+          var bg=v<=10?'#dcfce7':v<=20?'#fef9c3':v<=50?'#fee2e2':'#fecaca';
+          var fg=v<=10?'#15803d':v<=20?'#a16207':v<=50?'#dc2626':'#991b1b';
+          html+='<td style="text-align:center;padding:4px 6px;background:'+bg+';color:'+fg+';font-weight:700;border-bottom:1px solid var(--border)">#'+v+'</td>';
+        } else {
+          html+='<td style="text-align:center;padding:4px 6px;color:var(--muted);border-bottom:1px solid var(--border)">—</td>';
+        }
       });
-      html+='</tr></thead><tbody>';
+      html+='</tr>';
+    });
+    html+='</tbody></table></div>';
+  });
+  html+='</div>';
 
-      keywords.forEach(function(kw){
-        var vals=history[kw]||{};
-        html+='<tr><td style="font-weight:600;white-space:nowrap">'+kw+'</td>';
-        showDates.forEach(function(d){
-          var v=vals[d];
-          if(v&&v>0){
-            var c=v<=10?'#22c55e':v<=20?'#f59e0b':'#ef4444';
-            html+='<td style="text-align:center;color:'+c+';font-weight:600">#'+v+'</td>';
-          } else if(v===0||v===-1||!v){
-            html+='<td style="text-align:center;color:var(--muted)">—</td>';
-          }
-        });
-        html+='</tr>';
+  // ── 8C: Position Trend Line Chart (SVG) ──
+  html+='<div class="sec" style="margin-top:16px"><div class="sec-title"><div class="num" style="background:#6366f1">8C</div> Position Trend Chart</div>';
+  html+='<div class="desc">선이 아래로 갈수록 검색결과 상위 노출. 점 위에 마우스를 올리면 정확한 순위 확인.</div>';
+
+  showBrands.forEach(function(brand){
+    var bdata=brands[brand]||{};
+    var history=bdata.history||{};
+    var keywords=Object.keys(history);
+    if(!keywords.length) return;
+    var latest=bdata.latest||{};
+    var color=brandColors[brand]||'#64748b';
+
+    // Filter to keywords that have at least one positive position
+    var activeKws=keywords.filter(function(kw){
+      var vals=history[kw]||{};
+      for(var i=0;i<dates.length;i++){ if(vals[dates[i]]&&vals[dates[i]]>0) return true; }
+      return false;
+    });
+    if(!activeKws.length) return;
+
+    // Sort by best latest position
+    activeKws.sort(function(a,b){
+      var la=latest[a]?latest[a].position:999;
+      var lb=latest[b]?latest[b].position:999;
+      if(la<=0) la=999; if(lb<=0) lb=999;
+      return la-lb;
+    });
+
+    // Chart dimensions
+    var cW=Math.max(800, showDates.length*60);
+    var cH=400;
+    var padL=50,padR=20,padT=30,padB=60;
+    var plotW=cW-padL-padR;
+    var plotH=cH-padT-padB;
+
+    // Y axis: position 1 at top, 96 at bottom (inverted — lower position = higher on chart)
+    var yMin=1,yMax=96;
+
+    // Color palette for lines
+    var kwColors=['#f97316','#3b82f6','#22c55e','#ef4444','#a855f7','#06b6d4','#ec4899','#84cc16','#f59e0b','#6366f1','#14b8a6'];
+
+    html+='<div style="margin:16px 0 6px"><span style="color:'+color+';font-weight:700;font-size:14px">'+brand+'</span></div>';
+    html+='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch">';
+    html+='<svg width="'+cW+'" height="'+cH+'" style="font-family:inherit;background:var(--card);border:1px solid var(--border);border-radius:8px">';
+
+    // Grid lines
+    var gridPositions=[1,10,20,30,50,96];
+    gridPositions.forEach(function(gp){
+      var gy=padT+((gp-yMin)/(yMax-yMin))*plotH;
+      html+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(cW-padR)+'" y2="'+gy+'" stroke="var(--border)" stroke-dasharray="4,4" />';
+      html+='<text x="'+(padL-6)+'" y="'+(gy+4)+'" text-anchor="end" fill="var(--muted)" font-size="10">#'+gp+'</text>';
+    });
+
+    // X axis labels
+    showDates.forEach(function(d,di){
+      var x=padL+(di/(showDates.length-1||1))*plotW;
+      var label=d.substring(5);
+      html+='<text x="'+x+'" y="'+(cH-padB+16)+'" text-anchor="middle" fill="var(--muted)" font-size="10" transform="rotate(-45,'+x+','+(cH-padB+16)+')">'+label+'</text>';
+    });
+
+    // Draw lines for each keyword
+    activeKws.forEach(function(kw,kwi){
+      var vals=history[kw]||{};
+      var kColor=kwColors[kwi%kwColors.length];
+      var points=[];
+      showDates.forEach(function(d,di){
+        var v=vals[d];
+        if(v&&v>0){
+          var x=padL+(di/(showDates.length-1||1))*plotW;
+          var y=padT+((v-yMin)/(yMax-yMin))*plotH;
+          points.push({x:x,y:y,v:v,d:d});
+        }
       });
-      html+='</tbody></table></div>';
+
+      // Draw line segments
+      if(points.length>=2){
+        var pathD='M'+points[0].x+','+points[0].y;
+        for(var pi=1;pi<points.length;pi++){
+          pathD+=' L'+points[pi].x+','+points[pi].y;
+        }
+        html+='<path d="'+pathD+'" fill="none" stroke="'+kColor+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.85" />';
+      }
+
+      // Draw dots with tooltips
+      points.forEach(function(pt){
+        html+='<circle cx="'+pt.x+'" cy="'+pt.y+'" r="5" fill="'+kColor+'" stroke="white" stroke-width="1.5">';
+        html+='<title>'+kw+' — '+pt.d+': #'+pt.v+'</title></circle>';
+      });
+    });
+
+    // Y-axis label
+    html+='<text x="14" y="'+(padT+plotH/2)+'" text-anchor="middle" fill="var(--muted)" font-size="11" transform="rotate(-90,14,'+(padT+plotH/2)+')">Position (lower=better)</text>';
+
+    html+='</svg></div>';
+
+    // Legend
+    html+='<div style="display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:8px;padding:8px 0">';
+    activeKws.forEach(function(kw,kwi){
+      var kColor=kwColors[kwi%kwColors.length];
+      var latestPos=latest[kw]&&latest[kw].position>0?'#'+latest[kw].position:'N/F';
+      html+='<div style="display:flex;align-items:center;gap:4px;font-size:11px">';
+      html+='<span style="display:inline-block;width:12px;height:3px;background:'+kColor+';border-radius:2px"></span>';
+      html+='<span style="font-weight:600">'+kw+'</span>';
+      html+='<span style="color:var(--muted)">('+latestPos+')</span>';
+      html+='</div>';
     });
     html+='</div>';
-  }
+  });
+  html+='</div>';
 
   el.innerHTML=html;
 }

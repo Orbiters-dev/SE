@@ -70,6 +70,7 @@ SEARCH_KEYWORDS = {
         "sippy cup", "toddler cup", "straw cup", "baby straw cup",
         "toddler straw cup", "training cup", "ppsu bottle",
         "weighted straw cup", "transition cup",
+        "toddler tumbler", "kids tumbler",
     ],
     "Naeiae": [
         "baby snack", "baby rice puff", "baby puffs", "toddler snack",
