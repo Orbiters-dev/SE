@@ -1732,7 +1732,7 @@ function renderHeroTab(F){
       // ── Ad spend data (brand_ad_daily or cat_ad_daily → hero daily_dates alignment) ──
       var _catAd=H.cat_ad_daily||{};
       var _bad,_bd;
-      if(_heroView==='cat'&&_catAd[c.category]){_bad=_catAd;_bd=_catAd[c.category]||{};}
+      if(_heroView==='cat'){_bad=_catAd;_bd=_catAd[c.category]||{};}
       else{_bad=F.brand_ad_daily||{};_bd=_bad[c.brand]||{};}
       var _badDates=_bad.dates||[];
       // Attribution actual data (per-category or per-brand)

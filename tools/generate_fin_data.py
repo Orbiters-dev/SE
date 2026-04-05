@@ -3707,11 +3707,11 @@ def generate():
         # Reference: .claude/skills/amazon-ppc-agent/references/campaign_classification.md
         CAT_CAMP_KEYWORDS = [
             ("PPSU Straw Cup", ["ppsu straw", "ppsu strawcup", "ppsu manual", "ppsu auto",
-                                "stage2", "stage 2"]),
+                                "stage2", "stage 2", "fliptop", "flip top", "flip_top"]),
             ("Stainless Straw Cup", ["stainless straw", "stainless strawcup", "steel straw",
-                                     "stainlessstrawcup", "fliptop", "flip top", "flip_top"]),
+                                     "stainlessstrawcup"]),
             ("PPSU Tumbler", ["ppsu tumbler", "knotted"]),
-            ("Stainless Tumbler", ["stainless tumbler", "steel tumbler", "vacuum", "vacumm"]),
+            ("Stainless Tumbler", ["stainless tumbler", "steel tumbler"]),
             ("PPSU Baby Bottle", ["ppsu bottle", "baby bottle", "ppsu baby",
                                   "stage1", "stage 1", "stage_1"]),
             ("Replacements", ["replacement"]),
