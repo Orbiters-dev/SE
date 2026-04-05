@@ -354,6 +354,14 @@
 - **수정**: Shopify Amazon 채널 필터링으로 gap 0.4%까지 감소
 - **예방**: 데이터 "없음" 결론 전에 stale data, 분류 변경, 이중 계산 먼저 검토. 유저의 직관 존중
 
+### M-056: 해시태그 분류 항등식 버그 — has_stainless 항상 True
+- **에이전트**: generate_fin_data / Hero tab
+- **날짜**: 2026-04-05
+- **상황**: `_classify_post_by_hashtags()`에서 `has_stainless = any(t in tag_set or "stainless" in t for t in tags)` — `tag_set = set(tags)`이므로 `t in tag_set`은 항상 True. 모든 Grosmimi 콘텐츠가 "Stainless Straw Cup"으로 분류됨
+- **에러**: deanna.hauk (해시태그: #PPSU #PPSUStrawcup)가 Stainless Straw Cup에 321K 뷰로 표시
+- **수정**: `has_stainless = any("stainless" in t for t in tags)` + PPSU 우선순위 변경 (PPSU 체크를 stainless 앞으로)
+- **예방**: set에서 파생된 iterable로 `t in set` 체크 금지 (항등식). 분류 함수 작성 후 반드시 known-hashtag 포스트로 검증. DB 직접 쿼리로 크로스체크
+
 ---
 
 ## 파이프라이너
