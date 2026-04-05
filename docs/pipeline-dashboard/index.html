@@ -2190,7 +2190,7 @@ async function toggleEmailHistory(creatorId, email){
     row.style.display='table-row';
     // Load conversations from PG
     try{
-      var convs=await apiFetch('/pipeline/conversations/?email='+encodeURIComponent(email)+'&limit=20');
+      var convs=await apiFetch('/pipeline/conversations/?creator_email='+encodeURIComponent(email)+'&limit=20');
       var logs=await apiFetch('/pipeline/reply-log/?days=30');
       var el=document.getElementById('email-hist-content-'+creatorId);
       var items=(Array.isArray(convs)?convs:convs.results||[]).filter(function(c){return c.creator_email===email});
@@ -2322,8 +2322,8 @@ async function toggleDraftPreview(creatorId,email){
     row.style.display='table-row';
     var el=document.getElementById('draft-content-'+creatorId);
     try{
-      var convs=await apiFetch('/pipeline/conversations/?email='+encodeURIComponent(email)+'&limit=5');
-      var items=(Array.isArray(convs)?convs:convs.results||[]).filter(function(c){return c.creator_email===email&&(c.status==='Draft Ready'||c.status==='Sent')});
+      var convs=await apiFetch('/pipeline/conversations/?creator_email='+encodeURIComponent(email)+'&status=Draft+Ready&limit=5');
+      var items=(Array.isArray(convs)?convs:convs.results||[]);
       if(items.length===0){
         el.innerHTML='<span style="color:var(--muted)">No draft found for this creator</span>';
         return;
