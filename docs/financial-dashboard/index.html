@@ -2272,15 +2272,15 @@ function renderHeroTab(F){
               html+=' · <span style="color:var(--dim)">spend $'+ac.spend.toLocaleString()+'</span>';
               if(_acRoas>0) html+=' · <span style="color:'+_acRc+';font-weight:600">'+_acRoas.toFixed(1)+'x</span>';
               html+='</td></tr>';
-              // Daily spend row if matched_daily available
+              // Daily spend row — re-index from brand_ad_daily dates to table dates
               if(ac.daily_spend&&ac.daily_spend.length){
                 html+='<tr><td style="padding-left:28px;text-align:left;'+_stickyTd+';color:#a78bfa;font-size:9px">Spend</td>';
-                for(var j=0;j<_tblN;j++){var sv=ac.daily_spend[j]||0;html+='<td style="text-align:right;padding:2px 6px;font-family:var(--mono);color:#a78bfa;font-size:9px">'+(sv>0?'$'+Math.round(sv).toLocaleString():'—')+'</td>';}
+                for(var j=0;j<_tblN;j++){var _bi=_badIdx[dates[j]];var sv=(_bi!=null?ac.daily_spend[_bi]:0)||0;html+='<td style="text-align:right;padding:2px 6px;font-family:var(--mono);color:#a78bfa;font-size:9px">'+(sv>0?'$'+Math.round(sv).toLocaleString():'—')+'</td>';}
                 html+='</tr>';
               }
               if(ac.daily_clicks&&ac.daily_clicks.length){
                 html+='<tr><td style="padding-left:28px;text-align:left;'+_stickyTd+';color:#a78bfa;font-size:9px">Clicks</td>';
-                for(var j=0;j<_tblN;j++){var cv=ac.daily_clicks[j]||0;html+='<td style="text-align:right;padding:2px 6px;font-family:var(--mono);color:#a78bfa;font-size:9px">'+(cv>0?cv.toLocaleString():'—')+'</td>';}
+                for(var j=0;j<_tblN;j++){var _bi2=_badIdx[dates[j]];var cv=(_bi2!=null?ac.daily_clicks[_bi2]:0)||0;html+='<td style="text-align:right;padding:2px 6px;font-family:var(--mono);color:#a78bfa;font-size:9px">'+(cv>0?cv.toLocaleString():'—')+'</td>';}
                 html+='</tr>';
               }
             });

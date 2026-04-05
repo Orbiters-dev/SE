@@ -3108,6 +3108,49 @@ def generate():
                 })
             cat_sfr_branded[cat] = sorted(branded, key=lambda x: -x["click_share"])
 
+        # Share generic branded keywords across all categories of the same brand
+        # e.g. "grosmimi", "grosmimi cup" should appear in both PPSU and Stainless
+        brand_all_branded = defaultdict(dict)  # brand_slug -> {keyword: kw_entry}
+        for cat, kws in cat_sfr_branded.items():
+            slug = _bslug(cat_brand_map.get(cat, ''))
+            for kw in kws:
+                kl = kw["keyword"].lower()
+                if kl not in brand_all_branded[slug] or len(kw.get("rank_weekly",[])) > len(brand_all_branded[slug][kl].get("rank_weekly",[])):
+                    brand_all_branded[slug][kl] = kw
+
+        CAT_KW_EXCLUDE = {
+            "PPSU Straw Cup": ["stainless", "steel", "tumbler", "bottle"],
+            "Stainless Straw Cup": ["ppsu", "tumbler", "bottle", "sippy"],
+            "PPSU Tumbler": ["stainless", "steel", "bottle"],
+            "Stainless Tumbler": ["ppsu", "bottle"],
+            "PPSU Baby Bottle": ["stainless", "steel", "tumbler"],
+        }
+
+        for cat in list(cat_sfr_branded.keys()):
+            slug = _bslug(cat_brand_map.get(cat, ''))
+            bvars = _BRAND_VARIANTS_PY.get(slug, [slug] if slug else [])
+            excludes = CAT_KW_EXCLUDE.get(cat, [])
+            existing_kws = {kw["keyword"].lower() for kw in cat_sfr_branded[cat]}
+            # Add generic keywords from other categories of the same brand
+            for kl, kw_entry in brand_all_branded.get(slug, {}).items():
+                if kl in existing_kws:
+                    continue
+                # Skip if matches exclusion list
+                if excludes and any(ex in kl for ex in excludes):
+                    continue
+                # Include if it's a generic keyword (brand-name only) or matches this category
+                remaining = kl
+                for v in bvars:
+                    remaining = remaining.replace(v, "").strip()
+                is_generic = len(remaining) <= 3
+                if is_generic:
+                    cat_sfr_branded[cat].append(kw_entry)
+            # Remove keywords that match other category's specifics
+            if excludes:
+                cat_sfr_branded[cat] = [kw for kw in cat_sfr_branded[cat]
+                    if not any(ex in kw["keyword"].lower() for ex in excludes)]
+            cat_sfr_branded[cat] = sorted(cat_sfr_branded[cat], key=lambda x: -x.get("click_share", 0))
+
         # SQP branded keywords
         sqp_by_brand = defaultdict(lambda: defaultdict(dict))
         for r in sqp_brand:
@@ -3133,10 +3176,53 @@ def generate():
                 })
             brand_top10[slug] = kw_list
 
+        # Category-specific keyword filters: include generic + category-relevant, exclude other categories
+        CAT_KW_INCLUDE = {
+            "PPSU Straw Cup": ["ppsu", "straw", "sippy", "cup", "stage", "spout", "weighted", "replacement", "open"],
+            "Stainless Straw Cup": ["stainless", "steel", "flip", "fliptop", "straw cup"],
+            "PPSU Tumbler": ["tumbler", "knotted"],
+            "Stainless Tumbler": ["tumbler", "vacuum", "vacumm", "stainless"],
+            "PPSU Baby Bottle": ["bottle", "stage 1", "stage1", "baby bottle"],
+        }
+        CAT_KW_EXCLUDE = {
+            "PPSU Straw Cup": ["stainless", "steel", "tumbler", "bottle"],
+            "Stainless Straw Cup": ["ppsu", "tumbler", "bottle", "sippy"],
+            "PPSU Tumbler": ["stainless", "steel", "bottle", "straw cup"],
+            "Stainless Tumbler": ["ppsu", "bottle", "straw cup", "sippy"],
+            "PPSU Baby Bottle": ["stainless", "steel", "tumbler", "straw cup"],
+        }
+
+        def _is_generic_kw(kw_lower, brand_variants):
+            """Keyword is generic if it only contains brand name variants (no product specifier)."""
+            remaining = kw_lower
+            for v in brand_variants:
+                remaining = remaining.replace(v, "").strip()
+            return len(remaining) <= 3  # e.g. "grosmimi", "grosmini", "grossmimi"
+
         for cat in set(cat_sfr_branded.keys()) | set(cat_brand_map.keys()):
             slug = _bslug(cat_brand_map.get(cat, ''))
             if slug in brand_top10:
-                cat_sfr_branded[cat] = brand_top10[slug]
+                all_kws = brand_top10[slug]
+                includes = CAT_KW_INCLUDE.get(cat, [])
+                excludes = CAT_KW_EXCLUDE.get(cat, [])
+                bvars = _BRAND_VARIANTS_PY.get(slug, [slug] if slug else [])
+                if includes or excludes:
+                    filtered = []
+                    for kw in all_kws:
+                        kl = kw["keyword"].lower()
+                        # Always include generic brand keywords (e.g. "grosmimi", "grosmini")
+                        if _is_generic_kw(kl, bvars):
+                            filtered.append(kw)
+                            continue
+                        # Exclude keywords matching other categories
+                        if excludes and any(ex in kl for ex in excludes):
+                            continue
+                        # Include if matches this category or no filter defined
+                        if not includes or any(inc in kl for inc in includes):
+                            filtered.append(kw)
+                    cat_sfr_branded[cat] = filtered
+                else:
+                    cat_sfr_branded[cat] = all_kws
 
         # Enrich keywords with ads spend
         st_spend = defaultdict(lambda: {"spend": 0.0, "clicks": 0, "sales": 0.0, "impressions": 0})
