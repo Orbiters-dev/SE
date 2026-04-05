@@ -1691,7 +1691,12 @@ def syncly_import_excel(request):
     clean_ph = body.get("clean_placeholders", True)
 
     def _parse_date(raw):
-        raw = (raw or "").strip()
+        if raw is None:
+            return None
+        # openpyxl returns datetime objects directly
+        if hasattr(raw, 'date') and callable(getattr(raw, 'date', None)):
+            return raw.date()
+        raw = str(raw).strip()
         if not raw:
             return None
         try:
@@ -1704,9 +1709,6 @@ def syncly_import_excel(request):
                     return date_cls(y, int(parts[1]), int(parts[2]))
             elif len(raw) == 6 and raw.isdigit():
                 return date_cls(2000 + int(raw[:2]), int(raw[2:4]), int(raw[4:6]))
-            # Try parsing as datetime object (openpyxl returns datetime)
-            if hasattr(raw, 'date'):
-                return raw.date() if callable(getattr(raw, 'date', None)) else None
         except Exception:
             pass
         return None
@@ -1822,7 +1824,7 @@ def syncly_import_excel(request):
 
         # Clean @discovered.* placeholders if requested
         cleaned_ph = 0
-        if clean_placeholders:
+        if clean_ph:
             ph_qs = PipelineCreator.objects.filter(
                 email__icontains="@discovered.",
                 pipeline_status="Not Started",

@@ -1430,7 +1430,7 @@ var DEMO_CREATORS=[
 ];
 var DEMO_CONFIG={
   date:'2026-03-20',update_date:'2026-03-20',start_from_beginning:false,
-  creators_contacted:10,ht_threshold:100000,rag_email_dedup:true,apify_autofill:true,apify_brand_filter:true,us_only:true,
+  creators_contacted:10,ht_threshold:100000,rag_email_dedup:true,apify_brand_filter:true,us_only:true,
   hil_draft_review:true,hil_send_approval:false,hil_sample_approval:false,
   sender_email:'affiliates@onzenna.com',
   outreach_template_id:'1vAvPdheHFz4xIraa3NODUuFG7RagylHEYOvv6BjtxLg',
@@ -4024,7 +4024,6 @@ async function checkAllFeatures(){
   _ftCache=null;_ftCacheWeek=null; // force fresh fetch for current week
   await checkFeatureImpact('us');
   await checkFeatureImpact('brand');
-  await checkFeatureImpact('apify');
   await checkFeatureImpact('rag');
 }
 
@@ -4234,7 +4233,7 @@ function resetBatchPipeline(){
     }
   }
   // Reset feature toggle badges
-  ['rag','apify','brand'].forEach(function(f){
+  ['rag','brand'].forEach(function(f){
     var badge=document.getElementById('ft-badge-'+f);
     var expand=document.getElementById('ft-expand-'+f);
     if(badge)badge.innerHTML='';
