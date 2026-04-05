@@ -556,6 +556,29 @@ Shopify                         Apify / Syncly                   Gmail RAG
       <div class="card">
         <h3>&#x1F4E6; Batch Control</h3>
         <div class="desc">Control which creators get contacted and how many per batch</div>
+        <!-- Syncly 2-Step Pipeline: Sheet → Excel → DB (above 최초발견일자) -->
+        <div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)">
+          <div style="font-size:10px;font-weight:700;color:var(--dim);margin-bottom:8px">&#x1F50E; Syncly Discovery Pipeline</div>
+          <div id="syncly-pipeline-status" style="display:none;margin-bottom:8px;padding:6px 10px;border-radius:6px;font-size:9px;background:var(--bg);border:1px solid var(--border);font-family:var(--mono)"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg)">
+              <div style="font-size:9px;font-weight:700;color:var(--p);margin-bottom:4px">Step 1: Sheet &#x2192; Excel</div>
+              <div id="syncly-step1-stats" style="font-size:9px;color:var(--dim);margin-bottom:6px">Loading...</div>
+              <button class="btn btn-secondary btn-sm" id="btn-syncly-export" onclick="execSynclyExport()" style="width:100%;border-left:3px solid var(--p)">&#x1F4E4; Export Sheet &#x2192; Excel</button>
+              <div id="syncly-step1-result" style="display:none;margin-top:4px;font-size:9px;padding:4px 8px;border-radius:4px"></div>
+            </div>
+            <div style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg)">
+              <div style="font-size:9px;font-weight:700;color:var(--g);margin-bottom:4px">Step 2: Excel &#x2192; DB</div>
+              <div id="syncly-step2-stats" style="font-size:9px;color:var(--dim);margin-bottom:6px">Run Step 1 first</div>
+              <button class="btn btn-secondary btn-sm" id="btn-syncly-import" onclick="execSynclyImportExcel()" style="width:100%;border-left:3px solid var(--g)">&#x1F4E5; Import Excel &#x2192; DB</button>
+              <div id="syncly-step2-result" style="display:none;margin-top:4px;font-size:9px;padding:4px 8px;border-radius:4px"></div>
+            </div>
+          </div>
+          <div style="margin-top:8px">
+            <button class="btn btn-secondary btn-sm" id="btn-syncly-content" onclick="execSynclyContentImport()" style="border-left:3px solid #8b5cf6">&#x1F4E5; Syncly Content Import</button>
+            <div id="syncly-content-result" style="display:none;margin-top:4px;padding:4px 8px;border-radius:4px;font-size:9px;background:var(--bg)"></div>
+          </div>
+        </div>
         <div class="form-row">
           <label>최초발견일자</label>
           <div style="display:flex;gap:4px;flex:1;align-items:center">
@@ -572,33 +595,6 @@ Shopify                         Apify / Syncly                   Gmail RAG
         <div class="form-row"><label>HT Threshold (R30D)</label><input type="number" id="f-ht-threshold" min="0" step="10000"></div>
         <div class="form-row"><label>HT Min Followers</label><input type="number" id="f-ht-follower-min" min="0" step="5000"></div>
         <div id="ht-lt-split-hint" style="display:none;margin:6px 0 4px 0;padding:8px 12px;background:linear-gradient(135deg,#fef3c7,#eff6ff);border:1px solid #e5e7eb;border-radius:6px;font-size:11px;font-family:var(--mono)"></div>
-        <!-- Syncly 2-Step Pipeline: Sheet → Excel → DB -->
-        <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
-          <div style="font-size:10px;font-weight:700;color:var(--dim);margin-bottom:8px">&#x1F50E; Syncly Discovery Pipeline</div>
-          <!-- Status bar (loaded on init) -->
-          <div id="syncly-pipeline-status" style="display:none;margin-bottom:8px;padding:6px 10px;border-radius:6px;font-size:9px;background:var(--bg);border:1px solid var(--border);font-family:var(--mono)"></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <!-- Step 1: Sheet → Excel -->
-            <div style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg)">
-              <div style="font-size:9px;font-weight:700;color:var(--p);margin-bottom:4px">Step 1: Sheet &#x2192; Excel</div>
-              <div id="syncly-step1-stats" style="font-size:9px;color:var(--dim);margin-bottom:6px">Loading...</div>
-              <button class="btn btn-secondary btn-sm" id="btn-syncly-export" onclick="execSynclyExport()" style="width:100%;border-left:3px solid var(--p)">&#x1F4E4; Export Sheet &#x2192; Excel</button>
-              <div id="syncly-step1-result" style="display:none;margin-top:4px;font-size:9px;padding:4px 8px;border-radius:4px"></div>
-            </div>
-            <!-- Step 2: Excel → DB -->
-            <div style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg)">
-              <div style="font-size:9px;font-weight:700;color:var(--g);margin-bottom:4px">Step 2: Excel &#x2192; DB</div>
-              <div id="syncly-step2-stats" style="font-size:9px;color:var(--dim);margin-bottom:6px">Run Step 1 first</div>
-              <button class="btn btn-secondary btn-sm" id="btn-syncly-import" onclick="execSynclyImportExcel()" style="width:100%;border-left:3px solid var(--g)">&#x1F4E5; Import Excel &#x2192; DB</button>
-              <div id="syncly-step2-result" style="display:none;margin-top:4px;font-size:9px;padding:4px 8px;border-radius:4px"></div>
-            </div>
-          </div>
-          <!-- Content Import (existing) -->
-          <div style="margin-top:8px">
-            <button class="btn btn-secondary btn-sm" id="btn-syncly-content" onclick="execSynclyContentImport()" style="border-left:3px solid #8b5cf6">&#x1F4E5; Syncly Content Import</button>
-            <div id="syncly-content-result" style="display:none;margin-top:4px;padding:4px 8px;border-radius:4px;font-size:9px;background:var(--bg)"></div>
-          </div>
-        </div>
       </div>
       <!-- Data Freshness — read-only status from last pipeline runs -->
       <div class="card">
