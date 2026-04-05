@@ -104,6 +104,11 @@ jobs:
         run: python -u tools/sync_sns_tab_chaenmom.py || echo "CHA&MOM SNS sync failed (non-fatal)"
         continue-on-error: true
 
+      - name: Sync full Sheet data to PostgreSQL
+        id: sync_pg
+        run: python -u tools/fetch_apify_content.py --sync-pg --region all
+        continue-on-error: true
+
       - name: Update USA_LLM tab + Content Intelligence
         id: usa_llm
         run: python -u tools/update_usa_llm.py
