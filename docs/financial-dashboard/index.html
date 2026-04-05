@@ -1687,7 +1687,7 @@ function renderHeroTab(F){
   var _brandOrder2=Object.keys(_brandGroups).sort(function(a,b){return _brandGroups[b].sales_30d-_brandGroups[a].sales_30d;});
   // ── Select render list based on view ──
   var _renderList=_heroView==='brand'?_brandOrder2.map(function(b){return _brandGroups[b];}):H.categories;
-  html+='<div class="desc" style="margin-bottom:12px">'+(_heroView==='brand'?'Sales by brand ('+_brandOrder2.length+' brands). All categories merged.':'Sales by product category ('+H.categories.length+' categories). Keywords from Amazon Brand Analytics.')+'</div>';
+  html+='<div class="desc" style="margin-bottom:12px">'+(_heroView==='brand'?'Sales by brand ('+_brandOrder2.length+' brands). All product groups merged.':'Sales by product group ('+H.categories.length+' groups). Keywords from Amazon Brand Analytics.')+'</div>';
   _renderList.forEach(function(c,idx){
     var bc=CATCOLORS[c.category]||(BCOLORS[c.brand]||'#94a3b8');
     var brandBg=BCOLORS[c.brand]||'#94a3b8';
