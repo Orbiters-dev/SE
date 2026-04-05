@@ -2642,6 +2642,8 @@ def _serialize_email_config(cfg, include_faq=False):
             "normal": cfg.normal_template,
             "decline": cfg.decline_template,
         },
+        "sender_name": cfg.sender_name,
+        "sign_off": cfg.sign_off,
         "outreach_prompts": {
             "lt": cfg.outreach_lt_prompt,
             "ht": cfg.outreach_ht_prompt,
@@ -2707,6 +2709,8 @@ def email_config_detail(request, brand):
                 "classification_model": body.get("classification_model", "claude-sonnet-4-20250514"),
                 "lt_auto_send": body.get("lt_auto_send", True),
                 "ht_auto_send": body.get("ht_auto_send", False),
+                "sender_name": body.get("sender_name", ""),
+                "sign_off": body.get("sign_off", ""),
                 "accept_template": body.get("accept_template", ""),
                 "faq_gap_template": body.get("faq_gap_template", ""),
                 "normal_template": body.get("normal_template", ""),

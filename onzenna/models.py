@@ -388,6 +388,10 @@ class EmailReplyConfig(models.Model):
     normal_template = models.TextField(blank=True, default="")
     decline_template = models.TextField(blank=True, default="")
 
+    # Per-brand sender identity (used by n8n draft generation)
+    sender_name = models.CharField(max_length=100, blank=True, default="")
+    sign_off = models.TextField(blank=True, default="")
+
     # Outreach draft prompt (replaces Google Sheets)
     outreach_lt_prompt = models.TextField(blank=True, default="")
     outreach_ht_prompt = models.TextField(blank=True, default="")
