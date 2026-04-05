@@ -1078,6 +1078,7 @@ def pipeline_creators_list(request):
         "-created_at", "created_at", "-followers", "followers",
         "-avg_views", "avg_views", "email", "-email",
         "-updated_at", "updated_at", "pipeline_status", "-pipeline_status",
+        "-initial_discovery_date", "initial_discovery_date",
     }
     order = request.GET.get("order", "-created_at")
     if order not in ALLOWED_ORDERS:

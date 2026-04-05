@@ -1100,7 +1100,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
     <div style="overflow-x:auto;max-height:500px;overflow-y:auto;border:1px solid var(--border);border-radius:8px">
       <table id="creators-table">
         <thead><tr>
-          <th style="width:28px"><input type="checkbox" id="cr-check-all" onchange="toggleAllChecks(this.checked)" title="Select all"></th><th>Handle</th><th>Email</th><th>Sources</th><th>Brand</th><th>Status</th><th>Type</th><th>Followers</th><th>Content</th><th>Date</th><th>Actions</th>
+          <th style="width:28px"><input type="checkbox" id="cr-check-all" onchange="toggleAllChecks(this.checked)" title="Select all"></th><th>Handle</th><th>Email</th><th>Sources</th><th>Brand</th><th>Status</th><th>Type</th><th style="cursor:pointer" onclick="toggleSort('followers')" title="Sort by followers">Followers <span id="sort-followers" style="font-size:8px"></span></th><th>Content</th><th style="cursor:pointer" onclick="toggleSort('initial_discovery_date')" title="Sort by date">Date <span id="sort-initial_discovery_date" style="font-size:8px"></span></th><th>Actions</th>
         </tr></thead>
         <tbody id="creators-body">
           <tr><td colspan="11" style="text-align:center;color:var(--muted);padding:30px">Select filters and search to load creators</td></tr>
@@ -1835,10 +1835,31 @@ var _crPage=1,_crLimit=50;
 var STATUS_COLORS={
   'Not Started':'','Draft Ready':'a','Sent':'c','Replied':'am',
   'Needs Review':'p','Accepted':'g','Declined':'r',
-  'Sample Sent':'c','Sample Shipped':'c','Sample Delivered':'g','Posted':'g'
+  'Sample Sent':'c','Sample Shipped':'c','Sample Delivered':'g','Posted':'g','Archived':'r'
 };
-var PIPELINE_STAGES=['Not Started','Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
+var PIPELINE_STAGES=['Not Started','Draft Ready','Sent','Replied','Needs Review','Accepted','Declined','Sample Sent','Sample Shipped','Sample Delivered','Posted','Archived'];
 
+var _crOrder='-created_at';
+function toggleSort(field){
+  if(_crOrder==='-'+field)_crOrder=field;
+  else _crOrder='-'+field;
+  _crPage=1;
+  // Update sort arrows
+  var arrows=document.querySelectorAll('[id^="sort-"]');
+  for(var i=0;i<arrows.length;i++)arrows[i].textContent='';
+  var el=document.getElementById('sort-'+field);
+  if(el)el.textContent=_crOrder.startsWith('-')?'\u25BC':'\u25B2';
+  loadCreators();
+}
+async function archiveCreator(id,email){
+  if(!confirm('Archive '+email+'? This creator will be moved to Archived and excluded from future outreach.'))return;
+  try{
+    await apiFetch('/pipeline/creators/'+id+'/',{method:'PUT',body:JSON.stringify({pipeline_status:'Archived',changed_by:_currentUser||'dashboard'})});
+    showToast('Archived: '+email,'ok');
+    loadCreators();
+    loadCreatorStats();
+  }catch(e){showToast('Error: '+e.message,'err');}
+}
 var _lastStats=null;
 async function loadCreatorStats(){
   try{
@@ -1944,7 +1965,7 @@ async function loadCreators(){
   var brand=document.getElementById('cr-brand').value;
   var source=document.getElementById('cr-source').value;
   var assigned=document.getElementById('cr-assigned').value;
-  var params='?page='+_crPage+'&limit='+_crLimit;
+  var params='?page='+_crPage+'&limit='+_crLimit+'&order='+encodeURIComponent(_crOrder);
   if(search)params+='&search='+encodeURIComponent(search);
   if(status)params+='&status='+encodeURIComponent(status);
   if(assigned==='__none')params+='&assigned_to=';
@@ -2184,6 +2205,10 @@ function renderCreatorsTable(data){
     // Transcript button — all stages (show creator's recent content)
     if(c.ig_handle||c.tiktok_handle){
       html+=' <button onclick="toggleTranscript(\''+c.id+'\',\''+esc(c.ig_handle||c.tiktok_handle||'')+'\')" style="background:none;border:1px solid #8b5cf6;border-radius:3px;cursor:pointer;font-size:8px;padding:1px 4px;color:#8b5cf6;font-weight:700" title="Recent content transcripts">Transcript</button>';
+    }
+    // Archive (trash) button — skip if already archived
+    if(c.pipeline_status!=='Archived'){
+      html+=' <button onclick="archiveCreator(\''+c.id+'\',\''+esc(c.email)+'\')" style="background:none;border:1px solid var(--r);border-radius:3px;cursor:pointer;font-size:8px;padding:1px 4px;color:var(--r)" title="Archive — remove from pipeline">&#x1F5D1;</button>';
     }
     html+='</td>';
     html+='</tr>';
