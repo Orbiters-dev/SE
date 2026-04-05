@@ -2462,7 +2462,6 @@ async function toggleTranscript(creatorId, handle){
         var likes=p.likes||p.like_count||0;
         var date=(p.post_date||'').slice(0,10);
         var transcript=p.transcript||'';
-        var caption=p.caption||'';
         var url=p.url||'#';
         html+='<div style="border:1px solid #ddd5f3;border-radius:6px;padding:8px;margin-bottom:6px;background:#fff">';
         html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
@@ -2472,14 +2471,9 @@ async function toggleTranscript(creatorId, handle){
         if(likes)html+=formatNum(likes)+' likes';
         html+='</span></div>';
         if(transcript){
-          html+='<div style="font-weight:600;font-size:9px;color:#7c3aed;margin-bottom:2px">Transcript</div>';
           html+='<div style="white-space:pre-wrap;font-size:10px;line-height:1.5;color:var(--fg);max-height:200px;overflow-y:auto">'+esc(transcript)+'</div>';
         }else{
           html+='<div style="color:var(--muted);font-size:10px;font-style:italic">No transcript available</div>';
-        }
-        if(caption){
-          html+='<div style="font-weight:600;font-size:9px;color:var(--dim);margin-top:6px;margin-bottom:2px">Caption</div>';
-          html+='<div style="white-space:pre-wrap;font-size:10px;line-height:1.4;color:var(--dim);max-height:100px;overflow-y:auto">'+esc(caption)+'</div>';
         }
         html+='</div>';
       });
