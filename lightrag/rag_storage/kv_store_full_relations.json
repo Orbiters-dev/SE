@@ -1,0 +1,9498 @@
+{
+  "doc-c4da0712beb41334200681c7a542a0a5": {
+    "relation_pairs": [
+      [
+        "4 Override Fields",
+        "PPC Config Override Bug"
+      ],
+      [
+        "MAX_SINGLE_CAMPAIGN_BUDGET",
+        "Naeiae Manual Campaign"
+      ],
+      [
+        "PPC Config Override Bug",
+        "amazon_ppc_executor.py"
+      ],
+      [
+        "Naeiae Manual Campaign Budget",
+        "PPC Config Override Bug"
+      ],
+      [
+        "PPC Config Override Bug",
+        "dashboard_config_override.json"
+      ],
+      [
+        "Naeiae Manual Campaign",
+        "min_roas"
+      ]
+    ],
+    "count": 6,
+    "create_time": 1775313081,
+    "update_time": 1775313081,
+    "_id": "doc-c4da0712beb41334200681c7a542a0a5"
+  },
+  "doc-fd45eb53eed3cf33c70e20f21c1009b0": {
+    "relation_pairs": [
+      [
+        "Amazon Ads Search Term Report",
+        "PPC Dashboard"
+      ],
+      [
+        "Amazon Ads Reporting API",
+        "spKeywords"
+      ],
+      [
+        "Amazon Ads Search Term Report",
+        "Grosmimi"
+      ],
+      [
+        "20+ Minutes",
+        "Amazon Ads Reporting API"
+      ],
+      [
+        "Fix",
+        "b888495"
+      ],
+      [
+        "2026-03-15",
+        "DataKeeper"
+      ],
+      [
+        "Amazon Ads Search Term Report",
+        "Naeiae"
+      ],
+      [
+        "Amazon Ads Reporting API",
+        "spCampaigns"
+      ],
+      [
+        "Amazon Ads Reporting API",
+        "spSearchTerm"
+      ],
+      [
+        "Amazon Ads Search Term Report",
+        "DataKeeper"
+      ],
+      [
+        "1-2 Minutes",
+        "Amazon Ads Reporting API"
+      ]
+    ],
+    "count": 11,
+    "create_time": 1775313092,
+    "update_time": 1775313092,
+    "_id": "doc-fd45eb53eed3cf33c70e20f21c1009b0"
+  },
+  "doc-b9b3911c4122877212e5d3341ccebdb8": {
+    "relation_pairs": [
+      [
+        "AT PAT Token",
+        "n8n Workflows"
+      ],
+      [
+        "Creators Sheet",
+        "Creators Updated Sheet"
+      ],
+      [
+        "PG Email Config",
+        "batch_size"
+      ],
+      [
+        "AT/PG Hybrid",
+        "n8n Workflows"
+      ],
+      [
+        "Gmail/Google Credential ID",
+        "n8n"
+      ],
+      [
+        "Email Config",
+        "creatorFormLink"
+      ],
+      [
+        "EC2 Model",
+        "HTTP Request"
+      ],
+      [
+        "Apify post",
+        "Syncly Output"
+      ],
+      [
+        "API Limit",
+        "Dashboard Pull"
+      ],
+      [
+        "Config Nodes",
+        "Dashboard"
+      ],
+      [
+        "Airtable Type Nodes",
+        "HTTP Request"
+      ],
+      [
+        "n8n",
+        "try/catch"
+      ],
+      [
+        "Syncly Output",
+        "username"
+      ],
+      [
+        "n8n Code Node",
+        "try/catch"
+      ],
+      [
+        "Draft Gen",
+        "Email Config"
+      ],
+      [
+        "Push Posts",
+        "Syncly"
+      ],
+      [
+        "Apify",
+        "Syncly"
+      ],
+      [
+        "Email Config",
+        "PG Email Config"
+      ],
+      [
+        "Fetch Function",
+        "n8n Code Nodes"
+      ],
+      [
+        "Config Nodes",
+        "Email Config"
+      ],
+      [
+        "Creators Sheet",
+        "Username"
+      ]
+    ],
+    "count": 21,
+    "create_time": 1775313126,
+    "update_time": 1775313126,
+    "_id": "doc-b9b3911c4122877212e5d3341ccebdb8"
+  },
+  "doc-daa5b22f62b5ec4b17cd4bee65609a89": {
+    "relation_pairs": [
+      [
+        "Gmail API",
+        "Save to Gmail"
+      ],
+      [
+        "Save to Gmail (Auto Outreach)",
+        "n8n-Gmail-Send-Node"
+      ],
+      [
+        "External Service Call Nodes",
+        "PG"
+      ],
+      [
+        "Gmail API",
+        "n8n-Gmail-Send-Node"
+      ],
+      [
+        "AT",
+        "PG"
+      ],
+      [
+        "Data Reading/Writing Nodes",
+        "PG"
+      ]
+    ],
+    "count": 6,
+    "create_time": 1775313126,
+    "update_time": 1775313126,
+    "_id": "doc-daa5b22f62b5ec4b17cd4bee65609a89"
+  },
+  "doc-753ea36fb4a81ce3a74c3b07c2c55a14": {
+    "relation_pairs": [
+      [
+        "1-폼",
+        "Pipeline Flow Accuracy"
+      ],
+      [
+        "Email QnA",
+        "Pipeline Flow Accuracy"
+      ],
+      [
+        "Email QnA",
+        "Step 4"
+      ],
+      [
+        "Email Config Tab",
+        "Pipeline Flow Accuracy"
+      ],
+      [
+        "1-폼",
+        "Gifting2 Form"
+      ],
+      [
+        "1-폼",
+        "2026-03-20"
+      ],
+      [
+        "1-폼",
+        "Draft Order"
+      ]
+    ],
+    "count": 7,
+    "create_time": 1775313147,
+    "update_time": 1775313147,
+    "_id": "doc-753ea36fb4a81ce3a74c3b07c2c55a14"
+  },
+  "doc-d921bca9fb27cdea5a8d6354395a0ac6": {
+    "relation_pairs": [
+      [
+        "DataKeeper",
+        "User"
+      ],
+      [
+        "DataKeeper",
+        "DataKeeper Channel"
+      ],
+      [
+        "Amazon Ads",
+        "Local Cache Files"
+      ],
+      [
+        "Cache Files",
+        "DataKeeper"
+      ],
+      [
+        "DataKeeper",
+        "SKU-level Tables"
+      ],
+      [
+        "Local Cache Files",
+        "Meta Ads"
+      ],
+      [
+        "DataKeeper",
+        "data_keeper.py"
+      ],
+      [
+        "Google Ads",
+        "Local Cache Files"
+      ],
+      [
+        "DataKeeper Channel",
+        "Empty Data"
+      ]
+    ],
+    "count": 9,
+    "create_time": 1775313155,
+    "update_time": 1775313155,
+    "_id": "doc-d921bca9fb27cdea5a8d6354395a0ac6"
+  },
+  "doc-998d3c0b518892cda30c71325b932d25": {
+    "relation_pairs": [
+      [
+        "Draft Ready",
+        "Marketing Data"
+      ],
+      [
+        "Propose & Execute UI",
+        "Syncly"
+      ],
+      [
+        "Content Links",
+        "Propose & Execute UI"
+      ],
+      [
+        "Draft Ready",
+        "Video Links"
+      ],
+      [
+        "Draft Ready",
+        "PG gk_content_posts table"
+      ],
+      [
+        "Approval Send WF",
+        "Draft Ready"
+      ]
+    ],
+    "count": 6,
+    "create_time": 1775313182,
+    "update_time": 1775313182,
+    "_id": "doc-998d3c0b518892cda30c71325b932d25"
+  },
+  "doc-aa5b4b9cd296ba2734a98fa07ccc7c43": {
+    "relation_pairs": [
+      [
+        "Shared Datakeeper",
+        "run_communicator.py"
+      ],
+      [
+        "Data Keeper Deployment",
+        "EC2 Deployment"
+      ],
+      [
+        "Amazon PPC Executor",
+        "KPI_광고비"
+      ],
+      [
+        "AdGroup",
+        "Campaign B"
+      ],
+      [
+        "Amazon Ads",
+        "GROSMIMI_PRICE_CUTOFF"
+      ],
+      [
+        "PG",
+        "Shared Datakeeper"
+      ],
+      [
+        "Amazon PPC Executor",
+        "Naeiae PPC"
+      ],
+      [
+        "Data Keeper Deployment",
+        "Klaviyo"
+      ],
+      [
+        "Communicator",
+        "amazon_ppc_executor.py"
+      ],
+      [
+        "Amazon PPC Executor",
+        "제갈량"
+      ],
+      [
+        "Calvin Test",
+        "Data Keeper Rules"
+      ],
+      [
+        "Shopify UI",
+        "shopify-ui-expert"
+      ],
+      [
+        "Amazon Ads",
+        "Data Keeper Deployment"
+      ],
+      [
+        "Batch 1",
+        "Naeiae PPC"
+      ],
+      [
+        "Agent Efficiency",
+        "Shared Datakeeper"
+      ],
+      [
+        "Data Keeper Rules",
+        "HC Test"
+      ],
+      [
+        "Data Keeper Rules",
+        "Ikuki Memes"
+      ],
+      [
+        "Error Logs",
+        "Project Memory"
+      ],
+      [
+        "Data Keeper Rules",
+        "동균/세은/소연/은빈/지선"
+      ],
+      [
+        "Data Keeper Rules",
+        "Kazuki"
+      ],
+      [
+        "Shared Datakeeper",
+        "data_keeper.py"
+      ],
+      [
+        "Data Keeper Rules",
+        "Jeehoo"
+      ],
+      [
+        "Batch 2",
+        "Naeiae PPC"
+      ],
+      [
+        "Gmail OAuth Credentials",
+        "Klaviyo"
+      ],
+      [
+        "WAT Framework",
+        "shopify-ui-expert"
+      ],
+      [
+        "Amazon PPC Executor",
+        "KPI_시딩비용"
+      ],
+      [
+        "Feedback",
+        "Project Memory"
+      ],
+      [
+        "Communicator Agent",
+        "Data Keeper"
+      ],
+      [
+        "Grosmimi",
+        "Grosmimi SP-API"
+      ],
+      [
+        "Amazon PPC Executor",
+        "amazon_ppc_executor.py"
+      ],
+      [
+        "Data Keeper Rules",
+        "MJ Test1"
+      ],
+      [
+        "Data Keeper Hub",
+        "Shared 폴더"
+      ],
+      [
+        "DocuSeal Pro",
+        "EC2 SSH Connection"
+      ],
+      [
+        "Data Keeper Hub",
+        "Pathlight n8n Migration"
+      ]
+    ],
+    "count": 34,
+    "create_time": 1775313228,
+    "update_time": 1775313228,
+    "_id": "doc-aa5b4b9cd296ba2734a98fa07ccc7c43"
+  },
+  "doc-111c57d27c4f86434794ce6bdae2032b": {
+    "relation_pairs": [
+      [
+        "Core",
+        "M-003: curl SSL revocation 실패"
+      ],
+      [
+        "ConnectionRefusedError",
+        "M-011: 서버 연결 거부"
+      ],
+      [
+        "Google API",
+        "M-006: google.generativeai deprecated"
+      ],
+      [
+        "Core",
+        "M-002: 따옴표 중첩 에러 (python -c)"
+      ],
+      [
+        "M-009: n8n POST active 필드 에러",
+        "n8n 매니저"
+      ],
+      [
+        "M-011: 서버 연결 거부",
+        "파이프라이너"
+      ],
+      [
+        "2026-03-20",
+        "M-011: 서버 연결 거부"
+      ],
+      [
+        "Core",
+        "M-001: cp949 인코딩 에러"
+      ],
+      [
+        "Google API",
+        "M-004: Google Sheets range 포맷 에러"
+      ],
+      [
+        "M-011: 서버 연결 거부",
+        "curl -sk https://orbitools.orbiters.co.kr/healthz"
+      ],
+      [
+        "Google API",
+        "M-005: 임베딩 모델 404 에러"
+      ],
+      [
+        "M-010: n8n JSON cp949 인코딩",
+        "n8n 매니저"
+      ]
+    ],
+    "count": 12,
+    "create_time": 1775313230,
+    "update_time": 1775313230,
+    "_id": "doc-111c57d27c4f86434794ce6bdae2032b"
+  },
+  "doc-9c0a9988cca5a59cdf442104da4d4aad": {
+    "relation_pairs": [
+      [
+        "DocuSeal Pro",
+        "DocuSeal Pro Deployment"
+      ],
+      [
+        "DocuSeal Pro",
+        "Nginx"
+      ],
+      [
+        "DocuSeal Pro",
+        "Postgres"
+      ],
+      [
+        "Certbot",
+        "DocuSeal Pro Deployment"
+      ],
+      [
+        "Docker",
+        "DocuSeal Pro"
+      ],
+      [
+        "i-00195d735d022f057",
+        "orbiters_2"
+      ],
+      [
+        "Docker",
+        "Gotenberg"
+      ],
+      [
+        "DocuSeal Pro Deployment",
+        "Let's Encrypt"
+      ]
+    ],
+    "count": 8,
+    "create_time": 1775313263,
+    "update_time": 1775313263,
+    "_id": "doc-9c0a9988cca5a59cdf442104da4d4aad"
+  },
+  "doc-072556cd1c04bd328675483bd4ab6192": {
+    "relation_pairs": [
+      [
+        "Gifting2 → Draft Order",
+        "WJ TEST"
+      ],
+      [
+        "GitHub Pages",
+        "KPI Script"
+      ],
+      [
+        "Claude AI",
+        "Webhooks"
+      ],
+      [
+        "Merged Workflows",
+        "WJ TEST"
+      ],
+      [
+        "E2E Test Visualization",
+        "GitHub Pages"
+      ],
+      [
+        "PostgreSQL",
+        "Shopify Store"
+      ],
+      [
+        "E2E Test Visualization",
+        "n8n"
+      ],
+      [
+        "Syncly Daily Metrics Sync",
+        "WJ TEST"
+      ],
+      [
+        "Migration Status",
+        "Pathlight n8n Migration"
+      ],
+      [
+        "E2E Test Visualization",
+        "Test Infra Nodes"
+      ],
+      [
+        "Key PROD Logic Migrated",
+        "Pathlight n8n Migration"
+      ],
+      [
+        "Approval Send",
+        "Shopify Fulfillment"
+      ],
+      [
+        "New Workflows Created",
+        "WJ TEST"
+      ],
+      [
+        "Pathlight n8n Migration",
+        "WJ TEST"
+      ],
+      [
+        "Pathlight n8n Migration",
+        "Reply Handler"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1775313270,
+    "update_time": 1775313270,
+    "_id": "doc-072556cd1c04bd328675483bd4ab6192"
+  },
+  "doc-9ac3f27d3698e36d83713f9f4a7f8953": {
+    "relation_pairs": [
+      [
+        "Ensure DataKeeper Fresh",
+        "PPC Executor SKU-Level + Golmani Margin Integration"
+      ],
+      [
+        "Amazon Campaigns",
+        "PPC Executor SKU-Level + Golmani Margin Integration"
+      ],
+      [
+        "Full-Cost Margin Framework",
+        "Grosmimi B083JC7W2W"
+      ],
+      [
+        "Fetch SKU Level Context",
+        "Full-Cost Margin Framework"
+      ],
+      [
+        "Amazon Sales SKU Daily",
+        "PPC Executor SKU-Level + Golmani Margin Integration"
+      ],
+      [
+        "PPC Executor SKU-Level + Golmani Margin Integration",
+        "Shopify Orders SKU Daily"
+      ],
+      [
+        "Meta Campaigns",
+        "PPC Executor SKU-Level + Golmani Margin Integration"
+      ]
+    ],
+    "count": 7,
+    "create_time": 1775313308,
+    "update_time": 1775313308,
+    "_id": "doc-9ac3f27d3698e36d83713f9f4a7f8953"
+  },
+  "doc-bcba9eda7bdf371a8f5796a7af2afee6": {
+    "relation_pairs": [
+      [
+        "Sequential Thinking",
+        "Zhang Liang"
+      ],
+      [
+        "WJ Test1",
+        "쇼피파이"
+      ],
+      [
+        "Shared/ONZ Creator Collab",
+        "세션 리포트"
+      ],
+      [
+        "Agent",
+        "WAT Framework"
+      ],
+      [
+        "SCAN → THINK → PLAN → EXECUTE → VERIFY → REPORT",
+        "세션 리포트"
+      ],
+      [
+        "Agent",
+        "Tools"
+      ],
+      [
+        "Multi-Editor Conflict Prevention",
+        "Zhang Liang"
+      ],
+      [
+        "WAT Framework",
+        "Workflows"
+      ],
+      [
+        "Self-Improvement Loop",
+        "WAT Framework"
+      ],
+      [
+        "Agent",
+        "Carbon-Fiber Spikes"
+      ],
+      [
+        "Git Log Command",
+        "Session Startup"
+      ],
+      [
+        "Shared/ONZ Creator Collab",
+        "제갈량"
+      ],
+      [
+        "GitHub Codex",
+        "WJ Test1"
+      ],
+      [
+        "Agent",
+        "Zhang Liang"
+      ]
+    ],
+    "count": 14,
+    "create_time": 1775313310,
+    "update_time": 1775313310,
+    "_id": "doc-bcba9eda7bdf371a8f5796a7af2afee6"
+  },
+  "doc-cc8087299314fb53b3d2789adba60be5": {
+    "relation_pairs": [
+      [
+        "Budget Execution Rules",
+        "Campaign Exclusion Lists"
+      ],
+      [
+        "Amazon PPC Execution Rules",
+        "Bid Adjustment Engine"
+      ],
+      [
+        "Campaign Management",
+        "Negative Keywords"
+      ],
+      [
+        "Budget Change Rules",
+        "Budget Execution Rules"
+      ],
+      [
+        "Amazon Advertising API",
+        "Campaign Management"
+      ],
+      [
+        "Manual Campaigns",
+        "Search Term Optimization"
+      ],
+      [
+        "Bid Adjustment Engine",
+        "Manual Campaigns"
+      ],
+      [
+        "Budget Execution Rules",
+        "Naeiae"
+      ],
+      [
+        "Batch Processing Rules",
+        "Bid Adjustment Engine"
+      ],
+      [
+        "Budget Execution Rules",
+        "Fleeters Inc"
+      ],
+      [
+        "Budget Execution Rules",
+        "Daily Budget Caps"
+      ],
+      [
+        "Fleeters Inc",
+        "Naeiae"
+      ]
+    ],
+    "count": 12,
+    "create_time": 1775313356,
+    "update_time": 1775313356,
+    "_id": "doc-cc8087299314fb53b3d2789adba60be5"
+  },
+  "doc-81e8f8eb44d194ea130a689fb0b142f9": {
+    "relation_pairs": [
+      [
+        "Campaign Execution",
+        "Data Flow"
+      ],
+      [
+        "DataKeeper",
+        "Naeiae"
+      ],
+      [
+        "Campaign ACOS",
+        "ROAS"
+      ],
+      [
+        "ACOS",
+        "campaign list"
+      ],
+      [
+        "Campaign Health Check",
+        "Ops Checklist"
+      ],
+      [
+        "CHA&MOM",
+        "DataKeeper"
+      ],
+      [
+        "Amazon PPC Agent",
+        "Amazon PPC Daily Report"
+      ],
+      [
+        "OPS Framework",
+        "Ops Checklist"
+      ],
+      [
+        "Amazon Ads API",
+        "Bid and Budget Adjustments"
+      ],
+      [
+        "Campaign Health Check",
+        "Zero-Sales Campaign Detection"
+      ],
+      [
+        "Conversion Tracking",
+        "Scoring System"
+      ],
+      [
+        "Campaign Health Check",
+        "Thresholds"
+      ],
+      [
+        "Emoji",
+        "Python"
+      ],
+      [
+        "ROAS",
+        "campaign list"
+      ],
+      [
+        "Fleeters Inc",
+        "Grosmimi"
+      ],
+      [
+        "Amazon Ads API",
+        "Execution Queries"
+      ],
+      [
+        "Fleeters Inc",
+        "campaign list"
+      ],
+      [
+        "Amazon PPC Agent",
+        "Orbitool"
+      ],
+      [
+        "Bid Optimization Strategies",
+        "Budget Allocation"
+      ],
+      [
+        "Amazon Ads API",
+        "Optimization Workflows"
+      ],
+      [
+        "Amazon PPC Agent",
+        "Seasonal Budget Recommendations"
+      ],
+      [
+        "Budget Allocation",
+        "Conversion Tracking"
+      ],
+      [
+        "Amazon Ads Reporting v3",
+        "DataKeeper"
+      ],
+      [
+        "Amazon PPC Agent",
+        "Fleeters Inc"
+      ],
+      [
+        "DataKeeper",
+        "Grosmimi"
+      ],
+      [
+        "DataKeeper",
+        "Syncly D+60 Tracker"
+      ],
+      [
+        "Budget Reallocation Logic",
+        "Seasonal Budget Multipliers"
+      ],
+      [
+        "Negative Keyword Addition",
+        "Search Term Optimization Flow"
+      ],
+      [
+        "Amazon PPC Agent",
+        "GROSMIMI USA"
+      ],
+      [
+        "Budget Forecasting & Seasonal Rules",
+        "Daily Budget Depletion Check"
+      ],
+      [
+        "Python",
+        "SP-API"
+      ],
+      [
+        "Amazon Ads API",
+        "Performance Analysis Queries"
+      ],
+      [
+        "Amazon Ads",
+        "Amazon PPC Agent"
+      ],
+      [
+        "Anomaly Detection",
+        "Report JSON Structure"
+      ],
+      [
+        "Bid Decision Matrix",
+        "Impression Limit"
+      ],
+      [
+        "Amazon Ads",
+        "Claude API"
+      ],
+      [
+        "DataKeeper",
+        "Google Sheets"
+      ],
+      [
+        "Budget Forecasting & Seasonal Rules",
+        "Three-Period Comparison"
+      ],
+      [
+        "Gmail",
+        "PPC Proposal"
+      ],
+      [
+        "Amazon PPC Agent",
+        "Daily Health Check"
+      ],
+      [
+        "Amazon PPC Agent",
+        "PPC Expert System"
+      ],
+      [
+        "Bid Decision Matrix",
+        "Search Term Optimization Flow"
+      ]
+    ],
+    "count": 42,
+    "create_time": 1775313400,
+    "update_time": 1775313400,
+    "_id": "doc-81e8f8eb44d194ea130a689fb0b142f9"
+  },
+  "doc-7e36e5ca1b4589b349dae36a2f55a5ca": {
+    "relation_pairs": [
+      [
+        "Current Pending Proposals",
+        "Reason"
+      ],
+      [
+        "Current Bid/Budget",
+        "Current Pending Proposals"
+      ],
+      [
+        "Campaign Name",
+        "Current Pending Proposals"
+      ],
+      [
+        "Current Pending Proposals",
+        "Proposed Change"
+      ],
+      [
+        "Current Pending Proposals",
+        "Expected Impact"
+      ],
+      [
+        "Fleeters Inc",
+        "ROAS Decision Framework"
+      ],
+      [
+        "Current Pending Proposals",
+        "Last 7 Days"
+      ],
+      [
+        "Campaign Name",
+        "Fleeters Inc"
+      ]
+    ],
+    "count": 8,
+    "create_time": 1775313408,
+    "update_time": 1775313408,
+    "_id": "doc-7e36e5ca1b4589b349dae36a2f55a5ca"
+  },
+  "doc-0de6fc41e2f5509b60e3bd532b79ba31": {
+    "relation_pairs": [
+      [
+        "Auction Formula",
+        "Meta Ads Bidding Decision Engine"
+      ],
+      [
+        "Bid Cap",
+        "Target CPA"
+      ],
+      [
+        "Google",
+        "Portfolio Strategy"
+      ],
+      [
+        "Broad Match",
+        "Negative Keywords"
+      ],
+      [
+        "Daily Budget",
+        "Meta"
+      ],
+      [
+        "Message Ads",
+        "Sponsored Content"
+      ],
+      [
+        "Learning Limited",
+        "Learning Phase Rules"
+      ],
+      [
+        "Cost Cap",
+        "Target CPA"
+      ],
+      [
+        "Google",
+        "Google Ads Bidding Decision Engine"
+      ],
+      [
+        "Google Ads Bidding Decision Engine",
+        "Transition Triggers"
+      ],
+      [
+        "Critical Issues",
+        "Cross-Platform Bidding Red Flags"
+      ],
+      [
+        "Google",
+        "Negative Keywords"
+      ],
+      [
+        "Meta Ads Bidding Decision Engine",
+        "Smart Bidding Exploration"
+      ],
+      [
+        "DDA (Data-Driven Attribution)",
+        "Google"
+      ],
+      [
+        "Budget",
+        "TikTok"
+      ],
+      [
+        "Google Ads Bidding Decision Engine",
+        "Target CPA"
+      ],
+      [
+        "Google Ads Bidding Decision Engine",
+        "Maximize Clicks"
+      ],
+      [
+        "Google Ads Bidding Decision Engine",
+        "Portfolio Bid Strategies"
+      ],
+      [
+        "Advantage+ Sales Campaigns",
+        "CBO"
+      ],
+      [
+        "CBO",
+        "Campaign Budget Optimization"
+      ],
+      [
+        "Cost Cap",
+        "Meta"
+      ],
+      [
+        "Purchase Event",
+        "ROAS Goal"
+      ]
+    ],
+    "count": 22,
+    "create_time": 1775313461,
+    "update_time": 1775313461,
+    "_id": "doc-0de6fc41e2f5509b60e3bd532b79ba31"
+  },
+  "doc-22540382c0cfc210aa4a58afc7b51982": {
+    "relation_pairs": [
+      [
+        "Industry Benchmarks 2026",
+        "Local Services"
+      ],
+      [
+        "E-commerce",
+        "Google Ads"
+      ],
+      [
+        "Creative Fatigue",
+        "Creative Fatigue Thresholds"
+      ],
+      [
+        "Industry Benchmarks 2026",
+        "Real Estate"
+      ],
+      [
+        "Finance",
+        "Industry Benchmarks 2026"
+      ],
+      [
+        "Industry Benchmarks 2026",
+        "Legal"
+      ],
+      [
+        "Creative Fatigue Thresholds",
+        "Industry Benchmarks 2026"
+      ],
+      [
+        "Industry Benchmarks 2026",
+        "Travel"
+      ],
+      [
+        "Arts & Entertainment",
+        "Industry Benchmarks 2026"
+      ],
+      [
+        "B2B ROAS",
+        "CPC"
+      ],
+      [
+        "CPL",
+        "Industry"
+      ],
+      [
+        "CPC",
+        "User Demographics"
+      ],
+      [
+        "CPC Trend",
+        "Industry Benchmarks 2026"
+      ],
+      [
+        "CPC",
+        "TikTok Ads"
+      ],
+      [
+        "Google Ads",
+        "Industry Benchmarks 2026"
+      ],
+      [
+        "Healthcare",
+        "Industry Benchmarks 2026"
+      ],
+      [
+        "Microsoft Ads",
+        "ROAS"
+      ],
+      [
+        "Smart+",
+        "TikTok Ads"
+      ],
+      [
+        "Industry Benchmarks 2026",
+        "LinkedIn Ads"
+      ],
+      [
+        "Industry Benchmarks 2026",
+        "Triple Whale"
+      ],
+      [
+        "B2B SaaS",
+        "Industry Benchmarks 2026"
+      ],
+      [
+        "Industry Benchmarks 2026",
+        "Restaurants"
+      ],
+      [
+        "Industry Benchmarks 2026",
+        "Meta Ads"
+      ],
+      [
+        "Industry Benchmarks 2026",
+        "WordStream/LocaliQ"
+      ],
+      [
+        "CPM",
+        "TikTok Ads"
+      ]
+    ],
+    "count": 25,
+    "create_time": 1775313472,
+    "update_time": 1775313472,
+    "_id": "doc-22540382c0cfc210aa4a58afc7b51982"
+  },
+  "doc-fac9fdecbb0742815731d75f39eb4026": {
+    "relation_pairs": [
+      [
+        "Platform Selection Matrix",
+        "TikTok"
+      ],
+      [
+        "ABM Display",
+        "B2B Enterprise"
+      ],
+      [
+        "Platform Selection Matrix",
+        "YouTube"
+      ],
+      [
+        "CPC",
+        "LinkedIn"
+      ],
+      [
+        "Meta",
+        "Platform Selection Matrix"
+      ],
+      [
+        "Budget Distribution",
+        "Cross-Platform Attribution Hierarchy"
+      ],
+      [
+        "LinkedIn",
+        "Platform Selection Matrix"
+      ],
+      [
+        "B2B Enterprise",
+        "Programmatic"
+      ],
+      [
+        "Amazon Ads",
+        "Budget Distribution"
+      ],
+      [
+        "Budget Distribution Rule",
+        "Scaling Decision Tree"
+      ],
+      [
+        "Meta",
+        "Post-Purchase Surveys"
+      ],
+      [
+        "Budget Allocation & Scaling Framework",
+        "Marketing Efficiency Ratio (MER)"
+      ],
+      [
+        "Learning Threshold",
+        "Scaling Decision Tree"
+      ],
+      [
+        "Black Friday",
+        "Cyber Monday"
+      ],
+      [
+        "Incrementality Testing",
+        "Statistical Significance"
+      ],
+      [
+        "Google",
+        "Platform Selection Matrix"
+      ],
+      [
+        "Duration",
+        "Incrementality Testing"
+      ],
+      [
+        "Budget Allocation & Scaling Framework",
+        "Platform Selection Matrix"
+      ]
+    ],
+    "count": 18,
+    "create_time": 1775313508,
+    "update_time": 1775313508,
+    "_id": "doc-fac9fdecbb0742815731d75f39eb4026"
+  },
+  "doc-e51c6d55f44691c23efdb1f2832bb52a": {
+    "relation_pairs": [
+      [
+        "Business Manager",
+        "First-Party Data"
+      ],
+      [
+        "Event Match Quality (EMQ)",
+        "Meta Ads Conversion Tracking"
+      ],
+      [
+        "Consent Mode v2",
+        "Google Ads Conversion Tracking"
+      ],
+      [
+        "Event Deduplication",
+        "UET (Universal Event Tracking)"
+      ],
+      [
+        "Conversions API",
+        "LinkedIn"
+      ],
+      [
+        "Google Ads Conversion Tracking",
+        "Google Research PDF 2"
+      ],
+      [
+        "Global Site Tag",
+        "Google Ads Conversion Tracking"
+      ],
+      [
+        "Learning Phase",
+        "TikTok"
+      ],
+      [
+        "Claude Research",
+        "Google Ads Conversion Tracking"
+      ],
+      [
+        "Advanced Matching",
+        "TikTok Ads Conversion Tracking"
+      ],
+      [
+        "TikTok Ads Conversion Tracking",
+        "TikTok Pixel"
+      ],
+      [
+        "Gemini Research",
+        "Google Ads Conversion Tracking"
+      ],
+      [
+        "Consent Mode v2",
+        "LinkedIn Ads Conversion Tracking"
+      ],
+      [
+        "Meta Ads Conversion Tracking",
+        "Meta Pixel"
+      ],
+      [
+        "TikTok",
+        "TikTok Click ID"
+      ],
+      [
+        "Business Manager",
+        "TikTok"
+      ],
+      [
+        "Enhanced Conversions",
+        "Google Ads Conversion Tracking"
+      ],
+      [
+        "Microsoft",
+        "UET (Universal Event Tracking)"
+      ]
+    ],
+    "count": 18,
+    "create_time": 1775313517,
+    "update_time": 1775313517,
+    "_id": "doc-e51c6d55f44691c23efdb1f2832bb52a"
+  },
+  "doc-5b1cd3004ed480c4c04c7229dd3a5d92": {
+    "relation_pairs": [
+      [
+        "Cross-Platform Aggregate Score",
+        "LinkedIn"
+      ],
+      [
+        "Category Weights",
+        "Microsoft Ads"
+      ],
+      [
+        "Category Weights",
+        "LinkedIn Ads"
+      ],
+      [
+        "Amazon Ads",
+        "Category Weights"
+      ],
+      [
+        "Quick Wins Logic",
+        "Weighting Rationale"
+      ],
+      [
+        "Category Weights",
+        "Meta Ads"
+      ],
+      [
+        "Severity Multipliers",
+        "Weighted Scoring Algorithm"
+      ],
+      [
+        "Estimated Remediation Time",
+        "Quick Wins Logic"
+      ],
+      [
+        "Scoring Per Check Item",
+        "Weighted Scoring Algorithm"
+      ],
+      [
+        "Cross-Platform Aggregate Score",
+        "Meta"
+      ],
+      [
+        "Category Weights",
+        "Google Ads"
+      ],
+      [
+        "Cross-Platform Aggregate Score",
+        "Platform Budget Share"
+      ],
+      [
+        "Cross-Platform Aggregate Score",
+        "Google"
+      ],
+      [
+        "Grading Thresholds",
+        "Severity Multipliers"
+      ],
+      [
+        "Grading Thresholds",
+        "Scoring Per Check Item"
+      ],
+      [
+        "Quick Wins Logic",
+        "Severity Levels"
+      ],
+      [
+        "Ad Account Audit Scoring System",
+        "Weighted Scoring Algorithm"
+      ],
+      [
+        "Category Weights",
+        "TikTok Ads"
+      ]
+    ],
+    "count": 18,
+    "create_time": 1775313571,
+    "update_time": 1775313571,
+    "_id": "doc-5b1cd3004ed480c4c04c7229dd3a5d92"
+  },
+  "doc-2fe8b5a94ee14fcd4ea7cc9b05253a19": {
+    "relation_pairs": [
+      [
+        "Q1 Reset",
+        "Seasonal Cross-Platform Patterns"
+      ],
+      [
+        "Google Ads",
+        "Total Ad Budget"
+      ],
+      [
+        "Ad Sales Ratio",
+        "Amazon"
+      ],
+      [
+        "Amazon",
+        "Shopify"
+      ],
+      [
+        "Maximize Conversions",
+        "Target CPA"
+      ],
+      [
+        "Amazon",
+        "Google Ads"
+      ],
+      [
+        "Back to School",
+        "Seasonal Cross-Platform Patterns"
+      ],
+      [
+        "Amazon",
+        "Meta"
+      ],
+      [
+        "Amazon Sales",
+        "Amazon Sales Daily"
+      ],
+      [
+        "Amazon Ads",
+        "Item-Level Data"
+      ],
+      [
+        "Google Ads",
+        "Seasonal Cross-Platform Patterns"
+      ],
+      [
+        "Meta Ads",
+        "Meta Ads Daily"
+      ],
+      [
+        "Seasonal Cross-Platform Patterns",
+        "Tax Season"
+      ],
+      [
+        "Amazon PPC",
+        "Meta Ads"
+      ],
+      [
+        "BFCM",
+        "Seasonal Cross-Platform Patterns"
+      ],
+      [
+        "Amazon PPC",
+        "Google Ads"
+      ],
+      [
+        "Meta Ads",
+        "Total Ad Budget"
+      ],
+      [
+        "Amazon Organic Sales Data",
+        "Amazon PPC"
+      ],
+      [
+        "Amazon",
+        "Channel ROAS"
+      ],
+      [
+        "Amazon Bid Strategy",
+        "DataKeeper"
+      ],
+      [
+        "Channel ROAS",
+        "Google"
+      ],
+      [
+        "Google Ads",
+        "Q1 Reset"
+      ],
+      [
+        "Shopify DTC",
+        "Shopify Orders Daily"
+      ],
+      [
+        "Prime Day",
+        "Seasonal Cross-Platform Patterns"
+      ],
+      [
+        "Amazon Ads",
+        "Amazon Ads Daily"
+      ],
+      [
+        "Cross-Platform Context",
+        "DataKeeper"
+      ],
+      [
+        "Google Ads",
+        "Google Ads Daily"
+      ],
+      [
+        "Amazon",
+        "Prime Day"
+      ],
+      [
+        "Golmani Full-Cost Margin Framework",
+        "Max Sustainable ACOS"
+      ],
+      [
+        "Amazon",
+        "BFCM"
+      ],
+      [
+        "Amazon Ads",
+        "Total Ad Budget"
+      ],
+      [
+        "Amazon Bid Strategy",
+        "Google Ads"
+      ]
+    ],
+    "count": 32,
+    "create_time": 1775313578,
+    "update_time": 1775313578,
+    "_id": "doc-2fe8b5a94ee14fcd4ea7cc9b05253a19"
+  },
+  "doc-285e980b8acdae296f0fe43719d149e1": {
+    "relation_pairs": [
+      [
+        "Audit Checklist",
+        "Cross-Table Verification"
+      ],
+      [
+        "Audit Checklist",
+        "Materiality & Sanity"
+      ],
+      [
+        "Accounting Standards",
+        "Audit Checklist"
+      ],
+      [
+        "AICPA",
+        "Auditor"
+      ],
+      [
+        "audit_report",
+        "corrections_required"
+      ],
+      [
+        "Auditor",
+        "CFO Hanes"
+      ],
+      [
+        "Audit Report",
+        "Monthly Revenue MoM"
+      ],
+      [
+        "Audit Checklist",
+        "Audit Report"
+      ],
+      [
+        "Auditor",
+        "Golmani"
+      ],
+      [
+        "audit_report",
+        "findings"
+      ],
+      [
+        "audit_date",
+        "audit_report"
+      ],
+      [
+        "Audit Checklist",
+        "Period Consistency"
+      ],
+      [
+        "CFO Harness",
+        "골만이"
+      ],
+      [
+        "D2C Gross Margin",
+        "DataKeeper"
+      ],
+      [
+        "CFO Harness",
+        "python"
+      ],
+      [
+        "Audit Report",
+        "MER"
+      ],
+      [
+        "Audit Checklist",
+        "Sign Conventions"
+      ],
+      [
+        "Arithmetic Verification",
+        "Audit Checklist"
+      ],
+      [
+        "Auditor",
+        "KICPA"
+      ]
+    ],
+    "count": 19,
+    "create_time": 1775313630,
+    "update_time": 1775313630,
+    "_id": "doc-285e980b8acdae296f0fe43719d149e1"
+  },
+  "doc-a96f61cbbdca5c49b2e0cbd28507096a": {
+    "relation_pairs": [
+      [
+        "Django REST",
+        "PostgreSQL"
+      ],
+      [
+        "User",
+        "Vercel Deployment"
+      ],
+      [
+        "Appster",
+        "OnzLoyaltySurvey"
+      ],
+      [
+        "Frontend - Vercel",
+        "Next.js"
+      ],
+      [
+        "Appster",
+        "OnzCreatorProfile"
+      ],
+      [
+        "EC2 API",
+        "Onzenna API"
+      ],
+      [
+        "Environment Variables",
+        "Vercel Deployment"
+      ],
+      [
+        "Django REST",
+        "ONZ APP"
+      ],
+      [
+        "Appster",
+        "Frontend - Vercel"
+      ],
+      [
+        "Gifting",
+        "User"
+      ],
+      [
+        "Django REST",
+        "orbiters_2"
+      ],
+      [
+        "Status",
+        "User"
+      ],
+      [
+        "Next.js",
+        "ONZ APP"
+      ],
+      [
+        "EC2 Deployment",
+        "User"
+      ],
+      [
+        "Appster",
+        "OnzEngagementEvent"
+      ],
+      [
+        "Creator Test",
+        "Sippy Cup"
+      ],
+      [
+        "Django Migration",
+        "Wheel of Fortune Error"
+      ],
+      [
+        "Django REST",
+        "EC2"
+      ],
+      [
+        "Onboarding",
+        "User"
+      ],
+      [
+        "Appster",
+        "OnzOnboarding"
+      ],
+      [
+        "Onzenna API",
+        "Supabase OAuth"
+      ],
+      [
+        "Appster",
+        "OnzGiftingApplication"
+      ],
+      [
+        "Appster",
+        "OnzUser"
+      ],
+      [
+        "Creator Survey",
+        "User"
+      ],
+      [
+        "Network Timeout",
+        "Onzenna API"
+      ],
+      [
+        "Loyalty Survey",
+        "User"
+      ],
+      [
+        "Appster",
+        "ONZ APP"
+      ],
+      [
+        "AWS Console",
+        "Orbiters 2"
+      ],
+      [
+        "Appster",
+        "OnzRecommendationCache"
+      ],
+      [
+        "API",
+        "User"
+      ],
+      [
+        "Creator Test",
+        "Straw Cup"
+      ],
+      [
+        "Engagement",
+        "User"
+      ],
+      [
+        "EC2 DB",
+        "Onzenna API"
+      ],
+      [
+        "API",
+        "UUID"
+      ],
+      [
+        "ONZ APP",
+        "Supabase Auth"
+      ],
+      [
+        "Appster",
+        "Django REST"
+      ]
+    ],
+    "count": 36,
+    "create_time": 1775313639,
+    "update_time": 1775313639,
+    "_id": "doc-a96f61cbbdca5c49b2e0cbd28507096a"
+  },
+  "doc-96e3e8e22a8948698f9c90f63c44e4a2": {
+    "relation_pairs": [
+      [
+        "Audit Report Format",
+        "Auditor"
+      ],
+      [
+        "CFO",
+        "CFO Harness"
+      ],
+      [
+        "Final Report",
+        "Session File"
+      ],
+      [
+        "CFO",
+        "CFO Directive Format"
+      ],
+      [
+        "CFO",
+        "Golmani"
+      ],
+      [
+        "CFO",
+        "DataKeeper"
+      ],
+      [
+        "Audit Report",
+        "CFO"
+      ],
+      [
+        "Auditor",
+        "CFO"
+      ],
+      [
+        "Audit Report",
+        "Final Report"
+      ],
+      [
+        "CFO",
+        "CFO Financial Review"
+      ],
+      [
+        "DataKeeper",
+        "Shopify Channel"
+      ],
+      [
+        "Auditor",
+        "Golmani"
+      ],
+      [
+        "CFO",
+        "CFO Decision Format"
+      ]
+    ],
+    "count": 13,
+    "create_time": 1775313670,
+    "update_time": 1775313670,
+    "_id": "doc-96e3e8e22a8948698f9c90f63c44e4a2"
+  },
+  "doc-f89ef1a01703e0751b0874faa78b18a7": {
+    "relation_pairs": [
+      [
+        "Naeiae PPC Tracking",
+        "ORBI Communicator"
+      ],
+      [
+        "GitHub Actions",
+        "meta_ads_daily.yml"
+      ],
+      [
+        "GitHub Actions",
+        "communicator.yml"
+      ],
+      [
+        "GitHub Actions",
+        "amazon_ppc_daily.yml"
+      ],
+      [
+        "ORBI Communicator",
+        "run_communicator.py"
+      ],
+      [
+        "DataForSEO",
+        "ORBI Communicator"
+      ],
+      [
+        "Python Tools/Run Communicator",
+        "State JSON"
+      ],
+      [
+        "Amazon Ads Daily",
+        "Meta Ads Daily"
+      ],
+      [
+        "Naeiae PPC",
+        "pop rice"
+      ],
+      [
+        "GitHub Actions",
+        "ORBI Communicator"
+      ],
+      [
+        "12h Cycle",
+        "IMPACT"
+      ],
+      [
+        "Gmail OAuth",
+        "ORBI Communicator"
+      ],
+      [
+        "DataKeeper",
+        "Naeiae PPC"
+      ],
+      [
+        "IMPACT",
+        "PPC"
+      ],
+      [
+        "Emergency Email Bomb",
+        "Python Tools/Run Communicator"
+      ],
+      [
+        "Amazon Campaigns",
+        "Orbitools API"
+      ],
+      [
+        "ORBI Communicator",
+        "orbitools API"
+      ],
+      [
+        "IMPACT",
+        "SEO Insights"
+      ],
+      [
+        "DataKeeper",
+        "SEO Insights"
+      ],
+      [
+        "GitHub Actions",
+        "WORKFLOW_SCHEDULE"
+      ],
+      [
+        "IMPACT",
+        "팀 전체 데이터 현황"
+      ],
+      [
+        "Google Sheets",
+        "ORBI Communicator"
+      ],
+      [
+        "Naeiae PPC",
+        "teething wafers"
+      ],
+      [
+        "Amazon Sales Daily",
+        "Shopify Orders Daily"
+      ],
+      [
+        "GitHub Actions",
+        "meta_campaigns"
+      ],
+      [
+        "IMPACT",
+        "수집 실패 조기 발견 불가"
+      ],
+      [
+        "ASIN B0BMJCWYB6",
+        "Naeiae PPC"
+      ],
+      [
+        "GitHub Actions",
+        "amazon_campaigns"
+      ],
+      [
+        "GA4 Daily",
+        "GSC Daily"
+      ],
+      [
+        "ESCALATE_THRESHOLD",
+        "GitHub Actions"
+      ],
+      [
+        "GH_PAT",
+        "GITHUB_REPOSITORY"
+      ],
+      [
+        "GitHub Actions",
+        "syncly_daily.yml"
+      ],
+      [
+        "GitHub Actions",
+        "data_keeper.yml"
+      ]
+    ],
+    "count": 33,
+    "create_time": 1775313697,
+    "update_time": 1775313697,
+    "_id": "doc-f89ef1a01703e0751b0874faa78b18a7"
+  },
+  "doc-d71edcd2412bafda55b702e898d830b4": {
+    "relation_pairs": [
+      [
+        "CHA&MOM SNS",
+        "apify_daily.yml"
+      ],
+      [
+        "Data Auditor",
+        "Version Tracking"
+      ],
+      [
+        "content_posts",
+        "М-066/M-067/M-068"
+      ],
+      [
+        "DataKeeper",
+        "content_metrics_daily"
+      ],
+      [
+        "Content Analyst",
+        "Content Matcher"
+      ],
+      [
+        "GitHub Pages",
+        "gk_content_metrics_daily"
+      ],
+      [
+        "Content Crawler",
+        "Content Matcher"
+      ],
+      [
+        "Audit 4",
+        "syncly_sheets 데이터"
+      ],
+      [
+        "PostgreSQL",
+        "fetch_apify_content.py"
+      ],
+      [
+        "PG push",
+        "orbitools API"
+      ],
+      [
+        "Brand",
+        "해시태그"
+      ],
+      [
+        "Discovery 데이터",
+        "syncly_sheets 데이터"
+      ],
+      [
+        "Report Builder",
+        "run_ci_daily.py"
+      ],
+      [
+        "GitHub Pages",
+        "build_apify_report.py"
+      ],
+      [
+        "Grosmimi US SNS",
+        "apify_daily.yml"
+      ],
+      [
+        "PostgreSQL",
+        "sync_sns_tab.py"
+      ],
+      [
+        "DataKeeper",
+        "content_posts"
+      ],
+      [
+        "Apify",
+        "brand"
+      ],
+      [
+        "Content Intelligence Team",
+        "Google Sheets"
+      ],
+      [
+        "content_posts",
+        "post_id"
+      ],
+      [
+        "Content Intelligence Team",
+        "Data Auditor"
+      ],
+      [
+        "content_posts",
+        "syncly_sheets"
+      ],
+      [
+        "GitHub Pages",
+        "gk_content_posts"
+      ],
+      [
+        "Content Intelligence Team",
+        "fetch_apify_content.py"
+      ],
+      [
+        "Content Analyst",
+        "update_usa_llm.py"
+      ],
+      [
+        "Git Commit f01a20f",
+        "Version Tracking"
+      ],
+      [
+        "IG Graph API",
+        "Meta Business Suite"
+      ],
+      [
+        "Apify",
+        "Content Intelligence Team"
+      ],
+      [
+        "Audit 2",
+        "Brand"
+      ],
+      [
+        "Git Commit f01a20f",
+        "Version Log"
+      ],
+      [
+        "Content Intelligence Team",
+        "Report Builder"
+      ],
+      [
+        "CHA&MOM SNS",
+        "fetch_influencer_orders.py"
+      ],
+      [
+        "Brand",
+        "initial_load"
+      ],
+      [
+        "Detection Log",
+        "PostgreSQL"
+      ]
+    ],
+    "count": 34,
+    "create_time": 1775313740,
+    "update_time": 1775313740,
+    "_id": "doc-d71edcd2412bafda55b702e898d830b4"
+  },
+  "doc-50f634cf425765150d45ee96244296c1": {
+    "relation_pairs": [
+      [
+        "Executive Summary",
+        "Grosmimi"
+      ],
+      [
+        "Grosmimi",
+        "Time Series Overlay"
+      ],
+      [
+        "Content Impact Modeler",
+        "Granger Causality"
+      ],
+      [
+        "Grosmimi",
+        "TLCC Heatmap"
+      ],
+      [
+        "Content Impact Modeler",
+        "DataKeeper"
+      ],
+      [
+        "Content Impact Modeler",
+        "분석이"
+      ],
+      [
+        "Granger Results",
+        "Grosmimi"
+      ],
+      [
+        "Grosmimi",
+        "Impact Score"
+      ],
+      [
+        "HTML Report",
+        "분석이"
+      ],
+      [
+        "Content Impact Modeler",
+        "Content Metrics Daily"
+      ],
+      [
+        "Content Impact Modeler",
+        "GSC Daily"
+      ],
+      [
+        "Impact Score",
+        "Time Series Overlay"
+      ],
+      [
+        "Content Impact Modeler",
+        "Time-Lagged Cross-Correlation (TLCC)"
+      ],
+      [
+        "Content Impact Modeler",
+        "Shopify Orders Daily"
+      ],
+      [
+        "Grosmimi",
+        "Noise Reduction Comparison"
+      ],
+      [
+        "Amazon Sales Daily",
+        "Content Impact Modeler"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1775313782,
+    "update_time": 1775313782,
+    "_id": "doc-50f634cf425765150d45ee96244296c1"
+  },
+  "doc-861b6b0af5a02095416eeb3ce9bcd559": {
+    "relation_pairs": [
+      [
+        "Amazon Ads Daily",
+        "Impact Analysis"
+      ],
+      [
+        "Amazon",
+        "Naeiae"
+      ],
+      [
+        "gk_amazon_ads_daily",
+        "gk_amazon_campaigns"
+      ],
+      [
+        "Amazon SP-API Sellers",
+        "Amazon Sales"
+      ],
+      [
+        "Amazon Ads",
+        "Data Keeper"
+      ],
+      [
+        "GA4",
+        "GA4 Client ID"
+      ],
+      [
+        "gk_google_ads_daily",
+        "gk_meta_ads_daily"
+      ],
+      [
+        "Amazon",
+        "Shopify"
+      ],
+      [
+        "Amazon",
+        "Meta Business Suite"
+      ],
+      [
+        "Impact Analysis",
+        "Meta Ads Daily"
+      ],
+      [
+        "Klaviyo",
+        "Klaviyo API Key"
+      ],
+      [
+        "Audit",
+        "PG Data"
+      ],
+      [
+        "Data Keeper",
+        "orbiters_2"
+      ],
+      [
+        "Data Keeper",
+        "export_calculator"
+      ],
+      [
+        "Brand Detection",
+        "Shopify Channel Classification"
+      ],
+      [
+        "Meta Ads",
+        "Meta Ads Daily"
+      ],
+      [
+        "Audit",
+        "Shared Export"
+      ],
+      [
+        "Orbitools API",
+        "gk_ga4_daily"
+      ],
+      [
+        "Backfill",
+        "EC2 Deployment"
+      ],
+      [
+        "Data Keeper",
+        "certbot"
+      ],
+      [
+        "Data Keeper",
+        "production.log"
+      ],
+      [
+        "Audit",
+        "Orbitools API"
+      ],
+      [
+        "Data Keeper",
+        "EC2"
+      ],
+      [
+        "Amazon Sales",
+        "Data Keeper"
+      ],
+      [
+        "GA4 Daily",
+        "Impact Analysis"
+      ],
+      [
+        "gk_data_keeper_backfill",
+        "gk_dataforseo_keywords"
+      ],
+      [
+        "Amazon",
+        "Grosmimi"
+      ],
+      [
+        "Data Keeper",
+        "Klaviyo"
+      ],
+      [
+        "GROSMIMI_OLD_PRICES",
+        "Grosmimi"
+      ],
+      [
+        "Data Keeper",
+        "orbitools API"
+      ],
+      [
+        "Data Keeper",
+        "Django App"
+      ],
+      [
+        "Amazon Ads",
+        "Amazon Ads Daily"
+      ],
+      [
+        "Credential Management",
+        "Data Keeper"
+      ],
+      [
+        "Data Keeper",
+        "Shopify"
+      ],
+      [
+        "Credential Reload",
+        "Single-Channel Test"
+      ],
+      [
+        "Google Ads",
+        "Google Ads Daily"
+      ],
+      [
+        "Data Keeper",
+        "GitHub Actions"
+      ],
+      [
+        "Amazon Sales Daily",
+        "Impact Analysis"
+      ],
+      [
+        "Data Keeper",
+        "orbiters_db"
+      ],
+      [
+        "Data Keeper",
+        "Meta Ads"
+      ],
+      [
+        "Shopify",
+        "Shopify Shop"
+      ],
+      [
+        "Data Keeper",
+        "Google Ads"
+      ],
+      [
+        "Impact Analysis",
+        "Shopify Orders Daily"
+      ],
+      [
+        "Data Keeper",
+        "GA4"
+      ],
+      [
+        "Credential Management",
+        "Environment Variables"
+      ],
+      [
+        "Data Keeper",
+        "orbiters-n8n-server"
+      ],
+      [
+        "Impact Analysis",
+        "Klaviyo Daily"
+      ],
+      [
+        "GROSMIMI_PRICE_CUTOFF",
+        "Grosmimi"
+      ],
+      [
+        "Google Ads Daily",
+        "Impact Analysis"
+      ],
+      [
+        "Data Keeper",
+        "Polar"
+      ]
+    ],
+    "count": 50,
+    "create_time": 1775313789,
+    "update_time": 1775313789,
+    "_id": "doc-861b6b0af5a02095416eeb3ce9bcd559"
+  },
+  "doc-001f5a6e856d04764caf0f6d56c7bd55": {
+    "relation_pairs": [
+      [
+        "Gmail RAG",
+        "tools"
+      ],
+      [
+        "ChromaDB",
+        "Voyage AI"
+      ],
+      [
+        "ChromaDB",
+        "Drafts"
+      ],
+      [
+        "Accounts",
+        "Gmail RAG"
+      ],
+      [
+        "Gmail API",
+        "Voyage AI"
+      ],
+      [
+        "Contacts",
+        "SQLite"
+      ],
+      [
+        "Gmail RAG",
+        "hello@zezebaebae.com"
+      ],
+      [
+        "Gmail RAG",
+        "affiliates@onzenna.com"
+      ]
+    ],
+    "count": 8,
+    "create_time": 1775313816,
+    "update_time": 1775313816,
+    "_id": "doc-001f5a6e856d04764caf0f6d56c7bd55"
+  },
+  "doc-4295e963801c7018e84e3d8b7b0fad50": {
+    "relation_pairs": [
+      [
+        "KPI Discount/Advertising Cost/Seed Cost",
+        "kpi_formatter.py"
+      ],
+      [
+        "Amazon Tabs",
+        "kpi_formatter.py"
+      ],
+      [
+        "Validation Report",
+        "kpi_formatter.py"
+      ],
+      [
+        "KPI Report Formatter",
+        "골만이 Squad"
+      ],
+      [
+        "kpi_formatter.py",
+        "kpi_style_engine.py"
+      ],
+      [
+        "Executive Summary",
+        "kpi_formatter.py"
+      ],
+      [
+        "kpi_formatter.py",
+        "run_kpi_monthly.py"
+      ],
+      [
+        "Data Storage",
+        "kpi_reports"
+      ]
+    ],
+    "count": 8,
+    "create_time": 1775313844,
+    "update_time": 1775313844,
+    "_id": "doc-4295e963801c7018e84e3d8b7b0fad50"
+  },
+  "doc-bea7b04f80320e2c56bda31549f51ff4": {
+    "relation_pairs": [
+      [
+        "Firecrawl Agent",
+        "JSON Schema"
+      ],
+      [
+        "Firecrawl",
+        "JSON Output"
+      ],
+      [
+        "Agent",
+        "Firecrawl"
+      ],
+      [
+        "Firecrawl",
+        "Map Options"
+      ],
+      [
+        "Links",
+        "Map Options"
+      ],
+      [
+        "Markdown",
+        "Scrape Options"
+      ],
+      [
+        "Core Tools",
+        "Firecrawl CLI"
+      ],
+      [
+        "Agent-Browser",
+        "Python Mode"
+      ],
+      [
+        "Agent Options",
+        "Firecrawl Agent"
+      ],
+      [
+        "Firecrawl",
+        "Gitignore"
+      ],
+      [
+        "Firecrawl",
+        "Scraped Files"
+      ],
+      [
+        "JSON",
+        "Scrape Options"
+      ],
+      [
+        "Command Table",
+        "Firecrawl"
+      ],
+      [
+        "Core Tools",
+        "Escalation Pattern"
+      ],
+      [
+        "Firecrawl",
+        "Search Command"
+      ],
+      [
+        "Credit Usage",
+        "Firecrawl Agent"
+      ],
+      [
+        "Firecrawl",
+        "WebFetch"
+      ],
+      [
+        "Firecrawl",
+        "Scrape Command"
+      ],
+      [
+        "Firecrawl",
+        "Installation"
+      ],
+      [
+        "Firecrawl",
+        "Firecrawl CLI"
+      ],
+      [
+        "Browser",
+        "Firecrawl"
+      ],
+      [
+        "Browser Tools",
+        "Firecrawl CLI"
+      ],
+      [
+        "Firecrawl",
+        "Temporary Scripts"
+      ],
+      [
+        "Crawl Options",
+        "Firecrawl"
+      ],
+      [
+        "Cloud Browser Sessions",
+        "Firecrawl Agent"
+      ],
+      [
+        "Firecrawl Agent",
+        "Product Data"
+      ],
+      [
+        "Incremental Read",
+        "Scraped Files"
+      ],
+      [
+        "Command Table",
+        "Node Mode"
+      ],
+      [
+        "Accessibility Tree",
+        "Agent-Browser"
+      ],
+      [
+        "Agent-Browser",
+        "Launch-Session Command"
+      ],
+      [
+        "HTML",
+        "Scrape Options"
+      ],
+      [
+        "Firecrawl",
+        "WebSearch"
+      ],
+      [
+        "Firecrawl Browser",
+        "Snapshot Command"
+      ],
+      [
+        "Firecrawl Agent",
+        "Job ID"
+      ],
+      [
+        "Command Table",
+        "Python Mode"
+      ],
+      [
+        "Firecrawl",
+        "Scrape Options"
+      ],
+      [
+        "Firecrawl Browser",
+        "Playwright Mode"
+      ],
+      [
+        ".firecrawl/ folder",
+        "Firecrawl"
+      ],
+      [
+        "Firecrawl Agent",
+        "Firecrawl Browser"
+      ]
+    ],
+    "count": 39,
+    "create_time": 1775313846,
+    "update_time": 1775313846,
+    "_id": "doc-bea7b04f80320e2c56bda31549f51ff4"
+  },
+  "doc-ae4d8a3f1000f372de57bd1b12a5ba8b": {
+    "relation_pairs": [
+      [
+        "Associate Analyst",
+        "골만이 Squad"
+      ],
+      [
+        "kpi_validator.py",
+        "validate_fin_data.py"
+      ],
+      [
+        "KPI Data Validator",
+        "ga4_daily"
+      ],
+      [
+        "KPI Data Validator",
+        "shopify_orders_daily"
+      ],
+      [
+        "M-068",
+        "M-069"
+      ],
+      [
+        "KPI Data Validator",
+        "amazon_ads_daily"
+      ],
+      [
+        "Profit and Loss (P&L) Output",
+        "validate_fin_data.py"
+      ],
+      [
+        "Cross-table Date Alignment",
+        "KPI Data Validator"
+      ],
+      [
+        "DataKeeper",
+        "KPI Data Validator"
+      ],
+      [
+        "KPI Data Validator",
+        "validation_report.json"
+      ],
+      [
+        "M-066",
+        "M-067"
+      ],
+      [
+        "KPI Data Validator",
+        "google_ads_daily"
+      ],
+      [
+        "Anomaly Detection",
+        "KPI Data Validator"
+      ],
+      [
+        "KPI Data Validator",
+        "meta_ads_daily"
+      ],
+      [
+        "KPI Data Validator",
+        "amazon_sales_daily"
+      ],
+      [
+        "KPI Data Validator",
+        "klaviyo_daily"
+      ],
+      [
+        "generate_fin_data.py",
+        "kpi_validator.py"
+      ],
+      [
+        "Financial Dashboard Cross-Check",
+        "KPI Data Validator"
+      ],
+      [
+        "Discount/Revenue Ratio",
+        "KPI Cross-Match"
+      ]
+    ],
+    "count": 19,
+    "create_time": 1775313889,
+    "update_time": 1775313889,
+    "_id": "doc-ae4d8a3f1000f372de57bd1b12a5ba8b"
+  },
+  "doc-4e5d6579e52f813fcc540d8ce2296325": {
+    "relation_pairs": [
+      [
+        "Common Patterns",
+        "Schema Rules"
+      ],
+      [
+        "Amazon Reconciliation",
+        "Cross-Table Rules"
+      ],
+      [
+        "KPI Schemas",
+        "Validation Rules Reference"
+      ],
+      [
+        "Anomaly Rules",
+        "MoM Thresholds"
+      ],
+      [
+        "Data Availability",
+        "Source"
+      ],
+      [
+        "Gap Rules",
+        "Through-Date Rules"
+      ],
+      [
+        "Identity Rules",
+        "shopify_orders_daily"
+      ],
+      [
+        "Coverage Rules",
+        "Expected Brands"
+      ]
+    ],
+    "count": 8,
+    "create_time": 1775313893,
+    "update_time": 1775313893,
+    "_id": "doc-4e5d6579e52f813fcc540d8ce2296325"
+  },
+  "doc-7571c060a253d1f1f5443707a6c9b74c": {
+    "relation_pairs": [
+      [
+        "DataKeeper",
+        "due-diligence-playbook.md"
+      ],
+      [
+        "10 Brands",
+        "ORBI"
+      ],
+      [
+        "KPI Data Taxonomy",
+        "Periodic Analysis"
+      ],
+      [
+        "LBO",
+        "M&A 모델"
+      ],
+      [
+        "Golmani",
+        "Investment Banking"
+      ],
+      [
+        "DataKeeper",
+        "financial-statements.md"
+      ],
+      [
+        "3-Statement Model",
+        "Golmani"
+      ],
+      [
+        "no_polar",
+        "tools"
+      ],
+      [
+        "MKT 스펜드",
+        "데이터 검증"
+      ],
+      [
+        "Goldman Sachs",
+        "Golmani"
+      ],
+      [
+        "KPI Data Taxonomy",
+        "Shopify"
+      ],
+      [
+        "Data Keeper",
+        "Golmani"
+      ],
+      [
+        "Financial Analysis",
+        "KPI Data Management"
+      ],
+      [
+        "LittlefingerUSA Inc.",
+        "ORBI"
+      ],
+      [
+        "Data Storage",
+        "processing temp files"
+      ],
+      [
+        "DataKeeper",
+        "investor-materials.md"
+      ],
+      [
+        "Fleeters Inc.",
+        "ORBI"
+      ],
+      [
+        "Data Storage",
+        "python-pptx"
+      ],
+      [
+        "financial-statements.md",
+        "valuation-frameworks.md"
+      ],
+      [
+        "DataKeeper",
+        "valuation-frameworks.md"
+      ],
+      [
+        "Data Storage",
+        "temporary files"
+      ],
+      [
+        "financial-statements.md",
+        "kpi-data-taxonomy.md"
+      ],
+      [
+        "due-diligence-playbook.md",
+        "investor-materials.md"
+      ],
+      [
+        "Data Storage",
+        "markdown analysis"
+      ],
+      [
+        "Golmani",
+        "포맷이"
+      ],
+      [
+        "투자설명서",
+        "피치덱"
+      ],
+      [
+        "Golmani",
+        "검증이"
+      ],
+      [
+        "Market",
+        "ORBI"
+      ],
+      [
+        "Comps",
+        "경쟁사 분석"
+      ],
+      [
+        "3-statement",
+        "실적 분석"
+      ],
+      [
+        "KPI Excel report",
+        "run_kpi_monthly.py"
+      ],
+      [
+        "Data Storage",
+        "openpyxl"
+      ],
+      [
+        "Fulfillment Services",
+        "ORBI"
+      ],
+      [
+        "Amazon",
+        "KPI Data Taxonomy"
+      ]
+    ],
+    "count": 34,
+    "create_time": 1775313963,
+    "update_time": 1775313963,
+    "_id": "doc-7571c060a253d1f1f5443707a6c9b74c"
+  },
+  "doc-09625c96e09a22a65ff2083b1a2a4f15": {
+    "relation_pairs": [
+      [
+        "Commercial DD",
+        "Due Diligence Checklist"
+      ],
+      [
+        "Hold Period",
+        "Leverage"
+      ],
+      [
+        "K-baby Trend",
+        "Orbiters Co., Ltd."
+      ],
+      [
+        "Inventory Turns",
+        "Manual"
+      ],
+      [
+        "DataKeeper",
+        "Revenue"
+      ],
+      [
+        "KPI",
+        "Monthly Dashboard"
+      ],
+      [
+        "KPI",
+        "Quarterly Board Deck"
+      ],
+      [
+        "KPI",
+        "Revenue"
+      ],
+      [
+        "Due Diligence Checklist",
+        "IT & Data DD"
+      ],
+      [
+        "Amazon BSR",
+        "KPI"
+      ],
+      [
+        "Consumer Products",
+        "Orbiters Co., Ltd."
+      ],
+      [
+        "Due Diligence Checklist",
+        "Financial DD"
+      ],
+      [
+        "Customer NPS",
+        "KPI"
+      ],
+      [
+        "Total Distributions",
+        "Total Invested"
+      ],
+      [
+        "KPI",
+        "MER"
+      ],
+      [
+        "Due Diligence Checklist",
+        "Due Diligence Playbook"
+      ],
+      [
+        "DTC/Consumer Brands",
+        "Due Diligence Playbook"
+      ],
+      [
+        "Due Diligence Checklist",
+        "Tax DD"
+      ],
+      [
+        "KPI",
+        "LTV:CAC"
+      ],
+      [
+        "Entry Multiple",
+        "Revenue Growth"
+      ],
+      [
+        "DataKeeper",
+        "Due Diligence Playbook"
+      ],
+      [
+        "Orbiters Co., Ltd.",
+        "Shopify"
+      ],
+      [
+        "ORBI Returns Scenario",
+        "Value Creation Bridge"
+      ],
+      [
+        "Entry Revenue",
+        "Exit EBITDA Margin"
+      ],
+      [
+        "ORBI Returns Scenario",
+        "Returns Sensitivity Template"
+      ],
+      [
+        "EBITDA",
+        "KPI"
+      ],
+      [
+        "Gross Margin",
+        "KPI"
+      ],
+      [
+        "DataKeeper",
+        "Orbiters Co., Ltd."
+      ],
+      [
+        "Amazon",
+        "Orbiters Co., Ltd."
+      ],
+      [
+        "Calculated",
+        "EBITDA"
+      ],
+      [
+        "CAC",
+        "KPI"
+      ],
+      [
+        "Inventory Turns",
+        "KPI"
+      ],
+      [
+        "Due Diligence Checklist",
+        "Operational DD"
+      ],
+      [
+        "LFU",
+        "ORBI"
+      ],
+      [
+        "FLT",
+        "ORBI"
+      ],
+      [
+        "Bank Statements",
+        "Cash Balance"
+      ],
+      [
+        "Exit EV",
+        "MOIC"
+      ],
+      [
+        "Orbiters Co., Ltd.",
+        "Seoul"
+      ],
+      [
+        "Cash Balance",
+        "KPI"
+      ],
+      [
+        "ORBI Value Creation Levers",
+        "Value Creation Bridge"
+      ],
+      [
+        "Due Diligence Checklist",
+        "Legal DD"
+      ],
+      [
+        "Deal Screening Framework",
+        "Portfolio Monitoring KPIs"
+      ],
+      [
+        "Digital Distribution Channel",
+        "Orbiters Co., Ltd."
+      ],
+      [
+        "FLT",
+        "LFU"
+      ],
+      [
+        "Grosmimi",
+        "Orbiters Co., Ltd."
+      ]
+    ],
+    "count": 45,
+    "create_time": 1775313975,
+    "update_time": 1775313975,
+    "_id": "doc-09625c96e09a22a65ff2083b1a2a4f15"
+  },
+  "doc-5a9859d5e7143c14c579d8b16299e877": {
+    "relation_pairs": [
+      [
+        "Hanes Brands",
+        "ORBI"
+      ],
+      [
+        "Artsana",
+        "ORBI"
+      ],
+      [
+        "Baby Products M&A",
+        "Halo (Owlet)"
+      ],
+      [
+        "Recent Deals",
+        "Web Search"
+      ],
+      [
+        "Market Cap Decline",
+        "Solo Stove"
+      ],
+      [
+        "Grosmimi",
+        "ORBI"
+      ],
+      [
+        "Paid/Free",
+        "Statista"
+      ],
+      [
+        "Newell Brands",
+        "ORBI"
+      ],
+      [
+        "PE Deal Multiples",
+        "PitchBook"
+      ],
+      [
+        "Dollar Shave Club",
+        "Unilever"
+      ],
+      [
+        "E-commerce Trends",
+        "eMarketer"
+      ],
+      [
+        "Market Size Data",
+        "Statista"
+      ],
+      [
+        "Carter's Inc.",
+        "ORBI"
+      ],
+      [
+        "Baby Products Market Reports",
+        "Grand View Research"
+      ],
+      [
+        "Google Trends",
+        "Market Behavior"
+      ],
+      [
+        "Native",
+        "Procter & Gamble"
+      ],
+      [
+        "Ergobaby",
+        "Wonderland"
+      ],
+      [
+        "Amazon Category Data",
+        "Helium 10"
+      ],
+      [
+        "Owlet",
+        "Sandbridge SPAC"
+      ],
+      [
+        "Billie",
+        "P&G"
+      ],
+      [
+        "DTC Brands",
+        "Warby Parker"
+      ],
+      [
+        "Amazon",
+        "Grosmimi"
+      ],
+      [
+        "Paid Subscription",
+        "PitchBook"
+      ],
+      [
+        "Baby Products Industry Metrics",
+        "Baby Products Market Size"
+      ],
+      [
+        "SimilarWeb",
+        "Website Traffic"
+      ],
+      [
+        "Public Company Financials",
+        "SEC EDGAR"
+      ],
+      [
+        "Kiddo Inc",
+        "Summer Infant"
+      ],
+      [
+        "E-commerce Trends",
+        "Insider Intelligence"
+      ],
+      [
+        "Amazon Aggregator Deals",
+        "Thrasio"
+      ],
+      [
+        "Google Trends",
+        "Search Interest"
+      ],
+      [
+        "Amazon Aggregator Deals",
+        "Market Correction"
+      ],
+      [
+        "Free",
+        "Google Trends"
+      ],
+      [
+        "Amazon Category Data",
+        "Jungle Scout"
+      ],
+      [
+        "Edgewell",
+        "Harry's"
+      ],
+      [
+        "Billie",
+        "Procter & Gamble"
+      ],
+      [
+        "Freemium",
+        "SimilarWeb"
+      ],
+      [
+        "Baby Products M&A",
+        "Dorel Industries"
+      ]
+    ],
+    "count": 37,
+    "create_time": 1775314064,
+    "update_time": 1775314064,
+    "_id": "doc-5a9859d5e7143c14c579d8b16299e877"
+  },
+  "doc-1d865e1e39d2f4c41ca3a8549c6be933": {
+    "relation_pairs": [
+      [
+        "Alpremio",
+        "Key Driver"
+      ],
+      [
+        "Common Stock",
+        "Equity"
+      ],
+      [
+        "Cash Flow Statement",
+        "Financial Statements"
+      ],
+      [
+        "Cash Flow Statement",
+        "Operating Activities"
+      ],
+      [
+        "Equity",
+        "Liabilities"
+      ],
+      [
+        "GM%",
+        "Grosmimi"
+      ],
+      [
+        "Amazon",
+        "Shopify"
+      ],
+      [
+        "Gross Revenue",
+        "Naeiae"
+      ],
+      [
+        "CHA&MOM",
+        "Key Driver"
+      ],
+      [
+        "Contribution Margin",
+        "Marketing & Advertising"
+      ],
+      [
+        "Cohort-Based Method",
+        "Driver-Based Method"
+      ],
+      [
+        "DataKeeper",
+        "Financial Statements"
+      ],
+      [
+        "Grosmimi",
+        "Key Driver"
+      ],
+      [
+        "Alpremio",
+        "GM%"
+      ],
+      [
+        "Brand Acquisition Costs",
+        "Cash Flow Statement"
+      ],
+      [
+        "Balance Sheet",
+        "Financial Statements"
+      ],
+      [
+        "Equity",
+        "Retained Earnings"
+      ],
+      [
+        "Additional Paid-In Capital",
+        "Equity"
+      ],
+      [
+        "Alpremio",
+        "Gross Revenue"
+      ],
+      [
+        "Bottom-Up Method",
+        "Growth Rate Method"
+      ],
+      [
+        "Amazon Ads",
+        "Meta Ads"
+      ],
+      [
+        "Cash Flow Statement",
+        "Financing Activities"
+      ],
+      [
+        "CHA&MOM",
+        "GM%"
+      ],
+      [
+        "Conditional Formatting Patterns",
+        "Model Building Conventions"
+      ],
+      [
+        "Financial Statements",
+        "Income Statement"
+      ],
+      [
+        "DTC",
+        "Revenue"
+      ],
+      [
+        "Formula Conventions",
+        "Model Building Conventions"
+      ],
+      [
+        "Income Statement",
+        "Revenue"
+      ],
+      [
+        "GM%",
+        "Naeiae"
+      ],
+      [
+        "CHA&MOM",
+        "Gross Revenue"
+      ],
+      [
+        "Model Building Conventions",
+        "Tab Structure for 3-Statement Model"
+      ],
+      [
+        "CM3",
+        "Marketing"
+      ],
+      [
+        "SKU-Level COGS Structure",
+        "Volume-Weighted COGS"
+      ],
+      [
+        "Grosmimi",
+        "Gross Revenue"
+      ],
+      [
+        "Margin Analysis by Brand",
+        "Volume-Weighted COGS"
+      ],
+      [
+        "Product Variant Map",
+        "Seasonality Index"
+      ],
+      [
+        "Amazon Marketplace Revenue",
+        "Shopify"
+      ],
+      [
+        "Accounts Payable",
+        "Assets"
+      ],
+      [
+        "Assets",
+        "Liabilities"
+      ],
+      [
+        "COGS",
+        "EBITDA"
+      ],
+      [
+        "EBITDA",
+        "Gross Profit"
+      ],
+      [
+        "Gross Profit",
+        "Net Revenue"
+      ],
+      [
+        "DataKeeper",
+        "Key Metrics & KPIs"
+      ],
+      [
+        "Key Driver",
+        "Naeiae"
+      ],
+      [
+        "B2B",
+        "Revenue"
+      ],
+      [
+        "Cash Flow Statement",
+        "Investing Activities"
+      ],
+      [
+        "Net Revenue",
+        "Revenue"
+      ]
+    ],
+    "count": 47,
+    "create_time": 1775314064,
+    "update_time": 1775314064,
+    "_id": "doc-1d865e1e39d2f4c41ca3a8549c6be933"
+  },
+  "doc-7ef87d57b1ec1af341684ba852fa16d6": {
+    "relation_pairs": [
+      [
+        "CIM (Confidential Information Memorandum)",
+        "Financial Performance"
+      ],
+      [
+        "Channel Strategy",
+        "Pitch Deck"
+      ],
+      [
+        "Investment Opportunity",
+        "Process Letter"
+      ],
+      [
+        "CIM (Confidential Information Memorandum)",
+        "Competitive Positioning"
+      ],
+      [
+        "Investor Materials",
+        "Pitch Deck"
+      ],
+      [
+        "Investor Materials",
+        "ORBI"
+      ],
+      [
+        "CIM Writing Standards",
+        "DataKeeper"
+      ],
+      [
+        "Investment Highlights",
+        "Investment Opportunity"
+      ],
+      [
+        "Data Storage",
+        "Strip Profiles"
+      ],
+      [
+        "Data Storage",
+        "Process Letter"
+      ],
+      [
+        "Orbiters Co., Ltd.",
+        "Shopify"
+      ],
+      [
+        "Investment Opportunity",
+        "Orbiters Co., Ltd."
+      ],
+      [
+        "Market Opportunity",
+        "Pitch Deck"
+      ],
+      [
+        "Data Storage",
+        "IC Memo"
+      ],
+      [
+        "Amazon",
+        "Orbiters Co., Ltd."
+      ],
+      [
+        "Investment Opportunity",
+        "Transaction Overview"
+      ],
+      [
+        "CIM",
+        "Data Storage"
+      ],
+      [
+        "Data Pack",
+        "Data Storage"
+      ],
+      [
+        "CIM (Confidential Information Memorandum)",
+        "Key Chart Types"
+      ],
+      [
+        "CIM (Confidential Information Memorandum)",
+        "Investor Materials"
+      ],
+      [
+        "Data Storage",
+        "Pitch Deck"
+      ],
+      [
+        "Slide Design Guidelines",
+        "python-pptx"
+      ],
+      [
+        "Data Storage",
+        "Teaser"
+      ],
+      [
+        "Grosmimi",
+        "Orbiters Co., Ltd."
+      ],
+      [
+        "CIM (Confidential Information Memorandum)",
+        "DataKeeper"
+      ],
+      [
+        "CIM (Confidential Information Memorandum)",
+        "Chapter Structure"
+      ]
+    ],
+    "count": 26,
+    "create_time": 1775314109,
+    "update_time": 1775314109,
+    "_id": "doc-7ef87d57b1ec1af341684ba852fa16d6"
+  },
+  "doc-8ed686e5bd955b38c160f55d95c945ad": {
+    "relation_pairs": [
+      [
+        "CHA&MOM",
+        "D2C"
+      ],
+      [
+        "Meta Ads Daily",
+        "Sales"
+      ],
+      [
+        "D2C KPI Block",
+        "Executive Summary"
+      ],
+      [
+        "Net Revenue",
+        "Total Orders"
+      ],
+      [
+        "Channel Classification",
+        "Meta Marketing API"
+      ],
+      [
+        "Amazon Ads Monthly",
+        "Total MER"
+      ],
+      [
+        "Channel Classification",
+        "Google Ads API"
+      ],
+      [
+        "D2C",
+        "KPI Reports"
+      ],
+      [
+        "amazon_sales_daily",
+        "amazon_sales_sku_daily"
+      ],
+      [
+        "MoM Growth",
+        "YoY Growth"
+      ],
+      [
+        "Amazon",
+        "Shopify"
+      ],
+      [
+        "DataKeeper Table Schemas",
+        "shopify_orders_sku_daily"
+      ],
+      [
+        "shopify_orders_daily",
+        "shopify_orders_sku_daily"
+      ],
+      [
+        "Google Ads Daily",
+        "Sales"
+      ],
+      [
+        "Amazon",
+        "KPI Ad Spend"
+      ],
+      [
+        "Channel Classification",
+        "Google Analytics 4"
+      ],
+      [
+        "Amazon Sales Daily",
+        "SP-API"
+      ],
+      [
+        "Amazon Gross Sales",
+        "Amazon Units"
+      ],
+      [
+        "D2C",
+        "Naeiae"
+      ],
+      [
+        "KPI Discount",
+        "Price Cutoff"
+      ],
+      [
+        "Meta Ads Monthly",
+        "Total MER"
+      ],
+      [
+        "DataKeeper Table Schemas",
+        "amazon_sales_sku_daily"
+      ],
+      [
+        "Google Ads",
+        "Meta Ads"
+      ],
+      [
+        "B2B",
+        "D2C"
+      ],
+      [
+        "AOV",
+        "Total Orders"
+      ],
+      [
+        "DataKeeper Table Schemas",
+        "shopify_orders_daily"
+      ],
+      [
+        "Amazon",
+        "Grosmimi"
+      ],
+      [
+        "Gross Margin %",
+        "Gross Profit"
+      ],
+      [
+        "DataKeeper Table Schemas",
+        "amazon_ads_daily"
+      ],
+      [
+        "GA4 Daily",
+        "Purchases"
+      ],
+      [
+        "Channel Classification",
+        "Klaviyo API"
+      ],
+      [
+        "Gross Revenue",
+        "Net Revenue"
+      ],
+      [
+        "DataKeeper",
+        "Valid Tables"
+      ],
+      [
+        "Google Ads Monthly",
+        "Total MER"
+      ],
+      [
+        "Amazon Gross Sales",
+        "Implied Discount ($)"
+      ],
+      [
+        "Amazon",
+        "D2C"
+      ],
+      [
+        "D2C",
+        "Onzenna"
+      ],
+      [
+        "Grosmimi",
+        "KPI Discount"
+      ],
+      [
+        "D2C",
+        "TikTok"
+      ],
+      [
+        "Gross Profit",
+        "Net Revenue"
+      ],
+      [
+        "Alpremio",
+        "D2C"
+      ],
+      [
+        "Klaviyo Daily",
+        "Purchases"
+      ],
+      [
+        "DataKeeper Table Schemas",
+        "meta_ads_daily"
+      ],
+      [
+        "Amazon Ads",
+        "D2C"
+      ],
+      [
+        "DataKeeper Table Schemas",
+        "amazon_sales_daily"
+      ],
+      [
+        "D2C",
+        "Grosmimi"
+      ],
+      [
+        "KPI Data Taxonomy",
+        "ORBI"
+      ]
+    ],
+    "count": 47,
+    "create_time": 1775314158,
+    "update_time": 1775314158,
+    "_id": "doc-8ed686e5bd955b38c160f55d95c945ad"
+  },
+  "doc-4623db06fd5be83a99f9abc98694225a": {
+    "relation_pairs": [
+      [
+        "WBF",
+        "final consumer"
+      ],
+      [
+        "Amazon Ads Daily",
+        "PPC Data"
+      ],
+      [
+        "Grosmimi USA",
+        "Orbitool"
+      ],
+      [
+        "Grosmimi",
+        "Onzenna D2C"
+      ],
+      [
+        "FLT",
+        "WBF"
+      ],
+      [
+        "Amazon Ads",
+        "Meta Ads"
+      ],
+      [
+        "Google Ads",
+        "Meta Ads"
+      ],
+      [
+        "Historical Price Events",
+        "PPSU Baby Bottle 10oz"
+      ],
+      [
+        "LFU",
+        "ORBI"
+      ],
+      [
+        "Onzenna D2C",
+        "Shopify Daily Orders"
+      ],
+      [
+        "Amazon Ads",
+        "TikTok Ads"
+      ],
+      [
+        "Amazon Ads Daily",
+        "Amazon Prime Day"
+      ],
+      [
+        "Amazon Ads Daily",
+        "DataKeeper PostgreSQL"
+      ],
+      [
+        "Historical Price Events",
+        "PPSU Straw Cup 10oz"
+      ],
+      [
+        "Amazon Ads Daily",
+        "Black Friday / Cyber Monday"
+      ],
+      [
+        "Naeiae",
+        "WBF"
+      ],
+      [
+        "FLT",
+        "Naeiae"
+      ],
+      [
+        "FLT",
+        "LFU"
+      ],
+      [
+        "Historical Price Events",
+        "Stainless Straw Cup 10oz"
+      ]
+    ],
+    "count": 19,
+    "create_time": 1775314163,
+    "update_time": 1775314163,
+    "_id": "doc-4623db06fd5be83a99f9abc98694225a"
+  },
+  "doc-e0b9776d63a3c29140cfa93edac2e6f6": {
+    "relation_pairs": [
+      [
+        "Query Scoping Rules",
+        "Sensitivity Analysis"
+      ],
+      [
+        "Query Scoping Rules",
+        "USD"
+      ],
+      [
+        "Latest 12 Months (LTM)",
+        "Query Scoping Rules"
+      ],
+      [
+        "Valuation Queries",
+        "valuation-frameworks.md"
+      ],
+      [
+        "DataKeeper",
+        "Valuation Queries"
+      ],
+      [
+        "DataKeeper",
+        "Market & Competitive Queries"
+      ],
+      [
+        "Market & Competitive Queries",
+        "industry-benchmarks.md"
+      ],
+      [
+        "Due Diligence & PE Queries",
+        "ORBI"
+      ],
+      [
+        "Due Diligence & PE Queries",
+        "due-diligence-playbook.md"
+      ],
+      [
+        "Query Scoping Rules",
+        "Source Citation"
+      ],
+      [
+        "Financial Analysis Queries",
+        "financial-statements.md"
+      ],
+      [
+        "Investor Materials Queries",
+        "ORBI"
+      ],
+      [
+        "DataKeeper",
+        "Financial Analysis Queries"
+      ]
+    ],
+    "count": 13,
+    "create_time": 1775314191,
+    "update_time": 1775314191,
+    "_id": "doc-e0b9776d63a3c29140cfa93edac2e6f6"
+  },
+  "doc-02e7d8385d0c807e3eefd61992e608bb": {
+    "relation_pairs": [
+      [
+        "LBO Model",
+        "ORBI"
+      ],
+      [
+        "DTC Brand Acquisitions",
+        "Meta/Google"
+      ],
+      [
+        "ORBI",
+        "Synergies"
+      ],
+      [
+        "Precedent Transactions",
+        "Trading Comps"
+      ],
+      [
+        "Korean Imports",
+        "ORBI"
+      ],
+      [
+        "DCF",
+        "Trading Comps"
+      ],
+      [
+        "EPS Accretion/Dilution Analysis",
+        "ORBI"
+      ],
+      [
+        "CAPM",
+        "DCF"
+      ],
+      [
+        "DTC Brand Acquisitions",
+        "WBF Warehouse"
+      ],
+      [
+        "DTC/E-commerce",
+        "Seller's Discretionary Earnings"
+      ],
+      [
+        "LBO Model",
+        "Sources & Uses"
+      ],
+      [
+        "LBO Model",
+        "Operating Model"
+      ],
+      [
+        "DTC Brand Acquisitions",
+        "ORBI"
+      ],
+      [
+        "DTC/E-commerce",
+        "Revenue multiples"
+      ],
+      [
+        "Amazon Aggregator",
+        "DTC Brand Acquisitions"
+      ],
+      [
+        "Debt Schedule",
+        "LBO Model"
+      ],
+      [
+        "Exit Options",
+        "ORBI"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1775314197,
+    "update_time": 1775314197,
+    "_id": "doc-02e7d8385d0c807e3eefd61992e608bb"
+  },
+  "doc-6096978394b09c31f3600f67b59d5d7e": {
+    "relation_pairs": [
+      [
+        "Accounts Center Accounts",
+        "Link Clicks"
+      ],
+      [
+        "Learning Phase Status",
+        "Recommendations"
+      ],
+      [
+        "Diagnosis",
+        "Performance Analysis"
+      ],
+      [
+        "Daily Report Workflow",
+        "Meta Ads Analyzer"
+      ],
+      [
+        "Meta Ads Analyzer",
+        "Meta Ads Manager"
+      ],
+      [
+        "Amazon Ads",
+        "Meta Ads Analyzer"
+      ],
+      [
+        "Graph API",
+        "Meta Ads Analyzer"
+      ],
+      [
+        "Purchase ROAS",
+        "Purchases"
+      ],
+      [
+        "Breakdown Effect",
+        "Step 4"
+      ],
+      [
+        "CPC (All)",
+        "Cost per Action"
+      ],
+      [
+        "Impressions",
+        "Reach"
+      ],
+      [
+        "CPC",
+        "CPC (Link Click)"
+      ],
+      [
+        "Brand Portfolio",
+        "Managed Ad Accounts"
+      ],
+      [
+        "Executive Summary",
+        "Step 5"
+      ],
+      [
+        "Executive Summary",
+        "Performance Analysis"
+      ],
+      [
+        "CPC",
+        "CPM"
+      ],
+      [
+        "Meta Ads Analyzer",
+        "Tools"
+      ],
+      [
+        "Account ID",
+        "Managed Ad Accounts"
+      ],
+      [
+        "Claude",
+        "Graph API"
+      ],
+      [
+        "Clicks (All)",
+        "Impressions"
+      ],
+      [
+        "Managed Ad Accounts",
+        "Project Context"
+      ],
+      [
+        "Breakdown Effect",
+        "Breakdown Effect Notes"
+      ],
+      [
+        "Breakdown Effect",
+        "Executive Summary"
+      ],
+      [
+        "Breakdown Effect",
+        "Learning Phase"
+      ]
+    ],
+    "count": 24,
+    "create_time": 1775314260,
+    "update_time": 1775314260,
+    "_id": "doc-6096978394b09c31f3600f67b59d5d7e"
+  },
+  "doc-81f1b2478db3cbac45135b735b73c842": {
+    "relation_pairs": [
+      [
+        "COGS",
+        "KPI Monthly Report"
+      ],
+      [
+        "KPI Monthly Report",
+        "KPI_광고비"
+      ],
+      [
+        "Amazon Ads",
+        "Data Keeper"
+      ],
+      [
+        "Amazon Channel",
+        "Shopify Orders Daily"
+      ],
+      [
+        "kpis_model_*_vN.xlsx",
+        "run_kpi_monthly.py"
+      ],
+      [
+        "KPI_Amazon할인_상세",
+        "run_kpi_monthly.py"
+      ],
+      [
+        "KPI Monthly Report",
+        "shopify_orders_daily"
+      ],
+      [
+        "Data Availability Windows",
+        "Google Ads"
+      ],
+      [
+        "kpis_model_*_vN.xlsx",
+        "tools/no_polar/"
+      ],
+      [
+        "Data Keeper",
+        "FBA Multi-Channel Fulfillment"
+      ],
+      [
+        "Data Availability Windows",
+        "Meta Ads"
+      ],
+      [
+        "KPI Monthly Report",
+        "amazon_ads_daily"
+      ],
+      [
+        "Faire",
+        "Shopify Orders Daily"
+      ],
+      [
+        "D2C KPI",
+        "KPI Monthly Report"
+      ],
+      [
+        "KPI Monthly Report",
+        "google_ads_daily"
+      ],
+      [
+        "KPI Monthly Report",
+        "KPI_할인율"
+      ],
+      [
+        "KPI Monthly Report",
+        "meta_ads_daily"
+      ],
+      [
+        "KPI Monthly Report",
+        "tools/no_polar/"
+      ],
+      [
+        "KPI Monthly Report",
+        "run_kpi_monthly.py"
+      ],
+      [
+        "KPI Monthly Report",
+        "ORBI Brands"
+      ],
+      [
+        "KPI Monthly Report",
+        "KPI_Amazon할인_상세"
+      ],
+      [
+        "Amazon Ads",
+        "Data Availability Windows"
+      ],
+      [
+        "kpi_debug_*.json",
+        "run_kpi_monthly.py"
+      ],
+      [
+        "KPI Monthly Report",
+        "KPI_시딩비용"
+      ],
+      [
+        "Amazon Sales Daily",
+        "Pricing Snapshot Timing"
+      ],
+      [
+        "data_keeper_client.py",
+        "run_kpi_monthly.py"
+      ],
+      [
+        "Amazon Seller Central",
+        "data_keeper_client.py"
+      ],
+      [
+        "Data Keeper",
+        "Meta Ads"
+      ],
+      [
+        "FBA Multi-Channel Fulfillment",
+        "WebBee App"
+      ],
+      [
+        "Data Keeper",
+        "Google Ads"
+      ],
+      [
+        "Executive Summary",
+        "KPI Monthly Report"
+      ],
+      [
+        "Amazon Sales Daily",
+        "Grosmimi"
+      ]
+    ],
+    "count": 32,
+    "create_time": 1775314263,
+    "update_time": 1775314263,
+    "_id": "doc-81f1b2478db3cbac45135b735b73c842"
+  },
+  "doc-47b40c2d8c8650905a9f57434cf095c4": {
+    "relation_pairs": [
+      [
+        "Ad Auctions",
+        "User Value"
+      ],
+      [
+        "Ad Auctions",
+        "Target Audiences"
+      ],
+      [
+        "Bid",
+        "Total Value"
+      ],
+      [
+        "Ad Auctions",
+        "Meta"
+      ],
+      [
+        "Cost Per Action (CPA)",
+        "Total Value"
+      ],
+      [
+        "Ad Quality",
+        "Total Value"
+      ],
+      [
+        "Estimated Action Rates",
+        "Total Value"
+      ],
+      [
+        "Creative Quality",
+        "Total Value"
+      ]
+    ],
+    "count": 8,
+    "create_time": 1775314281,
+    "update_time": 1775314281,
+    "_id": "doc-47b40c2d8c8650905a9f57434cf095c4"
+  },
+  "doc-d9325aa8b09d601b506d1bfb8a0fdbf1": {
+    "relation_pairs": [
+      [
+        "Ad Relevance Diagnostics",
+        "Conversion Rate Ranking"
+      ],
+      [
+        "Audience-Creative Mismatch",
+        "Conversion Rate Ranking"
+      ],
+      [
+        "Ad Relevance Diagnostics",
+        "Quality Ranking"
+      ],
+      [
+        "Audience-Creative Mismatch",
+        "Quality Ranking"
+      ],
+      [
+        "Ad Relevance Diagnostics",
+        "Engagement Rate Ranking"
+      ],
+      [
+        "Audience-Creative Mismatch",
+        "Engagement Rate Ranking"
+      ],
+      [
+        "Conversion Rate Ranking",
+        "Landing Page"
+      ],
+      [
+        "Conversion Rate Ranking",
+        "Post-Click Experience"
+      ]
+    ],
+    "count": 8,
+    "create_time": 1775314282,
+    "update_time": 1775314282,
+    "_id": "doc-d9325aa8b09d601b506d1bfb8a0fdbf1"
+  },
+  "doc-e746e7fef455022aa3084cbaa54d7d3f": {
+    "relation_pairs": [
+      [
+        "Auction",
+        "Meta"
+      ],
+      [
+        "Ad Sets",
+        "Learning Phase"
+      ],
+      [
+        "Ad Sets",
+        "Opportunity Score Recommendations"
+      ],
+      [
+        "Ad Sets",
+        "Automated Rules"
+      ],
+      [
+        "Ad Sets",
+        "Audience Overlap"
+      ],
+      [
+        "Ad Sets",
+        "Performance"
+      ],
+      [
+        "Ad Sets",
+        "Budget"
+      ]
+    ],
+    "count": 7,
+    "create_time": 1775314302,
+    "update_time": 1775314302,
+    "_id": "doc-e746e7fef455022aa3084cbaa54d7d3f"
+  },
+  "doc-69386a5a3ab683ab3313d073784c1422": {
+    "relation_pairs": [
+      [
+        "Meta Ads Audit Specialist",
+        "Meta Audit Results"
+      ],
+      [
+        "Advantage+ Campaigns",
+        "Meta Ads Audit Specialist"
+      ],
+      [
+        "46 Checks",
+        "Meta Ads Audit Specialist"
+      ],
+      [
+        "Creative Diversity",
+        "Meta Ads Audit Specialist"
+      ],
+      [
+        "Meta Ads Account Data",
+        "Meta Ads Audit Specialist"
+      ],
+      [
+        "Meta Ads Audit Specialist",
+        "Pixel/CAPI Health"
+      ],
+      [
+        "Audit Categories",
+        "Meta Ads Audit Specialist"
+      ],
+      [
+        "Advantage+ Shopping Campaigns",
+        "Meta Ads Audit Specialist"
+      ],
+      [
+        "Creative Fatigue",
+        "Meta Ads Audit Specialist"
+      ]
+    ],
+    "count": 9,
+    "create_time": 1775314304,
+    "update_time": 1775314304,
+    "_id": "doc-69386a5a3ab683ab3313d073784c1422"
+  },
+  "doc-598aca3d6f829fff536ed40059c3b236": {
+    "relation_pairs": [
+      [
+        "Engagement Objective",
+        "Facebook Stories"
+      ],
+      [
+        "Average Efficiency",
+        "Marginal Efficiency"
+      ],
+      [
+        "Breakdown Effect",
+        "Meta"
+      ],
+      [
+        "Engagement Objective",
+        "Instagram Stories"
+      ],
+      [
+        "Automation",
+        "Pacing"
+      ],
+      [
+        "CPA",
+        "Inflection Point"
+      ],
+      [
+        "Marginal Efficiency",
+        "Meta"
+      ]
+    ],
+    "count": 7,
+    "create_time": 1775314353,
+    "update_time": 1775314353,
+    "_id": "doc-598aca3d6f829fff536ed40059c3b236"
+  },
+  "doc-d8c6f2db9fcc0b5122e46b101e7868a2": {
+    "relation_pairs": [
+      [
+        "E-commerce",
+        "Google Ads"
+      ],
+      [
+        "CPC YoY Trend",
+        "North America"
+      ],
+      [
+        "CPL",
+        "Manufacturing"
+      ],
+      [
+        "Arts & Entertainment",
+        "Google Ads"
+      ],
+      [
+        "CPL",
+        "Education"
+      ],
+      [
+        "Smart+ Performance",
+        "TikTok Ads"
+      ],
+      [
+        "Education",
+        "Meta Ads"
+      ],
+      [
+        "Google Ads",
+        "WordStream"
+      ],
+      [
+        "Google Ads",
+        "LocaliQ"
+      ],
+      [
+        "CPL",
+        "Software & IT"
+      ],
+      [
+        "Average CPC",
+        "Microsoft Ads"
+      ],
+      [
+        "Minimum Ad Budgets",
+        "TikTok Ads"
+      ],
+      [
+        "CPL",
+        "Retail"
+      ],
+      [
+        "Copilot Checkout",
+        "January 2026"
+      ],
+      [
+        "B2B SaaS",
+        "LinkedIn Ads"
+      ],
+      [
+        "CPL",
+        "TLA CPC"
+      ],
+      [
+        "Meta Ads",
+        "WordStream"
+      ],
+      [
+        "CPL",
+        "Finance"
+      ],
+      [
+        "Google Ads",
+        "Industry Benchmarks 2026"
+      ],
+      [
+        "CPC",
+        "Q4"
+      ],
+      [
+        "CPL",
+        "Healthcare"
+      ],
+      [
+        "CPL",
+        "Media"
+      ],
+      [
+        "CPC",
+        "Q3"
+      ]
+    ],
+    "count": 23,
+    "create_time": 1775314361,
+    "update_time": 1775314361,
+    "_id": "doc-d8c6f2db9fcc0b5122e46b101e7868a2"
+  },
+  "doc-71c5097264c89e1c94f1a937ee169123": {
+    "relation_pairs": [
+      [
+        "Cross-Platform Tracking Health Audit",
+        "TikTok"
+      ],
+      [
+        "Enhanced Conversions",
+        "Google Ads Conversion Tracking"
+      ],
+      [
+        "TikTok",
+        "ttclid"
+      ],
+      [
+        "LinkedIn",
+        "LinkedIn Insight Tag"
+      ],
+      [
+        "Advanced Matching",
+        "TikTok Ads Conversion Tracking"
+      ],
+      [
+        "Microsoft Ads",
+        "UET (Universal Event Tracking)"
+      ],
+      [
+        "Attribution Windows",
+        "Meta Ads Conversion Tracking"
+      ],
+      [
+        "Event Match Quality (EMQ)",
+        "Meta Ads Conversion Tracking"
+      ],
+      [
+        "Google Ads Conversion Tracking",
+        "Offline Conversion Import"
+      ],
+      [
+        "Conversions API (CAPI)",
+        "LinkedIn"
+      ],
+      [
+        "Lead Gen Forms",
+        "LinkedIn Ads Conversion Tracking"
+      ],
+      [
+        "Cross-Platform Tracking Health Audit",
+        "Microsoft Ads"
+      ],
+      [
+        "Consent Mode v2",
+        "Google Ads Conversion Tracking"
+      ],
+      [
+        "Cross-Platform Tracking Health Audit",
+        "LinkedIn"
+      ],
+      [
+        "LinkedIn Ads Conversion Tracking",
+        "Offline Conversion Import"
+      ],
+      [
+        "TikTok",
+        "TikTok Pixel"
+      ],
+      [
+        "CAPI",
+        "Meta Ads Conversion Tracking"
+      ],
+      [
+        "TikTok Ads Conversion Tracking",
+        "TikTok Pixel"
+      ],
+      [
+        "Meta Ads Conversion Tracking",
+        "Standard Events"
+      ]
+    ],
+    "count": 19,
+    "create_time": 1775314397,
+    "update_time": 1775314397,
+    "_id": "doc-71c5097264c89e1c94f1a937ee169123"
+  },
+  "doc-a910f1c6110c32f3b28e6e69b0371ada": {
+    "relation_pairs": [
+      [
+        "Learning Phase",
+        "Performance"
+      ],
+      [
+        "Best Practices",
+        "Learning Phase"
+      ],
+      [
+        "Delivery System",
+        "Learning Phase"
+      ],
+      [
+        "Learning Phase",
+        "Unstable Performance"
+      ],
+      [
+        "Ad Set",
+        "Learning Phase"
+      ],
+      [
+        "Learning Limited",
+        "Learning Phase"
+      ],
+      [
+        "Inaccurate Signals",
+        "Learning Phase"
+      ],
+      [
+        "Key Mechanics",
+        "Learning Phase"
+      ]
+    ],
+    "count": 8,
+    "create_time": 1775314430,
+    "update_time": 1775314430,
+    "_id": "doc-a910f1c6110c32f3b28e6e69b0371ada"
+  },
+  "doc-b70dcbf46893fec74c116376cce3d4cf": {
+    "relation_pairs": [
+      [
+        "Ad Relevance Diagnostics",
+        "Conversion Rate Ranking"
+      ],
+      [
+        "Ad Relevance Diagnostics",
+        "Quality Ranking"
+      ],
+      [
+        "Ad Relevance Diagnostics",
+        "Learning Phase"
+      ],
+      [
+        "Ad Relevance Diagnostics",
+        "Engagement Rate Ranking"
+      ],
+      [
+        "Advertiser Bid",
+        "Total Value"
+      ],
+      [
+        "Estimated Action Rate",
+        "Total Value"
+      ],
+      [
+        "Bid Pacing",
+        "Pacing"
+      ],
+      [
+        "Budget Pacing",
+        "Pacing"
+      ],
+      [
+        "Ad Auction",
+        "Total Value"
+      ],
+      [
+        "50 Optimization Events",
+        "Learning Phase"
+      ],
+      [
+        "Ad Quality",
+        "Total Value"
+      ]
+    ],
+    "count": 11,
+    "create_time": 1775314432,
+    "update_time": 1775314432,
+    "_id": "doc-b70dcbf46893fec74c116376cce3d4cf"
+  },
+  "doc-73fa0bdd5305baf08cd2cd6354c0be06": {
+    "relation_pairs": [
+      [
+        "Bid Pacing",
+        "Pacing"
+      ],
+      [
+        "High-Competition Period",
+        "Pacing"
+      ],
+      [
+        "Budget Pacing",
+        "Pacing"
+      ],
+      [
+        "Lower-Cost Results",
+        "Pacing"
+      ],
+      [
+        "Cost Efficiency",
+        "Pacing"
+      ],
+      [
+        "Bid Pacing",
+        "Campaign"
+      ],
+      [
+        "Budget Pacing",
+        "Campaign"
+      ]
+    ],
+    "count": 7,
+    "create_time": 1775314453,
+    "update_time": 1775314453,
+    "_id": "doc-73fa0bdd5305baf08cd2cd6354c0be06"
+  },
+  "doc-a84cf461c30eed0176d01b34c9ddcfab": {
+    "relation_pairs": [
+      [
+        "External Factors",
+        "Performance Fluctuations"
+      ],
+      [
+        "Concerning Performance",
+        "Performance Fluctuations"
+      ],
+      [
+        "Cost Per Action (CPA)",
+        "Normal Variation"
+      ],
+      [
+        "Audience Saturation",
+        "Performance Fluctuations"
+      ],
+      [
+        "Normal Variation",
+        "Sample Size"
+      ],
+      [
+        "Auction Dynamics",
+        "Performance Fluctuations"
+      ],
+      [
+        "Performance Fluctuations",
+        "Seasonality"
+      ],
+      [
+        "Normal Variation",
+        "Performance Fluctuations"
+      ],
+      [
+        "Creative Fatigue",
+        "Performance Fluctuations"
+      ],
+      [
+        "Learning Phase",
+        "Performance Fluctuations"
+      ]
+    ],
+    "count": 10,
+    "create_time": 1775314493,
+    "update_time": 1775314493,
+    "_id": "doc-a84cf461c30eed0176d01b34c9ddcfab"
+  },
+  "doc-6e5d07a607fee50b3b46e6b6d02b9457": {
+    "relation_pairs": [
+      [
+        "Ad Set Settings",
+        "Attribution Setting"
+      ],
+      [
+        "Financial Products Special Ad Category",
+        "Meta"
+      ],
+      [
+        "Employment",
+        "Special Ad Categories Compliance"
+      ],
+      [
+        "Housing",
+        "Special Ad Categories Compliance"
+      ],
+      [
+        "Creative (Diversity & Fatigue",
+        "Creative Format Diversity"
+      ],
+      [
+        "Account Structure",
+        "M12"
+      ],
+      [
+        "Account Structure",
+        "Audience & Targeting"
+      ],
+      [
+        "Account Structure",
+        "M11"
+      ],
+      [
+        "Conversions API (CAPI)",
+        "Pixel / CAPI Health"
+      ],
+      [
+        "Account Structure",
+        "CAPI Gateway"
+      ],
+      [
+        "Business Manager",
+        "Meta"
+      ],
+      [
+        "Account Structure",
+        "M14"
+      ],
+      [
+        "Meta Pixel",
+        "Pixel / CAPI Health"
+      ],
+      [
+        "Audience & Targeting",
+        "M22"
+      ],
+      [
+        "Audience & Targeting",
+        "M23"
+      ],
+      [
+        "Ad Set Settings",
+        "Custom Audience"
+      ],
+      [
+        "Audience & Targeting",
+        "Custom Audience"
+      ],
+      [
+        "Account Structure",
+        "M-ST1"
+      ],
+      [
+        "Campaign Disapproval",
+        "Special Ad Categories Compliance"
+      ],
+      [
+        "Credit",
+        "Special Ad Categories Compliance"
+      ],
+      [
+        "Financial Products",
+        "Special Ad Categories Compliance"
+      ],
+      [
+        "Account Structure",
+        "M13"
+      ],
+      [
+        "Ad Set Settings",
+        "Format Diversity"
+      ],
+      [
+        "Audience & Targeting",
+        "M24"
+      ],
+      [
+        "Audience & Targeting",
+        "M19"
+      ],
+      [
+        "Account Structure",
+        "M-ST2"
+      ],
+      [
+        "Meta Ads Audit Checklist",
+        "Scoring System"
+      ],
+      [
+        "Claude Research",
+        "Meta Ads Audit Checklist"
+      ],
+      [
+        "Gemini Research",
+        "Meta Ads Audit Checklist"
+      ],
+      [
+        "Audience & Targeting",
+        "M21"
+      ],
+      [
+        "Ad Set Settings",
+        "UTM Parameters"
+      ],
+      [
+        "Google Research PDF 1",
+        "Meta Ads Audit Checklist"
+      ],
+      [
+        "Audience & Targeting",
+        "M20"
+      ]
+    ],
+    "count": 33,
+    "create_time": 1775314497,
+    "update_time": 1775314497,
+    "_id": "doc-6e5d07a607fee50b3b46e6b6d02b9457"
+  },
+  "doc-85a3a69862cfd8a6cbc331b5f68cced3": {
+    "relation_pairs": [
+      [
+        "Impact Analysis",
+        "Standard Fix Pattern"
+      ],
+      [
+        "Config Source",
+        "Error Handling"
+      ],
+      [
+        "Prod Node Names",
+        "WJ Node Names"
+      ],
+      [
+        "New Nodes",
+        "Prod Node Names"
+      ],
+      [
+        "FT70hFR6qI0mVc2T",
+        "UM4"
+      ],
+      [
+        "PROD Environment",
+        "Workflow Synchronization"
+      ],
+      [
+        "All Workflows",
+        "Prod Node Names"
+      ],
+      [
+        "PROD Environment",
+        "Shopify Store"
+      ],
+      [
+        "Airtable Dashboard",
+        "Config Source"
+      ],
+      [
+        "Credential References",
+        "Webhook"
+      ],
+      [
+        "PROD Node",
+        "WJ TEST Node"
+      ],
+      [
+        "Config Source",
+        "Google Sheets"
+      ],
+      [
+        "Shopify Store",
+        "WJ TEST Environment"
+      ],
+      [
+        "Airtable Base",
+        "PROD Environment"
+      ],
+      [
+        "Node Merging",
+        "n8n API"
+      ],
+      [
+        "n8n-Manager",
+        "orbiters-n8n-server"
+      ],
+      [
+        "wyttsPSZJlWLgy86",
+        "zKmOX0tEWi6EBT9h"
+      ],
+      [
+        "Airtable Base",
+        "WJ TEST Environment"
+      ],
+      [
+        "n8n API",
+        "n8n-Manager"
+      ],
+      [
+        "Airtable Base",
+        "Payload String"
+      ],
+      [
+        "WJ TEST Environment",
+        "Workflow Synchronization"
+      ],
+      [
+        "Ops Framework",
+        "Workflow Evaluate"
+      ]
+    ],
+    "count": 22,
+    "create_time": 1775314544,
+    "update_time": 1775314544,
+    "_id": "doc-85a3a69862cfd8a6cbc331b5f68cced3"
+  },
+  "doc-532313b9a7255876482850a9b1ea9014": {
+    "relation_pairs": [
+      [
+        "Customer Lookup",
+        "wyttsPSZJlWLgy86"
+      ],
+      [
+        "FT70hFR6qI0mVc2T",
+        "k08R16VJIuSPdi6T"
+      ],
+      [
+        "Draft Generation",
+        "WJ TEST Workflow Inventory"
+      ],
+      [
+        "6BNQRz57oCtdROlH",
+        "Syncly Metrics Sync"
+      ],
+      [
+        "Airtable",
+        "n8n Cross-Workflow Audit Guide"
+      ],
+      [
+        "Approval Send",
+        "Reply Handler"
+      ],
+      [
+        "Airtable",
+        "Credential ID"
+      ],
+      [
+        "FT70hFR6qI0mVc2T",
+        "Syncly Data Processing"
+      ],
+      [
+        "Fulfillment",
+        "Gifting"
+      ],
+      [
+        "Approval Send",
+        "Draft Generation"
+      ],
+      [
+        "82t55jurzbY3iUM4",
+        "zKmOX0tEWi6EBT9h"
+      ],
+      [
+        "Content Tracking",
+        "Delivered"
+      ],
+      [
+        "82t55jurzbY3iUM4",
+        "wyttsPSZJlWLgy86"
+      ],
+      [
+        "Credential ID",
+        "Shopify"
+      ],
+      [
+        "82t55jurzbY3iUM4",
+        "Content Tracking"
+      ],
+      [
+        "6BNQRz57oCtdROlH",
+        "FT70hFR6qI0mVc2T"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1775314546,
+    "update_time": 1775314546,
+    "_id": "doc-532313b9a7255876482850a9b1ea9014"
+  },
+  "doc-333c3d776c38be7c9aedb696f73d920e": {
+    "relation_pairs": [
+      [
+        "ORBI n8n Environment",
+        "n8n Workflow Evaluate Checklist"
+      ],
+      [
+        "Info Issues",
+        "WJ Test"
+      ],
+      [
+        "Curl",
+        "n8n Workflow Evaluate Checklist"
+      ],
+      [
+        "Issue",
+        "Specific Instruction"
+      ],
+      [
+        "PROD/WJ Test",
+        "Warning Issues"
+      ],
+      [
+        "Info Observations",
+        "PROD/WJ Test"
+      ],
+      [
+        "Critical Issues",
+        "PROD/WJ Test"
+      ],
+      [
+        "Issue",
+        "Node Name"
+      ],
+      [
+        "Critical Issues",
+        "Shopify Admin API"
+      ],
+      [
+        "Parameter Values",
+        "Specific Instruction"
+      ],
+      [
+        "PROD/WJ Test",
+        "Summary"
+      ],
+      [
+        "Airtable PAT",
+        "Critical Issues"
+      ],
+      [
+        "Input Node",
+        "Output Node"
+      ],
+      [
+        "Pathlight AI n8n-evaluate",
+        "n8n Workflow Evaluate Checklist"
+      ],
+      [
+        "Execution Order",
+        "Trigger Node"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1775314584,
+    "update_time": 1775314584,
+    "_id": "doc-333c3d776c38be7c9aedb696f73d920e"
+  },
+  "doc-dc8bc0133c775349094584dd144ab9e5": {
+    "relation_pairs": [
+      [
+        "Issues Found",
+        "Side Effects"
+      ],
+      [
+        "Node",
+        "Verified"
+      ],
+      [
+        "Change_Plan",
+        "Node"
+      ],
+      [
+        "Issues Found",
+        "QA Results"
+      ],
+      [
+        "N8N_API_KEY",
+        "Step_0_Instance_Verification"
+      ],
+      [
+        "Step_4_PUT_and_Immediate_Validation",
+        "Workflow"
+      ],
+      [
+        "JSON_Payload",
+        "Workflow"
+      ],
+      [
+        "N8N_Update_Tool",
+        "Workflow"
+      ],
+      [
+        "Step_5_Auto_QA",
+        "Workflow"
+      ],
+      [
+        "JSON_Payload",
+        "Step_3_JSON_Modification_with_Python"
+      ],
+      [
+        "Issues",
+        "QA Results"
+      ],
+      [
+        "Auto_QA",
+        "Change_Plan"
+      ],
+      [
+        "QA Results",
+        "Structural"
+      ],
+      [
+        "Change",
+        "Node"
+      ],
+      [
+        "Base_URL",
+        "Workflow"
+      ],
+      [
+        "Airtable",
+        "QA Results"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1775314589,
+    "update_time": 1775314589,
+    "_id": "doc-dc8bc0133c775349094584dd144ab9e5"
+  },
+  "doc-c7fd21ab0bcfe6b0ca4dc40aa6c20860": {
+    "relation_pairs": [
+      [
+        "Airtable",
+        "Post-Implementation Checklist"
+      ],
+      [
+        "Approval Send",
+        "Gmail"
+      ],
+      [
+        "Credential Change",
+        "Risk Assessment"
+      ],
+      [
+        "Field Add",
+        "Risk Assessment"
+      ],
+      [
+        "Post-Implementation Checklist",
+        "Workflow"
+      ],
+      [
+        "Airtable",
+        "n8n Impact Analysis Guide"
+      ],
+      [
+        "Airtable",
+        "Draft Generation"
+      ],
+      [
+        "Dependency Registry",
+        "Workflow"
+      ],
+      [
+        "Modification",
+        "Workflow"
+      ],
+      [
+        "Approval Send",
+        "Draft Generation"
+      ],
+      [
+        "Error 422",
+        "Post-Implementation Checklist"
+      ],
+      [
+        "Risk Assessment",
+        "Schema Change"
+      ],
+      [
+        "Logic Change",
+        "Risk Assessment"
+      ],
+      [
+        "Field Remove",
+        "Risk Assessment"
+      ],
+      [
+        "Field Rename",
+        "Risk Assessment"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1775314628,
+    "update_time": 1775314628,
+    "_id": "doc-c7fd21ab0bcfe6b0ca4dc40aa6c20860"
+  },
+  "doc-096c54494878ba99a4960550e3a518ca": {
+    "relation_pairs": [
+      [
+        "Dual Test",
+        "파이프라이너"
+      ],
+      [
+        "Airtable",
+        "Pipeliner"
+      ],
+      [
+        "Environment: PROD vs WJ TEST",
+        "Pipeliner"
+      ],
+      [
+        "Pipeline 8 Stages",
+        "Pipeliner"
+      ],
+      [
+        "Django API (orbitools)",
+        "PostgreSQL"
+      ],
+      [
+        "Shopify Store",
+        "n8n"
+      ],
+      [
+        "References",
+        "n8n"
+      ],
+      [
+        "Pipeliner",
+        "Test Influencer Flow"
+      ],
+      [
+        "Dual Test Runner",
+        "Pipeliner"
+      ],
+      [
+        "E2E Test Results Documentation",
+        "References"
+      ],
+      [
+        "Test Infra",
+        "Tools"
+      ],
+      [
+        "Dual Test",
+        "WJ TEST"
+      ],
+      [
+        "Pipeliner",
+        "Shopify"
+      ],
+      [
+        "Pipeline Visual Documentation",
+        "References"
+      ],
+      [
+        "Dual Test CLI",
+        "Pipeliner"
+      ],
+      [
+        "Pipeliner",
+        "PostgreSQL"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1775314629,
+    "update_time": 1775314629,
+    "_id": "doc-096c54494878ba99a4960550e3a518ca"
+  },
+  "doc-5ece6e569063ed4510b496a5cb92ec52": {
+    "relation_pairs": [
+      [
+        "Dual Test Runner",
+        "n8n Server"
+      ],
+      [
+        "Dual Test Runner",
+        "Orbitools API"
+      ],
+      [
+        "Dual Test Runner",
+        "n8n"
+      ],
+      [
+        "EC2",
+        "n8n"
+      ],
+      [
+        "Caddy",
+        "n8n"
+      ],
+      [
+        "Airtable API",
+        "Dual Test Runner"
+      ],
+      [
+        "Dual Test Runner",
+        "Test Influencer Flow"
+      ],
+      [
+        "FlowContext",
+        "n8n"
+      ],
+      [
+        "Caddy",
+        "X-Forwarded-For"
+      ],
+      [
+        "Airtable",
+        "n8n"
+      ],
+      [
+        "WJ TEST Webhooks",
+        "n8n Server"
+      ],
+      [
+        "Shopify",
+        "n8n"
+      ],
+      [
+        "PostgreSQL",
+        "n8n"
+      ],
+      [
+        "Task Runner",
+        "n8n"
+      ]
+    ],
+    "count": 14,
+    "create_time": 1775314668,
+    "update_time": 1775314668,
+    "_id": "doc-5ece6e569063ed4510b496a5cb92ec52"
+  },
+  "doc-860c397338748048cda98dd68c692862": {
+    "relation_pairs": [
+      [
+        "N8N Base URL",
+        "n8n"
+      ],
+      [
+        "Content Tracking v2",
+        "PROD Airtable"
+      ],
+      [
+        "WF ID",
+        "n8n"
+      ],
+      [
+        "n8n",
+        "n8n API Patterns"
+      ],
+      [
+        "Shopify",
+        "WJ Test"
+      ],
+      [
+        "WJ Test",
+        "n8n"
+      ],
+      [
+        "Gifting (Influencer Application)",
+        "Reply Handler (LT/HT)"
+      ],
+      [
+        "WJ TEST",
+        "tools/migrate_wjtest_to_prod.py"
+      ],
+      [
+        "Approval Send",
+        "Draft Generation (Claude AI)"
+      ],
+      [
+        "Gifting2 (Sample Request -> Draft Order)",
+        "Shopify Fulfillment -> Airtable"
+      ],
+      [
+        "N8N API Key",
+        "n8n"
+      ],
+      [
+        "Delivered -> Posted",
+        "Shipped -> Delivered"
+      ]
+    ],
+    "count": 12,
+    "create_time": 1775314671,
+    "update_time": 1775314671,
+    "_id": "doc-860c397338748048cda98dd68c692862"
+  },
+  "doc-275cb47a43efe185e0b306c3d052a247": {
+    "relation_pairs": [
+      [
+        "BabyRabbit",
+        "Brands"
+      ],
+      [
+        "Resource Finder",
+        "검색 방법"
+      ],
+      [
+        "Brands",
+        "Conys"
+      ],
+      [
+        "Entity Abbreviations",
+        "LFU"
+      ],
+      [
+        "Data Storage",
+        "카테고리"
+      ],
+      [
+        "ファイル名規則",
+        "요약 키워드"
+      ],
+      [
+        "Brands",
+        "Grosmimi"
+      ],
+      [
+        "KakaoTalk",
+        "Resource Finder"
+      ],
+      [
+        "Brand Searches",
+        "Resource Finder"
+      ],
+      [
+        "Brands",
+        "Commemoi"
+      ],
+      [
+        "Resource Finder",
+        "Z: Drive"
+      ],
+      [
+        "Gmail",
+        "Resource Finder"
+      ],
+      [
+        "Brands",
+        "Cha&Mom"
+      ],
+      [
+        "Brands",
+        "Nature Love Mere"
+      ],
+      [
+        "Entity Abbreviations",
+        "WBF"
+      ],
+      [
+        "Data Storage",
+        "Resource Finder"
+      ],
+      [
+        "Brands",
+        "Naeiae"
+      ],
+      [
+        "Resource Finder",
+        "자료 찾기"
+      ],
+      [
+        "Entity Abbreviations",
+        "FLT"
+      ],
+      [
+        "Excel",
+        "Resource Finder"
+      ],
+      [
+        "Entity Abbreviations",
+        "ORBI"
+      ],
+      [
+        "Resource Finder",
+        "Search Directories"
+      ],
+      [
+        "Brands",
+        "Onzenna"
+      ]
+    ],
+    "count": 23,
+    "create_time": 1775314723,
+    "update_time": 1775314723,
+    "_id": "doc-275cb47a43efe185e0b306c3d052a247"
+  },
+  "doc-2a59a9f90be43aee0ff83f86c8267548": {
+    "relation_pairs": [
+      [
+        "n8n",
+        "toddie-4080.myshopify.com"
+      ],
+      [
+        "Checkout Extension",
+        "n8n Orchestrator"
+      ],
+      [
+        "Checkout Extension",
+        "PostgreSQL"
+      ],
+      [
+        "N8N Workflow Tool Inventory",
+        "Webhook URL Catalog"
+      ],
+      [
+        "Liquid Pages",
+        "n8n Orchestrator"
+      ],
+      [
+        "Airtable",
+        "Airtable PAT"
+      ],
+      [
+        "PostgreSQL",
+        "Shopify Webhooks"
+      ],
+      [
+        "Onzenna Creator",
+        "Onzenna Survey"
+      ],
+      [
+        "PostgreSQL",
+        "Thank-You Extension"
+      ],
+      [
+        "Slack",
+        "Thank-You Extension"
+      ],
+      [
+        "Hibernating",
+        "Lost"
+      ],
+      [
+        "Shopify",
+        "n8n"
+      ],
+      [
+        "PostgreSQL",
+        "n8n"
+      ],
+      [
+        "n8n",
+        "webhook"
+      ],
+      [
+        "n8n",
+        "shopify.extension.toml"
+      ],
+      [
+        "Shopify Webhooks",
+        "n8n Orchestrator"
+      ],
+      [
+        "mytoddie.myshopify.com",
+        "n8n"
+      ],
+      [
+        "Airtable",
+        "n8n"
+      ],
+      [
+        "Potential Loyalist",
+        "Recent"
+      ],
+      [
+        "Thank-You Extension",
+        "n8n Orchestrator"
+      ],
+      [
+        "Shopify",
+        "Shopify Admin API"
+      ],
+      [
+        "Checkout Extension",
+        "Shopify Customer Metafield"
+      ],
+      [
+        "Need Attention",
+        "Potential Loyalist"
+      ],
+      [
+        "RFM Segments",
+        "customer_metrics Table"
+      ],
+      [
+        "customer_metrics Table",
+        "customers Table"
+      ],
+      [
+        "At Risk",
+        "Lost"
+      ],
+      [
+        "N8N Important Constraints",
+        "N8N Workflow Tool Inventory"
+      ],
+      [
+        "AirTable",
+        "PostgreSQL"
+      ],
+      [
+        "n8n",
+        "n8n 워크플로우"
+      ]
+    ],
+    "count": 29,
+    "create_time": 1775314809,
+    "update_time": 1775314809,
+    "_id": "doc-2a59a9f90be43aee0ff83f86c8267548"
+  },
+  "doc-e5dbca0e18b22a83ddd0e6e042329d3c": {
+    "relation_pairs": [
+      [
+        "Approval Send",
+        "Production"
+      ],
+      [
+        "Docker Compose Structure",
+        "n8n Server Infrastructure"
+      ],
+      [
+        "Hydrogen/Remix Storefront",
+        "Polaris Admin App"
+      ],
+      [
+        "SHOPIFY_ACCESS_TOKEN",
+        "SHOPIFY_SHOP"
+      ],
+      [
+        "Airtable Outreach Status",
+        "Influencer Collaboration Pipeline"
+      ],
+      [
+        "Influencer Pipeline",
+        "Shopify Integration"
+      ],
+      [
+        "Airtable PAT (WJ Test)",
+        "n8n Credentials"
+      ],
+      [
+        "CSS Class Theme",
+        "Customer Metafield"
+      ],
+      [
+        "Test Step Types",
+        "Testing"
+      ],
+      [
+        "Data Pipeline",
+        "FAIL Analysis Framework"
+      ],
+      [
+        "Influencer Collaboration Pipeline",
+        "N8N Workflow ID List"
+      ],
+      [
+        "EC2",
+        "export_calculator"
+      ],
+      [
+        "Airtable Setup",
+        "n8n Server Infrastructure"
+      ],
+      [
+        "Data Pipeline",
+        "n8n Workflow Tools"
+      ],
+      [
+        "Onzenna Survey App",
+        "User Data"
+      ],
+      [
+        "n8n",
+        "n8n Workflow IDs"
+      ],
+      [
+        "Testing",
+        "n8n Workflow Tools"
+      ],
+      [
+        "setup_n8n_core_signup.py",
+        "setup_n8n_loyalty_survey.py"
+      ],
+      [
+        "Metafield Pipeline",
+        "User Data"
+      ],
+      [
+        "fetch_influencer_orders.py",
+        "influencer_customer_lookup.py"
+      ],
+      [
+        "Shopify Admin API (Gifting)",
+        "n8n Credentials"
+      ],
+      [
+        "N8N_API_KEY",
+        "n8n"
+      ],
+      [
+        "Python Encoding Fix",
+        "Windows Python Path"
+      ],
+      [
+        "N8N_BASE_URL",
+        "WF_ID"
+      ],
+      [
+        "Influencer Collaboration Pipeline",
+        "n8n Workflow"
+      ],
+      [
+        "WEBHOOK_URL",
+        "n8n"
+      ],
+      [
+        "N8N_BASE_URL",
+        "n8n"
+      ],
+      [
+        "Hydrogen/Remix",
+        "Shopify UI Expert"
+      ],
+      [
+        "N8N_ENCRYPTION_KEY",
+        "n8n"
+      ],
+      [
+        "PostgreSQL",
+        "User Data"
+      ],
+      [
+        "Django Gifting API",
+        "export_calculator"
+      ],
+      [
+        "Polaris Admin",
+        "Shopify UI Expert"
+      ],
+      [
+        "Polaris Admin App",
+        "Shopify Admin"
+      ],
+      [
+        "Slack",
+        "User Data"
+      ],
+      [
+        "Product Detection",
+        "n8n Credentials"
+      ],
+      [
+        "check_influencer_hashtag.py",
+        "create_typeform_influencer.py"
+      ],
+      [
+        "Airtable",
+        "n8n Webhook"
+      ],
+      [
+        "Production",
+        "WJ TEST"
+      ],
+      [
+        "Deploy Scripts",
+        "Liquid Theme Pages"
+      ],
+      [
+        "Production",
+        "Reply Handler"
+      ],
+      [
+        "Caddy",
+        "n8n"
+      ],
+      [
+        "Draft Generation",
+        "Production"
+      ],
+      [
+        "setup_n8n_creator_to_airtable.py",
+        "setup_n8n_metafield_sync.py"
+      ],
+      [
+        "Page Deployment",
+        "n8n Workflow Setup"
+      ],
+      [
+        "AIRTABLE_API_KEY",
+        "AIRTABLE_CUSTOMERS_BASE_ID"
+      ],
+      [
+        "User Data",
+        "n8n Webhook"
+      ],
+      [
+        "N8N_API_KEY",
+        "N8N_BASE_URL"
+      ],
+      [
+        "n8n",
+        "n8n Credentials"
+      ],
+      [
+        "Django Gifting API",
+        "EC2"
+      ],
+      [
+        "Data Pipeline",
+        "PostgreSQL Schema"
+      ],
+      [
+        "Test Flow",
+        "Testing"
+      ],
+      [
+        "Hydrogen/Remix Storefront",
+        "Shopify Admin"
+      ],
+      [
+        "Production",
+        "Syncly: Daily Content Metrics Sync"
+      ],
+      [
+        "Liquid Theme Pages",
+        "Shopify UI Expert"
+      ],
+      [
+        "Airtable",
+        "User Data"
+      ],
+      [
+        "Checkout UI Extensions",
+        "Shopify UI Expert"
+      ],
+      [
+        "N8N_PORT",
+        "n8n"
+      ],
+      [
+        "US Phone Number",
+        "ZIP Code"
+      ],
+      [
+        "Deploy Core Signup Page",
+        "Influencer Collaboration Pipeline"
+      ],
+      [
+        "Shopify Metafields",
+        "n8n Webhook"
+      ]
+    ],
+    "count": 60,
+    "create_time": 1775314825,
+    "update_time": 1775314825,
+    "_id": "doc-e5dbca0e18b22a83ddd0e6e042329d3c"
+  },
+  "doc-db4a42318da48f30483dccd66877137d": {
+    "relation_pairs": [
+      [
+        "CustomerMetafields",
+        "Storefront API"
+      ],
+      [
+        "Shopify Hydrogen",
+        "Storefront API"
+      ],
+      [
+        "Fly.io",
+        "Shopify Hydrogen"
+      ],
+      [
+        "Shopify Hydrogen",
+        "Vercel"
+      ],
+      [
+        "ProductQuery",
+        "Storefront API"
+      ],
+      [
+        "Remix",
+        "Shopify Hydrogen"
+      ],
+      [
+        "Oxygen",
+        "Shopify Hydrogen"
+      ],
+      [
+        "@shopify/hydrogen",
+        "Shopify Hydrogen"
+      ],
+      [
+        "Cart API",
+        "Shopify Hydrogen"
+      ],
+      [
+        "@shopify/remix-oxygen",
+        "Shopify Hydrogen"
+      ],
+      [
+        "@remix-run/react",
+        "Shopify Hydrogen"
+      ],
+      [
+        "Customer Account API",
+        "Shopify Hydrogen"
+      ]
+    ],
+    "count": 12,
+    "create_time": 1775314869,
+    "update_time": 1775314869,
+    "_id": "doc-db4a42318da48f30483dccd66877137d"
+  },
+  "doc-ae085af45d113e5c4f86d2c22140b641": {
+    "relation_pairs": [
+      [
+        "n8n",
+        "n8n Version"
+      ],
+      [
+        "Influencer Collaboration Pipeline",
+        "Sample Shipped"
+      ],
+      [
+        "Gifting Workflow",
+        "Test Influencer Flow"
+      ],
+      [
+        "Airtable",
+        "Webhook Test"
+      ],
+      [
+        "Influencer Collaboration Pipeline",
+        "Slack"
+      ],
+      [
+        "Code Node",
+        "Python"
+      ],
+      [
+        "Draft Order",
+        "Shopify"
+      ],
+      [
+        "Webhook",
+        "n8n"
+      ],
+      [
+        "Docker Logs Error Flood",
+        "n8n"
+      ],
+      [
+        "n8n",
+        "n8n API Workflow Migration Pattern"
+      ],
+      [
+        "Influencer Collaboration Pipeline",
+        "Instagram"
+      ],
+      [
+        "Gifting Workflow",
+        "HTTP Request Node"
+      ],
+      [
+        "Airtable",
+        "Draft Order ID"
+      ],
+      [
+        "PostgreSQL",
+        "n8n"
+      ],
+      [
+        "Influencer Collaboration Pipeline",
+        "Sample Sent Poll"
+      ],
+      [
+        "HTTP Request Node",
+        "OrbiTools API"
+      ],
+      [
+        "Influencer Collaboration Pipeline",
+        "Posted Detection"
+      ],
+      [
+        "Gifting Workflow",
+        "task runner"
+      ],
+      [
+        "Airtable",
+        "n8n Workflow IDs"
+      ],
+      [
+        "Influencer Collaboration Pipeline",
+        "n8n"
+      ],
+      [
+        "Airtable",
+        "n8n"
+      ],
+      [
+        "Airtable",
+        "Shopify"
+      ],
+      [
+        "Gifting2 Webhook",
+        "Influencer Collaboration Pipeline"
+      ],
+      [
+        "OrbiTools API",
+        "Syncly D+60 Tracker Sheet"
+      ],
+      [
+        "Fulfillment",
+        "Influencer Collaboration Pipeline"
+      ],
+      [
+        "EC2",
+        "n8n"
+      ],
+      [
+        "Gifting Webhook",
+        "Influencer Collaboration Pipeline"
+      ],
+      [
+        "Caddy",
+        "n8n"
+      ],
+      [
+        "Code Node",
+        "Gifting Workflow"
+      ],
+      [
+        "Airtable",
+        "Shopify Draft Order Complete API"
+      ],
+      [
+        "Airtable",
+        "OrbiTools API"
+      ],
+      [
+        "Curl Command",
+        "n8n"
+      ],
+      [
+        "Airtable",
+        "Influencer Collaboration Pipeline"
+      ],
+      [
+        "Python Subprocess cp949 Error",
+        "n8n"
+      ],
+      [
+        "Shopify",
+        "Shopify Store"
+      ],
+      [
+        "Django",
+        "Gifting Workflow"
+      ]
+    ],
+    "count": 36,
+    "create_time": 1775314880,
+    "update_time": 1775314880,
+    "_id": "doc-ae085af45d113e5c4f86d2c22140b641"
+  },
+  "doc-e7e4edd1d7b389c43722559e1a91ebd5": {
+    "relation_pairs": [
+      [
+        "Deploy Script",
+        "Python"
+      ],
+      [
+        "Loyalty Survey",
+        "Profile"
+      ],
+      [
+        "Deploy Script",
+        "Theme ID"
+      ],
+      [
+        "CHA&MOM Gifting",
+        "Liquid Code"
+      ],
+      [
+        "Main Role Theme",
+        "Shopify"
+      ],
+      [
+        "CSS Scoping Strategy",
+        "Liquid Theme Pages Reference"
+      ],
+      [
+        "CHA&MOM Gifting",
+        "sessionStorage"
+      ],
+      [
+        "Loyalty Survey",
+        "ls-"
+      ],
+      [
+        "Deploy Script",
+        "Shopify Theme Asset API"
+      ],
+      [
+        "Asset Key",
+        "Deploy Script"
+      ],
+      [
+        "CHA&MOM Gifting",
+        "cmg-"
+      ],
+      [
+        "Deploy Script",
+        "Shopify"
+      ],
+      [
+        "Loyalty Survey",
+        "sessionStorage"
+      ],
+      [
+        "Deploy Script",
+        "Webhook URL"
+      ],
+      [
+        "Deploy Scripts",
+        "Shopify Theme Asset API"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1775314903,
+    "update_time": 1775314903,
+    "_id": "doc-e7e4edd1d7b389c43722559e1a91ebd5"
+  },
+  "doc-62e2094f0cdb530a3f40e9cd8c19a8eb": {
+    "relation_pairs": [
+      [
+        "Polaris Admin App",
+        "React"
+      ],
+      [
+        "@shopify/polaris",
+        "Polaris Admin App"
+      ],
+      [
+        "Admin API",
+        "GraphQL"
+      ],
+      [
+        "@shopify/app-bridge-react",
+        "Polaris Admin App"
+      ],
+      [
+        "Admin App",
+        "UI Extension"
+      ],
+      [
+        "Admin App",
+        "OAuth 2.0"
+      ],
+      [
+        "@shopify/shopify-app-remix",
+        "Polaris Admin App"
+      ],
+      [
+        "Admin API",
+        "Polaris Admin App"
+      ],
+      [
+        "Polaris Admin App",
+        "Shopify"
+      ]
+    ],
+    "count": 9,
+    "create_time": 1775314936,
+    "update_time": 1775314936,
+    "_id": "doc-62e2094f0cdb530a3f40e9cd8c19a8eb"
+  },
+  "doc-583652c0892c8f87113995c547e0821f": {
+    "relation_pairs": [
+      [
+        "Influencer Flow Log",
+        "Test Influencer Flow"
+      ],
+      [
+        "Airtable Record",
+        "Test Results File"
+      ],
+      [
+        "Customer Journey",
+        "Test Tool 1"
+      ],
+      [
+        "Shopify Admin API",
+        "Test Results File"
+      ],
+      [
+        "Onzenna Survey",
+        "n8n"
+      ],
+      [
+        "PostgreSQL Query",
+        "Test Results File"
+      ],
+      [
+        "Airtable",
+        "Test Cleanup Process"
+      ],
+      [
+        "Fail Analysis Framework",
+        "n8n"
+      ],
+      [
+        "PostgreSQL",
+        "Test Cleanup Process"
+      ],
+      [
+        "Python Path",
+        "Shopify Tester"
+      ],
+      [
+        "Shopify",
+        "Test Cleanup Process"
+      ],
+      [
+        "Influencer Flow Report",
+        "Test Influencer Flow"
+      ],
+      [
+        "Shopify Tester",
+        "Test Results File"
+      ],
+      [
+        "Influencer Pipeline",
+        "Test Tool 2"
+      ]
+    ],
+    "count": 14,
+    "create_time": 1775314944,
+    "update_time": 1775314944,
+    "_id": "doc-583652c0892c8f87113995c547e0821f"
+  },
+  "doc-2c56274610b7b7657e577b30d08559fa": {
+    "relation_pairs": [
+      [
+        "Onzenna Survey App",
+        "ThankYou.jsx"
+      ],
+      [
+        "Checkout",
+        "Onzenna Creator Survey"
+      ],
+      [
+        "Checkout.jsx",
+        "purchase.checkout.contact.render-after"
+      ],
+      [
+        "ThankYou.jsx",
+        "UseCustomer"
+      ],
+      [
+        "ThankYou.jsx",
+        "customer-account.order-status.block.render"
+      ],
+      [
+        "ThankYou.jsx",
+        "UseOrder"
+      ],
+      [
+        "Checkout Extension",
+        "Extension"
+      ],
+      [
+        "Checkout.jsx",
+        "purchase.checkout.block.render"
+      ],
+      [
+        "Checkout",
+        "Use Apply Metafields Change"
+      ],
+      [
+        "Onzenna Survey App",
+        "Shopify Checkout UI Extensions"
+      ],
+      [
+        "Checkout.jsx",
+        "UseMetafield"
+      ],
+      [
+        "Checkout.jsx",
+        "Onzenna Survey App"
+      ],
+      [
+        "ThankYou.jsx",
+        "purchase.thank-you.block.render"
+      ],
+      [
+        "Onzenna Survey App",
+        "shopify.extension.toml"
+      ],
+      [
+        "Checkout",
+        "n8n Webhook URL"
+      ],
+      [
+        "Checkout.jsx",
+        "UseApplyMetafieldsChange"
+      ],
+      [
+        "Onzenna Creator Survey",
+        "Webhook POST"
+      ],
+      [
+        "UseSettings",
+        "shopify.extension.toml"
+      ],
+      [
+        "Bogus Gateway",
+        "Checkout"
+      ]
+    ],
+    "count": 19,
+    "create_time": 1775314982,
+    "update_time": 1775314982,
+    "_id": "doc-2c56274610b7b7657e577b30d08559fa"
+  },
+  "doc-5a7cb9afb7e6408a7c43f0bbaf0e0b86": {
+    "relation_pairs": [
+      [
+        "US Posts Master",
+        "sync_syncly_to_sheets.py"
+      ],
+      [
+        "Grosmimi Japan",
+        "Syncly Query"
+      ],
+      [
+        "D+60 Tracker",
+        "Syncly Session"
+      ],
+      [
+        "ONZENNA",
+        "Syncly Crawler"
+      ],
+      [
+        "D+60 Tracker",
+        "sync_syncly_to_sheets.py"
+      ],
+      [
+        "GitHub Actions",
+        "Syncly"
+      ],
+      [
+        "Content Link",
+        "D+ Days"
+      ],
+      [
+        "PayPal 인플루언서 결제",
+        "sync_sns_tab.py"
+      ],
+      [
+        "D+60 Tracker",
+        "Syncly Crawler"
+      ],
+      [
+        "Google Sheets",
+        "Syncly Crawler"
+      ],
+      [
+        "Grosmimi 통합",
+        "sync_sns_tab_grosmimi.py"
+      ],
+      [
+        "Grosmimi Japan",
+        "Syncly Crawler"
+      ],
+      [
+        "Grosmimi",
+        "PPSU Straw Cup"
+      ],
+      [
+        "CSV Files",
+        "Syncly Crawler"
+      ],
+      [
+        "Influencer Tracker",
+        "sync_syncly_to_sheets.py"
+      ],
+      [
+        "Grosmimi JP",
+        "sync_sns_tab_jp.py"
+      ],
+      [
+        "DailySynclyExport",
+        "syncly_daily_email.py"
+      ],
+      [
+        "Accessory",
+        "PPSU Straw Cup"
+      ],
+      [
+        "Brand Detection",
+        "Syncly Crawler"
+      ],
+      [
+        "Brand Auto-Detection",
+        "D+60 Tracker Structure"
+      ],
+      [
+        "Playwright",
+        "Syncly Crawler"
+      ],
+      [
+        "Grosmimi",
+        "Syncly Post"
+      ],
+      [
+        "Shopify PR/샘플 주문",
+        "sync_sns_tab.py"
+      ],
+      [
+        "GitHub Actions",
+        "Schedule"
+      ],
+      [
+        "Email Notification",
+        "Syncly Crawler"
+      ],
+      [
+        "Google Sheets",
+        "Syncly Dashboard"
+      ],
+      [
+        "GitHub Actions",
+        "Session"
+      ],
+      [
+        "Session State",
+        "Syncly Session State"
+      ],
+      [
+        "Grosmimi",
+        "TikTok"
+      ],
+      [
+        "CHA&MOM SNS",
+        "sync_sns_tab_chaenmom.py"
+      ],
+      [
+        "Posts Master",
+        "Syncly Dashboard"
+      ],
+      [
+        "Session",
+        "Session State"
+      ],
+      [
+        "D+60 Tracker Structure",
+        "Google Sheet"
+      ],
+      [
+        "CSV",
+        "fetch_syncly_export.py"
+      ],
+      [
+        "JP Posts Master",
+        "sync_syncly_to_sheets.py"
+      ],
+      [
+        "Grosmimi",
+        "Shopify DTC"
+      ]
+    ],
+    "count": 36,
+    "create_time": 1775315033,
+    "update_time": 1775315033,
+    "_id": "doc-5a7cb9afb7e6408a7c43f0bbaf0e0b86"
+  },
+  "doc-f14209dc5fbcc982a7465a3636edd86c": {
+    "relation_pairs": [
+      [
+        "Evaluator",
+        "Generator"
+      ],
+      [
+        "Evaluator",
+        "Generator 결과"
+      ],
+      [
+        "Anthropic 아티클",
+        "UX/디자인"
+      ],
+      [
+        "Hard Threshold 규칙",
+        "데이터 정합성"
+      ],
+      [
+        "Codex",
+        "Session Report"
+      ],
+      [
+        "Pipeliner",
+        "Verifier"
+      ],
+      [
+        "3-Agent Architecture",
+        "ORBI"
+      ],
+      [
+        "리스크 매트릭스",
+        "의존성 그래프"
+      ],
+      [
+        "Draft Gen",
+        "ONZ Creator Collab Pipeline"
+      ],
+      [
+        "CC1-4",
+        "Draft Gen WF"
+      ],
+      [
+        "Contract Negotiator",
+        "Evaluator"
+      ],
+      [
+        "CFO Harness",
+        "Golmani"
+      ],
+      [
+        "Generator",
+        "Sprint Contract"
+      ],
+      [
+        "Bulk Check API Endpoint",
+        "RAG Emails"
+      ],
+      [
+        "Generator 결과",
+        "Phase 2-3"
+      ],
+      [
+        "Executor",
+        "Pipeliner"
+      ],
+      [
+        "멀티 에디터 전략",
+        "하위 에이전트 맵"
+      ],
+      [
+        "Brand Mapping",
+        "Form URL"
+      ],
+      [
+        "Fulfillment",
+        "Shopify Issues"
+      ],
+      [
+        "Shared/ONZ Creator Collab/제갈량",
+        "어카드"
+      ],
+      [
+        "Phase 0",
+        "Phase 1"
+      ],
+      [
+        "Evaluator 피드백",
+        "드라이런/검증 가이드"
+      ],
+      [
+        "Hard Threshold 규칙",
+        "기능 완성도"
+      ],
+      [
+        "Generator",
+        "Orchestrator"
+      ],
+      [
+        "Anthropic 아티클",
+        "데이터 정합성"
+      ],
+      [
+        "ORBI",
+        "제갈량"
+      ],
+      [
+        "Shared/ONZ Creator Collab",
+        "세션 리포트"
+      ],
+      [
+        "git pull",
+        "멀티 에디터"
+      ],
+      [
+        "ONZ Creator Collab Pipeline",
+        "Reply Handler"
+      ],
+      [
+        "Anthropic 아티클",
+        "기능 완성도"
+      ],
+      [
+        "Anthropic 아티클",
+        "코드 품질"
+      ],
+      [
+        "Anthropic Harness Design",
+        "제갈량"
+      ],
+      [
+        "Claude Generate",
+        "Draft Gen WF"
+      ],
+      [
+        "Session Report",
+        "바바"
+      ],
+      [
+        "Context Manager",
+        "Generator"
+      ],
+      [
+        "Draft Gen",
+        "Syncly Data"
+      ],
+      [
+        "Session Report",
+        "WJ Test1"
+      ],
+      [
+        "멀티 에디터 전략",
+        "작업 분배 원칙"
+      ],
+      [
+        "남은 작업 + 다음 세션 가이드",
+        "어카드"
+      ],
+      [
+        "세션 리포트",
+        "제갈량"
+      ],
+      [
+        "Creator CRUD API Endpoint",
+        "ONZ Creator Pipeline"
+      ],
+      [
+        "Harness",
+        "세션 리포트"
+      ],
+      [
+        "Compaction",
+        "Context Reset"
+      ],
+      [
+        "Auditor",
+        "CFO Orchestrator"
+      ],
+      [
+        "Auditor",
+        "CFO Harness"
+      ]
+    ],
+    "count": 45,
+    "create_time": 1775315079,
+    "update_time": 1775315079,
+    "_id": "doc-f14209dc5fbcc982a7465a3636edd86c"
+  },
+  "doc-aa31ce17db30cc5517c46db2a43b8a67": {
+    "relation_pairs": [
+      [
+        "Content Tab Regex",
+        "RAG"
+      ],
+      [
+        "Code Review Critical",
+        "RAG"
+      ],
+      [
+        "Claude",
+        "WJ"
+      ],
+      [
+        "Owner Tab Brand Filter",
+        "RAG"
+      ],
+      [
+        "Auto RAG Contact Sync",
+        "RAG"
+      ],
+      [
+        "Creator Tab Regex Bug",
+        "Dashboard"
+      ],
+      [
+        "CC4 Transcript Hard Block",
+        "Draft Gen Pipeline Phase 2-3"
+      ],
+      [
+        "Airtable Removal Phase 3",
+        "Dashboard"
+      ],
+      [
+        "Python Syntax Check",
+        "RAG"
+      ],
+      [
+        "Draft Gen Pipeline Phase 2-3",
+        "RAG Dedup"
+      ],
+      [
+        "Content Sheet URL",
+        "RAG"
+      ],
+      [
+        "Dashboard",
+        "Dynamic Tab Detection"
+      ],
+      [
+        "Dashboard",
+        "Dashboard Modification"
+      ],
+      [
+        "Django Views",
+        "ManyChat Bulk-Check Endpoint"
+      ],
+      [
+        "RAG Dedup",
+        "RAG Email Dedup Fix"
+      ],
+      [
+        "Code Review",
+        "Dashboard"
+      ],
+      [
+        "Creator Tab Regex",
+        "RAG"
+      ],
+      [
+        "Pipeline Y-fork Funnel",
+        "RAG"
+      ]
+    ],
+    "count": 18,
+    "create_time": 1775315082,
+    "update_time": 1775315082,
+    "_id": "doc-aa31ce17db30cc5517c46db2a43b8a67"
+  },
+  "doc-44524649b630c38332904f18d5719c4a": {
+    "relation_pairs": [
+      [
+        "GmailContact",
+        "RAG"
+      ],
+      [
+        "RAG Email Dedup",
+        "n8n"
+      ],
+      [
+        "API Endpoint",
+        "Orbiters"
+      ],
+      [
+        "Draft Gen",
+        "n8n"
+      ],
+      [
+        "Creator Sync",
+        "n8n"
+      ],
+      [
+        "Claude Code",
+        "제갈량"
+      ],
+      [
+        "CHA&MOM",
+        "Laeeka"
+      ],
+      [
+        "Naeiae",
+        "Soyeon"
+      ],
+      [
+        "Grosmimi",
+        "Jane Jeon"
+      ],
+      [
+        "Draft Gen",
+        "Test Email Override"
+      ]
+    ],
+    "count": 10,
+    "create_time": 1775315108,
+    "update_time": 1775315108,
+    "_id": "doc-44524649b630c38332904f18d5719c4a"
+  },
+  "doc-e418351c7503f60c00e533587f99feaf": {
+    "relation_pairs": [
+      [
+        "PPC Report Recipient",
+        "Run Amazon PPC Daily"
+      ],
+      [
+        "Alpremio",
+        "PPC 성과"
+      ],
+      [
+        "Run Amazon PPC Daily",
+        "Send Gmail Script"
+      ],
+      [
+        "ACOS",
+        "PPC 성과"
+      ],
+      [
+        "CHA&MOM Skincare 캠페인",
+        "PPC 성과"
+      ],
+      [
+        "Amazon PPC 일간 분석 워크플로우",
+        "wj.choi@orbiters.co.kr"
+      ],
+      [
+        "CHA&MOM",
+        "PPC 성과"
+      ],
+      [
+        "PPC 성과",
+        "ROAS"
+      ],
+      [
+        "Amazon PPC 일간 분석 워크플로우",
+        "Polar Analytics MCP"
+      ],
+      [
+        "Grosmimi",
+        "PPC 성과"
+      ],
+      [
+        "Amazon Ads 캠페인",
+        "PPC 성과"
+      ],
+      [
+        "Grosmimi PPSU 캠페인",
+        "PPC 성과"
+      ],
+      [
+        "Naeiae",
+        "PPC 성과"
+      ],
+      [
+        "PPC Report Recipient",
+        "Send Gmail Script"
+      ],
+      [
+        "Amazon Ads API",
+        "Run Amazon PPC Daily"
+      ],
+      [
+        "Amazon PPC 일간 분석 워크플로우",
+        "orbiters11@gmail.com"
+      ],
+      [
+        "Easy Shower",
+        "PPC 성과"
+      ],
+      [
+        "Claude API",
+        "Run Amazon PPC Daily"
+      ],
+      [
+        "PPC Analyst",
+        "PPC 성과"
+      ],
+      [
+        "Daily Campaign Data",
+        "ROAS, ACOS, CPC, CTR"
+      ]
+    ],
+    "count": 20,
+    "create_time": 1775315168,
+    "update_time": 1775315168,
+    "_id": "doc-e418351c7503f60c00e533587f99feaf"
+  },
+  "doc-115f5f6888d3e784ce289c50787ec500": {
+    "relation_pairs": [
+      [
+        "Google Sheets",
+        "PPC Change Log"
+      ],
+      [
+        "Keyword Harvesting",
+        "Proposals"
+      ],
+      [
+        "Amazon PPC Executor Workflow",
+        "Fleeters Inc"
+      ],
+      [
+        "Negative Keywords",
+        "Proposals"
+      ],
+      [
+        "Amazon Ads API",
+        "Proposals"
+      ],
+      [
+        "Fleeters Inc",
+        "PPC Executor"
+      ],
+      [
+        "Keyword Bid Adjustments",
+        "Keyword-Level Proposals"
+      ],
+      [
+        "Fleeters Inc",
+        "Naeiae"
+      ]
+    ],
+    "count": 8,
+    "create_time": 1775315206,
+    "update_time": 1775315206,
+    "_id": "doc-115f5f6888d3e784ce289c50787ec500"
+  },
+  "doc-87f6005761895ba676c9d1ed50d4fe9e": {
+    "relation_pairs": [
+      [
+        "Amazon PPC Tester",
+        "Python"
+      ],
+      [
+        "Anomalies Detected",
+        "Brand Coverage"
+      ],
+      [
+        "PROFILE_BRAND_MAP",
+        "Profile ID Classification"
+      ],
+      [
+        "Amazon Ads API",
+        "Payload Structure"
+      ],
+      [
+        "Payload Structure",
+        "Profile Brand Map"
+      ],
+      [
+        "ACOS",
+        "Attribution Window"
+      ],
+      [
+        "Amazon PPC Tester Command",
+        "Python"
+      ],
+      [
+        "ACOS",
+        "ROAS"
+      ],
+      [
+        "Amazon PPC Tester",
+        "Meta Tester"
+      ],
+      [
+        "Amazon PPC Daily Analysis Flow",
+        "Amazon PPC Tester"
+      ],
+      [
+        "Attribution Window",
+        "ROAS"
+      ]
+    ],
+    "count": 11,
+    "create_time": 1775315221,
+    "update_time": 1775315221,
+    "_id": "doc-87f6005761895ba676c9d1ed50d4fe9e"
+  },
+  "doc-238e9ec289770c394b36e679cd797a3d": {
+    "relation_pairs": [
+      [
+        "Audit Report",
+        "Golmani"
+      ],
+      [
+        "Financial Calculations",
+        "Golmani"
+      ],
+      [
+        "Correction Request",
+        "Finding ID"
+      ],
+      [
+        "CFO Decision",
+        "Final Report"
+      ],
+      [
+        "CFO",
+        "audit_report.json"
+      ],
+      [
+        "Auditor",
+        "CFO Decision"
+      ],
+      [
+        "CFO",
+        "CFO Directive"
+      ],
+      [
+        "Audit Report",
+        "CFO Decision"
+      ],
+      [
+        "CFO",
+        "Correction Loop"
+      ],
+      [
+        "Audit Report",
+        "DataKeeper API"
+      ],
+      [
+        "Audit Report",
+        "Grosmimi"
+      ],
+      [
+        "CFO",
+        "Golmani"
+      ],
+      [
+        "Amazon Channel",
+        "Shopify Channel"
+      ],
+      [
+        "DataKeeper",
+        "Golmani"
+      ],
+      [
+        "Auditor",
+        "audit_report.json"
+      ],
+      [
+        "Auditor",
+        "Golmani"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1775315249,
+    "update_time": 1775315249,
+    "_id": "doc-238e9ec289770c394b36e679cd797a3d"
+  },
+  "doc-03a9c403e8ee1d856c6cd678f147c1d4": {
+    "relation_pairs": [
+      [
+        "Google Sheets",
+        "크롤러 파이프라인"
+      ],
+      [
+        "US Posts Master",
+        "update_usa_llm.py"
+      ],
+      [
+        "D+60 Tracker",
+        "Syncly"
+      ],
+      [
+        "Google Sheets",
+        "Grosmimi"
+      ],
+      [
+        "Apify",
+        "D+60 Tracker"
+      ],
+      [
+        "Apify TikTok",
+        "fetch_apify_content.py"
+      ],
+      [
+        "Google Sheets",
+        "onzenna"
+      ],
+      [
+        "update_usa_llm.py",
+        "usa_llm_prev.json"
+      ],
+      [
+        "Grosmimi SNS Sheet",
+        "send_gmail.py"
+      ],
+      [
+        "Grosmimi SNS Tab",
+        "update_usa_llm.py"
+      ],
+      [
+        "Instagram Graph API",
+        "인플루언서"
+      ],
+      [
+        "US Posts Master",
+        "sync_sns_tab_grosmimi.py"
+      ],
+      [
+        "Content Detection Log",
+        "update_usa_llm.py"
+      ],
+      [
+        "IG Graph API",
+        "fetch_apify_content.py"
+      ],
+      [
+        "Apify",
+        "TikTok"
+      ],
+      [
+        "Grosmimi SNS Sheet",
+        "build_apify_report.py"
+      ],
+      [
+        "Syncly Sheet",
+        "migrate_syncly_to_apify.py"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1775315272,
+    "update_time": 1775315272,
+    "_id": "doc-03a9c403e8ee1d856c6cd678f147c1d4"
+  },
+  "doc-3c9a9a6b8e0fde37bd88855c18f2b829": {
+    "relation_pairs": [
+      [
+        "N8N",
+        "Shopify"
+      ],
+      [
+        "Form Structure",
+        "PPSU Baby Bottle 10oz"
+      ],
+      [
+        "Collaboration Terms",
+        "Grosmimi"
+      ],
+      [
+        "Collaboration Terms",
+        "Tags"
+      ],
+      [
+        "Collaboration Terms",
+        "Subtitles"
+      ],
+      [
+        "N8N",
+        "Phase 2"
+      ],
+      [
+        "Collaboration Terms",
+        "Troubleshooting"
+      ],
+      [
+        "Collaboration Terms",
+        "Form Structure"
+      ],
+      [
+        "Airtable",
+        "Shopify"
+      ],
+      [
+        "Form Structure",
+        "PPSU Straw Cup 10oz"
+      ],
+      [
+        "Form Structure",
+        "N8N Webhook"
+      ],
+      [
+        "CHA&MOM Duo Bundle",
+        "Form Structure"
+      ],
+      [
+        "Collaboration Terms",
+        "Voiceover"
+      ],
+      [
+        "Onzenna.com",
+        "Shopify Influencer Gifting Page"
+      ],
+      [
+        "Form Structure",
+        "SS Tumbler 10oz"
+      ],
+      [
+        "Collaboration Terms",
+        "Royalty-Free Music"
+      ],
+      [
+        "Python",
+        "Python-dotenv"
+      ],
+      [
+        "Form Structure",
+        "SS Straw Cup 10oz"
+      ],
+      [
+        "N8N",
+        "Phase 3"
+      ]
+    ],
+    "count": 19,
+    "create_time": 1775315324,
+    "update_time": 1775315324,
+    "_id": "doc-3c9a9a6b8e0fde37bd88855c18f2b829"
+  },
+  "doc-27d6310536a3e9ac4292e21e2f6af62c": {
+    "relation_pairs": [
+      [
+        "Affiliate FAQ",
+        "Gmail Affiliate FAQ Builder"
+      ],
+      [
+        "Output Utils",
+        "Update Search Volume Model"
+      ],
+      [
+        "Gorgias CS Template Builder",
+        "Gorgias CS Templates"
+      ],
+      [
+        "Data Storage",
+        "Old Files"
+      ],
+      [
+        "Output Utils",
+        "Parse Export Documents"
+      ],
+      [
+        "Data Storage",
+        "Polar Financial Model"
+      ],
+      [
+        "Output Utils",
+        "Scrape Job Listings"
+      ],
+      [
+        "Data Storage",
+        "Intermediate Data"
+      ],
+      [
+        "Fetch Keyword Volume",
+        "Keyword Volume"
+      ],
+      [
+        "Klaviyo Dashboard",
+        "Klaviyo Email Dashboard"
+      ],
+      [
+        "Data Storage",
+        "Klaviyo Dashboard"
+      ],
+      [
+        "Financial Model",
+        "Update Search Volume Model"
+      ],
+      [
+        "Apply Row Grouping",
+        "Financial Model"
+      ],
+      [
+        "Apply Row Grouping",
+        "Output Utils"
+      ],
+      [
+        "Data Storage",
+        "Job Listings"
+      ],
+      [
+        "Output Utils",
+        "Sync Influencer Notion"
+      ],
+      [
+        "Export Document Summary",
+        "Parse Export Documents"
+      ],
+      [
+        "Fetch Keyword Volume",
+        "Output Utils"
+      ],
+      [
+        "Affiliate FAQ",
+        "Data Storage"
+      ],
+      [
+        "Gmail Affiliate FAQ Builder",
+        "Output Utils"
+      ],
+      [
+        "Gorgias CS Template Builder",
+        "Output Utils"
+      ],
+      [
+        "Job Listings",
+        "Scrape Job Listings"
+      ],
+      [
+        "Notion Sync Reports",
+        "Sync Influencer Notion"
+      ],
+      [
+        "Klaviyo Email Dashboard",
+        "Output Utils"
+      ],
+      [
+        "Data Storage",
+        "Gorgias CS Templates"
+      ]
+    ],
+    "count": 25,
+    "create_time": 1775315328,
+    "update_time": 1775315328,
+    "_id": "doc-27d6310536a3e9ac4292e21e2f6af62c"
+  },
+  "doc-f0a3ef5bd61e4c7798e1d1b1d2c67beb": {
+    "relation_pairs": [
+      [
+        "Amazon",
+        "Fetch Keyword Volume Workflow"
+      ],
+      [
+        "Fetch Keyword Volume Workflow",
+        "keywords.txt"
+      ],
+      [
+        "DataForSEO API",
+        "Excel"
+      ],
+      [
+        "Fetch Keyword Volume Workflow",
+        "Python"
+      ],
+      [
+        "DataForSEO API",
+        "Fetch Keyword Volume Workflow"
+      ],
+      [
+        "Fetch Keyword Volume Workflow",
+        "Google"
+      ],
+      [
+        "Fetch Keyword Volume",
+        "Test Connection"
+      ]
+    ],
+    "count": 7,
+    "create_time": 1775315369,
+    "update_time": 1775315369,
+    "_id": "doc-f0a3ef5bd61e4c7798e1d1b1d2c67beb"
+  },
+  "doc-a0292f6b36043d7926a9ef53ef251209": {
+    "relation_pairs": [
+      [
+        "Final Consignee",
+        "Walk by Faith"
+      ],
+      [
+        "DTrans (Dream Trans)",
+        "Final Consignee"
+      ],
+      [
+        "Final Consignee",
+        "Shipbob"
+      ],
+      [
+        "CI",
+        "Export Document Management"
+      ],
+      [
+        "CGETC Inc.",
+        "Final Consignee"
+      ],
+      [
+        "Data Storage",
+        "Grosmimi"
+      ],
+      [
+        "Buyer",
+        "Fleeters Inc."
+      ],
+      [
+        "Export Document Management",
+        "PL"
+      ],
+      [
+        "Data Storage",
+        "Export Document Summary.xlsx"
+      ],
+      [
+        "2026-01_Grosmimi_SEA_",
+        "Data Storage"
+      ],
+      [
+        "CIPL",
+        "Export Document Data.json"
+      ],
+      [
+        "Exporter",
+        "Klemarang (Nature Love Mere)"
+      ],
+      [
+        "Buyer",
+        "LittlefingerUSA Inc."
+      ],
+      [
+        "Data Storage",
+        "Naeiae"
+      ],
+      [
+        "CIPL",
+        "Certificate of Origin"
+      ],
+      [
+        "Data Storage",
+        "reference/"
+      ],
+      [
+        "Exporter",
+        "Orbiters CO., LTD"
+      ],
+      [
+        "Export Document Management",
+        "Export Document Management System"
+      ]
+    ],
+    "count": 18,
+    "create_time": 1775315374,
+    "update_time": 1775315374,
+    "_id": "doc-a0292f6b36043d7926a9ef53ef251209"
+  },
+  "doc-5fc3e091af2491ff8a661222b51fa6fe": {
+    "relation_pairs": [
+      [
+        "Gmail Affiliate FAQ Builder",
+        "Google Sheets"
+      ],
+      [
+        "Grosmimi",
+        "Onzenna"
+      ],
+      [
+        "Gmail Affiliate FAQ Builder",
+        "Partnership Types"
+      ],
+      [
+        "Gmail Affiliate FAQ Builder",
+        "Gmail Token JSON"
+      ],
+      [
+        "AFFILIATE_FAQ_SHEET_ID",
+        "Google Sheets"
+      ],
+      [
+        "Excel Backup",
+        "Gmail Affiliate FAQ Builder"
+      ],
+      [
+        "Hashtags",
+        "Low Touch"
+      ],
+      [
+        "Gmail API",
+        "Google Cloud Console"
+      ],
+      [
+        "High Touch",
+        "TikTok Video"
+      ],
+      [
+        "High Touch",
+        "Whitelisting Code"
+      ],
+      [
+        "FAQ Categories",
+        "Gmail Affiliate FAQ Builder"
+      ],
+      [
+        "High Touch",
+        "PayPal"
+      ],
+      [
+        "Gmail OAuth Credentials JSON",
+        "OAuth 2.0"
+      ],
+      [
+        "Low Touch",
+        "Video Length"
+      ],
+      [
+        "Collaboration Conditions",
+        "Partnership Types"
+      ],
+      [
+        "High Touch",
+        "Instagram Reel"
+      ],
+      [
+        "Hashtags",
+        "High Touch"
+      ],
+      [
+        "Gmail Affiliate FAQ Builder",
+        "Onzenna.com"
+      ]
+    ],
+    "count": 18,
+    "create_time": 1775315419,
+    "update_time": 1775315419,
+    "_id": "doc-5fc3e091af2491ff8a661222b51fa6fe"
+  },
+  "doc-bdce62af221497fc7ad802d56382a61a": {
+    "relation_pairs": [
+      [
+        "Find Resources",
+        "Step 1"
+      ],
+      [
+        "Data Storage",
+        "Export Documents"
+      ],
+      [
+        "Find Resources",
+        "Naeiae"
+      ],
+      [
+        "Fleeters Inc.",
+        "Walk by Faith"
+      ],
+      [
+        "Fleeters Inc.",
+        "LittlefingerUSA Inc."
+      ],
+      [
+        "Find Resources",
+        "Step 4"
+      ],
+      [
+        "Find Resources",
+        "Step 3"
+      ],
+      [
+        "KakaoTalk Folder",
+        "Z: Drive"
+      ],
+      [
+        "REFERENCE",
+        "tools"
+      ],
+      [
+        "Find Resources",
+        "Grosmimi"
+      ],
+      [
+        "Find Resources",
+        "Gmail"
+      ],
+      [
+        "Grosmimi",
+        "Walk by Faith"
+      ],
+      [
+        "Find Resources",
+        "Step 2"
+      ],
+      [
+        "Conys",
+        "Find Resources"
+      ],
+      [
+        "LittlefingerUSA Inc.",
+        "Orbiters Co., Ltd."
+      ]
+    ],
+    "count": 15,
+    "create_time": 1775315422,
+    "update_time": 1775315422,
+    "_id": "doc-bdce62af221497fc7ad802d56382a61a"
+  },
+  "doc-bb2d2cc010521b4bf1c2e6dc630563f5": {
+    "relation_pairs": [
+      [
+        "ChromaDB",
+        "Gmail RAG Workflow"
+      ],
+      [
+        "Email Search",
+        "Vezevebaaebae"
+      ],
+      [
+        "Gmail OAuth Credentials",
+        "Gmail RAG Workflow"
+      ],
+      [
+        "Context-Based Email Drafting",
+        "Gmail RAG Workflow"
+      ],
+      [
+        "Tools",
+        "tools/gmail_rag.py"
+      ],
+      [
+        "Gmail RAG Workflow",
+        "Incremental Sync"
+      ],
+      [
+        "Contacts DB",
+        "Gmail RAG Workflow"
+      ],
+      [
+        "Email Search",
+        "Onzenna"
+      ],
+      [
+        "Gmail RAG Workflow",
+        "Voyage API Key"
+      ],
+      [
+        "Chromadb",
+        "Gmail RAG Workflow"
+      ],
+      [
+        "Tools",
+        "tools/send_gmail.py"
+      ],
+      [
+        "Gmail RAG Workflow",
+        "Index State"
+      ],
+      [
+        "Anthropic API Key",
+        "Gmail RAG Workflow"
+      ],
+      [
+        "Tools",
+        "tools/gmail_rag_compose.py"
+      ]
+    ],
+    "count": 14,
+    "create_time": 1775315467,
+    "update_time": 1775315467,
+    "_id": "doc-bb2d2cc010521b4bf1c2e6dc630563f5"
+  },
+  "doc-e3f1e18494cd993834bcbd5052c45b44": {
+    "relation_pairs": [
+      [
+        "Claude Sonnet",
+        "Gorgias API"
+      ],
+      [
+        "Cursor Pagination",
+        "Gorgias tickets API"
+      ],
+      [
+        "ANTHROPIC_API_KEY",
+        "Google Service Account"
+      ],
+      [
+        "CS Template Library",
+        "Google Sheets"
+      ],
+      [
+        "Claude Sonnet",
+        "Cost Estimation"
+      ],
+      [
+        "Excel",
+        "Google Sheets"
+      ],
+      [
+        "CS Template Library",
+        "Gorgias"
+      ],
+      [
+        "Claude Haiku",
+        "Resolution Category"
+      ],
+      [
+        "Claude Haiku",
+        "Gorgias API"
+      ],
+      [
+        "GORGIAS_API_KEY",
+        "Google Service Account"
+      ],
+      [
+        "CS Template Library",
+        "Closed Ticket"
+      ],
+      [
+        "GORGIAS_EMAIL",
+        "Google Service Account"
+      ],
+      [
+        "Claude Haiku",
+        "Problem Category"
+      ],
+      [
+        "GOOGLE_SERVICE_ACCOUNT_PATH",
+        "Google Service Account"
+      ],
+      [
+        "GORGIAS_CS_SHEET_ID",
+        "Google Service Account"
+      ],
+      [
+        "GORGIAS_DOMAIN",
+        "Google Service Account"
+      ],
+      [
+        "Claude Haiku",
+        "Cost Estimation"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1775315473,
+    "update_time": 1775315473,
+    "_id": "doc-e3f1e18494cd993834bcbd5052c45b44"
+  },
+  "doc-bfda1c195fa630c280eeaae2d29f9207": {
+    "relation_pairs": [
+      [
+        "Airtable",
+        "Draft Order"
+      ],
+      [
+        "Creator Signup Form",
+        "Onzenna"
+      ],
+      [
+        "Draft Order",
+        "Shopify"
+      ],
+      [
+        "Airtable",
+        "지후님"
+      ],
+      [
+        "Airtable",
+        "Applicants Table"
+      ],
+      [
+        "Gifting2 Page",
+        "Onzenna"
+      ],
+      [
+        "Airtable",
+        "Gifting2 URL"
+      ],
+      [
+        "Airtable",
+        "n8n"
+      ],
+      [
+        "Creator Signup Form",
+        "n8n"
+      ]
+    ],
+    "count": 9,
+    "create_time": 1775315503,
+    "update_time": 1775315503,
+    "_id": "doc-bfda1c195fa630c280eeaae2d29f9207"
+  },
+  "doc-3c61d27ef5021fad6f11b61352fae6dc": {
+    "relation_pairs": [
+      [
+        "Flight Recorder",
+        "Influencer Flow E2E Tester"
+      ],
+      [
+        "Flow 2",
+        "N8N Influencer Webhook"
+      ],
+      [
+        "Postgres",
+        "n8n"
+      ],
+      [
+        "Influencer Gifting Application",
+        "Shopify"
+      ],
+      [
+        "Influencer Flow E2E Tester",
+        "n8n"
+      ],
+      [
+        "Influencer Gifting Application",
+        "PostgreSQL"
+      ],
+      [
+        "Airtable API Key",
+        "Shopify"
+      ],
+      [
+        "PG Field Name",
+        "n8n"
+      ],
+      [
+        "Flow 1",
+        "Influencer Gifting Application"
+      ],
+      [
+        "N8N Influencer Webhook",
+        "n8n"
+      ],
+      [
+        "Airtable",
+        "Creator Profile"
+      ],
+      [
+        "Flow 3",
+        "Onzenna Pipeline"
+      ],
+      [
+        "Creator Profile",
+        "Flow 2"
+      ],
+      [
+        "Flow 3",
+        "Sample Sent"
+      ],
+      [
+        "Shopify",
+        "n8n"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1775315506,
+    "update_time": 1775315506,
+    "_id": "doc-3c61d27ef5021fad6f11b61352fae6dc"
+  },
+  "doc-9cce47c7684a0d46f235c40bae47b258": {
+    "relation_pairs": [
+      [
+        ".tmp/polar_data/kl1_flow_monthly.json",
+        "Klaviyo Email Flow & Campaign Dashboard"
+      ],
+      [
+        "Campaign Monthly",
+        "Klaviyo"
+      ],
+      [
+        "Data Notes",
+        "Klaviyo Email Flow & Campaign Dashboard"
+      ],
+      [
+        "Klaviyo Email Flow & Campaign Dashboard",
+        "Monthly Trends"
+      ],
+      [
+        "Klaviyo",
+        "Polar Analytics"
+      ],
+      [
+        "Flow Summary",
+        "Klaviyo Email Flow & Campaign Dashboard"
+      ],
+      [
+        "Klaviyo Email Flow & Campaign Dashboard",
+        "Polar Analytics"
+      ],
+      [
+        ".tmp/polar_data/kl2_campaign_monthly.json",
+        "Klaviyo Email Flow & Campaign Dashboard"
+      ],
+      [
+        "Flow Monthly",
+        "Klaviyo"
+      ],
+      [
+        "Category Analysis",
+        "Klaviyo Email Flow & Campaign Dashboard"
+      ],
+      [
+        "Campaign Summary",
+        "Klaviyo Email Flow & Campaign Dashboard"
+      ],
+      [
+        "Klaviyo Email Flow & Campaign Dashboard",
+        "save_kl.py"
+      ]
+    ],
+    "count": 12,
+    "create_time": 1775315555,
+    "update_time": 1775315555,
+    "_id": "doc-9cce47c7684a0d46f235c40bae47b258"
+  },
+  "doc-6935828e847fac47b51770d4f2c6758c": {
+    "relation_pairs": [
+      [
+        "CHA&MOM",
+        "Essential Duo Bundle"
+      ],
+      [
+        "Baby Age Range",
+        "Influencer Gift Form"
+      ],
+      [
+        "Grosmimi",
+        "SS Straw Cup"
+      ],
+      [
+        "Grosmimi Gifting Application",
+        "Typeform API"
+      ],
+      [
+        "Grosmimi",
+        "PPSU Straw Cup"
+      ],
+      [
+        "Influencer Gifting Form",
+        "Typeform"
+      ],
+      [
+        "Grosmimi",
+        "SS Tumbler"
+      ],
+      [
+        "Airtable",
+        "Phase 3"
+      ],
+      [
+        "Airtable",
+        "n8n"
+      ],
+      [
+        "Influencer Gifting Form",
+        "Python"
+      ],
+      [
+        "Typeform",
+        "n8n"
+      ],
+      [
+        "Airtable",
+        "Grosmimi Gifting Application"
+      ],
+      [
+        "Grosmimi Gifting Application",
+        "n8n Webhook URL"
+      ],
+      [
+        "Google Sheets",
+        "Grosmimi Gifting Application"
+      ],
+      [
+        "Baby Birthday / Expected Due Date",
+        "Influencer Gift Form"
+      ],
+      [
+        "CHA&MOM",
+        "Influencer Gifting Form"
+      ],
+      [
+        "Influencer Gift Form",
+        "Product Categories"
+      ],
+      [
+        "Grosmimi",
+        "Influencer Gifting Form"
+      ],
+      [
+        "Grosmimi Gifting Application",
+        "Python Package"
+      ],
+      [
+        "Grosmimi",
+        "PPSU Baby Bottle"
+      ],
+      [
+        "Airtable",
+        "Phase 4"
+      ],
+      [
+        "Influencer Gifting Form",
+        "Typeform CDN"
+      ]
+    ],
+    "count": 22,
+    "create_time": 1775315556,
+    "update_time": 1775315556,
+    "_id": "doc-6935828e847fac47b51770d4f2c6758c"
+  },
+  "doc-7f9cdbf5b9fb79a3672d1386024822b6": {
+    "relation_pairs": [
+      [
+        "Campaign JSON",
+        "Meta Tester"
+      ],
+      [
+        "Claude API",
+        "HTML Report"
+      ],
+      [
+        "Ad JSON",
+        "Meta Tester"
+      ],
+      [
+        "Meta Ads",
+        "Meta Tester"
+      ],
+      [
+        "Data Collection",
+        "Meta Graph API"
+      ],
+      [
+        "Metric Calculation",
+        "Report Generation"
+      ],
+      [
+        "Data Collection",
+        "Metric Calculation"
+      ],
+      [
+        "Meta Tester",
+        "Shopify Tester"
+      ],
+      [
+        "Adset JSON",
+        "Meta Tester"
+      ]
+    ],
+    "count": 9,
+    "create_time": 1775315590,
+    "update_time": 1775315590,
+    "_id": "doc-7f9cdbf5b9fb79a3672d1386024822b6"
+  },
+  "doc-2962b09c0714cc6f744b9f9241957170": {
+    "relation_pairs": [
+      [
+        "Claude API",
+        "Meta Ads"
+      ],
+      [
+        "Meta Ads",
+        "wj.choi@orbiters.co.kr"
+      ],
+      [
+        "Campaign Level",
+        "Naeiae"
+      ],
+      [
+        "Ad Set",
+        "Frequency"
+      ],
+      [
+        "Ad Set",
+        "Meta Graph API"
+      ],
+      [
+        "Alpremio",
+        "Campaign Level"
+      ],
+      [
+        "Campaign Level",
+        "Hattung"
+      ],
+      [
+        "Grosmimi PPSU Campaign",
+        "ROAS"
+      ],
+      [
+        "Agent System Prompt",
+        "Meta Ads"
+      ],
+      [
+        "Campaign Level",
+        "Meta Ads"
+      ],
+      [
+        "BabyRabbit",
+        "Campaign Level"
+      ],
+      [
+        "Campaign Level",
+        "Comme Moi"
+      ],
+      [
+        "CHA&MOM",
+        "Campaign Level"
+      ],
+      [
+        "CTR",
+        "Meta API"
+      ],
+      [
+        "Email Addresses",
+        "Meta Ads"
+      ],
+      [
+        "Ad",
+        "Ad Set"
+      ],
+      [
+        "Beemymagic",
+        "Campaign Level"
+      ],
+      [
+        "Ad Set",
+        "CPM"
+      ],
+      [
+        "Meta API",
+        "ROAS"
+      ],
+      [
+        "Ad Level",
+        "Meta Ads"
+      ],
+      [
+        "Total Advertising Cost",
+        "Total Advertising Revenue"
+      ],
+      [
+        "BambooeBebe",
+        "Campaign Level"
+      ],
+      [
+        "Campaign Level",
+        "Grosmimi"
+      ],
+      [
+        "Ad Set Level",
+        "Frequency Risk Ad Set"
+      ],
+      [
+        "Campaign Level",
+        "Non-classified"
+      ],
+      [
+        "Meta Ads",
+        "Meta Graph API"
+      ],
+      [
+        "Meta Ads Report",
+        "Send Gmail Tool"
+      ],
+      [
+        "Gmail Sender",
+        "Meta Report Recipient"
+      ],
+      [
+        "Ad Set Level",
+        "Meta Ads"
+      ],
+      [
+        "Campaign Level",
+        "Easy Shower"
+      ],
+      [
+        "Campaign Level",
+        "RIDE & GO"
+      ]
+    ],
+    "count": 31,
+    "create_time": 1775315641,
+    "update_time": 1775315641,
+    "_id": "doc-2962b09c0714cc6f744b9f9241957170"
+  },
+  "doc-f3d2ca0b25dd5bb2df50ccb3d5607a88": {
+    "relation_pairs": [
+      [
+        "Q8",
+        "TikTok"
+      ],
+      [
+        "Data Storage",
+        "No-Polar Financial Model Workflow"
+      ],
+      [
+        "Google Ads",
+        "No-Polar Financial Model Workflow"
+      ],
+      [
+        "Financial Model",
+        "PayPal"
+      ],
+      [
+        "Meta Ads",
+        "Q6"
+      ],
+      [
+        "No-Polar Financial Model Workflow",
+        "Q7"
+      ],
+      [
+        "No-Polar Financial Model Workflow",
+        "Q6"
+      ],
+      [
+        "Meta Ads",
+        "No-Polar Financial Model Workflow"
+      ],
+      [
+        "Data Storage",
+        "Financial Model"
+      ],
+      [
+        "Amazon SP-API",
+        "No-Polar Financial Model Workflow"
+      ],
+      [
+        "No-Polar Financial Model Workflow",
+        "Q1"
+      ],
+      [
+        "No-Polar Financial Model Workflow",
+        "Q11"
+      ],
+      [
+        "Q1",
+        "Q2"
+      ],
+      [
+        "Financial Model Generation",
+        "Polar"
+      ],
+      [
+        "No-Polar Financial Model Workflow",
+        "Q5"
+      ],
+      [
+        "No-Polar Financial Model Workflow",
+        "Q2"
+      ],
+      [
+        "No-Polar Financial Model Workflow",
+        "Shopify"
+      ],
+      [
+        "Amazon",
+        "Q2"
+      ],
+      [
+        "No-Polar Financial Model Workflow",
+        "Q3"
+      ],
+      [
+        "No-Polar Financial Model Workflow",
+        "Q10"
+      ],
+      [
+        "No-Polar Financial Model Workflow",
+        "Polar Analytics"
+      ]
+    ],
+    "count": 21,
+    "create_time": 1775315645,
+    "update_time": 1775315645,
+    "_id": "doc-f3d2ca0b25dd5bb2df50ccb3d5607a88"
+  },
+  "doc-c9a832f3a8ccea2ee3e89f9a5a959e5e": {
+    "relation_pairs": [
+      [
+        "Influencer Gifting Form",
+        "Payload"
+      ],
+      [
+        "Python Package",
+        "SHOPIFY_ACCESS_TOKEN"
+      ],
+      [
+        "Customer Metafields",
+        "Instagram Handle"
+      ],
+      [
+        "OAuth Token",
+        "Troubleshooting Guide"
+      ],
+      [
+        "Customer Metafields",
+        "TikTok Handle"
+      ],
+      [
+        "SHOPIFY_ACCESS_TOKEN",
+        "Troubleshooting Guide"
+      ],
+      [
+        "Customer Metafields",
+        "Influencer Gifting Order Processing Workflow"
+      ],
+      [
+        "SHOPIFY_ACCESS_TOKEN",
+        "SHOPIFY_SHOP"
+      ],
+      [
+        "OAuth Token",
+        "write_customers"
+      ],
+      [
+        "Influencer Gifting Order Processing Workflow",
+        "Jane Doe"
+      ],
+      [
+        "Grosmimi PPSU Baby Bottle",
+        "Jane Doe"
+      ],
+      [
+        "Jane Doe",
+        "New York"
+      ],
+      [
+        "OAuth Token",
+        "python-tools/shopify_oauth.py"
+      ],
+      [
+        "OAuth Token",
+        "write_draft_orders"
+      ],
+      [
+        "Influencer Gifting Order Processing Workflow",
+        "Shopify"
+      ],
+      [
+        "Child 1 Birthday",
+        "Customer Metafields"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1775315683,
+    "update_time": 1775315683,
+    "_id": "doc-c9a832f3a8ccea2ee3e89f9a5a959e5e"
+  },
+  "doc-4ec3df3f052f52af3fb4307ccfd19465": {
+    "relation_pairs": [
+      [
+        "Onzenna Loyalty",
+        "Product Discovery"
+      ],
+      [
+        "Core Signup",
+        "Onzenna Customer Survey System"
+      ],
+      [
+        "Onzenna Customer Survey System",
+        "sync_survey_to_customer.py"
+      ],
+      [
+        "Onzenna Customer Survey System",
+        "deploy_loyalty_survey_page.py"
+      ],
+      [
+        "Creator Branch",
+        "Onzenna Customer Survey System"
+      ],
+      [
+        "Onzenna Loyalty",
+        "Purchase Criteria"
+      ],
+      [
+        "Onzenna Customer Survey System",
+        "generate_survey_discount.py"
+      ],
+      [
+        "Creator Branch",
+        "Thank-you Page"
+      ],
+      [
+        "Onzenna Customer Survey System",
+        "setup_loyalty_price_rule.py"
+      ],
+      [
+        "Onzenna Customer Survey System",
+        "setup_survey_metafields.py"
+      ],
+      [
+        "Onzenna Customer Survey System",
+        "Webhook"
+      ],
+      [
+        "Challenges",
+        "Onzenna Loyalty"
+      ],
+      [
+        "Onzenna Customer Survey System",
+        "n8n"
+      ],
+      [
+        "Loyalty PriceRule",
+        "Loyalty Unlock"
+      ],
+      [
+        "Onzenna Loyalty",
+        "Product Categories"
+      ],
+      [
+        "Loyalty Unlock",
+        "Shopify"
+      ],
+      [
+        "Onzenna Loyalty",
+        "Shopify"
+      ],
+      [
+        "Onzenna Customer Survey System",
+        "Shopify App"
+      ],
+      [
+        "Advice Format",
+        "Onzenna Loyalty"
+      ],
+      [
+        "Loyalty Unlock",
+        "Onzenna Customer Survey System"
+      ],
+      [
+        "Metafield",
+        "Shopify"
+      ],
+      [
+        "Core Signup",
+        "Shopify"
+      ],
+      [
+        "Onzenna Loyalty",
+        "Purchase Frequency"
+      ],
+      [
+        "Creator Branch",
+        "Shopify"
+      ],
+      [
+        "Discount Code",
+        "Onzenna Loyalty"
+      ]
+    ],
+    "count": 25,
+    "create_time": 1775315695,
+    "update_time": 1775315695,
+    "_id": "doc-4ec3df3f052f52af3fb4307ccfd19465"
+  },
+  "doc-1b8f2ddfd1dbc6e8ed5a2a27a25ddbd2": {
+    "relation_pairs": [
+      [
+        "Experience Level",
+        "Job Listing Page"
+      ],
+      [
+        "DailyRemote",
+        "Job Listing Page"
+      ],
+      [
+        "Category",
+        "Job Listing Page"
+      ],
+      [
+        "Job Listing Page",
+        "Salary Range"
+      ],
+      [
+        "PARAMS",
+        "scrape_job_listings.py"
+      ],
+      [
+        "Firecrawl API",
+        "scrape_job_listings.py"
+      ],
+      [
+        "Company Name",
+        "Job Listing Page"
+      ],
+      [
+        "BASE_URL",
+        "scrape_job_listings.py"
+      ],
+      [
+        "Excel File",
+        "scrape_job_listings.py"
+      ],
+      [
+        "Job Listing Page",
+        "Job Title"
+      ]
+    ],
+    "count": 10,
+    "create_time": 1775315711,
+    "update_time": 1775315711,
+    "_id": "doc-1b8f2ddfd1dbc6e8ed5a2a27a25ddbd2"
+  },
+  "doc-01b98fb70eead1912f5e3a643ba4526c": {
+    "relation_pairs": [
+      [
+        "PostgreSQL",
+        "customers"
+      ],
+      [
+        "Customer Sync",
+        "n8n"
+      ],
+      [
+        "PostgreSQL",
+        "customer_metrics"
+      ],
+      [
+        "Bulk Import",
+        "Shopify Webhook"
+      ],
+      [
+        "Shopify Admin API",
+        "n8n"
+      ],
+      [
+        "N8N",
+        "N8N Workflow"
+      ],
+      [
+        "Customer Metrics",
+        "RFM Segments"
+      ],
+      [
+        "Pattern Tags",
+        "one_time"
+      ],
+      [
+        "Pattern Tags",
+        "repeat_buyer"
+      ],
+      [
+        "PostgreSQL",
+        "orders"
+      ],
+      [
+        "Pattern Tags",
+        "RFM Segments"
+      ],
+      [
+        "Django ORM",
+        "PostgreSQL"
+      ],
+      [
+        "Hibernating",
+        "Lost"
+      ],
+      [
+        "Shopify",
+        "n8n"
+      ],
+      [
+        "PostgreSQL",
+        "n8n"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1775315731,
+    "update_time": 1775315731,
+    "_id": "doc-01b98fb70eead1912f5e3a643ba4526c"
+  },
+  "doc-9f796b087d1c057d9d9a124b0bc44870": {
+    "relation_pairs": [
+      [
+        "creator_signup_001",
+        "http_post"
+      ],
+      [
+        "GUEST",
+        "creator_signup_001"
+      ],
+      [
+        "Shopify Tester",
+        "tools/shopify_tester.py"
+      ],
+      [
+        "creator_signup_001",
+        "verify_postgres"
+      ],
+      [
+        "creator_signup_001",
+        "description"
+      ],
+      [
+        "creator_signup_001",
+        "verify_airtable"
+      ],
+      [
+        "Test User",
+        "creator_signup"
+      ],
+      [
+        "Shopify Tester",
+        "n8n"
+      ],
+      [
+        "n8n",
+        "timestamp"
+      ],
+      [
+        "customer_id",
+        "email"
+      ],
+      [
+        "Airtable",
+        "n8n"
+      ],
+      [
+        "DB",
+        "n8n"
+      ],
+      [
+        "Shopify",
+        "n8n"
+      ],
+      [
+        "PostgreSQL",
+        "n8n"
+      ],
+      [
+        "creator_signup",
+        "creator_signup_001"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1775315754,
+    "update_time": 1775315754,
+    "_id": "doc-9f796b087d1c057d9d9a124b0bc44870"
+  },
+  "doc-4a6d48ebe061893a1ee3f91af2f1918f": {
+    "relation_pairs": [
+      [
+        "Google Sheets",
+        "Influencer Data Sync"
+      ],
+      [
+        "Google Sheets",
+        "Google Sheets API"
+      ],
+      [
+        "Master DB",
+        "Notion"
+      ],
+      [
+        "Google Sheets",
+        "Notion"
+      ],
+      [
+        "Notion",
+        "TikTok"
+      ],
+      [
+        "Notion",
+        "YouTube"
+      ],
+      [
+        "Influencer Data Sync",
+        "Notion"
+      ],
+      [
+        "C-197+ rows",
+        "Master DB"
+      ],
+      [
+        "Google Service Account",
+        "Influencer Data Sync"
+      ],
+      [
+        "Instagram",
+        "Notion"
+      ],
+      [
+        "Brand Tabs",
+        "Google Sheets"
+      ]
+    ],
+    "count": 11,
+    "create_time": 1775315757,
+    "update_time": 1775315757,
+    "_id": "doc-4a6d48ebe061893a1ee3f91af2f1918f"
+  },
+  "doc-5b6524cd2c19195670c840d97ba6eda0": {
+    "relation_pairs": [
+      [
+        "TEAMS_WEBHOOK_URL",
+        "Tool"
+      ],
+      [
+        "tool_error",
+        "tool_error message"
+      ],
+      [
+        "Microsoft Teams",
+        "Teams Notification Workflow"
+      ],
+      [
+        "Tool",
+        "tool_error"
+      ],
+      [
+        "Tool",
+        "weekly_report"
+      ],
+      [
+        "Tool",
+        "tool_success"
+      ],
+      [
+        "Tool",
+        "dry_run"
+      ],
+      [
+        "weekly_report",
+        "weekly_report message"
+      ],
+      [
+        "Tool",
+        "Webhook"
+      ],
+      [
+        "tool_success",
+        "tool_success message"
+      ]
+    ],
+    "count": 10,
+    "create_time": 1775315779,
+    "update_time": 1775315779,
+    "_id": "doc-5b6524cd2c19195670c840d97ba6eda0"
+  },
+  "doc-145c8ad24cdfb2d61825058adfd1720e": {
+    "relation_pairs": [
+      [
+        "병가",
+        "직원 데이터"
+      ],
+      [
+        "공가",
+        "직원 데이터"
+      ],
+      [
+        "자녀/자녀배우자 사망",
+        "직원 데이터"
+      ],
+      [
+        "employee_data.json",
+        "leave_tracker.py"
+      ],
+      [
+        "Outlook COM",
+        "leave_tracker.py"
+      ],
+      [
+        "예비군/민방위",
+        "직원 데이터"
+      ],
+      [
+        "직원 데이터",
+        "형제자매 사망"
+      ],
+      [
+        "dk.shin",
+        "mj.lee"
+      ],
+      [
+        "생리휴가",
+        "직원 데이터"
+      ],
+      [
+        "조부모/외조부모 사망",
+        "직원 데이터"
+      ],
+      [
+        "Leave Request Email",
+        "dk.shin"
+      ],
+      [
+        "dk.shin",
+        "wj.choi"
+      ],
+      [
+        "난임치료",
+        "직원 데이터"
+      ],
+      [
+        "Excel",
+        "leave_tracker.py"
+      ],
+      [
+        "dk.shin",
+        "employee_data.json"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1775315796,
+    "update_time": 1775315796,
+    "_id": "doc-145c8ad24cdfb2d61825058adfd1720e"
+  },
+  "doc-6c9fb9d3a33bcb53f885dfbd99a274cd": {
+    "relation_pairs": [
+      [
+        "Polar Analytics",
+        "Weekly Performance Data"
+      ],
+      [
+        "Google",
+        "Weekly Performance Data"
+      ],
+      [
+        "Meta",
+        "Weekly Performance Data"
+      ],
+      [
+        "Content",
+        "Notion Page Structure"
+      ],
+      [
+        "Claude MCP",
+        "Polar Analytics"
+      ],
+      [
+        "Phase A Polar MCP Queries",
+        "Troubleshooting"
+      ],
+      [
+        "Notion",
+        "Weekly Performance Notion Script"
+      ],
+      [
+        "CAC",
+        "Notion Page Structure"
+      ],
+      [
+        "Notion",
+        "Weekly Performance Data"
+      ],
+      [
+        "Notion",
+        "Performance Team Weekly Report"
+      ],
+      [
+        "Notion Page Structure",
+        "Section"
+      ],
+      [
+        "Header",
+        "Notion Page Structure"
+      ],
+      [
+        "TikTok",
+        "Weekly Performance Data"
+      ],
+      [
+        "ISO Format",
+        "Notion Page Structure"
+      ],
+      [
+        "Amazon",
+        "Weekly Performance Data"
+      ],
+      [
+        "Notion Page Structure",
+        "Troubleshooting"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1775315813,
+    "update_time": 1775315813,
+    "_id": "doc-6c9fb9d3a33bcb53f885dfbd99a274cd"
+  },
+  "doc-96ab59e77088680cfc474e6b6d3fab89": {
+    "relation_pairs": [
+      [
+        "Google Ads",
+        "Performance Team Weekly Report"
+      ],
+      [
+        "Performance Team Weekly Report",
+        "Shopify"
+      ],
+      [
+        "Performance Team Weekly Report",
+        "WK8-9 Template"
+      ],
+      [
+        "Meta Ads",
+        "Performance Team Weekly Report"
+      ],
+      [
+        "Notion Page Creator",
+        "Performance Team Weekly Report"
+      ],
+      [
+        "2fb86c6dc04680988f1fe3a5803eb4f0",
+        "Notion Database"
+      ],
+      [
+        "Notion Database",
+        "Weekly Performance Report"
+      ],
+      [
+        "Klaviyo",
+        "Performance Team Weekly Report"
+      ],
+      [
+        "Amazon Ads",
+        "Performance Team Weekly Report"
+      ],
+      [
+        "GA4",
+        "Performance Team Weekly Report"
+      ]
+    ],
+    "count": 10,
+    "create_time": 1775315826,
+    "update_time": 1775315826,
+    "_id": "doc-96ab59e77088680cfc474e6b6d3fab89"
+  },
+  "doc-62cda6ad25235925e26b9bbf826a1264": {
+    "relation_pairs": [
+      [
+        "Claude Video",
+        "YouTube Daily Sync"
+      ],
+      [
+        "GitHub Actions",
+        "YouTube to Teams Daily"
+      ],
+      [
+        "YouTube",
+        "data/youtube_queue.json"
+      ],
+      [
+        "YouTube Daily Sync",
+        "holidays"
+      ],
+      [
+        "YouTube",
+        "yt-dlp"
+      ],
+      [
+        "Microsoft Teams",
+        "YouTube"
+      ],
+      [
+        "Claude Video",
+        "Nate Herk"
+      ],
+      [
+        "Holidays Package",
+        "Public Holidays"
+      ],
+      [
+        "YouTube Daily Sync",
+        "youtube_queue.json"
+      ],
+      [
+        "YouTube Channel URL",
+        "YouTube to Teams Daily"
+      ],
+      [
+        "Holidays Package",
+        "Labor Day"
+      ],
+      [
+        "Microsoft Teams",
+        "Teams Webhook URL"
+      ],
+      [
+        "Incoming Webhook",
+        "Microsoft Teams"
+      ],
+      [
+        "2026 Presidential Election",
+        "Public Holidays"
+      ],
+      [
+        "Claude",
+        "YouTube Teams"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1775315842,
+    "update_time": 1775315842,
+    "_id": "doc-62cda6ad25235925e26b9bbf826a1264"
+  },
+  "doc-0b6cc402fb0c447ef03876c46bdaa5be": {
+    "relation_pairs": [
+      [
+        "Advantage+ Sales",
+        "Meta"
+      ],
+      [
+        "3× Kill Rule",
+        "Budget Allocation & Scaling Framework"
+      ],
+      [
+        "Healthcare",
+        "Platform Selection Matrix"
+      ],
+      [
+        "Local Service",
+        "Platform Selection Matrix"
+      ],
+      [
+        "CPMs",
+        "ROAS"
+      ],
+      [
+        "20% Rule",
+        "Budget Allocation & Scaling Framework"
+      ],
+      [
+        "Meta",
+        "Platform Selection Matrix"
+      ],
+      [
+        "Platform Selection Matrix",
+        "SaaS B2B"
+      ],
+      [
+        "Meta",
+        "Robyn"
+      ],
+      [
+        "Budget",
+        "Minimum Viable Budgets"
+      ],
+      [
+        "Info Products",
+        "Platform Selection Matrix"
+      ],
+      [
+        "B2B Enterprise",
+        "Platform Selection Matrix"
+      ],
+      [
+        "Budget Allocation & Scaling Framework",
+        "Saturation Signals"
+      ],
+      [
+        "Google",
+        "Platform Selection Matrix"
+      ],
+      [
+        "Agency (Own)",
+        "Platform Selection Matrix"
+      ],
+      [
+        "Attribution Gap",
+        "Post-Purchase Surveys"
+      ],
+      [
+        "LinkedIn",
+        "Platform Selection Matrix"
+      ],
+      [
+        "Customer Acquisition",
+        "Lower Competition"
+      ],
+      [
+        "Platform Selection Matrix",
+        "TikTok"
+      ],
+      [
+        "Platform Selection Matrix",
+        "YouTube"
+      ],
+      [
+        "Platform Selection Matrix",
+        "Real Estate"
+      ],
+      [
+        "CPC Peaks",
+        "LinkedIn"
+      ],
+      [
+        "Google",
+        "Google Analytics 4"
+      ],
+      [
+        "Mobile App",
+        "Platform Selection Matrix"
+      ],
+      [
+        "Budget Allocation & Scaling Framework",
+        "Platform Selection Matrix"
+      ]
+    ],
+    "count": 25,
+    "create_time": 1775317532,
+    "update_time": 1775317532,
+    "_id": "doc-0b6cc402fb0c447ef03876c46bdaa5be"
+  },
+  "doc-b805f3eb71d7c07608cfc1fd47746de3": {
+    "relation_pairs": [
+      [
+        ".tmp/gads_test_results.json",
+        "google_ads_tester.py"
+      ],
+      [
+        "Claude",
+        "Google Ads"
+      ],
+      [
+        "Google Ads",
+        "PMax Campaign"
+      ],
+      [
+        "Google Ads Tester",
+        "Metric Sanity"
+      ],
+      [
+        ".tmp/gads_payload_YYYYMMDD.json",
+        "run_google_ads_daily.py"
+      ],
+      [
+        "Campaign Type Characteristics",
+        "Google Ads Tester"
+      ],
+      [
+        "Google Ads Tester",
+        "Payload Structure"
+      ],
+      [
+        "Google Ads Industry Standards",
+        "Google Ads Tester"
+      ],
+      [
+        "Alpremio",
+        "Google Ads Tester"
+      ],
+      [
+        "Branded Campaign",
+        "ROAS"
+      ],
+      [
+        "Expected Payload Format",
+        "Google Ads Tester"
+      ],
+      [
+        "Brand Coverage",
+        "Google Ads Tester"
+      ],
+      [
+        ".tmp/gads_payload_YYYYMMDD.json",
+        "google_ads_tester.py"
+      ],
+      [
+        "CHA&MOM",
+        "Google Ads Tester"
+      ],
+      [
+        "Google Ads Tester",
+        "Grosmimi"
+      ],
+      [
+        "Anomaly Detection Validity",
+        "Google Ads Tester"
+      ],
+      [
+        "Google Ads",
+        "Google Analytics"
+      ],
+      [
+        "Branded Campaign",
+        "Google Ads"
+      ],
+      [
+        "Campaign Type Classification",
+        "Google Ads Tester"
+      ],
+      [
+        "Google Ads Tester",
+        "Report Structure"
+      ]
+    ],
+    "count": 20,
+    "create_time": 1775317539,
+    "update_time": 1775317539,
+    "_id": "doc-b805f3eb71d7c07608cfc1fd47746de3"
+  },
+  "doc-5d3c100505b7a39487d366a975efa893": {
+    "relation_pairs": [
+      [
+        "DataKeeper",
+        "PipelineCreator"
+      ],
+      [
+        "Apify Crawler",
+        "PipelineCreator"
+      ],
+      [
+        "Config Brand",
+        "PipelineCreator"
+      ],
+      [
+        "Apify Crawler",
+        "DataKeeper"
+      ],
+      [
+        "DB Cleanup",
+        "PipelineCreator"
+      ],
+      [
+        "Content Intelligence",
+        "KPI"
+      ],
+      [
+        "KPI",
+        "PPSU Straw Cup"
+      ],
+      [
+        "PipelineCreator",
+        "Syncly Discovery"
+      ],
+      [
+        "KPI",
+        "Stainless Straw Cup"
+      ]
+    ],
+    "count": 9,
+    "create_time": 1775317558,
+    "update_time": 1775317558,
+    "_id": "doc-5d3c100505b7a39487d366a975efa893"
+  },
+  "doc-d4d0a5d8baa7b671acb9147f80aefd5a": {
+    "relation_pairs": [
+      [
+        "lightrag/",
+        "lightrag/start_server.sh"
+      ],
+      [
+        "114 docs",
+        "LightRAG"
+      ],
+      [
+        "LightRAG",
+        "WJ Test1"
+      ],
+      [
+        "LightRAG",
+        "OpenAI gpt-4o-mini"
+      ],
+      [
+        "Anthropic Claude",
+        "LightRAG"
+      ],
+      [
+        "LightRAG",
+        "NanoVectorDB"
+      ],
+      [
+        "LightRAG",
+        "OpenAI text-embedding-3-small"
+      ],
+      [
+        "lightrag/inputs/",
+        "lightrag/rag_storage/"
+      ],
+      [
+        "CLAUDE.md",
+        "LightRAG"
+      ],
+      [
+        "lightrag/",
+        "lightrag/.env"
+      ],
+      [
+        "LightRAG",
+        "NetworkX"
+      ],
+      [
+        "lightrag/inputs/",
+        "tools/rag_index.py"
+      ]
+    ],
+    "count": 12,
+    "create_time": 1775317578,
+    "update_time": 1775317578,
+    "_id": "doc-d4d0a5d8baa7b671acb9147f80aefd5a"
+  },
+  "doc-8bc93f09de8718df34419e62f627f6f5": {
+    "relation_pairs": [
+      [
+        "Conversations API",
+        "Error Log"
+      ],
+      [
+        "Conversations API",
+        "Django"
+      ],
+      [
+        "Creator Handle",
+        "Error Log"
+      ],
+      [
+        "DB",
+        "Error Log"
+      ],
+      [
+        "Conversations API",
+        "Frontend"
+      ],
+      [
+        "Creator Email",
+        "Error Log"
+      ]
+    ],
+    "count": 6,
+    "create_time": 1775381173,
+    "update_time": 1775381173,
+    "_id": "doc-8bc93f09de8718df34419e62f627f6f5"
+  },
+  "doc-7395072ce178f261136e727d265e0262": {
+    "relation_pairs": [
+      [
+        "Creators Tab UI",
+        "Pipeline Dashboard"
+      ],
+      [
+        "Draft Generation",
+        "Draft Ready"
+      ],
+      [
+        "Brand Hierarchy",
+        "Naeiae"
+      ],
+      [
+        "Creator Email",
+        "PipelineConversation Model"
+      ],
+      [
+        "Draft Email Preview",
+        "Needs Review"
+      ],
+      [
+        "Pipeline Dashboard",
+        "Pipeliner"
+      ],
+      [
+        "Draft Email Preview",
+        "Draft Ready"
+      ],
+      [
+        "Brand Hierarchy",
+        "Grosmimi"
+      ],
+      [
+        "Brand Hierarchy",
+        "Onzenna"
+      ],
+      [
+        "Brand Hierarchy",
+        "CHA&MOM"
+      ],
+      [
+        "Creators Tab UI",
+        "Owner Sub-tabs"
+      ],
+      [
+        "Email History Accordion",
+        "PipelineConversation Model"
+      ],
+      [
+        "Creators Tab UI",
+        "Draft Email Preview"
+      ]
+    ],
+    "count": 13,
+    "create_time": 1775381196,
+    "update_time": 1775381196,
+    "_id": "doc-7395072ce178f261136e727d265e0262"
+  }
+}

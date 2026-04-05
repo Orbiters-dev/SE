@@ -1,0 +1,2280 @@
+{
+  "doc-c4da0712beb41334200681c7a542a0a5": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-c4da0712beb41334200681c7a542a0a5"
+    ],
+    "content_summary": "# PPC Config Override Bug (2026-04-04)\r\n\r\n## What Happened\r\nDashboard config_json override was being saved to `.tmp/dashboard_config_override.json` correctly,\r\nbut `_apply_brand_config()` in `amazon_ppc_executor.py` only applied 4 of 6 fields:\r\n- dai...",
+    "content_length": 2080,
+    "created_at": "2026-04-04T14:30:49.079391+00:00",
+    "updated_at": "2026-04-04T14:31:21.636911+00:00",
+    "file_path": "memory__errlog_ppc_config_override.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313050,
+      "processing_end_time": 1775313081
+    }
+  },
+  "doc-fd45eb53eed3cf33c70e20f21c1009b0": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-fd45eb53eed3cf33c70e20f21c1009b0"
+    ],
+    "content_summary": "# Error Log: Amazon Ads Search Term Report Timeout (2026-04-04)\r\n\r\n## Symptom\r\n- PPC dashboard shows 0 harvest, 0 negate, 0 keyword bid proposals\r\n- Only campaign-level budget/bid changes proposed\r\n- DataKeeper `amazon_ads_search_terms` stuck at 2026...",
+    "content_length": 1638,
+    "created_at": "2026-04-04T14:30:49.085481+00:00",
+    "updated_at": "2026-04-04T14:31:32.096358+00:00",
+    "file_path": "memory__errlog_search_term_timeout.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313050,
+      "processing_end_time": 1775313092
+    }
+  },
+  "doc-b9b3911c4122877212e5d3341ccebdb8": {
+    "status": "processed",
+    "chunks_count": 3,
+    "chunks_list": [
+      "chunk-bdf2b84f79839ad94b886ef82175b0a6",
+      "chunk-e980f33ef75a45c4be6b30d1ae17cb57",
+      "chunk-45b9777cc4dcd1ad5deb4f98c2be1e1d"
+    ],
+    "content_summary": "---\nname: n8n-at-pg-migration\ndescription: When modifying n8n workflows, replace ALL AT references at once - never leave partial AT/PG hybrid\ntype: feedback\n---\n\nn8n WF 수정시 AT → PG 전환은 반드시 **한번에 전부** 교체할 것. 부분 교체 금지.\n\n**Why:** Draft Gen WF에서 읽기 노드만 P...",
+    "content_length": 6748,
+    "created_at": "2026-04-04T14:30:49.092563+00:00",
+    "updated_at": "2026-04-04T14:32:06.488094+00:00",
+    "file_path": "memory__feedback_n8n_at_pg_migration.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313081,
+      "processing_end_time": 1775313126
+    }
+  },
+  "doc-daa5b22f62b5ec4b17cd4bee65609a89": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-daa5b22f62b5ec4b17cd4bee65609a89"
+    ],
+    "content_summary": "---\nname: n8n-gmail-send-node\ndescription: Gmail Send/Save nodes must NOT be replaced with PG — they call Gmail API to actually send email\ntype: feedback\n---\n\nn8n에서 \"Send Email (Gmail)\", \"Save to Gmail (Auto Outreach)\" 등 **실제 이메일 발송 노드는 PG로 교체하면 안 됨*...",
+    "content_length": 655,
+    "created_at": "2026-04-04T14:30:49.097486+00:00",
+    "updated_at": "2026-04-04T14:32:06.864564+00:00",
+    "file_path": "memory__feedback_n8n_gmail_node.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313092,
+      "processing_end_time": 1775313126
+    }
+  },
+  "doc-d921bca9fb27cdea5a8d6354395a0ac6": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-d921bca9fb27cdea5a8d6354395a0ac6"
+    ],
+    "content_summary": "---\r\nname: No [NO DATA] - Always Run DataKeeper First\r\ndescription: NEVER send PPC proposals with [NO DATA] sections. Run data_keeper.py collection for empty channels before proposing.\r\ntype: feedback\r\n---\r\n\r\nWhen running Amazon PPC executor proposal...",
+    "content_length": 964,
+    "created_at": "2026-04-04T14:30:49.102594+00:00",
+    "updated_at": "2026-04-04T14:32:35.648832+00:00",
+    "file_path": "memory__feedback_nodata_datakeeper.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313126,
+      "processing_end_time": 1775313155
+    }
+  },
+  "doc-753ea36fb4a81ce3a74c3b07c2c55a14": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-753ea36fb4a81ce3a74c3b07c2c55a14"
+    ],
+    "content_summary": "---\nname: pipeline-flow-accuracy\ndescription: Pipeline dashboard must reflect 1-form flow accurately - no Gifting2 references, email QnA must be shown\ntype: feedback\n---\n\n1-폼 파이프라인 정확히 반영할 것. 구 2-폼 플로우 참조 금지.\n\n**Why:** 2026-03-20에 1-폼 전환 완료. Gifting2...",
+    "content_length": 612,
+    "created_at": "2026-04-04T14:30:49.108656+00:00",
+    "updated_at": "2026-04-04T14:32:27.753630+00:00",
+    "file_path": "memory__feedback_pipeline_accuracy.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313126,
+      "processing_end_time": 1775313147
+    }
+  },
+  "doc-998d3c0b518892cda30c71325b932d25": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-998d3c0b518892cda30c71325b932d25"
+    ],
+    "content_summary": "---\nname: propose-execute-ux\ndescription: Propose & Execute UI must show content metrics from Syncly and block auto-send\ntype: feedback\n---\n\nPropose & Execute UI에서 마케터가 판단할 수 있는 데이터를 충분히 보여줘야 함.\n\n**Why:** Draft Ready 단계에서 마케터가 \"이 크리에이터한테 보낼까?\" 판단하려면 ...",
+    "content_length": 869,
+    "created_at": "2026-04-04T14:30:49.113539+00:00",
+    "updated_at": "2026-04-04T14:33:02.571806+00:00",
+    "file_path": "memory__feedback_propose_execute_ux.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313147,
+      "processing_end_time": 1775313182
+    }
+  },
+  "doc-aa5b4b9cd296ba2734a98fa07ccc7c43": {
+    "status": "processed",
+    "chunks_count": 4,
+    "chunks_list": [
+      "chunk-4c5baa41459e11ca94aae639a4aa9ea5",
+      "chunk-59e80836dff93d3dc0c12a5809fe796f",
+      "chunk-12736ac0923caddf718add3b8b31bf73",
+      "chunk-9af9b2150b00dd38aa885cf74847601a"
+    ],
+    "content_summary": "# Project Memory\r\n\r\n## Feedback\r\n- [Pipeline flow accuracy](feedback_pipeline_accuracy.md) — 1-form pipeline, no Gifting2 references, email QnA must be shown\r\n- [n8n AT→PG migration](feedback_n8n_at_pg_migration.md) — AT 교체시 전체 노드 한번에. 부분 교체 금지. fetc...",
+    "content_length": 12269,
+    "created_at": "2026-04-04T14:30:49.117743+00:00",
+    "updated_at": "2026-04-04T14:33:48.449823+00:00",
+    "file_path": "memory__MEMORY.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313155,
+      "processing_end_time": 1775313228
+    }
+  },
+  "doc-111c57d27c4f86434794ce6bdae2032b": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-7a83fedfe3c2eeb7dbfe0a9da39525c0",
+      "chunk-215f1f7eee7bfbce19d317bc38fee4b1"
+    ],
+    "content_summary": "# Mistakes Memory — ORBI WAT Framework\r\n\r\n에이전트별 실수 기록. PreToolUse/PostToolUse hook이 자동으로 읽고 씁니다.\r\n\r\n---\r\n\r\n## Core (모든 에이전트 공통)\r\n\r\n### M-001: cp949 인코딩 에러\r\n- **에이전트**: Core (모든 에이전트 공통)\r\n- **날짜**: 2026-03-20\r\n- **상황**: Python 스크립트에서 한글 출력 시 발생\r\n- **에...",
+    "content_length": 3356,
+    "created_at": "2026-04-04T14:30:49.122629+00:00",
+    "updated_at": "2026-04-04T14:33:50.220735+00:00",
+    "file_path": "memory__mistakes.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313182,
+      "processing_end_time": 1775313230
+    }
+  },
+  "doc-9c0a9988cca5a59cdf442104da4d4aad": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-9c0a9988cca5a59cdf442104da4d4aad"
+    ],
+    "content_summary": "---\r\nname: DocuSeal Pro Deployment\r\ndescription: DocuSeal Pro on EC2 orbiters_2 - port mapping, nginx config, docker setup\r\ntype: project\r\n---\r\n\r\n## DocuSeal Pro - EC2 orbiters_2\r\n\r\n### URL\r\n- https://docuseal.orbiters.co.kr\r\n\r\n### Infrastructure\r\n- ...",
+    "content_length": 1181,
+    "created_at": "2026-04-04T14:30:49.127922+00:00",
+    "updated_at": "2026-04-04T14:34:23.736037+00:00",
+    "file_path": "memory__project_docuseal.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313228,
+      "processing_end_time": 1775313263
+    }
+  },
+  "doc-072556cd1c04bd328675483bd4ab6192": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-cae80259986bbd092675bc637f53388a",
+      "chunk-c61d54180246d4bfb2838652d0b9e397"
+    ],
+    "content_summary": "---\r\nname: Pathlight n8n Migration (2026-03-13)\r\ndescription: PROD Pathlight n8n workflows fully migrated to WJ TEST environment — 18 workflows, 4 merged, 2 new\r\ntype: project\r\n---\r\n\r\n## Migration Status: COMPLETE (2026-03-13)\r\n\r\nWJ TEST workflows: 1...",
+    "content_length": 4212,
+    "created_at": "2026-04-04T14:30:49.132439+00:00",
+    "updated_at": "2026-04-04T14:34:30.424053+00:00",
+    "file_path": "memory__project_pathlight_n8n_migration.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313230,
+      "processing_end_time": 1775313270
+    }
+  },
+  "doc-9ac3f27d3698e36d83713f9f4a7f8953": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-9ac3f27d3698e36d83713f9f4a7f8953"
+    ],
+    "content_summary": "---\r\nname: PPC Executor SKU-Level + Golmani Margin Integration\r\ndescription: Amazon PPC executor now uses ASIN/SKU breakdown data and Golmani margin framework for product-level intelligence in proposals\r\ntype: project\r\n---\r\n\r\n## Added 2026-03-14\r\n\r\n#...",
+    "content_length": 1840,
+    "created_at": "2026-04-04T14:30:49.137215+00:00",
+    "updated_at": "2026-04-04T14:35:08.589785+00:00",
+    "file_path": "memory__project_ppc_sku_golmani.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313264,
+      "processing_end_time": 1775313308
+    }
+  },
+  "doc-bcba9eda7bdf371a8f5796a7af2afee6": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-136453b57bfe4bb403ce1912866b5c1e",
+      "chunk-870b25a9bc04214d4a9a8adf26c0df96"
+    ],
+    "content_summary": "# Tone\r\n\r\nTalk casually like a coworker. Keep it short and conversational. No corporate speak, no filler. Just get to the point like you're on Slack.\r\n\r\n---\r\n\r\n# Session Startup\r\n\r\n세션 시작 시 반드시 최근 60시간 git log를 확인하고, 주요 작업 맥락을 파악한 뒤 대화를 시작할 것.\r\n명령: `g...",
+    "content_length": 4695,
+    "created_at": "2026-04-04T14:30:49.160547+00:00",
+    "updated_at": "2026-04-04T14:35:10.561999+00:00",
+    "file_path": "project__CLAUDE.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313270,
+      "processing_end_time": 1775313310
+    }
+  },
+  "doc-81e8f8eb44d194ea130a689fb0b142f9": {
+    "status": "processed",
+    "chunks_count": 6,
+    "chunks_list": [
+      "chunk-31d364f8d6e95ba545ba8f1615debd63",
+      "chunk-9c368279053bf13db18f1f85bf850942",
+      "chunk-cf1c928d713e5e851131e4dc6014a04e",
+      "chunk-e74e4c2b9aaf28a00dbd7457ee8a0b32",
+      "chunk-a736a7e4c13d372d0f3406ff46e49276",
+      "chunk-beb0a5fe192f87168f3bd926721264cb"
+    ],
+    "content_summary": "---\r\nname: amazon-ppc-agent\r\ndescription: \"Expert Amazon PPC campaign analysis, optimization, and execution agent. Use when analyzing Amazon Ads performance, diagnosing campaign issues, reviewing PPC daily reports, making bid/budget recommendations, ...",
+    "content_length": 21026,
+    "created_at": "2026-04-04T14:30:49.164453+00:00",
+    "updated_at": "2026-04-04T14:36:40.306766+00:00",
+    "file_path": "skill__amazon-ppc-agent.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313308,
+      "processing_end_time": 1775313400
+    }
+  },
+  "doc-cc8087299314fb53b3d2789adba60be5": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-72031ce2bf8fc64f1df43c7bf7e4b912",
+      "chunk-7b6a1645a816810803485bd02c701285"
+    ],
+    "content_summary": "# Amazon PPC Execution Rules\r\n\r\n## Bid Adjustment Engine\r\n\r\n### Presets by Campaign Type\r\n\r\n#### Manual Campaigns (Exact/Phrase Match)\r\n| Parameter | Value | Notes |\r\n|-----------|-------|-------|\r\n| desired_acos | 0.25 (25%) | Target ACOS for profit...",
+    "content_length": 7152,
+    "created_at": "2026-04-04T14:30:49.173338+00:00",
+    "updated_at": "2026-04-04T14:35:56.007098+00:00",
+    "file_path": "skill__amazon-ppc-agent__ref__amazon-execution-rules.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313310,
+      "processing_end_time": 1775313356
+    }
+  },
+  "doc-7e36e5ca1b4589b349dae36a2f55a5ca": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-deb6c473ba9d1e163a8254ec0cc102e8",
+      "chunk-b8daebfec9ca525329e11ba01a236c2c"
+    ],
+    "content_summary": "# Amazon PPC Query Patterns Guide\r\n\r\n## Scoping Your Queries\r\n\r\n### By Brand (Profile)\r\n| Brand | Profile Name | When to Use |\r\n|-------|-------------|-------------|\r\n| CHA&MOM | Orbitool | Primary brand analysis |\r\n| Grosmimi | GROSMIMI USA | Establ...",
+    "content_length": 6122,
+    "created_at": "2026-04-04T14:30:49.178918+00:00",
+    "updated_at": "2026-04-04T14:36:48.434723+00:00",
+    "file_path": "skill__amazon-ppc-agent__ref__amazon-query-patterns.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313356,
+      "processing_end_time": 1775313408
+    }
+  },
+  "doc-22540382c0cfc210aa4a58afc7b51982": {
+    "status": "processed",
+    "chunks_count": 3,
+    "chunks_list": [
+      "chunk-d1e9d390a18c25c6c9a57186d9e94536",
+      "chunk-58d7e8a116fefa67e3e7f52d7f4a2cf9",
+      "chunk-d1161b371425a843296b7e2ca0311e19"
+    ],
+    "content_summary": "# Industry Benchmarks 2026\r\n\r\n<!-- Updated: 2026-02-10 -->\r\n<!-- Sources: Claude Research (WordStream/LocaliQ 16K campaigns, Triple Whale 2025), Gemini Research -->\r\n\r\n## Google Ads — Search Benchmarks\r\n\r\n### All Industries Average (WordStream/Locali...",
+    "content_length": 6484,
+    "created_at": "2026-04-04T14:30:49.184076+00:00",
+    "updated_at": "2026-04-04T14:37:52.488750+00:00",
+    "file_path": "skill__amazon-ppc-agent__ref__benchmarks.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313400,
+      "processing_end_time": 1775313472
+    }
+  },
+  "doc-0de6fc41e2f5509b60e3bd532b79ba31": {
+    "status": "processed",
+    "chunks_count": 3,
+    "chunks_list": [
+      "chunk-55dc370c9a6542798b37111c44b9e395",
+      "chunk-5f8083e1466c400ead556f945e1c01b3",
+      "chunk-ba6de65dea0c52394963037230c64351"
+    ],
+    "content_summary": "# Bidding Strategy Decision Trees\r\n\r\n<!-- Updated: 2026-02-10 -->\r\n<!-- Sources: Google Research PDF 2, Claude Research, Gemini Research -->\r\n\r\n## Google Ads Bidding Decision Engine\r\n\r\n### Strategy Selection Flow\r\n\r\n```\r\nSTART → How many conversions ...",
+    "content_length": 9134,
+    "created_at": "2026-04-04T14:30:49.199172+00:00",
+    "updated_at": "2026-04-04T14:37:41.606014+00:00",
+    "file_path": "skill__amazon-ppc-agent__ref__bidding-strategies.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313408,
+      "processing_end_time": 1775313461
+    }
+  },
+  "doc-fac9fdecbb0742815731d75f39eb4026": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-ac09246c7c7119d3d3c041eda0946b21",
+      "chunk-f1399e1cbd030ecd0b96943f50c69ab0"
+    ],
+    "content_summary": "# Budget Allocation & Scaling Framework\r\n\r\n<!-- Updated: 2026-02-10 -->\r\n<!-- Sources: Google Research PDF 2, Claude Research, Gemini Research -->\r\n\r\n## Platform Selection Matrix by Business Type\r\n\r\n| Business Type | Platform 1 | Platform 2 | Platfor...",
+    "content_length": 6853,
+    "created_at": "2026-04-04T14:30:49.206425+00:00",
+    "updated_at": "2026-04-04T14:38:28.054877+00:00",
+    "file_path": "skill__amazon-ppc-agent__ref__budget-allocation.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313461,
+      "processing_end_time": 1775313508
+    }
+  },
+  "doc-e51c6d55f44691c23efdb1f2832bb52a": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-be2e77824c689c78138e4092cfb92169",
+      "chunk-abc482d1d7accb22469a33ba2864c773"
+    ],
+    "content_summary": "# Conversion Tracking Setup & Requirements\r\n\r\n<!-- Updated: 2026-02-10 -->\r\n<!-- Sources: Google Research PDF 2, Claude Research, Gemini Research -->\r\n\r\n## Google Ads Conversion Tracking\r\n\r\n### Required Stack\r\n```\r\n1. Global Site Tag (gtag.js) → all ...",
+    "content_length": 7738,
+    "created_at": "2026-04-04T14:30:49.212257+00:00",
+    "updated_at": "2026-04-04T14:38:37.314824+00:00",
+    "file_path": "skill__amazon-ppc-agent__ref__conversion-tracking.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313472,
+      "processing_end_time": 1775313517
+    }
+  },
+  "doc-2fe8b5a94ee14fcd4ea7cc9b05253a19": {
+    "status": "processed",
+    "chunks_count": 3,
+    "chunks_list": [
+      "chunk-49ece9a987ad279e3e4a53aaf6e064e0",
+      "chunk-ddbf21ec7f47d630ad746086b6682fc9",
+      "chunk-08f47160690154df262d4b011760c10d"
+    ],
+    "content_summary": "# Cross-Platform Analysis for Amazon PPC\r\n\r\n## Purpose\r\n\r\nAmazon PPC decisions should not be made in isolation. Google Ads, Meta Ads, Shopify DTC, and Amazon organic sales data provide critical context for bid/budget optimization.\r\n\r\n## Data Sources ...",
+    "content_length": 9940,
+    "created_at": "2026-04-04T14:30:49.218632+00:00",
+    "updated_at": "2026-04-04T14:39:38.676976+00:00",
+    "file_path": "skill__amazon-ppc-agent__ref__cross-platform-analysis.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313508,
+      "processing_end_time": 1775313578
+    }
+  },
+  "doc-5b1cd3004ed480c4c04c7229dd3a5d92": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-7f58d260c5bbcf37fe9a49d8bfd44441",
+      "chunk-94783fb4ab7abfc758578cdc775a73b1"
+    ],
+    "content_summary": "# Ad Account Audit Scoring System\r\n\r\n<!-- Updated: 2026-02-10 -->\r\n<!-- Sources: Google Research PDF 1, Claude Research, Gemini Research -->\r\n\r\n## Weighted Scoring Algorithm\r\n\r\n```\r\nS_total = Σ(C_pass × W_sev × W_cat) / Σ(C_total × W_sev × W_cat) × 1...",
+    "content_length": 6090,
+    "created_at": "2026-04-04T14:30:49.226422+00:00",
+    "updated_at": "2026-04-04T14:39:31.798429+00:00",
+    "file_path": "skill__amazon-ppc-agent__ref__scoring-system.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313517,
+      "processing_end_time": 1775313571
+    }
+  },
+  "doc-a96f61cbbdca5c49b2e0cbd28507096a": {
+    "status": "processed",
+    "chunks_count": 3,
+    "chunks_list": [
+      "chunk-a888095b75532d88729c62a0889cda38",
+      "chunk-3f7320a0d2e9a74dd78c5b464a7f858f",
+      "chunk-f91d5d278fddb5e3ca90d43738d1d3dd"
+    ],
+    "content_summary": "---\r\nname: appster\r\ndescription: \"ONZ APP (Onzenna) 풀스택 배포 + E2E 테스트 에이전트. Next.js 16 (Vercel) + Django REST (EC2) + Supabase Auth 아키텍처를 관리한다. 헤드리스 앱 배포, EC2 Django 앱 배포, Vercel 프론트엔드 관리, API 엔드포인트 검증, E2E 유저 플로우 테스트를 담당한다. 앱스터, ONZ APP, onzenna app,...",
+    "content_length": 10043,
+    "created_at": "2026-04-04T14:30:49.232508+00:00",
+    "updated_at": "2026-04-04T14:40:39.880203+00:00",
+    "file_path": "skill__appster.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313572,
+      "processing_end_time": 1775313639
+    }
+  },
+  "doc-285e980b8acdae296f0fe43719d149e1": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-bcdebc0475d4243fd4d254986b49391c",
+      "chunk-76164881663597e7f60e0b9203320ac3"
+    ],
+    "content_summary": "---\r\nname: auditor\r\ndescription: >\r\n  감사관 — AICPA/KICPA 이중 자격 독립 감사인. 골만이 산출물의 숫자 일관성, 회계 기준 준수, 내부 정합성을 6가지 체크리스트로 크로스체크.\r\n  CFO 하네스의 Evaluator 역할. Trigger: 감사관, 감사해줘, 숫자확인, 크로스체크, 회계감사, audit, AICPA, KICPA, 내부감사\r\n---\r\n\r\n# 감사관 — AICPA/KICPA Independ...",
+    "content_length": 5455,
+    "created_at": "2026-04-04T14:30:49.237899+00:00",
+    "updated_at": "2026-04-04T14:40:30.454260+00:00",
+    "file_path": "skill__auditor.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313578,
+      "processing_end_time": 1775313630
+    }
+  },
+  "doc-96e3e8e22a8948698f9c90f63c44e4a2": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-834ba5f6dae18383c4ff63198c6f5143",
+      "chunk-a2a416ce8319befb6569970717351ac6"
+    ],
+    "content_summary": "---\r\nname: cfo\r\ndescription: >\r\n  CFO Orchestrator Agent — 골만이의 결과물을 감사관이 크로스체크하게 하고, 숫자 불일치 시 골만이에게 수정 지시.\r\n  하네스 구조: CFO (Orchestrator) → Golmani (Generator) → Auditor (Evaluator) → loop.\r\n  Trigger: CFO야, cfo 검토, 재무검토, 숫자검토, 감사, 크로스체크, 골만이 감사, 재무감...",
+    "content_length": 4848,
+    "created_at": "2026-04-04T14:30:49.243963+00:00",
+    "updated_at": "2026-04-04T14:41:10.785072+00:00",
+    "file_path": "skill__cfo.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313630,
+      "processing_end_time": 1775313670
+    }
+  },
+  "doc-f89ef1a01703e0751b0874faa78b18a7": {
+    "status": "processed",
+    "chunks_count": 4,
+    "chunks_list": [
+      "chunk-b95319eb74fda40cc6a9b5f42f14748e",
+      "chunk-81dfcda3e427a852d92895b8ac636f96",
+      "chunk-8ba82b6f6df3933f41b431b09c763aa4",
+      "chunk-2b35554763270a0702c598be4ffd54d1"
+    ],
+    "content_summary": "---\r\nname: communicator\r\ndescription: >\r\n  ORBI Communicator — 12시간 단위 통합 상태 이메일 에이전트.\r\n  Data Keeper 채널 freshness, GitHub Actions 워크플로우 이력, 다음 예정 작업,\r\n  실패·지연 알림을 모아 예쁜 HTML 이메일로 자동 발송한다.\r\n  PST 0:00 / 12:00에 GitHub Actions로 자동 실행된다.\r\n\r\n  트리거: \"커뮤니케...",
+    "content_length": 8558,
+    "created_at": "2026-04-04T14:30:49.248959+00:00",
+    "updated_at": "2026-04-04T14:41:37.092679+00:00",
+    "file_path": "skill__communicator.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313639,
+      "processing_end_time": 1775313697
+    }
+  },
+  "doc-d71edcd2412bafda55b702e898d830b4": {
+    "status": "processed",
+    "chunks_count": 5,
+    "chunks_list": [
+      "chunk-f9f7dd6daabb9e90e04aeeeb285520be",
+      "chunk-aa0176695cf27f4ea31bec36a2887793",
+      "chunk-b377e7f2d3709df8bd699d7f7b05d7dc",
+      "chunk-4b8be9f9d719fd8f51809748f26dd49c",
+      "chunk-178519543245e8fe4736c28c7a93a01d"
+    ],
+    "content_summary": "# Content Intelligence Team (CI 팀장)\r\n\r\n나는 **CI 팀장** — 인플루언서 컨텐츠 파이프라인 전체를 오케스트레이션하고\r\n일일 상태를 이메일로 보고하는 에이전트다.\r\n\r\n## 미션\r\n\r\n크롤링(Apify) → 시트 동기화(6탭) → SNS 탭 매칭(4브랜드) → PG 적재 → 이메일 보고\r\n전 단계를 관리하며, 각 단계 실행 결과 + 데이터 버전을 추적한다.\r\n\r\n---\r\n\r\n## 팀 구성 (4 에이전트)\r\n\r\n|...",
+    "content_length": 12307,
+    "created_at": "2026-04-04T14:30:49.286228+00:00",
+    "updated_at": "2026-04-04T14:42:20.779585+00:00",
+    "file_path": "skill__content-intelligence.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313670,
+      "processing_end_time": 1775313740
+    }
+  },
+  "doc-861b6b0af5a02095416eeb3ce9bcd559": {
+    "status": "processed",
+    "chunks_count": 5,
+    "chunks_list": [
+      "chunk-7767dba93036189c364097f1aae5f9e6",
+      "chunk-9045580874b7de041dd5bcb4789c8f55",
+      "chunk-0894afcf9d6fa58131cd512d2df64f69",
+      "chunk-df4f40a56fae702f696e23edd21ae014",
+      "chunk-d02605b24559815326965c5ae77ce411"
+    ],
+    "content_summary": "---\r\nname: data-keeper\r\ndescription: \"Centralized data collection gateway for all advertising and sales metrics. Use when running daily data collection, checking data freshness, querying cached metrics, diagnosing missing data, managing the unified d...",
+    "content_length": 16476,
+    "created_at": "2026-04-04T14:30:49.314535+00:00",
+    "updated_at": "2026-04-04T14:43:09.817301+00:00",
+    "file_path": "skill__data-keeper.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313697,
+      "processing_end_time": 1775313789
+    }
+  },
+  "doc-50f634cf425765150d45ee96244296c1": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-0c7c8f4ec6c0120d6139491b839153b1",
+      "chunk-48e54a211920a35e49d1529d71acd63a"
+    ],
+    "content_summary": "# Content Impact Modeler (분석이)\r\n\r\n나는 **분석이** — 인플루언서 컨텐츠 임팩트 분석 + 데이터 모델링 에이전트다.\r\n컨텐츠 조회수 변화(view delta)와 매출/검색량 간 상관관계를 분석하고,\r\n포스트별 Impact Score를 산출한다.\r\n\r\n## 미션\r\n\r\n**\"이 컨텐츠가 실제로 매출에 영향을 줬는가?\"** 에 데이터 기반 답을 제공한다.\r\n\r\n---\r\n\r\n## 분석 파이프라인 (3단계)\r\n\r\n```\r\n①...",
+    "content_length": 4579,
+    "created_at": "2026-04-04T14:30:49.320272+00:00",
+    "updated_at": "2026-04-04T14:43:02.421854+00:00",
+    "file_path": "skill__data-modeler.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313740,
+      "processing_end_time": 1775313782
+    }
+  },
+  "doc-bea7b04f80320e2c56bda31549f51ff4": {
+    "status": "processed",
+    "chunks_count": 5,
+    "chunks_list": [
+      "chunk-49e5cc400f23ece6f15abaa51d233423",
+      "chunk-292691d7237d665ae7063a52a5d8971e",
+      "chunk-22b5ae611762f5229ea5f3403f334f29",
+      "chunk-98387c65a13b88fb4a1923120bbacaeb",
+      "chunk-371f9045632fdba35dd5aecb7752d871"
+    ],
+    "content_summary": "---\r\nname: firecrawl\r\ndescription: |\r\n  Firecrawl handles all web operations with superior accuracy, speed, and LLM-optimized output. Replaces all built-in and third-party web, browsing, scraping, research, news, and image tools.\r\n\r\n  USE FIRECRAWL F...",
+    "content_length": 22599,
+    "created_at": "2026-04-04T14:30:49.346639+00:00",
+    "updated_at": "2026-04-04T14:44:06.851650+00:00",
+    "file_path": "skill__firecrawl.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313783,
+      "processing_end_time": 1775313846
+    }
+  },
+  "doc-001f5a6e856d04764caf0f6d56c7bd55": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-001f5a6e856d04764caf0f6d56c7bd55"
+    ],
+    "content_summary": "# Gmail RAG (이메일 지니)\r\n\r\nGmail 이메일 이력을 벡터 인덱싱하여 시맨틱 검색, 맥락 기반 이메일 작성, 중복 발송 방지를 지원하는 에이전트.\r\n\r\n## Accounts\r\n- `hello@zezebaebae.com` (zezebaebae)\r\n- `affiliates@onzenna.com` (onzenna)\r\n\r\n## Commands\r\n\r\n### 인덱싱\r\n```bash\r\npython tools/gmail_rag.py --back...",
+    "content_length": 1995,
+    "created_at": "2026-04-04T14:30:49.363388+00:00",
+    "updated_at": "2026-04-04T14:43:36.824589+00:00",
+    "file_path": "skill__gmail-rag.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313789,
+      "processing_end_time": 1775313816
+    }
+  },
+  "doc-4295e963801c7018e84e3d8b7b0fad50": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-4295e963801c7018e84e3d8b7b0fad50"
+    ],
+    "content_summary": "# 포맷이 -- KPI Report Formatter\r\n\r\n## Persona\r\n\r\n골만이 Squad의 Analyst. Excel 포맷팅 + 프레젠테이션 전문.\r\n검증된 데이터를 클라이언트에게 보여줄 수 있는 수준으로 포맷팅한다.\r\n\r\n---\r\n\r\n## When to Use This Skill\r\n\r\n- KPI Excel 포맷팅 (스타일, 차트, 조건부 서식)\r\n- 클라이언트용 템플릿 적용 (executive / investor)\r\n- Valid...",
+    "content_length": 2340,
+    "created_at": "2026-04-04T14:30:49.377763+00:00",
+    "updated_at": "2026-04-04T14:44:04.593305+00:00",
+    "file_path": "skill__golmani-formatter.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313816,
+      "processing_end_time": 1775313844
+    }
+  },
+  "doc-ae8bd01460465e1c20a80e13d8721406": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-ae8bd01460465e1c20a80e13d8721406"
+    ],
+    "content_summary": "# ORBI KPI Style Guide\r\n\r\n## Color Palette\r\n\r\n| Name | Hex | Usage |\r\n|------|-----|-------|\r\n| HEADER_BG | #002060 | Dark blue headers, grand totals |\r\n| SECTION_BG | #D6DCE4 | Light grey section headers |\r\n| TOTAL_BG | #FFF2CC | Light yellow subtot...",
+    "content_length": 1233,
+    "created_at": "2026-04-04T14:30:49.395832+00:00",
+    "updated_at": "2026-04-04T14:44:20.141316+00:00",
+    "file_path": "skill__golmani-formatter__ref__style-guide.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313844,
+      "processing_end_time": 1775313860
+    }
+  },
+  "doc-ae4d8a3f1000f372de57bd1b12a5ba8b": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-0c92907c88b291f8936e3298a0588985",
+      "chunk-6f06f5c7632ced6060f36c89b7e62d29"
+    ],
+    "content_summary": "# 검증이 -- KPI Data Validator\r\n\r\n## Persona\r\n\r\n골만이 Squad의 Associate Analyst. 데이터 품질 전문.\r\n모든 KPI 산출물이 DataKeeper에서 나오기 전에 6-layer 검증을 수행한다.\r\n숫자는 통과시키거나 플래그하되, 절대 고치지 않는다 (고치는 건 골만이 역할).\r\n\r\n---\r\n\r\n## When to Use This Skill\r\n\r\n- KPI 리포트 생성 전 데이터 검증\r\n- Dat...",
+    "content_length": 4560,
+    "created_at": "2026-04-04T14:30:49.411903+00:00",
+    "updated_at": "2026-04-04T14:44:49.438770+00:00",
+    "file_path": "skill__golmani-validator.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313846,
+      "processing_end_time": 1775313889
+    }
+  },
+  "doc-4e5d6579e52f813fcc540d8ce2296325": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-4e5d6579e52f813fcc540d8ce2296325"
+    ],
+    "content_summary": "# Validation Rules Reference\r\n\r\n## Schema Rules (L1)\r\n\r\nAll schemas defined in `tools/kpi_schemas.py` using Pandera.\r\n\r\n### Common Patterns\r\n- `date`: str matching `YYYY-MM-DD` pattern, never null\r\n- `brand`: str, nullable (Unknown allowed)\r\n- `chann...",
+    "content_length": 2382,
+    "created_at": "2026-04-04T14:30:49.431615+00:00",
+    "updated_at": "2026-04-04T14:44:53.345505+00:00",
+    "file_path": "skill__golmani-validator__ref__validation-rules.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313860,
+      "processing_end_time": 1775313893
+    }
+  },
+  "doc-7571c060a253d1f1f5443707a6c9b74c": {
+    "status": "processed",
+    "chunks_count": 4,
+    "chunks_list": [
+      "chunk-0d85ab4a566d07a836738ff78b108520",
+      "chunk-8ceed7b97989e1f62a8d3c8babb65916",
+      "chunk-244b178b8d98a1a1165d2a5c93337dea",
+      "chunk-80fc48e2845d193833c92bf0105c3987"
+    ],
+    "content_summary": "---\r\nname: golmani\r\ndescription: >\r\n  Investment Banker senior analyst agent. Builds DCF, LBO, 3-statement, comps,\r\n  M&A models in Excel (openpyxl). Creates pitch decks, CIMs, investor materials\r\n  in PPT (python-pptx) and markdown. Analyzes ORBI's ...",
+    "content_length": 14332,
+    "created_at": "2026-04-04T14:30:49.452904+00:00",
+    "updated_at": "2026-04-04T14:46:03.663980+00:00",
+    "file_path": "skill__golmani.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313889,
+      "processing_end_time": 1775313963
+    }
+  },
+  "doc-09625c96e09a22a65ff2083b1a2a4f15": {
+    "status": "processed",
+    "chunks_count": 4,
+    "chunks_list": [
+      "chunk-0aacb644931270f0fc57ee0270aaa30e",
+      "chunk-7babe903510a380ada88f915b9a3edc1",
+      "chunk-8072a2d41cdc015f9b4ec736f9df7bbd",
+      "chunk-565e3686182be6732f4eb713f7aefecc"
+    ],
+    "content_summary": "# Due Diligence Playbook\r\n\r\nDD checklists, IC memo templates, PE returns analysis, deal screening, and value creation frameworks.\r\nAdapted for DTC/e-commerce consumer brands and ORBI's specific context.\r\n\r\n---\r\n\r\n## 1. Due Diligence Checklist\r\n\r\n### ...",
+    "content_length": 12867,
+    "created_at": "2026-04-04T14:30:49.474874+00:00",
+    "updated_at": "2026-04-04T14:46:15.245561+00:00",
+    "file_path": "skill__golmani__ref__due-diligence-playbook.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313893,
+      "processing_end_time": 1775313975
+    }
+  },
+  "doc-1d865e1e39d2f4c41ca3a8549c6be933": {
+    "status": "processed",
+    "chunks_count": 4,
+    "chunks_list": [
+      "chunk-d5de8e1dcf9a61dbf421e8d14c5dfb81",
+      "chunk-6eae0dea09d30b4a1e13ef52ebc9f4e5",
+      "chunk-3bc7569fef2afef99e56c19069eb658f",
+      "chunk-85d2b167f3e5bd401b1f6f51dd24f2ec"
+    ],
+    "content_summary": "# Financial Statements -- 3-Statement Modeling & ORBI Data Mapping\r\n\r\nCore framework for Income Statement, Balance Sheet, Cash Flow Statement modeling.\r\nMaps ORBI's DataKeeper tables to financial statement line items.\r\n\r\n---\r\n\r\n## 1. Income Statement...",
+    "content_length": 13130,
+    "created_at": "2026-04-04T14:30:49.521394+00:00",
+    "updated_at": "2026-04-04T14:47:44.974268+00:00",
+    "file_path": "skill__golmani__ref__financial-statements.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313963,
+      "processing_end_time": 1775314064
+    }
+  },
+  "doc-5a9859d5e7143c14c579d8b16299e877": {
+    "status": "processed",
+    "chunks_count": 4,
+    "chunks_list": [
+      "chunk-00391c930a1246b4b59621213cc1bc11",
+      "chunk-f18b35f7fa0f1b5e95a425b74e8340cb",
+      "chunk-02c51615f454c48fc2a46d41f7c39e46",
+      "chunk-87178e83472197c0f163c67ff13e4c44"
+    ],
+    "content_summary": "# Industry Benchmarks -- Baby Products / DTC / Amazon Comps\r\n\r\nComparable companies, precedent transactions, and industry benchmarks for ORBI valuation and competitive analysis.\r\n\r\n---\r\n\r\n## 1. Public Comparable Companies\r\n\r\n### Baby & Kids Products\r...",
+    "content_length": 10962,
+    "created_at": "2026-04-04T14:30:49.547180+00:00",
+    "updated_at": "2026-04-04T14:47:44.411369+00:00",
+    "file_path": "skill__golmani__ref__industry-benchmarks.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775313975,
+      "processing_end_time": 1775314064
+    }
+  },
+  "doc-7ef87d57b1ec1af341684ba852fa16d6": {
+    "status": "processed",
+    "chunks_count": 3,
+    "chunks_list": [
+      "chunk-eb1146a00ef7bd1f7596ef9a88f41d60",
+      "chunk-077ace3e0b589153724bfc424b9dcb0b",
+      "chunk-c5b0cad156657c8a1aece06d71995a15"
+    ],
+    "content_summary": "# Investor Materials -- Templates & Guidelines\r\n\r\nTemplates for pitch decks, CIMs, teasers, process letters, and other IB deliverables.\r\nAdapted for ORBI's DTC/e-commerce multi-brand business.\r\n\r\n---\r\n\r\n## 1. Pitch Deck (10-15 Slides)\r\n\r\n### Standard...",
+    "content_length": 9085,
+    "created_at": "2026-04-04T14:30:49.579346+00:00",
+    "updated_at": "2026-04-04T14:48:29.584583+00:00",
+    "file_path": "skill__golmani__ref__investor-materials.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314064,
+      "processing_end_time": 1775314109
+    }
+  },
+  "doc-8ed686e5bd955b38c160f55d95c945ad": {
+    "status": "processed",
+    "chunks_count": 6,
+    "chunks_list": [
+      "chunk-2c6ffbf6bedb33d58afdf9e2a4a03ff7",
+      "chunk-8964ad7b95da832e458de5ac218c90ab",
+      "chunk-2e216433e87e27df18023b92896cdd9c",
+      "chunk-7d7127bfda8dc54bd1f2b53807d426a2",
+      "chunk-1a9217fdf2c9812f9544dda892a83caa",
+      "chunk-9fab947c8e7b69aecb5b6154d4f435ac"
+    ],
+    "content_summary": "# KPI Data Taxonomy -- Classification, Computation & Quality Rules\r\n\r\nAuthoritative reference for how ORBI data is classified, computed, and validated.\r\nAll metric formulas trace back to `tools/data_keeper.py` and `tools/run_kpi_monthly.py`.\r\n\r\n---\r\n...",
+    "content_length": 20288,
+    "created_at": "2026-04-04T14:30:49.603760+00:00",
+    "updated_at": "2026-04-04T14:49:18.901273+00:00",
+    "file_path": "skill__golmani__ref__kpi-data-taxonomy.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314065,
+      "processing_end_time": 1775314158
+    }
+  },
+  "doc-4623db06fd5be83a99f9abc98694225a": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-37b30a301ff091160ca40781663d92de",
+      "chunk-424e3fa906dd3057ca5f496e51b4558f"
+    ],
+    "content_summary": "# ORBI Business Context\r\n\r\nSingle source of truth for ORBI-specific business data used across all 골만이 sub-skills.\r\n\r\n---\r\n\r\n## Entity Structure\r\n\r\n| Entity | Full Name | Jurisdiction | Role | Address |\r\n|--------|-----------|-------------|------|----...",
+    "content_length": 7359,
+    "created_at": "2026-04-04T14:30:49.631081+00:00",
+    "updated_at": "2026-04-04T14:49:23.445527+00:00",
+    "file_path": "skill__golmani__ref__orbi-business-context.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314109,
+      "processing_end_time": 1775314163
+    }
+  },
+  "doc-e0b9776d63a3c29140cfa93edac2e6f6": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-2c77e57012b5ce588544161846258adc",
+      "chunk-b3a48943219af75a233d0b616deae367"
+    ],
+    "content_summary": "# Query Patterns -- Natural Language Routing Guide\r\n\r\nMaps common user questions to the correct analytical approach, data sources, and reference documents.\r\n\r\n---\r\n\r\n## Valuation Queries\r\n\r\n| User Says | Approach | Data Sources | Reference |\r\n|------...",
+    "content_length": 4685,
+    "created_at": "2026-04-04T14:30:49.656213+00:00",
+    "updated_at": "2026-04-04T14:49:51.559288+00:00",
+    "file_path": "skill__golmani__ref__query-patterns.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314159,
+      "processing_end_time": 1775314191
+    }
+  },
+  "doc-02e7d8385d0c807e3eefd61992e608bb": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-04930b448823d2ab8ca087271a7bbc97",
+      "chunk-92d657555f17ac0351efde46dfd9e401"
+    ],
+    "content_summary": "# Valuation Frameworks\r\n\r\nCore methodologies for DCF, Trading Comps, Precedent Transactions, LBO, and Merger Models.\r\nAdapted for DTC/e-commerce consumer brands.\r\n\r\n---\r\n\r\n## 1. DCF (Discounted Cash Flow)\r\n\r\n### Steps\r\n\r\n1. **Project Free Cash Flow (...",
+    "content_length": 6304,
+    "created_at": "2026-04-04T14:30:49.664598+00:00",
+    "updated_at": "2026-04-04T14:49:57.260732+00:00",
+    "file_path": "skill__golmani__ref__valuation-frameworks.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314163,
+      "processing_end_time": 1775314197
+    }
+  },
+  "doc-81f1b2478db3cbac45135b735b73c842": {
+    "status": "processed",
+    "chunks_count": 3,
+    "chunks_list": [
+      "chunk-68946f49f11907e4dcbd09bd92dd464e",
+      "chunk-aa1a626b4d825367f61deb893c8e9257",
+      "chunk-a0a695dfc492cb74093a11c33fc14d6e"
+    ],
+    "content_summary": "---\r\nname: kpi-monthly\r\ndescription: \"Monthly KPI Excel report generator for ORBI brands. Use this skill when generating, updating, or debugging the monthly KPI report (run_kpi_monthly.py), analyzing discount rates by brand/channel, investigating Ama...",
+    "content_length": 9555,
+    "created_at": "2026-04-04T14:30:49.687860+00:00",
+    "updated_at": "2026-04-04T14:51:03.380705+00:00",
+    "file_path": "skill__kpi-monthly.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314191,
+      "processing_end_time": 1775314263
+    }
+  },
+  "doc-6096978394b09c31f3600f67b59d5d7e": {
+    "status": "processed",
+    "chunks_count": 3,
+    "chunks_list": [
+      "chunk-078a25713435f6775686293c8576e4c4",
+      "chunk-26c52c954d001b7f51d6f34c24f651ad",
+      "chunk-3cdc64d5c67bc92f881811763dfbc07d"
+    ],
+    "content_summary": "---\nname: meta-ads-analyzer\ndescription: \"Provides expert-level analysis and diagnosis for Meta Ads campaigns. Use this skill to interpret performance data, identify root causes of issues, and generate actionable recommendations, with a special focus...",
+    "content_length": 10614,
+    "created_at": "2026-04-04T14:30:49.712915+00:00",
+    "updated_at": "2026-04-04T14:51:00.496447+00:00",
+    "file_path": "skill__meta-ads-agent.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314197,
+      "processing_end_time": 1775314260
+    }
+  },
+  "doc-47b40c2d8c8650905a9f57434cf095c4": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-47b40c2d8c8650905a9f57434cf095c4"
+    ],
+    "content_summary": "# Ad Auctions\n\nMeta uses auctions to determine the best ad for each opportunity. Billions occur daily.\n\n## Auction Mechanics\n\nA person can fall into multiple target audiences. All ads targeting that person compete.\n\n## Winner Determination\n\nHighest *...",
+    "content_length": 1003,
+    "created_at": "2026-04-04T14:30:49.720221+00:00",
+    "updated_at": "2026-04-04T14:51:21.346049+00:00",
+    "file_path": "skill__meta-ads-agent__ref__ad_auctions.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314261,
+      "processing_end_time": 1775314281
+    }
+  },
+  "doc-d9325aa8b09d601b506d1bfb8a0fdbf1": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-d9325aa8b09d601b506d1bfb8a0fdbf1"
+    ],
+    "content_summary": "# Ad Relevance Diagnostics\n\nDiagnostics to understand whether ads were relevant to the audience reached. Use to identify adjustments to creative, post-click experience, or targeting.\n\n## The Three Diagnostics\n\n| Diagnostic | Measures |\n| :--- | :--- ...",
+    "content_length": 1404,
+    "created_at": "2026-04-04T14:30:49.727826+00:00",
+    "updated_at": "2026-04-04T14:51:22.193245+00:00",
+    "file_path": "skill__meta-ads-agent__ref__ad_relevance_diagnostics.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314263,
+      "processing_end_time": 1775314282
+    }
+  },
+  "doc-e746e7fef455022aa3084cbaa54d7d3f": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-e746e7fef455022aa3084cbaa54d7d3f"
+    ],
+    "content_summary": "# Auction Overlap\n\nWhen ad sets have overlapping audiences, multiple ads from your Page may enter the same auction. Meta chooses the highest total value ad; others are excluded (not competing against yourself).\n\n## Impact on Performance\n\n- Prevents a...",
+    "content_length": 899,
+    "created_at": "2026-04-04T14:30:49.744853+00:00",
+    "updated_at": "2026-04-04T14:51:42.477449+00:00",
+    "file_path": "skill__meta-ads-agent__ref__auction_overlap.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314281,
+      "processing_end_time": 1775314302
+    }
+  },
+  "doc-69386a5a3ab683ab3313d073784c1422": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-69386a5a3ab683ab3313d073784c1422",
+      "chunk-c1c16a41088a4e6551eb68ab471dbd1c"
+    ],
+    "content_summary": "---\nname: audit-meta\ndescription: >\n  Meta Ads audit specialist. Analyzes Pixel/CAPI health, EMQ scores,\n  creative diversity and fatigue, account structure, learning phase,\n  audience targeting, and Advantage+ campaigns.\nmodel: sonnet\nmaxTurns: 20\nt...",
+    "content_length": 4453,
+    "created_at": "2026-04-04T14:30:49.764358+00:00",
+    "updated_at": "2026-04-04T14:51:44.875160+00:00",
+    "file_path": "skill__meta-ads-agent__ref__audit-meta.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314282,
+      "processing_end_time": 1775314304
+    }
+  },
+  "doc-d8c6f2db9fcc0b5122e46b101e7868a2": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-7e34ee2fcd7694b11689017ca396f40d",
+      "chunk-710148053302ca20be85cbe92ab8f074"
+    ],
+    "content_summary": "# Industry Benchmarks 2026\n\n<!-- Updated: 2026-02-10 -->\n<!-- Sources: Claude Research (WordStream/LocaliQ 16K campaigns, Triple Whale 2025), Gemini Research -->\n\n## Google Ads — Search Benchmarks\n\n### All Industries Average (WordStream/LocaliQ 2025,...",
+    "content_length": 6286,
+    "created_at": "2026-04-04T14:30:49.771269+00:00",
+    "updated_at": "2026-04-04T14:52:41.649020+00:00",
+    "file_path": "skill__meta-ads-agent__ref__benchmarks.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314302,
+      "processing_end_time": 1775314361
+    }
+  },
+  "doc-ea8e2d818e409b55995564c5e7a850fc": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-ea8e2d818e409b55995564c5e7a850fc"
+    ],
+    "content_summary": "# Bid Strategies\n\nThree types: spend-based, goal-based, and manual.\n\n## Spend-based Bidding\n\nFocus on spending full budget for maximum results or value.\n\n| Strategy | Goal | Example |\n| :--- | :--- | :--- |\n| **Highest volume** | Maximize conversions...",
+    "content_length": 854,
+    "created_at": "2026-04-04T14:30:49.779669+00:00",
+    "updated_at": "2026-04-04T14:51:58.552006+00:00",
+    "file_path": "skill__meta-ads-agent__ref__bid_strategies.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314305,
+      "processing_end_time": 1775314318
+    }
+  },
+  "doc-598aca3d6f829fff536ed40059c3b236": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-598aca3d6f829fff536ed40059c3b236"
+    ],
+    "content_summary": "# The Breakdown Effect\n\nThe \"breakdown effect\" is the misinterpretation that Meta's system shifts budget into underperforming segments. In reality, the system maximizes total results by optimizing for **marginal efficiency**, not average efficiency.\n...",
+    "content_length": 1602,
+    "created_at": "2026-04-04T14:30:49.785722+00:00",
+    "updated_at": "2026-04-04T14:52:33.672287+00:00",
+    "file_path": "skill__meta-ads-agent__ref__breakdown_effect.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314318,
+      "processing_end_time": 1775314353
+    }
+  },
+  "doc-0b6cc402fb0c447ef03876c46bdaa5be": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-567f30f6d648e2119a8d1073cecd05c2",
+      "chunk-95eb9dea323783e8db4a4d830d2e9ae6"
+    ],
+    "content_summary": "# Budget Allocation & Scaling Framework\n\n<!-- Updated: 2026-02-10 -->\n<!-- Sources: Google Research PDF 2, Claude Research, Gemini Research -->\n\n## Platform Selection Matrix by Business Type\n\n| Business Type | Platform 1 | Platform 2 | Platform 3 | O...",
+    "content_length": 5858,
+    "created_at": "2026-04-04T14:30:49.812026+00:00",
+    "updated_at": "2026-04-04T15:45:32.375740+00:00",
+    "file_path": "skill__meta-ads-agent__ref__budget-allocation.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775317490,
+      "processing_end_time": 1775317532
+    }
+  },
+  "doc-71c5097264c89e1c94f1a937ee169123": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-37362d4e6491b4d57d876569ea0c2316",
+      "chunk-5dea4e0d5bfbc5f5efd0317d01a886a8"
+    ],
+    "content_summary": "# Conversion Tracking Setup & Requirements\n\n<!-- Updated: 2026-02-10 -->\n<!-- Sources: Google Research PDF 2, Claude Research, Gemini Research -->\n\n## Google Ads Conversion Tracking\n\n### Required Stack\n```\n1. Global Site Tag (gtag.js) → all pages\n2. ...",
+    "content_length": 7516,
+    "created_at": "2026-04-04T14:30:49.849323+00:00",
+    "updated_at": "2026-04-04T14:53:17.053127+00:00",
+    "file_path": "skill__meta-ads-agent__ref__conversion-tracking.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314361,
+      "processing_end_time": 1775314397
+    }
+  },
+  "doc-b70dcbf46893fec74c116376cce3d4cf": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-b70dcbf46893fec74c116376cce3d4cf"
+    ],
+    "content_summary": "# Meta Ads Core Concepts\n\n## Ad Auction\n\nEvery ad opportunity triggers an auction. Winner is determined by **Total Value**:\n\n> *Total Value = (Advertiser Bid) x (Estimated Action Rate) + (Ad Quality)*\n\n- **Advertiser Bid:** Controlled by bid strategy...",
+    "content_length": 2031,
+    "created_at": "2026-04-04T14:30:49.871936+00:00",
+    "updated_at": "2026-04-04T14:53:52.379988+00:00",
+    "file_path": "skill__meta-ads-agent__ref__core_concepts.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314384,
+      "processing_end_time": 1775314432
+    }
+  },
+  "doc-a910f1c6110c32f3b28e6e69b0371ada": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-a910f1c6110c32f3b28e6e69b0371ada"
+    ],
+    "content_summary": "# The Learning Phase\n\nThe learning phase is when the delivery system explores the best way to deliver a new or significantly edited ad set.\n\n## Key Mechanics\n\n- Delivery column shows **\"Learning\"** during this phase\n- Exits after ~**50 results** with...",
+    "content_length": 1126,
+    "created_at": "2026-04-04T14:30:49.880002+00:00",
+    "updated_at": "2026-04-04T14:53:50.552095+00:00",
+    "file_path": "skill__meta-ads-agent__ref__learning_phase.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314397,
+      "processing_end_time": 1775314430
+    }
+  },
+  "doc-6e5d07a607fee50b3b46e6b6d02b9457": {
+    "status": "processed",
+    "chunks_count": 3,
+    "chunks_list": [
+      "chunk-c1b3ac31b8838339bed83a44dba00936",
+      "chunk-077cea0dcc5c1a7c8e8e23a1154be1e9",
+      "chunk-40e0d4aca493521fd914f2299401ee93"
+    ],
+    "content_summary": "# Meta Ads Audit Checklist\n\n<!-- Updated: 2026-02-11 -->\n<!-- Sources: Google Research PDF 1 (M01-M40), Claude Research (42-item extended), Gemini Research -->\n<!-- Total Checks: 46 | Categories: 4 | See scoring-system.md for weights and algorithm --...",
+    "content_length": 9543,
+    "created_at": "2026-04-04T14:30:49.903388+00:00",
+    "updated_at": "2026-04-04T14:54:57.579119+00:00",
+    "file_path": "skill__meta-ads-agent__ref__meta-audit.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314431,
+      "processing_end_time": 1775314497
+    }
+  },
+  "doc-73fa0bdd5305baf08cd2cd6354c0be06": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-73fa0bdd5305baf08cd2cd6354c0be06"
+    ],
+    "content_summary": "# Pacing\n\nPacing ensures budget is spent evenly over ad set schedule and helps meet bid strategy cost goals.\n\n## Two Aspects\n\n| Type | Function |\n| :--- | :--- |\n| **Budget pacing** | Distributes budget across campaign duration |\n| **Bid pacing** | A...",
+    "content_length": 983,
+    "created_at": "2026-04-04T14:30:49.958112+00:00",
+    "updated_at": "2026-04-04T14:54:13.176132+00:00",
+    "file_path": "skill__meta-ads-agent__ref__pacing.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314432,
+      "processing_end_time": 1775314453
+    }
+  },
+  "doc-a84cf461c30eed0176d01b34c9ddcfab": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-a84cf461c30eed0176d01b34c9ddcfab"
+    ],
+    "content_summary": "# Performance Fluctuations\n\nAd performance naturally fluctuates. Understanding causes helps distinguish normal variation from actual problems.\n\n## Common Causes\n\n| Cause | Description | Action |\n| :--- | :--- | :--- |\n| **Learning phase** | New/edite...",
+    "content_length": 1326,
+    "created_at": "2026-04-04T14:30:49.981179+00:00",
+    "updated_at": "2026-04-04T14:54:53.214935+00:00",
+    "file_path": "skill__meta-ads-agent__ref__performance_fluctuations.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314453,
+      "processing_end_time": 1775314493
+    }
+  },
+  "doc-85a3a69862cfd8a6cbc331b5f68cced3": {
+    "status": "processed",
+    "chunks_count": 3,
+    "chunks_list": [
+      "chunk-3b110ac5d94c39892c268eff86f65214",
+      "chunk-8a9bba4946f1d11c925c1405111249f6",
+      "chunk-ce1d82020a41dcb787bc712ada14dcb6"
+    ],
+    "content_summary": "---\r\nname: n8n-manager\r\ndescription: \"n8n 워크플로우 관리 전문가. 워크플로우 조회/생성/수정/복제/마이그레이션, PROD-WJ TEST 환경 동기화, 노드 머지, 크레덴셜 관리, 서버 진단을 담당한다. n8n API, 워크플로우 복제, PROD WJ TEST 동기화, 노드 비교, 워크플로우 활성화, n8n 서버, n8n 재시작 관련 작업에 반드시 사용할 것.\"\r\n---\r\n\r\n# n8n Workflow Manag...",
+    "content_length": 8110,
+    "created_at": "2026-04-04T14:30:50.000181+00:00",
+    "updated_at": "2026-04-04T14:55:44.569111+00:00",
+    "file_path": "skill__n8n-manager.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314493,
+      "processing_end_time": 1775314544
+    }
+  },
+  "doc-532313b9a7255876482850a9b1ea9014": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-fa06387af9ec12c32a388b82f44003a0",
+      "chunk-92390304d4c9351eb1051a14245c9e8a"
+    ],
+    "content_summary": "# n8n Cross-Workflow Audit Guide\r\n\r\n여러 워크플로우 간 일관성을 검증하는 감사 가이드.\r\nPROD↔WJ TEST 환경 간 동기화 검증에 특화.\r\n\r\n---\r\n\r\n## 실행 방법\r\n\r\n```bash\r\n# 모든 워크플로우 fetch (한번에)\r\ncurl -sk -H \"X-N8N-API-KEY: $KEY\" \\\r\n  \"https://n8n.orbiters.co.kr/api/v1/workflows?limit=100\" > /t...",
+    "content_length": 3689,
+    "created_at": "2026-04-04T14:30:50.007884+00:00",
+    "updated_at": "2026-04-04T14:55:46.523535+00:00",
+    "file_path": "skill__n8n-manager__ref__n8n-audit-guide.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314497,
+      "processing_end_time": 1775314546
+    }
+  },
+  "doc-333c3d776c38be7c9aedb696f73d920e": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-333c3d776c38be7c9aedb696f73d920e",
+      "chunk-5b0f4c017b56cdf45737f27c957fe0d2"
+    ],
+    "content_summary": "# n8n Workflow Evaluate Checklist\r\n\r\n단일 워크플로우의 구조적 정합성을 검증하는 체크리스트.\r\nPathlight AI n8n-evaluate에서 적응, ORBI n8n 환경(orbiters.co.kr) 특화.\r\n\r\n---\r\n\r\n## 실행 방법\r\n\r\n```bash\r\n# 1. 워크플로우 fetch\r\ncurl -sk -H \"X-N8N-API-KEY: $KEY\" \\\r\n  \"https://n8n.orbiters.co.kr/a...",
+    "content_length": 3088,
+    "created_at": "2026-04-04T14:30:50.024904+00:00",
+    "updated_at": "2026-04-04T14:56:24.996513+00:00",
+    "file_path": "skill__n8n-manager__ref__n8n-evaluate-checklist.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314545,
+      "processing_end_time": 1775314584
+    }
+  },
+  "doc-dc8bc0133c775349094584dd144ab9e5": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-dc8bc0133c775349094584dd144ab9e5",
+      "chunk-fbc1fc7ded05669b4af23f09b650d713"
+    ],
+    "content_summary": "# n8n Standard Fix Pattern\r\n\r\n워크플로우를 안전하게 수정하는 REST-first 5단계 표준 절차.\r\nMCP update 도구(n8n_update_partial_workflow 등)는 known bug으로 **사용 금지**.\r\n\r\n---\r\n\r\n## 5단계 절차\r\n\r\n### Step 0: 인스턴스 확인\r\n\r\n```bash\r\n# API Key 로드\r\nsource ~/.wat_secrets  # N8N_API_KEY\r\nBASE...",
+    "content_length": 3275,
+    "created_at": "2026-04-04T14:30:50.043295+00:00",
+    "updated_at": "2026-04-04T14:56:29.790939+00:00",
+    "file_path": "skill__n8n-manager__ref__n8n-fix-pattern.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314546,
+      "processing_end_time": 1775314589
+    }
+  },
+  "doc-c7fd21ab0bcfe6b0ca4dc40aa6c20860": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-eab741357e71a79a53d140fdd9c3bf0f",
+      "chunk-2cc559587a9aa3ccbdfef7b2dff5908e"
+    ],
+    "content_summary": "# n8n Impact Analysis Guide\r\n\r\n변경을 실행하기 전에 blast radius를 사전 파악하는 가이드.\r\n\r\n---\r\n\r\n## 실행 시점\r\n\r\n**변경을 실행하기 전** (Fix Step 2 이전):\r\n- Airtable 필드 이름 변경\r\n- 워크플로우 로직 변경\r\n- 새 integration 추가\r\n- Credential 변경\r\n- 스키마 변경\r\n\r\n---\r\n\r\n## Step 1: Dependency Registry 로드...",
+    "content_length": 3781,
+    "created_at": "2026-04-04T14:30:50.063877+00:00",
+    "updated_at": "2026-04-04T14:57:08.011695+00:00",
+    "file_path": "skill__n8n-manager__ref__n8n-impact-analysis.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314585,
+      "processing_end_time": 1775314628
+    }
+  },
+  "doc-096c54494878ba99a4960550e3a518ca": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-eb0dc17d363de76cac18a4ea76688f73",
+      "chunk-2b7fbcffbbb52beda4d9368313dc8fbf"
+    ],
+    "content_summary": "---\r\nname: pipeliner\r\ndescription: >\r\n  Creator Collab Pipeline E2E 이중테스트 에이전트.\r\n  This skill should be used when the user mentions \"파이프라이너\", \"이중테스트\", \"dual test\",\r\n  \"파이프라인 테스트\", \"E2E 테스트 돌려\", \"gifting 테스트\", \"pipeline test\",\r\n  \"Maker-Checker\", \"exe...",
+    "content_length": 5949,
+    "created_at": "2026-04-04T14:30:50.081309+00:00",
+    "updated_at": "2026-04-04T14:57:09.723803+00:00",
+    "file_path": "skill__pipeliner.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314590,
+      "processing_end_time": 1775314629
+    }
+  },
+  "doc-860c397338748048cda98dd68c692862": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-05a9149ed62c6b1176d4e48d2a545678",
+      "chunk-c63dca7716c6b599546bb5b6c061e192"
+    ],
+    "content_summary": "# n8n Workflow Reference\r\n\r\n## PROD Workflows\r\n\r\n| ID | Name | Nodes | Interval | Status |\r\n|----|------|-------|----------|--------|\r\n| `fwwOeLiDLSnR77E1` | Draft Generation (Claude AI) | 42 | 30min poll | Active |\r\n| `jf9uxkPww2xeCr82` | Approval S...",
+    "content_length": 3726,
+    "created_at": "2026-04-04T14:30:50.105672+00:00",
+    "updated_at": "2026-04-04T14:57:51.116477+00:00",
+    "file_path": "skill__pipeliner__ref__n8n-workflows.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314628,
+      "processing_end_time": 1775314671
+    }
+  },
+  "doc-5ece6e569063ed4510b496a5cb92ec52": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-91bdba8d279e91794bda27ec40d1bbd1",
+      "chunk-3d0ea1a11db7a385b15c1e0b5c91a59d"
+    ],
+    "content_summary": "# Pipeliner Troubleshooting Guide\r\n\r\n## n8n Server Issues\r\n\r\n### Webhook 무응답 (HTTP 000 or timeout)\r\n\r\n**증상**: POST to webhook returns connection error or times out.\r\n\r\n**원인**: n8n Docker 컨테이너 내부 이상, webhook 등록 실패, 또는 Caddy reverse proxy 문제.\r\n\r\n**해결**...",
+    "content_length": 3575,
+    "created_at": "2026-04-04T14:30:50.128689+00:00",
+    "updated_at": "2026-04-04T14:57:48.154731+00:00",
+    "file_path": "skill__pipeliner__ref__troubleshooting.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314630,
+      "processing_end_time": 1775314668
+    }
+  },
+  "doc-275cb47a43efe185e0b306c3d052a247": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-3e47649c5461e27e5fc98ea375f13ba3",
+      "chunk-7d7c07af37da7e5a5309a78b4b1227b7"
+    ],
+    "content_summary": "---\r\nname: resource-finder\r\ndescription: |\r\n  Internal document finder and Gmail search agent. Finds files across Z: drive,\r\n  Data Storage, Shared folder, KakaoTalk received files, and Gmail inbox.\r\n\r\n  USE THIS SKILL FOR:\r\n  - \"자료 찾기\", \"파일 찾아줘\", \"문...",
+    "content_length": 3818,
+    "created_at": "2026-04-04T14:30:50.148014+00:00",
+    "updated_at": "2026-04-04T14:58:43.054131+00:00",
+    "file_path": "skill__resource-finder.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314668,
+      "processing_end_time": 1775314723
+    }
+  },
+  "doc-e5dbca0e18b22a83ddd0e6e042329d3c": {
+    "status": "processed",
+    "chunks_count": 7,
+    "chunks_list": [
+      "chunk-38b8f2e3b4a46f79debd25efae187bf3",
+      "chunk-175294488443fcf00c2b6a868208b4e8",
+      "chunk-117137af09a95a3b8f6cd2af987f91fd",
+      "chunk-9985278dce193779a15c69f61688f027",
+      "chunk-aa8d25d1f8995c0260c1a5beb1e5f2b2",
+      "chunk-dd6fd8b0a9a7189ace28dcd3e06fa6c3",
+      "chunk-73fdf23ba0816620d105b6950fc88a22"
+    ],
+    "content_summary": "---\nname: shopify-ui-expert\ndescription: \"Shopify UI 개발 전문가. Checkout UI Extensions(React), Liquid 테마 페이지, Polaris Admin 앱, Hydrogen/Remix 스토어프론트 개발과 폼 데이터 → n8n → PostgreSQL → Airtable → Shopify Metafields 데이터 파이프라인, E2E 테스트를 담당한다. Shopify UI, 체크아웃 ...",
+    "content_length": 19346,
+    "created_at": "2026-04-04T14:30:50.176271+00:00",
+    "updated_at": "2026-04-04T15:00:25.162761+00:00",
+    "file_path": "skill__shopify-ui-expert.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314671,
+      "processing_end_time": 1775314825
+    }
+  },
+  "doc-2a59a9f90be43aee0ff83f86c8267548": {
+    "status": "processed",
+    "chunks_count": 3,
+    "chunks_list": [
+      "chunk-7e78f63479b1a5006e92d25f214ad98d",
+      "chunk-1014185586bdcbe995fb729ff43aebce",
+      "chunk-2db316d5b2c196744a3bf32673b88501"
+    ],
+    "content_summary": "# Data Pipeline Reference\n\nUI에서 수집한 유저 데이터가 최종 저장소에 도달하는 전체 파이프라인 문서.\n\n## 전체 아키텍처\n\n```\n[Data Sources]                [Orchestration]         [Storage]\n\nCheckout Extension ─metafield─>                     Order Metafield\n                              ...",
+    "content_length": 7953,
+    "created_at": "2026-04-04T14:30:50.197818+00:00",
+    "updated_at": "2026-04-04T15:00:09.866215+00:00",
+    "file_path": "skill__shopify-ui-expert__ref__data-pipeline.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314723,
+      "processing_end_time": 1775314809
+    }
+  },
+  "doc-db4a42318da48f30483dccd66877137d": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-db4a42318da48f30483dccd66877137d"
+    ],
+    "content_summary": "# Hydrogen/Remix Storefront Reference\n\nShopify Hydrogen은 Remix 기반 헤드리스 커머스 프레임워크다. 현재 프로젝트에서는 계획 단계이며 기존 구현은 없다.\n\n## 기술 스택\n\n| 패키지 | 용도 |\n|--------|------|\n| `@shopify/hydrogen` | 커머스 유틸리티, Cart API, Analytics |\n| `@shopify/remix-oxygen` | Oxygen 배포 어...",
+    "content_length": 3354,
+    "created_at": "2026-04-04T14:30:50.206730+00:00",
+    "updated_at": "2026-04-04T15:01:09.619745+00:00",
+    "file_path": "skill__shopify-ui-expert__ref__hydrogen-remix.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314810,
+      "processing_end_time": 1775314869
+    }
+  },
+  "doc-ae085af45d113e5c4f86d2c22140b641": {
+    "status": "processed",
+    "chunks_count": 4,
+    "chunks_list": [
+      "chunk-2f6eea6e84b6af37de16437d71eb0296",
+      "chunk-f9623243912e17cccca9f5c80c7aa2d3",
+      "chunk-7fa81dc7d19a7c2d0fbd95c643e718fa",
+      "chunk-4dd9f3debaf9d08b8b0c408008498f0b"
+    ],
+    "content_summary": "# Influencer Collaboration Pipeline (Pathlight) Reference\n\n인플루언서 협업의 전체 수명주기를 n8n 워크플로우 체인으로 자동화하는 파이프라인.\n\n## Status Flow\n\n```\nNot Started → Draft Ready → Sent → Replied → Needs Review\n→ Accepted → Sample Sent → Sample Shipped → Sample Delivered → Po...",
+    "content_length": 12206,
+    "created_at": "2026-04-04T14:30:50.226452+00:00",
+    "updated_at": "2026-04-04T15:01:20.180078+00:00",
+    "file_path": "skill__shopify-ui-expert__ref__influencer-pipeline.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314825,
+      "processing_end_time": 1775314880
+    }
+  },
+  "doc-e7e4edd1d7b389c43722559e1a91ebd5": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-3f14ed421330227066fafc06b6b97dbe",
+      "chunk-13236a83ce77c98436dbb2d8f372ef54"
+    ],
+    "content_summary": "# Liquid Theme Pages Reference\n\nPython 스크립트로 Liquid 섹션과 JSON 템플릿을 Shopify Theme Asset API에 업로드하여 커스텀 페이지를 생성한다.\n\n## Deploy 스크립트 구조\n\n모든 deploy 스크립트가 동일한 패턴을 따른다:\n\n```python\n\"\"\"Deploy [페이지명] to Shopify.\nUsage:\n    python tools/deploy_[name].py\n    pyth...",
+    "content_length": 5659,
+    "created_at": "2026-04-04T14:30:50.235467+00:00",
+    "updated_at": "2026-04-04T15:01:43.387365+00:00",
+    "file_path": "skill__shopify-ui-expert__ref__liquid-themes.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314869,
+      "processing_end_time": 1775314903
+    }
+  },
+  "doc-62e2094f0cdb530a3f40e9cd8c19a8eb": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-62e2094f0cdb530a3f40e9cd8c19a8eb"
+    ],
+    "content_summary": "# Polaris Admin App Reference\n\nShopify Admin에 임베딩되는 React 앱을 위한 개발 가이드. 현재 프로젝트에서는 설계 단계이며 기존 구현은 없다.\n\n## 기술 스택\n\n| 패키지 | 용도 |\n|--------|------|\n| `@shopify/polaris` | UI 컴포넌트 라이브러리 |\n| `@shopify/app-bridge-react` | Admin 임베딩 |\n| `@shopify/shopify-app...",
+    "content_length": 2904,
+    "created_at": "2026-04-04T14:30:50.255281+00:00",
+    "updated_at": "2026-04-04T15:02:16.554265+00:00",
+    "file_path": "skill__shopify-ui-expert__ref__polaris-admin.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314880,
+      "processing_end_time": 1775314936
+    }
+  },
+  "doc-583652c0892c8f87113995c547e0821f": {
+    "status": "processed",
+    "chunks_count": 3,
+    "chunks_list": [
+      "chunk-671bfa396f5e646dd21b54c371541255",
+      "chunk-19f8a4e3e78a17ddad778d9d848efe49",
+      "chunk-550dc2dd004d7b1b5bae21529f06cb50"
+    ],
+    "content_summary": "# E2E Testing Reference\n\n두 가지 테스트 도구로 전체 데이터 체인을 E2E 검증한다.\n\n## 테스트 도구 1: shopify_tester.py (Customer Journey)\n\n| 명령 | 설명 |\n|------|------|\n| `python tools/shopify_tester.py --status` | 큐 상태 확인 |\n| `python tools/shopify_tester.py --push --spec '{...}'...",
+    "content_length": 6256,
+    "created_at": "2026-04-04T14:30:50.274985+00:00",
+    "updated_at": "2026-04-04T15:02:24.774614+00:00",
+    "file_path": "skill__shopify-ui-expert__ref__testing.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314903,
+      "processing_end_time": 1775314944
+    }
+  },
+  "doc-2c56274610b7b7657e577b30d08559fa": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-21558e27f5913572075bc758361602a7",
+      "chunk-050001b199db097577132d12ec87183f"
+    ],
+    "content_summary": "# Checkout UI Extensions Reference\n\nShopify Checkout UI Extensions는 `@shopify/ui-extensions-react/checkout` 패키지 기반 React 컴포넌트다. 체크아웃과 감사 페이지에 커스텀 UI를 삽입한다.\n\n## 프로젝트 구조\n\n```\nonzenna-survey-app/\n├── shopify.app.toml                   # 앱 설정 (OAuth scop...",
+    "content_length": 4871,
+    "created_at": "2026-04-04T14:30:50.330625+00:00",
+    "updated_at": "2026-04-04T15:03:02.286748+00:00",
+    "file_path": "skill__shopify-ui-expert__ref__ui-extensions.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314936,
+      "processing_end_time": 1775314982
+    }
+  },
+  "doc-5a7cb9afb7e6408a7c43f0bbaf0e0b86": {
+    "status": "processed",
+    "chunks_count": 4,
+    "chunks_list": [
+      "chunk-f2179ce5788effe0850fa8bb8b139fc1",
+      "chunk-fb3aea58d391cb509de8c4fd6b81b30a",
+      "chunk-9a0bbac9143879276b0819d9cb611a55",
+      "chunk-1efb1619fcde847aac3e5ab03910161e"
+    ],
+    "content_summary": "---\r\nname: syncly-crawler\r\ndescription: \"ONZENNA Syncly content metrics crawler and D+60 tracker agent. Use when: crawling Syncly for influencer post metrics, syncing content data to Google Sheets, checking D+60 tracker status, troubleshooting Syncly...",
+    "content_length": 11903,
+    "created_at": "2026-04-04T14:30:50.363241+00:00",
+    "updated_at": "2026-04-04T15:03:53.792164+00:00",
+    "file_path": "skill__syncly-crawler.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314945,
+      "processing_end_time": 1775315033
+    }
+  },
+  "doc-f14209dc5fbcc982a7465a3636edd86c": {
+    "status": "processed",
+    "chunks_count": 5,
+    "chunks_list": [
+      "chunk-36f10ee0781adf74fef17ac4d52aa0e0",
+      "chunk-5f0db10cb6ff502d03b900d2bdc7f8d9",
+      "chunk-5122ca9d79dd5ae57c7c99500db14cd0",
+      "chunk-40386356c89e5a402a0f2a48e4cdf02d",
+      "chunk-8971eeb8bb0439832e5794aa91a38255"
+    ],
+    "content_summary": "---\r\nname: 제갈량\r\ndescription: >\r\n  CSO (Chief Strategy Officer) — ORBI 전체 시스템 총괄 전략 에이전트.\r\n  Anthropic \"Harness Design for Long-Running Apps\" 패턴 기반.\r\n  Planner → Generator → Evaluator 3-agent 아키텍처로\r\n  sequential thinking, 멀티 에디터 충돌 방지, 작업 오케스트레이션을 담당한...",
+    "content_length": 12614,
+    "created_at": "2026-04-04T14:30:50.385434+00:00",
+    "updated_at": "2026-04-04T15:04:39.193154+00:00",
+    "file_path": "skill__제갈량.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775314982,
+      "processing_end_time": 1775315079
+    }
+  },
+  "doc-aa31ce17db30cc5517c46db2a43b8a67": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-e8003c335d86d373a02afebea12669b4",
+      "chunk-cf564256adfa8bc3ce63f3d22aa445af"
+    ],
+    "content_summary": "# 제갈량 세션 리포트 - 2026-04-02\n\n## 실행 요약\n\n| 구분 | 내용 |\n|------|------|\n| 날짜 | 2026-04-02 |\n| 실행자 | WJ + Claude (제갈량 전략모드) |\n| 대상 | Draft Gen Pipeline Phase 2-3 + RAG Dedup + 대시보드 |\n| 결과 | 15/15 검증 PASS, Critical 버그 5건 수정 |\n\n---\n\n## 전략 분석 (Phase 0)\n\n남은 4건을 ...",
+    "content_length": 3568,
+    "created_at": "2026-04-04T14:30:50.404323+00:00",
+    "updated_at": "2026-04-04T15:04:42.919990+00:00",
+    "file_path": "skill__제갈량__ref__2026-04-02_세션리포트.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315034,
+      "processing_end_time": 1775315082
+    }
+  },
+  "doc-44524649b630c38332904f18d5719c4a": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-06359b7a9adfd361e1a4ecaffb13301c",
+      "chunk-e3ad425d660cd23c1b5cf3d52b664998"
+    ],
+    "content_summary": "# 제갈량 워크플로우 재실행 가이드\n\n## 트리거\n\nClaude Code에서 아래 키워드 중 하나를 입력하면 제갈량이 소환됩니다:\n\n```\n제갈량 소환\n갈량이\n전략분석\n큰그림\n```\n\n---\n\n## 전략 분석 실행 방법\n\n### 1. 파이프라인 현황 점검\n\n```bash\n# Claude Code에서:\n제갈량 소환\n\n# 제갈량이 자동으로:\n# 1) 메모리에서 프로젝트 상태 로드\n# 2) n8n WF 4개 상태 확인\n# 3) content_post...",
+    "content_length": 3925,
+    "created_at": "2026-04-04T14:30:50.417337+00:00",
+    "updated_at": "2026-04-04T15:05:08.693050+00:00",
+    "file_path": "skill__제갈량__ref__워크플로우_재실행가이드.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315079,
+      "processing_end_time": 1775315108
+    }
+  },
+  "doc-d6e3b08a681daa85e75fbda93d16037e": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-d6e3b08a681daa85e75fbda93d16037e"
+    ],
+    "content_summary": "# Orphaned Tools\r\n\r\nThese tools exist in `tools/` but are not referenced by any workflow.\r\nReview and either document them in a workflow or remove them.\r\n\r\n- `tools/amazon_ads_oauth.py`\r\n- `tools/check_influencer_hashtag.py`\r\n- `tools/check_nonclassi...",
+    "content_length": 2623,
+    "created_at": "2026-04-04T14:30:50.424060+00:00",
+    "updated_at": "2026-04-04T15:06:23.114167+00:00",
+    "file_path": "workflow___orphaned_tools.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315083,
+      "processing_end_time": 1775315183
+    }
+  },
+  "doc-e418351c7503f60c00e533587f99feaf": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-b69eda95423abf15f65e2b09388f5e12",
+      "chunk-eac5b31e966bc55fef05a9baabfe6f86"
+    ],
+    "content_summary": "# Amazon PPC 일간 분석 워크플로우\r\n\r\n## 목적\r\nPolar Analytics MCP에서 Amazon Ads 캠페인 데이터를 가져와\r\nPPC 성과를 분석하고 개선 전략을 이메일로 발송한다.\r\n\r\n## 발송 정보\r\n- **보내는 주소**: orbiters11@gmail.com\r\n- **받는 주소**: wj.choi@orbiters.co.kr\r\n- **발송 주기**: 매일 (전날 데이터 기준)\r\n\r\n---\r\n\r\n## Agent 시스템 ...",
+    "content_length": 3915,
+    "created_at": "2026-04-04T14:30:50.442621+00:00",
+    "updated_at": "2026-04-04T15:06:08.640040+00:00",
+    "file_path": "workflow__amazon_ppc_daily_analysis.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315109,
+      "processing_end_time": 1775315168
+    }
+  },
+  "doc-115f5f6888d3e784ce289c50787ec500": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-115f5f6888d3e784ce289c50787ec500",
+      "chunk-834e9fcc70e15a1b581ee1e9fe707361"
+    ],
+    "content_summary": "# Amazon PPC Executor Workflow (Mazone)\r\n\r\n## Overview\r\nAutomated PPC optimization for **Fleeters Inc (Naeiae)** with human-in-the-loop approval.\r\nAnalyzes campaigns every 6 hours, emails proposals, executes only approved changes.\r\n\r\n## Budget Rules\r...",
+    "content_length": 4125,
+    "created_at": "2026-04-04T14:30:50.450187+00:00",
+    "updated_at": "2026-04-04T15:06:46.503326+00:00",
+    "file_path": "workflow__amazon_ppc_executor.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315170,
+      "processing_end_time": 1775315206
+    }
+  },
+  "doc-87f6005761895ba676c9d1ed50d4fe9e": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-a87eee8ac11fd894680cc50e6addb730",
+      "chunk-1404c32ad3ac92f1335a8a727b19187f"
+    ],
+    "content_summary": "# Amazon PPC 테스터 — Amazon Ads 분석 플로우 검증 에이전트\n\n## 역할\n\n너는 **아마존 PPC 테스터**야.\nAmazon PPC 일간 분석 플로우(데이터 수집 → 지표 계산 → 이메일 리포트)의 정확성을 검증한다.\n\nMeta 테스터와 차이:\n- Meta 테스터 = Facebook/Instagram 광고 ROAS/CTR/CPM (노출 기반)\n- Amazon PPC 테스터 = Amazon SP/SB/SD 광고 ROAS/ACO...",
+    "content_length": 3412,
+    "created_at": "2026-04-04T14:30:50.468268+00:00",
+    "updated_at": "2026-04-04T15:07:01.010913+00:00",
+    "file_path": "workflow__amazon_ppc_tester.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315183,
+      "processing_end_time": 1775315221
+    }
+  },
+  "doc-238e9ec289770c394b36e679cd797a3d": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-ebc11c230ce97c55325c82f7c5946993",
+      "chunk-a53e9337bdf20e7f3e970fd6d648713e"
+    ],
+    "content_summary": "# CFO Financial Review Workflow\r\n\r\n## Objective\r\n\r\n골만이(재무 모델링 VP)의 산출물을 CFO가 독립 감사관(AICPA/KICPA)을 통해 검증하고,\r\n숫자 불일치 시 수정을 지시하는 하네스 구조 재무 검토 프로세스.\r\n\r\n**핵심 원칙**: 생성(Golmani)과 검증(Auditor)을 분리한다.\r\n골만이에게 자기 결과를 스스로 검토하게 하지 않는다 — 항상 별도의 감사관이 독립적으로 검증.\r\n\r\nRe...",
+    "content_length": 5304,
+    "created_at": "2026-04-04T14:30:50.477142+00:00",
+    "updated_at": "2026-04-04T15:07:29.011108+00:00",
+    "file_path": "workflow__cfo_financial_review.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315206,
+      "processing_end_time": 1775315249
+    }
+  },
+  "doc-03a9c403e8ee1d856c6cd678f147c1d4": {
+    "status": "processed",
+    "chunks_count": 3,
+    "chunks_list": [
+      "chunk-079102d67aa2aead3832b566b21297e3",
+      "chunk-a9fa2279a51b41f10b540b2a85776c0f",
+      "chunk-42686c2cf7dfeddea8e7bcc1c44cccfc"
+    ],
+    "content_summary": "# 크롤러 파이프라인 (Apify Content Daily Pipeline)\r\n\r\n## 목적\r\n\r\n인플루언서가 브랜드 계정을 태그한 IG 포스트 + TikTok 포스트를 매일 수집,\r\nGoogle Sheets에 누적 저장하고 USA_LLM · SNS 탭 등 하위 시스템에 연결한다.\r\n\r\n---\r\n\r\n## 데이터 소스\r\n\r\n| 소스 | 방식 | 비용 | 대상 |\r\n|------|------|------|------|\r\n| IG tagged pos...",
+    "content_length": 6265,
+    "created_at": "2026-04-04T14:30:50.501260+00:00",
+    "updated_at": "2026-04-04T15:07:52.494171+00:00",
+    "file_path": "workflow__crawler_pipeline.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315221,
+      "processing_end_time": 1775315272
+    }
+  },
+  "doc-27d6310536a3e9ac4292e21e2f6af62c": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-27d6310536a3e9ac4292e21e2f6af62c"
+    ],
+    "content_summary": "# Data Output Management\n\n## Folder Structure\n\n```\nData Storage/\n  polar/           Polar Financial Model, Dashboard, Ads Classification\n  cs/              Gorgias CS Templates\n  influencer/      Affiliate FAQ, Notion Sync Reports\n  marketing/       ...",
+    "content_length": 2982,
+    "created_at": "2026-04-04T14:30:50.509615+00:00",
+    "updated_at": "2026-04-04T15:08:48.524865+00:00",
+    "file_path": "workflow__data_output_management.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315249,
+      "processing_end_time": 1775315328
+    }
+  },
+  "doc-3c9a9a6b8e0fde37bd88855c18f2b829": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-81231d00604e31a2c943ad68da3d193d",
+      "chunk-5697e39e67f1d9405f8fc22dda4faaee"
+    ],
+    "content_summary": "# Shopify Influencer Gifting Page 배포\n\n## 목적\nShopify 스토어(onzenna.com)에 인플루언서 기프팅 신청 전용 페이지를 배포.\n- IGF 같은 제품 이미지 + 색상 선택 UI\n- 아기 생년월일 기반 연령 자동 계산 + 제품 추천\n- 둘째 아이 지원 (연령대 합산으로 제품 표시)\n- 구조화된 주소 입력 (Street, City, State, ZIP)\n- Shopify 고객 로그인 감지 + 정보 자동 채움...",
+    "content_length": 3907,
+    "created_at": "2026-04-04T14:30:50.529168+00:00",
+    "updated_at": "2026-04-04T15:08:44.641644+00:00",
+    "file_path": "workflow__deploy_influencer_page.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315272,
+      "processing_end_time": 1775315324
+    }
+  },
+  "doc-a0292f6b36043d7926a9ef53ef251209": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-b63f552512ef8f8651ea93724af01e44",
+      "chunk-b1ab8fc9ecab9b935181bb52b7ed8c66"
+    ],
+    "content_summary": "# Export Document Management\n\n수출 서류 (CI/PL) 파싱, 정리, 레퍼런스 관리, 생성 워크플로우.\n\n---\n\n## Objective\n\n컴퓨터 내 흩어진 CI (Commercial Invoice), PL (Packing List) 파일들을 자동 파싱하여 구조화된 데이터로 정리하고, 레퍼런스 파일을 buyer/importer별 폴더로 관리하며, 새 CIPL 문서를 자동 생성한다.\n\n---\n\n## Key Terms\n\n| ...",
+    "content_length": 4298,
+    "created_at": "2026-04-04T14:30:50.537266+00:00",
+    "updated_at": "2026-04-04T15:09:34.943310+00:00",
+    "file_path": "workflow__export_document_management.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315325,
+      "processing_end_time": 1775315374
+    }
+  },
+  "doc-f0a3ef5bd61e4c7798e1d1b1d2c67beb": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-f0a3ef5bd61e4c7798e1d1b1d2c67beb"
+    ],
+    "content_summary": "# Fetch Keyword Volume Workflow\n\n## Objective\nRetrieve keyword search volume data from Google and Amazon using DataForSEO API.\n\n## Tool\n`tools/fetch_keyword_volume.py`\n\n## Required Environment\n```\nDATAFORSEO_LOGIN=<email>\nDATAFORSEO_PASSWORD=<api_pas...",
+    "content_length": 2726,
+    "created_at": "2026-04-04T14:30:50.560868+00:00",
+    "updated_at": "2026-04-04T15:09:29.002981+00:00",
+    "file_path": "workflow__fetch_keyword_volume.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315328,
+      "processing_end_time": 1775315369
+    }
+  },
+  "doc-bdce62af221497fc7ad802d56382a61a": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-c0afb78c0ec6d4e786aa3dcdd87f2401",
+      "chunk-3b748e5d4217d058fff88e8a8fca4b5e"
+    ],
+    "content_summary": "# Find Resources (자료 찾기)\r\n\r\n프로젝트 내부 파일과 이메일을 검색하여 필요한 자료를 빠르게 찾는 워크플로우.\r\n\r\n---\r\n\r\n## Objective\r\n\r\n키워드, 브랜드, 날짜, 파일 유형 등으로 내부 파일 시스템과 Gmail을 검색하여 필요한 자료를 빠르게 찾아 정리한다.\r\n\r\n---\r\n\r\n## Scope\r\n\r\n### 1. 내부 파일 검색\r\n\r\n아래 디렉토리들을 순서대로 검색:\r\n\r\n| 우선순위 | 경로 | 설명 |\r\n|...",
+    "content_length": 4573,
+    "created_at": "2026-04-04T14:30:50.581918+00:00",
+    "updated_at": "2026-04-04T15:10:22.644418+00:00",
+    "file_path": "workflow__find_resources.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315369,
+      "processing_end_time": 1775315422
+    }
+  },
+  "doc-5fc3e091af2491ff8a661222b51fa6fe": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-998254ba48ec0fcf5d31f0c71ff89b78",
+      "chunk-c06dd64def53a7e8da8de0bba376d516"
+    ],
+    "content_summary": "# Gmail Affiliate FAQ Builder\r\n\r\n## 목적\r\n`affiliates@onzenna.com` Gmail 받은편지함의 이메일 로그를 수집하여\r\n인플루언서/어필리에이트 협업 문의에 대한 **FAQ를 자동 생성**합니다.\r\n\r\n## 결과물\r\n- **Google Sheets**: `AFFILIATE_FAQ_SHEET_ID` 스프레드시트의 `Affiliate_FAQ` 시트\r\n- **Excel 백업**: `.tmp/gmail_aff...",
+    "content_length": 4856,
+    "created_at": "2026-04-04T14:30:50.602892+00:00",
+    "updated_at": "2026-04-04T15:10:19.989471+00:00",
+    "file_path": "workflow__gmail_affiliate_faq_builder.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315375,
+      "processing_end_time": 1775315419
+    }
+  },
+  "doc-bb2d2cc010521b4bf1c2e6dc630563f5": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-bb2d2cc010521b4bf1c2e6dc630563f5"
+    ],
+    "content_summary": "# Gmail RAG Workflow\r\n\r\n## Objective\r\n이메일 이력을 시맨틱 검색으로 인덱싱하여, 맥락 기반 이메일 작성 및 중복 발송 방지를 지원한다.\r\n\r\n## Accounts\r\n| Account | Email | Token |\r\n|---------|-------|-------|\r\n| zezebaebae | hello@zezebaebae.com | `credentials/zezebaebae_gmail_token.json` |\r\n...",
+    "content_length": 2639,
+    "created_at": "2026-04-04T14:30:50.624785+00:00",
+    "updated_at": "2026-04-04T15:11:07.809754+00:00",
+    "file_path": "workflow__gmail_rag.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315420,
+      "processing_end_time": 1775315467
+    }
+  },
+  "doc-b805f3eb71d7c07608cfc1fd47746de3": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-7f1c07b09e4855e6a32993ae664eb166",
+      "chunk-9e86454207156fe411b79a212e2058c7"
+    ],
+    "content_summary": "# Google Ads 테스터 — Google Ads 분석 플로우 검증 에이전트\n\n## 역할\n\n너는 **구글 애즈 테스터**야.\nGoogle Ads 일간 분석 플로우(데이터 수집 → 지표 계산 → 이메일 리포트)의 정확성을 검증한다.\n\n채널별 차이:\n- Meta 테스터 = 노출/소셜 기반 (CPM, Frequency 중심)\n- Amazon PPC 테스터 = 구매 의도 검색 (ACOS, SP/SB/SD 중심)\n- **Google Ads 테스터**...",
+    "content_length": 3897,
+    "created_at": "2026-04-04T14:30:50.643925+00:00",
+    "updated_at": "2026-04-04T15:45:39.387944+00:00",
+    "file_path": "workflow__google_ads_tester.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775317490,
+      "processing_end_time": 1775317539
+    }
+  },
+  "doc-e3f1e18494cd993834bcbd5052c45b44": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-9cdbf3bd6bd34a2b2e865f4441ede7ea",
+      "chunk-ccccaedca4b5b6188428dd006f19eb60"
+    ],
+    "content_summary": "# Workflow: Gorgias CS Template Library 자동 생성\n\n## Objective\n\nGorgias 최근 6개월 closed 티켓의 전체 대화를 분석하여, **고객 불만 유형별 표준 CS 답변 템플릿**을 자동으로 생성하고 Google Sheets에 저장합니다.\n\n자동화/외주 담당자가 이 템플릿을 보고 대부분의 CS 이슈를 스스로 처리할 수 있도록 하는 것이 목표입니다.\n\n---\n\n## Prerequisites\n\n### ...",
+    "content_length": 4204,
+    "created_at": "2026-04-04T14:30:50.664594+00:00",
+    "updated_at": "2026-04-04T15:11:13.775755+00:00",
+    "file_path": "workflow__gorgias_cs_template_builder.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315438,
+      "processing_end_time": 1775315473
+    }
+  },
+  "doc-3c61d27ef5021fad6f11b61352fae6dc": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-b3ab6dc01bce9931197af28cc7d4371f",
+      "chunk-d07c9df193742796236442a59c78ba1d"
+    ],
+    "content_summary": "# Influencer Flow E2E Tester — Workflow SOP\r\n\r\n## 역할\r\n\r\nn8n 기반 인플루언서 협업 파이프라인 전체를 자율주행 스타일로 E2E 테스트한다.\r\n매 스텝마다 request/response를 flight recorder에 기록하고, HTML 리포트를 생성한다.\r\n\r\n> **[2026-03-21] AT 제거 완료**: Airtable은 n8n 워크플로우와 테스트 양쪽에서 모두 제거됨.\r\n> 검증 타겟: Po...",
+    "content_length": 3954,
+    "created_at": "2026-04-04T14:30:50.682358+00:00",
+    "updated_at": "2026-04-04T15:11:46.654200+00:00",
+    "file_path": "workflow__influencer_flow_tester.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315468,
+      "processing_end_time": 1775315506
+    }
+  },
+  "doc-bfda1c195fa630c280eeaae2d29f9207": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-92d9eac7a8b05861fdf2bd765a1921ca",
+      "chunk-9c71f74b2812864990f0efbc14a61e51"
+    ],
+    "content_summary": "# Influencer Inbound Pipeline — \"Inbound from ONZ\"\n\n## Overview\n\nEnd-to-end pipeline for creator applications submitted via the Onzenna creator-signup form.\n\n**Flow:**\n```\nCreator Signup Form -> n8n -> Airtable (applicant record) + IG Scrape\n        ...",
+    "content_length": 4810,
+    "created_at": "2026-04-04T14:30:50.709146+00:00",
+    "updated_at": "2026-04-04T15:11:43.181044+00:00",
+    "file_path": "workflow__influencer_inbound_pipeline.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315474,
+      "processing_end_time": 1775315503
+    }
+  },
+  "doc-6935828e847fac47b51770d4f2c6758c": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-2d07d489b0526024fc66e259ba65c00f",
+      "chunk-a6e4502df455ed93d19286469452b67d"
+    ],
+    "content_summary": "# Influencer Gifting Form (Typeform) 워크플로우\r\n\r\n## 목적\r\n인플루언서 기프팅 신청 폼을 Typeform으로 생성/관리.\r\n기존 IGF(Influencer Gift Form) Shopify 앱 대체.\r\n\r\n## 실행 방법\r\n\r\n```bash\r\n\"C:\\Users\\wjcho\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" -X utf8 tools/create_typefo...",
+    "content_length": 4023,
+    "created_at": "2026-04-04T14:30:50.717643+00:00",
+    "updated_at": "2026-04-04T15:12:36.300225+00:00",
+    "file_path": "workflow__influencer_typeform.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315503,
+      "processing_end_time": 1775315556
+    }
+  },
+  "doc-9cce47c7684a0d46f235c40bae47b258": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-9cce47c7684a0d46f235c40bae47b258",
+      "chunk-7c1d9b8a22673c28c23bf57def54de91"
+    ],
+    "content_summary": "# Klaviyo Email Flow & Campaign Dashboard\r\n\r\n## Overview\r\nKlaviyo 이메일 플로우(자동화) + 캠페인(수동) 퍼포먼스를 Excel로 생성하는 도구.\r\nPolar Analytics MCP에서 데이터를 JSON으로 추출 → Python 툴이 읽어서 분류·포맷팅된 Excel 5탭 생성.\r\n\r\n## Prerequisites\r\n- Polar Analytics에 Klaviyo 커넥터 연결 (status: ...",
+    "content_length": 3594,
+    "created_at": "2026-04-04T14:30:50.725869+00:00",
+    "updated_at": "2026-04-04T15:12:35.598681+00:00",
+    "file_path": "workflow__klaviyo_email_dashboard.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315507,
+      "processing_end_time": 1775315555
+    }
+  },
+  "doc-2962b09c0714cc6f744b9f9241957170": {
+    "status": "processed",
+    "chunks_count": 3,
+    "chunks_list": [
+      "chunk-308fbcd2551064ebc587e520ff4a9ace",
+      "chunk-b1e60131ff9e1a54afbb27933fca77f0",
+      "chunk-e082fc4a1493c700279adae6887d1922"
+    ],
+    "content_summary": "# Meta Ads 일간/주간 분석 워크플로우\r\n\r\n## 목적\r\nMeta Graph API에서 Facebook/Instagram 광고 성과 데이터를 가져와\r\n캠페인 → Ad Set → Ad 레벨로 드릴다운 분석 후 이메일로 발송한다.\r\n\r\n## 발송 정보\r\n- **보내는 주소**: orbiters11@gmail.com\r\n- **받는 주소**: wj.choi@orbiters.co.kr\r\n- **발송 주기**: 매일 (전날 데이터 기준) 또는 주간...",
+    "content_length": 6151,
+    "created_at": "2026-04-04T14:30:50.745379+00:00",
+    "updated_at": "2026-04-04T15:14:01.950571+00:00",
+    "file_path": "workflow__meta_ads_daily_analysis.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315556,
+      "processing_end_time": 1775315641
+    }
+  },
+  "doc-7f9cdbf5b9fb79a3672d1386024822b6": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-60333fb05f4e2e3fdfe5f70765228ad5",
+      "chunk-7b184fbcf1f760b85be52aee010f9018"
+    ],
+    "content_summary": "# Meta 테스터 — Meta Ads 분석 플로우 검증 에이전트\n\n## 역할\n\n너는 **메타 테스터**야.\nMeta Ads 일간 분석 플로우(데이터 수집 → 지표 계산 → 이메일 리포트)의 정확성을 검증한다.\n\nShopify 테스터와 차이:\n- Shopify 테스터 = \"API가 작동하냐?\" (존재 여부)\n- Meta 테스터 = \"숫자가 맞냐, 계산이 맞냐, 리포트가 완전하냐?\" (정확성)\n\n---\n\n## 무엇을 검사하는가\n\n| 검사 | 코드...",
+    "content_length": 3240,
+    "created_at": "2026-04-04T14:30:50.764865+00:00",
+    "updated_at": "2026-04-04T15:13:10.736705+00:00",
+    "file_path": "workflow__meta_tester.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315556,
+      "processing_end_time": 1775315590
+    }
+  },
+  "doc-f3d2ca0b25dd5bb2df50ccb3d5607a88": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-de0cbb134e3f31add22c6ba0889f0347",
+      "chunk-fdf46ebef5c3f471f280a699f606f09c"
+    ],
+    "content_summary": "# No-Polar Financial Model Workflow\n\n## Objective\nPolar Analytics MCP 없이 직접 API 호출로 동일한 Financial Model Excel 아웃풋 생성.\n기존 `polar_financial_model.py`는 변경 없이 그대로 사용.\n\n---\n\n## 전제 조건\n\n### 필수 환경변수 (.env)\n```\n# Shopify (Q1, Q2)\nSHOPIFY_SHOP=mytoddie.myshopi...",
+    "content_length": 4491,
+    "created_at": "2026-04-04T14:30:50.786335+00:00",
+    "updated_at": "2026-04-04T15:14:05.835777+00:00",
+    "file_path": "workflow__no_polar_financial_model.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315591,
+      "processing_end_time": 1775315645
+    }
+  },
+  "doc-4ec3df3f052f52af3fb4307ccfd19465": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-ebe22097b3fe7a799c85ef9b2aac8f2e",
+      "chunk-7746470d7fed2e892280ca453908447f"
+    ],
+    "content_summary": "# Onzenna Customer Survey System\n\n## Objective\n\nCollect structured customer data across 3 parts: Core Signup (checkout), Creator Branch (post-purchase), and Loyalty Unlock (dedicated page). Store data in both Shopify customer metafields and external ...",
+    "content_length": 6045,
+    "created_at": "2026-04-04T14:30:50.793588+00:00",
+    "updated_at": "2026-04-04T15:14:55.228171+00:00",
+    "file_path": "workflow__onzenna_survey_system.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315642,
+      "processing_end_time": 1775315695
+    }
+  },
+  "doc-c9a832f3a8ccea2ee3e89f9a5a959e5e": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-1ba2741e79f118d2867f0c902fb3551e",
+      "chunk-a5d943cd8afe64ac3acb1c581f01827b"
+    ],
+    "content_summary": "# Influencer Gifting Order Processing 워크플로우\n\n## 목적\n\n인플루언서 기프팅 폼 제출 데이터를 받아 Shopify에:\n1. Customer 생성/조회 (이메일 중복 방지)\n2. Customer metafields 설정 (Instagram, TikTok, 아이 생일 등)\n3. Draft Order 생성 (태그 \"pr, influencer-gifting\" + 무료배송)\n\n기존 n8n의 Draft Order 생성 로...",
+    "content_length": 3714,
+    "created_at": "2026-04-04T14:30:50.802032+00:00",
+    "updated_at": "2026-04-04T15:14:43.584134+00:00",
+    "file_path": "workflow__process_influencer_order.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315646,
+      "processing_end_time": 1775315683
+    }
+  },
+  "doc-1b8f2ddfd1dbc6e8ed5a2a27a25ddbd2": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-1b8f2ddfd1dbc6e8ed5a2a27a25ddbd2"
+    ],
+    "content_summary": "# Workflow: Scrape Job Listings to Excel\n\n## Objective\nScrape remote job listings from DailyRemote (or any paginated DailyRemote URL) and export all results to a local Excel file with 12 columns, including company name.\n\n---\n\n## Prerequisites\n- `FIRE...",
+    "content_length": 3349,
+    "created_at": "2026-04-04T14:30:50.811702+00:00",
+    "updated_at": "2026-04-04T15:15:11.628063+00:00",
+    "file_path": "workflow__scrape_job_listings.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315684,
+      "processing_end_time": 1775315711
+    }
+  },
+  "doc-01b98fb70eead1912f5e3a643ba4526c": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-611922e16f2181d18a953eed8873d5fa",
+      "chunk-d2628b4328409272272238ade6d4cd09"
+    ],
+    "content_summary": "# Shopify Customer Data Pipeline\n\n## Overview\n\nShopify 고객/주문 데이터를 PostgreSQL에 실시간 동기화하고, 팀 운영용 Airtable에 노출하는 파이프라인.\n\n```\nShopify ──webhook──> n8n ──> PostgreSQL (전체 저장)\n                                 │\n                                 ├──> n8n (da...",
+    "content_length": 4685,
+    "created_at": "2026-04-04T14:30:50.820729+00:00",
+    "updated_at": "2026-04-04T15:15:31.189738+00:00",
+    "file_path": "workflow__shopify_customer_pipeline.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315695,
+      "processing_end_time": 1775315731
+    }
+  },
+  "doc-9f796b087d1c057d9d9a124b0bc44870": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-0befb02bf8c95b7254fb68adf87c1b53",
+      "chunk-d25744975c8e0918ed33ccf28e560036"
+    ],
+    "content_summary": "# Shopify Tester — 고객 저니 QA 에이전트 워크플로우\n\n## 역할\n\n너는 **쇼피파이 테스터**야.\n개발 대화창에서 넘어온 테스트 스펙을 받아서, 실제 API를 호출하고 데이터 체인을 검증한다.\n추측하지 말고, 항상 `tools/shopify_tester.py`로 실행해서 실제 결과로 판단해.\n\n---\n\n## 핵심 원칙\n\n1. **테스트는 항상 도구로 실행한다** — 직접 분석하지 말고 실제 API 결과를 본다\n2. **PASS...",
+    "content_length": 4647,
+    "created_at": "2026-04-04T14:30:50.830125+00:00",
+    "updated_at": "2026-04-04T15:15:54.495651+00:00",
+    "file_path": "workflow__shopify_tester.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315712,
+      "processing_end_time": 1775315754
+    }
+  },
+  "doc-4a6d48ebe061893a1ee3f91af2f1918f": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-ed63d7c539867cd2926e1e3910e2b667",
+      "chunk-c490c6eb01da3da529e6942259f53d5e"
+    ],
+    "content_summary": "# Workflow: Influencer Data Sync (Google Sheets -> Notion)\r\n\r\n## Objective\r\n\r\nRead influencer data from Google Sheets (read-only) and sync key fields to a Notion database. Detects new records, changed records, and orphaned Notion records.\r\n\r\n**Google...",
+    "content_length": 5731,
+    "created_at": "2026-04-04T14:30:50.840884+00:00",
+    "updated_at": "2026-04-04T15:15:57.869308+00:00",
+    "file_path": "workflow__sync_influencer_notion.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315731,
+      "processing_end_time": 1775315757
+    }
+  },
+  "doc-5b6524cd2c19195670c840d97ba6eda0": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-5b6524cd2c19195670c840d97ba6eda0"
+    ],
+    "content_summary": "# Teams Notification Workflow\n\n## Objective\nTeams Incoming Webhook을 통해 트리거별 자동 알림을 전송한다.\n\n## Prerequisites\n- Microsoft Teams 채널 접근 권한\n- `.env`에 `TEAMS_WEBHOOK_URL` 설정 완료\n\n---\n\n## Setup: Teams Webhook 생성\n\n1. Teams에서 알림 받을 **채널** 열기\n2. 채널 이름 옆 **\"...\"*...",
+    "content_length": 2207,
+    "created_at": "2026-04-04T14:30:50.849342+00:00",
+    "updated_at": "2026-04-04T15:16:19.791208+00:00",
+    "file_path": "workflow__teams_notifications.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315755,
+      "processing_end_time": 1775315779
+    }
+  },
+  "doc-145c8ad24cdfb2d61825058adfd1720e": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-9935ebbb9b20f5976a156f23482e4e69",
+      "chunk-599d6ac0466ed1cf7850e496b3a0a8e9"
+    ],
+    "content_summary": "# 연차 자동 추적 시스템 워크플로우\r\n\r\n## 개요\r\n\r\nOutlook COM을 통해 받은편지함을 자동 스캔하고, 휴가 신청/취소 이메일을 감지하여\r\nExcel에 기록 + Outlook 임시저장함에 초안 저장하는 시스템.\r\n\r\n- Azure AD / OAuth 불필요\r\n- Claude API 선택 사항 (없으면 키워드+정규식 폴백 파서로 동작)\r\n- Windows Task Scheduler 미사용 (삭제됨) — 수동 실행 또는 필요 시 재등록...",
+    "content_length": 4164,
+    "created_at": "2026-04-04T14:30:50.857871+00:00",
+    "updated_at": "2026-04-04T15:16:36.884344+00:00",
+    "file_path": "workflow__vacation noticing_tranker.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315758,
+      "processing_end_time": 1775315796
+    }
+  },
+  "doc-6c9fb9d3a33bcb53f885dfbd99a274cd": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-f25bf0ee00d144139f0a6a5f359e15fc",
+      "chunk-a4d5d088a0554b7df2fdd7bc88d931e6"
+    ],
+    "content_summary": "# Workflow: Weekly Performance Report (Polar -> Notion)\n\n## Objective\n\nPull weekly performance data from Polar Analytics (via MCP), calculate KPMs and OKR metrics, and create a Notion page replicating the Performance Team Weekly Report template.\n\n**A...",
+    "content_length": 5132,
+    "created_at": "2026-04-04T14:30:50.866344+00:00",
+    "updated_at": "2026-04-04T15:16:53.071091+00:00",
+    "file_path": "workflow__weekly_performance_notion.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315780,
+      "processing_end_time": 1775315813
+    }
+  },
+  "doc-96ab59e77088680cfc474e6b6d3fab89": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-96ab59e77088680cfc474e6b6d3fab89",
+      "chunk-9faf6c1b1323a7a012907bfaac979a15"
+    ],
+    "content_summary": "# Weekly Performance Report - Notion Page Creator\n\n## Objective\n매주 Performance Team Weekly Report Notion 페이지를 자동 생성.\nWK8-9 템플릿 기준으로 데이터 수집 + 페이지 생성.\n\n## Template Reference\n- [WK8-9 Template](https://www.notion.so/WK8-9-Performance-Team-Weekly-Report-...",
+    "content_length": 3393,
+    "created_at": "2026-04-04T14:30:50.874894+00:00",
+    "updated_at": "2026-04-04T15:17:06.904585+00:00",
+    "file_path": "workflow__weekly_performance_report.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315797,
+      "processing_end_time": 1775315826
+    }
+  },
+  "doc-62cda6ad25235925e26b9bbf826a1264": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-8c453c71f3d43543a3bcaacd8d0e9249",
+      "chunk-3a221d8ca826d0e86b7e2bac323b5f6e"
+    ],
+    "content_summary": "# YouTube to Teams — Nate Herk Claude 영상 자동 공유\r\n\r\n## 목적\r\n\r\n`@nateherk` 채널에서 **제목에 'Claude'가 포함된 영상**만 골라,\r\n평일(공휴일 제외) 오전 8시마다 1개씩 Microsoft Teams 채널에 자동 공유한다.\r\n큐가 소진되면 매일 채널을 확인하여 신규 Claude 영상이 올라오면 자동으로 추가 발송한다.\r\n\r\n## 발송/저장 정보\r\n\r\n- 입력 소스: YouTube (y...",
+    "content_length": 4551,
+    "created_at": "2026-04-04T14:30:50.883476+00:00",
+    "updated_at": "2026-04-04T15:17:22.134433+00:00",
+    "file_path": "workflow__youtube_to_teams.md",
+    "track_id": "scan_20260404_233049_d62b6f47",
+    "metadata": {
+      "processing_start_time": 1775315813,
+      "processing_end_time": 1775315842
+    }
+  },
+  "doc-5d3c100505b7a39487d366a975efa893": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-5d3c100505b7a39487d366a975efa893"
+    ],
+    "content_summary": "# Pipeline Data Architecture (2026-04-05)\r\n\r\n## 3 Data Layers — 각각 다른 개념\r\n\r\n### 1. Syncly Discovery = 크리에이터 발견 + 최근 포스트\r\n- Syncly에서 새 크리에이터 발견 → PipelineCreator에 저장\r\n- 최근 포스트 URL/Transcript 포함 → 아웃리치 이메일 커스터마이징 용도\r\n- \"너 이 포스트 봤는데 우리 제품 써볼래?\" 식의 perso...",
+    "content_length": 2020,
+    "created_at": "2026-04-04T15:44:50.602807+00:00",
+    "updated_at": "2026-04-04T15:45:58.250938+00:00",
+    "file_path": "memory__pipeline_data_architecture.md",
+    "track_id": "scan_20260405_004450_8a57ad37",
+    "metadata": {
+      "processing_start_time": 1775317532,
+      "processing_end_time": 1775317558
+    }
+  },
+  "doc-d4d0a5d8baa7b671acb9147f80aefd5a": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-d4d0a5d8baa7b671acb9147f80aefd5a"
+    ],
+    "content_summary": "# LightRAG Setup (2026-04-04)\r\n\r\n## Architecture\r\n- LightRAG v1.4.13 local server on port 9621\r\n- LLM: OpenAI gpt-4o-mini (entity extraction + summary, indexing only)\r\n- Embedding: OpenAI text-embedding-3-small (1536 dim)\r\n- Storage: NanoVectorDB + N...",
+    "content_length": 1766,
+    "created_at": "2026-04-04T15:44:50.616371+00:00",
+    "updated_at": "2026-04-04T15:46:18.568630+00:00",
+    "file_path": "memory__project_lightrag.md",
+    "track_id": "scan_20260405_004450_8a57ad37",
+    "metadata": {
+      "processing_start_time": 1775317539,
+      "processing_end_time": 1775317578
+    }
+  },
+  "dup-12b8979f1d1425222c04f65a8a175707": {
+    "status": "failed",
+    "content_summary": "[DUPLICATE] Original document: doc-0b6cc402fb0c447ef03876c46bdaa5be",
+    "content_length": 5858,
+    "chunks_count": 0,
+    "chunks_list": [],
+    "created_at": "2026-04-04T15:44:50.627865+00:00",
+    "updated_at": "2026-04-04T15:44:50.627870+00:00",
+    "file_path": "skill__meta-ads-agent__ref__budget-allocation.md",
+    "track_id": "scan_20260405_004450_8a57ad37",
+    "error_msg": "Content already exists. Original doc_id: doc-0b6cc402fb0c447ef03876c46bdaa5be, Status: DocStatus.FAILED",
+    "metadata": {
+      "is_duplicate": true,
+      "original_doc_id": "doc-0b6cc402fb0c447ef03876c46bdaa5be",
+      "original_track_id": "scan_20260404_233049_d62b6f47"
+    }
+  },
+  "dup-ce3e4a733705fac0cbd0883d80e8464c": {
+    "status": "failed",
+    "content_summary": "[DUPLICATE] Original document: doc-b805f3eb71d7c07608cfc1fd47746de3",
+    "content_length": 3897,
+    "chunks_count": 0,
+    "chunks_list": [],
+    "created_at": "2026-04-04T15:44:50.633402+00:00",
+    "updated_at": "2026-04-04T15:44:50.633406+00:00",
+    "file_path": "workflow__google_ads_tester.md",
+    "track_id": "scan_20260405_004450_8a57ad37",
+    "error_msg": "Content already exists. Original doc_id: doc-b805f3eb71d7c07608cfc1fd47746de3, Status: DocStatus.FAILED",
+    "metadata": {
+      "is_duplicate": true,
+      "original_doc_id": "doc-b805f3eb71d7c07608cfc1fd47746de3",
+      "original_track_id": "scan_20260404_233049_d62b6f47"
+    }
+  },
+  "dup-274e82cf03953a1b52b5c8bfc3eb2ec7": {
+    "status": "failed",
+    "content_summary": "[DUPLICATE] Original document: doc-5d3c100505b7a39487d366a975efa893",
+    "content_length": 2020,
+    "chunks_count": 0,
+    "chunks_list": [],
+    "created_at": "2026-04-04T15:45:06.706843+00:00",
+    "updated_at": "2026-04-04T15:45:06.706846+00:00",
+    "file_path": "memory__pipeline_data_architecture.md",
+    "track_id": "scan_20260405_004506_cc19f682",
+    "error_msg": "Content already exists. Original doc_id: doc-5d3c100505b7a39487d366a975efa893, Status: DocStatus.PENDING",
+    "metadata": {
+      "is_duplicate": true,
+      "original_doc_id": "doc-5d3c100505b7a39487d366a975efa893",
+      "original_track_id": "scan_20260405_004450_8a57ad37"
+    }
+  },
+  "dup-6a7f5df0277a08367a51a46616dfeb28": {
+    "status": "failed",
+    "content_summary": "[DUPLICATE] Original document: doc-d4d0a5d8baa7b671acb9147f80aefd5a",
+    "content_length": 1766,
+    "chunks_count": 0,
+    "chunks_list": [],
+    "created_at": "2026-04-04T15:45:06.712991+00:00",
+    "updated_at": "2026-04-04T15:45:06.712994+00:00",
+    "file_path": "memory__project_lightrag.md",
+    "track_id": "scan_20260405_004506_cc19f682",
+    "error_msg": "Content already exists. Original doc_id: doc-d4d0a5d8baa7b671acb9147f80aefd5a, Status: DocStatus.PENDING",
+    "metadata": {
+      "is_duplicate": true,
+      "original_doc_id": "doc-d4d0a5d8baa7b671acb9147f80aefd5a",
+      "original_track_id": "scan_20260405_004450_8a57ad37"
+    }
+  },
+  "dup-33b0c451efddfa42bb1e9b0b466061d9": {
+    "status": "failed",
+    "content_summary": "[DUPLICATE] Original document: doc-0b6cc402fb0c447ef03876c46bdaa5be",
+    "content_length": 5858,
+    "chunks_count": 0,
+    "chunks_list": [],
+    "created_at": "2026-04-04T15:45:06.720455+00:00",
+    "updated_at": "2026-04-04T15:45:06.720459+00:00",
+    "file_path": "skill__meta-ads-agent__ref__budget-allocation.md",
+    "track_id": "scan_20260405_004506_cc19f682",
+    "error_msg": "Content already exists. Original doc_id: doc-0b6cc402fb0c447ef03876c46bdaa5be, Status: DocStatus.PROCESSING",
+    "metadata": {
+      "is_duplicate": true,
+      "original_doc_id": "doc-0b6cc402fb0c447ef03876c46bdaa5be",
+      "original_track_id": "scan_20260404_233049_d62b6f47"
+    }
+  },
+  "dup-ba32f29f426a1a174c664c7f69da7803": {
+    "status": "failed",
+    "content_summary": "[DUPLICATE] Original document: doc-b805f3eb71d7c07608cfc1fd47746de3",
+    "content_length": 3897,
+    "chunks_count": 0,
+    "chunks_list": [],
+    "created_at": "2026-04-04T15:45:06.726596+00:00",
+    "updated_at": "2026-04-04T15:45:06.726601+00:00",
+    "file_path": "workflow__google_ads_tester.md",
+    "track_id": "scan_20260405_004506_cc19f682",
+    "error_msg": "Content already exists. Original doc_id: doc-b805f3eb71d7c07608cfc1fd47746de3, Status: DocStatus.PROCESSING",
+    "metadata": {
+      "is_duplicate": true,
+      "original_doc_id": "doc-b805f3eb71d7c07608cfc1fd47746de3",
+      "original_track_id": "scan_20260404_233049_d62b6f47"
+    }
+  },
+  "error-ed760a7743f8926bead4e97b5015e74d": {
+    "status": "failed",
+    "content_summary": "Document enqueue error",
+    "content_length": 1220,
+    "error_msg": "Failed to enqueue document: [Errno 2] No such file or directory: 'C:\\\\SynologyDrive\\\\ORBI CLAUDE_0223\\\\ORBITERS CLAUDE\\\\ORBITERS CLAUDE\\\\WJ Test1\\\\lightrag\\\\rag_storage\\\\kv_store_full_docs.json'",
+    "chunks_count": 0,
+    "chunks_list": [],
+    "created_at": "2026-04-05T09:24:49.309213+00:00",
+    "updated_at": "2026-04-05T09:24:49.309213+00:00",
+    "file_path": "errlog_conversations_api_filter.md",
+    "track_id": "scan_20260405_182449_69471627",
+    "metadata": {
+      "error_type": "file_extraction_error"
+    }
+  },
+  "error-a45d1a945899e1e16dd70ac58935f6c6": {
+    "status": "failed",
+    "content_summary": "Unexpected processing error",
+    "content_length": 1220,
+    "error_msg": "Unexpected error: [Errno 2] No such file or directory: 'C:\\\\SynologyDrive\\\\ORBI CLAUDE_0223\\\\ORBITERS CLAUDE\\\\ORBITERS CLAUDE\\\\WJ Test1\\\\lightrag\\\\rag_storage\\\\kv_store_doc_status.json'",
+    "chunks_count": 0,
+    "chunks_list": [],
+    "created_at": "2026-04-05T09:24:49.309735+00:00",
+    "updated_at": "2026-04-05T09:24:49.309735+00:00",
+    "file_path": "errlog_conversations_api_filter.md",
+    "track_id": "scan_20260405_182449_69471627",
+    "metadata": {
+      "error_type": "file_extraction_error"
+    }
+  },
+  "doc-8bc93f09de8718df34419e62f627f6f5": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-8bc93f09de8718df34419e62f627f6f5"
+    ],
+    "content_summary": "---\r\ntype: errlog\r\ndomain: pipeline-dashboard\r\nstatus: resolved\r\ncreated: 2026-04-05\r\ntags: [API, filter, query-param, conversations]\r\n---\r\n\r\n# Error: Conversations API Filter Mismatch (2026-04-05)\r\n\r\n## Symptom\r\nDraft preview showed \"No draft found ...",
+    "content_length": 1216,
+    "created_at": "2026-04-05T09:25:46.708277+00:00",
+    "updated_at": "2026-04-05T09:26:13.054438+00:00",
+    "file_path": "errlog_conversations_api_filter.md",
+    "track_id": "scan_20260405_182546_06aa82a2",
+    "metadata": {
+      "processing_start_time": 1775381146,
+      "processing_end_time": 1775381173
+    }
+  },
+  "doc-7395072ce178f261136e727d265e0262": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-7395072ce178f261136e727d265e0262"
+    ],
+    "content_summary": "---\r\ntype: architecture\r\ndomain: pipeline-dashboard\r\nagents: [pipeliner]\r\nstatus: active\r\ncreated: 2026-04-05\r\nupdated: 2026-04-05\r\ntags: [dashboard, UI, creators-tab, batch-actions, draft-preview, owner-tabs]\r\n---\r\n\r\n# Pipeline Dashboard — Creators ...",
+    "content_length": 2575,
+    "created_at": "2026-04-05T09:25:46.732680+00:00",
+    "updated_at": "2026-04-05T09:26:36.765025+00:00",
+    "file_path": "pipeline_dashboard_ui.md",
+    "track_id": "scan_20260405_182546_06aa82a2",
+    "metadata": {
+      "processing_start_time": 1775381146,
+      "processing_end_time": 1775381196
+    }
+  }
+}
