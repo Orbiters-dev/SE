@@ -3567,7 +3567,9 @@ def generate():
             if not info.get("username"):
                 continue
             uname, brand = info["username"], info["brand"]
-            cats = info["product_types"] if info["product_types"] else (
+            ptypes = info["product_types"]
+            # Single category per post — same as cat_creator_daily
+            cats = [ptypes[0]] if ptypes else (
                 ["PPSU Straw Cup"] if brand == "Grosmimi"
                 else ["Moisturizer"] if brand == "CHA&MOM"
                 else ["Rice Puff"] if brand == "Naeiae" else [])
@@ -3601,7 +3603,29 @@ def generate():
                         "daily_views": [dv.get(d, 0) for d in daily_dates],
                     })
             totals.sort(key=lambda x: -x["total_views"])
-            content_creators_by_cat[cat] = totals[:10]
+            content_creators_by_cat[cat] = totals
+
+        # ── Creator dedup: each creator appears in EXACTLY ONE category ──
+        # Assign to the category where they have the highest total_views.
+        # NO distribution — 100% of views go to the winning category.
+        creator_best_cat = {}  # username -> (best_cat, best_views)
+        for cat, creators in content_creators_by_cat.items():
+            for cr in creators:
+                uname = cr["username"]
+                if uname not in creator_best_cat or cr["total_views"] > creator_best_cat[uname][1]:
+                    creator_best_cat[uname] = (cat, cr["total_views"])
+
+        # Remove creators from non-winning categories
+        for cat in list(content_creators_by_cat.keys()):
+            content_creators_by_cat[cat] = [
+                cr for cr in content_creators_by_cat[cat]
+                if creator_best_cat.get(cr["username"], (None,))[0] == cat
+            ][:10]  # top 10 after dedup
+
+        _dedup_moved = sum(1 for u, (bc, _) in creator_best_cat.items()
+                          if sum(1 for cat, crs in content_creators_by_cat.items()
+                                 if any(c["username"] == u for c in crs)) <= 1)
+        print(f"  Content creator dedup: {len(creator_best_cat)} creators, all assigned to single category")
 
         # Daily spend overlay
         spend_dates = sorted(set(r.get("date", "") for r in amazon_ads if r.get("date", "") >= cutoff_90d))[-90:]

@@ -1760,6 +1760,7 @@ function renderHeroTab(F){
       // Top 10 creators by observed growth (already sorted in generate_fin_data.py)
       var slicedCreators=catCreators.slice(0,10).map(function(cr){
         return {username:cr.username,brand:cr.brand,platform:cr.platform,total_views:cr.total_views,
+          base_views:cr.base_views||0,first_observed:cr.first_observed||'',
           upload_date:cr.upload_date||'',daily_views:cr.daily_views.slice(-pDays)};
       });
       var n=ds.length;
@@ -1798,9 +1799,8 @@ function renderHeroTab(F){
         var _cu=x.cr.platform==='tiktok'?'https://www.tiktok.com/@'+x.cr.username:'https://www.instagram.com/'+x.cr.username+'/';
         html+='<a href="'+_cu+'" target="_blank" style="color:'+INF_COLORS[ci%INF_COLORS.length]+';text-decoration:none">&#9642; @'+x.cr.username+(x.total>0?' +'+x.total.toLocaleString():'')+' views</a>';
       });
-      var gscTotalAll=gscD.reduce(function(a,b){return a+b},0);
-      if(gscTotalAll>0) html+='<span style="color:#f59e0b">--- GSC Search ('+gscTotalAll.toLocaleString()+' impr)</span>';
-      if(c.sfr_branded&&c.sfr_branded.length){var _sfrLeg=c.sfr_branded.filter(function(kw){return kw.rank_weekly&&kw.rank_weekly.length;}).slice(0,3);_sfrLeg.forEach(function(kw,ki){var _sc=['#f59e0b','#f97316','#eab308'][ki];html+='<span style="color:'+_sc+'">&#9679; SFR:'+kw.keyword.substring(0,15)+' ('+( kw.rank_weekly[kw.rank_weekly.length-1]>=1000?Math.round(kw.rank_weekly[kw.rank_weekly.length-1]/1000)+'K':kw.rank_weekly[kw.rank_weekly.length-1])+')</span>';});}
+      // GSC removed from Hero tab (Amazon-focused)
+      if(c.sfr_branded&&c.sfr_branded.length){var _sfrSum=0;c.sfr_branded.forEach(function(kw){var rw=kw.rank_weekly||[];if(rw.length)_sfrSum+=rw[rw.length-1];});var _sfrStr=_sfrSum>=1000000?(_sfrSum/1000000).toFixed(1)+'M':_sfrSum>=1000?Math.round(_sfrSum/1000)+'K':''+_sfrSum;html+='<span style="color:#f59e0b">&#9679; SFR 합산: '+_sfrStr+' ('+c.sfr_branded.length+' keywords)</span>';}
       var sessTotalAll=sessD.reduce(function(a,b){return a+b},0);
       if(sessTotalAll>0) html+='<span style="color:#6366f1">&#9644; Sessions ('+sessTotalAll.toLocaleString()+')</span>';
       var pvTotalAll=pvD.reduce(function(a,b){return a+b},0);
@@ -1840,20 +1840,7 @@ function renderHeroTab(F){
         html+='<circle cx="'+_vx+'" cy="'+_vy+'" r="2" fill="var(--g)" opacity="0.6"/>';
         html+='<text x="'+_vx+'" y="'+(_vy-5)+'" fill="var(--g)" font-size="7" font-family="var(--mono)" text-anchor="middle" opacity="0.75">$'+ds[_vi].toLocaleString()+'</text>';
       }
-      // GSC search impressions (yellow area on sales chart)
-      var gscMax=Math.max.apply(null,gscD.length?gscD:[0])||1;
-      var gscTotal=gscD.reduce(function(a,b){return a+b},0);
-      if(gscTotal>0){
-        var gPts=[];
-        gscD.forEach(function(v,i){
-          var x=padL+i*(bw+1)+bw/2,y=padT+topH-v/gscMax*topH*0.4;
-          gPts.push(x+','+y);
-        });
-        html+='<polygon points="'+padL+','+(padT+topH)+' '+gPts.join(' ')+' '+(padL+(n-1)*(bw+1)+bw/2)+','+(padT+topH)+'" fill="#f59e0b" opacity="0.08"/>';
-        html+='<polyline points="'+gPts.join(' ')+'" fill="none" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>';
-        var glx=padL+(n-1)*(bw+1)+bw/2,gly=padT+topH-gscD[n-1]/gscMax*topH*0.4;
-        html+='<text x="'+(glx+6)+'" y="'+(gly+3)+'" fill="#f59e0b" font-size="7" font-weight="600" opacity="0.7">GSC</text>';
-      }
+      // GSC overlay removed from Hero tab (Amazon-focused)
       // SFR/Volume overlay — branded keywords from pre-filtered sfr_branded field
       // Use volume_weekly (SQP brand view) if available, else rank_weekly (SP-API SFR)
       var _sfrOverlayKws=[];
@@ -2100,8 +2087,7 @@ function renderHeroTab(F){
           +'<div class=tt-row><span class=tt-dot style=background:#10b981></span>Sales: $'+ttSales.toLocaleString()+'</div>'
           +'<div class=tt-row><span class=tt-dot style=background:var(--dim)></span>Units: '+ttUnits.toLocaleString()+'</div>';
         if(ttViews>0) ttH+='<div class=tt-row><span class=tt-dot style=background:'+bc+'></span>Views: '+ttViews.toLocaleString()+'</div>';
-        var ttGsc=gscD[i]||0;
-        if(ttGsc>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#f59e0b></span>GSC: '+ttGsc.toLocaleString()+' impr</div>';
+        // GSC tooltip removed (Amazon-focused)
         var ttSess=sessD[i]||0;
         if(ttSess>0) ttH+='<div class=tt-row><span class=tt-dot style=background:#6366f1></span>Sessions: '+ttSess.toLocaleString()+'</div>';
         var ttPv=pvD[i]||0;
@@ -2332,8 +2318,8 @@ function renderHeroTab(F){
         var _sfrAllWks={};
         _sfrOverlayKws.forEach(function(kw){(kw[_wkField]||[]).forEach(function(w){_sfrAllWks[w]=true;});});
         var _sfrAllWksSorted=Object.keys(_sfrAllWks).sort();
-        var _metricLabel=_useVolume?'검색량 (주간)':'SFR Rank';
-        var _metricNote=_useVolume?'(높을수록 더 많이 검색됨)':'(낮을수록 더 많이 검색됨)';
+        var _metricLabel=_useVolume?'검색량 (주간)':'Search Frequency Rank';
+        var _metricNote=_useVolume?'(높을수록 더 많이 검색됨)':'(Amazon 전체 검색어 중 순위 — 숫자가 작을수록 인기 키워드)';
         html+='<div style="margin-top:6px;padding:8px 10px;background:#fffbeb;border:1px solid #f59e0b44;border-radius:6px;font-size:10px">';
         html+='<div style="font-weight:700;color:#f59e0b;margin-bottom:6px">&#9679; '+_metricLabel+' — TOP '+_sfrOverlayKws.length+' 브랜디드 키워드 <span style="font-weight:400;color:#92400e;font-size:9px">'+_metricNote+'</span></div>';
         html+='<div style="overflow-x:auto"><table style="font-size:9px;border-collapse:collapse;width:auto"><thead><tr>';
