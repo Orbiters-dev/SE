@@ -562,20 +562,23 @@ Shopify                         Apify / Syncly                   Gmail RAG
           <div id="syncly-pipeline-status" style="display:none;margin-bottom:8px;padding:6px 10px;border-radius:6px;font-size:9px;background:var(--bg);border:1px solid var(--border);font-family:var(--mono)"></div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
             <div style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg)">
-              <div style="font-size:9px;font-weight:700;color:var(--p);margin-bottom:4px">Step 1: Sheet &#x2192; Excel</div>
+              <div style="font-size:9px;font-weight:700;color:var(--p);margin-bottom:2px">Step 1: Sheet &#x2192; Excel</div>
+              <div style="font-size:8px;color:var(--muted);margin-bottom:4px;line-height:1.4">Creators_updated + Output_updated &#xC77D;&#xC74C;<br>&#xC0AD;&#xC81C;: &#xC774;&#xBA54;&#xC77C;&#xC5C6;&#xC74C; / &#xBE14;&#xB799;&#xB9AC;&#xC2A4;&#xD2B8; / &#xC81C;&#xD734;&#xC9C4;&#xD589;&#xC911;&#xB2E4;&#xB41C;&#xC560;<br>&#xB0A8;&#xAE40;: &#xC774;&#xBA54;&#xC77C;&#xC788;&#xB294; &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130; + best post JOIN</div>
               <div id="syncly-step1-stats" style="font-size:9px;color:var(--dim);margin-bottom:6px">Loading...</div>
               <button class="btn btn-secondary btn-sm" id="btn-syncly-export" onclick="execSynclyExport()" style="width:100%;border-left:3px solid var(--p)">&#x1F4E4; Export Sheet &#x2192; Excel</button>
               <div id="syncly-step1-result" style="display:none;margin-top:4px;font-size:9px;padding:4px 8px;border-radius:4px"></div>
             </div>
             <div style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg)">
-              <div style="font-size:9px;font-weight:700;color:var(--g);margin-bottom:4px">Step 2: Excel &#x2192; DB</div>
+              <div style="font-size:9px;font-weight:700;color:var(--g);margin-bottom:2px">Step 2: Excel &#x2192; DB</div>
+              <div style="font-size:8px;color:var(--muted);margin-bottom:4px;line-height:1.4">Excel &#xC77D;&#xC74C; &#x2192; pipeline_creators upsert<br>&#xC2E0;&#xADDC;: create / &#xAE30;&#xC874;: email&#xB3C4;&#xCE58;+&#xCF58;&#xD150;&#xCE20; &#xC5C5;&#xB370;&#xC774;&#xD2B8;<br>@discovered.* placeholder &#xC790;&#xB3D9; &#xC815;&#xB9AC;</div>
               <div id="syncly-step2-stats" style="font-size:9px;color:var(--dim);margin-bottom:6px">Run Step 1 first</div>
               <button class="btn btn-secondary btn-sm" id="btn-syncly-import" onclick="execSynclyImportExcel()" style="width:100%;border-left:3px solid var(--g)">&#x1F4E5; Import Excel &#x2192; DB</button>
               <div id="syncly-step2-result" style="display:none;margin-top:4px;font-size:9px;padding:4px 8px;border-radius:4px"></div>
             </div>
           </div>
-          <div style="margin-top:8px">
+          <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
             <button class="btn btn-secondary btn-sm" id="btn-syncly-content" onclick="execSynclyContentImport()" style="border-left:3px solid #8b5cf6">&#x1F4E5; Syncly Content Import</button>
+            <span style="font-size:8px;color:var(--muted)">Output_updated &#xC5D0;&#xC11C; transcript / views / post_url &#xCD94;&#xAC00; &#xB9E4;&#xCE6D;</span>
             <div id="syncly-content-result" style="display:none;margin-top:4px;padding:4px 8px;border-radius:4px;font-size:9px;background:var(--bg)"></div>
           </div>
         </div>
@@ -668,7 +671,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
             <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('us')" id="ft-btn-us" style="font-size:10px">&#x1F50D; Check</button>
             <span id="ft-badge-us"></span>
           </div>
-          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Only include English-language creators (Syncly Language=en). Non-US filtered at shipping address.</div>
+          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Syncly Language=en &#xD544;&#xD130;. &#xBE44;&#xC601;&#xC5B4;&#xAD8C; &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130; &#xC81C;&#xC678; &#x2192; LT &#xD480;&#xC5D0;&#xC11C; &#xBE60;&#xC9D0;</div>
           <div id="ft-expand-us" style="display:none;margin:4px 0 0 28px"></div>
         </div>
 
@@ -681,7 +684,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
             <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('brand')" id="ft-btn-brand" style="font-size:10px">&#x1F50D; Check</button>
             <span id="ft-badge-brand"></span>
           </div>
-          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Exclude business/brand accounts (Apify isBusinessAccount + businessCategoryName)</div>
+          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Apify isBusinessAccount + businessCategoryName &#xCCB4;&#xD06C; &#x2192; &#xBE44;&#xC988;&#xB2C8;&#xC2A4;/&#xBE0C;&#xB79C;&#xB4DC; &#xACC4;&#xC815; &#xC81C;&#xC678;. &#xAC1C;&#xC778; &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130;&#xB9CC; &#xB0A8;&#xAE40;</div>
           <div id="ft-expand-brand" style="display:none;margin:4px 0 0 28px"></div>
         </div>
 
@@ -694,7 +697,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
             <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('rag')" id="ft-btn-rag" style="font-size:10px">&#x1F50D; Check</button>
             <span id="ft-badge-rag"></span>
           </div>
-          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">3-account cross-check: <b>affiliates@onzenna.com</b> + <b>hello@zezebaebae.com</b> + <b>ManyChat DM</b></div>
+          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">&#xC774;&#xBBF8; &#xC5F0;&#xB77D;&#xD55C; &#xC774;&#xBA54;&#xC77C; &#xC81C;&#xC678;. 3&#xACC4;&#xC815; cross-check: <b>affiliates@onzenna</b> + <b>hello@zezebaebae</b> + <b>ManyChat DM</b> &#x2192; &#xC911;&#xBCF5; &#xBC1C;&#xC1A1; &#xBC29;&#xC9C0;</div>
           <div id="ft-expand-rag" style="display:none;margin:4px 0 0 28px"></div>
         </div>
 
