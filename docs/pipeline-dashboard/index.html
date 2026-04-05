@@ -1622,6 +1622,12 @@ async function apiFetch(path,opts){
     }
   }
   if(!r.ok){
+    // Syncly pipeline + email-config: throw real errors, don't mask with DEMO
+    var isMutation=path.includes('/syncly/')||path.includes('/email-config');
+    if(isMutation){
+      var errBody;try{errBody=await r.json()}catch(e){errBody={error:'HTTP '+r.status}}
+      throw new Error(errBody.error||errBody.detail||'HTTP '+r.status);
+    }
     console.warn('API error '+r.status+' on '+path+', switching to DEMO mode');
     DEMO_MODE=true;
     var pe2=document.getElementById('pill-api');if(pe2)pe2.textContent='DEMO';

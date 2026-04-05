@@ -1500,7 +1500,7 @@ def _safe_int(val):
     if not val:
         return None
     try:
-        return int(str(val).replace(",", "").replace(".0", "").strip())
+        return int(float(str(val).replace(",", "").strip()))
     except (ValueError, TypeError):
         return None
 
@@ -1686,7 +1686,10 @@ def syncly_import_excel(request):
             "path": xlsx_path,
         }, status=404))
 
-    body = _json_body(request)
+    try:
+        body = _json_body(request)
+    except Exception:
+        body = {}
     week_str = body.get("week", "")
     clean_ph = body.get("clean_placeholders", True)
 
@@ -1699,6 +1702,9 @@ def syncly_import_excel(request):
         raw = str(raw).strip()
         if not raw:
             return None
+        # Strip time component from stringified datetime ("2026-03-15 00:00:00")
+        if " " in raw:
+            raw = raw.split(" ")[0]
         try:
             if "-" in raw:
                 parts = raw.split("-")
@@ -1729,8 +1735,13 @@ def syncly_import_excel(request):
         data_rows = rows[1:]
 
         def col_idx(name):
+            # Exact match first, then substring fallback
+            nl = name.lower()
             for i, h in enumerate(hdr):
-                if name.lower() in h.lower():
+                if h.lower() == nl:
+                    return i
+            for i, h in enumerate(hdr):
+                if nl in h.lower():
                     return i
             return -1
 
