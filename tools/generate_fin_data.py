@@ -1885,6 +1885,7 @@ def generate():
     _cm_before_mkt_arr = []   # CM before marketing
     _inf_paid_arr = []    # Influencer PAID (PayPal)
     _inf_nonpaid_arr = [] # Influencer NON-PAID (COGS + shipping)
+    _shipping_cost_arr = []  # Shipping Cost (HARDCODED 25% of revenue until real data available)
     total_seeding_monthly = []
     total_mkt_monthly = []
     total_cm_monthly = []
@@ -1956,6 +1957,9 @@ def generate():
 
         gm = rev - cogs  # GM = Total Revenue (gross) - Total COGS
 
+        # Shipping Cost (HARDCODED 25% of revenue — placeholder until real shipping data)
+        shipping_cost = round(rev * 0.25)
+
         # Variable Costs (not marketing — cost of doing business on each platform)
         amz_net = sum(amz_brand_monthly.get(b, {}).get(m, {}).get("net", 0) for b in BRAND_ORDER + ["Other"])
         amz_ref_fee = amz_gross - amz_net  # Amazon Referral Fee (~15%)
@@ -1964,7 +1968,7 @@ def generate():
         _amz_fee_arr.append(round(amz_ref_fee))
         _fba_arr.append(round(fba_fulfill) if fba_fulfill > 0 or m >= "2025-10" else None)
 
-        cm_before_mkt = gm - variable_costs  # CM before MKT = GM - Variable Costs
+        cm_before_mkt = gm - shipping_cost - variable_costs  # CM before MKT = GM - Shipping - Variable Costs
 
         # MKT Cost 1: Ad Spend (with Amazon Ads backfill for pre-Dec 2025)
         amz_ad = ad_monthly.get("Amazon Ads", {}).get(m, {}).get("spend", 0)
@@ -1985,11 +1989,12 @@ def generate():
         seeding_total = inf_paid + inf_nonpaid
 
         mkt_total = ad_total + disc_total + seeding_total
-        cm = cm_before_mkt - mkt_total  # CM after MKT
+        cm = cm_before_mkt - mkt_total  # CM after MKT (already includes shipping deduction)
 
         total_rev_monthly.append(round(rev))
         total_cogs_monthly.append(round(cogs))
         total_gm_monthly.append(round(gm))
+        _shipping_cost_arr.append(round(shipping_cost))
         _variable_costs_arr.append(round(variable_costs))
         _cm_before_mkt_arr.append(round(cm_before_mkt))
         total_ad_spend_monthly.append(round(ad_total))
@@ -2074,7 +2079,7 @@ def generate():
         total_paid_arr.append(round(onz_p + amz_p))
 
     organic_arr = [max(0, r - p) for r, p in zip(total_rev_monthly, total_paid_arr)]
-    cm_after_arr = [g - a for g, a in zip(total_gm_monthly, total_ad_arr)]
+    cm_after_arr = [g - sh - a for g, sh, a in zip(total_gm_monthly, _shipping_cost_arr, total_ad_arr)]
 
     final_labels = list(pnl_month_labels)
     final_labels.insert(fy2025_idx, "FY2025")
@@ -2094,6 +2099,7 @@ def generate():
         "total_revenue": _pnl_with_annual(total_rev_monthly, fy2025_idx),
         "cogs": _pnl_with_annual(total_cogs_monthly, fy2025_idx),
         "gross_margin": _pnl_with_annual(total_gm_monthly, fy2025_idx),
+        "shipping_cost": _pnl_with_annual(_shipping_cost_arr, fy2025_idx),
         "variable_costs": _pnl_with_annual(_variable_costs_arr, fy2025_idx),
         "variable_detail": {
             "amz_ref_fee": _pnl_with_annual(_amz_fee_arr, fy2025_idx),
@@ -2134,7 +2140,7 @@ def generate():
         },
         "cm_after_ads": _pnl_with_annual(cm_after_arr, fy2025_idx),
         "cm_final": _pnl_with_annual(
-            [g - a - s for g, a, s in zip(total_gm_monthly, total_ad_arr, total_seeding_monthly)],
+            [g - sh - a - s for g, sh, a, s in zip(total_gm_monthly, _shipping_cost_arr, total_ad_arr, total_seeding_monthly)],
             fy2025_idx
         ),
     }
@@ -2572,6 +2578,7 @@ def generate():
     wk_rev_arr = []
     wk_cogs_arr = []
     wk_gm_arr = []
+    wk_shipping_arr = []
     wk_ad_spend_arr = []
     wk_disc_arr = []
     wk_mkt_arr = []
@@ -2591,13 +2598,15 @@ def generate():
                 amz_units = int(amz_brand_weekly[b][w]["net"] / AVG_PRICE.get(b, 25))
             cogs += amz_units * brand_vw_cogs.get(b, 0)
         gm = rev - cogs
+        shipping = round(rev * 0.25)  # HARDCODED 25%
         ad_sp = sum(ad_weekly.get(p, {}).get(w, {}).get("spend", 0) for p in ["Amazon Ads", "Meta CVR", "Meta Traffic", "Google Ads"])
         disc = sum(brand_weekly.get(b, {}).get(w, {}).get("disc", 0) for b in BRAND_ORDER + ["Other"])
         mkt = ad_sp + abs(disc)
-        cm = gm - mkt
+        cm = gm - shipping - mkt
         wk_rev_arr.append(round(rev))
         wk_cogs_arr.append(round(cogs))
         wk_gm_arr.append(round(gm))
+        wk_shipping_arr.append(round(shipping))
         wk_ad_spend_arr.append(round(ad_sp))
         wk_disc_arr.append(round(abs(disc)))
         wk_mkt_arr.append(round(mkt))
@@ -2615,6 +2624,7 @@ def generate():
             "revenue": wk_rev_arr,
             "cogs": wk_cogs_arr,
             "gross_margin": wk_gm_arr,
+            "shipping_cost": wk_shipping_arr,
             "ad_spend": wk_ad_spend_arr,
             "discounts": wk_disc_arr,
             "mkt_total": wk_mkt_arr,
@@ -3920,6 +3930,8 @@ def generate():
             "cogs_proj": proj_array(total_cogs_monthly),
             "gross_margin": total_gm_monthly,
             "gross_margin_proj": proj_array(total_gm_monthly),
+            "shipping_cost": _shipping_cost_arr,
+            "shipping_cost_proj": proj_array(_shipping_cost_arr),
             "variable_costs": _variable_costs_arr,
             "variable_detail": {
                 "amz_ref_fee": _amz_fee_arr,

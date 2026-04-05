@@ -3126,7 +3126,7 @@ function buildWaterfall(F, months, mLabels, lastIdx, isPartialLast){
   var wf=F.waterfall;
   var html='<div class="sec"><div class="sec-title"><div class="num">6</div> P&amp;L Waterfall: Revenue &rarr; GM &rarr; CM</div>';
   html+='<div class="card">';
-  html+='<div class="desc">GM = Revenue - COGS. CM = GM - MKT (Ads + Discounts + Seeding). COGS estimated from brand-level averages.</div>';
+  html+='<div class="desc">GM = Revenue - COGS. CM = GM - Shipping (25% hardcoded) - MKT (Ads + Discounts + Seeding). COGS from SKU-level NAS data.</div>';
   html+=barChart([
     {label:'Gross Margin', data:wf.gross_margin, color:'#10b981'},
     {label:'MKT Total', data:(wf.mkt_total||wf.ad_spend), color:'#ef4444'},
@@ -3146,6 +3146,13 @@ function buildWaterfall(F, months, mLabels, lastIdx, isPartialLast){
   wf.gross_margin.forEach(function(v,i){ html+=fmCell(v, (wf.gross_margin_proj||[])[i], i===lastIdx&&isPartialLast, {color:'var(--g)',bold:true}); });
   html+='</tr><tr><td style="padding-left:16px;color:var(--dim)">GM %</td>';
   wf.gross_margin.forEach(function(v,i){ var r=wf.revenue[i]; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--dim)">'+(r>0?(v/r*100).toFixed(1):'0')+'%</td>'; });
+  // Shipping Cost (HARDCODED 25%)
+  if(wf.shipping_cost){
+    html+='</tr><tr><td style="color:var(--r)">(-) Shipping Cost <span style="background:#ff6b6b;color:#fff;font-size:7px;font-weight:900;padding:1px 5px;border-radius:3px;margin-left:4px;letter-spacing:0.5px">⚠ HARDCODED 25%</span></td>';
+    wf.shipping_cost.forEach(function(v,i){ html+=fmCell(v, (wf.shipping_cost_proj||[])[i], i===lastIdx&&isPartialLast, {color:'var(--r)',fs:'9px',prefix:'-'}); });
+    html+='</tr><tr><td style="padding-left:16px;color:var(--dim)">Ship %</td>';
+    wf.shipping_cost.forEach(function(v,i){ var r=wf.revenue[i]; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--dim)">'+(r>0?(v/r*100).toFixed(1):'0')+'%</td>'; });
+  }
   // Variable Costs (Ref Fee + FBA)
   html+='</tr><tr><td colspan="'+(mLabels.length+1)+'" style="padding:4px 0;border:none"><div style="border-top:1px dashed var(--border)"></div></td></tr>';
   html+='<tr><td style="color:var(--r)">(-) Variable Costs</td>';
@@ -3209,6 +3216,7 @@ function buildWaterfall(F, months, mLabels, lastIdx, isPartialLast){
   pctRow('Revenue', wf.revenue, 'font-weight:700');
   pctRow('<span style="color:var(--r)">(-) COGS</span>', wf.cogs||[]);
   pctRow('<span style="color:var(--g);font-weight:700">Gross Margin</span>', wf.gross_margin, 'border-top:2px solid var(--border);font-weight:700');
+  if(wf.shipping_cost) pctRow('<span style="color:var(--r)">(-) Shipping <span style="background:#ff6b6b;color:#fff;font-size:7px;font-weight:900;padding:0 4px;border-radius:2px">25%</span></span>', wf.shipping_cost);
   html+='<tr><td colspan="'+(mLabels.length+1)+'" style="padding:2px 0;border:none"><div style="border-top:1px dashed var(--border)"></div></td></tr>';
   pctRow('<span style="padding-left:8px;color:var(--r)">(-) Ad Spend</span>', wf.ad_spend);
   pctRow('<span style="padding-left:8px;color:var(--r)">(-) Discounts</span>', wf.discounts||[]);
@@ -3328,6 +3336,18 @@ function buildPolarPnL(P){
   pnlRow('Gross Margin', P.gross_margin, {bold:true,topBorder:true,color:'var(--g)'});
   pctRow('GM %', P.gross_margin, P.total_revenue);
 
+  // Shipping Cost (HARDCODED 25%)
+  if(P.shipping_cost){
+    html+='<tr><td style="padding:4px 6px;font-size:9px;color:var(--r)">(-) Shipping Cost <span style="background:#ff6b6b;color:#fff;font-size:7px;font-weight:900;padding:1px 5px;border-radius:3px;margin-left:4px;letter-spacing:0.5px">⚠ HARDCODED 25%</span></td>';
+    P.shipping_cost.forEach(function(v,i){
+      var cs='text-align:right;font-family:var(--mono);font-size:9px;color:var(--r)';
+      if(i===fyIdx) cs+=';background:#eef2ff';
+      html+='<td style="'+cs+'">-$'+(Math.abs(v)).toLocaleString()+'</td>';
+    });
+    html+='</tr>';
+    pctRow('Ship %', P.shipping_cost, P.total_revenue);
+  }
+
   // Separator
   html+='<tr><td colspan="'+(ms.length+1)+'" style="padding:3px 0;border:none"><div style="border-top:1px dashed var(--border)"></div></td></tr>';
 
@@ -3350,8 +3370,8 @@ function buildPolarPnL(P){
     pnlRow('Non-Paid (COGS+Ship)', P.influencer_detail.nonpaid, {indent:2,color:'var(--muted)',fs:'8',neg:true});
   }
 
-  // MKT Total
-  var mkt_total=P.ad_spend.total.map(function(v,i){ return v+(P.discounts[i]||0)+(P.influencer_spend[i]||0); });
+  // MKT Total (includes shipping)
+  var mkt_total=P.ad_spend.total.map(function(v,i){ return (P.shipping_cost?P.shipping_cost[i]:0)+v+(P.discounts[i]||0)+(P.influencer_spend[i]||0); });
   pnlRow('(-) MKT Total', mkt_total, {bold:true,topBorder:true,color:'var(--r)',neg:true});
   pctRow('MKT %', mkt_total, P.total_revenue);
 
@@ -4199,7 +4219,7 @@ function buildWeeklyWaterfall(F, wLabels){
   var wf=(F.weekly||{}).waterfall||{};
   var html='<div class="sec"><div class="sec-title"><div class="num">6</div> P&amp;L Waterfall (Weekly)</div>';
   html+='<div class="card">';
-  html+='<div class="desc">GM = Revenue - COGS. CM = GM - MKT (Ads + Discounts).</div>';
+  html+='<div class="desc">GM = Revenue - COGS. CM = GM - Shipping (25% hardcoded) - MKT (Ads + Discounts).</div>';
   html+=barChart([
     {label:'Gross Margin', data:wf.gross_margin||[], color:'#10b981'},
     {label:'MKT Total', data:wf.mkt_total||[], color:'#ef4444'},
@@ -4216,6 +4236,11 @@ function buildWeeklyWaterfall(F, wLabels){
   (wf.gross_margin||[]).forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--g);font-weight:700">'+$(v)+'</td>'; });
   html+='</tr><tr><td style="padding-left:16px;color:var(--dim)">GM %</td>';
   (wf.gross_margin||[]).forEach(function(v,i){ var r=(wf.revenue||[])[i]||0; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--dim)">'+(r>0?(v/r*100).toFixed(1):'0')+'%</td>'; });
+  // Shipping Cost (HARDCODED 25%)
+  if(wf.shipping_cost){
+    html+='</tr><tr><td style="color:var(--r)">(-) Shipping <span style="background:#ff6b6b;color:#fff;font-size:7px;font-weight:900;padding:1px 5px;border-radius:3px;margin-left:4px">⚠ 25%</span></td>';
+    (wf.shipping_cost||[]).forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--r)">-'+$(v)+'</td>'; });
+  }
   html+='</tr><tr><td colspan="'+(wLabels.length+1)+'" style="padding:4px 0;border:none"><div style="border-top:1px dashed var(--border)"></div></td></tr>';
   html+='<tr><td style="padding-left:8px;color:var(--r)">(-) Ad Spend</td>';
   (wf.ad_spend||[]).forEach(function(v){ html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--r)">'+$(v)+'</td>'; });
