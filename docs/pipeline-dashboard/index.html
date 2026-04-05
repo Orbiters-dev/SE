@@ -117,6 +117,7 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
   .funnel{flex-wrap:wrap}.fn{min-width:60px}
   .filter-bar{flex-direction:column}.filter-bar input,.filter-bar select{width:100%}
 }
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 </style>
 </head>
 <body>
@@ -4485,57 +4486,71 @@ async function loadSynclyPipelineStatus(){
 async function execSynclyExport(){
   var btn=document.getElementById('btn-syncly-export');
   var res=document.getElementById('syncly-step1-result');
-  btn.disabled=true;
+  btn.disabled=true;btn.style.opacity='0.6';btn.style.cursor='wait';
+  var card=btn.closest('div[style*="border:1px"]');
   res.style.display='block';
   res.style.background='#eff6ff';res.style.borderLeft='3px solid var(--p)';
-  var startTs=Date.now();
+  if(card)card.style.boxShadow='0 0 0 2px var(--p)';
+  var startTs=Date.now();var dots=0;
   var timer=setInterval(function(){
     var sec=Math.round((Date.now()-startTs)/1000);
-    btn.textContent='Running... '+sec+'s';
-    res.innerHTML='<b style="color:var(--p)">&#x23F3; Exporting...</b> Google Sheet 2&#xD0ED; &#xC77D;&#xB294;&#xC911; (Creators + Output). 1~3&#xBD84; &#xC18C;&#xC694;. <span style="color:var(--dim)">'+sec+'s elapsed</span>';
+    dots=(dots+1)%4;var ds='.'.repeat(dots);
+    btn.textContent='Running '+sec+'s'+ds;
+    res.innerHTML='<div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:50%;background:var(--p);animation:pulse 1s infinite"></div><b style="color:var(--p)">Step 1 진행중</b></div>'
+      +'<div style="margin-top:2px">Google Sheet 2탭 읽는중 (Creators + Output)'+ds+'</div>'
+      +'<div style="color:var(--dim);margin-top:1px">경과: '+sec+'초 | 보통 1~3분 소요</div>';
   },1000);
   try{
     var data=await apiFetch('/pipeline/syncly/export-excel/',{
       method:'POST',headers:{'Content-Type':'application/json'},body:'{}'
     });
     clearInterval(timer);
-    // Validate response has expected fields
-    if(!data||data.total_raw==null){
-      throw new Error('Server returned incomplete response. Check EC2 logs. Response: '+JSON.stringify(data).substring(0,200));
+    if(!data||typeof data!=='object'){
+      throw new Error('Server returned invalid response: '+JSON.stringify(data).substring(0,200));
     }
-    res.style.background='#f0fdf4';res.style.borderLeft='3px solid var(--g)';
     var sec=Math.round((Date.now()-startTs)/1000);
+    var v=function(k){var x=data[k];return x!=null?x:'?'};
+    res.style.background='#f0fdf4';res.style.borderLeft='3px solid var(--g)';
+    if(card)card.style.boxShadow='';
     res.innerHTML='<b>&#x2705; Export complete</b> <span style="color:var(--dim)">('+sec+'s)</span><br>'
-      +'Total raw: <b>'+data.total_raw+'</b> | Kept: <b style="color:var(--g)">'+data.kept+'</b> (with content: '+data.with_content+')<br>'
-      +'Filtered out &#x2014; no email: '+data.no_email+', blacklist: '+data.blacklist+', collab: '+data.collab+'<br>'
-      +'Output posts: '+data.output_posts_total+' &#x2192; matched: '+data.output_matched;
-    showToast('Sheet &#x2192; Excel: '+data.kept+' creators exported ('+sec+'s)','ok');
+      +'Total raw: <b>'+v('total_raw')+'</b> | Kept: <b style="color:var(--g)">'+v('kept')+'</b> (with content: '+v('with_content')+')<br>'
+      +'Filtered out &#x2014; no email: '+v('no_email')+', blacklist: '+v('blacklist')+', collab: '+v('collab')+'<br>'
+      +'Output posts: '+v('output_posts_total')+' &#x2192; matched: '+v('output_matched');
+    showToast('Sheet &#x2192; Excel: '+v('kept')+' creators exported ('+sec+'s)','ok');
     loadSynclyPipelineStatus();
   }catch(e){
     clearInterval(timer);
     var sec=Math.round((Date.now()-startTs)/1000);
     res.style.display='block';
     res.style.background='#fef2f2';res.style.borderLeft='3px solid var(--r)';
+    if(card)card.style.boxShadow='';
     var msg=e.message||'Unknown error';
-    if(msg.includes('504')||msg.includes('timeout')||sec>55)msg='Timeout ('+sec+'s). nginx proxy_read_timeout&#xC744; &#xB298;&#xB824;&#xC57C; &#xD568. EC2&#xC5D0;&#xC11C; &#xC9C1;&#xC811; &#xD655;&#xC778; &#xD544;&#xC694;.';
+    if(msg.includes('504')||msg.includes('timeout')||sec>55)msg='Timeout ('+sec+'s). nginx 타임아웃 초과. EC2에서 직접 확인 필요.';
     res.innerHTML='<b>&#x274C; Export failed</b> <span style="color:var(--dim)">('+sec+'s)</span><br>'+msg;
     showToast('Export failed ('+sec+'s): '+msg,'err');
   }finally{
-    btn.disabled=false;btn.textContent='\uD83D\uDCE4 Export Sheet \u2192 Excel';
+    btn.disabled=false;btn.style.opacity='';btn.style.cursor='';
+    btn.textContent='\uD83D\uDCE4 Export Sheet \u2192 Excel';
+    if(card)card.style.boxShadow='';
   }
 }
 
 async function execSynclyImportExcel(){
   var btn=document.getElementById('btn-syncly-import');
   var res=document.getElementById('syncly-step2-result');
-  btn.disabled=true;
+  btn.disabled=true;btn.style.opacity='0.6';btn.style.cursor='wait';
+  var card=btn.closest('div[style*="border:1px"]');
   res.style.display='block';
   res.style.background='#eff6ff';res.style.borderLeft='3px solid var(--g)';
-  var startTs=Date.now();
+  if(card)card.style.boxShadow='0 0 0 2px var(--g)';
+  var startTs=Date.now();var dots=0;
   var timer=setInterval(function(){
     var sec=Math.round((Date.now()-startTs)/1000);
-    btn.textContent='Running... '+sec+'s';
-    res.innerHTML='<b style="color:var(--g)">&#x23F3; Importing...</b> Excel &#xC77D;&#xACE0; DB upsert &#xC911;. <span style="color:var(--dim)">'+sec+'s elapsed</span>';
+    dots=(dots+1)%4;var ds='.'.repeat(dots);
+    btn.textContent='Running '+sec+'s'+ds;
+    res.innerHTML='<div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:50%;background:var(--g);animation:pulse 1s infinite"></div><b style="color:var(--g)">Step 2 진행중</b></div>'
+      +'<div style="margin-top:2px">Excel 읽고 DB upsert 중'+ds+'</div>'
+      +'<div style="color:var(--dim);margin-top:1px">경과: '+sec+'초</div>';
   },1000);
   try{
     var body={clean_placeholders:true};
@@ -4545,28 +4560,33 @@ async function execSynclyImportExcel(){
       method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
     });
     clearInterval(timer);
-    if(!data||data.total_rows==null){
-      throw new Error('Server returned incomplete response. Response: '+JSON.stringify(data).substring(0,200));
+    if(!data||typeof data!=='object'){
+      throw new Error('Server returned invalid response: '+JSON.stringify(data).substring(0,200));
     }
     var sec=Math.round((Date.now()-startTs)/1000);
+    var v=function(k){var x=data[k];return x!=null?x:'?'};
     res.style.background='#f0fdf4';res.style.borderLeft='3px solid var(--g)';
+    if(card)card.style.boxShadow='';
     var parts=['<b>&#x2705; Import complete</b> <span style="color:var(--dim)">('+sec+'s)</span>'];
-    parts.push('Excel rows: <b>'+data.total_rows+'</b> | Eligible: <b>'+data.eligible+'</b> (with content: '+data.with_content+')');
+    parts.push('Excel rows: <b>'+v('total_rows')+'</b> | Eligible: <b>'+v('eligible')+'</b> (with content: '+v('with_content')+')');
     if(data.skip_no_email||data.skip_collab||data.skip_invalid)
-      parts.push('Skipped &#x2014; no email: '+data.skip_no_email+', collab: '+data.skip_collab+', invalid: '+data.skip_invalid);
-    parts.push('Result &#x2014; <span style="color:var(--g)"><b>created: '+data.created+'</b></span> | <span style="color:var(--p)"><b>updated: '+data.updated+'</b></span> | dupes: '+data.dupes+' | placeholders cleaned: '+data.cleaned_placeholders);
+      parts.push('Skipped &#x2014; no email: '+v('skip_no_email')+', collab: '+v('skip_collab')+', invalid: '+v('skip_invalid'));
+    parts.push('Result &#x2014; <span style="color:var(--g)"><b>created: '+v('created')+'</b></span> | <span style="color:var(--p)"><b>updated: '+v('updated')+'</b></span> | dupes: '+v('dupes')+' | placeholders cleaned: '+v('cleaned_placeholders'));
     res.innerHTML=parts.join('<br>');
-    showToast('Excel &#x2192; DB: '+data.created+' new, '+data.updated+' updated ('+sec+'s)','ok');
+    showToast('Excel &#x2192; DB: '+v('created')+' new, '+v('updated')+' updated ('+sec+'s)','ok');
     loadSynclyPipelineStatus();
   }catch(e){
     clearInterval(timer);
     var sec=Math.round((Date.now()-startTs)/1000);
     res.style.display='block';
     res.style.background='#fef2f2';res.style.borderLeft='3px solid var(--r)';
+    if(card)card.style.boxShadow='';
     res.innerHTML='<b>&#x274C; Import failed</b> <span style="color:var(--dim)">('+sec+'s)</span><br>'+e.message;
     showToast('Import failed: '+e.message,'err');
   }finally{
-    btn.disabled=false;btn.textContent='\uD83D\uDCE5 Import Excel \u2192 DB';
+    btn.disabled=false;btn.style.opacity='';btn.style.cursor='';
+    btn.textContent='\uD83D\uDCE5 Import Excel \u2192 DB';
+    if(card)card.style.boxShadow='';
   }
 }
 
