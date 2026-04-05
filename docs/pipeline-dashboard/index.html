@@ -2325,15 +2325,21 @@ const N8N_SEND_WEBHOOK='https://n8n.orbiters.co.kr/webhook/outreach-send-approve
 async function sendSelectedEmails(){
   var checked=document.querySelectorAll('.cr-check:checked');
   if(checked.length===0)return;
-  // Collect creator emails from checked rows
-  var creators=[];
+  // Collect creator emails from checked rows (DEDUP: skip Sent/Replied/Declined)
+  var creators=[],skipped=[];
+  var SKIP_STATUSES=['Sent','Replied','Declined','Accepted','Sample Sent','Sample Shipped','Sample Delivered','Posted'];
   checked.forEach(function(cb){
     var email=cb.getAttribute('data-email')||'';
     var id=cb.getAttribute('data-id');
-    if(email&&!email.includes('@discovered.'))creators.push({id:id,email:email});
+    var status=cb.getAttribute('data-status')||'';
+    if(!email||email.includes('@discovered.')){skipped.push(email+' (no valid email)');return;}
+    if(SKIP_STATUSES.indexOf(status)>=0){skipped.push(email+' (already '+status+')');return;}
+    creators.push({id:id,email:email});
   });
-  if(creators.length===0){showToast('No valid emails to send','err');return;}
-  var msg='Send emails to '+creators.length+' creators?\n\n';
+  if(creators.length===0){showToast('No valid emails to send'+(skipped.length?' ('+skipped.length+' skipped)':''),'err');return;}
+  var msg='Send emails to '+creators.length+' creators?\n';
+  if(skipped.length)msg+='\nSkipped '+skipped.length+' (already sent/invalid):\n'+skipped.join('\n')+'\n';
+  msg+='\nWill send to:\n';
   creators.forEach(function(c){msg+=c.email+'\n';});
   if(!confirm(msg))return;
 
@@ -2342,6 +2348,11 @@ async function sendSelectedEmails(){
   for(var i=0;i<creators.length;i++){
     var c=creators[i];
     try{
+      // DEDUP: Double-check current status from server before sending
+      var creatorData=await apiFetch('/pipeline/creators/'+c.id+'/');
+      if(creatorData&&SKIP_STATUSES.indexOf(creatorData.pipeline_status)>=0){
+        errors.push(c.email+': already '+creatorData.pipeline_status+' (server check)');fail++;continue;
+      }
       // Fetch draft content
       var convs=await apiFetch('/pipeline/conversations/?creator_email='+encodeURIComponent(c.email)+'&status=Draft+Ready&limit=1');
       var items=(Array.isArray(convs)?convs:convs.results||[]);
