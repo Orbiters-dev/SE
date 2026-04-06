@@ -4343,19 +4343,23 @@ async function autoFillAllocation(){
 
   // Classify each creator by content/hashtag keywords
   var counts={Grosmimi:0,'CHA&MOM':0,Naeiae:0};
+  var dbg={total:creators.length,hasTranscript:0,noTranscript:0,dbTagged:0,naeKwMatch:[],chamKwMatch:[]};
   creators.forEach(function(c){
     var brand=(c.brand||'').toLowerCase();
     // If already classified by the API, use that (case-insensitive)
-    if(brand==='naeiae'){counts.Naeiae++;return}
-    if(brand==='cha&mom'){counts['CHA&MOM']++;return}
-    if(brand==='grosmimi'){counts.Grosmimi++;return}
+    if(brand==='naeiae'){counts.Naeiae++;dbg.dbTagged++;return}
+    if(brand==='cha&mom'){counts['CHA&MOM']++;dbg.dbTagged++;return}
+    if(brand==='grosmimi'){counts.Grosmimi++;dbg.dbTagged++;return}
     // Fallback: check handle + notes + transcript + caption for keyword classification
-    var text=((c.ig_handle||'')+(c.tiktok_handle||'')+(c.notes||'')+(c.top_post_transcript||'')+(c.top_post_caption||'')+(c.apify_posted_brands||'')).toLowerCase();
-    if(matchKw(text,naeKw)){counts.Naeiae++;return}
-    if(matchKw(text,chamKw)){counts['CHA&MOM']++;return}
+    var tx=c.top_post_transcript||'';
+    if(tx.length>10) dbg.hasTranscript++; else dbg.noTranscript++;
+    var text=((c.ig_handle||'')+(c.tiktok_handle||'')+(c.notes||'')+tx+(c.top_post_caption||'')+(c.apify_posted_brands||'')).toLowerCase();
+    if(matchKw(text,naeKw)){counts.Naeiae++;dbg.naeKwMatch.push('@'+(c.ig_handle||c.tiktok_handle||'?'));return}
+    if(matchKw(text,chamKw)){counts['CHA&MOM']++;dbg.chamKwMatch.push('@'+(c.ig_handle||c.tiktok_handle||'?'));return}
     // Default: Grosmimi
     counts.Grosmimi++;
   });
+  console.log('[AutoFill Debug]',JSON.stringify({...dbg,naeMatches:dbg.naeKwMatch,chamMatches:dbg.chamKwMatch}));
 
   var total=counts.Grosmimi+counts['CHA&MOM']+counts.Naeiae;
   if(total===0){showToast('No creators to allocate','err');return}
