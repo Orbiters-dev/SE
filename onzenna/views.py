@@ -3174,7 +3174,7 @@ def sync_transcripts(request):
             cp.username,
             cp.transcript,
             cp.url,
-            cp.views,
+            cp.views_30d,
             cp.post_date,
             pc.id AS creator_id
         FROM gk_content_posts cp
@@ -3191,7 +3191,7 @@ def sync_transcripts(request):
         sql += " AND LOWER(cp.region) = LOWER(%s)"
         params.append(region)
 
-    sql += " ORDER BY cp.views DESC NULLS LAST LIMIT %s"
+    sql += " ORDER BY cp.views_30d DESC NULLS LAST LIMIT %s"
     params.append(limit)
 
     updated = 0
@@ -3284,12 +3284,12 @@ def run_ci_pipeline(request):
     from django.db import connection
 
     sql = """
-        SELECT cp.post_id, cp.username, cp.url, cp.views, cp.post_date
+        SELECT cp.post_id, cp.username, cp.url, cp.views_30d, cp.post_date
         FROM gk_content_posts cp
         WHERE (cp.transcript IS NULL OR cp.transcript = '')
           AND cp.url IS NOT NULL
           AND cp.url != ''
-          AND (cp.views IS NOT NULL AND cp.views >= %s)
+          AND (cp.views_30d IS NOT NULL AND cp.views_30d >= %s)
     """
     params = [min_views]
 
@@ -3297,7 +3297,7 @@ def run_ci_pipeline(request):
         sql += " AND LOWER(cp.region) = LOWER(%s)"
         params.append(region)
 
-    sql += " ORDER BY cp.views DESC NULLS LAST LIMIT %s"
+    sql += " ORDER BY cp.views_30d DESC NULLS LAST LIMIT %s"
     params.append(max_posts)
 
     try:
