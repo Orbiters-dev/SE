@@ -980,23 +980,41 @@ def generate():
             out[brand] = {"top": top, "worst": worst}
         return out
 
-    # Build sorted list of unique data dates (not calendar days — actual dates with data)
-    _all_data_dates = sorted(set(
-        _parse_st_end_date(r.get("date", ""))[:10]
-        for r in search_terms if r.get("date")
-    ), reverse=True)  # newest first
+    # Build per-brand data dates (each brand may have different gaps)
+    _brand_data_dates = defaultdict(list)  # brand -> [date_str] newest first
+    for r in search_terms:
+        b = r.get("brand", "Other")
+        d = _parse_st_end_date(r.get("date", ""))[:10]
+        if d:
+            _brand_data_dates[b].append(d)
+    for b in _brand_data_dates:
+        _brand_data_dates[b] = sorted(set(_brand_data_dates[b]), reverse=True)
 
-    def _kw_date_filter(n_data_days):
-        """Include rows from the most recent N dates that actually have data."""
-        keep = set(_all_data_dates[:n_data_days])
-        def _f(d):
-            end = _parse_st_end_date(d)[:10]
-            return end in keep
-        return _f
+    def _kw_agg_by_brand_ndays(rows, n_data_days):
+        """Aggregate search terms, keeping most recent N data-days PER BRAND."""
+        brand_kw = defaultdict(lambda: defaultdict(lambda: {
+            "spend": 0.0, "sales": 0.0, "clicks": 0, "impressions": 0, "purchases": 0
+        }))
+        # Pre-compute keep set per brand
+        brand_keep = {b: set(dates[:n_data_days]) for b, dates in _brand_data_dates.items()}
+        for r in rows:
+            brand = r.get("brand", "Other")
+            d = _parse_st_end_date(r.get("date", ""))[:10]
+            if d not in brand_keep.get(brand, set()):
+                continue
+            kw = (r.get("search_term") or r.get("query") or "").strip().lower()
+            if not kw:
+                continue
+            brand_kw[brand][kw]["spend"] += float(r.get("spend", 0) or 0)
+            brand_kw[brand][kw]["sales"] += float(r.get("sales", 0) or 0)
+            brand_kw[brand][kw]["clicks"] += int(r.get("clicks", 0) or 0)
+            brand_kw[brand][kw]["impressions"] += int(r.get("impressions", 0) or 0)
+            brand_kw[brand][kw]["purchases"] += int(r.get("purchases", 0) or 0)
+        return brand_kw
 
     kw_all = _kw_top_worst(_kw_agg_by_brand_period(search_terms))
-    kw_latest = _kw_top_worst(_kw_agg_by_brand_period(search_terms, date_filter=_kw_date_filter(7)))
-    kw_2w = _kw_top_worst(_kw_agg_by_brand_period(search_terms, date_filter=_kw_date_filter(14)))
+    kw_latest = _kw_top_worst(_kw_agg_by_brand_ndays(search_terms, 7))
+    kw_2w = _kw_top_worst(_kw_agg_by_brand_ndays(search_terms, 14))
 
     # Compute actual date coverage per period for UI display
     def _kw_actual_dates(date_filter=None):
